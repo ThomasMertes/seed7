@@ -29,11 +29,11 @@
 /*                                                                  */
 /********************************************************************/
 
-void conHScroll (inttype startlin, inttype startcol,
-                 inttype stoplin, inttype stopcol, inttype count);
-void conSetpos (inttype lin, inttype col);
-void conVScroll (inttype startlin, inttype startcol,
-                 inttype stoplin, inttype stopcol, inttype count);
+void conHScroll (intType startlin, intType startcol,
+                 intType stoplin, intType stopcol, intType count);
+void conSetpos (intType lin, intType col);
+void conVScroll (intType startlin, intType startcol,
+                 intType stoplin, intType stopcol, intType count);
 #ifdef CONSOLE_USES_CON_TEXT
-void conWrite (const_stritype stri);
+void conWrite (const_striType stri);
 #endif

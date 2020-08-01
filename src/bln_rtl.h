@@ -29,4 +29,4 @@
 /*                                                                  */
 /********************************************************************/
 
-void blnCpy (booltype *dest, booltype source);
+void blnCpy (boolType *dest, boolType source);

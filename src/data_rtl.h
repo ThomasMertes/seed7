@@ -31,9 +31,9 @@
 
 /* In classic C a function cannot return structs by value and */
 /* cannot have struct value parameters. Because of this the   */
-/* unsigned integer type generictype is used, instead of      */
-/* rtlObjecttype. To work reliably it must be assured that    */
-/* sizeof(generictype) == sizeof(rtlObjecttype)               */
+/* unsigned integer type genericType is used, instead of      */
+/* rtlObjectType. To work reliably it must be assured that    */
+/* sizeof(genericType) == sizeof(rtlObjectType)               */
 
 #if INTTYPE_SIZE >= POINTER_SIZE
 #if INTTYPE_SIZE >= FLOATTYPE_SIZE
@@ -48,117 +48,129 @@
 #endif
 
 #if   GENERIC_SIZE == 64
-typedef uint64type generictype;
+typedef uint64Type genericType;
 #elif GENERIC_SIZE == 32
-typedef uint32type generictype;
+typedef uint32Type genericType;
 #endif
 
-typedef struct rtlTypestruct   *rtlTypetype;
-typedef struct rtlListstruct   *rtlListtype;
-typedef struct rtlArraystruct  *rtlArraytype;
-typedef struct rtlStructstruct *rtlStructtype;
-typedef struct rtlStructstruct *rtlInterfacetype;
-typedef struct rtlHelemstruct  *rtlHelemtype;
-typedef struct rtlHashstruct   *rtlHashtype;
-typedef void *rtlPtrtype;
+typedef struct rtlTypeStruct     *rtlTypeType;
+typedef struct rtlListStruct     *rtlListType;
+typedef struct rtlArrayStruct    *rtlArrayType;
+typedef struct rtlStructStruct   *rtlStructType;
+typedef struct rtlStructStruct   *rtlInterfaceType;
+typedef struct rtlHashElemStruct *rtlHashElemType;
+typedef struct rtlHashStruct     *rtlHashType;
+typedef void *rtlPtrType;
 
-typedef const struct rtlTypestruct   *const_rtlTypetype;
-typedef const struct rtlListstruct   *const_rtlListtype;
-typedef const struct rtlArraystruct  *const_rtlArraytype;
-typedef const struct rtlStructstruct *const_rtlStructtype;
-typedef const struct rtlStructstruct *const_rtlInterfacetype;
-typedef const struct rtlHelemstruct  *const_rtlHelemtype;
-typedef const struct rtlHashstruct   *const_rtlHashtype;
-typedef const void *const_rtlPtrtype;
+typedef const struct rtlTypeStruct     *const_rtlTypeType;
+typedef const struct rtlListStruct     *const_rtlListType;
+typedef const struct rtlArrayStruct    *const_rtlArrayType;
+typedef const struct rtlStructStruct   *const_rtlStructType;
+typedef const struct rtlStructStruct   *const_rtlInterfaceType;
+typedef const struct rtlHashElemStruct *const_rtlHashElemType;
+typedef const struct rtlHashStruct     *const_rtlHashType;
+typedef const void *const_rtlPtrType;
 
 typedef union {
   /* Genericvalue must be the first element in the union. */
-  /* This allows initialisations of rtlValueunion values. */
-    generictype      genericvalue;
-/*    postype          pos;            ** SYMBOLOBJECT */
-/*    nodetype         nodevalue;      ** MDULEOBJECT */
-/*    booltype         boolvalue;      */
-    rtlTypetype      typevalue;      /* TYPEOBJECT */
-    inttype          intvalue;       /* INTOBJECT */
-    biginttype       bigintvalue;    /* BIGINTOBJECT */
-    chartype         charvalue;      /* CHAROBJECT */
-    stritype         strivalue;      /* STRIOBJECT */
-    bstritype        bstrivalue;     /* BSTRIOBJECT */
-    rtlArraytype     arrayvalue;     /* ARRAYOBJECT */
-    rtlHashtype      hashvalue;      /* HASHOBJECT */
-    settype          setvalue;       /* SETOBJECT */
-    rtlStructtype    structvalue;    /* STRUCTOBJECT */
-    rtlInterfacetype interfacevalue; /* INTERFACEOBJECT */
-    filetype         filevalue;      /* FILEOBJECT */
-    filedestype      filedesvalue;   /* FILEDESOBJECT */
-    sockettype       socketvalue;    /* SOCKETOBJECT */
-    rtlListtype      listvalue;      /* LISTOBJECT, EXPROBJECT */
-    wintype          winvalue;       /* WINOBJECT */
-    rtlPtrtype       ptrvalue;
-/*    enumtype         enumvalue;      */
-/*    polltype         pollvalue;      */
-/*    objreftype       objrefvalue;    */
-/*    rtlObjecttype    objvalue;       ** ENUMLITERALOBJECT, CONSTENUMOBJECT */
+  /* This allows initialisations of rtlValueUnion values. */
+    genericType      genericValue;
+/*    posType          pos;            ** SYMBOLOBJECT */
+/*    nodeType         nodeValue;      ** MDULEOBJECT */
+/*    boolType         boolValue;      */
+    rtlTypeType      typeValue;      /* TYPEOBJECT */
+    intType          intValue;       /* INTOBJECT */
+    bigIntType       bigIntValue;    /* BIGINTOBJECT */
+    charType         charValue;      /* CHAROBJECT */
+    striType         striValue;      /* STRIOBJECT */
+    bstriType        bstriValue;     /* BSTRIOBJECT */
+    rtlArrayType     arrayValue;     /* ARRAYOBJECT */
+    rtlHashType      hashValue;      /* HASHOBJECT */
+    setType          setValue;       /* SETOBJECT */
+    rtlStructType    structValue;    /* STRUCTOBJECT */
+    rtlInterfaceType interfaceValue; /* INTERFACEOBJECT */
+    fileType         fileValue;      /* FILEOBJECT */
+    fileDesType      fileDesValue;   /* FILEDESOBJECT */
+    socketType       socketValue;    /* SOCKETOBJECT */
+    rtlListType      listValue;      /* LISTOBJECT, EXPROBJECT */
+    winType          winValue;       /* WINOBJECT */
+    rtlPtrType       ptrValue;
+/*    enumType         enumValue;      */
+/*    pollType         pollValue;      */
+/*    objRefType       objRefValue;    */
+/*    rtlObjectType    objValue;       ** ENUMLITERALOBJECT, CONSTENUMOBJECT */
                                      /* VARENUMOBJECT, VALUEPARAMOBJECT */
                                      /* REFPARAMOBJECT, RESULTOBJECT */
                                      /* LOCALVOBJECT, FORMPARAMOBJECT */
-/*    blocktype        blockvalue;     ** BLOCKOBJECT */
-/*    acttype          actvalue;       ** ACTOBJECT */
-/*    progtype         progvalue;      ** PROGOBJECT */
+/*    blockType        blockValue;     ** BLOCKOBJECT */
+/*    actType          actValue;       ** ACTOBJECT */
+/*    progType         progValue;      ** PROGOBJECT */
 #ifdef WITH_FLOAT
-    floattype      floatvalue;   /* FLOATOBJECT */
+    floatType      floatValue;   /* FLOATOBJECT */
 #endif
-  } rtlValueunion;
+  } rtlValueUnion;
 
-typedef struct rtlObjectstruct {
-    rtlValueunion value;
-  } rtlObjecttype;
+typedef struct rtlObjectStruct {
+    rtlValueUnion value;
+  } rtlObjectType;
 
-typedef const struct rtlObjectstruct const_rtlObjecttype;
+typedef const struct rtlObjectStruct const_rtlObjectType;
 
-typedef struct rtlTypestruct {
+typedef struct rtlTypeStruct {
     int dummy;
-  } rtlTyperecord;
+  } rtlTypeRecord;
 
-typedef struct rtlListstruct {
-    rtlListtype next;
-    rtlObjecttype obj;
-  } rtlListrecord;
+typedef struct rtlListStruct {
+    rtlListType next;
+    rtlObjectType obj;
+  } rtlListRecord;
 
-typedef struct rtlArraystruct {
-    inttype min_position;
-    inttype max_position;
-    rtlObjecttype arr[1];
-  } rtlArrayrecord;
+typedef struct rtlArrayStruct {
+    intType min_position;
+    intType max_position;
+    rtlObjectType arr[1];
+  } rtlArrayRecord;
 
-struct rtlStructstruct {
-    memsizetype usage_count;
-    uint32type type_num;
-    rtlObjecttype stru[1];
-  };
+typedef struct rtlStructStruct {
+    memSizeType usage_count;
+    uint32Type type_num;
+    rtlObjectType stru[1];
+  } rtlStructRecord;
 
-typedef struct rtlHelemstruct {
-    rtlHelemtype next_less;
-    rtlHelemtype next_greater;
-    rtlObjecttype key;
-    rtlObjecttype data;
-  } rtlHelemrecord;
+typedef struct rtlHashElemStruct {
+    rtlHashElemType next_less;
+    rtlHashElemType next_greater;
+    rtlObjectType key;
+    rtlObjectType data;
+  } rtlHashElemRecord;
 
-typedef struct rtlHashstruct {
+typedef struct rtlHashStruct {
     unsigned int bits;
     unsigned int mask;
     unsigned int table_size;
-    memsizetype size;
-    rtlHelemtype table[1];
-  } rtlHashrecord;
+    memSizeType size;
+    rtlHashElemType table[1];
+  } rtlHashRecord;
 
-typedef inttype (*comparetype) (generictype, generictype);
-typedef generictype (*createfunctype) (generictype);
-typedef void (*destrfunctype) (generictype);
-typedef void (*copyfunctype) (generictype *, generictype);
+typedef struct rtlTimeStruct {
+    rtlObjectType year;
+    rtlObjectType month;
+    rtlObjectType day;
+    rtlObjectType hour;
+    rtlObjectType minute;
+    rtlObjectType second;
+    rtlObjectType micro_second;
+    rtlObjectType timeZone;
+    rtlObjectType daylightSavingTime;
+  } rtlTimeRecord;
+
+typedef intType (*compareType) (genericType, genericType);
+typedef genericType (*createFuncType) (genericType);
+typedef void (*destrFuncType) (genericType);
+typedef void (*copyFuncType) (genericType *, genericType);
 
 
-inttype genericCmp (const generictype value1, const generictype value2);
-void genericCpy (generictype *const dest, const generictype source);
-generictype genericCreate (generictype source);
-void genericDestr (generictype old_value);
+intType genericCmp (const genericType value1, const genericType value2);
+void genericCpy (genericType *const dest, const genericType source);
+genericType genericCreate (genericType source);
+void genericDestr (genericType old_value);

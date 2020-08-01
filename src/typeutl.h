@@ -21,12 +21,12 @@
 /*  Module: General                                                 */
 /*  File: seed7/src/typeutl.h                                       */
 /*  Changes: 1999  Thomas Mertes                                    */
-/*  Content: Procedures to maintain objects of type typetype.       */
+/*  Content: Procedures to maintain objects of type typeType.       */
 /*                                                                  */
 /********************************************************************/
 
-typetype new_type (progtype owningProg, typetype meta_type, typetype result_type);
-void close_type (progtype currentProg);
-typetype get_func_type (typetype meta_type, typetype basic_type);
-typetype get_varfunc_type (typetype meta_type, typetype basic_type);
-void add_interface (typetype basic_type, typetype interface_type);
+typeType new_type (progType owningProg, typeType meta_type, typeType result_type);
+void close_type (progType currentProg);
+typeType get_func_type (typeType meta_type, typeType basic_type);
+typeType get_varfunc_type (typeType meta_type, typeType basic_type);
+void add_interface (typeType basic_type, typeType interface_type);

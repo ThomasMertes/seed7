@@ -21,7 +21,7 @@
 /*  Module: General                                                 */
 /*  File: seed7/src/listutl.c                                       */
 /*  Changes: 1990, 1991, 1992, 1993, 1994, 2002  Thomas Mertes      */
-/*  Content: Procedures to maintain objects of type listtype.       */
+/*  Content: Procedures to maintain objects of type listType.       */
 /*                                                                  */
 /********************************************************************/
 
@@ -42,10 +42,10 @@
 
 
 #ifdef WITH_LIST_FREELIST
-void free_list (listtype list)
+void free_list (listType list)
 
   {
-    register listtype list_end;
+    register listType list_end;
 
   /* free_list */
     if (list != NULL) {
@@ -62,11 +62,11 @@ void free_list (listtype list)
 
 
 
-void free_list (listtype list)
+void free_list (listType list)
 
   {
-    register listtype list_elem;
-    register listtype old_elem;
+    register listType list_elem;
+    register listType old_elem;
 
   /* free_list */
     list_elem = list;
@@ -80,11 +80,11 @@ void free_list (listtype list)
 
 
 
-listtype *append_element_to_list (listtype *list_insert_place, objecttype object,
-    errinfotype *err_info)
+listType *append_element_to_list (listType *list_insert_place, objectType object,
+    errInfoType *err_info)
 
   {
-    listtype help_element;
+    listType help_element;
 
   /* append_element_to_list */
     if (ALLOC_L_ELEM(help_element)) {
@@ -100,13 +100,13 @@ listtype *append_element_to_list (listtype *list_insert_place, objecttype object
 
 
 
-static objecttype copy_expression2 (objecttype object_from, errinfotype *err_info)
+static objectType copy_expression2 (objectType object_from, errInfoType *err_info)
 
   {
-    register listtype list_from_elem;
-    register listtype list_to_elem;
-    register listtype new_elem;
-    objecttype object_to;
+    register listType list_from_elem;
+    register listType list_to_elem;
+    register listType new_elem;
+    objectType object_to;
 
   /* copy_expression2 */
     if (!ALLOC_OBJECT(object_to)) {
@@ -114,13 +114,13 @@ static objecttype copy_expression2 (objecttype object_from, errinfotype *err_inf
     } else {
       object_to->type_of = object_from->type_of;
       object_to->descriptor.property = object_from->descriptor.property;
-      object_to->value.listvalue = NULL;
+      object_to->value.listValue = NULL;
       INIT_CATEGORY_OF_OBJ(object_to, CATEGORY_OF_OBJ(object_from));
       SET_ANY_FLAG(object_to, HAS_POSINFO(object_from));
-      list_from_elem = object_from->value.listvalue;
+      list_from_elem = object_from->value.listValue;
       if (list_from_elem != NULL) {
         if (ALLOC_L_ELEM(list_to_elem)) {
-          object_to->value.listvalue = list_to_elem;
+          object_to->value.listValue = list_to_elem;
           list_to_elem->obj = copy_expression(list_from_elem->obj, err_info);
           list_from_elem = list_from_elem->next;
           while (list_from_elem != NULL) {
@@ -152,10 +152,10 @@ static objecttype copy_expression2 (objecttype object_from, errinfotype *err_inf
 
 
 
-objecttype copy_expression (objecttype object_from, errinfotype *err_info)
+objectType copy_expression (objectType object_from, errInfoType *err_info)
 
   {
-    objecttype object_to;
+    objectType object_to;
 
   /* copy_expression */
     if (CATEGORY_OF_OBJ(object_from) == EXPROBJECT ||
@@ -171,10 +171,10 @@ objecttype copy_expression (objecttype object_from, errinfotype *err_info)
 
 
 
-void free_expression (objecttype object)
+void free_expression (objectType object)
 
   {
-    listtype list_elem;
+    listType list_elem;
 
   /* free_expression */
     /* prot_cstri(" free_expression");
@@ -188,14 +188,14 @@ void free_expression (objecttype object)
           /* printf("free_expression: \n");
           trace1(object);
           printf("\n"); */
-          list_elem = object->value.listvalue;
+          list_elem = object->value.listValue;
           if (list_elem != NULL) {
             while (list_elem->next != NULL) {
               free_expression(list_elem->obj);
               list_elem = list_elem->next;
             } /* while */
             free_expression(list_elem->obj);
-            free_list2(object->value.listvalue, list_elem);
+            free_list2(object->value.listValue, list_elem);
           } /* if */
           FREE_OBJECT(object);
           break;
@@ -207,10 +207,10 @@ void free_expression (objecttype object)
 
 
 
-void concat_lists (listtype *list1, listtype list2)
+void concat_lists (listType *list1, listType list2)
 
   {
-    listtype help_element;
+    listType help_element;
 
   /* concat_lists */
 #ifdef TRACE_LIST
@@ -237,11 +237,11 @@ void concat_lists (listtype *list1, listtype list2)
 
 
 
-void incl_list (listtype *list, objecttype element_object,
-    errinfotype *err_info)
+void incl_list (listType *list, objectType element_object,
+    errInfoType *err_info)
 
   {
-    listtype help_element;
+    listType help_element;
 
   /* incl_list */
 #ifdef TRACE_RUNLIST
@@ -261,11 +261,11 @@ void incl_list (listtype *list, objecttype element_object,
 
 
 
-void excl_list (listtype *list, const_objecttype elementobject)
+void excl_list (listType *list, const_objectType elementobject)
 
   {
-    listtype listelement, disposeelement;
-    booltype found;
+    listType listelement, disposeelement;
+    boolType found;
 
   /* excl_list */
 #ifdef TRACE_RUNLIST
@@ -299,10 +299,10 @@ void excl_list (listtype *list, const_objecttype elementobject)
 
 
 
-void pop_list (listtype *list)
+void pop_list (listType *list)
 
   {
-    listtype listelement;
+    listType listelement;
 
   /* pop_list */
 #ifdef TRACE_RUNLIST
@@ -320,8 +320,8 @@ void pop_list (listtype *list)
 
 
 
-void replace_list_elem (listtype list, const_objecttype elem1,
-    objecttype elem2)
+void replace_list_elem (listType list, const_objectType elem1,
+    objectType elem2)
 
   { /* replace_list_elem */
 #ifdef TRACE_RUNLIST
@@ -342,11 +342,11 @@ void replace_list_elem (listtype list, const_objecttype elem1,
 
 
 
-listtype copy_list (const_listtype list_from, errinfotype *err_info)
+listType copy_list (const_listType list_from, errInfoType *err_info)
 
   {
-    listtype help_element;
-    listtype list_to;
+    listType help_element;
+    listType list_to;
 
   /* copy_list */
 #ifdef TRACE_RUNLIST
@@ -365,7 +365,7 @@ listtype copy_list (const_listtype list_from, errinfotype *err_info)
         } /* while */
         flist.list_elems = help_element->next;
       } else {
-        if (!HEAP_L_E(help_element, listrecord)) {
+        if (!HEAP_L_E(help_element, listRecord)) {
           list_to = NULL;
           *err_info = MEMORY_ERROR;
         } else {
@@ -376,7 +376,7 @@ listtype copy_list (const_listtype list_from, errinfotype *err_info)
       } /* if */
       if (*err_info == OKAY_NO_ERROR) {
         while (list_from != NULL && *err_info == OKAY_NO_ERROR) {
-          if (!HEAP_L_E(help_element->next, listrecord)) {
+          if (!HEAP_L_E(help_element->next, listRecord)) {
             *err_info = MEMORY_ERROR;
           } else {
             help_element = help_element->next;
@@ -401,13 +401,13 @@ listtype copy_list (const_listtype list_from, errinfotype *err_info)
 
 
 
-listtype array_to_list (arraytype arr_from, errinfotype *err_info)
+listType array_to_list (arrayType arr_from, errInfoType *err_info)
 
   {
-    listtype help_element;
-    memsizetype arr_from_size;
-    memsizetype position;
-    listtype list_to;
+    listType help_element;
+    memSizeType arr_from_size;
+    memSizeType position;
+    listType list_to;
 
   /* array_to_list */
 #ifdef TRACE_RUNLIST
@@ -427,7 +427,7 @@ listtype array_to_list (arraytype arr_from, errinfotype *err_info)
         } /* while */
         flist.list_elems = help_element->next;
       } else {
-        if (!HEAP_L_E(help_element, listrecord)) {
+        if (!HEAP_L_E(help_element, listRecord)) {
           list_to = NULL;
           *err_info = MEMORY_ERROR;
         } else {
@@ -438,7 +438,7 @@ listtype array_to_list (arraytype arr_from, errinfotype *err_info)
       } /* if */
       if (list_to != NULL) {
         while (position < arr_from_size && list_to != NULL) {
-          if (!HEAP_L_E(help_element->next, listrecord)) {
+          if (!HEAP_L_E(help_element->next, listRecord)) {
             free_list(list_to);
             list_to = NULL;
             *err_info = MEMORY_ERROR;
@@ -461,12 +461,12 @@ listtype array_to_list (arraytype arr_from, errinfotype *err_info)
 
 
 
-listtype struct_to_list (structtype stru_from, errinfotype *err_info)
+listType struct_to_list (structType stru_from, errInfoType *err_info)
 
   {
-    listtype help_element;
-    memsizetype position;
-    listtype list_to;
+    listType help_element;
+    memSizeType position;
+    listType list_to;
 
   /* struct_to_list */
 #ifdef TRACE_RUNLIST
@@ -485,7 +485,7 @@ listtype struct_to_list (structtype stru_from, errinfotype *err_info)
         } /* while */
         flist.list_elems = help_element->next;
       } else {
-        if (!HEAP_L_E(help_element, listrecord)) {
+        if (!HEAP_L_E(help_element, listRecord)) {
           list_to = NULL;
           *err_info = MEMORY_ERROR;
         } else {
@@ -496,7 +496,7 @@ listtype struct_to_list (structtype stru_from, errinfotype *err_info)
       } /* if */
       if (list_to != NULL) {
         while (position < stru_from->size && list_to != NULL) {
-          if (!HEAP_L_E(help_element->next, listrecord)) {
+          if (!HEAP_L_E(help_element->next, listRecord)) {
             free_list(list_to);
             list_to = NULL;
             *err_info = MEMORY_ERROR;
@@ -519,8 +519,8 @@ listtype struct_to_list (structtype stru_from, errinfotype *err_info)
 
 
 
-static void helem_data_to_list (listtype *list_insert_place,
-    helemtype helem, errinfotype *err_info)
+static void helem_data_to_list (listType *list_insert_place,
+    hashElemType helem, errInfoType *err_info)
 
   { /* helem_data_to_list */
     if (helem != NULL && *err_info == OKAY_NO_ERROR) {
@@ -532,12 +532,12 @@ static void helem_data_to_list (listtype *list_insert_place,
 
 
 
-listtype hash_data_to_list (hashtype hash, errinfotype *err_info)
+listType hash_data_to_list (hashType hash, errInfoType *err_info)
 
   {
     unsigned int number;
-    helemtype *helem;
-    listtype result;
+    hashElemType *helem;
+    listType result;
 
   /* hash_data_to_list */
     result = NULL;
@@ -555,8 +555,8 @@ listtype hash_data_to_list (hashtype hash, errinfotype *err_info)
 
 
 
-static void helem_key_to_list (listtype *list_insert_place,
-    helemtype helem, errinfotype *err_info)
+static void helem_key_to_list (listType *list_insert_place,
+    hashElemType helem, errInfoType *err_info)
 
   { /* helem_key_to_list */
     if (helem != NULL && *err_info == OKAY_NO_ERROR) {
@@ -568,12 +568,12 @@ static void helem_key_to_list (listtype *list_insert_place,
 
 
 
-listtype hash_keys_to_list (hashtype hash, errinfotype *err_info)
+listType hash_keys_to_list (hashType hash, errInfoType *err_info)
 
   {
     unsigned int number;
-    helemtype *helem;
-    listtype result;
+    hashElemType *helem;
+    listType result;
 
   /* hash_keys_to_list */
     result = NULL;

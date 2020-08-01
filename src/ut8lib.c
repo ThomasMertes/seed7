@@ -48,7 +48,7 @@
  *  @return the character read, or EOF at the end of the file.
  *  @exception RANGE_ERROR The file contains an illegal encoding.
  */
-objecttype ut8_getc (listtype arguments)
+objectType ut8_getc (listType arguments)
 
   { /* ut8_getc */
     isit_file(arg_1(arguments));
@@ -64,7 +64,7 @@ objecttype ut8_getc (listtype arguments)
  *  @exception RANGE_ERROR The length is negative or the file
  *             contains an illegal encoding.
  */
-objecttype ut8_gets (listtype arguments)
+objectType ut8_gets (listType arguments)
 
   { /* ut8_gets */
     isit_file(arg_1(arguments));
@@ -87,10 +87,10 @@ objecttype ut8_gets (listtype arguments)
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *  @exception FILE_ERROR A system function returns an error.
  */
-objecttype ut8_line_read (listtype arguments)
+objectType ut8_line_read (listType arguments)
 
   {
-    objecttype terminationChar;
+    objectType terminationChar;
 
   /* ut8_line_read */
     isit_file(arg_1(arguments));
@@ -99,7 +99,7 @@ objecttype ut8_line_read (listtype arguments)
     is_variable(terminationChar);
     return bld_stri_temp(
         ut8LineRead(take_file(arg_1(arguments)),
-                    &terminationChar->value.charvalue));
+                    &terminationChar->value.charValue));
   } /* ut8_line_read */
 
 
@@ -114,7 +114,7 @@ objecttype ut8_line_read (listtype arguments)
  *  @exception RANGE_ERROR The file position is negative or zero.
  *  @exception FILE_ERROR The system function returns an error.
  */
-objecttype ut8_seek (listtype arguments)
+objectType ut8_seek (listType arguments)
 
   { /* ut8_seek */
     isit_file(arg_1(arguments));
@@ -138,10 +138,10 @@ objecttype ut8_seek (listtype arguments)
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *  @exception FILE_ERROR A system function returns an error.
  */
-objecttype ut8_word_read (listtype arguments)
+objectType ut8_word_read (listType arguments)
 
   {
-    objecttype terminationChar;
+    objectType terminationChar;
 
   /* ut8_word_read */
     isit_file(arg_1(arguments));
@@ -150,7 +150,7 @@ objecttype ut8_word_read (listtype arguments)
     is_variable(terminationChar);
     return bld_stri_temp(
         ut8WordRead(take_file(arg_1(arguments)),
-                    &terminationChar->value.charvalue));
+                    &terminationChar->value.charValue));
   } /* ut8_word_read */
 
 
@@ -159,7 +159,7 @@ objecttype ut8_word_read (listtype arguments)
  *  Write a string to an UTF-8 file.
  *  @exception FILE_ERROR A system function returns an error.
  */
-objecttype ut8_write (listtype arguments)
+objectType ut8_write (listType arguments)
 
   { /* ut8_write */
     isit_file(arg_1(arguments));

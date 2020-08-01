@@ -63,22 +63,22 @@ static int cmp_mem (void const *strg1, void const *strg2)
 
   { /* cmp_mem */
     return (int) strCompare(
-        ((const_objecttype) strg1)->value.strivalue,
-        ((const_objecttype) strg2)->value.strivalue);
+        ((const_objectType) strg1)->value.striValue,
+        ((const_objectType) strg2)->value.striValue);
   } /* cmp_mem */
 
 
 
-static arraytype read_dir (dirtype directory)
+static arrayType read_dir (dirType directory)
 
   {
-    arraytype dir_array;
-    arraytype resized_dir_array;
-    memsizetype max_array_size;
-    inttype used_array_size;
-    memsizetype position;
-    stritype stri1;
-    booltype okay;
+    arrayType dir_array;
+    arrayType resized_dir_array;
+    memSizeType max_array_size;
+    intType used_array_size;
+    memSizeType position;
+    striType stri1;
+    boolType okay;
 
   /* read_dir */
     max_array_size = 256;
@@ -87,7 +87,7 @@ static arraytype read_dir (dirtype directory)
       stri1 = dirRead(directory);
       okay = TRUE;
       while (okay && stri1 != NULL) {
-        if ((memsizetype) used_array_size >= max_array_size) {
+        if ((memSizeType) used_array_size >= max_array_size) {
           if (max_array_size >= MAX_MEM_INDEX - 256) {
             resized_dir_array = NULL;
           } else {
@@ -105,7 +105,7 @@ static arraytype read_dir (dirtype directory)
         if (okay) {
           dir_array->arr[used_array_size].type_of = take_type(SYS_STRI_TYPE);
           dir_array->arr[used_array_size].descriptor.property = NULL;
-          dir_array->arr[used_array_size].value.strivalue = stri1;
+          dir_array->arr[used_array_size].value.striValue = stri1;
           INIT_CATEGORY_OF_VAR(&dir_array->arr[used_array_size],
               STRIOBJECT);
           used_array_size++;
@@ -114,20 +114,20 @@ static arraytype read_dir (dirtype directory)
       } /* while */
       if (okay) {
         resized_dir_array = REALLOC_ARRAY(dir_array,
-            max_array_size, (memsizetype) used_array_size);
+            max_array_size, (memSizeType) used_array_size);
         if (resized_dir_array == NULL) {
           okay = FALSE;
         } else {
           dir_array = resized_dir_array;
-          COUNT3_ARRAY(max_array_size, (memsizetype) used_array_size);
+          COUNT3_ARRAY(max_array_size, (memSizeType) used_array_size);
           dir_array->min_position = 1;
           dir_array->max_position = used_array_size;
         } /* if */
       } /* if */
       if (!okay) {
-        for (position = 0; position < (memsizetype) used_array_size; position++) {
-          FREE_STRI(dir_array->arr[position].value.strivalue,
-              dir_array->arr[position].value.strivalue->size);
+        for (position = 0; position < (memSizeType) used_array_size; position++) {
+          FREE_STRI(dir_array->arr[position].value.striValue,
+              dir_array->arr[position].value.striValue->size);
         } /* for */
         FREE_ARRAY(dir_array, max_array_size);
         dir_array = NULL;
@@ -138,15 +138,15 @@ static arraytype read_dir (dirtype directory)
 
 
 
-static objecttype toArraytype (rtlArraytype anRtlArray)
+static objectType toArrayType (rtlArrayType anRtlArray)
 
   {
-    memsizetype arraySize;
-    memsizetype pos;
-    arraytype anArray;
-    objecttype result;
+    memSizeType arraySize;
+    memSizeType pos;
+    arrayType anArray;
+    objectType result;
 
-  /* toArraytype */
+  /* toArrayType */
     if (anRtlArray == NULL) {
       /* Assume that an exception was already raised */
       result = NULL;
@@ -154,7 +154,7 @@ static objecttype toArraytype (rtlArraytype anRtlArray)
       arraySize = arraySize(anRtlArray);
       if (!ALLOC_ARRAY(anArray, arraySize)) {
         for (pos = 0; pos < arraySize; pos++) {
-          strDestr(anRtlArray->arr[pos].value.strivalue);
+          strDestr(anRtlArray->arr[pos].value.striValue);
         } /* for */
         FREE_RTL_ARRAY(anRtlArray, arraySize);
         result = raise_exception(SYS_MEM_EXCEPTION);
@@ -164,7 +164,7 @@ static objecttype toArraytype (rtlArraytype anRtlArray)
         for (pos = 0; pos < arraySize; pos++) {
           anArray->arr[pos].type_of = take_type(SYS_STRI_TYPE);
           anArray->arr[pos].descriptor.property = NULL;
-          anArray->arr[pos].value.strivalue = anRtlArray->arr[pos].value.strivalue;
+          anArray->arr[pos].value.striValue = anRtlArray->arr[pos].value.striValue;
           INIT_CATEGORY_OF_VAR(&anArray->arr[pos], STRIOBJECT);
         } /* for */
         FREE_RTL_ARRAY(anRtlArray, arraySize);
@@ -172,7 +172,7 @@ static objecttype toArraytype (rtlArraytype anRtlArray)
       } /* if */
     } /* if */
     return result;
-  } /* toArraytype */
+  } /* toArrayType */
 
 
 
@@ -188,7 +188,7 @@ static objecttype toArraytype (rtlArraytype anRtlArray)
  *             path type.
  *  @exception FILE_ERROR It was not possible to determine the file size.
  */
-objecttype cmd_big_filesize (listtype arguments)
+objectType cmd_big_filesize (listType arguments)
 
   { /* cmd_big_filesize */
     isit_stri(arg_1(arguments));
@@ -207,7 +207,7 @@ objecttype cmd_big_filesize (listtype arguments)
  *             path type.
  *  @exception FILE_ERROR A system function returns an error.
  */
-objecttype cmd_chdir (listtype arguments)
+objectType cmd_chdir (listType arguments)
 
   { /* cmd_chdir */
     isit_stri(arg_1(arguments));
@@ -231,7 +231,7 @@ objecttype cmd_chdir (listtype arguments)
  *  @exception FILE_ERROR Source file does not exist, destination file
  *             already exists or a system function returns an error.
  */
-objecttype cmd_clone_file (listtype arguments)
+objectType cmd_clone_file (listType arguments)
 
   { /* cmd_clone_file */
     isit_stri(arg_1(arguments));
@@ -242,7 +242,7 @@ objecttype cmd_clone_file (listtype arguments)
 
 
 
-objecttype cmd_config_value (listtype arguments)
+objectType cmd_config_value (listType arguments)
 
   { /* cmd_config_value */
     isit_stri(arg_1(arguments));
@@ -271,7 +271,7 @@ objecttype cmd_config_value (listtype arguments)
  *  @exception FILE_ERROR Source file does not exist, destination file
  *             already exists or a system function returns an error.
  */
-objecttype cmd_copy_file (listtype arguments)
+objectType cmd_copy_file (listType arguments)
 
   { /* cmd_copy_file */
     isit_stri(arg_1(arguments));
@@ -287,10 +287,10 @@ objecttype cmd_copy_file (listtype arguments)
  *  @return the list of environment variable names.
  *  @exception MEMORY_ERROR Not enough memory to create the result.
  */
-objecttype cmd_environment (listtype arguments)
+objectType cmd_environment (listType arguments)
 
   { /* cmd_environment */
-    return toArraytype(cmdEnvironment());
+    return toArrayType(cmdEnvironment());
   } /* cmd_environment */
 
 
@@ -305,7 +305,7 @@ objecttype cmd_environment (listtype arguments)
  *             path type.
  *  @exception FILE_ERROR A system function returns an error.
  */
-objecttype cmd_filemode (listtype arguments)
+objectType cmd_filemode (listType arguments)
 
   { /* cmd_filemode */
     isit_stri(arg_1(arguments));
@@ -328,7 +328,7 @@ objecttype cmd_filemode (listtype arguments)
  *  @exception RANGE_ERROR The file size is not representable as integer.
  *  @exception FILE_ERROR It was not possible to determine the file size.
  */
-objecttype cmd_filesize (listtype arguments)
+objectType cmd_filesize (listType arguments)
 
   { /* cmd_filesize */
     isit_stri(arg_1(arguments));
@@ -352,7 +352,7 @@ objecttype cmd_filesize (listtype arguments)
  *  @exception FILE_ERROR The system function returns an error other
  *             than ENOENT, ENOTDIR or ENAMETOOLONG.
  */
-objecttype cmd_filetype (listtype arguments)
+objectType cmd_filetype (listType arguments)
 
   { /* cmd_filetype */
     isit_stri(arg_1(arguments));
@@ -376,7 +376,7 @@ objecttype cmd_filetype (listtype arguments)
  *  @exception FILE_ERROR The system function returns an error other
  *             than ENOENT, ENOTDIR or ENAMETOOLONG.
  */
-objecttype cmd_filetype_sl (listtype arguments)
+objectType cmd_filetype_sl (listType arguments)
 
   { /* cmd_filetype_sl */
     isit_stri(arg_1(arguments));
@@ -393,7 +393,7 @@ objecttype cmd_filetype_sl (listtype arguments)
  *             result string.
  *  @exception FILE_ERROR The system function returns an error.
  */
-objecttype cmd_getcwd (listtype arguments)
+objectType cmd_getcwd (listType arguments)
 
   { /* cmd_getcwd */
     return bld_stri_temp(cmdGetcwd());
@@ -412,7 +412,7 @@ objecttype cmd_getcwd (listtype arguments)
  *             system string type or not enough memory to represent the
  *             result string.
  */
-objecttype cmd_getenv (listtype arguments)
+objectType cmd_getenv (listType arguments)
 
   { /* cmd_getenv */
     isit_stri(arg_1(arguments));
@@ -432,10 +432,10 @@ objecttype cmd_getenv (listtype arguments)
  *             path type.
  *  @exception FILE_ERROR A system function returns an error.
  */
-objecttype cmd_get_atime (listtype arguments)
+objectType cmd_get_atime (listType arguments)
 
   {
-    booltype is_dst;
+    boolType is_dst;
 
   /* cmd_get_atime */
     isit_stri(arg_1(arguments));
@@ -449,19 +449,19 @@ objecttype cmd_get_atime (listtype arguments)
     isit_int(arg_9(arguments));
     isit_bool(arg_10(arguments));
     cmdGetATime(take_stri(arg_1(arguments)),
-            &arg_2(arguments)->value.intvalue,
-            &arg_3(arguments)->value.intvalue,
-            &arg_4(arguments)->value.intvalue,
-            &arg_5(arguments)->value.intvalue,
-            &arg_6(arguments)->value.intvalue,
-            &arg_7(arguments)->value.intvalue,
-            &arg_8(arguments)->value.intvalue,
-            &arg_9(arguments)->value.intvalue,
+            &arg_2(arguments)->value.intValue,
+            &arg_3(arguments)->value.intValue,
+            &arg_4(arguments)->value.intValue,
+            &arg_5(arguments)->value.intValue,
+            &arg_6(arguments)->value.intValue,
+            &arg_7(arguments)->value.intValue,
+            &arg_8(arguments)->value.intValue,
+            &arg_9(arguments)->value.intValue,
             &is_dst);
     if (is_dst) {
-      arg_10(arguments)->value.objvalue = SYS_TRUE_OBJECT;
+      arg_10(arguments)->value.objValue = SYS_TRUE_OBJECT;
     } else {
-      arg_10(arguments)->value.objvalue = SYS_FALSE_OBJECT;
+      arg_10(arguments)->value.objValue = SYS_FALSE_OBJECT;
     } /* if */
     return SYS_EMPTY_OBJECT;
   } /* cmd_get_atime */
@@ -478,10 +478,10 @@ objecttype cmd_get_atime (listtype arguments)
  *             path type.
  *  @exception FILE_ERROR A system function returns an error.
  */
-objecttype cmd_get_ctime (listtype arguments)
+objectType cmd_get_ctime (listType arguments)
 
   {
-    booltype is_dst;
+    boolType is_dst;
 
   /* cmd_get_ctime */
     isit_stri(arg_1(arguments));
@@ -495,19 +495,19 @@ objecttype cmd_get_ctime (listtype arguments)
     isit_int(arg_9(arguments));
     isit_bool(arg_10(arguments));
     cmdGetCTime(take_stri(arg_1(arguments)),
-            &arg_2(arguments)->value.intvalue,
-            &arg_3(arguments)->value.intvalue,
-            &arg_4(arguments)->value.intvalue,
-            &arg_5(arguments)->value.intvalue,
-            &arg_6(arguments)->value.intvalue,
-            &arg_7(arguments)->value.intvalue,
-            &arg_8(arguments)->value.intvalue,
-            &arg_9(arguments)->value.intvalue,
+            &arg_2(arguments)->value.intValue,
+            &arg_3(arguments)->value.intValue,
+            &arg_4(arguments)->value.intValue,
+            &arg_5(arguments)->value.intValue,
+            &arg_6(arguments)->value.intValue,
+            &arg_7(arguments)->value.intValue,
+            &arg_8(arguments)->value.intValue,
+            &arg_9(arguments)->value.intValue,
             &is_dst);
     if (is_dst) {
-      arg_10(arguments)->value.objvalue = SYS_TRUE_OBJECT;
+      arg_10(arguments)->value.objValue = SYS_TRUE_OBJECT;
     } else {
-      arg_10(arguments)->value.objvalue = SYS_FALSE_OBJECT;
+      arg_10(arguments)->value.objValue = SYS_FALSE_OBJECT;
     } /* if */
     return SYS_EMPTY_OBJECT;
   } /* cmd_get_ctime */
@@ -524,10 +524,10 @@ objecttype cmd_get_ctime (listtype arguments)
  *             path type.
  *  @exception FILE_ERROR A system function returns an error.
  */
-objecttype cmd_get_mtime (listtype arguments)
+objectType cmd_get_mtime (listType arguments)
 
   {
-    booltype is_dst;
+    boolType is_dst;
 
   /* cmd_get_mtime */
     isit_stri(arg_1(arguments));
@@ -541,19 +541,19 @@ objecttype cmd_get_mtime (listtype arguments)
     isit_int(arg_9(arguments));
     isit_bool(arg_10(arguments));
     cmdGetMTime(take_stri(arg_1(arguments)),
-            &arg_2(arguments)->value.intvalue,
-            &arg_3(arguments)->value.intvalue,
-            &arg_4(arguments)->value.intvalue,
-            &arg_5(arguments)->value.intvalue,
-            &arg_6(arguments)->value.intvalue,
-            &arg_7(arguments)->value.intvalue,
-            &arg_8(arguments)->value.intvalue,
-            &arg_9(arguments)->value.intvalue,
+            &arg_2(arguments)->value.intValue,
+            &arg_3(arguments)->value.intValue,
+            &arg_4(arguments)->value.intValue,
+            &arg_5(arguments)->value.intValue,
+            &arg_6(arguments)->value.intValue,
+            &arg_7(arguments)->value.intValue,
+            &arg_8(arguments)->value.intValue,
+            &arg_9(arguments)->value.intValue,
             &is_dst);
     if (is_dst) {
-      arg_10(arguments)->value.objvalue = SYS_TRUE_OBJECT;
+      arg_10(arguments)->value.objValue = SYS_TRUE_OBJECT;
     } else {
-      arg_10(arguments)->value.objvalue = SYS_FALSE_OBJECT;
+      arg_10(arguments)->value.objValue = SYS_FALSE_OBJECT;
     } /* if */
     return SYS_EMPTY_OBJECT;
   } /* cmd_get_mtime */
@@ -565,10 +565,10 @@ objecttype cmd_get_mtime (listtype arguments)
  *  @return the search path of the system.
  *  @exception MEMORY_ERROR Not enough memory to create the result.
  */
-objecttype cmd_getSearchPath (listtype arguments)
+objectType cmd_getSearchPath (listType arguments)
 
   { /* cmd_getSearchPath */
-    return toArraytype(cmdGetSearchPath());
+    return toArrayType(cmdGetSearchPath());
   } /* cmd_getSearchPath */
 
 
@@ -584,7 +584,7 @@ objecttype cmd_getSearchPath (listtype arguments)
  *             result string.
  *  @exception FILE_ERROR Not able to determine the home directory.
  */
-objecttype cmd_homeDir (listtype arguments)
+objectType cmd_homeDir (listType arguments)
 
   { /* cmd_homeDir */
     return bld_stri_temp(cmdHomeDir());
@@ -606,12 +606,12 @@ objecttype cmd_homeDir (listtype arguments)
  *             path type.
  *  @exception FILE_ERROR A system function returns an error.
  */
-objecttype cmd_ls (listtype arguments)
+objectType cmd_ls (listType arguments)
 
   {
-    stritype dirPath;
-    dirtype directory;
-    arraytype result;
+    striType dirPath;
+    dirType directory;
+    arrayType result;
 
   /* cmd_ls */
     isit_stri(arg_1(arguments));
@@ -623,7 +623,7 @@ objecttype cmd_ls (listtype arguments)
         return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
       } else {
         qsort((void *) result->arr, (size_t) arraySize(result),
-            sizeof(objectrecord), &cmp_mem);
+            sizeof(objectRecord), &cmp_mem);
         return bld_array_temp(result);
       } /* if */
     } else {
@@ -642,7 +642,7 @@ objecttype cmd_ls (listtype arguments)
  *             path type.
  *  @exception FILE_ERROR A system function returns an error.
  */
-objecttype cmd_mkdir (listtype arguments)
+objectType cmd_mkdir (listType arguments)
 
   { /* cmd_mkdir */
     isit_stri(arg_1(arguments));
@@ -670,7 +670,7 @@ objecttype cmd_mkdir (listtype arguments)
  *  @exception FILE_ERROR Source file does not exist, destination file
  *             already exists or a system function returns an error.
  */
-objecttype cmd_move (listtype arguments)
+objectType cmd_move (listType arguments)
 
   { /* cmd_move */
     isit_stri(arg_1(arguments));
@@ -681,12 +681,12 @@ objecttype cmd_move (listtype arguments)
 
 
 
-objecttype cmd_pipe2 (listtype arguments)
+objectType cmd_pipe2 (listType arguments)
 
   {
-    objecttype childStdin_variable;
-    objecttype childStdout_variable;
-    rtlArraytype parameters;
+    objectType childStdin_variable;
+    objectType childStdout_variable;
+    rtlArrayType parameters;
 
   /* cmd_pipe2 */
     isit_stri(arg_1(arguments));
@@ -700,8 +700,8 @@ objecttype cmd_pipe2 (listtype arguments)
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
       cmdPipe2(take_stri(arg_1(arguments)), parameters,
-               &childStdin_variable->value.filevalue,
-               &childStdout_variable->value.filevalue);
+               &childStdin_variable->value.fileValue,
+               &childStdout_variable->value.fileValue);
       FREE_RTL_ARRAY(parameters, ARRAY_LENGTH(parameters));
     } /* if */
     return SYS_EMPTY_OBJECT;
@@ -709,12 +709,12 @@ objecttype cmd_pipe2 (listtype arguments)
 
 
 
-objecttype cmd_pty (listtype arguments)
+objectType cmd_pty (listType arguments)
 
   {
-    objecttype childStdin_variable;
-    objecttype childStdout_variable;
-    rtlArraytype parameters;
+    objectType childStdin_variable;
+    objectType childStdout_variable;
+    rtlArrayType parameters;
 
   /* cmd_pty */
     isit_stri(arg_1(arguments));
@@ -728,8 +728,8 @@ objecttype cmd_pty (listtype arguments)
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
       cmdPty(take_stri(arg_1(arguments)), parameters,
-               &childStdin_variable->value.filevalue,
-               &childStdout_variable->value.filevalue);
+               &childStdin_variable->value.fileValue,
+               &childStdout_variable->value.fileValue);
       FREE_RTL_ARRAY(parameters, ARRAY_LENGTH(parameters));
     } /* if */
     return SYS_EMPTY_OBJECT;
@@ -749,7 +749,7 @@ objecttype cmd_pty (listtype arguments)
  *  @exception FILE_ERROR The file described with the path does not
  *             exist or is not a symbolic link.
  */
-objecttype cmd_readlink (listtype arguments)
+objectType cmd_readlink (listType arguments)
 
   { /* cmd_readlink */
     isit_stri(arg_1(arguments));
@@ -769,7 +769,7 @@ objecttype cmd_readlink (listtype arguments)
  *  @exception FILE_ERROR The file does not exist or a system function
  *             returns an error.
  */
-objecttype cmd_remove (listtype arguments)
+objectType cmd_remove (listType arguments)
 
   { /* cmd_remove */
     isit_stri(arg_1(arguments));
@@ -789,7 +789,7 @@ objecttype cmd_remove (listtype arguments)
  *  @exception FILE_ERROR The file does not exist or a system function
  *             returns an error.
  */
-objecttype cmd_remove_any_file (listtype arguments)
+objectType cmd_remove_any_file (listType arguments)
 
   { /* cmd_remove_any_file */
     isit_stri(arg_1(arguments));
@@ -810,7 +810,7 @@ objecttype cmd_remove_any_file (listtype arguments)
  *             to the system string type.
  *  @exception RANGE_ERROR A system function returns an error.
  */
-objecttype cmd_setenv (listtype arguments)
+objectType cmd_setenv (listType arguments)
 
   { /* cmd_setenv */
     isit_stri(arg_1(arguments));
@@ -832,7 +832,7 @@ objecttype cmd_setenv (listtype arguments)
  *             converted to the system file time.
  *  @exception FILE_ERROR A system function returns an error.
  */
-objecttype cmd_set_atime (listtype arguments)
+objectType cmd_set_atime (listType arguments)
 
   { /* cmd_set_atime */
     isit_stri(arg_1(arguments));
@@ -867,7 +867,7 @@ objecttype cmd_set_atime (listtype arguments)
  *             path type.
  *  @exception FILE_ERROR A system function returns an error.
  */
-objecttype cmd_set_filemode (listtype arguments)
+objectType cmd_set_filemode (listType arguments)
 
   { /* cmd_set_filemode */
     isit_stri(arg_1(arguments));
@@ -890,7 +890,7 @@ objecttype cmd_set_filemode (listtype arguments)
  *             converted to the system file time.
  *  @exception FILE_ERROR A system function returns an error.
  */
-objecttype cmd_set_mtime (listtype arguments)
+objectType cmd_set_mtime (listType arguments)
 
   { /* cmd_set_mtime */
     isit_stri(arg_1(arguments));
@@ -930,7 +930,7 @@ objecttype cmd_set_mtime (listtype arguments)
  *         the 'command', or "" when there are no parameters.
  *  @return the return code of the executed command or of the shell.
  */
-objecttype cmd_shell (listtype arguments)
+objectType cmd_shell (listType arguments)
 
   { /* cmd_shell */
     isit_stri(arg_1(arguments));
@@ -951,7 +951,7 @@ objecttype cmd_shell (listtype arguments)
  *  @return a string which can be used as shell parameter.
  *  @exception MEMORY_ERROR Not enough memory to convert 'stri'.
  */
-objecttype cmd_shell_escape (listtype arguments)
+objectType cmd_shell_escape (listType arguments)
 
   { /* cmd_shell_escape */
     isit_stri(arg_1(arguments));
@@ -961,10 +961,10 @@ objecttype cmd_shell_escape (listtype arguments)
 
 
 
-objecttype cmd_start_process (listtype arguments)
+objectType cmd_start_process (listType arguments)
 
   {
-    rtlArraytype parameters;
+    rtlArrayType parameters;
 
   /* cmd_start_process */
     isit_stri(arg_1(arguments));
@@ -993,7 +993,7 @@ objecttype cmd_start_process (listtype arguments)
  *             converted to the system path type.
  *  @exception FILE_ERROR A system function returns an error.
  */
-objecttype cmd_symlink (listtype arguments)
+objectType cmd_symlink (listType arguments)
 
   { /* cmd_symlink */
     isit_stri(arg_1(arguments));
@@ -1014,7 +1014,7 @@ objecttype cmd_symlink (listtype arguments)
  *  @exception RANGE_ERROR 'standardPath' is not representable as operating
  *             system path.
  */
-objecttype cmd_to_os_path (listtype arguments)
+objectType cmd_to_os_path (listType arguments)
 
   { /* cmd_to_os_path */
     isit_stri(arg_1(arguments));

@@ -47,13 +47,13 @@
 
 
 #ifdef read_buffer_empty
-booltype filInputReady (filetype aFile)
+boolType filInputReady (fileType aFile)
 
   {
     int file_no;
     struct pollfd pollFd[1];
     int poll_result;
-    booltype result;
+    boolType result;
 
   /* filInputReady */
     /* printf("filInputReady(%lx)\n", aFile); */
@@ -88,14 +88,14 @@ booltype filInputReady (filetype aFile)
 
 
 
-booltype filInputReady (filetype aFile)
+boolType filInputReady (fileType aFile)
 
   {
     int file_no;
     int flags;
     int ch;
     int saved_errno;
-    booltype result;
+    boolType result;
 
   /* filInputReady */
     /* printf("filInputReady(%lx)\n", aFile); */
@@ -133,7 +133,7 @@ booltype filInputReady (filetype aFile)
 
 
 #ifdef OUT_OF_ORDER
-booltype filInputReady (filetype aFile)
+boolType filInputReady (fileType aFile)
 
   {
     int file_no;
@@ -141,7 +141,7 @@ booltype filInputReady (filetype aFile)
     fd_set readfds;
     struct timeval timeout;
     int select_result;
-    booltype result;
+    boolType result;
 
   /* filInputReady */
     file_no = fileno(aFile);

@@ -51,13 +51,13 @@
 
 
 
-objecttype sct_alloc (listtype arguments)
+objectType sct_alloc (listType arguments)
 
   {
-    objecttype stru_from;
-    memsizetype new_size;
-    structtype new_stru;
-    objecttype result;
+    objectType stru_from;
+    memSizeType new_size;
+    structType new_stru;
+    objectType result;
 
   /* sct_alloc */
     stru_from = arg_1(arguments);
@@ -81,10 +81,10 @@ objecttype sct_alloc (listtype arguments)
           } /* if */
           result->type_of = stru_from->type_of;
           memcpy(&result->descriptor, &stru_from->descriptor,
-              sizeof(descriptorunion));
+              sizeof(descriptorUnion));
           /* Copies the POSINFO flag (and all other flags): */
           INIT_CATEGORY_OF_OBJ(result, stru_from->objcategory);
-          result->value.structvalue = new_stru;
+          result->value.structValue = new_stru;
         } else {
           FREE_OBJECT(result);
           return raise_exception(SYS_MEM_EXCEPTION);
@@ -98,14 +98,14 @@ objecttype sct_alloc (listtype arguments)
 
 
 
-objecttype sct_cat (listtype arguments)
+objectType sct_cat (listType arguments)
 
   {
-    structtype stru1;
-    structtype stru2;
-    memsizetype stru1_size;
-    memsizetype result_size;
-    structtype result;
+    structType stru1;
+    structType stru2;
+    memSizeType stru1_size;
+    memSizeType result_size;
+    structType result;
 
   /* sct_cat */
     isit_struct(arg_1(arguments));
@@ -121,7 +121,7 @@ objecttype sct_cat (listtype arguments)
       } /* if */
       COUNT3_STRUCT(stru1_size, result_size);
       result->size = result_size;
-      arg_1(arguments)->value.structvalue = NULL;
+      arg_1(arguments)->value.structValue = NULL;
     } else {
       if (!ALLOC_STRUCT(result, result_size)) {
         return raise_exception(SYS_MEM_EXCEPTION);
@@ -136,10 +136,10 @@ objecttype sct_cat (listtype arguments)
     } /* if */
     if (TEMP_OBJECT(arg_3(arguments))) {
       memcpy(&result->stru[stru1_size], stru2->stru,
-          (size_t) (stru2->size * sizeof(objectrecord)));
+          (size_t) (stru2->size * sizeof(objectRecord)));
       /* printf("FREE_STRUCT 3 %lu\n", stru2); */
       FREE_STRUCT(stru2, stru2->size);
-      arg_3(arguments)->value.structvalue = NULL;
+      arg_3(arguments)->value.structValue = NULL;
     } else {
       if (!crea_struct(&result->stru[stru1_size], stru2->stru,
           stru2->size)) {
@@ -154,13 +154,13 @@ objecttype sct_cat (listtype arguments)
 
 
 
-objecttype sct_conv (listtype arguments)
+objectType sct_conv (listType arguments)
 
   {
-    objecttype stru_arg;
-    structtype stru1;
-    structtype result_struct;
-    objecttype result;
+    objectType stru_arg;
+    structType stru1;
+    structType result_struct;
+    objectType result;
 
   /* sct_conv */
     stru_arg = arg_3(arguments);
@@ -188,13 +188,13 @@ objecttype sct_conv (listtype arguments)
 
 
 
-objecttype sct_cpy (listtype arguments)
+objectType sct_cpy (listType arguments)
 
   {
-    objecttype stru_to;
-    objecttype stru_from;
-    memsizetype new_size;
-    structtype new_stru;
+    objectType stru_to;
+    objectType stru_from;
+    memSizeType new_size;
+    structType new_stru;
 
   /* sct_cpy */
     stru_to = arg_1(arguments);
@@ -207,8 +207,8 @@ objecttype sct_cpy (listtype arguments)
       destr_struct(new_stru->stru, new_stru->size);
       /* printf("FREE_STRUCT 6 %lu\n", new_stru); */
       FREE_STRUCT(new_stru, new_stru->size);
-      stru_to->value.structvalue = take_struct(stru_from);
-      stru_from->value.structvalue = NULL;
+      stru_to->value.structValue = take_struct(stru_from);
+      stru_from->value.structValue = NULL;
     } else {
       new_size = take_struct(stru_from)->size;
       if (new_stru->size != new_size) {
@@ -228,7 +228,7 @@ objecttype sct_cpy (listtype arguments)
           /* printf("FREE_STRUCT 8 %lu\n", take_struct(stru_to)); */
           FREE_STRUCT(take_struct(stru_to),
               take_struct(stru_to)->size);
-          stru_to->value.structvalue = new_stru;
+          stru_to->value.structValue = new_stru;
         } /* if */
       } else {
         /* The usage_count is left unchanged for a deep copy. */
@@ -241,13 +241,13 @@ objecttype sct_cpy (listtype arguments)
 
 
 
-objecttype sct_create (listtype arguments)
+objectType sct_create (listType arguments)
 
   {
-    objecttype stru_to;
-    objecttype stru_from;
-    memsizetype new_size;
-    structtype new_stru;
+    objectType stru_to;
+    objectType stru_from;
+    memSizeType new_size;
+    structType new_stru;
 
   /* sct_create */
     stru_to = arg_1(arguments);
@@ -258,23 +258,23 @@ objecttype sct_create (listtype arguments)
 /*
 printf("create: pointer assignment\n");
 */
-      stru_to->value.structvalue = take_struct(stru_from);
-      /* printf("sct_create: usage_count=%u %lu\n", stru_to->value.structvalue->usage_count, (unsigned long) stru_to->value.structvalue); */
-      stru_from->value.structvalue = NULL;
+      stru_to->value.structValue = take_struct(stru_from);
+      /* printf("sct_create: usage_count=%u %lu\n", stru_to->value.structValue->usage_count, (unsigned long) stru_to->value.structValue); */
+      stru_from->value.structValue = NULL;
     } else {
       new_size = take_struct(stru_from)->size;
       if (!ALLOC_STRUCT(new_stru, new_size)) {
-        stru_to->value.structvalue = NULL;
+        stru_to->value.structValue = NULL;
         return raise_exception(SYS_MEM_EXCEPTION);
       } else {
         new_stru->usage_count = 1;
         new_stru->size = new_size;
-        stru_to->value.structvalue = new_stru;
+        stru_to->value.structValue = new_stru;
         if (!crea_struct(new_stru->stru,
             take_struct(stru_from)->stru, new_size)) {
           /* printf("FREE_STRUCT 9 %lu\n", new_stru); */
           FREE_STRUCT(new_stru, new_size);
-          stru_to->value.structvalue = NULL;
+          stru_to->value.structValue = NULL;
           return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
         } /* if */
       } /* if */
@@ -284,10 +284,10 @@ printf("create: pointer assignment\n");
 
 
 
-objecttype sct_destr (listtype arguments)
+objectType sct_destr (listType arguments)
 
   {
-    structtype old_struct;
+    structType old_struct;
 
   /* sct_destr */
     isit_struct(arg_1(arguments));
@@ -301,7 +301,7 @@ objecttype sct_destr (listtype arguments)
           destr_struct(old_struct->stru, old_struct->size);
           /* printf("FREE_STRUCT 10 %lu\n", old_struct); */
           FREE_STRUCT(old_struct, old_struct->size);
-          arg_1(arguments)->value.structvalue = NULL;
+          arg_1(arguments)->value.structValue = NULL;
           SET_UNUSED_FLAG(arg_1(arguments));
         } /* if */
       } /* if */
@@ -313,16 +313,16 @@ objecttype sct_destr (listtype arguments)
 
 
 
-objecttype sct_elem (listtype arguments)
+objectType sct_elem (listType arguments)
 
   {
-    typetype object_type;
-    objecttype name_expr;
-    objecttype value_expr;
-    objecttype value;
-    objecttype current_object;
-    errinfotype err_info = OKAY_NO_ERROR;
-    structtype result;
+    typeType object_type;
+    objectType name_expr;
+    objectType value_expr;
+    objectType value;
+    objectType current_object;
+    errInfoType err_info = OKAY_NO_ERROR;
+    structType result;
 
   /* sct_elem */
     isit_type(arg_2(arguments));
@@ -342,9 +342,9 @@ objecttype sct_elem (listtype arguments)
     grow_stack(&err_info);
     if (err_info == OKAY_NO_ERROR) {
       if (CATEGORY_OF_OBJ(value_expr) == EXPROBJECT &&
-          value_expr->value.listvalue != NULL &&
-          value_expr->value.listvalue->next == NULL) {
-        value_expr = value_expr->value.listvalue->obj;
+          value_expr->value.listValue != NULL &&
+          value_expr->value.listValue->next == NULL) {
+        value_expr = value_expr->value.listValue->obj;
       } /* if */
 #ifdef TRACE_DCL
       printf("decl var value_expr = ");
@@ -387,7 +387,7 @@ objecttype sct_elem (listtype arguments)
         } else {
           result->usage_count = 1;
           result->size = 1;
-          memcpy(&result->stru[0], current_object, sizeof(objectrecord));
+          memcpy(&result->stru[0], current_object, sizeof(objectRecord));
         } /* if */
       } /* if */
       shrink_stack();
@@ -402,10 +402,10 @@ objecttype sct_elem (listtype arguments)
 
 
 
-objecttype sct_empty (listtype arguments)
+objectType sct_empty (listType arguments)
 
   {
-    structtype result;
+    structType result;
 
   /* sct_empty */
     if (!ALLOC_STRUCT(result, 0)) {
@@ -418,13 +418,13 @@ objecttype sct_empty (listtype arguments)
 
 
 
-objecttype sct_incl (listtype arguments)
+objectType sct_incl (listType arguments)
 
   {
-    objecttype stru_variable;
-    structtype stru_to;
-    objecttype elem;
-    memsizetype stru_size;
+    objectType stru_variable;
+    structType stru_to;
+    objectType elem;
+    memSizeType stru_size;
 
   /* sct_incl */
     stru_variable = arg_1(arguments);
@@ -439,30 +439,30 @@ objecttype sct_incl (listtype arguments)
       return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
     COUNT3_STRUCT(stru_size, stru_size + 1);
-    stru_variable->value.structvalue = stru_to;
-    memcpy(&stru_to->stru[stru_size], elem, sizeof(objectrecord));
+    stru_variable->value.structValue = stru_to;
+    memcpy(&stru_to->stru[stru_size], elem, sizeof(objectRecord));
     stru_to->size = stru_size + 1;
     return SYS_EMPTY_OBJECT;
   } /* sct_incl */
 
 
 
-objecttype sct_lng (listtype arguments)
+objectType sct_lng (listType arguments)
 
   { /* sct_lng */
     isit_struct(arg_1(arguments));
-    return bld_int_temp((inttype) take_struct(arg_1(arguments))->size);
+    return bld_int_temp((intType) take_struct(arg_1(arguments))->size);
   } /* sct_lng */
 
 
 
-objecttype sct_refidx (listtype arguments)
+objectType sct_refidx (listType arguments)
 
   {
-    structtype stru1;
-    inttype position;
-    objecttype struct_pointer;
-    objecttype result;
+    structType stru1;
+    intType position;
+    objectType struct_pointer;
+    objectType result;
 
   /* sct_refidx */
     isit_struct(arg_1(arguments));
@@ -470,7 +470,7 @@ objecttype sct_refidx (listtype arguments)
     stru1 = take_struct(arg_1(arguments));
     position = take_int(arg_3(arguments));
     struct_pointer = stru1->stru;
-    if (position >= 1 && ((memsizetype) position) <= stru1->size) {
+    if (position >= 1 && ((memSizeType) position) <= stru1->size) {
       result = bld_reference_temp(&struct_pointer[position - 1]);
     } else {
       result = raise_exception(SYS_RNG_EXCEPTION);
@@ -480,15 +480,15 @@ objecttype sct_refidx (listtype arguments)
 
 
 
-objecttype sct_select (listtype arguments)
+objectType sct_select (listType arguments)
 
   {
-    structtype stru1;
-    objecttype selector;
-    objecttype selector_syobject;
-    memsizetype position;
-    objecttype struct_pointer;
-    objecttype result;
+    structType stru1;
+    objectType selector;
+    objectType selector_syobject;
+    memSizeType position;
+    objectType struct_pointer;
+    objectType result;
 
   /* sct_select */
     isit_struct(arg_1(arguments));
@@ -530,15 +530,15 @@ printf("\n");
             if (!ALLOC_OBJECT(result)) {
               result = raise_exception(SYS_MEM_EXCEPTION);
             } else {
-              memcpy(result, struct_pointer, sizeof(objectrecord));
+              memcpy(result, struct_pointer, sizeof(objectRecord));
               SET_TEMP_FLAG(result);
               destr_struct(stru1->stru,
-                  (memsizetype) (struct_pointer - stru1->stru));
+                  (memSizeType) (struct_pointer - stru1->stru));
               destr_struct(&struct_pointer[1],
-                  (stru1->size - (memsizetype) (struct_pointer - stru1->stru) - 1));
+                  (stru1->size - (memSizeType) (struct_pointer - stru1->stru) - 1));
               /* printf("FREE_STRUCT 11 %lu\n", stru1); */
               FREE_STRUCT(stru1, stru1->size);
-              arg_1(arguments)->value.structvalue = NULL;
+              arg_1(arguments)->value.structValue = NULL;
             } /* if */
             return result;
           } else {

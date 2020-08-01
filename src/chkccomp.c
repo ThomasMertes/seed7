@@ -56,6 +56,7 @@
 #include "stdlib.h"
 #include "string.h"
 #include "stdio.h"
+#include "stddef.h"
 #include "time.h"
 #include "float.h"
 #include "math.h"
@@ -300,19 +301,19 @@ void determineEnvironDefines (void)
     strcat(buffer, "#include <stdio.h>\n");
     strcat(buffer, "#include \"version.h\"\n");
 #ifdef OS_STRI_WCHAR
-    strcat(buffer, "typedef wchar_t *os_stritype;\n");
+    strcat(buffer, "typedef wchar_t *os_striType;\n");
 #else
-    strcat(buffer, "typedef char *os_stritype;\n");
+    strcat(buffer, "typedef char *os_striType;\n");
 #endif
     if (define_os_environ) {
-      strcat(buffer, "extern os_stritype *os_environ;\n");
+      strcat(buffer, "extern os_striType *os_environ;\n");
     } /* if */
 #ifdef USE_WMAIN
     strcat(buffer, "int wmain(int argc,wchar_t *argv[])");
 #else
     strcat(buffer, "int main(int argc,char *argv[])");
 #endif
-    strcat(buffer, "{printf(\"%d\\n\",os_environ==(os_stritype *)0);return 0;}\n");
+    strcat(buffer, "{printf(\"%d\\n\",os_environ==(os_striType *)0);return 0;}\n");
     if (!compilationOkay(buffer) || doTest() == 1) {
       printf("#define INITIALIZE_OS_ENVIRON\n");
     } /* if */
@@ -407,8 +408,8 @@ int main (int argc, char **argv)
     long number;
     int ch;
     union {
-      char           charvalue;
-      unsigned long  genericvalue;
+      char           charValue;
+      unsigned long  genericValue;
     } testUnion;
     int zero_divide_triggers_signal = 0;
     float zero = 0.0;
@@ -531,9 +532,17 @@ int main (int argc, char **argv)
     printf("#define SHORT_SIZE %lu\n",    (long unsigned) (8 * sizeof(short)));
     printf("#define INT_SIZE %lu\n",      (long unsigned) (8 * sizeof(int)));
     printf("#define LONG_SIZE %lu\n",     (long unsigned) (8 * sizeof(long)));
+    if (compilationOkay("#include <stdio.h>\nint main(int argc, char *argv[])"
+                        "{printf(\"%d\\n\",sizeof(long long));return 0;}\n")) {
+      testResult = doTest();
+      if (testResult != -1) {
+        printf("#define LONG_LONG_SIZE %lu\n",     (long unsigned) (8 * testResult));
+      } /* if */
+    } /* if */
     printf("#define POINTER_SIZE %lu\n",  (long unsigned) (8 * sizeof(char *)));
     printf("#define FLOAT_SIZE %lu\n",    (long unsigned) (8 * sizeof(float)));
     printf("#define DOUBLE_SIZE %lu\n",   (long unsigned) (8 * sizeof(double)));
+    printf("#define WCHAR_T_SIZE %lu\n",  (long unsigned) (8 * sizeof(wchar_t)));
     printf("#define OS_OFF_T_SIZE %lu\n", (long unsigned) (8 * sizeof(os_off_t)));
     printf("#define TIME_T_SIZE %lu\n",   (long unsigned) (8 * sizeof(time_t)));
     timestamp = -2147483647 - 1;
@@ -648,15 +657,15 @@ int main (int argc, char **argv)
       } /* if */
     } /* if */
     memset(&testUnion, 0, sizeof(testUnion));
-    testUnion.charvalue = 'X';
-    if (testUnion.charvalue != (char) testUnion.genericvalue) {
+    testUnion.charValue = 'X';
+    if (testUnion.charValue != (char) testUnion.genericValue) {
       puts("#define CASTING_DOES_NOT_GET_A_UNION_ELEMENT");
     } /* if */
     if (EOF != -1) {
       puts("#define EOF_IS_NOT_MINUS_ONE");
     } /* if */
     if (!compilationOkay("#include <stdio.h>\n"
-                         "typedef struct emptystruct { } emptyrecord;\n"
+                         "typedef struct emptyStruct { } emptyRecord;\n"
                          "int main(int argc, char *argv[]){\n"
                          "return 0;}\n")) {
       puts("#define NO_EMPTY_STRUCTS");
@@ -939,6 +948,18 @@ int main (int argc, char **argv)
     if (compilationOkay("#include<poll.h>\nint main(int argc,char *argv[])"
                         "{struct pollfd pollFd[1];poll(pollFd, 1, 0);return 0;}\n")) {
       puts("#define HAS_POLL");
+    } /* if */
+    if (compilationOkay("#include <mysql/mysql.h>\nint main(int argc,char *argv[]){return 0;}\n")) {
+      puts("#define MYSQL_INCLUDE \"mysql/mysql.h\"");
+    } /* if */
+    if (compilationOkay("#include <sqlite3.h>\nint main(int argc,char *argv[]){return 0;}\n")) {
+      puts("#define SQLITE_INCLUDE \"sqlite3.h\"");
+    } /* if */
+    if (compilationOkay("#include <postgresql/libpq-fe.h>\nint main(int argc,char *argv[]){return 0;}\n")) {
+      puts("#define POSTGRESQL_INCLUDE \"postgresql/libpq-fe.h\"");
+    } /* if */
+    if (compilationOkay("#include \"oci.h\"\nint main(int argc,char *argv[]){return 0;}\n")) {
+      puts("#define OCI_INCLUDE \"oci.h\"");
     } /* if */
     if (compilationOkay("#include<stdio.h>\nint main(int argc,char *argv[]){FILE*fp;fp->_IO_read_ptr>=fp->_IO_read_end;return 0;}\n")) {
       define_read_buffer_empty = "#define read_buffer_empty(fp) ((fp)->_IO_read_ptr >= (fp)->_IO_read_end)";

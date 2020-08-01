@@ -25,12 +25,12 @@
 /*                                                                  */
 /********************************************************************/
 
-#define STRONGEST_PRIORITY ((prioritytype)   0)
-#define SCOL_PRIORITY      ((prioritytype)  49)
-#define COM_PRIORITY       ((prioritytype)  99)
-#define WEAKEST_PRIORITY   ((prioritytype) 127)
+#define STRONGEST_PRIORITY ((priorityType)   0)
+#define SCOL_PRIORITY      ((priorityType)  49)
+#define COM_PRIORITY       ((priorityType)  99)
+#define WEAKEST_PRIORITY   ((priorityType) 127)
 
-EXTERN identtype current_ident;
+EXTERN identType current_ident;
 
 
 #define find_1_ch_ident(ch)  current_ident = prog.ident.table1[(int) (ch)]
@@ -38,8 +38,8 @@ EXTERN identtype current_ident;
 #define find_eof_ident()     current_ident = prog.ident.end_of_file
 
 
-void find_normal_ident (sysizetype length);
-void check_list_of_syntax_elements (const_listtype elem_list);
+void find_normal_ident (sySizeType length);
+void check_list_of_syntax_elements (const_listType elem_list);
 void clean_idents (void);
 void write_idents (void);
-void init_findid (errinfotype *err_info);
+void init_findid (errInfoType *err_info);

@@ -29,9 +29,9 @@
 /*                                                                  */
 /********************************************************************/
 
-void drwCpy (wintype *const win_to, const wintype win_from);
-wintype drwCreate (const wintype win_from);
-void drwDestr (const wintype old_win);
-inttype drwGetImagePixel (const_bstritype image, inttype width,
-    inttype height, inttype x, inttype y);
-wintype drwRtlImage (const const_rtlArraytype image);
+void drwCpy (winType *const win_to, const winType win_from);
+winType drwCreate (const winType win_from);
+void drwDestr (const winType old_win);
+intType drwGetImagePixel (const_bstriType image, intType width,
+    intType height, intType x, intType y);
+winType drwRtlImage (const const_rtlArrayType image);

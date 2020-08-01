@@ -193,7 +193,7 @@
 */
 
 
-chartype kbdGetc (void);
-booltype kbdKeyPressed (void);
-chartype kbdRawGetc (void);
+charType kbdGetc (void);
+boolType kbdKeyPressed (void);
+charType kbdRawGetc (void);
 void kbdShut (void);

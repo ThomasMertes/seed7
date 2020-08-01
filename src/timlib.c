@@ -45,7 +45,7 @@
 
 
 
-objecttype tim_await (listtype arguments)
+objectType tim_await (listType arguments)
 
   { /* tim_await */
     isit_int(arg_1(arguments));
@@ -69,10 +69,10 @@ objecttype tim_await (listtype arguments)
 
 
 
-objecttype tim_from_timestamp (listtype arguments)
+objectType tim_from_timestamp (listType arguments)
 
   {
-    booltype is_dst;
+    boolType is_dst;
 
   /* tim_from_timestamp */
     isit_int(arg_1(arguments));
@@ -85,39 +85,39 @@ objecttype tim_from_timestamp (listtype arguments)
     isit_int(arg_8(arguments));
     isit_int(arg_9(arguments));
     isit_bool(arg_10(arguments));
-    timFromIntTimestamp(arg_1(arguments)->value.intvalue,
-                       &arg_2(arguments)->value.intvalue,
-                       &arg_3(arguments)->value.intvalue,
-                       &arg_4(arguments)->value.intvalue,
-                       &arg_5(arguments)->value.intvalue,
-                       &arg_6(arguments)->value.intvalue,
-                       &arg_7(arguments)->value.intvalue,
-                       &arg_8(arguments)->value.intvalue,
-                       &arg_9(arguments)->value.intvalue,
+    timFromIntTimestamp(arg_1(arguments)->value.intValue,
+                       &arg_2(arguments)->value.intValue,
+                       &arg_3(arguments)->value.intValue,
+                       &arg_4(arguments)->value.intValue,
+                       &arg_5(arguments)->value.intValue,
+                       &arg_6(arguments)->value.intValue,
+                       &arg_7(arguments)->value.intValue,
+                       &arg_8(arguments)->value.intValue,
+                       &arg_9(arguments)->value.intValue,
                        &is_dst);
     if (is_dst) {
-      arg_10(arguments)->value.objvalue = SYS_TRUE_OBJECT;
+      arg_10(arguments)->value.objValue = SYS_TRUE_OBJECT;
     } else {
-      arg_10(arguments)->value.objvalue = SYS_FALSE_OBJECT;
+      arg_10(arguments)->value.objValue = SYS_FALSE_OBJECT;
     } /* if */
 /*  fprintf(stderr, "timestamp %10ld  %04ld-%02ld-%02ld %02ld:%02ld:%02ld %7ld\n",
-        arg_1(arguments)->value.intvalue,
-        arg_2(arguments)->value.intvalue,
-        arg_3(arguments)->value.intvalue,
-        arg_4(arguments)->value.intvalue,
-        arg_5(arguments)->value.intvalue,
-        arg_6(arguments)->value.intvalue,
-        arg_7(arguments)->value.intvalue,
-        arg_8(arguments)->value.intvalue); */
+        arg_1(arguments)->value.intValue,
+        arg_2(arguments)->value.intValue,
+        arg_3(arguments)->value.intValue,
+        arg_4(arguments)->value.intValue,
+        arg_5(arguments)->value.intValue,
+        arg_6(arguments)->value.intValue,
+        arg_7(arguments)->value.intValue,
+        arg_8(arguments)->value.intValue); */
     return SYS_EMPTY_OBJECT;
   } /* tim_from_timestamp */
 
 
 
-objecttype tim_now (listtype arguments)
+objectType tim_now (listType arguments)
 
   {
-    booltype is_dst;
+    boolType is_dst;
 
   /* tim_now */
     isit_int(arg_1(arguments));
@@ -129,37 +129,37 @@ objecttype tim_now (listtype arguments)
     isit_int(arg_7(arguments));
     isit_int(arg_8(arguments));
     isit_bool(arg_9(arguments));
-    timNow(&arg_1(arguments)->value.intvalue,
-           &arg_2(arguments)->value.intvalue,
-           &arg_3(arguments)->value.intvalue,
-           &arg_4(arguments)->value.intvalue,
-           &arg_5(arguments)->value.intvalue,
-           &arg_6(arguments)->value.intvalue,
-           &arg_7(arguments)->value.intvalue,
-           &arg_8(arguments)->value.intvalue,
+    timNow(&arg_1(arguments)->value.intValue,
+           &arg_2(arguments)->value.intValue,
+           &arg_3(arguments)->value.intValue,
+           &arg_4(arguments)->value.intValue,
+           &arg_5(arguments)->value.intValue,
+           &arg_6(arguments)->value.intValue,
+           &arg_7(arguments)->value.intValue,
+           &arg_8(arguments)->value.intValue,
            &is_dst);
     if (is_dst) {
-      arg_9(arguments)->value.objvalue = SYS_TRUE_OBJECT;
+      arg_9(arguments)->value.objValue = SYS_TRUE_OBJECT;
     } else {
-      arg_9(arguments)->value.objvalue = SYS_FALSE_OBJECT;
+      arg_9(arguments)->value.objValue = SYS_FALSE_OBJECT;
     } /* if */
 /*  fprintf(stderr, "now      %04ld-%02ld-%02ld %02ld:%02ld:%02ld %7ld\n",
-        arg_1(arguments)->value.intvalue,
-        arg_2(arguments)->value.intvalue,
-        arg_3(arguments)->value.intvalue,
-        arg_4(arguments)->value.intvalue,
-        arg_5(arguments)->value.intvalue,
-        arg_6(arguments)->value.intvalue,
-        arg_7(arguments)->value.intvalue); */
+        arg_1(arguments)->value.intValue,
+        arg_2(arguments)->value.intValue,
+        arg_3(arguments)->value.intValue,
+        arg_4(arguments)->value.intValue,
+        arg_5(arguments)->value.intValue,
+        arg_6(arguments)->value.intValue,
+        arg_7(arguments)->value.intValue); */
     return SYS_EMPTY_OBJECT;
   } /* tim_now */
 
 
 
-objecttype tim_set_local_tz (listtype arguments)
+objectType tim_set_local_tz (listType arguments)
 
   {
-    booltype is_dst;
+    boolType is_dst;
 
   /* tim_set_local_tz */
     isit_int(arg_1(arguments));
@@ -176,12 +176,12 @@ objecttype tim_set_local_tz (listtype arguments)
                   take_int(arg_4(arguments)),
                   take_int(arg_5(arguments)),
                   take_int(arg_6(arguments)),
-                  &arg_7(arguments)->value.intvalue,
+                  &arg_7(arguments)->value.intValue,
                   &is_dst);
     if (is_dst) {
-      arg_8(arguments)->value.objvalue = SYS_TRUE_OBJECT;
+      arg_8(arguments)->value.objValue = SYS_TRUE_OBJECT;
     } else {
-      arg_8(arguments)->value.objvalue = SYS_FALSE_OBJECT;
+      arg_8(arguments)->value.objValue = SYS_FALSE_OBJECT;
     } /* if */
 /*  fprintf(stderr, "tim_set_local_tz %04ld-%02ld-%02ld %02ld:%02ld:%02ld %7ld %d\n",
         take_int(arg_1(arguments)),

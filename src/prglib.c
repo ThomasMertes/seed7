@@ -62,13 +62,13 @@
 
 
 
-objecttype prg_cpy (listtype arguments)
+objectType prg_cpy (listType arguments)
 
   {
-    objecttype prog_to;
-    objecttype prog_from;
-    progtype old_prog;
-    progtype prog_value;
+    objectType prog_to;
+    objectType prog_from;
+    progType old_prog;
+    progType prog_value;
 
   /* prg_cpy */
     prog_to = arg_1(arguments);
@@ -80,9 +80,9 @@ objecttype prg_cpy (listtype arguments)
     prog_value = take_prog(prog_from);
     if (old_prog != prog_value) {
       prgDestr(old_prog);
-      prog_to->value.progvalue = prog_value;
+      prog_to->value.progValue = prog_value;
       if (TEMP_OBJECT(prog_from)) {
-        prog_from->value.progvalue = NULL;
+        prog_from->value.progValue = NULL;
       } else {
         if (prog_value != NULL) {
           prog_value->usage_count++;
@@ -95,20 +95,20 @@ objecttype prg_cpy (listtype arguments)
 
 
 
-objecttype prg_create (listtype arguments)
+objectType prg_create (listType arguments)
 
   {
-    objecttype prog_from;
-    progtype prog_value;
+    objectType prog_from;
+    progType prog_value;
 
   /* prg_create */
     prog_from = arg_3(arguments);
     isit_prog(prog_from);
     SET_CATEGORY_OF_OBJ(arg_1(arguments), PROGOBJECT);
     prog_value = take_prog(prog_from);
-    arg_1(arguments)->value.progvalue = prog_value;
+    arg_1(arguments)->value.progValue = prog_value;
     if (TEMP_OBJECT(prog_from)) {
-      prog_from->value.progvalue = NULL;
+      prog_from->value.progValue = NULL;
     } else {
       if (prog_value != NULL) {
         prog_value->usage_count++;
@@ -119,7 +119,7 @@ objecttype prg_create (listtype arguments)
 
 
 
-objecttype prg_destr (listtype arguments)
+objectType prg_destr (listType arguments)
 
   { /* prg_destr */
     isit_prog(arg_1(arguments));
@@ -130,7 +130,7 @@ objecttype prg_destr (listtype arguments)
 
 
 
-objecttype prg_empty (listtype arguments)
+objectType prg_empty (listType arguments)
 
   { /* prg_empty */
     return bld_prog_temp(NULL);
@@ -138,7 +138,7 @@ objecttype prg_empty (listtype arguments)
 
 
 
-objecttype prg_eq (listtype arguments)
+objectType prg_eq (listType arguments)
 
   { /* prg_eq */
     isit_prog(arg_1(arguments));
@@ -152,7 +152,7 @@ objecttype prg_eq (listtype arguments)
 
 
 
-objecttype prg_error_count (listtype arguments)
+objectType prg_error_count (listType arguments)
 
   { /* prg_error_count */
     isit_prog(arg_1(arguments));
@@ -162,11 +162,11 @@ objecttype prg_error_count (listtype arguments)
 
 
 
-objecttype prg_eval (listtype arguments)
+objectType prg_eval (listType arguments)
 
   {
-    errinfotype err_info = OKAY_NO_ERROR;
-    objecttype result;
+    errInfoType err_info = OKAY_NO_ERROR;
+    objectType result;
 
   /* prg_eval */
     isit_prog(arg_1(arguments));
@@ -183,10 +183,10 @@ objecttype prg_eval (listtype arguments)
 
 
 
-objecttype prg_exec (listtype arguments)
+objectType prg_exec (listType arguments)
 
   {
-    rtlArraytype parameters;
+    rtlArrayType parameters;
 
   /* prg_exec */
     isit_prog(arg_1(arguments));
@@ -208,11 +208,11 @@ objecttype prg_exec (listtype arguments)
 
 
 
-objecttype prg_fil_parse (listtype arguments)
+objectType prg_fil_parse (listType arguments)
 
   {
-    rtlArraytype libraryDirs;
-    progtype program;
+    rtlArrayType libraryDirs;
+    progType program;
 
   /* prg_fil_parse */
     isit_stri(arg_1(arguments));
@@ -234,11 +234,11 @@ objecttype prg_fil_parse (listtype arguments)
 
 
 
-objecttype prg_find (listtype arguments)
+objectType prg_find (listType arguments)
 
   {
-    /* objecttype module_object; */
-    objecttype result;
+    /* objectType module_object; */
+    objectType result;
 
   /* prg_find */
     isit_reference(arg_1(arguments));
@@ -264,7 +264,7 @@ objecttype prg_find (listtype arguments)
 
 
 
-objecttype prg_global_objects (listtype arguments)
+objectType prg_global_objects (listType arguments)
 
   { /* prg_global_objects */
     isit_prog(arg_1(arguments));
@@ -274,7 +274,7 @@ objecttype prg_global_objects (listtype arguments)
 
 
 
-objecttype prg_match (listtype arguments)
+objectType prg_match (listType arguments)
 
   { /* prg_match */
     isit_prog(arg_1(arguments));
@@ -285,7 +285,7 @@ objecttype prg_match (listtype arguments)
 
 
 
-objecttype prg_match_expr (listtype arguments)
+objectType prg_match_expr (listType arguments)
 
   { /* prg_match_expr */
     isit_prog(arg_1(arguments));
@@ -296,7 +296,7 @@ objecttype prg_match_expr (listtype arguments)
 
 
 
-objecttype prg_name (listtype arguments)
+objectType prg_name (listType arguments)
 
   { /* prg_name */
     isit_prog(arg_1(arguments));
@@ -305,7 +305,7 @@ objecttype prg_name (listtype arguments)
 
 
 
-objecttype prg_ne (listtype arguments)
+objectType prg_ne (listType arguments)
 
   { /* prg_ne */
     isit_prog(arg_1(arguments));
@@ -319,7 +319,7 @@ objecttype prg_ne (listtype arguments)
 
 
 
-objecttype prg_own_name (listtype arguments)
+objectType prg_own_name (listType arguments)
 
   { /* prg_own_name */
     return bld_stri_temp(strCreate(prog.program_name));
@@ -327,7 +327,7 @@ objecttype prg_own_name (listtype arguments)
 
 
 
-objecttype prg_own_path (listtype arguments)
+objectType prg_own_path (listType arguments)
 
   { /* prg_own_path */
     return bld_stri_temp(strCreate(prog.program_path));
@@ -335,7 +335,7 @@ objecttype prg_own_path (listtype arguments)
 
 
 
-objecttype prg_path (listtype arguments)
+objectType prg_path (listType arguments)
 
   { /* prg_path */
     isit_prog(arg_1(arguments));
@@ -344,7 +344,7 @@ objecttype prg_path (listtype arguments)
 
 
 
-objecttype prg_prog (listtype arguments)
+objectType prg_prog (listType arguments)
 
   { /* prg_prog */
     return bld_prog_temp(NULL);
@@ -352,11 +352,11 @@ objecttype prg_prog (listtype arguments)
 
 
 
-objecttype prg_str_parse (listtype arguments)
+objectType prg_str_parse (listType arguments)
 
   {
-    rtlArraytype libraryDirs;
-    progtype program;
+    rtlArrayType libraryDirs;
+    progType program;
 
   /* prg_str_parse */
     isit_stri(arg_1(arguments));
@@ -378,7 +378,7 @@ objecttype prg_str_parse (listtype arguments)
 
 
 
-objecttype prg_syobject (listtype arguments)
+objectType prg_syobject (listType arguments)
 
   { /* prg_syobject */
     isit_prog(arg_1(arguments));
@@ -389,7 +389,7 @@ objecttype prg_syobject (listtype arguments)
 
 
 
-objecttype prg_sysvar (listtype arguments)
+objectType prg_sysvar (listType arguments)
 
   { /* prg_sysvar */
     isit_prog(arg_1(arguments));
@@ -400,10 +400,10 @@ objecttype prg_sysvar (listtype arguments)
 
 
 
-objecttype prg_value (listtype arguments)
+objectType prg_value (listType arguments)
 
   {
-    objecttype obj_arg;
+    objectType obj_arg;
 
   /* prg_value */
     isit_reference(arg_1(arguments));

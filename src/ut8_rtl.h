@@ -29,9 +29,9 @@
 /*                                                                  */
 /********************************************************************/
 
-chartype ut8Getc (filetype inFile);
-stritype ut8Gets (filetype inFile, inttype length);
-stritype ut8LineRead (filetype inFile, chartype *terminationChar);
-void ut8Seek (filetype aFile, inttype file_position);
-stritype ut8WordRead (filetype inFile, chartype *terminationChar);
-void ut8Write (filetype outFile, const const_stritype stri);
+charType ut8Getc (fileType inFile);
+striType ut8Gets (fileType inFile, intType length);
+striType ut8LineRead (fileType inFile, charType *terminationChar);
+void ut8Seek (fileType aFile, intType file_position);
+striType ut8WordRead (fileType inFile, charType *terminationChar);
+void ut8Write (fileType outFile, const const_striType stri);

@@ -50,29 +50,29 @@
 
 
 
-stritype kbdGets (inttype length)
+striType kbdGets (intType length)
 
   {
-    memsizetype bytes_requested;
-    memsizetype position;
-    stritype result;
+    memSizeType bytes_requested;
+    memSizeType position;
+    striType result;
 
   /* kbdGets */
     if (length < 0) {
       raise_error(RANGE_ERROR);
       return NULL;
     } else {
-      if ((uinttype) length > MAX_MEMSIZETYPE) {
+      if ((uintType) length > MAX_MEMSIZETYPE) {
         bytes_requested = MAX_MEMSIZETYPE;
       } else {
-        bytes_requested = (memsizetype) length;
+        bytes_requested = (memSizeType) length;
       } /* if */
       if (!ALLOC_STRI_CHECK_SIZE(result, bytes_requested)) {
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
         for (position = 0; position < bytes_requested; position++) {
-          result->mem[position] = (strelemtype) kbdGetc();
+          result->mem[position] = (strElemType) kbdGetc();
         } /* for */
         result->size = bytes_requested;
         return result;
@@ -82,16 +82,16 @@ stritype kbdGets (inttype length)
 
 
 
-stritype kbdLineRead (chartype *terminationChar)
+striType kbdLineRead (charType *terminationChar)
 
   {
-    register chartype ch;
-    register memsizetype position;
-    strelemtype *memory;
-    memsizetype memlength;
-    memsizetype newmemlength;
-    stritype resized_result;
-    stritype result;
+    register charType ch;
+    register memSizeType position;
+    strElemType *memory;
+    memSizeType memlength;
+    memSizeType newmemlength;
+    striType resized_result;
+    striType result;
 
   /* kbdLineRead */
     memlength = READ_STRI_INIT_SIZE;
@@ -100,7 +100,7 @@ stritype kbdLineRead (chartype *terminationChar)
     } else {
       memory = result->mem;
       position = 0;
-      while ((ch = kbdGetc()) != '\n' && ch != (chartype) ((schartype) EOF)) {
+      while ((ch = kbdGetc()) != '\n' && ch != (charType) ((scharType) EOF)) {
         if (position >= memlength) {
           newmemlength = memlength + READ_STRI_SIZE_DELTA;
           REALLOC_STRI_CHECK_SIZE(resized_result, result, memlength, newmemlength);
@@ -114,7 +114,7 @@ stritype kbdLineRead (chartype *terminationChar)
           memory = result->mem;
           memlength = newmemlength;
         } /* if */
-        memory[position++] = (strelemtype) ch;
+        memory[position++] = (strElemType) ch;
       } /* while */
       if (ch == '\n' && position != 0 && memory[position - 1] == '\r') {
         position--;
@@ -136,16 +136,16 @@ stritype kbdLineRead (chartype *terminationChar)
 
 
 
-stritype kbdWordRead (chartype *terminationChar)
+striType kbdWordRead (charType *terminationChar)
 
   {
-    register chartype ch;
-    register memsizetype position;
-    strelemtype *memory;
-    memsizetype memlength;
-    memsizetype newmemlength;
-    stritype resized_result;
-    stritype result;
+    register charType ch;
+    register memSizeType position;
+    strElemType *memory;
+    memSizeType memlength;
+    memSizeType newmemlength;
+    striType resized_result;
+    striType result;
 
   /* kbdWordRead */
     memlength = READ_STRI_INIT_SIZE;
@@ -158,7 +158,7 @@ stritype kbdWordRead (chartype *terminationChar)
         ch = kbdGetc();
       } while (ch == ' ' || ch == '\t');
       while (ch != ' ' && ch != '\t' &&
-             ch != '\n' && ch != (chartype) ((schartype) EOF)) {
+             ch != '\n' && ch != (charType) ((scharType) EOF)) {
         if (position >= memlength) {
           newmemlength = memlength + READ_STRI_SIZE_DELTA;
           REALLOC_STRI_CHECK_SIZE(resized_result, result, memlength, newmemlength);
@@ -172,7 +172,7 @@ stritype kbdWordRead (chartype *terminationChar)
           memory = result->mem;
           memlength = newmemlength;
         } /* if */
-        memory[position++] = (strelemtype) ch;
+        memory[position++] = (strElemType) ch;
         ch = kbdGetc();
       } /* while */
       if (ch == '\n' && position != 0 && memory[position - 1] == '\r') {

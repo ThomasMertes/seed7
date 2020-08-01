@@ -25,15 +25,15 @@
 /*                                                                  */
 /********************************************************************/
 
-objecttype itf_cmp          (listtype arguments);
-objecttype itf_conv2        (listtype arguments);
-objecttype itf_cpy          (listtype arguments);
-objecttype itf_cpy2         (listtype arguments);
-objecttype itf_create       (listtype arguments);
-objecttype itf_create2      (listtype arguments);
-objecttype itf_destr        (listtype arguments);
-objecttype itf_eq           (listtype arguments);
-objecttype itf_hashcode     (listtype arguments);
-objecttype itf_ne           (listtype arguments);
-objecttype itf_select       (listtype arguments);
-objecttype itf_to_interface (listtype arguments);
+objectType itf_cmp          (listType arguments);
+objectType itf_conv2        (listType arguments);
+objectType itf_cpy          (listType arguments);
+objectType itf_cpy2         (listType arguments);
+objectType itf_create       (listType arguments);
+objectType itf_create2      (listType arguments);
+objectType itf_destr        (listType arguments);
+objectType itf_eq           (listType arguments);
+objectType itf_hashcode     (listType arguments);
+objectType itf_ne           (listType arguments);
+objectType itf_select       (listType arguments);
+objectType itf_to_interface (listType arguments);

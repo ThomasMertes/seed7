@@ -75,7 +75,7 @@ static const int card_byte[] = {
  *  a multiplication to count the bits set in a bitset element.
  *  @return the number of one bits.
  */
-static inline uinttype bitsetPopulation (bitsettype bitset)
+static inline uintType bitsetPopulation (bitSetType bitset)
 
   { /* bitsetPopulation */
 #if BITSETTYPE_SIZE == 32
@@ -83,27 +83,27 @@ static inline uinttype bitsetPopulation (bitsettype bitset)
     bitset =  (bitset       & UINT32_SUFFIX(0x33333333)) +
              ((bitset >> 2) & UINT32_SUFFIX(0x33333333));
     bitset = (bitset + (bitset >> 4)) & UINT32_SUFFIX(0x0f0f0f0f);
-    return (uinttype) ((bitset * UINT32_SUFFIX(0x01010101)) >> 24);
+    return (uintType) ((bitset * UINT32_SUFFIX(0x01010101)) >> 24);
 #elif BITSETTYPE_SIZE == 64
     bitset -= (bitset >> 1) & UINT64_SUFFIX(0x5555555555555555);
     bitset =  (bitset       & UINT64_SUFFIX(0x3333333333333333)) +
              ((bitset >> 2) & UINT64_SUFFIX(0x3333333333333333));
     bitset = (bitset + (bitset >> 4)) & UINT64_SUFFIX(0x0f0f0f0f0f0f0f0f);
-    return (uinttype) ((bitset * UINT64_SUFFIX(0x0101010101010101)) >> 56);
+    return (uintType) ((bitset * UINT64_SUFFIX(0x0101010101010101)) >> 56);
 #endif
   } /* bitsetPopulation */
 
 
 
-settype setArrlit (const_rtlArraytype arr1)
+setType setArrlit (const_rtlArrayType arr1)
 
   {
-    memsizetype length;
-    inttype number;
-    inttype position;
+    memSizeType length;
+    intType number;
+    intType position;
     unsigned int bit_index;
-    memsizetype array_index;
-    settype result;
+    memSizeType array_index;
+    setType result;
 
   /* setArrlit */
     length = arraySize(arr1);
@@ -114,16 +114,16 @@ settype setArrlit (const_rtlArraytype arr1)
       if (length == 0) {
         result->min_position = 0;
         result->max_position = 0;
-        result->bitset[0] = (bitsettype) 0;
+        result->bitset[0] = (bitSetType) 0;
       } else {
-        number = arr1->arr[0].value.intvalue;
+        number = arr1->arr[0].value.intValue;
         position = bitset_pos(number);
         result->min_position = position;
         result->max_position = position;
         bit_index = ((unsigned int) number) & bitset_mask;
-        result->bitset[0] = (bitsettype) 1 << bit_index;
+        result->bitset[0] = (bitSetType) 1 << bit_index;
         for (array_index = 1; array_index < length; array_index++) {
-          setIncl(&result, arr1->arr[array_index].value.intvalue);
+          setIncl(&result, arr1->arr[array_index].value.intValue);
 #ifdef OUT_OF_ORDER
           if (fail_flag) {
             FREE_SET(result, bitsetSize(result));
@@ -138,12 +138,12 @@ settype setArrlit (const_rtlArraytype arr1)
 
 
 
-settype setBaselit (const inttype number)
+setType setBaselit (const intType number)
 
   {
-    inttype position;
+    intType position;
     unsigned int bit_index;
-    settype result;
+    setType result;
 
   /* setBaselit */
     if (unlikely(!ALLOC_SET(result, 1))) {
@@ -154,7 +154,7 @@ settype setBaselit (const inttype number)
       result->min_position = position;
       result->max_position = position;
       bit_index = ((unsigned int) number) & bitset_mask;
-      result->bitset[0] = (bitsettype) 1 << bit_index;
+      result->bitset[0] = (bitSetType) 1 << bit_index;
       return result;
     } /* if */
   } /* setBaselit */
@@ -168,14 +168,14 @@ settype setBaselit (const inttype number)
  *  to count the bits set in a bitset element.
  *  @return the number of elements in 'aSet'.
  */
-inttype setCard (const const_settype aSet)
+intType setCard (const const_setType aSet)
 
   {
-    memsizetype index_beyond;
-    memsizetype bitset_index;
-    bitsettype bitset;
-    uinttype card = 0;
-    inttype result;
+    memSizeType index_beyond;
+    memSizeType bitset_index;
+    bitSetType bitset;
+    uintType card = 0;
+    intType result;
 
   /* setCard */
     index_beyond = bitsetSize(aSet);
@@ -187,7 +187,7 @@ inttype setCard (const const_settype aSet)
       raise_error(RANGE_ERROR);
       result = 0;
     } else {
-      result = (inttype) card;
+      result = (intType) card;
     } /* if */
     /* printf(" = %d\n", result); */
     return result;
@@ -202,25 +202,25 @@ inttype setCard (const const_settype aSet)
  *  a bitset element.
  *  @return the number of elements in 'aSet'.
  */
-inttype setCard (const const_settype aSet)
+intType setCard (const const_setType aSet)
 
   {
     const unsigned char *byte;
-    memsizetype byteCount;
-    uinttype card = 0;
-    inttype result;
+    memSizeType byteCount;
+    uintType card = 0;
+    intType result;
 
   /* setCard */
     byte = (const unsigned char *) aSet->bitset;
-    for (byteCount = sizeof(bitsettype) * bitsetSize(aSet);
+    for (byteCount = sizeof(bitSetType) * bitsetSize(aSet);
         byteCount != 0; byteCount--, byte++) {
-      card += (uinttype) card_byte[(int) *byte];
+      card += (uintType) card_byte[(int) *byte];
     } /* for */
     if (card > INTTYPE_MAX) {
       raise_error(RANGE_ERROR);
       result = 0;
     } else {
-      result = (inttype) card;
+      result = (intType) card;
     } /* if */
     /* printf(" = %d\n", result); */
     return result;
@@ -240,14 +240,14 @@ inttype setCard (const const_settype aSet)
  *  setIsSubset and setIsProperSubset are used to check if a set is
  *  a (proper) subset or superset of another set.
  */
-inttype setCmp (const const_settype set1, const const_settype set2)
+intType setCmp (const const_setType set1, const const_setType set2)
 
   {
-    memsizetype index_beyond;
-    memsizetype bitset_index;
-    memsizetype size;
-    const bitsettype *bitset1;
-    const bitsettype *bitset2;
+    memSizeType index_beyond;
+    memSizeType bitset_index;
+    memSizeType size;
+    const bitSetType *bitset1;
+    const bitSetType *bitset2;
 
   /* setCmp */
     if (set1->max_position >= set2->max_position) {
@@ -333,26 +333,26 @@ inttype setCmp (const const_settype set1, const const_settype set2)
 
 
 /**
- *  Reinterpret the generic parameters as settype and call setCmp.
+ *  Reinterpret the generic parameters as setType and call setCmp.
  *  Function pointers in C programs generated by the Seed7 compiler
  *  may point to this function. This assures correct behaviour even
- *  when sizeof(generictype) != sizeof(settype).
+ *  when sizeof(genericType) != sizeof(setType).
  */
-inttype setCmpGeneric (const generictype value1, const generictype value2)
+intType setCmpGeneric (const genericType value1, const genericType value2)
 
   { /* setCmpGeneric */
-    return setCmp(((const_rtlObjecttype *) &value1)->value.setvalue,
-                  ((const_rtlObjecttype *) &value2)->value.setvalue);
+    return setCmp(((const_rtlObjectType *) &value1)->value.setValue,
+                  ((const_rtlObjectType *) &value2)->value.setValue);
   } /* setCmpGeneric */
 
 
 
-void setCpy (settype *const set_to, const const_settype set_from)
+void setCpy (setType *const set_to, const const_setType set_from)
 
   {
-    settype set_dest;
-    memsizetype set_dest_size;
-    memsizetype set_source_size;
+    setType set_dest;
+    memSizeType set_dest_size;
+    memSizeType set_source_size;
 
   /* setCpy */
     set_dest = *set_to;
@@ -377,25 +377,25 @@ void setCpy (settype *const set_to, const const_settype set_from)
     /* destination areas overlap (or are identical).      */
     /* Therefore memmove() is used instead of memcpy().   */
     memmove(set_dest->bitset, set_from->bitset,
-        (size_t) set_source_size * sizeof(bitsettype));
+        (size_t) set_source_size * sizeof(bitSetType));
   } /* setCpy */
 
 
 
-void setCpyGeneric (generictype *const dest, const generictype source)
+void setCpyGeneric (genericType *const dest, const genericType source)
 
   { /* setCpyGeneric */
-    setCpy(&((rtlObjecttype *) dest)->value.setvalue,
-           ((const_rtlObjecttype *) &source)->value.setvalue);
+    setCpy(&((rtlObjectType *) dest)->value.setValue,
+           ((const_rtlObjectType *) &source)->value.setValue);
   } /* setCpyGeneric */
 
 
 
-settype setCreate (const const_settype set_from)
+setType setCreate (const const_setType set_from)
 
   {
-    memsizetype new_size;
-    settype result;
+    memSizeType new_size;
+    setType result;
 
   /* setCreate */
     new_size = bitsetSize(set_from);
@@ -405,7 +405,7 @@ settype setCreate (const const_settype set_from)
       result->min_position = set_from->min_position;
       result->max_position = set_from->max_position;
       memcpy(result->bitset, set_from->bitset,
-          (size_t) new_size * sizeof(bitsettype));
+          (size_t) new_size * sizeof(bitSetType));
     } /* if */
     return result;
   } /* setCreate */
@@ -416,22 +416,22 @@ settype setCreate (const const_settype set_from)
  *  Generic Create function to be used via function pointers.
  *  Function pointers in C programs generated by the Seed7 compiler
  *  may point to this function. This assures correct behaviour even
- *  when sizeof(generictype) != sizeof(settype).
+ *  when sizeof(genericType) != sizeof(setType).
  */
-generictype setCreateGeneric (const generictype from_value)
+genericType setCreateGeneric (const genericType from_value)
 
   {
-    rtlObjecttype result;
+    rtlObjectType result;
 
   /* setCreateGeneric */
-    result.value.setvalue =
-        setCreate(((const_rtlObjecttype *) &from_value)->value.setvalue);
-    return result.value.genericvalue;
+    result.value.setValue =
+        setCreate(((const_rtlObjectType *) &from_value)->value.setValue);
+    return result.value.genericValue;
   } /* setCreateGeneric */
 
 
 
-void setDestr (const const_settype old_set)
+void setDestr (const const_setType old_set)
 
   { /* setDestr */
     if (old_set != NULL) {
@@ -445,12 +445,12 @@ void setDestr (const const_settype old_set)
  *  Generic Destr function to be used via function pointers.
  *  Function pointers in C programs generated by the Seed7 compiler
  *  may point to this function. This assures correct behaviour even
- *  when sizeof(generictype) != sizeof(settype).
+ *  when sizeof(genericType) != sizeof(setType).
  */
-void setDestrGeneric (const generictype old_value)
+void setDestrGeneric (const genericType old_value)
 
   { /* setDestrGeneric */
-    setDestr(((const_rtlObjecttype *) &old_value)->value.setvalue);
+    setDestr(((const_rtlObjectType *) &old_value)->value.setValue);
   } /* setDestrGeneric */
 
 
@@ -460,13 +460,13 @@ void setDestrGeneric (const generictype old_value)
  *  @return the difference of the two sets.
  *  @exception MEMORY_ERROR Not enough memory for the result.
  */
-settype setDiff (const const_settype set1, const const_settype set2)
+setType setDiff (const const_setType set1, const const_setType set2)
 
   {
-    memsizetype bitset_index;
-    memsizetype bitset_index2;
-    memsizetype index_beyond;
-    settype result;
+    memSizeType bitset_index;
+    memSizeType bitset_index2;
+    memSizeType index_beyond;
+    setType result;
 
   /* setDiff */
 #ifdef OUT_OF_ORDER
@@ -483,12 +483,12 @@ settype setDiff (const const_settype set1, const const_settype set2)
       result->max_position = set1->max_position;
       if (set1->max_position < set2->min_position ||
           set1->min_position > set2->max_position) {
-        memcpy(result->bitset, set1->bitset, bitsetSize(set1) * sizeof(bitsettype));
+        memcpy(result->bitset, set1->bitset, bitsetSize(set1) * sizeof(bitSetType));
       } else {
         if (set2->min_position > set1->min_position) {
           bitset_index = bitsetIndex(set1, set2->min_position);
           bitset_index2 = 0;
-          memcpy(result->bitset, set1->bitset, bitset_index * sizeof(bitsettype));
+          memcpy(result->bitset, set1->bitset, bitset_index * sizeof(bitSetType));
         } else {
           bitset_index = 0;
           bitset_index2 = bitsetIndex(set2, set1->min_position);
@@ -496,7 +496,7 @@ settype setDiff (const const_settype set1, const const_settype set2)
         if (set1->max_position > set2->max_position) {
           index_beyond = bitsetIndex(set1, set2->max_position + 1);
           memcpy(&result->bitset[index_beyond], &set1->bitset[index_beyond],
-              (size_t) (uinttype) (set1->max_position - set2->max_position) * sizeof(bitsettype));
+              (size_t) (uintType) (set1->max_position - set2->max_position) * sizeof(bitSetType));
         } else {
           index_beyond = bitsetSize(set1);
         } /* if */
@@ -517,11 +517,11 @@ settype setDiff (const const_settype set1, const const_settype set2)
  *  @return TRUE when 'number' is a member of  'aSet',
  *          FALSE otherwise.
  */
-booltype setElem (const inttype number, const const_settype aSet)
+boolType setElem (const intType number, const const_setType aSet)
 
   {
-    inttype position;
-    memsizetype bitset_index;
+    intType position;
+    memSizeType bitset_index;
     unsigned int bit_index;
 
   /* setElem */
@@ -529,7 +529,7 @@ booltype setElem (const inttype number, const const_settype aSet)
     if (position >= aSet->min_position && position <= aSet->max_position) {
       bitset_index = bitsetIndex(aSet, position);
       bit_index = ((unsigned int) number) & bitset_mask;
-      if (aSet->bitset[bitset_index] & (bitsettype) 1 << bit_index) {
+      if (aSet->bitset[bitset_index] & (bitSetType) 1 << bit_index) {
         return TRUE;
       } else {
         return FALSE;
@@ -541,10 +541,10 @@ booltype setElem (const inttype number, const const_settype aSet)
 
 
 
-settype setEmpty (void)
+setType setEmpty (void)
 
   {
-    settype result;
+    setType result;
 
   /* setEmpty */
     if (unlikely(!ALLOC_SET(result, 1))) {
@@ -552,7 +552,7 @@ settype setEmpty (void)
     } else {
       result->min_position = 0;
       result->max_position = 0;
-      result->bitset[0] = (bitsettype) 0;
+      result->bitset[0] = (bitSetType) 0;
     } /* if */
     return result;
   } /* setEmpty */
@@ -564,20 +564,20 @@ settype setEmpty (void)
  *  @return TRUE if the two sets are equal,
  *          FALSE otherwise.
  */
-booltype setEq (const const_settype set1, const const_settype set2)
+boolType setEq (const const_setType set1, const const_setType set2)
 
   {
-    memsizetype index_beyond;
-    memsizetype bitset_index;
-    memsizetype size;
-    const bitsettype *bitset1;
-    const bitsettype *bitset2;
+    memSizeType index_beyond;
+    memSizeType bitset_index;
+    memSizeType size;
+    const bitSetType *bitset1;
+    const bitSetType *bitset2;
 
   /* setEq */
     if (set1->min_position == set2->min_position &&
         set1->max_position == set2->max_position) {
       return memcmp(set1->bitset, set2->bitset,
-          bitsetSize(set1) * sizeof(bitsettype)) == 0;
+          bitsetSize(set1) * sizeof(bitSetType)) == 0;
     } else {
       if (set1->min_position < set2->min_position) {
         if (set1->max_position < set2->min_position) {
@@ -647,7 +647,7 @@ booltype setEq (const const_settype set1, const const_settype set2)
           } /* if */
         } /* for */
       } /* if */
-      return memcmp(bitset1, bitset2, size * sizeof(bitsettype)) == 0;
+      return memcmp(bitset1, bitset2, size * sizeof(bitSetType)) == 0;
     } /* if */
   } /* setEq */
 
@@ -657,12 +657,12 @@ booltype setEq (const const_settype set1, const const_settype set2)
  *  Remove 'number' from the set 'set_to'.
  *  When 'number' is not element of 'set_to' then 'set_to' stays unchanged.
  */
-void setExcl (settype *const set_to, const inttype number)
+void setExcl (setType *const set_to, const intType number)
 
   {
-    settype set_dest;
-    inttype position;
-    memsizetype bitset_index;
+    setType set_dest;
+    intType position;
+    memSizeType bitset_index;
     unsigned int bit_index;
 
   /* setExcl */
@@ -671,7 +671,7 @@ void setExcl (settype *const set_to, const inttype number)
     if (position >= set_dest->min_position && position <= set_dest->max_position) {
       bitset_index = bitsetIndex(set_dest, position);
       bit_index = ((unsigned int) number) & bitset_mask;
-      set_dest->bitset[bitset_index] &= ~((bitsettype) 1 << bit_index);
+      set_dest->bitset[bitset_index] &= ~((bitSetType) 1 << bit_index);
 #ifdef OUT_OF_ORDER
       if (set_dest->bitset[bitset_index] == 0) {
         if
@@ -686,18 +686,18 @@ void setExcl (settype *const set_to, const inttype number)
  *  Compute the hash value of a set.
  *  @return the hash value.
  */
-inttype setHashCode (const const_settype set1)
+intType setHashCode (const const_setType set1)
 
   {
-    memsizetype bitset_size;
-    memsizetype bitset_index;
-    inttype result;
+    memSizeType bitset_size;
+    memSizeType bitset_index;
+    intType result;
 
   /* setHashCode */
     result = 0;
     bitset_size = bitsetSize(set1);
     for (bitset_index = 0; bitset_index < bitset_size; bitset_index++) {
-      result ^= (inttype) set1->bitset[bitset_index];
+      result ^= (intType) set1->bitset[bitset_index];
     } /* for */
     return result;
   } /* setHashCode */
@@ -709,27 +709,27 @@ inttype setHashCode (const const_settype set1)
  *  @return a bitset which corresponds to the given integer.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-settype setIConv (inttype number)
+setType setIConv (intType number)
 
   {
-    memsizetype result_size;
-    settype result;
+    memSizeType result_size;
+    setType result;
 
   /* setIConv */
-    result_size = sizeof(inttype) / sizeof(bitsettype);
+    result_size = sizeof(intType) / sizeof(bitSetType);
     if (unlikely(!ALLOC_SET(result, result_size))) {
       raise_error(MEMORY_ERROR);
     } else {
       result->min_position = 0;
-      result->max_position = (inttype) (result_size - 1);
-      result->bitset[0] = (bitsettype) number;
+      result->max_position = (intType) (result_size - 1);
+      result->bitset[0] = (bitSetType) number;
 #if BITSETTYPE_SIZE < INTTYPE_SIZE
       {
-        memsizetype pos;
+        memSizeType pos;
 
         for (pos = 1; pos < result_size; pos++) {
-          number >>= 8 * sizeof(bitsettype);
-          result->bitset[pos] = (bitsettype) number;
+          number >>= 8 * sizeof(bitSetType);
+          result->bitset[pos] = (bitSetType) number;
         } /* for */
       }
 #endif
@@ -744,15 +744,15 @@ settype setIConv (inttype number)
  *  When 'number' is already in 'set_to' then 'set_to' stays unchanged.
  *  @exception MEMORY_ERROR When there is not enough memory.
  */
-void setIncl (settype *const set_to, const inttype number)
+void setIncl (setType *const set_to, const intType number)
 
   {
-    settype set_dest;
-    inttype position;
-    memsizetype old_size;
-    memsizetype new_size;
-    settype old_set;
-    memsizetype bitset_index;
+    setType set_dest;
+    intType position;
+    memSizeType old_size;
+    memSizeType new_size;
+    setType old_set;
+    memSizeType bitset_index;
     unsigned int bit_index;
 
   /* setIncl */
@@ -760,7 +760,7 @@ void setIncl (settype *const set_to, const inttype number)
     position = bitset_pos(number);
     if (position > set_dest->max_position) {
       old_size = bitsetSize(set_dest);
-      if (unlikely((uinttype) (position - set_dest->min_position + 1) > MAX_SET_LEN)) {
+      if (unlikely((uintType) (position - set_dest->min_position + 1) > MAX_SET_LEN)) {
         raise_error(MEMORY_ERROR);
         return;
       } else {
@@ -773,12 +773,12 @@ void setIncl (settype *const set_to, const inttype number)
           COUNT3_SET(old_size, new_size);
           *set_to = set_dest;
           set_dest->max_position = position;
-          memset(&set_dest->bitset[old_size], 0, (new_size - old_size) * sizeof(bitsettype));
+          memset(&set_dest->bitset[old_size], 0, (new_size - old_size) * sizeof(bitSetType));
         } /* if */
       } /* if */
     } else if (position < set_dest->min_position) {
       old_size = bitsetSize(set_dest);
-      if (unlikely((uinttype) (set_dest->max_position - position + 1) > MAX_SET_LEN)) {
+      if (unlikely((uintType) (set_dest->max_position - position + 1) > MAX_SET_LEN)) {
         raise_error(MEMORY_ERROR);
         return;
       } else {
@@ -791,15 +791,15 @@ void setIncl (settype *const set_to, const inttype number)
           *set_to = set_dest;
           set_dest->min_position = position;
           set_dest->max_position = old_set->max_position;
-          memset(set_dest->bitset, 0, (new_size - old_size) * sizeof(bitsettype));
-          memcpy(&set_dest->bitset[new_size - old_size], old_set->bitset, old_size * sizeof(bitsettype));
+          memset(set_dest->bitset, 0, (new_size - old_size) * sizeof(bitSetType));
+          memcpy(&set_dest->bitset[new_size - old_size], old_set->bitset, old_size * sizeof(bitSetType));
           FREE_SET(old_set, old_size);
         } /* if */
       } /* if */
     } /* if */
     bitset_index = bitsetIndex(set_dest, position);
     bit_index = ((unsigned int) number) & bitset_mask;
-    set_dest->bitset[bitset_index] |= (bitsettype) 1 << bit_index;
+    set_dest->bitset[bitset_index] |= (bitSetType) 1 << bit_index;
   } /* setIncl */
 
 
@@ -809,13 +809,13 @@ void setIncl (settype *const set_to, const inttype number)
  *  @return the intersection of the two sets.
  *  @exception MEMORY_ERROR Not enough memory for the result.
  */
-settype setIntersect (const const_settype set1, const const_settype set2)
+setType setIntersect (const const_setType set1, const const_setType set2)
 
   {
-    inttype position;
-    inttype min_position;
-    inttype max_position;
-    settype result;
+    intType position;
+    intType min_position;
+    intType max_position;
+    setType result;
 
   /* setIntersect */
 #ifdef OUT_OF_ORDER
@@ -841,10 +841,10 @@ settype setIntersect (const const_settype set1, const const_settype set2)
       } else {
         result->min_position = 0;
         result->max_position = 0;
-        result->bitset[0] = (bitsettype) 0;
+        result->bitset[0] = (bitSetType) 0;
       } /* if */
     } else {
-      if (unlikely(!ALLOC_SET(result, (uinttype) (max_position - min_position + 1)))) {
+      if (unlikely(!ALLOC_SET(result, (uintType) (max_position - min_position + 1)))) {
         raise_error(MEMORY_ERROR);
       } else {
         result->min_position = min_position;
@@ -861,11 +861,11 @@ settype setIntersect (const const_settype set1, const const_settype set2)
 
 
 
-booltype setIsEmpty (const const_settype set1)
+boolType setIsEmpty (const const_setType set1)
 
   {
-    memsizetype index_beyond;
-    memsizetype bitset_index;
+    memSizeType index_beyond;
+    memSizeType bitset_index;
 
   /* setIsEmpty */
     index_beyond = bitsetSize(set1);
@@ -887,15 +887,15 @@ booltype setIsEmpty (const const_settype set1)
  *  @return TRUE if 'set1' is a proper subset of 'set2',
  *          FALSE otherwise.
  */
-booltype setIsProperSubset (const const_settype set1, const const_settype set2)
+boolType setIsProperSubset (const const_setType set1, const const_setType set2)
 
   {
-    memsizetype index_beyond;
-    memsizetype bitset_index;
-    memsizetype size;
-    const bitsettype *bitset1;
-    const bitsettype *bitset2;
-    booltype equal;
+    memSizeType index_beyond;
+    memSizeType bitset_index;
+    memSizeType size;
+    const bitSetType *bitset1;
+    const bitSetType *bitset2;
+    boolType equal;
 
   /* setIsProperSubset */
 #ifdef OUT_OF_ORDER
@@ -975,7 +975,7 @@ booltype setIsProperSubset (const const_settype set1, const const_settype set2)
       } /* for */
     } /* if */
     for (bitset_index = 0; bitset_index < size; bitset_index++, bitset1++, bitset2++) {
-      if ((~ *bitset1 | *bitset2) != ~(bitsettype) 0) {
+      if ((~ *bitset1 | *bitset2) != ~(bitSetType) 0) {
         return FALSE;
       } /* if */
       if (*bitset1 != *bitset2) {
@@ -995,14 +995,14 @@ booltype setIsProperSubset (const const_settype set1, const const_settype set2)
  *  @return TRUE if 'set1' is a subset of 'set2',
  *          FALSE otherwise.
  */
-booltype setIsSubset (const const_settype set1, const const_settype set2)
+boolType setIsSubset (const const_setType set1, const const_setType set2)
 
   {
-    memsizetype index_beyond;
-    memsizetype bitset_index;
-    memsizetype size;
-    const bitsettype *bitset1;
-    const bitsettype *bitset2;
+    memSizeType index_beyond;
+    memSizeType bitset_index;
+    memSizeType size;
+    const bitSetType *bitset1;
+    const bitSetType *bitset2;
 
   /* setIsSubset */
 #ifdef OUT_OF_ORDER
@@ -1062,7 +1062,7 @@ booltype setIsSubset (const const_settype set1, const const_settype set2)
       } /* for */
     } /* if */
     for (bitset_index = 0; bitset_index < size; bitset_index++, bitset1++, bitset2++) {
-      if ((~ *bitset1 | *bitset2) != ~(bitsettype) 0) {
+      if ((~ *bitset1 | *bitset2) != ~(bitSetType) 0) {
         return FALSE;
       } /* if */
     } /* for */
@@ -1079,12 +1079,12 @@ booltype setIsSubset (const const_settype set1, const const_settype set2)
  *  @return the maximal element of 'aSet'.
  *  @exception RANGE_ERROR When 'aSet' is the empty set.
  */
-inttype setMax (const const_settype aSet)
+intType setMax (const const_setType aSet)
 
   {
-    memsizetype bitset_index;
-    bitsettype curr_bitset;
-    inttype result;
+    memSizeType bitset_index;
+    bitSetType curr_bitset;
+    intType result;
 
   /* setMax */
     bitset_index = bitsetSize(aSet);
@@ -1093,7 +1093,7 @@ inttype setMax (const const_settype aSet)
       curr_bitset = aSet->bitset[bitset_index];
       if (curr_bitset != 0) {
         result = bitsetMostSignificantBit(curr_bitset);
-        result += (aSet->min_position + (inttype) bitset_index) << bitset_shift;
+        result += (aSet->min_position + (intType) bitset_index) << bitset_shift;
         return result;
       } /* if */
     } /* while */
@@ -1111,13 +1111,13 @@ inttype setMax (const const_settype aSet)
  *  @return the minimum element of 'aSet'.
  *  @exception RANGE_ERROR When 'aSet' is the empty set.
  */
-inttype setMin (const const_settype aSet)
+intType setMin (const const_setType aSet)
 
   {
-    memsizetype bitset_size;
-    memsizetype bitset_index;
-    bitsettype curr_bitset;
-    inttype result;
+    memSizeType bitset_size;
+    memSizeType bitset_index;
+    bitSetType curr_bitset;
+    intType result;
 
   /* setMin */
     bitset_size = bitsetSize(aSet);
@@ -1126,7 +1126,7 @@ inttype setMin (const const_settype aSet)
       curr_bitset = aSet->bitset[bitset_index];
       if (curr_bitset != 0) {
         result = bitsetLeastSignificantBit(curr_bitset);
-        result += (aSet->min_position + (inttype) bitset_index) << bitset_shift;
+        result += (aSet->min_position + (intType) bitset_index) << bitset_shift;
         return result;
       } /* if */
       bitset_index++;
@@ -1137,15 +1137,15 @@ inttype setMin (const const_settype aSet)
 
 
 
-inttype setNext (const const_settype set1, const inttype number)
+intType setNext (const const_setType set1, const intType number)
 
   {
-    inttype position;
-    memsizetype bitset_size;
-    memsizetype bitset_index;
+    intType position;
+    memSizeType bitset_size;
+    memSizeType bitset_index;
     unsigned int bit_index;
-    bitsettype curr_bitset;
-    inttype result;
+    bitSetType curr_bitset;
+    intType result;
 
   /* setNext */
     position = bitset_pos(number);
@@ -1156,10 +1156,10 @@ inttype setNext (const const_settype set1, const inttype number)
     bitset_index = bitsetIndex(set1, position);
     if (bitset_index < bitset_size) {
       bit_index = ((unsigned int) number) & bitset_mask;
-      curr_bitset = set1->bitset[bitset_index] & (~(bitsettype) 1 << bit_index);
+      curr_bitset = set1->bitset[bitset_index] & (~(bitSetType) 1 << bit_index);
       if (curr_bitset != 0) {
         result = bitsetLeastSignificantBit(curr_bitset);
-        result += (set1->min_position + (inttype) bitset_index) << bitset_shift;
+        result += (set1->min_position + (intType) bitset_index) << bitset_shift;
         return result;
       } /* if */
       bitset_index++;
@@ -1167,7 +1167,7 @@ inttype setNext (const const_settype set1, const inttype number)
         curr_bitset = set1->bitset[bitset_index];
         if (unlikely(curr_bitset != 0)) {
           result = bitsetLeastSignificantBit(curr_bitset);
-          result += (set1->min_position + (inttype) bitset_index) << bitset_shift;
+          result += (set1->min_position + (intType) bitset_index) << bitset_shift;
           return result;
         } /* if */
         bitset_index++;
@@ -1185,14 +1185,14 @@ inttype setNext (const const_settype set1, const inttype number)
  *  @return a random number such that rand(aSet) in aSet holds.
  *  @exception RANGE_ERROR When 'aSet' is empty.
  */
-inttype setRand (const const_settype aSet)
+intType setRand (const const_setType aSet)
 
   {
-    inttype num_elements;
-    inttype elem_index;
-    memsizetype bitset_index;
-    bitsettype curr_bitset;
-    inttype result;
+    intType num_elements;
+    intType elem_index;
+    memSizeType bitset_index;
+    bitSetType curr_bitset;
+    intType result;
 
   /* setRand */
     num_elements = setCard(aSet);
@@ -1206,7 +1206,7 @@ inttype setRand (const const_settype aSet)
         curr_bitset = aSet->bitset[bitset_index - 1];
         /* When elem_index > BITSETTYPE_SIZE holds */
         /* the element cannot be in curr_bitset.   */
-        elem_index -= (inttype) bitsetPopulation(curr_bitset);
+        elem_index -= (intType) bitsetPopulation(curr_bitset);
       } /* for */
       for (; bitset_index > 0; bitset_index--) {
         curr_bitset = aSet->bitset[bitset_index - 1];
@@ -1214,7 +1214,7 @@ inttype setRand (const const_settype aSet)
           elem_index--;
           if (elem_index == 0) {
             result = bitsetLeastSignificantBit(curr_bitset) +
-                ((aSet->min_position + (inttype) (bitset_index - 1)) << bitset_shift);
+                ((aSet->min_position + (intType) (bitset_index - 1)) << bitset_shift);
             return result;
           } /* if */
           /* Turn off the rightmost one bit of curr_bitset: */
@@ -1228,14 +1228,14 @@ inttype setRand (const const_settype aSet)
 
 
 
-settype setRangelit (const inttype lowerValue, const inttype upperValue)
+setType setRangelit (const intType lowerValue, const intType upperValue)
 
   {
-    inttype min_position;
-    inttype max_position;
-    memsizetype bitset_size;
+    intType min_position;
+    intType max_position;
+    memSizeType bitset_size;
     unsigned int bit_index;
-    settype result;
+    setType result;
 
   /* setRangelit */
     min_position = bitset_pos(lowerValue);
@@ -1246,25 +1246,25 @@ settype setRangelit (const inttype lowerValue, const inttype upperValue)
       } else {
         result->min_position = 0;
         result->max_position = 0;
-        result->bitset[0] = (bitsettype) 0;
+        result->bitset[0] = (bitSetType) 0;
       } /* if */
-    } else if (unlikely((uinttype) (max_position - min_position + 1) > MAX_SET_LEN ||
-        !ALLOC_SET(result, (uinttype) (max_position - min_position + 1)))) {
+    } else if (unlikely((uintType) (max_position - min_position + 1) > MAX_SET_LEN ||
+        !ALLOC_SET(result, (uintType) (max_position - min_position + 1)))) {
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
       result->min_position = min_position;
       result->max_position = max_position;
       bit_index = ((unsigned int) lowerValue) & bitset_mask;
-      result->bitset[0] = ~(bitsettype) 0 << bit_index;
+      result->bitset[0] = ~(bitSetType) 0 << bit_index;
       if (min_position == max_position) {
         bit_index = ((unsigned int) upperValue) & bitset_mask;
-        result->bitset[0] &= ~(~(bitsettype) 1 << bit_index);
+        result->bitset[0] &= ~(~(bitSetType) 1 << bit_index);
       } else {
         bitset_size = bitsetSize2(min_position, max_position);
-        memset(&result->bitset[1], 0xff, (bitset_size - 2) * sizeof(bitsettype));
+        memset(&result->bitset[1], 0xff, (bitset_size - 2) * sizeof(bitSetType));
         bit_index = ((unsigned int) upperValue) & bitset_mask;
-        result->bitset[bitset_size - 1] = ~(~(bitsettype) 1 << bit_index);
+        result->bitset[bitset_size - 1] = ~(~(bitSetType) 1 << bit_index);
       } /* if */
     } /* if */
     return result;
@@ -1278,11 +1278,11 @@ settype setRangelit (const inttype lowerValue, const inttype upperValue)
  *  @exception RANGE_ERROR When 'aSet' contains negative values or
  *             when it does not fit into an integer.
  */
-inttype setSConv (const const_settype aSet)
+intType setSConv (const const_setType aSet)
 
   { /* setSConv */
     if (likely(aSet->min_position == 0 && aSet->max_position == 0)) {
-      return (inttype) aSet->bitset[0];
+      return (intType) aSet->bitset[0];
     } else {
       raise_error(RANGE_ERROR);
       return 0;
@@ -1296,15 +1296,15 @@ inttype setSConv (const const_settype aSet)
  *  @return the symmetric difference of the two sets.
  *  @exception MEMORY_ERROR Not enough memory for the result.
  */
-settype setSymdiff (const const_settype set1, const const_settype set2)
+setType setSymdiff (const const_setType set1, const const_setType set2)
 
   {
-    inttype position;
-    inttype min_position;
-    inttype max_position;
-    inttype start_position;
-    inttype stop_position;
-    settype result;
+    intType position;
+    intType min_position;
+    intType max_position;
+    intType start_position;
+    intType stop_position;
+    setType result;
 
   /* setSymdiff */
     if (set1->min_position < set2->min_position) {
@@ -1321,8 +1321,8 @@ settype setSymdiff (const const_settype set1, const const_settype set2)
       max_position = set2->max_position;
       stop_position = set1->max_position;
     } /* if */
-    if (unlikely((uinttype) (max_position - min_position + 1) > MAX_SET_LEN ||
-        !ALLOC_SET(result, (uinttype) (max_position - min_position + 1)))) {
+    if (unlikely((uintType) (max_position - min_position + 1) > MAX_SET_LEN ||
+        !ALLOC_SET(result, (uintType) (max_position - min_position + 1)))) {
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
@@ -1331,27 +1331,27 @@ settype setSymdiff (const const_settype set1, const const_settype set2)
       if (set1->max_position < set2->min_position ||
           set1->min_position > set2->max_position) {
         memcpy(&result->bitset[set1->min_position - min_position], set1->bitset,
-               bitsetSize(set1) * sizeof(bitsettype));
+               bitsetSize(set1) * sizeof(bitSetType));
         memcpy(&result->bitset[set2->min_position - min_position], set2->bitset,
-               bitsetSize(set2) * sizeof(bitsettype));
+               bitsetSize(set2) * sizeof(bitSetType));
         memset(&result->bitset[stop_position - min_position + 1], 0,
-               (size_t) (uinttype) (start_position - stop_position - 1) * sizeof(bitsettype));
+               (size_t) (uintType) (start_position - stop_position - 1) * sizeof(bitSetType));
       } else {
         if (set2->min_position > set1->min_position) {
           memcpy(&result->bitset[set1->min_position - min_position], set1->bitset,
-                 (size_t) (uinttype) (set2->min_position - set1->min_position) * sizeof(bitsettype));
+                 (size_t) (uintType) (set2->min_position - set1->min_position) * sizeof(bitSetType));
         } else {
           memcpy(&result->bitset[set2->min_position - min_position], set2->bitset,
-                 (size_t) (uinttype) (set1->min_position - set2->min_position) * sizeof(bitsettype));
+                 (size_t) (uintType) (set1->min_position - set2->min_position) * sizeof(bitSetType));
         } /* if */
         if (set2->max_position > set1->max_position) {
           memcpy(&result->bitset[set1->max_position - min_position + 1],
                  &set2->bitset[set1->max_position - set2->min_position + 1],
-                 (size_t) (uinttype) (set2->max_position - set1->max_position) * sizeof(bitsettype));
+                 (size_t) (uintType) (set2->max_position - set1->max_position) * sizeof(bitSetType));
         } else {
           memcpy(&result->bitset[set2->max_position - min_position + 1],
                  &set1->bitset[set2->max_position - set1->min_position + 1],
-                 (size_t) (uinttype) (set1->max_position - set2->max_position) * sizeof(bitsettype));
+                 (size_t) (uintType) (set1->max_position - set2->max_position) * sizeof(bitSetType));
         } /* if */
         for (position = start_position; position <= stop_position; position++) {
           result->bitset[position - min_position] =
@@ -1365,11 +1365,11 @@ settype setSymdiff (const const_settype set1, const const_settype set2)
 
 
 
-inttype setToInt (const const_settype set1, const inttype lowestBitNum)
+intType setToInt (const const_setType set1, const intType lowestBitNum)
 
   {
-    inttype position;
-    memsizetype bitset_index;
+    intType position;
+    memSizeType bitset_index;
     unsigned int bit_index;
 
   /* setToInt */
@@ -1378,17 +1378,17 @@ inttype setToInt (const const_settype set1, const inttype lowestBitNum)
       bitset_index = bitsetIndex(set1, position);
       bit_index = ((unsigned int) lowestBitNum) & bitset_mask;
       if (bit_index == 0) {
-        return (inttype) set1->bitset[bitset_index];
+        return (intType) set1->bitset[bitset_index];
       } else if (position < set1->max_position) {
-        return (inttype) (set1->bitset[bitset_index] >> bit_index |
-            set1->bitset[bitset_index + 1] << (8 * sizeof(bitsettype) - bit_index));
+        return (intType) (set1->bitset[bitset_index] >> bit_index |
+            set1->bitset[bitset_index + 1] << (8 * sizeof(bitSetType) - bit_index));
       } else {
-        return (inttype) (set1->bitset[bitset_index] >> bit_index);
+        return (intType) (set1->bitset[bitset_index] >> bit_index);
       } /* if */
     } else if (position == set1->min_position - 1) {
       bitset_index = bitsetIndex(set1, position);
       bit_index = ((unsigned int) lowestBitNum) & bitset_mask;
-      return (inttype) (set1->bitset[bitset_index + 1] << (8 * sizeof(bitsettype) - bit_index));
+      return (intType) (set1->bitset[bitset_index + 1] << (8 * sizeof(bitSetType) - bit_index));
     } else {
       return 0;
     } /* if */
@@ -1401,15 +1401,15 @@ inttype setToInt (const const_settype set1, const inttype lowestBitNum)
  *  @return the union of the two sets.
  *  @exception MEMORY_ERROR Not enough memory for the result.
  */
-settype setUnion (const const_settype set1, const const_settype set2)
+setType setUnion (const const_setType set1, const const_setType set2)
 
   {
-    inttype position;
-    inttype min_position;
-    inttype max_position;
-    inttype start_position;
-    inttype stop_position;
-    settype result;
+    intType position;
+    intType min_position;
+    intType max_position;
+    intType start_position;
+    intType stop_position;
+    setType result;
 
   /* setUnion */
 #ifdef OUT_OF_ORDER
@@ -1433,8 +1433,8 @@ settype setUnion (const const_settype set1, const const_settype set2)
       max_position = set2->max_position;
       stop_position = set1->max_position;
     } /* if */
-    if (unlikely((uinttype) (max_position - min_position + 1) > MAX_SET_LEN ||
-        !ALLOC_SET(result, (uinttype) (max_position - min_position + 1)))) {
+    if (unlikely((uintType) (max_position - min_position + 1) > MAX_SET_LEN ||
+        !ALLOC_SET(result, (uintType) (max_position - min_position + 1)))) {
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
@@ -1443,27 +1443,27 @@ settype setUnion (const const_settype set1, const const_settype set2)
       if (set1->max_position < set2->min_position ||
           set1->min_position > set2->max_position) {
         memcpy(&result->bitset[set1->min_position - min_position], set1->bitset,
-               bitsetSize(set1) * sizeof(bitsettype));
+               bitsetSize(set1) * sizeof(bitSetType));
         memcpy(&result->bitset[set2->min_position - min_position], set2->bitset,
-               bitsetSize(set2) * sizeof(bitsettype));
+               bitsetSize(set2) * sizeof(bitSetType));
         memset(&result->bitset[stop_position - min_position + 1], 0,
-               (size_t) (uinttype) (start_position - stop_position - 1) * sizeof(bitsettype));
+               (size_t) (uintType) (start_position - stop_position - 1) * sizeof(bitSetType));
       } else {
         if (set2->min_position > set1->min_position) {
           memcpy(&result->bitset[set1->min_position - min_position], set1->bitset,
-                 (size_t) (uinttype) (set2->min_position - set1->min_position) * sizeof(bitsettype));
+                 (size_t) (uintType) (set2->min_position - set1->min_position) * sizeof(bitSetType));
         } else {
           memcpy(&result->bitset[set2->min_position - min_position], set2->bitset,
-                 (size_t) (uinttype) (set1->min_position - set2->min_position) * sizeof(bitsettype));
+                 (size_t) (uintType) (set1->min_position - set2->min_position) * sizeof(bitSetType));
         } /* if */
         if (set2->max_position > set1->max_position) {
           memcpy(&result->bitset[set1->max_position - min_position + 1],
                  &set2->bitset[set1->max_position - set2->min_position + 1],
-                 (size_t) (uinttype) (set2->max_position - set1->max_position) * sizeof(bitsettype));
+                 (size_t) (uintType) (set2->max_position - set1->max_position) * sizeof(bitSetType));
         } else {
           memcpy(&result->bitset[set2->max_position - min_position + 1],
                  &set1->bitset[set2->max_position - set1->min_position + 1],
-                 (size_t) (uinttype) (set1->max_position - set2->max_position) * sizeof(bitsettype));
+                 (size_t) (uintType) (set1->max_position - set2->max_position) * sizeof(bitSetType));
         } /* if */
         for (position = start_position; position <= stop_position; position++) {
           result->bitset[position - min_position] =

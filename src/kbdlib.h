@@ -25,10 +25,10 @@
 /*                                                                  */
 /********************************************************************/
 
-objecttype kbd_busy_getc  (listtype arguments);
-objecttype kbd_getc       (listtype arguments);
-objecttype kbd_gets       (listtype arguments);
-objecttype kbd_keypressed (listtype arguments);
-objecttype kbd_line_read  (listtype arguments);
-objecttype kbd_raw_getc   (listtype arguments);
-objecttype kbd_word_read  (listtype arguments);
+objectType kbd_busy_getc  (listType arguments);
+objectType kbd_getc       (listType arguments);
+objectType kbd_gets       (listType arguments);
+objectType kbd_keypressed (listType arguments);
+objectType kbd_line_read  (listType arguments);
+objectType kbd_raw_getc   (listType arguments);
+objectType kbd_word_read  (listType arguments);

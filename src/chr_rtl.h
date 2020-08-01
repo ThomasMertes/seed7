@@ -29,12 +29,12 @@
 /*                                                                  */
 /********************************************************************/
 
-stritype chrCLit (chartype character);
+striType chrCLit (charType character);
 #ifdef ALLOW_STRITYPE_SLICES
-stritype chrCLitToBuffer (chartype character, stritype buffer);
+striType chrCLitToBuffer (charType character, striType buffer);
 #endif
-inttype chrCmp (chartype char1, chartype char2);
-void chrCpy (chartype *dest, chartype source);
-chartype chrLow (chartype ch);
-stritype chrStr (chartype ch);
-chartype chrUp (chartype ch);
+intType chrCmp (charType char1, charType char2);
+void chrCpy (charType *dest, charType source);
+charType chrLow (charType ch);
+striType chrStr (charType ch);
+charType chrUp (charType ch);

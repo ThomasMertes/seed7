@@ -39,7 +39,7 @@
 
 
 
-sockettype socAccept (sockettype sock, bstritype *address)
+socketType socAccept (socketType sock, bstriType *address)
 
   { /* socAccept */
     return 0;
@@ -47,7 +47,7 @@ sockettype socAccept (sockettype sock, bstritype *address)
 
 
 
-inttype socAddrFamily (const const_bstritype address)
+intType socAddrFamily (const const_bstriType address)
 
   { /* socAddrFamily */
     return 0;
@@ -55,7 +55,7 @@ inttype socAddrFamily (const const_bstritype address)
 
 
 
-stritype socAddrNumeric (const const_bstritype address)
+striType socAddrNumeric (const const_bstriType address)
 
   { /* socAddrNumeric */
     return NULL;
@@ -63,7 +63,7 @@ stritype socAddrNumeric (const const_bstritype address)
 
 
 
-stritype socAddrService (const const_bstritype address)
+striType socAddrService (const const_bstriType address)
 
   { /* socAddrService */
     return NULL;
@@ -71,36 +71,36 @@ stritype socAddrService (const const_bstritype address)
 
 
 
-void socBind (sockettype sock, const_bstritype address)
+void socBind (socketType sock, const_bstriType address)
 
   { /* socBind */
   } /* socBind */
 
 
 
-void socClose (sockettype sock)
+void socClose (socketType sock)
 
   { /* socClose */
   } /* socClose */
 
 
 
-void socConnect (sockettype sock, const_bstritype address)
+void socConnect (socketType sock, const_bstriType address)
 
   { /* socConnect */
   } /* socConnect */
 
 
 
-chartype socGetc (sockettype sock)
+charType socGetc (socketType sock)
 
   { /* socGetc */
-    return (chartype) EOF;
+    return (charType) EOF;
   } /* socGetc */
 
 
 
-stritype socGets (sockettype sock, inttype length)
+striType socGets (socketType sock, intType length)
 
   { /* socGets */
     return NULL;
@@ -108,7 +108,7 @@ stritype socGets (sockettype sock, inttype length)
 
 
 
-bstritype socGetAddr (sockettype sock)
+bstriType socGetAddr (socketType sock)
 
   { /* socGetAddr */
     raise_error(FILE_ERROR);
@@ -117,7 +117,7 @@ bstritype socGetAddr (sockettype sock)
 
 
 
-stritype socGetHostname (void)
+striType socGetHostname (void)
 
   { /* socGetHostname */
     return NULL;
@@ -125,7 +125,7 @@ stritype socGetHostname (void)
 
 
 
-booltype socHasNext (sockettype sock)
+boolType socHasNext (socketType sock)
 
   { /* socHasNext */
     return TRUE;
@@ -133,7 +133,7 @@ booltype socHasNext (sockettype sock)
 
 
 
-bstritype socInetAddr (const const_stritype host_name, inttype port)
+bstriType socInetAddr (const const_striType host_name, intType port)
 
   { /* socInetAddr */
     raise_error(FILE_ERROR);
@@ -142,7 +142,7 @@ bstritype socInetAddr (const const_stritype host_name, inttype port)
 
 
 
-bstritype socInetLocalAddr (inttype port)
+bstriType socInetLocalAddr (intType port)
 
   { /* socInetLocalAddr */
     raise_error(FILE_ERROR);
@@ -151,7 +151,7 @@ bstritype socInetLocalAddr (inttype port)
 
 
 
-bstritype socInetServAddr (inttype port)
+bstriType socInetServAddr (intType port)
 
   { /* socInetServAddr */
     raise_error(FILE_ERROR);
@@ -160,7 +160,7 @@ bstritype socInetServAddr (inttype port)
 
 
 
-booltype socInputReady (sockettype sock, inttype seconds, inttype micro_seconds)
+boolType socInputReady (socketType sock, intType seconds, intType micro_seconds)
 
   { /* socInputReady */
     return FALSE;
@@ -168,7 +168,7 @@ booltype socInputReady (sockettype sock, inttype seconds, inttype micro_seconds)
 
 
 
-stritype socLineRead (sockettype sock, chartype *terminationChar)
+striType socLineRead (socketType sock, charType *terminationChar)
 
   { /* socLineRead */
     return NULL;
@@ -176,14 +176,14 @@ stritype socLineRead (sockettype sock, chartype *terminationChar)
 
 
 
-void socListen (sockettype sock, inttype backlog)
+void socListen (socketType sock, intType backlog)
 
   { /* socListen */
   } /* socListen */
 
 
 
-inttype socRecv (sockettype sock, stritype *stri, inttype length, inttype flags)
+intType socRecv (socketType sock, striType *stri, intType length, intType flags)
 
   { /* socRecv */
     return 0;
@@ -191,8 +191,8 @@ inttype socRecv (sockettype sock, stritype *stri, inttype length, inttype flags)
 
 
 
-inttype socRecvfrom (sockettype sock, stritype *stri, inttype length, inttype flags,
-    bstritype *address)
+intType socRecvfrom (socketType sock, striType *stri, intType length, intType flags,
+    bstriType *address)
 
   { /* socRecvfrom */
     return 0;
@@ -200,7 +200,7 @@ inttype socRecvfrom (sockettype sock, stritype *stri, inttype length, inttype fl
 
 
 
-inttype socSend (sockettype sock, const const_stritype stri, inttype flags)
+intType socSend (socketType sock, const const_striType stri, intType flags)
 
   { /* socSend */
     return 0;
@@ -208,8 +208,8 @@ inttype socSend (sockettype sock, const const_stritype stri, inttype flags)
 
 
 
-inttype socSendto (sockettype sock, const const_stritype stri, inttype flags,
-    const_bstritype address)
+intType socSendto (socketType sock, const const_striType stri, intType flags,
+    const_bstriType address)
 
   { /* socSendto */
     return 0;
@@ -217,14 +217,14 @@ inttype socSendto (sockettype sock, const const_stritype stri, inttype flags,
 
 
 
-void socSetOptBool (sockettype sock, inttype optname, booltype optval)
+void socSetOptBool (socketType sock, intType optname, boolType optval)
 
   { /* socSetOptBool */
   } /* socSetOptBool */
 
 
 
-sockettype socSocket (inttype domain, inttype type, inttype protocol)
+socketType socSocket (intType domain, intType type, intType protocol)
 
   { /* socSocket */
     return 0;
@@ -232,7 +232,7 @@ sockettype socSocket (inttype domain, inttype type, inttype protocol)
 
 
 
-stritype socWordRead (sockettype sock, chartype *terminationChar)
+striType socWordRead (socketType sock, charType *terminationChar)
 
   { /* socWordRead */
     return NULL;
@@ -240,7 +240,7 @@ stritype socWordRead (sockettype sock, chartype *terminationChar)
 
 
 
-void socWrite (sockettype sock, const const_stritype stri)
+void socWrite (socketType sock, const const_striType stri)
 
   { /* socWrite */
   } /* socWrite */

@@ -50,18 +50,18 @@
 #define MAX_POINT_COUNT 2000
 #define MAX_POLYLINE_COUNT 2000
 
-typedef int postype; /* -127 .. 127 */
+typedef int positionType; /* -127 .. 127 */
 
 typedef struct {
-    booltype makefill;
+    boolType makefill;
     int point_count;
     XPoint start_point;
     XPoint *points;
   } polyLineType;
 
 typedef struct {
-    postype xshift;
-    postype xwidth;
+    positionType xshift;
+    positionType xwidth;
     int polyline_count;
     polyLineType *polylines;
   } charDefType;
@@ -71,18 +71,18 @@ typedef struct scaledFontStruct *scaledFontType;
 
 typedef struct basicFontStruct {
     char *name;
-    postype xMin, xMax, yMin, yMax, xDiff, yDiff, xDist, yDist, size;
+    positionType xMin, xMax, yMin, yMax, xDiff, yDiff, xDist, yDist, size;
     charDefType characters[256];
     scaledFontType scaledfont;
     basicFontType next;
-  } basicFontRecord; /* record */
+  } basicFontRecord;
 
 typedef struct scaledFontStruct {
-    postype xMin, xMax, yMin, yMax, xDiff, yDiff, xDist, yDist;
+    positionType xMin, xMax, yMin, yMax, xDiff, yDiff, xDist, yDist;
     int slant, bslant;
     charDefType characters[256];
     scaledFontType next;
-  } scaledFontRecord; /* record */
+  } scaledFontRecord;
 
 
 static Display *mydisplay = NULL;
@@ -96,13 +96,13 @@ static unsigned long myforeground, mybackground;
 
 static basicFontType font_list = NULL;
 static scaledFontType actual_scaledfont;
-static booltype normal;
+static boolType normal;
 static int maxx, maxy;
 static int button_line = 0;
 static int button_column = 0;
 
-static booltype screen_initialized = FALSE;
-static booltype keybd_initialized = FALSE;
+static boolType screen_initialized = FALSE;
+static boolType keybd_initialized = FALSE;
 
 
 
@@ -125,10 +125,10 @@ static void kbd_init (void)
 
 
 
-booltype kbdKeyPressed (void)
+boolType kbdKeyPressed (void)
 
   {
-    booltype result;
+    boolType result;
 
   /* kbdKeyPressed */
     if (!keybd_initialized) {
@@ -150,12 +150,12 @@ booltype kbdKeyPressed (void)
 
 
 
-chartype kbdGetc (void)
+charType kbdGetc (void)
 
   {
     int count;
     char buffer[21];
-    chartype result;
+    charType result;
 
   /* kbdGetc */
     if (!keybd_initialized) {
@@ -493,7 +493,7 @@ chartype kbdGetc (void)
 
 
 
-chartype kbdRawGetc (void)
+charType kbdRawGetc (void)
 
   { /* kbdRawGetc */
     return kbdGetc();
@@ -501,7 +501,7 @@ chartype kbdRawGetc (void)
 
 
 
-static void x11_setcolour (inttype foreground, inttype background)
+static void x11_setcolour (intType foreground, intType background)
 
   { /* x11_setcolour */
 #ifdef TRACE_X11_SETCOLOUR
@@ -535,10 +535,10 @@ static void x11_normalcolour (void)
 
 
 
-static postype scale (int font_value, int font_scale, int screen_scale)
+static positionType scale (int font_value, int font_scale, int screen_scale)
 
   {
-    postype result;
+    positionType result;
 
   /* scale */
 #ifdef TRACE_SCALE
@@ -559,7 +559,7 @@ static postype scale (int font_value, int font_scale, int screen_scale)
 
 
 
-static void writenumber (FILE *scalefile, postype number)
+static void writenumber (FILE *scalefile, positionType number)
 
   {
     int ch;
@@ -581,10 +581,10 @@ static void writenumber (FILE *scalefile, postype number)
 
 
 
-static postype readnumber (FILE *fontfile)
+static positionType readnumber (FILE *fontfile)
 
   {
-    postype number;
+    positionType number;
     int ch;
 
   /* readnumber */
@@ -786,7 +786,7 @@ static basicFontType readfont (char *fontfilename)
 
 
 static scaledFontType scalefont (basicFontType font,
-    int wanted_scale, int wanted_slant, booltype filled)
+    int wanted_scale, int wanted_slant, boolType filled)
 
   {
     int font_scale;
@@ -1236,7 +1236,7 @@ fflush(stdout);
 
 
 
-inttype textheight (void)
+intType textheight (void)
 
   { /* textheight */
     return actual_scaledfont->yDiff;
@@ -1244,12 +1244,12 @@ inttype textheight (void)
 
 
 
-static inttype txtwidth (unsigned char *stri, inttype length,
-    inttype startidx, inttype stopidx)
+static intType txtwidth (unsigned char *stri, intType length,
+    intType startidx, intType stopidx)
 
   {
-    inttype pos;
-    inttype width;
+    intType pos;
+    intType width;
 
   /* txtwidth */
     width = 0;
@@ -1274,8 +1274,8 @@ static inttype txtwidth (unsigned char *stri, inttype length,
 
 
 
-inttype textwidth (stritype stri,
-    inttype startcol, inttype stopcol)
+intType textwidth (striType stri,
+    intType startcol, intType stopcol)
 
   { /* textwidth */
     return txtwidth(stri->mem, stri->size, startcol - 1, stopcol - 1);
@@ -1283,11 +1283,11 @@ inttype textwidth (stritype stri,
 
 
 
-void textcolumns (stritype stri, inttype striwidth,
-    inttype *cols, inttype *rest)
+void textcolumns (striType stri, intType striwidth,
+    intType *cols, intType *rest)
 
   {
-    inttype width;
+    intType width;
 
   /* textcolumns */
     *cols = 0;
@@ -1341,15 +1341,15 @@ void conFlush (void)
 
 
 
-void conCursor (booltype on)
+void conCursor (boolType on)
 
   { /* conCursor */
   } /* conCursor */
 
 
 
-void conClear (inttype startlin, inttype startcol,
-    inttype stoplin, inttype stopcol)
+void conClear (intType startlin, intType startcol,
+    intType stoplin, intType stopcol)
 
   /* Clears the area described by startlin, stoplin, startcol and   */
   /* stopcol.                                                       */
@@ -1368,7 +1368,7 @@ void conClear (inttype startlin, inttype startcol,
 
 
 
-static void screenlineclear (int xpos, int ypos, inttype len)
+static void screenlineclear (int xpos, int ypos, intType len)
 
   /* In der Position xpos, ypos des Bildschirmes wird ein Bereich    */
   /* der Laenge len und der Hoehe einer Zeile geloescht.             */
@@ -1419,7 +1419,7 @@ static void screenlineclear (int xpos, int ypos, inttype len)
 
 
 
-void conSetCursor (inttype lin, inttype col)
+void conSetCursor (intType lin, intType col)
 
   /* Moves the system curser to the given place of the console.     */
   /* When no system cursor exists this procedure can be replaced by */
@@ -1442,8 +1442,8 @@ void conSetCursor (inttype lin, inttype col)
 
 
 
-void conText (inttype lin, inttype col, ustritype stri,
-memsizetype length)
+void conText (intType lin, intType col, ustriType stri,
+memSizeType length)
 
   /* This function writes the string stri to the console at the     */
   /* position (lin, col). The position (lin, col) must be a legal   */
@@ -1556,8 +1556,8 @@ memsizetype length)
 
 
 
-void conUpScroll (inttype startlin, inttype startcol,
-    inttype stoplin, inttype stopcol, inttype count)
+void conUpScroll (intType startlin, intType startcol,
+    intType stoplin, intType stopcol, intType count)
 
   /* Scrolls the area inside startlin, startcol, stoplin and        */
   /* stopcol upward by count lines. The upper count lines of the    */
@@ -1606,8 +1606,8 @@ void conUpScroll (inttype startlin, inttype startcol,
 
 
 
-void conDownScroll (inttype startlin, inttype startcol,
-    inttype stoplin, inttype stopcol, inttype count)
+void conDownScroll (intType startlin, intType startcol,
+    intType stoplin, intType stopcol, intType count)
 
   /* Scrolls the area inside startlin, startcol, stoplin and        */
   /* stopcol downward by count lines. The lower count lines of the  */
@@ -1656,8 +1656,8 @@ void conDownScroll (inttype startlin, inttype startcol,
 
 
 
-void conLeftScroll (inttype startlin, inttype startcol,
-    inttype stoplin, inttype stopcol, inttype count)
+void conLeftScroll (intType startlin, intType startcol,
+    intType stoplin, intType stopcol, intType count)
 
   /* Scrolls the area inside startlin, startcol, stoplin and        */
   /* stopcol leftward by count lines. The left count lines of the   */
@@ -1669,8 +1669,8 @@ void conLeftScroll (inttype startlin, inttype startcol,
 
 
 
-void conRightScroll (inttype startlin, inttype startcol,
-    inttype stoplin, inttype stopcol, inttype count)
+void conRightScroll (intType startlin, intType startcol,
+    intType stoplin, intType stopcol, intType count)
 
   /* Scrolls the area inside startlin, startcol, stoplin and        */
   /* stopcol rightward by count lines. The right count lines of the */

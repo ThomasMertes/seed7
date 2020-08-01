@@ -25,4 +25,4 @@
 /*                                                                  */
 /********************************************************************/
 
-void fatal_memory_error (const_cstritype source_file, int source_line);
+void fatal_memory_error (const_cstriType source_file, int source_line);

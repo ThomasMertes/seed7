@@ -38,32 +38,32 @@
 
 
 #ifdef CONSOLE_WCHAR
-typedef wstritype console_stritype;
+typedef wstriType console_striType;
 #else
-typedef ustritype console_stritype;
+typedef ustriType console_striType;
 #endif
 
 
 int conHeight (void);
 int conWidth (void);
 void conFlush (void);
-void conCursor (booltype on);
-void conSetCursor (inttype lin, inttype col);
+void conCursor (boolType on);
+void conSetCursor (intType lin, intType col);
 #ifdef CONSOLE_USES_CON_TEXT
-void conText (inttype lin, inttype col, console_stritype stri,
-    memsizetype length);
+void conText (intType lin, intType col, console_striType stri,
+    memSizeType length);
 #else
-void conWrite (const const_stritype stri);
+void conWrite (const const_striType stri);
 #endif
-void conClear (inttype startlin, inttype startcol,
-    inttype stoplin, inttype stopcol);
-void conUpScroll (inttype startlin, inttype startcol,
-    inttype stoplin, inttype stopcol, inttype count);
-void conDownScroll (inttype startlin, inttype startcol,
-    inttype stoplin, inttype stopcol, inttype count);
-void conLeftScroll (inttype startlin, inttype startcol,
-    inttype stoplin, inttype stopcol, inttype count);
-void conRightScroll (inttype startlin, inttype startcol,
-    inttype stoplin, inttype stopcol, inttype count);
+void conClear (intType startlin, intType startcol,
+    intType stoplin, intType stopcol);
+void conUpScroll (intType startlin, intType startcol,
+    intType stoplin, intType stopcol, intType count);
+void conDownScroll (intType startlin, intType startcol,
+    intType stoplin, intType stopcol, intType count);
+void conLeftScroll (intType startlin, intType startcol,
+    intType stoplin, intType stopcol, intType count);
+void conRightScroll (intType startlin, intType startcol,
+    intType stoplin, intType stopcol, intType count);
 void conShut (void);
 int conOpen (void);

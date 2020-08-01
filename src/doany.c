@@ -57,18 +57,18 @@
 #undef TRACE_DOANY
 
 
-static listrecord flush_expr[2];
-static listrecord wrnl_expr[2];
-static listrecord wrstri_expr[3];
+static listRecord flush_expr[2];
+static listRecord wrnl_expr[2];
+static listRecord wrstri_expr[3];
 
 
 
-objecttype exec1 (listtype list)
+objectType exec1 (listType list)
 
   {
-    objectrecord expr_object;
-    objecttype object;
-    objecttype result;
+    objectRecord expr_object;
+    objectType object;
+    objectType result;
 
   /* exec1 */
 #ifdef TRACE_EXEC
@@ -87,7 +87,7 @@ objecttype exec1 (listtype list)
        fflush(stdout); */
     expr_object.type_of = take_type(SYS_EXPR_TYPE);
     expr_object.descriptor.property = NULL;
-    expr_object.value.listvalue = list;
+    expr_object.value.listValue = list;
     INIT_CATEGORY_OF_OBJ(&expr_object, EXPROBJECT);
     if ((object = match_expression(&expr_object)) != NULL) {
 #ifdef DEBUG_EXEC
@@ -106,7 +106,7 @@ objecttype exec1 (listtype list)
       } /* if */
 #endif
       result = exec_call(object);
-      FREE_L_ELEM(object->value.listvalue);
+      FREE_L_ELEM(object->value.listValue);
       /* FREE_OBJECT(object) is not necessary, */
       /* because object == &expr_object holds. */
     } else {
@@ -131,10 +131,10 @@ objecttype exec1 (listtype list)
 
 
 
-booltype do_flush (objecttype outfile)
+boolType do_flush (objectType outfile)
 
   {
-    booltype result;
+    boolType result;
 
   /* do_flush */
 #ifdef TRACE_DOANY
@@ -142,7 +142,7 @@ booltype do_flush (objecttype outfile)
 #endif
     flush_expr[0].obj = outfile;
     flush_expr[1].obj = SYS_FLUSH_OBJECT;
-    result = (booltype) (exec1(flush_expr) == SYS_EMPTY_OBJECT);
+    result = (boolType) (exec1(flush_expr) == SYS_EMPTY_OBJECT);
     fail_flag = FALSE;
 #ifdef TRACE_DOANY
     printf("END do_flush\n");
@@ -152,10 +152,10 @@ booltype do_flush (objecttype outfile)
 
 
 
-booltype do_wrnl (objecttype outfile)
+boolType do_wrnl (objectType outfile)
 
   {
-    booltype result;
+    boolType result;
 
   /* do_wrnl */
 #ifdef TRACE_DOANY
@@ -163,7 +163,7 @@ booltype do_wrnl (objecttype outfile)
 #endif
     wrnl_expr[0].obj = outfile;
     wrnl_expr[1].obj = SYS_WRLN_OBJECT;
-    result = (booltype) (exec1(wrnl_expr) == SYS_EMPTY_OBJECT);
+    result = (boolType) (exec1(wrnl_expr) == SYS_EMPTY_OBJECT);
     fail_flag = FALSE;
 #ifdef TRACE_DOANY
     printf("END do_wrnl\n");
@@ -173,11 +173,11 @@ booltype do_wrnl (objecttype outfile)
 
 
 
-booltype do_wrstri (objecttype outfile, stritype stri)
+boolType do_wrstri (objectType outfile, striType stri)
 
   {
-    objecttype out_stri;
-    booltype result;
+    objectType out_stri;
+    boolType result;
 
   /* do_wrstri */
 #ifdef TRACE_DOANY
@@ -188,7 +188,7 @@ booltype do_wrstri (objecttype outfile, stritype stri)
       wrstri_expr[0].obj = outfile;
       wrstri_expr[1].obj = out_stri;
       wrstri_expr[2].obj = SYS_WRITE_OBJECT;
-      result = (booltype) (exec1(wrstri_expr) == SYS_EMPTY_OBJECT);
+      result = (boolType) (exec1(wrstri_expr) == SYS_EMPTY_OBJECT);
       fail_flag = FALSE;
       FREE_OBJECT(out_stri);
     } /* if */
@@ -201,11 +201,11 @@ booltype do_wrstri (objecttype outfile, stritype stri)
 
 
 
-booltype do_wrcstri (objecttype outfile, const_cstritype stri)
+boolType do_wrcstri (objectType outfile, const_cstriType stri)
 
   {
-    stritype out_stri;
-    booltype result;
+    striType out_stri;
+    boolType result;
 
   /* do_wrcstri */
 #ifdef TRACE_DOANY

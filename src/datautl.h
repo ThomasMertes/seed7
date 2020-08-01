@@ -21,11 +21,11 @@
 /*  Module: Reflection                                              */
 /*  File: seed7/src/datautl.c                                       */
 /*  Changes: 1991, 1992, 1993, 1994  Thomas Mertes                  */
-/*  Content: Procedures to maintain objects of type identtype.      */
+/*  Content: Procedures to maintain objects of type identType.      */
 /*                                                                  */
 /********************************************************************/
 
-const_cstritype category_cstri (objectcategory category);
-inttype category_value (const const_cstritype stri);
-const_cstritype id_string (const_identtype actual_ident);
-const_cstritype id_string2 (const_identtype actual_ident);
+const_cstriType category_cstri (objectCategory category);
+intType category_value (const const_cstriType stri);
+const_cstriType id_string (const_identType actual_ident);
+const_cstriType id_string2 (const_identType actual_ident);

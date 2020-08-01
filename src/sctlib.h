@@ -25,15 +25,15 @@
 /*                                                                  */
 /********************************************************************/
 
-objecttype sct_alloc  (listtype arguments);
-objecttype sct_cat    (listtype arguments);
-objecttype sct_conv   (listtype arguments);
-objecttype sct_cpy    (listtype arguments);
-objecttype sct_create (listtype arguments);
-objecttype sct_destr  (listtype arguments);
-objecttype sct_elem   (listtype arguments);
-objecttype sct_empty  (listtype arguments);
-objecttype sct_incl   (listtype arguments);
-objecttype sct_lng    (listtype arguments);
-objecttype sct_refidx (listtype arguments);
-objecttype sct_select (listtype arguments);
+objectType sct_alloc  (listType arguments);
+objectType sct_cat    (listType arguments);
+objectType sct_conv   (listType arguments);
+objectType sct_cpy    (listType arguments);
+objectType sct_create (listType arguments);
+objectType sct_destr  (listType arguments);
+objectType sct_elem   (listType arguments);
+objectType sct_empty  (listType arguments);
+objectType sct_incl   (listType arguments);
+objectType sct_lng    (listType arguments);
+objectType sct_refidx (listType arguments);
+objectType sct_select (listType arguments);

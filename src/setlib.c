@@ -67,16 +67,16 @@ static int card_byte[] = {
 
 
 
-objecttype set_arrlit (listtype arguments)
+objectType set_arrlit (listType arguments)
 
   {
-    arraytype arr1;
-    memsizetype length;
-    memsizetype array_index;
-    inttype number;
-    inttype position;
+    arrayType arr1;
+    memSizeType length;
+    memSizeType array_index;
+    intType number;
+    intType position;
     unsigned int bit_index;
-    settype result;
+    setType result;
 
   /* set_arrlit */
     isit_array(arg_2(arguments));
@@ -88,14 +88,14 @@ objecttype set_arrlit (listtype arguments)
       if (length == 0) {
         result->min_position = 0;
         result->max_position = 0;
-        memset(result->bitset, 0, sizeof(bitsettype));
+        memset(result->bitset, 0, sizeof(bitSetType));
       } else {
         number = take_int(&arr1->arr[0]);
         position = bitset_pos(number);
         result->min_position = position;
         result->max_position = position;
         bit_index = ((unsigned int) number) & bitset_mask;
-        result->bitset[0] = (((bitsettype) 1) << bit_index);
+        result->bitset[0] = (((bitSetType) 1) << bit_index);
         for (array_index = 1; array_index < length; array_index++) {
           setIncl(&result, take_int(&arr1->arr[array_index]));
           if (fail_flag) {
@@ -110,13 +110,13 @@ objecttype set_arrlit (listtype arguments)
 
 
 
-objecttype set_baselit (listtype arguments)
+objectType set_baselit (listType arguments)
 
   {
-    inttype number;
-    inttype position;
+    intType number;
+    intType position;
     unsigned int bit_index;
-    settype result;
+    setType result;
 
   /* set_baselit */
     isit_int(arg_2(arguments));
@@ -128,7 +128,7 @@ objecttype set_baselit (listtype arguments)
       result->min_position = position;
       result->max_position = position;
       bit_index = ((unsigned int) number) & bitset_mask;
-      result->bitset[0] = (((bitsettype) 1) << bit_index);
+      result->bitset[0] = (((bitSetType) 1) << bit_index);
       return bld_set_temp(result);
     } /* if */
   } /* set_baselit */
@@ -139,24 +139,24 @@ objecttype set_baselit (listtype arguments)
  *  Compute the cardinality of a set.
  *  @return the number of elements in 'aSet'.
  */
-objecttype set_card (listtype arguments)
+objectType set_card (listType arguments)
 
   {
-    settype aSet;
-    memsizetype bitset_index;
+    setType aSet;
+    memSizeType bitset_index;
     unsigned char *byte;
     size_t idx;
-    inttype result;
+    intType result;
 
   /* set_card */
     isit_set(arg_1(arguments));
     aSet = take_set(arg_1(arguments));
     result = 0;
     for (bitset_index = 0;
-        bitset_index <= (uinttype) (aSet->max_position - aSet->min_position);
+        bitset_index <= (uintType) (aSet->max_position - aSet->min_position);
         bitset_index++) {
       byte = (unsigned char *) &aSet->bitset[bitset_index];
-      for (idx = 0; idx < sizeof(bitsettype); idx++) {
+      for (idx = 0; idx < sizeof(bitSetType); idx++) {
         /* printf("%c%c%c%c%c%c%c%c [%d] ",
                *byte & 0x80 ? '1' : '0',
                *byte & 0x40 ? '1' : '0',
@@ -188,7 +188,7 @@ objecttype set_card (listtype arguments)
  *  setIsSubset and setIsProperSubset are used to check if a set is
  *  a (proper) subset or superset of another set.
  */
-objecttype set_cmp (listtype arguments)
+objectType set_cmp (listType arguments)
 
   { /* set_cmp */
     isit_set(arg_1(arguments));
@@ -199,18 +199,18 @@ objecttype set_cmp (listtype arguments)
 
 
 
-objecttype set_conv (listtype arguments)
+objectType set_conv (listType arguments)
 
   {
-    objecttype set_arg;
-    settype result;
+    objectType set_arg;
+    setType result;
 
   /* set_conv */
     set_arg = arg_3(arguments);
     isit_set(set_arg);
     if (TEMP_OBJECT(set_arg)) {
       result = take_set(set_arg);
-      set_arg->value.setvalue = NULL;
+      set_arg->value.setValue = NULL;
       return bld_set_temp(result);
     } else {
       return set_arg;
@@ -219,15 +219,15 @@ objecttype set_conv (listtype arguments)
 
 
 
-objecttype set_cpy (listtype arguments)
+objectType set_cpy (listType arguments)
 
   {
-    objecttype set_to;
-    objecttype set_from;
-    settype set_dest;
-    settype set_source;
-    memsizetype set_dest_size;
-    memsizetype set_source_size;
+    objectType set_to;
+    objectType set_from;
+    setType set_dest;
+    setType set_source;
+    memSizeType set_dest_size;
+    memSizeType set_source_size;
 
   /* set_cpy */
     set_to = arg_1(arguments);
@@ -240,8 +240,8 @@ objecttype set_cpy (listtype arguments)
     if (TEMP_OBJECT(set_from)) {
       set_dest_size = bitsetSize(set_dest);
       FREE_SET(set_dest, set_dest_size);
-      set_to->value.setvalue = set_source;
-      set_from->value.setvalue = NULL;
+      set_to->value.setValue = set_source;
+      set_from->value.setValue = NULL;
     } else {
       set_source_size = bitsetSize(set_source);
       if (set_dest->min_position != set_source->min_position ||
@@ -251,8 +251,8 @@ objecttype set_cpy (listtype arguments)
           if (!ALLOC_SET(set_dest, set_source_size)) {
             return raise_exception(SYS_MEM_EXCEPTION);
           } else {
-            FREE_SET(set_to->value.setvalue, set_dest_size);
-            set_to->value.setvalue = set_dest;
+            FREE_SET(set_to->value.setValue, set_dest_size);
+            set_to->value.setValue = set_dest;
           } /* if */
         } /* if */
         set_dest->min_position = set_source->min_position;
@@ -263,21 +263,21 @@ objecttype set_cpy (listtype arguments)
       /* destination areas overlap (or are identical).     */
       /* Therefore memmove() is used instead of memcpy().  */
       memmove(set_dest->bitset, set_source->bitset,
-          (size_t) set_source_size * sizeof(bitsettype));
+          (size_t) set_source_size * sizeof(bitSetType));
     } /* if */
     return SYS_EMPTY_OBJECT;
   } /* set_cpy */
 
 
 
-objecttype set_create (listtype arguments)
+objectType set_create (listType arguments)
 
   {
-    objecttype set_to;
-    objecttype set_from;
-    settype set_source;
-    memsizetype new_size;
-    settype new_set;
+    objectType set_to;
+    objectType set_from;
+    setType set_source;
+    memSizeType new_size;
+    setType new_set;
 
   /* set_create */
     set_to = arg_1(arguments);
@@ -286,19 +286,19 @@ objecttype set_create (listtype arguments)
     set_source = take_set(set_from);
     SET_CATEGORY_OF_OBJ(set_to, SETOBJECT);
     if (TEMP_OBJECT(set_from)) {
-      set_to->value.setvalue = set_source;
-      set_from->value.setvalue = NULL;
+      set_to->value.setValue = set_source;
+      set_from->value.setValue = NULL;
     } else {
       new_size = bitsetSize(set_source);
       if (!ALLOC_SET(new_set, new_size)) {
-        set_to->value.setvalue = NULL;
+        set_to->value.setValue = NULL;
         return raise_exception(SYS_MEM_EXCEPTION);
       } else {
-        set_to->value.setvalue = new_set;
+        set_to->value.setValue = new_set;
         new_set->min_position = set_source->min_position;
         new_set->max_position = set_source->max_position;
         memcpy(new_set->bitset, set_source->bitset,
-            (size_t) new_size * sizeof(bitsettype));
+            (size_t) new_size * sizeof(bitSetType));
       } /* if */
     } /* if */
     return SYS_EMPTY_OBJECT;
@@ -306,17 +306,17 @@ objecttype set_create (listtype arguments)
 
 
 
-objecttype set_destr (listtype arguments)
+objectType set_destr (listType arguments)
 
   {
-    settype old_set;
+    setType old_set;
 
   /* set_destr */
     isit_set(arg_1(arguments));
     old_set = take_set(arg_1(arguments));
     if (old_set != NULL) {
       FREE_SET(old_set, bitsetSize(old_set));
-      arg_1(arguments)->value.setvalue = NULL;
+      arg_1(arguments)->value.setValue = NULL;
     } /* if */
     SET_UNUSED_FLAG(arg_1(arguments));
     return SYS_EMPTY_OBJECT;
@@ -329,7 +329,7 @@ objecttype set_destr (listtype arguments)
  *  @return the difference of the two sets.
  *  @exception MEMORY_ERROR Not enough memory for the result.
  */
-objecttype set_diff (listtype arguments)
+objectType set_diff (listType arguments)
 
   { /* set_diff */
     isit_set(arg_1(arguments));
@@ -346,13 +346,13 @@ objecttype set_diff (listtype arguments)
  *  @return TRUE when 'number' is a member of  'aSet',
  *          FALSE otherwise.
  */
-objecttype set_elem (listtype arguments)
+objectType set_elem (listType arguments)
 
   {
-    settype aSet;
-    inttype number;
-    inttype position;
-    memsizetype bitset_index;
+    setType aSet;
+    intType number;
+    intType position;
+    memSizeType bitset_index;
     unsigned int bit_index;
 
   /* set_elem */
@@ -364,7 +364,7 @@ objecttype set_elem (listtype arguments)
     if (position >= aSet->min_position && position <= aSet->max_position) {
       bitset_index = bitsetIndex(aSet, position);
       bit_index = ((unsigned int) number) & bitset_mask;
-      if (aSet->bitset[bitset_index] & (((bitsettype) 1) << bit_index)) {
+      if (aSet->bitset[bitset_index] & (((bitSetType) 1) << bit_index)) {
         return SYS_TRUE_OBJECT;
       } else {
         return SYS_FALSE_OBJECT;
@@ -376,10 +376,10 @@ objecttype set_elem (listtype arguments)
 
 
 
-objecttype set_empty (listtype arguments)
+objectType set_empty (listType arguments)
 
   {
-    settype result;
+    setType result;
 
   /* set_empty */
     if (!ALLOC_SET(result, 1)) {
@@ -387,7 +387,7 @@ objecttype set_empty (listtype arguments)
     } else {
       result->min_position = 0;
       result->max_position = 0;
-      memset(result->bitset, 0, sizeof(bitsettype));
+      memset(result->bitset, 0, sizeof(bitSetType));
       return bld_set_temp(result);
     } /* if */
   } /* set_empty */
@@ -399,7 +399,7 @@ objecttype set_empty (listtype arguments)
  *  @return TRUE if the two sets are equal,
  *          FALSE otherwise.
  */
-objecttype set_eq (listtype arguments)
+objectType set_eq (listType arguments)
 
   { /* set_eq */
     isit_set(arg_1(arguments));
@@ -417,14 +417,14 @@ objecttype set_eq (listtype arguments)
  *  Remove 'number' from the set 'set_to'.
  *  When 'number' is not element of 'set_to' then 'set_to' stays unchanged.
  */
-objecttype set_excl (listtype arguments)
+objectType set_excl (listType arguments)
 
   {
-    objecttype set_to;
-    settype set_dest;
-    inttype number;
-    inttype position;
-    memsizetype bitset_index;
+    objectType set_to;
+    setType set_dest;
+    intType number;
+    intType position;
+    memSizeType bitset_index;
     unsigned int bit_index;
 
   /* set_excl */
@@ -438,7 +438,7 @@ objecttype set_excl (listtype arguments)
     if (position >= set_dest->min_position && position <= set_dest->max_position) {
       bitset_index = bitsetIndex(set_dest, position);
       bit_index = ((unsigned int) number) & bitset_mask;
-      set_dest->bitset[bitset_index] &= ~(((bitsettype) 1) << bit_index);
+      set_dest->bitset[bitset_index] &= ~(((bitSetType) 1) << bit_index);
 #ifdef OUT_OF_ORDER
       if (set_dest->bitset[bitset_index] == 0) {
         if
@@ -458,7 +458,7 @@ objecttype set_excl (listtype arguments)
  *  @return TRUE if 'set1' is a superset of 'set2',
  *          FALSE otherwise.
  */
-objecttype set_ge (listtype arguments)
+objectType set_ge (listType arguments)
 
   { /* set_ge */
     isit_set(arg_1(arguments));
@@ -480,7 +480,7 @@ objecttype set_ge (listtype arguments)
  *  @return TRUE if 'set1' is a proper superset of 'set2',
  *          FALSE otherwise.
  */
-objecttype set_gt (listtype arguments)
+objectType set_gt (listType arguments)
 
   { /* set_gt */
     isit_set(arg_1(arguments));
@@ -498,7 +498,7 @@ objecttype set_gt (listtype arguments)
  *  Compute the hash value of a set.
  *  @return the hash value.
  */
-objecttype set_hashcode (listtype arguments)
+objectType set_hashcode (listType arguments)
 
   { /* set_hashcode */
     isit_set(arg_1(arguments));
@@ -513,7 +513,7 @@ objecttype set_hashcode (listtype arguments)
  *  @return a bitset which corresponds to the given integer.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-objecttype set_iconv (listtype arguments)
+objectType set_iconv (listType arguments)
 
   { /* set_iconv */
     isit_int(arg_3(arguments));
@@ -523,13 +523,13 @@ objecttype set_iconv (listtype arguments)
 
 
 
-objecttype set_idx (listtype arguments)
+objectType set_idx (listType arguments)
 
   {
-    settype aSet;
-    inttype number;
-    inttype position;
-    memsizetype bitset_index;
+    setType aSet;
+    intType number;
+    intType position;
+    memSizeType bitset_index;
     unsigned int bit_index;
 
   /* set_idx */
@@ -541,7 +541,7 @@ objecttype set_idx (listtype arguments)
     if (position >= aSet->min_position && position <= aSet->max_position) {
       bitset_index = bitsetIndex(aSet, position);
       bit_index = ((unsigned int) number) & bitset_mask;
-      if (aSet->bitset[bitset_index] & (((bitsettype) 1) << bit_index)) {
+      if (aSet->bitset[bitset_index] & (((bitSetType) 1) << bit_index)) {
         return SYS_TRUE_OBJECT;
       } else {
         return SYS_FALSE_OBJECT;
@@ -558,17 +558,17 @@ objecttype set_idx (listtype arguments)
  *  When 'number' is already in 'set_to' then 'set_to' stays unchanged.
  *  @exception MEMORY_ERROR When there is not enough memory.
  */
-objecttype set_incl (listtype arguments)
+objectType set_incl (listType arguments)
 
   {
-    objecttype set_to;
-    settype set_dest;
-    inttype number;
-    inttype position;
-    memsizetype old_size;
-    memsizetype new_size;
-    settype old_set;
-    memsizetype bitset_index;
+    objectType set_to;
+    setType set_dest;
+    intType number;
+    intType position;
+    memSizeType old_size;
+    memSizeType new_size;
+    setType old_set;
+    memSizeType bitset_index;
     unsigned int bit_index;
 
   /* set_incl */
@@ -581,7 +581,7 @@ objecttype set_incl (listtype arguments)
     position = bitset_pos(number);
     if (position > set_dest->max_position) {
       old_size = bitsetSize(set_dest);
-      if (unlikely((uinttype) (position - set_dest->min_position + 1) > MAX_SET_LEN)) {
+      if (unlikely((uintType) (position - set_dest->min_position + 1) > MAX_SET_LEN)) {
         return raise_exception(SYS_MEM_EXCEPTION);
       } else {
         new_size = bitsetSize2(set_dest->min_position, position);
@@ -590,14 +590,14 @@ objecttype set_incl (listtype arguments)
           return raise_exception(SYS_MEM_EXCEPTION);
         } else {
           COUNT3_SET(old_size, new_size);
-          set_to->value.setvalue = set_dest;
+          set_to->value.setValue = set_dest;
           set_dest->max_position = position;
-          memset(&set_dest->bitset[old_size], 0, (new_size - old_size) * sizeof(bitsettype));
+          memset(&set_dest->bitset[old_size], 0, (new_size - old_size) * sizeof(bitSetType));
         } /* if */
       } /* if */
     } else if (position < set_dest->min_position) {
       old_size = bitsetSize(set_dest);
-      if (unlikely((uinttype) (set_dest->max_position - position + 1) > MAX_SET_LEN)) {
+      if (unlikely((uintType) (set_dest->max_position - position + 1) > MAX_SET_LEN)) {
         return raise_exception(SYS_MEM_EXCEPTION);
       } else {
         new_size = bitsetSize2(position, set_dest->max_position);
@@ -605,18 +605,18 @@ objecttype set_incl (listtype arguments)
         if (!ALLOC_SET(set_dest, new_size)) {
           return raise_exception(SYS_MEM_EXCEPTION);
         } else {
-          set_to->value.setvalue = set_dest;
+          set_to->value.setValue = set_dest;
           set_dest->min_position = position;
           set_dest->max_position = old_set->max_position;
-          memset(set_dest->bitset, 0, (new_size - old_size) * sizeof(bitsettype));
-          memcpy(&set_dest->bitset[new_size - old_size], old_set->bitset, old_size * sizeof(bitsettype));
+          memset(set_dest->bitset, 0, (new_size - old_size) * sizeof(bitSetType));
+          memcpy(&set_dest->bitset[new_size - old_size], old_set->bitset, old_size * sizeof(bitSetType));
           FREE_SET(old_set, old_size);
         } /* if */
       } /* if */
     } /* if */
     bitset_index = bitsetIndex(set_dest, position);
     bit_index = ((unsigned int) number) & bitset_mask;
-    set_dest->bitset[bitset_index] |= (((bitsettype) 1) << bit_index);
+    set_dest->bitset[bitset_index] |= (((bitSetType) 1) << bit_index);
     return SYS_EMPTY_OBJECT;
   } /* set_incl */
 
@@ -627,7 +627,7 @@ objecttype set_incl (listtype arguments)
  *  @return the intersection of the two sets.
  *  @exception MEMORY_ERROR Not enough memory for the result.
  */
-objecttype set_intersect (listtype arguments)
+objectType set_intersect (listType arguments)
 
   { /* set_intersect */
     isit_set(arg_1(arguments));
@@ -646,7 +646,7 @@ objecttype set_intersect (listtype arguments)
  *  @return TRUE if 'set1' is a subset of 'set2',
  *          FALSE otherwise.
  */
-objecttype set_le (listtype arguments)
+objectType set_le (listType arguments)
 
   { /* set_le */
     isit_set(arg_1(arguments));
@@ -668,7 +668,7 @@ objecttype set_le (listtype arguments)
  *  @return TRUE if 'set1' is a proper subset of 'set2',
  *          FALSE otherwise.
  */
-objecttype set_lt (listtype arguments)
+objectType set_lt (listType arguments)
 
   { /* set_lt */
     isit_set(arg_1(arguments));
@@ -690,7 +690,7 @@ objecttype set_lt (listtype arguments)
  *  @return the maximal element of 'aSet'.
  *  @exception RANGE_ERROR When 'aSet' is the empty set.
  */
-objecttype set_max (listtype arguments)
+objectType set_max (listType arguments)
 
   { /* set_max */
     isit_set(arg_1(arguments));
@@ -708,7 +708,7 @@ objecttype set_max (listtype arguments)
  *  @return the minimum element of 'aSet'.
  *  @exception RANGE_ERROR When 'aSet' is the empty set.
  */
-objecttype set_min (listtype arguments)
+objectType set_min (listType arguments)
 
   { /* set_min */
     isit_set(arg_1(arguments));
@@ -723,7 +723,7 @@ objecttype set_min (listtype arguments)
  *  @return FALSE if the two sets are equal,
  *          TRUE otherwise.
  */
-objecttype set_ne (listtype arguments)
+objectType set_ne (listType arguments)
 
   { /* set_ne */
     isit_set(arg_1(arguments));
@@ -737,7 +737,7 @@ objecttype set_ne (listtype arguments)
 
 
 
-objecttype set_next (listtype arguments)
+objectType set_next (listType arguments)
 
   { /* set_next */
     isit_set(arg_1(arguments));
@@ -754,13 +754,13 @@ objecttype set_next (listtype arguments)
  *  @return FALSE when 'number' is a member of  'aSet',
  *          TRUE otherwise.
  */
-objecttype set_not_elem (listtype arguments)
+objectType set_not_elem (listType arguments)
 
   {
-    settype aSet;
-    inttype number;
-    inttype position;
-    memsizetype bitset_index;
+    setType aSet;
+    intType number;
+    intType position;
+    memSizeType bitset_index;
     unsigned int bit_index;
 
   /* set_not_elem */
@@ -772,7 +772,7 @@ objecttype set_not_elem (listtype arguments)
     if (position >= aSet->min_position && position <= aSet->max_position) {
       bitset_index = bitsetIndex(aSet, position);
       bit_index = ((unsigned int) number) & bitset_mask;
-      if (aSet->bitset[bitset_index] & (((bitsettype) 1) << bit_index)) {
+      if (aSet->bitset[bitset_index] & (((bitSetType) 1) << bit_index)) {
         return SYS_FALSE_OBJECT;
       } else {
         return SYS_TRUE_OBJECT;
@@ -790,7 +790,7 @@ objecttype set_not_elem (listtype arguments)
  *  @return a random number such that rand(aSet) in aSet holds.
  *  @exception RANGE_ERROR When 'aSet' is empty.
  */
-objecttype set_rand (listtype arguments)
+objectType set_rand (listType arguments)
 
   { /* set_rand */
     isit_set(arg_1(arguments));
@@ -800,7 +800,7 @@ objecttype set_rand (listtype arguments)
 
 
 
-objecttype set_rangelit (listtype arguments)
+objectType set_rangelit (listType arguments)
 
   { /* set_rangelit */
     isit_int(arg_2(arguments));
@@ -817,7 +817,7 @@ objecttype set_rangelit (listtype arguments)
  *  @exception RANGE_ERROR When 'aSet' contains negative values or
  *             when it does not fit into an integer.
  */
-objecttype set_sconv (listtype arguments)
+objectType set_sconv (listType arguments)
 
   { /* set_sconv */
     isit_set(arg_3(arguments));
@@ -832,7 +832,7 @@ objecttype set_sconv (listtype arguments)
  *  @return the symmetric difference of the two sets.
  *  @exception MEMORY_ERROR Not enough memory for the result.
  */
-objecttype set_symdiff (listtype arguments)
+objectType set_symdiff (listType arguments)
 
   { /* set_symdiff */
     isit_set(arg_1(arguments));
@@ -848,7 +848,7 @@ objecttype set_symdiff (listtype arguments)
  *  @return the union of the two sets.
  *  @exception MEMORY_ERROR Not enough memory for the result.
  */
-objecttype set_union (listtype arguments)
+objectType set_union (listType arguments)
 
   { /* set_union */
     isit_set(arg_1(arguments));
@@ -859,13 +859,13 @@ objecttype set_union (listtype arguments)
 
 
 
-objecttype set_value (listtype arguments)
+objectType set_value (listType arguments)
 
   {
-    objecttype obj_arg;
-    settype aSet;
-    memsizetype set_size;
-    settype result;
+    objectType obj_arg;
+    setType aSet;
+    memSizeType set_size;
+    setType result;
 
   /* set_value */
     isit_reference(arg_1(arguments));
@@ -881,7 +881,7 @@ objecttype set_value (listtype arguments)
       } else {
         result->min_position = aSet->min_position;
         result->max_position = aSet->max_position;
-        memcpy(result->bitset, aSet->bitset, set_size * sizeof(bitsettype));
+        memcpy(result->bitset, aSet->bitset, set_size * sizeof(bitSetType));
         return bld_set_temp(result);
       } /* if */
     } /* if */

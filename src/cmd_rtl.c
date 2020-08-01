@@ -146,10 +146,10 @@
 #define ARRAY_SIZE_DELTA   256
 
 #ifdef DEFINE_OS_ENVIRON
-extern os_stritype *os_environ;
+extern os_striType *os_environ;
 #endif
 
-extern stritype programPath; /* defined in s7.c or in the executable of a program */
+extern striType programPath; /* defined in s7.c or in the executable of a program */
 
 #ifdef FILE_UNKNOWN
 #undef FILE_UNKNOWN
@@ -175,28 +175,28 @@ static int cmp_mem (void const *strg1, void const *strg2)
 
   { /* cmp_mem */
     return (int) strCompare(
-        ((const_rtlObjecttype *) strg1)->value.strivalue,
-        ((const_rtlObjecttype *) strg2)->value.strivalue);
+        ((const_rtlObjectType *) strg1)->value.striValue,
+        ((const_rtlObjectType *) strg2)->value.striValue);
   } /* cmp_mem */
 
 
 
-static void remove_any_file (os_stritype, errinfotype *);
-static void copy_any_file (os_stritype, os_stritype, int, errinfotype *);
+static void remove_any_file (os_striType, errInfoType *);
+static void copy_any_file (os_striType, os_striType, int, errInfoType *);
 
 
 
-static void remove_dir (os_stritype dir_name, errinfotype *err_info)
+static void remove_dir (os_striType dir_name, errInfoType *err_info)
 
   {
     os_DIR *directory;
     os_dirent_struct *current_entry;
     size_t dir_name_size;
     size_t dir_path_capacity = 0;
-    os_stritype dir_path = NULL;
+    os_striType dir_path = NULL;
     size_t new_size;
-    os_stritype resized_path;
-    booltype init_path = TRUE;
+    os_striType resized_path;
+    boolType init_path = TRUE;
 
   /* remove_dir */
 #ifdef TRACE_CMD_RTL
@@ -212,8 +212,8 @@ static void remove_dir (os_stritype dir_name, errinfotype *err_info)
 /*      printf("$%ld$\n", (long) current_entry);
         fflush(stdout); */
       } while (current_entry != NULL &&
-          (memcmp(current_entry->d_name, dot,    sizeof(os_chartype) * 2) == 0 ||
-           memcmp(current_entry->d_name, dotdot, sizeof(os_chartype) * 3) == 0));
+          (memcmp(current_entry->d_name, dot,    sizeof(os_charType) * 2) == 0 ||
+           memcmp(current_entry->d_name, dotdot, sizeof(os_charType) * 3) == 0));
       dir_name_size = os_stri_strlen(dir_name);
       while (*err_info == OKAY_NO_ERROR && current_entry != NULL) {
 /*      printf("!%s!\n", current_entry->d_name);
@@ -245,8 +245,8 @@ static void remove_dir (os_stritype dir_name, errinfotype *err_info)
 /*        printf("$%ld$\n", (long) current_entry);
           fflush(stdout); */
         } while (current_entry != NULL &&
-            (memcmp(current_entry->d_name, dot,    sizeof(os_chartype) * 2) == 0 ||
-             memcmp(current_entry->d_name, dotdot, sizeof(os_chartype) * 3) == 0));
+            (memcmp(current_entry->d_name, dot,    sizeof(os_charType) * 2) == 0 ||
+             memcmp(current_entry->d_name, dotdot, sizeof(os_charType) * 3) == 0));
       } /* while */
       if (dir_path != NULL) {
         FREE_OS_STRI(dir_path);
@@ -272,7 +272,7 @@ static void remove_dir (os_stritype dir_name, errinfotype *err_info)
 
 
 
-static void remove_any_file (os_stritype file_name, errinfotype *err_info)
+static void remove_any_file (os_striType file_name, errInfoType *err_info)
 
   {
     os_stat_struct file_stat;
@@ -300,7 +300,7 @@ static void remove_any_file (os_stritype file_name, errinfotype *err_info)
 
 
 
-static void copy_file (os_stritype from_name, os_stritype to_name, errinfotype *err_info)
+static void copy_file (os_striType from_name, os_striType to_name, errInfoType *err_info)
 
   {
     FILE *from_file;
@@ -308,9 +308,9 @@ static void copy_file (os_stritype from_name, os_stritype to_name, errinfotype *
 #ifdef USE_MMAP
     int file_no;
     os_fstat_struct file_stat;
-    memsizetype file_length;
-    ustritype file_content;
-    booltype classic_copy = TRUE;
+    memSizeType file_length;
+    ustriType file_content;
+    boolType classic_copy = TRUE;
 #endif
     char *normal_buffer;
     char *buffer;
@@ -328,10 +328,10 @@ static void copy_file (os_stritype from_name, os_stritype to_name, errinfotype *
         file_no = fileno(from_file);
         if (file_no != -1 && os_fstat(file_no, &file_stat) == 0) {
           if (file_stat.st_size >= 0 && (unsigned_os_off_t) file_stat.st_size < MAX_MEMSIZETYPE) {
-            file_length = (memsizetype) file_stat.st_size;
-            if ((file_content = (ustritype) mmap(NULL, file_length,
+            file_length = (memSizeType) file_stat.st_size;
+            if ((file_content = (ustriType) mmap(NULL, file_length,
                 PROT_READ, MAP_PRIVATE, fileno(from_file),
-                0)) != (ustritype) -1) {
+                0)) != (ustriType) -1) {
               if (fwrite(file_content, 1, file_length, to_file) != file_length) {
                 *err_info = FILE_ERROR;
               } /* if */
@@ -397,8 +397,8 @@ static void copy_file (os_stritype from_name, os_stritype to_name, errinfotype *
 
 
 
-static void copy_dir (os_stritype from_name, os_stritype to_name,
-    int flags, errinfotype *err_info)
+static void copy_dir (os_striType from_name, os_striType to_name,
+    int flags, errInfoType *err_info)
 
   {
     os_DIR *directory;
@@ -407,12 +407,12 @@ static void copy_dir (os_stritype from_name, os_stritype to_name,
     size_t to_name_size;
     size_t d_name_size;
     size_t from_path_capacity = 0;
-    os_stritype from_path = NULL;
+    os_striType from_path = NULL;
     size_t to_path_capacity = 0;
-    os_stritype to_path = NULL;
+    os_striType to_path = NULL;
     size_t new_size;
-    os_stritype resized_path;
-    booltype init_path = TRUE;
+    os_striType resized_path;
+    boolType init_path = TRUE;
 
   /* copy_dir */
 #ifdef TRACE_CMD_RTL
@@ -431,8 +431,8 @@ static void copy_dir (os_stritype from_name, os_stritype to_name,
           /* printf("$%ld$\n", (long) current_entry);
              fflush(stdout); */
         } while (current_entry != NULL &&
-            (memcmp(current_entry->d_name, dot,    sizeof(os_chartype) * 2) == 0 ||
-             memcmp(current_entry->d_name, dotdot, sizeof(os_chartype) * 3) == 0));
+            (memcmp(current_entry->d_name, dot,    sizeof(os_charType) * 2) == 0 ||
+             memcmp(current_entry->d_name, dotdot, sizeof(os_charType) * 3) == 0));
         from_name_size = os_stri_strlen(from_name);
         to_name_size = os_stri_strlen(to_name);
         while (*err_info == OKAY_NO_ERROR && current_entry != NULL) {
@@ -480,8 +480,8 @@ static void copy_dir (os_stritype from_name, os_stritype to_name,
             /* printf("$%ld$\n", (long) current_entry);
                fflush(stdout); */
           } while (current_entry != NULL &&
-              (memcmp(current_entry->d_name, dot,    sizeof(os_chartype) * 2) == 0 ||
-               memcmp(current_entry->d_name, dotdot, sizeof(os_chartype) * 3) == 0));
+              (memcmp(current_entry->d_name, dot,    sizeof(os_charType) * 2) == 0 ||
+               memcmp(current_entry->d_name, dotdot, sizeof(os_charType) * 3) == 0));
         } /* while */
         if (*err_info != OKAY_NO_ERROR) {
           remove_dir(to_name, err_info);
@@ -503,14 +503,14 @@ static void copy_dir (os_stritype from_name, os_stritype to_name,
 
 
 
-static void copy_any_file (os_stritype from_name, os_stritype to_name,
-    int flags, errinfotype *err_info)
+static void copy_any_file (os_striType from_name, os_striType to_name,
+    int flags, errInfoType *err_info)
 
   {
     os_stat_struct from_stat;
     int from_stat_result;
 #ifdef HAS_SYMLINKS
-    os_stritype link_destination;
+    os_striType link_destination;
     ssize_t readlink_result;
 #endif
     os_utimbuf_struct to_utime;
@@ -535,7 +535,7 @@ static void copy_any_file (os_stritype from_name, os_stritype to_name,
             (unsigned_os_off_t) from_stat.st_size > MAX_OS_STRI_LEN) {
           *err_info = RANGE_ERROR;
         } else {
-          if (!os_stri_alloc(link_destination, (memsizetype) from_stat.st_size)) {
+          if (!os_stri_alloc(link_destination, (memSizeType) from_stat.st_size)) {
             *err_info = MEMORY_ERROR;
           } else {
             readlink_result = readlink(from_name, link_destination,
@@ -595,7 +595,7 @@ static void copy_any_file (os_stritype from_name, os_stritype to_name,
 
 
 
-static void move_any_file (os_stritype from_name, os_stritype to_name, errinfotype *err_info)
+static void move_any_file (os_striType from_name, os_striType to_name, errInfoType *err_info)
 
   {
     os_stat_struct to_stat;
@@ -633,11 +633,11 @@ static void move_any_file (os_stritype from_name, os_stritype to_name, errinfoty
 
 
 
-static rtlArraytype add_stri_to_array (const stritype stri,
-    rtlArraytype work_array, inttype *used_max_position, errinfotype *err_info)
+static rtlArrayType add_stri_to_array (const striType stri,
+    rtlArrayType work_array, intType *used_max_position, errInfoType *err_info)
 
   {
-    rtlArraytype resized_work_array;
+    rtlArrayType resized_work_array;
 
   /* add_stri_to_array */
     /* printf("add_stri_to_array\n"); */
@@ -646,20 +646,20 @@ static rtlArraytype add_stri_to_array (const stritype stri,
         resized_work_array = NULL;
       } else {
         resized_work_array = REALLOC_RTL_ARRAY(work_array,
-            (uinttype) work_array->max_position,
-            (uinttype) work_array->max_position + ARRAY_SIZE_DELTA);
+            (uintType) work_array->max_position,
+            (uintType) work_array->max_position + ARRAY_SIZE_DELTA);
       } /* if */
       if (resized_work_array == NULL) {
         *err_info = MEMORY_ERROR;
       } else {
         work_array = resized_work_array;
-        COUNT3_RTL_ARRAY((uinttype) work_array->max_position,
-            (uinttype) work_array->max_position + ARRAY_SIZE_DELTA);
+        COUNT3_RTL_ARRAY((uintType) work_array->max_position,
+            (uintType) work_array->max_position + ARRAY_SIZE_DELTA);
         work_array->max_position += ARRAY_SIZE_DELTA;
       } /* if */
     } /* if */
     if (*err_info == OKAY_NO_ERROR) {
-      work_array->arr[*used_max_position].value.strivalue = stri;
+      work_array->arr[*used_max_position].value.striValue = stri;
       (*used_max_position)++;
     } /* if */
     return work_array;
@@ -667,31 +667,31 @@ static rtlArraytype add_stri_to_array (const stritype stri,
 
 
 
-static rtlArraytype complete_stri_array (rtlArraytype work_array, inttype used_max_position,
-    errinfotype *err_info)
+static rtlArrayType complete_stri_array (rtlArrayType work_array, intType used_max_position,
+    errInfoType *err_info)
 
   {
-    rtlArraytype resized_work_array;
-    memsizetype position;
+    rtlArrayType resized_work_array;
+    memSizeType position;
 
   /* complete_stri_array */
     if (*err_info == OKAY_NO_ERROR) {
       resized_work_array = REALLOC_RTL_ARRAY(work_array,
-          (uinttype) work_array->max_position, (uinttype) used_max_position);
+          (uintType) work_array->max_position, (uintType) used_max_position);
       if (resized_work_array == NULL) {
         *err_info = MEMORY_ERROR;
       } else {
         work_array = resized_work_array;
-        COUNT3_RTL_ARRAY((uinttype) work_array->max_position, (uinttype) used_max_position);
+        COUNT3_RTL_ARRAY((uintType) work_array->max_position, (uintType) used_max_position);
         work_array->max_position = used_max_position;
       } /* if */
     } /* if */
     if (*err_info != OKAY_NO_ERROR) {
-      for (position = 0; position < (memsizetype) used_max_position; position++) {
-        FREE_STRI(work_array->arr[position].value.strivalue,
-            work_array->arr[position].value.strivalue->size);
+      for (position = 0; position < (memSizeType) used_max_position; position++) {
+        FREE_STRI(work_array->arr[position].value.striValue,
+            work_array->arr[position].value.striValue->size);
       } /* for */
-      FREE_RTL_ARRAY(work_array, (uinttype) work_array->max_position);
+      FREE_RTL_ARRAY(work_array, (uintType) work_array->max_position);
       work_array = NULL;
     } /* if */
     return work_array;
@@ -699,13 +699,13 @@ static rtlArraytype complete_stri_array (rtlArraytype work_array, inttype used_m
 
 
 
-static rtlArraytype read_dir (const const_stritype dir_name, errinfotype *err_info)
+static rtlArrayType read_dir (const const_striType dir_name, errInfoType *err_info)
 
   {
-    inttype used_max_position;
-    dirtype directory;
-    stritype nameStri;
-    rtlArraytype dir_array;
+    intType used_max_position;
+    dirType directory;
+    striType nameStri;
+    rtlArrayType dir_array;
 
   /* read_dir */
 /*  printf("read_dir(");
@@ -766,18 +766,18 @@ void setupStack (void)
 
 
 
-static rtlArraytype getSearchPath (errinfotype *err_info)
+static rtlArrayType getSearchPath (errInfoType *err_info)
 
   {
-    static const os_chartype path[] = {'P', 'A', 'T', 'H', 0};
-    os_stritype path_environment_variable;
-    memsizetype path_length;
-    os_stritype path_copy;
-    os_stritype path_start;
-    os_stritype path_end;
-    stritype pathStri;
-    inttype used_max_position;
-    rtlArraytype path_array;
+    static const os_charType path[] = {'P', 'A', 'T', 'H', 0};
+    os_striType path_environment_variable;
+    memSizeType path_length;
+    os_striType path_copy;
+    os_striType path_start;
+    os_striType path_end;
+    striType pathStri;
+    intType used_max_position;
+    rtlArrayType path_array;
 
   /* getSearchPath */
     /* printf("getSearchPath\n"); */
@@ -800,7 +800,7 @@ static rtlArraytype getSearchPath (errinfotype *err_info)
             } /* if */
             pathStri = cp_from_os_path(path_start, err_info);
             if (*err_info == OKAY_NO_ERROR) {
-              while (pathStri->size > 1 && pathStri->mem[pathStri->size - 1] == (chartype) '/') {
+              while (pathStri->size > 1 && pathStri->mem[pathStri->size - 1] == (charType) '/') {
                 pathStri->size--;
 #ifdef WITH_STRI_CAPACITY
                 COUNT3_STRI(pathStri->size + 1, pathStri->size);
@@ -829,11 +829,11 @@ static rtlArraytype getSearchPath (errinfotype *err_info)
 
 
 #ifdef HAS_SYMLINKS
-stritype followLink (stritype path)
+striType followLink (striType path)
 
   {
-    stritype startPath;
-    stritype helpPath;
+    striType startPath;
+    striType helpPath;
     int number_of_links_followed = 5;
 
   /* followLink */
@@ -863,11 +863,11 @@ stritype followLink (stritype path)
 
 
 #ifdef EMULATE_ROOT_CWD
-void initEmulatedCwd (errinfotype *err_info)
+void initEmulatedCwd (errInfoType *err_info)
 
   {
-    os_chartype buffer[PATH_MAX + 1];
-    os_stritype cwd;
+    os_charType buffer[PATH_MAX + 1];
+    os_striType cwd;
 
   /* initEmulatedCwd */
     if ((cwd = os_getcwd(buffer, PATH_MAX)) == NULL) {
@@ -892,16 +892,16 @@ void initEmulatedCwd (errinfotype *err_info)
  *             path type.
  *  @exception FILE_ERROR It was not possible to determine the file size.
  */
-biginttype cmdBigFileSize (const const_stritype filePath)
+bigIntType cmdBigFileSize (const const_striType filePath)
 
   {
-    os_stritype os_path;
+    os_striType os_path;
     os_stat_struct stat_buf;
     int stat_result;
-    filetype aFile;
+    fileType aFile;
     int path_info = PATH_IS_NORMAL;
-    errinfotype err_info = OKAY_NO_ERROR;
-    biginttype result;
+    errInfoType err_info = OKAY_NO_ERROR;
+    bigIntType result;
 
   /* cmdBigFileSize */
     os_path = cp_to_os_path(filePath, &path_info, &err_info);
@@ -921,9 +921,9 @@ biginttype cmdBigFileSize (const const_stritype filePath)
       stat_result = os_stat(os_path, &stat_buf);
       if (stat_result == 0 && S_ISREG(stat_buf.st_mode)) {
 #if OS_OFF_T_SIZE == 32
-        result = bigFromUInt32((uint32type) stat_buf.st_size);
+        result = bigFromUInt32((uint32Type) stat_buf.st_size);
 #elif OS_OFF_T_SIZE == 64
-        result = bigFromUInt64((uint64type) stat_buf.st_size);
+        result = bigFromUInt64((uint64Type) stat_buf.st_size);
 #else
 #error "sizeof(os_off_t) is neither 4 nor 8."
 #endif
@@ -963,12 +963,12 @@ biginttype cmdBigFileSize (const const_stritype filePath)
  *             path type.
  *  @exception FILE_ERROR A system function returns an error.
  */
-void cmdChdir (const const_stritype dirPath)
+void cmdChdir (const const_striType dirPath)
 
   {
-    os_stritype os_path;
+    os_striType os_path;
     int path_info = PATH_IS_NORMAL;
-    errinfotype err_info = OKAY_NO_ERROR;
+    errInfoType err_info = OKAY_NO_ERROR;
     int chdir_result;
 
   /* cmdChdir */
@@ -1024,14 +1024,14 @@ void cmdChdir (const const_stritype dirPath)
  *  @exception FILE_ERROR Source file does not exist, destination file
  *             already exists or a system function returns an error.
  */
-void cmdCloneFile (const const_stritype sourcePath, const const_stritype destPath)
+void cmdCloneFile (const const_striType sourcePath, const const_striType destPath)
 
   {
-    os_stritype os_sourcePath;
-    os_stritype os_destPath;
+    os_striType os_sourcePath;
+    os_striType os_destPath;
     os_stat_struct to_stat;
     int path_info;
-    errinfotype err_info = OKAY_NO_ERROR;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* cmdCloneFile */
     os_sourcePath = cp_to_os_path(sourcePath, &path_info, &err_info);
@@ -1055,14 +1055,14 @@ void cmdCloneFile (const const_stritype sourcePath, const const_stritype destPat
 
 
 
-stritype cmdConfigValue (const const_stritype name)
+striType cmdConfigValue (const const_striType name)
 
   {
     char opt_name[MAX_CSTRI_BUFFER_LEN + 1];
-    const_cstritype opt;
+    const_cstriType opt;
     char buffer[4];
-    errinfotype err_info = OKAY_NO_ERROR;
-    stritype result;
+    errInfoType err_info = OKAY_NO_ERROR;
+    striType result;
 
   /* cmdConfigValue */
     if (name->size > MAX_CSTRI_BUFFER_LEN) {
@@ -1325,14 +1325,14 @@ stritype cmdConfigValue (const const_stritype name)
  *  @exception FILE_ERROR Source file does not exist, destination file
  *             already exists or a system function returns an error.
  */
-void cmdCopyFile (const const_stritype sourcePath, const const_stritype destPath)
+void cmdCopyFile (const const_striType sourcePath, const const_striType destPath)
 
   {
-    os_stritype os_sourcePath;
-    os_stritype os_destPath;
+    os_striType os_sourcePath;
+    os_striType os_destPath;
     os_stat_struct to_stat;
     int path_info;
-    errinfotype err_info = OKAY_NO_ERROR;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* cmdCopyFile */
     os_sourcePath = cp_to_os_path(sourcePath, &path_info, &err_info);
@@ -1361,18 +1361,18 @@ void cmdCopyFile (const const_stritype sourcePath, const const_stritype destPath
  *  @return the list of environment variable names.
  *  @exception MEMORY_ERROR Not enough memory to create the result.
  */
-rtlArraytype cmdEnvironment (void)
+rtlArrayType cmdEnvironment (void)
 
   {
 #ifdef INITIALIZE_OS_ENVIRON
-    static const os_chartype empty_os_stri[] = {0};
+    static const os_charType empty_os_stri[] = {0};
 #endif
-    inttype used_max_position;
-    os_stritype *nameStartPos;
-    os_stritype nameEndPos;
-    stritype variableName;
-    errinfotype err_info = OKAY_NO_ERROR;
-    rtlArraytype environment_array;
+    intType used_max_position;
+    os_striType *nameStartPos;
+    os_striType nameEndPos;
+    striType variableName;
+    errInfoType err_info = OKAY_NO_ERROR;
+    rtlArrayType environment_array;
 
   /* cmdEnvironment */
 #ifdef INITIALIZE_OS_ENVIRON
@@ -1388,7 +1388,7 @@ rtlArraytype cmdEnvironment (void)
         if ((*nameStartPos)[0] != '=' && (*nameStartPos)[0] != '\0') {
           nameEndPos = os_stri_strchr(*nameStartPos, '=');
           if (nameEndPos != NULL) {
-            variableName = conv_from_os_stri(*nameStartPos, (memsizetype) (nameEndPos - *nameStartPos));
+            variableName = conv_from_os_stri(*nameStartPos, (memSizeType) (nameEndPos - *nameStartPos));
             if (unlikely(variableName == NULL)) {
               err_info = MEMORY_ERROR;
             } /* if */
@@ -1424,15 +1424,15 @@ rtlArraytype cmdEnvironment (void)
  *             path type.
  *  @exception FILE_ERROR A system function returns an error.
  */
-settype cmdFileMode (const const_stritype filePath)
+setType cmdFileMode (const const_striType filePath)
 
   {
-    os_stritype os_path;
+    os_striType os_path;
     os_stat_struct stat_buf;
     int stat_result;
     int path_info = PATH_IS_NORMAL;
-    errinfotype err_info = OKAY_NO_ERROR;
-    settype result;
+    errInfoType err_info = OKAY_NO_ERROR;
+    setType result;
 
   /* cmdFileMode */
 #ifdef TRACE_CMD_RTL
@@ -1501,16 +1501,16 @@ settype cmdFileMode (const const_stritype filePath)
  *  @exception RANGE_ERROR The file size is not representable as integer.
  *  @exception FILE_ERROR It was not possible to determine the file size.
  */
-inttype cmdFileSize (const const_stritype filePath)
+intType cmdFileSize (const const_striType filePath)
 
   {
-    os_stritype os_path;
+    os_striType os_path;
     os_stat_struct stat_buf;
     int stat_result;
-    filetype aFile;
+    fileType aFile;
     int path_info = PATH_IS_NORMAL;
-    errinfotype err_info = OKAY_NO_ERROR;
-    inttype result;
+    errInfoType err_info = OKAY_NO_ERROR;
+    intType result;
 
   /* cmdFileSize */
     os_path = cp_to_os_path(filePath, &path_info, &err_info);
@@ -1530,7 +1530,7 @@ inttype cmdFileSize (const const_stritype filePath)
           err_info = RANGE_ERROR;
           result = 0;
         } else {
-          result = (inttype) stat_buf.st_size;
+          result = (intType) stat_buf.st_size;
         } /* if */
       } else if (stat_result == 0 && S_ISDIR(stat_buf.st_mode)) {
         result = 0;
@@ -1573,16 +1573,16 @@ inttype cmdFileSize (const const_stritype filePath)
  *  @exception FILE_ERROR The system function returns an error other
  *             than ENOENT, ENOTDIR or ENAMETOOLONG.
  */
-inttype cmdFileType (const const_stritype filePath)
+intType cmdFileType (const const_striType filePath)
 
   {
-    os_stritype os_path;
+    os_striType os_path;
     os_stat_struct stat_buf;
     int stat_result;
     int path_info = PATH_IS_NORMAL;
-    errinfotype err_info = OKAY_NO_ERROR;
+    errInfoType err_info = OKAY_NO_ERROR;
     int saved_errno;
-    inttype result;
+    intType result;
 
   /* cmdFileType */
     os_path = cp_to_os_path(filePath, &path_info, &err_info);
@@ -1659,16 +1659,16 @@ inttype cmdFileType (const const_stritype filePath)
  *  @exception FILE_ERROR The system function returns an error other
  *             than ENOENT, ENOTDIR or ENAMETOOLONG.
  */
-inttype cmdFileTypeSL (const const_stritype filePath)
+intType cmdFileTypeSL (const const_striType filePath)
 
   {
-    os_stritype os_path;
+    os_striType os_path;
     os_stat_struct stat_buf;
     int stat_result;
     int path_info = PATH_IS_NORMAL;
-    errinfotype err_info = OKAY_NO_ERROR;
+    errInfoType err_info = OKAY_NO_ERROR;
     int saved_errno;
-    inttype result;
+    intType result;
 
   /* cmdFileTypeSL */
     os_path = cp_to_os_path(filePath, &path_info, &err_info);
@@ -1737,13 +1737,13 @@ inttype cmdFileTypeSL (const const_stritype filePath)
  *             result string.
  *  @exception FILE_ERROR The system function returns an error.
  */
-stritype cmdGetcwd (void)
+striType cmdGetcwd (void)
 
   {
-    os_chartype buffer[PATH_MAX + 1];
-    os_stritype cwd;
-    errinfotype err_info = OKAY_NO_ERROR;
-    stritype result;
+    os_charType buffer[PATH_MAX + 1];
+    os_striType cwd;
+    errInfoType err_info = OKAY_NO_ERROR;
+    striType result;
 
   /* cmdGetcwd */
 #ifdef EMULATE_ROOT_CWD
@@ -1782,13 +1782,13 @@ stritype cmdGetcwd (void)
  *             system string type or not enough memory to represent the
  *             result string.
  */
-stritype cmdGetenv (const const_stritype name)
+striType cmdGetenv (const const_striType name)
 
   {
-    os_stritype env_name;
-    os_stritype env_value;
-    errinfotype err_info = OKAY_NO_ERROR;
-    stritype result;
+    os_striType env_name;
+    os_striType env_value;
+    errInfoType err_info = OKAY_NO_ERROR;
+    striType result;
 
   /* cmdGetenv */
     env_name = stri_to_os_stri(name, &err_info);
@@ -1826,17 +1826,17 @@ stritype cmdGetenv (const const_stritype name)
  *             path type.
  *  @exception FILE_ERROR A system function returns an error.
  */
-void cmdGetATime (const const_stritype filePath,
-    inttype *year, inttype *month, inttype *day, inttype *hour,
-    inttype *min, inttype *sec, inttype *micro_sec, inttype *time_zone,
-    booltype *is_dst)
+void cmdGetATime (const const_striType filePath,
+    intType *year, intType *month, intType *day, intType *hour,
+    intType *min, intType *sec, intType *micro_sec, intType *time_zone,
+    boolType *is_dst)
 
   {
-    os_stritype os_path;
+    os_striType os_path;
     os_stat_struct stat_buf;
     int stat_result;
     int path_info = PATH_IS_NORMAL;
-    errinfotype err_info = OKAY_NO_ERROR;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* cmdGetATime */
 #ifdef TRACE_CMD_RTL
@@ -1889,17 +1889,17 @@ void cmdGetATime (const const_stritype filePath,
  *             path type.
  *  @exception FILE_ERROR A system function returns an error.
  */
-void cmdGetCTime (const const_stritype filePath,
-    inttype *year, inttype *month, inttype *day, inttype *hour,
-    inttype *min, inttype *sec, inttype *micro_sec, inttype *time_zone,
-    booltype *is_dst)
+void cmdGetCTime (const const_striType filePath,
+    intType *year, intType *month, intType *day, intType *hour,
+    intType *min, intType *sec, intType *micro_sec, intType *time_zone,
+    boolType *is_dst)
 
   {
-    os_stritype os_path;
+    os_striType os_path;
     os_stat_struct stat_buf;
     int stat_result;
     int path_info = PATH_IS_NORMAL;
-    errinfotype err_info = OKAY_NO_ERROR;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* cmdGetCTime */
 #ifdef TRACE_CMD_RTL
@@ -1952,17 +1952,17 @@ void cmdGetCTime (const const_stritype filePath,
  *             path type.
  *  @exception FILE_ERROR A system function returns an error.
  */
-void cmdGetMTime (const const_stritype filePath,
-    inttype *year, inttype *month, inttype *day, inttype *hour,
-    inttype *min, inttype *sec, inttype *micro_sec, inttype *time_zone,
-    booltype *is_dst)
+void cmdGetMTime (const const_striType filePath,
+    intType *year, intType *month, intType *day, intType *hour,
+    intType *min, intType *sec, intType *micro_sec, intType *time_zone,
+    boolType *is_dst)
 
   {
-    os_stritype os_path;
+    os_striType os_path;
     os_stat_struct stat_buf;
     int stat_result;
     int path_info = PATH_IS_NORMAL;
-    errinfotype err_info = OKAY_NO_ERROR;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* cmdGetMTime */
 #ifdef TRACE_CMD_RTL
@@ -2010,11 +2010,11 @@ void cmdGetMTime (const const_stritype filePath,
  *  @return the search path of the system.
  *  @exception MEMORY_ERROR Not enough memory to create the result.
  */
-rtlArraytype cmdGetSearchPath (void)
+rtlArrayType cmdGetSearchPath (void)
 
   {
-    errinfotype err_info = OKAY_NO_ERROR;
-    rtlArraytype result;
+    errInfoType err_info = OKAY_NO_ERROR;
+    rtlArrayType result;
 
   /* cmdGetSearchPath */
     result = getSearchPath(&err_info);
@@ -2037,16 +2037,16 @@ rtlArraytype cmdGetSearchPath (void)
  *             result string.
  *  @exception FILE_ERROR Not able to determine the home directory.
  */
-stritype cmdHomeDir (void)
+striType cmdHomeDir (void)
 
   {
-    static const os_chartype home_dir_env_var[] = HOME_DIR_ENV_VAR;
-    os_stritype os_home_dir;
+    static const os_charType home_dir_env_var[] = HOME_DIR_ENV_VAR;
+    os_striType os_home_dir;
 #ifdef DEFAULT_HOME_DIR
-    static const os_chartype default_home_dir[] = DEFAULT_HOME_DIR;
+    static const os_charType default_home_dir[] = DEFAULT_HOME_DIR;
 #endif
-    errinfotype err_info = OKAY_NO_ERROR;
-    stritype home_dir;
+    errInfoType err_info = OKAY_NO_ERROR;
+    striType home_dir;
 
   /* cmdHomeDir */
     os_home_dir = os_getenv(home_dir_env_var);
@@ -2083,11 +2083,11 @@ stritype cmdHomeDir (void)
  *             path type.
  *  @exception FILE_ERROR A system function returns an error.
  */
-rtlArraytype cmdLs (const const_stritype dirPath)
+rtlArrayType cmdLs (const const_striType dirPath)
 
   {
-    errinfotype err_info = OKAY_NO_ERROR;
-    rtlArraytype result;
+    errInfoType err_info = OKAY_NO_ERROR;
+    rtlArrayType result;
 
   /* cmdLs */
     result = read_dir(dirPath, &err_info);
@@ -2096,7 +2096,7 @@ rtlArraytype cmdLs (const const_stritype dirPath)
     } else {
       qsort((void *) result->arr,
           (size_t) (result->max_position - result->min_position + 1),
-          sizeof(rtlObjecttype), &cmp_mem);
+          sizeof(rtlObjectType), &cmp_mem);
     } /* if */
     return result;
   } /* cmdLs */
@@ -2112,13 +2112,13 @@ rtlArraytype cmdLs (const const_stritype dirPath)
  *             path type.
  *  @exception FILE_ERROR A system function returns an error.
  */
-void cmdMkdir (const const_stritype dirPath)
+void cmdMkdir (const const_striType dirPath)
 
   {
-    os_stritype os_path;
+    os_striType os_path;
     int mkdir_result;
     int path_info;
-    errinfotype err_info = OKAY_NO_ERROR;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* cmdMkdir */
     os_path = cp_to_os_path(dirPath, &path_info, &err_info);
@@ -2156,13 +2156,13 @@ void cmdMkdir (const const_stritype dirPath)
  *  @exception FILE_ERROR Source file does not exist, destination file
  *             already exists or a system function returns an error.
  */
-void cmdMove (const const_stritype sourcePath, const const_stritype destPath)
+void cmdMove (const const_striType sourcePath, const const_striType destPath)
 
   {
-    os_stritype os_sourcePath;
-    os_stritype os_destPath;
+    os_striType os_sourcePath;
+    os_striType os_destPath;
     int path_info;
-    errinfotype err_info = OKAY_NO_ERROR;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* cmdMove */
     os_sourcePath = cp_to_os_path(sourcePath, &path_info, &err_info);
@@ -2193,18 +2193,18 @@ void cmdMove (const const_stritype sourcePath, const const_stritype destPath)
  *  @exception FILE_ERROR The file described with the path does not
  *             exist or is not a symbolic link.
  */
-stritype cmdReadlink (const const_stritype filePath)
+striType cmdReadlink (const const_striType filePath)
 
   {
 #ifdef HAS_SYMLINKS
-    os_stritype os_filePath;
+    os_striType os_filePath;
     os_stat_struct link_stat;
-    os_stritype link_destination;
+    os_striType link_destination;
     ssize_t readlink_result;
     int path_info;
 #endif
-    errinfotype err_info = OKAY_NO_ERROR;
-    stritype result = NULL;
+    errInfoType err_info = OKAY_NO_ERROR;
+    striType result = NULL;
 
   /* cmdReadlink */
 #ifdef HAS_SYMLINKS
@@ -2218,7 +2218,7 @@ stritype cmdReadlink (const const_stritype filePath)
             (unsigned_os_off_t) link_stat.st_size > MAX_OS_STRI_LEN) {
           err_info = RANGE_ERROR;
         } else {
-          if (!os_stri_alloc(link_destination, (memsizetype) link_stat.st_size)) {
+          if (!os_stri_alloc(link_destination, (memSizeType) link_stat.st_size)) {
             err_info = MEMORY_ERROR;
           } else {
             readlink_result = readlink(os_filePath, link_destination,
@@ -2256,15 +2256,15 @@ stritype cmdReadlink (const const_stritype filePath)
  *  @exception FILE_ERROR The file does not exist or a system function
  *             returns an error.
  */
-void cmdRemove (const const_stritype filePath)
+void cmdRemove (const const_striType filePath)
 
   {
 #ifdef REMOVE_FAILS_FOR_EMPTY_DIRS
     os_stat_struct file_stat;
 #endif
-    os_stritype os_filePath;
+    os_striType os_filePath;
     int path_info;
-    errinfotype err_info = OKAY_NO_ERROR;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* cmdRemove */
 #ifdef TRACE_CMD_RTL
@@ -2327,12 +2327,12 @@ void cmdRemove (const const_stritype filePath)
  *  @exception FILE_ERROR The file does not exist or a system function
  *             returns an error.
  */
-void cmdRemoveAnyFile (const const_stritype filePath)
+void cmdRemoveAnyFile (const const_striType filePath)
 
   {
-    os_stritype os_filePath;
+    os_striType os_filePath;
     int path_info;
-    errinfotype err_info = OKAY_NO_ERROR;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* cmdRemoveAnyFile */
 #ifdef TRACE_CMD_RTL
@@ -2366,21 +2366,21 @@ void cmdRemoveAnyFile (const const_stritype filePath)
  *  @exception RANGE_ERROR 'name' or 'value' cannot be converted to the
  *             system string type or a system function returns an error.
  */
-void cmdSetenv (const const_stritype name, const const_stritype value)
+void cmdSetenv (const const_striType name, const const_striType value)
 
   {
-    memsizetype stri_size;
-    stritype stri;
-    os_stritype env_stri;
+    memSizeType stri_size;
+    striType stri;
+    os_striType env_stri;
     int putenv_result;
-    errinfotype err_info = OKAY_NO_ERROR;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* cmdSetenv */
-    if (strChPos(name, (chartype) '=') != 0) {
+    if (strChPos(name, (charType) '=') != 0) {
       /* Putenv() expects a string of the form "name=value". */
       raise_error(RANGE_ERROR);
     } else if (unlikely(name->size > MAX_STRI_LEN - value->size - 1)) {
-      /* Number of bytes does not fit into memsizetype. */
+      /* Number of bytes does not fit into memSizeType. */
       raise_error(MEMORY_ERROR);
     } else {
       stri_size = name->size + value->size + 1;
@@ -2389,10 +2389,10 @@ void cmdSetenv (const const_stritype name, const const_stritype value)
       } else {
         stri->size = stri_size;
         memcpy(stri->mem, name->mem,
-            name->size * sizeof(strelemtype));
-        stri->mem[name->size] = (strelemtype) '=';
+            name->size * sizeof(strElemType));
+        stri->mem[name->size] = (strElemType) '=';
         memcpy(&stri->mem[name->size + 1], value->mem,
-            value->size * sizeof(strelemtype));
+            value->size * sizeof(strElemType));
         env_stri = stri_to_os_stri(stri, &err_info);
         FREE_STRI(stri, stri->size);
         if (unlikely(env_stri == NULL)) {
@@ -2425,13 +2425,13 @@ void cmdSetenv (const const_stritype name, const const_stritype value)
  *  @exception RANGE_ERROR 'name' or 'value' cannot be converted to the
  *             system string type or a system function returns an error.
  */
-void cmdSetenv (const const_stritype name, const const_stritype value)
+void cmdSetenv (const const_striType name, const const_striType value)
 
   {
-    os_stritype env_name;
-    os_stritype env_value;
+    os_striType env_name;
+    os_striType env_value;
     int setenv_result;
-    errinfotype err_info = OKAY_NO_ERROR;
+    errInfoType err_info = OKAY_NO_ERROR;
     int saved_errno;
 
   /* cmdSetenv */
@@ -2473,16 +2473,16 @@ void cmdSetenv (const const_stritype name, const const_stritype value)
  *             converted to the system file time.
  *  @exception FILE_ERROR A system function returns an error.
  */
-void cmdSetATime (const const_stritype filePath,
-    inttype year, inttype month, inttype day, inttype hour,
-    inttype min, inttype sec, inttype micro_sec, inttype time_zone)
+void cmdSetATime (const const_striType filePath,
+    intType year, intType month, intType day, intType hour,
+    intType min, intType sec, intType micro_sec, intType time_zone)
 
   {
-    os_stritype os_path;
+    os_striType os_path;
     os_stat_struct stat_buf;
     os_utimbuf_struct utime_buf;
     int path_info;
-    errinfotype err_info = OKAY_NO_ERROR;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* cmdSetATime */
     os_path = cp_to_os_path(filePath, &path_info, &err_info);
@@ -2521,15 +2521,15 @@ void cmdSetATime (const const_stritype filePath,
  *             path type.
  *  @exception FILE_ERROR A system function returns an error.
  */
-void cmdSetFileMode (const const_stritype filePath, const const_settype mode)
+void cmdSetFileMode (const const_striType filePath, const const_setType mode)
 
   {
-    os_stritype os_path;
-    inttype inttype_mode;
+    os_striType os_path;
+    intType intType_mode;
     int int_mode;
     int chmod_result;
     int path_info;
-    errinfotype err_info = OKAY_NO_ERROR;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* cmdSetFileMode */
 #ifdef TRACE_CMD_RTL
@@ -2539,10 +2539,10 @@ void cmdSetFileMode (const const_stritype filePath, const const_settype mode)
 #endif
     os_path = cp_to_os_path(filePath, &path_info, &err_info);
     if (likely(err_info == OKAY_NO_ERROR)) {
-      inttype_mode = setSConv(mode);
-      if (inttype_mode >= 0 && inttype_mode <= 0777) {
+      intType_mode = setSConv(mode);
+      if (intType_mode >= 0 && intType_mode <= 0777) {
         /* Just the read, write and execute permissions are accepted */
-        int_mode = (int) inttype_mode;
+        int_mode = (int) intType_mode;
         /* printf("cmdSetFileMode: mode=0%o\n", int_mode); */
 #if MODE_BITS_NORMAL
         chmod_result = os_chmod(os_path, int_mode);
@@ -2586,16 +2586,16 @@ void cmdSetFileMode (const const_stritype filePath, const const_settype mode)
  *             converted to the system file time.
  *  @exception FILE_ERROR A system function returns an error.
  */
-void cmdSetMTime (const const_stritype filePath,
-    inttype year, inttype month, inttype day, inttype hour,
-    inttype min, inttype sec, inttype micro_sec, inttype time_zone)
+void cmdSetMTime (const const_striType filePath,
+    intType year, intType month, intType day, intType hour,
+    intType min, intType sec, intType micro_sec, intType time_zone)
 
   {
-    os_stritype os_path;
+    os_striType os_path;
     os_stat_struct stat_buf;
     os_utimbuf_struct utime_buf;
     int path_info;
-    errinfotype err_info = OKAY_NO_ERROR;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* cmdSetMTime */
     os_path = cp_to_os_path(filePath, &path_info, &err_info);
@@ -2639,12 +2639,12 @@ void cmdSetMTime (const const_stritype filePath,
  *         'command', or "" when there are no parameters.
  *  @return the return code of the executed command or of the shell.
  */
-inttype cmdShell (const const_stritype command, const const_stritype parameters)
+intType cmdShell (const const_striType command, const const_striType parameters)
 
   {
-    os_stritype os_command;
-    errinfotype err_info = OKAY_NO_ERROR;
-    inttype result;
+    os_striType os_command;
+    errInfoType err_info = OKAY_NO_ERROR;
+    intType result;
 
   /* cmdShell */
     os_command = cp_to_command(command, parameters, &err_info);
@@ -2653,7 +2653,7 @@ inttype cmdShell (const const_stritype command, const const_stritype parameters)
       result = 0;
     } else {
       /* printf("os_command: \"%s\"\n", os_command); */
-      result = (inttype) os_system(os_command);
+      result = (intType) os_system(os_command);
       /* if (result != 0) {
         printf("errno=%d\n", errno);
         printf("E2BIG=%d  ENOENT=%d  ENOEXEC=%d  ENOMEM=%d\n",
@@ -2677,18 +2677,18 @@ inttype cmdShell (const const_stritype command, const const_stritype parameters)
  *  @return a string which can be used as shell parameter.
  *  @exception MEMORY_ERROR Not enough memory to convert 'stri'.
  */
-stritype cmdShellEscape (const const_stritype stri)
+striType cmdShellEscape (const const_striType stri)
 
   {
-    memsizetype inPos;
-    memsizetype outPos;
-    booltype quote_path;
+    memSizeType inPos;
+    memSizeType outPos;
+    boolType quote_path;
 #ifndef ESCAPE_SHELL_COMMANDS
-    memsizetype countBackslash;
+    memSizeType countBackslash;
 #endif
-    errinfotype err_info = OKAY_NO_ERROR;
-    stritype resized_result;
-    stritype result;
+    errInfoType err_info = OKAY_NO_ERROR;
+    striType resized_result;
+    striType result;
 
   /* cmdShellEscape */
     if (unlikely(stri->size > (MAX_STRI_LEN - 2) / 3 ||
@@ -2773,7 +2773,7 @@ stritype cmdShellEscape (const const_stritype stri)
         result = NULL;
       } else {
         if (quote_path) {
-          memmove(&result->mem[1], result->mem, sizeof(strelemtype) * outPos);
+          memmove(&result->mem[1], result->mem, sizeof(strElemType) * outPos);
           result->mem[0] = '\"';
           result->mem[outPos + 1] = '\"';
           outPos += 2;
@@ -2807,15 +2807,15 @@ stritype cmdShellEscape (const const_stritype stri)
  *             converted to the system path type.
  *  @exception FILE_ERROR A system function returns an error.
  */
-void cmdSymlink (const const_stritype sourcePath, const const_stritype destPath)
+void cmdSymlink (const const_striType sourcePath, const const_striType destPath)
 
   {
 #ifdef HAS_SYMLINKS
-    os_stritype os_sourcePath;
-    os_stritype os_destPath;
+    os_striType os_sourcePath;
+    os_striType os_destPath;
     int path_info;
 #endif
-    errinfotype err_info = OKAY_NO_ERROR;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* cmdSymlink */
 #ifdef HAS_SYMLINKS
@@ -2850,11 +2850,11 @@ void cmdSymlink (const const_stritype sourcePath, const const_stritype destPath)
  *  @exception RANGE_ERROR 'standardPath' is not representable as operating
  *             system path.
  */
-stritype cmdToOsPath (const const_stritype standardPath)
+striType cmdToOsPath (const const_striType standardPath)
 
   {
-    errinfotype err_info = OKAY_NO_ERROR;
-    stritype result;
+    errInfoType err_info = OKAY_NO_ERROR;
+    striType result;
 
   /* cmdToOsPath */
 #ifdef TRACE_CMD_RTL
@@ -2908,7 +2908,7 @@ stritype cmdToOsPath (const const_stritype standardPath)
               result->mem[0] = standardPath->mem[1];
               result->mem[1] = ':';
               result->mem[2] = '/';
-              memcpy(&result->mem[3], &standardPath->mem[3], (standardPath->size - 3) * sizeof(strelemtype));
+              memcpy(&result->mem[3], &standardPath->mem[3], (standardPath->size - 3) * sizeof(strElemType));
             } /* if */
           } /* if */
         } else {
@@ -2921,7 +2921,7 @@ stritype cmdToOsPath (const const_stritype standardPath)
           err_info = MEMORY_ERROR;
         } else {
           result->size = standardPath->size;
-          memcpy(result->mem, standardPath->mem, standardPath->size * sizeof(strelemtype));
+          memcpy(result->mem, standardPath->mem, standardPath->size * sizeof(strElemType));
         } /* if */
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
       } /* if */
@@ -2932,7 +2932,7 @@ stritype cmdToOsPath (const const_stritype standardPath)
       result = NULL;
     } else {
 #if PATH_DELIMITER != '/'
-      memsizetype position;
+      memSizeType position;
 
       for (position = 0; position < result->size; position++) {
         if (result->mem[position] == '/') {

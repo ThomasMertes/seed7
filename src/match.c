@@ -54,13 +54,13 @@
 
 
 
-static objecttype match_subexpr (objecttype, const_nodetype, listtype,
-     booltype, booltype);
+static objectType match_subexpr (objectType, const_nodeType, listType,
+     boolType, boolType);
 
 
 
 #ifdef OUT_OF_ORDER
-static int variable_obj (objecttype object)
+static int variable_obj (objectType object)
 
   {
     int result;
@@ -87,7 +87,7 @@ static int variable_obj (objecttype object)
 
 
 
-static void check_parameter (objecttype expr_object, objecttype actual_param)
+static void check_parameter (objectType expr_object, objectType actual_param)
 
   { /* check_parameter */
     if (CATEGORY_OF_OBJ(actual_param) == CALLOBJECT) {
@@ -106,11 +106,11 @@ static void check_parameter (objecttype expr_object, objecttype actual_param)
 
 
 
-static void check_access_rights (const_objecttype object)
+static void check_access_rights (const_objectType object)
 
   {
-    listtype name_elem;
-    listtype expr_list;
+    listType name_elem;
+    listType expr_list;
 
   /* check_access_rights */
 #ifdef TRACE_MATCH
@@ -119,21 +119,21 @@ static void check_access_rights (const_objecttype object)
 /*    printf("check_access_rights ");
     trace1(object);
     printf("\n"); */
-    if (object->value.listvalue != NULL) {
-      if (object->value.listvalue->obj != NULL) {
+    if (object->value.listValue != NULL) {
+      if (object->value.listValue->obj != NULL) {
 /*        printf("call object ");
-        trace1(object->value.listvalue->obj);
+        trace1(object->value.listValue->obj);
         printf("\n"); */
-        if (HAS_ENTITY(object->value.listvalue->obj)) {
-          name_elem = GET_ENTITY(object->value.listvalue->obj)->fparam_list;
-          expr_list = object->value.listvalue->next;
+        if (HAS_ENTITY(object->value.listValue->obj)) {
+          name_elem = GET_ENTITY(object->value.listValue->obj)->fparam_list;
+          expr_list = object->value.listValue->next;
           while (name_elem != NULL && expr_list != NULL) {
             if (CATEGORY_OF_OBJ(name_elem->obj) == FORMPARAMOBJECT) {
               /* printf("param_obj/param ");
-              trace1(name_elem->obj->value.objvalue);
+              trace1(name_elem->obj->value.objValue);
               printf("\n"); */
-              if (CATEGORY_OF_OBJ(name_elem->obj->value.objvalue) == REFPARAMOBJECT &&
-                  VAR_OBJECT(name_elem->obj->value.objvalue)) {
+              if (CATEGORY_OF_OBJ(name_elem->obj->value.objValue) == REFPARAMOBJECT &&
+                  VAR_OBJECT(name_elem->obj->value.objValue)) {
                 if (CATEGORY_OF_OBJ(expr_list->obj) == CALLOBJECT) {
                   if (expr_list->obj->type_of != NULL &&
                       !expr_list->obj->type_of->is_varfunc_type) {
@@ -167,22 +167,22 @@ static void check_access_rights (const_objecttype object)
 
 
 
-void substitute_params (const_objecttype expr_object)
+void substitute_params (const_objectType expr_object)
 
   {
-    listtype expr_list;
-    objecttype current_element;
-    objecttype created_object;
-    /* listtype list_elem; */
-    errinfotype err_info = OKAY_NO_ERROR;
-    /* listtype substituted_objects; */
+    listType expr_list;
+    objectType current_element;
+    objectType created_object;
+    /* listType list_elem; */
+    errInfoType err_info = OKAY_NO_ERROR;
+    /* listType substituted_objects; */
 
   /* substitute_params */
 #ifdef TRACE_MATCH
     printf("BEGIN substitute_params\n");
 #endif
     /* substituted_objects = NULL; */
-    expr_list = expr_object->value.listvalue;
+    expr_list = expr_object->value.listValue;
     while (expr_list != NULL) {
       current_element = expr_list->obj;
       if (HAS_ENTITY(current_element) &&
@@ -194,7 +194,7 @@ void substitute_params (const_objecttype expr_object)
         substitute_params(current_element);
       } else if (CATEGORY_OF_OBJ(current_element) == VALUEPARAMOBJECT ||
           CATEGORY_OF_OBJ(current_element) == REFPARAMOBJECT) {
-        if (current_element->value.objvalue != NULL) {
+        if (current_element->value.objValue != NULL) {
 #ifdef TRACE_MATCH_extended
           if (HAS_POSINFO(expr_object)) {
             printf("%s(%u): ",
@@ -202,17 +202,17 @@ void substitute_params (const_objecttype expr_object)
                    GET_LINE_NUM(expr_object));
           }
           printf("Parameter already has value: ");
-          prot_int((inttype) current_element);
+          prot_int((intType) current_element);
           prot_cstri(" ");
           trace1(current_element);
           printf("\n");
 #endif
-          current_element = current_element->value.objvalue;
+          current_element = current_element->value.objValue;
           if (/* ALLOC_L_ELEM(list_elem) && */ ALLOC_OBJECT(created_object)) {
             created_object->type_of = current_element->type_of;
             created_object->descriptor.property = NULL;
             INIT_CATEGORY_OF_OBJ(created_object, DECLAREDOBJECT);
-            created_object->value.objvalue = NULL;
+            created_object->value.objValue = NULL;
             do_create(created_object, current_element, &err_info);
             if (err_info == CREATE_ERROR) {
               printf("*** do_create failed ");
@@ -225,14 +225,14 @@ void substitute_params (const_objecttype expr_object)
           expr_list->obj = created_object;
 #ifdef TRACE_MATCH_extended
           printf("Value is now: ");
-          prot_int((inttype) expr_list->obj);
+          prot_int((intType) expr_list->obj);
           prot_cstri(" ");
           trace1(expr_list->obj);
           printf("\n");
 #endif
           if (CATEGORY_OF_OBJ(expr_list->obj) == VALUEPARAMOBJECT ||
               CATEGORY_OF_OBJ(expr_list->obj) == REFPARAMOBJECT) {
-            if (expr_list->obj->value.objvalue != NULL) {
+            if (expr_list->obj->value.objValue != NULL) {
               printf("Parameter aggain has value: ");
               trace1(expr_list->obj);
               printf("\n");
@@ -250,17 +250,17 @@ void substitute_params (const_objecttype expr_object)
 
 
 
-void update_owner (const_objecttype expr_object)
+void update_owner (const_objectType expr_object)
 
   {
-    listtype expr_list;
-    objecttype current_element;
+    listType expr_list;
+    objectType current_element;
 
   /* update_owner */
 #ifdef TRACE_MATCH
     printf("BEGIN update_owner\n");
 #endif
-    expr_list = expr_object->value.listvalue;
+    expr_list = expr_object->value.listValue;
     while (expr_list != NULL) {
       current_element = expr_list->obj;
       if (HAS_ENTITY(current_element) &&
@@ -280,11 +280,11 @@ void update_owner (const_objecttype expr_object)
 
 
 
-objecttype match_object (objecttype object)
+objectType match_object (objectType object)
 
   {
-    errinfotype err_info = OKAY_NO_ERROR;
-    objecttype result;
+    errInfoType err_info = OKAY_NO_ERROR;
+    objectType result;
 
   /* match_object */
 #ifdef TRACE_MATCH
@@ -323,9 +323,9 @@ objecttype match_object (objecttype object)
         if (ALLOC_OBJECT(result)) {
           result->type_of = object->type_of;
           result->descriptor.property = prog.property.literal;
-          result->value.listvalue = NULL;
+          result->value.listValue = NULL;
           INIT_CATEGORY_OF_OBJ(result, CALLOBJECT);
-          incl_list(&result->value.listvalue, object, &err_info);
+          incl_list(&result->value.listValue, object, &err_info);
         } /* if */
         break;
       case MATCHOBJECT:
@@ -356,11 +356,11 @@ objecttype match_object (objecttype object)
 
 
 
-static objecttype match_object2 (objecttype object, const_objecttype expr_object)
+static objectType match_object2 (objectType object, const_objectType expr_object)
 
   {
-    errinfotype err_info = OKAY_NO_ERROR;
-    objecttype result;
+    errInfoType err_info = OKAY_NO_ERROR;
+    objectType result;
 
   /* match_object2 */
 #ifdef TRACE_MATCH
@@ -405,8 +405,8 @@ static objecttype match_object2 (objecttype object, const_objecttype expr_object
             result->descriptor.property = prog.property.literal;
             INIT_CATEGORY_OF_OBJ(result, CALLOBJECT);
           } /* if */
-          result->value.listvalue = NULL;
-          incl_list(&result->value.listvalue, object, &err_info);
+          result->value.listValue = NULL;
+          incl_list(&result->value.listValue, object, &err_info);
         } /* if */
         break;
       case MATCHOBJECT:
@@ -438,14 +438,14 @@ static objecttype match_object2 (objecttype object, const_objecttype expr_object
 
 
 
-static objecttype match_subexpr_var (objecttype expr_object,
-    const_nodetype start_node, typetype object_type,
-    listtype rest_of_expression, booltype check_access_right,
-    booltype look_for_interfaces)
+static objectType match_subexpr_var (objectType expr_object,
+    const_nodeType start_node, typeType object_type,
+    listType rest_of_expression, boolType check_access_right,
+    boolType look_for_interfaces)
 
   {
-    nodetype node_found;
-    objecttype matched_object;
+    nodeType node_found;
+    objectType matched_object;
 
   /* match_subexpr_var */
     matched_object = NULL;
@@ -479,13 +479,13 @@ static objecttype match_subexpr_var (objecttype expr_object,
 
 
 
-static objecttype match_subexpr_const (objecttype expr_object,
-    const_nodetype start_node, typetype object_type, listtype rest_of_expression,
-    booltype check_access_right, booltype look_for_interfaces)
+static objectType match_subexpr_const (objectType expr_object,
+    const_nodeType start_node, typeType object_type, listType rest_of_expression,
+    boolType check_access_right, boolType look_for_interfaces)
 
   {
-    nodetype node_found;
-    objecttype matched_object;
+    nodeType node_found;
+    objectType matched_object;
 
   /* match_subexpr_const */
     matched_object = NULL;
@@ -519,16 +519,16 @@ static objecttype match_subexpr_const (objecttype expr_object,
 
 
 
-static objecttype match_subexpr_type (objecttype expr_object,
-    const_nodetype start_node, typetype object_type, booltype is_variable_obj,
-    listtype rest_of_expression, booltype check_access_right,
-    booltype look_for_interfaces)
+static objectType match_subexpr_type (objectType expr_object,
+    const_nodeType start_node, typeType object_type, boolType is_variable_obj,
+    listType rest_of_expression, boolType check_access_right,
+    boolType look_for_interfaces)
 
   {
-    typetype current_object_type;
-    typelisttype interface_list;
-    booltype non_dynamic_match_removed;
-    objecttype matched_object;
+    typeType current_object_type;
+    typeListType interface_list;
+    boolType non_dynamic_match_removed;
+    objectType matched_object;
 
   /* match_subexpr_type */
 #ifdef TRACE_MATCH
@@ -555,11 +555,11 @@ static objecttype match_subexpr_type (objecttype expr_object,
         if (matched_object != NULL &&
             (CATEGORY_OF_OBJ(matched_object) == MATCHOBJECT ||
             CATEGORY_OF_OBJ(matched_object) == CALLOBJECT) &&
-            matched_object->value.listvalue != NULL &&
-            matched_object->value.listvalue->obj != NULL) {
-          if (CATEGORY_OF_OBJ(matched_object->value.listvalue->obj) != ACTOBJECT ||
-              matched_object->value.listvalue->obj->value.actvalue != prc_dynamic) {
-            pop_list(&matched_object->value.listvalue);
+            matched_object->value.listValue != NULL &&
+            matched_object->value.listValue->obj != NULL) {
+          if (CATEGORY_OF_OBJ(matched_object->value.listValue->obj) != ACTOBJECT ||
+              matched_object->value.listValue->obj->value.actValue != prc_dynamic) {
+            pop_list(&matched_object->value.listValue);
             SET_CATEGORY_OF_OBJ(expr_object, EXPROBJECT);
             non_dynamic_match_removed = TRUE;
             matched_object = NULL;
@@ -596,11 +596,11 @@ static objecttype match_subexpr_type (objecttype expr_object,
         if (matched_object != NULL &&
             (CATEGORY_OF_OBJ(matched_object) == MATCHOBJECT ||
             CATEGORY_OF_OBJ(matched_object) == CALLOBJECT) &&
-            matched_object->value.listvalue != NULL &&
-            matched_object->value.listvalue->obj != NULL) {
-          if (CATEGORY_OF_OBJ(matched_object->value.listvalue->obj) != ACTOBJECT ||
-              matched_object->value.listvalue->obj->value.actvalue != prc_dynamic) {
-            pop_list(&matched_object->value.listvalue);
+            matched_object->value.listValue != NULL &&
+            matched_object->value.listValue->obj != NULL) {
+          if (CATEGORY_OF_OBJ(matched_object->value.listValue->obj) != ACTOBJECT ||
+              matched_object->value.listValue->obj->value.actValue != prc_dynamic) {
+            pop_list(&matched_object->value.listValue);
             SET_CATEGORY_OF_OBJ(expr_object, EXPROBJECT);
             non_dynamic_match_removed = TRUE;
             matched_object = NULL;
@@ -634,14 +634,14 @@ static objecttype match_subexpr_type (objecttype expr_object,
 
 
 
-static objecttype match_subexpr_attr (objecttype expr_object,
-    const_nodetype start_node, const_typetype object_type,
-    listtype rest_of_expression, booltype check_access_right,
-    booltype look_for_interfaces)
+static objectType match_subexpr_attr (objectType expr_object,
+    const_nodeType start_node, const_typeType object_type,
+    listType rest_of_expression, boolType check_access_right,
+    boolType look_for_interfaces)
 
   {
-    nodetype node_found;
-    objecttype matched_object;
+    nodeType node_found;
+    objectType matched_object;
 
   /* match_subexpr_attr */
 #ifdef TRACE_MATCH
@@ -670,14 +670,14 @@ static objecttype match_subexpr_attr (objecttype expr_object,
 
 
 
-static objecttype match_subexpr_param_attr (objecttype expr_object,
-    const_nodetype start_node, const_typetype f_param_type,
-    booltype is_inout_f_param, listtype rest_of_expression,
-    booltype check_access_right, booltype look_for_interfaces)
+static objectType match_subexpr_param_attr (objectType expr_object,
+    const_nodeType start_node, const_typeType f_param_type,
+    boolType is_inout_f_param, listType rest_of_expression,
+    boolType check_access_right, boolType look_for_interfaces)
 
   {
-    nodetype node_found;
-    objecttype matched_object;
+    nodeType node_found;
+    objectType matched_object;
 
   /* match_subexpr_param_attr */
 #ifdef TRACE_MATCH
@@ -721,19 +721,19 @@ static objecttype match_subexpr_param_attr (objecttype expr_object,
 
 
 
-static objecttype match_subexpr (objecttype expr_object,
-    const_nodetype start_node, listtype match_expr, booltype check_access_right,
-    booltype look_for_interfaces)
+static objectType match_subexpr (objectType expr_object,
+    const_nodeType start_node, listType match_expr, boolType check_access_right,
+    boolType look_for_interfaces)
 
   {
-    nodetype node_found;
-    objecttype current_element;
-    listtype rest_of_expression;
-    objecttype matched_object;
-    objecttype attribute_object;
-    typetype object_type;
-    typetype result_type;
-    errinfotype err_info = OKAY_NO_ERROR;
+    nodeType node_found;
+    objectType current_element;
+    listType rest_of_expression;
+    objectType matched_object;
+    objectType attribute_object;
+    typeType object_type;
+    typeType result_type;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* match_subexpr */
 #ifdef TRACE_MATCH
@@ -771,7 +771,7 @@ static objecttype match_subexpr (objecttype expr_object,
           printcategory(CATEGORY_OF_OBJ(current_element));
           fflush(stdout);
         } /* if */
-        incl_list(&expr_object->value.listvalue, current_element, &err_info);
+        incl_list(&expr_object->value.listValue, current_element, &err_info);
         if (current_element->type_of != NULL &&
             current_element->type_of->result_type != NULL) {
           SET_CATEGORY_OF_OBJ(expr_object, MATCHOBJECT);
@@ -816,8 +816,8 @@ static objecttype match_subexpr (objecttype expr_object,
             CATEGORY_OF_OBJ(current_element) == REFPARAMOBJECT ||
             CATEGORY_OF_OBJ(current_element) == RESULTOBJECT ||
             CATEGORY_OF_OBJ(current_element) == LOCALVOBJECT) &&
-            current_element->value.objvalue != NULL) {
-          attribute_object = current_element->value.objvalue;
+            current_element->value.objValue != NULL) {
+          attribute_object = current_element->value.objValue;
         } else {
           attribute_object = current_element;
         } /* if */
@@ -847,7 +847,7 @@ static objecttype match_subexpr (objecttype expr_object,
             fflush(stdout);
           } /* if */
           matched_object = match_subexpr_type(expr_object, start_node,
-              object_type, (booltype) VAR_OBJECT(current_element),
+              object_type, (boolType) VAR_OBJECT(current_element),
               rest_of_expression, check_access_right, look_for_interfaces);
 #ifdef OUT_OF_ORDER
           if (matched_object != NULL) {
@@ -867,7 +867,7 @@ static objecttype match_subexpr (objecttype expr_object,
                 } /* if */
                 if (object_type != NULL) {
                   matched_object = match_subexpr_type(expr_object, start_node,
-                      object_type, (booltype) VAR_OBJECT(match_expr->obj),
+                      object_type, (boolType) VAR_OBJECT(match_expr->obj),
                       rest_of_expression, check_access_right, look_for_interfaces);
                 } /* if */
               } else {
@@ -876,41 +876,41 @@ static objecttype match_subexpr (objecttype expr_object,
             } /* if */
             if (matched_object == NULL) {
               if (CATEGORY_OF_OBJ(current_element) == CALLOBJECT) {
-                if (CATEGORY_OF_OBJ(current_element->value.listvalue->obj) == TYPEOBJECT) {
-                  object_type = take_type(current_element->value.listvalue->obj);
+                if (CATEGORY_OF_OBJ(current_element->value.listValue->obj) == TYPEOBJECT) {
+                  object_type = take_type(current_element->value.listValue->obj);
                   /* Attribute */
                   matched_object = match_subexpr_attr(expr_object, start_node,
                       object_type, rest_of_expression, check_access_right,
                       look_for_interfaces);
                 /* } else {
-                  trace1(current_element->value.listvalue->obj);
+                  trace1(current_element->value.listValue->obj);
                   printf("\n"); */
                 } /* if */
               } else if (CATEGORY_OF_OBJ(current_element) == MATCHOBJECT) {
-                if (CATEGORY_OF_OBJ(current_element->value.listvalue->obj) == ACTOBJECT) {
-                  /* if (current_element->value.listvalue->obj->type_of->result_type == */
-                  /* trace1(current_element->value.listvalue->obj);
+                if (CATEGORY_OF_OBJ(current_element->value.listValue->obj) == ACTOBJECT) {
+                  /* if (current_element->value.listValue->obj->type_of->result_type == */
+                  /* trace1(current_element->value.listValue->obj);
                      printf("\n"); */
-                  if (current_element->value.listvalue->obj->value.actvalue == dcl_val1 ||
-                      current_element->value.listvalue->obj->value.actvalue == dcl_val2 ||
-                      current_element->value.listvalue->obj->value.actvalue == dcl_ref1 ||
-                      current_element->value.listvalue->obj->value.actvalue == dcl_ref2 ||
-                      current_element->value.listvalue->obj->value.actvalue == dcl_attr) {
-                    object_type = take_type(current_element->value.listvalue->next->next->obj);
-                    /* trace1(current_element->value.listvalue->obj);
+                  if (current_element->value.listValue->obj->value.actValue == dcl_val1 ||
+                      current_element->value.listValue->obj->value.actValue == dcl_val2 ||
+                      current_element->value.listValue->obj->value.actValue == dcl_ref1 ||
+                      current_element->value.listValue->obj->value.actValue == dcl_ref2 ||
+                      current_element->value.listValue->obj->value.actValue == dcl_attr) {
+                    object_type = take_type(current_element->value.listValue->next->next->obj);
+                    /* trace1(current_element->value.listValue->obj);
                        printf(" **** other\n");
-                       trace1(current_element->value.listvalue->next->next->obj);
+                       trace1(current_element->value.listValue->next->next->obj);
                        printf(" #### other\n"); */
                     matched_object = match_subexpr_param_attr(expr_object, start_node,
                         object_type, FALSE, rest_of_expression, check_access_right,
                         look_for_interfaces);
                     /* printf(" ++++ other\n"); */
-                  } else if (current_element->value.listvalue->obj->value.actvalue == dcl_inout1 ||
-                      current_element->value.listvalue->obj->value.actvalue == dcl_inout2) {
-                    object_type = take_type(current_element->value.listvalue->next->next->obj);
-                    /* trace1(current_element->value.listvalue->obj);
+                  } else if (current_element->value.listValue->obj->value.actValue == dcl_inout1 ||
+                      current_element->value.listValue->obj->value.actValue == dcl_inout2) {
+                    object_type = take_type(current_element->value.listValue->next->next->obj);
+                    /* trace1(current_element->value.listValue->obj);
                        printf(" **** inout\n");
-                       trace1(current_element->value.listvalue->next->next->obj);
+                       trace1(current_element->value.listValue->next->next->obj);
                        printf(" #### inout\n"); */
                     matched_object = match_subexpr_param_attr(expr_object, start_node,
                         object_type, TRUE, rest_of_expression, check_access_right,
@@ -964,17 +964,17 @@ static objecttype match_subexpr (objecttype expr_object,
 
 
 
-objecttype match_expression (objecttype expr_object)
+objectType match_expression (objectType expr_object)
 
   {
-    listtype expr_list;
-    objecttype matched_object;
+    listType expr_list;
+    objectType matched_object;
 
   /* match_expression */
 #ifdef TRACE_MATCH
     printf("BEGIN match_expression\n");
 #endif
-    expr_list = expr_object->value.listvalue;
+    expr_list = expr_object->value.listValue;
     if (trace.match) {
       printf("begin match ");
       prot_list(expr_list);
@@ -1018,18 +1018,18 @@ objecttype match_expression (objecttype expr_object)
 
 
 
-objecttype match_prog_expression (const_nodetype start_node,
-    objecttype expr_object)
+objectType match_prog_expression (const_nodeType start_node,
+    objectType expr_object)
 
   {
-    listtype expr_list;
-    objecttype matched_object;
+    listType expr_list;
+    objectType matched_object;
 
   /* match_prog_expression */
 #ifdef TRACE_MATCH
     printf("BEGIN match_expression\n");
 #endif
-    expr_list = expr_object->value.listvalue;
+    expr_list = expr_object->value.listValue;
     if (trace.match) {
       printf("begin match ");
       prot_list(expr_list);

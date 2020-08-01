@@ -64,11 +64,11 @@
 
 
 
-static void init_dollar_type (objecttype declared_object,
-    typetype meta_type, errinfotype *err_info)
+static void init_dollar_type (objectType declared_object,
+    typeType meta_type, errInfoType *err_info)
 
   {
-    typetype generated_type;
+    typeType generated_type;
 
   /* init_dollar_type */
 #ifdef TRACE_PARSER
@@ -78,7 +78,7 @@ static void init_dollar_type (objecttype declared_object,
       *err_info = MEMORY_ERROR;
     } else {
       SET_CATEGORY_OF_OBJ(declared_object, TYPEOBJECT);
-      declared_object->value.typevalue = generated_type;
+      declared_object->value.typeValue = generated_type;
       /* printf("generated_type->name=%lu\n", generated_type->name); */
       if (generated_type->name == NULL &&
           HAS_ENTITY(declared_object) &&
@@ -96,13 +96,13 @@ static void init_dollar_type (objecttype declared_object,
 
 
 
-static inline void init_dollar (objecttype declared_object,
-    errinfotype *err_info)
+static inline void init_dollar (objectType declared_object,
+    errInfoType *err_info)
 
   {
-    objecttype meta_type;
-    objecttype basic_type;
-    typetype generated_type;
+    objectType meta_type;
+    objectType basic_type;
+    typeType generated_type;
 
   /* init_dollar */
 #ifdef TRACE_PARSER
@@ -132,7 +132,7 @@ static inline void init_dollar (objecttype declared_object,
           *err_info = MEMORY_ERROR;
         } else {
           SET_CATEGORY_OF_OBJ(declared_object, TYPEOBJECT);
-          declared_object->value.typevalue = generated_type;
+          declared_object->value.typeValue = generated_type;
           if (generated_type->name == NULL &&
               HAS_ENTITY(declared_object) &&
               GET_ENTITY(declared_object)->ident != NULL) {
@@ -148,13 +148,13 @@ static inline void init_dollar (objecttype declared_object,
     } else if (current_ident == prog.id_for.enumlit) {
       scan_symbol();
       SET_CATEGORY_OF_OBJ(declared_object, ENUMLITERALOBJECT);
-      declared_object->value.nodevalue = NULL;
+      declared_object->value.nodeValue = NULL;
     } else if (current_ident == prog.id_for.action) {
       scan_symbol();
       if (symbol.sycategory == STRILITERAL) {
         SET_CATEGORY_OF_OBJ(declared_object, ACTOBJECT);
-        if (!find_action(symbol.strivalue, &declared_object->value.actvalue)) {
-          err_stri(WRONGACTION, symbol.strivalue);
+        if (!find_action(symbol.striValue, &declared_object->value.actValue)) {
+          err_stri(WRONGACTION, symbol.striValue);
         } /* if */
         scan_symbol();
       } else {
@@ -176,11 +176,11 @@ static inline void init_dollar (objecttype declared_object,
 
 
 
-static void decl_value (objecttype typeof_object, objecttype declared_object,
-    int is_dollar_type, errinfotype *err_info)
+static void decl_value (objectType typeof_object, objectType declared_object,
+    int is_dollar_type, errInfoType *err_info)
 
   {
-    objecttype init_expression;
+    objectType init_expression;
 
   /* decl_value */
 #ifdef TRACE_PARSER
@@ -283,11 +283,11 @@ static void decl_value (objecttype typeof_object, objecttype declared_object,
 
 
 
-static objecttype decl_name (nodetype node_level, errinfotype *err_info)
+static objectType decl_name (nodeType node_level, errInfoType *err_info)
 
   {
-    objecttype object_name;
-    objecttype defined_object;
+    objectType object_name;
+    objectType defined_object;
 
   /* decl_name */
 #ifdef TRACE_PARSER
@@ -299,7 +299,7 @@ static objecttype decl_name (nodetype node_level, errinfotype *err_info)
 #ifdef OUT_OF_ORDER
 if (CATEGORY_OF_OBJ(object_name) == EXPROBJECT) {
   printf("$ object_name/list ");
-  prot_list(object_name->value.listvalue);
+  prot_list(object_name->value.listValue);
 } else {
   printf("$ object_name/obj ");
   trace1(object_name);
@@ -311,7 +311,7 @@ if (CATEGORY_OF_OBJ(object_name) == EXPROBJECT) {
 #ifdef OUT_OF_ORDER
 if (CATEGORY_OF_OBJ(object_name) == EXPROBJECT) {
   printf("n object_name/list ");
-  prot_list(object_name->value.listvalue);
+  prot_list(object_name->value.listValue);
 } else {
   printf("n object_name/obj ");
   trace1(object_name);
@@ -320,7 +320,7 @@ if (CATEGORY_OF_OBJ(object_name) == EXPROBJECT) {
       defined_object = entername(node_level, object_name, err_info);
     } /* if */
     if (CATEGORY_OF_OBJ(object_name) == EXPROBJECT) {
-      object_name->value.listvalue = NULL;
+      object_name->value.listValue = NULL;
       FREE_OBJECT(object_name);
     } /* if */
 #ifdef TRACE_PARSER
@@ -331,12 +331,12 @@ if (CATEGORY_OF_OBJ(object_name) == EXPROBJECT) {
 
 
 
-void decl_const (nodetype node_level, errinfotype *err_info)
+void decl_const (nodeType node_level, errInfoType *err_info)
 
   {
-    objecttype typeof_object;
+    objectType typeof_object;
     int is_dollar_type;
-    objecttype declared_object;
+    objectType declared_object;
 
   /* decl_const */
 #ifdef TRACE_PARSER

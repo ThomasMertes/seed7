@@ -82,12 +82,12 @@ void line_compilation_info (void)
 
 
 #ifdef WITH_COMPILATION_INFO
-void open_compilation_info (booltype write_library_names, booltype write_line_numbers)
+void open_compilation_info (boolType write_library_names, boolType write_line_numbers)
 
   {
-    memsizetype new_name_length;
-    memsizetype curr_name_length;
-    memsizetype number;
+    memSizeType new_name_length;
+    memSizeType curr_name_length;
+    memSizeType number;
 
   /* open_compilation_info */
 #ifdef TRACE_INFILE
@@ -104,8 +104,8 @@ void open_compilation_info (booltype write_library_names, booltype write_line_nu
     if (write_line_numbers) {
       printf("     1 %s", in_file.name_ustri);
       if (in_file.curr_infile != NULL) {
-        new_name_length = strlen((const_cstritype) in_file.name_ustri);
-        curr_name_length = strlen((const_cstritype) in_file.curr_infile->name_ustri);
+        new_name_length = strlen((const_cstriType) in_file.name_ustri);
+        curr_name_length = strlen((const_cstriType) in_file.curr_infile->name_ustri);
         for (number = new_name_length; number < curr_name_length;
             number++) {
           fputc(' ', stdout);

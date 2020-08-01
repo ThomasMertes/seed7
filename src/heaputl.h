@@ -33,25 +33,25 @@
 #ifdef DO_HEAP_STATISTIC
 typedef struct {
     unsigned long stri;
-    memsizetype stri_elems;
+    memSizeType stri_elems;
     unsigned long bstri;
-    memsizetype bstri_elems;
+    memSizeType bstri_elems;
     unsigned long array;
-    memsizetype arr_elems;
-    memsizetype rtl_arr_elems;
+    memSizeType arr_elems;
+    memSizeType rtl_arr_elems;
     unsigned long hash;
-    memsizetype hsh_elems;
+    memSizeType hsh_elems;
     unsigned long helem;
     unsigned long rtl_helem;
     unsigned long set;
-    memsizetype set_elems;
+    memSizeType set_elems;
     unsigned long stru;
-    memsizetype sct_elems;
+    memSizeType sct_elems;
     unsigned long big;
-    memsizetype big_elems;
+    memSizeType big_elems;
     unsigned long ident;
     unsigned long idt;
-    memsizetype idt_bytes;
+    memSizeType idt_bytes;
     unsigned long entity;
     unsigned long property;
     unsigned long object;
@@ -67,30 +67,31 @@ typedef struct {
     unsigned long infil;
     unsigned long prog;
     unsigned long polldata;
+    unsigned long prepared_stmt;
     unsigned long win;
     unsigned long fnam;
-    memsizetype fnam_bytes;
+    memSizeType fnam_bytes;
     unsigned long symb;
-    memsizetype symb_bytes;
-    memsizetype byte;
-  } counttype;
+    memSizeType symb_bytes;
+    memSizeType byte;
+  } countType;
 
 #ifdef DO_INIT
-counttype count = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+countType count = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                   0};
+                   0, 0};
 #else
-EXTERN counttype count;
+EXTERN countType count;
 #endif
 
 #ifdef USE_BIG_RTL_LIBRARY
-extern size_t sizeof_bigdigittype;
-extern size_t sizeof_bigintrecord;
+extern size_t sizeof_bigDigitType;
+extern size_t sizeof_bigIntRecord;
 #endif
-extern size_t sizeof_pollrecord;
-extern size_t sizeof_winrecord;
+extern size_t sizeof_pollRecord;
+extern size_t sizeof_winRecord;
 
 #endif
 
@@ -124,28 +125,28 @@ typedef struct {
     char *freemem;
     char *start;
     char *beyond;
-    memsizetype size;
-    memsizetype total_size;
-    memsizetype lost_bytes;
+    memSizeType size;
+    memSizeType total_size;
+    memSizeType lost_bytes;
     unsigned int number_of_chunks;
-  } chunktype;
+  } chunkType;
 
 #ifdef DO_INIT
-chunktype chunk = {NULL, NULL, NULL, 0, 0, 0, 0};
+chunkType chunk = {NULL, NULL, NULL, 0, 0, 0, 0};
 #else
-EXTERN chunktype chunk;
+EXTERN chunkType chunk;
 #endif
 #endif
 
 
 #ifdef DO_HEAPSIZE_COMPUTATION
 #ifdef DO_INIT
-memsizetype hs = 0;
+memSizeType hs = 0;
 #else
-EXTERN memsizetype hs;
+EXTERN memSizeType hs;
 #endif
-#define HS_ADD(size)    hs += (memsizetype) (size)
-#define HS_SUB(size)    hs -= (memsizetype) (size)
+#define HS_ADD(size)    hs += (memSizeType) (size)
+#define HS_SUB(size)    hs -= (memSizeType) (size)
 #else
 #define HS_ADD(size)
 #define HS_SUB(size)
@@ -153,32 +154,32 @@ EXTERN memsizetype hs;
 
 
 #ifdef DO_HEAP_STATISTIC
-#define USTRI_ADD(len,cnt,byt) cnt++, byt += (memsizetype) (len)
-#define USTRI_SUB(len,cnt,byt) cnt--, byt -= (memsizetype) (len)
-#define STRI_ADD(len)          count.stri++,  count.stri_elems += (memsizetype) (len)
-#define STRI_SUB(len)          count.stri--,  count.stri_elems -= (memsizetype) (len)
-#define BSTRI_ADD(len)         count.bstri++, count.bstri_elems += (memsizetype) (len)
-#define BSTRI_SUB(len)         count.bstri--, count.bstri_elems -= (memsizetype) (len)
-#define ARR_ADD(len)           count.array++, count.arr_elems += (memsizetype) (len)
-#define ARR_SUB(len)           count.array--, count.arr_elems -= (memsizetype) (len)
-#define HSH_ADD(len)           count.hash++,  count.hsh_elems += (memsizetype) (len)
-#define HSH_SUB(len)           count.hash--,  count.hsh_elems -= (memsizetype) (len)
-#define SET_ADD(len)           count.set++,   count.set_elems += (memsizetype) (len)
-#define SET_SUB(len)           count.set--,   count.set_elems -= (memsizetype) (len)
-#define SCT_ADD(len)           count.stru++,  count.sct_elems += (memsizetype) (len)
-#define SCT_SUB(len)           count.stru--,  count.sct_elems -= (memsizetype) (len)
-#define BIG_ADD(len)           count.big++,   count.big_elems += (memsizetype) (len)
-#define BIG_SUB(len)           count.big--,   count.big_elems -= (memsizetype) (len)
+#define USTRI_ADD(len,cnt,byt) cnt++, byt += (memSizeType) (len)
+#define USTRI_SUB(len,cnt,byt) cnt--, byt -= (memSizeType) (len)
+#define STRI_ADD(len)          count.stri++,  count.stri_elems += (memSizeType) (len)
+#define STRI_SUB(len)          count.stri--,  count.stri_elems -= (memSizeType) (len)
+#define BSTRI_ADD(len)         count.bstri++, count.bstri_elems += (memSizeType) (len)
+#define BSTRI_SUB(len)         count.bstri--, count.bstri_elems -= (memSizeType) (len)
+#define ARR_ADD(len)           count.array++, count.arr_elems += (memSizeType) (len)
+#define ARR_SUB(len)           count.array--, count.arr_elems -= (memSizeType) (len)
+#define HSH_ADD(len)           count.hash++,  count.hsh_elems += (memSizeType) (len)
+#define HSH_SUB(len)           count.hash--,  count.hsh_elems -= (memSizeType) (len)
+#define SET_ADD(len)           count.set++,   count.set_elems += (memSizeType) (len)
+#define SET_SUB(len)           count.set--,   count.set_elems -= (memSizeType) (len)
+#define SCT_ADD(len)           count.stru++,  count.sct_elems += (memSizeType) (len)
+#define SCT_SUB(len)           count.stru--,  count.sct_elems -= (memSizeType) (len)
+#define BIG_ADD(len)           count.big++,   count.big_elems += (memSizeType) (len)
+#define BIG_SUB(len)           count.big--,   count.big_elems -= (memSizeType) (len)
 #define REC_ADD(cnt)           cnt++
 #define REC_SUB(cnt)           cnt--
-#define BYT_ADD(size)          count.byte += (memsizetype) (size)
-#define BYT_SUB(size)          count.byte -= (memsizetype) (size)
+#define BYT_ADD(size)          count.byte += (memSizeType) (size)
+#define BYT_SUB(size)          count.byte -= (memSizeType) (size)
 #define RTL_L_ELEM_ADD
 #define RTL_L_ELEM_SUB
-#define RTL_ARR_ADD(len)       count.array++, count.rtl_arr_elems += (memsizetype) (len)
-#define RTL_ARR_SUB(len)       count.array--, count.rtl_arr_elems -= (memsizetype) (len)
-#define RTL_HSH_ADD(len)       count.hash++,  count.hsh_elems += (memsizetype) (len)
-#define RTL_HSH_SUB(len)       count.hash--,  count.hsh_elems -= (memsizetype) (len)
+#define RTL_ARR_ADD(len)       count.array++, count.rtl_arr_elems += (memSizeType) (len)
+#define RTL_ARR_SUB(len)       count.array--, count.rtl_arr_elems -= (memSizeType) (len)
+#define RTL_HSH_ADD(len)       count.hash++,  count.hsh_elems += (memSizeType) (len)
+#define RTL_HSH_SUB(len)       count.hash--,  count.hsh_elems -= (memSizeType) (len)
 #else
 #define USTRI_ADD(len,cnt,byt)
 #define USTRI_SUB(len,cnt,byt)
@@ -229,36 +230,36 @@ EXTERN memsizetype hs;
 
 #define SIZ_USTRI(len)   ((len) + 1)
 #define SIZ_CSTRI(len)   ((len) + 1)
-#define SIZ_WSTRI(len)   (sizeof(wchar_t) * ((len) + 1))
-#define SIZ_STRI(len)    ((sizeof(strirecord)     - sizeof(strelemtype))  + (len) * sizeof(strelemtype))
-#define SIZ_BSTRI(len)   ((sizeof(bstrirecord)    - sizeof(uchartype))    + (len) * sizeof(uchartype))
-#define SIZ_ARR(len)     ((sizeof(arrayrecord)    - sizeof(objectrecord)) + (len) * sizeof(objectrecord))
-#define SIZ_HSH(len)     ((sizeof(hashrecord)     - sizeof(helemtype))    + (len) * sizeof(helemtype))
-#define SIZ_SET(len)     ((sizeof(setrecord)      - sizeof(bitsettype))   + (len) * sizeof(bitsettype))
-#define SIZ_SCT(len)     ((sizeof(structrecord)   - sizeof(objectrecord)) + (len) * sizeof(objectrecord))
-#define SIZ_BIG(len)     ((sizeof_bigintrecord    - sizeof_bigdigittype)  + (len) * sizeof_bigdigittype)
+#define SIZ_WSTRI(len)   (sizeof(wcharType) * ((len) + 1))
+#define SIZ_STRI(len)    ((sizeof(striRecord)     - sizeof(strElemType))  + (len) * sizeof(strElemType))
+#define SIZ_BSTRI(len)   ((sizeof(bstriRecord)    - sizeof(ucharType))    + (len) * sizeof(ucharType))
+#define SIZ_ARR(len)     ((sizeof(arrayRecord)    - sizeof(objectRecord)) + (len) * sizeof(objectRecord))
+#define SIZ_HSH(len)     ((sizeof(hashRecord)     - sizeof(hashElemType)) + (len) * sizeof(hashElemType))
+#define SIZ_SET(len)     ((sizeof(setRecord)      - sizeof(bitSetType))   + (len) * sizeof(bitSetType))
+#define SIZ_SCT(len)     ((sizeof(structRecord)   - sizeof(objectRecord)) + (len) * sizeof(objectRecord))
+#define SIZ_BIG(len)     ((sizeof_bigIntRecord    - sizeof_bigDigitType)  + (len) * sizeof_bigDigitType)
 #define SIZ_REC(rec)     (sizeof(rec))
 #define SIZ_TAB(tp, nr)  (sizeof(tp) * (nr))
-#define SIZ_RTL_L_ELEM   (sizeof(rtlListrecord))
-#define SIZ_RTL_ARR(len) ((sizeof(rtlArrayrecord) - sizeof(rtlObjecttype)) + (len) * sizeof(rtlObjecttype))
-#define SIZ_RTL_HSH(len) ((sizeof(rtlHashrecord)  - sizeof(rtlHelemtype))  + (len) * sizeof(rtlHelemtype))
+#define SIZ_RTL_L_ELEM   (sizeof(rtlListRecord))
+#define SIZ_RTL_ARR(len) ((sizeof(rtlArrayRecord) - sizeof(rtlObjectType))   + (len) * sizeof(rtlObjectType))
+#define SIZ_RTL_HSH(len) ((sizeof(rtlHashRecord)  - sizeof(rtlHashElemType)) + (len) * sizeof(rtlHashElemType))
 
 #define MAX_USTRI_LEN   (MAX_MEMSIZETYPE - 1)
 #define MAX_CSTRI_LEN   (MAX_MEMSIZETYPE - 1)
-#define MAX_WSTRI_LEN   (MAX_MEMSIZETYPE / sizeof(wchar_t) - 1)
-#define MAX_STRI_LEN    ((MAX_MEMSIZETYPE - sizeof(strirecord)     + sizeof(strelemtype))   / sizeof(strelemtype))
-#define MAX_BSTRI_LEN   ((MAX_MEMSIZETYPE - sizeof(bstrirecord)    + sizeof(uchartype))     / sizeof(uchartype))
-#define MAX_ARR_LEN     ((MAX_MEMSIZETYPE - sizeof(arrayrecord)    + sizeof(objectrecord))  / sizeof(objectrecord))
-#define MAX_SET_LEN     ((MAX_MEMSIZETYPE - sizeof(setrecord)      + sizeof(bitsettype))    / sizeof(bitsettype))
-#define MAX_RTL_ARR_LEN ((MAX_MEMSIZETYPE - sizeof(rtlArrayrecord) + sizeof(rtlObjecttype)) / sizeof(rtlObjecttype))
+#define MAX_WSTRI_LEN   (MAX_MEMSIZETYPE / sizeof(wcharType) - 1)
+#define MAX_STRI_LEN    ((MAX_MEMSIZETYPE - sizeof(striRecord)     + sizeof(strElemType))   / sizeof(strElemType))
+#define MAX_BSTRI_LEN   ((MAX_MEMSIZETYPE - sizeof(bstriRecord)    + sizeof(ucharType))     / sizeof(ucharType))
+#define MAX_ARR_LEN     ((MAX_MEMSIZETYPE - sizeof(arrayRecord)    + sizeof(objectRecord))  / sizeof(objectRecord))
+#define MAX_SET_LEN     ((MAX_MEMSIZETYPE - sizeof(setRecord)      + sizeof(bitSetType))    / sizeof(bitSetType))
+#define MAX_RTL_ARR_LEN ((MAX_MEMSIZETYPE - sizeof(rtlArrayRecord) + sizeof(rtlObjectType)) / sizeof(rtlObjectType))
 
 #ifdef DO_HEAPSIZE_COMPUTATION
 #ifdef DO_HEAP_STATISTIC
 #define CALC_HS(cnt_hs, cnt)   (cnt_hs, cnt)
-#define CNT4_STRI(var,len)     HS_ADD(((len)-(var)->size) * sizeof(strelemtype)); count.stri_elems += (memsizetype) ((len)-(var)->size);
+#define CNT4_STRI(var,len)     HS_ADD(((len)-(var)->size) * sizeof(strElemType)); count.stri_elems += (memSizeType) ((len)-(var)->size);
 #else
 #define CALC_HS(cnt_hs, cnt)   (cnt_hs)
-#define CNT4_STRI(var,len)     HS_ADD(((len)-(var)->size) * sizeof(strelemtype));
+#define CNT4_STRI(var,len)     HS_ADD(((len)-(var)->size) * sizeof(strElemType));
 #endif
 #define CNT(cnt)               cnt,
 #define CNT3(cnt2, cnt1)       (cnt2, cnt1)
@@ -302,39 +303,39 @@ EXTERN memsizetype hs;
 #define FREE_HEAP(var,byt)         (free((void *) var))
 
 
-#define ALLOC_USTRI(var,len)       ALLOC_HEAP(var, ustritype, SIZ_USTRI(len))
+#define ALLOC_USTRI(var,len)       ALLOC_HEAP(var, ustriType, SIZ_USTRI(len))
 #define UNALLOC_USTRI(var,len)     FREE_HEAP(var, SIZ_USTRI(len))
 #define FREE_USTRI(var,L,cnt,byt)  (CNT(CNT2_USTRI(L, SIZ_USTRI(L), cnt, byt)) FREE_HEAP(var, SIZ_USTRI(L)))
-#define REALLOC_USTRI(var,L1,L2)   REALLOC_HEAP(var, ustritype, SIZ_USTRI(L2))
+#define REALLOC_USTRI(var,L1,L2)   REALLOC_HEAP(var, ustriType, SIZ_USTRI(L2))
 #define COUNT_USTRI(len,cnt,byt)   CNT1_USTRI(len, SIZ_USTRI(len), cnt, byt)
 #define COUNT3_USTRI(L1,L2,CT,byt) CNT3(CNT2_USTRI(L1, SIZ_USTRI(L1), CT, byt), CNT1_USTRI(L2, SIZ_USTRI(L2), CT, byt))
 
 
-#define ALLOC_CSTRI(var,len)       ALLOC_HEAP(var, cstritype, SIZ_CSTRI(len))
-#define REALLOC_CSTRI(var,len)     ((char *) REALLOC_HEAP(var, ustritype, SIZ_CSTRI(len)))
+#define ALLOC_CSTRI(var,len)       ALLOC_HEAP(var, cstriType, SIZ_CSTRI(len))
+#define REALLOC_CSTRI(var,len)     ((cstriType) REALLOC_HEAP(var, ustriType, SIZ_CSTRI(len)))
 #define UNALLOC_CSTRI(var,len)     FREE_HEAP(var, SIZ_CSTRI(len))
 
 
-#define ALLOC_WSTRI(var,len)       ALLOC_HEAP(var, wstritype, SIZ_WSTRI(len))
-#define REALLOC_WSTRI(var,len)     ((wchar_t *) REALLOC_HEAP(var, ustritype, SIZ_WSTRI(len)))
+#define ALLOC_WSTRI(var,len)       ALLOC_HEAP(var, wstriType, SIZ_WSTRI(len))
+#define REALLOC_WSTRI(var,len)     ((wstriType) REALLOC_HEAP(var, ustriType, SIZ_WSTRI(len)))
 #define UNALLOC_WSTRI(var,len)     FREE_HEAP(var, SIZ_WSTRI(len))
 
 
 #ifdef WITH_STRI_CAPACITY
 #ifdef ALLOW_STRITYPE_SLICES
-#define HEAP_ALLOC_STRI(var,len)       (ALLOC_HEAP(var,stritype,SIZ_STRI(len))?((var)->mem=(var)->mem1,(var)->capacity=(len),CNT(CNT1_STRI(len,SIZ_STRI(len))) TRUE):FALSE)
-#define HEAP_REALLOC_STRI(v1,v2,l1,l2) if((v1=REALLOC_HEAP(v2,stritype,SIZ_STRI(l2)))!=NULL){(v1)->mem=(v1)->mem1,(v1)->capacity=l2;}
+#define HEAP_ALLOC_STRI(var,len)       (ALLOC_HEAP(var,striType,SIZ_STRI(len))?((var)->mem=(var)->mem1,(var)->capacity=(len),CNT(CNT1_STRI(len,SIZ_STRI(len))) TRUE):FALSE)
+#define HEAP_REALLOC_STRI(v1,v2,l1,l2) if((v1=REALLOC_HEAP(v2,striType,SIZ_STRI(l2)))!=NULL){(v1)->mem=(v1)->mem1,(v1)->capacity=l2;}
 #else
-#define HEAP_ALLOC_STRI(var,len)       (ALLOC_HEAP(var,stritype,SIZ_STRI(len))?((var)->capacity=(len),CNT(CNT1_STRI(len,SIZ_STRI(len))) TRUE):FALSE)
-#define HEAP_REALLOC_STRI(v1,v2,l1,l2) if((v1=REALLOC_HEAP(v2,stritype,SIZ_STRI(l2)))!=NULL)(v1)->capacity=l2;
+#define HEAP_ALLOC_STRI(var,len)       (ALLOC_HEAP(var,striType,SIZ_STRI(len))?((var)->capacity=(len),CNT(CNT1_STRI(len,SIZ_STRI(len))) TRUE):FALSE)
+#define HEAP_REALLOC_STRI(v1,v2,l1,l2) if((v1=REALLOC_HEAP(v2,striType,SIZ_STRI(l2)))!=NULL)(v1)->capacity=l2;
 #endif
 #else
 #ifdef ALLOW_STRITYPE_SLICES
-#define HEAP_ALLOC_STRI(var,len)       (ALLOC_HEAP(var,stritype,SIZ_STRI(len))?((var)->mem=(var)->mem1,CNT(CNT1_STRI(len,SIZ_STRI(len))) TRUE):FALSE)
-#define HEAP_REALLOC_STRI(v1,v2,l1,l2) if((v1=REALLOC_HEAP(v2,stritype,SIZ_STRI(l2)))!=NULL)(v1)->mem=(v1)->mem1;
+#define HEAP_ALLOC_STRI(var,len)       (ALLOC_HEAP(var,striType,SIZ_STRI(len))?((var)->mem=(var)->mem1,CNT(CNT1_STRI(len,SIZ_STRI(len))) TRUE):FALSE)
+#define HEAP_REALLOC_STRI(v1,v2,l1,l2) if((v1=REALLOC_HEAP(v2,striType,SIZ_STRI(l2)))!=NULL)(v1)->mem=(v1)->mem1;
 #else
-#define HEAP_ALLOC_STRI(var,len)       (ALLOC_HEAP(var,stritype,SIZ_STRI(len))?(CNT(CNT1_STRI(len,SIZ_STRI(len))) TRUE):FALSE)
-#define HEAP_REALLOC_STRI(v1,v2,l1,l2) v1=REALLOC_HEAP(v2,stritype,SIZ_STRI(l2));
+#define HEAP_ALLOC_STRI(var,len)       (ALLOC_HEAP(var,striType,SIZ_STRI(len))?(CNT(CNT1_STRI(len,SIZ_STRI(len))) TRUE):FALSE)
+#define HEAP_REALLOC_STRI(v1,v2,l1,l2) v1=REALLOC_HEAP(v2,striType,SIZ_STRI(l2));
 #endif
 #endif
 #define HEAP_FREE_STRI(var,len)        (CNT(CNT2_STRI(len,SIZ_STRI(len))) FREE_HEAP(var,SIZ_STRI(len)))
@@ -347,22 +348,22 @@ EXTERN memsizetype hs;
 #define STRI_FREELIST_ARRAY_SIZE 20
 
 #ifdef DO_INIT
-flisttype sflist[STRI_FREELIST_ARRAY_SIZE] = {
+freeListElemType sflist[STRI_FREELIST_ARRAY_SIZE] = {
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
 unsigned int sflist_allowed[STRI_FREELIST_ARRAY_SIZE] = {
     160, 40, 40, 40, 40, 40, 40, 40, 40, 40,
     40, 40, 40, 40, 40, 40, 40, 40, 40, 40};
 #else
-EXTERN flisttype sflist[STRI_FREELIST_ARRAY_SIZE];
+EXTERN freeListElemType sflist[STRI_FREELIST_ARRAY_SIZE];
 EXTERN unsigned int sflist_allowed[STRI_FREELIST_ARRAY_SIZE];
 #endif
 
 #define POP_STRI_OK(len)    (len) < STRI_FREELIST_ARRAY_SIZE && sflist[len] != NULL
 #define PUSH_STRI_OK(var)   (var)->capacity < STRI_FREELIST_ARRAY_SIZE && sflist_allowed[(var)->capacity] > 0
 
-#define POP_STRI(var,len)   (var = (stritype) sflist[len], sflist[len] = sflist[len]->next, sflist_allowed[len]++, TRUE)
-#define PUSH_STRI(var,len)  {CNT4_STRI(var,len) ((flisttype) var)->next = sflist[len]; sflist[len] = (flisttype) var; sflist_allowed[len]--; }
+#define POP_STRI(var,len)   (var = (striType) sflist[len], sflist[len] = sflist[len]->next, sflist_allowed[len]++, TRUE)
+#define PUSH_STRI(var,len)  {CNT4_STRI(var,len) ((freeListElemType) var)->next = sflist[len]; sflist[len] = (freeListElemType) var; sflist_allowed[len]--; }
 
 #define ALLOC_STRI_SIZE_OK(var,len)    (POP_STRI_OK(len) ? POP_STRI(var, len) : HEAP_ALLOC_STRI(var, len))
 #define ALLOC_STRI_CHECK_SIZE(var,len) (POP_STRI_OK(len) ? POP_STRI(var, len) : ((len)<=MAX_STRI_LEN?HEAP_ALLOC_STRI(var, len):(var=NULL, FALSE)))
@@ -371,18 +372,18 @@ EXTERN unsigned int sflist_allowed[STRI_FREELIST_ARRAY_SIZE];
 #else
 
 #ifdef DO_INIT
-flisttype sflist = NULL;
+freeListElemType sflist = NULL;
 unsigned int sflist_allowed = 40;
 #else
-EXTERN flisttype sflist;
+EXTERN freeListElemType sflist;
 EXTERN unsigned int sflist_allowed;
 #endif
 
 #define POP_STRI_OK(len)    (len) == 1 && sflist != NULL
 #define PUSH_STRI_OK(var)   (var)->size == 1 && sflist_allowed > 0
 
-#define POP_STRI(var)       (var = (stritype) sflist, sflist = sflist->next, sflist_allowed++, TRUE)
-#define PUSH_STRI(var)      {((flisttype) var)->next = sflist; sflist = (flisttype) var; sflist_allowed--; }
+#define POP_STRI(var)       (var = (striType) sflist, sflist = sflist->next, sflist_allowed++, TRUE)
+#define PUSH_STRI(var)      {((freeListElemType) var)->next = sflist; sflist = (freeListElemType) var; sflist_allowed--; }
 
 #define ALLOC_STRI_SIZE_OK(var,len)    (POP_STRI_OK(len) ? POP_STRI(var) : HEAP_ALLOC_STRI(var, len))
 #define ALLOC_STRI_CHECK_SIZE(var,len) (POP_STRI_OK(len) ? POP_STRI(var) : ((len)<=MAX_STRI_LEN?HEAP_ALLOC_STRI(var, len):(var=NULL, FALSE)))
@@ -423,11 +424,11 @@ EXTERN unsigned int sflist_allowed;
 
 
 #ifdef ALLOW_BSTRITYPE_SLICES
-#define ALLOC_BSTRI_SIZE_OK(var,len)       (ALLOC_HEAP(var, bstritype, SIZ_BSTRI(len))?(var->mem = var->mem1, CNT(CNT1_BSTRI(len, SIZ_BSTRI(len))) TRUE):FALSE)
-#define REALLOC_BSTRI_SIZE_OK(v1,v2,l1,l2) ((v1=REALLOC_HEAP(v2, bstritype, SIZ_BSTRI(l2)))?((v1)->mem=(v1)->mem1,0):0)
+#define ALLOC_BSTRI_SIZE_OK(var,len)       (ALLOC_HEAP(var, bstriType, SIZ_BSTRI(len))?(var->mem = var->mem1, CNT(CNT1_BSTRI(len, SIZ_BSTRI(len))) TRUE):FALSE)
+#define REALLOC_BSTRI_SIZE_OK(v1,v2,l1,l2) ((v1=REALLOC_HEAP(v2, bstriType, SIZ_BSTRI(l2)))?((v1)->mem=(v1)->mem1,0):0)
 #else
-#define ALLOC_BSTRI_SIZE_OK(var,len)       (ALLOC_HEAP(var, bstritype, SIZ_BSTRI(len))?CNT(CNT1_BSTRI(len, SIZ_BSTRI(len))) TRUE:FALSE)
-#define REALLOC_BSTRI_SIZE_OK(v1,v2,l1,l2) (v1=REALLOC_HEAP(v2, bstritype, SIZ_BSTRI(l2)),0)
+#define ALLOC_BSTRI_SIZE_OK(var,len)       (ALLOC_HEAP(var, bstriType, SIZ_BSTRI(len))?CNT(CNT1_BSTRI(len, SIZ_BSTRI(len))) TRUE:FALSE)
+#define REALLOC_BSTRI_SIZE_OK(v1,v2,l1,l2) (v1=REALLOC_HEAP(v2, bstriType, SIZ_BSTRI(l2)),0)
 #endif
 
 #define ALLOC_BSTRI_CHECK_SIZE(var,len)       ((len) <= MAX_BSTRI_LEN?ALLOC_BSTRI_SIZE_OK(var, len):(var=NULL,FALSE))
@@ -436,43 +437,43 @@ EXTERN unsigned int sflist_allowed;
 #define COUNT3_BSTRI(len1,len2)               CNT3(CNT2_BSTRI(len1, SIZ_BSTRI(len1)), CNT1_BSTRI(len2, SIZ_BSTRI(len2)))
 
 
-#define ALLOC_RTL_L_ELEM(var)      (ALLOC_HEAP(var, rtlListtype, SIZ_RTL_L_ELEM)?CNT(CNT1_RTL_L_ELEM(SIZ_RTL_L_ELEM)) TRUE:FALSE)
+#define ALLOC_RTL_L_ELEM(var)      (ALLOC_HEAP(var, rtlListType, SIZ_RTL_L_ELEM)?CNT(CNT1_RTL_L_ELEM(SIZ_RTL_L_ELEM)) TRUE:FALSE)
 #define FREE_RTL_L_ELEM(var)       (CNT(CNT2_RTL_L_ELEM(SIZ_RTL_L_ELEM)) FREE_HEAP(var, SIZ_RTL_L_ELEM))
 
 
-#define ALLOC_ARRAY(var,len)       (ALLOC_HEAP(var, arraytype, SIZ_ARR(len))?CNT(CNT1_ARR(len, SIZ_ARR(len))) TRUE:FALSE)
+#define ALLOC_ARRAY(var,len)       (ALLOC_HEAP(var, arrayType, SIZ_ARR(len))?CNT(CNT1_ARR(len, SIZ_ARR(len))) TRUE:FALSE)
 #define FREE_ARRAY(var,len)        (CNT(CNT2_ARR(len, SIZ_ARR(len))) FREE_HEAP(var, SIZ_ARR(len)))
-#define REALLOC_ARRAY(var,ln1,ln2) REALLOC_HEAP(var, arraytype, SIZ_ARR(ln2))
+#define REALLOC_ARRAY(var,ln1,ln2) REALLOC_HEAP(var, arrayType, SIZ_ARR(ln2))
 #define COUNT3_ARRAY(len1,len2)    CNT3(CNT2_ARR(len1, SIZ_ARR(len1)), CNT1_ARR(len2, SIZ_ARR(len2)))
 
 
-#define ALLOC_RTL_ARRAY(var,len)       (ALLOC_HEAP(var, rtlArraytype, SIZ_RTL_ARR(len))?CNT(CNT1_RTL_ARR(len, SIZ_RTL_ARR(len))) TRUE:FALSE)
+#define ALLOC_RTL_ARRAY(var,len)       (ALLOC_HEAP(var, rtlArrayType, SIZ_RTL_ARR(len))?CNT(CNT1_RTL_ARR(len, SIZ_RTL_ARR(len))) TRUE:FALSE)
 #define FREE_RTL_ARRAY(var,len)        (CNT(CNT2_RTL_ARR(len, SIZ_RTL_ARR(len))) FREE_HEAP(var, SIZ_RTL_ARR(len)))
-#define REALLOC_RTL_ARRAY(var,ln1,ln2) REALLOC_HEAP(var, rtlArraytype, SIZ_RTL_ARR(ln2))
+#define REALLOC_RTL_ARRAY(var,ln1,ln2) REALLOC_HEAP(var, rtlArrayType, SIZ_RTL_ARR(ln2))
 #define COUNT3_RTL_ARRAY(len1,len2)    CNT3(CNT2_RTL_ARR(len1, SIZ_RTL_ARR(len1)), CNT1_RTL_ARR(len2, SIZ_RTL_ARR(len2)))
 
 
-#define ALLOC_HASH(var,len)        (ALLOC_HEAP(var, hashtype, SIZ_HSH(len))?CNT(CNT1_HSH(len, SIZ_HSH(len))) TRUE:FALSE)
+#define ALLOC_HASH(var,len)        (ALLOC_HEAP(var, hashType, SIZ_HSH(len))?CNT(CNT1_HSH(len, SIZ_HSH(len))) TRUE:FALSE)
 #define FREE_HASH(var,len)         (CNT(CNT2_HSH(len, SIZ_HSH(len))) FREE_HEAP(var, SIZ_HSH(len)))
-#define REALLOC_HASH(var,ln1,ln2)  REALLOC_HEAP(var, hashtype, SIZ_HSH(ln2))
+#define REALLOC_HASH(var,ln1,ln2)  REALLOC_HEAP(var, hashType, SIZ_HSH(ln2))
 #define COUNT3_HASH(len1,len2)     CNT3(CNT2_HSH(len1, SIZ_HSH(len1)), CNT1_HSH(len2, SIZ_HSH(len2)))
 
 
-#define ALLOC_RTL_HASH(var,len)       (ALLOC_HEAP(var, rtlHashtype, SIZ_RTL_HSH(len))?CNT(CNT1_RTL_HSH(len, SIZ_RTL_HSH(len))) TRUE:FALSE)
+#define ALLOC_RTL_HASH(var,len)       (ALLOC_HEAP(var, rtlHashType, SIZ_RTL_HSH(len))?CNT(CNT1_RTL_HSH(len, SIZ_RTL_HSH(len))) TRUE:FALSE)
 #define FREE_RTL_HASH(var,len)        (CNT(CNT2_RTL_HSH(len, SIZ_RTL_HSH(len))) FREE_HEAP(var, SIZ_RTL_HSH(len)))
-#define REALLOC_RTL_HASH(var,ln1,ln2) REALLOC_HEAP(var, rtlHashtype, SIZ_RTL_HSH(ln2))
+#define REALLOC_RTL_HASH(var,ln1,ln2) REALLOC_HEAP(var, rtlHashType, SIZ_RTL_HSH(ln2))
 #define COUNT3_RTL_HASH(len1,len2)    CNT3(CNT2_RTL_HSH(len1, SIZ_RTL_HSH(len1)), CNT1_RTL_HSH(len2, SIZ_RTL_HSH(len2)))
 
 
-#define ALLOC_SET(var,len)         (ALLOC_HEAP(var, settype, SIZ_SET(len))?CNT(CNT1_SET(len, SIZ_SET(len))) TRUE:FALSE)
+#define ALLOC_SET(var,len)         (ALLOC_HEAP(var, setType, SIZ_SET(len))?CNT(CNT1_SET(len, SIZ_SET(len))) TRUE:FALSE)
 #define FREE_SET(var,len)          (CNT(CNT2_SET(len, SIZ_SET(len))) FREE_HEAP(var, SIZ_SET(len)))
-#define REALLOC_SET(var,len1,len2) REALLOC_HEAP(var, settype, SIZ_SET(len2))
+#define REALLOC_SET(var,len1,len2) REALLOC_HEAP(var, setType, SIZ_SET(len2))
 #define COUNT3_SET(len1,len2)      CNT3(CNT2_SET(len1, SIZ_SET(len1)), CNT1_SET(len2, SIZ_SET(len2)))
 
 
-#define ALLOC_STRUCT(var,len)       (ALLOC_HEAP(var, structtype, SIZ_SCT(len))?CNT(CNT1_SCT(len, SIZ_SCT(len))) TRUE:FALSE)
+#define ALLOC_STRUCT(var,len)       (ALLOC_HEAP(var, structType, SIZ_SCT(len))?CNT(CNT1_SCT(len, SIZ_SCT(len))) TRUE:FALSE)
 #define FREE_STRUCT(var,len)        (CNT(CNT2_SCT(len, SIZ_SCT(len))) FREE_HEAP(var, SIZ_SCT(len)))
-#define REALLOC_STRUCT(var,ln1,ln2) REALLOC_HEAP(var, structtype, SIZ_SCT(ln2))
+#define REALLOC_STRUCT(var,ln1,ln2) REALLOC_HEAP(var, structType, SIZ_SCT(ln2))
 #define COUNT3_STRUCT(len1,len2)    CNT3(CNT2_SCT(len1, SIZ_SCT(len1)), CNT1_SCT(len2, SIZ_SCT(len2)))
 
 
@@ -492,8 +493,8 @@ EXTERN unsigned int sflist_allowed;
 
 
 #ifdef WITH_STRI_CAPACITY
-stritype growStri (stritype stri, memsizetype len);
-stritype shrinkStri (stritype stri, memsizetype len);
+striType growStri (striType stri, memSizeType len);
+striType shrinkStri (striType stri, memSizeType len);
 #endif
 #ifdef DO_HEAP_CHECK
 void check_heap (long, const char *, unsigned int);

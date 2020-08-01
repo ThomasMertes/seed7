@@ -29,6 +29,6 @@
 /*                                                                  */
 /********************************************************************/
 
-stritype gkbGets (inttype length);
-stritype gkbLineRead (chartype *terminationChar);
-stritype gkbWordRead (chartype *terminationChar);
+striType gkbGets (intType length);
+striType gkbLineRead (charType *terminationChar);
+striType gkbWordRead (charType *terminationChar);

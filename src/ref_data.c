@@ -60,19 +60,19 @@
 
 
 
-objecttype refAlloc (objecttype obj_arg)
+objectType refAlloc (objectType obj_arg)
 
   {
-    objecttype created_object;
+    objectType created_object;
 
   /* refAlloc */
     if (ALLOC_OBJECT(created_object)) {
       created_object->type_of = obj_arg->type_of;
       memcpy(&created_object->descriptor, &obj_arg->descriptor,
-          sizeof(descriptorunion));
+          sizeof(descriptorUnion));
       /* Copies the POSINFO flag (and all other flags): */
       INIT_CATEGORY_OF_OBJ(created_object, obj_arg->objcategory);
-      created_object->value.objvalue = NULL;
+      created_object->value.objValue = NULL;
     } else {
       raise_error(MEMORY_ERROR);
     } /* if */
@@ -81,7 +81,7 @@ objecttype refAlloc (objecttype obj_arg)
 
 
 
-inttype refArrMaxIdx (objecttype obj_arg)
+intType refArrMaxIdx (objectType obj_arg)
 
   { /* refArrMaxIdx */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != ARRAYOBJECT) {
@@ -94,7 +94,7 @@ inttype refArrMaxIdx (objecttype obj_arg)
 
 
 
-inttype refArrMinIdx (objecttype obj_arg)
+intType refArrMinIdx (objectType obj_arg)
 
   { /* refArrMinIdx */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != ARRAYOBJECT) {
@@ -107,11 +107,11 @@ inttype refArrMinIdx (objecttype obj_arg)
 
 
 
-listtype refArrToList (objecttype obj_arg)
+listType refArrToList (objectType obj_arg)
 
   {
-    errinfotype err_info = OKAY_NO_ERROR;
-    listtype result;
+    errInfoType err_info = OKAY_NO_ERROR;
+    listType result;
 
   /* refArrToList */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != ARRAYOBJECT) {
@@ -129,27 +129,27 @@ listtype refArrToList (objecttype obj_arg)
 
 
 
-objecttype refBody (objecttype obj_arg)
+objectType refBody (objectType obj_arg)
 
   {
-    objecttype result;
+    objectType result;
 
   /* refBody */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != BLOCKOBJECT) {
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
-      result = obj_arg->value.blockvalue->body;
+      result = obj_arg->value.blockValue->body;
     } /* if */
     return result;
   } /* refBody */
 
 
 
-inttype refCategory (objecttype obj_arg)
+intType refCategory (objectType obj_arg)
 
   {
-    inttype result;
+    intType result;
 
   /* refCategory */
     if (unlikely(obj_arg == NULL)) {
@@ -163,12 +163,12 @@ inttype refCategory (objecttype obj_arg)
 
 
 
-inttype refCatParse (stritype category_name)
+intType refCatParse (striType category_name)
 
   {
-    cstritype name;
-    errinfotype err_info = OKAY_NO_ERROR;
-    inttype result;
+    cstriType name;
+    errInfoType err_info = OKAY_NO_ERROR;
+    intType result;
 
   /* refCatParse */
     name = stri_to_cstri(category_name, &err_info);
@@ -187,13 +187,13 @@ inttype refCatParse (stritype category_name)
 
 
 
-stritype refCatStr (inttype aCategory)
+striType refCatStr (intType aCategory)
 
   {
-    stritype result;
+    striType result;
 
   /* refCatStr */
-    result = cstri_to_stri(category_cstri((objectcategory) aCategory));
+    result = cstri_to_stri(category_cstri((objectCategory) aCategory));
     if (result == NULL) {
       raise_error(MEMORY_ERROR);
     } /* if */
@@ -202,11 +202,11 @@ stritype refCatStr (inttype aCategory)
 
 
 
-stritype refFile (objecttype obj_arg)
+striType refFile (objectType obj_arg)
 
   {
-    filenumtype file_number;
-    stritype result;
+    fileNumType file_number;
+    striType result;
 
   /* refFile */
     if (unlikely(obj_arg == NULL)) {
@@ -235,11 +235,11 @@ stritype refFile (objecttype obj_arg)
 
 
 
-listtype refHshDataToList (objecttype obj_arg)
+listType refHshDataToList (objectType obj_arg)
 
   {
-    errinfotype err_info = OKAY_NO_ERROR;
-    listtype result;
+    errInfoType err_info = OKAY_NO_ERROR;
+    listType result;
 
   /* refHshDataToList */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != HASHOBJECT) {
@@ -257,11 +257,11 @@ listtype refHshDataToList (objecttype obj_arg)
 
 
 
-listtype refHshKeysToList (objecttype obj_arg)
+listType refHshKeysToList (objectType obj_arg)
 
   {
-    errinfotype err_info = OKAY_NO_ERROR;
-    listtype result;
+    errInfoType err_info = OKAY_NO_ERROR;
+    listType result;
 
   /* refHshKeysToList */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != HASHOBJECT) {
@@ -279,7 +279,7 @@ listtype refHshKeysToList (objecttype obj_arg)
 
 
 
-booltype refIsVar (objecttype obj_arg)
+boolType refIsVar (objectType obj_arg)
 
   { /* refIsVar */
     /* printf("refIsvar(%lu)\n", obj_arg); */
@@ -293,10 +293,10 @@ booltype refIsVar (objecttype obj_arg)
 
 
 
-objecttype refItfToSct (objecttype obj_arg)
+objectType refItfToSct (objectType obj_arg)
 
   {
-    objecttype result;
+    objectType result;
 
   /* refItfToSct */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != INTERFACEOBJECT ||
@@ -311,10 +311,10 @@ objecttype refItfToSct (objecttype obj_arg)
 
 
 
-inttype refLine (objecttype obj_arg)
+intType refLine (objectType obj_arg)
 
   {
-    inttype result;
+    intType result;
 
   /* refLine */
     if (obj_arg == NULL) {
@@ -322,15 +322,15 @@ inttype refLine (objecttype obj_arg)
       result = 0;
     } else if (HAS_POSINFO(obj_arg)) {
       /* GET_LINE_NUM delivers an unsigned integer in the range 0 to 1048575 */
-      result = (inttype) GET_LINE_NUM(obj_arg);
+      result = (intType) GET_LINE_NUM(obj_arg);
     } else if (HAS_PROPERTY(obj_arg)) {
       /* trace1(obj_arg);
       printf(" %s %u %u\n",
           get_file_name_ustri(obj_arg->descriptor.property->file_number),
           obj_arg->descriptor.property->line,
           obj_arg->descriptor.property->syNumberInLine); */
-      /* Cast to inttype: The line is probably in the range 0 to 2147483647 */
-      result = (inttype) obj_arg->descriptor.property->line;
+      /* Cast to intType: The line is probably in the range 0 to 2147483647 */
+      result = (intType) obj_arg->descriptor.property->line;
     } else {
       result = 0;
     } /* if */
@@ -339,13 +339,13 @@ inttype refLine (objecttype obj_arg)
 
 
 
-listtype refLocalConsts (objecttype obj_arg)
+listType refLocalConsts (objectType obj_arg)
 
   {
-    listtype local_elem;
-    listtype *list_insert_place;
-    errinfotype err_info = OKAY_NO_ERROR;
-    listtype result;
+    listType local_elem;
+    listType *list_insert_place;
+    errInfoType err_info = OKAY_NO_ERROR;
+    listType result;
 
   /* refLocalConsts */
     result = NULL;
@@ -353,7 +353,7 @@ listtype refLocalConsts (objecttype obj_arg)
       raise_error(RANGE_ERROR);
     } else {
       list_insert_place = &result;
-      local_elem = obj_arg->value.blockvalue->local_consts;
+      local_elem = obj_arg->value.blockValue->local_consts;
       while (local_elem != NULL) {
         list_insert_place = append_element_to_list(list_insert_place,
             local_elem->obj, &err_info);
@@ -370,13 +370,13 @@ listtype refLocalConsts (objecttype obj_arg)
 
 
 
-listtype refLocalVars (objecttype obj_arg)
+listType refLocalVars (objectType obj_arg)
 
   {
-    loclisttype local_elem;
-    listtype *list_insert_place;
-    errinfotype err_info = OKAY_NO_ERROR;
-    listtype result;
+    locListType local_elem;
+    listType *list_insert_place;
+    errInfoType err_info = OKAY_NO_ERROR;
+    listType result;
 
   /* refLocalVars */
     result = NULL;
@@ -384,7 +384,7 @@ listtype refLocalVars (objecttype obj_arg)
       raise_error(RANGE_ERROR);
     } else {
       list_insert_place = &result;
-      local_elem = obj_arg->value.blockvalue->local_vars;
+      local_elem = obj_arg->value.blockValue->local_vars;
       while (local_elem != NULL) {
         list_insert_place = append_element_to_list(list_insert_place,
             local_elem->local.object, &err_info);
@@ -401,12 +401,12 @@ listtype refLocalVars (objecttype obj_arg)
 
 
 
-inttype refNum (objecttype obj_arg)
+intType refNum (objectType obj_arg)
 
   {
-    static rtlHashtype obj_table = NULL;
-    static inttype next_free_number = 1;
-    inttype result;
+    static rtlHashType obj_table = NULL;
+    static intType next_free_number = 1;
+    intType result;
 
   /* refNum */
     /* printf("refNum(%lx)\n", obj_arg); */
@@ -420,10 +420,10 @@ inttype refNum (objecttype obj_arg)
         raise_error(MEMORY_ERROR);
         result = 0;
       } else {
-        result = (inttype) hshIdxEnterDefault(obj_table, (generictype) (memsizetype) obj_arg,
-            (generictype) next_free_number,
-            (inttype) (((memsizetype) obj_arg) >> 6), (comparetype) &genericCmp,
-            (createfunctype) &genericCreate, (createfunctype) &genericCreate);
+        result = (intType) hshIdxEnterDefault(obj_table, (genericType) (memSizeType) obj_arg,
+            (genericType) next_free_number,
+            (intType) (((memSizeType) obj_arg) >> 6), (compareType) &genericCmp,
+            (createFuncType) &genericCreate, (createFuncType) &genericCreate);
         if (result == next_free_number) {
           next_free_number++;
         } /* if */
@@ -435,10 +435,10 @@ inttype refNum (objecttype obj_arg)
 
 
 
-listtype refParams (objecttype obj_arg)
+listType refParams (objectType obj_arg)
 
   {
-    listtype result;
+    listType result;
 
   /* refParams */
     result = NULL;
@@ -454,45 +454,45 @@ listtype refParams (objecttype obj_arg)
 
 
 
-objecttype refResini (objecttype obj_arg)
+objectType refResini (objectType obj_arg)
 
   {
-    objecttype result;
+    objectType result;
 
   /* refResini */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != BLOCKOBJECT) {
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
-      result = obj_arg->value.blockvalue->result.init_value;
+      result = obj_arg->value.blockValue->result.init_value;
     } /* if */
     return result;
   } /* refResini */
 
 
 
-objecttype refResult (objecttype obj_arg)
+objectType refResult (objectType obj_arg)
 
   {
-    objecttype result;
+    objectType result;
 
   /* refResult */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != BLOCKOBJECT) {
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
-      result = obj_arg->value.blockvalue->result.object;
+      result = obj_arg->value.blockValue->result.object;
     } /* if */
     return result;
   } /* refResult */
 
 
 
-listtype refSctToList (objecttype obj_arg)
+listType refSctToList (objectType obj_arg)
 
   {
-    errinfotype err_info = OKAY_NO_ERROR;
-    listtype result;
+    errInfoType err_info = OKAY_NO_ERROR;
+    listType result;
 
   /* refSctToList */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != STRUCTOBJECT) {
@@ -510,7 +510,7 @@ listtype refSctToList (objecttype obj_arg)
 
 
 
-void refSetCategory (objecttype obj_arg, inttype aCategory)
+void refSetCategory (objectType obj_arg, intType aCategory)
 
   { /* refSetCategory */
     if (obj_arg == NULL) {
@@ -522,10 +522,10 @@ void refSetCategory (objecttype obj_arg, inttype aCategory)
 
 
 
-void refSetParams (objecttype obj_arg, const_listtype params)
+void refSetParams (objectType obj_arg, const_listType params)
 
   {
-    errinfotype err_info = OKAY_NO_ERROR;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* refSetParams */
     if (obj_arg == NULL) {
@@ -536,7 +536,7 @@ void refSetParams (objecttype obj_arg, const_listtype params)
         obj_arg->descriptor.property->params = copy_list(params, &err_info);
       } /* if */
       if (CATEGORY_OF_OBJ(obj_arg) == BLOCKOBJECT) {
-        obj_arg->value.blockvalue->params =
+        obj_arg->value.blockValue->params =
             get_param_list(params, &err_info);
       } /* if */
       if (err_info != OKAY_NO_ERROR) {
@@ -547,7 +547,7 @@ void refSetParams (objecttype obj_arg, const_listtype params)
 
 
 
-void refSetType (objecttype obj_arg, typetype any_type)
+void refSetType (objectType obj_arg, typeType any_type)
 
   { /* refSetType */
     if (obj_arg == NULL) {
@@ -559,7 +559,7 @@ void refSetType (objecttype obj_arg, typetype any_type)
 
 
 
-void refSetVar (objecttype obj_arg, booltype var_flag)
+void refSetVar (objectType obj_arg, boolType var_flag)
 
   { /* refSetVar */
     if (obj_arg == NULL) {
@@ -573,23 +573,23 @@ void refSetVar (objecttype obj_arg, booltype var_flag)
 
 
 
-stritype refStr (objecttype obj_arg)
+striType refStr (objectType obj_arg)
 
   {
-    const_cstritype stri;
-    memsizetype buffer_len;
+    const_cstriType stri;
+    memSizeType buffer_len;
     char *buffer;
-    listtype name_elem;
-    objecttype param_obj;
-    stritype result;
+    listType name_elem;
+    objectType param_obj;
+    striType result;
 
   /* refStr */
     buffer = NULL;
     if (obj_arg == NULL) {
       stri = " *NULL_OBJECT* ";
     } else if (HAS_POSINFO(obj_arg)) {
-      stri = (const_cstritype) get_file_name_ustri(GET_FILE_NUM(obj_arg));
-      buffer_len = (memsizetype) strlen(stri) + 32;
+      stri = (const_cstriType) get_file_name_ustri(GET_FILE_NUM(obj_arg));
+      buffer_len = (memSizeType) strlen(stri) + 32;
       if (!ALLOC_CSTRI(buffer, buffer_len)) {
         raise_error(MEMORY_ERROR);
         return NULL;
@@ -606,7 +606,7 @@ stritype refStr (objecttype obj_arg)
       name_elem = GET_ENTITY(obj_arg)->fparam_list;
       while (name_elem != NULL && stri == NULL) {
         if (CATEGORY_OF_OBJ(name_elem->obj) == FORMPARAMOBJECT) {
-          param_obj = name_elem->obj->value.objvalue;
+          param_obj = name_elem->obj->value.objValue;
           if (CATEGORY_OF_OBJ(param_obj) != VALUEPARAMOBJECT &&
               CATEGORY_OF_OBJ(param_obj) != REFPARAMOBJECT &&
               CATEGORY_OF_OBJ(param_obj) != TYPEOBJECT) {
@@ -633,10 +633,10 @@ stritype refStr (objecttype obj_arg)
 
 
 
-typetype refType (objecttype obj_arg)
+typeType refType (objectType obj_arg)
 
   {
-    typetype result;
+    typeType result;
 
   /* refType */
     if (obj_arg == NULL || obj_arg->type_of == NULL) {
@@ -650,7 +650,7 @@ typetype refType (objecttype obj_arg)
 
 
 
-acttype actValue (objecttype obj_arg)
+actType actValue (objectType obj_arg)
 
   { /* actValue */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != ACTOBJECT) {
@@ -663,7 +663,7 @@ acttype actValue (objecttype obj_arg)
 
 
 
-biginttype bigValue (objecttype obj_arg)
+bigIntType bigValue (objectType obj_arg)
 
   { /* bigValue */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != BIGINTOBJECT) {
@@ -676,13 +676,13 @@ biginttype bigValue (objecttype obj_arg)
 
 
 
-booltype blnValue (objecttype obj_arg)
+boolType blnValue (objectType obj_arg)
 
   { /* bln_value */
     if (obj_arg != NULL) {
       if (CATEGORY_OF_OBJ(obj_arg) == CONSTENUMOBJECT ||
           CATEGORY_OF_OBJ(obj_arg) == VARENUMOBJECT) {
-        obj_arg = obj_arg->value.objvalue;
+        obj_arg = obj_arg->value.objValue;
       } /* if */
       if (obj_arg->type_of != NULL &&
           obj_arg->type_of->owningProg != NULL) {
@@ -699,11 +699,11 @@ booltype blnValue (objecttype obj_arg)
 
 
 
-bstritype bstValue (objecttype obj_arg)
+bstriType bstValue (objectType obj_arg)
 
   {
-    bstritype bstri;
-    bstritype result;
+    bstriType bstri;
+    bstriType result;
 
   /* bstValue */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != BSTRIOBJECT ||
@@ -717,7 +717,7 @@ bstritype bstValue (objecttype obj_arg)
       } else {
         result->size = bstri->size;
         memcpy(result->mem, bstri->mem,
-            (size_t) (result->size * sizeof(uchartype)));
+            (size_t) (result->size * sizeof(ucharType)));
       } /* if */
     } /* if */
     return result;
@@ -725,7 +725,7 @@ bstritype bstValue (objecttype obj_arg)
 
 
 
-chartype chrValue (objecttype obj_arg)
+charType chrValue (objectType obj_arg)
 
   { /* chrValue */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != CHAROBJECT) {
@@ -738,10 +738,10 @@ chartype chrValue (objecttype obj_arg)
 
 
 
-wintype drwValue (objecttype obj_arg)
+winType drwValue (objectType obj_arg)
 
   {
-    wintype win_value;
+    winType win_value;
 
   /* drwValue */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != WINOBJECT) {
@@ -758,7 +758,7 @@ wintype drwValue (objecttype obj_arg)
 
 
 
-filetype filValue (objecttype obj_arg)
+fileType filValue (objectType obj_arg)
 
   { /* filValue */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != FILEOBJECT) {
@@ -771,7 +771,7 @@ filetype filValue (objecttype obj_arg)
 
 
 
-floattype fltValue (objecttype obj_arg)
+floatType fltValue (objectType obj_arg)
 
   { /* fltValue */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != FLOATOBJECT) {
@@ -784,7 +784,7 @@ floattype fltValue (objecttype obj_arg)
 
 
 
-inttype intValue (objecttype obj_arg)
+intType intValue (objectType obj_arg)
 
   { /* intValue */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != INTOBJECT) {
@@ -797,7 +797,7 @@ inttype intValue (objecttype obj_arg)
 
 
 
-polltype polValue (objecttype obj_arg)
+pollType polValue (objectType obj_arg)
 
   { /* polValue */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != POLLOBJECT) {
@@ -810,7 +810,7 @@ polltype polValue (objecttype obj_arg)
 
 
 
-progtype prgValue (objecttype obj_arg)
+progType prgValue (objectType obj_arg)
 
   { /* prgValue */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != PROGOBJECT) {
@@ -823,7 +823,7 @@ progtype prgValue (objecttype obj_arg)
 
 
 
-objecttype refValue (objecttype obj_arg)
+objectType refValue (objectType obj_arg)
 
   { /* refValue */
     if (obj_arg != NULL &&
@@ -844,11 +844,11 @@ objecttype refValue (objecttype obj_arg)
 
 
 
-listtype rflValue (objecttype obj_arg)
+listType rflValue (objectType obj_arg)
 
   {
-    errinfotype err_info = OKAY_NO_ERROR;
-    listtype result;
+    errInfoType err_info = OKAY_NO_ERROR;
+    listType result;
 
   /* rflValue */
     if (obj_arg != NULL &&
@@ -869,13 +869,13 @@ listtype rflValue (objecttype obj_arg)
 
 
 
-void rflSetvalue (objecttype list_to, listtype list_from)
+void rflSetValue (objectType list_to, listType list_from)
 
   {
-    listtype help_list;
-    errinfotype err_info = OKAY_NO_ERROR;
+    listType help_list;
+    errInfoType err_info = OKAY_NO_ERROR;
 
-  /* rflSetvalue */
+  /* rflSetValue */
     if (CATEGORY_OF_OBJ(list_to) == MATCHOBJECT ||
         CATEGORY_OF_OBJ(list_to) == CALLOBJECT ||
         CATEGORY_OF_OBJ(list_to) == REFLISTOBJECT) {
@@ -884,21 +884,21 @@ void rflSetvalue (objecttype list_to, listtype list_from)
         raise_error(MEMORY_ERROR);
       } else {
         free_list(take_reflist(list_to));
-        list_to->value.listvalue = help_list;
+        list_to->value.listValue = help_list;
       } /* if */
     } else {
       raise_error(RANGE_ERROR);
     } /* if */
-  } /* rflSetvalue */
+  } /* rflSetValue */
 
 
 
-settype setValue (objecttype obj_arg)
+setType setValue (objectType obj_arg)
 
   {
-    settype set1;
-    memsizetype set_size;
-    settype result;
+    setType set1;
+    memSizeType set_size;
+    setType result;
 
   /* setValue */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != SETOBJECT ||
@@ -913,7 +913,7 @@ settype setValue (objecttype obj_arg)
       } else {
         result->min_position = set1->min_position;
         result->max_position = set1->max_position;
-        memcpy(result->bitset, set1->bitset, set_size * sizeof(bitsettype));
+        memcpy(result->bitset, set1->bitset, set_size * sizeof(bitSetType));
       } /* if */
     } /* if */
     return result;
@@ -921,11 +921,11 @@ settype setValue (objecttype obj_arg)
 
 
 
-stritype strValue (objecttype obj_arg)
+striType strValue (objectType obj_arg)
 
   {
-    stritype stri;
-    stritype result;
+    striType stri;
+    striType result;
 
   /* strValue */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != STRIOBJECT ||
@@ -939,7 +939,7 @@ stritype strValue (objecttype obj_arg)
       } else {
         result->size = stri->size;
         memcpy(result->mem, stri->mem,
-            (size_t) (result->size * sizeof(strelemtype)));
+            (size_t) (result->size * sizeof(strElemType)));
       } /* if */
     } /* if */
     return result;
@@ -947,7 +947,7 @@ stritype strValue (objecttype obj_arg)
 
 
 
-typetype typValue (objecttype obj_arg)
+typeType typValue (objectType obj_arg)
 
   { /* typValue */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != TYPEOBJECT) {

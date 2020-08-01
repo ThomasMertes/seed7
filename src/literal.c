@@ -122,9 +122,9 @@ static unsigned int escape_sequence (unsigned int position)
       lit_number();
       if (symbol.sycategory != INTLITERAL) {
         err_string(CARD_EXPECTED, symbol.name);
-        symbol.charvalue = ' ';
+        symbol.charValue = ' ';
       } else {
-        symbol.charvalue = (chartype) symbol.intvalue;
+        symbol.charValue = (charType) symbol.intValue;
       } /* if */
       if (in_file.character != ';' && in_file.character != '\\') {
         character = in_file.character;
@@ -133,19 +133,19 @@ static unsigned int escape_sequence (unsigned int position)
         character = next_character();
       } /* if */
       check_stri_length(position);
-      symbol.strivalue->mem[position++] = (strelemtype) symbol.charvalue;
+      symbol.striValue->mem[position++] = (strElemType) symbol.charValue;
     } else if (character != EOF) {
       if (character >= (int) '\"' && character <= (int) 'v') {
-        symbol.charvalue = (chartype) esc_tab[character - '\"'];
-        if (symbol.charvalue == ' ') {
+        symbol.charValue = (charType) esc_tab[character - '\"'];
+        if (symbol.charValue == ' ') {
           err_cchar(STRINGESCAPE, character);
         } /* if */
       } else {
         err_cchar(STRINGESCAPE, character);
-        symbol.charvalue = ' ';
+        symbol.charValue = ' ';
       } /* if */
       check_stri_length(position);
-      symbol.strivalue->mem[position++] = (strelemtype) symbol.charvalue;
+      symbol.striValue->mem[position++] = (strElemType) symbol.charValue;
       character = next_character();
     } /* if */
     in_file.character = character;
@@ -161,15 +161,15 @@ static unsigned int escape_sequence (unsigned int position)
  *  @param character UTF-8 start byte.
  *  @return an UTF-32 character.
  */
-chartype utf8_char (register int character)
+charType utf8_char (register int character)
 
   {
-    chartype result;
+    charType result;
 
   /* utf8_char */
     if (character <= 0xDF) {
       /* character range 192 to 223 (leading bits 110.....) */
-      result = (chartype) (character & 0x1F) << 6;
+      result = (charType) (character & 0x1F) << 6;
       character = next_character();
       if (character >= 0x80 && character <= 0xBF) {
         /* character range 128 to 191 (leading bits 10......) */
@@ -194,11 +194,11 @@ chartype utf8_char (register int character)
       } /* if */
     } else if (character <= 0xEF) {
       /* character range 224 to 239 (leading bits 1110....) */
-      result = (chartype) (character & 0x0F) << 12;
+      result = (charType) (character & 0x0F) << 12;
       character = next_character();
       if (character >= 0x80 && character <= 0xBF) {
         /* character range 128 to 191 (leading bits 10......) */
-        result |= (chartype) (character & 0x3F) << 6;
+        result |= (charType) (character & 0x3F) << 6;
         character = next_character();
         if (character >= 0x80 && character <= 0xBF) {
           result |= character & 0x3F;
@@ -225,14 +225,14 @@ chartype utf8_char (register int character)
       } /* if */
     } else if (character <= 0xF7) {
       /* character range 240 to 247 (leading bits 11110...) */
-      result = (chartype) (character & 0x07) << 18;
+      result = (charType) (character & 0x07) << 18;
       character = next_character();
       if (character >= 0x80 && character <= 0xBF) {
         /* character range 128 to 191 (leading bits 10......) */
-        result |= (chartype) (character & 0x3F) << 12;
+        result |= (charType) (character & 0x3F) << 12;
         character = next_character();
         if (character >= 0x80 && character <= 0xBF) {
-          result |= (chartype) (character & 0x3F) << 6;
+          result |= (charType) (character & 0x3F) << 6;
           character = next_character();
           if (character >= 0x80 && character <= 0xBF) {
             result |= character & 0x3F;
@@ -264,17 +264,17 @@ chartype utf8_char (register int character)
       } /* if */
     } else if (character <= 0xFB) {
       /* character range 248 to 251 (leading bits 111110..) */
-      result = (chartype) (character & 0x03) << 24;
+      result = (charType) (character & 0x03) << 24;
       character = next_character();
       if (character >= 0x80 && character <= 0xBF) {
         /* character range 128 to 191 (leading bits 10......) */
-        result |= (chartype) (character & 0x3F) << 18;
+        result |= (charType) (character & 0x3F) << 18;
         character = next_character();
         if (character >= 0x80 && character <= 0xBF) {
-          result |= (chartype) (character & 0x3F) << 12;
+          result |= (charType) (character & 0x3F) << 12;
           character = next_character();
           if (character >= 0x80 && character <= 0xBF) {
-            result |= (chartype) (character & 0x3F) << 6;
+            result |= (charType) (character & 0x3F) << 6;
             character = next_character();
             if (character >= 0x80 && character <= 0xBF) {
               result |= character & 0x3F;
@@ -308,20 +308,20 @@ chartype utf8_char (register int character)
       } /* if */
     } else { /* if (character <= 0xFF) */
       /* character range 252 to 255 (leading bits 111111..) */
-      result = (chartype) (character & 0x03) << 30;
+      result = (charType) (character & 0x03) << 30;
       character = next_character();
       if (character >= 0x80 && character <= 0xBF) {
         /* character range 128 to 191 (leading bits 10......) */
-        result |= (chartype) (character & 0x3F) << 24;
+        result |= (charType) (character & 0x3F) << 24;
         character = next_character();
         if (character >= 0x80 && character <= 0xBF) {
-          result |= (chartype) (character & 0x3F) << 18;
+          result |= (charType) (character & 0x3F) << 18;
           character = next_character();
           if (character >= 0x80 && character <= 0xBF) {
-            result |= (chartype) (character & 0x3F) << 12;
+            result |= (charType) (character & 0x3F) << 12;
             character = next_character();
             if (character >= 0x80 && character <= 0xBF) {
-              result |= (chartype) (character & 0x3F) << 6;
+              result |= (charType) (character & 0x3F) << 6;
               character = next_character();
               if (character >= 0x80 && character <= 0xBF) {
                 result |= character & 0x3F;
@@ -399,7 +399,7 @@ static char lit_escapechar (void)
 
   {
     char ch;
-    booltype read_next_character;
+    boolType read_next_character;
 
   /* lit_escapechar */
 #ifdef TRACE_LITERAL
@@ -473,7 +473,7 @@ void lit_char (void)
     in_file.character = next_character();
     if (in_file.character == '\n' || in_file.character == '\r' ||
         in_file.character == EOF) {
-      symbol.charvalue = ' ';
+      symbol.charValue = ' ';
       err_warning(CHAREXCEEDS);
     } else {
       if (in_file.character == '\\') {
@@ -485,11 +485,11 @@ void lit_char (void)
       } /* if */
       if (position == 0) {
         if (in_file.character >= (int) ' ' && in_file.character <= (int) '~') {
-          symbol.charvalue = (chartype) in_file.character;
+          symbol.charValue = (charType) in_file.character;
           in_file.character = next_character();
         } else if (in_file.character >= 0xC0 && in_file.character <= 0xFF) {
           /* character range 192 to 255 (leading bits 11......) */
-          symbol.charvalue = utf8_char(in_file.character);
+          symbol.charValue = utf8_char(in_file.character);
         } else {
           if (in_file.character >= 0x80 && in_file.character <= 0xBF) {
             /* character range 128 to 191 (leading bits 10......) */
@@ -497,7 +497,7 @@ void lit_char (void)
           } else {
             err_cchar(CHAR_ILLEGAL, in_file.character);
           } /* if */
-          symbol.charvalue = ' ';
+          symbol.charValue = ' ';
           in_file.character = next_character();
         } /* if */
       } /* if */
@@ -539,7 +539,7 @@ void lit_string (void)
   {                                                             /*  0.05% */
     register int character;
     register unsigned int position;
-    booltype reading_string;
+    boolType reading_string;
 
   /* lit_string */
 #ifdef TRACE_LITERAL
@@ -553,8 +553,8 @@ void lit_string (void)
       do {
         while (position != symbol.stri_max &&
             no_escape_char(character)) {                        /*  0.07% */
-          symbol.strivalue->mem[position++] =
-              (strelemtype) character;                          /*  1.46% */
+          symbol.striValue->mem[position++] =
+              (strElemType) character;                          /*  1.46% */
           character = next_character();                         /*  5.56% */
         } /* while */                                           /*  1.76% */
         check_stri_length(position);
@@ -563,8 +563,8 @@ void lit_string (void)
 #ifdef OUT_OF_ORDER
       while (no_escape_char(character)) {                       /*  0.07% */
         check_stri_length(position);                            /*  1.17% */
-        symbol.strivalue->mem[position++] =
-            (strelemtype) character;                            /*  1.46% */
+        symbol.striValue->mem[position++] =
+            (strElemType) character;                            /*  1.46% */
         character = next_character();                           /*  5.56% */
       } /* while */                                             /*  1.76% */
 #endif
@@ -574,7 +574,7 @@ void lit_string (void)
         if (character == '\"') {
           err_warning(WRONG_QUOTATION_REPRESENTATION);
           check_stri_length(position);
-          symbol.strivalue->mem[position++] = (strelemtype) character;
+          symbol.striValue->mem[position++] = (strElemType) character;
           character = next_character();                         /*  0.02% */
         } else {
           reading_string = FALSE;
@@ -585,7 +585,7 @@ void lit_string (void)
       } else if (character >= 0xC0 && character <= 0xFF) {
         /* character range 192 to 255 (leading bits 11......) */
         check_stri_length(position);
-        symbol.strivalue->mem[position++] = utf8_char(character);
+        symbol.striValue->mem[position++] = utf8_char(character);
         character = in_file.character;
       } else if (character == '\n' || character == '\r' ||
           character == EOF) {
@@ -600,7 +600,7 @@ void lit_string (void)
         } /* if */
         do {
           check_stri_length(position);
-          symbol.strivalue->mem[position++] = (strelemtype) character;
+          symbol.striValue->mem[position++] = (strElemType) character;
           character = next_character();                         /*  0.06% */
         } while (char_class(character) == ILLEGALCHAR);
       } /* if */                                                /*  0.14% */
@@ -609,7 +609,7 @@ void lit_string (void)
     in_file.character = character;                              /*  0.01% */
     symbol.sycategory = STRILITERAL;                            /*  0.01% */
     symbol.syNumberInLine++;
-    symbol.strivalue->size = position;                          /*  0.01% */
+    symbol.striValue->size = position;                          /*  0.01% */
 #ifdef WITH_STATISTIC
     literal_count++;
 #endif
@@ -625,8 +625,8 @@ static void lit_text (void)
 
   {
     register int character;
-    register sysizetype position;
-    register booltype reading_string;
+    register sySizeType position;
+    register boolType reading_string;
 
   /* lit_text */
     reading_string = TRUE;
@@ -636,7 +636,7 @@ static void lit_text (void)
       while (character != '\n' && character != '\r' &&
           character != EOF) {
         check_symb_length(position);
-        symbol.name[position++] = (uchartype) character;
+        symbol.name[position++] = (ucharType) character;
         character = next_character();
       } /* while */
       if (character == '\n') {

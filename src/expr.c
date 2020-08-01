@@ -55,19 +55,19 @@
 
 
 
-static objecttype select_element (objecttype expression,
-    inttype position)
+static objectType select_element (objectType expression,
+    intType position)
 
   {
-    listtype list_element;
-    inttype number;
-    objecttype result;
+    listType list_element;
+    intType number;
+    objectType result;
 
   /* select_element */
 #ifdef TRACE_SELECT
     printf("BEGIN select_element\n");
 #endif
-    list_element = expression->value.listvalue;
+    list_element = expression->value.listValue;
     if (position >= 1) {
       number = 1;
       while (number < position && list_element != NULL) {
@@ -82,7 +82,7 @@ static objecttype select_element (objecttype expression,
     } else {
       result = SYS_EMPTY_OBJECT;
     } /* if */
-    free_list(expression->value.listvalue);
+    free_list(expression->value.listValue);
     FREE_OBJECT(expression);
 #ifdef TRACE_SELECT
     printf("END select_element\n");
@@ -92,14 +92,14 @@ static objecttype select_element (objecttype expression,
 
 
 
-static objecttype read_call_expression (booltype do_match_expr)
+static objectType read_call_expression (boolType do_match_expr)
 
   {
-    objecttype expression;
-    filenumtype file_number;
-    linenumtype line;
-    listtype helplist;
-    objecttype procnameobject;
+    objectType expression;
+    fileNumType file_number;
+    lineNumType line;
+    listType helplist;
+    objectType procnameobject;
 
   /* read_call_expression */
 #ifdef TRACE_EXPR
@@ -160,11 +160,11 @@ static objecttype read_call_expression (booltype do_match_expr)
 
 
 
-static objecttype read_dot_subexpression (booltype do_match_expr)
+static objectType read_dot_subexpression (boolType do_match_expr)
 
   {
-    objecttype expression;
-    listtype helplist;
+    objectType expression;
+    listType helplist;
 
   /* read_dot_subexpression */
 #ifdef TRACE_EXPR
@@ -207,12 +207,12 @@ static objecttype read_dot_subexpression (booltype do_match_expr)
 
 
 
-static objecttype read_dot_expression (booltype do_match_expr)
+static objectType read_dot_expression (boolType do_match_expr)
 
   {
-    objecttype expression;
-    objecttype sub_expr;
-    listtype helplist;
+    objectType expression;
+    objectType sub_expr;
+    listType helplist;
 
   /* read_dot_expression */
 #ifdef TRACE_EXPR
@@ -255,14 +255,14 @@ static objecttype read_dot_expression (booltype do_match_expr)
 
 
 
-static objecttype pars_token (objecttype expression,
-    const_tokentype formal_token, listtype actual_parameter)
+static objectType pars_token (objectType expression,
+    const_tokenType formal_token, listType actual_parameter)
 
   {
-    booltype okay;
-    objecttype actual_param;
-    listtype helplist;
-    postype posinfo;
+    boolType okay;
+    objectType actual_param;
+    listType helplist;
+    posType posinfo;
 
   /* pars_token */
 #ifdef TRACE_EXPR
@@ -340,14 +340,14 @@ static objecttype pars_token (objecttype expression,
 
 
 
-objecttype pars_infix_expression (prioritytype priority,
-    booltype do_match_expr)
+objectType pars_infix_expression (priorityType priority,
+    boolType do_match_expr)
 
 {
-    objecttype expression;
-    prioritytype expr_prior;
-    tokentype formal_token;
-    listtype helplist;
+    objectType expression;
+    priorityType expr_prior;
+    tokenType formal_token;
+    listType helplist;
 
   /* pars_infix_expression */
 #ifdef TRACE_EXPR

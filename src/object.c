@@ -50,10 +50,10 @@
 
 
 
-objecttype new_empty_list_object (const_objecttype typeof_object)
+objectType new_empty_list_object (const_objectType typeof_object)
 
   {
-    register objecttype created_list;
+    register objectType created_list;
 
   /* new_empty_list_object */
 #ifdef TRACE_OBJECT
@@ -68,7 +68,7 @@ objecttype new_empty_list_object (const_objecttype typeof_object)
     created_list->type_of = take_type(typeof_object);
     created_list->descriptor.posinfo = CREATE_POSINFO(in_file.line, in_file.file_number);
     INIT_CATEGORY_OF_POSINFO(created_list, EXPROBJECT);
-    created_list->value.listvalue = NULL;
+    created_list->value.listValue = NULL;
 #ifdef TRACE_OBJECT
     printf("END new_empty_list_object ");
     printf("%lu ", (unsigned long) created_list);
@@ -80,11 +80,11 @@ objecttype new_empty_list_object (const_objecttype typeof_object)
 
 
 
-objecttype new_nonempty_expression_object (objecttype first_element,
-    listtype *list, const_objecttype typeof_object)
+objectType new_nonempty_expression_object (objectType first_element,
+    listType *list, const_objectType typeof_object)
 
   {
-    register objecttype created_list;
+    register objectType created_list;
 
   /* new_nonempty_expression_object */
 #ifdef TRACE_OBJECT
@@ -106,7 +106,7 @@ objecttype new_nonempty_expression_object (objecttype first_element,
     } /* if */
     (*list)->next = NULL;
     (*list)->obj = first_element;
-    created_list->value.listvalue = *list;
+    created_list->value.listValue = *list;
 #ifdef TRACE_OBJECT
     printf("END new_nonempty_expression_object ");
     printf("%lu ", (unsigned long) created_list);
@@ -118,11 +118,11 @@ objecttype new_nonempty_expression_object (objecttype first_element,
 
 
 
-objecttype new_type_of_expression_object (objecttype first_element,
-    listtype *list, typetype type_of)
+objectType new_type_of_expression_object (objectType first_element,
+    listType *list, typeType type_of)
 
   {
-    register objecttype created_list;
+    register objectType created_list;
 
   /* new_type_of_expression_object */
 #ifdef TRACE_OBJECT
@@ -144,7 +144,7 @@ objecttype new_type_of_expression_object (objecttype first_element,
     } /* if */
     (*list)->next = NULL;
     (*list)->obj = first_element;
-    created_list->value.listvalue = *list;
+    created_list->value.listValue = *list;
 #ifdef TRACE_OBJECT
     printf("END new_type_of_expression_object ");
     printf("%lu ", (unsigned long) created_list);
@@ -156,10 +156,10 @@ objecttype new_type_of_expression_object (objecttype first_element,
 
 
 
-objecttype new_expression_object (listtype *list)
+objectType new_expression_object (listType *list)
 
   {
-    register objecttype created_list;
+    register objectType created_list;
 
   /* new_expression_object */
 #ifdef TRACE_OBJECT
@@ -179,7 +179,7 @@ objecttype new_expression_object (listtype *list)
     } /* if */
     (*list)->next = NULL;
     (*list)->obj = NULL;
-    created_list->value.listvalue = *list;
+    created_list->value.listValue = *list;
 #ifdef TRACE_OBJECT
     printf("END new_expression_object ");
     printf("%lu ", (unsigned long) created_list);
@@ -191,10 +191,10 @@ objecttype new_expression_object (listtype *list)
 
 
 
-listtype add_element_to_list (listtype list, objecttype object)
+listType add_element_to_list (listType list, objectType object)
 
   {
-    register listtype help_element;
+    register listType help_element;
 
   /* add_element_to_list */
 #ifdef TRACE_OBJECT

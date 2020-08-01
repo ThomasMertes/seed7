@@ -81,22 +81,22 @@
 
 #define KEY_BUFFER_SIZE 20
 
-static booltype utf8_mode = FALSE;
-static uchartype key_buffer[KEY_BUFFER_SIZE];
-static memsizetype key_buffer_size = 0;
-extern booltype changes;
+static boolType utf8_mode = FALSE;
+static ucharType key_buffer[KEY_BUFFER_SIZE];
+static memSizeType key_buffer_size = 0;
+extern boolType changes;
 static struct termios term_descr;
 static struct termios term_bak;
 
-static booltype keybd_initialized = FALSE;
+static boolType keybd_initialized = FALSE;
 
 
 #define SIZE_KEY_TABLE 130
 
-static const_cstritype key_table[SIZE_KEY_TABLE];
+static const_cstriType key_table[SIZE_KEY_TABLE];
 static char erase_ch[2];
 
-static chartype key_code[SIZE_KEY_TABLE] = {
+static charType key_code[SIZE_KEY_TABLE] = {
 /*   0 */ K_BS,         K_BS,         K_BACKTAB,    K_PAD_CENTER, 0,
 /*   5 */ 0,            0,            K_DEL,        K_DELLN,      K_DOWN,
 /*  10 */ K_INS,        K_END,        K_NL,         0,            0,
@@ -171,11 +171,11 @@ static void show_term_descr (struct termios *curr_term_descr)
  *  @return TRUE when the thow termios structs are equal,
  *          FALSE otherwise.
  */
-static booltype term_descr_equal (struct termios *term_descr1, struct termios *term_descr2)
+static boolType term_descr_equal (struct termios *term_descr1, struct termios *term_descr2)
 
   {
     int pos;
-    booltype equal;
+    boolType equal;
 
   /* term_descr_equal */
     equal = term_descr1->c_iflag == term_descr2->c_iflag &&
@@ -202,12 +202,12 @@ static booltype term_descr_equal (struct termios *term_descr1, struct termios *t
  *  @return TRUE when the change of the attributes was successful,
  *          FALSE otherwise.
  */
-static booltype tcset_term_descr (int file_no, struct termios *new_term_descr)
+static boolType tcset_term_descr (int file_no, struct termios *new_term_descr)
 
   {
     struct termios term_descr_check;
     int trial = 0;
-    booltype succeeded = FALSE;
+    boolType succeeded = FALSE;
 
   /* tcset_term_descr */
     do {
@@ -226,13 +226,13 @@ static booltype tcset_term_descr (int file_no, struct termios *new_term_descr)
 
 
 
-static booltype read_char_if_present (uchartype *ch)
+static boolType read_char_if_present (ucharType *ch)
 
   {
     int file_no;
     struct pollfd poll_fds[1];
     int poll_result;
-    booltype result;
+    boolType result;
 
   /* read_char_if_present */
     file_no = fileno(stdin);
@@ -255,13 +255,13 @@ static booltype read_char_if_present (uchartype *ch)
 
 
 
-static chartype read_utf8_key (void)
+static charType read_utf8_key (void)
 
   {
     size_t len;
-    strelemtype stri[6];
-    memsizetype dest_len;
-    chartype key;
+    strElemType stri[6];
+    memSizeType dest_len;
+    charType key;
 
   /* read_utf8_key */
     if (key_buffer[0] <= 0xBF) {
@@ -499,7 +499,7 @@ static void key_table_init (void)
     for (number = 0; number < SIZE_KEY_TABLE; number++) {
 #ifdef TRACE_FKEYS
       if (key_table[number] != NULL) {
-        const_cstritype ch_ptr;
+        const_cstriType ch_ptr;
 
         fprintf(stderr, "key%d=\"", number);
         ch_ptr = key_table[number];
@@ -611,12 +611,12 @@ static void kbd_init (void)
 
 
 
-booltype kbdKeyPressed (void)
+boolType kbdKeyPressed (void)
 
   {
     struct pollfd poll_fds[1];
     int poll_result;
-    booltype result;
+    boolType result;
 
   /* kbdKeyPressed */
     if (!keybd_initialized) {
@@ -644,10 +644,10 @@ booltype kbdKeyPressed (void)
 
 
 
-chartype kbdGetc (void)
+charType kbdGetc (void)
 
   {
-    memsizetype read_result;
+    memSizeType read_result;
     int exact_match_count;
     int exact_matched_key;
     int partial_match_count;
@@ -655,7 +655,7 @@ chartype kbdGetc (void)
     int partial_matched_key;
     int number;
     size_t len;
-    chartype result;
+    charType result;
 
   /* kbdGetc */
     if (!keybd_initialized) {
@@ -665,10 +665,10 @@ chartype kbdGetc (void)
       conFlush();
     } /* if */
     if (key_buffer_size == 0) {
-      read_result = (memsizetype) read(fileno(stdin), &key_buffer, KEY_BUFFER_SIZE);
+      read_result = (memSizeType) read(fileno(stdin), &key_buffer, KEY_BUFFER_SIZE);
       /* printf("kbdGetc: read_result=%ld", read_result); */
-      if (read_result == 0 || read_result == (memsizetype) (-1)) {
-        return (chartype) EOF;
+      if (read_result == 0 || read_result == (memSizeType) (-1)) {
+        return (charType) EOF;
       } else {
         key_buffer_size = read_result;
       } /* if */
@@ -761,11 +761,11 @@ chartype kbdGetc (void)
 
 
 
-chartype kbdRawGetc (void)
+charType kbdRawGetc (void)
 
   {
-    uchartype ch;
-    chartype result;
+    ucharType ch;
+    charType result;
 
   /* kbdRawRead */
     if (!keybd_initialized) {
@@ -782,9 +782,9 @@ chartype kbdRawGetc (void)
         conFlush();
       } /* if */
       if (read(fileno(stdin), &ch, 1) != 1) {
-        result = (chartype) EOF;
+        result = (charType) EOF;
       } else {
-        result = (chartype) ch;
+        result = (charType) ch;
       } /* if */
     } /* if */
 /*  fprintf(stderr, "<%d>", result); */

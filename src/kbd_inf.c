@@ -79,22 +79,22 @@
 /* #define atexit(x) */
 
 
-static booltype utf8_mode = FALSE;
-static booltype key_buffer_filled = FALSE;
+static boolType utf8_mode = FALSE;
+static boolType key_buffer_filled = FALSE;
 static int last_key;
-extern booltype changes;
+extern boolType changes;
 static struct termios term_descr;
 static struct termios term_bak;
 
-static booltype keybd_initialized = FALSE;
+static boolType keybd_initialized = FALSE;
 
 
 #define SIZE_KEY_TABLE 131
 
-static const_cstritype key_table[SIZE_KEY_TABLE];
+static const_cstriType key_table[SIZE_KEY_TABLE];
 static char erase_ch[2];
 
-static chartype key_code[SIZE_KEY_TABLE] = {
+static charType key_code[SIZE_KEY_TABLE] = {
 /*   0 */ K_BS,         K_BS,         K_BACKTAB,    K_PAD_CENTER, 0,
 /*   5 */ 0,            0,            K_DEL,        K_DELLN,      K_DOWN,
 /*  10 */ K_INS,        K_END,        K_NL,         0,            0,
@@ -170,11 +170,11 @@ static void show_term_descr (struct termios *curr_term_descr)
  *  @return TRUE when the thow termios structs are equal,
  *          FALSE otherwise.
  */
-static booltype term_descr_equal (struct termios *term_descr1, struct termios *term_descr2)
+static boolType term_descr_equal (struct termios *term_descr1, struct termios *term_descr2)
 
   {
     int pos;
-    booltype equal;
+    boolType equal;
 
   /* term_descr_equal */
     equal = term_descr1->c_iflag == term_descr2->c_iflag &&
@@ -201,12 +201,12 @@ static booltype term_descr_equal (struct termios *term_descr1, struct termios *t
  *  @return TRUE when the change of the attributes was successful,
  *          FALSE otherwise.
  */
-static booltype tcset_term_descr (int file_no, struct termios *new_term_descr)
+static boolType tcset_term_descr (int file_no, struct termios *new_term_descr)
 
   {
     struct termios term_descr_check;
     int trial = 0;
-    booltype succeeded = FALSE;
+    boolType succeeded = FALSE;
 
   /* tcset_term_descr */
     do {
@@ -235,12 +235,12 @@ static booltype tcset_term_descr (int file_no, struct termios *new_term_descr)
  *  @return TRUE when the change of the attributes was successful,
  *          FALSE otherwise.
  */
-static booltype tcset_vmin_vtime (int file_no, int vmin, int vtime)
+static boolType tcset_vmin_vtime (int file_no, int vmin, int vtime)
 
   {
     struct termios term_descr_check;
     int trial = 0;
-    booltype succeeded = FALSE;
+    boolType succeeded = FALSE;
 
   /* tcset_vmin_vtime */
     term_descr.c_cc[VMIN]  = (cc_t) vmin;
@@ -259,11 +259,11 @@ static booltype tcset_vmin_vtime (int file_no, int vmin, int vtime)
 
 
 
-static booltype read_char_if_present (uchartype *ch)
+static boolType read_char_if_present (ucharType *ch)
 
   {
     int file_no;
-    booltype result;
+    boolType result;
 
   /* read_char_if_present */
     file_no = fileno(stdin);
@@ -279,7 +279,7 @@ static void consume_chars_present (void)
 
   {
     int file_no;
-    uchartype ch;
+    ucharType ch;
 
   /* consume_chars_present */
     file_no = fileno(stdin);
@@ -292,12 +292,12 @@ static void consume_chars_present (void)
 
 
 
-static chartype read_utf8_key (ustritype ustri, size_t ustri_len)
+static charType read_utf8_key (ustriType ustri, size_t ustri_len)
 
   {
     size_t len;
-    strelemtype stri[6];
-    memsizetype dest_len;
+    strElemType stri[6];
+    memSizeType dest_len;
 
   /* read_utf8_key */
     if (ustri[0] <= 0x7F) {
@@ -366,7 +366,7 @@ static chartype read_utf8_key (ustritype ustri, size_t ustri_len)
 
 
 
-static chartype read_f_key (chartype actual_char)
+static charType read_f_key (charType actual_char)
 
   {
     char in_buffer[101];
@@ -378,7 +378,7 @@ static chartype read_f_key (chartype actual_char)
     int number;
     size_t len;
     int key_number;
-    chartype result;
+    charType result;
 
   /* read_f_key */
     if (last_partial_time != 0) {
@@ -485,7 +485,7 @@ static chartype read_f_key (chartype actual_char)
         } /* if */
       } else {
         if (partial_match != 0) {
-          if (read_char_if_present((uchartype *) &in_buffer[pos])) {
+          if (read_char_if_present((ucharType *) &in_buffer[pos])) {
             in_buffer[pos + 1] = '\0';
           } else {
             strcpy(last_partial_match, in_buffer);
@@ -501,7 +501,7 @@ static chartype read_f_key (chartype actual_char)
     } else {
       if (pos == 2 || pos == 3) {
         if (utf8_mode) {
-          result = read_utf8_key((ustritype) in_buffer, pos - 1);
+          result = read_utf8_key((ustriType) in_buffer, pos - 1);
         } else {
           if (pos == 2) {
             result = actual_char;
@@ -695,7 +695,7 @@ static void key_table_init (void)
     for (number = 0; number < SIZE_KEY_TABLE; number++) {
 #ifdef TRACE_FKEYS
       if (key_table[number] != NULL) {
-        const_cstritype ch_ptr;
+        const_cstriType ch_ptr;
 
         fprintf(stderr, "key%d=\"", number);
         ch_ptr = key_table[number];
@@ -809,12 +809,12 @@ static void kbd_init (void)
 
 
 
-booltype kbdKeyPressed (void)
+boolType kbdKeyPressed (void)
 
   {
     int file_no;
     char buffer;
-    booltype result;
+    boolType result;
 
   /* kbdKeyPressed */
     if (!keybd_initialized) {
@@ -854,11 +854,11 @@ booltype kbdKeyPressed (void)
 
 
 
-chartype kbdGetc (void)
+charType kbdGetc (void)
 
   {
-    uchartype ch;
-    chartype result;
+    ucharType ch;
+    charType result;
 
   /* kbdGetc */
     if (!keybd_initialized) {
@@ -866,15 +866,15 @@ chartype kbdGetc (void)
     } /* if */
     if (key_buffer_filled) {
       key_buffer_filled = FALSE;
-      result = (chartype) last_key;
+      result = (charType) last_key;
     } else {
       if (changes) {
         conFlush();
       } /* if */
       if (read(fileno(stdin), &ch, 1) != 1) {
-        result = (chartype) EOF;
+        result = (charType) EOF;
       } else {
-        result = (chartype) ch;
+        result = (charType) ch;
       } /* if */
     } /* if */
     result = read_f_key(result);
@@ -884,11 +884,11 @@ chartype kbdGetc (void)
 
 
 
-chartype kbdRawGetc (void)
+charType kbdRawGetc (void)
 
   {
-    uchartype ch;
-    chartype result;
+    ucharType ch;
+    charType result;
 
   /* kbdRawRead */
     if (!keybd_initialized) {
@@ -896,15 +896,15 @@ chartype kbdRawGetc (void)
     } /* if */
     if (key_buffer_filled) {
       key_buffer_filled = FALSE;
-      result = ((chartype) last_key) & 0xFF;
+      result = ((charType) last_key) & 0xFF;
     } else {
       if (changes) {
         conFlush();
       } /* if */
       if (read(fileno(stdin), &ch, 1) != 1) {
-        result = (chartype) EOF;
+        result = (charType) EOF;
       } else {
-        result = (chartype) ch;
+        result = (charType) ch;
       } /* if */
     } /* if */
 /*  fprintf(stderr, "<%d>", result); */

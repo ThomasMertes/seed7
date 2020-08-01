@@ -48,7 +48,7 @@
  *  Compute the absolute value of a 'bigInteger' number.
  *  @return the absolute value.
  */
-objecttype big_abs (listtype arguments)
+objectType big_abs (listType arguments)
 
   { /* big_abs */
     isit_bigint(arg_1(arguments));
@@ -64,7 +64,7 @@ objecttype big_abs (listtype arguments)
  *  loop up to the shorter size and a second loop up to the longer size.
  *  @return the sum of the two numbers.
  */
-objecttype big_add (listtype arguments)
+objectType big_add (listType arguments)
 
   { /* big_add */
     isit_bigint(arg_1(arguments));
@@ -82,7 +82,7 @@ objecttype big_add (listtype arguments)
  *  @return the number of bits.
  *  @exception RANGE_ERROR The result does not fit into an integer.
  */
-objecttype big_bit_length (listtype arguments)
+objectType big_bit_length (listType arguments)
 
   { /* big_bit_length */
     isit_bigint(arg_1(arguments));
@@ -98,7 +98,7 @@ objecttype big_bit_length (listtype arguments)
  *          respectively less than, equal to, or greater than the
  *          second.
  */
-objecttype big_cmp (listtype arguments)
+objectType big_cmp (listType arguments)
 
   { /* big_cmp */
     isit_bigint(arg_1(arguments));
@@ -114,18 +114,18 @@ objecttype big_cmp (listtype arguments)
  *  @return the unchanged 'bigInteger' number.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-objecttype big_conv (listtype arguments)
+objectType big_conv (listType arguments)
 
   {
-    biginttype arg;
-    biginttype result;
+    bigIntType arg;
+    bigIntType result;
 
   /* big_conv */
     isit_bigint(arg_3(arguments));
     arg = take_bigint(arg_3(arguments));
     if (TEMP_OBJECT(arg_3(arguments))) {
       result = arg;
-      arg_3(arguments)->value.bigintvalue = NULL;
+      arg_3(arguments)->value.bigIntValue = NULL;
     } else {
       result = bigCreate(arg);
     } /* if */
@@ -134,11 +134,11 @@ objecttype big_conv (listtype arguments)
 
 
 
-objecttype big_cpy (listtype arguments)
+objectType big_cpy (listType arguments)
 
   {
-    objecttype big_to;
-    objecttype big_from;
+    objectType big_to;
+    objectType big_from;
 
   /* big_cpy */
     big_to = arg_1(arguments);
@@ -148,21 +148,21 @@ objecttype big_cpy (listtype arguments)
     is_variable(big_to);
     if (TEMP_OBJECT(big_from)) {
       bigDestr(take_bigint(big_to));
-      big_to->value.bigintvalue = take_bigint(big_from);
-      big_from->value.bigintvalue = NULL;
+      big_to->value.bigIntValue = take_bigint(big_from);
+      big_from->value.bigIntValue = NULL;
     } else {
-      bigCpy(&big_to->value.bigintvalue, take_bigint(big_from));
+      bigCpy(&big_to->value.bigIntValue, take_bigint(big_from));
     } /* if */
     return SYS_EMPTY_OBJECT;
   } /* big_cpy */
 
 
 
-objecttype big_create (listtype arguments)
+objectType big_create (listType arguments)
 
   {
-    objecttype big_to;
-    objecttype big_from;
+    objectType big_to;
+    objectType big_from;
 
   /* big_create */
     big_to = arg_1(arguments);
@@ -170,10 +170,10 @@ objecttype big_create (listtype arguments)
     isit_bigint(big_from);
     SET_CATEGORY_OF_OBJ(big_to, BIGINTOBJECT);
     if (TEMP_OBJECT(big_from)) {
-      big_to->value.bigintvalue = take_bigint(big_from);
-      big_from->value.bigintvalue = NULL;
+      big_to->value.bigIntValue = take_bigint(big_from);
+      big_from->value.bigIntValue = NULL;
     } else {
-      big_to->value.bigintvalue = bigCreate(take_bigint(big_from));
+      big_to->value.bigIntValue = bigCreate(take_bigint(big_from));
     } /* if */
     return SYS_EMPTY_OBJECT;
   } /* big_create */
@@ -184,10 +184,10 @@ objecttype big_create (listtype arguments)
  *  Decrement a 'bigInteger' variable.
  *  Decrements the number by 1.
  */
-objecttype big_decr (listtype arguments)
+objectType big_decr (listType arguments)
 
   {
-    objecttype big_variable;
+    objectType big_variable;
 
   /* big_decr */
     big_variable = arg_1(arguments);
@@ -199,12 +199,12 @@ objecttype big_decr (listtype arguments)
 
 
 
-objecttype big_destr (listtype arguments)
+objectType big_destr (listType arguments)
 
   { /* big_destr */
     isit_bigint(arg_1(arguments));
     bigDestr(take_bigint(arg_1(arguments)));
-    arg_1(arguments)->value.bigintvalue = NULL;
+    arg_1(arguments)->value.bigIntValue = NULL;
     SET_UNUSED_FLAG(arg_1(arguments));
     return SYS_EMPTY_OBJECT;
   } /* big_destr */
@@ -217,7 +217,7 @@ objecttype big_destr (listtype arguments)
  *  @return the quotient of the integer division.
  *  @exception NUMERIC_ERROR When a division by zero occurs.
  */
-objecttype big_div (listtype arguments)
+objectType big_div (listType arguments)
 
   { /* big_div */
     isit_bigint(arg_1(arguments));
@@ -233,7 +233,7 @@ objecttype big_div (listtype arguments)
  *  @return TRUE if both numbers are equal,
  *          FALSE otherwise.
  */
-objecttype big_eq (listtype arguments)
+objectType big_eq (listType arguments)
 
   { /* big_eq */
     isit_bigint(arg_1(arguments));
@@ -258,7 +258,7 @@ objecttype big_eq (listtype arguments)
  *         significant byte (the first byte) has an ordinal >= 128.
  *  @return a bigInteger created from the big-endian bytes.
  */
-objecttype big_fromBStriBe (listtype arguments)
+objectType big_fromBStriBe (listType arguments)
 
   { /* big_fromBStriBe */
     isit_bstri(arg_1(arguments));
@@ -280,7 +280,7 @@ objecttype big_fromBStriBe (listtype arguments)
  *         significant byte (the last byte) has an ordinal >= 128.
  *  @return a bigInteger created from the little-endian bytes.
  */
-objecttype big_fromBStriLe (listtype arguments)
+objectType big_fromBStriLe (listType arguments)
 
   { /* big_fromBStriLe */
     isit_bstri(arg_1(arguments));
@@ -296,7 +296,7 @@ objecttype big_fromBStriLe (listtype arguments)
  *  Compute the greatest common divisor of two 'bigInteger' numbers.
  *  @return the greatest common divisor of the two numbers.
  */
-objecttype big_gcd (listtype arguments)
+objectType big_gcd (listType arguments)
 
   { /* big_gcd */
     isit_bigint(arg_1(arguments));
@@ -312,7 +312,7 @@ objecttype big_gcd (listtype arguments)
  *  @return TRUE if number1 is greater than or equal to number2,
  *          FALSE otherwise.
  */
-objecttype big_ge (listtype arguments)
+objectType big_ge (listType arguments)
 
   { /* big_ge */
     isit_bigint(arg_1(arguments));
@@ -330,7 +330,7 @@ objecttype big_ge (listtype arguments)
 /**
  *  Increment a 'bigInteger' variable by a delta.
  */
-objecttype big_grow (listtype arguments)
+objectType big_grow (listType arguments)
 
   { /* big_grow */
     isit_bigint(arg_1(arguments));
@@ -347,7 +347,7 @@ objecttype big_grow (listtype arguments)
  *  @return TRUE if number1 is greater than number2,
  *          FALSE otherwise.
  */
-objecttype big_gt (listtype arguments)
+objectType big_gt (listType arguments)
 
   { /* big_gt */
     isit_bigint(arg_1(arguments));
@@ -366,7 +366,7 @@ objecttype big_gt (listtype arguments)
  *  Compute the hash value of a 'bigInteger' number.
  *  @return the hash value.
  */
-objecttype big_hashcode (listtype arguments)
+objectType big_hashcode (listType arguments)
 
   { /* big_hashcode */
     isit_bigint(arg_1(arguments));
@@ -381,7 +381,7 @@ objecttype big_hashcode (listtype arguments)
  *  @return the bigInteger result of the conversion.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-objecttype big_iconv (listtype arguments)
+objectType big_iconv (listType arguments)
 
   { /* big_iconv */
     isit_int(arg_3(arguments));
@@ -395,10 +395,10 @@ objecttype big_iconv (listtype arguments)
  *  Increment a 'bigInteger' variable.
  *  Increments the number by 1.
  */
-objecttype big_incr (listtype arguments)
+objectType big_incr (listType arguments)
 
   {
-    objecttype big_variable;
+    objectType big_variable;
 
   /* big_incr */
     big_variable = arg_1(arguments);
@@ -415,7 +415,7 @@ objecttype big_incr (listtype arguments)
  *  @return the result of the exponentation.
  *  @exception NUMERIC_ERROR When the exponent is negative.
  */
-objecttype big_ipow (listtype arguments)
+objectType big_ipow (listType arguments)
 
   { /* big_ipow */
     isit_bigint(arg_1(arguments));
@@ -431,7 +431,7 @@ objecttype big_ipow (listtype arguments)
  *  @return TRUE if number1 is less than or equal to number2,
  *          FALSE otherwise.
  */
-objecttype big_le (listtype arguments)
+objectType big_le (listType arguments)
 
   { /* big_le */
     isit_bigint(arg_1(arguments));
@@ -452,7 +452,7 @@ objecttype big_le (listtype arguments)
  *  @return the truncated base 2 logarithm.
  *  @exception NUMERIC_ERROR The number is negative.
  */
-objecttype big_log2 (listtype arguments)
+objectType big_log2 (listType arguments)
 
   { /* big_log2 */
     isit_bigint(arg_1(arguments));
@@ -467,7 +467,7 @@ objecttype big_log2 (listtype arguments)
  *  For A <> 0 this is equal to the number of lowest-order zero bits.
  *  @return the number of lowest-order zero bits or -1 for lowestSetBit(0).
  */
-objecttype big_lowest_set_bit (listtype arguments)
+objectType big_lowest_set_bit (listType arguments)
 
   { /* big_lowest_set_bit */
     isit_bigint(arg_1(arguments));
@@ -484,7 +484,7 @@ objecttype big_lowest_set_bit (listtype arguments)
  *  A << B is equivalent to A mdiv 2_ ** -B when B < 0 holds.
  *  @return the left shifted number.
  */
-objecttype big_lshift (listtype arguments)
+objectType big_lshift (listType arguments)
 
   { /* big_lshift */
     isit_bigint(arg_1(arguments));
@@ -499,7 +499,7 @@ objecttype big_lshift (listtype arguments)
  *  Shift a number left by lshift bits and assign the result back to number.
  *  When lshift is negative a right shift is done instead.
  */
-objecttype big_lshift_assign (listtype arguments)
+objectType big_lshift_assign (listType arguments)
 
   { /* big_lshift_assign */
     isit_bigint(arg_1(arguments));
@@ -516,7 +516,7 @@ objecttype big_lshift_assign (listtype arguments)
  *  @return TRUE if number1 is less than number2,
  *          FALSE otherwise.
  */
-objecttype big_lt (listtype arguments)
+objectType big_lt (listType arguments)
 
   { /* big_lt */
     isit_bigint(arg_1(arguments));
@@ -538,7 +538,7 @@ objecttype big_lt (listtype arguments)
  *  @return the quotient of the integer division.
  *  @exception NUMERIC_ERROR When a division by zero occurs.
  */
-objecttype big_mdiv (listtype arguments)
+objectType big_mdiv (listType arguments)
 
   { /* big_mdiv */
     isit_bigint(arg_1(arguments));
@@ -555,7 +555,7 @@ objecttype big_mdiv (listtype arguments)
  *  @return the modulo of the integer division.
  *  @exception NUMERIC_ERROR When a division by zero occurs.
  */
-objecttype big_mod (listtype arguments)
+objectType big_mod (listType arguments)
 
   { /* big_mod */
     isit_bigint(arg_1(arguments));
@@ -570,7 +570,7 @@ objecttype big_mod (listtype arguments)
  *  Multiply two 'bigInteger' numbers.
  *  @return the product of the two numbers.
  */
-objecttype big_mult (listtype arguments)
+objectType big_mult (listType arguments)
 
   { /* big_mult */
     isit_bigint(arg_1(arguments));
@@ -584,7 +584,7 @@ objecttype big_mult (listtype arguments)
 /**
  *  Multiply a 'bigInteger' number by a factor and assign the result back to number.
  */
-objecttype big_mult_assign (listtype arguments)
+objectType big_mult_assign (listType arguments)
 
   { /* big_mult_assign */
     isit_bigint(arg_1(arguments));
@@ -601,7 +601,7 @@ objecttype big_mult_assign (listtype arguments)
  *  @return FALSE if both numbers are equal,
  *          TRUE otherwise.
  */
-objecttype big_ne (listtype arguments)
+objectType big_ne (listType arguments)
 
   { /* big_ne */
     isit_bigint(arg_1(arguments));
@@ -620,7 +620,7 @@ objecttype big_ne (listtype arguments)
  *  Minus sign, negate a 'bigInteger' number.
  *  @return the negated value of the number.
  */
-objecttype big_negate (listtype arguments)
+objectType big_negate (listType arguments)
 
   { /* big_negate */
     isit_bigint(arg_2(arguments));
@@ -635,7 +635,7 @@ objecttype big_negate (listtype arguments)
  *  @return TRUE if the number is odd,
  *          FALSE otherwise.
  */
-objecttype big_odd (listtype arguments)
+objectType big_odd (listType arguments)
 
   { /* big_odd */
     isit_bigint(arg_1(arguments));
@@ -653,7 +653,7 @@ objecttype big_odd (listtype arguments)
  *  @return the integer result of the conversion.
  *  @exception RANGE_ERROR The result does not fit into an integer.
  */
-objecttype big_ord (listtype arguments)
+objectType big_ord (listType arguments)
 
   { /* big_ord */
     isit_bigint(arg_1(arguments));
@@ -674,7 +674,7 @@ objecttype big_ord (listtype arguments)
  *             an integer literal.
  *  @exception MEMORY_ERROR  Not enough memory to represent the result.
  */
-objecttype big_parse (listtype arguments)
+objectType big_parse (listType arguments)
 
   { /* big_parse */
     isit_stri(arg_3(arguments));
@@ -699,7 +699,7 @@ objecttype big_parse (listtype arguments)
  *             literal with the specified base.
  *  @exception MEMORY_ERROR  Not enough memory to represent the result.
  */
-objecttype big_parse_based (listtype arguments)
+objectType big_parse_based (listType arguments)
 
   { /* big_parse_based */
     isit_stri(arg_1(arguments));
@@ -714,16 +714,16 @@ objecttype big_parse_based (listtype arguments)
  *  Plus sign for 'bigInteger' numbers.
  *  @return its operand unchanged.
  */
-objecttype big_plus (listtype arguments)
+objectType big_plus (listType arguments)
 
   {
-    biginttype result;
+    bigIntType result;
 
   /* big_plus */
     isit_bigint(arg_2(arguments));
     if (TEMP_OBJECT(arg_2(arguments))) {
       result = take_bigint(arg_2(arguments));
-      arg_2(arguments)->value.bigintvalue = NULL;
+      arg_2(arguments)->value.bigIntValue = NULL;
     } else {
       result = bigCreate(take_bigint(arg_2(arguments)));
     } /* if */
@@ -737,7 +737,7 @@ objecttype big_plus (listtype arguments)
  *  pred(A) is equivalent to A-1 .
  *  @return number - 1 .
  */
-objecttype big_pred (listtype arguments)
+objectType big_pred (listType arguments)
 
   { /* big_pred */
     isit_bigint(arg_1(arguments));
@@ -748,13 +748,55 @@ objecttype big_pred (listtype arguments)
 
 
 /**
+ *  Convert a big integer number to a string using a radix.
+ *  The conversion uses the numeral system with the given base.
+ *  Digit values from 10 upward are encoded with lower case letters.
+ *  E.g.: 10 is encoded with a, 11 with b, etc.
+ *  For negative numbers a minus sign is prepended.
+ *  @return the string result of the conversion.
+ *  @exception RANGE_ERROR When base < 2 or base > 36 holds.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
+objectType big_radix (listType arguments)
+
+  { /* big_radix */
+    isit_bigint(arg_1(arguments));
+    isit_int(arg_3(arguments));
+    return bld_stri_temp(
+        bigRadix(take_bigint(arg_1(arguments)), take_int(arg_3(arguments)), FALSE));
+  } /* big_radix */
+
+
+
+/**
+ *  Convert a big integer number to a string using a radix.
+ *  The conversion uses the numeral system with the given base.
+ *  Digit values from 10 upward are encoded with upper case letters.
+ *  E.g.: 10 is encoded with A, 11 with B, etc.
+ *  For negative numbers a minus sign is prepended.
+ *  @return the string result of the conversion.
+ *  @exception RANGE_ERROR When base < 2 or base > 36 holds.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
+objectType big_RADIX (listType arguments)
+
+  { /* big_RADIX */
+    isit_bigint(arg_1(arguments));
+    isit_int(arg_3(arguments));
+    return bld_stri_temp(
+        bigRadix(take_bigint(arg_1(arguments)), take_int(arg_3(arguments)), TRUE));
+  } /* big_RADIX */
+
+
+
+/**
  *  Compute pseudo-random number in the range [low, high].
  *  The random values are uniform distributed.
  *  @return a random number such that low <= rand(low, high) and
  *          rand(low, high) <= high holds.
  *  @exception RANGE_ERROR The range is empty (low > high holds).
  */
-objecttype big_rand (listtype arguments)
+objectType big_rand (listType arguments)
 
   { /* big_rand */
     isit_bigint(arg_1(arguments));
@@ -771,7 +813,7 @@ objecttype big_rand (listtype arguments)
  *  @return the remainder of the integer division.
  *  @exception NUMERIC_ERROR When a division by zero occurs.
  */
-objecttype big_rem (listtype arguments)
+objectType big_rem (listType arguments)
 
   { /* big_rem */
     isit_bigint(arg_1(arguments));
@@ -789,7 +831,7 @@ objecttype big_rem (listtype arguments)
  *  A >> B is equivalent to A * 2_ ** -B when B < 0 holds.
  *  @return the right shifted number.
  */
-objecttype big_rshift (listtype arguments)
+objectType big_rshift (listType arguments)
 
   { /* big_rshift */
     isit_bigint(arg_1(arguments));
@@ -804,7 +846,7 @@ objecttype big_rshift (listtype arguments)
  *  Shift a number right by rshift bits and assign the result back to number.
  *  When rshift is negative a left shift is done instead.
  */
-objecttype big_rshift_assign (listtype arguments)
+objectType big_rshift_assign (listType arguments)
 
   { /* big_rshift_assign */
     isit_bigint(arg_1(arguments));
@@ -820,7 +862,7 @@ objecttype big_rshift_assign (listtype arguments)
  *  Compute the subtraction of two 'bigInteger' numbers.
  *  @return the difference of the two numbers.
  */
-objecttype big_sbtr (listtype arguments)
+objectType big_sbtr (listType arguments)
 
   { /* big_sbtr */
     isit_bigint(arg_1(arguments));
@@ -834,7 +876,7 @@ objecttype big_sbtr (listtype arguments)
 /**
  *  Decrement a 'bigInteger' variable by a delta.
  */
-objecttype big_shrink (listtype arguments)
+objectType big_shrink (listType arguments)
 
   { /* big_shrink */
     isit_bigint(arg_1(arguments));
@@ -853,7 +895,7 @@ objecttype big_shrink (listtype arguments)
  *  @return the string result of the conversion.
  *  @exception MEMORY_ERROR  Not enough memory to represent the result.
  */
-objecttype big_str (listtype arguments)
+objectType big_str (listType arguments)
 
   { /* big_str */
     isit_bigint(arg_1(arguments));
@@ -868,7 +910,7 @@ objecttype big_str (listtype arguments)
  *  succ(A) is equivalent to A+1 .
  *  @return number + 1 .
  */
-objecttype big_succ (listtype arguments)
+objectType big_succ (listType arguments)
 
   { /* big_succ */
     isit_bigint(arg_1(arguments));
@@ -891,7 +933,7 @@ objecttype big_succ (listtype arguments)
  *  @exception RANGE_ERROR When 'isSigned' is FALSE and 'big1' is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-objecttype big_toBStriBe (listtype arguments)
+objectType big_toBStriBe (listType arguments)
 
   { /* big_toBStriBe */
     isit_bigint(arg_1(arguments));
@@ -916,7 +958,7 @@ objecttype big_toBStriBe (listtype arguments)
  *  @exception RANGE_ERROR When 'isSigned' is FALSE and 'big1' is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-objecttype big_toBStriLe (listtype arguments)
+objectType big_toBStriLe (listType arguments)
 
   { /* big_toBStriLe */
     isit_bigint(arg_1(arguments));
@@ -928,10 +970,10 @@ objecttype big_toBStriLe (listtype arguments)
 
 
 
-objecttype big_value (listtype arguments)
+objectType big_value (listType arguments)
 
   {
-    objecttype obj_arg;
+    objectType obj_arg;
 
   /* big_value */
     isit_reference(arg_1(arguments));

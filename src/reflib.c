@@ -63,12 +63,12 @@
 
 
 #ifdef OUT_OF_ORDER
-static void qsort_list (listtype *begin_sorted, listtype *end_sorted)
+static void qsort_list (listType *begin_sorted, listType *end_sorted)
 
   {
-    listtype input_list, key_element;
-    listtype begin_less, end_less, begin_greater, end_greater;
-    ustritype key;
+    listType input_list, key_element;
+    listType begin_less, end_less, begin_greater, end_greater;
+    ustriType key;
 
   /* qsort_list */
     key_element = *begin_sorted;
@@ -77,8 +77,8 @@ static void qsort_list (listtype *begin_sorted, listtype *end_sorted)
     begin_less = NULL;
     begin_greater = NULL;
     do {
-      if (strcmp((cstritype) GET_ENTITY(input_list->obj)->ident->name,
-          (cstritype) key) < 0) {
+      if (strcmp((cstriType) GET_ENTITY(input_list->obj)->ident->name,
+          (cstriType) key) < 0) {
         if (begin_less == NULL) {
           begin_less = input_list;
           end_less = input_list;
@@ -122,10 +122,10 @@ static void qsort_list (listtype *begin_sorted, listtype *end_sorted)
 
 
 
-static void sort_list (listtype *any_list)
+static void sort_list (listType *any_list)
 
   {
-    listtype list_end;
+    listType list_end;
 
   /* sort_list */
     if (*any_list != NULL && (*any_list)->next != NULL) {
@@ -137,7 +137,7 @@ static void sort_list (listtype *any_list)
 
 
 
-objecttype ref_addr (listtype arguments)
+objectType ref_addr (listType arguments)
 
   { /* ref_addr */
     return bld_reference_temp(arg_2(arguments));
@@ -145,11 +145,11 @@ objecttype ref_addr (listtype arguments)
 
 
 
-objecttype ref_alloc (listtype arguments)
+objectType ref_alloc (listType arguments)
 
   {
-    objecttype obj1;
-    objecttype created_object;
+    objectType obj1;
+    objectType created_object;
 
   /* ref_alloc */
     isit_reference(arg_1(arguments));
@@ -157,10 +157,10 @@ objecttype ref_alloc (listtype arguments)
     if (ALLOC_OBJECT(created_object)) {
       created_object->type_of = obj1->type_of;
       memcpy(&created_object->descriptor, &obj1->descriptor,
-          sizeof(descriptorunion));
+          sizeof(descriptorUnion));
       /* Copies the POSINFO flag (and all other flags): */
       INIT_CATEGORY_OF_OBJ(created_object, obj1->objcategory);
-      created_object->value.objvalue = NULL;
+      created_object->value.objValue = NULL;
       return bld_reference_temp(created_object);
     } else {
       return raise_exception(SYS_MEM_EXCEPTION);
@@ -169,7 +169,7 @@ objecttype ref_alloc (listtype arguments)
 
 
 
-objecttype ref_arrmaxidx (listtype arguments)
+objectType ref_arrmaxidx (listType arguments)
 
   { /* ref_arrmaxidx */
     isit_reference(arg_1(arguments));
@@ -179,7 +179,7 @@ objecttype ref_arrmaxidx (listtype arguments)
 
 
 
-objecttype ref_arrminidx (listtype arguments)
+objectType ref_arrminidx (listType arguments)
 
   { /* ref_arrminidx */
     isit_reference(arg_1(arguments));
@@ -189,7 +189,7 @@ objecttype ref_arrminidx (listtype arguments)
 
 
 
-objecttype ref_arrtolist (listtype arguments)
+objectType ref_arrtolist (listType arguments)
 
   { /* ref_arrtolist */
     isit_reference(arg_1(arguments));
@@ -199,7 +199,7 @@ objecttype ref_arrtolist (listtype arguments)
 
 
 
-objecttype ref_body (listtype arguments)
+objectType ref_body (listType arguments)
 
   { /* ref_body */
     isit_reference(arg_1(arguments));
@@ -209,7 +209,7 @@ objecttype ref_body (listtype arguments)
 
 
 
-objecttype ref_cast (listtype arguments)
+objectType ref_cast (listType arguments)
 
   { /* ref_cast */
     /* The reference value is taken as int on purpose */
@@ -218,7 +218,7 @@ objecttype ref_cast (listtype arguments)
 
 
 
-objecttype ref_category (listtype arguments)
+objectType ref_category (listType arguments)
 
   { /* ref_category */
     isit_reference(arg_1(arguments));
@@ -228,7 +228,7 @@ objecttype ref_category (listtype arguments)
 
 
 
-objecttype ref_cat_parse (listtype arguments)
+objectType ref_cat_parse (listType arguments)
 
   { /* ref_cat_parse */
     isit_stri(arg_3(arguments));
@@ -238,7 +238,7 @@ objecttype ref_cat_parse (listtype arguments)
 
 
 
-objecttype ref_cat_str (listtype arguments)
+objectType ref_cat_str (listType arguments)
 
   { /* ref_cat_str */
     isit_int(arg_1(arguments));
@@ -248,18 +248,18 @@ objecttype ref_cat_str (listtype arguments)
 
 
 
-objecttype ref_cmp (listtype arguments)
+objectType ref_cmp (listType arguments)
 
   {
-    memsizetype ref1;
-    memsizetype ref2;
-    inttype result;
+    memSizeType ref1;
+    memSizeType ref2;
+    intType result;
 
   /* ref_cmp */
     isit_reference(arg_1(arguments));
     isit_reference(arg_2(arguments));
-    ref1 = (memsizetype) take_reference(arg_1(arguments));
-    ref2 = (memsizetype) take_reference(arg_2(arguments));
+    ref1 = (memSizeType) take_reference(arg_1(arguments));
+    ref2 = (memSizeType) take_reference(arg_2(arguments));
     if (ref1 < ref2) {
       result = -1;
     } else if (ref1 > ref2) {
@@ -272,11 +272,11 @@ objecttype ref_cmp (listtype arguments)
 
 
 
-objecttype ref_content (listtype arguments)
+objectType ref_content (listType arguments)
 
   {
-    objecttype obj_arg1;
-    listtype result;
+    objectType obj_arg1;
+    listType result;
 
   /* ref_content */
     obj_arg1 = arg_1(arguments);
@@ -287,7 +287,7 @@ objecttype ref_content (listtype arguments)
 
 
 
-objecttype ref_conv (listtype arguments)
+objectType ref_conv (listType arguments)
 
   { /* ref_conv */
     isit_reference(arg_3(arguments));
@@ -296,40 +296,40 @@ objecttype ref_conv (listtype arguments)
 
 
 
-objecttype ref_cpy (listtype arguments)
+objectType ref_cpy (listType arguments)
 
   {
-    objecttype ref_variable;
+    objectType ref_variable;
 
   /* ref_cpy */
     ref_variable = arg_1(arguments);
     isit_reference(ref_variable);
     is_variable(ref_variable);
     isit_reference(arg_3(arguments));
-    ref_variable->value.objvalue = take_reference(arg_3(arguments));
+    ref_variable->value.objValue = take_reference(arg_3(arguments));
     return SYS_EMPTY_OBJECT;
   } /* ref_cpy */
 
 
 
-objecttype ref_create (listtype arguments)
+objectType ref_create (listType arguments)
 
   {
-    objecttype refe_to;
-    objecttype refe_from;
+    objectType refe_to;
+    objectType refe_from;
 
   /* ref_create */
     refe_to = arg_1(arguments);
     refe_from = arg_3(arguments);
     isit_reference(refe_from);
     SET_CATEGORY_OF_OBJ(refe_to, REFOBJECT);
-    refe_to->value.objvalue = take_reference(refe_from);
+    refe_to->value.objValue = take_reference(refe_from);
     return SYS_EMPTY_OBJECT;
   } /* ref_create */
 
 
 
-objecttype ref_deref (listtype arguments)
+objectType ref_deref (listType arguments)
 
   { /* ref_deref */
     isit_reference(arg_1(arguments));
@@ -338,7 +338,7 @@ objecttype ref_deref (listtype arguments)
 
 
 
-objecttype ref_eq (listtype arguments)
+objectType ref_eq (listType arguments)
 
   { /* ref_eq */
     isit_reference(arg_1(arguments));
@@ -353,11 +353,11 @@ objecttype ref_eq (listtype arguments)
 
 
 
-objecttype ref_file (listtype arguments)
+objectType ref_file (listType arguments)
 
   {
-    const_stritype name;
-    objecttype result;
+    const_striType name;
+    objectType result;
 
   /* ref_file */
     isit_reference(arg_1(arguments));
@@ -372,11 +372,11 @@ objecttype ref_file (listtype arguments)
 
 
 
-objecttype ref_find (listtype arguments)
+objectType ref_find (listType arguments)
 
   {
-    /* objecttype module_object; */
-    objecttype result;
+    /* objectType module_object; */
+    objectType result;
 
   /* ref_find */
     isit_reference(arg_1(arguments));
@@ -402,7 +402,7 @@ objecttype ref_find (listtype arguments)
 
 
 
-objecttype ref_getref (listtype arguments)
+objectType ref_getref (listType arguments)
 
   { /* ref_getref */
     return bld_reference_temp(arg_1(arguments));
@@ -410,17 +410,17 @@ objecttype ref_getref (listtype arguments)
 
 
 
-objecttype ref_hashcode (listtype arguments)
+objectType ref_hashcode (listType arguments)
 
   { /* ref_hashcode */
     isit_reference(arg_1(arguments));
-    return bld_int_temp((inttype)
-        (((memsizetype) take_reference(arg_1(arguments))) >> 6));
+    return bld_int_temp((intType)
+        (((memSizeType) take_reference(arg_1(arguments))) >> 6));
   } /* ref_hashcode */
 
 
 
-objecttype ref_hshdatatolist (listtype arguments)
+objectType ref_hshdatatolist (listType arguments)
 
   { /* ref_hshdatatolist */
     isit_reference(arg_1(arguments));
@@ -430,7 +430,7 @@ objecttype ref_hshdatatolist (listtype arguments)
 
 
 
-objecttype ref_hshkeystolist (listtype arguments)
+objectType ref_hshkeystolist (listType arguments)
 
   { /* ref_hshkeystolist */
     isit_reference(arg_1(arguments));
@@ -440,10 +440,10 @@ objecttype ref_hshkeystolist (listtype arguments)
 
 
 
-objecttype ref_issymb (listtype arguments)
+objectType ref_issymb (listType arguments)
 
   {
-    objecttype symb_object;
+    objectType symb_object;
 
   /* ref_issymb */
     isit_reference(arg_1(arguments));
@@ -461,7 +461,7 @@ objecttype ref_issymb (listtype arguments)
 
 
 
-objecttype ref_isvar (listtype arguments)
+objectType ref_isvar (listType arguments)
 
   { /* ref_isvar */
     isit_reference(arg_1(arguments));
@@ -474,7 +474,7 @@ objecttype ref_isvar (listtype arguments)
 
 
 
-objecttype ref_itftosct (listtype arguments)
+objectType ref_itftosct (listType arguments)
 
   { /* ref_itftosct */
     isit_reference(arg_1(arguments));
@@ -484,7 +484,7 @@ objecttype ref_itftosct (listtype arguments)
 
 
 
-objecttype ref_line (listtype arguments)
+objectType ref_line (listType arguments)
 
   { /* ref_line */
     isit_reference(arg_1(arguments));
@@ -494,7 +494,7 @@ objecttype ref_line (listtype arguments)
 
 
 
-objecttype ref_local_consts (listtype arguments)
+objectType ref_local_consts (listType arguments)
 
   { /* ref_local_consts */
     isit_reference(arg_1(arguments));
@@ -504,7 +504,7 @@ objecttype ref_local_consts (listtype arguments)
 
 
 
-objecttype ref_local_vars (listtype arguments)
+objectType ref_local_vars (listType arguments)
 
   { /* ref_local_vars */
     isit_reference(arg_1(arguments));
@@ -514,11 +514,11 @@ objecttype ref_local_vars (listtype arguments)
 
 
 
-objecttype ref_mkref (listtype arguments)
+objectType ref_mkref (listType arguments)
 
   {
-    objecttype refe_to;
-    objecttype refe_from;
+    objectType refe_to;
+    objectType refe_from;
 
   /* ref_mkref */
     refe_to = arg_1(arguments);
@@ -532,13 +532,13 @@ printf("\nTO ");
 trace2(refe_to);
 */
 /* FIX !!!!! @@@@@ ##### $$$$$ %%%%% ^^^^^ &&&&& */
-    refe_to->value.objvalue = refe_from;
+    refe_to->value.objValue = refe_from;
     return SYS_EMPTY_OBJECT;
   } /* ref_mkref */
 
 
 
-objecttype ref_ne (listtype arguments)
+objectType ref_ne (listType arguments)
 
   { /* ref_ne */
     isit_reference(arg_1(arguments));
@@ -553,7 +553,7 @@ objecttype ref_ne (listtype arguments)
 
 
 
-objecttype ref_nil (listtype arguments)
+objectType ref_nil (listType arguments)
 
   { /* ref_nil */
     return bld_reference_temp(NULL);
@@ -561,7 +561,7 @@ objecttype ref_nil (listtype arguments)
 
 
 
-objecttype ref_num (listtype arguments)
+objectType ref_num (listType arguments)
 
   { /* ref_num */
     isit_reference(arg_1(arguments));
@@ -571,12 +571,12 @@ objecttype ref_num (listtype arguments)
 
 
 
-objecttype ref_params (listtype arguments)
+objectType ref_params (listType arguments)
 
   {
-    listtype params;
-    errinfotype err_info = OKAY_NO_ERROR;
-    listtype result;
+    listType params;
+    errInfoType err_info = OKAY_NO_ERROR;
+    listType result;
 
   /* ref_params */
     isit_reference(arg_1(arguments));
@@ -591,7 +591,7 @@ objecttype ref_params (listtype arguments)
 
 
 
-objecttype ref_prog (listtype arguments)
+objectType ref_prog (listType arguments)
 
   { /* ref_prog */
     return bld_reference_temp(NULL);
@@ -599,7 +599,7 @@ objecttype ref_prog (listtype arguments)
 
 
 
-objecttype ref_resini (listtype arguments)
+objectType ref_resini (listType arguments)
 
   { /* ref_resini */
     isit_reference(arg_1(arguments));
@@ -609,7 +609,7 @@ objecttype ref_resini (listtype arguments)
 
 
 
-objecttype ref_result (listtype arguments)
+objectType ref_result (listType arguments)
 
   { /* ref_result */
     isit_reference(arg_1(arguments));
@@ -619,15 +619,15 @@ objecttype ref_result (listtype arguments)
 
 
 
-objecttype ref_scan (listtype arguments)
+objectType ref_scan (listType arguments)
 
   {
-    stritype str1;
-    objecttype obj_variable;
-    cstritype name;
-    identtype ident_found;
-    errinfotype err_info = OKAY_NO_ERROR;
-    objecttype result;
+    striType str1;
+    objectType obj_variable;
+    cstriType name;
+    identType ident_found;
+    errInfoType err_info = OKAY_NO_ERROR;
+    objectType result;
 
   /* ref_scan */
     isit_stri(arg_1(arguments));
@@ -640,7 +640,7 @@ objecttype ref_scan (listtype arguments)
       raise_error(err_info);
       result = NULL;
     } else {
-      ident_found = get_ident(&prog, (const_ustritype) name);
+      ident_found = get_ident(&prog, (const_ustriType) name);
       free_cstri8(name, str1);
       if (ident_found == NULL ||
           ident_found->entity == NULL ||
@@ -648,10 +648,10 @@ objecttype ref_scan (listtype arguments)
         result = raise_exception(SYS_MEM_EXCEPTION);
       } else {
         if (ident_found->entity->data.owner->obj != NULL) {
-          obj_variable->value.objvalue = ident_found->entity->data.owner->obj;
+          obj_variable->value.objValue = ident_found->entity->data.owner->obj;
           result = SYS_TRUE_OBJECT;
         } else {
-          obj_variable->value.objvalue = ident_found->entity->syobject;
+          obj_variable->value.objValue = ident_found->entity->syobject;
           result = SYS_TRUE_OBJECT;
         } /* if */
       } /* if */
@@ -661,7 +661,7 @@ objecttype ref_scan (listtype arguments)
 
 
 
-objecttype ref_scttolist (listtype arguments)
+objectType ref_scttolist (listType arguments)
 
   { /* ref_scttolist */
     isit_reference(arg_1(arguments));
@@ -671,16 +671,16 @@ objecttype ref_scttolist (listtype arguments)
 
 
 
-objecttype ref_select (listtype arguments)
+objectType ref_select (listType arguments)
 
   {
-    objecttype refer;
-    structtype stru1;
-    objecttype selector;
-    objecttype selector_syobject;
-    memsizetype position;
-    objecttype struct_pointer;
-    objecttype result;
+    objectType refer;
+    structType stru1;
+    objectType selector;
+    objectType selector_syobject;
+    memSizeType position;
+    objectType struct_pointer;
+    objectType result;
 
   /* ref_select */
     isit_reference(arg_1(arguments));
@@ -724,14 +724,14 @@ printf("\n");
               if (!ALLOC_OBJECT(result)) {
                 result = raise_exception(SYS_MEM_EXCEPTION);
               } else {
-                memcpy(result, struct_pointer, sizeof(objectrecord));
+                memcpy(result, struct_pointer, sizeof(objectRecord));
                 SET_TEMP_FLAG(result);
                 destr_struct(stru1->stru,
-                    (memsizetype) (struct_pointer - stru1->stru));
+                    (memSizeType) (struct_pointer - stru1->stru));
                 destr_struct(&struct_pointer[1],
-                    (stru1->size - (memsizetype) (struct_pointer - stru1->stru) - 1));
+                    (stru1->size - (memSizeType) (struct_pointer - stru1->stru) - 1));
                 FREE_STRUCT(stru1, stru1->size);
-                arg_1(arguments)->value.structvalue = NULL;
+                arg_1(arguments)->value.structValue = NULL;
               } /* if */
               return result;
             } else {
@@ -748,7 +748,7 @@ printf("\n");
 
 
 
-objecttype ref_setcategory (listtype arguments)
+objectType ref_setcategory (listType arguments)
 
   { /* ref_setcategory */
     isit_reference(arg_1(arguments));
@@ -760,7 +760,7 @@ objecttype ref_setcategory (listtype arguments)
 
 
 
-objecttype ref_setparams (listtype arguments)
+objectType ref_setparams (listType arguments)
 
   { /* ref_setparams */
     isit_reference(arg_1(arguments));
@@ -771,7 +771,7 @@ objecttype ref_setparams (listtype arguments)
 
 
 
-objecttype ref_settype (listtype arguments)
+objectType ref_settype (listType arguments)
 
   { /* ref_settype */
     isit_reference(arg_1(arguments));
@@ -783,7 +783,7 @@ objecttype ref_settype (listtype arguments)
 
 
 
-objecttype ref_setvar (listtype arguments)
+objectType ref_setvar (listType arguments)
 
   { /* ref_setvar */
     isit_reference(arg_1(arguments));
@@ -798,7 +798,7 @@ objecttype ref_setvar (listtype arguments)
 
 
 
-objecttype ref_str (listtype arguments)
+objectType ref_str (listType arguments)
 
   { /* ref_str */
     isit_reference(arg_1(arguments));
@@ -808,10 +808,10 @@ objecttype ref_str (listtype arguments)
 
 
 
-objecttype ref_symb (listtype arguments)
+objectType ref_symb (listType arguments)
 
   {
-    objecttype symb_object;
+    objectType symb_object;
 
   /* ref_symb */
     isit_reference(arg_2(arguments));
@@ -835,7 +835,7 @@ objecttype ref_symb (listtype arguments)
 
 
 
-objecttype ref_trace (listtype arguments)
+objectType ref_trace (listType arguments)
 
   { /* ref_trace */
     trace1(arg_1(arguments));
@@ -844,10 +844,10 @@ objecttype ref_trace (listtype arguments)
 
 
 
-objecttype ref_type (listtype arguments)
+objectType ref_type (listType arguments)
 
   {
-    objecttype obj_arg;
+    objectType obj_arg;
 
   /* ref_type */
     isit_reference(arg_1(arguments));
@@ -863,7 +863,7 @@ objecttype ref_type (listtype arguments)
 
 
 
-objecttype ref_value (listtype arguments)
+objectType ref_value (listType arguments)
 
   { /* ref_value */
     isit_reference(arg_1(arguments));

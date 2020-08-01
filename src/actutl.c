@@ -53,10 +53,10 @@
 
 typedef struct {
     unsigned int size;
-    primacttype *primitive_ptr;
-} act_ptr_table_type;
+    primActType *primitive_ptr;
+} actPtrTableType;
 
-static act_ptr_table_type act_ptr_table = {0, NULL};
+static actPtrTableType act_ptr_table = {0, NULL};
 
 
 
@@ -71,11 +71,11 @@ static int act_strcmp (void const *strg1, void const *strg2)
 #ifdef TRACE_ACTUTIL
     printf("BEGIN act_strcmp\n");
 #endif
-    /* printf("strcmp(\"%s\", \"%s\")\n", strg1, ((primacttype) strg2)->name); */
+    /* printf("strcmp(\"%s\", \"%s\")\n", strg1, ((primActType) strg2)->name); */
 #ifdef TRACE_ACTUTIL
     printf("END act_strcmp\n");
 #endif
-    return strcmp(strg1, ((primacttype) strg2)->name);
+    return strcmp(strg1, ((primActType) strg2)->name);
   } /* act_strcmp */
 #endif
 
@@ -91,11 +91,11 @@ static int action_ptr_compare (const void *act_ptr1, const void *act_ptr2)
 #ifdef TRACE_ACTUTIL
     printf("BEGIN action_ptr_compare\n");
 #endif
-    if ((memsizetype) (*(const primacttype *) act_ptr1)->action <
-        (memsizetype) (*(const primacttype *) act_ptr2)->action) {
+    if ((memSizeType) (*(const primActType *) act_ptr1)->action <
+        (memSizeType) (*(const primActType *) act_ptr2)->action) {
       return -1;
-    } else if ((*(const primacttype *) act_ptr1)->action ==
-               (*(const primacttype *) act_ptr2)->action) {
+    } else if ((*(const primActType *) act_ptr1)->action ==
+               (*(const primActType *) act_ptr2)->action) {
       return 0;
     } else {
       return 1;
@@ -107,11 +107,11 @@ static int action_ptr_compare (const void *act_ptr1, const void *act_ptr2)
 
 
 
-static booltype search_action (cstritype stri, acttype *action_found)
+static boolType search_action (cstriType stri, actType *action_found)
 
   {
 #ifdef USE_BSEARCH
-    primacttype found;
+    primActType found;
 #else
     unsigned int lower;
     unsigned int upper;
@@ -119,15 +119,15 @@ static booltype search_action (cstritype stri, acttype *action_found)
     int comparison;
 #endif
     unsigned int action_number;
-    booltype result;
+    boolType result;
 
   /* search_action */
 #ifdef TRACE_ACTUTIL
     printf("BEGIN search_action\n");
 #endif
 #ifdef USE_BSEARCH
-    if ((found = (primacttype) bsearch(stri, &act_table.primitive[1],
-        act_table.size - 1, sizeof(primactrecord), act_strcmp)) != NULL) {
+    if ((found = (primActType) bsearch(stri, &act_table.primitive[1],
+        act_table.size - 1, sizeof(primActRecord), act_strcmp)) != NULL) {
       action_number = (unsigned int) (found - &act_table.primitive[0]);
     } else {
       action_number = 0;
@@ -157,7 +157,7 @@ static booltype search_action (cstritype stri, acttype *action_found)
     } else {
       *action_found = NULL;
     } /* if */
-    result = (booltype) (action_number != 0);
+    result = (boolType) (action_number != 0);
 #ifdef TRACE_ACTUTIL
     printf("END search_action\n");
 #endif
@@ -166,12 +166,12 @@ static booltype search_action (cstritype stri, acttype *action_found)
 
 
 
-booltype find_action (const const_stritype action_name, acttype *action_found)
+boolType find_action (const const_striType action_name, actType *action_found)
 
   {
     char act_name[MAX_CSTRI_BUFFER_LEN + 1];
-    errinfotype err_info = OKAY_NO_ERROR;
-    booltype result;
+    errInfoType err_info = OKAY_NO_ERROR;
+    boolType result;
 
  /* find_action */
 #ifdef TRACE_ACTUTIL
@@ -203,14 +203,14 @@ booltype find_action (const const_stritype action_name, acttype *action_found)
 
 
 /**
- *  Create act_ptr_table and remove double acttype pointers from it.
+ *  Create act_ptr_table and remove double actType pointers from it.
  *  The table act_ptr_table is used by get_primact() to map
- *  acttype pointers to corresponding entries in act_table.
+ *  actType pointers to corresponding entries in act_table.
  *  When the C compiler recognizes that the code of two functions
  *  is identical it may decide to reuse the code. In this case
- *  two or more acttype pointers refer to the same function.
- *  To have predictable results double acttype pointers are removed
- *  from act_ptr_table. The acttype pointer that referes to the
+ *  two or more actType pointers refer to the same function.
+ *  To have predictable results double actType pointers are removed
+ *  from act_ptr_table. The actType pointer that referes to the
  *  action with the alphabetically lower action name is kept.
  *  Since the action names in act_table are sorted alphabetically
  *  this is the entry that is nearer to the beginning of act_table.
@@ -225,11 +225,11 @@ static void gen_act_ptr_table (void)
     printf("BEGIN gen_act_ptr_table\n");
 #endif
     act_ptr_table.size = act_table.size;
-    if (ALLOC_TABLE(act_ptr_table.primitive_ptr, primacttype, act_ptr_table.size)) {
+    if (ALLOC_TABLE(act_ptr_table.primitive_ptr, primActType, act_ptr_table.size)) {
       for (number = 0; number < act_ptr_table.size; number++) {
         act_ptr_table.primitive_ptr[number] = &act_table.primitive[number];
       } /* for */
-      qsort(act_ptr_table.primitive_ptr, act_ptr_table.size, sizeof(primacttype),
+      qsort(act_ptr_table.primitive_ptr, act_ptr_table.size, sizeof(primActType),
           action_ptr_compare);
       for (number = 1; number < act_ptr_table.size; number++) {
         if (act_ptr_table.primitive_ptr[number]->action ==
@@ -238,13 +238,13 @@ static void gen_act_ptr_table (void)
               act_ptr_table.primitive_ptr[number - 1]->name,
               act_ptr_table.primitive_ptr[number]->name); */
           /* Remove double entries */
-          if ((memsizetype) act_ptr_table.primitive_ptr[number - 1] >
-              (memsizetype) act_ptr_table.primitive_ptr[number]) {
+          if ((memSizeType) act_ptr_table.primitive_ptr[number - 1] >
+              (memSizeType) act_ptr_table.primitive_ptr[number]) {
             memmove(&act_ptr_table.primitive_ptr[number - 1], &act_ptr_table.primitive_ptr[number],
-                    (act_ptr_table.size - number) * sizeof(primacttype));
+                    (act_ptr_table.size - number) * sizeof(primActType));
           } else {
             memmove(&act_ptr_table.primitive_ptr[number], &act_ptr_table.primitive_ptr[number + 1],
-                    (act_ptr_table.size - number - 1) * sizeof(primacttype));
+                    (act_ptr_table.size - number - 1) * sizeof(primActType));
           } /* if */
           act_ptr_table.size--;
           number--;
@@ -260,16 +260,16 @@ static void gen_act_ptr_table (void)
 
 
 /**
- *  Get an act_table entry that corresponds to an acttype pointer.
+ *  Get an act_table entry that corresponds to an actType pointer.
  *  @return pointer to an act_table entry.
  */
-primacttype get_primact (acttype action_searched)
+primActType get_primact (actType action_searched)
 
   {
     int lower;
     int upper;
     int middle;
-    primacttype result;
+    primActType result;
 
   /* get_primact */
 #ifdef TRACE_ACTUTIL
@@ -289,10 +289,10 @@ primacttype get_primact (acttype action_searched)
       while (lower + 1 < upper) {
         middle = (lower + upper) >> 1;
         /* printf("%d %d %d >%lu< >%lu<\n", lower, middle, upper,
-            (memsizetype) act_ptr_table.primitive_ptr[middle]->action,
-            (memsizetype) action_searched); */
-        if (((memsizetype) act_ptr_table.primitive_ptr[middle]->action) <
-            ((memsizetype) action_searched)) {
+            (memSizeType) act_ptr_table.primitive_ptr[middle]->action,
+            (memSizeType) action_searched); */
+        if (((memSizeType) act_ptr_table.primitive_ptr[middle]->action) <
+            ((memSizeType) action_searched)) {
           lower = middle;
         } else if (act_ptr_table.primitive_ptr[middle]->action == action_searched) {
           lower = upper - 1;

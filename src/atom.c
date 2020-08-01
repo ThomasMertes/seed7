@@ -57,12 +57,12 @@
 
 
 
-static objecttype gen_object (void)
+static objectType gen_object (void)
 
   {
-    register entitytype atomic_entity;
-    register propertytype atomic_property;
-    register objecttype atomic_object;
+    register entityType atomic_entity;
+    register propertyType atomic_property;
+    register objectType atomic_object;
 
   /* gen_object */
 #ifdef TRACE_OBJECT
@@ -71,13 +71,13 @@ static objecttype gen_object (void)
     if (!ALLOC_OBJECT(atomic_object)) {
       fatal_memory_error(SOURCE_POSITION(2051));
     } else {
-      if (!ALLOC_RECORD(atomic_property, propertyrecord, count.property)) {
+      if (!ALLOC_RECORD(atomic_property, propertyRecord, count.property)) {
         FREE_OBJECT(atomic_object);
         atomic_object = NULL;
         fatal_memory_error(SOURCE_POSITION(2052));
       } else {
-        if (!ALLOC_RECORD(atomic_entity, entityrecord, count.entity)) {
-          FREE_RECORD(atomic_property, propertyrecord, count.property);
+        if (!ALLOC_RECORD(atomic_entity, entityRecord, count.entity)) {
+          FREE_RECORD(atomic_property, propertyRecord, count.property);
           FREE_OBJECT(atomic_object);
           atomic_object = NULL;
           fatal_memory_error(SOURCE_POSITION(2053));
@@ -110,12 +110,12 @@ static objecttype gen_object (void)
 
 
 
-static objecttype gen_literal_object (const_objecttype typeof_object,
-    objectcategory category)
+static objectType gen_literal_object (const_objectType typeof_object,
+    objectCategory category)
 
   {
-    register objecttype literal_object;
-    register listtype list_elem;
+    register objectType literal_object;
+    register listType list_elem;
 
   /* gen_literal_object */
 #ifdef TRACE_OBJECT
@@ -158,10 +158,10 @@ static objecttype gen_literal_object (const_objecttype typeof_object,
  *  string symbol to it.
  *  @return the created string.
  */
-static inline stritype new_string (void)
+static inline striType new_string (void)
 
   {
-    stritype stri_created;
+    striType stri_created;
 
   /* new_string */
 #ifdef TRACE_ATOM
@@ -169,25 +169,25 @@ static inline stritype new_string (void)
 #endif
 #ifdef ALTERNATE_STRI_LITERALS
     {
-      memsizetype stri_created_size = symbol.strivalue->size;
+      memSizeType stri_created_size = symbol.striValue->size;
 
-      REALLOC_STRI_SIZE_OK(stri_created, symbol.strivalue,
+      REALLOC_STRI_SIZE_OK(stri_created, symbol.striValue,
           symbol.stri_max, stri_created_size);
     }
     if (stri_created == NULL) {
       fatal_memory_error(SOURCE_POSITION(2056));
     } /* if */
     COUNT3_STRI(symbol.stri_max, stri_created->size);
-    if (!ALLOC_STRI_SIZE_OK(symbol.strivalue, symbol.stri_max)) {
+    if (!ALLOC_STRI_SIZE_OK(symbol.striValue, symbol.stri_max)) {
       fatal_memory_error(SOURCE_POSITION(2057));
     } /* if */
 #else
-    if (!ALLOC_STRI_SIZE_OK(stri_created, symbol.strivalue->size)) {
+    if (!ALLOC_STRI_SIZE_OK(stri_created, symbol.striValue->size)) {
       fatal_memory_error(SOURCE_POSITION(2058));
     } /* if */
-    stri_created->size = symbol.strivalue->size;
-    memcpy(stri_created->mem, symbol.strivalue->mem,
-        (size_t) symbol.strivalue->size * sizeof(strelemtype));
+    stri_created->size = symbol.striValue->size;
+    memcpy(stri_created->mem, symbol.striValue->mem,
+        (size_t) symbol.striValue->size * sizeof(strElemType));
 #endif
 #ifdef TRACE_ATOM
     printf("END new_string\n");
@@ -197,10 +197,10 @@ static inline stritype new_string (void)
 
 
 
-objecttype read_atom (void)
+objectType read_atom (void)
 
   {
-    register objecttype atomic_object;
+    register objectType atomic_object;
 
   /* read_atom */
 #ifdef TRACE_ATOM
@@ -227,25 +227,25 @@ objecttype read_atom (void)
         break;
       case INTLITERAL:
         atomic_object = gen_literal_object(SYS_INT_TYPE, INTOBJECT);
-        atomic_object->value.intvalue = symbol.intvalue;
+        atomic_object->value.intValue = symbol.intValue;
         break;
       case BIGINTLITERAL:
         atomic_object = gen_literal_object(SYS_BIGINT_TYPE, BIGINTOBJECT);
-        atomic_object->value.bigintvalue = symbol.bigintvalue;
-        symbol.bigintvalue = NULL;
+        atomic_object->value.bigIntValue = symbol.bigIntValue;
+        symbol.bigIntValue = NULL;
         break;
       case CHARLITERAL:
         atomic_object = gen_literal_object(SYS_CHAR_TYPE, CHAROBJECT);
-        atomic_object->value.charvalue = symbol.charvalue;
+        atomic_object->value.charValue = symbol.charValue;
         break;
       case STRILITERAL:
         atomic_object = gen_literal_object(SYS_STRI_TYPE, STRIOBJECT);
-        atomic_object->value.strivalue = new_string();
+        atomic_object->value.striValue = new_string();
         break;
 #ifdef WITH_FLOAT
       case FLOATLITERAL:
         atomic_object = gen_literal_object(SYS_FLT_TYPE, FLOATOBJECT);
-        atomic_object->value.floatvalue = symbol.floatvalue;
+        atomic_object->value.floatValue = symbol.floatValue;
         break;
 #endif
       default:
@@ -267,10 +267,10 @@ objecttype read_atom (void)
 
 
 
-objecttype read_name (void)
+objectType read_name (void)
 
   {
-    register objecttype atomic_object;
+    register objectType atomic_object;
 
   /* read_name */
 #ifdef TRACE_ATOM

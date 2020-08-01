@@ -72,7 +72,7 @@
 
 #ifdef USE_WINSOCK
 
-typedef int socklen_type;
+typedef int sockLenType;
 #define cast_send_recv_data(data_ptr) ((char *) (data_ptr))
 #define cast_buffer_len(len)          ((int) (len))
 #ifndef SHUT_RDWR
@@ -81,7 +81,7 @@ typedef int socklen_type;
 
 #else
 
-typedef socklen_t socklen_type;
+typedef socklen_t sockLenType;
 #define cast_send_recv_data(data_ptr) ((void *) (data_ptr))
 #define cast_buffer_len(len)          len
 #define INVALID_SOCKET (-1)
@@ -93,7 +93,7 @@ typedef socklen_t socklen_type;
 #define READ_STRI_SIZE_DELTA    2048
 
 #ifdef USE_WINSOCK
-static booltype initialized = FALSE;
+static boolType initialized = FALSE;
 #define check_initialization(err_result) if (unlikely(!initialized)) {if (init_winsock()) {return err_result;}}
 #else
 #define check_initialization(err_result)
@@ -152,7 +152,7 @@ static struct addrinfo *select_addrinfo (struct addrinfo *addrinfo_list,
       if (current_addrinfo->ai_addr->sa_family == AF_INET) {
         if (inet_addrinfo == NULL) {
           struct sockaddr_in *inet_address = (struct sockaddr_in *) current_addrinfo->ai_addr;
-          uint32type ip4_address = ntohl(inet_address->sin_addr.s_addr);
+          uint32Type ip4_address = ntohl(inet_address->sin_addr.s_addr);
           /* printf("ip4=%d.%d.%d.%d\n",
               ip4_address >> 24, (ip4_address >> 16) & 255,
               (ip4_address >> 8) & 255, ip4_address & 255); */
@@ -217,7 +217,7 @@ static void dump_addrinfo (struct addrinfo *addrinfo_list)
           (addr->ai_addr->sa_family == AF_UNSPEC ? "AF_UNSPEC" : "UNKNOWN")));
       if (addr->ai_addr->sa_family == AF_INET) {
         struct sockaddr_in *inet_address = (struct sockaddr_in *) addr->ai_addr;
-        uint32type ip4_address = ntohl(inet_address->sin_addr.s_addr);
+        uint32Type ip4_address = ntohl(inet_address->sin_addr.s_addr);
         printf("sin_port=%d\n", ntohs(inet_address->sin_port));
         printf("sin_addr.s_addr=%d.%d.%d.%d\n",
             (ip4_address >> 24) & 255,
@@ -239,7 +239,7 @@ static void dump_addrinfo (struct addrinfo *addrinfo_list)
             digitGroup[4], digitGroup[5], digitGroup[6], digitGroup[7]);
       }
       printf("ai_canonname=%s\n", addr->ai_canonname);
-      printf("ai_next=%lx\n", (memsizetype) addr->ai_next);
+      printf("ai_next=%lx\n", (memSizeType) addr->ai_next);
       /* {
         char name[1024];
         char serv[1024];
@@ -264,13 +264,13 @@ static void dump_addrinfo (struct addrinfo *addrinfo_list)
  *  @exception FILE_ERROR A system function returns an error.
  *  @exception MEMORY_ERROR An out of memory situation occurred.
  */
-sockettype socAccept (sockettype listenerSocket, bstritype *address)
+socketType socAccept (socketType listenerSocket, bstriType *address)
 
   {
-    memsizetype old_address_size;
-    bstritype resized_address;
-    socklen_type addrlen;
-    sockettype result;
+    memSizeType old_address_size;
+    bstriType resized_address;
+    sockLenType addrlen;
+    socketType result;
 
   /* socAccept */
     /* printf("begin socAccept(%u, *)\n", listenerSocket); */
@@ -278,7 +278,7 @@ sockettype socAccept (sockettype listenerSocket, bstritype *address)
     REALLOC_BSTRI_SIZE_OK(resized_address, *address, old_address_size, MAX_ADDRESS_SIZE);
     if (unlikely(resized_address == NULL)) {
       raise_error(MEMORY_ERROR);
-      result = (sockettype) -1;
+      result = (socketType) -1;
     } else {
       *address = resized_address;
       COUNT3_BSTRI(old_address_size, MAX_ADDRESS_SIZE);
@@ -295,15 +295,15 @@ sockettype socAccept (sockettype listenerSocket, bstritype *address)
         } /* if */
         raise_error(FILE_ERROR);
       } else {
-        REALLOC_BSTRI_SIZE_OK(resized_address, *address, MAX_ADDRESS_SIZE, (memsizetype) addrlen);
+        REALLOC_BSTRI_SIZE_OK(resized_address, *address, MAX_ADDRESS_SIZE, (memSizeType) addrlen);
         if (unlikely(resized_address == NULL)) {
           (*address)->size = MAX_ADDRESS_SIZE;
           raise_error(MEMORY_ERROR);
-          result = (sockettype) -1;
+          result = (socketType) -1;
         } else {
           *address = resized_address;
-          COUNT3_BSTRI(MAX_ADDRESS_SIZE, (memsizetype) addrlen);
-          (*address)->size = (memsizetype) addrlen;
+          COUNT3_BSTRI(MAX_ADDRESS_SIZE, (memSizeType) addrlen);
+          (*address)->size = (memSizeType) addrlen;
         } /* if */
       } /* if */
     } /* if */
@@ -315,11 +315,11 @@ sockettype socAccept (sockettype listenerSocket, bstritype *address)
 
 
 
-inttype socAddrFamily (const const_bstritype address)
+intType socAddrFamily (const const_bstriType address)
 
   {
     const struct sockaddr *addr;
-    inttype result;
+    intType result;
 
   /* socAddrFamily */
     if (unlikely(address->size < sizeof(struct sockaddr))) {
@@ -342,12 +342,12 @@ inttype socAddrFamily (const const_bstritype address)
  *  colon notation (e.g.: "fe80:0:0:0:202:b3ff:fe1e:8329").
  *  @return the IP address of the specified host.
  */
-stritype socAddrNumeric (const const_bstritype address)
+striType socAddrNumeric (const const_bstriType address)
 
   {
     const struct sockaddr *addr;
     char buffer[40];
-    stritype result;
+    striType result;
 
   /* socAddrNumeric */
     if (unlikely(address->size < sizeof(struct sockaddr))) {
@@ -362,7 +362,7 @@ stritype socAddrNumeric (const const_bstritype address)
             result = NULL;
           } else {
             const struct sockaddr_in *inet_address = (const struct sockaddr_in *) address->mem;
-            uint32type ip4_address = ntohl(inet_address->sin_addr.s_addr);
+            uint32Type ip4_address = ntohl(inet_address->sin_addr.s_addr);
 
             sprintf(buffer, "%d.%d.%d.%d",
                 (ip4_address >> 24) & 255,
@@ -405,11 +405,11 @@ stritype socAddrNumeric (const const_bstritype address)
 
 
 
-stritype socAddrService (const const_bstritype address)
+striType socAddrService (const const_bstriType address)
 
   {
     const struct sockaddr *addr;
-    stritype result;
+    striType result;
 
   /* socAddrService */
     if (unlikely(address->size < sizeof(struct sockaddr))) {
@@ -423,7 +423,7 @@ stritype socAddrService (const const_bstritype address)
             raise_error(RANGE_ERROR);
             result = NULL;
           } else {
-            inttype port;
+            intType port;
             const struct sockaddr_in *inet_address;
             inet_address = (const struct sockaddr_in *) address->mem;
             port = ntohs(inet_address->sin_port);       /* short, network byte order */
@@ -436,7 +436,7 @@ stritype socAddrService (const const_bstritype address)
             raise_error(RANGE_ERROR);
             result = NULL;
           } else {
-            inttype port;
+            intType port;
             const struct sockaddr_in6 *inet6_address;
             inet6_address = (const struct sockaddr_in6 *) address->mem;
             port = ntohs(inet6_address->sin6_port);     /* short, network byte order */
@@ -460,14 +460,14 @@ stritype socAddrService (const const_bstritype address)
  *  @param address An internet listener socket address.
  *  @exception FILE_ERROR A system function returns an error.
  */
-void socBind (sockettype listenerSocket, const_bstritype address)
+void socBind (socketType listenerSocket, const_bstriType address)
 
   { /* socBind */
     /* printf("socBind(%u, ", listenerSocket);
        prot_bstri(address);
        printf(")\n"); */
     if (unlikely(bind(listenerSocket, (const struct sockaddr *) address->mem,
-        (socklen_type) address->size) != 0)) {
+        (sockLenType) address->size) != 0)) {
       /* printf("socBind errno=%d\n", errno);
          printf("EADDRINUSE=%d\n", EADDRINUSE); */
       raise_error(FILE_ERROR);
@@ -478,7 +478,7 @@ void socBind (sockettype listenerSocket, const_bstritype address)
 /**
  *  Close the socket 'aSocket'.
  */
-void socClose (sockettype aSocket)
+void socClose (socketType aSocket)
 
   { /* socClose */
     shutdown(aSocket, SHUT_RDWR);
@@ -495,14 +495,14 @@ void socClose (sockettype aSocket)
  *  Connect 'aSocket' to the given 'address'.
  *  @exception FILE_ERROR A system function returns an error.
  */
-void socConnect (sockettype aSocket, const_bstritype address)
+void socConnect (socketType aSocket, const_bstriType address)
 
   { /* socConnect */
     /* printf("socConnect(%u, ", aSocket);
        prot_bstri(address);
        printf(")\n"); */
     if (unlikely(connect(aSocket, (const struct sockaddr *) address->mem,
-        (socklen_type) address->size) != 0)) {
+        (sockLenType) address->size) != 0)) {
       /* printf("socConnect(%d) errno=%d %s\n", aSocket, errno, strerror(errno));
       printf("WSAGetLastError=%d\n", WSAGetLastError());
       printf("WSANOTINITIALISED=%ld, WSAENETDOWN=%ld, WSAEADDRINUSE=%ld, WSAEINTR=%ld, WSAEALREADY=%ld\n",
@@ -523,19 +523,19 @@ void socConnect (sockettype aSocket, const_bstritype address)
  *  Read a character from 'inSocket'.
  *  @return the character read.
  */
-chartype socGetc (sockettype inSocket, chartype *const eofIndicator)
+charType socGetc (socketType inSocket, charType *const eofIndicator)
 
   {
     unsigned char ch;
-    memsizetype bytes_received;
+    memSizeType bytes_received;
 
   /* socGetc */
-    bytes_received = (memsizetype) recv(inSocket, cast_send_recv_data(&ch), 1, 0);
+    bytes_received = (memSizeType) recv(inSocket, cast_send_recv_data(&ch), 1, 0);
     if (bytes_received != 1) {
-      *eofIndicator = (chartype) EOF;
-      return (chartype) EOF;
+      *eofIndicator = (charType) EOF;
+      return (charType) EOF;
     } else {
-      return (chartype) ch;
+      return (charType) ch;
     } /* if */
   } /* socGetc */
 
@@ -547,13 +547,13 @@ chartype socGetc (sockettype inSocket, chartype *const eofIndicator)
  *  @exception RANGE_ERROR The length is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-stritype socGets (sockettype inSocket, inttype length, chartype *const eofIndicator)
+striType socGets (socketType inSocket, intType length, charType *const eofIndicator)
 
   {
-    memsizetype bytes_requested;
-    memsizetype result_size;
-    stritype resized_result;
-    stritype result;
+    memSizeType bytes_requested;
+    memSizeType result_size;
+    striType resized_result;
+    striType result;
 
   /* socGets */
     /* printf("socGets(%u, %d)\n", inSocket, length); */
@@ -561,18 +561,18 @@ stritype socGets (sockettype inSocket, inttype length, chartype *const eofIndica
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
-      if ((uinttype) length > MAX_MEMSIZETYPE) {
+      if ((uintType) length > MAX_MEMSIZETYPE) {
         bytes_requested = MAX_MEMSIZETYPE;
       } else {
-        bytes_requested = (memsizetype) length;
+        bytes_requested = (memSizeType) length;
       } /* if */
       if (bytes_requested <= BUFFER_SIZE) {
-        uchartype buffer[BUFFER_SIZE];
+        ucharType buffer[BUFFER_SIZE];
 
-        result_size = (memsizetype) recv(inSocket, cast_send_recv_data(buffer),
+        result_size = (memSizeType) recv(inSocket, cast_send_recv_data(buffer),
                                          cast_buffer_len(bytes_requested), 0);
         /* printf("socGets: result_size=%ld\n", (long int) result_size); */
-        if (result_size == (memsizetype) (-1)) {
+        if (result_size == (memSizeType) (-1)) {
           result_size = 0;
         } /* if */
         if (unlikely(!ALLOC_STRI_CHECK_SIZE(result, result_size))) {
@@ -580,13 +580,13 @@ stritype socGets (sockettype inSocket, inttype length, chartype *const eofIndica
           result = NULL;
         } else {
           if (result_size > 0) {
-            register strelemtype *to = result->mem;
+            register strElemType *to = result->mem;
 
             memcpy_to_strelem(to, buffer, result_size);
           } /* if */
           result->size = result_size;
           if (result_size == 0 && result_size < bytes_requested) {
-            *eofIndicator = (chartype) EOF;
+            *eofIndicator = (charType) EOF;
           } /* if */
         } /* if */
       } else {
@@ -594,22 +594,22 @@ stritype socGets (sockettype inSocket, inttype length, chartype *const eofIndica
           raise_error(MEMORY_ERROR);
           result = NULL;
         } else {
-          result_size = (memsizetype) recv(inSocket, cast_send_recv_data(result->mem),
+          result_size = (memSizeType) recv(inSocket, cast_send_recv_data(result->mem),
                                            cast_buffer_len(bytes_requested), 0);
           /* printf("socGets: result_size=%ld\n", (long int) result_size); */
-          if (result_size == (memsizetype) (-1)) {
+          if (result_size == (memSizeType) (-1)) {
             result_size = 0;
           } /* if */
           if (result_size > 0) {
-            register const uchartype *from = (uchartype *) result->mem;
-            register strelemtype *to = result->mem;
+            register const ucharType *from = (ucharType *) result->mem;
+            register strElemType *to = result->mem;
 
             memcpy_to_strelem(to, from, result_size);
           } /* if */
           result->size = result_size;
           if (result_size < bytes_requested) {
             if (result_size == 0) {
-              *eofIndicator = (chartype) EOF;
+              *eofIndicator = (charType) EOF;
             } /* if */
             REALLOC_STRI_SIZE_SMALLER(resized_result, result, bytes_requested, result_size);
             if (unlikely(resized_result == NULL)) {
@@ -629,12 +629,12 @@ stritype socGets (sockettype inSocket, inttype length, chartype *const eofIndica
 
 
 
-bstritype socGetAddr (sockettype sock)
+bstriType socGetAddr (socketType sock)
 
   {
-    socklen_type addrlen;
+    sockLenType addrlen;
     int getsockname_result;
-    bstritype result;
+    bstriType result;
 
   /* socGetAddr */
     /* printf("socGetAddr(%u)\n", sock); */
@@ -648,7 +648,7 @@ bstritype socGetAddr (sockettype sock)
         raise_error(FILE_ERROR);
         result = NULL;
       } else {
-        result->size = (memsizetype) addrlen;
+        result->size = (memSizeType) addrlen;
         /* {
           struct sockaddr_in *inet_address = (struct sockaddr_in *) result->mem;
           printf("sin_addr.s_addr=%d.%d.%d.%d\n",
@@ -669,11 +669,11 @@ bstritype socGetAddr (sockettype sock)
  *  @return the hostname.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-stritype socGetHostname (void)
+striType socGetHostname (void)
 
   {
     char name[1024];
-    stritype result;
+    striType result;
 
   /* socGetHostname */
     check_initialization(NULL);
@@ -695,15 +695,15 @@ stritype socGetHostname (void)
  *  it may block.
  *  @return FALSE if socGetc would return EOF, TRUE otherwise.
  */
-booltype socHasNext (sockettype inSocket)
+boolType socHasNext (socketType inSocket)
 
   {
     unsigned char next_char;
-    memsizetype bytes_received;
-    booltype result;
+    memSizeType bytes_received;
+    boolType result;
 
   /* socHasNext */
-    bytes_received = (memsizetype) recv(inSocket, cast_send_recv_data(&next_char), 1, MSG_PEEK);
+    bytes_received = (memSizeType) recv(inSocket, cast_send_recv_data(&next_char), 1, MSG_PEEK);
     if (bytes_received != 1) {
       /* printf("socHasNext: bytes_received=%ld\n", (long int) bytes_received); */
       result = FALSE;
@@ -731,10 +731,10 @@ booltype socHasNext (sockettype inSocket)
  *             to the system representation or not enough memory to
  *             represent the result.
  */
-bstritype socInetAddr (const const_stritype hostName, inttype port)
+bstriType socInetAddr (const const_striType hostName, intType port)
 
   {
-    cstritype name;
+    cstriType name;
 #ifdef USE_GETADDRINFO
     char servicename[10];
     struct addrinfo *addrinfo_list;
@@ -745,8 +745,8 @@ bstritype socInetAddr (const const_stritype hostName, inttype port)
     struct hostent *host_ent;
     struct sockaddr_in *inet_address;
 #endif
-    errinfotype err_info = OKAY_NO_ERROR;
-    bstritype result;
+    errInfoType err_info = OKAY_NO_ERROR;
+    bstriType result;
 
   /* socInetAddr */
     check_initialization(NULL);
@@ -846,11 +846,11 @@ bstritype socInetAddr (const const_stritype hostName, inttype port)
               result->size = sizeof(struct sockaddr_in);
               inet_address = (struct sockaddr_in *) result->mem;
               inet_address->sin_family = host_ent->h_addrtype;
-              inet_address->sin_port = htons((uint16type) port);       /* short, network byte order */
+              inet_address->sin_port = htons((uint16Type) port);       /* short, network byte order */
               memcpy(&inet_address->sin_addr.s_addr, host_ent->h_addr, (size_t) host_ent->h_length);
               memset(inet_address->sin_zero, '\0', sizeof(inet_address->sin_zero));
               /* {
-                uint32type ip4_address = ntohl(inet_address->sin_addr.s_addr);
+                uint32Type ip4_address = ntohl(inet_address->sin_addr.s_addr);
                 printf("ip4_address=%d.%d.%d.%d\n",
                     (ip4_address >> 24  & 255,
                     (ip4_address >> 16) & 255,
@@ -888,7 +888,7 @@ bstritype socInetAddr (const const_stritype hostName, inttype port)
  *  @exception RANGE_ERROR The port is not in the range 0 to 65535.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-bstritype socInetLocalAddr (inttype port)
+bstriType socInetLocalAddr (intType port)
 
   {
 #ifdef USE_GETADDRINFO
@@ -900,7 +900,7 @@ bstritype socInetLocalAddr (inttype port)
 #else
     struct sockaddr_in *inet_address;
 #endif
-    bstritype result;
+    bstriType result;
 
   /* socInetLocalAddr */
     check_initialization(NULL);
@@ -936,7 +936,7 @@ bstritype socInetLocalAddr (inttype port)
         result->size = sizeof(struct sockaddr_in);
         inet_address = (struct sockaddr_in *) result->mem;
         inet_address->sin_family = AF_INET;
-        inet_address->sin_port = htons((uint16type) port);      /* short, network byte order */
+        inet_address->sin_port = htons((uint16Type) port);      /* short, network byte order */
         inet_address->sin_addr.s_addr = htonl(INADDR_LOOPBACK); /* local host */
         memset(inet_address->sin_zero, '\0', sizeof(inet_address->sin_zero));
       } /* if */
@@ -957,7 +957,7 @@ bstritype socInetLocalAddr (inttype port)
  *  @exception RANGE_ERROR The port is not in the range 0 to 65535.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-bstritype socInetServAddr (inttype port)
+bstriType socInetServAddr (intType port)
 
   {
 #ifdef USE_GETADDRINFO
@@ -973,7 +973,7 @@ bstritype socInetServAddr (inttype port)
     struct sockaddr_in *inet_address;
 #endif
 #endif
-    bstritype result;
+    bstriType result;
 
   /* socInetServAddr */
     check_initialization(NULL);
@@ -1011,7 +1011,7 @@ bstritype socInetServAddr (inttype port)
         result->size = sizeof(struct sockaddr_in6);
         inet6_address = (struct sockaddr_in6 *) result->mem;
         inet6_address->sin6_family = AF_INET6;
-        inet6_address->sin6_port = htons((uint16type) port); /* short, network byte order */
+        inet6_address->sin6_port = htons((uint16Type) port); /* short, network byte order */
         inet6_address->sin6_flowinfo = 0;
         memcpy(&inet6_address->sin6_addr, &in6addr_any, sizeof(struct in6_addr)); /* auto-fill with local IP */
         inet6_address->sin6_scope_id = 0;
@@ -1023,7 +1023,7 @@ bstritype socInetServAddr (inttype port)
         result->size = sizeof(struct sockaddr_in);
         inet_address = (struct sockaddr_in *) result->mem;
         inet_address->sin_family = AF_INET;
-        inet_address->sin_port = htons((uint16type) port); /* short, network byte order */
+        inet_address->sin_port = htons((uint16Type) port); /* short, network byte order */
         inet_address->sin_addr.s_addr = INADDR_ANY;        /* auto-fill with local IP */
         memset(inet_address->sin_zero, '\0', sizeof(inet_address->sin_zero));
       } /* if */
@@ -1039,14 +1039,14 @@ bstritype socInetServAddr (inttype port)
 
 
 #ifdef HAS_POLL
-booltype socInputReady (sockettype sock, inttype seconds, inttype micro_seconds)
+boolType socInputReady (socketType sock, intType seconds, intType micro_seconds)
 
   {
     struct pollfd pollFd[1];
     int poll_result;
     unsigned char next_char;
-    memsizetype bytes_received;
-    booltype result;
+    memSizeType bytes_received;
+    boolType result;
 
   /* socInputReady */
     if (unlikely(seconds >= INT_MAX / 1000 || micro_seconds < 0 || micro_seconds >= 1000000)) {
@@ -1063,7 +1063,7 @@ booltype socInputReady (sockettype sock, inttype seconds, inttype micro_seconds)
         result = poll_result == 1 && (pollFd[0].revents & POLLIN);
         if (result) {
           /* Verify that it is really possible to read at least one character */
-          bytes_received = (memsizetype) recv(sock, cast_send_recv_data(&next_char), 1, MSG_PEEK);
+          bytes_received = (memSizeType) recv(sock, cast_send_recv_data(&next_char), 1, MSG_PEEK);
           if (bytes_received != 1) {
             /* printf("socInputReady: bytes_received=%ld\n", (long int) bytes_received); */
             result = FALSE;
@@ -1078,7 +1078,7 @@ booltype socInputReady (sockettype sock, inttype seconds, inttype micro_seconds)
 
 
 
-booltype socInputReady (sockettype sock, inttype seconds, inttype micro_seconds)
+boolType socInputReady (socketType sock, intType seconds, intType micro_seconds)
 
   {
     int nfds;
@@ -1086,8 +1086,8 @@ booltype socInputReady (sockettype sock, inttype seconds, inttype micro_seconds)
     struct timeval timeout;
     int select_result;
     unsigned char next_char;
-    memsizetype bytes_received;
-    booltype result;
+    memSizeType bytes_received;
+    boolType result;
 
   /* socInputReady */
     if (unlikely(!inLongRange(seconds) || micro_seconds < 0 || micro_seconds >= 1000000)) {
@@ -1109,7 +1109,7 @@ booltype socInputReady (sockettype sock, inttype seconds, inttype micro_seconds)
         result = FD_ISSET(sock, &readfds);
         if (result) {
           /* Verify that it is really possible to read at least one character */
-          bytes_received = (memsizetype) recv(sock, cast_send_recv_data(&next_char), 1, MSG_PEEK);
+          bytes_received = (memSizeType) recv(sock, cast_send_recv_data(&next_char), 1, MSG_PEEK);
           if (bytes_received != 1) {
             /* printf("socInputReady: bytes_received=%ld\n", (long int) bytes_received); */
             result = FALSE;
@@ -1136,23 +1136,23 @@ booltype socInputReady (sockettype sock, inttype seconds, inttype micro_seconds)
  *  @return the line read.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-stritype socLineRead (sockettype inSocket, chartype *const terminationChar)
+striType socLineRead (socketType inSocket, charType *const terminationChar)
 
   {
-    memsizetype bytes_received;
-    memsizetype bytes_requested;
-    memsizetype result_size;
-    memsizetype old_result_size;
-    memsizetype result_pos;
-    uchartype *nlPos;
-    uchartype buffer[BUFFER_SIZE];
-    stritype resized_result;
-    stritype result;
+    memSizeType bytes_received;
+    memSizeType bytes_requested;
+    memSizeType result_size;
+    memSizeType old_result_size;
+    memSizeType result_pos;
+    ucharType *nlPos;
+    ucharType buffer[BUFFER_SIZE];
+    striType resized_result;
+    striType result;
 
   /* socLineRead */
-    bytes_received = (memsizetype) recv(inSocket, cast_send_recv_data(buffer),
+    bytes_received = (memSizeType) recv(inSocket, cast_send_recv_data(buffer),
                                         BUFFER_START_SIZE, MSG_PEEK);
-    if (bytes_received == (memsizetype) (-1)) {
+    if (bytes_received == (memSizeType) (-1)) {
       bytes_received = 0;
     } /* if */
     if (bytes_received == 0) {
@@ -1161,14 +1161,14 @@ stritype socLineRead (sockettype inSocket, chartype *const terminationChar)
         result = NULL;
       } else {
         result->size = 0;
-        *terminationChar = (chartype) EOF;
+        *terminationChar = (charType) EOF;
       } /* if */
     } else {
-      nlPos = (uchartype *) memchr(buffer, '\n', bytes_received);
+      nlPos = (ucharType *) memchr(buffer, '\n', bytes_received);
       if (nlPos != NULL) {
-        bytes_requested = (memsizetype) (nlPos - buffer) + 1;
+        bytes_requested = (memSizeType) (nlPos - buffer) + 1;
         /* This should overwrite the buffer with identical data up to '\n'. */
-        bytes_received = (memsizetype) recv(inSocket, cast_send_recv_data(buffer),
+        bytes_received = (memSizeType) recv(inSocket, cast_send_recv_data(buffer),
                                             cast_buffer_len(bytes_requested), 0);
         /* bytes_received should always be identical to bytes_requested. */
         result_size = bytes_requested - 1;
@@ -1180,7 +1180,7 @@ stritype socLineRead (sockettype inSocket, chartype *const terminationChar)
           result = NULL;
         } else {
           if (result_size > 0) {
-            register strelemtype *to = result->mem;
+            register strElemType *to = result->mem;
 
             memcpy_to_strelem(to, buffer, result_size);
           } /* if */
@@ -1195,7 +1195,7 @@ stritype socLineRead (sockettype inSocket, chartype *const terminationChar)
         do {
           bytes_requested = bytes_received;
           /* This should overwrite the buffer with identical data. */
-          bytes_received = (memsizetype) recv(inSocket, cast_send_recv_data(buffer),
+          bytes_received = (memSizeType) recv(inSocket, cast_send_recv_data(buffer),
                                               cast_buffer_len(bytes_requested), 0);
           /* bytes_received should always be identical to bytes_requested. */
           result_size += BUFFER_DELTA_SIZE;
@@ -1213,14 +1213,14 @@ stritype socLineRead (sockettype inSocket, chartype *const terminationChar)
             old_result_size = result_size;
             /* printf("a result[%d], size=%d\n", result_pos, bytes_requested); */
             {
-              register strelemtype *to = &result->mem[result_pos];
+              register strElemType *to = &result->mem[result_pos];
 
               memcpy_to_strelem(to, buffer, bytes_requested);
             }
             result_pos += bytes_requested;
-            bytes_received = (memsizetype) recv(inSocket, cast_send_recv_data(buffer),
+            bytes_received = (memSizeType) recv(inSocket, cast_send_recv_data(buffer),
                                                 BUFFER_DELTA_SIZE, MSG_PEEK);
-            if (bytes_received == (memsizetype) (-1)) {
+            if (bytes_received == (memSizeType) (-1)) {
               bytes_received = 0;
             } /* if */
             if (bytes_received == 0) {
@@ -1232,17 +1232,17 @@ stritype socLineRead (sockettype inSocket, chartype *const terminationChar)
               } else {
                 result = resized_result;
                 result->size = result_pos;
-                *terminationChar = (chartype) EOF;
+                *terminationChar = (charType) EOF;
               } /* if */
             } else {
-              nlPos = (uchartype *) memchr(buffer, '\n', bytes_received);
+              nlPos = (ucharType *) memchr(buffer, '\n', bytes_received);
             } /* if */
           } /* if */
         } while (result != NULL && bytes_received != 0 && nlPos == NULL);
         if (result != NULL && nlPos != NULL) {
-          bytes_requested = (memsizetype) (nlPos - buffer) + 1;
+          bytes_requested = (memSizeType) (nlPos - buffer) + 1;
           /* This should overwrite the buffer with identical data up to '\n'. */
-          bytes_received = (memsizetype) recv(inSocket, cast_send_recv_data(buffer),
+          bytes_received = (memSizeType) recv(inSocket, cast_send_recv_data(buffer),
                                               cast_buffer_len(bytes_requested), 0);
           /* bytes_received should always be identical to bytes_requested. */
           bytes_requested--;
@@ -1266,7 +1266,7 @@ stritype socLineRead (sockettype inSocket, chartype *const terminationChar)
             result = resized_result;
             /* printf("e result[%d], size=%d\n", result_pos, bytes_requested); */
             if (result_size > 0) {
-              register strelemtype *to = &result->mem[result_pos];
+              register strElemType *to = &result->mem[result_pos];
 
               memcpy_to_strelem(to, buffer, bytes_requested);
             } /* if */
@@ -1282,17 +1282,17 @@ stritype socLineRead (sockettype inSocket, chartype *const terminationChar)
 
 
 #ifdef OUT_OF_ORDER
-stritype socLineRead (sockettype inSocket, chartype *const terminationChar)
+striType socLineRead (socketType inSocket, charType *const terminationChar)
 
   {
     unsigned char ch;
-    register memsizetype position;
-    register memsizetype bytes_received;
-    strelemtype *memory;
-    memsizetype memlength;
-    memsizetype newmemlength;
-    stritype resized_result;
-    stritype result;
+    register memSizeType position;
+    register memSizeType bytes_received;
+    strElemType *memory;
+    memSizeType memlength;
+    memSizeType newmemlength;
+    striType resized_result;
+    striType result;
 
   /* socLineRead */
     memlength = READ_STRI_INIT_SIZE;
@@ -1301,7 +1301,7 @@ stritype socLineRead (sockettype inSocket, chartype *const terminationChar)
     } else {
       memory = result->mem;
       position = 0;
-      bytes_received = (memsizetype) recv(inSocket, cast_send_recv_data(&ch), 1, 0);
+      bytes_received = (memSizeType) recv(inSocket, cast_send_recv_data(&ch), 1, 0);
       while (bytes_received == 1 && ch != '\n') {
         if (position >= memlength) {
           newmemlength = memlength + READ_STRI_SIZE_DELTA;
@@ -1316,8 +1316,8 @@ stritype socLineRead (sockettype inSocket, chartype *const terminationChar)
           memory = result->mem;
           memlength = newmemlength;
         } /* if */
-        memory[position++] = (strelemtype) ch;
-        bytes_received = (memsizetype) recv(inSocket, cast_send_recv_data(&ch), 1, 0);
+        memory[position++] = (strElemType) ch;
+        bytes_received = (memSizeType) recv(inSocket, cast_send_recv_data(&ch), 1, 0);
       } /* while */
       if (bytes_received == 1 && ch == '\n' &&
           position != 0 && memory[position - 1] == '\r') {
@@ -1333,9 +1333,9 @@ stritype socLineRead (sockettype inSocket, chartype *const terminationChar)
         COUNT3_STRI(memlength, position);
         result->size = position;
         if (bytes_received != 1) {
-          *terminationChar = (chartype) EOF;
+          *terminationChar = (charType) EOF;
         } else {
-          *terminationChar = (chartype) ch;
+          *terminationChar = (charType) ch;
         } /* if */
       } /* if */
     } /* if */
@@ -1351,7 +1351,7 @@ stritype socLineRead (sockettype inSocket, chartype *const terminationChar)
  *  the queue of pending connections for 'listenerSocket' may grow.
  *  @exception FILE_ERROR A system function returns an error.
  */
-void socListen (sockettype listenerSocket, inttype backlog)
+void socListen (socketType listenerSocket, intType backlog)
 
   { /* socListen */
     if (!inIntRange(backlog)) {
@@ -1374,23 +1374,23 @@ void socListen (sockettype listenerSocket, inttype backlog)
 
 
 
-inttype socRecv (sockettype sock, stritype *stri, inttype length, inttype flags)
+intType socRecv (socketType sock, striType *stri, intType length, intType flags)
 
   {
-    stritype resized_stri;
-    memsizetype bytes_requested;
-    memsizetype old_stri_size;
-    memsizetype new_stri_size;
+    striType resized_stri;
+    memSizeType bytes_requested;
+    memSizeType old_stri_size;
+    memSizeType new_stri_size;
 
   /* socRecv */
     if (unlikely(length < 0 || !inIntRange(flags))) {
       raise_error(RANGE_ERROR);
       return 0;
     } else {
-      if ((uinttype) length > MAX_MEMSIZETYPE) {
+      if ((uintType) length > MAX_MEMSIZETYPE) {
         bytes_requested = MAX_MEMSIZETYPE;
       } else {
-        bytes_requested = (memsizetype) length;
+        bytes_requested = (memSizeType) length;
       } /* if */
       old_stri_size = (*stri)->size;
       if (old_stri_size < bytes_requested) {
@@ -1403,11 +1403,11 @@ inttype socRecv (sockettype sock, stritype *stri, inttype length, inttype flags)
         COUNT3_STRI(old_stri_size, bytes_requested);
         old_stri_size = bytes_requested;
       } /* if */
-      new_stri_size = (memsizetype) recv(sock, cast_send_recv_data((*stri)->mem),
+      new_stri_size = (memSizeType) recv(sock, cast_send_recv_data((*stri)->mem),
                                          cast_buffer_len(bytes_requested), (int) flags);
       if (new_stri_size > 0) {
-        register const uchartype *from = (uchartype *) (*stri)->mem;
-        register strelemtype *to = (*stri)->mem;
+        register const ucharType *from = (ucharType *) (*stri)->mem;
+        register strElemType *to = (*stri)->mem;
 
         memcpy_to_strelem(to, from, new_stri_size);
       } /* if */
@@ -1422,31 +1422,31 @@ inttype socRecv (sockettype sock, stritype *stri, inttype length, inttype flags)
         COUNT3_STRI(old_stri_size, new_stri_size);
       } /* if */
     } /* if */
-    return (inttype) new_stri_size;
+    return (intType) new_stri_size;
   } /* socRecv */
 
 
 
-inttype socRecvfrom (sockettype sock, stritype *stri, inttype length, inttype flags,
-    bstritype *address)
+intType socRecvfrom (socketType sock, striType *stri, intType length, intType flags,
+    bstriType *address)
 
   {
-    stritype resized_stri;
-    memsizetype old_address_size;
-    bstritype resized_address;
-    memsizetype bytes_requested;
-    socklen_type addrlen;
-    memsizetype stri_size;
+    striType resized_stri;
+    memSizeType old_address_size;
+    bstriType resized_address;
+    memSizeType bytes_requested;
+    sockLenType addrlen;
+    memSizeType stri_size;
 
   /* socRecvfrom */
     if (unlikely(length < 0 || !inIntRange(flags))) {
       raise_error(RANGE_ERROR);
       return 0;
     } else {
-      if ((uinttype) length > MAX_MEMSIZETYPE) {
+      if ((uintType) length > MAX_MEMSIZETYPE) {
         bytes_requested = MAX_MEMSIZETYPE;
       } else {
-        bytes_requested = (memsizetype) length;
+        bytes_requested = (memSizeType) length;
       } /* if */
       REALLOC_STRI_CHECK_SIZE(resized_stri, *stri, (*stri)->size, bytes_requested);
       if (unlikely(resized_stri == NULL)) {
@@ -1472,10 +1472,10 @@ inttype socRecvfrom (sockettype sock, stritype *stri, inttype length, inttype fl
         *address = resized_address;
         COUNT3_BSTRI(old_address_size, MAX_ADDRESS_SIZE);
         addrlen = MAX_ADDRESS_SIZE;
-        stri_size = (memsizetype) recvfrom(sock, cast_send_recv_data((*stri)->mem),
+        stri_size = (memSizeType) recvfrom(sock, cast_send_recv_data((*stri)->mem),
                                            cast_buffer_len(bytes_requested), (int) flags,
                                            (struct sockaddr *) (*address)->mem, &addrlen);
-        if (unlikely(stri_size == (memsizetype) -1 || addrlen < 0 || addrlen > MAX_ADDRESS_SIZE)) {
+        if (unlikely(stri_size == (memSizeType) -1 || addrlen < 0 || addrlen > MAX_ADDRESS_SIZE)) {
           REALLOC_BSTRI_SIZE_OK(resized_address, *address, MAX_ADDRESS_SIZE, old_address_size);
           if (resized_address == NULL) {
             (*address)->size = MAX_ADDRESS_SIZE;
@@ -1486,21 +1486,21 @@ inttype socRecvfrom (sockettype sock, stritype *stri, inttype length, inttype fl
           /* printf("socRecvfrom errno=%d\n", errno); */
           raise_error(FILE_ERROR);
         } else {
-          REALLOC_BSTRI_SIZE_OK(resized_address, *address, MAX_ADDRESS_SIZE, (memsizetype) addrlen);
+          REALLOC_BSTRI_SIZE_OK(resized_address, *address, MAX_ADDRESS_SIZE, (memSizeType) addrlen);
           if (unlikely(resized_address == NULL)) {
             (*address)->size = MAX_ADDRESS_SIZE;
             raise_error(MEMORY_ERROR);
             return 0;
           } else {
             *address = resized_address;
-            COUNT3_BSTRI(MAX_ADDRESS_SIZE, (memsizetype) addrlen);
-            (*address)->size = (memsizetype) addrlen;
+            COUNT3_BSTRI(MAX_ADDRESS_SIZE, (memSizeType) addrlen);
+            (*address)->size = (memSizeType) addrlen;
           } /* if */
         } /* if */
       } /* if */
       if (stri_size > 0) {
-        register const uchartype *from = (uchartype *) (*stri)->mem;
-        register strelemtype *to = (*stri)->mem;
+        register const ucharType *from = (ucharType *) (*stri)->mem;
+        register strElemType *to = (*stri)->mem;
 
         memcpy_to_strelem(to, from, stri_size);
       } /* if */
@@ -1515,18 +1515,18 @@ inttype socRecvfrom (sockettype sock, stritype *stri, inttype length, inttype fl
         COUNT3_STRI(bytes_requested, stri_size);
       } /* if */
     } /* if */
-    return (inttype) stri_size;
+    return (intType) stri_size;
   } /* socRecvfrom */
 
 
 
-inttype socSend (sockettype sock, const const_stritype stri, inttype flags)
+intType socSend (socketType sock, const const_striType stri, intType flags)
 
   {
-    bstritype buf;
-    memsizetype bytes_sent;
-    errinfotype err_info = OKAY_NO_ERROR;
-    inttype result;
+    bstriType buf;
+    memSizeType bytes_sent;
+    errInfoType err_info = OKAY_NO_ERROR;
+    intType result;
 
   /* socSend */
     if (unlikely(!inIntRange(flags))) {
@@ -1538,15 +1538,15 @@ inttype socSend (sockettype sock, const const_stritype stri, inttype flags)
         raise_error(err_info);
         result = 0;
       } else {
-        bytes_sent = (memsizetype) send(sock, cast_send_recv_data(buf->mem),
+        bytes_sent = (memSizeType) send(sock, cast_send_recv_data(buf->mem),
                                         cast_buffer_len(buf->size), (int) flags);
         FREE_BSTRI(buf, buf->size);
-        if (unlikely(bytes_sent == (memsizetype) -1)) {
+        if (unlikely(bytes_sent == (memSizeType) -1)) {
           result = -1;
         } else if (unlikely(bytes_sent > MAX_MEM_INDEX)) {
           result = MAX_MEM_INDEX;
         } else {
-          result = (inttype) bytes_sent;
+          result = (intType) bytes_sent;
         } /* if */
       } /* if */
     } /* if */
@@ -1555,14 +1555,14 @@ inttype socSend (sockettype sock, const const_stritype stri, inttype flags)
 
 
 
-inttype socSendto (sockettype sock, const const_stritype stri, inttype flags,
-    const_bstritype address)
+intType socSendto (socketType sock, const const_striType stri, intType flags,
+    const_bstriType address)
 
   {
-    bstritype buf;
-    memsizetype bytes_sent;
-    errinfotype err_info = OKAY_NO_ERROR;
-    inttype result;
+    bstriType buf;
+    memSizeType bytes_sent;
+    errInfoType err_info = OKAY_NO_ERROR;
+    intType result;
 
   /* socSendto */
     if (unlikely(!inIntRange(flags))) {
@@ -1574,17 +1574,17 @@ inttype socSendto (sockettype sock, const const_stritype stri, inttype flags,
         raise_error(err_info);
         result = 0;
       } else {
-        bytes_sent = (memsizetype) sendto(sock, cast_send_recv_data(buf->mem),
+        bytes_sent = (memSizeType) sendto(sock, cast_send_recv_data(buf->mem),
                                           cast_buffer_len(buf->size), (int) flags,
                                           (const struct sockaddr *) address->mem,
-                                          (socklen_type) address->size);
+                                          (sockLenType) address->size);
         FREE_BSTRI(buf, buf->size);
-        if (unlikely(bytes_sent == (memsizetype) -1)) {
+        if (unlikely(bytes_sent == (memSizeType) -1)) {
           result = -1;
         } else if (unlikely(bytes_sent > MAX_MEM_INDEX)) {
           result = MAX_MEM_INDEX;
         } else {
-          result = (inttype) bytes_sent;
+          result = (intType) bytes_sent;
         } /* if */
       } /* if */
     } /* if */
@@ -1593,7 +1593,7 @@ inttype socSendto (sockettype sock, const const_stritype stri, inttype flags,
 
 
 
-void socSetOptBool (sockettype sock, inttype optname, booltype optval)
+void socSetOptBool (socketType sock, intType optname, boolType optval)
 
   { /* socSetOptBool */
     switch (optname) {
@@ -1615,10 +1615,10 @@ void socSetOptBool (sockettype sock, inttype optname, booltype optval)
 
 
 
-sockettype socSocket (inttype domain, inttype type, inttype protocol)
+socketType socSocket (intType domain, intType type, intType protocol)
 
   {
-    sockettype result;
+    socketType result;
 
   /* socSocket */
     if (!inIntRange(domain) || !inIntRange(type) || !inIntRange(protocol)) {
@@ -1626,14 +1626,14 @@ sockettype socSocket (inttype domain, inttype type, inttype protocol)
       result = 0;
     } else {
       /* printf("socSocket(%d, %d, %d)\n", domain, type, protocol); */
-      check_initialization((sockettype) -1);
+      check_initialization((socketType) -1);
       result = socket((int) domain, (int) type, (int) protocol);
 #if defined USE_WINSOCK && !defined TWOS_COMPLEMENT_INTTYPE
-      /* In this case INVALID_SOCKET != (sockettype) -1 holds and    */
-      /* (sockettype) -1 must be returned instead of INVALID_SOCKET. */
+      /* In this case INVALID_SOCKET != (socketType) -1 holds and    */
+      /* (socketType) -1 must be returned instead of INVALID_SOCKET. */
       /* Probably a computer, which needs this, does not exist.      */
       if (unlikely(result == INVALID_SOCKET)) {
-        result = (sockettype) -1;
+        result = (socketType) -1;
       } /* if */
 #endif
     } /* if */
@@ -1653,17 +1653,17 @@ sockettype socSocket (inttype domain, inttype type, inttype protocol)
  *  @return the word read.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-stritype socWordRead (sockettype inSocket, chartype *const terminationChar)
+striType socWordRead (socketType inSocket, charType *const terminationChar)
 
   {
     unsigned char ch;
-    register memsizetype position;
-    register memsizetype bytes_received;
-    strelemtype *memory;
-    memsizetype memlength;
-    memsizetype newmemlength;
-    stritype resized_result;
-    stritype result;
+    register memSizeType position;
+    register memSizeType bytes_received;
+    strElemType *memory;
+    memSizeType memlength;
+    memSizeType newmemlength;
+    striType resized_result;
+    striType result;
 
   /* socWordRead */
     memlength = READ_STRI_INIT_SIZE;
@@ -1673,7 +1673,7 @@ stritype socWordRead (sockettype inSocket, chartype *const terminationChar)
       memory = result->mem;
       position = 0;
       do {
-        bytes_received = (memsizetype) recv(inSocket, cast_send_recv_data(&ch), 1, 0);
+        bytes_received = (memSizeType) recv(inSocket, cast_send_recv_data(&ch), 1, 0);
       } while (bytes_received == 1 && (ch == ' ' || ch == '\t'));
       while (bytes_received == 1 &&
           ch != ' ' && ch != '\t' && ch != '\n') {
@@ -1690,8 +1690,8 @@ stritype socWordRead (sockettype inSocket, chartype *const terminationChar)
           memory = result->mem;
           memlength = newmemlength;
         } /* if */
-        memory[position++] = (strelemtype) ch;
-        bytes_received = (memsizetype) recv(inSocket, cast_send_recv_data(&ch), 1, 0);
+        memory[position++] = (strElemType) ch;
+        bytes_received = (memSizeType) recv(inSocket, cast_send_recv_data(&ch), 1, 0);
       } /* while */
       if (bytes_received == 1 && ch == '\n' &&
           position != 0 && memory[position - 1] == '\r') {
@@ -1707,9 +1707,9 @@ stritype socWordRead (sockettype inSocket, chartype *const terminationChar)
         COUNT3_STRI(memlength, position);
         result->size = position;
         if (bytes_received != 1) {
-          *terminationChar = (chartype) EOF;
+          *terminationChar = (charType) EOF;
         } else {
-          *terminationChar = (chartype) ch;
+          *terminationChar = (charType) ch;
         } /* if */
       } /* if */
     } /* if */
@@ -1725,15 +1725,15 @@ stritype socWordRead (sockettype inSocket, chartype *const terminationChar)
  *  @exception RANGE_ERROR The string contains a character that does
  *             not fit into a byte.
  */
-void socWrite (sockettype outSocket, const const_stritype stri)
+void socWrite (socketType outSocket, const const_striType stri)
 
   {
-    register const strelemtype *str;
-    register memsizetype pos;
-    uchartype buffer[BUFFER_SIZE];
-    memsizetype bytes_sent;
-    errinfotype err_info = OKAY_NO_ERROR;
-    bstritype buf;
+    register const strElemType *str;
+    register memSizeType pos;
+    ucharType buffer[BUFFER_SIZE];
+    memSizeType bytes_sent;
+    errInfoType err_info = OKAY_NO_ERROR;
+    bstriType buf;
 
   /* socWrite */
     if (stri->size <= BUFFER_SIZE) {
@@ -1743,9 +1743,9 @@ void socWrite (sockettype outSocket, const const_stritype stri)
           raise_error(RANGE_ERROR);
           return;
         } /* if */
-        buffer[pos - 1] = (uchartype) str[pos - 1];
+        buffer[pos - 1] = (ucharType) str[pos - 1];
       } /* for */
-      bytes_sent = (memsizetype) send(outSocket, cast_send_recv_data(buffer),
+      bytes_sent = (memSizeType) send(outSocket, cast_send_recv_data(buffer),
                                       cast_buffer_len(stri->size), 0);
     } else {
       buf = stri_to_bstri(stri, &err_info);
@@ -1753,7 +1753,7 @@ void socWrite (sockettype outSocket, const const_stritype stri)
         raise_error(err_info);
         return;
       } /* if */
-      bytes_sent = (memsizetype) send(outSocket, cast_send_recv_data(buf->mem),
+      bytes_sent = (memSizeType) send(outSocket, cast_send_recv_data(buf->mem),
                                       cast_buffer_len(buf->size), 0);
       FREE_BSTRI(buf, buf->size);
     } /* if */

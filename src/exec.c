@@ -56,17 +56,17 @@
 
 #ifdef CHECK_STACK
 extern char *stack_base;
-extern memsizetype max_stack_size;
+extern memSizeType max_stack_size;
 #endif
 
-extern booltype in_analyze;
+extern boolType in_analyze;
 
 
 
-objecttype exec_object (register objecttype object)
+objectType exec_object (register objectType object)
 
   {
-    register objecttype result;
+    register objectType result;
 
   /* exec_object */
 #ifdef TRACE_EXEC
@@ -89,8 +89,8 @@ objecttype exec_object (register objecttype object)
       case REFPARAMOBJECT:
       case RESULTOBJECT:
       case LOCALVOBJECT:
-        if (object->value.objvalue != NULL) {
-          result = object->value.objvalue;
+        if (object->value.objValue != NULL) {
+          result = object->value.objValue;
         } else {
           result = object;
         } /* if */
@@ -100,7 +100,7 @@ objecttype exec_object (register objecttype object)
         printf("exec_object1: MATCHOBJECT ");
         trace1(object);
         printf("\n");
-        result = object->value.listvalue->obj;
+        result = object->value.listValue->obj;
         printf("exec_object2: MATCHOBJECT ");
         trace1(result);
         printf("\n");
@@ -165,17 +165,17 @@ objecttype exec_object (register objecttype object)
  *  When a TEMP2 parameter is used for a deeper function call
  *  The TEMP2 flag is cleared to avoid unwanted effects.
  */
-static inline void par_init (loclisttype form_param_list,
-    listtype *backup_form_params, listtype act_param_list,
-    listtype *evaluated_act_params)
+static inline void par_init (locListType form_param_list,
+    listType *backup_form_params, listType act_param_list,
+    listType *evaluated_act_params)
 
   {
-    loclisttype form_param;
-    listtype *backup_insert_place;
-    listtype *evaluated_insert_place;
-    listtype param_list_elem;
-    objecttype param_value;
-    errinfotype err_info = OKAY_NO_ERROR;
+    locListType form_param;
+    listType *backup_insert_place;
+    listType *evaluated_insert_place;
+    listType param_list_elem;
+    objectType param_value;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* par_init */
 #ifdef TRACE_EXEC
@@ -188,7 +188,7 @@ static inline void par_init (loclisttype form_param_list,
     evaluated_insert_place = evaluated_act_params;
     while (form_param != NULL && !fail_flag) {
       append_to_list(backup_insert_place,
-          form_param->local.object->value.objvalue, act_param_list);
+          form_param->local.object->value.objValue, act_param_list);
       param_value = exec_object(act_param_list->obj);
       append_to_list(evaluated_insert_place, param_value, act_param_list);
       form_param = form_param->next;
@@ -217,7 +217,7 @@ static inline void par_init (loclisttype form_param_list,
             if (TEMP_OBJECT(param_value)) {
               CLEAR_TEMP_FLAG(param_value);
               COPY_VAR_FLAG(param_value, form_param->local.object);
-              form_param->local.object->value.objvalue = param_value;
+              form_param->local.object->value.objValue = param_value;
               param_list_elem->obj = NULL;
 /*              printf("assign temp ");
               trace1(form_param->local.object);
@@ -236,7 +236,7 @@ static inline void par_init (loclisttype form_param_list,
             printf(" %lu\nparam value ", (unsigned long) form_param->local.object);
             trace1(param_value);
             printf(" %lu\n", (unsigned long) param_value); */
-            form_param->local.object->value.objvalue = param_value;
+            form_param->local.object->value.objValue = param_value;
             if (TEMP_OBJECT(param_value)) {
               CLEAR_TEMP_FLAG(param_value);
               SET_TEMP2_FLAG(param_value);
@@ -263,12 +263,12 @@ static inline void par_init (loclisttype form_param_list,
 
 
 
-static inline void par_restore (const_loclisttype form_param,
-    const_listtype backup_form_params, const_listtype evaluated_act_params)
+static inline void par_restore (const_locListType form_param,
+    const_listType backup_form_params, const_listType evaluated_act_params)
 
   {
-    booltype save_fail_flag;
-    errinfotype err_info = OKAY_NO_ERROR;
+    boolType save_fail_flag;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* par_restore */
 #ifdef TRACE_EXEC
@@ -283,7 +283,7 @@ static inline void par_restore (const_loclisttype form_param,
         if (evaluated_act_params->obj != NULL) {
           printcategory(CATEGORY_OF_OBJ(evaluated_act_params->obj));
           prot_cstri(" ");
-          prot_int((inttype) evaluated_act_params->obj);
+          prot_int((intType) evaluated_act_params->obj);
           prot_cstri(" ");
           trace1(evaluated_act_params->obj);
         } else {
@@ -295,7 +295,7 @@ static inline void par_restore (const_loclisttype form_param,
       switch (CATEGORY_OF_OBJ(form_param->local.object)) {
         case VALUEPARAMOBJECT:
           destroy_local_object(&form_param->local, &err_info);
-          FREE_OBJECT(form_param->local.object->value.objvalue);
+          FREE_OBJECT(form_param->local.object->value.objValue);
           break;
         case REFPARAMOBJECT:
           if (evaluated_act_params->obj != NULL) {
@@ -306,7 +306,7 @@ static inline void par_restore (const_loclisttype form_param,
           /* Do nothing for SYMBOLOBJECT and TYPEOBJECT. */
           break;
       } /* switch */
-      form_param->local.object->value.objvalue = backup_form_params->obj;
+      form_param->local.object->value.objValue = backup_form_params->obj;
       form_param = form_param->next;
       backup_form_params = backup_form_params->next;
       evaluated_act_params = evaluated_act_params->next;
@@ -319,12 +319,12 @@ static inline void par_restore (const_loclisttype form_param,
 
 
 
-static void loc_init (const_loclisttype loc_var, listtype *backup_loc_var,
-    listtype act_param_list)
+static void loc_init (const_locListType loc_var, listType *backup_loc_var,
+    listType act_param_list)
 
   {
-    listtype *list_insert_place;
-    errinfotype err_info = OKAY_NO_ERROR;
+    listType *list_insert_place;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* loc_init */
 #ifdef TRACE_EXEC
@@ -334,7 +334,7 @@ static void loc_init (const_loclisttype loc_var, listtype *backup_loc_var,
     list_insert_place = backup_loc_var;
     while (loc_var != NULL && !fail_flag) {
       append_to_list(list_insert_place,
-          loc_var->local.object->value.objvalue, act_param_list);
+          loc_var->local.object->value.objValue, act_param_list);
       create_local_object(&loc_var->local, loc_var->local.init_value, &err_info);
       loc_var = loc_var->next;
     } /* while */
@@ -345,11 +345,11 @@ static void loc_init (const_loclisttype loc_var, listtype *backup_loc_var,
 
 
 
-static void loc_restore (const_loclisttype loc_var, const_listtype backup_loc_var)
+static void loc_restore (const_locListType loc_var, const_listType backup_loc_var)
 
   {
-    booltype save_fail_flag;
-    errinfotype err_info = OKAY_NO_ERROR;
+    boolType save_fail_flag;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* loc_restore */
 #ifdef TRACE_EXEC
@@ -359,14 +359,14 @@ static void loc_restore (const_loclisttype loc_var, const_listtype backup_loc_va
     fail_flag = FALSE;
     while (loc_var != NULL) {
       destroy_local_object(&loc_var->local, &err_info);
-      if (IS_UNUSED(loc_var->local.object->value.objvalue)) {
-        FREE_OBJECT(loc_var->local.object->value.objvalue);
-      } else if (CATEGORY_OF_OBJ(loc_var->local.object->value.objvalue) != STRUCTOBJECT) {
+      if (IS_UNUSED(loc_var->local.object->value.objValue)) {
+        FREE_OBJECT(loc_var->local.object->value.objValue);
+      } else if (CATEGORY_OF_OBJ(loc_var->local.object->value.objValue) != STRUCTOBJECT) {
         printf("loc not dumped: ");
-        trace1(loc_var->local.object->value.objvalue);
+        trace1(loc_var->local.object->value.objValue);
         printf("\n");
       } /* if */
-      loc_var->local.object->value.objvalue = backup_loc_var->obj;
+      loc_var->local.object->value.objValue = backup_loc_var->obj;
       loc_var = loc_var->next;
       backup_loc_var = backup_loc_var->next;
     } /* while */
@@ -378,11 +378,11 @@ static void loc_restore (const_loclisttype loc_var, const_listtype backup_loc_va
 
 
 
-static inline booltype res_init (const_locobjtype block_result,
-    objecttype *backup_block_result)
+static inline boolType res_init (const_locObjType block_result,
+    objectType *backup_block_result)
 
   {
-    errinfotype err_info = OKAY_NO_ERROR;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* res_init */
 #ifdef TRACE_EXEC
@@ -400,23 +400,23 @@ static inline booltype res_init (const_locobjtype block_result,
       /* conditionally. In both cases (initialisation and use) the */
       /* same condition is used. Possible compiler warnings that   */
       /* "it may be used uninitialized" can be ignored.            */
-      *backup_block_result = block_result->object->value.objvalue;
+      *backup_block_result = block_result->object->value.objValue;
       create_local_object(block_result, block_result->init_value, &err_info);
     } /* if */
 #ifdef TRACE_EXEC
     printf("END res_init(%ld)\n",
-        block_result->object ? ((inttype) block_result->object->value.objvalue) : 0);
+        block_result->object ? ((intType) block_result->object->value.objValue) : 0);
 #endif
     return err_info == OKAY_NO_ERROR;
   } /* res_init */
 
 
 
-static inline void res_restore (const_locobjtype block_result,
-    objecttype backup_block_result, objecttype *result)
+static inline void res_restore (const_locObjType block_result,
+    objectType backup_block_result, objectType *result)
 
   {
-    errinfotype err_info = OKAY_NO_ERROR;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* res_restore */
 #ifdef TRACE_EXEC
@@ -424,7 +424,7 @@ static inline void res_restore (const_locobjtype block_result,
 #endif
     if (block_result->object != NULL) {
       if (!fail_flag) {
-        *result = block_result->object->value.objvalue;
+        *result = block_result->object->value.objValue;
         /* CLEAR_VAR_FLAG(*result); */
         SET_TEMP_FLAG(*result);
       } /* if */
@@ -433,7 +433,7 @@ static inline void res_restore (const_locobjtype block_result,
       /* conditionally. In both cases (initialisation and use) the */
       /* same condition is used. Possible compiler warnings that   */
       /* "it may be used uninitialized" can be ignored.            */
-      block_result->object->value.objvalue = backup_block_result;
+      block_result->object->value.objValue = backup_block_result;
     } else if (*result != NULL && !TEMP_OBJECT(*result) &&
         CATEGORY_OF_OBJ(*result) != ENUMLITERALOBJECT) {
 #ifdef OUT_OF_ORDER
@@ -448,14 +448,14 @@ static inline void res_restore (const_locobjtype block_result,
     } /* if */
 #ifdef TRACE_EXEC
     printf("END res_restore(%ld)\n",
-        *result ? ((inttype) *result) : 0);
+        *result ? ((intType) *result) : 0);
 #endif
   } /* res_restore */
 
 
 
 #ifdef OUT_OF_ORDER
-static void show_arg_list (listtype act_param_list)
+static void show_arg_list (listType act_param_list)
 
   { /* show_arg_list */
     while (act_param_list != NULL) {
@@ -465,7 +465,7 @@ static void show_arg_list (listtype act_param_list)
           prot_cstri("show_arg_list ");
           printcategory(CATEGORY_OF_OBJ(act_param_list->obj));
           prot_cstri(" ");
-          prot_int((inttype) act_param_list->obj);
+          prot_int((intType) act_param_list->obj);
           prot_cstri(" ");
           trace1(act_param_list->obj);
           prot_nl();
@@ -486,15 +486,15 @@ static void show_arg_list (listtype act_param_list)
 
 
 
-static objecttype exec_lambda (const_blocktype block,
-    listtype actual_parameters, objecttype object)
+static objectType exec_lambda (const_blockType block,
+    listType actual_parameters, objectType object)
 
   {
-    objecttype result;
-    listtype evaluated_act_params;
-    listtype backup_form_params;
-    objecttype backup_block_result;
-    listtype backup_loc_var;
+    objectType result;
+    listType evaluated_act_params;
+    listType backup_form_params;
+    objectType backup_block_result;
+    listType backup_loc_var;
 
   /* exec_lambda */
 #ifdef TRACE_EXEC
@@ -515,7 +515,7 @@ static objecttype exec_lambda (const_blocktype block,
         if (res_init(&block->result, &backup_block_result)) {
           result = exec_call(block->body);
           if (fail_flag) {
-            errinfotype ignored_err_info;
+            errInfoType ignored_err_info;
 
 #ifdef OUT_OF_ORDER
             if (!HAS_POSINFO(object)) {
@@ -558,13 +558,13 @@ static objecttype exec_lambda (const_blocktype block,
 
 
 
-static listtype eval_arg_list (register listtype act_param_list, uint32type *temp_bits_ptr)
+static listType eval_arg_list (register listType act_param_list, uint32Type *temp_bits_ptr)
 
   {
-    listtype evaluated_act_params;
-    register objecttype evaluated_object;
-    register listtype *evaluated_insert_place;
-    uint32type temp_bits;
+    listType evaluated_act_params;
+    register objectType evaluated_object;
+    register listType *evaluated_insert_place;
+    uint32Type temp_bits;
     int param_num = 0;
 
   /* eval_arg_list */
@@ -575,7 +575,7 @@ static listtype eval_arg_list (register listtype act_param_list, uint32type *tem
       evaluated_object = exec_object(act_param_list->obj);
       append_to_list(evaluated_insert_place, evaluated_object, act_param_list);
       if (evaluated_object != NULL && TEMP_OBJECT(evaluated_object)) {
-        temp_bits |= (uint32type) 1 << param_num;
+        temp_bits |= (uint32Type) 1 << param_num;
       } /* if */
       act_param_list = act_param_list->next;
       param_num++;
@@ -586,10 +586,10 @@ static listtype eval_arg_list (register listtype act_param_list, uint32type *tem
 
 
 
-static void dump_arg_list (listtype evaluated_act_params, uint32type temp_bits)
+static void dump_arg_list (listType evaluated_act_params, uint32Type temp_bits)
 
   {
-    register listtype list_end;
+    register listType list_end;
 
   /* dump_arg_list */
     if (evaluated_act_params != NULL) {
@@ -610,18 +610,18 @@ static void dump_arg_list (listtype evaluated_act_params, uint32type temp_bits)
 
 
 
-static objecttype exec_action (const_objecttype act_object,
-    listtype act_param_list, objecttype object)
+static objectType exec_action (const_objectType act_object,
+    listType act_param_list, objectType object)
 
   {
-    listtype evaluated_act_params;
-    uint32type temp_bits;
-    objecttype result;
+    listType evaluated_act_params;
+    uint32Type temp_bits;
+    objectType result;
 
   /* exec_action */
 #ifdef TRACE_EXEC
     printf("BEGIN exec_action(%s)\n",
-        get_primact(act_object->value.actvalue)->name);
+        get_primact(act_object->value.actValue)->name);
 #endif
 #ifdef CHECK_STACK
 #ifdef STACK_GROWS_UPWARD
@@ -653,7 +653,7 @@ static objecttype exec_action (const_objecttype act_object,
     } else {
 #ifdef WITH_ACTION_CHECK
       if (trace.check_actions) {
-        if (get_primact(act_object->value.actvalue) == &act_table.primitive[0]) {
+        if (get_primact(act_object->value.actValue) == &act_table.primitive[0]) {
           result = raise_with_arguments(SYS_ACT_ILLEGAL_EXCEPTION,
               evaluated_act_params);
         } /* if */
@@ -666,7 +666,7 @@ static objecttype exec_action (const_objecttype act_object,
           prot_heapsize();
           prot_cstri(" ");
         } /* if */
-        prot_cstri(get_primact(act_object->value.actvalue)->name);
+        prot_cstri(get_primact(act_object->value.actValue)->name);
         /* prot_cstri("(");
            prot_list(act_param_list);
            prot_cstri(") "); */
@@ -677,7 +677,7 @@ static objecttype exec_action (const_objecttype act_object,
         /* curr_action_object = act_object; */
         curr_exec_object = object;
         curr_argument_list = evaluated_act_params;
-        result = (*(act_object->value.actvalue))(evaluated_act_params);
+        result = (*(act_object->value.actValue))(evaluated_act_params);
         if (act_object->type_of != NULL) {
           if (act_object->type_of->result_type != NULL) {
             if (result != NULL) {
@@ -698,7 +698,7 @@ static objecttype exec_action (const_objecttype act_object,
               } /* if */
             } else {
               prot_cstri("** result == NULL for action ");
-              prot_cstri(get_primact(act_object->value.actvalue)->name);
+              prot_cstri(get_primact(act_object->value.actValue)->name);
             } /* if */
           } else {
             prot_cstri("** act_object->type_of->result_type == NULL ");
@@ -719,7 +719,7 @@ static objecttype exec_action (const_objecttype act_object,
         /* curr_action_object = act_object; */
         curr_exec_object = object;
         curr_argument_list = evaluated_act_params;
-        result = (*(act_object->value.actvalue))(evaluated_act_params);
+        result = (*(act_object->value.actValue))(evaluated_act_params);
         if (result != NULL && result->type_of == NULL) {
           result->type_of = act_object->type_of->result_type;
         } /* if */
@@ -736,7 +736,7 @@ static objecttype exec_action (const_objecttype act_object,
 
 
 
-static void exec_all_parameters (const_listtype act_param_list)
+static void exec_all_parameters (const_listType act_param_list)
 
   { /* exec_all_parameters */
 #ifdef TRACE_EXEC
@@ -753,35 +753,35 @@ static void exec_all_parameters (const_listtype act_param_list)
 
 
 
-objecttype exec_call (objecttype object)
+objectType exec_call (objectType object)
 
   {
-    objecttype subroutine_object;
-    listtype actual_parameters;
-    objecttype result;
+    objectType subroutine_object;
+    listType actual_parameters;
+    objectType result;
 
   /* exec_call */
 #ifdef TRACE_EXEC
     printf("BEGIN exec_call ");
     trace1(object);
     printf(" <-> ");
-    trace1(object->value.listvalue->obj);
+    trace1(object->value.listValue->obj);
     printf(" (");
-    prot_list(object->value.listvalue->next);
+    prot_list(object->value.listValue->next);
     printf(")\n");
 #endif
-    subroutine_object = object->value.listvalue->obj;
-    actual_parameters = object->value.listvalue->next;
+    subroutine_object = object->value.listValue->obj;
+    actual_parameters = object->value.listValue->next;
 /*  if (CATEGORY_OF_OBJ(subroutine_object) == REFPARAMOBJECT) {
       printf("refparamobject ");
       trace1(subroutine_object);
       printf(" value ");
-      trace1(subroutine_object->value.objvalue);
+      trace1(subroutine_object->value.objValue);
       printf(" params ");
       prot_list(actual_parameters);
       printf("\n");
       printf("\n");
-      subroutine_object = subroutine_object->value.objvalue;
+      subroutine_object = subroutine_object->value.objValue;
     }  if */
     switch (CATEGORY_OF_OBJ(subroutine_object)) {
       case ACTOBJECT:
@@ -794,7 +794,7 @@ objecttype exec_call (objecttype object)
         printf(" params ");
         prot_list(actual_parameters);
         printf("\n"); */
-        result = exec_lambda(subroutine_object->value.blockvalue,
+        result = exec_lambda(subroutine_object->value.blockValue,
             actual_parameters, object);
         break;
       case CONSTENUMOBJECT:
@@ -804,7 +804,7 @@ objecttype exec_call (objecttype object)
         prot_list(actual_parameters);
         printf("\n"); */
         exec_all_parameters(actual_parameters);
-        result = subroutine_object->value.objvalue;
+        result = subroutine_object->value.objValue;
         break;
       case INTOBJECT:
       case BIGINTOBJECT:
@@ -830,6 +830,8 @@ objecttype exec_call (objecttype object)
       case TYPEOBJECT:
       case INTERFACEOBJECT:
       case PROGOBJECT:
+      case DATABASEOBJECT:
+      case SQLSTMTOBJECT:
       case DECLAREDOBJECT:
 /*        printf("int/char/stri/array/file/type ");
         trace1(subroutine_object);
@@ -845,13 +847,13 @@ objecttype exec_call (objecttype object)
 /*        printf("refparamobject ");
         trace1(subroutine_object);
         printf(" value ");
-        trace1(subroutine_object->value.objvalue);
+        trace1(subroutine_object->value.objValue);
         printf(" params ");
         prot_list(actual_parameters);
         printf("\n");
         printf("\n"); */
-        result = evaluate(subroutine_object->value.objvalue);
-        /* result = exec_object(subroutine_object->value.objvalue); */
+        result = evaluate(subroutine_object->value.objValue);
+        /* result = exec_object(subroutine_object->value.objValue); */
         break;
       case MATCHOBJECT:
 /*        printf("\nsubroutine_object: ");
@@ -870,7 +872,7 @@ objecttype exec_call (objecttype object)
         printf("\n");
         printf("\n");
         /* printf("%d\n", 1/0); */
-/*        result = exec_dynamic(object->value.listvalue); */
+/*        result = exec_dynamic(object->value.listValue); */
         result = NULL;
         break;
     } /* switch */
@@ -884,10 +886,10 @@ objecttype exec_call (objecttype object)
 
 
 
-objecttype evaluate (objecttype object)
+objectType evaluate (objectType object)
 
   {
-    objecttype result;
+    objectType result;
 
   /* evaluate */
 #ifdef TRACE_EXEC
@@ -909,7 +911,7 @@ objecttype evaluate (objecttype object)
       case RESULTOBJECT:
       case CONSTENUMOBJECT:
       case VARENUMOBJECT:
-        result = object->value.objvalue;
+        result = object->value.objValue;
         break;
       case INTOBJECT:
       case BIGINTOBJECT:
@@ -925,7 +927,7 @@ objecttype evaluate (objecttype object)
         result = object;
         break;
       case BLOCKOBJECT:
-        result = exec_lambda(object->value.blockvalue, NULL, object);
+        result = exec_lambda(object->value.blockValue, NULL, object);
         break;
       case ACTOBJECT:
         result = exec_action(object, NULL, NULL);
@@ -947,12 +949,12 @@ objecttype evaluate (objecttype object)
 
 
 
-objecttype eval_expression (objecttype object)
+objectType eval_expression (objectType object)
 
   {
-    objecttype result;
-    objecttype matched_expression;
-    objecttype matched_object;
+    objectType result;
+    objectType matched_expression;
+    objectType matched_object;
 
   /* eval_expression */
 #ifdef TRACE_EXEC
@@ -992,17 +994,17 @@ objecttype eval_expression (objecttype object)
 
 
 
-objecttype exec_dynamic (listtype expr_list)
+objectType exec_dynamic (listType expr_list)
 
   {
-    objecttype dynamic_call_obj;
-    objecttype match_expr;
-    listtype actual_element;
-    listtype *list_insert_place;
-    objecttype element_value;
-    objecttype match_result;
-    objecttype result = NULL;
-    errinfotype err_info = OKAY_NO_ERROR;
+    objectType dynamic_call_obj;
+    objectType match_expr;
+    listType actual_element;
+    listType *list_insert_place;
+    objectType element_value;
+    objectType match_result;
+    objectType result = NULL;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* exec_dynamic */
 #ifdef TRACE_EXEC
@@ -1023,8 +1025,8 @@ objecttype exec_dynamic (listtype expr_list)
     if (ALLOC_OBJECT(match_expr)) {
       match_expr->type_of = take_type(SYS_EXPR_TYPE);
       match_expr->descriptor.property = prog.property.literal;
-      match_expr->value.listvalue = NULL;
-      list_insert_place = &match_expr->value.listvalue;
+      match_expr->value.listValue = NULL;
+      list_insert_place = &match_expr->value.listValue;
       INIT_CATEGORY_OF_OBJ(match_expr, EXPROBJECT);
       actual_element = expr_list;
       while (actual_element != NULL) {
@@ -1039,7 +1041,7 @@ printf("\n"); */
           case CONSTENUMOBJECT:
           case VARENUMOBJECT:
           case INTERFACEOBJECT:
-            element_value = actual_element->obj->value.objvalue;
+            element_value = actual_element->obj->value.objValue;
             break;
           default:
             element_value = actual_element->obj;
@@ -1072,7 +1074,7 @@ printf("\n"); */
           prot_cstri(" ");
         } /* if */
         prot_cstri("DYNAMIC2 ");
-        prot_list(match_expr->value.listvalue);
+        prot_list(match_expr->value.listValue);
         prot_nl();
       } /* if */
 #endif
@@ -1089,7 +1091,7 @@ printf("\n"); */
 #endif
         result = exec_call(match_result);
         if (fail_flag) {
-          errinfotype ignored_err_info;
+          errInfoType ignored_err_info;
 
           if (fail_stack->obj == match_result) {
             pop_list(&fail_stack);
@@ -1100,11 +1102,11 @@ printf("\n"); */
         } /* if */
 
         if (match_result != match_expr) {
-          FREE_OBJECT(match_result->value.listvalue->obj);
-          free_list(match_result->value.listvalue);
+          FREE_OBJECT(match_result->value.listValue->obj);
+          free_list(match_result->value.listValue);
           FREE_OBJECT(match_result);
         } else {
-          free_list(match_expr->value.listvalue);
+          free_list(match_expr->value.listValue);
           FREE_OBJECT(match_expr);
         } /* if */
 #ifdef WITH_PROTOCOL
@@ -1130,12 +1132,12 @@ printf("\n"); */
 
 
 
-objecttype exec_expr (const_progtype currentProg, objecttype object,
-    errinfotype *err_info)
+objectType exec_expr (const_progType currentProg, objectType object,
+    errInfoType *err_info)
 
   {
-    progrecord prog_backup;
-    objecttype result;
+    progRecord prog_backup;
+    objectType result;
 
   /* exec_expr */
 #ifdef TRACE_EXEC
@@ -1143,10 +1145,10 @@ objecttype exec_expr (const_progtype currentProg, objecttype object,
 #endif
     if (currentProg != NULL) {
       fail_flag = FALSE;
-      fail_value = (objecttype) NULL;
-      fail_expression = (listtype) NULL;
-      memcpy(&prog_backup, &prog, sizeof(progrecord));
-      memcpy(&prog, currentProg, sizeof(progrecord));
+      fail_value = (objectType) NULL;
+      fail_expression = (listType) NULL;
+      memcpy(&prog_backup, &prog, sizeof(progRecord));
+      memcpy(&prog, currentProg, sizeof(progRecord));
       set_protfile_name(NULL);
       prog.option_flags = 0;
       set_trace(prog.option_flags);
@@ -1173,10 +1175,10 @@ objecttype exec_expr (const_progtype currentProg, objecttype object,
           *err_info = ACTION_ERROR;
         } /* if */
         fail_flag = FALSE;
-        fail_value = (objecttype) NULL;
-        fail_expression = (listtype) NULL;
+        fail_value = (objectType) NULL;
+        fail_expression = (listType) NULL;
       } /* if */
-      memcpy(&prog, &prog_backup, sizeof(progrecord));
+      memcpy(&prog, &prog_backup, sizeof(progRecord));
     } else {
       result = NULL;
     } /* if */

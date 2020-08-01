@@ -26,23 +26,23 @@
 /********************************************************************/
 
 typedef struct {
-    const_cstritype name;
-    acttype action;
-  } primactrecord;
+    const_cstriType name;
+    actType action;
+  } primActRecord;
 
-typedef primactrecord *primacttype;
+typedef primActRecord *primActType;
 
 typedef struct {
     unsigned int size;
-    primacttype primitive;
-  } acttabletype;
+    primActType primitive;
+  } actTableType;
 
 #ifdef DO_INIT
-acttabletype act_table = {0, NULL};
+actTableType act_table = {0, NULL};
 #else
-EXTERN acttabletype act_table;
+EXTERN actTableType act_table;
 #endif
 
 
-booltype find_action (const const_stritype action_name, acttype *action_found);
-primacttype get_primact (acttype action_searched);
+boolType find_action (const const_striType action_name, actType *action_found);
+primActType get_primact (actType action_searched);

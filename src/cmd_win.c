@@ -61,9 +61,9 @@
 #define MAXIMUM_COMMAND_LINE_LENGTH 32768
 
 #if POINTER_SIZE == 32
-typedef int32type intptr_type;
+typedef int32Type intPtrType;
 #elif POINTER_SIZE == 64
-typedef int64type intptr_type;
+typedef int64Type intPtrType;
 #endif
 
 
@@ -86,11 +86,11 @@ typedef int64type intptr_type;
  *  * n backslashes not followed by a quotation mark simply produce
  *    n backslashes.
  */
-static void processBackslash (const_os_stritype *sourcePos, os_stritype *destPos)
+static void processBackslash (const_os_striType *sourcePos, os_striType *destPos)
 
   {
-    memsizetype backslashCount;
-    memsizetype count;
+    memSizeType backslashCount;
+    memSizeType count;
 
   /* processBackslash */
     backslashCount = 1;
@@ -142,20 +142,20 @@ static void processBackslash (const_os_stritype *sourcePos, os_stritype *destPos
  *  @param w_argc Address to which the argument count is copied.
  *  @return an array of pointers to the arguments of commandLine.
  */
-static os_stritype *CommandLineToArgvW (const_os_stritype commandLine, int *w_argc)
+static os_striType *CommandLineToArgvW (const_os_striType commandLine, int *w_argc)
 
   {
     size_t command_line_size;
-    const_os_stritype sourcePos;
-    os_stritype destPos;
-    os_stritype destBuffer;
-    memsizetype argumentCount;
-    os_stritype *w_argv;
+    const_os_striType sourcePos;
+    os_striType destPos;
+    os_striType destBuffer;
+    memSizeType argumentCount;
+    os_striType *w_argv;
 
   /* CommandLineToArgvW */
     command_line_size = os_stri_strlen(commandLine);
     argumentCount = 0;
-    w_argv = (os_stritype *) malloc(command_line_size * sizeof(os_stritype *));
+    w_argv = (os_striType *) malloc(command_line_size * sizeof(os_striType *));
     if (w_argv != NULL) {
       sourcePos = commandLine;
       while (*sourcePos == ' ') {
@@ -256,7 +256,7 @@ static os_stritype *CommandLineToArgvW (const_os_stritype commandLine, int *w_ar
 
 
 
-void freeUtf16Argv (os_stritype *w_argv)
+void freeUtf16Argv (os_striType *w_argv)
 
   { /* freeUtf16Argv */
     if (w_argv != NULL) {
@@ -269,7 +269,7 @@ void freeUtf16Argv (os_stritype *w_argv)
 
 
 
-void freeUtf16Argv (os_stritype *w_argv)
+void freeUtf16Argv (os_striType *w_argv)
 
   { /* freeUtf16Argv */
     LocalFree(w_argv);
@@ -278,11 +278,11 @@ void freeUtf16Argv (os_stritype *w_argv)
 
 
 
-os_stritype *getUtf16Argv (int *w_argc)
+os_striType *getUtf16Argv (int *w_argc)
 
   {
-    os_stritype commandLine;
-    os_stritype *w_argv;
+    os_striType commandLine;
+    os_striType *w_argv;
 
   /* getUtf16Argv */
     commandLine = GetCommandLineW();
@@ -298,12 +298,12 @@ os_stritype *getUtf16Argv (int *w_argc)
  *  @param arg_0 Parameter argv[0] from the function main() as string.
  *  @return the absolute path of the current process.
  */
-stritype getExecutablePath (const const_stritype arg_0)
+striType getExecutablePath (const const_striType arg_0)
 
   {
-    os_chartype buffer[PATH_MAX];
-    errinfotype err_info = OKAY_NO_ERROR;
-    stritype result;
+    os_charType buffer[PATH_MAX];
+    errInfoType err_info = OKAY_NO_ERROR;
+    striType result;
 
   /* getExecutablePath */
     if (GetModuleFileNameW(NULL, buffer, PATH_MAX) == 0) {
@@ -321,11 +321,11 @@ stritype getExecutablePath (const const_stritype arg_0)
 
 
 #ifdef DEFINE_WGETENV
-os_stritype wgetenv (const const_os_stritype name)
+os_striType wgetenv (const const_os_striType name)
 
   {
-    memsizetype result_size;
-    os_stritype result;
+    memSizeType result_size;
+    os_striType result;
 
   /* wgetenv */
     result_size = GetEnvironmentVariableW(name, NULL, 0);
@@ -346,7 +346,7 @@ os_stritype wgetenv (const const_os_stritype name)
 
 
 #ifdef DEFINE_WSETENV
-int wsetenv (const const_os_stritype name, const const_os_stritype value,
+int wsetenv (const const_os_striType name, const const_os_striType value,
     int overwrite)
 
   {
@@ -383,19 +383,19 @@ volumeListType *openVolumeList (void)
  *  Create a command line string that can be used by CreateProcessW().
  *  The command line string must be freed with os_stri_free().
  */
-static os_stritype prepareCommandLine (const const_os_stritype os_command_stri,
-    const const_rtlArraytype parameters, errinfotype *err_info)
+static os_striType prepareCommandLine (const const_os_striType os_command_stri,
+    const const_rtlArrayType parameters, errInfoType *err_info)
 
   {
-    memsizetype arraySize;
-    memsizetype striSize;
-    memsizetype pos;
-    os_stritype argument;
-    os_chartype *sourceChar;
-    os_chartype *destChar;
-    os_chartype *beyondDest;
-    memsizetype countBackslash;
-    os_stritype command_line;
+    memSizeType arraySize;
+    memSizeType striSize;
+    memSizeType pos;
+    os_striType argument;
+    os_charType *sourceChar;
+    os_charType *destChar;
+    os_charType *beyondDest;
+    memSizeType countBackslash;
+    os_striType command_line;
 
   /* prepareCommandLine */
     arraySize = arraySize(parameters);
@@ -411,12 +411,12 @@ static os_stritype prepareCommandLine (const const_os_stritype os_command_stri,
         destChar = beyondDest;
       } else {
         command_line[0] = '\"';
-        memcpy(&command_line[1], os_command_stri, sizeof(os_chartype) * striSize);
+        memcpy(&command_line[1], os_command_stri, sizeof(os_charType) * striSize);
         command_line[striSize + 1] = '\"';
         destChar = &command_line[striSize + 2];
       } /* if */
       for (pos = 0; pos < arraySize && *err_info == OKAY_NO_ERROR; pos++) {
-        argument = stri_to_os_stri(parameters->arr[pos].value.strivalue, err_info);
+        argument = stri_to_os_stri(parameters->arr[pos].value.striValue, err_info);
         if (argument != NULL) {
           /* fprintf(stderr, "argument[%d]=%ls\n", pos + 1, argument); */
           if (&destChar[2] > beyondDest) {
@@ -486,12 +486,12 @@ static os_stritype prepareCommandLine (const const_os_stritype os_command_stri,
 
 
 
-void cmdPipe2 (const const_stritype command, const const_rtlArraytype parameters,
-    filetype *childStdin, filetype *childStdout)
+void cmdPipe2 (const const_striType command, const const_rtlArrayType parameters,
+    fileType *childStdin, fileType *childStdout)
 
   {
-    os_stritype os_command_stri;
-    os_stritype command_line;
+    os_striType os_command_stri;
+    os_striType command_line;
     SECURITY_ATTRIBUTES saAttr;
     HANDLE childInputRead;
     HANDLE childInputWrite;
@@ -503,7 +503,7 @@ void cmdPipe2 (const const_stritype command, const const_rtlArraytype parameters
     STARTUPINFOW startupInfo;
     PROCESS_INFORMATION processInformation;
     int path_info = PATH_IS_NORMAL;
-    errinfotype err_info = OKAY_NO_ERROR;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* cmdPipe2 */
     os_command_stri = cp_to_os_path(command, &path_info, &err_info);
@@ -551,8 +551,8 @@ void cmdPipe2 (const const_stritype command, const const_rtlArraytype parameters
             CloseHandle(childInputRead);
             CloseHandle(childOutputWrite);
             CloseHandle(childErrorWrite);
-            *childStdin  = fdopen(_open_osfhandle((intptr_type) (childInputWrite), _O_TEXT), "w");
-            *childStdout = fdopen(_open_osfhandle((intptr_type) (childOutputRead), _O_TEXT), "r");
+            *childStdin  = fdopen(_open_osfhandle((intPtrType) (childInputWrite), _O_TEXT), "w");
+            *childStdout = fdopen(_open_osfhandle((intPtrType) (childOutputRead), _O_TEXT), "r");
             CloseHandle(processInformation.hProcess);
             CloseHandle(processInformation.hThread);
           } else {
@@ -574,8 +574,8 @@ void cmdPipe2 (const const_stritype command, const const_rtlArraytype parameters
 
 
 
-void cmdPty (const const_stritype command, const const_rtlArraytype parameters,
-    filetype *childStdin, filetype *childStdout)
+void cmdPty (const const_striType command, const const_rtlArrayType parameters,
+    fileType *childStdin, fileType *childStdout)
 
   { /* cmdPty */
     cmdPipe2(command, parameters, childStdin, childStdout);
@@ -583,15 +583,15 @@ void cmdPty (const const_stritype command, const const_rtlArraytype parameters,
 
 
 
-void cmdStartProcess (const const_stritype command, const const_rtlArraytype parameters)
+void cmdStartProcess (const const_striType command, const const_rtlArrayType parameters)
 
   {
-    os_stritype os_command_stri;
-    os_stritype command_line;
+    os_striType os_command_stri;
+    os_striType command_line;
     STARTUPINFOW startupInfo;
     PROCESS_INFORMATION processInformation;
     int path_info = PATH_IS_NORMAL;
-    errinfotype err_info = OKAY_NO_ERROR;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* cmdStartProcess */
     os_command_stri = cp_to_os_path(command, &path_info, &err_info);

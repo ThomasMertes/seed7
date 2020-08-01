@@ -61,7 +61,7 @@
 
 
 #ifdef DO_INIT
-infilrecord in_file = {
+inFileRecord in_file = {
     NULL,       /* fil */
     NULL,       /* name_ustri */
     NULL,       /* name */
@@ -91,18 +91,18 @@ infilrecord in_file = {
     TRUE        /* end_of_file */
   };
 #else
-EXTERN infilrecord in_file;
+EXTERN inFileRecord in_file;
 #endif
 
 
 int fill_buf (void);
-void open_infile (const_stritype source_file_name, booltype write_library_names,
-    booltype write_line_numbers, errinfotype *err_info);
+void open_infile (const_striType source_file_name, boolType write_library_names,
+    boolType write_line_numbers, errInfoType *err_info);
 void close_infile (void);
-void open_string (bstritype input_string, booltype write_library_names,
-    booltype write_line_numbers, errinfotype *err_info);
-void remove_prog_files (progtype currentProg);
+void open_string (bstriType input_string, boolType write_library_names,
+    boolType write_line_numbers, errInfoType *err_info);
+void remove_prog_files (progType currentProg);
 void next_file (void);
 int next_line (void);
-stritype get_file_name (filenumtype file_num);
-const_ustritype get_file_name_ustri (filenumtype file_num);
+striType get_file_name (fileNumType file_num);
+const_ustriType get_file_name_ustri (fileNumType file_num);

@@ -9106,7 +9106,7 @@ TYPE_ACTION
   action <tt>'INT_ADD'</tt> is <tt><a class="func" href="#actions_int_add">int_add</a>()</tt>. The function <tt><a class="func" href="#actions_int_add">int_add</a>()</tt>
   is defined in the file <tt><span class="lib">"intlib.c"</span></tt> with:
 </p><pre class="indent">
-<a class="type" href="#ffi_objecttype">objecttype</a> <a name="actions_int_add">int_add</a> (<a class="type" href="#ffi_listtype">listtype</a> arguments)
+<a class="type" href="#ffi_objectType">objectType</a> <a name="actions_int_add">int_add</a> (<a class="type" href="#ffi_listType">listType</a> arguments)
 
   { <span class="comment">/* int_add */</span>
     <a class="func" href="#ffi_isit_int">isit_int</a>(<a class="func" href="#ffi_arg_1">arg_1</a>(arguments));
@@ -9116,7 +9116,6 @@ TYPE_ACTION
         <a class="func" href="#ffi_take_int">take_int</a>(<a class="func" href="#ffi_arg_3">arg_3</a>(arguments)));
   } <span class="comment">/* int_add */</span>
 </pre><p>
-  The action functions use ANSI C prototypes and K&amp;R function headers.
   The function <tt><a class="func" href="#actions_int_add">int_add</a>()</tt> adds the first and the third argument (the
   second argument contains the + symbol. The file <tt><span class="lib">"objutl.h"</span></tt>
   contains several macros and functions which help to handle the
@@ -9136,17 +9135,13 @@ TYPE_ACTION
       value of an argument (E.g.: <tt><a class="func" href="#ffi_take_int">take_int</a>(<a class="func" href="#ffi_arg_1">arg_1</a>(arguments))</tt> ).</li>
 
     <li>The functions <tt><a class="func" href="#ffi_bld_int_temp">bld_int_temp</a></tt>, <tt><a class="func" href="#ffi_bld_array_temp">bld_array_temp</a></tt>,
-      <tt><a class="func" href="#ffi_bld_win_temp">bld_win_temp</a></tt>, etc. can be used to create the (<tt><a class="type" href="#ffi_objecttype">objecttype</a></tt>)
+      <tt><a class="func" href="#ffi_bld_win_temp">bld_win_temp</a></tt>, etc. can be used to create the (<tt><a class="type" href="#ffi_objectType">objectType</a></tt>)
       result of a primitive action (E.g.: <tt>return <a class="func" href="#ffi_bld_int_temp">bld_int_temp</a>(0);</tt> ).</li>
 </ul><p>
   The file <tt><span class="lib">"intlib.h"</span></tt> contains the prototype for the <tt><a class="func" href="#actions_int_add">int_add</a>()</tt>
   function:
 </p><pre class="indent">
-<a class="type" href="#ffi_objecttype">objecttype</a> <a class="func" href="#actions_int_add">int_add</a> (<a class="type" href="#ffi_listtype">listtype</a> arguments);
-</pre><p>
-  and also a definition for the K&amp;R C language:
-</p><pre class="indent">
-<a class="type" href="#ffi_objecttype">objecttype</a> <a class="func" href="#actions_int_add">int_add</a> ();
+<a class="type" href="#ffi_objectType">objectType</a> <a class="func" href="#actions_int_add">int_add</a> (<a class="type" href="#ffi_listType">listType</a> arguments);
 </pre><p>
   Additionally every primitive action is registered in the file
   <tt><span class="lib">"primitive.c"</span></tt>. The line which incorporates <tt>'INT_ADD'</tt> is:
@@ -9181,7 +9176,7 @@ TYPE_ACTION
   function is used. The action <tt>'INT_LOG2'</tt> is such an action. The
   definition of the function <tt><span class="func">int_log2</span>()</tt> in the file <tt><span class="lib">"intlib.c"</span></tt> is:
 </p><pre class="indent">
-<a class="type" href="#ffi_objecttype">objecttype</a> <a name="actions_int_log2">int_log2</a> (<a class="type" href="#ffi_listtype">listtype</a> arguments)
+<a class="type" href="#ffi_objectType">objectType</a> <a name="actions_int_log2">int_log2</a> (<a class="type" href="#ffi_listType">listType</a> arguments)
 
   { <span class="comment">/* int_log2 */</span>
     <a class="func" href="#ffi_isit_int">isit_int</a>(<a class="func" href="#ffi_arg_1">arg_1</a>(arguments));
@@ -9198,7 +9193,7 @@ TYPE_ACTION
  *  @return the truncated base 2 logarithm.
  *  @exception NUMERIC_ERROR The number is negative.
  */</span>
-<a class="type" href="#ffi_inttype">inttype</a> <a name="actions_intLog2">intLog2</a> (<a class="type" href="#ffi_inttype">inttype</a> number)
+<a class="type" href="#ffi_intType">intType</a> <a name="actions_intLog2">intLog2</a> (<a class="type" href="#ffi_intType">intType</a> number)
 
   {
     int result;
@@ -9208,7 +9203,7 @@ TYPE_ACTION
       raise_error(NUMERIC_ERROR);
       result = 0;
     } <span class="keywd">else</span> {
-      result = uintMostSignificantBit((<a class="type" href="#ffi_uinttype">uinttype</a>) number);
+      result = uintMostSignificantBit((<a class="type" href="#ffi_uintType">uintType</a>) number);
     } <span class="comment">/* if */</span>
     <span class="keywd">return</span> result;
   } <span class="comment">/* intLog2 */</span>
@@ -9216,11 +9211,7 @@ TYPE_ACTION
   The file <tt><span class="lib">"int_rtl.h"</span></tt> contains a prototype definition for the
   <tt><a class="func" href="#actions_intLog2">intLog2</a>()</tt> helper function:
 </p><pre class="indent">
-<a class="type" href="#ffi_inttype">inttype</a> <a class="func" href="#actions_intLog2">intLog2</a> (<a class="type" href="#ffi_inttype">inttype</a> number);
-</pre><p>
-  and also a definition for the K&amp;R C language:
-</p><pre class="indent">
-<a class="type" href="#ffi_inttype">inttype</a> <a class="func" href="#actions_intLog2">intLog2</a> ();
+<a class="type" href="#ffi_intType">intType</a> <a class="func" href="#actions_intLog2">intLog2</a> (<a class="type" href="#ffi_intType">intType</a> number);
 </pre><p>
   The helper functions are also used in the code generated by
   the Seed7 compiler:
@@ -9236,7 +9227,7 @@ TYPE_ACTION
   The compiler writes a prototype of <tt><a class="func" href="#actions_intLog2">intLog2</a>()</tt> in the
   function <tt><span class="func">write_prototypes</span></tt>:
 </p><pre class="indent">
-declareExtern(<span class="stri">"inttype     intLog2 (inttype);"</span>);
+declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
 </pre><p>
   All the *lib.c files containing primitive actions and various
   other files with their functions are grouped together in the
@@ -9354,7 +9345,7 @@ declareExtern(<span class="stri">"inttype     intLog2 (inttype);"</span>);
     <tr><td>BLN_LT</td>              <td>bln_lt</td>              <td>&lt;</td></tr>
     <tr><td>BLN_NOT</td>             <td>bln_not</td>             <td>!</td></tr>
     <tr><td>BLN_OR</td>              <td>bln_or</td>              <td>||</td></tr>
-    <tr><td>BLN_ORD</td>             <td>bln_ord</td>             <td>(inttype)</td></tr>
+    <tr><td>BLN_ORD</td>             <td>bln_ord</td>             <td>(intType)</td></tr>
 </table><p></p>
 
 <a name="actions_bstring"><h3>13.5 Actions for byte strings</h3></a>
@@ -9380,7 +9371,7 @@ declareExtern(<span class="stri">"inttype     intLog2 (inttype);"</span>);
 <a name="actions_char"><h3>13.6 Actions for the type char</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>chrlib.c function</th>   <th>chr_rtl.c function</th></tr>
-    <tr><td>CHR_CHR</td>             <td>chr_chr</td>             <td>(chartype)</td></tr>
+    <tr><td>CHR_CHR</td>             <td>chr_chr</td>             <td>(charType)</td></tr>
     <tr><td>CHR_CLIT</td>            <td>chr_clit</td>            <td>chrCLit</td></tr>
     <tr><td>CHR_CMP</td>             <td>chr_cmp</td>             <td>chrCmp</td></tr>
     <tr><td>CHR_CONV</td>            <td>chr_conv</td>            <td>(noop)</td></tr>
@@ -9390,14 +9381,14 @@ declareExtern(<span class="stri">"inttype     intLog2 (inttype);"</span>);
     <tr><td>CHR_EQ</td>              <td>chr_eq</td>              <td>==</td></tr>
     <tr><td>CHR_GE</td>              <td>chr_ge</td>              <td>&gt;=</td></tr>
     <tr><td>CHR_GT</td>              <td>chr_gt</td>              <td>&gt;</td></tr>
-    <tr><td>CHR_HASHCODE</td>        <td>chr_hashcode</td>        <td>(inttype)((schartype)a)</td></tr>
-    <tr><td>CHR_ICONV</td>           <td>chr_iconv</td>           <td>(chartype)</td></tr>
+    <tr><td>CHR_HASHCODE</td>        <td>chr_hashcode</td>        <td>(intType)((scharType)a)</td></tr>
+    <tr><td>CHR_ICONV</td>           <td>chr_iconv</td>           <td>(charType)</td></tr>
     <tr><td>CHR_INCR</td>            <td>chr_incr</td>            <td>++</td></tr>
     <tr><td>CHR_LE</td>              <td>chr_le</td>              <td>&lt;=</td></tr>
     <tr><td>CHR_LOW</td>             <td>chr_low</td>             <td>chrLow</td></tr>
     <tr><td>CHR_LT</td>              <td>chr_lt</td>              <td>&lt;</td></tr>
     <tr><td>CHR_NE</td>              <td>chr_ne</td>              <td>!=</td></tr>
-    <tr><td>CHR_ORD</td>             <td>chr_ord</td>             <td>(inttype)</td></tr>
+    <tr><td>CHR_ORD</td>             <td>chr_ord</td>             <td>(intType)</td></tr>
     <tr><td>CHR_PRED</td>            <td>chr_pred</td>            <td>-1</td></tr>
     <tr><td>CHR_STR</td>             <td>chr_str</td>             <td>chrStr</td></tr>
     <tr><td>CHR_SUCC</td>            <td>chr_succ</td>            <td>+1</td></tr>
@@ -9491,7 +9482,7 @@ declareExtern(<span class="stri">"inttype     intLog2 (inttype);"</span>);
     <tr><td>DRW_BACKGROUND</td>      <td>drw_background</td>      <td>drwBackground</td></tr>
     <tr><td>DRW_CIRCLE</td>          <td>drw_circle</td>          <td>drwCircle</td></tr>
     <tr><td>DRW_CLEAR</td>           <td>drw_clear</td>           <td>drwClear</td></tr>
-    <tr><td>DRW_CMP</td>             <td>drw_cmp</td>             <td>uintCmpGeneric((generictype)(a))</td></tr>
+    <tr><td>DRW_CMP</td>             <td>drw_cmp</td>             <td>uintCmpGeneric((genericType)(a))</td></tr>
     <tr><td>DRW_COLOR</td>           <td>drw_color</td>           <td>drwColor</td></tr>
     <tr><td>DRW_COPYAREA</td>        <td>drw_copyarea</td>        <td>drwCopyArea</td></tr>
     <tr><td>DRW_CPY</td>             <td>drw_cpy</td>             <td>drwCpy</td></tr>
@@ -9508,7 +9499,7 @@ declareExtern(<span class="stri">"inttype     intLog2 (inttype);"</span>);
     <tr><td>DRW_GENPOINTLIST</td>    <td>drw_genPointList</td>    <td>drwGenPointList</td></tr>
     <tr><td>DRW_GET</td>             <td>drw_get</td>             <td>drwGet</td></tr>
     <tr><td>DRW_GETPIXEL</td>        <td>drw_getPixel</td>        <td>drwGetPixel</td></tr>
-    <tr><td>DRW_HASHCODE</td>        <td>drw_hashcode</td>        <td>(inttype)(((memsizetype)a)&gt;&gt;6)</td></tr>
+    <tr><td>DRW_HASHCODE</td>        <td>drw_hashcode</td>        <td>(intType)(((memSizeType)a)&gt;&gt;6)</td></tr>
     <tr><td>DRW_HEIGHT</td>          <td>drw_height</td>          <td>drwHeight</td></tr>
     <tr><td>DRW_IMAGE</td>           <td>drw_image</td>           <td>drwImage</td></tr>
     <tr><td>DRW_LINE</td>            <td>drw_line</td>            <td>drwLine</td></tr>
@@ -9603,7 +9594,7 @@ declareExtern(<span class="stri">"inttype     intLog2 (inttype);"</span>);
     <tr><td>FLT_ADD</td>             <td>flt_add</td>             <td>+</td></tr>
     <tr><td>FLT_ASIN</td>            <td>flt_asin</td>            <td>asin</td></tr>
     <tr><td>FLT_ATAN</td>            <td>flt_atan</td>            <td>atan</td></tr>
-    <tr><td>FLT_CAST</td>            <td>flt_cast</td>            <td>(x.floatvalue=a, x.intvalue)</td></tr>
+    <tr><td>FLT_CAST</td>            <td>flt_cast</td>            <td>(x.floatValue=a, x.intValue)</td></tr>
     <tr><td>FLT_CEIL</td>            <td>flt_ceil</td>            <td>ceil</td></tr>
     <tr><td>FLT_CMP</td>             <td>flt_cmp</td>             <td>fltCmp</td></tr>
     <tr><td>FLT_COS</td>             <td>flt_cos</td>             <td>cos</td></tr>
@@ -9619,8 +9610,8 @@ declareExtern(<span class="stri">"inttype     intLog2 (inttype);"</span>);
     <tr><td>FLT_GE</td>              <td>flt_ge</td>              <td>&gt;=</td></tr>
     <tr><td>FLT_GROW</td>            <td>flt_grow</td>            <td>+=</td></tr>
     <tr><td>FLT_GT</td>              <td>flt_gt</td>              <td>&gt;</td></tr>
-    <tr><td>FLT_HASHCODE</td>        <td>flt_hashcode</td>        <td>(x.floatvalue=a, x.intvalue)</td></tr>
-    <tr><td>FLT_ICAST</td>           <td>flt_icast</td>           <td>(x.intvalue=a, x.floatvalue)</td></tr>
+    <tr><td>FLT_HASHCODE</td>        <td>flt_hashcode</td>        <td>(x.floatValue=a, x.intValue)</td></tr>
+    <tr><td>FLT_ICAST</td>           <td>flt_icast</td>           <td>(x.intValue=a, x.floatValue)</td></tr>
     <tr><td>FLT_ICONV</td>           <td>flt_iconv</td>           <td>(float)</td></tr>
     <tr><td>FLT_IFLT</td>            <td>flt_iflt</td>            <td>(float)</td></tr>
     <tr><td>FLT_IPOW</td>            <td>flt_ipow</td>            <td>fltIPow</td></tr>
@@ -9638,7 +9629,7 @@ declareExtern(<span class="stri">"inttype     intLog2 (inttype);"</span>);
     <tr><td>FLT_PLUS</td>            <td>flt_plus</td>            <td>(noop)</td></tr>
     <tr><td>FLT_POW</td>             <td>flt_pow</td>             <td>pow</td></tr>
     <tr><td>FLT_RAND</td>            <td>flt_rand</td>            <td>fltRand</td></tr>
-    <tr><td>FLT_ROUND</td>           <td>flt_round</td>           <td>a&lt;0.0?-((inttype)(0.5-a)):(inttype)(0.5+a)</td></tr>
+    <tr><td>FLT_ROUND</td>           <td>flt_round</td>           <td>a&lt;0.0?-((intType)(0.5-a)):(intType)(0.5+a)</td></tr>
     <tr><td>FLT_SBTR</td>            <td>flt_sbtr</td>            <td>-</td></tr>
     <tr><td>FLT_SCI</td>             <td>flt_sci</td>             <td>fltSci</td></tr>
     <tr><td>FLT_SHRINK</td>          <td>flt_shrink</td>          <td>-=</td></tr>
@@ -9648,7 +9639,7 @@ declareExtern(<span class="stri">"inttype     intLog2 (inttype);"</span>);
     <tr><td>FLT_STR</td>             <td>flt_str</td>             <td>fltStr</td></tr>
     <tr><td>FLT_TAN</td>             <td>flt_tan</td>             <td>tan</td></tr>
     <tr><td>FLT_TANH</td>            <td>flt_tanh</td>            <td>tanh</td></tr>
-    <tr><td>FLT_TRUNC</td>           <td>flt_trunc</td>           <td>(inttype)</td></tr>
+    <tr><td>FLT_TRUNC</td>           <td>flt_trunc</td>           <td>(intType)</td></tr>
     <tr><td>FLT_VALUE</td>           <td>flt_value</td>           <td>fltValue</td></tr>
 </table><p></p>
 
@@ -9755,7 +9746,7 @@ declareExtern(<span class="stri">"inttype     intLog2 (inttype);"</span>);
     <tr><td>ITF_CREATE2</td>         <td>itf_create2</td>         <td>&nbsp;</td></tr>
     <tr><td>ITF_DESTR</td>           <td>itf_destr</td>           <td>itfDestr</td></tr>
     <tr><td>ITF_EQ</td>              <td>itf_eq</td>              <td>==</td></tr>
-    <tr><td>ITF_HASHCODE</td>        <td>itf_hashcode</td>        <td>(inttype)(((memsizetype)a)&gt;&gt;6)</td></tr>
+    <tr><td>ITF_HASHCODE</td>        <td>itf_hashcode</td>        <td>(intType)(((memSizeType)a)&gt;&gt;6)</td></tr>
     <tr><td>ITF_NE</td>              <td>itf_ne</td>              <td>!=</td></tr>
     <tr><td>ITF_TO_HEAP</td>         <td>itf_to_heap</td>         <td>&nbsp;</td></tr>
     <tr><td>ITF_TO_INTERFACE</td>    <td>itf_to_interface</td>    <td>&nbsp;</td></tr>
@@ -9896,7 +9887,7 @@ declareExtern(<span class="stri">"inttype     intLog2 (inttype);"</span>);
     <tr><td>REF_EQ</td>              <td>ref_eq</td>              <td>==</td></tr>
     <tr><td>REF_FILE</td>            <td>ref_file</td>            <td>refFile</td></tr>
     <tr><td>REF_FIND</td>            <td>ref_find</td>            <td>&nbsp;</td></tr>
-    <tr><td>REF_HASHCODE</td>        <td>ref_hashcode</td>        <td>(inttype)(((memsizetype)a)&gt;&gt;6)</td></tr>
+    <tr><td>REF_HASHCODE</td>        <td>ref_hashcode</td>        <td>(intType)(((memSizeType)a)&gt;&gt;6)</td></tr>
     <tr><td>REF_HSHDATATOLIST</td>   <td>ref_hshdatatolist</td>   <td>refHshDataToList</td></tr>
     <tr><td>REF_HSHKEYTOLIST</td>    <td>ref_hshkeytolist</td>    <td>refHshKeyToList</td></tr>
     <tr><td>REF_ISSYMB</td>          <td>ref_issymb</td>          <td>&nbsp;</td></tr>
@@ -9952,7 +9943,7 @@ declareExtern(<span class="stri">"inttype     intLog2 (inttype);"</span>);
     <tr><td>RFL_NOT_ELEM</td>        <td>rfl_not_elem</td>        <td>!rflElem</td></tr>
     <tr><td>RFL_POS</td>             <td>rfl_pos</td>             <td>rflPos</td></tr>
     <tr><td>RFL_RANGE</td>           <td>rfl_range</td>           <td>rflRange</td></tr>
-    <tr><td>RFL_SETVALUE</td>        <td>rfl_setvalue</td>        <td>rflSetvalue</td></tr>
+    <tr><td>RFL_SETVALUE</td>        <td>rfl_setValue</td>        <td>rflSetValue</td></tr>
     <tr><td>RFL_TAIL</td>            <td>rfl_tail</td>            <td>rflTail</td></tr>
     <tr><td>RFL_TRACE</td>           <td>rfl_trace</td>           <td>&nbsp;</td></tr>
     <tr><td>RFL_VALUE</td>           <td>rfl_value</td>           <td>rflValue</td></tr>
@@ -10061,7 +10052,7 @@ declareExtern(<span class="stri">"inttype     intLog2 (inttype);"</span>);
     <tr><td>STR_CREATE</td>          <td>str_create</td>          <td>strCreate</td></tr>
     <tr><td>STR_DESTR</td>           <td>str_destr</td>           <td>strDestr</td></tr>
     <tr><td>STR_ELEMCPY</td>         <td>str_elemcpy</td>         <td>a-&gt;mem[b-1]=c</td></tr>
-    <tr><td>STR_EQ</td>              <td>str_eq</td>              <td>a->size==b->size &amp;&amp; memcmp(a,b,a->size*sizeof(strelemtype))==0</td></tr>
+    <tr><td>STR_EQ</td>              <td>str_eq</td>              <td>a->size==b->size &amp;&amp; memcmp(a,b,a->size*sizeof(strElemType))==0</td></tr>
     <tr><td>STR_GE</td>              <td>str_ge</td>              <td>strGe</td></tr>
     <tr><td>STR_GT</td>              <td>str_gt</td>              <td>strGt</td></tr>
     <tr><td>STR_HASHCODE</td>        <td>str_hashcode</td>        <td>strHashCode</td></tr>
@@ -10076,7 +10067,7 @@ declareExtern(<span class="stri">"inttype     intLog2 (inttype);"</span>);
     <tr><td>STR_LPAD0</td>           <td>str_lpad0</td>           <td>strLpad0, strLpad0Temp</td></tr>
     <tr><td>STR_LT</td>              <td>str_lt</td>              <td>strLt</td></tr>
     <tr><td>STR_MULT</td>            <td>str_mult</td>            <td>strMult</td></tr>
-    <tr><td>STR_NE</td>              <td>str_ne</td>              <td>a->size!=b->size || memcmp(a,b,a->size*sizeof(strelemtype))!=0</td></tr>
+    <tr><td>STR_NE</td>              <td>str_ne</td>              <td>a->size!=b->size || memcmp(a,b,a->size*sizeof(strElemType))!=0</td></tr>
     <tr><td>STR_POS</td>             <td>str_pos</td>             <td>strPos</td></tr>
     <tr><td>STR_POSCPY</td>          <td>str_poscpy</td>          <td>memcpy</td></tr>
     <tr><td>STR_PUSH</td>            <td>str_push</td>            <td>strPush</td></tr>
@@ -10119,7 +10110,7 @@ declareExtern(<span class="stri">"inttype     intLog2 (inttype);"</span>);
     <tr><td>TYP_FUNC</td>            <td>typ_func</td>            <td>typFunc</td></tr>
     <tr><td>TYP_GENSUB</td>          <td>typ_gensub</td>          <td>&nbsp;</td></tr>
     <tr><td>TYP_GENTYPE</td>         <td>typ_gentype</td>         <td>&nbsp;</td></tr>
-    <tr><td>TYP_HASHCODE</td>        <td>typ_hashcode</td>        <td>(inttype)(((memsizetype)a)&gt;&gt;6)</td></tr>
+    <tr><td>TYP_HASHCODE</td>        <td>typ_hashcode</td>        <td>(intType)(((memSizeType)a)&gt;&gt;6)</td></tr>
     <tr><td>TYP_ISDECLARED</td>      <td>typ_isdeclared</td>      <td>&nbsp;</td></tr>
     <tr><td>TYP_ISDERIVED</td>       <td>typ_isderived</td>       <td>typIsDerived</td></tr>
     <tr><td>TYP_ISFORWARD</td>       <td>typ_isforward</td>       <td>&nbsp;</td></tr>
@@ -10161,7 +10152,7 @@ declareExtern(<span class="stri">"inttype     intLog2 (inttype);"</span>);
       a value, must be converted back. This conversions are usually
       done in a wrapper function.</li>
     <li>A function with the <a class="link" href="#actions_file_start">action</a> prototype (a function with a
-      <tt><a class="type" href="#ffi_listtype">listtype</a></tt> parameter and an <tt><a class="type" href="#ffi_objecttype">objecttype</a></tt> result) must be
+      <tt><a class="type" href="#ffi_listType">listType</a></tt> parameter and an <tt><a class="type" href="#ffi_objectType">objectType</a></tt> result) must be
       defined. Predefined macros help to <a class="link" href="#ffi_Macros_to_access_the_action_parameters">access the action arguments</a>
       and to <a class="link" href="#ffi_Functions_to_create_action_results">create result values</a>. The action function must be
       registered in the file <tt><span class="lib">"primitiv.c"</span></tt>.</li>
@@ -10206,10 +10197,10 @@ declareExtern(<span class="stri">"inttype     intLog2 (inttype);"</span>);
 #<span class="keywd">include</span> <span class="lib">"striutl.h"</span>
 #<span class="keywd">include</span> <span class="lib">"rtl_err.h"</span>
 
-void <a name="ffi_supDoWurx1">supDoWurx1</a> (const <a class="type" href="#ffi_stritype">stritype</a> name)
+void <a name="ffi_supDoWurx1">supDoWurx1</a> (const <a class="type" href="#ffi_striType">striType</a> name)
   {
-    <a class="type" href="#ffi_cstritype">cstritype</a> cName;
-    <span class="type">errinfotype</span> err_info = OKAY_NO_ERROR;
+    <a class="type" href="#ffi_cstriType">cstriType</a> cName;
+    <span class="type">errInfoType</span> err_info = OKAY_NO_ERROR;
     <span class="type">int</span> wurxResult;
 
     cName = <a class="func" href="#ffi_stri_to_cstri8">stri_to_cstri8</a>(name, &err_info);
@@ -10226,7 +10217,7 @@ void <a name="ffi_supDoWurx1">supDoWurx1</a> (const <a class="type" href="#ffi_s
 </pre><p>
   The prototype of <tt><a class="func" href="#ffi_supDoWurx1">supDoWurx1</a></tt> is defined in the file <tt><span class="lib">"sup_rtl.h"</span></tt> with:
 </p><pre class="indent">
-void <a class="func" href="#ffi_supDoWurx1">supDoWurx1</a> (const <a class="type" href="#ffi_stritype">stritype</a> name);
+void <a class="func" href="#ffi_supDoWurx1">supDoWurx1</a> (const <a class="type" href="#ffi_striType">striType</a> name);
 </pre><p>
   The action function for <tt><a class="func" href="#ffi_supDoWurx1">supDoWurx1</a></tt> is defined in the file
   <tt><span class="lib">"suplib.c"</span></tt> with:
@@ -10239,7 +10230,7 @@ void <a class="func" href="#ffi_supDoWurx1">supDoWurx1</a> (const <a class="type
 #<span class="keywd">include</span> <span class="lib">"objutl.h"</span>
 #<span class="keywd">include</span> <span class="lib">"sup_rtl.h"</span>
 
-<a class="type" href="#ffi_objecttype">objecttype</a> <a name="ffi_sup_doWurx1">sup_doWurx1</a> (<a class="type" href="#ffi_listtype">listtype</a> arguments)
+<a class="type" href="#ffi_objectType">objectType</a> <a name="ffi_sup_doWurx1">sup_doWurx1</a> (<a class="type" href="#ffi_listType">listType</a> arguments)
   {
     <a class="func" href="#ffi_isit_stri">isit_stri</a>(<a class="func" href="#ffi_arg_1">arg_1</a>(arguments));
     <a class="func" href="#ffi_supDoWurx1">supDoWurx1</a>(<a class="func" href="#ffi_take_stri">take_stri</a>(<a class="func" href="#ffi_arg_1">arg_1</a>(arguments)));
@@ -10248,7 +10239,7 @@ void <a class="func" href="#ffi_supDoWurx1">supDoWurx1</a> (const <a class="type
 </pre><p>
   The prototype of <tt><a class="func" href="#ffi_sup_doWurx1">sup_doWurx1</a></tt> is defined in the file <tt><span class="lib">"suplib.h"</span></tt> with:
 </p><pre class="indent">
-<a class="type" href="#ffi_objecttype">objecttype</a> <a class="func" href="#ffi_sup_doWurx1">sup_doWurx1</a> (<a class="type" href="#ffi_listtype">listtype</a> arguments);
+<a class="type" href="#ffi_objectType">objectType</a> <a class="func" href="#ffi_sup_doWurx1">sup_doWurx1</a> (<a class="type" href="#ffi_listType">listType</a> arguments);
 </pre><p>
   The action is introduced to the interpreter, by changing the file
   <tt><span class="lib">"primitiv.c"</span></tt>. An include directive for <tt><span class="lib">"suplib.h"</span></tt> must be added:
@@ -10311,12 +10302,12 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
   defined in <tt><span class="lib">"common.h"</span></tt>:
 </p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Seed7 type</th>       <th>C type</th>     <th>Comment</th></tr>
-    <tr><td><tt><a class="type" href="#types_boolean">boolean</a></tt></td>          <td><a name="ffi_booltype">booltype</a></td>   <td>int</td></tr>
-    <tr><td><tt><a class="type" href="#types_integer">integer</a></tt></td>          <td><a name="ffi_inttype">inttype</a></td>    <td>32- or 64-bit signed int</td></tr>
-    <tr><td><tt><a class="type" href="#types_float">float</a></tt></td>            <td><a name="ffi_floattype">floattype</a></td>  <td>float (or double)</td></tr>
-    <tr><td><tt><a class="type" href="#types_char">char</a></tt></td>             <td><a name="ffi_chartype">chartype</a></td>   <td>32-bit unsigned int</td></tr>
-    <tr><td><tt><span class="type">clib_file</span></tt></td>        <td><a name="ffi_filetype">filetype</a></td>   <td>FILE *</td></tr>
-    <tr><td><tt><span class="type">PRIMITIVE_SOCKET</span></tt></td> <td><a name="ffi_sockettype">sockettype</a></td> <td>int or unsigned int</td></tr>
+    <tr><td><tt><a class="type" href="#types_boolean">boolean</a></tt></td>          <td><a name="ffi_boolType">boolType</a></td>   <td>int</td></tr>
+    <tr><td><tt><a class="type" href="#types_integer">integer</a></tt></td>          <td><a name="ffi_intType">intType</a></td>    <td>32- or 64-bit signed int</td></tr>
+    <tr><td><tt><a class="type" href="#types_float">float</a></tt></td>            <td><a name="ffi_floatType">floatType</a></td>  <td>float (or double)</td></tr>
+    <tr><td><tt><a class="type" href="#types_char">char</a></tt></td>             <td><a name="ffi_charType">charType</a></td>   <td>32-bit unsigned int</td></tr>
+    <tr><td><tt><span class="type">clib_file</span></tt></td>        <td><a name="ffi_fileType">fileType</a></td>   <td>FILE *</td></tr>
+    <tr><td><tt><span class="type">PRIMITIVE_SOCKET</span></tt></td> <td><a name="ffi_socketType">socketType</a></td> <td>int or unsigned int</td></tr>
 </table><p>
   Other Seed7 types correspond to C pointers, which point to a struct.
   Some of this structs are used in all situations: In the interpreter
@@ -10325,11 +10316,11 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
   in <tt><span class="lib">"common.h"</span></tt> and in <tt><span class="lib">"data.h"</span></tt>:
 </p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Seed7 type</th>   <th>C type</th>      <th>C struct</th>             <th>Comment</th></tr>
-    <tr><td><tt><a class="type" href="#types_string">string</a></tt></td>       <td><a name="ffi_stritype">stritype</a></td>    <td>struct stristruct</td>    <td>UTF-32 encoded, can contain null chars</td></tr>
-    <tr><td><tt><a class="type" href="#types_set">set</a></tt></td>          <td><a name="ffi_settype">settype</a></td>     <td>struct setstruct</td>     <td>&nbsp;</td></tr>
-    <tr><td><tt><span class="type">bstring</span></tt></td>      <td><a name="ffi_bstritype">bstritype</a></td>   <td>struct bstristruct</td>   <td>Byte sequence, can contain null bytes</td></tr>
-    <tr><td><tt><a class="type" href="#types_reference">reference</a></tt></td>    <td><a name="ffi_objecttype">objecttype</a></td>  <td>struct objectstruct</td>  <td>Interpreter type for Seed7 objects</td></tr>
-    <tr><td><tt><a class="type" href="#types_ref_list">ref_list</a></tt></td>     <td><a name="ffi_listtype">listtype</a></td>    <td>struct liststruct</td>    <td>Interpreter type for Seed7 object lists</td></tr>
+    <tr><td><tt><a class="type" href="#types_string">string</a></tt></td>       <td><a name="ffi_striType">striType</a></td>    <td>struct striStruct</td>    <td>UTF-32 encoded, can contain null chars</td></tr>
+    <tr><td><tt><a class="type" href="#types_set">set</a></tt></td>          <td><a name="ffi_setType">setType</a></td>     <td>struct setStruct</td>     <td>&nbsp;</td></tr>
+    <tr><td><tt><span class="type">bstring</span></tt></td>      <td><a name="ffi_bstriType">bstriType</a></td>   <td>struct bstriStruct</td>   <td>Byte sequence, can contain null bytes</td></tr>
+    <tr><td><tt><a class="type" href="#types_reference">reference</a></tt></td>    <td><a name="ffi_objectType">objectType</a></td>  <td>struct objectStruct</td>  <td>Interpreter type for Seed7 objects</td></tr>
+    <tr><td><tt><a class="type" href="#types_ref_list">ref_list</a></tt></td>     <td><a name="ffi_listType">listType</a></td>    <td>struct listStruct</td>    <td>Interpreter type for Seed7 object lists</td></tr>
 </table><p>
   Other Seed7 types also correspond to struct pointers, but the structs
   are different in interpreted and compiled Seed7 programs. The structs
@@ -10337,9 +10328,9 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
   compiled programs are defined in <tt><span class="lib">"data_rtl.h"</span></tt>:
 </p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Seed7 type</th>  <th>C type (interpreted)</th>  <th>C struct (interpreted)</th>  <th>C type (compiled)</th>  <th>C struct (compiled)</th></tr>
-    <tr><td><tt><a class="type" href="#types_array">array</a></tt></td>       <td><a name="ffi_arraytype">arraytype</a></td>             <td>struct stristruct</td>       <td>rtlArraytype</td>       <td>struct rtlArraystruct</td></tr>
-    <tr><td><tt><a class="type" href="#types_hash">hash</a></tt></td>        <td><a name="ffi_hashtype">hashtype</a></td>              <td>struct hashstruct</td>       <td>rtlHashtype</td>        <td>struct rtlHashstruct</td></tr>
-    <tr><td><tt><a class="type" href="#types_struct">struct</a></tt></td>      <td><a name="ffi_structtype">structtype</a></td>            <td>struct structstruct</td>     <td>rtlStructtype</td>      <td>struct rtlStructstruct</td></tr>
+    <tr><td><tt><a class="type" href="#types_array">array</a></tt></td>       <td><a name="ffi_arrayType">arrayType</a></td>             <td>struct arrayStruct</td>      <td>rtlArrayType</td>       <td>struct rtlArrayStruct</td></tr>
+    <tr><td><tt><a class="type" href="#types_hash">hash</a></tt></td>        <td><a name="ffi_hashType">hashType</a></td>              <td>struct hashStruct</td>       <td>rtlHashType</td>        <td>struct rtlHashStruct</td></tr>
+    <tr><td><tt><a class="type" href="#types_struct">struct</a></tt></td>      <td><a name="ffi_structType">structType</a></td>            <td>struct structStruct</td>     <td>rtlStructType</td>      <td>struct rtlStructStruct</td></tr>
 </table><p>
   Because interpreter and compiler use different structs the
   functions from e.g. <tt><span class="lib">"arrlib.c"</span></tt> cannot use functions
@@ -10349,31 +10340,34 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
   library used:
 </p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Seed7 type</th>       <th>C type</th>      <th>Defined as</th>                        <th>Sourcefile</th>  <th>Comment</th></tr>
-    <tr><td rowspan="2"><tt><a class="type" href="#types_bigInteger">bigInteger</a></tt></td>       <td><a name="ffi_biginttype">biginttype</a></td>  <td>struct bigintstruct *</td>             <td>big_rtl.c</td>   <td>The built-in bigInteger library</td></tr>
-    <tr><td>biginttype</td>  <td>mpz_ptr</td>                           <td>big_gmp.c</td>   <td>The GNU Multiple Precision Arithmetic Library</td></tr>
-    <tr><td rowspan="2"><tt><span class="type">pollData</span></tt></td>         <td><a name="ffi_polltype">polltype</a></td>    <td>struct select_based_pollstruct *</td>  <td>pol_sel.c</td>   <td>Functions cast it to implementation dependent struct</td></tr>
-    <tr><td>polltype</td>    <td>struct poll_based_pollstruct *</td>    <td>pol_unx.c</td>   <td>Functions cast it to implementation dependent struct</td></tr>
-    <tr><td rowspan="2"><tt><span class="type">PRIMITIVE_WINDOW</span></tt></td> <td><a name="ffi_wintype">wintype</a></td>     <td>struct x11_winstruct *</td>            <td>drw_x11.c</td>   <td>Functions cast from winstruct * to x11_winstruct *</td></tr>
-    <tr><td>wintype</td>     <td>struct win_winstruct *</td>            <td>drw_win.c</td>   <td>Functions cast from winstruct * to win_winstruct *</td></tr>
+    <tr><td rowspan="2"><tt><a class="type" href="#types_bigInteger">bigInteger</a></tt></td>       <td><a name="ffi_bigIntType">bigIntType</a></td>  <td>struct bigIntStruct *</td>             <td>big_rtl.c</td>   <td>The built-in bigInteger library</td></tr>
+    <tr><td>bigIntType</td>  <td>mpz_ptr</td>                           <td>big_gmp.c</td>   <td>The GNU Multiple Precision Arithmetic Library</td></tr>
+    <tr><td rowspan="2"><tt><span class="type">pollData</span></tt></td>         <td><a name="ffi_pollType">pollType</a></td>    <td>struct select_based_pollStruct *</td>  <td>pol_sel.c</td>   <td>Functions cast it to implementation dependent struct</td></tr>
+    <tr><td>pollType</td>    <td>struct poll_based_pollStruct *</td>    <td>pol_unx.c</td>   <td>Functions cast it to implementation dependent struct</td></tr>
+    <tr><td rowspan="2"><tt><span class="type">PRIMITIVE_WINDOW</span></tt></td> <td><a name="ffi_winType">winType</a></td>     <td>struct x11_winStruct *</td>            <td>drw_x11.c</td>   <td>Functions cast from winStruct * to x11_winStruct *</td></tr>
+    <tr><td>winType</td>     <td>struct win_winStruct *</td>            <td>drw_win.c</td>   <td>Functions cast from winStruct * to win_winStruct *</td></tr>
 </table><p>
   There are also C types without corresponding Seed7 type. They are
   defined in <tt><span class="lib">"common.h"</span></tt>:
 </p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>C type</th>       <th>C definition</th>        <th>Comment</th></tr>
-    <tr><td><tt><a class="type" name="ffi_cstritype">cstritype</a></tt></td>    <td>char *</td>              <td>String type of the C compiler</td></tr>
-    <tr><td><tt><a class="type" name="ffi_ustritype">ustritype</a></tt></td>    <td>unsigned char *</td>     <td>Helpful for unsigned comparisons</td></tr>
-    <tr><td rowspan="2"><tt><a class="type" name="ffi_os_stritype">os_stritype</a></tt></td>  <td>char *</td>              <td>When the OS uses UTF-8 chars</td></tr>
-    <tr><td>wchar_t *</td>           <td>When the OS uses UTF-16 chars</td></tr>
-    <tr><td rowspan="2"><tt><a class="type" name="ffi_int32type">int32type</a></tt></td>    <td>int</td>                 <td>When sizeof(int) == 4</td></tr>
+    <tr><td><tt><a class="type" name="ffi_int16Type">int16Type</a></tt></td>    <td>short int</td>           <td>It is assumed that sizeof(short int) == 2</td></tr>
+    <tr><td><tt><a class="type" name="ffi_uint16Type">uint16Type</a></tt></td>   <td>unsigned short int</td>  <td>Unsigned integer type with the size of <tt><a class="type" href="#ffi_int16Type">int16Type</a></tt></td></tr>
+    <tr><td rowspan="2"><tt><a class="type" name="ffi_int32Type">int32Type</a></tt></td>    <td>int</td>                 <td>When sizeof(int) == 4</td></tr>
     <tr><td>long</td>                <td>When sizeof(long) == 4</td></tr>
-    <tr><td><tt><a class="type" name="ffi_uint32type">uint32type</a></tt></td>   <td>unsigned int32type</td>  <td>Unsigned integer type with the size of <tt><a class="type" href="#ffi_int32type">int32type</a></tt></td></tr>
-    <tr><td rowspan="3"><tt><a class="type" name="ffi_int64type">int64type</a></tt></td>    <td>long</td>                <td>When sizeof(long) == 8</td></tr>
+    <tr><td><tt><a class="type" name="ffi_uint32Type">uint32Type</a></tt></td>   <td>unsigned int32Type</td>  <td>Unsigned integer type with the size of <tt><a class="type" href="#ffi_int32Type">int32Type</a></tt></td></tr>
+    <tr><td rowspan="3"><tt><a class="type" name="ffi_int64Type">int64Type</a></tt></td>    <td>long</td>                <td>When sizeof(long) == 8</td></tr>
     <tr><td>long long</td>           <td>When sizeof(long long) == 8</td></tr>
     <tr><td>__int64</td>             <td>When sizeof(__int64) == 8</td></tr>
-    <tr><td><tt><a class="type" name="ffi_uint64type">uint64type</a></tt></td>   <td>unsigned int64type</td>  <td>Unsigned integer type with the size of <tt><a class="type" href="#ffi_int64type">int64type</a></tt></td></tr>
-    <tr><td><tt><a class="type" name="ffi_uinttype">uinttype</a></tt></td>     <td>unsigned inttype</td>    <td>Unsigned integer type with the size of <tt><a class="type" href="#ffi_inttype">inttype</a></tt></td></tr>
-    <tr><td rowspan="2"><tt><a class="type" name="ffi_memsizetype">memsizetype</a></tt></td>  <td>uint32type</td>          <td>When C uses 32-bit pointers</td></tr>
-    <tr><td>uint64type</td>          <td>When C uses 64-bit pointers</td></tr>
+    <tr><td><tt><a class="type" name="ffi_uint64Type">uint64Type</a></tt></td>   <td>unsigned int64Type</td>  <td>Unsigned integer type with the size of <tt><a class="type" href="#ffi_int64Type">int64Type</a></tt></td></tr>
+    <tr><td><tt><a class="type" name="ffi_uintType">uintType</a></tt></td>     <td>unsigned intType</td>    <td>Unsigned integer type with the size of <tt><a class="type" href="#ffi_intType">intType</a></tt></td></tr>
+    <tr><td><tt><a class="type" name="ffi_cstriType">cstriType</a></tt></td>    <td>char *</td>              <td>String type of the C compiler</td></tr>
+    <tr><td><tt><a class="type" name="ffi_ustriType">ustriType</a></tt></td>    <td>unsigned char *</td>     <td>Helpful for unsigned comparisons</td></tr>
+    <tr><td><tt><a class="type" name="ffi_wstriType">wstriType</a></tt></td>    <td>uint16Type *</td>        <td>UTF-16 string</td></tr>
+    <tr><td rowspan="2"><tt><a class="type" name="ffi_os_striType">os_striType</a></tt></td>  <td>char *</td>              <td>When the OS uses UTF-8 chars</td></tr>
+    <tr><td>wchar_t *</td>           <td>When the OS uses UTF-16 chars</td></tr>
+    <tr><td rowspan="2"><tt><a class="type" name="ffi_memSizeType">memSizeType</a></tt></td>  <td>uint32Type</td>          <td>When C uses 32-bit pointers</td></tr>
+    <tr><td>uint64Type</td>          <td>When C uses 64-bit pointers</td></tr>
 </table><p></p>
 
 <a name="ffi_String_and_path_conversions"><h3>14.2 String and path conversions</h3></a>
@@ -10384,7 +10378,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
   <tt><a class="func" href="#ffi_stri_to_cstri8">stri_to_cstri8</a></tt>, <tt><a class="func" href="#ffi_stri_to_bstri">stri_to_bstri</a></tt>, <tt><a class="func" href="#ffi_stri_to_bstri8">stri_to_bstri8</a></tt>, <tt><a class="func" href="#ffi_cstri_to_stri">cstri_to_stri</a></tt>,
   <tt><a class="func" href="#ffi_cstri8_to_stri">cstri8_to_stri</a></tt> and <tt><a class="func" href="#ffi_cstri8_or_cstri_to_stri">cstri8_or_cstri_to_stri</a></tt>. Operating systems
   disagree in their Unicode encoding (UTF-8 or UTF-16). To cope with
-  this, <tt><span class="lib">"striutl.h"</span></tt> defines the type <tt><a class="type" href="#ffi_os_stritype">os_stritype</a></tt> and the functions
+  this, <tt><span class="lib">"striutl.h"</span></tt> defines the type <tt><a class="type" href="#ffi_os_striType">os_striType</a></tt> and the functions
   <tt><a class="func" href="#ffi_conv_from_os_stri">conv_from_os_stri</a></tt>, <tt><a class="func" href="#ffi_stri_to_os_stri">stri_to_os_stri</a></tt> and <tt><a class="func" href="#ffi_os_stri_to_stri">os_stri_to_stri</a></tt>. The different
   concepts to represent a file path (path delimiter and drive letter)
   are handled with <tt><a class="func" href="#ffi_cp_to_os_path">cp_to_os_path</a></tt> and <tt><a class="func" href="#ffi_cp_from_os_path">cp_from_os_path</a></tt>.
@@ -10392,46 +10386,46 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 <tr><td style="font-size: 22px; font-weight: bold; background-color: #C0C0FF" colspan="2">
   Function Summary</td></tr>
 
-    <tr><td align="right" valign="top"><a class="type" href="#ffi_cstritype">cstritype</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_stri_to_cstri">stri_to_cstri</a></b> (<a class="type" href="#ffi_stritype">const_stritype</a> stri, <span class="type">errinfotype</span> *err_info)</td></tr>
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_cstriType">cstriType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_stri_to_cstri">stri_to_cstri</a></b> (<a class="type" href="#ffi_striType">const_striType</a> stri, <span class="type">errInfoType</span> *err_info)</td></tr>
       <tr><td width="30"></td><td>Create an ISO-8859-1 encoded C string from a Seed7 UTF-32 string.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top"><a class="type" href="#ffi_cstritype">cstritype</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_stri_to_cstri8">stri_to_cstri8</a></b> (<a class="type" href="#ffi_stritype">const_stritype</a> stri, <span class="type">errinfotype</span> *err_info)</td></tr>
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_cstriType">cstriType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_stri_to_cstri8">stri_to_cstri8</a></b> (<a class="type" href="#ffi_striType">const_striType</a> stri, <span class="type">errInfoType</span> *err_info)</td></tr>
       <tr><td width="30"></td><td>Create an UTF-8 encoded C string from a Seed7 UTF-32 string.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top"><a class="type" href="#ffi_bstritype">bstritype</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_stri_to_bstri">stri_to_bstri</a></b> (<a class="type" href="#ffi_stritype">const_stritype</a> stri, <span class="type">errinfotype</span> *err_info)</td></tr>
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_bstriType">bstriType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_stri_to_bstri">stri_to_bstri</a></b> (<a class="type" href="#ffi_striType">const_striType</a> stri, <span class="type">errInfoType</span> *err_info)</td></tr>
       <tr><td width="30"></td><td>Create an ISO-8859-1 encoded bstring from a Seed7 UTF-32 string.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top"><a class="type" href="#ffi_bstritype">bstritype</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_stri_to_bstri8">stri_to_bstri8</a></b> (<a class="type" href="#ffi_stritype">const_stritype</a> stri)</td></tr>
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_bstriType">bstriType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_stri_to_bstri8">stri_to_bstri8</a></b> (<a class="type" href="#ffi_striType">const_striType</a> stri)</td></tr>
       <tr><td width="30"></td><td>Create an UTF-8 encoded bstring from a Seed7 UTF-32 string.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top"><a class="type" href="#ffi_stritype">stritype</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_cstri_to_stri">cstri_to_stri</a></b> (<a class="type" href="#ffi_cstritype">const_cstritype</a> cstri)</td></tr>
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_striType">striType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_cstri_to_stri">cstri_to_stri</a></b> (<a class="type" href="#ffi_cstriType">const_cstriType</a> cstri)</td></tr>
       <tr><td width="30"></td><td>Copy an ISO-8859-1 (Latin-1) encoded C string to a Seed7 string.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top"><a class="type" href="#ffi_stritype">stritype</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_cstri8_to_stri">cstri8_to_stri</a></b> (<a class="type" href="#ffi_cstritype">const_cstritype</a> cstri)</td></tr>
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_striType">striType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_cstri8_to_stri">cstri8_to_stri</a></b> (<a class="type" href="#ffi_cstriType">const_cstriType</a> cstri)</td></tr>
       <tr><td width="30"></td><td>Copy an UTF-8 encoded C string to a Seed7 string.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top"><a class="type" href="#ffi_stritype">stritype</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_cstri8_or_cstri_to_stri">cstri8_or_cstri_to_stri</a></b> (<a class="type" href="#ffi_cstritype">const_cstritype</a> cstri)</td></tr>
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_striType">striType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_cstri8_or_cstri_to_stri">cstri8_or_cstri_to_stri</a></b> (<a class="type" href="#ffi_cstriType">const_cstriType</a> cstri)</td></tr>
       <tr><td width="30"></td><td>Copy an UTF-8 or ISO-8859-1 encoded C string to a Seed7 string.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top"><a class="type" href="#ffi_stritype">stritype</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_conv_from_os_stri">conv_from_os_stri</a></b> (const <a class="type" href="#ffi_os_stritype">const_os_stritype</a> os_stri, <a class="type" href="#ffi_memsizetype">memsizetype</a> length)</td></tr>
-      <tr><td width="30"></td><td>Convert an os_stritype string with length to a Seed7 UTF-32 string.</td></tr></table></td></tr>
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_striType">striType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_conv_from_os_stri">conv_from_os_stri</a></b> (const <a class="type" href="#ffi_os_striType">const_os_striType</a> os_stri, <a class="type" href="#ffi_memSizeType">memSizeType</a> length)</td></tr>
+      <tr><td width="30"></td><td>Convert an os_striType string with length to a Seed7 UTF-32 string.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top"><a class="type" href="#ffi_os_stritype">os_stritype</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_stri_to_os_stri">stri_to_os_stri</a></b> (<a class="type" href="#ffi_stritype">const_stritype</a> stri, <span class="type">errinfotype</span> *err_info)</td></tr>
-      <tr><td width="30"></td><td>Convert a Seed7 UTF-32 string to a null terminated os_stritype string.</td></tr></table></td></tr>
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_os_striType">os_striType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_stri_to_os_stri">stri_to_os_stri</a></b> (<a class="type" href="#ffi_striType">const_striType</a> stri, <span class="type">errInfoType</span> *err_info)</td></tr>
+      <tr><td width="30"></td><td>Convert a Seed7 UTF-32 string to a null terminated os_striType string.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top"><a class="type" href="#ffi_stritype">stritype</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_os_stri_to_stri">os_stri_to_stri</a></b> (<a class="type" href="#ffi_os_stritype">const_os_stritype</a> os_stri, <span class="type">errinfotype</span> *err_info)</td></tr>
-      <tr><td width="30"></td><td>Convert a null terminated os_stritype string to a Seed7 UTF-32 string.</td></tr></table></td></tr>
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_striType">striType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_os_stri_to_stri">os_stri_to_stri</a></b> (<a class="type" href="#ffi_os_striType">const_os_striType</a> os_stri, <span class="type">errInfoType</span> *err_info)</td></tr>
+      <tr><td width="30"></td><td>Convert a null terminated os_striType string to a Seed7 UTF-32 string.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top"><a class="type" href="#ffi_os_stritype">os_stritype</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_cp_to_os_path">cp_to_os_path</a></b> (<a class="type" href="#ffi_stritype">const_stritype</a> std_path, <span class="type">int</span> *path_info, <span class="type">errinfotype</span> *err_info)</td></tr>
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_os_striType">os_striType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_cp_to_os_path">cp_to_os_path</a></b> (<a class="type" href="#ffi_striType">const_striType</a> std_path, <span class="type">int</span> *path_info, <span class="type">errInfoType</span> *err_info)</td></tr>
       <tr><td width="30"></td><td>Convert a Seed7 standard path to a path used by system calls.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top"><a class="type" href="#ffi_stritype">stritype</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_cp_from_os_path">cp_from_os_path</a></b> (<a class="type" href="#ffi_os_stritype">const_os_stritype</a> os_path, <span class="type">errinfotype</span> *err_info)</td></tr>
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_striType">striType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_cp_from_os_path">cp_from_os_path</a></b> (<a class="type" href="#ffi_os_striType">const_os_striType</a> os_path, <span class="type">errInfoType</span> *err_info)</td></tr>
       <tr><td width="30"></td><td>Convert a path returned by a system call to a Seed7 standard path.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top"><a class="type" href="#ffi_booltype">booltype</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_os_stri_alloc">os_stri_alloc</a></b> (<a class="type" href="#ffi_os_stritype">os_stritype</a> &amp;var, <a class="type" href="#ffi_memsizetype">memsizetype</a> len)</td></tr>
-      <tr><td width="30"></td><td>Macro to allocate memory for an <a class="type" href="#ffi_os_stritype">os_stritype</a> string.</td></tr></table></td></tr>
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_boolType">boolType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_os_stri_alloc">os_stri_alloc</a></b> (<a class="type" href="#ffi_os_striType">os_striType</a> &amp;var, <a class="type" href="#ffi_memSizeType">memSizeType</a> len)</td></tr>
+      <tr><td width="30"></td><td>Macro to allocate memory for an <a class="type" href="#ffi_os_striType">os_striType</a> string.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top">void</td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_os_stri_free">os_stri_free</a></b> (<a class="type" href="#ffi_os_stritype">os_stritype</a> var)</td></tr>
+    <tr><td align="right" valign="top">void</td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_os_stri_free">os_stri_free</a></b> (<a class="type" href="#ffi_os_striType">os_striType</a> var)</td></tr>
       <tr><td width="30"></td><td>Macro to free memory that has been allocated with <a class="func" href="#ffi_os_stri_alloc">os_stri_alloc</a>.</td></tr></table></td></tr>
 </table></div><br /><div><p><table width="100%" border="1" cellspacing="0" cellpadding="2"><tr>
 <td style="font-size: 22px; font-weight: bold; background-color: #C0C0FF">
@@ -10439,7 +10433,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 
   <div><a name="ffi_stri_to_cstri"><h3>stri_to_cstri</h3></a>
 <p>
-    <a class="type" href="#ffi_cstritype">cstritype</a> <b>stri_to_cstri</b> (<a class="type" href="#ffi_stritype">const_stritype</a> stri, <span class="type">errinfotype</span> *err_info)</p><dl><dd>
+    <a class="type" href="#ffi_cstriType">cstriType</a> <b>stri_to_cstri</b> (<a class="type" href="#ffi_striType">const_striType</a> stri, <span class="type">errInfoType</span> *err_info)</p><dl><dd>
 <p>
       Create an ISO-8859-1 encoded C string from a Seed7 UTF-32 string.
       The memory for the zero byte terminated C string is allocated.
@@ -10461,7 +10455,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 <hr />
   <div><a name="ffi_stri_to_cstri8"><h3>stri_to_cstri8</h3></a>
 <p>
-    <a class="type" href="#ffi_cstritype">cstritype</a> <b>stri_to_cstri8</b> (<a class="type" href="#ffi_stritype">const_stritype</a> stri, <span class="type">errinfotype</span> *err_info)</p><dl><dd>
+    <a class="type" href="#ffi_cstriType">cstriType</a> <b>stri_to_cstri8</b> (<a class="type" href="#ffi_striType">const_striType</a> stri, <span class="type">errInfoType</span> *err_info)</p><dl><dd>
 <p>
       Create an UTF-8 encoded C string from a Seed7 UTF-32 string.
       The memory for the zero byte terminated C string is allocated.
@@ -10486,7 +10480,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 <hr />
   <div><a name="ffi_stri_to_bstri"><h3>stri_to_bstri</h3></a>
 <p>
-    <a class="type" href="#ffi_bstritype">bstritype</a> <b>stri_to_bstri</b> (<a class="type" href="#ffi_stritype">const_stritype</a> stri, <span class="type">errinfotype</span> *err_info)</p><dl><dd>
+    <a class="type" href="#ffi_bstriType">bstriType</a> <b>stri_to_bstri</b> (<a class="type" href="#ffi_striType">const_striType</a> stri, <span class="type">errInfoType</span> *err_info)</p><dl><dd>
 <p>
       Create an ISO-8859-1 encoded bstring from a Seed7 UTF-32 string.
       The memory for the bstring is allocated. No zero byte is added
@@ -10509,7 +10503,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 <hr />
   <div><a name="ffi_stri_to_bstri8"><h3>stri_to_bstri8</h3></a>
 <p>
-    <a class="type" href="#ffi_bstritype">bstritype</a> <b>stri_to_bstri8</b> (<a class="type" href="#ffi_stritype">const_stritype</a> stri)</p><dl><dd>
+    <a class="type" href="#ffi_bstriType">bstriType</a> <b>stri_to_bstri8</b> (<a class="type" href="#ffi_striType">const_striType</a> stri)</p><dl><dd>
 <p>
       Create an UTF-8 encoded bstring from a Seed7 UTF-32 string.
       The memory for the bstring is allocated. No zero byte is added
@@ -10526,7 +10520,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 <hr />
   <div><a name="ffi_cstri_to_stri"><h3>cstri_to_stri</h3></a>
 <p>
-    <a class="type" href="#ffi_stritype">stritype</a> <b>cstri_to_stri</b> (<a class="type" href="#ffi_cstritype">const_cstritype</a> cstri)</p><dl><dd>
+    <a class="type" href="#ffi_striType">striType</a> <b>cstri_to_stri</b> (<a class="type" href="#ffi_cstriType">const_cstriType</a> cstri)</p><dl><dd>
 <p>
       Copy an ISO-8859-1 (Latin-1) encoded C string to a Seed7 string.
       The memory for the UTF-32 encoded Seed7 string is allocated.
@@ -10541,7 +10535,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 <hr />
   <div><a name="ffi_cstri8_to_stri"><h3>cstri8_to_stri</h3></a>
 <p>
-    <a class="type" href="#ffi_stritype">stritype</a> <b>cstri8_to_stri</b> (<a class="type" href="#ffi_cstritype">const_cstritype</a> cstri)</p><dl><dd>
+    <a class="type" href="#ffi_striType">striType</a> <b>cstri8_to_stri</b> (<a class="type" href="#ffi_cstriType">const_cstriType</a> cstri)</p><dl><dd>
 <p>
       Copy an UTF-8 encoded C string to a Seed7 string.
       The memory for the UTF-32 encoded Seed7 string is allocated.
@@ -10557,7 +10551,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 <hr />
   <div><a name="ffi_cstri8_or_cstri_to_stri"><h3>cstri8_or_cstri_to_stri</h3></a>
 <p>
-    <a class="type" href="#ffi_stritype">stritype</a> <b>cstri8_or_cstri_to_stri</b> (<a class="type" href="#ffi_cstritype">const_cstritype</a> cstri)</p><dl><dd>
+    <a class="type" href="#ffi_striType">striType</a> <b>cstri8_or_cstri_to_stri</b> (<a class="type" href="#ffi_cstriType">const_cstriType</a> cstri)</p><dl><dd>
 <p>
       Copy an UTF-8 or ISO-8859-1 encoded C string to a Seed7 string.
       The memory for the UTF-32 encoded Seed7 string is allocated.
@@ -10572,14 +10566,14 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 <hr />
   <div><a name="ffi_conv_from_os_stri"><h3>conv_from_os_stri</h3></a>
 <p>
-    <a class="type" href="#ffi_stritype">stritype</a> <b>conv_from_os_stri</b> (const <a class="type" href="#ffi_os_stritype">const_os_stritype</a> os_stri,
-        <a class="type" href="#ffi_memsizetype">memsizetype</a> length)</p><dl><dd>
+    <a class="type" href="#ffi_striType">striType</a> <b>conv_from_os_stri</b> (const <a class="type" href="#ffi_os_striType">const_os_striType</a> os_stri,
+        <a class="type" href="#ffi_memSizeType">memSizeType</a> length)</p><dl><dd>
 <p>
-      Convert an os_stritype string with length to a Seed7 UTF-32 string.
-      Many system calls return os_stritype data with length. System calls
+      Convert an os_striType string with length to a Seed7 UTF-32 string.
+      Many system calls return os_striType data with length. System calls
       are defined in "version.h" and "os_decls.h". They are prefixed
-      with os_ and use strings of the type os_stritype. Depending on the
-      operating system os_stritype can describe byte or wide char strings.
+      with os_ and use strings of the type os_striType. Depending on the
+      operating system os_striType can describe byte or wide char strings.
       The encoding can be Latin-1, UTF-8, UTF-16 or it can use a code page.
 </p></dd>
       <dd><dl><dt><b>Parameters:</b></dt>
@@ -10593,18 +10587,18 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 <hr />
   <div><a name="ffi_stri_to_os_stri"><h3>stri_to_os_stri</h3></a>
 <p>
-    <a class="type" href="#ffi_os_stritype">os_stritype</a> <b>stri_to_os_stri</b> (<a class="type" href="#ffi_stritype">const_stritype</a> stri, <span class="type">errinfotype</span> *err_info)</p><dl><dd>
+    <a class="type" href="#ffi_os_striType">os_striType</a> <b>stri_to_os_stri</b> (<a class="type" href="#ffi_striType">const_striType</a> stri, <span class="type">errInfoType</span> *err_info)</p><dl><dd>
 <p>
-      Convert a Seed7 UTF-32 string to a null terminated os_stritype string.
-      The memory for the null terminated os_stritype string is allocated.
-      The os_stritype result is allocated with the macro <a class="func" href="#ffi_os_stri_alloc">os_stri_alloc</a>()
+      Convert a Seed7 UTF-32 string to a null terminated os_striType string.
+      The memory for the null terminated os_striType string is allocated.
+      The os_striType result is allocated with the macro <a class="func" href="#ffi_os_stri_alloc">os_stri_alloc</a>()
       and it must be freed with the macro <a class="func" href="#ffi_os_stri_free">os_stri_free</a>(). Strings allocated
       with <a class="func" href="#ffi_os_stri_alloc">os_stri_alloc</a>() must be freed in the reverse order of their
       creation. This allows that allocations work in a stack like manner.
-      Many system calls have parameters with null terminated os_stritype
+      Many system calls have parameters with null terminated os_striType
       strings. System calls are defined in "version.h" and "os_decls.h".
-      They are prefixed with os_ and use strings of the type os_stritype.
-      Depending on the operating system os_stritype can describe byte or
+      They are prefixed with os_ and use strings of the type os_striType.
+      Depending on the operating system os_striType can describe byte or
       wide char strings. The encoding can be Latin-1, UTF-8, UTF-16 or
       it can use a code page.
 </p></dd>
@@ -10615,23 +10609,23 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
                    <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> when the conversion failed.</dd>
 </dl></dd>
       <dd><dl><dt><b>Returns:</b></dt>
-        <dd>a null terminated os_stritype value used by system calls or
+        <dd>a null terminated os_striType value used by system calls or
         NULL, when an error occurred.</dd></dl></dd>
 </dl></div>
 <hr />
   <div><a name="ffi_os_stri_to_stri"><h3>os_stri_to_stri</h3></a>
 <p>
-    <a class="type" href="#ffi_stritype">stritype</a> <b>os_stri_to_stri</b> (<a class="type" href="#ffi_os_stritype">const_os_stritype</a> os_stri, <span class="type">errinfotype</span> *err_info)</p><dl><dd>
+    <a class="type" href="#ffi_striType">striType</a> <b>os_stri_to_stri</b> (<a class="type" href="#ffi_os_striType">const_os_striType</a> os_stri, <span class="type">errInfoType</span> *err_info)</p><dl><dd>
 <p>
-      Convert a null terminated os_stritype string to a Seed7 UTF-32 string.
-      Many system calls return null terminated os_stritype strings. System
+      Convert a null terminated os_striType string to a Seed7 UTF-32 string.
+      Many system calls return null terminated os_striType strings. System
       calls are defined in "version.h" and "os_decls.h". They are prefixed
-      with os_ and use strings of the type os_stritype. Depending on the
-      operating system os_stritype can describe byte or wide char strings.
+      with os_ and use strings of the type os_striType. Depending on the
+      operating system os_striType can describe byte or wide char strings.
       The encoding can be Latin-1, UTF-8, UTF-16 or it can use a code page.
 </p></dd>
       <dd><dl><dt><b>Parameters:</b></dt>
-        <dd><tt>os_stri</tt> - Null terminated os_stritype string to be converted.</dd>
+        <dd><tt>os_stri</tt> - Null terminated os_striType string to be converted.</dd>
         <dd><tt>err_info</tt> - Unchanged when the function succeeds or
                    <a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a> when the memory allocation failed.</dd>
 </dl></dd>
@@ -10642,19 +10636,19 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 <hr />
   <div><a name="ffi_cp_to_os_path"><h3>cp_to_os_path</h3></a>
 <p>
-    <a class="type" href="#ffi_os_stritype">os_stritype</a> <b>cp_to_os_path</b> (<a class="type" href="#ffi_stritype">const_stritype</a> std_path, <span class="type">int</span> *path_info, <span class="type">errinfotype</span> *err_info)</p><dl><dd>
+    <a class="type" href="#ffi_os_striType">os_striType</a> <b>cp_to_os_path</b> (<a class="type" href="#ffi_striType">const_striType</a> std_path, <span class="type">int</span> *path_info, <span class="type">errInfoType</span> *err_info)</p><dl><dd>
 <p>
       Convert a Seed7 standard path to a path used by system calls.
-      The memory for the null terminated os_stritype path is allocated.
-      The os_stritype result is allocated with the macro <a class="func" href="#ffi_os_stri_alloc">os_stri_alloc</a>()
+      The memory for the null terminated os_striType path is allocated.
+      The os_striType result is allocated with the macro <a class="func" href="#ffi_os_stri_alloc">os_stri_alloc</a>()
       and it must be freed with the macro <a class="func" href="#ffi_os_stri_free">os_stri_free</a>(). Strings allocated
       with <a class="func" href="#ffi_os_stri_alloc">os_stri_alloc</a>() must be freed in the reverse order of their
       creation. This allows that allocations work in a stack like manner.
       System calls are defined in "version.h" and "os_decls.h". They are
-      prefixed with os_ and use system paths of the type os_stritype.
-      Depending on the operating system os_stritype can describe byte or
+      prefixed with os_ and use system paths of the type os_striType.
+      Depending on the operating system os_striType can describe byte or
       wide char strings. The encoding can be Latin-1, UTF-8, UTF-16 or
-      it can use a code page. Beyond the conversion to os_stritype a
+      it can use a code page. Beyond the conversion to os_striType a
       mapping to drive letters might take place on some operating systems.
 </p></dd>
     <dd><dl><dt><b>Parameters:</b></dt>
@@ -10667,25 +10661,25 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
                    <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> when the path is not a standard path.</dd>
 </dl></dd>
       <dd><dl><dt><b>Returns:</b></dt>
-        <dd>a null terminated os_stritype path used by system calls or
+        <dd>a null terminated os_striType path used by system calls or
         NULL, when an error occurred.</dd></dl></dd>
 </dl></div>
 <hr />
   <div><a name="ffi_cp_from_os_path"><h3>cp_from_os_path</h3></a>
 <p>
-    <a class="type" href="#ffi_stritype">stritype</a> <b>cp_from_os_path</b> (<a class="type" href="#ffi_os_stritype">const_os_stritype</a> os_path, <span class="type">errinfotype</span> *err_info)</p><dl><dd>
+    <a class="type" href="#ffi_striType">striType</a> <b>cp_from_os_path</b> (<a class="type" href="#ffi_os_striType">const_os_striType</a> os_path, <span class="type">errInfoType</span> *err_info)</p><dl><dd>
 <p>
       Convert a path returned by a system call to a Seed7 standard path.
       System calls are defined in "version.h" and "os_decls.h". They are
-      prefixed with os_ and use system paths of the type os_stritype.
-      Depending on the operating system os_stritype can describe byte or
+      prefixed with os_ and use system paths of the type os_striType.
+      Depending on the operating system os_striType can describe byte or
       wide char strings. The encoding can be Latin-1, UTF-8, UTF-16 or
-      it can use a code page. Beyond the conversion from os_stritype a
+      it can use a code page. Beyond the conversion from os_striType a
       mapping from drive letters might take place on some operating
       systems.
 </p></dd>
       <dd><dl><dt><b>Parameters:</b></dt>
-        <dd><tt>os_path</tt> - Null terminated os_stritype path to be converted.</dd>
+        <dd><tt>os_path</tt> - Null terminated os_striType path to be converted.</dd>
         <dd><tt>err_info</tt> - Unchanged when the function succeeds or
                    <a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a> when the memory allocation failed.</dd>
 </dl></dd>
@@ -10696,9 +10690,9 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 <hr />
   <div><a name="ffi_os_stri_alloc"><h3>os_stri_alloc</h3></a>
 <p>
-    <a class="type" href="#ffi_booltype">booltype</a> <b>os_stri_alloc</b> (<a class="type" href="#ffi_os_stritype">os_stritype</a> &amp;var, <a class="type" href="#ffi_memsizetype">memsizetype</a> len)</p><dl><dd>
+    <a class="type" href="#ffi_boolType">boolType</a> <b>os_stri_alloc</b> (<a class="type" href="#ffi_os_striType">os_striType</a> &amp;var, <a class="type" href="#ffi_memSizeType">memSizeType</a> len)</p><dl><dd>
 <p>
-      Macro to allocate memory for an <a class="type" href="#ffi_os_stritype">os_stritype</a> string.
+      Macro to allocate memory for an <a class="type" href="#ffi_os_striType">os_striType</a> string.
       Strings allocated with <a class="func" href="#ffi_os_stri_alloc">os_stri_alloc</a>() must be freed with
       <a class="func" href="#ffi_os_stri_free">os_stri_free</a>() in the reverse order of their creation. This allows
       that allocations work in a stack like manner.
@@ -10715,7 +10709,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 <hr />
   <div><a name="ffi_os_stri_free"><h3>os_stri_free</h3></a>
 <p>
-    void <b>os_stri_free</b> (<a class="type" href="#ffi_os_stritype">os_stritype</a> var)</p><dl><dd>
+    void <b>os_stri_free</b> (<a class="type" href="#ffi_os_striType">os_striType</a> var)</p><dl><dd>
 <p>
       Macro to free memory that has been allocated with <a class="func" href="#ffi_os_stri_alloc">os_stri_alloc</a>.
       Strings allocated with <a class="func" href="#ffi_os_stri_alloc">os_stri_alloc</a>() must be freed with
@@ -10733,26 +10727,26 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 <a name="ffi_Macros_to_access_the_action_parameters"><h3>14.3 Macros to access the action parameters</h3></a>
 <p>
   A primitive action function has one parameter named <tt>'arguments'</tt>. The
-  <tt>'arguments'</tt> parameter has the type <tt><a class="type" href="#ffi_listtype">listtype</a></tt> and contains a list of
+  <tt>'arguments'</tt> parameter has the type <tt><a class="type" href="#ffi_listType">listType</a></tt> and contains a list of
   objects. Macros like <tt><a class="func" href="#ffi_arg_1">arg_1</a></tt>, <tt><a class="func" href="#ffi_arg_2">arg_2</a></tt>, <tt><a class="func" href="#ffi_arg_3">arg_3</a></tt>, etc. get a specific
   object from the <tt>'arguments'</tt>.
 </p><div><table width="100%" border="1" cellspacing="0" cellpadding="3">
 <tr><td style="font-size: 22px; font-weight: bold; background-color: #C0C0FF" colspan="2">
   Functions (macros) to get a Seed7 object from a list</td></tr>
 
-    <tr><td align="right" valign="top"><a class="type" href="#ffi_objecttype">objecttype</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_arg_1">arg_1</a></b> (<a class="type" href="#ffi_listtype">listtype</a> arguments)</td></tr>
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_objectType">objectType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_arg_1">arg_1</a></b> (<a class="type" href="#ffi_listType">listType</a> arguments)</td></tr>
       <tr><td width="30"></td><td>Take the first object from the list.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top"><a class="type" href="#ffi_objecttype">objecttype</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_arg_2">arg_2</a></b> (<a class="type" href="#ffi_listtype">listtype</a> arguments)</td></tr>
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_objectType">objectType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_arg_2">arg_2</a></b> (<a class="type" href="#ffi_listType">listType</a> arguments)</td></tr>
       <tr><td width="30"></td><td>Take the second object from the list.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top"><a class="type" href="#ffi_objecttype">objecttype</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_arg_3">arg_3</a></b> (<a class="type" href="#ffi_listtype">listtype</a> arguments)</td></tr>
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_objectType">objectType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_arg_3">arg_3</a></b> (<a class="type" href="#ffi_listType">listType</a> arguments)</td></tr>
       <tr><td width="30"></td><td>Take the third object from the list.</td></tr></table></td></tr>
 
     <tr><td align="right" valign="top"><b>. . .</b></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b>. . .</b></td></tr>
       </table></td></tr>
 
-    <tr><td align="right" valign="top"><a class="type" href="#ffi_objecttype">objecttype</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_arg_12">arg_12</a></b> (<a class="type" href="#ffi_listtype">listtype</a> arguments)</td></tr>
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_objectType">objectType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_arg_12">arg_12</a></b> (<a class="type" href="#ffi_listType">listType</a> arguments)</td></tr>
       <tr><td width="30"></td><td>Take the twelfth object from the list.</td></tr></table></td></tr>
 </table></div><p>
   An object value contains a specific C implementation type. Macros like
@@ -10763,50 +10757,50 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 <tr><td style="font-size: 22px; font-weight: bold; background-color: #C0C0FF" colspan="2">
   Functions (macros) to check the C type of Seed7 objects</td></tr>
 
-    <tr><td align="right" valign="top">void</td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_isit_array">isit_array</a></b> (<a class="type" href="#ffi_objecttype">objecttype</a> arg)</td></tr>
-      <tr><td width="30"></td><td>Check if the object type is <a class="type" href="#ffi_arraytype">arraytype</a>.</td></tr></table></td></tr>
+    <tr><td align="right" valign="top">void</td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_isit_array">isit_array</a></b> (<a class="type" href="#ffi_objectType">objectType</a> arg)</td></tr>
+      <tr><td width="30"></td><td>Check if the object type is <a class="type" href="#ffi_arrayType">arrayType</a>.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top">void</td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_isit_bigint">isit_bigint</a></b> (<a class="type" href="#ffi_objecttype">objecttype</a> arg)</td></tr>
-      <tr><td width="30"></td><td>Check if the object type is <a class="type" href="#ffi_biginttype">biginttype</a>.</td></tr></table></td></tr>
+    <tr><td align="right" valign="top">void</td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_isit_bigint">isit_bigint</a></b> (<a class="type" href="#ffi_objectType">objectType</a> arg)</td></tr>
+      <tr><td width="30"></td><td>Check if the object type is <a class="type" href="#ffi_bigIntType">bigIntType</a>.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top">void</td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_isit_bool">isit_bool</a></b> (<a class="type" href="#ffi_objecttype">objecttype</a> arg)</td></tr>
-      <tr><td width="30"></td><td>Check if the object type is <a class="type" href="#ffi_booltype">booltype</a>.</td></tr></table></td></tr>
+    <tr><td align="right" valign="top">void</td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_isit_bool">isit_bool</a></b> (<a class="type" href="#ffi_objectType">objectType</a> arg)</td></tr>
+      <tr><td width="30"></td><td>Check if the object type is <a class="type" href="#ffi_boolType">boolType</a>.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top">void</td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_isit_bstri">isit_bstri</a></b> (<a class="type" href="#ffi_objecttype">objecttype</a> arg)</td></tr>
-      <tr><td width="30"></td><td>Check if the object type is <a class="type" href="#ffi_bstritype">bstritype</a>.</td></tr></table></td></tr>
+    <tr><td align="right" valign="top">void</td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_isit_bstri">isit_bstri</a></b> (<a class="type" href="#ffi_objectType">objectType</a> arg)</td></tr>
+      <tr><td width="30"></td><td>Check if the object type is <a class="type" href="#ffi_bstriType">bstriType</a>.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top">void</td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_isit_char">isit_char</a></b> (<a class="type" href="#ffi_objecttype">objecttype</a> arg)</td></tr>
-      <tr><td width="30"></td><td>Check if the object type is <a class="type" href="#ffi_chartype">chartype</a>.</td></tr></table></td></tr>
+    <tr><td align="right" valign="top">void</td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_isit_char">isit_char</a></b> (<a class="type" href="#ffi_objectType">objectType</a> arg)</td></tr>
+      <tr><td width="30"></td><td>Check if the object type is <a class="type" href="#ffi_charType">charType</a>.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top">void</td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_isit_file">isit_file</a></b> (<a class="type" href="#ffi_objecttype">objecttype</a> arg)</td></tr>
-      <tr><td width="30"></td><td>Check if the object type is <a class="type" href="#ffi_filetype">filetype</a>.</td></tr></table></td></tr>
+    <tr><td align="right" valign="top">void</td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_isit_file">isit_file</a></b> (<a class="type" href="#ffi_objectType">objectType</a> arg)</td></tr>
+      <tr><td width="30"></td><td>Check if the object type is <a class="type" href="#ffi_fileType">fileType</a>.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top">void</td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_isit_float">isit_float</a></b> (<a class="type" href="#ffi_objecttype">objecttype</a> arg)</td></tr>
-      <tr><td width="30"></td><td>Check if the object type is <a class="type" href="#ffi_floattype">floattype</a>.</td></tr></table></td></tr>
+    <tr><td align="right" valign="top">void</td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_isit_float">isit_float</a></b> (<a class="type" href="#ffi_objectType">objectType</a> arg)</td></tr>
+      <tr><td width="30"></td><td>Check if the object type is <a class="type" href="#ffi_floatType">floatType</a>.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top">void</td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_isit_hash">isit_hash</a></b> (<a class="type" href="#ffi_objecttype">objecttype</a> arg)</td></tr>
-      <tr><td width="30"></td><td>Check if the object type is <a class="type" href="#ffi_hashtype">hashtype</a>.</td></tr></table></td></tr>
+    <tr><td align="right" valign="top">void</td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_isit_hash">isit_hash</a></b> (<a class="type" href="#ffi_objectType">objectType</a> arg)</td></tr>
+      <tr><td width="30"></td><td>Check if the object type is <a class="type" href="#ffi_hashType">hashType</a>.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top">void</td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_isit_int">isit_int</a></b> (<a class="type" href="#ffi_objecttype">objecttype</a> arg)</td></tr>
-      <tr><td width="30"></td><td>Check if the object type is <a class="type" href="#ffi_inttype">inttype</a>.</td></tr></table></td></tr>
+    <tr><td align="right" valign="top">void</td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_isit_int">isit_int</a></b> (<a class="type" href="#ffi_objectType">objectType</a> arg)</td></tr>
+      <tr><td width="30"></td><td>Check if the object type is <a class="type" href="#ffi_intType">intType</a>.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top">void</td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_isit_poll">isit_poll</a></b> (<a class="type" href="#ffi_objecttype">objecttype</a> arg)</td></tr>
-      <tr><td width="30"></td><td>Check if the object type is <a class="type" href="#ffi_polltype">polltype</a>.</td></tr></table></td></tr>
+    <tr><td align="right" valign="top">void</td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_isit_poll">isit_poll</a></b> (<a class="type" href="#ffi_objectType">objectType</a> arg)</td></tr>
+      <tr><td width="30"></td><td>Check if the object type is <a class="type" href="#ffi_pollType">pollType</a>.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top">void</td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_isit_set">isit_set</a></b> (<a class="type" href="#ffi_objecttype">objecttype</a> arg)</td></tr>
-      <tr><td width="30"></td><td>Check if the object type is <a class="type" href="#ffi_settype">settype</a>.</td></tr></table></td></tr>
+    <tr><td align="right" valign="top">void</td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_isit_set">isit_set</a></b> (<a class="type" href="#ffi_objectType">objectType</a> arg)</td></tr>
+      <tr><td width="30"></td><td>Check if the object type is <a class="type" href="#ffi_setType">setType</a>.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top">void</td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_isit_socket">isit_socket</a></b> (<a class="type" href="#ffi_objecttype">objecttype</a> arg)</td></tr>
-      <tr><td width="30"></td><td>Check if the object type is <a class="type" href="#ffi_sockettype">sockettype</a>.</td></tr></table></td></tr>
+    <tr><td align="right" valign="top">void</td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_isit_socket">isit_socket</a></b> (<a class="type" href="#ffi_objectType">objectType</a> arg)</td></tr>
+      <tr><td width="30"></td><td>Check if the object type is <a class="type" href="#ffi_socketType">socketType</a>.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top">void</td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_isit_stri">isit_stri</a></b> (<a class="type" href="#ffi_objecttype">objecttype</a> arg)</td></tr>
-      <tr><td width="30"></td><td>Check if the object type is <a class="type" href="#ffi_stritype">stritype</a>.</td></tr></table></td></tr>
+    <tr><td align="right" valign="top">void</td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_isit_stri">isit_stri</a></b> (<a class="type" href="#ffi_objectType">objectType</a> arg)</td></tr>
+      <tr><td width="30"></td><td>Check if the object type is <a class="type" href="#ffi_striType">striType</a>.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top">void</td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_isit_struct">isit_struct</a></b> (<a class="type" href="#ffi_objecttype">objecttype</a> arg)</td></tr>
-      <tr><td width="30"></td><td>Check if the object type is <a class="type" href="#ffi_structtype">structtype</a>.</td></tr></table></td></tr>
+    <tr><td align="right" valign="top">void</td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_isit_struct">isit_struct</a></b> (<a class="type" href="#ffi_objectType">objectType</a> arg)</td></tr>
+      <tr><td width="30"></td><td>Check if the object type is <a class="type" href="#ffi_structType">structType</a>.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top">void</td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_isit_win">isit_win</a></b> (<a class="type" href="#ffi_objecttype">objecttype</a> arg)</td></tr>
-      <tr><td width="30"></td><td>Check if the object type is <a class="type" href="#ffi_wintype">wintype</a>.</td></tr></table></td></tr>
+    <tr><td align="right" valign="top">void</td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_isit_win">isit_win</a></b> (<a class="type" href="#ffi_objectType">objectType</a> arg)</td></tr>
+      <tr><td width="30"></td><td>Check if the object type is <a class="type" href="#ffi_winType">winType</a>.</td></tr></table></td></tr>
 </table></div><p>
   Macros like <tt><a class="func" href="#ffi_take_bool">take_bool</a></tt> and <tt><a class="func" href="#ffi_take_file">take_file</a></tt> return a value with the requested
   C implementation type.
@@ -10814,102 +10808,102 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 <tr><td style="font-size: 22px; font-weight: bold; background-color: #C0C0FF" colspan="2">
   Functions (macros) to get the C values of Seed7 objects</td></tr>
 
-    <tr><td align="right" valign="top"><a class="type" href="#ffi_arraytype">arraytype</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_take_array">take_array</a></b> (<a class="type" href="#ffi_objecttype">objecttype</a> arg)</td></tr>
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_arrayType">arrayType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_take_array">take_array</a></b> (<a class="type" href="#ffi_objectType">objectType</a> arg)</td></tr>
       <tr><td width="30"></td><td>Take the array value from an object.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top"><a class="type" href="#ffi_biginttype">biginttype</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_take_bigint">take_bigint</a></b> (<a class="type" href="#ffi_objecttype">objecttype</a> arg)</td></tr>
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_bigIntType">bigIntType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_take_bigint">take_bigint</a></b> (<a class="type" href="#ffi_objectType">objectType</a> arg)</td></tr>
       <tr><td width="30"></td><td>Take the bigInteger value from an object.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top"><a class="type" href="#ffi_booltype">booltype</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_take_bool">take_bool</a></b> (<a class="type" href="#ffi_objecttype">objecttype</a> arg)</td></tr>
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_boolType">boolType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_take_bool">take_bool</a></b> (<a class="type" href="#ffi_objectType">objectType</a> arg)</td></tr>
       <tr><td width="30"></td><td>Take the boolean value from an object.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top"><a class="type" href="#ffi_bstritype">bstritype</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_take_bstri">take_bstri</a></b> (<a class="type" href="#ffi_objecttype">objecttype</a> arg)</td></tr>
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_bstriType">bstriType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_take_bstri">take_bstri</a></b> (<a class="type" href="#ffi_objectType">objectType</a> arg)</td></tr>
       <tr><td width="30"></td><td>Take the bstring value from an object.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top"><a class="type" href="#ffi_chartype">chartype</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_take_char">take_char</a></b> (<a class="type" href="#ffi_objecttype">objecttype</a> arg)</td></tr>
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_charType">charType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_take_char">take_char</a></b> (<a class="type" href="#ffi_objectType">objectType</a> arg)</td></tr>
       <tr><td width="30"></td><td>Take the char value from an object.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top"><a class="type" href="#ffi_filetype">filetype</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_take_file">take_file</a></b> (<a class="type" href="#ffi_objecttype">objecttype</a> arg)</td></tr>
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_fileType">fileType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_take_file">take_file</a></b> (<a class="type" href="#ffi_objectType">objectType</a> arg)</td></tr>
       <tr><td width="30"></td><td>Take the file value from an object.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top"><a class="type" href="#ffi_floattype">floattype</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_take_float">take_float</a></b> (<a class="type" href="#ffi_objecttype">objecttype</a> arg)</td></tr>
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_floatType">floatType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_take_float">take_float</a></b> (<a class="type" href="#ffi_objectType">objectType</a> arg)</td></tr>
       <tr><td width="30"></td><td>Take the float value from an object.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top"><a class="type" href="#ffi_hashtype">hashtype</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_take_hash">take_hash</a></b> (<a class="type" href="#ffi_objecttype">objecttype</a> arg)</td></tr>
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_hashType">hashType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_take_hash">take_hash</a></b> (<a class="type" href="#ffi_objectType">objectType</a> arg)</td></tr>
       <tr><td width="30"></td><td>Take the hash table value from an object.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top"><a class="type" href="#ffi_inttype">inttype</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_take_int">take_int</a></b> (<a class="type" href="#ffi_objecttype">objecttype</a> arg)</td></tr>
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_intType">intType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_take_int">take_int</a></b> (<a class="type" href="#ffi_objectType">objectType</a> arg)</td></tr>
       <tr><td width="30"></td><td>Take the integer value from an object.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top"><a class="type" href="#ffi_polltype">polltype</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_take_poll">take_poll</a></b> (<a class="type" href="#ffi_objecttype">objecttype</a> arg)</td></tr>
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_pollType">pollType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_take_poll">take_poll</a></b> (<a class="type" href="#ffi_objectType">objectType</a> arg)</td></tr>
       <tr><td width="30"></td><td>Take the poll data value from an object.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top"><a class="type" href="#ffi_settype">settype</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_take_set">take_set</a></b> (<a class="type" href="#ffi_objecttype">objecttype</a> arg)</td></tr>
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_setType">setType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_take_set">take_set</a></b> (<a class="type" href="#ffi_objectType">objectType</a> arg)</td></tr>
       <tr><td width="30"></td><td>Take the set value from an object.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top"><a class="type" href="#ffi_sockettype">sockettype</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_take_socket">take_socket</a></b> (<a class="type" href="#ffi_objecttype">objecttype</a> arg)</td></tr>
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_socketType">socketType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_take_socket">take_socket</a></b> (<a class="type" href="#ffi_objectType">objectType</a> arg)</td></tr>
       <tr><td width="30"></td><td>Take the socket value from an object.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top"><a class="type" href="#ffi_stritype">stritype</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_take_stri">take_stri</a></b> (<a class="type" href="#ffi_objecttype">objecttype</a> arg)</td></tr>
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_striType">striType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_take_stri">take_stri</a></b> (<a class="type" href="#ffi_objectType">objectType</a> arg)</td></tr>
       <tr><td width="30"></td><td>Take the string value from an object.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top"><a class="type" href="#ffi_structtype">structtype</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_take_struct">take_struct</a></b> (<a class="type" href="#ffi_objecttype">objecttype</a> arg)</td></tr>
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_structType">structType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_take_struct">take_struct</a></b> (<a class="type" href="#ffi_objectType">objectType</a> arg)</td></tr>
       <tr><td width="30"></td><td>Take the struct value from an object.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top"><a class="type" href="#ffi_wintype">wintype</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_take_win">take_win</a></b> (<a class="type" href="#ffi_objecttype">objecttype</a> arg)</td></tr>
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_winType">winType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_take_win">take_win</a></b> (<a class="type" href="#ffi_objectType">objectType</a> arg)</td></tr>
       <tr><td width="30"></td><td>Take the struct value from an object.</td></tr></table></td></tr>
 </table></div>
 
 <a name="ffi_Functions_to_create_action_results"><h3>14.4 Functions to create action results</h3></a>
 <p>
-  A primitive action function has a result of type <tt><a class="type" href="#ffi_objecttype">objecttype</a></tt>. Functions
+  A primitive action function has a result of type <tt><a class="type" href="#ffi_objectType">objectType</a></tt>. Functions
   like <tt><a class="func" href="#ffi_bld_bigint_temp">bld_bigint_temp</a></tt> and <tt><a class="func" href="#ffi_bld_stri_temp">bld_stri_temp</a></tt> create an object with the
   specified type.
 </p><div><table width="100%" border="1" cellspacing="0" cellpadding="3">
 <tr><td style="font-size: 22px; font-weight: bold; background-color: #C0C0FF" colspan="2">
   Functions to create Seed7 objects with a C value</td></tr>
 
-    <tr><td align="right" valign="top"><a class="type" href="#ffi_objecttype">objecttype</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_bld_array_temp">bld_array_temp</a></b> (<a class="type" href="#ffi_arraytype">arraytype</a> temp_array)</td></tr>
-      <tr><td width="30"></td><td>Create an object with an <a class="type" href="#ffi_arraytype">arraytype</a> value.</td></tr></table></td></tr>
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_objectType">objectType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_bld_array_temp">bld_array_temp</a></b> (<a class="type" href="#ffi_arrayType">arrayType</a> temp_array)</td></tr>
+      <tr><td width="30"></td><td>Create an object with an <a class="type" href="#ffi_arrayType">arrayType</a> value.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top"><a class="type" href="#ffi_objecttype">objecttype</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_bld_bigint_temp">bld_bigint_temp</a></b> (<a class="type" href="#ffi_biginttype">biginttype</a> temp_bigint)</td></tr>
-      <tr><td width="30"></td><td>Create an object with a <a class="type" href="#ffi_biginttype">biginttype</a> value.</td></tr></table></td></tr>
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_objectType">objectType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_bld_bigint_temp">bld_bigint_temp</a></b> (<a class="type" href="#ffi_bigIntType">bigIntType</a> temp_bigint)</td></tr>
+      <tr><td width="30"></td><td>Create an object with a <a class="type" href="#ffi_bigIntType">bigIntType</a> value.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top"><a class="type" href="#ffi_objecttype">objecttype</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_bld_bstri_temp">bld_bstri_temp</a></b> (<a class="type" href="#ffi_bstritype">bstritype</a> temp_bstri)</td></tr>
-      <tr><td width="30"></td><td>Create an object with a <a class="type" href="#ffi_bstritype">bstritype</a> value.</td></tr></table></td></tr>
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_objectType">objectType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_bld_bstri_temp">bld_bstri_temp</a></b> (<a class="type" href="#ffi_bstriType">bstriType</a> temp_bstri)</td></tr>
+      <tr><td width="30"></td><td>Create an object with a <a class="type" href="#ffi_bstriType">bstriType</a> value.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top"><a class="type" href="#ffi_objecttype">objecttype</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_bld_char_temp">bld_char_temp</a></b> (<a class="type" href="#ffi_chartype">chartype</a> temp_char)</td></tr>
-      <tr><td width="30"></td><td>Create an object with a <a class="type" href="#ffi_chartype">chartype</a> value.</td></tr></table></td></tr>
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_objectType">objectType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_bld_char_temp">bld_char_temp</a></b> (<a class="type" href="#ffi_charType">charType</a> temp_char)</td></tr>
+      <tr><td width="30"></td><td>Create an object with a <a class="type" href="#ffi_charType">charType</a> value.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top"><a class="type" href="#ffi_objecttype">objecttype</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_bld_file_temp">bld_file_temp</a></b> (<a class="type" href="#ffi_filetype">filetype</a> temp_file)</td></tr>
-      <tr><td width="30"></td><td>Create an object with a <a class="type" href="#ffi_filetype">filetype</a> value.</td></tr></table></td></tr>
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_objectType">objectType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_bld_file_temp">bld_file_temp</a></b> (<a class="type" href="#ffi_fileType">fileType</a> temp_file)</td></tr>
+      <tr><td width="30"></td><td>Create an object with a <a class="type" href="#ffi_fileType">fileType</a> value.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top"><a class="type" href="#ffi_objecttype">objecttype</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_bld_float_temp">bld_float_temp</a></b> (<a class="type" href="#ffi_floattype">floattype</a> temp_float)</td></tr>
-      <tr><td width="30"></td><td>Create an object with a <a class="type" href="#ffi_floattype">floattype</a> value.</td></tr></table></td></tr>
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_objectType">objectType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_bld_float_temp">bld_float_temp</a></b> (<a class="type" href="#ffi_floatType">floatType</a> temp_float)</td></tr>
+      <tr><td width="30"></td><td>Create an object with a <a class="type" href="#ffi_floatType">floatType</a> value.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top"><a class="type" href="#ffi_objecttype">objecttype</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_bld_hash_temp">bld_hash_temp</a></b> (<a class="type" href="#ffi_hashtype">hashtype</a> temp_hash)</td></tr>
-      <tr><td width="30"></td><td>Create an object with a <a class="type" href="#ffi_hashtype">hashtype</a> value.</td></tr></table></td></tr>
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_objectType">objectType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_bld_hash_temp">bld_hash_temp</a></b> (<a class="type" href="#ffi_hashType">hashType</a> temp_hash)</td></tr>
+      <tr><td width="30"></td><td>Create an object with a <a class="type" href="#ffi_hashType">hashType</a> value.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top"><a class="type" href="#ffi_objecttype">objecttype</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_bld_int_temp">bld_int_temp</a></b> (<a class="type" href="#ffi_inttype">inttype</a> temp_int)</td></tr>
-      <tr><td width="30"></td><td>Create an object with an <a class="type" href="#ffi_inttype">inttype</a> value.</td></tr></table></td></tr>
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_objectType">objectType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_bld_int_temp">bld_int_temp</a></b> (<a class="type" href="#ffi_intType">intType</a> temp_int)</td></tr>
+      <tr><td width="30"></td><td>Create an object with an <a class="type" href="#ffi_intType">intType</a> value.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top"><a class="type" href="#ffi_objecttype">objecttype</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_bld_poll_temp">bld_poll_temp</a></b> (<a class="type" href="#ffi_polltype">polltype</a> temp_poll)</td></tr>
-      <tr><td width="30"></td><td>Create an object with a <a class="type" href="#ffi_polltype">polltype</a> value.</td></tr></table></td></tr>
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_objectType">objectType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_bld_poll_temp">bld_poll_temp</a></b> (<a class="type" href="#ffi_pollType">pollType</a> temp_poll)</td></tr>
+      <tr><td width="30"></td><td>Create an object with a <a class="type" href="#ffi_pollType">pollType</a> value.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top"><a class="type" href="#ffi_objecttype">objecttype</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_bld_set_temp">bld_set_temp</a></b> (<a class="type" href="#ffi_settype">settype</a> temp_set)</td></tr>
-      <tr><td width="30"></td><td>Create an object with a <a class="type" href="#ffi_settype">settype</a> value.</td></tr></table></td></tr>
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_objectType">objectType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_bld_set_temp">bld_set_temp</a></b> (<a class="type" href="#ffi_setType">setType</a> temp_set)</td></tr>
+      <tr><td width="30"></td><td>Create an object with a <a class="type" href="#ffi_setType">setType</a> value.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top"><a class="type" href="#ffi_objecttype">objecttype</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_bld_socket_temp">bld_socket_temp</a></b> (<a class="type" href="#ffi_sockettype">sockettype</a> temp_socket)</td></tr>
-      <tr><td width="30"></td><td>Create an object with a <a class="type" href="#ffi_sockettype">sockettype</a> value.</td></tr></table></td></tr>
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_objectType">objectType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_bld_socket_temp">bld_socket_temp</a></b> (<a class="type" href="#ffi_socketType">socketType</a> temp_socket)</td></tr>
+      <tr><td width="30"></td><td>Create an object with a <a class="type" href="#ffi_socketType">socketType</a> value.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top"><a class="type" href="#ffi_objecttype">objecttype</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_bld_stri_temp">bld_stri_temp</a></b> (<a class="type" href="#ffi_stritype">stritype</a> temp_stri)</td></tr>
-      <tr><td width="30"></td><td>Create an object with a <a class="type" href="#ffi_stritype">stritype</a> value.</td></tr></table></td></tr>
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_objectType">objectType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_bld_stri_temp">bld_stri_temp</a></b> (<a class="type" href="#ffi_striType">striType</a> temp_stri)</td></tr>
+      <tr><td width="30"></td><td>Create an object with a <a class="type" href="#ffi_striType">striType</a> value.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top"><a class="type" href="#ffi_objecttype">objecttype</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_bld_struct_temp">bld_struct_temp</a></b> (<a class="type" href="#ffi_structtype">structtype</a> temp_struct)</td></tr>
-      <tr><td width="30"></td><td>Create an object with a <a class="type" href="#ffi_structtype">structtype</a> value.</td></tr></table></td></tr>
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_objectType">objectType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_bld_struct_temp">bld_struct_temp</a></b> (<a class="type" href="#ffi_structType">structType</a> temp_struct)</td></tr>
+      <tr><td width="30"></td><td>Create an object with a <a class="type" href="#ffi_structType">structType</a> value.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top"><a class="type" href="#ffi_objecttype">objecttype</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_bld_win_temp">bld_win_temp</a></b> (<a class="type" href="#ffi_wintype">wintype</a> temp_win)</td></tr>
-      <tr><td width="30"></td><td>Create an object with a <a class="type" href="#ffi_wintype">wintype</a> value.</td></tr></table></td></tr>
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_objectType">objectType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_bld_win_temp">bld_win_temp</a></b> (<a class="type" href="#ffi_winType">winType</a> temp_win)</td></tr>
+      <tr><td width="30"></td><td>Create an object with a <a class="type" href="#ffi_winType">winType</a> value.</td></tr></table></td></tr>
 </table></div><p></p>
 
 <a name="errors_file_start"></a><p></p>
@@ -11142,7 +11136,7 @@ Starting program: /home/tm/seed7_5/prg/lander
 
 Program received signal SIGFPE, Arithmetic exception.
 0x08068518 in o_2541_init_display () at tmp_lander.c:19727
-19727   o_2428_fuel_gauge=((40) * (((structtype)(o_2338_rocket))->stru[10].value.intvalue/*->o_2336_fuel*/)) / (o_2431_fuel_max);
+19727   o_2428_fuel_gauge=((40) * (((structType)(o_2338_rocket))->stru[10].value.intValue/*->o_2336_fuel*/)) / (o_2431_fuel_max);
 (gdb) bt
 #0  0x08068518 in o_2541_init_display () at tmp_lander.c:19727
 #1  0x08068c21 in o_2546_setup () at tmp_lander.c:19864

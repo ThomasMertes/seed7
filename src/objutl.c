@@ -50,6 +50,9 @@
 #include "big_drv.h"
 #include "drw_drv.h"
 #include "pol_drv.h"
+#ifdef WITH_SQL
+#include "sql_rtl.h"
+#endif
 
 #undef EXTERN
 #define EXTERN
@@ -59,15 +62,15 @@
 
 
 #ifdef WITH_TYPE_CHECK
-void isit_bool (objecttype argument)
+void isit_bool (objectType argument)
 
   {
-    objecttype arg;
+    objectType arg;
 
   /* isit_bool */
     if (CATEGORY_OF_OBJ(argument) == CONSTENUMOBJECT ||
         CATEGORY_OF_OBJ(argument) == VARENUMOBJECT) {
-      arg = argument->value.objvalue;
+      arg = argument->value.objValue;
     } else {
       arg = argument;
     } /* if */
@@ -84,7 +87,7 @@ void isit_bool (objecttype argument)
 
 
 
-void isit_enum (objecttype argument)
+void isit_enum (objectType argument)
 
   { /* isit_enum */
     if ((CATEGORY_OF_OBJ(argument) != ENUMLITERALOBJECT &&
@@ -96,7 +99,7 @@ void isit_enum (objecttype argument)
 
 
 
-void isit_list (objecttype argument)
+void isit_list (objectType argument)
 
   { /* isit_list */
     if (CATEGORY_OF_OBJ(argument) != LISTOBJECT &&
@@ -108,17 +111,17 @@ void isit_list (objecttype argument)
 
 
 
-objecttype bld_action_temp (acttype temp_action)
+objectType bld_action_temp (actType temp_action)
 
   {
-    register objecttype result;
+    register objectType result;
 
   /* bld_action_temp */
     if (ALLOC_OBJECT(result)) {
       result->type_of = NULL;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, ACTOBJECT);
-      result->value.actvalue = temp_action;
+      result->value.actValue = temp_action;
       return result;
     } else {
       return raise_exception(SYS_MEM_EXCEPTION);
@@ -127,17 +130,17 @@ objecttype bld_action_temp (acttype temp_action)
 
 
 
-objecttype bld_array_temp (arraytype temp_array)
+objectType bld_array_temp (arrayType temp_array)
 
   {
-    register objecttype result;
+    register objectType result;
 
   /* bld_array_temp */
     if (ALLOC_OBJECT(result)) {
       result->type_of = NULL;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, ARRAYOBJECT);
-      result->value.arrayvalue = temp_array;
+      result->value.arrayValue = temp_array;
       return result;
     } else {
       return raise_exception(SYS_MEM_EXCEPTION);
@@ -146,17 +149,17 @@ objecttype bld_array_temp (arraytype temp_array)
 
 
 
-objecttype bld_bigint_temp (biginttype temp_bigint)
+objectType bld_bigint_temp (bigIntType temp_bigint)
 
   {
-    register objecttype result;
+    register objectType result;
 
   /* bld_bigint_temp */
     if (ALLOC_OBJECT(result)) {
       result->type_of = NULL;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, BIGINTOBJECT);
-      result->value.bigintvalue = temp_bigint;
+      result->value.bigIntValue = temp_bigint;
       return result;
     } else {
       return raise_exception(SYS_MEM_EXCEPTION);
@@ -165,17 +168,17 @@ objecttype bld_bigint_temp (biginttype temp_bigint)
 
 
 
-objecttype bld_block_temp (blocktype temp_block)
+objectType bld_block_temp (blockType temp_block)
 
   {
-    register objecttype result;
+    register objectType result;
 
   /* bld_block_temp */
     if (ALLOC_OBJECT(result)) {
       result->type_of = NULL;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, BLOCKOBJECT);
-      result->value.blockvalue = temp_block;
+      result->value.blockValue = temp_block;
       return result;
     } else {
       return raise_exception(SYS_MEM_EXCEPTION);
@@ -184,17 +187,17 @@ objecttype bld_block_temp (blocktype temp_block)
 
 
 
-objecttype bld_bstri_temp (bstritype temp_bstri)
+objectType bld_bstri_temp (bstriType temp_bstri)
 
   {
-    register objecttype result;
+    register objectType result;
 
   /* bld_bstri_temp */
     if (ALLOC_OBJECT(result)) {
       result->type_of = NULL;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, BSTRIOBJECT);
-      result->value.bstrivalue = temp_bstri;
+      result->value.bstriValue = temp_bstri;
       return result;
     } else {
       return raise_exception(SYS_MEM_EXCEPTION);
@@ -203,17 +206,17 @@ objecttype bld_bstri_temp (bstritype temp_bstri)
 
 
 
-objecttype bld_char_temp (chartype temp_char)
+objectType bld_char_temp (charType temp_char)
 
   {
-    register objecttype result;
+    register objectType result;
 
   /* bld_char_temp */
     if (ALLOC_OBJECT(result)) {
       result->type_of = NULL;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, CHAROBJECT);
-      result->value.charvalue = temp_char;
+      result->value.charValue = temp_char;
       return result;
     } else {
       return raise_exception(SYS_MEM_EXCEPTION);
@@ -222,17 +225,17 @@ objecttype bld_char_temp (chartype temp_char)
 
 
 
-objecttype bld_database_temp (databasetype temp_database)
+objectType bld_database_temp (databaseType temp_database)
 
   {
-    register objecttype result;
+    register objectType result;
 
   /* bld_database_temp */
     if (ALLOC_OBJECT(result)) {
       result->type_of = NULL;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, DATABASEOBJECT);
-      result->value.databasevalue = temp_database;
+      result->value.databaseValue = temp_database;
       return result;
     } else {
       return raise_exception(SYS_MEM_EXCEPTION);
@@ -241,17 +244,17 @@ objecttype bld_database_temp (databasetype temp_database)
 
 
 
-objecttype bld_interface_temp (objecttype temp_interface)
+objectType bld_interface_temp (objectType temp_interface)
 
   {
-    register objecttype result;
+    register objectType result;
 
   /* bld_interface_temp */
     if (ALLOC_OBJECT(result)) {
       result->type_of = NULL;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, INTERFACEOBJECT);
-      result->value.objvalue = temp_interface;
+      result->value.objValue = temp_interface;
       return result;
     } else {
       return raise_exception(SYS_MEM_EXCEPTION);
@@ -260,17 +263,17 @@ objecttype bld_interface_temp (objecttype temp_interface)
 
 
 
-objecttype bld_file_temp (filetype temp_file)
+objectType bld_file_temp (fileType temp_file)
 
   {
-    register objecttype result;
+    register objectType result;
 
   /* bld_file_temp */
     if (ALLOC_OBJECT(result)) {
       result->type_of = NULL;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, FILEOBJECT);
-      result->value.filevalue = temp_file;
+      result->value.fileValue = temp_file;
       return result;
     } else {
       return raise_exception(SYS_MEM_EXCEPTION);
@@ -279,17 +282,17 @@ objecttype bld_file_temp (filetype temp_file)
 
 
 
-objecttype bld_float_temp (double temp_float)
+objectType bld_float_temp (double temp_float)
 
   {
-    register objecttype result;
+    register objectType result;
 
   /* bld_float_temp */
     if (ALLOC_OBJECT(result)) {
       result->type_of = NULL;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, FLOATOBJECT);
-      result->value.floatvalue = (floattype) temp_float;
+      result->value.floatValue = (floatType) temp_float;
       return result;
     } else {
       return raise_exception(SYS_MEM_EXCEPTION);
@@ -298,17 +301,17 @@ objecttype bld_float_temp (double temp_float)
 
 
 
-objecttype bld_hash_temp (hashtype temp_hash)
+objectType bld_hash_temp (hashType temp_hash)
 
   {
-    register objecttype result;
+    register objectType result;
 
   /* bld_hash_temp */
     if (ALLOC_OBJECT(result)) {
       result->type_of = NULL;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, HASHOBJECT);
-      result->value.hashvalue = temp_hash;
+      result->value.hashValue = temp_hash;
       return result;
     } else {
       return raise_exception(SYS_MEM_EXCEPTION);
@@ -317,17 +320,17 @@ objecttype bld_hash_temp (hashtype temp_hash)
 
 
 
-objecttype bld_int_temp (inttype temp_int)
+objectType bld_int_temp (intType temp_int)
 
   {
-    register objecttype result;
+    register objectType result;
 
   /* bld_int_temp */
     if (ALLOC_OBJECT(result)) {
       result->type_of = NULL;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, INTOBJECT);
-      result->value.intvalue = temp_int;
+      result->value.intValue = temp_int;
       return result;
     } else {
       return raise_exception(SYS_MEM_EXCEPTION);
@@ -336,17 +339,17 @@ objecttype bld_int_temp (inttype temp_int)
 
 
 
-objecttype bld_list_temp (listtype temp_list)
+objectType bld_list_temp (listType temp_list)
 
   {
-    register objecttype result;
+    register objectType result;
 
   /* bld_list_temp */
     if (ALLOC_OBJECT(result)) {
       result->type_of = NULL;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, LISTOBJECT);
-      result->value.listvalue = temp_list;
+      result->value.listValue = temp_list;
       return result;
     } else {
       return raise_exception(SYS_MEM_EXCEPTION);
@@ -355,17 +358,17 @@ objecttype bld_list_temp (listtype temp_list)
 
 
 
-objecttype bld_param_temp (objecttype temp_param)
+objectType bld_param_temp (objectType temp_param)
 
   {
-    register objecttype result;
+    register objectType result;
 
   /* bld_param_temp */
     if (ALLOC_OBJECT(result)) {
       result->type_of = NULL;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, FORMPARAMOBJECT);
-      result->value.objvalue = temp_param;
+      result->value.objValue = temp_param;
       return result;
     } else {
       return raise_exception(SYS_MEM_EXCEPTION);
@@ -374,17 +377,17 @@ objecttype bld_param_temp (objecttype temp_param)
 
 
 
-objecttype bld_poll_temp (polltype temp_poll)
+objectType bld_poll_temp (pollType temp_poll)
 
   {
-    register objecttype result;
+    register objectType result;
 
   /* bld_poll_temp */
     if (ALLOC_OBJECT(result)) {
       result->type_of = NULL;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, POLLOBJECT);
-      result->value.pollvalue = temp_poll;
+      result->value.pollValue = temp_poll;
       return result;
     } else {
       return raise_exception(SYS_MEM_EXCEPTION);
@@ -393,17 +396,17 @@ objecttype bld_poll_temp (polltype temp_poll)
 
 
 
-objecttype bld_prog_temp (progtype temp_prog)
+objectType bld_prog_temp (progType temp_prog)
 
   {
-    register objecttype result;
+    register objectType result;
 
   /* bld_prog_temp */
     if (ALLOC_OBJECT(result)) {
       result->type_of = NULL;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, PROGOBJECT);
-      result->value.progvalue = temp_prog;
+      result->value.progValue = temp_prog;
       return result;
     } else {
       return raise_exception(SYS_MEM_EXCEPTION);
@@ -412,17 +415,17 @@ objecttype bld_prog_temp (progtype temp_prog)
 
 
 
-objecttype bld_reference_temp (objecttype temp_reference)
+objectType bld_reference_temp (objectType temp_reference)
 
   {
-    register objecttype result;
+    register objectType result;
 
   /* bld_reference_temp */
     if (ALLOC_OBJECT(result)) {
       result->type_of = NULL;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, REFOBJECT);
-      result->value.objvalue = temp_reference;
+      result->value.objValue = temp_reference;
       return result;
     } else {
       return raise_exception(SYS_MEM_EXCEPTION);
@@ -431,17 +434,17 @@ objecttype bld_reference_temp (objecttype temp_reference)
 
 
 
-objecttype bld_reflist_temp (listtype temp_reflist)
+objectType bld_reflist_temp (listType temp_reflist)
 
   {
-    register objecttype result;
+    register objectType result;
 
   /* bld_reflist_temp */
     if (ALLOC_OBJECT(result)) {
       result->type_of = NULL;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, REFLISTOBJECT);
-      result->value.listvalue = temp_reflist;
+      result->value.listValue = temp_reflist;
       return result;
     } else {
       return raise_exception(SYS_MEM_EXCEPTION);
@@ -450,17 +453,17 @@ objecttype bld_reflist_temp (listtype temp_reflist)
 
 
 
-objecttype bld_set_temp (settype temp_set)
+objectType bld_set_temp (setType temp_set)
 
   {
-    register objecttype result;
+    register objectType result;
 
   /* bld_set_temp */
     if (ALLOC_OBJECT(result)) {
       result->type_of = NULL;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, SETOBJECT);
-      result->value.setvalue = temp_set;
+      result->value.setValue = temp_set;
       return result;
     } else {
       return raise_exception(SYS_MEM_EXCEPTION);
@@ -469,17 +472,17 @@ objecttype bld_set_temp (settype temp_set)
 
 
 
-objecttype bld_socket_temp (sockettype temp_socket)
+objectType bld_socket_temp (socketType temp_socket)
 
   {
-    register objecttype result;
+    register objectType result;
 
   /* bld_socket_temp */
     if (ALLOC_OBJECT(result)) {
       result->type_of = NULL;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, SOCKETOBJECT);
-      result->value.socketvalue = temp_socket;
+      result->value.socketValue = temp_socket;
       return result;
     } else {
       return raise_exception(SYS_MEM_EXCEPTION);
@@ -488,17 +491,17 @@ objecttype bld_socket_temp (sockettype temp_socket)
 
 
 
-objecttype bld_sqlstmt_temp (sqlstmttype temp_sqlstmt)
+objectType bld_sqlstmt_temp (sqlStmtType temp_sqlstmt)
 
   {
-    register objecttype result;
+    register objectType result;
 
   /* bld_sqlstmt_temp */
     if (ALLOC_OBJECT(result)) {
       result->type_of = NULL;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, SQLSTMTOBJECT);
-      result->value.sqlstmtvalue = temp_sqlstmt;
+      result->value.sqlStmtValue = temp_sqlstmt;
       return result;
     } else {
       return raise_exception(SYS_MEM_EXCEPTION);
@@ -507,17 +510,17 @@ objecttype bld_sqlstmt_temp (sqlstmttype temp_sqlstmt)
 
 
 
-objecttype bld_stri_temp (stritype temp_stri)
+objectType bld_stri_temp (striType temp_stri)
 
   {
-    register objecttype result;
+    register objectType result;
 
   /* bld_stri_temp */
     if (ALLOC_OBJECT(result)) {
       result->type_of = NULL;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, STRIOBJECT);
-      result->value.strivalue = temp_stri;
+      result->value.striValue = temp_stri;
       return result;
     } else {
       return raise_exception(SYS_MEM_EXCEPTION);
@@ -526,17 +529,17 @@ objecttype bld_stri_temp (stritype temp_stri)
 
 
 
-objecttype bld_struct_temp (structtype temp_struct)
+objectType bld_struct_temp (structType temp_struct)
 
   {
-    register objecttype result;
+    register objectType result;
 
   /* bld_struct_temp */
     if (ALLOC_OBJECT(result)) {
       result->type_of = NULL;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, STRUCTOBJECT);
-      result->value.structvalue = temp_struct;
+      result->value.structValue = temp_struct;
       return result;
     } else {
       return raise_exception(SYS_MEM_EXCEPTION);
@@ -545,10 +548,10 @@ objecttype bld_struct_temp (structtype temp_struct)
 
 
 
-objecttype bld_type_temp (typetype temp_type)
+objectType bld_type_temp (typeType temp_type)
 
   {
-    register objecttype result;
+    register objectType result;
 
   /* bld_type_temp */
     result = temp_type->match_obj;
@@ -557,17 +560,17 @@ objecttype bld_type_temp (typetype temp_type)
 
 
 
-objecttype bld_win_temp (wintype temp_win)
+objectType bld_win_temp (winType temp_win)
 
   {
-    register objecttype result;
+    register objectType result;
 
   /* bld_win_temp */
     if (ALLOC_OBJECT(result)) {
       result->type_of = NULL;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_TEMP(result, WINOBJECT);
-      result->value.winvalue = temp_win;
+      result->value.winValue = temp_win;
       return result;
     } else {
       return raise_exception(SYS_MEM_EXCEPTION);
@@ -576,11 +579,11 @@ objecttype bld_win_temp (wintype temp_win)
 
 
 
-void dump_temp_value (objecttype object)
+void dump_temp_value (objectType object)
 
   {
-    booltype save_fail_flag;
-    errinfotype err_info = OKAY_NO_ERROR;
+    boolType save_fail_flag;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* dump_temp_value */
 #ifdef TRACE_DUMP_TEMP_VALUE
@@ -590,7 +593,7 @@ void dump_temp_value (objecttype object)
       prot_cstri("dump_temp_value ");
       printcategory(CATEGORY_OF_OBJ(object));
       prot_cstri(" ");
-      prot_int((inttype) object);
+      prot_int((intType) object);
       prot_cstri(" ");
       trace1(object);
       prot_nl();
@@ -615,31 +618,31 @@ void dump_temp_value (objecttype object)
         SET_UNUSED_FLAG(object);
         break;
       case BIGINTOBJECT:
-        bigDestr(object->value.bigintvalue);
+        bigDestr(object->value.bigIntValue);
         SET_UNUSED_FLAG(object);
         break;
       case STRIOBJECT:
-        if (object->value.strivalue != NULL) {
-          FREE_STRI(object->value.strivalue, object->value.strivalue->size);
+        if (object->value.striValue != NULL) {
+          FREE_STRI(object->value.striValue, object->value.striValue->size);
         } /* if */
         SET_UNUSED_FLAG(object);
         break;
       case BSTRIOBJECT:
-        if (object->value.bstrivalue != NULL) {
-          FREE_BSTRI(object->value.bstrivalue, object->value.bstrivalue->size);
+        if (object->value.bstriValue != NULL) {
+          FREE_BSTRI(object->value.bstriValue, object->value.bstriValue->size);
         } /* if */
         SET_UNUSED_FLAG(object);
         break;
       case SETOBJECT:
-        if (object->value.setvalue != NULL) {
-          FREE_SET(object->value.setvalue,
-              (memsizetype) (object->value.setvalue->max_position -
-              object->value.setvalue->min_position + 1));
+        if (object->value.setValue != NULL) {
+          FREE_SET(object->value.setValue,
+              (memSizeType) (object->value.setValue->max_position -
+              object->value.setValue->min_position + 1));
         } /* if */
         SET_UNUSED_FLAG(object);
         break;
       case ARRAYOBJECT:
-        if (object->value.arrayvalue != NULL) {
+        if (object->value.arrayValue != NULL) {
 #ifdef TRACE_DUMP_TEMP_VALUE
           if (trace.actions) {
             prot_cstri("before do_destroy: ");
@@ -654,7 +657,7 @@ void dump_temp_value (objecttype object)
         } /* if */
         break;
       case HASHOBJECT:
-        if (object->value.hashvalue != NULL) {
+        if (object->value.hashValue != NULL) {
 #ifdef TRACE_DUMP_TEMP_VALUE
           if (trace.actions) {
             prot_cstri("before do_destroy: ");
@@ -669,7 +672,7 @@ void dump_temp_value (objecttype object)
         } /* if */
         break;
       case STRUCTOBJECT:
-        if (object->value.structvalue != NULL) {
+        if (object->value.structValue != NULL) {
 #ifdef TRACE_DUMP_TEMP_VALUE
           if (trace.actions) {
             prot_cstri("before do_destroy: ");
@@ -684,41 +687,41 @@ void dump_temp_value (objecttype object)
         } /* if */
         break;
       case POLLOBJECT:
-        polDestr(object->value.pollvalue);
+        polDestr(object->value.pollValue);
         SET_UNUSED_FLAG(object);
         break;
       case REFLISTOBJECT:
-        free_list(object->value.listvalue);
+        free_list(object->value.listValue);
         SET_UNUSED_FLAG(object);
         break;
       case LISTOBJECT:
-        free_list(object->value.listvalue);
+        free_list(object->value.listValue);
         SET_UNUSED_FLAG(object);
         break;
       case BLOCKOBJECT:
-        if (object->value.blockvalue != NULL) {
+        if (object->value.blockValue != NULL) {
           /* printf("free_block: ");
           trace1(object);
           printf("\n"); */
-          free_block(object->value.blockvalue);
+          free_block(object->value.blockValue);
         } /* if */
         SET_UNUSED_FLAG(object);
         break;
       case PROGOBJECT:
-        prgDestr(object->value.progvalue);
+        prgDestr(object->value.progValue);
         SET_UNUSED_FLAG(object);
         break;
       case WINOBJECT:
-        if (object->value.winvalue != NULL) {
-          object->value.winvalue->usage_count--;
-          if (object->value.winvalue->usage_count == 0) {
-            drwFree(object->value.winvalue);
+        if (object->value.winValue != NULL) {
+          object->value.winValue->usage_count--;
+          if (object->value.winValue->usage_count == 0) {
+            drwFree(object->value.winValue);
           } /* if */
         } /* if */
         SET_UNUSED_FLAG(object);
         break;
       case INTERFACEOBJECT:
-        if (object->value.objvalue != NULL) {
+        if (object->value.objValue != NULL) {
 #ifdef TRACE_DUMP_TEMP_VALUE
           if (trace.actions) {
             prot_cstri("before do_destroy: ");
@@ -730,14 +733,24 @@ void dump_temp_value (objecttype object)
           do_destroy(object, &err_info);
         } /* if */
         break;
+#ifdef WITH_SQL
+      case DATABASEOBJECT:
+        sqlDestrDb(object->value.databaseValue);
+        SET_UNUSED_FLAG(object);
+        break;
+      case SQLSTMTOBJECT:
+        sqlDestrStmt(object->value.sqlStmtValue);
+        SET_UNUSED_FLAG(object);
+        break;
+#endif
       default:
         if (trace.heapsize) {
           prot_heapsize();
           prot_cstri(" ");
         } /* if */
         prot_cstri("dump_temp_value ");
-        /* prot_int((inttype) CATEGORY_OF_OBJ(object)); */
-        /* prot_int((inttype) object);
+        /* prot_int((intType) CATEGORY_OF_OBJ(object)); */
+        /* prot_int((intType) object);
         printf("%lx", object);
         prot_cstri(" "); */
         trace1(object);
@@ -758,7 +771,7 @@ void dump_temp_value (objecttype object)
 
 
 
-void dump_any_temp (objecttype object)
+void dump_any_temp (objectType object)
 
   { /* dump_any_temp */
     dump_temp_value(object);
@@ -773,10 +786,10 @@ void dump_any_temp (objecttype object)
 
 
 
-void dump_list (listtype list)
+void dump_list (listType list)
 
   {
-    register listtype list_end;
+    register listType list_end;
 
   /* dump_list */
     if (list != NULL) {

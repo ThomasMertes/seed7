@@ -21,21 +21,21 @@
 /*  Module: General                                                 */
 /*  File: seed7/src/blockutl.h                                      */
 /*  Changes: 1992, 1993, 1994  Thomas Mertes                        */
-/*  Content: Procedures to maintain objects of type blocktype.      */
+/*  Content: Procedures to maintain objects of type blockType.      */
 /*                                                                  */
 /********************************************************************/
 
-void free_block (blocktype block);
-blocktype new_block (loclisttype block_params, const_locobjtype block_result,
-    loclisttype block_local_vars, listtype block_local_consts,
-    objecttype block_body);
-void get_result_var (locobjtype result_var, typetype result_type,
-    objecttype result_init, errinfotype *err_info);
-void get_return_var (locobjtype return_var, typetype return_type,
-    errinfotype *err_info);
-loclisttype get_param_list (const_listtype param_object_list,
-    errinfotype *err_info);
-loclisttype get_local_var_list (const_listtype local_object_list,
-    errinfotype *err_info);
-listtype get_local_const_list (const_listtype local_object_list,
-    errinfotype *err_info);
+void free_block (blockType block);
+blockType new_block (locListType block_params, const_locObjType block_result,
+    locListType block_local_vars, listType block_local_consts,
+    objectType block_body);
+void get_result_var (locObjType result_var, typeType result_type,
+    objectType result_init, errInfoType *err_info);
+void get_return_var (locObjType return_var, typeType return_type,
+    errInfoType *err_info);
+locListType get_param_list (const_listType param_object_list,
+    errInfoType *err_info);
+locListType get_local_var_list (const_listType local_object_list,
+    errInfoType *err_info);
+listType get_local_const_list (const_listType local_object_list,
+    errInfoType *err_info);

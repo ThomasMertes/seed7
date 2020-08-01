@@ -25,9 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
-objecttype ut8_getc      (listtype arguments);
-objecttype ut8_gets      (listtype arguments);
-objecttype ut8_line_read (listtype arguments);
-objecttype ut8_seek      (listtype arguments);
-objecttype ut8_word_read (listtype arguments);
-objecttype ut8_write     (listtype arguments);
+objectType ut8_getc      (listType arguments);
+objectType ut8_gets      (listType arguments);
+objectType ut8_line_read (listType arguments);
+objectType ut8_seek      (listType arguments);
+objectType ut8_word_read (listType arguments);
+objectType ut8_write     (listType arguments);

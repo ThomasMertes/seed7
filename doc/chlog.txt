@@ -1,3 +1,36 @@
+20140406:
+- The chapters in the manual about primitive actions and the foreign
+  function interface have been improved.
+- The names of the C types used in interpreter and runtime library
+  have been refactored to use camel case.
+- The elements in the unions valueUnion (in data.h) and rtlValueUnion
+  (in data_rtl.h and s7c.sd7) have been refactored to use names with
+  camel case.
+- The library bigint.s7i has been changed to define the operators
+  radix and RADIX with the actions BIG_radix and BIG_RADIX. This
+  results in a significant performance improvement when large numbers
+  are converted.
+- Interpreter and compiler have been improved to support the actions
+  BIG_radix and BIG_RADIX.
+- Testcases for the operators radix and RADIX have been added to
+  chkbig.sd7.
+- The compiler has been improved to do an optimization for the action
+  INT_MDIV when the divisor is known at compile time. When the
+  dividend is known to be positive or zero it is casted to an
+  unsigned integer and the quotient is casted back to a signed
+  integer. Dividing an unsigned integer by a constant is known to be
+  faster than dividing a signed integer.
+- The functions bigRadix, bigRadixPow2, bigRadix2To36 and
+  uBigDivideByDigit have been added to big_rtl.c
+- The function bigRadix has been added to big_gmp.c.
+- The functions stri_to_cstri8_buf and cstri8_buf_to_stri have been
+  added to striutl.c.
+- In traceutl.c the function mapTraceFlags has been improved to work
+  correctly when the parameter trace_level defines several options.
+- The function printTraceOptions has been added to traceutl.c.
+- In arr_rtl.c the definition of getArgv has been improved to use
+  less #ifdef directives in the function body.
+
 20140316:
 - The documentation file doc/install.txt has been improved to
   describe the command 'make install'.

@@ -25,8 +25,8 @@
 /*                                                                  */
 /********************************************************************/
 
-void find_include_file (const_stritype include_file_name, errinfotype *err_info);
-void append_to_lib_path (const_stritype path, errinfotype *err_info);
-void init_lib_path (const_stritype source_file_name,
-    const const_rtlArraytype seed7_libraries, errinfotype *err_info);
+void find_include_file (const_striType include_file_name, errInfoType *err_info);
+void append_to_lib_path (const_striType path, errInfoType *err_info);
+void init_lib_path (const_striType source_file_name,
+    const const_rtlArrayType seed7_libraries, errInfoType *err_info);
 void free_lib_path (void);

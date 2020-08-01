@@ -33,8 +33,8 @@
 /*                                                                  */
 /*  The functions in this file use type declarations from the       */
 /*  include file data_rtl.h instead of data.h. Therefore the types  */
-/*  rtlArraytype and rtlObjecttype are declared different than the  */
-/*  types arraytype and objecttype in the interpreter.              */
+/*  rtlArrayType and rtlObjectType are declared different than the  */
+/*  types arrayType and objectType in the interpreter.              */
 /*                                                                  */
 /********************************************************************/
 
@@ -60,52 +60,52 @@
 
 
 
-static void rtl_qsort_array (rtlObjecttype *begin_sort, rtlObjecttype *end_sort,
-    inttype cmp_func (generictype, generictype))
+static void rtl_qsort_array (rtlObjectType *begin_sort, rtlObjectType *end_sort,
+    intType cmp_func (genericType, genericType))
 
   {
-    generictype compare_elem;
-    generictype help_element;
-    rtlObjecttype *middle_elem;
-    rtlObjecttype *less_elem;
-    rtlObjecttype *greater_elem;
-    inttype cmp;
+    genericType compare_elem;
+    genericType help_element;
+    rtlObjectType *middle_elem;
+    rtlObjectType *less_elem;
+    rtlObjectType *greater_elem;
+    intType cmp;
 
   /* rtl_qsort_array */
     if (end_sort - begin_sort < 8) {
       for (middle_elem = begin_sort + 1; middle_elem <= end_sort; middle_elem++) {
-        compare_elem = middle_elem->value.genericvalue;
+        compare_elem = middle_elem->value.genericValue;
         less_elem = begin_sort - 1;
         do {
           less_elem++;
-          cmp = cmp_func(less_elem->value.genericvalue, compare_elem);
+          cmp = cmp_func(less_elem->value.genericValue, compare_elem);
         } while (cmp < 0);
-        memmove(&less_elem[1], less_elem, (memsizetype) (middle_elem - less_elem) * sizeof(rtlObjecttype));
-        less_elem->value.genericvalue = compare_elem;
+        memmove(&less_elem[1], less_elem, (memSizeType) (middle_elem - less_elem) * sizeof(rtlObjectType));
+        less_elem->value.genericValue = compare_elem;
       } /* for */
     } else {
-      middle_elem = &begin_sort[((memsizetype)(end_sort - begin_sort)) >> 1];
-      compare_elem = middle_elem->value.genericvalue;
-      middle_elem->value.genericvalue = end_sort->value.genericvalue;
-      end_sort->value.genericvalue = compare_elem;
+      middle_elem = &begin_sort[((memSizeType)(end_sort - begin_sort)) >> 1];
+      compare_elem = middle_elem->value.genericValue;
+      middle_elem->value.genericValue = end_sort->value.genericValue;
+      end_sort->value.genericValue = compare_elem;
       less_elem = begin_sort - 1;
       greater_elem = end_sort;
       do {
         do {
           less_elem++;
-          cmp = cmp_func(less_elem->value.genericvalue, compare_elem);
+          cmp = cmp_func(less_elem->value.genericValue, compare_elem);
         } while (cmp < 0);
         do {
           greater_elem--;
-          cmp = cmp_func(greater_elem->value.genericvalue, compare_elem);
+          cmp = cmp_func(greater_elem->value.genericValue, compare_elem);
         } while (cmp > 0 && greater_elem != begin_sort);
-        help_element = less_elem->value.genericvalue;
-        less_elem->value.genericvalue = greater_elem->value.genericvalue;
-        greater_elem->value.genericvalue = help_element;
+        help_element = less_elem->value.genericValue;
+        less_elem->value.genericValue = greater_elem->value.genericValue;
+        greater_elem->value.genericValue = help_element;
       } while (greater_elem > less_elem);
-      greater_elem->value.genericvalue = less_elem->value.genericvalue;
-      less_elem->value.genericvalue = compare_elem;
-      end_sort->value.genericvalue = help_element;
+      greater_elem->value.genericValue = less_elem->value.genericValue;
+      less_elem->value.genericValue = compare_elem;
+      end_sort->value.genericValue = help_element;
       rtl_qsort_array(begin_sort, less_elem - 1, cmp_func);
       rtl_qsort_array(less_elem + 1, end_sort, cmp_func);
     } /* if */
@@ -118,15 +118,15 @@ static void rtl_qsort_array (rtlObjecttype *begin_sort, rtlObjecttype *end_sort,
  *  @param arg_0 Parameter argv[0] from the function main() as string.
  *  @return the name of the program.
  */
-static stritype getProgramName (const const_stritype arg_0)
+static striType getProgramName (const const_striType arg_0)
 
   {
-    memsizetype name_len;
+    memSizeType name_len;
 #ifdef EXECUTABLE_FILE_EXTENSION
-    stritype exeExtension;
+    striType exeExtension;
 #endif
-    inttype lastSlashPos;
-    stritype program_name;
+    intType lastSlashPos;
+    striType program_name;
 
   /* getProgramName */
     name_len = arg_0->size;
@@ -134,17 +134,17 @@ static stritype getProgramName (const const_stritype arg_0)
     exeExtension = cstri8_or_cstri_to_stri(EXECUTABLE_FILE_EXTENSION);
     if (name_len > exeExtension->size &&
         memcmp(&arg_0->mem[arg_0->size - exeExtension->size],
-               exeExtension->mem, exeExtension->size * sizeof(strelemtype)) == 0) {
+               exeExtension->mem, exeExtension->size * sizeof(strElemType)) == 0) {
       name_len -= exeExtension->size;
     } /* if */
     FREE_STRI(exeExtension, exeExtension->size);
 #endif
-    lastSlashPos = strRChPos(arg_0, (chartype) '/');
-    name_len -= (memsizetype) lastSlashPos;
+    lastSlashPos = strRChPos(arg_0, (charType) '/');
+    name_len -= (memSizeType) lastSlashPos;
     if (ALLOC_STRI_SIZE_OK(program_name, name_len)) {
       program_name->size = name_len;
       memcpy(program_name->mem, &arg_0->mem[lastSlashPos],
-          name_len * sizeof(strelemtype));
+          name_len * sizeof(strElemType));
     } /* if */
     return program_name;
   } /* getProgramName */
@@ -155,34 +155,34 @@ static stritype getProgramName (const const_stritype arg_0)
  *  Copy the arguments from argv to an array of strings.
  *  @param argv Parameter from the function main().
  */
-static rtlArraytype copyArgv (const int argc, const os_stritype *const argv)
+static rtlArrayType copyArgv (const int argc, const os_striType *const argv)
 
   {
-    memsizetype arg_c;
-    rtlArraytype arg_v;
-    memsizetype number;
-    errinfotype err_info = OKAY_NO_ERROR;
-    stritype stri;
+    memSizeType arg_c;
+    rtlArrayType arg_v;
+    memSizeType number;
+    errInfoType err_info = OKAY_NO_ERROR;
+    striType stri;
 
   /* copyArgv */
     if (unlikely(argc < 0)) {
       raise_error(RANGE_ERROR);
       arg_v = NULL;
     } else {
-      arg_c = (memsizetype) (argc);
+      arg_c = (memSizeType) (argc);
       if (unlikely(!ALLOC_RTL_ARRAY(arg_v, arg_c))) {
         raise_error(MEMORY_ERROR);
       } else {
         arg_v->min_position = 1;
-        arg_v->max_position = (inttype) (arg_c);
+        arg_v->max_position = (intType) (arg_c);
         for (number = 0; number < arg_c; number++) {
           stri = os_stri_to_stri(argv[number], &err_info);
           if (likely(err_info == OKAY_NO_ERROR)) {
-            arg_v->arr[number].value.strivalue = stri;
+            arg_v->arr[number].value.striValue = stri;
           } else {
             while (number >= 1) {
               number--;
-              stri = arg_v->arr[number].value.strivalue;
+              stri = arg_v->arr[number].value.striValue;
               FREE_STRI(stri, stri->size);
             } /* while */
             FREE_RTL_ARRAY(arg_v, arg_c);
@@ -211,13 +211,13 @@ static rtlArraytype copyArgv (const int argc, const os_stritype *const argv)
  *  @return an array with the argument vector.
  */
 #ifdef USE_WMAIN
-rtlArraytype getArgv (const int argc, const wstritype *const argv, stritype *arg_0,
-    stritype *programName, stritype *exePath)
+rtlArrayType getArgv (const int argc, const wstriType *const argv,
+    striType *arg_0, striType *programName, striType *exePath)
 
   {
-    errinfotype err_info = OKAY_NO_ERROR;
-    stritype arg_0_temp;
-    rtlArraytype arg_v;
+    errInfoType err_info = OKAY_NO_ERROR;
+    striType arg_0_temp;
+    rtlArrayType arg_v;
 
   /* getArgv */
 #ifdef EMULATE_ROOT_CWD
@@ -259,21 +259,19 @@ rtlArraytype getArgv (const int argc, const wstritype *const argv, stritype *arg
     return arg_v;
   } /* getArgv */
 
-#else
+#elif defined OS_STRI_WCHAR
 
 
 
-rtlArraytype getArgv (const int argc, const cstritype *const argv, stritype *arg_0,
-    stritype *programName, stritype *exePath)
+rtlArrayType getArgv (const int argc, const cstriType *const argv,
+    striType *arg_0, striType *programName, striType *exePath)
 
   {
-#ifdef OS_STRI_WCHAR
     int w_argc;
-    os_stritype *w_argv;
-#endif
-    errinfotype err_info = OKAY_NO_ERROR;
-    stritype arg_0_temp;
-    rtlArraytype arg_v;
+    os_striType *w_argv;
+    errInfoType err_info = OKAY_NO_ERROR;
+    striType arg_0_temp;
+    rtlArrayType arg_v;
 
   /* getArgv */
 #ifdef EMULATE_ROOT_CWD
@@ -283,7 +281,6 @@ rtlArraytype getArgv (const int argc, const cstritype *const argv, stritype *arg
       arg_v = NULL;
     } else {
 #endif
-#ifdef OS_STRI_WCHAR
       w_argv = getUtf16Argv(&w_argc);
       if (w_argv == NULL) {
         raise_error(MEMORY_ERROR);
@@ -317,7 +314,32 @@ rtlArraytype getArgv (const int argc, const cstritype *const argv, stritype *arg
         } /* if */
         freeUtf16Argv(w_argv);
       } /* if */
+#ifdef EMULATE_ROOT_CWD
+    } /* if */
+#endif
+    return arg_v;
+  } /* getArgv */
+
 #else
+
+
+
+rtlArrayType getArgv (const int argc, const cstriType *const argv,
+    striType *arg_0, striType *programName, striType *exePath)
+
+  {
+    errInfoType err_info = OKAY_NO_ERROR;
+    striType arg_0_temp;
+    rtlArrayType arg_v;
+
+  /* getArgv */
+#ifdef EMULATE_ROOT_CWD
+    initEmulatedCwd(&err_info);
+    if (err_info != OKAY_NO_ERROR) {
+      raise_error(err_info);
+      arg_v = NULL;
+    } else {
+#endif
       arg_0_temp = cp_from_os_path(argv[0], &err_info);
       if (arg_0_temp != NULL) {
         if (exePath != NULL) {
@@ -344,7 +366,6 @@ rtlArraytype getArgv (const int argc, const cstritype *const argv, stritype *arg
         raise_error(err_info);
         arg_v = NULL;
       } /* if */
-#endif
 #ifdef EMULATE_ROOT_CWD
     } /* if */
 #endif
@@ -356,14 +377,14 @@ rtlArraytype getArgv (const int argc, const cstritype *const argv, stritype *arg
 
 
 #ifndef OS_STRI_WCHAR
-stritype examineSearchPath (const const_stritype fileName)
+striType examineSearchPath (const const_striType fileName)
 
   {
-    rtlArraytype searchPath;
-    memsizetype searchPathSize;
-    memsizetype pos;
-    stritype aPath;
-    stritype result;
+    rtlArrayType searchPath;
+    memSizeType searchPathSize;
+    memSizeType pos;
+    striType aPath;
+    striType result;
 
   /* examineSearchPath */
     /* printf("examineSearchPath\n"); */
@@ -372,9 +393,9 @@ stritype examineSearchPath (const const_stritype fileName)
     if (searchPath != NULL) {
       searchPathSize = arraySize(searchPath);
       for (pos = 0; result == NULL && pos < searchPathSize; pos++) {
-        aPath = searchPath->arr[pos].value.strivalue;
-        if (aPath->size != 0 && aPath->mem[aPath->size - 1] != (chartype) '/') {
-          strPush(&aPath, (chartype) '/');
+        aPath = searchPath->arr[pos].value.striValue;
+        if (aPath->size != 0 && aPath->mem[aPath->size - 1] != (charType) '/') {
+          strPush(&aPath, (charType) '/');
         } /* if */
         strAppend(&aPath, fileName);
         if (cmdFileType(aPath) == 2) {
@@ -384,7 +405,7 @@ stritype examineSearchPath (const const_stritype fileName)
         } /* if */
       } /* for */
       for (; pos < searchPathSize; pos++) {
-        aPath = searchPath->arr[pos].value.strivalue;
+        aPath = searchPath->arr[pos].value.striValue;
         FREE_STRI(aPath, aPath->size);
       } /* for */
       FREE_RTL_ARRAY(searchPath, searchPathSize);
@@ -403,13 +424,13 @@ stritype examineSearchPath (const const_stritype fileName)
  *  @exception MEMORY_ERROR Not enough memory for the concatenated
  *             array.
  */
-void arrAppend (rtlArraytype *const arr_variable, const rtlArraytype extension)
+void arrAppend (rtlArrayType *const arr_variable, const rtlArrayType extension)
 
   {
-    rtlArraytype arr_to;
-    memsizetype new_size;
-    memsizetype arr_to_size;
-    memsizetype extension_size;
+    rtlArrayType arr_to;
+    memSizeType new_size;
+    memSizeType arr_to_size;
+    memSizeType extension_size;
 
   /* arrAppend */
     extension_size = arraySize(extension);
@@ -417,7 +438,7 @@ void arrAppend (rtlArraytype *const arr_variable, const rtlArraytype extension)
       arr_to = *arr_variable;
       arr_to_size = arraySize(arr_to);
       if (arr_to_size > MAX_RTL_ARR_LEN - extension_size ||
-          arr_to->max_position > (inttype) (MAX_MEM_INDEX - extension_size)) {
+          arr_to->max_position > (intType) (MAX_MEM_INDEX - extension_size)) {
         raise_error(MEMORY_ERROR);
       } else {
         new_size = arr_to_size + extension_size;
@@ -429,7 +450,7 @@ void arrAppend (rtlArraytype *const arr_variable, const rtlArraytype extension)
           *arr_variable = arr_to;
           arr_to->max_position = arrayMaxPos(arr_to->min_position, new_size);
           memcpy(&arr_to->arr[arr_to_size], extension->arr,
-              (size_t) (extension_size * sizeof(rtlObjecttype)));
+              (size_t) (extension_size * sizeof(rtlObjectType)));
           FREE_RTL_ARRAY(extension, extension_size);
         } /* if */
       } /* if */
@@ -438,15 +459,15 @@ void arrAppend (rtlArraytype *const arr_variable, const rtlArraytype extension)
 
 
 
-rtlArraytype arrArrlit2 (inttype start_position, rtlArraytype arr1)
+rtlArrayType arrArrlit2 (intType start_position, rtlArrayType arr1)
 
   {
-    memsizetype result_size;
+    memSizeType result_size;
 
   /* arrArrlit2 */
     result_size = arraySize(arr1);
     if (start_position < MIN_MEM_INDEX || start_position > MAX_MEM_INDEX ||
-        (result_size != 0 && start_position > (inttype) (MAX_MEM_INDEX - result_size + 1)) ||
+        (result_size != 0 && start_position > (intType) (MAX_MEM_INDEX - result_size + 1)) ||
         (result_size == 0 && start_position == MIN_MEM_INDEX)) {
       raise_error(RANGE_ERROR);
       arr1 = NULL;
@@ -459,11 +480,11 @@ rtlArraytype arrArrlit2 (inttype start_position, rtlArraytype arr1)
 
 
 
-rtlArraytype arrBaselit (const generictype element)
+rtlArrayType arrBaselit (const genericType element)
 
   {
-    memsizetype result_size;
-    rtlArraytype result;
+    memSizeType result_size;
+    rtlArrayType result;
 
   /* arrBaselit */
     result_size = 1;
@@ -472,18 +493,18 @@ rtlArraytype arrBaselit (const generictype element)
     } else {
       result->min_position = 1;
       result->max_position = 1;
-      result->arr[0].value.genericvalue = element;
+      result->arr[0].value.genericValue = element;
     } /* if */
     return result;
   } /* arrBaselit */
 
 
 
-rtlArraytype arrBaselit2 (inttype start_position, const generictype element)
+rtlArrayType arrBaselit2 (intType start_position, const genericType element)
 
   {
-    memsizetype result_size;
-    rtlArraytype result;
+    memSizeType result_size;
+    rtlArrayType result;
 
   /* arrBaselit2 */
     result_size = 1;
@@ -492,7 +513,7 @@ rtlArraytype arrBaselit2 (inttype start_position, const generictype element)
     } else {
       result->min_position = start_position;
       result->max_position = start_position;
-      result->arr[0].value.genericvalue = element;
+      result->arr[0].value.genericValue = element;
     } /* if */
     return result;
   } /* arrBaselit2 */
@@ -505,19 +526,19 @@ rtlArraytype arrBaselit2 (inttype start_position, const generictype element)
  *  @exception MEMORY_ERROR Not enough memory for the concatenated
  *             array.
  */
-rtlArraytype arrCat (rtlArraytype arr1, const rtlArraytype arr2)
+rtlArrayType arrCat (rtlArrayType arr1, const rtlArrayType arr2)
 
   {
-    memsizetype arr1_size;
-    memsizetype arr2_size;
-    memsizetype result_size;
-    rtlArraytype result;
+    memSizeType arr1_size;
+    memSizeType arr2_size;
+    memSizeType result_size;
+    rtlArrayType result;
 
   /* arrCat */
     arr1_size = arraySize(arr1);
     arr2_size = arraySize(arr2);
     if (arr1_size > MAX_RTL_ARR_LEN - arr2_size ||
-        arr1->max_position > (inttype) (MAX_MEM_INDEX - arr2_size)) {
+        arr1->max_position > (intType) (MAX_MEM_INDEX - arr2_size)) {
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
@@ -528,7 +549,7 @@ rtlArraytype arrCat (rtlArraytype arr1, const rtlArraytype arr2)
       } else {
         COUNT3_RTL_ARRAY(arr1_size, result_size);
         result->max_position = arrayMaxPos(result->min_position, result_size);
-        memcpy(&result->arr[arr1_size], arr2->arr, arr2_size * sizeof(rtlObjecttype));
+        memcpy(&result->arr[arr1_size], arr2->arr, arr2_size * sizeof(rtlObjectType));
         FREE_RTL_ARRAY(arr2, arr2_size);
       } /* if */
     } /* if */
@@ -537,17 +558,17 @@ rtlArraytype arrCat (rtlArraytype arr1, const rtlArraytype arr2)
 
 
 
-rtlArraytype arrExtend (rtlArraytype arr1, const generictype element)
+rtlArrayType arrExtend (rtlArrayType arr1, const genericType element)
 
   {
-    memsizetype arr1_size;
-    memsizetype result_size;
-    rtlArraytype result;
+    memSizeType arr1_size;
+    memSizeType result_size;
+    rtlArrayType result;
 
   /* arrExtend */
     arr1_size = arraySize(arr1);
     if (arr1_size > MAX_RTL_ARR_LEN - 1 ||
-        arr1->max_position > (inttype) (MAX_MEM_INDEX - 1)) {
+        arr1->max_position > (intType) (MAX_MEM_INDEX - 1)) {
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
@@ -558,7 +579,7 @@ rtlArraytype arrExtend (rtlArraytype arr1, const generictype element)
       } else {
         COUNT3_RTL_ARRAY(arr1_size, result_size);
         result->max_position++;
-        result->arr[arr1_size].value.genericvalue = element;
+        result->arr[arr1_size].value.genericValue = element;
       } /* if */
     } /* if */
     return result;
@@ -566,10 +587,10 @@ rtlArraytype arrExtend (rtlArraytype arr1, const generictype element)
 
 
 
-void arrFree (rtlArraytype oldArray)
+void arrFree (rtlArrayType oldArray)
 
   {
-    memsizetype size;
+    memSizeType size;
 
   /* arrFree */
     size = arraySize(oldArray);
@@ -578,11 +599,11 @@ void arrFree (rtlArraytype oldArray)
 
 
 
-rtlArraytype arrGen (const generictype element1, const generictype element2)
+rtlArrayType arrGen (const genericType element1, const genericType element2)
 
   {
-    memsizetype result_size;
-    rtlArraytype result;
+    memSizeType result_size;
+    rtlArrayType result;
 
   /* arrGen */
     result_size = 2;
@@ -591,8 +612,8 @@ rtlArraytype arrGen (const generictype element1, const generictype element2)
     } else {
       result->min_position = 1;
       result->max_position = 2;
-      result->arr[0].value.genericvalue = element1;
-      result->arr[1].value.genericvalue = element2;
+      result->arr[0].value.genericValue = element1;
+      result->arr[1].value.genericValue = element2;
     } /* if */
     return result;
   } /* arrGen */
@@ -604,12 +625,12 @@ rtlArraytype arrGen (const generictype element1, const generictype element2)
  *  @return the sub array ending at the stop position.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-rtlArraytype arrHead (const const_rtlArraytype arr1, inttype stop)
+rtlArrayType arrHead (const const_rtlArrayType arr1, intType stop)
 
   {
-    memsizetype length;
-    memsizetype result_size;
-    rtlArraytype result;
+    memSizeType length;
+    memSizeType result_size;
+    rtlArrayType result;
 
   /* arrHead */
     length = arraySize(arr1);
@@ -624,7 +645,7 @@ rtlArraytype arrHead (const const_rtlArraytype arr1, inttype stop)
         result->min_position = arr1->min_position;
         result->max_position = stop;
         memcpy(result->arr, arr1->arr,
-            (size_t) (result_size * sizeof(rtlObjecttype)));
+            (size_t) (result_size * sizeof(rtlObjectType)));
       } /* if */
     } else if (arr1->min_position == MIN_MEM_INDEX) {
       raise_error(RANGE_ERROR);
@@ -649,14 +670,14 @@ rtlArraytype arrHead (const const_rtlArraytype arr1, inttype stop)
  *  @return the sub array ending at the stop position.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-rtlArraytype arrHeadTemp (rtlArraytype *arr_temp, inttype stop)
+rtlArrayType arrHeadTemp (rtlArrayType *arr_temp, intType stop)
 
   {
-    rtlArraytype arr1;
-    memsizetype length;
-    memsizetype result_size;
-    rtlArraytype new_arr1;
-    rtlArraytype result;
+    rtlArrayType arr1;
+    memSizeType length;
+    memSizeType result_size;
+    rtlArrayType new_arr1;
+    rtlArrayType result;
 
   /* arrHeadTemp */
     arr1 = *arr_temp;
@@ -674,7 +695,7 @@ rtlArraytype arrHeadTemp (rtlArraytype *arr_temp, inttype stop)
           new_arr1->min_position = stop + 1;
           new_arr1->max_position = arr1->max_position;
           memcpy(new_arr1->arr, &arr1->arr[result_size],
-              (size_t) ((length - result_size) * sizeof(rtlObjecttype)));
+              (size_t) ((length - result_size) * sizeof(rtlObjectType)));
           result = REALLOC_RTL_ARRAY(arr1, length, result_size);
           if (result == NULL) {
             FREE_RTL_ARRAY(new_arr1, length - result_size);
@@ -711,22 +732,22 @@ rtlArraytype arrHeadTemp (rtlArraytype *arr_temp, inttype stop)
  *  @exception RANGE_ERROR When 'position' is less than minIdx(arr) or
  *                         greater than maxIdx(arr)
  */
-generictype arrIdxTemp (rtlArraytype *arr_temp, inttype position)
+genericType arrIdxTemp (rtlArrayType *arr_temp, intType position)
 
   {
-    rtlArraytype arr1;
-    memsizetype length;
-    rtlArraytype resized_arr1;
-    generictype result;
+    rtlArrayType arr1;
+    memSizeType length;
+    rtlArrayType resized_arr1;
+    genericType result;
 
   /* arrIdxTemp */
     arr1 = *arr_temp;
     if (position >= arr1->min_position && position <= arr1->max_position) {
       length = arraySize(arr1);
-      result = arr1->arr[position - arr1->min_position].value.genericvalue;
+      result = arr1->arr[position - arr1->min_position].value.genericValue;
       if (position != arr1->max_position) {
-        arr1->arr[position - arr1->min_position].value.genericvalue =
-            arr1->arr[length - 1].value.genericvalue;
+        arr1->arr[position - arr1->min_position].value.genericValue =
+            arr1->arr[length - 1].value.genericValue;
       } /* if */
       resized_arr1 = REALLOC_RTL_ARRAY(arr1, length, length - 1);
       if (resized_arr1 == NULL) {
@@ -745,11 +766,11 @@ generictype arrIdxTemp (rtlArraytype *arr_temp, inttype position)
 
 
 
-rtlArraytype arrMalloc (inttype min_position, inttype max_position)
+rtlArrayType arrMalloc (intType min_position, intType max_position)
 
   {
-    memsizetype size;
-    rtlArraytype result;
+    memSizeType size;
+    rtlArrayType result;
 
   /* arrMalloc */
     if (min_position < MIN_MEM_INDEX || max_position > MAX_MEM_INDEX ||
@@ -760,7 +781,7 @@ rtlArraytype arrMalloc (inttype min_position, inttype max_position)
     } else {
       size = arraySize2(min_position, max_position);
       if (size > MAX_RTL_ARR_LEN ||
-          !ALLOC_RTL_ARRAY(result, (memsizetype) size)) {
+          !ALLOC_RTL_ARRAY(result, (memSizeType) size)) {
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
@@ -778,18 +799,18 @@ rtlArraytype arrMalloc (inttype min_position, inttype max_position)
  *  @exception MEMORY_ERROR Not enough memory for the concatenated
  *             array.
  */
-void arrPush (rtlArraytype *const arr_variable, const generictype element)
+void arrPush (rtlArrayType *const arr_variable, const genericType element)
 
   {
-    rtlArraytype arr_to;
-    memsizetype new_size;
-    memsizetype arr_to_size;
+    rtlArrayType arr_to;
+    memSizeType new_size;
+    memSizeType arr_to_size;
 
   /* arrPush */
     arr_to = *arr_variable;
     arr_to_size = arraySize(arr_to);
     if (arr_to_size > MAX_RTL_ARR_LEN - 1 ||
-        arr_to->max_position > (inttype) (MAX_MEM_INDEX - 1)) {
+        arr_to->max_position > (intType) (MAX_MEM_INDEX - 1)) {
       raise_error(MEMORY_ERROR);
     } else {
       new_size = arr_to_size + 1;
@@ -800,7 +821,7 @@ void arrPush (rtlArraytype *const arr_variable, const generictype element)
         COUNT3_RTL_ARRAY(arr_to_size, new_size);
         *arr_variable = arr_to;
         arr_to->max_position ++;
-        arr_to->arr[arr_to_size].value.genericvalue = element;
+        arr_to->arr[arr_to_size].value.genericValue = element;
       } /* if */
     } /* if */
   } /* arrPush */
@@ -812,13 +833,13 @@ void arrPush (rtlArraytype *const arr_variable, const generictype element)
  *  @return the sub array from position 'start' to 'stop'.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-rtlArraytype arrRange (const const_rtlArraytype arr1, inttype start, inttype stop)
+rtlArrayType arrRange (const const_rtlArrayType arr1, intType start, intType stop)
 
   {
-    memsizetype length;
-    memsizetype result_size;
-    memsizetype start_idx;
-    rtlArraytype result;
+    memSizeType length;
+    memSizeType result_size;
+    memSizeType start_idx;
+    rtlArrayType result;
 
   /* arrRange */
     length = arraySize(arr1);
@@ -838,7 +859,7 @@ rtlArraytype arrRange (const const_rtlArraytype arr1, inttype start, inttype sto
         result->max_position = arrayMaxPos(arr1->min_position, result_size);
         start_idx = arrayIndex(arr1, start);
         memcpy(result->arr, &arr1->arr[start_idx],
-            (size_t) (result_size * sizeof(rtlObjecttype)));
+            (size_t) (result_size * sizeof(rtlObjectType)));
       } /* if */
     } else if (arr1->min_position == MIN_MEM_INDEX) {
       raise_error(RANGE_ERROR);
@@ -863,16 +884,16 @@ rtlArraytype arrRange (const const_rtlArraytype arr1, inttype start, inttype sto
  *  @return the sub array from position 'start' to 'stop'.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-rtlArraytype arrRangeTemp (rtlArraytype *arr_temp, inttype start, inttype stop)
+rtlArrayType arrRangeTemp (rtlArrayType *arr_temp, intType start, intType stop)
 
   {
-    rtlArraytype arr1;
-    memsizetype length;
-    memsizetype result_size;
-    memsizetype start_idx;
-    memsizetype stop_idx;
-    rtlArraytype resized_arr1;
-    rtlArraytype result;
+    rtlArrayType arr1;
+    memSizeType length;
+    memSizeType result_size;
+    memSizeType start_idx;
+    memSizeType stop_idx;
+    rtlArrayType resized_arr1;
+    rtlArrayType result;
 
   /* arrRangeTemp */
     arr1 = *arr_temp;
@@ -898,13 +919,13 @@ rtlArraytype arrRangeTemp (rtlArraytype *arr_temp, inttype start, inttype stop)
           start_idx = arrayIndex(arr1, start);
           stop_idx = arrayIndex(arr1, stop);
           memcpy(result->arr, &arr1->arr[start_idx],
-              (size_t) (result_size * sizeof(rtlObjecttype)));
+              (size_t) (result_size * sizeof(rtlObjectType)));
           memmove(&arr1->arr[start_idx], &arr1->arr[stop_idx + 1],
-              (size_t) ((length - stop_idx - 1) * sizeof(rtlObjecttype)));
+              (size_t) ((length - stop_idx - 1) * sizeof(rtlObjectType)));
           resized_arr1 = REALLOC_RTL_ARRAY(arr1, length, length - result_size);
           if (resized_arr1 == NULL) {
             memcpy(&arr1->arr[length - result_size], result->arr,
-                (size_t) (result_size * sizeof(rtlObjecttype)));
+                (size_t) (result_size * sizeof(rtlObjectType)));
             FREE_RTL_ARRAY(result, result_size);
             raise_error(MEMORY_ERROR);
             result = NULL;
@@ -931,10 +952,10 @@ rtlArraytype arrRangeTemp (rtlArraytype *arr_temp, inttype start, inttype stop)
 
 
 
-rtlArraytype arrRealloc (rtlArraytype arr, memsizetype oldSize, memsizetype newSize)
+rtlArrayType arrRealloc (rtlArrayType arr, memSizeType oldSize, memSizeType newSize)
 
   {
-    rtlArraytype resized_arr;
+    rtlArrayType resized_arr;
 
   /* arrRealloc */
     resized_arr = REALLOC_RTL_ARRAY(arr, oldSize, newSize);
@@ -957,23 +978,23 @@ rtlArraytype arrRealloc (rtlArraytype arr, memsizetype oldSize, memsizetype newS
  *  @exception RANGE_ERROR When 'position' is less than minIdx(arr) or
  *                         greater than maxIdx(arr)
  */
-generictype arrRemove (rtlArraytype *arr_to, inttype position)
+genericType arrRemove (rtlArrayType *arr_to, intType position)
 
   {
-    rtlArraytype arr1;
-    rtlArraytype resized_arr1;
-    rtlObjecttype *array_pointer;
-    memsizetype arr1_size;
-    generictype result;
+    rtlArrayType arr1;
+    rtlArrayType resized_arr1;
+    rtlObjectType *array_pointer;
+    memSizeType arr1_size;
+    genericType result;
 
   /* arrRemove */
     arr1 = *arr_to;
     if (position >= arr1->min_position && position <= arr1->max_position) {
       array_pointer = arr1->arr;
-      result = array_pointer[position - arr1->min_position].value.genericvalue;
+      result = array_pointer[position - arr1->min_position].value.genericValue;
       memmove(&array_pointer[position - arr1->min_position],
           &array_pointer[position - arr1->min_position + 1],
-          (arraySize2(position, arr1->max_position) - 1) * sizeof(rtlObjecttype));
+          (arraySize2(position, arr1->max_position) - 1) * sizeof(rtlObjectType));
       arr1_size = arraySize(arr1);
       resized_arr1 = REALLOC_RTL_ARRAY(arr1, arr1_size, arr1_size - 1);
       if (unlikely(resized_arr1 == NULL)) {
@@ -983,8 +1004,8 @@ generictype arrRemove (rtlArraytype *arr_to, inttype position)
         /* value of arr1.                                     */
         memmove(&array_pointer[position - arr1->min_position + 1],
             &array_pointer[position - arr1->min_position],
-            (arraySize2(position, arr1->max_position) - 1) * sizeof(rtlObjecttype));
-        array_pointer[position - arr1->min_position].value.genericvalue = result;
+            (arraySize2(position, arr1->max_position) - 1) * sizeof(rtlObjectType));
+        array_pointer[position - arr1->min_position].value.genericValue = result;
         raise_error(MEMORY_ERROR);
         result = 0;
       } else {
@@ -1002,7 +1023,7 @@ generictype arrRemove (rtlArraytype *arr_to, inttype position)
 
 
 
-rtlArraytype arrSort (rtlArraytype arr1, inttype cmp_func (generictype, generictype))
+rtlArrayType arrSort (rtlArrayType arr1, intType cmp_func (genericType, genericType))
 
   { /* arrSort */
     /* printf("arrSort(%lX, %ld, %ld)\n", arr1, arr1->min_position, arr1->max_position); */
@@ -1017,19 +1038,19 @@ rtlArraytype arrSort (rtlArraytype arr1, inttype cmp_func (generictype, generict
  *  @return the sub array from position 'start' with maximum length 'len'.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-rtlArraytype arrSubarr (const const_rtlArraytype arr1, inttype start, inttype len)
+rtlArrayType arrSubarr (const const_rtlArrayType arr1, intType start, intType len)
 
   {
-    memsizetype length;
-    memsizetype result_size;
-    memsizetype start_idx;
-    rtlArraytype result;
+    memSizeType length;
+    memSizeType result_size;
+    memSizeType start_idx;
+    rtlArrayType result;
 
   /* arrSubarr */
     length = arraySize(arr1);
     if (len >= 1 && start <= arr1->max_position && length >= 1 &&
         (start >= arr1->min_position ||
-        (uinttype) len > (uinttype) (arr1->min_position - start))) {
+        (uintType) len > (uintType) (arr1->min_position - start))) {
       if (start < arr1->min_position) {
         start = arr1->min_position;
         len -= arr1->min_position - start;
@@ -1037,7 +1058,7 @@ rtlArraytype arrSubarr (const const_rtlArraytype arr1, inttype start, inttype le
       if (len - 1 > arr1->max_position - start) {
         len = arr1->max_position - start + 1;
       } /* if */
-      result_size = (memsizetype) (uinttype) (len);
+      result_size = (memSizeType) (uintType) (len);
       if (!ALLOC_RTL_ARRAY(result, result_size)) {
         raise_error(MEMORY_ERROR);
       } else {
@@ -1045,7 +1066,7 @@ rtlArraytype arrSubarr (const const_rtlArraytype arr1, inttype start, inttype le
         result->max_position = arrayMaxPos(arr1->min_position, result_size);
         start_idx = arrayIndex(arr1, start);
         memcpy(result->arr, &arr1->arr[start_idx],
-            (size_t) (result_size * sizeof(rtlObjecttype)));
+            (size_t) (result_size * sizeof(rtlObjectType)));
       } /* if */
     } else if (arr1->min_position == MIN_MEM_INDEX) {
       raise_error(RANGE_ERROR);
@@ -1070,23 +1091,23 @@ rtlArraytype arrSubarr (const const_rtlArraytype arr1, inttype start, inttype le
  *  @return the sub array from position 'start' with maximum length 'len'.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-rtlArraytype arrSubarrTemp (rtlArraytype *arr_temp, inttype start, inttype len)
+rtlArrayType arrSubarrTemp (rtlArrayType *arr_temp, intType start, intType len)
 
   {
-    rtlArraytype arr1;
-    memsizetype length;
-    memsizetype result_size;
-    memsizetype start_idx;
-    memsizetype stop_idx;
-    rtlArraytype resized_arr1;
-    rtlArraytype result;
+    rtlArrayType arr1;
+    memSizeType length;
+    memSizeType result_size;
+    memSizeType start_idx;
+    memSizeType stop_idx;
+    rtlArrayType resized_arr1;
+    rtlArrayType result;
 
   /* arrSubarrTemp */
     arr1 = *arr_temp;
     length = arraySize(arr1);
     if (len >= 1 && start <= arr1->max_position && length >= 1 &&
         (start >= arr1->min_position ||
-        (uinttype) len > (uinttype) (arr1->min_position - start))) {
+        (uintType) len > (uintType) (arr1->min_position - start))) {
       if (start < arr1->min_position) {
         start = arr1->min_position;
         len -= arr1->min_position - start;
@@ -1094,7 +1115,7 @@ rtlArraytype arrSubarrTemp (rtlArraytype *arr_temp, inttype start, inttype len)
       if (len - 1 > arr1->max_position - start) {
         len = arr1->max_position - start + 1;
       } /* if */
-      result_size = (memsizetype) (uinttype) (len);
+      result_size = (memSizeType) (uintType) (len);
       if (result_size == length) {
         result = arr1;
         *arr_temp = NULL;
@@ -1107,13 +1128,13 @@ rtlArraytype arrSubarrTemp (rtlArraytype *arr_temp, inttype start, inttype len)
           start_idx = arrayIndex(arr1, start);
           stop_idx = arrayIndex(arr1, start + len - 1);
           memcpy(result->arr, &arr1->arr[start_idx],
-              (size_t) (result_size * sizeof(rtlObjecttype)));
+              (size_t) (result_size * sizeof(rtlObjectType)));
           memmove(&arr1->arr[start_idx], &arr1->arr[stop_idx + 1],
-              (size_t) ((length - stop_idx - 1) * sizeof(rtlObjecttype)));
+              (size_t) ((length - stop_idx - 1) * sizeof(rtlObjectType)));
           resized_arr1 = REALLOC_RTL_ARRAY(arr1, length, length - result_size);
           if (resized_arr1 == NULL) {
             memcpy(&arr1->arr[length - result_size], result->arr,
-                (size_t) (result_size * sizeof(rtlObjecttype)));
+                (size_t) (result_size * sizeof(rtlObjectType)));
             FREE_RTL_ARRAY(result, result_size);
             raise_error(MEMORY_ERROR);
             result = NULL;
@@ -1145,13 +1166,13 @@ rtlArraytype arrSubarrTemp (rtlArraytype *arr_temp, inttype start, inttype len)
  *  @return the sub array beginning at the start position.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-rtlArraytype arrTail (const const_rtlArraytype arr1, inttype start)
+rtlArrayType arrTail (const const_rtlArrayType arr1, intType start)
 
   {
-    memsizetype length;
-    memsizetype result_size;
-    memsizetype start_idx;
-    rtlArraytype result;
+    memSizeType length;
+    memSizeType result_size;
+    memSizeType start_idx;
+    rtlArrayType result;
 
   /* arrTail */
     length = arraySize(arr1);
@@ -1167,7 +1188,7 @@ rtlArraytype arrTail (const const_rtlArraytype arr1, inttype start)
         result->max_position = arrayMaxPos(arr1->min_position, result_size);
         start_idx = arrayIndex(arr1, start);
         memcpy(result->arr, &arr1->arr[start_idx],
-            (size_t) (result_size * sizeof(rtlObjecttype)));
+            (size_t) (result_size * sizeof(rtlObjectType)));
       } /* if */
     } else if (arr1->min_position == MIN_MEM_INDEX) {
       raise_error(RANGE_ERROR);
@@ -1192,15 +1213,15 @@ rtlArraytype arrTail (const const_rtlArraytype arr1, inttype start)
  *  @return the sub array beginning at the start position.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-rtlArraytype arrTailTemp (rtlArraytype *arr_temp, inttype start)
+rtlArrayType arrTailTemp (rtlArrayType *arr_temp, intType start)
 
   {
-    rtlArraytype arr1;
-    memsizetype length;
-    memsizetype result_size;
-    memsizetype start_idx;
-    rtlArraytype resized_arr1;
-    rtlArraytype result;
+    rtlArrayType arr1;
+    memSizeType length;
+    memSizeType result_size;
+    memSizeType start_idx;
+    rtlArrayType resized_arr1;
+    rtlArrayType result;
 
   /* arrTailTemp */
     arr1 = *arr_temp;
@@ -1218,7 +1239,7 @@ rtlArraytype arrTailTemp (rtlArraytype *arr_temp, inttype start)
           result->max_position = arrayMaxPos(arr1->min_position, result_size);
           start_idx = arrayIndex(arr1, start);
           memcpy(result->arr, &arr1->arr[start_idx],
-              (size_t) (result_size * sizeof(rtlObjecttype)));
+              (size_t) (result_size * sizeof(rtlObjectType)));
           resized_arr1 = REALLOC_RTL_ARRAY(arr1, length, length - result_size);
           if (resized_arr1 == NULL) {
             FREE_RTL_ARRAY(result, result_size);

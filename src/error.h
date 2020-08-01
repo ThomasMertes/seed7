@@ -89,25 +89,25 @@ typedef enum {
     UNEXPECTED_UTF8_CONTINUATION_BYTE,
     SOLITARY_UTF8_START_BYTE,
     UTF16_BYTE_ORDER_MARK_FOUND
-  } errortype;
+  } errorType;
 
 
-void place_of_error (errortype err);
-void err_warning (errortype err);
-void err_num_stri (errortype err, int num_found, int num_expected,
-                   const_ustritype stri);
-void err_ident (errortype err, const_identtype ident);
-void err_object (errortype err, const_objecttype obj_found);
-void err_type (errortype err, const_typetype type_found);
-void err_expr_obj (errortype err, const_objecttype expr_object,
-                   objecttype obj_found);
-void err_match (errortype err, objecttype obj_found);
-void err_string (errortype err, const_ustritype stri);
-void err_stri (errortype err, const_stritype stri);
-void err_integer (errortype err, inttype number);
-void err_cchar (errortype err, int character);
-void err_char (errortype err, chartype character);
-void err_at_line (errortype err, linenumtype line);
-void err_undeclared (errortype err, filenumtype file_num,
-                     linenumtype line, const_ustritype stri);
-void err_message (errortype err, const_stritype stri);
+void place_of_error (errorType err);
+void err_warning (errorType err);
+void err_num_stri (errorType err, int num_found, int num_expected,
+                   const_ustriType stri);
+void err_ident (errorType err, const_identType ident);
+void err_object (errorType err, const_objectType obj_found);
+void err_type (errorType err, const_typeType type_found);
+void err_expr_obj (errorType err, const_objectType expr_object,
+                   objectType obj_found);
+void err_match (errorType err, objectType obj_found);
+void err_string (errorType err, const_ustriType stri);
+void err_stri (errorType err, const_striType stri);
+void err_integer (errorType err, intType number);
+void err_cchar (errorType err, int character);
+void err_char (errorType err, charType character);
+void err_at_line (errorType err, lineNumType line);
+void err_undeclared (errorType err, fileNumType file_num,
+                     lineNumType line, const_ustriType stri);
+void err_message (errorType err, const_striType stri);

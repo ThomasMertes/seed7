@@ -61,9 +61,9 @@
 /* would be -128. -128 radix 2  returns  "-10000000"   */
 /* The result needs 9 digits although -128 fits into a */
 /* signed byte with 8 bits.                            */
-#define RADIX_BUFFER_SIZE (8 * sizeof(inttype) + 1)
+#define RADIX_BUFFER_SIZE (8 * sizeof(intType) + 1)
 
-#define BYTE_BUFFER_SIZE sizeof(inttype)
+#define BYTE_BUFFER_SIZE sizeof(intType)
 
 #if   INTTYPE_SIZE == 32
 #define DECIMAL_DIGITS(num)                    \
@@ -164,24 +164,24 @@ static const int least_significant[] = {
     4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0
   };
 
-static const char lcDigits[] = "0123456789abcdefghijklmnopqrstuvwxyz";
-static const char ucDigits[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-static const const_cstritype digitTable[] = {lcDigits, ucDigits};
+const char lcDigits[] = "0123456789abcdefghijklmnopqrstuvwxyz";
+const char ucDigits[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const const_cstriType digitTable[] = {lcDigits, ucDigits};
 
 
 
 /**
- *  Multiply two uinttype factors to a double uinttype product.
- *  The whole product fits into the double uinttype number.
+ *  Multiply two uintType factors to a double uintType product.
+ *  The whole product fits into the double uintType number.
  *  The product is returned in product_high and product_low.
- *  A double uinttype number consists of a low and a high uinttype
- *  number. A double uinttype number can also be splitted into
- *  four halve uinttype parts. The bits of a double uinttype have
+ *  A double uintType number consists of a low and a high uintType
+ *  number. A double uintType number can also be splitted into
+ *  four halve uintType parts. The bits of a double uintType have
  *  the following memory layout:
  *  +---------------------------------------+
- *  |            double uinttype            |
+ *  |            double uintType            |
  *  +-------------------+-------------------+
- *  |   high uinttype   |    low uinttype   |
+ *  |   high uintType   |    low uintType   |
  *  +---------+---------+---------+---------+
  *  | part[3] | part[2] | part[1] | part[0] |
  *  +---------+---------+---------+---------+
@@ -189,17 +189,17 @@ static const const_cstritype digitTable[] = {lcDigits, ucDigits};
  *  @param product_high The address to return the high product.
  *  @return the low product
  */
-uinttype uint_mult (uinttype factor1, uinttype factor2, uinttype *product_high)
+uintType uint_mult (uintType factor1, uintType factor2, uintType *product_high)
 
   {
-    uinttype factor1_part[2];  /* parts 2 and 3 are not used */
-    uinttype factor2_part[2];  /* parts 2 and 3 are not used */
-    uinttype c1;  /* memory layout:   | part[1] | part[0] |  */
-    uinttype c2;  /* memory layout:   | part[2] | part[1] |  */
-    uinttype c3;  /* memory layout:   | part[2] | part[1] |  */
-    uinttype c4;  /* memory layout:   | part[2] | part[1] |  */
-    uinttype c5;  /* memory layout:   | part[3] | part[2] |  */
-    uinttype product_low;
+    uintType factor1_part[2];  /* parts 2 and 3 are not used */
+    uintType factor2_part[2];  /* parts 2 and 3 are not used */
+    uintType c1;  /* memory layout:   | part[1] | part[0] |  */
+    uintType c2;  /* memory layout:   | part[2] | part[1] |  */
+    uintType c3;  /* memory layout:   | part[2] | part[1] |  */
+    uintType c4;  /* memory layout:   | part[2] | part[1] |  */
+    uintType c5;  /* memory layout:   | part[3] | part[2] |  */
+    uintType product_low;
 
   /* uint_mult */
 #ifdef TRACE_RANDOM
@@ -216,7 +216,7 @@ uinttype uint_mult (uinttype factor1, uinttype factor2, uinttype *product_high)
     c4 = UPPER_HALVE_OF_UINT(c1) + LOWER_HALVE_OF_UINT(c2) + LOWER_HALVE_OF_UINT(c3);
     c5 = UPPER_HALVE_OF_UINT(c2) + UPPER_HALVE_OF_UINT(c3) + UPPER_HALVE_OF_UINT(c4) +
          factor1_part[1] * factor2_part[1];
-    /* c5 contains the high uinttype of factor1 * factor2 */
+    /* c5 contains the high uintType of factor1 * factor2 */
     product_low = UINT_BITS(factor1 * factor2);
     *product_high = UINT_BITS(c5);
 #ifdef TRACE_RANDOM
@@ -229,18 +229,18 @@ uinttype uint_mult (uinttype factor1, uinttype factor2, uinttype *product_high)
 
 
 /**
- *  Multiply two double uinttype factors to a double uinttype product.
- *  The low bits of the product are returned as double uinttype
+ *  Multiply two double uintType factors to a double uintType product.
+ *  The low bits of the product are returned as double uintType
  *  number (in product_high and product_low). The higher bits of
  *  the product (the bits higher than product_high) are discarded.
- *  A double uinttype number consists of a low and a high uinttype
- *  number. A double uinttype number can also be splitted into
- *  four halve uinttype parts. The bits of a double uinttype have
+ *  A double uintType number consists of a low and a high uintType
+ *  number. A double uintType number can also be splitted into
+ *  four halve uintType parts. The bits of a double uintType have
  *  the following memory layout:
  *  +---------------------------------------+
- *  |            double uinttype            |
+ *  |            double uintType            |
  *  +-------------------+-------------------+
- *  |   high uinttype   |    low uinttype   |
+ *  |   high uintType   |    low uintType   |
  *  +---------+---------+---------+---------+
  *  | part[3] | part[2] | part[1] | part[0] |
  *  +---------+---------+---------+---------+
@@ -248,18 +248,18 @@ uinttype uint_mult (uinttype factor1, uinttype factor2, uinttype *product_high)
  *  @param product_high The address to return the high product.
  *  @return the low product
  */
-static inline uinttype uint2_mult (uinttype factor1_high, uinttype factor1_low,
-    uinttype factor2_high, uinttype factor2_low, uinttype *product_high)
+static inline uintType uint2_mult (uintType factor1_high, uintType factor1_low,
+    uintType factor2_high, uintType factor2_low, uintType *product_high)
 
   {
-    uinttype factor1_part[2];  /* parts 2 and 3 are not used */
-    uinttype factor2_part[2];  /* parts 2 and 3 are not used */
-    uinttype c1;  /* memory layout:   | part[1] | part[0] |  */
-    uinttype c2;  /* memory layout:   | part[2] | part[1] |  */
-    uinttype c3;  /* memory layout:   | part[2] | part[1] |  */
-    uinttype c4;  /* memory layout:   | part[2] | part[1] |  */
-    uinttype c5;  /* memory layout:   | part[3] | part[2] |  */
-    uinttype product_low;
+    uintType factor1_part[2];  /* parts 2 and 3 are not used */
+    uintType factor2_part[2];  /* parts 2 and 3 are not used */
+    uintType c1;  /* memory layout:   | part[1] | part[0] |  */
+    uintType c2;  /* memory layout:   | part[2] | part[1] |  */
+    uintType c3;  /* memory layout:   | part[2] | part[1] |  */
+    uintType c4;  /* memory layout:   | part[2] | part[1] |  */
+    uintType c5;  /* memory layout:   | part[3] | part[2] |  */
+    uintType product_low;
 
   /* uint2_mult */
 #ifdef TRACE_RANDOM
@@ -277,7 +277,7 @@ static inline uinttype uint2_mult (uinttype factor1_high, uinttype factor1_low,
     c4 = UPPER_HALVE_OF_UINT(c1) + LOWER_HALVE_OF_UINT(c2) + LOWER_HALVE_OF_UINT(c3);
     c5 = UPPER_HALVE_OF_UINT(c2) + UPPER_HALVE_OF_UINT(c3) + UPPER_HALVE_OF_UINT(c4) +
          factor1_part[1] * factor2_part[1];
-    /* c5 contains the high uinttype of factor1_low * factor2_low */
+    /* c5 contains the high uintType of factor1_low * factor2_low */
     product_low = UINT_BITS(factor1_low * factor2_low);
     *product_high = UINT_BITS(factor1_low * factor2_high + factor1_high * factor2_low + c5);
     /* factor1_high * factor2_high is not computed. All bits of it  */
@@ -292,26 +292,26 @@ static inline uinttype uint2_mult (uinttype factor1_high, uinttype factor1_low,
 
 
 /**
- *  Add two double uinttype summands to a double uinttype sum.
+ *  Add two double uintType summands to a double uintType sum.
  *  A possible excess bit, that does not fit into the sum
  *  (the excess bit is higher than sum_high), is discarded.
- *  A double uinttype number consists of a low and a high uinttype
- *  number. The bits of a double uinttype have the following
+ *  A double uintType number consists of a low and a high uintType
+ *  number. The bits of a double uintType have the following
  *  memory layout:
  *  +---------------------------------------+
- *  |            double uinttype            |
+ *  |            double uintType            |
  *  +-------------------+-------------------+
- *  |   high uinttype   |    low uinttype   |
+ *  |   high uintType   |    low uintType   |
  *  +-------------------+-------------------+
  *   ^ highest bit                         ^ lowest bit
  *  @param sum_high The address to return the high sum.
  *  @return the low sum
  */
-static inline uinttype uint2_add (uinttype summand1_high, uinttype summand1_low,
-    uinttype summand2_high, uinttype summand2_low, uinttype *sum_high)
+static inline uintType uint2_add (uintType summand1_high, uintType summand1_low,
+    uintType summand2_high, uintType summand2_low, uintType *sum_high)
 
   {
-    uinttype sum_low;
+    uintType sum_low;
 
   /* uint2_add */
 #ifdef TRACE_RANDOM
@@ -339,29 +339,29 @@ static inline uinttype uint2_add (uinttype summand1_high, uinttype summand1_low,
 /**
  *  Compute a random unsigned number in the range 0 .. UINTTYPE_MAX.
  *  The linear congruential method is used to generate the random
- *  sequence of uinttype numbers. The generator uses double uinttype
+ *  sequence of uintType numbers. The generator uses double uintType
  *  numbers for the seed. Only the high bits of the seed (high_seed)
  *  are used as random number. This avoids that the lower-order bits
  *  of the generated sequence have a short period.
  *  @return the random number.
  */
-uinttype uint_rand (void)
+uintType uint_rand (void)
 
   {
-    static booltype seed_necessary = TRUE;
-    static uinttype low_seed;
-    static uinttype high_seed;
+    static boolType seed_necessary = TRUE;
+    static uintType low_seed;
+    static uintType high_seed;
 
   /* uint_rand */
 #ifdef TRACE_RANDOM
     printf("BEGIN uint_rand\n");
 #endif
     if (unlikely(seed_necessary)) {
-      uinttype micro_sec = (uinttype) timMicroSec();
+      uintType micro_sec = (uintType) timMicroSec();
 
-      high_seed = (uinttype) time(NULL);
+      high_seed = (uintType) time(NULL);
       high_seed = high_seed ^ (high_seed << 16);
-      low_seed = (uinttype) clock();
+      low_seed = (uintType) clock();
       low_seed = (low_seed ^ (low_seed << 16)) ^ high_seed;
       /* printf("%10lo %010lo seed\n", (long unsigned) high_seed, (long unsigned) low_seed); */
       high_seed ^= micro_sec ^ micro_sec << 8 ^ micro_sec << 16 ^ micro_sec << 24;
@@ -377,15 +377,15 @@ uinttype uint_rand (void)
     } /* if */
 #if INTTYPE_SIZE == 32
     /* SEED = SEED * 1103515245 + 12345 */
-    low_seed = uint2_mult(high_seed, low_seed, (uinttype) INT_SUFFIX(0), (uinttype) INT_SUFFIX(1103515245),
+    low_seed = uint2_mult(high_seed, low_seed, (uintType) INT_SUFFIX(0), (uintType) INT_SUFFIX(1103515245),
         &high_seed);
-    low_seed = uint2_add(high_seed, low_seed, (uinttype) INT_SUFFIX(0), (uinttype) INT_SUFFIX(12345),
+    low_seed = uint2_add(high_seed, low_seed, (uintType) INT_SUFFIX(0), (uintType) INT_SUFFIX(12345),
         &high_seed);
 #elif INTTYPE_SIZE == 64
     /* SEED = SEED * 6364136223846793005 + 1442695040888963407 */
-    low_seed = uint2_mult(high_seed, low_seed, (uinttype) INT_SUFFIX(0), (uinttype) INT_SUFFIX(6364136223846793005),
+    low_seed = uint2_mult(high_seed, low_seed, (uintType) INT_SUFFIX(0), (uintType) INT_SUFFIX(6364136223846793005),
         &high_seed);
-    low_seed = uint2_add(high_seed, low_seed, (uinttype) INT_SUFFIX(0), (uinttype) INT_SUFFIX(1442695040888963407),
+    low_seed = uint2_add(high_seed, low_seed, (uintType) INT_SUFFIX(0), (uintType) INT_SUFFIX(1442695040888963407),
         &high_seed);
 #endif
 #ifdef TRACE_RANDOM
@@ -396,7 +396,7 @@ uinttype uint_rand (void)
 
 
 
-int uint8MostSignificantBit (uint8type number)
+int uint8MostSignificantBit (uint8Type number)
 
   {
     int result;
@@ -408,7 +408,7 @@ int uint8MostSignificantBit (uint8type number)
 
 
 
-int uint16MostSignificantBit (uint16type number)
+int uint16MostSignificantBit (uint16Type number)
 
   {
     int result;
@@ -424,7 +424,7 @@ int uint16MostSignificantBit (uint16type number)
 
 
 
-int uint32MostSignificantBit (uint32type number)
+int uint32MostSignificantBit (uint32Type number)
 
   {
     int result;
@@ -446,7 +446,7 @@ int uint32MostSignificantBit (uint32type number)
 
 
 #ifdef INT64TYPE
-int uint64MostSignificantBit (uint64type number)
+int uint64MostSignificantBit (uint64Type number)
 
   {
     int result;
@@ -472,7 +472,7 @@ int uint64MostSignificantBit (uint64type number)
 
 
 
-int uint8LeastSignificantBit (uint8type number)
+int uint8LeastSignificantBit (uint8Type number)
 
   {
     int result;
@@ -484,7 +484,7 @@ int uint8LeastSignificantBit (uint8type number)
 
 
 
-int uint16LeastSignificantBit (uint16type number)
+int uint16LeastSignificantBit (uint16Type number)
 
   {
     int result;
@@ -500,7 +500,7 @@ int uint16LeastSignificantBit (uint16type number)
 
 
 
-int uint32LeastSignificantBit (uint32type number)
+int uint32LeastSignificantBit (uint32Type number)
 
   {
     int result;
@@ -522,7 +522,7 @@ int uint32LeastSignificantBit (uint32type number)
 
 
 #ifdef INT64TYPE
-int uint64LeastSignificantBit (uint64type number)
+int uint64LeastSignificantBit (uint64Type number)
 
   {
     int result;
@@ -554,7 +554,7 @@ int uint64LeastSignificantBit (uint64type number)
  *          respectively less than, equal to, or greater than the
  *          second.
  */
-inttype genericCmp (const generictype value1, const generictype value2)
+intType genericCmp (const genericType value1, const genericType value2)
 
   { /* genericCmp */
     if (value1 < value2) {
@@ -572,14 +572,14 @@ inttype genericCmp (const generictype value1, const generictype value2)
  *  Generic Copy function to be used via function pointers.
  *  This functions is used to copy values for all types
  *  where a binary copy without special funtionality can be used:
- *  E.g.: inttype, floattype, chartype, booltype.
+ *  E.g.: intType, floatType, charType, boolType.
  *  Function pointers in C programs generated by the Seed7 compiler
  *  may point to this function. The function genericCpy is
  *  used from hashtables where the keys and the data is stored in
- *  generictype data elements. This assures correct behaviour
- *  even when sizeof(generictype) != sizeof(inttype).
+ *  genericType data elements. This assures correct behaviour
+ *  even when sizeof(genericType) != sizeof(intType).
  */
-void genericCpy (generictype *const dest, const generictype source)
+void genericCpy (genericType *const dest, const genericType source)
 
   { /* genericCpy */
     *dest = source;
@@ -591,20 +591,20 @@ void genericCpy (generictype *const dest, const generictype source)
  *  Generic Create function to be used via function pointers.
  *  This functions is used to create new values for all types
  *  where a binary copy without special funtionality can be used:
- *  E.g.: inttype, floattype, chartype, booltype.
+ *  E.g.: intType, floatType, charType, boolType.
  *  Function pointers in C programs generated by the Seed7 compiler
  *  may point to this function. The function genericCreate is
  *  used from hashtables where the keys and the data is stored in
- *  generictype data elements. This assures correct behaviour
- *  even when sizeof(generictype) != sizeof(inttype). Even for
- *  sizeof(generictype) == sizeof(inttype) some things must
+ *  genericType data elements. This assures correct behaviour
+ *  even when sizeof(genericType) != sizeof(intType). Even for
+ *  sizeof(genericType) == sizeof(intType) some things must
  *  be considered: On some architectures (linux with gcc)
  *  functions with float results seem to be returned in a
  *  different way (may be another register). Therefore
- *  genericCreate (with generictype) must be used even
- *  when sizeof(generictype) == sizeof(floattype).
+ *  genericCreate (with genericType) must be used even
+ *  when sizeof(genericType) == sizeof(floatType).
  */
-generictype genericCreate (generictype source)
+genericType genericCreate (genericType source)
 
   { /* genericCreate */
     return source;
@@ -616,12 +616,12 @@ generictype genericCreate (generictype source)
  *  Generic Destr function to be used via function pointers.
  *  This functions is used to destroy old values for all types
  *  where a noop without special funtionality can be used:
- *  E.g.: inttype, floattype, chartype, booltype.
+ *  E.g.: intType, floatType, charType, boolType.
  *  In contrast to prcNoop the number of parameters (1) of
  *  genericDestr is correct. This is important since some
  *  C compilers generate wrong code when prcNoop is used.
  */
-void genericDestr (generictype old_value)
+void genericDestr (genericType old_value)
 
   { /* genericDestr */
   } /* genericDestr */
@@ -634,12 +634,12 @@ void genericDestr (generictype old_value)
  *          respectively less than, equal to, or greater than the
  *          second.
  */
-inttype ptrCmp (const void *const value1, const void *const value2)
+intType ptrCmp (const void *const value1, const void *const value2)
 
   { /* ptrCmp */
-    if ((memsizetype) value1 < (memsizetype) value2) {
+    if ((memSizeType) value1 < (memSizeType) value2) {
       return -1;
-    } else if ((memsizetype) value1 > (memsizetype) value2) {
+    } else if ((memSizeType) value1 > (memSizeType) value2) {
       return 1;
     } else {
       return 0;
@@ -649,25 +649,25 @@ inttype ptrCmp (const void *const value1, const void *const value2)
 
 
 /**
- *  Reinterpret the generic parameters as rtlPtrtype and call ptrCmp.
+ *  Reinterpret the generic parameters as rtlPtrType and call ptrCmp.
  *  Function pointers in C programs generated by the Seed7 compiler
  *  may point to this function. This assures correct behaviour even
- *  when sizeof(generictype) != sizeof(rtlPtrtype).
+ *  when sizeof(genericType) != sizeof(rtlPtrType).
  */
-inttype ptrCmpGeneric (const generictype value1, const generictype value2)
+intType ptrCmpGeneric (const genericType value1, const genericType value2)
 
   { /* ptrCmpGeneric */
-    return ptrCmp(((const_rtlObjecttype *) &value1)->value.ptrvalue,
-                  ((const_rtlObjecttype *) &value2)->value.ptrvalue);
+    return ptrCmp(((const_rtlObjectType *) &value1)->value.ptrValue,
+                  ((const_rtlObjectType *) &value2)->value.ptrValue);
   } /* ptrCmpGeneric */
 
 
 
-void ptrCpyGeneric (generictype *const dest, const generictype source)
+void ptrCpyGeneric (genericType *const dest, const genericType source)
 
   { /* ptrCpyGeneric */
-    ((rtlObjecttype *) dest)->value.ptrvalue =
-        ((const_rtlObjecttype *) &source)->value.ptrvalue;
+    ((rtlObjectType *) dest)->value.ptrValue =
+        ((const_rtlObjectType *) &source)->value.ptrValue;
   } /* ptrCpyGeneric */
 
 
@@ -676,17 +676,17 @@ void ptrCpyGeneric (generictype *const dest, const generictype source)
  *  Generic Create function to be used via function pointers.
  *  Function pointers in C programs generated by the Seed7 compiler
  *  may point to this function. This assures correct behaviour even
- *  when sizeof(generictype) != sizeof(rtlPtrtype).
+ *  when sizeof(genericType) != sizeof(rtlPtrType).
  */
-generictype ptrCreateGeneric (const generictype from_value)
+genericType ptrCreateGeneric (const genericType from_value)
 
   {
-    rtlObjecttype result;
+    rtlObjectType result;
 
   /* ptrCreateGeneric */
-    result.value.ptrvalue =
-        ((const_rtlObjecttype *) &from_value)->value.ptrvalue;
-    return result.value.genericvalue;
+    result.value.ptrValue =
+        ((const_rtlObjectType *) &from_value)->value.ptrValue;
+    return result.value.genericValue;
   } /* ptrCreateGeneric */
 
 
@@ -696,12 +696,12 @@ generictype ptrCreateGeneric (const generictype from_value)
  *  This is equivalent to n! / k! / (n - k)!
  *  @return n over k
  */
-inttype intBinom (inttype n_number, inttype k_number)
+intType intBinom (intType n_number, intType k_number)
 
   {
-    inttype number;
-    uinttype unsigned_result;
-    inttype result;
+    intType number;
+    uintType unsigned_result;
+    intType result;
 
   /* intBinom */
     /* printf("(%ld ! %ld) ", k_number, n_number); */
@@ -720,12 +720,12 @@ inttype intBinom (inttype n_number, inttype k_number)
           result /= number;
         } /* for */
       } else {
-        unsigned_result = (uinttype) n_number;
+        unsigned_result = (uintType) n_number;
         for (number = 2; number <= k_number; number++) {
-          unsigned_result *= (uinttype) (n_number - number + 1);
-          unsigned_result /= (uinttype) number;
+          unsigned_result *= (uintType) (n_number - number + 1);
+          unsigned_result /= (uintType) number;
         } /* for */
-        result = (inttype) unsigned_result;
+        result = (intType) unsigned_result;
       } /* if */
 /*
     } else {
@@ -745,16 +745,16 @@ inttype intBinom (inttype n_number, inttype k_number)
  *  minimal two's-complement representation.
  *  @return the number of bits.
  */
-inttype intBitLength (inttype number)
+intType intBitLength (intType number)
 
   {
-    inttype result;
+    intType result;
 
   /* intBitLength */
     if (number < 0) {
       number = ~number;
     } /* if */
-    result = uintMostSignificantBit((uinttype) number) + 1;
+    result = uintMostSignificantBit((uintType) number) + 1;
     return result;
   } /* intBitLength */
 
@@ -774,19 +774,19 @@ inttype intBitLength (inttype number)
  *  @exception RANGE_ERROR When 'isSigned' is FALSE and 'number' is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-stritype intBytesBe (inttype number, booltype isSigned)
+striType intBytesBe (intType number, boolType isSigned)
 
   {
-    strelemtype buffer[BYTE_BUFFER_SIZE];
+    strElemType buffer[BYTE_BUFFER_SIZE];
     unsigned int pos = BYTE_BUFFER_SIZE;
-    stritype result;
+    striType result;
 
   /* intBytesBe */
     /* printf("intBytesBe(%016lx, %d)\n", number, isSigned); */
     if (number >= 0) {
       do {
         pos--;
-        buffer[pos] = (strelemtype) (number & 0xff);
+        buffer[pos] = (strElemType) (number & 0xff);
         number >>= 8;
       } while (number != 0);
       if (isSigned && buffer[pos] >= 128) {
@@ -796,7 +796,7 @@ stritype intBytesBe (inttype number, booltype isSigned)
     } else if (isSigned) {
       do {
         pos--;
-        buffer[pos] = (strelemtype) (number & 0xff);
+        buffer[pos] = (strElemType) (number & 0xff);
 #ifdef RSHIFT_DOES_SIGN_EXTEND
         number >>= 8;
 #else
@@ -811,12 +811,12 @@ stritype intBytesBe (inttype number, booltype isSigned)
       raise_error(RANGE_ERROR);
       return NULL;
     } /* if */
-    if (!ALLOC_STRI_SIZE_OK(result, (memsizetype) (BYTE_BUFFER_SIZE - pos))) {
+    if (!ALLOC_STRI_SIZE_OK(result, (memSizeType) (BYTE_BUFFER_SIZE - pos))) {
       raise_error(MEMORY_ERROR);
     } else {
-      result->size = (memsizetype) (BYTE_BUFFER_SIZE - pos);
+      result->size = (memSizeType) (BYTE_BUFFER_SIZE - pos);
       memcpy(result->mem, &buffer[pos],
-             (memsizetype) (BYTE_BUFFER_SIZE - pos) * sizeof(strelemtype));
+             (memSizeType) (BYTE_BUFFER_SIZE - pos) * sizeof(strElemType));
     } /* if */
     return result;
   } /* intBytesBe */
@@ -837,35 +837,35 @@ stritype intBytesBe (inttype number, booltype isSigned)
  *  @exception RANGE_ERROR When characters beyond '\255;' are present or
  *             when the result value cannot be represented with an integer.
  */
-inttype intBytesBe2Int (const const_stritype byteStri, booltype isSigned)
+intType intBytesBe2Int (const const_striType byteStri, boolType isSigned)
 
   {
-    memsizetype pos = 0;
-    inttype result = 0;
+    memSizeType pos = 0;
+    intType result = 0;
 
   /* intBytesBe2Int */
     /* printf("intBytesBe2Int(");
        prot_stri(byteStri);
        printf(", %d)\n", isSigned); */
     if (!isSigned || byteStri->size == 0 || byteStri->mem[0] <= 127) {
-      if (unlikely(byteStri->size >= sizeof(inttype))) {
+      if (unlikely(byteStri->size >= sizeof(intType))) {
         while (pos < byteStri->size && byteStri->mem[pos] == 0) {
           pos++;
         } /* if */
-        if (unlikely(byteStri->size - pos > sizeof(inttype) ||
-                     (byteStri->size - pos == sizeof(inttype) &&
+        if (unlikely(byteStri->size - pos > sizeof(intType) ||
+                     (byteStri->size - pos == sizeof(intType) &&
                       byteStri->mem[pos] >= 128))) {
           raise_error(RANGE_ERROR);
           return 0;
         } /* if */
       } /* if */
     } else { /* isSigned && byteStri->size != 0 && byteStri->mem[0] >= 128 */
-      if (unlikely(byteStri->size >= sizeof(inttype))) {
+      if (unlikely(byteStri->size >= sizeof(intType))) {
         while (pos < byteStri->size && byteStri->mem[pos] == 255) {
           pos++;
         } /* if */
-        if (unlikely(byteStri->size - pos > sizeof(inttype) ||
-                     (byteStri->size - pos == sizeof(inttype) &&
+        if (unlikely(byteStri->size - pos > sizeof(intType) ||
+                     (byteStri->size - pos == sizeof(intType) &&
                       byteStri->mem[pos] <= 127))) {
           raise_error(RANGE_ERROR);
           return 0;
@@ -900,18 +900,18 @@ inttype intBytesBe2Int (const const_stritype byteStri, booltype isSigned)
  *  @exception RANGE_ERROR When 'isSigned' is FALSE and 'number' is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-stritype intBytesLe (inttype number, booltype isSigned)
+striType intBytesLe (intType number, boolType isSigned)
 
   {
-    strelemtype buffer[BYTE_BUFFER_SIZE];
+    strElemType buffer[BYTE_BUFFER_SIZE];
     unsigned int pos = 0;
-    stritype result;
+    striType result;
 
   /* intBytesLe */
     /* printf("intBytesLe(%016lx, %d)\n", number, isSigned); */
     if (number >= 0) {
       do {
-        buffer[pos] = (uchartype) (number & 0xff);
+        buffer[pos] = (ucharType) (number & 0xff);
         number >>= 8;
         pos++;
       } while (number != 0);
@@ -921,7 +921,7 @@ stritype intBytesLe (inttype number, booltype isSigned)
       } /* if */
     } else if (isSigned) {
       do {
-        buffer[pos] = (uchartype) (number & 0xff);
+        buffer[pos] = (ucharType) (number & 0xff);
 #ifdef RSHIFT_DOES_SIGN_EXTEND
         number >>= 8;
 #else
@@ -937,12 +937,12 @@ stritype intBytesLe (inttype number, booltype isSigned)
       raise_error(RANGE_ERROR);
       return NULL;
     } /* if */
-    if (!ALLOC_STRI_SIZE_OK(result, (memsizetype) (pos))) {
+    if (!ALLOC_STRI_SIZE_OK(result, (memSizeType) (pos))) {
       raise_error(MEMORY_ERROR);
     } else {
-      result->size = (memsizetype) (pos);
+      result->size = (memSizeType) (pos);
       memcpy(result->mem, &buffer[0],
-             (memsizetype) pos * sizeof(strelemtype));
+             (memSizeType) pos * sizeof(strElemType));
     } /* if */
     return result;
   } /* intBytesLe */
@@ -963,11 +963,11 @@ stritype intBytesLe (inttype number, booltype isSigned)
  *  @exception RANGE_ERROR When characters beyond '\255;' are present or
  *             when the result value cannot be represented with an integer.
  */
-inttype intBytesLe2Int (const const_stritype byteStri, booltype isSigned)
+intType intBytesLe2Int (const const_striType byteStri, boolType isSigned)
 
   {
-    memsizetype pos;
-    inttype result = 0;
+    memSizeType pos;
+    intType result = 0;
 
   /* intBytesLe2Int */
     /* printf("intBytesLe2Int(");
@@ -975,24 +975,24 @@ inttype intBytesLe2Int (const const_stritype byteStri, booltype isSigned)
        printf(", %d)\n", isSigned); */
     pos = byteStri->size;
     if (!isSigned || byteStri->size == 0 || byteStri->mem[pos - 1] <= 127) {
-      if (unlikely(byteStri->size >= sizeof(inttype))) {
+      if (unlikely(byteStri->size >= sizeof(intType))) {
         while (pos > 0 && byteStri->mem[pos - 1] == 0) {
           pos--;
         } /* if */
-        if (unlikely(pos > sizeof(inttype) ||
-                     (pos == sizeof(inttype) &&
+        if (unlikely(pos > sizeof(intType) ||
+                     (pos == sizeof(intType) &&
                       byteStri->mem[pos - 1] >= 128))) {
           raise_error(RANGE_ERROR);
           return 0;
         } /* if */
       } /* if */
     } else { /* isSigned && byteStri->size != 0 && byteStri->mem[pos - 1] >= 128 */
-      if (unlikely(byteStri->size >= sizeof(inttype))) {
+      if (unlikely(byteStri->size >= sizeof(intType))) {
         while (pos > 0 && byteStri->mem[pos - 1] == 255) {
           pos--;
         } /* if */
-        if (unlikely(pos > sizeof(inttype) ||
-                     (pos == sizeof(inttype) &&
+        if (unlikely(pos > sizeof(intType) ||
+                     (pos == sizeof(intType) &&
                       byteStri->mem[pos - 1] <= 127))) {
           raise_error(RANGE_ERROR);
           return 0;
@@ -1019,7 +1019,7 @@ inttype intBytesLe2Int (const const_stritype byteStri, booltype isSigned)
  *          respectively less than, equal to, or greater than the
  *          second.
  */
-inttype intCmp (inttype number1, inttype number2)
+intType intCmp (intType number1, intType number2)
 
   { /* intCmp */
     if (number1 < number2) {
@@ -1034,21 +1034,21 @@ inttype intCmp (inttype number1, inttype number2)
 
 
 /**
- *  Reinterpret the generic parameters as inttype and call intCmp.
+ *  Reinterpret the generic parameters as intType and call intCmp.
  *  Function pointers in C programs generated by the Seed7 compiler
  *  may point to this function. This assures correct behaviour even
- *  when sizeof(generictype) != sizeof(inttype).
+ *  when sizeof(genericType) != sizeof(intType).
  */
-inttype intCmpGeneric (const generictype value1, const generictype value2)
+intType intCmpGeneric (const genericType value1, const genericType value2)
 
   { /* intCmpGeneric */
-    return intCmp(((const_rtlObjecttype *) &value1)->value.intvalue,
-                  ((const_rtlObjecttype *) &value2)->value.intvalue);
+    return intCmp(((const_rtlObjectType *) &value1)->value.intValue,
+                  ((const_rtlObjectType *) &value2)->value.intValue);
   } /* intCmpGeneric */
 
 
 
-void intCpy (inttype *dest, inttype source)
+void intCpy (intType *dest, intType source)
 
   { /* intCpy */
     *dest = source;
@@ -1062,7 +1062,7 @@ void intCpy (inttype *dest, inttype source)
  *  @return the truncated base 2 logarithm.
  *  @exception NUMERIC_ERROR The number is negative.
  */
-inttype intLog2 (inttype number)
+intType intLog2 (intType number)
 
   {
     int result;
@@ -1072,7 +1072,7 @@ inttype intLog2 (inttype number)
       raise_error(NUMERIC_ERROR);
       result = 0;
     } else {
-      result = uintMostSignificantBit((uinttype) number);
+      result = uintMostSignificantBit((uintType) number);
     } /* if */
     return result;
   } /* intLog2 */
@@ -1084,49 +1084,49 @@ inttype intLog2 (inttype number)
  *  For A <> 0 this is equal to the number of lowest-order zero bits.
  *  @return the number of lowest-order zero bits or -1 for lowestSetBit(0).
  */
-inttype intLowestSetBit (inttype number)
+intType intLowestSetBit (intType number)
 
   {
-    inttype result;
+    intType result;
 
   /* intLowestSetBit */
     if (number == 0) {
       result = -1;
     } else {
-      result = uintLeastSignificantBit((uinttype) number);
+      result = uintLeastSignificantBit((uintType) number);
     } /* if */
     return result;
   } /* intLowestSetBit */
 
 
 
-stritype intLpad0 (inttype number, const inttype pad_size)
+striType intLpad0 (intType number, const intType pad_size)
 
   {
-    uinttype unsigned_number;
-    booltype negative;
-    strelemtype *buffer;
-    memsizetype length;
-    memsizetype result_size;
-    stritype result;
+    uintType unsigned_number;
+    boolType negative;
+    strElemType *buffer;
+    memSizeType length;
+    memSizeType result_size;
+    striType result;
 
   /* intLpad0 */
     negative = (number < 0);
     if (negative) {
-      unsigned_number = (uinttype) -number;
+      unsigned_number = (uintType) -number;
     } else {
-      unsigned_number = (uinttype) number;
+      unsigned_number = (uintType) number;
     } /* if */
     length = DECIMAL_DIGITS(unsigned_number);
     if (negative) {
       length++;
     } /* if */
-    if (pad_size > (inttype) length) {
-      if (unlikely((uinttype) pad_size > MAX_STRI_LEN)) {
+    if (pad_size > (intType) length) {
+      if (unlikely((uintType) pad_size > MAX_STRI_LEN)) {
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
-        result_size = (memsizetype) pad_size;
+        result_size = (memSizeType) pad_size;
       } /* if */
     } else {
       result_size = length;
@@ -1138,16 +1138,16 @@ stritype intLpad0 (inttype number, const inttype pad_size)
       result->size = result_size;
       buffer = &result->mem[result_size];
       do {
-        *(--buffer) = (strelemtype) (unsigned_number % 10 + '0');
+        *(--buffer) = (strElemType) (unsigned_number % 10 + '0');
       } while ((unsigned_number /= 10) != 0);
       if (buffer != result->mem) {
         while (buffer != &result->mem[1]) {
-          *(--buffer) = (strelemtype) '0';
+          *(--buffer) = (strElemType) '0';
         } /* while */
         if (negative) {
-          result->mem[0] = (strelemtype) '-';
+          result->mem[0] = (strElemType) '-';
         } else {
-          result->mem[0] = (strelemtype) '0';
+          result->mem[0] = (strElemType) '0';
         } /* if */
       } /* if */
       return result;
@@ -1167,37 +1167,37 @@ stritype intLpad0 (inttype number, const inttype pad_size)
  *             an integer literal or when the integer literal is too big
  *             or too small to be represented as integer value.
  */
-inttype intParse (const const_stritype stri)
+intType intParse (const const_striType stri)
 
   {
-    booltype okay;
-    booltype negative;
-    memsizetype position;
-    inttype digitval;
-    inttype integer_value;
+    boolType okay;
+    boolType negative;
+    memSizeType position;
+    intType digitval;
+    intType integer_value;
 
   /* intParse */
     okay = TRUE;
     position = 0;
     integer_value = 0;
     if (stri->size != 0) {
-      if (stri->mem[0] == ((strelemtype) '-')) {
+      if (stri->mem[0] == ((strElemType) '-')) {
         negative = TRUE;
         position++;
       } else {
-        if (stri->mem[0] == ((strelemtype) '+')) {
+        if (stri->mem[0] == ((strElemType) '+')) {
           position++;
         } /* if */
         negative = FALSE;
       } /* if */
       while (position < stri->size &&
-          stri->mem[position] >= ((strelemtype) '0') &&
-          stri->mem[position] <= ((strelemtype) '9')) {
-        digitval = ((inttype) stri->mem[position]) - ((inttype) '0');
+          stri->mem[position] >= ((strElemType) '0') &&
+          stri->mem[position] <= ((strElemType) '9')) {
+        digitval = ((intType) stri->mem[position]) - ((intType) '0');
         if (integer_value < MAX_DIV_10 ||
             (integer_value == MAX_DIV_10 &&
             digitval <= MAX_REM_10)) {
-          integer_value = ((inttype) 10) * integer_value + digitval;
+          integer_value = ((intType) 10) * integer_value + digitval;
         } else {
           okay = FALSE;
         } /* if */
@@ -1226,10 +1226,10 @@ inttype intParse (const const_stritype stri)
  *  @return the result of the exponentation.
  *  @exception NUMERIC_ERROR When the exponent is negative.
  */
-inttype intPow (inttype base, inttype exponent)
+intType intPow (intType base, intType exponent)
 
   {
-    inttype result;
+    intType result;
 
   /* intPow */
     if (unlikely(exponent < 0)) {
@@ -1265,16 +1265,16 @@ inttype intPow (inttype base, inttype exponent)
  *  @exception RANGE_ERROR When base < 2 or base > 36 holds.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-stritype intRadix (inttype number, inttype base, booltype upperCase)
+striType intRadix (intType number, intType base, boolType upperCase)
 
   {
-    uinttype unsigned_number;
-    booltype negative;
-    const_cstritype digits;
-    strelemtype buffer_1[RADIX_BUFFER_SIZE];
-    strelemtype *buffer;
-    memsizetype length;
-    stritype result;
+    uintType unsigned_number;
+    boolType negative;
+    const_cstriType digits;
+    strElemType buffer_1[RADIX_BUFFER_SIZE];
+    strElemType *buffer;
+    memSizeType length;
+    striType result;
 
   /* intRadix */
     if (unlikely(base < 2 || base > 36)) {
@@ -1285,24 +1285,24 @@ stritype intRadix (inttype number, inttype base, booltype upperCase)
       if (negative) {
         /* The unsigned value is negated to avoid a signed integer */
         /* overflow when the smallest signed integer is negated.   */
-        unsigned_number = -(uinttype) number;
+        unsigned_number = -(uintType) number;
       } else {
-        unsigned_number = (uinttype) number;
+        unsigned_number = (uintType) number;
       } /* if */
       digits = digitTable[upperCase];
       buffer = &buffer_1[RADIX_BUFFER_SIZE];
       do {
-        *(--buffer) = (strelemtype) (digits[unsigned_number % (uinttype) base]);
-      } while ((unsigned_number /= (uinttype) base) != 0);
+        *(--buffer) = (strElemType) (digits[unsigned_number % (uintType) base]);
+      } while ((unsigned_number /= (uintType) base) != 0);
       if (negative) {
-        *(--buffer) = (strelemtype) '-';
+        *(--buffer) = (strElemType) '-';
       } /* if */
-      length = (memsizetype) (&buffer_1[RADIX_BUFFER_SIZE] - buffer);
+      length = (memSizeType) (&buffer_1[RADIX_BUFFER_SIZE] - buffer);
       if (unlikely(!ALLOC_STRI_SIZE_OK(result, length))) {
         raise_error(MEMORY_ERROR);
       } else {
         result->size = length;
-        memcpy(result->mem, buffer, (size_t) (length * sizeof(strelemtype)));
+        memcpy(result->mem, buffer, (size_t) (length * sizeof(strElemType)));
       } /* if */
     } /* if */
     return result;
@@ -1322,41 +1322,41 @@ stritype intRadix (inttype number, inttype base, booltype upperCase)
  *  @return the string result of the conversion.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-stritype intRadixPow2 (inttype number, int shift, int mask, booltype upperCase)
+striType intRadixPow2 (intType number, int shift, int mask, boolType upperCase)
 
   {
-    uinttype unsigned_number;
-    booltype negative;
-    const_cstritype digits;
-    strelemtype buffer_1[RADIX_BUFFER_SIZE];
-    strelemtype *buffer;
-    memsizetype length;
-    stritype result;
+    uintType unsigned_number;
+    boolType negative;
+    const_cstriType digits;
+    strElemType buffer_1[RADIX_BUFFER_SIZE];
+    strElemType *buffer;
+    memSizeType length;
+    striType result;
 
   /* intRadixPow2 */
     negative = (number < 0);
     if (negative) {
       /* The unsigned value is negated to avoid a signed integer */
       /* overflow when the smallest signed integer is negated.   */
-      unsigned_number = -(uinttype) number;
+      unsigned_number = -(uintType) number;
     } else {
-      unsigned_number = (uinttype) number;
+      unsigned_number = (uintType) number;
     } /* if */
     digits = digitTable[upperCase];
     buffer = &buffer_1[RADIX_BUFFER_SIZE];
     do {
-      *(--buffer) = (strelemtype) (digits[unsigned_number & (uinttype) mask]);
+      *(--buffer) = (strElemType) (digits[unsigned_number & (uintType) mask]);
     } while ((unsigned_number >>= shift) != 0);
     if (negative) {
-      *(--buffer) = (strelemtype) '-';
+      *(--buffer) = (strElemType) '-';
     } /* if */
-    length = (memsizetype) (&buffer_1[RADIX_BUFFER_SIZE] - buffer);
+    length = (memSizeType) (&buffer_1[RADIX_BUFFER_SIZE] - buffer);
     if (unlikely(!ALLOC_STRI_SIZE_OK(result, length))) {
       raise_error(MEMORY_ERROR);
       return NULL;
     } else {
       result->size = length;
-      memcpy(result->mem, buffer, (size_t) (length * sizeof(strelemtype)));
+      memcpy(result->mem, buffer, (size_t) (length * sizeof(strElemType)));
       return result;
     } /* if */
   } /* intRadixPow2 */
@@ -1370,13 +1370,13 @@ stritype intRadixPow2 (inttype number, int shift, int mask, booltype upperCase)
  *          rand(low, high) <= high holds.
  *  @exception RANGE_ERROR The range is empty (low > high holds).
  */
-inttype intRand (inttype low, inttype high)
+intType intRand (intType low, intType high)
 
   {
-    uinttype scale_limit;
-    uinttype rand_max;
-    uinttype rand_val;
-    inttype result;
+    uintType scale_limit;
+    uintType rand_max;
+    uintType rand_val;
+    intType result;
 
   /* intRand */
     if (unlikely(low >= high)) {
@@ -1387,7 +1387,7 @@ inttype intRand (inttype low, inttype high)
         result = 0;
       } /* if */
     } else {
-      scale_limit = (uinttype) high - (uinttype) low;
+      scale_limit = (uintType) high - (uintType) low;
       if (scale_limit == UINTTYPE_MAX) {
         rand_val = uint_rand();
       } else {
@@ -1397,7 +1397,7 @@ inttype intRand (inttype low, inttype high)
           rand_val = uint_rand();
         } while (rand_val > rand_max);
       } /* if */
-      result = (inttype) ((uinttype) low + rand_val % scale_limit);
+      result = (intType) ((uintType) low + rand_val % scale_limit);
     } /* if */
     return result;
   } /* intRand */
@@ -1409,25 +1409,25 @@ inttype intRand (inttype low, inttype high)
  *  @return the integer square root.
  *  @exception NUMERIC_ERROR When number is negative.
  */
-inttype intSqrt (inttype number)
+intType intSqrt (intType number)
 
   {
-    register uinttype result;
-    register uinttype res2;
+    register uintType result;
+    register uintType res2;
 
   /* intSqrt */
     if (unlikely(number < 0)) {
       raise_error(NUMERIC_ERROR);
       return 0;
     } else if (number == 0) {
-      return (inttype) 0;
+      return (intType) 0;
     } else {
-      res2 = (uinttype) number;
+      res2 = (uintType) number;
       do {
         result = res2;
-        res2 = (result + (uinttype) number / result) >> 1;
+        res2 = (result + (uintType) number / result) >> 1;
       } while (result > res2);
-      return (inttype) result;
+      return (intType) result;
     } /* if */
   } /* intSqrt */
 
@@ -1440,23 +1440,23 @@ inttype intSqrt (inttype number)
  *  @return the string result of the conversion.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-stritype intStr (inttype number)
+striType intStr (intType number)
 
   {
-    register uinttype unsigned_number;
-    booltype negative;
-    strelemtype *buffer;
-    memsizetype length;
-    stritype result;
+    register uintType unsigned_number;
+    boolType negative;
+    strElemType *buffer;
+    memSizeType length;
+    striType result;
 
   /* intStr */
     negative = (number < 0);
     if (negative) {
       /* The unsigned value is negated to avoid a signed integer */
       /* overflow when the smallest signed integer is negated.   */
-      unsigned_number = -(uinttype) number;
+      unsigned_number = -(uintType) number;
     } else {
-      unsigned_number = (uinttype) number;
+      unsigned_number = (uintType) number;
     } /* if */
     length = DECIMAL_DIGITS(unsigned_number);
     if (negative) {
@@ -1468,10 +1468,10 @@ stritype intStr (inttype number)
       result->size = length;
       buffer = &result->mem[length];
       do {
-        *(--buffer) = (strelemtype) (unsigned_number % 10 + '0');
+        *(--buffer) = (strElemType) (unsigned_number % 10 + '0');
       } while ((unsigned_number /= 10) != 0);
       if (negative) {
-        result->mem[0] = (strelemtype) '-';
+        result->mem[0] = (strElemType) '-';
       } /* if */
     } /* if */
     return result;
@@ -1480,12 +1480,12 @@ stritype intStr (inttype number)
 
 
 #ifdef ALLOW_STRITYPE_SLICES
-stritype intStrToBuffer (inttype number, stritype buffer)
+striType intStrToBuffer (intType number, striType buffer)
 
   {
-    register uinttype unsigned_number;
-    booltype negative;
-    strelemtype *bufferPtr;
+    register uintType unsigned_number;
+    boolType negative;
+    strElemType *bufferPtr;
 
   /* intStrToBuffer */
     /* printf("intStrToBuffer(");
@@ -1496,19 +1496,19 @@ stritype intStrToBuffer (inttype number, stritype buffer)
     if (negative) {
       /* The unsigned value is negated to avoid a signed integer */
       /* overflow when the smallest signed integer is negated.   */
-      unsigned_number = -(uinttype) number;
+      unsigned_number = -(uintType) number;
     } else {
-      unsigned_number = (uinttype) number;
+      unsigned_number = (uintType) number;
     } /* if */
     bufferPtr = &buffer->mem1[INTTYPE_DECIMAL_DIGITS + 1];
     do {
-      *(--bufferPtr) = (strelemtype) (unsigned_number % 10 + '0');
+      *(--bufferPtr) = (strElemType) (unsigned_number % 10 + '0');
     } while ((unsigned_number /= 10) != 0);
     if (negative) {
-      *(--bufferPtr) = (strelemtype) '-';
+      *(--bufferPtr) = (strElemType) '-';
     } /* if */
     buffer->mem = bufferPtr;
-    buffer->size = (memsizetype) (&buffer->mem1[INTTYPE_DECIMAL_DIGITS + 1] - bufferPtr);
+    buffer->size = (memSizeType) (&buffer->mem1[INTTYPE_DECIMAL_DIGITS + 1] - bufferPtr);
     /* printf(" --> ");
     prot_stri(buffer);
     printf("\n"); */

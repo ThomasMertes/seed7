@@ -52,14 +52,14 @@
 #define white 15
 
 static int currentattribute = 0;
-static booltype key_buffer_filled = FALSE;
+static boolType key_buffer_filled = FALSE;
 static int last_key;
-booltype changes = FALSE;
-static booltype scroll_allowed = FALSE;
-static booltype console_initialized = FALSE;
-static booltype cursor_on = FALSE;
+boolType changes = FALSE;
+static boolType scroll_allowed = FALSE;
+static boolType console_initialized = FALSE;
+static boolType cursor_on = FALSE;
 
-static booltype keybd_initialized = FALSE;
+static boolType keybd_initialized = FALSE;
 
 
 #ifdef MAP_CHARS
@@ -202,10 +202,10 @@ static void kbd_init (void)
 
 
 
-booltype kbdKeyPressed (void)
+boolType kbdKeyPressed (void)
 
   {
-    booltype result;
+    boolType result;
 
   /* kbdKeyPressed */
     if (!keybd_initialized) {
@@ -231,10 +231,10 @@ booltype kbdKeyPressed (void)
 
 
 
-chartype kbdGetc (void)
+charType kbdGetc (void)
 
   {
-    chartype result;
+    charType result;
 
   /* kbdGetc */
     if (!keybd_initialized) {
@@ -275,7 +275,7 @@ chartype kbdGetc (void)
 
 
 
-chartype kbdRawGetc (void)
+charType kbdRawGetc (void)
 
   { /* kbdRawGetc */
     if (!keybd_initialized) {
@@ -295,7 +295,7 @@ static void cur_beep (void)
 
 
 
-static void cur_setcolour (inttype foreground, inttype background)
+static void cur_setcolour (intType foreground, intType background)
 
   { /* cur_setcolour */
     if (foreground == black || background == white) {
@@ -334,7 +334,7 @@ static int cur_setfont (char *fontname)
 
 
 
-inttype textheigth (void)
+intType textheigth (void)
 
   { /* textheigth */
     return 1;
@@ -342,8 +342,8 @@ inttype textheigth (void)
 
 
 
-inttype textwidth (stritype stri,
-    inttype startcol, inttype stopcol)
+intType textwidth (striType stri,
+    intType startcol, intType stopcol)
 
   { /* textwidth */
     return stopcol + 1 - startcol;
@@ -351,8 +351,8 @@ inttype textwidth (stritype stri,
 
 
 
-void textcolumns (stritype stri, inttype striwidth,
-    inttype *cols, inttype *rest)
+void textcolumns (striType stri, intType striwidth,
+    intType *cols, intType *rest)
 
   { /* textcolumns */
     *cols = striwidth;
@@ -393,7 +393,7 @@ void conFlush (void)
 
 
 
-void conCursor (booltype on)
+void conCursor (boolType on)
 
   { /* conCursor */
     cursor_on = on;
@@ -402,7 +402,7 @@ void conCursor (booltype on)
 
 
 
-void conSetCursor (inttype lin, inttype col)
+void conSetCursor (intType lin, intType col)
 
   /* Moves the system curser to the given place of the console.     */
   /* When no system cursor exists this procedure can be replaced by */
@@ -415,8 +415,8 @@ void conSetCursor (inttype lin, inttype col)
 
 
 
-void conText (inttype lin, inttype col, ustritype stri,
-memsizetype length)
+void conText (intType lin, intType col, ustriType stri,
+memSizeType length)
 
   /* This function writes the string stri to the console at the     */
   /* position (lin, col). The position (lin, col) must be a legal   */
@@ -425,7 +425,7 @@ memsizetype length)
   /* must be done with this function.                               */
 
   {
-    inttype pos;
+    intType pos;
 
   /* conText */
     move(lin - 1, col - 1);
@@ -441,8 +441,8 @@ memsizetype length)
 
 
 
-void conClear (inttype startlin, inttype startcol,
-    inttype stoplin, inttype stopcol)
+void conClear (intType startlin, intType startcol,
+    intType stoplin, intType stopcol)
 
   /* Clears the area described by startlin, stoplin, startcol and   */
   /* stopcol.                                                       */
@@ -466,8 +466,8 @@ void conClear (inttype startlin, inttype startcol,
 
 
 
-void conUpScroll (inttype startlin, inttype startcol,
-    inttype stoplin, inttype stopcol, inttype count)
+void conUpScroll (intType startlin, intType startcol,
+    intType stoplin, intType stopcol, intType count)
 
   /* Scrolls the area inside startlin, startcol, stoplin and        */
   /* stopcol upward by count lines. The upper count lines of the    */
@@ -512,8 +512,8 @@ void conUpScroll (inttype startlin, inttype startcol,
 
 
 
-void conDownScroll (inttype startlin, inttype startcol,
-    inttype stoplin, inttype stopcol, inttype count)
+void conDownScroll (intType startlin, intType startcol,
+    intType stoplin, intType stopcol, intType count)
 
   /* Scrolls the area inside startlin, startcol, stoplin and        */
   /* stopcol downward by count lines. The lower count lines of the  */
@@ -558,8 +558,8 @@ void conDownScroll (inttype startlin, inttype startcol,
 
 
 
-void conLeftScroll (inttype startlin, inttype startcol,
-    inttype stoplin, inttype stopcol, inttype count)
+void conLeftScroll (intType startlin, intType startcol,
+    intType stoplin, intType stopcol, intType count)
 
   /* Scrolls the area inside startlin, startcol, stoplin and        */
   /* stopcol leftward by count lines. The left count lines of the   */
@@ -589,8 +589,8 @@ void conLeftScroll (inttype startlin, inttype startcol,
 
 
 
-void conRightScroll (inttype startlin, inttype startcol,
-    inttype stoplin, inttype stopcol, inttype count)
+void conRightScroll (intType startlin, intType startcol,
+    intType stoplin, intType stopcol, intType count)
 
   /* Scrolls the area inside startlin, startcol, stoplin and        */
   /* stopcol rightward by count lines. The right count lines of the */

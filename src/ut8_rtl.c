@@ -56,16 +56,16 @@
 
 
 typedef struct {
-    memsizetype bytes_remaining;
-    memsizetype bytes_missing;
-    memsizetype chars_read;
-    memsizetype chars_there;
-  } read_state;
+    memSizeType bytes_remaining;
+    memSizeType bytes_missing;
+    memSizeType chars_read;
+    memSizeType chars_there;
+  } readStateType;
 
 
 
-static inline void bytes_to_strelements (ustritype buffer, memsizetype bytes_in_buffer,
-    strelemtype *stri_dest, read_state *state, errinfotype *err_info)
+static inline void bytes_to_strelements (ustriType buffer, memSizeType bytes_in_buffer,
+    strElemType *stri_dest, readStateType *state, errInfoType *err_info)
 
   { /* bytes_to_strelements */
     if (bytes_in_buffer != 0) {
@@ -112,14 +112,14 @@ static inline void bytes_to_strelements (ustritype buffer, memsizetype bytes_in_
  *                  FILE_ERROR when a system function returns an error.
  *  @return the actual number of characters read.
  */
-static memsizetype read_utf8_string (filetype inFile, stritype stri, errinfotype *err_info)
+static memSizeType read_utf8_string (fileType inFile, striType stri, errInfoType *err_info)
 
   {
-    uchartype buffer[BUFFER_SIZE + 6];
-    memsizetype bytes_in_buffer;
-    memsizetype stri_pos;
-    memsizetype chars_missing;
-    read_state state = {0, 0, 1, 0};
+    ucharType buffer[BUFFER_SIZE + 6];
+    memSizeType bytes_in_buffer;
+    memSizeType stri_pos;
+    memSizeType chars_missing;
+    readStateType state = {0, 0, 1, 0};
 
   /* read_utf8_string */
     for (stri_pos = 0, chars_missing = stri->size;
@@ -127,7 +127,7 @@ static memsizetype read_utf8_string (filetype inFile, stritype stri, errinfotype
         (state.chars_read > 0 || state.chars_there) &&
         *err_info == OKAY_NO_ERROR;
         stri_pos += state.chars_read, chars_missing -= state.chars_read) {
-      bytes_in_buffer = (memsizetype) fread(&buffer[state.bytes_remaining], 1,
+      bytes_in_buffer = (memSizeType) fread(&buffer[state.bytes_remaining], 1,
           BUFFER_SIZE, inFile);
       if (bytes_in_buffer == 0 && stri_pos == 0 && ferror(inFile)) {
         *err_info = FILE_ERROR;
@@ -141,7 +141,7 @@ static memsizetype read_utf8_string (filetype inFile, stritype stri, errinfotype
     for (; chars_missing > 0 && (state.chars_read > 0 || state.chars_there) &&
         *err_info == OKAY_NO_ERROR;
         stri_pos += state.chars_read, chars_missing -= state.chars_read) {
-      bytes_in_buffer = (memsizetype) fread(&buffer[state.bytes_remaining], 1,
+      bytes_in_buffer = (memSizeType) fread(&buffer[state.bytes_remaining], 1,
           chars_missing - state.chars_there + state.bytes_missing, inFile);
       if (bytes_in_buffer == 0 && stri_pos == 0 && ferror(inFile)) {
         *err_info = FILE_ERROR;
@@ -170,17 +170,17 @@ static memsizetype read_utf8_string (filetype inFile, stritype stri, errinfotype
  *                  FILE_ERROR when a system function returns an error.
  *                  MEMORY_ERROR when there was not enough memory.
  */
-static stritype read_and_alloc_utf8_stri (filetype inFile, memsizetype chars_missing,
-    memsizetype *num_of_chars_read, errinfotype *err_info)
+static striType read_and_alloc_utf8_stri (fileType inFile, memSizeType chars_missing,
+    memSizeType *num_of_chars_read, errInfoType *err_info)
 
   {
-    uchartype buffer[BUFFER_SIZE + 6];
-    memsizetype bytes_in_buffer;
-    memsizetype result_pos;
-    memsizetype new_size;
-    stritype resized_result;
-    read_state state = {0, 0, 1, 0};
-    stritype result;
+    ucharType buffer[BUFFER_SIZE + 6];
+    memSizeType bytes_in_buffer;
+    memSizeType result_pos;
+    memSizeType new_size;
+    striType resized_result;
+    readStateType state = {0, 0, 1, 0};
+    striType result;
 
   /* read_and_alloc_utf8_stri */
     /* printf("read_and_alloc_utf8_stri(%d, %d, *, *)\n", fileno(inFile), chars_missing); */
@@ -194,7 +194,7 @@ static stritype read_and_alloc_utf8_stri (filetype inFile, memsizetype chars_mis
           (state.chars_read > 0 || state.chars_there) &&
           *err_info == OKAY_NO_ERROR;
           result_pos += state.chars_read, chars_missing -= state.chars_read) {
-        bytes_in_buffer = (memsizetype) fread(&buffer[state.bytes_remaining], 1,
+        bytes_in_buffer = (memSizeType) fread(&buffer[state.bytes_remaining], 1,
             BUFFER_SIZE, inFile);
         if (bytes_in_buffer == 0 && result_pos == 0 && ferror(inFile)) {
           *err_info = FILE_ERROR;
@@ -220,7 +220,7 @@ static stritype read_and_alloc_utf8_stri (filetype inFile, memsizetype chars_mis
       for (; chars_missing > 0 && (state.chars_read > 0 || state.chars_there) &&
           *err_info == OKAY_NO_ERROR;
           result_pos += state.chars_read, chars_missing -= state.chars_read) {
-        bytes_in_buffer = (memsizetype) fread(&buffer[state.bytes_remaining], 1,
+        bytes_in_buffer = (memSizeType) fread(&buffer[state.bytes_remaining], 1,
             chars_missing - state.chars_there + state.bytes_missing, inFile);
         if (bytes_in_buffer == 0 && result_pos == 0 && ferror(inFile)) {
           *err_info = FILE_ERROR;
@@ -256,11 +256,11 @@ static stritype read_and_alloc_utf8_stri (filetype inFile, memsizetype chars_mis
  *  @return the character read, or EOF at the end of the file.
  *  @exception RANGE_ERROR The file contains an illegal encoding.
  */
-chartype ut8Getc (filetype inFile)
+charType ut8Getc (fileType inFile)
 
   {
     int character;
-    chartype result;
+    charType result;
 
   /* ut8Getc */
     character = getc(inFile);
@@ -273,7 +273,7 @@ chartype ut8Getc (filetype inFile)
         return 0;
       } else if (character <= 0xDF) {
         /* character range 192 to 223 (leading bits 110.....) */
-        result = (chartype) (character & 0x1F) << 6;
+        result = (charType) (character & 0x1F) << 6;
         character = getc(inFile);
         if (character >= 0x80 && character <= 0xBF) {
           /* character range 128 to 191 (leading bits 10......) */
@@ -292,11 +292,11 @@ chartype ut8Getc (filetype inFile)
         } /* if */
       } else if (character <= 0xEF) {
         /* character range 224 to 239 (leading bits 1110....) */
-        result = (chartype) (character & 0x0F) << 12;
+        result = (charType) (character & 0x0F) << 12;
         character = getc(inFile);
         if (character >= 0x80 && character <= 0xBF) {
           /* character range 128 to 191 (leading bits 10......) */
-          result |= (chartype) (character & 0x3F) << 6;
+          result |= (charType) (character & 0x3F) << 6;
           character = getc(inFile);
           if (character >= 0x80 && character <= 0xBF) {
             result |= character & 0x3F;
@@ -318,14 +318,14 @@ chartype ut8Getc (filetype inFile)
         } /* if */
       } else if (character <= 0xF7) {
         /* character range 240 to 247 (leading bits 11110...) */
-        result = (chartype) (character & 0x07) << 18;
+        result = (charType) (character & 0x07) << 18;
         character = getc(inFile);
         if (character >= 0x80 && character <= 0xBF) {
           /* character range 128 to 191 (leading bits 10......) */
-          result |= (chartype) (character & 0x3F) << 12;
+          result |= (charType) (character & 0x3F) << 12;
           character = getc(inFile);
           if (character >= 0x80 && character <= 0xBF) {
-            result |= (chartype) (character & 0x3F) << 6;
+            result |= (charType) (character & 0x3F) << 6;
             character = getc(inFile);
             if (character >= 0x80 && character <= 0xBF) {
               result |= character & 0x3F;
@@ -353,17 +353,17 @@ chartype ut8Getc (filetype inFile)
         } /* if */
       } else if (character <= 0xFB) {
         /* character range 248 to 251 (leading bits 111110..) */
-        result = (chartype) (character & 0x03) << 24;
+        result = (charType) (character & 0x03) << 24;
         character = getc(inFile);
         if (character >= 0x80 && character <= 0xBF) {
           /* character range 128 to 191 (leading bits 10......) */
-          result |= (chartype) (character & 0x3F) << 18;
+          result |= (charType) (character & 0x3F) << 18;
           character = getc(inFile);
           if (character >= 0x80 && character <= 0xBF) {
-            result |= (chartype) (character & 0x3F) << 12;
+            result |= (charType) (character & 0x3F) << 12;
             character = getc(inFile);
             if (character >= 0x80 && character <= 0xBF) {
-              result |= (chartype) (character & 0x3F) << 6;
+              result |= (charType) (character & 0x3F) << 6;
               character = getc(inFile);
               if (character >= 0x80 && character <= 0xBF) {
                 result |= character & 0x3F;
@@ -393,20 +393,20 @@ chartype ut8Getc (filetype inFile)
         } /* if */
       } else { /* if (character <= 0xFF) { */
         /* character range 252 to 255 (leading bits 111111..) */
-        result = (chartype) (character & 0x03) << 30;
+        result = (charType) (character & 0x03) << 30;
         character = getc(inFile);
         if (character >= 0x80 && character <= 0xBF) {
           /* character range 128 to 191 (leading bits 10......) */
-          result |= (chartype) (character & 0x3F) << 24;
+          result |= (charType) (character & 0x3F) << 24;
           character = getc(inFile);
           if (character >= 0x80 && character <= 0xBF) {
-            result |= (chartype) (character & 0x3F) << 18;
+            result |= (charType) (character & 0x3F) << 18;
             character = getc(inFile);
             if (character >= 0x80 && character <= 0xBF) {
-              result |= (chartype) (character & 0x3F) << 12;
+              result |= (charType) (character & 0x3F) << 12;
               character = getc(inFile);
               if (character >= 0x80 && character <= 0xBF) {
-                result |= (chartype) (character & 0x3F) <<  6;
+                result |= (charType) (character & 0x3F) <<  6;
                 character = getc(inFile);
                 if (character >= 0x80 && character <= 0xBF) {
                   result |= character & 0x3F;
@@ -440,7 +440,7 @@ chartype ut8Getc (filetype inFile)
         } /* if */
       } /* if */
     } else {
-      result = (chartype) (schartype) character;
+      result = (charType) (scharType) character;
     } /* if */
     return result;
   } /* ut8Getc */
@@ -463,16 +463,16 @@ chartype ut8Getc (filetype inFile)
  *  @exception RANGE_ERROR The length is negative or the file
  *             contains an illegal encoding.
  */
-stritype ut8Gets (filetype inFile, inttype length)
+striType ut8Gets (fileType inFile, intType length)
 
   {
-    memsizetype chars_requested;
-    memsizetype bytes_there;
-    memsizetype allocated_size;
-    errinfotype err_info = OKAY_NO_ERROR;
-    memsizetype num_of_chars_read;
-    stritype resized_result;
-    stritype result;
+    memSizeType chars_requested;
+    memSizeType bytes_there;
+    memSizeType allocated_size;
+    errInfoType err_info = OKAY_NO_ERROR;
+    memSizeType num_of_chars_read;
+    striType resized_result;
+    striType result;
 
   /* ut8Gets */
     /* printf("ut8Gets(%d, %d)\n", fileno(inFile), length); */
@@ -480,10 +480,10 @@ stritype ut8Gets (filetype inFile, inttype length)
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
-      if ((uinttype) length > MAX_MEMSIZETYPE) {
+      if ((uintType) length > MAX_MEMSIZETYPE) {
         chars_requested = MAX_MEMSIZETYPE;
       } else {
-        chars_requested = (memsizetype) length;
+        chars_requested = (memSizeType) length;
       } /* if */
       if (chars_requested > GETS_DEFAULT_SIZE) {
         /* Avoid requesting too much */
@@ -560,19 +560,19 @@ stritype ut8Gets (filetype inFile, inttype length)
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *  @exception FILE_ERROR A system function returns an error.
  */
-stritype ut8LineRead (filetype inFile, chartype *terminationChar)
+striType ut8LineRead (fileType inFile, charType *terminationChar)
 
   {
     register int ch;
-    register memsizetype position;
-    uchartype *memory;
-    memsizetype memlength;
-    memsizetype newmemlength;
-    bstritype resized_buffer;
-    bstritype buffer;
-    memsizetype result_size;
-    stritype resized_result;
-    stritype result;
+    register memSizeType position;
+    ucharType *memory;
+    memSizeType memlength;
+    memSizeType newmemlength;
+    bstriType resized_buffer;
+    bstriType buffer;
+    memSizeType result_size;
+    striType resized_result;
+    striType result;
 
   /* ut8LineRead */
     memlength = READ_STRI_INIT_SIZE;
@@ -596,7 +596,7 @@ stritype ut8LineRead (filetype inFile, chartype *terminationChar)
           memory = buffer->mem;
           memlength = newmemlength;
         } /* if */
-        memory[position++] = (uchartype) ch;
+        memory[position++] = (ucharType) ch;
       } /* while */
       if (ch == (int) '\n' && position != 0 && memory[position - 1] == '\r') {
         position--;
@@ -626,7 +626,7 @@ stritype ut8LineRead (filetype inFile, chartype *terminationChar)
               result = resized_result;
               COUNT3_STRI(position, result_size);
               result->size = result_size;
-              *terminationChar = (chartype) ch;
+              *terminationChar = (charType) ch;
             } /* if */
           } /* if */
         } /* if */
@@ -647,7 +647,7 @@ stritype ut8LineRead (filetype inFile, chartype *terminationChar)
  *  @exception RANGE_ERROR The file position is negative or zero.
  *  @exception FILE_ERROR The system function returns an error.
  */
-void ut8Seek (filetype aFile, inttype file_position)
+void ut8Seek (fileType aFile, intType file_position)
 
   {
     int ch;
@@ -683,19 +683,19 @@ void ut8Seek (filetype aFile, inttype file_position)
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *  @exception FILE_ERROR A system function returns an error.
  */
-stritype ut8WordRead (filetype inFile, chartype *terminationChar)
+striType ut8WordRead (fileType inFile, charType *terminationChar)
 
   {
     register int ch;
-    register memsizetype position;
-    uchartype *memory;
-    memsizetype memlength;
-    memsizetype newmemlength;
-    bstritype resized_buffer;
-    bstritype buffer;
-    memsizetype result_size;
-    stritype resized_result;
-    stritype result;
+    register memSizeType position;
+    ucharType *memory;
+    memSizeType memlength;
+    memSizeType newmemlength;
+    bstriType resized_buffer;
+    bstriType buffer;
+    memSizeType result_size;
+    striType resized_result;
+    striType result;
 
   /* ut8WordRead */
     memlength = READ_STRI_INIT_SIZE;
@@ -723,7 +723,7 @@ stritype ut8WordRead (filetype inFile, chartype *terminationChar)
           memory = buffer->mem;
           memlength = newmemlength;
         } /* if */
-        memory[position++] = (uchartype) ch;
+        memory[position++] = (ucharType) ch;
         ch = getc(inFile);
       } /* while */
       if (ch == (int) '\n' && position != 0 && memory[position - 1] == '\r') {
@@ -754,7 +754,7 @@ stritype ut8WordRead (filetype inFile, chartype *terminationChar)
               result = resized_result;
               COUNT3_STRI(position, result_size);
               result->size = result_size;
-              *terminationChar = (chartype) ch;
+              *terminationChar = (charType) ch;
             } /* if */
           } /* if */
         } /* if */
@@ -769,13 +769,13 @@ stritype ut8WordRead (filetype inFile, chartype *terminationChar)
  *  Write a string to an UTF-8 file.
  *  @exception FILE_ERROR A system function returns an error.
  */
-void ut8Write (filetype outFile, const const_stritype stri)
+void ut8Write (fileType outFile, const const_striType stri)
 
   {
-    strelemtype *str;
-    memsizetype len;
-    memsizetype size;
-    uchartype stri_buffer[max_utf8_size(WRITE_STRI_BLOCK_SIZE)];
+    strElemType *str;
+    memSizeType len;
+    memSizeType size;
+    ucharType stri_buffer[max_utf8_size(WRITE_STRI_BLOCK_SIZE)];
 
   /* ut8Write */
 #ifdef FWRITE_WRONG_FOR_READ_ONLY_FILES
@@ -787,14 +787,14 @@ void ut8Write (filetype outFile, const const_stritype stri)
     for (str = stri->mem, len = stri->size; len >= WRITE_STRI_BLOCK_SIZE;
         str += WRITE_STRI_BLOCK_SIZE, len -= WRITE_STRI_BLOCK_SIZE) {
       size = stri_to_utf8(stri_buffer, str, WRITE_STRI_BLOCK_SIZE);
-      if (size != fwrite(stri_buffer, sizeof(uchartype), (size_t) size, outFile)) {
+      if (size != fwrite(stri_buffer, sizeof(ucharType), (size_t) size, outFile)) {
         raise_error(FILE_ERROR);
         return;
       } /* if */
     } /* for */
     if (len > 0) {
       size = stri_to_utf8(stri_buffer, str, len);
-      if (size != fwrite(stri_buffer, sizeof(uchartype), (size_t) size, outFile)) {
+      if (size != fwrite(stri_buffer, sizeof(ucharType), (size_t) size, outFile)) {
         raise_error(FILE_ERROR);
         return;
       } /* if */

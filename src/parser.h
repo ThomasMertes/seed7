@@ -25,4 +25,4 @@
 /*                                                                  */
 /********************************************************************/
 
-void decl_const (nodetype node_level, errinfotype *err_info);
+void decl_const (nodeType node_level, errInfoType *err_info);

@@ -49,15 +49,15 @@
 
 
 
-static generictype incrUsageCount (const generictype pollFile)
+static genericType incrUsageCount (const genericType pollFile)
 
   {
-    objecttype fileObject;
-    structtype fileStruct;
-    objecttype newFileOject;
+    objectType fileObject;
+    structType fileStruct;
+    objectType newFileOject;
 
   /* incrUsageCount */
-    fileObject = (objecttype) (memsizetype) pollFile;
+    fileObject = (objectType) (memSizeType) pollFile;
     if (CATEGORY_OF_OBJ(fileObject) != STRUCTOBJECT) {
       run_error(STRUCTOBJECT, fileObject);
       return 0;
@@ -76,7 +76,7 @@ static generictype incrUsageCount (const generictype pollFile)
             CLEAR_TEMP2_FLAG(fileObject);
             raise_error(MEMORY_ERROR);
           } else {
-            memcpy(newFileOject, fileObject, sizeof(objectrecord));
+            memcpy(newFileOject, fileObject, sizeof(objectRecord));
             CLEAR_TEMP_FLAG(newFileOject);
             CLEAR_TEMP2_FLAG(newFileOject);
             fileObject = newFileOject;
@@ -84,18 +84,18 @@ static generictype incrUsageCount (const generictype pollFile)
         } /* if */
       } /* if */
     } /* if */
-    return (generictype) (memsizetype) fileObject;
+    return (genericType) (memSizeType) fileObject;
   } /* incrUsageCount */
 
 
 
-static void decrUsageCount (const generictype pollFile)
+static void decrUsageCount (const genericType pollFile)
 
   {
-    errinfotype err_info = OKAY_NO_ERROR;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* decrUsageCount */
-    do_destroy((objecttype) (memsizetype) pollFile, &err_info);
+    do_destroy((objectType) (memSizeType) pollFile, &err_info);
     if (err_info != OKAY_NO_ERROR) {
       raise_error(err_info);
     } /* if */
@@ -112,7 +112,7 @@ static void initPollOps (void)
 
 
 
-objecttype pol_addCheck (listtype arguments)
+objectType pol_addCheck (listType arguments)
 
   { /* pol_addCheck */
     isit_poll(arg_1(arguments));
@@ -123,13 +123,13 @@ objecttype pol_addCheck (listtype arguments)
     polAddCheck(take_poll(arg_1(arguments)),
                 take_socket(arg_2(arguments)),
                 take_int(arg_3(arguments)),
-                (generictype) (memsizetype) take_interface(arg_4(arguments)));
+                (genericType) (memSizeType) take_interface(arg_4(arguments)));
     return SYS_EMPTY_OBJECT;
   } /* pol_addCheck */
 
 
 
-objecttype pol_clear (listtype arguments)
+objectType pol_clear (listType arguments)
 
   { /* pol_clear */
     isit_poll(arg_1(arguments));
@@ -139,11 +139,11 @@ objecttype pol_clear (listtype arguments)
 
 
 
-objecttype pol_cpy (listtype arguments)
+objectType pol_cpy (listType arguments)
 
   {
-    objecttype poll_to;
-    objecttype poll_from;
+    objectType poll_to;
+    objectType poll_from;
 
   /* pol_cpy */
     poll_to = arg_1(arguments);
@@ -153,21 +153,21 @@ objecttype pol_cpy (listtype arguments)
     is_variable(poll_to);
     if (TEMP_OBJECT(poll_from)) {
       polDestr(take_poll(poll_to));
-      poll_to->value.pollvalue = take_poll(poll_from);
-      poll_from->value.pollvalue = NULL;
+      poll_to->value.pollValue = take_poll(poll_from);
+      poll_from->value.pollValue = NULL;
     } else {
-      polCpy(poll_to->value.pollvalue, take_poll(poll_from));
+      polCpy(poll_to->value.pollValue, take_poll(poll_from));
     } /* if */
     return SYS_EMPTY_OBJECT;
   } /* pol_cpy */
 
 
 
-objecttype pol_create (listtype arguments)
+objectType pol_create (listType arguments)
 
   {
-    objecttype poll_to;
-    objecttype poll_from;
+    objectType poll_to;
+    objectType poll_from;
 
   /* pol_create */
     if (fileObjectOps.incrUsageCount == NULL) {
@@ -178,29 +178,29 @@ objecttype pol_create (listtype arguments)
     isit_poll(poll_from);
     SET_CATEGORY_OF_OBJ(poll_to, POLLOBJECT);
     if (TEMP_OBJECT(poll_from)) {
-      poll_to->value.pollvalue = take_poll(poll_from);
-      poll_from->value.pollvalue = NULL;
+      poll_to->value.pollValue = take_poll(poll_from);
+      poll_from->value.pollValue = NULL;
     } else {
-      poll_to->value.pollvalue = polCreate(take_poll(poll_from));
+      poll_to->value.pollValue = polCreate(take_poll(poll_from));
     } /* if */
     return SYS_EMPTY_OBJECT;
   } /* pol_create */
 
 
 
-objecttype pol_destr (listtype arguments)
+objectType pol_destr (listType arguments)
 
   { /* pol_destr */
     isit_poll(arg_1(arguments));
     polDestr(take_poll(arg_1(arguments)));
-    arg_1(arguments)->value.pollvalue = NULL;
+    arg_1(arguments)->value.pollValue = NULL;
     SET_UNUSED_FLAG(arg_1(arguments));
     return SYS_EMPTY_OBJECT;
   } /* pol_destr */
 
 
 
-objecttype pol_empty (listtype arguments)
+objectType pol_empty (listType arguments)
 
   { /* pol_empty */
     return bld_poll_temp(polEmpty());
@@ -208,10 +208,10 @@ objecttype pol_empty (listtype arguments)
 
 
 
-objecttype pol_getCheck (listtype arguments)
+objectType pol_getCheck (listType arguments)
 
   {
-    inttype result;
+    intType result;
 
   /* pol_getCheck */
     isit_poll(arg_1(arguments));
@@ -223,10 +223,10 @@ objecttype pol_getCheck (listtype arguments)
 
 
 
-objecttype pol_getFinding (listtype arguments)
+objectType pol_getFinding (listType arguments)
 
   {
-    inttype result;
+    intType result;
 
   /* pol_getFinding */
     isit_poll(arg_1(arguments));
@@ -238,10 +238,10 @@ objecttype pol_getFinding (listtype arguments)
 
 
 
-objecttype pol_hasNext (listtype arguments)
+objectType pol_hasNext (listType arguments)
 
   {
-    objecttype result;
+    objectType result;
 
   /* pol_hasNext */
     isit_poll(arg_1(arguments));
@@ -255,7 +255,7 @@ objecttype pol_hasNext (listtype arguments)
 
 
 
-objecttype pol_iterChecks (listtype arguments)
+objectType pol_iterChecks (listType arguments)
 
   { /* pol_iterChecks */
     isit_poll(arg_1(arguments));
@@ -267,7 +267,7 @@ objecttype pol_iterChecks (listtype arguments)
 
 
 
-objecttype pol_iterFindings (listtype arguments)
+objectType pol_iterFindings (listType arguments)
 
   { /* pol_iterFindings */
     isit_poll(arg_1(arguments));
@@ -279,10 +279,10 @@ objecttype pol_iterFindings (listtype arguments)
 
 
 
-objecttype pol_nextFile (listtype arguments)
+objectType pol_nextFile (listType arguments)
 
   {
-    objecttype nextFile;
+    objectType nextFile;
 
   /* pol_nextFile */
     /* printf("pol_nextFile ");
@@ -291,12 +291,12 @@ objecttype pol_nextFile (listtype arguments)
     isit_poll(arg_1(arguments));
     isit_interface(arg_2(arguments));
     isit_struct(take_interface(arg_2(arguments)));
-    nextFile = (objecttype) (memsizetype)
+    nextFile = (objectType) (memSizeType)
                polNextFile(take_poll(arg_1(arguments)),
-                           (generictype) (memsizetype) take_interface(arg_2(arguments)));
+                           (genericType) (memSizeType) take_interface(arg_2(arguments)));
     isit_struct(nextFile);
-    if (nextFile->value.structvalue->usage_count != 0) {
-      nextFile->value.structvalue->usage_count++;
+    if (nextFile->value.structValue->usage_count != 0) {
+      nextFile->value.structValue->usage_count++;
     } /* if */
     /* printf("pol_nextFile ->");
     trace1(nextFile);
@@ -306,7 +306,7 @@ objecttype pol_nextFile (listtype arguments)
 
 
 
-objecttype pol_poll (listtype arguments)
+objectType pol_poll (listType arguments)
 
   { /* pol_poll */
     isit_poll(arg_1(arguments));
@@ -316,7 +316,7 @@ objecttype pol_poll (listtype arguments)
 
 
 
-objecttype pol_removeCheck (listtype arguments)
+objectType pol_removeCheck (listType arguments)
 
   { /* pol_removeCheck */
     isit_poll(arg_1(arguments));
@@ -330,10 +330,10 @@ objecttype pol_removeCheck (listtype arguments)
 
 
 
-objecttype pol_value (listtype arguments)
+objectType pol_value (listType arguments)
 
   {
-    objecttype obj_arg;
+    objectType obj_arg;
 
   /* pol_value */
     isit_reference(arg_1(arguments));

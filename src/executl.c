@@ -53,13 +53,13 @@
 
 
 
-objecttype get_create_call_obj (objecttype obj, errinfotype *err_info)
+objectType get_create_call_obj (objectType obj, errInfoType *err_info)
 
   {
-    objectrecord expr_object;
-    listrecord expr_list[3];
-    objecttype match_result;
-    objecttype create_call_obj;
+    objectRecord expr_object;
+    listRecord expr_list[3];
+    objectType match_result;
+    objectType create_call_obj;
 
   /* get_create_call_obj */
 #ifdef WITH_PROTOCOL
@@ -73,7 +73,7 @@ objecttype get_create_call_obj (objecttype obj, errinfotype *err_info)
 
     expr_object.type_of = take_type(SYS_EXPR_TYPE);
     expr_object.descriptor.property = NULL;
-    expr_object.value.listvalue = expr_list;
+    expr_object.value.listValue = expr_list;
     INIT_CATEGORY_OF_OBJ(&expr_object, EXPROBJECT);
 
     expr_list[0].next = &expr_list[1];
@@ -87,8 +87,8 @@ objecttype get_create_call_obj (objecttype obj, errinfotype *err_info)
     if (match_result != NULL) {
       match_result = match_object(match_result);
       if (match_result != NULL) {
-        create_call_obj = match_result->value.listvalue->obj;
-        FREE_L_ELEM(match_result->value.listvalue);
+        create_call_obj = match_result->value.listValue->obj;
+        FREE_L_ELEM(match_result->value.listValue);
         /* FREE_OBJECT(match_result) is not necessary, */
         /* because match_result == &expr_object holds. */
       } /* if */
@@ -99,13 +99,13 @@ objecttype get_create_call_obj (objecttype obj, errinfotype *err_info)
 
 
 
-objecttype get_destroy_call_obj (objecttype obj, errinfotype *err_info)
+objectType get_destroy_call_obj (objectType obj, errInfoType *err_info)
 
   {
-    objectrecord expr_object;
-    listrecord expr_list[2];
-    objecttype match_result;
-    objecttype destroy_call_obj;
+    objectRecord expr_object;
+    listRecord expr_list[2];
+    objectType match_result;
+    objectType destroy_call_obj;
 
   /* get_destroy_call_obj */
 #ifdef WITH_PROTOCOL
@@ -119,7 +119,7 @@ objecttype get_destroy_call_obj (objecttype obj, errinfotype *err_info)
 
     expr_object.type_of = take_type(SYS_EXPR_TYPE);
     expr_object.descriptor.property = NULL;
-    expr_object.value.listvalue = expr_list;
+    expr_object.value.listValue = expr_list;
     INIT_CATEGORY_OF_OBJ(&expr_object, EXPROBJECT);
 
     expr_list[0].next = &expr_list[1];
@@ -131,8 +131,8 @@ objecttype get_destroy_call_obj (objecttype obj, errinfotype *err_info)
     if (match_result != NULL) {
       match_result = match_object(match_result);
       if (match_result != NULL) {
-        destroy_call_obj = match_result->value.listvalue->obj;
-        FREE_L_ELEM(match_result->value.listvalue);
+        destroy_call_obj = match_result->value.listValue->obj;
+        FREE_L_ELEM(match_result->value.listValue);
         /* FREE_OBJECT(match_result) is not necessary, */
         /* because match_result == &expr_object holds. */
       } /* if */
@@ -143,13 +143,13 @@ objecttype get_destroy_call_obj (objecttype obj, errinfotype *err_info)
 
 
 
-static void type_create_call_obj (objecttype destination,
-    objecttype source, errinfotype *err_info)
+static void type_create_call_obj (objectType destination,
+    objectType source, errInfoType *err_info)
 
   {
-    objectrecord expr_object;
-    listrecord expr_list[3];
-    objecttype match_result;
+    objectRecord expr_object;
+    listRecord expr_list[3];
+    objectType match_result;
 
   /* type_create_call_obj */
 #ifdef WITH_PROTOCOL
@@ -164,7 +164,7 @@ static void type_create_call_obj (objecttype destination,
 #endif
     expr_object.type_of = take_type(SYS_EXPR_TYPE);
     expr_object.descriptor.property = NULL;
-    expr_object.value.listvalue = expr_list;
+    expr_object.value.listValue = expr_list;
     INIT_CATEGORY_OF_OBJ(&expr_object, EXPROBJECT);
 
     expr_list[0].next = &expr_list[1];
@@ -179,8 +179,8 @@ static void type_create_call_obj (objecttype destination,
       match_result = match_object(match_result);
       if (match_result != NULL) {
         destination->type_of->create_call_obj =
-            match_result->value.listvalue->obj;
-        FREE_L_ELEM(match_result->value.listvalue);
+            match_result->value.listValue->obj;
+        FREE_L_ELEM(match_result->value.listValue);
         /* FREE_OBJECT(match_result) is not necessary, */
         /* because match_result == &expr_object holds. */
       } /* if */
@@ -189,13 +189,13 @@ static void type_create_call_obj (objecttype destination,
 
 
 
-static void type_copy_call_obj (objecttype destination,
-    objecttype source, errinfotype *err_info)
+static void type_copy_call_obj (objectType destination,
+    objectType source, errInfoType *err_info)
 
   {
-    objectrecord expr_object;
-    listrecord expr_list[3];
-    objecttype match_result;
+    objectRecord expr_object;
+    listRecord expr_list[3];
+    objectType match_result;
 
   /* type_copy_call_obj */
 #ifdef WITH_PROTOCOL
@@ -210,7 +210,7 @@ static void type_copy_call_obj (objecttype destination,
 #endif
     expr_object.type_of = take_type(SYS_EXPR_TYPE);
     expr_object.descriptor.property = NULL;
-    expr_object.value.listvalue = expr_list;
+    expr_object.value.listValue = expr_list;
     INIT_CATEGORY_OF_OBJ(&expr_object, EXPROBJECT);
 
     expr_list[0].next = &expr_list[1];
@@ -225,8 +225,8 @@ static void type_copy_call_obj (objecttype destination,
       match_result = match_object(match_result);
       if (match_result != NULL) {
         destination->type_of->copy_call_obj =
-            match_result->value.listvalue->obj;
-        FREE_L_ELEM(match_result->value.listvalue);
+            match_result->value.listValue->obj;
+        FREE_L_ELEM(match_result->value.listValue);
         /* FREE_OBJECT(match_result) is not necessary, */
         /* because match_result == &expr_object holds. */
       } /* if */
@@ -235,13 +235,13 @@ static void type_copy_call_obj (objecttype destination,
 
 
 
-static void type_ord_call_obj (objecttype any_obj,
-    errinfotype *err_info)
+static void type_ord_call_obj (objectType any_obj,
+    errInfoType *err_info)
 
   {
-    objectrecord expr_object;
-    listrecord expr_list[2];
-    objecttype match_result;
+    objectRecord expr_object;
+    listRecord expr_list[2];
+    objectType match_result;
 
   /* type_ord_call_obj */
 #ifdef WITH_PROTOCOL
@@ -253,7 +253,7 @@ static void type_ord_call_obj (objecttype any_obj,
 #endif
     expr_object.type_of = take_type(SYS_EXPR_TYPE);
     expr_object.descriptor.property = NULL;
-    expr_object.value.listvalue = expr_list;
+    expr_object.value.listValue = expr_list;
     INIT_CATEGORY_OF_OBJ(&expr_object, EXPROBJECT);
 
     expr_list[0].next = &expr_list[1];
@@ -266,8 +266,8 @@ static void type_ord_call_obj (objecttype any_obj,
       match_result = match_object(match_result);
       if (match_result != NULL) {
         any_obj->type_of->ord_call_obj =
-            match_result->value.listvalue->obj;
-        FREE_L_ELEM(match_result->value.listvalue);
+            match_result->value.listValue->obj;
+        FREE_L_ELEM(match_result->value.listValue);
         /* FREE_OBJECT(match_result) is not necessary, */
         /* because match_result == &expr_object holds. */
       } /* if */
@@ -276,13 +276,13 @@ static void type_ord_call_obj (objecttype any_obj,
 
 
 
-static void type_in_call_obj (objecttype elem_obj,
-    objecttype set_obj, errinfotype *err_info)
+static void type_in_call_obj (objectType elem_obj,
+    objectType set_obj, errInfoType *err_info)
 
   {
-    objectrecord expr_object;
-    listrecord expr_list[3];
-    objecttype match_result;
+    objectRecord expr_object;
+    listRecord expr_list[3];
+    objectType match_result;
 
   /* type_in_call_obj */
 #ifdef WITH_PROTOCOL
@@ -297,7 +297,7 @@ static void type_in_call_obj (objecttype elem_obj,
 #endif
     expr_object.type_of = take_type(SYS_EXPR_TYPE);
     expr_object.descriptor.property = NULL;
-    expr_object.value.listvalue = expr_list;
+    expr_object.value.listValue = expr_list;
     INIT_CATEGORY_OF_OBJ(&expr_object, EXPROBJECT);
 
     expr_list[0].next = &expr_list[1];
@@ -312,8 +312,8 @@ static void type_in_call_obj (objecttype elem_obj,
       match_result = match_object(match_result);
       if (match_result != NULL) {
         elem_obj->type_of->in_call_obj =
-            match_result->value.listvalue->obj;
-        FREE_L_ELEM(match_result->value.listvalue);
+            match_result->value.listValue->obj;
+        FREE_L_ELEM(match_result->value.listValue);
         /* FREE_OBJECT(match_result) is not necessary, */
         /* because match_result == &expr_object holds. */
       } /* if */
@@ -322,11 +322,11 @@ static void type_in_call_obj (objecttype elem_obj,
 
 
 
-static void old_do_create (objecttype destination, objecttype source,
-    errinfotype *err_info)
+static void old_do_create (objectType destination, objectType source,
+    errInfoType *err_info)
 
   {
-    listrecord crea_expr[3];
+    listRecord crea_expr[3];
 
   /* old_do_create */
 #ifdef TRACE_EXECUTL
@@ -373,13 +373,13 @@ static void old_do_create (objecttype destination, objecttype source,
 
 
 
-void do_create (objecttype destination, objecttype source,
-    errinfotype *err_info)
+void do_create (objectType destination, objectType source,
+    errInfoType *err_info)
 
   {
-    objectrecord call_object;
-    listrecord call_list[4];
-    objecttype call_result;
+    objectRecord call_object;
+    listRecord call_list[4];
+    objectType call_result;
 
   /* do_create */
 #ifdef TRACE_EXECUTL
@@ -413,7 +413,7 @@ void do_create (objecttype destination, objecttype source,
       if (destination->type_of->create_call_obj != NULL) {
         call_object.type_of = NULL;
         call_object.descriptor.property = NULL;
-        call_object.value.listvalue = call_list;
+        call_object.value.listValue = call_list;
         INIT_CATEGORY_OF_OBJ(&call_object, CALLOBJECT);
 
         call_list[0].next = &call_list[1];
@@ -447,12 +447,12 @@ void do_create (objecttype destination, objecttype source,
 
 
 
-void do_destroy (objecttype old_obj, errinfotype *err_info)
+void do_destroy (objectType old_obj, errInfoType *err_info)
 
   {
-    objectrecord call_object;
-    listrecord call_list[3];
-    objecttype call_result;
+    objectRecord call_object;
+    listRecord call_list[3];
+    objectType call_result;
 
   /* do_destroy */
     if (old_obj->type_of->destroy_call_obj == NULL) {
@@ -468,11 +468,11 @@ void do_destroy (objecttype old_obj, errinfotype *err_info)
     if (old_obj->type_of->destroy_call_obj != NULL) {
       call_object.type_of = NULL;
       call_object.descriptor.property = NULL;
-      call_object.value.listvalue = call_list;
+      call_object.value.listValue = call_list;
       INIT_CATEGORY_OF_OBJ(&call_object, CALLOBJECT);
 
       /* prot_cstri("old_obj=[");
-      prot_int((inttype) old_obj);
+      prot_int((intType) old_obj);
       prot_cstri("] ");
       prot_flush();
       trace1(old_obj);
@@ -486,19 +486,19 @@ void do_destroy (objecttype old_obj, errinfotype *err_info)
       call_list[2].obj = SYS_DESTR_OBJECT;
 
       /* prot_cstri("call_list[0].obj=[");
-      prot_int((inttype) call_list[0].obj);
+      prot_int((intType) call_list[0].obj);
       prot_cstri("] ");
       prot_flush();
       trace1(call_list[0].obj);
       prot_nl();
       prot_cstri("call_list[1].obj=[");
-      prot_int((inttype) call_list[0].obj);
+      prot_int((intType) call_list[0].obj);
       prot_cstri("] ");
       prot_flush();
       trace1(call_list[1].obj);
       prot_nl();
       prot_cstri("call_list[2].obj=[");
-      prot_int((inttype) call_list[0].obj);
+      prot_int((intType) call_list[0].obj);
       prot_cstri("] ");
       prot_flush();
       trace1(call_list[2].obj);
@@ -523,11 +523,11 @@ void do_destroy (objecttype old_obj, errinfotype *err_info)
 
 
 
-void old_do_copy (objecttype destination, objecttype source,
-    errinfotype *err_info)
+void old_do_copy (objectType destination, objectType source,
+    errInfoType *err_info)
 
   {
-    listrecord copy_expr[3];
+    listRecord copy_expr[3];
 
   /* old_do_copy */
 #ifdef TRACE_EXECUTL
@@ -566,13 +566,13 @@ printf("\n");
 
 
 
-static void do_copy (objecttype destination, objecttype source,
-    errinfotype *err_info)
+static void do_copy (objectType destination, objectType source,
+    errInfoType *err_info)
 
   {
-    objectrecord call_object;
-    listrecord call_list[4];
-    objecttype call_result;
+    objectRecord call_object;
+    listRecord call_list[4];
+    objectType call_result;
 
   /* do_copy */
 #ifdef TRACE_EXECUTL
@@ -598,7 +598,7 @@ static void do_copy (objecttype destination, objecttype source,
       if (destination->type_of->copy_call_obj != NULL) {
         call_object.type_of = NULL;
         call_object.descriptor.property = NULL;
-        call_object.value.listvalue = call_list;
+        call_object.value.listValue = call_list;
         INIT_CATEGORY_OF_OBJ(&call_object, CALLOBJECT);
 
         call_list[0].next = &call_list[1];
@@ -632,14 +632,14 @@ static void do_copy (objecttype destination, objecttype source,
 
 
 
-inttype do_ord (objecttype any_obj, errinfotype *err_info)
+intType do_ord (objectType any_obj, errInfoType *err_info)
 
   {
-    categorytype temp_any_obj;
-    objectrecord call_object;
-    listrecord call_list[3];
-    objecttype call_result;
-    inttype result;
+    categoryType temp_any_obj;
+    objectRecord call_object;
+    listRecord call_list[3];
+    objectType call_result;
+    intType result;
 
   /* do_ord */
     if (any_obj->type_of->ord_call_obj == NULL) {
@@ -654,11 +654,11 @@ inttype do_ord (objecttype any_obj, errinfotype *err_info)
     if (any_obj->type_of->ord_call_obj != NULL) {
       call_object.type_of = NULL;
       call_object.descriptor.property = NULL;
-      call_object.value.listvalue = call_list;
+      call_object.value.listValue = call_list;
       INIT_CATEGORY_OF_OBJ(&call_object, CALLOBJECT);
 
       /* prot_cstri("any_obj=[");
-      prot_int((inttype) any_obj);
+      prot_int((intType) any_obj);
       prot_cstri("] ");
       prot_flush();
       trace1(any_obj);
@@ -672,19 +672,19 @@ inttype do_ord (objecttype any_obj, errinfotype *err_info)
       call_list[2].obj = SYS_ORD_OBJECT;
 
       /* prot_cstri("call_list[0].obj=[");
-      prot_int((inttype) call_list[0].obj);
+      prot_int((intType) call_list[0].obj);
       prot_cstri("] ");
       prot_flush();
       trace1(call_list[0].obj);
       prot_nl();
       prot_cstri("call_list[1].obj=[");
-      prot_int((inttype) call_list[0].obj);
+      prot_int((intType) call_list[0].obj);
       prot_cstri("] ");
       prot_flush();
       trace1(call_list[1].obj);
       prot_nl();
       prot_cstri("call_list[2].obj=[");
-      prot_int((inttype) call_list[0].obj);
+      prot_int((intType) call_list[0].obj);
       prot_cstri("] ");
       prot_flush();
       trace1(call_list[2].obj);
@@ -695,7 +695,7 @@ inttype do_ord (objecttype any_obj, errinfotype *err_info)
         prot_cstri("is temp ");
         trace1(any_obj);
       } */
-      temp_any_obj = (categorytype) TEMP_OBJECT(any_obj);
+      temp_any_obj = (categoryType) TEMP_OBJECT(any_obj);
       CLEAR_TEMP_FLAG(any_obj);
 
       call_result = exec_call(&call_object);
@@ -716,16 +716,16 @@ inttype do_ord (objecttype any_obj, errinfotype *err_info)
 
 
 
-booltype do_in (objecttype elem_obj, objecttype set_obj,
-    errinfotype *err_info)
+boolType do_in (objectType elem_obj, objectType set_obj,
+    errInfoType *err_info)
 
   {
-    categorytype temp_elem_obj;
-    categorytype temp_set_obj;
-    objectrecord call_object;
-    listrecord call_list[4];
-    objecttype call_result;
-    booltype result;
+    categoryType temp_elem_obj;
+    categoryType temp_set_obj;
+    objectRecord call_object;
+    listRecord call_list[4];
+    objectType call_result;
+    boolType result;
 
   /* do_in */
     if (elem_obj->type_of->in_call_obj == NULL) {
@@ -740,11 +740,11 @@ booltype do_in (objecttype elem_obj, objecttype set_obj,
     if (elem_obj->type_of->in_call_obj != NULL) {
       call_object.type_of = NULL;
       call_object.descriptor.property = NULL;
-      call_object.value.listvalue = call_list;
+      call_object.value.listValue = call_list;
       INIT_CATEGORY_OF_OBJ(&call_object, CALLOBJECT);
 
       /* prot_cstri("elem_obj=[");
-      prot_int((inttype) elem_obj);
+      prot_int((intType) elem_obj);
       prot_cstri("] ");
       prot_flush();
       trace1(elem_obj);
@@ -760,19 +760,19 @@ booltype do_in (objecttype elem_obj, objecttype set_obj,
       call_list[3].obj = set_obj;
 
       /* prot_cstri("call_list[0].obj=[");
-      prot_int((inttype) call_list[0].obj);
+      prot_int((intType) call_list[0].obj);
       prot_cstri("] ");
       prot_flush();
       trace1(call_list[0].obj);
       prot_nl();
       prot_cstri("call_list[1].obj=[");
-      prot_int((inttype) call_list[0].obj);
+      prot_int((intType) call_list[0].obj);
       prot_cstri("] ");
       prot_flush();
       trace1(call_list[1].obj);
       prot_nl();
       prot_cstri("call_list[2].obj=[");
-      prot_int((inttype) call_list[0].obj);
+      prot_int((intType) call_list[0].obj);
       prot_cstri("] ");
       prot_flush();
       trace1(call_list[2].obj);
@@ -783,8 +783,8 @@ booltype do_in (objecttype elem_obj, objecttype set_obj,
         prot_cstri("is temp ");
         trace1(elem_obj);
       } */
-      temp_elem_obj = (categorytype) TEMP_OBJECT(elem_obj);
-      temp_set_obj = (categorytype) TEMP_OBJECT(set_obj);
+      temp_elem_obj = (categoryType) TEMP_OBJECT(elem_obj);
+      temp_set_obj = (categoryType) TEMP_OBJECT(set_obj);
       CLEAR_TEMP_FLAG(elem_obj);
       CLEAR_TEMP_FLAG(set_obj);
 
@@ -794,7 +794,7 @@ booltype do_in (objecttype elem_obj, objecttype set_obj,
       SET_ANY_FLAG(set_obj, temp_set_obj);
       /* printf("do_in: after exec_call\n");
          fflush(stdout); */
-      result = (booltype) (take_bool(call_result) == SYS_TRUE_OBJECT);
+      result = (boolType) (take_bool(call_result) == SYS_TRUE_OBJECT);
       if (TEMP_OBJECT(call_result)) {
         dump_any_temp(call_result);
       } /* if */
@@ -807,17 +807,17 @@ booltype do_in (objecttype elem_obj, objecttype set_obj,
 
 
 
-objecttype param1_call (objecttype function_obj, objecttype param1)
+objectType param1_call (objectType function_obj, objectType param1)
 
   {
-    objectrecord call_object;
-    listrecord call_list[2];
-    objecttype call_result;
+    objectRecord call_object;
+    listRecord call_list[2];
+    objectType call_result;
 
   /* param1_call */
     call_object.type_of = NULL;
     call_object.descriptor.property = NULL;
-    call_object.value.listvalue = call_list;
+    call_object.value.listValue = call_list;
     INIT_CATEGORY_OF_OBJ(&call_object, CALLOBJECT);
 
     call_list[0].next = &call_list[1];
@@ -831,18 +831,18 @@ objecttype param1_call (objecttype function_obj, objecttype param1)
 
 
 
-objecttype param2_call (objecttype function_obj, objecttype param1,
-    objecttype param2)
+objectType param2_call (objectType function_obj, objectType param1,
+    objectType param2)
 
   {
-    objectrecord call_object;
-    listrecord call_list[3];
-    objecttype call_result;
+    objectRecord call_object;
+    listRecord call_list[3];
+    objectType call_result;
 
   /* param2_call */
     call_object.type_of = NULL;
     call_object.descriptor.property = NULL;
-    call_object.value.listvalue = call_list;
+    call_object.value.listValue = call_list;
     INIT_CATEGORY_OF_OBJ(&call_object, CALLOBJECT);
 
     call_list[0].next = &call_list[1];
@@ -858,18 +858,18 @@ objecttype param2_call (objecttype function_obj, objecttype param1,
 
 
 
-objecttype param3_call (objecttype function_obj, objecttype param1,
-    objecttype param2, objecttype param3)
+objectType param3_call (objectType function_obj, objectType param1,
+    objectType param2, objectType param3)
 
   {
-    objectrecord call_object;
-    listrecord call_list[4];
-    objecttype call_result;
+    objectRecord call_object;
+    listRecord call_list[4];
+    objectType call_result;
 
   /* param3_call */
     call_object.type_of = NULL;
     call_object.descriptor.property = NULL;
-    call_object.value.listvalue = call_list;
+    call_object.value.listValue = call_list;
     INIT_CATEGORY_OF_OBJ(&call_object, CALLOBJECT);
 
     call_list[0].next = &call_list[1];
@@ -887,14 +887,14 @@ objecttype param3_call (objecttype function_obj, objecttype param1,
 
 
 
-objecttype create_return_object (const_locobjtype local, objecttype init_value,
-    errinfotype *err_info)
+objectType create_return_object (const_locObjType local, objectType init_value,
+    errInfoType *err_info)
 
   {
-    objectrecord call_object;
-    listrecord call_list[4];
-    objecttype new_object;
-    objecttype call_result;
+    objectRecord call_object;
+    listRecord call_list[4];
+    objectType new_object;
+    objectType call_result;
 
   /* create_return_object */
     if (ALLOC_OBJECT(new_object)) {
@@ -908,7 +908,7 @@ objecttype create_return_object (const_locobjtype local, objecttype init_value,
 
       call_object.type_of = NULL;
       call_object.descriptor.property = NULL;
-      call_object.value.listvalue = call_list;
+      call_object.value.listValue = call_list;
       INIT_CATEGORY_OF_OBJ(&call_object, CALLOBJECT);
 
       call_list[0].next = &call_list[1];
@@ -938,14 +938,14 @@ objecttype create_return_object (const_locobjtype local, objecttype init_value,
 
 
 
-void create_local_object (const_locobjtype local, objecttype init_value,
-    errinfotype *err_info)
+void create_local_object (const_locObjType local, objectType init_value,
+    errInfoType *err_info)
 
   {
-    objectrecord call_object;
-    listrecord call_list[4];
-    objecttype new_object;
-    objecttype call_result;
+    objectRecord call_object;
+    listRecord call_list[4];
+    objectType new_object;
+    objectType call_result;
 
   /* create_local_object */
     if (ALLOC_OBJECT(new_object)) {
@@ -959,7 +959,7 @@ void create_local_object (const_locobjtype local, objecttype init_value,
 
       call_object.type_of = NULL;
       call_object.descriptor.property = NULL;
-      call_object.value.listvalue = call_list;
+      call_object.value.listValue = call_list;
       INIT_CATEGORY_OF_OBJ(&call_object, CALLOBJECT);
 
       call_list[0].next = &call_list[1];
@@ -981,7 +981,7 @@ void create_local_object (const_locobjtype local, objecttype init_value,
         *err_info = CREATE_ERROR;
       } /* if */
 
-      local->object->value.objvalue = new_object;
+      local->object->value.objValue = new_object;
     } else {
       fail_flag = FALSE;
       *err_info = MEMORY_ERROR;
@@ -990,15 +990,15 @@ void create_local_object (const_locobjtype local, objecttype init_value,
 
 
 
-void destroy_local_object (const_locobjtype local, errinfotype *err_info)
+void destroy_local_object (const_locObjType local, errInfoType *err_info)
 
   {
-    objectrecord call_object;
-    listrecord call_list[3];
-    objecttype call_result;
+    objectRecord call_object;
+    listRecord call_list[3];
+    objectType call_result;
 
   /* destroy_local_object */
-    switch (CATEGORY_OF_OBJ(local->object->value.objvalue)) {
+    switch (CATEGORY_OF_OBJ(local->object->value.objValue)) {
       case INTOBJECT:
       case CHAROBJECT:
       case FILEOBJECT:
@@ -1008,19 +1008,19 @@ void destroy_local_object (const_locobjtype local, errinfotype *err_info)
       case CONSTENUMOBJECT:
       case VARENUMOBJECT:
       case ENUMLITERALOBJECT:
-        SET_UNUSED_FLAG(local->object->value.objvalue);
+        SET_UNUSED_FLAG(local->object->value.objValue);
         break;
       default:
         call_object.type_of = NULL;
         call_object.descriptor.property = NULL;
-        call_object.value.listvalue = call_list;
+        call_object.value.listValue = call_list;
         INIT_CATEGORY_OF_OBJ(&call_object, CALLOBJECT);
 
         call_list[0].next = &call_list[1];
         call_list[1].next = &call_list[2];
         call_list[2].next = NULL;
         call_list[0].obj = local->destroy_call_obj;
-        call_list[1].obj = local->object->value.objvalue;
+        call_list[1].obj = local->object->value.objValue;
         call_list[2].obj = SYS_DESTR_OBJECT;
 
         /* printf("destroy_local_object: local->destroy_call_obj ");
@@ -1046,12 +1046,12 @@ void destroy_local_object (const_locobjtype local, errinfotype *err_info)
 
 
 
-void destroy_local_init_value (const_locobjtype local, errinfotype *err_info)
+void destroy_local_init_value (const_locObjType local, errInfoType *err_info)
 
   {
-    objectrecord call_object;
-    listrecord call_list[3];
-    objecttype call_result;
+    objectRecord call_object;
+    listRecord call_list[3];
+    objectType call_result;
 
   /* destroy_local_init_value */
     switch (CATEGORY_OF_OBJ(local->init_value)) {
@@ -1068,7 +1068,7 @@ void destroy_local_init_value (const_locobjtype local, errinfotype *err_info)
       default:
         call_object.type_of = NULL;
         call_object.descriptor.property = NULL;
-        call_object.value.listvalue = call_list;
+        call_object.value.listValue = call_list;
         INIT_CATEGORY_OF_OBJ(&call_object, CALLOBJECT);
 
         call_list[0].next = &call_list[1];
@@ -1101,13 +1101,13 @@ void destroy_local_init_value (const_locobjtype local, errinfotype *err_info)
 
 
 
-static booltype sct_elem_initialisation (typetype dest_type, objecttype obj_to, objecttype obj_from)
+static boolType sct_elem_initialisation (typeType dest_type, objectType obj_to, objectType obj_from)
 
   {
-    errinfotype err_info = OKAY_NO_ERROR;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* sct_elem_initialisation */
-    memcpy(&obj_to->descriptor, &obj_from->descriptor, sizeof(descriptorunion));
+    memcpy(&obj_to->descriptor, &obj_from->descriptor, sizeof(descriptorUnion));
     INIT_CATEGORY_OF_VAR(obj_to, DECLAREDOBJECT);
     SET_ANY_FLAG(obj_to, HAS_POSINFO(obj_from));
     obj_to->type_of = dest_type;
@@ -1117,11 +1117,11 @@ static booltype sct_elem_initialisation (typetype dest_type, objecttype obj_to, 
 
 
 
-void destr_struct (objecttype old_elem, memsizetype old_size)
+void destr_struct (objectType old_elem, memSizeType old_size)
 
   {
-    memsizetype position;
-    errinfotype err_info = OKAY_NO_ERROR;
+    memSizeType position;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* destr_struct */
     for (position = old_size; position > 0; position--) {
@@ -1146,12 +1146,12 @@ void destr_struct (objecttype old_elem, memsizetype old_size)
 
 
 
-booltype crea_struct (objecttype elem_to, objecttype elem_from,
-    memsizetype new_size)
+boolType crea_struct (objectType elem_to, objectType elem_from,
+    memSizeType new_size)
 
   {
-    memsizetype position;
-    booltype okay;
+    memSizeType position;
+    boolType okay;
 
   /* crea_struct */
     okay = TRUE;
@@ -1172,10 +1172,10 @@ booltype crea_struct (objecttype elem_to, objecttype elem_from,
 
 
 
-booltype arr_elem_initialisation (typetype dest_type, objecttype obj_to, objecttype obj_from)
+boolType arr_elem_initialisation (typeType dest_type, objectType obj_to, objectType obj_from)
 
   {
-    errinfotype err_info = OKAY_NO_ERROR;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* arr_elem_initialisation */
     obj_to->descriptor.property = NULL;
@@ -1188,11 +1188,11 @@ booltype arr_elem_initialisation (typetype dest_type, objecttype obj_to, objectt
 
 
 
-void destr_array (objecttype old_elem, memsizetype old_size)
+void destr_array (objectType old_elem, memSizeType old_size)
 
   {
-    memsizetype position;
-    errinfotype err_info = OKAY_NO_ERROR;
+    memSizeType position;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* destr_array */
     for (position = old_size; position > 0; position--) {
@@ -1203,12 +1203,12 @@ void destr_array (objecttype old_elem, memsizetype old_size)
 
 
 
-booltype crea_array (objecttype elem_to, objecttype elem_from,
-    memsizetype new_size)
+boolType crea_array (objectType elem_to, objectType elem_from,
+    memSizeType new_size)
 
   {
-    memsizetype position;
-    booltype okay;
+    memSizeType position;
+    boolType okay;
 
   /* crea_array */
     okay = TRUE;
@@ -1229,12 +1229,12 @@ booltype crea_array (objecttype elem_to, objecttype elem_from,
 
 
 
-void cpy_array (objecttype elem_to, objecttype elem_from,
-    memsizetype new_size)
+void cpy_array (objectType elem_to, objectType elem_from,
+    memSizeType new_size)
 
   {
-    memsizetype position;
-    errinfotype err_info = OKAY_NO_ERROR;
+    memSizeType position;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* cpy_array */
     /* prot_cstri("cpy_array");

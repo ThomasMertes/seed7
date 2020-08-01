@@ -25,4 +25,4 @@
 /*                                                                  */
 /********************************************************************/
 
-objecttype pars_infix_expression (prioritytype priority, booltype do_match_expr);
+objectType pars_infix_expression (priorityType priority, boolType do_match_expr);

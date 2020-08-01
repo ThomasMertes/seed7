@@ -25,10 +25,10 @@
 /*                                                                  */
 /********************************************************************/
 
-objecttype new_empty_list_object (const_objecttype typeof_object);
-objecttype new_nonempty_expression_object (objecttype first_element,
-    listtype *list, const_objecttype typeof_object);
-objecttype new_type_of_expression_object (objecttype first_element,
-    listtype *list, typetype type_of);
-objecttype new_expression_object (listtype *list);
-listtype add_element_to_list (listtype list, objecttype object);
+objectType new_empty_list_object (const_objectType typeof_object);
+objectType new_nonempty_expression_object (objectType first_element,
+    listType *list, const_objectType typeof_object);
+objectType new_type_of_expression_object (objectType first_element,
+    listType *list, typeType type_of);
+objectType new_expression_object (listType *list);
+listType add_element_to_list (listType list, objectType object);

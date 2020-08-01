@@ -77,8 +77,8 @@ typedef enum {
   } iteratorType;
 
 typedef struct {
-    sockettype fd;
-    generictype file;
+    socketType fd;
+    genericType file;
   } fdAndFileType;
 
 typedef struct {
@@ -96,43 +96,43 @@ typedef struct {
 #if defined USE_PREPARED_FD_SET && defined SELECT_WITH_NFDS
     int preparedNfds;
 #endif
-    memsizetype size;
-    memsizetype capacity;
-    memsizetype iterPos;
+    memSizeType size;
+    memSizeType capacity;
+    memSizeType iterPos;
     fdAndFileType *files;
-    rtlHashtype indexHash;
+    rtlHashType indexHash;
   } testType;
 
-typedef struct select_based_pollstruct {
+typedef struct {
     testType readTest;
     testType writeTest;
     iteratorType iteratorMode;
-    memsizetype iterEvents;
-    memsizetype numOfEvents;
-  } select_based_pollrecord, *select_based_polltype;
+    memSizeType iterEvents;
+    memSizeType numOfEvents;
+  } select_based_pollRecord, *select_based_pollType;
 
-typedef const struct select_based_pollstruct *const_select_based_polltype;
+typedef const select_based_pollRecord *const_select_based_pollType;
 
 #ifdef DO_HEAP_STATISTIC
-size_t sizeof_pollrecord = sizeof(select_based_pollrecord);
+size_t sizeof_pollRecord = sizeof(select_based_pollRecord);
 #endif
 
-#define conv(genericPollData) ((const_select_based_polltype) genericPollData)
-#define var_conv(genericPollData) ((select_based_polltype) genericPollData)
+#define conv(genericPollData) ((const_select_based_pollType) genericPollData)
+#define var_conv(genericPollData) ((select_based_pollType) genericPollData)
 
 
 #ifdef DYNAMIC_FD_SET
 
 #define to_inFdset(test)            ((test)->inFdset)
 #define to_outFdset(test)           ((test)->outFdset)
-#define to_read_inFdset(data)       (((const_select_based_polltype) data)->readTest.inFdset)
-#define to_write_inFdset(data)      (((const_select_based_polltype) data)->writeTest.inFdset)
-#define to_read_outFdset(data)      (((const_select_based_polltype) data)->readTest.outFdset)
-#define to_write_outFdset(data)     (((const_select_based_polltype) data)->writeTest.outFdset)
-#define to_var_read_inFdset(data)   (((select_based_polltype) data)->readTest.inFdset)
-#define to_var_write_inFdset(data)  (((select_based_polltype) data)->writeTest.inFdset)
-#define to_var_read_outFdset(data)  (((select_based_polltype) data)->readTest.outFdset)
-#define to_var_write_outFdset(data) (((select_based_polltype) data)->writeTest.outFdset)
+#define to_read_inFdset(data)       (((const_select_based_pollType) data)->readTest.inFdset)
+#define to_write_inFdset(data)      (((const_select_based_pollType) data)->writeTest.inFdset)
+#define to_read_outFdset(data)      (((const_select_based_pollType) data)->readTest.outFdset)
+#define to_write_outFdset(data)     (((const_select_based_pollType) data)->writeTest.outFdset)
+#define to_var_read_inFdset(data)   (((select_based_pollType) data)->readTest.inFdset)
+#define to_var_write_inFdset(data)  (((select_based_pollType) data)->writeTest.inFdset)
+#define to_var_read_outFdset(data)  (((select_based_pollType) data)->readTest.outFdset)
+#define to_var_write_outFdset(data) (((select_based_pollType) data)->writeTest.outFdset)
 
 #define ALLOC_FDSET(var,nr)      (ALLOC_HEAP(var, fd_set *, SIZEOF_FD_SET(nr))?CNT(CNT1_BYT(SIZEOF_FD_SET(nr))) TRUE:FALSE)
 #define FREE_FDSET(var,nr)       (CNT(CNT2_BYT(SIZEOF_FD_SET(nr))) FREE_HEAP(var, SIZEOF_FD_SET(nr)))
@@ -143,14 +143,14 @@ size_t sizeof_pollrecord = sizeof(select_based_pollrecord);
 
 #define to_inFdset(test)            (&(test)->inFdset)
 #define to_outFdset(test)           (&(test)->outFdset)
-#define to_read_inFdset(data)       (&((const_select_based_polltype) data)->readTest.inFdset)
-#define to_write_inFdset(data)      (&((const_select_based_polltype) data)->writeTest.inFdset)
-#define to_read_outFdset(data)      (&((const_select_based_polltype) data)->readTest.outFdset)
-#define to_write_outFdset(data)     (&((const_select_based_polltype) data)->writeTest.outFdset)
-#define to_var_read_inFdset(data)   (&((select_based_polltype) data)->readTest.inFdset)
-#define to_var_write_inFdset(data)  (&((select_based_polltype) data)->writeTest.inFdset)
-#define to_var_read_outFdset(data)  (&((select_based_polltype) data)->readTest.outFdset)
-#define to_var_write_outFdset(data) (&((select_based_polltype) data)->writeTest.outFdset)
+#define to_read_inFdset(data)       (&((const_select_based_pollType) data)->readTest.inFdset)
+#define to_write_inFdset(data)      (&((const_select_based_pollType) data)->writeTest.inFdset)
+#define to_read_outFdset(data)      (&((const_select_based_pollType) data)->readTest.outFdset)
+#define to_write_outFdset(data)     (&((const_select_based_pollType) data)->writeTest.outFdset)
+#define to_var_read_inFdset(data)   (&((select_based_pollType) data)->readTest.inFdset)
+#define to_var_write_inFdset(data)  (&((select_based_pollType) data)->writeTest.inFdset)
+#define to_var_read_outFdset(data)  (&((select_based_pollType) data)->readTest.outFdset)
+#define to_var_write_outFdset(data) (&((select_based_pollType) data)->writeTest.outFdset)
 
 #endif
 
@@ -161,9 +161,9 @@ size_t sizeof_pollrecord = sizeof(select_based_pollrecord);
 
 
 #ifdef OUT_OF_ORDER
-static void dumpPoll (const const_polltype pollData)
+static void dumpPoll (const const_pollType pollData)
     {
-      memsizetype pos;
+      memSizeType pos;
 /*
       printf("readSize=%d\n", conv(pollData)->readTest.size);
       printf("readCapacity=%d\n", conv(pollData)->readTest.capacity);
@@ -201,8 +201,8 @@ static void dumpPoll (const const_polltype pollData)
 
 
 
-void initPollOperations (const createfunctype incrUsageCount,
-    const destrfunctype decrUsageCount)
+void initPollOperations (const createFuncType incrUsageCount,
+    const destrFuncType decrUsageCount)
 
   { /* initPollOperations */
     fileObjectOps.incrUsageCount = incrUsageCount;
@@ -218,7 +218,7 @@ void initPollOperations (const createfunctype incrUsageCount,
 static void copyFdSet (fd_set *dest, const fd_set *source, testType *test)
 
   {
-    memsizetype pos;
+    memSizeType pos;
 
   /* copyFdSet */
     FD_ZERO(dest);
@@ -236,10 +236,10 @@ static void copyFdSet (fd_set *dest, const fd_set *source, testType *test)
 #define allocFdSet(test, capacity) TRUE
 #else
 
-static booltype allocFdSet (testType *test, memsizetype capacity)
+static boolType allocFdSet (testType *test, memSizeType capacity)
 
   {
-    booltype result = TRUE;
+    boolType result = TRUE;
 
   /* allocFdSet */
 #ifdef USE_PREPARED_FD_SET
@@ -266,7 +266,7 @@ static booltype allocFdSet (testType *test, memsizetype capacity)
 #define freeFdSet(test, capacity) 0
 #else
 
-static void freeFdSet (testType *test, memsizetype capacity)
+static void freeFdSet (testType *test, memSizeType capacity)
 
   { /* freeFdSet */
     if (test->outFdset != NULL) {
@@ -284,11 +284,11 @@ static void freeFdSet (testType *test, memsizetype capacity)
 #define reallocFdSet(pollData, increment) TRUE
 #else
 
-static booltype reallocFdSet (testType *test, memsizetype increment)
+static boolType reallocFdSet (testType *test, memSizeType increment)
 
   {
     fd_set *newFdset;
-    booltype result = TRUE;
+    boolType result = TRUE;
 
   /* reallocFdSet */
 #ifdef USE_PREPARED_FD_SET
@@ -319,14 +319,14 @@ static booltype reallocFdSet (testType *test, memsizetype increment)
 #define replaceFdSet(test, capacity) TRUE
 #else
 
-static booltype replaceFdSet (testType *test, memsizetype capacity)
+static boolType replaceFdSet (testType *test, memSizeType capacity)
 
   {
 #ifdef USE_PREPARED_FD_SET
     fd_set *newInFdset;
 #endif
     fd_set *newOutFdset;
-    booltype result = TRUE;
+    boolType result = TRUE;
 
   /* replaceFdSet */
 #ifdef USE_PREPARED_FD_SET
@@ -356,11 +356,11 @@ static booltype replaceFdSet (testType *test, memsizetype capacity)
 
 
 
-static void addCheck (testType *test, const sockettype aSocket,
-    const generictype fileObj)
+static void addCheck (testType *test, const socketType aSocket,
+    const genericType fileObj)
 
   {
-    memsizetype pos;
+    memSizeType pos;
 
   /* addCheck */
     /* printf("addCheck(..., %u, 0x%lx)\n", aSocket, (unsigned long) fileObj); */
@@ -376,10 +376,10 @@ static void addCheck (testType *test, const sockettype aSocket,
       return;
     } /* if */
 #endif
-    pos = (memsizetype) hshIdxEnterDefault(test->indexHash,
-        (generictype) (memsizetype) aSocket, (generictype) test->size,
-        (inttype) (memsizetype) aSocket, (comparetype) &genericCmp,
-        (createfunctype) &genericCreate, (createfunctype) &genericCreate);
+    pos = (memSizeType) hshIdxEnterDefault(test->indexHash,
+        (genericType) (memSizeType) aSocket, (genericType) test->size,
+        (intType) (memSizeType) aSocket, (compareType) &genericCmp,
+        (createFuncType) &genericCreate, (createFuncType) &genericCreate);
     if (pos == test->size) {
       if (test->size >= test->capacity) {
         test->files = REALLOC_TABLE(test->files,
@@ -412,16 +412,16 @@ static void addCheck (testType *test, const sockettype aSocket,
 
 
 
-static void removeCheck (testType *test, const sockettype aSocket)
+static void removeCheck (testType *test, const socketType aSocket)
 
   {
-    memsizetype pos;
+    memSizeType pos;
 
   /* removeCheck */
     /* printf("removeCheck(..., %u)\n", aSocket); */
-    pos = (memsizetype) hshIdxWithDefault(test->indexHash,
-        (generictype) (memsizetype) aSocket, (generictype) test->size,
-        (inttype) (memsizetype) aSocket, (comparetype) &genericCmp);
+    pos = (memSizeType) hshIdxWithDefault(test->indexHash,
+        (genericType) (memSizeType) aSocket, (genericType) test->size,
+        (intType) (memSizeType) aSocket, (compareType) &genericCmp);
     if (pos != test->size) {
       fileObjectOps.decrUsageCount(test->files[pos].file);
       if (pos + 1 <= test->iterPos) {
@@ -430,9 +430,9 @@ static void removeCheck (testType *test, const sockettype aSocket)
           memcpy(&test->files[pos],
                  &test->files[test->iterPos], sizeof(fdAndFileType));
           hshIdxAddr(test->indexHash,
-                     (generictype) (memsizetype) test->files[pos].fd,
-                     (inttype) (memsizetype) test->files[pos].fd,
-                     (comparetype) &genericCmp)->value.genericvalue = (generictype) pos;
+                     (genericType) (memSizeType) test->files[pos].fd,
+                     (intType) (memSizeType) test->files[pos].fd,
+                     (compareType) &genericCmp)->value.genericValue = (genericType) pos;
           pos = test->iterPos;
         } /* if */
       } /* if */
@@ -441,13 +441,13 @@ static void removeCheck (testType *test, const sockettype aSocket)
         memcpy(&test->files[pos],
                &test->files[test->size], sizeof(fdAndFileType));
         hshIdxAddr(test->indexHash,
-                   (generictype) (memsizetype) test->files[pos].fd,
-                   (inttype) (memsizetype) test->files[pos].fd,
-                   (comparetype) &genericCmp)->value.genericvalue = (generictype) pos;
+                   (genericType) (memSizeType) test->files[pos].fd,
+                   (intType) (memSizeType) test->files[pos].fd,
+                   (compareType) &genericCmp)->value.genericValue = (genericType) pos;
       } /* if */
-      hshExcl(test->indexHash, (generictype) (memsizetype) aSocket,
-              (inttype) (memsizetype) aSocket, (comparetype) &genericCmp,
-              (destrfunctype) &genericDestr, (destrfunctype) &genericDestr);
+      hshExcl(test->indexHash, (genericType) (memSizeType) aSocket,
+              (intType) (memSizeType) aSocket, (compareType) &genericCmp,
+              (destrFuncType) &genericDestr, (destrFuncType) &genericDestr);
 #ifdef USE_PREPARED_FD_SET
       FD_CLR(aSocket, to_inFdset(test));
 #endif
@@ -456,15 +456,15 @@ static void removeCheck (testType *test, const sockettype aSocket)
 
 
 
-static void doPoll (const polltype pollData, struct timeval *timeout)
+static void doPoll (const pollType pollData, struct timeval *timeout)
 
   {
     int nfds = 0;
     fd_set *readFds;
     fd_set *writeFds;
 #ifndef USE_PREPARED_FD_SET
-    memsizetype pos;
-    sockettype sock;
+    memSizeType pos;
+    socketType sock;
 #endif
     int select_result;
 
@@ -531,22 +531,22 @@ static void doPoll (const polltype pollData, struct timeval *timeout)
     } else {
       var_conv(pollData)->readTest.iterPos = 0;
       var_conv(pollData)->writeTest.iterPos = 0;
-      var_conv(pollData)->numOfEvents = (memsizetype) select_result;
+      var_conv(pollData)->numOfEvents = (memSizeType) select_result;
     } /* if */
   } /* doPoll */
 
 
 
-static booltype isChecked (const testType *test, const sockettype aSocket)
+static boolType isChecked (const testType *test, const socketType aSocket)
 
   {
-    memsizetype pos;
-    booltype result;
+    memSizeType pos;
+    boolType result;
 
   /* isChecked */
-    pos = (memsizetype) hshIdxWithDefault(test->indexHash,
-        (generictype) (memsizetype) aSocket, (generictype) test->size,
-        (inttype) (memsizetype) aSocket, (comparetype) &genericCmp);
+    pos = (memSizeType) hshIdxWithDefault(test->indexHash,
+        (genericType) (memSizeType) aSocket, (genericType) test->size,
+        (intType) (memSizeType) aSocket, (compareType) &genericCmp);
     result = pos != test->size;
     /* printf("isChecked: sock=%d, pos=%d, fd=%d\n",
         aSocket, pos, test->files[pos].fd); */
@@ -555,16 +555,16 @@ static booltype isChecked (const testType *test, const sockettype aSocket)
 
 
 
-static booltype isReady (const testType *test, const sockettype aSocket)
+static boolType isReady (const testType *test, const socketType aSocket)
 
   {
-    memsizetype pos;
-    booltype result;
+    memSizeType pos;
+    boolType result;
 
   /* isReady */
-    pos = (memsizetype) hshIdxWithDefault(test->indexHash,
-        (generictype) (memsizetype) aSocket, (generictype) test->size,
-        (inttype) (memsizetype) aSocket, (comparetype) &genericCmp);
+    pos = (memSizeType) hshIdxWithDefault(test->indexHash,
+        (genericType) (memSizeType) aSocket, (genericType) test->size,
+        (intType) (memSizeType) aSocket, (compareType) &genericCmp);
     if (pos == test->size) {
       result = FALSE;
     } else {
@@ -577,7 +577,7 @@ static booltype isReady (const testType *test, const sockettype aSocket)
 
 
 
-static booltype hasNextCheck (const testType *test)
+static boolType hasNextCheck (const testType *test)
 
   { /* hasNextCheck */
     return test->iterPos < test->size;
@@ -585,12 +585,12 @@ static booltype hasNextCheck (const testType *test)
 
 
 
-static booltype hasNextFinding (testType *test, memsizetype iterEvents)
+static boolType hasNextFinding (testType *test, memSizeType iterEvents)
 
   {
-    memsizetype pos;
+    memSizeType pos;
     fd_set *fdSet;
-    booltype hasNext;
+    boolType hasNext;
 
   /* hasNextFinding */
     if (iterEvents == 0) {
@@ -611,12 +611,12 @@ static booltype hasNextFinding (testType *test, memsizetype iterEvents)
 
 
 
-static generictype nextCheck (testType *test,
-    const generictype nullFile)
+static genericType nextCheck (testType *test,
+    const genericType nullFile)
 
   {
-    memsizetype pos;
-    generictype checkFile;
+    memSizeType pos;
+    genericType checkFile;
 
   /* nextCheck */
     pos = test->iterPos;
@@ -634,13 +634,13 @@ static generictype nextCheck (testType *test,
 
 
 
-static generictype nextFinding (testType *test,
-    memsizetype *iterEvents, const generictype nullFile)
+static genericType nextFinding (testType *test,
+    memSizeType *iterEvents, const genericType nullFile)
 
   {
-    memsizetype pos;
+    memSizeType pos;
     fd_set *fdSet;
-    generictype resultFile;
+    genericType resultFile;
 
   /* nextFinding */
     if (*iterEvents == 0) {
@@ -675,8 +675,8 @@ static generictype nextFinding (testType *test,
  *  The parameter 'fileObj' determines, which file is returned,
  *  when the iterator returns files in 'pollData'.
  */
-void polAddCheck (const polltype pollData, const sockettype aSocket,
-    inttype eventsToCheck, const generictype fileObj)
+void polAddCheck (const pollType pollData, const socketType aSocket,
+    intType eventsToCheck, const genericType fileObj)
 
   { /* polAddCheck */
     switch (eventsToCheck) {
@@ -698,10 +698,10 @@ void polAddCheck (const polltype pollData, const sockettype aSocket,
 
 
 
-void polClear (const polltype pollData)
+void polClear (const pollType pollData)
 
   {
-    memsizetype pos;
+    memSizeType pos;
 
   /* polClear */
     /* printf("polClear\n"); */
@@ -721,8 +721,8 @@ void polClear (const polltype pollData)
     } /* for */
     var_conv(pollData)->readTest.size = 0;
     var_conv(pollData)->readTest.iterPos = 0;
-    hshDestr(conv(pollData)->readTest.indexHash, (destrfunctype) &genericDestr,
-             (destrfunctype) &genericDestr);
+    hshDestr(conv(pollData)->readTest.indexHash, (destrFuncType) &genericDestr,
+             (destrFuncType) &genericDestr);
     var_conv(pollData)->readTest.indexHash = hshEmpty();
     /* Clear writeTest */
     for (pos = 0; pos < conv(pollData)->readTest.size; pos++) {
@@ -730,8 +730,8 @@ void polClear (const polltype pollData)
     } /* for */
     var_conv(pollData)->writeTest.size = 0;
     var_conv(pollData)->writeTest.iterPos = 0;
-    hshDestr(conv(pollData)->writeTest.indexHash, (destrfunctype) &genericDestr,
-             (destrfunctype) &genericDestr);
+    hshDestr(conv(pollData)->writeTest.indexHash, (destrFuncType) &genericDestr,
+             (destrFuncType) &genericDestr);
     var_conv(pollData)->writeTest.indexHash = hshEmpty();
     var_conv(pollData)->iteratorMode = ITER_EMPTY;
     var_conv(pollData)->iterEvents = 0;
@@ -740,33 +740,33 @@ void polClear (const polltype pollData)
 
 
 
-void polCpy (const polltype poll_to, const const_polltype pollDataFrom)
+void polCpy (const pollType poll_to, const const_pollType pollDataFrom)
 
   {
-    select_based_polltype pollData;
-    rtlHashtype newReadIndexHash;
-    rtlHashtype newWriteIndexHash;
-    memsizetype newReadFilesCapacity;
+    select_based_pollType pollData;
+    rtlHashType newReadIndexHash;
+    rtlHashType newWriteIndexHash;
+    memSizeType newReadFilesCapacity;
     fdAndFileType *newReadFiles;
     fdAndFileType *oldReadFiles;
-    memsizetype oldReadFilesSize;
-    memsizetype oldReadFilesCapacity;
-    memsizetype newWriteFilesCapacity;
+    memSizeType oldReadFilesSize;
+    memSizeType oldReadFilesCapacity;
+    memSizeType newWriteFilesCapacity;
     fdAndFileType *newWriteFiles;
     fdAndFileType *oldWriteFiles;
-    memsizetype oldWriteFilesSize;
-    memsizetype oldWriteFilesCapacity;
-    memsizetype pos;
+    memSizeType oldWriteFilesSize;
+    memSizeType oldWriteFilesCapacity;
+    memSizeType pos;
 
   /* polCpy */
     /* printf("polCpy\n"); */
     if (poll_to != pollDataFrom) {
       newReadIndexHash = hshCreate(conv(pollDataFrom)->readTest.indexHash,
-          (createfunctype) &genericCreate, (destrfunctype) &genericDestr,
-          (createfunctype) &genericCreate, (destrfunctype) &genericDestr);
+          (createFuncType) &genericCreate, (destrFuncType) &genericDestr,
+          (createFuncType) &genericCreate, (destrFuncType) &genericDestr);
       newWriteIndexHash = hshCreate(conv(pollDataFrom)->writeTest.indexHash,
-          (createfunctype) &genericCreate, (destrfunctype) &genericDestr,
-          (createfunctype) &genericCreate, (destrfunctype) &genericDestr);
+          (createFuncType) &genericCreate, (destrFuncType) &genericDestr,
+          (createFuncType) &genericCreate, (destrFuncType) &genericDestr);
       if (unlikely(newReadIndexHash == NULL || newWriteIndexHash == NULL)) {
         raise_error(MEMORY_ERROR);
       } else {
@@ -829,8 +829,8 @@ void polCpy (const polltype poll_to, const const_polltype pollDataFrom)
         pollData->readTest.size = conv(pollDataFrom)->readTest.size;
         pollData->readTest.files = newReadFiles;
         pollData->readTest.iterPos = conv(pollDataFrom)->readTest.iterPos;
-        hshDestr(pollData->readTest.indexHash, (destrfunctype) &genericDestr,
-                 (destrfunctype) &genericDestr);
+        hshDestr(pollData->readTest.indexHash, (destrFuncType) &genericDestr,
+                 (destrFuncType) &genericDestr);
         pollData->readTest.indexHash = newReadIndexHash;
 #ifdef USE_PREPARED_FD_SET
         copyFdSet(to_var_write_inFdset(pollData), to_write_inFdset(pollDataFrom),
@@ -844,8 +844,8 @@ void polCpy (const polltype poll_to, const const_polltype pollDataFrom)
         pollData->writeTest.size = conv(pollDataFrom)->writeTest.size;
         pollData->writeTest.files = newWriteFiles;
         pollData->writeTest.iterPos = conv(pollDataFrom)->writeTest.iterPos;
-        hshDestr(pollData->writeTest.indexHash, (destrfunctype) &genericDestr,
-                 (destrfunctype) &genericDestr);
+        hshDestr(pollData->writeTest.indexHash, (destrFuncType) &genericDestr,
+                 (destrFuncType) &genericDestr);
         pollData->writeTest.indexHash = newWriteIndexHash;
         pollData->iteratorMode = conv(pollDataFrom)->iteratorMode;
         pollData->iterEvents = conv(pollDataFrom)->iterEvents;
@@ -876,24 +876,24 @@ void polCpy (const polltype poll_to, const const_polltype pollDataFrom)
 
 
 
-polltype polCreate (const const_polltype pollDataFrom)
+pollType polCreate (const const_pollType pollDataFrom)
 
   {
-    rtlHashtype newReadIndexHash;
-    rtlHashtype newWriteIndexHash;
-    memsizetype pos;
-    select_based_polltype result;
+    rtlHashType newReadIndexHash;
+    rtlHashType newWriteIndexHash;
+    memSizeType pos;
+    select_based_pollType result;
 
   /* polCreate */
     /* printf("polCreate\n"); */
     newReadIndexHash = hshCreate(conv(pollDataFrom)->readTest.indexHash,
-        (createfunctype) &genericCreate, (destrfunctype) &genericDestr,
-        (createfunctype) &genericCreate, (destrfunctype) &genericDestr);
+        (createFuncType) &genericCreate, (destrFuncType) &genericDestr,
+        (createFuncType) &genericCreate, (destrFuncType) &genericDestr);
     newWriteIndexHash = hshCreate(conv(pollDataFrom)->writeTest.indexHash,
-        (createfunctype) &genericCreate, (destrfunctype) &genericDestr,
-        (createfunctype) &genericCreate, (destrfunctype) &genericDestr);
+        (createFuncType) &genericCreate, (destrFuncType) &genericDestr,
+        (createFuncType) &genericCreate, (destrFuncType) &genericDestr);
     if (unlikely(newReadIndexHash == NULL || newWriteIndexHash == NULL ||
-                 !ALLOC_RECORD(result, select_based_pollrecord, count.polldata))) {
+                 !ALLOC_RECORD(result, select_based_pollRecord, count.polldata))) {
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
@@ -910,7 +910,7 @@ polltype polCreate (const const_polltype pollDataFrom)
             freeFdSet(&result->readTest, conv(pollDataFrom)->readTest.capacity);
           } /* if */
         } /* if */
-        FREE_RECORD(result, select_based_pollrecord, count.polldata);
+        FREE_RECORD(result, select_based_pollRecord, count.polldata);
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
@@ -956,17 +956,17 @@ polltype polCreate (const const_polltype pollDataFrom)
       } /* if */
     } /* if */
     /* printf("end polCreate:\n");
-       dumpPoll((polltype) result); */
-    return (polltype) result;
+       dumpPoll((pollType) result); */
+    return (pollType) result;
   } /* polCreate */
 
 
 
-void polDestr (const polltype oldPollData)
+void polDestr (const pollType oldPollData)
 
   {
-    memsizetype capacity;
-    memsizetype pos;
+    memSizeType capacity;
+    memSizeType pos;
 
   /* polDestr */
     if (oldPollData != NULL) {
@@ -982,8 +982,8 @@ void polDestr (const polltype oldPollData)
       FREE_FDSET(conv(oldPollData)->readTest.outFdset, capacity);
 #endif
       FREE_TABLE(conv(oldPollData)->readTest.files, fdAndFileType, capacity);
-      hshDestr(conv(oldPollData)->readTest.indexHash, (destrfunctype) &genericDestr,
-               (destrfunctype) &genericDestr);
+      hshDestr(conv(oldPollData)->readTest.indexHash, (destrFuncType) &genericDestr,
+               (destrFuncType) &genericDestr);
       /* Free writeTest */
       for (pos = 0; pos < conv(oldPollData)->writeTest.size; pos++) {
         fileObjectOps.decrUsageCount(conv(oldPollData)->writeTest.files[pos].file);
@@ -996,27 +996,27 @@ void polDestr (const polltype oldPollData)
       FREE_FDSET(conv(oldPollData)->writeTest.outFdset, capacity);
 #endif
       FREE_TABLE(conv(oldPollData)->writeTest.files, fdAndFileType, capacity);
-      hshDestr(conv(oldPollData)->writeTest.indexHash, (destrfunctype) &genericDestr,
-               (destrfunctype) &genericDestr);
-      FREE_RECORD(var_conv(oldPollData), select_based_pollrecord, count.polldata);
+      hshDestr(conv(oldPollData)->writeTest.indexHash, (destrFuncType) &genericDestr,
+               (destrFuncType) &genericDestr);
+      FREE_RECORD(var_conv(oldPollData), select_based_pollRecord, count.polldata);
     } /* if */
   } /* polDestr */
 
 
 
-polltype polEmpty (void)
+pollType polEmpty (void)
 
   {
-    rtlHashtype newReadIndexHash;
-    rtlHashtype newWriteIndexHash;
-    select_based_polltype result;
+    rtlHashType newReadIndexHash;
+    rtlHashType newWriteIndexHash;
+    select_based_pollType result;
 
   /* polEmpty */
     /* printf("polEmpty()\n"); */
     newReadIndexHash = hshEmpty();
     newWriteIndexHash = hshEmpty();
     if (unlikely(newReadIndexHash == NULL || newWriteIndexHash == NULL ||
-                 !ALLOC_RECORD(result, select_based_pollrecord, count.polldata))) {
+                 !ALLOC_RECORD(result, select_based_pollRecord, count.polldata))) {
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
@@ -1031,7 +1031,7 @@ polltype polEmpty (void)
             freeFdSet(&result->readTest, TABLE_START_SIZE);
           } /* if */
         } /* if */
-        FREE_RECORD(result, select_based_pollrecord, count.polldata);
+        FREE_RECORD(result, select_based_pollRecord, count.polldata);
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
@@ -1059,16 +1059,16 @@ polltype polEmpty (void)
       } /* if */
     } /* if */
     /* printf("end polEmpty:\n");
-       dumpPoll((polltype) result); */
-    return (polltype) result;
+       dumpPoll((pollType) result); */
+    return (pollType) result;
   } /* polEmpty */
 
 
 
-inttype polGetCheck (const const_polltype pollData, const sockettype aSocket)
+intType polGetCheck (const const_pollType pollData, const socketType aSocket)
 
   {
-    inttype result;
+    intType result;
 
   /* polGetCheck */
     if (isChecked(&conv(pollData)->readTest, aSocket)) {
@@ -1087,10 +1087,10 @@ inttype polGetCheck (const const_polltype pollData, const sockettype aSocket)
 
 
 
-inttype polGetFinding (const const_polltype pollData, const sockettype aSocket)
+intType polGetFinding (const const_pollType pollData, const socketType aSocket)
 
   {
-    inttype result;
+    intType result;
 
   /* polGetFinding */
     if (isReady(&conv(pollData)->readTest, aSocket)) {
@@ -1109,7 +1109,7 @@ inttype polGetFinding (const const_polltype pollData, const sockettype aSocket)
 
 
 
-booltype polHasNext (const polltype pollData)
+boolType polHasNext (const pollType pollData)
 
   { /* polHasNext */
     switch (conv(pollData)->iteratorMode) {
@@ -1139,7 +1139,7 @@ booltype polHasNext (const polltype pollData)
 
 
 
-void polIterChecks (const polltype pollData, inttype pollMode)
+void polIterChecks (const pollType pollData, intType pollMode)
 
   { /* polIterChecks */
     switch (pollMode) {
@@ -1167,7 +1167,7 @@ void polIterChecks (const polltype pollData, inttype pollMode)
 
 
 
-void polIterFindings (const polltype pollData, inttype pollMode)
+void polIterFindings (const pollType pollData, intType pollMode)
 
   { /* polIterFindings */
     switch (pollMode) {
@@ -1196,10 +1196,10 @@ void polIterFindings (const polltype pollData, inttype pollMode)
 
 
 
-generictype polNextFile (const polltype pollData, const generictype nullFile)
+genericType polNextFile (const pollType pollData, const genericType nullFile)
 
   {
-    generictype nextFile;
+    genericType nextFile;
 
   /* polNextFile */
     switch (conv(pollData)->iteratorMode) {
@@ -1244,7 +1244,7 @@ generictype polNextFile (const polltype pollData, const generictype nullFile)
 
 
 
-void polPoll (const polltype pollData)
+void polPoll (const pollType pollData)
 
   { /* polPoll */
     doPoll(pollData, NULL);
@@ -1255,8 +1255,8 @@ void polPoll (const polltype pollData)
 /**
  *  Remove 'eventsToCheck' for 'aSocket' from 'pollData'.
  */
-void polRemoveCheck (const polltype pollData, const sockettype aSocket,
-    inttype eventsToCheck)
+void polRemoveCheck (const pollType pollData, const socketType aSocket,
+    intType eventsToCheck)
 
   { /* polRemoveCheck */
     switch (eventsToCheck) {

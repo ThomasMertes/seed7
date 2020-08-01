@@ -25,9 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
-void substitute_params (const_objecttype expr_object);
-void update_owner (const_objecttype expr_object);
-objecttype match_object (objecttype object);
-objecttype match_expression (objecttype expr_object);
-objecttype match_prog_expression (const_nodetype start_node,
-    objecttype expr_object);
+void substitute_params (const_objectType expr_object);
+void update_owner (const_objectType expr_object);
+objectType match_object (objectType object);
+objectType match_expression (objectType expr_object);
+objectType match_prog_expression (const_nodeType start_node,
+    objectType expr_object);

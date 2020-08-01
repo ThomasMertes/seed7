@@ -59,7 +59,7 @@ static void scan_comment (void)
 
   {
     register int character;
-    linenumtype start_line;
+    lineNumType start_line;
 
   /* scan_comment */
 #ifdef TRACE_SCANNER
@@ -134,7 +134,7 @@ static inline void scan_line_comment (void)
 void scan_byte_order_mark (void)
 
   {
-    chartype unicode_char;
+    charType unicode_char;
 
   /* scan_byte_order_mark */
 #ifdef TRACE_SCANNER
@@ -150,9 +150,9 @@ void scan_byte_order_mark (void)
         } /* while */
       } /* if */
     } else if (in_file.character == 0xFE || in_file.character == 0xFF) {
-      unicode_char = (chartype) in_file.character << 8;
+      unicode_char = (charType) in_file.character << 8;
       in_file.character = next_character();
-      unicode_char |= (chartype) in_file.character;
+      unicode_char |= (charType) in_file.character;
       if (unicode_char == 0xFEFF || unicode_char == 0xFFFE) {
         err_char(UTF16_BYTE_ORDER_MARK_FOUND, unicode_char);
         while (char_class(in_file.character) != EOFCHAR) {
@@ -175,7 +175,7 @@ void scan_byte_order_mark (void)
 static void scan_illegal (void)
 
   {
-    chartype unicode_char;
+    charType unicode_char;
 
   /* scan_illegal */
 #ifdef TRACE_SCANNER
@@ -212,7 +212,7 @@ static inline void scan_eof (void)
     } else {
       next_file();
       if (in_file.end_of_file) {
-        strcpy((cstritype) symbol.name, "END OF FILE");
+        strcpy((cstriType) symbol.name, "END OF FILE");
         in_file.character = EOF;
         find_eof_ident();
         symbol.sycategory = STOPSYMBOL;
@@ -232,7 +232,7 @@ void scan_symbol (void)
 
   {                                                             /*  1.89%  1.94% */
     register int character;
-    register sysizetype position;
+    register sySizeType position;
 
   /* scan_symbol */
 #ifdef TRACE_SCANNER
@@ -262,13 +262,13 @@ void scan_symbol (void)
       case 'z':
       case '_':
         /* LETTERCHAR, UNDERLINECHAR */
-        symbol.name[0] = (uchartype) character;                 /*  0.24%  0.25% */
+        symbol.name[0] = (ucharType) character;                 /*  0.24%  0.25% */
         position = 1;                                           /*  0.12%  0.12% */
 
         do {
           while (position != symbol.name_length &&
               name_character(character = next_character())) {   /*  2.87%  3.45% */
-            symbol.name[position++] = (uchartype) character;    /*  2.31%  2.36% */
+            symbol.name[position++] = (ucharType) character;    /*  2.31%  2.36% */
           } /* while */                                         /*  9.71% 11.78% */
           check_symb_length(position);
         } while (name_character(character));
@@ -276,7 +276,7 @@ void scan_symbol (void)
 #ifdef OUT_OF_ORDER
         while (name_character(character = next_character())) {  /*  2.87%  3.45% */
           check_symb_length(position);                          /*  1.85%  1.88% */
-          symbol.name[position++] = (uchartype) character;      /*  2.31%  2.36% */
+          symbol.name[position++] = (ucharType) character;      /*  2.31%  2.36% */
         } /* while */                                           /*  9.71% 11.78% */
 #endif
 
@@ -302,12 +302,12 @@ void scan_symbol (void)
       case '?':  case '@':  case '\\': case '^':  case '`':
       case '|':  case '~':
         /* SPECIALCHAR */
-        symbol.name[0] = (uchartype) character;                 /*  0.16%  0.16% */
+        symbol.name[0] = (ucharType) character;                 /*  0.16%  0.16% */
         if (op_character(character = next_character())) {       /*  1.26%  1.46% */
           position = 1;
           do {
             check_symb_length(position);
-            symbol.name[position++] = (uchartype) character;
+            symbol.name[position++] = (ucharType) character;
           } while (op_character(character = next_character())); /*  0.07%  0.03% */
           symbol.name[position] = '\0';
           find_normal_ident(position);
@@ -336,7 +336,7 @@ void scan_symbol (void)
       case '[':  case ']':
       case '{':  case '}':
         /* PARENCHAR */
-        symbol.name[0] = (uchartype) character;                 /*  0.05%  0.05% */
+        symbol.name[0] = (ucharType) character;                 /*  0.05%  0.05% */
 /*      symbol.name[1] = '\0';                                      0.05%  0.05% */
         find_1_ch_ident(character);                             /*  0.08%  0.11% */
         in_file.character = next_character();                   /*  0.32%  0.34% */

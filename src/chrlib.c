@@ -53,10 +53,10 @@
  *  @return a character which corresponds to the given integer.
  *  @exception RANGE_ERROR When the number does not fit into a 32-bit 'char'.
  */
-objecttype chr_chr (listtype arguments)
+objectType chr_chr (listType arguments)
 
   {
-    inttype number;
+    intType number;
 
   /* chr_chr */
     isit_int(arg_1(arguments));
@@ -65,16 +65,16 @@ objecttype chr_chr (listtype arguments)
     if (number < INT32TYPE_MIN || number > INT32TYPE_MAX) {
       return raise_exception(SYS_RNG_EXCEPTION) ;
     } else {
-      return bld_char_temp((chartype) number);
+      return bld_char_temp((charType) number);
     } /* if */
 #else
-    return bld_char_temp((chartype) number);
+    return bld_char_temp((charType) number);
 #endif
   } /* chr_chr */
 
 
 
-objecttype chr_clit (listtype arguments)
+objectType chr_clit (listType arguments)
 
   { /* chr_clit */
     isit_char(arg_1(arguments));
@@ -90,12 +90,12 @@ objecttype chr_clit (listtype arguments)
  *          respectively less than, equal to, or greater than the
  *          second.
  */
-objecttype chr_cmp (listtype arguments)
+objectType chr_cmp (listType arguments)
 
   {
-    chartype char1;
-    chartype char2;
-    inttype result;
+    charType char1;
+    charType char2;
+    intType result;
 
   /* chr_cmp */
     isit_char(arg_1(arguments));
@@ -114,7 +114,7 @@ objecttype chr_cmp (listtype arguments)
 
 
 
-objecttype chr_conv (listtype arguments)
+objectType chr_conv (listType arguments)
 
   { /* chr_conv */
     isit_char(arg_3(arguments));
@@ -123,28 +123,28 @@ objecttype chr_conv (listtype arguments)
 
 
 
-objecttype chr_cpy (listtype arguments)
+objectType chr_cpy (listType arguments)
 
   {
-    objecttype ch_variable;
+    objectType ch_variable;
 
   /* chr_cpy */
     ch_variable = arg_1(arguments);
     isit_char(ch_variable);
     is_variable(ch_variable);
     isit_char(arg_3(arguments));
-    ch_variable->value.charvalue = take_char(arg_3(arguments));
+    ch_variable->value.charValue = take_char(arg_3(arguments));
     return SYS_EMPTY_OBJECT;
   } /* chr_cpy */
 
 
 
-objecttype chr_create (listtype arguments)
+objectType chr_create (listType arguments)
 
   { /* chr_create */
     isit_char(arg_3(arguments));
     SET_CATEGORY_OF_OBJ(arg_1(arguments), CHAROBJECT);
-    arg_1(arguments)->value.charvalue = take_char(arg_3(arguments));
+    arg_1(arguments)->value.charValue = take_char(arg_3(arguments));
     return SYS_EMPTY_OBJECT;
   } /* chr_create */
 
@@ -155,16 +155,16 @@ objecttype chr_create (listtype arguments)
  *  This is equivalent to:
  *   ch = pred(ch);
  */
-objecttype chr_decr (listtype arguments)
+objectType chr_decr (listType arguments)
 
   {
-    objecttype ch_variable;
+    objectType ch_variable;
 
   /* chr_decr */
     ch_variable = arg_1(arguments);
     isit_char(ch_variable);
     is_variable(ch_variable);
-    ch_variable->value.charvalue = take_char(ch_variable) - 1;
+    ch_variable->value.charValue = take_char(ch_variable) - 1;
     return SYS_EMPTY_OBJECT;
   } /* chr_decr */
 
@@ -175,7 +175,7 @@ objecttype chr_decr (listtype arguments)
  *  @return TRUE if both characters are equal,
  *          FALSE otherwise.
  */
-objecttype chr_eq (listtype arguments)
+objectType chr_eq (listType arguments)
 
   { /* chr_eq */
     isit_char(arg_1(arguments));
@@ -195,7 +195,7 @@ objecttype chr_eq (listtype arguments)
  *  @return TRUE if ch1 is greater than or equal to ch2,
  *          FALSE otherwise.
  */
-objecttype chr_ge (listtype arguments)
+objectType chr_ge (listType arguments)
 
   { /* chr_ge */
     isit_char(arg_1(arguments));
@@ -215,7 +215,7 @@ objecttype chr_ge (listtype arguments)
  *  @return TRUE if ch1 is greater than ch2,
  *          FALSE otherwise.
  */
-objecttype chr_gt (listtype arguments)
+objectType chr_gt (listType arguments)
 
   { /* chr_gt */
     isit_char(arg_1(arguments));
@@ -234,12 +234,12 @@ objecttype chr_gt (listtype arguments)
  *  Compute the hash value of a character.
  *  @return the hash value.
  */
-objecttype chr_hashcode (listtype arguments)
+objectType chr_hashcode (listType arguments)
 
   { /* chr_hashcode */
     isit_char(arg_1(arguments));
-    return bld_int_temp((inttype) (
-        (schartype) take_char(arg_1(arguments))));
+    return bld_int_temp((intType) (
+        (scharType) take_char(arg_1(arguments))));
   } /* chr_hashcode */
 
 
@@ -250,11 +250,11 @@ objecttype chr_hashcode (listtype arguments)
  *  For -1 the value EOF is returned.
  *  @return a character which corresponds to the given integer.
  */
-objecttype chr_iconv (listtype arguments)
+objectType chr_iconv (listType arguments)
 
   { /* chr_iconv */
     isit_int(arg_3(arguments));
-    return bld_char_temp((chartype) take_int(arg_3(arguments)));
+    return bld_char_temp((charType) take_int(arg_3(arguments)));
   } /* chr_iconv */
 
 
@@ -264,16 +264,16 @@ objecttype chr_iconv (listtype arguments)
  *  This is equivalent to:
  *   ch = succ(ch);
  */
-objecttype chr_incr (listtype arguments)
+objectType chr_incr (listType arguments)
 
   {
-    objecttype ch_variable;
+    objectType ch_variable;
 
   /* chr_incr */
     ch_variable = arg_1(arguments);
     isit_char(ch_variable);
     is_variable(ch_variable);
-    ch_variable->value.charvalue = take_char(ch_variable) + 1;
+    ch_variable->value.charValue = take_char(ch_variable) + 1;
     return SYS_EMPTY_OBJECT;
   } /* chr_incr */
 
@@ -284,7 +284,7 @@ objecttype chr_incr (listtype arguments)
  *  @return TRUE if ch1 is less than or equal to ch2,
  *          FALSE otherwise.
  */
-objecttype chr_le (listtype arguments)
+objectType chr_le (listType arguments)
 
   { /* chr_le */
     isit_char(arg_1(arguments));
@@ -309,7 +309,7 @@ objecttype chr_le (listtype arguments)
  *  characters have multiple characters that map to them.
  *  @return the character converted to lower case.
  */
-objecttype chr_low (listtype arguments)
+objectType chr_low (listType arguments)
 
   { /* chr_low */
     isit_char(arg_1(arguments));
@@ -323,7 +323,7 @@ objecttype chr_low (listtype arguments)
  *  @return TRUE if ch1 is less than than ch2,
  *          FALSE otherwise.
  */
-objecttype chr_lt (listtype arguments)
+objectType chr_lt (listType arguments)
 
   { /* chr_lt */
     isit_char(arg_1(arguments));
@@ -343,7 +343,7 @@ objecttype chr_lt (listtype arguments)
  *  @return FALSE if both characters are equal,
  *          TRUE otherwise.
  */
-objecttype chr_ne (listtype arguments)
+objectType chr_ne (listType arguments)
 
   { /* chr_ne */
     isit_char(arg_1(arguments));
@@ -364,12 +364,12 @@ objecttype chr_ne (listtype arguments)
  *  For EOF the value -1 is returned.
  *  @return the ordinal number of a character.
  */
-objecttype chr_ord (listtype arguments)
+objectType chr_ord (listType arguments)
 
   { /* chr_ord */
     isit_char(arg_1(arguments));
-    return bld_int_temp((inttype) (
-        (schartype) take_char(arg_1(arguments))));
+    return bld_int_temp((intType) (
+        (scharType) take_char(arg_1(arguments))));
   } /* chr_ord */
 
 
@@ -378,7 +378,7 @@ objecttype chr_ord (listtype arguments)
  *  Predecessor of a character.
  *  @return chr_chr(chr_ord(ch) - 1)
  */
-objecttype chr_pred (listtype arguments)
+objectType chr_pred (listType arguments)
 
   { /* chr_pred */
     isit_char(arg_1(arguments));
@@ -391,10 +391,10 @@ objecttype chr_pred (listtype arguments)
  *  Create a string with one character.
  *  @return a string with the character 'ch'.
  */
-objecttype chr_str (listtype arguments)
+objectType chr_str (listType arguments)
 
   {
-    stritype result;
+    striType result;
 
   /* chr_str */
     isit_char(arg_1(arguments));
@@ -402,7 +402,7 @@ objecttype chr_str (listtype arguments)
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
       result->size = 1;
-      result->mem[0] = (strelemtype) take_char(arg_1(arguments));
+      result->mem[0] = (strElemType) take_char(arg_1(arguments));
       return bld_stri_temp(result);
     } /* if */
   } /* chr_str */
@@ -413,7 +413,7 @@ objecttype chr_str (listtype arguments)
  *  Successor of a character.
  *  @return chr_chr(chr_ord(ch) + 1)
  */
-objecttype chr_succ (listtype arguments)
+objectType chr_succ (listType arguments)
 
   { /* chr_succ */
     isit_char(arg_1(arguments));
@@ -432,7 +432,7 @@ objecttype chr_succ (listtype arguments)
  *  characters have multiple characters that map to them.
  *  @return the character converted to upper case.
  */
-objecttype chr_up (listtype arguments)
+objectType chr_up (listType arguments)
 
   { /* chr_up */
     isit_char(arg_1(arguments));
@@ -441,10 +441,10 @@ objecttype chr_up (listtype arguments)
 
 
 
-objecttype chr_value (listtype arguments)
+objectType chr_value (listType arguments)
 
   {
-    objecttype obj_arg;
+    objectType obj_arg;
 
   /* chr_value */
     isit_reference(arg_1(arguments));

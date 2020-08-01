@@ -21,7 +21,7 @@
 /*  Module: Analyzer - Syntax                                       */
 /*  File: seed7/src/token.c                                         */
 /*  Changes: 1991, 1992, 1993, 1994  Thomas Mertes                  */
-/*  Content: Procedures to maintain objects of type tokentype.      */
+/*  Content: Procedures to maintain objects of type tokenType.      */
 /*                                                                  */
 /********************************************************************/
 
@@ -44,7 +44,7 @@
 
 
 
-void free_tokens (tokentype token)
+void free_tokens (tokenType token)
 
   { /* free_tokens */
 #ifdef TRACE_TOKEN
@@ -53,7 +53,7 @@ void free_tokens (tokentype token)
     if (token != NULL) {
       free_tokens(token->next);
       free_tokens(token->alternative);
-      FREE_RECORD(token, tokenrecord, count.token);
+      FREE_RECORD(token, tokenRecord, count.token);
     } /* if */
 #ifdef TRACE_TOKEN
     printf("END free_tokens\n");
@@ -62,16 +62,16 @@ void free_tokens (tokentype token)
 
 
 
-static tokentype new_sy_token (identtype identifier)
+static tokenType new_sy_token (identType identifier)
 
   {
-    register tokentype created_token;
+    register tokenType created_token;
 
   /* new_sy_token */
 #ifdef TRACE_TOKEN
     printf("BEGIN new_sy_token\n");
 #endif
-    if (!ALLOC_RECORD(created_token, tokenrecord, count.token)) {
+    if (!ALLOC_RECORD(created_token, tokenRecord, count.token)) {
       fatal_memory_error(SOURCE_POSITION(2101));
     } /* if */
     created_token->next = NULL;
@@ -86,16 +86,16 @@ static tokentype new_sy_token (identtype identifier)
 
 
 
-static tokentype new_expr_token (prioritytype priority, typetype type_of)
+static tokenType new_expr_token (priorityType priority, typeType type_of)
 
   {
-    tokentype created_token;
+    tokenType created_token;
 
   /* new_expr_token */
 #ifdef TRACE_TOKEN
     printf("BEGIN new_expr_token\n");
 #endif
-    if (!ALLOC_RECORD(created_token, tokenrecord, count.token)) {
+    if (!ALLOC_RECORD(created_token, tokenRecord, count.token)) {
       fatal_memory_error(SOURCE_POSITION(2102));
     } /* if */
     created_token->next = NULL;
@@ -111,16 +111,16 @@ static tokentype new_expr_token (prioritytype priority, typetype type_of)
 
 
 
-static tokentype new_syntax_description (void)
+static tokenType new_syntax_description (void)
 
   {
-    tokentype created_token;
+    tokenType created_token;
 
   /* new_syntax_description */
 #ifdef TRACE_TOKEN
     printf("BEGIN new_syntax_description\n");
 #endif
-    if (!ALLOC_RECORD(created_token, tokenrecord, count.token)) {
+    if (!ALLOC_RECORD(created_token, tokenRecord, count.token)) {
       fatal_memory_error(SOURCE_POSITION(2103));
     } /* if */
     created_token->next = NULL;
@@ -135,11 +135,11 @@ static tokentype new_syntax_description (void)
 
 
 
-tokentype get_sy_token (tokentype *tokens, identtype identifier)
+tokenType get_sy_token (tokenType *tokens, identType identifier)
 
   {
-    tokentype token_found;
-    booltype searching;
+    tokenType token_found;
+    boolType searching;
 
   /* get_sy_token */
 #ifdef TRACE_TOKEN
@@ -176,12 +176,12 @@ tokentype get_sy_token (tokentype *tokens, identtype identifier)
 
 
 
-tokentype get_expr_token (tokentype *tokens, prioritytype priority,
-    typetype type_of)
+tokenType get_expr_token (tokenType *tokens, priorityType priority,
+    typeType type_of)
 
   {
-    tokentype token_found;
-    tokentype previous_token;
+    tokenType token_found;
+    tokenType previous_token;
 
   /* get_expr_token */
 #ifdef TRACE_TOKEN
@@ -228,10 +228,10 @@ tokentype get_expr_token (tokentype *tokens, prioritytype priority,
 
 
 
-tokentype get_syntax_description (tokentype *tokens)
+tokenType get_syntax_description (tokenType *tokens)
 
   {
-    tokentype token_found;
+    tokenType token_found;
 
   /* get_syntax_description */
 #ifdef TRACE_TOKEN

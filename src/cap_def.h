@@ -30,7 +30,7 @@
 /********************************************************************/
 
 EXTERN char *insert_line;            /* al insert line */
-EXTERN booltype auto_right_margin;   /* am automatic margins (warp around) */
+EXTERN boolType auto_right_margin;   /* am automatic margins (warp around) */
 EXTERN char *BC;                     /* backspace (if not BS) */
 EXTERN char *clr_eos;                /* cd clear to end of display */
 EXTERN char *clr_eol;                /* ce clear to end of line */
@@ -44,13 +44,13 @@ EXTERN char *enter_delete_mode;      /* dm enter delete mode (not used now) */
 EXTERN char *cursor_down;            /* do cursor down */
 EXTERN char *exit_delete_mode;       /* ed end delete mode (not used now) */
 EXTERN char *exit_insert_mode;       /* ei end insert mode */
-EXTERN booltype hard_copy;           /* hc hardcopy terminal (not used now) */
+EXTERN boolType hard_copy;           /* hc hardcopy terminal (not used now) */
 EXTERN char *insert_character;       /* ic insert character */
 EXTERN char *enter_insert_mode;      /* im enter insert mode */
 EXTERN char *IP;                     /* post-insert mode */
 EXTERN char *cursor_left;            /* le cursor left (not used now) */
 EXTERN int lines;                    /* li number of lines */
-EXTERN booltype move_insert_mode;    /* mi safe to move while in insert mode */
+EXTERN boolType move_insert_mode;    /* mi safe to move while in insert mode */
 EXTERN char *cursor_right;           /* nd cursor right (not used now) */
 EXTERN char single_pad_char;         /* pc pad character */
 EXTERN char *pad_char;               /* pc pad character */
@@ -63,7 +63,7 @@ EXTERN char *cursor_up;              /* up cursor up (not used now) */
 EXTERN char *cursor_visible;         /* vs makes cursor very visible */
 EXTERN char *cursor_invisible;       /* vi makes cursor invisible */
 EXTERN char *enter_reverse_mode;     /* mr turn on reverse video mode */
-EXTERN booltype ceol_standout_glitch;/* xs standout not erased by overwriting */
+EXTERN boolType ceol_standout_glitch;/* xs standout not erased by overwriting */
 EXTERN char *parm_insert_line;       /* AL add #1 new blank lines (PG*) */
 EXTERN char *parm_delete_line;       /* DL delete #1 lines (PG*) */
 EXTERN char *keypad_local;           /* ke out of keypad transmit mode */

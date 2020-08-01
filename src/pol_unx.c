@@ -62,26 +62,26 @@ typedef enum {
     ITER_FINDINGS_IN, ITER_FINDINGS_OUT, ITER_FINDINGS_INOUT
   } iteratorType;
 
-typedef struct poll_based_pollstruct {
-    memsizetype size;
-    memsizetype capacity;
+typedef struct {
+    memSizeType size;
+    memSizeType capacity;
     iteratorType iteratorMode;
-    memsizetype iterPos;
-    memsizetype iterEvents;
-    memsizetype numOfEvents;
+    memSizeType iterPos;
+    memSizeType iterEvents;
+    memSizeType numOfEvents;
     struct pollfd *pollFds;
-    generictype *pollFiles;
-    rtlHashtype indexHash;
-  } poll_based_pollrecord, *poll_based_polltype;
+    genericType *pollFiles;
+    rtlHashType indexHash;
+  } poll_based_pollRecord, *poll_based_pollType;
 
-typedef const struct poll_based_pollstruct *const_poll_based_polltype;
+typedef const poll_based_pollRecord *const_poll_based_pollType;
 
 #ifdef DO_HEAP_STATISTIC
-size_t sizeof_pollrecord = sizeof(poll_based_pollrecord);
+size_t sizeof_pollRecord = sizeof(poll_based_pollRecord);
 #endif
 
-#define conv(genericPollData) ((const_poll_based_polltype) genericPollData)
-#define var_conv(genericPollData) ((poll_based_polltype) genericPollData)
+#define conv(genericPollData) ((const_poll_based_pollType) genericPollData)
+#define var_conv(genericPollData) ((poll_based_pollType) genericPollData)
 
 
 #define TABLE_START_SIZE    256
@@ -92,10 +92,10 @@ size_t sizeof_pollrecord = sizeof(poll_based_pollrecord);
 
 
 #ifdef OUT_OF_ORDER
-void dumpPoll (const const_polltype pollData)
+void dumpPoll (const const_pollType pollData)
     {
-      memsizetype pos;
-      generictype pollFile;
+      memSizeType pos;
+      genericType pollFile;
 
       printf("size=%d\n", conv(pollData)->size);
       printf("capacity=%d\n", conv(pollData)->capacity);
@@ -113,8 +113,8 @@ void dumpPoll (const const_polltype pollData)
         if (pollFile == NULL) {
           printf("NULL\n");
         } else {
-          /* trace1((objecttype) pollFile); */
-          printf("struct[] usage_count=%lu", ((rtlStructtype) pollFile)->usage_count);
+          /* trace1((objectType) pollFile); */
+          printf("struct[] usage_count=%lu", ((rtlStructType) pollFile)->usage_count);
           printf("\n");
         }
       }
@@ -123,8 +123,8 @@ void dumpPoll (const const_polltype pollData)
 
 
 
-void initPollOperations (const createfunctype incrUsageCount,
-    const destrfunctype decrUsageCount)
+void initPollOperations (const createFuncType incrUsageCount,
+    const destrFuncType decrUsageCount)
 
   { /* initPollOperations */
     fileObjectOps.incrUsageCount = incrUsageCount;
@@ -133,30 +133,30 @@ void initPollOperations (const createfunctype incrUsageCount,
 
 
 
-static void addCheck (const poll_based_polltype pollData, short eventsToCheck,
-    const sockettype aSocket, const generictype fileObj)
+static void addCheck (const poll_based_pollType pollData, short eventsToCheck,
+    const socketType aSocket, const genericType fileObj)
 
   {
-    memsizetype pos;
+    memSizeType pos;
     struct pollfd *aPollFd;
 
   /* addCheck */
-    pos = (memsizetype) hshIdxEnterDefault(pollData->indexHash,
-        (generictype) (memsizetype) aSocket, (generictype) pollData->size,
-        (inttype) (memsizetype) aSocket, (comparetype) &genericCmp,
-        (createfunctype) &genericCreate, (createfunctype) &genericCreate);
+    pos = (memSizeType) hshIdxEnterDefault(pollData->indexHash,
+        (genericType) (memSizeType) aSocket, (genericType) pollData->size,
+        (intType) (memSizeType) aSocket, (compareType) &genericCmp,
+        (createFuncType) &genericCreate, (createFuncType) &genericCreate);
     if (pos == pollData->size) {
       if (pollData->size + NUM_OF_EXTRA_ELEMS >= pollData->capacity) {
         pollData->pollFds = REALLOC_TABLE(pollData->pollFds, struct pollfd,
             pollData->capacity, pollData->capacity + TABLE_INCREMENT);
-        pollData->pollFiles = REALLOC_TABLE(pollData->pollFiles, generictype,
+        pollData->pollFiles = REALLOC_TABLE(pollData->pollFiles, genericType,
             pollData->capacity, pollData->capacity + TABLE_INCREMENT);
         if (pollData->pollFds == NULL || pollData->pollFiles == NULL) {
           raise_error(MEMORY_ERROR);
           return;
         } else {
           COUNT3_TABLE(struct pollfd, pollData->capacity, pollData->capacity + TABLE_INCREMENT);
-          COUNT3_TABLE(generictype, pollData->capacity, pollData->capacity + TABLE_INCREMENT);
+          COUNT3_TABLE(genericType, pollData->capacity, pollData->capacity + TABLE_INCREMENT);
         } /* if */
         pollData->capacity += TABLE_INCREMENT;
       } /* if */
@@ -177,17 +177,17 @@ static void addCheck (const poll_based_polltype pollData, short eventsToCheck,
 
 
 
-static void removeCheck (const poll_based_polltype pollData, short eventsToCheck,
-    const sockettype aSocket)
+static void removeCheck (const poll_based_pollType pollData, short eventsToCheck,
+    const socketType aSocket)
 
   {
-    memsizetype pos;
+    memSizeType pos;
     struct pollfd *aPollFd;
 
   /* removeCheck */
-    pos = (memsizetype) hshIdxWithDefault(pollData->indexHash,
-        (generictype) (memsizetype) aSocket, (generictype) pollData->size,
-        (inttype) (memsizetype) aSocket, (comparetype) &genericCmp);
+    pos = (memSizeType) hshIdxWithDefault(pollData->indexHash,
+        (genericType) (memSizeType) aSocket, (genericType) pollData->size,
+        (intType) (memSizeType) aSocket, (compareType) &genericCmp);
     if (pos != pollData->size) {
       aPollFd = &pollData->pollFds[pos];
       aPollFd->events &= (short) ~eventsToCheck;
@@ -200,9 +200,9 @@ static void removeCheck (const poll_based_polltype pollData, short eventsToCheck
                    &pollData->pollFds[pollData->iterPos], sizeof(struct pollfd));
             pollData->pollFiles[pos] = pollData->pollFiles[pollData->iterPos];
             hshIdxAddr(pollData->indexHash,
-                       (generictype) (memsizetype) pollData->pollFds[pos].fd,
-                       (inttype) (memsizetype) pollData->pollFds[pos].fd,
-                       (comparetype) &genericCmp)->value.genericvalue = (generictype) pos;
+                       (genericType) (memSizeType) pollData->pollFds[pos].fd,
+                       (intType) (memSizeType) pollData->pollFds[pos].fd,
+                       (compareType) &genericCmp)->value.genericValue = (genericType) pos;
             pos = pollData->iterPos;
           } /* if */
         } /* if */
@@ -212,24 +212,24 @@ static void removeCheck (const poll_based_polltype pollData, short eventsToCheck
                  &pollData->pollFds[pollData->size], sizeof(struct pollfd));
           pollData->pollFiles[pos] = pollData->pollFiles[pollData->size];
           hshIdxAddr(pollData->indexHash,
-                     (generictype) (memsizetype) pollData->pollFds[pos].fd,
-                     (inttype) (memsizetype) pollData->pollFds[pos].fd,
-                     (comparetype) &genericCmp)->value.genericvalue = (generictype) pos;
+                     (genericType) (memSizeType) pollData->pollFds[pos].fd,
+                     (intType) (memSizeType) pollData->pollFds[pos].fd,
+                     (compareType) &genericCmp)->value.genericValue = (genericType) pos;
         } /* if */
-        hshExcl(pollData->indexHash, (generictype) (memsizetype) aSocket,
-                (inttype) (memsizetype) aSocket, (comparetype) &genericCmp,
-                (destrfunctype) &genericDestr, (destrfunctype) &genericDestr);
+        hshExcl(pollData->indexHash, (genericType) (memSizeType) aSocket,
+                (intType) (memSizeType) aSocket, (compareType) &genericCmp,
+                (destrFuncType) &genericDestr, (destrFuncType) &genericDestr);
       } /* if */
     } /* if */
   } /* removeCheck */
 
 
 
-static booltype hasNextCheck (const poll_based_polltype pollData, short eventsToCheck)
+static boolType hasNextCheck (const poll_based_pollType pollData, short eventsToCheck)
 
   {
-    register memsizetype pos;
-    booltype hasNext;
+    register memSizeType pos;
+    boolType hasNext;
 
   /* hasNextCheck */
     pos = pollData->iterPos;
@@ -243,11 +243,11 @@ static booltype hasNextCheck (const poll_based_polltype pollData, short eventsTo
 
 
 
-static booltype hasNextFinding (const poll_based_polltype pollData, short eventsToCheck)
+static boolType hasNextFinding (const poll_based_pollType pollData, short eventsToCheck)
 
   {
-    register memsizetype pos;
-    booltype hasNext;
+    register memSizeType pos;
+    boolType hasNext;
 
   /* hasNextFinding */
     if (pollData->iterEvents == 0) {
@@ -266,12 +266,12 @@ static booltype hasNextFinding (const poll_based_polltype pollData, short events
 
 
 
-static generictype nextCheck (const poll_based_polltype pollData,
-    short eventsToCheck, const generictype nullFile)
+static genericType nextCheck (const poll_based_pollType pollData,
+    short eventsToCheck, const genericType nullFile)
 
   {
-    register memsizetype pos;
-    generictype checkFile;
+    register memSizeType pos;
+    genericType checkFile;
 
   /* nextCheck */
     pos = pollData->iterPos;
@@ -295,12 +295,12 @@ static generictype nextCheck (const poll_based_polltype pollData,
 
 
 
-static generictype nextFinding (const poll_based_polltype pollData,
-    short eventsToCheck, const generictype nullFile)
+static genericType nextFinding (const poll_based_pollType pollData,
+    short eventsToCheck, const genericType nullFile)
 
   {
-    register memsizetype pos;
-    generictype resultFile;
+    register memSizeType pos;
+    genericType resultFile;
 
   /* nextFinding */
     /* printf("nextFinding\n");
@@ -339,8 +339,8 @@ static generictype nextFinding (const poll_based_polltype pollData,
  *  The parameter 'fileObj' determines, which file is returned,
  *  when the iterator returns files in 'pollData'.
  */
-void polAddCheck (const polltype pollData, const sockettype aSocket,
-    inttype eventsToCheck, const generictype fileObj)
+void polAddCheck (const pollType pollData, const socketType aSocket,
+    intType eventsToCheck, const genericType fileObj)
 
   { /* polAddCheck */
     switch (eventsToCheck) {
@@ -361,10 +361,10 @@ void polAddCheck (const polltype pollData, const sockettype aSocket,
 
 
 
-void polClear (const polltype pollData)
+void polClear (const pollType pollData)
 
   {
-    memsizetype pos;
+    memSizeType pos;
 
   /* polClear */
     for (pos = 0; pos < conv(pollData)->size; pos++) {
@@ -375,34 +375,34 @@ void polClear (const polltype pollData)
     var_conv(pollData)->iterPos = 0;
     var_conv(pollData)->iterEvents = 0;
     var_conv(pollData)->numOfEvents = 0;
-    hshDestr(conv(pollData)->indexHash, (destrfunctype) &genericDestr,
-             (destrfunctype) &genericDestr);
+    hshDestr(conv(pollData)->indexHash, (destrFuncType) &genericDestr,
+             (destrFuncType) &genericDestr);
     var_conv(pollData)->indexHash = hshEmpty();
   } /* polClear */
 
 
 
-void polCpy (const polltype poll_to, const const_polltype pollDataFrom)
+void polCpy (const pollType poll_to, const const_pollType pollDataFrom)
 
   {
-    poll_based_polltype pollData;
-    rtlHashtype newIndexHash;
+    poll_based_pollType pollData;
+    rtlHashType newIndexHash;
     struct pollfd *newPollFds;
-    memsizetype newPollFilesCapacity;
-    generictype *newPollFiles;
-    generictype *oldPollFiles;
-    memsizetype oldPollFilesSize;
-    memsizetype oldPollFilesCapacity;
-    memsizetype pos;
+    memSizeType newPollFilesCapacity;
+    genericType *newPollFiles;
+    genericType *oldPollFiles;
+    memSizeType oldPollFilesSize;
+    memSizeType oldPollFilesCapacity;
+    memSizeType pos;
 
   /* polCpy */
     if (poll_to != pollDataFrom) {
       newIndexHash = hshCreate(conv(pollDataFrom)->indexHash,
-          (createfunctype) &genericCreate, (destrfunctype) &genericDestr,
-          (createfunctype) &genericCreate, (destrfunctype) &genericDestr);
+          (createFuncType) &genericCreate, (destrFuncType) &genericDestr,
+          (createFuncType) &genericCreate, (destrFuncType) &genericDestr);
       pollData = var_conv(poll_to);
-      hshDestr(pollData->indexHash, (destrfunctype) &genericDestr,
-               (destrfunctype) &genericDestr);
+      hshDestr(pollData->indexHash, (destrFuncType) &genericDestr,
+               (destrFuncType) &genericDestr);
       oldPollFiles = pollData->pollFiles;
       oldPollFilesSize = pollData->size;
       oldPollFilesCapacity = pollData->capacity;
@@ -411,13 +411,13 @@ void polCpy (const polltype poll_to, const const_polltype pollDataFrom)
       } else {
         newPollFilesCapacity = pollData->capacity;
       } /* if */
-      if (unlikely(!ALLOC_TABLE(newPollFiles, generictype, newPollFilesCapacity))) {
+      if (unlikely(!ALLOC_TABLE(newPollFiles, genericType, newPollFilesCapacity))) {
         raise_error(MEMORY_ERROR);
         return;
       } else {
         if (conv(pollDataFrom)->size + NUM_OF_EXTRA_ELEMS > pollData->capacity) {
           if (unlikely(!ALLOC_TABLE(newPollFds, struct pollfd, conv(pollDataFrom)->capacity))) {
-            FREE_TABLE(newPollFiles, generictype, newPollFilesCapacity);
+            FREE_TABLE(newPollFiles, genericType, newPollFilesCapacity);
             raise_error(MEMORY_ERROR);
             return;
           } else {
@@ -444,7 +444,7 @@ void polCpy (const polltype poll_to, const const_polltype pollDataFrom)
       for (pos = 0; pos < oldPollFilesSize; pos++) {
         fileObjectOps.decrUsageCount(oldPollFiles[pos]);
       } /* for */
-      FREE_TABLE(oldPollFiles, generictype, oldPollFilesCapacity);
+      FREE_TABLE(oldPollFiles, genericType, oldPollFilesCapacity);
     } /* if */
     /* printf("end polCpy:\n");
        dumpPoll(poll_to); */
@@ -452,30 +452,30 @@ void polCpy (const polltype poll_to, const const_polltype pollDataFrom)
 
 
 
-polltype polCreate (const const_polltype pollDataFrom)
+pollType polCreate (const const_pollType pollDataFrom)
 
   {
-    memsizetype pos;
-    poll_based_polltype result;
+    memSizeType pos;
+    poll_based_pollType result;
 
   /* polCreate */
-    if (unlikely(!ALLOC_RECORD(result, poll_based_pollrecord, count.polldata))) {
+    if (unlikely(!ALLOC_RECORD(result, poll_based_pollRecord, count.polldata))) {
       raise_error(MEMORY_ERROR);
     } else {
       if (unlikely(!ALLOC_TABLE(result->pollFds, struct pollfd, conv(pollDataFrom)->capacity))) {
-        FREE_RECORD(result, poll_based_pollrecord, count.polldata);
+        FREE_RECORD(result, poll_based_pollRecord, count.polldata);
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
-        if (unlikely(!ALLOC_TABLE(result->pollFiles, generictype, conv(pollDataFrom)->capacity))) {
+        if (unlikely(!ALLOC_TABLE(result->pollFiles, genericType, conv(pollDataFrom)->capacity))) {
           FREE_TABLE(result->pollFds, struct pollfd, conv(pollDataFrom)->capacity);
-          FREE_RECORD(result, poll_based_pollrecord, count.polldata);
+          FREE_RECORD(result, poll_based_pollRecord, count.polldata);
           raise_error(MEMORY_ERROR);
           result = NULL;
         } else {
           result->indexHash = hshCreate(conv(pollDataFrom)->indexHash,
-              (createfunctype) &genericCreate, (destrfunctype) &genericDestr,
-              (createfunctype) &genericCreate, (destrfunctype) &genericDestr);
+              (createFuncType) &genericCreate, (destrFuncType) &genericDestr,
+              (createFuncType) &genericCreate, (destrFuncType) &genericDestr);
           result->size = conv(pollDataFrom)->size;
           result->capacity = conv(pollDataFrom)->capacity;
           result->iteratorMode = conv(pollDataFrom)->iteratorMode;
@@ -493,16 +493,16 @@ polltype polCreate (const const_polltype pollDataFrom)
       } /* if */
     } /* if */
     /* printf("end polCreate:\n");
-       dumpPoll((polltype) result); */
-    return (polltype) result;
+       dumpPoll((pollType) result); */
+    return (pollType) result;
   } /* polCreate */
 
 
 
-void polDestr (const polltype oldPollData)
+void polDestr (const pollType oldPollData)
 
   {
-    memsizetype pos;
+    memSizeType pos;
 
   /* polDestr */
     if (oldPollData != NULL) {
@@ -510,32 +510,32 @@ void polDestr (const polltype oldPollData)
         fileObjectOps.decrUsageCount(conv(oldPollData)->pollFiles[pos]);
       } /* for */
       FREE_TABLE(conv(oldPollData)->pollFds, struct pollfd, conv(oldPollData)->capacity);
-      FREE_TABLE(conv(oldPollData)->pollFiles, generictype, conv(oldPollData)->capacity);
-      hshDestr(conv(oldPollData)->indexHash, (destrfunctype) &genericDestr,
-               (destrfunctype) &genericDestr);
-      FREE_RECORD(var_conv(oldPollData), poll_based_pollrecord, count.polldata);
+      FREE_TABLE(conv(oldPollData)->pollFiles, genericType, conv(oldPollData)->capacity);
+      hshDestr(conv(oldPollData)->indexHash, (destrFuncType) &genericDestr,
+               (destrFuncType) &genericDestr);
+      FREE_RECORD(var_conv(oldPollData), poll_based_pollRecord, count.polldata);
     } /* if */
   } /* polDestr */
 
 
 
-polltype polEmpty (void)
+pollType polEmpty (void)
 
   {
-    poll_based_polltype result;
+    poll_based_pollType result;
 
   /* polEmpty */
-    if (unlikely(!ALLOC_RECORD(result, poll_based_pollrecord, count.polldata))) {
+    if (unlikely(!ALLOC_RECORD(result, poll_based_pollRecord, count.polldata))) {
       raise_error(MEMORY_ERROR);
     } else {
       if (unlikely(!ALLOC_TABLE(result->pollFds, struct pollfd, TABLE_START_SIZE))) {
-        FREE_RECORD(result, poll_based_pollrecord, count.polldata);
+        FREE_RECORD(result, poll_based_pollRecord, count.polldata);
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
-        if (unlikely(!ALLOC_TABLE(result->pollFiles, generictype, TABLE_START_SIZE))) {
+        if (unlikely(!ALLOC_TABLE(result->pollFiles, genericType, TABLE_START_SIZE))) {
           FREE_TABLE(result->pollFds, struct pollfd, TABLE_START_SIZE);
-          FREE_RECORD(result, poll_based_pollrecord, count.polldata);
+          FREE_RECORD(result, poll_based_pollRecord, count.polldata);
           raise_error(MEMORY_ERROR);
           result = NULL;
         } else {
@@ -552,23 +552,23 @@ polltype polEmpty (void)
       } /* if */
     } /* if */
     /* printf("end polEmpty:\n");
-       dumpPoll((polltype) result); */
-    return (polltype) result;
+       dumpPoll((pollType) result); */
+    return (pollType) result;
   } /* polEmpty */
 
 
 
-inttype polGetCheck (const const_polltype pollData, const sockettype aSocket)
+intType polGetCheck (const const_pollType pollData, const socketType aSocket)
 
   {
-    memsizetype pos;
+    memSizeType pos;
     short events;
-    inttype result;
+    intType result;
 
   /* polGetCheck */
-    pos = (memsizetype) hshIdxWithDefault(conv(pollData)->indexHash,
-        (generictype) (memsizetype) aSocket, (generictype) conv(pollData)->size,
-        (inttype) (memsizetype) aSocket, (comparetype) &genericCmp);
+    pos = (memSizeType) hshIdxWithDefault(conv(pollData)->indexHash,
+        (genericType) (memSizeType) aSocket, (genericType) conv(pollData)->size,
+        (intType) (memSizeType) aSocket, (compareType) &genericCmp);
     if (pos == conv(pollData)->size) {
       result = POLL_NOTHING;
     } else {
@@ -590,17 +590,17 @@ inttype polGetCheck (const const_polltype pollData, const sockettype aSocket)
 
 
 
-inttype polGetFinding (const const_polltype pollData, const sockettype aSocket)
+intType polGetFinding (const const_pollType pollData, const socketType aSocket)
 
   {
-    memsizetype pos;
+    memSizeType pos;
     short revents;
-    inttype result;
+    intType result;
 
   /* polGetFinding */
-    pos = (memsizetype) hshIdxWithDefault(conv(pollData)->indexHash,
-        (generictype) (memsizetype) aSocket, (generictype) conv(pollData)->size,
-        (inttype) (memsizetype) aSocket, (comparetype) &genericCmp);
+    pos = (memSizeType) hshIdxWithDefault(conv(pollData)->indexHash,
+        (genericType) (memSizeType) aSocket, (genericType) conv(pollData)->size,
+        (intType) (memSizeType) aSocket, (compareType) &genericCmp);
     if (pos == conv(pollData)->size) {
       result = POLL_NOTHING;
     } else {
@@ -622,7 +622,7 @@ inttype polGetFinding (const const_polltype pollData, const sockettype aSocket)
 
 
 
-booltype polHasNext (const polltype pollData)
+boolType polHasNext (const pollType pollData)
 
   { /* polHasNext */
     switch (conv(pollData)->iteratorMode) {
@@ -646,7 +646,7 @@ booltype polHasNext (const polltype pollData)
 
 
 
-void polIterChecks (const polltype pollData, inttype pollMode)
+void polIterChecks (const pollType pollData, intType pollMode)
 
   { /* polIterChecks */
     switch (pollMode) {
@@ -671,7 +671,7 @@ void polIterChecks (const polltype pollData, inttype pollMode)
 
 
 
-void polIterFindings (const polltype pollData, inttype pollMode)
+void polIterFindings (const pollType pollData, intType pollMode)
 
   { /* polIterFindings */
     switch (pollMode) {
@@ -697,10 +697,10 @@ void polIterFindings (const polltype pollData, inttype pollMode)
 
 
 
-generictype polNextFile (const polltype pollData, const generictype nullFile)
+genericType polNextFile (const pollType pollData, const genericType nullFile)
 
   {
-    generictype nextFile;
+    genericType nextFile;
 
   /* polNextFile */
     /* printf("polNextFile(%d)\n", conv(pollData)->iteratorMode); */
@@ -733,7 +733,7 @@ generictype polNextFile (const polltype pollData, const generictype nullFile)
 
 
 
-void polPoll (const polltype pollData)
+void polPoll (const pollType pollData)
 
   {
     int poll_result;
@@ -754,7 +754,7 @@ void polPoll (const polltype pollData)
     } else {
       var_conv(pollData)->iteratorMode = ITER_EMPTY;
       var_conv(pollData)->iterPos = 0;
-      var_conv(pollData)->numOfEvents = (memsizetype) poll_result;
+      var_conv(pollData)->numOfEvents = (memSizeType) poll_result;
     } /* if */
   } /* polPoll */
 
@@ -763,8 +763,8 @@ void polPoll (const polltype pollData)
 /**
  *  Remove 'eventsToCheck' for 'aSocket' from 'pollData'.
  */
-void polRemoveCheck (const polltype pollData, const sockettype aSocket,
-    inttype eventsToCheck)
+void polRemoveCheck (const pollType pollData, const socketType aSocket,
+    intType eventsToCheck)
 
   { /* polRemoveCheck */
     switch (eventsToCheck) {

@@ -21,12 +21,12 @@
 /*  Module: General                                                 */
 /*  File: seed7/src/listutl.h                                       */
 /*  Changes: 1990, 1991, 1992, 1993, 1994, 2002  Thomas Mertes      */
-/*  Content: Procedures to maintain objects of type listtype.       */
+/*  Content: Procedures to maintain objects of type listType.       */
 /*                                                                  */
 /********************************************************************/
 
 #define append_to_list(insert_place, object, act_param_list) { \
-    listtype help_element;                                     \
+    listType help_element;                                     \
     if (ALLOC_L_ELEM(help_element)) {                          \
       help_element->next = NULL;                               \
       help_element->obj = object;                              \
@@ -46,20 +46,20 @@
 #endif
 
 
-void free_list (listtype list);
-listtype *append_element_to_list (listtype *list_insert_place, objecttype object,
-                                  errinfotype *err_info);
-objecttype copy_expression (objecttype object_from, errinfotype *err_info);
-void free_expression (objecttype object);
-void concat_lists (listtype *list1, listtype list2);
-void incl_list (listtype *list, objecttype element_object,
-                errinfotype *err_info);
-void excl_list (listtype *list, const_objecttype elementobject);
-void pop_list (listtype *list);
-void replace_list_elem (listtype list, const_objecttype elem1,
-                        objecttype elem2);
-listtype copy_list (const_listtype list_from, errinfotype *err_info);
-listtype array_to_list (arraytype arr_from, errinfotype *err_info);
-listtype struct_to_list (structtype stru_from, errinfotype *err_info);
-listtype hash_data_to_list (hashtype hash, errinfotype *err_info);
-listtype hash_keys_to_list (hashtype hash, errinfotype *err_info);
+void free_list (listType list);
+listType *append_element_to_list (listType *list_insert_place, objectType object,
+                                  errInfoType *err_info);
+objectType copy_expression (objectType object_from, errInfoType *err_info);
+void free_expression (objectType object);
+void concat_lists (listType *list1, listType list2);
+void incl_list (listType *list, objectType element_object,
+                errInfoType *err_info);
+void excl_list (listType *list, const_objectType elementobject);
+void pop_list (listType *list);
+void replace_list_elem (listType list, const_objectType elem1,
+                        objectType elem2);
+listType copy_list (const_listType list_from, errInfoType *err_info);
+listType array_to_list (arrayType arr_from, errInfoType *err_info);
+listType struct_to_list (structType stru_from, errInfoType *err_info);
+listType hash_data_to_list (hashType hash, errInfoType *err_info);
+listType hash_keys_to_list (hashType hash, errInfoType *err_info);

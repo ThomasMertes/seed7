@@ -25,19 +25,19 @@
 /*                                                                  */
 /********************************************************************/
 
-EXTERN objecttype curr_action_object;
-EXTERN objecttype curr_exec_object;
-EXTERN listtype curr_argument_list;
-EXTERN booltype fail_flag;
-EXTERN objecttype fail_value;
-EXTERN listtype fail_expression;
-EXTERN listtype fail_stack;
+EXTERN objectType curr_action_object;
+EXTERN objectType curr_exec_object;
+EXTERN listType curr_argument_list;
+EXTERN boolType fail_flag;
+EXTERN objectType fail_value;
+EXTERN listType fail_expression;
+EXTERN listType fail_stack;
 
 
 void continue_question(void);
-void run_error (objectcategory required, objecttype argument);
-void empty_value (objecttype argument);
-void var_required (objecttype argument);
-void write_call_stack (const_listtype stack_elem);
-objecttype raise_with_arguments (objecttype exception, listtype list);
-objecttype raise_exception (objecttype exception);
+void run_error (objectCategory required, objectType argument);
+void empty_value (objectType argument);
+void var_required (objectType argument);
+void write_call_stack (const_listType stack_elem);
+objectType raise_with_arguments (objectType exception, listType list);
+objectType raise_exception (objectType exception);

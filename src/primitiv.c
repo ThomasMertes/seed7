@@ -72,7 +72,7 @@
 #include "primitiv.h"
 
 
-static primactrecord prim_act_table[] = {
+static primActRecord prim_act_table[] = {
     { "ACT_ILLEGAL",             act_illegal,             },
 
     { "ACT_CPY",                 act_cpy,                 },
@@ -150,6 +150,7 @@ static primactrecord prim_act_table[] = {
     { "BIG_PARSE_BASED",         big_parse_based,         },
     { "BIG_PLUS",                big_plus,                },
     { "BIG_PRED",                big_pred,                },
+    { "BIG_RADIX",               big_RADIX,               },
     { "BIG_RAND",                big_rand,                },
     { "BIG_REM",                 big_rem,                 },
     { "BIG_RSHIFT",              big_rshift,              },
@@ -161,6 +162,7 @@ static primactrecord prim_act_table[] = {
     { "BIG_TO_BSTRI_BE",         big_toBStriBe,           },
     { "BIG_TO_BSTRI_LE",         big_toBStriLe,           },
     { "BIG_VALUE",               big_value,               },
+    { "BIG_radix",               big_radix,               },
 
     { "BIN_AND",                 bin_and,                 },
     { "BIN_OR",                  bin_or,                  },
@@ -723,7 +725,7 @@ static primactrecord prim_act_table[] = {
     { "RFL_NOT_ELEM",            rfl_not_elem,            },
     { "RFL_POS",                 rfl_pos,                 },
     { "RFL_RANGE",               rfl_range,               },
-    { "RFL_SETVALUE",            rfl_setvalue,            },
+    { "RFL_SETVALUE",            rfl_setValue,            },
     { "RFL_TAIL",                rfl_tail,                },
     { "RFL_TRACE",               rfl_trace,               },
     { "RFL_VALUE",               rfl_value,               },
@@ -808,11 +810,30 @@ static primactrecord prim_act_table[] = {
     { "SOC_WRITE",               soc_write,               },
 
 #ifdef WITH_SQL
-    { "SQL_OPEN",                sql_open,                },
-    { "SQL_PREPARE",             sql_prepare,             },
-    { "SQL_STEP",                sql_step,                },
+    { "SQL_BIND_BOOL",           sql_bind_bool,           },
+    { "SQL_BIND_FLOAT",          sql_bind_float,          },
+    { "SQL_BIND_INT",            sql_bind_int,            },
+    { "SQL_BIND_NULL",           sql_bind_null,           },
+    { "SQL_BIND_STR",            sql_bind_str,            },
+    { "SQL_BIND_TIME",           sql_bind_time,           },
+    { "SQL_COLUMN_BOOL",         sql_column_bool,         },
+    { "SQL_COLUMN_FLOAT",        sql_column_float,        },
     { "SQL_COLUMN_INT",          sql_column_int,          },
     { "SQL_COLUMN_STR",          sql_column_str,          },
+    { "SQL_COLUMN_TIME",         sql_column_time,         },
+    { "SQL_CPY_DB",              sql_cpy_db,              },
+    { "SQL_CPY_STMT",            sql_cpy_stmt,            },
+    { "SQL_CREATE_DB",           sql_create_db,           },
+    { "SQL_CREATE_STMT",         sql_create_stmt,         },
+    { "SQL_DESTR_DB",            sql_destr_db,            },
+    { "SQL_DESTR_STMT",          sql_destr_stmt,          },
+    { "SQL_EMPTY_DB",            sql_empty_db,            },
+    { "SQL_EMPTY_STMT",          sql_empty_stmt,          },
+    { "SQL_EXECUTE",             sql_execute,             },
+    { "SQL_FETCH",               sql_fetch,               },
+    { "SQL_IS_NULL",             sql_is_null,             },
+    { "SQL_OPEN",                sql_open,                },
+    { "SQL_PREPARE",             sql_prepare,             },
 #endif
 
     { "STR_APPEND",              str_append,              },
@@ -908,6 +929,6 @@ static primactrecord prim_act_table[] = {
 void init_primitiv (void)
 
   { /* init_primitiv */
-    act_table.size = sizeof(prim_act_table) / sizeof(primactrecord);
+    act_table.size = sizeof(prim_act_table) / sizeof(primActRecord);
     act_table.primitive = prim_act_table;
   } /* init_primitiv */

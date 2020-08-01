@@ -66,19 +66,19 @@
  *  @param arg_0 Parameter argv[0] from the function main() as string.
  *  @return the absolute path of the current process.
  */
-stritype getExecutablePath (const const_stritype arg_0)
+striType getExecutablePath (const const_striType arg_0)
 
   {
 #ifdef HAS_SYMLINKS
-    os_chartype buffer[PATH_MAX];
+    os_charType buffer[PATH_MAX];
     ssize_t readlink_result;
-    errinfotype err_info = OKAY_NO_ERROR;
+    errInfoType err_info = OKAY_NO_ERROR;
 #ifdef APPEND_EXTENSION_TO_EXECUTABLE_PATH
-    stritype exeExtension;
+    striType exeExtension;
 #endif
 #endif
-    stritype cwd;
-    stritype result;
+    striType cwd;
+    striType result;
 
   /* getExecutablePath */
 #ifdef HAS_SYMLINKS
@@ -97,9 +97,9 @@ stritype getExecutablePath (const const_stritype arg_0)
       } /* if */
     } else {
 #endif
-      if (strChPos(arg_0, (chartype) '/') == 0) {
+      if (strChPos(arg_0, (charType) '/') == 0) {
         result = examineSearchPath(arg_0);
-      } else if (arg_0->size >= 1 && arg_0->mem[0] == (chartype) '/') {
+      } else if (arg_0->size >= 1 && arg_0->mem[0] == (charType) '/') {
         result = strCreate(arg_0);
       } else {
         cwd = cmdGetcwd();
@@ -148,10 +148,10 @@ volumeListType *openVolumeList (void)
  *  of their creation. This allows that os_stri_free() works
  *  in a stack like manner.
  */
-static void freeArgVector (os_stritype *argv)
+static void freeArgVector (os_striType *argv)
 
   {
-    memsizetype pos = 0;
+    memSizeType pos = 0;
 
   /* freeArgVector */
     while (argv[pos] != NULL) {
@@ -169,18 +169,18 @@ static void freeArgVector (os_stritype *argv)
  *  Generate an argument vector that can be used by execv().
  *  The argument vector must be freed with freeArgVector().
  */
-static os_stritype *genArgVector (const const_stritype command,
-    const const_rtlArraytype parameters, errinfotype *err_info)
+static os_striType *genArgVector (const const_striType command,
+    const const_rtlArrayType parameters, errInfoType *err_info)
 
   {
-    memsizetype arraySize;
-    memsizetype pos;
+    memSizeType arraySize;
+    memSizeType pos;
     int path_info = PATH_IS_NORMAL;
-    os_stritype *argv;
+    os_striType *argv;
 
   /* genArgVector */
     arraySize = arraySize(parameters);
-    argv = (os_stritype *) malloc(sizeof(os_stritype) * (arraySize + 2));
+    argv = (os_striType *) malloc(sizeof(os_striType) * (arraySize + 2));
     if (unlikely(argv == NULL)) {
       *err_info = MEMORY_ERROR;
     } else {
@@ -191,7 +191,7 @@ static os_stritype *genArgVector (const const_stritype command,
       } else {
         /* fprintf(stderr, "argv[0]=%s\n", argv[0]); */
         for (pos = 0; pos < arraySize && *err_info == OKAY_NO_ERROR; pos++) {
-          argv[pos + 1] = stri_to_os_stri(parameters->arr[pos].value.strivalue, err_info);
+          argv[pos + 1] = stri_to_os_stri(parameters->arr[pos].value.striValue, err_info);
           /* fprintf(stderr, "argv[%d]=%s\n", pos + 1, argv[pos + 1]); */
         } /* for */
         if (unlikely(*err_info != OKAY_NO_ERROR)) {
@@ -215,16 +215,16 @@ static os_stritype *genArgVector (const const_stritype command,
 
 
 
-void cmdPipe2 (const const_stritype command, const const_rtlArraytype parameters,
-    filetype *childStdin, filetype *childStdout)
+void cmdPipe2 (const const_striType command, const const_rtlArrayType parameters,
+    fileType *childStdin, fileType *childStdout)
 
   {
-    os_stritype *argv;
+    os_striType *argv;
     int childStdinPipes[2];
     int childStdoutPipes[2];
     int savedStdin;
     int savedStdout;
-    errinfotype err_info = OKAY_NO_ERROR;
+    errInfoType err_info = OKAY_NO_ERROR;
     pid_t pid;
 
   /* cmdPipe2 */
@@ -277,8 +277,8 @@ void cmdPipe2 (const const_stritype command, const const_rtlArraytype parameters
 
 
 #ifdef IMPLEMENT_PTY_WITH_PIPE2
-void cmdPty (const const_stritype command, const const_rtlArraytype parameters,
-    filetype *childStdin, filetype *childStdout)
+void cmdPty (const const_striType command, const const_rtlArrayType parameters,
+    fileType *childStdin, fileType *childStdout)
 
   { /* cmdPty */
     cmdPipe2(command, parameters, childStdin, childStdout);
@@ -288,17 +288,17 @@ void cmdPty (const const_stritype command, const const_rtlArraytype parameters,
 
 
 
-void cmdPty (const const_stritype command, const const_rtlArraytype parameters,
-    filetype *childStdin, filetype *childStdout)
+void cmdPty (const const_striType command, const const_rtlArrayType parameters,
+    fileType *childStdin, fileType *childStdout)
 
   {
-    os_stritype *argv;
+    os_striType *argv;
     int masterfd;
     int slavefd;
     char *slavedevice;
     int savedStdin;
     int savedStdout;
-    errinfotype err_info = OKAY_NO_ERROR;
+    errInfoType err_info = OKAY_NO_ERROR;
     pid_t pid;
 
   /* cmdPty */
@@ -360,11 +360,11 @@ void cmdPty (const const_stritype command, const const_rtlArraytype parameters,
 
 
 
-void cmdStartProcess (const const_stritype command, const const_rtlArraytype parameters)
+void cmdStartProcess (const const_striType command, const const_rtlArrayType parameters)
 
   {
-    os_stritype *argv;
-    errinfotype err_info = OKAY_NO_ERROR;
+    os_striType *argv;
+    errInfoType err_info = OKAY_NO_ERROR;
     pid_t pid;
 
   /* cmdStartProcess */

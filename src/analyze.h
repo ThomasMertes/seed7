@@ -25,11 +25,11 @@
 /*                                                                  */
 /********************************************************************/
 
-progtype analyze_file (const const_stritype source_file_argument, uinttype options,
-    const const_rtlArraytype seed7_libraries, const const_stritype prot_file_name,
-    errinfotype *err_info);
-progtype analyze (const const_stritype source_file_argument, uinttype options,
-    const const_rtlArraytype libraryDirs, const const_stritype prot_file_name);
-progtype analyze_string (const const_stritype input_string, uinttype options,
-    const const_rtlArraytype seed7_libraries, const const_stritype prot_file_name,
-    errinfotype *err_info);
+progType analyze_file (const const_striType source_file_argument, uintType options,
+    const const_rtlArrayType seed7_libraries, const const_striType prot_file_name,
+    errInfoType *err_info);
+progType analyze (const const_striType source_file_argument, uintType options,
+    const const_rtlArrayType libraryDirs, const const_striType prot_file_name);
+progType analyze_string (const const_striType input_string, uintType options,
+    const const_rtlArrayType seed7_libraries, const const_striType prot_file_name,
+    errInfoType *err_info);

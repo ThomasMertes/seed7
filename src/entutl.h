@@ -21,18 +21,18 @@
 /*  Module: General                                                 */
 /*  File: seed7/src/endutl.h                                        */
 /*  Changes: 2000  Thomas Mertes                                    */
-/*  Content: Procedures to maintain objects of type entitytype.     */
+/*  Content: Procedures to maintain objects of type entityType.     */
 /*                                                                  */
 /********************************************************************/
 
-nodetype find_node (register nodetype node_tree,
-    register objecttype object_searched);
-void init_declaration_root (progtype currentProg, errinfotype *err_info);
-void close_declaration_root (progtype currentProg);
-void free_entity (const_progtype currentProg, entitytype old_entity);
-entitytype get_entity (nodetype declaration_base, listtype name_list);
-entitytype find_entity (nodetype declaration_base, listtype name_list);
-entitytype search_entity (const_nodetype start_node, const_listtype name_list);
-void pop_entity (nodetype declaration_base, const_entitytype entity);
-void close_entity (progtype currentProg);
-void init_entity (errinfotype *err_info);
+nodeType find_node (register nodeType node_tree,
+    register objectType object_searched);
+void init_declaration_root (progType currentProg, errInfoType *err_info);
+void close_declaration_root (progType currentProg);
+void free_entity (const_progType currentProg, entityType old_entity);
+entityType get_entity (nodeType declaration_base, listType name_list);
+entityType find_entity (nodeType declaration_base, listType name_list);
+entityType search_entity (const_nodeType start_node, const_listType name_list);
+void pop_entity (nodeType declaration_base, const_entityType entity);
+void close_entity (progType currentProg);
+void init_entity (errInfoType *err_info);

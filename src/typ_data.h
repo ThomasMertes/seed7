@@ -25,15 +25,15 @@
 /*                                                                  */
 /********************************************************************/
 
-inttype typCmp (const const_typetype type1, const const_typetype type2);
-inttype typCmpGeneric (generictype type1, generictype type2);
-typetype typFunc (typetype basic_type);
-booltype typIsDerived (typetype any_type);
-booltype typIsFunc (typetype any_type);
-booltype typIsVarfunc (typetype any_type);
-objecttype typMatchobj (typetype actual_type);
-typetype typMeta (typetype any_type);
-inttype typNum (typetype actual_type);
-typetype typResult (typetype any_type);
-stritype typStr (typetype type_arg);
-typetype typVarfunc (typetype basic_type);
+intType typCmp (const const_typeType type1, const const_typeType type2);
+intType typCmpGeneric (genericType type1, genericType type2);
+typeType typFunc (typeType basic_type);
+boolType typIsDerived (typeType any_type);
+boolType typIsFunc (typeType any_type);
+boolType typIsVarfunc (typeType any_type);
+objectType typMatchobj (typeType actual_type);
+typeType typMeta (typeType any_type);
+intType typNum (typeType actual_type);
+typeType typResult (typeType any_type);
+striType typStr (typeType type_arg);
+typeType typVarfunc (typeType basic_type);

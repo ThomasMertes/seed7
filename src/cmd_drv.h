@@ -31,8 +31,8 @@
 
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
 typedef struct {
-    uint32type magicValue;
-    uint32type driveBitmask;
+    uint32Type magicValue;
+    uint32Type driveBitmask;
     int currentDrive;
   } volumeListType;
 
@@ -47,26 +47,26 @@ typedef struct {
 #endif
 
 #ifdef DEFINE_OS_STAT_PROTOTYPE
-extern C int __cdecl os_stat (const_os_stritype path, os_stat_struct *buffer);
+extern C int __cdecl os_stat (const_os_striType path, os_stat_struct *buffer);
 #endif
 
 
-os_stritype *getUtf16Argv (int *w_argc);
-void freeUtf16Argv (os_stritype *w_argv);
-stritype getExecutablePath (const const_stritype arg_0);
+os_striType *getUtf16Argv (int *w_argc);
+void freeUtf16Argv (os_striType *w_argv);
+striType getExecutablePath (const const_striType arg_0);
 #ifdef DEFINE_WGETENV
-os_stritype wgetenv (const const_os_stritype name);
+os_striType wgetenv (const const_os_striType name);
 #endif
 #ifdef DEFINE_WSETENV
-int wsetenv (const const_os_stritype name, const const_os_stritype value,
+int wsetenv (const const_os_striType name, const const_os_striType value,
     int overwrite);
 #endif
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
 volumeListType *openVolumeList (void);
 #endif
-void cmdPipe2 (const const_stritype command, const const_rtlArraytype parameters,
-    filetype *childStdin, filetype *childStdout);
-void cmdPty (const const_stritype command, const const_rtlArraytype parameters,
-    filetype *childStdin, filetype *childStdout);
-void cmdStartProcess (const const_stritype command,
-    const const_rtlArraytype parameters);
+void cmdPipe2 (const const_striType command, const const_rtlArrayType parameters,
+    fileType *childStdin, fileType *childStdout);
+void cmdPty (const const_striType command, const const_rtlArrayType parameters,
+    fileType *childStdin, fileType *childStdout);
+void cmdStartProcess (const const_striType command,
+    const const_rtlArrayType parameters);

@@ -68,7 +68,7 @@
  *             file length reported by the system is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-objecttype fil_big_lng (listtype arguments)
+objectType fil_big_lng (listType arguments)
 
   { /* fil_big_lng */
     isit_file(arg_1(arguments));
@@ -87,7 +87,7 @@ objecttype fil_big_lng (listtype arguments)
  *             file position type.
  *  @exception FILE_ERROR A system function returns an error.
  */
-objecttype fil_big_seek (listtype arguments)
+objectType fil_big_seek (listType arguments)
 
   { /* fil_big_seek */
     isit_file(arg_1(arguments));
@@ -108,7 +108,7 @@ objecttype fil_big_seek (listtype arguments)
  *             file position reported by the system is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-objecttype fil_big_tell (listtype arguments)
+objectType fil_big_tell (listType arguments)
 
   { /* fil_big_tell */
     isit_file(arg_1(arguments));
@@ -122,7 +122,7 @@ objecttype fil_big_tell (listtype arguments)
  *  Close a clib_file.
  *  @exception FILE_ERROR A system function returns an error.
  */
-objecttype fil_close (listtype arguments)
+objectType fil_close (listType arguments)
 
   { /* fil_close */
     isit_file(arg_1(arguments));
@@ -132,34 +132,34 @@ objecttype fil_close (listtype arguments)
 
 
 
-objecttype fil_cpy (listtype arguments)
+objectType fil_cpy (listType arguments)
 
   {
-    objecttype file_variable;
+    objectType file_variable;
 
   /* fil_cpy */
     file_variable = arg_1(arguments);
     isit_file(file_variable);
     is_variable(file_variable);
     isit_file(arg_3(arguments));
-    file_variable->value.filevalue = take_file(arg_3(arguments));
+    file_variable->value.fileValue = take_file(arg_3(arguments));
     return SYS_EMPTY_OBJECT;
   } /* fil_cpy */
 
 
 
-objecttype fil_create (listtype arguments)
+objectType fil_create (listType arguments)
 
   { /* fil_create */
     isit_file(arg_3(arguments));
     SET_CATEGORY_OF_OBJ(arg_1(arguments), FILEOBJECT);
-    arg_1(arguments)->value.filevalue = take_file(arg_3(arguments));
+    arg_1(arguments)->value.fileValue = take_file(arg_3(arguments));
     return SYS_EMPTY_OBJECT;
   } /* fil_create */
 
 
 
-objecttype fil_empty (listtype arguments)
+objectType fil_empty (listType arguments)
 
   { /* fil_empty */
     return bld_file_temp(NULL);
@@ -173,7 +173,7 @@ objecttype fil_empty (listtype arguments)
  *  from the file failed.
  *  @return TRUE if the end-of-file indicator is set, FALSE otherwise.
  */
-objecttype fil_eof (listtype arguments)
+objectType fil_eof (listType arguments)
 
   { /* fil_eof */
     isit_file(arg_1(arguments));
@@ -191,7 +191,7 @@ objecttype fil_eof (listtype arguments)
  *  @return TRUE if the two files are equal,
  *          FALSE otherwise.
  */
-objecttype fil_eq (listtype arguments)
+objectType fil_eq (listType arguments)
 
   { /* fil_eq */
     isit_file(arg_1(arguments));
@@ -206,7 +206,7 @@ objecttype fil_eq (listtype arguments)
 
 
 
-objecttype fil_err (listtype arguments)
+objectType fil_err (listType arguments)
 
   { /* fil_err */
     return bld_file_temp(stderr);
@@ -218,7 +218,7 @@ objecttype fil_err (listtype arguments)
  *  Forces that all buffered data of 'outFile' is sent to its destination.
  *  This causes data to be sent to the file system of the OS.
  */
-objecttype fil_flush (listtype arguments)
+objectType fil_flush (listType arguments)
 
   { /* fil_flush */
     isit_file(arg_1(arguments));
@@ -232,11 +232,11 @@ objecttype fil_flush (listtype arguments)
  *  Read a character from a clib_file.
  *  @return the character read, or EOF at the end of the file.
  */
-objecttype fil_getc (listtype arguments)
+objectType fil_getc (listType arguments)
 
   { /* fil_getc */
     isit_file(arg_1(arguments));
-    return bld_char_temp((chartype)
+    return bld_char_temp((charType)
         getc(take_file(arg_1(arguments))));
   } /* fil_getc */
 
@@ -249,7 +249,7 @@ objecttype fil_getc (listtype arguments)
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *  @exception FILE_ERROR A system function returns an error.
  */
-objecttype fil_gets (listtype arguments)
+objectType fil_gets (listType arguments)
 
   { /* fil_gets */
     isit_file(arg_1(arguments));
@@ -265,7 +265,7 @@ objecttype fil_gets (listtype arguments)
  *  This function allows a file to be handled like an iterator.
  *  @return FALSE if 'getc' would return EOF, TRUE otherwise.
  */
-objecttype fil_has_next (listtype arguments)
+objectType fil_has_next (listType arguments)
 
   { /* fil_has_next */
     isit_file(arg_1(arguments));
@@ -278,7 +278,7 @@ objecttype fil_has_next (listtype arguments)
 
 
 
-objecttype fil_in (listtype arguments)
+objectType fil_in (listType arguments)
 
   { /* fil_in */
     return bld_file_temp(stdin);
@@ -286,7 +286,7 @@ objecttype fil_in (listtype arguments)
 
 
 
-objecttype fil_input_ready (listtype arguments)
+objectType fil_input_ready (listType arguments)
 
   { /* fil_input_ready */
     isit_file(arg_1(arguments));
@@ -310,10 +310,10 @@ objecttype fil_input_ready (listtype arguments)
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *  @exception FILE_ERROR A system function returns an error.
  */
-objecttype fil_line_read (listtype arguments)
+objectType fil_line_read (listType arguments)
 
   {
-    objecttype terminationChar;
+    objectType terminationChar;
 
   /* fil_line_read */
     isit_file(arg_1(arguments));
@@ -322,12 +322,12 @@ objecttype fil_line_read (listtype arguments)
     is_variable(terminationChar);
     return bld_stri_temp(
         filLineRead(take_file(arg_1(arguments)),
-                    &terminationChar->value.charvalue));
+                    &terminationChar->value.charValue));
   } /* fil_line_read */
 
 
 
-objecttype fil_lit (listtype arguments)
+objectType fil_lit (listType arguments)
 
   { /* fil_lit */
     isit_file(arg_1(arguments));
@@ -346,7 +346,7 @@ objecttype fil_lit (listtype arguments)
  *  @exception FILE_ERROR A system function returns an error or the
  *             file length reported by the system is negative.
  */
-objecttype fil_lng (listtype arguments)
+objectType fil_lng (listType arguments)
 
   { /* fil_lng */
     isit_file(arg_1(arguments));
@@ -361,7 +361,7 @@ objecttype fil_lng (listtype arguments)
  *  @return FALSE if both files are equal,
  *          TRUE otherwise.
  */
-objecttype fil_ne (listtype arguments)
+objectType fil_ne (listType arguments)
 
   { /* fil_ne */
     isit_file(arg_1(arguments));
@@ -407,7 +407,7 @@ objecttype fil_ne (listtype arguments)
  *             representation or 'path' cannot be converted
  *             to the system path type.
  */
-objecttype fil_open (listtype arguments)
+objectType fil_open (listType arguments)
 
   { /* fil_open */
     isit_stri(arg_1(arguments));
@@ -418,7 +418,7 @@ objecttype fil_open (listtype arguments)
 
 
 
-objecttype fil_out (listtype arguments)
+objectType fil_out (listType arguments)
 
   { /* fil_out */
     return bld_file_temp(stdout);
@@ -426,7 +426,7 @@ objecttype fil_out (listtype arguments)
 
 
 
-objecttype fil_pclose (listtype arguments)
+objectType fil_pclose (listType arguments)
 
   { /* fil_pclose */
     isit_file(arg_1(arguments));
@@ -454,7 +454,7 @@ objecttype fil_pclose (listtype arguments)
  *  @return the pipe file opened, or NULL if it could not be opened.
  *  @exception RANGE_ERROR An illegal mode was used.
  */
-objecttype fil_popen (listtype arguments)
+objectType fil_popen (listType arguments)
 
   { /* fil_popen */
     isit_stri(arg_1(arguments));
@@ -467,7 +467,7 @@ objecttype fil_popen (listtype arguments)
 
 
 
-objecttype fil_print (listtype arguments)
+objectType fil_print (listType arguments)
 
   { /* fil_print */
     isit_stri(arg_1(arguments));
@@ -486,7 +486,7 @@ objecttype fil_print (listtype arguments)
  *             file position type.
  *  @exception FILE_ERROR A system function returns an error.
  */
-objecttype fil_seek (listtype arguments)
+objectType fil_seek (listType arguments)
 
   { /* fil_seek */
     isit_file(arg_1(arguments));
@@ -498,7 +498,7 @@ objecttype fil_seek (listtype arguments)
 
 
 
-objecttype fil_setbuf (listtype arguments)
+objectType fil_setbuf (listType arguments)
 
   { /* fil_setbuf */
     isit_file(arg_1(arguments));
@@ -521,7 +521,7 @@ objecttype fil_setbuf (listtype arguments)
  *  @exception FILE_ERROR A system function returns an error or the
  *             file position reported by the system is negative.
  */
-objecttype fil_tell (listtype arguments)
+objectType fil_tell (listType arguments)
 
   { /* fil_tell */
     isit_file(arg_1(arguments));
@@ -531,10 +531,10 @@ objecttype fil_tell (listtype arguments)
 
 
 
-objecttype fil_value (listtype arguments)
+objectType fil_value (listType arguments)
 
   {
-    objecttype obj_arg;
+    objectType obj_arg;
 
   /* fil_value */
     isit_reference(arg_1(arguments));
@@ -560,10 +560,10 @@ objecttype fil_value (listtype arguments)
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *  @exception FILE_ERROR A system function returns an error.
  */
-objecttype fil_word_read (listtype arguments)
+objectType fil_word_read (listType arguments)
 
   {
-    objecttype terminationChar;
+    objectType terminationChar;
 
   /* fil_word_read */
     isit_file(arg_1(arguments));
@@ -572,7 +572,7 @@ objecttype fil_word_read (listtype arguments)
     is_variable(terminationChar);
     return bld_stri_temp(
         filWordRead(take_file(arg_1(arguments)),
-                    &terminationChar->value.charvalue));
+                    &terminationChar->value.charValue));
   } /* fil_word_read */
 
 
@@ -583,7 +583,7 @@ objecttype fil_word_read (listtype arguments)
  *  @exception RANGE_ERROR The string contains a character that does
  *             not fit into a byte.
  */
-objecttype fil_write (listtype arguments)
+objectType fil_write (listType arguments)
 
   { /* fil_write */
     isit_file(arg_1(arguments));

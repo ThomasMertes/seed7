@@ -25,15 +25,15 @@
 /*                                                                  */
 /********************************************************************/
 
-objecttype bln_and    (listtype arguments);
-objecttype bln_cpy    (listtype arguments);
-objecttype bln_create (listtype arguments);
-objecttype bln_ge     (listtype arguments);
-objecttype bln_gt     (listtype arguments);
-objecttype bln_iconv  (listtype arguments);
-objecttype bln_le     (listtype arguments);
-objecttype bln_lt     (listtype arguments);
-objecttype bln_not    (listtype arguments);
-objecttype bln_or     (listtype arguments);
-objecttype bln_ord    (listtype arguments);
-objecttype bln_value  (listtype arguments);
+objectType bln_and    (listType arguments);
+objectType bln_cpy    (listType arguments);
+objectType bln_create (listType arguments);
+objectType bln_ge     (listType arguments);
+objectType bln_gt     (listType arguments);
+objectType bln_iconv  (listType arguments);
+objectType bln_le     (listType arguments);
+objectType bln_lt     (listType arguments);
+objectType bln_not    (listType arguments);
+objectType bln_or     (listType arguments);
+objectType bln_ord    (listType arguments);
+objectType bln_value  (listType arguments);

@@ -25,6 +25,6 @@
 /*                                                                  */
 /********************************************************************/
 
-acttype actIConv (inttype ordinal);
-inttype actOrd (acttype anAction);
-stritype actStr (acttype anAction);
+actType actIConv (intType ordinal);
+intType actOrd (actType anAction);
+striType actStr (actType anAction);

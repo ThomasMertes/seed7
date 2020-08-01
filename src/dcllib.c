@@ -56,10 +56,10 @@
 
 
 
-objecttype dcl_attr (listtype arguments)
+objectType dcl_attr (listType arguments)
 
   {
-    typetype attribute_type;
+    typeType attribute_type;
 
   /* dcl_attr */
     isit_type(arg_2(arguments));
@@ -72,16 +72,16 @@ objecttype dcl_attr (listtype arguments)
 
 
 
-objecttype dcl_const (listtype arguments)
+objectType dcl_const (listType arguments)
 
   {
-    typetype object_type;
-    objecttype name_expr;
-    objecttype value_expr;
-    objecttype value;
-    objecttype matched_value;
-    objecttype current_object;
-    errinfotype err_info = OKAY_NO_ERROR;
+    typeType object_type;
+    objectType name_expr;
+    objectType value_expr;
+    objectType value;
+    objectType matched_value;
+    objectType current_object;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* dcl_const */
     isit_type(arg_2(arguments));
@@ -100,9 +100,9 @@ objecttype dcl_const (listtype arguments)
     grow_stack(&err_info);
     if (err_info == OKAY_NO_ERROR) {
       if (CATEGORY_OF_OBJ(value_expr) == EXPROBJECT &&
-          value_expr->value.listvalue != NULL &&
-          value_expr->value.listvalue->next == NULL) {
-        value_expr = value_expr->value.listvalue->obj;
+          value_expr->value.listValue != NULL &&
+          value_expr->value.listValue->next == NULL) {
+        value_expr = value_expr->value.listValue->obj;
       } /* if */
 #ifdef TRACE_DCL
       printf("decl const value_expr = ");
@@ -163,7 +163,7 @@ objecttype dcl_const (listtype arguments)
         } /* if */
         free_expression(value);
         if (CATEGORY_OF_OBJ(current_object) == BLOCKOBJECT) {
-          current_object->value.blockvalue->params =
+          current_object->value.blockValue->params =
               get_param_list(current_object->descriptor.property->params, &err_info);
         } /* if */
       } /* if */
@@ -185,14 +185,14 @@ objecttype dcl_const (listtype arguments)
 
 
 
-objecttype dcl_elements (listtype arguments)
+objectType dcl_elements (listType arguments)
 
   {
-    objecttype local_decls;
-    listtype *local_object_insert_place;
-    objecttype decl_res;
-    listtype element_list;
-    errinfotype err_info = OKAY_NO_ERROR;
+    objectType local_decls;
+    listType *local_object_insert_place;
+    objectType decl_res;
+    listType element_list;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* dcl_elements */
     local_decls = arg_1(arguments);
@@ -220,13 +220,13 @@ objecttype dcl_elements (listtype arguments)
 
 
 
-objecttype dcl_fwd (listtype arguments)
+objectType dcl_fwd (listType arguments)
 
   {
-    typetype object_type;
-    objecttype name_expr;
-    objecttype current_object;
-    errinfotype err_info = OKAY_NO_ERROR;
+    typeType object_type;
+    objectType name_expr;
+    objectType current_object;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* dcl_fwd */
     isit_type(arg_2(arguments));
@@ -264,13 +264,13 @@ objecttype dcl_fwd (listtype arguments)
 
 
 
-objecttype dcl_fwdvar (listtype arguments)
+objectType dcl_fwdvar (listType arguments)
 
   {
-    typetype object_type;
-    objecttype name_expr;
-    objecttype current_object;
-    errinfotype err_info = OKAY_NO_ERROR;
+    typeType object_type;
+    objectType name_expr;
+    objectType current_object;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* dcl_fwdvar */
     isit_type(arg_2(arguments));
@@ -308,12 +308,12 @@ objecttype dcl_fwdvar (listtype arguments)
 
 
 
-objecttype dcl_getfunc (listtype arguments)
+objectType dcl_getfunc (listType arguments)
 
   {
-    objecttype name_expr;
-    objecttype object_found;
-    errinfotype err_info = OKAY_NO_ERROR;
+    objectType name_expr;
+    objectType object_found;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* dcl_getfunc */
     name_expr = arg_2(arguments);
@@ -343,12 +343,12 @@ objecttype dcl_getfunc (listtype arguments)
 
 
 
-objecttype dcl_getobj (listtype arguments)
+objectType dcl_getobj (listType arguments)
 
   {
-    objecttype name_expr;
-    objecttype object_found;
-    errinfotype err_info = OKAY_NO_ERROR;
+    objectType name_expr;
+    objectType object_found;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* dcl_getobj */
     name_expr = arg_2(arguments);
@@ -374,13 +374,13 @@ objecttype dcl_getobj (listtype arguments)
 
 
 
-objecttype dcl_global (listtype arguments)
+objectType dcl_global (listType arguments)
 
   {
-    objecttype statement;
-    stacktype stack_data_backup;
-    stacktype stack_current_backup;
-    stacktype stack_upward_backup;
+    objectType statement;
+    stackType stack_data_backup;
+    stackType stack_current_backup;
+    stackType stack_upward_backup;
 
   /* dcl_global */
     statement = arg_2(arguments);
@@ -404,11 +404,11 @@ objecttype dcl_global (listtype arguments)
 
 
 
-objecttype dcl_in1var (listtype arguments)
+objectType dcl_in1var (listType arguments)
 
   {
-    typetype object_type;
-    objecttype created_object;
+    typeType object_type;
+    objectType created_object;
 
   /* dcl_in1var */
     isit_type(arg_3(arguments));
@@ -420,7 +420,7 @@ objecttype dcl_in1var (listtype arguments)
       created_object->type_of = object_type;
       created_object->descriptor.property = NULL;
       INIT_CATEGORY_OF_VAR(created_object, VALUEPARAMOBJECT);
-      created_object->value.objvalue = NULL;
+      created_object->value.objValue = NULL;
       return bld_param_temp(created_object);
     } else {
       return raise_exception(SYS_MEM_EXCEPTION);
@@ -429,13 +429,13 @@ objecttype dcl_in1var (listtype arguments)
 
 
 
-objecttype dcl_in2var (listtype arguments)
+objectType dcl_in2var (listType arguments)
 
   {
-    typetype object_type;
-    objecttype name_expr;
-    errinfotype err_info = OKAY_NO_ERROR;
-    objecttype created_object;
+    typeType object_type;
+    objectType name_expr;
+    errInfoType err_info = OKAY_NO_ERROR;
+    objectType created_object;
 
   /* dcl_in2var */
     isit_type(arg_3(arguments));
@@ -467,11 +467,11 @@ objecttype dcl_in2var (listtype arguments)
 
 
 
-objecttype dcl_inout1 (listtype arguments)
+objectType dcl_inout1 (listType arguments)
 
   {
-    typetype object_type;
-    objecttype created_object;
+    typeType object_type;
+    objectType created_object;
 
   /* dcl_inout1 */
     isit_type(arg_2(arguments));
@@ -483,7 +483,7 @@ objecttype dcl_inout1 (listtype arguments)
       created_object->type_of = object_type;
       created_object->descriptor.property = NULL;
       INIT_CATEGORY_OF_VAR(created_object, REFPARAMOBJECT);
-      created_object->value.objvalue = NULL;
+      created_object->value.objValue = NULL;
       /* printf("dcl_inout1 --> %lx ", (unsigned long int) created_object);
          trace1(created_object);
          printf("\n"); */
@@ -495,13 +495,13 @@ objecttype dcl_inout1 (listtype arguments)
 
 
 
-objecttype dcl_inout2 (listtype arguments)
+objectType dcl_inout2 (listType arguments)
 
   {
-    typetype object_type;
-    objecttype name_expr;
-    errinfotype err_info = OKAY_NO_ERROR;
-    objecttype created_object;
+    typeType object_type;
+    objectType name_expr;
+    errInfoType err_info = OKAY_NO_ERROR;
+    objectType created_object;
 
   /* dcl_inout2 */
     isit_type(arg_2(arguments));
@@ -533,13 +533,13 @@ objecttype dcl_inout2 (listtype arguments)
 
 
 
-objecttype dcl_param_attr (listtype arguments)
+objectType dcl_param_attr (listType arguments)
 
   {
-    objecttype f_param_object;
-    objecttype param_object;
-    objecttype *f_param_prototype;
-    objecttype result;
+    objectType f_param_object;
+    objectType param_object;
+    objectType *f_param_prototype;
+    objectType result;
 
   /* dcl_param_attr */
     isit_param(arg_2(arguments));
@@ -561,12 +561,12 @@ objecttype dcl_param_attr (listtype arguments)
         result->type_of = NULL;
         result->descriptor.property = NULL;
         INIT_CATEGORY_OF_OBJ(result, FORMPARAMOBJECT);
-        result->value.objvalue = param_object;
+        result->value.objValue = param_object;
       } else {
         return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
       *f_param_prototype = result;
-      f_param_object->value.objvalue = NULL;
+      f_param_object->value.objValue = NULL;
     } else {
       result = *f_param_prototype;
     } /* if */
@@ -580,11 +580,11 @@ objecttype dcl_param_attr (listtype arguments)
 
 
 
-objecttype dcl_ref1 (listtype arguments)
+objectType dcl_ref1 (listType arguments)
 
   {
-    typetype object_type;
-    objecttype created_object;
+    typeType object_type;
+    objectType created_object;
 
   /* dcl_ref1 */
     isit_type(arg_2(arguments));
@@ -596,7 +596,7 @@ objecttype dcl_ref1 (listtype arguments)
       created_object->type_of = object_type;
       created_object->descriptor.property = NULL;
       INIT_CATEGORY_OF_OBJ(created_object, REFPARAMOBJECT);
-      created_object->value.objvalue = NULL;
+      created_object->value.objValue = NULL;
       /* printf("decl ref1 --> %lx ", (unsigned long int) created_object);
          trace1(created_object);
          printf(";\n"); */
@@ -608,13 +608,13 @@ objecttype dcl_ref1 (listtype arguments)
 
 
 
-objecttype dcl_ref2 (listtype arguments)
+objectType dcl_ref2 (listType arguments)
 
   {
-    typetype object_type;
-    objecttype name_expr;
-    errinfotype err_info = OKAY_NO_ERROR;
-    objecttype created_object;
+    typeType object_type;
+    objectType name_expr;
+    errInfoType err_info = OKAY_NO_ERROR;
+    objectType created_object;
 
   /* dcl_ref2 */
     isit_type(arg_2(arguments));
@@ -646,10 +646,10 @@ objecttype dcl_ref2 (listtype arguments)
 
 
 
-objecttype dcl_symb (listtype arguments)
+objectType dcl_symb (listType arguments)
 
   {
-    objecttype symb_object;
+    objectType symb_object;
 
   /* dcl_symb */
     symb_object = arg_2(arguments);
@@ -668,11 +668,11 @@ objecttype dcl_symb (listtype arguments)
 
 
 
-objecttype dcl_val1 (listtype arguments)
+objectType dcl_val1 (listType arguments)
 
   {
-    typetype object_type;
-    objecttype created_object;
+    typeType object_type;
+    objectType created_object;
 
   /* dcl_val1 */
     isit_type(arg_2(arguments));
@@ -684,7 +684,7 @@ objecttype dcl_val1 (listtype arguments)
       created_object->type_of = object_type;
       created_object->descriptor.property = NULL;
       INIT_CATEGORY_OF_OBJ(created_object, VALUEPARAMOBJECT);
-      created_object->value.objvalue = NULL;
+      created_object->value.objValue = NULL;
       /* printf("decl val1 --> %lx ", (unsigned long int) created_object);
          trace1(created_object);
          printf("\n"); */
@@ -696,13 +696,13 @@ objecttype dcl_val1 (listtype arguments)
 
 
 
-objecttype dcl_val2 (listtype arguments)
+objectType dcl_val2 (listType arguments)
 
   {
-    typetype object_type;
-    objecttype name_expr;
-    errinfotype err_info = OKAY_NO_ERROR;
-    objecttype created_object;
+    typeType object_type;
+    objectType name_expr;
+    errInfoType err_info = OKAY_NO_ERROR;
+    objectType created_object;
 
   /* dcl_val2 */
     isit_type(arg_2(arguments));
@@ -734,16 +734,16 @@ objecttype dcl_val2 (listtype arguments)
 
 
 
-objecttype dcl_var (listtype arguments)
+objectType dcl_var (listType arguments)
 
   {
-    typetype object_type;
-    objecttype name_expr;
-    objecttype value_expr;
-    objecttype value;
-    objecttype matched_value;
-    objecttype current_object;
-    errinfotype err_info = OKAY_NO_ERROR;
+    typeType object_type;
+    objectType name_expr;
+    objectType value_expr;
+    objectType value;
+    objectType matched_value;
+    objectType current_object;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* dcl_var */
     isit_type(arg_2(arguments));
@@ -762,9 +762,9 @@ objecttype dcl_var (listtype arguments)
     grow_stack(&err_info);
     if (err_info == OKAY_NO_ERROR) {
       if (CATEGORY_OF_OBJ(value_expr) == EXPROBJECT &&
-          value_expr->value.listvalue != NULL &&
-          value_expr->value.listvalue->next == NULL) {
-        value_expr = value_expr->value.listvalue->obj;
+          value_expr->value.listValue != NULL &&
+          value_expr->value.listValue->next == NULL) {
+        value_expr = value_expr->value.listValue->obj;
       } /* if */
 #ifdef TRACE_DCL
       printf("decl var value_expr = ");

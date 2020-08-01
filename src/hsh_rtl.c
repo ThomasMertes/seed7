@@ -33,8 +33,8 @@
 /*                                                                  */
 /*  The functions in this file use type declarations from the       */
 /*  include file data_rtl.h instead of data.h. Therefore the types  */
-/*  rtlHelemtype and rtlHashtype are declared different than the    */
-/*  types helemtype and hashtype in the interpreter.                */
+/*  rtlHashElemType and rtlHashType are declared different than the */
+/*  types hashElemType and hashType in the interpreter.             */
 /*                                                                  */
 /********************************************************************/
 
@@ -64,12 +64,12 @@
 
 
 
-static void free_helem (const const_rtlHelemtype old_helem,
-    const destrfunctype key_destr_func, const destrfunctype data_destr_func)
+static void free_helem (const const_rtlHashElemType old_helem,
+    const destrFuncType key_destr_func, const destrFuncType data_destr_func)
 
   { /* free_helem */
-    key_destr_func(old_helem->key.value.genericvalue);
-    data_destr_func(old_helem->data.value.genericvalue);
+    key_destr_func(old_helem->key.value.genericValue);
+    data_destr_func(old_helem->data.value.genericValue);
     if (old_helem->next_less != NULL) {
       free_helem(old_helem->next_less, key_destr_func,
           data_destr_func);
@@ -78,17 +78,17 @@ static void free_helem (const const_rtlHelemtype old_helem,
       free_helem(old_helem->next_greater, key_destr_func,
           data_destr_func);
     } /* if */
-    FREE_RECORD(old_helem, rtlHelemrecord, count.rtl_helem);
+    FREE_RECORD(old_helem, rtlHashElemRecord, count.rtl_helem);
   } /* free_helem */
 
 
 
-static void free_hash (const const_rtlHashtype old_hash,
-    const destrfunctype key_destr_func, const destrfunctype data_destr_func)
+static void free_hash (const const_rtlHashType old_hash,
+    const destrFuncType key_destr_func, const destrFuncType data_destr_func)
 
   {
     unsigned int number;
-    const rtlHelemtype *curr_helem;
+    const rtlHashElemType *curr_helem;
 
   /* free_hash */
     if (old_hash != NULL) {
@@ -107,37 +107,37 @@ static void free_hash (const const_rtlHashtype old_hash,
 
 
 
-static rtlHelemtype new_helem (generictype key, generictype data,
-    const createfunctype key_create_func, const createfunctype data_create_func,
-    errinfotype *err_info)
+static rtlHashElemType new_helem (genericType key, genericType data,
+    const createFuncType key_create_func, const createFuncType data_create_func,
+    errInfoType *err_info)
 
   {
-    rtlHelemtype helem;
+    rtlHashElemType helem;
 
   /* new_helem */
     /* printf("new_helem(%llX, %llX)\n",
         (unsigned long long) key,
         (unsigned long long) data); */
-    if (!ALLOC_RECORD(helem, rtlHelemrecord, count.rtl_helem)) {
+    if (!ALLOC_RECORD(helem, rtlHashElemRecord, count.rtl_helem)) {
       *err_info = MEMORY_ERROR;
     } else {
-      helem->key.value.genericvalue = key_create_func(key);
-      helem->data.value.genericvalue = data_create_func(data);
+      helem->key.value.genericValue = key_create_func(key);
+      helem->data.value.genericValue = data_create_func(data);
       helem->next_less = NULL;
       helem->next_greater = NULL;
       /* printf("new_helem(%llX, %llX)\n",
-          (unsigned long long) helem->key.value.genericvalue,
-          (unsigned long long) helem->data.value.genericvalue); */
+          (unsigned long long) helem->key.value.genericValue,
+          (unsigned long long) helem->data.value.genericValue); */
     } /* if */
     return helem;
   } /* new_helem */
 
 
 
-static rtlHashtype new_hash (unsigned int bits)
+static rtlHashType new_hash (unsigned int bits)
 
   {
-    rtlHashtype hash;
+    rtlHashType hash;
 
   /* new_hash */
     if (ALLOC_RTL_HASH(hash, TABLE_SIZE(bits))) {
@@ -145,26 +145,26 @@ static rtlHashtype new_hash (unsigned int bits)
       hash->mask = TABLE_MASK(bits);
       hash->table_size = TABLE_SIZE(bits);
       hash->size = 0;
-      memset(hash->table, 0, hash->table_size * sizeof(rtlHelemtype));
+      memset(hash->table, 0, hash->table_size * sizeof(rtlHashElemType));
     } /* if */
     return hash;
   } /* new_hash */
 
 
 
-static rtlHelemtype create_helem (const const_rtlHelemtype source_helem,
-    const createfunctype key_create_func, const createfunctype data_create_func,
-    errinfotype *err_info)
+static rtlHashElemType create_helem (const const_rtlHashElemType source_helem,
+    const createFuncType key_create_func, const createFuncType data_create_func,
+    errInfoType *err_info)
 
   {
-    rtlHelemtype dest_helem;
+    rtlHashElemType dest_helem;
 
   /* create_helem */
-    if (!ALLOC_RECORD(dest_helem, rtlHelemrecord, count.rtl_helem)) {
+    if (!ALLOC_RECORD(dest_helem, rtlHashElemRecord, count.rtl_helem)) {
       *err_info = MEMORY_ERROR;
     } else {
-      dest_helem->key.value.genericvalue = key_create_func(source_helem->key.value.genericvalue);
-      dest_helem->data.value.genericvalue = data_create_func(source_helem->data.value.genericvalue);
+      dest_helem->key.value.genericValue = key_create_func(source_helem->key.value.genericValue);
+      dest_helem->data.value.genericValue = data_create_func(source_helem->data.value.genericValue);
       if (source_helem->next_less != NULL) {
         dest_helem->next_less = create_helem(source_helem->next_less,
             key_create_func, data_create_func, err_info);
@@ -183,16 +183,16 @@ static rtlHelemtype create_helem (const const_rtlHelemtype source_helem,
 
 
 
-static rtlHashtype create_hash (const const_rtlHashtype source_hash,
-    const createfunctype key_create_func, const createfunctype data_create_func,
-    errinfotype *err_info)
+static rtlHashType create_hash (const const_rtlHashType source_hash,
+    const createFuncType key_create_func, const createFuncType data_create_func,
+    errInfoType *err_info)
 
   {
     unsigned int new_size;
     unsigned int number;
-    const rtlHelemtype *source_helem;
-    rtlHelemtype *dest_helem;
-    rtlHashtype dest_hash;
+    const rtlHashElemType *source_helem;
+    rtlHashElemType *dest_helem;
+    rtlHashType dest_hash;
 
   /* create_hash */
     new_size = source_hash->table_size;
@@ -226,15 +226,15 @@ static rtlHashtype create_hash (const const_rtlHashtype source_hash,
 
 
 
-static void copy_hash (const rtlHashtype dest_hash, const const_rtlHashtype source_hash,
-    const createfunctype key_create_func, const createfunctype data_create_func,
-    const destrfunctype key_destr_func, const destrfunctype data_destr_func,
-    errinfotype *err_info)
+static void copy_hash (const rtlHashType dest_hash, const const_rtlHashType source_hash,
+    const createFuncType key_create_func, const createFuncType data_create_func,
+    const destrFuncType key_destr_func, const destrFuncType data_destr_func,
+    errInfoType *err_info)
 
   {
     unsigned int number;
-    const rtlHelemtype *source_helem;
-    rtlHelemtype *dest_helem;
+    const rtlHashElemType *source_helem;
+    rtlHashElemType *dest_helem;
 
   /* copy_hash */
     dest_hash->bits = source_hash->bits;
@@ -260,13 +260,13 @@ static void copy_hash (const rtlHashtype dest_hash, const const_rtlHashtype sour
 
 
 
-static void keys_helem (rtlArraytype *key_array, memsizetype *arr_pos,
-    const_rtlHelemtype curr_helem, const createfunctype key_create_func,
-    errinfotype *err_info)
+static void keys_helem (rtlArrayType *key_array, memSizeType *arr_pos,
+    const_rtlHashElemType curr_helem, const createFuncType key_create_func,
+    errInfoType *err_info)
 
   {
-    memsizetype array_size;
-    rtlArraytype resized_key_array;
+    memSizeType array_size;
+    rtlArrayType resized_key_array;
 
   /* keys_helem */
     array_size = arraySize(*key_array);
@@ -287,8 +287,8 @@ static void keys_helem (rtlArraytype *key_array, memsizetype *arr_pos,
         (*key_array)->max_position += ARRAY_SIZE_INCREMENT;
       } /* if */
     } /* if */
-    (*key_array)->arr[*arr_pos].value.genericvalue =
-        key_create_func(curr_helem->key.value.genericvalue);
+    (*key_array)->arr[*arr_pos].value.genericValue =
+        key_create_func(curr_helem->key.value.genericValue);
     (*arr_pos)++;
     if (curr_helem->next_less != NULL) {
       keys_helem(key_array, arr_pos, curr_helem->next_less, key_create_func, err_info);
@@ -300,17 +300,17 @@ static void keys_helem (rtlArraytype *key_array, memsizetype *arr_pos,
 
 
 
-static rtlArraytype keys_hash (const const_rtlHashtype curr_hash,
-    const createfunctype key_create_func, const destrfunctype key_destr_func,
-    errinfotype *err_info)
+static rtlArrayType keys_hash (const const_rtlHashType curr_hash,
+    const createFuncType key_create_func, const destrFuncType key_destr_func,
+    errInfoType *err_info)
 
   {
-    memsizetype arr_pos;
-    memsizetype number;
-    const rtlHelemtype *curr_helem;
-    memsizetype array_size;
-    rtlArraytype resized_key_array;
-    rtlArraytype key_array;
+    memSizeType arr_pos;
+    memSizeType number;
+    const rtlHashElemType *curr_helem;
+    memSizeType array_size;
+    rtlArrayType resized_key_array;
+    rtlArrayType key_array;
 
   /* keys_hash */
     if (!ALLOC_RTL_ARRAY(key_array, ARRAY_SIZE_INCREMENT)) {
@@ -336,12 +336,12 @@ static rtlArraytype keys_hash (const const_rtlHashtype curr_hash,
         } else {
           key_array = resized_key_array;
           COUNT3_RTL_ARRAY(array_size, arr_pos);
-          key_array->max_position = (inttype) arr_pos;
+          key_array->max_position = (intType) arr_pos;
         } /* if */
       } /* if */
       if (*err_info != OKAY_NO_ERROR) {
         for (number = 0; number < arr_pos; number++) {
-          key_destr_func(key_array->arr[number].value.genericvalue);
+          key_destr_func(key_array->arr[number].value.genericValue);
         } /* for */
         FREE_RTL_ARRAY(key_array, array_size);
         key_array = NULL;
@@ -352,13 +352,13 @@ static rtlArraytype keys_hash (const const_rtlHashtype curr_hash,
 
 
 
-static void values_helem (rtlArraytype *value_array, memsizetype *arr_pos,
-    const_rtlHelemtype curr_helem, const createfunctype value_create_func,
-    errinfotype *err_info)
+static void values_helem (rtlArrayType *value_array, memSizeType *arr_pos,
+    const_rtlHashElemType curr_helem, const createFuncType value_create_func,
+    errInfoType *err_info)
 
   {
-    memsizetype array_size;
-    rtlArraytype resized_value_array;
+    memSizeType array_size;
+    rtlArrayType resized_value_array;
 
   /* values_helem */
     array_size = arraySize(*value_array);
@@ -379,8 +379,8 @@ static void values_helem (rtlArraytype *value_array, memsizetype *arr_pos,
         (*value_array)->max_position += ARRAY_SIZE_INCREMENT;
       } /* if */
     } /* if */
-    (*value_array)->arr[*arr_pos].value.genericvalue =
-        value_create_func(curr_helem->data.value.genericvalue);
+    (*value_array)->arr[*arr_pos].value.genericValue =
+        value_create_func(curr_helem->data.value.genericValue);
     (*arr_pos)++;
     if (curr_helem->next_less != NULL) {
       values_helem(value_array, arr_pos, curr_helem->next_less, value_create_func, err_info);
@@ -392,17 +392,17 @@ static void values_helem (rtlArraytype *value_array, memsizetype *arr_pos,
 
 
 
-static rtlArraytype values_hash (const const_rtlHashtype curr_hash,
-    const createfunctype value_create_func, const destrfunctype value_destr_func,
-    errinfotype *err_info)
+static rtlArrayType values_hash (const const_rtlHashType curr_hash,
+    const createFuncType value_create_func, const destrFuncType value_destr_func,
+    errInfoType *err_info)
 
   {
-    memsizetype arr_pos;
-    memsizetype number;
-    const rtlHelemtype *curr_helem;
-    memsizetype array_size;
-    rtlArraytype resized_value_array;
-    rtlArraytype value_array;
+    memSizeType arr_pos;
+    memSizeType number;
+    const rtlHashElemType *curr_helem;
+    memSizeType array_size;
+    rtlArrayType resized_value_array;
+    rtlArrayType value_array;
 
   /* values_hash */
     if (!ALLOC_RTL_ARRAY(value_array, ARRAY_SIZE_INCREMENT)) {
@@ -428,12 +428,12 @@ static rtlArraytype values_hash (const const_rtlHashtype curr_hash,
         } else {
           value_array = resized_value_array;
           COUNT3_RTL_ARRAY(array_size, arr_pos);
-          value_array->max_position = (inttype) arr_pos;
+          value_array->max_position = (intType) arr_pos;
         } /* if */
       } /* if */
       if (*err_info != OKAY_NO_ERROR) {
         for (number = 0; number < arr_pos; number++) {
-          value_destr_func(value_array->arr[number].value.genericvalue);
+          value_destr_func(value_array->arr[number].value.genericValue);
         } /* for */
         FREE_RTL_ARRAY(value_array, array_size);
         value_array = NULL;
@@ -445,16 +445,16 @@ static rtlArraytype values_hash (const const_rtlHashtype curr_hash,
 
 
 #ifdef OUT_OF_ORDER
-static void dump_helem (const_rtlHelemtype curr_helem)
+static void dump_helem (const_rtlHashElemType curr_helem)
 
   { /* dump_helem */
     printf("key: %ld, %lx, %f / value: %ld, %lx, %f\n",
-           curr_helem->key.value.intvalue,
-           curr_helem->key.value.genericvalue,
-           curr_helem->key.value.floatvalue,
-           curr_helem->data.value.intvalue,
-           curr_helem->data.value.genericvalue,
-           curr_helem->data.value.floatvalue);
+           curr_helem->key.value.intValue,
+           curr_helem->key.value.genericValue,
+           curr_helem->key.value.floatValue,
+           curr_helem->data.value.intValue,
+           curr_helem->data.value.genericValue,
+           curr_helem->data.value.floatValue);
     if (curr_helem->next_less != NULL) {
       dump_helem(curr_helem->next_less);
     } /* if */
@@ -465,11 +465,11 @@ static void dump_helem (const_rtlHelemtype curr_helem)
 
 
 
-static void dump_hash (const const_rtlHashtype curr_hash)
+static void dump_hash (const const_rtlHashType curr_hash)
 
   {
-    memsizetype number;
-    const rtlHelemtype *curr_helem;
+    memSizeType number;
+    const rtlHashElemType *curr_helem;
 
   /* dump_hash */
     number = curr_hash->table_size;
@@ -492,13 +492,13 @@ static void dump_hash (const const_rtlHashtype curr_hash)
  *  @return TRUE when 'aKey' is a member of 'aHashMap',
  *          FALSE otherwise.
  */
-booltype hshContains (const const_rtlHashtype aHashMap, const generictype aKey,
-    inttype hashcode, comparetype cmp_func)
+boolType hshContains (const const_rtlHashType aHashMap, const genericType aKey,
+    intType hashcode, compareType cmp_func)
 
   {
-    const_rtlHelemtype hashelem;
-    inttype cmp;
-    booltype result;
+    const_rtlHashElemType hashelem;
+    intType cmp;
+    boolType result;
 
   /* hshContains */
 #ifdef TRACE_HSH_RTL
@@ -509,14 +509,14 @@ booltype hshContains (const const_rtlHashtype aHashMap, const generictype aKey,
     hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
     while (hashelem != NULL) {
 /*
-printf("sizeof(hashelem->key.value.genericvalue)=%lu\n", sizeof(hashelem->key.value.genericvalue));
+printf("sizeof(hashelem->key.value.genericValue)=%lu\n", sizeof(hashelem->key.value.genericValue));
 printf("sizeof(aKey)=%lu\n", sizeof(aKey));
-printf("%llX\n", hashelem->key.value.genericvalue);
-printf("%lX\n", (long unsigned) hashelem->key.value.genericvalue);
+printf("%llX\n", hashelem->key.value.genericValue);
+printf("%lX\n", (long unsigned) hashelem->key.value.genericValue);
 printf("%llX\n", aKey);
 printf("%lX\n", (long unsigned) aKey);
 */
-      cmp = cmp_func(hashelem->key.value.genericvalue, aKey);
+      cmp = cmp_func(hashelem->key.value.genericValue, aKey);
       if (cmp < 0) {
         hashelem = hashelem->next_less;
       } else if (unlikely(cmp == 0)) {
@@ -536,12 +536,12 @@ printf("%lX\n", (long unsigned) aKey);
 
 
 
-void hshCpy (rtlHashtype *const hash_to, const const_rtlHashtype hash_from,
-    const createfunctype key_create_func, const destrfunctype key_destr_func,
-    const createfunctype data_create_func, const destrfunctype data_destr_func)
+void hshCpy (rtlHashType *const hash_to, const const_rtlHashType hash_from,
+    const createFuncType key_create_func, const destrFuncType key_destr_func,
+    const createFuncType data_create_func, const destrFuncType data_destr_func)
 
   {
-    errinfotype err_info = OKAY_NO_ERROR;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* hshCpy */
     if ((*hash_to)->table_size == hash_from->table_size) {
@@ -562,13 +562,13 @@ void hshCpy (rtlHashtype *const hash_to, const const_rtlHashtype hash_from,
 
 
 
-rtlHashtype hshCreate (const const_rtlHashtype hash_from,
-    const createfunctype key_create_func, const destrfunctype key_destr_func,
-    const createfunctype data_create_func, const destrfunctype data_destr_func)
+rtlHashType hshCreate (const const_rtlHashType hash_from,
+    const createFuncType key_create_func, const destrFuncType key_destr_func,
+    const createFuncType data_create_func, const destrFuncType data_destr_func)
 
   {
-    errinfotype err_info = OKAY_NO_ERROR;
-    rtlHashtype result;
+    errInfoType err_info = OKAY_NO_ERROR;
+    rtlHashType result;
 
   /* hshCreate */
     result = create_hash(hash_from,
@@ -583,8 +583,8 @@ rtlHashtype hshCreate (const const_rtlHashtype hash_from,
 
 
 
-void hshDestr (const const_rtlHashtype old_hash, const destrfunctype key_destr_func,
-    const destrfunctype data_destr_func)
+void hshDestr (const const_rtlHashType old_hash, const destrFuncType key_destr_func,
+    const destrFuncType data_destr_func)
 
 { /* hshDestr */
 #ifdef TRACE_HSH_RTL
@@ -598,10 +598,10 @@ void hshDestr (const const_rtlHashtype old_hash, const destrfunctype key_destr_f
 
 
 
-rtlHashtype hshEmpty (void)
+rtlHashType hshEmpty (void)
 
   {
-    rtlHashtype result;
+    rtlHashType result;
 
   /* hshEmpty */
     result = new_hash(TABLE_BITS);
@@ -616,16 +616,16 @@ rtlHashtype hshEmpty (void)
 /**
  *  Remove the element with the key 'aKey' from the hash map 'aHashMap'.
  */
-void hshExcl (const rtlHashtype aHashMap, const generictype aKey,
-    inttype hashcode, comparetype cmp_func, const destrfunctype key_destr_func,
-    const destrfunctype data_destr_func)
+void hshExcl (const rtlHashType aHashMap, const genericType aKey,
+    intType hashcode, compareType cmp_func, const destrFuncType key_destr_func,
+    const destrFuncType data_destr_func)
 
   {
-    rtlHelemtype *delete_pos;
-    rtlHelemtype hashelem;
-    rtlHelemtype greater_hashelems;
-    rtlHelemtype old_hashelem;
-    inttype cmp;
+    rtlHashElemType *delete_pos;
+    rtlHashElemType hashelem;
+    rtlHashElemType greater_hashelems;
+    rtlHashElemType old_hashelem;
+    intType cmp;
 
   /* hshExcl */
 #ifdef TRACE_HSH_RTL
@@ -636,7 +636,7 @@ void hshExcl (const rtlHashtype aHashMap, const generictype aKey,
     delete_pos = &aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
     hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
     while (hashelem != NULL) {
-      cmp = cmp_func(hashelem->key.value.genericvalue, aKey);
+      cmp = cmp_func(hashelem->key.value.genericValue, aKey);
       if (cmp < 0) {
         delete_pos = &hashelem->next_less;
         hashelem = hashelem->next_less;
@@ -680,14 +680,14 @@ void hshExcl (const rtlHashtype aHashMap, const generictype aKey,
  *  @exception RANGE_ERROR When 'aHashMap' does not have an element
  *             with the key 'aKey'.
  */
-generictype hshIdx (const const_rtlHashtype aHashMap, const generictype aKey,
-    inttype hashcode, comparetype cmp_func)
+genericType hshIdx (const const_rtlHashType aHashMap, const genericType aKey,
+    intType hashcode, compareType cmp_func)
 
   {
-    rtlHelemtype hashelem;
-    rtlHelemtype result_hashelem;
-    inttype cmp;
-    generictype result;
+    rtlHashElemType hashelem;
+    rtlHashElemType result_hashelem;
+    intType cmp;
+    genericType result;
 
   /* hshIdx */
 #ifdef TRACE_HSH_RTL
@@ -697,7 +697,7 @@ generictype hshIdx (const const_rtlHashtype aHashMap, const generictype aKey,
     result_hashelem = NULL;
     hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
     while (hashelem != NULL) {
-      cmp = cmp_func(hashelem->key.value.genericvalue, aKey);
+      cmp = cmp_func(hashelem->key.value.genericValue, aKey);
       if (cmp < 0) {
         hashelem = hashelem->next_less;
       } else if (unlikely(cmp == 0)) {
@@ -708,7 +708,7 @@ generictype hshIdx (const const_rtlHashtype aHashMap, const generictype aKey,
       } /* if */
     } /* while */
     if (result_hashelem != NULL) {
-      result = result_hashelem->data.value.genericvalue;
+      result = result_hashelem->data.value.genericValue;
     } else {
       raise_error(RANGE_ERROR);
       result = 0;
@@ -717,7 +717,7 @@ generictype hshIdx (const const_rtlHashtype aHashMap, const generictype aKey,
     printf("END hshIdx(%lX, %lu, %lu) ==> %lX (%lX)\n",
         (unsigned long) aHashMap, (unsigned long) aKey, (unsigned long) hashcode,
         (unsigned long) result,
-        (unsigned long) (result != NULL ? *((generictype *)result) : 0));
+        (unsigned long) (result != NULL ? *((genericType *)result) : 0));
 #endif
     return result;
   } /* hshIdx */
@@ -730,14 +730,14 @@ generictype hshIdx (const const_rtlHashtype aHashMap, const generictype aKey,
  *  @exception RANGE_ERROR When 'aHashMap' does not have an element
  *             with the key 'aKey'.
  */
-rtlObjecttype *hshIdxAddr (const const_rtlHashtype aHashMap,
-    const generictype aKey, inttype hashcode, comparetype cmp_func)
+rtlObjectType *hshIdxAddr (const const_rtlHashType aHashMap,
+    const genericType aKey, intType hashcode, compareType cmp_func)
 
   {
-    rtlHelemtype hashelem;
-    rtlHelemtype result_hashelem;
-    inttype cmp;
-    rtlObjecttype *result;
+    rtlHashElemType hashelem;
+    rtlHashElemType result_hashelem;
+    intType cmp;
+    rtlObjectType *result;
 
   /* hshIdxAddr */
 #ifdef TRACE_HSH_RTL
@@ -747,9 +747,9 @@ rtlObjecttype *hshIdxAddr (const const_rtlHashtype aHashMap,
     result_hashelem = NULL;
     hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
     while (hashelem != NULL) {
-      cmp = cmp_func(hashelem->key.value.genericvalue, aKey);
+      cmp = cmp_func(hashelem->key.value.genericValue, aKey);
       /* printf(". %llu %llu cmp=%d\n",
-          (unsigned long long) hashelem->key.value.genericvalue,
+          (unsigned long long) hashelem->key.value.genericValue,
           (unsigned long long) aKey, cmp); */
       if (cmp < 0) {
         hashelem = hashelem->next_less;
@@ -770,8 +770,8 @@ rtlObjecttype *hshIdxAddr (const const_rtlHashtype aHashMap,
     printf("END hshIdxAddr(%lX, %lu, %lu) ==> %lX (%lX, %f)\n",
         (unsigned long) aHashMap, (unsigned long) aKey, (unsigned long) hashcode,
         (unsigned long) result,
-        (unsigned long) (result != NULL ? *((generictype *)result) : 0),
-        result != NULL ? result->value.floatvalue : 0.0);
+        (unsigned long) (result != NULL ? *((genericType *)result) : 0),
+        result != NULL ? result->value.floatValue : 0.0);
 #endif
     return result;
   } /* hshIdxAddr */
@@ -783,14 +783,14 @@ rtlObjecttype *hshIdxAddr (const const_rtlHashtype aHashMap,
  *  @return the address of the element with the key 'aKey' from 'aHashMap' or
  *          NULL when 'aHashMap' does not have an element with the key 'aKey'.
  */
-rtlObjecttype *hshIdxAddr2 (const const_rtlHashtype aHashMap,
-    const generictype aKey, inttype hashcode, comparetype cmp_func)
+rtlObjectType *hshIdxAddr2 (const const_rtlHashType aHashMap,
+    const genericType aKey, intType hashcode, compareType cmp_func)
 
   {
-    rtlHelemtype hashelem;
-    rtlHelemtype result_hashelem;
-    inttype cmp;
-    rtlObjecttype *result;
+    rtlHashElemType hashelem;
+    rtlHashElemType result_hashelem;
+    intType cmp;
+    rtlObjectType *result;
 
   /* hshIdxAddr2 */
 #ifdef TRACE_HSH_RTL
@@ -800,9 +800,9 @@ rtlObjecttype *hshIdxAddr2 (const const_rtlHashtype aHashMap,
     result_hashelem = NULL;
     hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
     while (hashelem != NULL) {
-      cmp = cmp_func(hashelem->key.value.genericvalue, aKey);
+      cmp = cmp_func(hashelem->key.value.genericValue, aKey);
       /* printf(". %llu %llu cmp=%d\n",
-          (unsigned long long) hashelem->key.value.genericvalue,
+          (unsigned long long) hashelem->key.value.genericValue,
           (unsigned long long) aKey, cmp); */
       if (cmp < 0) {
         hashelem = hashelem->next_less;
@@ -822,23 +822,23 @@ rtlObjecttype *hshIdxAddr2 (const const_rtlHashtype aHashMap,
     printf("END hshIdxAddr(%lX, %lu, %lu) ==> %lX (%lX)\n",
         (unsigned long) aHashMap, (unsigned long) aKey, (unsigned long) hashcode,
         (unsigned long) result,
-        (unsigned long) (result != NULL ? *((generictype *)result) : 0));
+        (unsigned long) (result != NULL ? *((genericType *)result) : 0));
 #endif
     return result;
   } /* hshIdxAddr2 */
 
 
 
-generictype hshIdxEnterDefault (const rtlHashtype aHashMap, const generictype aKey,
-    const generictype defaultData, inttype hashcode, comparetype cmp_func,
-    const createfunctype key_create_func, const createfunctype data_create_func)
+genericType hshIdxEnterDefault (const rtlHashType aHashMap, const genericType aKey,
+    const genericType defaultData, intType hashcode, compareType cmp_func,
+    const createFuncType key_create_func, const createFuncType data_create_func)
 
   {
-    rtlHelemtype hashelem;
-    rtlHelemtype result_hashelem;
-    inttype cmp;
-    errinfotype err_info = OKAY_NO_ERROR;
-    generictype result;
+    rtlHashElemType hashelem;
+    rtlHashElemType result_hashelem;
+    intType cmp;
+    errInfoType err_info = OKAY_NO_ERROR;
+    genericType result;
 
   /* hshIdxEnterDefault */
     /* printf("hshIdxEnterDefault(%lX, %llX, %lld, %llX, %lX, %lx, %lX)\n",
@@ -851,8 +851,8 @@ generictype hshIdxEnterDefault (const rtlHashtype aHashMap, const generictype aK
       aHashMap->size++;
     } else {
       do {
-        /* printf("key=%llX\n", hashelem->key.value.genericvalue); */
-        cmp = cmp_func(hashelem->key.value.genericvalue, aKey);
+        /* printf("key=%llX\n", hashelem->key.value.genericValue); */
+        cmp = cmp_func(hashelem->key.value.genericValue, aKey);
         if (cmp < 0) {
           if (hashelem->next_less == NULL) {
             result_hashelem = new_helem(aKey, defaultData,
@@ -884,27 +884,27 @@ generictype hshIdxEnterDefault (const rtlHashtype aHashMap, const generictype aK
       raise_error(MEMORY_ERROR);
       result = 0;
     } else {
-      result = result_hashelem->data.value.genericvalue;
+      result = result_hashelem->data.value.genericValue;
     } /* if */
     return result;
   } /* hshIdxEnterDefault */
 
 
 
-generictype hshIdxWithDefault (const const_rtlHashtype aHashMap, const generictype aKey,
-    const generictype defaultData, inttype hashcode, comparetype cmp_func)
+genericType hshIdxWithDefault (const const_rtlHashType aHashMap, const genericType aKey,
+    const genericType defaultData, intType hashcode, compareType cmp_func)
 
   {
-    rtlHelemtype hashelem;
-    rtlHelemtype result_hashelem;
-    inttype cmp;
-    generictype result;
+    rtlHashElemType hashelem;
+    rtlHashElemType result_hashelem;
+    intType cmp;
+    genericType result;
 
   /* hshIdxWithDefault */
     result_hashelem = NULL;
     hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
     while (hashelem != NULL) {
-      cmp = cmp_func(hashelem->key.value.genericvalue, aKey);
+      cmp = cmp_func(hashelem->key.value.genericValue, aKey);
       if (cmp < 0) {
         hashelem = hashelem->next_less;
       } else if (unlikely(cmp == 0)) {
@@ -915,7 +915,7 @@ generictype hshIdxWithDefault (const const_rtlHashtype aHashMap, const genericty
       } /* if */
     } /* while */
     if (result_hashelem != NULL) {
-      result = result_hashelem->data.value.genericvalue;
+      result = result_hashelem->data.value.genericValue;
     } else {
       result = defaultData;
     } /* if */
@@ -930,15 +930,15 @@ generictype hshIdxWithDefault (const const_rtlHashtype aHashMap, const genericty
  *  it is overwritten with 'anElem'.
  *  @exception MEMORY_ERROR When there is not enough memory.
  */
-void hshIncl (const rtlHashtype aHashMap, const generictype aKey,
-    const generictype data, inttype hashcode, comparetype cmp_func,
-    const createfunctype key_create_func, const createfunctype data_create_func,
-    const copyfunctype data_copy_func)
+void hshIncl (const rtlHashType aHashMap, const genericType aKey,
+    const genericType data, intType hashcode, compareType cmp_func,
+    const createFuncType key_create_func, const createFuncType data_create_func,
+    const copyFuncType data_copy_func)
 
   {
-    rtlHelemtype hashelem;
-    inttype cmp;
-    errinfotype err_info = OKAY_NO_ERROR;
+    rtlHashElemType hashelem;
+    intType cmp;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* hshIncl */
 #ifdef TRACE_HSH_RTL
@@ -954,13 +954,13 @@ void hshIncl (const rtlHashtype aHashMap, const generictype aKey,
       hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
       printf("aKey=%llX\n", (unsigned long long) aKey);
       printf("new hashelem: aKey=%llX, data=%llX\n",
-          hashelem->key.value.intvalue, hashelem->data.value.intvalue);
-      printf("cmp = %d\n", (int) cmp_func(hashelem->key.value.genericvalue, aKey));
+          hashelem->key.value.intValue, hashelem->data.value.intValue);
+      printf("cmp = %d\n", (int) cmp_func(hashelem->key.value.genericValue, aKey));
       */
       aHashMap->size++;
     } else {
       do {
-        cmp = cmp_func(hashelem->key.value.genericvalue, aKey);
+        cmp = cmp_func(hashelem->key.value.genericValue, aKey);
         if (cmp < 0) {
           if (hashelem->next_less == NULL) {
             hashelem->next_less = new_helem(aKey, data,
@@ -971,7 +971,7 @@ void hshIncl (const rtlHashtype aHashMap, const generictype aKey,
             hashelem = hashelem->next_less;
           } /* if */
         } else if (unlikely(cmp == 0)) {
-          data_copy_func(&hashelem->data.value.genericvalue, data);
+          data_copy_func(&hashelem->data.value.genericValue, data);
           hashelem = NULL;
         } else {
           if (hashelem->next_greater == NULL) {
@@ -1002,12 +1002,12 @@ void hshIncl (const rtlHashtype aHashMap, const generictype aKey,
  *  Obtain the keys of the hash map 'aHashMap'.
  *  @return the keys of the hash map.
  */
-rtlArraytype hshKeys (const const_rtlHashtype aHashMap,
-    const createfunctype key_create_func, const destrfunctype key_destr_func)
+rtlArrayType hshKeys (const const_rtlHashType aHashMap,
+    const createFuncType key_create_func, const destrFuncType key_destr_func)
 
   {
-    rtlArraytype key_array;
-    errinfotype err_info = OKAY_NO_ERROR;
+    rtlArrayType key_array;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* hshKeys */
     key_array = keys_hash(aHashMap, key_create_func, key_destr_func,
@@ -1026,15 +1026,15 @@ rtlArraytype hshKeys (const const_rtlHashtype aHashMap,
  *  @return the old element with the key 'aKey' or
  *          the new data value when no old element existed.
  */
-generictype hshUpdate (const rtlHashtype aHashMap, const generictype aKey,
-    const generictype data, inttype hashcode, comparetype cmp_func,
-    const createfunctype key_create_func, const createfunctype data_create_func)
+genericType hshUpdate (const rtlHashType aHashMap, const genericType aKey,
+    const genericType data, intType hashcode, compareType cmp_func,
+    const createFuncType key_create_func, const createFuncType data_create_func)
 
   {
-    rtlHelemtype hashelem;
-    inttype cmp;
-    errinfotype err_info = OKAY_NO_ERROR;
-    generictype result;
+    rtlHashElemType hashelem;
+    intType cmp;
+    errInfoType err_info = OKAY_NO_ERROR;
+    genericType result;
 
   /* hshUpdate */
 #ifdef TRACE_HSH_RTL
@@ -1050,7 +1050,7 @@ generictype hshUpdate (const rtlHashtype aHashMap, const generictype aKey,
       result = data;
     } else {
       do {
-        cmp = cmp_func(hashelem->key.value.genericvalue, aKey);
+        cmp = cmp_func(hashelem->key.value.genericValue, aKey);
         if (cmp < 0) {
           if (hashelem->next_less == NULL) {
             hashelem->next_less = new_helem(aKey, data,
@@ -1062,8 +1062,8 @@ generictype hshUpdate (const rtlHashtype aHashMap, const generictype aKey,
             hashelem = hashelem->next_less;
           } /* if */
         } else if (unlikely(cmp == 0)) {
-          result = hashelem->data.value.genericvalue;
-          hashelem->data.value.genericvalue = data;
+          result = hashelem->data.value.genericValue;
+          hashelem->data.value.genericValue = data;
           hashelem = NULL;
         } else {
           if (hashelem->next_greater == NULL) {
@@ -1096,12 +1096,12 @@ generictype hshUpdate (const rtlHashtype aHashMap, const generictype aKey,
  *  Obtain the values of the hash map 'aHashMap'.
  *  @return the values of the hash map.
  */
-rtlArraytype hshValues (const const_rtlHashtype aHashMap,
-    const createfunctype value_create_func, const destrfunctype value_destr_func)
+rtlArrayType hshValues (const const_rtlHashType aHashMap,
+    const createFuncType value_create_func, const destrFuncType value_destr_func)
 
   {
-    rtlArraytype value_array;
-    errinfotype err_info = OKAY_NO_ERROR;
+    rtlArrayType value_array;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* hshValues */
     value_array = values_hash(aHashMap, value_create_func, value_destr_func,

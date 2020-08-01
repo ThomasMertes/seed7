@@ -62,9 +62,9 @@
  */
 
 #ifdef OS_STRI_WCHAR
-#define os_chartype wchar_t
+#define os_charType wchar_t
 #else
-#define os_chartype char
+#define os_charType char
 #endif
 
 #define BUFFER_LEN 4096
@@ -75,7 +75,7 @@ int code_page;
 
 
 
-void get_cwd_to_buffer (os_chartype *buffer)
+void get_cwd_to_buffer (os_charType *buffer)
 
   {
     int position;
@@ -102,7 +102,7 @@ void get_cwd_to_buffer (os_chartype *buffer)
 
 #ifdef OS_STRI_WCHAR
 
-void write_as_utf8 (os_chartype *wstri)
+void write_as_utf8 (os_charType *wstri)
 
   {
     unsigned long utf32;
@@ -226,7 +226,7 @@ char *conv_850[] = {
 
 
 
-void write_as_utf8 (os_chartype *cstri)
+void write_as_utf8 (os_charType *cstri)
 
   { /* write_as_utf8 */
     if (code_page == 437) {
@@ -246,7 +246,7 @@ void write_as_utf8 (os_chartype *cstri)
 
 
 
-void write_as_utf8 (os_chartype *cstri)
+void write_as_utf8 (os_charType *cstri)
 
   { /* write_as_utf8 */
     printf("%s", cstri);
@@ -280,7 +280,7 @@ int main (int argc, char **argv)
   {
     char **curr_arg;
     int found;
-    os_chartype buffer[BUFFER_LEN];
+    os_charType buffer[BUFFER_LEN];
 
   /* main */
 #ifdef OS_STRI_USES_CODE_PAGE

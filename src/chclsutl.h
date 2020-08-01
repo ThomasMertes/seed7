@@ -28,14 +28,14 @@
 typedef enum {ILLEGALCHAR, EOFCHAR, LETTERCHAR, DIGITCHAR,
     UNDERLINECHAR, SHARPCHAR, QUOTATIONCHAR, APOSTROPHECHAR,
     LEFTPARENCHAR, PARENCHAR, SPECIALCHAR, SPACECHAR,
-    NEWLINECHAR} charclass;
+    NEWLINECHAR} charClass;
 
-EXTERN charclass ch_class[256 - EOF];
-EXTERN booltype ch_name[256 - EOF];
-EXTERN booltype ch_op[256 - EOF];
-EXTERN booltype ch_not_esc[256 - EOF];
-EXTERN booltype ch_std_comment[256 - EOF];
-EXTERN inttype digit_value[128];
+EXTERN charClass ch_class[256 - EOF];
+EXTERN boolType ch_name[256 - EOF];
+EXTERN boolType ch_op[256 - EOF];
+EXTERN boolType ch_not_esc[256 - EOF];
+EXTERN boolType ch_std_comment[256 - EOF];
+EXTERN intType digit_value[128];
 
 
 #define char_class(CHARACTER)       ch_class       [((int)(CHARACTER)) - EOF]

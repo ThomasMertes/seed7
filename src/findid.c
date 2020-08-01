@@ -54,10 +54,10 @@
 
 
 
-static inline identtype id_generation (ustritype name, sysizetype length)
+static inline identType id_generation (ustriType name, sySizeType length)
 
   {
-    register identtype created_ident;
+    register identType created_ident;
 
   /* id_generation */
 #ifdef TRACE_FINDID
@@ -74,10 +74,10 @@ static inline identtype id_generation (ustritype name, sysizetype length)
 
 
 
-void find_normal_ident (sysizetype length)
+void find_normal_ident (sySizeType length)
 
   {                                                             /*  0.62% */
-    register identtype search_ident;
+    register identType search_ident;
     register int comparison;
 
   /* find_normal_ident */
@@ -85,8 +85,8 @@ void find_normal_ident (sysizetype length)
     printf("BEGIN find_normal_ident\n");
 #endif
     if ((search_ident = IDENT_TABLE(&prog, symbol.name, length)) != NULL) { /*  1.49% */
-      if ((comparison = strcmp((cstritype) symbol.name,
-          (cstritype) search_ident->name)) != 0) {              /*  0.73% */
+      if ((comparison = strcmp((cstriType) symbol.name,
+          (cstriType) search_ident->name)) != 0) {              /*  0.73% */
         do {
           if (comparison < 0) {                                 /*  0.07% */
             if (search_ident->next1 == NULL) {                  /*  0.08% */
@@ -101,8 +101,8 @@ void find_normal_ident (sysizetype length)
 #endif
             } else {
               search_ident = search_ident->next1;               /*  0.02% */
-              comparison = strcmp((cstritype) symbol.name,
-                  (cstritype) search_ident->name);              /*  0.09% */
+              comparison = strcmp((cstriType) symbol.name,
+                  (cstriType) search_ident->name);              /*  0.09% */
             } /* if */
           } else {                                              /*  0.02% */
             if (search_ident->next2 == NULL) {                  /*  0.06% */
@@ -117,8 +117,8 @@ void find_normal_ident (sysizetype length)
 #endif
             } else {
               search_ident = search_ident->next2;               /*  0.01% */
-              comparison = strcmp((cstritype) symbol.name,
-                  (cstritype) search_ident->name);              /*  0.07% */
+              comparison = strcmp((cstriType) symbol.name,
+                  (cstriType) search_ident->name);              /*  0.07% */
             } /* if */
           } /* if */
         } while (comparison != 0);                              /*  0.07% */
@@ -135,16 +135,16 @@ void find_normal_ident (sysizetype length)
 
 
 
-static identtype put_ident (const_cstritype stri, errinfotype *err_info)
+static identType put_ident (const_cstriType stri, errInfoType *err_info)
 
   {
-    register identtype ident_found;
+    register identType ident_found;
 
   /* put_ident */
 #ifdef TRACE_FINDID
     printf("BEGIN put_ident\n");
 #endif
-    if ((ident_found = get_ident(&prog, (const_ustritype) stri)) == NULL) {
+    if ((ident_found = get_ident(&prog, (const_ustriType) stri)) == NULL) {
       *err_info = MEMORY_ERROR;
     } /* if */
 #ifdef TRACE_FINDID
@@ -155,7 +155,7 @@ static identtype put_ident (const_cstritype stri, errinfotype *err_info)
 
 
 
-void check_list_of_syntax_elements (const_listtype elem_list)
+void check_list_of_syntax_elements (const_listType elem_list)
 
   { /* check_list_of_syntax_elements */
 #ifdef TRACE_FINDID
@@ -183,7 +183,7 @@ void check_list_of_syntax_elements (const_listtype elem_list)
 
 
 
-static void clean_ident_tree (identtype actual_ident)
+static void clean_ident_tree (identType actual_ident)
 
   { /* clean_ident_tree */
 #ifdef TRACE_FINDID
@@ -209,7 +209,7 @@ void clean_idents (void)
   {
     int position;
     int character;
-    identtype actual_ident;
+    identType actual_ident;
 
   /* clean_idents */
 #ifdef TRACE_FINDID
@@ -236,7 +236,7 @@ void clean_idents (void)
 
 
 
-static void wri_binary_ident_tree (const_identtype actual_ident)
+static void wri_binary_ident_tree (const_identType actual_ident)
 
   { /* wri_binary_ident_tree */
 #ifdef TRACE_FINDID
@@ -300,7 +300,7 @@ void write_idents (void)
 
 
 
-void init_findid (errinfotype *err_info)
+void init_findid (errInfoType *err_info)
 
   { /* init_findid */
 #ifdef TRACE_FINDID

@@ -33,10 +33,10 @@
 #define isnan _isnan
 #endif
 #ifdef FLOAT_ZERO_DIV_ERROR
-extern const rtlValueunion f_const[];
-#define NOT_A_NUMBER      f_const[0].floatvalue
-#define POSITIVE_INFINITY f_const[1].floatvalue
-#define NEGATIVE_INFINITY f_const[2].floatvalue
+extern const rtlValueUnion f_const[];
+#define NOT_A_NUMBER      f_const[0].floatValue
+#define POSITIVE_INFINITY f_const[1].floatValue
+#define NEGATIVE_INFINITY f_const[2].floatValue
 #else
 #define NOT_A_NUMBER      ( 0.0 / 0.0)
 #define POSITIVE_INFINITY ( 1.0 / 0.0)
@@ -45,23 +45,23 @@ extern const rtlValueunion f_const[];
 
 
 void setupFloat (void);
-inttype fltCmp (floattype number1, floattype number2);
-stritype fltDgts (floattype number, inttype digits_precision);
+intType fltCmp (floatType number1, floatType number2);
+striType fltDgts (floatType number, intType digits_precision);
 #ifdef NAN_COMPARISON_WRONG
-booltype fltEq (floattype number1, floattype number2);
-booltype fltGe (floattype number1, floattype number2);
-booltype fltGt (floattype number1, floattype number2);
+boolType fltEq (floatType number1, floatType number2);
+boolType fltGe (floatType number1, floatType number2);
+boolType fltGt (floatType number1, floatType number2);
 #endif
-floattype fltIPow (floattype base, inttype exponent);
-booltype fltIsNegativeZero (floattype number);
+floatType fltIPow (floatType base, intType exponent);
+boolType fltIsNegativeZero (floatType number);
 #ifdef NAN_COMPARISON_WRONG
-booltype fltLe (floattype number1, floattype number2);
-booltype fltLt (floattype number1, floattype number2);
+boolType fltLe (floatType number1, floatType number2);
+boolType fltLt (floatType number1, floatType number2);
 #endif
-floattype fltParse (const const_stritype stri);
+floatType fltParse (const const_striType stri);
 #ifdef POWER_OF_ZERO_WRONG
-floattype fltPow (floattype base, floattype exponent);
+floatType fltPow (floatType base, floatType exponent);
 #endif
-floattype fltRand (floattype lower_limit, floattype upper_limit);
-stritype fltSci (floattype number, inttype digits_precision);
-stritype fltStr (floattype number);
+floatType fltRand (floatType lower_limit, floatType upper_limit);
+striType fltSci (floatType number, intType digits_precision);
+striType fltStr (floatType number);

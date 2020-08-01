@@ -21,7 +21,7 @@
 /*  Module: General                                                 */
 /*  File: seed7/src/identutl.c                                      */
 /*  Changes: 1991, 1992, 1993, 1994  Thomas Mertes                  */
-/*  Content: Procedures to maintain objects of type identtype.      */
+/*  Content: Procedures to maintain objects of type identType.      */
 /*                                                                  */
 /********************************************************************/
 
@@ -44,19 +44,19 @@
 
 
 
-identtype new_ident (const_ustritype name, sysizetype length)
+identType new_ident (const_ustriType name, sySizeType length)
 
   {
-    register identtype created_ident;
+    register identType created_ident;
 
   /* new_ident */
 #ifdef TRACE_IDENTUTL
     printf("BEGIN new_ident\n");
 #endif
-    if (ALLOC_RECORD(created_ident, identrecord, count.ident)) {
+    if (ALLOC_RECORD(created_ident, identRecord, count.ident)) {
       if (!ALLOC_ID_NAME(created_ident->name, length)) {
-        FREE_RECORD(created_ident, identrecord, count.ident);
-        created_ident = (identtype) NULL;
+        FREE_RECORD(created_ident, identRecord, count.ident);
+        created_ident = (identType) NULL;
       } else {
         COUNT_ID_NAME(length);
         memcpy(created_ident->name, name, (size_t) length);
@@ -79,22 +79,22 @@ identtype new_ident (const_ustritype name, sysizetype length)
 
 
 
-static void free_ident (const_progtype currentProg, identtype old_ident)
+static void free_ident (const_progType currentProg, identType old_ident)
 
   {
-    sysizetype length;
+    sySizeType length;
 
   /* free_ident */
 #ifdef TRACE_IDENTUTL
     printf("BEGIN free_ident\n");
 #endif
     if (old_ident != NULL) {
-      length = strlen((cstritype) old_ident->name);
+      length = strlen((cstriType) old_ident->name);
       FREE_ID_NAME(old_ident->name, length);
       free_ident(currentProg, old_ident->next1);
       free_ident(currentProg, old_ident->next2);
       free_entity(currentProg, old_ident->entity);
-      FREE_RECORD(old_ident, identrecord, count.ident);
+      FREE_RECORD(old_ident, identRecord, count.ident);
     } /* if */
 #ifdef TRACE_IDENTUTL
     printf("END free_ident\n");
@@ -103,19 +103,19 @@ static void free_ident (const_progtype currentProg, identtype old_ident)
 
 
 
-identtype get_ident (progtype currentProg, const_ustritype name)
+identType get_ident (progType currentProg, const_ustriType name)
 
   {
-    register identtype ident_found;
+    register identType ident_found;
     register int comparison;
-    register booltype searching;
-    sysizetype length;
+    register boolType searching;
+    sySizeType length;
 
   /* get_ident */
 #ifdef TRACE_IDENTUTL
     printf("BEGIN get_ident\n");
 #endif
-    length = strlen((const_cstritype) name);
+    length = strlen((const_cstriType) name);
     if (length == 1 && (op_character(name[0]) ||
         char_class(name[0]) == LEFTPARENCHAR ||
         char_class(name[0]) == PARENCHAR)) {
@@ -128,8 +128,8 @@ identtype get_ident (progtype currentProg, const_ustritype name)
         ident_found = IDENT_TABLE(currentProg, name, length);
         searching = TRUE;
         do {
-          if ((comparison = strncmp((const_cstritype) name,
-              (cstritype) ident_found->name, length)) == 0) {
+          if ((comparison = strncmp((const_cstriType) name,
+              (cstriType) ident_found->name, length)) == 0) {
             if (ident_found->name[length] == '\0') {
               searching = FALSE;
             } else {
@@ -163,7 +163,7 @@ identtype get_ident (progtype currentProg, const_ustritype name)
 
 
 
-void close_idents (const_progtype currentProg)
+void close_idents (const_progType currentProg)
 
   {
     int position;
@@ -192,11 +192,11 @@ void close_idents (const_progtype currentProg)
 
 
 
-void init_idents (progtype currentProg, errinfotype *err_info)
+void init_idents (progType currentProg, errInfoType *err_info)
 
   {
     int position;
-    uchartype character;
+    ucharType character;
 
   /* init_idents */
 #ifdef TRACE_IDENTUTL
@@ -214,10 +214,10 @@ void init_idents (progtype currentProg, errinfotype *err_info)
         } /* if */
       } /* if */
     } /* for */
-    if ((currentProg->ident.literal = new_ident((const_ustritype) " *SIMPLE_IDENT* ", 16)) == NULL) {
+    if ((currentProg->ident.literal = new_ident((const_ustriType) " *SIMPLE_IDENT* ", 16)) == NULL) {
       *err_info = MEMORY_ERROR;
     } /* if */
-    if ((currentProg->ident.end_of_file = new_ident((const_ustritype) "END OF FILE", 11)) == NULL) {
+    if ((currentProg->ident.end_of_file = new_ident((const_ustriType) "END OF FILE", 11)) == NULL) {
       *err_info = MEMORY_ERROR;
     } /* if */
     if (*err_info != OKAY_NO_ERROR) {

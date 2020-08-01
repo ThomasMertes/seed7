@@ -25,9 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
-objecttype exec1 (listtype list);
-booltype do_flush (objecttype outfile);
-booltype do_wrnl (objecttype outfile);
-booltype do_wrstri (objecttype outfile, stritype stri);
-booltype do_wrcstri (objecttype outfile, const_cstritype stri);
+objectType exec1 (listType list);
+boolType do_flush (objectType outfile);
+boolType do_wrnl (objectType outfile);
+boolType do_wrstri (objectType outfile, striType stri);
+boolType do_wrcstri (objectType outfile, const_cstriType stri);
 void init_do_any (void);

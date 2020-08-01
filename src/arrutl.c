@@ -21,7 +21,7 @@
 /*  Module: General                                                 */
 /*  File: seed7/src/arrutl.c                                        */
 /*  Changes: 2013  Thomas Mertes                                    */
-/*  Content: Procedures to maintain objects of type arraytype.      */
+/*  Content: Procedures to maintain objects of type arrayType.      */
 /*                                                                  */
 /********************************************************************/
 
@@ -42,18 +42,18 @@
 
 
 /**
- *  Generate temporary rtlArraytype array.
+ *  Generate temporary rtlArrayType array.
  *  The elements of the original array are copied with assignments.
  *  Create functions are not called. The result is intended to be
- *  used for a call that requires an rtlArraytype array. 
- *  The returned rtlArraytype array must be freed with FREE_RTL_ARRAY.
+ *  used for a call that requires an rtlArrayType array. 
+ *  The returned rtlArrayType array must be freed with FREE_RTL_ARRAY.
  */
-rtlArraytype gen_rtl_array (arraytype anArray)
+rtlArrayType gen_rtl_array (arrayType anArray)
 
   {
-    memsizetype arraySize;
-    memsizetype pos;
-    rtlArraytype rtlArray;
+    memSizeType arraySize;
+    memSizeType pos;
+    rtlArrayType rtlArray;
 
   /* gen_rtl_array */
     arraySize = arraySize(anArray);
@@ -61,7 +61,7 @@ rtlArraytype gen_rtl_array (arraytype anArray)
       rtlArray->min_position = anArray->min_position;
       rtlArray->max_position = anArray->max_position;
       for (pos = 0; pos < arraySize; pos++) {
-        rtlArray->arr[pos].value.strivalue = anArray->arr[pos].value.strivalue;
+        rtlArray->arr[pos].value.striValue = anArray->arr[pos].value.striValue;
       } /* for */
     } /* if */
     return rtlArray;

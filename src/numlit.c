@@ -50,7 +50,7 @@
 
 
 
-static void readDecimal (register sysizetype position)
+static void readDecimal (register sySizeType position)
 
   {
     register int character;
@@ -60,10 +60,10 @@ static void readDecimal (register sysizetype position)
     printf("BEGIN readDecimal\n");
 #endif
     check_symb_length(position);
-    symbol.name[position++] = (uchartype) in_file.character;
+    symbol.name[position++] = (ucharType) in_file.character;
     while (char_class(character = next_character()) == DIGITCHAR) {
       check_symb_length(position);
-      symbol.name[position++] = (uchartype) character;
+      symbol.name[position++] = (ucharType) character;
     } /* while */
     symbol.name[position] = '\0';
     in_file.character = character;
@@ -74,24 +74,24 @@ static void readDecimal (register sysizetype position)
 
 
 
-static inttype decimalValue (ustritype digits)
+static intType decimalValue (ustriType digits)
 
   {
-    inttype intvalue;
+    intType intValue;
     unsigned int position;
-    inttype digitval;
-    booltype okay;
+    intType digitval;
+    boolType okay;
 
   /* decimalValue */
     okay = TRUE;
-    intvalue = 0;
+    intValue = 0;
     position = 0;
     while (digits[position] != '\0') {
-      digitval = ((inttype) digits[position]) - ((inttype) '0');
-      if (intvalue < MAX_DIV_10 ||
-          (intvalue == MAX_DIV_10 &&
+      digitval = ((intType) digits[position]) - ((intType) '0');
+      if (intValue < MAX_DIV_10 ||
+          (intValue == MAX_DIV_10 &&
           digitval <= MAX_REM_10)) {
-        intvalue = ((inttype) 10) * intvalue + digitval;
+        intValue = ((intType) 10) * intValue + digitval;
       } else {
         okay = FALSE;
       } /* if */
@@ -99,28 +99,28 @@ static inttype decimalValue (ustritype digits)
     } /* while */
     if (!okay) {
       err_string(CARD_DECIMAL_TOO_BIG, digits);
-      intvalue = 0;
+      intValue = 0;
     } /* if */
-    return intvalue;
+    return intValue;
   } /* decimalValue */
 
 
 
-static inline inttype basedValue (inttype base, ustritype digits)
+static inline intType basedValue (intType base, ustriType digits)
 
   {
-    inttype intvalue;
+    intType intValue;
     unsigned int position;
-    inttype div_base;
-    inttype mod_base;
-    inttype digitval;
-    booltype okay;
+    intType div_base;
+    intType mod_base;
+    intType digitval;
+    boolType okay;
 
   /* basedValue */
     okay = TRUE;
-    intvalue = 0;
-    div_base = (inttype) (INTTYPE_MAX / base);
-    mod_base = (inttype) (INTTYPE_MAX % base);
+    intValue = 0;
+    div_base = (intType) (INTTYPE_MAX / base);
+    mod_base = (intType) (INTTYPE_MAX % base);
     position = 0;
     while (digits[position] != '\0') {
       digitval = digit_value[(int) digits[position]];
@@ -131,10 +131,10 @@ static inline inttype basedValue (inttype base, ustritype digits)
           okay = FALSE;
         } /* if */
       } /* if */
-      if (intvalue < div_base ||
-          (intvalue == div_base &&
+      if (intValue < div_base ||
+          (intValue == div_base &&
           digitval <= mod_base)) {
-        intvalue = base * intvalue + digitval;
+        intValue = base * intValue + digitval;
       } else {
         if (okay) {
           err_num_stri(CARD_BASED_TOO_BIG,
@@ -145,19 +145,19 @@ static inline inttype basedValue (inttype base, ustritype digits)
       position++;
     } /* while */
     if (!okay) {
-      intvalue = 0;
+      intValue = 0;
     } /* if */
-    return intvalue;
+    return intValue;
   } /* basedValue */
 
 
 
-static inline booltype readBased (void)
+static inline boolType readBased (void)
 
   {
-    register sysizetype position;
+    register sySizeType position;
     register int character;
-    booltype okay;
+    boolType okay;
 
   /* readBased */
     position = 0;
@@ -166,7 +166,7 @@ static inline booltype readBased (void)
         char_class(character) == LETTERCHAR) {
       do {
         check_symb_length(position);
-        symbol.name[position++] = (uchartype) character;
+        symbol.name[position++] = (ucharType) character;
         character = next_character();
       } while (char_class(character) == DIGITCHAR ||
           char_class(character) == LETTERCHAR);
@@ -182,13 +182,13 @@ static inline booltype readBased (void)
 
 
 
-static inline biginttype readBigBased (inttype base)
+static inline bigIntType readBigBased (intType base)
 
   {
-    memsizetype pos;
-    booltype okay = TRUE;
-    inttype digitval;
-    biginttype result;
+    memSizeType pos;
+    boolType okay = TRUE;
+    intType digitval;
+    bigIntType result;
 
   /* readBigBased */
     in_file.character = next_character();
@@ -203,15 +203,15 @@ static inline biginttype readBigBased (inttype base)
             okay = FALSE;
           } /* if */
         } /* if */
-        symbol.strivalue->mem[pos] = (strelemtype) symbol.name[pos];
+        symbol.striValue->mem[pos] = (strElemType) symbol.name[pos];
         pos++;
       } /* while */
       check_stri_length(pos);
     } while (symbol.name[pos] != '\0');
-    symbol.strivalue->size = pos;
-    bigDestr(symbol.bigintvalue);
+    symbol.striValue->size = pos;
+    bigDestr(symbol.bigIntValue);
     if (okay) {
-      result = bigParseBased(symbol.strivalue, base);
+      result = bigParseBased(symbol.striValue, base);
     } else {
       result = bigZero();
     } /* if */
@@ -220,120 +220,120 @@ static inline biginttype readBigBased (inttype base)
 
 
 
-static inline void basedInteger (inttype intvalue)
+static inline void basedInteger (intType intValue)
 
   { /* basedInteger */
-    if (intvalue < 2 || intvalue > 36) {
-      err_integer(BASE2TO36ALLOWED, intvalue);
-      intvalue = 36; /* Avoid subsequent errors */
+    if (intValue < 2 || intValue > 36) {
+      err_integer(BASE2TO36ALLOWED, intValue);
+      intValue = 36; /* Avoid subsequent errors */
     } /* if */
     if (readBased()) {
       if (in_file.character == '_') {
-        symbol.bigintvalue = readBigBased(intvalue);
+        symbol.bigIntValue = readBigBased(intValue);
         symbol.sycategory = BIGINTLITERAL;
       } else {
-        symbol.intvalue = basedValue(intvalue, symbol.name);
+        symbol.intValue = basedValue(intValue, symbol.name);
         symbol.sycategory = INTLITERAL;
       } /* if */
     } else {
-      symbol.intvalue = 0;
+      symbol.intValue = 0;
       symbol.sycategory = INTLITERAL;
     } /* if */
   } /* basedInteger */
 
 
 
-static inline void intExponent (inttype *ivalue)
+static inline void intExponent (intType *ivalue)
 
   {
-    inttype intvalue;
-    inttype exponent;
+    intType intValue;
+    intType exponent;
 
   /* intExponent */
-    intvalue = *ivalue;
+    intValue = *ivalue;
     in_file.character = next_character();
     if (in_file.character == '+') {
       in_file.character = next_character();
     } else {
       if (in_file.character == '-') {
         err_warning(NEGATIVEEXPONENT);
-        intvalue = 0;
+        intValue = 0;
         in_file.character = next_character();
       } /* if */
     } /* if */
     if (char_class(in_file.character) == DIGITCHAR) {
       readDecimal(0);
-      if (intvalue != 0) {
+      if (intValue != 0) {
         exponent = decimalValue(symbol.name);
         while (exponent > 0) {
           exponent--;
-          if (intvalue <= MAX_DIV_10) {
-            intvalue *= 10;
+          if (intValue <= MAX_DIV_10) {
+            intValue *= 10;
           } else {
             err_num_stri(CARD_WITH_EXPONENT_TOO_BIG,
                 0, (int) *ivalue, &symbol.name[0]);
             exponent = 0;
-            intvalue = 0;
+            intValue = 0;
           } /* if */
         } /* while */
       } /* if */
     } else {
       err_cchar(DIGITEXPECTED, in_file.character);
-      intvalue = 0;
+      intValue = 0;
     } /* if */
-    *ivalue = intvalue;
+    *ivalue = intValue;
   } /* intExponent */
 
 
 
-static inline biginttype readBigInteger (void)
+static inline bigIntType readBigInteger (void)
 
   {
-    memsizetype pos;
-    biginttype result;
+    memSizeType pos;
+    bigIntType result;
 
   /* readBigInteger */
     in_file.character = next_character();
     pos = 0;
     do {
       while (pos != symbol.stri_max && symbol.name[pos] != '\0') {
-        symbol.strivalue->mem[pos] = (strelemtype) symbol.name[pos];
+        symbol.striValue->mem[pos] = (strElemType) symbol.name[pos];
         pos++;
       } /* while */
       check_stri_length(pos);
     } while (symbol.name[pos] != '\0');
-    symbol.strivalue->size = pos;
-    bigDestr(symbol.bigintvalue);
-    result = bigParse(symbol.strivalue);
+    symbol.striValue->size = pos;
+    bigDestr(symbol.bigIntValue);
+    result = bigParse(symbol.striValue);
     return result;
   } /* readBigInteger */
 
 
 
-static inline floattype readFloat (void)
+static inline floatType readFloat (void)
 
   {
-    register sysizetype position;
-    floattype result;
+    register sySizeType position;
+    floatType result;
 
   /* readFloat */
 #ifdef TRACE_LITERAL
     printf("BEGIN readFloat\n");
 #endif
-    position = strlen((cstritype) symbol.name);
+    position = strlen((cstriType) symbol.name);
     check_symb_length(position);
-    symbol.name[position++] = (uchartype) in_file.character;
+    symbol.name[position++] = (ucharType) in_file.character;
     in_file.character = next_character();
     if (char_class(in_file.character) == DIGITCHAR) {
       readDecimal(position);
       if (in_file.character == 'E' || in_file.character == 'e') {
-        position += strlen((cstritype) &symbol.name[position]);
+        position += strlen((cstriType) &symbol.name[position]);
         check_symb_length(position);
-        symbol.name[position++] = (uchartype) in_file.character;
+        symbol.name[position++] = (ucharType) in_file.character;
         in_file.character = next_character();
         if (in_file.character == '+' || in_file.character == '-') {
           check_symb_length(position);
-          symbol.name[position++] = (uchartype) in_file.character;
+          symbol.name[position++] = (ucharType) in_file.character;
           in_file.character = next_character();
         } /* if */
         if (char_class(in_file.character) == DIGITCHAR) {
@@ -342,8 +342,8 @@ static inline floattype readFloat (void)
           err_cchar(DIGITEXPECTED, in_file.character);
         } /* if */
       } /* if */
-      result = (floattype) atof((cstritype) symbol.name);
-/*    result = (floattype) strtod((cstritype) symbol.name, NULL); */
+      result = (floatType) atof((cstriType) symbol.name);
+/*    result = (floatType) strtod((cstriType) symbol.name, NULL); */
       if (in_file.character == '\'') {
         in_file.character = next_character();
         if (char_class(in_file.character) == DIGITCHAR) {
@@ -353,8 +353,8 @@ static inline floattype readFloat (void)
         } /* if */
       } /* if */
     } else {
-      result = (floattype) atof((cstritype) symbol.name);
-/*    result = (floattype) strtod((cstritype) symbol.name, NULL); */
+      result = (floatType) atof((cstriType) symbol.name);
+/*    result = (floatType) strtod((cstriType) symbol.name, NULL); */
       if (in_file.character == '\'') {
         in_file.character = next_character();
         if (char_class(in_file.character) == DIGITCHAR) {
@@ -391,7 +391,7 @@ static inline floattype readFloat (void)
 void lit_number (void)
 
   {
-    inttype number;
+    intType number;
 
   /* lit_number */
 #ifdef TRACE_LITERAL
@@ -400,11 +400,11 @@ void lit_number (void)
     readDecimal(0);
     if (in_file.character == '.') {
 #ifdef WITH_FLOAT
-      symbol.floatvalue = readFloat();
+      symbol.floatValue = readFloat();
 #endif
       symbol.sycategory = FLOATLITERAL;
     } else if (in_file.character == '_') {
-      symbol.bigintvalue = readBigInteger();
+      symbol.bigIntValue = readBigInteger();
       symbol.sycategory = BIGINTLITERAL;
     } else {
       number = decimalValue(symbol.name);
@@ -412,10 +412,10 @@ void lit_number (void)
         basedInteger(number);
       } else if (in_file.character == 'E' || in_file.character == 'e') {
         intExponent(&number);
-        symbol.intvalue = number;
+        symbol.intValue = number;
         symbol.sycategory = INTLITERAL;
       } else {
-        symbol.intvalue = number;
+        symbol.intValue = number;
         symbol.sycategory = INTLITERAL;
       } /* if */
     } /* if */

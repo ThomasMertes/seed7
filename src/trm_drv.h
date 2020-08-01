@@ -35,9 +35,9 @@
 #define putgoto(s,x,y) ((s) != NULL ? tputs(tgoto((s), (x), (y)), 1, outch) : 0)
 
 #ifdef DO_INIT
-booltype caps_initialized = FALSE;
+boolType caps_initialized = FALSE;
 #else
-EXTERN booltype caps_initialized;
+EXTERN boolType caps_initialized;
 #endif
 
 

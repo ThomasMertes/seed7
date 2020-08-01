@@ -81,9 +81,9 @@ void extend_stri_length (void)
       fatal_memory_error(SOURCE_POSITION(2013));
     } /* if */
     symbol.stri_max += INCR_SYMB_LENGTH;
-    REALLOC_STRI_SIZE_OK(symbol.strivalue, symbol.strivalue,
+    REALLOC_STRI_SIZE_OK(symbol.striValue, symbol.striValue,
         symbol.stri_max - INCR_SYMB_LENGTH, symbol.stri_max);
-    if (symbol.strivalue == NULL) {
+    if (symbol.striValue == NULL) {
       fatal_memory_error(SOURCE_POSITION(2014));
     } /* if */
     COUNT3_STRI(symbol.stri_max - INCR_SYMB_LENGTH, symbol.stri_max);
@@ -91,7 +91,7 @@ void extend_stri_length (void)
 
 
 
-void init_symbol (errinfotype *err_info)
+void init_symbol (errInfoType *err_info)
 
   { /* init_symbol */
     symbol.name_length = INCR_SYMB_LENGTH;
@@ -99,7 +99,7 @@ void init_symbol (errinfotype *err_info)
       *err_info = MEMORY_ERROR;
     } else {
       COUNT_USTRI(symbol.name_length, count.symb, count.symb_bytes);
-      if (!ALLOC_STRI_CHECK_SIZE(symbol.strivalue, symbol.stri_max)) {
+      if (!ALLOC_STRI_CHECK_SIZE(symbol.striValue, symbol.stri_max)) {
         *err_info = MEMORY_ERROR;
       } /* if */
     } /* if */
@@ -113,7 +113,7 @@ void close_symbol (void)
     FREE_USTRI(symbol.name, symbol.name_length, count.symb, count.symb_bytes);
     symbol.name = NULL;
     symbol.name_length = 0;
-    FREE_STRI(symbol.strivalue, symbol.stri_max);
-    symbol.strivalue = NULL;
+    FREE_STRI(symbol.striValue, symbol.stri_max);
+    symbol.striValue = NULL;
     symbol.stri_max = 0;
   } /* close_symbol */

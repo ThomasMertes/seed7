@@ -25,32 +25,32 @@
 /*                                                                  */
 /********************************************************************/
 
-objecttype get_create_call_obj (objecttype obj, errinfotype *err_info);
-objecttype get_destroy_call_obj (objecttype obj, errinfotype *err_info);
-void do_create (objecttype destination, objecttype source,
-    errinfotype *err_info);
-void do_destroy (objecttype old_obj, errinfotype *err_info);
-inttype do_ord (objecttype any_obj, errinfotype *err_info);
-booltype do_in (objecttype elem_obj, objecttype set_obj,
-    errinfotype *err_info);
-objecttype param1_call (objecttype function_obj, objecttype param1);
-objecttype param2_call (objecttype function_obj, objecttype param1,
-    objecttype param2);
-objecttype param3_call (objecttype function_obj, objecttype param1,
-    objecttype param2, objecttype param3);
-objecttype create_return_object (const_locobjtype local, objecttype init_value,
-    errinfotype *err_info);
-void create_local_object (const_locobjtype local, objecttype init_value,
-    errinfotype *err_info);
-void destroy_local_object (const_locobjtype local, errinfotype *err_info);
-void destroy_local_init_value (const_locobjtype local, errinfotype *err_info);
-void destr_struct (objecttype old_elem, memsizetype old_size);
-booltype crea_struct (objecttype elem_to, objecttype elem_from,
-    memsizetype new_size);
-booltype arr_elem_initialisation (typetype dest_type, objecttype obj_to,
-    objecttype obj_from);
-void destr_array (objecttype old_elem, memsizetype old_size);
-booltype crea_array (objecttype elem_to, objecttype elem_from,
-    memsizetype new_size);
-void cpy_array (objecttype elem_to, objecttype elem_from,
-    memsizetype new_size);
+objectType get_create_call_obj (objectType obj, errInfoType *err_info);
+objectType get_destroy_call_obj (objectType obj, errInfoType *err_info);
+void do_create (objectType destination, objectType source,
+    errInfoType *err_info);
+void do_destroy (objectType old_obj, errInfoType *err_info);
+intType do_ord (objectType any_obj, errInfoType *err_info);
+boolType do_in (objectType elem_obj, objectType set_obj,
+    errInfoType *err_info);
+objectType param1_call (objectType function_obj, objectType param1);
+objectType param2_call (objectType function_obj, objectType param1,
+    objectType param2);
+objectType param3_call (objectType function_obj, objectType param1,
+    objectType param2, objectType param3);
+objectType create_return_object (const_locObjType local, objectType init_value,
+    errInfoType *err_info);
+void create_local_object (const_locObjType local, objectType init_value,
+    errInfoType *err_info);
+void destroy_local_object (const_locObjType local, errInfoType *err_info);
+void destroy_local_init_value (const_locObjType local, errInfoType *err_info);
+void destr_struct (objectType old_elem, memSizeType old_size);
+boolType crea_struct (objectType elem_to, objectType elem_from,
+    memSizeType new_size);
+boolType arr_elem_initialisation (typeType dest_type, objectType obj_to,
+    objectType obj_from);
+void destr_array (objectType old_elem, memSizeType old_size);
+boolType crea_array (objectType elem_to, objectType elem_from,
+    memSizeType new_size);
+void cpy_array (objectType elem_to, objectType elem_from,
+    memSizeType new_size);

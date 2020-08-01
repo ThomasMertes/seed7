@@ -25,18 +25,18 @@
 /*                                                                  */
 /********************************************************************/
 
-objecttype pol_addCheck     (listtype arguments);
-objecttype pol_clear        (listtype arguments);
-objecttype pol_cpy          (listtype arguments);
-objecttype pol_create       (listtype arguments);
-objecttype pol_destr        (listtype arguments);
-objecttype pol_empty        (listtype arguments);
-objecttype pol_getCheck     (listtype arguments);
-objecttype pol_getFinding   (listtype arguments);
-objecttype pol_hasNext      (listtype arguments);
-objecttype pol_iterChecks   (listtype arguments);
-objecttype pol_iterFindings (listtype arguments);
-objecttype pol_nextFile     (listtype arguments);
-objecttype pol_poll         (listtype arguments);
-objecttype pol_removeCheck  (listtype arguments);
-objecttype pol_value        (listtype arguments);
+objectType pol_addCheck     (listType arguments);
+objectType pol_clear        (listType arguments);
+objectType pol_cpy          (listType arguments);
+objectType pol_create       (listType arguments);
+objectType pol_destr        (listType arguments);
+objectType pol_empty        (listType arguments);
+objectType pol_getCheck     (listType arguments);
+objectType pol_getFinding   (listType arguments);
+objectType pol_hasNext      (listType arguments);
+objectType pol_iterChecks   (listType arguments);
+objectType pol_iterFindings (listType arguments);
+objectType pol_nextFile     (listType arguments);
+objectType pol_poll         (listType arguments);
+objectType pol_removeCheck  (listType arguments);
+objectType pol_value        (listType arguments);

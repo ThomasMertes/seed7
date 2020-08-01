@@ -29,7 +29,7 @@
 /*                                                                  */
 /********************************************************************/
 
-typedef os_DIR *dirtype;
+typedef os_DIR *dirType;
 
 #ifdef OS_STRI_WCHAR
 extern wchar_t dot[];
@@ -42,6 +42,6 @@ extern char slash[];
 #endif
 
 
-void dirClose (dirtype directory);
-dirtype dirOpen (const const_stritype file_name);
-stritype dirRead (dirtype directory);
+void dirClose (dirType directory);
+dirType dirOpen (const const_striType file_name);
+striType dirRead (dirType directory);

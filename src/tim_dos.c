@@ -54,8 +54,8 @@
  *  @param time_zone Difference to UTC in minutes (for UTC+1 it is 60).
  *                   The time_zone includes the effect of a daylight saving time.
  */
-void timAwait (inttype year, inttype month, inttype day, inttype hour,
-    inttype min, inttype sec, inttype micro_sec, inttype time_zone)
+void timAwait (intType year, intType month, intType day, intType hour,
+    intType min, intType sec, intType micro_sec, intType time_zone)
 
   {
     struct tm tm_time;
@@ -110,10 +110,10 @@ void timAwait (inttype year, inttype month, inttype day, inttype hour,
  *  This function is only used to initialize the random number
  *  generator, so overflows can be ignored.
  */
-inttype timMicroSec (void)
+intType timMicroSec (void)
 
   {
-    inttype micro_sec;
+    intType micro_sec;
 
   /* timMicroSec */
     micro_sec = clock();
@@ -129,9 +129,9 @@ inttype timMicroSec (void)
  *                   The time_zone includes the effect of a daylight saving time.
  *  @param is_dst Is TRUE, when a daylight saving time is currently in effect.
  */
-void timNow (inttype *year, inttype *month, inttype *day, inttype *hour,
-    inttype *min, inttype *sec, inttype *micro_sec, inttype *time_zone,
-    booltype *is_dst)
+void timNow (intType *year, intType *month, intType *day, intType *hour,
+    intType *min, intType *sec, intType *micro_sec, intType *time_zone,
+    boolType *is_dst)
 
   {
     struct timeb tstruct;
@@ -167,7 +167,7 @@ void timNow (inttype *year, inttype *month, inttype *day, inttype *hour,
       *sec       = local_time->tm_sec;
       *micro_sec = 1000 * ((long) tstruct.millitm);
 #ifdef TAKE_TIMEZONE_FROM_TSTRUCT
-      *time_zone = - (inttype) tstruct.timezone;
+      *time_zone = - (intType) tstruct.timezone;
       if (tstruct.dstflag) {
         *time_zone += 60;
       } /* if */

@@ -46,22 +46,22 @@
 
 
 #ifdef PATHS_RELATIVE_TO_EXECUTABLE
-extern stritype programPath; /* defined in s7.c or in the executable of a program */
+extern striType programPath; /* defined in s7.c or in the executable of a program */
 #endif
 
-static rtlArraytype lib_path;
+static rtlArrayType lib_path;
 
 
 
-void find_include_file (const_stritype include_file_name, errinfotype *err_info)
+void find_include_file (const_striType include_file_name, errInfoType *err_info)
 
   {
-    booltype found;
-    memsizetype lib_path_size;
-    memsizetype position;
-    stritype curr_path;
-    memsizetype length;
-    stritype stri;
+    boolType found;
+    memSizeType lib_path_size;
+    memSizeType position;
+    striType curr_path;
+    memSizeType length;
+    striType stri;
 
   /* find_include_file */
 #ifdef TRACE_INFILE
@@ -74,7 +74,7 @@ void find_include_file (const_stritype include_file_name, errinfotype *err_info)
         found = FALSE;
         lib_path_size = arraySize(lib_path);
         for (position = 0; !found && *err_info == OKAY_NO_ERROR && position < lib_path_size; position++) {
-          curr_path = lib_path->arr[position].value.strivalue;
+          curr_path = lib_path->arr[position].value.striValue;
           if (curr_path->size == 0) {
             open_infile(include_file_name, in_file.write_library_names, in_file.write_line_numbers, err_info);
           } else {
@@ -87,9 +87,9 @@ void find_include_file (const_stritype include_file_name, errinfotype *err_info)
               } else {
                 stri->size = length;
                 memcpy(stri->mem, curr_path->mem,
-                    (size_t) curr_path->size * sizeof(strelemtype));
+                    (size_t) curr_path->size * sizeof(strElemType));
                 memcpy(&stri->mem[curr_path->size], include_file_name->mem,
-                    (size_t) include_file_name->size * sizeof(strelemtype));
+                    (size_t) include_file_name->size * sizeof(strElemType));
                 open_infile(stri, in_file.write_library_names, in_file.write_line_numbers, err_info);
                 FREE_STRI(stri, length);
               } /* if */
@@ -117,14 +117,14 @@ void find_include_file (const_stritype include_file_name, errinfotype *err_info)
 static void print_lib_path (void)
 
   {
-    memsizetype length;
-    memsizetype position;
-    stritype stri;
+    memSizeType length;
+    memSizeType position;
+    striType stri;
 
   /* print_lib_path */
     length = arraySize(lib_path);
     for (position = 0; position < length; position++) {
-      stri = lib_path->arr[position].value.strivalue;
+      stri = lib_path->arr[position].value.striValue;
       prot_stri(stri);
       prot_nl();
     } /* for */
@@ -133,13 +133,13 @@ static void print_lib_path (void)
 
 
 
-void append_to_lib_path (const_stritype path, errinfotype *err_info)
+void append_to_lib_path (const_striType path, errInfoType *err_info)
 
   {
-    memsizetype stri_len;
-    stritype stri;
-    rtlArraytype resized_lib_path;
-    memsizetype position;
+    memSizeType stri_len;
+    striType stri;
+    rtlArrayType resized_lib_path;
+    memSizeType position;
 
   /* append_to_lib_path */
 #ifdef TRACE_INFILE
@@ -155,15 +155,15 @@ void append_to_lib_path (const_stritype path, errinfotype *err_info)
       *err_info = MEMORY_ERROR;
     } else {
       resized_lib_path = REALLOC_RTL_ARRAY(lib_path,
-          (memsizetype) lib_path->max_position,
-          (memsizetype) (lib_path->max_position + 1));
+          (memSizeType) lib_path->max_position,
+          (memSizeType) (lib_path->max_position + 1));
       if (resized_lib_path == NULL) {
         FREE_STRI(stri, stri_len);
         *err_info = MEMORY_ERROR;
       } else {
         lib_path = resized_lib_path;
-        COUNT3_RTL_ARRAY((memsizetype) lib_path->max_position,
-            (memsizetype) (lib_path->max_position + 1));
+        COUNT3_RTL_ARRAY((memSizeType) lib_path->max_position,
+            (memSizeType) (lib_path->max_position + 1));
         stri->size = stri_len;
         for (position = 0; position < path->size; position++) {
           if (path->mem[position] == '\\') {
@@ -175,7 +175,7 @@ void append_to_lib_path (const_stritype path, errinfotype *err_info)
         if (stri_len != path->size) {
           stri->mem[stri_len - 1] = '/';
         } /* if */
-        lib_path->arr[lib_path->max_position].value.strivalue = stri;
+        lib_path->arr[lib_path->max_position].value.striValue = stri;
         lib_path->max_position++;
       } /* if */
     } /* if */
@@ -186,17 +186,17 @@ void append_to_lib_path (const_stritype path, errinfotype *err_info)
 
 
 
-void init_lib_path (const_stritype source_file_name,
-    const const_rtlArraytype seed7_libraries, errinfotype *err_info)
+void init_lib_path (const_striType source_file_name,
+    const const_rtlArrayType seed7_libraries, errInfoType *err_info)
 
   {
-    stritype path;
-    memsizetype position;
-    memsizetype dir_path_size;
-    static const os_chartype seed7_library[] =
+    striType path;
+    memSizeType position;
+    memSizeType dir_path_size;
+    static const os_charType seed7_library[] =
         {'S', 'E', 'E', 'D', '7', '_', 'L', 'I', 'B', 'R', 'A', 'R', 'Y', 0};
-    os_stritype library_environment_variable;
-    inttype idx;
+    os_striType library_environment_variable;
+    intType idx;
 
   /* init_lib_path */
 #ifdef TRACE_INFILE
@@ -219,7 +219,7 @@ void init_lib_path (const_stritype source_file_name,
         *err_info = MEMORY_ERROR;
       } else {
         path->size = dir_path_size;
-        memcpy(path->mem, source_file_name->mem, dir_path_size * sizeof(strelemtype));
+        memcpy(path->mem, source_file_name->mem, dir_path_size * sizeof(strElemType));
         append_to_lib_path(path, err_info);
         FREE_STRI(path, path->size);
       } /* if */
@@ -243,7 +243,7 @@ void init_lib_path (const_stritype source_file_name,
       /* Add the libraries from the commandline to the lib_path */
       if (seed7_libraries != NULL) {
         for (idx = 0; idx <= seed7_libraries->max_position - seed7_libraries->min_position; idx++) {
-          append_to_lib_path(seed7_libraries->arr[idx].value.strivalue, err_info);
+          append_to_lib_path(seed7_libraries->arr[idx].value.striValue, err_info);
         } /* for */
       } /* if */
 
@@ -279,14 +279,14 @@ void init_lib_path (const_stritype source_file_name,
 void free_lib_path (void)
 
   {
-    memsizetype length;
-    memsizetype position;
-    stritype stri;
+    memSizeType length;
+    memSizeType position;
+    striType stri;
 
   /* free_lib_path */
     length = arraySize(lib_path);
     for (position = 0; position < length; position++) {
-      stri = lib_path->arr[position].value.strivalue;
+      stri = lib_path->arr[position].value.striValue;
       FREE_STRI(stri, stri->size);
     } /* for */
     FREE_RTL_ARRAY(lib_path, length);

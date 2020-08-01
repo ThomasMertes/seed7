@@ -55,13 +55,13 @@
 
 
 
-objecttype decl_type (int *is_dollar_type, errinfotype *err_info)
+objectType decl_type (int *is_dollar_type, errInfoType *err_info)
 
   {
-    objecttype basic_type;
-    objecttype type_expression;
-    objecttype type_of_object;
-    typetype func_type;
+    objectType basic_type;
+    objectType type_expression;
+    objectType type_of_object;
+    typeType func_type;
 
   /* decl_type */
 #ifdef TRACE_TYPE

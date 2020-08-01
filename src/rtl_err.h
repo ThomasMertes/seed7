@@ -32,4 +32,4 @@
 #define raise_error(num) raise_error2(num, __FILE__, __LINE__)
 
 
-void raise_error2 (int exception_num, const_cstritype filename, int line);
+void raise_error2 (int exception_num, const_cstriType filename, int line);

@@ -25,6 +25,6 @@
 /*                                                                  */
 /********************************************************************/
 
-objecttype bin_and (listtype arguments);
-objecttype bin_or (listtype arguments);
-objecttype bin_xor (listtype arguments);
+objectType bin_and (listType arguments);
+objectType bin_or (listType arguments);
+objectType bin_xor (listType arguments);

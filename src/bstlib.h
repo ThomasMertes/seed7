@@ -25,18 +25,18 @@
 /*                                                                  */
 /********************************************************************/
 
-objecttype bst_append   (listtype arguments);
-objecttype bst_cat      (listtype arguments);
-objecttype bst_cmp      (listtype arguments);
-objecttype bst_cpy      (listtype arguments);
-objecttype bst_create   (listtype arguments);
-objecttype bst_destr    (listtype arguments);
-objecttype bst_empty    (listtype arguments);
-objecttype bst_eq       (listtype arguments);
-objecttype bst_hashcode (listtype arguments);
-objecttype bst_idx      (listtype arguments);
-objecttype bst_lng      (listtype arguments);
-objecttype bst_ne       (listtype arguments);
-objecttype bst_parse    (listtype arguments);
-objecttype bst_str      (listtype arguments);
-objecttype bst_value    (listtype arguments);
+objectType bst_append   (listType arguments);
+objectType bst_cat      (listType arguments);
+objectType bst_cmp      (listType arguments);
+objectType bst_cpy      (listType arguments);
+objectType bst_create   (listType arguments);
+objectType bst_destr    (listType arguments);
+objectType bst_empty    (listType arguments);
+objectType bst_eq       (listType arguments);
+objectType bst_hashcode (listType arguments);
+objectType bst_idx      (listType arguments);
+objectType bst_lng      (listType arguments);
+objectType bst_ne       (listType arguments);
+objectType bst_parse    (listType arguments);
+objectType bst_str      (listType arguments);
+objectType bst_value    (listType arguments);

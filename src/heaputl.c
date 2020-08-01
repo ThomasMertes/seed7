@@ -53,11 +53,11 @@ STACK_SIZE_DEFINITION;
 
 
 #ifdef WITH_STRI_CAPACITY
-stritype growStri (stritype stri, memsizetype len)
+striType growStri (striType stri, memSizeType len)
 
   {
-    memsizetype new_len;
-    stritype result;
+    memSizeType new_len;
+    striType result;
 
   /* growStri */
     if (unlikely(len > MAX_STRI_LEN)) {
@@ -74,12 +74,12 @@ stritype growStri (stritype stri, memsizetype len)
         new_len = MAX_STRI_LEN;
       } /* if */
       /* printf("growStri(%lX, %lu) size=%u, capacity=%u, new_len=%u, siz_stri=%u, sizeof=%u\n",
-         stri, len, stri->size, stri->capacity, new_len, SIZ_STRI(new_len), sizeof(strirecord));
+         stri, len, stri->size, stri->capacity, new_len, SIZ_STRI(new_len), sizeof(striRecord));
       fflush(stdout); */
-      result = REALLOC_HEAP(stri, stritype, SIZ_STRI(new_len));
+      result = REALLOC_HEAP(stri, striType, SIZ_STRI(new_len));
       if (result == NULL) {
         new_len = len;
-        result = REALLOC_HEAP(stri, stritype, SIZ_STRI(new_len));
+        result = REALLOC_HEAP(stri, striType, SIZ_STRI(new_len));
       } /* if */
       if (result != NULL) {
 #ifdef ALLOW_STRITYPE_SLICES
@@ -95,18 +95,18 @@ stritype growStri (stritype stri, memsizetype len)
 
 
 
-stritype shrinkStri (stritype stri, memsizetype len)
+striType shrinkStri (striType stri, memSizeType len)
 
   {
-    memsizetype new_len;
-    stritype result;
+    memSizeType new_len;
+    striType result;
 
   /* shrinkStri */
     new_len = 2 * len;
     /* printf("shrinkStri(%lX, %lu) size=%u, capacity=%u, new_len=%u, siz_stri=%u, sizeof=%u\n",
-         stri, len, stri->size, stri->capacity, new_len, SIZ_STRI(new_len), sizeof(strirecord));
+         stri, len, stri->size, stri->capacity, new_len, SIZ_STRI(new_len), sizeof(striRecord));
     fflush(stdout); */
-    result = REALLOC_HEAP(stri, stritype, SIZ_STRI(new_len));
+    result = REALLOC_HEAP(stri, striType, SIZ_STRI(new_len));
 #ifdef ALLOW_STRITYPE_SLICES
     result->mem = result->mem1;
 #endif
@@ -121,10 +121,10 @@ stritype shrinkStri (stritype stri, memsizetype len)
 void freeStriFreelist (void)
 
   {
-    flisttype elem;
-    stritype stri;
+    freeListElemType elem;
+    striType stri;
 #ifdef WITH_STRI_CAPACITY
-    memsizetype capacity;
+    memSizeType capacity;
 #endif
 
   /* freeStriFreelist */
@@ -132,7 +132,7 @@ void freeStriFreelist (void)
     for (capacity = 0; capacity < STRI_FREELIST_ARRAY_SIZE; capacity++) {
       elem = sflist[capacity];
       while (elem != NULL) {
-        stri = (stritype) elem;
+        stri = (striType) elem;
         elem = elem->next;
         HEAP_FREE_STRI(stri, capacity);
         sflist_allowed[capacity]++;
@@ -142,7 +142,7 @@ void freeStriFreelist (void)
 #else
     elem = sflist;
     while (elem != NULL) {
-      stri = (stritype) elem;
+      stri = (striType) elem;
       elem = elem->next;
       HEAP_FREE_STRI(stri, 1);
       sflist_allowed++;
@@ -158,9 +158,9 @@ void freeStriFreelist (void)
 void rtlHeapStatistic (void)
 
   {
-    memsizetype bytes_used;
-    memsizetype bytes_in_buffers;
-    memsizetype bytes_total;
+    memSizeType bytes_used;
+    memSizeType bytes_in_buffers;
+    memSizeType bytes_total;
 
   /* rtlHeapStatistic */
 #ifdef TRACE_HEAPUTIL
@@ -174,10 +174,10 @@ void rtlHeapStatistic (void)
           (unsigned int) SIZ_STRI(0));
       bytes_used += count.stri * SIZ_STRI(0);
       printf("%9lu bytes in %8lu string chars of        %4u bytes\n",
-          count.stri_elems * sizeof(strelemtype),
+          count.stri_elems * sizeof(strElemType),
           count.stri_elems,
-          (unsigned int) sizeof(strelemtype));
-      bytes_used += count.stri_elems * sizeof(strelemtype);
+          (unsigned int) sizeof(strElemType));
+      bytes_used += count.stri_elems * sizeof(strElemType);
     } /* if */
     if (count.bstri != 0) {
       printf("%9lu bytes in %8lu bstring records of     %4u bytes\n",
@@ -186,10 +186,10 @@ void rtlHeapStatistic (void)
           (unsigned int) SIZ_BSTRI(0));
       bytes_used += count.bstri * SIZ_BSTRI(0);
       printf("%9lu bytes in %8lu bstrings of average    %4lu bytes\n",
-          count.bstri_elems * sizeof(uchartype),
+          count.bstri_elems * sizeof(ucharType),
           count.bstri,
-          count.bstri_elems * sizeof(uchartype) / count.bstri);
-      bytes_used += count.bstri_elems * sizeof(uchartype);
+          count.bstri_elems * sizeof(ucharType) / count.bstri);
+      bytes_used += count.bstri_elems * sizeof(ucharType);
     } /* if */
     if (count.array != 0) {
       printf("%9lu bytes in %8lu arrays of              %4u bytes\n",
@@ -200,10 +200,10 @@ void rtlHeapStatistic (void)
     } /* if */
     if (count.rtl_arr_elems != 0) {
       printf("%9lu bytes in %8lu array elements of      %4u bytes\n",
-          count.rtl_arr_elems * SIZ_REC(rtlObjecttype),
+          count.rtl_arr_elems * SIZ_REC(rtlObjectType),
           count.rtl_arr_elems,
-          (unsigned int) SIZ_REC(rtlObjecttype));
-      bytes_used += count.rtl_arr_elems * SIZ_REC(rtlObjecttype);
+          (unsigned int) SIZ_REC(rtlObjectType));
+      bytes_used += count.rtl_arr_elems * SIZ_REC(rtlObjectType);
     } /* if */
     if (count.hash != 0) {
       printf("%9lu bytes in %8lu hashtables of          %4u bytes\n",
@@ -214,17 +214,17 @@ void rtlHeapStatistic (void)
     } /* if */
     if (count.hsh_elems != 0) {
       printf("%9lu bytes in %8lu hashtable elems of     %4u bytes\n",
-          count.hsh_elems * SIZ_REC(rtlHelemtype),
+          count.hsh_elems * SIZ_REC(rtlHashElemType),
           count.hsh_elems,
-          (unsigned int) SIZ_REC(rtlHelemtype));
-      bytes_used += count.hsh_elems * SIZ_REC(rtlHelemtype);
+          (unsigned int) SIZ_REC(rtlHashElemType));
+      bytes_used += count.hsh_elems * SIZ_REC(rtlHashElemType);
     } /* if */
     if (count.rtl_helem != 0) {
       printf("%9lu bytes in %8lu helems of              %4u bytes\n",
-          count.rtl_helem * SIZ_REC(rtlHelemrecord),
+          count.rtl_helem * SIZ_REC(rtlHashElemRecord),
           count.rtl_helem,
-          (unsigned int) SIZ_REC(rtlHelemrecord));
-      bytes_used += count.rtl_helem * SIZ_REC(rtlHelemrecord);
+          (unsigned int) SIZ_REC(rtlHashElemRecord));
+      bytes_used += count.rtl_helem * SIZ_REC(rtlHashElemRecord);
     } /* if */
     if (count.set != 0) {
       printf("%9lu bytes in %8lu sets of                %4u bytes\n",
@@ -235,10 +235,10 @@ void rtlHeapStatistic (void)
     } /* if */
     if (count.set_elems != 0) {
       printf("%9lu bytes in %8lu set elements of        %4u bytes\n",
-          count.set_elems * SIZ_REC(bitsettype),
+          count.set_elems * SIZ_REC(bitSetType),
           count.set_elems,
-          (unsigned int) SIZ_REC(bitsettype));
-      bytes_used += count.set_elems * SIZ_REC(bitsettype);
+          (unsigned int) SIZ_REC(bitSetType));
+      bytes_used += count.set_elems * SIZ_REC(bitSetType);
     } /* if */
 #if 0
     if (count.stru != 0) {
@@ -250,10 +250,10 @@ void rtlHeapStatistic (void)
     } /* if */
     if (count.sct_elems != 0) {
       printf("%9lu bytes in %8lu struct elements of     %4u bytes\n",
-          count.sct_elems * SIZ_REC(objectrecord),
+          count.sct_elems * SIZ_REC(objectRecord),
           count.sct_elems,
-          (unsigned int) SIZ_REC(objectrecord));
-      bytes_used += count.sct_elems * SIZ_REC(objectrecord);
+          (unsigned int) SIZ_REC(objectRecord));
+      bytes_used += count.sct_elems * SIZ_REC(objectRecord);
     } /* if */
 #endif
 #ifdef USE_BIG_RTL_LIBRARY
@@ -266,25 +266,25 @@ void rtlHeapStatistic (void)
     } /* if */
     if (count.big_elems != 0) {
       printf("%9lu bytes in %8lu bigdigits of           %4u bytes\n",
-          count.big_elems * sizeof_bigdigittype,
+          count.big_elems * sizeof_bigDigitType,
           count.big_elems,
-          (unsigned int) sizeof_bigdigittype);
-      bytes_used += count.big_elems * sizeof_bigdigittype;
+          (unsigned int) sizeof_bigDigitType);
+      bytes_used += count.big_elems * sizeof_bigDigitType;
     } /* if */
 #endif
     if (count.polldata != 0) {
       printf("%9lu bytes in %8lu pollData elements of   %4u bytes\n",
-          count.polldata * sizeof_pollrecord,
+          count.polldata * sizeof_pollRecord,
           count.polldata,
-          (unsigned int) sizeof_pollrecord);
-      bytes_used += count.polldata * sizeof_pollrecord;
+          (unsigned int) sizeof_pollRecord);
+      bytes_used += count.polldata * sizeof_pollRecord;
     } /* if */
     if (count.win != 0) {
       printf("%9lu bytes in %8lu windows of             %4u bytes\n",
-          count.win * sizeof_winrecord,
+          count.win * sizeof_winRecord,
           count.win,
-          (unsigned int) sizeof_winrecord);
-      bytes_used += count.win * sizeof_winrecord;
+          (unsigned int) sizeof_winRecord);
+      bytes_used += count.win * sizeof_winRecord;
     } /* if */
     bytes_in_buffers =
         count.fnam_bytes + count.fnam +
@@ -313,7 +313,7 @@ void rtlHeapStatistic (void)
       printf("%9lu lost bytes in chunks\n", chunk.lost_bytes);
     } /* if */
     printf("%9lu bytes total requested\n", bytes_total +
-        (memsizetype) (chunk.beyond - chunk.freemem) + chunk.lost_bytes);
+        (memSizeType) (chunk.beyond - chunk.freemem) + chunk.lost_bytes);
 #endif
 #ifdef TRACE_HEAPUTIL
     printf("END rtlHeapStatistic\n");

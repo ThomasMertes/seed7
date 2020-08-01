@@ -43,6 +43,6 @@
 
 void display_compilation_info (void);
 void line_compilation_info (void);
-void open_compilation_info (booltype write_library_names, booltype write_line_numbers);
+void open_compilation_info (boolType write_library_names, boolType write_line_numbers);
 
 #endif

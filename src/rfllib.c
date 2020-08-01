@@ -47,15 +47,15 @@
 
 
 
-objecttype rfl_append (listtype arguments)
+objectType rfl_append (listType arguments)
 
   {
-    objecttype rfl_variable;
-    listtype rfl_to;
-    listtype rfl_from;
-    listtype list1_end;
-    listtype list2_start;
-    errinfotype err_info = OKAY_NO_ERROR;
+    objectType rfl_variable;
+    listType rfl_to;
+    listType rfl_from;
+    listType list1_end;
+    listType list2_start;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* rfl_append */
     rfl_variable = arg_1(arguments);
@@ -66,7 +66,7 @@ objecttype rfl_append (listtype arguments)
     rfl_from = take_reflist(arg_3(arguments));
     if (TEMP_OBJECT(arg_3(arguments))) {
       list2_start = rfl_from;
-      arg_3(arguments)->value.listvalue = NULL;
+      arg_3(arguments)->value.listValue = NULL;
     } else {
       list2_start = copy_list(rfl_from, &err_info);
       if (err_info != OKAY_NO_ERROR) {
@@ -80,22 +80,22 @@ objecttype rfl_append (listtype arguments)
       } /* while */
       list1_end->next = list2_start;
     } else {
-      rfl_variable->value.listvalue = list2_start;
+      rfl_variable->value.listValue = list2_start;
     } /* if */
     return SYS_EMPTY_OBJECT;
   } /* rfl_append */
 
 
 
-objecttype rfl_cat (listtype arguments)
+objectType rfl_cat (listType arguments)
 
   {
-    objecttype arg1;
-    objecttype arg2;
-    listtype list1_end;
-    listtype list2_start;
-    errinfotype err_info = OKAY_NO_ERROR;
-    listtype result;
+    objectType arg1;
+    objectType arg2;
+    listType list1_end;
+    listType list2_start;
+    errInfoType err_info = OKAY_NO_ERROR;
+    listType result;
 
   /* rfl_cat */
     arg1 = arg_1(arguments);
@@ -112,7 +112,7 @@ objecttype rfl_cat (listtype arguments)
     } /* if */
     if (TEMP_OBJECT(arg2)) {
       list2_start = take_reflist(arg2);
-      arg2->value.listvalue = NULL;
+      arg2->value.listValue = NULL;
     } else {
       list2_start = copy_list(take_reflist(arg2), &err_info);
       if (err_info != OKAY_NO_ERROR) {
@@ -124,7 +124,7 @@ objecttype rfl_cat (listtype arguments)
       /* When an exception is raised the arguments must */
       /* be unchanged to give a correct exception warning */
       /* and to give a clean state to the exception handler. */
-      arg1->value.listvalue = NULL;
+      arg1->value.listValue = NULL;
     } /* if */
     if (result != NULL) {
       list1_end = result;
@@ -140,13 +140,13 @@ objecttype rfl_cat (listtype arguments)
 
 
 
-objecttype rfl_cpy (listtype arguments)
+objectType rfl_cpy (listType arguments)
 
   {
-    objecttype list_to;
-    objecttype list_from;
-    listtype help_list;
-    errinfotype err_info = OKAY_NO_ERROR;
+    objectType list_to;
+    objectType list_from;
+    listType help_list;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* rfl_cpy */
     list_to = arg_1(arguments);
@@ -157,15 +157,15 @@ objecttype rfl_cpy (listtype arguments)
     if (list_from != list_to) {
       if (TEMP_OBJECT(list_from)) {
         free_list(take_reflist(list_to));
-        list_to->value.listvalue = take_reflist(list_from);
-        list_from->value.listvalue = NULL;
+        list_to->value.listValue = take_reflist(list_from);
+        list_from->value.listValue = NULL;
       } else {
         help_list = copy_list(take_reflist(list_from), &err_info);
         if (err_info != OKAY_NO_ERROR) {
           return raise_exception(SYS_MEM_EXCEPTION);
         } else {
           free_list(take_reflist(list_to));
-          list_to->value.listvalue = help_list;
+          list_to->value.listValue = help_list;
         } /* if */
       } /* if */
     } /* if */
@@ -174,12 +174,12 @@ objecttype rfl_cpy (listtype arguments)
 
 
 
-objecttype rfl_create (listtype arguments)
+objectType rfl_create (listType arguments)
 
   {
-    objecttype list_to;
-    objecttype list_from;
-    errinfotype err_info = OKAY_NO_ERROR;
+    objectType list_to;
+    objectType list_from;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* rfl_create */
     list_to = arg_1(arguments);
@@ -187,12 +187,12 @@ objecttype rfl_create (listtype arguments)
     SET_CATEGORY_OF_OBJ(list_to, REFLISTOBJECT);
     isit_reflist(list_from);
     if (TEMP_OBJECT(list_from)) {
-      list_to->value.listvalue = take_reflist(list_from);
-      list_from->value.listvalue = NULL;
+      list_to->value.listValue = take_reflist(list_from);
+      list_from->value.listValue = NULL;
     } else {
-      list_to->value.listvalue = copy_list(take_reflist(list_from), &err_info);
+      list_to->value.listValue = copy_list(take_reflist(list_from), &err_info);
       if (err_info != OKAY_NO_ERROR) {
-        list_to->value.listvalue = NULL;
+        list_to->value.listValue = NULL;
         return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
     } /* if */
@@ -201,23 +201,23 @@ objecttype rfl_create (listtype arguments)
 
 
 
-objecttype rfl_destr (listtype arguments)
+objectType rfl_destr (listType arguments)
 
   { /* rfl_destr */
     isit_reflist(arg_1(arguments));
     free_list(take_reflist(arg_1(arguments)));
-    arg_1(arguments)->value.listvalue = NULL;
+    arg_1(arguments)->value.listValue = NULL;
     SET_UNUSED_FLAG(arg_1(arguments));
     return SYS_EMPTY_OBJECT;
   } /* rfl_destr */
 
 
 
-objecttype rfl_elem (listtype arguments)
+objectType rfl_elem (listType arguments)
 
   {
-    objecttype searched_object;
-    listtype list_element;
+    objectType searched_object;
+    listType list_element;
 
   /* rfl_elem */
     isit_reference(arg_1(arguments));
@@ -236,11 +236,11 @@ objecttype rfl_elem (listtype arguments)
 
 
 
-objecttype rfl_elemcpy (listtype arguments)
+objectType rfl_elemcpy (listType arguments)
 
   {
-    inttype position;
-    listtype list_element;
+    intType position;
+    listType list_element;
 
   /* rfl_elemcpy */
     isit_reflist(arg_1(arguments));
@@ -268,7 +268,7 @@ objecttype rfl_elemcpy (listtype arguments)
 
 
 
-objecttype rfl_empty (listtype arguments)
+objectType rfl_empty (listType arguments)
 
   { /* rfl_empty */
     return bld_reflist_temp(NULL);
@@ -276,12 +276,12 @@ objecttype rfl_empty (listtype arguments)
 
 
 
-objecttype rfl_eq (listtype arguments)
+objectType rfl_eq (listType arguments)
 
   {
-    listtype list1;
-    listtype list2;
-    objecttype result;
+    listType list1;
+    listType list2;
+    objectType result;
 
   /* rfl_eq */
     isit_reflist(arg_1(arguments));
@@ -303,27 +303,27 @@ objecttype rfl_eq (listtype arguments)
 
 
 
-objecttype rfl_excl (listtype arguments)
+objectType rfl_excl (listType arguments)
 
   { /* rfl_excl */
     isit_reflist(arg_1(arguments));
     isit_reference(arg_2(arguments));
-    excl_list(&arg_1(arguments)->value.listvalue,
+    excl_list(&arg_1(arguments)->value.listValue,
         take_reference(arg_2(arguments)));
     return SYS_EMPTY_OBJECT;
   } /* rfl_excl */
 
 
 
-objecttype rfl_expr (listtype arguments)
+objectType rfl_expr (listType arguments)
 
   {
-    listtype list1;
-    objecttype arg1_object;
-    objecttype arg3_object;
-    booltype okay;
-    errinfotype err_info = OKAY_NO_ERROR;
-    listtype result;
+    listType list1;
+    objectType arg1_object;
+    objectType arg3_object;
+    boolType okay;
+    errInfoType err_info = OKAY_NO_ERROR;
+    listType result;
 
   /* rfl_expr */
     /*
@@ -378,16 +378,16 @@ objecttype rfl_expr (listtype arguments)
 
 
 
-objecttype rfl_for (listtype arguments)
+objectType rfl_for (listType arguments)
 
   {
-    objecttype statement;
-    objecttype elementlist;
-    objecttype for_variable;
-    listtype helplist;
-    listtype listelement;
-    errinfotype err_info = OKAY_NO_ERROR;
-    objecttype result;
+    objectType statement;
+    objectType elementlist;
+    objectType for_variable;
+    listType helplist;
+    listType listelement;
+    errInfoType err_info = OKAY_NO_ERROR;
+    objectType result;
 
   /* rfl_for */
 /*  prot_list(take_list(arg_4(arguments))); */
@@ -403,7 +403,7 @@ objecttype rfl_for (listtype arguments)
       listelement = helplist;
       result = SYS_EMPTY_OBJECT;
       while (listelement != NULL && result != NULL) {
-        for_variable->value.objvalue = listelement->obj;
+        for_variable->value.objValue = listelement->obj;
         result = evaluate(statement);
         listelement = listelement->next;
       } /* while */
@@ -414,18 +414,18 @@ objecttype rfl_for (listtype arguments)
 
 
 
-objecttype rfl_for_until (listtype arguments)
+objectType rfl_for_until (listType arguments)
 
   {
-    objecttype for_variable;
-    objecttype elementlist;
-    objecttype statement;
-    objecttype condition;
-    objecttype cond_value;
-    booltype cond;
-    listtype helplist;
-    listtype listelement;
-    errinfotype err_info = OKAY_NO_ERROR;
+    objectType for_variable;
+    objectType elementlist;
+    objectType statement;
+    objectType condition;
+    objectType cond_value;
+    boolType cond;
+    listType helplist;
+    listType listelement;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* rfl_for_until */
 /*  prot_list(take_list(arg_4(arguments))); */
@@ -441,11 +441,11 @@ objecttype rfl_for_until (listtype arguments)
     } else {
       listelement = helplist;
       if (listelement != NULL) {
-        for_variable->value.objvalue = listelement->obj;
+        for_variable->value.objValue = listelement->obj;
         cond_value = evaluate(condition);
         if (!fail_flag) {
           isit_bool(cond_value);
-          cond = (booltype) (take_bool(cond_value) == SYS_FALSE_OBJECT);
+          cond = (boolType) (take_bool(cond_value) == SYS_FALSE_OBJECT);
           if (TEMP_OBJECT(cond_value)) {
             dump_any_temp(cond_value);
           } /* if */
@@ -454,11 +454,11 @@ objecttype rfl_for_until (listtype arguments)
             if (!fail_flag) {
               listelement = listelement->next;
               if (listelement != NULL) {
-                for_variable->value.objvalue = listelement->obj;
+                for_variable->value.objValue = listelement->obj;
                 cond_value = evaluate(condition);
                 if (!fail_flag) {
                   isit_bool(cond_value);
-                  cond = (booltype) (take_bool(cond_value) == SYS_FALSE_OBJECT);
+                  cond = (boolType) (take_bool(cond_value) == SYS_FALSE_OBJECT);
                   if (TEMP_OBJECT(cond_value)) {
                     dump_any_temp(cond_value);
                   } /* if */
@@ -475,16 +475,16 @@ objecttype rfl_for_until (listtype arguments)
 
 
 
-objecttype rfl_head (listtype arguments)
+objectType rfl_head (listType arguments)
 
   {
-    objecttype list;
-    inttype stop;
-    inttype number;
-    listtype stop_element;
-    listtype saved_list_rest;
-    errinfotype err_info = OKAY_NO_ERROR;
-    listtype result;
+    objectType list;
+    intType stop;
+    intType number;
+    listType stop_element;
+    listType saved_list_rest;
+    errInfoType err_info = OKAY_NO_ERROR;
+    listType result;
 
   /* rfl_head */
     isit_int(arg_4(arguments));
@@ -504,7 +504,7 @@ objecttype rfl_head (listtype arguments)
           stop_element->next = NULL;
         } /* if */
         result = take_reflist(list);
-        list->value.listvalue = NULL;
+        list->value.listValue = NULL;
       } else {
         if (stop_element != NULL) {
           saved_list_rest = stop_element->next;
@@ -527,12 +527,12 @@ objecttype rfl_head (listtype arguments)
 
 
 
-objecttype rfl_idx (listtype arguments)
+objectType rfl_idx (listType arguments)
 
   {
-    inttype position;
-    listtype list_element;
-    objecttype result;
+    intType position;
+    listType list_element;
+    objectType result;
 
   /* rfl_idx */
     isit_reflist(arg_1(arguments));
@@ -558,15 +558,15 @@ objecttype rfl_idx (listtype arguments)
 
 
 
-objecttype rfl_incl (listtype arguments)
+objectType rfl_incl (listType arguments)
 
   {
-    errinfotype err_info = OKAY_NO_ERROR;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* rfl_incl */
     isit_reflist(arg_1(arguments));
     isit_reference(arg_2(arguments));
-    incl_list(&arg_1(arguments)->value.listvalue,
+    incl_list(&arg_1(arguments)->value.listValue,
         take_reference(arg_2(arguments)), &err_info);
     if (err_info != OKAY_NO_ERROR) {
       return raise_exception(SYS_MEM_EXCEPTION);
@@ -577,13 +577,13 @@ objecttype rfl_incl (listtype arguments)
 
 
 
-objecttype rfl_ipos (listtype arguments)
+objectType rfl_ipos (listType arguments)
 
   {
-    listtype list_element;
-    objecttype searched_object;
-    inttype from_index;
-    inttype result;
+    listType list_element;
+    objectType searched_object;
+    intType from_index;
+    intType result;
 
   /* rfl_ipos */
     isit_reflist(arg_1(arguments));
@@ -608,11 +608,11 @@ objecttype rfl_ipos (listtype arguments)
 
 
 
-objecttype rfl_lng (listtype arguments)
+objectType rfl_lng (listType arguments)
 
   {
-    listtype list_element;
-    inttype result;
+    listType list_element;
+    intType result;
 
   /* rfl_lng */
     isit_reflist(arg_1(arguments));
@@ -627,10 +627,10 @@ objecttype rfl_lng (listtype arguments)
 
 
 
-objecttype rfl_mklist (listtype arguments)
+objectType rfl_mklist (listType arguments)
 
   {
-    listtype result;
+    listType result;
 
   /* rfl_mklist */
     isit_reference(arg_1(arguments));
@@ -645,12 +645,12 @@ objecttype rfl_mklist (listtype arguments)
 
 
 
-objecttype rfl_ne (listtype arguments)
+objectType rfl_ne (listType arguments)
 
   {
-    listtype list1;
-    listtype list2;
-    objecttype result;
+    listType list1;
+    listType list2;
+    objectType result;
 
   /* rfl_ne */
     isit_reflist(arg_1(arguments));
@@ -672,11 +672,11 @@ objecttype rfl_ne (listtype arguments)
 
 
 
-objecttype rfl_not_elem (listtype arguments)
+objectType rfl_not_elem (listType arguments)
 
   {
-    objecttype searched_object;
-    listtype list_element;
+    objectType searched_object;
+    listType list_element;
 
   /* rfl_not_elem */
     isit_reference(arg_1(arguments));
@@ -695,12 +695,12 @@ objecttype rfl_not_elem (listtype arguments)
 
 
 
-objecttype rfl_pos (listtype arguments)
+objectType rfl_pos (listType arguments)
 
   {
-    listtype list_element;
-    objecttype searched_object;
-    inttype result;
+    listType list_element;
+    objectType searched_object;
+    intType result;
 
   /* rfl_pos */
     isit_reflist(arg_1(arguments));
@@ -720,19 +720,19 @@ objecttype rfl_pos (listtype arguments)
 
 
 
-objecttype rfl_range (listtype arguments)
+objectType rfl_range (listType arguments)
 
   {
-    objecttype list;
-    inttype start;
-    inttype stop;
-    inttype number;
-    listtype start_element;
-    listtype stop_element;
-    listtype *start_address;
-    listtype saved_list_rest;
-    errinfotype err_info = OKAY_NO_ERROR;
-    listtype result;
+    objectType list;
+    intType start;
+    intType stop;
+    intType number;
+    listType start_element;
+    listType stop_element;
+    listType *start_address;
+    listType saved_list_rest;
+    errInfoType err_info = OKAY_NO_ERROR;
+    listType result;
 
   /* rfl_range */
     isit_reflist(arg_1(arguments));
@@ -780,15 +780,15 @@ objecttype rfl_range (listtype arguments)
 
 
 
-objecttype rfl_setvalue (listtype arguments)
+objectType rfl_setValue (listType arguments)
 
   {
-    objecttype list_to;
-    objecttype list_from;
-    listtype help_list;
-    errinfotype err_info = OKAY_NO_ERROR;
+    objectType list_to;
+    objectType list_from;
+    listType help_list;
+    errInfoType err_info = OKAY_NO_ERROR;
 
-  /* rfl_setvalue */
+  /* rfl_setValue */
     isit_reference(arg_1(arguments));
     is_variable(arg_1(arguments));
     list_to = take_reference(arg_1(arguments));
@@ -800,15 +800,15 @@ objecttype rfl_setvalue (listtype arguments)
       if (list_from != list_to) {
         if (TEMP_OBJECT(list_from)) {
           free_list(take_reflist(list_to));
-          list_to->value.listvalue = take_reflist(list_from);
-          list_from->value.listvalue = NULL;
+          list_to->value.listValue = take_reflist(list_from);
+          list_from->value.listValue = NULL;
         } else {
           help_list = copy_list(take_reflist(list_from), &err_info);
           if (err_info != OKAY_NO_ERROR) {
             return raise_exception(SYS_MEM_EXCEPTION);
           } else {
             free_list(take_reflist(list_to));
-            list_to->value.listvalue = help_list;
+            list_to->value.listValue = help_list;
           } /* if */
         } /* if */
       } /* if */
@@ -816,19 +816,19 @@ objecttype rfl_setvalue (listtype arguments)
       run_error(REFLISTOBJECT, list_to);
     } /* if */
     return SYS_EMPTY_OBJECT;
-  } /* rfl_setvalue */
+  } /* rfl_setValue */
 
 
 
-objecttype rfl_tail (listtype arguments)
+objectType rfl_tail (listType arguments)
 
   {
-    objecttype list;
-    inttype start;
-    inttype number;
-    listtype list_element;
-    errinfotype err_info = OKAY_NO_ERROR;
-    listtype result;
+    objectType list;
+    intType start;
+    intType number;
+    listType list_element;
+    errInfoType err_info = OKAY_NO_ERROR;
+    listType result;
 
   /* rfl_tail */
     isit_reflist(arg_1(arguments));
@@ -855,7 +855,7 @@ objecttype rfl_tail (listtype arguments)
     } else {
       if (TEMP_OBJECT(list)) {
         result = list_element;
-        list->value.listvalue = NULL;
+        list->value.listValue = NULL;
       } else {
         result = copy_list(list_element, &err_info);
       } /* if */
@@ -869,7 +869,7 @@ objecttype rfl_tail (listtype arguments)
 
 
 
-objecttype rfl_trace (listtype arguments)
+objectType rfl_trace (listType arguments)
 
   { /* rfl_trace */
     isit_reflist(arg_1(arguments));
@@ -879,12 +879,12 @@ objecttype rfl_trace (listtype arguments)
 
 
 
-objecttype rfl_value (listtype arguments)
+objectType rfl_value (listType arguments)
 
   {
-    objecttype obj_arg;
-    errinfotype err_info = OKAY_NO_ERROR;
-    listtype result;
+    objectType obj_arg;
+    errInfoType err_info = OKAY_NO_ERROR;
+    listType result;
 
   /* rfl_value */
     isit_reference(arg_1(arguments));

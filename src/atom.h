@@ -25,5 +25,5 @@
 /*                                                                  */
 /********************************************************************/
 
-objecttype read_atom (void);
-objecttype read_name (void);
+objectType read_atom (void);
+objectType read_name (void);

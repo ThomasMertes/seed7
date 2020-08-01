@@ -31,51 +31,51 @@
 
 void setupStack (void);
 #ifdef HAS_SYMLINKS
-stritype followLink (stritype path);
+striType followLink (striType path);
 #endif
 #ifdef EMULATE_ROOT_CWD
-void initEmulatedCwd (errinfotype *err_info);
+void initEmulatedCwd (errInfoType *err_info);
 #endif
-biginttype cmdBigFileSize (const const_stritype file_name);
-void cmdChdir (const const_stritype dir_name);
-void cmdCloneFile (const const_stritype source_name, const const_stritype dest_name);
-stritype cmdConfigValue (const const_stritype name);
-void cmdCopyFile (const const_stritype source_name, const const_stritype dest_name);
-rtlArraytype cmdEnvironment (void);
-settype cmdFileMode (const const_stritype file_name);
-inttype cmdFileSize (const const_stritype file_name);
-inttype cmdFileType (const const_stritype file_name);
-inttype cmdFileTypeSL (const const_stritype file_name);
-stritype cmdGetcwd (void);
-stritype cmdGetenv (const const_stritype stri);
-void cmdGetATime (const const_stritype file_name,
-    inttype *year, inttype *month, inttype *day, inttype *hour,
-    inttype *min, inttype *sec, inttype *micro_sec, inttype *time_zone,
-    booltype *is_dst);
-void cmdGetCTime (const const_stritype file_name,
-    inttype *year, inttype *month, inttype *day, inttype *hour,
-    inttype *min, inttype *sec, inttype *micro_sec, inttype *time_zone,
-    booltype *is_dst);
-void cmdGetMTime (const const_stritype file_name,
-    inttype *year, inttype *month, inttype *day, inttype *hour,
-    inttype *min, inttype *sec, inttype *micro_sec, inttype *time_zone,
-    booltype *is_dst);
-rtlArraytype cmdGetSearchPath (void);
-stritype cmdHomeDir (void);
-void cmdMkdir (const const_stritype dir_name);
-void cmdMove (const const_stritype source_name, const const_stritype dest_name);
-stritype cmdReadlink (const const_stritype link_name);
-void cmdRemove (const const_stritype file_name);
-void cmdRemoveAnyFile (const const_stritype file_name);
-void cmdSetenv (const const_stritype name, const const_stritype value);
-void cmdSetATime (const const_stritype file_name,
-    inttype year, inttype month, inttype day, inttype hour,
-    inttype min, inttype sec, inttype micro_sec, inttype time_zone);
-void cmdSetFileMode (const const_stritype file_name, const const_settype mode);
-void cmdSetMTime (const const_stritype file_name,
-    inttype year, inttype month, inttype day, inttype hour,
-    inttype min, inttype sec, inttype micro_sec, inttype time_zone);
-inttype cmdShell (const const_stritype command, const const_stritype parameters);
-stritype cmdShellEscape (const const_stritype stri);
-void cmdSymlink (const const_stritype source_name, const const_stritype dest_name);
-stritype cmdToOsPath (const const_stritype standardPath);
+bigIntType cmdBigFileSize (const const_striType file_name);
+void cmdChdir (const const_striType dir_name);
+void cmdCloneFile (const const_striType source_name, const const_striType dest_name);
+striType cmdConfigValue (const const_striType name);
+void cmdCopyFile (const const_striType source_name, const const_striType dest_name);
+rtlArrayType cmdEnvironment (void);
+setType cmdFileMode (const const_striType file_name);
+intType cmdFileSize (const const_striType file_name);
+intType cmdFileType (const const_striType file_name);
+intType cmdFileTypeSL (const const_striType file_name);
+striType cmdGetcwd (void);
+striType cmdGetenv (const const_striType stri);
+void cmdGetATime (const const_striType file_name,
+    intType *year, intType *month, intType *day, intType *hour,
+    intType *min, intType *sec, intType *micro_sec, intType *time_zone,
+    boolType *is_dst);
+void cmdGetCTime (const const_striType file_name,
+    intType *year, intType *month, intType *day, intType *hour,
+    intType *min, intType *sec, intType *micro_sec, intType *time_zone,
+    boolType *is_dst);
+void cmdGetMTime (const const_striType file_name,
+    intType *year, intType *month, intType *day, intType *hour,
+    intType *min, intType *sec, intType *micro_sec, intType *time_zone,
+    boolType *is_dst);
+rtlArrayType cmdGetSearchPath (void);
+striType cmdHomeDir (void);
+void cmdMkdir (const const_striType dir_name);
+void cmdMove (const const_striType source_name, const const_striType dest_name);
+striType cmdReadlink (const const_striType link_name);
+void cmdRemove (const const_striType file_name);
+void cmdRemoveAnyFile (const const_striType file_name);
+void cmdSetenv (const const_striType name, const const_striType value);
+void cmdSetATime (const const_striType file_name,
+    intType year, intType month, intType day, intType hour,
+    intType min, intType sec, intType micro_sec, intType time_zone);
+void cmdSetFileMode (const const_striType file_name, const const_setType mode);
+void cmdSetMTime (const const_striType file_name,
+    intType year, intType month, intType day, intType hour,
+    intType min, intType sec, intType micro_sec, intType time_zone);
+intType cmdShell (const const_striType command, const const_striType parameters);
+striType cmdShellEscape (const const_striType stri);
+void cmdSymlink (const const_striType source_name, const const_striType dest_name);
+striType cmdToOsPath (const const_striType standardPath);

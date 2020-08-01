@@ -90,18 +90,18 @@ void continue_question (void)
 
 
 
-static void write_call_stack_element (const_listtype stack_elem)
+static void write_call_stack_element (const_listType stack_elem)
 
   {
-    const_listtype position_stack_elem;
-    objecttype func_object;
+    const_listType position_stack_elem;
+    objectType func_object;
 
   /* write_call_stack_element */
     if (stack_elem->obj != NULL) {
       if (stack_elem->next != NULL) {
         if (CATEGORY_OF_OBJ(stack_elem->obj) == CALLOBJECT ||
             CATEGORY_OF_OBJ(stack_elem->obj) == MATCHOBJECT) {
-          func_object = stack_elem->obj->value.listvalue->obj;
+          func_object = stack_elem->obj->value.listValue->obj;
         } else {
           func_object = stack_elem->obj;
         } /* if */
@@ -147,7 +147,7 @@ static void write_call_stack_element (const_listtype stack_elem)
 
 
 
-void write_call_stack (const_listtype stack_elem)
+void write_call_stack (const_listType stack_elem)
 
   { /* write_call_stack */
     if (stack_elem != NULL) {
@@ -158,16 +158,16 @@ void write_call_stack (const_listtype stack_elem)
 
 
 
-objecttype raise_with_arguments (objecttype exception, listtype list)
+objectType raise_with_arguments (objectType exception, listType list)
 
   {
-    errinfotype err_info = OKAY_NO_ERROR;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* raise_with_arguments */
 #ifdef WITH_PROTOCOL
     if (list == curr_argument_list) {
-      if (curr_exec_object != NULL && curr_exec_object->value.listvalue != NULL) {
-        curr_action_object = curr_exec_object->value.listvalue->obj;
+      if (curr_exec_object != NULL && curr_exec_object->value.listValue != NULL) {
+        curr_action_object = curr_exec_object->value.listValue->obj;
         incl_list(&fail_stack, curr_action_object, &err_info);
       } /* if */
     } /* if */
@@ -204,9 +204,9 @@ objecttype raise_with_arguments (objecttype exception, listtype list)
           } /* if */
         } /* if */
         printf("\n");
-        if (curr_action_object->value.actvalue != NULL) {
+        if (curr_action_object->value.actValue != NULL) {
           printf("*** ACTION \"%s\"\n",
-              get_primact(curr_action_object->value.actvalue)->name);
+              get_primact(curr_action_object->value.actValue)->name);
         } /* if */
       } else {
         printf(" with\n");
@@ -225,7 +225,7 @@ objecttype raise_with_arguments (objecttype exception, listtype list)
         exception->type_of = NULL;
         exception->descriptor.property = NULL;
         INIT_CATEGORY_OF_TEMP(exception, SYMBOLOBJECT);
-        exception->value.intvalue = 0;
+        exception->value.intValue = 0;
       } /* if */
     } /* if */
     incl_list(&fail_stack, curr_exec_object, &err_info);
@@ -239,7 +239,7 @@ objecttype raise_with_arguments (objecttype exception, listtype list)
 
 
 
-objecttype raise_exception (objecttype exception)
+objectType raise_exception (objectType exception)
 
   { /* raise_exception */
     return raise_with_arguments(exception, curr_argument_list);
@@ -247,7 +247,7 @@ objecttype raise_exception (objecttype exception)
 
 
 
-void raise_error3 (int exception_num, const_cstritype filename, int line)
+void raise_error3 (int exception_num, const_cstriType filename, int line)
 
   { /* raise_error3 */
     (void) raise_exception(prog.sys_var[exception_num]);
@@ -255,15 +255,15 @@ void raise_error3 (int exception_num, const_cstritype filename, int line)
 
 
 
-void run_error (objectcategory required, objecttype argument)
+void run_error (objectCategory required, objectType argument)
 
   { /* run_error */
     if (curr_exec_object != NULL) {
-      curr_action_object = curr_exec_object->value.listvalue->obj;
+      curr_action_object = curr_exec_object->value.listValue->obj;
     } /* if */
     printf("\n*** ACTION $");
-    if (curr_action_object->value.actvalue != NULL) {
-      printf("%s", get_primact(curr_action_object->value.actvalue)->name);
+    if (curr_action_object->value.actValue != NULL) {
+      printf("%s", get_primact(curr_action_object->value.actValue)->name);
     } else {
       printf("NULL");
     } /* if */
@@ -291,15 +291,15 @@ void run_error (objectcategory required, objecttype argument)
 
 
 
-void empty_value (objecttype argument)
+void empty_value (objectType argument)
 
   { /* empty_value */
     if (curr_exec_object != NULL) {
-      curr_action_object = curr_exec_object->value.listvalue->obj;
+      curr_action_object = curr_exec_object->value.listValue->obj;
     } /* if */
     printf("\n*** ACTION $");
-    if (curr_action_object->value.actvalue != NULL) {
-      printf("%s", get_primact(curr_action_object->value.actvalue)->name);
+    if (curr_action_object->value.actValue != NULL) {
+      printf("%s", get_primact(curr_action_object->value.actValue)->name);
     } else {
       printf("NULL");
     } /* if */
@@ -313,15 +313,15 @@ void empty_value (objecttype argument)
 
 
 
-void var_required (objecttype argument)
+void var_required (objectType argument)
 
   { /* var_required */
     if (curr_exec_object != NULL) {
-      curr_action_object = curr_exec_object->value.listvalue->obj;
+      curr_action_object = curr_exec_object->value.listValue->obj;
     } /* if */
     printf("\n*** ACTION $");
-    if (curr_action_object->value.actvalue != NULL) {
-      printf("%s", get_primact(curr_action_object->value.actvalue)->name);
+    if (curr_action_object->value.actValue != NULL) {
+      printf("%s", get_primact(curr_action_object->value.actValue)->name);
     } else {
       printf("NULL");
     } /* if */

@@ -25,10 +25,10 @@
 /*                                                                  */
 /********************************************************************/
 
-objecttype exec_object (register objecttype object);
-objecttype exec_call (objecttype object);
-objecttype evaluate (objecttype object);
-objecttype eval_expression (objecttype object);
-objecttype exec_dynamic (listtype expr_list);
-objecttype exec_expr (const_progtype currentProg, objecttype object,
-                      errinfotype *err_info);
+objectType exec_object (register objectType object);
+objectType exec_call (objectType object);
+objectType evaluate (objectType object);
+objectType eval_expression (objectType object);
+objectType exec_dynamic (listType expr_list);
+objectType exec_expr (const_progType currentProg, objectType object,
+                      errInfoType *err_info);

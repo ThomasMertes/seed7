@@ -51,16 +51,16 @@
 #define SCRHEIGHT 25
 #define SCRWIDTH 80
 
-static booltype keybd_initialized = FALSE;
+static boolType keybd_initialized = FALSE;
 static DWORD saved_console_input_mode;
 
 static char currentattribute;
-static booltype console_initialized = FALSE;
-static booltype cursor_on = FALSE;
+static boolType console_initialized = FALSE;
+static boolType cursor_on = FALSE;
 
 
 #ifdef OS_GETCH_READS_BYTES
-static chartype map_char[] = {
+static charType map_char[] = {
 /*   0 */ 0000, 0001, 0002, 0003, 0004, 0005, 0006, 0007, 0010, 0011,
 /*  10 */ 0012, 0013, 0014, 0015, 0016, 0017, 0020, 0021, 0022, 0023,
 /*  20 */ 0024, 0025, 0026, 0027, 0030, 0031, 0032, 0033, 0034, 0035,
@@ -90,7 +90,7 @@ static chartype map_char[] = {
 #endif
 
 
-static chartype map_key[] = {
+static charType map_key[] = {
 /*   0 */ K_UNDEF,     K_UNDEF,     K_UNDEF,     K_NULCHAR,   K_UNDEF,
 /*   5 */ K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,
 /*  10 */ K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,     K_UNDEF,
@@ -188,7 +188,7 @@ void kbdShut (void)
 
 
 
-booltype kbdKeyPressed (void)
+boolType kbdKeyPressed (void)
 
   { /* kbdKeyPressed */
     if (!keybd_initialized) {
@@ -199,11 +199,11 @@ booltype kbdKeyPressed (void)
 
 
 
-chartype kbdGetc (void)
+charType kbdGetc (void)
 
   {
-    inttype key;
-    chartype result;
+    intType key;
+    charType result;
 
   /* kbdGetc */
     if (!keybd_initialized) {
@@ -217,9 +217,9 @@ chartype kbdGetc (void)
       /* printf("%ld] -> %lu ", key, result); */
     } else {
 #ifdef OS_GETCH_READS_BYTES
-      result = map_char[(uinttype) key & 0xFF];
+      result = map_char[(uintType) key & 0xFF];
 #else
-      result = (chartype) key;
+      result = (charType) key;
 #endif
     } /* if */
     if (result == 13) {
@@ -230,7 +230,7 @@ chartype kbdGetc (void)
 
 
 
-chartype kbdRawGetc (void)
+charType kbdRawGetc (void)
 
   { /* kbdRawGetc */
     return kbdGetc();
@@ -246,7 +246,7 @@ static void con_beep (void)
 
 
 
-static void con_setcolor (inttype foreground, inttype background)
+static void con_setcolor (intType foreground, intType background)
 
   { /* con_setcolor */
     currentattribute = (char) (foreground + 16 * (background % 8));
@@ -277,7 +277,7 @@ static void con_setfont (char *fontname)
 
 
 
-inttype textheight (void)
+intType textheight (void)
 
   { /* textheight */
     return 1;
@@ -285,8 +285,8 @@ inttype textheight (void)
 
 
 
-inttype textwidth (stritype stri,
-    inttype startcol, inttype stopcol)
+intType textwidth (striType stri,
+    intType startcol, intType stopcol)
 
   { /* textwidth */
     return stopcol + 1 - startcol;
@@ -294,8 +294,8 @@ inttype textwidth (stritype stri,
 
 
 
-void textcolumns (stritype stri, inttype striwidth,
-    inttype * cols, inttype *rest)
+void textcolumns (striType stri, intType striwidth,
+    intType * cols, intType *rest)
 
   { /* textcolumns */
     *cols = striwidth;
@@ -361,7 +361,7 @@ void conFlush (void)
 
 
 
-void conCursor (booltype on)
+void conCursor (boolType on)
 
   { /* conCursor */
     cursor_on = on;
@@ -381,7 +381,7 @@ void conCursor (booltype on)
  *  When no system cursor exists this procedure can be replaced by
  *  a dummy procedure.
  */
-void conSetCursor (inttype line, inttype column)
+void conSetCursor (intType line, intType column)
 
   {
     HANDLE hConsole;
@@ -394,8 +394,8 @@ void conSetCursor (inttype line, inttype column)
       if (console_initialized) {
         hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
         if (hConsole != INVALID_HANDLE_VALUE) {
-          position.X = (int16type) (column - 1);
-          position.Y = (int16type) (line - 1);
+          position.X = (int16Type) (column - 1);
+          position.Y = (int16Type) (line - 1);
           if (!SetConsoleCursorPosition(hConsole, position)) {
             /* printf("SetConsoleCursorPosition(%d, (%d, %d)) ==> Error %d\n",
                 hConsole, column - 1, line - 1, GetLastError()); */
@@ -410,14 +410,14 @@ void conSetCursor (inttype line, inttype column)
 
 
 
-static void doWriteConsole (HANDLE hConsole, const const_stritype stri)
+static void doWriteConsole (HANDLE hConsole, const const_striType stri)
 
   {
     wchar_t wstri_buffer[2 * 256];
-    wstritype wstri;
-    wstritype wstri_part;
-    memsizetype wstri_size;
-    errinfotype err_info = OKAY_NO_ERROR;
+    wstriType wstri;
+    wstriType wstri_part;
+    memSizeType wstri_size;
+    errInfoType err_info = OKAY_NO_ERROR;
     DWORD numchars;
 
   /* doWriteConsole */
@@ -456,7 +456,7 @@ static void doWriteConsole (HANDLE hConsole, const const_stritype stri)
 /**
  *  Writes the string stri to the console at the current position.
  */
-void conWrite (const const_stritype stri)
+void conWrite (const const_striType stri)
 
   {
     HANDLE hConsole;
@@ -480,8 +480,8 @@ void conWrite (const const_stritype stri)
 /**
  *  Clears the area described by startlin, stoplin, startcol and stopcol.
  */
-void conClear (inttype startlin, inttype startcol,
-    inttype stoplin, inttype stopcol)
+void conClear (intType startlin, intType startcol,
+    intType stoplin, intType stopcol)
 
   {
     HANDLE hConsole;
@@ -500,9 +500,9 @@ void conClear (inttype startlin, inttype startcol,
         stopcol = INT16TYPE_MAX;
       } /* if */
       hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-      position.X = (int16type) (startcol - 1);
-      position.Y = (int16type) (startlin - 1);
-      while (position.Y < (int16type) stoplin) {
+      position.X = (int16Type) (startcol - 1);
+      position.Y = (int16Type) (startlin - 1);
+      while (position.Y < (int16Type) stoplin) {
         FillConsoleOutputCharacter(hConsole, (TCHAR) ' ',
             (unsigned int) (stopcol - startcol + 1), position, &numchars);
         position.Y++;
@@ -519,8 +519,8 @@ void conClear (inttype startlin, inttype startcol,
  *  are inserted. Nothing is changed outside the area.
  *  The calling function assures that count is greater or equal 1.
  */
-void conUpScroll (inttype startlin, inttype startcol,
-    inttype stoplin, inttype stopcol, inttype count)
+void conUpScroll (intType startlin, intType startcol,
+    intType stoplin, intType stopcol, intType count)
 
   {
     HANDLE hConsole;
@@ -544,12 +544,12 @@ void conUpScroll (inttype startlin, inttype startcol,
         } /* if */
         hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
         if (hConsole != INVALID_HANDLE_VALUE) {
-          scrollRect.Left   = (int16type) (startcol - 1);
-          scrollRect.Top    = (int16type) (startlin + count - 1);
-          scrollRect.Right  = (int16type) (stopcol - 1);
-          scrollRect.Bottom = (int16type) (stoplin - 1);
-          destOrigin.X = (int16type) (startcol - 1);
-          destOrigin.Y = (int16type) (startlin - 1);
+          scrollRect.Left   = (int16Type) (startcol - 1);
+          scrollRect.Top    = (int16Type) (startlin + count - 1);
+          scrollRect.Right  = (int16Type) (stopcol - 1);
+          scrollRect.Bottom = (int16Type) (stoplin - 1);
+          destOrigin.X = (int16Type) (startcol - 1);
+          destOrigin.Y = (int16Type) (startlin - 1);
           memset(&fillChar, 0, sizeof(CHAR_INFO));
           fillChar.Char.AsciiChar = ' ';
           ScrollConsoleScreenBuffer(hConsole, &scrollRect, NULL, destOrigin, &fillChar);
@@ -570,8 +570,8 @@ void conUpScroll (inttype startlin, inttype startcol,
  *  are inserted. Nothing is changed outside the area.
  *  The calling function assures that count is greater or equal 1.
  */
-void conDownScroll (inttype startlin, inttype startcol,
-    inttype stoplin, inttype stopcol, inttype count)
+void conDownScroll (intType startlin, intType startcol,
+    intType stoplin, intType stopcol, intType count)
 
   {
     HANDLE hConsole;
@@ -595,12 +595,12 @@ void conDownScroll (inttype startlin, inttype startcol,
         } /* if */
         hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
         if (hConsole != INVALID_HANDLE_VALUE) {
-          scrollRect.Left   = (int16type) (startcol - 1);
-          scrollRect.Top    = (int16type) (startlin - 1);
-          scrollRect.Right  = (int16type) (stopcol - 1);
-          scrollRect.Bottom = (int16type) (stoplin - count - 1);
-          destOrigin.X = (int16type) (startcol - 1);
-          destOrigin.Y = (int16type) (startlin + count - 1);
+          scrollRect.Left   = (int16Type) (startcol - 1);
+          scrollRect.Top    = (int16Type) (startlin - 1);
+          scrollRect.Right  = (int16Type) (stopcol - 1);
+          scrollRect.Bottom = (int16Type) (stoplin - count - 1);
+          destOrigin.X = (int16Type) (startcol - 1);
+          destOrigin.Y = (int16Type) (startlin + count - 1);
           memset(&fillChar, 0, sizeof(CHAR_INFO));
           fillChar.Char.AsciiChar = ' ';
           ScrollConsoleScreenBuffer(hConsole, &scrollRect, NULL, destOrigin, &fillChar);
@@ -621,8 +621,8 @@ void conDownScroll (inttype startlin, inttype startcol,
  *  are inserted. Nothing is changed outside the area.
  *  The calling function assures that count is greater or equal 1.
  */
-void conLeftScroll (inttype startlin, inttype startcol,
-    inttype stoplin, inttype stopcol, inttype count)
+void conLeftScroll (intType startlin, intType startcol,
+    intType stoplin, intType stopcol, intType count)
 
   {
     HANDLE hConsole;
@@ -646,12 +646,12 @@ void conLeftScroll (inttype startlin, inttype startcol,
         } /* if */
         hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
         if (hConsole != INVALID_HANDLE_VALUE) {
-          scrollRect.Left   = (int16type) (startcol + count - 1);
-          scrollRect.Top    = (int16type) (startlin - 1);
-          scrollRect.Right  = (int16type) (stopcol - 1);
-          scrollRect.Bottom = (int16type) (stoplin - 1);
-          destOrigin.X = (int16type) (startcol - 1);
-          destOrigin.Y = (int16type) (startlin - 1);
+          scrollRect.Left   = (int16Type) (startcol + count - 1);
+          scrollRect.Top    = (int16Type) (startlin - 1);
+          scrollRect.Right  = (int16Type) (stopcol - 1);
+          scrollRect.Bottom = (int16Type) (stoplin - 1);
+          destOrigin.X = (int16Type) (startcol - 1);
+          destOrigin.Y = (int16Type) (startlin - 1);
           memset(&fillChar, 0, sizeof(CHAR_INFO));
           fillChar.Char.AsciiChar = ' ';
           ScrollConsoleScreenBuffer(hConsole, &scrollRect, NULL, destOrigin, &fillChar);
@@ -672,8 +672,8 @@ void conLeftScroll (inttype startlin, inttype startcol,
  *  are inserted. Nothing is changed outside the area.
  *  The calling function assures that count is greater or equal 1.
  */
-void conRightScroll (inttype startlin, inttype startcol,
-    inttype stoplin, inttype stopcol, inttype count)
+void conRightScroll (intType startlin, intType startcol,
+    intType stoplin, intType stopcol, intType count)
 
   {
     HANDLE hConsole;
@@ -697,12 +697,12 @@ void conRightScroll (inttype startlin, inttype startcol,
         } /* if */
         hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
         if (hConsole != INVALID_HANDLE_VALUE) {
-          scrollRect.Left   = (int16type) (startcol - 1);
-          scrollRect.Top    = (int16type) (startlin - 1);
-          scrollRect.Right  = (int16type) (stopcol - count - 1);
-          scrollRect.Bottom = (int16type) (stoplin - 1);
-          destOrigin.X = (int16type) (startcol + count - 1);
-          destOrigin.Y = (int16type) (startlin - 1);
+          scrollRect.Left   = (int16Type) (startcol - 1);
+          scrollRect.Top    = (int16Type) (startlin - 1);
+          scrollRect.Right  = (int16Type) (stopcol - count - 1);
+          scrollRect.Bottom = (int16Type) (stoplin - 1);
+          destOrigin.X = (int16Type) (startcol + count - 1);
+          destOrigin.Y = (int16Type) (startlin - 1);
           memset(&fillChar, 0, sizeof(CHAR_INFO));
           fillChar.Char.AsciiChar = ' ';
           ScrollConsoleScreenBuffer(hConsole, &scrollRect, NULL, destOrigin, &fillChar);

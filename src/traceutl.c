@@ -57,25 +57,25 @@
 
 
 FILE *protfile = NULL; /* was: stdout; */
-booltype internal_protocol = FALSE;
+boolType internal_protocol = FALSE;
 
 /* #define prot_ptr(ptr) */
-#define prot_ptr(ptr) prot_int((inttype) (memsizetype) ptr)
+#define prot_ptr(ptr) prot_int((intType) (memSizeType) ptr)
 
 
 
 void prot_flush (void)
 
   {
-    tracerecord trace_backup;
+    traceRecord trace_backup;
 
   /* prot_flush */
     if (internal_protocol) {
       if (SYS_PROT_OUTFILE_OBJECT != NULL) {
-        memcpy(&trace_backup, &trace, sizeof(tracerecord));
-        memset(&trace, 0, sizeof(tracerecord));
+        memcpy(&trace_backup, &trace, sizeof(traceRecord));
+        memset(&trace, 0, sizeof(traceRecord));
         do_flush(SYS_PROT_OUTFILE_OBJECT);
-        memcpy(&trace, &trace_backup, sizeof(tracerecord));
+        memcpy(&trace, &trace_backup, sizeof(traceRecord));
       } /* if */
     } else {
       if (protfile == NULL) {
@@ -90,15 +90,15 @@ void prot_flush (void)
 void prot_nl (void)
 
   {
-    tracerecord trace_backup;
+    traceRecord trace_backup;
 
   /* prot_nl */
     if (internal_protocol) {
       if (SYS_PROT_OUTFILE_OBJECT != NULL) {
-        memcpy(&trace_backup, &trace, sizeof(tracerecord));
-        memset(&trace, 0, sizeof(tracerecord));
+        memcpy(&trace_backup, &trace, sizeof(traceRecord));
+        memset(&trace, 0, sizeof(traceRecord));
         do_wrnl(SYS_PROT_OUTFILE_OBJECT);
-        memcpy(&trace, &trace_backup, sizeof(tracerecord));
+        memcpy(&trace, &trace_backup, sizeof(traceRecord));
       } /* if */
     } else {
       if (protfile == NULL) {
@@ -110,18 +110,18 @@ void prot_nl (void)
 
 
 
-void prot_cstri (const_cstritype stri)
+void prot_cstri (const_cstriType stri)
 
   {
-    tracerecord trace_backup;
+    traceRecord trace_backup;
 
   /* prot_cstri */
     if (internal_protocol) {
       if (SYS_PROT_OUTFILE_OBJECT != NULL) {
-        memcpy(&trace_backup, &trace, sizeof(tracerecord));
-        memset(&trace, 0, sizeof(tracerecord));
+        memcpy(&trace_backup, &trace, sizeof(traceRecord));
+        memset(&trace, 0, sizeof(traceRecord));
         do_wrcstri(SYS_PROT_OUTFILE_OBJECT, stri);
-        memcpy(&trace, &trace_backup, sizeof(tracerecord));
+        memcpy(&trace, &trace_backup, sizeof(traceRecord));
       } /* if */
     } else {
       if (protfile == NULL) {
@@ -137,7 +137,7 @@ void prot_cstri (const_cstritype stri)
 
 
 
-void prot_writeln (const_cstritype stri)
+void prot_writeln (const_cstriType stri)
 
   { /* prot_writeln */
     prot_cstri(stri);
@@ -146,7 +146,7 @@ void prot_writeln (const_cstritype stri)
 
 
 
-void prot_int (inttype ivalue)
+void prot_int (intType ivalue)
 
   {
     char buffer[51];
@@ -158,10 +158,10 @@ void prot_int (inttype ivalue)
 
 
 
-void prot_bigint (const const_biginttype bintvalue)
+void prot_bigint (const const_bigIntType bintvalue)
 
   {
-    cstritype cstri;
+    cstriType cstri;
 
   /* prot_bigint */
     cstri = bigHexCStri(bintvalue);
@@ -172,20 +172,20 @@ void prot_bigint (const const_biginttype bintvalue)
 
 
 #ifdef WITH_FLOAT
-void prot_float (floattype floatvalue)
+void prot_float (floatType floatValue)
 
   {
     char buffer[51];
 
   /* prot_float */
-    sprintf(buffer, "%f", floatvalue);
+    sprintf(buffer, "%f", floatValue);
     prot_cstri(buffer);
   } /* prot_float */
 #endif
 
 
 
-static void prot_char (chartype cvalue)
+static void prot_char (charType cvalue)
 
   {
     char buffer[51];
@@ -205,10 +205,10 @@ static void prot_char (chartype cvalue)
 
 
 
-void prot_os_stri (const const_os_stritype os_stri)
+void prot_os_stri (const const_os_striType os_stri)
 
   {
-    const_os_stritype stri;
+    const_os_striType stri;
 
   /* prot_os_stri */
     if (os_stri != NULL) {
@@ -218,20 +218,20 @@ void prot_os_stri (const const_os_stritype os_stri)
         char buffer[51];
 
         for (; *stri != 0 && stri - os_stri <= 128; stri++) {
-          if ((os_uchartype) *stri < (os_uchartype) 127) {
-            if ((os_uchartype) *stri < (os_uchartype) ' ') {
-              strcpy(buffer, cstri_escape_sequence[(os_uchartype) *stri]);
-            } else if ((os_uchartype) *stri == (os_uchartype) '\\') {
+          if ((os_ucharType) *stri < (os_ucharType) 127) {
+            if ((os_ucharType) *stri < (os_ucharType) ' ') {
+              strcpy(buffer, cstri_escape_sequence[(os_ucharType) *stri]);
+            } else if ((os_ucharType) *stri == (os_ucharType) '\\') {
               sprintf(buffer, "\\\\");
-            } else if ((os_uchartype) *stri == (os_uchartype) '\"') {
+            } else if ((os_ucharType) *stri == (os_ucharType) '\"') {
               sprintf(buffer, "\\\"");
             } else {
               sprintf(buffer, "%c", (int) *stri);
             } /* if */
-          } else if ((os_uchartype) *stri <= (os_uchartype) 255) {
-            sprintf(buffer, "\\%3o", (unsigned int) (os_uchartype) *stri);
+          } else if ((os_ucharType) *stri <= (os_ucharType) 255) {
+            sprintf(buffer, "\\%3o", (unsigned int) (os_ucharType) *stri);
           } else {
-            sprintf(buffer, "\\u%4lx", (unsigned long) (os_uchartype) *stri);
+            sprintf(buffer, "\\u%4lx", (unsigned long) (os_ucharType) *stri);
           } /* if */
           prot_cstri(buffer);
           /* putc((int) *stri, protfile); */
@@ -241,7 +241,7 @@ void prot_os_stri (const const_os_stritype os_stri)
         prot_cstri("\\ *AND_SO_ON* SIZE=");
         for (; *stri != 0; stri++) {
         } /* for */
-        prot_int((inttype) (stri - os_stri));
+        prot_int((intType) (stri - os_stri));
       } /* if */
       prot_cstri("\"");
     } else {
@@ -251,12 +251,12 @@ void prot_os_stri (const const_os_stritype os_stri)
 
 
 
-void prot_stri_unquoted (const const_stritype stri)
+void prot_stri_unquoted (const const_striType stri)
 
   {
-    memsizetype size;
-    const strelemtype *str;
-    memsizetype len;
+    memSizeType size;
+    const strElemType *str;
+    memSizeType len;
     char buffer[51];
 
   /* prot_stri_unquoted */
@@ -269,14 +269,14 @@ void prot_stri_unquoted (const const_stritype stri)
         if (*str < 127) {
           if (*str < ' ') {
             strcpy(buffer, stri_escape_sequence[*str]);
-          } else if (*str == (chartype) '\\') {
+          } else if (*str == (charType) '\\') {
             sprintf(buffer, "\\\\");
-          } else if (*str == (chartype) '\"') {
+          } else if (*str == (charType) '\"') {
             sprintf(buffer, "\\\"");
           } else {
             sprintf(buffer, "%c", (int) *str);
           } /* if */
-        } else if (*str == (chartype) -1) {
+        } else if (*str == (charType) -1) {
           sprintf(buffer, "\\-1;");
         } else {
           sprintf(buffer, "\\%lu;", (unsigned long) *str);
@@ -286,7 +286,7 @@ void prot_stri_unquoted (const const_stritype stri)
       } /* for */
       if (stri->size > 128) {
         prot_cstri("\\ *AND_SO_ON* SIZE=");
-        prot_int((inttype) stri->size);
+        prot_int((intType) stri->size);
       } /* if */
     } else {
       prot_cstri(" *NULL_STRING* ");
@@ -295,7 +295,7 @@ void prot_stri_unquoted (const const_stritype stri)
 
 
 
-void prot_stri (const const_stritype stri)
+void prot_stri (const const_striType stri)
 
   { /* prot_stri */
     if (stri != NULL) {
@@ -309,10 +309,10 @@ void prot_stri (const const_stritype stri)
 
 
 
-void prot_bstri (bstritype bstri)
+void prot_bstri (bstriType bstri)
 
   {
-    memsizetype size;
+    memSizeType size;
 
   /* prot_bstri */
     if (bstri != NULL) {
@@ -322,8 +322,8 @@ void prot_bstri (bstritype bstri)
       } /* if */
       prot_cstri("\"");
       {
-        uchartype *str;
-        memsizetype len;
+        ucharType *str;
+        memSizeType len;
         char buffer[51];
 
         for (str = bstri->mem, len = size;
@@ -346,7 +346,7 @@ void prot_bstri (bstritype bstri)
       }
       if (bstri->size > 128) {
         prot_cstri("\\ *AND_SO_ON* SIZE=");
-        prot_int((inttype) bstri->size);
+        prot_int((intType) bstri->size);
       } /* if */
       prot_cstri("\"");
     } else {
@@ -356,13 +356,13 @@ void prot_bstri (bstritype bstri)
 
 
 
-void prot_set (const_settype setValue)
+void prot_set (const_setType setValue)
 
   {
-    inttype position;
-    bitsettype bitset_elem;
+    intType position;
+    bitSetType bitset_elem;
     unsigned int bit_index;
-    booltype first_elem;
+    boolType first_elem;
 
   /* prot_set */
     if (setValue != NULL) {
@@ -375,14 +375,14 @@ void prot_set (const_settype setValue)
       for (position = setValue->min_position; position <= setValue->max_position; position++) {
         bitset_elem = setValue->bitset[position - setValue->min_position];
         if (bitset_elem != 0) {
-          for (bit_index = 0; bit_index < 8 * sizeof(bitsettype); bit_index++) {
-            if (bitset_elem & ((bitsettype) 1) << bit_index) {
+          for (bit_index = 0; bit_index < 8 * sizeof(bitSetType); bit_index++) {
+            if (bitset_elem & ((bitSetType) 1) << bit_index) {
               if (first_elem) {
                 first_elem = FALSE;
               } else {
                 prot_cstri(", ");
               } /* if */
-              prot_int(position << bitset_shift | (inttype) bit_index);
+              prot_int(position << bitset_shift | (intType) bit_index);
             } /* if */
           } /* for */
         } /* if */
@@ -395,7 +395,7 @@ void prot_set (const_settype setValue)
 
 
 
-void prot_block (const_blocktype blockValue)
+void prot_block (const_blockType blockValue)
 
   { /* prot_block */
     if (blockValue == NULL) {
@@ -420,7 +420,7 @@ void prot_heapsize (void)
 
 
 
-void printcategory (objectcategory category)
+void printcategory (objectCategory category)
 
   { /* printcategory */
 #ifdef TRACE_TRACE
@@ -429,7 +429,7 @@ void printcategory (objectcategory category)
     if (category >= SYMBOLOBJECT && category <= PROGOBJECT) {
       prot_cstri(category_cstri(category));
     } else {
-      prot_int((inttype) category);
+      prot_int((intType) category);
     } /* if */
 #ifdef TRACE_TRACE
     printf("END printcategory\n");
@@ -438,7 +438,7 @@ void printcategory (objectcategory category)
 
 
 
-static char *obj_ptr (objecttype anyobject)
+static char *obj_ptr (objectType anyobject)
 
   {
     static char out_buf[50];
@@ -456,7 +456,7 @@ static char *obj_ptr (objecttype anyobject)
 
 
 
-void printtype (const_typetype anytype)
+void printtype (const_typeType anytype)
 
   { /* printtype */
 #ifdef TRACE_TRACE
@@ -488,10 +488,10 @@ void printtype (const_typetype anytype)
 
 
 
-static void print_real_value (const_objecttype anyobject)
+static void print_real_value (const_objectType anyobject)
 
   {
-    structtype structvalue;
+    structType structValue;
 
   /* print_real_value */
 #ifdef TRACE_TRACE
@@ -499,95 +499,95 @@ static void print_real_value (const_objecttype anyobject)
 #endif
     switch (CATEGORY_OF_OBJ(anyobject)) {
       case INTOBJECT:
-        prot_int(anyobject->value.intvalue);
+        prot_int(anyobject->value.intValue);
         break;
       case BIGINTOBJECT:
-        prot_bigint(anyobject->value.bigintvalue);
+        prot_bigint(anyobject->value.bigIntValue);
         break;
       case CHAROBJECT:
-        prot_char(anyobject->value.charvalue);
+        prot_char(anyobject->value.charValue);
         break;
       case STRIOBJECT:
-        prot_stri(anyobject->value.strivalue);
+        prot_stri(anyobject->value.striValue);
         break;
       case BSTRIOBJECT:
-        prot_bstri(anyobject->value.bstrivalue);
+        prot_bstri(anyobject->value.bstriValue);
         break;
       case FILEOBJECT:
-        if (anyobject->value.filevalue == NULL) {
+        if (anyobject->value.fileValue == NULL) {
           prot_cstri(" *NULL_FILE* ");
-        } else if (anyobject->value.filevalue == stdin) {
+        } else if (anyobject->value.fileValue == stdin) {
           prot_cstri("stdin");
-        } else if (anyobject->value.filevalue == stdout) {
+        } else if (anyobject->value.fileValue == stdout) {
           prot_cstri("stdout");
-        } else if (anyobject->value.filevalue == stderr) {
+        } else if (anyobject->value.fileValue == stderr) {
           prot_cstri("stderr");
         } else {
           prot_cstri("file ");
-          prot_int((inttype) fileno(anyobject->value.filevalue));
+          prot_int((intType) fileno(anyobject->value.fileValue));
         } /* if */
         break;
       case SOCKETOBJECT:
         prot_cstri("socket ");
-        prot_int((inttype) anyobject->value.socketvalue);
+        prot_int((intType) anyobject->value.socketValue);
         break;
 #ifdef WITH_FLOAT
       case FLOATOBJECT:
-        prot_float(anyobject->value.floatvalue);
+        prot_float(anyobject->value.floatValue);
         break;
 #endif
       case ARRAYOBJECT:
-        if (anyobject->value.arrayvalue != NULL) {
+        if (anyobject->value.arrayValue != NULL) {
           prot_cstri("array[");
-          prot_int(anyobject->value.arrayvalue->min_position);
+          prot_int(anyobject->value.arrayValue->min_position);
           prot_cstri("..");
-          prot_int(anyobject->value.arrayvalue->max_position);
+          prot_int(anyobject->value.arrayValue->max_position);
           prot_cstri("]");
         } else {
           prot_cstri(" *NULL_ARRAY* ");
         } /* if */
         break;
       case HASHOBJECT:
-        if (anyobject->value.hashvalue != NULL) {
+        if (anyobject->value.hashValue != NULL) {
           prot_cstri("hash[");
-          prot_int((inttype) anyobject->value.hashvalue->size);
+          prot_int((intType) anyobject->value.hashValue->size);
           prot_cstri("]");
         } else {
           prot_cstri(" *NULL_HASH* ");
         } /* if */
         break;
       case STRUCTOBJECT:
-        structvalue = anyobject->value.structvalue;
-        if (structvalue != NULL) {
+        structValue = anyobject->value.structValue;
+        if (structValue != NULL) {
           prot_cstri("struct[");
-          prot_int((inttype) structvalue->size);
+          prot_int((intType) structValue->size);
           prot_cstri("]");
-          if (structvalue->usage_count != 0) {
+          if (structValue->usage_count != 0) {
             prot_cstri("<");
-            prot_int((inttype) structvalue->usage_count);
+            prot_int((intType) structValue->usage_count);
             prot_cstri(">");
           } /* if */
           prot_cstri(" ");
-          prot_ptr(structvalue);
+          prot_ptr(structValue);
         } else {
           prot_cstri(" *NULL_STRUCT* ");
         } /* if */
         break;
       case INTERFACEOBJECT:
-        if (anyobject->value.objvalue != NULL) {
-          if (CATEGORY_OF_OBJ(anyobject->value.objvalue) == STRUCTOBJECT) {
-            structvalue = anyobject->value.objvalue->value.structvalue;
-            if (structvalue != NULL) {
+        if (anyobject->value.objValue != NULL) {
+          if (CATEGORY_OF_OBJ(anyobject->value.objValue) == STRUCTOBJECT) {
+            structValue = anyobject->value.objValue->value.structValue;
+            if (structValue != NULL) {
               prot_cstri("interface[");
-              prot_int((inttype) structvalue->size);
+              prot_int((intType) structValue->size);
               prot_cstri("]");
-              if (structvalue->usage_count != 0) {
+              if (structValue->usage_count != 0) {
                 prot_cstri("<");
-                prot_int((inttype) structvalue->usage_count);
+                prot_int((intType) structValue->usage_count);
                 prot_cstri(">");
               } /* if */
               prot_cstri(" ");
-              prot_ptr(structvalue);
+              prot_ptr(structValue);
               prot_cstri(" ");
               prot_ptr(anyobject);
             } else {
@@ -595,46 +595,46 @@ static void print_real_value (const_objecttype anyobject)
             } /* if */
           } else {
             prot_cstri(" *INTERFACE_TO_");
-            printcategory(CATEGORY_OF_OBJ(anyobject->value.objvalue));
+            printcategory(CATEGORY_OF_OBJ(anyobject->value.objValue));
             prot_cstri("* ");
-            prot_ptr(anyobject->value.objvalue);
+            prot_ptr(anyobject->value.objValue);
             prot_cstri(" ");
             prot_ptr(anyobject);
           } /* if */
           prot_nl();
           prot_cstri("  ");
-          trace1(anyobject->value.objvalue);
+          trace1(anyobject->value.objValue);
         } else {
           prot_cstri(" *NULL_INTERFACE* ");
         } /* if */
         break;
       case SETOBJECT:
-        prot_set(anyobject->value.setvalue);
+        prot_set(anyobject->value.setValue);
         break;
       case ACTOBJECT:
         prot_cstri("action \"");
-        prot_cstri(get_primact(anyobject->value.actvalue)->name);
+        prot_cstri(get_primact(anyobject->value.actValue)->name);
         prot_cstri("\"");
         break;
       case BLOCKOBJECT:
-        prot_block(anyobject->value.blockvalue);
+        prot_block(anyobject->value.blockValue);
         break;
       case WINOBJECT:
-        if (anyobject->value.winvalue == NULL) {
+        if (anyobject->value.winValue == NULL) {
           prot_cstri(" *NULL_WINDOW* ");
         } else {
           prot_cstri("window [");
-          prot_int((inttype) anyobject->value.winvalue->usage_count);
+          prot_int((intType) anyobject->value.winValue->usage_count);
           prot_cstri("] ");
-          prot_ptr(anyobject->value.winvalue);
+          prot_ptr(anyobject->value.winValue);
         } /* if */
         break;
       case PROGOBJECT:
-        if (anyobject->value.progvalue == NULL) {
+        if (anyobject->value.progValue == NULL) {
           prot_cstri(" *NULL_PROG* ");
         } else {
           prot_cstri("prog ");
-          prot_ptr(anyobject->value.progvalue);
+          prot_ptr(anyobject->value.progValue);
         } /* if */
         break;
       default:
@@ -647,7 +647,7 @@ static void print_real_value (const_objecttype anyobject)
 
 
 
-void printvalue (const_objecttype anyobject)
+void printvalue (const_objectType anyobject)
 
   { /* printvalue */
 #ifdef TRACE_TRACE
@@ -667,7 +667,7 @@ void printvalue (const_objecttype anyobject)
 
 
 
-void printobject (const_objecttype anyobject)
+void printobject (const_objectType anyobject)
 
   { /* printobject */
 #ifdef TRACE_TRACE
@@ -691,31 +691,31 @@ void printobject (const_objecttype anyobject)
           } /* if */
           break;
         case TYPEOBJECT:
-          printtype(anyobject->value.typevalue);
+          printtype(anyobject->value.typeValue);
           break;
         case FORMPARAMOBJECT:
           prot_cstri("param ");
-          if (anyobject->value.objvalue != NULL &&
-              CATEGORY_OF_OBJ(anyobject->value.objvalue) == TYPEOBJECT) {
+          if (anyobject->value.objValue != NULL &&
+              CATEGORY_OF_OBJ(anyobject->value.objValue) == TYPEOBJECT) {
             prot_cstri("attr ");
           } /* if */
-          printobject(anyobject->value.objvalue);
+          printobject(anyobject->value.objValue);
           break;
         case VALUEPARAMOBJECT:
           prot_cstri("value param ");
-          printobject(anyobject->value.objvalue);
+          printobject(anyobject->value.objValue);
           break;
         case REFPARAMOBJECT:
           prot_cstri("ref param ");
-          printobject(anyobject->value.objvalue);
+          printobject(anyobject->value.objValue);
           break;
         case REFOBJECT:
           prot_cstri("refobject ");
-          printobject(anyobject->value.objvalue);
+          printobject(anyobject->value.objValue);
           break;
         case RESULTOBJECT:
         case LOCALVOBJECT:
-          printobject(anyobject->value.objvalue);
+          printobject(anyobject->value.objValue);
           break;
         case INTOBJECT:
         case BIGINTOBJECT:
@@ -746,17 +746,17 @@ void printobject (const_objecttype anyobject)
                 prot_cstri(id_string(GET_ENTITY(anyobject)->ident));
               } else {
                 prot_cstri("(");
-                prot_list(anyobject->value.listvalue);
+                prot_list(anyobject->value.listValue);
                 prot_cstri(")");
               } /* if */
             } else {
               prot_cstri("(");
-              prot_list(anyobject->value.listvalue);
+              prot_list(anyobject->value.listValue);
               prot_cstri(")");
             } /* if */
           } else {
             prot_cstri("(");
-            prot_list(anyobject->value.listvalue);
+            prot_list(anyobject->value.listValue);
             prot_cstri(")");
           } /* if */
           break;
@@ -780,7 +780,7 @@ void printobject (const_objecttype anyobject)
 
 
 
-static void printformparam (const_objecttype aParam)
+static void printformparam (const_objectType aParam)
 
   { /* printformparam */
 #ifdef TRACE_TRACE
@@ -835,14 +835,14 @@ static void printformparam (const_objecttype aParam)
 
 
 
-static void printparam (const_objecttype aParam)
+static void printparam (const_objectType aParam)
 
   { /* printparam */
 #ifdef TRACE_TRACE
     printf("BEGIN printparam\n");
 #endif
     prot_cstri("(");
-    printformparam(aParam->value.objvalue);
+    printformparam(aParam->value.objValue);
     prot_cstri(")");
 #ifdef TRACE_TRACE
     printf("END printparam\n");
@@ -851,7 +851,7 @@ static void printparam (const_objecttype aParam)
 
 
 
-void prot_list (const_listtype list)
+void prot_list (const_listType list)
 
   {
     int number;
@@ -870,23 +870,23 @@ void prot_list (const_listtype list)
         switch (CATEGORY_OF_OBJ(list->obj)) {
           case LISTOBJECT:
           case EXPROBJECT:
-            prot_list(list->obj->value.listvalue);
+            prot_list(list->obj->value.listValue);
             break;
           case CALLOBJECT:
           case MATCHOBJECT:
-            if (CATEGORY_OF_OBJ(list->obj->value.listvalue->obj) == ACTOBJECT) {
-              prot_cstri(get_primact(list->obj->value.listvalue->obj->value.actvalue)->name);
-            } else if (HAS_ENTITY(list->obj->value.listvalue->obj) &&
-                GET_ENTITY(list->obj->value.listvalue->obj)->ident != NULL) {
-              prot_cstri(id_string(GET_ENTITY(list->obj->value.listvalue->obj)->ident));
+            if (CATEGORY_OF_OBJ(list->obj->value.listValue->obj) == ACTOBJECT) {
+              prot_cstri(get_primact(list->obj->value.listValue->obj->value.actValue)->name);
+            } else if (HAS_ENTITY(list->obj->value.listValue->obj) &&
+                GET_ENTITY(list->obj->value.listValue->obj)->ident != NULL) {
+              prot_cstri(id_string(GET_ENTITY(list->obj->value.listValue->obj)->ident));
             } else {
-              printtype(list->obj->value.listvalue->obj->type_of);
+              printtype(list->obj->value.listValue->obj->type_of);
               prot_cstri(": <");
-              printcategory(CATEGORY_OF_OBJ(list->obj->value.listvalue->obj));
+              printcategory(CATEGORY_OF_OBJ(list->obj->value.listValue->obj));
               prot_cstri("> ");
             } /* if */
             prot_cstri("(");
-            prot_list(list->obj->value.listvalue->next);
+            prot_list(list->obj->value.listValue->next);
             prot_cstri(")");
             break;
 #ifdef OUT_OF_ORDER
@@ -894,7 +894,7 @@ void prot_list (const_listtype list)
           case REFPARAMOBJECT:
           case RESULTOBJECT:
           case LOCALVOBJECT:
-            printobject(list->obj->value.objvalue);
+            printobject(list->obj->value.objValue);
             break;
 #endif
           case FORMPARAMOBJECT:
@@ -919,14 +919,14 @@ void prot_list (const_listtype list)
             printvalue(list->obj);
             break;
           case VARENUMOBJECT:
-            if (list->obj->value.objvalue != NULL) {
-              if (HAS_ENTITY(list->obj->value.objvalue) &&
-                  GET_ENTITY(list->obj->value.objvalue)->ident != NULL &&
-                  GET_ENTITY(list->obj->value.objvalue)->ident != prog.ident.literal) {
-                prot_cstri(id_string(GET_ENTITY(list->obj->value.objvalue)->ident));
+            if (list->obj->value.objValue != NULL) {
+              if (HAS_ENTITY(list->obj->value.objValue) &&
+                  GET_ENTITY(list->obj->value.objValue)->ident != NULL &&
+                  GET_ENTITY(list->obj->value.objValue)->ident != prog.ident.literal) {
+                prot_cstri(id_string(GET_ENTITY(list->obj->value.objValue)->ident));
               } else {
                 prot_cstri("<");
-                printcategory(CATEGORY_OF_OBJ(list->obj->value.objvalue));
+                printcategory(CATEGORY_OF_OBJ(list->obj->value.objValue));
                 prot_cstri(">");
               } /* if */
             } else {
@@ -934,17 +934,17 @@ void prot_list (const_listtype list)
             } /* if */
             break;
           case TYPEOBJECT:
-            printtype(list->obj->value.typevalue);
+            printtype(list->obj->value.typeValue);
             break;
 #ifdef OUT_OF_ORDER
           case SYMBOLOBJECT:
             printcategory(CATEGORY_OF_OBJ(list->obj));
             prot_cstri(" ");
-            prot_int((inttype) list->obj);
+            prot_int((intType) list->obj);
             prot_cstri(" ");
             fflush(stdout);
             if (HAS_ENTITY(list->obj)) {
-              prot_int((inttype) GET_ENTITY(list->obj));
+              prot_int((intType) GET_ENTITY(list->obj));
               prot_cstri(" ");
               fflush(stdout);
               if (GET_ENTITY(list->obj)->ident != NULL) {
@@ -972,9 +972,9 @@ void prot_list (const_listtype list)
               printcategory(CATEGORY_OF_OBJ(list->obj));
               prot_cstri("> ");
               if (HAS_POSINFO(list->obj)) {
-                prot_cstri((const_cstritype) get_file_name_ustri(GET_FILE_NUM(list->obj)));
+                prot_cstri((const_cstriType) get_file_name_ustri(GET_FILE_NUM(list->obj)));
                 prot_cstri("(");
-                prot_int((inttype) GET_LINE_NUM(list->obj));
+                prot_int((intType) GET_LINE_NUM(list->obj));
                 prot_cstri(")");
               } else {
                 prot_cstri("*NULL_ENTITY_OBJECT*");
@@ -999,16 +999,16 @@ void prot_list (const_listtype list)
 
 
 #ifdef OUT_OF_ORDER
-void prot_list (listtype list)
+void prot_list (listType list)
 
   { /* prot_list */
 #ifdef TRACE_TRACE
     printf("BEGIN prot_list\n");
 #endif
-    while (list != (listtype) NULL) {
+    while (list != (listType) NULL) {
       printobject(list->obj);
       list = list->next;
-      if (list != (listtype) NULL) {
+      if (list != (listType) NULL) {
         prot_cstri(".");
       } /* if */
     } /* while */
@@ -1020,13 +1020,13 @@ void prot_list (listtype list)
 
 
 
-void prot_params (const_listtype list)
+void prot_params (const_listType list)
 
   {
-    const_listtype list_end;
-    const_listtype list_elem;
-    booltype first_elem = TRUE;
-    booltype previous_elem_was_symbol = FALSE;
+    const_listType list_end;
+    const_listType list_elem;
+    boolType first_elem = TRUE;
+    boolType previous_elem_was_symbol = FALSE;
 
   /* prot_params */
     if (list != NULL) {
@@ -1087,10 +1087,10 @@ void prot_params (const_listtype list)
 
 
 
-void prot_name (const_listtype list)
+void prot_name (const_listType list)
 
   {
-    const_listtype list_end;
+    const_listType list_end;
 
   /* prot_name */
     if (list != NULL) {
@@ -1110,7 +1110,7 @@ void prot_name (const_listtype list)
           } else {
             switch (CATEGORY_OF_OBJ(list->obj)) {
               case FORMPARAMOBJECT:
-                printformparam(list->obj->value.objvalue);
+                printformparam(list->obj->value.objValue);
                 break;
               default:
                 printobject(list->obj);
@@ -1133,7 +1133,7 @@ void prot_name (const_listtype list)
 
 
 
-static void prot_owner (const_ownertype owner)
+static void prot_owner (const_ownerType owner)
 
   { /* prot_owner */
 #ifdef TRACE_TRACE
@@ -1153,7 +1153,7 @@ static void prot_owner (const_ownertype owner)
 
 
 
-static void list_ident_names (const_identtype anyident)
+static void list_ident_names (const_identType anyident)
 
   { /* list_ident_names */
 #ifdef TRACE_TRACE
@@ -1178,7 +1178,7 @@ static void list_ident_names (const_identtype anyident)
 
 
 
-void trace_node (const_nodetype anynode)
+void trace_node (const_nodeType anynode)
 
   { /* trace_node */
 #ifdef TRACE_TRACE
@@ -1214,7 +1214,7 @@ void trace_node (const_nodetype anynode)
 
 
 
-static void list_match_object (const_objecttype anyobject, char *buffer)
+static void list_match_object (const_objectType anyobject, char *buffer)
 
   { /* list_match_object */
 #ifdef TRACE_TRACE
@@ -1236,7 +1236,7 @@ static void list_match_object (const_objecttype anyobject, char *buffer)
 
 
 
-static void list_node_names (const_nodetype anynode, char *buffer)
+static void list_node_names (const_nodeType anynode, char *buffer)
 
   {
     size_t buf_len;
@@ -1251,17 +1251,17 @@ static void list_node_names (const_nodetype anynode, char *buffer)
         buf_len = strlen(buffer);
         if (anynode->match_obj != NULL) {
           if (CATEGORY_OF_OBJ(anynode->match_obj) == TYPEOBJECT) {
-            if (anynode->match_obj->value.typevalue != NULL) {
-              if (anynode->match_obj->value.typevalue->name != NULL) {
-                strcat(buffer, id_string(anynode->match_obj->value.typevalue->name));
-              } else if (anynode->match_obj->value.typevalue->result_type != NULL &&
-                  anynode->match_obj->value.typevalue->result_type->name != NULL) {
-                if (anynode->match_obj->value.typevalue->is_varfunc_type) {
+            if (anynode->match_obj->value.typeValue != NULL) {
+              if (anynode->match_obj->value.typeValue->name != NULL) {
+                strcat(buffer, id_string(anynode->match_obj->value.typeValue->name));
+              } else if (anynode->match_obj->value.typeValue->result_type != NULL &&
+                  anynode->match_obj->value.typeValue->result_type->name != NULL) {
+                if (anynode->match_obj->value.typeValue->is_varfunc_type) {
                   strcat(buffer, "varfunc ");
                 } else {
                   strcat(buffer, "func ");
                 } /* if */
-                strcat(buffer, id_string(anynode->match_obj->value.typevalue->result_type->name));
+                strcat(buffer, id_string(anynode->match_obj->value.typeValue->result_type->name));
               } else {
                 strcat(buffer, " *ANONYM_TYPE* ");
               } /* if */
@@ -1377,7 +1377,7 @@ void trace_nodes (void)
 
 
 
-void printnodes (const_nodetype anynode)
+void printnodes (const_nodeType anynode)
 
   { /* printnodes */
 #ifdef TRACE_TRACE
@@ -1390,7 +1390,7 @@ void printnodes (const_nodetype anynode)
       } /* if */
       if (anynode->match_obj != NULL) {
         if (CATEGORY_OF_OBJ(anynode->match_obj) == TYPEOBJECT) {
-          printtype(anynode->match_obj->value.typevalue);
+          printtype(anynode->match_obj->value.typeValue);
         } else {
           if (HAS_ENTITY(anynode->match_obj)) {
             prot_cstri(id_string(GET_ENTITY(anynode->match_obj)->ident));
@@ -1413,7 +1413,7 @@ void printnodes (const_nodetype anynode)
 
 
 
-void trace1 (const_objecttype traceobject)
+void trace1 (const_objectType traceobject)
 
   { /* trace1 */
 #ifdef TRACE_TRACE
@@ -1439,9 +1439,9 @@ void trace1 (const_objecttype traceobject)
       } /* if */
       prot_cstri(": ");
       if (HAS_POSINFO(traceobject)) {
-        prot_cstri((const_cstritype) get_file_name_ustri(GET_FILE_NUM(traceobject)));
+        prot_cstri((const_cstriType) get_file_name_ustri(GET_FILE_NUM(traceobject)));
         prot_cstri("(");
-        prot_int((inttype) GET_LINE_NUM(traceobject));
+        prot_int((intType) GET_LINE_NUM(traceobject));
         prot_cstri(")");
       } else {
         if (HAS_ENTITY(traceobject)) {
@@ -1472,10 +1472,10 @@ void trace1 (const_objecttype traceobject)
         case LOCALVOBJECT:
           prot_ptr(traceobject);
           prot_cstri(" ");
-          prot_ptr(traceobject->value.objvalue);
+          prot_ptr(traceobject->value.objValue);
           prot_nl();
           prot_cstri("  ");
-          trace1(traceobject->value.objvalue);
+          trace1(traceobject->value.objValue);
           break;
         case FORMPARAMOBJECT:
           printparam(traceobject);
@@ -1483,22 +1483,22 @@ void trace1 (const_objecttype traceobject)
 #ifdef OUT_OF_ORDER
         case MODULEOBJECT:
           prot_cstri("{ ");
-          printnodes(traceobject->value.nodevalue);
+          printnodes(traceobject->value.nodeValue);
           prot_cstri("}");
           break;
 #endif
         case TYPEOBJECT:
           printobject(traceobject);
           prot_cstri(" ");
-          if (traceobject->value.typevalue != NULL) {
-            if (traceobject->value.typevalue->meta != NULL) {
+          if (traceobject->value.typeValue != NULL) {
+            if (traceobject->value.typeValue->meta != NULL) {
               prot_cstri("^");
-              printtype(traceobject->value.typevalue->meta);
+              printtype(traceobject->value.typeValue->meta);
               prot_cstri("^");
             } /* if */
-            if (traceobject->value.typevalue->result_type != NULL) {
+            if (traceobject->value.typeValue->result_type != NULL) {
               prot_cstri("[");
-              printtype(traceobject->value.typevalue->result_type);
+              printtype(traceobject->value.typeValue->result_type);
               prot_cstri("]");
             } /* if */
           } else {
@@ -1526,40 +1526,40 @@ void trace1 (const_objecttype traceobject)
 #ifndef OUT_OF_ORDER
         case LISTOBJECT:
         case EXPROBJECT:
-          prot_list(traceobject->value.listvalue);
+          prot_list(traceobject->value.listValue);
           break;
 #endif
         case CALLOBJECT:
         case MATCHOBJECT:
-          if (traceobject->value.listvalue == NULL) {
+          if (traceobject->value.listValue == NULL) {
             prot_cstri(" *EMPTY_LIST* ");
-          } else if (traceobject->value.listvalue->obj == NULL) {
+          } else if (traceobject->value.listValue->obj == NULL) {
             prot_cstri(" *NULL_CALLOBJECT* ");
           } else {
             prot_cstri("<");
-            printcategory(CATEGORY_OF_OBJ(traceobject->value.listvalue->obj));
+            printcategory(CATEGORY_OF_OBJ(traceobject->value.listValue->obj));
             prot_cstri("> ");
-            if (CATEGORY_OF_OBJ(traceobject->value.listvalue->obj) == ACTOBJECT) {
-              prot_cstri(get_primact(traceobject->value.listvalue->obj->value.actvalue)->name);
-            } else if (HAS_ENTITY(traceobject->value.listvalue->obj) &&
-                GET_ENTITY(traceobject->value.listvalue->obj)->ident != NULL) {
-              prot_cstri(id_string(GET_ENTITY(traceobject->value.listvalue->obj)->ident));
+            if (CATEGORY_OF_OBJ(traceobject->value.listValue->obj) == ACTOBJECT) {
+              prot_cstri(get_primact(traceobject->value.listValue->obj->value.actValue)->name);
+            } else if (HAS_ENTITY(traceobject->value.listValue->obj) &&
+                GET_ENTITY(traceobject->value.listValue->obj)->ident != NULL) {
+              prot_cstri(id_string(GET_ENTITY(traceobject->value.listValue->obj)->ident));
             } else {
-              printtype(traceobject->value.listvalue->obj->type_of);
+              printtype(traceobject->value.listValue->obj->type_of);
               prot_cstri(": <");
-              printcategory(CATEGORY_OF_OBJ(traceobject->value.listvalue->obj));
+              printcategory(CATEGORY_OF_OBJ(traceobject->value.listValue->obj));
               prot_cstri("> ");
             } /* if */
             prot_cstri("(");
-            prot_list(traceobject->value.listvalue->next);
+            prot_list(traceobject->value.listValue->next);
             prot_cstri(")");
           } /* if */
           break;
         case PROGOBJECT:
-          if (traceobject->value.progvalue == NULL) {
+          if (traceobject->value.progValue == NULL) {
             prot_cstri("NULL");
           } else {
-            prot_stri(traceobject->value.progvalue->program_name);
+            prot_stri(traceobject->value.progValue->program_name);
           } /* if */
           break;
         case SYMBOLOBJECT:
@@ -1576,7 +1576,7 @@ void trace1 (const_objecttype traceobject)
 
 
 
-void trace_entity (const_entitytype anyentity)
+void trace_entity (const_entityType anyentity)
 
   { /* trace_entity */
     if (anyentity != NULL) {
@@ -1599,7 +1599,7 @@ void trace_entity (const_entitytype anyentity)
 
 
 
-void trace_list (const_listtype list)
+void trace_list (const_listType list)
 
   { /* trace_list */
     while (list != NULL) {
@@ -1611,13 +1611,13 @@ void trace_list (const_listtype list)
 
 
 
-void set_protfile_name (const const_stritype protfile_name)
+void set_protfile_name (const const_striType protfile_name)
 
   {
-    os_stritype os_protfile_name;
-    static const os_chartype os_mode[] = {'w', 0};
+    os_striType os_protfile_name;
+    static const os_charType os_mode[] = {'w', 0};
     int path_info = PATH_IS_NORMAL;
-    errinfotype err_info = OKAY_NO_ERROR;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* set_protfile_name */
 #ifdef TRACE_TRACE
@@ -1645,11 +1645,28 @@ void set_protfile_name (const const_stritype protfile_name)
 
 
 
-void set_trace (uinttype options)
+#ifdef TRACE_TRACE
+void printTraceOptions (uintType options)
+
+  { /* printTraceOptions */
+    if ((options & TRACE_ACTIONS        ) != 0) { printf("ACTIONS\n"); }
+    if ((options & TRACE_DO_ACTION_CHECK) != 0) { printf("DO_ACTION_CHECK\n"); }
+    if ((options & TRACE_DYNAMIC_CALLS  ) != 0) { printf("DYNAMIC_CALLS\n"); }
+    if ((options & TRACE_EXCEPTIONS     ) != 0) { printf("EXCEPTIONS\n"); }
+    if ((options & TRACE_HEAP_SIZE      ) != 0) { printf("HEAP_SIZE\n"); }
+    if ((options & TRACE_MATCH          ) != 0) { printf("MATCH\n"); }
+    if ((options & TRACE_EXECUTIL       ) != 0) { printf("EXECUTIL\n"); }
+  } /* printTraceOptions */
+#endif
+
+
+
+void set_trace (uintType options)
 
   { /* set_trace */
 #ifdef TRACE_TRACE
-    printf("BEGIN set_trace\n");
+    printf("BEGIN set_trace:\n");
+    printTraceOptions(options);
 #endif
     trace.actions       = (options & TRACE_ACTIONS        ) != 0;
     trace.check_actions = (options & TRACE_DO_ACTION_CHECK) != 0;
@@ -1665,21 +1682,27 @@ void set_trace (uinttype options)
 
 
 
-#define DO_FLAG(bits) *options = (*options & !(bits)) | (flag & (bits));
+#define DO_FLAG(bits) *options = (*options & ~(uintType) (bits)) | (flag & (bits));
 
 
 
-void mapTraceFlags (const_stritype trace_level, uinttype *options)
+void mapTraceFlags (const_striType trace_level, uintType *options)
 
   {
-    memsizetype position;
-    uinttype flag = (uinttype) -1;
+    memSizeType position;
+    uintType flag = (uintType) -1;
 
   /* mapTraceFlags */
+#ifdef TRACE_TRACE
+    printf("BEGIN mapTraceFlags\n");
+#endif
     if (trace_level != NULL) {
       for (position = 0; position < trace_level->size; position++) {
+        /* printf("option: %c\n", trace_level->mem[position]);
+           printf("options:     %lo\n", *options);
+           printf("flag:        %lo\n", flag); */
         switch (trace_level->mem[position]) {
-          case '+': flag = (uinttype) -1;  break;
+          case '+': flag = (uintType) -1;  break;
           case '-': flag =  0;             break;
           case 'a': DO_FLAG(TRACE_ACTIONS);          break;
           case 'c': DO_FLAG(TRACE_DO_ACTION_CHECK);  break;
@@ -1696,14 +1719,18 @@ void mapTraceFlags (const_stritype trace_level, uinttype *options)
         } /* switch */
       } /* for */
     } /* if */
+#ifdef TRACE_TRACE
+    printf("END mapTraceFlags:\n");
+    printTraceOptions(*options);
+#endif
   } /* mapTraceFlags */
 
 
 
-void mapTraceFlags2 (const_cstritype ctrace_level, uinttype *options)
+void mapTraceFlags2 (const_cstriType ctrace_level, uintType *options)
 
   {
-    stritype trace_level;
+    striType trace_level;
 
   /* mapTraceFlags2 */
 #ifdef TRACE_TRACE

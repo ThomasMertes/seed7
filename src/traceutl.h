@@ -25,48 +25,48 @@
 /*                                                                  */
 /********************************************************************/
 
-typedef struct tracestruct {
-    booltype actions;
-    booltype check_actions;
-    booltype dynamic;
-    booltype exceptions;
-    booltype heapsize;
-    booltype match;
-    booltype executil;
-  } tracerecord;
+typedef struct traceStruct {
+    boolType actions;
+    boolType check_actions;
+    boolType dynamic;
+    boolType exceptions;
+    boolType heapsize;
+    boolType match;
+    boolType executil;
+  } traceRecord;
 
 #ifdef DO_INIT
-tracerecord trace = {FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE};
+traceRecord trace = {FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE};
 #else
-EXTERN tracerecord trace;
+EXTERN traceRecord trace;
 #endif
 
 
 void prot_flush (void);
 void prot_nl (void);
-void prot_cstri (const_cstritype stri);
-void prot_writeln (const_cstritype stri);
-void prot_int (inttype ivalue);
-void prot_bigint (const const_biginttype bintvalue);
-/* void prot_os_stri (const const_os_stritype os_stri); */
-void prot_stri_unquoted (const const_stritype stri);
-void prot_stri (const const_stritype stri);
-void prot_set (const_settype setValue);
+void prot_cstri (const_cstriType stri);
+void prot_writeln (const_cstriType stri);
+void prot_int (intType ivalue);
+void prot_bigint (const const_bigIntType bintvalue);
+/* void prot_os_stri (const const_os_striType os_stri); */
+void prot_stri_unquoted (const const_striType stri);
+void prot_stri (const const_striType stri);
+void prot_set (const_setType setValue);
 void prot_heapsize (void);
-void printcategory (objectcategory category);
-void printtype (const_typetype anytype);
-void printvalue (const_objecttype anyobject);
-void printobject (const_objecttype anyobject);
-void prot_list (const_listtype list);
-void prot_params (const_listtype list);
-void prot_name (const_listtype list);
-void trace_node (const_nodetype anynode);
+void printcategory (objectCategory category);
+void printtype (const_typeType anytype);
+void printvalue (const_objectType anyobject);
+void printobject (const_objectType anyobject);
+void prot_list (const_listType list);
+void prot_params (const_listType list);
+void prot_name (const_listType list);
+void trace_node (const_nodeType anynode);
 void trace_nodes (void);
-void printnodes (const_nodetype anynode);
-void trace1 (const_objecttype traceobject);
-void trace_entity (const_entitytype anyentity);
-void trace_list (const_listtype list);
-void set_protfile_name (const const_stritype protfile_name);
-void set_trace (uinttype options);
-void mapTraceFlags (const_stritype trace_level, uinttype *options);
-void mapTraceFlags2 (const_cstritype ctrace_level, uinttype *options);
+void printnodes (const_nodeType anynode);
+void trace1 (const_objectType traceobject);
+void trace_entity (const_entityType anyentity);
+void trace_list (const_listType list);
+void set_protfile_name (const const_striType protfile_name);
+void set_trace (uintType options);
+void mapTraceFlags (const_striType trace_level, uintType *options);
+void mapTraceFlags2 (const_cstriType ctrace_level, uintType *options);

@@ -49,14 +49,14 @@
 
 
 
-booltype filInputReady (filetype aFile)
+boolType filInputReady (fileType aFile)
 
   {
     int file_no;
     long fileHandle;
     os_fstat_struct stat_buf;
     DWORD totalBytesAvail;
-    booltype result;
+    boolType result;
 
   /* filInputReady */
     file_no = fileno(aFile);

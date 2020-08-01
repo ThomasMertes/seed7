@@ -29,38 +29,43 @@
 /*                                                                  */
 /********************************************************************/
 
-uinttype uint_mult (uinttype factor1, uinttype factor2, uinttype *product_high);
-uinttype uint_rand (void);
-int uint8MostSignificantBit (uint8type number);
-int uint16MostSignificantBit (uint16type number);
-int uint32MostSignificantBit (uint32type number);
+extern const char lcDigits[];
+extern const char ucDigits[];
+extern const const_cstriType digitTable[];
+
+
+uintType uint_mult (uintType factor1, uintType factor2, uintType *product_high);
+uintType uint_rand (void);
+int uint8MostSignificantBit (uint8Type number);
+int uint16MostSignificantBit (uint16Type number);
+int uint32MostSignificantBit (uint32Type number);
 #ifdef INT64TYPE
-int uint64MostSignificantBit (uint64type number);
+int uint64MostSignificantBit (uint64Type number);
 #endif
-int uint8LeastSignificantBit (uint8type number);
-int uint16LeastSignificantBit (uint16type number);
-int uint32LeastSignificantBit (uint32type number);
+int uint8LeastSignificantBit (uint8Type number);
+int uint16LeastSignificantBit (uint16Type number);
+int uint32LeastSignificantBit (uint32Type number);
 #ifdef INT64TYPE
-int uint64LeastSignificantBit (uint64type number);
+int uint64LeastSignificantBit (uint64Type number);
 #endif
-inttype intBinom (inttype n_number, inttype k_number);
-inttype intBitLength (inttype number);
-stritype intBytesBe (inttype number, booltype isSigned);
-inttype intBytesBe2Int (const const_stritype byteStri, booltype isSigned);
-stritype intBytesLe (inttype number, booltype isSigned);
-inttype intBytesLe2Int (const const_stritype byteStri, booltype isSigned);
-inttype intCmp (inttype number1, inttype number2);
-void intCpy (inttype *dest, inttype source);
-inttype intLog2 (inttype number);
-inttype intLowestSetBit (inttype number);
-stritype intLpad0 (inttype number, const inttype pad_size);
-inttype intParse (const const_stritype stri);
-inttype intPow (inttype base, inttype exponent);
-stritype intRadix (inttype number, inttype base, booltype upperCase);
-stritype intRadixPow2 (inttype number, int shift, int mask, booltype upperCase);
-inttype intRand (inttype low, inttype high);
-inttype intSqrt (inttype number);
-stritype intStr (inttype number);
+intType intBinom (intType n_number, intType k_number);
+intType intBitLength (intType number);
+striType intBytesBe (intType number, boolType isSigned);
+intType intBytesBe2Int (const const_striType byteStri, boolType isSigned);
+striType intBytesLe (intType number, boolType isSigned);
+intType intBytesLe2Int (const const_striType byteStri, boolType isSigned);
+intType intCmp (intType number1, intType number2);
+void intCpy (intType *dest, intType source);
+intType intLog2 (intType number);
+intType intLowestSetBit (intType number);
+striType intLpad0 (intType number, const intType pad_size);
+intType intParse (const const_striType stri);
+intType intPow (intType base, intType exponent);
+striType intRadix (intType number, intType base, boolType upperCase);
+striType intRadixPow2 (intType number, int shift, int mask, boolType upperCase);
+intType intRand (intType low, intType high);
+intType intSqrt (intType number);
+striType intStr (intType number);
 #ifdef ALLOW_STRITYPE_SLICES
-stritype intStrToBuffer (inttype number, stritype buffer);
+striType intStrToBuffer (intType number, striType buffer);
 #endif

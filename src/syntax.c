@@ -51,12 +51,12 @@
 #include "syntax.h"
 
 
-typedef enum {XFX, XFY, YFX, YFY} assoctype;
+typedef enum {XFX, XFY, YFX, YFY} assocType;
 
 
 
 #ifdef WITH_PRINT_TOKENS
-static void print_tokens (tokentype tokens)
+static void print_tokens (tokenType tokens)
 
   { /* print_tokens */
 #ifdef TRACE_SYNTAX
@@ -86,15 +86,15 @@ static void print_tokens (tokentype tokens)
 
 
 
-static tokentype def_single_token (const_objecttype statement_token,
-    prioritytype token_priority, tokentype *formal_tokens,
-    booltype *after_expr_token, ustritype *name_of_last_sy_token)
+static tokenType def_single_token (const_objectType statement_token,
+    priorityType token_priority, tokenType *formal_tokens,
+    boolType *after_expr_token, ustriType *name_of_last_sy_token)
 
   {
-    tokentype new_token;
-    objecttype type_object;
-    typetype typeof_token;
-    identtype identifier;
+    tokenType new_token;
+    objectType type_object;
+    typeType typeof_token;
+    identType identifier;
 
   /* def_single_token */
 #ifdef TRACE_SYNTAX
@@ -102,8 +102,8 @@ static tokentype def_single_token (const_objecttype statement_token,
 #endif
     if (CATEGORY_OF_OBJ(statement_token) == EXPROBJECT) {
 /*  printf("  >[]<\n"); */
-      if (statement_token->value.listvalue != NULL) {
-        type_object = statement_token->value.listvalue->obj;
+      if (statement_token->value.listValue != NULL) {
+        type_object = statement_token->value.listValue->obj;
         if (CATEGORY_OF_OBJ(type_object) == TYPEOBJECT) {
           typeof_token = take_type(type_object);
         } else {
@@ -156,7 +156,7 @@ static tokentype def_single_token (const_objecttype statement_token,
 
 
 
-static inline int count_inner_tokens (const_listtype statement_tokens)
+static inline int count_inner_tokens (const_listType statement_tokens)
 
   {
     int number_of_inner_tokens;
@@ -183,16 +183,16 @@ static inline int count_inner_tokens (const_listtype statement_tokens)
 
 
 
-static tokentype def_token_list (const_listtype statement_tokens,
-    prioritytype right_token_priority, tokentype *formal_tokens,
-    ustritype name_of_last_sy_token)
+static tokenType def_token_list (const_listType statement_tokens,
+    priorityType right_token_priority, tokenType *formal_tokens,
+    ustriType name_of_last_sy_token)
 
   {
     int number_of_inner_tokens;
     int token_number;
-    tokentype current_token;
-    booltype after_expr_token;
-    tokentype token_list_end;
+    tokenType current_token;
+    boolType after_expr_token;
+    tokenType token_list_end;
 
   /* def_token_list */
 #ifdef TRACE_SYNTAX
@@ -270,12 +270,12 @@ static tokentype def_token_list (const_listtype statement_tokens,
 
 
 
-static inline tokentype def_infix_syntax (const_listtype statement_syntax,
-    prioritytype statement_priority, assoctype statement_associativity)
+static inline tokenType def_infix_syntax (const_listType statement_syntax,
+    priorityType statement_priority, assocType statement_associativity)
 
   {
-    identtype identifier;
-    tokentype token_list_end;
+    identType identifier;
+    tokenType token_list_end;
 
   /* def_infix_syntax */
 #ifdef TRACE_SYNTAX
@@ -296,7 +296,7 @@ static inline tokentype def_infix_syntax (const_listtype statement_syntax,
         identifier->left_token_priority = statement_priority;
       } else {
         identifier->left_token_priority =
-            statement_priority - (prioritytype) 1;
+            statement_priority - (priorityType) 1;
       } /* if */
       if (statement_associativity == XFY ||
           statement_associativity == YFY) {
@@ -305,7 +305,7 @@ static inline tokentype def_infix_syntax (const_listtype statement_syntax,
             &identifier->infix_token, identifier->name);
       } else {
         token_list_end = def_token_list(statement_syntax->next,
-            (prioritytype) (((int) statement_priority) - 1),
+            (priorityType) (((int) statement_priority) - 1),
             &identifier->infix_token, identifier->name);
       } /* if */
 /*  printf("[%d] %s ", identifier->left_token_priority, identifier->name);
@@ -323,12 +323,12 @@ static inline tokentype def_infix_syntax (const_listtype statement_syntax,
 
 
 
-static inline tokentype def_prefix_syntax (const_listtype statement_syntax,
-    prioritytype statement_priority, assoctype statement_associativity)
+static inline tokenType def_prefix_syntax (const_listType statement_syntax,
+    priorityType statement_priority, assocType statement_associativity)
 
   {
-    identtype identifier;
-    tokentype token_list_end;
+    identType identifier;
+    tokenType token_list_end;
 
   /* def_prefix_syntax */
 #ifdef TRACE_SYNTAX
@@ -350,7 +350,7 @@ static inline tokentype def_prefix_syntax (const_listtype statement_syntax,
           &identifier->prefix_token, identifier->name);
     } else {
       token_list_end = def_token_list(statement_syntax->next,
-          (prioritytype) (((int) statement_priority) - 1),
+          (priorityType) (((int) statement_priority) - 1),
           &identifier->prefix_token, identifier->name);
     } /* if */
 /*  printf("%s ", identifier->name);
@@ -364,13 +364,13 @@ static inline tokentype def_prefix_syntax (const_listtype statement_syntax,
 
 
 
-static inline tokentype def_statement_syntax (objecttype syntax_expression,
-    prioritytype statement_priority, assoctype statement_associativity)
+static inline tokenType def_statement_syntax (objectType syntax_expression,
+    priorityType statement_priority, assocType statement_associativity)
 
   {
-    listtype statement_syntax;
-    identtype identifier;
-    tokentype token_list_end;
+    listType statement_syntax;
+    identType identifier;
+    tokenType token_list_end;
 
   /* def_statement_syntax */
 #ifdef TRACE_SYNTAX
@@ -381,9 +381,9 @@ static inline tokentype def_statement_syntax (objecttype syntax_expression,
     /* printcategory(CATEGORY_OF_OBJ(syntax_expression)); */
     if (CATEGORY_OF_OBJ(syntax_expression) == LISTOBJECT) {
       /* printf("SYNTAX: ");
-      prot_list(syntax_expression->value.listvalue);
+      prot_list(syntax_expression->value.listValue);
       printf("\n"); */
-      statement_syntax = syntax_expression->value.listvalue;
+      statement_syntax = syntax_expression->value.listValue;
       if (statement_syntax != NULL) {
         check_list_of_syntax_elements(statement_syntax);
         if (CATEGORY_OF_OBJ(statement_syntax->obj) == EXPROBJECT) {
@@ -432,11 +432,11 @@ static inline tokentype def_statement_syntax (objecttype syntax_expression,
 void decl_syntax (void)
 
   {
-    objecttype type_object;
-    typetype typeof_object;
-    objecttype expression;
-    assoctype assoc;
-    tokentype token_list_end;
+    objectType type_object;
+    typeType typeof_object;
+    objectType expression;
+    assocType assoc;
+    tokenType token_list_end;
 
   /* decl_syntax */
 #ifdef TRACE_SYNTAX
@@ -483,12 +483,12 @@ void decl_syntax (void)
       err_string(CARD_EXPECTED, symbol.name);
       scan_symbol();
     } else {
-      if (symbol.intvalue > WEAKEST_PRIORITY) {
-        err_integer(ILLEGAL_PRIORITY, symbol.intvalue);
+      if (symbol.intValue > WEAKEST_PRIORITY) {
+        err_integer(ILLEGAL_PRIORITY, symbol.intValue);
         scan_symbol();
       } else {
         token_list_end = def_statement_syntax(expression,
-            (prioritytype) symbol.intvalue, assoc);
+            (priorityType) symbol.intValue, assoc);
         scan_symbol();
         if (token_list_end != NULL) {
           if (current_ident == prog.id_for.lbrack) {
@@ -497,7 +497,7 @@ void decl_syntax (void)
               err_string(CARD_EXPECTED, symbol.name);
             } else {
               token_list_end->token_category = SELECT_ELEMENT_FROM_LIST_SYNTAX;
-              token_list_end->token_value.select = symbol.intvalue;
+              token_list_end->token_value.select = symbol.intValue;
             } /* if */
             scan_symbol();
             if (current_ident == prog.id_for.rbrack) {

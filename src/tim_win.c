@@ -67,18 +67,18 @@
  *  @param time_zone Difference to UTC in minutes (for UTC+1 it is 60).
  *                   The time_zone includes the effect of a daylight saving time.
  */
-void timAwait (inttype year, inttype month, inttype day, inttype hour,
-    inttype min, inttype sec, inttype micro_sec, inttype time_zone)
+void timAwait (intType year, intType month, intType day, intType hour,
+    intType min, intType sec, intType micro_sec, intType time_zone)
 
   {
     SYSTEMTIME await_time_struct;
     union {
-      uint64type nanosecs100; /*time since 1 Jan 1601 in 100ns units */
+      uint64Type nanosecs100; /*time since 1 Jan 1601 in 100ns units */
       FILETIME filetime;
     } await_file_time, current_time;
-    uint64type await_second;
-    uint64type current_second;
-    inttype current_micro_sec;
+    uint64Type await_second;
+    uint64Type current_second;
+    intType current_micro_sec;
     unsigned long wait_milliseconds;
 
   /* timAwait */
@@ -102,7 +102,7 @@ void timAwait (inttype year, inttype month, inttype day, inttype hour,
 
       GetSystemTimeAsFileTime(&current_time.filetime);
       current_second = current_time.nanosecs100 / 10000000;
-      current_micro_sec = (inttype) ((current_time.nanosecs100 / 10) % 1000000);
+      current_micro_sec = (intType) ((current_time.nanosecs100 / 10) % 1000000);
       if (current_second < await_second ||
           (current_second == await_second &&
           current_micro_sec < micro_sec)) {
@@ -132,18 +132,18 @@ void timAwait (inttype year, inttype month, inttype day, inttype hour,
  *  This function is only used to initialize the random number
  *  generator, so overflows can be ignored.
  */
-inttype timMicroSec (void)
+intType timMicroSec (void)
 
   {
     union {
-      uint64type nanosecs100; /*time since 1 Jan 1601 in 100ns units */
+      uint64Type nanosecs100; /*time since 1 Jan 1601 in 100ns units */
       FILETIME filetime;
     } utc_time;
-    inttype micro_sec;
+    intType micro_sec;
 
   /* timMicroSec */
     GetSystemTimeAsFileTime(&utc_time.filetime);
-    micro_sec = (inttype) ((utc_time.nanosecs100 / 10) % 1000000);
+    micro_sec = (intType) ((utc_time.nanosecs100 / 10) % 1000000);
     /* printf("timMicroSec() ==> %lu\n", micro_sec); */
     return micro_sec;
   } /* timMicroSec */
@@ -156,13 +156,13 @@ inttype timMicroSec (void)
  *                   The time_zone includes the effect of a daylight saving time.
  *  @param is_dst Is TRUE, when a daylight saving time is currently in effect.
  */
-void timNow (inttype *year, inttype *month, inttype *day, inttype *hour,
-    inttype *min, inttype *sec, inttype *micro_sec, inttype *time_zone,
-    booltype *is_dst)
+void timNow (intType *year, intType *month, intType *day, intType *hour,
+    intType *min, intType *sec, intType *micro_sec, intType *time_zone,
+    boolType *is_dst)
 
   {
     union {
-      uint64type nanosecs100; /*time since 1 Jan 1601 in 100ns units */
+      uint64Type nanosecs100; /*time since 1 Jan 1601 in 100ns units */
       FILETIME filetime;
     } utc_time;
     time_t utc_seconds;
@@ -197,7 +197,7 @@ void timNow (inttype *year, inttype *month, inttype *day, inttype *hour,
       *hour      = local_time->tm_hour;
       *min       = local_time->tm_min;
       *sec       = local_time->tm_sec;
-      *micro_sec = (inttype) ((utc_time.nanosecs100 / 10) % 1000000);
+      *micro_sec = (intType) ((utc_time.nanosecs100 / 10) % 1000000);
       *time_zone = (unchecked_mkutc(local_time) - utc_seconds) / 60;
       *is_dst    = local_time->tm_isdst > 0;
     } /* if */
@@ -219,7 +219,7 @@ struct tm *alternate_localtime_r (time_t *utc_seconds, struct tm *tm_result)
 
   {
     union {
-      uint64type nanosecs100; /*time since 1 Jan 1601 in 100ns units */
+      uint64Type nanosecs100; /*time since 1 Jan 1601 in 100ns units */
       FILETIME filetime;
     } utc_time, time_zone_delta;
     SYSTEMTIME utc_time_struct;
@@ -286,7 +286,7 @@ int alternate_utime (wchar_t *os_path, os_utimbuf_struct *utime_buf)
     os_stat_struct stat_buf;
     HANDLE filehandle;
     union {
-      uint64type nanosecs100; /*time since 1 Jan 1601 in 100ns units */
+      uint64Type nanosecs100; /*time since 1 Jan 1601 in 100ns units */
       FILETIME filetime;
     } actime, modtime;
     int result;
@@ -320,13 +320,13 @@ int alternate_utime (wchar_t *os_path, os_utimbuf_struct *utime_buf)
         /* The case of utime_buf == NULL is not considered,   */
         /* since alternate_utime will never be used this way. */
 #ifdef TIME_T_SIGNED
-        actime.nanosecs100 = (uint64type) (
-            (int64type) utime_buf->actime + SECONDS_1601_1970) * 10000000;
-        modtime.nanosecs100 = (uint64type) (
-            (int64type) utime_buf->modtime + SECONDS_1601_1970) * 10000000;
+        actime.nanosecs100 = (uint64Type) (
+            (int64Type) utime_buf->actime + SECONDS_1601_1970) * 10000000;
+        modtime.nanosecs100 = (uint64Type) (
+            (int64Type) utime_buf->modtime + SECONDS_1601_1970) * 10000000;
 #else
-        actime.nanosecs100 = ((uint64type) utime_buf->actime + SECONDS_1601_1970) * 10000000;
-        modtime.nanosecs100 = ((uint64type) utime_buf->modtime + SECONDS_1601_1970) * 10000000;
+        actime.nanosecs100 = ((uint64Type) utime_buf->actime + SECONDS_1601_1970) * 10000000;
+        modtime.nanosecs100 = ((uint64Type) utime_buf->modtime + SECONDS_1601_1970) * 10000000;
 #endif
         /* printf("actime=%ld %Ld\n", utime_buf->actime, actime.nanosecs100);
            printf("modtime=%ld %Ld\n", utime_buf->modtime, modtime.nanosecs100); */

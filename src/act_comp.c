@@ -44,10 +44,10 @@
 
 
 
-acttype actIConv (inttype ordinal)
+actType actIConv (intType ordinal)
 
   {
-    acttype anAction;
+    actType anAction;
 
   /* actIConv */
     if (ordinal < 0 || ordinal >= act_table.size) {
@@ -61,10 +61,10 @@ acttype actIConv (inttype ordinal)
 
 
 
-inttype actOrd (acttype anAction)
+intType actOrd (actType anAction)
 
   {
-    inttype result;
+    intType result;
 
   /* actOrd */
     result = get_primact(anAction) - act_table.primitive;
@@ -73,10 +73,10 @@ inttype actOrd (acttype anAction)
 
 
 
-stritype actStr (acttype anAction)
+striType actStr (actType anAction)
 
   {
-    stritype result;
+    striType result;
 
   /* actStr */
     result = cstri_to_stri(get_primact(anAction)->name);

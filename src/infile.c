@@ -56,8 +56,8 @@
 #define SIZE_IN_BUFFER 32768
 
 
-static infiltype file_pointer = NULL;
-static filenumtype file_counter = 0;
+static inFileType file_pointer = NULL;
+static fileNumType file_counter = 0;
 
 
 
@@ -66,7 +66,7 @@ int fill_buf (void)
 
   {
 #ifndef USE_MMAP
-    memsizetype chars_read;
+    memSizeType chars_read;
 #endif
     int result;
 
@@ -96,14 +96,14 @@ int fill_buf (void)
 
 
 
-static inline booltype speedup (void)
+static inline boolType speedup (void)
 
   {
-    booltype okay;
+    boolType okay;
 #ifdef USE_MMAP
     int file_no;
     os_fstat_struct file_stat;
-    memsizetype file_length;
+    memSizeType file_length;
 #endif
 
   /* speedup */
@@ -116,10 +116,10 @@ static inline booltype speedup (void)
     file_no = fileno(in_file.fil);
     if (file_no != -1 && os_fstat(file_no, &file_stat) == 0) {
       if (file_stat.st_size >= 0 && (unsigned_os_off_t) file_stat.st_size < MAX_MEMSIZETYPE) {
-        file_length = (memsizetype) file_stat.st_size;
-        if ((in_file.start = (ustritype) mmap(NULL, file_length,
+        file_length = (memSizeType) file_stat.st_size;
+        if ((in_file.start = (ustriType) mmap(NULL, file_length,
             PROT_READ, MAP_PRIVATE, fileno(in_file.fil),
-            0)) != (ustritype) -1) {
+            0)) != (ustriType) -1) {
           in_file.nextch = in_file.start;
           in_file.beyond = in_file.start + file_length;
           in_file.buffer_size = 0;
@@ -184,16 +184,16 @@ static inline booltype speedup (void)
 
 
 
-void open_infile (const_stritype source_file_name, booltype write_library_names,
-    booltype write_line_numbers, errinfotype *err_info)
+void open_infile (const_striType source_file_name, boolType write_library_names,
+    boolType write_line_numbers, errInfoType *err_info)
 
   {
-    os_stritype os_path;
-    infiltype new_file;
+    os_striType os_path;
+    inFileType new_file;
     FILE *in_fil;
-    ustritype name_ustri;
-    memsizetype name_length;
-    stritype in_name;
+    ustriType name_ustri;
+    memSizeType name_length;
+    striType in_name;
     int path_info = PATH_IS_NORMAL;
 
   /* open_infile */
@@ -212,10 +212,10 @@ void open_infile (const_stritype source_file_name, booltype write_library_names,
           fclose(in_fil);
           *err_info = MEMORY_ERROR;
         } else {
-          name_ustri = (ustritype) stri_to_cstri8(source_file_name, err_info);
+          name_ustri = (ustriType) stri_to_cstri8(source_file_name, err_info);
           if (name_ustri != NULL) {
             /* printf("name_ustri: \"%s\"\n", name_ustri); */
-            name_length = strlen((cstritype) name_ustri);
+            name_length = strlen((cstriType) name_ustri);
             name_ustri = REALLOC_USTRI(name_ustri, max_utf8_size(source_file_name->size), name_length);
             if (name_ustri == NULL) {
               *err_info = MEMORY_ERROR;
@@ -229,9 +229,9 @@ void open_infile (const_stritype source_file_name, booltype write_library_names,
             *err_info = MEMORY_ERROR;
           } else {
             in_name->size = source_file_name->size;
-            memcpy(in_name->mem, source_file_name->mem, source_file_name->size * sizeof(strelemtype));
+            memcpy(in_name->mem, source_file_name->mem, source_file_name->size * sizeof(strElemType));
             if (in_file.curr_infile != NULL) {
-              memcpy(in_file.curr_infile, &in_file, sizeof(infilrecord));
+              memcpy(in_file.curr_infile, &in_file, sizeof(inFileRecord));
             } /* if */
             in_file.fil = in_fil;
             if (!speedup()) {
@@ -239,7 +239,7 @@ void open_infile (const_stritype source_file_name, booltype write_library_names,
               free_cstri8(name_ustri, source_file_name);
               FREE_STRI(in_name, source_file_name->size);
               if (in_file.curr_infile != NULL) {
-                memcpy(&in_file, in_file.curr_infile, sizeof(infilrecord));
+                memcpy(&in_file, in_file.curr_infile, sizeof(inFileRecord));
               } else {
                 in_file.fil = NULL;
               } /* if */
@@ -263,7 +263,7 @@ void open_infile (const_stritype source_file_name, booltype write_library_names,
               in_file.curr_infile = new_file;
               in_file.next = file_pointer;
               file_pointer = new_file;
-              memcpy(new_file, &in_file, sizeof(infilrecord));
+              memcpy(new_file, &in_file, sizeof(inFileRecord));
             } /* if */
           } /* if */
         } /* if */
@@ -318,10 +318,10 @@ void close_infile (void)
 #endif
 #endif
     if (in_file.curr_infile != NULL) {
-      memcpy(in_file.curr_infile, &in_file, sizeof(infilrecord));
+      memcpy(in_file.curr_infile, &in_file, sizeof(inFileRecord));
     } /* if */
     if (in_file.up_infile != NULL) {
-      memcpy(&in_file, in_file.up_infile, sizeof(infilrecord));
+      memcpy(&in_file, in_file.up_infile, sizeof(inFileRecord));
       display_compilation_info();
     } else {
       in_file.curr_infile = NULL;
@@ -334,15 +334,15 @@ void close_infile (void)
 
 
 
-void open_string (bstritype input_string, booltype write_library_names,
-    booltype write_line_numbers, errinfotype *err_info)
+void open_string (bstriType input_string, boolType write_library_names,
+    boolType write_line_numbers, errInfoType *err_info)
 
   {
-    const const_cstritype source_file_name = "STRING";
-    infiltype new_file;
-    memsizetype name_length;
-    ustritype name_ustri;
-    stritype in_name;
+    const const_cstriType source_file_name = "STRING";
+    inFileType new_file;
+    memSizeType name_length;
+    ustriType name_ustri;
+    striType in_name;
 
   /* open_string */
 #ifdef TRACE_INFILE
@@ -361,11 +361,11 @@ void open_string (bstritype input_string, booltype write_library_names,
           *err_info = MEMORY_ERROR;
         } else {
           COUNT_USTRI(name_length, count.fnam, count.fnam_bytes);
-          strcpy((cstritype) name_ustri, source_file_name);
+          strcpy((cstriType) name_ustri, source_file_name);
           in_name->size = name_length;
           ustri_expand(in_name->mem, name_ustri, name_length);
           if (in_file.curr_infile != NULL) {
-            memcpy(in_file.curr_infile, &in_file, sizeof(infilrecord));
+            memcpy(in_file.curr_infile, &in_file, sizeof(inFileRecord));
           } /* if */
           in_file.fil = NULL;
           in_file.name_ustri = name_ustri;
@@ -385,7 +385,7 @@ void open_string (bstritype input_string, booltype write_library_names,
           in_file.curr_infile = new_file;
           in_file.next = file_pointer;
           file_pointer = new_file;
-          memcpy(new_file, &in_file, sizeof(infilrecord));
+          memcpy(new_file, &in_file, sizeof(inFileRecord));
         } /* if */
       } /* if */
     } /* if */
@@ -397,16 +397,16 @@ void open_string (bstritype input_string, booltype write_library_names,
 
 
 
-static void free_file (infiltype old_file)
+static void free_file (inFileType old_file)
 
   {
-    memsizetype name_length;
+    memSizeType name_length;
 
   /* free_file */
 #ifdef TRACE_INFILE
     printf("BEGIN free_file\n");
 #endif
-    name_length = strlen((cstritype) old_file->name_ustri);
+    name_length = strlen((cstriType) old_file->name_ustri);
     FREE_USTRI(old_file->name_ustri, name_length, count.fnam, count.fnam_bytes);
     FREE_STRI(old_file->name, old_file->name->size);
     FREE_FILE(old_file);
@@ -417,12 +417,12 @@ static void free_file (infiltype old_file)
 
 
 
-void remove_prog_files (progtype currentProg)
+void remove_prog_files (progType currentProg)
 
   {
-    infiltype aFile;
-    infiltype *fileAddr;
-    infiltype currFile;
+    inFileType aFile;
+    inFileType *fileAddr;
+    inFileType currFile;
 
   /* remove_prog_files */
 #ifdef TRACE_INFILE
@@ -489,12 +489,12 @@ int next_line (void)
 
 
 
-stritype get_file_name (filenumtype file_num)
+striType get_file_name (fileNumType file_num)
 
   {
-    static stritype question_mark = NULL;
-    infiltype help_file;
-    stritype result;
+    static striType question_mark = NULL;
+    inFileType help_file;
+    striType result;
 
   /* get_file_name */
 #ifdef TRACE_INFILE
@@ -520,11 +520,11 @@ stritype get_file_name (filenumtype file_num)
 
 
 
-const_ustritype get_file_name_ustri (filenumtype file_num)
+const_ustriType get_file_name_ustri (fileNumType file_num)
 
   {
-    infiltype help_file;
-    const_ustritype result;
+    inFileType help_file;
+    const_ustriType result;
 
   /* get_file_name_ustri */
 #ifdef TRACE_INFILE
@@ -537,7 +537,7 @@ const_ustritype get_file_name_ustri (filenumtype file_num)
     if (help_file != NULL) {
       result = help_file->name_ustri;
     } else {
-      result = (const_ustritype) "?";
+      result = (const_ustriType) "?";
     } /* if */
 #ifdef TRACE_INFILE
     printf("END get_file_name_ustri\n");

@@ -21,11 +21,11 @@
 /*  Module: General                                                 */
 /*  File: seed7/src/arrutl.h                                        */
 /*  Changes: 2013  Thomas Mertes                                    */
-/*  Content: Procedures to maintain objects of type arraytype.      */
+/*  Content: Procedures to maintain objects of type arrayType.      */
 /*                                                                  */
 /********************************************************************/
 
-#define ARRAY_LENGTH(anArray) (uinttype) ((anArray)->max_position - (anArray)->min_position + 1)
+#define ARRAY_LENGTH(anArray) (uintType) ((anArray)->max_position - (anArray)->min_position + 1)
 
 
-rtlArraytype gen_rtl_array (arraytype anArray);
+rtlArrayType gen_rtl_array (arrayType anArray);

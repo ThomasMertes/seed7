@@ -50,12 +50,12 @@
 
 
 
-inttype typCmp (const const_typetype type1, const const_typetype type2)
+intType typCmp (const const_typeType type1, const const_typeType type2)
 
   { /* typCmp */
-    if ((memsizetype) type1 < (memsizetype) type2) {
+    if ((memSizeType) type1 < (memSizeType) type2) {
       return -1;
-    } else if ((memsizetype) type1 > (memsizetype) type2) {
+    } else if ((memSizeType) type1 > (memSizeType) type2) {
       return 1;
     } else {
       return 0;
@@ -64,19 +64,19 @@ inttype typCmp (const const_typetype type1, const const_typetype type2)
 
 
 
-inttype typCmpGeneric (const generictype value1, const generictype value2)
+intType typCmpGeneric (const genericType value1, const genericType value2)
 
   { /* typCmpGeneric */
-    return typCmp((const_typetype) ((const_rtlObjecttype *) &value1)->value.typevalue,
-                  (const_typetype) ((const_rtlObjecttype *) &value2)->value.typevalue);
+    return typCmp((const_typeType) ((const_rtlObjectType *) &value1)->value.typeValue,
+                  (const_typeType) ((const_rtlObjectType *) &value2)->value.typeValue);
   } /* typCmpGeneric */
 
 
 
-typetype typFunc (typetype basic_type)
+typeType typFunc (typeType basic_type)
 
   {
-    typetype result;
+    typeType result;
 
   /* typFunc */
     if ((result = get_func_type(NULL, basic_type)) == NULL) {
@@ -89,7 +89,7 @@ typetype typFunc (typetype basic_type)
 
 
 
-booltype typIsDerived (typetype any_type)
+boolType typIsDerived (typeType any_type)
 
   { /* typIsDerived */
     return any_type->meta != NULL;
@@ -97,7 +97,7 @@ booltype typIsDerived (typetype any_type)
 
 
 
-booltype typIsFunc (typetype any_type)
+boolType typIsFunc (typeType any_type)
 
   { /* typIsFunc */
     return any_type->result_type != NULL && !any_type->is_varfunc_type;
@@ -105,7 +105,7 @@ booltype typIsFunc (typetype any_type)
 
 
 
-booltype typIsVarfunc (typetype any_type)
+boolType typIsVarfunc (typeType any_type)
 
   { /* typIsVarfunc */
     return any_type->result_type != NULL && any_type->is_varfunc_type;
@@ -113,7 +113,7 @@ booltype typIsVarfunc (typetype any_type)
 
 
 
-objecttype typMatchobj (typetype actual_type)
+objectType typMatchobj (typeType actual_type)
 
   { /* typMatchobj */
     return actual_type->match_obj;
@@ -121,7 +121,7 @@ objecttype typMatchobj (typetype actual_type)
 
 
 
-typetype typMeta (typetype any_type)
+typeType typMeta (typeType any_type)
 
   { /* typMeta */
     if (any_type->meta == NULL) {
@@ -134,12 +134,12 @@ typetype typMeta (typetype any_type)
 
 
 
-inttype typNum (typetype actual_type)
+intType typNum (typeType actual_type)
 
   {
-    static rtlHashtype type_table = NULL;
-    static inttype next_free_number = 1;
-    inttype result;
+    static rtlHashType type_table = NULL;
+    static intType next_free_number = 1;
+    intType result;
 
   /* typNum */
     /* printf("typNum(%lx)\n", actual_type); */
@@ -153,10 +153,10 @@ inttype typNum (typetype actual_type)
         raise_error(MEMORY_ERROR);
         result = 0;
       } else {
-        result = (inttype) hshIdxEnterDefault(type_table, (generictype) (memsizetype) actual_type,
-            (generictype) next_free_number,
-            (inttype) (((memsizetype) actual_type) >> 6), (comparetype) &genericCmp,
-            (createfunctype) &genericCreate, (createfunctype) &genericCreate);
+        result = (intType) hshIdxEnterDefault(type_table, (genericType) (memSizeType) actual_type,
+            (genericType) next_free_number,
+            (intType) (((memSizeType) actual_type) >> 6), (compareType) &genericCmp,
+            (createFuncType) &genericCreate, (createFuncType) &genericCreate);
         if (result == next_free_number) {
           next_free_number++;
         } /* if */
@@ -168,7 +168,7 @@ inttype typNum (typetype actual_type)
 
 
 
-typetype typResult (typetype any_type)
+typeType typResult (typeType any_type)
 
   { /* typResult */
     if (any_type->result_type == NULL) {
@@ -181,11 +181,11 @@ typetype typResult (typetype any_type)
 
 
 
-stritype typStr (typetype type_arg)
+striType typStr (typeType type_arg)
 
   {
-    const_cstritype stri;
-    stritype result;
+    const_cstriType stri;
+    striType result;
 
   /* typStr */
     if (type_arg->name != NULL) {
@@ -205,10 +205,10 @@ stritype typStr (typetype type_arg)
 
 
 
-typetype typVarfunc (typetype basic_type)
+typeType typVarfunc (typeType basic_type)
 
   {
-    typetype result;
+    typeType result;
 
   /* typVarfunc */
     if ((result = get_varfunc_type(NULL, basic_type)) == NULL) {

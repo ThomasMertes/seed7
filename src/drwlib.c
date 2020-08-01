@@ -49,19 +49,19 @@
 
 
 
-objecttype gkb_busy_getc (listtype arguments)
+objectType gkb_busy_getc (listType arguments)
 
   { /* gkb_busy_getc */
     if (gkbKeyPressed()) {
       return bld_char_temp(gkbGetc());
     } else {
-      return bld_char_temp((chartype) K_NONE);
+      return bld_char_temp((charType) K_NONE);
     } /* if */
   } /* gkb_busy_getc */
 
 
 
-objecttype gkb_button_pressed (listtype arguments)
+objectType gkb_button_pressed (listType arguments)
 
   { /* gkb_button_pressed */
     isit_char(arg_2(arguments));
@@ -74,7 +74,7 @@ objecttype gkb_button_pressed (listtype arguments)
 
 
 
-objecttype gkb_button_xpos (listtype arguments)
+objectType gkb_button_xpos (listType arguments)
 
   { /* gkb_button_xpos */
     return bld_int_temp(gkbButtonXpos());
@@ -82,7 +82,7 @@ objecttype gkb_button_xpos (listtype arguments)
 
 
 
-objecttype gkb_button_ypos (listtype arguments)
+objectType gkb_button_ypos (listType arguments)
 
   { /* gkb_button_ypos */
     return bld_int_temp(gkbButtonYpos());
@@ -90,7 +90,7 @@ objecttype gkb_button_ypos (listtype arguments)
 
 
 
-objecttype gkb_getc (listtype arguments)
+objectType gkb_getc (listType arguments)
 
   { /* gkb_getc */
     return bld_char_temp(gkbGetc());
@@ -98,7 +98,7 @@ objecttype gkb_getc (listtype arguments)
 
 
 
-objecttype gkb_gets (listtype arguments)
+objectType gkb_gets (listType arguments)
 
   { /* gkb_gets */
     isit_int(arg_2(arguments));
@@ -108,7 +108,7 @@ objecttype gkb_gets (listtype arguments)
 
 
 
-objecttype gkb_keypressed (listtype arguments)
+objectType gkb_keypressed (listType arguments)
 
   { /* gkb_keypressed */
     if (gkbKeyPressed()) {
@@ -120,22 +120,22 @@ objecttype gkb_keypressed (listtype arguments)
 
 
 
-objecttype gkb_line_read (listtype arguments)
+objectType gkb_line_read (listType arguments)
 
   {
-    objecttype ch_variable;
+    objectType ch_variable;
 
   /* gkb_line_read */
     ch_variable = arg_2(arguments);
     isit_char(ch_variable);
     is_variable(ch_variable);
     return bld_stri_temp(
-        gkbLineRead(&ch_variable->value.charvalue));
+        gkbLineRead(&ch_variable->value.charValue));
   } /* gkb_line_read */
 
 
 
-objecttype gkb_raw_getc (listtype arguments)
+objectType gkb_raw_getc (listType arguments)
 
   { /* gkb_raw_getc */
     return bld_char_temp(gkbRawGetc());
@@ -143,7 +143,7 @@ objecttype gkb_raw_getc (listtype arguments)
 
 
 
-objecttype gkb_window (listtype arguments)
+objectType gkb_window (listType arguments)
 
   { /* gkb_window */
     return bld_win_temp(gkbWindow());
@@ -151,27 +151,27 @@ objecttype gkb_window (listtype arguments)
 
 
 
-objecttype gkb_word_read (listtype arguments)
+objectType gkb_word_read (listType arguments)
 
   {
-    objecttype ch_variable;
+    objectType ch_variable;
 
   /* gkb_word_read */
     ch_variable = arg_2(arguments);
     isit_char(ch_variable);
     is_variable(ch_variable);
     return bld_stri_temp(
-        gkbWordRead(&ch_variable->value.charvalue));
+        gkbWordRead(&ch_variable->value.charValue));
   } /* gkb_word_read */
 
 
 
-objecttype drw_arc (listtype arguments)
+objectType drw_arc (listType arguments)
 
   {
-    wintype actual_window;
-    inttype x, y, radius;
-    floattype ang1, ang2;
+    winType actual_window;
+    intType x, y, radius;
+    floatType ang1, ang2;
 
   /* drw_arc */
     isit_win(arg_1(arguments));
@@ -192,11 +192,11 @@ objecttype drw_arc (listtype arguments)
 
 
 
-objecttype drw_arc2 (listtype arguments)
+objectType drw_arc2 (listType arguments)
 
   {
-    wintype actual_window;
-    inttype x1, y1, x2, y2, radius;
+    winType actual_window;
+    intType x1, y1, x2, y2, radius;
 
   /* drw_arc2 */
     isit_win(arg_1(arguments));
@@ -217,7 +217,7 @@ objecttype drw_arc2 (listtype arguments)
 
 
 
-objecttype drw_background (listtype arguments)
+objectType drw_background (listType arguments)
 
   { /* drw_background */
     isit_int(arg_1(arguments));
@@ -227,11 +227,11 @@ objecttype drw_background (listtype arguments)
 
 
 
-objecttype drw_circle (listtype arguments)
+objectType drw_circle (listType arguments)
 
   {
-    wintype actual_window;
-    inttype x1, y1, radius;
+    winType actual_window;
+    intType x1, y1, radius;
 
   /* drw_circle */
     isit_win(arg_1(arguments));
@@ -248,7 +248,7 @@ objecttype drw_circle (listtype arguments)
 
 
 
-objecttype drw_clear (listtype arguments)
+objectType drw_clear (listType arguments)
 
   { /* drw_clear */
     isit_win(arg_1(arguments));
@@ -259,18 +259,18 @@ objecttype drw_clear (listtype arguments)
 
 
 
-objecttype drw_cmp (listtype arguments)
+objectType drw_cmp (listType arguments)
 
   {
-    memsizetype ref1;
-    memsizetype ref2;
-    inttype result;
+    memSizeType ref1;
+    memSizeType ref2;
+    intType result;
 
   /* drw_cmp */
     isit_win(arg_1(arguments));
     isit_win(arg_2(arguments));
-    ref1 = (memsizetype) take_win(arg_1(arguments));
-    ref2 = (memsizetype) take_win(arg_2(arguments));
+    ref1 = (memSizeType) take_win(arg_1(arguments));
+    ref2 = (memSizeType) take_win(arg_2(arguments));
     if (ref1 < ref2) {
       result = -1;
     } else if (ref1 > ref2) {
@@ -283,7 +283,7 @@ objecttype drw_cmp (listtype arguments)
 
 
 
-objecttype drw_color (listtype arguments)
+objectType drw_color (listType arguments)
 
   { /* drw_color */
     isit_int(arg_1(arguments));
@@ -293,7 +293,7 @@ objecttype drw_color (listtype arguments)
 
 
 
-objecttype drw_copyarea (listtype arguments)
+objectType drw_copyarea (listType arguments)
 
   { /* drw_copyarea */
     isit_win(arg_1(arguments));
@@ -313,13 +313,13 @@ objecttype drw_copyarea (listtype arguments)
 
 
 
-objecttype drw_cpy (listtype arguments)
+objectType drw_cpy (listType arguments)
 
   {
-    objecttype win_to;
-    objecttype win_from;
-    wintype win_source;
-    wintype old_window;
+    objectType win_to;
+    objectType win_from;
+    winType win_source;
+    winType old_window;
 
   /* drw_cpy */
     win_to = arg_1(arguments);
@@ -329,7 +329,7 @@ objecttype drw_cpy (listtype arguments)
     is_variable(win_to);
     win_source = take_win(win_from);
     if (TEMP_OBJECT(win_from)) {
-      win_from->value.winvalue = NULL;
+      win_from->value.winValue = NULL;
     } else {
       if (win_source != NULL) {
         win_source->usage_count++;
@@ -342,26 +342,26 @@ objecttype drw_cpy (listtype arguments)
         drwFree(old_window);
       } /* if */
     } /* if */
-    win_to->value.winvalue = win_source;
+    win_to->value.winValue = win_source;
     return SYS_EMPTY_OBJECT;
   } /* drw_cpy */
 
 
 
-objecttype drw_create (listtype arguments)
+objectType drw_create (listType arguments)
 
   {
-    objecttype win_from;
-    wintype win_value;
+    objectType win_from;
+    winType win_value;
 
   /* drw_create */
     win_from = arg_3(arguments);
     isit_win(win_from);
     SET_CATEGORY_OF_OBJ(arg_1(arguments), WINOBJECT);
     win_value = take_win(win_from);
-    arg_1(arguments)->value.winvalue = win_value;
+    arg_1(arguments)->value.winValue = win_value;
     if (TEMP_OBJECT(win_from)) {
-      win_from->value.winvalue = NULL;
+      win_from->value.winValue = NULL;
     } else {
       if (win_value != NULL) {
         win_value->usage_count++;
@@ -372,10 +372,10 @@ objecttype drw_create (listtype arguments)
 
 
 
-objecttype drw_destr (listtype arguments)
+objectType drw_destr (listType arguments)
 
   {
-    wintype old_win;
+    winType old_win;
 
   /* drw_destr */
     isit_win(arg_1(arguments));
@@ -385,7 +385,7 @@ objecttype drw_destr (listtype arguments)
       if (old_win->usage_count == 0) {
         drwFree(old_win);
       } /* if */
-      arg_1(arguments)->value.winvalue = NULL;
+      arg_1(arguments)->value.winValue = NULL;
     } /* if */
     SET_UNUSED_FLAG(arg_1(arguments));
     return SYS_EMPTY_OBJECT;
@@ -393,7 +393,7 @@ objecttype drw_destr (listtype arguments)
 
 
 
-objecttype drw_empty (listtype arguments)
+objectType drw_empty (listType arguments)
 
   { /* drw_empty */
     return bld_win_temp(NULL);
@@ -401,7 +401,7 @@ objecttype drw_empty (listtype arguments)
 
 
 
-objecttype drw_eq (listtype arguments)
+objectType drw_eq (listType arguments)
 
   { /* drw_eq */
     isit_win(arg_1(arguments));
@@ -416,12 +416,12 @@ objecttype drw_eq (listtype arguments)
 
 
 
-objecttype drw_farcchord (listtype arguments)
+objectType drw_farcchord (listType arguments)
 
   {
-    wintype actual_window;
-    inttype x, y, radius;
-    floattype ang1, ang2;
+    winType actual_window;
+    intType x, y, radius;
+    floatType ang1, ang2;
 
   /* drw_farcchord */
     isit_win(arg_1(arguments));
@@ -442,12 +442,12 @@ objecttype drw_farcchord (listtype arguments)
 
 
 
-objecttype drw_farcpieslice (listtype arguments)
+objectType drw_farcpieslice (listType arguments)
 
   {
-    wintype actual_window;
-    inttype x, y, radius;
-    floattype ang1, ang2;
+    winType actual_window;
+    intType x, y, radius;
+    floatType ang1, ang2;
 
   /* drw_farcpieslice */
     isit_win(arg_1(arguments));
@@ -468,11 +468,11 @@ objecttype drw_farcpieslice (listtype arguments)
 
 
 
-objecttype drw_fcircle (listtype arguments)
+objectType drw_fcircle (listType arguments)
 
   {
-    wintype actual_window;
-    inttype x1, y1, radius;
+    winType actual_window;
+    intType x1, y1, radius;
 
   /* drw_fcircle */
     isit_win(arg_1(arguments));
@@ -489,12 +489,12 @@ objecttype drw_fcircle (listtype arguments)
 
 
 
-objecttype drw_fellipse (listtype arguments)
+objectType drw_fellipse (listType arguments)
 
   {
-    wintype actual_window;
-    inttype x1, y1;
-    inttype width, height;
+    winType actual_window;
+    intType x1, y1;
+    intType width, height;
 
   /* drw_fellipse */
     isit_win(arg_1(arguments));
@@ -513,7 +513,7 @@ objecttype drw_fellipse (listtype arguments)
 
 
 
-objecttype drw_flush (listtype arguments)
+objectType drw_flush (listType arguments)
 
   { /* drw_flush */
     drwFlush();
@@ -522,12 +522,12 @@ objecttype drw_flush (listtype arguments)
 
 
 
-objecttype drw_fpolyLine (listtype arguments)
+objectType drw_fpolyLine (listType arguments)
 
   {
-    wintype actual_window;
-    inttype x, y, col;
-    bstritype point_list;
+    winType actual_window;
+    intType x, y, col;
+    bstriType point_list;
 
   /* drw_fpolyLine */
     isit_win(arg_1(arguments));
@@ -546,15 +546,15 @@ objecttype drw_fpolyLine (listtype arguments)
 
 
 
-objecttype drw_genPointList (listtype arguments)
+objectType drw_genPointList (listType arguments)
 
   {
-    arraytype points_array;
-    memsizetype len;
-    rtlArraytype xyArray;
-    objecttype curr_number;
-    memsizetype pos;
-    bstritype result;
+    arrayType points_array;
+    memSizeType len;
+    rtlArrayType xyArray;
+    objectType curr_number;
+    memSizeType pos;
+    bstriType result;
 
   /* drw_genPointList */
     isit_array(arg_1(arguments));
@@ -567,11 +567,11 @@ objecttype drw_genPointList (listtype arguments)
         return raise_exception(SYS_MEM_EXCEPTION);
       } else {
         xyArray->min_position = 1;
-        xyArray->max_position = (inttype) (len);
+        xyArray->max_position = (intType) (len);
         curr_number = &points_array->arr[0];
         for (pos = 0; pos < len; pos++) {
           isit_int(curr_number);
-          xyArray->arr[pos].value.intvalue = take_int(curr_number);
+          xyArray->arr[pos].value.intValue = take_int(curr_number);
           curr_number++;
         } /* for */
         result = drwGenPointList(xyArray);
@@ -583,14 +583,14 @@ objecttype drw_genPointList (listtype arguments)
 
 
 
-objecttype drw_get (listtype arguments)
+objectType drw_get (listType arguments)
 
   {
-    wintype actual_window;
-    inttype x1;
-    inttype y1;
-    inttype width;
-    inttype height;
+    winType actual_window;
+    intType x1;
+    intType y1;
+    intType width;
+    intType height;
 
   /* drw_get */
     isit_win(arg_1(arguments));
@@ -609,10 +609,10 @@ objecttype drw_get (listtype arguments)
 
 
 
-objecttype drw_getImage (listtype arguments)
+objectType drw_getImage (listType arguments)
 
   {
-    wintype actual_window;
+    winType actual_window;
 
   /* drw_getImage */
     isit_win(arg_1(arguments));
@@ -623,14 +623,14 @@ objecttype drw_getImage (listtype arguments)
 
 
 
-objecttype drw_getImagePixel (listtype arguments)
+objectType drw_getImagePixel (listType arguments)
 
   {
-    bstritype image;
-    inttype width;
-    inttype height;
-    inttype x;
-    inttype y;
+    bstriType image;
+    intType width;
+    intType height;
+    intType x;
+    intType y;
 
   /* drw_getImagePixel */
     isit_bstri(arg_1(arguments));
@@ -649,12 +649,12 @@ objecttype drw_getImagePixel (listtype arguments)
 
 
 
-objecttype drw_getPixel (listtype arguments)
+objectType drw_getPixel (listType arguments)
 
   {
-    wintype actual_window;
-    inttype x1;
-    inttype y1;
+    winType actual_window;
+    intType x1;
+    intType y1;
 
   /* drw_getPixel */
     isit_win(arg_1(arguments));
@@ -669,17 +669,17 @@ objecttype drw_getPixel (listtype arguments)
 
 
 
-objecttype drw_hashcode (listtype arguments)
+objectType drw_hashcode (listType arguments)
 
   { /* drw_hashcode */
     isit_win(arg_1(arguments));
-    return bld_int_temp((inttype)
-        (((memsizetype) take_win(arg_1(arguments))) >> 6));
+    return bld_int_temp((intType)
+        (((memSizeType) take_win(arg_1(arguments))) >> 6));
   } /* drw_hashcode */
 
 
 
-objecttype drw_height (listtype arguments)
+objectType drw_height (listType arguments)
 
   { /* drw_height */
     isit_win(arg_1(arguments));
@@ -689,20 +689,20 @@ objecttype drw_height (listtype arguments)
 
 
 
-objecttype drw_image (listtype arguments)
+objectType drw_image (listType arguments)
 
   {
-    arraytype arr_image;
-    objecttype curr_line;
-    arraytype arr_line;
-    objecttype curr_column;
-    int32type *pixel_elem;
-    memsizetype height;
-    memsizetype width;
-    memsizetype line;
-    memsizetype column;
-    int32type *image_data;
-    wintype result;
+    arrayType arr_image;
+    objectType curr_line;
+    arrayType arr_line;
+    objectType curr_column;
+    int32Type *pixel_elem;
+    memSizeType height;
+    memSizeType width;
+    memSizeType line;
+    memSizeType column;
+    int32Type *image_data;
+    winType result;
 
   /* drw_image */
     isit_array(arg_1(arguments));
@@ -720,9 +720,9 @@ objecttype drw_image (listtype arguments)
       } else {
         curr_column = &arr_line->arr[0];
         isit_int(curr_column);
-        if (height > MAX_MEMSIZETYPE / sizeof(int32type) / (memsizetype) width ||
-            (image_data = (int32type *) malloc((memsizetype) height * (memsizetype) width *
-                                               sizeof(int32type))) == NULL) {
+        if (height > MAX_MEMSIZETYPE / sizeof(int32Type) / (memSizeType) width ||
+            (image_data = (int32Type *) malloc((memSizeType) height * (memSizeType) width *
+                                               sizeof(int32Type))) == NULL) {
           return raise_exception(SYS_MEM_EXCEPTION);
         } else {
           pixel_elem = image_data;
@@ -730,7 +730,7 @@ objecttype drw_image (listtype arguments)
             arr_line = take_array(curr_line);
             curr_column = &arr_line->arr[0];
             for (column = width; column > 0; column--, curr_column++) {
-              *pixel_elem = (int32type) take_int(curr_column);
+              *pixel_elem = (int32Type) take_int(curr_column);
               pixel_elem++;
             } /* for */
           } /* for */
@@ -744,11 +744,11 @@ objecttype drw_image (listtype arguments)
 
 
 
-objecttype drw_line (listtype arguments)
+objectType drw_line (listType arguments)
 
   {
-    wintype actual_window;
-    inttype x1, y1, x2, y2;
+    winType actual_window;
+    intType x1, y1, x2, y2;
 
   /* drw_line */
     isit_win(arg_1(arguments));
@@ -767,7 +767,7 @@ objecttype drw_line (listtype arguments)
 
 
 
-objecttype drw_ne (listtype arguments)
+objectType drw_ne (listType arguments)
 
   { /* drw_ne */
     isit_win(arg_1(arguments));
@@ -782,11 +782,11 @@ objecttype drw_ne (listtype arguments)
 
 
 
-objecttype drw_new_pixmap (listtype arguments)
+objectType drw_new_pixmap (listType arguments)
 
   {
-    inttype width;
-    inttype height;
+    intType width;
+    intType height;
 
   /* drw_new_pixmap */
     isit_int(arg_1(arguments));
@@ -799,11 +799,11 @@ objecttype drw_new_pixmap (listtype arguments)
 
 
 
-objecttype drw_open (listtype arguments)
+objectType drw_open (listType arguments)
 
   {
-    inttype xPos, yPos, width, height;
-    stritype window_name;
+    intType xPos, yPos, width, height;
+    striType window_name;
 
   /* drw_open */
     isit_int(arg_1(arguments));
@@ -822,11 +822,11 @@ objecttype drw_open (listtype arguments)
 
 
 
-objecttype drw_open_sub_window (listtype arguments)
+objectType drw_open_sub_window (listType arguments)
 
   {
-    wintype parent_window;
-    inttype xPos, yPos, width, height;
+    winType parent_window;
+    intType xPos, yPos, width, height;
 
   /* drw_open_sub_window */
     isit_win(arg_1(arguments));
@@ -845,13 +845,13 @@ objecttype drw_open_sub_window (listtype arguments)
 
 
 
-objecttype drw_parc (listtype arguments)
+objectType drw_parc (listType arguments)
 
   {
-    wintype actual_window;
-    inttype x, y, radius;
-    floattype ang1, ang2;
-    inttype col;
+    winType actual_window;
+    intType x, y, radius;
+    floatType ang1, ang2;
+    intType col;
 
   /* drw_parc */
     isit_win(arg_1(arguments));
@@ -874,11 +874,11 @@ objecttype drw_parc (listtype arguments)
 
 
 
-objecttype drw_pcircle (listtype arguments)
+objectType drw_pcircle (listType arguments)
 
   {
-    wintype actual_window;
-    inttype x1, y1, radius, col;
+    winType actual_window;
+    intType x1, y1, radius, col;
 
   /* drw_pcircle */
     isit_win(arg_1(arguments));
@@ -897,13 +897,13 @@ objecttype drw_pcircle (listtype arguments)
 
 
 
-objecttype drw_pfarcchord (listtype arguments)
+objectType drw_pfarcchord (listType arguments)
 
   {
-    wintype actual_window;
-    inttype x, y, radius;
-    floattype ang1, ang2;
-    inttype col;
+    winType actual_window;
+    intType x, y, radius;
+    floatType ang1, ang2;
+    intType col;
 
   /* drw_pfarcchord */
     isit_win(arg_1(arguments));
@@ -926,13 +926,13 @@ objecttype drw_pfarcchord (listtype arguments)
 
 
 
-objecttype drw_pfarcpieslice (listtype arguments)
+objectType drw_pfarcpieslice (listType arguments)
 
   {
-    wintype actual_window;
-    inttype x, y, radius;
-    floattype ang1, ang2;
-    inttype col;
+    winType actual_window;
+    intType x, y, radius;
+    floatType ang1, ang2;
+    intType col;
 
   /* drw_pfarcpieslice */
     isit_win(arg_1(arguments));
@@ -955,11 +955,11 @@ objecttype drw_pfarcpieslice (listtype arguments)
 
 
 
-objecttype drw_pfcircle (listtype arguments)
+objectType drw_pfcircle (listType arguments)
 
   {
-    wintype actual_window;
-    inttype x1, y1, radius, col;
+    winType actual_window;
+    intType x1, y1, radius, col;
 
   /* drw_pfcircle */
     isit_win(arg_1(arguments));
@@ -978,12 +978,12 @@ objecttype drw_pfcircle (listtype arguments)
 
 
 
-objecttype drw_pfellipse (listtype arguments)
+objectType drw_pfellipse (listType arguments)
 
   {
-    wintype actual_window;
-    inttype x1, y1;
-    inttype width, height, col;
+    winType actual_window;
+    intType x1, y1;
+    intType width, height, col;
 
   /* drw_pfellipse */
     isit_win(arg_1(arguments));
@@ -1004,12 +1004,12 @@ objecttype drw_pfellipse (listtype arguments)
 
 
 
-objecttype drw_pixelToRgb (listtype arguments)
+objectType drw_pixelToRgb (listType arguments)
 
   {
-    objecttype red_variable;
-    objecttype green_variable;
-    objecttype blue_variable;
+    objectType red_variable;
+    objectType green_variable;
+    objectType blue_variable;
 
   /* drw_pixelToRgb */
     isit_int(arg_1(arguments));
@@ -1023,19 +1023,19 @@ objecttype drw_pixelToRgb (listtype arguments)
     isit_int(blue_variable);
     is_variable(blue_variable);
     drwPixelToRgb(take_int(arg_1(arguments)),
-                  &red_variable->value.intvalue,
-                  &green_variable->value.intvalue,
-                  &blue_variable->value.intvalue);
+                  &red_variable->value.intValue,
+                  &green_variable->value.intValue,
+                  &blue_variable->value.intValue);
     return SYS_EMPTY_OBJECT;
   } /* drw_pixelToRgb */
 
 
 
-objecttype drw_pline (listtype arguments)
+objectType drw_pline (listType arguments)
 
   {
-    wintype actual_window;
-    inttype x1, y1, x2, y2, col;
+    winType actual_window;
+    intType x1, y1, x2, y2, col;
 
   /* drw_pline */
     isit_win(arg_1(arguments));
@@ -1056,11 +1056,11 @@ objecttype drw_pline (listtype arguments)
 
 
 
-objecttype drw_point (listtype arguments)
+objectType drw_point (listType arguments)
 
   {
-    wintype actual_window;
-    inttype x, y;
+    winType actual_window;
+    intType x, y;
 
   /* drw_point */
     isit_win(arg_1(arguments));
@@ -1075,7 +1075,7 @@ objecttype drw_point (listtype arguments)
 
 
 
-objecttype drw_pointer_xpos (listtype arguments)
+objectType drw_pointer_xpos (listType arguments)
 
   { /* drw_pointer_xpos */
     isit_win(arg_1(arguments));
@@ -1085,7 +1085,7 @@ objecttype drw_pointer_xpos (listtype arguments)
 
 
 
-objecttype drw_pointer_ypos (listtype arguments)
+objectType drw_pointer_ypos (listType arguments)
 
   { /* drw_pointer_ypos */
     isit_win(arg_1(arguments));
@@ -1095,12 +1095,12 @@ objecttype drw_pointer_ypos (listtype arguments)
 
 
 
-objecttype drw_polyLine (listtype arguments)
+objectType drw_polyLine (listType arguments)
 
   {
-    wintype actual_window;
-    inttype x, y, col;
-    bstritype point_list;
+    winType actual_window;
+    intType x, y, col;
+    bstriType point_list;
 
   /* drw_polyLine */
     isit_win(arg_1(arguments));
@@ -1119,11 +1119,11 @@ objecttype drw_polyLine (listtype arguments)
 
 
 
-objecttype drw_ppoint (listtype arguments)
+objectType drw_ppoint (listType arguments)
 
   {
-    wintype actual_window;
-    inttype x, y, col;
+    winType actual_window;
+    intType x, y, col;
 
   /* drw_ppoint */
     isit_win(arg_1(arguments));
@@ -1140,11 +1140,11 @@ objecttype drw_ppoint (listtype arguments)
 
 
 
-objecttype drw_prect (listtype arguments)
+objectType drw_prect (listType arguments)
 
   {
-    wintype actual_window;
-    inttype x1, y1, width, height, col;
+    winType actual_window;
+    intType x1, y1, width, height, col;
 
   /* drw_prect */
     isit_win(arg_1(arguments));
@@ -1165,11 +1165,11 @@ objecttype drw_prect (listtype arguments)
 
 
 
-objecttype drw_put (listtype arguments)
+objectType drw_put (listType arguments)
 
   {
-    wintype actual_window;
-    wintype pixmap;
+    winType actual_window;
+    winType pixmap;
 
   /* drw_put */
     isit_win(arg_1(arguments));
@@ -1189,11 +1189,11 @@ objecttype drw_put (listtype arguments)
 
 
 
-objecttype drw_rect (listtype arguments)
+objectType drw_rect (listType arguments)
 
   {
-    wintype actual_window;
-    inttype x1, y1, width, height;
+    winType actual_window;
+    intType x1, y1, width, height;
 
   /* drw_rect */
     isit_win(arg_1(arguments));
@@ -1212,7 +1212,7 @@ objecttype drw_rect (listtype arguments)
 
 
 
-objecttype drw_rgbcol (listtype arguments)
+objectType drw_rgbcol (listType arguments)
 
   { /* drw_rgbcol */
     return bld_int_temp(
@@ -1222,7 +1222,7 @@ objecttype drw_rgbcol (listtype arguments)
 
 
 
-objecttype drw_rot (listtype arguments)
+objectType drw_rot (listType arguments)
 
   { /* drw_rot */
     return SYS_EMPTY_OBJECT;
@@ -1230,7 +1230,7 @@ objecttype drw_rot (listtype arguments)
 
 
 
-objecttype drw_scale (listtype arguments)
+objectType drw_scale (listType arguments)
 
   { /* drw_scale */
     return SYS_EMPTY_OBJECT;
@@ -1238,7 +1238,7 @@ objecttype drw_scale (listtype arguments)
 
 
 
-objecttype drw_setContent (listtype arguments)
+objectType drw_setContent (listType arguments)
 
   { /* drw_setContent */
     isit_win(arg_1(arguments));
@@ -1249,7 +1249,7 @@ objecttype drw_setContent (listtype arguments)
 
 
 
-objecttype drw_setPos (listtype arguments)
+objectType drw_setPos (listType arguments)
 
   { /* drw_setPos */
     isit_win(arg_1(arguments));
@@ -1262,7 +1262,7 @@ objecttype drw_setPos (listtype arguments)
 
 
 
-objecttype drw_setTransparentColor (listtype arguments)
+objectType drw_setTransparentColor (listType arguments)
 
   { /* drw_setTransparentColor */
     isit_win(arg_1(arguments));
@@ -1274,13 +1274,13 @@ objecttype drw_setTransparentColor (listtype arguments)
 
 
 
-objecttype drw_text (listtype arguments)
+objectType drw_text (listType arguments)
 
   {
-    wintype actual_window;
-    inttype x, y;
-    stritype stri;
-    inttype col, bkcol;
+    winType actual_window;
+    intType x, y;
+    striType stri;
+    intType col, bkcol;
 
   /* drw_text */
     isit_win(arg_1(arguments));
@@ -1301,7 +1301,7 @@ objecttype drw_text (listtype arguments)
 
 
 
-objecttype drw_toBottom (listtype arguments)
+objectType drw_toBottom (listType arguments)
 
   { /* drw_toBottom */
     isit_win(arg_1(arguments));
@@ -1311,7 +1311,7 @@ objecttype drw_toBottom (listtype arguments)
 
 
 
-objecttype drw_toTop (listtype arguments)
+objectType drw_toTop (listType arguments)
 
   { /* drw_toTop */
     isit_win(arg_1(arguments));
@@ -1321,11 +1321,11 @@ objecttype drw_toTop (listtype arguments)
 
 
 
-objecttype drw_value (listtype arguments)
+objectType drw_value (listType arguments)
 
   {
-    objecttype obj_arg;
-    wintype win_value;
+    objectType obj_arg;
+    winType win_value;
 
   /* drw_value */
     isit_reference(arg_1(arguments));
@@ -1343,7 +1343,7 @@ objecttype drw_value (listtype arguments)
 
 
 
-objecttype drw_width (listtype arguments)
+objectType drw_width (listType arguments)
 
   { /* drw_width */
     isit_win(arg_1(arguments));
@@ -1353,7 +1353,7 @@ objecttype drw_width (listtype arguments)
 
 
 
-objecttype drw_xpos (listtype arguments)
+objectType drw_xpos (listType arguments)
 
   { /* drw_xpos */
     isit_win(arg_1(arguments));
@@ -1363,7 +1363,7 @@ objecttype drw_xpos (listtype arguments)
 
 
 
-objecttype drw_ypos (listtype arguments)
+objectType drw_ypos (listType arguments)
 
   { /* drw_ypos */
     isit_win(arg_1(arguments));

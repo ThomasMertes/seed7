@@ -21,7 +21,7 @@
 /*  Module: Reflection                                              */
 /*  File: seed7/src/datautl.c                                       */
 /*  Changes: 1991, 1992, 1993, 1994  Thomas Mertes                  */
-/*  Content: Procedures to maintain objects of type identtype.      */
+/*  Content: Procedures to maintain objects of type identType.      */
 /*                                                                  */
 /********************************************************************/
 
@@ -39,7 +39,7 @@
 #include "datautl.h"
 
 
-static const_cstritype category_name[] = {
+static const_cstriType category_name[] = {
     "SYMBOLOBJECT",      /* pos (file, line) - Symbol object        */
                          /*                    created by read_atom */
                          /*                    and read_name        */
@@ -47,57 +47,59 @@ static const_cstritype category_name[] = {
                          /*                    not initialized      */
     "FORWARDOBJECT",     /* NO VALUE -         Object declared      */
                          /*                    forward              */
-    "FWDREFOBJECT",      /* objvalue -    Reference to Object which */
+    "FWDREFOBJECT",      /* objValue -    Reference to Object which */
                          /*               was declared forward      */
-    "BLOCKOBJECT",       /* blockvalue - Procedure possibly with    */
+    "BLOCKOBJECT",       /* blockValue - Procedure possibly with    */
                          /*              parameters, declared       */
                          /*              result or local variables  */
-    "CALLOBJECT",        /* listvalue - Subroutine call:            */
+    "CALLOBJECT",        /* listValue - Subroutine call:            */
                          /*             First element is subroutine */
                          /*             Rest of list is parameters  */
-    "MATCHOBJECT",       /* listvalue - Don't exec subroutine call: */
+    "MATCHOBJECT",       /* listValue - Don't exec subroutine call: */
                          /*             First element is subroutine */
                          /*             Rest of list is parameters  */
-    "TYPEOBJECT",        /* typevalue -   type                      */
-    "FORMPARAMOBJECT",   /* objvalue -    Reference to formal param */
-    "INTOBJECT",         /* intvalue -    integer                   */
-    "BIGINTOBJECT",      /* bigintvalue - bigInteger                */
-    "CHAROBJECT",        /* charvalue -   char                      */
-    "STRIOBJECT",        /* strivalue -   string                    */
-    "BSTRIOBJECT",       /* bstrivalue -  byte string               */
-    "ARRAYOBJECT",       /* arrayvalue -  array                     */
-    "HASHOBJECT",        /* hashvalue -   hash                      */
-    "STRUCTOBJECT",      /* structvalue - struct                    */
-    "CLASSOBJECT",       /* structvalue - struct                    */
-    "INTERFACEOBJECT",   /* objvalue -    Dynamic Object            */
-    "SETOBJECT",         /* setvalue -    set                       */
-    "FILEOBJECT",        /* filevalue -   file                      */
-    "FILEDESOBJECT",     /* filedesvalue - file descriptor          */
-    "SOCKETOBJECT",      /* socketvalue - socket                    */
-    "POLLOBJECT",        /* pollvalue -   poll list                 */
-    "LISTOBJECT",        /* listvalue -   list                      */
-    "FLOATOBJECT",       /* floatvalue -  float                     */
-    "WINOBJECT",         /* winvalue -    Window                    */
-    "ENUMLITERALOBJECT", /* objvalue -    Enumeration literal       */
-    "CONSTENUMOBJECT",   /* objvalue -    Constant enumeration obj  */
-    "VARENUMOBJECT",     /* objvalue -    Variable enumeration obj  */
-    "REFOBJECT",         /* objvalue -    reference                 */
-    "REFLISTOBJECT",     /* listvalue -   ref_list                  */
-    "EXPROBJECT",        /* listvalue -   expression                */
-    "ACTOBJECT",         /* actvalue -    Action                    */
-    "VALUEPARAMOBJECT",  /* objvalue -    Formal value parameter    */
-    "REFPARAMOBJECT",    /* objvalue -    Formal ref parameter      */
-    "RESULTOBJECT",      /* objvalue -    Result of procedure       */
-    "LOCALVOBJECT",      /* objvalue -    Local variable            */
-    "PROGOBJECT"         /* progvalue -   Program                   */
+    "TYPEOBJECT",        /* typeValue -   type                      */
+    "FORMPARAMOBJECT",   /* objValue -    Reference to formal param */
+    "INTOBJECT",         /* intValue -    integer                   */
+    "BIGINTOBJECT",      /* bigIntValue - bigInteger                */
+    "CHAROBJECT",        /* charValue -   char                      */
+    "STRIOBJECT",        /* striValue -   string                    */
+    "BSTRIOBJECT",       /* bstriValue -  byte string               */
+    "ARRAYOBJECT",       /* arrayValue -  array                     */
+    "HASHOBJECT",        /* hashValue -   hash                      */
+    "STRUCTOBJECT",      /* structValue - struct                    */
+    "CLASSOBJECT",       /* structValue - struct                    */
+    "INTERFACEOBJECT",   /* objValue -    Dynamic Object            */
+    "SETOBJECT",         /* setValue -    set                       */
+    "FILEOBJECT",        /* fileValue -   file                      */
+    "FILEDESOBJECT",     /* fileDesValue - file descriptor          */
+    "SOCKETOBJECT",      /* socketValue - socket                    */
+    "POLLOBJECT",        /* pollValue -   poll list                 */
+    "LISTOBJECT",        /* listValue -   list                      */
+    "FLOATOBJECT",       /* floatValue -  float                     */
+    "WINOBJECT",         /* winValue -    Window                    */
+    "ENUMLITERALOBJECT", /* objValue -    Enumeration literal       */
+    "CONSTENUMOBJECT",   /* objValue -    Constant enumeration obj  */
+    "VARENUMOBJECT",     /* objValue -    Variable enumeration obj  */
+    "REFOBJECT",         /* objValue -    reference                 */
+    "REFLISTOBJECT",     /* listValue -   ref_list                  */
+    "EXPROBJECT",        /* listValue -   expression                */
+    "ACTOBJECT",         /* actValue -    Action                    */
+    "VALUEPARAMOBJECT",  /* objValue -    Formal value parameter    */
+    "REFPARAMOBJECT",    /* objValue -    Formal ref parameter      */
+    "RESULTOBJECT",      /* objValue -    Result of procedure       */
+    "LOCALVOBJECT",      /* objValue -    Local variable            */
+    "DATABASEOBJECT",    /* databaseValue - Database                */
+    "SQLSTMTOBJECT",     /* sqlStmtValue -  SQL statement           */
+    "PROGOBJECT"         /* progValue -   Program                   */
   };
 
 
 
-const_cstritype category_cstri (objectcategory category)
+const_cstriType category_cstri (objectCategory category)
 
   {
-    const_cstritype result;
+    const_cstriType result;
 
   /* category_cstri */
     if (category >= SYMBOLOBJECT && category <= PROGOBJECT) {
@@ -110,10 +112,10 @@ const_cstritype category_cstri (objectcategory category)
 
 
 
-inttype category_value (const const_cstritype stri)
+intType category_value (const const_cstriType stri)
 
   {
-    inttype number;
+    intType number;
 
   /* category_value */
     for (number = SYMBOLOBJECT; number <= PROGOBJECT; number++) {
@@ -126,10 +128,10 @@ inttype category_value (const const_cstritype stri)
 
 
 
-const_cstritype id_string (const_identtype actual_ident)
+const_cstriType id_string (const_identType actual_ident)
 
   {
-    const_cstritype result;
+    const_cstriType result;
 
   /* id_string */
     if (actual_ident == NULL) {
@@ -138,20 +140,20 @@ const_cstritype id_string (const_identtype actual_ident)
       result = " *NULL_NAME_IDENT* ";
     } else if (actual_ident->name[0] == '\0') {
       result = " *NULL_STRING_IDENT* ";
-    } else if (memchr((cstritype) actual_ident->name, '\0', 51) == NULL) {
+    } else if (memchr((cstriType) actual_ident->name, '\0', 51) == NULL) {
       result = " *GARBAGE_IDENT* ";
     } else {
-      result = (const_cstritype) actual_ident->name;
+      result = (const_cstriType) actual_ident->name;
     } /* if */
     return result;
   } /* id_string */
 
 
 
-const_cstritype id_string2 (const_identtype actual_ident)
+const_cstriType id_string2 (const_identType actual_ident)
 
   {
-    const_cstritype result;
+    const_cstriType result;
 
   /* id_string2 */
     if (actual_ident == NULL) {
@@ -159,7 +161,7 @@ const_cstritype id_string2 (const_identtype actual_ident)
     } else if (actual_ident->name == NULL) {
       result = " *NULL_NAME_IDENT* ";
     } else {
-      result = (const_cstritype) actual_ident->name;
+      result = (const_cstriType) actual_ident->name;
     } /* if */
     return result;
   } /* id_string2 */

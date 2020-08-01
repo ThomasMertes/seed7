@@ -183,8 +183,8 @@ static void read_stri_cap (FILE *fix_file, char **cap_value, int *term_char)
 
 
 
-static int assign_cap (char *cap_name, const_cstritype terminfo_name,
-    const_cstritype termcap_name, char **cap_pointer, char *cap_value)
+static int assign_cap (char *cap_name, const_cstriType terminfo_name,
+    const_cstriType termcap_name, char **cap_pointer, char *cap_value)
 
   { /* assign_cap */
     if (cap_name != NULL &&

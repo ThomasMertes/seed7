@@ -44,42 +44,42 @@
 
 
 #ifdef DO_HEAP_STATISTIC
-size_t sizeof_pollrecord = sizeof(pollrecord);
+size_t sizeof_pollRecord = sizeof(pollRecord);
 #endif
 
 
 
-void initPollOperations (const createfunctype incrUsageCount,
-    const destrfunctype decrUsageCount)
+void initPollOperations (const createFuncType incrUsageCount,
+    const destrFuncType decrUsageCount)
 
   { /* initPollOperations */
   } /* initPollOperations */
 
 
 
-void polAddCheck (const polltype pollData, const sockettype aSocket,
-    inttype eventsToCheck, const generictype fileObj)
+void polAddCheck (const pollType pollData, const socketType aSocket,
+    intType eventsToCheck, const genericType fileObj)
 
   { /* polAddCheck */
   } /* polAddCheck */
 
 
 
-void polClear (const polltype pollData)
+void polClear (const pollType pollData)
 
   { /* polClear */
   } /* polClear */
 
 
 
-void polCpy (const polltype poll_to, const const_polltype pollDataFrom)
+void polCpy (const pollType poll_to, const const_pollType pollDataFrom)
 
   {  /* polCpy */
   }  /* polCpy */
 
 
 
-polltype polCreate (const const_polltype pollDataFrom)
+pollType polCreate (const const_pollType pollDataFrom)
 
   { /* polCreate */
     return NULL;
@@ -87,14 +87,14 @@ polltype polCreate (const const_polltype pollDataFrom)
 
 
 
-void polDestr (const polltype oldPollData)
+void polDestr (const pollType oldPollData)
 
   { /* polDestr */
   } /* polDestr */
 
 
 
-polltype polEmpty (void)
+pollType polEmpty (void)
 
   { /* polEmpty */
     return NULL;
@@ -102,7 +102,7 @@ polltype polEmpty (void)
 
 
 
-inttype polGetCheck (const const_polltype pollData, const sockettype aSocket)
+intType polGetCheck (const const_pollType pollData, const socketType aSocket)
 
   { /* polGetCheck */
     return POLL_NOTHING;
@@ -110,14 +110,14 @@ inttype polGetCheck (const const_polltype pollData, const sockettype aSocket)
 
 
 
-inttype polGetFinding (const const_polltype pollData, const sockettype aSocket)
+intType polGetFinding (const const_pollType pollData, const socketType aSocket)
 
   { /* polGetFinding */
     return POLL_NOTHING;
   } /* polGetFinding */
 
 
-booltype polHasNext (const polltype pollData)
+boolType polHasNext (const pollType pollData)
 
   { /* polHasNext */
     return FALSE;
@@ -125,21 +125,21 @@ booltype polHasNext (const polltype pollData)
 
 
 
-void polIterChecks (const polltype pollData, inttype pollMode)
+void polIterChecks (const pollType pollData, intType pollMode)
 
   { /* polIterChecks */
   } /* polIterChecks */
 
 
 
-void polIterFindings (const polltype pollData, inttype pollMode)
+void polIterFindings (const pollType pollData, intType pollMode)
 
   { /* polIterFindings */
   } /* polIterFindings */
 
 
 
-generictype polNextFile (const polltype pollData, const generictype nullFile)
+genericType polNextFile (const pollType pollData, const genericType nullFile)
 
   { /* polNextFile */
     return nullFile;
@@ -147,7 +147,7 @@ generictype polNextFile (const polltype pollData, const generictype nullFile)
 
 
 
-void polPoll (const polltype pollData)
+void polPoll (const pollType pollData)
 
   { /* polPoll */
     raise_error(FILE_ERROR);
@@ -155,8 +155,8 @@ void polPoll (const polltype pollData)
 
 
 
-void polRemoveCheck (const polltype pollData, const sockettype aSocket,
-    inttype eventsToCheck)
+void polRemoveCheck (const pollType pollData, const socketType aSocket,
+    intType eventsToCheck)
 
   { /* polRemoveCheck */
   } /* polRemoveCheck */

@@ -89,7 +89,7 @@ int tputs (char *, int, int (*) (char ch));
 #define white 15
 
 /* int curr_attribute = 0; */
-booltype key_buffer_filled = FALSE;
+boolType key_buffer_filled = FALSE;
 int last_key;
 struct termios term_descr;
 tcflag_t lflag_bak;
@@ -97,10 +97,10 @@ cc_t min_bak;
 cc_t time_bak;
 cc_t erase_ch;
 
-booltype changes = FALSE;
-booltype keybd_initialized = FALSE;
-booltype console_initialized = FALSE;
-booltype cursor_on = FALSE;
+boolType changes = FALSE;
+boolType keybd_initialized = FALSE;
+boolType console_initialized = FALSE;
+boolType cursor_on = FALSE;
 
 
 #ifdef MAP_CHARS
@@ -176,7 +176,7 @@ static char map[] = {
 #define putstr(s) fputs(s, stdout)
 
 char *AL;    /* insert line */
-booltype AM; /* automatic margins (warp around) */
+boolType AM; /* automatic margins (warp around) */
 char *BC;    /* backspace (if not BS) */
 char *CD;    /* clear to end of display */
 char *CE;    /* clear to end of line */
@@ -190,13 +190,13 @@ char *DM;    /* enter delete mode */
 char *DO;    /* cursor down */
 char *ED;    /* end delete mode */
 char *EI;    /* end insert mode */
-booltype HC; /* hardcopy terminal */
+boolType HC; /* hardcopy terminal */
 char *IC;    /* insert character */
 char *IM;    /* enter insert mode */
 char *IP;    /* post-insert mode */
 char *LE;    /* cursor left */
 int LI;      /* number of lines */
-booltype MI; /* safe to move while in insert mode */
+boolType MI; /* safe to move while in insert mode */
 char *ND;    /* cursor right */
 char PC;     /* pad character */
 char *PCS;   /* pad string */
@@ -320,11 +320,11 @@ static void kbd_init (void)
 
 
 
-booltype kbdKeyPressed (void)
+boolType kbdKeyPressed (void)
 
   {
     int file_no;
-    booltype result;
+    boolType result;
     char buffer;
 
   /* kbdKeyPressed */
@@ -354,10 +354,10 @@ booltype kbdKeyPressed (void)
 
 
 
-chartype kbdGetc (void)
+charType kbdGetc (void)
 
   {
-    chartype result;
+    charType result;
 
   /* kbdGetc */
     if (!keybd_initialized) {
@@ -377,7 +377,7 @@ chartype kbdGetc (void)
 
 
 
-chartype kbdRawGetc (void)
+charType kbdRawGetc (void)
 
   { /* kbdRawGetc */
     return kbdGetc();
@@ -394,7 +394,7 @@ void snd_beep (void)
 
 
 
-void setcolour (inttype foreground, inttype background)
+void setcolour (intType foreground, intType background)
 
   { /* setcolour */
 /*  curr_attribute = (char) (foreground + 16 * (background % 8)); */
@@ -427,7 +427,7 @@ void setfont (char *fontname)
 
 
 
-inttype textheight (void)
+intType textheight (void)
 
   { /* textheight */
     return 1;
@@ -435,8 +435,8 @@ inttype textheight (void)
 
 
 
-inttype textwidth (stritype stri,
-    inttype startcol, inttype stopcol)
+intType textwidth (striType stri,
+    intType startcol, intType stopcol)
 
   { /* textwidth */
     return stopcol + 1 - startcol;
@@ -444,8 +444,8 @@ inttype textwidth (stritype stri,
 
 
 
-void textcolumns (stritype stri, inttype striwidth,
-    inttype *cols, inttype *rest)
+void textcolumns (striType stri, intType striwidth,
+    intType *cols, intType *rest)
 
   { /* textcolumns */
     *cols = striwidth;
@@ -477,7 +477,7 @@ void conFlush (void)
 
 
 
-void conCursor (booltype on)
+void conCursor (boolType on)
 
   { /* conCursor */
     cursor_on = on;
@@ -486,7 +486,7 @@ void conCursor (booltype on)
 
 
 
-void conSetCursor (inttype lin, inttype col)
+void conSetCursor (intType lin, intType col)
 
   /* Moves the system curser to the given place of the console.     */
   /* When no system cursor exists this procedure can be replaced by */
@@ -499,8 +499,8 @@ void conSetCursor (inttype lin, inttype col)
 
 
 
-void conText (inttype lin, inttype col, ustritype stri,
-memsizetype length)
+void conText (intType lin, intType col, ustriType stri,
+memSizeType length)
 
   /* This function writes the string stri to the console at the     */
   /* position (lin, col). The position (lin, col) must be a legal   */
@@ -547,8 +547,8 @@ memsizetype length)
 
 
 
-void conClear (inttype startlin, inttype startcol,
-    inttype stoplin, inttype stopcol)
+void conClear (intType startlin, intType startcol,
+    intType stoplin, intType stopcol)
 
   /* Clears the area described by startlin, stoplin, startcol and   */
   /* stopcol.                                                       */
@@ -594,8 +594,8 @@ void conClear (inttype startlin, inttype startcol,
 
 
 
-void conUpScroll (inttype startlin, inttype startcol,
-    inttype stoplin, inttype stopcol, inttype count)
+void conUpScroll (intType startlin, intType startcol,
+    intType stoplin, intType stopcol, intType count)
 
   /* Scrolls the area inside startlin, startcol, stoplin and        */
   /* stopcol upward by count lines. The upper count lines of the    */
@@ -667,8 +667,8 @@ void conUpScroll (inttype startlin, inttype startcol,
 
 
 
-void conDownScroll (inttype startlin, inttype startcol,
-    inttype stoplin, inttype stopcol, inttype count)
+void conDownScroll (intType startlin, intType startcol,
+    intType stoplin, intType stopcol, intType count)
 
   /* Scrolls the area inside startlin, startcol, stoplin and        */
   /* stopcol downward by count lines. The lower count lines of the  */
@@ -741,8 +741,8 @@ void conDownScroll (inttype startlin, inttype startcol,
 
 
 
-void conLeftScroll (inttype startlin, inttype startcol,
-    inttype stoplin, inttype stopcol, inttype count)
+void conLeftScroll (intType startlin, intType startcol,
+    intType stoplin, intType stopcol, intType count)
 
   /* Scrolls the area inside startlin, startcol, stoplin and        */
   /* stopcol leftward by count lines. The left count lines of the   */
@@ -846,8 +846,8 @@ void conLeftScroll (inttype startlin, inttype startcol,
 
 
 
-void conRightScroll (inttype startlin, inttype startcol,
-    inttype stoplin, inttype stopcol, inttype count)
+void conRightScroll (intType startlin, intType startcol,
+    intType stoplin, intType stopcol, intType count)
 
   /* Scrolls the area inside startlin, startcol, stoplin and        */
   /* stopcol rightward by count lines. The right count lines of the */

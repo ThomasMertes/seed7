@@ -46,15 +46,15 @@
 
 
 
-objecttype lst_cat (listtype arguments)
+objectType lst_cat (listType arguments)
 
   {
-    objecttype arg1;
-    objecttype arg2;
-    listtype list1_end;
-    listtype list2_start;
-    errinfotype err_info = OKAY_NO_ERROR;
-    listtype result;
+    objectType arg1;
+    objectType arg2;
+    listType list1_end;
+    listType list2_start;
+    errInfoType err_info = OKAY_NO_ERROR;
+    listType result;
 
 
   /* lst_cat */
@@ -72,7 +72,7 @@ objecttype lst_cat (listtype arguments)
     } /* if */
     if (TEMP_OBJECT(arg2)) {
       list2_start = take_list(arg2);
-      arg2->value.listvalue = NULL;
+      arg2->value.listValue = NULL;
     } else {
       list2_start = copy_list(take_list(arg2), &err_info);
       if (err_info != OKAY_NO_ERROR) {
@@ -84,7 +84,7 @@ objecttype lst_cat (listtype arguments)
       /* When an exception is raised the arguments must */
       /* be unchanged to give a correct exception warning */
       /* and to give a clean state to the exception handler. */
-      arg1->value.listvalue = NULL;
+      arg1->value.listValue = NULL;
     } /* if */
     if (result != NULL) {
       list1_end = result;
@@ -100,13 +100,13 @@ objecttype lst_cat (listtype arguments)
 
 
 
-objecttype lst_cpy (listtype arguments)
+objectType lst_cpy (listType arguments)
 
   {
-    objecttype list_to;
-    objecttype list_from;
-    listtype help_list;
-    errinfotype err_info = OKAY_NO_ERROR;
+    objectType list_to;
+    objectType list_from;
+    listType help_list;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* lst_cpy */
     list_to = arg_1(arguments);
@@ -117,15 +117,15 @@ objecttype lst_cpy (listtype arguments)
     if (list_from != list_to) {
       if (TEMP_OBJECT(list_from)) {
         free_list(take_list(list_to));
-        list_to->value.listvalue = take_list(list_from);
-        list_from->value.listvalue = NULL;
+        list_to->value.listValue = take_list(list_from);
+        list_from->value.listValue = NULL;
       } else {
         help_list = copy_list(take_list(list_from), &err_info);
         if (err_info != OKAY_NO_ERROR) {
           return raise_exception(SYS_MEM_EXCEPTION);
         } else {
           free_list(take_list(list_to));
-          list_to->value.listvalue = help_list;
+          list_to->value.listValue = help_list;
         } /* if */
       } /* if */
     } /* if */
@@ -134,12 +134,12 @@ objecttype lst_cpy (listtype arguments)
 
 
 
-objecttype lst_create (listtype arguments)
+objectType lst_create (listType arguments)
 
   {
-    objecttype list_to;
-    objecttype list_from;
-    errinfotype err_info = OKAY_NO_ERROR;
+    objectType list_to;
+    objectType list_from;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* lst_create */
     list_to = arg_1(arguments);
@@ -147,12 +147,12 @@ objecttype lst_create (listtype arguments)
     SET_CATEGORY_OF_OBJ(list_to, LISTOBJECT);
     isit_list(list_from);
     if (TEMP_OBJECT(list_from)) {
-      list_to->value.listvalue = take_list(list_from);
-      list_from->value.listvalue = NULL;
+      list_to->value.listValue = take_list(list_from);
+      list_from->value.listValue = NULL;
     } else {
-      list_to->value.listvalue = copy_list(take_list(list_from), &err_info);
+      list_to->value.listValue = copy_list(take_list(list_from), &err_info);
       if (err_info != OKAY_NO_ERROR) {
-        list_to->value.listvalue = NULL;
+        list_to->value.listValue = NULL;
         return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
     } /* if */
@@ -161,12 +161,12 @@ objecttype lst_create (listtype arguments)
 
 
 
-objecttype lst_destr (listtype arguments)
+objectType lst_destr (listType arguments)
 
   {
-    objecttype old_list;
-    register listtype list_end;
-    errinfotype err_info = OKAY_NO_ERROR;
+    objectType old_list;
+    register listType list_end;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* lst_destr */
     old_list = arg_1(arguments);
@@ -187,19 +187,19 @@ objecttype lst_destr (listtype arguments)
       list_end->next = flist.list_elems;
       flist.list_elems = take_list(old_list);
     } /* if */
-    old_list->value.listvalue = NULL;
+    old_list->value.listValue = NULL;
     SET_UNUSED_FLAG(arg_1(arguments));
     return SYS_EMPTY_OBJECT;
   } /* lst_destr */
 
 
 
-objecttype lst_elem (listtype arguments)
+objectType lst_elem (listType arguments)
 
   {
 #ifdef OUT_OF_ORDER
-    objecttype searched_object;
-    listtype list_element;
+    objectType searched_object;
+    listType list_element;
 #endif
 
   /* lst_elem */
@@ -225,7 +225,7 @@ objecttype lst_elem (listtype arguments)
 
 
 
-objecttype lst_empty (listtype arguments)
+objectType lst_empty (listType arguments)
 
   { /* lst_empty */
     return bld_list_temp(NULL);
@@ -233,27 +233,27 @@ objecttype lst_empty (listtype arguments)
 
 
 
-objecttype lst_excl (listtype arguments)
+objectType lst_excl (listType arguments)
 
   { /* lst_excl */
     isit_list(arg_1(arguments));
-    excl_list(&arg_1(arguments)->value.listvalue,
+    excl_list(&arg_1(arguments)->value.listValue,
         arg_2(arguments));
     return SYS_EMPTY_OBJECT;
   } /* lst_excl */
 
 
 
-objecttype lst_head (listtype arguments)
+objectType lst_head (listType arguments)
 
   {
-    objecttype list;
-    inttype stop;
-    inttype number;
-    listtype stop_element;
-    listtype saved_list_rest;
-    errinfotype err_info = OKAY_NO_ERROR;
-    listtype result;
+    objectType list;
+    intType stop;
+    intType number;
+    listType stop_element;
+    listType saved_list_rest;
+    errInfoType err_info = OKAY_NO_ERROR;
+    listType result;
 
   /* lst_head */
     isit_int(arg_4(arguments));
@@ -273,7 +273,7 @@ objecttype lst_head (listtype arguments)
           stop_element->next = NULL;
         } /* if */
         result = take_list(list);
-        list->value.listvalue = NULL;
+        list->value.listValue = NULL;
       } else {
         if (stop_element != NULL) {
           saved_list_rest = stop_element->next;
@@ -296,13 +296,13 @@ objecttype lst_head (listtype arguments)
 
 
 
-objecttype lst_idx (listtype arguments)
+objectType lst_idx (listType arguments)
 
   {
-    inttype position;
-    inttype number;
-    listtype list_element;
-    objecttype result;
+    intType position;
+    intType number;
+    listType list_element;
+    objectType result;
 
   /* lst_idx */
     isit_list(arg_1(arguments));
@@ -328,11 +328,11 @@ objecttype lst_idx (listtype arguments)
 
 
 
-objecttype lst_incl (listtype arguments)
+objectType lst_incl (listType arguments)
 
   {
-    objecttype obj_arg;
-    errinfotype err_info = OKAY_NO_ERROR;
+    objectType obj_arg;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* lst_incl */
     isit_list(arg_1(arguments));
@@ -341,7 +341,7 @@ objecttype lst_incl (listtype arguments)
         CATEGORY_OF_OBJ(obj_arg) == CONSTENUMOBJECT) {
       obj_arg = take_reference(obj_arg);
     } /* if */
-    incl_list(&arg_1(arguments)->value.listvalue, obj_arg, &err_info);
+    incl_list(&arg_1(arguments)->value.listValue, obj_arg, &err_info);
     if (err_info != OKAY_NO_ERROR) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
@@ -351,11 +351,11 @@ objecttype lst_incl (listtype arguments)
 
 
 
-objecttype lst_lng (listtype arguments)
+objectType lst_lng (listType arguments)
 
   {
-    listtype list_element;
-    inttype result;
+    listType list_element;
+    intType result;
 
   /* lst_lng */
     isit_list(arg_1(arguments));
@@ -370,19 +370,19 @@ objecttype lst_lng (listtype arguments)
 
 
 
-objecttype lst_range (listtype arguments)
+objectType lst_range (listType arguments)
 
   {
-    objecttype list;
-    inttype start;
-    inttype stop;
-    inttype number;
-    listtype start_element;
-    listtype stop_element;
-    listtype *start_address;
-    listtype saved_list_rest;
-    errinfotype err_info = OKAY_NO_ERROR;
-    listtype result;
+    objectType list;
+    intType start;
+    intType stop;
+    intType number;
+    listType start_element;
+    listType stop_element;
+    listType *start_address;
+    listType saved_list_rest;
+    errInfoType err_info = OKAY_NO_ERROR;
+    listType result;
 
   /* lst_range */
     isit_list(arg_1(arguments));
@@ -430,15 +430,15 @@ objecttype lst_range (listtype arguments)
 
 
 
-objecttype lst_tail (listtype arguments)
+objectType lst_tail (listType arguments)
 
   {
-    objecttype list;
-    inttype start;
-    inttype number;
-    listtype list_element;
-    errinfotype err_info = OKAY_NO_ERROR;
-    listtype result;
+    objectType list;
+    intType start;
+    intType number;
+    listType list_element;
+    errInfoType err_info = OKAY_NO_ERROR;
+    listType result;
 
   /* lst_tail */
     isit_list(arg_1(arguments));
@@ -465,7 +465,7 @@ objecttype lst_tail (listtype arguments)
     } else {
       if (TEMP_OBJECT(list)) {
         result = list_element;
-        list->value.listvalue = NULL;
+        list->value.listValue = NULL;
       } else {
         result = copy_list(list_element, &err_info);
       } /* if */

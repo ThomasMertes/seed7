@@ -112,6 +112,7 @@ const string: chkprc_output is "\n\
 const string: chkbig_output is "\n\
   \Based bigInteger literals work correct.\n\
   \Decimal conversion of bigInteger works correct.\n\
+  \The radix operator for bigInteger works correct.\n\
   \Conversion of bigInteger to integer works correct.\n\
   \Conversion of integer to bigInteger works correct.\n\
   \Conversion of bigInteger to big endian byte string works correct.\n\

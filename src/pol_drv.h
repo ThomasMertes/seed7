@@ -35,8 +35,8 @@
 #define POLL_INOUT   3
 
 typedef struct {
-    createfunctype incrUsageCount;
-    destrfunctype decrUsageCount;
+    createFuncType incrUsageCount;
+    destrFuncType decrUsageCount;
   } fileObjectOpType;
 
 #ifdef DO_INIT
@@ -46,21 +46,21 @@ EXTERN fileObjectOpType fileObjectOps;
 #endif
 
 
-void initPollOperations (const createfunctype incrUsageCount,
-                         const destrfunctype decrUsageCount);
-void polAddCheck (const polltype pollData, const sockettype aSocket,
-                  inttype eventsToCheck, const generictype fileObj);
-void polClear (const polltype pollData);
-void polCpy (const polltype poll_to, const const_polltype pollDataFrom);
-polltype polCreate (const const_polltype pollDataFrom);
-void polDestr (const polltype oldPollData);
-polltype polEmpty (void);
-inttype polGetCheck (const const_polltype pollData, const sockettype aSocket);
-inttype polGetFinding (const const_polltype pollData, const sockettype aSocket);
-booltype polHasNext (const polltype pollData);
-void polIterChecks (const polltype pollData, inttype pollMode);
-void polIterFindings (const polltype pollData, inttype pollMode);
-generictype polNextFile (const polltype pollData, const generictype nullFile);
-void polPoll (const polltype pollData);
-void polRemoveCheck (const polltype pollData, const sockettype aSocket,
-                     inttype eventsToCheck);
+void initPollOperations (const createFuncType incrUsageCount,
+                         const destrFuncType decrUsageCount);
+void polAddCheck (const pollType pollData, const socketType aSocket,
+                  intType eventsToCheck, const genericType fileObj);
+void polClear (const pollType pollData);
+void polCpy (const pollType poll_to, const const_pollType pollDataFrom);
+pollType polCreate (const const_pollType pollDataFrom);
+void polDestr (const pollType oldPollData);
+pollType polEmpty (void);
+intType polGetCheck (const const_pollType pollData, const socketType aSocket);
+intType polGetFinding (const const_pollType pollData, const socketType aSocket);
+boolType polHasNext (const pollType pollData);
+void polIterChecks (const pollType pollData, intType pollMode);
+void polIterFindings (const pollType pollData, intType pollMode);
+genericType polNextFile (const pollType pollData, const genericType nullFile);
+void polPoll (const pollType pollData);
+void polRemoveCheck (const pollType pollData, const socketType aSocket,
+                     intType eventsToCheck);

@@ -47,22 +47,22 @@
 
 
 
-static void qsort_array (objecttype begin_sort, objecttype end_sort,
-    objecttype cmp_func)
+static void qsort_array (objectType begin_sort, objectType end_sort,
+    objectType cmp_func)
 
   {
-    objectrecord compare_elem;
-    objectrecord help_element;
-    objecttype middle_elem;
-    objecttype less_elem;
-    objecttype greater_elem;
-    objecttype cmp_obj;
-    inttype cmp;
+    objectRecord compare_elem;
+    objectRecord help_element;
+    objectType middle_elem;
+    objectType less_elem;
+    objectType greater_elem;
+    objectType cmp_obj;
+    intType cmp;
 
   /* qsort_array */
     if (end_sort - begin_sort < 8) {
       for (middle_elem = begin_sort + 1; middle_elem <= end_sort; middle_elem++) {
-        memcpy(&compare_elem, middle_elem, sizeof(objectrecord));
+        memcpy(&compare_elem, middle_elem, sizeof(objectRecord));
         less_elem = begin_sort - 1;
         do {
           less_elem++;
@@ -72,14 +72,14 @@ static void qsort_array (objecttype begin_sort, objecttype end_sort,
           FREE_OBJECT(cmp_obj);
         } while (cmp < 0);
         memmove(&less_elem[1], less_elem,
-            (memsizetype) (middle_elem - less_elem) * sizeof(objectrecord));
-        memcpy(less_elem, &compare_elem, sizeof(objectrecord));
+            (memSizeType) (middle_elem - less_elem) * sizeof(objectRecord));
+        memcpy(less_elem, &compare_elem, sizeof(objectRecord));
       } /* for */
     } else {
       middle_elem = &begin_sort[(end_sort - begin_sort) >> 1];
-      memcpy(&compare_elem, middle_elem, sizeof(objectrecord));
-      memcpy(middle_elem, end_sort, sizeof(objectrecord));
-      memcpy(end_sort, &compare_elem, sizeof(objectrecord));
+      memcpy(&compare_elem, middle_elem, sizeof(objectRecord));
+      memcpy(middle_elem, end_sort, sizeof(objectRecord));
+      memcpy(end_sort, &compare_elem, sizeof(objectRecord));
       less_elem = begin_sort - 1;
       greater_elem = end_sort;
       do {
@@ -97,13 +97,13 @@ static void qsort_array (objecttype begin_sort, objecttype end_sort,
           cmp = take_int(cmp_obj);
           FREE_OBJECT(cmp_obj);
         } while (cmp > 0 && greater_elem != begin_sort);
-        memcpy(&help_element, less_elem, sizeof(objectrecord));
-        memcpy(less_elem, greater_elem, sizeof(objectrecord));
-        memcpy(greater_elem, &help_element, sizeof(objectrecord));
+        memcpy(&help_element, less_elem, sizeof(objectRecord));
+        memcpy(less_elem, greater_elem, sizeof(objectRecord));
+        memcpy(greater_elem, &help_element, sizeof(objectRecord));
       } while (greater_elem > less_elem);
-      memcpy(greater_elem, less_elem, sizeof(objectrecord));
-      memcpy(less_elem, &compare_elem, sizeof(objectrecord));
-      memcpy(end_sort, &help_element, sizeof(objectrecord));
+      memcpy(greater_elem, less_elem, sizeof(objectRecord));
+      memcpy(less_elem, &compare_elem, sizeof(objectRecord));
+      memcpy(end_sort, &help_element, sizeof(objectRecord));
       qsort_array(begin_sort, less_elem - 1, cmp_func);
       qsort_array(less_elem + 1, end_sort, cmp_func);
     } /* if */
@@ -116,16 +116,16 @@ static void qsort_array (objecttype begin_sort, objecttype end_sort,
  *  @exception MEMORY_ERROR Not enough memory for the concatenated
  *             array.
  */
-objecttype arr_append (listtype arguments)
+objectType arr_append (listType arguments)
 
   {
-    objecttype arr_variable;
-    arraytype arr_to;
-    arraytype extension;
-    arraytype new_arr;
-    memsizetype new_size;
-    memsizetype arr_to_size;
-    memsizetype extension_size;
+    objectType arr_variable;
+    arrayType arr_to;
+    arrayType extension;
+    arrayType new_arr;
+    memSizeType new_size;
+    memSizeType arr_to_size;
+    memSizeType extension_size;
 
   /* arr_append */
     /* printf("begin arr_append %lu\n", heapsize()); */
@@ -139,7 +139,7 @@ objecttype arr_append (listtype arguments)
     if (extension_size != 0) {
       arr_to_size = arraySize(arr_to);
       if (arr_to_size > MAX_ARR_LEN - extension_size ||
-          arr_to->max_position > (inttype) (MAX_MEM_INDEX - extension_size)) {
+          arr_to->max_position > (intType) (MAX_MEM_INDEX - extension_size)) {
         return raise_exception(SYS_MEM_EXCEPTION);
       } else {
         new_size = arr_to_size + extension_size;
@@ -148,13 +148,13 @@ objecttype arr_append (listtype arguments)
           return raise_exception(SYS_MEM_EXCEPTION);
         } else {
           COUNT3_ARRAY(arr_to_size, new_size);
-          arr_variable->value.arrayvalue = new_arr;
+          arr_variable->value.arrayValue = new_arr;
           if (TEMP_OBJECT(arg_3(arguments))) {
             memcpy(&new_arr->arr[arr_to_size], extension->arr,
-                (size_t) (extension_size * sizeof(objectrecord)));
+                (size_t) (extension_size * sizeof(objectRecord)));
             new_arr->max_position = arrayMaxPos(new_arr->min_position, new_size);
             FREE_ARRAY(extension, extension_size);
-            arg_3(arguments)->value.arrayvalue = NULL;
+            arg_3(arguments)->value.arrayValue = NULL;
           } else {
             /* It is possible that arr_to == extension holds. */
             /* In this case 'extension' must be corrected     */
@@ -169,7 +169,7 @@ objecttype arr_append (listtype arguments)
                 return raise_exception(SYS_MEM_EXCEPTION);
               } /* if */
               COUNT3_ARRAY(new_size, arr_to_size);
-              arr_variable->value.arrayvalue = arr_to;
+              arr_variable->value.arrayValue = arr_to;
               return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
             } else {
               new_arr->max_position = arrayMaxPos(new_arr->min_position, new_size);
@@ -184,14 +184,14 @@ objecttype arr_append (listtype arguments)
 
 
 
-objecttype arr_arrlit (listtype arguments)
+objectType arr_arrlit (listType arguments)
 
   {
-    objecttype arr_arg;
-    arraytype arr1;
-    memsizetype result_size;
-    arraytype result_array;
-    objecttype result;
+    objectType arr_arg;
+    arrayType arr1;
+    memSizeType result_size;
+    arrayType result_array;
+    objectType result;
 
   /* arr_arrlit */
     arr_arg = arg_3(arguments);
@@ -209,7 +209,7 @@ objecttype arr_arrlit (listtype arguments)
         return raise_exception(SYS_MEM_EXCEPTION);
       } else {
         result_array->min_position = 1;
-        result_array->max_position = (inttype) result_size;
+        result_array->max_position = (intType) result_size;
         if (!crea_array(result_array->arr, arr1->arr, result_size)) {
           FREE_ARRAY(result_array, result_size);
           return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
@@ -223,15 +223,15 @@ objecttype arr_arrlit (listtype arguments)
 
 
 
-objecttype arr_arrlit2 (listtype arguments)
+objectType arr_arrlit2 (listType arguments)
 
   {
-    inttype start_position;
-    objecttype arr_arg;
-    arraytype arr1;
-    memsizetype result_size;
-    arraytype result_array;
-    objecttype result;
+    intType start_position;
+    objectType arr_arg;
+    arrayType arr1;
+    memSizeType result_size;
+    arrayType result_array;
+    objectType result;
 
   /* arr_arrlit2 */
     /* printf("begin arr_arrlit2\n"); */
@@ -242,7 +242,7 @@ objecttype arr_arrlit2 (listtype arguments)
     arr1 = take_array(arr_arg);
     result_size = arraySize(arr1);
     if (start_position < MIN_MEM_INDEX || start_position > MAX_MEM_INDEX ||
-        (result_size != 0 && start_position > (inttype) (MAX_MEM_INDEX - result_size + 1)) ||
+        (result_size != 0 && start_position > (intType) (MAX_MEM_INDEX - result_size + 1)) ||
         (result_size == 0 && start_position == MIN_MEM_INDEX)) {
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
@@ -271,13 +271,13 @@ objecttype arr_arrlit2 (listtype arguments)
 
 
 
-objecttype arr_baselit (listtype arguments)
+objectType arr_baselit (listType arguments)
 
   {
-    objecttype element;
-    typetype result_element_type;
-    memsizetype result_size;
-    arraytype result;
+    objectType element;
+    typeType result_element_type;
+    memSizeType result_size;
+    arrayType result;
 
   /* arr_baselit */
     element = arg_3(arguments);
@@ -288,12 +288,12 @@ objecttype arr_baselit (listtype arguments)
     result->min_position = 1;
     result->max_position = 1;
     /* The element type of the result is the type of the 3rd formal parameter */
-    result_element_type = curr_exec_object->value.listvalue->obj->
+    result_element_type = curr_exec_object->value.listValue->obj->
                           descriptor.property->params->next->next->obj->type_of;
     if (TEMP_OBJECT(element) && element->type_of == result_element_type) {
       CLEAR_TEMP_FLAG(element);
       SET_VAR_FLAG(element);
-      memcpy(&result->arr[0], element, sizeof(objectrecord));
+      memcpy(&result->arr[0], element, sizeof(objectRecord));
       FREE_OBJECT(element);
       arg_3(arguments) = NULL;
     } else {
@@ -307,14 +307,14 @@ objecttype arr_baselit (listtype arguments)
 
 
 
-objecttype arr_baselit2 (listtype arguments)
+objectType arr_baselit2 (listType arguments)
 
   {
-    inttype start_position;
-    objecttype element;
-    typetype result_element_type;
-    memsizetype result_size;
-    arraytype result;
+    intType start_position;
+    objectType element;
+    typeType result_element_type;
+    memSizeType result_size;
+    arrayType result;
 
   /* arr_baselit2 */
     isit_int(arg_2(arguments));
@@ -327,12 +327,12 @@ objecttype arr_baselit2 (listtype arguments)
     result->min_position = start_position;
     result->max_position = start_position;
     /* The element type of the result is the type of the 4th formal parameter */
-    result_element_type = curr_exec_object->value.listvalue->obj->
+    result_element_type = curr_exec_object->value.listValue->obj->
                           descriptor.property->params->next->next->next->obj->type_of;
     if (TEMP_OBJECT(element) && element->type_of == result_element_type) {
       CLEAR_TEMP_FLAG(element);
       SET_VAR_FLAG(element);
-      memcpy(&result->arr[0], element, sizeof(objectrecord));
+      memcpy(&result->arr[0], element, sizeof(objectRecord));
       FREE_OBJECT(element);
       arg_4(arguments) = NULL;
     } else {
@@ -352,15 +352,15 @@ objecttype arr_baselit2 (listtype arguments)
  *  @exception MEMORY_ERROR Not enough memory for the concatenated
  *             array.
  */
-objecttype arr_cat (listtype arguments)
+objectType arr_cat (listType arguments)
 
   {
-    arraytype arr1;
-    arraytype arr2;
-    memsizetype arr1_size;
-    memsizetype arr2_size;
-    memsizetype result_size;
-    arraytype result;
+    arrayType arr1;
+    arrayType arr2;
+    memSizeType arr1_size;
+    memSizeType arr2_size;
+    memSizeType result_size;
+    arrayType result;
 
   /* arr_cat */
     isit_array(arg_1(arguments));
@@ -370,7 +370,7 @@ objecttype arr_cat (listtype arguments)
     arr1_size = arraySize(arr1);
     arr2_size = arraySize(arr2);
     if (arr1_size > MAX_ARR_LEN - arr2_size ||
-        arr1->max_position > (inttype) (MAX_MEM_INDEX - arr2_size)) {
+        arr1->max_position > (intType) (MAX_MEM_INDEX - arr2_size)) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
       result_size = arr1_size + arr2_size;
@@ -382,7 +382,7 @@ objecttype arr_cat (listtype arguments)
         } /* if */
         COUNT3_ARRAY(arr1_size, result_size);
         result->max_position = arrayMaxPos(result->min_position, result_size);
-        arg_1(arguments)->value.arrayvalue = NULL;
+        arg_1(arguments)->value.arrayValue = NULL;
       } else {
         if (!ALLOC_ARRAY(result, result_size)) {
           return raise_exception(SYS_MEM_EXCEPTION);
@@ -396,9 +396,9 @@ objecttype arr_cat (listtype arguments)
       } /* if */
       if (TEMP_OBJECT(arg_3(arguments))) {
         memcpy(&result->arr[arr1_size], arr2->arr,
-            (size_t) (arr2_size * sizeof(objectrecord)));
+            (size_t) (arr2_size * sizeof(objectRecord)));
         FREE_ARRAY(arr2, arr2_size);
-        arg_3(arguments)->value.arrayvalue = NULL;
+        arg_3(arguments)->value.arrayValue = NULL;
       } else {
         if (!crea_array(&result->arr[arr1_size], arr2->arr,
             arr2_size)) {
@@ -413,20 +413,20 @@ objecttype arr_cat (listtype arguments)
 
 
 
-objecttype arr_conv (listtype arguments)
+objectType arr_conv (listType arguments)
 
   {
-    objecttype arr_arg;
-    arraytype arr1;
-    memsizetype result_size;
-    arraytype result;
+    objectType arr_arg;
+    arrayType arr1;
+    memSizeType result_size;
+    arrayType result;
 
   /* arr_conv */
     arr_arg = arg_3(arguments);
     isit_array(arr_arg);
     if (TEMP_OBJECT(arr_arg)) {
       result = take_array(arr_arg);
-      arr_arg->value.arrayvalue = NULL;
+      arr_arg->value.arrayValue = NULL;
       return bld_array_temp(result);
     } else if (VAR_OBJECT(arr_arg)) {
       return arr_arg;
@@ -448,16 +448,16 @@ objecttype arr_conv (listtype arguments)
 
 
 
-objecttype arr_cpy (listtype arguments)
+objectType arr_cpy (listType arguments)
 
   {
-    objecttype arr_to;
-    objecttype arr_from;
-    arraytype arr_dest;
-    arraytype arr_source;
-    memsizetype arr_dest_size;
-    memsizetype arr_source_size;
-    arraytype new_arr;
+    objectType arr_to;
+    objectType arr_from;
+    arrayType arr_dest;
+    arrayType arr_source;
+    memSizeType arr_dest_size;
+    memSizeType arr_source_size;
+    arrayType new_arr;
 
   /* arr_cpy */
     arr_to = arg_1(arguments);
@@ -471,8 +471,8 @@ objecttype arr_cpy (listtype arguments)
       arr_dest_size = arraySize(arr_dest);
       destr_array(arr_dest->arr, arr_dest_size);
       FREE_ARRAY(arr_dest, arr_dest_size);
-      arr_to->value.arrayvalue = arr_source;
-      arr_from->value.arrayvalue = NULL;
+      arr_to->value.arrayValue = arr_source;
+      arr_from->value.arrayValue = NULL;
     } else {
       arr_source_size = arraySize(arr_source);
       if (arr_dest->min_position != arr_source->min_position ||
@@ -489,7 +489,7 @@ objecttype arr_cpy (listtype arguments)
           arr_dest_size = arraySize(arr_dest);
           destr_array(arr_dest->arr, arr_dest_size);
           FREE_ARRAY(arr_dest, arr_dest_size);
-          arr_to->value.arrayvalue = new_arr;
+          arr_to->value.arrayValue = new_arr;
         } /* if */
       } else {
         cpy_array(arr_dest->arr, arr_source->arr, arr_source_size);
@@ -500,14 +500,14 @@ objecttype arr_cpy (listtype arguments)
 
 
 
-objecttype arr_create (listtype arguments)
+objectType arr_create (listType arguments)
 
   {
-    objecttype arr_to;
-    objecttype arr_from;
-    arraytype arr_source;
-    memsizetype new_size;
-    arraytype new_arr;
+    objectType arr_to;
+    objectType arr_from;
+    arrayType arr_source;
+    memSizeType new_size;
+    arrayType new_arr;
 
   /* arr_create */
     arr_to = arg_1(arguments);
@@ -516,22 +516,22 @@ objecttype arr_create (listtype arguments)
     arr_source = take_array(arr_from);
     SET_CATEGORY_OF_OBJ(arr_to, ARRAYOBJECT);
     if (TEMP_OBJECT(arr_from)) {
-      arr_to->value.arrayvalue = arr_source;
-      arr_from->value.arrayvalue = NULL;
+      arr_to->value.arrayValue = arr_source;
+      arr_from->value.arrayValue = NULL;
     } else {
       new_size = arraySize(arr_source);
       if (!ALLOC_ARRAY(new_arr, new_size)) {
-        arr_to->value.arrayvalue = NULL;
+        arr_to->value.arrayValue = NULL;
         return raise_exception(SYS_MEM_EXCEPTION);
       } else {
         new_arr->min_position = arr_source->min_position;
         new_arr->max_position = arr_source->max_position;
         if (!crea_array(new_arr->arr, arr_source->arr, new_size)) {
           FREE_ARRAY(new_arr, new_size);
-          arr_to->value.arrayvalue = NULL;
+          arr_to->value.arrayValue = NULL;
           return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
         } /* if */
-        arr_to->value.arrayvalue = new_arr;
+        arr_to->value.arrayValue = new_arr;
       } /* if */
     } /* if */
     return SYS_EMPTY_OBJECT;
@@ -539,11 +539,11 @@ objecttype arr_create (listtype arguments)
 
 
 
-objecttype arr_destr (listtype arguments)
+objectType arr_destr (listType arguments)
 
   {
-    arraytype old_arr;
-    memsizetype old_size;
+    arrayType old_arr;
+    memSizeType old_size;
 
   /* arr_destr */
     isit_array(arg_1(arguments));
@@ -552,7 +552,7 @@ objecttype arr_destr (listtype arguments)
       old_size = arraySize(old_arr);
       destr_array(old_arr->arr, old_size);
       FREE_ARRAY(old_arr, old_size);
-      arg_1(arguments)->value.arrayvalue = NULL;
+      arg_1(arguments)->value.arrayValue = NULL;
     } /* if */
     SET_UNUSED_FLAG(arg_1(arguments));
     return SYS_EMPTY_OBJECT;
@@ -560,10 +560,10 @@ objecttype arr_destr (listtype arguments)
 
 
 
-objecttype arr_empty (listtype arguments)
+objectType arr_empty (listType arguments)
 
   {
-    arraytype result;
+    arrayType result;
 
   /* arr_empty */
     if (!ALLOC_ARRAY(result, 0)) {
@@ -577,15 +577,15 @@ objecttype arr_empty (listtype arguments)
 
 
 
-objecttype arr_extend (listtype arguments)
+objectType arr_extend (listType arguments)
 
   {
-    arraytype arr1;
-    objecttype element;
-    typetype result_element_type;
-    memsizetype arr1_size;
-    memsizetype result_size;
-    arraytype result;
+    arrayType arr1;
+    objectType element;
+    typeType result_element_type;
+    memSizeType arr1_size;
+    memSizeType result_size;
+    arrayType result;
 
   /* arr_extend */
     isit_array(arg_1(arguments));
@@ -593,7 +593,7 @@ objecttype arr_extend (listtype arguments)
     element = arg_3(arguments);
     arr1_size = arraySize(arr1);
     if (arr1_size > MAX_ARR_LEN - 1 ||
-        arr1->max_position > (inttype) (MAX_MEM_INDEX - 1)) {
+        arr1->max_position > (intType) (MAX_MEM_INDEX - 1)) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
       result_size = arr1_size + 1;
@@ -605,7 +605,7 @@ objecttype arr_extend (listtype arguments)
         } /* if */
         COUNT3_ARRAY(arr1_size, result_size);
         result->max_position++;
-        arg_1(arguments)->value.arrayvalue = NULL;
+        arg_1(arguments)->value.arrayValue = NULL;
       } else {
         if (!ALLOC_ARRAY(result, result_size)) {
           return raise_exception(SYS_MEM_EXCEPTION);
@@ -618,12 +618,12 @@ objecttype arr_extend (listtype arguments)
         } /* if */
       } /* if */
       /* The element type of the result is the type of the 3rd formal parameter */
-      result_element_type = curr_exec_object->value.listvalue->obj->
+      result_element_type = curr_exec_object->value.listValue->obj->
                             descriptor.property->params->next->next->obj->type_of;
       if (TEMP_OBJECT(element) && element->type_of == result_element_type) {
         CLEAR_TEMP_FLAG(element);
         SET_VAR_FLAG(element);
-        memcpy(&result->arr[arr1_size], element, sizeof(objectrecord));
+        memcpy(&result->arr[arr1_size], element, sizeof(objectRecord));
         FREE_OBJECT(element);
         arg_3(arguments) = NULL;
       } else {
@@ -639,14 +639,14 @@ objecttype arr_extend (listtype arguments)
 
 
 
-objecttype arr_gen (listtype arguments)
+objectType arr_gen (listType arguments)
 
   {
-    objecttype element1;
-    objecttype element2;
-    typetype result_element_type;
-    memsizetype result_size;
-    arraytype result;
+    objectType element1;
+    objectType element2;
+    typeType result_element_type;
+    memSizeType result_size;
+    arrayType result;
 
   /* arr_gen */
     element1 = arg_1(arguments);
@@ -658,12 +658,12 @@ objecttype arr_gen (listtype arguments)
     result->min_position = 1;
     result->max_position = 2;
     /* The element type of the result is the type of the 1st formal parameter */
-    result_element_type = curr_exec_object->value.listvalue->obj->
+    result_element_type = curr_exec_object->value.listValue->obj->
                           descriptor.property->params->obj->type_of;
     if (TEMP_OBJECT(element1) && element1->type_of == result_element_type) {
       CLEAR_TEMP_FLAG(element1);
       SET_VAR_FLAG(element1);
-      memcpy(&result->arr[0], element1, sizeof(objectrecord));
+      memcpy(&result->arr[0], element1, sizeof(objectRecord));
       FREE_OBJECT(element1);
       arg_1(arguments) = NULL;
     } else {
@@ -675,7 +675,7 @@ objecttype arr_gen (listtype arguments)
     if (TEMP_OBJECT(element2) && element2->type_of == result_element_type) {
       CLEAR_TEMP_FLAG(element2);
       SET_VAR_FLAG(element2);
-      memcpy(&result->arr[1], element2, sizeof(objectrecord));
+      memcpy(&result->arr[1], element2, sizeof(objectRecord));
       FREE_OBJECT(element2);
       arg_3(arguments) = NULL;
     } else {
@@ -695,15 +695,15 @@ objecttype arr_gen (listtype arguments)
  *  @return the sub array ending at the stop position.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-objecttype arr_head (listtype arguments)
+objectType arr_head (listType arguments)
 
   {
-    arraytype arr1;
-    inttype stop;
-    memsizetype length;
-    memsizetype result_size;
-    arraytype resized_result;
-    arraytype result;
+    arrayType arr1;
+    intType stop;
+    memSizeType length;
+    memSizeType result_size;
+    arrayType resized_result;
+    arrayType result;
 
   /* arr_head */
     isit_array(arg_1(arguments));
@@ -718,7 +718,7 @@ objecttype arr_head (listtype arguments)
       result_size = arraySize2(arr1->min_position, stop);
       if (TEMP_OBJECT(arg_1(arguments))) {
         result = arr1;
-        arg_1(arguments)->value.arrayvalue = NULL;
+        arg_1(arguments)->value.arrayValue = NULL;
         destr_array(&result->arr[result_size], length - result_size);
         resized_result = REALLOC_ARRAY(result, length, result_size);
         if (resized_result == NULL) {
@@ -760,13 +760,13 @@ objecttype arr_head (listtype arguments)
  *  @exception RANGE_ERROR When 'position' is less than arr_minidx(arr) or
  *                         greater than arr_maxidx(arr)
  */
-objecttype arr_idx (listtype arguments)
+objectType arr_idx (listType arguments)
 
   {
-    arraytype arr1;
-    inttype position;
-    objecttype array_pointer;
-    objecttype result;
+    arrayType arr1;
+    intType position;
+    objectType array_pointer;
+    objectType result;
 
   /* arr_idx */
     isit_array(arg_1(arguments));
@@ -781,17 +781,17 @@ objecttype arr_idx (listtype arguments)
         if (!ALLOC_OBJECT(result)) {
           result = raise_exception(SYS_MEM_EXCEPTION);
         } else {
-          memcpy(result, &array_pointer[position - arr1->min_position], sizeof(objectrecord));
+          memcpy(result, &array_pointer[position - arr1->min_position], sizeof(objectRecord));
           SET_TEMP_FLAG(result);
           destr_array(array_pointer, arraySize2(arr1->min_position, position) - 1);
           destr_array(&array_pointer[position - arr1->min_position + 1],
               arraySize2(position, arr1->max_position) - 1);
           FREE_ARRAY(arr1, arraySize(arr1));
-          arg_1(arguments)->value.arrayvalue = NULL;
+          arg_1(arguments)->value.arrayValue = NULL;
           /* code to avoid destr_array:
           if (position != arr1->max_position) {
             memcpy(&array_pointer[position - arr1->min_position],
-                &array_pointer[arr1->max_position - arr1->min_position], sizeof(objectrecord));
+                &array_pointer[arr1->max_position - arr1->min_position], sizeof(objectRecord));
           }
           arr1->max_position--; */
         } /* if */
@@ -814,10 +814,10 @@ objecttype arr_idx (listtype arguments)
  *  Determine the length of the array 'arr'.
  *  @return the length of the array.
  */
-objecttype arr_lng (listtype arguments)
+objectType arr_lng (listType arguments)
 
   {
-    arraytype arr1;
+    arrayType arr1;
 
   /* arr_lng */
     isit_array(arg_1(arguments));
@@ -831,10 +831,10 @@ objecttype arr_lng (listtype arguments)
  *  Maximal index of array 'arr'.
  *  @return the maximal index of the array.
  */
-objecttype arr_maxidx (listtype arguments)
+objectType arr_maxidx (listType arguments)
 
   {
-    arraytype arr1;
+    arrayType arr1;
 
   /* arr_maxidx */
     isit_array(arg_1(arguments));
@@ -848,10 +848,10 @@ objecttype arr_maxidx (listtype arguments)
  *  Minimal index of array 'arr'.
  *  @return the minimal index of the array.
  */
-objecttype arr_minidx (listtype arguments)
+objectType arr_minidx (listType arguments)
 
   {
-    arraytype arr1;
+    arrayType arr1;
 
   /* arr_minidx */
     isit_array(arg_1(arguments));
@@ -866,16 +866,16 @@ objecttype arr_minidx (listtype arguments)
  *  @exception MEMORY_ERROR Not enough memory for the concatenated
  *             array.
  */
-objecttype arr_push (listtype arguments)
+objectType arr_push (listType arguments)
 
   {
-    objecttype arr_variable;
-    arraytype arr_to;
-    objecttype element;
-    typetype result_element_type;
-    arraytype new_arr;
-    memsizetype new_size;
-    memsizetype arr_to_size;
+    objectType arr_variable;
+    arrayType arr_to;
+    objectType element;
+    typeType result_element_type;
+    arrayType new_arr;
+    memSizeType new_size;
+    memSizeType arr_to_size;
 
   /* arr_push */
     /* printf("begin arr_push %lu\n", heapsize()); */
@@ -886,7 +886,7 @@ objecttype arr_push (listtype arguments)
     element = arg_3(arguments);
     arr_to_size = arraySize(arr_to);
     if (arr_to_size > MAX_ARR_LEN - 1 ||
-        arr_to->max_position > (inttype) (MAX_MEM_INDEX - 1)) {
+        arr_to->max_position > (intType) (MAX_MEM_INDEX - 1)) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
       new_size = arr_to_size + 1;
@@ -895,14 +895,14 @@ objecttype arr_push (listtype arguments)
         return raise_exception(SYS_MEM_EXCEPTION);
       } else {
         COUNT3_ARRAY(arr_to_size, new_size);
-        arr_variable->value.arrayvalue = new_arr;
+        arr_variable->value.arrayValue = new_arr;
         /* The element type of the result is the type of the 3rd formal parameter */
-        result_element_type = curr_exec_object->value.listvalue->obj->
+        result_element_type = curr_exec_object->value.listValue->obj->
                               descriptor.property->params->next->next->obj->type_of;
         if (TEMP_OBJECT(element) && element->type_of == result_element_type) {
           CLEAR_TEMP_FLAG(element);
           SET_VAR_FLAG(element);
-          memcpy(&new_arr->arr[arr_to_size], element, sizeof(objectrecord));
+          memcpy(&new_arr->arr[arr_to_size], element, sizeof(objectRecord));
           new_arr->max_position ++;
           FREE_OBJECT(element);
           arg_3(arguments) = NULL;
@@ -913,7 +913,7 @@ objecttype arr_push (listtype arguments)
               return raise_exception(SYS_MEM_EXCEPTION);
             } /* if */
             COUNT3_ARRAY(new_size, arr_to_size);
-            arr_variable->value.arrayvalue = arr_to;
+            arr_variable->value.arrayValue = arr_to;
             return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
           } else {
             new_arr->max_position ++;
@@ -932,17 +932,17 @@ objecttype arr_push (listtype arguments)
  *  @return the sub array from position 'start' to 'stop'.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-objecttype arr_range (listtype arguments)
+objectType arr_range (listType arguments)
 
   {
-    arraytype arr1;
-    inttype start;
-    inttype stop;
-    memsizetype length;
-    memsizetype result_size;
-    memsizetype start_idx;
-    memsizetype stop_idx;
-    arraytype result;
+    arrayType arr1;
+    intType start;
+    intType stop;
+    memSizeType length;
+    memSizeType result_size;
+    memSizeType start_idx;
+    memSizeType stop_idx;
+    arrayType result;
 
   /* arr_range */
     isit_array(arg_1(arguments));
@@ -970,11 +970,11 @@ objecttype arr_range (listtype arguments)
       stop_idx = arrayIndex(arr1, stop);
       if (TEMP_OBJECT(arg_1(arguments))) {
         memcpy(result->arr, &arr1->arr[start_idx],
-            (size_t) (result_size * sizeof(objectrecord)));
+            (size_t) (result_size * sizeof(objectRecord)));
         destr_array(arr1->arr, start_idx);
         destr_array(&arr1->arr[stop_idx + 1], length - stop_idx - 1);
         FREE_ARRAY(arr1, length);
-        arg_1(arguments)->value.arrayvalue = NULL;
+        arg_1(arguments)->value.arrayValue = NULL;
       } else {
         if (!crea_array(result->arr, &arr1->arr[start_idx],
             result_size)) {
@@ -1002,15 +1002,15 @@ objecttype arr_range (listtype arguments)
  *  @exception RANGE_ERROR When 'position' is less than arr_minidx(arr2) or
  *                         greater than arr_maxidx(arr2)
  */
-objecttype arr_remove (listtype arguments)
+objectType arr_remove (listType arguments)
 
   {
-    arraytype arr1;
-    arraytype resized_arr1;
-    inttype position;
-    objecttype array_pointer;
-    memsizetype arr1_size;
-    objecttype result;
+    arrayType arr1;
+    arrayType resized_arr1;
+    intType position;
+    objectType array_pointer;
+    memSizeType arr1_size;
+    objectType result;
 
   /* arr_remove */
     isit_array(arg_1(arguments));
@@ -1023,10 +1023,10 @@ objecttype arr_remove (listtype arguments)
       if (!ALLOC_OBJECT(result)) {
         result = raise_exception(SYS_MEM_EXCEPTION);
       } else {
-        memcpy(result, &array_pointer[position - arr1->min_position], sizeof(objectrecord));
+        memcpy(result, &array_pointer[position - arr1->min_position], sizeof(objectRecord));
         memmove(&array_pointer[position - arr1->min_position],
             &array_pointer[position - arr1->min_position + 1],
-            (arraySize2(position, arr1->max_position) - 1) * sizeof(objectrecord));
+            (arraySize2(position, arr1->max_position) - 1) * sizeof(objectRecord));
         arr1_size = arraySize(arr1);
         resized_arr1 = REALLOC_ARRAY(arr1, arr1_size, arr1_size - 1);
         if (unlikely(resized_arr1 == NULL)) {
@@ -1036,15 +1036,15 @@ objecttype arr_remove (listtype arguments)
           /* value of arr1.                                     */
           memmove(&array_pointer[position - arr1->min_position + 1],
               &array_pointer[position - arr1->min_position],
-              (arraySize2(position, arr1->max_position) - 1) * sizeof(objectrecord));
-          memcpy(&array_pointer[position - arr1->min_position], result, sizeof(objectrecord));
+              (arraySize2(position, arr1->max_position) - 1) * sizeof(objectRecord));
+          memcpy(&array_pointer[position - arr1->min_position], result, sizeof(objectRecord));
           FREE_OBJECT(result);
           result = raise_exception(SYS_MEM_EXCEPTION);
         } else {
           arr1 = resized_arr1;
           COUNT3_ARRAY(arr1_size, arr1_size - 1);
           arr1->max_position--;
-          arg_1(arguments)->value.arrayvalue = arr1;
+          arg_1(arguments)->value.arrayValue = arr1;
           SET_TEMP_FLAG(result);
         } /* if */
       } /* if */
@@ -1059,14 +1059,14 @@ objecttype arr_remove (listtype arguments)
 
 
 
-objecttype arr_sort (listtype arguments)
+objectType arr_sort (listType arguments)
 
   {
-    objecttype arr_arg;
-    objecttype data_cmp_func;
-    arraytype arr1;
-    memsizetype result_size;
-    arraytype result;
+    objectType arr_arg;
+    objectType data_cmp_func;
+    arrayType arr1;
+    memSizeType result_size;
+    arrayType result;
 
   /* arr_sort */
     arr_arg = arg_1(arguments);
@@ -1074,7 +1074,7 @@ objecttype arr_sort (listtype arguments)
     data_cmp_func    = take_reference(arg_2(arguments));
     if (TEMP2_OBJECT(arr_arg)) {
       result = take_array(arr_arg);
-      arr_arg->value.arrayvalue = NULL;
+      arr_arg->value.arrayValue = NULL;
     } else {
       arr1 = take_array(arr_arg);
       result_size = arraySize(arr1);
@@ -1101,17 +1101,17 @@ objecttype arr_sort (listtype arguments)
  *  @return the sub array from position 'start' with maximum length 'len'.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-objecttype arr_subarr (listtype arguments)
+objectType arr_subarr (listType arguments)
 
   {
-    arraytype arr1;
-    inttype start;
-    inttype len;
-    memsizetype length;
-    memsizetype result_size;
-    memsizetype start_idx;
-    memsizetype stop_idx;
-    arraytype result;
+    arrayType arr1;
+    intType start;
+    intType len;
+    memSizeType length;
+    memSizeType result_size;
+    memSizeType start_idx;
+    memSizeType stop_idx;
+    arrayType result;
 
   /* arr_subarr */
     isit_array(arg_1(arguments));
@@ -1123,7 +1123,7 @@ objecttype arr_subarr (listtype arguments)
     length = arraySize(arr1);
     if (len >= 1 && start <= arr1->max_position  && length >= 1 &&
         (start >= arr1->min_position ||
-        (uinttype) len > (uinttype) (arr1->min_position - start))) {
+        (uintType) len > (uintType) (arr1->min_position - start))) {
       if (start < arr1->min_position) {
         start = arr1->min_position;
         len -= arr1->min_position - start;
@@ -1131,7 +1131,7 @@ objecttype arr_subarr (listtype arguments)
       if (len - 1 > arr1->max_position - start) {
         len = arr1->max_position - start + 1;
       } /* if */
-      result_size = (memsizetype) (uinttype) (len);
+      result_size = (memSizeType) (uintType) (len);
       if (!ALLOC_ARRAY(result, result_size)) {
         return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
@@ -1141,11 +1141,11 @@ objecttype arr_subarr (listtype arguments)
       stop_idx = arrayIndex(arr1, start + len - 1);
       if (TEMP_OBJECT(arg_1(arguments))) {
         memcpy(result->arr, &arr1->arr[start_idx],
-            (size_t) (result_size * sizeof(objectrecord)));
+            (size_t) (result_size * sizeof(objectRecord)));
         destr_array(arr1->arr, start_idx);
         destr_array(&arr1->arr[stop_idx + 1], length - stop_idx - 1);
         FREE_ARRAY(arr1, length);
-        arg_1(arguments)->value.arrayvalue = NULL;
+        arg_1(arguments)->value.arrayValue = NULL;
       } else {
         if (!crea_array(result->arr, &arr1->arr[start_idx],
             result_size)) {
@@ -1172,14 +1172,14 @@ objecttype arr_subarr (listtype arguments)
  *  @return the sub array beginning at the start position.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-objecttype arr_tail (listtype arguments)
+objectType arr_tail (listType arguments)
 
   {
-    arraytype arr1;
-    inttype start;
-    memsizetype length;
-    memsizetype result_size;
-    arraytype result;
+    arrayType arr1;
+    intType start;
+    memSizeType length;
+    memSizeType result_size;
+    arrayType result;
 
   /* arr_tail */
     isit_array(arg_1(arguments));
@@ -1199,10 +1199,10 @@ objecttype arr_tail (listtype arguments)
       result->max_position = arrayMaxPos(arr1->min_position, result_size);
       if (TEMP_OBJECT(arg_1(arguments))) {
         memcpy(result->arr, &arr1->arr[start - arr1->min_position],
-            (size_t) (result_size * sizeof(objectrecord)));
+            (size_t) (result_size * sizeof(objectRecord)));
         destr_array(arr1->arr, arraySize2(arr1->min_position, start) - 1);
         FREE_ARRAY(arr1, length);
-        arg_1(arguments)->value.arrayvalue = NULL;
+        arg_1(arguments)->value.arrayValue = NULL;
         /* code to avoid destr_array:
         arr1->max_position = start - 1; */
       } else {
@@ -1232,16 +1232,16 @@ objecttype arr_tail (listtype arguments)
  *  @exception RANGE_ERROR When 'factor' is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-objecttype arr_times (listtype arguments)
+objectType arr_times (listType arguments)
 
   {
-    inttype factor;
-    objecttype element;
-    memsizetype position;
-    objecttype elem_to;
-    typetype result_element_type;
-    memsizetype result_size;
-    arraytype result;
+    intType factor;
+    objectType element;
+    memSizeType position;
+    objectType elem_to;
+    typeType result_element_type;
+    memSizeType result_size;
+    arrayType result;
 
   /* arr_times */
     isit_int(arg_1(arguments));
@@ -1249,11 +1249,11 @@ objecttype arr_times (listtype arguments)
     element = arg_3(arguments);
     if (factor < 0) {
       return raise_exception(SYS_RNG_EXCEPTION);
-    } else if ((uinttype) factor > MAX_ARR_LEN ||
-               (uinttype) factor > MAX_MEM_INDEX) {
+    } else if ((uintType) factor > MAX_ARR_LEN ||
+               (uintType) factor > MAX_MEM_INDEX) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
-      result_size = (memsizetype) (uinttype) factor;
+      result_size = (memSizeType) (uintType) factor;
       if (!ALLOC_ARRAY(result, result_size)) {
         return raise_exception(SYS_MEM_EXCEPTION);
       } else {
@@ -1266,24 +1266,24 @@ objecttype arr_times (listtype arguments)
           printf("\n");
           trace1(curr_exec_object);
           printf("\n");
-          trace1(curr_exec_object->value.listvalue->obj);
+          trace1(curr_exec_object->value.listValue->obj);
           printf("\n");
-          printf("%d\n", HAS_ENTITY(curr_exec_object->value.listvalue->obj));
-          prot_list(GET_ENTITY(curr_exec_object->value.listvalue->obj)->name_list);
+          printf("%d\n", HAS_ENTITY(curr_exec_object->value.listValue->obj));
+          prot_list(GET_ENTITY(curr_exec_object->value.listValue->obj)->name_list);
           printf("\n");
-          trace1(GET_ENTITY(curr_exec_object->value.listvalue->obj)->name_list->next->next->obj);
+          trace1(GET_ENTITY(curr_exec_object->value.listValue->obj)->name_list->next->next->obj);
           printf("\n");
-          trace1(GET_ENTITY(curr_exec_object->value.listvalue->obj)->name_list->next->next->obj->value.objvalue);
+          trace1(GET_ENTITY(curr_exec_object->value.listValue->obj)->name_list->next->next->obj->value.objValue);
           printf("\n");
-          printtype(GET_ENTITY(curr_exec_object->value.listvalue->obj)->name_list->next->next->obj->value.objvalue->type_of);
+          printType(GET_ENTITY(curr_exec_object->value.listValue->obj)->name_list->next->next->obj->value.objValue->type_of);
           printf("\n"); */
           /* The element type of the result is the type of the 3rd formal parameter */
-          result_element_type = curr_exec_object->value.listvalue->obj->
+          result_element_type = curr_exec_object->value.listValue->obj->
                                 descriptor.property->params->next->next->obj->type_of;
           if (TEMP_OBJECT(element) && element->type_of == result_element_type) {
             CLEAR_TEMP_FLAG(element);
             SET_VAR_FLAG(element);
-            memcpy(elem_to, element, sizeof(objectrecord));
+            memcpy(elem_to, element, sizeof(objectRecord));
             FREE_OBJECT(element);
             arg_3(arguments) = NULL;
           } else {

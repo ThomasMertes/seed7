@@ -21,7 +21,7 @@
 /*  Module: General                                                 */
 /*  File: seed7/src/identutl.h                                      */
 /*  Changes: 1991, 1992, 1993, 1994  Thomas Mertes                  */
-/*  Content: Procedures to maintain objects of type identtype.      */
+/*  Content: Procedures to maintain objects of type identType.      */
 /*                                                                  */
 /********************************************************************/
 
@@ -31,7 +31,7 @@
 #define IDENT_TABLE(PROG, STRI, LEN) (PROG)->ident.table[((STRI[0] << 4) ^ (STRI[LEN - 1] << 2) ^ (int) LEN) & (ID_TABLE_SIZE - 1)]
 
 
-identtype new_ident (const_ustritype name, sysizetype length);
-identtype get_ident (progtype currentProg, const_ustritype name);
-void close_idents (const_progtype currentProg);
-void init_idents (progtype currentProg, errinfotype *err_info);
+identType new_ident (const_ustriType name, sySizeType length);
+identType get_ident (progType currentProg, const_ustriType name);
+void close_idents (const_progType currentProg);
+void init_idents (progType currentProg, errInfoType *err_info);

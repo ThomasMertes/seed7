@@ -45,7 +45,7 @@
 #include "intlib.h"
 
 
-static inttype fact[] = {
+static intType fact[] = {
     1, 1, 2, 6, 24, 120, 720, 5040, 40320,
     362880, 3628800, 39916800, 479001600,
 #if INTTYPE_SIZE == 64
@@ -63,7 +63,7 @@ static inttype fact[] = {
  *  Used for all types that require no special action to
  *  destroy the data.
  */
-objecttype gen_destr (listtype arguments)
+objectType gen_destr (listType arguments)
 
   { /* gen_destr */
     SET_UNUSED_FLAG(arg_1(arguments));
@@ -76,10 +76,10 @@ objecttype gen_destr (listtype arguments)
  *  Compute the absolute value of an integer number.
  *  @return the absolute value.
  */
-objecttype int_abs (listtype arguments)
+objectType int_abs (listType arguments)
 
   {
-    inttype number;
+    intType number;
 
   /* int_abs */
     isit_int(arg_1(arguments));
@@ -96,7 +96,7 @@ objecttype int_abs (listtype arguments)
  *  Add two integer numbers.
  *  @return the sum of the two numbers.
  */
-objecttype int_add (listtype arguments)
+objectType int_add (listType arguments)
 
   { /* int_add */
     isit_int(arg_1(arguments));
@@ -111,7 +111,7 @@ objecttype int_add (listtype arguments)
  *  Compute a bitwise 'and' of two integer values.
  *  @return the bitwise 'and' of the two values.
  */
-objecttype int_and (listtype arguments)
+objectType int_and (listType arguments)
 
   { /* int_and */
     isit_int(arg_1(arguments));
@@ -125,17 +125,17 @@ objecttype int_and (listtype arguments)
 /**
  *  Compute a bitwise 'and' and assign the result back.
  */
-objecttype int_and_assign (listtype arguments)
+objectType int_and_assign (listType arguments)
 
   {
-    objecttype int_variable;
+    objectType int_variable;
 
   /* int_and_assign */
     int_variable = arg_1(arguments);
     isit_int(int_variable);
     is_variable(int_variable);
     isit_int(arg_3(arguments));
-    int_variable->value.intvalue &= take_int(arg_3(arguments));
+    int_variable->value.intValue &= take_int(arg_3(arguments));
     return SYS_EMPTY_OBJECT;
   } /* int_and_assign */
 
@@ -145,7 +145,7 @@ objecttype int_and_assign (listtype arguments)
  *  Binomial coefficient
  *  @return n over k
  */
-objecttype int_binom (listtype arguments)
+objectType int_binom (listType arguments)
 
   { /* int_binom */
     isit_int(arg_1(arguments));
@@ -162,7 +162,7 @@ objecttype int_binom (listtype arguments)
  *  minimal two's-complement representation.
  *  @return the number of bits.
  */
-objecttype int_bit_length (listtype arguments)
+objectType int_bit_length (listType arguments)
 
   { /* int_bit_length */
     isit_int(arg_1(arguments));
@@ -186,7 +186,7 @@ objecttype int_bit_length (listtype arguments)
  *  @exception RANGE_ERROR When 'isSigned' is FALSE and 'number' is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-objecttype int_bytesBe (listtype arguments)
+objectType int_bytesBe (listType arguments)
 
   { /* int_bytesBe */
     isit_int(arg_1(arguments));
@@ -212,7 +212,7 @@ objecttype int_bytesBe (listtype arguments)
  *  @exception RANGE_ERROR When characters beyond '\255;' are present or
  *             when the result value cannot be represented with an integer.
  */
-objecttype int_bytesBe2Int (listtype arguments)
+objectType int_bytesBe2Int (listType arguments)
 
   { /* int_bytesBe2Int */
     isit_stri(arg_1(arguments));
@@ -238,7 +238,7 @@ objecttype int_bytesBe2Int (listtype arguments)
  *  @exception RANGE_ERROR When 'isSigned' is FALSE and 'number' is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-objecttype int_bytesLe (listtype arguments)
+objectType int_bytesLe (listType arguments)
 
   { /* int_bytesLe */
     isit_int(arg_1(arguments));
@@ -264,7 +264,7 @@ objecttype int_bytesLe (listtype arguments)
  *  @exception RANGE_ERROR When characters beyond '\255;' are present or
  *             when the result value cannot be represented with an integer.
  */
-objecttype int_bytesLe2Int (listtype arguments)
+objectType int_bytesLe2Int (listType arguments)
 
   { /* int_bytesLe2Int */
     isit_stri(arg_1(arguments));
@@ -282,12 +282,12 @@ objecttype int_bytesLe2Int (listtype arguments)
  *          respectively less than, equal to, or greater than the
  *          second.
  */
-objecttype int_cmp (listtype arguments)
+objectType int_cmp (listType arguments)
 
   {
-    inttype number1;
-    inttype number2;
-    inttype result;
+    intType number1;
+    intType number2;
+    intType result;
 
   /* int_cmp */
     isit_int(arg_1(arguments));
@@ -310,7 +310,7 @@ objecttype int_cmp (listtype arguments)
  *  Convert to integer.
  *  @return the unchanged number.
  */
-objecttype int_conv (listtype arguments)
+objectType int_conv (listType arguments)
 
   { /* int_conv */
     isit_int(arg_3(arguments));
@@ -319,28 +319,28 @@ objecttype int_conv (listtype arguments)
 
 
 
-objecttype int_cpy (listtype arguments)
+objectType int_cpy (listType arguments)
 
   {
-    objecttype int_variable;
+    objectType int_variable;
 
   /* int_cpy */
     int_variable = arg_1(arguments);
     isit_int(int_variable);
     is_variable(int_variable);
     isit_int(arg_3(arguments));
-    int_variable->value.intvalue = take_int(arg_3(arguments));
+    int_variable->value.intValue = take_int(arg_3(arguments));
     return SYS_EMPTY_OBJECT;
   } /* int_cpy */
 
 
 
-objecttype int_create (listtype arguments)
+objectType int_create (listType arguments)
 
   { /* int_create */
     isit_int(arg_3(arguments));
     SET_CATEGORY_OF_OBJ(arg_1(arguments), INTOBJECT);
-    arg_1(arguments)->value.intvalue = take_int(arg_3(arguments));
+    arg_1(arguments)->value.intValue = take_int(arg_3(arguments));
     return SYS_EMPTY_OBJECT;
   } /* int_create */
 
@@ -350,16 +350,16 @@ objecttype int_create (listtype arguments)
  *  Decrement an integer variable.
  *  Decrements the number by 1.
  */
-objecttype int_decr (listtype arguments)
+objectType int_decr (listType arguments)
 
   {
-    objecttype int_variable;
+    objectType int_variable;
 
   /* int_decr */
     int_variable = arg_1(arguments);
     isit_int(int_variable);
     is_variable(int_variable);
-    int_variable->value.intvalue--;
+    int_variable->value.intValue--;
     return SYS_EMPTY_OBJECT;
   } /* int_decr */
 
@@ -374,10 +374,10 @@ objecttype int_decr (listtype arguments)
  *  @return the quotient of the integer division.
  *  @exception NUMERIC_ERROR When a division by zero occurs.
  */
-objecttype int_div (listtype arguments)
+objectType int_div (listType arguments)
 
   {
-    inttype divisor;
+    intType divisor;
 
   /* int_div */
     isit_int(arg_1(arguments));
@@ -398,7 +398,7 @@ objecttype int_div (listtype arguments)
  *  @return TRUE if the two numbers are equal,
  *          FALSE otherwise.
  */
-objecttype int_eq (listtype arguments)
+objectType int_eq (listType arguments)
 
   { /* int_eq */
     isit_int(arg_1(arguments));
@@ -419,7 +419,7 @@ objecttype int_eq (listtype arguments)
  *  @exception NUMERIC_ERROR The number is negative or the result
  *             does not fit into an integer.
  */
-objecttype int_fact (listtype arguments)
+objectType int_fact (listType arguments)
 
   {
     int number;
@@ -427,7 +427,7 @@ objecttype int_fact (listtype arguments)
   /* int_fact */
     isit_int(arg_2(arguments));
     number = (int) take_int(arg_2(arguments));
-    if (number < 0 || (size_t) number >= sizeof(fact) / sizeof(inttype)) {
+    if (number < 0 || (size_t) number >= sizeof(fact) / sizeof(intType)) {
       return raise_exception(SYS_NUM_EXCEPTION);
     } else {
       return bld_int_temp(fact[number]);
@@ -441,7 +441,7 @@ objecttype int_fact (listtype arguments)
  *  @return TRUE if number1 is greater than or equal to number2,
  *          FALSE otherwise.
  */
-objecttype int_ge (listtype arguments)
+objectType int_ge (listType arguments)
 
   { /* int_ge */
     isit_int(arg_1(arguments));
@@ -459,17 +459,17 @@ objecttype int_ge (listtype arguments)
 /**
  *  Increment an integer variable by a delta.
  */
-objecttype int_grow (listtype arguments)
+objectType int_grow (listType arguments)
 
   {
-    objecttype int_variable;
+    objectType int_variable;
 
   /* int_grow */
     int_variable = arg_1(arguments);
     isit_int(int_variable);
     is_variable(int_variable);
     isit_int(arg_3(arguments));
-    int_variable->value.intvalue += take_int(arg_3(arguments));
+    int_variable->value.intValue += take_int(arg_3(arguments));
     return SYS_EMPTY_OBJECT;
   } /* int_grow */
 
@@ -480,7 +480,7 @@ objecttype int_grow (listtype arguments)
  *  @return TRUE if number1 is greater than number2,
  *          FALSE otherwise.
  */
-objecttype int_gt (listtype arguments)
+objectType int_gt (listType arguments)
 
   { /* int_gt */
     isit_int(arg_1(arguments));
@@ -499,7 +499,7 @@ objecttype int_gt (listtype arguments)
  *  Compute the hash value of an integer number.
  *  @return the hash value.
  */
-objecttype int_hashcode (listtype arguments)
+objectType int_hashcode (listType arguments)
 
   { /* int_hashcode */
     isit_int(arg_1(arguments));
@@ -512,16 +512,16 @@ objecttype int_hashcode (listtype arguments)
  *  Increment an integer variable.
  *  Increments the number by 1.
  */
-objecttype int_incr (listtype arguments)
+objectType int_incr (listType arguments)
 
   {
-    objecttype int_variable;
+    objectType int_variable;
 
   /* int_incr */
     int_variable = arg_1(arguments);
     isit_int(int_variable);
     is_variable(int_variable);
-    int_variable->value.intvalue++;
+    int_variable->value.intValue++;
     return SYS_EMPTY_OBJECT;
   } /* int_incr */
 
@@ -532,7 +532,7 @@ objecttype int_incr (listtype arguments)
  *  @return TRUE if number1 is less than or equal to number2,
  *          FALSE otherwise.
  */
-objecttype int_le (listtype arguments)
+objectType int_le (listType arguments)
 
   { /* int_le */
     isit_int(arg_1(arguments));
@@ -553,7 +553,7 @@ objecttype int_le (listtype arguments)
  *  @return the truncated base 2 logarithm.
  *  @exception NUMERIC_ERROR The number is negative.
  */
-objecttype int_log2 (listtype arguments)
+objectType int_log2 (listType arguments)
 
   { /* int_log2 */
     isit_int(arg_1(arguments));
@@ -568,7 +568,7 @@ objecttype int_log2 (listtype arguments)
  *  For A <> 0 this is equal to the number of lowest-order zero bits.
  *  @return the number of lowest-order zero bits or -1 for lowestSetBit(0).
  */
-objecttype int_lowest_set_bit (listtype arguments)
+objectType int_lowest_set_bit (listType arguments)
 
   { /* int_lowest_set_bit */
     isit_int(arg_1(arguments));
@@ -578,7 +578,7 @@ objecttype int_lowest_set_bit (listtype arguments)
 
 
 
-objecttype int_lpad0 (listtype arguments)
+objectType int_lpad0 (listType arguments)
 
   { /* int_lpad0 */
     isit_int(arg_1(arguments));
@@ -594,7 +594,7 @@ objecttype int_lpad0 (listtype arguments)
  *  A << B is equivalent to A * 2_ ** B
  *  @return the left shifted number.
  */
-objecttype int_lshift (listtype arguments)
+objectType int_lshift (listType arguments)
 
   { /* int_lshift */
     isit_int(arg_1(arguments));
@@ -608,17 +608,17 @@ objecttype int_lshift (listtype arguments)
 /**
  *  Shift a number left by lshift bits and assign the result back to number.
  */
-objecttype int_lshift_assign (listtype arguments)
+objectType int_lshift_assign (listType arguments)
 
   {
-    objecttype int_variable;
+    objectType int_variable;
 
   /* int_lshift_assign */
     int_variable = arg_1(arguments);
     isit_int(int_variable);
     is_variable(int_variable);
     isit_int(arg_3(arguments));
-    int_variable->value.intvalue <<= take_int(arg_3(arguments));
+    int_variable->value.intValue <<= take_int(arg_3(arguments));
     return SYS_EMPTY_OBJECT;
   } /* int_lshift_assign */
 
@@ -629,7 +629,7 @@ objecttype int_lshift_assign (listtype arguments)
  *  @return TRUE if number1 is less than number2,
  *          FALSE otherwise.
  */
-objecttype int_lt (listtype arguments)
+objectType int_lt (listType arguments)
 
   { /* int_lt */
     isit_int(arg_1(arguments));
@@ -651,12 +651,12 @@ objecttype int_lt (listtype arguments)
  *  @return the quotient of the integer division.
  *  @exception NUMERIC_ERROR When a division by zero occurs.
  */
-objecttype int_mdiv (listtype arguments)
+objectType int_mdiv (listType arguments)
 
   {
-    inttype dividend;
-    inttype divisor;
-    inttype result;
+    intType dividend;
+    intType divisor;
+    intType result;
 
   /* int_mdiv */
     isit_int(arg_1(arguments));
@@ -685,12 +685,12 @@ objecttype int_mdiv (listtype arguments)
  *  @return the modulo of the integer division.
  *  @exception NUMERIC_ERROR When a division by zero occurs.
  */
-objecttype int_mod (listtype arguments)
+objectType int_mod (listType arguments)
 
   {
-    inttype dividend;
-    inttype divisor;
-    inttype result;
+    intType dividend;
+    intType divisor;
+    intType result;
 
   /* int_mod */
     isit_int(arg_1(arguments));
@@ -714,7 +714,7 @@ objecttype int_mod (listtype arguments)
  *  Multiply two integer numbers.
  *  @return the product of the two numbers.
  */
-objecttype int_mult (listtype arguments)
+objectType int_mult (listType arguments)
 
   { /* int_mult */
     isit_int(arg_1(arguments));
@@ -728,17 +728,17 @@ objecttype int_mult (listtype arguments)
 /**
  *  Multiply an integer number by a factor and assign the result back to number.
  */
-objecttype int_mult_assign (listtype arguments)
+objectType int_mult_assign (listType arguments)
 
   {
-    objecttype int_variable;
+    objectType int_variable;
 
   /* int_mult_assign */
     int_variable = arg_1(arguments);
     isit_int(int_variable);
     is_variable(int_variable);
     isit_int(arg_3(arguments));
-    int_variable->value.intvalue *= take_int(arg_3(arguments));
+    int_variable->value.intValue *= take_int(arg_3(arguments));
     return SYS_EMPTY_OBJECT;
   } /* int_mult_assign */
 
@@ -749,7 +749,7 @@ objecttype int_mult_assign (listtype arguments)
  *  @return FALSE if both numbers are equal,
  *          TRUE otherwise.
  */
-objecttype int_ne (listtype arguments)
+objectType int_ne (listType arguments)
 
   { /* int_ne */
     isit_int(arg_1(arguments));
@@ -768,7 +768,7 @@ objecttype int_ne (listtype arguments)
  *  Minus sign, negate an integer number.
  *  @return the negated value of the number.
  */
-objecttype int_negate (listtype arguments)
+objectType int_negate (listType arguments)
 
   { /* int_negate */
     isit_int(arg_2(arguments));
@@ -782,7 +782,7 @@ objecttype int_negate (listtype arguments)
  *  Convert to integer.
  *  @return the unchanged number.
  */
-objecttype int_odd (listtype arguments)
+objectType int_odd (listType arguments)
 
   { /* int_odd */
     isit_int(arg_1(arguments));
@@ -799,7 +799,7 @@ objecttype int_odd (listtype arguments)
  *  Compute a bitwise inclusive 'or' of two integer values.
  *  @return the bitwise inclusive 'or' of the two values.
  */
-objecttype int_or (listtype arguments)
+objectType int_or (listType arguments)
 
   { /* int_or */
     isit_int(arg_1(arguments));
@@ -814,7 +814,7 @@ objecttype int_or (listtype arguments)
  *  Convert to integer.
  *  @return the unchanged number.
  */
-objecttype int_ord (listtype arguments)
+objectType int_ord (listType arguments)
 
   { /* int_ord */
     isit_int(arg_1(arguments));
@@ -826,17 +826,17 @@ objecttype int_ord (listtype arguments)
 /**
  *  Compute a bitwise inclusive 'or' and assign the result back.
  */
-objecttype int_or_assign (listtype arguments)
+objectType int_or_assign (listType arguments)
 
   {
-    objecttype int_variable;
+    objectType int_variable;
 
   /* int_or_assign */
     int_variable = arg_1(arguments);
     isit_int(int_variable);
     is_variable(int_variable);
     isit_int(arg_3(arguments));
-    int_variable->value.intvalue |= take_int(arg_3(arguments));
+    int_variable->value.intValue |= take_int(arg_3(arguments));
     return SYS_EMPTY_OBJECT;
   } /* int_or_assign */
 
@@ -853,7 +853,7 @@ objecttype int_or_assign (listtype arguments)
  *             an integer literal or when the integer literal is too big
  *             or too small to be represented as integer value.
  */
-objecttype int_parse (listtype arguments)
+objectType int_parse (listType arguments)
 
   { /* int_parse */
     isit_stri(arg_3(arguments));
@@ -867,7 +867,7 @@ objecttype int_parse (listtype arguments)
  *  Plus sign for integer numbers.
  *  @return its operand unchanged.
  */
-objecttype int_plus (listtype arguments)
+objectType int_plus (listType arguments)
 
   { /* int_plus */
     isit_int(arg_2(arguments));
@@ -881,7 +881,7 @@ objecttype int_plus (listtype arguments)
  *  @return the result of the exponentation.
  *  @exception NUMERIC_ERROR When the exponent is negative.
  */
-objecttype int_pow (listtype arguments)
+objectType int_pow (listType arguments)
 
   { /* int_pow */
     isit_int(arg_1(arguments));
@@ -896,7 +896,7 @@ objecttype int_pow (listtype arguments)
  *  Predecessor of an integer number.
  *  @return number - 1
  */
-objecttype int_pred (listtype arguments)
+objectType int_pred (listType arguments)
 
   { /* int_pred */
     isit_int(arg_1(arguments));
@@ -915,7 +915,7 @@ objecttype int_pred (listtype arguments)
  *  @exception RANGE_ERROR When base < 2 or base > 36 holds.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-objecttype int_radix (listtype arguments)
+objectType int_radix (listType arguments)
 
   { /* int_radix */
     isit_int(arg_1(arguments));
@@ -936,7 +936,7 @@ objecttype int_radix (listtype arguments)
  *  @exception RANGE_ERROR When base < 2 or base > 36 holds.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-objecttype int_RADIX (listtype arguments)
+objectType int_RADIX (listType arguments)
 
   { /* int_RADIX */
     isit_int(arg_1(arguments));
@@ -954,7 +954,7 @@ objecttype int_RADIX (listtype arguments)
  *          rand(low, high) <= high holds.
  *  @exception RANGE_ERROR The range is empty (low > high holds).
  */
-objecttype int_rand (listtype arguments)
+objectType int_rand (listType arguments)
 
   { /* int_rand */
     isit_int(arg_1(arguments));
@@ -971,10 +971,10 @@ objecttype int_rand (listtype arguments)
  *  @return the remainder of the integer division.
  *  @exception NUMERIC_ERROR When a division by zero occurs.
  */
-objecttype int_rem (listtype arguments)
+objectType int_rem (listType arguments)
 
   {
-    inttype divisor;
+    intType divisor;
 
   /* int_rem */
     isit_int(arg_1(arguments));
@@ -995,7 +995,7 @@ objecttype int_rem (listtype arguments)
  *  A >> B is equivalent to A mdiv 2_ ** B
  *  @return the right shifted number.
  */
-objecttype int_rshift (listtype arguments)
+objectType int_rshift (listType arguments)
 
   { /* int_rshift */
     isit_int(arg_1(arguments));
@@ -1022,10 +1022,10 @@ objecttype int_rshift (listtype arguments)
 /**
  *  Shift a number right by rshift bits and assign the result back to number.
  */
-objecttype int_rshift_assign (listtype arguments)
+objectType int_rshift_assign (listType arguments)
 
   {
-    objecttype int_variable;
+    objectType int_variable;
 
   /* int_rshift_assign */
     int_variable = arg_1(arguments);
@@ -1033,13 +1033,13 @@ objecttype int_rshift_assign (listtype arguments)
     is_variable(int_variable);
     isit_int(arg_3(arguments));
 #ifdef RSHIFT_DOES_SIGN_EXTEND
-    int_variable->value.intvalue >>= take_int(arg_3(arguments));
+    int_variable->value.intValue >>= take_int(arg_3(arguments));
 #else
     if (take_int(arg_1(arguments)) < 0) {
-      int_variable->value.intvalue =
-         ~(~int_variable->value.intvalue >> take_int(arg_3(arguments)));
+      int_variable->value.intValue =
+         ~(~int_variable->value.intValue >> take_int(arg_3(arguments)));
     } else {
-      int_variable->value.intvalue >>= take_int(arg_3(arguments));
+      int_variable->value.intValue >>= take_int(arg_3(arguments));
     } /* if */
 #endif
     return SYS_EMPTY_OBJECT;
@@ -1051,7 +1051,7 @@ objecttype int_rshift_assign (listtype arguments)
  *  Compute the subtraction of two integer numbers.
  *  @return the difference of the two numbers.
  */
-objecttype int_sbtr (listtype arguments)
+objectType int_sbtr (listType arguments)
 
   { /* int_sbtr */
     isit_int(arg_1(arguments));
@@ -1065,17 +1065,17 @@ objecttype int_sbtr (listtype arguments)
 /**
  *  Decrement an integer variable by a delta.
  */
-objecttype int_shrink (listtype arguments)
+objectType int_shrink (listType arguments)
 
   {
-    objecttype int_variable;
+    objectType int_variable;
 
   /* int_shrink */
     int_variable = arg_1(arguments);
     isit_int(int_variable);
     is_variable(int_variable);
     isit_int(arg_3(arguments));
-    int_variable->value.intvalue -= take_int(arg_3(arguments));
+    int_variable->value.intValue -= take_int(arg_3(arguments));
     return SYS_EMPTY_OBJECT;
   } /* int_shrink */
 
@@ -1086,7 +1086,7 @@ objecttype int_shrink (listtype arguments)
  *  @return the integer square root.
  *  @exception NUMERIC_ERROR When number is negative.
  */
-objecttype int_sqrt (listtype arguments)
+objectType int_sqrt (listType arguments)
 
   { /* int_sqrt */
     isit_int(arg_1(arguments));
@@ -1103,7 +1103,7 @@ objecttype int_sqrt (listtype arguments)
  *  @return the string result of the conversion.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-objecttype int_str (listtype arguments)
+objectType int_str (listType arguments)
 
   { /* int_str */
     isit_int(arg_1(arguments));
@@ -1117,7 +1117,7 @@ objecttype int_str (listtype arguments)
  *  Successor of an integer number.
  *  @return number + 1
  */
-objecttype int_succ (listtype arguments)
+objectType int_succ (listType arguments)
 
   { /* int_succ */
     isit_int(arg_1(arguments));
@@ -1127,55 +1127,55 @@ objecttype int_succ (listtype arguments)
 
 
 #ifdef OUT_OF_ORDER
-objecttype int_uadd (listtype arguments)
+objectType int_uadd (listType arguments)
 
   { /* int_uadd */
     isit_int(arg_1(arguments));
     isit_int(arg_3(arguments));
-    return bld_int_temp((inttype) (
-        (uinttype) (take_int(arg_1(arguments))) +
-        (uinttype) (take_int(arg_3(arguments)))));
+    return bld_int_temp((intType) (
+        (uintType) (take_int(arg_1(arguments))) +
+        (uintType) (take_int(arg_3(arguments)))));
   } /* int_uadd */
 
 
 
-objecttype int_umult (listtype arguments)
+objectType int_umult (listType arguments)
 
   { /* int_umult */
     isit_int(arg_1(arguments));
     isit_int(arg_3(arguments));
-    return bld_int_temp((inttype) (
-        (uinttype) (take_int(arg_1(arguments))) *
-        (uinttype) (take_int(arg_3(arguments)))));
+    return bld_int_temp((intType) (
+        (uintType) (take_int(arg_1(arguments))) *
+        (uintType) (take_int(arg_3(arguments)))));
   } /* int_umult */
 #endif
 
 
 
-objecttype int_urshift (listtype arguments)
+objectType int_urshift (listType arguments)
 
   { /* int_urshift */
     isit_int(arg_1(arguments));
     isit_int(arg_3(arguments));
-    return bld_int_temp((inttype) (
-        (uinttype) (take_int(arg_1(arguments))) >>
+    return bld_int_temp((intType) (
+        (uintType) (take_int(arg_1(arguments))) >>
         take_int(arg_3(arguments))));
   } /* int_urshift */
 
 
 
-objecttype int_urshift_assign (listtype arguments)
+objectType int_urshift_assign (listType arguments)
 
   {
-    objecttype int_variable;
+    objectType int_variable;
 
   /* int_urshift_assign */
     int_variable = arg_1(arguments);
     isit_int(int_variable);
     is_variable(int_variable);
     isit_int(arg_3(arguments));
-    int_variable->value.intvalue = (inttype) (
-        (uinttype) (int_variable->value.intvalue) >>
+    int_variable->value.intValue = (intType) (
+        (uintType) (int_variable->value.intValue) >>
         take_int(arg_3(arguments)));
     return SYS_EMPTY_OBJECT;
   } /* int_urshift_assign */
@@ -1183,23 +1183,23 @@ objecttype int_urshift_assign (listtype arguments)
 
 
 #ifdef OUT_OF_ORDER
-objecttype int_usbtr (listtype arguments)
+objectType int_usbtr (listType arguments)
 
   { /* int_usbtr */
     isit_int(arg_1(arguments));
     isit_int(arg_3(arguments));
-    return bld_int_temp((inttype) (
-        (uinttype) (take_int(arg_1(arguments))) -
-        (uinttype) (take_int(arg_3(arguments)))));
+    return bld_int_temp((intType) (
+        (uintType) (take_int(arg_1(arguments))) -
+        (uintType) (take_int(arg_3(arguments)))));
   } /* int_usbtr */
 #endif
 
 
 
-objecttype int_value (listtype arguments)
+objectType int_value (listType arguments)
 
   {
-    objecttype obj_arg;
+    objectType obj_arg;
 
   /* int_value */
     isit_reference(arg_1(arguments));
@@ -1213,7 +1213,7 @@ objecttype int_value (listtype arguments)
 
 
 
-objecttype int_xor (listtype arguments)
+objectType int_xor (listType arguments)
 
   { /* int_xor */
     isit_int(arg_1(arguments));
@@ -1227,16 +1227,16 @@ objecttype int_xor (listtype arguments)
 /**
  *  Compute a bitwise exclusive or ('xor') and assign the result back.
  */
-objecttype int_xor_assign (listtype arguments)
+objectType int_xor_assign (listType arguments)
 
   {
-    objecttype int_variable;
+    objectType int_variable;
 
   /* int_xor_assign */
     int_variable = arg_1(arguments);
     isit_int(int_variable);
     is_variable(int_variable);
     isit_int(arg_3(arguments));
-    int_variable->value.intvalue ^= take_int(arg_3(arguments));
+    int_variable->value.intValue ^= take_int(arg_3(arguments));
     return SYS_EMPTY_OBJECT;
   } /* int_xor_assign */

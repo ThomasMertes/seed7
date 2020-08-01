@@ -57,7 +57,7 @@
 
 
 
-static void print_line (linenumtype err_line)
+static void print_line (lineNumType err_line)
 
   {
     long current_position;
@@ -66,7 +66,7 @@ static void print_line (linenumtype err_line)
     long *nl_table;
     unsigned int table_start;
     unsigned int table_pos;
-    booltype searching;
+    boolType searching;
     int area_size;
     int area_pos;
     int ch;
@@ -141,7 +141,7 @@ static void print_error_line (void)
     long current_position;
     long buffer_start_position;
     int start_index;
-    uchartype buffer[1025];
+    ucharType buffer[1025];
     int buffer_size;
     int start;
     int stop;
@@ -165,7 +165,7 @@ static void print_error_line (void)
       IN_FILE_SEEK(buffer_start_position);
       buffer_size = 0;
       while (buffer_size < 1024 && (ch = next_character()) != EOF) {
-        buffer[buffer_size] = (uchartype) ch;
+        buffer[buffer_size] = (ucharType) ch;
         buffer_size++;
       } /* if */
       start = start_index - 1;
@@ -199,7 +199,7 @@ static void print_error_line (void)
 
 
 
-void place_of_error (errortype err)
+void place_of_error (errorType err)
 
   { /* place_of_error */
 /*  print_error_line(); */
@@ -227,22 +227,22 @@ static void write_symbol (void)
     if (symbol.sycategory == PARENSYMBOL) {
       printf(" \"%c\"\n", symbol.name[0]);
     } else if (symbol.sycategory == INTLITERAL) {
-      printf(" \"%ld\"\n", (long) symbol.intvalue);
+      printf(" \"%ld\"\n", (long) symbol.intValue);
     } else if (symbol.sycategory == BIGINTLITERAL) {
       printf(" \"%s_\"\n", symbol.name);
     } else if (symbol.sycategory == CHARLITERAL) {
-      if (symbol.charvalue >= ' ' && symbol.charvalue <= '~') {
-        printf(" \"'%c'\"\n", (char) symbol.charvalue);
+      if (symbol.charValue >= ' ' && symbol.charValue <= '~') {
+        printf(" \"'%c'\"\n", (char) symbol.charValue);
       } else {
-        printf(" \"'\\%lu;'\"\n", (unsigned long) symbol.charvalue);
+        printf(" \"'\\%lu;'\"\n", (unsigned long) symbol.charValue);
       } /* if */
     } else if (symbol.sycategory == STRILITERAL) {
       printf(" ");
-      prot_stri(symbol.strivalue);
+      prot_stri(symbol.striValue);
       printf("\n");
 #ifdef WITH_FLOAT
     } else if (symbol.sycategory == FLOATLITERAL) {
-      printf(" \"%f\"\n", symbol.floatvalue);
+      printf(" \"%f\"\n", symbol.floatValue);
 #endif
     } else {
       printf(" \"%s\"\n", symbol.name);
@@ -251,7 +251,7 @@ static void write_symbol (void)
 
 
 
-static void write_type (const_typetype anytype)
+static void write_type (const_typeType anytype)
 
   { /* write_type */
     if (anytype != NULL) {
@@ -270,10 +270,10 @@ static void write_type (const_typetype anytype)
 
 
 
-static void write_name_list (const_listtype params)
+static void write_name_list (const_listType params)
 
   {
-    objecttype formal_param;
+    objectType formal_param;
     int in_formal_param_list = 0;
 
   /* write_name_list */
@@ -285,7 +285,7 @@ static void write_name_list (const_listtype params)
           printf(" (");
           in_formal_param_list = 1;
         } /* if */
-        formal_param = params->obj->value.objvalue;
+        formal_param = params->obj->value.objValue;
         switch (CATEGORY_OF_OBJ(formal_param)) {
           case VALUEPARAMOBJECT:
             printf("in ");
@@ -317,7 +317,7 @@ static void write_name_list (const_listtype params)
               printf("attr %s", GET_ENTITY(formal_param)->ident->name);
             } else {
               printf("attr ");
-              write_type(formal_param->value.typevalue);
+              write_type(formal_param->value.typeValue);
             } /* if */
             break;
           default:
@@ -351,7 +351,7 @@ static void write_name_list (const_listtype params)
 
 
 
-static void write_object (objecttype anyobject)
+static void write_object (objectType anyobject)
 
   { /* write_object */
     if (anyobject == NULL) {
@@ -360,7 +360,7 @@ static void write_object (objecttype anyobject)
       switch (CATEGORY_OF_OBJ(anyobject)) {
         case TYPEOBJECT:
           printf("type ");
-          write_type(anyobject->value.typevalue);
+          write_type(anyobject->value.typeValue);
           break;
         case VALUEPARAMOBJECT:
           printf("parameter (in ");
@@ -409,12 +409,12 @@ static void write_object (objecttype anyobject)
           break;
         case CALLOBJECT:
         case MATCHOBJECT:
-          if (anyobject->value.listvalue != NULL &&
-              anyobject->value.listvalue->obj != NULL) {
+          if (anyobject->value.listValue != NULL &&
+              anyobject->value.listValue->obj != NULL) {
             printf("expression (");
-            prot_list(anyobject->value.listvalue->next);
+            prot_list(anyobject->value.listValue->next);
             printf(") of type ");
-            write_type(anyobject->value.listvalue->obj->type_of);
+            write_type(anyobject->value.listValue->obj->type_of);
           } /* if */
           break;
         default:
@@ -431,7 +431,7 @@ static void write_object (objecttype anyobject)
 
 
 
-void err_warning (errortype err)
+void err_warning (errorType err)
 
   { /* err_warning */
     place_of_error(err);
@@ -506,8 +506,8 @@ void err_warning (errortype err)
 
 
 
-void err_num_stri (errortype err, int num_found, int num_expected,
-    const_ustritype stri)
+void err_num_stri (errorType err, int num_found, int num_expected,
+    const_ustriType stri)
 
   { /* err_num_stri */
     place_of_error(err);
@@ -554,7 +554,7 @@ void err_num_stri (errortype err, int num_found, int num_expected,
 
 
 
-void err_ident (errortype err, const_identtype ident)
+void err_ident (errorType err, const_identType ident)
 
   { /* err_ident */
     place_of_error(err);
@@ -577,7 +577,7 @@ void err_ident (errortype err, const_identtype ident)
 
 
 
-void err_object (errortype err, const_objecttype obj_found)
+void err_object (errorType err, const_objectType obj_found)
 
   { /* err_object */
     /* place_of_error(err); */
@@ -604,7 +604,7 @@ void err_object (errortype err, const_objecttype obj_found)
         break;
       case PARAM_DECL_FAILED:
         printf("Declaration of parameter ");
-        prot_list(obj_found->value.listvalue->next);
+        prot_list(obj_found->value.listValue->next);
         printf(" failed\n");
         break;
       case DECL_FAILED:
@@ -623,21 +623,21 @@ void err_object (errortype err, const_objecttype obj_found)
         printf("Identifier expected found ");
         switch (CATEGORY_OF_OBJ(obj_found)) {
           case INTOBJECT:
-            printf("\"%ld\"", (long) obj_found->value.intvalue);
+            printf("\"%ld\"", (long) obj_found->value.intValue);
             break;
           case CHAROBJECT:
-            if (obj_found->value.charvalue >= ' ' && obj_found->value.charvalue <= '~') {
-              printf("\"'%c'\"\n", (char) obj_found->value.charvalue);
+            if (obj_found->value.charValue >= ' ' && obj_found->value.charValue <= '~') {
+              printf("\"'%c'\"\n", (char) obj_found->value.charValue);
             } else {
-              printf("\"'\\%lu;'\"\n", (unsigned long) obj_found->value.charvalue);
+              printf("\"'\\%lu;'\"\n", (unsigned long) obj_found->value.charValue);
             } /* if */
             break;
           case STRIOBJECT:
-            prot_stri(obj_found->value.strivalue);
+            prot_stri(obj_found->value.striValue);
             break;
 #ifdef WITH_FLOAT
           case FLOATOBJECT:
-            printf("\"%f\"\n", obj_found->value.floatvalue);
+            printf("\"%f\"\n", obj_found->value.floatValue);
             break;
 #endif
           default:
@@ -650,7 +650,7 @@ void err_object (errortype err, const_objecttype obj_found)
         break;
       case NO_MATCH:
         printf("Match for ");
-        prot_list(obj_found->value.listvalue);
+        prot_list(obj_found->value.listValue);
         printf(" failed\n");
         break;
       case PROC_EXPECTED:
@@ -682,7 +682,7 @@ void err_object (errortype err, const_objecttype obj_found)
 
 
 
-void err_type (errortype err, const_typetype type_found)
+void err_type (errorType err, const_typeType type_found)
 
   { /* err_type */
     place_of_error(err);
@@ -702,8 +702,8 @@ void err_type (errortype err, const_typetype type_found)
 
 
 
-void err_expr_obj (errortype err, const_objecttype expr_object,
-    objecttype obj_found)
+void err_expr_obj (errorType err, const_objectType expr_object,
+    objectType obj_found)
 
   { /* err_expr_obj */
     /* place_of_error(err); */
@@ -719,7 +719,7 @@ void err_expr_obj (errortype err, const_objecttype expr_object,
     switch (err) {
       case WRONGACCESSRIGHT:
         printf("Variable expected in ");
-        prot_list(expr_object->value.listvalue->next);
+        prot_list(expr_object->value.listValue->next);
         printf(" found ");
         write_object(obj_found);
         printf("\n");
@@ -738,18 +738,18 @@ void err_expr_obj (errortype err, const_objecttype expr_object,
 
 
 
-static booltype contains_match_err_flag (objecttype curr_obj)
+static boolType contains_match_err_flag (objectType curr_obj)
 
   {
-    const_listtype list_elem;
-    booltype result;
+    const_listType list_elem;
+    boolType result;
 
   /* contains_match_err_flag */
     result = FALSE;
     if (HAS_MATCH_ERR(curr_obj)) {
       result = TRUE;
     } else if (CATEGORY_OF_OBJ(curr_obj) == EXPROBJECT) {
-      list_elem = curr_obj->value.listvalue;
+      list_elem = curr_obj->value.listValue;
       while (list_elem != NULL) {
         if (list_elem->obj != NULL && contains_match_err_flag(list_elem->obj)) {
           result = TRUE;
@@ -762,7 +762,7 @@ static booltype contains_match_err_flag (objecttype curr_obj)
 
 
 
-void err_match (errortype err, objecttype obj_found)
+void err_match (errorType err, objectType obj_found)
 
   { /* err_match */
     if (!contains_match_err_flag(obj_found)) {
@@ -779,7 +779,7 @@ void err_match (errortype err, objecttype obj_found)
       switch (err) {
         case NO_MATCH:
           printf("Match for ");
-          prot_list(obj_found->value.listvalue);
+          prot_list(obj_found->value.listValue);
           printf(" failed\n");
           break;
         default:
@@ -798,7 +798,7 @@ void err_match (errortype err, objecttype obj_found)
 
 
 
-void err_string (errortype err, const_ustritype stri)
+void err_string (errorType err, const_ustriType stri)
 
   { /* err_string */
     place_of_error(err);
@@ -825,7 +825,7 @@ void err_string (errortype err, const_ustritype stri)
 
 
 
-void err_stri (errortype err, const_stritype stri)
+void err_stri (errorType err, const_striType stri)
 
   { /* err_stri */
     place_of_error(err);
@@ -855,7 +855,7 @@ void err_stri (errortype err, const_stritype stri)
 
 
 
-void err_integer (errortype err, inttype number)
+void err_integer (errorType err, intType number)
 
   { /* err_integer */
     place_of_error(err);
@@ -876,7 +876,7 @@ void err_integer (errortype err, inttype number)
 
 
 
-void err_cchar (errortype err, int character)
+void err_cchar (errorType err, int character)
 
   { /* err_cchar */
     place_of_error(err);
@@ -923,7 +923,7 @@ void err_cchar (errortype err, int character)
 
 
 
-void err_char (errortype err, chartype character)
+void err_char (errorType err, charType character)
 
   { /* err_char */
     place_of_error(err);
@@ -961,7 +961,7 @@ void err_char (errortype err, chartype character)
 
 
 
-void err_at_line (errortype err, linenumtype line)
+void err_at_line (errorType err, lineNumType line)
 
   { /* err_at_line */
     prog.error_count++;
@@ -980,8 +980,8 @@ void err_at_line (errortype err, linenumtype line)
 
 
 
-void err_undeclared (errortype err, filenumtype file_num,
-    linenumtype line, const_ustritype stri)
+void err_undeclared (errorType err, fileNumType file_num,
+    lineNumType line, const_ustriType stri)
 
   { /* err_undeclared */
     prog.error_count++;
@@ -1001,7 +1001,7 @@ void err_undeclared (errortype err, filenumtype file_num,
 
 
 
-void err_message (errortype err, const_stritype stri)
+void err_message (errorType err, const_striType stri)
 
   { /* err_message */
     prog.error_count++;

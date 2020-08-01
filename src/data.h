@@ -33,52 +33,52 @@ typedef enum {
                          /*                    not initialized      */
     FORWARDOBJECT,       /* NO VALUE -         Object declared      */
                          /*                    forward              */
-    FWDREFOBJECT,        /* objvalue -    Reference to Object which */
+    FWDREFOBJECT,        /* objValue -    Reference to Object which */
                          /*               was declared forward      */
-    BLOCKOBJECT,         /* blockvalue - Procedure possibly with    */
+    BLOCKOBJECT,         /* blockValue - Procedure possibly with    */
                          /*              parameters, declared       */
                          /*              result or local variables  */
-    CALLOBJECT,          /* listvalue - Subroutine call:            */
+    CALLOBJECT,          /* listValue - Subroutine call:            */
                          /*             First element is subroutine */
                          /*             Rest of list is parameters  */
-    MATCHOBJECT,         /* listvalue - Don't exec subroutine call: */
+    MATCHOBJECT,         /* listValue - Don't exec subroutine call: */
                          /*             First element is subroutine */
                          /*             Rest of list is parameters  */
-    TYPEOBJECT,          /* typevalue -   type                      */
-    FORMPARAMOBJECT,     /* objvalue -    Reference to formal param */
-    INTOBJECT,           /* intvalue -    integer                   */
-    BIGINTOBJECT,        /* bigintvalue - bigInteger                */
-    CHAROBJECT,          /* charvalue -   char                      */
-    STRIOBJECT,          /* strivalue -   string                    */
-    BSTRIOBJECT,         /* bstrivalue -  byte string               */
-    ARRAYOBJECT,         /* arrayvalue -  array                     */
-    HASHOBJECT,          /* hashvalue -   hash                      */
-    STRUCTOBJECT,        /* structvalue - struct                    */
-    CLASSOBJECT,         /* structvalue - struct                    */
-    INTERFACEOBJECT,     /* objvalue -    Dynamic Object            */
-    SETOBJECT,           /* setvalue -    set                       */
-    FILEOBJECT,          /* filevalue -   file                      */
-    FILEDESOBJECT,       /* filedesvalue - file descriptor          */
-    SOCKETOBJECT,        /* socketvalue - socket                    */
-    POLLOBJECT,          /* pollvalue -   poll list                 */
-    LISTOBJECT,          /* listvalue -   list                      */
-    FLOATOBJECT,         /* floatvalue -  float                     */
-    WINOBJECT,           /* winvalue -    Window                    */
-    ENUMLITERALOBJECT,   /* objvalue -    Enumeration literal       */
-    CONSTENUMOBJECT,     /* objvalue -    Constant enumeration obj  */
-    VARENUMOBJECT,       /* objvalue -    Variable enumeration obj  */
-    REFOBJECT,           /* objvalue -    reference                 */
-    REFLISTOBJECT,       /* listvalue -   ref_list                  */
-    EXPROBJECT,          /* listvalue -   expression                */
-    ACTOBJECT,           /* actvalue -    Action                    */
-    VALUEPARAMOBJECT,    /* objvalue -    Formal value parameter    */
-    REFPARAMOBJECT,      /* objvalue -    Formal ref parameter      */
-    RESULTOBJECT,        /* objvalue -    Result of procedure       */
-    LOCALVOBJECT,        /* objvalue -    Local variable            */
-    PROGOBJECT,          /* progvalue -   Program                   */
-    DATABASEOBJECT,      /* databasevalue - Database                */
-    SQLSTMTOBJECT        /* sqlstmtvalue -  SQL statement           */
-  } objectcategory;
+    TYPEOBJECT,          /* typeValue -   type                      */
+    FORMPARAMOBJECT,     /* objValue -    Reference to formal param */
+    INTOBJECT,           /* intValue -    integer                   */
+    BIGINTOBJECT,        /* bigIntValue - bigInteger                */
+    CHAROBJECT,          /* charValue -   char                      */
+    STRIOBJECT,          /* striValue -   string                    */
+    BSTRIOBJECT,         /* bstriValue -  byte string               */
+    ARRAYOBJECT,         /* arrayValue -  array                     */
+    HASHOBJECT,          /* hashValue -   hash                      */
+    STRUCTOBJECT,        /* structValue - struct                    */
+    CLASSOBJECT,         /* structValue - struct                    */
+    INTERFACEOBJECT,     /* objValue -    Dynamic Object            */
+    SETOBJECT,           /* setValue -    set                       */
+    FILEOBJECT,          /* fileValue -   file                      */
+    FILEDESOBJECT,       /* fileDesValue - file descriptor          */
+    SOCKETOBJECT,        /* socketValue - socket                    */
+    POLLOBJECT,          /* pollValue -   poll list                 */
+    LISTOBJECT,          /* listValue -   list                      */
+    FLOATOBJECT,         /* floatValue -  float                     */
+    WINOBJECT,           /* winValue -    Window                    */
+    ENUMLITERALOBJECT,   /* objValue -    Enumeration literal       */
+    CONSTENUMOBJECT,     /* objValue -    Constant enumeration obj  */
+    VARENUMOBJECT,       /* objValue -    Variable enumeration obj  */
+    REFOBJECT,           /* objValue -    reference                 */
+    REFLISTOBJECT,       /* listValue -   ref_list                  */
+    EXPROBJECT,          /* listValue -   expression                */
+    ACTOBJECT,           /* actValue -    Action                    */
+    VALUEPARAMOBJECT,    /* objValue -    Formal value parameter    */
+    REFPARAMOBJECT,      /* objValue -    Formal ref parameter      */
+    RESULTOBJECT,        /* objValue -    Result of procedure       */
+    LOCALVOBJECT,        /* objValue -    Local variable            */
+    DATABASEOBJECT,      /* databaseValue - Database                */
+    SQLSTMTOBJECT,       /* sqlStmtValue -  SQL statement           */
+    PROGOBJECT           /* progValue -   Program                   */
+  } objectCategory;
 
 typedef enum {
     SY_TOKEN,
@@ -86,409 +86,409 @@ typedef enum {
     UNDEF_SYNTAX,
     LIST_WITH_TYPEOF_SYNTAX,
     SELECT_ELEMENT_FROM_LIST_SYNTAX
-  } tokencategory;
+  } tokenCategory;
 
-typedef uint32type         postype;
-typedef unsigned int       linenumtype;
-typedef unsigned int       filenumtype;
-typedef uint16type         categorytype;
+typedef uint32Type         posType;
+typedef unsigned int       lineNumType;
+typedef unsigned int       fileNumType;
+typedef uint16Type         categoryType;
 
-typedef struct identstruct    *identtype;
-typedef struct tokenstruct    *tokentype;
-typedef struct nodestruct     *nodetype;
-typedef struct entitystruct   *entitytype;
-typedef struct ownerstruct    *ownertype;
-typedef struct objectstruct   *objecttype;
-typedef struct propertystruct *propertytype;
-typedef struct stackstruct    *stacktype;
-typedef struct typeliststruct *typelisttype;
-typedef struct typestruct     *typetype;
-typedef struct liststruct     *listtype;
-typedef struct locobjstruct   *locobjtype;
-typedef struct locliststruct  *loclisttype;
-typedef struct blockstruct    *blocktype;
-typedef struct arraystruct    *arraytype;
-typedef struct helemstruct    *helemtype;
-typedef struct hashstruct     *hashtype;
-typedef struct structstruct   *structtype;
-typedef struct progstruct     *progtype;
-typedef struct infilstruct    *infiltype;
+typedef struct identStruct    *identType;
+typedef struct tokenStruct    *tokenType;
+typedef struct nodeStruct     *nodeType;
+typedef struct entityStruct   *entityType;
+typedef struct ownerStruct    *ownerType;
+typedef struct objectStruct   *objectType;
+typedef struct propertyStruct *propertyType;
+typedef struct stackStruct    *stackType;
+typedef struct typeListStruct *typeListType;
+typedef struct typeStruct     *typeType;
+typedef struct listStruct     *listType;
+typedef struct locObjStruct   *locObjType;
+typedef struct locListStruct  *locListType;
+typedef struct blockStruct    *blockType;
+typedef struct arrayStruct    *arrayType;
+typedef struct hashElemStruct *hashElemType;
+typedef struct hashStruct     *hashType;
+typedef struct structStruct   *structType;
+typedef struct progStruct     *progType;
+typedef struct inFileStruct   *inFileType;
 
-typedef const struct identstruct    *const_identtype;
-typedef const struct tokenstruct    *const_tokentype;
-typedef const struct nodestruct     *const_nodetype;
-typedef const struct entitystruct   *const_entitytype;
-typedef const struct ownerstruct    *const_ownertype;
-typedef const struct objectstruct   *const_objecttype;
-typedef const struct propertystruct *const_propertytype;
-typedef const struct stackstruct    *const_stacktype;
-typedef const struct typeliststruct *const_typelisttype;
-typedef const struct typestruct     *const_typetype;
-typedef const struct liststruct     *const_listtype;
-typedef const struct locobjstruct   *const_locobjtype;
-typedef const struct locliststruct  *const_loclisttype;
-typedef const struct blockstruct    *const_blocktype;
-typedef const struct arraystruct    *const_arraytype;
-typedef const struct helemstruct    *const_helemtype;
-typedef const struct hashstruct     *const_hashtype;
-typedef const struct structstruct   *const_structtype;
-typedef const struct progstruct     *const_progtype;
-typedef const struct infilstruct    *const_infiltype;
+typedef const struct identStruct    *const_identType;
+typedef const struct tokenStruct    *const_tokenType;
+typedef const struct nodeStruct     *const_nodeType;
+typedef const struct entityStruct   *const_entityType;
+typedef const struct ownerStruct    *const_ownerType;
+typedef const struct objectStruct   *const_objectType;
+typedef const struct propertyStruct *const_propertyType;
+typedef const struct stackStruct    *const_stackType;
+typedef const struct typeListStruct *const_typeListType;
+typedef const struct typeStruct     *const_typeType;
+typedef const struct listStruct     *const_listType;
+typedef const struct locObjStruct   *const_locObjType;
+typedef const struct locListStruct  *const_locListType;
+typedef const struct blockStruct    *const_blockType;
+typedef const struct arrayStruct    *const_arrayType;
+typedef const struct hashElemStruct *const_hashElemType;
+typedef const struct hashStruct     *const_hashType;
+typedef const struct structStruct   *const_structType;
+typedef const struct progStruct     *const_progType;
+typedef const struct inFileStruct   *const_inFileType;
 
-typedef objecttype (*acttype) (listtype);
+typedef objectType (*actType) (listType);
 
-typedef struct identstruct {
-    ustritype name;
-    identtype next1;
-    identtype next2;
-    entitytype entity;
-    tokentype prefix_token;
-    tokentype infix_token;
-    prioritytype prefix_priority;
-    prioritytype infix_priority;
-    prioritytype left_token_priority;
-  } identrecord;
+typedef struct identStruct {
+    ustriType name;
+    identType next1;
+    identType next2;
+    entityType entity;
+    tokenType prefix_token;
+    tokenType infix_token;
+    priorityType prefix_priority;
+    priorityType infix_priority;
+    priorityType left_token_priority;
+  } identRecord;
 
-typedef struct tokenstruct {
-    tokentype next;
-    tokentype alternative;
+typedef struct tokenStruct {
+    tokenType next;
+    tokenType alternative;
     union {
-      identtype ident;
+      identType ident;
       struct {
-        prioritytype priority;
-        typetype type_of;
+        priorityType priority;
+        typeType type_of;
       } expr_par;
-      typetype type_of;
-      inttype select;
+      typeType type_of;
+      intType select;
     } token_value;
-    tokencategory token_category;
-  } tokenrecord;
+    tokenCategory token_category;
+  } tokenRecord;
 
-typedef struct nodestruct {
-    uinttype usage_count;
-    objecttype match_obj;
-    nodetype next1;
-    nodetype next2;
-    entitytype entity;
-    nodetype symbol;
-    nodetype inout_param;
-    nodetype other_param;
-    nodetype attr;
-  } noderecord;
+typedef struct nodeStruct {
+    uintType usage_count;
+    objectType match_obj;
+    nodeType next1;
+    nodeType next2;
+    entityType entity;
+    nodeType symbol;
+    nodeType inout_param;
+    nodeType other_param;
+    nodeType attr;
+  } nodeRecord;
 
-typedef struct entitystruct {
-    identtype ident;
-    objecttype syobject;
-    listtype fparam_list;
+typedef struct entityStruct {
+    identType ident;
+    objectType syobject;
+    listType fparam_list;
     union {
-      ownertype owner;
-      entitytype next;
+      ownerType owner;
+      entityType next;
     } data;
-  } entityrecord;
+  } entityRecord;
 
-typedef struct ownerstruct {
-    objecttype obj;
-    stacktype decl_level;
-    ownertype next;
-  } ownerrecord;
+typedef struct ownerStruct {
+    objectType obj;
+    stackType decl_level;
+    ownerType next;
+  } ownerRecord;
 
 typedef union {
-    postype      pos;           /* SYMBOLOBJECT */
-    nodetype     nodevalue;     /* MDULEOBJECT */
-    typetype     typevalue;     /* TYPEOBJECT */
-    inttype      intvalue;      /* INTOBJECT */
-    biginttype   bigintvalue;   /* BIGINTOBJECT */
-    chartype     charvalue;     /* CHAROBJECT */
-    stritype     strivalue;     /* STRIOBJECT */
-    bstritype    bstrivalue;    /* BSTRIOBJECT */
-    arraytype    arrayvalue;    /* ARRAYOBJECT */
-    hashtype     hashvalue;     /* HASHOBJECT */
-    settype      setvalue;      /* SETOBJECT */
-    structtype   structvalue;   /* STRUCTOBJECT */
-    filetype     filevalue;     /* FILEOBJECT */
-    filedestype  filedesvalue;  /* FILEDESOBJECT */
-    sockettype   socketvalue;   /* SOCKETOBJECT */
-    polltype     pollvalue;     /* POLLOBJECT */
-    listtype     listvalue;     /* LISTOBJECT, EXPROBJECT */
-    wintype      winvalue;      /* WINOBJECT */
-    objecttype   objvalue;      /* ENUMLITERALOBJECT, CONSTENUMOBJECT */
+    posType      pos;           /* SYMBOLOBJECT */
+    nodeType     nodeValue;     /* MDULEOBJECT */
+    typeType     typeValue;     /* TYPEOBJECT */
+    intType      intValue;      /* INTOBJECT */
+    bigIntType   bigIntValue;   /* BIGINTOBJECT */
+    charType     charValue;     /* CHAROBJECT */
+    striType     striValue;     /* STRIOBJECT */
+    bstriType    bstriValue;    /* BSTRIOBJECT */
+    arrayType    arrayValue;    /* ARRAYOBJECT */
+    hashType     hashValue;     /* HASHOBJECT */
+    setType      setValue;      /* SETOBJECT */
+    structType   structValue;   /* STRUCTOBJECT */
+    fileType     fileValue;     /* FILEOBJECT */
+    fileDesType  fileDesValue;  /* FILEDESOBJECT */
+    socketType   socketValue;   /* SOCKETOBJECT */
+    pollType     pollValue;     /* POLLOBJECT */
+    listType     listValue;     /* LISTOBJECT, EXPROBJECT */
+    winType      winValue;      /* WINOBJECT */
+    objectType   objValue;      /* ENUMLITERALOBJECT, CONSTENUMOBJECT */
                                 /* VARENUMOBJECT, VALUEPARAMOBJECT */
                                 /* REFPARAMOBJECT, RESULTOBJECT */
                                 /* LOCALVOBJECT, FORMPARAMOBJECT */
                                 /* INTERFACEOBJECT */
-    blocktype    blockvalue;    /* BLOCKOBJECT */
-    acttype      actvalue;      /* ACTOBJECT */
-    progtype     progvalue;     /* PROGOBJECT */
-    databasetype databasevalue; /* DATABASEOBJECT */
-    sqlstmttype  sqlstmtvalue;  /* SQLSTMTOBJECT */
+    blockType    blockValue;    /* BLOCKOBJECT */
+    actType      actValue;      /* ACTOBJECT */
+    databaseType databaseValue; /* DATABASEOBJECT */
+    sqlStmtType  sqlStmtValue;  /* SQLSTMTOBJECT */
+    progType     progValue;     /* PROGOBJECT */
 #ifdef WITH_FLOAT
-    floattype    floatvalue;    /* FLOATOBJECT */
+    floatType    floatValue;    /* FLOATOBJECT */
 #endif
-  } valueunion;
+  } valueUnion;
 
-typedef struct propertystruct {
-    entitytype entity;
-    listtype params;
-    filenumtype file_number;
-    linenumtype line;
+typedef struct propertyStruct {
+    entityType entity;
+    listType params;
+    fileNumType file_number;
+    lineNumType line;
     unsigned int syNumberInLine;
-  } propertyrecord;
+  } propertyRecord;
 
 typedef union {
-    propertytype property;
-    postype posinfo;
-  } descriptorunion;
+    propertyType property;
+    posType posinfo;
+  } descriptorUnion;
 
-typedef struct objectstruct {
-    typetype type_of;
-    descriptorunion descriptor;
-    valueunion value;
-    categorytype objcategory;
-  } objectrecord;
+typedef struct objectStruct {
+    typeType type_of;
+    descriptorUnion descriptor;
+    valueUnion value;
+    categoryType objcategory;
+  } objectRecord;
 
-typedef struct stackstruct {
-    listtype local_object_list;
-    listtype *object_list_insert_place;
-    stacktype upward;
-    stacktype downward;
-  } stackrecord;
+typedef struct stackStruct {
+    listType local_object_list;
+    listType *object_list_insert_place;
+    stackType upward;
+    stackType downward;
+  } stackRecord;
 
-typedef struct typeliststruct {
-    typelisttype next;
-    typetype type_elem;
-  } typelistrecord;
+typedef struct typeListStruct {
+    typeListType next;
+    typeType type_elem;
+  } typeListRecord;
 
-typedef struct typestruct {
-    objecttype match_obj;
-    typetype meta;
-    typetype func_type;
-    typetype varfunc_type;
-    typetype result_type;
-    booltype is_varfunc_type;
-    typelisttype interfaces;
-    identtype name;
-    progtype owningProg;
-    objecttype inout_f_param_prototype;
-    objecttype other_f_param_prototype;
-    objecttype create_call_obj;
-    objecttype destroy_call_obj;
-    objecttype copy_call_obj;
-    objecttype ord_call_obj;
-    objecttype in_call_obj;
-  } typerecord;
+typedef struct typeStruct {
+    objectType match_obj;
+    typeType meta;
+    typeType func_type;
+    typeType varfunc_type;
+    typeType result_type;
+    boolType is_varfunc_type;
+    typeListType interfaces;
+    identType name;
+    progType owningProg;
+    objectType inout_f_param_prototype;
+    objectType other_f_param_prototype;
+    objectType create_call_obj;
+    objectType destroy_call_obj;
+    objectType copy_call_obj;
+    objectType ord_call_obj;
+    objectType in_call_obj;
+  } typeRecord;
 
-typedef struct liststruct {
-    listtype next;
-    objecttype obj;
-  } listrecord;
+typedef struct listStruct {
+    listType next;
+    objectType obj;
+  } listRecord;
 
-typedef struct locobjstruct {
-    objecttype object;
-    objecttype init_value;
-    objecttype create_call_obj;
-    objecttype destroy_call_obj;
-  } locobjrecord;
+typedef struct locObjStruct {
+    objectType object;
+    objectType init_value;
+    objectType create_call_obj;
+    objectType destroy_call_obj;
+  } locObjRecord;
 
-typedef struct locliststruct {
-    locobjrecord local;
-    loclisttype next;
-  } loclistrecord;
+typedef struct locListStruct {
+    locObjRecord local;
+    locListType next;
+  } locListRecord;
 
-typedef struct blockstruct {
-    loclisttype params;
-    locobjrecord result;
-    loclisttype local_vars;
-    listtype local_consts;
-    objecttype body;
-  } blockrecord;
+typedef struct blockStruct {
+    locListType params;
+    locObjRecord result;
+    locListType local_vars;
+    listType local_consts;
+    objectType body;
+  } blockRecord;
 
-typedef struct arraystruct {
-    inttype min_position;
-    inttype max_position;
-    objectrecord arr[1];
-  } arrayrecord;
+typedef struct arrayStruct {
+    intType min_position;
+    intType max_position;
+    objectRecord arr[1];
+  } arrayRecord;
 
-typedef struct helemstruct {
-    helemtype next_less;
-    helemtype next_greater;
-    objectrecord key;
-    objectrecord data;
-  } helemrecord;
+typedef struct hashElemStruct {
+    hashElemType next_less;
+    hashElemType next_greater;
+    objectRecord key;
+    objectRecord data;
+  } hashElemRecord;
 
-typedef struct hashstruct {
+typedef struct hashStruct {
     unsigned int bits;
     unsigned int mask;
     unsigned int table_size;
-    memsizetype size;
-    helemtype table[1];
-  } hashrecord;
+    memSizeType size;
+    hashElemType table[1];
+  } hashRecord;
 
-typedef struct structstruct {
-    memsizetype usage_count;
-    memsizetype size;
-    objectrecord stru[1];
-  } structrecord;
+typedef struct structStruct {
+    memSizeType usage_count;
+    memSizeType size;
+    objectRecord stru[1];
+  } structRecord;
 
 #define NUMBER_OF_SYSVARS 26
 
-typedef objecttype systype[NUMBER_OF_SYSVARS];
+typedef objectType sysType[NUMBER_OF_SYSVARS];
 
 #define ID_TABLE_SIZE     1024
 
-typedef struct idrootstruct {
-    identtype table[ID_TABLE_SIZE];
-    identtype table1[127];
-    identtype literal;
-    identtype end_of_file;
-  } idroottype;
+typedef struct {
+    identType table[ID_TABLE_SIZE];
+    identType table1[127];
+    identType literal;
+    identType end_of_file;
+  } idRootType;
 
 typedef struct {
-    identtype lparen;
-    identtype lbrack;
-    identtype lbrace;
-    identtype rparen;
-    identtype rbrack;
-    identtype rbrace;
-    identtype dot;
-    identtype colon;
-    identtype comma;
-    identtype semicolon;
-    identtype dollar;
-    identtype r_arrow;
-    identtype l_arrow;
-    identtype out_arrow;
-    identtype in_arrow;
-    identtype type;
-    identtype constant;
-    identtype ref;
-    identtype syntax;
-    identtype system;
-    identtype include;
-    identtype is;
-    identtype func;
-    identtype param;
-    identtype enumlit;
-    identtype subtype;
-    identtype newtype;
-    identtype action;
-  } findidtype;
+    identType lparen;
+    identType lbrack;
+    identType lbrace;
+    identType rparen;
+    identType rbrack;
+    identType rbrace;
+    identType dot;
+    identType colon;
+    identType comma;
+    identType semicolon;
+    identType dollar;
+    identType r_arrow;
+    identType l_arrow;
+    identType out_arrow;
+    identType in_arrow;
+    identType type;
+    identType constant;
+    identType ref;
+    identType syntax;
+    identType system;
+    identType include;
+    identType is;
+    identType func;
+    identType param;
+    identType enumlit;
+    identType subtype;
+    identType newtype;
+    identType action;
+  } findIdType;
 
-typedef struct entrootstruct {
-    entitytype literal;
-    entitytype inactive_list;
-  } entroottype;
+typedef struct {
+    entityType literal;
+    entityType inactive_list;
+  } entityRootType;
 
-typedef struct propertyrootstruct {
-    propertytype literal;
-  } propertyroottype;
+typedef struct {
+    propertyType literal;
+  } propertyRootType;
 
-typedef struct progstruct {
-    uinttype usage_count;
-    progtype owningProg;
-    objecttype main_object;
-    const_stritype arg0;
-    const_stritype program_name;
-    const_stritype program_path;
-    objecttype arg_v;
-    uinttype option_flags;
+typedef struct progStruct {
+    uintType usage_count;
+    progType owningProg;
+    objectType main_object;
+    const_striType arg0;
+    const_striType program_name;
+    const_striType program_path;
+    objectType arg_v;
+    uintType option_flags;
     unsigned int error_count;
-    idroottype ident;
-    findidtype id_for;
-    entroottype entity;
-    propertyroottype property;
-    systype sys_var;
-    listtype types;
-    listtype literals;
-    nodetype declaration_root;
-    stacktype stack_global;
-    stacktype stack_data;
-    stacktype stack_current;
-  } progrecord;
+    idRootType ident;
+    findIdType id_for;
+    entityRootType entity;
+    propertyRootType property;
+    sysType sys_var;
+    listType types;
+    listType literals;
+    nodeType declaration_root;
+    stackType stack_global;
+    stackType stack_data;
+    stackType stack_current;
+  } progRecord;
 
-typedef struct infilstruct {
+typedef struct inFileStruct {
     FILE *fil;
-    const_ustritype name_ustri;
-    stritype name;
+    const_ustriType name_ustri;
+    striType name;
 #ifdef USE_ALTERNATE_NEXT_CHARACTER
-    ustritype start;
-    const_ustritype nextch;
-    const_ustritype beyond;
-    memsizetype buffer_size;
+    ustriType start;
+    const_ustriType nextch;
+    const_ustriType beyond;
+    memSizeType buffer_size;
 #else
 #ifdef USE_INFILE_BUFFER
-    ustritype buffer;
+    ustriType buffer;
 #endif
 #endif
     int character;
-    infiltype curr_infile;
-    infiltype up_infile;
-    infiltype next;
+    inFileType curr_infile;
+    inFileType up_infile;
+    inFileType next;
 #ifdef WITH_COMPILATION_INFO
-    booltype write_library_names;
-    booltype write_line_numbers;
+    boolType write_library_names;
+    boolType write_line_numbers;
 #endif
-    linenumtype line;
-    linenumtype incr_message_line;
-    linenumtype next_msg_line;
-    filenumtype file_number;
-    progtype owningProg;
-    booltype end_of_file;
-  } infilrecord;
+    lineNumType line;
+    lineNumType incr_message_line;
+    lineNumType next_msg_line;
+    fileNumType file_number;
+    progType owningProg;
+    boolType end_of_file;
+  } inFileRecord;
 
 
-extern progrecord prog;
+extern progRecord prog;
 
 
-#define INIT_POS(O,L,F)     (O)->value.pos = ((postype) (L)) | (((postype) (F)) << 20)
-#define GET_POS_LINE_NUM(O) (linenumtype) ((O)->value.pos & 1048575L)
-#define GET_POS_FILE_NUM(O) (filenumtype) (((O)->value.pos & 2146435072L) >> 20)
+#define INIT_POS(O,L,F)     (O)->value.pos = ((posType) (L)) | (((posType) (F)) << 20)
+#define GET_POS_LINE_NUM(O) (lineNumType) ((O)->value.pos & 1048575L)
+#define GET_POS_FILE_NUM(O) (fileNumType) (((O)->value.pos & 2146435072L) >> 20)
 
-#define CREATE_POSINFO(L,F) (((postype) (L)) | (((postype) (F)) << 20))
-#define GET_LINE_NUM(O)     (linenumtype) (((long)(O)->descriptor.posinfo) & 1048575L)
-#define GET_FILE_NUM(O)     (filenumtype) ((((long)(O)->descriptor.posinfo) & 2146435072L) >> 20)
+#define CREATE_POSINFO(L,F) (((posType) (L)) | (((posType) (F)) << 20))
+#define GET_LINE_NUM(O)     (lineNumType) (((long)(O)->descriptor.posinfo) & 1048575L)
+#define GET_FILE_NUM(O)     (fileNumType) ((((long)(O)->descriptor.posinfo) & 2146435072L) >> 20)
 
-#define CATEGORY_MASK  ((categorytype)   63)
-#define VAR_MASK       ((categorytype)   64)
-#define TEMP_MASK      ((categorytype)  128)
-#define TEMP2_MASK     ((categorytype)  256)
-#define POSINFO_MASK   ((categorytype)  512)
-#define MATCH_ERR_MASK ((categorytype) 1024)
-#define UNUSED_MASK    ((categorytype) 2048)
+#define CATEGORY_MASK  ((categoryType)   63)
+#define VAR_MASK       ((categoryType)   64)
+#define TEMP_MASK      ((categoryType)  128)
+#define TEMP2_MASK     ((categoryType)  256)
+#define POSINFO_MASK   ((categoryType)  512)
+#define MATCH_ERR_MASK ((categoryType) 1024)
+#define UNUSED_MASK    ((categoryType) 2048)
 
-#define SET_ANY_FLAG(O,FLAG)            (O)->objcategory = (categorytype) ((O)->objcategory | (FLAG))
+#define SET_ANY_FLAG(O,FLAG)            (O)->objcategory = (categoryType) ((O)->objcategory | (FLAG))
 
-#define INIT_CATEGORY_OF_OBJ(O,CAT)     (O)->objcategory = (categorytype) (CAT)
-#define SET_CATEGORY_OF_OBJ(O,CAT)      (O)->objcategory = (categorytype) (((O)->objcategory & ~CATEGORY_MASK) | (categorytype) (CAT))
-#define CATEGORY_OF_OBJ(O)              ((objectcategory) ((O)->objcategory & CATEGORY_MASK))
+#define INIT_CATEGORY_OF_OBJ(O,CAT)     (O)->objcategory = (categoryType) (CAT)
+#define SET_CATEGORY_OF_OBJ(O,CAT)      (O)->objcategory = (categoryType) (((O)->objcategory & ~CATEGORY_MASK) | (categoryType) (CAT))
+#define CATEGORY_OF_OBJ(O)              ((objectCategory) ((O)->objcategory & CATEGORY_MASK))
 
-#define INIT_CATEGORY_OF_VAR(O,CAT)     (O)->objcategory = (categorytype) ((CAT) | VAR_MASK)
-#define SET_VAR_FLAG(O)                 (O)->objcategory = (categorytype) ((O)->objcategory | VAR_MASK)
-#define CLEAR_VAR_FLAG(O)               (O)->objcategory = (categorytype) ((O)->objcategory & ~VAR_MASK)
+#define INIT_CATEGORY_OF_VAR(O,CAT)     (O)->objcategory = (categoryType) ((CAT) | VAR_MASK)
+#define SET_VAR_FLAG(O)                 (O)->objcategory = (categoryType) ((O)->objcategory | VAR_MASK)
+#define CLEAR_VAR_FLAG(O)               (O)->objcategory = (categoryType) ((O)->objcategory & ~VAR_MASK)
 #define VAR_OBJECT(O)                   ((O)->objcategory & VAR_MASK)
-#define COPY_VAR_FLAG(O1,O2)            (O1)->objcategory = (categorytype) (((O1)->objcategory & ~VAR_MASK) | ((O2)->objcategory & VAR_MASK))
+#define COPY_VAR_FLAG(O1,O2)            (O1)->objcategory = (categoryType) (((O1)->objcategory & ~VAR_MASK) | ((O2)->objcategory & VAR_MASK))
 
-#define INIT_CATEGORY_OF_TEMP(O,CAT)    (O)->objcategory = (categorytype) ((CAT) | TEMP_MASK)
-#define SET_TEMP_FLAG(O)                (O)->objcategory = (categorytype) ((O)->objcategory | TEMP_MASK)
-#define CLEAR_TEMP_FLAG(O)              (O)->objcategory = (categorytype) ((O)->objcategory & ~TEMP_MASK)
+#define INIT_CATEGORY_OF_TEMP(O,CAT)    (O)->objcategory = (categoryType) ((CAT) | TEMP_MASK)
+#define SET_TEMP_FLAG(O)                (O)->objcategory = (categoryType) ((O)->objcategory | TEMP_MASK)
+#define CLEAR_TEMP_FLAG(O)              (O)->objcategory = (categoryType) ((O)->objcategory & ~TEMP_MASK)
 #define TEMP_OBJECT(O)                  ((O)->objcategory & TEMP_MASK)
 
-#define INIT_CATEGORY_OF_TEMP2(O,CAT)   (O)->objcategory = (categorytype) ((CAT) | TEMP2_MASK)
-#define SET_TEMP2_FLAG(O)               (O)->objcategory = (categorytype) ((O)->objcategory | TEMP2_MASK)
-#define CLEAR_TEMP2_FLAG(O)             (O)->objcategory = (categorytype) ((O)->objcategory & ~TEMP2_MASK)
+#define INIT_CATEGORY_OF_TEMP2(O,CAT)   (O)->objcategory = (categoryType) ((CAT) | TEMP2_MASK)
+#define SET_TEMP2_FLAG(O)               (O)->objcategory = (categoryType) ((O)->objcategory | TEMP2_MASK)
+#define CLEAR_TEMP2_FLAG(O)             (O)->objcategory = (categoryType) ((O)->objcategory & ~TEMP2_MASK)
 #define TEMP2_OBJECT(O)                 ((O)->objcategory & TEMP2_MASK)
 
-#define INIT_CATEGORY_OF_POSINFO(O,CAT) (O)->objcategory = (categorytype) ((CAT) | POSINFO_MASK)
-#define SET_POSINFO_FLAG(O)             (O)->objcategory = (categorytype) ((O)->objcategory | POSINFO_MASK)
-#define CLEAR_POSINFO_FLAG(O)           (O)->objcategory = (categorytype) ((O)->objcategory & ~POSINFO_MASK)
+#define INIT_CATEGORY_OF_POSINFO(O,CAT) (O)->objcategory = (categoryType) ((CAT) | POSINFO_MASK)
+#define SET_POSINFO_FLAG(O)             (O)->objcategory = (categoryType) ((O)->objcategory | POSINFO_MASK)
+#define CLEAR_POSINFO_FLAG(O)           (O)->objcategory = (categoryType) ((O)->objcategory & ~POSINFO_MASK)
 #define HAS_POSINFO(O)                  ((O)->objcategory & POSINFO_MASK)
-#define COPY_POSINFO_FLAG(O1,O2)        (O1)->objcategory = (categorytype) (((O1)->objcategory & ~POSINFO_MASK) | ((O2)->objcategory & POSINFO_MASK))
+#define COPY_POSINFO_FLAG(O1,O2)        (O1)->objcategory = (categoryType) (((O1)->objcategory & ~POSINFO_MASK) | ((O2)->objcategory & POSINFO_MASK))
 
-#define SET_MATCH_ERR_FLAG(O)           (O)->objcategory = (categorytype) ((O)->objcategory | MATCH_ERR_MASK)
-#define CLEAR_MATCH_ERR_FLAG(O)         (O)->objcategory = (categorytype) ((O)->objcategory & ~MATCH_ERR_MASK)
+#define SET_MATCH_ERR_FLAG(O)           (O)->objcategory = (categoryType) ((O)->objcategory | MATCH_ERR_MASK)
+#define CLEAR_MATCH_ERR_FLAG(O)         (O)->objcategory = (categoryType) ((O)->objcategory & ~MATCH_ERR_MASK)
 #define HAS_MATCH_ERR(O)                ((O)->objcategory & MATCH_ERR_MASK)
 
-#define SET_UNUSED_FLAG(O)              (O)->objcategory = (categorytype) ((O)->objcategory | UNUSED_MASK)
-#define CLEAR_UNUSED_FLAG(O)            (O)->objcategory = (categorytype) ((O)->objcategory & ~UNUSED_MASK)
+#define SET_UNUSED_FLAG(O)              (O)->objcategory = (categoryType) ((O)->objcategory | UNUSED_MASK)
+#define CLEAR_UNUSED_FLAG(O)            (O)->objcategory = (categoryType) ((O)->objcategory & ~UNUSED_MASK)
 #define IS_UNUSED(O)                    ((O)->objcategory & UNUSED_MASK)
 
 #define HAS_PROPERTY(O)                 (!HAS_POSINFO(O) && (O)->descriptor.property != NULL)

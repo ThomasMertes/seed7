@@ -25,12 +25,12 @@
 /*                                                                  */
 /********************************************************************/
 
-objecttype enu_conv   (listtype arguments);
-objecttype enu_cpy    (listtype arguments);
-objecttype enu_create (listtype arguments);
-objecttype enu_eq     (listtype arguments);
-objecttype enu_genlit (listtype arguments);
-objecttype enu_iconv2 (listtype arguments);
-objecttype enu_ne     (listtype arguments);
-objecttype enu_ord2   (listtype arguments);
-objecttype enu_value  (listtype arguments);
+objectType enu_conv   (listType arguments);
+objectType enu_cpy    (listType arguments);
+objectType enu_create (listType arguments);
+objectType enu_eq     (listType arguments);
+objectType enu_genlit (listType arguments);
+objectType enu_iconv2 (listType arguments);
+objectType enu_ne     (listType arguments);
+objectType enu_ord2   (listType arguments);
+objectType enu_value  (listType arguments);

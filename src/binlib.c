@@ -42,7 +42,7 @@
 
 
 
-objecttype bin_and (listtype arguments)
+objectType bin_and (listType arguments)
 
   { /* bin_and */
     isit_bigint(arg_1(arguments));
@@ -53,7 +53,7 @@ objecttype bin_and (listtype arguments)
 
 
 
-objecttype bin_or (listtype arguments)
+objectType bin_or (listType arguments)
 
   { /* bin_or */
     isit_bigint(arg_1(arguments));
@@ -64,7 +64,7 @@ objecttype bin_or (listtype arguments)
 
 
 
-objecttype bin_xor (listtype arguments)
+objectType bin_xor (listType arguments)
 
   { /* bin_xor */
     isit_bigint(arg_1(arguments));

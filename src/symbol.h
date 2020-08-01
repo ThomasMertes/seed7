@@ -27,27 +27,27 @@
 
 typedef enum {STOPSYMBOL, NAMESYMBOL, SPECIALSYMBOL,
     PARENSYMBOL, INTLITERAL, BIGINTLITERAL, CHARLITERAL, STRILITERAL,
-    FLOATLITERAL} symbolcategory;
+    FLOATLITERAL} symbolCategory;
 
 typedef struct {
-    symbolcategory sycategory;
+    symbolCategory sycategory;
     unsigned int syNumberInLine;
-    ustritype name;
-    sysizetype name_length;
-    inttype intvalue;
-    biginttype bigintvalue;
-    chartype charvalue;
-    stritype strivalue;
-    memsizetype stri_max;
-    floattype floatvalue;
-  } symtype;
+    ustriType name;
+    sySizeType name_length;
+    intType intValue;
+    bigIntType bigIntValue;
+    charType charValue;
+    striType striValue;
+    memSizeType stri_max;
+    floatType floatValue;
+  } symbolType;
 
 #ifdef DO_INIT
-symtype symbol = {STOPSYMBOL, 0, NULL, 0,
-    (inttype) 0, (biginttype) NULL, (chartype) 0,
-    (stritype) NULL, 0, (floattype) 0.0};
+symbolType symbol = {STOPSYMBOL, 0, NULL, 0,
+    (intType) 0, (bigIntType) NULL, (charType) 0,
+    (striType) NULL, 0, (floatType) 0.0};
 #else
-EXTERN symtype symbol;
+EXTERN symbolType symbol;
 #endif
 
 
@@ -57,5 +57,5 @@ EXTERN symtype symbol;
 
 void extend_symb_length (void);
 void extend_stri_length (void);
-void init_symbol (errinfotype *err_info);
+void init_symbol (errInfoType *err_info);
 void close_symbol (void);

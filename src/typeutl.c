@@ -21,7 +21,7 @@
 /*  Module: General                                                 */
 /*  File: seed7/src/typeutl.c                                       */
 /*  Changes: 1999  Thomas Mertes                                    */
-/*  Content: Procedures to maintain objects of type typetype.       */
+/*  Content: Procedures to maintain objects of type typeType.       */
 /*                                                                  */
 /********************************************************************/
 
@@ -48,12 +48,12 @@
 
 
 
-typetype new_type (progtype owningProg, typetype meta_type, typetype result_type)
+typeType new_type (progType owningProg, typeType meta_type, typeType result_type)
 
   {
-    objecttype match_obj;
-    listtype list_elem;
-    typetype created_type;
+    objectType match_obj;
+    listType list_elem;
+    typeType created_type;
 
   /* new_type */
 #ifdef TRACE_TYPEUTIL
@@ -65,10 +65,10 @@ typetype new_type (progtype owningProg, typetype meta_type, typetype result_type
 #endif
     if (ALLOC_OBJECT(match_obj)) {
       if (ALLOC_L_ELEM(list_elem)) {
-        if (ALLOC_RECORD(created_type, typerecord, count.type)) {
+        if (ALLOC_RECORD(created_type, typeRecord, count.type)) {
           match_obj->type_of = NULL;
           match_obj->descriptor.property = NULL;
-          match_obj->value.typevalue = created_type;
+          match_obj->value.typeValue = created_type;
           INIT_CATEGORY_OF_OBJ(match_obj, TYPEOBJECT);
           created_type->match_obj = match_obj;
           created_type->meta = meta_type;
@@ -111,11 +111,11 @@ typetype new_type (progtype owningProg, typetype meta_type, typetype result_type
 
 
 
-static void free_type (typetype old_type)
+static void free_type (typeType old_type)
 
   {
-    typelisttype typelist_elem;
-    typelisttype next_elem;
+    typeListType typelist_elem;
+    typeListType next_elem;
 
   /* free_type */
 #ifdef TRACE_TYPEUTIL
@@ -127,10 +127,10 @@ static void free_type (typetype old_type)
     typelist_elem = old_type->interfaces;
     while (typelist_elem != NULL) {
       next_elem = typelist_elem->next;
-      FREE_RECORD(typelist_elem, typelistrecord, count.typelist_elems);
+      FREE_RECORD(typelist_elem, typeListRecord, count.typelist_elems);
       typelist_elem = next_elem;
     } /* while */
-    FREE_RECORD(old_type, typerecord, count.type);
+    FREE_RECORD(old_type, typeRecord, count.type);
 #ifdef TRACE_TYPEUTIL
     printf("END free_type\n");
 #endif
@@ -138,11 +138,11 @@ static void free_type (typetype old_type)
 
 
 
-void close_type (progtype currentProg)
+void close_type (progType currentProg)
 
   {
-    listtype type_elem;
-    listtype next_elem;
+    listType type_elem;
+    listType next_elem;
 
   /* close_type */
 #ifdef TRACE_TYPEUTIL
@@ -151,7 +151,7 @@ void close_type (progtype currentProg)
     type_elem = currentProg->types;
     while (type_elem != NULL) {
       next_elem = type_elem->next;
-      free_type(type_elem->obj->value.typevalue);
+      free_type(type_elem->obj->value.typeValue);
       type_elem = next_elem;
     } /* while */
     free_list(currentProg->types);
@@ -162,10 +162,10 @@ void close_type (progtype currentProg)
 
 
 
-typetype get_func_type (typetype meta_type, typetype basic_type)
+typeType get_func_type (typeType meta_type, typeType basic_type)
 
   {
-    typetype func_type;
+    typeType func_type;
 
   /* get_func_type */
 #ifdef TRACE_FUNC_TYPE
@@ -191,10 +191,10 @@ typetype get_func_type (typetype meta_type, typetype basic_type)
 
 
 
-typetype get_varfunc_type (typetype meta_type, typetype basic_type)
+typeType get_varfunc_type (typeType meta_type, typeType basic_type)
 
   {
-    typetype varfunc_type;
+    typeType varfunc_type;
 
   /* get_varfunc_type */
 #ifdef TRACE_FUNC_TYPE
@@ -221,11 +221,11 @@ typetype get_varfunc_type (typetype meta_type, typetype basic_type)
 
 
 
-void add_interface (typetype basic_type, typetype interface_type)
+void add_interface (typeType basic_type, typeType interface_type)
 
   {
-    typelisttype typelist_elem;
-    typelisttype current_elem;
+    typeListType typelist_elem;
+    typeListType current_elem;
 
   /* add_interface */
 #ifdef TRACE_TYPEUTIL
@@ -235,7 +235,7 @@ void add_interface (typetype basic_type, typetype interface_type)
     printtype(interface_type);
     printf(")\n");
 #endif
-    if (ALLOC_RECORD(typelist_elem, typelistrecord, count.typelist_elems)) {
+    if (ALLOC_RECORD(typelist_elem, typeListRecord, count.typelist_elems)) {
       typelist_elem->next = NULL;
       typelist_elem->type_elem = interface_type;
       if (basic_type->interfaces == NULL) {
@@ -256,13 +256,13 @@ void add_interface (typetype basic_type, typetype interface_type)
 
 
 #ifdef OUT_OF_ORDER
-void get_interfaces (typetype basic_type)
+void get_interfaces (typeType basic_type)
 
   {
-    typelisttype typelist_elem;
-    listtype *list_insert_place;
-    errinfotype err_info = OKAY_NO_ERROR;
-    listtype result;
+    typeListType typelist_elem;
+    listType *list_insert_place;
+    errInfoType err_info = OKAY_NO_ERROR;
+    listType result;
 
   /* get_interfaces */
     result = NULL;

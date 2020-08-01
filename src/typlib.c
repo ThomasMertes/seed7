@@ -56,11 +56,11 @@
 
 
 
-objecttype typ_addinterface (listtype arguments)
+objectType typ_addinterface (listType arguments)
 
   {
-    typetype typ1;
-    typetype typ2;
+    typeType typ1;
+    typeType typ2;
 
   /* typ_addinterface */
     isit_type(arg_1(arguments));
@@ -73,18 +73,18 @@ objecttype typ_addinterface (listtype arguments)
 
 
 
-objecttype typ_cmp (listtype arguments)
+objectType typ_cmp (listType arguments)
 
   {
-    memsizetype typ1;
-    memsizetype typ2;
-    inttype result;
+    memSizeType typ1;
+    memSizeType typ2;
+    intType result;
 
   /* typ_cmp */
     isit_type(arg_1(arguments));
     isit_type(arg_2(arguments));
-    typ1 = (memsizetype) take_type(arg_1(arguments));
-    typ2 = (memsizetype) take_type(arg_2(arguments));
+    typ1 = (memSizeType) take_type(arg_1(arguments));
+    typ2 = (memSizeType) take_type(arg_2(arguments));
     if (typ1 < typ2) {
       result = -1;
     } else if (typ1 > typ2) {
@@ -97,27 +97,27 @@ objecttype typ_cmp (listtype arguments)
 
 
 
-objecttype typ_cpy (listtype arguments)
+objectType typ_cpy (listType arguments)
 
   {
-    objecttype type_variable;
+    objectType type_variable;
 
   /* typ_cpy */
     type_variable = arg_1(arguments);
     isit_type(type_variable);
     is_variable(type_variable);
     isit_type(arg_3(arguments));
-    type_variable->value.typevalue = take_type(arg_3(arguments));
+    type_variable->value.typeValue = take_type(arg_3(arguments));
     return SYS_EMPTY_OBJECT;
   } /* typ_cpy */
 
 
 
-objecttype typ_create (listtype arguments)
+objectType typ_create (listType arguments)
 
   {
-    objecttype type_to;
-    typetype type_from;
+    objectType type_to;
+    typeType type_from;
 
   /* typ_create */
 #ifdef TRACE_TYPLIB
@@ -134,7 +134,7 @@ objecttype typ_create (listtype arguments)
     printf("\n");
 #endif
     SET_CATEGORY_OF_OBJ(type_to, TYPEOBJECT);
-    type_to->value.typevalue = type_from;
+    type_to->value.typeValue = type_from;
     if (!VAR_OBJECT(type_to)) {
       if (type_from->name == NULL &&
           HAS_ENTITY(type_to) &&
@@ -153,10 +153,10 @@ objecttype typ_create (listtype arguments)
 
 
 
-objecttype typ_destr (listtype arguments)
+objectType typ_destr (listType arguments)
 
   {
-    /* typetype old_type; */
+    /* typeType old_type; */
 
   /* typ_destr */
 #ifdef TRACE_TYPLIB
@@ -174,12 +174,12 @@ objecttype typ_destr (listtype arguments)
 
 
 
-objecttype typ_eq (listtype arguments)
+objectType typ_eq (listType arguments)
 
   {
-    typetype type1;
-    typetype type2;
-    objecttype result;
+    typeType type1;
+    typeType type2;
+    objectType result;
 
   /* typ_eq */
     isit_type(arg_1(arguments));
@@ -196,11 +196,11 @@ objecttype typ_eq (listtype arguments)
 
 
 
-objecttype typ_func (listtype arguments)
+objectType typ_func (listType arguments)
 
   {
-    typetype basic_type;
-    typetype result;
+    typeType basic_type;
+    typeType result;
 
   /* typ_func */
 #ifdef TRACE_TYPLIB
@@ -214,7 +214,7 @@ objecttype typ_func (listtype arguments)
     /* printf("typ_func ");
     printobject(result);
     prot_cstri("=");
-    prot_int((inttype) result);
+    prot_int((intType) result);
     printf("\n"); */
 #ifdef TRACE_TYPLIB
     printf("END typ_func\n");
@@ -224,11 +224,11 @@ objecttype typ_func (listtype arguments)
 
 
 
-objecttype typ_gensub (listtype arguments)
+objectType typ_gensub (listType arguments)
 
   {
-    typetype meta_type;
-    typetype result;
+    typeType meta_type;
+    typeType result;
 
   /* typ_gensub */
 #ifdef TRACE_TYPLIB
@@ -247,10 +247,10 @@ objecttype typ_gensub (listtype arguments)
 
 
 
-objecttype typ_gentype (listtype arguments)
+objectType typ_gentype (listType arguments)
 
   {
-    typetype result;
+    typeType result;
 
   /* typ_gentype */
 #ifdef TRACE_TYPLIB
@@ -268,10 +268,10 @@ objecttype typ_gentype (listtype arguments)
 
 
 #ifdef OUT_OF_ORDER
-objecttype typ_getinterfaces (listtype arguments)
+objectType typ_getinterfaces (listType arguments)
 
   {
-    typetype typ1;
+    typeType typ1;
 
   /* typ_getinterfaces */
     isit_type(arg_1(arguments));
@@ -284,15 +284,15 @@ objecttype typ_getinterfaces (listtype arguments)
 
 
 #ifdef OUT_OF_ORDER
-objecttype typ_getcreate (listtype arguments)
+objectType typ_getcreate (listType arguments)
 
   {
-    typetype result;
+    typeType result;
 
   /* typ_getcreate */
     isit_type(arg_1(arguments));
     ;
-    get_create_call_obj(take_type(arg_1(arguments)), errinfotype *err_info)
+    get_create_call_obj(take_type(arg_1(arguments)), errInfoType *err_info)
     if ((result = new_type(prog.owningProg, NULL, NULL)) == NULL) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
@@ -302,20 +302,20 @@ objecttype typ_getcreate (listtype arguments)
 
 
 
-objecttype typ_hashcode (listtype arguments)
+objectType typ_hashcode (listType arguments)
 
   { /* typ_hashcode */
     isit_type(arg_1(arguments));
-    return bld_int_temp((inttype)
-        (((memsizetype) take_type(arg_1(arguments))) >> 6));
+    return bld_int_temp((intType)
+        (((memSizeType) take_type(arg_1(arguments))) >> 6));
   } /* typ_hashcode */
 
 
 
-objecttype typ_isdeclared (listtype arguments)
+objectType typ_isdeclared (listType arguments)
 
   {
-    objecttype result;
+    objectType result;
 
   /* typ_isdeclared */
     if (CATEGORY_OF_OBJ(arg_1(arguments)) == DECLAREDOBJECT) {
@@ -328,11 +328,11 @@ objecttype typ_isdeclared (listtype arguments)
 
 
 
-objecttype typ_isderived (listtype arguments)
+objectType typ_isderived (listType arguments)
 
   {
-    typetype any_type;
-    objecttype result;
+    typeType any_type;
+    objectType result;
 
   /* typ_isderived */
     isit_type(arg_1(arguments));
@@ -347,10 +347,10 @@ objecttype typ_isderived (listtype arguments)
 
 
 
-objecttype typ_isforward (listtype arguments)
+objectType typ_isforward (listType arguments)
 
   {
-    objecttype result;
+    objectType result;
 
   /* typ_isforward */
     if (CATEGORY_OF_OBJ(arg_1(arguments)) == FORWARDOBJECT) {
@@ -363,11 +363,11 @@ objecttype typ_isforward (listtype arguments)
 
 
 
-objecttype typ_isfunc (listtype arguments)
+objectType typ_isfunc (listType arguments)
 
   {
-    typetype any_type;
-    objecttype result;
+    typeType any_type;
+    objectType result;
 
   /* typ_isfunc */
     isit_type(arg_1(arguments));
@@ -382,11 +382,11 @@ objecttype typ_isfunc (listtype arguments)
 
 
 
-objecttype typ_isvarfunc (listtype arguments)
+objectType typ_isvarfunc (listType arguments)
 
   {
-    typetype any_type;
-    objecttype result;
+    typeType any_type;
+    objectType result;
 
   /* typ_isvarfunc */
     isit_type(arg_1(arguments));
@@ -401,11 +401,11 @@ objecttype typ_isvarfunc (listtype arguments)
 
 
 
-objecttype typ_matchobj (listtype arguments)
+objectType typ_matchobj (listType arguments)
 
   {
-    typetype actual_type;
-    objecttype result;
+    typeType actual_type;
+    objectType result;
 
   /* typ_matchobj */
     isit_type(arg_1(arguments));
@@ -416,11 +416,11 @@ objecttype typ_matchobj (listtype arguments)
 
 
 
-objecttype typ_meta (listtype arguments)
+objectType typ_meta (listType arguments)
 
   {
-    typetype any_type;
-    typetype result;
+    typeType any_type;
+    typeType result;
 
   /* typ_meta */
 #ifdef TRACE_TYPLIB
@@ -440,12 +440,12 @@ objecttype typ_meta (listtype arguments)
 
 
 
-objecttype typ_ne (listtype arguments)
+objectType typ_ne (listType arguments)
 
   {
-    typetype type1;
-    typetype type2;
-    objecttype result;
+    typeType type1;
+    typeType type2;
+    objectType result;
 
   /* typ_ne */
     isit_type(arg_1(arguments));
@@ -462,7 +462,7 @@ objecttype typ_ne (listtype arguments)
 
 
 
-objecttype typ_num (listtype arguments)
+objectType typ_num (listType arguments)
 
   { /* typ_num */
     isit_type(arg_1(arguments));
@@ -472,11 +472,11 @@ objecttype typ_num (listtype arguments)
 
 
 
-objecttype typ_result (listtype arguments)
+objectType typ_result (listType arguments)
 
   {
-    typetype any_type;
-    typetype result;
+    typeType any_type;
+    typeType result;
 
   /* typ_result */
 #ifdef TRACE_TYPLIB
@@ -498,7 +498,7 @@ objecttype typ_result (listtype arguments)
 
 
 
-objecttype typ_str (listtype arguments)
+objectType typ_str (listType arguments)
 
   { /* typ_str */
     isit_type(arg_1(arguments));
@@ -508,10 +508,10 @@ objecttype typ_str (listtype arguments)
 
 
 
-objecttype typ_value (listtype arguments)
+objectType typ_value (listType arguments)
 
   {
-    objecttype obj_arg;
+    objectType obj_arg;
 
   /* typ_value */
     isit_reference(arg_1(arguments));
@@ -525,7 +525,7 @@ objecttype typ_value (listtype arguments)
 
 
 
-objecttype typ_varconv (listtype arguments)
+objectType typ_varconv (listType arguments)
 
   { /* typ_varconv */
     is_variable(arg_3(arguments));
@@ -539,11 +539,11 @@ objecttype typ_varconv (listtype arguments)
 
 
 
-objecttype typ_varfunc (listtype arguments)
+objectType typ_varfunc (listType arguments)
 
   {
-    typetype basic_type;
-    typetype result;
+    typeType basic_type;
+    typeType result;
 
   /* typ_varfunc */
 #ifdef TRACE_TYPLIB
@@ -557,7 +557,7 @@ objecttype typ_varfunc (listtype arguments)
     /* printf("typ_varfunc ");
     printobject(result);
     prot_cstri("=");
-    prot_int((inttype) result);
+    prot_int((intType) result);
     printf("\n"); */
 #ifdef TRACE_TYPLIB
     printf("END typ_varfunc\n");

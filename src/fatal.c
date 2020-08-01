@@ -48,7 +48,7 @@
 
 
 
-void no_memory (const_cstritype source_file, int source_line)
+void no_memory (const_cstriType source_file, int source_line)
 
   { /* no_memory */
 #ifdef TRACE_HEAPUTIL
@@ -76,7 +76,7 @@ void no_memory (const_cstritype source_file, int source_line)
 
 
 
-void fatal_memory_error (const_cstritype source_file, int source_line)
+void fatal_memory_error (const_cstriType source_file, int source_line)
 
   { /* fatal_memory_error */
     place_of_error(OUT_OF_HEAP_SPACE);

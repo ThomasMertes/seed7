@@ -25,13 +25,13 @@
 /*                                                                  */
 /********************************************************************/
 
-objecttype con_clear  (listtype arguments);
-objecttype con_cursor (listtype arguments);
-objecttype con_flush  (listtype arguments);
-objecttype con_height (listtype arguments);
-objecttype con_h_scl  (listtype arguments);
-objecttype con_open   (listtype arguments);
-objecttype con_setpos (listtype arguments);
-objecttype con_v_scl  (listtype arguments);
-objecttype con_width  (listtype arguments);
-objecttype con_write  (listtype arguments);
+objectType con_clear  (listType arguments);
+objectType con_cursor (listType arguments);
+objectType con_flush  (listType arguments);
+objectType con_height (listType arguments);
+objectType con_h_scl  (listType arguments);
+objectType con_open   (listType arguments);
+objectType con_setpos (listType arguments);
+objectType con_v_scl  (listType arguments);
+objectType con_width  (listType arguments);
+objectType con_write  (listType arguments);

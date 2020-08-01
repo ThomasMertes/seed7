@@ -30,32 +30,32 @@
 /********************************************************************/
 
 #ifdef USE_WMAIN
-rtlArraytype getArgv (const int argc, const wstritype *const argv, stritype *arg_0,
-    stritype *programName, stritype *exePath);
+rtlArrayType getArgv (const int argc, const wstriType *const argv,
+    striType *arg_0, striType *programName, striType *exePath);
 #else
-rtlArraytype getArgv (const int argc, const cstritype *const argv, stritype *arg_0,
-    stritype *programName, stritype *exePath);
+rtlArrayType getArgv (const int argc, const cstriType *const argv,
+    striType *arg_0, striType *programName, striType *exePath);
 #endif
-stritype examineSearchPath (const const_stritype fileName);
-void arrAppend (rtlArraytype *const arr_variable, const rtlArraytype arr_from);
-rtlArraytype arrArrlit2 (inttype start_position, rtlArraytype arr1);
-rtlArraytype arrBaselit (const generictype element);
-rtlArraytype arrBaselit2 (inttype start_position, const generictype element);
-rtlArraytype arrCat (rtlArraytype arr1, const rtlArraytype arr2);
-rtlArraytype arrExtend (rtlArraytype arr1, const generictype element);
-void arrFree (rtlArraytype oldArray);
-rtlArraytype arrGen (const generictype element1, const generictype element2);
-rtlArraytype arrHead (const const_rtlArraytype arr1, inttype stop);
-rtlArraytype arrHeadTemp (rtlArraytype *arr_temp, inttype stop);
-generictype arrIdxTemp (rtlArraytype *arr_temp, inttype pos);
-rtlArraytype arrMalloc (inttype min_position, inttype max_position);
-void arrPush (rtlArraytype *const arr_variable, const generictype element);
-rtlArraytype arrRange (const const_rtlArraytype arr1, inttype start, inttype stop);
-rtlArraytype arrRangeTemp (rtlArraytype *arr_temp, inttype start, inttype stop);
-rtlArraytype arrRealloc (rtlArraytype arr, memsizetype oldSize, memsizetype newSize);
-generictype arrRemove (rtlArraytype *arr_to, inttype position);
-rtlArraytype arrSort (rtlArraytype arr1, inttype cmp_func (generictype, generictype));
-rtlArraytype arrSubarr (const const_rtlArraytype arr1, inttype start, inttype len);
-rtlArraytype arrSubarrTemp (rtlArraytype *arr_temp, inttype start, inttype len);
-rtlArraytype arrTail (const const_rtlArraytype arr1, inttype start);
-rtlArraytype arrTailTemp (rtlArraytype *arr_temp, inttype start);
+striType examineSearchPath (const const_striType fileName);
+void arrAppend (rtlArrayType *const arr_variable, const rtlArrayType arr_from);
+rtlArrayType arrArrlit2 (intType start_position, rtlArrayType arr1);
+rtlArrayType arrBaselit (const genericType element);
+rtlArrayType arrBaselit2 (intType start_position, const genericType element);
+rtlArrayType arrCat (rtlArrayType arr1, const rtlArrayType arr2);
+rtlArrayType arrExtend (rtlArrayType arr1, const genericType element);
+void arrFree (rtlArrayType oldArray);
+rtlArrayType arrGen (const genericType element1, const genericType element2);
+rtlArrayType arrHead (const const_rtlArrayType arr1, intType stop);
+rtlArrayType arrHeadTemp (rtlArrayType *arr_temp, intType stop);
+genericType arrIdxTemp (rtlArrayType *arr_temp, intType pos);
+rtlArrayType arrMalloc (intType min_position, intType max_position);
+void arrPush (rtlArrayType *const arr_variable, const genericType element);
+rtlArrayType arrRange (const const_rtlArrayType arr1, intType start, intType stop);
+rtlArrayType arrRangeTemp (rtlArrayType *arr_temp, intType start, intType stop);
+rtlArrayType arrRealloc (rtlArrayType arr, memSizeType oldSize, memSizeType newSize);
+genericType arrRemove (rtlArrayType *arr_to, intType position);
+rtlArrayType arrSort (rtlArrayType arr1, intType cmp_func (genericType, genericType));
+rtlArrayType arrSubarr (const const_rtlArrayType arr1, intType start, intType len);
+rtlArrayType arrSubarrTemp (rtlArrayType *arr_temp, intType start, intType len);
+rtlArrayType arrTail (const const_rtlArrayType arr1, intType start);
+rtlArrayType arrTailTemp (rtlArrayType *arr_temp, intType start);

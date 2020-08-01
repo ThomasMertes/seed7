@@ -21,7 +21,7 @@
 /*  Module: General                                                 */
 /*  File: seed7/src/blockutl.c                                      */
 /*  Changes: 1992, 1993, 1994  Thomas Mertes                        */
-/*  Content: Procedures to maintain objects of type blocktype.      */
+/*  Content: Procedures to maintain objects of type blockType.      */
 /*                                                                  */
 /********************************************************************/
 
@@ -48,10 +48,10 @@
 
 
 
-static void free_locobj (const_locobjtype locobj)
+static void free_locobj (const_locObjType locobj)
 
   {
-    errinfotype err_info = OKAY_NO_ERROR;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* free_locobj */
     /* prot_heapsize();
@@ -71,7 +71,7 @@ static void free_locobj (const_locobjtype locobj)
           } else {
             /* prot_heapsize();
             prot_cstri(" free_locobj value ");
-            prot_int((inttype) locobj->init_value);
+            prot_int((intType) locobj->init_value);
             prot_cstri(" ");
             trace1(locobj->init_value);
             prot_nl(); */
@@ -80,8 +80,8 @@ static void free_locobj (const_locobjtype locobj)
             /* dump_any_temp(locobj->init_value); */
           } /* if */
         } /* if */
-        /* if (locobj->object->value.objvalue != NULL &&
-            CATEGORY_OF_OBJ(locobj->object->value.objvalue) != SYMBOLOBJECT) {
+        /* if (locobj->object->value.objValue != NULL &&
+            CATEGORY_OF_OBJ(locobj->object->value.objValue) != SYMBOLOBJECT) {
           trace1(locobj->object);
           prot_nl();
         } * if */
@@ -89,7 +89,7 @@ static void free_locobj (const_locobjtype locobj)
             CATEGORY_OF_OBJ(locobj->object) != REFPARAMOBJECT) {
           /* Parameters are freed by the function free_params (in name.c). */
           if (HAS_PROPERTY(locobj->object) && locobj->object->descriptor.property != prog.property.literal) {
-            FREE_RECORD(locobj->object->descriptor.property, propertyrecord, count.property);
+            FREE_RECORD(locobj->object->descriptor.property, propertyRecord, count.property);
           } /* if */
           FREE_OBJECT(locobj->object);
         } /* if */
@@ -103,10 +103,10 @@ static void free_locobj (const_locobjtype locobj)
 
 
 
-static void free_loclist (loclisttype loclist)
+static void free_loclist (locListType loclist)
 
   {
-    loclisttype old_loclist;
+    locListType old_loclist;
 
   /* free_loclist */
     /* prot_heapsize();
@@ -116,13 +116,13 @@ static void free_loclist (loclisttype loclist)
       free_locobj(&loclist->local);
       old_loclist = loclist;
       loclist = loclist->next;
-      FREE_RECORD(old_loclist, loclistrecord, count.loclist);
+      FREE_RECORD(old_loclist, locListRecord, count.loclist);
     } /* while */
   } /* free_loclist */
 
 
 
-void free_block (blocktype block)
+void free_block (blockType block)
 
   { /* free_block */
     /* prot_heapsize();
@@ -133,23 +133,23 @@ void free_block (blocktype block)
     free_locobj(&block->result);
     free_loclist(block->local_vars);
     dump_list(block->local_consts);
-    FREE_RECORD(block, blockrecord, count.block);
+    FREE_RECORD(block, blockRecord, count.block);
   } /* free_block */
 
 
 
-blocktype new_block (loclisttype block_params, const_locobjtype block_result,
-    loclisttype block_local_vars, listtype block_local_consts,
-    objecttype block_body)
+blockType new_block (locListType block_params, const_locObjType block_result,
+    locListType block_local_vars, listType block_local_consts,
+    objectType block_body)
 
   {
-    register blocktype created_block;
+    register blockType created_block;
 
   /* new_block */
 #ifdef TRACE_BLOCK
     printf("BEGIN new_block\n");
 #endif
-    if (ALLOC_RECORD(created_block, blockrecord, count.block)) {
+    if (ALLOC_RECORD(created_block, blockRecord, count.block)) {
       created_block->params = block_params;
       if (block_result == NULL) {
         created_block->result.object           = NULL;
@@ -174,15 +174,15 @@ blocktype new_block (loclisttype block_params, const_locobjtype block_result,
 
 
 
-static void append_to_loclist (loclisttype **list_insert_place, objecttype object,
-    objecttype init_value, objecttype create_call_obj,
-    objecttype destroy_call_obj, errinfotype *err_info)
+static void append_to_loclist (locListType **list_insert_place, objectType object,
+    objectType init_value, objectType create_call_obj,
+    objectType destroy_call_obj, errInfoType *err_info)
 
   {
-    register loclisttype help_element;
+    register locListType help_element;
 
   /* append_to_loclist */
-    if (ALLOC_RECORD(help_element, loclistrecord, count.loclist)) {
+    if (ALLOC_RECORD(help_element, locListRecord, count.loclist)) {
       help_element->next = NULL;
       help_element->local.object = object;
       help_element->local.init_value = init_value;
@@ -197,8 +197,8 @@ static void append_to_loclist (loclisttype **list_insert_place, objecttype objec
 
 
 
-void get_result_var (locobjtype result_var, typetype result_type,
-    objecttype result_init, errinfotype *err_info)
+void get_result_var (locObjType result_var, typeType result_type,
+    objectType result_init, errInfoType *err_info)
 
   { /* get_result_var */
 #ifdef TRACE_BLOCK
@@ -210,7 +210,7 @@ void get_result_var (locobjtype result_var, typetype result_type,
     } /* if */
     result_var->object->type_of = result_type;
     INIT_CATEGORY_OF_VAR(result_var->object, RESULTOBJECT);
-    result_var->object->value.objvalue = NULL;
+    result_var->object->value.objValue = NULL;
     result_var->init_value = result_init;
     result_var->create_call_obj = get_create_call_obj(result_var->object, err_info);
     result_var->destroy_call_obj = get_destroy_call_obj(result_var->object, err_info);
@@ -221,11 +221,11 @@ void get_result_var (locobjtype result_var, typetype result_type,
 
 
 
-void get_return_var (locobjtype return_var, typetype return_type,
-    errinfotype *err_info)
+void get_return_var (locObjType return_var, typeType return_type,
+    errInfoType *err_info)
 
   {
-      objectrecord return_object;
+      objectRecord return_object;
 
   /* get_return_var */
 #ifdef TRACE_BLOCK
@@ -234,7 +234,7 @@ void get_return_var (locobjtype return_var, typetype return_type,
     return_object.type_of = return_type;
     return_object.descriptor.property = NULL;
     INIT_CATEGORY_OF_VAR(&return_object, RESULTOBJECT);
-    return_object.value.objvalue = NULL;
+    return_object.value.objValue = NULL;
     return_var->object = NULL;
     return_var->init_value = NULL;
     return_var->create_call_obj = get_create_call_obj(&return_object, err_info);
@@ -246,15 +246,15 @@ void get_return_var (locobjtype return_var, typetype return_type,
 
 
 
-loclisttype get_param_list (const_listtype param_object_list,
-    errinfotype *err_info)
+locListType get_param_list (const_listType param_object_list,
+    errInfoType *err_info)
 
   {
-    loclisttype *params_insert_place;
-    const_listtype param_element;
-    objecttype create_call_obj;
-    objecttype destroy_call_obj;
-    loclisttype params;
+    locListType *params_insert_place;
+    const_listType param_element;
+    objectType create_call_obj;
+    objectType destroy_call_obj;
+    locListType params;
 
   /* get_param_list */
 #ifdef TRACE_BLOCK
@@ -294,17 +294,17 @@ loclisttype get_param_list (const_listtype param_object_list,
 
 
 
-loclisttype get_local_var_list (const_listtype local_object_list,
-    errinfotype *err_info)
+locListType get_local_var_list (const_listType local_object_list,
+    errInfoType *err_info)
 
   {
-    loclisttype *local_vars_insert_place;
-    const_listtype local_element;
-    objecttype local_var;
-    objecttype init_value;
-    objecttype create_call_obj;
-    objecttype destroy_call_obj;
-    loclisttype local_vars;
+    locListType *local_vars_insert_place;
+    const_listType local_element;
+    objectType local_var;
+    objectType init_value;
+    objectType create_call_obj;
+    objectType destroy_call_obj;
+    locListType local_vars;
 
   /* get_local_var_list */
 #ifdef TRACE_BLOCK
@@ -324,7 +324,7 @@ loclisttype get_local_var_list (const_listtype local_object_list,
           create_call_obj = get_create_call_obj(local_var, err_info);
           destroy_call_obj = get_destroy_call_obj(local_var, err_info);
           SET_CATEGORY_OF_OBJ(local_var, LOCALVOBJECT);
-          local_var->value.objvalue = init_value; /* was NULL; changed for s7c.sd7 */
+          local_var->value.objValue = init_value; /* was NULL; changed for s7c.sd7 */
           append_to_loclist(&local_vars_insert_place,
               local_var, init_value, create_call_obj, destroy_call_obj, err_info);
         } else {
@@ -341,13 +341,13 @@ loclisttype get_local_var_list (const_listtype local_object_list,
 
 
 
-listtype get_local_const_list (const_listtype local_object_list,
-    errinfotype *err_info)
+listType get_local_const_list (const_listType local_object_list,
+    errInfoType *err_info)
 
   {
-    listtype *list_insert_place;
-    const_listtype local_element;
-    listtype local_consts;
+    listType *list_insert_place;
+    const_listType local_element;
+    listType local_consts;
 
   /* get_local_const_list */
 #ifdef TRACE_BLOCK

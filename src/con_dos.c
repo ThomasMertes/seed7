@@ -58,26 +58,26 @@
 
 typedef struct {
   char character, attribute;
-} cell;
+} cellType;
 
-typedef cell lineofscreen[SCRWIDTH];
+typedef cellType lineOfScreenType[SCRWIDTH];
 
 typedef struct {
-    cell screen[SCRHEIGHT][SCRWIDTH];
-  } screentype;
+    cellType screen[SCRHEIGHT][SCRWIDTH];
+  } screenType;
 
-static booltype monochrom;
-static screentype *current_screen;
+static boolType monochrom;
+static screenType *current_screen;
 static char currentattribute;
-static lineofscreen outbuffer;
-static booltype console_initialized = FALSE;
-static booltype cursor_on = FALSE;
+static lineOfScreenType outbuffer;
+static boolType console_initialized = FALSE;
+static boolType cursor_on = FALSE;
 
 static unsigned char cursor_startline;
 static unsigned char cursor_endline;
 
 
-static chartype map_from_437[] = {
+static charType map_from_437[] = {
 /*   0 */    0,    1,    2,    3,    4,    5,    6,    7,    8,    9,
 /*  10 */   10,   11,   12,   13,   14,   15,   16,   17,   18,   19,
 /*  20 */   20,   21,   22,   23,   24,   25,   26,   27,   28,   29,
@@ -149,7 +149,7 @@ void kbdShut (void)
 
 
 
-booltype kbdKeyPressed (void)
+boolType kbdKeyPressed (void)
 
   { /* kbdKeyPressed */
     return (char) bdos(0xB, 0, 0) & 1;
@@ -157,16 +157,16 @@ booltype kbdKeyPressed (void)
 
 
 
-chartype kbdGetc (void)
+charType kbdGetc (void)
 
   {
     union REGS r;
-    chartype key;
+    charType key;
 
   /* kbdGetc */
     r.h.ah = (unsigned char) 0;
     int86(0x16, &r, &r);
-    key = (chartype) r.h.al;
+    key = (charType) r.h.al;
     if (key == 0) {
       key = map_key[r.h.ah];
     } else {
@@ -180,7 +180,7 @@ chartype kbdGetc (void)
 
 
 
-chartype kbdRawGetc (void)
+charType kbdRawGetc (void)
 
   { /* kbdRawGetc */
     return kbdGetc();
@@ -196,7 +196,7 @@ void snd_beep (void)
 
 
 
-void setcolour (inttype foreground, inttype background)
+void setcolour (intType foreground, intType background)
 
   { /* setcolour */
     currentattribute = (char) (foreground + 16 * (background % 8));
@@ -227,7 +227,7 @@ void setfont (char *fontname)
 
 
 
-inttype textheight (void)
+intType textheight (void)
 
   { /* textheight */
     return 1;
@@ -235,8 +235,8 @@ inttype textheight (void)
 
 
 
-inttype textwidth (stritype stri,
-    inttype startcol, inttype stopcol)
+intType textwidth (striType stri,
+    intType startcol, intType stopcol)
 
   { /* textwidth */
     return stopcol + 1 - startcol;
@@ -244,8 +244,8 @@ inttype textwidth (stritype stri,
 
 
 
-void textcolumns (stritype stri, inttype striwidth,
-    inttype * cols, inttype *rest)
+void textcolumns (striType stri, intType striwidth,
+    intType * cols, intType *rest)
 
   { /* textcolumns */
     *cols = striwidth;
@@ -277,7 +277,7 @@ void conFlush (void)
 
 
 
-void conCursor (booltype on)
+void conCursor (boolType on)
 
   {
     union REGS r;
@@ -299,7 +299,7 @@ void conCursor (booltype on)
 
 
 
-void conSetCursor (inttype lin, inttype col)
+void conSetCursor (intType lin, intType col)
 
   /* Moves the system curser to the given place of the console.     */
   /* When no system cursor exists this procedure can be replaced by */
@@ -318,8 +318,8 @@ void conSetCursor (inttype lin, inttype col)
 
 
 
-void conText (inttype lin, inttype col, ustritype stri,
-memsizetype length)
+void conText (intType lin, intType col, ustriType stri,
+memSizeType length)
 
   /* This function writes the string stri to the console at the     */
   /* position (lin, col). The position (lin, col) must be a legal   */
@@ -328,7 +328,7 @@ memsizetype length)
   /* must be done with this function.                               */
 
   {
-    inttype pos;
+    intType pos;
 
   /* conText */
     for (pos = 0; pos < length; pos++) {
@@ -345,8 +345,8 @@ memsizetype length)
 
 
 
-void conClear (inttype startlin, inttype startcol,
-    inttype stoplin, inttype stopcol)
+void conClear (intType startlin, intType startcol,
+    intType stoplin, intType stopcol)
 
   /* Clears the area described by startlin, stoplin, startcol and   */
   /* stopcol.                                                       */
@@ -367,8 +367,8 @@ void conClear (inttype startlin, inttype startcol,
 
 
 
-void conUpScroll (inttype startlin, inttype startcol,
-    inttype stoplin, inttype stopcol, inttype count)
+void conUpScroll (intType startlin, intType startcol,
+    intType stoplin, intType stopcol, intType count)
 
   /* Scrolls the area inside startlin, startcol, stoplin and        */
   /* stopcol upward by count lines. The upper count lines of the    */
@@ -391,8 +391,8 @@ void conUpScroll (inttype startlin, inttype startcol,
 
 
 
-void conDownScroll (inttype startlin, inttype startcol,
-    inttype stoplin, inttype stopcol, inttype count)
+void conDownScroll (intType startlin, intType startcol,
+    intType stoplin, intType stopcol, intType count)
 
   /* Scrolls the area inside startlin, startcol, stoplin and        */
   /* stopcol downward by count lines. The lower count lines of the  */
@@ -415,8 +415,8 @@ void conDownScroll (inttype startlin, inttype startcol,
 
 
 
-void conLeftScroll (inttype startlin, inttype startcol,
-    inttype stoplin, inttype stopcol, inttype count)
+void conLeftScroll (intType startlin, intType startcol,
+    intType stoplin, intType stopcol, intType count)
 
   /* Scrolls the area inside startlin, startcol, stoplin and        */
   /* stopcol leftward by count lines. The left count lines of the   */
@@ -446,8 +446,8 @@ void conLeftScroll (inttype startlin, inttype startcol,
 
 
 
-void conRightScroll (inttype startlin, inttype startcol,
-    inttype stoplin, inttype stopcol, inttype count)
+void conRightScroll (intType startlin, intType startcol,
+    intType stoplin, intType stopcol, intType count)
 
   /* Scrolls the area inside startlin, startcol, stoplin and        */
   /* stopcol rightward by count lines. The right count lines of the */
@@ -507,10 +507,10 @@ int conOpen (void)
     int86(0x10, &r, &r);
     if (r.h.al == 7) {
       monochrom = TRUE;
-      current_screen = (screentype *) 0xB0000000;
+      current_screen = (screenType *) 0xB0000000;
     } else {
       monochrom = FALSE;
-      current_screen = (screentype *) 0xB8000000;
+      current_screen = (screenType *) 0xB8000000;
     } /* if */
     r.h.ah = (unsigned char) 3; /* read cursor position */
     r.h.bh = (unsigned char) 0;

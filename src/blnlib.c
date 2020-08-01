@@ -51,10 +51,10 @@
  *  @return TRUE if boolValue1 is TRUE and boolValue2 is TRUE,
  *          FALSE otherwise.
  */
-objecttype bln_and (listtype arguments)
+objectType bln_and (listType arguments)
 
   {
-    objecttype result;
+    objectType result;
 
   /* bln_and */
     isit_bool(arg_1(arguments));
@@ -72,27 +72,27 @@ objecttype bln_and (listtype arguments)
 
 
 
-objecttype bln_cpy (listtype arguments)
+objectType bln_cpy (listType arguments)
 
   {
-    objecttype bool_variable;
+    objectType bool_variable;
 
   /* bln_cpy */
     bool_variable = arg_1(arguments);
     isit_bool(bool_variable);
     is_variable(bool_variable);
     isit_bool(arg_3(arguments));
-    bool_variable->value.objvalue = take_bool(arg_3(arguments));
+    bool_variable->value.objValue = take_bool(arg_3(arguments));
     return SYS_EMPTY_OBJECT;
   } /* bln_cpy */
 
 
 
-objecttype bln_create (listtype arguments)
+objectType bln_create (listType arguments)
 
   {
-    objecttype bool_to;
-    objecttype bool_from;
+    objectType bool_to;
+    objectType bool_from;
 
   /* bln_create */
     bool_to = arg_1(arguments);
@@ -103,7 +103,7 @@ objecttype bln_create (listtype arguments)
     } else {
       SET_CATEGORY_OF_OBJ(bool_to, CONSTENUMOBJECT);
     } /* if */
-    bool_to->value.objvalue = bool_from;
+    bool_to->value.objValue = bool_from;
     return SYS_EMPTY_OBJECT;
   } /* bln_create */
 
@@ -114,7 +114,7 @@ objecttype bln_create (listtype arguments)
  *  @return TRUE if boolValue1 is TRUE or boolValue2 is FALSE,
  *          FALSE otherwise.
  */
-objecttype bln_ge (listtype arguments)
+objectType bln_ge (listType arguments)
 
   { /* bln_ge */
     isit_bool(arg_1(arguments));
@@ -137,7 +137,7 @@ objecttype bln_ge (listtype arguments)
  *  @return TRUE if boolValue1 is TRUE and boolValue2 is FALSE,
  *          FALSE otherwise.
  */
-objecttype bln_gt (listtype arguments)
+objectType bln_gt (listType arguments)
 
   { /* bln_gt */
     isit_bool(arg_1(arguments));
@@ -160,7 +160,7 @@ objecttype bln_gt (listtype arguments)
  *  @return TRUE when number is odd,
  *          FALSE otherwise.
  */
-objecttype bln_iconv (listtype arguments)
+objectType bln_iconv (listType arguments)
 
   { /* bln_iconv */
     isit_int(arg_3(arguments));
@@ -178,7 +178,7 @@ objecttype bln_iconv (listtype arguments)
  *  @return TRUE if boolValue1 is FALSE or boolValue2 is TRUE,
  *          FALSE otherwise.
  */
-objecttype bln_le (listtype arguments)
+objectType bln_le (listType arguments)
 
   { /* bln_le */
     isit_bool(arg_1(arguments));
@@ -197,7 +197,7 @@ objecttype bln_le (listtype arguments)
  *  @return TRUE if boolValue1 is FALSE and boolValue2 is TRUE,
  *          FALSE otherwise.
  */
-objecttype bln_lt (listtype arguments)
+objectType bln_lt (listType arguments)
 
   { /* bln_lt */
     isit_bool(arg_1(arguments));
@@ -216,7 +216,7 @@ objecttype bln_lt (listtype arguments)
  *  @return TRUE if boolValue is FALSE,
  *          FALSE otherwise.
  */
-objecttype bln_not (listtype arguments)
+objectType bln_not (listType arguments)
 
   { /* bln_not */
     isit_bool(arg_2(arguments));
@@ -237,10 +237,10 @@ objecttype bln_not (listtype arguments)
  *  @return TRUE if boolValue1 is TRUE or boolValue2 is TRUE (or both are true),
  *          FALSE otherwise.
  */
-objecttype bln_or (listtype arguments)
+objectType bln_or (listType arguments)
 
   {
-    objecttype result;
+    objectType result;
 
   /* bln_or */
     isit_bool(arg_1(arguments));
@@ -263,7 +263,7 @@ objecttype bln_or (listtype arguments)
  *  @return 0 when boolValue is FALSE and
  *          1 when boolValue is TRUE.
  */
-objecttype bln_ord (listtype arguments)
+objectType bln_ord (listType arguments)
 
   { /* bln_ord */
     isit_bool(arg_1(arguments));
@@ -276,10 +276,10 @@ objecttype bln_ord (listtype arguments)
 
 
 
-objecttype bln_value (listtype arguments)
+objectType bln_value (listType arguments)
 
   {
-    objecttype obj_arg;
+    objectType obj_arg;
 
   /* bln_value */
     isit_reference(arg_1(arguments));
@@ -287,7 +287,7 @@ objecttype bln_value (listtype arguments)
     if (obj_arg != NULL) {
       if (CATEGORY_OF_OBJ(obj_arg) == CONSTENUMOBJECT ||
           CATEGORY_OF_OBJ(obj_arg) == VARENUMOBJECT) {
-        obj_arg = obj_arg->value.objvalue;
+        obj_arg = obj_arg->value.objValue;
       } /* if */
       if (obj_arg->type_of != NULL &&
           obj_arg->type_of->owningProg != NULL) {

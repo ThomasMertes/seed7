@@ -59,21 +59,21 @@
 typedef struct {
     int dummy;
   } HINSTANCE__;
-typedef HINSTANCE__* HINSTANCE;
+typedef HINSTANCE__ *HINSTANCE;
 #endif
 
-stritype programPath;
+striType programPath;
 
 #ifdef CHECK_STACK
 char *stack_base;
-memsizetype max_stack_size = 0;
+memSizeType max_stack_size = 0;
 #endif
 
 #define VERSION_INFO "SEED7 INTERPRETER Version 5.0.%d  Copyright (c) 1990-2014 Thomas Mertes\n"
 
 
 
-void raise_error2 (int exception_num, const_cstritype filename, int line)
+void raise_error2 (int exception_num, const_cstriType filename, int line)
 
   { /* raise_error2 */
     (void) raise_exception(prog.sys_var[exception_num]);
@@ -117,16 +117,16 @@ static void writeHelp (void)
 
 
 
-static void processOptions (rtlArraytype arg_v)
+static void processOptions (rtlArrayType arg_v)
 
   {
     int position;
-    stritype opt;
-    stritype trace_level;
+    striType opt;
+    striType trace_level;
     int verbosity_level = 1;
-    rtlArraytype seed7_libraries;
-    rtlObjecttype path_obj;
-    booltype error = FALSE;
+    rtlArrayType seed7_libraries;
+    rtlObjectType path_obj;
+    boolType error = FALSE;
 
   /* processOptions */
 #ifdef TRACE_OPTION
@@ -140,7 +140,7 @@ static void processOptions (rtlArraytype arg_v)
     } /* if */
     for (position = 0; position < arg_v->max_position; position++) {
       if (option.source_file_argument == NULL) {
-        opt = arg_v->arr[position].value.strivalue;
+        opt = arg_v->arr[position].value.striValue;
         /* prot_stri(opt);
            printf("\n"); */
         if (opt->size == 2 && opt->mem[0] == '-') {
@@ -165,11 +165,11 @@ static void processOptions (rtlArraytype arg_v)
               break;
             case 'p':
               if (position < arg_v->max_position - 1) {
-                arg_v->arr[position].value.strivalue = NULL;
+                arg_v->arr[position].value.striValue = NULL;
                 FREE_STRI(opt, opt->size);
                 position++;
-                option.prot_file_name = stri_to_standard_path(arg_v->arr[position].value.strivalue);
-                arg_v->arr[position].value.strivalue = NULL;
+                option.prot_file_name = stri_to_standard_path(arg_v->arr[position].value.striValue);
+                arg_v->arr[position].value.striValue = NULL;
                 opt = NULL;
               } /* if */
               break;
@@ -195,14 +195,14 @@ static void processOptions (rtlArraytype arg_v)
               break;
             case 'l':
               if (position < arg_v->max_position - 1) {
-                arg_v->arr[position].value.strivalue = NULL;
+                arg_v->arr[position].value.striValue = NULL;
                 FREE_STRI(opt, opt->size);
                 position++;
-                path_obj.value.strivalue = stri_to_standard_path(arg_v->arr[position].value.strivalue);
+                path_obj.value.striValue = stri_to_standard_path(arg_v->arr[position].value.striValue);
                 if (seed7_libraries != NULL) {
-                  arrPush(&seed7_libraries, path_obj.value.genericvalue);
+                  arrPush(&seed7_libraries, path_obj.value.genericValue);
                 } /* if */
-                arg_v->arr[position].value.strivalue = NULL;
+                arg_v->arr[position].value.striValue = NULL;
                 opt = NULL;
               } /* if */
               break;
@@ -221,7 +221,7 @@ static void processOptions (rtlArraytype arg_v)
             case 'd':
               if (ALLOC_STRI_SIZE_OK(trace_level, opt->size - 2)) {
                 memcpy(trace_level->mem, &opt->mem[2],
-                       (opt->size - 2) * sizeof(strelemtype));
+                       (opt->size - 2) * sizeof(strElemType));
                 trace_level->size = opt->size - 2;
                 mapTraceFlags(trace_level, &option.parser_options);
                 FREE_STRI(trace_level, 1);
@@ -230,7 +230,7 @@ static void processOptions (rtlArraytype arg_v)
             case 't':
               if (ALLOC_STRI_SIZE_OK(trace_level, opt->size - 2)) {
                 memcpy(trace_level->mem, &opt->mem[2],
-                       (opt->size - 2) * sizeof(strelemtype));
+                       (opt->size - 2) * sizeof(strElemType));
                 trace_level->size = opt->size - 2;
                 mapTraceFlags(trace_level, &option.exec_options);
                 FREE_STRI(trace_level, 1);
@@ -255,17 +255,17 @@ static void processOptions (rtlArraytype arg_v)
           } /* switch */
         } else {
           option.source_file_argument = stri_to_standard_path(opt);
-          arg_v->arr[position].value.strivalue = NULL;
+          arg_v->arr[position].value.striValue = NULL;
           opt = NULL;
         } /* if */
         if (opt != NULL) {
-          arg_v->arr[position].value.strivalue = NULL;
+          arg_v->arr[position].value.striValue = NULL;
           FREE_STRI(opt, opt->size);
         } /* if */
       } else {
         if (option.argv == NULL) {
           option.argv = arg_v;
-          option.argv_start = (memsizetype) position;
+          option.argv_start = (memSizeType) position;
           /* printf("argv_start = %d\n", position); */
         } /* if */
       } /* if */
@@ -301,8 +301,8 @@ static void printOptions (void)
     printf("execute_always:       "); prot_int(  option.execute_always);          printf("\n");
     printf("parser_options:       "); prot_int(  option.parser_options);          printf("\n");
     printf("catch_signals:        "); prot_int(  option.catch_signals);           printf("\n");
-    printf("seed7_libraries:      "); prot_int((inttype) option.seed7_libraries); printf("\n");
-    printf("argv:                 "); prot_int((inttype) option.argv);            printf("\n");
+    printf("seed7_libraries:      "); prot_int((intType) option.seed7_libraries); printf("\n");
+    printf("argv:                 "); prot_int((intType) option.argv);            printf("\n");
     printf("argv_start:           "); prot_int( option.argv_start);               printf("\n");
   } /* printOptions */
 #endif
@@ -318,8 +318,8 @@ int main (int argc, char **argv)
 #endif
 
   {
-    rtlArraytype arg_v;
-    progtype currentProg;
+    rtlArrayType arg_v;
+    progType currentProg;
 
   /* main */
 #ifdef TRACE_S7

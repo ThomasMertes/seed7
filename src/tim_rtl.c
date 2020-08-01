@@ -148,9 +148,9 @@ time_t unchecked_mkutc (struct tm *timeptr)
 
 
 void timFromTimestamp (time_t timestamp,
-    inttype *year, inttype *month, inttype *day, inttype *hour,
-    inttype *min, inttype *sec, inttype *micro_sec, inttype *time_zone,
-    booltype *is_dst)
+    intType *year, intType *month, intType *day, intType *hour,
+    intType *min, intType *sec, intType *micro_sec, intType *time_zone,
+    boolType *is_dst)
 
   {
 #if defined USE_LOCALTIME_R || defined USE_LOCALTIME_S
@@ -183,7 +183,7 @@ void timFromTimestamp (time_t timestamp,
       *min       = local_time->tm_min;
       *sec       = local_time->tm_sec;
       *micro_sec = 0;
-      *time_zone = (inttype) (unchecked_mkutc(local_time) - timestamp) / 60;
+      *time_zone = (intType) (unchecked_mkutc(local_time) - timestamp) / 60;
       *is_dst    = local_time->tm_isdst > 0;
     } /* if */
 #ifdef TRACE_TIM_RTL
@@ -195,10 +195,10 @@ void timFromTimestamp (time_t timestamp,
 
 
 
-void timFromIntTimestamp (inttype timestamp,
-    inttype *year, inttype *month, inttype *day, inttype *hour,
-    inttype *min, inttype *sec, inttype *micro_sec, inttype *time_zone,
-    booltype *is_dst)
+void timFromIntTimestamp (intType timestamp,
+    intType *year, intType *month, intType *day, intType *hour,
+    intType *min, intType *sec, intType *micro_sec, intType *time_zone,
+    boolType *is_dst)
 
   { /* timFromIntTimestamp */
     if (!inTimeTRange(timestamp)) {
@@ -211,8 +211,8 @@ void timFromIntTimestamp (inttype timestamp,
 
 
 
-time_t timToTimestamp (inttype year, inttype month, inttype day, inttype hour,
-    inttype min, inttype sec, inttype micro_sec, inttype time_zone)
+time_t timToTimestamp (intType year, intType month, intType day, intType hour,
+    intType min, intType sec, intType micro_sec, intType time_zone)
 
   {
     struct tm tm_time;
@@ -246,8 +246,8 @@ time_t timToTimestamp (inttype year, inttype month, inttype day, inttype hour,
 
 
 
-void timSetLocalTZ (inttype year, inttype month, inttype day, inttype hour,
-    inttype min, inttype sec, inttype *time_zone, booltype *is_dst)
+void timSetLocalTZ (intType year, intType month, intType day, intType hour,
+    intType min, intType sec, intType *time_zone, boolType *is_dst)
 
   {
     struct tm tm_time;
@@ -279,6 +279,7 @@ void timSetLocalTZ (inttype year, inttype month, inttype day, inttype hour,
       raise_error(RANGE_ERROR);
     } else {
       time_zone_reference = unchecked_mkutc(local_time) / 60;
+      /* printf("time_zone_reference: %ld\n", time_zone_reference); */
       tm_time.tm_year  = (int) year - 1900;
       tm_time.tm_mon   = (int) month - 1;
       tm_time.tm_mday  = (int) day;
@@ -290,6 +291,7 @@ void timSetLocalTZ (inttype year, inttype month, inttype day, inttype hour,
       if (unlikely(timestamp == (time_t) -1)) {
         raise_error(RANGE_ERROR);
       } else {
+        /* printf("timestamp: %ld\n", timestamp); */
         timestamp -= time_zone_reference * 60;
 #if defined USE_LOCALTIME_R
         local_time = localtime_r(&timestamp, &tm_result);
@@ -305,7 +307,7 @@ void timSetLocalTZ (inttype year, inttype month, inttype day, inttype hour,
         if (unlikely(local_time == NULL)) {
           raise_error(RANGE_ERROR);
         } else {
-          *time_zone = (inttype) (unchecked_mkutc(local_time) - timestamp) / 60;
+          *time_zone = (intType) (unchecked_mkutc(local_time) - timestamp) / 60;
           *is_dst    = local_time->tm_isdst > 0;
         } /* if */
       } /* if */
@@ -318,10 +320,10 @@ void timSetLocalTZ (inttype year, inttype month, inttype day, inttype hour,
 
 
 
-void timFromBigTimestamp (const const_biginttype timestamp,
-    inttype *year, inttype *month, inttype *day, inttype *hour,
-    inttype *min, inttype *sec, inttype *micro_sec, inttype *time_zone,
-    booltype *is_dst)
+void timFromBigTimestamp (const const_bigIntType timestamp,
+    intType *year, intType *month, intType *day, intType *hour,
+    intType *min, intType *sec, intType *micro_sec, intType *time_zone,
+    boolType *is_dst)
 
   {
     time_t os_timestamp;
@@ -338,28 +340,28 @@ void timFromBigTimestamp (const const_biginttype timestamp,
 
 
 
-biginttype timToBigTimestamp (inttype year, inttype month, inttype day, inttype hour,
-    inttype min, inttype sec, inttype micro_sec, inttype time_zone)
+bigIntType timToBigTimestamp (intType year, intType month, intType day, intType hour,
+    intType min, intType sec, intType micro_sec, intType time_zone)
 
   {
     time_t os_timestamp;
-    biginttype result;
+    bigIntType result;
 
   /* timToBigTimestamp */
     os_timestamp = timToTimestamp(year, month, day, hour, min, sec, micro_sec, time_zone);
     if (sizeof(time_t) == 8) {
 #ifdef INT64TYPE
-      result = bigFromInt64((int64type) os_timestamp);
+      result = bigFromInt64((int64Type) os_timestamp);
 #else
       if (os_timestamp > INT32TYPE_MAX || os_timestamp < INT32TYPE_MIN) {
         raise_error(RANGE_ERROR);
         result = NULL;
       } else {
-        result = bigFromInt32((int32type) os_timestamp);
+        result = bigFromInt32((int32Type) os_timestamp);
       } /* if */
 #endif
     } else {
-      result = bigFromInt32((int32type) os_timestamp);
+      result = bigFromInt32((int32Type) os_timestamp);
     } /* if */
     return result;
   } /* timToBigTimestamp */

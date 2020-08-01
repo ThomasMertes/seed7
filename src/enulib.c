@@ -43,7 +43,7 @@
 
 
 
-objecttype enu_conv (listtype arguments)
+objectType enu_conv (listType arguments)
 
   { /* enu_conv */
     isit_enum(arg_3(arguments));
@@ -52,27 +52,27 @@ objecttype enu_conv (listtype arguments)
 
 
 
-objecttype enu_cpy (listtype arguments)
+objectType enu_cpy (listType arguments)
 
   {
-    objecttype enum_variable;
+    objectType enum_variable;
 
   /* enu_cpy */
     enum_variable = arg_1(arguments);
     isit_enum(enum_variable);
     is_variable(enum_variable);
     isit_enum(arg_3(arguments));
-    enum_variable->value.objvalue = take_enum(arg_3(arguments));
+    enum_variable->value.objValue = take_enum(arg_3(arguments));
     return SYS_EMPTY_OBJECT;
   } /* enu_cpy */
 
 
 
-objecttype enu_create (listtype arguments)
+objectType enu_create (listType arguments)
 
   {
-    objecttype enum_to;
-    objecttype enum_from;
+    objectType enum_to;
+    objectType enum_from;
 
   /* enu_create */
     enum_to = arg_1(arguments);
@@ -82,18 +82,18 @@ objecttype enu_create (listtype arguments)
     } else {
       SET_CATEGORY_OF_OBJ(enum_to, CONSTENUMOBJECT);
     } /* if */
-    enum_to->value.objvalue = enum_from;
+    enum_to->value.objValue = enum_from;
     return SYS_EMPTY_OBJECT;
   } /* enu_create */
 
 
 
-objecttype enu_eq (listtype arguments)
+objectType enu_eq (listType arguments)
 
   {
-    objecttype obj_arg1;
-    objecttype obj_arg2;
-    objecttype result;
+    objectType obj_arg1;
+    objectType obj_arg2;
+    objectType result;
 
   /* enu_eq */
     obj_arg1 = take_enum(arg_1(arguments));
@@ -108,27 +108,27 @@ objecttype enu_eq (listtype arguments)
 
 
 
-objecttype enu_genlit (listtype arguments)
+objectType enu_genlit (listType arguments)
 
   {
-    objecttype enum_to;
+    objectType enum_to;
 
   /* enu_genlit */
     enum_to = arg_1(arguments);
     SET_CATEGORY_OF_OBJ(enum_to, ENUMLITERALOBJECT);
-    enum_to->value.nodevalue = (nodetype) NULL;
+    enum_to->value.nodeValue = (nodeType) NULL;
     return SYS_EMPTY_OBJECT;
   } /* enu_genlit */
 
 
 
-objecttype enu_iconv2 (listtype arguments)
+objectType enu_iconv2 (listType arguments)
 
   {
-    inttype ordinal;
-    inttype number;
-    listtype list_element;
-    objecttype result;
+    intType ordinal;
+    intType number;
+    listType list_element;
+    objectType result;
 
   /* enu_iconv2 */
     isit_int(arg_1(arguments));
@@ -155,12 +155,12 @@ objecttype enu_iconv2 (listtype arguments)
 
 
 
-objecttype enu_ne (listtype arguments)
+objectType enu_ne (listType arguments)
 
   {
-    objecttype obj_arg1;
-    objecttype obj_arg2;
-    objecttype result;
+    objectType obj_arg1;
+    objectType obj_arg2;
+    objectType result;
 
   /* enu_ne */
     obj_arg1 = take_enum(arg_1(arguments));
@@ -175,13 +175,13 @@ objecttype enu_ne (listtype arguments)
 
 
 
-objecttype enu_ord2 (listtype arguments)
+objectType enu_ord2 (listType arguments)
 
   {
-    objecttype enum_value;
-    inttype number;
-    listtype list_element;
-    objecttype result;
+    objectType enum_value;
+    intType number;
+    listType list_element;
+    objectType result;
 
   /* enu_ord2 */
     isit_enum(arg_1(arguments));
@@ -203,10 +203,10 @@ objecttype enu_ord2 (listtype arguments)
 
 
 
-objecttype enu_value (listtype arguments)
+objectType enu_value (listType arguments)
 
   {
-    objecttype obj_arg;
+    objectType obj_arg;
 
   /* enu_value */
     isit_reference(arg_1(arguments));

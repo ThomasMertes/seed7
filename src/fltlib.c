@@ -58,7 +58,7 @@
  *  @return the arc tangent of y/x in radians. The returned angle is in
  *          the range [-PI, PI].
  */
-objecttype flt_a2tan (listtype arguments)
+objectType flt_a2tan (listType arguments)
 
   { /* flt_a2tan */
     isit_float(arg_1(arguments));
@@ -73,7 +73,7 @@ objecttype flt_a2tan (listtype arguments)
  *  Compute the absolute value of a float number.
  *  @return the absolute value.
  */
-objecttype flt_abs (listtype arguments)
+objectType flt_abs (listType arguments)
 
   {
     double number;
@@ -94,7 +94,7 @@ objecttype flt_abs (listtype arguments)
  *  @return the arc cosine of x in radians. The returned angle is in
  *          the range [0.0, PI].
  */
-objecttype flt_acos (listtype arguments)
+objectType flt_acos (listType arguments)
 
   { /* flt_acos */
     isit_float(arg_1(arguments));
@@ -108,7 +108,7 @@ objecttype flt_acos (listtype arguments)
  *  Add two float numbers.
  *  @return the sum of the two numbers.
  */
-objecttype flt_add (listtype arguments)
+objectType flt_add (listType arguments)
 
   { /* flt_add */
     isit_float(arg_1(arguments));
@@ -125,7 +125,7 @@ objecttype flt_add (listtype arguments)
  *  @return the arc sine of x in radians. The return angle is in the
  *          range [-PI/2, PI/2].
  */
-objecttype flt_asin (listtype arguments)
+objectType flt_asin (listType arguments)
 
   { /* flt_asin */
     isit_float(arg_1(arguments));
@@ -140,7 +140,7 @@ objecttype flt_asin (listtype arguments)
  *  @return the arc tangent of x in radians. The returned angle is in
  *          the range [-PI/2, PI/2].
  */
-objecttype flt_atan (listtype arguments)
+objectType flt_atan (listType arguments)
 
   { /* flt_atan */
     isit_float(arg_1(arguments));
@@ -150,7 +150,7 @@ objecttype flt_atan (listtype arguments)
 
 
 
-objecttype flt_cast (listtype arguments)
+objectType flt_cast (listType arguments)
 
   { /* flt_cast */
     isit_float(arg_3(arguments));
@@ -166,7 +166,7 @@ objecttype flt_cast (listtype arguments)
  *  to the argument and is equal to a mathematical integer.
  *  @return the rounded value.
  */
-objecttype flt_ceil (listtype arguments)
+objectType flt_ceil (listType arguments)
 
   { /* flt_ceil */
     isit_float(arg_1(arguments));
@@ -186,7 +186,7 @@ objecttype flt_ceil (listtype arguments)
  *          respectively less than, equal to, or greater than the
  *          second.
  */
-objecttype flt_cmp (listtype arguments)
+objectType flt_cmp (listType arguments)
 
   { /* flt_cmp */
     isit_float(arg_1(arguments));
@@ -201,7 +201,7 @@ objecttype flt_cmp (listtype arguments)
  *  Compute the cosine of x, where x is given in radians.
  *  @return the trigonometric cosine of an angle.
  */
-objecttype flt_cos (listtype arguments)
+objectType flt_cos (listType arguments)
 
   { /* flt_cos */
     isit_float(arg_1(arguments));
@@ -216,7 +216,7 @@ objecttype flt_cos (listtype arguments)
  *  cosh(x) is mathematically defined as: (exp(x) + exp(-x)) / 2.0
  *  @return the hyperbolic cosine.
  */
-objecttype flt_cosh (listtype arguments)
+objectType flt_cosh (listType arguments)
 
   { /* flt_cosh */
     isit_float(arg_1(arguments));
@@ -226,28 +226,28 @@ objecttype flt_cosh (listtype arguments)
 
 
 
-objecttype flt_cpy (listtype arguments)
+objectType flt_cpy (listType arguments)
 
   {
-    objecttype flt_variable;
+    objectType flt_variable;
 
   /* flt_cpy */
     flt_variable = arg_1(arguments);
     isit_float(flt_variable);
     is_variable(flt_variable);
     isit_float(arg_3(arguments));
-    flt_variable->value.floatvalue = take_float(arg_3(arguments));
+    flt_variable->value.floatValue = take_float(arg_3(arguments));
     return SYS_EMPTY_OBJECT;
   } /* flt_cpy */
 
 
 
-objecttype flt_create (listtype arguments)
+objectType flt_create (listType arguments)
 
   { /* flt_create */
     isit_float(arg_3(arguments));
     SET_CATEGORY_OF_OBJ(arg_1(arguments), FLOATOBJECT);
-    arg_1(arguments)->value.floatvalue = take_float(arg_3(arguments));
+    arg_1(arguments)->value.floatValue = take_float(arg_3(arguments));
     return SYS_EMPTY_OBJECT;
   } /* flt_create */
 
@@ -262,7 +262,7 @@ objecttype flt_create (listtype arguments)
  *  @return the string result of the conversion.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-objecttype flt_dgts (listtype arguments)
+objectType flt_dgts (listType arguments)
 
   { /* flt_dgts */
     isit_float(arg_1(arguments));
@@ -277,11 +277,11 @@ objecttype flt_dgts (listtype arguments)
  *  Compute the division of two float numbers.
  *  @return the quotient of the division.
  */
-objecttype flt_div (listtype arguments)
+objectType flt_div (listType arguments)
 
   {
-    floattype dividend;
-    floattype divisor;
+    floatType dividend;
+    floatType divisor;
 
   /* flt_div */
     isit_float(arg_1(arguments));
@@ -307,14 +307,14 @@ objecttype flt_div (listtype arguments)
 /**
  *  Divide a float 'number' by a 'divisor' and assign the result back to 'number'.
  */
-objecttype flt_div_assign (listtype arguments)
+objectType flt_div_assign (listType arguments)
 
   {
-    objecttype flt_variable;
+    objectType flt_variable;
 #ifdef CHECK_FLOAT_DIV_BY_ZERO
-    floattype dividend;
+    floatType dividend;
 #endif
-    floattype divisor;
+    floatType divisor;
 
   /* flt_div_assign */
     flt_variable = arg_1(arguments);
@@ -326,17 +326,17 @@ objecttype flt_div_assign (listtype arguments)
     if (divisor == 0.0) {
       dividend = take_float(flt_variable);
       if (dividend == 0.0 || isnan(dividend)) {
-        flt_variable->value.floatvalue = NOT_A_NUMBER;
+        flt_variable->value.floatValue = NOT_A_NUMBER;
       } else if ((dividend < 0.0) == fltIsNegativeZero(divisor)) {
-        flt_variable->value.floatvalue = POSITIVE_INFINITY;
+        flt_variable->value.floatValue = POSITIVE_INFINITY;
       } else {
-        flt_variable->value.floatvalue = NEGATIVE_INFINITY;
+        flt_variable->value.floatValue = NEGATIVE_INFINITY;
       } /* if */
     } else {
-      flt_variable->value.floatvalue /= divisor;
+      flt_variable->value.floatValue /= divisor;
     } /* if */
 #else
-    flt_variable->value.floatvalue /= divisor;
+    flt_variable->value.floatValue /= divisor;
 #endif
     return SYS_EMPTY_OBJECT;
   } /* flt_div_assign */
@@ -350,7 +350,7 @@ objecttype flt_div_assign (listtype arguments)
  *  always return FALSE. Even 'NaN = NaN' returns FALSE.
  *  @return TRUE if both numbers are equal, FALSE otherwise.
  */
-objecttype flt_eq (listtype arguments)
+objectType flt_eq (listType arguments)
 
   { /* flt_eq */
     isit_float(arg_1(arguments));
@@ -374,7 +374,7 @@ objecttype flt_eq (listtype arguments)
  *  Compute Euler's number e raised to the power of x.
  *  @return e raised to the power of x.
  */
-objecttype flt_exp (listtype arguments)
+objectType flt_exp (listType arguments)
 
   { /* flt_exp */
     isit_float(arg_1(arguments));
@@ -390,7 +390,7 @@ objecttype flt_exp (listtype arguments)
  *  argument and is equal to a mathematical integer.
  *  @return the rounded value.
  */
-objecttype flt_floor (listtype arguments)
+objectType flt_floor (listType arguments)
 
   { /* flt_floor */
     isit_float(arg_1(arguments));
@@ -409,7 +409,7 @@ objecttype flt_floor (listtype arguments)
  *  @return TRUE if 'number1' is greater than or equal to 'number2',
  *          FALSE otherwise.
  */
-objecttype flt_ge (listtype arguments)
+objectType flt_ge (listType arguments)
 
   { /* flt_ge */
     isit_float(arg_1(arguments));
@@ -432,17 +432,17 @@ objecttype flt_ge (listtype arguments)
 /**
  *  Increment a float 'number' by a 'delta'.
  */
-objecttype flt_grow (listtype arguments)
+objectType flt_grow (listType arguments)
 
   {
-    objecttype flt_variable;
+    objectType flt_variable;
 
   /* flt_grow */
     flt_variable = arg_1(arguments);
     isit_float(flt_variable);
     is_variable(flt_variable);
     isit_float(arg_3(arguments));
-    flt_variable->value.floatvalue += take_float(arg_3(arguments));
+    flt_variable->value.floatValue += take_float(arg_3(arguments));
     return SYS_EMPTY_OBJECT;
   } /* flt_grow */
 
@@ -457,7 +457,7 @@ objecttype flt_grow (listtype arguments)
  *  @return TRUE if 'number1' is greater than 'number2',
  *          FALSE otherwise.
  */
-objecttype flt_gt (listtype arguments)
+objectType flt_gt (listType arguments)
 
   { /* flt_gt */
     isit_float(arg_1(arguments));
@@ -481,7 +481,7 @@ objecttype flt_gt (listtype arguments)
  *  Compute the hash value of a float number.
  *  @return the hash value.
  */
-objecttype flt_hashcode (listtype arguments)
+objectType flt_hashcode (listType arguments)
 
   { /* flt_hashcode */
     isit_float(arg_1(arguments));
@@ -491,7 +491,7 @@ objecttype flt_hashcode (listtype arguments)
 
 
 
-objecttype flt_icast (listtype arguments)
+objectType flt_icast (listType arguments)
 
   { /* flt_icast */
     isit_int(arg_3(arguments));
@@ -505,7 +505,7 @@ objecttype flt_icast (listtype arguments)
  *  Convert an integer to a float.
  *  @return the float result of the conversion.
  */
-objecttype flt_iconv (listtype arguments)
+objectType flt_iconv (listType arguments)
 
   { /* flt_iconv */
     isit_int(arg_3(arguments));
@@ -518,7 +518,7 @@ objecttype flt_iconv (listtype arguments)
  *  Convert an integer to a float.
  *  @return the float result of the conversion.
  */
-objecttype flt_iflt (listtype arguments)
+objectType flt_iflt (listType arguments)
 
   { /* flt_iflt */
     isit_int(arg_1(arguments));
@@ -531,7 +531,7 @@ objecttype flt_iflt (listtype arguments)
  *  Compute the exponentiation of a float 'base' with an integer 'exponent'.
  *  @return the result of the exponentation.
  */
-objecttype flt_ipow (listtype arguments)
+objectType flt_ipow (listType arguments)
 
   { /* flt_ipow */
     isit_float(arg_1(arguments));
@@ -548,7 +548,7 @@ objecttype flt_ipow (listtype arguments)
  *  @return TRUE if the number has a Not-a-Number (NaN) value,
  *          FALSE otherwise.
  */
-objecttype flt_isnan (listtype arguments)
+objectType flt_isnan (listType arguments)
 
   { /* flt_isnan */
     isit_float(arg_1(arguments));
@@ -571,7 +571,7 @@ objecttype flt_isnan (listtype arguments)
  *  @return TRUE if the number is -0.0,
  *          FALSE otherwise.
  */
-objecttype flt_isnegativezero (listtype arguments)
+objectType flt_isnegativezero (listType arguments)
 
   { /* flt_isnegativezero */
     isit_float(arg_1(arguments));
@@ -593,7 +593,7 @@ objecttype flt_isnegativezero (listtype arguments)
  *  @return TRUE if 'number1' is less than or equal to 'number2',
  *          FALSE otherwise.
  */
-objecttype flt_le (listtype arguments)
+objectType flt_le (listType arguments)
 
   { /* flt_le */
     isit_float(arg_1(arguments));
@@ -617,7 +617,7 @@ objecttype flt_le (listtype arguments)
  *  Return the natural logarithm (base e) of x.
  *  @return the natural logarithm of x.
  */
-objecttype flt_log (listtype arguments)
+objectType flt_log (listType arguments)
 
   { /* flt_log */
     isit_float(arg_1(arguments));
@@ -631,7 +631,7 @@ objecttype flt_log (listtype arguments)
  *  Returns the base 10 logarithm of x.
  *  @return the base 10 logarithm of x.
  */
-objecttype flt_log10 (listtype arguments)
+objectType flt_log10 (listType arguments)
 
   { /* flt_log10 */
     isit_float(arg_1(arguments));
@@ -650,7 +650,7 @@ objecttype flt_log10 (listtype arguments)
  *  @return TRUE if 'number1' is less than 'number2',
  *          FALSE otherwise.
  */
-objecttype flt_lt (listtype arguments)
+objectType flt_lt (listType arguments)
 
   { /* flt_lt */
     isit_float(arg_1(arguments));
@@ -674,7 +674,7 @@ objecttype flt_lt (listtype arguments)
  *  Multiply two float numbers.
  *  @return the product of the two numbers.
  */
-objecttype flt_mult (listtype arguments)
+objectType flt_mult (listType arguments)
 
   { /* flt_mult */
     isit_float(arg_1(arguments));
@@ -689,17 +689,17 @@ objecttype flt_mult (listtype arguments)
 /**
  *  Multiply a float 'number' by a 'factor' and assign the result back to 'number'.
  */
-objecttype flt_mult_assign (listtype arguments)
+objectType flt_mult_assign (listType arguments)
 
   {
-    objecttype flt_variable;
+    objectType flt_variable;
 
   /* flt_mult_assign */
     flt_variable = arg_1(arguments);
     isit_float(flt_variable);
     is_variable(flt_variable);
     isit_float(arg_3(arguments));
-    flt_variable->value.floatvalue *= take_float(arg_3(arguments));
+    flt_variable->value.floatValue *= take_float(arg_3(arguments));
     return SYS_EMPTY_OBJECT;
   } /* flt_mult_assign */
 
@@ -712,7 +712,7 @@ objecttype flt_mult_assign (listtype arguments)
  *  always return TRUE. Even 'NaN <> NaN' returns TRUE.
  *  @return FALSE if both numbers are equal, TRUE otherwise.
  */
-objecttype flt_ne (listtype arguments)
+objectType flt_ne (listType arguments)
 
   { /* flt_ne */
     isit_float(arg_1(arguments));
@@ -736,7 +736,7 @@ objecttype flt_ne (listtype arguments)
  *  Minus sign, negate a float 'number'.
  *  @return the negated value of the number.
  */
-objecttype flt_negate (listtype arguments)
+objectType flt_negate (listType arguments)
 
   { /* flt_negate */
     isit_float(arg_2(arguments));
@@ -751,7 +751,7 @@ objecttype flt_negate (listtype arguments)
  *  @return the float result of the conversion.
  *  @exception RANGE_ERROR When the string contains not a float literal.
  */
-objecttype flt_parse (listtype arguments)
+objectType flt_parse (listType arguments)
 
   { /* flt_parse */
     isit_stri(arg_3(arguments));
@@ -765,7 +765,7 @@ objecttype flt_parse (listtype arguments)
  *  Plus sign for float numbers.
  *  @return its operand unchanged.
  */
-objecttype flt_plus (listtype arguments)
+objectType flt_plus (listType arguments)
 
   { /* flt_plus */
     isit_float(arg_2(arguments));
@@ -778,7 +778,7 @@ objecttype flt_plus (listtype arguments)
  *  Compute the exponentiation of a float 'base' with a float 'exponent'.
  *  @return the result of the exponentation.
  */
-objecttype flt_pow (listtype arguments)
+objectType flt_pow (listType arguments)
 
   { /* flt_pow */
     isit_float(arg_1(arguments));
@@ -800,7 +800,7 @@ objecttype flt_pow (listtype arguments)
  *  @return the computed pseudo-random number.
  *  @exception RANGE_ERROR The range is empty (low > high holds).
  */
-objecttype flt_rand (listtype arguments)
+objectType flt_rand (listType arguments)
 
   { /* flt_rand */
     isit_float(arg_1(arguments));
@@ -816,18 +816,18 @@ objecttype flt_rand (listtype arguments)
  *  Halfway cases are rounded away from zero.
  *  @return the rounded value.
  */
-objecttype flt_round (listtype arguments)
+objectType flt_round (listType arguments)
 
   {
-    floattype number;
+    floatType number;
 
   /* flt_round */
     isit_float(arg_1(arguments));
     number = take_float(arg_1(arguments));
-    if (number < (floattype) 0.0) {
-      return bld_int_temp(-((inttype) (0.5 - number)));
+    if (number < (floatType) 0.0) {
+      return bld_int_temp(-((intType) (0.5 - number)));
     } else {
-      return bld_int_temp((inttype) (0.5 + number));
+      return bld_int_temp((intType) (0.5 + number));
     } /* if */
   } /* flt_round */
 
@@ -837,7 +837,7 @@ objecttype flt_round (listtype arguments)
  *  Compute the subtraction of two float numbers.
  *  @return the difference of the two numbers.
  */
-objecttype flt_sbtr (listtype arguments)
+objectType flt_sbtr (listType arguments)
 
   { /* flt_sbtr */
     isit_float(arg_1(arguments));
@@ -861,7 +861,7 @@ objecttype flt_sbtr (listtype arguments)
  *  @return the string result of the conversion.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-objecttype flt_sci (listtype arguments)
+objectType flt_sci (listType arguments)
 
   { /* flt_sci */
     isit_float(arg_1(arguments));
@@ -876,17 +876,17 @@ objecttype flt_sci (listtype arguments)
 /**
  *  Decrement a float 'number' by a 'delta'.
  */
-objecttype flt_shrink (listtype arguments)
+objectType flt_shrink (listType arguments)
 
   {
-    objecttype flt_variable;
+    objectType flt_variable;
 
   /* flt_shrink */
     flt_variable = arg_1(arguments);
     isit_float(flt_variable);
     is_variable(flt_variable);
     isit_float(arg_3(arguments));
-    flt_variable->value.floatvalue -= take_float(arg_3(arguments));
+    flt_variable->value.floatValue -= take_float(arg_3(arguments));
     return SYS_EMPTY_OBJECT;
   } /* flt_shrink */
 
@@ -896,7 +896,7 @@ objecttype flt_shrink (listtype arguments)
  *  Compute the sine of x, where x is given in radians.
  *  @return the trigonometric sine of an angle.
  */
-objecttype flt_sin (listtype arguments)
+objectType flt_sin (listType arguments)
 
   { /* flt_sin */
     isit_float(arg_1(arguments));
@@ -911,7 +911,7 @@ objecttype flt_sin (listtype arguments)
  *  sinh(x) is mathematically defined as: (exp(x) - exp(-x)) / 2.0
  *  @return the hyperbolic sine.
  */
-objecttype flt_sinh (listtype arguments)
+objectType flt_sinh (listType arguments)
 
   { /* flt_sinh */
     isit_float(arg_1(arguments));
@@ -925,7 +925,7 @@ objecttype flt_sinh (listtype arguments)
  *  Returns the non-negative square root of x.
  *  @return the square root of x.
  */
-objecttype flt_sqrt (listtype arguments)
+objectType flt_sqrt (listType arguments)
 
   { /* flt_sqrt */
     isit_float(arg_1(arguments));
@@ -942,7 +942,7 @@ objecttype flt_sqrt (listtype arguments)
  *  @return the string result of the conversion.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-objecttype flt_str (listtype arguments)
+objectType flt_str (listType arguments)
 
   { /* flt_str */
     isit_float(arg_1(arguments));
@@ -956,7 +956,7 @@ objecttype flt_str (listtype arguments)
  *  Compute the tangent of x, where x is given in radians.
  *  @return the trigonometric tangent of an angle.
  */
-objecttype flt_tan (listtype arguments)
+objectType flt_tan (listType arguments)
 
   { /* flt_tan */
     isit_float(arg_1(arguments));
@@ -971,7 +971,7 @@ objecttype flt_tan (listtype arguments)
  *  tanh(x) is mathematically defined as: sinh(x) / cosh(x)
  *  @return the hyperbolic tangent.
  */
-objecttype flt_tanh (listtype arguments)
+objectType flt_tanh (listType arguments)
 
   { /* flt_tanh */
     isit_float(arg_1(arguments));
@@ -987,19 +987,19 @@ objecttype flt_tanh (listtype arguments)
  *  @return the nearest integer not larger in absolute value
  *          than the argument.
  */
-objecttype flt_trunc (listtype arguments)
+objectType flt_trunc (listType arguments)
 
   { /* flt_trunc */
     isit_float(arg_1(arguments));
-    return bld_int_temp((inttype) take_float(arg_1(arguments)));
+    return bld_int_temp((intType) take_float(arg_1(arguments)));
   } /* flt_trunc */
 
 
 
-objecttype flt_value (listtype arguments)
+objectType flt_value (listType arguments)
 
   {
-    objecttype obj_arg;
+    objectType obj_arg;
 
   /* flt_value */
     isit_reference(arg_1(arguments));

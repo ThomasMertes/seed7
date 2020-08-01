@@ -95,8 +95,8 @@ jmp_buf wait_finished;
  *  @param time_zone Difference to UTC in minutes (for UTC+1 it is 60).
  *                   The time_zone includes the effect of a daylight saving time.
  */
-void timAwait (inttype year, inttype month, inttype day, inttype hour,
-    inttype min, inttype sec, inttype micro_sec, inttype time_zone)
+void timAwait (intType year, intType month, intType day, intType hour,
+    intType min, intType sec, intType micro_sec, intType time_zone)
 
   {
     struct tm tm_time;
@@ -132,7 +132,7 @@ void timAwait (inttype year, inttype month, inttype day, inttype hour,
           poll_result = 0;
         } else {
           timeout_value = (await_second - time_val.tv_sec) * 1000 +
-                          (micro_sec - (inttype) time_val.tv_usec) / 1000;
+                          (micro_sec - (intType) time_val.tv_usec) / 1000;
 #ifdef TRACE_TIM_UNX
           fprintf(stderr, "%ld %ld %ld %ld %ld %ld %ld\n",
               time_val.tv_sec,
@@ -163,8 +163,8 @@ void timAwait (inttype year, inttype month, inttype day, inttype hour,
  *  @param time_zone Difference to UTC in minutes (for UTC+1 it is 60).
  *                   The time_zone includes the effect of a daylight saving time.
  */
-void timAwait (inttype year, inttype month, inttype day, inttype hour,
-    inttype min, inttype sec, inttype micro_sec, inttype time_zone)
+void timAwait (intType year, intType month, intType day, intType hour,
+    intType min, intType sec, intType micro_sec, intType time_zone)
 
   {
     struct tm tm_time;
@@ -237,8 +237,8 @@ void timAwait (inttype year, inttype month, inttype day, inttype hour,
  *  @param time_zone Difference to UTC in minutes (for UTC+1 it is 60).
  *                   The time_zone includes the effect of a daylight saving time.
  */
-void timAwait (inttype year, inttype month, inttype day, inttype hour,
-    inttype min, inttype sec, inttype micro_sec, inttype time_zone)
+void timAwait (intType year, intType month, intType day, intType hour,
+    intType min, intType sec, intType micro_sec, intType time_zone)
 
   {
     struct tm tm_time;
@@ -325,8 +325,8 @@ static void alarm_signal_handler (int sig_num)
  *  @param time_zone Difference to UTC in minutes (for UTC+1 it is 60).
  *                   The time_zone includes the effect of a daylight saving time.
  */
-void timAwait (inttype year, inttype month, inttype day, inttype hour,
-    inttype min, inttype sec, inttype micro_sec, inttype time_zone)
+void timAwait (intType year, intType month, intType day, intType hour,
+    intType min, intType sec, intType micro_sec, intType time_zone)
 
   {
     struct tm tm_time;
@@ -418,8 +418,8 @@ static void alarm_signal_handler (int sig_num)
  *  @param time_zone Difference to UTC in minutes (for UTC+1 it is 60).
  *                   The time_zone includes the effect of a daylight saving time.
  */
-void timAwait (inttype year, inttype month, inttype day, inttype hour,
-    inttype min, inttype sec, inttype micro_sec, inttype time_zone)
+void timAwait (intType year, intType month, intType day, intType hour,
+    intType min, intType sec, intType micro_sec, intType time_zone)
 
   {
     struct tm tm_time;
@@ -493,15 +493,15 @@ void timAwait (inttype year, inttype month, inttype day, inttype hour,
  *  This function is only used to initialize the random number
  *  generator, so overflows can be ignored.
  */
-inttype timMicroSec (void)
+intType timMicroSec (void)
 
   {
     struct timeval time_val;
-    inttype micro_sec;
+    intType micro_sec;
 
   /* timMicroSec */
     gettimeofday(&time_val, NULL);
-    micro_sec = (inttype) time_val.tv_usec;
+    micro_sec = (intType) time_val.tv_usec;
     /* printf("timMicroSec() ==> %lu\n", micro_sec); */
     return micro_sec;
   } /* timMicroSec */
@@ -514,9 +514,9 @@ inttype timMicroSec (void)
  *                   The time_zone includes the effect of a daylight saving time.
  *  @param is_dst Is TRUE, when a daylight saving time is currently in effect.
  */
-void timNow (inttype *year, inttype *month, inttype *day, inttype *hour,
-    inttype *min, inttype *sec, inttype *micro_sec, inttype *time_zone,
-    booltype *is_dst)
+void timNow (intType *year, intType *month, intType *day, intType *hour,
+    intType *min, intType *sec, intType *micro_sec, intType *time_zone,
+    boolType *is_dst)
 
   {
     struct timeval time_val;
@@ -550,8 +550,8 @@ void timNow (inttype *year, inttype *month, inttype *day, inttype *hour,
       *hour      = local_time->tm_hour;
       *min       = local_time->tm_min;
       *sec       = local_time->tm_sec;
-      *micro_sec = (inttype) time_val.tv_usec;
-      *time_zone = (inttype) (unchecked_mkutc(local_time) - time_val.tv_sec) / 60;
+      *micro_sec = (intType) time_val.tv_usec;
+      *time_zone = (intType) (unchecked_mkutc(local_time) - time_val.tv_sec) / 60;
       *is_dst    = local_time->tm_isdst > 0;
     } /* if */
 #ifdef TRACE_TIM_UNX

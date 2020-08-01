@@ -41,12 +41,12 @@
 #define localtime_r alternate_localtime_r
 #endif
 
-void timAwait (inttype year, inttype month, inttype day, inttype hour,
-    inttype min, inttype sec, inttype micro_sec, inttype time_zone);
-inttype timMicroSec (void);
-void timNow (inttype *year, inttype *month, inttype *day, inttype *hour,
-    inttype *min, inttype *sec, inttype *micro_sec, inttype *time_zone,
-    booltype *is_dst);
+void timAwait (intType year, intType month, intType day, intType hour,
+    intType min, intType sec, intType micro_sec, intType time_zone);
+intType timMicroSec (void);
+void timNow (intType *year, intType *month, intType *day, intType *hour,
+    intType *min, intType *sec, intType *micro_sec, intType *time_zone,
+    boolType *is_dst);
 #ifdef USE_ALTERNATE_LOCALTIME_R
 struct tm *alternate_localtime_r (time_t *utc_seconds, struct tm *tm_result);
 #endif

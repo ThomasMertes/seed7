@@ -56,7 +56,7 @@ static void handle_signals (int sig_num)
 
   {
     int ch;
-    const_cstritype sig_name;
+    const_cstriType sig_name;
     char buffer[20];
 
   /* handle_signals */

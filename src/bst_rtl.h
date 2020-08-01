@@ -29,13 +29,13 @@
 /*                                                                  */
 /********************************************************************/
 
-void bstAppend (bstritype *const bstri_to, const_bstritype bstri_from);
-bstritype bstCat (const const_bstritype bstri1, const const_bstritype bstri2);
-inttype bstCmp (const const_bstritype bstri1, const const_bstritype bstri2);
-void bstCpy (bstritype *const bstri_to, const const_bstritype bstri_from);
-bstritype bstCreate (const const_bstritype bstri_from);
-void bstDestr (const const_bstritype old_bstring);
-inttype bstHashCode (const const_bstritype bstri);
-bstritype bstParse (const const_stritype stri);
-stritype bstStr (const const_bstritype bstri);
-bstritype bstTail (const const_bstritype stri, inttype start);
+void bstAppend (bstriType *const bstri_to, const_bstriType bstri_from);
+bstriType bstCat (const const_bstriType bstri1, const const_bstriType bstri2);
+intType bstCmp (const const_bstriType bstri1, const const_bstriType bstri2);
+void bstCpy (bstriType *const bstri_to, const const_bstriType bstri_from);
+bstriType bstCreate (const const_bstriType bstri_from);
+void bstDestr (const const_bstriType old_bstring);
+intType bstHashCode (const const_bstriType bstri);
+bstriType bstParse (const const_striType stri);
+striType bstStr (const const_bstriType bstri);
+bstriType bstTail (const const_bstriType stri, intType start);

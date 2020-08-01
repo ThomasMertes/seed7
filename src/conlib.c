@@ -47,7 +47,7 @@
 
 
 
-objecttype con_clear (listtype arguments)
+objectType con_clear (listType arguments)
 
   { /* con_clear */
     isit_int(arg_2(arguments));
@@ -63,7 +63,7 @@ objecttype con_clear (listtype arguments)
 
 
 
-objecttype con_cursor (listtype arguments)
+objectType con_cursor (listType arguments)
 
   { /* con_cursor */
     isit_bool(arg_2(arguments));
@@ -79,7 +79,7 @@ objecttype con_cursor (listtype arguments)
 
 
 
-objecttype con_flush (listtype arguments)
+objectType con_flush (listType arguments)
 
   { /* con_flush */
     conFlush();
@@ -88,7 +88,7 @@ objecttype con_flush (listtype arguments)
 
 
 
-objecttype con_height (listtype arguments)
+objectType con_height (listType arguments)
 
   { /* con_height */
     return bld_int_temp(conHeight());
@@ -96,10 +96,10 @@ objecttype con_height (listtype arguments)
 
 
 
-objecttype con_h_scl (listtype arguments)
+objectType con_h_scl (listType arguments)
 
   {
-    inttype scroll_amount;
+    intType scroll_amount;
 
   /* con_h_scl */
     isit_int(arg_2(arguments));
@@ -126,7 +126,7 @@ objecttype con_h_scl (listtype arguments)
 
 
 
-objecttype con_open (listtype arguments)
+objectType con_open (listType arguments)
 
   { /* con_open */
     conOpen();
@@ -135,7 +135,7 @@ objecttype con_open (listtype arguments)
 
 
 
-objecttype con_setpos (listtype arguments)
+objectType con_setpos (listType arguments)
 
   { /* con_setpos */
     isit_int(arg_2(arguments));
@@ -146,10 +146,10 @@ objecttype con_setpos (listtype arguments)
 
 
 
-objecttype con_v_scl (listtype arguments)
+objectType con_v_scl (listType arguments)
 
   {
-    inttype scroll_amount;
+    intType scroll_amount;
 
   /* con_v_scl */
     isit_int(arg_2(arguments));
@@ -176,7 +176,7 @@ objecttype con_v_scl (listtype arguments)
 
 
 
-objecttype con_width (listtype arguments)
+objectType con_width (listType arguments)
 
   { /* con_width */
     return bld_int_temp(conWidth());
@@ -184,7 +184,7 @@ objecttype con_width (listtype arguments)
 
 
 
-objecttype con_write (listtype arguments)
+objectType con_write (listType arguments)
 
   { /* con_write */
     isit_stri(arg_2(arguments));

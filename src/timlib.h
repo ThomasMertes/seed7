@@ -25,7 +25,7 @@
 /*                                                                  */
 /********************************************************************/
 
-objecttype tim_await          (listtype arguments);
-objecttype tim_from_timestamp (listtype arguments);
-objecttype tim_now            (listtype arguments);
-objecttype tim_set_local_tz   (listtype arguments);
+objectType tim_await          (listType arguments);
+objectType tim_from_timestamp (listType arguments);
+objectType tim_now            (listType arguments);
+objectType tim_set_local_tz   (listType arguments);

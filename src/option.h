@@ -38,21 +38,21 @@
 #define SHOW_STATISTICS       1024
 
 typedef struct {
-    stritype          source_file_argument;
-    const_stritype    prot_file_name;
-    booltype          write_help;
-    booltype          analyze_only;
-    booltype          execute_always;
-    uinttype          parser_options;
-    uinttype          exec_options;
-    booltype          catch_signals;
-    rtlArraytype      seed7_libraries;
-    rtlArraytype      argv;
-    memsizetype       argv_start;
-  } opttype;
+    striType          source_file_argument;
+    const_striType    prot_file_name;
+    boolType          write_help;
+    boolType          analyze_only;
+    boolType          execute_always;
+    uintType          parser_options;
+    uintType          exec_options;
+    boolType          catch_signals;
+    rtlArrayType      seed7_libraries;
+    rtlArrayType      argv;
+    memSizeType       argv_start;
+  } optionType;
 
 #ifdef DO_INIT
-opttype option = {
+optionType option = {
     NULL,  /* source_file_name  */
     NULL,  /* prot_file_name    */
     FALSE, /* write_help        */
@@ -66,5 +66,5 @@ opttype option = {
     0,     /* argv_start        */
   };
 #else
-EXTERN opttype option;
+EXTERN optionType option;
 #endif

@@ -34,90 +34,90 @@
  *  A corresponding macro is inlined by the compiler. If this macro
  *  is changed the code in the compiler must be changed as well.
  */
-#define hashCode(stri) (inttype) ((stri)->size == 0 ? 0 : \
+#define hashCode(stri) (intType) ((stri)->size == 0 ? 0 : \
                                      ((stri)->mem[0] << 5 ^ \
                                       (stri)->mem[(stri)->size >> 1] << 3 ^ \
                                       (stri)->mem[(stri)->size - 1] << 1 ^ \
                                       (stri)->size))
 
 
-void toLower (const strelemtype *const stri, memsizetype length,
-    strelemtype *const dest);
-void toUpper (const strelemtype *const stri, memsizetype length,
-    strelemtype *const dest);
-stritype concat_path (const const_stritype absolutePath,
-    const const_stritype relativePath);
-void strAppend (stritype *const destination, const_stritype stri_from);
-void strAppendTemp (stritype *const destination, const stritype stri_from);
-inttype strChIPos (const const_stritype main_stri, const chartype searched,
-    const inttype from_index);
-stritype strChMult (const chartype ch, const inttype factor);
-inttype strChPos (const const_stritype main_stri, const chartype searched);
-/* rtlArraytype strChSplit (const const_stritype main_stri,
-    const chartype delimiter); */
-stritype strCLit (const const_stritype stri);
-inttype strCompare (const const_stritype stri1, const const_stritype stri2);
-stritype strConcat (const const_stritype stri1, const const_stritype stri2);
-stritype strConcatN (const const_stritype striArray[], memsizetype arraySize);
-stritype strConcatTemp (stritype stri1, const const_stritype stri2);
-void strCopy (stritype *const stri_to, const const_stritype stri_from);
-stritype strCreate (const const_stritype stri_from);
-void strDestr (const const_stritype old_string);
-stritype strEmpty (void);
-booltype strGe (const const_stritype stri1, const const_stritype stri2);
-booltype strGt (const const_stritype stri1, const const_stritype stri2);
-inttype strHashCode (const const_stritype stri);
+void toLower (const strElemType *const stri, memSizeType length,
+    strElemType *const dest);
+void toUpper (const strElemType *const stri, memSizeType length,
+    strElemType *const dest);
+striType concat_path (const const_striType absolutePath,
+    const const_striType relativePath);
+void strAppend (striType *const destination, const_striType stri_from);
+void strAppendTemp (striType *const destination, const striType stri_from);
+intType strChIPos (const const_striType main_stri, const charType searched,
+    const intType from_index);
+striType strChMult (const charType ch, const intType factor);
+intType strChPos (const const_striType main_stri, const charType searched);
+/* rtlArrayType strChSplit (const const_striType main_stri,
+    const charType delimiter); */
+striType strCLit (const const_striType stri);
+intType strCompare (const const_striType stri1, const const_striType stri2);
+striType strConcat (const const_striType stri1, const const_striType stri2);
+striType strConcatN (const const_striType striArray[], memSizeType arraySize);
+striType strConcatTemp (striType stri1, const const_striType stri2);
+void strCopy (striType *const stri_to, const const_striType stri_from);
+striType strCreate (const const_striType stri_from);
+void strDestr (const const_striType old_string);
+striType strEmpty (void);
+boolType strGe (const const_striType stri1, const const_striType stri2);
+boolType strGt (const const_striType stri1, const const_striType stri2);
+intType strHashCode (const const_striType stri);
 #ifdef ALLOW_STRITYPE_SLICES
-void strHeadSlice (const const_stritype stri, const inttype stop, stritype slice);
+void strHeadSlice (const const_striType stri, const intType stop, striType slice);
 #else
-stritype strHead (const const_stritype stri, const inttype stop);
+striType strHead (const const_striType stri, const intType stop);
 #endif
-stritype strHeadTemp (const stritype stri, const inttype stop);
-inttype strIPos (const const_stritype main_stri, const const_stritype searched,
-    const inttype from_index);
-booltype strLe (const const_stritype stri1, const const_stritype stri2);
-stritype strLit (const const_stritype stri);
-stritype strLow (const const_stritype stri);
-stritype strLowTemp (const stritype stri);
-stritype strLpad (const const_stritype stri, const inttype pad_size);
-stritype strLpadTemp (const stritype stri, const inttype pad_size);
-stritype strLpad0 (const const_stritype stri, const inttype pad_size);
-stritype strLpad0Temp (const stritype stri, const inttype pad_size);
-booltype strLt (const const_stritype stri1, const const_stritype stri2);
-stritype strLtrim (const const_stritype stri);
-stritype strMult (const const_stritype stri, const inttype factor);
-inttype strPos (const const_stritype main_stri, const const_stritype searched);
-void strPush (stritype *const destination, const chartype extension);
+striType strHeadTemp (const striType stri, const intType stop);
+intType strIPos (const const_striType main_stri, const const_striType searched,
+    const intType from_index);
+boolType strLe (const const_striType stri1, const const_striType stri2);
+striType strLit (const const_striType stri);
+striType strLow (const const_striType stri);
+striType strLowTemp (const striType stri);
+striType strLpad (const const_striType stri, const intType pad_size);
+striType strLpadTemp (const striType stri, const intType pad_size);
+striType strLpad0 (const const_striType stri, const intType pad_size);
+striType strLpad0Temp (const striType stri, const intType pad_size);
+boolType strLt (const const_striType stri1, const const_striType stri2);
+striType strLtrim (const const_striType stri);
+striType strMult (const const_striType stri, const intType factor);
+intType strPos (const const_striType main_stri, const const_striType searched);
+void strPush (striType *const destination, const charType extension);
 #ifdef ALLOW_STRITYPE_SLICES
-void strRangeSlice (const const_stritype stri, inttype start, inttype stop, stritype slice);
+void strRangeSlice (const const_striType stri, intType start, intType stop, striType slice);
 #else
-stritype strRange (const const_stritype stri, inttype start, inttype stop);
+striType strRange (const const_striType stri, intType start, intType stop);
 #endif
-inttype strRChIPos (const const_stritype main_stri, const chartype searched,
-    const inttype from_index);
-inttype strRChPos (const const_stritype main_stri, const chartype searched);
-stritype strRepl (const const_stritype main_stri,
-    const const_stritype searched, const const_stritype replace);
-inttype strRIPos (const const_stritype main_stri, const const_stritype searched,
-    const inttype from_index);
-stritype strRpad (const const_stritype stri, const inttype pad_size);
-inttype strRPos (const const_stritype main_stri, const const_stritype searched);
-stritype strRtrim (const const_stritype stri);
-/* rtlArraytype strSplit (const const_stritype main_stri,
-    const const_stritype delimiter); */
+intType strRChIPos (const const_striType main_stri, const charType searched,
+    const intType from_index);
+intType strRChPos (const const_striType main_stri, const charType searched);
+striType strRepl (const const_striType main_stri,
+    const const_striType searched, const const_striType replace);
+intType strRIPos (const const_striType main_stri, const const_striType searched,
+    const intType from_index);
+striType strRpad (const const_striType stri, const intType pad_size);
+intType strRPos (const const_striType main_stri, const const_striType searched);
+striType strRtrim (const const_striType stri);
+/* rtlArrayType strSplit (const const_striType main_stri,
+    const const_striType delimiter); */
 #ifdef ALLOW_STRITYPE_SLICES
-void strSubstrSlice (const const_stritype stri, inttype start, inttype len, stritype slice);
+void strSubstrSlice (const const_striType stri, intType start, intType len, striType slice);
 #else
-stritype strSubstr (const const_stritype stri, inttype start, inttype len);
+striType strSubstr (const const_striType stri, intType start, intType len);
 #endif
 #ifdef ALLOW_STRITYPE_SLICES
-void strTailSlice (const const_stritype stri, inttype start, stritype slice);
+void strTailSlice (const const_striType stri, intType start, striType slice);
 #else
-stritype strTail (const const_stritype stri, inttype start);
+striType strTail (const const_striType stri, intType start);
 #endif
-stritype strToUtf8 (const const_stritype stri);
-stritype strTrim (const const_stritype stri);
-stritype strUp (const const_stritype stri);
-stritype strUpTemp (const stritype stri);
-stritype strUtf8ToStri (const_stritype utf8);
-stritype strZero (const inttype factor);
+striType strToUtf8 (const const_striType stri);
+striType strTrim (const const_striType stri);
+striType strUp (const const_striType stri);
+striType strUpTemp (const striType stri);
+striType strUtf8ToStri (const_striType utf8);
+striType strZero (const intType factor);

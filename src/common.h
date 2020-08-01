@@ -40,37 +40,37 @@
 #define C_PLUS_PLUS
 #endif
 
-typedef int booltype;
+typedef int boolType;
 
 #ifdef FALSE
 #undef FALSE
 #endif
-#define FALSE    ((booltype) 0)
+#define FALSE    ((boolType) 0)
 #ifdef TRUE
 #undef TRUE
 #endif
-#define TRUE     ((booltype) 1)
+#define TRUE     ((boolType) 1)
 
 #define EXTERN          extern
 
-typedef signed char        int8type;
-typedef unsigned char      uint8type;
+typedef signed char        int8Type;
+typedef unsigned char      uint8Type;
 
 #define INT8TYPE_MAX        127
 #define INT8TYPE_MIN      (-128)
 #define UINT8TYPE_MAX      0xff
 
 
-typedef short int          int16type;
-typedef unsigned short int uint16type;
+typedef short int          int16Type;
+typedef unsigned short int uint16Type;
 
 #define INT16TYPE_MAX     32767
 #define INT16TYPE_MIN   (-32768)
 #define UINT16TYPE_MAX   0xffff
 
 
-typedef INT32TYPE          int32type;
-typedef UINT32TYPE         uint32type;
+typedef INT32TYPE          int32Type;
+typedef UINT32TYPE         uint32Type;
 
 #ifdef INT32TYPE_SUFFIX_L
 #define INT32_SUFFIX(num)  num ## L
@@ -82,7 +82,7 @@ typedef UINT32TYPE         uint32type;
 #else
 #define INT32TYPE_MIN              (-2147483647L)
 #endif
-#define UINT32TYPE_MAX ((uint32type) 0xffffffffL)
+#define UINT32TYPE_MAX ((uint32Type) 0xffffffffL)
 #else
 #define INT32_SUFFIX(num)  num
 #define UINT32_SUFFIX(num) num ## U
@@ -93,19 +93,21 @@ typedef UINT32TYPE         uint32type;
 #else
 #define INT32TYPE_MIN              (-2147483647)
 #endif
-#define UINT32TYPE_MAX ((uint32type) 0xffffffff)
+#define UINT32TYPE_MAX ((uint32Type) 0xffffffff)
 #endif
 
 #if   defined INT32TYPE_FORMAT_L
-#define INT32TYPE_FORMAT "%ld"
+#define INT32TYPE_FORMAT  "%ld"
+#define UINT32TYPE_FORMAT "%lu"
 #else
-#define INT32TYPE_FORMAT "%d"
+#define INT32TYPE_FORMAT  "%d"
+#define UINT32TYPE_FORMAT "%u"
 #endif
 
 
 #ifdef INT64TYPE
-typedef INT64TYPE          int64type;
-typedef UINT64TYPE         uint64type;
+typedef INT64TYPE          int64Type;
+typedef UINT64TYPE         uint64Type;
 
 #if   defined INT64TYPE_SUFFIX_LL
 #define INT64_SUFFIX(num)  num ## LL
@@ -117,7 +119,7 @@ typedef UINT64TYPE         uint64type;
 #else
 #define INT64TYPE_MIN               (-9223372036854775807LL)
 #endif
-#define UINT64TYPE_MAX ((uint64type)   0xffffffffffffffffLL)
+#define UINT64TYPE_MAX ((uint64Type)   0xffffffffffffffffLL)
 #elif defined INT64TYPE_SUFFIX_L
 #define INT64_SUFFIX(num)  num ## L
 #define UINT64_SUFFIX(num) num ## UL
@@ -128,7 +130,7 @@ typedef UINT64TYPE         uint64type;
 #else
 #define INT64TYPE_MIN               (-9223372036854775807L)
 #endif
-#define UINT64TYPE_MAX ((uint64type)   0xffffffffffffffffL)
+#define UINT64TYPE_MAX ((uint64Type)   0xffffffffffffffffL)
 #else
 #define INT64_SUFFIX(num)  num
 #define UINT64_SUFFIX(num) num ## U
@@ -139,26 +141,31 @@ typedef UINT64TYPE         uint64type;
 #else
 #define INT64TYPE_MIN               (-9223372036854775807)
 #endif
-#define UINT64TYPE_MAX ((uint64type)   0xffffffffffffffff)
+#define UINT64TYPE_MAX ((uint64Type)   0xffffffffffffffff)
 #endif
 
 #if   defined INT64TYPE_FORMAT_L
-#define INT64TYPE_FORMAT "%ld"
+#define INT64TYPE_FORMAT  "%ld"
+#define UINT64TYPE_FORMAT "%lu"
 #elif defined INT64TYPE_FORMAT_LL
-#define INT64TYPE_FORMAT "%lld"
+#define INT64TYPE_FORMAT  "%lld"
+#define UINT64TYPE_FORMAT "%llu"
 #elif defined INT64TYPE_FORMAT_CAPITAL_L
-#define INT64TYPE_FORMAT "%Ld"
+#define INT64TYPE_FORMAT  "%Ld"
+#define UINT64TYPE_FORMAT "%Lu"
 #elif defined INT64TYPE_FORMAT_I64
-#define INT64TYPE_FORMAT "%I64d"
+#define INT64TYPE_FORMAT  "%I64d"
+#define UINT64TYPE_FORMAT "%I64u"
 #else
-#define INT64TYPE_FORMAT "%d"
+#define INT64TYPE_FORMAT  "%d"
+#define UINT64TYPE_FORMAT "%u"
 #endif
 #endif
 
 
 #if   INTTYPE_SIZE == 32
-typedef int32type               inttype;
-typedef uint32type              uinttype;
+typedef int32Type               intType;
+typedef uint32Type              uintType;
 #define INT_SUFFIX(num)         INT32_SUFFIX(num)
 #define UINT_SUFFIX(num)        UINT32_SUFFIX(num)
 #define INTTYPE_LITERAL_SUFFIX  INT32TYPE_LITERAL_SUFFIX
@@ -166,12 +173,13 @@ typedef uint32type              uinttype;
 #define INTTYPE_MAX             INT32TYPE_MAX
 #define UINTTYPE_MAX            UINT32TYPE_MAX
 #define INTTYPE_FORMAT          INT32TYPE_FORMAT
+#define UINTTYPE_FORMAT         UINT32TYPE_FORMAT
 #define INTTYPE_DECIMAL_DIGITS  10
 #define uintMostSignificantBit  uint32MostSignificantBit
 #define uintLeastSignificantBit uint32LeastSignificantBit
 #elif INTTYPE_SIZE == 64
-typedef int64type               inttype;
-typedef uint64type              uinttype;
+typedef int64Type               intType;
+typedef uint64Type              uintType;
 #define INT_SUFFIX(num)         INT64_SUFFIX(num)
 #define UINT_SUFFIX(num)        UINT64_SUFFIX(num)
 #define INTTYPE_LITERAL_SUFFIX  INT64TYPE_LITERAL_SUFFIX
@@ -179,6 +187,7 @@ typedef uint64type              uinttype;
 #define INTTYPE_MAX             INT64TYPE_MAX
 #define UINTTYPE_MAX            UINT64TYPE_MAX
 #define INTTYPE_FORMAT          INT64TYPE_FORMAT
+#define UINTTYPE_FORMAT         UINT64TYPE_FORMAT
 #define INTTYPE_DECIMAL_DIGITS  19
 #define uintMostSignificantBit  uint64MostSignificantBit
 #define uintLeastSignificantBit uint64LeastSignificantBit
@@ -232,68 +241,67 @@ typedef uint64type              uinttype;
 
 
 #if   BITSETTYPE_SIZE == 32
-typedef uint32type         bitsettype;
+typedef uint32Type         bitSetType;
 #define bitsetMostSignificantBit  uint32MostSignificantBit
 #define bitsetLeastSignificantBit uint32LeastSignificantBit
 #elif BITSETTYPE_SIZE == 64
-typedef uint64type         bitsettype;
+typedef uint64Type         bitSetType;
 #define bitsetMostSignificantBit  uint64MostSignificantBit
 #define bitsetLeastSignificantBit uint64LeastSignificantBit
 #endif
 
 
 #ifdef FLOATTYPE_DOUBLE
-typedef double             floattype;
+typedef double             floatType;
 #define FLOATTYPE_SIZE DOUBLE_SIZE
 #else
-typedef float              floattype;
+typedef float              floatType;
 #define FLOATTYPE_SIZE FLOAT_SIZE
 #endif
 
 
-typedef uint32type         chartype;
-typedef int32type          schartype;
-typedef chartype           strelemtype;
+typedef uint32Type         charType;
+typedef int32Type          scharType;
+typedef charType           strElemType;
 
 #if POINTER_SIZE == 32
-typedef uint32type         memsizetype;
+typedef uint32Type         memSizeType;
 #define MAX_MEMSIZETYPE    0xFFFFFFFF
 #define MIN_MEM_INDEX      INT32TYPE_MIN
 #define MAX_MEM_INDEX      INT32TYPE_MAX
 #elif POINTER_SIZE == 64
-typedef uint64type         memsizetype;
+typedef uint64Type         memSizeType;
 #define MAX_MEMSIZETYPE    0xFFFFFFFFFFFFFFFF
 #define MIN_MEM_INDEX      INTTYPE_MIN
 #define MAX_MEM_INDEX      INTTYPE_MAX
 #endif
 
-typedef int                prioritytype;
+typedef int                priorityType;
 
-typedef unsigned char      uchartype;
-typedef char *             cstritype;
-typedef unsigned char *    ustritype;
-typedef memsizetype        sysizetype;
-typedef FILE *             filetype;
-typedef int                filedestype;
+typedef unsigned char      ucharType;
+typedef char *             cstriType;
+typedef unsigned char *    ustriType;
+typedef memSizeType        sySizeType;
+typedef FILE *             fileType;
+typedef int                fileDesType;
 
-#ifdef OS_STRI_WCHAR
-typedef wchar_t           *wstritype;
-typedef const wchar_t     *const_wstritype;
-#endif
+typedef uint16Type         wcharType;
+typedef wcharType         *wstriType;
+typedef const wcharType   *const_wstriType;
 
 #ifdef USE_WINSOCK
-typedef unsigned int       sockettype;
+typedef unsigned int       socketType;
 #else
-typedef int                sockettype;
+typedef int                socketType;
 #endif
 
-typedef const char *           const_cstritype;
-typedef const unsigned char *  const_ustritype;
+typedef const char *           const_cstriType;
+typedef const unsigned char *  const_ustriType;
 
-#define MAX_DIV_10 ((inttype) (INTTYPE_MAX / 10))
-#define MAX_REM_10 ((inttype) (INTTYPE_MAX % 10))
+#define MAX_DIV_10 ((intType) (INTTYPE_MAX / 10))
+#define MAX_REM_10 ((intType) (INTTYPE_MAX % 10))
 
-/* Maximum value of type sysizetype: */
+/* Maximum value of type sySizeType: */
 #define MAX_SYMB_LENGTH MAX_MEMSIZETYPE
 
 #ifndef CLOCKS_PER_SEC
@@ -303,7 +311,7 @@ typedef const unsigned char *  const_ustritype;
 #define SOURCE_POSITION(POS_NR) __FILE__, __LINE__
 
 
-typedef int errinfotype;
+typedef int errInfoType;
 
 /* errinfo values: */
 #define OKAY_NO_ERROR 0
@@ -326,107 +334,102 @@ typedef int errinfotype;
 #endif
 
 
-/* The macros below compute the array size as memsizetype    */
+/* The macros below compute the array size as memSizeType    */
 /* value. The computation avoids a signed integer overflow.  */
 /* The computation fails when max_position is the maximum    */
-/* positive value of inttype and min_position is the maximum */
-/* negative value of inttype. All calls of the macros must   */
+/* positive value of intType and min_position is the maximum */
+/* negative value of intType. All calls of the macros must   */
 /* assure that they are never called with this values. Since */
 /* the calls either use data from an existing array or use   */
 /* 1 as min_position this condition is fulfilled.            */
-#define arraySize(arr) (memsizetype) ((uinttype) (arr)->max_position - (uinttype) (arr)->min_position + 1)
-#define arraySize2(min_position,max_position) (memsizetype) ((uinttype) (max_position) - (uinttype) (min_position) + 1)
-#define arrayIndex(arr,pos) (memsizetype) ((uinttype) (pos) - (uinttype) (arr)->min_position)
-#define arrayMaxPos(min_position,size) (inttype) ((uinttype) (min_position) + (uinttype) (size) - 1)
+#define arraySize(arr) (memSizeType) ((uintType) (arr)->max_position - (uintType) (arr)->min_position + 1)
+#define arraySize2(min_position,max_position) (memSizeType) ((uintType) (max_position) - (uintType) (min_position) + 1)
+#define arrayIndex(arr,pos) (memSizeType) ((uintType) (pos) - (uintType) (arr)->min_position)
+#define arrayMaxPos(min_position,size) (intType) ((uintType) (min_position) + (uintType) (size) - 1)
 
-#define bitsetSize(set) (memsizetype) ((uinttype) (set)->max_position - (uinttype) (set)->min_position + 1)
-#define bitsetSize2(min_position,max_position) (memsizetype) ((uinttype) (max_position) - (uinttype) (min_position) + 1)
-#define bitsetIndex(set,pos) (memsizetype) ((uinttype) (pos) - (uinttype) (set)->min_position)
+#define bitsetSize(set) (memSizeType) ((uintType) (set)->max_position - (uintType) (set)->min_position + 1)
+#define bitsetSize2(min_position,max_position) (memSizeType) ((uintType) (max_position) - (uintType) (min_position) + 1)
+#define bitsetIndex(set,pos) (memSizeType) ((uintType) (pos) - (uintType) (set)->min_position)
 
 
-typedef struct setstruct      *settype;
-typedef struct stristruct     *stritype;
-typedef struct bstristruct    *bstritype;
-typedef struct pollstruct     *polltype;
-typedef struct winstruct      *wintype;
-typedef struct databasestruct *databasetype;
-typedef struct sqlstmtstruct  *sqlstmttype;
+typedef struct setStruct      *setType;
+typedef struct striStruct     *striType;
+typedef struct bstriStruct    *bstriType;
+typedef struct pollStruct     *pollType;
+typedef struct winStruct      *winType;
+typedef struct databaseStruct *databaseType;
+typedef struct sqlStmtStruct  *sqlStmtType;
 
-typedef const struct setstruct      *const_settype;
-typedef const struct stristruct     *const_stritype;
-typedef const struct bstristruct    *const_bstritype;
-typedef const struct pollstruct     *const_polltype;
-typedef const struct winstruct      *const_wintype;
-typedef const struct databasestruct *const_databasetype;
-typedef const struct sqlstmtstruct  *const_sqlstmttype;
+typedef const struct setStruct      *const_setType;
+typedef const struct striStruct     *const_striType;
+typedef const struct bstriStruct    *const_bstriType;
+typedef const struct pollStruct     *const_pollType;
+typedef const struct winStruct      *const_winType;
+typedef const struct databaseStruct *const_databaseType;
+typedef const struct sqlStmtStruct  *const_sqlStmtType;
 
-typedef struct setstruct {
-    inttype min_position;
-    inttype max_position;
-    bitsettype bitset[1];
-  } setrecord;
+typedef struct setStruct {
+    intType min_position;
+    intType max_position;
+    bitSetType bitset[1];
+  } setRecord;
 
-typedef struct stristruct {
-    memsizetype size;
+typedef struct striStruct {
+    memSizeType size;
 #ifdef WITH_STRI_CAPACITY
-    memsizetype capacity;
+    memSizeType capacity;
 #endif
 #ifdef ALLOW_STRITYPE_SLICES
-    strelemtype *mem;
-    strelemtype  mem1[1];
+    strElemType *mem;
+    strElemType  mem1[1];
 #else
-    strelemtype mem[1];
+    strElemType mem[1];
 #endif
-  } strirecord;
+  } striRecord;
 
-typedef struct bstristruct {
-    memsizetype size;
+typedef struct bstriStruct {
+    memSizeType size;
 #ifdef ALLOW_BSTRITYPE_SLICES
-    uchartype *mem;
-    uchartype  mem1[1];
+    ucharType *mem;
+    ucharType  mem1[1];
 #else
-    uchartype mem[1];
+    ucharType mem[1];
 #endif
-  } bstrirecord;
+  } bstriRecord;
 
-typedef struct pollstruct {
+typedef struct pollStruct {
 #ifdef NO_EMPTY_STRUCTS
     int dummy;
 #endif
-  } pollrecord;
+  } pollRecord;
 
-typedef struct winstruct {
-    uinttype usage_count;
+typedef struct winStruct {
+    uintType usage_count;
     /* The rest of the structure is only accessable for the driver */
-  } winrecord;
+  } winRecord;
 
-typedef struct databasestruct {
-#ifdef NO_EMPTY_STRUCTS
-    int dummy;
-#endif
-  } databaserecord;
+typedef struct databaseStruct {
+    uintType usage_count;
+    /* The rest of the structure is only accessable for the driver */
+  } databaseRecord;
 
-typedef struct sqlstmtstruct {
-#ifdef NO_EMPTY_STRUCTS
-    int dummy;
-#endif
-  } sqlstmtrecord;
+typedef struct sqlStmtStruct {
+    uintType usage_count;
+    /* The rest of the structure is only accessable for the driver */
+  } sqlStmtRecord;
 
-typedef struct fliststruct {
-    struct fliststruct *next;
-  } *flisttype;
+typedef struct freeListElemStruct {
+    struct freeListElemStruct *next;
+  } *freeListElemType;
 
 
 #ifdef USE_BIG_RTL_LIBRARY
 
 /***************************************/
 /*                                     */
-/*   Define biginttype for big_rtl.c   */
+/*   Define bigIntType for big_rtl.c   */
 /*                                     */
 /***************************************/
-
-typedef       struct bigintstruct  *      biginttype;
-typedef const struct bigintstruct  *const_biginttype;
 
 #define WITH_BIGINT_CAPACITY
 
@@ -437,20 +440,23 @@ typedef const struct bigintstruct  *const_biginttype;
 #endif
 
 #if BIGDIGIT_SIZE == 8
-  typedef uint8type         bigdigittype;
+  typedef uint8Type         bigDigitType;
 #elif BIGDIGIT_SIZE == 16
-  typedef uint16type        bigdigittype;
+  typedef uint16Type        bigDigitType;
 #elif BIGDIGIT_SIZE == 32
-  typedef uint32type        bigdigittype;
+  typedef uint32Type        bigDigitType;
 #endif
 
-typedef struct bigintstruct {
-    memsizetype size;
+typedef struct {
+    memSizeType size;
 #ifdef WITH_BIGINT_CAPACITY
-    memsizetype capacity;
+    memSizeType capacity;
 #endif
-    bigdigittype bigdigits[1];
-  } bigintrecord;
+    bigDigitType bigdigits[1];
+  } bigIntRecord;
+
+typedef bigIntRecord             *bigIntType;
+typedef const bigIntRecord *const_bigIntType;
 
 
 #else
@@ -458,12 +464,12 @@ typedef struct bigintstruct {
 
 /***************************************/
 /*                                     */
-/*   Define biginttype for big_gmp.c   */
+/*   Define bigIntType for big_gmp.c   */
 /*                                     */
 /***************************************/
 
-typedef mpz_ptr           biginttype;
-typedef mpz_srcptr  const_biginttype;
+typedef mpz_ptr           bigIntType;
+typedef mpz_srcptr  const_bigIntType;
 
 
 #endif

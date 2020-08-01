@@ -48,27 +48,27 @@
 
 
 
-objecttype act_cpy (listtype arguments)
+objectType act_cpy (listType arguments)
 
   {
-    objecttype act_variable;
+    objectType act_variable;
 
   /* act_cpy */
     act_variable = arg_1(arguments);
     isit_action(act_variable);
     is_variable(act_variable);
     isit_action(arg_3(arguments));
-    act_variable->value.actvalue = take_action(arg_3(arguments));
+    act_variable->value.actValue = take_action(arg_3(arguments));
     return SYS_EMPTY_OBJECT;
   } /* act_cpy */
 
 
 
-objecttype act_create (listtype arguments)
+objectType act_create (listType arguments)
 
   {
-    objecttype act_to;
-    objecttype act_from;
+    objectType act_to;
+    objectType act_from;
 
   /* act_create */
     act_to = arg_1(arguments);
@@ -76,18 +76,18 @@ objecttype act_create (listtype arguments)
     isit_action(act_from);
     disconnect_param_entities(act_to);
     SET_CATEGORY_OF_OBJ(act_to, ACTOBJECT);
-    act_to->value.actvalue = take_action(act_from);
+    act_to->value.actValue = take_action(act_from);
     return SYS_EMPTY_OBJECT;
   } /* act_create */
 
 
 
-objecttype act_eq (listtype arguments)
+objectType act_eq (listType arguments)
 
   {
-    acttype action1;
-    acttype action2;
-    objecttype result;
+    actType action1;
+    actType action2;
+    objectType result;
 
   /* act_eq */
     isit_action(arg_1(arguments));
@@ -104,11 +104,11 @@ objecttype act_eq (listtype arguments)
 
 
 
-objecttype act_gen (listtype arguments)
+objectType act_gen (listType arguments)
 
   {
-    stritype stri;
-    acttype result;
+    striType stri;
+    actType result;
 
   /* act_gen */
     isit_stri(arg_2(arguments));
@@ -122,10 +122,10 @@ objecttype act_gen (listtype arguments)
 
 
 
-objecttype act_iconv (listtype arguments)
+objectType act_iconv (listType arguments)
 
   {
-    inttype ordinal;
+    intType ordinal;
 
   /* act_iconv */
     isit_int(arg_3(arguments));
@@ -139,7 +139,7 @@ objecttype act_iconv (listtype arguments)
 
 
 
-objecttype act_illegal (listtype arguments)
+objectType act_illegal (listType arguments)
 
   { /* act_illegal */
     return raise_exception(SYS_ACT_ILLEGAL_EXCEPTION);
@@ -147,12 +147,12 @@ objecttype act_illegal (listtype arguments)
 
 
 
-objecttype act_ne (listtype arguments)
+objectType act_ne (listType arguments)
 
   {
-    acttype action1;
-    acttype action2;
-    objecttype result;
+    actType action1;
+    actType action2;
+    objectType result;
 
   /* act_ne */
     isit_action(arg_1(arguments));
@@ -169,11 +169,11 @@ objecttype act_ne (listtype arguments)
 
 
 
-objecttype act_ord (listtype arguments)
+objectType act_ord (listType arguments)
 
   {
-    primacttype primact;
-    inttype result;
+    primActType primact;
+    intType result;
 
   /* act_ord */
     isit_action(arg_1(arguments));
@@ -184,10 +184,10 @@ objecttype act_ord (listtype arguments)
 
 
 
-objecttype act_str (listtype arguments)
+objectType act_str (listType arguments)
 
   {
-    stritype result;
+    striType result;
 
   /* act_str */
     isit_action(arg_1(arguments));
@@ -201,10 +201,10 @@ objecttype act_str (listtype arguments)
 
 
 
-objecttype act_value (listtype arguments)
+objectType act_value (listType arguments)
 
   {
-    objecttype obj_arg;
+    objectType obj_arg;
 
   /* act_value */
     isit_reference(arg_1(arguments));

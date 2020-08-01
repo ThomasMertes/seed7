@@ -65,7 +65,7 @@
 
 
 
-static void fix_posinfo (objecttype block_body, const const_objecttype block_body_list)
+static void fix_posinfo (objectType block_body, const const_objectType block_body_list)
 
   { /* fix_posinfo */
     if (block_body_list != NULL &&
@@ -78,7 +78,7 @@ static void fix_posinfo (objecttype block_body, const const_objecttype block_bod
 
 
 
-objecttype prc_args (listtype arguments)
+objectType prc_args (listType arguments)
 
   { /* prc_args */
     return prog.arg_v;
@@ -86,21 +86,21 @@ objecttype prc_args (listtype arguments)
 
 
 
-objecttype prc_begin (listtype arguments)
+objectType prc_begin (listType arguments)
 
   {
-    objecttype block_body;
-    objecttype block_body_list = NULL;
-    errinfotype err_info = OKAY_NO_ERROR;
-    blocktype block;
+    objectType block_body;
+    objectType block_body_list = NULL;
+    errInfoType err_info = OKAY_NO_ERROR;
+    blockType block;
 
   /* prc_begin */
     block_body = arg_3(arguments);
     if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT &&
-        block_body->value.listvalue != NULL &&
-        block_body->value.listvalue->next == NULL) {
+        block_body->value.listValue != NULL &&
+        block_body->value.listValue->next == NULL) {
       block_body_list = block_body;
-      block_body = block_body->value.listvalue->obj;
+      block_body = block_body->value.listValue->obj;
     } /* if */
     block_body = copy_expression(block_body, &err_info);
     push_stack();
@@ -126,14 +126,14 @@ objecttype prc_begin (listtype arguments)
 
 
 
-objecttype prc_block (listtype arguments)
+objectType prc_block (listType arguments)
 
   {
-    objecttype statement;
-    objecttype current_catch;
-    objecttype catch_value;
-    objecttype catch_statement;
-    booltype searching;
+    objectType statement;
+    objectType current_catch;
+    objectType catch_value;
+    objectType catch_statement;
+    boolType searching;
 
   /* prc_block */
     statement = arg_2(arguments);
@@ -143,10 +143,10 @@ objecttype prc_block (listtype arguments)
       current_catch = arg_4(arguments);
       while (current_catch != NULL && searching &&
           CATEGORY_OF_OBJ(current_catch) == MATCHOBJECT &&
-          current_catch->value.listvalue->next->next->next->next != NULL) {
-        catch_value = arg_3(current_catch->value.listvalue);
+          current_catch->value.listValue->next->next->next->next != NULL) {
+        catch_value = arg_3(current_catch->value.listValue);
         if (catch_value == fail_value) {
-          catch_statement = arg_5(current_catch->value.listvalue);
+          catch_statement = arg_5(current_catch->value.listValue);
           fail_flag = FALSE;
           fail_value = NULL;
           free_list(fail_stack);
@@ -154,8 +154,8 @@ objecttype prc_block (listtype arguments)
           evaluate(catch_statement);
           searching = FALSE;
         } else {
-          if (current_catch->value.listvalue->next->next->next->next->next != NULL) {
-            current_catch = arg_6(current_catch->value.listvalue);
+          if (current_catch->value.listValue->next->next->next->next->next != NULL) {
+            current_catch = arg_6(current_catch->value.listValue);
           } else {
             current_catch = NULL;
           } /* if */
@@ -167,15 +167,15 @@ objecttype prc_block (listtype arguments)
 
 
 
-objecttype prc_block_def (listtype arguments)
+objectType prc_block_def (listType arguments)
 
   {
-    objecttype statement;
-    objecttype default_statement;
-    objecttype current_catch;
-    objecttype catch_value;
-    objecttype catch_statement;
-    booltype searching;
+    objectType statement;
+    objectType default_statement;
+    objectType current_catch;
+    objectType catch_value;
+    objectType catch_statement;
+    boolType searching;
 
   /* prc_block_def */
     statement = arg_2(arguments);
@@ -185,17 +185,17 @@ objecttype prc_block_def (listtype arguments)
       current_catch = arg_4(arguments);
       while (current_catch != NULL && searching &&
           CATEGORY_OF_OBJ(current_catch) == MATCHOBJECT &&
-          current_catch->value.listvalue->next->next->next->next != NULL) {
-        catch_value = arg_3(current_catch->value.listvalue);
+          current_catch->value.listValue->next->next->next->next != NULL) {
+        catch_value = arg_3(current_catch->value.listValue);
         if (catch_value == fail_value) {
-          catch_statement = arg_5(current_catch->value.listvalue);
+          catch_statement = arg_5(current_catch->value.listValue);
           fail_flag = FALSE;
           fail_value = NULL;
           evaluate(catch_statement);
           searching = FALSE;
         } else {
-          if (current_catch->value.listvalue->next->next->next->next->next != NULL) {
-            current_catch = arg_6(current_catch->value.listvalue);
+          if (current_catch->value.listValue->next->next->next->next->next != NULL) {
+            current_catch = arg_6(current_catch->value.listValue);
           } else {
             current_catch = NULL;
           } /* if */
@@ -213,19 +213,19 @@ objecttype prc_block_def (listtype arguments)
 
 
 
-objecttype prc_case (listtype arguments)
+objectType prc_case (listType arguments)
 
   {
-    objecttype switch_object;
-    inttype switch_value;
-    objecttype when_objects;
-    objecttype current_when;
-    objecttype when_values;
-    objecttype when_set;
-    settype set_value;
-    objecttype when_statement;
-    errinfotype err_info = OKAY_NO_ERROR;
-    booltype searching;
+    objectType switch_object;
+    intType switch_value;
+    objectType when_objects;
+    objectType current_when;
+    objectType when_values;
+    objectType when_set;
+    setType set_value;
+    objectType when_statement;
+    errInfoType err_info = OKAY_NO_ERROR;
+    boolType searching;
 
   /* prc_case */
     searching = TRUE;
@@ -235,8 +235,8 @@ objecttype prc_case (listtype arguments)
     switch_value = do_ord(switch_object, &err_info);
     while (searching && current_when != NULL &&
         CATEGORY_OF_OBJ(current_when) == MATCHOBJECT &&
-        current_when->value.listvalue->next->next->next->next != NULL) {
-      when_values = arg_3(current_when->value.listvalue);
+        current_when->value.listValue->next->next->next->next != NULL) {
+      when_values = arg_3(current_when->value.listValue);
       if (CATEGORY_OF_OBJ(when_values) != SETOBJECT) {
         when_set = exec_object(when_values);
         isit_set(when_set);
@@ -245,18 +245,18 @@ objecttype prc_case (listtype arguments)
           when_values->type_of = NULL;
           when_values->descriptor.property = NULL;
           SET_CATEGORY_OF_OBJ(when_values, SETOBJECT);
-          when_values->value.setvalue = set_value;
+          when_values->value.setValue = set_value;
         } /* if */
       } else {
         set_value = take_set(when_values);
       } /* if */
       if (setElem(switch_value, set_value)) {
-        when_statement = arg_5(current_when->value.listvalue);
+        when_statement = arg_5(current_when->value.listValue);
         evaluate(when_statement);
         searching = FALSE;
       } else {
-        if (current_when->value.listvalue->next->next->next->next->next != NULL) {
-          current_when = arg_6(current_when->value.listvalue);
+        if (current_when->value.listValue->next->next->next->next->next != NULL) {
+          current_when = arg_6(current_when->value.listValue);
         } else {
           current_when = NULL;
         } /* if */
@@ -267,20 +267,20 @@ objecttype prc_case (listtype arguments)
 
 
 
-objecttype prc_case_def (listtype arguments)
+objectType prc_case_def (listType arguments)
 
   {
-    objecttype switch_object;
-    inttype switch_value;
-    objecttype when_objects;
-    objecttype default_statement;
-    objecttype current_when;
-    objecttype when_values;
-    objecttype when_set;
-    settype set_value;
-    objecttype when_statement;
-    errinfotype err_info = OKAY_NO_ERROR;
-    booltype searching;
+    objectType switch_object;
+    intType switch_value;
+    objectType when_objects;
+    objectType default_statement;
+    objectType current_when;
+    objectType when_values;
+    objectType when_set;
+    setType set_value;
+    objectType when_statement;
+    errInfoType err_info = OKAY_NO_ERROR;
+    boolType searching;
 
   /* prc_case_def */
     searching = TRUE;
@@ -290,8 +290,8 @@ objecttype prc_case_def (listtype arguments)
     switch_value = do_ord(switch_object, &err_info);
     while (searching && current_when != NULL &&
         CATEGORY_OF_OBJ(current_when) == MATCHOBJECT &&
-        current_when->value.listvalue->next->next->next->next != NULL) {
-      when_values = arg_3(current_when->value.listvalue);
+        current_when->value.listValue->next->next->next->next != NULL) {
+      when_values = arg_3(current_when->value.listValue);
       if (CATEGORY_OF_OBJ(when_values) != SETOBJECT) {
         when_set = exec_object(when_values);
         isit_set(when_set);
@@ -300,18 +300,18 @@ objecttype prc_case_def (listtype arguments)
           when_values->type_of = NULL;
           when_values->descriptor.property = NULL;
           SET_CATEGORY_OF_OBJ(when_values, SETOBJECT);
-          when_values->value.setvalue = set_value;
+          when_values->value.setValue = set_value;
         } /* if */
       } else {
         set_value = take_set(when_values);
       } /* if */
       if (setElem(switch_value, set_value)) {
-        when_statement = arg_5(current_when->value.listvalue);
+        when_statement = arg_5(current_when->value.listValue);
         evaluate(when_statement);
         searching = FALSE;
       } else {
-        if (current_when->value.listvalue->next->next->next->next->next != NULL) {
-          current_when = arg_6(current_when->value.listvalue);
+        if (current_when->value.listValue->next->next->next->next->next != NULL) {
+          current_when = arg_6(current_when->value.listValue);
         } else {
           current_when = NULL;
         } /* if */
@@ -326,13 +326,13 @@ objecttype prc_case_def (listtype arguments)
 
 
 
-objecttype prc_cpy (listtype arguments)
+objectType prc_cpy (listType arguments)
 
   {
-    objecttype proc_variable;
-    objecttype source_value;
-    objecttype block_value;
-    errinfotype err_info = OKAY_NO_ERROR;
+    objectType proc_variable;
+    objectType source_value;
+    objectType block_value;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* prc_cpy */
     proc_variable = arg_1(arguments);
@@ -345,10 +345,10 @@ objecttype prc_cpy (listtype arguments)
     printf("\n"); */
     if (CATEGORY_OF_OBJ(source_value) == BLOCKOBJECT) {
       if (ALLOC_OBJECT(block_value)) {
-        memcpy(block_value, source_value, sizeof(struct objectstruct));
+        memcpy(block_value, source_value, sizeof(objectRecord));
         SET_CATEGORY_OF_OBJ(proc_variable, MATCHOBJECT);
-        proc_variable->value.listvalue = NULL;
-        incl_list(&proc_variable->value.listvalue, block_value, &err_info);
+        proc_variable->value.listValue = NULL;
+        incl_list(&proc_variable->value.listValue, block_value, &err_info);
       } else {
         return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
@@ -364,11 +364,11 @@ objecttype prc_cpy (listtype arguments)
 
 
 
-objecttype prc_create (listtype arguments)
+objectType prc_create (listType arguments)
 
   {
-    objecttype proc_to;
-    objecttype proc_from;
+    objectType proc_to;
+    objectType proc_from;
 
   /* prc_create */
     proc_to = arg_1(arguments);
@@ -377,14 +377,14 @@ objecttype prc_create (listtype arguments)
     SET_CATEGORY_OF_OBJ(proc_to, CATEGORY_OF_OBJ(proc_from));
     proc_to->value = proc_from->value;
     if (TEMP_OBJECT(proc_from)) {
-      proc_from->value.blockvalue = NULL;
+      proc_from->value.blockValue = NULL;
     } /* if */
     return SYS_EMPTY_OBJECT;
   } /* prc_create */
 
 
 
-objecttype prc_decls (listtype arguments)
+objectType prc_decls (listType arguments)
 
   { /* prc_decls */
     trace_nodes();
@@ -393,10 +393,10 @@ objecttype prc_decls (listtype arguments)
 
 
 
-objecttype prc_dynamic (listtype arguments)
+objectType prc_dynamic (listType arguments)
 
   {
-    objecttype result;
+    objectType result;
 
   /* prc_dynamic */
     result = exec_dynamic(arguments);
@@ -405,10 +405,10 @@ objecttype prc_dynamic (listtype arguments)
 
 
 
-objecttype prc_exit (listtype arguments)
+objectType prc_exit (listType arguments)
 
   {
-    inttype status;
+    intType status;
 
   /* prc_exit */
     isit_int(arg_1(arguments));
@@ -424,13 +424,13 @@ objecttype prc_exit (listtype arguments)
 
 
 
-objecttype prc_for_downto (listtype arguments)
+objectType prc_for_downto (listType arguments)
 
   {
-    objecttype for_variable;
-    inttype upper_limit;
-    inttype lower_limit;
-    objecttype statement;
+    objectType for_variable;
+    intType upper_limit;
+    intType lower_limit;
+    objectType statement;
 
   /* prc_for_downto */
     for_variable = arg_2(arguments);
@@ -442,10 +442,10 @@ objecttype prc_for_downto (listtype arguments)
     lower_limit = take_int(arg_6(arguments));
     statement = arg_8(arguments);
     if (upper_limit >= lower_limit) {
-      for_variable->value.intvalue = upper_limit;
+      for_variable->value.intValue = upper_limit;
       evaluate(statement);
       while (take_int(for_variable) > lower_limit && !fail_flag) {
-        for_variable->value.intvalue--;
+        for_variable->value.intValue--;
         evaluate(statement);
       } /* while */
     } /* if */
@@ -454,13 +454,13 @@ objecttype prc_for_downto (listtype arguments)
 
 
 
-objecttype prc_for_to (listtype arguments)
+objectType prc_for_to (listType arguments)
 
   {
-    objecttype for_variable;
-    inttype lower_limit;
-    inttype upper_limit;
-    objecttype statement;
+    objectType for_variable;
+    intType lower_limit;
+    intType upper_limit;
+    objectType statement;
 
   /* prc_for_to */
     for_variable = arg_2(arguments);
@@ -472,10 +472,10 @@ objecttype prc_for_to (listtype arguments)
     upper_limit = take_int(arg_6(arguments));
     statement = arg_8(arguments);
     if (lower_limit <= upper_limit) {
-      for_variable->value.intvalue = lower_limit;
+      for_variable->value.intValue = lower_limit;
       evaluate(statement);
       while (take_int(for_variable) < upper_limit && !fail_flag) {
-        for_variable->value.intvalue++;
+        for_variable->value.intValue++;
         evaluate(statement);
       } /* while */
     } /* if */
@@ -484,7 +484,7 @@ objecttype prc_for_to (listtype arguments)
 
 
 
-objecttype prc_heapstat (listtype arguments)
+objectType prc_heapstat (listType arguments)
 
   { /* prc_heapstat */
 #ifdef DO_HEAP_STATISTIC
@@ -497,19 +497,19 @@ objecttype prc_heapstat (listtype arguments)
 
 
 
-objecttype prc_hsize (listtype arguments)
+objectType prc_hsize (listType arguments)
 
   { /* prc_hsize */
     /* heap_statistic(); */
-    return bld_int_temp((inttype) heapsize());
+    return bld_int_temp((intType) heapsize());
   } /* prc_hsize */
 
 
 
-objecttype prc_if (listtype arguments)
+objectType prc_if (listType arguments)
 
   {
-    objecttype condition;
+    objectType condition;
 
   /* prc_if */
     isit_bool(arg_2(arguments));
@@ -522,10 +522,10 @@ objecttype prc_if (listtype arguments)
 
 
 
-objecttype prc_if_elsif (listtype arguments)
+objectType prc_if_elsif (listType arguments)
 
   {
-    objecttype condition;
+    objectType condition;
 
   /* prc_if_elsif */
     isit_bool(arg_2(arguments));
@@ -540,16 +540,16 @@ objecttype prc_if_elsif (listtype arguments)
 
 
 
-objecttype prc_include (listtype arguments)
+objectType prc_include (listType arguments)
 
   {
-    stritype include_file_name;
-    errinfotype err_info = OKAY_NO_ERROR;
+    striType include_file_name;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* prc_include */
     isit_stri(arg_1(arguments));
     include_file_name = take_stri(arg_1(arguments));
-    if (strChPos(include_file_name, (chartype) '\\') != 0) {
+    if (strChPos(include_file_name, (charType) '\\') != 0) {
       err_stri(WRONG_PATH_DELIMITER, include_file_name);
     } else {
       find_include_file(include_file_name, &err_info);
@@ -568,27 +568,27 @@ objecttype prc_include (listtype arguments)
 
 
 
-objecttype prc_local (listtype arguments)
+objectType prc_local (listType arguments)
 
   {
-    objecttype local_decls;
-    objecttype block_body;
-    objecttype block_body_list = NULL;
-    listtype *local_object_insert_place;
-    loclisttype local_vars;
-    listtype local_consts;
-    objecttype decl_res;
-    errinfotype err_info = OKAY_NO_ERROR;
-    blocktype block;
+    objectType local_decls;
+    objectType block_body;
+    objectType block_body_list = NULL;
+    listType *local_object_insert_place;
+    locListType local_vars;
+    listType local_consts;
+    objectType decl_res;
+    errInfoType err_info = OKAY_NO_ERROR;
+    blockType block;
 
   /* prc_local */
     local_decls = arg_3(arguments);
     block_body = arg_5(arguments);
     if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT &&
-        block_body->value.listvalue != NULL &&
-        block_body->value.listvalue->next == NULL) {
+        block_body->value.listValue != NULL &&
+        block_body->value.listValue->next == NULL) {
       block_body_list = block_body;
-      block_body = block_body->value.listvalue->obj;
+      block_body = block_body->value.listValue->obj;
     } /* if */
     block_body = copy_expression(block_body, &err_info);
     push_stack();
@@ -626,7 +626,7 @@ objecttype prc_local (listtype arguments)
 
 
 
-objecttype prc_noop (listtype arguments)
+objectType prc_noop (listType arguments)
 
   { /* prc_noop */
     return SYS_EMPTY_OBJECT;
@@ -634,7 +634,7 @@ objecttype prc_noop (listtype arguments)
 
 
 
-objecttype prc_raise (listtype arguments)
+objectType prc_raise (listType arguments)
 
   { /* prc_raise */
     isit_enum(arg_2(arguments));
@@ -643,13 +643,13 @@ objecttype prc_raise (listtype arguments)
 
 
 
-objecttype prc_repeat (listtype arguments)
+objectType prc_repeat (listType arguments)
 
   {
-    objecttype statement;
-    objecttype condition;
-    objecttype cond_value;
-    booltype cond;
+    objectType statement;
+    objectType condition;
+    objectType cond_value;
+    boolType cond;
 
   /* prc_repeat */
     statement = arg_2(arguments);
@@ -660,7 +660,7 @@ objecttype prc_repeat (listtype arguments)
         cond_value = evaluate(condition);
         if (!fail_flag) {
           isit_bool(cond_value);
-          cond = (booltype) (take_bool(cond_value) == SYS_FALSE_OBJECT);
+          cond = (boolType) (take_bool(cond_value) == SYS_FALSE_OBJECT);
           if (TEMP_OBJECT(cond_value)) {
             dump_any_temp(cond_value);
           } /* if */
@@ -672,17 +672,17 @@ objecttype prc_repeat (listtype arguments)
 
 
 
-objecttype prc_res_begin (listtype arguments)
+objectType prc_res_begin (listType arguments)
 
   {
-    typetype result_type;
-    objecttype result_var_name;
-    locobjrecord result_var;
-    objecttype result_init;
-    objecttype block_body;
-    objecttype block_body_list = NULL;
-    errinfotype err_info = OKAY_NO_ERROR;
-    blocktype block;
+    typeType result_type;
+    objectType result_var_name;
+    locObjRecord result_var;
+    objectType result_init;
+    objectType block_body;
+    objectType block_body_list = NULL;
+    errInfoType err_info = OKAY_NO_ERROR;
+    blockType block;
 
   /* prc_res_begin */
     isit_type(arg_4(arguments));
@@ -691,10 +691,10 @@ objecttype prc_res_begin (listtype arguments)
     result_init = arg_8(arguments);
     block_body = arg_10(arguments);
     if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT &&
-        block_body->value.listvalue != NULL &&
-        block_body->value.listvalue->next == NULL) {
+        block_body->value.listValue != NULL &&
+        block_body->value.listValue->next == NULL) {
       block_body_list = block_body;
-      block_body = block_body->value.listvalue->obj;
+      block_body = block_body->value.listValue->obj;
     } /* if */
     block_body = copy_expression(block_body, &err_info);
     push_stack();
@@ -743,22 +743,22 @@ objecttype prc_res_begin (listtype arguments)
 
 
 
-objecttype prc_res_local (listtype arguments)
+objectType prc_res_local (listType arguments)
 
   {
-    typetype result_type;
-    objecttype result_var_name;
-    locobjrecord result_var;
-    objecttype result_init;
-    objecttype local_decls;
-    objecttype block_body;
-    objecttype block_body_list = NULL;
-    listtype *local_object_insert_place;
-    loclisttype local_vars;
-    listtype local_consts;
-    objecttype decl_res;
-    errinfotype err_info = OKAY_NO_ERROR;
-    blocktype block;
+    typeType result_type;
+    objectType result_var_name;
+    locObjRecord result_var;
+    objectType result_init;
+    objectType local_decls;
+    objectType block_body;
+    objectType block_body_list = NULL;
+    listType *local_object_insert_place;
+    locListType local_vars;
+    listType local_consts;
+    objectType decl_res;
+    errInfoType err_info = OKAY_NO_ERROR;
+    blockType block;
 
   /* prc_res_local */
     isit_type(arg_4(arguments));
@@ -768,10 +768,10 @@ objecttype prc_res_local (listtype arguments)
     local_decls = arg_10(arguments);
     block_body = arg_12(arguments);
     if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT &&
-        block_body->value.listvalue != NULL &&
-        block_body->value.listvalue->next == NULL) {
+        block_body->value.listValue != NULL &&
+        block_body->value.listValue->next == NULL) {
       block_body_list = block_body;
-      block_body = block_body->value.listvalue->obj;
+      block_body = block_body->value.listValue->obj;
     } /* if */
     block_body = copy_expression(block_body, &err_info);
     push_stack();
@@ -817,23 +817,23 @@ objecttype prc_res_local (listtype arguments)
 
 
 
-objecttype prc_return (listtype arguments)
+objectType prc_return (listType arguments)
 
   {
-    objecttype block_body;
-    objecttype block_body_list = NULL;
-    locobjrecord return_var;
-    typetype return_type;
-    errinfotype err_info = OKAY_NO_ERROR;
-    blocktype block;
+    objectType block_body;
+    objectType block_body_list = NULL;
+    locObjRecord return_var;
+    typeType return_type;
+    errInfoType err_info = OKAY_NO_ERROR;
+    blockType block;
 
   /* prc_return */
     block_body = arg_2(arguments);
     if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT &&
-        block_body->value.listvalue != NULL &&
-        block_body->value.listvalue->next == NULL) {
+        block_body->value.listValue != NULL &&
+        block_body->value.listValue->next == NULL) {
       block_body_list = block_body;
-      block_body = block_body->value.listvalue->obj;
+      block_body = block_body->value.listValue->obj;
     } /* if */
     block_body = copy_expression(block_body, &err_info);
     push_stack();
@@ -875,23 +875,23 @@ objecttype prc_return (listtype arguments)
 
 
 
-objecttype prc_return2 (listtype arguments)
+objectType prc_return2 (listType arguments)
 
   {
-    objecttype block_body;
-    objecttype block_body_list = NULL;
-    locobjrecord return_var;
-    typetype return_type;
-    errinfotype err_info = OKAY_NO_ERROR;
-    blocktype block;
+    objectType block_body;
+    objectType block_body_list = NULL;
+    locObjRecord return_var;
+    typeType return_type;
+    errInfoType err_info = OKAY_NO_ERROR;
+    blockType block;
 
   /* prc_return2 */
     block_body = arg_3(arguments);
     if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT &&
-        block_body->value.listvalue != NULL &&
-        block_body->value.listvalue->next == NULL) {
+        block_body->value.listValue != NULL &&
+        block_body->value.listValue->next == NULL) {
       block_body_list = block_body;
-      block_body = block_body->value.listvalue->obj;
+      block_body = block_body->value.listValue->obj;
     } /* if */
     block_body = copy_expression(block_body, &err_info);
     push_stack();
@@ -933,7 +933,7 @@ objecttype prc_return2 (listtype arguments)
 
 
 
-objecttype prc_settrace (listtype arguments)
+objectType prc_settrace (listType arguments)
 
   { /* prc_settrace */
     isit_stri(arg_1(arguments));
@@ -944,7 +944,7 @@ objecttype prc_settrace (listtype arguments)
 
 
 
-objecttype prc_trace (listtype arguments)
+objectType prc_trace (listType arguments)
 
   { /* prc_trace */
     while (arguments != NULL) {
@@ -957,21 +957,21 @@ objecttype prc_trace (listtype arguments)
 
 
 
-objecttype prc_varfunc (listtype arguments)
+objectType prc_varfunc (listType arguments)
 
   {
-    objecttype block_body;
-    objecttype block_body_list = NULL;
-    errinfotype err_info = OKAY_NO_ERROR;
-    blocktype block;
+    objectType block_body;
+    objectType block_body_list = NULL;
+    errInfoType err_info = OKAY_NO_ERROR;
+    blockType block;
 
   /* prc_varfunc */
     block_body = arg_3(arguments);
     if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT &&
-        block_body->value.listvalue != NULL &&
-        block_body->value.listvalue->next == NULL) {
+        block_body->value.listValue != NULL &&
+        block_body->value.listValue->next == NULL) {
       block_body_list = block_body;
-      block_body = block_body->value.listvalue->obj;
+      block_body = block_body->value.listValue->obj;
     } /* if */
     block_body = copy_expression(block_body, &err_info);
     push_stack();
@@ -994,21 +994,21 @@ objecttype prc_varfunc (listtype arguments)
 
 
 
-objecttype prc_varfunc2 (listtype arguments)
+objectType prc_varfunc2 (listType arguments)
 
   {
-    objecttype block_body;
-    objecttype block_body_list = NULL;
-    errinfotype err_info = OKAY_NO_ERROR;
-    blocktype block;
+    objectType block_body;
+    objectType block_body_list = NULL;
+    errInfoType err_info = OKAY_NO_ERROR;
+    blockType block;
 
   /* prc_varfunc2 */
     block_body = arg_4(arguments);
     if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT &&
-        block_body->value.listvalue != NULL &&
-        block_body->value.listvalue->next == NULL) {
+        block_body->value.listValue != NULL &&
+        block_body->value.listValue->next == NULL) {
       block_body_list = block_body;
-      block_body = block_body->value.listvalue->obj;
+      block_body = block_body->value.listValue->obj;
     } /* if */
     block_body = copy_expression(block_body, &err_info);
     push_stack();
@@ -1031,13 +1031,13 @@ objecttype prc_varfunc2 (listtype arguments)
 
 
 
-objecttype prc_while (listtype arguments)
+objectType prc_while (listType arguments)
 
   {
-    objecttype condition;
-    objecttype statement;
-    objecttype cond_value;
-    booltype cond;
+    objectType condition;
+    objectType statement;
+    objectType cond_value;
+    boolType cond;
 
   /* prc_while */
     condition = arg_2(arguments);
@@ -1045,7 +1045,7 @@ objecttype prc_while (listtype arguments)
     cond_value = evaluate(condition);
     if (!fail_flag) {
       isit_bool(cond_value);
-      cond = (booltype) (take_bool(cond_value) == SYS_TRUE_OBJECT);
+      cond = (boolType) (take_bool(cond_value) == SYS_TRUE_OBJECT);
       if (TEMP_OBJECT(cond_value)) {
         dump_any_temp(cond_value);
       } /* if */
@@ -1055,7 +1055,7 @@ objecttype prc_while (listtype arguments)
           cond_value = evaluate(condition);
           if (!fail_flag) {
             isit_bool(cond_value);
-            cond = (booltype) (take_bool(cond_value) == SYS_TRUE_OBJECT);
+            cond = (boolType) (take_bool(cond_value) == SYS_TRUE_OBJECT);
             if (TEMP_OBJECT(cond_value)) {
               dump_any_temp(cond_value);
             } /* if */

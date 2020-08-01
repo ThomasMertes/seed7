@@ -52,8 +52,8 @@
 
 
 
-static inline int strelem_memcmp (const strelemtype *mem1,
-    const strelemtype *mem2, size_t number)
+static inline int strelem_memcmp (const strElemType *mem1,
+    const strElemType *mem2, size_t number)
 
   { /* strelem_memcmp */
     for (; number > 0; mem1++, mem2++, number--) {
@@ -66,8 +66,8 @@ static inline int strelem_memcmp (const strelemtype *mem1,
 
 
 
-static inline const strelemtype *search_strelem (const strelemtype *mem,
-    const strelemtype ch, const strelemtype *const beyond)
+static inline const strElemType *search_strelem (const strElemType *mem,
+    const strElemType ch, const strElemType *const beyond)
 
   { /* search_strelem */
     for (; mem != beyond; mem++) {
@@ -80,9 +80,9 @@ static inline const strelemtype *search_strelem (const strelemtype *mem,
 
 
 
-static inline const strelemtype *search_strelem2 (const strelemtype *mem,
-    const strelemtype ch, const strelemtype *const beyond,
-    const memsizetype charDelta[])
+static inline const strElemType *search_strelem2 (const strElemType *mem,
+    const strElemType ch, const strElemType *const beyond,
+    const memSizeType charDelta[])
 
   { /* search_strelem2 */
     while (mem < beyond) {
@@ -99,8 +99,8 @@ static inline const strelemtype *search_strelem2 (const strelemtype *mem,
 
 
 
-static inline const strelemtype *rsearch_strelem (const strelemtype *mem,
-    const strelemtype ch, size_t number)
+static inline const strElemType *rsearch_strelem (const strElemType *mem,
+    const strElemType ch, size_t number)
 
   { /* rsearch_strelem */
     for (; number > 0; mem--, number--) {
@@ -113,9 +113,9 @@ static inline const strelemtype *rsearch_strelem (const strelemtype *mem,
 
 
 
-static inline const strelemtype *rsearch_strelem2 (const strelemtype *mem,
-    const strelemtype ch, const strelemtype *const beyond,
-    const memsizetype charDelta[])
+static inline const strElemType *rsearch_strelem2 (const strElemType *mem,
+    const strElemType ch, const strElemType *const beyond,
+    const memSizeType charDelta[])
 
   { /* rsearch_strelem2 */
     while (mem > beyond) {
@@ -132,12 +132,12 @@ static inline const strelemtype *rsearch_strelem2 (const strelemtype *mem,
 
 
 
-void toLower (const strelemtype *const stri, memsizetype length,
-    strelemtype *const dest)
+void toLower (const strElemType *const stri, memSizeType length,
+    strElemType *const dest)
 
   {
-    memsizetype pos;
-    strelemtype ch;
+    memSizeType pos;
+    strElemType ch;
 
   /* toLower */
     for (pos = 0; pos < length; pos++) {
@@ -145,7 +145,7 @@ void toLower (const strelemtype *const stri, memsizetype length,
       switch (ch >> 8) {
         case 0:
           if (ch <= '\177') {
-            ch = (strelemtype) ((unsigned char)
+            ch = (strElemType) ((unsigned char)
                 "\0\1\2\3\4\5\6\7\10\11\12\13\14\15\16\17"
                 "\20\21\22\23\24\25\26\27\30\31\32\33\34\35\36\37"
                 " !\"#$%&'()*+,-./0123456789:;<=>?"
@@ -287,7 +287,7 @@ void toLower (const strelemtype *const stri, memsizetype length,
               "\0\377\0\377\0\377\0\037\0\037\0\017\0\037\0\037"[ch >> 3 & 31] &
               1 << (ch & 7)) {
             if (ch >= 0x1fba) {
-              ch = (strelemtype) ((unsigned char)
+              ch = (strElemType) ((unsigned char)
                   "\160\161\263\000\000\000\000\000\000\000"
                   "\000\000\000\000\162\163\164\165\303\000"
                   "\000\000\000\000\000\000\000\000\000\000"
@@ -382,7 +382,7 @@ void toLower (const strelemtype *const stri, memsizetype length,
 
 
 
-static const strelemtype toUpperTable2[] = {
+static const strElemType toUpperTable2[] = {
     0x2c6f, 0x2c6d, 0x2c70, 0x0181, 0x0186,      0, 0x0189, 0x018a,      0, 0x018f,
          0, 0x0190,      0,      0,      0,      0, 0x0193,      0,      0, 0x0194,
          0, 0xa78d, 0xa7aa,      0, 0x0197, 0x0196,      0, 0x2c62,      0,      0,
@@ -393,12 +393,12 @@ static const strelemtype toUpperTable2[] = {
   };
 
 
-void toUpper (const strelemtype *const stri, memsizetype length,
-    strelemtype *const dest)
+void toUpper (const strElemType *const stri, memSizeType length,
+    strElemType *const dest)
 
   {
-    memsizetype pos;
-    strelemtype ch;
+    memSizeType pos;
+    strElemType ch;
 
   /* toUpper */
     for (pos = 0; pos < length; pos++) {
@@ -406,7 +406,7 @@ void toUpper (const strelemtype *const stri, memsizetype length,
       switch (ch >> 8) {
         case 0:
           if (ch <= '\177') {
-            ch = (strelemtype) ((unsigned char)
+            ch = (strElemType) ((unsigned char)
                 "\0\1\2\3\4\5\6\7\10\11\12\13\14\15\16\17"
                 "\20\21\22\23\24\25\26\27\30\31\32\33\34\35\36\37"
                 " !\"#$%&'()*+,-./0123456789:;<=>?"
@@ -433,12 +433,12 @@ void toUpper (const strelemtype *const stri, memsizetype length,
             } else if (ch == 0x017f) {
               ch = 0x0053;
             } else if (ch >= 0x0180 && ch <= 0x019e) {
-              ch = (strelemtype) ((unsigned char)
+              ch = (strElemType) ((unsigned char)
                   "\303\0\0\002\0\004\0\0\007\0"
                   "\0\0\013\0\0\0\0\0\021\0"
                   "\0\166\0\0\0\030\275\0\0\0\240"[ch - 0x0180] + 0x0180);
             } else if (ch >= 0x01bf && ch <= 0x01cc) {
-              ch = (strelemtype) ((unsigned char)
+              ch = (strElemType) ((unsigned char)
                   "\367\0\0\0\0\0\304\304\0\307"
                   "\307\0\312\312"[ch - 0x01bf] + 0x0100);
             } else if (ch == 0x01dd) {
@@ -490,12 +490,12 @@ void toUpper (const strelemtype *const stri, memsizetype length,
                 ch -= 32;
               } /* if */
             } else if (ch <= 0x03d7) {
-              ch = (strelemtype) ((unsigned char)
+              ch = (strElemType) ((unsigned char)
                   "\214\216\217\0\222\230\0\0\0\246\240\317"[ch - 0x03cc] + 0x0300);
             } else if (ch <= 0x03ef) {
               ch -= 1;
             } else {
-              ch = (strelemtype) ((unsigned char)
+              ch = (strElemType) ((unsigned char)
                   "\232\241\371\0\0\225\0\0\367\0\0\372"[ch - 0x03f0] + 0x0300);
             } /* if */
           } /* if */
@@ -549,7 +549,7 @@ void toUpper (const strelemtype *const stri, memsizetype length,
               "\377\0\377\0\377\0\013@\b\0\003\0#\0\b\0"[ch >> 3 & 31] &
               1 << (ch & 7)) {
             if (ch >= 0x1f70 && ch <= 0x1f7d) {
-              ch = (strelemtype) ((unsigned char)
+              ch = (strElemType) ((unsigned char)
                   "\272\273\310\311\312\313\332\333\370\371\352\353\372\373"[ch - 0x1f70] + 0x1f00);
             } else if (ch == 0x1fb3 || ch == 0x1fc3 || ch == 0x1ff3) {
               ch += 9;
@@ -633,44 +633,44 @@ void toUpper (const strelemtype *const stri, memsizetype length,
 
 
 
-static rtlArraytype add_stri_to_array (const strelemtype *const stri_elems,
-    const memsizetype length, rtlArraytype work_array, inttype *used_max_position)
+static rtlArrayType add_stri_to_array (const strElemType *const stri_elems,
+    const memSizeType length, rtlArrayType work_array, intType *used_max_position)
 
   {
-    stritype new_stri;
-    rtlArraytype resized_work_array;
-    memsizetype position;
+    striType new_stri;
+    rtlArrayType resized_work_array;
+    memSizeType position;
 
   /* add_stri_to_array */
     if (ALLOC_STRI_SIZE_OK(new_stri, length)) {
       new_stri->size = length;
-      memcpy(new_stri->mem, stri_elems, length * sizeof(strelemtype));
+      memcpy(new_stri->mem, stri_elems, length * sizeof(strElemType));
       if (*used_max_position >= work_array->max_position) {
         if (work_array->max_position >= MAX_MEM_INDEX - 256) {
           resized_work_array = NULL;
         } else {
           resized_work_array = REALLOC_RTL_ARRAY(work_array,
-              (uinttype) work_array->max_position, (uinttype) work_array->max_position + 256);
+              (uintType) work_array->max_position, (uintType) work_array->max_position + 256);
         } /* if */
         if (resized_work_array == NULL) {
           FREE_STRI(new_stri, new_stri->size);
           new_stri = NULL;
         } else {
           work_array = resized_work_array;
-          COUNT3_RTL_ARRAY((uinttype) work_array->max_position, (uinttype) work_array->max_position + 256);
+          COUNT3_RTL_ARRAY((uintType) work_array->max_position, (uintType) work_array->max_position + 256);
           work_array->max_position += 256;
         } /* if */
       } /* if */
     } /* if */
     if (new_stri != NULL) {
-      work_array->arr[*used_max_position].value.strivalue = new_stri;
+      work_array->arr[*used_max_position].value.striValue = new_stri;
       (*used_max_position)++;
     } else {
-      for (position = 0; position < (uinttype) *used_max_position; position++) {
-        FREE_STRI(work_array->arr[position].value.strivalue,
-            work_array->arr[position].value.strivalue->size);
+      for (position = 0; position < (uintType) *used_max_position; position++) {
+        FREE_STRI(work_array->arr[position].value.striValue,
+            work_array->arr[position].value.striValue->size);
       } /* for */
-      FREE_RTL_ARRAY(work_array, (uinttype) work_array->max_position);
+      FREE_RTL_ARRAY(work_array, (uintType) work_array->max_position);
       work_array = NULL;
     } /* if */
     return work_array;
@@ -678,18 +678,18 @@ static rtlArraytype add_stri_to_array (const strelemtype *const stri_elems,
 
 
 
-stritype concat_path (const const_stritype absolutePath,
-    const const_stritype relativePath)
+striType concat_path (const const_striType absolutePath,
+    const const_striType relativePath)
 
   {
-    memsizetype abs_path_length;
-    memsizetype estimated_result_size;
-    strelemtype *abs_path_end;
-    const strelemtype *rel_path_pos;
-    const strelemtype *rel_path_beyond;
-    memsizetype result_size;
-    stritype resized_result;
-    stritype result;
+    memSizeType abs_path_length;
+    memSizeType estimated_result_size;
+    strElemType *abs_path_end;
+    const strElemType *rel_path_pos;
+    const strElemType *rel_path_beyond;
+    memSizeType result_size;
+    striType resized_result;
+    striType result;
 
   /* concat_path */
 #ifdef TRACE_STR_RTL
@@ -712,7 +712,7 @@ stritype concat_path (const const_stritype absolutePath,
       /* there is also a slash at the end of the intermediate result. */
       estimated_result_size = abs_path_length + relativePath->size + 2;
       if (ALLOC_STRI_SIZE_OK(result, estimated_result_size)) {
-        memcpy(result->mem, absolutePath->mem, abs_path_length * sizeof(strelemtype));
+        memcpy(result->mem, absolutePath->mem, abs_path_length * sizeof(strElemType));
         result->mem[abs_path_length] = '/';
         abs_path_end = &result->mem[abs_path_length];
         rel_path_pos = relativePath->mem;
@@ -750,7 +750,7 @@ stritype concat_path (const const_stritype absolutePath,
           result->mem[0] = '/';
           result_size = 1;
         } else {
-          result_size = (memsizetype) (abs_path_end - result->mem);
+          result_size = (memSizeType) (abs_path_end - result->mem);
         } /* if */
         REALLOC_STRI_SIZE_SMALLER(resized_result, result, estimated_result_size, result_size);
         if (unlikely(resized_result == NULL)) {
@@ -779,15 +779,15 @@ stritype concat_path (const const_stritype absolutePath,
  *  @exception MEMORY_ERROR Not enough memory for the concatenated
  *             string.
  */
-void strAppend (stritype *const destination, const_stritype extension)
+void strAppend (striType *const destination, const_striType extension)
 
   {
-    memsizetype new_size;
-    stritype stri_dest;
-    stritype new_stri;
-    memsizetype extension_size;
-    const strelemtype *extension_mem;
-    const strelemtype *extension_origin;
+    memSizeType new_size;
+    striType stri_dest;
+    striType new_stri;
+    memSizeType extension_size;
+    const strElemType *extension_mem;
+    const strElemType *extension_origin;
 
   /* strAppend */
 #ifdef TRACE_STR_RTL
@@ -802,7 +802,7 @@ void strAppend (stritype *const destination, const_stritype extension)
     extension_size = extension->size;
     extension_mem = extension->mem;
     if (unlikely(stri_dest->size > MAX_STRI_LEN - extension_size)) {
-      /* number of bytes does not fit into memsizetype */
+      /* number of bytes does not fit into memSizeType */
       raise_error(MEMORY_ERROR);
     } else {
       new_size = stri_dest->size + extension_size;
@@ -836,7 +836,7 @@ void strAppend (stritype *const destination, const_stritype extension)
       } /* if */
       COUNT3_STRI(stri_dest->size, new_size);
       memcpy(&stri_dest->mem[stri_dest->size], extension_mem,
-          extension_size * sizeof(strelemtype));
+          extension_size * sizeof(strElemType));
       stri_dest->size = new_size;
 #else
       if (SLICE_OVERLAPPING(extension, stri_dest)) {
@@ -862,7 +862,7 @@ void strAppend (stritype *const destination, const_stritype extension)
         } /* if */
         COUNT3_STRI(new_stri->size, new_size);
         memcpy(&new_stri->mem[new_stri->size], extension_mem,
-            extension_size * sizeof(strelemtype));
+            extension_size * sizeof(strElemType));
         new_stri->size = new_size;
         *destination = new_stri;
       } /* if */
@@ -884,12 +884,12 @@ void strAppend (stritype *const destination, const_stritype extension)
  *  @exception MEMORY_ERROR Not enough memory for the concatenated
  *             string.
  */
-void strAppend (stritype *const destination, const_stritype extension)
+void strAppend (striType *const destination, const_striType extension)
 
   {
-    memsizetype new_size;
-    stritype stri_dest;
-    stritype new_stri;
+    memSizeType new_size;
+    striType stri_dest;
+    striType new_stri;
 
   /* strAppend */
 #ifdef TRACE_STR_RTL
@@ -902,7 +902,7 @@ void strAppend (stritype *const destination, const_stritype extension)
 #endif
     stri_dest = *destination;
     if (unlikely(stri_dest->size > MAX_STRI_LEN - extension->size)) {
-      /* number of bytes does not fit into memsizetype */
+      /* number of bytes does not fit into memSizeType */
       raise_error(MEMORY_ERROR);
     } else {
       new_size = stri_dest->size + extension->size;
@@ -925,7 +925,7 @@ void strAppend (stritype *const destination, const_stritype extension)
       } /* if */
       COUNT3_STRI(stri_dest->size, new_size);
       memcpy(&stri_dest->mem[stri_dest->size], extension->mem,
-          extension->size * sizeof(strelemtype));
+          extension->size * sizeof(strElemType));
       stri_dest->size = new_size;
 #else
       GROW_STRI(new_stri, stri_dest, stri_dest->size, new_size);
@@ -940,7 +940,7 @@ void strAppend (stritype *const destination, const_stritype extension)
         } /* if */
         COUNT3_STRI(new_stri->size, new_size);
         memcpy(&new_stri->mem[new_stri->size], extension->mem,
-            extension->size * sizeof(strelemtype));
+            extension->size * sizeof(strElemType));
         new_stri->size = new_size;
         *destination = new_stri;
       } /* if */
@@ -964,11 +964,11 @@ void strAppend (stritype *const destination, const_stritype extension)
  *  @exception MEMORY_ERROR Not enough memory for the concatenated
  *             string.
  */
-void strAppendTemp (stritype *const destination, const stritype extension)
+void strAppendTemp (striType *const destination, const striType extension)
 
   {
-    memsizetype new_size;
-    stritype stri_dest;
+    memSizeType new_size;
+    striType stri_dest;
 
   /* strAppendTemp */
 #ifdef TRACE_STR_RTL
@@ -981,7 +981,7 @@ void strAppendTemp (stritype *const destination, const stritype extension)
 #endif
     stri_dest = *destination;
     if (unlikely(stri_dest->size > MAX_STRI_LEN - extension->size)) {
-      /* number of bytes does not fit into memsizetype */
+      /* number of bytes does not fit into memSizeType */
       raise_error(MEMORY_ERROR);
     } else {
       new_size = stri_dest->size + extension->size;
@@ -989,16 +989,16 @@ void strAppendTemp (stritype *const destination, const stritype extension)
       if (new_size <= stri_dest->capacity) {
         COUNT3_STRI(stri_dest->size, new_size);
         memcpy(&stri_dest->mem[stri_dest->size], extension->mem,
-            extension->size * sizeof(strelemtype));
+            extension->size * sizeof(strElemType));
         stri_dest->size = new_size;
         FREE_STRI(extension, extension->size);
       } else if (new_size <= extension->capacity) {
         if (stri_dest->size != 0) {
           COUNT3_STRI(extension->size, new_size);
           memmove(&extension->mem[stri_dest->size], extension->mem,
-              extension->size * sizeof(strelemtype));
+              extension->size * sizeof(strElemType));
           memcpy(extension->mem, stri_dest->mem,
-              stri_dest->size * sizeof(strelemtype));
+              stri_dest->size * sizeof(strElemType));
           extension->size = new_size;
         } /* if */
         *destination = extension;
@@ -1012,7 +1012,7 @@ void strAppendTemp (stritype *const destination, const stritype extension)
           *destination = stri_dest;
           COUNT3_STRI(stri_dest->size, new_size);
           memcpy(&stri_dest->mem[stri_dest->size], extension->mem,
-              extension->size * sizeof(strelemtype));
+              extension->size * sizeof(strElemType));
           stri_dest->size = new_size;
           FREE_STRI(extension, extension->size);
         } /* if */
@@ -1026,7 +1026,7 @@ void strAppendTemp (stritype *const destination, const stritype extension)
         *destination = stri_dest;
         COUNT3_STRI(stri_dest->size, new_size);
         memcpy(&stri_dest->mem[stri_dest->size], extension->mem,
-            extension->size * sizeof(strelemtype));
+            extension->size * sizeof(strElemType));
         stri_dest->size = new_size;
         FREE_STRI(extension, extension->size);
       } /* if */
@@ -1042,20 +1042,20 @@ void strAppendTemp (stritype *const destination, const stritype extension)
 
 
 #ifdef OUT_OF_ORDER
-rtlArraytype strChEscSplit (const const_stritype mainStri, const chartype delimiter,
-    const chartype escape)
+rtlArrayType strChEscSplit (const const_striType mainStri, const charType delimiter,
+    const charType escape)
 
   {
-    inttype used_max_position;
-    const strelemtype *search_start;
-    const strelemtype *search_end;
-    const strelemtype *curr_pos;
-    const strelemtype *found_pos;
-    stritype curr_stri;
-    const strelemtype *stri_pos;
-    memsizetype pos;
-    rtlArraytype resized_result_array;
-    rtlArraytype result_array;
+    intType used_max_position;
+    const strElemType *search_start;
+    const strElemType *search_end;
+    const strElemType *curr_pos;
+    const strElemType *found_pos;
+    striType curr_stri;
+    const strElemType *stri_pos;
+    memSizeType pos;
+    rtlArrayType resized_result_array;
+    rtlArrayType result_array;
 
   /* strChEscSplit */
     if (unlikely(delimiter == escape)) {
@@ -1074,7 +1074,7 @@ rtlArraytype strChEscSplit (const const_stritype mainStri, const chartype delimi
             while (curr_pos != search_end && *curr_pos != delimiter && *curr_pos != escape) {
               curr_pos++;
             } /* while */
-            memcpy(stri_pos, old_pos, (memsizetype) (curr_pos - old_pos));
+            memcpy(stri_pos, old_pos, (memSizeType) (curr_pos - old_pos));
             stri_pos += curr_pos - old_pos;
             if (curr_pos != search_end && *curr_pos == escape) {
               curr_pos++;
@@ -1085,27 +1085,27 @@ rtlArraytype strChEscSplit (const const_stritype mainStri, const chartype delimi
             } /* if */
           } /* while */
           result_array = add_stri_to_array(search_start,
-              (memsizetype) (found_pos - search_start), result_array,
+              (memSizeType) (found_pos - search_start), result_array,
               &used_max_position);
           search_start = found_pos + 1;
 
       if (result_array != NULL) {
         result_array = add_stri_to_array(search_start,
-            (memsizetype) (search_end - search_start), result_array,
+            (memSizeType) (search_end - search_start), result_array,
             &used_max_position);
         if (result_array != NULL) {
           resized_result_array = REALLOC_RTL_ARRAY(result_array,
-              (uinttype) result_array->max_position, (uinttype) used_max_position);
+              (uintType) result_array->max_position, (uintType) used_max_position);
           if (resized_result_array == NULL) {
-            for (pos = 0; pos < (uinttype) used_max_position; pos++) {
-              FREE_STRI(result_array->arr[pos].value.strivalue,
-                  result_array->arr[pos].value.strivalue->size);
+            for (pos = 0; pos < (uintType) used_max_position; pos++) {
+              FREE_STRI(result_array->arr[pos].value.striValue,
+                  result_array->arr[pos].value.striValue->size);
             } /* for */
-            FREE_RTL_ARRAY(result_array, (uinttype) result_array->max_position);
+            FREE_RTL_ARRAY(result_array, (uintType) result_array->max_position);
             result_array = NULL;
           } else {
             result_array = resized_result_array;
-            COUNT3_RTL_ARRAY((uinttype) result_array->max_position, (uinttype) used_max_position);
+            COUNT3_RTL_ARRAY((uintType) result_array->max_position, (uintType) used_max_position);
             result_array->max_position = used_max_position;
           } /* if */
         } /* if */
@@ -1128,23 +1128,23 @@ rtlArraytype strChEscSplit (const const_stritype mainStri, const chartype delimi
  *          does not contain 'searched' at or after 'fromIndex'.
  *  @exception RANGE_ERROR 'fromIndex' <= 0 holds.
  */
-inttype strChIPos (const const_stritype mainStri, const chartype searched,
-    const inttype fromIndex)
+intType strChIPos (const const_striType mainStri, const charType searched,
+    const intType fromIndex)
 
   {
-    const strelemtype *main_mem;
-    const strelemtype *found_pos;
+    const strElemType *main_mem;
+    const strElemType *found_pos;
 
   /* strChIPos */
     if (unlikely(fromIndex <= 0)) {
       raise_error(RANGE_ERROR);
     } else {
-      if ((uinttype) fromIndex <= mainStri->size) {
+      if ((uintType) fromIndex <= mainStri->size) {
         main_mem = mainStri->mem;
         found_pos = search_strelem(&main_mem[fromIndex - 1], searched,
             &main_mem[mainStri->size]);
         if (found_pos != NULL) {
-          return ((inttype) (found_pos - main_mem)) + 1;
+          return ((intType) (found_pos - main_mem)) + 1;
         } /* if */
       } /* if */
     } /* if */
@@ -1153,11 +1153,11 @@ inttype strChIPos (const const_stritype mainStri, const chartype searched,
 
 
 
-stritype strChMult (const chartype ch, const inttype factor)
+striType strChMult (const charType ch, const intType factor)
 
   {
-    register strelemtype *result_pointer;
-    stritype result;
+    register strElemType *result_pointer;
+    striType result;
 
   /* strChMult */
 #ifdef TRACE_STR_RTL
@@ -1167,14 +1167,14 @@ stritype strChMult (const chartype ch, const inttype factor)
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
-      if (unlikely((uinttype) factor > MAX_STRI_LEN ||
-                   !ALLOC_STRI_SIZE_OK(result, (memsizetype) factor))) {
+      if (unlikely((uintType) factor > MAX_STRI_LEN ||
+                   !ALLOC_STRI_SIZE_OK(result, (memSizeType) factor))) {
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
-        result->size = (memsizetype) factor;
+        result->size = (memSizeType) factor;
         result_pointer = result->mem;
-        memset_to_strelem(result_pointer, ch, (memsizetype) factor);
+        memset_to_strelem(result_pointer, ch, (memSizeType) factor);
       } /* if */
     } /* if */
     return result;
@@ -1188,18 +1188,18 @@ stritype strChMult (const chartype ch, const inttype factor)
  *  @return the position of 'searched' or 0 when 'mainStri'
  *          does not contain 'searched'.
  */
-inttype strChPos (const const_stritype mainStri, const chartype searched)
+intType strChPos (const const_striType mainStri, const charType searched)
 
   {
-    const strelemtype *main_mem;
-    const strelemtype *found_pos;
+    const strElemType *main_mem;
+    const strElemType *found_pos;
 
   /* strChPos */
     if (mainStri->size >= 1) {
       main_mem = mainStri->mem;
       found_pos = search_strelem(main_mem, searched, &main_mem[mainStri->size]);
       if (found_pos != NULL) {
-        return ((inttype) (found_pos - main_mem)) + 1;
+        return ((intType) (found_pos - main_mem)) + 1;
       } /* if */
     } /* if */
     return 0;
@@ -1207,16 +1207,16 @@ inttype strChPos (const const_stritype mainStri, const chartype searched)
 
 
 
-rtlArraytype strChSplit (const const_stritype mainStri, const chartype delimiter)
+rtlArrayType strChSplit (const const_striType mainStri, const charType delimiter)
 
   {
-    inttype used_max_position;
-    const strelemtype *search_start;
-    const strelemtype *search_end;
-    const strelemtype *found_pos;
-    memsizetype pos;
-    rtlArraytype resized_result_array;
-    rtlArraytype result_array;
+    intType used_max_position;
+    const strElemType *search_start;
+    const strElemType *search_end;
+    const strElemType *found_pos;
+    memSizeType pos;
+    rtlArrayType resized_result_array;
+    rtlArrayType result_array;
 
   /* strChSplit */
     if (ALLOC_RTL_ARRAY(result_array, 256)) {
@@ -1228,27 +1228,27 @@ rtlArraytype strChSplit (const const_stritype mainStri, const chartype delimiter
       while ((found_pos = search_strelem(search_start, delimiter, search_end)) != NULL &&
           result_array != NULL) {
         result_array = add_stri_to_array(search_start,
-            (memsizetype) (found_pos - search_start), result_array,
+            (memSizeType) (found_pos - search_start), result_array,
             &used_max_position);
         search_start = found_pos + 1;
       } /* while */
       if (result_array != NULL) {
         result_array = add_stri_to_array(search_start,
-            (memsizetype) (search_end - search_start), result_array,
+            (memSizeType) (search_end - search_start), result_array,
             &used_max_position);
         if (result_array != NULL) {
           resized_result_array = REALLOC_RTL_ARRAY(result_array,
-              (uinttype) result_array->max_position, (uinttype) used_max_position);
+              (uintType) result_array->max_position, (uintType) used_max_position);
           if (resized_result_array == NULL) {
-            for (pos = 0; pos < (uinttype) used_max_position; pos++) {
-              FREE_STRI(result_array->arr[pos].value.strivalue,
-                  result_array->arr[pos].value.strivalue->size);
+            for (pos = 0; pos < (uintType) used_max_position; pos++) {
+              FREE_STRI(result_array->arr[pos].value.striValue,
+                  result_array->arr[pos].value.striValue->size);
             } /* for */
-            FREE_RTL_ARRAY(result_array, (uinttype) result_array->max_position);
+            FREE_RTL_ARRAY(result_array, (uintType) result_array->max_position);
             result_array = NULL;
           } else {
             result_array = resized_result_array;
-            COUNT3_RTL_ARRAY((uinttype) result_array->max_position, (uinttype) used_max_position);
+            COUNT3_RTL_ARRAY((uintType) result_array->max_position, (uintType) used_max_position);
             result_array->max_position = used_max_position;
           } /* if */
         } /* if */
@@ -1262,15 +1262,15 @@ rtlArraytype strChSplit (const const_stritype mainStri, const chartype delimiter
 
 
 
-stritype strCLit (const const_stritype stri)
+striType strCLit (const const_striType stri)
 
   {
-    register strelemtype character;
-    register memsizetype position;
-    memsizetype striSize;
-    memsizetype pos;
-    stritype resized_result;
-    stritype result;
+    register strElemType character;
+    register memSizeType position;
+    memSizeType striSize;
+    memSizeType pos;
+    striType resized_result;
+    striType result;
 
   /* strCLit */
 #ifdef TRACE_STR_RTL
@@ -1284,7 +1284,7 @@ stritype strCLit (const const_stritype stri)
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
-      result->mem[0] = (strelemtype) '"';
+      result->mem[0] = (strElemType) '"';
       pos = 1;
       for (position = 0; position < striSize; position++) {
         character = stri->mem[position];
@@ -1296,18 +1296,18 @@ stritype strCLit (const const_stritype stri)
         /* leads to the int value -1 instead of the desired 255.    */
         if (character < 127) {
           if (character < ' ') {
-            result->mem[pos] = (strelemtype) '\\';
+            result->mem[pos] = (strElemType) '\\';
             if (cstri_escape_sequence[character][1] == '0') {
               /* Always write three octal digits to avoid errors when */
               /* the octal representation is followed by a digit.     */
-              result->mem[pos + 1] = (strelemtype) '0';
+              result->mem[pos + 1] = (strElemType) '0';
               /* Write the character as two octal digits. */
               /* This code is much faster than sprintf(). */
-              result->mem[pos + 2] = (strelemtype) ((character >> 3 & 0x7) + '0');
-              result->mem[pos + 3] = (strelemtype) ((character      & 0x7) + '0');
+              result->mem[pos + 2] = (strElemType) ((character >> 3 & 0x7) + '0');
+              result->mem[pos + 3] = (strElemType) ((character      & 0x7) + '0');
               pos += 4;
             } else {
-              result->mem[pos + 1] = (strelemtype) cstri_escape_sequence[character][1];
+              result->mem[pos + 1] = (strElemType) cstri_escape_sequence[character][1];
               pos += 2;
             } /* if */
 #ifdef TRIGRAPH_SEQUENCES_ARE_REPLACED
@@ -1316,7 +1316,7 @@ stritype strCLit (const const_stritype stri)
 #else
           } else if (character == '\\' || character == '\"') {
 #endif
-            result->mem[pos]     = (strelemtype) '\\';
+            result->mem[pos]     = (strElemType) '\\';
             result->mem[pos + 1] = character;
             pos += 2;
           } else {
@@ -1324,12 +1324,12 @@ stritype strCLit (const const_stritype stri)
             pos++;
           } /* if */
         } else if (character < 256) {
-          result->mem[pos]     = (strelemtype) '\\';
+          result->mem[pos]     = (strElemType) '\\';
           /* Write the character as three octal digits. */
           /* This code is much faster than sprintf().   */
-          result->mem[pos + 1] = (strelemtype) ((character >> 6 & 0x7) + '0');
-          result->mem[pos + 2] = (strelemtype) ((character >> 3 & 0x7) + '0');
-          result->mem[pos + 3] = (strelemtype) ((character      & 0x7) + '0');
+          result->mem[pos + 1] = (strElemType) ((character >> 6 & 0x7) + '0');
+          result->mem[pos + 2] = (strElemType) ((character >> 3 & 0x7) + '0');
+          result->mem[pos + 3] = (strElemType) ((character      & 0x7) + '0');
           pos += 4;
         } else {
           FREE_STRI(result, 4 * striSize + 2);
@@ -1337,7 +1337,7 @@ stritype strCLit (const const_stritype stri)
           return NULL;
         } /* if */
       } /* for */
-      result->mem[pos] = (strelemtype) '"';
+      result->mem[pos] = (strElemType) '"';
       pos++;
       result->size = pos;
       REALLOC_STRI_SIZE_SMALLER(resized_result, result, 4 * striSize + 2, pos);
@@ -1361,10 +1361,10 @@ stritype strCLit (const const_stritype stri)
  *          respectively less than, equal to, or greater than the
  *          second.
  */
-inttype strCompare (const const_stritype stri1, const const_stritype stri2)
+intType strCompare (const const_striType stri1, const const_striType stri2)
 
   {
-    inttype result;
+    intType result;
 
   /* strCompare */
     if (stri1->size < stri2->size) {
@@ -1384,16 +1384,16 @@ inttype strCompare (const const_stritype stri1, const const_stritype stri2)
 
 
 /**
- *  Reinterpret the generic parameters as stritype and call strCompare.
+ *  Reinterpret the generic parameters as striType and call strCompare.
  *  Function pointers in C programs generated by the Seed7 compiler
  *  may point to this function. This assures correct behaviour even
- *  when sizeof(generictype) != sizeof(stritype).
+ *  when sizeof(genericType) != sizeof(striType).
  */
-inttype strCmpGeneric (const generictype value1, const generictype value2)
+intType strCmpGeneric (const genericType value1, const genericType value2)
 
   { /* strCmpGeneric */
-    return strCompare(((const_rtlObjecttype *) &value1)->value.strivalue,
-                      ((const_rtlObjecttype *) &value2)->value.strivalue);
+    return strCompare(((const_rtlObjectType *) &value1)->value.striValue,
+                      ((const_rtlObjectType *) &value2)->value.striValue);
   } /* strCmpGeneric */
 
 
@@ -1402,15 +1402,15 @@ inttype strCmpGeneric (const generictype value1, const generictype value2)
  *  Concatenate two strings.
  *  @return the result of the concatenation.
  */
-stritype strConcat (const const_stritype stri1, const const_stritype stri2)
+striType strConcat (const const_striType stri1, const const_striType stri2)
 
   {
-    memsizetype result_size;
-    stritype result;
+    memSizeType result_size;
+    striType result;
 
   /* strConcat */
     if (unlikely(stri1->size > MAX_STRI_LEN - stri2->size)) {
-      /* number of bytes does not fit into memsizetype */
+      /* number of bytes does not fit into memSizeType */
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
@@ -1420,9 +1420,9 @@ stritype strConcat (const const_stritype stri1, const const_stritype stri2)
       } else {
         result->size = result_size;
         memcpy(result->mem, stri1->mem,
-            stri1->size * sizeof(strelemtype));
+            stri1->size * sizeof(strElemType));
         memcpy(&result->mem[stri1->size], stri2->mem,
-            stri2->size * sizeof(strelemtype));
+            stri2->size * sizeof(strElemType));
       } /* if */
     } /* if */
     return result;
@@ -1436,15 +1436,15 @@ stritype strConcat (const const_stritype stri1, const const_stritype stri2)
  *  three or more strings.
  *  @return the result of the concatenation.
  */
-stritype strConcatN (const const_stritype striArray[], memsizetype arraySize)
+striType strConcatN (const const_striType striArray[], memSizeType arraySize)
 
   {
-    memsizetype pos;
-    memsizetype result_size;
-    memsizetype size_limit = MAX_STRI_LEN;
-    memsizetype elem_size;
-    strelemtype *dest;
-    stritype result;
+    memSizeType pos;
+    memSizeType result_size;
+    memSizeType size_limit = MAX_STRI_LEN;
+    memSizeType elem_size;
+    strElemType *dest;
+    striType result;
 
   /* strConcatN */
 #ifdef TRACE_STR_RTL
@@ -1471,7 +1471,7 @@ stritype strConcatN (const const_stritype striArray[], memsizetype arraySize)
       dest = result->mem;
       for (pos = 0; pos < arraySize; pos++) {
         elem_size = striArray[pos]->size;
-        memcpy(dest, striArray[pos]->mem, elem_size * sizeof(strelemtype));
+        memcpy(dest, striArray[pos]->mem, elem_size * sizeof(strElemType));
         dest += elem_size;
       } /* for */
     } /* if */
@@ -1492,15 +1492,15 @@ stritype strConcatN (const const_stritype striArray[], memsizetype arraySize)
  *  when 'stri1' is temporary value that can be reused.
  *  @return the resized parameter 'stri1.
  */
-stritype strConcatTemp (stritype stri1, const const_stritype stri2)
+striType strConcatTemp (striType stri1, const const_striType stri2)
 
   {
-    memsizetype result_size;
-    stritype resized_stri1;
+    memSizeType result_size;
+    striType resized_stri1;
 
   /* strConcatTemp */
     if (unlikely(stri1->size > MAX_STRI_LEN - stri2->size)) {
-      /* number of bytes does not fit into memsizetype */
+      /* number of bytes does not fit into memSizeType */
       FREE_STRI(stri1, stri1->size);
       raise_error(MEMORY_ERROR);
       stri1 = NULL;
@@ -1519,7 +1519,7 @@ stritype strConcatTemp (stritype stri1, const const_stritype stri2)
       } /* if */
       COUNT3_STRI(stri1->size, result_size);
       memcpy(&stri1->mem[stri1->size], stri2->mem,
-          stri2->size * sizeof(strelemtype));
+          stri2->size * sizeof(strElemType));
       stri1->size = result_size;
 #else
       GROW_STRI(resized_stri1, stri1, stri1->size, result_size);
@@ -1531,7 +1531,7 @@ stritype strConcatTemp (stritype stri1, const const_stritype stri2)
         stri1 = resized_stri1;
         COUNT3_STRI(stri1->size, result_size);
         memcpy(&stri1->mem[stri1->size], stri2->mem,
-            stri2->size * sizeof(strelemtype));
+            stri2->size * sizeof(strElemType));
         stri1->size = result_size;
       } /* if */
 #endif
@@ -1542,14 +1542,14 @@ stritype strConcatTemp (stritype stri1, const const_stritype stri2)
 
 
 #ifdef ALLOW_STRITYPE_SLICES
-void strCopy (stritype *const stri_to, const const_stritype stri_from)
+void strCopy (striType *const stri_to, const const_striType stri_from)
 
   {
-    memsizetype new_size;
-    stritype stri_dest;
-    const strelemtype *stri_from_mem;
+    memSizeType new_size;
+    striType stri_dest;
+    const strElemType *stri_from_mem;
 #ifndef WITH_STRI_CAPACITY
-    const strelemtype *stri_from_origin;
+    const strElemType *stri_from_origin;
 #endif
 
   /* strCopy */
@@ -1605,7 +1605,7 @@ void strCopy (stritype *const stri_to, const const_stritype stri_from)
       /* and destination areas overlap (or are identical).    */
       /* Therefore memmove() is used instead of memcpy().     */
       memmove(stri_dest->mem, stri_from_mem,
-          new_size * sizeof(strelemtype));
+          new_size * sizeof(strElemType));
     } else {
       if (unlikely(!ALLOC_STRI_SIZE_OK(stri_dest, new_size))) {
         raise_error(MEMORY_ERROR);
@@ -1613,7 +1613,7 @@ void strCopy (stritype *const stri_to, const const_stritype stri_from)
       } else {
         stri_dest->size = new_size;
         memcpy(stri_dest->mem, stri_from->mem,
-            new_size * sizeof(strelemtype));
+            new_size * sizeof(strElemType));
         FREE_STRI(*stri_to, (*stri_to)->size);
         *stri_to = stri_dest;
       } /* if */
@@ -1628,11 +1628,11 @@ void strCopy (stritype *const stri_to, const const_stritype stri_from)
 #else
 
 
-void strCopy (stritype *const stri_to, const const_stritype stri_from)
+void strCopy (striType *const stri_to, const const_striType stri_from)
 
   {
-    memsizetype new_size;
-    stritype stri_dest;
+    memSizeType new_size;
+    striType stri_dest;
 
   /* strCopy */
 #ifdef TRACE_STR_RTL
@@ -1680,7 +1680,7 @@ void strCopy (stritype *const stri_to, const const_stritype stri_from)
     /* destination areas overlap (or are identical).        */
     /* Therefore memmove() is used instead of memcpy().     */
     memmove(stri_dest->mem, stri_from->mem,
-        new_size * sizeof(strelemtype));
+        new_size * sizeof(strElemType));
 #ifdef TRACE_STR_RTL
     printf(" --> ");
     prot_stri(*stri_to);
@@ -1692,20 +1692,20 @@ void strCopy (stritype *const stri_to, const const_stritype stri_from)
 
 
 
-void strCpyGeneric (generictype *const dest, const generictype source)
+void strCpyGeneric (genericType *const dest, const genericType source)
 
   { /* strCpyGeneric */
-    strCopy(&((rtlObjecttype *) dest)->value.strivalue,
-            ((const_rtlObjecttype *) &source)->value.strivalue);
+    strCopy(&((rtlObjectType *) dest)->value.striValue,
+            ((const_rtlObjectType *) &source)->value.striValue);
   } /* strCpyGeneric */
 
 
 
-stritype strCreate (const const_stritype stri_from)
+striType strCreate (const const_striType stri_from)
 
   {
-    memsizetype new_size;
-    stritype result;
+    memSizeType new_size;
+    striType result;
 
   /* strCreate */
     new_size = stri_from->size;
@@ -1714,7 +1714,7 @@ stritype strCreate (const const_stritype stri_from)
     } else {
       result->size = new_size;
       if (new_size != 0) {
-        memcpy(result->mem, stri_from->mem, new_size * sizeof(strelemtype));
+        memcpy(result->mem, stri_from->mem, new_size * sizeof(strElemType));
       } /* if */
     } /* if */
     return result;
@@ -1726,22 +1726,22 @@ stritype strCreate (const const_stritype stri_from)
  *  Generic Create function to be used via function pointers.
  *  Function pointers in C programs generated by the Seed7 compiler
  *  may point to this function. This assures correct behaviour even
- *  when sizeof(generictype) != sizeof(stritype).
+ *  when sizeof(genericType) != sizeof(striType).
  */
-generictype strCreateGeneric (const generictype from_value)
+genericType strCreateGeneric (const genericType from_value)
 
   {
-    rtlObjecttype result;
+    rtlObjectType result;
 
   /* strCreateGeneric */
-    result.value.strivalue =
-        strCreate(((const_rtlObjecttype *) &from_value)->value.strivalue);
-    return result.value.genericvalue;
+    result.value.striValue =
+        strCreate(((const_rtlObjectType *) &from_value)->value.striValue);
+    return result.value.genericValue;
   } /* strCreateGeneric */
 
 
 
-void strDestr (const const_stritype old_string)
+void strDestr (const const_striType old_string)
 
   { /* strDestr */
     /* printf("strDestr(%lX)\n", old_string); */
@@ -1756,20 +1756,20 @@ void strDestr (const const_stritype old_string)
  *  Generic Destr function to be used via function pointers.
  *  Function pointers in C programs generated by the Seed7 compiler
  *  may point to this function. This assures correct behaviour even
- *  when sizeof(generictype) != sizeof(stritype).
+ *  when sizeof(genericType) != sizeof(striType).
  */
-void strDestrGeneric (const generictype old_value)
+void strDestrGeneric (const genericType old_value)
 
   { /* strDestrGeneric */
-    strDestr(((const_rtlObjecttype *) &old_value)->value.strivalue);
+    strDestr(((const_rtlObjectType *) &old_value)->value.striValue);
   } /* strDestrGeneric */
 
 
 
-stritype strEmpty (void)
+striType strEmpty (void)
 
   {
-    stritype result;
+    striType result;
 
   /* strEmpty */
     if (unlikely(!ALLOC_STRI_SIZE_OK(result, 0))) {
@@ -1787,7 +1787,7 @@ stritype strEmpty (void)
  *  @return TRUE if stri1 is greater than or equal to stri2,
  *          FALSE otherwise.
  */
-booltype strGe (const const_stritype stri1, const const_stritype stri2)
+boolType strGe (const const_striType stri1, const const_striType stri2)
 
   { /* strGe */
     if (stri1->size >= stri2->size) {
@@ -1804,7 +1804,7 @@ booltype strGe (const const_stritype stri1, const const_stritype stri2)
  *  @return TRUE if stri1 is greater than stri2,
  *          FALSE otherwise.
  */
-booltype strGt (const const_stritype stri1, const const_stritype stri2)
+boolType strGt (const const_striType stri1, const const_striType stri2)
 
   { /* strGt */
     if (stri1->size > stri2->size) {
@@ -1820,7 +1820,7 @@ booltype strGt (const const_stritype stri1, const const_stritype stri2)
  *  Compute the hash value of a string.
  *  @return the hash value.
  */
-inttype strHashCode (const const_stritype stri)
+intType strHashCode (const const_striType stri)
 
   { /* strHashCode */
     return hashCode(stri);
@@ -1835,10 +1835,10 @@ inttype strHashCode (const const_stritype stri)
  *  This function is used by the compiler to avoid copiing string data.
  *  The 'slice' is initialized to refer to the head of 'stri'
  */
-void strHeadSlice (const const_stritype stri, const inttype stop, stritype slice)
+void strHeadSlice (const const_striType stri, const intType stop, striType slice)
 
   {
-    memsizetype striSize;
+    memSizeType striSize;
 
   /* strHeadSlice */
 #ifdef TRACE_STR_RTL
@@ -1853,10 +1853,10 @@ void strHeadSlice (const const_stritype stri, const inttype stop, stritype slice
     if (stop >= 1 && striSize >= 1) {
       SET_SLICE_CAPACITY(slice, 0);
       slice->mem = stri->mem;
-      if (striSize <= (uinttype) stop) {
+      if (striSize <= (uintType) stop) {
         slice->size = striSize;
       } else {
-        slice->size = (memsizetype) stop;
+        slice->size = (memSizeType) stop;
       } /* if */
     } else {
       SET_SLICE_CAPACITY(slice, 0);
@@ -1880,29 +1880,29 @@ void strHeadSlice (const const_stritype stri, const inttype stop, stritype slice
  *  @return the substring ending at the stop position.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-stritype strHead (const const_stritype stri, const inttype stop)
+striType strHead (const const_striType stri, const intType stop)
 
   {
-    memsizetype striSize;
-    memsizetype result_size;
-    stritype result;
+    memSizeType striSize;
+    memSizeType result_size;
+    striType result;
 
   /* strHead */
     striSize = stri->size;
     if (stop >= 1 && striSize >= 1) {
-      if (striSize <= (uinttype) stop) {
+      if (striSize <= (uintType) stop) {
         result_size = striSize;
       } else {
-        result_size = (memsizetype) stop;
+        result_size = (memSizeType) stop;
       } /* if */
       if (unlikely(!ALLOC_STRI_SIZE_OK(result, result_size))) {
         raise_error(MEMORY_ERROR);
       } else {
         result->size = result_size;
-        memcpy(result->mem, stri->mem, result_size * sizeof(strelemtype));
+        memcpy(result->mem, stri->mem, result_size * sizeof(strElemType));
       } /* if */
     } else {
-      if (unlikely(!ALLOC_STRI_SIZE_OK(result, (memsizetype) 0))) {
+      if (unlikely(!ALLOC_STRI_SIZE_OK(result, (memSizeType) 0))) {
         raise_error(MEMORY_ERROR);
       } else {
         result->size = 0;
@@ -1923,20 +1923,20 @@ stritype strHead (const const_stritype stri, const inttype stop)
  *  @return the substring ending at the stop position.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-stritype strHeadTemp (const stritype stri, const inttype stop)
+striType strHeadTemp (const striType stri, const intType stop)
 
   {
-    memsizetype striSize;
-    memsizetype result_size;
-    stritype result;
+    memSizeType striSize;
+    memSizeType result_size;
+    striType result;
 
   /* strHeadTemp */
     striSize = stri->size;
     if (stop >= 1 && striSize >= 1) {
-      if (striSize <= (uinttype) stop) {
+      if (striSize <= (uintType) stop) {
         return stri;
       } else {
-        result_size = (memsizetype) stop;
+        result_size = (memSizeType) stop;
       } /* if */
     } else {
       result_size = 0;
@@ -1979,24 +1979,24 @@ stritype strHeadTemp (const stritype stri, const inttype stop)
  *  @return the position of 'searched' or 0 when 'mainStri'
  *          does not contain 'searched' at or after 'fromIndex'.
  */
-static inttype strIPos2 (const const_stritype mainStri, const const_stritype searched,
-    const inttype fromIndex)
+static intType strIPos2 (const const_striType mainStri, const const_striType searched,
+    const intType fromIndex)
 
   {
-    memsizetype main_size;
-    memsizetype searched_size;
-    strelemtype ch_n;
-    const strelemtype *ch_n_pos;
-    memsizetype delta;
-    memsizetype charDelta[CHAR_DELTA_BEYOND + 1];
-    memsizetype pos;
-    const strelemtype *main_mem;
-    const strelemtype *searched_mem;
-    const strelemtype *search_start;
-    const strelemtype *search_end;
+    memSizeType main_size;
+    memSizeType searched_size;
+    strElemType ch_n;
+    const strElemType *ch_n_pos;
+    memSizeType delta;
+    memSizeType charDelta[CHAR_DELTA_BEYOND + 1];
+    memSizeType pos;
+    const strElemType *main_mem;
+    const strElemType *searched_mem;
+    const strElemType *search_start;
+    const strElemType *search_end;
 
   /* strIPos2 */
-    main_size = mainStri->size - ((memsizetype) fromIndex - 1);
+    main_size = mainStri->size - ((memSizeType) fromIndex - 1);
     searched_size = searched->size;
     for (ch_n = 0; ch_n <= CHAR_DELTA_BEYOND; ch_n++) {
       charDelta[ch_n] = searched_size;
@@ -2015,7 +2015,7 @@ static inttype strIPos2 (const const_stritype mainStri, const const_stritype sea
     if (ch_n_pos == NULL) {
       delta = searched_size;
     } else {
-      delta = (memsizetype) (&searched_mem[searched_size - 1] - ch_n_pos);
+      delta = (memSizeType) (&searched_mem[searched_size - 1] - ch_n_pos);
     } /* if */
     main_mem = &mainStri->mem[fromIndex - 1];
     search_start = &main_mem[searched_size - 1];
@@ -2026,8 +2026,8 @@ static inttype strIPos2 (const const_stritype mainStri, const const_stritype sea
         return 0;
       } else {
         if (memcmp(search_start - searched_size + 1, searched_mem,
-            (searched_size - 1) * sizeof(strelemtype)) == 0) {
-          return ((inttype) (search_start - searched_size + 1 - main_mem)) + fromIndex;
+            (searched_size - 1) * sizeof(strElemType)) == 0) {
+          return ((intType) (search_start - searched_size + 1 - main_mem)) + fromIndex;
         } else {
           search_start += delta;
         } /* if */
@@ -2047,19 +2047,19 @@ static inttype strIPos2 (const const_stritype mainStri, const const_stritype sea
  *          does not contain 'searched' at or after 'fromIndex'.
  *  @exception RANGE_ERROR 'fromIndex' <= 0 holds.
  */
-inttype strIPos (const const_stritype mainStri, const const_stritype searched,
-    const inttype fromIndex)
+intType strIPos (const const_striType mainStri, const const_striType searched,
+    const intType fromIndex)
 
   {
-    memsizetype main_size;
-    memsizetype searched_size;
-    strelemtype ch_n;
-    const strelemtype *ch_n_pos;
-    memsizetype delta;
-    const strelemtype *main_mem;
-    const strelemtype *searched_mem;
-    const strelemtype *search_start;
-    const strelemtype *search_end;
+    memSizeType main_size;
+    memSizeType searched_size;
+    strElemType ch_n;
+    const strElemType *ch_n_pos;
+    memSizeType delta;
+    const strElemType *main_mem;
+    const strElemType *searched_mem;
+    const strElemType *search_start;
+    const strElemType *search_end;
 
   /* strIPos */
     if (unlikely(fromIndex <= 0)) {
@@ -2068,8 +2068,8 @@ inttype strIPos (const const_stritype mainStri, const const_stritype searched,
       main_size = mainStri->size;
       searched_size = searched->size;
       if (searched_size != 0 && main_size >= searched_size &&
-          (uinttype) fromIndex - 1 <= main_size - searched_size) {
-        main_size -= (memsizetype) fromIndex - 1;
+          (uintType) fromIndex - 1 <= main_size - searched_size) {
+        main_size -= (memSizeType) fromIndex - 1;
         if (searched_size >= 2 && main_size >= 1400) {
           return strIPos2(mainStri, searched, fromIndex);
         } else {
@@ -2079,7 +2079,7 @@ inttype strIPos (const const_stritype mainStri, const const_stritype searched,
           if (ch_n_pos == NULL) {
             delta = searched_size;
           } else {
-            delta = (memsizetype) (&searched_mem[searched_size - 1] - ch_n_pos);
+            delta = (memSizeType) (&searched_mem[searched_size - 1] - ch_n_pos);
           } /* if */
           main_mem = &mainStri->mem[fromIndex - 1];
           search_start = &main_mem[searched_size - 1];
@@ -2090,8 +2090,8 @@ inttype strIPos (const const_stritype mainStri, const const_stritype searched,
               return 0;
             } else {
               if (memcmp(search_start - searched_size + 1, searched_mem,
-                  (searched_size - 1) * sizeof(strelemtype)) == 0) {
-                return ((inttype) (search_start - searched_size + 1 - main_mem)) + fromIndex;
+                  (searched_size - 1) * sizeof(strElemType)) == 0) {
+                return ((intType) (search_start - searched_size + 1 - main_mem)) + fromIndex;
               } else {
                 search_start += delta;
               } /* if */
@@ -2110,7 +2110,7 @@ inttype strIPos (const const_stritype mainStri, const const_stritype searched,
  *  @return TRUE if stri1 is less than or equal to stri2,
  *          FALSE otherwise.
  */
-booltype strLe (const const_stritype stri1, const const_stritype stri2)
+boolType strLe (const const_striType stri1, const const_striType stri2)
 
   { /* strLe */
     if (stri1->size <= stri2->size) {
@@ -2122,16 +2122,16 @@ booltype strLe (const const_stritype stri1, const const_stritype stri2)
 
 
 
-stritype strLit (const const_stritype stri)
+striType strLit (const const_striType stri)
 
   {
-    register strelemtype character;
-    register memsizetype position;
-    memsizetype striSize;
-    memsizetype pos;
+    register strElemType character;
+    register memSizeType position;
+    memSizeType striSize;
+    memSizeType pos;
     char buffer[25];
-    stritype resized_result;
-    stritype result;
+    striType resized_result;
+    striType result;
 
   /* strLit */
     striSize = stri->size;
@@ -2140,32 +2140,32 @@ stritype strLit (const const_stritype stri)
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
-      result->mem[0] = (strelemtype) '"';
+      result->mem[0] = (strElemType) '"';
       pos = 1;
       for (position = 0; position < striSize; position++) {
-        character = (strelemtype) stri->mem[position];
+        character = (strElemType) stri->mem[position];
         if (character < 127) {
           if (character < ' ') {
-            result->mem[pos] = (strelemtype) '\\';
+            result->mem[pos] = (strElemType) '\\';
             if (stri_escape_sequence[character][1] <= '9') {
               /* Numeric escape sequence with one or two digits. */
               if (character <= 9) {
                 result->mem[pos + 1] = character + '0';
-                result->mem[pos + 2] = (strelemtype) ';';
+                result->mem[pos + 2] = (strElemType) ';';
                 pos += 3;
               } else {
-                result->mem[pos + 1] = (strelemtype) stri_escape_sequence[character][1];
-                result->mem[pos + 2] = (strelemtype) stri_escape_sequence[character][2];
-                result->mem[pos + 3] = (strelemtype) ';';
+                result->mem[pos + 1] = (strElemType) stri_escape_sequence[character][1];
+                result->mem[pos + 2] = (strElemType) stri_escape_sequence[character][2];
+                result->mem[pos + 3] = (strElemType) ';';
                 pos += 4;
               } /* if */
             } else {
               /* Character escape sequence. */
-              result->mem[pos + 1] = (strelemtype) stri_escape_sequence[character][1];
+              result->mem[pos + 1] = (strElemType) stri_escape_sequence[character][1];
               pos += 2;
             } /* if */
           } else if (character == '\\' || character == '\"') {
-            result->mem[pos]     = (strelemtype) '\\';
+            result->mem[pos]     = (strElemType) '\\';
             result->mem[pos + 1] = character;
             pos += 2;
           } else {
@@ -2175,12 +2175,12 @@ stritype strLit (const const_stritype stri)
         } else if (character <= 160) {
           /* Write characters between 128 and 160 as decimal. */
           /* This code is much faster than sprintf().         */
-          result->mem[pos]     = (strelemtype) '\\';
+          result->mem[pos]     = (strElemType) '\\';
           result->mem[pos + 3] = character % 10 + '0';
           character /= 10;
           result->mem[pos + 2] = character % 10 + '0';
           result->mem[pos + 1] = '1';
-          result->mem[pos + 4] = (strelemtype) ';';
+          result->mem[pos + 4] = (strElemType) ';';
           pos += 5;
         } else if (character >= 256) {
           sprintf(buffer, "\\%lu;", (unsigned long) character);
@@ -2190,7 +2190,7 @@ stritype strLit (const const_stritype stri)
           pos++;
         } /* if */
       } /* for */
-      result->mem[pos] = (strelemtype) '"';
+      result->mem[pos] = (strElemType) '"';
       pos++;
       result->size = pos;
       REALLOC_STRI_SIZE_SMALLER(resized_result, result, 12 * striSize + 2, pos);
@@ -2218,11 +2218,11 @@ stritype strLit (const const_stritype stri)
  *  characters have multiple characters that map to them.
  *  @return the string converted to lower case.
  */
-stritype strLow (const const_stritype stri)
+striType strLow (const const_striType stri)
 
   {
-    memsizetype striSize;
-    stritype result;
+    memSizeType striSize;
+    striType result;
 
   /* strLow */
     striSize = stri->size;
@@ -2244,7 +2244,7 @@ stritype strLow (const const_stritype stri)
  *  value that can be reused.
  *  @return the string converted to lower case.
  */
-stritype strLowTemp (const stritype stri)
+striType strLowTemp (const striType stri)
 
   { /* strLowTemp */
     toLower(stri->mem, stri->size, stri->mem);
@@ -2257,38 +2257,38 @@ stritype strLowTemp (const stritype stri)
  *  Pad a string with spaces at the left side up to pad_size.
  *  @return the string left padded with spaces.
  */
-stritype strLpad (const const_stritype stri, const inttype pad_size)
+striType strLpad (const const_striType stri, const intType pad_size)
 
   {
-    memsizetype striSize;
-    stritype result;
+    memSizeType striSize;
+    striType result;
 
   /* strLpad */
     striSize = stri->size;
-    if (pad_size > 0 && (uinttype) pad_size > striSize) {
-      if (unlikely((uinttype) pad_size > MAX_STRI_LEN ||
-                   !ALLOC_STRI_SIZE_OK(result, (memsizetype) pad_size))) {
+    if (pad_size > 0 && (uintType) pad_size > striSize) {
+      if (unlikely((uintType) pad_size > MAX_STRI_LEN ||
+                   !ALLOC_STRI_SIZE_OK(result, (memSizeType) pad_size))) {
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
-        result->size = (memsizetype) pad_size;
+        result->size = (memSizeType) pad_size;
         {
-          strelemtype *elem = result->mem;
-          memsizetype len = (memsizetype) pad_size - striSize;
+          strElemType *elem = result->mem;
+          memSizeType len = (memSizeType) pad_size - striSize;
 
           while (len--) {
-            *elem++ = (strelemtype) ' ';
+            *elem++ = (strElemType) ' ';
           } /* while */
         }
-        memcpy(&result->mem[(memsizetype) pad_size - striSize], stri->mem,
-            striSize * sizeof(strelemtype));
+        memcpy(&result->mem[(memSizeType) pad_size - striSize], stri->mem,
+            striSize * sizeof(strElemType));
       } /* if */
     } else {
       if (unlikely(!ALLOC_STRI_SIZE_OK(result, striSize))) {
         raise_error(MEMORY_ERROR);
       } else {
         result->size = striSize;
-        memcpy(result->mem, stri->mem, striSize * sizeof(strelemtype));
+        memcpy(result->mem, stri->mem, striSize * sizeof(strElemType));
       } /* if */
     } /* if */
     return result;
@@ -2302,31 +2302,31 @@ stritype strLpad (const const_stritype stri, const inttype pad_size)
  *  value that can be reused.
  *  @return the string left padded with spaces.
  */
-stritype strLpadTemp (const stritype stri, const inttype pad_size)
+striType strLpadTemp (const striType stri, const intType pad_size)
 
   {
-    memsizetype striSize;
-    stritype result;
+    memSizeType striSize;
+    striType result;
 
   /* strLpadTemp */
     striSize = stri->size;
-    if (pad_size > 0 && (uinttype) pad_size > striSize) {
-      if (unlikely((uinttype) pad_size > MAX_STRI_LEN ||
-                   !ALLOC_STRI_SIZE_OK(result, (memsizetype) pad_size))) {
+    if (pad_size > 0 && (uintType) pad_size > striSize) {
+      if (unlikely((uintType) pad_size > MAX_STRI_LEN ||
+                   !ALLOC_STRI_SIZE_OK(result, (memSizeType) pad_size))) {
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
-        result->size = (memsizetype) pad_size;
+        result->size = (memSizeType) pad_size;
         {
-          strelemtype *elem = result->mem;
-          memsizetype len = (memsizetype) pad_size - striSize;
+          strElemType *elem = result->mem;
+          memSizeType len = (memSizeType) pad_size - striSize;
 
           while (len--) {
-            *elem++ = (strelemtype) ' ';
+            *elem++ = (strElemType) ' ';
           } /* while */
         }
-        memcpy(&result->mem[(memsizetype) pad_size - striSize], stri->mem,
-            striSize * sizeof(strelemtype));
+        memcpy(&result->mem[(memSizeType) pad_size - striSize], stri->mem,
+            striSize * sizeof(strElemType));
         FREE_STRI(stri, striSize);
       } /* if */
     } else {
@@ -2341,43 +2341,43 @@ stritype strLpadTemp (const stritype stri, const inttype pad_size)
  *  Pad a string with zeroes at the left side up to pad_size.
  *  @return the string left padded with zeroes.
  */
-stritype strLpad0 (const const_stritype stri, const inttype pad_size)
+striType strLpad0 (const const_striType stri, const intType pad_size)
 
   {
-    memsizetype striSize;
-    const strelemtype *sourceElem;
-    strelemtype *destElem;
-    memsizetype len;
-    stritype result;
+    memSizeType striSize;
+    const strElemType *sourceElem;
+    strElemType *destElem;
+    memSizeType len;
+    striType result;
 
   /* strLpad0 */
     striSize = stri->size;
-    if (pad_size > 0 && (uinttype) pad_size > striSize) {
-      if (unlikely((uinttype) pad_size > MAX_STRI_LEN ||
-                   !ALLOC_STRI_SIZE_OK(result, (memsizetype) pad_size))) {
+    if (pad_size > 0 && (uintType) pad_size > striSize) {
+      if (unlikely((uintType) pad_size > MAX_STRI_LEN ||
+                   !ALLOC_STRI_SIZE_OK(result, (memSizeType) pad_size))) {
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
-        result->size = (memsizetype) pad_size;
+        result->size = (memSizeType) pad_size;
         sourceElem = stri->mem;
         destElem = result->mem;
-        len = (memsizetype) pad_size - striSize;
+        len = (memSizeType) pad_size - striSize;
         if (striSize != 0 && (sourceElem[0] == '-' || sourceElem[0] == '+')) {
           *destElem++ = sourceElem[0];
           sourceElem++;
           striSize--;
         } /* if */
         while (len--) {
-          *destElem++ = (strelemtype) '0';
+          *destElem++ = (strElemType) '0';
         } /* while */
-        memcpy(destElem, sourceElem, striSize * sizeof(strelemtype));
+        memcpy(destElem, sourceElem, striSize * sizeof(strElemType));
       } /* if */
     } else {
       if (unlikely(!ALLOC_STRI_SIZE_OK(result, striSize))) {
         raise_error(MEMORY_ERROR);
       } else {
         result->size = striSize;
-        memcpy(result->mem, stri->mem, striSize * sizeof(strelemtype));
+        memcpy(result->mem, stri->mem, striSize * sizeof(strElemType));
       } /* if */
     } /* if */
     return result;
@@ -2391,36 +2391,36 @@ stritype strLpad0 (const const_stritype stri, const inttype pad_size)
  *  value that can be reused.
  *  @return the string left padded with zeroes.
  */
-stritype strLpad0Temp (const stritype stri, const inttype pad_size)
+striType strLpad0Temp (const striType stri, const intType pad_size)
 
   {
-    memsizetype striSize;
-    const strelemtype *sourceElem;
-    strelemtype *destElem;
-    memsizetype len;
-    stritype result;
+    memSizeType striSize;
+    const strElemType *sourceElem;
+    strElemType *destElem;
+    memSizeType len;
+    striType result;
 
   /* strLpad0Temp */
     striSize = stri->size;
-    if (pad_size > 0 && (uinttype) pad_size > striSize) {
-      if (unlikely((uinttype) pad_size > MAX_STRI_LEN ||
-                   !ALLOC_STRI_SIZE_OK(result, (memsizetype) pad_size))) {
+    if (pad_size > 0 && (uintType) pad_size > striSize) {
+      if (unlikely((uintType) pad_size > MAX_STRI_LEN ||
+                   !ALLOC_STRI_SIZE_OK(result, (memSizeType) pad_size))) {
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
-        result->size = (memsizetype) pad_size;
+        result->size = (memSizeType) pad_size;
         sourceElem = stri->mem;
         destElem = result->mem;
-        len = (memsizetype) pad_size - striSize;
+        len = (memSizeType) pad_size - striSize;
         if (striSize != 0 && (sourceElem[0] == '-' || sourceElem[0] == '+')) {
           *destElem++ = sourceElem[0];
           sourceElem++;
           striSize--;
         } /* if */
         while (len--) {
-          *destElem++ = (strelemtype) '0';
+          *destElem++ = (strElemType) '0';
         } /* while */
-        memcpy(destElem, sourceElem, striSize * sizeof(strelemtype));
+        memcpy(destElem, sourceElem, striSize * sizeof(strElemType));
         FREE_STRI(stri, striSize);
       } /* if */
     } else {
@@ -2436,7 +2436,7 @@ stritype strLpad0Temp (const stritype stri, const inttype pad_size)
  *  @return TRUE if stri1 is less than stri2,
  *          FALSE otherwise.
  */
-booltype strLt (const const_stritype stri1, const const_stritype stri2)
+boolType strLt (const const_striType stri1, const const_striType stri2)
 
   { /* strLt */
     if (stri1->size < stri2->size) {
@@ -2453,12 +2453,12 @@ booltype strLt (const const_stritype stri1, const const_stritype stri2)
  *  All characters less than or equal to ' ' (space) count as whitespace.
  *  @return string with leading whitespace omitted.
  */
-stritype strLtrim (const const_stritype stri)
+striType strLtrim (const const_striType stri)
 
   {
-    memsizetype start;
-    memsizetype striSize;
-    stritype result;
+    memSizeType start;
+    memSizeType striSize;
+    striType result;
 
   /* strLtrim */
     start = 0;
@@ -2474,22 +2474,22 @@ stritype strLtrim (const const_stritype stri)
       return NULL;
     } else {
       result->size = striSize;
-      memcpy(result->mem, &stri->mem[start], striSize * sizeof(strelemtype));
+      memcpy(result->mem, &stri->mem[start], striSize * sizeof(strElemType));
       return result;
     } /* if */
   } /* strLtrim */
 
 
 
-stritype strMult (const const_stritype stri, const inttype factor)
+striType strMult (const const_striType stri, const intType factor)
 
   {
-    memsizetype len;
-    memsizetype number;
-    strelemtype *result_pointer;
-    strelemtype ch;
-    memsizetype result_size;
-    stritype result;
+    memSizeType len;
+    memSizeType number;
+    strElemType *result_pointer;
+    strElemType ch;
+    memSizeType result_size;
+    striType result;
 
   /* strMult */
 #ifdef TRACE_STR_RTL
@@ -2506,11 +2506,11 @@ stritype strMult (const const_stritype stri, const inttype factor)
         } else {
           result->size = 0;
         } /* if */
-      } else if (unlikely((uinttype) factor > MAX_STRI_LEN / len)) {
+      } else if (unlikely((uintType) factor > MAX_STRI_LEN / len)) {
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
-        result_size = (memsizetype) factor * len;
+        result_size = (memSizeType) factor * len;
         if (unlikely(!ALLOC_STRI_SIZE_OK(result, result_size))) {
           raise_error(MEMORY_ERROR);
         } else {
@@ -2518,10 +2518,10 @@ stritype strMult (const const_stritype stri, const inttype factor)
           result_pointer = result->mem;
           if (len == 1) {
             ch = stri->mem[0];
-            memset_to_strelem(result_pointer, ch, (memsizetype) factor);
+            memset_to_strelem(result_pointer, ch, (memSizeType) factor);
           } else {
-            for (number = (memsizetype) factor; number > 0; number--) {
-              memcpy(result_pointer, stri->mem, len * sizeof(strelemtype));
+            for (number = (memSizeType) factor; number > 0; number--) {
+              memcpy(result_pointer, stri->mem, len * sizeof(strElemType));
               result_pointer += len;
             } /* for */
           } /* if */
@@ -2541,20 +2541,20 @@ stritype strMult (const const_stritype stri, const inttype factor)
  *  @return the position of 'searched' or 0 when 'mainStri'
  *          does not contain 'searched'.
  */
-static inttype strPos2 (const const_stritype mainStri, const const_stritype searched)
+static intType strPos2 (const const_striType mainStri, const const_striType searched)
 
   {
-    memsizetype main_size;
-    memsizetype searched_size;
-    strelemtype ch_n;
-    const strelemtype *ch_n_pos;
-    memsizetype delta;
-    memsizetype charDelta[CHAR_DELTA_BEYOND + 1];
-    memsizetype pos;
-    const strelemtype *main_mem;
-    const strelemtype *searched_mem;
-    const strelemtype *search_start;
-    const strelemtype *search_end;
+    memSizeType main_size;
+    memSizeType searched_size;
+    strElemType ch_n;
+    const strElemType *ch_n_pos;
+    memSizeType delta;
+    memSizeType charDelta[CHAR_DELTA_BEYOND + 1];
+    memSizeType pos;
+    const strElemType *main_mem;
+    const strElemType *searched_mem;
+    const strElemType *search_start;
+    const strElemType *search_end;
 
   /* strPos2 */
     main_size = mainStri->size;
@@ -2576,7 +2576,7 @@ static inttype strPos2 (const const_stritype mainStri, const const_stritype sear
     if (ch_n_pos == NULL) {
       delta = searched_size;
     } else {
-      delta = (memsizetype) (&searched_mem[searched_size - 1] - ch_n_pos);
+      delta = (memSizeType) (&searched_mem[searched_size - 1] - ch_n_pos);
     } /* if */
     main_mem = mainStri->mem;
     search_start = &main_mem[searched_size - 1];
@@ -2587,8 +2587,8 @@ static inttype strPos2 (const const_stritype mainStri, const const_stritype sear
         return 0;
       } else {
         if (memcmp(search_start - searched_size + 1, searched_mem,
-            (searched_size - 1) * sizeof(strelemtype)) == 0) {
-          return ((inttype) (search_start - searched_size + 1 - main_mem)) + 1;
+            (searched_size - 1) * sizeof(strElemType)) == 0) {
+          return ((intType) (search_start - searched_size + 1 - main_mem)) + 1;
         } else {
           search_start += delta;
         } /* if */
@@ -2607,18 +2607,18 @@ static inttype strPos2 (const const_stritype mainStri, const const_stritype sear
  *  @return the position of 'searched' or 0 when 'mainStri'
  *          does not contain 'searched'.
  */
-inttype strPos (const const_stritype mainStri, const const_stritype searched)
+intType strPos (const const_striType mainStri, const const_striType searched)
 
   {
-    memsizetype main_size;
-    memsizetype searched_size;
-    strelemtype ch_n;
-    const strelemtype *ch_n_pos;
-    memsizetype delta;
-    const strelemtype *main_mem;
-    const strelemtype *searched_mem;
-    const strelemtype *search_start;
-    const strelemtype *search_end;
+    memSizeType main_size;
+    memSizeType searched_size;
+    strElemType ch_n;
+    const strElemType *ch_n_pos;
+    memSizeType delta;
+    const strElemType *main_mem;
+    const strElemType *searched_mem;
+    const strElemType *search_start;
+    const strElemType *search_end;
 
   /* strPos */
     main_size = mainStri->size;
@@ -2633,7 +2633,7 @@ inttype strPos (const const_stritype mainStri, const const_stritype searched)
         if (ch_n_pos == NULL) {
           delta = searched_size;
         } else {
-          delta = (memsizetype) (&searched_mem[searched_size - 1] - ch_n_pos);
+          delta = (memSizeType) (&searched_mem[searched_size - 1] - ch_n_pos);
         } /* if */
         main_mem = mainStri->mem;
         search_start = &main_mem[searched_size - 1];
@@ -2644,8 +2644,8 @@ inttype strPos (const const_stritype mainStri, const const_stritype searched)
             return 0;
           } else {
             if (memcmp(search_start - searched_size + 1, searched_mem,
-                (searched_size - 1) * sizeof(strelemtype)) == 0) {
-              return ((inttype) (search_start - searched_size + 1 - main_mem)) + 1;
+                (searched_size - 1) * sizeof(strElemType)) == 0) {
+              return ((intType) (search_start - searched_size + 1 - main_mem)) + 1;
             } else {
               search_start += delta;
             } /* if */
@@ -2663,11 +2663,11 @@ inttype strPos (const const_stritype mainStri, const const_stritype searched)
  *  @exception MEMORY_ERROR Not enough memory for the concatenated
  *             string.
  */
-void strPush (stritype *const destination, const chartype extension)
+void strPush (striType *const destination, const charType extension)
 
   {
-    memsizetype new_size;
-    stritype stri_dest;
+    memSizeType new_size;
+    striType stri_dest;
 
   /* strPush */
     stri_dest = *destination;
@@ -2707,10 +2707,10 @@ void strPush (stritype *const destination, const chartype extension)
  *  This function is used by the compiler to avoid copiing string data.
  *  The 'slice' is initialized to refer to the range of 'stri'
  */
-void strRangeSlice (const const_stritype stri, inttype start, inttype stop, stritype slice)
+void strRangeSlice (const const_striType stri, intType start, intType stop, striType slice)
 
   {
-    memsizetype striSize;
+    memSizeType striSize;
 
   /* strRangeSlice */
 #ifdef TRACE_STR_RTL
@@ -2728,12 +2728,12 @@ void strRangeSlice (const const_stritype stri, inttype start, inttype stop, stri
       start = 1;
     } /* if */
     SET_SLICE_CAPACITY(slice, 0);
-    if (stop >= start && (uinttype) start <= striSize) {
+    if (stop >= start && (uintType) start <= striSize) {
       slice->mem = &stri->mem[start - 1];
-      if ((uinttype) stop > striSize) {
-        slice->size = striSize - (memsizetype) start + 1;
+      if ((uintType) stop > striSize) {
+        slice->size = striSize - (memSizeType) start + 1;
       } else {
-        slice->size = (memsizetype) stop - (memsizetype) start + 1;
+        slice->size = (memSizeType) stop - (memSizeType) start + 1;
       } /* if */
     } else {
       slice->mem = NULL;
@@ -2756,23 +2756,23 @@ void strRangeSlice (const const_stritype stri, inttype start, inttype stop, stri
  *  @return the substring from position start to stop.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-stritype strRange (const const_stritype stri, inttype start, inttype stop)
+striType strRange (const const_striType stri, intType start, intType stop)
 
   {
-    memsizetype striSize;
-    memsizetype result_size;
-    stritype result;
+    memSizeType striSize;
+    memSizeType result_size;
+    striType result;
 
   /* strRange */
     striSize = stri->size;
     if (unlikely(start < 1)) {
       start = 1;
     } /* if */
-    if (stop >= start && (uinttype) start <= striSize) {
-      if ((uinttype) stop > striSize) {
-        result_size = striSize - (memsizetype) start + 1;
+    if (stop >= start && (uintType) start <= striSize) {
+      if ((uintType) stop > striSize) {
+        result_size = striSize - (memSizeType) start + 1;
       } else {
-        result_size = (memsizetype) stop - (memsizetype) start + 1;
+        result_size = (memSizeType) stop - (memSizeType) start + 1;
       } /* if */
       if (unlikely(!ALLOC_STRI_SIZE_OK(result, result_size))) {
         raise_error(MEMORY_ERROR);
@@ -2785,10 +2785,10 @@ stritype strRange (const const_stritype stri, inttype start, inttype stop)
       /* two statements make no difference to the logic of the  */
       /* program.                                               */
       memcpy(result->mem, &stri->mem[start - 1],
-          result_size * sizeof(strelemtype));
+          result_size * sizeof(strElemType));
       result->size = result_size;
     } else {
-      if (unlikely(!ALLOC_STRI_SIZE_OK(result, (memsizetype) 0))) {
+      if (unlikely(!ALLOC_STRI_SIZE_OK(result, (memSizeType) 0))) {
         raise_error(MEMORY_ERROR);
         return NULL;
       } /* if */
@@ -2809,24 +2809,24 @@ stritype strRange (const const_stritype stri, inttype start, inttype stop)
  *          does not contain 'searched' at or before 'fromIndex'.
  *  @exception RANGE_ERROR 'fromIndex' > length(stri) holds.
  */
-inttype strRChIPos (const const_stritype mainStri, const chartype searched,
-    const inttype fromIndex)
+intType strRChIPos (const const_striType mainStri, const charType searched,
+    const intType fromIndex)
 
   {
-    const strelemtype *main_mem;
-    const strelemtype *found_pos;
+    const strElemType *main_mem;
+    const strElemType *found_pos;
 
   /* strRChIPos */
     if (likely(fromIndex >= 1)) {
-      if (unlikely((uinttype) fromIndex > mainStri->size)) {
+      if (unlikely((uintType) fromIndex > mainStri->size)) {
         raise_error(RANGE_ERROR);
       } else {
         if (mainStri->size >= 1) {
           main_mem = mainStri->mem;
           found_pos = rsearch_strelem(&main_mem[fromIndex - 1], searched,
-              (memsizetype) fromIndex);
+              (memSizeType) fromIndex);
           if (found_pos != NULL) {
-            return ((inttype) (found_pos - main_mem)) + 1;
+            return ((intType) (found_pos - main_mem)) + 1;
           } /* if */
         } /* if */
       } /* if */
@@ -2842,11 +2842,11 @@ inttype strRChIPos (const const_stritype mainStri, const chartype searched,
  *  @return the position of 'searched' or 0 when 'mainStri'
  *          does not contain 'searched'.
  */
-inttype strRChPos (const const_stritype mainStri, const chartype searched)
+intType strRChPos (const const_striType mainStri, const charType searched)
 
   {
-    const strelemtype *main_mem;
-    const strelemtype *found_pos;
+    const strElemType *main_mem;
+    const strElemType *found_pos;
 
   /* strRChPos */
     if (mainStri->size >= 1) {
@@ -2854,7 +2854,7 @@ inttype strRChPos (const const_stritype mainStri, const chartype searched)
       found_pos = rsearch_strelem(&main_mem[mainStri->size - 1], searched,
           mainStri->size);
       if (found_pos != NULL) {
-        return ((inttype) (found_pos - main_mem)) + 1;
+        return ((intType) (found_pos - main_mem)) + 1;
       } /* if */
     } /* if */
     return 0;
@@ -2867,24 +2867,24 @@ inttype strRChPos (const const_stritype mainStri, const chartype searched)
  *  This function uses a modified Boyer–Moore string search algorithm.
  *  @return the result of the replacement.
  */
-static memsizetype strRepl2 (const const_stritype mainStri, const const_stritype searched,
-    const const_stritype replacement, const stritype result)
+static memSizeType strRepl2 (const const_striType mainStri, const const_striType searched,
+    const const_striType replacement, const striType result)
 
   {
-    memsizetype main_size;
-    memsizetype searched_size;
-    strelemtype ch_n;
-    const strelemtype *ch_n_pos;
-    memsizetype delta;
-    memsizetype charDelta[CHAR_DELTA_BEYOND + 1];
-    memsizetype pos;
-    const strelemtype *main_mem;
-    const strelemtype *searched_mem;
-    const strelemtype *search_start;
-    const strelemtype *search_end;
-    const strelemtype *copy_start;
-    strelemtype *result_end;
-    memsizetype result_size;
+    memSizeType main_size;
+    memSizeType searched_size;
+    strElemType ch_n;
+    const strElemType *ch_n_pos;
+    memSizeType delta;
+    memSizeType charDelta[CHAR_DELTA_BEYOND + 1];
+    memSizeType pos;
+    const strElemType *main_mem;
+    const strElemType *searched_mem;
+    const strElemType *search_start;
+    const strElemType *search_end;
+    const strElemType *copy_start;
+    strElemType *result_end;
+    memSizeType result_size;
 
   /* strRepl2 */
     main_size = mainStri->size;
@@ -2906,7 +2906,7 @@ static memsizetype strRepl2 (const const_stritype mainStri, const const_stritype
     if (ch_n_pos == NULL) {
       delta = searched_size;
     } else {
-      delta = (memsizetype) (&searched_mem[searched_size - 1] - ch_n_pos);
+      delta = (memSizeType) (&searched_mem[searched_size - 1] - ch_n_pos);
     } /* if */
     main_mem = mainStri->mem;
     search_start = &main_mem[searched_size - 1];
@@ -2917,12 +2917,12 @@ static memsizetype strRepl2 (const const_stritype mainStri, const const_stritype
       search_start = search_strelem2(search_start, ch_n, search_end, charDelta);
       if (search_start != NULL) {
         if (memcmp(search_start - searched_size + 1, searched_mem,
-            (searched_size - 1) * sizeof(strelemtype)) == 0) {
+            (searched_size - 1) * sizeof(strElemType)) == 0) {
           memcpy(result_end, copy_start,
-              (memsizetype) (search_start - searched_size + 1 - copy_start) * sizeof(strelemtype));
+              (memSizeType) (search_start - searched_size + 1 - copy_start) * sizeof(strElemType));
           result_end += search_start - searched_size + 1 - copy_start;
           memcpy(result_end, replacement->mem,
-              replacement->size * sizeof(strelemtype));
+              replacement->size * sizeof(strElemType));
           result_end += replacement->size;
           copy_start = search_start + 1;
           search_start += searched_size;
@@ -2932,9 +2932,9 @@ static memsizetype strRepl2 (const const_stritype mainStri, const const_stritype
       } /* if */
     } /* while */
     memcpy(result_end, copy_start,
-        (memsizetype) (&mainStri->mem[main_size] - copy_start) * sizeof(strelemtype));
+        (memSizeType) (&mainStri->mem[main_size] - copy_start) * sizeof(strElemType));
     result_end += &mainStri->mem[main_size] - copy_start;
-    result_size = (memsizetype) (result_end - result->mem);
+    result_size = (memSizeType) (result_end - result->mem);
     return result_size;
   } /* strRepl2 */
 
@@ -2945,23 +2945,23 @@ static memsizetype strRepl2 (const const_stritype mainStri, const const_stritype
  *  This function calls strRepl2 when 'mainStri' is long.
  *  @return the result of the replacement.
  */
-stritype strRepl (const const_stritype mainStri,
-    const const_stritype searched, const const_stritype replacement)
+striType strRepl (const const_striType mainStri,
+    const const_striType searched, const const_striType replacement)
 
   {
-    memsizetype main_size;
-    memsizetype searched_size;
-    memsizetype guessed_result_size;
-    memsizetype result_size;
-    strelemtype ch_1;
-    const strelemtype *main_mem;
-    const strelemtype *searched_mem;
-    const strelemtype *search_start;
-    const strelemtype *search_end;
-    const strelemtype *copy_start;
-    strelemtype *result_end;
-    stritype resized_result;
-    stritype result;
+    memSizeType main_size;
+    memSizeType searched_size;
+    memSizeType guessed_result_size;
+    memSizeType result_size;
+    strElemType ch_1;
+    const strElemType *main_mem;
+    const strElemType *searched_mem;
+    const strElemType *search_start;
+    const strElemType *search_end;
+    const strElemType *copy_start;
+    strElemType *result_end;
+    striType resized_result;
+    striType result;
 
   /* strRepl */
     main_size = mainStri->size;
@@ -2995,12 +2995,12 @@ stritype strRepl (const const_stritype mainStri,
           while (search_start < search_end &&
               (search_start = search_strelem(search_start, ch_1, search_end)) != NULL) {
             if (memcmp(search_start, searched_mem,
-                searched_size * sizeof(strelemtype)) == 0) {
+                searched_size * sizeof(strElemType)) == 0) {
               memcpy(result_end, copy_start,
-                  (memsizetype) (search_start - copy_start) * sizeof(strelemtype));
+                  (memSizeType) (search_start - copy_start) * sizeof(strElemType));
               result_end += search_start - copy_start;
               memcpy(result_end, replacement->mem,
-                  replacement->size * sizeof(strelemtype));
+                  replacement->size * sizeof(strElemType));
               result_end += replacement->size;
               search_start += searched_size;
               copy_start = search_start;
@@ -3010,9 +3010,9 @@ stritype strRepl (const const_stritype mainStri,
           } /* if */
         } /* if */
         memcpy(result_end, copy_start,
-            (memsizetype) (&mainStri->mem[main_size] - copy_start) * sizeof(strelemtype));
+            (memSizeType) (&mainStri->mem[main_size] - copy_start) * sizeof(strElemType));
         result_end += &mainStri->mem[main_size] - copy_start;
-        result_size = (memsizetype) (result_end - result->mem);
+        result_size = (memSizeType) (result_end - result->mem);
       } /* if */
       /* printf("result=%lu, guessed_result_size=%ld, result_size=%ld\n",
          result, guessed_result_size, result_size); */
@@ -3040,21 +3040,21 @@ stritype strRepl (const const_stritype mainStri,
  *  @return the position of 'searched' or 0 when 'mainStri'
  *          does not contain 'searched' at or before 'fromIndex'.
  */
-static inttype strRIPos2 (const const_stritype mainStri, const const_stritype searched,
-    const inttype fromIndex)
+static intType strRIPos2 (const const_striType mainStri, const const_striType searched,
+    const intType fromIndex)
 
   {
-    memsizetype main_size;
-    memsizetype searched_size;
-    strelemtype ch_1;
-    const strelemtype *ch_1_pos;
-    memsizetype delta;
-    memsizetype charDelta[CHAR_DELTA_BEYOND + 1];
-    memsizetype pos;
-    const strelemtype *main_mem;
-    const strelemtype *searched_mem;
-    const strelemtype *search_start;
-    const strelemtype *search_end;
+    memSizeType main_size;
+    memSizeType searched_size;
+    strElemType ch_1;
+    const strElemType *ch_1_pos;
+    memSizeType delta;
+    memSizeType charDelta[CHAR_DELTA_BEYOND + 1];
+    memSizeType pos;
+    const strElemType *main_mem;
+    const strElemType *searched_mem;
+    const strElemType *search_start;
+    const strElemType *search_end;
 
   /* strRIPos2 */
     main_size = mainStri->size;
@@ -3076,10 +3076,10 @@ static inttype strRIPos2 (const const_stritype mainStri, const const_stritype se
     if (ch_1_pos == NULL) {
       delta = searched_size;
     } else {
-      delta = (memsizetype) (ch_1_pos - &searched_mem[0]);
+      delta = (memSizeType) (ch_1_pos - &searched_mem[0]);
     } /* if */
     main_mem = mainStri->mem;
-    if ((uinttype) fromIndex - 1 <= main_size - searched_size) {
+    if ((uintType) fromIndex - 1 <= main_size - searched_size) {
       search_start = &main_mem[fromIndex - 1];
     } else {
       search_start = &main_mem[main_size - searched_size];
@@ -3091,8 +3091,8 @@ static inttype strRIPos2 (const const_stritype mainStri, const const_stritype se
         return 0;
       } else {
         if (memcmp(search_start + 1, &searched_mem[1],
-            (searched_size - 1) * sizeof(strelemtype)) == 0) {
-          return ((inttype) (search_start - main_mem)) + 1;
+            (searched_size - 1) * sizeof(strElemType)) == 0) {
+          return ((intType) (search_start - main_mem)) + 1;
         } else {
           search_start -= delta;
         } /* if */
@@ -3112,21 +3112,21 @@ static inttype strRIPos2 (const const_stritype mainStri, const const_stritype se
  *          does not contain 'searched' at or before 'fromIndex'.
  *  @exception RANGE_ERROR 'fromIndex' > length(stri) holds.
  */
-inttype strRIPos (const const_stritype mainStri, const const_stritype searched,
-    const inttype fromIndex)
+intType strRIPos (const const_striType mainStri, const const_striType searched,
+    const intType fromIndex)
 
   {
-    memsizetype main_size;
-    memsizetype searched_size;
-    strelemtype ch_1;
-    const strelemtype *searched_mem;
-    const strelemtype *main_mem;
-    const strelemtype *search_start;
-    const strelemtype *search_end;
+    memSizeType main_size;
+    memSizeType searched_size;
+    strElemType ch_1;
+    const strElemType *searched_mem;
+    const strElemType *main_mem;
+    const strElemType *search_start;
+    const strElemType *search_end;
 
   /* strRIPos */
     if (likely(fromIndex >= 1)) {
-      if (unlikely((uinttype) fromIndex > mainStri->size)) {
+      if (unlikely((uintType) fromIndex > mainStri->size)) {
         raise_error(RANGE_ERROR);
       } else {
         main_size = mainStri->size;
@@ -3138,17 +3138,17 @@ inttype strRIPos (const const_stritype mainStri, const const_stritype searched,
             searched_mem = searched->mem;
             ch_1 = searched_mem[0];
             main_mem = mainStri->mem;
-            if ((uinttype) fromIndex - 1 <= main_size - searched_size) {
+            if ((uintType) fromIndex - 1 <= main_size - searched_size) {
               search_start = &main_mem[fromIndex - 1];
             } else {
               search_start = &main_mem[main_size - searched_size];
             } /* if */
             search_end = &main_mem[-1];
             while ((search_start = rsearch_strelem(search_start,
-                ch_1, (memsizetype) (search_start - search_end))) != NULL) {
+                ch_1, (memSizeType) (search_start - search_end))) != NULL) {
               if (memcmp(search_start, searched_mem,
-                  searched_size * sizeof(strelemtype)) == 0) {
-                return ((inttype) (search_start - main_mem)) + 1;
+                  searched_size * sizeof(strElemType)) == 0) {
+                return ((intType) (search_start - main_mem)) + 1;
               } else {
                 search_start--;
               } /* if */
@@ -3166,28 +3166,28 @@ inttype strRIPos (const const_stritype mainStri, const const_stritype searched,
  *  Pad a string with spaces at the right side up to pad_size.
  *  @return the string right padded with spaces.
  */
-stritype strRpad (const const_stritype stri, const inttype pad_size)
+striType strRpad (const const_striType stri, const intType pad_size)
 
   {
-    memsizetype striSize;
-    stritype result;
+    memSizeType striSize;
+    striType result;
 
   /* strRpad */
     striSize = stri->size;
-    if (pad_size > 0 && (uinttype) pad_size > striSize) {
-      if (unlikely((uinttype) pad_size > MAX_STRI_LEN ||
-                   !ALLOC_STRI_SIZE_OK(result, (memsizetype) pad_size))) {
+    if (pad_size > 0 && (uintType) pad_size > striSize) {
+      if (unlikely((uintType) pad_size > MAX_STRI_LEN ||
+                   !ALLOC_STRI_SIZE_OK(result, (memSizeType) pad_size))) {
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
-        result->size = (memsizetype) pad_size;
-        memcpy(result->mem, stri->mem, striSize * sizeof(strelemtype));
+        result->size = (memSizeType) pad_size;
+        memcpy(result->mem, stri->mem, striSize * sizeof(strElemType));
         {
-          strelemtype *elem = &result->mem[striSize];
-          memsizetype len = (memsizetype) pad_size - striSize;
+          strElemType *elem = &result->mem[striSize];
+          memSizeType len = (memSizeType) pad_size - striSize;
 
           while (len--) {
-            *elem++ = (strelemtype) ' ';
+            *elem++ = (strElemType) ' ';
           } /* while */
         }
       } /* if */
@@ -3197,7 +3197,7 @@ stritype strRpad (const const_stritype stri, const inttype pad_size)
         return NULL;
       } /* if */
       result->size = striSize;
-      memcpy(result->mem, stri->mem, striSize * sizeof(strelemtype));
+      memcpy(result->mem, stri->mem, striSize * sizeof(strElemType));
     } /* if */
     return result;
   } /* strRpad */
@@ -3212,20 +3212,20 @@ stritype strRpad (const const_stritype stri, const inttype pad_size)
  *  @return the position of 'searched' or 0 when 'mainStri'
  *          does not contain 'searched'.
  */
-static inttype strRPos2 (const const_stritype mainStri, const const_stritype searched)
+static intType strRPos2 (const const_striType mainStri, const const_striType searched)
 
   {
-    memsizetype main_size;
-    memsizetype searched_size;
-    strelemtype ch_1;
-    const strelemtype *ch_1_pos;
-    memsizetype delta;
-    memsizetype charDelta[CHAR_DELTA_BEYOND + 1];
-    memsizetype pos;
-    const strelemtype *main_mem;
-    const strelemtype *searched_mem;
-    const strelemtype *search_start;
-    const strelemtype *search_end;
+    memSizeType main_size;
+    memSizeType searched_size;
+    strElemType ch_1;
+    const strElemType *ch_1_pos;
+    memSizeType delta;
+    memSizeType charDelta[CHAR_DELTA_BEYOND + 1];
+    memSizeType pos;
+    const strElemType *main_mem;
+    const strElemType *searched_mem;
+    const strElemType *search_start;
+    const strElemType *search_end;
 
   /* strRPos2 */
     main_size = mainStri->size;
@@ -3247,7 +3247,7 @@ static inttype strRPos2 (const const_stritype mainStri, const const_stritype sea
     if (ch_1_pos == NULL) {
       delta = searched_size;
     } else {
-      delta = (memsizetype) (ch_1_pos - &searched_mem[0]);
+      delta = (memSizeType) (ch_1_pos - &searched_mem[0]);
     } /* if */
     main_mem = mainStri->mem;
     search_start = &main_mem[main_size - searched_size];
@@ -3258,8 +3258,8 @@ static inttype strRPos2 (const const_stritype mainStri, const const_stritype sea
         return 0;
       } else {
         if (memcmp(search_start + 1, &searched_mem[1],
-            (searched_size - 1) * sizeof(strelemtype)) == 0) {
-          return ((inttype) (search_start - main_mem)) + 1;
+            (searched_size - 1) * sizeof(strElemType)) == 0) {
+          return ((intType) (search_start - main_mem)) + 1;
         } else {
           search_start -= delta;
         } /* if */
@@ -3278,16 +3278,16 @@ static inttype strRPos2 (const const_stritype mainStri, const const_stritype sea
  *  @return the position of 'searched' or 0 when 'mainStri'
  *          does not contain 'searched'.
  */
-inttype strRPos (const const_stritype mainStri, const const_stritype searched)
+intType strRPos (const const_striType mainStri, const const_striType searched)
 
   {
-    memsizetype main_size;
-    memsizetype searched_size;
-    strelemtype ch_1;
-    const strelemtype *main_mem;
-    const strelemtype *searched_mem;
-    const strelemtype *search_start;
-    const strelemtype *search_end;
+    memSizeType main_size;
+    memSizeType searched_size;
+    strElemType ch_1;
+    const strElemType *main_mem;
+    const strElemType *searched_mem;
+    const strElemType *search_start;
+    const strElemType *search_end;
 
   /* strRPos */
     main_size = mainStri->size;
@@ -3302,10 +3302,10 @@ inttype strRPos (const const_stritype mainStri, const const_stritype searched)
         search_start = &main_mem[main_size - searched_size];
         search_end = &main_mem[-1];
         while ((search_start = rsearch_strelem(search_start,
-            ch_1, (memsizetype) (search_start - search_end))) != NULL) {
+            ch_1, (memSizeType) (search_start - search_end))) != NULL) {
           if (memcmp(search_start, searched_mem,
-              searched_size * sizeof(strelemtype)) == 0) {
-            return ((inttype) (search_start - main_mem)) + 1;
+              searched_size * sizeof(strElemType)) == 0) {
+            return ((intType) (search_start - main_mem)) + 1;
           } else {
             search_start--;
           } /* if */
@@ -3322,11 +3322,11 @@ inttype strRPos (const const_stritype mainStri, const const_stritype searched)
  *  All characters less than or equal to ' ' (space) count as whitespace.
  *  @return string with trailing whitespace omitted.
  */
-stritype strRtrim (const const_stritype stri)
+striType strRtrim (const const_striType stri)
 
   {
-    memsizetype striSize;
-    stritype result;
+    memSizeType striSize;
+    striType result;
 
   /* strRtrim */
     striSize = stri->size;
@@ -3338,7 +3338,7 @@ stritype strRtrim (const const_stritype stri)
       return NULL;
     } else {
       result->size = striSize;
-      memcpy(result->mem, stri->mem, striSize * sizeof(strelemtype));
+      memcpy(result->mem, stri->mem, striSize * sizeof(strElemType));
       return result;
     } /* if */
   } /* strRtrim */
@@ -3346,19 +3346,19 @@ stritype strRtrim (const const_stritype stri)
 
 
 #ifdef OUT_OF_ORDER
-arraytype strSplit (const const_stritype mainStri, chartype delimiter)
+arrayType strSplit (const const_striType mainStri, charType delimiter)
 
   {
-    arraytype result_array;
-    inttype used_max_position;
-    errinfotype err_info = OKAY_NO_ERROR;
+    arrayType result_array;
+    intType used_max_position;
+    errInfoType err_info = OKAY_NO_ERROR;
 
-    memsizetype main_size;
-    const strelemtype *main_mem;
-    const strelemtype *search_start;
-    const strelemtype *search_end;
-    const strelemtype *found_pos;
-    stritype dest;
+    memSizeType main_size;
+    const strElemType *main_mem;
+    const strElemType *search_start;
+    const strElemType *search_end;
+    const strElemType *found_pos;
+    striType dest;
 
   /* strSplit */
     if (unlikely(!ALLOC_ARRAY(result_array, 256))) {
@@ -3388,18 +3388,18 @@ arraytype strSplit (const const_stritype mainStri, chartype delimiter)
 
 
 
-arraytype strSplit (const const_stritype stri, const const_stritype delimiter)
+arrayType strSplit (const const_striType stri, const const_striType delimiter)
 
   {
-    memsizetype main_size;
-    memsizetype delimiter_size;
-    strelemtype ch_1;
-    const strelemtype *main_mem;
-    const strelemtype *delimiter_mem;
-    const strelemtype *search_start;
-    const strelemtype *search_end;
-    const strelemtype *found_pos;
-    errinfotype err_info = OKAY_NO_ERROR;
+    memSizeType main_size;
+    memSizeType delimiter_size;
+    strElemType ch_1;
+    const strElemType *main_mem;
+    const strElemType *delimiter_mem;
+    const strElemType *search_start;
+    const strElemType *search_end;
+    const strElemType *found_pos;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* strSplit */
     main_size = mainStri->size;
@@ -3412,7 +3412,7 @@ arraytype strSplit (const const_stritype stri, const const_stritype delimiter)
         search_start = main_mem;
         search_end = &main_mem[main_size - delimiter_size + 1];
         while ((found_pos = search_strelem(search_start, ch_1, search_end)) != NULL) {
-          memcpy(dest, search_start, (memsizetype) (found_pos - search_start));
+          memcpy(dest, search_start, (memSizeType) (found_pos - search_start));
           search_start = found_pos + 1
         } /* while */
       } /* if */
@@ -3425,7 +3425,7 @@ arraytype strSplit (const const_stritype stri, const const_stritype delimiter)
         search_end = &main_mem[main_size - delimiter_size + 1];
         while ((found_pos = search_strelem(search_start, ch_1, search_end)) != NULL) {
           if (memcmp(search_start, delimiter_mem,
-              delimiter_size * sizeof(strelemtype)) == 0) {
+              delimiter_size * sizeof(strElemType)) == 0) {
 
             search_start = found_pos + delimiter_size;
           } else {
@@ -3439,21 +3439,21 @@ arraytype strSplit (const const_stritype stri, const const_stritype delimiter)
 
 
 
-rtlArraytype strSplit (const const_stritype mainStri,
-    const const_stritype delimiter)
+rtlArrayType strSplit (const const_striType mainStri,
+    const const_striType delimiter)
 
   {
-    memsizetype delimiter_size;
-    const strelemtype *delimiter_mem;
-    strelemtype ch_1;
-    inttype used_max_position;
-    const strelemtype *search_start;
-    const strelemtype *segment_start;
-    const strelemtype *search_end;
-    const strelemtype *found_pos;
-    memsizetype pos;
-    rtlArraytype resized_result_array;
-    rtlArraytype result_array;
+    memSizeType delimiter_size;
+    const strElemType *delimiter_mem;
+    strElemType ch_1;
+    intType used_max_position;
+    const strElemType *search_start;
+    const strElemType *segment_start;
+    const strElemType *search_end;
+    const strElemType *found_pos;
+    memSizeType pos;
+    rtlArrayType resized_result_array;
+    rtlArrayType result_array;
 
   /* strSplit */
     if (likely(ALLOC_RTL_ARRAY(result_array, 256))) {
@@ -3470,9 +3470,9 @@ rtlArraytype strSplit (const const_stritype mainStri,
         while ((found_pos = search_strelem(search_start, ch_1, search_end)) != NULL &&
             result_array != NULL) {
           if (memcmp(found_pos, delimiter_mem,
-              delimiter_size * sizeof(strelemtype)) == 0) {
+              delimiter_size * sizeof(strElemType)) == 0) {
             result_array = add_stri_to_array(segment_start,
-                (memsizetype) (found_pos - segment_start), result_array,
+                (memSizeType) (found_pos - segment_start), result_array,
                 &used_max_position);
             search_start = found_pos + delimiter_size;
             segment_start = search_start;
@@ -3483,21 +3483,21 @@ rtlArraytype strSplit (const const_stritype mainStri,
       } /* if */
       if (result_array != NULL) {
         result_array = add_stri_to_array(segment_start,
-            (memsizetype) (&mainStri->mem[mainStri->size] - segment_start), result_array,
+            (memSizeType) (&mainStri->mem[mainStri->size] - segment_start), result_array,
             &used_max_position);
         if (result_array != NULL) {
           resized_result_array = REALLOC_RTL_ARRAY(result_array,
-              (uinttype) result_array->max_position, (uinttype) used_max_position);
+              (uintType) result_array->max_position, (uintType) used_max_position);
           if (resized_result_array == NULL) {
-            for (pos = 0; pos < (uinttype) used_max_position; pos++) {
-              FREE_STRI(result_array->arr[pos].value.strivalue,
-                  result_array->arr[pos].value.strivalue->size);
+            for (pos = 0; pos < (uintType) used_max_position; pos++) {
+              FREE_STRI(result_array->arr[pos].value.striValue,
+                  result_array->arr[pos].value.striValue->size);
             } /* for */
-            FREE_RTL_ARRAY(result_array, (uinttype) result_array->max_position);
+            FREE_RTL_ARRAY(result_array, (uintType) result_array->max_position);
             result_array = NULL;
           } else {
             result_array = resized_result_array;
-            COUNT3_RTL_ARRAY((uinttype) result_array->max_position, (uinttype) used_max_position);
+            COUNT3_RTL_ARRAY((uintType) result_array->max_position, (uintType) used_max_position);
             result_array->max_position = used_max_position;
           } /* if */
         } /* if */
@@ -3518,10 +3518,10 @@ rtlArraytype strSplit (const const_stritype mainStri,
  *  This function is used by the compiler to avoid copiing string data.
  *  The 'slice' is initialized to refer to the substring of 'stri'
  */
-void strSubstrSlice (const const_stritype stri, inttype start, inttype length, stritype slice)
+void strSubstrSlice (const const_striType stri, intType start, intType length, striType slice)
 
   {
-    memsizetype striSize;
+    memSizeType striSize;
 
   /* strSubstrSlice */
 #ifdef TRACE_STR_RTL
@@ -3544,12 +3544,12 @@ void strSubstrSlice (const const_stritype stri, inttype start, inttype length, s
       } /* if */
     } /* if */
     SET_SLICE_CAPACITY(slice, 0);
-    if (length >= 1 && (uinttype) start <= striSize) {
+    if (length >= 1 && (uintType) start <= striSize) {
       slice->mem = &stri->mem[start - 1];
-      if ((uinttype) length > striSize - (memsizetype) start + 1) {
-        slice->size = striSize - (memsizetype) start + 1;
+      if ((uintType) length > striSize - (memSizeType) start + 1) {
+        slice->size = striSize - (memSizeType) start + 1;
       } else {
-        slice->size = (memsizetype) length;
+        slice->size = (memSizeType) length;
       } /* if */
     } else {
       slice->mem = NULL;
@@ -3572,12 +3572,12 @@ void strSubstrSlice (const const_stritype stri, inttype start, inttype length, s
  *  @return the substring from the start position with a given length.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-stritype strSubstr (const const_stritype stri, inttype start, inttype length)
+striType strSubstr (const const_striType stri, intType start, intType length)
 
   {
-    memsizetype striSize;
-    memsizetype result_size;
-    stritype result;
+    memSizeType striSize;
+    memSizeType result_size;
+    striType result;
 
   /* strSubstr */
     striSize = stri->size;
@@ -3589,21 +3589,21 @@ stritype strSubstr (const const_stritype stri, inttype start, inttype length)
         length = 0;
       } /* if */
     } /* if */
-    if (length >= 1 && (uinttype) start <= striSize) {
-      if ((uinttype) length > striSize - (memsizetype) start + 1) {
-        result_size = striSize - (memsizetype) start + 1;
+    if (length >= 1 && (uintType) start <= striSize) {
+      if ((uintType) length > striSize - (memSizeType) start + 1) {
+        result_size = striSize - (memSizeType) start + 1;
       } else {
-        result_size = (memsizetype) length;
+        result_size = (memSizeType) length;
       } /* if */
       if (unlikely(!ALLOC_STRI_SIZE_OK(result, result_size))) {
         raise_error(MEMORY_ERROR);
         return NULL;
       } /* if */
       memcpy(result->mem, &stri->mem[start - 1],
-          result_size * sizeof(strelemtype));
+          result_size * sizeof(strElemType));
       result->size = result_size;
     } else {
-      if (unlikely(!ALLOC_STRI_SIZE_OK(result, (memsizetype) 0))) {
+      if (unlikely(!ALLOC_STRI_SIZE_OK(result, (memSizeType) 0))) {
         raise_error(MEMORY_ERROR);
         return NULL;
       } /* if */
@@ -3623,10 +3623,10 @@ stritype strSubstr (const const_stritype stri, inttype start, inttype length)
  *  This function is used by the compiler to avoid copiing string data.
  *  The 'slice' is initialized to refer to the tail of 'stri'
  */
-void strTailSlice (const const_stritype stri, inttype start, stritype slice)
+void strTailSlice (const const_striType stri, intType start, striType slice)
 
   {
-    memsizetype striSize;
+    memSizeType striSize;
 
   /* strTailSlice */
 #ifdef TRACE_STR_RTL
@@ -3641,10 +3641,10 @@ void strTailSlice (const const_stritype stri, inttype start, stritype slice)
     if (unlikely(start < 1)) {
       start = 1;
     } /* if */
-    if ((uinttype) start <= striSize && striSize >= 1) {
+    if ((uintType) start <= striSize && striSize >= 1) {
       SET_SLICE_CAPACITY(slice, 0);
       slice->mem = &stri->mem[start - 1];
-      slice->size = striSize - (memsizetype) start + 1;
+      slice->size = striSize - (memSizeType) start + 1;
     } else {
       SET_SLICE_CAPACITY(slice, 0);
       slice->mem = NULL;
@@ -3667,20 +3667,20 @@ void strTailSlice (const const_stritype stri, inttype start, stritype slice)
  *  @return the substring beginning at the start position.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-stritype strTail (const const_stritype stri, inttype start)
+striType strTail (const const_striType stri, intType start)
 
   {
-    memsizetype striSize;
-    memsizetype result_size;
-    stritype result;
+    memSizeType striSize;
+    memSizeType result_size;
+    striType result;
 
   /* strTail */
     striSize = stri->size;
     if (unlikely(start < 1)) {
       start = 1;
     } /* if */
-    if ((uinttype) start <= striSize && striSize >= 1) {
-      result_size = striSize - (memsizetype) start + 1;
+    if ((uintType) start <= striSize && striSize >= 1) {
+      result_size = striSize - (memSizeType) start + 1;
       if (unlikely(!ALLOC_STRI_SIZE_OK(result, result_size))) {
         raise_error(MEMORY_ERROR);
         return NULL;
@@ -3692,10 +3692,10 @@ stritype strTail (const const_stritype stri, inttype start)
       /* two statements make no difference to the logic of the  */
       /* program.                                               */
       memcpy(result->mem, &stri->mem[start - 1],
-          result_size * sizeof(strelemtype));
+          result_size * sizeof(strElemType));
       result->size = result_size;
     } else {
-      if (unlikely(!ALLOC_STRI_SIZE_OK(result, (memsizetype) 0))) {
+      if (unlikely(!ALLOC_STRI_SIZE_OK(result, (memSizeType) 0))) {
         raise_error(MEMORY_ERROR);
         return NULL;
       } /* if */
@@ -3713,15 +3713,15 @@ stritype strTail (const const_stritype stri, inttype start)
  *  @param stri Normal (UTF-32) string to be converted to UTF-8.
  *  @return 'stri' converted to a string of bytes with UTF-8 encoding.
  */
-stritype strToUtf8 (const const_stritype stri)
+striType strToUtf8 (const const_striType stri)
 
   {
-    register strelemtype *dest;
-    register strelemtype ch;
-    register memsizetype pos;
-    memsizetype result_size;
-    stritype resized_result;
-    stritype result;
+    register strElemType *dest;
+    register strElemType ch;
+    register memSizeType pos;
+    memSizeType result_size;
+    striType resized_result;
+    striType result;
 
   /* strToUtf8 */
     if (unlikely(stri->size > MAX_STRI_LEN / MAX_UTF8_EXPANSION_FACTOR ||
@@ -3766,7 +3766,7 @@ stritype strToUtf8 (const const_stritype stri)
           dest += 6;
         } /* if */
       } /* for */
-      result_size = (memsizetype) (dest - result->mem);
+      result_size = (memSizeType) (dest - result->mem);
       REALLOC_STRI_SIZE_SMALLER(resized_result, result, max_utf8_size(stri->size), result_size);
       if (unlikely(resized_result == NULL)) {
         FREE_STRI(result, max_utf8_size(stri->size));
@@ -3788,12 +3788,12 @@ stritype strToUtf8 (const const_stritype stri)
  *  All characters less than or equal to ' ' (space) count as whitespace.
  *  @return string with leading and trailing whitespace omitted.
  */
-stritype strTrim (const const_stritype stri)
+striType strTrim (const const_striType stri)
 
   {
-    memsizetype start;
-    memsizetype striSize;
-    stritype result;
+    memSizeType start;
+    memSizeType striSize;
+    striType result;
 
   /* strTrim */
     start = 0;
@@ -3812,7 +3812,7 @@ stritype strTrim (const const_stritype stri)
       return NULL;
     } else {
       result->size = striSize;
-      memcpy(result->mem, &stri->mem[start], striSize * sizeof(strelemtype));
+      memcpy(result->mem, &stri->mem[start], striSize * sizeof(strElemType));
       return result;
     } /* if */
   } /* strTrim */
@@ -3829,11 +3829,11 @@ stritype strTrim (const const_stritype stri)
  *  characters have multiple characters that map to them.
  *  @return the string converted to upper case.
  */
-stritype strUp (const const_stritype stri)
+striType strUp (const const_striType stri)
 
   {
-    memsizetype striSize;
-    stritype result;
+    memSizeType striSize;
+    striType result;
 
   /* strUp */
     striSize = stri->size;
@@ -3855,7 +3855,7 @@ stritype strUp (const const_stritype stri)
  *  value that can be reused.
  *  @return the string converted to lower case.
  */
-stritype strUpTemp (const stritype stri)
+striType strUpTemp (const striType stri)
 
   { /* strUpTemp */
     toUpper(stri->mem, stri->size, stri->mem);
@@ -3871,15 +3871,15 @@ stritype strUpTemp (const stritype stri)
  *  @exception RANGE_ERROR When characters beyond '\255;' are present or
  *                         when 'utf8' is not encoded with UTF-8.
  */
-stritype strUtf8ToStri (const_stritype utf8)
+striType strUtf8ToStri (const_striType utf8)
 
   {
-    memsizetype striSize;
-    memsizetype pos;
-    const strelemtype *utf8ptr;
-    booltype okay = TRUE;
-    stritype resized_result;
-    stritype result;
+    memSizeType striSize;
+    memSizeType pos;
+    const strElemType *utf8ptr;
+    boolType okay = TRUE;
+    striType resized_result;
+    striType result;
 
   /* strUtf8ToStri */
     striSize = utf8->size;
@@ -3980,10 +3980,10 @@ stritype strUtf8ToStri (const_stritype utf8)
 
 
 
-stritype strZero (const inttype factor)
+striType strZero (const intType factor)
 
   {
-    stritype result;
+    striType result;
 
   /* strZero */
 #ifdef TRACE_STR_RTL
@@ -3993,13 +3993,13 @@ stritype strZero (const inttype factor)
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
-      if (unlikely((uinttype) factor > MAX_STRI_LEN ||
-                   !ALLOC_STRI_SIZE_OK(result, (memsizetype) factor))) {
+      if (unlikely((uintType) factor > MAX_STRI_LEN ||
+                   !ALLOC_STRI_SIZE_OK(result, (memSizeType) factor))) {
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
-        result->size = (memsizetype) factor;
-        memset(result->mem, 0, (memsizetype) factor * sizeof(strelemtype));
+        result->size = (memSizeType) factor;
+        memset(result->mem, 0, (memSizeType) factor * sizeof(strElemType));
       } /* if */
     } /* if */
     return result;

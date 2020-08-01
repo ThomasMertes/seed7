@@ -25,4 +25,4 @@
 /*                                                                  */
 /********************************************************************/
 
-objecttype decl_type (int *is_dollar_type, errinfotype *err_info);
+objectType decl_type (int *is_dollar_type, errInfoType *err_info);

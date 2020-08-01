@@ -30,4 +30,4 @@
 /********************************************************************/
 
 
-booltype filInputReady (filetype aFile);
+boolType filInputReady (fileType aFile);

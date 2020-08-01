@@ -47,13 +47,13 @@
 #define WRITE_STRI_BLOCK_SIZE    256
 
 
-static inttype cursor_line = 1;
-static inttype cursor_column = 1;
+static intType cursor_line = 1;
+static intType cursor_column = 1;
 
 
 
-void conHScroll (inttype startlin, inttype startcol,
-    inttype stoplin, inttype stopcol, inttype count)
+void conHScroll (intType startlin, intType startcol,
+    intType stoplin, intType stopcol, intType count)
 
   { /* conHScroll */
     if (count > 0) {
@@ -65,7 +65,7 @@ void conHScroll (inttype startlin, inttype startcol,
 
 
 
-void conSetpos (inttype lin, inttype col)
+void conSetpos (intType lin, intType col)
 
   { /* conSetpos */
     cursor_line = lin;
@@ -75,8 +75,8 @@ void conSetpos (inttype lin, inttype col)
 
 
 
-void conVScroll (inttype startlin, inttype startcol,
-    inttype stoplin, inttype stopcol, inttype count)
+void conVScroll (intType startlin, intType startcol,
+    intType stoplin, intType stopcol, intType count)
 
   { /* conVScroll */
     if (count > 0) {
@@ -89,7 +89,7 @@ void conVScroll (inttype startlin, inttype startcol,
 
 
 #ifdef CONSOLE_USES_CON_TEXT
-void conWrite (const_stritype stri)
+void conWrite (const_striType stri)
 
   /* This function writes the string stri to the console at the     */
   /* current position. The current position must be a legal         */
@@ -98,13 +98,13 @@ void conWrite (const_stritype stri)
   /* must be done with this function.                               */
 
   {
-    memsizetype size;
-    errinfotype err_info = OKAY_NO_ERROR;
+    memSizeType size;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* conWrite */
     if (stri->size <= WRITE_STRI_BLOCK_SIZE) {
 #ifdef CONSOLE_UTF8
-      uchartype stri_buffer[max_utf8_size(WRITE_STRI_BLOCK_SIZE)];
+      ucharType stri_buffer[max_utf8_size(WRITE_STRI_BLOCK_SIZE)];
 
       size = stri_to_utf8(stri_buffer, stri->mem, stri->size);
 #elif defined CONSOLE_WCHAR
@@ -112,14 +112,14 @@ void conWrite (const_stritype stri)
 
       size = stri_to_wstri(stri_buffer, stri->mem, stri->size, &err_info);
 #else
-      uchartype stri_buffer[WRITE_STRI_BLOCK_SIZE + 1];
+      ucharType stri_buffer[WRITE_STRI_BLOCK_SIZE + 1];
 
       conv_to_cstri(stri_buffer, stri->mem, stri->size, &err_info);
       size = stri->size;
 #endif
       conText(cursor_line, cursor_column, stri_buffer, size);
     } else {
-      bstritype bstri;
+      bstriType bstri;
 
 #ifdef CONSOLE_UTF8
       bstri = stri_to_bstri8(stri);
@@ -130,11 +130,11 @@ void conWrite (const_stritype stri)
 #endif
       if (bstri != NULL) {
 #if defined CONSOLE_WCHAR
-        size = bstri->size / sizeof(os_chartype);
+        size = bstri->size / sizeof(os_charType);
 #else
         size = bstri->size;
 #endif
-        conText(cursor_line, cursor_column, (console_stritype) bstri->mem, size);
+        conText(cursor_line, cursor_column, (console_striType) bstri->mem, size);
         FREE_BSTRI(bstri, bstri->size);
       } /* if */
     } /* if */

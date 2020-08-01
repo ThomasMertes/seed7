@@ -25,16 +25,16 @@
 /*                                                                  */
 /********************************************************************/
 
-objecttype lst_cat    (listtype arguments);
-objecttype lst_cpy    (listtype arguments);
-objecttype lst_create (listtype arguments);
-objecttype lst_destr  (listtype arguments);
-objecttype lst_elem   (listtype arguments);
-objecttype lst_empty  (listtype arguments);
-objecttype lst_excl   (listtype arguments);
-objecttype lst_head   (listtype arguments);
-objecttype lst_idx    (listtype arguments);
-objecttype lst_incl   (listtype arguments);
-objecttype lst_lng    (listtype arguments);
-objecttype lst_range  (listtype arguments);
-objecttype lst_tail   (listtype arguments);
+objectType lst_cat    (listType arguments);
+objectType lst_cpy    (listType arguments);
+objectType lst_create (listType arguments);
+objectType lst_destr  (listType arguments);
+objectType lst_elem   (listType arguments);
+objectType lst_empty  (listType arguments);
+objectType lst_excl   (listType arguments);
+objectType lst_head   (listType arguments);
+objectType lst_idx    (listType arguments);
+objectType lst_incl   (listType arguments);
+objectType lst_lng    (listType arguments);
+objectType lst_range  (listType arguments);
+objectType lst_tail   (listType arguments);

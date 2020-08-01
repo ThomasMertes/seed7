@@ -42,12 +42,12 @@
 
 #undef TRACE_KBD
 
-static inttype button_x = 0;
-static inttype button_y = 0;
+static intType button_x = 0;
+static intType button_y = 0;
 static HWND button_window = 0;
-static rtlHashtype window_hash = NULL;
+static rtlHashType window_hash = NULL;
 
-chartype map_1252_to_unicode[] = {
+charType map_1252_to_unicode[] = {
 /* 128 */ 0x20AC,    '?', 0x201A, 0x0192, 0x201E, 0x2026, 0x2020, 0x2021,
 /* 136 */ 0x02C6, 0x2030, 0x0160, 0x2039, 0x0152,    '?', 0x017D,    '?',
 /* 144 */    '?', 0x2018, 0x2019, 0x201C, 0x201D, 0x2022, 0x2013, 0x2014,
@@ -55,31 +55,31 @@ chartype map_1252_to_unicode[] = {
 
 #ifdef DMC_GKB_WIN_DEFINES
 #define WM_MOUSEWHEEL                   0x020A
+#endif
 
 #if defined(_WIN64)
- typedef __int64 INT_PTR;
+typedef int64Type intPtrType;
 #else
- typedef int INT_PTR;
+typedef int32Type intPtrType;
 #endif
-#endif
 
 
 
-wintype find_window (HWND sys_window)
+winType find_window (HWND sys_window)
 
   {
-    wintype window;
+    winType window;
 
   /* find_window */
     if (window_hash == NULL) {
       window = NULL;
     } else {
-      window = (wintype) (memsizetype)
+      window = (winType) (memSizeType)
           hshIdxWithDefault(window_hash,
-                            (generictype) (memsizetype) sys_window,
-                            (generictype) (memsizetype) NULL,
-                            (inttype) ((memsizetype) sys_window) >> 6,
-                            (comparetype) &genericCmp);
+                            (genericType) (memSizeType) sys_window,
+                            (genericType) (memSizeType) NULL,
+                            (intType) ((memSizeType) sys_window) >> 6,
+                            (compareType) &genericCmp);
     } /* if */
     /* printf("find_window(%lx) ==> %lx\n", (unsigned long) sys_window, (unsigned long) window); */
     return window;
@@ -87,7 +87,7 @@ wintype find_window (HWND sys_window)
 
 
 
-void enter_window (wintype curr_window, HWND sys_window)
+void enter_window (winType curr_window, HWND sys_window)
 
   { /* enter_window */
     /* printf("enter_window(%lx, %lx)\n", (unsigned long) curr_window, (unsigned long) sys_window); */
@@ -95,12 +95,12 @@ void enter_window (wintype curr_window, HWND sys_window)
       window_hash = hshEmpty();
     } /* if */
     (void) hshIdxEnterDefault(window_hash,
-                              (generictype) (memsizetype) sys_window,
-                              (generictype) (memsizetype) curr_window,
-                              (inttype) ((memsizetype) sys_window) >> 6,
-                              (comparetype) &genericCmp,
-                              (createfunctype) &genericCreate,
-                              (createfunctype) &genericCreate);
+                              (genericType) (memSizeType) sys_window,
+                              (genericType) (memSizeType) curr_window,
+                              (intType) ((memSizeType) sys_window) >> 6,
+                              (compareType) &genericCmp,
+                              (createFuncType) &genericCreate,
+                              (createFuncType) &genericCreate);
   } /* enter_window */
 
 
@@ -110,21 +110,21 @@ void remove_window (HWND sys_window)
   { /* remove_window */
     /* printf("remove_window(%lx)\n", (unsigned long) sys_window); */
     hshExcl(window_hash,
-            (generictype) (memsizetype) sys_window,
-            (inttype) ((memsizetype) sys_window) >> 6,
-            (comparetype) &genericCmp,
-            (destrfunctype) &genericDestr,
-            (destrfunctype) &genericDestr);
+            (genericType) (memSizeType) sys_window,
+            (intType) ((memSizeType) sys_window) >> 6,
+            (compareType) &genericCmp,
+            (destrFuncType) &genericDestr,
+            (destrFuncType) &genericDestr);
   } /* remove_window */
 
 
 
-chartype gkbGetc (void)
+charType gkbGetc (void)
 
   {
     BOOL bRet;
     MSG msg;
-    chartype result;
+    charType result;
 
   /* gkbGetc */
 #ifdef TRACE_KBD
@@ -331,7 +331,7 @@ chartype gkbGetc (void)
           button_x = LOWORD(msg.lParam);
           button_y = HIWORD(msg.lParam);
           button_window = msg.hwnd;
-          if ((INT_PTR) msg.wParam > 0) {
+          if ((intPtrType) msg.wParam > 0) {
             result = K_MOUSE4;
           } else {
             result = K_MOUSE5;
@@ -456,13 +456,13 @@ chartype gkbGetc (void)
 
 
 
-booltype gkbKeyPressed (void)
+boolType gkbKeyPressed (void)
 
   {
     BOOL msg_present;
     BOOL bRet;
     MSG msg;
-    booltype result;
+    boolType result;
 
   /* gkbKeyPressed */
 #ifdef TRACE_KBD
@@ -558,13 +558,13 @@ booltype gkbKeyPressed (void)
 
 
 
-booltype gkbButtonPressed (chartype button)
+boolType gkbButtonPressed (charType button)
 
   {
     int vkey1;
     int vkey2 = 0;
-    booltype okay = TRUE;
-    booltype result;
+    boolType okay = TRUE;
+    boolType result;
 
   /* gkbButtonPressed */
     gkbKeyPressed();
@@ -661,7 +661,7 @@ booltype gkbButtonPressed (chartype button)
 
 
 
-chartype gkbRawGetc (void)
+charType gkbRawGetc (void)
 
   { /* gkbRawGetc */
     return gkbGetc();
@@ -669,10 +669,10 @@ chartype gkbRawGetc (void)
 
 
 
-wintype gkbWindow (void)
+winType gkbWindow (void)
 
   {
-    wintype result;
+    winType result;
 
   /* gkbWindow */
 #ifdef TRACE_KBD
@@ -690,7 +690,7 @@ wintype gkbWindow (void)
 
 
 
-inttype gkbButtonXpos (void)
+intType gkbButtonXpos (void)
 
   { /* gkbButtonXpos */
     return button_x;
@@ -698,7 +698,7 @@ inttype gkbButtonXpos (void)
 
 
 
-inttype gkbButtonYpos (void)
+intType gkbButtonYpos (void)
 
   { /* gkbButtonYpos */
     return button_y;

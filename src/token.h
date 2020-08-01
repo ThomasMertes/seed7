@@ -21,12 +21,12 @@
 /*  Module: Analyzer - Syntax                                       */
 /*  File: seed7/src/token.h                                         */
 /*  Changes: 1991, 1992, 1993, 1994  Thomas Mertes                  */
-/*  Content: Procedures to maintain objects of type tokentype.      */
+/*  Content: Procedures to maintain objects of type tokenType.      */
 /*                                                                  */
 /********************************************************************/
 
-void free_tokens (tokentype token);
-tokentype get_sy_token (tokentype *tokens, identtype identifier);
-tokentype get_expr_token (tokentype *tokens, prioritytype priority,
-    typetype type_of);
-tokentype get_syntax_description (tokentype *tokens);
+void free_tokens (tokenType token);
+tokenType get_sy_token (tokenType *tokens, identType identifier);
+tokenType get_expr_token (tokenType *tokens, priorityType priority,
+    typeType type_of);
+tokenType get_syntax_description (tokenType *tokens);

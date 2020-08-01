@@ -50,7 +50,7 @@
  *  @exception FILE_ERROR A system function returns an error.
  *  @exception MEMORY_ERROR An out of memory situation occurred.
  */
-objecttype soc_accept (listtype arguments)
+objectType soc_accept (listType arguments)
 
   { /* soc_accept */
     isit_socket(arg_1(arguments));
@@ -63,7 +63,7 @@ objecttype soc_accept (listtype arguments)
 
 
 
-objecttype soc_addr_family (listtype arguments)
+objectType soc_addr_family (listType arguments)
 
   { /* soc_addr_family */
     isit_bstri(arg_1(arguments));
@@ -80,7 +80,7 @@ objecttype soc_addr_family (listtype arguments)
  *  colon notation (e.g.: "fe80:0:0:0:202:b3ff:fe1e:8329").
  *  @return the IP address of the specified host.
  */
-objecttype soc_addr_numeric (listtype arguments)
+objectType soc_addr_numeric (listType arguments)
 
   { /* soc_addr_numeric */
     isit_bstri(arg_1(arguments));
@@ -90,7 +90,7 @@ objecttype soc_addr_numeric (listtype arguments)
 
 
 
-objecttype soc_addr_service (listtype arguments)
+objectType soc_addr_service (listType arguments)
 
   { /* soc_addr_service */
     isit_bstri(arg_1(arguments));
@@ -104,7 +104,7 @@ objecttype soc_addr_service (listtype arguments)
  *  Assign an internet listener socket address to a listener socket.
  *  @exception FILE_ERROR A system function returns an error.
  */
-objecttype soc_bind (listtype arguments)
+objectType soc_bind (listType arguments)
 
   { /* soc_bind */
     isit_socket(arg_1(arguments));
@@ -118,7 +118,7 @@ objecttype soc_bind (listtype arguments)
 /**
  *  Close a socket.
  */
-objecttype soc_close (listtype arguments)
+objectType soc_close (listType arguments)
 
   { /* soc_close */
     isit_socket(arg_1(arguments));
@@ -132,7 +132,7 @@ objecttype soc_close (listtype arguments)
  *  Connect a socket to an address.
  *  @exception FILE_ERROR A system function returns an error.
  */
-objecttype soc_connect (listtype arguments)
+objectType soc_connect (listType arguments)
 
   { /* soc_connect */
     isit_socket(arg_1(arguments));
@@ -143,37 +143,37 @@ objecttype soc_connect (listtype arguments)
 
 
 
-objecttype soc_cpy (listtype arguments)
+objectType soc_cpy (listType arguments)
 
   {
-    objecttype socket_variable;
+    objectType socket_variable;
 
   /* soc_cpy */
     socket_variable = arg_1(arguments);
     isit_socket(socket_variable);
     is_variable(socket_variable);
     isit_socket(arg_3(arguments));
-    socket_variable->value.socketvalue = take_socket(arg_3(arguments));
+    socket_variable->value.socketValue = take_socket(arg_3(arguments));
     return SYS_EMPTY_OBJECT;
   } /* soc_cpy */
 
 
 
-objecttype soc_create (listtype arguments)
+objectType soc_create (listType arguments)
 
   { /* soc_create */
     isit_socket(arg_3(arguments));
     SET_CATEGORY_OF_OBJ(arg_1(arguments), SOCKETOBJECT);
-    arg_1(arguments)->value.socketvalue = take_socket(arg_3(arguments));
+    arg_1(arguments)->value.socketValue = take_socket(arg_3(arguments));
     return SYS_EMPTY_OBJECT;
   } /* soc_create */
 
 
 
-objecttype soc_empty (listtype arguments)
+objectType soc_empty (listType arguments)
 
   { /* soc_empty */
-    return bld_socket_temp((sockettype) -1);
+    return bld_socket_temp((socketType) -1);
   } /* soc_empty */
 
 
@@ -183,7 +183,7 @@ objecttype soc_empty (listtype arguments)
  *  @return TRUE if the two sockets are equal,
  *          FALSE otherwise.
  */
-objecttype soc_eq (listtype arguments)
+objectType soc_eq (listType arguments)
 
   { /* soc_eq */
     isit_socket(arg_1(arguments));
@@ -202,19 +202,19 @@ objecttype soc_eq (listtype arguments)
  *  Read a character from a socket.
  *  @return the character read.
  */
-objecttype soc_getc (listtype arguments)
+objectType soc_getc (listType arguments)
 
   {
-    objecttype eofIndicator;
+    objectType eofIndicator;
 
   /* soc_getc */
     isit_socket(arg_1(arguments));
     eofIndicator = arg_2(arguments);
     isit_char(eofIndicator);
     is_variable(eofIndicator);
-    return bld_char_temp((chartype)
+    return bld_char_temp((charType)
         socGetc(take_socket(arg_1(arguments)),
-                &eofIndicator->value.charvalue));
+                &eofIndicator->value.charValue));
   } /* soc_getc */
 
 
@@ -225,10 +225,10 @@ objecttype soc_getc (listtype arguments)
  *  @exception RANGE_ERROR The length is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-objecttype soc_gets (listtype arguments)
+objectType soc_gets (listType arguments)
 
   {
-    objecttype eofIndicator;
+    objectType eofIndicator;
 
   /* soc_gets */
     isit_socket(arg_1(arguments));
@@ -239,12 +239,12 @@ objecttype soc_gets (listtype arguments)
     return bld_stri_temp(
         socGets(take_socket(arg_1(arguments)),
                 take_int(arg_2(arguments)),
-                &eofIndicator->value.charvalue));
+                &eofIndicator->value.charValue));
   } /* soc_gets */
 
 
 
-objecttype soc_get_addr (listtype arguments)
+objectType soc_get_addr (listType arguments)
 
   { /* soc_get_addr */
     isit_socket(arg_1(arguments));
@@ -254,7 +254,7 @@ objecttype soc_get_addr (listtype arguments)
 
 
 
-objecttype soc_get_hostname (listtype arguments)
+objectType soc_get_hostname (listType arguments)
 
   { /* soc_get_hostname */
     return bld_stri_temp(socGetHostname());
@@ -269,7 +269,7 @@ objecttype soc_get_hostname (listtype arguments)
  *  it may block.
  *  @return FALSE if socGetc would return EOF, TRUE otherwise.
  */
-objecttype soc_has_next (listtype arguments)
+objectType soc_has_next (listType arguments)
 
   { /* soc_has_next */
     isit_socket(arg_1(arguments));
@@ -282,7 +282,7 @@ objecttype soc_has_next (listtype arguments)
 
 
 
-objecttype soc_inet_addr (listtype arguments)
+objectType soc_inet_addr (listType arguments)
 
   { /* soc_inet_addr */
     isit_stri(arg_1(arguments));
@@ -294,7 +294,7 @@ objecttype soc_inet_addr (listtype arguments)
 
 
 
-objecttype soc_inet_local_addr (listtype arguments)
+objectType soc_inet_local_addr (listType arguments)
 
   { /* soc_inet_local_addr */
     isit_int(arg_1(arguments));
@@ -304,7 +304,7 @@ objecttype soc_inet_local_addr (listtype arguments)
 
 
 
-objecttype soc_inet_serv_addr (listtype arguments)
+objectType soc_inet_serv_addr (listType arguments)
 
   { /* soc_inet_serv_addr */
     isit_int(arg_1(arguments));
@@ -314,7 +314,7 @@ objecttype soc_inet_serv_addr (listtype arguments)
 
 
 
-objecttype soc_input_ready (listtype arguments)
+objectType soc_input_ready (listType arguments)
 
   { /* soc_input_ready */
     isit_socket(arg_1(arguments));
@@ -341,10 +341,10 @@ objecttype soc_input_ready (listtype arguments)
  *  @return the line read.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-objecttype soc_line_read (listtype arguments)
+objectType soc_line_read (listType arguments)
 
   {
-    objecttype terminationChar;
+    objectType terminationChar;
 
   /* soc_line_read */
     isit_socket(arg_1(arguments));
@@ -353,7 +353,7 @@ objecttype soc_line_read (listtype arguments)
     is_variable(terminationChar);
     return bld_stri_temp(
         socLineRead(take_socket(arg_1(arguments)),
-                    &terminationChar->value.charvalue));
+                    &terminationChar->value.charValue));
   } /* soc_line_read */
 
 
@@ -364,7 +364,7 @@ objecttype soc_line_read (listtype arguments)
  *  of pending connections for a listener socket may grow.
  *  @exception FILE_ERROR A system function returns an error.
  */
-objecttype soc_listen (listtype arguments)
+objectType soc_listen (listType arguments)
 
   { /* soc_listen */
     isit_socket(arg_1(arguments));
@@ -380,7 +380,7 @@ objecttype soc_listen (listtype arguments)
  *  @return FALSE if both sockets are equal,
  *          TRUE otherwise.
  */
-objecttype soc_ne (listtype arguments)
+objectType soc_ne (listType arguments)
 
   { /* soc_ne */
     isit_socket(arg_1(arguments));
@@ -395,7 +395,7 @@ objecttype soc_ne (listtype arguments)
 
 
 
-objecttype soc_recv (listtype arguments)
+objectType soc_recv (listType arguments)
 
   { /* soc_recv */
     isit_socket(arg_1(arguments));
@@ -412,7 +412,7 @@ objecttype soc_recv (listtype arguments)
 
 
 
-objecttype soc_recvfrom (listtype arguments)
+objectType soc_recvfrom (listType arguments)
 
   { /* soc_recvfrom */
     isit_socket(arg_1(arguments));
@@ -433,30 +433,30 @@ objecttype soc_recvfrom (listtype arguments)
 
 
 #ifdef OUT_OF_ORDER
-objecttype soc_select (listtype arguments)
+objectType soc_select (listType arguments)
 
   {
-    arraytype sockArray;
-    memsizetype array_size;
-    memsizetype pos;
+    arrayType sockArray;
+    memSizeType array_size;
+    memSizeType pos;
     int nfds = 0;
     fd_set readfds;
     struct timeval timeout;
     int select_result;
     int fd;
-    arraytype result_array;
-    arraytype result;
+    arrayType result_array;
+    arrayType result;
 
   /* soc_select */
     isit_array(arg_1(arguments));
     sockArray = take_array(arg_1(arguments));
     FD_ZERO(&readfds);
     if (sockArray->max_position >= sockArray->min_position) {
-      array_size = (uinttype) (sockArray->max_position - sockArray->min_position) + 1;
+      array_size = (uintType) (sockArray->max_position - sockArray->min_position) + 1;
       for (pos = 0; pos < array_size; pos++) {
-        FD_SET(sockArray->arr[pos].value.socketvalue, &readfds);
-        if (sockArray->arr[pos].value.socketvalue >= nfds) {
-          nfds = sockArray->arr[pos].value.socketvalue + 1;
+        FD_SET(sockArray->arr[pos].value.socketValue, &readfds);
+        if (sockArray->arr[pos].value.socketValue >= nfds) {
+          nfds = sockArray->arr[pos].value.socketValue + 1;
         } /* if */
       } /* for */
     } /* if */
@@ -474,7 +474,7 @@ objecttype soc_select (listtype arguments)
         pos = 0;
         for (fd = 0; pos < nfds; fd++) {
           if (FD_ISSET(fd, &readfds)) {
-            result_array->arr[pos].value.socketvalue = fd;
+            result_array->arr[pos].value.socketValue = fd;
             pos++;
           } /* if */
         } /* for */
@@ -487,7 +487,7 @@ objecttype soc_select (listtype arguments)
 
 
 
-objecttype soc_send (listtype arguments)
+objectType soc_send (listType arguments)
 
   { /* soc_send */
     isit_socket(arg_1(arguments));
@@ -501,7 +501,7 @@ objecttype soc_send (listtype arguments)
 
 
 
-objecttype soc_sendto (listtype arguments)
+objectType soc_sendto (listType arguments)
 
   { /* soc_sendto */
     isit_socket(arg_1(arguments));
@@ -517,7 +517,7 @@ objecttype soc_sendto (listtype arguments)
 
 
 
-objecttype soc_setOptBool (listtype arguments)
+objectType soc_setOptBool (listType arguments)
 
   { /* soc_setOptBool */
     isit_socket(arg_1(arguments));
@@ -531,7 +531,7 @@ objecttype soc_setOptBool (listtype arguments)
 
 
 
-objecttype soc_socket (listtype arguments)
+objectType soc_socket (listType arguments)
 
   { /* soc_socket */
     isit_int(arg_1(arguments));
@@ -556,10 +556,10 @@ objecttype soc_socket (listtype arguments)
  *  @return the word read.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-objecttype soc_word_read (listtype arguments)
+objectType soc_word_read (listType arguments)
 
   {
-    objecttype terminationChar;
+    objectType terminationChar;
 
   /* soc_word_read */
     isit_socket(arg_1(arguments));
@@ -568,7 +568,7 @@ objecttype soc_word_read (listtype arguments)
     is_variable(terminationChar);
     return bld_stri_temp(
         socWordRead(take_socket(arg_1(arguments)),
-                    &terminationChar->value.charvalue));
+                    &terminationChar->value.charValue));
   } /* soc_word_read */
 
 
@@ -580,7 +580,7 @@ objecttype soc_word_read (listtype arguments)
  *  @exception RANGE_ERROR The string contains a character that does
  *             not fit into a byte.
  */
-objecttype soc_write (listtype arguments)
+objectType soc_write (listType arguments)
 
   { /* soc_write */
     isit_socket(arg_1(arguments));

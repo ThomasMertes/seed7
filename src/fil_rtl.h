@@ -147,26 +147,26 @@
 #endif
 
 
-int offsetSeek (filetype aFile, const os_off_t anOffset, const int origin);
-memsizetype remainingBytesInFile (filetype aFile);
-inttype getFileLengthUsingSeek (filetype aFile);
-biginttype getBigFileLengthUsingSeek (filetype aFile);
-biginttype filBigLng (filetype aFile);
-void filBigSeek (filetype aFile, const const_biginttype big_position);
-biginttype filBigTell (filetype aFile);
-void filClose (filetype aFile);
-stritype filGets (filetype inFile, inttype length);
-booltype filHasNext (filetype inFile);
-stritype filLineRead (filetype inFile, chartype *terminationChar);
-stritype filLit (filetype aFile);
-inttype filLng (filetype aFile);
-filetype filOpen (const const_stritype path, const const_stritype mode);
-void filPclose (filetype aFile);
-filetype filPopen (const const_stritype command,
-    const const_stritype parameters, const const_stritype mode);
-void filPrint (const const_stritype stri);
-void filSeek (filetype aFile, inttype file_position);
-void filSetbuf (filetype aFile, inttype mode, inttype size);
-inttype filTell (filetype aFile);
-stritype filWordRead (filetype inFile, chartype *terminationChar);
-void filWrite (filetype outFile, const const_stritype stri);
+int offsetSeek (fileType aFile, const os_off_t anOffset, const int origin);
+memSizeType remainingBytesInFile (fileType aFile);
+intType getFileLengthUsingSeek (fileType aFile);
+bigIntType getBigFileLengthUsingSeek (fileType aFile);
+bigIntType filBigLng (fileType aFile);
+void filBigSeek (fileType aFile, const const_bigIntType big_position);
+bigIntType filBigTell (fileType aFile);
+void filClose (fileType aFile);
+striType filGets (fileType inFile, intType length);
+boolType filHasNext (fileType inFile);
+striType filLineRead (fileType inFile, charType *terminationChar);
+striType filLit (fileType aFile);
+intType filLng (fileType aFile);
+fileType filOpen (const const_striType path, const const_striType mode);
+void filPclose (fileType aFile);
+fileType filPopen (const const_striType command,
+    const const_striType parameters, const const_striType mode);
+void filPrint (const const_striType stri);
+void filSeek (fileType aFile, intType file_position);
+void filSetbuf (fileType aFile, intType mode, intType size);
+intType filTell (fileType aFile);
+striType filWordRead (fileType inFile, charType *terminationChar);
+void filWrite (fileType outFile, const const_striType stri);

@@ -61,20 +61,20 @@
 
 
 
-static objecttype copy_args (const const_rtlArraytype argv, const memsizetype start)
+static objectType copy_args (const const_rtlArrayType argv, const memSizeType start)
 
   {
-    memsizetype argc;
-    arraytype arg_array;
-    memsizetype arg_idx;
-    objecttype result;
+    memSizeType argc;
+    arrayType arg_array;
+    memSizeType arg_idx;
+    objectType result;
 
   /* copy_args */
     /* printf("start = %d\n", start); */
     if (argv == NULL || argv->max_position < 0) {
       argc = 0;
     } else {
-      argc = (memsizetype) argv->max_position - start;
+      argc = (memSizeType) argv->max_position - start;
     } /* if */
     /* printf("argc = %d\n", argc); */
     if (ALLOC_ARRAY(arg_array, argc)) {
@@ -82,24 +82,24 @@ static objecttype copy_args (const const_rtlArraytype argv, const memsizetype st
       while (arg_idx < argc) {
         /* printf("arg_idx = %d\n", arg_idx);
            printf("argv[%d] = ", start + arg_idx);
-           prot_stri(argv->arr[start + arg_idx].value.strivalue);
+           prot_stri(argv->arr[start + arg_idx].value.striValue);
            printf("\n"); */
         arg_array->arr[arg_idx].type_of = take_type(SYS_STRI_TYPE);
         arg_array->arr[arg_idx].descriptor.property = NULL;
-        arg_array->arr[arg_idx].value.strivalue =
-            argv->arr[start + arg_idx].value.strivalue;
+        arg_array->arr[arg_idx].value.striValue =
+            argv->arr[start + arg_idx].value.striValue;
         INIT_CATEGORY_OF_OBJ(&arg_array->arr[arg_idx], STRIOBJECT);
         arg_idx++;
       } /* while */
       arg_array->min_position = 1;
-      arg_array->max_position = (inttype) arg_idx;
+      arg_array->max_position = (intType) arg_idx;
     } /* if */
     if (arg_array != NULL) {
       if (ALLOC_OBJECT(result)) {
         result->type_of = NULL;
         result->descriptor.property = NULL;
         INIT_CATEGORY_OF_OBJ(result, ARRAYOBJECT);
-        result->value.arrayvalue = arg_array;
+        result->value.arrayValue = arg_array;
       } else {
         FREE_ARRAY(arg_array, argc);
       } /* if */
@@ -111,14 +111,14 @@ static objecttype copy_args (const const_rtlArraytype argv, const memsizetype st
 
 
 
-static void free_args (objecttype arg_v)
+static void free_args (objectType arg_v)
 
   {
-    arraytype arg_array;
-    memsizetype arg_array_size;
+    arrayType arg_array;
+    memSizeType arg_array_size;
 
   /* free_args */
-    arg_array = arg_v->value.arrayvalue;
+    arg_array = arg_v->value.arrayValue;
     arg_array_size = arraySize(arg_array);
     FREE_ARRAY(arg_array, arg_array_size);
     FREE_OBJECT(arg_v);
@@ -126,11 +126,11 @@ static void free_args (objecttype arg_v)
 
 
 
-void interpret (const const_progtype currentProg, const const_rtlArraytype argv,
-                memsizetype argv_start, uinttype options, const const_stritype prot_file_name)
+void interpret (const const_progType currentProg, const const_rtlArrayType argv,
+                memSizeType argv_start, uintType options, const const_striType prot_file_name)
 
   {
-    progrecord prog_backup;
+    progRecord prog_backup;
 
   /* interpret */
 #ifdef TRACE_PRG_COMP
@@ -138,12 +138,12 @@ void interpret (const const_progtype currentProg, const const_rtlArraytype argv,
 #endif
     if (currentProg != NULL) {
       fail_flag = FALSE;
-      fail_value = (objecttype) NULL;
-      fail_expression = (listtype) NULL;
+      fail_value = (objectType) NULL;
+      fail_expression = (listType) NULL;
       fail_stack = NULL;
       if (currentProg->main_object != NULL) {
-        memcpy(&prog_backup, &prog, sizeof(progrecord));
-        memcpy(&prog, currentProg, sizeof(progrecord));
+        memcpy(&prog_backup, &prog, sizeof(progRecord));
+        memcpy(&prog, currentProg, sizeof(progRecord));
         prog.option_flags = options;
         set_trace(prog.option_flags);
         set_protfile_name(prot_file_name);
@@ -187,7 +187,7 @@ void interpret (const const_progtype currentProg, const const_rtlArraytype argv,
             write_call_stack(fail_stack);
           } /* if */
 #endif
-          memcpy(&prog, &prog_backup, sizeof(progrecord));
+          memcpy(&prog, &prog_backup, sizeof(progRecord));
         } /* if */
       } /* if */
     } /* if */
@@ -198,10 +198,10 @@ void interpret (const const_progtype currentProg, const const_rtlArraytype argv,
 
 
 
-void prgCpy (progtype *const prog_to, const progtype prog_from)
+void prgCpy (progType *const prog_to, const progType prog_from)
 
   {
-    progtype old_prog;
+    progType old_prog;
 
   /* prgCpy */
     old_prog = *prog_to;
@@ -217,7 +217,7 @@ void prgCpy (progtype *const prog_to, const progtype prog_from)
 
 
 
-progtype prgCreate (const progtype prog_from)
+progType prgCreate (const progType prog_from)
 
   {
 
@@ -231,10 +231,10 @@ progtype prgCreate (const progtype prog_from)
 
 
 
-void prgDestr (progtype old_prog)
+void prgDestr (progType old_prog)
 
   {
-    progrecord prog_backup;
+    progRecord prog_backup;
 
   /* prgDestr */
 #ifdef TRACE_TYPEUTIL
@@ -244,9 +244,9 @@ void prgDestr (progtype old_prog)
       /* printf("prgDestr: usage_count=%d\n", old_prog->usage_count); */
       old_prog->usage_count--;
       if (old_prog->usage_count == 0) {
-        /* printf("prgDestr: old progrecord: %lx\n", old_prog); */
-        memcpy(&prog_backup, &prog, sizeof(progrecord));
-        memcpy(&prog, old_prog, sizeof(progrecord));
+        /* printf("prgDestr: old progRecord: %lx\n", old_prog); */
+        memcpy(&prog_backup, &prog, sizeof(progRecord));
+        memcpy(&prog, old_prog, sizeof(progRecord));
         /* printf("heapsize: %ld\n", heapsize()); */
         /* heap_statistic(); */
         close_stack(old_prog);
@@ -257,13 +257,13 @@ void prgDestr (progtype old_prog)
         remove_prog_files(old_prog);
         dump_list(old_prog->literals);
         free_entity(old_prog, old_prog->entity.literal);
-        FREE_RECORD(old_prog->property.literal, propertyrecord, count.property);
-        memcpy(&prog, &prog_backup, sizeof(progrecord));
+        FREE_RECORD(old_prog->property.literal, propertyRecord, count.property);
+        memcpy(&prog, &prog_backup, sizeof(progRecord));
         FREE_STRI(old_prog->arg0, old_prog->arg0->size);
         FREE_STRI(old_prog->program_name, old_prog->program_name->size);
         FREE_STRI(old_prog->program_path, old_prog->program_path->size);
-        FREE_RECORD(old_prog->stack_global, stackrecord, count.stack);
-        FREE_RECORD(old_prog, progrecord, count.prog);
+        FREE_RECORD(old_prog->stack_global, stackRecord, count.stack);
+        FREE_RECORD(old_prog, progRecord, count.prog);
         /* printf("heapsize: %ld\n", heapsize()); */
         /* heap_statistic(); */
       } /* if */
@@ -275,28 +275,28 @@ void prgDestr (progtype old_prog)
 
 
 
-inttype prgErrorCount (const const_progtype aProg)
+intType prgErrorCount (const const_progType aProg)
 
   {
-    inttype result;
+    intType result;
 
   /* prgErrorCount */
     if (aProg->error_count > INTTYPE_MAX) {
       raise_error(RANGE_ERROR);
       result = 0;
     } else {
-      result = (inttype) aProg->error_count;
+      result = (intType) aProg->error_count;
     } /* if */
     return result;
   } /* prgErrorCount */
 
 
 
-objecttype prgEval (progtype currentProg, objecttype object)
+objectType prgEval (progType currentProg, objectType object)
 
   {
-    errinfotype err_info = OKAY_NO_ERROR;
-    objecttype result;
+    errInfoType err_info = OKAY_NO_ERROR;
+    objectType result;
 
   /* prgEval */
     result = exec_expr(currentProg, object, &err_info);
@@ -309,35 +309,35 @@ objecttype prgEval (progtype currentProg, objecttype object)
 
 
 
-void prgExec (const const_progtype currentProg, const const_rtlArraytype argv,
-    const const_settype options, const const_stritype prot_file_name)
+void prgExec (const const_progType currentProg, const const_rtlArrayType argv,
+    const const_setType options, const const_striType prot_file_name)
 
   {
-    uinttype int_options;
+    uintType int_options;
 
   /* prgExec */
-    int_options = (uinttype) setSConv(options);
+    int_options = (uintType) setSConv(options);
     interpret(currentProg, argv, 0, int_options, prot_file_name);
     fail_flag = FALSE;
-    fail_value = (objecttype) NULL;
-    fail_expression = (listtype) NULL;
+    fail_value = (objectType) NULL;
+    fail_expression = (listType) NULL;
   } /* prgExec */
 
 
 
-progtype prgFilParse (const const_stritype fileName, const const_settype options,
-    const const_rtlArraytype libraryDirs, const const_stritype prot_file_name)
+progType prgFilParse (const const_striType fileName, const const_setType options,
+    const const_rtlArrayType libraryDirs, const const_striType prot_file_name)
 
   {
-    uinttype int_options;
-    errinfotype err_info = OKAY_NO_ERROR;
-    progtype result;
+    uintType int_options;
+    errInfoType err_info = OKAY_NO_ERROR;
+    progType result;
 
   /* prgFilParse */
     /* printf("prgFilParse(");
        prot_stri(fileName);
        printf(")\n"); */
-    int_options = (uinttype) setSConv(options);
+    int_options = (uintType) setSConv(options);
     /* printf("options: %03x\n", int_options); */
     result = analyze_file(fileName, int_options, libraryDirs, prot_file_name, &err_info);
     if (err_info != OKAY_NO_ERROR) {
@@ -348,11 +348,11 @@ progtype prgFilParse (const const_stritype fileName, const const_settype options
 
 
 
-listtype prgGlobalObjects (const const_progtype aProg)
+listType prgGlobalObjects (const const_progType aProg)
 
   {
-    errinfotype err_info = OKAY_NO_ERROR;
-    listtype result;
+    errInfoType err_info = OKAY_NO_ERROR;
+    listType result;
 
   /* prgGlobalObjects */
     if (aProg->stack_current != NULL) {
@@ -369,28 +369,28 @@ listtype prgGlobalObjects (const const_progtype aProg)
 
 
 
-objecttype prgMatch (const const_progtype aProg, listtype curr_expr)
+objectType prgMatch (const const_progType aProg, listType curr_expr)
 
   {
-    objectrecord expr_object;
-    objecttype result;
+    objectRecord expr_object;
+    objectType result;
 
   /* prgMatch */
     /* prot_list(curr_expr);
     printf("\n"); */
     expr_object.type_of = NULL;
     expr_object.descriptor.property = NULL;
-    expr_object.value.listvalue = curr_expr;
+    expr_object.value.listValue = curr_expr;
     INIT_CATEGORY_OF_OBJ(&expr_object, EXPROBJECT);
 
     result = match_prog_expression(aProg->declaration_root, &expr_object);
     if (result != NULL) {
       if (CATEGORY_OF_OBJ(result) == MATCHOBJECT ||
           CATEGORY_OF_OBJ(result) == CALLOBJECT) {
-        curr_expr = expr_object.value.listvalue->next;
-        result = expr_object.value.listvalue->obj;
-        expr_object.value.listvalue->next = NULL;
-        free_list(expr_object.value.listvalue);
+        curr_expr = expr_object.value.listValue->next;
+        result = expr_object.value.listValue->obj;
+        expr_object.value.listValue->next = NULL;
+        free_list(expr_object.value.listValue);
       } else {
         run_error(MATCHOBJECT, result);
       } /* if */
@@ -405,11 +405,11 @@ objecttype prgMatch (const const_progtype aProg, listtype curr_expr)
 
 
 
-objecttype prgMatchExpr (const const_progtype aProg, listtype curr_expr)
+objectType prgMatchExpr (const const_progType aProg, listType curr_expr)
 
   {
-    errinfotype err_info = OKAY_NO_ERROR;
-    objecttype result;
+    errInfoType err_info = OKAY_NO_ERROR;
+    objectType result;
 
   /* prgMatchExpr */
     /* prot_list(curr_expr);
@@ -421,7 +421,7 @@ objecttype prgMatchExpr (const const_progtype aProg, listtype curr_expr)
       result->type_of = NULL;
       result->descriptor.property = NULL;
       INIT_CATEGORY_OF_OBJ(result, EXPROBJECT);
-      result->value.listvalue = copy_list(curr_expr, &err_info);
+      result->value.listValue = copy_list(curr_expr, &err_info);
       if (err_info != OKAY_NO_ERROR) {
         raise_error(MEMORY_ERROR);
         result = NULL;
@@ -432,7 +432,7 @@ objecttype prgMatchExpr (const const_progtype aProg, listtype curr_expr)
         printf("\n");
         prot_list(curr_expr);
         printf("\n");
-        prot_list(result->value.listvalue);
+        prot_list(result->value.listValue);
         printf("\n"); */
       } /* if */
     } /* if */
@@ -441,7 +441,7 @@ objecttype prgMatchExpr (const const_progtype aProg, listtype curr_expr)
 
 
 
-const_stritype prgName (const const_progtype aProg)
+const_striType prgName (const const_progType aProg)
 
   { /* prgName */
     return aProg->program_name;
@@ -449,7 +449,7 @@ const_stritype prgName (const const_progtype aProg)
 
 
 
-const_stritype prgPath (const const_progtype aProg)
+const_striType prgPath (const const_progType aProg)
 
   { /* prgPath */
     return aProg->program_path;
@@ -457,16 +457,16 @@ const_stritype prgPath (const const_progtype aProg)
 
 
 
-progtype prgStrParse (const const_stritype stri, const const_settype options,
-    const const_rtlArraytype libraryDirs, const const_stritype prot_file_name)
+progType prgStrParse (const const_striType stri, const const_setType options,
+    const const_rtlArrayType libraryDirs, const const_striType prot_file_name)
 
   {
-    uinttype int_options;
-    errinfotype err_info = OKAY_NO_ERROR;
-    progtype result;
+    uintType int_options;
+    errInfoType err_info = OKAY_NO_ERROR;
+    progType result;
 
   /* prgStrParse */
-    int_options = (uinttype) setSConv(options);
+    int_options = (uintType) setSConv(options);
     result = analyze_string(stri, int_options, libraryDirs, prot_file_name, &err_info);
     if (err_info != OKAY_NO_ERROR) {
       raise_error(err_info);
@@ -476,13 +476,13 @@ progtype prgStrParse (const const_stritype stri, const const_settype options,
 
 
 
-objecttype prgSyobject (const progtype aProg, const const_stritype syobjectName)
+objectType prgSyobject (const progType aProg, const const_striType syobjectName)
 
   {
-    cstritype name;
-    identtype ident_found;
-    errinfotype err_info = OKAY_NO_ERROR;
-    objecttype result;
+    cstriType name;
+    identType ident_found;
+    errInfoType err_info = OKAY_NO_ERROR;
+    objectType result;
 
   /* prgSyobject */
     name = stri_to_cstri8(syobjectName, &err_info);
@@ -490,7 +490,7 @@ objecttype prgSyobject (const progtype aProg, const const_stritype syobjectName)
       raise_error(err_info);
       result = NULL;
     } else {
-      ident_found = get_ident(aProg, (const_ustritype) name);
+      ident_found = get_ident(aProg, (const_ustriType) name);
       if (ident_found == NULL ||
           ident_found->entity == NULL) {
         result = NULL;
@@ -504,11 +504,11 @@ objecttype prgSyobject (const progtype aProg, const const_stritype syobjectName)
 
 
 
-objecttype prgSysvar (const const_progtype aProg, const const_stritype sysvarName)
+objectType prgSysvar (const const_progType aProg, const const_striType sysvarName)
 
   {
     int index_found;
-    objecttype result;
+    objectType result;
 
   /* prgSysvar */
     index_found = find_sysvar(sysvarName);

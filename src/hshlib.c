@@ -55,8 +55,8 @@
 
 
 
-static void free_helem (helemtype old_helem, objecttype key_destr_func,
-    objecttype data_destr_func)
+static void free_helem (hashElemType old_helem, objectType key_destr_func,
+    objectType data_destr_func)
 
   { /* free_helem */
     param2_call(key_destr_func, &old_helem->key, SYS_DESTR_OBJECT);
@@ -72,17 +72,17 @@ static void free_helem (helemtype old_helem, objecttype key_destr_func,
       free_helem(old_helem->next_greater, key_destr_func,
           data_destr_func);
     } /* if */
-    FREE_RECORD(old_helem, helemrecord, count.helem);
+    FREE_RECORD(old_helem, hashElemRecord, count.helem);
   } /* free_helem */
 
 
 
-static void free_hash (hashtype old_hash, objecttype key_destr_func,
-    objecttype data_destr_func)
+static void free_hash (hashType old_hash, objectType key_destr_func,
+    objectType data_destr_func)
 
   {
     unsigned int number;
-    helemtype *curr_helem;
+    hashElemType *curr_helem;
 
   /* free_hash */
     if (old_hash != NULL) {
@@ -101,14 +101,14 @@ static void free_hash (hashtype old_hash, objecttype key_destr_func,
 
 
 
-static helemtype new_helem (objecttype key, objecttype data,
-    objecttype key_create_func, objecttype data_create_func, errinfotype *err_info)
+static hashElemType new_helem (objectType key, objectType data,
+    objectType key_create_func, objectType data_create_func, errInfoType *err_info)
 
   {
-    helemtype helem;
+    hashElemType helem;
 
   /* new_helem */
-    if (!ALLOC_RECORD(helem, helemrecord, count.helem)) {
+    if (!ALLOC_RECORD(helem, hashElemRecord, count.helem)) {
       *err_info = MEMORY_ERROR;
     } else {
       helem->key.descriptor.property = NULL;
@@ -127,10 +127,10 @@ static helemtype new_helem (objecttype key, objecttype data,
 
 
 
-static hashtype new_hash (unsigned int bits)
+static hashType new_hash (unsigned int bits)
 
   {
-    hashtype hash;
+    hashType hash;
 
   /* new_hash */
     if (ALLOC_HASH(hash, TABLE_SIZE(bits))) {
@@ -138,29 +138,29 @@ static hashtype new_hash (unsigned int bits)
       hash->mask = TABLE_MASK(bits);
       hash->table_size = TABLE_SIZE(bits);
       hash->size = 0;
-      memset(hash->table, 0, hash->table_size * sizeof(helemtype));
+      memset(hash->table, 0, hash->table_size * sizeof(hashElemType));
     } /* if */
     return hash;
   } /* new_hash */
 
 
 
-static helemtype create_helem (helemtype source_helem,
-    objecttype key_create_func, objecttype data_create_func, errinfotype *err_info)
+static hashElemType create_helem (hashElemType source_helem,
+    objectType key_create_func, objectType data_create_func, errInfoType *err_info)
 
   {
-    helemtype dest_helem;
+    hashElemType dest_helem;
 
   /* create_helem */
-    if (!ALLOC_RECORD(dest_helem, helemrecord, count.helem)) {
+    if (!ALLOC_RECORD(dest_helem, hashElemRecord, count.helem)) {
       *err_info = MEMORY_ERROR;
     } else {
-      memcpy(&dest_helem->key.descriptor, &source_helem->key.descriptor, sizeof(descriptorunion));
+      memcpy(&dest_helem->key.descriptor, &source_helem->key.descriptor, sizeof(descriptorUnion));
       INIT_CATEGORY_OF_VAR(&dest_helem->key, DECLAREDOBJECT);
       SET_ANY_FLAG(&dest_helem->key, HAS_POSINFO(&source_helem->key));
       dest_helem->key.type_of = source_helem->key.type_of;
       param3_call(key_create_func, &dest_helem->key, SYS_CREA_OBJECT, &source_helem->key);
-      memcpy(&dest_helem->data.descriptor, &source_helem->data.descriptor, sizeof(descriptorunion));
+      memcpy(&dest_helem->data.descriptor, &source_helem->data.descriptor, sizeof(descriptorUnion));
       INIT_CATEGORY_OF_VAR(&dest_helem->data, DECLAREDOBJECT);
       SET_ANY_FLAG(&dest_helem->data, HAS_POSINFO(&source_helem->data));
       dest_helem->data.type_of = source_helem->data.type_of;
@@ -183,15 +183,15 @@ static helemtype create_helem (helemtype source_helem,
 
 
 
-static hashtype create_hash (hashtype source_hash,
-    objecttype key_create_func, objecttype data_create_func, errinfotype *err_info)
+static hashType create_hash (hashType source_hash,
+    objectType key_create_func, objectType data_create_func, errInfoType *err_info)
 
   {
     unsigned int new_size;
     unsigned int number;
-    helemtype *source_helem;
-    helemtype *dest_helem;
-    hashtype dest_hash;
+    hashElemType *source_helem;
+    hashElemType *dest_helem;
+    hashType dest_hash;
 
   /* create_hash */
     new_size = source_hash->table_size;
@@ -221,13 +221,13 @@ static hashtype create_hash (hashtype source_hash,
 
 
 
-static void keys_helem (arraytype *key_array, memsizetype *arr_pos,
-    helemtype curr_helem, objecttype key_create_func, errinfotype *err_info)
+static void keys_helem (arrayType *key_array, memSizeType *arr_pos,
+    hashElemType curr_helem, objectType key_create_func, errInfoType *err_info)
 
   {
-    memsizetype array_size;
-    arraytype resized_key_array;
-    objecttype dest_obj;
+    memSizeType array_size;
+    arrayType resized_key_array;
+    objectType dest_obj;
 
   /* keys_helem */
     array_size = arraySize(*key_array);
@@ -249,7 +249,7 @@ static void keys_helem (arraytype *key_array, memsizetype *arr_pos,
       } /* if */
     } /* if */
     dest_obj = &(*key_array)->arr[*arr_pos];
-    memcpy(&dest_obj->descriptor, &curr_helem->key.descriptor, sizeof(descriptorunion));
+    memcpy(&dest_obj->descriptor, &curr_helem->key.descriptor, sizeof(descriptorUnion));
     INIT_CATEGORY_OF_VAR(dest_obj, DECLAREDOBJECT);
     SET_ANY_FLAG(dest_obj, HAS_POSINFO(&curr_helem->key));
     dest_obj->type_of = curr_helem->key.type_of;
@@ -265,16 +265,16 @@ static void keys_helem (arraytype *key_array, memsizetype *arr_pos,
 
 
 
-static arraytype keys_hash (hashtype curr_hash, objecttype key_create_func,
-    objecttype key_destr_func, errinfotype *err_info)
+static arrayType keys_hash (hashType curr_hash, objectType key_create_func,
+    objectType key_destr_func, errInfoType *err_info)
 
   {
-    memsizetype arr_pos;
-    memsizetype number;
-    helemtype *curr_helem;
-    memsizetype array_size;
-    arraytype resized_key_array;
-    arraytype key_array;
+    memSizeType arr_pos;
+    memSizeType number;
+    hashElemType *curr_helem;
+    memSizeType array_size;
+    arrayType resized_key_array;
+    arrayType key_array;
 
   /* keys_hash */
     if (!ALLOC_ARRAY(key_array, ARRAY_SIZE_INCREMENT)) {
@@ -300,7 +300,7 @@ static arraytype keys_hash (hashtype curr_hash, objecttype key_create_func,
         } else {
           key_array = resized_key_array;
           COUNT3_ARRAY(array_size, arr_pos);
-          key_array->max_position = (inttype) arr_pos;
+          key_array->max_position = (intType) arr_pos;
         } /* if */
       } /* if */
       if (*err_info != OKAY_NO_ERROR) {
@@ -316,13 +316,13 @@ static arraytype keys_hash (hashtype curr_hash, objecttype key_create_func,
 
 
 
-static void values_helem (arraytype *value_array, memsizetype *arr_pos,
-    helemtype curr_helem, objecttype value_create_func, errinfotype *err_info)
+static void values_helem (arrayType *value_array, memSizeType *arr_pos,
+    hashElemType curr_helem, objectType value_create_func, errInfoType *err_info)
 
   {
-    memsizetype array_size;
-    arraytype resized_value_array;
-    objecttype dest_obj;
+    memSizeType array_size;
+    arrayType resized_value_array;
+    objectType dest_obj;
 
   /* values_helem */
     array_size = arraySize(*value_array);
@@ -344,7 +344,7 @@ static void values_helem (arraytype *value_array, memsizetype *arr_pos,
       } /* if */
     } /* if */
     dest_obj = &(*value_array)->arr[*arr_pos];
-    memcpy(&dest_obj->descriptor, &curr_helem->data.descriptor, sizeof(descriptorunion));
+    memcpy(&dest_obj->descriptor, &curr_helem->data.descriptor, sizeof(descriptorUnion));
     INIT_CATEGORY_OF_VAR(dest_obj, DECLAREDOBJECT);
     SET_ANY_FLAG(dest_obj, HAS_POSINFO(&curr_helem->data));
     dest_obj->type_of = curr_helem->data.type_of;
@@ -360,16 +360,16 @@ static void values_helem (arraytype *value_array, memsizetype *arr_pos,
 
 
 
-static arraytype values_hash (hashtype curr_hash, objecttype value_create_func,
-    objecttype value_destr_func, errinfotype *err_info)
+static arrayType values_hash (hashType curr_hash, objectType value_create_func,
+    objectType value_destr_func, errInfoType *err_info)
 
   {
-    memsizetype arr_pos;
-    memsizetype number;
-    helemtype *curr_helem;
-    memsizetype array_size;
-    arraytype resized_value_array;
-    arraytype value_array;
+    memSizeType arr_pos;
+    memSizeType number;
+    hashElemType *curr_helem;
+    memSizeType array_size;
+    arrayType resized_value_array;
+    arrayType value_array;
 
   /* values_hash */
     if (!ALLOC_ARRAY(value_array, ARRAY_SIZE_INCREMENT)) {
@@ -395,7 +395,7 @@ static arraytype values_hash (hashtype curr_hash, objecttype value_create_func,
         } else {
           value_array = resized_value_array;
           COUNT3_ARRAY(array_size, arr_pos);
-          value_array->max_position = (inttype) arr_pos;
+          value_array->max_position = (intType) arr_pos;
         } /* if */
       } /* if */
       if (*err_info != OKAY_NO_ERROR) {
@@ -411,8 +411,8 @@ static arraytype values_hash (hashtype curr_hash, objecttype value_create_func,
 
 
 
-static void for_helem (objecttype for_variable, helemtype curr_helem,
-    objecttype statement, objecttype data_copy_func)
+static void for_helem (objectType for_variable, hashElemType curr_helem,
+    objectType statement, objectType data_copy_func)
 
   { /* for_helem */
     if (curr_helem != NULL) {
@@ -425,12 +425,12 @@ static void for_helem (objecttype for_variable, helemtype curr_helem,
 
 
 
-static void for_hash (objecttype for_variable, hashtype curr_hash,
-    objecttype statement, objecttype data_copy_func)
+static void for_hash (objectType for_variable, hashType curr_hash,
+    objectType statement, objectType data_copy_func)
 
   {
     unsigned int number;
-    helemtype *curr_helem;
+    hashElemType *curr_helem;
 
   /* for_hash */
     number = curr_hash->table_size;
@@ -444,8 +444,8 @@ static void for_hash (objecttype for_variable, hashtype curr_hash,
 
 
 
-static void for_key_helem (objecttype key_variable, helemtype curr_helem,
-    objecttype statement, objecttype key_copy_func)
+static void for_key_helem (objectType key_variable, hashElemType curr_helem,
+    objectType statement, objectType key_copy_func)
 
   { /* for_key_helem */
     if (curr_helem != NULL) {
@@ -458,12 +458,12 @@ static void for_key_helem (objecttype key_variable, helemtype curr_helem,
 
 
 
-static void for_key_hash (objecttype key_variable, hashtype curr_hash,
-    objecttype statement, objecttype key_copy_func)
+static void for_key_hash (objectType key_variable, hashType curr_hash,
+    objectType statement, objectType key_copy_func)
 
   {
     unsigned int number;
-    helemtype *curr_helem;
+    hashElemType *curr_helem;
 
   /* for_key_hash */
     number = curr_hash->table_size;
@@ -477,9 +477,9 @@ static void for_key_hash (objecttype key_variable, hashtype curr_hash,
 
 
 
-static void for_data_key_helem (objecttype for_variable, objecttype key_variable,
-    helemtype curr_helem, objecttype statement, objecttype data_copy_func,
-    objecttype key_copy_func)
+static void for_data_key_helem (objectType for_variable, objectType key_variable,
+    hashElemType curr_helem, objectType statement, objectType data_copy_func,
+    objectType key_copy_func)
 
   { /* for_data_key_helem */
     if (curr_helem != NULL) {
@@ -495,13 +495,13 @@ static void for_data_key_helem (objecttype for_variable, objecttype key_variable
 
 
 
-static void for_data_key_hash (objecttype for_variable, objecttype key_variable,
-    hashtype curr_hash, objecttype statement, objecttype data_copy_func,
-    objecttype key_copy_func)
+static void for_data_key_hash (objectType for_variable, objectType key_variable,
+    hashType curr_hash, objectType statement, objectType data_copy_func,
+    objectType key_copy_func)
 
   {
     unsigned int number;
-    helemtype *curr_helem;
+    hashElemType *curr_helem;
 
   /* for_data_key_hash */
     number = curr_hash->table_size;
@@ -522,17 +522,17 @@ static void for_data_key_hash (objecttype for_variable, objecttype key_variable,
  *  @return TRUE when 'aKey' is a member of 'aHashMap',
  *          FALSE otherwise.
  */
-objecttype hsh_contains (listtype arguments)
+objectType hsh_contains (listType arguments)
 
   {
-    hashtype aHashMap;
-    inttype hashcode;
-    objecttype aKey;
-    objecttype cmp_func;
-    helemtype hashelem;
-    objecttype cmp_obj;
-    inttype cmp;
-    objecttype result;
+    hashType aHashMap;
+    intType hashcode;
+    objectType aKey;
+    objectType cmp_func;
+    hashElemType hashelem;
+    objectType cmp_obj;
+    intType cmp;
+    objectType result;
 
   /* hsh_contains */
     isit_hash(arg_1(arguments));
@@ -564,14 +564,14 @@ objecttype hsh_contains (listtype arguments)
 
 
 #ifdef OUT_OF_ORDER
-objecttype hsh_conv (listtype arguments)
+objectType hsh_conv (listType arguments)
 
   {
-    objecttype hsh_arg;
-    hashtype arr1;
-    memsizetype result_size;
-    hashtype result_hash;
-    objecttype result;
+    objectType hsh_arg;
+    hashType arr1;
+    memSizeType result_size;
+    hashType result_hash;
+    objectType result;
 
   /* hsh_conv */
     hsh_arg = arg_3(arguments);
@@ -600,18 +600,18 @@ objecttype hsh_conv (listtype arguments)
 
 
 
-objecttype hsh_cpy (listtype arguments)
+objectType hsh_cpy (listType arguments)
 
   {
-    objecttype hsh_to;
-    objecttype hsh_from;
-    hashtype hsh_dest;
-    hashtype hsh_source;
-    objecttype key_create_func;
-    objecttype key_destr_func;
-    objecttype data_create_func;
-    objecttype data_destr_func;
-    errinfotype err_info = OKAY_NO_ERROR;
+    objectType hsh_to;
+    objectType hsh_from;
+    hashType hsh_dest;
+    hashType hsh_source;
+    objectType key_create_func;
+    objectType key_destr_func;
+    objectType data_create_func;
+    objectType data_destr_func;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* hsh_cpy */
     hsh_to   = arg_1(arguments);
@@ -627,15 +627,15 @@ objecttype hsh_cpy (listtype arguments)
     data_destr_func  = take_reference(arg_6(arguments));
     free_hash(hsh_dest, key_destr_func, data_destr_func);
     if (TEMP2_OBJECT(hsh_from)) {
-      hsh_to->value.hashvalue = hsh_source;
-      hsh_from->value.hashvalue = NULL;
+      hsh_to->value.hashValue = hsh_source;
+      hsh_from->value.hashValue = NULL;
     } else {
-      hsh_to->value.hashvalue = create_hash(hsh_source,
+      hsh_to->value.hashValue = create_hash(hsh_source,
           key_create_func, data_create_func, &err_info);
       if (err_info != OKAY_NO_ERROR) {
-        free_hash(hsh_to->value.hashvalue, key_destr_func,
+        free_hash(hsh_to->value.hashValue, key_destr_func,
             data_destr_func);
-        hsh_to->value.hashvalue = NULL;
+        hsh_to->value.hashValue = NULL;
         return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
       } /* if */
     } /* if */
@@ -644,17 +644,17 @@ objecttype hsh_cpy (listtype arguments)
 
 
 
-objecttype hsh_create (listtype arguments)
+objectType hsh_create (listType arguments)
 
   {
-    objecttype hsh_to;
-    objecttype hsh_from;
-    hashtype hsh_source;
-    objecttype key_create_func;
-    objecttype key_destr_func;
-    objecttype data_create_func;
-    objecttype data_destr_func;
-    errinfotype err_info = OKAY_NO_ERROR;
+    objectType hsh_to;
+    objectType hsh_from;
+    hashType hsh_source;
+    objectType key_create_func;
+    objectType key_destr_func;
+    objectType data_create_func;
+    objectType data_destr_func;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* hsh_create */
     hsh_to   = arg_1(arguments);
@@ -670,15 +670,15 @@ objecttype hsh_create (listtype arguments)
         data_create_func, data_destr_func); */
     SET_CATEGORY_OF_OBJ(hsh_to, HASHOBJECT);
     if (TEMP2_OBJECT(hsh_from)) {
-      hsh_to->value.hashvalue = hsh_source;
-      hsh_from->value.hashvalue = NULL;
+      hsh_to->value.hashValue = hsh_source;
+      hsh_from->value.hashValue = NULL;
     } else {
-      hsh_to->value.hashvalue = create_hash(hsh_source,
+      hsh_to->value.hashValue = create_hash(hsh_source,
           key_create_func, data_create_func, &err_info);
       if (err_info != OKAY_NO_ERROR) {
-        free_hash(hsh_to->value.hashvalue, key_destr_func,
+        free_hash(hsh_to->value.hashValue, key_destr_func,
             data_destr_func);
-        hsh_to->value.hashvalue = NULL;
+        hsh_to->value.hashValue = NULL;
         return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
       } /* if */
     } /* if */
@@ -687,12 +687,12 @@ objecttype hsh_create (listtype arguments)
 
 
 
-objecttype hsh_destr (listtype arguments)
+objectType hsh_destr (listType arguments)
 
   {
-    hashtype old_hash;
-    objecttype key_destr_func;
-    objecttype data_destr_func;
+    hashType old_hash;
+    objectType key_destr_func;
+    objectType data_destr_func;
 
   /* hsh_destr */
     isit_hash(arg_1(arguments));
@@ -700,17 +700,17 @@ objecttype hsh_destr (listtype arguments)
     key_destr_func  = take_reference(arg_2(arguments));
     data_destr_func = take_reference(arg_3(arguments));
     free_hash(old_hash, key_destr_func, data_destr_func);
-    arg_1(arguments)->value.hashvalue = NULL;
+    arg_1(arguments)->value.hashValue = NULL;
     SET_UNUSED_FLAG(arg_1(arguments));
     return SYS_EMPTY_OBJECT;
   } /* hsh_destr */
 
 
 
-objecttype hsh_empty (listtype arguments)
+objectType hsh_empty (listType arguments)
 
   {
-    hashtype result;
+    hashType result;
 
   /* hsh_empty */
     result = new_hash(TABLE_BITS);
@@ -726,21 +726,21 @@ objecttype hsh_empty (listtype arguments)
 /**
  *  Remove the element with the key 'aKey' from the hash map 'aHashMap'.
  */
-objecttype hsh_excl (listtype arguments)
+objectType hsh_excl (listType arguments)
 
   {
-    hashtype aHashMap;
-    inttype hashcode;
-    objecttype aKey;
-    objecttype cmp_func;
-    objecttype key_destr_func;
-    objecttype data_destr_func;
-    helemtype *delete_pos;
-    helemtype hashelem;
-    helemtype greater_hashelems;
-    helemtype old_hashelem;
-    objecttype cmp_obj;
-    inttype cmp;
+    hashType aHashMap;
+    intType hashcode;
+    objectType aKey;
+    objectType cmp_func;
+    objectType key_destr_func;
+    objectType data_destr_func;
+    hashElemType *delete_pos;
+    hashElemType hashelem;
+    hashElemType greater_hashelems;
+    hashElemType old_hashelem;
+    objectType cmp_obj;
+    intType cmp;
 
   /* hsh_excl */
     isit_hash(arg_1(arguments));
@@ -795,13 +795,13 @@ objecttype hsh_excl (listtype arguments)
 /**
  *  For-loop where 'forVar' loops over the values of the hash map 'aHashMap'.
  */
-objecttype hsh_for (listtype arguments)
+objectType hsh_for (listType arguments)
 
   {
-    objecttype for_variable;
-    hashtype aHashMap;
-    objecttype statement;
-    objecttype data_copy_func;
+    objectType for_variable;
+    hashType aHashMap;
+    objectType statement;
+    objectType data_copy_func;
 
   /* hsh_for */
     isit_hash(arg_2(arguments));
@@ -818,15 +818,15 @@ objecttype hsh_for (listtype arguments)
 /**
  *  For-loop where 'forVar' and 'keyVar' loop over the hash map 'aHashMap'.
  */
-objecttype hsh_for_data_key (listtype arguments)
+objectType hsh_for_data_key (listType arguments)
 
   {
-    objecttype key_variable;
-    objecttype for_variable;
-    hashtype aHashMap;
-    objecttype statement;
-    objecttype data_copy_func;
-    objecttype key_copy_func;
+    objectType key_variable;
+    objectType for_variable;
+    hashType aHashMap;
+    objectType statement;
+    objectType data_copy_func;
+    objectType key_copy_func;
 
   /* hsh_for_data_key */
     isit_hash(arg_3(arguments));
@@ -846,13 +846,13 @@ objecttype hsh_for_data_key (listtype arguments)
 /**
  *  For-loop where 'keyVar' loops over the keys of the hash map 'aHashMap'.
  */
-objecttype hsh_for_key (listtype arguments)
+objectType hsh_for_key (listType arguments)
 
   {
-    objecttype key_variable;
-    hashtype aHashMap;
-    objecttype statement;
-    objecttype key_copy_func;
+    objectType key_variable;
+    hashType aHashMap;
+    objectType statement;
+    objectType key_copy_func;
 
   /* hsh_for_key */
     isit_hash(arg_2(arguments));
@@ -872,18 +872,18 @@ objecttype hsh_for_key (listtype arguments)
  *  @exception RANGE_ERROR When 'aHashMap' does not have an element
  *             with the key 'aKey'.
  */
-objecttype hsh_idx (listtype arguments)
+objectType hsh_idx (listType arguments)
 
   {
-    hashtype aHashMap;
-    objecttype aKey;
-    inttype hashcode;
-    objecttype cmp_func;
-    helemtype hashelem;
-    helemtype result_hashelem;
-    objecttype cmp_obj;
-    inttype cmp;
-    objecttype result;
+    hashType aHashMap;
+    objectType aKey;
+    intType hashcode;
+    objectType cmp_func;
+    hashElemType hashelem;
+    hashElemType result_hashelem;
+    objectType cmp_obj;
+    intType cmp;
+    objectType result;
 
   /* hsh_idx */
     isit_hash(arg_1(arguments));
@@ -918,13 +918,13 @@ objecttype hsh_idx (listtype arguments)
         if (!ALLOC_OBJECT(result)) {
           result = raise_exception(SYS_MEM_EXCEPTION);
         } else {
-          memcpy(result, &result_hashelem->data, sizeof(objectrecord));
+          memcpy(result, &result_hashelem->data, sizeof(objectRecord));
           SET_TEMP_FLAG(result);
           /* Overwrite the data element in the hash with a FORWARDOBJECT value. */
           /* The function free_helem uses FORWARDOBJECT as magic value */
           /* and does not call a destructor for it. */
           SET_CATEGORY_OF_OBJ(&result_hashelem->data, FORWARDOBJECT);
-          result_hashelem->data.value.intvalue = 1234567890;
+          result_hashelem->data.value.intValue = 1234567890;
         } /* if */
       } else {
         result = &result_hashelem->data;
@@ -946,20 +946,20 @@ objecttype hsh_idx (listtype arguments)
  *  @exception RANGE_ERROR When 'aHashMap' does not have an element
  *             with the key 'aKey'.
  */
-objecttype hsh_idx2 (listtype arguments)
+objectType hsh_idx2 (listType arguments)
 
   {
-    hashtype aHashMap;
-    objecttype aKey;
-    inttype hashcode;
-    objecttype defaultValue;
-    objecttype cmp_func;
-    objecttype data_create_func;
-    helemtype hashelem;
-    helemtype result_hashelem;
-    objecttype cmp_obj;
-    inttype cmp;
-    objecttype result;
+    hashType aHashMap;
+    objectType aKey;
+    intType hashcode;
+    objectType defaultValue;
+    objectType cmp_func;
+    objectType data_create_func;
+    hashElemType hashelem;
+    hashElemType result_hashelem;
+    objectType cmp_obj;
+    intType cmp;
+    objectType result;
 
   /* hsh_idx2 */
     isit_hash(arg_1(arguments));
@@ -997,13 +997,13 @@ objecttype hsh_idx2 (listtype arguments)
         if (!ALLOC_OBJECT(result)) {
           result = raise_exception(SYS_MEM_EXCEPTION);
         } else {
-          memcpy(result, &result_hashelem->data, sizeof(objectrecord));
+          memcpy(result, &result_hashelem->data, sizeof(objectRecord));
           SET_TEMP_FLAG(result);
           /* Overwrite the data element in the hash with a FORWARDOBJECT value. */
           /* The function free_helem uses FORWARDOBJECT as magic value */
           /* and does not call a destructor for it. */
           SET_CATEGORY_OF_OBJ(&result_hashelem->data, FORWARDOBJECT);
-          result_hashelem->data.value.intvalue = 1234567890;
+          result_hashelem->data.value.intValue = 1234567890;
         } /* if */
       } else {
         result = &result_hashelem->data;
@@ -1017,7 +1017,7 @@ objecttype hsh_idx2 (listtype arguments)
         if (TEMP2_OBJECT(arg_3(arguments))) {
           INIT_CATEGORY_OF_TEMP(result, CATEGORY_OF_OBJ(defaultValue));
           result->value = defaultValue->value;
-          memset(&arg_3(arguments)->value, 0, sizeof(valueunion));
+          memset(&arg_3(arguments)->value, 0, sizeof(valueUnion));
         } else {
           INIT_CATEGORY_OF_OBJ(result, DECLAREDOBJECT);
           param3_call(data_create_func, result, SYS_CREA_OBJECT, defaultValue);
@@ -1034,22 +1034,22 @@ objecttype hsh_idx2 (listtype arguments)
 
 
 #ifdef OUT_OF_ORDER
-objecttype hsh_idx2 (listtype arguments)
+objectType hsh_idx2 (listType arguments)
 
   {
-    hashtype aHashMap;
-    inttype hashcode;
-    objecttype aKey;
-    objecttype data;
-    objecttype cmp_func;
-    objecttype key_create_func;
-    objecttype data_create_func;
-    helemtype hashelem;
-    helemtype result_hashelem;
-    objecttype cmp_obj;
-    inttype cmp;
-    errinfotype err_info = OKAY_NO_ERROR;
-    objecttype result;
+    hashType aHashMap;
+    intType hashcode;
+    objectType aKey;
+    objectType data;
+    objectType cmp_func;
+    objectType key_create_func;
+    objectType data_create_func;
+    hashElemType hashelem;
+    hashElemType result_hashelem;
+    objectType cmp_obj;
+    intType cmp;
+    errInfoType err_info = OKAY_NO_ERROR;
+    objectType result;
 
   /* hsh_idx2 */
     isit_hash(arg_1(arguments));
@@ -1118,21 +1118,21 @@ objecttype hsh_idx2 (listtype arguments)
  *  it is overwritten with 'anElem'.
  *  @exception MEMORY_ERROR When there is not enough memory.
  */
-objecttype hsh_incl (listtype arguments)
+objectType hsh_incl (listType arguments)
 
   {
-    hashtype aHashMap;
-    inttype hashcode;
-    objecttype aKey;
-    objecttype data;
-    objecttype cmp_func;
-    objecttype key_create_func;
-    objecttype data_create_func;
-    objecttype data_copy_func;
-    helemtype hashelem;
-    objecttype cmp_obj;
-    inttype cmp;
-    errinfotype err_info = OKAY_NO_ERROR;
+    hashType aHashMap;
+    intType hashcode;
+    objectType aKey;
+    objectType data;
+    objectType cmp_func;
+    objectType key_create_func;
+    objectType data_create_func;
+    objectType data_copy_func;
+    hashElemType hashelem;
+    objectType cmp_obj;
+    intType cmp;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* hsh_incl */
     isit_hash(arg_1(arguments));
@@ -1195,14 +1195,14 @@ objecttype hsh_incl (listtype arguments)
  *  Obtain the keys of the hash map 'aHashMap'.
  *  @return the keys of the hash map.
  */
-objecttype hsh_keys (listtype arguments)
+objectType hsh_keys (listType arguments)
 
   {
-    hashtype aHashMap;
-    objecttype key_create_func;
-    objecttype key_destr_func;
-    arraytype key_array;
-    errinfotype err_info = OKAY_NO_ERROR;
+    hashType aHashMap;
+    objectType key_create_func;
+    objectType key_destr_func;
+    arrayType key_array;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* hsh_keys */
     isit_hash(arg_1(arguments));
@@ -1220,28 +1220,28 @@ objecttype hsh_keys (listtype arguments)
  *  Number of elements in the hash map 'aHashMap'.
  *  @return the number of elements in 'aHashMap'.
  */
-objecttype hsh_lng (listtype arguments)
+objectType hsh_lng (listType arguments)
 
   { /* hsh_lng */
     isit_hash(arg_1(arguments));
     return bld_int_temp(
-        (inttype) take_hash(arg_1(arguments))->size);
+        (intType) take_hash(arg_1(arguments))->size);
   } /* hsh_lng */
 
 
 
-objecttype hsh_refidx (listtype arguments)
+objectType hsh_refidx (listType arguments)
 
   {
-    hashtype aHashMap;
-    inttype hashcode;
-    objecttype aKey;
-    objecttype cmp_func;
-    helemtype hashelem;
-    helemtype result_hashelem;
-    objecttype cmp_obj;
-    inttype cmp;
-    objecttype result;
+    hashType aHashMap;
+    intType hashcode;
+    objectType aKey;
+    objectType cmp_func;
+    hashElemType hashelem;
+    hashElemType result_hashelem;
+    objectType cmp_obj;
+    intType cmp;
+    objectType result;
 
   /* hsh_refidx */
     isit_hash(arg_1(arguments));
@@ -1289,21 +1289,21 @@ objecttype hsh_refidx (listtype arguments)
  *  it is overwritten with 'anElem'.
  *  @exception MEMORY_ERROR When there is not enough memory.
  */
-objecttype hsh_update (listtype arguments)
+objectType hsh_update (listType arguments)
 
   {
-    hashtype aHashMap;
-    inttype hashcode;
-    objecttype aKey;
-    objecttype data;
-    objecttype cmp_func;
-    objecttype key_create_func;
-    objecttype data_create_func;
-    helemtype hashelem;
-    objecttype cmp_obj;
-    inttype cmp;
-    errinfotype err_info = OKAY_NO_ERROR;
-    valueunion value;
+    hashType aHashMap;
+    intType hashcode;
+    objectType aKey;
+    objectType data;
+    objectType cmp_func;
+    objectType key_create_func;
+    objectType data_create_func;
+    hashElemType hashelem;
+    objectType cmp_obj;
+    intType cmp;
+    errInfoType err_info = OKAY_NO_ERROR;
+    valueUnion value;
 
   /* hsh_update */
     /* printf("hsh_update\n"); */
@@ -1370,14 +1370,14 @@ objecttype hsh_update (listtype arguments)
  *  Obtain the values of the hash map 'aHashMap'.
  *  @return the values of the hash map.
  */
-objecttype hsh_values (listtype arguments)
+objectType hsh_values (listType arguments)
 
   {
-    hashtype aHashMap;
-    objecttype value_create_func;
-    objecttype value_destr_func;
-    arraytype value_array;
-    errinfotype err_info = OKAY_NO_ERROR;
+    hashType aHashMap;
+    objectType value_create_func;
+    objectType value_destr_func;
+    arrayType value_array;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* hsh_values */
     isit_hash(arg_1(arguments));

@@ -29,6 +29,6 @@
 /*                                                                  */
 /********************************************************************/
 
-stritype kbdGets (inttype length);
-stritype kbdLineRead (chartype *terminationChar);
-stritype kbdWordRead (chartype *terminationChar);
+striType kbdGets (intType length);
+striType kbdLineRead (charType *terminationChar);
+striType kbdWordRead (charType *terminationChar);

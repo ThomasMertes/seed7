@@ -25,22 +25,22 @@
 /*                                                                  */
 /********************************************************************/
 
-void rflAppend (listtype *const list_to, const listtype list_from);
-listtype rflCat (listtype list1, const listtype list2);
-inttype rflCmp (const_listtype list1, const_listtype list2);
-void rflCpy (listtype *const list_to, const const_listtype list_from);
-listtype rflCreate (const const_listtype list_from);
-void rflDestr (const listtype old_list);
-booltype rflElem (const const_objecttype searched_object, const_listtype list_element);
-void rflElemcpy (listtype list, inttype position, objecttype elem);
-booltype rflEq (const_listtype list1, const_listtype list2);
-listtype rflHead (const listtype list, inttype stop);
-objecttype rflIdx (const_listtype list, inttype position);
-void rflIncl (listtype *list, objecttype elem);
-inttype rflIpos (listtype list_element, objecttype searched_object,
-    const inttype from_index);
-inttype rflLng (const_listtype list);
-listtype rflMklist (objecttype elem);
-inttype rflPos (const_listtype list_element, const const_objecttype searched_object);
-listtype rflRange (const listtype list, inttype start, inttype stop);
-listtype rflTail (const_listtype list, inttype start);
+void rflAppend (listType *const list_to, const listType list_from);
+listType rflCat (listType list1, const listType list2);
+intType rflCmp (const_listType list1, const_listType list2);
+void rflCpy (listType *const list_to, const const_listType list_from);
+listType rflCreate (const const_listType list_from);
+void rflDestr (const listType old_list);
+boolType rflElem (const const_objectType searched_object, const_listType list_element);
+void rflElemcpy (listType list, intType position, objectType elem);
+boolType rflEq (const_listType list1, const_listType list2);
+listType rflHead (const listType list, intType stop);
+objectType rflIdx (const_listType list, intType position);
+void rflIncl (listType *list, objectType elem);
+intType rflIpos (listType list_element, objectType searched_object,
+    const intType from_index);
+intType rflLng (const_listType list);
+listType rflMklist (objectType elem);
+intType rflPos (const_listType list_element, const const_objectType searched_object);
+listType rflRange (const listType list, intType start, intType stop);
+listType rflTail (const_listType list, intType start);

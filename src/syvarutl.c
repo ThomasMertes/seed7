@@ -44,7 +44,7 @@
 
 #define MAX_CSTRI_BUFFER_LEN 25
 
-static const_cstritype sys_name[NUMBER_OF_SYSVARS] = {
+static const_cstriType sys_name[NUMBER_OF_SYSVARS] = {
     "empty",
     "memory_error",
     "numeric_error",
@@ -80,11 +80,11 @@ static const_cstritype sys_name[NUMBER_OF_SYSVARS] = {
  *  @return the index of the system variable, or
  *          -1 when no system variable with the name is found.
  */
-int find_sysvar (const_stritype stri)
+int find_sysvar (const_striType stri)
 
   {
     char sysvar_name[MAX_CSTRI_BUFFER_LEN + 1];
-    errinfotype err_info = OKAY_NO_ERROR;
+    errInfoType err_info = OKAY_NO_ERROR;
     int result;
 
   /* find_sysvar */

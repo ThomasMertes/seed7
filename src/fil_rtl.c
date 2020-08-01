@@ -103,7 +103,7 @@ extern C FILE *_wpopen (const wchar_t *, const wchar_t *);
  *  The Seed7 modes with t are text modes and the modes
  *  without t are binary modes.
  */
-static void get_mode (os_chartype os_mode[4], const const_stritype file_mode)
+static void get_mode (os_charType os_mode[4], const const_striType file_mode)
 
   { /* get_mode */
     os_mode[0] = '\0';
@@ -117,7 +117,7 @@ static void get_mode (os_chartype os_mode[4], const const_stritype file_mode)
            w ... Truncate to zero length or create file for writing.
            a ... Append; open or create file for writing at end-of-file.
         */
-        os_mode[0] = (os_chartype) file_mode->mem[0];
+        os_mode[0] = (os_charType) file_mode->mem[0];
         os_mode[1] = 'b';
         os_mode[2] = '\0';
       } else if (file_mode->size == 2) {
@@ -127,7 +127,7 @@ static void get_mode (os_chartype os_mode[4], const const_stritype file_mode)
              w+ ... Truncate to zero length or create file for update.
              a+ ... Append; open or create file for update, writing at end-of-file.
           */
-          os_mode[0] = (os_chartype) file_mode->mem[0];
+          os_mode[0] = (os_charType) file_mode->mem[0];
           os_mode[1] = 'b';
           os_mode[2] = '+';
           os_mode[3] = '\0';
@@ -137,7 +137,7 @@ static void get_mode (os_chartype os_mode[4], const const_stritype file_mode)
              wt ... Truncate to zero length or create file for writing.
              at ... Append; open or create file for writing at end-of-file.
           */
-          os_mode[0] = (os_chartype) file_mode->mem[0];
+          os_mode[0] = (os_charType) file_mode->mem[0];
           os_mode[1] = '\0';
         } /* if */
       } else if (file_mode->size == 3) {
@@ -148,7 +148,7 @@ static void get_mode (os_chartype os_mode[4], const const_stritype file_mode)
              wt+ ... Truncate to zero length or create file for update.
              at+ ... Append; open or create file for update, writing at end-of-file.
           */
-          os_mode[0] = (os_chartype) file_mode->mem[0];
+          os_mode[0] = (os_charType) file_mode->mem[0];
           os_mode[1] = '+';
           os_mode[2] = '\0';
         } /* if */
@@ -165,11 +165,11 @@ static void get_mode (os_chartype os_mode[4], const const_stritype file_mode)
  *  end position is used as file length. Afterwards the file
  *  position is moved back to the previous position.
  *  This function returns an os_off_t result. The size of
- *  os_off_t might be different from the size of inttype.
+ *  os_off_t might be different from the size of intType.
  *  @return the length of the file or
  *          -1 when the length could not be obtained.
  */
-static os_off_t seekFileLength (filetype aFile)
+static os_off_t seekFileLength (fileType aFile)
 
   {
     os_off_t file_length;
@@ -257,11 +257,11 @@ static os_off_t seekFileLength (filetype aFile)
  *  The file position is measured in bytes.
  *  This function uses 0 as the position of the first byte in the file.
  *  The function returns an os_off_t result. The size of
- *  os_off_t might be different from the size of inttype.
+ *  os_off_t might be different from the size of intType.
  *  @return the current file position or
  *          -1 when the file position could not be obtained.
  */
-static os_off_t offsetTell (filetype aFile)
+static os_off_t offsetTell (fileType aFile)
 
   {
     os_off_t current_file_position;
@@ -314,11 +314,11 @@ static os_off_t offsetTell (filetype aFile)
  *  The file position is measured in bytes.
  *  This function uses 0 as the position of the first byte in the file.
  *  The parameter 'anOffset' uses the type os_off_t. The size of
- *  os_off_t might be different from the size of inttype.
+ *  os_off_t might be different from the size of intType.
  *  @return 0 upon successful completion or
  *          -1 when the file position could not be set.
  */
-int offsetSeek (filetype aFile, const os_off_t anOffset, const int origin)
+int offsetSeek (fileType aFile, const os_off_t anOffset, const int origin)
 
   {
     int result;
@@ -406,16 +406,16 @@ int offsetSeek (filetype aFile, const os_off_t anOffset, const int origin)
  *  Returns 0 when the current position or the file size cannot be
  *  determined or when the current position is beyond the filesize.
  *  Returns MAX_MEMSIZETYPE when the result does not fit into
- *  memsizetype.
+ *  memSizeType.
  */
-memsizetype remainingBytesInFile (filetype aFile)
+memSizeType remainingBytesInFile (fileType aFile)
 
   {
     int file_no;
     os_fstat_struct stat_buf;
     os_off_t file_length;
     os_off_t current_file_position;
-    memsizetype result;
+    memSizeType result;
 
   /* remainingBytesInFile */
     current_file_position = offsetTell(aFile);
@@ -436,7 +436,7 @@ memsizetype remainingBytesInFile (filetype aFile)
       } else if ((unsigned_os_off_t) (file_length - current_file_position) >= MAX_MEMSIZETYPE) {
         result = MAX_MEMSIZETYPE;
       } else {
-        result = (memsizetype) (file_length - current_file_position);
+        result = (memSizeType) (file_length - current_file_position);
       } /* if */
     } /* if */
     return result;
@@ -444,11 +444,11 @@ memsizetype remainingBytesInFile (filetype aFile)
 
 
 
-inttype getFileLengthUsingSeek (filetype aFile)
+intType getFileLengthUsingSeek (fileType aFile)
 
   {
     os_off_t file_length;
-    inttype result;
+    intType result;
 
   /* getFileLengthUsingSeek */
     file_length = seekFileLength(aFile);
@@ -462,18 +462,18 @@ inttype getFileLengthUsingSeek (filetype aFile)
       raise_error(RANGE_ERROR);
       result = 0;
     } else {
-      result = (inttype) file_length;
+      result = (intType) file_length;
     } /* if */
     return result;
   } /* getFileLengthUsingSeek */
 
 
 
-biginttype getBigFileLengthUsingSeek (filetype aFile)
+bigIntType getBigFileLengthUsingSeek (fileType aFile)
 
   {
     os_off_t file_length;
-    biginttype result;
+    bigIntType result;
 
   /* getBigFileLengthUsingSeek */
     file_length = seekFileLength(aFile);
@@ -485,9 +485,9 @@ biginttype getBigFileLengthUsingSeek (filetype aFile)
       result = NULL;
     } else {
 #if OS_OFF_T_SIZE == 32
-      result = bigFromUInt32((uint32type) file_length);
+      result = bigFromUInt32((uint32Type) file_length);
 #elif OS_OFF_T_SIZE == 64
-      result = bigFromUInt64((uint64type) file_length);
+      result = bigFromUInt64((uint64Type) file_length);
 #else
 #error "sizeof(os_off_t) is neither 4 nor 8."
 #endif
@@ -497,13 +497,13 @@ biginttype getBigFileLengthUsingSeek (filetype aFile)
 
 
 
-static memsizetype read_string (filetype inFile, stritype stri, errinfotype *err_info)
+static memSizeType read_string (fileType inFile, striType stri, errInfoType *err_info)
 
   {
-    uchartype buffer[BUFFER_SIZE];
-    memsizetype bytes_in_buffer = 1;
-    memsizetype stri_pos;
-    register strelemtype *to;
+    ucharType buffer[BUFFER_SIZE];
+    memSizeType bytes_in_buffer = 1;
+    memSizeType stri_pos;
+    register strElemType *to;
 
   /* read_string */
     /* printf("stri->size=%lu\n", stri->size); */
@@ -511,7 +511,7 @@ static memsizetype read_string (filetype inFile, stritype stri, errinfotype *err
     while (stri->size - stri_pos >= BUFFER_SIZE && bytes_in_buffer > 0 &&
         *err_info == OKAY_NO_ERROR) {
       /* printf("read_size=%ld\n", BUFFER_SIZE); */
-      bytes_in_buffer = (memsizetype) fread(buffer, 1, BUFFER_SIZE, inFile);
+      bytes_in_buffer = (memSizeType) fread(buffer, 1, BUFFER_SIZE, inFile);
       if (bytes_in_buffer == 0 && stri_pos == 0 && ferror(inFile)) {
         *err_info = FILE_ERROR;
       } else {
@@ -525,7 +525,7 @@ static memsizetype read_string (filetype inFile, stritype stri, errinfotype *err
     if (stri->size > stri_pos && bytes_in_buffer > 0 &&
         *err_info == OKAY_NO_ERROR) {
       /* printf("read_size=%ld\n", stri->size - stri_pos); */
-      bytes_in_buffer = (memsizetype) fread(buffer, 1, stri->size - stri_pos, inFile);
+      bytes_in_buffer = (memSizeType) fread(buffer, 1, stri->size - stri_pos, inFile);
       if (bytes_in_buffer == 0 && stri_pos == 0 && ferror(inFile)) {
         *err_info = FILE_ERROR;
       } else {
@@ -542,17 +542,17 @@ static memsizetype read_string (filetype inFile, stritype stri, errinfotype *err
 
 
 
-static stritype read_and_alloc_stri (filetype inFile, memsizetype chars_missing,
-    memsizetype *num_of_chars_read, errinfotype *err_info)
+static striType read_and_alloc_stri (fileType inFile, memSizeType chars_missing,
+    memSizeType *num_of_chars_read, errInfoType *err_info)
 
   {
-    uchartype buffer[BUFFER_SIZE];
-    memsizetype bytes_in_buffer = 1;
-    memsizetype result_pos;
-    register strelemtype *to;
-    memsizetype new_size;
-    stritype resized_result;
-    stritype result;
+    ucharType buffer[BUFFER_SIZE];
+    memSizeType bytes_in_buffer = 1;
+    memSizeType result_pos;
+    register strElemType *to;
+    memSizeType new_size;
+    striType resized_result;
+    striType result;
 
   /* read_and_alloc_stri */
     /* printf("read_and_alloc_stri(%d, %d, *, *)\n", fileno(inFile), chars_missing); */
@@ -566,7 +566,7 @@ static stritype read_and_alloc_stri (filetype inFile, memsizetype chars_missing,
       while (chars_missing - result_pos >= BUFFER_SIZE && bytes_in_buffer > 0 &&
           *err_info == OKAY_NO_ERROR) {
         /* printf("read_size=%ld\n", BUFFER_SIZE); */
-        bytes_in_buffer = (memsizetype) fread(buffer, 1, BUFFER_SIZE, inFile);
+        bytes_in_buffer = (memSizeType) fread(buffer, 1, BUFFER_SIZE, inFile);
         if (bytes_in_buffer == 0 && result_pos == 0 && ferror(inFile)) {
           *err_info = FILE_ERROR;
         } else {
@@ -592,7 +592,7 @@ static stritype read_and_alloc_stri (filetype inFile, memsizetype chars_missing,
       if (chars_missing > result_pos && bytes_in_buffer > 0 &&
           *err_info == OKAY_NO_ERROR) {
         /* printf("read_size=%ld\n", chars_missing - result_pos); */
-        bytes_in_buffer = (memsizetype) fread(buffer, 1, chars_missing - result_pos, inFile);
+        bytes_in_buffer = (memSizeType) fread(buffer, 1, chars_missing - result_pos, inFile);
         if (bytes_in_buffer == 0 && result_pos == 0 && ferror(inFile)) {
           *err_info = FILE_ERROR;
         } else {
@@ -631,12 +631,12 @@ static stritype read_and_alloc_stri (filetype inFile, memsizetype chars_missing,
  *             file length reported by the system is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-biginttype filBigLng (filetype aFile)
+bigIntType filBigLng (fileType aFile)
 
   {
     int file_no;
     os_fstat_struct stat_buf;
-    biginttype result;
+    bigIntType result;
 
   /* filBigLng */
     file_no = fileno(aFile);
@@ -647,9 +647,9 @@ biginttype filBigLng (filetype aFile)
         result = NULL;
       } else {
 #if OS_OFF_T_SIZE == 32
-        result = bigFromUInt32((uint32type) stat_buf.st_size);
+        result = bigFromUInt32((uint32Type) stat_buf.st_size);
 #elif OS_OFF_T_SIZE == 64
-        result = bigFromUInt64((uint64type) stat_buf.st_size);
+        result = bigFromUInt64((uint64Type) stat_buf.st_size);
 #else
 #error "sizeof(os_off_t) is neither 4 nor 8."
 #endif
@@ -671,7 +671,7 @@ biginttype filBigLng (filetype aFile)
  *             file position type.
  *  @exception FILE_ERROR A system function returns an error.
  */
-void filBigSeek (filetype aFile, const const_biginttype position)
+void filBigSeek (fileType aFile, const const_bigIntType position)
 
   {
     os_off_t file_position;
@@ -702,11 +702,11 @@ void filBigSeek (filetype aFile, const const_biginttype position)
  *             file position reported by the system is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-biginttype filBigTell (filetype aFile)
+bigIntType filBigTell (fileType aFile)
 
   {
     os_off_t current_file_position;
-    biginttype result;
+    bigIntType result;
 
   /* filBigTell */
     current_file_position = offsetTell(aFile);
@@ -715,9 +715,9 @@ biginttype filBigTell (filetype aFile)
       result = NULL;
     } else {
 #if OS_OFF_T_SIZE == 32
-      result = bigFromUInt32((uint32type) current_file_position + 1);
+      result = bigFromUInt32((uint32Type) current_file_position + 1);
 #elif OS_OFF_T_SIZE == 64
-      result = bigFromUInt64((uint64type) current_file_position + 1);
+      result = bigFromUInt64((uint64Type) current_file_position + 1);
 #else
 #error "sizeof(os_off_t) is neither 4 nor 8."
 #endif
@@ -731,7 +731,7 @@ biginttype filBigTell (filetype aFile)
  *  Close a clib_file.
  *  @exception FILE_ERROR A system function returns an error.
  */
-void filClose (filetype aFile)
+void filClose (fileType aFile)
 
   { /* filClose */
     if (unlikely(fclose(aFile) != 0)) {
@@ -745,12 +745,12 @@ void filClose (filetype aFile)
 
 
 #ifdef OUT_OF_ORDER
-inttype filFileType (filetype aFile)
+intType filFileType (fileType aFile)
 
   {
     int file_no;
     os_fstat_struct stat_buf;
-    inttype result;
+    intType result;
 
   /* filFileType */
     file_no = fileno(aFile);
@@ -799,16 +799,16 @@ inttype filFileType (filetype aFile)
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *  @exception FILE_ERROR A system function returns an error.
  */
-stritype filGets (filetype inFile, inttype length)
+striType filGets (fileType inFile, intType length)
 
   {
-    memsizetype chars_requested;
-    memsizetype bytes_there;
-    memsizetype allocated_size;
-    errinfotype err_info = OKAY_NO_ERROR;
-    memsizetype num_of_chars_read;
-    stritype resized_result;
-    stritype result;
+    memSizeType chars_requested;
+    memSizeType bytes_there;
+    memSizeType allocated_size;
+    errInfoType err_info = OKAY_NO_ERROR;
+    memSizeType num_of_chars_read;
+    striType resized_result;
+    striType result;
 
   /* filGets */
     /* printf("filGets(%d, %d)\n", fileno(inFile), length); */
@@ -816,10 +816,10 @@ stritype filGets (filetype inFile, inttype length)
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
-      if ((uinttype) length > MAX_MEMSIZETYPE) {
+      if ((uintType) length > MAX_MEMSIZETYPE) {
         chars_requested = MAX_MEMSIZETYPE;
       } else {
-        chars_requested = (memsizetype) length;
+        chars_requested = (memSizeType) length;
       } /* if */
       if (chars_requested > GETS_DEFAULT_SIZE) {
         /* Avoid requesting too much */
@@ -853,7 +853,7 @@ stritype filGets (filetype inFile, inttype length)
         result->size = allocated_size;
         if (allocated_size <= BUFFER_SIZE) {
           /* printf("read_size=%ld\n", allocated_size); */
-          num_of_chars_read = (memsizetype) fread(result->mem, 1,
+          num_of_chars_read = (memSizeType) fread(result->mem, 1,
               (size_t) allocated_size, inFile);
           /* printf("num_of_chars_read=%lu\n", num_of_chars_read); */
           if (num_of_chars_read == 0 && ferror(inFile)) {
@@ -863,8 +863,8 @@ stritype filGets (filetype inFile, inttype length)
             printf("inFile=%lx\n", (long int) inFile); */
             err_info = FILE_ERROR;
           } else {
-            uchartype *from = (uchartype *) result->mem;
-            strelemtype *to = result->mem;
+            ucharType *from = (ucharType *) result->mem;
+            strElemType *to = result->mem;
 
             memcpy_to_strelem(to, from, num_of_chars_read);
           } /* if */
@@ -909,11 +909,11 @@ stritype filGets (filetype inFile, inttype length)
  *  This function allows a file to be handled like an iterator.
  *  @return FALSE if 'getc' would return EOF, TRUE otherwise.
  */
-booltype filHasNext (filetype inFile)
+boolType filHasNext (fileType inFile)
 
   {
     int next_char;
-    booltype result;
+    boolType result;
 
   /* filHasNext */
     if (feof(inFile)) {
@@ -947,16 +947,16 @@ booltype filHasNext (filetype inFile)
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *  @exception FILE_ERROR A system function returns an error.
  */
-stritype filLineRead (filetype inFile, chartype *terminationChar)
+striType filLineRead (fileType inFile, charType *terminationChar)
 
   {
     register int ch;
-    register memsizetype position;
-    strelemtype *memory;
-    memsizetype memlength;
-    memsizetype newmemlength;
-    stritype resized_result;
-    stritype result;
+    register memSizeType position;
+    strElemType *memory;
+    memSizeType memlength;
+    memSizeType newmemlength;
+    striType resized_result;
+    striType result;
 
   /* filLineRead */
     memlength = READ_STRI_INIT_SIZE;
@@ -979,7 +979,7 @@ stritype filLineRead (filetype inFile, chartype *terminationChar)
           memory = result->mem;
           memlength = newmemlength;
         } /* if */
-        memory[position++] = (strelemtype) ch;
+        memory[position++] = (strElemType) ch;
       } /* while */
       if (ch == (int) '\n' && position != 0 && memory[position - 1] == '\r') {
         position--;
@@ -998,7 +998,7 @@ stritype filLineRead (filetype inFile, chartype *terminationChar)
           result = resized_result;
           COUNT3_STRI(memlength, position);
           result->size = position;
-          *terminationChar = (chartype) ch;
+          *terminationChar = (charType) ch;
         } /* if */
       } /* if */
     } /* if */
@@ -1007,11 +1007,11 @@ stritype filLineRead (filetype inFile, chartype *terminationChar)
 
 
 
-stritype filLit (filetype aFile)
+striType filLit (fileType aFile)
 
   {
-    const_cstritype file_name;
-    stritype result;
+    const_cstriType file_name;
+    striType result;
 
   /* filLit */
     if (aFile == NULL) {
@@ -1043,12 +1043,12 @@ stritype filLit (filetype aFile)
  *  @exception FILE_ERROR A system function returns an error or the
  *             file length reported by the system is negative.
  */
-inttype filLng (filetype aFile)
+intType filLng (fileType aFile)
 
   {
     int file_no;
     os_fstat_struct stat_buf;
-    inttype result;
+    intType result;
 
   /* filLng */
     file_no = fileno(aFile);
@@ -1061,7 +1061,7 @@ inttype filLng (filetype aFile)
         raise_error(RANGE_ERROR);
         result = 0;
       } else {
-        result = (inttype) stat_buf.st_size;
+        result = (intType) stat_buf.st_size;
       } /* if */
     } else {
       result = getFileLengthUsingSeek(aFile);
@@ -1104,18 +1104,18 @@ inttype filLng (filetype aFile)
  *             representation or 'path' cannot be converted
  *             to the system path type.
  */
-filetype filOpen (const const_stritype path, const const_stritype mode)
+fileType filOpen (const const_striType path, const const_striType mode)
 
   {
-    os_stritype os_path;
-    os_chartype os_mode[4];
+    os_striType os_path;
+    os_charType os_mode[4];
     int path_info = PATH_IS_NORMAL;
-    errinfotype err_info = OKAY_NO_ERROR;
+    errInfoType err_info = OKAY_NO_ERROR;
 #ifdef FOPEN_OPENS_DIRECTORIES
     int file_no;
     os_fstat_struct stat_buf;
 #endif
-    filetype result;
+    fileType result;
 
   /* filOpen */
     /* printf("BEGIN filOpen(%lX, %lX)\n", path, mode); */
@@ -1169,7 +1169,7 @@ filetype filOpen (const const_stritype path, const const_stritype mode)
 
 
 
-void filPclose (filetype aFile)
+void filPclose (fileType aFile)
 
   { /* filPclose */
 #ifndef POPEN_MISSING
@@ -1199,14 +1199,14 @@ void filPclose (filetype aFile)
  *  @return the pipe file opened, or NULL if it could not be opened.
  *  @exception RANGE_ERROR An illegal mode was used.
  */
-filetype filPopen (const const_stritype command,
-    const const_stritype parameters, const const_stritype mode)
+fileType filPopen (const const_striType command,
+    const const_striType parameters, const const_striType mode)
 
   {
-    os_stritype os_command;
-    os_chartype os_mode[4];
-    errinfotype err_info = OKAY_NO_ERROR;
-    filetype result;
+    os_striType os_command;
+    os_charType os_mode[4];
+    errInfoType err_info = OKAY_NO_ERROR;
+    fileType result;
 
   /* filPopen */
     os_command = cp_to_command(command, parameters, &err_info);
@@ -1218,7 +1218,7 @@ filetype filPopen (const const_stritype command,
       if (mode->size == 1 &&
           (mode->mem[0] == 'r' ||
            mode->mem[0] == 'w')) {
-        os_mode[0] = (os_chartype) mode->mem[0];
+        os_mode[0] = (os_charType) mode->mem[0];
         os_mode[1] = '\0';
       } /* if */
       /* The mode "rb" is not allowed under Unix/Linux */
@@ -1241,7 +1241,7 @@ filetype filPopen (const const_stritype command,
 
 
 
-void filPrint (const const_stritype stri)
+void filPrint (const const_striType stri)
 
   { /* filPrint */
     ut8Write(stdout, stri);
@@ -1260,7 +1260,7 @@ void filPrint (const const_stritype stri)
  *             file position type.
  *  @exception FILE_ERROR A system function returns an error.
  */
-void filSeek (filetype aFile, inttype position)
+void filSeek (fileType aFile, intType position)
 
   {
     os_off_t file_position;
@@ -1290,12 +1290,12 @@ void filSeek (filetype aFile, inttype position)
 
 
 
-void filSetbuf (filetype aFile, inttype mode, inttype size)
+void filSetbuf (fileType aFile, intType mode, intType size)
 
   { /* filSetbuf */
-    if (unlikely(mode < 0 || mode > 2 || size < 0 || (uinttype) size > MAX_MEMSIZETYPE)) {
+    if (unlikely(mode < 0 || mode > 2 || size < 0 || (uintType) size > MAX_MEMSIZETYPE)) {
       raise_error(RANGE_ERROR);
-    } else if (unlikely(setvbuf(aFile, NULL, (int) mode, (memsizetype) size) != 0)) {
+    } else if (unlikely(setvbuf(aFile, NULL, (int) mode, (memSizeType) size) != 0)) {
       raise_error(FILE_ERROR);
     } /* if */
   } /* filSetbuf */
@@ -1312,11 +1312,11 @@ void filSetbuf (filetype aFile, inttype mode, inttype size)
  *  @exception FILE_ERROR A system function returns an error or the
  *             file position reported by the system is negative.
  */
-inttype filTell (filetype aFile)
+intType filTell (fileType aFile)
 
   {
     os_off_t current_file_position;
-    inttype result;
+    intType result;
 
   /* filTell */
     current_file_position = offsetTell(aFile);
@@ -1327,7 +1327,7 @@ inttype filTell (filetype aFile)
       raise_error(RANGE_ERROR);
       result = 0;
     } else {
-      result = (inttype) (current_file_position + 1);
+      result = (intType) (current_file_position + 1);
     } /* if */
     return result;
   } /* filTell */
@@ -1346,16 +1346,16 @@ inttype filTell (filetype aFile)
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *  @exception FILE_ERROR A system function returns an error.
  */
-stritype filWordRead (filetype inFile, chartype *terminationChar)
+striType filWordRead (fileType inFile, charType *terminationChar)
 
   {
     register int ch;
-    register memsizetype position;
-    strelemtype *memory;
-    memsizetype memlength;
-    memsizetype newmemlength;
-    stritype resized_result;
-    stritype result;
+    register memSizeType position;
+    strElemType *memory;
+    memSizeType memlength;
+    memSizeType newmemlength;
+    striType resized_result;
+    striType result;
 
   /* filWordRead */
     memlength = READ_STRI_INIT_SIZE;
@@ -1382,7 +1382,7 @@ stritype filWordRead (filetype inFile, chartype *terminationChar)
           memory = result->mem;
           memlength = newmemlength;
         } /* if */
-        memory[position++] = (strelemtype) ch;
+        memory[position++] = (strElemType) ch;
         ch = getc(inFile);
       } /* while */
       if (ch == (int) '\n' && position != 0 && memory[position - 1] == '\r') {
@@ -1402,7 +1402,7 @@ stritype filWordRead (filetype inFile, chartype *terminationChar)
           result = resized_result;
           COUNT3_STRI(memlength, position);
           result->size = position;
-          *terminationChar = (chartype) ch;
+          *terminationChar = (charType) ch;
         } /* if */
       } /* if */
     } /* if */
@@ -1417,13 +1417,13 @@ stritype filWordRead (filetype inFile, chartype *terminationChar)
  *  @exception RANGE_ERROR The string contains a character that does
  *             not fit into a byte.
  */
-void filWrite (filetype outFile, const const_stritype stri)
+void filWrite (fileType outFile, const const_striType stri)
 
   {
-    register const strelemtype *str;
-    memsizetype len;
-    register memsizetype pos;
-    uchartype buffer[BUFFER_SIZE];
+    register const strElemType *str;
+    memSizeType len;
+    register memSizeType pos;
+    ucharType buffer[BUFFER_SIZE];
 
   /* filWrite */
     /* printf("filWrite(%d, ", fileno(outFile));
@@ -1442,10 +1442,10 @@ void filWrite (filetype outFile, const const_stritype stri)
           raise_error(RANGE_ERROR);
           return;
         } /* if */
-        buffer[pos - 1] = (uchartype) str[pos - 1];
+        buffer[pos - 1] = (ucharType) str[pos - 1];
       } /* for */
       str = &str[BUFFER_SIZE];
-      if (unlikely(BUFFER_SIZE != fwrite(buffer, sizeof(uchartype), BUFFER_SIZE, outFile))) {
+      if (unlikely(BUFFER_SIZE != fwrite(buffer, sizeof(ucharType), BUFFER_SIZE, outFile))) {
         raise_error(FILE_ERROR);
         return;
       } /* if */
@@ -1456,9 +1456,9 @@ void filWrite (filetype outFile, const const_stritype stri)
           raise_error(RANGE_ERROR);
           return;
         } /* if */
-        buffer[pos - 1] = (uchartype) str[pos - 1];
+        buffer[pos - 1] = (ucharType) str[pos - 1];
       } /* for */
-      if (unlikely(len != fwrite(buffer, sizeof(uchartype), len, outFile))) {
+      if (unlikely(len != fwrite(buffer, sizeof(ucharType), len, outFile))) {
         raise_error(FILE_ERROR);
         return;
       } /* if */

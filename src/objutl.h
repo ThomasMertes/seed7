@@ -38,33 +38,33 @@
 #define arg_11(arguments) arguments->next->next->next->next->next->next->next->next->next->next->obj
 #define arg_12(arguments) arguments->next->next->next->next->next->next->next->next->next->next->next->obj
 
-#define take_action(arg)    (arg)->value.actvalue
-#define take_array(arg)     (arg)->value.arrayvalue
-#define take_block(arg)     (arg)->value.blockvalue
-#define take_bool(arg)      (CATEGORY_OF_OBJ(arg) == CONSTENUMOBJECT || CATEGORY_OF_OBJ(arg) == VARENUMOBJECT ? (arg)->value.objvalue : (arg))
-#define take_bstri(arg)     (arg)->value.bstrivalue
-#define take_char(arg)      (arg)->value.charvalue
-#define take_database(arg)  (arg)->value.databasevalue
-#define take_enum(arg)      (CATEGORY_OF_OBJ(arg) == CONSTENUMOBJECT || CATEGORY_OF_OBJ(arg) == VARENUMOBJECT ? (arg)->value.objvalue : (arg))
-#define take_file(arg)      (arg)->value.filevalue
-#define take_float(arg)     (arg)->value.floatvalue
-#define take_hash(arg)      (arg)->value.hashvalue
-#define take_int(arg)       (arg)->value.intvalue
-#define take_interface(arg) (CATEGORY_OF_OBJ(arg) == INTERFACEOBJECT ? (arg)->value.objvalue : (arg))
-#define take_bigint(arg)    (arg)->value.bigintvalue
-#define take_list(arg)      (arg)->value.listvalue
-#define take_param(arg)     (arg)->value.objvalue
-#define take_poll(arg)      (arg)->value.pollvalue
-#define take_prog(arg)      (arg)->value.progvalue
-#define take_reference(arg) (arg)->value.objvalue
-#define take_reflist(arg)   (arg)->value.listvalue
-#define take_set(arg)       (arg)->value.setvalue
-#define take_socket(arg)    (arg)->value.socketvalue
-#define take_sqlstmt(arg)   (arg)->value.sqlstmtvalue
-#define take_stri(arg)      (arg)->value.strivalue
-#define take_struct(arg)    (arg)->value.structvalue
-#define take_type(arg)      (arg)->value.typevalue
-#define take_win(arg)       (arg)->value.winvalue
+#define take_action(arg)    (arg)->value.actValue
+#define take_array(arg)     (arg)->value.arrayValue
+#define take_block(arg)     (arg)->value.blockValue
+#define take_bool(arg)      (CATEGORY_OF_OBJ(arg) == CONSTENUMOBJECT || CATEGORY_OF_OBJ(arg) == VARENUMOBJECT ? (arg)->value.objValue : (arg))
+#define take_bstri(arg)     (arg)->value.bstriValue
+#define take_char(arg)      (arg)->value.charValue
+#define take_database(arg)  (arg)->value.databaseValue
+#define take_enum(arg)      (CATEGORY_OF_OBJ(arg) == CONSTENUMOBJECT || CATEGORY_OF_OBJ(arg) == VARENUMOBJECT ? (arg)->value.objValue : (arg))
+#define take_file(arg)      (arg)->value.fileValue
+#define take_float(arg)     (arg)->value.floatValue
+#define take_hash(arg)      (arg)->value.hashValue
+#define take_int(arg)       (arg)->value.intValue
+#define take_interface(arg) (CATEGORY_OF_OBJ(arg) == INTERFACEOBJECT ? (arg)->value.objValue : (arg))
+#define take_bigint(arg)    (arg)->value.bigIntValue
+#define take_list(arg)      (arg)->value.listValue
+#define take_param(arg)     (arg)->value.objValue
+#define take_poll(arg)      (arg)->value.pollValue
+#define take_prog(arg)      (arg)->value.progValue
+#define take_reference(arg) (arg)->value.objValue
+#define take_reflist(arg)   (arg)->value.listValue
+#define take_set(arg)       (arg)->value.setValue
+#define take_socket(arg)    (arg)->value.socketValue
+#define take_sqlstmt(arg)   (arg)->value.sqlStmtValue
+#define take_stri(arg)      (arg)->value.striValue
+#define take_struct(arg)    (arg)->value.structValue
+#define take_type(arg)      (arg)->value.typeValue
+#define take_win(arg)       (arg)->value.winValue
 
 #ifdef WITH_TYPE_CHECK
 #define run_exception(c,arg) { run_error(c, arg); return(NULL); }
@@ -123,6 +123,7 @@
 #define isit_bstri(arg)
 #define isit_call(arg)
 #define isit_char(arg)
+#define isit_database(arg)
 #define isit_interface(arg)
 #define isit_enum(arg)
 #define isit_file(arg)
@@ -137,6 +138,7 @@
 #define isit_reflist(arg)
 #define isit_set(arg)
 #define isit_socket(arg)
+#define isit_sqlstmt(arg)
 #define isit_stri(arg)
 #define isit_struct(arg)
 #define isit_type(arg)
@@ -148,58 +150,58 @@
 
 
 #ifdef WITH_TYPE_CHECK
-/* void isit_action (objecttype); */
-/* void isit_array (objecttype); */
-/* void isit_block (objecttype); */
-void isit_bool (objecttype argument);
-/* void isit_bstri (objecttype); */
-/* void isit_call (objecttype); */
-/* void isit_char (objecttype); */
-/* void isit_interface (objecttype); */
-void isit_enum (objecttype argument);
-/* void isit_file (objecttype); */
+/* void isit_action (objectType); */
+/* void isit_array (objectType); */
+/* void isit_block (objectType); */
+void isit_bool (objectType argument);
+/* void isit_bstri (objectType); */
+/* void isit_call (objectType); */
+/* void isit_char (objectType); */
+/* void isit_interface (objectType); */
+void isit_enum (objectType argument);
+/* void isit_file (objectType); */
 #ifdef WITH_FLOAT
-/* void isit_float (objecttype); */
+/* void isit_float (objectType); */
 #endif
-/* void isit_hash (objecttype); */
-/* void isit_int (objecttype); */
-void isit_list (objecttype argument);
-/* void isit_proc (objecttype); */
-/* void isit_prog (objecttype); */
-/* void isit_reference (objecttype); */
-/* void isit_reflist (objecttype); */
-/* void isit_set (objecttype); */
-/* void isit_socket (objecttype); */
-/* void isit_stri (objecttype); */
-/* void isit_struct (objecttype); */
-/* void isit_type (objecttype); */
-/* void isit_win (objecttype); */
+/* void isit_hash (objectType); */
+/* void isit_int (objectType); */
+void isit_list (objectType argument);
+/* void isit_proc (objectType); */
+/* void isit_prog (objectType); */
+/* void isit_reference (objectType); */
+/* void isit_reflist (objectType); */
+/* void isit_set (objectType); */
+/* void isit_socket (objectType); */
+/* void isit_stri (objectType); */
+/* void isit_struct (objectType); */
+/* void isit_type (objectType); */
+/* void isit_win (objectType); */
 #endif
-objecttype bld_action_temp (acttype temp_action);
-objecttype bld_array_temp (arraytype temp_array);
-objecttype bld_bigint_temp (biginttype temp_bigint);
-objecttype bld_block_temp (blocktype temp_block);
-objecttype bld_bstri_temp (bstritype temp_bstri);
-objecttype bld_char_temp (chartype temp_char);
-objecttype bld_database_temp (databasetype temp_database);
-objecttype bld_interface_temp (objecttype temp_interface);
-objecttype bld_file_temp (filetype temp_file);
-objecttype bld_float_temp (double temp_float);
-objecttype bld_hash_temp (hashtype temp_hash);
-objecttype bld_int_temp (inttype temp_int);
-objecttype bld_list_temp (listtype temp_list);
-objecttype bld_param_temp (objecttype temp_param);
-objecttype bld_poll_temp (polltype temp_poll);
-objecttype bld_prog_temp (progtype temp_prog);
-objecttype bld_reference_temp (objecttype temp_reference);
-objecttype bld_reflist_temp (listtype temp_reflist);
-objecttype bld_set_temp (settype temp_set);
-objecttype bld_socket_temp (sockettype temp_socket);
-objecttype bld_sqlstmt_temp (sqlstmttype temp_sqlstmt);
-objecttype bld_stri_temp (stritype temp_stri);
-objecttype bld_struct_temp (structtype temp_struct);
-objecttype bld_type_temp (typetype temp_type);
-objecttype bld_win_temp (wintype temp_win);
-void dump_temp_value (objecttype object);
-void dump_any_temp (objecttype object);
-void dump_list (listtype list);
+objectType bld_action_temp (actType temp_action);
+objectType bld_array_temp (arrayType temp_array);
+objectType bld_bigint_temp (bigIntType temp_bigint);
+objectType bld_block_temp (blockType temp_block);
+objectType bld_bstri_temp (bstriType temp_bstri);
+objectType bld_char_temp (charType temp_char);
+objectType bld_database_temp (databaseType temp_database);
+objectType bld_interface_temp (objectType temp_interface);
+objectType bld_file_temp (fileType temp_file);
+objectType bld_float_temp (double temp_float);
+objectType bld_hash_temp (hashType temp_hash);
+objectType bld_int_temp (intType temp_int);
+objectType bld_list_temp (listType temp_list);
+objectType bld_param_temp (objectType temp_param);
+objectType bld_poll_temp (pollType temp_poll);
+objectType bld_prog_temp (progType temp_prog);
+objectType bld_reference_temp (objectType temp_reference);
+objectType bld_reflist_temp (listType temp_reflist);
+objectType bld_set_temp (setType temp_set);
+objectType bld_socket_temp (socketType temp_socket);
+objectType bld_sqlstmt_temp (sqlStmtType temp_sqlstmt);
+objectType bld_stri_temp (striType temp_stri);
+objectType bld_struct_temp (structType temp_struct);
+objectType bld_type_temp (typeType temp_type);
+objectType bld_win_temp (winType temp_win);
+void dump_temp_value (objectType object);
+void dump_any_temp (objectType object);
+void dump_list (listType list);

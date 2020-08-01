@@ -25,13 +25,13 @@
 /*                                                                  */
 /********************************************************************/
 
-objecttype act_cpy     (listtype arguments);
-objecttype act_create  (listtype arguments);
-objecttype act_eq      (listtype arguments);
-objecttype act_gen     (listtype arguments);
-objecttype act_iconv   (listtype arguments);
-objecttype act_illegal (listtype arguments);
-objecttype act_ne      (listtype arguments);
-objecttype act_ord     (listtype arguments);
-objecttype act_str     (listtype arguments);
-objecttype act_value   (listtype arguments);
+objectType act_cpy     (listType arguments);
+objectType act_create  (listType arguments);
+objectType act_eq      (listType arguments);
+objectType act_gen     (listType arguments);
+objectType act_iconv   (listType arguments);
+objectType act_illegal (listType arguments);
+objectType act_ne      (listType arguments);
+objectType act_ord     (listType arguments);
+objectType act_str     (listType arguments);
+objectType act_value   (listType arguments);

@@ -130,33 +130,33 @@ void tputs (char *, int, int (*) (char ch));
 #define WRITE_STRI_BLOCK_SIZE    256
 
 static unsigned char curr_attr = TEXT_NORMAL;
-booltype changes = FALSE;
+boolType changes = FALSE;
 
-static booltype console_initialized = FALSE;
-static booltype cursor_on = FALSE;
-static booltype cursor_position_okay = FALSE;
+static boolType console_initialized = FALSE;
+static boolType cursor_on = FALSE;
+static boolType cursor_position_okay = FALSE;
 static int cursor_line = 1;
 static int cursor_column = 1;
 
-typedef struct consolestruct{
-    strelemtype **chars;
-    strelemtype *char_data;
+typedef struct {
+    strElemType **chars;
+    strElemType *char_data;
     unsigned char **attributes;
     unsigned char *attrib_data;
-    strelemtype *space;
+    strElemType *space;
     int line_capacity;
     int column_capacity;
     int height;
     int width;
-    booltype size_changed;
-  } consolerecord;
+    boolType size_changed;
+  } consoleRecord,  *consoleType;
 
-static consolerecord *con;
+static consoleType con;
 
 
 
-static inline void strelem_memset (strelemtype *mem,
-    const strelemtype ch, size_t number)
+static inline void strelem_memset (strElemType *mem,
+    const strElemType ch, size_t number)
 
   { /* strelem_memcmp */
     for (; number > 0; number--, mem++) {
@@ -166,25 +166,25 @@ static inline void strelem_memset (strelemtype *mem,
 
 
 
-static void strelem_fwrite (const strelemtype *stri, memsizetype length,
-    filetype outFile)
+static void strelem_fwrite (const strElemType *stri, memSizeType length,
+    fileType outFile)
 
   {
-    memsizetype size;
-    uchartype stri_buffer[max_utf8_size(WRITE_STRI_BLOCK_SIZE)];
+    memSizeType size;
+    ucharType stri_buffer[max_utf8_size(WRITE_STRI_BLOCK_SIZE)];
 
   /* strelem_fwrite */
     for (; length >= WRITE_STRI_BLOCK_SIZE;
         stri += WRITE_STRI_BLOCK_SIZE, length -= WRITE_STRI_BLOCK_SIZE) {
       size = stri_to_utf8(stri_buffer, stri, WRITE_STRI_BLOCK_SIZE);
-      if (size != fwrite(stri_buffer, sizeof(uchartype), (size_t) size, outFile)) {
+      if (size != fwrite(stri_buffer, sizeof(ucharType), (size_t) size, outFile)) {
         raise_error(FILE_ERROR);
         return;
       } /* if */
     } /* for */
     if (length > 0) {
       size = stri_to_utf8(stri_buffer, stri, length);
-      if (size != fwrite(stri_buffer, sizeof(uchartype), (size_t) size, outFile)) {
+      if (size != fwrite(stri_buffer, sizeof(ucharType), (size_t) size, outFile)) {
         raise_error(FILE_ERROR);
         return;
       } /* if */
@@ -193,7 +193,7 @@ static void strelem_fwrite (const strelemtype *stri, memsizetype length,
 
 
 
-static void free_console (consolerecord *old_con)
+static void free_console (consoleType old_con)
 
   { /* free_console */
     if (old_con != NULL) {
@@ -208,20 +208,20 @@ static void free_console (consolerecord *old_con)
 
 
 
-static consolerecord *create_console (int height, int width)
+static consoleType create_console (int height, int width)
 
   {
     int line;
-    consolerecord *new_con;
+    consoleType new_con;
 
   /* create_console */
-    new_con = (consolerecord *) malloc(sizeof(consolerecord));
+    new_con = (consoleType) malloc(sizeof(consoleRecord));
     if (new_con != NULL) {
-      new_con->char_data = (strelemtype *) malloc((size_t) (height * width) * sizeof(strelemtype));
-      new_con->chars = (strelemtype **) malloc ((size_t) height * sizeof(strelemtype *));
+      new_con->char_data = (strElemType *) malloc((size_t) (height * width) * sizeof(strElemType));
+      new_con->chars = (strElemType **) malloc ((size_t) height * sizeof(strElemType *));
       new_con->attrib_data = (unsigned char *) malloc((size_t) (height * width) * sizeof(unsigned char));
       new_con->attributes = (unsigned char **) malloc ((size_t) height * sizeof(unsigned char *));
-      new_con->space = (strelemtype *) malloc((size_t) width * sizeof(strelemtype));
+      new_con->space = (strElemType *) malloc((size_t) width * sizeof(strElemType));
       if (new_con->char_data != NULL && new_con->chars != NULL && new_con->attrib_data != NULL &&
           new_con->attributes != NULL &&new_con->space != NULL) {
         for (line = 0; line < height; line++) {
@@ -255,7 +255,7 @@ static void resize_console (void)
     int line_capacity;
     int column_capacity;
     int line;
-    consolerecord *new_con;
+    consoleType new_con;
 
   /* resize_console */
     ioctl(0, TIOCGWINSZ, &window_size);
@@ -278,7 +278,7 @@ static void resize_console (void)
       if (new_con != NULL) {
         for (line = 0; line < con->height; line++) {
           memcpy(new_con->chars[line], con->chars[line],
-              sizeof(strelemtype) * (unsigned int) con->width);
+              sizeof(strElemType) * (unsigned int) con->width);
           memcpy(new_con->attributes[line], con->attributes[line],
               (unsigned int) con->width);
         } /* for */
@@ -334,7 +334,7 @@ static void setattr (unsigned char attribute)
 
 
 
-static void inf_setcolor (inttype foreground, inttype background)
+static void inf_setcolor (intType foreground, intType background)
 
   { /* inf_setcolor */
     if (foreground == black || background == white) {
@@ -372,7 +372,7 @@ static int inf_setfont (char *fontname)
 
 
 
-inttype inf_textheight (void)
+intType inf_textheight (void)
 
   { /* inf_textheight */
     return 1;
@@ -380,8 +380,8 @@ inttype inf_textheight (void)
 
 
 
-inttype textwidth (stritype stri,
-    inttype startcol, inttype stopcol)
+intType textwidth (striType stri,
+    intType startcol, intType stopcol)
 
   { /* textwidth */
     return stopcol + 1 - startcol;
@@ -389,8 +389,8 @@ inttype textwidth (stritype stri,
 
 
 
-void textcolumns (stritype stri, inttype striwidth,
-    inttype * cols, inttype *rest)
+void textcolumns (striType stri, intType striwidth,
+    intType * cols, intType *rest)
 
   { /* textcolumns */
     *cols = striwidth;
@@ -449,7 +449,7 @@ void conFlush (void)
 
 
 
-void conCursor (booltype on)
+void conCursor (boolType on)
 
   { /* conCursor */
     /* fprintf(stderr, "scrCursor(%d)\n", on); */
@@ -469,7 +469,7 @@ void conCursor (booltype on)
  *  When no system cursor exists this procedure can be replaced by
  *  a dummy procedure.
  */
-void conSetCursor (inttype line, inttype column)
+void conSetCursor (intType line, intType column)
 
   { /* conSetCursor */
     /* fprintf(stderr, "scrSetCursor(%d, %d)\n", line, column); */
@@ -491,13 +491,13 @@ void conSetCursor (inttype line, inttype column)
 /**
  *  Writes the string stri to the console at the current position.
  */
-void conWrite (const const_stritype stri)
+void conWrite (const const_striType stri)
 
   {
     int start_pos;
     int end_pos;
     int position;
-    strelemtype *new_line;
+    strElemType *new_line;
     unsigned char *new_attr;
 
   /* conWrite */
@@ -528,7 +528,7 @@ void conWrite (const const_stritype stri)
             } /* while */
             if (start_pos <= end_pos) {
               memcpy(&new_line[start_pos], &stri->mem[start_pos],
-                     sizeof(strelemtype) * (unsigned int) (end_pos - start_pos + 1));
+                     sizeof(strElemType) * (unsigned int) (end_pos - start_pos + 1));
               if (cursor_position_okay) {
                 start_pos = 0;
               } else {
@@ -581,7 +581,7 @@ static void doClear (int startlin, int startcol,
   {
     int line;
     int column;
-    strelemtype *new_line;
+    strElemType *new_line;
     unsigned char *new_attr;
 
   /* doClear */
@@ -651,8 +651,8 @@ static void doClear (int startlin, int startcol,
 /**
  *  Clears the area described by startlin, stoplin, startcol and stopcol.
  */
-void conClear (inttype startlin, inttype startcol,
-    inttype stoplin, inttype stopcol)
+void conClear (intType startlin, intType startcol,
+    intType stoplin, intType stopcol)
 
   { /* conClear */
     /* fprintf(stderr, "conClear(%ld, %ld, %ld, %ld)\n",
@@ -688,9 +688,9 @@ static void doUpScroll (int startlin, int startcol,
     int number;
     int line;
     int column;
-    strelemtype *old_line;
+    strElemType *old_line;
     unsigned char *old_attr;
-    strelemtype *new_line;
+    strElemType *new_line;
     unsigned char *new_attr;
 
   /* doUpScroll */
@@ -714,7 +714,7 @@ static void doUpScroll (int startlin, int startcol,
         if (column >= startcol) {
           memcpy(&new_line[startcol - 1],
               &old_line[startcol - 1],
-              sizeof(strelemtype) * (unsigned int) (column - startcol + 1));
+              sizeof(strElemType) * (unsigned int) (column - startcol + 1));
           memcpy(&new_attr[startcol - 1],
               &old_attr[startcol - 1],
               (unsigned int) (column - startcol + 1));
@@ -775,7 +775,7 @@ static void doUpScroll (int startlin, int startcol,
       for (line = startlin - 1; line < stoplin - count; line++) {
         memcpy(&con->chars[line][startcol - 1],
             &con->chars[line + count][startcol - 1],
-            sizeof(strelemtype) * (unsigned int) (stopcol - startcol + 1));
+            sizeof(strElemType) * (unsigned int) (stopcol - startcol + 1));
         memcpy(&con->attributes[line][startcol - 1],
             &con->attributes[line + count][startcol - 1],
             (unsigned int) (stopcol - startcol + 1));
@@ -803,8 +803,8 @@ static void doUpScroll (int startlin, int startcol,
  *  are inserted. Nothing is changed outside the area.
  *  The calling function assures that count is greater or equal 1.
  */
-void conUpScroll (inttype startlin, inttype startcol,
-    inttype stoplin, inttype stopcol, inttype count)
+void conUpScroll (intType startlin, intType startcol,
+    intType stoplin, intType stopcol, intType count)
 
   { /* conUpScroll */
     if (con->size_changed) {
@@ -839,9 +839,9 @@ static void doDownScroll (int startlin, int startcol,
     int number;
     int line;
     int column;
-    strelemtype *old_line;
+    strElemType *old_line;
     unsigned char *old_attr;
-    strelemtype *new_line;
+    strElemType *new_line;
     unsigned char *new_attr;
 
   /* doDownScroll */
@@ -868,7 +868,7 @@ static void doDownScroll (int startlin, int startcol,
               (unsigned int) (column - startcol + 1), stdout);
           memcpy(&new_line[startcol - 1],
               &old_line[startcol - 1],
-              sizeof(strelemtype) * (unsigned int) (column - startcol + 1));
+              sizeof(strElemType) * (unsigned int) (column - startcol + 1));
           memcpy(&new_attr[startcol - 1],
               &old_attr[startcol - 1],
               (unsigned int) (column - startcol + 1));
@@ -922,7 +922,7 @@ static void doDownScroll (int startlin, int startcol,
       for (line = stoplin - 1; line >= startlin + count - 1; line--) {
         memcpy(&con->chars[line][startcol - 1],
             &con->chars[line - count][startcol - 1],
-            sizeof(strelemtype) * (unsigned int) (stopcol - startcol + 1));
+            sizeof(strElemType) * (unsigned int) (stopcol - startcol + 1));
         memcpy(&con->attributes[line][startcol - 1],
             &con->attributes[line - count][startcol - 1],
             (unsigned int) (stopcol - startcol + 1));
@@ -951,8 +951,8 @@ static void doDownScroll (int startlin, int startcol,
  *  are inserted. Nothing is changed outside the area.
  *  The calling function assures that count is greater or equal 1.
  */
-void conDownScroll (inttype startlin, inttype startcol,
-    inttype stoplin, inttype stopcol, inttype count)
+void conDownScroll (intType startlin, intType startcol,
+    intType stoplin, intType stopcol, intType count)
 
   { /* conDownScroll */
     if (con->size_changed) {
@@ -989,8 +989,8 @@ static void doLeftScroll (int startlin, int startcol,
     int line;
     int start_pos;
     int end_pos;
-    strelemtype *new_line;
-    strelemtype *old_line;
+    strElemType *new_line;
+    strElemType *old_line;
 
   /* doLeftScroll */
     if (0 && delete_character != NULL && (insert_character != NULL ||
@@ -1002,7 +1002,7 @@ static void doLeftScroll (int startlin, int startcol,
           putctl(delete_character); /* delete character */
         } /* for */
         memmove(&new_line[startcol - 1], &new_line[startcol + count - 1],
-            sizeof(strelemtype) * (unsigned int) (stopcol - startcol - count + 1));
+            sizeof(strElemType) * (unsigned int) (stopcol - startcol - count + 1));
         if (line < stoplin - 1) {
           if (cursor_down != NULL) {
             putctl(cursor_down); /* cursor down */
@@ -1063,7 +1063,7 @@ static void doLeftScroll (int startlin, int startcol,
           strelem_fwrite(&old_line[start_pos],
               (unsigned int) (end_pos - start_pos + 1), stdout);
           memmove(&new_line[start_pos], &old_line[start_pos],
-              sizeof(strelemtype) * (unsigned int) (end_pos - start_pos + 1));
+              sizeof(strElemType) * (unsigned int) (end_pos - start_pos + 1));
         } /* if */
         start_pos = 0;
         new_line = &con->chars[line][stopcol - count];
@@ -1093,8 +1093,8 @@ static void doLeftScroll (int startlin, int startcol,
  *  are inserted. Nothing is changed outside the area.
  *  The calling function assures that count is greater or equal 1.
  */
-void conLeftScroll (inttype startlin, inttype startcol,
-    inttype stoplin, inttype stopcol, inttype count)
+void conLeftScroll (intType startlin, intType startcol,
+    intType stoplin, intType stopcol, intType count)
 
   { /* conLeftScroll */
     if (con->size_changed) {
@@ -1130,8 +1130,8 @@ static void doRightScroll (int startlin, int startcol,
     int line;
     int start_pos;
     int end_pos;
-    strelemtype *new_line;
-    strelemtype *old_line;
+    strElemType *new_line;
+    strElemType *old_line;
 
   /* doRightScroll */
     if (0 && delete_character != NULL && (insert_character != NULL ||
@@ -1143,7 +1143,7 @@ static void doRightScroll (int startlin, int startcol,
           putctl(delete_character); /* delete character */
         } /* for */
         memmove(&new_line[startcol + count - 1], &new_line[startcol - 1],
-            sizeof(strelemtype) * (unsigned int) (stopcol - startcol - count + 1));
+            sizeof(strElemType) * (unsigned int) (stopcol - startcol - count + 1));
         if (line < stoplin - 1) {
           if (cursor_down != NULL) {
             putctl(cursor_down); /* cursor down */
@@ -1208,7 +1208,7 @@ static void doRightScroll (int startlin, int startcol,
           strelem_fwrite(&old_line[start_pos],
               (unsigned int) (end_pos - start_pos + 1), stdout);
           memmove(&new_line[start_pos], &old_line[start_pos],
-              sizeof(strelemtype) * (unsigned int) (end_pos - start_pos + 1));
+              sizeof(strElemType) * (unsigned int) (end_pos - start_pos + 1));
         } /* if */
         start_pos = 0;
         new_line = &con->chars[line][startcol - 1];
@@ -1238,8 +1238,8 @@ static void doRightScroll (int startlin, int startcol,
  *  are inserted. Nothing is changed outside the area.
  *  The calling function assures that count is greater or equal 1.
  */
-void conRightScroll (inttype startlin, inttype startcol,
-    inttype stoplin, inttype stopcol, inttype count)
+void conRightScroll (intType startlin, intType startcol,
+    intType stoplin, intType stopcol, intType count)
 
   { /* conRightScroll */
     if (con->size_changed) {

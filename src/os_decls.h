@@ -123,9 +123,9 @@
 #endif
 
 #if OS_OFF_T_SIZE == 32
-#define unsigned_os_off_t uint32type
+#define unsigned_os_off_t uint32Type
 #elif OS_OFF_T_SIZE == 64
-#define unsigned_os_off_t uint64type
+#define unsigned_os_off_t uint64Type
 #else
 #error "sizeof(os_off_t) is neither 4 nor 8."
 #endif
