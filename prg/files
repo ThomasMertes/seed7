@@ -3,6 +3,7 @@
 addup.sd7    Game of adding numbers to reach a goal number     
 bas.sd7      Basic interpreter                                 
 calc.sd7     Calculator                                        
+castle.sd7   Castle Adventure                                  
 celsius.sd7  Print a Fahrenheit-Celsius table                  
 chkexc.sd7   Checks exceptions                                 
 chkint.sd7   Checks integer literals and operations            

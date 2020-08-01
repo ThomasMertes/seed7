@@ -290,15 +290,13 @@ const proc: boxTo (in integer: x1, in integer: y1,
 const proc: circle (inout PRIMITIVE_WINDOW: win,
     in integer: x, in integer: y, in integer: r, in color: col) is func
   begin
-    SET_COLOR(colorPixel(col));
-    DRAW_CIRCLE(win, x, y, r);
+    DRAW_CIRCLE(win, x, y, r, colorPixel(col));
   end func;
 
 
 const proc: circle (in integer: x, in integer: y, in integer: r, in color: col) is func
   begin
-    SET_COLOR(colorPixel(col));
-    DRAW_CIRCLE(curr_win, x, y, r);
+    DRAW_CIRCLE(curr_win, x, y, r, colorPixel(col));
   end func;
 
 
@@ -315,27 +313,24 @@ const proc: fcircle (in integer: x, in integer: y, in integer: r, in color: col)
   end func;
 
 
-const proc: arc (in integer: x, in integer: y, in integer: r, in color: col,
-    in float: cstart, in float: cend) is func
+const proc: arc (in integer: x, in integer: y, in integer: r,
+    in float: cstart, in float: cend, in color: col) is func
   begin
-    SET_COLOR(colorPixel(col));
-    DRAW_ARC(curr_win, x, y, r, cstart, cend);
+    DRAW_ARC(curr_win, x, y, r, cstart, cend, colorPixel(col));
   end func;
 
 
-const proc: chord (in integer: x, in integer: y, in integer: r, in color: col,
-    in float: cstart, in float: cend) is func
+const proc: chord (in integer: x, in integer: y, in integer: r,
+    in float: cstart, in float: cend, in color: col) is func
   begin
-    SET_COLOR(colorPixel(col));
-    FILL_ARCCHORD(curr_win, x, y, r, cstart, cend);
+    FILL_ARCCHORD(curr_win, x, y, r, cstart, cend, colorPixel(col));
   end func;
 
 
-const proc: pieslice (in integer: x, in integer: y, in integer: r, in color: col,
-    in float: cstart, in float: cend) is func
+const proc: pieslice (in integer: x, in integer: y, in integer: r,
+    in float: cstart, in float: cend, in color: col) is func
   begin
-    SET_COLOR(colorPixel(col));
-    FILL_ARCPIESLICE(curr_win, x, y, r, cstart, cend);
+    FILL_ARCPIESLICE(curr_win, x, y, r, cstart, cend, colorPixel(col));
   end func;
 
 
@@ -343,16 +338,14 @@ const proc: fellipse (inout PRIMITIVE_WINDOW: win,
     in integer: x, in integer: y,
     in integer: width, in integer: height, in color: col) is func
   begin
-    SET_COLOR(colorPixel(col));
-    FILL_ELLIPSE(win, x, y, width, height);
+    FILL_ELLIPSE(win, x, y, width, height, colorPixel(col));
   end func;
 
 
 const proc: fellipse (in integer: x, in integer: y,
     in integer: width, in integer: height, in color: col) is func
   begin
-    SET_COLOR(colorPixel(col));
-    FILL_ELLIPSE(curr_win, x, y, width, height);
+    FILL_ELLIPSE(curr_win, x, y, width, height, colorPixel(col));
   end func;
 
 

@@ -47,6 +47,9 @@
 
 #define TRACE_ENTITYS
 
+
+#define PI 3.14159265358979323846264338327950284197
+
 #define windowClass "MyWindowClass"
 
 static inttype init_called = 0;
@@ -614,9 +617,54 @@ inttype x, y, radius;
 floattype ang1, ang2;
 #endif
 
-  { /* drwArc */
-    AngleArc(to_hdc(actual_window), x, y, (unsigned) radius, ang1, ang2);
+  {
+    float angle1, angle2;
+
+  /* drwArc */
+    angle1 = (ang1 * (360.0 / (2 * PI)));
+    angle2 = (ang2 * (360.0 / (2 * PI)));
+    AngleArc(to_hdc(actual_window), x, y, (unsigned) radius, angle1, angle2);
   } /* drwArc */
+
+
+
+#ifdef ANSI_C
+
+void drwPArc (wintype actual_window, inttype x, inttype y,
+    inttype radius, floattype ang1, floattype ang2, inttype col)
+#else
+
+void drwPArc (actual_window, x, y, radius, ang1, ang2, col)
+wintype actual_window;
+inttype x, y, radius;
+floattype ang1, ang2;
+inttype col;
+#endif
+
+  {
+    float angle1, angle2;
+    HPEN old_pen;
+    HPEN current_pen;
+
+  /* drwPArc */
+    angle1 = (ang1 * (360.0 / (2 * PI)));
+    angle2 = (ang2 * (360.0 / (2 * PI)));
+    current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
+    if (current_pen == NULL) {
+      printf("drwPFCircle pen with color %lx is NULL\n", col);
+    } /* if */
+    old_pen = SelectObject(to_hdc(actual_window), current_pen);
+    /* MoveToEx(to_hdc(actual_window), x + radius, y, NULL); */
+    AngleArc(to_hdc(actual_window), x, y, (unsigned) radius, angle1, angle2);
+    SelectObject(to_hdc(actual_window), old_pen);
+    if (to_backup_hdc(actual_window) != 0) {
+      old_pen = SelectObject(to_backup_hdc(actual_window), current_pen);
+      /* MoveToEx(to_backup_hdc(actual_window), x + radius, y, NULL); */
+      AngleArc(to_backup_hdc(actual_window), x, y, (unsigned) radius, angle1, angle2);
+      SelectObject(to_backup_hdc(actual_window), old_pen);
+    } /* if */
+    DeleteObject(current_pen);
+  } /* drwPArc */
 
 
 
@@ -639,6 +687,24 @@ floattype ang1, ang2;
 
 #ifdef ANSI_C
 
+void drwPFArcChord (wintype actual_window, inttype x, inttype y,
+    inttype radius, floattype ang1, floattype ang2, inttype col)
+#else
+
+void drwPFArcChord (actual_window, x, y, radius, ang1, ang2, col)
+wintype actual_window;
+inttype x, y, radius;
+floattype ang1, ang2;
+inttype col;
+#endif
+
+  { /* drwPFArcChord */
+  } /* drwPFArcChord */
+
+
+
+#ifdef ANSI_C
+
 void drwFArcPieSlice (wintype actual_window, inttype x, inttype y,
     inttype radius, floattype ang1, floattype ang2)
 #else
@@ -651,6 +717,24 @@ floattype ang1, ang2;
 
   { /* drwFArcPieSlice */
   } /* drwFArcPieSlice */
+
+
+
+#ifdef ANSI_C
+
+void drwPFArcPieSlice (wintype actual_window, inttype x, inttype y,
+    inttype radius, floattype ang1, floattype ang2, inttype col)
+#else
+
+void drwPFArcPieSlice (actual_window, x, y, radius, ang1, ang2, col)
+wintype actual_window;
+inttype x, y, radius;
+floattype ang1, ang2;
+inttype col;
+#endif
+
+  { /* drwPFArcPieSlice */
+  } /* drwPFArcPieSlice */
 
 
 
@@ -684,6 +768,43 @@ inttype x, y, radius;
   { /* drwCircle */
     AngleArc(to_hdc(actual_window), x, y, (unsigned) radius, 0.0, 360.0);
   } /* drwCircle */
+
+
+
+#ifdef ANSI_C
+
+void drwPCircle (wintype actual_window,
+    inttype x, inttype y, inttype radius, inttype col)
+#else
+
+void drwPCircle (actual_window, x, y, col)
+wintype actual_window;
+inttype x, y, radius;
+inttype col;
+#endif
+
+  {
+    HPEN old_pen;
+    HPEN current_pen;
+
+  /* drwPCircle */
+    /* SetDCPenColor(to_hdc(actual_window), (COLORREF) col); */
+    current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
+    if (current_pen == NULL) {
+      printf("drwPFCircle pen with color %lx is NULL\n", col);
+    } /* if */
+    old_pen = SelectObject(to_hdc(actual_window), current_pen);
+    MoveToEx(to_hdc(actual_window), x + radius, y, NULL);
+    AngleArc(to_hdc(actual_window), x, y, (unsigned) radius, 0.0, 360.0);
+    SelectObject(to_hdc(actual_window), old_pen);
+    if (to_backup_hdc(actual_window) != 0) {
+      old_pen = SelectObject(to_backup_hdc(actual_window), current_pen);
+      MoveToEx(to_backup_hdc(actual_window), x + radius, y, NULL);
+      AngleArc(to_backup_hdc(actual_window), x, y, (unsigned) radius, 0.0, 360.0);
+      SelectObject(to_backup_hdc(actual_window), old_pen);
+    } /* if */
+    DeleteObject(current_pen);
+  } /* drwPCircle */
 
 
 
@@ -750,7 +871,7 @@ inttype dest_y;
 
   { /* drwCopyArea */
 #ifdef TRACE_WIN
-    printf("XCopyArea(%lu, %lu, %lu, %ld, %ld, %ld, %ld, %ld)\n",
+    printf("drwCopyArea(%lu, %lu, %lu, %ld, %ld, %ld, %ld, %ld)\n",
         src_window, dest_window, src_x, src_y, width, height, dest_x, dest_y);
 #endif
     if (to_backup_hdc(src_window) != 0) {
@@ -877,6 +998,51 @@ inttype x, y, width, height;
 
   { /* drwFEllipse */
   } /* drwFEllipse */
+
+
+
+#ifdef ANSI_C
+
+void drwPFEllipse (wintype actual_window,
+    inttype x, inttype y, inttype width, inttype height, inttype col)
+#else
+
+void drwPFEllipse (actual_window, x, y, width, height, col)
+wintype actual_window;
+inttype x, y, width, height;
+inttype col;
+#endif
+
+  {
+    HPEN old_pen;
+    HPEN current_pen;
+    HBRUSH old_brush;
+    HBRUSH current_brush;
+
+  /* drwPFEllipse */
+    current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
+    current_brush = CreateSolidBrush((COLORREF) col);
+    if (current_pen == NULL) {
+      printf("drwPFEllipse pen with color %lx is NULL\n", col);
+    } /* if */
+    if (current_brush == NULL) {
+      printf("drwPFEllipse brush with color %lx is NULL\n", col);
+    } /* if */
+    old_pen = SelectObject(to_hdc(actual_window), current_pen);
+    old_brush = SelectObject(to_hdc(actual_window), current_brush);
+    Ellipse(to_hdc(actual_window), x, y, x + width, y + height);
+    SelectObject(to_hdc(actual_window), old_pen);
+    SelectObject(to_hdc(actual_window), old_brush);
+    if (to_backup_hdc(actual_window) != 0) {
+      old_pen = SelectObject(to_backup_hdc(actual_window), current_pen);
+      old_brush = SelectObject(to_backup_hdc(actual_window), current_brush);
+      Ellipse(to_backup_hdc(actual_window), x, y, x + width, y + height);
+      SelectObject(to_backup_hdc(actual_window), old_pen);
+      SelectObject(to_backup_hdc(actual_window), old_brush);
+    } /* if */
+    DeleteObject(current_pen);
+    DeleteObject(current_brush);
+  } /* drwPFEllipse */
 
 
 

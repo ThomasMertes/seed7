@@ -931,6 +931,144 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype drw_parc (listtype arguments)
+#else
+
+objecttype drw_parc (arguments)
+listtype arguments;
+#endif
+
+  {
+    wintype actual_window;
+    inttype x, y, radius;
+    floattype ang1, ang2;
+    inttype col;
+
+  /* drw_parc */
+    isit_win(arg_1(arguments));
+    isit_int(arg_2(arguments));
+    isit_int(arg_3(arguments));
+    isit_int(arg_4(arguments));
+    isit_float(arg_5(arguments));
+    isit_float(arg_6(arguments));
+    isit_int(arg_7(arguments));
+    actual_window = take_win(arg_1(arguments));
+    x = take_int(arg_2(arguments));
+    y = take_int(arg_3(arguments));
+    radius = take_int(arg_4(arguments));
+    ang1 = take_float(arg_5(arguments));
+    ang2 = take_float(arg_6(arguments));
+    col = take_int(arg_7(arguments));
+    drwPArc(actual_window, x, y, radius, ang1, ang2, col);
+    return(SYS_EMPTY_OBJECT);
+  } /* drw_parc */
+
+
+
+#ifdef ANSI_C
+
+objecttype drw_pcircle (listtype arguments)
+#else
+
+objecttype drw_pcircle (arguments)
+listtype arguments;
+#endif
+
+  {
+    wintype actual_window;
+    inttype x1, y1, radius, col;
+
+  /* drw_pcircle */
+    isit_win(arg_1(arguments));
+    isit_int(arg_2(arguments));
+    isit_int(arg_3(arguments));
+    isit_int(arg_4(arguments));
+    isit_int(arg_5(arguments));
+    actual_window = take_win(arg_1(arguments));
+    x1 = take_int(arg_2(arguments));
+    y1 = take_int(arg_3(arguments));
+    radius = take_int(arg_4(arguments));
+    col = take_int(arg_5(arguments));
+    drwPCircle(actual_window, x1, y1, radius, col);
+    return(SYS_EMPTY_OBJECT);
+  } /* drw_pcircle */
+
+
+
+#ifdef ANSI_C
+
+objecttype drw_pfarcchord (listtype arguments)
+#else
+
+objecttype drw_pfarcchord (arguments)
+listtype arguments;
+#endif
+
+  {
+    wintype actual_window;
+    inttype x, y, radius;
+    floattype ang1, ang2;
+    inttype col;
+
+  /* drw_pfarcchord */
+    isit_win(arg_1(arguments));
+    isit_int(arg_2(arguments));
+    isit_int(arg_3(arguments));
+    isit_int(arg_4(arguments));
+    isit_float(arg_5(arguments));
+    isit_float(arg_6(arguments));
+    isit_int(arg_7(arguments));
+    actual_window = take_win(arg_1(arguments));
+    x = take_int(arg_2(arguments));
+    y = take_int(arg_3(arguments));
+    radius = take_int(arg_4(arguments));
+    ang1 = take_float(arg_5(arguments));
+    ang2 = take_float(arg_6(arguments));
+    col = take_int(arg_7(arguments));
+    drwPFArcChord(actual_window, x, y, radius, ang1, ang2, col);
+    return(SYS_EMPTY_OBJECT);
+  } /* drw_pfarcchord */
+
+
+
+#ifdef ANSI_C
+
+objecttype drw_pfarcpieslice (listtype arguments)
+#else
+
+objecttype drw_pfarcpieslice (arguments)
+listtype arguments;
+#endif
+
+  {
+    wintype actual_window;
+    inttype x, y, radius;
+    floattype ang1, ang2;
+    inttype col;
+
+  /* drw_pfarcpieslice */
+    isit_win(arg_1(arguments));
+    isit_int(arg_2(arguments));
+    isit_int(arg_3(arguments));
+    isit_int(arg_4(arguments));
+    isit_float(arg_5(arguments));
+    isit_float(arg_6(arguments));
+    isit_int(arg_7(arguments));
+    actual_window = take_win(arg_1(arguments));
+    x = take_int(arg_2(arguments));
+    y = take_int(arg_3(arguments));
+    radius = take_int(arg_4(arguments));
+    ang1 = take_float(arg_5(arguments));
+    ang2 = take_float(arg_6(arguments));
+    col = take_int(arg_7(arguments));
+    drwPFArcPieSlice(actual_window, x, y, radius, ang1, ang2, col);
+    return(SYS_EMPTY_OBJECT);
+  } /* drw_pfarcpieslice */
+
+
+
+#ifdef ANSI_C
+
 objecttype drw_pfcircle (listtype arguments)
 #else
 
@@ -956,6 +1094,39 @@ listtype arguments;
     drwPFCircle(actual_window, x1, y1, radius, col);
     return(SYS_EMPTY_OBJECT);
   } /* drw_pfcircle */
+
+
+
+#ifdef ANSI_C
+
+objecttype drw_pfellipse (listtype arguments)
+#else
+
+objecttype drw_pfellipse (arguments)
+listtype arguments;
+#endif
+
+  {
+    wintype actual_window;
+    inttype x1, y1;
+    inttype width, height, col;
+
+  /* drw_pfellipse */
+    isit_win(arg_1(arguments));
+    isit_int(arg_2(arguments));
+    isit_int(arg_3(arguments));
+    isit_int(arg_4(arguments));
+    isit_int(arg_5(arguments));
+    isit_int(arg_6(arguments));
+    actual_window = take_win(arg_1(arguments));
+    x1 = take_int(arg_2(arguments));
+    y1 = take_int(arg_3(arguments));
+    width = take_int(arg_4(arguments));
+    height = take_int(arg_5(arguments));
+    col = take_int(arg_6(arguments));
+    drwPFEllipse(actual_window, x1, y1, width, height, col);
+    return(SYS_EMPTY_OBJECT);
+  } /* drw_pfellipse */
 
 
 

@@ -767,6 +767,48 @@ floattype ang1, ang2;
 
 #ifdef ANSI_C
 
+void drwPArc (wintype actual_window, inttype x, inttype y,
+    inttype radius, floattype ang1, floattype ang2, inttype col)
+#else
+
+void drwPArc (actual_window, x, y, radius, ang1, ang2, col)
+wintype actual_window;
+inttype x, y, radius;
+floattype ang1, ang2;
+inttype col;
+#endif
+
+  {
+    int angle1, angle2;
+
+  /* drwPArc */
+#ifdef TRACE_X11
+    printf("arc(%lu, %ld, %ld, %ld, %.4f, %.4f)\n",
+        actual_window, x, y, radius, ang1, ang2);
+#endif
+    XSetForeground(mydisplay, mygc, (unsigned) col);
+    angle1 = (int) (ang1 * (23040.0 / (2 * PI)));
+    angle2 = (int) (ang2 * (23040.0 / (2 * PI)));
+/*  printf("XDrawArc(*, %d, %d, %d, %d, %d, %d)\n",
+        x - radius, y - radius,
+        (unsigned) (2 * radius), (unsigned) (2 * radius),
+        angle1, angle2); */
+    XDrawArc(mydisplay, to_window(actual_window), mygc,
+        x - radius, y - radius,
+        (unsigned) (2 * radius), (unsigned) (2 * radius),
+        angle1, angle2);
+    if (to_backup(actual_window) != 0) {
+      XDrawArc(mydisplay, to_backup(actual_window), mygc,
+          x - radius, y - radius,
+          (unsigned) (2 * radius), (unsigned) (2 * radius),
+          angle1, angle2);
+    } /* if */
+  } /* drwPArc */
+
+
+
+#ifdef ANSI_C
+
 void drwFArcChord (wintype actual_window, inttype x, inttype y,
     inttype radius, floattype ang1, floattype ang2)
 #else
@@ -808,6 +850,49 @@ floattype ang1, ang2;
 
 #ifdef ANSI_C
 
+void drwPFArcChord (wintype actual_window, inttype x, inttype y,
+    inttype radius, floattype ang1, floattype ang2, inttype col)
+#else
+
+void drwPFArcChord (actual_window, x, y, radius, ang1, ang2, col)
+wintype actual_window;
+inttype x, y, radius;
+floattype ang1, ang2;
+inttype col;
+#endif
+
+  {
+    int angle1, angle2;
+
+  /* drwPFArcChord */
+#ifdef TRACE_X11
+    printf("arcchord(%lu, %ld, %ld, %ld, %.4f, %.4f)\n",
+        actual_window, x, y, radius, ang1, ang2);
+#endif
+    XSetForeground(mydisplay, mygc, (unsigned) col);
+    angle1 = (int) (ang1 * (23040.0 / (2 * PI)));
+    angle2 = (int) (ang2 * (23040.0 / (2 * PI)));
+/*  printf("XDrawArc(*, %d, %d, %d, %d, %d, %d)\n",
+        x - radius, y - radius,
+        (unsigned) (2 * radius), (unsigned) (2 * radius),
+        angle1, angle2); */
+    XSetArcMode(mydisplay, mygc, ArcChord);
+    XFillArc(mydisplay, to_window(actual_window), mygc,
+        x - radius, y - radius,
+        (unsigned) (2 * radius), (unsigned) (2 * radius),
+        angle1, angle2);
+    if (to_backup(actual_window) != 0) {
+      XFillArc(mydisplay, to_backup(actual_window), mygc,
+          x - radius, y - radius,
+          (unsigned) (2 * radius), (unsigned) (2 * radius),
+          angle1, angle2);
+    } /* if */
+  } /* drwPFArcChord */
+
+
+
+#ifdef ANSI_C
+
 void drwFArcPieSlice (wintype actual_window, inttype x, inttype y,
     inttype radius, floattype ang1, floattype ang2)
 #else
@@ -831,6 +916,36 @@ floattype ang1, ang2;
         (int) (ang1 * (23040.0 / (2 * PI))), (int) (ang2 * (23040.0 / (2 * PI))));
     /* XDrawLine(mydisplay, to_window(actual_window), mygc, x, y, x, y); */
   } /* drwFArcPieSlice */
+
+
+
+#ifdef ANSI_C
+
+void drwPFArcPieSlice (wintype actual_window, inttype x, inttype y,
+    inttype radius, floattype ang1, floattype ang2, inttype col)
+#else
+
+void drwPFArcPieSlice (actual_window, x, y, radius, ang1, ang2, col)
+wintype actual_window;
+inttype x, y, radius;
+floattype ang1, ang2;
+inttype col;
+#endif
+
+  { /* drwPFArcPieSlice */
+/*  printf("arc(%d, %d, %d, %.4f, %.4f)\n", x, y, radius, ang1, ang2);
+    printf("XDrawArc(*, %d, %d, %d, %d, %d, %d)\n",
+        x - radius, y - radius,
+        (unsigned) (2 * radius), (unsigned) (2 * radius),
+        (int) (ang1 * (23040.0 / (2 * PI))), (int) (ang2 * (23040.0 / (2 * PI)))); */
+    XSetForeground(mydisplay, mygc, (unsigned) col);
+    XSetArcMode(mydisplay, mygc, ArcPieSlice);
+    XFillArc(mydisplay, to_window(actual_window), mygc,
+        x - radius, y - radius,
+        (unsigned) (2 * radius), (unsigned) (2 * radius),
+        (int) (ang1 * (23040.0 / (2 * PI))), (int) (ang2 * (23040.0 / (2 * PI))));
+    /* XDrawLine(mydisplay, to_window(actual_window), mygc, x, y, x, y); */
+  } /* drwPFArcPieSlice */
 
 
 
@@ -879,6 +994,35 @@ inttype x, y, radius;
           (unsigned) (2 * radius), (unsigned) (2 * radius), 0, 23040);
     } /* if */
   } /* drwCircle */
+
+
+
+#ifdef ANSI_C
+
+void drwPCircle (wintype actual_window,
+    inttype x, inttype y, inttype radius, inttype col)
+#else
+
+void drwPCircle (actual_window, x, y, col)
+wintype actual_window;
+inttype x, y, radius;
+inttype col;
+#endif
+
+  { /* drwPCircle */
+#ifdef TRACE_X11
+    printf("fcircle(%lu, %ld, %ld, %ld)\n", actual_window, x, y, radius);
+#endif
+    XSetForeground(mydisplay, mygc, (unsigned) col);
+    XDrawArc(mydisplay, to_window(actual_window), mygc,
+        x - radius, y - radius,
+        (unsigned) (2 * radius), (unsigned) (2 * radius), 0, 23040);
+    if (to_backup(actual_window) != 0) {
+      XDrawArc(mydisplay, to_backup(actual_window), mygc,
+          x - radius, y - radius,
+          (unsigned) (2 * radius), (unsigned) (2 * radius), 0, 23040);
+    } /* if */
+  } /* drwPCircle */
 
 
 
@@ -1056,6 +1200,33 @@ inttype x, y, width, height;
           x, y, width, height, 0, 23040);
     } /* if */
   } /* drwFEllipse */
+
+
+
+#ifdef ANSI_C
+
+void drwPFEllipse (wintype actual_window,
+    inttype x, inttype y, inttype width, inttype height, inttype col)
+#else
+
+void drwPFEllipse (actual_window, x, y, width, height, col)
+wintype actual_window;
+inttype x, y, width, height;
+inttype col;
+#endif
+
+  { /* drwPFEllipse */
+#ifdef TRACE_X11
+    printf("fellipse(%lu, %ld, %ld, %ld, %ld)\n", actual_window, x, y, width, height);
+#endif
+    XSetForeground(mydisplay, mygc, (unsigned) col);
+    XFillArc(mydisplay, to_window(actual_window), mygc,
+        x, y, width, height, 0, 23040);
+    if (to_backup(actual_window) != 0) {
+      XFillArc(mydisplay, to_backup(actual_window), mygc,
+          x, y, width, height, 0, 23040);
+    } /* if */
+  } /* drwPFEllipse */
 
 
 

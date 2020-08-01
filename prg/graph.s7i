@@ -82,6 +82,9 @@ const proc: DRAW_PRECT (inout PRIMITIVE_WINDOW param,
 const proc: DRAW_CIRCLE(inout PRIMITIVE_WINDOW param,
     ref integer param, ref integer param,
     ref integer param) is                              action "DRW_CIRCLE";
+const proc: DRAW_CIRCLE(inout PRIMITIVE_WINDOW param,
+    ref integer param, ref integer param,
+    ref integer param, ref pixel param) is             action "DRW_PCIRCLE";
 const proc: DRAW_CLEAR(inout PRIMITIVE_WINDOW param,
     ref pixel param) is                                action "DRW_CLEAR";
 const proc: FILL_CIRCLE(inout PRIMITIVE_WINDOW param,
@@ -93,18 +96,34 @@ const proc: FILL_CIRCLE(inout PRIMITIVE_WINDOW param,
 const proc: DRAW_ARC(inout PRIMITIVE_WINDOW param,
     ref integer param, ref integer param, ref integer param,
     ref float param, ref float param) is               action "DRW_ARC";
+const proc: DRAW_ARC(inout PRIMITIVE_WINDOW param,
+    ref integer param, ref integer param, ref integer param,
+    ref float param, ref float param,
+    ref pixel param) is                                action "DRW_PARC";
 const proc: FILL_ARCCHORD(inout PRIMITIVE_WINDOW param,
     ref integer param, ref integer param, ref integer param,
     ref float param, ref float param) is               action "DRW_FARCCHORD";
+const proc: FILL_ARCCHORD(inout PRIMITIVE_WINDOW param,
+    ref integer param, ref integer param, ref integer param,
+    ref float param, ref float param,
+    ref pixel param) is                                action "DRW_PFARCCHORD";
 const proc: FILL_ARCPIESLICE(inout PRIMITIVE_WINDOW param,
     ref integer param, ref integer param, ref integer param,
     ref float param, ref float param) is               action "DRW_FARCPIESLICE";
+const proc: FILL_ARCPIESLICE(inout PRIMITIVE_WINDOW param,
+    ref integer param, ref integer param, ref integer param,
+    ref float param, ref float param,
+    ref pixel param) is                                action "DRW_PFARCPIESLICE";
 const proc: DRAW_ARC2(inout PRIMITIVE_WINDOW param,
     ref integer param, ref integer param, ref integer param,
     ref integer param, ref integer param) is           action "DRW_ARC2";
 const proc: FILL_ELLIPSE(inout PRIMITIVE_WINDOW param,
     ref integer param, ref integer param,
     ref integer param, ref integer param) is           action "DRW_FELLIPSE";
+const proc: FILL_ELLIPSE(inout PRIMITIVE_WINDOW param,
+    ref integer param, ref integer param,
+    ref integer param, ref integer param,
+    ref pixel param) is                                action "DRW_PFELLIPSE";
 const proc: DRAW_FLUSH is                              action "DRW_FLUSH";
 const func PRIMITIVE_WINDOW: PRIMITIVE_GRAPHIC_OPEN (
     ref integer param, ref integer param,
