@@ -168,9 +168,12 @@ version.h:
 	cmd /S /C "echo #define $(BIGINT_LIB_DEFINE)" >> version.h
 	cmd /S /C "echo bcc32.exe %*" > bcc32.bat
 	cmd /S /C "echo #include "stdio.h"" > chkccomp.c
+	cmd /S /C "echo #include "time.h"" >> chkccomp.c
 	cmd /S /C "echo int main (int argc, char **argv)" >> chkccomp.c
 	cmd /S /C "echo {" >> chkccomp.c
 	cmd /S /C "echo FILE *aFile;" >> chkccomp.c
+	cmd /S /C "echo time_t timestamp;" >> chkccomp.c
+	cmd /S /C "echo struct tm *local_time;" >> chkccomp.c
 	cmd /S /C "echo long number;" >> chkccomp.c
 	cmd /S /C "echo aFile = _popen("dir","r");" >> chkccomp.c
 	cmd /S /C "echo if (ftell(aFile) != -1) {" >> chkccomp.c
@@ -193,6 +196,13 @@ version.h:
 	cmd /S /C "echo puts("");" >> chkccomp.c
 	cmd /S /C "echo printf("\043define DOUBLE_SIZE %d", 8 * sizeof(double));" >> chkccomp.c
 	cmd /S /C "echo puts("");" >> chkccomp.c
+	cmd /S /C "echo printf("\043define TIME_T_SIZE %d", 8 * sizeof(time_t));" >> chkccomp.c
+	cmd /S /C "echo puts("");" >> chkccomp.c
+	cmd /S /C "echo timestamp = -2147483648;" >> chkccomp.c
+	cmd /S /C "echo local_time = localtime(^&timestamp);" >> chkccomp.c
+	cmd /S /C "echo if (local_time != NULL ^&^& local_time-^>tm_year == 1) {" >> chkccomp.c
+	cmd /S /C "echo puts("\043define TIME_T_SIGNED");" >> chkccomp.c
+	cmd /S /C "echo }" >> chkccomp.c
 	cmd /S /C "echo if (sizeof(int) == 4) { >> chkccomp.c
 	cmd /S /C "echo puts("\043define INT32TYPE int");" >> chkccomp.c
 	cmd /S /C "echo puts("\043define INT32TYPE_STRI \"int\"");" >> chkccomp.c

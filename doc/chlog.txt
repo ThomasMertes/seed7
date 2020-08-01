@@ -1,19 +1,42 @@
+20100822:
+- A new example program (dragon.sd7), which draws a dragon curve, was added.
+- A new example program (fractree.sd7), which draws a fractal tree, was added.
+- The chapters explaining the types 'time' and 'duration' in the manual were
+  improved.
+- The '-' function, which computes the differance of two 'time' values (with a
+  'duration' result) in "time.s7i", was improved.
+- The functions 'daysInYear', 'getYears', 'getMonths', 'getDays', 'getHours',
+  'getMinutes', 'getSeconds' and 'getMycroSeconds' were added to the "time.s7i"
+  library.
+- The "time.s7i" functions 'years', 'months', 'days', 'hours', 'minutes',
+  'seconds' and 'mycro_seconds' were renamed to 'toYears', 'toMonths', 'toDays',
+  'toHours', 'toMinutes', 'toSeconds' and 'toMycroSeconds' respectively.
+- The "bas7.sd7" example program was improved to use the new "time.s7i"
+  functions.
+- The makefiles were improved to determine the size and the signedness
+  (regarding the function 'localtime') of time_t values.
+- The functions 'timToTimestamp' and 'timSetLocalTZ' in "tim_rtl.c" were
+  improved to take the size and signedness of time_t into account.
+
 20100801:
 - The FAQ was improved to contain three main sections.
-- An explanation how to verify that the interpreter works correct, how to
-  use the Seed7 interpreter and about how static type checking works when
-  types are first-class objects, was added to the FAQ.
-- The FAQ explaining how to compile the Seed7 interpreter and how to compile
-  Seed7 programs, was improved.
+- Instructions to verify the correctness of the interpreter were added to the
+  FAQ and to the file "src/read_me.txt".
+- Instructions how to use the Seed7 interpreter were added to the FAQ.
+- An explanation how static type checking works, when types are first-class
+  objects, was added to the FAQ.
+- The FAQ answers explaining the compilation of the Seed7 interpreter and how
+  to compile Seed7 programs, were improved.
 - References to the manual were added to several FAQ answers.
 - The chapters explaining string literals, character literals, exceptions and
   stack traces in the manual were improved.
-- Tests for the 'str' function with base parameter were added to "chkint.sd7".
-- The compiler (comp.sd7) was improved to generate code which raises an
-  exception when at runtime no adequate function is found, which implements an
-  interface (dynamic) function.
+- Tests for the 'str' function, where the base of the number system is provided
+  as parameter, were added to "chkint.sd7".
+- The compiler (comp.sd7) was improved to generate better code for interface
+  (dynamic) functions. Now a runtime exception is raised when no adequate
+  implementation function is found.
 - A definition of 'ACTION_ERROR' was added to "common.h" and "comp.sd7".
-- The file "src/read_me.txt" was improved.
+- The interpreters stack traces with function call notation, were improved.
 
 20100718:
 - The first steps towards support of variable functions and closures in the

@@ -2342,7 +2342,7 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
       symbol := get_symbol(line);
       time_now := time(NOW);
       since_midnight := time_now - truncToDay(time_now);
-      result := flt(seconds(since_midnight)) +
+      result := flt(toSeconds(since_midnight)) +
         flt(since_midnight.mycro_second) / 1000000.0;
       writeln(log, "TIMER -> " <& result);
     elsif symbol = "CDBL" then
@@ -2377,7 +2377,7 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
         when {16#6C}: # &H6C contains the low order tick count of 0-255
           time_now := time(NOW);
           since_midnight := time_now - truncToDay(time_now);
-          result := 18.2 * (flt(seconds(since_midnight)) +
+          result := 18.2 * (flt(toSeconds(since_midnight)) +
             flt(since_midnight.mycro_second) / 1000000.0);
           result -:= floor(result / 256.0) * 256.0;
           index1 := round(result);

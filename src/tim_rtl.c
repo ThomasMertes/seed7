@@ -46,6 +46,26 @@
 #undef TRACE_TIM_RTL
 
 
+#if TIME_T_SIZE == 32
+#ifdef TIME_T_SIGNED
+#define STRUCT_TM_MIN_YEAR 1902
+#else
+#define STRUCT_TM_MIN_YEAR 1970
+#endif
+#define STRUCT_TM_MAX_YEAR 2037
+#elif INTTYPE_SIZE == 64
+#if   defined INT64TYPE_SUFFIX_LL
+#define STRUCT_TM_MIN_YEAR (-292277022655LL)
+#define STRUCT_TM_MAX_YEAR   292277026595LL
+#elif defined INT64TYPE_SUFFIX_L
+#define STRUCT_TM_MIN_YEAR (-292277022655L)
+#define STRUCT_TM_MAX_YEAR   292277026595L
+#else
+#define STRUCT_TM_MIN_YEAR (-292277022655)
+#define STRUCT_TM_MAX_YEAR   292277026595
+#endif
+#endif
+
 static time_t year_days[2][12] = {
     {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334},
     {0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335}};
@@ -174,7 +194,11 @@ inttype time_zone;
     printf("BEGIN timToTimestamp(%04ld-%02ld-%02ld %02ld:%02ld:%02ld.%06ld %ld)\n",
         year, month, day, hour, min, sec, mycro_sec, time_zone);
 #endif
-    if (year < 1970 || year >= 2038 || month < 1 || month > 12 || day < 1 || day > 31 ||
+    if (
+#ifdef STRUCT_TM_MIN_YEAR
+        year < STRUCT_TM_MIN_YEAR || year > STRUCT_TM_MAX_YEAR ||
+#endif
+        month < 1 || month > 12 || day < 1 || day > 31 ||
         hour < 0 || hour >= 24 || min < 0 || min >= 60 || sec < 0 || sec >= 60) {
       raise_error(RANGE_ERROR);
       result = (time_t) -1;
@@ -237,7 +261,11 @@ booltype *is_dst;
       raise_error(RANGE_ERROR);
     } else {
       time_zone_reference = mkutc(local_time) / 60;
-      if (year < 1970 || year >= 2038 || month < 1 || month > 12 || day < 1 || day > 31 ||
+      if (
+#ifdef STRUCT_TM_MIN_YEAR
+          year < STRUCT_TM_MIN_YEAR || year > STRUCT_TM_MAX_YEAR ||
+#endif
+          month < 1 || month > 12 || day < 1 || day > 31 ||
           hour < 0 || hour >= 24 || min < 0 || min >= 60 || sec < 0 || sec >= 60) {
         raise_error(RANGE_ERROR);
       } else {

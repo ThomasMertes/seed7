@@ -29,10 +29,12 @@ comp.sd7     Compiler from Seed7 to C
 dirtst.sd7   Test reading a directory as file                  
 dirx.sd7     Make a directory listing                          
 dnafight.sd7 Bacterial dna fight programming game              
+dragon.sd7   Draw a dragon curve                               
 echo.sd7     Write the arguments of the program                
 eliza.sd7    The computer psychiatrist                         
 err.sd7      Test for almost all possible compile time errors  
 fib.sd7      Compute fibonacci numbers                         
+fractree.sd7 Draw a fractal tree                               
 gcd.sd7      Compute the greatest common divisor               
 gkbd.sd7     Keyboard test program for graphic keyboard        
 gtksvtst.sd7 Gtk-server connection test program                

@@ -7,7 +7,7 @@
 # CFLAGS =
 # CFLAGS = -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -fomit-frame-pointer -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
-# CFLAGS = -O2 -fomit-frame-pointer -Wall -Wextra -Wswitch-default -Wswitch-enum -Wcast-qual -Waggregate-return -Wwrite-strings -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith -Wmissing-noreturn -Wno-multichar
+# CFLAGS = -O2 -g -Wall -Wextra -Wswitch-default -Wswitch-enum -Wcast-qual -Waggregate-return -Wwrite-strings -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith -Wmissing-noreturn -Wno-multichar
 # CFLAGS = -O2 -fomit-frame-pointer -Wall -Wextra -Wswitch-default -Wcast-qual -Waggregate-return -Wwrite-strings -Winline -Wconversion -Wshadow -Wpointer-arith -Wmissing-noreturn -Wno-multichar
 CFLAGS = -O2 -g -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -g -Wall
@@ -142,8 +142,11 @@ version.h:
 	echo "#define likely(x)   __builtin_expect((x),1)" >> version.h
 	echo "#define unlikely(x) __builtin_expect((x),0)" >> version.h
 	echo "#include \"stdio.h\"" > chkccomp.c
+	echo "#include \"time.h\"" >> chkccomp.c
 	echo "int main (int argc, char **argv)" >> chkccomp.c
 	echo "{" >> chkccomp.c
+	echo "time_t timestamp;" >> chkccomp.c
+	echo "struct tm *local_time;" >> chkccomp.c
 	echo "long number;" >> chkccomp.c
 	echo "printf(\"#define POINTER_SIZE %lu\", (long unsigned)(8 * sizeof(char *)));" >> chkccomp.c
 	echo "puts(\"\");" >> chkccomp.c
@@ -151,6 +154,13 @@ version.h:
 	echo "puts(\"\");" >> chkccomp.c
 	echo "printf(\"#define DOUBLE_SIZE %lu\", (long unsigned)(8 * sizeof(double)));" >> chkccomp.c
 	echo "puts(\"\");" >> chkccomp.c
+	echo "printf(\"#define TIME_T_SIZE %lu\", (long unsigned)(8 * sizeof(time_t)));" >> chkccomp.c
+	echo "puts(\"\");" >> chkccomp.c
+	echo "timestamp = -2147483648;" >> chkccomp.c
+	echo "local_time = localtime(&timestamp);" >> chkccomp.c
+	echo "if (local_time != NULL && local_time->tm_year == 1) {" >> chkccomp.c
+	echo "puts(\"#define TIME_T_SIGNED\");" >> chkccomp.c
+	echo "}" >> chkccomp.c
 	echo "if (sizeof(int) == 4) {" >> chkccomp.c
 	echo "puts(\"#define INT32TYPE int\");" >> chkccomp.c
 	echo "puts(\"#define INT32TYPE_STRI \\\"int\\\"\");" >> chkccomp.c

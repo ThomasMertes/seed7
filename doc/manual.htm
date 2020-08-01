@@ -3362,6 +3362,7 @@
       <font color=blue>var</font> <font color=red>integer</font>: hour <font color=blue>is</font> 0;
       <font color=blue>var</font> <font color=red>integer</font>: minute <font color=blue>is</font> 0;
       <font color=blue>var</font> <font color=red>integer</font>: second <font color=blue>is</font> 0;
+      <font color=blue>var</font> <font color=red>integer</font>: mycro_second <font color=blue>is</font> 0;
     Infix operators:
       +         Add a duration to a time
                   ( Type of right operand: <font color=red>duration</font> )
@@ -3376,25 +3377,28 @@
     Relations:
       =, &lt;>, &lt;, &lt;=, >, >=
     Functions:
-      time(NOW) Gets the current time
+      time(NOW)  Gets the current time
       str(A)    Conversion to <font color=red>string</font>
                   ( Type of result: <font color=red>string</font> )
-      strDate(A) Conversion of the date to <font color=red>string</font>
+      strDate(A)  Conversion of the date to <font color=red>string</font>
                   ( Type of result: <font color=red>string</font> )
-      strTime(A) Conversion of the daytime to <font color=red>string</font>
+      strTime(A)  Conversion of the daytime to <font color=red>string</font>
                   ( Type of result: <font color=red>string</font> )
-      strTimeZone(A) Conversion of the time zone to <font color=red>string</font>
+      strTimeZone(A)  Conversion of the time zone to <font color=red>string</font>
                   ( Type of result: <font color=red>string</font> )
-      truncToSecond(A) Trunc a time to a second
-      truncToMinute(A) Trunc a time to a minute
-      truncToHour(A) Trunc a time to a hour
-      truncToDay(A) Trunc a time to a day
-      truncToMonth(A) Trunc a time to a month
-      truncToYear(A) Trunc a time to a year
-      isLeapYear(A) Determine if a given year is a leap year
+      truncToSecond(A)  Trunc a time to a second
+      truncToMinute(A)  Trunc a time to a minute
+      truncToHour(A)  Trunc a time to a hour
+      truncToDay(A)  Trunc a time to a day
+      truncToMonth(A)  Trunc a time to a month
+      truncToYear(A)  Trunc a time to a year
+      isLeapYear(A)  Determine if a given year is a leap year
                   ( Type of argument A: <font color=red>integer</font> )
                   ( Type of result: <font color=red>boolean</font> )
-      daysInMonth(Y, M) Calculate the number of days in a month
+      daysInYear(Y)  Calculate the number of days in a year
+                  ( Type of argument Y: <font color=red>integer</font>,
+                    Type of result: <font color=red>integer</font> )
+      daysInMonth(Y, M)  Calculate the number of days in a month
                   ( Type of argument Y: <font color=red>integer</font>,
                     Type of argument M: <font color=red>integer</font>,
                     Type of result: <font color=red>integer</font> )
@@ -3402,13 +3406,13 @@
                   ( Type of result: <font color=red>integer</font> )
       dayOfYear(A)  Day of the year with 1 January as 1
                   ( Type of result: <font color=red>integer</font> )
-      weekOfYear(A) Compute the week number of a year (0 to 53).
+      weekOfYear(A)  Compute the week number of a year (0 to 53).
                     According to ISO 8601: Week number 1 of
                     every year contains the 4. of january.
                   ( Type of result: <font color=red>integer</font> )
-      weekDateYear(A) Compute the year of the ISO 8601 week date
+      weekDateYear(A)  Compute the year of the ISO 8601 week date
                   ( Type of result: <font color=red>integer</font> )
-      weekDateWeek(A) Compute the week of the ISO 8601 week date
+      weekDateWeek(A)  Compute the week of the ISO 8601 week date
                   ( Type of result: <font color=red>integer</font> )
       toUTC(A)  Conversion to Coordinated Universal Time (UTC)
       julianDayNumber(A)  Number of days that have elapsed since
@@ -3419,9 +3423,12 @@
       timestamp1970(A)  Time expressed in seconds since the
                 Unix Epoch (1970-01-01 00:00:00 UTC)
                   ( Type of result: <font color=red>integer</font> )
-      compare(A, B) Compare function
+      timestamp1970ToTime(A)  Convert a timestamp into a time from
+                the local time zone
+                  ( Type of argument A: <font color=red>integer</font> )
+      compare(A, B)  Compare function
                   ( Type of result: <font color=red>integer</font> )
-      hashCode(A) Hash function
+      hashCode(A)  Hash function
                   ( Type of result: <font color=red>integer</font> )
     Statements:
       A +:= B   Increment A by B
@@ -3431,6 +3438,14 @@
                   ( Type of argument B: <font color=red>duration</font>,
                     A -:= B => A := A - B )
       await(A)  Wait until the given time
+</pre><p>
+  For the operations <tt>'+'</tt> (add a <font color=red>duration</font> to a <font color=red>time</font>) and
+  <tt>'-'</tt> (subtract two <font color=red>time</font> values) holds:</p><pre>
+    tim2 + (tim1 - tim2) = tim1
+</pre><p>
+  For the operations <tt>'-'</tt> (subtract a <font color=red>duration</font> from a <font color=red>time</font>) and
+  <tt>'-'</tt> (subtract two <font color=red>time</font> values) holds:</p><pre>
+    tim1 - (tim1 - tim2) = tim2
 </pre><p></p>
 
 <a name="duration"><h3>5.22 duration</h3></a>
@@ -3454,19 +3469,33 @@
     Relations:
       =, &lt;>, &lt;, &lt;=, >, >=
     Functions:
-      years(A)  Years of the <font color=red>duration</font>
+      getYears(A)  Obtains the years of a <font color=red>duration</font>
                   ( Type of result: <font color=red>integer</font> )
-      months(A) Months of the <font color=red>duration</font>
+      getMonths(A) Obtains the months of a <font color=red>duration</font>
                   ( Type of result: <font color=red>integer</font> )
-      days(A)   Days of the <font color=red>duration</font>
+      getDays(A)   Obtains the days of a <font color=red>duration</font>
                   ( Type of result: <font color=red>integer</font> )
-      hours(A)  Hours of the <font color=red>duration</font>
+      getHours(A)  Obtains the hours of a <font color=red>duration</font>
                   ( Type of result: <font color=red>integer</font> )
-      minutes(A) Minutes of the <font color=red>duration</font>
+      getMinutes(A) Obtains the minutes of a <font color=red>duration</font>
                   ( Type of result: <font color=red>integer</font> )
-      seconds(A) Seconds of the <font color=red>duration</font>
+      getSeconds(A) Obtains the seconds of a <font color=red>duration</font>
                   ( Type of result: <font color=red>integer</font> )
-      mycro_seconds(A)  Mycro seconds of the <font color=red>duration</font>
+      getMycroSeconds(A)  Obtains the mycro seconds of a <font color=red>duration</font>
+                  ( Type of result: <font color=red>integer</font> )
+      toYears(A)  Return the <font color=red>duration</font> in years
+                  ( Type of result: <font color=red>integer</font> )
+      toMonths(A) Return the <font color=red>duration</font> in months
+                  ( Type of result: <font color=red>integer</font> )
+      toDays(A)   Return the <font color=red>duration</font> in days
+                  ( Type of result: <font color=red>integer</font> )
+      toHours(A)  Return the <font color=red>duration</font> in hours
+                  ( Type of result: <font color=red>integer</font> )
+      toMinutes(A) Return the <font color=red>duration</font> in minutes
+                  ( Type of result: <font color=red>integer</font> )
+      toSeconds(A) Return the <font color=red>duration</font> in seconds
+                  ( Type of result: <font color=red>integer</font> )
+      toMycroSeconds(A)  Return the <font color=red>duration</font> in mycro seconds
                   ( Type of result: <font color=red>integer</font> )
       str(A)    Conversion to <font color=red>string</font>
                   ( Type of result: <font color=red>string</font> )
@@ -3476,6 +3505,10 @@
                   ( Type of result: <font color=red>integer</font> )
     Statements:
       wait(A)   Wait for given duration
+</pre><p>
+  For the operations <tt>'-'</tt> (negate a <font color=red>duration</font>) and
+  <tt>'-'</tt> (subtract two <font color=red>time</font> values) holds:</p><pre>
+    (tim1 - tim2) = - (tim2 - tim1)
 </pre><p></p>
 
 <a name="file"><h3>5.23 file</h3></a>

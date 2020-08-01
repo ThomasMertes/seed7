@@ -26,9 +26,6 @@ $ include "seed7_05.s7i";
   include "float.s7i";
   include "draw.s7i";
   include "keybd.s7i";
-  include "window.s7i";
-  include "echo.s7i";
-  include "line.s7i";
 
 
 const type: generationType is array boolean;
@@ -64,7 +61,7 @@ const proc: drawGeneration (in integer: generationNumber,
     end for;
   end func;
 
-    
+
 const proc: main is func
   local
     const bitset: rule30 is bitset conv 30;
@@ -77,8 +74,6 @@ const proc: main is func
     clear(white);
     KEYBOARD := GRAPH_KEYBOARD;
     win := open(curr_win);
-    IN := open_echo(KEYBOARD, win);
-    IN := open_line(IN);
     currentGeneration := 1024 times FALSE;
     currentGeneration[512] := TRUE;
     drawGeneration(generationNumber, currentGeneration);

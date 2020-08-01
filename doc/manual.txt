@@ -3362,6 +3362,7 @@ CONTENTS
       var integer: hour is 0;
       var integer: minute is 0;
       var integer: second is 0;
+      var integer: mycro_second is 0;
     Infix operators:
       +         Add a duration to a time
                   ( Type of right operand: duration )
@@ -3376,25 +3377,28 @@ CONTENTS
     Relations:
       =, <>, <, <=, >, >=
     Functions:
-      time(NOW) Gets the current time
+      time(NOW)  Gets the current time
       str(A)    Conversion to string
                   ( Type of result: string )
-      strDate(A) Conversion of the date to string
+      strDate(A)  Conversion of the date to string
                   ( Type of result: string )
-      strTime(A) Conversion of the daytime to string
+      strTime(A)  Conversion of the daytime to string
                   ( Type of result: string )
-      strTimeZone(A) Conversion of the time zone to string
+      strTimeZone(A)  Conversion of the time zone to string
                   ( Type of result: string )
-      truncToSecond(A) Trunc a time to a second
-      truncToMinute(A) Trunc a time to a minute
-      truncToHour(A) Trunc a time to a hour
-      truncToDay(A) Trunc a time to a day
-      truncToMonth(A) Trunc a time to a month
-      truncToYear(A) Trunc a time to a year
-      isLeapYear(A) Determine if a given year is a leap year
+      truncToSecond(A)  Trunc a time to a second
+      truncToMinute(A)  Trunc a time to a minute
+      truncToHour(A)  Trunc a time to a hour
+      truncToDay(A)  Trunc a time to a day
+      truncToMonth(A)  Trunc a time to a month
+      truncToYear(A)  Trunc a time to a year
+      isLeapYear(A)  Determine if a given year is a leap year
                   ( Type of argument A: integer )
                   ( Type of result: boolean )
-      daysInMonth(Y, M) Calculate the number of days in a month
+      daysInYear(Y)  Calculate the number of days in a year
+                  ( Type of argument Y: integer,
+                    Type of result: integer )
+      daysInMonth(Y, M)  Calculate the number of days in a month
                   ( Type of argument Y: integer,
                     Type of argument M: integer,
                     Type of result: integer )
@@ -3402,13 +3406,13 @@ CONTENTS
                   ( Type of result: integer )
       dayOfYear(A)  Day of the year with 1 January as 1
                   ( Type of result: integer )
-      weekOfYear(A) Compute the week number of a year (0 to 53).
+      weekOfYear(A)  Compute the week number of a year (0 to 53).
                     According to ISO 8601: Week number 1 of
                     every year contains the 4. of january.
                   ( Type of result: integer )
-      weekDateYear(A) Compute the year of the ISO 8601 week date
+      weekDateYear(A)  Compute the year of the ISO 8601 week date
                   ( Type of result: integer )
-      weekDateWeek(A) Compute the week of the ISO 8601 week date
+      weekDateWeek(A)  Compute the week of the ISO 8601 week date
                   ( Type of result: integer )
       toUTC(A)  Conversion to Coordinated Universal Time (UTC)
       julianDayNumber(A)  Number of days that have elapsed since
@@ -3419,9 +3423,12 @@ CONTENTS
       timestamp1970(A)  Time expressed in seconds since the
                 Unix Epoch (1970-01-01 00:00:00 UTC)
                   ( Type of result: integer )
-      compare(A, B) Compare function
+      timestamp1970ToTime(A)  Convert a timestamp into a time from
+                the local time zone
+                  ( Type of argument A: integer )
+      compare(A, B)  Compare function
                   ( Type of result: integer )
-      hashCode(A) Hash function
+      hashCode(A)  Hash function
                   ( Type of result: integer )
     Statements:
       A +:= B   Increment A by B
@@ -3431,6 +3438,14 @@ CONTENTS
                   ( Type of argument B: duration,
                     A -:= B => A := A - B )
       await(A)  Wait until the given time
+
+  For the operations '+' (add a duration to a time) and
+  '-' (subtract two time values) holds:
+    tim2 + (tim1 - tim2) = tim1
+
+  For the operations '-' (subtract a duration from a time) and
+  '-' (subtract two time values) holds:
+    tim1 - (tim1 - tim2) = tim2
 
 
 5.22 duration
@@ -3454,19 +3469,33 @@ CONTENTS
     Relations:
       =, <>, <, <=, >, >=
     Functions:
-      years(A)  Years of the duration
+      getYears(A)  Obtains the years of a duration
                   ( Type of result: integer )
-      months(A) Months of the duration
+      getMonths(A) Obtains the months of a duration
                   ( Type of result: integer )
-      days(A)   Days of the duration
+      getDays(A)   Obtains the days of a duration
                   ( Type of result: integer )
-      hours(A)  Hours of the duration
+      getHours(A)  Obtains the hours of a duration
                   ( Type of result: integer )
-      minutes(A) Minutes of the duration
+      getMinutes(A) Obtains the minutes of a duration
                   ( Type of result: integer )
-      seconds(A) Seconds of the duration
+      getSeconds(A) Obtains the seconds of a duration
                   ( Type of result: integer )
-      mycro_seconds(A)  Mycro seconds of the duration
+      getMycroSeconds(A)  Obtains the mycro seconds of a duration
+                  ( Type of result: integer )
+      toYears(A)  Return the duration in years
+                  ( Type of result: integer )
+      toMonths(A) Return the duration in months
+                  ( Type of result: integer )
+      toDays(A)   Return the duration in days
+                  ( Type of result: integer )
+      toHours(A)  Return the duration in hours
+                  ( Type of result: integer )
+      toMinutes(A) Return the duration in minutes
+                  ( Type of result: integer )
+      toSeconds(A) Return the duration in seconds
+                  ( Type of result: integer )
+      toMycroSeconds(A)  Return the duration in mycro seconds
                   ( Type of result: integer )
       str(A)    Conversion to string
                   ( Type of result: string )
@@ -3476,6 +3505,10 @@ CONTENTS
                   ( Type of result: integer )
     Statements:
       wait(A)   Wait for given duration
+
+  For the operations '-' (negate a duration) and
+  '-' (subtract two time values) holds:
+    (tim1 - tim2) = - (tim2 - tim1)
 
 
 5.23 file
