@@ -50,7 +50,7 @@
 #define TRACE_ENTITYS
 
 
-#define PI 3.14159265358979323846264338327950284197
+#define PI 3.141592653589793238462643383279502884197
 
 #define windowClass "MyWindowClass"
 
@@ -124,11 +124,11 @@ HWND curr_window;
     window = window_list;
     while (window != NULL) {
       if (to_hwnd(window) == curr_window) {
-        return(window);
+        return window;
       } /* if */
       window = window->next;
     } /* while */
-    return(NULL);
+    return NULL;
   } /* find_window */
 
 
@@ -314,7 +314,7 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
     } /* switch */
     /* printf("WndProc ==> %d\n", result); */
-    return(result);
+    return result;
   } /* WndProc */
 
 
@@ -625,7 +625,7 @@ chartype gkbGetc ()
       } /* if */
     } /* while */
     /* printf("end getc() ==> %d\n", result); */
-    return(result);
+    return result;
   } /* gkbGetc */
 
 
@@ -723,7 +723,7 @@ booltype gkbKeyPressed ()
       } /* switch */
     } /* while */
     /* printf("gkbKeyPressed() ==> %d\n", result); */
-    return(result);
+    return result;
   } /* gkbKeyPressed */
 
 
@@ -831,7 +831,7 @@ chartype button;
         result = (GetAsyncKeyState(vkey2) & 0x8000) != 0;
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* gkbButtonPressed */
 
 
@@ -845,7 +845,7 @@ chartype gkbRawGetc ()
 #endif
 
   { /* gkbRawGetc */
-    return(gkbGetc());
+    return gkbGetc();
   } /* gkbRawGetc */
 
 
@@ -866,7 +866,7 @@ wintype gkbWindow ()
     if (result != NULL) {
       result->usage_count++;
     } /* if */
-    return(result);
+    return result;
   } /* gkbWindow */
 
 
@@ -880,7 +880,7 @@ inttype gkbButtonXpos ()
 #endif
 
   { /* gkbButtonXpos */
-    return(button_x);
+    return button_x;
   } /* gkbButtonXpos */
 
 
@@ -894,7 +894,7 @@ inttype gkbButtonYpos ()
 #endif
 
   { /* gkbButtonYpos */
-    return(button_y);
+    return button_y;
   } /* gkbButtonYpos */
 
 
@@ -924,7 +924,7 @@ wintype actual_window;
         result = point.x;
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* drwPointerXpos */
 
 
@@ -954,7 +954,7 @@ wintype actual_window;
         result = point.y;
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* drwPointerYpos */
 
 
@@ -1496,8 +1496,25 @@ inttype height;
         } /* if */
       } /* if */
     } /* if */
-    return((wintype) result);
+    return (wintype) result;
   } /* drwGet */
+
+
+
+#ifdef ANSI_C
+
+inttype drwGetPixel (const_wintype actual_window, inttype x, inttype y)
+#else
+
+inttype drwGetPixel (actual_window, x, y)
+wintype actual_window;
+inttype x;
+inttype y;
+#endif
+
+  { /* drwGetPixel */
+    return (inttype) GetPixel(to_hdc(actual_window), x, y);
+  } /* drwGetPixel */
 
 
 
@@ -1539,7 +1556,7 @@ inttype height;
 #endif
 
   { /* drwImage */
-    return((wintype) NULL);
+    return (wintype) NULL;
   } /* drwImage */
 
 
@@ -1610,16 +1627,16 @@ inttype col;
 
 #ifdef ANSI_C
 
-wintype drwNewPixmap (const_wintype actual_window, inttype width, inttype height)
+wintype drwNewPixmap (inttype width, inttype height)
 #else
 
-wintype drwNewPixmap (actual_window, width, height)
-wintype actual_window;
+wintype drwNewPixmap (width, height)
 inttype width;
 inttype height;
 #endif
 
   {
+    HDC screenDC;
     win_wintype result;
 
   /* drwNewPixmap */
@@ -1628,8 +1645,10 @@ inttype height;
     } else {
       memset(result, 0, sizeof(struct win_winstruct));
       result->usage_count = 1;
-      result->hdc = CreateCompatibleDC(to_hdc(actual_window));
-      result->hBitmap = CreateCompatibleBitmap(to_hdc(actual_window), width, height);
+      screenDC = GetDC(NULL);
+      result->hdc = CreateCompatibleDC(screenDC);
+      result->hBitmap = CreateCompatibleBitmap(screenDC, width, height);
+      ReleaseDC(NULL, screenDC);
       result->oldBitmap = (HBITMAP) SelectObject(result->hdc, result->hBitmap);
       result->hasTransparentPixel = FALSE;
       result->transparentPixel = 0;
@@ -1638,7 +1657,7 @@ inttype height;
       result->height = height;
       result->next = NULL;
     } /* if */
-    return((wintype) result);
+    return (wintype) result;
   } /* drwNewPixmap */
 
 
@@ -1655,7 +1674,7 @@ inttype height;
 #endif
 
   { /* drwNewBitmap */
-    return(0);
+    return 0;
   } /* drwNewBitmap */
 
 
@@ -1777,7 +1796,7 @@ stritype window_name;
 #ifdef TRACE_WIN
     printf("END drwOpen ==> %lu\n", (long unsigned) result);
 #endif
-    return((wintype) result);
+    return (wintype) result;
   } /* drwOpen */
 
 
@@ -1878,7 +1897,7 @@ inttype height;
 #ifdef TRACE_WIN
     printf("END drwOpenSubWindow ==> %lu\n", (long unsigned) result);
 #endif
-    return((wintype) result);
+    return (wintype) result;
   } /* drwOpenSubWindow */
 
 
@@ -1995,7 +2014,7 @@ rtlArraytype xyArray;
         } /* if */
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* drwGenPointList */
 
 
@@ -2010,7 +2029,7 @@ bstritype point_list;
 #endif
 
   { /* drwLngPointList */
-    return(point_list->size / sizeof(POINT));
+    return point_list->size / sizeof(POINT);
   } /* drwLngPointList */
 
 
@@ -2283,10 +2302,30 @@ inttype blue_val;
 #ifdef TRACE_WIN
     printf("drwRgbColor(%lu, %ld, %ld)\n", red_val, green_val, blue_val);
 #endif
-    return(RGB(((uinttype) red_val) >> 8,
-               ((uinttype) green_val) >> 8,
-               ((uinttype) blue_val) >> 8));
+    return (inttype) RGB(((uinttype) red_val) >> 8,
+                         ((uinttype) green_val) >> 8,
+                         ((uinttype) blue_val) >> 8);
   } /* drwRgbColor */
+
+
+
+#ifdef ANSI_C
+
+void drwPixelToRgb (inttype col, inttype *red_val, inttype *green_val, inttype *blue_val)
+#else
+
+void drwPixelToRgb (col, red_val, green_val, blue_val)
+inttype col;
+inttype *red_val;
+inttype *green_val;
+inttype *blue_val;
+#endif
+
+  { /* drwPixelToRgb */
+    *red_val   = GetRValue(col) << 8;
+    *green_val = GetGValue(col) << 8;
+    *blue_val  = GetBValue(col) << 8;
+  } /* drwPixelToRgb */
 
 
 

@@ -2224,7 +2224,19 @@ CONTENTS
 5.6 float
 
     The type 'float' consists of single precision floating
-  point numbers.
+  point numbers. Float literals are base 10 and contain a decimal point.
+  There must be at least one digit before and after the decimal point.
+  An exponent part, which is introduced with E or e, is optional.
+  The exponent can be signed, but the mantissa is not. A literal does
+  not have a sign, + or - are unary operations. Examples of 'float'
+  literals are:
+
+  3.14159265358979
+  1.0E-12
+  0.1234
+
+  The functions 'str' and the operators 'digits' and 'parse'
+  create and accept float literals with sign.
 
     Constants:
       Infinity  Positive infinity

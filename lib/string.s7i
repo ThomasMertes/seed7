@@ -139,11 +139,25 @@ const proc: (inout string: destination) &:= (in char: extension)     is action "
  *   A @:= [B] C;
  *  is equivalent to
  *   A := A[..pred(B)] & str(C) & A[succ(B)..];
- *  @exception RANGE_ERROR When ''position'' is not a valid
- *             position of ''source'' (position <= 0 or
- *             position > length(destination) holds).
+ *  @exception RANGE_ERROR When ''position'' is negative or zero.
+ *  @exception RANGE_ERROR A character beyond ''destination'' would be
+               overwritten (''position'' > length(''destination'') holds).
  *)
 const proc: (inout string: destination) @:= [ (in integer: position) ] (in char: source) is action "STR_ELEMCPY";
+
+
+(**
+ *  Assign string ''source'' to the ''position'' of the ''destination''.
+ *   A @:= [B] C;
+ *  is equivalent to
+ *   A := A[..pred(B)] & C & A[B+length(C)..];
+ *  @exception RANGE_ERROR When ''position'' is negative or zero.
+ *  @exception RANGE_ERROR When ''destination'' is smaller than ''source''.
+ *  @exception RANGE_ERROR Characters beyond ''destination'' would be
+ *             overwritten (''position'' + length(''source'') >
+ *             succ(length(''destination'')) holds).
+ *)
+const proc: (inout string: destination) @:= [ (in integer: position) ] (in string: source) is action "STR_POSCPY";
 
 
 (**
@@ -365,8 +379,22 @@ const func string: replace2 (in string: main_stri, in string: search1,
   end func;
 
 
-const func string: upper (in string param)                     is action "STR_UP";
-const func string: lower (in string param)                     is action "STR_LOW";
+(**
+ *  Convert a string to upper case.
+ *  The letters a to z are converted to upper case.
+ *  Other characters are left unchanged.
+ *  @return the string converted to upper case.
+ *)
+const func string: upper (in string: stri)                     is action "STR_UP";
+
+
+(**
+ *  Convert a string to lower case.
+ *  The letters A to Z are converted to lower case.
+ *  Other characters are left unchanged.
+ *  @return the string converted to lower case.
+ *)
+const func string: lower (in string: stri)                     is action "STR_LOW";
 
 
 (**

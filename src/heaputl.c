@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  heaputl.c     Procedures for heap allocation and maintainance.  */
-/*  Copyright (C) 1989 - 2005  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2011  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/heaputl.c                                       */
-/*  Changes: 1992, 1993, 1994  Thomas Mertes                        */
+/*  Changes: 1992 - 1994, 2008, 2010  Thomas Mertes                 */
 /*  Content: Procedures for heap allocation and maintainance.       */
 /*                                                                  */
 /********************************************************************/

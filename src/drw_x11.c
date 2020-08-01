@@ -64,7 +64,7 @@
 #endif
 
 
-#define PI 3.14159265358979323846264338327950284197
+#define PI 3.141592653589793238462643383279502884197
 
 Display *mydisplay = NULL;
 unsigned long myforeground, mybackground;
@@ -148,11 +148,11 @@ Window curr_window;
     window = window_hash[((memsizetype) curr_window) >> 6 & 1023];
     while (window != NULL) {
       if (to_window(window) == curr_window) {
-        return(window);
+        return window;
       } /* if */
       window = window->next;
     } /* while */
-    return(NULL);
+    return NULL;
   } /* find_window */
 
 
@@ -173,7 +173,7 @@ wintype gkbWindow ()
     if (result != NULL) {
       result->usage_count++;
     } /* if */
-    return(result);
+    return result;
   } /* gkbWindow */
 
 
@@ -366,6 +366,127 @@ XConfigureEvent *xconfigure;
 
 #ifdef ANSI_C
 
+static int get_highest_bit (unsigned long number)
+#else
+
+static int get_highest_bit (number)
+unsigned long number;
+#endif
+
+  {
+    int result = 0;
+
+  /* get_highest_bit */
+    if (number & 0xffff0000) {
+        number >>= 16;
+        result += 16;
+    } /* if */
+    if (number & 0xff00) {
+        number >>= 8;
+        result += 8;
+    } /* if */
+    if (number & 0xf0) {
+        number >>= 4;
+        result += 4;
+    } /* if */
+    return result + highest_bit[number];
+  } /* get_highest_bit */
+
+
+
+#ifdef ANSI_C
+
+static void dra_init (void)
+#else
+
+static void dra_init ()
+#endif
+
+  {
+    const_cstritype class_text;
+
+  /* dra_init */
+#ifdef TRACE_X11
+    printf("BEGIN dra_init()\n");
+#endif
+    /* When linking with a profiling standard library XOpenDisplay */
+    /* deadlocked. Be careful to avoid this situation.             */
+    mydisplay = XOpenDisplay("");
+    /* printf("mydisplay = %lu\n", (long unsigned) mydisplay); */
+    if (mydisplay != NULL) {
+      myscreen = DefaultScreen(mydisplay);
+      /* printf("myscreen = %lu\n", (long unsigned) myscreen); */
+
+      default_visual = XDefaultVisual(mydisplay, myscreen);
+      if (default_visual->c_class == PseudoColor) {
+        class_text = "PseudoColor";
+      } else if (default_visual->c_class == DirectColor) {
+        class_text = "DirectColor";
+      } else if (default_visual->c_class == GrayScale) {
+        class_text = "GrayScale";
+      } else if (default_visual->c_class == StaticColor) {
+        class_text = "StaticColor";
+      } else if (default_visual->c_class == TrueColor) {
+        class_text = "TrueColor";
+      } else if (default_visual->c_class == StaticGray) {
+        class_text = "StaticGray";
+      } else {
+        class_text = "unknown";
+      } /* if */
+#ifdef OUT_OF_ORDER
+      printf("visualid:     %lX\n", (unsigned long) default_visual->visualid);
+      printf("class:        %s\n",  class_text);
+      printf("red_mask:     %08lx\n", default_visual->red_mask);
+      printf("green_mask:   %08lx\n", default_visual->green_mask);
+      printf("blue_mask:    %08lx\n", default_visual->blue_mask);
+      printf("bits_per_rgb: %d\n",  default_visual->bits_per_rgb);
+      printf("map_entries:  %d\n",  default_visual->map_entries);
+
+      /* printf("extension:     %lX\n", (unsigned long) default_visual->extension); */
+
+      printf("highest red bit:   %d\n", get_highest_bit(default_visual->red_mask));
+      printf("highest green bit: %d\n", get_highest_bit(default_visual->green_mask));
+      printf("highest blue bit:  %d\n", get_highest_bit(default_visual->blue_mask));
+#endif
+      lshift_red   = get_highest_bit(default_visual->red_mask) - 16;
+      rshift_red   = -lshift_red;
+      lshift_green = get_highest_bit(default_visual->green_mask) - 16;
+      rshift_green = -lshift_green;
+      lshift_blue  = get_highest_bit(default_visual->blue_mask) - 16;
+      rshift_blue  = -lshift_blue;
+
+      lshift_red   = lshift_red   < 0 ? 0 : lshift_red;
+      rshift_red   = rshift_red   < 0 ? 0 : rshift_red;
+      lshift_green = lshift_green < 0 ? 0 : lshift_green;
+      rshift_green = rshift_green < 0 ? 0 : rshift_green;
+      lshift_blue  = lshift_blue  < 0 ? 0 : lshift_blue;
+      rshift_blue  = rshift_blue  < 0 ? 0 : rshift_blue;
+#ifdef OUT_OF_ORDER
+      printf("lshift_red:   %d\n", lshift_red);
+      printf("rshift_red:   %d\n", rshift_red);
+      printf("lshift_green: %d\n", lshift_green);
+      printf("rshift_green: %d\n", rshift_green);
+      printf("lshift_blue:  %d\n", lshift_blue);
+      printf("rshift_blue:  %d\n", rshift_blue);
+#endif
+      memset(window_hash, 0, 1024 * sizeof(x11_wintype));
+
+      mybackground = WhitePixel(mydisplay, myscreen);
+      myforeground = BlackPixel(mydisplay, myscreen);
+
+      mygc = XCreateGC(mydisplay, DefaultRootWindow(mydisplay), 0, 0);
+      XSetBackground(mydisplay, mygc, mybackground);
+      XSetForeground(mydisplay, mygc, myforeground);
+    } /* if */
+#ifdef TRACE_X11
+    printf("END dra_init\n");
+#endif
+  } /* dra_init */
+
+
+
+#ifdef ANSI_C
+
 inttype drwPointerXpos (const_wintype actual_window)
 #else
 
@@ -386,7 +507,7 @@ wintype actual_window;
     /* printf("%lx, %lx, %d, %d, %d, %d, %x\n",
        root, child, root_x, root_y, win_x, win_y, keys_buttons); */
     /* printf("drwPointerXpos ==> %ld\n", win_x); */
-    return(win_x);
+    return win_x;
   } /* drwPointerXpos */
 
 
@@ -413,7 +534,7 @@ wintype actual_window;
     /* printf("%lx, %lx, %d, %d, %d, %d, %x\n",
        root, child, root_x, root_y, win_x, win_y, keys_buttons); */
     /* printf("drwPointerYpos ==> %ld\n", win_y); */
-    return(win_y);
+    return win_y;
   } /* drwPointerYpos */
 
 
@@ -1036,8 +1157,39 @@ inttype height;
       } /* if */
       /* printf("XCopyArea(%ld, %ld, %ld, %ld)\n", left, upper, width, height); */
     } /* if */
-    return((wintype) result);
+    return (wintype) result;
   } /* drwGet */
+
+
+
+#ifdef ANSI_C
+
+inttype drwGetPixel (const_wintype actual_window, inttype x, inttype y)
+#else
+
+inttype drwGetPixel (actual_window, x, y)
+wintype actual_window;
+inttype x;
+inttype y;
+#endif
+
+  {
+    XImage *image;
+    long pixel;
+
+  /* drwGetPixel */
+    if (to_backup(actual_window) != 0) {
+      image = XGetImage(mydisplay, to_backup(actual_window), x, y, 1, 1,
+                        (unsigned long) -1, ZPixmap);
+    } else {
+      image = XGetImage(mydisplay, to_window(actual_window), x, y, 1, 1,
+                        (unsigned long) -1, ZPixmap);
+    } /* if */
+    pixel = XGetPixel(image, 0, 0);
+    XDestroyImage(image);
+    /* printf("drwGetPixel --> %lx\n", pixel); */
+    return (inttype) pixel;
+  } /* drwGetPixel */
 
 
 
@@ -1061,7 +1213,7 @@ wintype actual_window;
   /* drwHeight */
     status = XGetGeometry(mydisplay, to_window(actual_window), &root,
         &x, &y, &width, &height, &border_width, &depth);
-    return((inttype) height);
+    return (inttype) height;
   } /* drwHeight */
 
 
@@ -1116,7 +1268,7 @@ inttype height;
         XFree(image);
       } /* if */
     } /* if */
-    return((wintype) result);
+    return (wintype) result;
   } /* drwImage */
 
 
@@ -1171,11 +1323,10 @@ inttype col;
 
 #ifdef ANSI_C
 
-wintype drwNewPixmap (const_wintype actual_window, inttype width, inttype height)
+wintype drwNewPixmap (inttype width, inttype height)
 #else
 
-wintype drwNewPixmap (actual_window, width, height)
-wintype actual_window;
+wintype drwNewPixmap (width, height)
 inttype width;
 inttype height;
 #endif
@@ -1187,25 +1338,34 @@ inttype height;
 #ifdef TRACE_X11
     printf("drwNewPixmap(%ld, %ld)\n", width, height);
 #endif
+    result = NULL;
     if (width < 1 || height < 1) {
       raise_error(RANGE_ERROR);
-      result = NULL;
-    } else if (!ALLOC_RECORD(result, x11_winrecord, count.win)) {
-      raise_error(MEMORY_ERROR);
     } else {
-      memset(result, 0, sizeof(struct x11_winstruct));
-      result->usage_count = 1;
-      result->window = XCreatePixmap(mydisplay,
-          to_window(actual_window), (unsigned int) width, (unsigned int) height,
-          (unsigned int) DefaultDepth(mydisplay, myscreen));
-      result->backup = 0;
-      result->clip_mask = 0;
-      result->is_pixmap = TRUE;
-      result->width = (unsigned int) width;
-      result->height = (unsigned int) height;
-      result->next = NULL;
+      if (mydisplay == NULL) {
+        dra_init();
+      } /* if */
+      if (mydisplay == NULL) {
+        raise_error(FILE_ERROR);
+      } else {
+        if (!ALLOC_RECORD(result, x11_winrecord, count.win)) {
+          raise_error(MEMORY_ERROR);
+        } else {
+          memset(result, 0, sizeof(struct x11_winstruct));
+          result->usage_count = 1;
+          result->window = XCreatePixmap(mydisplay,
+              DefaultRootWindow(mydisplay), (unsigned int) width, (unsigned int) height,
+              (unsigned int) DefaultDepth(mydisplay, myscreen));
+          result->backup = 0;
+          result->clip_mask = 0;
+          result->is_pixmap = TRUE;
+          result->width = (unsigned int) width;
+          result->height = (unsigned int) height;
+          result->next = NULL;
+        } /* if */
+      } /* if */
     } /* if */
-    return((wintype) result);
+    return (wintype) result;
   } /* drwNewPixmap */
 
 
@@ -1245,125 +1405,8 @@ inttype height;
       result->height = (unsigned int) height;
       result->next = NULL;
     } /* if */
-    return((wintype) result);
+    return (wintype) result;
   } /* drwNewBitmap */
-
-
-
-#ifdef ANSI_C
-
-static int get_highest_bit (unsigned long number)
-#else
-
-static int get_highest_bit (number)
-unsigned long number;
-#endif
-
-  {
-    int result = 0;
-
-  /* get_highest_bit */
-    if (number & 0xffff0000) {
-        number >>= 16;
-        result += 16;
-    } /* if */
-    if (number & 0xff00) {
-        number >>= 8;
-        result += 8;
-    } /* if */
-    if (number & 0xf0) {
-        number >>= 4;
-        result += 4;
-    } /* if */
-    return(result + highest_bit[number]);
-  } /* get_highest_bit */
-
-
-
-#ifdef ANSI_C
-
-static void dra_init (void)
-#else
-
-static void dra_init ()
-#endif
-
-  {
-    const_cstritype class_text;
-
-  /* dra_init */
-#ifdef TRACE_X11
-    printf("BEGIN dra_init()\n");
-#endif
-    /* When linking with a profiling standard library XOpenDisplay */
-    /* deadlocked. Be careful to avoid this situation.             */
-    mydisplay = XOpenDisplay("");
-    /* printf("mydisplay = %lu\n", (long unsigned) mydisplay); */
-    if (mydisplay != NULL) {
-      myscreen = DefaultScreen(mydisplay);
-      /* printf("myscreen = %lu\n", (long unsigned) myscreen); */
-
-      default_visual = XDefaultVisual(mydisplay, myscreen);
-      if (default_visual->c_class == PseudoColor) {
-        class_text = "PseudoColor";
-      } else if (default_visual->c_class == DirectColor) {
-        class_text = "DirectColor";
-      } else if (default_visual->c_class == GrayScale) {
-        class_text = "GrayScale";
-      } else if (default_visual->c_class == StaticColor) {
-        class_text = "StaticColor";
-      } else if (default_visual->c_class == TrueColor) {
-        class_text = "TrueColor";
-      } else if (default_visual->c_class == StaticGray) {
-        class_text = "StaticGray";
-      } else {
-        class_text = "unknown";
-      } /* if */
-#ifdef OUT_OF_ORDER
-      printf("visualid:     %lX\n", (unsigned long) default_visual->visualid);
-      printf("class:        %s\n",  class_text);
-      printf("red_mask:     %08lx\n", default_visual->red_mask);
-      printf("green_mask:   %08lx\n", default_visual->green_mask);
-      printf("blue_mask:    %08lx\n", default_visual->blue_mask);
-      printf("bits_per_rgb: %d\n",  default_visual->bits_per_rgb);
-      printf("map_entries:  %d\n",  default_visual->map_entries);
-
-      /* printf("extension:     %lX\n", (unsigned long) default_visual->extension); */
-
-      printf("highest red bit:   %d\n", get_highest_bit(default_visual->red_mask));
-      printf("highest green bit: %d\n", get_highest_bit(default_visual->green_mask));
-      printf("highest blue bit:  %d\n", get_highest_bit(default_visual->blue_mask));
-#endif
-      lshift_red   = get_highest_bit(default_visual->red_mask) - 16;
-      rshift_red   = -lshift_red;
-      lshift_green = get_highest_bit(default_visual->green_mask) - 16;
-      rshift_green = -lshift_green;
-      lshift_blue  = get_highest_bit(default_visual->blue_mask) - 16;
-      rshift_blue  = -lshift_blue;
-
-      lshift_red   = lshift_red   < 0 ? 0 : lshift_red;
-      rshift_red   = rshift_red   < 0 ? 0 : rshift_red;
-      lshift_green = lshift_green < 0 ? 0 : lshift_green;
-      rshift_green = rshift_green < 0 ? 0 : rshift_green;
-      lshift_blue  = lshift_blue  < 0 ? 0 : lshift_blue;
-      rshift_blue  = rshift_blue  < 0 ? 0 : rshift_blue;
-#ifdef OUT_OF_ORDER
-      printf("lshift_red:   %d\n", lshift_red);
-      printf("rshift_red:   %d\n", rshift_red);
-      printf("lshift_green: %d\n", lshift_green);
-      printf("rshift_green: %d\n", rshift_green);
-      printf("lshift_blue:  %d\n", lshift_blue);
-      printf("rshift_blue:  %d\n", rshift_blue);
-#endif
-      memset(window_hash, 0, 1024 * sizeof(x11_wintype));
-
-      mybackground = WhitePixel(mydisplay, myscreen);
-      myforeground = BlackPixel(mydisplay, myscreen);
-    } /* if */
-#ifdef TRACE_X11
-    printf("END dra_init\n");
-#endif
-  } /* dra_init */
 
 
 
@@ -1473,10 +1516,6 @@ stritype window_name;
             attributes.background_pixmap = None;
             XChangeWindowAttributes(mydisplay, result->window, CWBackPixmap, &attributes);
 
-            mygc = XCreateGC(mydisplay, result->window, 0, 0);
-            XSetBackground(mydisplay, mygc, mybackground);
-            XSetForeground(mydisplay, mygc, myforeground);
-
             XSelectInput(mydisplay, result->window,
                 ButtonPressMask | KeyPressMask | ExposureMask);
             /* currently not used: StructureNotifyMask */
@@ -1494,7 +1533,7 @@ stritype window_name;
 #ifdef TRACE_X11
     printf("END drwOpen ==> %lu\n", (long unsigned) result);
 #endif
-    return((wintype) result);
+    return (wintype) result;
   } /* drwOpen */
 
 
@@ -1600,12 +1639,6 @@ inttype height;
           attributes.background_pixmap = None;
           XChangeWindowAttributes(mydisplay, result->window, CWBackPixmap, &attributes);
 
-          /*
-          mygc = XCreateGC(mydisplay, result->window, 0, 0);
-          XSetBackground(mydisplay, mygc, mybackground);
-          XSetForeground(mydisplay, mygc, myforeground);
-          */
-
           XSelectInput(mydisplay, result->window,
               ButtonPressMask | KeyPressMask | ExposureMask);
 
@@ -1620,7 +1653,7 @@ inttype height;
 #ifdef TRACE_X11
     printf("END drwOpenSubWindow ==> %lu\n", (long unsigned) result);
 #endif
-    return((wintype) result);
+    return (wintype) result;
   } /* drwOpenSubWindow */
 
 
@@ -1745,7 +1778,7 @@ rtlArraytype xyArray;
         } /* if */
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* drwGenPointList */
 
 
@@ -1760,7 +1793,7 @@ bstritype point_list;
 #endif
 
   { /* drwLngPointList */
-    return((inttype) (point_list->size / sizeof(XPoint)));
+    return (inttype) (point_list->size / sizeof(XPoint));
   } /* drwLngPointList */
 
 
@@ -1989,14 +2022,14 @@ inttype blue_val;
       printf("allocated [%04lx, %04lx, %04lx] color = %08lx\n",
           red_val, green_val, blue_val, col.pixel);
       */
-      return(col.pixel);
+      return (inttype) col.pixel;
     } /* if */
     if (color_hash == NULL) {
       color_hash = (color_entry_type *) malloc(4096 * sizeof(color_entry_type));
       if (color_hash == NULL) {
         printf("malloc color_hash failed for (%lu, %lu, %lu)\n",
             (unsigned long) red_val, (unsigned long) green_val, (unsigned long) blue_val);
-        return(0);
+        return 0;
       } /* if */
       memset(color_hash, 0, 4096 * sizeof(color_entry_type));
     } /* if */
@@ -2035,7 +2068,7 @@ inttype blue_val;
       } else {
 /*        printf("found [%ld, %ld, %ld] color = %08lx\n",
             red_val, green_val, blue_val, entry->pixel); */
-        return(entry->pixel);
+        return entry->pixel;
       } /* if */
     } /* while */
 
@@ -2110,11 +2143,11 @@ inttype blue_val;
             (unsigned long) red_val, (unsigned long) green_val, (unsigned long) blue_val,
             nearest_entry->red, nearest_entry->green, nearest_entry->blue,
             nearest_entry->pixel);
-        return(nearest_entry->pixel);
+        return nearest_entry->pixel;
       } else {
         printf("return black [%04lx, %04lx, %04lx] color = %x\n",
             (unsigned long) red_val, (unsigned long) green_val, (unsigned long) blue_val, 0);
-        return(0);
+        return 0;
       } /* if */
     } /* if */
     if (!okay) {
@@ -2143,7 +2176,7 @@ inttype blue_val;
     } /* if */
     printf("allocated [%04lx, %04lx, %04lx] color = %08lx\n",
         (unsigned long) red_val, (unsigned long) green_val, (unsigned long) blue_val, col.pixel);
-    return(col.pixel);
+    return (inttype) col.pixel;
   } /* drwRgbColor */
 
 
@@ -2189,9 +2222,42 @@ inttype blue_val;
            color_string, RED_VAL, GREEN_VAL, BLUE_VAL,
         col.red, col.green, col.blue);
     printf("rgb color = %08lx\n", (long) col.pixel);
-    return(col.pixel);
+    return col.pixel;
   } /* drwRgbColor */
 #endif
+
+
+
+#ifdef ANSI_C
+
+void drwPixelToRgb (inttype col, inttype *red_val, inttype *green_val, inttype *blue_val)
+#else
+
+void drwPixelToRgb (col, red_val, green_val, blue_val)
+inttype col;
+inttype *red_val;
+inttype *green_val;
+inttype *blue_val;
+#endif
+
+  {
+    Colormap cmap;
+    XColor color;
+
+  /* drwPixelToRgb */
+    if (default_visual->c_class == TrueColor) {
+      *red_val   = (inttype)(((unsigned long) col & default_visual->red_mask)   << rshift_red   >> lshift_red);
+      *green_val = (inttype)(((unsigned long) col & default_visual->green_mask) << rshift_green >> lshift_green);
+      *blue_val  = (inttype)(((unsigned long) col & default_visual->blue_mask)  << rshift_blue  >> lshift_blue);
+    } else {
+      cmap = DefaultColormap(mydisplay, myscreen);
+      color.pixel = col;
+      XQueryColor(mydisplay, cmap, &color);
+      *red_val   = color.red;
+      *green_val = color.green;
+      *blue_val  = color.blue;
+    } /* if */
+  } /* drwPixelToRgb */
 
 
 
@@ -2461,7 +2527,7 @@ wintype actual_window;
   /* drwWidth */
     status = XGetGeometry(mydisplay, to_window(actual_window), &root,
         &x, &y, &width, &height, &border_width, &depth);
-    return((inttype) width);
+    return (inttype) width;
   } /* drwWidth */
 
 
@@ -2486,7 +2552,7 @@ wintype actual_window;
   /* drwXPos */
     status = XGetGeometry(mydisplay, to_window(actual_window), &root,
         &x, &y, &width, &height, &border_width, &depth);
-    return((inttype) x);
+    return (inttype) x;
   } /* drwXPos */
 
 
@@ -2511,5 +2577,5 @@ wintype actual_window;
   /* drwYPos */
     status = XGetGeometry(mydisplay, to_window(actual_window), &root,
         &x, &y, &width, &height, &border_width, &depth);
-    return((inttype) y);
+    return (inttype) y;
   } /* drwYPos */

@@ -154,18 +154,20 @@ const func bigInteger: (ref bigInteger: base) ** (ref integer: exponent)        
 
 (**
  *  Shift a bigInteger number left by lshift bits.
- *  A << B is equivalent to A * 2_ ** B
+ *  When lshift is negative a right shift is done instead.
+ *  A << B is equivalent to A * 2_ ** B when B >= 0 holds.
+ *  A << B is equivalent to A mdiv 2_ ** -B when B < 0 holds.
  *  @return the left shifted number.
- *  @exception NUMERIC_ERROR The shift count is negative.
  *)
 const func bigInteger: (in bigInteger: number) << (ref integer: lshift)    is action "BIG_LSHIFT";
 
 
 (**
  *  Shift a bigInteger number right by rshift bits.
- *  A >> B is equivalent to A mdiv 2_ ** B
+ *  When rshift is negative a left shift is done instead.
+ *  A >> B is equivalent to A mdiv 2_ ** B when B >= 0 holds.
+ *  A >> B is equivalent to A * 2_ ** -B when B < 0 holds.
  *  @return the right shifted number.
- *  @exception NUMERIC_ERROR The shift count is negative.
  *)
 const func bigInteger: (in bigInteger: number) >> (ref integer: rshift)    is action "BIG_RSHIFT";
 

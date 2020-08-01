@@ -24,6 +24,7 @@
 
 $ include "seed7_05.s7i";
   include "osfiles.s7i";
+  include "duration.s7i";
   include "socket.s7i";
   include "shell.s7i";
   include "getf.s7i";
@@ -257,11 +258,15 @@ const proc: processHttpRequest (inout file: sock) is func
           contentLength -:= length(buffer);
           postParams &:= buffer;
         end while;
-      else
+      elsif inputReady(sock, 1 . SECONDS) then
         buffer := gets(sock, 10000000);
         while buffer <> "" do
           postParams &:= buffer;
-          buffer := gets(sock, 10000000);
+          if inputReady(sock, 1 . SECONDS) then
+            buffer := gets(sock, 10000000);
+          else
+            buffer := "";
+          end if;
         end while;
       end if;
       buffer := "";

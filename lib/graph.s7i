@@ -133,9 +133,9 @@ const func PRIMITIVE_WINDOW: DRAW_GET (
     in PRIMITIVE_WINDOW param,
     ref integer param, ref integer param,
     ref integer param, ref integer param) is           action "DRW_GET";
-const func PRIMITIVE_WINDOW: newPixmap (
+const func pixel: DRAW_GETPIXEL (
     in PRIMITIVE_WINDOW param,
-    ref integer param, ref integer param) is           action "DRW_NEW_PIXMAP";
+    ref integer param, ref integer param) is           action "DRW_GETPIXEL";
 const func PRIMITIVE_WINDOW: DRAW_IMAGE (in PRIMITIVE_WINDOW param,
     in array array pixel param) is                     action "DRW_IMAGE";
 const proc: DRAW_PUT (
@@ -161,6 +161,9 @@ const proc: setPos (in PRIMITIVE_WINDOW param,
     in integer param, in integer param) is                   action "DRW_SETPOS";
 const func pixel: rgbPixel (ref integer param,
     ref integer param, ref integer param) is           action "DRW_RGBCOL";
+const proc: DRAW_PIXEL_TO_RGB (
+    in pixel param, inout integer param,
+    inout integer param, inout integer param) is       action "DRW_PIXELTORGB";
 const proc: SET_COLOR (ref pixel param) is             action "DRW_COLOR";
 const proc: SET_BACKGROUND (ref pixel param) is        action "DRW_BACKGROUND";
 const proc: DRAW_TEXT (inout PRIMITIVE_WINDOW param,

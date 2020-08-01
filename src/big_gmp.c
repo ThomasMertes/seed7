@@ -679,7 +679,7 @@ biginttype big1;
 
 #ifdef ANSI_C
 
-biginttype bigImport (ustritype buffer)
+biginttype bigImport (const const_ustritype buffer)
 #else
 
 biginttype bigImport (buffer)

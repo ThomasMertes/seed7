@@ -119,11 +119,11 @@ size_t sizeof_bigintrecord = sizeof(bigintrecord);
 #ifdef WITH_BIGINT_CAPACITY
 #define HEAP_ALLOC_BIG(var,len)       (ALLOC_HEAP(var, biginttype, SIZ_RTLBIG(len))?((var)->capacity = len, CNT1_BIG(len, SIZ_RTLBIG(len)), TRUE):FALSE)
 #define HEAP_FREE_BIG(var,len)        (CNT2_BIG(len, SIZ_RTLBIG(len)) FREE_HEAP(var, SIZ_RTLBIG(len)))
-#define HEAP_REALLOC_BIG(v1,v2,l1,l2) ((v1=REALLOC_HEAP(v2, biginttype, SIZ_RTLBIG(l2)))!=NULL?((v1)->capacity=l2,0):0)
+#define HEAP_REALLOC_BIG(v1,v2,l1,l2) if((v1=REALLOC_HEAP(v2, biginttype, SIZ_RTLBIG(l2)))!=NULL)(v1)->capacity=l2;
 #else
 #define HEAP_ALLOC_BIG(var,len)       (ALLOC_HEAP(var, biginttype, SIZ_RTLBIG(len))?CNT1_BIG(len, SIZ_RTLBIG(len)), TRUE:FALSE)
 #define HEAP_FREE_BIG(var,len)        (CNT2_BIG(len, SIZ_RTLBIG(len)) FREE_HEAP(var, SIZ_RTLBIG(len)))
-#define HEAP_REALLOC_BIG(v1,v2,l1,l2) (v1=REALLOC_HEAP(v2, biginttype, SIZ_RTLBIG(l2)),0)
+#define HEAP_REALLOC_BIG(v1,v2,l1,l2) v1=REALLOC_HEAP(v2, biginttype, SIZ_RTLBIG(l2));
 #endif
 #define COUNT3_BIG(len1,len2)         CNT3(CNT2_BIG(len1, SIZ_RTLBIG(len1)) CNT1_BIG(len2, SIZ_RTLBIG(len2)))
 
@@ -177,7 +177,7 @@ static unsigned int flist_len = 0;
 
 #define ALLOC_BIG(var,len)                  ALLOC_BIG_CHECK_SIZE(var, len)
 #define REALLOC_BIG_SIZE_OK(v1,v2,l1,l2)    HEAP_REALLOC_BIG(v1,v2,l1,l2)
-#define REALLOC_BIG_CHECK_SIZE(v1,v2,l1,l2) ((l2) <= MAX_BIG_LEN?HEAP_REALLOC_BIG(v1,v2,l1,l2):(v1=NULL,0))
+#define REALLOC_BIG_CHECK_SIZE(v1,v2,l1,l2) if((l2) <= MAX_BIG_LEN){HEAP_REALLOC_BIG(v1,v2,l1,l2)}else v1=NULL;
 
 
 #ifdef ANSI_C
@@ -533,7 +533,7 @@ biginttype big1;
  *  Shifts the big integer big1 to the left by lshift bits.
  *  Bits which are shifted out at the left of big1 are lost.
  *  At the right of big1 zero bits are shifted in. The function
- *  is called for 0 < rshift < BIGDIGIT_SIZE.
+ *  is called for 0 < lshift < BIGDIGIT_SIZE.
  */
 #ifdef ANSI_C
 
@@ -566,7 +566,7 @@ unsigned int lshift;
  *  Shifts the big integer big1 to the left by lshift bits.
  *  Bits which are shifted out at the left of big1 are lost.
  *  At the right of big1 zero bits are shifted in. The function
- *  is called for 0 < rshift < BIGDIGIT_SIZE.
+ *  is called for 0 < lshift < BIGDIGIT_SIZE.
  */
 #ifdef ANSI_C
 
@@ -689,10 +689,16 @@ biginttype big1;
   /* uBigIncr */
     pos = 0;
     if (big1->bigdigits[pos] == BIGDIGIT_MASK) {
-      do {
+      if (big1->size == 1) {
         big1->bigdigits[pos] = 0;
         pos++;
-      } while (pos < big1->size && big1->bigdigits[pos] == BIGDIGIT_MASK);
+      } else {
+        do {
+          big1->bigdigits[pos] = 0;
+          pos++;
+        } while (big1->bigdigits[pos] == BIGDIGIT_MASK);
+        /* memset(big1->bigdigits, 0, pos * sizeof(bigdigittype)); */
+      } /* if */
     } /* if */
     if (pos < big1->size) {
       big1->bigdigits[pos]++;
@@ -720,13 +726,19 @@ biginttype big1;
   /* uBigDecr */
     pos = 0;
     if (big1->bigdigits[pos] == 0) {
-      do {
+      if (big1->size == 1) {
         big1->bigdigits[pos] = BIGDIGIT_MASK;
         pos++;
-      } while (pos < big1->size && big1->bigdigits[pos] == 0);
+      } else {
+        do {
+          big1->bigdigits[pos] = BIGDIGIT_MASK;
+          pos++;
+        } while (big1->bigdigits[pos] == 0);
+        /* memset(big1->bigdigits, 0xFF, pos * sizeof(bigdigittype)); */
+      } /* if */
     } /* if */
     if (pos < big1->size) {
-      big1->bigdigits[pos] = (big1->bigdigits[pos] + BIGDIGIT_MASK) & BIGDIGIT_MASK;
+      big1->bigdigits[pos]--;
     } /* if */
   } /* uBigDecr */
 
@@ -2706,6 +2718,7 @@ biginttype big1;
   {
     memsizetype pos;
     int byteNum;
+    static const char hex_digit[] = "0123456789ABCDEF";
     char byteBuffer[22];
     bigdigittype digit;
     memsizetype byteDigitCount;
@@ -2759,18 +2772,25 @@ biginttype big1;
         pos--;
         digit = big1->bigdigits[pos];
 #if BIGDIGIT_SIZE == 8
-        sprintf(byteBuffer, "0x%02X,",
-            (unsigned int) (digit &       0xFF));
+        memcpy(byteBuffer, "0x00,", 5);
+        byteBuffer[2]  = hex_digit[digit >>  4 & 0xF];
+        byteBuffer[3]  = hex_digit[digit       & 0xF];
 #elif BIGDIGIT_SIZE == 16
-        sprintf(byteBuffer, "0x%02X,0x%02X,",
-            (unsigned int) (digit >>  8 & 0xFF),
-            (unsigned int) (digit       & 0xFF));
+        memcpy(byteBuffer, "0x00,0x00,", 10);
+        byteBuffer[2]  = hex_digit[digit >> 12 & 0xF];
+        byteBuffer[3]  = hex_digit[digit >>  8 & 0xF];
+        byteBuffer[7]  = hex_digit[digit >>  4 & 0xF];
+        byteBuffer[8]  = hex_digit[digit       & 0xF];
 #elif BIGDIGIT_SIZE == 32
-        sprintf(byteBuffer, "0x%02X,0x%02X,0x%02X,0x%02X,",
-            (unsigned int) (digit >> 24 & 0xFF),
-            (unsigned int) (digit >> 16 & 0xFF),
-            (unsigned int) (digit >>  8 & 0xFF),
-            (unsigned int) (digit       & 0xFF));
+        memcpy(byteBuffer, "0x00,0x00,0x00,0x00,", 20);
+        byteBuffer[2]  = hex_digit[digit >> 28 & 0xF];
+        byteBuffer[3]  = hex_digit[digit >> 24 & 0xF];
+        byteBuffer[7]  = hex_digit[digit >> 20 & 0xF];
+        byteBuffer[8]  = hex_digit[digit >> 16 & 0xF];
+        byteBuffer[12] = hex_digit[digit >> 12 & 0xF];
+        byteBuffer[13] = hex_digit[digit >>  8 & 0xF];
+        byteBuffer[17] = hex_digit[digit >>  4 & 0xF];
+        byteBuffer[18] = hex_digit[digit       & 0xF];
 #endif
         if ((pos + 1) * (BIGDIGIT_SIZE >> 3) <= byteDigitCount) {
           cstri_expand(&result->mem[charIndex], byteBuffer, 5 * (BIGDIGIT_SIZE >> 3));
@@ -3009,13 +3029,19 @@ biginttype *big_variable;
     negative = IS_NEGATIVE(big1->bigdigits[big1->size - 1]);
     pos = 0;
     if (big1->bigdigits[pos] == 0) {
-      do {
+      if (big1->size == 1) {
         big1->bigdigits[pos] = BIGDIGIT_MASK;
         pos++;
-      } while (pos < big1->size && big1->bigdigits[pos] == 0);
+      } else {
+        do {
+          big1->bigdigits[pos] = BIGDIGIT_MASK;
+          pos++;
+        } while (big1->bigdigits[pos] == 0);
+        /* memset(big1->bigdigits, 0xFF, pos * sizeof(bigdigittype)); */
+      } /* if */
     } /* if */
     if (pos < big1->size) {
-      big1->bigdigits[pos] = (big1->bigdigits[pos] + BIGDIGIT_MASK) & BIGDIGIT_MASK;
+      big1->bigdigits[pos]--;
     } /* if */
     pos = big1->size;
     if (!IS_NEGATIVE(big1->bigdigits[pos - 1])) {
@@ -3568,7 +3594,7 @@ biginttype big1;
 
 #ifdef ANSI_C
 
-biginttype bigImport (ustritype buffer)
+biginttype bigImport (const const_ustritype buffer)
 #else
 
 biginttype bigImport (buffer)
@@ -3579,9 +3605,8 @@ ustritype buffer;
     memsizetype byteDigitCount;
     memsizetype byteIndex;
     memsizetype pos;
-    unsigned int byteNum;
-    bigdigittype digit;
     memsizetype result_size;
+    uchartype buffer2[BIGDIGIT_SIZE >> 3];
     biginttype result;
 
   /* bigImport */
@@ -3596,21 +3621,41 @@ ustritype buffer;
     } else {
       result->size = result_size;
       byteIndex = byteDigitCount;
-      for (pos = 0; pos < result_size; pos++) {
-        digit = 0;
-        for (byteNum = 0; byteNum < (BIGDIGIT_SIZE >> 3); byteNum++) {
-          if (byteIndex > 0) {
-            digit |= ((bigdigittype) buffer[3 + byteIndex]) << 8 * byteNum;
-            byteIndex--;
-          } else {
-            if (buffer[4] >= 128) {
-              digit |= ((bigdigittype) 0xFF) << 8 * byteNum;
-            } /* if */
-          } /* if */
-        } /* for */
-        result->bigdigits[pos] = digit;
+      for (pos = 0; pos < result_size - 1; pos++) {
+#if BIGDIGIT_SIZE == 8
+        result->bigdigits[pos] =  (bigdigittype) buffer[byteIndex + 3];
+        byteIndex--;
+#elif BIGDIGIT_SIZE == 16
+        result->bigdigits[pos] = ((bigdigittype) buffer[byteIndex + 2]) <<  8 |
+                                  (bigdigittype) buffer[byteIndex + 3];
+        byteIndex -= 2;
+#elif BIGDIGIT_SIZE == 32
+        result->bigdigits[pos] = ((bigdigittype) buffer[byteIndex])     << 24 |
+                                 ((bigdigittype) buffer[byteIndex + 1]) << 16 |
+                                 ((bigdigittype) buffer[byteIndex + 2]) <<  8 |
+                                  (bigdigittype) buffer[byteIndex + 3];
+        byteIndex -= 4;
+#endif
       } /* for */
+      memcpy(&buffer2[4 - byteIndex], &buffer[4], byteIndex);
+      if (buffer[4] >= 128) {
+        memset(buffer2, 0xFF, 4 - byteIndex);
+      } else {
+        memset(buffer2, 0, 4 - byteIndex);
+      } /* if */
+#if BIGDIGIT_SIZE == 8
+        result->bigdigits[pos] =  (bigdigittype) buffer2[0];
+#elif BIGDIGIT_SIZE == 16
+        result->bigdigits[pos] = ((bigdigittype) buffer2[0]) <<  8 |
+                                  (bigdigittype) buffer2[1];
+#elif BIGDIGIT_SIZE == 32
+        result->bigdigits[pos] = ((bigdigittype) buffer2[0]) << 24 |
+                                 ((bigdigittype) buffer2[1]) << 16 |
+                                 ((bigdigittype) buffer2[2]) <<  8 |
+                                  (bigdigittype) buffer2[3];
+#endif
     } /* if */
+    /* printf("bigImport()-> %s\n", bigHexCStri(result)); */
     return result;
   } /* bigImport */
 
@@ -3643,10 +3688,16 @@ biginttype *big_variable;
     negative = IS_NEGATIVE(big1->bigdigits[big1->size - 1]);
     pos = 0;
     if (big1->bigdigits[pos] == BIGDIGIT_MASK) {
-      do {
+      if (big1->size == 1) {
         big1->bigdigits[pos] = 0;
         pos++;
-      } while (pos < big1->size && big1->bigdigits[pos] == BIGDIGIT_MASK);
+      } else {
+        do {
+          big1->bigdigits[pos] = 0;
+          pos++;
+        } while (big1->bigdigits[pos] == BIGDIGIT_MASK);
+        /* memset(big1->bigdigits, 0, pos * sizeof(bigdigittype)); */
+      } /* if */
     } /* if */
     if (pos < big1->size) {
       big1->bigdigits[pos]++;
@@ -3922,9 +3973,8 @@ inttype lshift;
 
   /* bigLShift */
     if (unlikely(lshift < 0)) {
-      raise_error(NUMERIC_ERROR);
-      result = NULL;
-    } else if (big1->size == 1 && big1->bigdigits[0] == 0) {
+      result = bigRShift(big1, -lshift);
+    } else if (unlikely(big1->size == 1 && big1->bigdigits[0] == 0)) {
       if (unlikely(!ALLOC_BIG_SIZE_OK(result, 1))) {
         raise_error(MEMORY_ERROR);
       } else {
@@ -4026,8 +4076,8 @@ inttype lshift;
 
   /* bigLShiftAssign */
     if (unlikely(lshift < 0)) {
-      raise_error(NUMERIC_ERROR);
-    } else if (lshift != 0) {
+      bigRShiftAssign(big_variable, -lshift);
+    } else if (likely(lshift != 0)) {
       big1 = *big_variable;
       if (big1->size == 1 && big1->bigdigits[0] == 0) {
         if (unlikely(!ALLOC_BIG_SIZE_OK(result, 1))) {
@@ -4132,8 +4182,12 @@ inttype lshift;
 
   /* bigLShiftOne */
     if (unlikely(lshift < 0)) {
-      raise_error(NUMERIC_ERROR);
-      result = NULL;
+      if (unlikely(!ALLOC_BIG_SIZE_OK(result, 1))) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        result->size = 1;
+        result->bigdigits[0] = 0;
+      } /* if */
     } else if (unlikely((((uinttype) lshift + 1) >> BIGDIGIT_LOG2_SIZE) + 1 > MAX_BIG_LEN)) {
       raise_error(MEMORY_ERROR);
       result = NULL;
@@ -4156,6 +4210,76 @@ inttype lshift;
     } /* if */
     return result;
   } /* bigLShiftOne */
+
+
+
+#ifdef OUT_OF_ORDER
+#ifdef ANSI_C
+
+biginttype bigLShiftTwo (const inttype log2base, const inttype lshift)
+#else
+
+biginttype bigLShiftTwo (log2base, lshift)
+inttype log2base;
+inttype lshift;
+#endif
+
+  {
+    uinttype high_shift;
+    uinttype low_shift;
+    memsizetype result_size;
+    int bit_pos;
+    biginttype result;
+
+  /* bigLShiftTwo */
+    if (log2base <= 65535 && lshift <= 65535) {
+      low_shift = (uinttype) log2base * (uinttype) lshift;
+      result = bigLShiftOne(low_shift);
+    } else {
+      uint2_mult((uinttype) 0L, (uinttype) log2base, (uinttype) 0L, (uinttype) lshift,
+          &high_shift, &low_shift);
+      uint2_add(high_shift, low_shift, (uinttype) 0L, (uinttype) 1L,
+          &high_shift, &low_shift);
+      low_shift >>= BIGDIGIT_LOG2_SIZE;
+      low_shift |= (high_shift & BIGDIGIT_MASK) << (INTTYPE_SIZE - BIGDIGIT_LOG2_SIZE);
+      high_shift >>= BIGDIGIT_LOG2_SIZE;
+
+    (log2base * lshift + 1) >> BIGDIGIT_LOG2_SIZE
+    (log2base * lshift + 1) / (BIGDIGIT_SIZE_MASK + 1)
+    (log2base * lshift) / (BIGDIGIT_SIZE_MASK + 1) + 1 / (BIGDIGIT_SIZE_MASK + 1)
+    if (lshift < 2147483647 / log2base) {
+      result = bigLShiftOne(log2base * lshift);
+
+    if (unlikely(lshift < 0)) {
+      if (unlikely(!ALLOC_BIG_SIZE_OK(result, 1))) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        result->size = 1;
+        result->bigdigits[0] = 0;
+      } /* if */
+    } else if (unlikely((((uinttype) lshift + 1) >> BIGDIGIT_LOG2_SIZE) + 1 > MAX_BIG_LEN)) {
+      raise_error(MEMORY_ERROR);
+      result = NULL;
+    } else {
+      result_size = (memsizetype) (((uinttype) lshift + 1) >> BIGDIGIT_LOG2_SIZE) + 1;
+      if (unlikely(!ALLOC_BIG_SIZE_OK(result, result_size))) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        result->size = result_size;
+        bit_pos = lshift & BIGDIGIT_SIZE_MASK;
+        if (bit_pos == BIGDIGIT_SIZE_MASK) {
+          memset(result->bigdigits, 0, (result_size - 2) * sizeof(bigdigittype));
+          result->bigdigits[result_size - 2] = ((bigdigittype) 1) << bit_pos;
+          result->bigdigits[result_size - 1] = 0;
+        } else {
+          memset(result->bigdigits, 0, (result_size - 1) * sizeof(bigdigittype));
+          result->bigdigits[result_size - 1] = ((bigdigittype) 1) << bit_pos;
+        } /* if */
+      } /* if */
+    } /* if */
+    return result;
+  } /* bigLShiftTwo */
+#endif
 
 
 
@@ -4736,18 +4860,27 @@ biginttype big1;
       result->size = big1->size;
       pos = 0;
       if (big1->bigdigits[pos] == 0) {
-        do {
+        if (big1->size == 1) {
           result->bigdigits[pos] = BIGDIGIT_MASK;
           pos++;
-        } while (pos < big1->size && big1->bigdigits[pos] == 0);
+        } else {
+          do {
+            result->bigdigits[pos] = BIGDIGIT_MASK;
+            pos++;
+          } while (big1->bigdigits[pos] == 0);
+          /* memset(result->bigdigits, 0xFF, pos * sizeof(bigdigittype)); */
+        } /* if */
       } /* if */
       if (pos < big1->size) {
-        result->bigdigits[pos] = (big1->bigdigits[pos] + BIGDIGIT_MASK) & BIGDIGIT_MASK;
+        result->bigdigits[pos] = big1->bigdigits[pos] - 1;
         pos++;
-        while (pos < big1->size) {
+        memcpy(&result->bigdigits[pos], &big1->bigdigits[pos],
+            (big1->size - pos) * sizeof(bigdigittype));
+	pos = big1->size;
+        /* while (pos < big1->size) {
           result->bigdigits[pos] = big1->bigdigits[pos];
           pos++;
-        } /* while */
+        } ** while */
       } /* if */
       if (!IS_NEGATIVE(result->bigdigits[pos - 1])) {
         if (IS_NEGATIVE(big1->bigdigits[pos - 1])) {
@@ -4802,13 +4935,19 @@ biginttype big1;
     negative = IS_NEGATIVE(big1->bigdigits[big1->size - 1]);
     pos = 0;
     if (big1->bigdigits[pos] == 0) {
-      do {
+      if (big1->size == 1) {
         big1->bigdigits[pos] = BIGDIGIT_MASK;
         pos++;
-      } while (pos < big1->size && big1->bigdigits[pos] == 0);
+      } else {
+        do {
+          big1->bigdigits[pos] = BIGDIGIT_MASK;
+          pos++;
+        } while (big1->bigdigits[pos] == 0);
+        /* memset(big1->bigdigits, 0xFF, pos * sizeof(bigdigittype)); */
+      } /* if */
     } /* if */
     if (pos < big1->size) {
-      big1->bigdigits[pos] = (big1->bigdigits[pos] + BIGDIGIT_MASK) & BIGDIGIT_MASK;
+      big1->bigdigits[pos]--;
     } /* if */
     pos = big1->size;
     if (!IS_NEGATIVE(big1->bigdigits[pos - 1])) {
@@ -5034,8 +5173,7 @@ inttype rshift;
 
   /* bigRShift */
     if (unlikely(rshift < 0)) {
-      raise_error(NUMERIC_ERROR);
-      result = NULL;
+      result = bigLShift(big1, -rshift);
     } else if (big1->size <= (uinttype) rshift >> BIGDIGIT_LOG2_SIZE) {
       if (unlikely(!ALLOC_BIG_SIZE_OK(result, 1))) {
         raise_error(MEMORY_ERROR);
@@ -5128,7 +5266,7 @@ inttype rshift;
 
   /* bigRShiftAssign */
     if (unlikely(rshift < 0)) {
-      raise_error(NUMERIC_ERROR);
+      bigLShiftAssign(big_variable, -rshift);
     } else {
       big1 = *big_variable;
       if (big1->size <= (uinttype) rshift >> BIGDIGIT_LOG2_SIZE) {
@@ -5555,18 +5693,27 @@ biginttype big1;
       result->size = big1->size;
       pos = 0;
       if (big1->bigdigits[pos] == BIGDIGIT_MASK) {
-        do {
+        if (big1->size == 1) {
           result->bigdigits[pos] = 0;
           pos++;
-        } while (pos < big1->size && big1->bigdigits[pos] == BIGDIGIT_MASK);
+        } else {
+          do {
+            result->bigdigits[pos] = 0;
+            pos++;
+          } while (big1->bigdigits[pos] == BIGDIGIT_MASK);
+          /* memset(result->bigdigits, 0, pos * sizeof(bigdigittype)); */
+        } /* if */
       } /* if */
       if (pos < big1->size) {
         result->bigdigits[pos] = big1->bigdigits[pos] + 1;
         pos++;
-        while (pos < big1->size) {
+        memcpy(&result->bigdigits[pos], &big1->bigdigits[pos],
+            (big1->size - pos) * sizeof(bigdigittype));
+	pos = big1->size;
+        /* while (pos < big1->size) {
           result->bigdigits[pos] = big1->bigdigits[pos];
           pos++;
-        } /* while */
+        } ** while */
       } /* if */
       if (IS_NEGATIVE(result->bigdigits[pos - 1])) {
         if (!IS_NEGATIVE(big1->bigdigits[pos - 1])) {
@@ -5621,10 +5768,16 @@ biginttype big1;
     negative = IS_NEGATIVE(big1->bigdigits[big1->size - 1]);
     pos = 0;
     if (big1->bigdigits[pos] == BIGDIGIT_MASK) {
-      do {
+      if (big1->size == 1) {
         big1->bigdigits[pos] = 0;
         pos++;
-      } while (pos < big1->size && big1->bigdigits[pos] == BIGDIGIT_MASK);
+      } else {
+        do {
+          big1->bigdigits[pos] = 0;
+          pos++;
+        } while (big1->bigdigits[pos] == BIGDIGIT_MASK);
+        /* memset(big1->bigdigits, 0, pos * sizeof(bigdigittype)); */
+      } /* if */
     } /* if */
     if (pos < big1->size) {
       big1->bigdigits[pos]++;

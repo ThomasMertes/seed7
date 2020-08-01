@@ -3540,16 +3540,21 @@ const proc: process_arr_idx (in reference: function, in ref_list: params,
         c_expr.expr &:= array_name;
         c_expr.expr &:= "->arr[";
         if array_range_check then
-          incr(c_expr.temp_num);
-          index_name := "idx_" & str(c_expr.temp_num);
-          c_expr.temp_decls &:= "inttype ";
-          c_expr.temp_decls &:= index_name;
-          c_expr.temp_decls &:= ";\n";
-          c_expr.expr &:= "(";
-          c_expr.expr &:= index_name;
-          c_expr.expr &:= "=";
-          process_expr(params[3], c_expr);
-          c_expr.expr &:= ", ";
+          if isNormalVariable(params[3]) then
+            index_name := normalVariable(params[3], c_expr);
+            c_expr.expr &:= "(";
+          else
+            incr(c_expr.temp_num);
+            index_name := "idx_" & str(c_expr.temp_num);
+            c_expr.temp_decls &:= "inttype ";
+            c_expr.temp_decls &:= index_name;
+            c_expr.temp_decls &:= ";\n";
+            c_expr.expr &:= "(";
+            c_expr.expr &:= index_name;
+            c_expr.expr &:= "=";
+            process_expr(params[3], c_expr);
+            c_expr.expr &:= ", ";
+          end if;
           c_expr.expr &:= index_name;
           c_expr.expr &:= " < ";
           c_expr.expr &:= array_name;
@@ -4366,7 +4371,7 @@ const proc: process_const_big_ipow (in reference: param1, in integer: exponent,
       incr(countOptimizations);
       incr(c_expr.temp_num);
       bigint_name := "tmp_" & str(c_expr.temp_num);
-      c_expr.temp_decls &:= "biginttype ";
+      c_expr.temp_decls &:= "const_biginttype ";
       c_expr.temp_decls &:= bigint_name;
       c_expr.temp_decls &:= ";\n";
       prepare_bigint_result(c_expr);
@@ -4554,15 +4559,50 @@ const proc: process_big_lowest_set_bit (in ref_list: params, inout expr_type: c_
   end func;
 
 
+const proc: process_const_big_lshift (in bigInteger: number, in reference: param3,
+    inout expr_type: c_expr) is func
+
+  local
+    var bigInteger: bigNumber is 0_;
+  begin
+    (* if category(param3) = INTOBJECT and not isVar(param3) then
+      incr(countOptimizations);
+      bigNumber := number << getValue(param3, integer);
+      c_expr.expr &:= bigIntegerLiteral(bigNumber);
+    els *)
+    if number = 0_ then
+      incr(countOptimizations);
+      c_expr.expr &:= bigIntegerLiteral(0_);
+    elsif number = 1_ then
+      incr(countOptimizations);
+      prepare_bigint_result(c_expr);
+      c_expr.result_expr := "bigLShiftOne(";
+      getStdParamToResultExpr(param3, c_expr);
+      c_expr.result_expr &:= ")";
+    else
+      prepare_bigint_result(c_expr);
+      c_expr.result_expr := "bigLShift(";
+      c_expr.result_expr &:= bigIntegerLiteral(number);
+      c_expr.result_expr &:= ", ";
+      getStdParamToResultExpr(param3, c_expr);
+      c_expr.result_expr &:= ")";
+    end if;
+  end func;
+
+
 const proc: process_big_lshift (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    prepare_bigint_result(c_expr);
-    c_expr.result_expr := "bigLShift(";
-    getAnyParamToResultExpr(params[1], c_expr);
-    c_expr.result_expr &:= ", ";
-    getStdParamToResultExpr(params[3], c_expr);
-    c_expr.result_expr &:= ")";
+    if category(params[1]) = BIGINTOBJECT and not isVar(params[1]) then
+      process_const_big_lshift(getValue(params[1], bigInteger), params[3], c_expr);
+    else
+      prepare_bigint_result(c_expr);
+      c_expr.result_expr := "bigLShift(";
+      getAnyParamToResultExpr(params[1], c_expr);
+      c_expr.result_expr &:= ", ";
+      getStdParamToResultExpr(params[3], c_expr);
+      c_expr.result_expr &:= ")";
+    end if;
   end func;
 
 
@@ -6841,11 +6881,9 @@ const proc: process_drw_new_pixmap (in ref_list: params, inout expr_type: c_expr
   begin
     prepare_win_result(c_expr);
     c_expr.result_expr := "drwNewPixmap(";
-    getAnyParamToResultExpr(params[1], c_expr);
+    getStdParamToResultExpr(params[1], c_expr);
     c_expr.result_expr &:= ", ";
     getStdParamToResultExpr(params[2], c_expr);
-    c_expr.result_expr &:= ", ";
-    getStdParamToResultExpr(params[3], c_expr);
     c_expr.result_expr &:= ")";
   end func;
 
@@ -7005,6 +7043,22 @@ const proc: process_drw_pfellipse (in ref_list: params, inout expr_type: c_expr)
     c_expr.expr &:= ", ";
     process_expr(params[6], c_expr);
     c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process_drw_pixeltorgb (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "drwPixelToRgb(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", &(";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= "));\n";
   end func;
 
 
@@ -13110,9 +13164,9 @@ const proc: process_const_str_elemcpy (in reference: function, in reference: par
         c_expr.expr &:= "stritype str1=";
         c_expr.expr &:= c_param1.expr;
         c_expr.expr &:= ";\n";
-        c_expr.expr &:= "if (";
+        c_expr.expr &:= "if (str1->size<=";
         c_expr.expr &:= str(pred(index));
-        c_expr.expr &:= " >= str1->size) {\n";
+        c_expr.expr &:= ") {\n";
         c_expr.expr &:= "  ";
         process_raise_error("RANGE_ERROR", function, c_expr);
         c_expr.expr &:= ";\n";
@@ -13184,9 +13238,9 @@ const proc: process_str_elemcpy (in reference: function, in ref_list: params, in
         c_expr.expr &:= ")-1;\n";
         c_expr.expr &:= "if (";
         if not TWOS_COMPLEMENT_INTTYPE then
-          c_expr.expr &:= "pos < 0 && ";
+          c_expr.expr &:= "pos<0 || ";
         end if;
-        c_expr.expr &:= "pos >= str1->size) {\n";
+        c_expr.expr &:= "pos>=str1->size) {\n";
         c_expr.expr &:= "  ";
         process_raise_error("RANGE_ERROR", function, c_expr);
         c_expr.expr &:= ";\n";
@@ -13917,6 +13971,139 @@ const proc: process_str_pos (in ref_list: params, inout expr_type: c_expr) is fu
       c_expr.expr &:= ", ";
       getAnyParamToExpr(params[2], c_expr);
       c_expr.expr &:= ")";
+    end if;
+  end func;
+
+
+const proc: process_const_str_poscpy (in reference: function, in reference: param1,
+    in integer: index, in reference: param6, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: c_param1 is expr_type.value;
+    var expr_type: c_param6 is expr_type.value;
+  begin
+    incr(countOptimizations);
+    if index < 1 then
+      c_expr.expr &:= "/* 'string @:= [n] string' with n < 1 */\n";
+      process_raise_error("RANGE_ERROR", function, c_expr);
+      c_expr.expr &:= ";\n";
+    else
+      process_expr(param1, c_param1);
+      c_param6.temp_num := c_param1.temp_num;
+      process_expr(param6, c_param6);
+      c_expr.expr &:= "{\n";
+      if c_param6.temp_num <> 0 then
+        AppendWithDiagnostic(c_param1.temp_decls, c_expr);
+        AppendWithDiagnostic(c_param6.temp_decls, c_expr);
+        AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
+        AppendWithDiagnostic(c_param6.temp_assigns, c_expr);
+      end if;
+      if array_range_check then
+        c_expr.expr &:= "stritype str1=";
+        c_expr.expr &:= c_param1.expr;
+        c_expr.expr &:= ";\n";
+        c_expr.expr &:= "stritype str2=";
+        c_expr.expr &:= c_param6.expr;
+        c_expr.expr &:= ";\n";
+        c_expr.expr &:= "if (str1->size<str2->size || ";
+        c_expr.expr &:= str(pred(index));
+        c_expr.expr &:= "+str2->size>str1->size) {\n";
+        c_expr.expr &:= "  ";
+        process_raise_error("RANGE_ERROR", function, c_expr);
+        c_expr.expr &:= ";\n";
+        c_expr.expr &:= "} else {\n";
+        setDiagnosticLine(c_expr);
+        c_expr.expr &:= "  memcpy(&str1->mem[";
+        c_expr.expr &:= str(pred(index));
+        c_expr.expr &:= "], str2->mem, str2->size*sizeof(strelemtype));\n";
+        c_expr.expr &:= "}\n";
+      else
+        c_expr.expr &:= "stritype str2=";
+        c_expr.expr &:= c_param6.expr;
+        c_expr.expr &:= ";\n";
+        setDiagnosticLine(c_expr);
+        c_expr.expr &:= "memcpy(&(";
+        c_expr.expr &:= c_param1.expr;
+        c_expr.expr &:= ")->mem[";
+        c_expr.expr &:= str(pred(index));
+        c_expr.expr &:= "], str2->mem, str2->size*sizeof(strelemtype));\n";
+      end if;
+      if c_param6.temp_num <> 0 then
+        AppendWithDiagnostic(c_param1.temp_frees, c_expr);
+        AppendWithDiagnostic(c_param6.temp_frees, c_expr);
+      end if;
+      c_expr.expr &:= "}\n";
+    end if;
+  end func;
+
+
+const proc: process_str_poscpy (in reference: function, in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: c_param1 is expr_type.value;
+    var expr_type: c_param4 is expr_type.value;
+    var expr_type: c_param6 is expr_type.value;
+  begin
+    if category(params[4]) = INTOBJECT and not isVar(params[4]) then
+      process_const_str_poscpy(function, params[1], getValue(params[4], integer), params[6], c_expr);
+    else
+      process_expr(params[1], c_param1);
+      c_param4.temp_num := c_param1.temp_num;
+      process_expr(params[4], c_param4);
+      c_param6.temp_num := c_param4.temp_num;
+      process_expr(params[6], c_param6);
+      c_expr.expr &:= "{\n";
+      if c_param6.temp_num <> 0 then
+        AppendWithDiagnostic(c_param1.temp_decls, c_expr);
+        AppendWithDiagnostic(c_param4.temp_decls, c_expr);
+        AppendWithDiagnostic(c_param6.temp_decls, c_expr);
+        AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
+        AppendWithDiagnostic(c_param4.temp_assigns, c_expr);
+        AppendWithDiagnostic(c_param6.temp_assigns, c_expr);
+      end if;
+      if array_range_check then
+        c_expr.expr &:= "stritype str1=";
+        c_expr.expr &:= c_param1.expr;
+        c_expr.expr &:= ";\n";
+        c_expr.expr &:= "stritype str2=";
+        c_expr.expr &:= c_param6.expr;
+        c_expr.expr &:= ";\n";
+        if TWOS_COMPLEMENT_INTTYPE then
+          c_expr.expr &:= "uinttype pos=(";
+        else
+          c_expr.expr &:= "inttype pos=(";
+        end if;
+        c_expr.expr &:= c_param4.expr;
+        c_expr.expr &:= ")-1;\n";
+        c_expr.expr &:= "if (";
+        if not TWOS_COMPLEMENT_INTTYPE then
+          c_expr.expr &:= "pos<0 || ";
+        end if;
+        c_expr.expr &:= "str1->size<str2->size || pos+str2->size>str1->size) {\n";
+        c_expr.expr &:= "  ";
+        process_raise_error("RANGE_ERROR", function, c_expr);
+        c_expr.expr &:= ";\n";
+        c_expr.expr &:= "} else {\n";
+        setDiagnosticLine(c_expr);
+        c_expr.expr &:= "  memcpy(&str1->mem[pos], str2->mem, str2->size*sizeof(strelemtype));\n";
+        c_expr.expr &:= "}\n";
+      else
+        c_expr.expr &:= "stritype str2=";
+        c_expr.expr &:= c_param6.expr;
+        c_expr.expr &:= ";\n";
+        setDiagnosticLine(c_expr);
+        c_expr.expr &:= "memcpy(&(";
+        c_expr.expr &:= c_param1.expr;
+        c_expr.expr &:= ")->mem[(";
+        c_expr.expr &:= c_param4.expr;
+        c_expr.expr &:= ")-1], str2->mem, str2->size*sizeof(strelemtype));\n";
+      end if;
+      if c_param6.temp_num <> 0 then
+        AppendWithDiagnostic(c_param1.temp_frees, c_expr);
+        AppendWithDiagnostic(c_param4.temp_frees, c_expr);
+        AppendWithDiagnostic(c_param6.temp_frees, c_expr);
+      end if;
+      c_expr.expr &:= "}\n";
     end if;
   end func;
 
@@ -15057,6 +15244,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_drw_pfcircle(params, c_expr);
       elsif action_name = "DRW_PFELLIPSE" then
         process_drw_pfellipse(params, c_expr);
+      elsif action_name = "DRW_PIXELTORGB" then
+        process_drw_pixeltorgb(params, c_expr);
       elsif action_name = "DRW_PLINE" then
         process_drw_pline(params, c_expr);
       elsif action_name = "DRW_POINT" then
@@ -15866,6 +16055,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_str_ne(params, c_expr);
       elsif action_name = "STR_POS" then
         process_str_pos(params, c_expr);
+      elsif action_name = "STR_POSCPY" then
+        process_str_poscpy(function, params, c_expr);
       elsif action_name = "STR_PUSH" then
         process_str_push(params, c_expr);
       elsif action_name = "STR_RANGE" then
@@ -20060,6 +20251,7 @@ const proc: write_file_head is func
     writeln(c_prog, "typedef uinttype bitsettype;");
     writeln(c_prog, "typedef uint" <& POINTER_SIZE <& "type memsizetype;");
     writeln(c_prog, "typedef unsigned char *ustritype;");
+    writeln(c_prog, "typedef const unsigned char *const_ustritype;");
     writeln(c_prog, "typedef struct stristruct {");
     writeln(c_prog, "  memsizetype size;");
     if WITH_STRI_CAPACITY then
@@ -20187,23 +20379,23 @@ const proc: write_file_head is func
     writeln(c_prog, "typedef generictype (*createfunctype) (generictype);");
     writeln(c_prog, "typedef void (*destrfunctype) (generictype);");
     writeln(c_prog, "typedef void (*copyfunctype) (generictype *, generictype);");
-    writeln(c_prog, "stritype         arg_0;");
-    writeln(c_prog, "stritype         programPath;");
-    writeln(c_prog, "arraytype        arg_v;");
+    writeln(c_prog, "stritype          arg_0;");
+    writeln(c_prog, "stritype          programPath;");
+    writeln(c_prog, "arraytype         arg_v;");
     if ALLOW_STRITYPE_SLICES then
       writeln(c_prog, "extern struct stristruct str[];");
     else
-      writeln(c_prog, "extern stritype  str[];");
+      writeln(c_prog, "extern stritype   str[];");
     end if;
-    writeln(c_prog, "extern bstritype bst[];");
-    writeln(c_prog, "extern settype   set[];");
-    writeln(c_prog, "extern typetype  typ[];");
-    writeln(c_prog, "biginttype      *big;");
-    writeln(c_prog, "arraytype       *arr;");
-    writeln(c_prog, "structtype      *sct;");
-    writeln(c_prog, "hashtype        *hsh;");
-    writeln(c_prog, "interfacetype   *itf;");
-    writeln(c_prog, "rtlValueunion    flt2int;");
+    writeln(c_prog, "extern bstritype  bst[];");
+    writeln(c_prog, "extern settype    set[];");
+    writeln(c_prog, "extern typetype   typ[];");
+    writeln(c_prog, "const_biginttype *big;");
+    writeln(c_prog, "arraytype        *arr;");
+    writeln(c_prog, "structtype       *sct;");
+    writeln(c_prog, "hashtype         *hsh;");
+    writeln(c_prog, "interfacetype    *itf;");
+    writeln(c_prog, "rtlValueunion     flt2int;");
     writeln(c_prog, "extern memsizetype hs;");
     writeln(c_prog);
     writeln(c_prog, "static inttype fact[] = {");
@@ -20324,7 +20516,7 @@ const proc: write_prototypes is func
     declareExtern("void        bigGrow (biginttype *const, const const_biginttype);");
     declareExtern("inttype     bigHashCode (const const_biginttype);");
     declareExtern("char       *bigHexCStri (const const_biginttype);");
-    declareExtern("biginttype  bigImport (ustritype);");
+    declareExtern("biginttype  bigImport (const const_ustritype);");
     declareExtern("void        bigIncr (biginttype *const);");
     declareExtern("biginttype  bigIPow (const const_biginttype, inttype);");
     declareExtern("biginttype  bigLog2 (const const_biginttype);");
@@ -20437,7 +20629,7 @@ const proc: write_prototypes is func
     declareExtern("inttype     drwHeight (const_wintype);");
     declareExtern("wintype     drwImage (const_wintype, inttype *, inttype, inttype);");
     declareExtern("void        drwLine (const_wintype, inttype, inttype, inttype, inttype);");
-    declareExtern("wintype     drwNewPixmap (const_wintype, inttype, inttype);");
+    declareExtern("wintype     drwNewPixmap (inttype, inttype);");
     declareExtern("wintype     drwOpen (inttype, inttype, inttype, inttype, const const_stritype);");
     declareExtern("wintype     drwOpenSubWindow (const_wintype, inttype, inttype, inttype, inttype);");
     declareExtern("void        drwPArc (const_wintype, inttype, inttype, inttype, floattype, floattype, inttype);");
@@ -20446,6 +20638,7 @@ const proc: write_prototypes is func
     declareExtern("void        drwPFArcPieSlice (const_wintype, inttype, inttype, inttype, floattype, floattype, inttype);");
     declareExtern("void        drwPFCircle (const_wintype, inttype, inttype, inttype, inttype);");
     declareExtern("void        drwPFEllipse (const_wintype, inttype, inttype, inttype, inttype, inttype);");
+    declareExtern("void        drwPixelToRgb (inttype, inttype *, inttype *, inttype *);");
     declareExtern("void        drwPLine (const_wintype, inttype, inttype, inttype, inttype, inttype);");
     declareExtern("void        drwPoint (const_wintype, inttype, inttype);");
     declareExtern("void        drwPPoint (const_wintype, inttype, inttype, inttype);");
@@ -21142,7 +21335,7 @@ const proc: init_bigint_constants (inout expr_type: c_expr) is func
       big1 := bigint_index[number][1];
       c_expr.expr &:= "/* big[";
       c_expr.expr &:= str(number);
-      c_expr.expr &:= "] */ static unsigned char big_";
+      c_expr.expr &:= "] */ static const unsigned char big_";
       c_expr.expr &:= str(number);
       c_expr.expr &:= "[]=";
       c_expr.expr &:= c_literal(big1);
@@ -21161,7 +21354,7 @@ const proc: assign_bigint_constants (inout expr_type: c_expr) is func
     if length(bigint_const_table) = 0 then
       c_expr.expr &:= "big = NULL;\n";
     else
-      c_expr.expr &:= "big = (biginttype *)(malloc(";
+      c_expr.expr &:= "big = (const_biginttype *)(malloc(";
       c_expr.expr &:= str(length(bigint_const_table));
       c_expr.expr &:= " * sizeof(biginttype)));\n";
       bigint_index := flip(bigint_const_table);

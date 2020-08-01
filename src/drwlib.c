@@ -833,6 +833,33 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype drw_getPixel (listtype arguments)
+#else
+
+objecttype drw_getPixel (arguments)
+listtype arguments;
+#endif
+
+  {
+    wintype actual_window;
+    inttype x1;
+    inttype y1;
+
+  /* drw_getPixel */
+    isit_win(arg_1(arguments));
+    isit_int(arg_2(arguments));
+    isit_int(arg_3(arguments));
+    actual_window = take_win(arg_1(arguments));
+    x1 = take_int(arg_2(arguments));
+    y1 = take_int(arg_3(arguments));
+    return(bld_int_temp(
+        drwGetPixel(actual_window, x1, y1)));
+  } /* drw_getPixel */
+
+
+
+#ifdef ANSI_C
+
 objecttype drw_hashcode (listtype arguments)
 #else
 
@@ -986,18 +1013,15 @@ listtype arguments;
 #endif
 
   {
-    wintype actual_window;
     inttype width;
     inttype height;
 
   /* drw_new_pixmap */
-    isit_win(arg_1(arguments));
+    isit_int(arg_1(arguments));
     isit_int(arg_2(arguments));
-    isit_int(arg_3(arguments));
-    actual_window = take_win(arg_1(arguments));
-    width = take_int(arg_2(arguments));
-    height = take_int(arg_3(arguments));
-    return(bld_win_temp(drwNewPixmap(actual_window, width, height)));
+    width = take_int(arg_1(arguments));
+    height = take_int(arg_2(arguments));
+    return(bld_win_temp(drwNewPixmap(width, height)));
   } /* drw_new_pixmap */
 
 
@@ -1258,6 +1282,40 @@ listtype arguments;
     drwPFEllipse(actual_window, x1, y1, width, height, col);
     return(SYS_EMPTY_OBJECT);
   } /* drw_pfellipse */
+
+
+
+#ifdef ANSI_C
+
+objecttype drw_pixelToRgb (listtype arguments)
+#else
+
+objecttype drw_pixelToRgb (arguments)
+listtype arguments;
+#endif
+
+  {
+    objecttype red_variable;
+    objecttype green_variable;
+    objecttype blue_variable;
+
+  /* drw_pixelToRgb */
+    isit_int(arg_1(arguments));
+    red_variable = arg_2(arguments);
+    isit_int(red_variable);
+    is_variable(red_variable);
+    green_variable = arg_3(arguments);
+    isit_int(green_variable);
+    is_variable(green_variable);
+    blue_variable = arg_4(arguments);
+    isit_int(blue_variable);
+    is_variable(blue_variable);
+    drwPixelToRgb(take_int(arg_1(arguments)),
+                  &red_variable->value.intvalue,
+                  &green_variable->value.intvalue,
+                  &blue_variable->value.intvalue);
+    return(SYS_EMPTY_OBJECT);
+  } /* drw_pixelToRgb */
 
 
 

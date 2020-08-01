@@ -40,10 +40,11 @@
 #include "ws2tcpip.h"
 #endif
 #else
-#include "netdb.h"
 #include "sys/types.h"
 #include "sys/socket.h"
+#include "netdb.h"
 #include "netinet/in.h"
+#include "sys/select.h"
 #endif
 #include "errno.h"
 
@@ -1060,6 +1061,8 @@ inttype micro_seconds;
     fd_set readfds;
     struct timeval timeout;
     int select_result;
+    unsigned char next_char;
+    memsizetype bytes_received;
     booltype result;
 
   /* socInputReady */
@@ -1076,6 +1079,14 @@ inttype micro_seconds;
       result = FALSE;
     } else {
       result = FD_ISSET(sock, &readfds);
+      if (result) {
+        /* Verify that it is really possible to read at least one character */
+        bytes_received = (memsizetype) recv(sock, cast_send_recv_data(&next_char), 1, MSG_PEEK);
+        if (bytes_received != 1) {
+          /* printf("socInputReady: bytes_received=%ld\n", (long int) bytes_received); */
+          result = FALSE;
+        } /* if */
+      } /* if */
     } /* if */
     return result;
   } /* socInputReady */

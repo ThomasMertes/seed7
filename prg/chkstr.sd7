@@ -4998,6 +4998,128 @@ const proc: check_string_assign_at is func
       writeln(" ***** @:= for strings does not work correct");
       okay := FALSE;
     end if;
+
+    stri := "a";
+    stri @:= [1] "X";
+    if stri <> "X" then
+      writeln(" ***** @:= for strings does not work correct");
+      okay := FALSE;
+    end if;
+    stri := "ab";
+    stri @:= [1] "X";
+    if stri <> "Xb" then
+      writeln(" ***** @:= for strings does not work correct");
+      okay := FALSE;
+    end if;
+    stri := "ab";
+    stri @:= [2] "X";
+    if stri <> "aX" then
+      writeln(" ***** @:= for strings does not work correct");
+      okay := FALSE;
+    end if;
+    stri := "ab";
+    stri @:= [1] "XY";
+    if stri <> "XY" then
+      writeln(" ***** @:= for strings does not work correct");
+      okay := FALSE;
+    end if;
+    stri := "abc";
+    stri @:= [1] "X";
+    if stri <> "Xbc" then
+      writeln(" ***** @:= for strings does not work correct");
+      okay := FALSE;
+    end if;
+    stri := "abc";
+    stri @:= [2] "X";
+    if stri <> "aXc" then
+      writeln(" ***** @:= for strings does not work correct");
+      okay := FALSE;
+    end if;
+    stri := "abc";
+    stri @:= [3] "X";
+    if stri <> "abX" then
+      writeln(" ***** @:= for strings does not work correct");
+      okay := FALSE;
+    end if;
+    stri := "abc";
+    stri @:= [1] "XY";
+    if stri <> "XYc" then
+      writeln(" ***** @:= for strings does not work correct");
+      okay := FALSE;
+    end if;
+    stri := "abc";
+    stri @:= [2] "XY";
+    if stri <> "aXY" then
+      writeln(" ***** @:= for strings does not work correct");
+      okay := FALSE;
+    end if;
+    stri := "abc";
+    stri @:= [1] "XYZ";
+    if stri <> "XYZ" then
+      writeln(" ***** @:= for strings does not work correct");
+      okay := FALSE;
+    end if;
+    stri := "abcd";
+    stri @:= [1] "X";
+    if stri <> "Xbcd" then
+      writeln(" ***** @:= for strings does not work correct");
+      okay := FALSE;
+    end if;
+    stri := "abcd";
+    stri @:= [2] "X";
+    if stri <> "aXcd" then
+      writeln(" ***** @:= for strings does not work correct");
+      okay := FALSE;
+    end if;
+    stri := "abcd";
+    stri @:= [3] "X";
+    if stri <> "abXd" then
+      writeln(" ***** @:= for strings does not work correct");
+      okay := FALSE;
+    end if;
+    stri := "abcd";
+    stri @:= [4] "X";
+    if stri <> "abcX" then
+      writeln(" ***** @:= for strings does not work correct");
+      okay := FALSE;
+    end if;
+    stri := "abcd";
+    stri @:= [1] "XY";
+    if stri <> "XYcd" then
+      writeln(" ***** @:= for strings does not work correct");
+      okay := FALSE;
+    end if;
+    stri := "abcd";
+    stri @:= [2] "XY";
+    if stri <> "aXYd" then
+      writeln(" ***** @:= for strings does not work correct");
+      okay := FALSE;
+    end if;
+    stri := "abcd";
+    stri @:= [3] "XY";
+    if stri <> "abXY" then
+      writeln(" ***** @:= for strings does not work correct");
+      okay := FALSE;
+    end if;
+    stri := "abcd";
+    stri @:= [1] "XYZ";
+    if stri <> "XYZd" then
+      writeln(" ***** @:= for strings does not work correct");
+      okay := FALSE;
+    end if;
+    stri := "abcd";
+    stri @:= [2] "XYZ";
+    if stri <> "aXYZ" then
+      writeln(" ***** @:= for strings does not work correct");
+      okay := FALSE;
+    end if;
+    stri := "abcd";
+    stri @:= [1] "XYZA";
+    if stri <> "XYZA" then
+      writeln(" ***** @:= for strings does not work correct");
+      okay := FALSE;
+    end if;
+
     if okay then
       writeln("@:= for strings works correct");
     end if;

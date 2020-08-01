@@ -179,7 +179,9 @@ rtlArraytype arg_v;
             case 'v':
               option.compilation_info = TRUE;
               option.linecount_info = TRUE;
-              option.incr_message_line = 0;
+              if (opt->size >= 3 && opt->mem[2] == '2') {
+                option.incr_message_line = 0;
+              } /* if */
               break;
             case 'x':
               option.execute_always = TRUE;

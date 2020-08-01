@@ -1,0 +1,216 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  char.s7i      Char support library                              *)
+(*  Copyright (C) 1989 - 2011  Thomas Mertes                        *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+(**
+ *  The type ''char'' describes Unicode characters encoded with UTF-32.
+ *  A ''char'' can also contain values, which are not Unicode, like EOF.
+ *)
+const type: char           is subtype DISCRETE;
+
+
+$ system "char" is char;
+IN_PARAM_IS_VALUE(char);
+
+const proc: destroy (ref char param)        is noop;
+
+const proc: (ref char param) ::= (in char param)              is action "CHR_CREATE";
+
+const char: (attr char) . value is ' ';
+const char: (attr char) . first is '\0\';
+const char: (attr char) . last is  '\512\';
+const proc: (inout char param) := (in char param)             is action "CHR_CPY";
+
+
+(**
+ *  Check if two characters are equal.
+ *  @return TRUE if both characters are equal,
+ *          FALSE otherwise.
+ *)
+const func boolean: (in char: ch1) = (in char: ch2)           is action "CHR_EQ";
+
+
+(**
+ *  Check if two characters are not equal.
+ *  @return FALSE if both characters are equal,
+ *          TRUE otherwise.
+ *)
+const func boolean: (in char: ch1) <> (in char: ch2)          is action "CHR_NE";
+
+
+(**
+ *  Check if ch1 is less than ch2.
+ *  @return TRUE if ch1 is less than than ch2,
+ *          FALSE otherwise.
+ *)
+const func boolean: (in char: ch1) < (in char: ch2)           is action "CHR_LT";
+
+
+(**
+ *  Check if ch1 is greater than ch2.
+ *  @return TRUE if ch1 is greater than ch2,
+ *          FALSE otherwise.
+ *)
+const func boolean: (in char: ch1) > (in char: ch2)           is action "CHR_GT";
+
+
+(**
+ *  Check if ch1 is less than or equal to ch2.
+ *  @return TRUE if ch1 is less than or equal to ch2,
+ *          FALSE otherwise.
+ *)
+const func boolean: (in char: ch1) <= (in char: ch2)          is action "CHR_LE";
+
+
+(**
+ *  Check if ch1 is greater than or equal to ch2.
+ *  @return TRUE if ch1 is greater than or equal to ch2,
+ *          FALSE otherwise.
+ *)
+const func boolean: (in char: ch1) >= (in char: ch2)          is action "CHR_GE";
+
+
+(**
+ *  Compare two characters.
+ *  @return -1, 0 or 1 if the first argument is considered to be
+ *          respectively less than, equal to, or greater than the
+ *          second.
+ *)
+const func integer: compare (in char: ch1, in char: ch2)      is action "CHR_CMP";
+
+
+(**
+ *  Compute the hash value of a characer.
+ *  @return the hash value.
+ *)
+const func integer: hashCode (in char: ch)                    is action "CHR_HASHCODE";
+
+
+(**
+ *  Get the ordinal number of a character.
+ *  For Unicode characters a value between 0 and 1114111 is returned.
+ *  For EOF the value -1 is returned.
+ *  @return the ordinal number of a character.
+ *)
+const func integer: ord (in char: ch)                         is action "CHR_ORD";
+
+
+(**
+ *  Convert an integer number to a character.
+ *  For values between 0 and 1114111 a Unicode character is returned.
+ *  For -1 the value EOF is returned.
+ *  @return a character which corresponds to the given integer.
+ *)
+const func char: chr (in integer: number)                     is action "CHR_CHR";
+
+
+(**
+ *  Convert an integer number to a character.
+ *  For values between 0 and 1114111 a Unicode character is returned.
+ *  For -1 the value EOF is returned.
+ *  @return a character which corresponds to the given integer.
+ *)
+const func char: (attr char) conv (in integer: number)        is action "CHR_ICONV";
+
+
+const varfunc char: (attr char) varConv (inout integer param) is action "TYP_VARCONV";
+
+
+(**
+ *  Successor of a character.
+ *  @return chr(ord(ch) + 1)
+ *)
+const func char: succ (in char: ch)                           is action "CHR_SUCC";
+
+
+(**
+ *  Predecessor of a character.
+ *  @return chr(ord(ch) - 1)
+ *)
+const func char: pred (in char: ch)                           is action "CHR_PRED";
+
+
+(**
+ *  Create a string with one character.
+ *  @return a string with the character ''ch''.
+ *)
+const func string: str (in char: ch)                          is action "CHR_STR";
+
+
+(**
+ *  Convert a character to upper case.
+ *  The letters a to z are converted to upper case.
+ *  Other characters are left unchanged.
+ *  @return the character converted to upper case.
+ *)
+const func char: upper (in char: ch)                          is action "CHR_UP";
+
+
+(**
+ *  Convert a character to lower case.
+ *  The letters A to Z are converted to lower case.
+ *  Other characters are left unchanged.
+ *  @return the character converted to lower case.
+ *)
+const func char: lower (in char: ch)                          is action "CHR_LOW";
+
+
+(**
+ *  Increment a character.
+ *  This is equivalent to:
+ *   ch := succ(ch);
+ *)
+const proc: incr (inout char: ch)                             is action "CHR_INCR";
+
+
+(**
+ *  Decrement a character.
+ *  This is equivalent to:
+ *   ch := pred(ch);
+ *)
+const proc: decr (inout char: ch)                             is action "CHR_DECR";
+
+
+const func string: c_literal (in char: ch)                    is action "CHR_CLIT";
+
+
+(**
+ *  Compute pseudo-random character in the range [low, high].
+ *  The random values are uniform distributed.
+ *  @return a random character such that low <= rand(low, high) and
+ *          rand(low, high) <= high holds.
+ *  @exception RANGE_ERROR The range is empty (low > high holds).
+ *)
+const func char: rand (in char: low, in char: high) is
+  return chr(rand(ord(low), ord(high)));
+
+
+(**
+ *  Character representing end-of-file.
+ *  EOF is not an Unicode character.
+ *)
+const char: EOF is chr(-1);

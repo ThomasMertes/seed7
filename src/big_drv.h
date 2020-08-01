@@ -70,7 +70,7 @@ biginttype bigFromUInt32 (uint32type number);
 biginttype bigGcd (const const_biginttype big1, const const_biginttype big2);
 void bigGrow (biginttype *const big_variable, const const_biginttype big2);
 inttype bigHashCode (const const_biginttype big1);
-biginttype bigImport (ustritype buffer);
+biginttype bigImport (const const_ustritype buffer);
 void bigIncr (biginttype *const big_variable);
 biginttype bigIPow (const const_biginttype base, inttype exponent);
 biginttype bigLog2 (const const_biginttype big1);

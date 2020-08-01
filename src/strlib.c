@@ -1125,6 +1125,9 @@ listtype arguments;
     stritype stri;
     inttype pad_size;
     memsizetype length;
+    strelemtype *sourceElem;
+    strelemtype *destElem;
+    memsizetype len;
     stritype result;
 
   /* str_lpad0 */
@@ -1139,20 +1142,18 @@ listtype arguments;
         return(raise_exception(SYS_MEM_EXCEPTION));
       } else {
         result->size = (memsizetype) pad_size;
-#ifdef UTF32_STRINGS
-        {
-          strelemtype *elem = result->mem;
-          memsizetype len = (memsizetype) pad_size - length;
-
-          while (len--) {
-            *elem++ = (strelemtype) '0';
-          } /* while */
-        }
-#else
-        memset(result->mem, '0', (memsizetype) pad_size - length);
-#endif
-        memcpy(&result->mem[(memsizetype) pad_size - length], stri->mem,
-            length * sizeof(strelemtype));
+        sourceElem = stri->mem;
+        destElem = result->mem;
+        len = (memsizetype) pad_size - length;
+        if (length != 0 && (sourceElem[0] == '-' || sourceElem[0] == '+')) {
+          *destElem++ = sourceElem[0];
+          sourceElem++;
+          length--;
+        } /* if */
+        while (len--) {
+          *destElem++ = (strelemtype) '0';
+        } /* while */
+        memcpy(destElem, sourceElem, length * sizeof(strelemtype));
       } /* if */
     } else {
       if (TEMP_OBJECT(arg_1(arguments))) {
@@ -1308,6 +1309,40 @@ listtype arguments;
     return(bld_int_temp(
         strPos(take_stri(arg_1(arguments)), take_stri(arg_2(arguments)))));
   } /* str_pos */
+
+
+
+#ifdef ANSI_C
+
+objecttype str_poscpy (listtype arguments)
+#else
+
+objecttype str_poscpy (arguments)
+listtype arguments;
+#endif
+
+  {
+    stritype destStri;
+    stritype sourceStri;
+    inttype position;
+
+  /* str_poscpy */
+    isit_stri(arg_1(arguments));
+    isit_int(arg_4(arguments));
+    isit_stri(arg_6(arguments));
+    is_variable(arg_1(arguments));
+    destStri = take_stri(arg_1(arguments));
+    position = take_int(arg_4(arguments));
+    sourceStri = take_stri(arg_6(arguments));
+    if (position >= 1 && destStri->size >= sourceStri->size &&
+        (uinttype) position <= destStri->size - sourceStri->size + 1) {
+      memcpy(&destStri->mem[position - 1], sourceStri->mem,
+	  sourceStri->size * sizeof(strelemtype));
+    } else {
+      return(raise_exception(SYS_RNG_EXCEPTION));
+    } /* if */
+    return(SYS_EMPTY_OBJECT);
+  } /* str_poscpy */
 
 
 

@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  str_rtl.c     Primitive actions for the string type.            */
-/*  Copyright (C) 1989 - 2010  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2011  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -1689,6 +1689,9 @@ inttype pad_size;
 
   {
     memsizetype length;
+    strelemtype *sourceElem;
+    strelemtype *destElem;
+    memsizetype len;
     stritype result;
 
   /* strLpad0 */
@@ -1700,20 +1703,18 @@ inttype pad_size;
         result = NULL;
       } else {
         result->size = (memsizetype) pad_size;
-#ifdef UTF32_STRINGS
-        {
-          strelemtype *elem = result->mem;
-          memsizetype len = (memsizetype) pad_size - length;
-
-          while (len--) {
-            *elem++ = (strelemtype) '0';
-          } /* while */
-        }
-#else
-        memset(result->mem, '0', (memsizetype) pad_size - length);
-#endif
-        memcpy(&result->mem[(memsizetype) pad_size - length], stri->mem,
-            length * sizeof(strelemtype));
+        sourceElem = stri->mem;
+        destElem = result->mem;
+        len = (memsizetype) pad_size - length;
+        if (length != 0 && (sourceElem[0] == '-' || sourceElem[0] == '+')) {
+          *destElem++ = sourceElem[0];
+          sourceElem++;
+          length--;
+        } /* if */
+        while (len--) {
+          *destElem++ = (strelemtype) '0';
+        } /* while */
+        memcpy(destElem, sourceElem, length * sizeof(strelemtype));
       } /* if */
     } else {
       if (unlikely(!ALLOC_STRI_SIZE_OK(result, length))) {
@@ -1741,6 +1742,9 @@ inttype pad_size;
 
   {
     memsizetype length;
+    strelemtype *sourceElem;
+    strelemtype *destElem;
+    memsizetype len;
     stritype result;
 
   /* strLpad0Temp */
@@ -1752,20 +1756,18 @@ inttype pad_size;
         result = NULL;
       } else {
         result->size = (memsizetype) pad_size;
-#ifdef UTF32_STRINGS
-        {
-          strelemtype *elem = result->mem;
-          memsizetype len = (memsizetype) pad_size - length;
-
-          while (len--) {
-            *elem++ = (strelemtype) '0';
-          } /* while */
-        }
-#else
-        memset(result->mem, '0', (memsizetype) pad_size - length);
-#endif
-        memcpy(&result->mem[(memsizetype) pad_size - length], stri->mem,
-            length * sizeof(strelemtype));
+        sourceElem = stri->mem;
+        destElem = result->mem;
+        len = (memsizetype) pad_size - length;
+        if (length != 0 && (sourceElem[0] == '-' || sourceElem[0] == '+')) {
+          *destElem++ = sourceElem[0];
+          sourceElem++;
+          length--;
+        } /* if */
+        while (len--) {
+          *destElem++ = (strelemtype) '0';
+        } /* while */
+        memcpy(destElem, sourceElem, length * sizeof(strelemtype));
         FREE_STRI(stri, length);
       } /* if */
     } else {

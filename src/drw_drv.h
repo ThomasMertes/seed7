@@ -74,6 +74,8 @@ void drwFlush (void);
 void drwFree (wintype old_window);
 wintype drwGet (const_wintype actual_window, inttype left, inttype upper,
     inttype width, inttype height);
+inttype drwGetPixel (const_wintype actual_window, inttype x, inttype y);
+void drwPixelToRgb (inttype col, inttype *red_val, inttype *green_val, inttype *blue_val);
 inttype drwHeight (const_wintype actual_window);
 wintype drwImage (const_wintype actual_window, inttype *image_data,
     inttype width, inttype height);
@@ -81,7 +83,7 @@ void drwLine (const_wintype actual_window,
     inttype x1, inttype y1, inttype x2, inttype y2);
 void drwPLine (const_wintype actual_window,
     inttype x1, inttype y1, inttype x2, inttype y2, inttype col);
-wintype drwNewPixmap (const_wintype actual_window, inttype width, inttype height);
+wintype drwNewPixmap (inttype width, inttype height);
 wintype drwNewBitmap (const_wintype actual_window, inttype width, inttype height);
 wintype drwOpen (inttype xPos, inttype yPos,
     inttype width, inttype height, const const_stritype window_name);
@@ -145,6 +147,8 @@ void drwPFEllipse ();
 void drwFlush ();
 void drwFree ();
 wintype drwGet ();
+inttype drwGetPixel ();
+void drwPixelToRgb ();
 inttype drwHeight ();
 wintype drwImage ();
 void drwLine ();

@@ -121,6 +121,14 @@ const func integer: daysInMonth (in integer: year, in integer: month) is func
 
 
 (**
+ *  Determine the number of days in the month of a given date.
+ *  @return the number of days in the month.
+ *)
+const func integer: daysInMonth (in time: date) is
+  return daysInMonth(date.year, date.month);
+
+
+(**
  *  Convert a time to a string with ISO 8601 YYYY-MM-DD date format.
  *  @return the string result of the conversion.
  *)

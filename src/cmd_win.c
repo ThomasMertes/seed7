@@ -288,7 +288,7 @@ stritype arg_0;
 #ifdef DEFINE_WGETENV
 #ifdef ANSI_C
 
-os_stritype wgetenv (os_stritype name)
+os_stritype wgetenv (const const_os_stritype name)
 #else
 
 os_stritype wgetenv (name)
@@ -320,7 +320,8 @@ os_stritype name;
 #ifdef DEFINE_WSETENV
 #ifdef ANSI_C
 
-int wsetenv (os_stritype name, os_stritype value, int overwrite)
+int wsetenv (const const_os_stritype name, const const_os_stritype value,
+    int overwrite)
 #else
 
 int wsetenv (name, value, overwrite)

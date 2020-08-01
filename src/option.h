@@ -54,7 +54,7 @@ opttype option = {
     TRUE,  /* get_infile_buffer */
     TRUE,  /* version_info      */
     FALSE, /* compilation_info  */
-    TRUE,  /* linecount_info    */
+    FALSE, /* linecount_info    */
     TRUE,  /* catch_signals     */
     16383, /* incr_message_line */
     NULL,  /* comp_trace_level  */

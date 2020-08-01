@@ -1,6 +1,52 @@
+20110801:
+- The left and right shift operators for bigInteger were improved
+  to work with negative shift counts. Left shifting with a negative
+  shift count results in a right shift. Right shifting with a
+  negative shift count results in a left shift.
+- The interpreter was improved to default to non-verbose program
+  parsing (verbose parsing is done with -v or -v2).
+- The chapter explaining 'float' in the manual was improved.
+- The "draw.s7i" library was improved to contain the functions
+  'getPixelColor' (obtain the color of a specified pixel from a
+  window or pixmap) and 'pixelToColor' (convert a pixel value to a
+  color).
+- The function 'newPixmap' in "draw.sd7" and the files "drw_x11.c"
+  and "drw_win.c" were improved to allow crating pixmaps, when no
+  window was opened.
+- Documentation comments were added to "integer.s7i", "string.s7i"
+  and "wrinum.s7i".
+- The function 'inputReady' was added to the "socket.s7i" library.
+- The "string.s7i" library, interpreter and compiler were improved
+  to support an overloaded version of the @:= operator. With
+  stri @:= [5] "abc"; the characters 5 to 7 in stri are overwritten
+  with "abc" (the primitive action is "STR_POSCPY").
+- The function 'daysInMonth' was added to the "time.s7i" library.
+- Declarations were moved from "seed7_05.s7i" to the new library
+  "char.s7i".
+- Checks were added to "chkbig.sd7", "chkexc.sd7", "chkstr.sd7"
+- The performance of 'uBigIncr', 'uBigDecr', 'bigDecr', 'bigIncr',
+  'bigPred', 'bigPredTemp', 'bigSucc' and 'bigSuccTemp' in
+  "big_rtl.c", was further improved.
+- The performace of 'bigImport' and 'bigCLit' in "big_rtl.c", was
+  improved.
+- The handling of the action "ARR_IDX" in the compiler (comp.sd7)
+  was improved.
+- The functions 'bigLShift', 'bigLShiftAssign', 'bigRShift' and
+  'bigRShiftAssign' in "big_rtl.c" were adjusted to the new shift
+  behaviour for bigInteger values.
+- The prototypes of 'wgetenv' and 'wsetenv' in "cmd_win.c" were
+  improved to use the const qualifier.
+- The macros HEAP_REALLOC_BIG and REALLOC_BIG_CHECK_SIZE in
+  "big_rtl.c" and the macros HEAP_REALLOC_STRI, GROW_STRI and
+  REALLOC_STRI_CHECK_SIZE in "heaputl.h" were improved to avoid
+  unused expression results (which get a warning with clang).
+- The operator lpad0 (function strLpad0 in "str_rtl.c") was improved
+  to add zero characters ('0') after an optional leading sign
+  ('+' or '-').
+
 20110717:
 - FAQ answers, explaining how interpreter and compiler look for
-  include libraries, was improved.
+  include libraries, were improved.
 - The 'str' function for 'duration' values was improved to provide
   micro seconds, when they are not zero.
 - Two 'getHttp' functions in "gethttp.s7i" were improved to allow

@@ -42,6 +42,8 @@
 #elif defined AWAIT_WITH_SIGACTION || defined AWAIT_WITH_SIGNAL
 #include "signal.h"
 #include "setjmp.h"
+#elif defined AWAIT_WITH_SELECT
+#include "sys/select.h"
 #endif
 
 #include "common.h"

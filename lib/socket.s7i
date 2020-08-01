@@ -28,6 +28,7 @@
 
 include "null_file.s7i";
 include "enable_io.s7i";
+include "duration.s7i";
 
 
 const type: socketAddress is newtype;
@@ -200,15 +201,14 @@ const func integer: port (in socket: aSocket) is
 #  return integer parse (aSocket.service);
   return integer parse service(aSocket.addr);
 
-(*
+
 const func boolean: inputReady (in file param, in duration param) is DYNAMIC;
 const func boolean: inputReady (in socket: aSocket, in duration: timeout) is func
   result
     var boolean: result is FALSE;
   begin
-    result := inputReady(aSocket.sock, toSeconds(timeout), timeout.micro_seconds);
+    result := inputReady(aSocket.sock, toSeconds(timeout), timeout.micro_second);
   end func;
-*)
 
 
 const func socket: malloc (in socket: sock) is func
@@ -578,7 +578,7 @@ const func boolean: requestPresent (in listener: aListener, in duration: timeout
   result
     var boolean: result is FALSE;
   begin
-    result := inputReady(aListener.sock, toSeconds(timeout), timeout.micro_seconds);
+    result := inputReady(aListener.sock, toSeconds(timeout), timeout.micro_second);
   end func;
 *)
 

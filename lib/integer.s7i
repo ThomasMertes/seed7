@@ -261,14 +261,14 @@ const func integer: hashCode (in integer: number)                is action "INT_
 
 (**
  *  Successor of an integer number.
- *  succ(A) is equivalent to A+1 .
+ *  @return number + 1
  *)
 const func integer: succ (in integer: number)                    is action "INT_SUCC";
 
 
 (**
  *  Predecessor of an integer number.
- *  pred(A) is equivalent to A-1 .
+ *  @return number - 1
  *)
 const func integer: pred (in integer: number)                    is action "INT_PRED";
 
@@ -349,8 +349,22 @@ const func string: str (in integer: number, in integer: base)    is action "INT_
 
 
 const func string: (in integer param) lpad0 (in integer param)   is action "INT_LPAD0";
-const proc: incr (inout integer param)                           is action "INT_INCR";
-const proc: decr (inout integer param)                           is action "INT_DECR";
+
+
+(**
+ *  Increment an integer number.
+ *  This is equivalent to:
+ *   number := succ(number);
+ *)
+const proc: incr (inout integer: number)                         is action "INT_INCR";
+
+
+(**
+ *  Decrement an integer number.
+ *  This is equivalent to:
+ *   number := pred(number);
+ *)
+const proc: decr (inout integer: number)                         is action "INT_DECR";
 
 
 (**

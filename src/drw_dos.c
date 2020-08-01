@@ -481,6 +481,22 @@ inttype height;
 
 #ifdef ANSI_C
 
+inttype drwGetPixel (const_wintype actual_window, inttype x, inttype y)
+#else
+
+inttype drwGetPixel (actual_window, x, y)
+wintype actual_window;
+inttype x;
+inttype y;
+#endif
+
+  { /* drwGetPixel */
+  } /* drwGetPixel */
+
+
+
+#ifdef ANSI_C
+
 inttype drwHeight (const_wintype actual_window)
 #else
 
@@ -548,11 +564,10 @@ inttype col;
 
 #ifdef ANSI_C
 
-wintype drwNewPixmap (const_wintype actual_window, inttype width, inttype height)
+wintype drwNewPixmap (inttype width, inttype height)
 #else
 
-wintype drwNewPixmap (actual_window, width, height)
-wintype actual_window;
+wintype drwNewPixmap (width, height)
 inttype width;
 inttype height;
 #endif

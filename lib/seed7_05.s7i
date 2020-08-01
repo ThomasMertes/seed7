@@ -313,9 +313,6 @@ const type: LEGAL          is newtype;
 
 const type: DISCRETE       is subtype object;
 const type: integer        is subtype DISCRETE;
-const type: char           is subtype DISCRETE;
-$ system "char" is char;
-IN_PARAM_IS_VALUE(char);
 const type: ENUMERATION    is subtype DISCRETE;
 IN_PARAM_IS_VALUE(ENUMERATION);
 const type: INDEXABLE      is subtype object;
@@ -324,7 +321,6 @@ const type: MODULE         is subtype object;
 const proc: destroy (ref ACTION param)      is noop;
 const proc: destroy (ref ENUMERATION param) is noop;
 const proc: destroy (ref integer param)     is noop;
-const proc: destroy (ref char param)        is noop;
 const proc: destroy (ref EXCEPTION param)   is noop;
 
 const proc: (ref ACTION param) ::= (in ACTION param)            is action "ACT_CREATE";
@@ -332,7 +328,6 @@ const proc: destroy (ref func ACTION param)                     is noop;
 const proc: (inout ACTION param) := (in ACTION param)           is action "ACT_CPY";
 const proc: (ref ENUMERATION param) ::= (ref ENUMERATION param) is action "ENU_CREATE";
 const proc: (ref ENUMERATION param) ::= enumlit                 is action "ENU_GENLIT";
-const proc: (ref char param) ::= (in char param)                is action "CHR_CREATE";
 const proc: (ref func object param) ::= (in ACTION param)       is action "ACT_CREATE";
 const proc: (ref EXCEPTION param) ::= (ref EXCEPTION param)     is action "ENU_CREATE";
 const proc: (ref EXCEPTION param) ::= enumlit                   is action "ENU_GENLIT";
@@ -366,6 +361,9 @@ const proc: DECLS                           is action "PRC_DECLS";
 (* boolean *)
 
 $ include "boolean.s7i";
+
+
+(* type *)
 
 const type: (attr type) . value is void;
 const func boolean: (in type param) = (in type param)      is action "TYP_EQ";
@@ -432,7 +430,6 @@ const proc: global (in proc param) end global is                              ac
 
 $ include "integer.s7i";
 
-
 const func boolean: rand (in boolean: low, in boolean: high) is
   return odd(rand(ord(low), ord(high)));
 
@@ -442,36 +439,7 @@ const func integer: compare (in boolean: aBoolean1, in boolean: aBoolean2) is
 
 (* char *)
 
-const char: (attr char) . value is ' ';
-const char: (attr char) . first is '\0\';
-const char: (attr char) . last is  '\512\';
-const proc: (inout char param) := (in char param)             is action "CHR_CPY";
-const func boolean: (in char param) = (in char param)         is action "CHR_EQ";
-const func boolean: (in char param) < (in char param)         is action "CHR_LT";
-const func boolean: (in char param) > (in char param)         is action "CHR_GT";
-const func boolean: (in char param) <= (in char param)        is action "CHR_LE";
-const func boolean: (in char param) >= (in char param)        is action "CHR_GE";
-const func boolean: (in char param) <> (in char param)        is action "CHR_NE";
-const func integer: compare (in char param, in char param)    is action "CHR_CMP";
-const func integer: hashCode (in char param)                  is action "CHR_HASHCODE";
-
-const func integer: ord (in char param)                       is action "CHR_ORD";
-const func char: (attr char) conv (in integer param)          is action "CHR_ICONV";
-const varfunc char: (attr char) varConv (inout integer param) is action "TYP_VARCONV";
-const func char: chr (in integer param)                       is action "CHR_CHR";
-const func char: succ (in char param)                         is action "CHR_SUCC";
-const func char: pred (in char param)                         is action "CHR_PRED";
-const func string: str (in char param)                        is action "CHR_STR";
-const func char: lower (in char param)                        is action "CHR_LOW";
-const func char: upper (in char param)                        is action "CHR_UP";
-const proc: incr (inout char param)                           is action "CHR_INCR";
-const proc: decr (inout char param)                           is action "CHR_DECR";
-const func string: c_literal (in char: ch)                    is action "CHR_CLIT";
-
-const func char: rand (in char: low, in char: high) is
-  return chr(rand(ord(low), ord(high)));
-
-const char: EOF is chr(-1);
+$ include "char.s7i";
 
 (* Procedures literal and c_literal defined after string *)
 
@@ -2747,6 +2715,7 @@ const proc: include (in string: library) is func
 incl(INCLUDED_LIBRARY_LIST, "syntax.s7i");
 incl(INCLUDED_LIBRARY_LIST, "boolean.s7i");
 incl(INCLUDED_LIBRARY_LIST, "integer.s7i");
+incl(INCLUDED_LIBRARY_LIST, "char.s7i");
 incl(INCLUDED_LIBRARY_LIST, "string.s7i");
 
 (*

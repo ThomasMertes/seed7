@@ -42,6 +42,14 @@ const func pixel: colorPixel (in color: col) is
   return rgbPixel(col.red_part, col.green_part, col.blue_part);
 
 
+const func color: pixelToColor (in pixel: pix) is func
+  result
+    var color: col is color.value;
+  begin
+    DRAW_PIXEL_TO_RGB(pix, col.red_part, col.green_part, col.blue_part);
+  end func;
+
+
 const proc: screen (in integer: width, in integer: height) is func
   begin
     curr_win := PRIMITIVE_GRAPHIC_OPEN(0, 0, width, height, name(PROGRAM));
@@ -593,12 +601,7 @@ const func PRIMITIVE_WINDOW: getPixmap (in PRIMITIVE_WINDOW: source_win) is func
  *  Creates a new pixmap with the given 'width' and 'height'.
  *  @return the new pixmap.
  *)
-const func PRIMITIVE_WINDOW: newPixmap (in integer: width, in integer: height) is func
-  result
-    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
-  begin
-    pixmap := newPixmap(curr_win, width, height);
-  end func;
+const func PRIMITIVE_WINDOW: newPixmap (in integer: width, in integer: height) is action "DRW_NEW_PIXMAP";
 
 
 const func PRIMITIVE_WINDOW: imagePixmap (ref array array pixel: image) is func
@@ -612,6 +615,18 @@ const func PRIMITIVE_WINDOW: imagePixmap (ref array array pixel: image) is func
 const proc: setTransparentColor (in PRIMITIVE_WINDOW: pixmap, in color: col) is func
   begin
     SET_TRANSPARENTCOLOR(pixmap, colorPixel(col));
+  end func;
+
+
+const func color: getPixelColor (inout PRIMITIVE_WINDOW: win,
+    in integer: x, in integer: y) is func
+  result
+    var color: col is color.value;
+  local
+    var pixel: pix is pixel.value;
+  begin
+    pix := DRAW_GETPIXEL(win, x, y);
+    DRAW_PIXEL_TO_RGB(pix, col.red_part, col.green_part, col.blue_part);
   end func;
 
 

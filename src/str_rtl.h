@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  str_rtl.h     Primitive actions for the string type.            */
-/*  Copyright (C) 1989 - 2008  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2011  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */

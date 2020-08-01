@@ -40,16 +40,28 @@ typedef struct {
 #endif
 
 
+#ifdef C_PLUS_PLUS
+#define C "C"
+#else
+#define C
+#endif
+
+#ifdef DEFINE_OS_STAT_PROTOTYPE
+extern C int __cdecl os_stat (const_os_stritype path, os_stat_struct *buffer);
+#endif
+
+
 #ifdef ANSI_C
 
 os_stritype *getUtf16Argv (int *w_argc);
 void freeUtf16Argv (os_stritype *w_argv);
 stritype getExecutablePath (const const_stritype arg_0);
 #ifdef DEFINE_WGETENV
-os_stritype wgetenv (os_stritype name);
+os_stritype wgetenv (const const_os_stritype name);
 #endif
 #ifdef DEFINE_WSETENV
-int wsetenv (os_stritype name, os_stritype value, int overwrite);
+int wsetenv (const const_os_stritype name, const const_os_stritype value,
+    int overwrite);
 #endif
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
 volumeListType *openVolumeList (void);

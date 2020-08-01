@@ -468,7 +468,16 @@ inttype time_zone;
   /* timToBigTimestamp */
     os_timestamp = timToTimestamp(year, month, day, hour, min, sec, micro_sec, time_zone);
     if (sizeof(time_t) == 8) {
+#ifdef INT64TYPE
       result = bigFromInt64((int64type) os_timestamp);
+#else
+      if (os_timestamp > INT32TYPE_MAX || os_timestamp < INT32TYPE_MIN) {
+        raise_error(RANGE_ERROR);
+        result = NULL;
+      } else {
+        result = bigFromInt32((int32type) os_timestamp);
+      } /* if */
+#endif
     } else {
       result = bigFromInt32((int32type) os_timestamp);
     } /* if */
