@@ -1,3 +1,12 @@
+20070823:
+- The compiler was improved to support nested exceptions.
+- The planets.sd7 example program was improved to contain a panorama with stars and planets.
+- An include file (stars.s7i) which contains the names and coordinates of stars was added.
+- The intParse function was improved to accepts a plus (+) sign.
+- The memory management of the socRecv function was improved.
+- Some exception tests were added to chkexc.sd7
+- A test for check_atan2 was added to the chkflt.sd7 program.
+
 20070807:
 - The handling of local functions in the compiler (comp.sd7) was improved.
 - The function 'option' (to get compile time defines) was renamed to 'configValue'.

@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  planets.sd7   Display information about the planets             *)
-(*  Copyright (C) 2006  Thomas Mertes                               *)
+(*  Copyright (C) 2006, 2007  Thomas Mertes                         *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
 (*  modify it under the terms of the GNU General Public License as  *)
@@ -30,6 +30,7 @@ $ include "seed7_05.s7i";
   include "line.s7i";
   include "draw.s7i";
   include "window.s7i";
+  include "stars.s7i";
 
 var text: scr is STD_NULL;
 
@@ -37,6 +38,9 @@ const float:   julianDayOfEpoch is 2451545.0; # 2000-01-01 12:00:00
 const integer: numberOfPlanets is 9;
 const integer: centerX is 440;
 const integer: centerY is 345;
+const integer: panoramaHorizont is 700;
+const integer: panoramaXMin is 62;
+const float:   sizePanorama is 900.0;
 const integer: screenHeight is 768;
 const float:   screenAspect is 1.0;
 const integer: scaleForInnerPlanets is 210;
@@ -47,8 +51,6 @@ const float:   degreesToRadian is 0.017453292519943295769236907684883;
 var boolean: displayDegreesInDecimal is FALSE;
 var boolean: displayHourAngleInDegrees is FALSE;
 var boolean: displayRAinDegrees is FALSE;
-var float: longitude is -16.42;
-var float: latitude  is  48.25;
 
 
 const type: orbitType is new struct
@@ -71,9 +73,9 @@ const type: orbitType is new struct
 var array orbitType: orbitDescr is numberOfPlanets times orbitType.value;
 
 var time: aTime is time.value;
-var integer: minute is 0;
+var integer: currTimeChange is 4;
 
-const type: planetType is new struct
+const type: heliocentricPlanetType is new struct
     var float: axis is 0.0;
     var float: eccentricity is 0.0;
     var float: meanLongitude is 0.0;
@@ -83,9 +85,39 @@ const type: planetType is new struct
     var float: trueAnomaly is 0.0;
     var float: radiusVector is 0.0;
     var float: heliocentricEclipticLatitude is 0.0;
+    var float: projectedHeliocentricLongitude is 0.0;
+    var float: projectedRadius is 0.0;
   end struct;
 
-var float: localSiderialTime is 0.0;
+const type: eclipticalCoordinateType is new struct
+    var float: geocentricEclipticLongitude is 0.0;
+    var float: geocentricLatitude is 0.0;
+  end struct;
+
+const type: equatorialCoordinateType is new struct
+    var float: rightAscension is 0.0;
+    var float: declination is 0.0;
+  end struct;
+
+const type: horizontalCoordinateType is new struct
+    var float: azimuth is 0.0;
+    var float: altitude is 0.0;
+  end struct;
+
+const type: earthCoordinateType is new struct
+    var float: longitude is -16.42;
+    var float: latitude  is  48.25;
+  end struct;
+
+const type: geocentricPlanetType is new struct
+    var eclipticalCoordinateType: eclipticalCoordinate is eclipticalCoordinateType.value;
+    var equatorialCoordinateType: equatorialCoordinate is equatorialCoordinateType.value;
+    var float: hourAngle is 0.0;
+    var horizontalCoordinateType: horizontalCoordinate is horizontalCoordinateType.value;
+  end struct;
+
+var earthCoordinateType: posAtEarth is earthCoordinateType.value;
+var float: localSiderealTime is 0.0;
 
 
 (* Trigonometric functions for degrees *)
@@ -228,7 +260,7 @@ const func float: anomaly2 (in float: m, in float: eccentricity) is func
   end func; (* anomaly2 *)
 
 
-const func float: ECL_TO_RA (in float: l, in float: b) is func
+const func float: eclipticalCoordinatesToRightAscension (in float: l, in float: b) is func
   result
     var float: result is 0.0;
   local
@@ -237,44 +269,12 @@ const func float: ECL_TO_RA (in float: l, in float: b) is func
   begin
     x := cosD(l);
     y := sinD(l) * 0.91746406 - tanD(b) * 0.397818676;
-    result := atan2D(y, x);
-  end func; (* ECL_TO_RA *)
+    result := atan2D(y, x) / 15.0;
+  end func; (* eclipticalCoordinatesToRightAscension *)
 
 
-const func float: ECL_TO_DEC (in float: l, in float: b) is
+const func float: eclipticalCoordinatesToDeclination (in float: l, in float: b) is
   return asinD(sinD(b) * 0.91746406 + cosD(b) * sinD(l) * 0.397818676);
-
-
-const func float: localSiderialToCivilTime (in float: localSiderialTime,
-    in float: longitude, in time: aTime) is func
-  result
-    var float: result is 0.0
-  local
-    var float: t is 0.0;
-    var float: b is 0.0;
-    var float: greenwichSiderialTime is 0.0;
-    var float: greenwichMeanTime is 0.0;
-  begin
-    greenwichSiderialTime := localSiderialTime + longitude / 15.0;
-    if greenwichSiderialTime > 24.0 then
-      greenwichSiderialTime -:= 24.0;
-    end if;
-    if greenwichSiderialTime < 0.0 then
-      greenwichSiderialTime +:= 24.0;
-    end if;
-    t := (julianDay(truncToYear(aTime) - 1 . DAYS) - 2415020.0) / 36525.0;
-    b := 24.0 - 6.6460656 - (2400.051262 * t) - (0.00002581 * t * t) +
-        flt(24 * (aTime.year - 1900));
-    t := greenwichSiderialTime - flt(dayOfYear(aTime)) * 0.0657098 + b;
-    if t > 24.0 then
-      t -:= 24.0;
-    end if;
-    if t < 0.0 then
-      t +:= 24.0;
-    end if;
-    greenwichMeanTime := t * 0.99727;
-    result := greenwichMeanTime - flt(aTime.timezone) / 60.0;
-  end func;
 
 
 const proc: degreesToRange (inout float: degrees) is func
@@ -290,12 +290,91 @@ const proc: degreesToRange (inout float: degrees) is func
 
 const proc: hoursToRange (inout float: hours) is func
   begin
-    if hours > 24.0 then
+    while hours >= 24.0 do
       hours -:= 24.0;
-    end if;
-    if hours <  0.0 then
+    end while;
+    while hours <  0.0 do
       hours +:= 24.0;
+    end while;
+  end func;
+
+
+const func float: localSiderealToCivilTime (in float: localSiderealTime,
+    in float: longitude, in time: aTime) is func
+  result
+    var float: result is 0.0
+  local
+    var float: t is 0.0;
+    var float: b is 0.0;
+    var float: greenwichSiderealTime is 0.0;
+    var float: greenwichMeanTime is 0.0;
+  begin
+    greenwichSiderealTime := localSiderealTime + longitude / 15.0;
+    if greenwichSiderealTime > 24.0 then
+      greenwichSiderealTime -:= 24.0;
     end if;
+    if greenwichSiderealTime < 0.0 then
+      greenwichSiderealTime +:= 24.0;
+    end if;
+    t := (julianDay(truncToYear(aTime) - 1 . DAYS) - 2415020.0) / 36525.0;
+    b := 24.0 - 6.6460656 - (2400.051262 * t) - (0.00002581 * t * t) +
+        flt(24 * (aTime.year - 1900));
+    t := greenwichSiderealTime - flt(dayOfYear(aTime)) * 0.0657098 + b;
+    hoursToRange(t);
+    greenwichMeanTime := t * 0.99727;
+    result := greenwichMeanTime - flt(aTime.timezone) / 60.0;
+  end func;
+
+
+const proc: showLocalTime (inout text: win) is func
+  local
+    var string: timeStri is "";
+  begin
+    timeStri := aTime lpad 19;
+    setPos(win, 1, 5);
+    writeln(win, timeStri);
+    color(win, light_cyan);
+    case currTimeChange of
+      when {1}:
+        setPos(win, 1, 5);
+        write(win, timeStri[.. 4]);
+      when {2}:
+        setPos(win, 1, 10);
+        write(win, timeStri[6 .. 7]);
+      when {3}:
+        setPos(win, 1, 13);
+        write(win, timeStri[9 .. 10]);
+      when {4}:
+        setPos(win, 1, 16);
+        write(win, timeStri[12 .. 13]);
+      when {5}:
+        setPos(win, 1, 19);
+        write(win, timeStri[15 .. 16]);
+      when {6}:
+        setPos(win, 1, 22);
+        write(win, timeStri[18 .. 19]);
+    end case;
+    color(win, white);
+    writeln(win);
+  end func;
+
+
+const func float: calculateGreenwichMeanSiderealTime (in time: gmTime) is func
+  result
+    var float: greenwichMeanSiderealTime is 0.0;
+  local
+    var float: d is 0.0;
+    var float: d0 is 0.0;
+    var float: h is 0.0;
+    var integer: t is 0;
+  begin
+    d := julianDay(gmTime) - julianDayOfEpoch;
+    d0 := flt(julianDayNumber(gmTime)) + 0.5 - julianDayOfEpoch;
+    h := (flt(gmTime.second) / 60.0 + flt(gmTime.minute)) / 60.0 + flt(gmTime.hour);
+    t := round(d) div 36525;
+    greenwichMeanSiderealTime := 6.697374558 + 0.06570982441908 * d0 +
+                                 1.00273790935 * h + 0.000026 * flt(t * t);
+    hoursToRange(greenwichMeanSiderealTime);
   end func;
 
 
@@ -303,55 +382,42 @@ const proc: showTime is func
   local
     var text: win is STD_NULL;
     var integer: julianDayNumber is 0;
-    var float: greenwichMeanTime is 0.0;
-    var float: greenwichSiderialTime is 0.0;
+    var float: greenwichMeanSiderealTime is 0.0;
     var time: gmTime is time.value;
-    var float: t is 0.0;
-    var float: b is 0.0;
   begin
     win := open_window(scr, 2, 58, 8, 32);
-    setPos(win, 1, 1);
-    write(win, "    ");
-    writeln(win, str_date(aTime));
+    showLocalTime(win);
     julianDayNumber := julianDayNumber(aTime);
     writeln(win, "julianDayNum =" <& julianDayNumber lpad 10);
-    writeln(win, "Longitude    = " <& angleAsDegrees(longitude));
-    writeln(win, "Latitude     = " <& angleAsDegrees(latitude));
+    writeln(win, "Longitude    = " <& angleAsDegrees(posAtEarth.longitude));
+    writeln(win, "Latitude     = " <& angleAsDegrees(posAtEarth.latitude));
     write(win, "localCivilTime        = ");
-    write(win, aTime.hour lpad 2);
-    write(win, "h ");
-    write(win, aTime.minute lpad 2);
-    writeln(win, "m");
+    writeln(win, str_time(aTime));
     gmTime := toGMT(aTime);
     write(win, "greenwichMeanTime     = ");
-    write(win, gmTime.hour lpad 2);
-    write(win, "h ");
-    write(win, gmTime.minute lpad 2);
-    writeln(win, "m");
-    greenwichMeanTime := flt(gmTime.hour) + flt(gmTime.minute) / 60.0 + 1.0 / 120.0;
-    t := (julianDay(truncToYear(aTime) - 1 . DAYS) - 2415020.0) / 36525.0;
-    b := 24.0 - 6.6460656 - (2400.051262 * t) - (0.00002581 * t * t) +
-        flt(24 * (aTime.year - 1900));
-    greenwichSiderialTime := 0.0657098 * flt(dayOfYear(aTime)) - b + greenwichMeanTime * 1.002738;
-    hoursToRange(greenwichSiderialTime);
-    write(win, "greenwichSiderialTime = ");
-    write(win, trunc(greenwichSiderialTime) lpad 2);
-    write(win, "h ");
-    write(win, minutes(greenwichSiderialTime) lpad 2);
-    writeln(win, "m");
-    localSiderialTime := greenwichSiderialTime - longitude / 15.0;
-    hoursToRange(localSiderialTime);
-    write(win, "localSiderialTime     = ");
-    write(win, trunc(localSiderialTime) lpad 2);
-    write(win, "h ");
-    write(win, minutes(localSiderialTime) lpad 2);
-    write(win, "m");
+    writeln(win, str_time(gmTime));
+    greenwichMeanSiderealTime := calculateGreenwichMeanSiderealTime(gmTime);
+    write(win, "greenwichSiderealTime = ");
+    write(win, str2(trunc(greenwichMeanSiderealTime)));
+    write(win, ":");
+    write(win, str2(minutes(greenwichMeanSiderealTime)));
+    write(win, ":");
+    writeln(win, str2(seconds(greenwichMeanSiderealTime)));
+    localSiderealTime := greenwichMeanSiderealTime - posAtEarth.longitude / 15.0;
+    hoursToRange(localSiderealTime);
+    write(win, "localSiderealTime     = ");
+    write(win, str2(trunc(localSiderealTime)));
+    write(win, ":");
+    write(win, str2(minutes(localSiderealTime)));
+    write(win, ":");
+    write(win, str2(seconds(localSiderealTime)));
   end func; (* showTime *)
 
 
-const func planetType: locatePositionOfPlanetInItsOrbitalPlane (in orbitType: planetDescr) is func
+const func heliocentricPlanetType: locatePositionOfPlanetInItsOrbitalPlane (
+    in orbitType: planetDescr) is func
   result
-    var planetType: planet is planetType.value;
+    var heliocentricPlanetType: planet is heliocentricPlanetType.value;
   begin
     planet.axis := planetDescr.axis +
         planetDescr.axisPerCentury * (julianDay(aTime) - julianDayOfEpoch) / 36525.0;
@@ -375,14 +441,12 @@ const func planetType: locatePositionOfPlanetInItsOrbitalPlane (in orbitType: pl
 
 const proc: plotPlanet (in integer: planetNumber, in integer: scale) is func
   local
-    const func float: computeRadiusVector (in planetType: planet, in integer: angle) is
+    const func float: computeRadiusVector (in heliocentricPlanetType: planet, in integer: angle) is
       return planet.axis *
              (1.0 - planet.eccentricity * planet.eccentricity) /
              (1.0 + planet.eccentricity * cosD(flt(angle) - planet.longitudeOfPerihelion));
 
-    var planetType: planet is planetType.value;
-    var integer: delX is 0;
-    var integer: delY is 0;
+    var heliocentricPlanetType: planet is heliocentricPlanetType.value;
     var integer: oldX is 0;
     var integer: oldY is 0;
     var integer: newX is 0;
@@ -394,7 +458,7 @@ const proc: plotPlanet (in integer: planetNumber, in integer: scale) is func
             centerY;
     newX := round(flt(scale) * planet.radiusVector * cosD(planet.heliocentricLongitude) *
             screenAspect) + centerX;
-    fcircle(newX + delX, screenHeight - (newY + delY), 3, light_cyan);
+    fcircle(newX, screenHeight - newY, 3, light_cyan);
     setPosXY(scr, newX + 4, screenHeight - newY);
     write(scr, orbitDescr[planetNumber].name);
 
@@ -422,7 +486,7 @@ const proc: showMenu is func
     setPos(scr, 2, 1);
     writeln(scr, " P L A N E T S   Display information about the planets");
     setPos(scr, 4, 1);
-    writeln(scr, " Copyright (C) 2006  Thomas Mertes");
+    writeln(scr, " Copyright (C) 2006, 2007  Thomas Mertes");
     setPos(scr, 6, 1);
     writeln(scr, " This program is free software under the");
     writeln(scr, " terms of the GNU General Public License");
@@ -433,18 +497,26 @@ const proc: showMenu is func
     writeln(scr);
     writeln(scr, " Possible commands are:");
     writeln(scr);
-    writeln(scr, " D  Change Date/Time");
-    writeln(scr, " I  Plot Inner Planets");
-    writeln(scr, " L  Change Long/Lat");
     writeln(scr, " M  Menu");
+    writeln(scr, " I  Plot Inner Planets");
     writeln(scr, " O  Plot Outer Planets");
+    writeln(scr, " D  Change Date/Time");
+    writeln(scr, " L  Change Long/Lat");
     writeln(scr, " S  Set_up");
     writeln(scr, " Q  Quit");
     for num range 1 to numberOfPlanets do
       setPos(scr, 14 + num, 25);
       writeln(scr, " " <& num <& "  " <& orbitDescr[num].name);
     end for;
-    writeln(scr);
+    setPos(scr, 15, 42);
+    writeln(scr, "Horizontal cursor keys:");
+    setPos(scr, 16, 42);
+    writeln(scr, "  Select time step");
+    setPos(scr, 18, 42);
+    writeln(scr, "Vertical cursor keys:");
+    setPos(scr, 19, 42);
+    write(scr,   "  Add or subtract a time step");
+    setPos(scr, 25, 1);
     writeln(scr, " Enter command:");
   end func; (* showMenu *)
 
@@ -486,16 +558,15 @@ const proc: plotInnerPlanets is func
     var integer: planetNumber is 0;
   begin
     clear(curr_win);
-    win := open_window(scr, 2, 130, 7, 32);
-    setPos(win, 1, 1);
-    writeln(win, "    " <& str_date(aTime));
+    win := open_window(scr, 2, 135, 7, 32);
+    showLocalTime(win);
     julianDayNumber := julianDayNumber(aTime);
     writeln(win, "julianDayNum =" <& julianDayNumber lpad 10);
     writeln(win);
     writeln(win, "Horizontal cursor keys:");
-    writeln(win, "  Add or subtract a day");
+    writeln(win, "  Select time step");
     writeln(win, "Vertical cursor keys:");
-    write(win,   "  Add or subtract a month");
+    write(win,   "  Add or subtract a time step");
     fcircle(centerX, screenHeight - centerY, 3, light_cyan);
     setPosXY(scr, centerX + 4, screenHeight - centerY);
     write(scr, "Sun");
@@ -512,16 +583,15 @@ const proc: plotOuterPlanets is func
     var integer: planetNumber is 0;
   begin
     clear(curr_win);
-    win := open_window(scr, 2, 130, 7, 32);
-    setPos(win, 1, 1);
-    writeln(win, "    " <& str_date(aTime));
+    win := open_window(scr, 2, 135, 7, 32);
+    showLocalTime(win);
     julianDayNumber := julianDayNumber(aTime);
     writeln(win, "julianDayNum =" <& julianDayNumber lpad 10);
     writeln(win);
     writeln(win, "Horizontal cursor keys:");
-    writeln(win, "  Add or subtract a day");
+    writeln(win, "  Select time step");
     writeln(win, "Vertical cursor keys:");
-    write(win,   "  Add or subtract a month");
+    write(win,   "  Add or subtract a time step");
     point(centerX, screenHeight - centerY, light_cyan);
     plotPlanet(3, scaleForOuterPlanets);
     for planetNumber range 5 to 9 do
@@ -531,18 +601,33 @@ const proc: plotOuterPlanets is func
 
 
 const proc: changeDateTime is func
+  local
+    var text: win is STD_NULL;
   begin
     clear(curr_win);
     showTime;
     setPos(scr, 1, 1);
-    writeln("Enter year month day");
-    read(aTime.year);
-    read(aTime.month);
-    readln(aTime.day);
-    writeln("Enter hour minute");
-    read(aTime.hour);
-    readln(aTime.minute);
-    showTime;
+    case currTimeChange of
+      when {1}:
+        write("Enter year: ");
+        read(aTime.year);
+      when {2}:
+        write("Enter month: ");
+        read(aTime.month);
+      when {3}:
+        write("Enter day: ");
+        read(aTime.day);
+      when {4}:
+        write("Enter hour: ");
+        read(aTime.hour);
+      when {5}:
+        write("Enter minute: ");
+        read(aTime.minute);
+      when {6}:
+        write("Enter second: ");
+        read(aTime.second);
+    end case;
+    showMenu;
   end func;
 
 
@@ -551,14 +636,15 @@ const proc: changeLongLat is func
     clear(curr_win);
     showTime;
     setPos(scr, 1, 1);
-    writeln("Enter Longitude  Latitude");
-    read(longitude);
-    readln(latitude);
-    showTime;
+    writeln("Enter Longitude");
+    readln(posAtEarth.longitude);
+    writeln("Enter Latitude");
+    readln(posAtEarth.latitude);
+    showMenu;
   end func;
 
 
-const func float: computeProjectedHeliocentricLongitude (in planetType: planet,
+const func float: computeProjectedHeliocentricLongitude (in heliocentricPlanetType: planet,
     in orbitType: orbitDescr) is func
   result
     var float: result is 0.0;
@@ -575,25 +661,277 @@ const func float: computeProjectedHeliocentricLongitude (in planetType: planet,
   end func;
 
 
+const proc: ProjectPlanetOntoEclipticalPlane (inout heliocentricPlanetType: planet,
+    in orbitType: orbitDescr) is func
+  begin
+    planet.projectedHeliocentricLongitude := computeProjectedHeliocentricLongitude(planet, orbitDescr);
+    degreesToRange(planet.projectedHeliocentricLongitude);
+    planet.projectedRadius := planet.radiusVector * cosD(planet.heliocentricEclipticLatitude);
+  end func;
+
+
+const func eclipticalCoordinateType: calculateEclipticalCoordinates (in heliocentricPlanetType: planet,
+    in heliocentricPlanetType: earth) is func
+  result
+    var eclipticalCoordinateType: result is eclipticalCoordinateType.value;
+  begin
+    if planet.radiusVector < earth.radiusVector then
+      result.geocentricEclipticLongitude := earth.heliocentricLongitude + 180.0 +
+           atanD(planet.projectedRadius * sinD(earth.heliocentricLongitude -
+           planet.projectedHeliocentricLongitude) / (earth.radiusVector -
+           planet.projectedRadius * cosD(earth.heliocentricLongitude -
+           planet.projectedHeliocentricLongitude)));
+    else
+      result.geocentricEclipticLongitude := planet.projectedHeliocentricLongitude +
+           atanD(earth.radiusVector * sinD(planet.projectedHeliocentricLongitude -
+           earth.heliocentricLongitude) / (planet.projectedRadius -
+           earth.radiusVector * cosD(planet.projectedHeliocentricLongitude -
+           earth.heliocentricLongitude)));
+    end if;
+    degreesToRange(result.geocentricEclipticLongitude);
+    result.geocentricLatitude := atanD(planet.projectedRadius *
+                           tanD(planet.heliocentricEclipticLatitude) *
+                           sinD(result.geocentricEclipticLongitude -
+                           planet.projectedHeliocentricLongitude) / (earth.radiusVector *
+                           sinD(planet.projectedHeliocentricLongitude -
+                           earth.heliocentricLongitude)));
+  end func;
+
+
+const func equatorialCoordinateType: calculateEquatorialCoordinates (
+    in eclipticalCoordinateType: eclipticalCoordinate) is func
+  result
+    var equatorialCoordinateType: result is equatorialCoordinateType.value;
+  begin
+    result.rightAscension := eclipticalCoordinatesToRightAscension(
+        eclipticalCoordinate.geocentricEclipticLongitude,
+        eclipticalCoordinate.geocentricLatitude);
+    result.declination := eclipticalCoordinatesToDeclination(
+        eclipticalCoordinate.geocentricEclipticLongitude,
+        eclipticalCoordinate.geocentricLatitude);
+  end func;
+
+
+const func float: calculateHourAngle (in equatorialCoordinateType: equatorialCoordinate,
+    in float: localSiderealTime) is func
+  result
+    var float: hourAngle is 0.0;
+  begin
+    hourAngle := localSiderealTime - equatorialCoordinate.rightAscension;
+    if hourAngle < 0.0 then
+      hourAngle +:= 24.0;
+    end if;
+  end func;
+
+
+const func horizontalCoordinateType: calculateHorizontalCoordinates (
+    in equatorialCoordinateType: equatorialCoordinate,
+    in earthCoordinateType: posAtEarth, in float: hourAngle) is func
+  result
+    var horizontalCoordinateType: result is horizontalCoordinateType.value;
+  begin
+    result.altitude := asinD(sinD(equatorialCoordinate.declination) * sinD(posAtEarth.latitude) +
+                       cosD(equatorialCoordinate.declination) * cosD(posAtEarth.latitude) *
+                       cosD(hourAngle * 15.0));
+    result.azimuth := acosD((sinD(equatorialCoordinate.declination) -
+                      sinD(posAtEarth.latitude) * sinD(result.altitude))/
+                      (cosD(posAtEarth.latitude) * cosD(result.altitude)));
+    if sinD(hourAngle * 15.0) > 0.0 then
+      result.azimuth := 360.0 - result.azimuth;
+    end if;
+  end func;
+
+
+const func geocentricPlanetType: genGeocentricPos (in heliocentricPlanetType: planet,
+    in heliocentricPlanetType: earth, in float: localSiderealTime,
+    in earthCoordinateType: posAtEarth) is func
+  result
+    var geocentricPlanetType: result is geocentricPlanetType.value;
+  begin
+    result.eclipticalCoordinate := calculateEclipticalCoordinates(planet, earth);
+    result.equatorialCoordinate := calculateEquatorialCoordinates(result.eclipticalCoordinate);
+    result.hourAngle := calculateHourAngle(result.equatorialCoordinate, localSiderealTime);
+    result.horizontalCoordinate := calculateHorizontalCoordinates(result.equatorialCoordinate,
+        posAtEarth, result.hourAngle);
+  end func;
+
+
+const func integer: panoramaXPos (in float: azimuth) is
+  return panoramaXMin + round(azimuth / 360.0 * sizePanorama);
+
+
+const func integer: panoramaYPos (in float: altitude) is
+  return panoramaHorizont - round(altitude  / 360.0 * sizePanorama);
+
+
+const proc: drawAllPlanets (in heliocentricPlanetType: earth) is func
+  local
+    var integer: planetNumber is 0;
+    var heliocentricPlanetType: planet is heliocentricPlanetType.value;
+    var geocentricPlanetType: geocentricPos is geocentricPlanetType.value;
+  begin
+    for planetNumber range 1 to 9 do
+      if planetNumber <> 3 then
+        planet := locatePositionOfPlanetInItsOrbitalPlane(orbitDescr[planetNumber]);
+        ProjectPlanetOntoEclipticalPlane(planet, orbitDescr[planetNumber]);
+        geocentricPos := genGeocentricPos(planet, earth, localSiderealTime, posAtEarth);
+        if geocentricPos.horizontalCoordinate.altitude >= 0.0 then
+          fcircle(panoramaXPos(geocentricPos.horizontalCoordinate.azimuth),
+              panoramaYPos(geocentricPos.horizontalCoordinate.altitude), 2, light_cyan);
+        end if;
+      end if;
+    end for;
+  end func;
+
+
+const proc: drawSun (in heliocentricPlanetType: earth) is func
+  local
+    var integer: planetNumber is 0;
+    var heliocentricPlanetType: sun is heliocentricPlanetType.value;
+    var geocentricPlanetType: geocentricPos is geocentricPlanetType.value;
+  begin
+    geocentricPos := genGeocentricPos(sun, earth, localSiderealTime, posAtEarth);
+    if geocentricPos.horizontalCoordinate.altitude >= 0.0 then
+      fcircle(panoramaXPos(geocentricPos.horizontalCoordinate.azimuth),
+          panoramaYPos(geocentricPos.horizontalCoordinate.altitude), 4, yellow);
+    end if;
+  end func;
+
+
+const proc: drawHorizont is func
+  local
+    var integer: azimuth is 0;
+    var integer: length is 0;
+    const array string: name is [] ("North", "East", "South", "West", "North");
+    var integer: pos is 1;
+  begin
+    lineTo(0, panoramaHorizont, 1023, panoramaHorizont, white);
+    for azimuth range 0 to 360 do
+      if azimuth rem 90 = 0 then
+        length := 12;
+        setPosXY(scr, panoramaXPos(flt(azimuth)) - 12, panoramaHorizont + 25);
+        writeln(scr, name[pos]);
+        incr(pos);
+      elsif azimuth rem 45 = 0 then
+        length := 10;
+      elsif azimuth rem 10 = 0 then
+        length := 8;
+      elsif azimuth rem 5 = 0 then
+        length := 6;
+      elsif azimuth rem 5 = 0 then
+        length := 4;
+      else
+        length := 2;
+      end if;
+      line(panoramaXPos(flt(azimuth)), panoramaHorizont, 0, length, white);
+    end for;
+  end func;
+
+
+const proc: writePoint (in integer: x, in integer: y, in float: vis) is func
+  begin
+    if vis >= 5.0 then
+      point(x, y, dark_gray);
+    elsif vis >= 4.5 then
+      point(x, y, Gray);
+    elsif vis >= 4.0 then
+      point(x, y, light_gray);
+    elsif vis >= 3.5 then
+      point(x, y, white);
+    elsif vis >= 3.0 then
+      point(x, y, white);
+      point(succ(x), y, dark_gray);
+      point(pred(x), y, dark_gray);
+      point(x, succ(y), dark_gray);
+      point(x, pred(y), dark_gray);
+    elsif vis >= 2.5 then
+      point(x, y, white);
+      point(succ(x), y, Gray);
+      point(pred(x), y, Gray);
+      point(x, succ(y), Gray);
+      point(x, pred(y), Gray);
+    elsif vis >= 2.0 then
+      point(x, y, white);
+      point(succ(x), y, light_gray);
+      point(pred(x), y, light_gray);
+      point(x, succ(y), light_gray);
+      point(x, pred(y), light_gray);
+    elsif vis >= 1.5 then
+      line(pred(x), y, 2, 0, white);
+      point(x, succ(y), white);
+      point(x, pred(y), white);
+    elsif vis >= 1.0 then
+      line(pred(x), y, 2, 0, white);
+      point(x, succ(y), white);
+      point(x, pred(y), white);
+      point(succ(x), succ(y), dark_gray);
+      point(succ(x), pred(y), dark_gray);
+      point(pred(x), succ(y), dark_gray);
+      point(pred(x), pred(y), dark_gray);
+    elsif vis >= 0.5 then
+      line(pred(x), y, 2, 0, white);
+      point(x, succ(y), white);
+      point(x, pred(y), white);
+      point(succ(x), succ(y), Gray);
+      point(succ(x), pred(y), Gray);
+      point(pred(x), succ(y), Gray);
+      point(pred(x), pred(y), Gray);
+    elsif vis >= 0.0 then
+      line(pred(x), y, 2, 0, white);
+      point(x, succ(y), white);
+      point(x, pred(y), white);
+      point(succ(x), succ(y), light_gray);
+      point(succ(x), pred(y), light_gray);
+      point(pred(x), succ(y), light_gray);
+      point(pred(x), pred(y), light_gray);
+    elsif vis >= -0.5 then
+      rect (pred(x), pred(y), 3, 3, white);
+    else
+      fcircle(x, y, 2, white);
+    end if;
+  end func;
+
+
+const proc: drawStars is func
+  local
+    var integer: index is 0;
+    var equatorialCoordinateType: equatorialCoordinate is equatorialCoordinateType.value;
+    var float: hourAngle is 0.0;
+    var horizontalCoordinateType: horizontalCoordinate is horizontalCoordinateType.value;
+	var integer: xPos is 0;
+	var integer: yPos is 0;
+  begin
+    for index range length(stars) downto 1 do
+      equatorialCoordinate.rightAscension := stars[index].rightAscension;
+      equatorialCoordinate.declination := stars[index].declination;
+      hourAngle := calculateHourAngle(equatorialCoordinate, localSiderealTime);
+      horizontalCoordinate := calculateHorizontalCoordinates(equatorialCoordinate,
+          posAtEarth, hourAngle);
+      if horizontalCoordinate.altitude >= 0.0 then
+        xPos := panoramaXPos(horizontalCoordinate.azimuth);
+        yPos := panoramaYPos(horizontalCoordinate.altitude);
+        writePoint(xPos, yPos, stars[index].magnitude);
+		if xPos + round(sizePanorama) < 1024 then
+          writePoint(xPos + round(sizePanorama), yPos, stars[index].magnitude);
+        end if;
+		if xPos - round(sizePanorama) >= 0 then
+          writePoint(xPos - round(sizePanorama), yPos, stars[index].magnitude);
+        end if;
+      end if;
+    end for;
+  end func;
+
+
 const proc: locatePlanet (in integer: planetNumber) is func
   local
     var text: win is STD_NULL;
-    var planetType: planet is planetType.value;
-    var planetType: earth is planetType.value;
-    var float: projectedHeliocentricLongitude is 0.0;
-    var float: projectedRadiusVector is 0.0;
-    var float: geocentricEclipticLongitude is 0.0;
-    var float: geocentricLatitude is 0.0;
-    var float: RA is 0.0; (* equatorial coordinates *)
-    var float: DEC is 0.0;
-    var float: hourAngle is 0.0;
-    var float: hourAngleInDegrees is 0.0;
-    var float: altitude is 0.0;
-    var float: azimuth is 0.0;
+    var heliocentricPlanetType: planet is heliocentricPlanetType.value;
+    var heliocentricPlanetType: earth is heliocentricPlanetType.value;
+    var geocentricPlanetType: geocentricPos is geocentricPlanetType.value;
     var float: azimuthOfRise is 0.0;
     var float: azimuthOfSet is 0.0;
-    var float: localSiderialTime_Rise is 0.0;
-    var float: localSiderialTime_Set  is 0.0;
+    var float: localSiderealTime_Rise is 0.0;
+    var float: localSiderealTime_Set  is 0.0;
     var float: localCivilTime_Rise is 0.0;
     var float: localCivilTime_Set  is 0.0;
     var float: phase is 0.0;
@@ -601,7 +939,7 @@ const proc: locatePlanet (in integer: planetNumber) is func
     var float: diameter is 0.0;
     var float: magnitude is 0.0;
   begin
-    clear(scr);
+    clear(curr_win, black);
     showTime;
     planet := locatePositionOfPlanetInItsOrbitalPlane(orbitDescr[planetNumber]);
 
@@ -631,104 +969,77 @@ const proc: locatePlanet (in integer: planetNumber) is func
 
 
       (* Project Position of Planet onto plane of ecliptic *)
+      ProjectPlanetOntoEclipticalPlane(planet, orbitDescr[planetNumber]);
 
       win := open_window(scr, 11, 12, 2, 68);
       setPos(win, 1, 1);
-      projectedHeliocentricLongitude := computeProjectedHeliocentricLongitude(planet,
-          orbitDescr[planetNumber]);
-      degreesToRange(projectedHeliocentricLongitude);
       write(win, "Projected Longitude  = ");
-      write(win, angleAsDegrees(projectedHeliocentricLongitude));
+      write(win, angleAsDegrees(planet.projectedHeliocentricLongitude));
       writeln(win);
-      projectedRadiusVector := planet.radiusVector *
-                                 cosD(planet.heliocentricEclipticLatitude);
       write(win, "Projected Radius     = ");
-      write(win, projectedRadiusVector digits 3 lpad 8);
+      write(win, planet.projectedRadius digits 3 lpad 8);
       write(win, " AU");
 
 
       (* Calculate Ecliptical Coordinates *)
+      geocentricPos.eclipticalCoordinate := calculateEclipticalCoordinates(planet, earth);
 
       win := open_window(scr, 19, 3, 5, 22);
       setPos(win, 1, 1);
-      if planet.radiusVector < earth.radiusVector then
-        geocentricEclipticLongitude := earth.heliocentricLongitude + 180.0 +
-             atanD(projectedRadiusVector * sinD(earth.heliocentricLongitude -
-             projectedHeliocentricLongitude) / (earth.radiusVector -
-             projectedRadiusVector * cosD(earth.heliocentricLongitude -
-             projectedHeliocentricLongitude)));
-      else
-        geocentricEclipticLongitude := projectedHeliocentricLongitude +
-             atanD(earth.radiusVector * sinD(projectedHeliocentricLongitude -
-             earth.heliocentricLongitude) / (projectedRadiusVector -
-             earth.radiusVector * cosD(projectedHeliocentricLongitude -
-             earth.heliocentricLongitude)));
-      end if;
-      degreesToRange(geocentricEclipticLongitude);
       writeln(win, "      ECLIPTIC");
       writeln(win);
-      writeln(win, " Long = " <& angleAsDegrees(geocentricEclipticLongitude));
-      geocentricLatitude := atanD(projectedRadiusVector *
-                             tanD(planet.heliocentricEclipticLatitude) *
-                             sinD(geocentricEclipticLongitude -
-                             projectedHeliocentricLongitude) / (earth.radiusVector *
-                             sinD(projectedHeliocentricLongitude -
-                             earth.heliocentricLongitude)));
-      write(win, " Lat  = " <& angleAsDegrees(geocentricLatitude));
+      writeln(win, " Long = " <& angleAsDegrees(
+          geocentricPos.eclipticalCoordinate.geocentricEclipticLongitude));
+      write(win, " Lat  = " <& angleAsDegrees(
+          geocentricPos.eclipticalCoordinate.geocentricLatitude));
 
 
       (* Calculate Equatorial Coordinates *)
+      geocentricPos.equatorialCoordinate := calculateEquatorialCoordinates(
+          geocentricPos.eclipticalCoordinate);
 
       win := open_window(scr, 19, 29, 5, 23);
       setPos(win, 1, 1);
       writeln(win, "     EQUATORIAL");
       writeln(win);
-      RA := ECL_TO_RA(geocentricEclipticLongitude, geocentricLatitude);
       write(win, " RA  = ");
       if displayRAinDegrees then
-        writeln(win, angleAsDegrees(RA));
+        writeln(win, angleAsDegrees(geocentricPos.equatorialCoordinate.rightAscension * 15.0));
       else
-        writeln(win, angleAsHours(RA));
+        writeln(win, angleAsHours(geocentricPos.equatorialCoordinate.rightAscension * 15.0));
       end if;
-      DEC := ECL_TO_DEC(geocentricEclipticLongitude, geocentricLatitude);
-      writeln(win, " DEC = " <& angleAsDegrees(DEC));
-      hourAngle := localSiderialTime - RA / 15.0;
-      if hourAngle < 0.0 then
-        hourAngle := hourAngle + 24.0;
-      end if;
-      hourAngleInDegrees := hourAngle * 15.0;
+      writeln(win, " DEC = " <& angleAsDegrees(geocentricPos.equatorialCoordinate.declination));
+
+
+      geocentricPos.hourAngle := calculateHourAngle(geocentricPos.equatorialCoordinate, localSiderealTime);
       write(win, " HA  = ");
       if displayHourAngleInDegrees then
-        write(win, angleAsDegrees(hourAngleInDegrees));
+        write(win, angleAsDegrees(geocentricPos.hourAngle * 15.0));
       else
-        write(win, angleAsHours(hourAngleInDegrees));
+        write(win, angleAsHours(geocentricPos.hourAngle * 15.0));
       end if;
 
 
       (* Calculate Horizontal Coordinates *)
+      geocentricPos.horizontalCoordinate := calculateHorizontalCoordinates(
+          geocentricPos.equatorialCoordinate,
+          posAtEarth, geocentricPos.hourAngle);
 
       win := open_window(scr, 19, 56, 5, 23);
       setPos(win, 1, 1);
       writeln(win, "      HORIZONTAL");
       writeln(win);
-      altitude := asinD(sinD(DEC) * sinD(latitude) +
-                  cosD(DEC) * cosD(latitude) * cosD(hourAngle * 15.0));
-      writeln(win, " Alt  = " <& angleAsDegrees(altitude));
-      azimuth := acosD((sinD(DEC) - sinD(latitude) * sinD(altitude))/
-                 (cosD(latitude) * cosD(altitude)));
-      if sinD(hourAngle) > 0.0 then
-        azimuth := 360.0 - azimuth;
-      end if;
-      write(win, " Azim = " <& angleAsDegrees(azimuth));
+      writeln(win, " Alt  = " <& angleAsDegrees(geocentricPos.horizontalCoordinate.altitude));
+      write(win, " Azim = " <& angleAsDegrees(geocentricPos.horizontalCoordinate.azimuth));
 
 
       (* Calculate Time and Position of Rise and Set *)
 
       win := open_window(scr, 15, 4, 2, 50);
       setPos(win, 1, 1);
-      azimuthOfRise := sinD(DEC) / cosD(latitude);
+      azimuthOfRise := sinD(geocentricPos.equatorialCoordinate.declination) / cosD(posAtEarth.latitude);
       if azimuthOfRise < -1.0 or azimuthOfRise > 1.0 then
-        if altitude < 0.0 then
+        if geocentricPos.horizontalCoordinate.altitude < 0.0 then
           writeln(win, "never rises above horizon");
         else
           writeln(win, "never sets below horizon");
@@ -736,23 +1047,27 @@ const proc: locatePlanet (in integer: planetNumber) is func
       else
         azimuthOfRise := acosD(azimuthOfRise);
         azimuthOfSet := 360.0 - azimuthOfRise;
-        localSiderialTime_Rise := 24.0 + RA / 15.0 - (acosD(-tanD(latitude) * tanD(DEC))) / 15.0;
-        if localSiderialTime_Rise > 24.0 then
-          localSiderialTime_Rise := localSiderialTime_Rise - 24.0;
+        localSiderealTime_Rise := 24.0 + geocentricPos.equatorialCoordinate.rightAscension -
+            (acosD(-tanD(posAtEarth.latitude) *
+            tanD(geocentricPos.equatorialCoordinate.declination))) / 15.0;
+        if localSiderealTime_Rise > 24.0 then
+          localSiderealTime_Rise := localSiderealTime_Rise - 24.0;
         end if;
-        localSiderialTime_Set := RA / 15.0 + (acosD(-tanD(latitude) * tanD(DEC))) / 15.0;
-        if localSiderialTime_Set > 24.0 then
-          localSiderialTime_Set := localSiderialTime_Set - 24.0;
+        localSiderealTime_Set := geocentricPos.equatorialCoordinate.rightAscension +
+            (acosD(-tanD(posAtEarth.latitude) *
+            tanD(geocentricPos.equatorialCoordinate.declination))) / 15.0;
+        if localSiderealTime_Set > 24.0 then
+          localSiderealTime_Set := localSiderealTime_Set - 24.0;
         end if;
 
-        localCivilTime_Set := localSiderialToCivilTime(localSiderialTime_Set,
-            longitude, aTime);
+        localCivilTime_Set := localSiderealToCivilTime(localSiderealTime_Set,
+            posAtEarth.longitude, aTime);
         if localCivilTime_Set < 0.0 then
           localCivilTime_Set := localCivilTime_Set + 24.0;
         end if;
 
-        localCivilTime_Rise := localSiderialToCivilTime(localSiderialTime_Rise,
-            longitude, aTime);
+        localCivilTime_Rise := localSiderealToCivilTime(localSiderealTime_Rise,
+            posAtEarth.longitude, aTime);
         if localCivilTime_Rise < 0.0 then
           localCivilTime_Rise := localCivilTime_Rise + 24.0;
         end if;
@@ -768,6 +1083,9 @@ const proc: locatePlanet (in integer: planetNumber) is func
             minutes(localCivilTime_Set) lpad 2 <& " local time");
         write(win, "  Azimuth ");
         write(win, angleAsDegrees(azimuthOfSet));
+
+        line(panoramaXPos(azimuthOfRise), panoramaHorizont - 2, 0, 4, light_cyan);
+        line(panoramaXPos(azimuthOfSet), panoramaHorizont - 2, 0, 4, light_cyan);
       end if;
 
 
@@ -776,7 +1094,8 @@ const proc: locatePlanet (in integer: planetNumber) is func
       win := open_window(scr, 12, 57, 5, 23);
       setPos(win, 1, 1);
 
-      phase := (1.0 + cosD(geocentricEclipticLongitude - planet.heliocentricLongitude)) / 2.0;
+      phase := (1.0 + cosD(geocentricPos.eclipticalCoordinate.geocentricEclipticLongitude -
+          planet.heliocentricLongitude)) / 2.0;
       write(win, "Phase     = ");
       write(win, 100.0 * phase digits 2 lpad 6);
       writeln(win, "%");
@@ -803,6 +1122,19 @@ const proc: locatePlanet (in integer: planetNumber) is func
       else
         write(win, "*****" lpad 6);
       end if;
+
+      drawHorizont;
+      drawStars;
+      if geocentricPos.horizontalCoordinate.altitude >= 0.0 then
+        fcircle(panoramaXPos(geocentricPos.horizontalCoordinate.azimuth),
+            panoramaYPos(geocentricPos.horizontalCoordinate.altitude), 2, light_cyan);
+      end if;
+      drawSun(earth);
+    else
+      drawHorizont;
+      drawStars;
+      drawAllPlanets(planet);
+      drawSun(planet);
     end if;
   end func; (* locatePlanet *)
 
@@ -966,23 +1298,43 @@ const proc: main is func
     repeat
       ch := getc(KEYBOARD);
       if ch = KEY_RIGHT then
-        aTime +:= 1 . DAYS;
+        if currTimeChange < 6 then
+          incr(currTimeChange);
+        end if;
       elsif ch = KEY_LEFT then
-        aTime -:= 1 . DAYS;
-      elsif ch = KEY_DOWN then
-        aTime +:= 1 . MONTHS;
+        if currTimeChange > 1 then
+          decr(currTimeChange);
+        end if;
       elsif ch = KEY_UP then
-        aTime -:= 1 . MONTHS;
+        case currTimeChange of
+          when {1}: aTime -:= 1 . YEARS;
+          when {2}: aTime -:= 1 . MONTHS;
+          when {3}: aTime -:= 1 . DAYS;
+          when {4}: aTime -:= 1 . HOURS;
+          when {5}: aTime -:= 1 . MINUTES;
+          when {6}: aTime -:= 1 . SECONDS;
+        end case;
+      elsif ch = KEY_DOWN then
+        case currTimeChange of
+          when {1}: aTime +:= 1 . YEARS;
+          when {2}: aTime +:= 1 . MONTHS;
+          when {3}: aTime +:= 1 . DAYS;
+          when {4}: aTime +:= 1 . HOURS;
+          when {5}: aTime +:= 1 . MINUTES;
+          when {6}: aTime +:= 1 . SECONDS;
+        end case;
       else
         old_command := command;
         command := ch;
       end if;
       case command of
+        when {'M', 'm'}: showMenu;
         when {'I', 'i'}: plotInnerPlanets; 
         when {'O', 'o'}: plotOuterPlanets;
         when {'D', 'd'}: changeDateTime;
+                         command := 'M';
         when {'L', 'l'}: changeLongLat;
-        when {'M', 'm'}: showMenu;
+                         command := 'M';
         when {'S', 's'}: setup;
         when {'1', '2', '3', '4', '5', '6', '7', '8', '9'}:
           locatePlanet(ord(command) - ord('0'));
@@ -990,6 +1342,6 @@ const proc: main is func
           command := old_command;
       end case;
       setPos(scr, 58, 1);
-      write(scr, "(Q)uit (M)enu (I)nner (O)uter (D)ate (L)ong   (1-9) Planet");
+      write(scr, "(M)enu (I)nner (O)uter (D)ate (L)ong (Q)uit  (1-9) Planet");
     until ch = 'Q' or ch = 'q';
   end func;

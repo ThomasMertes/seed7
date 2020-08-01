@@ -418,11 +418,16 @@ stritype stri;
     okay = TRUE;
     position = 0;
     integer_value = 0;
-    if (stri->size >= 1 && stri->mem[0] == ((strelemtype) '-')) {
-      negative = TRUE;
-      position++;
-    } else {
-      negative = FALSE;
+    if (stri->size != 0) {
+      if (stri->mem[0] == ((strelemtype) '-')) {
+        negative = TRUE;
+        position++;
+      } else {
+        if (stri->mem[0] == ((strelemtype) '+')) {
+          position++;
+        } /* if */
+        negative = FALSE;
+      } /* if */
     } /* if */
     while (position < stri->size &&
         stri->mem[position] >= ((strelemtype) '0') &&

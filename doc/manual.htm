@@ -1570,8 +1570,8 @@
                   ( Type of argument A: <font color=red>string</font>,
                     <font color=red>integer</font> <font color=blue>parse</font> <font color=maroon>"123"</font> => 123,
                     <font color=red>integer</font> <font color=blue>parse</font> <font color=maroon>"-123"</font> => -123,
+                    <font color=red>integer</font> <font color=blue>parse</font> <font color=maroon>"+5"</font> => 5,
                     <font color=red>integer</font> <font color=blue>parse</font> <font color=maroon>" 1"</font> => EXCEPTION RANGE_ERROR,
-                    <font color=red>integer</font> <font color=blue>parse</font> <font color=maroon>"+5"</font> => EXCEPTION RANGE_ERROR,
                     <font color=red>integer</font> <font color=blue>parse</font> <font color=maroon>"10 "</font> => EXCEPTION RANGE_ERROR,
                     <font color=red>integer</font> <font color=blue>parse</font> <font color=maroon>"ASDF"</font> => EXCEPTION RANGE_ERROR )
     Relations:

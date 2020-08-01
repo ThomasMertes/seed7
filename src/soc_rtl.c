@@ -459,7 +459,8 @@ inttype flags;
 
   {
     memsizetype bytes_requested;
-    memsizetype stri_size;
+    memsizetype old_stri_size;
+    memsizetype new_stri_size;
 
   /* socRecv */
     if (length < 0) {
@@ -467,34 +468,38 @@ inttype flags;
       return(0);
     } else {
       bytes_requested = (memsizetype) length;
-      if (!RESIZE_STRI(*stri, (*stri)->size, bytes_requested)) {
-        raise_error(MEMORY_ERROR);
-        return(0);
+      old_stri_size = (*stri)->size;
+      if (old_stri_size < bytes_requested) {
+        if (!RESIZE_STRI(*stri, old_stri_size, bytes_requested)) {
+          raise_error(MEMORY_ERROR);
+          return(0);
+        } /* if */
+        COUNT3_STRI(old_stri_size, bytes_requested);
+        old_stri_size = bytes_requested;
       } /* if */
-      COUNT3_STRI((*stri)->size, bytes_requested);
-      stri_size = (memsizetype) recv(sock, (*stri)->mem,
+      new_stri_size = (memsizetype) recv(sock, (*stri)->mem,
           (SIZE_TYPE) bytes_requested, flags);
 #ifdef WIDE_CHAR_STRINGS
-      if (stri_size > 0) {
-        uchartype *from = &((uchartype *) (*stri)->mem)[stri_size - 1];
-        strelemtype *to = &(*stri)->mem[stri_size - 1];
-        memsizetype number = stri_size;
+      if (new_stri_size > 0) {
+        uchartype *from = &((uchartype *) (*stri)->mem)[new_stri_size - 1];
+        strelemtype *to = &(*stri)->mem[new_stri_size - 1];
+        memsizetype number = new_stri_size;
 
         for (; number > 0; from--, to--, number--) {
           *to = *from;
         } /* for */
       } /* if */
 #endif
-      (*stri)->size = stri_size;
-      if (stri_size < bytes_requested) {
-        if (!RESIZE_STRI(*stri, bytes_requested, stri_size)) {
+      (*stri)->size = new_stri_size;
+      if (new_stri_size < old_stri_size) {
+        if (!RESIZE_STRI(*stri, old_stri_size, new_stri_size)) {
           raise_error(MEMORY_ERROR);
           return(0);
         } /* if */
-        COUNT3_STRI(bytes_requested, stri_size);
+        COUNT3_STRI(old_stri_size, new_stri_size);
       } /* if */
     } /* if */
-    return((inttype) stri_size);
+    return((inttype) new_stri_size);
   } /* socRecv */
 
 

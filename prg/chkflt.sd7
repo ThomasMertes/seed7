@@ -239,6 +239,17 @@ const proc: check_nan is func
   end func;
 
 
+const proc: check_atan2 is func
+  begin
+    if  atan2(0.0, 0.0) = 0.0 and
+        atan2(0.0, 1.0) = 0.0 then
+      writeln("atan2 works correct for selected values");
+    else
+      writeln(" ***** atan2 does not work correct");
+    end if;
+  end func;
+
+
 const proc: main is func
 
   begin
@@ -249,6 +260,7 @@ const proc: main is func
     check_ipower;
     check_inf;
     check_nan;
+    check_atan2;
 (*
     writeln(Infinity);
     writeln(-Infinity);

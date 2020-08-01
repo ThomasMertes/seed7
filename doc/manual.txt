@@ -1570,8 +1570,8 @@ CONTENTS
                   ( Type of argument A: string,
                     integer parse "123" => 123,
                     integer parse "-123" => -123,
+                    integer parse "+5" => 5,
                     integer parse " 1" => EXCEPTION RANGE_ERROR,
-                    integer parse "+5" => EXCEPTION RANGE_ERROR,
                     integer parse "10 " => EXCEPTION RANGE_ERROR,
                     integer parse "ASDF" => EXCEPTION RANGE_ERROR )
     Relations:

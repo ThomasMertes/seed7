@@ -1350,8 +1350,20 @@ const proc: process_prc_block (in ref_list: params, inout expr_type: c_expr) is 
   begin
     c_expr.expr &:= "{\n";
     c_expr.expr &:= "int fail_value;\n";
-    # c_expr.expr &:= "if ((fail_value = sigsetjmp(catch_position, 1)) == 0) {\n";
-    c_expr.expr &:= "if ((fail_value = setjmp(catch_position)) == 0) {\n";
+    c_expr.expr &:= "catch_stack_pos++;\n";
+    c_expr.expr &:= "if (catch_stack_pos >= max_catch_stack) {\n";
+    c_expr.expr &:= "  catch_type *resized_stack;\n";
+    c_expr.expr &:= "  max_catch_stack += 128;\n";
+    c_expr.expr &:= "  resized_stack = realloc(catch_stack, max_catch_stack);\n";
+    c_expr.expr &:= "  if (resized_stack == NULL) {\n";
+    c_expr.expr &:= "    catch_stack_pos--;\n";
+    c_expr.expr &:= "    raise_error(MEMORY_ERROR);\n";
+    c_expr.expr &:= "  } else {\n";
+    c_expr.expr &:= "    catch_stack = resized_stack;\n";
+    c_expr.expr &:= "  }\n";
+    c_expr.expr &:= "}\n";
+    # c_expr.expr &:= "if ((fail_value = sigsetjmp(catch_stack[catch_stack_pos], 1)) == 0) {\n";
+    c_expr.expr &:= "if ((fail_value = setjmp(catch_stack[catch_stack_pos])) == 0) {\n";
     process_expr(params[2], c_expr);
     c_expr.expr &:= "} else {\n";
     # c_expr.expr &:= "printf(\"catch %d\\n\", fail_value);\n";
@@ -1370,11 +1382,15 @@ const proc: process_prc_block (in ref_list: params, inout expr_type: c_expr) is 
         current_catch := catch_expr[6];
         catch_expr := getValue(current_catch, ref_list);
       else
-        c_expr.expr &:= "}\n";
+        c_expr.expr &:= "} else {\n";
+        c_expr.expr &:= "  catch_stack_pos--;\n";
+        c_expr.expr &:= "  raise_error(fail_value);\n";
         current_catch := NIL;
       end if;
     end while;
     c_expr.expr &:= "}\n";
+    c_expr.expr &:= "}\n";
+    c_expr.expr &:= "catch_stack_pos--;\n";
     c_expr.expr &:= "}\n";
   end func;
 
@@ -4237,7 +4253,7 @@ const proc: process_flt_parse (in ref_list: params, inout expr_type: c_expr) is 
 
   begin
     c_expr.expr &:= "fltParse(";
-    process_expr(params[3], c_expr);
+    process_arg(params[3], c_expr);
     c_expr.expr &:= ")";
   end func;
 
@@ -11845,8 +11861,11 @@ const proc: write_file_head is func
     c_prog << "    free(old_head);\\\n";
     c_prog << "  }\\\n";
     c_prog << "}\n";
-    # c_prog << "sigjmp_buf catch_position;\n";
-    c_prog << "jmp_buf catch_position;\n";
+    # c_prog << "typedef sigjmp_buf catch_type;\n";
+    c_prog << "typedef jmp_buf catch_type;\n";
+    c_prog << "catch_type *catch_stack;\n";
+    c_prog << "int catch_stack_pos;\n";
+    c_prog << "int max_catch_stack;\n";
     c_prog << "stritype    act_str (void *a)                             {printf(\"act_str\\n\");}\n";
     c_prog << "void        arrAppend (arraytype *, arraytype);\n";
     c_prog << "arraytype   arrArrlit (arraytype);\n";
@@ -12090,9 +12109,9 @@ const proc: write_file_head is func
     c_prog << "void        ut8Seek (filetype, inttype);\n";
     c_prog << "stritype    ut8WordRead (filetype, chartype *);\n";
     c_prog << "void        ut8Write (filetype, stritype);\n";
-    # c_prog << "void       raise_error (int a)                           {printf(\"raise_error(%d)\\n\", a); siglongjmp(catch_position, a); }\n";
-    # c_prog << "void        raise_error (int a)                           {siglongjmp(catch_position, a); }\n";
-    c_prog << "void        raise_error (int a)                           {longjmp(catch_position, a); }\n";
+    # c_prog << "void       raise_error (int a)                           {printf(\"raise_error(%d)\\n\", a); siglongjmp(catch_stack[catch_stack_pos], a); }\n";
+    # c_prog << "void        raise_error (int a)                           {siglongjmp(catch_stack[catch_stack_pos], a); }\n";
+    c_prog << "void        raise_error (int a)                           {longjmp(catch_stack[catch_stack_pos], a); }\n";
 (*
     c_prog << "stritype    act_str (void * );\n";
     c_prog << "arraytype   arrHead (arraytype a, inttype b)              {printf(\"arrHead\\n\");}\n";
@@ -12524,7 +12543,10 @@ const proc: generate_main (in program: prog) is func
     c_expr.expr &:= "\n";
     c_expr.expr &:= "{\n";
     c_expr.expr &:= "int fail_value;\n";
-    c_expr.expr &:= "if ((fail_value = setjmp(catch_position)) == 0) {\n";
+    c_expr.expr &:= "catch_stack_pos = 0;\n";
+    c_expr.expr &:= "max_catch_stack = 128;\n";
+    c_expr.expr &:= "catch_stack = malloc(max_catch_stack * sizeof(catch_type));\n";
+    c_expr.expr &:= "if ((fail_value = setjmp(catch_stack[catch_stack_pos])) == 0) {\n";
 
     c_expr.expr &:= "arg_0 = cstri_to_stri(argv[0]);\n";
     c_expr.expr &:= "arg_v = malloc(sizeof(struct arraystruct) - sizeof(long) + argc * sizeof(long));\n";

@@ -53,8 +53,8 @@ const func integer: iterate (in complex: z0) is func
     var complex: z is complex.value;
   begin
     z := z0;
-    while iter < max_iter and  # not converged
-        sqrAbs(z) < 4.0 do     # not diverged
+    while sqrAbs(z) < 4.0 and  # not diverged
+        iter < max_iter do     # not converged
       z *:= z;
       z +:= z0;
       incr(iter);
