@@ -47,6 +47,7 @@ const func intRange: getIntRange (in reference: intExpression) is func
     var string: actionName is "";
     var reference: evaluatedParam is NIL;
     var integer: number is 0;
+    var intRange: numberRange is intRange.value;
   begin
     if reduceOverflowChecks and category(intExpression) = CALLOBJECT then
       params := getValue(intExpression, ref_list);
@@ -57,7 +58,7 @@ const func intRange: getIntRange (in reference: intExpression) is func
         case actionName of
           when {"ARR_LNG", "BST_LNG", "FIL_LNG", "HSH_LNG", "RFL_LNG",
                 "SET_CARD",
-                "INT_ABS", "INT_BYTES_BE_2_UINT", "INT_BYTES_LE_2_UINT",
+                "INT_BYTES_BE_2_UINT", "INT_BYTES_LE_2_UINT",
                 "SQL_STMT_COLUMN_COUNT"}:
             valueRange.minValue := 0;
             valueRange.maxValue := integer.last;
@@ -74,7 +75,7 @@ const func intRange: getIntRange (in reference: intExpression) is func
             valueRange.minValue := 0;
             valueRange.maxValue := 1;
           when {"CHR_ORD"}:
-           if ccConf.TWOS_COMPLEMENT_INTTYPE then
+            if ccConf.TWOS_COMPLEMENT_INTTYPE then
               valueRange.minValue := -2147483648;
             else
               valueRange.minValue := -2147483647;
@@ -83,6 +84,24 @@ const func intRange: getIntRange (in reference: intExpression) is func
           when {"FIL_TELL"}:
             valueRange.minValue := 1;
             valueRange.maxValue := integer.last;
+          when {"INT_ABS"}:
+            numberRange := getIntRange(params[1]);
+            if numberRange <> intRange.value then
+              valueRange.minValue := 0;
+              if numberRange.minValue > integer.first and
+                  numberRange.maxValue > integer.first then
+                if abs(numberRange.minValue) > abs(numberRange.maxValue) then
+                  valueRange.maxValue := abs(numberRange.minValue);
+                else
+                  valueRange.maxValue := abs(numberRange.maxValue);
+                end if;
+              else
+                valueRange.maxValue := integer.last;
+              end if;
+            else
+              valueRange.minValue := 0;
+              valueRange.maxValue := integer.last;
+            end if;
           when {"INT_BIT_LENGTH"}:
             valueRange.minValue := 0;
             valueRange.maxValue := pred(ccConf.INTTYPE_SIZE);
@@ -117,6 +136,19 @@ const func intRange: getIntRange (in reference: intExpression) is func
           when {"INT_LOWEST_SET_BIT"}:
             valueRange.minValue := -1;
             valueRange.maxValue := pred(ccConf.INTTYPE_SIZE);
+          when {"INT_NEGATE"}:
+            numberRange := getIntRange(params[2]);
+            if numberRange <> intRange.value then
+              valueRange.minValue := -numberRange.maxValue;
+              if numberRange.minValue < -integer.last then
+                valueRange.maxValue := integer.last;
+              else
+                valueRange.maxValue := -numberRange.minValue;
+              end if;
+            else
+              valueRange.minValue := -integer.last;
+              valueRange.maxValue := integer.last;
+            end if;
           when {"INT_MDIV"}:
             if getConstant(params[3], INTOBJECT, evaluatedParam) then
               number := getValue(evaluatedParam, integer);

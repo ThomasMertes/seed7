@@ -52,6 +52,7 @@ const func color: charColor (in char: ch, in color: background) is func
       when {'n'}: col := dark_blue;
       when {'m'}: col := dark_magenta;
       when {'c'}: col := light_cyan;
+      when {'L'}: col := lavender;
       when {'W'}: col := white;
       when {'X'}: col := black;
       when {'x'}: col := light_gray;
@@ -59,6 +60,8 @@ const func color: charColor (in char: ch, in color: background) is func
       when {'d'}: col := dark_gray;
       when {'b'}: col := brown;
       when {'p'}: col := pink;
+      when {'P'}: col := light_pink;
+      when {'i'}: col := mint;
       when {'f'}: col := forestgreen;
       when {'l'}: col := middle_blue;
       otherwise:  col := black;

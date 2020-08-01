@@ -654,7 +654,7 @@ type_implements_interface(lzmaFile, file);
 
 
 (**
- *  Open a ''lzmaFile'' to decompress a compressed string.
+ *  Open a ''lzmaFile'' to decompress a compressed file.
  *  @return the file opened.
  *)
 const func file: openLzmaFile (inout file: compressed) is func

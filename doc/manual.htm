@@ -2058,10 +2058,15 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
     Functions:
       <span class="func">ord</span>(A)    Identity
       <span class="func">succ</span>(A)   Successor
-                  ( succ(A) <b>&rArr;</b> A+1 )
+                  ( succ(A) <b>&rArr;</b> A+1,
+                    succ(<a class="type" href="#types_integer">integer</a>.<span class="var">last</span>) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_OVERFLOW_ERROR">OVERFLOW_ERROR</a> )
       <span class="func">pred</span>(A)   Predecessor
-                  ( pred(A) <b>&rArr;</b> A-1 )
+                  ( pred(A) <b>&rArr;</b> A-1,
+                    pred(<a class="type" href="#types_integer">integer</a>.<span class="var">first</span>) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_OVERFLOW_ERROR">OVERFLOW_ERROR</a> )
       <span class="func">abs</span>(A)    Absolute value
+                  ( abs(A) <b>&rArr;</b> A for A >= 0,
+                  ( abs(A) <b>&rArr;</b> -A for A < 0,
+                  ( abs(<a class="type" href="#types_integer">integer</a>.<span class="var">first</span>) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_OVERFLOW_ERROR">OVERFLOW_ERROR</a> )
       <span class="func">odd</span>(A)    Odd value
                   ( Type of result: <a class="type" href="#types_boolean">boolean</a> )
       <span class="func">str</span>(A)    Conversion to <a class="type" href="#types_string">string</a>
@@ -2087,11 +2092,11 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
                     integer(<span class="stri">"0"</span>, 1) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a>,
                     integer(<span class="stri">"qwertyuiop"</span>, 37) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
       <span class="func">sqrt</span>(A)   Integer square root
-                  ( sqrt(A) is okay for A >= 0
+                  ( sqrt(A) is okay for A >= 0,
                     sqrt(A) <b>&rArr;</b> trunc(sqrt(flt(A))),
                     sqrt(-1) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_NUMERIC_ERROR">NUMERIC_ERROR</a> )
       <span class="func">log10</span>(A)  Truncated base 10 logarithm
-                  ( log10(A) is defined for A >= 0
+                  ( log10(A) is defined for A >= 0,
                     log10(10 ** A) = A for A >= 0,
                     log10(pred(10 ** A)) = pred(A) for A >= 0,
                     log10(10) <b>&rArr;</b> 1,
@@ -2147,9 +2152,11 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
       A <span class="op">>>:=</span> B  Shift right copy
                   ( A >>:= B <b>&rArr;</b> A := A >> B )
       <span class="func">incr</span>(A)   Increment with 1
-                  ( incr(A) <b>&rArr;</b> A +:= 1 )
+                  ( incr(A) <b>&rArr;</b> A +:= 1,
+                    incr(<a class="type" href="#types_integer">integer</a>.<span class="var">last</span>) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_OVERFLOW_ERROR">OVERFLOW_ERROR</a> )
       <span class="func">decr</span>(A)   Decrement with 1
-                  ( decr(A) <b>&rArr;</b> A -:= 1 )
+                  ( decr(A) <b>&rArr;</b> A -:= 1,
+                    decr(<a class="type" href="#types_integer">integer</a>.<span class="var">first</span>) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_OVERFLOW_ERROR">OVERFLOW_ERROR</a> )
 </pre><p>
   <a name="types_div_rem_mdiv_mod_properties"></a>For the operations <tt><span class="op">div</span></tt> and <tt><span class="op">rem</span></tt> holds for all A:</p><pre class="box">
     (A <span class="op">div</span> B) * B + A <span class="op">rem</span> B = A           when B &lt;> 0
@@ -2378,6 +2385,9 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
       <span class="func">str</span>(A)    Conversion to <a class="type" href="#types_string">string</a>
                   ( Type of result: <a class="type" href="#types_string">string</a>,
                     str(9876543210_) <b>&rArr;</b> <span class="stri">"9876543210"</span> )
+      <span class="func">bigInteger</span>(A) Convert an <a class="type" href="#types_integer">integer</a> to a bigInteger
+                  ( Type of argument A: <a class="type" href="#types_integer">integer</a>,
+                    bigInteger(1) <b>&rArr;</b> 1_ )
       <span class="func">bigInteger</span>(A) Convert a numeric string to a bigInteger
                   ( Type of argument A: <a class="type" href="#types_string">string</a>,
                     bigInteger(<span class="stri">"123"</span>) <b>&rArr;</b> 123_,
@@ -2632,7 +2642,13 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
                     -1/2048 <span class="op">sci</span> 3 <b>&rArr;</b> <span class="stri">"-4.883e-4"</span>,
                     -0/1 <span class="op">sci</span> 2 <b>&rArr;</b> <span class="stri">"0.00e+0"</span> )
       <a class="type" href="#types_rational">rational</a> <span class="op">parse</span> A   Conversion of <a class="type" href="#types_string">string</a> to <a class="type" href="#types_rational">rational</a>
-                  ( Type of argument A: <a class="type" href="#types_string">string</a> )
+                  ( Type of argument A: <a class="type" href="#types_string">string</a>,
+                    <a class="type" href="#types_rational">rational</a> <span class="op">parse</span> <span class="stri">"3/5"</span> <b>&rArr;</b> 3 / 5,
+                    <a class="type" href="#types_rational">rational</a> <span class="op">parse</span> <span class="stri">"1.25"</span> <b>&rArr;</b> 5 / 4,
+                    <a class="type" href="#types_rational">rational</a> <span class="op">parse</span> <span class="stri">"0.(3)"</span> <b>&rArr;</b> 1 / 3,
+                    <a class="type" href="#types_rational">rational</a> <span class="op">parse</span> <span class="stri">"1.23(45)"</span> <b>&rArr;</b> 679 / 550,
+                    <a class="type" href="#types_rational">rational</a> <span class="op">parse</span> <span class="stri">"3.(142857)"</span> <b>&rArr;</b> 22 / 7,
+                    <a class="type" href="#types_rational">rational</a> <span class="op">parse</span> <span class="stri">"0.(846153)"</span> <b>&rArr;</b> 11 / 13 )
     Relations:
       <span class="op">=</span>, <span class="op">&lt;></span>, <span class="op">&lt;</span>, <span class="op">&lt;=</span>, <span class="op">></span>, <span class="op">>=</span>
     Functions:
@@ -2640,6 +2656,17 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
       <span class="func">rat</span>(A)    Conversion of <a class="type" href="#types_integer">integer</a> to <a class="type" href="#types_rational">rational</a>
                   ( Type of argument A: <a class="type" href="#types_integer">integer</a>,
                     rat(1) <b>&rArr;</b> 1 / 1 )
+      <span class="func">rational</span>(A)  Conversion of <a class="type" href="#types_integer">integer</a> to <a class="type" href="#types_rational">rational</a>
+                  ( Type of argument A: <a class="type" href="#types_integer">integer</a>,
+                    rational(1) <b>&rArr;</b> 1 / 1 )
+      <span class="func">rational</span>(A)  Conversion of <a class="type" href="#types_string">string</a> to <a class="type" href="#types_rational">rational</a>
+                  ( Type of argument A: <a class="type" href="#types_string">string</a>,
+                    rational(<span class="stri">"3/5"</span>) <b>&rArr;</b> 3 / 5,
+                    rational(<span class="stri">"1.25"</span>) <b>&rArr;</b> 5 / 4,
+                    rational(<span class="stri">"0.(3)"</span>) <b>&rArr;</b> 1 / 3,
+                    rational(<span class="stri">"1.23(45)"</span>) <b>&rArr;</b> 679 / 550,
+                    rational(<span class="stri">"3.(142857)"</span>) <b>&rArr;</b> 22 / 7,
+                    rational(<span class="stri">"0.(846153)"</span>) <b>&rArr;</b> 11 / 13 )
       <span class="func">floor</span>(A)  Truncation towards negative infinity
                   ( Type of result: <a class="type" href="#types_integer">integer</a>,
                     floor(9/5) <b>&rArr;</b>  1, floor(1/1) <b>&rArr;</b>  1,
@@ -2750,7 +2777,13 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
                     -1_/2048_ <span class="op">sci</span> 3 <b>&rArr;</b> <span class="stri">"-4.883e-4"</span>,
                     -0_/1_ <span class="op">sci</span> 2 <b>&rArr;</b> <span class="stri">"0.00e+0"</span> )
       <a class="type" href="#types_bigRational">bigRational</a> <span class="op">parse</span> A   Conversion of <a class="type" href="#types_string">string</a> to <a class="type" href="#types_bigRational">bigRational</a>
-                  ( Type of argument A: <a class="type" href="#types_string">string</a> )
+                  ( Type of argument A: <a class="type" href="#types_string">string</a>,
+                    <a class="type" href="#types_bigRational">bigRational</a> <span class="op">parse</span> <span class="stri">"3/5"</span <b>&rArr;</b> 3_ / 5_,
+                    <a class="type" href="#types_bigRational">bigRational</a> <span class="op">parse</span> <span class="stri">"1.25"</span> <b>&rArr;</b> 5_ / 4_,
+                    <a class="type" href="#types_bigRational">bigRational</a> <span class="op">parse</span> <span class="stri">"0.(3)"</span> <b>&rArr;</b> 1_ / 3_,
+                    <a class="type" href="#types_bigRational">bigRational</a> <span class="op">parse</span> <span class="stri">"1.23(45)"</span> <b>&rArr;</b> 679_ / 550_,
+                    <a class="type" href="#types_bigRational">bigRational</a> <span class="op">parse</span> <span class="stri">"3.(142857)"</span> <b>&rArr;</b> 22_ / 7_,
+                    <a class="type" href="#types_bigRational">bigRational</a> <span class="op">parse</span> <span class="stri">"0.(846153)"</span> <b>&rArr;</b> 11_ / 13_ )
     Relations:
       <span class="op">=</span>, <span class="op">&lt;></span>, <span class="op">&lt;</span>, <span class="op">&lt;=</span>, <span class="op">></span>, <span class="op">>=</span>
     Functions:
@@ -2758,6 +2791,20 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
       <span class="func">rat</span>(A)    Conversion of <a class="type" href="#types_bigInteger">bigInteger</a> to <a class="type" href="#types_bigRational">bigRational</a>
                   ( Type of argument A: <a class="type" href="#types_bigInteger">bigInteger</a>,
                     rat(1_) <b>&rArr;</b> 1_ / 1_ )
+      <span class="func">bigRational</span>(A)  Conversion of <a class="type" href="#types_integer">integer</a> to <a class="type" href="#types_bigRational">bigRational</a>
+                  ( Type of argument A: <a class="type" href="#types_integer">integer</a>,
+                    bigRational(1) <b>&rArr;</b> 1_ / 1_ )
+      <span class="func">bigRational</span>(A)  Conversion of <a class="type" href="#types_bigInteger">bigInteger</a> to <a class="type" href="#types_bigRational">bigRational</a>
+                  ( Type of argument A: <a class="type" href="#types_bigInteger">bigInteger</a>,
+                    bigRational(1_) <b>&rArr;</b> 1_ / 1_ )
+      <span class="func">bigRational</span>(A)  Conversion of <a class="type" href="#types_string">string</a> to <a class="type" href="#types_bigRational">bigRational</a>
+                  ( Type of argument A: <a class="type" href="#types_string">string</a>,
+                    bigRational(<span class="stri">"3/5"</span>) <b>&rArr;</b> 3_ / 5_,
+                    bigRational(<span class="stri">"1.25"</span>) <b>&rArr;</b> 5_ / 4_,
+                    bigRational(<span class="stri">"0.(3)"</span>) <b>&rArr;</b> 1_ / 3_,
+                    bigRational(<span class="stri">"1.23(45)"</span>) <b>&rArr;</b> 679_ / 550_,
+                    bigRational(<span class="stri">"3.(142857)"</span>) <b>&rArr;</b> 22_ / 7_,
+                    bigRational(<span class="stri">"0.(846153)"</span>) <b>&rArr;</b> 11_ / 13_ )
       <span class="func">floor</span>(A)  Truncation towards negative infinity
                   ( Type of result: <a class="type" href="#types_bigInteger">bigInteger</a>,
                     floor(9_/5_) <b>&rArr;</b>  1_, floor(1_/1_) <b>&rArr;</b>  1_,
@@ -3009,7 +3056,7 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
 <a name="types_complex"><h3>5.7 complex</h3></a>
 <p>
     The type <tt><span class="type">complex</span></tt> consists of complex numbers represented
-  with an <tt><a class="type" href="#types_float">float</a></tt> real part and an <tt><a class="type" href="#types_float">float</a></tt> imaginary part.
+  with a <tt><a class="type" href="#types_float">float</a></tt> real part and a <tt><a class="type" href="#types_float">float</a></tt> imaginary part.
   Complex literals do not exist. The <tt><span class="type">complex</span></tt> functions are
   defined in the library <span class="stri">"<span class="lib">complex.s7i</span>"</span>.
 </p><pre class="tt">
@@ -3060,6 +3107,8 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
                     Type of argument B: <a class="type" href="#types_float">float</a> )
       <span class="func">complex</span>(A)  Return a <a class="type" href="#types_complex">complex</a> number from its real part
                   ( Type of argument A: <a class="type" href="#types_float">float</a> )
+      <span class="func">complex</span>(A)  Return a <a class="type" href="#types_complex">complex</a> number from its real part
+                  ( Type of argument A: <a class="type" href="#types_integer">integer</a> )
       <span class="func">polar</span>(A, B)  Return a <a class="type" href="#types_complex">complex</a> number from polar coordinates
                   ( Type of argument A: <a class="type" href="#types_float">float</a>,
                     Type of argument B: <a class="type" href="#types_float">float</a> )
@@ -5795,12 +5844,12 @@ clear(window1);
 
 <span class="keywd">const</span> <span class="type">func boolean</span>: (<span class="keywd">attr</span> <span class="type">boolean</span>) parse (<span class="keywd">in</span> <span class="type">string</span>: stri) <span class="keywd">is func</span>
   <span class="keywd">result</span>
-    <span class="keywd">var</span> <span class="type">boolean</span>: aBoolean <span class="keywd">is</span> FALSE;
+    <span class="keywd">var</span> <span class="type">boolean</span>: aBoolean <span class="keywd">is</span> <span class="var">FALSE</span>;
   <span class="keywd">begin</span>
     <span class="keywd">if</span> stri = <span class="stri">"TRUE"</span> <span class="keywd">then</span>
-      aBoolean := TRUE;
+      aBoolean := <span class="var">TRUE</span>;
     <span class="keywd">elsif</span> stri = <span class="stri">"FALSE"</span> <span class="keywd">then</span>
-      aBoolean := FALSE;
+      aBoolean := <span class="var">FALSE</span>;
     <span class="keywd">else</span>
       raise RANGE_ERROR;
     <span class="keywd">end if</span>;
@@ -5962,7 +6011,7 @@ writeln(0.375 <span class="keywd">sci</span> 1 <span class="keywd">exp</span> 2)
 </p><p>
   The two basic I/O methods defined for <tt><span class="type">null_file</span></tt> are
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">proc</span>: write (<span class="keywd">ref</span> <span class="type">null_file</span>: aFile, <span class="keywd">in</span> <span class="type">string</span>: stri) <span class="keywd">is</span> noop;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: write (<span class="keywd">ref</span> <span class="type">null_file</span>: aFile, <span class="keywd">in</span> <span class="type">string</span>: stri) <span class="keywd">is</span> noop;
 <span class="keywd">const</span> <span class="type">string</span>: gets (<span class="keywd">ref</span> <span class="type">null_file</span>: aFile, <span class="keywd">ref</span> <span class="type">integer</span>: maxLength) <span class="keywd">is</span> <span class="stri">""</span>;
 </pre><p>
   A <tt><span class="func">write</span></tt> to <tt><span class="type">null_file</span></tt> with any string has no effect.
@@ -6061,12 +6110,12 @@ writeln(0.375 <span class="keywd">sci</span> 1 <span class="keywd">exp</span> 2)
 </p><p>
   The type <tt><span class="type">null_file</span></tt> provides default functions to write end-of-line:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">proc</span>: writeln (<span class="keywd">inout</span> <span class="type">null_file</span>: outFile) <span class="keywd">is func</span>
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: writeln (<span class="keywd">inout</span> <span class="type">null_file</span>: outFile) <span class="keywd">is func</span>
   <span class="keywd">begin</span>
     write(outFile, <span class="stri">"\n"</span>);
   <span class="keywd">end func</span>;
 
-<span class="keywd">const</span> <span class="type">proc</span>: writeln (<span class="keywd">inout</span> <span class="type">null_file</span>: outFile, <span class="keywd">in</span> <span class="type">string</span>: stri) <span class="keywd">is func</span>
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: writeln (<span class="keywd">inout</span> <span class="type">null_file</span>: outFile, <span class="keywd">in</span> <span class="type">string</span>: stri) <span class="keywd">is func</span>
   <span class="keywd">begin</span>
     write(outFile, stri);
     writeln(outFile);
@@ -6074,12 +6123,12 @@ writeln(0.375 <span class="keywd">sci</span> 1 <span class="keywd">exp</span> 2)
 </pre><p>
   The next declarations allow various I/O operations for strings:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">proc</span>: read (<span class="keywd">inout</span> <span class="type">file</span>: aFile, <span class="keywd">inout</span> <span class="type">string</span>: stri) <span class="keywd">is func</span>
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: read (<span class="keywd">inout</span> <span class="type">file</span>: aFile, <span class="keywd">inout</span> <span class="type">string</span>: stri) <span class="keywd">is func</span>
   <span class="keywd">begin</span>
     stri := getwd(aFile);
   <span class="keywd">end func</span>;
 
-<span class="keywd">const</span> <span class="type">proc</span>: readln (<span class="keywd">inout</span> <span class="type">file</span>: aFile, <span class="keywd">inout</span> <span class="type">string</span>: stri) <span class="keywd">is func</span>
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: readln (<span class="keywd">inout</span> <span class="type">file</span>: aFile, <span class="keywd">inout</span> <span class="type">string</span>: stri) <span class="keywd">is func</span>
   <span class="keywd">begin</span>
     stri := getln(aFile);
   <span class="keywd">end func</span>;
@@ -6095,7 +6144,7 @@ writeln(0.375 <span class="keywd">sci</span> 1 <span class="keywd">exp</span> 2)
   The templates <tt><span class="func">enable_io</span></tt> and <tt><span class="func">enable_output</span></tt> define the following
   <tt><span class="func">write</span></tt> function:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">proc</span>: write (<span class="keywd">in</span> <span class="type">file</span>: aFile, <span class="keywd">in</span> <span class="type">aType</span>: aValue) <span class="keywd">is func</span>
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: write (<span class="keywd">in</span> <span class="type">file</span>: aFile, <span class="keywd">in</span> <span class="type">aType</span>: aValue) <span class="keywd">is func</span>
   <span class="keywd">begin</span>
     write(aFile, str(aValue));
   <span class="keywd">end func</span>;
@@ -6103,19 +6152,19 @@ writeln(0.375 <span class="keywd">sci</span> 1 <span class="keywd">exp</span> 2)
   The templates <tt><span class="func">enable_io</span></tt> and <tt><span class="func">enable_input</span></tt> define the following
   <tt><span class="func">read</span></tt> and <tt><span class="func">readln</span></tt> functions:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">proc</span>: read (<span class="keywd">inout</span> <span class="type">file</span>: aFile, <span class="keywd">inout</span> <span class="type">aType</span>: aValue) <span class="keywd">is func</span>
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: read (<span class="keywd">inout</span> <span class="type">file</span>: aFile, <span class="keywd">inout</span> <span class="type">aType</span>: aValue) <span class="keywd">is func</span>
   <span class="keywd">begin</span>
     aValue := <span class="type">aType</span> <span class="op">parse</span> getwd(aFile);
   <span class="keywd">end func</span>;
 
-<span class="keywd">const</span> <span class="type">proc</span>: readln (<span class="keywd">inout</span> <span class="type">file</span>: aFile, <span class="keywd">inout</span> <span class="type">aType</span>: aValue) <span class="keywd">is func</span>
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: readln (<span class="keywd">inout</span> <span class="type">file</span>: aFile, <span class="keywd">inout</span> <span class="type">aType</span>: aValue) <span class="keywd">is func</span>
   <span class="keywd">begin</span>
     aValue := <span class="type">aType</span> <span class="op">parse</span> trimValue(aType, getln(aFile));
   <span class="keywd">end func</span>;
 </pre><p>
   The next declaration defines <tt>'backSpace'</tt>:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">proc</span>: backSpace (<span class="keywd">ref</span> <span class="type">external_file</span>: aFile) <span class="keywd">is func</span>
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: backSpace (<span class="keywd">ref</span> <span class="type">external_file</span>: aFile) <span class="keywd">is func</span>
   <span class="keywd">begin</span>
     write(aFile, <span class="stri">"\b \b"</span>);
   <span class="keywd">end func</span>;
@@ -6134,36 +6183,36 @@ read(amount);
   in the next chapter.  Here is the definition of the <tt>'read'</tt> and
   <tt>'write'</tt> procedures done with <tt><span class="func">enable_io</span></tt>:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">proc</span>: read (<span class="keywd">inout</span> <span class="type">aType</span>: aValue) <span class="keywd">is func</span>
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: read (<span class="keywd">inout</span> <span class="type">aType</span>: aValue) <span class="keywd">is func</span>
   <span class="keywd">begin</span>
     read(IN, aValue);
   <span class="keywd">end func</span>;
 
-<span class="keywd">const</span> <span class="type">proc</span>: readln (<span class="keywd">inout</span> <span class="type">aType</span>: aValue) <span class="keywd">is func</span>
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: readln (<span class="keywd">inout</span> <span class="type">aType</span>: aValue) <span class="keywd">is func</span>
   <span class="keywd">begin</span>
     readln(IN, aValue);
   <span class="keywd">end func</span>;
 
-<span class="keywd">const</span> <span class="type">proc</span>: write (<span class="keywd">in</span> <span class="type">aType</span>: aValue) <span class="keywd">is func</span>
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: write (<span class="keywd">in</span> <span class="type">aType</span>: aValue) <span class="keywd">is func</span>
   <span class="keywd">begin</span>
     write(OUT, aValue);
   <span class="keywd">end func</span>;
 
-<span class="keywd">const</span> <span class="type">proc</span>: writeln (<span class="keywd">in</span> <span class="type">aType</span>: aValue) <span class="keywd">is func</span>
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: writeln (<span class="keywd">in</span> <span class="type">aType</span>: aValue) <span class="keywd">is func</span>
   <span class="keywd">begin</span>
     writeln(OUT, aValue);
   <span class="keywd">end func</span>;
 </pre><p>
   Additional procedures defined outside of <tt><span class="func">enable_io</span></tt> are:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">proc</span>: readln <span class="keywd">is func</span>
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: readln <span class="keywd">is func</span>
   <span class="keywd">local</span>
     <span class="keywd">var</span> <span class="type">string</span>: stri <span class="keywd">is</span> <span class="stri">""</span>;
   <span class="keywd">begin</span>
     stri := getln(IN);
   <span class="keywd">end func</span>;
 
-<span class="keywd">const</span> <span class="type">proc</span>: writeln <span class="keywd">is func</span>
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: writeln <span class="keywd">is func</span>
   <span class="keywd">begin</span>
     writeln(OUT);
   <span class="keywd">end func</span>;
@@ -6286,11 +6335,11 @@ close(my_out);
 </p><pre class="indent">
 $ <span class="keywd">include</span> <span class="stri">"seed7_05.s7i"</span>;
 
-<span class="keywd">const</span> <span class="type">proc</span>: main <span class="keywd">is func</span>
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
   <span class="keywd">local</span>
     <span class="keywd">var</span> <span class="type">file</span>: my_out <span class="keywd">is</span> STD_NULL;
   <span class="keywd">begin</span>
-    my_out := open(<span class="stri">"my_file"</span>, <span class="stri">"w"</span>);
+    my_out := <span class="func">open</span>(<span class="stri">"my_file"</span>, <span class="stri">"w"</span>);
     <span class="keywd">if</span> my_out &lt;> STD_NULL <span class="keywd">then</span>
       writeln(my_out, <span class="stri">"hi there"</span>);
       close(my_out);
@@ -6469,20 +6518,13 @@ writeln(err, <span class="stri">"Some error occurred"</span>);
   library <span class="stri">"<span class="lib">keybd.s7i</span>"</span> defines <tt><a class="type" href="#types_char">char</a></tt> constants for various keys:
 </p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
     <tr><td>Key character constant</td>     <td>Description</td></tr>
-    <tr><td><tt>KEY_CTL_A</tt> to <tt>KEY_CTL_Z</tt></td>     <td>The control keys ctrl-a to ctrl-z</td></tr>
+    <tr><td><tt><a name="file_KEY_CTL_A_TO_Z">KEY_CTL_A</a></tt> to <tt>KEY_CTL_Z</tt></td>     <td>The control keys ctrl-a to ctrl-z</td></tr>
     <tr><td><tt>KEY_ALT_A</tt> to <tt>KEY_ALT_Z</tt></td>     <td>The alternate keys alt-a to alt-z</td></tr>
     <tr><td><tt>KEY_ALT_0</tt> to <tt>KEY_ALT_9</tt></td>     <td>The alternate keys alt-0 to alt-9</td></tr>
     <tr><td><tt>KEY_F1</tt> to <tt>KEY_F10</tt></td>          <td>Function keys F1 to F10</td></tr>
     <tr><td><tt>KEY_SFT_F1</tt> to <tt>KEY_SFT_F10</tt></td>  <td>Shifted function keys F1 to F10</td></tr>
     <tr><td><tt>KEY_CTL_F1</tt> to <tt>KEY_CTL_F10</tt></td>  <td>Control function keys F1 to F10</td></tr>
     <tr><td><tt>KEY_ALT_F1</tt> to <tt>KEY_ALT_F10</tt></td>  <td>Alternate function keys F1 to F10</td></tr>
-    <tr><td><tt><a name="file_KEY_BS">KEY_BS</a></tt></td>                     <td>Backspace (equal to KEY_CTL_H)</td></tr>
-    <tr><td><tt><a name="file_KEY_TAB">KEY_TAB</a></tt></td>                    <td>Horizontal Tab (equal to KEY_CTL_H)</td></tr>
-    <tr><td><tt><a name="file_KEY_NL">KEY_NL</a></tt></td>                     <td>Newline/enter/return key (equal to KEY_CTL_J)</td></tr>
-    <tr><td><tt><a name="file_KEY_CR">KEY_CR</a></tt></td>                     <td>Carriage return (equal to KEY_CTL_M)</td></tr>
-    <tr><td><tt><a name="file_KEY_ESC">KEY_ESC</a></tt></td>                    <td>Escape key</td></tr>
-    <tr><td><tt><a name="file_KEY_NULCHAR">KEY_NULCHAR</a></tt></td>                <td>Nul character key</td></tr>
-    <tr><td><tt><a name="file_KEY_BACKTAB">KEY_BACKTAB</a></tt></td>                <td>Horizontal back tab</td></tr>
     <tr><td><tt><a name="file_KEY_LEFT">KEY_LEFT</a></tt></td>                   <td>Cursor left</td></tr>
     <tr><td><tt><a name="file_KEY_RIGHT">KEY_RIGHT</a></tt></td>                  <td>Cursor right</td></tr>
     <tr><td><tt><a name="file_KEY_UP">KEY_UP</a></tt></td>                     <td>Cursor up</td></tr>
@@ -6504,20 +6546,84 @@ writeln(err, <span class="stri">"Some error occurred"</span>);
     <tr><td><tt>KEY_CTL_PGDN</tt></td>               <td>Control page down</td></tr>
     <tr><td><tt>KEY_CTL_INS</tt></td>                <td>Control insert key</td></tr>
     <tr><td><tt>KEY_CTL_DEL</tt></td>                <td>Control delete key</td></tr>
+    <tr><td><tt>KEY_CTL_PAD_CENTER</tt></td>         <td>Control numeric keypad center key</td></tr>
+    <tr><td><tt>KEY_ALT_LEFT</tt></td>               <td>Alt cursor left</td></tr>
+    <tr><td><tt>KEY_ALT_RIGHT</tt></td>              <td>Alt cursor right</td></tr>
+    <tr><td><tt>KEY_ALT_UP</tt></td>                 <td>Alt cursor up</td></tr>
+    <tr><td><tt>KEY_ALT_DOWN</tt></td>               <td>Alt cursor down</td></tr>
+    <tr><td><tt>KEY_ALT_HOME</tt></td>               <td>Alt home key</td></tr>
+    <tr><td><tt>KEY_ALT_END</tt></td>                <td>Alt end key</td></tr>
+    <tr><td><tt>KEY_ALT_PGUP</tt></td>               <td>Alt page up</td></tr>
+    <tr><td><tt>KEY_ALT_PGDN</tt></td>               <td>Alt page down</td></tr>
+    <tr><td><tt>KEY_ALT_INS</tt></td>                <td>Alt insert key</td></tr>
+    <tr><td><tt>KEY_ALT_DEL</tt></td>                <td>Alt delete key</td></tr>
+    <tr><td><tt>KEY_ALT_PAD_CENTER</tt></td>         <td>Alt numeric keypad center key</td></tr>
+    <tr><td><tt><a name="file_KEY_NL">KEY_NL</a></tt></td>                     <td>Newline/enter/return key (equal to KEY_CTL_J)</td></tr>
+    <tr><td><tt><a name="file_KEY_BS">KEY_BS</a></tt></td>                     <td>Backspace (equal to KEY_CTL_H)</td></tr>
+    <tr><td><tt><a name="file_KEY_TAB">KEY_TAB</a></tt></td>                    <td>Horizontal tab (equal to KEY_CTL_H)</td></tr>
+    <tr><td><tt><a name="file_KEY_CR">KEY_CR</a></tt></td>                     <td>Carriage return (equal to KEY_CTL_M)</td></tr>
+    <tr><td><tt><a name="file_KEY_ESC">KEY_ESC</a></tt></td>                    <td>Escape key</td></tr>
+    <tr><td><tt>KEY_MENU</tt></td>                   <td>Menu key</td></tr>
+    <tr><td><tt>KEY_PRINT</tt></td>                  <td>Print key</td></tr>
+    <tr><td><tt>KEY_PAUSE</tt></td>                  <td>Pause key</td></tr>
+    <tr><td><tt>KEY_SFT_NL</tt></td>                 <td>Shift newline/enter/return key</td></tr>
+    <tr><td><tt>KEY_SFT_BS</tt></td>                 <td>Shift backspace</td></tr>
+    <tr><td><tt>KEY_SFT_TAB</tt></td>                <td>Shift tab (same as <tt>KEY_BACKTAB</tt>)</td></tr>
+    <tr><td><tt><a name="file_KEY_BACKTAB">KEY_BACKTAB</a></tt></td>                <td>Shift tab (same as <tt>KEY_SFT_TAB</tt>)</td></tr>
+    <tr><td><tt>KEY_SFT_ESC</tt></td>                <td>Shift escape</td></tr>
+    <tr><td><tt>KEY_SFT_MENU</tt></td>               <td>Shift menu</td></tr>
+    <tr><td><tt>KEY_SFT_PRINT</tt></td>              <td>Shift print</td></tr>
+    <tr><td><tt>KEY_SFT_PAUSE</tt></td>              <td>Shift pause</td></tr>
+    <tr><td><tt>KEY_CTL_NL</tt></td>                 <td>Control newline/enter/return key</td></tr>
+    <tr><td><tt>KEY_CTL_BS</tt></td>                 <td>Control backspace</td></tr>
+    <tr><td><tt>KEY_CTL_TAB</tt></td>                <td>Control tab</td></tr>
+    <tr><td><tt>KEY_CTL_ESC</tt></td>                <td>Control escape</td></tr>
+    <tr><td><tt>KEY_CTL_MENU</tt></td>               <td>Control menu</td></tr>
+    <tr><td><tt>KEY_CTL_PRINT</tt></td>              <td>Control print</td></tr>
+    <tr><td><tt>KEY_CTL_PAUSE</tt></td>              <td>Control pause</td></tr>
+    <tr><td><tt>KEY_ALT_NL</tt></td>                 <td>Alt newline/enter/return key</td></tr>
+    <tr><td><tt>KEY_ALT_BS</tt></td>                 <td>Alt backspace</td></tr>
+    <tr><td><tt>KEY_ALT_TAB</tt></td>                <td>Alt tab</td></tr>
+    <tr><td><tt>KEY_ALT_ESC</tt></td>                <td>Alt escape</td></tr>
+    <tr><td><tt>KEY_ALT_MENU</tt></td>               <td>Alt menu</td></tr>
+    <tr><td><tt>KEY_ALT_PRINT</tt></td>              <td>Alt print</td></tr>
+    <tr><td><tt>KEY_ALT_PAUSE</tt></td>              <td>Alt pause</td></tr>
     <tr><td><tt>KEY_SCRLUP</tt></td>                 <td>Scroll up key</td></tr>
     <tr><td><tt>KEY_SCRLDN</tt></td>                 <td>Scroll down key</td></tr>
     <tr><td><tt>KEY_INSLN</tt></td>                  <td>Insert line key</td></tr>
     <tr><td><tt>KEY_DELLN</tt></td>                  <td>Delete line key</td></tr>
     <tr><td><tt>KEY_ERASE</tt></td>                  <td>Erase key</td></tr>
-    <tr><td><tt>KEY_CTL_NL</tt></td>                 <td>Control newline/enter/return key</td></tr>
+    <tr><td><tt><a name="file_KEY_NULCHAR">KEY_NULCHAR</a></tt></td>                <td>Nul character key</td></tr>
     <tr><td><tt>KEY_NULLCMD</tt></td>                <td>Null command of window manager</td></tr>
     <tr><td><tt>KEY_REDRAW</tt></td>                 <td>Redraw command of window manager</td></tr>
-    <tr><td><tt>KEY_NEWWINDOW</tt></td>              <td>New window command of window manager</td></tr>
-    <tr><td><tt>KEY_MOUSE1</tt></td>                 <td>Mouse key 1 (counted from left)</td></tr>
-    <tr><td><tt>KEY_MOUSE2</tt></td>                 <td>Mouse key 2 (counted from left)</td></tr>
-    <tr><td><tt>KEY_MOUSE3</tt></td>                 <td>Mouse key 3 (counted from left)</td></tr>
-    <tr><td><tt>KEY_MOUSE4</tt></td>                 <td>Mouse key 4 (counted from left)</td></tr>
-    <tr><td><tt>KEY_MOUSE5</tt></td>                 <td>Mouse key 5 (counted from left)</td></tr>
+    <tr><td><tt><a name="file_KEY_MOUSE1">KEY_MOUSE1</a></tt></td>                 <td>Mouse button 1 (counted from left)</td></tr>
+    <tr><td><tt>KEY_MOUSE2</tt></td>                 <td>Mouse button 2 (counted from left)</td></tr>
+    <tr><td><tt>KEY_MOUSE3</tt></td>                 <td>Mouse button 3 (counted from left)</td></tr>
+    <tr><td><tt>KEY_MOUSE4</tt></td>                 <td>Mouse wheel scroll up</td></tr>
+    <tr><td><tt>KEY_MOUSE5</tt></td>                 <td>Mouse wheel scroll down</td></tr>
+    <tr><td><tt>KEY_MOUSE_FWD</tt></td>              <td>Mouse forward button</td></tr>
+    <tr><td><tt>KEY_MOUSE_BACK</tt></td>             <td>Mouse back button</td></tr>
+    <tr><td><tt>KEY_SFT_MOUSE1</tt></td>             <td>Shift mouse button 1 (counted from left)</td></tr>
+    <tr><td><tt>KEY_SFT_MOUSE2</tt></td>             <td>Shift mouse button 2 (counted from left)</td></tr>
+    <tr><td><tt>KEY_SFT_MOUSE3</tt></td>             <td>Shift mouse button 3 (counted from left)</td></tr>
+    <tr><td><tt>KEY_SFT_MOUSE4</tt></td>             <td>Shift mouse wheel scroll up</td></tr>
+    <tr><td><tt>KEY_SFT_MOUSE5</tt></td>             <td>Shift mouse wheel scroll down</td></tr>
+    <tr><td><tt>KEY_SFT_MOUSE_FWD</tt></td>          <td>Shift mouse forward button</td></tr>
+    <tr><td><tt>KEY_SFT_MOUSE_BACK</tt></td>         <td>Shift mouse back button</td></tr>
+    <tr><td><tt>KEY_CTL_MOUSE1</tt></td>             <td>Control mouse button 1 (counted from left)</td></tr>
+    <tr><td><tt>KEY_CTL_MOUSE2</tt></td>             <td>Control mouse button 2 (counted from left)</td></tr>
+    <tr><td><tt>KEY_CTL_MOUSE3</tt></td>             <td>Control mouse button 3 (counted from left)</td></tr>
+    <tr><td><tt>KEY_CTL_MOUSE4</tt></td>             <td>Control mouse wheel scroll up</td></tr>
+    <tr><td><tt>KEY_CTL_MOUSE5</tt></td>             <td>Control mouse wheel scroll down</td></tr>
+    <tr><td><tt>KEY_CTL_MOUSE_FWD</tt></td>          <td>Control mouse forward button</td></tr>
+    <tr><td><tt>KEY_CTL_MOUSE_BACK</tt></td>         <td>Control mouse back button</td></tr>
+    <tr><td><tt>KEY_ALT_MOUSE1</tt></td>             <td>Alt mouse button 1 (counted from left)</td></tr>
+    <tr><td><tt>KEY_ALT_MOUSE2</tt></td>             <td>Alt mouse button 2 (counted from left)</td></tr>
+    <tr><td><tt>KEY_ALT_MOUSE3</tt></td>             <td>Alt mouse button 3 (counted from left)</td></tr>
+    <tr><td><tt>KEY_ALT_MOUSE4</tt></td>             <td>Alt mouse wheel scroll up</td></tr>
+    <tr><td><tt>KEY_ALT_MOUSE5</tt></td>             <td>Alt mouse wheel scroll down</td></tr>
+    <tr><td><tt>KEY_ALT_MOUSE_FWD</tt></td>          <td>Alt mouse forward button</td></tr>
+    <tr><td><tt>KEY_ALT_MOUSE_BACK</tt></td>         <td>Alt mouse back button</td></tr>
     <tr><td><tt>KEY_UNDEF</tt></td>                  <td>Undefined key</td></tr>
     <tr><td><tt><a name="file_KEY_NONE">KEY_NONE</a></tt></td>                   <td>No key pressed (returned by busy_getc)</td></tr>
 </table></dd></dl><p>
@@ -6526,7 +6632,7 @@ writeln(err, <span class="stri">"Some error occurred"</span>);
 $ <span class="keywd">include</span> <span class="stri">"seed7_05.s7i"</span>;
   <span class="keywd">include</span> <span class="stri">"keybd.s7i"</span>;
 
-<span class="keywd">const</span> <span class="type">proc</span>: main <span class="keywd">is func</span>
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
   <span class="keywd">begin</span>
     writeln(<span class="stri">"Please press cursor up"</span>);
     <span class="keywd">while</span> getc(KEYBOARD) &lt;> <tt><a class="var" href="#file_KEY_UP">KEY_UP</a></tt> <span class="keywd">do</span>
@@ -6559,10 +6665,10 @@ $ <span class="keywd">include</span> <span class="stri">"seed7_05.s7i"</span>;
   <span class="keywd">include</span> <span class="stri">"time.s7i"</span>;
   <span class="keywd">include</span> <span class="stri">"keybd.s7i"</span>;
 
-<span class="keywd">const</span> <span class="type">proc</span>: main <span class="keywd">is func</span>
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
   <span class="keywd">begin</span>
     writeln;
-    <span class="keywd">while</span> busy_getc(KEYBOARD) = <a class="var" href="#file_KEY_NONE">KEY_NONE</a> <span class="keywd">do</span>
+    <span class="keywd">while</span> <span class="func">busy_getc</span>(KEYBOARD) = <a class="var" href="#file_KEY_NONE">KEY_NONE</a> <span class="keywd">do</span>
       write(time(NOW) &lt;&amp; <span class="stri">"\r"</span>);
       flush(OUT);
     <span class="keywd">end while</span>;
@@ -6572,7 +6678,8 @@ $ <span class="keywd">include</span> <span class="stri">"seed7_05.s7i"</span>;
 </pre><p>
   Seed7 programs can run in two modes:
 </p><ul>
-    <li>Console mode, where the program runs in a console/terminal window (the default).</li>
+    <li>Console mode, where the program runs in a console/terminal
+      window (the default).</li>
     <li>Graphics mode, where the program has its own graphic window.</li>
 </ul><p>
   This two modes are supported with two basic keyboard files:
@@ -6590,7 +6697,70 @@ $ <span class="keywd">include</span> <span class="stri">"seed7_05.s7i"</span>;
 </pre><p>
   Graphic programs switch to to the <tt><span class="var">GRAPH_KEYBOARD</span></tt> driver with:
 </p><pre class="indent">
-KEYBOARD := GRAPH_KEYBOARD;
+KEYBOARD := <span class="var">GRAPH_KEYBOARD</span>;
+</pre><p>
+  A <tt><span class="var">GRAPH_KEYBOARD</span></tt> additionally provides the following functions:
+</p><ul>
+    <li><tt><span class="func">buttonPressed</span></tt>, which determines if a given button is
+      currently pressed.</li>
+    <li><tt><span class="func">getxpos</span></tt>, which returns the X position of the mouse cursor
+      when a button was pressed.</li>
+    <li><tt><span class="func">getypos</span></tt>, which returns the Y position of the mouse cursor
+      when a button was pressed.</li>
+</ul><p>
+  The functions <tt><span class="func">getxpos</span></tt> and <tt><span class="func">getypos</span></tt> can be used to determine
+  which position was "clicked". The program below uses <tt><span class="func">getxpos</span></tt>
+  and <tt><span class="func">getypos</span></tt> to produce a dot for each keypress.
+</p><pre class="indent">
+$ <span class="keywd">include</span> <span class="stri">"seed7_05.s7i"</span>;
+  <span class="keywd">include</span> <span class="stri">"keybd.s7i"</span>;
+  <span class="keywd">include</span> <span class="stri">"draw.s7i"</span>;
+
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+  <span class="keywd">local</span>
+    <span class="keywd">var</span> <a class="type" href="#types_char">char</a>: command <span class="keywd">is</span> <span class="stri">' '</span>;
+  <span class="keywd">begin</span>
+    screen(640, 480);
+    KEYBOARD := <span class="var">GRAPH_KEYBOARD</span>;
+    command := getc(KEYBOARD);
+    <span class="keywd">while</span> command = <a class="var" href="#file_KEY_MOUSE1">KEY_MOUSE1</a> <span class="keywd">do</span>
+      fcircle(<span class="func">getxpos</span>(KEYBOARD), <span class="func">getypos</span>(KEYBOARD), 4, light_red);
+      command := getc(KEYBOARD);
+    <span class="keywd">end while</span>;
+  <span class="keywd">end func</span>;
+</pre><p>
+  The current position of the mouse curser, which is independend
+  from key presses can be retrieved with the following functions:
+</p><ul>
+    <li><tt><span class="func">pointerXPos</span></tt>, which returns the actual X position of the
+      mouse pointer.</li>
+    <li><tt><span class="func">pointerYPos</span></tt>, which returns the actual Y position of the
+      mouse pointer.</li>
+</ul><p>
+  The functions <tt><span class="func">pointerXPos</span></tt> and <tt><span class="func">pointerYPos</span></tt> can be used to move
+  something with the cursor (e.g.: drag and drop). The program below
+  uses <tt><span class="func">buttonPressed</span></tt> to determine how long the mouse button is
+  pressed. This is used together with <tt><span class="func">pointerXPos</span></tt> and <tt><span class="func">pointerYPos</span></tt>
+  to draw along the mouse cursor while the mouse button is pressed:
+</p><pre class="indent">
+$ <span class="keywd">include</span> <span class="stri">"seed7_05.s7i"</span>;
+  <span class="keywd">include</span> <span class="stri">"keybd.s7i"</span>;
+  <span class="keywd">include</span> <span class="stri">"draw.s7i"</span>;
+
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+  <span class="keywd">local</span>
+    <span class="keywd">var</span> <a class="type" href="#types_char">char</a>: command <span class="keywd">is</span> <span class="stri">' '</span>;
+  <span class="keywd">begin</span>
+    screen(640, 480);
+    KEYBOARD := <span class="var">GRAPH_KEYBOARD</span>;
+    command := getc(KEYBOARD);
+    <span class="keywd">while</span> command = <a class="var" href="#file_KEY_MOUSE1">KEY_MOUSE1</a> <span class="keywd">do</span>
+      <span class="keywd">while</span> <span class="func">buttonPressed</span>(KEYBOARD, <a class="var" href="#file_KEY_MOUSE1">KEY_MOUSE1</a>) <span class="keywd">do</span>
+        fcircle(<span class="func">pointerXPos</span>(curr_win), <span class="func">pointerYPos</span>(curr_win), 4, light_red);
+      <span class="keywd">end while</span>;
+      command := getc(KEYBOARD);
+    <span class="keywd">end while</span>;
+  <span class="keywd">end func</span>;
 </pre><p>
   Some file types are defined to support the <tt><span class="var">KEYBOARD</span></tt>. One such
   file type is <tt><span class="type">echo_file</span></tt>, which is defined in the library <span class="stri">"<span class="lib">echo.s7i</span>"</span>.
@@ -6604,18 +6774,18 @@ $ <span class="keywd">include</span> <span class="stri">"seed7_05.s7i"</span>;
   <span class="keywd">include</span> <span class="stri">"keybd.s7i"</span>;
   <span class="keywd">include</span> <span class="stri">"echo.s7i"</span>;
 
-<span class="keywd">const</span> <span class="type">proc</span>: main <span class="keywd">is func</span>
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
   <span class="keywd">local</span>
     <span class="keywd">var</span> <span class="type">char</span>: ch <span class="keywd">is</span> <span class="stri">' '</span>;
   <span class="keywd">begin</span>
-    IN := openEcho(KEYBOARD, OUT);
+    IN := <span class="func">openEcho</span>(KEYBOARD, OUT);
     <span class="keywd">repeat</span>
       ch := getc(IN);
     <span class="keywd">until</span> ch = <span class="stri">'!'</span>;
     writeln;
   <span class="keywd">end func</span>;
 </pre><p>
-  An <tt><span class="type">echo_file</span></tt> checks also for control-C (<tt><span class="var">KEY_CTL_C</span></tt>). If
+  An <tt><span class="type">echo_file</span></tt> checks also for control-C (<tt><a class="var" href="#file_KEY_CTL_A_TO_Z">KEY_CTL_C</a></tt>). If
   control-C is typed an <tt><span class="type">echo_file</span></tt> asks if the program should be
   terminated:
 </p><pre class="indent">
@@ -6642,12 +6812,12 @@ $ <span class="keywd">include</span> <span class="stri">"seed7_05.s7i"</span>;
   <span class="keywd">include</span> <span class="stri">"echo.s7i"</span>;
   <span class="keywd">include</span> <span class="stri">"line.s7i"</span>;
 
-<span class="keywd">const</span> <span class="type">proc</span>: main <span class="keywd">is func</span>
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
   <span class="keywd">local</span>
     <span class="keywd">var</span> <span class="type">char</span>: ch <span class="keywd">is</span> <span class="stri">' '</span>;
   <span class="keywd">begin</span>
-    IN := openEcho(KEYBOARD, OUT);
-    IN := openLine(IN);
+    IN := <span class="func">openEcho</span>(KEYBOARD, OUT);
+    IN := <span class="func">openLine</span>(IN);
     <span class="keywd">repeat</span>
       ch := getc(IN);
       write(ch);
@@ -6741,25 +6911,25 @@ sock := openInetSocket(serverName, 80);
   The library <span class="stri">"<span class="lib">listener.s7i</span>"</span> defines the function <tt><span class="func">openInetListener</span></tt>,
   which opens a <tt><span class="type">listener</span></tt>:
 </p><pre class="indent">
-aListener := openInetListener(1080);
+aListener := <span class="func">openInetListener</span>(1080);
 </pre><p>
   The function <tt><span class="func">listen</span></tt> is used to listen for incoming socket
   connections of a <tt><span class="type">listener</span></tt>, and to
   limit the incoming queue:
 </p><pre class="indent">
-listen(aListener, 10);
+<span class="func">listen</span>(aListener, 10);
 </pre><p>
   The function <tt><span class="func">accept</span></tt> returns the first connected socked
   of the <tt><span class="type">listener</span></tt>:
 </p><pre class="indent">
-serverSocket := accept(aListener);
+serverSocket := <span class="func">accept</span>(aListener);
 </pre><p>
   Together the functions above can be use to process requests without sessions:
 </p><pre class="indent">
-aListener := openInetListener(1080);
-listen(aListener, 10);
-<span class="keywd">while</span> TRUE <span class="keywd">do</span>
-  sock := accept(aListener);
+aListener := <span class="func">openInetListener</span>(1080);
+<span class="func">listen</span>(aListener, 10);
+<span class="keywd">while</span> <span class="var">TRUE</span> <span class="keywd">do</span>
+  sock := <span class="func">accept</span>(aListener);
   <span class="comment"># Read and process the request from sock.</span>
   close(sock);
 <span class="keywd">end while</span>;
@@ -6767,10 +6937,10 @@ listen(aListener, 10);
   A similar loop is used in the <span class="link">comanche</span> webserver (see main function).
   The function <tt><span class="func">waitForRequest</span></tt> can be used to process requests with session:
 </p><pre class="indent">
-aListener := openInetListener(2021);
+aListener := <span class="func">openInetListener</span>(2021);
 listen(aListener, 10);
-<span class="keywd">while</span> TRUE <span class="keywd">do</span>
-  waitForRequest(aListener, existingConnection, newConnection);
+<span class="keywd">while</span> <span class="var">TRUE</span> <span class="keywd">do</span>
+  <span class="func">waitForRequest</span>(aListener, existingConnection, newConnection);
   <span class="keywd">if</span> existingConnection &lt;> STD_NULL <span class="keywd">then</span>
     <span class="comment"># Read and process the request from existingConnection.</span>
   <span class="keywd">end if</span>;
@@ -6843,14 +7013,14 @@ type_implements_interface(<span class="type">my_file_type</span>, <span class="t
   Note that the function <tt>'toInterface'</tt> is used to generate a new <tt><a class="type" href="#types_file">file</a></tt>
   object. Now only the two basic I/O operations must be defined:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">proc</span>: write (<span class="keywd">inout</span> <span class="type">my_file_type</span>: new_fil, <span class="keywd">in</span> <span class="type">string</span>: stri) <span class="keywd">is func</span>
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: write (<span class="keywd">inout</span> <span class="type">my_file_type</span>: new_fil, <span class="keywd">in</span> <span class="type">string</span>: stri) <span class="keywd">is func</span>
   <span class="keywd">begin</span>
     ...
     <span class="comment">(* Statements that do the output *)</span>
     ...
   <span class="keywd">end func</span>;
 
-<span class="keywd">const</span> <span class="type">proc</span>: gets (<span class="keywd">inout</span> <span class="type">my_file_type</span>: new_fil, <span class="keywd">in</span> <span class="type">integer</span>: leng) <span class="keywd">is func</span>
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: gets (<span class="keywd">inout</span> <span class="type">my_file_type</span>: new_fil, <span class="keywd">in</span> <span class="type">integer</span>: leng) <span class="keywd">is func</span>
   <span class="keywd">result</span>
     <span class="keywd">var</span> <span class="type">string</span>: stri <span class="keywd">is</span> "";
   <span class="keywd">begin</span>
@@ -6893,25 +7063,31 @@ type_implements_interface(<span class="type">my_file_type</span>, <span class="t
   functions are defined in the <span class="stri">"<span class="lib">scanfile.s7i</span>"</span> library:
 </p><dl>
     <dt><span class="func">skipComment</span></dt>
-      <dd>Skips a possibly nested comment from a <tt><a class="type" href="#types_file">file</a></tt>.</dd>
+      <dd>Skips a possibly nested <a class="link" href="#tokens_Comments">Seed7 comment</a> from a <tt><a class="type" href="#types_file">file</a></tt>.</dd>
     <dt><span class="func">getComment</span></dt>
-      <dd>Reads a possibly nested comment from a <tt><a class="type" href="#types_file">file</a></tt>.</dd>
+      <dd>Reads a possibly nested <a class="link" href="#tokens_Comments">Seed7 comment</a> from a <tt><a class="type" href="#types_file">file</a></tt>.</dd>
+    <dt><span class="func">skipClassicComment</span></dt>
+      <dd>Skips a classic C comment from a <tt><a class="type" href="#types_file">file</a></tt>.</dd>
     <dt><span class="func">skipLineComment</span></dt>
-      <dd>Skips a line comment from a <tt><a class="type" href="#types_file">file</a></tt>.</dd>
+      <dd>Skips a <a class="link" href="#tokens_Line_comments">line comment</a> from a <tt><a class="type" href="#types_file">file</a></tt>.</dd>
     <dt><span class="func">getLineComment</span></dt>
-      <dd>Reads a line comment from a <tt><a class="type" href="#types_file">file</a></tt>.</dd>
+      <dd>Reads a <a class="link" href="#tokens_Line_comments">line comment</a> from a <tt><a class="type" href="#types_file">file</a></tt>.</dd>
     <dt><span class="func">getDigits</span></dt>
       <dd>Reads a sequence of digits from a <tt><a class="type" href="#types_file">file</a></tt>.</dd>
+    <dt><span class="func">getInteger</span></dt>
+      <dd>Reads a decimal integer with optional sign from a <tt><a class="type" href="#types_file">file</a></tt>.</dd>
     <dt><span class="func">getNumber</span></dt>
-      <dd>Reads a numeric literal from a <tt><a class="type" href="#types_file">file</a></tt>.</dd>
+      <dd>Reads a numeric literal (<a class="link" href="#tokens_Integer_literals">integer</a>, <a class="link" href="#tokens_BigInteger_literals">bigInteger</a> or <a class="link" href="#tokens_Float_literals">float</a> literal) from a <tt><a class="type" href="#types_file">file</a></tt>.</dd>
     <dt><span class="func">getNonDigits</span></dt>
       <dd>Reads a sequence of non digits from a <tt><a class="type" href="#types_file">file</a></tt>.</dd>
     <dt><span class="func">getQuotedText</span></dt>
       <dd>Reads a text quoted with " or ' from a <tt><a class="type" href="#types_file">file</a></tt>.</dd>
+    <dt><span class="func">getSimpleStringLiteral</span></dt>
+      <dd>Read a simple string literal from a <tt><a class="type" href="#types_file">file</a></tt>.</dd>
     <dt><span class="func">getCharLiteral</span></dt>
-      <dd>Reads a character literal from a <tt><a class="type" href="#types_file">file</a></tt>.</dd>
+      <dd>Reads a <a class="link" href="#tokens_Character_literals">character literal</a> from a <tt><a class="type" href="#types_file">file</a></tt>.</dd>
     <dt><span class="func">getStringLiteral</span></dt>
-      <dd>Reads a string literal from a <tt><a class="type" href="#types_file">file</a></tt>.</dd>
+      <dd>Reads a <a class="link" href="#tokens_String_literals">string literal</a> from a <tt><a class="type" href="#types_file">file</a></tt>.</dd>
     <dt><span class="func">getName</span></dt>
       <dd>Reads an alphanumeric name from a <tt><a class="type" href="#types_file">file</a></tt>.</dd>
 </dl><p>
@@ -7068,7 +7244,7 @@ currSymbol := getSymbol(inFile);
   colors comments with green, string and char literals with maroon and
   numeric literals with purple:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">proc</span>: sourceToHtml (<span class="keywd">inout</span> <span class="type">file</span>: inFile, <span class="keywd">inout</span> <span class="type">file</span>: outFile) <span class="keywd">is func</span>
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: sourceToHtml (<span class="keywd">inout</span> <span class="type">file</span>: inFile, <span class="keywd">inout</span> <span class="type">file</span>: outFile) <span class="keywd">is func</span>
   <span class="keywd">local</span>
     <span class="keywd">var</span> <span class="type">string</span>: currSymbol <span class="keywd">is</span> <span class="stri">""</span>;
   <span class="keywd">begin</span>
@@ -7103,7 +7279,7 @@ currSymbol := getSymbol(inFile);
   The functions <tt><span class="func">skipSpace</span></tt> and <tt><span class="func">skipWhiteSpace</span></tt> are defined in
   the <span class="stri">"<span class="lib">scanfile.s7i</span>"</span> library as follows:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">proc</span>: skipSpace (<span class="keywd">inout</span> <span class="type">file</span>: inFile) <span class="keywd">is func</span>
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: skipSpace (<span class="keywd">inout</span> <span class="type">file</span>: inFile) <span class="keywd">is func</span>
   <span class="keywd">local</span>
     <span class="keywd">var</span> <span class="type">char</span>: ch <span class="keywd">is</span> <span class="stri">' '</span>;
   <span class="keywd">begin</span>
@@ -7114,7 +7290,7 @@ currSymbol := getSymbol(inFile);
     inFile.bufferChar := ch;
   <span class="keywd">end func</span>;
 
-<span class="keywd">const</span> <span class="type">proc</span>: skipWhiteSpace (<span class="keywd">inout</span> <span class="type">file</span>: inFile) <span class="keywd">is func</span>
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: skipWhiteSpace (<span class="keywd">inout</span> <span class="type">file</span>: inFile) <span class="keywd">is func</span>
   <span class="keywd">begin</span>
     <span class="keywd">while</span> inFile.bufferChar <span class="keywd">in</span> white_space_char <span class="keywd">do</span>
       inFile.bufferChar := getc(inFile);
@@ -7124,7 +7300,7 @@ currSymbol := getSymbol(inFile);
   The functions <tt><span class="func">skipComment</span></tt> and <tt><span class="func">skipLineComment</span></tt>, which can be
   used to skip Seed7 comments, are defined as follows:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">proc</span>: skipComment (<span class="keywd">inout</span> <span class="type">file</span>: inFile) <span class="keywd">is</span> <span class="keywd">func</span>
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: skipComment (<span class="keywd">inout</span> <span class="type">file</span>: inFile) <span class="keywd">is</span> <span class="keywd">func</span>
   <span class="keywd">local</span>
     <span class="keywd">var</span> <span class="type">char</span>: character <span class="keywd">is</span> <span class="stri">' '</span>;
   <span class="keywd">begin</span>
@@ -7153,7 +7329,7 @@ currSymbol := getSymbol(inFile);
     <span class="keywd">end</span> <span class="keywd">if</span>;
   <span class="keywd">end</span> <span class="keywd">func</span>; <span class="comment"># skipComment</span>
 
-<span class="keywd">const</span> <span class="type">proc</span>: skipLineComment (<span class="keywd">inout</span> <span class="type">file</span>: inFile) <span class="keywd">is</span> <span class="keywd">func</span>
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: skipLineComment (<span class="keywd">inout</span> <span class="type">file</span>: inFile) <span class="keywd">is</span> <span class="keywd">func</span>
   <span class="keywd">local</span>
     <span class="keywd">var</span> <span class="type">char</span>: character <span class="keywd">is</span> <span class="stri">' '</span>;
   <span class="keywd">begin</span>
@@ -9559,10 +9735,10 @@ statement := <span class="func">prepare</span>(currDb, <span class="stri">"SELEC
 
 statement := <span class="func">prepare</span>(currDb, <span class="stri">"SELECT \"a field\" FROM \"a table\""</span>);
 </pre><p>
-  Preparing a statement fails with a <tt><span class="exception">RANGE_ERROR</span></tt>, if the database
+  Preparing a statement fails with a <tt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></tt>, if the database
   is not open. This is checked by the driver. Other things are
   checked by the database. The database might raise the exception
-  <tt><span class="exception">DATABASE_ERROR</span></tt>. Note that some databases do not check everything,
+  <tt><a class="exception" href="#errors_DATABASE_ERROR">DATABASE_ERROR</a></tt>. Note that some databases do not check everything,
   when preparing the statement. So an illegal SQL statement might
   be accepted by <tt><span class="func">prepare</span>()</tt>, but executing the prepared statement
   later will fail.
@@ -9606,7 +9782,7 @@ statement := <span class="func">prepare</span>(currDb, <span class="stri">"CREAT
 
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: <b><span class="func">bind</span></b> (<span class="keywd">inout</span> <span class="type">sqlStatement</span>: statement, <span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: pos, <span class="keywd">in</span> <a class="type" href="#types_duration">duration</a>: durationData)
 </pre><p>
-  Binding fails with a <tt><span class="exception">RANGE_ERROR</span></tt>, if the statement has not
+  Binding fails with a <tt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></tt>, if the statement has not
   been <a class="link" href="#database_Prepared_statements">prepared</a>. Binding is done by position. Position numbers
   start with 1. To bind the <tt><a class="type" href="#types_integer">integer</a></tt> 12345 to the third
   placeholder (<tt>?</tt>) of a prepared statement do:
@@ -9614,11 +9790,11 @@ statement := <span class="func">prepare</span>(currDb, <span class="stri">"CREAT
 <span class="func">bind</span>(statement, 3, 12345);
 </pre><p>
   The <tt><span class="func">bind</span>()</tt> functions check the given position (<tt>pos</tt>) and raise
-  the exception <tt><span class="exception">RANGE_ERROR</span></tt>, if no corresponding placeholder (<tt>?</tt>)
+  the exception <tt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></tt>, if no corresponding placeholder (<tt>?</tt>)
   is found. This happens if <tt>pos <= 0</tt> holds or if <tt>pos</tt> is greater
   than the number of placeholders. The <tt><span class="func">bind</span>()</tt> functions check
   also, if the type of the given value fits to the database
-  column. If the type does not fit the exception <tt><span class="exception">RANGE_ERROR</span></tt> is
+  column. If the type does not fit the exception <tt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></tt> is
   raised.
 </p><p>
   Another example with binding is:
@@ -9663,11 +9839,11 @@ SELECT name, area FROM customers WHERE name = '' UNION SELECT login, password FR
 </p><pre class="indent">
 <span class="func">execute</span>(statement);
 </pre><p>
-  Executing fails with a <tt><span class="exception">RANGE_ERROR</span></tt>, if the statement has not
-  been prepared. Executing fails with a <tt><span class="exception">DATABASE_ERROR</span></tt>, if
+  Executing fails with a <tt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></tt>, if the statement has not
+  been prepared. Executing fails with a <tt><a class="exception" href="#errors_DATABASE_ERROR">DATABASE_ERROR</a></tt>, if
   not all parameters have been <a class="link" href="#database_Bind_values_to_placeholders">bound</a>. If the database returns
-  an error the exception <tt><span class="exception">DATABASE_ERROR</span></tt> gets also raised. Note
-  that illegal SQL statements might raise a <tt><span class="exception">DATABASE_ERROR</span></tt> in
+  an error the exception <tt><a class="exception" href="#errors_DATABASE_ERROR">DATABASE_ERROR</a></tt> gets also raised. Note
+  that illegal SQL statements might raise a <tt><a class="exception" href="#errors_DATABASE_ERROR">DATABASE_ERROR</a></tt> in
   <tt><span class="func">prepare</span>()</tt> or in <tt><span class="func">execute</span>()</tt>. When the exception is raised
   depends on the database.
 </p><p>
@@ -9741,7 +9917,7 @@ end while;
 
 <span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_time">time</a>: <b><span class="func">column</span></b> (<span class="keywd">in</span> <span class="type">sqlStatement</span>: statement, <span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: column, <span class="keywd">attr</span> <a class="type" href="#types_time">time</a>)
 </pre><p>
-  Getting a column fails with a <tt><span class="exception">RANGE_ERROR</span></tt>, if no record
+  Getting a column fails with a <tt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></tt>, if no record
   has been <a class="link" href="#database_Fetch_records_from_the_result_set">fetched</a> from the result set. Column numbers start
   with 1. To get column number four from the current result
   record (row) as <tt><a class="type" href="#types_integer">integer</a></tt> do:
@@ -9749,7 +9925,7 @@ end while;
 <span class="func">column</span>(statement, 4, <a class="type" href="#types_integer">integer</a>);
 </pre><p>
   The <tt><span class="func">column</span>()</tt> functions check the given position (<tt>column</tt>) and
-  raise the exception <tt><span class="exception">RANGE_ERROR</span></tt>, if no corresponding column
+  raise the exception <tt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></tt>, if no corresponding column
   exists in the result record. This happens if <tt>column <= 0</tt>
   is <tt><span class="var">TRUE</span></tt> or if <tt>column</tt> is greater than the number of columns
   (which can be obtained with <tt><span class="func">columnCount</span>()</tt>). Database columns can
@@ -12810,15 +12986,15 @@ Program received signal SIGFPE, Arithmetic exception.
 </p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
   <tr><th>Signal  </th><th> Special handler      </th><th> Behavior without -ts   </th><th> Behavior with -ts</th></tr>
   
-  <tr><td>SIGABRT </td><td> raise <tt><a class="exception" href="#errors_OVERFLOW_ERROR">OVERFLOW_ERROR</a></tt> </td><td> Terminate with message </td><td> Dialog to decide</td></tr>
-  <tr><td>SIGILL  </td><td> raise <tt><a class="exception" href="#errors_OVERFLOW_ERROR">OVERFLOW_ERROR</a></tt> </td><td> Terminate with message </td><td> Dialog to decide</td></tr>
-  <tr><td>SIGINT  </td><td> -                    </td><td> Terminate with message </td><td> Dialog to decide</td></tr>
-  <tr><td>SIGFPE  </td><td> raise <tt><a class="exception" href="#errors_NUMERIC_ERROR">NUMERIC_ERROR</a></tt>  </td><td> Terminate with message </td><td> Dialog to decide</td></tr>
-  <tr><td>SIGTERM </td><td> -                    </td><td> Terminate with message </td><td> Terminate with message</td></tr>
-  <tr><td>SIGSEGV </td><td> -                    </td><td> Terminate program      </td><td> Terminate with message</td></tr>
-  <tr><td>SIGPIPE </td><td> -                    </td><td> Ignore                 </td><td> Ignore</td></tr>
-  <tr><td>SIGWINCH</td><td> Resize console       </td><td> -                      </td><td> -</td></tr>
-  <tr><td>SIGALRM </td><td> Wait for some time   </td><td> -                      </td><td> -</td></tr>
+  <tr><td><a name="errors_SIGABRT">SIGABRT</a> </td><td> raise <tt><a class="exception" href="#errors_OVERFLOW_ERROR">OVERFLOW_ERROR</a></tt> </td><td> Raises exception       </td><td> Dialog to decide</td></tr>
+  <tr><td><a name="errors_SIGILL">SIGILL  </td><td> raise <tt><a class="exception" href="#errors_OVERFLOW_ERROR">OVERFLOW_ERROR</a></tt> </td><td> Raises exception       </td><td> Dialog to decide</td></tr>
+  <tr><td><a name="errors_SIGINT">SIGINT  </td><td> -                    </td><td> Terminate with message </td><td> Dialog to decide</td></tr>
+  <tr><td><a name="errors_SIGFPE">SIGFPE  </td><td> raise <tt><a class="exception" href="#errors_NUMERIC_ERROR">NUMERIC_ERROR</a></tt>  </td><td> Raises exception       </td><td> Dialog to decide</td></tr>
+  <tr><td><a name="errors_SIGTERM">SIGTERM </td><td> -                    </td><td> Terminate with message </td><td> Terminate with message</td></tr>
+  <tr><td><a name="errors_SIGSEGV">SIGSEGV </td><td> -                    </td><td> Terminate program      </td><td> Terminate with message</td></tr>
+  <tr><td><a name="errors_SIGPIPE">SIGPIPE </td><td> -                    </td><td> Ignored                </td><td> Ignored</td></tr>
+  <tr><td><a name="errors_SIGWINCH">SIGWINCH</td><td> Resize console       </td><td> -                      </td><td> -</td></tr>
+  <tr><td><a name="errors_SIGALRM">SIGALRM </td><td> Wait for some time   </td><td> -                      </td><td> -</td></tr>
 </table></dd></dl><p>
   Depending on the actual C compiler and operating system the
   signals SIGABRT or SIGILL might be used to raise <tt><a class="exception" href="#errors_OVERFLOW_ERROR">OVERFLOW_ERROR</a></tt>

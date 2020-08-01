@@ -20,11 +20,9 @@ LDFLAGS = -Wl,--gc-sections,--stack,16777216
 # LDFLAGS = -pg -lc_p
 SYSTEM_LIBS = -lm
 # SYSTEM_LIBS = -lm -lgmp
-# SYSTEM_DRAW_LIBS is defined in the file "macros". When doing "make depend" chkccomp.c writes it.
-# SYSTEM_DRAW_LIBS = -lX11
-# SYSTEM_DRAW_LIBS = -L/usr/X11R6/lib libX11.dll.a
-# SYSTEM_CONSOLE_LIBS is defined in the file "macros". When doing "make depend" chkccomp.c writes it.
-# SYSTEM_CONSOLE_LIBS = -lncurses
+# SYSTEM_DRAW_LIBS is defined in the file "macros". The program chkccomp.c writes it to "macros" when doing "make depend".
+# SYSTEM_CONSOLE_LIBS is defined in the file "macros". The program chkccomp.c writes it to "macros" when doing "make depend".
+# SYSTEM_DATABASE_LIBS is defined in the file "macros". The program chkccomp.c writes it to "macros" when doing "make depend".
 SEED7_LIB = seed7_05.a
 DRAW_LIB = s7_draw.a
 CONSOLE_LIB = s7_con.a
@@ -101,7 +99,7 @@ s7c: ../bin/s7c.exe ../prg/s7c.exe
 	@echo
 
 ../bin/s7.exe: $(OBJ) $(ALL_S7_LIBS)
-	$(CC) $(LDFLAGS) $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS) -o ../bin/s7
+	$(CC) $(LDFLAGS) $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_DATABASE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS) -o ../bin/s7
 
 ../prg/s7.exe:
 	ln -s ../bin/s7.exe ../prg
@@ -293,10 +291,10 @@ wc: $(SRC)
 	wc $(COMPILER_LIB_SRC)
 
 lint: $(SRC)
-	lint -p $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS)
+	lint -p $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_DATABASE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS)
 
 lint2: $(SRC)
-	lint -Zn2048 $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS)
+	lint -Zn2048 $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_DATABASE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS)
 
 ifeq (depend,$(wildcard depend))
 include depend

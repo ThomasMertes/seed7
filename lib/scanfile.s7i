@@ -247,7 +247,7 @@ const func string: getInteger (inout file: inFile) is func
 
 
 (**
- *  Reads a numeric literal from a [[file]].
+ *  Reads a numeric literal (integer, bigInteger or float literal) from a [[file]].
  *  When the function is called it is assumed that the introducing
  *  digit is in inFile.bufferChar. When the function is left the
  *  character after the literal is in inFile.bufferChar.
@@ -443,7 +443,7 @@ const proc: getEscapeSequence (inout file: inFile, inout string: symbol) is func
       inFile.bufferChar := character;
       symbol &:= getNumber(inFile);
       character := inFile.bufferChar;
-      if character = '\\' then
+      if character = ';' then
         symbol &:= character;
         character := getc(inFile);
       end if;

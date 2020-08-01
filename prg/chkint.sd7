@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  chkint.sd7    Checks integer literals and operations            *)
-(*  Copyright (C) 1991 - 1994, 2004, 2005, 2007 - 2016              *)
+(*  Copyright (C) 1991 - 1994, 2004, 2005, 2007 - 2017, 2019 - 2020 *)
 (*                Thomas Mertes                                     *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
@@ -881,7 +881,10 @@ const proc: check_bytesBe is func
       okay := FALSE;
     end if;
 
-    if  not raisesRangeError(bytes(-1, UNSIGNED, BE)) then
+    if  not raisesRangeError(bytes(        integer.first,  UNSIGNED, BE)) or
+        not raisesRangeError(bytes(                   -1,  UNSIGNED, BE)) or
+        not raisesRangeError(bytes(intExpr(integer.first), UNSIGNED, BE)) or
+        not raisesRangeError(bytes(intExpr(           -1), UNSIGNED, BE)) then
       writeln("Conversion of negative integer to unsigned big endian byte string does not raise RANGE_ERROR.");
       okay := FALSE;
     end if;
@@ -1149,7 +1152,10 @@ const proc: check_bytesLe is func
       okay := FALSE;
     end if;
 
-    if  not raisesRangeError(bytes(-1, UNSIGNED, LE)) then
+    if  not raisesRangeError(bytes(        integer.first,  UNSIGNED, LE)) or
+        not raisesRangeError(bytes(                   -1,  UNSIGNED, LE)) or
+        not raisesRangeError(bytes(intExpr(integer.first), UNSIGNED, LE)) or
+        not raisesRangeError(bytes(intExpr(           -1), UNSIGNED, LE)) then
       writeln("Conversion of negative integer to unsigned little endian byte string does not raise RANGE_ERROR.");
       okay := FALSE;
     end if;
@@ -2747,35 +2753,161 @@ const func boolean: check_reduced_overflow_checking_for_sums is func
       okay := FALSE;
     end if;
 
-    if  abs(         intExpr(            0)) +        integer.first <> integer.first or
-        abs(         intExpr( integer.last)) +                    0 <>  integer.last or
-        log2(        intExpr(            0)) + -9223372036854775807 <> integer.first or
-        log2(        intExpr( integer.last)) +  9223372036854775745 <>  integer.last or
-        log10(       intExpr(            0)) + -9223372036854775807 <> integer.first or
-        log10(       intExpr( integer.last)) +  9223372036854775789 <>  integer.last or
-        sqrt(        intExpr(            0)) +        integer.first <> integer.first or
-        sqrt(        intExpr( integer.last)) +  9223372033817775308 <>  integer.last or
-        bitLength(   intExpr(            0)) +        integer.first <> integer.first or
-        bitLength(   intExpr( integer.last)) +  9223372036854775744 <>  integer.last or
-        lowestSetBit(intExpr(            0)) + -9223372036854775807 <> integer.first or
-        lowestSetBit(intExpr(integer.first)) +  9223372036854775744 <>  integer.last or
-        rand(        -1234567890,  intExpr(-1234567890)) + -9223372035620207918 <> integer.first or
-        rand(intExpr( 1234567890),          1234567890 ) +  9223372035620207917 <>  integer.last or
-        compare(intExpr(0), intExpr(1)) + -9223372036854775807 <> integer.first or
-        compare(intExpr(1), intExpr(0)) +  9223372036854775806 <>  integer.last then
+    if   abs(         intExpr(            0)) +        integer.first <> integer.first or
+         abs(         intExpr( integer.last)) +                    0 <>  integer.last or
+        -abs(         intExpr( integer.last)) -                    1 <> integer.first or
+        -abs(         intExpr(            0)) -        -integer.last <>  integer.last or
+         log2(        intExpr(            0)) + -9223372036854775807 <> integer.first or
+         log2(        intExpr( integer.last)) +  9223372036854775745 <>  integer.last or
+        -log2(        intExpr( integer.last)) -  9223372036854775746 <> integer.first or
+        -log2(        intExpr(            0)) - -9223372036854775806 <>  integer.last or
+         log10(       intExpr(            0)) + -9223372036854775807 <> integer.first or
+         log10(       intExpr( integer.last)) +  9223372036854775789 <>  integer.last or
+        -log10(       intExpr( integer.last)) -  9223372036854775790 <> integer.first or
+        -log10(       intExpr(            0)) - -9223372036854775806 <>  integer.last or
+         sqrt(        intExpr(            0)) +        integer.first <> integer.first or
+         sqrt(        intExpr( integer.last)) +  9223372033817775308 <>  integer.last or
+        -sqrt(        intExpr( integer.last)) -  9223372033817775309 <> integer.first or
+        -sqrt(        intExpr(            0)) -        -integer.last <>  integer.last or
+         bitLength(   intExpr(            0)) +        integer.first <> integer.first or
+         bitLength(   intExpr( integer.last)) +  9223372036854775744 <>  integer.last or
+         bitLength(   intExpr(            0)) + bitLength(   intExpr(            0)) +        integer.first <> integer.first or
+         bitLength(   intExpr( integer.last)) + bitLength(   intExpr( integer.last)) +  9223372036854775681 <>  integer.last or
+        -bitLength(   intExpr( integer.last)) -  9223372036854775745 <> integer.first or
+        -bitLength(   intExpr(            0)) -        -integer.last <>  integer.last or
+        -bitLength(   intExpr( integer.last)) - bitLength(   intExpr( integer.last)) -  9223372036854775682 <> integer.first or
+        -bitLength(   intExpr(            0)) - bitLength(   intExpr(            0)) -        -integer.last <>  integer.last or
+         lowestSetBit(intExpr(            0)) + -9223372036854775807 <> integer.first or
+         lowestSetBit(intExpr(integer.first)) +  9223372036854775744 <>  integer.last or
+        -lowestSetBit(intExpr(integer.first)) -  9223372036854775745 <> integer.first or
+        -lowestSetBit(intExpr(            0)) - -9223372036854775806 <>  integer.last or
+
+         rand(        -1234567890,  intExpr(-1234567890)) + -9223372035620207918 <> integer.first or
+         rand(intExpr( 1234567890),          1234567890 ) +  9223372035620207917 <>  integer.last or
+        -rand(intExpr( 1234567890),          1234567890 ) -  9223372035620207918 <> integer.first or
+        -rand(        -1234567890,  intExpr(-1234567890)) - -9223372035620207917 <>  integer.last or
+
+         compare(intExpr(0), intExpr(1)) + -9223372036854775807 <> integer.first or
+         compare(intExpr(1), intExpr(0)) +  9223372036854775806 <>  integer.last or
+        -compare(intExpr(1), intExpr(0)) -  9223372036854775807 <> integer.first or
+        -compare(intExpr(0), intExpr(1)) - -9223372036854775806 <>  integer.last then
       writeln(" ***** Reduced overflow check for sums failed: Various integer functions.");
       okay := FALSE;
     end if;
 
-    if  ord(boolExpr(FALSE)) +       integer.first <>        integer.first or
-        ord(boolExpr( TRUE)) +       integer.first <> -9223372036854775807 or
-        ord(boolExpr( TRUE)) + 9223372036854775806 <>         integer.last or
-        ord(boolExpr(FALSE)) + 9223372036854775806 <>  9223372036854775806 or
-        ord(charExpr(char(-2147483648) )) + -9223372034707292160 <>        integer.first or
-        ord(charExpr(    '\2147483647;')) + -9223372034707292160 <> -9223372032559808513 or
-        ord(charExpr(    '\2147483647;')) +  9223372034707292160 <>         integer.last or
-        ord(charExpr(char(-2147483648) )) +  9223372034707292160 <>  9223372032559808512 then
-      writeln(" ***** Reduced overflow check for sums failed: Ord functions.");
+    if   abs(ord(charExpr(char(-2147483648) ))) + 9223372034707292159 <>         integer.last or
+         abs(ord(charExpr(             '\0;'))) + 9223372034707292159 <>  9223372034707292159 or
+         abs(ord(charExpr(char(-2147483648) ))) + abs(ord(charExpr(char(-2147483648) ))) +
+	     9223372032559808511 <>         integer.last or
+         abs(ord(charExpr(             '\0;'))) + abs(ord(charExpr(             '\0;'))) +
+	     9223372032559808511 <>  9223372032559808511 or
+        -abs(ord(charExpr(char(-2147483648) ))) - 9223372034707292160 <>        integer.first or
+        -abs(ord(charExpr(             '\0;'))) - 9223372034707292160 <> -9223372034707292160 or
+        -abs(ord(charExpr(char(-2147483648) ))) - abs(ord(charExpr(char(-2147483648) ))) -
+	     9223372032559808512 <>        integer.first or
+        -abs(ord(charExpr(             '\0;'))) - abs(ord(charExpr(             '\0;'))) -
+	     9223372032559808512 <> -9223372032559808512 then
+      writeln(" ***** Reduced overflow check for sums failed: abs(ord(char))");
+      okay := FALSE;
+    end if;
+
+    if   ord(boolExpr(FALSE)) +        integer.first <>        integer.first or
+         ord(boolExpr( TRUE)) +        integer.first <> -9223372036854775807 or
+         ord(boolExpr( TRUE)) +  9223372036854775806 <>         integer.last or
+         ord(boolExpr(FALSE)) +  9223372036854775806 <>  9223372036854775806 or
+        -ord(boolExpr( TRUE)) -  9223372036854775807 <>        integer.first or
+        -ord(boolExpr(FALSE)) -  9223372036854775807 <> -9223372036854775807 or
+        -ord(boolExpr(FALSE)) - -9223372036854775807 <>         integer.last or
+        -ord(boolExpr( TRUE)) - -9223372036854775807 <>  9223372036854775806 or
+         ord(boolExpr(FALSE)) + ord(boolExpr(FALSE)) +        integer.first <>        integer.first or
+         ord(boolExpr( TRUE)) + ord(boolExpr( TRUE)) +        integer.first <> -9223372036854775806 or
+         ord(boolExpr( TRUE)) + ord(boolExpr( TRUE)) +  9223372036854775805 <>         integer.last or
+         ord(boolExpr(FALSE)) + ord(boolExpr(FALSE)) +  9223372036854775805 <>  9223372036854775805 or
+        -ord(boolExpr( TRUE)) - ord(boolExpr( TRUE)) -  9223372036854775806 <>        integer.first or
+        -ord(boolExpr(FALSE)) - ord(boolExpr(FALSE)) -  9223372036854775806 <> -9223372036854775806 or
+        -ord(boolExpr(FALSE)) - ord(boolExpr(FALSE)) - -9223372036854775807 <>         integer.last or
+        -ord(boolExpr( TRUE)) - ord(boolExpr( TRUE)) - -9223372036854775807 <>  9223372036854775805 or
+        ord(boolExpr(FALSE)) + ord(boolExpr(FALSE)) + ord(boolExpr(FALSE)) +       integer.first <>        integer.first or
+        ord(boolExpr( TRUE)) + ord(boolExpr( TRUE)) + ord(boolExpr( TRUE)) +       integer.first <> -9223372036854775805 or
+        ord(boolExpr( TRUE)) + ord(boolExpr( TRUE)) + ord(boolExpr( TRUE)) + 9223372036854775804 <>         integer.last or
+        ord(boolExpr(FALSE)) + ord(boolExpr(FALSE)) + ord(boolExpr(FALSE)) + 9223372036854775804 <>  9223372036854775804 or
+        ord(boolExpr(FALSE)) + ord(boolExpr(FALSE)) + ord(boolExpr(FALSE)) + ord(boolExpr(FALSE)) +       integer.first <>        integer.first or
+        ord(boolExpr( TRUE)) + ord(boolExpr( TRUE)) + ord(boolExpr( TRUE)) + ord(boolExpr( TRUE)) +       integer.first <> -9223372036854775804 or
+        ord(boolExpr( TRUE)) + ord(boolExpr( TRUE)) + ord(boolExpr( TRUE)) + ord(boolExpr( TRUE)) + 9223372036854775803 <>         integer.last or
+        ord(boolExpr(FALSE)) + ord(boolExpr(FALSE)) + ord(boolExpr(FALSE)) + ord(boolExpr(FALSE)) + 9223372036854775803 <>  9223372036854775803 or
+        ord(boolExpr(FALSE)) + sqrt(intExpr(           0)) +        integer.first <>        integer.first or
+        ord(boolExpr( TRUE)) + sqrt(intExpr(integer.last)) +        integer.first <> -9223372033817775308 or
+        ord(boolExpr( TRUE)) + sqrt(intExpr(integer.last)) +  9223372033817775307 <>         integer.last or
+        ord(boolExpr(FALSE)) + sqrt(intExpr(           0)) +  9223372033817775307 <>  9223372033817775307 or
+        ord(boolExpr(FALSE)) - sqrt(intExpr(integer.last)) + -9223372033817775309 <>        integer.first or
+        ord(boolExpr( TRUE)) - sqrt(intExpr(           0)) + -9223372033817775309 <> -9223372033817775308 or
+        ord(boolExpr( TRUE)) - sqrt(intExpr(           0)) +  9223372036854775806 <>         integer.last or
+        ord(boolExpr(FALSE)) - sqrt(intExpr(integer.last)) +  9223372036854775806 <>  9223372033817775307 or
+        ord(boolExpr(FALSE)) + abs(intExpr(0)) +        integer.first <>        integer.first or
+        ord(boolExpr( TRUE)) + abs(intExpr(0)) +        integer.first <> -9223372036854775807 or
+        ord(boolExpr( TRUE)) + abs(intExpr(1)) +  9223372036854775805 <>         integer.last or
+        ord(boolExpr(FALSE)) + abs(intExpr(1)) +  9223372036854775805 <>  9223372036854775806 or
+        ord(boolExpr(FALSE)) - abs(intExpr(1)) + -9223372036854775807 <>        integer.first or
+        ord(boolExpr( TRUE)) - abs(intExpr(1)) + -9223372036854775807 <> -9223372036854775807 or
+        ord(boolExpr( TRUE)) - abs(intExpr(1)) +         integer.last <>         integer.last or
+        ord(boolExpr(FALSE)) - abs(intExpr(1)) +         integer.last <>  9223372036854775806 then
+      writeln(" ***** Reduced overflow check for sums failed: ord(booolean)");
+      okay := FALSE;
+    end if;
+
+    if   ord(charExpr(char(-2147483648) )) + -9223372034707292160 <>        integer.first or
+         ord(charExpr(    '\2147483647;')) + -9223372034707292160 <> -9223372032559808513 or
+         ord(charExpr(    '\2147483647;')) +  9223372034707292160 <>         integer.last or
+         ord(charExpr(char(-2147483648) )) +  9223372034707292160 <>  9223372032559808512 or
+        -ord(charExpr(    '\2147483647;')) -  9223372034707292161 <>        integer.first or
+        -ord(charExpr(char(-2147483648) )) -  9223372034707292161 <> -9223372032559808513 or
+        -ord(charExpr(char(-2147483648) )) - -9223372034707292159 <>         integer.last or
+        -ord(charExpr(    '\2147483647;')) - -9223372034707292159 <>  9223372032559808512 or
+         ord(charExpr(char(-2147483648) )) + ord(charExpr(char(-2147483648) )) + -9223372032559808512 <>        integer.first or
+         ord(charExpr(    '\2147483647;')) + ord(charExpr(    '\2147483647;')) + -9223372032559808512 <> -9223372028264841218 or
+         ord(charExpr(    '\2147483647;')) + ord(charExpr(    '\2147483647;')) +  9223372032559808513 <>         integer.last or
+         ord(charExpr(char(-2147483648) )) + ord(charExpr(char(-2147483648) )) +  9223372032559808513 <>  9223372028264841217 or
+        -ord(charExpr(    '\2147483647;')) - ord(charExpr(    '\2147483647;')) -  9223372032559808514 <>        integer.first or
+        -ord(charExpr(char(-2147483648) )) - ord(charExpr(char(-2147483648) )) -  9223372032559808514 <> -9223372028264841218 or
+        -ord(charExpr(char(-2147483648) )) - ord(charExpr(char(-2147483648) )) - -9223372032559808511 <>         integer.last or
+        -ord(charExpr(    '\2147483647;')) - ord(charExpr(    '\2147483647;')) - -9223372032559808511 <>  9223372028264841217 or
+        ord(charExpr(char(-2147483648) )) + ord(charExpr(char(-2147483648) )) +
+            ord(charExpr(char(-2147483648) )) + -9223372030412324864 <>        integer.first or
+        ord(charExpr(    '\2147483647;')) + ord(charExpr(    '\2147483647;')) +
+            ord(charExpr(    '\2147483647;')) + -9223372030412324864 <> -9223372023969873923 or
+        ord(charExpr(    '\2147483647;')) + ord(charExpr(    '\2147483647;')) +
+            ord(charExpr(    '\2147483647;')) +  9223372030412324866 <>         integer.last or
+        ord(charExpr(char(-2147483648) )) + ord(charExpr(char(-2147483648) )) +
+            ord(charExpr(char(-2147483648) )) +  9223372030412324866 <>  9223372023969873922 or
+        ord(charExpr(char(-2147483648) )) + ord(charExpr(char(-2147483648) )) +
+            ord(charExpr(char(-2147483648) )) + ord(charExpr(char(-2147483648) )) + -9223372028264841216 <>        integer.first or
+        ord(charExpr(    '\2147483647;')) + ord(charExpr(    '\2147483647;')) +
+            ord(charExpr(    '\2147483647;')) + ord(charExpr(    '\2147483647;')) + -9223372028264841216 <> -9223372019674906628 or
+        ord(charExpr(    '\2147483647;')) + ord(charExpr(    '\2147483647;')) +
+            ord(charExpr(    '\2147483647;')) + ord(charExpr(    '\2147483647;')) +  9223372028264841219 <>         integer.last or
+        ord(charExpr(char(-2147483648) )) + ord(charExpr(char(-2147483648) )) +
+            ord(charExpr(char(-2147483648) )) + ord(charExpr(char(-2147483648) )) +  9223372028264841219 <>  9223372019674906627 or
+        ord(charExpr(char(-2147483648) )) - ord(charExpr(    '\2147483647;')) + -9223372032559808513 <>        integer.first or
+        ord(charExpr(    '\2147483647;')) - ord(charExpr(char(-2147483648) )) + -9223372032559808513 <> -9223372028264841218 or
+        ord(charExpr(    '\2147483647;')) - ord(charExpr(char(-2147483648) )) +  9223372032559808512 <>         integer.last or
+        ord(charExpr(char(-2147483648) )) - ord(charExpr(    '\2147483647;')) +  9223372032559808512 <>  9223372028264841217 or
+        ord(charExpr(char(-2147483648) )) + sqrt(intExpr(           0)) + -9223372034707292160 <>        integer.first or
+        ord(charExpr(    '\2147483647;')) + sqrt(intExpr(integer.last)) + -9223372034707292160 <> -9223372029522808014 or
+        ord(charExpr(    '\2147483647;')) + sqrt(intExpr(integer.last)) +  9223372031670291661 <>         integer.last or
+        ord(charExpr(char(-2147483648) )) + sqrt(intExpr(           0)) +  9223372031670291661 <>  9223372029522808013 or
+        ord(charExpr(char(-2147483648) )) - sqrt(intExpr(integer.last)) + -9223372031670291661 <>        integer.first or
+        ord(charExpr(    '\2147483647;')) - sqrt(intExpr(           0)) + -9223372031670291661 <> -9223372029522808014 or
+        ord(charExpr(    '\2147483647;')) - sqrt(intExpr(           0)) +  9223372034707292160 <>         integer.last or
+        ord(charExpr(char(-2147483648) )) - sqrt(intExpr(integer.last)) +  9223372034707292160 <>  9223372029522808013 or
+        ord(charExpr(char(-2147483648) )) + abs(intExpr(1)) + -9223372034707292161 <>        integer.first or
+        ord(charExpr(    '\2147483647;')) + abs(intExpr(1)) + -9223372034707292161 <> -9223372032559808513 or
+        ord(charExpr(    '\2147483647;')) + abs(intExpr(1)) +  9223372034707292159 <>         integer.last or
+        ord(charExpr(char(-2147483648) )) + abs(intExpr(1)) +  9223372034707292159 <>  9223372032559808512 or
+        ord(charExpr(char(-2147483648) )) - abs(intExpr(1)) + -9223372034707292159 <>        integer.first or
+        ord(charExpr(    '\2147483647;')) - abs(intExpr(1)) + -9223372034707292159 <> -9223372032559808513 or
+        ord(charExpr(    '\2147483647;')) - abs(intExpr(1)) +  9223372034707292161 <>         integer.last or
+        ord(charExpr(char(-2147483648) )) - abs(intExpr(1)) +  9223372034707292161 <>  9223372032559808512 then
+      writeln(" ***** Reduced overflow check for sums failed: ord(char)");
       okay := FALSE;
     end if;
 
@@ -2830,7 +2962,76 @@ const proc: check_add is func
                   2147483648 +                    0 <>           2147483648 or
          9223372036854775807 +            INT64_MIN <>                   -1 or
          9223372036854775807 + -9223372036854775807 <>                    0 or
-         9223372036854775807 +                    0 <>  9223372036854775807 then
+         9223372036854775807 +                    0 <>  9223372036854775807 or
+        intExpr(           INT64_MIN) +                    0 <>            INT64_MIN or
+        intExpr(           INT64_MIN) +  9223372036854775807 <>                   -1 or
+        intExpr(-9223372036854775807) +                   -1 <>            INT64_MIN or
+        intExpr(-9223372036854775807) +  9223372036854775807 <>                    0 or
+        intExpr(                   0) +            INT64_MIN <>            INT64_MIN or
+        intExpr(                   0) + -9223372036854775807 <> -9223372036854775807 or
+        intExpr(                   0) +                    0 <>                    0 or
+        intExpr(                   0) +           2147483647 <>           2147483647 or
+        intExpr(                   0) +           2147483648 <>           2147483648 or
+        intExpr(                   0) +  9223372036854775807 <>  9223372036854775807 or
+        intExpr(                   2) +                    3 <>                    5 or
+        intExpr(                 127) +                  127 <>                  254 or
+        intExpr(                 255) +                  255 <>                  510 or
+        intExpr(               18341) +                26783 <>                45124 or
+        intExpr(               32767) +                32767 <>                65534 or
+        intExpr(               35759) +                58537 <>                94296 or
+        intExpr(               65535) +                65535 <>               131070 or
+        intExpr(               73819) +               124303 <>               198122 or
+        intExpr(          2147483647) +                    0 <>           2147483647 or
+        intExpr(          2147483648) +                    0 <>           2147483648 or
+        intExpr( 9223372036854775807) +            INT64_MIN <>                   -1 or
+        intExpr( 9223372036854775807) + -9223372036854775807 <>                    0 or
+        intExpr( 9223372036854775807) +                    0 <>  9223372036854775807 or
+                   INT64_MIN + intExpr(                   0) <>            INT64_MIN or
+                   INT64_MIN + intExpr( 9223372036854775807) <>                   -1 or
+        -9223372036854775807 + intExpr(                  -1) <>            INT64_MIN or
+        -9223372036854775807 + intExpr( 9223372036854775807) <>                    0 or
+                           0 + intExpr(           INT64_MIN) <>            INT64_MIN or
+                           0 + intExpr(-9223372036854775807) <> -9223372036854775807 or
+                           0 + intExpr(                   0) <>                    0 or
+                           0 + intExpr(          2147483647) <>           2147483647 or
+                           0 + intExpr(          2147483648) <>           2147483648 or
+                           0 + intExpr( 9223372036854775807) <>  9223372036854775807 or
+                           2 + intExpr(                   3) <>                    5 or
+                         127 + intExpr(                 127) <>                  254 or
+                         255 + intExpr(                 255) <>                  510 or
+                       18341 + intExpr(               26783) <>                45124 or
+                       32767 + intExpr(               32767) <>                65534 or
+                       35759 + intExpr(               58537) <>                94296 or
+                       65535 + intExpr(               65535) <>               131070 or
+                       73819 + intExpr(              124303) <>               198122 or
+                  2147483647 + intExpr(                   0) <>           2147483647 or
+                  2147483648 + intExpr(                   0) <>           2147483648 or
+         9223372036854775807 + intExpr(           INT64_MIN) <>                   -1 or
+         9223372036854775807 + intExpr(-9223372036854775807) <>                    0 or
+         9223372036854775807 + intExpr(                   0) <>  9223372036854775807 or
+        intExpr(           INT64_MIN) + intExpr(                   0) <>            INT64_MIN or
+        intExpr(           INT64_MIN) + intExpr( 9223372036854775807) <>                   -1 or
+        intExpr(-9223372036854775807) + intExpr(                  -1) <>            INT64_MIN or
+        intExpr(-9223372036854775807) + intExpr( 9223372036854775807) <>                    0 or
+        intExpr(                   0) + intExpr(           INT64_MIN) <>            INT64_MIN or
+        intExpr(                   0) + intExpr(-9223372036854775807) <> -9223372036854775807 or
+        intExpr(                   0) + intExpr(                   0) <>                    0 or
+        intExpr(                   0) + intExpr(          2147483647) <>           2147483647 or
+        intExpr(                   0) + intExpr(          2147483648) <>           2147483648 or
+        intExpr(                   0) + intExpr( 9223372036854775807) <>  9223372036854775807 or
+        intExpr(                   2) + intExpr(                   3) <>                    5 or
+        intExpr(                 127) + intExpr(                 127) <>                  254 or
+        intExpr(                 255) + intExpr(                 255) <>                  510 or
+        intExpr(               18341) + intExpr(               26783) <>                45124 or
+        intExpr(               32767) + intExpr(               32767) <>                65534 or
+        intExpr(               35759) + intExpr(               58537) <>                94296 or
+        intExpr(               65535) + intExpr(               65535) <>               131070 or
+        intExpr(               73819) + intExpr(              124303) <>               198122 or
+        intExpr(          2147483647) + intExpr(                   0) <>           2147483647 or
+        intExpr(          2147483648) + intExpr(                   0) <>           2147483648 or
+        intExpr( 9223372036854775807) + intExpr(           INT64_MIN) <>                   -1 or
+        intExpr( 9223372036854775807) + intExpr(-9223372036854775807) <>                    0 or
+        intExpr( 9223372036854775807) + intExpr(                   0) <>  9223372036854775807 then
       writeln(" ***** Addition with selected values does not work correct.");
       okay := FALSE;
     end if;
@@ -5125,7 +5326,6 @@ const func boolean: check_reduced_overflow_checking_for_mult is func
         intExpr( integer.last) div                    7 *                    7 <>         integer.last or
         intExpr( integer.last) div           1234567890 *           1234567890 <>  9223372035820400130 or
         intExpr( integer.last) div          34359738367 *          34359738367 <>  9223372036586340352 or
-        intExpr( integer.last) div          34359738368 *          34359738496 <>  9223372036854775680 or
         intExpr( integer.last) div          60247241209 *          60247241209 <>         integer.last or
         intExpr( integer.last) div  1317624576693539401 *  1317624576693539401 <>         integer.last or
         intExpr( integer.last) div  4611686018427387903 *  4611686018427387903 <>  9223372036854775806 or
@@ -6071,6 +6271,10 @@ const proc: check_division is func
 const proc: check_div is func
   local
     var boolean: okay is TRUE;
+    var integer: zero is 0;
+    var integer: zero2 is 0;
+    var integer: one is 1;
+    var integer: minusOne is -1;
   begin
     if   10 div  5 <>  2 or
           9 div  5 <>  1 or
@@ -7082,22 +7286,54 @@ const proc: check_div is func
 
     if  not raisesNumericError(          INT64_MIN  div         0 ) or
         not raisesNumericError(        -2147483648  div         0 ) or
+        not raisesNumericError(                 -1  div         0 ) or
+        not raisesNumericError(           minusOne  div         0 ) or
         not raisesNumericError(                  0  div         0 ) or
+        not raisesNumericError(              zero2  div         0 ) or
+        not raisesNumericError(                  1  div         0 ) or
+        not raisesNumericError(                one  div         0 ) or
         not raisesNumericError(         2147483647  div         0 ) or
         not raisesNumericError(          INT64_MAX  div         0 ) or
         not raisesNumericError(intExpr(  INT64_MIN) div         0 ) or
         not raisesNumericError(intExpr(-2147483648) div         0 ) or
+        not raisesNumericError(intExpr(         -1) div         0 ) or
         not raisesNumericError(intExpr(          0) div         0 ) or
+        not raisesNumericError(intExpr(          1) div         0 ) or
         not raisesNumericError(intExpr( 2147483647) div         0 ) or
         not raisesNumericError(intExpr(  INT64_MAX) div         0 ) or
+        not raisesNumericError(          INT64_MIN  div      zero ) or
+        not raisesNumericError(        -2147483648  div      zero ) or
+        not raisesNumericError(                 -1  div      zero ) or
+        not raisesNumericError(           minusOne  div      zero ) or
+        not raisesNumericError(                  0  div      zero ) or
+        not raisesNumericError(               zero  div      zero ) or
+        not raisesNumericError(              zero2  div      zero ) or
+        not raisesNumericError(                  1  div      zero ) or
+        not raisesNumericError(                one  div      zero ) or
+        not raisesNumericError(         2147483647  div      zero ) or
+        not raisesNumericError(          INT64_MAX  div      zero ) or
+        not raisesNumericError(intExpr(  INT64_MIN) div      zero ) or
+        not raisesNumericError(intExpr(-2147483648) div      zero ) or
+        not raisesNumericError(intExpr(         -1) div      zero ) or
+        not raisesNumericError(intExpr(          0) div      zero ) or
+        not raisesNumericError(intExpr(          1) div      zero ) or
+        not raisesNumericError(intExpr( 2147483647) div      zero ) or
+        not raisesNumericError(intExpr(  INT64_MAX) div      zero ) or
         not raisesNumericError(          INT64_MIN  div intExpr(0)) or
         not raisesNumericError(        -2147483648  div intExpr(0)) or
+        not raisesNumericError(                 -1  div intExpr(0)) or
+        not raisesNumericError(           minusOne  div intExpr(0)) or
         not raisesNumericError(                  0  div intExpr(0)) or
+        not raisesNumericError(              zero2  div intExpr(0)) or
+        not raisesNumericError(                  1  div intExpr(0)) or
+        not raisesNumericError(                one  div intExpr(0)) or
         not raisesNumericError(         2147483647  div intExpr(0)) or
         not raisesNumericError(          INT64_MAX  div intExpr(0)) or
         not raisesNumericError(intExpr(  INT64_MIN) div intExpr(0)) or
         not raisesNumericError(intExpr(-2147483648) div intExpr(0)) or
+        not raisesNumericError(intExpr(         -1) div intExpr(0)) or
         not raisesNumericError(intExpr(          0) div intExpr(0)) or
+        not raisesNumericError(intExpr(          1) div intExpr(0)) or
         not raisesNumericError(intExpr( 2147483647) div intExpr(0)) or
         not raisesNumericError(intExpr(  INT64_MAX) div intExpr(0)) then
       writeln(" ***** Division by zero with the div operator does not raise NUMERIC_ERROR.");
@@ -7115,6 +7351,10 @@ const proc: check_div is func
 const proc: check_rem is func
   local
     var boolean: okay is TRUE;
+    var integer: zero is 0;
+    var integer: zero2 is 0;
+    var integer: one is 1;
+    var integer: minusOne is -1;
   begin
     if   10 rem  5 <>  0 or
           9 rem  5 <>  4 or
@@ -8126,22 +8366,54 @@ const proc: check_rem is func
 
     if  not raisesNumericError(          INT64_MIN  rem         0 ) or
         not raisesNumericError(        -2147483648  rem         0 ) or
+        not raisesNumericError(                 -1  rem         0 ) or
+        not raisesNumericError(           minusOne  rem         0 ) or
         not raisesNumericError(                  0  rem         0 ) or
+        not raisesNumericError(              zero2  rem         0 ) or
+        not raisesNumericError(                  1  rem         0 ) or
+        not raisesNumericError(                one  rem         0 ) or
         not raisesNumericError(         2147483647  rem         0 ) or
         not raisesNumericError(          INT64_MAX  rem         0 ) or
         not raisesNumericError(intExpr(  INT64_MIN) rem         0 ) or
         not raisesNumericError(intExpr(-2147483648) rem         0 ) or
+        not raisesNumericError(intExpr(         -1) rem         0 ) or
         not raisesNumericError(intExpr(          0) rem         0 ) or
+        not raisesNumericError(intExpr(          1) rem         0 ) or
         not raisesNumericError(intExpr( 2147483647) rem         0 ) or
         not raisesNumericError(intExpr(  INT64_MAX) rem         0 ) or
+        not raisesNumericError(          INT64_MIN  rem      zero ) or
+        not raisesNumericError(        -2147483648  rem      zero ) or
+        not raisesNumericError(                 -1  rem      zero ) or
+        not raisesNumericError(           minusOne  rem      zero ) or
+        not raisesNumericError(                  0  rem      zero ) or
+        not raisesNumericError(               zero  rem      zero ) or
+        not raisesNumericError(              zero2  rem      zero ) or
+        not raisesNumericError(                  1  rem      zero ) or
+        not raisesNumericError(                one  rem      zero ) or
+        not raisesNumericError(         2147483647  rem      zero ) or
+        not raisesNumericError(          INT64_MAX  rem      zero ) or
+        not raisesNumericError(intExpr(  INT64_MIN) rem      zero ) or
+        not raisesNumericError(intExpr(-2147483648) rem      zero ) or
+        not raisesNumericError(intExpr(         -1) rem      zero ) or
+        not raisesNumericError(intExpr(          0) rem      zero ) or
+        not raisesNumericError(intExpr(          1) rem      zero ) or
+        not raisesNumericError(intExpr( 2147483647) rem      zero ) or
+        not raisesNumericError(intExpr(  INT64_MAX) rem      zero ) or
         not raisesNumericError(          INT64_MIN  rem intExpr(0)) or
         not raisesNumericError(        -2147483648  rem intExpr(0)) or
+        not raisesNumericError(                 -1  rem intExpr(0)) or
+        not raisesNumericError(           minusOne  rem intExpr(0)) or
         not raisesNumericError(                  0  rem intExpr(0)) or
+        not raisesNumericError(              zero2  rem intExpr(0)) or
+        not raisesNumericError(                  1  rem intExpr(0)) or
+        not raisesNumericError(                one  rem intExpr(0)) or
         not raisesNumericError(         2147483647  rem intExpr(0)) or
         not raisesNumericError(          INT64_MAX  rem intExpr(0)) or
         not raisesNumericError(intExpr(  INT64_MIN) rem intExpr(0)) or
         not raisesNumericError(intExpr(-2147483648) rem intExpr(0)) or
+        not raisesNumericError(intExpr(         -1) rem intExpr(0)) or
         not raisesNumericError(intExpr(          0) rem intExpr(0)) or
+        not raisesNumericError(intExpr(          1) rem intExpr(0)) or
         not raisesNumericError(intExpr( 2147483647) rem intExpr(0)) or
         not raisesNumericError(intExpr(  INT64_MAX) rem intExpr(0)) then
       writeln(" ***** Division by zero with the rem operator does not raise NUMERIC_ERROR.");
@@ -8159,6 +8431,10 @@ const proc: check_rem is func
 const proc: check_mdiv is func
   local
     var boolean: okay is TRUE;
+    var integer: zero is 0;
+    var integer: zero2 is 0;
+    var integer: one is 1;
+    var integer: minusOne is -1;
   begin
     if   10 mdiv  5 <>  2 or
           9 mdiv  5 <>  1 or
@@ -9418,22 +9694,54 @@ const proc: check_mdiv is func
 
     if  not raisesNumericError(          INT64_MIN  mdiv         0 ) or
         not raisesNumericError(        -2147483648  mdiv         0 ) or
+        not raisesNumericError(                 -1  mdiv         0 ) or
+        not raisesNumericError(           minusOne  mdiv         0 ) or
         not raisesNumericError(                  0  mdiv         0 ) or
+        not raisesNumericError(              zero2  mdiv         0 ) or
+        not raisesNumericError(                  1  mdiv         0 ) or
+        not raisesNumericError(                one  mdiv         0 ) or
         not raisesNumericError(         2147483647  mdiv         0 ) or
         not raisesNumericError(          INT64_MAX  mdiv         0 ) or
         not raisesNumericError(intExpr(  INT64_MIN) mdiv         0 ) or
         not raisesNumericError(intExpr(-2147483648) mdiv         0 ) or
+        not raisesNumericError(intExpr(         -1) mdiv         0 ) or
         not raisesNumericError(intExpr(          0) mdiv         0 ) or
+        not raisesNumericError(intExpr(          1) mdiv         0 ) or
         not raisesNumericError(intExpr( 2147483647) mdiv         0 ) or
         not raisesNumericError(intExpr(  INT64_MAX) mdiv         0 ) or
+        not raisesNumericError(          INT64_MIN  mdiv      zero ) or
+        not raisesNumericError(        -2147483648  mdiv      zero ) or
+        not raisesNumericError(                 -1  mdiv      zero ) or
+        not raisesNumericError(           minusOne  mdiv      zero ) or
+        not raisesNumericError(                  0  mdiv      zero ) or
+        not raisesNumericError(               zero  mdiv      zero ) or
+        not raisesNumericError(              zero2  mdiv      zero ) or
+        not raisesNumericError(                  1  mdiv      zero ) or
+        not raisesNumericError(                one  mdiv      zero ) or
+        not raisesNumericError(         2147483647  mdiv      zero ) or
+        not raisesNumericError(          INT64_MAX  mdiv      zero ) or
+        not raisesNumericError(intExpr(  INT64_MIN) mdiv      zero ) or
+        not raisesNumericError(intExpr(-2147483648) mdiv      zero ) or
+        not raisesNumericError(intExpr(         -1) mdiv      zero ) or
+        not raisesNumericError(intExpr(          0) mdiv      zero ) or
+        not raisesNumericError(intExpr(          1) mdiv      zero ) or
+        not raisesNumericError(intExpr( 2147483647) mdiv      zero ) or
+        not raisesNumericError(intExpr(  INT64_MAX) mdiv      zero ) or
         not raisesNumericError(          INT64_MIN  mdiv intExpr(0)) or
         not raisesNumericError(        -2147483648  mdiv intExpr(0)) or
+        not raisesNumericError(                 -1  mdiv intExpr(0)) or
+        not raisesNumericError(           minusOne  mdiv intExpr(0)) or
         not raisesNumericError(                  0  mdiv intExpr(0)) or
+        not raisesNumericError(              zero2  mdiv intExpr(0)) or
+        not raisesNumericError(                  1  mdiv intExpr(0)) or
+        not raisesNumericError(                one  mdiv intExpr(0)) or
         not raisesNumericError(         2147483647  mdiv intExpr(0)) or
         not raisesNumericError(          INT64_MAX  mdiv intExpr(0)) or
         not raisesNumericError(intExpr(  INT64_MIN) mdiv intExpr(0)) or
         not raisesNumericError(intExpr(-2147483648) mdiv intExpr(0)) or
+        not raisesNumericError(intExpr(         -1) mdiv intExpr(0)) or
         not raisesNumericError(intExpr(          0) mdiv intExpr(0)) or
+        not raisesNumericError(intExpr(          1) mdiv intExpr(0)) or
         not raisesNumericError(intExpr( 2147483647) mdiv intExpr(0)) or
         not raisesNumericError(intExpr(  INT64_MAX) mdiv intExpr(0)) then
       writeln(" ***** Division by zero with the mdiv operator does not raise NUMERIC_ERROR.");
@@ -10233,6 +10541,10 @@ const func boolean: check_mod_by_computed_power_of_two_optimization is func
 const proc: check_mod is func
   local
     var boolean: okay is TRUE;
+    var integer: zero is 0;
+    var integer: zero2 is 0;
+    var integer: one is 1;
+    var integer: minusOne is -1;
   begin
     if   10 mod  5 <>  0 or
           9 mod  5 <>  4 or
@@ -11500,22 +11812,54 @@ const proc: check_mod is func
 
     if  not raisesNumericError(          INT64_MIN  mod         0 ) or
         not raisesNumericError(        -2147483648  mod         0 ) or
+        not raisesNumericError(                 -1  mod         0 ) or
+        not raisesNumericError(           minusOne  mod         0 ) or
         not raisesNumericError(                  0  mod         0 ) or
+        not raisesNumericError(              zero2  mod         0 ) or
+        not raisesNumericError(                  1  mod         0 ) or
+        not raisesNumericError(                one  mod         0 ) or
         not raisesNumericError(         2147483647  mod         0 ) or
         not raisesNumericError(          INT64_MAX  mod         0 ) or
         not raisesNumericError(intExpr(  INT64_MIN) mod         0 ) or
         not raisesNumericError(intExpr(-2147483648) mod         0 ) or
+        not raisesNumericError(intExpr(         -1) mod         0 ) or
         not raisesNumericError(intExpr(          0) mod         0 ) or
+        not raisesNumericError(intExpr(          1) mod         0 ) or
         not raisesNumericError(intExpr( 2147483647) mod         0 ) or
         not raisesNumericError(intExpr(  INT64_MAX) mod         0 ) or
+        not raisesNumericError(          INT64_MIN  mod      zero ) or
+        not raisesNumericError(        -2147483648  mod      zero ) or
+        not raisesNumericError(                 -1  mod      zero ) or
+        not raisesNumericError(           minusOne  mod      zero ) or
+        not raisesNumericError(                  0  mod      zero ) or
+        not raisesNumericError(               zero  mod      zero ) or
+        not raisesNumericError(              zero2  mod      zero ) or
+        not raisesNumericError(                  1  mod      zero ) or
+        not raisesNumericError(                one  mod      zero ) or
+        not raisesNumericError(         2147483647  mod      zero ) or
+        not raisesNumericError(          INT64_MAX  mod      zero ) or
+        not raisesNumericError(intExpr(  INT64_MIN) mod      zero ) or
+        not raisesNumericError(intExpr(-2147483648) mod      zero ) or
+        not raisesNumericError(intExpr(         -1) mod      zero ) or
+        not raisesNumericError(intExpr(          0) mod      zero ) or
+        not raisesNumericError(intExpr(          1) mod      zero ) or
+        not raisesNumericError(intExpr( 2147483647) mod      zero ) or
+        not raisesNumericError(intExpr(  INT64_MAX) mod      zero ) or
         not raisesNumericError(          INT64_MIN  mod intExpr(0)) or
         not raisesNumericError(        -2147483648  mod intExpr(0)) or
+        not raisesNumericError(                 -1  mod intExpr(0)) or
+        not raisesNumericError(           minusOne  mod intExpr(0)) or
         not raisesNumericError(                  0  mod intExpr(0)) or
+        not raisesNumericError(              zero2  mod intExpr(0)) or
+        not raisesNumericError(                  1  mod intExpr(0)) or
+        not raisesNumericError(                one  mod intExpr(0)) or
         not raisesNumericError(         2147483647  mod intExpr(0)) or
         not raisesNumericError(          INT64_MAX  mod intExpr(0)) or
         not raisesNumericError(intExpr(  INT64_MIN) mod intExpr(0)) or
         not raisesNumericError(intExpr(-2147483648) mod intExpr(0)) or
+        not raisesNumericError(intExpr(         -1) mod intExpr(0)) or
         not raisesNumericError(intExpr(          0) mod intExpr(0)) or
+        not raisesNumericError(intExpr(          1) mod intExpr(0)) or
         not raisesNumericError(intExpr( 2147483647) mod intExpr(0)) or
         not raisesNumericError(intExpr(  INT64_MAX) mod intExpr(0)) then
       writeln(" ***** Division by zero with the mod operator does not raise NUMERIC_ERROR.");
@@ -14686,6 +15030,8 @@ const proc: check_power is func
     end if;
 
     if  not raisesNumericError(integer.first **        (-1)) or
+        not raisesNumericError(         (-9) **        (-1)) or
+        not raisesNumericError(         (-8) **        (-1)) or
         not raisesNumericError(         (-7) **        (-1)) or
         not raisesNumericError(         (-4) **        (-1)) or
         not raisesNumericError(         (-2) **        (-1)) or
@@ -14695,8 +15041,12 @@ const proc: check_power is func
         not raisesNumericError(            2 **        (-1)) or
         not raisesNumericError(            4 **        (-1)) or
         not raisesNumericError(            7 **        (-1)) or
+        not raisesNumericError(            8 **        (-1)) or
+        not raisesNumericError(            9 **        (-1)) or
         not raisesNumericError( integer.last **        (-1)) or
         not raisesNumericError(integer.first ** intExpr(-1)) or
+        not raisesNumericError(         (-9) ** intExpr(-1)) or
+        not raisesNumericError(         (-8) ** intExpr(-1)) or
         not raisesNumericError(         (-7) ** intExpr(-1)) or
         not raisesNumericError(         (-4) ** intExpr(-1)) or
         not raisesNumericError(         (-2) ** intExpr(-1)) or
@@ -14706,8 +15056,12 @@ const proc: check_power is func
         not raisesNumericError(            2 ** intExpr(-1)) or
         not raisesNumericError(            4 ** intExpr(-1)) or
         not raisesNumericError(            7 ** intExpr(-1)) or
+        not raisesNumericError(            8 ** intExpr(-1)) or
+        not raisesNumericError(            9 ** intExpr(-1)) or
         not raisesNumericError( integer.last ** intExpr(-1)) or
         not raisesNumericError(intExpr(integer.first) **        (-1)) or
+        not raisesNumericError(intExpr(         (-9)) **        (-1)) or
+        not raisesNumericError(intExpr(         (-8)) **        (-1)) or
         not raisesNumericError(intExpr(         (-7)) **        (-1)) or
         not raisesNumericError(intExpr(         (-4)) **        (-1)) or
         not raisesNumericError(intExpr(         (-2)) **        (-1)) or
@@ -14717,8 +15071,12 @@ const proc: check_power is func
         not raisesNumericError(intExpr(            2) **        (-1)) or
         not raisesNumericError(intExpr(            4) **        (-1)) or
         not raisesNumericError(intExpr(            7) **        (-1)) or
+        not raisesNumericError(intExpr(            8) **        (-1)) or
+        not raisesNumericError(intExpr(            9) **        (-1)) or
         not raisesNumericError(intExpr( integer.last) **        (-1)) or
         not raisesNumericError(intExpr(integer.first) ** intExpr(-1)) or
+        not raisesNumericError(intExpr(         (-9)) ** intExpr(-1)) or
+        not raisesNumericError(intExpr(         (-8)) ** intExpr(-1)) or
         not raisesNumericError(intExpr(         (-7)) ** intExpr(-1)) or
         not raisesNumericError(intExpr(         (-4)) ** intExpr(-1)) or
         not raisesNumericError(intExpr(         (-2)) ** intExpr(-1)) or
@@ -14728,6 +15086,8 @@ const proc: check_power is func
         not raisesNumericError(intExpr(            2) ** intExpr(-1)) or
         not raisesNumericError(intExpr(            4) ** intExpr(-1)) or
         not raisesNumericError(intExpr(            7) ** intExpr(-1)) or
+        not raisesNumericError(intExpr(            8) ** intExpr(-1)) or
+        not raisesNumericError(intExpr(            9) ** intExpr(-1)) or
         not raisesNumericError(intExpr( integer.last) ** intExpr(-1)) then
       writeln(" ***** Computing power with negative exponent does not raise NUMERIC_ERROR.");
       okay := FALSE;
@@ -17163,15 +17523,67 @@ const proc: check_str is func
       okay := FALSE;
     end if;
 
-    if  not raisesRangeError(        123  radix          1 ) or
-        not raisesRangeError(        123  radix         37 ) or
-        not raisesRangeError(intExpr(123) radix          1 ) or
-        not raisesRangeError(intExpr(123) radix         37 ) or
-        not raisesRangeError(        123  radix intExpr( 1)) or
-        not raisesRangeError(        123  radix intExpr(37)) or
-        not raisesRangeError(intExpr(123) radix intExpr( 1)) or
-        not raisesRangeError(intExpr(123) radix intExpr(37)) then
+    if  not raisesRangeError(        123  radix         integer.first ) or
+        not raisesRangeError(        123  radix                    -1 ) or
+        not raisesRangeError(        123  radix                     0 ) or
+        not raisesRangeError(        123  radix                     1 ) or
+        not raisesRangeError(        123  radix                    37 ) or
+        not raisesRangeError(        123  radix                    38 ) or
+        not raisesRangeError(        123  radix          integer.last ) or
+        not raisesRangeError(intExpr(123) radix         integer.first ) or
+        not raisesRangeError(intExpr(123) radix                    -1 ) or
+        not raisesRangeError(intExpr(123) radix                     0 ) or
+        not raisesRangeError(intExpr(123) radix                     1 ) or
+        not raisesRangeError(intExpr(123) radix                    37 ) or
+        not raisesRangeError(intExpr(123) radix                    38 ) or
+        not raisesRangeError(intExpr(123) radix          integer.last ) or
+        not raisesRangeError(        123  radix intExpr(integer.first)) or
+        not raisesRangeError(        123  radix intExpr(           -1)) or
+        not raisesRangeError(        123  radix intExpr(            0)) or
+        not raisesRangeError(        123  radix intExpr(            1)) or
+        not raisesRangeError(        123  radix intExpr(           37)) or
+        not raisesRangeError(        123  radix intExpr(           38)) or
+        not raisesRangeError(        123  radix intExpr( integer.last)) or
+        not raisesRangeError(intExpr(123) radix intExpr(integer.first)) or
+        not raisesRangeError(intExpr(123) radix intExpr(           -1)) or
+        not raisesRangeError(intExpr(123) radix intExpr(            0)) or
+        not raisesRangeError(intExpr(123) radix intExpr(            1)) or
+        not raisesRangeError(intExpr(123) radix intExpr(           37)) or
+        not raisesRangeError(intExpr(123) radix intExpr(           38)) or
+        not raisesRangeError(intExpr(123) radix intExpr( integer.last)) then
       writeln(" ***** The radix operator does not raise RANGE_ERROR for an illegal base.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesRangeError(        123  RADIX         integer.first ) or
+        not raisesRangeError(        123  RADIX                    -1 ) or
+        not raisesRangeError(        123  RADIX                     0 ) or
+        not raisesRangeError(        123  RADIX                     1 ) or
+        not raisesRangeError(        123  RADIX                    37 ) or
+        not raisesRangeError(        123  RADIX                    38 ) or
+        not raisesRangeError(        123  RADIX          integer.last ) or
+        not raisesRangeError(intExpr(123) RADIX         integer.first ) or
+        not raisesRangeError(intExpr(123) RADIX                    -1 ) or
+        not raisesRangeError(intExpr(123) RADIX                     0 ) or
+        not raisesRangeError(intExpr(123) RADIX                     1 ) or
+        not raisesRangeError(intExpr(123) RADIX                    37 ) or
+        not raisesRangeError(intExpr(123) RADIX                    38 ) or
+        not raisesRangeError(intExpr(123) RADIX          integer.last ) or
+        not raisesRangeError(        123  RADIX intExpr(integer.first)) or
+        not raisesRangeError(        123  RADIX intExpr(           -1)) or
+        not raisesRangeError(        123  RADIX intExpr(            0)) or
+        not raisesRangeError(        123  RADIX intExpr(            1)) or
+        not raisesRangeError(        123  RADIX intExpr(           37)) or
+        not raisesRangeError(        123  RADIX intExpr(           38)) or
+        not raisesRangeError(        123  RADIX intExpr( integer.last)) or
+        not raisesRangeError(intExpr(123) RADIX intExpr(integer.first)) or
+        not raisesRangeError(intExpr(123) RADIX intExpr(           -1)) or
+        not raisesRangeError(intExpr(123) RADIX intExpr(            0)) or
+        not raisesRangeError(intExpr(123) RADIX intExpr(            1)) or
+        not raisesRangeError(intExpr(123) RADIX intExpr(           37)) or
+        not raisesRangeError(intExpr(123) RADIX intExpr(           38)) or
+        not raisesRangeError(intExpr(123) RADIX intExpr( integer.last)) then
+      writeln(" ***** The RADIX operator does not raise RANGE_ERROR for an illegal base.");
       okay := FALSE;
     end if;
 
@@ -17735,6 +18147,18 @@ const proc: check_sci is func
         ( 9223372036854775807 sci 19) <> "9.2233720368547758070e+18" or
         ( 9223372036854775807 sci 30) <> "9.223372036854775807000000000000e+18" then
       writeln(" ***** The sci operator does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesRangeError(        123  sci         integer.first ) or
+        not raisesRangeError(        123  sci                    -1 ) or
+        not raisesRangeError(intExpr(123) sci         integer.first ) or
+        not raisesRangeError(intExpr(123) sci                    -1 ) or
+        not raisesRangeError(        123  sci intExpr(integer.first)) or
+        not raisesRangeError(        123  sci intExpr(           -1)) or
+        not raisesRangeError(intExpr(123) sci intExpr(integer.first)) or
+        not raisesRangeError(intExpr(123) sci intExpr(           -1)) then
+      writeln(" ***** The sci operator does not raise RANGE_ERROR for negative precision.");
       okay := FALSE;
     end if;
 
@@ -18334,7 +18758,69 @@ const proc: check_parse is func
         not raisesRangeError(integer(striExpr( "9223372036854775819"))) or
         not raisesRangeError(integer(striExpr( "9223372036854775820"))) or
         not raisesRangeError(integer(striExpr( "9223372036854775890"))) then
-      writeln(" ***** Integer parse with illegal literal does not raise RANGE_ERROR.");
+      writeln(" ***** Integer parse with illegal literal does not raise RANGE_ERROR. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesRangeError(integer parse "-9223372036854775890") or
+        not raisesRangeError(integer parse "-9223372036854775820") or
+        not raisesRangeError(integer parse "-9223372036854775819") or
+        not raisesRangeError(integer parse "-9223372036854775811") or
+        not raisesRangeError(integer parse "-9223372036854775810") or
+        not raisesRangeError(integer parse "-9223372036854775809") or
+        not raisesRangeError(integer parse                    "@") or
+        not raisesRangeError(integer parse                    "+") or
+        not raisesRangeError(integer parse                   "++") or
+        not raisesRangeError(integer parse                   "+-") or
+        not raisesRangeError(integer parse                  "++1") or
+        not raisesRangeError(integer parse                  "+-1") or
+        not raisesRangeError(integer parse                    "-") or
+        not raisesRangeError(integer parse                   "--") or
+        not raisesRangeError(integer parse                   "-+") or
+        not raisesRangeError(integer parse                  "--1") or
+        not raisesRangeError(integer parse                  "-+1") or
+        not raisesRangeError(integer parse                     "") or
+        not raisesRangeError(integer parse                 " 123") or
+        not raisesRangeError(integer parse                 "123 ") or
+        not raisesRangeError(integer parse                 "123@") or
+        not raisesRangeError(integer parse              "123@456") or
+        not raisesRangeError(integer parse  "9223372036854775808") or
+        not raisesRangeError(integer parse  "9223372036854775809") or
+        not raisesRangeError(integer parse  "9223372036854775810") or
+        not raisesRangeError(integer parse  "9223372036854775811") or
+        not raisesRangeError(integer parse  "9223372036854775819") or
+        not raisesRangeError(integer parse  "9223372036854775820") or
+        not raisesRangeError(integer parse  "9223372036854775890") or
+        not raisesRangeError(integer parse striExpr("-9223372036854775890")) or
+        not raisesRangeError(integer parse striExpr("-9223372036854775820")) or
+        not raisesRangeError(integer parse striExpr("-9223372036854775819")) or
+        not raisesRangeError(integer parse striExpr("-9223372036854775811")) or
+        not raisesRangeError(integer parse striExpr("-9223372036854775810")) or
+        not raisesRangeError(integer parse striExpr("-9223372036854775809")) or
+        not raisesRangeError(integer parse striExpr(                   "@")) or
+        not raisesRangeError(integer parse striExpr(                   "+")) or
+        not raisesRangeError(integer parse striExpr(                  "++")) or
+        not raisesRangeError(integer parse striExpr(                  "+-")) or
+        not raisesRangeError(integer parse striExpr(                 "++1")) or
+        not raisesRangeError(integer parse striExpr(                 "+-1")) or
+        not raisesRangeError(integer parse striExpr(                   "-")) or
+        not raisesRangeError(integer parse striExpr(                  "--")) or
+        not raisesRangeError(integer parse striExpr(                  "-+")) or
+        not raisesRangeError(integer parse striExpr(                 "--1")) or
+        not raisesRangeError(integer parse striExpr(                 "-+1")) or
+        not raisesRangeError(integer parse striExpr(                    "")) or
+        not raisesRangeError(integer parse striExpr(                " 123")) or
+        not raisesRangeError(integer parse striExpr(                "123 ")) or
+        not raisesRangeError(integer parse striExpr(                "123@")) or
+        not raisesRangeError(integer parse striExpr(             "123@456")) or
+        not raisesRangeError(integer parse striExpr( "9223372036854775808")) or
+        not raisesRangeError(integer parse striExpr( "9223372036854775809")) or
+        not raisesRangeError(integer parse striExpr( "9223372036854775810")) or
+        not raisesRangeError(integer parse striExpr( "9223372036854775811")) or
+        not raisesRangeError(integer parse striExpr( "9223372036854775819")) or
+        not raisesRangeError(integer parse striExpr( "9223372036854775820")) or
+        not raisesRangeError(integer parse striExpr( "9223372036854775890")) then
+      writeln(" ***** Integer parse with illegal literal does not raise RANGE_ERROR. (2)");
       okay := FALSE;
     end if;
 
@@ -18444,6 +18930,38 @@ const proc: check_parse is func
         integer("-NBBF", 35)                <> -1000000 or
         integer("-LFLS", 36)                <> -1000000 then
       writeln(" ***** Conversion of numeric string with specified radix does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesRangeError(integer("0", integer.first)) or
+        not raisesRangeError(integer("0",            -1)) or
+        not raisesRangeError(integer("0",             0)) or
+        not raisesRangeError(integer("0",             1)) or
+        not raisesRangeError(integer("0",            37)) or
+        not raisesRangeError(integer("0",            38)) or
+        not raisesRangeError(integer("0",  integer.last)) or
+        not raisesRangeError(integer(striExpr("0"), integer.first)) or
+        not raisesRangeError(integer(striExpr("0"),            -1)) or
+        not raisesRangeError(integer(striExpr("0"),             0)) or
+        not raisesRangeError(integer(striExpr("0"),             1)) or
+        not raisesRangeError(integer(striExpr("0"),            37)) or
+        not raisesRangeError(integer(striExpr("0"),            38)) or
+        not raisesRangeError(integer(striExpr("0"),  integer.last)) or
+        not raisesRangeError(integer("0", intExpr(integer.first))) or
+        not raisesRangeError(integer("0", intExpr(           -1))) or
+        not raisesRangeError(integer("0", intExpr(            0))) or
+        not raisesRangeError(integer("0", intExpr(            1))) or
+        not raisesRangeError(integer("0", intExpr(           37))) or
+        not raisesRangeError(integer("0", intExpr(           38))) or
+        not raisesRangeError(integer("0", intExpr( integer.last))) or
+        not raisesRangeError(integer(striExpr("0"), intExpr(integer.first))) or
+        not raisesRangeError(integer(striExpr("0"), intExpr(           -1))) or
+        not raisesRangeError(integer(striExpr("0"), intExpr(            0))) or
+        not raisesRangeError(integer(striExpr("0"), intExpr(            1))) or
+        not raisesRangeError(integer(striExpr("0"), intExpr(           37))) or
+        not raisesRangeError(integer(striExpr("0"), intExpr(           38))) or
+        not raisesRangeError(integer(striExpr("0"), intExpr( integer.last))) then
+      writeln(" ***** Conversion of numeric string does not raise RANGE_ERROR for an illegal base.");
       okay := FALSE;
     end if;
 

@@ -24,14 +24,9 @@ LDFLAGS =
 SYSTEM_LIBS = -lm
 # SYSTEM_LIBS = -lm -lgmp
 # SYSTEM_LIBS = -lm_p -lc_p
-# SYSTEM_DRAW_LIBS is defined in the file "macros". When doing "make depend" chkccomp.c writes it.
-# SYSTEM_DRAW_LIBS = -lX11
-# SYSTEM_DRAW_LIBS = /usr/Xlib/libX11.so
-# SYSTEM_DRAW_LIBS = -lX11 -lXext
-# SYSTEM_DRAW_LIBS = -lGL -lGLEW -lglut
-# SYSTEM_DRAW_LIBS = -lGL -lGLEW -lX11
-# SYSTEM_CONSOLE_LIBS is defined in the file "macros". When doing "make depend" chkccomp.c writes it.
-# SYSTEM_CONSOLE_LIBS = -lncurses
+# SYSTEM_DRAW_LIBS is defined in the file "macros". The program chkccomp.c writes it to "macros" when doing "make depend".
+# SYSTEM_CONSOLE_LIBS is defined in the file "macros". The program chkccomp.c writes it to "macros" when doing "make depend".
+# SYSTEM_DATABASE_LIBS is defined in the file "macros". The program chkccomp.c writes it to "macros" when doing "make depend".
 SEED7_LIB = seed7_05.a
 DRAW_LIB = s7_draw.a
 CONSOLE_LIB = s7_con.a
@@ -106,7 +101,7 @@ s7c: ../bin/s7c ../prg/s7c
 	@echo
 
 ../bin/s7: $(OBJ) $(ALL_S7_LIBS)
-	$(CC) $(LDFLAGS) $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS) -o ../bin/s7
+	$(CC) $(LDFLAGS) $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_DATABASE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS) -o ../bin/s7
 
 ../prg/s7:
 	ln -s ../bin/s7 ../prg
@@ -272,10 +267,10 @@ wc: $(SRC)
 	wc $(COMPILER_LIB_SRC)
 
 lint: $(SRC)
-	lint -p $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS)
+	lint -p $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_DATABASE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS)
 
 lint2: $(SRC)
-	lint -Zn2048 $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS)
+	lint -Zn2048 $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_DATABASE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS)
 
 cppcheck: $(SRC) $(SEED7_LIB_SRC) $(DRAW_LIB_SRC) $(COMP_DATA_LIB_SRC) $(COMPILER_LIB_SRC)
 	cppcheck --force --enable=all $(SRC) $(SEED7_LIB_SRC) $(DRAW_LIB_SRC) $(COMP_DATA_LIB_SRC) $(COMPILER_LIB_SRC)

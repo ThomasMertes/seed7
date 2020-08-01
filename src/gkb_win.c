@@ -151,7 +151,7 @@ charType gkbGetc (void)
                             "SHIFT=%hx, CONTROL=%hx, MENU=%hx\n",
                             msg.hwnd, msg.wParam, msg.lParam, GetKeyState(VK_SHIFT),
                             GetKeyState(VK_CONTROL), GetKeyState(VK_MENU)););
-          if (GetKeyState(VK_SHIFT) & 0xFF80) {
+          if (GetKeyState(VK_SHIFT) & 0x8000) {
             /* printf("VK_SHIFT\n"); */
             if (msg.lParam & 0x1000000) {
               /* The key is a cursor key but not from the numeric keypad. */
@@ -159,6 +159,7 @@ charType gkbGetc (void)
                 case VK_RETURN:   result = K_SFT_NL;     break;
                 case VK_BACK:     result = K_SFT_BS;     break;
                 case VK_TAB:      result = K_BACKTAB;    break;
+                case VK_ESCAPE:   result = K_SFT_ESC;    break;
                 case VK_LEFT:     result = K_LEFT;       break;
                 case VK_RIGHT:    result = K_RIGHT;      break;
                 case VK_UP:       result = K_UP;         break;
@@ -170,7 +171,15 @@ charType gkbGetc (void)
                 case VK_CLEAR:    result = K_PAD_CENTER; break;
                 case VK_INSERT:   result = K_INS;        break;
                 case VK_DELETE:   result = K_DEL;        break;
-                case VK_APPS:     result = K_MENU;       break;
+                case VK_APPS:     result = K_SFT_MENU;   break;
+                case VK_PRINT:    result = K_SFT_PRINT;  break;
+                case VK_PAUSE:    result = K_SFT_PAUSE;  break;
+                case VK_SHIFT:
+                case VK_CONTROL:
+                case VK_MENU:
+                case VK_CAPITAL:
+                case VK_NUMLOCK:
+                case VK_SCROLL:   result = K_NONE;       break;
                 default:          result = K_UNDEF;      break;
               } /* switch */
             } else {
@@ -178,6 +187,7 @@ charType gkbGetc (void)
                 case VK_RETURN:   result = K_SFT_NL;     break;
                 case VK_BACK:     result = K_SFT_BS;     break;
                 case VK_TAB:      result = K_BACKTAB;    break;
+                case VK_ESCAPE:   result = K_SFT_ESC;    break;
                 case VK_F1:       result = K_SFT_F1;     break;
                 case VK_F2:       result = K_SFT_F2;     break;
                 case VK_F3:       result = K_SFT_F3;     break;
@@ -201,7 +211,9 @@ charType gkbGetc (void)
                 case VK_CLEAR:    result = '5';          break;
                 case VK_INSERT:   result = '0';          break;
                 case VK_DELETE:   result = K_DEL;        break;
-                case VK_APPS:     result = K_MENU;       break;
+                case VK_APPS:     result = K_SFT_MENU;   break;
+                case VK_PRINT:    result = K_SFT_PRINT;  break;
+                case VK_PAUSE:    result = K_SFT_PAUSE;  break;
                 case VK_SHIFT:
                 case VK_CONTROL:
                 case VK_MENU:
@@ -211,108 +223,121 @@ charType gkbGetc (void)
                 default:          result = K_UNDEF;      break;
               } /* switch */
             } /* if */
-          } else if (GetKeyState(VK_MENU) & 0xFF80) {
-            /* printf("VK_MENU\n"); */
-            switch (msg.wParam) {
-              case VK_RETURN:   result = K_ALT_NL;     break;
-              case VK_BACK:     result = K_ALT_BS;     break;
-              case VK_TAB:      result = K_ALT_TAB;    break;
-              case VK_F1:       result = K_ALT_F1;     break;
-              case VK_F2:       result = K_ALT_F2;     break;
-              case VK_F3:       result = K_ALT_F3;     break;
-              case VK_F4:       result = K_ALT_F4;     break;
-              case VK_F5:       result = K_ALT_F5;     break;
-              case VK_F6:       result = K_ALT_F6;     break;
-              case VK_F7:       result = K_ALT_F7;     break;
-              case VK_F8:       result = K_ALT_F8;     break;
-              case VK_F9:       result = K_ALT_F9;     break;
-              case VK_F10:      result = K_ALT_F10;    break;
-              case VK_F11:      result = K_ALT_F11;    break;
-              case VK_F12:      result = K_ALT_F12;    break;
-              case VK_NUMPAD0:  result = K_ALT_0;      break;
-              case VK_NUMPAD1:  result = K_ALT_1;      break;
-              case VK_NUMPAD2:  result = K_ALT_2;      break;
-              case VK_NUMPAD3:  result = K_ALT_3;      break;
-              case VK_NUMPAD4:  result = K_ALT_4;      break;
-              case VK_NUMPAD5:  result = K_ALT_5;      break;
-              case VK_NUMPAD6:  result = K_ALT_6;      break;
-              case VK_NUMPAD7:  result = K_ALT_7;      break;
-              case VK_NUMPAD8:  result = K_ALT_8;      break;
-              case VK_NUMPAD9:  result = K_ALT_9;      break;
-              case VK_DECIMAL:  result = K_ALT_DECIMAL; break;
-              case VK_LEFT:     result = K_ALT_4;      break;
-              case VK_RIGHT:    result = K_ALT_6;      break;
-              case VK_UP:       result = K_ALT_8;      break;
-              case VK_DOWN:     result = K_ALT_2;      break;
-              case VK_HOME:     result = K_ALT_7;      break;
-              case VK_END:      result = K_ALT_1;      break;
-              case VK_PRIOR:    result = K_ALT_9;      break;
-              case VK_NEXT:     result = K_ALT_3;      break;
-              case VK_CLEAR:    result = K_ALT_5;      break;
-              case VK_INSERT:   result = K_ALT_0;      break;
-              case VK_DELETE:   result = K_ALT_DECIMAL; break;
-              case VK_APPS:     result = K_MENU;       break;
-              case VK_SHIFT:
-              case VK_CONTROL:
-              case VK_MENU:
-              case VK_CAPITAL:
-              case VK_NUMLOCK:
-              case VK_SCROLL:   result = K_NONE;       break;
-              default:          result = K_UNDEF;      break;
-            } /* switch */
-          } else if (GetKeyState(VK_CONTROL) & 0xFF80) {
+          } else if (((GetKeyState(VK_CONTROL)  & 0x8000) != 0 &&
+                      (GetKeyState(VK_RMENU)    & 0x8000) == 0) ||
+                      (GetKeyState(VK_RCONTROL) & 0x8000) != 0) {
+            /* This condition is complicated because Alt Gr is     */
+            /* encoded as if left-control + right-alt are pressed. */
+            /* This situation is filtered out with this condition. */
             /* printf("VK_CONTROL\n"); */
             switch (msg.wParam) {
-              case VK_RETURN:   result = K_CTL_NL;     break;
-              case VK_BACK:     result = K_CTL_BS;     break;
-              case VK_TAB:      result = K_CTL_TAB;    break;
-              case VK_F1:       result = K_CTL_F1;     break;
-              case VK_F2:       result = K_CTL_F2;     break;
-              case VK_F3:       result = K_CTL_F3;     break;
-              case VK_F4:       result = K_CTL_F4;     break;
-              case VK_F5:       result = K_CTL_F5;     break;
-              case VK_F6:       result = K_CTL_F6;     break;
-              case VK_F7:       result = K_CTL_F7;     break;
-              case VK_F8:       result = K_CTL_F8;     break;
-              case VK_F9:       result = K_CTL_F9;     break;
-              case VK_F10:      result = K_CTL_F10;    break;
-              case VK_F11:      result = K_CTL_F11;    break;
-              case VK_F12:      result = K_CTL_F12;    break;
-              case VK_NUMPAD0:  result = K_CTL_INS;    break;
-              case VK_NUMPAD1:  result = K_CTL_END;    break;
-              case VK_NUMPAD2:  result = K_CTL_DOWN;   break;
-              case VK_NUMPAD3:  result = K_CTL_PGDN;   break;
-              case VK_NUMPAD4:  result = K_CTL_LEFT;   break;
+              case VK_RETURN:   result = K_CTL_NL;         break;
+              case VK_BACK:     result = K_CTL_BS;         break;
+              case VK_TAB:      result = K_CTL_TAB;        break;
+              case VK_ESCAPE:   result = K_CTL_ESC;        break;
+              case VK_F1:       result = K_CTL_F1;         break;
+              case VK_F2:       result = K_CTL_F2;         break;
+              case VK_F3:       result = K_CTL_F3;         break;
+              case VK_F4:       result = K_CTL_F4;         break;
+              case VK_F5:       result = K_CTL_F5;         break;
+              case VK_F6:       result = K_CTL_F6;         break;
+              case VK_F7:       result = K_CTL_F7;         break;
+              case VK_F8:       result = K_CTL_F8;         break;
+              case VK_F9:       result = K_CTL_F9;         break;
+              case VK_F10:      result = K_CTL_F10;        break;
+              case VK_F11:      result = K_CTL_F11;        break;
+              case VK_F12:      result = K_CTL_F12;        break;
+              case VK_NUMPAD0:  result = K_CTL_INS;        break;
+              case VK_NUMPAD1:  result = K_CTL_END;        break;
+              case VK_NUMPAD2:  result = K_CTL_DOWN;       break;
+              case VK_NUMPAD3:  result = K_CTL_PGDN;       break;
+              case VK_NUMPAD4:  result = K_CTL_LEFT;       break;
               case VK_NUMPAD5:  result = K_CTL_PAD_CENTER; break;
-              case VK_NUMPAD6:  result = K_CTL_RIGHT;  break;
-              case VK_NUMPAD7:  result = K_CTL_HOME;   break;
-              case VK_NUMPAD8:  result = K_CTL_UP;     break;
-              case VK_NUMPAD9:  result = K_CTL_PGUP;   break;
-              case VK_DECIMAL:  result = K_CTL_DEL;    break;
-              case VK_LEFT:     result = K_CTL_LEFT;   break;
-              case VK_RIGHT:    result = K_CTL_RIGHT;  break;
-              case VK_UP:       result = K_CTL_UP;     break;
-              case VK_DOWN:     result = K_CTL_DOWN;   break;
-              case VK_HOME:     result = K_CTL_HOME;   break;
-              case VK_END:      result = K_CTL_END;    break;
-              case VK_PRIOR:    result = K_CTL_PGUP;   break;
-              case VK_NEXT:     result = K_CTL_PGDN;   break;
+              case VK_NUMPAD6:  result = K_CTL_RIGHT;      break;
+              case VK_NUMPAD7:  result = K_CTL_HOME;       break;
+              case VK_NUMPAD8:  result = K_CTL_UP;         break;
+              case VK_NUMPAD9:  result = K_CTL_PGUP;       break;
+              case VK_DECIMAL:  result = K_CTL_DEL;        break;
+              case VK_LEFT:     result = K_CTL_LEFT;       break;
+              case VK_RIGHT:    result = K_CTL_RIGHT;      break;
+              case VK_UP:       result = K_CTL_UP;         break;
+              case VK_DOWN:     result = K_CTL_DOWN;       break;
+              case VK_HOME:     result = K_CTL_HOME;       break;
+              case VK_END:      result = K_CTL_END;        break;
+              case VK_PRIOR:    result = K_CTL_PGUP;       break;
+              case VK_NEXT:     result = K_CTL_PGDN;       break;
               case VK_CLEAR:    result = K_CTL_PAD_CENTER; break;
-              case VK_INSERT:   result = K_CTL_INS;    break;
-              case VK_DELETE:   result = K_CTL_DEL;    break;
-              case VK_APPS:     result = K_MENU;       break;
+              case VK_INSERT:   result = K_CTL_INS;        break;
+              case VK_DELETE:   result = K_CTL_DEL;        break;
+              case VK_APPS:     result = K_CTL_MENU;       break;
+              case VK_PRINT:    result = K_CTL_PRINT;      break;
+              case VK_PAUSE:    result = K_CTL_PAUSE;      break;
               case VK_SHIFT:
               case VK_CONTROL:
               case VK_MENU:
               case VK_CAPITAL:
               case VK_NUMLOCK:
-              case VK_SCROLL:   result = K_NONE;       break;
-              default:          result = K_UNDEF;      break;
+              case VK_SCROLL:   result = K_NONE;           break;
+              default:          result = K_UNDEF;          break;
+            } /* switch */
+          } else if (GetKeyState(VK_MENU) & 0x8000) {
+            /* This condition is true for the Alt key and the Alt Gr key. */
+            /* printf("VK_MENU\n"); */
+            switch (msg.wParam) {
+              case VK_RETURN:   result = K_ALT_NL;         break;
+              case VK_BACK:     result = K_ALT_BS;         break;
+              case VK_TAB:      result = K_ALT_TAB;        break;
+              case VK_ESCAPE:   result = K_ALT_ESC;        break;
+              case VK_F1:       result = K_ALT_F1;         break;
+              case VK_F2:       result = K_ALT_F2;         break;
+              case VK_F3:       result = K_ALT_F3;         break;
+              case VK_F4:       result = K_ALT_F4;         break;
+              case VK_F5:       result = K_ALT_F5;         break;
+              case VK_F6:       result = K_ALT_F6;         break;
+              case VK_F7:       result = K_ALT_F7;         break;
+              case VK_F8:       result = K_ALT_F8;         break;
+              case VK_F9:       result = K_ALT_F9;         break;
+              case VK_F10:      result = K_ALT_F10;        break;
+              case VK_F11:      result = K_ALT_F11;        break;
+              case VK_F12:      result = K_ALT_F12;        break;
+              case VK_NUMPAD0:  result = K_ALT_INS;        break;
+              case VK_NUMPAD1:  result = K_ALT_END;        break;
+              case VK_NUMPAD2:  result = K_ALT_DOWN;       break;
+              case VK_NUMPAD3:  result = K_ALT_PGDN;       break;
+              case VK_NUMPAD4:  result = K_ALT_LEFT;       break;
+              case VK_NUMPAD5:  result = K_ALT_PAD_CENTER; break;
+              case VK_NUMPAD6:  result = K_ALT_RIGHT;      break;
+              case VK_NUMPAD7:  result = K_ALT_HOME;       break;
+              case VK_NUMPAD8:  result = K_ALT_UP;         break;
+              case VK_NUMPAD9:  result = K_ALT_PGUP;       break;
+              case VK_DECIMAL:  result = K_ALT_DEL;        break;
+              case VK_LEFT:     result = K_ALT_LEFT;       break;
+              case VK_RIGHT:    result = K_ALT_RIGHT;      break;
+              case VK_UP:       result = K_ALT_UP;         break;
+              case VK_DOWN:     result = K_ALT_DOWN;       break;
+              case VK_HOME:     result = K_ALT_HOME;       break;
+              case VK_END:      result = K_ALT_END;        break;
+              case VK_PRIOR:    result = K_ALT_PGUP;       break;
+              case VK_NEXT:     result = K_ALT_PGDN;       break;
+              case VK_CLEAR:    result = K_ALT_PAD_CENTER; break;
+              case VK_INSERT:   result = K_ALT_INS;        break;
+              case VK_DELETE:   result = K_ALT_DEL;        break;
+              case VK_APPS:     result = K_ALT_MENU;       break;
+              case VK_PRINT:    result = K_ALT_PRINT;      break;
+              case VK_PAUSE:    result = K_ALT_PAUSE;      break;
+              case VK_SHIFT:
+              case VK_CONTROL:
+              case VK_MENU:
+              case VK_CAPITAL:
+              case VK_NUMLOCK:
+              case VK_SCROLL:   result = K_NONE;           break;
+              default:          result = K_UNDEF;          break;
             } /* switch */
           } else {
             /* printf("no key state\n"); */
             switch (msg.wParam) {
               case VK_RETURN:   result = K_NL;         break;
+              case VK_ESCAPE:   result = K_ESC;        break;
               case VK_F1:       result = K_F1;         break;
               case VK_F2:       result = K_F2;         break;
               case VK_F3:       result = K_F3;         break;
@@ -337,6 +362,8 @@ charType gkbGetc (void)
               case VK_INSERT:   result = K_INS;        break;
               case VK_DELETE:   result = K_DEL;        break;
               case VK_APPS:     result = K_MENU;       break;
+              case VK_PRINT:    result = K_PRINT;      break;
+              case VK_PAUSE:    result = K_PAUSE;      break;
               case VK_SHIFT:
               case VK_CONTROL:
               case VK_MENU:
@@ -365,7 +392,7 @@ charType gkbGetc (void)
           button_x = LOWORD(msg.lParam);
           button_y = HIWORD(msg.lParam);
           button_window = msg.hwnd;
-          if (GetKeyState(VK_MENU) & 0xFF80) {
+          if (GetKeyState(VK_MENU) & 0x8000) {
             result = K_ALT_MOUSE1;
           } else if (msg.wParam & 0x04) {
             result = K_SFT_MOUSE1;
@@ -380,7 +407,7 @@ charType gkbGetc (void)
           button_x = LOWORD(msg.lParam);
           button_y = HIWORD(msg.lParam);
           button_window = msg.hwnd;
-          if (GetKeyState(VK_MENU) & 0xFF80) {
+          if (GetKeyState(VK_MENU) & 0x8000) {
             result = K_ALT_MOUSE2;
           } else if (msg.wParam & 0x04) {
             result = K_SFT_MOUSE2;
@@ -395,7 +422,7 @@ charType gkbGetc (void)
           button_x = LOWORD(msg.lParam);
           button_y = HIWORD(msg.lParam);
           button_window = msg.hwnd;
-          if (GetKeyState(VK_MENU) & 0xFF80) {
+          if (GetKeyState(VK_MENU) & 0x8000) {
             result = K_ALT_MOUSE3;
           } else if (msg.wParam & 0x04) {
             result = K_SFT_MOUSE3;
@@ -411,7 +438,7 @@ charType gkbGetc (void)
           button_y = HIWORD(msg.lParam);
           button_window = msg.hwnd;
           if ((intPtrType) msg.wParam > 0) {
-            if (GetKeyState(VK_MENU) & 0xFF80) {
+            if (GetKeyState(VK_MENU) & 0x8000) {
               result = K_ALT_MOUSE4;
             } else if (msg.wParam & 0x04) {
               result = K_SFT_MOUSE4;
@@ -421,7 +448,7 @@ charType gkbGetc (void)
               result = K_MOUSE4;
             } /* if */
           } else {
-            if (GetKeyState(VK_MENU) & 0xFF80) {
+            if (GetKeyState(VK_MENU) & 0x8000) {
               result = K_ALT_MOUSE5;
             } else if (msg.wParam & 0x04) {
               result = K_SFT_MOUSE5;
@@ -438,7 +465,7 @@ charType gkbGetc (void)
           button_y = HIWORD(msg.lParam);
           button_window = msg.hwnd;
           if ((msg.wParam & 0xffff0) == 0x20040) {
-            if (GetKeyState(VK_MENU) & 0xFF80) {
+            if (GetKeyState(VK_MENU) & 0x8000) {
               result = K_ALT_MOUSE_FWD;
             } else if (msg.wParam & 0x04) {
               result = K_SFT_MOUSE_FWD;
@@ -448,7 +475,7 @@ charType gkbGetc (void)
               result = K_MOUSE_FWD;
             } /* if */
           } else if ((msg.wParam & 0xffff0) == 0x10020) {
-            if (GetKeyState(VK_MENU) & 0xFF80) {
+            if (GetKeyState(VK_MENU) & 0x8000) {
               result = K_ALT_MOUSE_BACK;
             } else if (msg.wParam & 0x04) {
               result = K_SFT_MOUSE_BACK;
@@ -468,21 +495,30 @@ charType gkbGetc (void)
           if (msg.lParam & 0x1000000) {
             /* The key is a cursor key but not from the numeric keypad. */
             switch (msg.wParam) {
-              case VK_RETURN:   result = K_ALT_NL;     break;
-              case VK_BACK:     result = K_ALT_BS;     break;
-              case VK_TAB:      result = K_ALT_TAB;    break;
-              case VK_LEFT:     result = K_LEFT;       break;
-              case VK_RIGHT:    result = K_RIGHT;      break;
-              case VK_UP:       result = K_UP;         break;
-              case VK_DOWN:     result = K_DOWN;       break;
-              case VK_HOME:     result = K_HOME;       break;
-              case VK_END:      result = K_END;        break;
-              case VK_PRIOR:    result = K_PGUP;       break;
-              case VK_NEXT:     result = K_PGDN;       break;
-              case VK_CLEAR:    result = K_PAD_CENTER; break;
-              case VK_INSERT:   result = K_INS;        break;
-              case VK_DELETE:   result = K_DEL;        break;
-              case VK_APPS:     result = K_MENU;       break;
+              case VK_RETURN:   result = K_ALT_NL;         break;
+              case VK_BACK:     result = K_ALT_BS;         break;
+              case VK_TAB:      result = K_ALT_TAB;        break;
+              case VK_ESCAPE:   result = K_ALT_ESC;        break;
+              case VK_LEFT:     result = K_ALT_LEFT;       break;
+              case VK_RIGHT:    result = K_ALT_RIGHT;      break;
+              case VK_UP:       result = K_ALT_UP;         break;
+              case VK_DOWN:     result = K_ALT_DOWN;       break;
+              case VK_HOME:     result = K_ALT_HOME;       break;
+              case VK_END:      result = K_ALT_END;        break;
+              case VK_PRIOR:    result = K_ALT_PGUP;       break;
+              case VK_NEXT:     result = K_ALT_PGDN;       break;
+              case VK_CLEAR:    result = K_ALT_PAD_CENTER; break;
+              case VK_INSERT:   result = K_ALT_INS;        break;
+              case VK_DELETE:   result = K_ALT_DEL;        break;
+              case VK_APPS:     result = K_ALT_MENU;       break;
+              case VK_PRINT:    result = K_ALT_PRINT;      break;
+              case VK_PAUSE:    result = K_ALT_PAUSE;      break;
+              case VK_SHIFT:
+              case VK_CONTROL:
+              case VK_MENU:
+              case VK_CAPITAL:
+              case VK_NUMLOCK:
+              case VK_SCROLL:   result = K_NONE;        break;
               default:
                 /* printf("WM_SYSKEYDOWN %lu, %d %x\n", msg.hwnd, msg.wParam, msg.lParam); */
                 result = K_UNDEF;
@@ -490,96 +526,99 @@ charType gkbGetc (void)
             } /* switch */
           } else {
             switch (msg.wParam) {
-              case 'A':         result = K_ALT_A;   break;
-              case 'B':         result = K_ALT_B;   break;
-              case 'C':         result = K_ALT_C;   break;
-              case 'D':         result = K_ALT_D;   break;
-              case 'E':         result = K_ALT_E;   break;
-              case 'F':         result = K_ALT_F;   break;
-              case 'G':         result = K_ALT_G;   break;
-              case 'H':         result = K_ALT_H;   break;
-              case 'I':         result = K_ALT_I;   break;
-              case 'J':         result = K_ALT_J;   break;
-              case 'K':         result = K_ALT_K;   break;
-              case 'L':         result = K_ALT_L;   break;
-              case 'M':         result = K_ALT_M;   break;
-              case 'N':         result = K_ALT_N;   break;
-              case 'O':         result = K_ALT_O;   break;
-              case 'P':         result = K_ALT_P;   break;
-              case 'Q':         result = K_ALT_Q;   break;
-              case 'R':         result = K_ALT_R;   break;
-              case 'S':         result = K_ALT_S;   break;
-              case 'T':         result = K_ALT_T;   break;
-              case 'U':         result = K_ALT_U;   break;
-              case 'V':         result = K_ALT_V;   break;
-              case 'W':         result = K_ALT_W;   break;
-              case 'X':         result = K_ALT_X;   break;
-              case 'Y':         result = K_ALT_Y;   break;
-              case 'Z':         result = K_ALT_Z;   break;
-              case '0':         result = K_ALT_0;   break;
-              case '1':         result = K_ALT_1;   break;
-              case '2':         result = K_ALT_2;   break;
-              case '3':         result = K_ALT_3;   break;
-              case '4':         result = K_ALT_4;   break;
-              case '5':         result = K_ALT_5;   break;
-              case '6':         result = K_ALT_6;   break;
-              case '7':         result = K_ALT_7;   break;
-              case '8':         result = K_ALT_8;   break;
-              case '9':         result = K_ALT_9;   break;
-              case VK_RETURN:   result = K_ALT_NL;  break;
-              case VK_BACK:     result = K_ALT_BS;  break;
-              case VK_TAB:      result = K_ALT_TAB; break;
-              case VK_NUMPAD0:  result = K_ALT_0;   break;
-              case VK_NUMPAD1:  result = K_ALT_1;   break;
-              case VK_NUMPAD2:  result = K_ALT_2;   break;
-              case VK_NUMPAD3:  result = K_ALT_3;   break;
-              case VK_NUMPAD4:  result = K_ALT_4;   break;
-              case VK_NUMPAD5:  result = K_ALT_5;   break;
-              case VK_NUMPAD6:  result = K_ALT_6;   break;
-              case VK_NUMPAD7:  result = K_ALT_7;   break;
-              case VK_NUMPAD8:  result = K_ALT_8;   break;
-              case VK_NUMPAD9:  result = K_ALT_9;   break;
-              case VK_DECIMAL:  result = K_ALT_DECIMAL; break;
-              case VK_LEFT:     result = K_ALT_4;   break;
-              case VK_RIGHT:    result = K_ALT_6;   break;
-              case VK_UP:       result = K_ALT_8;   break;
-              case VK_DOWN:     result = K_ALT_2;   break;
-              case VK_HOME:     result = K_ALT_7;   break;
-              case VK_END:      result = K_ALT_1;   break;
-              case VK_PRIOR:    result = K_ALT_9;   break;
-              case VK_NEXT:     result = K_ALT_3;   break;
-              case VK_CLEAR:    result = K_ALT_5;   break;
-              case VK_INSERT:   result = K_ALT_0;   break;
-              case VK_DELETE:   result = K_ALT_DECIMAL; break;
-              case VK_APPS:     result = K_MENU;    break;
-              case VK_F1:       result = K_ALT_F1;  break;
-              case VK_F2:       result = K_ALT_F2;  break;
-              case VK_F3:       result = K_ALT_F3;  break;
-              case VK_F4:       result = K_ALT_F4;  break;
-              case VK_F5:       result = K_ALT_F5;  break;
-              case VK_F6:       result = K_ALT_F6;  break;
-              case VK_F7:       result = K_ALT_F7;  break;
-              case VK_F8:       result = K_ALT_F8;  break;
-              case VK_F9:       result = K_ALT_F9;  break;
+              case 'A':         result = K_ALT_A;          break;
+              case 'B':         result = K_ALT_B;          break;
+              case 'C':         result = K_ALT_C;          break;
+              case 'D':         result = K_ALT_D;          break;
+              case 'E':         result = K_ALT_E;          break;
+              case 'F':         result = K_ALT_F;          break;
+              case 'G':         result = K_ALT_G;          break;
+              case 'H':         result = K_ALT_H;          break;
+              case 'I':         result = K_ALT_I;          break;
+              case 'J':         result = K_ALT_J;          break;
+              case 'K':         result = K_ALT_K;          break;
+              case 'L':         result = K_ALT_L;          break;
+              case 'M':         result = K_ALT_M;          break;
+              case 'N':         result = K_ALT_N;          break;
+              case 'O':         result = K_ALT_O;          break;
+              case 'P':         result = K_ALT_P;          break;
+              case 'Q':         result = K_ALT_Q;          break;
+              case 'R':         result = K_ALT_R;          break;
+              case 'S':         result = K_ALT_S;          break;
+              case 'T':         result = K_ALT_T;          break;
+              case 'U':         result = K_ALT_U;          break;
+              case 'V':         result = K_ALT_V;          break;
+              case 'W':         result = K_ALT_W;          break;
+              case 'X':         result = K_ALT_X;          break;
+              case 'Y':         result = K_ALT_Y;          break;
+              case 'Z':         result = K_ALT_Z;          break;
+              case '0':         result = K_ALT_0;          break;
+              case '1':         result = K_ALT_1;          break;
+              case '2':         result = K_ALT_2;          break;
+              case '3':         result = K_ALT_3;          break;
+              case '4':         result = K_ALT_4;          break;
+              case '5':         result = K_ALT_5;          break;
+              case '6':         result = K_ALT_6;          break;
+              case '7':         result = K_ALT_7;          break;
+              case '8':         result = K_ALT_8;          break;
+              case '9':         result = K_ALT_9;          break;
+              case VK_RETURN:   result = K_ALT_NL;         break;
+              case VK_BACK:     result = K_ALT_BS;         break;
+              case VK_TAB:      result = K_ALT_TAB;        break;
+              case VK_ESCAPE:   result = K_ALT_ESC;        break;
+              case VK_NUMPAD0:  result = K_ALT_INS;        break;
+              case VK_NUMPAD1:  result = K_ALT_END;        break;
+              case VK_NUMPAD2:  result = K_ALT_DOWN;       break;
+              case VK_NUMPAD3:  result = K_ALT_PGDN;       break;
+              case VK_NUMPAD4:  result = K_ALT_LEFT;       break;
+              case VK_NUMPAD5:  result = K_ALT_PAD_CENTER; break;
+              case VK_NUMPAD6:  result = K_ALT_RIGHT;      break;
+              case VK_NUMPAD7:  result = K_ALT_HOME;       break;
+              case VK_NUMPAD8:  result = K_ALT_UP;         break;
+              case VK_NUMPAD9:  result = K_ALT_PGUP;       break;
+              case VK_DECIMAL:  result = K_ALT_DEL;        break;
+              case VK_LEFT:     result = K_ALT_LEFT;       break;
+              case VK_RIGHT:    result = K_ALT_RIGHT;      break;
+              case VK_UP:       result = K_ALT_UP;         break;
+              case VK_DOWN:     result = K_ALT_DOWN;       break;
+              case VK_HOME:     result = K_ALT_HOME;       break;
+              case VK_END:      result = K_ALT_END;        break;
+              case VK_PRIOR:    result = K_ALT_PGUP;       break;
+              case VK_NEXT:     result = K_ALT_PGDN;       break;
+              case VK_CLEAR:    result = K_ALT_PAD_CENTER; break;
+              case VK_INSERT:   result = K_ALT_INS;        break;
+              case VK_DELETE:   result = K_ALT_DEL;        break;
+              case VK_APPS:     result = K_ALT_MENU;       break;
+              case VK_PRINT:    result = K_ALT_PRINT;      break;
+              case VK_PAUSE:    result = K_ALT_PAUSE;      break;
+              case VK_F1:       result = K_ALT_F1;         break;
+              case VK_F2:       result = K_ALT_F2;         break;
+              case VK_F3:       result = K_ALT_F3;         break;
+              case VK_F4:       result = K_ALT_F4;         break;
+              case VK_F5:       result = K_ALT_F5;         break;
+              case VK_F6:       result = K_ALT_F6;         break;
+              case VK_F7:       result = K_ALT_F7;         break;
+              case VK_F8:       result = K_ALT_F8;         break;
+              case VK_F9:       result = K_ALT_F9;         break;
               case VK_F10:
                 if (msg.lParam & 0x20000000) {
                   result = K_ALT_F10;
-                } else if (GetKeyState(VK_SHIFT) & 0xFF80) {
+                } else if (GetKeyState(VK_SHIFT) & 0x8000) {
                   result = K_SFT_F10;
-                } else if (GetKeyState(VK_CONTROL) & 0xFF80) {
+                } else if (GetKeyState(VK_CONTROL) & 0x8000) {
                   result = K_CTL_F10;
                 } else {
                   result = K_F10;
                 } /* if */
                 break;
-              case VK_F11:      result = K_ALT_F11;    break;
-              case VK_F12:      result = K_ALT_F12;    break;
+              case VK_F11:      result = K_ALT_F11;        break;
+              case VK_F12:      result = K_ALT_F12;        break;
               case VK_SHIFT:
               case VK_CONTROL:
               case VK_MENU:
               case VK_CAPITAL:
               case VK_NUMLOCK:
-              case VK_SCROLL:   result = K_NONE;    break;
+              case VK_SCROLL:   result = K_NONE;           break;
               default:
                 /* printf("WM_SYSKEYDOWN %lu, %d %x\n", msg.hwnd, msg.wParam, msg.lParam); */
                 result = K_UNDEF;
@@ -606,7 +645,8 @@ charType gkbGetc (void)
           } /* if */
         } else {
           traceEvent(printf("message=%d, hwnd=%lu, msg.wParam=%d, lParam=%x\n",
-                            msg.hwnd, msg.wParam, msg.lParam););
+                            msg.message, msg.hwnd, msg.wParam, msg.lParam););
+          /* E.g.: WM_NCMOUSELEAVE */
           TranslateMessage(&msg);
           /* printf("translated message=%d %lu, %d %x\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
           DispatchMessage(&msg);
@@ -726,9 +766,10 @@ boolType gkbKeyPressed (void)
 boolType gkbButtonPressed (charType button)
 
   {
-    int vkey1;
+    int vkey1 = 0;
     int vkey2 = 0;
     int not_vkey = 0;
+    int state_vkey = 0;
     boolType okay = TRUE;
     boolType result;
 
@@ -796,15 +837,29 @@ boolType gkbButtonPressed (charType button)
       case K_PGDN:  case K_CTL_PGDN:  vkey1 = VK_NEXT;   break;
       case K_INS:   case K_CTL_INS:   vkey1 = VK_INSERT; break;
       case K_DEL:   case K_CTL_DEL:   vkey1 = VK_DELETE; break;
-
-      case K_NL:  case K_SFT_NL:  case K_CTL_NL:  case K_ALT_NL:
-        vkey1 = VK_RETURN;  vkey2 = 'J'; break;
-      case K_BS:  case K_SFT_BS:  case K_CTL_BS:  case K_ALT_BS:
-        vkey1 = VK_BACK;    vkey2 = 'H'; break;
-      case K_TAB: case K_BACKTAB: case K_CTL_TAB: case K_ALT_TAB:
-        vkey1 = VK_TAB;     vkey2 = 'I'; break;
       case K_PAD_CENTER: case K_CTL_PAD_CENTER: vkey1 = VK_CLEAR;  break;
-      case K_ESC:                               vkey1 = VK_ESCAPE; break;
+
+      case K_NL:
+        vkey1 = VK_RETURN; vkey2 = 'J'; break;
+      case K_SFT_NL:  case K_CTL_NL:  case K_ALT_NL:
+        vkey1 = VK_RETURN; break;
+      case K_BS:
+        vkey1 = VK_BACK;   vkey2 = 'H'; break;
+      case K_SFT_BS:  case K_CTL_BS:  case K_ALT_BS:
+        vkey1 = VK_BACK;   break;
+      case K_TAB:
+        vkey1 = VK_TAB;     vkey2 = 'I'; break;
+      case K_BACKTAB: case K_CTL_TAB: case K_ALT_TAB:
+        vkey1 = VK_TAB;    break;
+      case K_ESC: case K_SFT_ESC: case K_CTL_ESC: case K_ALT_ESC:
+        vkey1 = VK_ESCAPE; break;
+
+      case K_MENU:   case K_SFT_MENU:   case K_CTL_MENU:   case K_ALT_MENU:
+        vkey1 = VK_APPS;   break;
+      case K_PRINT:  case K_SFT_PRINT:  case K_CTL_PRINT:  case K_ALT_PRINT:
+        vkey1 = VK_PRINT;  break;
+      case K_PAUSE:  case K_SFT_PAUSE:  case K_CTL_PAUSE:  case K_ALT_PAUSE:
+        vkey1 = VK_PAUSE;  break;
 
       case ' ': vkey1 = VK_SPACE;    break;
       case '*': vkey1 = VK_MULTIPLY; break;
@@ -823,26 +878,36 @@ boolType gkbButtonPressed (charType button)
       case K_CTL_MOUSE_BACK: case K_ALT_MOUSE_BACK: vkey1 = VK_XBUTTON2; break;
       */
 
-      case K_SHIFT:         vkey1 = VK_SHIFT;    break;
-      case K_LEFT_SHIFT:    vkey1 = VK_LSHIFT;   break;
-      case K_RIGHT_SHIFT:   vkey1 = VK_RSHIFT;   break;
-      case K_CONTROL:       vkey1 = VK_CONTROL;  not_vkey = VK_RMENU; vkey2 = VK_RCONTROL; break;
-      case K_LEFT_CONTROL:  vkey1 = VK_LCONTROL; not_vkey = VK_RMENU; break;
-      case K_RIGHT_CONTROL: vkey1 = VK_RCONTROL; break;
-      case K_ALT:           vkey1 = VK_MENU;     break;
-      case K_LEFT_ALT:      vkey1 = VK_LMENU;    break;
-      case K_RIGHT_ALT:     vkey1 = VK_RMENU;    break;
+      case K_SHIFT:          vkey1 = VK_SHIFT;    break;
+      case K_LEFT_SHIFT:     vkey1 = VK_LSHIFT;   break;
+      case K_RIGHT_SHIFT:    vkey1 = VK_RSHIFT;   break;
+      case K_CONTROL:        vkey1 = VK_CONTROL;  not_vkey = VK_RMENU; vkey2 = VK_RCONTROL; break;
+      case K_LEFT_CONTROL:   vkey1 = VK_LCONTROL; not_vkey = VK_RMENU; break;
+      case K_RIGHT_CONTROL:  vkey1 = VK_RCONTROL; break;
+      case K_ALT:            vkey1 = VK_MENU;     break;
+      case K_LEFT_ALT:       vkey1 = VK_LMENU;    break;
+      case K_RIGHT_ALT:      vkey1 = VK_RMENU;    break;
+      case K_SHIFT_LOCK:     vkey1      = VK_CAPITAL; break;
+      case K_SHIFT_LOCK_ON:  state_vkey = VK_CAPITAL; break;
+      case K_NUM_LOCK:       vkey1      = VK_NUMLOCK; break;
+      case K_NUM_LOCK_ON:    state_vkey = VK_NUMLOCK; break;
+      case K_SCROLL_LOCK:    vkey1      = VK_SCROLL;  break;
+      case K_SCROLL_LOCK_ON: state_vkey = VK_SCROLL;  break;
 
       default: result = FALSE; okay = FALSE; break;
     } /* switch */
 
     if (okay) {
-      result = (GetKeyState(vkey1) & 0x8000) != 0;
-      if (result && not_vkey != 0) {
-        result = (GetKeyState(not_vkey) & 0x8000) == 0;
-      } /* if */
-      if (!result && vkey2 != 0) {
-        result = (GetKeyState(vkey2) & 0x8000) != 0;
+      if (vkey1 != 0) {
+        result = (GetKeyState(vkey1) & 0x8000) != 0;
+        if (result && not_vkey != 0) {
+          result = (GetKeyState(not_vkey) & 0x8000) == 0;
+        } /* if */
+        if (!result && vkey2 != 0) {
+          result = (GetKeyState(vkey2) & 0x8000) != 0;
+        } /* if */
+      } else {
+        result = (GetKeyState(state_vkey) & 0x0001) != 0;
       } /* if */
     } /* if */
     return result;

@@ -1308,7 +1308,7 @@ winType drwOpen (intType xPos, intType yPos,
             XChangeWindowAttributes(mydisplay, result->window, CWBackPixmap, &attributes);
 
             XSelectInput(mydisplay, result->window,
-                ButtonPressMask | KeyPressMask | ExposureMask);
+                ButtonPressMask | KeyPressMask | KeyReleaseMask | ExposureMask | FocusChangeMask);
             /* currently not used: StructureNotifyMask */
 
             XMapRaised(mydisplay, result->window);
@@ -1396,7 +1396,7 @@ winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPo
           XChangeWindowAttributes(mydisplay, result->window, CWBackPixmap, &attributes);
 
           XSelectInput(mydisplay, result->window,
-              ButtonPressMask | KeyPressMask | ExposureMask);
+              ButtonPressMask | KeyPressMask | KeyReleaseMask | ExposureMask | FocusChangeMask);
 
           XMapRaised(mydisplay, result->window);
           drwClear((winType) result, (intType) myforeground);

@@ -1,3 +1,87 @@
+20200502:
+- As suggested by Zachary Menzies a detection of more modifier keys has
+  been added. E.g.: KEY_SHIFT_LOCK and KEY_NUM_LOCK. These modifier
+  keys have a state. The state of KEY_SHIFT_LOCK can be retrieved with
+  buttonPressed(KEYBOARD, KEY_SHIFT_LOCK_ON).
+- Several new keys and key combinations such as KEY_PRINT, KEY_PAUSE,
+  KEY_ALT_LEFT and KEY_SFT_MENU have been added to keybd.s7i. Existing
+  definitions in keybd.s7i have been refactored. Key names in
+  keydescr.s7i have been updated.
+- The program gkbd.sd7 has been improved to show the new capabilies of
+  the keybord interface.
+- The bas7.sd7 (basic interpreter) example program has been improved.
+  Support for the predefined subprograms CHAR, CLEAR, COLOR, HCHAR,
+  KEY, SCREEN and VCHAR and for the function SEG$ has been added.
+- The bitmap font font8x8 has been added. This is a font with 8x8 pixel
+  used by the TI-99/4A homecomputer.
+- The functions line() and column() have been added to pixmap_file.s7i.
+- The function replace1() has been added to string.s7i.
+- In the manual the chapters about types and the keyboard have been
+  improved.
+- The compiler has been improved to link database libraries only if
+  they are needed.
+- The compiler has been improved to use builtin functions of the C
+  compiler (if available) to do integer overflow checks. This reduces
+  the runtime of the xz (lzma2) decompression by 4% (measured with gcc
+  and valgrind, when decompressing a binary Seed7 package).
+- The compiler has been improved to use a better approach to test for
+  integer overflow of addition and subtraction, if no builtin functions
+  are available. This reduces the runtime of the xz (lzma2)
+  decompression by 0.8% (measured with gcc and valgrind, when
+  decompressing a binary Seed7 package).
+- The compiler has been improved to optionally suppress the generation
+  of checks for integer division by zero with the option -sd.
+- The simple function profiling of the Seed7 compiler has been improved
+  to write the place and the name of the Seed7 function and to avoid
+  a C compiler error about "too many initializers".
+- The compiler has been improved to write a warning if there is a catch
+  statement for an exception although the checks for this exception
+  have been suppressed (with the option -s).
+- The compiler has been improved to work correct for all corner cases
+  of the string operations [, mult and @:=.
+- Testcases for the operators [, mult and @:= and for the functions
+  pos() and rpos() have been added to chkstr.sd7.
+- Testcases for the exception RANGE_ERROR have been added to
+  chkbig.sd7. The function bigInteger() and the operators radix, RADIX
+  and parse are checked now, if they correctly raise RANGE_ERROR.
+- Testcases for the exception RANGE_ERROR have been added to
+  chkint.sd7. The functions bytes() and integer() and the operators
+  radix, RADIX, sci and parse are checked now, if they correctly raise
+  RANGE_ERROR.
+- Testcases for the exception NUMERIC_ERROR have been added to
+  chkint.sd7. The operators div, rem, mdiv, mod and ** are checked
+  now, if they correctly raise NUMERIC_ERROR.
+- A lot of testcases has been added to chkint.sd7 and chkovf.sd7 in
+  the function check_reduced_overflow_checking_for_sums().
+- In comp/big_act.s7i the function process_const_big_ipow has been
+  improved to allow that the check for a negative exponent can be
+  optionally omitted.
+- In chkovf.sd7 the checks for the operators rem and mod have been
+  improved to allow that the operators return the correct result
+  instead of raising OVERFLOW_ERROR.
+- Index access in comp/str_act.s7i and comp/bst_act.s7i has been
+  improved to work also for the index integer.first (now the index is
+  casted to (unsigned) and afterwards 1 is subtracted).
+- In comp/intrange.s7i the function getIntRange has been improved to
+  return better ranges for INT_ABS and INT_NEGATE.
+- The keyboard driver gkb_x11.c has been improved to support new keys
+  and key combinations. Additionally the modifier state is synched now
+  with the keypresses. This allows reading a modifier key state (e.g.
+  (control has been pressed) from the moment when the main key (e.g.
+  the letter A) was pressed.
+- The program chkccomp.c has been improved to determine the values
+  CHECK_INT_DIV_ZERO_BY_ZERO, HAS_BUILTIN_OVERFLOW_OPERATIONS and
+  SYSTEM_DATABASE_LIBS. The logic to determine the values
+  CHECK_INT_DIV_BY_ZERO, CHECK_INT_REM_BY_ZERO and
+  CHECK_INT_REM_ZERO_BY_ZERO has been improved.
+- The configuration value CHECK_INT_DIV_ZERO_BY_ZERO,
+  BUILTIN_ADD_OVERFLOW, BUILTIN_SUB_OVERFLOW, BUILTIN_MULT_OVERFLOW
+  and SYSTEM_DATABASE_LIBS have been added to cc_conf.s7i, confval.sd7
+  and cmd_rtl.c.
+- Documentation comments have been added or improved in cc_conf.s7i,
+  encoding.s7i, gzip.s7i, lzma.s7i, pixmap_file.s7i, scanfile.s7i,
+  sql_base.s7i, string.s7i, xz.s7i, sigutl.c and striutl.c.
+
 20200405:
 - The new library xz.s7i has been added. This library supports XZ
   compressed files.
@@ -33,8 +117,9 @@
 - In the compiler the code generation for the operators div, rem, mdiv,
   mod, * and << has been improved to work without catching the
   exception OVERFLOW_ERROR.
-- The compiler has been improved to do a range check for the action
-  FLT_BITS2SINGLE (convert integer to single precision float value).
+- The compiler has been improved to allow that a range check is
+  suppressed with -sr for the action FLT_BITS2SINGLE (convert integer
+  to single precision float value).
 - The compiler has been improved to generate code that writes the error
   message of a DATABASE_ERROR, if the exception is uncatched.
 - The compiler has been improved to suppress the usage of the C

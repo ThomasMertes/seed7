@@ -125,8 +125,38 @@ const func font: getFont (in pixmapFontFile: fontFile) is
 
 
 const proc: cursor (ref pixmapFontFile: fontFile, ref boolean: active) is noop;
-const func integer: height (in pixmapFontFile: fontFile) is return fontFile.height;
-const func integer: width (in pixmapFontFile: fontFile) is return fontFile.width;
+
+
+(**
+ *  Get the height of ''fontFile''.
+ *  @return the height of ''fontFile''.
+ *)
+const func integer: height (in pixmapFontFile: fontFile) is
+  return fontFile.height;
+
+
+(**
+ *  Get the width of ''fontFile''.
+ *  @return the width of ''fontFile''.
+ *)
+const func integer: width (in pixmapFontFile: fontFile) is
+  return fontFile.width;
+
+
+(**
+ *  Get the current line of ''fontFile''.
+ *  @return the current line of ''fontFile''.
+ *)
+const func integer: line (in pixmapFontFile: fontFile) is
+  return fontFile.line;
+
+
+(**
+ *  Get the current column of ''fontFile''.
+ *  @return the current column of ''fontFile''.
+ *)
+const func integer: column (in pixmapFontFile: fontFile) is
+  return fontFile.column;
 
 
 (**
@@ -178,6 +208,8 @@ const proc: setPos (inout pixmapFontFile: fontFile,
     fontFile.currTopY := fontFile.min_y + line_delta(fontFile.font) * pred(line);
     fontFile.currLeftX := fontFile.min_x + column_delta(fontFile.font) * pred(column);
     fontFile.useBaseY := FALSE;
+    fontFile.line := line;
+    fontFile.column := column;
   end func;
 
 
@@ -207,6 +239,7 @@ const proc: setLine (inout pixmapFontFile: fontFile, in integer: line) is func
   begin
     fontFile.currTopY := fontFile.min_y + line_delta(fontFile.font) * pred(line);
     fontFile.useBaseY := FALSE;
+    fontFile.line := line;
   end func;
 
 
@@ -217,6 +250,7 @@ const proc: setColumn (inout pixmapFontFile: fontFile, in integer: column) is fu
   begin
     fontFile.lineStartX := fontFile.min_x;
     fontFile.currLeftX := fontFile.min_x + column_delta(fontFile.font) * pred(column);
+    fontFile.column := column;
   end func;
 
 

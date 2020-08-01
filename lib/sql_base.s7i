@@ -45,6 +45,7 @@ include "bstring.s7i";
  *  * DB_FIRE Firebird/Interbase
  *  * DB_DB2 Db2
  *  * DB_SQL_SERVER SQL Server
+ *  * DB_TDS Tabular Data Stream
  *)
 const type: dbCategory is new enum
     NO_DB, DB_MYSQL, DB_SQLITE, DB_POSTGRESQL, DB_OCI, DB_ODBC, DB_FIRE, DB_DB2, DB_SQL_SERVER, DB_TDS

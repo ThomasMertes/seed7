@@ -238,7 +238,7 @@ type_implements_interface(xzFile, file);
 
 
 (**
- *  Open a ''xzFile'' to decompress a compressed string.
+ *  Open a ''xzFile'' to decompress a compressed file.
  *  @return the file opened.
  *)
 const func file: openXzFile (inout file: compressed) is func

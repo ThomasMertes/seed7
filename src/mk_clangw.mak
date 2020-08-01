@@ -29,6 +29,7 @@ SYSTEM_LIBS = -luser32 -lshell32 -lws2_32
 # SYSTEM_LIBS = -lm -lws2_32 -lgmp
 SYSTEM_DRAW_LIBS = -lgdi32
 SYSTEM_CONSOLE_LIBS =
+# SYSTEM_DATABASE_LIBS is defined in the file "macros". The program chkccomp.c writes it to "macros" when doing "make depend".
 LIB_EXT = .lib
 SEED7_LIB = seed7_05$(LIB_EXT)
 DRAW_LIB = s7_draw$(LIB_EXT)
@@ -107,7 +108,7 @@ s7c: ..\bin\s7c.exe ..\prg\s7c.exe
 	@echo.
 
 ..\bin\s7.exe: $(OBJ) $(ALL_S7_LIBS)
-	$(CC) $(LDFLAGS) $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS) -o ..\bin\s7.exe
+	$(CC) $(LDFLAGS) $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_DATABASE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS) -o ..\bin\s7.exe
 
 ..\prg\s7.exe: ..\bin\s7.exe
 	copy ..\bin\s7.exe ..\prg /Y
@@ -387,10 +388,10 @@ wc: $(SRC)
 	wc $(COMPILER_LIB_SRC)
 
 lint: $(SRC)
-	lint -p $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS)
+	lint -p $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_DATABASE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS)
 
 lint2: $(SRC)
-	lint -Zn2048 $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS)
+	lint -Zn2048 $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_DATABASE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS)
 
 ifeq (depend,$(wildcard depend))
 include depend

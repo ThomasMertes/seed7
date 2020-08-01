@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  bas7.sd7      Basic interpreter                                 *)
-(*  Copyright (C) 1994, 2001, 2004 - 2010, 2013, 2016 - 2018        *)
+(*  Copyright (C) 1994, 2001, 2004 - 2010, 2013, 2016 - 2020        *)
 (*                Thomas Mertes                                     *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
@@ -41,7 +41,7 @@
 (*  **OUT, **PAINT, **PALETTE, **PEEK, **PLAY, PLOT, **POINT,       *)
 (*  **POKE, POS, PRESET, PRINT, PRINT#, PRINT USING, **PR#, PSET,   *)
 (*  PUT, PUT#, RANDOMIZE, READ, REDIM, REM, RESET, RESTORE, RESUME, *)
-(*  RETURN, RIGHT$, RND, RSET, RTRIM$, **RUN, SCREEN, SEEK#,        *)
+(*  RETURN, RIGHT$, RND, RSET, RTRIM$, **RUN, SCREEN, SEEK#, SEG$,  *)
 (*  SELECT, SGN, SIN, SLEEP, **SOUND, SPACE$, SPC, SQR, STOP, STR$, *)
 (*  **STRIG, STRING$, **SUB, SWAP, SYSTEM, TAB, TAN, TEXT, TIME$,   *)
 (*  TIMER, **TYPE, UBOUND, UCASE$, VAL, VTAB, WEND, WHILE, WRITE,   *)
@@ -72,6 +72,8 @@ $ include "seed7_05.s7i";
   include "bin64.s7i";
   include "wildcard.s7i";
   include "logfile.s7i";
+  include "font8x8.s7i";
+  include "pixmap_file.s7i";
 
 const integer: MAX_LINENUM is 2147483647;
 const integer: TEXT_LINES is 25;
@@ -221,6 +223,7 @@ var integer: currX is 0;
 var integer: currY is 0;
 var integer: foreground_color is 0;
 var integer: background_color is 0;
+var bitmapFont: currentFont is bitmapFont.value;
 
 var set of string: numeric_functions is {
     "ABS",      "ASC",      "ATN",      "CDBL",     "CINT",     "CLNG",
@@ -2029,6 +2032,18 @@ const func string: exec_str_primary (
         end while;
         exprResult := stri1[.. index1];
         writeln(log, "RTRIM$(" <& literal(stri1) <& ") -> " <& literal(exprResult));
+      when {"SEG$"}:
+        symbol := get_symbol(line);
+        expect("(", symbol, line);
+        stri1 := exec_str_expr(symbol, line, unused_name);
+        expect(",", symbol, line);
+        num1 := exec_expr(symbol, line);
+        expect(",", symbol, line);
+        num2 := exec_expr(symbol, line);
+        expect(")", symbol, line);
+        exprResult := stri1[round(num1) len round(num2)];
+        write(log, "SEG$(" <& literal(stri1) <& ", " <& num1 <& ", " <& num2);
+        writeln(log, ") -> " <& literal(exprResult));
       when {"SPACE$"}:
         symbol := get_symbol(line);
         expect("(", symbol, line);
@@ -7611,6 +7626,229 @@ const proc: exec_hplot (inout string: symbol, inout string: line) is func
   end func;
 
 
+const proc: setup_graphic is func
+  begin
+    if screenMode <> -1 then
+      screen(1024, 768);
+      clear(curr_win, black);
+      win := openPixmapFontFile(curr_win);
+      KEYBOARD := GRAPH_KEYBOARD;
+      OUT := win;
+      IN := openEcho(KEYBOARD, win);
+      IN := openLine(IN);
+      scale(win, 4);
+      currentFont := font8x8;
+      setFont(win, currentFont);
+      screenMode := -1;
+    end if;
+  end func;
+
+
+const proc: exec_call_char (inout string: symbol, inout string: line) is func
+  local
+    var integer: character_code is 0;
+    var string: pattern is "";
+    var string: unused_name is "";
+    var array string: charPicture is 8 times " " mult 8;
+    var integer: pos is 0;
+    var integer: patternLine is 1;
+    var boolean: right is FALSE;
+    var integer: number is 0;
+    var integer: bit is 0;
+  begin
+    setup_graphic;
+    symbol := get_symbol(line);
+    expect("(", symbol, line);
+    character_code := round(exec_expr(symbol, line));
+    expect(",", symbol, line);
+    pattern := exec_str_expr(symbol, line, unused_name);
+    expect(")", symbol, line);
+    for pos range 1 to length(pattern) do
+      number := integer(pattern[pos len 1], 16);
+      for bit range 1 to 4 do
+        if odd(number) then
+          charPicture[patternLine] @:= [ord(right) * 4 + 5 - bit] 'X';
+        end if;
+        number >>:= 1;
+      end for;
+      if right then
+        incr(patternLine);
+      end if;
+      right := not right;
+    end for;
+    currentFont.fontPictures @:= [chr(character_code)] charPicture;
+    setFont(win, currentFont);
+    line_marker;
+    writeln(log, "CALL CHAR(" <& character_code <& ", " <& literal(pattern) <& ")");
+  end func;
+
+
+const proc: exec_call_clear (inout string: symbol, inout string: line) is func
+  begin
+    setup_graphic;
+    symbol := get_symbol(line);
+    clear(curr_win, black);
+    line_marker;
+    writeln(log, "CALL CLEAR");
+  end func;
+
+
+const proc: exec_call_color (inout string: symbol, inout string: line) is func
+  local
+    var integer: character_set is 0;
+    var integer: foreground is 0;
+    var integer: background is 0;
+    var boolean: done is FALSE;
+  begin
+    setup_graphic;
+    symbol := get_symbol(line);
+    expect("(", symbol, line);
+    if symbol = "#" then
+      repeat
+        symbol := get_symbol(line);
+        character_set := round(exec_expr(symbol, line));
+        expect(",", symbol, line);
+        foreground := round(exec_expr(symbol, line));
+        line_marker;
+        writeln(log, "CALL COLOR(#" <& character_set <& ", " <&
+                foreground <& ")");
+      until symbol <> ",";
+    else
+      repeat
+        character_set := round(exec_expr(symbol, line));
+        expect(",", symbol, line);
+        foreground := round(exec_expr(symbol, line));
+        expect(",", symbol, line);
+        background := round(exec_expr(symbol, line));
+        line_marker;
+        writeln(log, "CALL COLOR(" <& character_set <& ", " <&
+                foreground <& ", " <& background <& ")");
+        if symbol = "," then
+          symbol := get_symbol(line);
+        else
+          done := TRUE;
+        end if;
+      until done;
+    end if;
+    expect(")", symbol, line);
+  end func;
+
+
+const proc: exec_call_hchar (inout string: symbol, inout string: line) is func
+  local
+    var integer: row is 0;
+    var integer: column is 0;
+    var integer: character_code is 0;
+    var integer: repetition is 1;
+  begin
+    setup_graphic;
+    symbol := get_symbol(line);
+    expect("(", symbol, line);
+    row := round(exec_expr(symbol, line));
+    expect(",", symbol, line);
+    column := round(exec_expr(symbol, line));
+    expect(",", symbol, line);
+    character_code := round(exec_expr(symbol, line));
+    if symbol = "," then
+      symbol := get_symbol(line);
+      repetition := round(exec_expr(symbol, line));
+    end if;
+    expect(")", symbol, line);
+    for repetition do
+      setPos(win, row, column);
+      write(win, chr(character_code));
+      if column < 32 then
+        incr(column);
+      else
+        incr(row);
+        column := 1;
+      end if;
+    end for;
+    line_marker;
+    writeln(log, "CALL HCHAR(" <& row <& ", " <& column <& ", " <&
+            character_code <& ", " <& repetition <& ")");
+  end func;
+
+
+const proc: exec_call_key (inout string: symbol, inout string: line) is func
+  local
+    var integer: key_unit is 0;
+    var string: return_variable is "";
+    var string: status_variable is "";
+    var char: current_key is ' ';
+  begin
+    setup_graphic;
+    symbol := get_symbol(line);
+    expect("(", symbol, line);
+    key_unit := round(exec_expr(symbol, line));
+    expect(",", symbol, line);
+    return_variable := get_name(symbol, line);
+    expect(",", symbol, line);
+    status_variable := get_name(symbol, line);
+    expect(")", symbol, line);
+    current_key := busy_getc(KEYBOARD);
+    if current_key = KEY_NONE then
+      setNumericVar(return_variable, -1.0);
+      setNumericVar(status_variable, 0.0);
+    else
+      setNumericVar(return_variable, flt(ord(current_key)));
+      setNumericVar(status_variable, 1.0);
+    end if;
+    line_marker;
+    writeln(log, "CALL KEY(" <& key_unit <& ", " <& return_variable <& ", " <& status_variable <& ")");
+  end func;
+
+
+const proc: exec_call_screen (inout string: symbol, inout string: line) is func
+  local
+    var integer: color_code is 0;
+  begin
+    setup_graphic;
+    symbol := get_symbol(line);
+    expect("(", symbol, line);
+    color_code := round(exec_expr(symbol, line));
+    expect(")", symbol, line);
+    line_marker;
+    writeln(log, "CALL SCREEN(" <& color_code <& ")");
+  end func;
+
+
+const proc: exec_call_vchar (inout string: symbol, inout string: line) is func
+  local
+    var integer: row is 0;
+    var integer: column is 0;
+    var integer: character_code is 0;
+    var integer: repetition is 1;
+  begin
+    setup_graphic;
+    symbol := get_symbol(line);
+    expect("(", symbol, line);
+    row := round(exec_expr(symbol, line));
+    expect(",", symbol, line);
+    column := round(exec_expr(symbol, line));
+    expect(",", symbol, line);
+    character_code := round(exec_expr(symbol, line));
+    if symbol = "," then
+      symbol := get_symbol(line);
+      repetition := round(exec_expr(symbol, line));
+    end if;
+    expect(")", symbol, line);
+    for repetition do
+      setPos(win, row, column);
+      write(win, chr(character_code));
+      if row < 24 then
+        incr(row);
+      else
+        incr(column);
+        row := 1;
+      end if;
+    end for;
+    line_marker;
+    writeln(log, "CALL VCHAR(" <& row <& ", " <& column <& ", " <&
+            character_code <& ", " <& repetition <& ")");
+  end func;
+
+
 const proc: exec_let (inout string: symbol, inout string: line,
     inout boolean: process_next) is func
   local
@@ -7813,6 +8051,20 @@ const func boolean: execCmd (inout string: symbol, inout string: line) is func
             index1 := round(exec_expr(symbol, line));
             error_marker;
             writeln(err, "CALL UNDEFINED SUB " <& index1 <& ".");
+          elsif symbol = "CHAR" then
+            exec_call_char(symbol, line);
+          elsif symbol = "CLEAR" then
+            exec_call_clear(symbol, line);
+          elsif symbol = "COLOR" then
+            exec_call_color(symbol, line);
+          elsif symbol = "HCHAR" then
+            exec_call_hchar(symbol, line);
+          elsif symbol = "KEY" then
+            exec_call_key(symbol, line);
+          elsif symbol = "SCREEN" then
+            exec_call_screen(symbol, line);
+          elsif symbol = "VCHAR" then
+            exec_call_vchar(symbol, line);
           else
             error_marker;
             writeln(err, "CALL UNDEFINED SUB " <& literal(symbol) <& ".");

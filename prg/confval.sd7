@@ -58,14 +58,15 @@ const proc: main is func
     writeln("LDEXP_FUNCTION_OKAY:        " <& ccConf.LDEXP_FUNCTION_OKAY);
     writeln("FREXP_FUNCTION_OKAY:        " <& ccConf.FREXP_FUNCTION_OKAY);
     writeln("HAS_SIGSETJMP:              " <& ccConf.HAS_SIGSETJMP);
-    writeln("FLOAT_ZERO_DIV_ERROR:       " <& ccConf.FLOAT_ZERO_DIV_ERROR);
     writeln("CHECK_INT_DIV_BY_ZERO:      " <& ccConf.CHECK_INT_DIV_BY_ZERO);
+    writeln("CHECK_INT_DIV_ZERO_BY_ZERO: " <& ccConf.CHECK_INT_DIV_ZERO_BY_ZERO);
     writeln("CHECK_INT_REM_BY_ZERO:      " <& ccConf.CHECK_INT_REM_BY_ZERO);
     writeln("CHECK_INT_REM_ZERO_BY_ZERO: " <& ccConf.CHECK_INT_REM_ZERO_BY_ZERO);
+    writeln("FLOAT_ZERO_DIV_ERROR:       " <& ccConf.FLOAT_ZERO_DIV_ERROR);
+    writeln("CHECK_FLOAT_DIV_BY_ZERO:    " <& ccConf.CHECK_FLOAT_DIV_BY_ZERO);
     writeln("HAS_EXP2:                   " <& ccConf.HAS_EXP2);
     writeln("HAS_EXP10:                  " <& ccConf.HAS_EXP10);
     writeln("HAS_CBRT:                   " <& ccConf.HAS_CBRT);
-    writeln("CHECK_FLOAT_DIV_BY_ZERO:    " <& ccConf.CHECK_FLOAT_DIV_BY_ZERO);
     writeln("LIMITED_CSTRI_LITERAL_LEN:  " <& ccConf.LIMITED_CSTRI_LITERAL_LEN);
     writeln("SWITCH_WORKS_FOR_INT64TYPE: " <& ccConf.SWITCH_WORKS_FOR_INT64TYPE);
     writeln("CC_SOURCE_UTF8:             " <& ccConf.CC_SOURCE_UTF8);
@@ -79,6 +80,8 @@ const proc: main is func
     writeln("INT_SIZE:                   " <& ccConf.INT_SIZE);
     writeln("LONG_SIZE:                  " <& ccConf.LONG_SIZE);
     writeln("INT_RANGE_IN_FLOATTYPE_MAX: " <& ccConf.INT_RANGE_IN_FLOATTYPE_MAX);
+    writeln("MINIMUM_TRUNC_ARGUMENT:     " <& ccConf.MINIMUM_TRUNC_ARGUMENT);
+    writeln("MAXIMUM_TRUNC_ARGUMENT:     " <& ccConf.MAXIMUM_TRUNC_ARGUMENT);
     writeln("BOOLTYPE:                   " <& ccConf.BOOLTYPE);
     writeln("INT32TYPE:                  " <& ccConf.INT32TYPE);
     writeln("UINT32TYPE:                 " <& ccConf.UINT32TYPE);
@@ -90,6 +93,9 @@ const proc: main is func
     writeln("INT64TYPE_LITERAL_SUFFIX:   " <& ccConf.INT64TYPE_LITERAL_SUFFIX);
     writeln("MACRO_DEFS:                 " <& literal(ccConf.MACRO_DEFS));
     writeln("OVERFLOW_SIGNAL:            " <& ccConf.OVERFLOW_SIGNAL);
+    writeln("BUILTIN_ADD_OVERFLOW:       " <& ccConf.BUILTIN_ADD_OVERFLOW);
+    writeln("BUILTIN_SUB_OVERFLOW:       " <& ccConf.BUILTIN_SUB_OVERFLOW);
+    writeln("BUILTIN_MULT_OVERFLOW:      " <& ccConf.BUILTIN_MULT_OVERFLOW);
     writeln("OBJECT_FILE_EXTENSION:      " <& ccConf.OBJECT_FILE_EXTENSION);
     writeln("LIBRARY_FILE_EXTENSION:     " <& ccConf.LIBRARY_FILE_EXTENSION);
     writeln("EXECUTABLE_FILE_EXTENSION:  " <& ccConf.EXECUTABLE_FILE_EXTENSION);
@@ -114,6 +120,7 @@ const proc: main is func
     writeln("SYSTEM_LIBS:                " <& join(noEmptyArray(ccConf.SYSTEM_LIBS), " "));
     writeln("SYSTEM_CONSOLE_LIBS:        " <& join(noEmptyArray(ccConf.SYSTEM_CONSOLE_LIBS), " "));
     writeln("SYSTEM_DRAW_LIBS:           " <& join(noEmptyArray(ccConf.SYSTEM_DRAW_LIBS), " "));
+    writeln("SYSTEM_DATABASE_LIBS:       " <& join(noEmptyArray(ccConf.SYSTEM_DATABASE_LIBS), " "));
     writeln("ADDITIONAL_SYSTEM_LIBS:     " <& join(noEmptyArray(ccConf.ADDITIONAL_SYSTEM_LIBS), " "));
     writeln("SEED7_LIB:                  " <& ccConf.SEED7_LIB);
     writeln("CONSOLE_LIB:                " <& ccConf.CONSOLE_LIB);

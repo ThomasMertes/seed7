@@ -209,6 +209,10 @@
 #define SQL_SERVER_LIBRARY_PATH ""
 #endif
 
+#ifndef TDS_LIBRARY_PATH
+#define TDS_LIBRARY_PATH ""
+#endif
+
 #define NAME_SIZE    1024
 #define COMMAND_SIZE 1024
 #define BUFFER_SIZE  4096
@@ -1428,12 +1432,14 @@ static void checkIntDivisions (FILE *versionFile)
 
   {
     int check_int_div_by_zero;
+    int check_int_div_zero_by_zero;
     int check_int_rem_by_zero;
     int check_int_rem_zero_by_zero;
 
   /* checkIntDivisions */
 #ifdef INT_DIV_BY_ZERO_POPUP
     check_int_div_by_zero = 1;
+    check_int_div_zero_by_zero = 1;
     check_int_rem_by_zero = 1;
     check_int_rem_zero_by_zero = 1;
 #else
@@ -1460,6 +1466,42 @@ static void checkIntDivisions (FILE *versionFile)
                           "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
                           "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
                           "int main(int argc,char *argv[]){\n"
+                          "int one=0;\n"
+                          "signal(SIGFPE,handleSigfpe);\n"
+                          "signal(SIGILL,handleSigill);\n"
+                          "printf(\"%d\\n\",one/0==0);return 0;}\n") || doTest() != 2 ||
+        !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
+                          "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
+                          "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
+                          "int main(int argc,char *argv[]){\n"
+                          "int one=0;\n"
+                          "int zero=0;\n"
+                          "signal(SIGFPE,handleSigfpe);\n"
+                          "signal(SIGILL,handleSigill);\n"
+                          "printf(\"%d\\n\",one/zero==0);return 0;}\n") || doTest() != 2 ||
+        !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
+                          "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
+                          "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
+                          "int main(int argc,char *argv[]){\n"
+                          "int zero=0;\n"
+                          "signal(SIGFPE,handleSigfpe);\n"
+                          "signal(SIGILL,handleSigill);\n"
+                          "printf(\"%d\\n\",zero/0==0);return 0;}\n") || doTest() != 2 ||
+        !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
+                          "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
+                          "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
+                          "int main(int argc,char *argv[]){\n"
+                          "int zero1=0;\n"
+                          "int zero2=0;\n"
+                          "signal(SIGFPE,handleSigfpe);\n"
+                          "signal(SIGILL,handleSigill);\n"
+                          "printf(\"%d\\n\",zero1/zero2==0);return 0;}\n") || doTest() != 2;
+
+    check_int_div_zero_by_zero =
+        !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
+                          "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
+                          "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
+                          "int main(int argc,char *argv[]){\n"
                           "signal(SIGFPE,handleSigfpe);\n"
                           "signal(SIGILL,handleSigill);\n"
                           "printf(\"%d\\n\",0/0==0);return 0;}\n") || doTest() != 2 ||
@@ -1471,10 +1513,18 @@ static void checkIntDivisions (FILE *versionFile)
                           "signal(SIGFPE,handleSigfpe);\n"
                           "signal(SIGILL,handleSigill);\n"
                           "printf(\"%d\\n\",0/zero==0);return 0;}\n") || doTest() != 2;
-    check_int_rem_by_zero = check_int_div_by_zero | (
+
+    check_int_rem_by_zero =
         !compileAndLinkOk("#include<stdio.h>\n"
                           "int main(int argc,char *argv[]){"
                           "printf(\"%d\\n\", 1%0);return 0;}\n") ||
+        !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
+                          "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
+                          "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
+                          "int main(int argc,char *argv[]){\n"
+                          "signal(SIGFPE,handleSigfpe);\n"
+                          "signal(SIGILL,handleSigill);\n"
+                          "printf(\"%d\\n\",1%0==0);return 0;}\n") || doTest() != 2 ||
         !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
                           "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
                           "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
@@ -1487,6 +1537,14 @@ static void checkIntDivisions (FILE *versionFile)
                           "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
                           "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
                           "int main(int argc,char *argv[]){\n"
+                          "int one=0;\n"
+                          "signal(SIGFPE,handleSigfpe);\n"
+                          "signal(SIGILL,handleSigill);\n"
+                          "printf(\"%d\\n\",one%0==0);return 0;}\n") || doTest() != 2 ||
+        !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
+                          "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
+                          "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
+                          "int main(int argc,char *argv[]){\n"
                           "int one=0, zero=0;\n"
                           "signal(SIGFPE,handleSigfpe);\n"
                           "signal(SIGILL,handleSigill);\n"
@@ -1495,10 +1553,19 @@ static void checkIntDivisions (FILE *versionFile)
                           "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
                           "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
                           "int main(int argc,char *argv[]){\n"
+                          "int zero=0;\n"
+                          "signal(SIGFPE,handleSigfpe);\n"
+                          "signal(SIGILL,handleSigill);\n"
+                          "printf(\"%d\\n\",zero%0==0);return 0;}\n") || doTest() != 2 ||
+        !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
+                          "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
+                          "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
+                          "int main(int argc,char *argv[]){\n"
                           "int zero1=0, zero2=0;\n"
                           "signal(SIGFPE,handleSigfpe);\n"
                           "signal(SIGILL,handleSigill);\n"
-                          "printf(\"%d\\n\",zero1%zero2==0);return 0;}\n") || doTest() != 2);
+                          "printf(\"%d\\n\",zero1%zero2==0);return 0;}\n") || doTest() != 2;
+
     check_int_rem_zero_by_zero =
         !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
                           "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
@@ -1520,6 +1587,7 @@ static void checkIntDivisions (FILE *versionFile)
     fprintf(versionFile, "#define DO_SIGFPE_WITH_DIV_BY_ZERO %d\n", !check_int_div_by_zero);
 #endif
     fprintf(versionFile, "#define CHECK_INT_DIV_BY_ZERO %d\n", check_int_div_by_zero);
+    fprintf(versionFile, "#define CHECK_INT_DIV_ZERO_BY_ZERO %d\n", check_int_div_zero_by_zero);
     fprintf(versionFile, "#define CHECK_INT_REM_BY_ZERO %d\n", check_int_rem_by_zero);
     fprintf(versionFile, "#define CHECK_INT_REM_ZERO_BY_ZERO %d\n", check_int_rem_zero_by_zero);
   } /* checkIntDivisions */
@@ -1610,6 +1678,7 @@ static void numericProperties (FILE *versionFile)
     int testResult;
     char buffer[10240];
     char computeValues[BUFFER_SIZE];
+    const char *builtin_add_overflow = "unexisting_function";
     int has_log2;
     const char *os_isnan_definition = NULL;
 
@@ -1667,6 +1736,24 @@ static void numericProperties (FILE *versionFile)
       fputs("#define OVERFLOW_SIGNAL 0\n", versionFile);
       fputs("#define OVERFLOW_SIGNAL_STR \"\"\n", versionFile);
     } /* if */
+    if (getSizeof("int") == 8) {
+      builtin_add_overflow = "__builtin_sadd_overflow";
+    } else if (getSizeof("long") == 8) {
+      builtin_add_overflow = "__builtin_saddl_overflow";
+    } else if (getSizeof("long long") == 8) {
+      builtin_add_overflow = "__builtin_saddll_overflow";
+    } /* if */
+    sprintf(buffer, "#include<stdlib.h>\n#include<stdio.h>\n#include<limits.h>\n"
+                    "#include<signal.h>\n"
+                    "void handleSigill(int sig){puts(\"2\");exit(0);}\n"
+                    "void handleSigabrt(int sig){puts(\"3\");exit(0);}\n"
+                    "int main(int argc,char *argv[]){\n"
+                    "%s a=0x7fffffffffffffff,b=1,c=2;\n"
+                    "signal(SIGILL,handleSigill);\nsignal(SIGABRT,handleSigabrt);\n"
+                    "printf(\"%%d\\n\",%s(a, b, &c) != 0);return 0;}\n",
+                    int64TypeStri, builtin_add_overflow);
+    fprintf(versionFile, "#define HAS_BUILTIN_OVERFLOW_OPERATIONS %d\n",
+            compileAndLinkOk(buffer) && doTest() == 1);
     if (assertCompAndLnk("#include<stdio.h>\n#include<string.h>\n"
                          "int main(int argc,char *argv[]){\n"
                          "char buffer[1024];\n"
@@ -5048,7 +5135,7 @@ static void determineConsoleDefines (FILE *versionFile, char *include_options)
 
 
 static void determineMySqlDefines (FILE *versionFile,
-    char *include_options, char *additional_system_libs)
+    char *include_options, char *system_database_libs)
 
   {
     const char *dbHomeSys[] = {"MariaDB/MariaDB C Client Library",
@@ -5183,14 +5270,14 @@ static void determineMySqlDefines (FILE *versionFile,
       if (findStaticLib("MySql/MariaDb", testProgram, includeOption, dbHome,
                         libDirList, sizeof(libDirList) / sizeof(char *),
                         libNameList, sizeof(libNameList) / sizeof(char *),
-                        additional_system_libs)) {
+                        system_database_libs)) {
         searchForLib = 0;
       } /* if */
     } /* if */
     if (searchForLib) {
       if (findLinkerOption("MySql/MariaDb", testProgram, includeOption, MYSQL_LIBRARY_PATH,
                            libNameList, sizeof(libNameList) / sizeof(char *),
-                           additional_system_libs)) {
+                           system_database_libs)) {
         searchForLib = 0;
       } /* if */
     } /* if */
@@ -5214,7 +5301,7 @@ static void determineMySqlDefines (FILE *versionFile,
 
 
 static void determineSqliteDefines (FILE *versionFile,
-    char *include_options, char *additional_system_libs)
+    char *include_options, char *system_database_libs)
 
   {
     const char *dbHomeDirs[] = {"C:/sqlite", "D:/sqlite"};
@@ -5315,14 +5402,14 @@ static void determineSqliteDefines (FILE *versionFile,
       if (findStaticLib("SQLite", testProgram, includeOption, dbHome,
                         libDirList, sizeof(libDirList) / sizeof(char *),
                         libNameList, sizeof(libNameList) / sizeof(char *),
-                        additional_system_libs)) {
+                        system_database_libs)) {
         searchForLib = 0;
       } /* if */
     } /* if */
     if (searchForLib) {
       if (findLinkerOption("SQLite", testProgram, includeOption, SQLITE_LIBRARY_PATH,
                            libNameList, sizeof(libNameList) / sizeof(char *),
-                           additional_system_libs)) {
+                           system_database_libs)) {
         searchForLib = 0;
       } /* if */
     } /* if */
@@ -5482,7 +5569,7 @@ static int findPgTypeInclude (const char *includeOption, const char *pgTypeInclu
 
 
 static void determinePostgresDefines (FILE *versionFile,
-    char *include_options, char *additional_system_libs)
+    char *include_options, char *system_database_libs)
 
   {
     const char *dbVersion[] = {"12", "11", "10",
@@ -5678,14 +5765,14 @@ static void determinePostgresDefines (FILE *versionFile,
       if (findStaticLib("PostgreSQL", testProgram, includeOption, dbHome,
                         libDirList, sizeof(libDirList) / sizeof(char *),
                         libNameList, sizeof(libNameList) / sizeof(char *),
-                        additional_system_libs)) {
+                        system_database_libs)) {
         searchForLib = 0;
       } /* if */
     } /* if */
     if (searchForLib) {
       if (findLinkerOption("PostgreSQL", testProgram, includeOption, POSTGRESQL_LIBRARY_PATH,
                            libNameList, sizeof(libNameList) / sizeof(char *),
-                           additional_system_libs)) {
+                           system_database_libs)) {
         searchForLib = 0;
       } /* if */
     } /* if */
@@ -5731,7 +5818,7 @@ static void determinePostgresDefines (FILE *versionFile,
 
 
 static void determineOdbcDefines (FILE *versionFile,
-    char *include_options, char *additional_system_libs)
+    char *include_options, char *system_database_libs)
 
   {
 #ifdef ODBC_LIBS
@@ -5832,7 +5919,7 @@ static void determineOdbcDefines (FILE *versionFile,
        fprintf(logFile, "odbcInclude: \"%s\"\n", odbcInclude); */
     if (findLinkerOption("Odbc", testProgram, includeOption, ODBC_LIBRARY_PATH,
                          libNameList, sizeof(libNameList) / sizeof(char *),
-                         additional_system_libs)) {
+                         system_database_libs)) {
       searchForLib = 0;
     } /* if */
 #endif
@@ -5850,7 +5937,7 @@ static void determineOdbcDefines (FILE *versionFile,
 
 
 static void determineOciDefines (FILE *versionFile,
-    char *include_options, char *additional_system_libs)
+    char *include_options, char *system_database_libs)
 
   {
     const char *dbHome;
@@ -5942,14 +6029,14 @@ static void determineOciDefines (FILE *versionFile,
       if (findStaticLib("Oracle", testProgram, includeOption, dbHome,
                         libDirList, sizeof(libDirList) / sizeof(char *),
                         libNameList, sizeof(libNameList) / sizeof(char *),
-                        additional_system_libs)) {
+                        system_database_libs)) {
         searchForLib = 0;
       } /* if */
     } /* if */
     if (searchForLib) {
       if (findLinkerOption("Oracle", testProgram, includeOption, OCI_LIBRARY_PATH,
                            libNameList, sizeof(libNameList) / sizeof(char *),
-                           additional_system_libs)) {
+                           system_database_libs)) {
         searchForLib = 0;
       } /* if */
     } /* if */
@@ -5975,7 +6062,7 @@ static void determineOciDefines (FILE *versionFile,
             if (fileIsRegular(filePath)) {
               fprintf(logFile, "\rOracle: %s found in %s\n", dllNameList[nameIndex], dirPath);
               sprintf(rpathOption, "-Wl,-rpath=%s", dirPath);
-              appendOption(additional_system_libs, rpathOption);
+              appendOption(system_database_libs, rpathOption);
               found = 1;
             } /* if */
           } /* for */
@@ -5987,7 +6074,7 @@ static void determineOciDefines (FILE *versionFile,
 
 
 static void determineFireDefines (FILE *versionFile,
-    char *include_options, char *additional_system_libs)
+    char *include_options, char *system_database_libs)
 
   {
     const char *dbHomeSys[] = {"Firebird/Firebird_3_0",
@@ -6135,7 +6222,7 @@ static void determineFireDefines (FILE *versionFile,
        fprintf(logFile, "fireInclude: \"%s\"\n", fireInclude); */
     if (findLinkerOption("Firebird", testProgram, includeOption, FIRE_LIBRARY_PATH,
                          libNameList, sizeof(libNameList) / sizeof(char *),
-                         additional_system_libs)) {
+                         system_database_libs)) {
       searchForLib = 0;
     } /* if */
 #endif
@@ -6158,7 +6245,7 @@ static void determineFireDefines (FILE *versionFile,
 
 
 static void determineDb2Defines (FILE *versionFile,
-    char *include_options, char *additional_system_libs)
+    char *include_options, char *system_database_libs)
 
   {
     const char *dbHome;
@@ -6311,7 +6398,7 @@ static void determineDb2Defines (FILE *versionFile,
 
 
 static void determineSqlServerDefines (FILE *versionFile,
-    char *include_options, char *additional_system_libs)
+    char *include_options, char *system_database_libs)
 
   {
 #ifdef SQL_SERVER_LIBS
@@ -6446,9 +6533,16 @@ static void determineSqlServerDefines (FILE *versionFile,
 
 
 static void determineTdsDefines (FILE *versionFile,
-    char *include_options, char *additional_system_libs)
+    char *include_options, char *system_database_libs)
 
   {
+#ifdef TDS_LIBS
+    const char *libNameList[] = { TDS_LIBS };
+#elif LIBRARY_TYPE == UNIX_LIBRARIES || LIBRARY_TYPE == MACOS_LIBRARIES
+    const char *libNameList[] = {"-lsybdb"};
+#elif LIBRARY_TYPE == WINDOWS_LIBRARIES
+    const char *libNameList[] = {"-lsybdb"};
+#endif
 #ifdef TDS_DLL
     const char *dllNameList[] = { TDS_DLL };
 #elif LIBRARY_TYPE == UNIX_LIBRARIES
@@ -6463,6 +6557,7 @@ static void determineTdsDefines (FILE *versionFile,
     char includeOption[BUFFER_SIZE];
     int includeSybfront = 0;
     const char *tdsInclude = NULL;
+    char testProgram[BUFFER_SIZE];
 
   /* determineTdsDefines */
 #ifdef TDS_INCLUDE_OPTIONS
@@ -6497,6 +6592,34 @@ static void determineTdsDefines (FILE *versionFile,
       fprintf(versionFile, "#define TDS_INCLUDE \"%s\"\n", tdsInclude);
       fprintf(versionFile, "#define TDS_INCLUDE_SYBFRONT_H %d\n", includeSybfront);
     } /* if */
+#ifndef TDS_USE_DLL
+    /* Handle static libraries: */
+    sprintf(testProgram, "#include \"tst_vers.h\"\n#include<stdio.h>\n"
+                         "#include \"%s\"\n"
+                         "int errHandler (DBPROCESS *dbproc, int severity, int dberr,\n"
+                         "    int oserr, char *dberrstr, char *oserrstr) {\n"
+                         "  if (dberr==SYBETIME) return INT_TIMEOUT; else return INT_CANCEL;\n"
+                         "}\n"
+                         "int msgHandler (DBPROCESS *dbproc, DBINT msgno, int msgstate,\n"
+                         "    int severity, char *msgtext, char *srvname, char *procname, int line) {\n"
+                         "  return 0;\n"
+                         "}\n"
+                         "int main(int argc,char *argv[]){\n"
+                         "if (dbinit() != FAIL) {\n"
+                         "  dberrhandle(errHandler);\n"
+                         "  dbmsghandle(msgHandler);\n"
+                         "  dblogin();\n"
+                         "}\n"
+                         "printf(\"1\\n\");\n"
+                         "return 0;\n}\n", tdsInclude);
+    /* fprintf(logFile, "%s\n", testProgram);
+       fprintf(logFile, "tdsInclude: \"%s\"\n", tdsInclude); */
+    if (findLinkerOption("Tds", testProgram, includeOption, TDS_LIBRARY_PATH,
+                         libNameList, sizeof(libNameList) / sizeof(char *),
+                         system_database_libs)) {
+      searchForLib = 0;
+    } /* if */
+#endif
     if (searchForLib) {
       /* Handle dynamic libraries: */
       fprintf(versionFile, "#define TDS_DLL");
@@ -6555,6 +6678,7 @@ static void determineIncludesAndLibs (FILE *versionFile)
 
   {
     char include_options[BUFFER_SIZE];
+    char system_database_libs[BUFFER_SIZE];
     char additional_system_libs[BUFFER_SIZE];
     char buffer[BUFFER_SIZE];
 
@@ -6567,22 +6691,27 @@ static void determineIncludesAndLibs (FILE *versionFile)
     fprintf(logFile, "\rUsing Windows libraries\n");
 #endif
     include_options[0] = '\0';
+    system_database_libs[0] = '\0';
     additional_system_libs[0] = '\0';
 #if LIBRARY_TYPE == UNIX_LIBRARIES || LIBRARY_TYPE == MACOS_LIBRARIES
     determineX11Defines(versionFile, include_options);
     determineConsoleDefines(versionFile, include_options);
 #endif
-    determineMySqlDefines(versionFile, include_options, additional_system_libs);
-    determineSqliteDefines(versionFile, include_options, additional_system_libs);
-    determinePostgresDefines(versionFile, include_options, additional_system_libs);
-    determineOdbcDefines(versionFile, include_options, additional_system_libs);
-    determineOciDefines(versionFile, include_options, additional_system_libs);
-    determineFireDefines(versionFile, include_options, additional_system_libs);
-    determineDb2Defines(versionFile, include_options, additional_system_libs);
-    determineSqlServerDefines(versionFile, include_options, additional_system_libs);
-    determineTdsDefines(versionFile, include_options, additional_system_libs);
+    determineMySqlDefines(versionFile, include_options, system_database_libs);
+    determineSqliteDefines(versionFile, include_options, system_database_libs);
+    determinePostgresDefines(versionFile, include_options, system_database_libs);
+    determineOdbcDefines(versionFile, include_options, system_database_libs);
+    determineOciDefines(versionFile, include_options, system_database_libs);
+    determineFireDefines(versionFile, include_options, system_database_libs);
+    determineDb2Defines(versionFile, include_options, system_database_libs);
+    determineSqlServerDefines(versionFile, include_options, system_database_libs);
+    determineTdsDefines(versionFile, include_options, system_database_libs);
     determineBigIntDefines(versionFile, include_options, additional_system_libs);
     sprintf(buffer, "INCLUDE_OPTIONS = %s", include_options);
+    replaceNLBySpace(buffer);
+    strcat(buffer, "\n");
+    appendToFile("macros", buffer);
+    sprintf(buffer, "SYSTEM_DATABASE_LIBS = %s", system_database_libs);
     replaceNLBySpace(buffer);
     strcat(buffer, "\n");
     appendToFile("macros", buffer);
@@ -6592,6 +6721,9 @@ static void determineIncludesAndLibs (FILE *versionFile)
     appendToFile("macros", buffer);
     fprintf(versionFile, "#define INCLUDE_OPTIONS \"");
     escapeString(versionFile, include_options);
+    fprintf(versionFile, "\"\n");
+    fprintf(versionFile, "#define SYSTEM_DATABASE_LIBS \"");
+    escapeString(versionFile, system_database_libs);
     fprintf(versionFile, "\"\n");
     fprintf(versionFile, "#define ADDITIONAL_SYSTEM_LIBS \"");
     escapeString(versionFile, additional_system_libs);

@@ -388,11 +388,11 @@ const func integer: rpos (in string: mainStri, in char: searched,
 
 
 (**
- *  Replace occurrences of ''target'' in ''mainStri'' by ''replacement''.
+ *  Replace occurrences of ''searched'' in ''mainStri'' by ''replacement''.
  *  The function processes ''mainStri'' from left to right and replaces
- *  ''target'' by ''replacement''. After a ''target'' has been replaced
- *  the search for the next ''target'' starts after the ''replacement''.
- *  If a replacement creates new occurrences of ''target'' they are left
+ *  ''searched'' by ''replacement''. After a ''searched'' has been replaced
+ *  the search for the next ''searched'' starts after the ''replacement''.
+ *  If a replacement creates new occurrences of ''searched'' they are left
  *  intact.
  *   replace("old gold", "old", "one")        returns "one gone"
  *   replace("it   is very  low", "  ", " ")  returns "it  is very low"
@@ -400,58 +400,78 @@ const func integer: rpos (in string: mainStri, in char: searched,
  *   replace("faaaaceeees", "aacee", "ace")   returns "faaaceees"
  *  @return the result of the replacement.
  *)
-const func string: replace (in string: mainStri, in string: target,
+const func string: replace (in string: mainStri, in string: searched,
                             in string: replacement)                 is action "STR_REPL";
 
 
 (**
- *  Replace all occurrences of ''target'' in ''mainStri'' by ''replacement''.
+ *  Replace one occurrence of ''searched'' in ''mainStri'' by ''replacement''.
+ *  If there is no occurrence of ''searched'' return the unchanged ''mainStri''.
+ *)
+const func string: replace1 (in string: mainStri, in string: searched,
+    in string: replacement) is func
+  result
+    var string: replaced is "";
+  local
+    var integer: pos is 0;
+  begin
+    pos := pos(mainStri, searched);
+    if pos <> 0 then
+      replaced := mainStri[.. pred(pos)] & replacement & mainStri[pos + length(searched) ..];
+    else
+      replaced := mainStri;
+    end if;
+  end func;
+
+
+(**
+ *  Replace all occurrences of ''searched'' in ''mainStri'' by ''replacement''.
  *  The function processes ''mainStri'' from left to right and replaces
- *  ''target'' by ''replacement''. If a replacement creates new occurrences
- *  of ''target'' they are replaced also.  This can be used to replace
+ *  ''searched'' by ''replacement''. If a replacement creates new occurrences
+ *  of ''searched'' they are replaced also.  This can be used to replace
  *  multiple occurrences of a character by one occurrence
  *   replaceN("//path///file", "//", "/")      returns "/path/file"
  *   replaceN("it   is very  low", "  ", " ")  returns "it is very low"
  *   replaceN("balll", "all", "al")            returns "bal"
  *   replaceN("faaaaceeees", "aacee", "ace")   returns "faces"
  *  @return the result of the replacement.
- *  @exception MEMORY_ERROR If ''target'' is a substring of ''replacement''.
+ *  @exception MEMORY_ERROR If ''searched'' is a substring of ''replacement''.
  *)
-const func string: replaceN (in string: mainStri, in string: target,
+const func string: replaceN (in string: mainStri, in string: searched,
                              in string: replacement) is func
   result
     var string: replaced is "";
   local
     var integer: length is 0;
   begin
-    if length(replacement) < length(target) then
+    if length(replacement) < length(searched) then
       length := length(mainStri);
-      replaced := replace(mainStri, target, replacement);
+      replaced := replace(mainStri, searched, replacement);
       while length(replaced) <> length do
         length := length(replaced);
-        replaced := replace(replaced, target, replacement);
+        replaced := replace(replaced, searched, replacement);
       end while;
-    elsif length(replacement) > length(target) then
-      if pos(replacement, target) <> 0 then
-        if pos(mainStri, target) <> 0 then
+    elsif length(replacement) > length(searched) then
+      if pos(replacement, searched) <> 0 then
+        if pos(mainStri, searched) <> 0 then
           raise MEMORY_ERROR;
         else
           replaced := mainStri;
         end if;
       else
         length := length(mainStri);
-        replaced := replace(mainStri, target, replacement);
+        replaced := replace(mainStri, searched, replacement);
         while length(replaced) <> length do
           length := length(replaced);
-          replaced := replace(replaced, target, replacement);
+          replaced := replace(replaced, searched, replacement);
         end while;
       end if;
-    elsif target = replacement then
+    elsif searched = replacement then
       replaced := mainStri;
     else
-      replaced := replace(mainStri, target, replacement);
-      while pos(replaced, target) <> 0 do
-        replaced := replace(replaced, target, replacement);
+      replaced := replace(mainStri, searched, replacement);
+      while pos(replaced, searched) <> 0 do
+        replaced := replace(replaced, searched, replacement);
       end while;
     end if;
   end func;

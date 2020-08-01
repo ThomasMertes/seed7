@@ -1912,10 +1912,15 @@ CONTENTS
     Functions:
       ord(A)    Identity
       succ(A)   Successor
-                  ( succ(A) => A+1 )
+                  ( succ(A) => A+1,
+                    succ(integer.last) => EXCEPTION OVERFLOW_ERROR )
       pred(A)   Predecessor
-                  ( pred(A) => A-1 )
+                  ( pred(A) => A-1,
+                    pred(integer.first) => EXCEPTION OVERFLOW_ERROR )
       abs(A)    Absolute value
+                  ( abs(A) => A for A >= 0,
+                  ( abs(A) => -A for A < 0,
+                  ( abs(integer.first) => EXCEPTION OVERFLOW_ERROR )
       odd(A)    Odd value
                   ( Type of result: boolean )
       str(A)    Conversion to string
@@ -1941,11 +1946,11 @@ CONTENTS
                     integer("0", 1) => EXCEPTION RANGE_ERROR,
                     integer("qwertyuiop", 37) => EXCEPTION RANGE_ERROR )
       sqrt(A)   Integer square root
-                  ( sqrt(A) is okay for A >= 0
+                  ( sqrt(A) is okay for A >= 0,
                     sqrt(A) => trunc(sqrt(flt(A))),
                     sqrt(-1) => EXCEPTION NUMERIC_ERROR )
       log10(A)  Truncated base 10 logarithm
-                  ( log10(A) is defined for A >= 0
+                  ( log10(A) is defined for A >= 0,
                     log10(10 ** A) = A for A >= 0,
                     log10(pred(10 ** A)) = pred(A) for A >= 0,
                     log10(10) => 1,
@@ -2001,9 +2006,11 @@ CONTENTS
       A >>:= B  Shift right copy
                   ( A >>:= B => A := A >> B )
       incr(A)   Increment with 1
-                  ( incr(A) => A +:= 1 )
+                  ( incr(A) => A +:= 1,
+                    incr(integer.last) => EXCEPTION OVERFLOW_ERROR )
       decr(A)   Decrement with 1
-                  ( decr(A) => A -:= 1 )
+                  ( decr(A) => A -:= 1,
+                    decr(integer.first) => EXCEPTION OVERFLOW_ERROR )
 
   For the operations 'div' and 'rem' holds for all A:
     (A div B) * B + A rem B = A           when B <> 0
@@ -2232,6 +2239,9 @@ CONTENTS
       str(A)    Conversion to string
                   ( Type of result: string,
                     str(9876543210_) => "9876543210" )
+      bigInteger(A) Convert an integer to a bigInteger
+                  ( Type of argument A: integer,
+                    bigInteger(1) => 1_ )
       bigInteger(A) Convert a numeric string to a bigInteger
                   ( Type of argument A: string,
                     bigInteger("123") => 123_,
@@ -2486,7 +2496,13 @@ CONTENTS
                     -1/2048 sci 3 => "-4.883e-4",
                     -0/1 sci 2 => "0.00e+0" )
       rational parse A   Conversion of string to rational
-                  ( Type of argument A: string )
+                  ( Type of argument A: string,
+                    rational parse "3/5" => 3 / 5,
+                    rational parse "1.25" => 5 / 4,
+                    rational parse "0.(3)" => 1 / 3,
+                    rational parse "1.23(45)" => 679 / 550,
+                    rational parse "3.(142857)" => 22 / 7,
+                    rational parse "0.(846153)" => 11 / 13 )
     Relations:
       =, <>, <, <=, >, >=
     Functions:
@@ -2494,6 +2510,17 @@ CONTENTS
       rat(A)    Conversion of integer to rational
                   ( Type of argument A: integer,
                     rat(1) => 1 / 1 )
+      rational(A)  Conversion of integer to rational
+                  ( Type of argument A: integer,
+                    rational(1) => 1 / 1 )
+      rational(A)  Conversion of string to rational
+                  ( Type of argument A: string,
+                    rational("3/5") => 3 / 5,
+                    rational("1.25") => 5 / 4,
+                    rational("0.(3)") => 1 / 3,
+                    rational("1.23(45)") => 679 / 550,
+                    rational("3.(142857)") => 22 / 7,
+                    rational("0.(846153)") => 11 / 13 )
       floor(A)  Truncation towards negative infinity
                   ( Type of result: integer,
                     floor(9/5) =>  1, floor(1/1) =>  1,
@@ -2604,7 +2631,13 @@ CONTENTS
                     -1_/2048_ sci 3 => "-4.883e-4",
                     -0_/1_ sci 2 => "0.00e+0" )
       bigRational parse A   Conversion of string to bigRational
-                  ( Type of argument A: string )
+                  ( Type of argument A: string,
+                    bigRational parse "3/5"</span => 3_ / 5_,
+                    bigRational parse "1.25" => 5_ / 4_,
+                    bigRational parse "0.(3)" => 1_ / 3_,
+                    bigRational parse "1.23(45)" => 679_ / 550_,
+                    bigRational parse "3.(142857)" => 22_ / 7_,
+                    bigRational parse "0.(846153)" => 11_ / 13_ )
     Relations:
       =, <>, <, <=, >, >=
     Functions:
@@ -2612,6 +2645,20 @@ CONTENTS
       rat(A)    Conversion of bigInteger to bigRational
                   ( Type of argument A: bigInteger,
                     rat(1_) => 1_ / 1_ )
+      bigRational(A)  Conversion of integer to bigRational
+                  ( Type of argument A: integer,
+                    bigRational(1) => 1_ / 1_ )
+      bigRational(A)  Conversion of bigInteger to bigRational
+                  ( Type of argument A: bigInteger,
+                    bigRational(1_) => 1_ / 1_ )
+      bigRational(A)  Conversion of string to bigRational
+                  ( Type of argument A: string,
+                    bigRational("3/5") => 3_ / 5_,
+                    bigRational("1.25") => 5_ / 4_,
+                    bigRational("0.(3)") => 1_ / 3_,
+                    bigRational("1.23(45)") => 679_ / 550_,
+                    bigRational("3.(142857)") => 22_ / 7_,
+                    bigRational("0.(846153)") => 11_ / 13_ )
       floor(A)  Truncation towards negative infinity
                   ( Type of result: bigInteger,
                     floor(9_/5_) =>  1_, floor(1_/1_) =>  1_,
@@ -2863,7 +2910,7 @@ CONTENTS
 5.7 complex
 
     The type 'complex' consists of complex numbers represented
-  with an 'float' real part and an 'float' imaginary part.
+  with a 'float' real part and a 'float' imaginary part.
   Complex literals do not exist. The 'complex' functions are
   defined in the library "complex.s7i".
 
@@ -2914,6 +2961,8 @@ CONTENTS
                     Type of argument B: float )
       complex(A)  Return a complex number from its real part
                   ( Type of argument A: float )
+      complex(A)  Return a complex number from its real part
+                  ( Type of argument A: integer )
       polar(A, B)  Return a complex number from polar coordinates
                   ( Type of argument A: float,
                     Type of argument B: float )
@@ -6330,13 +6379,6 @@ CONTENTS
     KEY_SFT_F1 to KEY_SFT_F10  Shifted function keys F1 to F10
     KEY_CTL_F1 to KEY_CTL_F10  Control function keys F1 to F10
     KEY_ALT_F1 to KEY_ALT_F10  Alternate function keys F1 to F10
-    KEY_BS                     Backspace (equal to KEY_CTL_H)
-    KEY_TAB                    Horizontal Tab (equal to KEY_CTL_H)
-    KEY_NL                     Newline/enter/return key (equal to KEY_CTL_J)
-    KEY_CR                     Carriage return (equal to KEY_CTL_M)
-    KEY_ESC                    Escape key
-    KEY_NULCHAR                Nul character key
-    KEY_BACKTAB                Horizontal back tab
     KEY_LEFT                   Cursor left
     KEY_RIGHT                  Cursor right
     KEY_UP                     Cursor up
@@ -6358,20 +6400,84 @@ CONTENTS
     KEY_CTL_PGDN               Control page down
     KEY_CTL_INS                Control insert key
     KEY_CTL_DEL                Control delete key
+    KEY_CTL_PAD_CENTER         Control numeric keypad center key
+    KEY_ALT_LEFT               Alt cursor left
+    KEY_ALT_RIGHT              Alt cursor right
+    KEY_ALT_UP                 Alt cursor up
+    KEY_ALT_DOWN               Alt cursor down
+    KEY_ALT_HOME               Alt home key
+    KEY_ALT_END                Alt end key
+    KEY_ALT_PGUP               Alt page up
+    KEY_ALT_PGDN               Alt page down
+    KEY_ALT_INS                Alt insert key
+    KEY_ALT_DEL                Alt delete key
+    KEY_ALT_PAD_CENTER         Alt numeric keypad center key
+    KEY_NL                     Newline/enter/return key (equal to KEY_CTL_J)
+    KEY_BS                     Backspace (equal to KEY_CTL_H)
+    KEY_TAB                    Horizontal tab (equal to KEY_CTL_H)
+    KEY_CR                     Carriage return (equal to KEY_CTL_M)
+    KEY_ESC                    Escape key
+    KEY_MENU                   Menu key
+    KEY_PRINT                  Print key
+    KEY_PAUSE                  Pause key
+    KEY_SFT_NL                 Shift newline/enter/return key
+    KEY_SFT_BS                 Shift backspace
+    KEY_SFT_TAB                Shift tab (same as KEY_BACKTAB)
+    KEY_BACKTAB                Shift tab (same as KEY_SFT_TAB)
+    KEY_SFT_ESC                Shift escape
+    KEY_SFT_MENU               Shift menu
+    KEY_SFT_PRINT              Shift print
+    KEY_SFT_PAUSE              Shift pause
+    KEY_CTL_NL                 Control newline/enter/return key
+    KEY_CTL_BS                 Control backspace
+    KEY_CTL_TAB                Control tab
+    KEY_CTL_ESC                Control escape
+    KEY_CTL_MENU               Control menu
+    KEY_CTL_PRINT              Control print
+    KEY_CTL_PAUSE              Control pause
+    KEY_ALT_NL                 Alt newline/enter/return key
+    KEY_ALT_BS                 Alt backspace
+    KEY_ALT_TAB                Alt tab
+    KEY_ALT_ESC                Alt escape
+    KEY_ALT_MENU               Alt menu
+    KEY_ALT_PRINT              Alt print
+    KEY_ALT_PAUSE              Alt pause
     KEY_SCRLUP                 Scroll up key
     KEY_SCRLDN                 Scroll down key
     KEY_INSLN                  Insert line key
     KEY_DELLN                  Delete line key
     KEY_ERASE                  Erase key
-    KEY_CTL_NL                 Control newline/enter/return key
+    KEY_NULCHAR                Nul character key
     KEY_NULLCMD                Null command of window manager
     KEY_REDRAW                 Redraw command of window manager
-    KEY_NEWWINDOW              New window command of window manager
-    KEY_MOUSE1                 Mouse key 1 (counted from left)
-    KEY_MOUSE2                 Mouse key 2 (counted from left)
-    KEY_MOUSE3                 Mouse key 3 (counted from left)
-    KEY_MOUSE4                 Mouse key 4 (counted from left)
-    KEY_MOUSE5                 Mouse key 5 (counted from left)
+    KEY_MOUSE1                 Mouse button 1 (counted from left)
+    KEY_MOUSE2                 Mouse button 2 (counted from left)
+    KEY_MOUSE3                 Mouse button 3 (counted from left)
+    KEY_MOUSE4                 Mouse wheel scroll up
+    KEY_MOUSE5                 Mouse wheel scroll down
+    KEY_MOUSE_FWD              Mouse forward button
+    KEY_MOUSE_BACK             Mouse back button
+    KEY_SFT_MOUSE1             Shift mouse button 1 (counted from left)
+    KEY_SFT_MOUSE2             Shift mouse button 2 (counted from left)
+    KEY_SFT_MOUSE3             Shift mouse button 3 (counted from left)
+    KEY_SFT_MOUSE4             Shift mouse wheel scroll up
+    KEY_SFT_MOUSE5             Shift mouse wheel scroll down
+    KEY_SFT_MOUSE_FWD          Shift mouse forward button
+    KEY_SFT_MOUSE_BACK         Shift mouse back button
+    KEY_CTL_MOUSE1             Control mouse button 1 (counted from left)
+    KEY_CTL_MOUSE2             Control mouse button 2 (counted from left)
+    KEY_CTL_MOUSE3             Control mouse button 3 (counted from left)
+    KEY_CTL_MOUSE4             Control mouse wheel scroll up
+    KEY_CTL_MOUSE5             Control mouse wheel scroll down
+    KEY_CTL_MOUSE_FWD          Control mouse forward button
+    KEY_CTL_MOUSE_BACK         Control mouse back button
+    KEY_ALT_MOUSE1             Alt mouse button 1 (counted from left)
+    KEY_ALT_MOUSE2             Alt mouse button 2 (counted from left)
+    KEY_ALT_MOUSE3             Alt mouse button 3 (counted from left)
+    KEY_ALT_MOUSE4             Alt mouse wheel scroll up
+    KEY_ALT_MOUSE5             Alt mouse wheel scroll down
+    KEY_ALT_MOUSE_FWD          Alt mouse forward button
+    KEY_ALT_MOUSE_BACK         Alt mouse back button
     KEY_UNDEF                  Undefined key
     KEY_NONE                   No key pressed (returned by busy_getc)
 
@@ -6426,7 +6532,8 @@ CONTENTS
 
   Seed7 programs can run in two modes:
 
-    - Console mode, where the program runs in a console/terminal window (the default).
+    - Console mode, where the program runs in a console/terminal
+      window (the default).
     - Graphics mode, where the program has its own graphic window.
 
   This two modes are supported with two basic keyboard files:
@@ -6445,6 +6552,69 @@ CONTENTS
   Graphic programs switch to to the 'GRAPH_KEYBOARD' driver with:
 
     KEYBOARD := GRAPH_KEYBOARD;
+
+  A 'GRAPH_KEYBOARD' additionally provides the following functions:
+
+    - 'buttonPressed', which determines if a given button is
+      currently pressed.
+    - 'getxpos', which returns the X position of the mouse cursor
+      when a button was pressed.
+    - 'getypos', which returns the Y position of the mouse cursor
+      when a button was pressed.
+
+  The functions 'getxpos' and 'getypos' can be used to determine
+  which position was "clicked". The program below uses 'getxpos'
+  and 'getypos' to produce a dot for each keypress.
+
+    $ include "seed7_05.s7i";
+      include "keybd.s7i";
+      include "draw.s7i";
+
+    const proc: main is func
+      local
+        var char: command is ' ';
+      begin
+        screen(640, 480);
+        KEYBOARD := GRAPH_KEYBOARD;
+        command := getc(KEYBOARD);
+        while command = KEY_MOUSE1 do
+          fcircle(getxpos(KEYBOARD), getypos(KEYBOARD), 4, light_red);
+          command := getc(KEYBOARD);
+        end while;
+      end func;
+
+  The current position of the mouse curser, which is independend
+  from key presses can be retrieved with the following functions:
+
+    - 'pointerXPos', which returns the actual X position of the
+      mouse pointer.
+    - 'pointerYPos', which returns the actual Y position of the
+      mouse pointer.
+
+  The functions 'pointerXPos' and 'pointerYPos' can be used to move
+  something with the cursor (e.g.: drag and drop). The program below
+  uses 'buttonPressed' to determine how long the mouse button is
+  pressed. This is used together with 'pointerXPos' and 'pointerYPos'
+  to draw along the mouse cursor while the mouse button is pressed:
+
+    $ include "seed7_05.s7i";
+      include "keybd.s7i";
+      include "draw.s7i";
+
+    const proc: main is func
+      local
+        var char: command is ' ';
+      begin
+        screen(640, 480);
+        KEYBOARD := GRAPH_KEYBOARD;
+        command := getc(KEYBOARD);
+        while command = KEY_MOUSE1 do
+          while buttonPressed(KEYBOARD, KEY_MOUSE1) do
+            fcircle(pointerXPos(curr_win), pointerYPos(curr_win), 4, light_red);
+          end while;
+          command := getc(KEYBOARD);
+        end while;
+      end func;
 
   Some file types are defined to support the 'KEYBOARD'. One such
   file type is 'echo_file', which is defined in the library "echo.s7i".
@@ -6747,21 +6917,27 @@ CONTENTS
   functions are defined in the "scanfile.s7i" library:
 
     skipComment
-      Skips a possibly nested comment from a 'file'.
+      Skips a possibly nested Seed7 comment from a 'file'.
     getComment
-      Reads a possibly nested comment from a 'file'.
+      Reads a possibly nested Seed7 comment from a 'file'.
+    skipClassicComment
+      Skips a classic C comment from a 'file'.
     skipLineComment
       Skips a line comment from a 'file'.
     getLineComment
       Reads a line comment from a 'file'.
     getDigits
       Reads a sequence of digits from a 'file'.
+    getInteger
+      Reads a decimal integer with optional sign from a 'file'.
     getNumber
-      Reads a numeric literal from a 'file'.
+      Reads a numeric literal (integer, bigInteger or float literal) from a 'file'.
     getNonDigits
       Reads a sequence of non digits from a 'file'.
     getQuotedText
       Reads a text quoted with " or ' from a 'file'.
+    getSimpleStringLiteral
+      Read a simple string literal from a 'file'.
     getCharLiteral
       Reads a character literal from a 'file'.
     getStringLiteral
@@ -12664,13 +12840,13 @@ CONTENTS
 
   Signal  | Special handler      | Behavior without -ts   | Behavior with -ts
   --------+------------------------+------------------------+-----------------------
-  SIGABRT | raise OVERFLOW_ERROR | Terminate with message | Dialog to decide
-  SIGILL  | raise OVERFLOW_ERROR | Terminate with message | Dialog to decide
+  SIGABRT | raise OVERFLOW_ERROR | Raises exception       | Dialog to decide
+  SIGILL  | raise OVERFLOW_ERROR | Raises exception       | Dialog to decide
   SIGINT  | -                    | Terminate with message | Dialog to decide
-  SIGFPE  | raise NUMERIC_ERROR  | Terminate with message | Dialog to decide
+  SIGFPE  | raise NUMERIC_ERROR  | Raises exception       | Dialog to decide
   SIGTERM | -                    | Terminate with message | Terminate with message
   SIGSEGV | -                    | Terminate program      | Terminate with message
-  SIGPIPE | -                    | Ignore                 | Ignore
+  SIGPIPE | -                    | Ignored                | Ignored
   SIGWINCH| Resize console       | -                      | -
   SIGALRM | Wait for some time   | -                      | -
 

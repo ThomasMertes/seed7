@@ -401,29 +401,96 @@ const func boolean: check_reduced_overflow_checking_for_sums is func
       okay := FALSE;
     end if;
 
-    if  not raisesOverflowError(abs(         intExpr( integer.last)) +                    1) or
-        not raisesOverflowError(log2(        intExpr(            0)) +        integer.first) or
-        not raisesOverflowError(log2(        intExpr( integer.last)) +  9223372036854775746) or
-        not raisesOverflowError(log10(       intExpr(            0)) +        integer.first) or
-        not raisesOverflowError(log10(       intExpr( integer.last)) +  9223372036854775790) or
-        not raisesOverflowError(sqrt(        intExpr( integer.last)) +  9223372033817775309) or
-        not raisesOverflowError(bitLength(   intExpr( integer.last)) +  9223372036854775745) or
-        not raisesOverflowError(lowestSetBit(intExpr(            0)) +        integer.first) or
-        not raisesOverflowError(lowestSetBit(intExpr(integer.first)) +  9223372036854775745) or
+    if  not raisesOverflowError( abs(         intExpr( integer.last)) +                    1) or
+        not raisesOverflowError(-abs(         intExpr( integer.last)) -                    2) or
+        not raisesOverflowError(-abs(         intExpr(            0)) -        integer.first) or
+        not raisesOverflowError( log2(        intExpr(            0)) +        integer.first) or
+        not raisesOverflowError( log2(        intExpr( integer.last)) +  9223372036854775746) or
+        not raisesOverflowError(-log2(        intExpr( integer.last)) -  9223372036854775747) or
+        not raisesOverflowError(-log2(        intExpr(            0)) - -9223372036854775807) or
+        not raisesOverflowError( log10(       intExpr(            0)) +        integer.first) or
+        not raisesOverflowError( log10(       intExpr( integer.last)) +  9223372036854775790) or
+        not raisesOverflowError(-log10(       intExpr( integer.last)) -  9223372036854775791) or
+        not raisesOverflowError(-log10(       intExpr(            0)) - -9223372036854775807) or
+        not raisesOverflowError( sqrt(        intExpr( integer.last)) +  9223372033817775309) or
+        not raisesOverflowError(-sqrt(        intExpr( integer.last)) -  9223372033817775310) or
+        not raisesOverflowError(-sqrt(        intExpr(            0)) -        integer.first) or
+        not raisesOverflowError( bitLength(   intExpr( integer.last)) +  9223372036854775745) or
+        not raisesOverflowError( bitLength(   intExpr( integer.last)) + bitLength(   intExpr( integer.last)) +  9223372036854775682) or
+        not raisesOverflowError(-bitLength(   intExpr( integer.last)) -  9223372036854775746) or
+        not raisesOverflowError(-bitLength(   intExpr(            0)) -        integer.first) or
+        not raisesOverflowError(-bitLength(   intExpr( integer.last)) - bitLength(   intExpr( integer.last)) -  9223372036854775683) or
+        not raisesOverflowError(-bitLength(   intExpr(            0)) - bitLength(   intExpr(            0)) -        integer.first) or
+        not raisesOverflowError( lowestSetBit(intExpr(            0)) +        integer.first) or
+        not raisesOverflowError( lowestSetBit(intExpr(integer.first)) +  9223372036854775745) or
+        not raisesOverflowError(-lowestSetBit(intExpr(integer.first)) -  9223372036854775746) or
+        not raisesOverflowError(-lowestSetBit(intExpr(            0)) - -9223372036854775807) or
 
-        not raisesOverflowError(rand(        -1234567890,  intExpr(-1234567890)) + -9223372035620207919) or
-        not raisesOverflowError(rand(intExpr( 1234567890),          1234567890 ) +  9223372035620207918) or
+        not raisesOverflowError( rand(        -1234567890,  intExpr(-1234567890)) + -9223372035620207919) or
+        not raisesOverflowError( rand(intExpr( 1234567890),          1234567890 ) +  9223372035620207918) or
+        not raisesOverflowError(-rand(intExpr( 1234567890),          1234567890 ) -  9223372035620207919) or
+        not raisesOverflowError(-rand(        -1234567890,  intExpr(-1234567890)) - -9223372035620207918) or
 
-        not raisesOverflowError(compare(intExpr(0), intExpr(1)) +        integer.first) or
-        not raisesOverflowError(compare(intExpr(1), intExpr(0)) +  9223372036854775807) then
+        not raisesOverflowError( compare(intExpr(0), intExpr(1)) +        integer.first) or
+        not raisesOverflowError( compare(intExpr(1), intExpr(0)) +  9223372036854775807) or
+        not raisesOverflowError(-compare(intExpr(1), intExpr(0)) +        integer.first) or
+        not raisesOverflowError(-compare(intExpr(0), intExpr(1)) - -9223372036854775807) then
       writeln(" ***** Reduced overflow check for sums failed: Various integer functions.");
       okay := FALSE;
     end if;
 
-    if  not raisesOverflowError(ord(boolExpr( TRUE)) + 9223372036854775807) or
-        not raisesOverflowError(ord(charExpr(char(-2147483648) )) + -9223372034707292161) or
-        not raisesOverflowError(ord(charExpr(    '\2147483647;')) +  9223372034707292161) then
-      writeln(" ***** Reduced overflow check for sums failed: Ord functions.");
+    if  not raisesOverflowError( abs(ord(charExpr(char(-2147483648) ))) + 9223372034707292160) or
+        not raisesOverflowError( abs(ord(charExpr(char(-2147483648) ))) + abs(ord(charExpr(char(-2147483648) ))) +
+	     9223372032559808512) or
+        not raisesOverflowError(-abs(ord(charExpr(char(-2147483648) ))) - 9223372034707292161) or
+        not raisesOverflowError(-abs(ord(charExpr(char(-2147483648) ))) - abs(ord(charExpr(char(-2147483648) ))) -
+	     9223372032559808513) then
+      writeln(" ***** Reduced overflow check for sums failed: abs(ord(char))");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError( ord(boolExpr(TRUE)) + 9223372036854775807) or
+        not raisesOverflowError(-ord(boolExpr(TRUE)) + integer.first) or
+        not raisesOverflowError( ord(boolExpr(TRUE)) + ord(boolExpr(TRUE)) + 9223372036854775806) or
+        not raisesOverflowError(-ord(boolExpr(TRUE)) - ord(boolExpr(TRUE)) - 9223372036854775807) or
+        not raisesOverflowError(ord(boolExpr(TRUE)) + ord(boolExpr(TRUE)) + ord(boolExpr(TRUE)) + 9223372036854775805) or
+        not raisesOverflowError(ord(boolExpr(TRUE)) + ord(boolExpr(TRUE)) + ord(boolExpr(TRUE)) + ord(boolExpr(TRUE)) + 9223372036854775804) or
+        not raisesOverflowError(ord(boolExpr( TRUE)) + sqrt(intExpr(integer.last)) +  9223372033817775308) or
+        not raisesOverflowError(ord(boolExpr(FALSE)) - sqrt(intExpr(integer.last)) + -9223372033817775310) or
+        not raisesOverflowError(ord(boolExpr( TRUE)) - sqrt(intExpr(           0)) +         integer.last) or
+        not raisesOverflowError(ord(boolExpr( TRUE)) + abs(intExpr(1)) +  9223372036854775806) or
+        not raisesOverflowError(ord(boolExpr(FALSE)) - abs(intExpr(1)) +        integer.first) then
+      writeln(" ***** Reduced overflow check for sums failed: ord(booolean)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError( ord(charExpr(char(-2147483648) )) + -9223372034707292161) or
+        not raisesOverflowError( ord(charExpr(    '\2147483647;')) +  9223372034707292161) or
+        not raisesOverflowError(-ord(charExpr(    '\2147483647;')) -  9223372034707292162) or
+        not raisesOverflowError(-ord(charExpr(char(-2147483648) )) - -9223372034707292160) or
+        not raisesOverflowError( ord(charExpr(char(-2147483648) )) + ord(charExpr(char(-2147483648) )) + -9223372032559808513) or
+        not raisesOverflowError( ord(charExpr(    '\2147483647;')) + ord(charExpr(    '\2147483647;')) +  9223372032559808514) or
+        not raisesOverflowError(-ord(charExpr(    '\2147483647;')) - ord(charExpr(    '\2147483647;')) -  9223372032559808515) or
+        not raisesOverflowError(-ord(charExpr(char(-2147483648) )) - ord(charExpr(char(-2147483648) )) - -9223372032559808512) or
+        not raisesOverflowError(ord(charExpr(char(-2147483648) )) + ord(charExpr(char(-2147483648) )) +
+                                ord(charExpr(char(-2147483648) )) + -9223372030412324865) or
+        not raisesOverflowError(ord(charExpr(    '\2147483647;')) + ord(charExpr(    '\2147483647;')) +
+                                ord(charExpr(    '\2147483647;')) +  9223372030412324867) or
+        not raisesOverflowError(ord(charExpr(char(-2147483648) )) + ord(charExpr(char(-2147483648) )) +
+                                ord(charExpr(char(-2147483648) )) + ord(charExpr(char(-2147483648) )) + -9223372028264841217) or
+        not raisesOverflowError(ord(charExpr(    '\2147483647;')) + ord(charExpr(    '\2147483647;')) +
+                                ord(charExpr(    '\2147483647;')) + ord(charExpr(    '\2147483647;')) +  9223372028264841220) or
+        not raisesOverflowError(ord(charExpr(char(-2147483648) )) - ord(charExpr(    '\2147483647;')) + -9223372032559808514) or
+        not raisesOverflowError(ord(charExpr(    '\2147483647;')) - ord(charExpr(char(-2147483648) )) +  9223372032559808513) or
+        not raisesOverflowError(ord(charExpr(char(-2147483648) )) + sqrt(intExpr(           0)) + -9223372034707292161) or
+        not raisesOverflowError(ord(charExpr(    '\2147483647;')) + sqrt(intExpr(integer.last)) +  9223372031670291662) or
+        not raisesOverflowError(ord(charExpr(char(-2147483648) )) - sqrt(intExpr(integer.last)) + -9223372031670291662) or
+        not raisesOverflowError(ord(charExpr(    '\2147483647;')) - sqrt(intExpr(           0)) +  9223372034707292161) or
+        not raisesOverflowError(ord(charExpr(char(-2147483648) )) + abs(intExpr(1)) + -9223372034707292162) or
+        not raisesOverflowError(ord(charExpr(    '\2147483647;')) + abs(intExpr(1)) +  9223372034707292160) or
+        not raisesOverflowError(ord(charExpr(char(-2147483648) )) - abs(intExpr(1)) + -9223372034707292160) or
+        not raisesOverflowError(ord(charExpr(    '\2147483647;')) - abs(intExpr(1)) +  9223372034707292163) then
+      writeln(" ***** Reduced overflow check for sums failed: ord(char)");
       okay := FALSE;
     end if;
 
@@ -3828,15 +3895,24 @@ const proc: check_rem is func
   local
     var boolean: okay is TRUE;
   begin
-    if  not raisesOverflowError(                      INT64_MIN   rem         -1 ) or
-        not raisesOverflowError(intExpr(              INT64_MIN)  rem         -1 ) or
-        not raisesOverflowError(                      INT64_MIN   rem intExpr(-1)) or
-        not raisesOverflowError(intExpr(              INT64_MIN)  rem intExpr(-1)) or
-        not raisesOverflowError(        (-9223372036854775807-1)  rem         -1 ) or
-        not raisesOverflowError(intExpr((-9223372036854775807-1)) rem         -1 ) or
-        not raisesOverflowError(        (-9223372036854775807-1)  rem intExpr(-1)) or
-        not raisesOverflowError(intExpr((-9223372036854775807-1)) rem intExpr(-1)) then
-      writeln(" ***** Computing -9223372036854775808 rem -1 does not raise OVERFLOW_ERROR.");
+    # An integer expression must either raise OVERFLOW_ERROR or return the correct result.
+    if  not (raisesOverflowError(                     INT64_MIN  rem         -1 )      or
+                                                      INT64_MIN  rem         -1   = 0) or
+        not (raisesOverflowError(intExpr(             INT64_MIN) rem         -1 )      or
+                                 intExpr(             INT64_MIN) rem         -1   = 0) or
+        not (raisesOverflowError(                     INT64_MIN  rem intExpr(-1))      or
+                                                      INT64_MIN  rem intExpr(-1)  = 0) or
+        not (raisesOverflowError(intExpr(             INT64_MIN) rem intExpr(-1))      or
+                                 intExpr(             INT64_MIN) rem intExpr(-1)  = 0) or
+        not (raisesOverflowError(       (-9223372036854775807-1) rem         -1 )      or
+                                        (-9223372036854775807-1) rem         -1   = 0) or
+        not (raisesOverflowError(intExpr(-9223372036854775807-1) rem         -1 )      or
+                                 intExpr(-9223372036854775807-1) rem         -1   = 0) or
+        not (raisesOverflowError(       (-9223372036854775807-1) rem intExpr(-1))      or
+                                        (-9223372036854775807-1) rem intExpr(-1)  = 0) or
+        not (raisesOverflowError(intExpr(-9223372036854775807-1) rem intExpr(-1))      or
+                                 intExpr(-9223372036854775807-1) rem intExpr(-1)  = 0) then
+      writeln(" ***** Computing -9223372036854775808 rem -1 does neither raise OVERFLOW_ERROR nor return 0.");
       okay := FALSE;
     end if;
 
@@ -3876,15 +3952,24 @@ const proc: check_mod is func
   local
     var boolean: okay is TRUE;
   begin
-    if  not raisesOverflowError(                      INT64_MIN   mod         -1 ) or
-        not raisesOverflowError(intExpr(              INT64_MIN)  mod         -1 ) or
-        not raisesOverflowError(                      INT64_MIN   mod intExpr(-1)) or
-        not raisesOverflowError(intExpr(              INT64_MIN)  mod intExpr(-1)) or
-        not raisesOverflowError(        (-9223372036854775807-1)  mod         -1 ) or
-        not raisesOverflowError(intExpr((-9223372036854775807-1)) mod         -1 ) or
-        not raisesOverflowError(        (-9223372036854775807-1)  mod intExpr(-1)) or
-        not raisesOverflowError(intExpr((-9223372036854775807-1)) mod intExpr(-1)) then
-      writeln(" ***** Computing -9223372036854775808 mod -1 does not raise OVERFLOW_ERROR.");
+    # An integer expression must either raise OVERFLOW_ERROR or return the correct result.
+    if  not (raisesOverflowError(                     INT64_MIN  mod         -1 )      or
+                                                      INT64_MIN  mod         -1   = 0) or
+        not (raisesOverflowError(intExpr(             INT64_MIN) mod         -1 )      or
+                                 intExpr(             INT64_MIN) mod         -1   = 0) or
+        not (raisesOverflowError(                     INT64_MIN  mod intExpr(-1))      or
+                                                      INT64_MIN  mod intExpr(-1)  = 0) or
+        not (raisesOverflowError(intExpr(             INT64_MIN) mod intExpr(-1))      or
+                                 intExpr(             INT64_MIN) mod intExpr(-1)  = 0) or
+        not (raisesOverflowError(       (-9223372036854775807-1) mod         -1 )      or
+                                        (-9223372036854775807-1) mod         -1   = 0) or
+        not (raisesOverflowError(intExpr(-9223372036854775807-1) mod         -1 )      or
+                                 intExpr(-9223372036854775807-1) mod         -1   = 0) or
+        not (raisesOverflowError(       (-9223372036854775807-1) mod intExpr(-1))      or
+                                        (-9223372036854775807-1) mod intExpr(-1)  = 0) or
+        not (raisesOverflowError(intExpr(-9223372036854775807-1) mod intExpr(-1))      or
+                                 intExpr(-9223372036854775807-1) mod intExpr(-1)  = 0) then
+      writeln(" ***** Computing -9223372036854775808 mod -1 does neither raise OVERFLOW_ERROR nor return 0.");
       okay := FALSE;
     end if;
 

@@ -64,6 +64,10 @@ void shutDrivers (void)
 
 
 
+/**
+ *  Determine the name of the given 'signalNum'.
+ *  @return the name of the signal.
+ */
 const_cstriType signalName (int signalNum)
 
   {
@@ -268,6 +272,13 @@ static void handleSegvSignal (int signalNum)
 
 
 
+/**
+ *  Initialize the signal handlers.
+ *  @param handleSignals Specifies if signals are handled at all.
+ *  @param traceSignals Specifies if signals trigger a dialog at the console.
+ *  @param overflowSigError An OVERFLOW_SIGNAL will raise OVERFLOW_ERROR.
+ *  @param fpeNumericError An SIGFPE will raise NUMERIC_ERROR.
+ */
 #if HAS_SIGACTION
 void setupSignalHandlers (boolType handleSignals,
     boolType traceSignals, boolType overflowSigError,

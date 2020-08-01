@@ -75,7 +75,21 @@ static intType button_x = 0;
 static intType button_y = 0;
 static Window button_window = 0;
 static rtlHashType window_hash = NULL;
+static boolType hasFocus = FALSE;
 
+struct modifierState {
+    boolType leftShift;
+    boolType rightShift;
+    boolType leftControl;
+    boolType rightControl;
+    boolType leftAlt;
+    boolType rightAlt;
+    boolType shiftLock;
+    boolType numLock;
+    boolType scrollLock;
+  };
+
+static struct modifierState modState = {FALSE, FALSE, FALSE, FALSE, FALSE, FALSE};
 
 extern void redraw (winType redraw_window, int xPos, int yPos, int width, int height);
 extern void doFlush (void);
@@ -83,9 +97,9 @@ extern void flushBeforeRead (void);
 
 
 struct keysymCharPair {
-  uint16Type keysym;
-  uint16Type unicodeChar;
-};
+    uint16Type keysym;
+    uint16Type unicodeChar;
+  };
 
 /* The table below maps keysym values to Unicode. The     */
 /* table does not use the XK_ macros from the include     */
@@ -1009,680 +1023,6 @@ void waitForReparent (void)
 
 
 
-charType gkbGetc (void)
-
-  {
-    KeySym currentKey;
-    int lookup_count;
-    unsigned char buffer[21];
-    boolType getNextChar;
-    charType result;
-
-  /* gkbGetc */
-    logFunction(printf("gkbGetc\n"););
-    do {
-      getNextChar = FALSE;
-      flushBeforeRead();
-      result = K_NONE;
-      if (eventPresent) {
-        eventPresent = FALSE;
-      } else {
-        XNextEvent(mydisplay, &currentEvent);
-      } /* if */
-      while (currentEvent.type == KeyRelease) {
-        XNextEvent(mydisplay, &currentEvent);
-      } /* while */
-      switch(currentEvent.type) {
-        case Expose:
-          traceEvent(printf("Expose\n"););
-          handleExpose(&currentEvent.xexpose);
-          getNextChar = TRUE;
-          break;
-
-#ifdef OUT_OF_ORDER
-        case ConfigureNotify:
-          traceEvent(printf("ConfigureNotify"););
-          configure(&currentEvent.xconfigure);
-          getNextChar = TRUE;
-          break;
-        case MapNotify:
-#endif
-
-#if TRACE_REPARENT_NOTIFY
-        case ReparentNotify:
-          printf("gkbGetc: Reparent\n");
-          getNextChar = TRUE;
-          break;
-
-        case ConfigureNotify:
-          printf("gkbGetc: Configure %lx %d, %d\n",
-                 currentEvent.xconfigure.window,
-                 currentEvent.xconfigure.width, currentEvent.xconfigure.height);
-          getNextChar = TRUE;
-          break;
-#endif
-#ifdef ALLOW_REPARENT_NOTIFY
-        case ReparentNotify:
-        case ConfigureNotify:
-#endif
-        case GraphicsExpose:
-        case NoExpose:
-          traceEvent(printf("NoExpose\n"););
-          getNextChar = TRUE;
-          break;
-
-        case MappingNotify:
-          traceEvent(printf("MappingNotify\n"););
-          XRefreshKeyboardMapping(&currentEvent.xmapping);
-          break;
-
-#ifdef OUT_OF_ORDER
-        case DestroyNotify:
-          traceEvent(printf("DestroyNotify\n"););
-          exit(1);
-          break;
-#endif
-
-        case ClientMessage:
-          traceEvent(printf("ClientMessage\n"););
-          if ((Atom) currentEvent.xclient.data.l[0] == wm_delete_window) {
-            /* printf("do exit\n"); */
-            exit(1);
-          } /* if */
-          break;
-
-        case ButtonPress:
-          traceEvent(printf("ButtonPress (%d, %d, %u %lu)\n",
-                            currentEvent.xbutton.x, currentEvent.xbutton.y,
-                            currentEvent.xbutton.button,
-                            (unsigned long) currentEvent.xbutton.window););
-          button_x = currentEvent.xbutton.x;
-          button_y = currentEvent.xbutton.y;
-          button_window = currentEvent.xbutton.window;
-          if (currentEvent.xbutton.button >= 1 && currentEvent.xbutton.button <= 5) {
-            result = currentEvent.xbutton.button + K_MOUSE1 - 1;
-          } else if (currentEvent.xbutton.button == 8) {
-            result = K_MOUSE_BACK;
-          } else if (currentEvent.xbutton.button == 9) {
-            result = K_MOUSE_FWD;
-          } else {
-            result = K_UNDEF;
-          } /* if */
-          if (result != K_UNDEF) {
-            if (currentEvent.xkey.state & ShiftMask) {
-              result += K_SFT_MOUSE1 - K_MOUSE1;
-            } else if (currentEvent.xkey.state & ControlMask) {
-              result += K_CTL_MOUSE1 - K_MOUSE1;
-            } else if (currentEvent.xkey.state & Mod1Mask) { /* Left ALT modifier */
-              result += K_ALT_MOUSE1 - K_MOUSE1;
-            } /* if */
-          } /* if */
-          break;
-
-        case KeyPress:
-          lookup_count = XLookupString(&currentEvent.xkey, (cstriType) buffer,
-                                       20, &currentKey, 0);
-          buffer[lookup_count] = '\0';
-          traceEvent(printf("KeyPress key.state: %x, currentKey %lx\n",
-                            currentEvent.xkey.state, currentKey););
-          if (currentEvent.xkey.state & ShiftMask) {
-            /* printf("ShiftMask\n"); */
-            switch (currentKey) {
-              case XK_Return:     result = K_SFT_NL;      break;
-              case XK_BackSpace:  result = K_SFT_BS;      break;
-              case XK_ISO_Left_Tab:
-              case XK_Tab:        result = K_BACKTAB;     break;
-              case XK_Linefeed:   result = K_NL;          break;
-              case XK_Escape:     result = K_ESC;         break;
-              case XK_F1:         result = K_SFT_F1;      break;
-              case XK_F2:         result = K_SFT_F2;      break;
-              case XK_F3:         result = K_SFT_F3;      break;
-              case XK_F4:         result = K_SFT_F4;      break;
-              case XK_F5:         result = K_SFT_F5;      break;
-              case XK_F6:         result = K_SFT_F6;      break;
-              case XK_F7:         result = K_SFT_F7;      break;
-              case XK_F8:         result = K_SFT_F8;      break;
-              case XK_F9:         result = K_SFT_F9;      break;
-              case XK_F10:        result = K_SFT_F10;     break;
-              case XK_F11:        result = K_SFT_F11;     break;
-              case XK_F12:        result = K_SFT_F12;     break;
-              case XK_Left:       result = K_LEFT;        break;
-              case XK_Right:      result = K_RIGHT;       break;
-              case XK_Up:         result = K_UP;          break;
-              case XK_Down:       result = K_DOWN;        break;
-              case XK_Home:       result = K_HOME;        break;
-              case XK_End:        result = K_END;         break;
-              case XK_Prior:      result = K_PGUP;        break;
-              case XK_Next:       result = K_PGDN;        break;
-              case XK_Insert:     result = K_INS;         break;
-              case XK_Delete:     result = K_DEL;         break;
-              case XK_KP_Left:    result = K_LEFT;        break;
-              case XK_KP_Right:   result = K_RIGHT;       break;
-              case XK_KP_Up:      result = K_UP;          break;
-              case XK_KP_Down:    result = K_DOWN;        break;
-              case XK_KP_Home:    result = K_HOME;        break;
-              case XK_KP_End:     result = K_END;         break;
-              case XK_KP_Prior:   result = K_PGUP;        break;
-              case XK_KP_Next:    result = K_PGDN;        break;
-              case XK_KP_Insert:  result = K_INS;         break;
-              case XK_KP_Delete:  result = K_DEL;         break;
-              case XK_KP_Begin:   result = K_PAD_CENTER;  break;
-              case XK_KP_Enter:   result = K_SFT_NL;      break;
-              case XK_KP_Decimal: result = K_DEL;         break;
-              case XK_KP_0:       result = '0';           break;
-              case XK_KP_1:       result = '1';           break;
-              case XK_KP_2:       result = '2';           break;
-              case XK_KP_3:       result = '3';           break;
-              case XK_KP_4:       result = '4';           break;
-              case XK_KP_5:       result = '5';           break;
-              case XK_KP_6:       result = '6';           break;
-              case XK_KP_7:       result = '7';           break;
-              case XK_KP_8:       result = '8';           break;
-              case XK_KP_9:       result = '9';           break;
-              case XK_Menu:       result = K_MENU;        break;
-              case XK_Shift_L:
-              case XK_Shift_R:
-              case XK_Control_L:
-              case XK_Control_R:
-              case XK_Alt_L:
-              case XK_Alt_R:
-              case XK_Meta_L:
-              case XK_Meta_R:
-              case XK_Mode_switch:
-              case XK_Caps_Lock:
-              case XK_Num_Lock:
-              case XK_Shift_Lock:
-                getNextChar = TRUE;
-                break;
-              default:
-                if (lookup_count == 1) {
-                  result = buffer[0];
-                } else {
-                  result = mapKeysymToUnicode(currentKey);
-                } /* if */
-                break;
-            } /* switch */
-          } else if (currentEvent.xkey.state & ControlMask) {
-            /* printf("ControlMask\n"); */
-            switch (currentKey) {
-              case XK_Return:     result = K_CTL_NL;      break;
-              case XK_BackSpace:  result = K_CTL_BS;      break;
-              case XK_Tab:        result = K_CTL_TAB;     break;
-              case XK_Linefeed:   result = K_CTL_NL;      break;
-              case XK_Escape:     result = K_ESC;         break;
-              case XK_F1:         result = K_CTL_F1;      break;
-              case XK_F2:         result = K_CTL_F2;      break;
-              case XK_F3:         result = K_CTL_F3;      break;
-              case XK_F4:         result = K_CTL_F4;      break;
-              case XK_F5:         result = K_CTL_F5;      break;
-              case XK_F6:         result = K_CTL_F6;      break;
-              case XK_F7:         result = K_CTL_F7;      break;
-              case XK_F8:         result = K_CTL_F8;      break;
-              case XK_F9:         result = K_CTL_F9;      break;
-              case XK_F10:        result = K_CTL_F10;     break;
-              case XK_F11:        result = K_CTL_F11;     break;
-              case XK_F12:        result = K_CTL_F12;     break;
-              case XK_Left:       result = K_CTL_LEFT;    break;
-              case XK_Right:      result = K_CTL_RIGHT;   break;
-              case XK_Up:         result = K_CTL_UP;      break;
-              case XK_Down:       result = K_CTL_DOWN;    break;
-              case XK_Home:       result = K_CTL_HOME;    break;
-              case XK_End:        result = K_CTL_END;     break;
-              case XK_Prior:      result = K_CTL_PGUP;    break;
-              case XK_Next:       result = K_CTL_PGDN;    break;
-              case XK_Insert:     result = K_CTL_INS;     break;
-              case XK_Delete:     result = K_CTL_DEL;     break;
-              case XK_KP_Left:    result = K_CTL_LEFT;    break;
-              case XK_KP_Right:   result = K_CTL_RIGHT;   break;
-              case XK_KP_Up:      result = K_CTL_UP;      break;
-              case XK_KP_Down:    result = K_CTL_DOWN;    break;
-              case XK_KP_Home:    result = K_CTL_HOME;    break;
-              case XK_KP_End:     result = K_CTL_END;     break;
-              case XK_KP_Prior:   result = K_CTL_PGUP;    break;
-              case XK_KP_Next:    result = K_CTL_PGDN;    break;
-              case XK_KP_Insert:  result = K_CTL_INS;     break;
-              case XK_KP_Delete:  result = K_CTL_DEL;     break;
-              case XK_KP_Begin:   result = K_CTL_PAD_CENTER; break;
-              case XK_KP_4:       result = K_CTL_LEFT;    break;
-              case XK_KP_6:       result = K_CTL_RIGHT;   break;
-              case XK_KP_8:       result = K_CTL_UP;      break;
-              case XK_KP_2:       result = K_CTL_DOWN;    break;
-              case XK_KP_7:       result = K_CTL_HOME;    break;
-              case XK_KP_1:       result = K_CTL_END;     break;
-              case XK_KP_9:       result = K_CTL_PGUP;    break;
-              case XK_KP_3:       result = K_CTL_PGDN;    break;
-              case XK_KP_0:       result = K_CTL_INS;     break;
-              case XK_KP_5:       result = K_CTL_PAD_CENTER; break;
-              case XK_KP_Enter:   result = K_CTL_NL;      break;
-              case XK_KP_Decimal: result = K_CTL_DEL;     break;
-              case XK_0:          result = '0';           break;
-              case XK_1:          result = '1';           break;
-              case XK_2:          result = '2';           break;
-              case XK_3:          result = '3';           break;
-              case XK_4:          result = '4';           break;
-              case XK_5:          result = '5';           break;
-              case XK_6:          result = '6';           break;
-              case XK_7:          result = '7';           break;
-              case XK_8:          result = '8';           break;
-              case XK_9:          result = '9';           break;
-              case XK_Menu:       result = K_MENU;        break;
-              case XK_Shift_L:
-              case XK_Shift_R:
-              case XK_Control_L:
-              case XK_Control_R:
-              case XK_Alt_L:
-              case XK_Alt_R:
-              case XK_Meta_L:
-              case XK_Meta_R:
-              case XK_Mode_switch:
-              case XK_Caps_Lock:
-              case XK_Num_Lock:
-              case XK_Shift_Lock:
-                getNextChar = TRUE;
-                break;
-              default:
-                if (lookup_count == 1) {
-                  result = buffer[0];
-                } else {
-                  result = mapKeysymToUnicode(currentKey);
-                } /* if */
-                break;
-            } /* switch */
-          } else if (currentEvent.xkey.state & Mod1Mask || /* Left ALT modifier */
-                     currentEvent.xkey.state & Mod5Mask) { /* ALT GR modifier */
-            /* printf("Mod1Mask or Mod5Mask\n"); */
-            switch (currentKey) {
-              case XK_Return:     result = K_ALT_NL;      break;
-              case XK_BackSpace:  result = K_ALT_BS;      break;
-              case XK_Tab:        result = K_ALT_TAB;     break;
-              case XK_Linefeed:   result = K_UNDEF;       break;
-              case XK_Escape:     result = K_ESC;         break;
-              case XK_F1:         result = K_ALT_F1;      break;
-              case XK_F2:         result = K_ALT_F2;      break;
-              case XK_F3:         result = K_ALT_F3;      break;
-              case XK_F4:         result = K_ALT_F4;      break;
-              case XK_F5:         result = K_ALT_F5;      break;
-              case XK_F6:         result = K_ALT_F6;      break;
-              case XK_F7:         result = K_ALT_F7;      break;
-              case XK_F8:         result = K_ALT_F8;      break;
-              case XK_F9:         result = K_ALT_F9;      break;
-              case XK_F10:        result = K_ALT_F10;     break;
-              case XK_F11:        result = K_ALT_F11;     break;
-              case XK_F12:        result = K_ALT_F12;     break;
-              case XK_Left:       result = K_LEFT;        break;
-              case XK_Right:      result = K_RIGHT;       break;
-              case XK_Up:         result = K_UP;          break;
-              case XK_Down:       result = K_DOWN;        break;
-              case XK_Home:       result = K_HOME;        break;
-              case XK_End:        result = K_END;         break;
-              case XK_Prior:      result = K_PGUP;        break;
-              case XK_Next:       result = K_PGDN;        break;
-              case XK_Insert:     result = K_INS;         break;
-              case XK_Delete:     result = K_DEL;         break;
-              case XK_KP_Left:    result = K_ALT_4;       break;
-              case XK_KP_Right:   result = K_ALT_6;       break;
-              case XK_KP_Up:      result = K_ALT_8;       break;
-              case XK_KP_Down:    result = K_ALT_2;       break;
-              case XK_KP_Home:    result = K_ALT_7;       break;
-              case XK_KP_End:     result = K_ALT_1;       break;
-              case XK_KP_Prior:   result = K_ALT_9;       break;
-              case XK_KP_Next:    result = K_ALT_3;       break;
-              case XK_KP_Insert:  result = K_ALT_0;       break;
-              case XK_KP_Delete:  result = K_ALT_DECIMAL; break;
-              case XK_KP_Begin:   result = K_ALT_5;       break;
-              case XK_KP_0:       result = K_ALT_0;       break;
-              case XK_KP_1:       result = K_ALT_1;       break;
-              case XK_KP_2:       result = K_ALT_2;       break;
-              case XK_KP_3:       result = K_ALT_3;       break;
-              case XK_KP_4:       result = K_ALT_4;       break;
-              case XK_KP_5:       result = K_ALT_5;       break;
-              case XK_KP_6:       result = K_ALT_6;       break;
-              case XK_KP_7:       result = K_ALT_7;       break;
-              case XK_KP_8:       result = K_ALT_8;       break;
-              case XK_KP_9:       result = K_ALT_9;       break;
-              case XK_KP_Separator:
-              case XK_KP_Decimal: result = K_ALT_DECIMAL; break;
-              case XK_KP_Enter:   result = K_ALT_NL;      break;
-              case XK_Menu:       result = K_MENU;        break;
-              case XK_Shift_L:
-              case XK_Shift_R:
-              case XK_Control_L:
-              case XK_Control_R:
-              case XK_Alt_L:
-              case XK_Alt_R:
-              case XK_Meta_L:
-              case XK_Meta_R:
-              case XK_Mode_switch:
-              case XK_Caps_Lock:
-              case XK_Num_Lock:
-              case XK_Shift_Lock:
-                getNextChar = TRUE;
-                break;
-              default:
-                if (lookup_count == 1) {
-                  switch (buffer[0]) {
-                    case '0':     result = K_ALT_0;       break;
-                    case '1':     result = K_ALT_1;       break;
-                    case '2':     result = K_ALT_2;       break;
-                    case '3':     result = K_ALT_3;       break;
-                    case '4':     result = K_ALT_4;       break;
-                    case '5':     result = K_ALT_5;       break;
-                    case '6':     result = K_ALT_6;       break;
-                    case '7':     result = K_ALT_7;       break;
-                    case '8':     result = K_ALT_8;       break;
-                    case '9':     result = K_ALT_9;       break;
-                    case 'a':     result = K_ALT_A;       break;
-                    case 'b':     result = K_ALT_B;       break;
-                    case 'c':     result = K_ALT_C;       break;
-                    case 'd':     result = K_ALT_D;       break;
-                    case 'e':     result = K_ALT_E;       break;
-                    case 'f':     result = K_ALT_F;       break;
-                    case 'g':     result = K_ALT_G;       break;
-                    case 'h':     result = K_ALT_H;       break;
-                    case 'i':     result = K_ALT_I;       break;
-                    case 'j':     result = K_ALT_J;       break;
-                    case 'k':     result = K_ALT_K;       break;
-                    case 'l':     result = K_ALT_L;       break;
-                    case 'm':     result = K_ALT_M;       break;
-                    case 'n':     result = K_ALT_N;       break;
-                    case 'o':     result = K_ALT_O;       break;
-                    case 'p':     result = K_ALT_P;       break;
-                    case 'q':     result = K_ALT_Q;       break;
-                    case 'r':     result = K_ALT_R;       break;
-                    case 's':     result = K_ALT_S;       break;
-                    case 't':     result = K_ALT_T;       break;
-                    case 'u':     result = K_ALT_U;       break;
-                    case 'v':     result = K_ALT_V;       break;
-                    case 'w':     result = K_ALT_W;       break;
-                    case 'x':     result = K_ALT_X;       break;
-                    case 'y':     result = K_ALT_Y;       break;
-                    case 'z':     result = K_ALT_Z;       break;
-                    default:
-                      result = buffer[0];
-                      break;
-                  } /* switch */
-                } else {
-                  result = mapKeysymToUnicode(currentKey);
-                } /* if */
-                break;
-            } /* switch */
-          } else if (currentEvent.xkey.state & Mod2Mask) { /* Num Lock modifier */
-            /* printf("Mod2Mask\n"); */
-            switch (currentKey) {
-              case XK_Return:     result = K_NL;          break;
-              case XK_BackSpace:  result = K_BS;          break;
-              case XK_Tab:        result = K_TAB;         break;
-              case XK_Linefeed:   result = K_NL;          break;
-              case XK_Escape:     result = K_ESC;         break;
-              case XK_F1:         result = K_F1;          break;
-              case XK_F2:         result = K_F2;          break;
-              case XK_F3:         result = K_F3;          break;
-              case XK_F4:         result = K_F4;          break;
-              case XK_F5:         result = K_F5;          break;
-              case XK_F6:         result = K_F6;          break;
-              case XK_F7:         result = K_F7;          break;
-              case XK_F8:         result = K_F8;          break;
-              case XK_F9:         result = K_F9;          break;
-              case XK_F10:        result = K_F10;         break;
-              case XK_F11:        result = K_F11;         break;
-              case XK_F12:        result = K_F12;         break;
-              case XK_Left:       result = K_LEFT;        break;
-              case XK_Right:      result = K_RIGHT;       break;
-              case XK_Up:         result = K_UP;          break;
-              case XK_Down:       result = K_DOWN;        break;
-              case XK_Home:       result = K_HOME;        break;
-              case XK_End:        result = K_END;         break;
-              case XK_Prior:      result = K_PGUP;        break;
-              case XK_Next:       result = K_PGDN;        break;
-              case XK_Insert:     result = K_INS;         break;
-              case XK_Delete:     result = K_DEL;         break;
-              case XK_KP_Enter:   result = K_NL;          break;
-              case XK_Menu:       result = K_MENU;        break;
-              case XK_Shift_L:
-              case XK_Shift_R:
-              case XK_Control_L:
-              case XK_Control_R:
-              case XK_Alt_L:
-              case XK_Alt_R:
-              case XK_Meta_L:
-              case XK_Meta_R:
-              case XK_Mode_switch:
-              case XK_Caps_Lock:
-              case XK_Num_Lock:
-              case XK_Shift_Lock:
-              case XK_ISO_Level3_Shift:
-                getNextChar = TRUE;
-                break;
-              default:
-                if (lookup_count == 1) {
-                  result = buffer[0];
-                } else {
-                  result = mapKeysymToUnicode(currentKey);
-                } /* if */
-                break;
-            } /* switch */
-          } else {
-            /* printf("no mask\n"); */
-            switch (currentKey) {
-              case XK_Return:     result = K_NL;          break;
-              case XK_BackSpace:  result = K_BS;          break;
-              case XK_Tab:        result = K_TAB;         break;
-              case XK_Linefeed:   result = K_NL;          break;
-              case XK_Escape:     result = K_ESC;         break;
-              case XK_F1:         result = K_F1;          break;
-              case XK_F2:         result = K_F2;          break;
-              case XK_F3:         result = K_F3;          break;
-              case XK_F4:         result = K_F4;          break;
-              case XK_F5:         result = K_F5;          break;
-              case XK_F6:         result = K_F6;          break;
-              case XK_F7:         result = K_F7;          break;
-              case XK_F8:         result = K_F8;          break;
-              case XK_F9:         result = K_F9;          break;
-              case XK_F10:        result = K_F10;         break;
-              case XK_F11:        result = K_F11;         break;
-              case XK_F12:        result = K_F12;         break;
-              case XK_Left:       result = K_LEFT;        break;
-              case XK_Right:      result = K_RIGHT;       break;
-              case XK_Up:         result = K_UP;          break;
-              case XK_Down:       result = K_DOWN;        break;
-              case XK_Home:       result = K_HOME;        break;
-              case XK_End:        result = K_END;         break;
-              case XK_Prior:      result = K_PGUP;        break;
-              case XK_Next:       result = K_PGDN;        break;
-              case XK_Insert:     result = K_INS;         break;
-              case XK_Delete:     result = K_DEL;         break;
-              case XK_KP_Left:    result = K_LEFT;        break;
-              case XK_KP_Right:   result = K_RIGHT;       break;
-              case XK_KP_Up:      result = K_UP;          break;
-              case XK_KP_Down:    result = K_DOWN;        break;
-              case XK_KP_Home:    result = K_HOME;        break;
-              case XK_KP_End:     result = K_END;         break;
-              case XK_KP_Prior:   result = K_PGUP;        break;
-              case XK_KP_Next:    result = K_PGDN;        break;
-              case XK_KP_Insert:  result = K_INS;         break;
-              case XK_KP_Delete:  result = K_DEL;         break;
-              case XK_KP_Begin:   result = K_PAD_CENTER;  break;
-              case XK_KP_4:       result = K_LEFT;        break;
-              case XK_KP_6:       result = K_RIGHT;       break;
-              case XK_KP_8:       result = K_UP;          break;
-              case XK_KP_2:       result = K_DOWN;        break;
-              case XK_KP_7:       result = K_HOME;        break;
-              case XK_KP_1:       result = K_END;         break;
-              case XK_KP_9:       result = K_PGUP;        break;
-              case XK_KP_3:       result = K_PGDN;        break;
-              case XK_KP_0:       result = K_INS;         break;
-              case XK_KP_5:       result = K_UNDEF;       break;
-              case XK_KP_Enter:   result = K_NL;          break;
-              case XK_KP_Decimal: result = K_DEL;         break;
-              case XK_Menu:       result = K_MENU;        break;
-              case XK_Shift_L:
-              case XK_Shift_R:
-              case XK_Control_L:
-              case XK_Control_R:
-              case XK_Alt_L:
-              case XK_Alt_R:
-              case XK_Meta_L:
-              case XK_Meta_R:
-              case XK_Mode_switch:
-              case XK_Caps_Lock:
-              case XK_Num_Lock:
-              case XK_Shift_Lock:
-              case XK_ISO_Level3_Shift:
-                getNextChar = TRUE;
-                break;
-              default:
-                if (lookup_count == 1) {
-                  result = buffer[0];
-                  /* if (result != currentKey) {
-                    printf("^ %04lx %04lx\n", currentKey, result);
-                  } ** if */
-                } else {
-                  result = mapKeysymToUnicode(currentKey);
-                } /* if */
-                break;
-            } /* switch */
-          } /* if */
-          break;
-        default:
-          traceEvent(printf("Other Event %d\n", currentEvent.type););
-          getNextChar = TRUE;
-          break;
-      } /* switch */
-    } while (getNextChar);
-    logFunction(printf("gkbGetc --> key: \"%s\" %ld %lx %d\n",
-                       buffer, (long) currentKey, (long) currentKey, result););
-    return result;
-  } /* gkbGetc */
-
-
-
-boolType processEvents (void)
-
-  {
-    KeySym currentKey;
-    int num_events;
-    int lookup_count;
-    char buffer[21];
-    boolType result;
-
-  /* processEvents */
-    logFunction(printf("processEvents\n"););
-    result = FALSE;
-    if (!eventPresent) {
-      num_events = XEventsQueued(mydisplay, QueuedAfterReading);
-      while (num_events != 0) {
-        XNextEvent(mydisplay, &currentEvent);
-        switch(currentEvent.type) {
-          case Expose:
-            if (num_events == 1) {
-              num_events = XEventsQueued(mydisplay, QueuedAfterReading);
-            } else {
-              num_events--;
-            } /* if */
-            handleExpose(&currentEvent.xexpose);
-            result = TRUE;
-            break;
-#ifdef OUT_OF_ORDER
-          case ConfigureNotify:
-            if (num_events == 1) {
-              num_events = XEventsQueued(mydisplay, QueuedAfterReading);
-            } else {
-              num_events--;
-            } /* if */
-            configure(&currentEvent.xconfigure);
-            result = TRUE;
-            break;
-          case MapNotify:
-#endif
-#if TRACE_REPARENT_NOTIFY
-          case ReparentNotify:
-            printf("processEvents: Reparent\n");
-            if (num_events == 1) {
-              num_events = XEventsQueued(mydisplay, QueuedAfterReading);
-            } else {
-              num_events--;
-            } /* if */
-            break;
-          case ConfigureNotify:
-            printf("processEvents: Configure %lx %d, %d\n",
-                   currentEvent.xconfigure.window,
-                   currentEvent.xconfigure.width, currentEvent.xconfigure.height);
-            if (num_events == 1) {
-              num_events = XEventsQueued(mydisplay, QueuedAfterReading);
-            } else {
-              num_events--;
-            } /* if */
-            break;
-#endif
-#ifdef ALLOW_REPARENT_NOTIFY
-          case ReparentNotify:
-          case ConfigureNotify:
-#endif
-          case GraphicsExpose:
-          case NoExpose:
-            if (num_events == 1) {
-              num_events = XEventsQueued(mydisplay, QueuedAfterReading);
-            } else {
-              num_events--;
-            } /* if */
-            break;
-          case KeyPress:
-            lookup_count = XLookupString(&currentEvent.xkey, buffer,
-                                         20, &currentKey, 0);
-            buffer[lookup_count] = '\0';
-            switch (currentKey) {
-              case XK_Shift_L:
-              case XK_Shift_R:
-              case XK_Control_L:
-              case XK_Control_R:
-              case XK_Alt_L:
-              case XK_Alt_R:
-              case XK_Meta_L:
-              case XK_Meta_R:
-              case XK_Mode_switch:
-              case XK_Caps_Lock:
-              case XK_Num_Lock:
-              case XK_Shift_Lock:
-              case XK_ISO_Level3_Shift:
-                if (num_events == 1) {
-                  num_events = XEventsQueued(mydisplay, QueuedAfterReading);
-                } else {
-                  num_events--;
-                } /* if */
-                break;
-              default:
-                /* printf("currentKey=%d\n", currentKey); */
-                num_events = 0;
-                eventPresent = TRUE;
-                break;
-            } /* switch */
-            break;
-          default:
-            /* printf("currentEvent.type=%d\n", currentEvent.type); */
-            num_events = 0;
-            eventPresent = TRUE;
-            break;
-        } /* switch */
-      } /* while */
-    } /* if */
-    logFunction(printf("processEvents --> %d\n", result););
-    return result;
-  } /* processEvents */
-
-
-
-boolType gkbKeyPressed (void)
-
-  { /* gkbKeyPressed */
-    logFunction(printf("gkbKeyPressed\n"););
-    flushBeforeRead();
-    processEvents();
-    logFunction(printf("gkbKeyPressed --> %d\n", eventPresent););
-    return eventPresent;
-  } /* gkbKeyPressed */
-
-
-
 static boolType mouseButtonPressed (unsigned int button_mask)
 
   {
@@ -1774,19 +1114,859 @@ static boolType keyboardButtonPressed (KeySym sym)
 
 
 
+static void setupModState (void)
+
+  { /* setupModState */
+    modState.leftShift    = keyboardButtonPressed(XK_Shift_L);
+    modState.rightShift   = keyboardButtonPressed(XK_Shift_R);
+    modState.leftControl  = keyboardButtonPressed(XK_Control_L);
+    modState.rightControl = keyboardButtonPressed(XK_Control_R);
+    modState.leftAlt      = keyboardButtonPressed(XK_Alt_L);
+    modState.rightAlt     = keyboardButtonPressed(XK_Alt_R) ||
+                            keyboardButtonPressed(XK_ISO_Level3_Shift);
+    modState.shiftLock    = keyboardButtonPressed(XK_Shift_Lock) ||
+                            keyboardButtonPressed(XK_Caps_Lock);
+    modState.numLock      = keyboardButtonPressed(XK_Num_Lock);
+    modState.scrollLock   = keyboardButtonPressed(XK_Scroll_Lock);
+  } /* setupModState */
+
+
+
+charType gkbGetc (void)
+
+  {
+    KeySym currentKey;
+    int lookup_count;
+    unsigned char buffer[21];
+    boolType getNextChar;
+    charType result;
+
+  /* gkbGetc */
+    logFunction(printf("gkbGetc\n"););
+    do {
+      getNextChar = FALSE;
+      flushBeforeRead();
+      result = K_NONE;
+      if (eventPresent) {
+        eventPresent = FALSE;
+      } else {
+        XNextEvent(mydisplay, &currentEvent);
+      } /* if */
+      switch(currentEvent.type) {
+        case Expose:
+          traceEvent(printf("Expose\n"););
+          handleExpose(&currentEvent.xexpose);
+          getNextChar = TRUE;
+          break;
+
+#ifdef OUT_OF_ORDER
+        case ConfigureNotify:
+          traceEvent(printf("ConfigureNotify"););
+          configure(&currentEvent.xconfigure);
+          getNextChar = TRUE;
+          break;
+        case MapNotify:
+#endif
+
+#if TRACE_REPARENT_NOTIFY
+        case ReparentNotify:
+          printf("gkbGetc: Reparent\n");
+          getNextChar = TRUE;
+          break;
+
+        case ConfigureNotify:
+          printf("gkbGetc: Configure %lx %d, %d\n",
+                 currentEvent.xconfigure.window,
+                 currentEvent.xconfigure.width, currentEvent.xconfigure.height);
+          getNextChar = TRUE;
+          break;
+#endif
+#ifdef ALLOW_REPARENT_NOTIFY
+        case ReparentNotify:
+        case ConfigureNotify:
+#endif
+        case GraphicsExpose:
+        case NoExpose:
+          traceEvent(printf("NoExpose\n"););
+          getNextChar = TRUE;
+          break;
+
+        case MappingNotify:
+          traceEvent(printf("MappingNotify\n"););
+          XRefreshKeyboardMapping(&currentEvent.xmapping);
+          break;
+
+#ifdef OUT_OF_ORDER
+        case DestroyNotify:
+          traceEvent(printf("DestroyNotify\n"););
+          exit(1);
+          break;
+#endif
+
+        case FocusIn:
+          traceEvent(printf("FocusIn\n"););
+          hasFocus = TRUE;
+          setupModState();
+          getNextChar = TRUE;
+          break;
+
+        case FocusOut:
+          traceEvent(printf("FocusOut\n"););
+          hasFocus = FALSE;
+          getNextChar = TRUE;
+          break;
+
+        case ClientMessage:
+          traceEvent(printf("ClientMessage\n"););
+          if ((Atom) currentEvent.xclient.data.l[0] == wm_delete_window) {
+            /* printf("do exit\n"); */
+            exit(1);
+          } /* if */
+          break;
+
+        case ButtonPress:
+          traceEvent(printf("ButtonPress (%d, %d, %u %lu)\n",
+                            currentEvent.xbutton.x, currentEvent.xbutton.y,
+                            currentEvent.xbutton.button,
+                            (unsigned long) currentEvent.xbutton.window););
+          button_x = currentEvent.xbutton.x;
+          button_y = currentEvent.xbutton.y;
+          button_window = currentEvent.xbutton.window;
+          if (currentEvent.xbutton.button >= 1 && currentEvent.xbutton.button <= 5) {
+            result = currentEvent.xbutton.button + K_MOUSE1 - 1;
+          } else if (currentEvent.xbutton.button == 8) {
+            result = K_MOUSE_BACK;
+          } else if (currentEvent.xbutton.button == 9) {
+            result = K_MOUSE_FWD;
+          } else {
+            result = K_UNDEF;
+          } /* if */
+          if (result != K_UNDEF) {
+            if (currentEvent.xkey.state & ShiftMask) {
+              result += K_SFT_MOUSE1 - K_MOUSE1;
+            } else if (currentEvent.xkey.state & ControlMask) {
+              result += K_CTL_MOUSE1 - K_MOUSE1;
+            } else if (currentEvent.xkey.state & Mod1Mask || /* Left ALT modifier */
+                       currentEvent.xkey.state & Mod5Mask) { /* ALT GR modifier */
+              result += K_ALT_MOUSE1 - K_MOUSE1;
+            } /* if */
+          } /* if */
+          break;
+
+        case KeyPress:
+          lookup_count = XLookupString(&currentEvent.xkey, (cstriType) buffer,
+                                       20, &currentKey, 0);
+          buffer[lookup_count] = '\0';
+          traceEvent(printf("KeyPress key.state: %x, currentKey %lx\n",
+                            currentEvent.xkey.state, currentKey););
+          if (currentEvent.xkey.state & ShiftMask) {
+            /* printf("ShiftMask\n"); */
+            switch (currentKey) {
+              case XK_Return:      result = K_SFT_NL;     break;
+              case XK_BackSpace:   result = K_SFT_BS;     break;
+              case XK_ISO_Left_Tab:
+              case XK_Tab:         result = K_BACKTAB;    break;
+              case XK_Linefeed:    result = K_SFT_NL;     break;
+              case XK_Escape:      result = K_SFT_ESC;    break;
+              case XK_F1:          result = K_SFT_F1;     break;
+              case XK_F2:          result = K_SFT_F2;     break;
+              case XK_F3:          result = K_SFT_F3;     break;
+              case XK_F4:          result = K_SFT_F4;     break;
+              case XK_F5:          result = K_SFT_F5;     break;
+              case XK_F6:          result = K_SFT_F6;     break;
+              case XK_F7:          result = K_SFT_F7;     break;
+              case XK_F8:          result = K_SFT_F8;     break;
+              case XK_F9:          result = K_SFT_F9;     break;
+              case XK_F10:         result = K_SFT_F10;    break;
+              case XK_F11:         result = K_SFT_F11;    break;
+              case XK_F12:         result = K_SFT_F12;    break;
+              case XK_Left:        result = K_LEFT;       break;
+              case XK_Right:       result = K_RIGHT;      break;
+              case XK_Up:          result = K_UP;         break;
+              case XK_Down:        result = K_DOWN;       break;
+              case XK_Home:        result = K_HOME;       break;
+              case XK_End:         result = K_END;        break;
+              case XK_Prior:       result = K_PGUP;       break;
+              case XK_Next:        result = K_PGDN;       break;
+              case XK_Insert:      result = K_INS;        break;
+              case XK_Delete:      result = K_DEL;        break;
+              case XK_KP_Left:     result = K_LEFT;       break;
+              case XK_KP_Right:    result = K_RIGHT;      break;
+              case XK_KP_Up:       result = K_UP;         break;
+              case XK_KP_Down:     result = K_DOWN;       break;
+              case XK_KP_Home:     result = K_HOME;       break;
+              case XK_KP_End:      result = K_END;        break;
+              case XK_KP_Prior:    result = K_PGUP;       break;
+              case XK_KP_Next:     result = K_PGDN;       break;
+              case XK_KP_Insert:   result = K_INS;        break;
+              case XK_KP_Delete:   result = K_DEL;        break;
+              case XK_KP_Begin:    result = K_PAD_CENTER; break;
+              case XK_KP_Enter:    result = K_SFT_NL;     break;
+              case XK_KP_Decimal:  result = K_DEL;        break;
+              case XK_KP_0:        result = '0';          break;
+              case XK_KP_1:        result = '1';          break;
+              case XK_KP_2:        result = '2';          break;
+              case XK_KP_3:        result = '3';          break;
+              case XK_KP_4:        result = '4';          break;
+              case XK_KP_5:        result = '5';          break;
+              case XK_KP_6:        result = '6';          break;
+              case XK_KP_7:        result = '7';          break;
+              case XK_KP_8:        result = '8';          break;
+              case XK_KP_9:        result = '9';          break;
+              case XK_Menu:        result = K_SFT_MENU;   break;
+              case XK_Print:       result = K_SFT_PRINT;  break;
+              case XK_Pause:       result = K_SFT_PAUSE;  break;
+              case XK_Shift_L:     modState.leftShift    = TRUE; getNextChar = TRUE; break;
+              case XK_Shift_R:     modState.rightShift   = TRUE; getNextChar = TRUE; break;
+              case XK_Control_L:   modState.leftControl  = TRUE; getNextChar = TRUE; break;
+              case XK_Control_R:   modState.rightControl = TRUE; getNextChar = TRUE; break;
+              case XK_Alt_L:       modState.leftAlt      = TRUE; getNextChar = TRUE; break;
+              case XK_Alt_R:
+              case XK_ISO_Level3_Shift:
+                                   modState.rightAlt     = TRUE; getNextChar = TRUE; break;
+              case XK_Shift_Lock:
+              case XK_Caps_Lock:   modState.shiftLock    = TRUE; getNextChar = TRUE; break;
+              case XK_Num_Lock:    modState.numLock      = TRUE; getNextChar = TRUE; break;
+              case XK_Scroll_Lock: modState.scrollLock   = TRUE; getNextChar = TRUE; break;
+              case XK_Meta_L:
+              case XK_Meta_R:
+              case XK_Mode_switch:
+                getNextChar = TRUE;
+                break;
+              default:
+                if (lookup_count == 1) {
+                  result = buffer[0];
+                } else {
+                  result = mapKeysymToUnicode(currentKey);
+                } /* if */
+                break;
+            } /* switch */
+          } else if (currentEvent.xkey.state & ControlMask) {
+            /* printf("ControlMask\n"); */
+            switch (currentKey) {
+              case XK_Return:       result = K_CTL_NL;         break;
+              case XK_BackSpace:    result = K_CTL_BS;         break;
+              case XK_Tab:          result = K_CTL_TAB;        break;
+              case XK_Linefeed:     result = K_CTL_NL;         break;
+              case XK_Escape:       result = K_CTL_ESC;        break;
+              case XK_F1:           result = K_CTL_F1;         break;
+              case XK_F2:           result = K_CTL_F2;         break;
+              case XK_F3:           result = K_CTL_F3;         break;
+              case XK_F4:           result = K_CTL_F4;         break;
+              case XK_F5:           result = K_CTL_F5;         break;
+              case XK_F6:           result = K_CTL_F6;         break;
+              case XK_F7:           result = K_CTL_F7;         break;
+              case XK_F8:           result = K_CTL_F8;         break;
+              case XK_F9:           result = K_CTL_F9;         break;
+              case XK_F10:          result = K_CTL_F10;        break;
+              case XK_F11:          result = K_CTL_F11;        break;
+              case XK_F12:          result = K_CTL_F12;        break;
+              case XK_Left:         result = K_CTL_LEFT;       break;
+              case XK_Right:        result = K_CTL_RIGHT;      break;
+              case XK_Up:           result = K_CTL_UP;         break;
+              case XK_Down:         result = K_CTL_DOWN;       break;
+              case XK_Home:         result = K_CTL_HOME;       break;
+              case XK_End:          result = K_CTL_END;        break;
+              case XK_Prior:        result = K_CTL_PGUP;       break;
+              case XK_Next:         result = K_CTL_PGDN;       break;
+              case XK_Insert:       result = K_CTL_INS;        break;
+              case XK_Delete:       result = K_CTL_DEL;        break;
+              case XK_KP_Left:      result = K_CTL_LEFT;       break;
+              case XK_KP_Right:     result = K_CTL_RIGHT;      break;
+              case XK_KP_Up:        result = K_CTL_UP;         break;
+              case XK_KP_Down:      result = K_CTL_DOWN;       break;
+              case XK_KP_Home:      result = K_CTL_HOME;       break;
+              case XK_KP_End:       result = K_CTL_END;        break;
+              case XK_KP_Prior:     result = K_CTL_PGUP;       break;
+              case XK_KP_Next:      result = K_CTL_PGDN;       break;
+              case XK_KP_Insert:    result = K_CTL_INS;        break;
+              case XK_KP_Delete:    result = K_CTL_DEL;        break;
+              case XK_KP_Begin:     result = K_CTL_PAD_CENTER; break;
+              case XK_KP_4:         result = K_CTL_LEFT;       break;
+              case XK_KP_6:         result = K_CTL_RIGHT;      break;
+              case XK_KP_8:         result = K_CTL_UP;         break;
+              case XK_KP_2:         result = K_CTL_DOWN;       break;
+              case XK_KP_7:         result = K_CTL_HOME;       break;
+              case XK_KP_1:         result = K_CTL_END;        break;
+              case XK_KP_9:         result = K_CTL_PGUP;       break;
+              case XK_KP_3:         result = K_CTL_PGDN;       break;
+              case XK_KP_0:         result = K_CTL_INS;        break;
+              case XK_KP_5:         result = K_CTL_PAD_CENTER; break;
+              case XK_KP_Separator:
+              case XK_KP_Decimal:   result = K_CTL_DEL;        break;
+              case XK_KP_Enter:     result = K_CTL_NL;         break;
+              case XK_0:            result = '0';              break;
+              case XK_1:            result = '1';              break;
+              case XK_2:            result = '2';              break;
+              case XK_3:            result = '3';              break;
+              case XK_4:            result = '4';              break;
+              case XK_5:            result = '5';              break;
+              case XK_6:            result = '6';              break;
+              case XK_7:            result = '7';              break;
+              case XK_8:            result = '8';              break;
+              case XK_9:            result = '9';              break;
+              case XK_Menu:         result = K_CTL_MENU;       break;
+              case XK_Print:        result = K_CTL_PRINT;      break;
+              case XK_Pause:        result = K_CTL_PAUSE;      break;
+              case XK_Shift_L:      modState.leftShift    = TRUE; getNextChar = TRUE; break;
+              case XK_Shift_R:      modState.rightShift   = TRUE; getNextChar = TRUE; break;
+              case XK_Control_L:    modState.leftControl  = TRUE; getNextChar = TRUE; break;
+              case XK_Control_R:    modState.rightControl = TRUE; getNextChar = TRUE; break;
+              case XK_Alt_L:        modState.leftAlt      = TRUE; getNextChar = TRUE; break;
+              case XK_Alt_R:
+              case XK_ISO_Level3_Shift:
+                                    modState.rightAlt     = TRUE; getNextChar = TRUE; break;
+              case XK_Shift_Lock:
+              case XK_Caps_Lock:    modState.shiftLock    = TRUE; getNextChar = TRUE; break;
+              case XK_Num_Lock:     modState.numLock      = TRUE; getNextChar = TRUE; break;
+              case XK_Scroll_Lock:  modState.scrollLock   = TRUE; getNextChar = TRUE; break;
+              case XK_Meta_L:
+              case XK_Meta_R:
+              case XK_Mode_switch:
+                getNextChar = TRUE;
+                break;
+              default:
+                if (lookup_count == 1) {
+                  result = buffer[0];
+                } else {
+                  result = mapKeysymToUnicode(currentKey);
+                } /* if */
+                break;
+            } /* switch */
+          } else if (currentEvent.xkey.state & Mod1Mask || /* Left ALT modifier */
+                     currentEvent.xkey.state & Mod5Mask) { /* ALT GR modifier */
+            /* printf("Mod1Mask or Mod5Mask\n"); */
+            switch (currentKey) {
+              case XK_Return:       result = K_ALT_NL;         break;
+              case XK_BackSpace:    result = K_ALT_BS;         break;
+              case XK_Tab:          result = K_ALT_TAB;        break;
+              case XK_Linefeed:     result = K_ALT_NL;         break;
+              case XK_Escape:       result = K_ALT_ESC;        break;
+              case XK_F1:           result = K_ALT_F1;         break;
+              case XK_F2:           result = K_ALT_F2;         break;
+              case XK_F3:           result = K_ALT_F3;         break;
+              case XK_F4:           result = K_ALT_F4;         break;
+              case XK_F5:           result = K_ALT_F5;         break;
+              case XK_F6:           result = K_ALT_F6;         break;
+              case XK_F7:           result = K_ALT_F7;         break;
+              case XK_F8:           result = K_ALT_F8;         break;
+              case XK_F9:           result = K_ALT_F9;         break;
+              case XK_F10:          result = K_ALT_F10;        break;
+              case XK_F11:          result = K_ALT_F11;        break;
+              case XK_F12:          result = K_ALT_F12;        break;
+              case XK_Left:         result = K_ALT_LEFT;       break;
+              case XK_Right:        result = K_ALT_RIGHT;      break;
+              case XK_Up:           result = K_ALT_UP;         break;
+              case XK_Down:         result = K_ALT_DOWN;       break;
+              case XK_Home:         result = K_ALT_HOME;       break;
+              case XK_End:          result = K_ALT_END;        break;
+              case XK_Prior:        result = K_ALT_PGUP;       break;
+              case XK_Next:         result = K_ALT_PGDN;       break;
+              case XK_Insert:       result = K_ALT_INS;        break;
+              case XK_Delete:       result = K_ALT_DEL;        break;
+              case XK_KP_Left:      result = K_ALT_LEFT;       break;
+              case XK_KP_Right:     result = K_ALT_RIGHT;      break;
+              case XK_KP_Up:        result = K_ALT_UP;         break;
+              case XK_KP_Down:      result = K_ALT_DOWN;       break;
+              case XK_KP_Home:      result = K_ALT_HOME;       break;
+              case XK_KP_End:       result = K_ALT_END;        break;
+              case XK_KP_Prior:     result = K_ALT_PGUP;       break;
+              case XK_KP_Next:      result = K_ALT_PGDN;       break;
+              case XK_KP_Insert:    result = K_ALT_INS;        break;
+              case XK_KP_Delete:    result = K_ALT_DEL;        break;
+              case XK_KP_Begin:     result = K_ALT_PAD_CENTER; break;
+              case XK_KP_4:         result = K_ALT_LEFT;       break;
+              case XK_KP_6:         result = K_ALT_RIGHT;      break;
+              case XK_KP_8:         result = K_ALT_UP;         break;
+              case XK_KP_2:         result = K_ALT_DOWN;       break;
+              case XK_KP_7:         result = K_ALT_HOME;       break;
+              case XK_KP_1:         result = K_ALT_END;        break;
+              case XK_KP_9:         result = K_ALT_PGUP;       break;
+              case XK_KP_3:         result = K_ALT_PGDN;       break;
+              case XK_KP_0:         result = K_ALT_INS;        break;
+              case XK_KP_5:         result = K_ALT_PAD_CENTER; break;
+              case XK_KP_Separator:
+              case XK_KP_Decimal:   result = K_ALT_DEL;        break;
+              case XK_KP_Enter:     result = K_ALT_NL;         break;
+              case XK_Menu:         result = K_ALT_MENU;       break;
+              case XK_Print:        result = K_ALT_PRINT;      break;
+              case XK_Pause:        result = K_ALT_PAUSE;      break;
+              case XK_Shift_L:      modState.leftShift    = TRUE; getNextChar = TRUE; break;
+              case XK_Shift_R:      modState.rightShift   = TRUE; getNextChar = TRUE; break;
+              case XK_Control_L:    modState.leftControl  = TRUE; getNextChar = TRUE; break;
+              case XK_Control_R:    modState.rightControl = TRUE; getNextChar = TRUE; break;
+              case XK_Alt_L:        modState.leftAlt      = TRUE; getNextChar = TRUE; break;
+              case XK_Alt_R:
+              case XK_ISO_Level3_Shift:
+                                    modState.rightAlt     = TRUE; getNextChar = TRUE; break;
+              case XK_Shift_Lock:
+              case XK_Caps_Lock:    modState.shiftLock    = TRUE; getNextChar = TRUE; break;
+              case XK_Num_Lock:     modState.numLock      = TRUE; getNextChar = TRUE; break;
+              case XK_Scroll_Lock:  modState.scrollLock   = TRUE; getNextChar = TRUE; break;
+              case XK_Meta_L:
+              case XK_Meta_R:
+              case XK_Mode_switch:
+                getNextChar = TRUE;
+                break;
+              default:
+                if (lookup_count == 1) {
+                  switch (buffer[0]) {
+                    case '0': result = K_ALT_0; break;
+                    case '1': result = K_ALT_1; break;
+                    case '2': result = K_ALT_2; break;
+                    case '3': result = K_ALT_3; break;
+                    case '4': result = K_ALT_4; break;
+                    case '5': result = K_ALT_5; break;
+                    case '6': result = K_ALT_6; break;
+                    case '7': result = K_ALT_7; break;
+                    case '8': result = K_ALT_8; break;
+                    case '9': result = K_ALT_9; break;
+                    case 'a': result = K_ALT_A; break;
+                    case 'b': result = K_ALT_B; break;
+                    case 'c': result = K_ALT_C; break;
+                    case 'd': result = K_ALT_D; break;
+                    case 'e': result = K_ALT_E; break;
+                    case 'f': result = K_ALT_F; break;
+                    case 'g': result = K_ALT_G; break;
+                    case 'h': result = K_ALT_H; break;
+                    case 'i': result = K_ALT_I; break;
+                    case 'j': result = K_ALT_J; break;
+                    case 'k': result = K_ALT_K; break;
+                    case 'l': result = K_ALT_L; break;
+                    case 'm': result = K_ALT_M; break;
+                    case 'n': result = K_ALT_N; break;
+                    case 'o': result = K_ALT_O; break;
+                    case 'p': result = K_ALT_P; break;
+                    case 'q': result = K_ALT_Q; break;
+                    case 'r': result = K_ALT_R; break;
+                    case 's': result = K_ALT_S; break;
+                    case 't': result = K_ALT_T; break;
+                    case 'u': result = K_ALT_U; break;
+                    case 'v': result = K_ALT_V; break;
+                    case 'w': result = K_ALT_W; break;
+                    case 'x': result = K_ALT_X; break;
+                    case 'y': result = K_ALT_Y; break;
+                    case 'z': result = K_ALT_Z; break;
+                    default:
+                      result = buffer[0];
+                      break;
+                  } /* switch */
+                } else {
+                  result = mapKeysymToUnicode(currentKey);
+                } /* if */
+                break;
+            } /* switch */
+          } else if (currentEvent.xkey.state & Mod2Mask) { /* Num Lock modifier */
+            /* printf("Mod2Mask\n"); */
+            switch (currentKey) {
+              case XK_Return:      result = K_NL;    break;
+              case XK_BackSpace:   result = K_BS;    break;
+              case XK_Tab:         result = K_TAB;   break;
+              case XK_Linefeed:    result = K_NL;    break;
+              case XK_Escape:      result = K_ESC;   break;
+              case XK_F1:          result = K_F1;    break;
+              case XK_F2:          result = K_F2;    break;
+              case XK_F3:          result = K_F3;    break;
+              case XK_F4:          result = K_F4;    break;
+              case XK_F5:          result = K_F5;    break;
+              case XK_F6:          result = K_F6;    break;
+              case XK_F7:          result = K_F7;    break;
+              case XK_F8:          result = K_F8;    break;
+              case XK_F9:          result = K_F9;    break;
+              case XK_F10:         result = K_F10;   break;
+              case XK_F11:         result = K_F11;   break;
+              case XK_F12:         result = K_F12;   break;
+              case XK_Left:        result = K_LEFT;  break;
+              case XK_Right:       result = K_RIGHT; break;
+              case XK_Up:          result = K_UP;    break;
+              case XK_Down:        result = K_DOWN;  break;
+              case XK_Home:        result = K_HOME;  break;
+              case XK_End:         result = K_END;   break;
+              case XK_Prior:       result = K_PGUP;  break;
+              case XK_Next:        result = K_PGDN;  break;
+              case XK_Insert:      result = K_INS;   break;
+              case XK_Delete:      result = K_DEL;   break;
+              case XK_KP_Enter:    result = K_NL;    break;
+              case XK_Menu:        result = K_MENU;  break;
+              case XK_Print:       result = K_PRINT; break;
+              case XK_Pause:       result = K_PAUSE; break;
+              case XK_Shift_L:     modState.leftShift    = TRUE; getNextChar = TRUE; break;
+              case XK_Shift_R:     modState.rightShift   = TRUE; getNextChar = TRUE; break;
+              case XK_Control_L:   modState.leftControl  = TRUE; getNextChar = TRUE; break;
+              case XK_Control_R:   modState.rightControl = TRUE; getNextChar = TRUE; break;
+              case XK_Alt_L:       modState.leftAlt      = TRUE; getNextChar = TRUE; break;
+              case XK_Alt_R:
+              case XK_ISO_Level3_Shift:
+                                   modState.rightAlt     = TRUE; getNextChar = TRUE; break;
+              case XK_Shift_Lock:
+              case XK_Caps_Lock:   modState.shiftLock    = TRUE; getNextChar = TRUE; break;
+              case XK_Num_Lock:    modState.numLock      = TRUE; getNextChar = TRUE; break;
+              case XK_Scroll_Lock: modState.scrollLock   = TRUE; getNextChar = TRUE; break;
+              case XK_Meta_L:
+              case XK_Meta_R:
+              case XK_Mode_switch:
+                getNextChar = TRUE;
+                break;
+              default:
+                if (lookup_count == 1) {
+                  result = buffer[0];
+                } else {
+                  result = mapKeysymToUnicode(currentKey);
+                } /* if */
+                break;
+            } /* switch */
+          } else {
+            /* printf("no mask\n"); */
+            switch (currentKey) {
+              case XK_Return:      result = K_NL;         break;
+              case XK_BackSpace:   result = K_BS;         break;
+              case XK_Tab:         result = K_TAB;        break;
+              case XK_Linefeed:    result = K_NL;         break;
+              case XK_Escape:      result = K_ESC;        break;
+              case XK_F1:          result = K_F1;         break;
+              case XK_F2:          result = K_F2;         break;
+              case XK_F3:          result = K_F3;         break;
+              case XK_F4:          result = K_F4;         break;
+              case XK_F5:          result = K_F5;         break;
+              case XK_F6:          result = K_F6;         break;
+              case XK_F7:          result = K_F7;         break;
+              case XK_F8:          result = K_F8;         break;
+              case XK_F9:          result = K_F9;         break;
+              case XK_F10:         result = K_F10;        break;
+              case XK_F11:         result = K_F11;        break;
+              case XK_F12:         result = K_F12;        break;
+              case XK_Left:        result = K_LEFT;       break;
+              case XK_Right:       result = K_RIGHT;      break;
+              case XK_Up:          result = K_UP;         break;
+              case XK_Down:        result = K_DOWN;       break;
+              case XK_Home:        result = K_HOME;       break;
+              case XK_End:         result = K_END;        break;
+              case XK_Prior:       result = K_PGUP;       break;
+              case XK_Next:        result = K_PGDN;       break;
+              case XK_Insert:      result = K_INS;        break;
+              case XK_Delete:      result = K_DEL;        break;
+              case XK_KP_Left:     result = K_LEFT;       break;
+              case XK_KP_Right:    result = K_RIGHT;      break;
+              case XK_KP_Up:       result = K_UP;         break;
+              case XK_KP_Down:     result = K_DOWN;       break;
+              case XK_KP_Home:     result = K_HOME;       break;
+              case XK_KP_End:      result = K_END;        break;
+              case XK_KP_Prior:    result = K_PGUP;       break;
+              case XK_KP_Next:     result = K_PGDN;       break;
+              case XK_KP_Insert:   result = K_INS;        break;
+              case XK_KP_Delete:   result = K_DEL;        break;
+              case XK_KP_Begin:    result = K_PAD_CENTER; break;
+              case XK_KP_4:        result = K_LEFT;       break;
+              case XK_KP_6:        result = K_RIGHT;      break;
+              case XK_KP_8:        result = K_UP;         break;
+              case XK_KP_2:        result = K_DOWN;       break;
+              case XK_KP_7:        result = K_HOME;       break;
+              case XK_KP_1:        result = K_END;        break;
+              case XK_KP_9:        result = K_PGUP;       break;
+              case XK_KP_3:        result = K_PGDN;       break;
+              case XK_KP_0:        result = K_INS;        break;
+              case XK_KP_5:        result = K_UNDEF;      break;
+              case XK_KP_Enter:    result = K_NL;         break;
+              case XK_KP_Decimal:  result = K_DEL;        break;
+              case XK_Menu:        result = K_MENU;       break;
+              case XK_Print:       result = K_PRINT;      break;
+              case XK_Pause:       result = K_PAUSE;      break;
+              case XK_Shift_L:     modState.leftShift    = TRUE; getNextChar = TRUE; break;
+              case XK_Shift_R:     modState.rightShift   = TRUE; getNextChar = TRUE; break;
+              case XK_Control_L:   modState.leftControl  = TRUE; getNextChar = TRUE; break;
+              case XK_Control_R:   modState.rightControl = TRUE; getNextChar = TRUE; break;
+              case XK_Alt_L:       modState.leftAlt      = TRUE; getNextChar = TRUE; break;
+              case XK_Alt_R:
+              case XK_ISO_Level3_Shift:
+                                   modState.rightAlt     = TRUE; getNextChar = TRUE; break;
+              case XK_Shift_Lock:
+              case XK_Caps_Lock:   modState.shiftLock    = TRUE; getNextChar = TRUE; break;
+              case XK_Num_Lock:    modState.numLock      = TRUE; getNextChar = TRUE; break;
+              case XK_Scroll_Lock: modState.scrollLock   = TRUE; getNextChar = TRUE; break;
+              case XK_Meta_L:
+              case XK_Meta_R:
+              case XK_Mode_switch:
+                getNextChar = TRUE;
+                break;
+              default:
+                if (lookup_count == 1) {
+                  result = buffer[0];
+                  /* if (result != currentKey) {
+                    printf("^ %04lx %04lx\n", currentKey, result);
+                  } ** if */
+                } else {
+                  result = mapKeysymToUnicode(currentKey);
+                } /* if */
+                break;
+            } /* switch */
+          } /* if */
+          break;
+
+        case KeyRelease:
+          lookup_count = XLookupString(&currentEvent.xkey, (cstriType) buffer,
+                                       20, &currentKey, 0);
+          buffer[lookup_count] = '\0';
+          traceEvent(printf("KeyRelease key.state: %x, currentKey %lx\n",
+                            currentEvent.xkey.state, currentKey););
+          switch (currentKey) {
+            case XK_Shift_L:     modState.leftShift    = FALSE; break;
+            case XK_Shift_R:     modState.rightShift   = FALSE; break;
+            case XK_Control_L:   modState.leftControl  = FALSE; break;
+            case XK_Control_R:   modState.rightControl = FALSE; break;
+            case XK_Alt_L:       modState.leftAlt      = FALSE; break;
+            case XK_Alt_R:
+            case XK_ISO_Level3_Shift:
+                                 modState.rightAlt     = FALSE; break;
+            case XK_Shift_Lock:
+            case XK_Caps_Lock:   modState.shiftLock    = FALSE; break;
+            case XK_Num_Lock:    modState.numLock      = FALSE; break;
+            case XK_Scroll_Lock: modState.scrollLock   = FALSE; break;
+          } /* switch */
+          getNextChar = TRUE;
+          break;
+
+        default:
+          traceEvent(printf("Other Event %d\n", currentEvent.type););
+          getNextChar = TRUE;
+          break;
+      } /* switch */
+    } while (getNextChar);
+    logFunction(printf("gkbGetc --> key: \"%s\" %ld %lx %d\n",
+                       buffer, (long) currentKey, (long) currentKey, result););
+    return result;
+  } /* gkbGetc */
+
+
+
+boolType processEvents (void)
+
+  {
+    KeySym currentKey;
+    int num_events;
+    int lookup_count;
+    char buffer[21];
+    boolType result;
+
+  /* processEvents */
+    logFunction(printf("processEvents\n"););
+    result = FALSE;
+    if (!eventPresent) {
+      num_events = XEventsQueued(mydisplay, QueuedAfterReading);
+      while (num_events != 0) {
+        XNextEvent(mydisplay, &currentEvent);
+        switch(currentEvent.type) {
+          case Expose:
+            traceEvent(printf("processEvents: Expose\n"););
+            if (num_events == 1) {
+              num_events = XEventsQueued(mydisplay, QueuedAfterReading);
+            } else {
+              num_events--;
+            } /* if */
+            handleExpose(&currentEvent.xexpose);
+            result = TRUE;
+            break;
+
+#ifdef OUT_OF_ORDER
+          case ConfigureNotify:
+            if (num_events == 1) {
+              num_events = XEventsQueued(mydisplay, QueuedAfterReading);
+            } else {
+              num_events--;
+            } /* if */
+            configure(&currentEvent.xconfigure);
+            result = TRUE;
+            break;
+          case MapNotify:
+#endif
+
+#if TRACE_REPARENT_NOTIFY
+          case ReparentNotify:
+            printf("processEvents: Reparent\n");
+            if (num_events == 1) {
+              num_events = XEventsQueued(mydisplay, QueuedAfterReading);
+            } else {
+              num_events--;
+            } /* if */
+            break;
+
+          case ConfigureNotify:
+            printf("processEvents: Configure %lx %d, %d\n",
+                   currentEvent.xconfigure.window,
+                   currentEvent.xconfigure.width, currentEvent.xconfigure.height);
+            if (num_events == 1) {
+              num_events = XEventsQueued(mydisplay, QueuedAfterReading);
+            } else {
+              num_events--;
+            } /* if */
+            break;
+#endif
+
+#ifdef ALLOW_REPARENT_NOTIFY
+          case ReparentNotify:
+          case ConfigureNotify:
+#endif
+          case GraphicsExpose:
+          case NoExpose:
+            traceEvent(printf("processEvents: Reparent/Configure/GraphicsExpose/NoExpose\n"););
+            traceEvent(printf("processEvents: KeyPress key.state: %x\n",
+                              currentEvent.xkey.state););
+            if (num_events == 1) {
+              num_events = XEventsQueued(mydisplay, QueuedAfterReading);
+            } else {
+              num_events--;
+            } /* if */
+            break;
+
+          case FocusIn:
+            traceEvent(printf("processEvents: FocusIn\n"););
+            hasFocus = TRUE;
+            setupModState();
+            if (num_events == 1) {
+              num_events = XEventsQueued(mydisplay, QueuedAfterReading);
+            } else {
+              num_events--;
+            } /* if */
+            break;
+
+          case FocusOut:
+            traceEvent(printf("processEvents: FocusOut\n"););
+            hasFocus = FALSE;
+            if (num_events == 1) {
+              num_events = XEventsQueued(mydisplay, QueuedAfterReading);
+            } else {
+              num_events--;
+            } /* if */
+            break;
+
+          case KeyPress:
+            lookup_count = XLookupString(&currentEvent.xkey, buffer,
+                                         20, &currentKey, 0);
+            buffer[lookup_count] = '\0';
+            traceEvent(printf("processEvents: KeyPress key.state: %x, currentKey %lx\n",
+                              currentEvent.xkey.state, currentKey););
+            switch (currentKey) {
+              case XK_Shift_L:
+              case XK_Shift_R:
+              case XK_Control_L:
+              case XK_Control_R:
+              case XK_Alt_L:
+              case XK_Alt_R:
+              case XK_ISO_Level3_Shift:
+              case XK_Shift_Lock:
+              case XK_Caps_Lock:
+              case XK_Num_Lock:
+              case XK_Scroll_Lock:
+                switch (currentKey) {
+                  case XK_Shift_L:     modState.leftShift    = TRUE; break;
+                  case XK_Shift_R:     modState.rightShift   = TRUE; break;
+                  case XK_Control_L:   modState.leftControl  = TRUE; break;
+                  case XK_Control_R:   modState.rightControl = TRUE; break;
+                  case XK_Alt_L:       modState.leftAlt      = TRUE; break;
+                  case XK_Alt_R:
+                  case XK_ISO_Level3_Shift:
+                                       modState.rightAlt     = TRUE; break;
+                  case XK_Shift_Lock:
+                  case XK_Caps_Lock:   modState.shiftLock    = TRUE; break;
+                  case XK_Num_Lock:    modState.numLock      = TRUE; break;
+                  case XK_Scroll_Lock: modState.scrollLock   = TRUE; break;
+                } /* switch */
+                if (num_events == 1) {
+                  num_events = XEventsQueued(mydisplay, QueuedAfterReading);
+                } else {
+                  num_events--;
+                } /* if */
+                break;
+              case XK_Meta_L:
+              case XK_Meta_R:
+              case XK_Mode_switch:
+                if (num_events == 1) {
+                  num_events = XEventsQueued(mydisplay, QueuedAfterReading);
+                } else {
+                  num_events--;
+                } /* if */
+                break;
+              default:
+                /* printf("currentKey=%d\n", currentKey); */
+                num_events = 0;
+                eventPresent = TRUE;
+                break;
+            } /* switch */
+            break;
+
+          case KeyRelease:
+            lookup_count = XLookupString(&currentEvent.xkey, (cstriType) buffer,
+                                         20, &currentKey, 0);
+            buffer[lookup_count] = '\0';
+            traceEvent(printf("processEvents: KeyRelease key.state: %x, currentKey %lx\n",
+                              currentEvent.xkey.state, currentKey););
+            switch (currentKey) {
+              case XK_Shift_L:     modState.leftShift    = FALSE; break;
+              case XK_Shift_R:     modState.rightShift   = FALSE; break;
+              case XK_Control_L:   modState.leftControl  = FALSE; break;
+              case XK_Control_R:   modState.rightControl = FALSE; break;
+              case XK_Alt_L:       modState.leftAlt      = FALSE; break;
+              case XK_Alt_R:
+              case XK_ISO_Level3_Shift:
+                                   modState.rightAlt     = FALSE; break;
+              case XK_Shift_Lock:
+              case XK_Caps_Lock:   modState.shiftLock    = FALSE; break;
+              case XK_Num_Lock:    modState.numLock      = FALSE; break;
+              case XK_Scroll_Lock: modState.scrollLock   = FALSE; break;
+            } /* switch */
+            if (num_events == 1) {
+              num_events = XEventsQueued(mydisplay, QueuedAfterReading);
+            } else {
+              num_events--;
+            } /* if */
+            break;
+
+          default:
+            /* printf("currentEvent.type=%d\n", currentEvent.type); */
+            num_events = 0;
+            eventPresent = TRUE;
+            break;
+        } /* switch */
+      } /* while */
+    } /* if */
+    logFunction(printf("processEvents --> %d\n", result););
+    return result;
+  } /* processEvents */
+
+
+
+boolType gkbKeyPressed (void)
+
+  { /* gkbKeyPressed */
+    logFunction(printf("gkbKeyPressed\n"););
+    flushBeforeRead();
+    processEvents();
+    logFunction(printf("gkbKeyPressed --> %d\n", eventPresent););
+    return eventPresent;
+  } /* gkbKeyPressed */
+
+
+
 boolType gkbButtonPressed (charType button)
 
   {
     unsigned int button_mask = 0;
+    unsigned int led_bit = 0;
     KeySym sym1;
     KeySym sym2 = 0;
     KeySym sym3 = 0;
     int keysymIndex;
+    XKeyboardState keyboardState;
     boolType finished = FALSE;
     boolType result;
 
   /* gkbButtonPressed */
     logFunction(printf("gkbButtonPressed(%04x)\n", button););
+    if (!hasFocus) {
+      /* When the window has not the focus it does not receive keyPress   */
+      /* and keyRelease events. In this case the state of the modifier    */
+      /* keys in the current moment is retrived with setupModState().     */
+      setupModState();
+    } /* if */
     switch (button) {
       case K_CTL_A: case K_ALT_A: case 'A': case 'a': sym1 = 'A'; break;
       case K_CTL_B: case K_ALT_B: case 'B': case 'b': sym1 = 'B'; break;
@@ -1850,11 +2030,29 @@ boolType gkbButtonPressed (charType button)
       case K_INS:   case K_CTL_INS:   sym1 = XK_Insert; sym2 = XK_KP_Insert; break;
       case K_DEL:   case K_CTL_DEL:   sym1 = XK_Delete; sym2 = XK_KP_Delete; break;
 
-      case K_ESC:                 sym1 = XK_Escape;                break;
-      case K_PAD_CENTER:          sym1 = XK_KP_Begin;              break;
-      case K_BS:                  sym1 = XK_BackSpace; sym2 = 'H'; break;
-      case K_NL:                  sym1 = XK_Return;    sym2 = 'J'; sym3 = XK_Mode_switch; break;
-      case K_TAB: case K_BACKTAB: sym1 = XK_Tab;       sym2 = 'I'; break;
+      case K_ESC: case K_SFT_ESC: case K_CTL_ESC: case K_ALT_ESC:
+        sym1 = XK_Escape; break;
+      case K_PAD_CENTER: case K_SFT_PAD_CENTER: case K_CTL_PAD_CENTER: case K_ALT_PAD_CENTER:
+        sym1 = XK_KP_Begin; break;
+      case K_BS:
+        sym1 = XK_BackSpace; sym2 = 'H'; break;
+      case K_SFT_BS: case K_CTL_BS: case K_ALT_BS:
+        sym1 = XK_BackSpace; break;
+      case K_NL:
+        sym1 = XK_Return; sym2 = 'J'; sym3 = XK_Mode_switch; break;
+      case K_SFT_NL: case K_CTL_NL: case K_ALT_NL:
+        sym1 = XK_Return; sym2 = XK_Mode_switch; break;
+      case K_TAB:
+        sym1 = XK_Tab; sym2 = 'I'; break;
+      case K_BACKTAB: case K_CTL_TAB: case K_ALT_TAB:
+        sym1 = XK_Tab; break;
+
+      case K_MENU:   case K_SFT_MENU:   case K_CTL_MENU:   case K_ALT_MENU:
+        sym1 = XK_Menu;        break;
+      case K_PRINT:  case K_SFT_PRINT:  case K_CTL_PRINT:  case K_ALT_PRINT:
+        sym1 = XK_Print;       break;
+      case K_PAUSE:  case K_SFT_PAUSE:  case K_CTL_PAUSE:  case K_ALT_PAUSE:
+        sym1 = XK_Pause;       break;
 
       case '*': sym1 = '*'; sym2 = XK_KP_Multiply; break;
       case '+': sym1 = '+'; sym2 = XK_KP_Add;      break;
@@ -1876,10 +2074,8 @@ boolType gkbButtonPressed (charType button)
       case K_INSLN:
       case K_DELLN:
       case K_ERASE:
-      case K_CTL_NL:
       case K_NULLCMD:
       case K_REDRAW:
-      case K_MENU:
       case K_UNDEF:
       case K_NONE:
 
@@ -1904,15 +2100,33 @@ boolType gkbButtonPressed (charType button)
       case K_CTL_MOUSE_BACK: case K_ALT_MOUSE_BACK: button_mask = Button5Mask; break;
       */
 
-      case K_SHIFT:          sym1 = XK_Shift_L; sym2 = XK_Shift_R; break;
-      case K_LEFT_SHIFT:     sym1 = XK_Shift_L; break;
-      case K_RIGHT_SHIFT:    sym1 = XK_Shift_R; break;
-      case K_CONTROL:        sym1 = XK_Control_L; sym2 = XK_Control_R; break;
-      case K_LEFT_CONTROL:   sym1 = XK_Control_L; break;
-      case K_RIGHT_CONTROL:  sym1 = XK_Control_R; break;
-      case K_ALT:            sym1 = XK_Alt_L; sym2 = XK_Alt_R; sym3 = XK_ISO_Level3_Shift; break;
-      case K_LEFT_ALT:       sym1 = XK_Alt_L; break;
-      case K_RIGHT_ALT:      sym1 = XK_Alt_R; sym2 = XK_ISO_Level3_Shift; break;
+      /* When the window has the focus keyPress and keyRelease events are */
+      /* used to maintain the modifier key state (Shift, Control, etc.).  */
+      /* This way the modifier state is synched with the keypresses. This */
+      /* allows that after reading a key the state of the modifier keys   */
+      /* in the moment the key was pressed can be retrieved. When the     */
+      /* window has not the focus it does not receive keyPress and        */
+      /* keyRelease events. In this case the state of the modifier keys   */
+      /* in the current moment is retrived with setupModState().          */
+      case K_SHIFT:          result = modState.leftShift     ||
+                                      modState.rightShift;   finished = TRUE; break;
+      case K_LEFT_SHIFT:     result = modState.leftShift;    finished = TRUE; break;
+      case K_RIGHT_SHIFT:    result = modState.rightShift;   finished = TRUE; break;
+      case K_CONTROL:        result = modState.leftControl   ||
+                                      modState.rightControl; finished = TRUE; break;
+      case K_LEFT_CONTROL:   result = modState.leftControl;  finished = TRUE; break;
+      case K_RIGHT_CONTROL:  result = modState.rightControl; finished = TRUE; break;
+      case K_ALT:            result = modState.leftAlt       ||
+                                      modState.rightAlt;     finished = TRUE; break;
+      case K_LEFT_ALT:       result = modState.leftAlt;      finished = TRUE; break;
+      case K_RIGHT_ALT:      result = modState.rightAlt;     finished = TRUE; break;
+      case K_SHIFT_LOCK:     result = modState.shiftLock;    finished = TRUE; break;
+      case K_NUM_LOCK:       result = modState.numLock;      finished = TRUE; break;
+      case K_SCROLL_LOCK:    result = modState.scrollLock;   finished = TRUE; break;
+
+      case K_SHIFT_LOCK_ON:  led_bit = 1; break;
+      case K_NUM_LOCK_ON:    led_bit = 2; break;
+      /* case K_SCROLL_LOCK_ON:  break; */
 
       default:
         if (button <= 0xff) {
@@ -1939,6 +2153,10 @@ boolType gkbButtonPressed (charType button)
     if (!finished) {
       if (button_mask != 0) {
         result = mouseButtonPressed(button_mask);
+      } else if (led_bit != 0) {
+        XGetKeyboardControl(mydisplay, &keyboardState);
+        /* printf("led_mask=%lx\n", keyboardState.led_mask); */
+        result = (keyboardState.led_mask & led_bit) != 0;
       } else {
         result = keyboardButtonPressed(sym1);
         if (!result && sym2 != 0) {

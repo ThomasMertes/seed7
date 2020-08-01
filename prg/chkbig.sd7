@@ -45,6 +45,10 @@ const func integer: intExpr (in integer: number) is
   return number + length(str(rand(1, 9))[2 ..]);
 
 
+const func string: striExpr (in string: stri) is
+  return stri & str(rand(1, 9))[2 ..];
+
+
 const func boolean: raisesRangeError (ref func string: expression) is func
   result
     var boolean: raisesRangeError is FALSE;
@@ -1204,6 +1208,70 @@ const proc: chkStringConv is func
       okay := FALSE;
     end if;
 
+    if  not raisesRangeError(bigInteger("99999999a999999999")) or
+        not raisesRangeError(bigInteger("-9999999999a9999999")) or
+        not raisesRangeError(bigInteger("@")) or
+        not raisesRangeError(bigInteger("+")) or
+        not raisesRangeError(bigInteger("++")) or
+        not raisesRangeError(bigInteger("+-")) or
+        not raisesRangeError(bigInteger("++1")) or
+        not raisesRangeError(bigInteger("+-1")) or
+        not raisesRangeError(bigInteger("-")) or
+        not raisesRangeError(bigInteger("--")) or
+        not raisesRangeError(bigInteger("-+")) or
+        not raisesRangeError(bigInteger("--1")) or
+        not raisesRangeError(bigInteger("-+1")) or
+        not raisesRangeError(bigInteger("")) or
+        not raisesRangeError(bigInteger(" 123")) or
+        not raisesRangeError(bigInteger("\a123")) or
+        not raisesRangeError(bigInteger("\f123")) or
+        not raisesRangeError(bigInteger("\n123")) or
+        not raisesRangeError(bigInteger("\r123")) or
+        not raisesRangeError(bigInteger("\t123")) or
+        not raisesRangeError(bigInteger("\v123")) or
+        not raisesRangeError(bigInteger("123 ")) or
+        not raisesRangeError(bigInteger("123\a")) or
+        not raisesRangeError(bigInteger("123\f")) or
+        not raisesRangeError(bigInteger("123\n")) or
+        not raisesRangeError(bigInteger("123\r")) or
+        not raisesRangeError(bigInteger("123\t")) or
+        not raisesRangeError(bigInteger("123\v")) or
+        not raisesRangeError(bigInteger("123@")) or
+        not raisesRangeError(bigInteger("123@456")) or
+        not raisesRangeError(bigInteger(striExpr("99999999a999999999"))) or
+        not raisesRangeError(bigInteger(striExpr("-9999999999a9999999"))) or
+        not raisesRangeError(bigInteger(striExpr("@"))) or
+        not raisesRangeError(bigInteger(striExpr("+"))) or
+        not raisesRangeError(bigInteger(striExpr("++"))) or
+        not raisesRangeError(bigInteger(striExpr("+-"))) or
+        not raisesRangeError(bigInteger(striExpr("++1"))) or
+        not raisesRangeError(bigInteger(striExpr("+-1"))) or
+        not raisesRangeError(bigInteger(striExpr("-"))) or
+        not raisesRangeError(bigInteger(striExpr("--"))) or
+        not raisesRangeError(bigInteger(striExpr("-+"))) or
+        not raisesRangeError(bigInteger(striExpr("--1"))) or
+        not raisesRangeError(bigInteger(striExpr("-+1"))) or
+        not raisesRangeError(bigInteger(striExpr(""))) or
+        not raisesRangeError(bigInteger(striExpr(" 123"))) or
+        not raisesRangeError(bigInteger(striExpr("\a123"))) or
+        not raisesRangeError(bigInteger(striExpr("\f123"))) or
+        not raisesRangeError(bigInteger(striExpr("\n123"))) or
+        not raisesRangeError(bigInteger(striExpr("\r123"))) or
+        not raisesRangeError(bigInteger(striExpr("\t123"))) or
+        not raisesRangeError(bigInteger(striExpr("\v123"))) or
+        not raisesRangeError(bigInteger(striExpr("123 "))) or
+        not raisesRangeError(bigInteger(striExpr("123\a"))) or
+        not raisesRangeError(bigInteger(striExpr("123\f"))) or
+        not raisesRangeError(bigInteger(striExpr("123\n"))) or
+        not raisesRangeError(bigInteger(striExpr("123\r"))) or
+        not raisesRangeError(bigInteger(striExpr("123\t"))) or
+        not raisesRangeError(bigInteger(striExpr("123\v"))) or
+        not raisesRangeError(bigInteger(striExpr("123@"))) or
+        not raisesRangeError(bigInteger(striExpr("123@456"))) then
+      writeln(" ***** Conversion of illegal numeric literal does not raise RANGE_ERROR. (1)");
+      okay := FALSE;
+    end if;
+
     if  not raisesRangeError(bigInteger parse "99999999a999999999") or
         not raisesRangeError(bigInteger parse "-9999999999a9999999") or
         not raisesRangeError(bigInteger parse "@") or
@@ -1233,8 +1301,38 @@ const proc: chkStringConv is func
         not raisesRangeError(bigInteger parse "123\t") or
         not raisesRangeError(bigInteger parse "123\v") or
         not raisesRangeError(bigInteger parse "123@") or
-        not raisesRangeError(bigInteger parse "123@456") then
-      writeln(" ***** Conversion of illegal numeric literal does not raise RANGE_ERROR.");
+        not raisesRangeError(bigInteger parse "123@456") or
+        not raisesRangeError(bigInteger parse striExpr("99999999a999999999")) or
+        not raisesRangeError(bigInteger parse striExpr("-9999999999a9999999")) or
+        not raisesRangeError(bigInteger parse striExpr("@")) or
+        not raisesRangeError(bigInteger parse striExpr("+")) or
+        not raisesRangeError(bigInteger parse striExpr("++")) or
+        not raisesRangeError(bigInteger parse striExpr("+-")) or
+        not raisesRangeError(bigInteger parse striExpr("++1")) or
+        not raisesRangeError(bigInteger parse striExpr("+-1")) or
+        not raisesRangeError(bigInteger parse striExpr("-")) or
+        not raisesRangeError(bigInteger parse striExpr("--")) or
+        not raisesRangeError(bigInteger parse striExpr("-+")) or
+        not raisesRangeError(bigInteger parse striExpr("--1")) or
+        not raisesRangeError(bigInteger parse striExpr("-+1")) or
+        not raisesRangeError(bigInteger parse striExpr("")) or
+        not raisesRangeError(bigInteger parse striExpr(" 123")) or
+        not raisesRangeError(bigInteger parse striExpr("\a123")) or
+        not raisesRangeError(bigInteger parse striExpr("\f123")) or
+        not raisesRangeError(bigInteger parse striExpr("\n123")) or
+        not raisesRangeError(bigInteger parse striExpr("\r123")) or
+        not raisesRangeError(bigInteger parse striExpr("\t123")) or
+        not raisesRangeError(bigInteger parse striExpr("\v123")) or
+        not raisesRangeError(bigInteger parse striExpr("123 ")) or
+        not raisesRangeError(bigInteger parse striExpr("123\a")) or
+        not raisesRangeError(bigInteger parse striExpr("123\f")) or
+        not raisesRangeError(bigInteger parse striExpr("123\n")) or
+        not raisesRangeError(bigInteger parse striExpr("123\r")) or
+        not raisesRangeError(bigInteger parse striExpr("123\t")) or
+        not raisesRangeError(bigInteger parse striExpr("123\v")) or
+        not raisesRangeError(bigInteger parse striExpr("123@")) or
+        not raisesRangeError(bigInteger parse striExpr("123@456")) then
+      writeln(" ***** Conversion of illegal numeric literal does not raise RANGE_ERROR. (2)");
       okay := FALSE;
     end if;
 
@@ -2296,19 +2394,96 @@ const proc: chkRadix is func
     end for;
 
     bigNum := 123_;
-    if  not raisesRangeError(bigNum radix          1 ) or
-        not raisesRangeError(bigNum radix         37 ) or
-        not raisesRangeError(bigNum radix intExpr( 1)) or
-        not raisesRangeError(bigNum radix intExpr(37)) or
-        not raisesRangeError(           123_  radix          1 ) or
-        not raisesRangeError(           123_  radix         37 ) or
-        not raisesRangeError(bigintExpr(123_) radix          1 ) or
-        not raisesRangeError(bigintExpr(123_) radix         37 ) or
-        not raisesRangeError(           123_  radix intExpr( 1)) or
-        not raisesRangeError(           123_  radix intExpr(37)) or
-        not raisesRangeError(bigintExpr(123_) radix intExpr( 1)) or
-        not raisesRangeError(bigintExpr(123_) radix intExpr(37)) then
+    if  not raisesRangeError(        bigNum   radix         integer.first ) or
+        not raisesRangeError(        bigNum   radix                    -1 ) or
+        not raisesRangeError(        bigNum   radix                     0 ) or
+        not raisesRangeError(        bigNum   radix                     1 ) or
+        not raisesRangeError(        bigNum   radix                    37 ) or
+        not raisesRangeError(        bigNum   radix                    38 ) or
+        not raisesRangeError(        bigNum   radix          integer.last ) or
+        not raisesRangeError(           123_  radix         integer.first ) or
+        not raisesRangeError(           123_  radix                    -1 ) or
+        not raisesRangeError(           123_  radix                     0 ) or
+        not raisesRangeError(           123_  radix                     1 ) or
+        not raisesRangeError(           123_  radix                    37 ) or
+        not raisesRangeError(           123_  radix                    38 ) or
+        not raisesRangeError(           123_  radix          integer.last ) or
+        not raisesRangeError(bigintExpr(123_) radix         integer.first ) or
+        not raisesRangeError(bigintExpr(123_) radix                    -1 ) or
+        not raisesRangeError(bigintExpr(123_) radix                     0 ) or
+        not raisesRangeError(bigintExpr(123_) radix                     1 ) or
+        not raisesRangeError(bigintExpr(123_) radix                    37 ) or
+        not raisesRangeError(bigintExpr(123_) radix                    38 ) or
+        not raisesRangeError(bigintExpr(123_) radix          integer.last ) or
+        not raisesRangeError(        bigNum   radix intExpr(integer.first )) or
+        not raisesRangeError(        bigNum   radix intExpr(           -1 )) or
+        not raisesRangeError(        bigNum   radix intExpr(            0 )) or
+        not raisesRangeError(        bigNum   radix intExpr(            1 )) or
+        not raisesRangeError(        bigNum   radix intExpr(           37 )) or
+        not raisesRangeError(        bigNum   radix intExpr(           38 )) or
+        not raisesRangeError(        bigNum   radix intExpr( integer.last )) or
+        not raisesRangeError(           123_  radix intExpr(integer.first )) or
+        not raisesRangeError(           123_  radix intExpr(           -1 )) or
+        not raisesRangeError(           123_  radix intExpr(            0 )) or
+        not raisesRangeError(           123_  radix intExpr(            1 )) or
+        not raisesRangeError(           123_  radix intExpr(           37 )) or
+        not raisesRangeError(           123_  radix intExpr(           38 )) or
+        not raisesRangeError(           123_  radix intExpr( integer.last )) or
+        not raisesRangeError(bigintExpr(123_) radix intExpr(integer.first )) or
+        not raisesRangeError(bigintExpr(123_) radix intExpr(           -1 )) or
+        not raisesRangeError(bigintExpr(123_) radix intExpr(            0 )) or
+        not raisesRangeError(bigintExpr(123_) radix intExpr(            1 )) or
+        not raisesRangeError(bigintExpr(123_) radix intExpr(           37 )) or
+        not raisesRangeError(bigintExpr(123_) radix intExpr(           38 )) or
+        not raisesRangeError(bigintExpr(123_) radix intExpr( integer.last )) then
       writeln(" ***** The radix operator does not raise RANGE_ERROR for an illegal base.");
+      okay := FALSE;
+    end if;
+
+    bigNum := 123_;
+    if  not raisesRangeError(        bigNum   RADIX         integer.first ) or
+        not raisesRangeError(        bigNum   RADIX                    -1 ) or
+        not raisesRangeError(        bigNum   RADIX                     0 ) or
+        not raisesRangeError(        bigNum   RADIX                     1 ) or
+        not raisesRangeError(        bigNum   RADIX                    37 ) or
+        not raisesRangeError(        bigNum   RADIX                    38 ) or
+        not raisesRangeError(        bigNum   RADIX          integer.last ) or
+        not raisesRangeError(           123_  RADIX         integer.first ) or
+        not raisesRangeError(           123_  RADIX                    -1 ) or
+        not raisesRangeError(           123_  RADIX                     0 ) or
+        not raisesRangeError(           123_  RADIX                     1 ) or
+        not raisesRangeError(           123_  RADIX                    37 ) or
+        not raisesRangeError(           123_  RADIX                    38 ) or
+        not raisesRangeError(           123_  RADIX          integer.last ) or
+        not raisesRangeError(bigintExpr(123_) RADIX         integer.first ) or
+        not raisesRangeError(bigintExpr(123_) RADIX                    -1 ) or
+        not raisesRangeError(bigintExpr(123_) RADIX                     0 ) or
+        not raisesRangeError(bigintExpr(123_) RADIX                     1 ) or
+        not raisesRangeError(bigintExpr(123_) RADIX                    37 ) or
+        not raisesRangeError(bigintExpr(123_) RADIX                    38 ) or
+        not raisesRangeError(bigintExpr(123_) RADIX          integer.last ) or
+        not raisesRangeError(        bigNum   RADIX intExpr(integer.first )) or
+        not raisesRangeError(        bigNum   RADIX intExpr(           -1 )) or
+        not raisesRangeError(        bigNum   RADIX intExpr(            0 )) or
+        not raisesRangeError(        bigNum   RADIX intExpr(            1 )) or
+        not raisesRangeError(        bigNum   RADIX intExpr(           37 )) or
+        not raisesRangeError(        bigNum   RADIX intExpr(           38 )) or
+        not raisesRangeError(        bigNum   RADIX intExpr( integer.last )) or
+        not raisesRangeError(           123_  RADIX intExpr(integer.first )) or
+        not raisesRangeError(           123_  RADIX intExpr(           -1 )) or
+        not raisesRangeError(           123_  RADIX intExpr(            0 )) or
+        not raisesRangeError(           123_  RADIX intExpr(            1 )) or
+        not raisesRangeError(           123_  RADIX intExpr(           37 )) or
+        not raisesRangeError(           123_  RADIX intExpr(           38 )) or
+        not raisesRangeError(           123_  RADIX intExpr( integer.last )) or
+        not raisesRangeError(bigintExpr(123_) RADIX intExpr(integer.first )) or
+        not raisesRangeError(bigintExpr(123_) RADIX intExpr(           -1 )) or
+        not raisesRangeError(bigintExpr(123_) RADIX intExpr(            0 )) or
+        not raisesRangeError(bigintExpr(123_) RADIX intExpr(            1 )) or
+        not raisesRangeError(bigintExpr(123_) RADIX intExpr(           37 )) or
+        not raisesRangeError(bigintExpr(123_) RADIX intExpr(           38 )) or
+        not raisesRangeError(bigintExpr(123_) RADIX intExpr( integer.last )) then
+      writeln(" ***** The RADIX operator does not raise RANGE_ERROR for an illegal base.");
       okay := FALSE;
     end if;
 
@@ -16560,6 +16735,23 @@ const proc: chkFactorial is func
         end if;
       end for;
     end if;
+
+    if  not raisesNumericError(!           (                  -1_)) or
+        not raisesNumericError(!           (         -2147483647_)) or
+        not raisesNumericError(!           (         -2147483648_)) or
+        not raisesNumericError(!           (         -4294967295_)) or
+        not raisesNumericError(!           (         -4294967296_)) or
+        not raisesNumericError(!           (-9223372036854775808_)) or
+        not raisesNumericError(! bigintExpr(                  -1_)) or
+        not raisesNumericError(! bigintExpr(         -2147483647_)) or
+        not raisesNumericError(! bigintExpr(         -2147483648_)) or
+        not raisesNumericError(! bigintExpr(         -4294967295_)) or
+        not raisesNumericError(! bigintExpr(         -4294967296_)) or
+        not raisesNumericError(! bigintExpr(-9223372036854775808_)) then
+      writeln(" ***** Factorial of negative number does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+
     if okay then
       writeln("Factorial of bigInteger works correct.");
     end if;

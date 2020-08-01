@@ -423,26 +423,27 @@ const proc: process (ARR_HEAD, in reference: function,
 
 
 const proc: process_const_arr_idx (in reference: function, in reference: anArray,
-    in reference: param3, inout expr_type: c_expr) is func
+    in reference: index, inout expr_type: c_expr) is func
 
   local
     var reference: evaluatedParam is NIL;
-    var integer: index is 0;
+    var integer: index_value is 0;
     var string: index_name is "";
   begin
     incr(countOptimizations);
     if anArray not in const_table then
       const_table @:= [anArray] length(const_table);
     end if;
-    if getConstant(param3, INTOBJECT, evaluatedParam) then
-      index := getValue(evaluatedParam, integer);
-      if index < arrayMinIdx(anArray) or index > arrayMaxIdx(anArray) then
+    if getConstant(index, INTOBJECT, evaluatedParam) then
+      index_value := getValue(evaluatedParam, integer);
+      if index_value < arrayMinIdx(anArray) or index_value > arrayMaxIdx(anArray) then
+        warning(DOES_RAISE, "RANGE_ERROR", c_expr);
         c_expr.expr &:= intRaiseError("RANGE_ERROR");
       else
         c_expr.expr &:= "arr[";
         c_expr.expr &:= str(const_table[anArray]);
         c_expr.expr &:= "]->arr[";
-        c_expr.expr &:= str(index - arrayMinIdx(anArray));
+        c_expr.expr &:= str(index_value - arrayMinIdx(anArray));
         c_expr.expr &:= "]";
         c_expr.expr &:= select_value_from_rtlObjectStruct(resultType(getType(function)));
       end if;
@@ -464,7 +465,7 @@ const proc: process_const_arr_idx (in reference: function, in reference: anArray
         c_expr.expr &:= "(";
         c_expr.expr &:= index_name;
         c_expr.expr &:= "=(";
-        process_expr(param3, c_expr);
+        process_expr(index, c_expr);
         c_expr.expr &:= ")";
         if arrayMinIdx(anArray) <> 0 then
           if ccConf.TWOS_COMPLEMENT_INTTYPE then
@@ -490,7 +491,7 @@ const proc: process_const_arr_idx (in reference: function, in reference: anArray
       else
         incr(countNoRangeChecks);
         c_expr.expr &:= "(";
-        process_expr(param3, c_expr);
+        process_expr(index, c_expr);
         c_expr.expr &:= ")";
         if arrayMinIdx(anArray) <> 0 then
           c_expr.expr &:= "- ";

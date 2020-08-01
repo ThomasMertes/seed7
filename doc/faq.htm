@@ -623,12 +623,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 300000 lines of Seed7. For version 2020-03-08 the number of lines is:
+than 300000 lines of Seed7. For version 2020-05-02 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right">156850</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right"> 12470</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">167157</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right">151517</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right">157582</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right"> 12548</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">176184</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right">155437</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -1068,8 +1068,9 @@ Possible options are
   <li><b>-p</b>   Activate simple function profiling.</li>
   <li><b>-s</b><span class="keywd">x</span>  Suppress checks specified with <span class="keywd">x</span>. E.g.: <b>-sr</b> or <b>-sro</b>
        The checks <span class="keywd">x</span> are specified with letters from the following list:<ul>
-         <li><b>r</b> Suppress the generation of range checks for strings and arrays.</li>
-         <li><b>o</b> Suppress the generation of <span class="link">integer overflow</span> checks.</li></ul></li>
+         <li><b>d</b> Suppress the generation of checks for <span class="link">integer division by zero</span>.</li>
+         <li><b>o</b> Suppress the generation of <span class="link">integer overflow</span> checks.</li>
+         <li><b>r</b> Suppress the generation of range checks for strings and arrays.</li></ul></li>
   <li><b>-t</b><span class="keywd">x</span>  Set runtime trace level to <span class="keywd">x</span>. Where <span class="keywd">x</span> is a string consisting
        of the following characters:<ul>
          <li><b>e</b> Trace exceptions and handlers</li>

@@ -1118,8 +1118,6 @@ MACROS WRITTEN TO VERSION.H BY THE MAKEFILE
                      Only one #define of AWAIT_WITH_xxx is
                      allowed.
 
-  WITH_SQL: 1 if SQL should be supported, 0 otherwise.
-
   USE_TERMINFO: Defined if the console should be used with
                 terminfo. Only one #define of USE_TERMxxx is
                 allowed.
@@ -1347,7 +1345,8 @@ MACROS WRITTEN TO VERSION.H BY THE MAKEFILE
                                        and ncurses can be replaced
                                        with header files provided
                                        by Seed7.
-  
+
+
 MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
 
     The program chkccomp.c is compiled and executed by the
@@ -1622,6 +1621,22 @@ MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
 
   TIME_T_SIZE: Size of time_t in bits.
 
+  INT_RANGE_IN_FLOATTYPE_MAX:
+      Maximum from the continuous range of integers that map to floats.
+      All integers from -INT_RANGE_IN_FLOATTYPE_MAX to
+      INT_RANGE_IN_FLOATTYPE_MAX can be converted to 'floatType'
+      and back to 'intType' without loss.
+
+  MINIMUM_TRUNC_ARGUMENT:
+      Minimum value that trunc() or round() can convert.
+      Values below MINIMUM_TRUNC_ARGUMENT raise RANGE_ERROR,
+      if trunc() or round() is applied to them.
+
+  MAXIMUM_TRUNC_ARGUMENT:
+      Maximum value that trunc() or round() can convert.
+      Values above MAXIMUM_TRUNC_ARGUMENT raise RANGE_ERROR,
+      if trunc() or round() is applied to them.
+
   NULL_DEVICE: Name of the NULL device.
                Under Linux/Unix/BSD this is "/dev/null".
                Under Windows this is "NUL:".
@@ -1629,24 +1644,6 @@ MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
   OS_PATH_HAS_DRIVE_LETTERS: TRUE if the absolute paths of
                              the operating system use drive
                              letters. Determined by chkccomp.c.
-
-  MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS: Defined in config.h, if
-                                      absolute paths (paths
-                                      starting with '/') must
-                                      be mapped to operating
-                                      system paths with drive
-                                      letter. E.g.: "/c" is
-                                      mapped to the drive letter
-                                      "C:".
-
-  FORBID_DRIVE_LETTERS: Defined in config.h, if a Seed7 path
-                        with drive letters must raise
-                        RANGE_ERROR.
-
-  EMULATE_ROOT_CWD: Defined in config.h, if the operating
-                    system uses drive letters and reading the
-                    directory "/" must return a list of
-                    available drives.
 
   REDIRECT_FILDES_1: Shell parameter to redirect to the file
                      descriptor 1. Under Linux/Unix/BSD and
@@ -1787,31 +1784,47 @@ MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
                               raise SIGFPE, if an uncaught
                               EXCEPTION occurs.
 
-  CHECK_INT_DIV_BY_ZERO: TRUE if integer divisions must be
-                         checked for a division by zero. This
-                         applies to the division operations div,
-                         rem, mdiv and mod. The generated C code
-                         should, if a division by zero occurs,
-                         raise the exception NUMERIC_ERROR instead
-                         of doing the illegal divide operation.
+  CHECK_INT_DIV_BY_ZERO:
+      TRUE if integer divisions must be checked for a division by
+      zero. This applies to the division operations div and mdiv.
+      The generated C code should, if a division by zero occurs,
+      raise the exception NUMERIC_ERROR instead of doing the
+      illegal divide operation.
 
-  CHECK_INT_REM_BY_ZERO: TRUE if integer remainder must be
-                         checked for a division by zero. This
-                         applies to the division operations rem
-                         and mod. The generated C code should,
-                         if a remainder by zero occurs, raise
-                         the exception NUMERIC_ERROR instead of
-                         doing the illegal divide operation.
+  CHECK_INT_DIV_ZERO_BY_ZERO:
+      TRUE if the C expression 0/0 might not trigger SIGFPE.
+      C compilers assume that so called "undefined behavior" will
+      not happen. According to the C standard a division by 0
+      triggers undefined behavior. This way a C compiler is allowed
+      to optimize the expressions 0/0 and 0/variable to 0. Likewise
+      the expression variable/variable can be optimized to 1.
+      In Seed7 a division by zero is defined behavior, since it
+      raises the exception NUMERIC_ERROR. This configuration
+      setting applies to the division operations div and mdiv.
+      The generated C code should, if a division by zero occurs,
+      raise the exception NUMERIC_ERROR instead of allowing the
+      C compiler to do its optimization.
 
-  CHECK_INT_REM_ZERO_BY_ZERO: TRUE if the integer expression
-                              0%0 might not trigger SIGFPE. This
-                              can happen with a constant or a
-                              variable dividend. This applies to
-                              the division operations rem and mod.
-                              The generated C code should, if a
-                              remainder by zero occurs, raise the
-                              exception NUMERIC_ERROR instead of
-                              doing the illegal divide operation.
+  CHECK_INT_REM_BY_ZERO:
+      TRUE if integer remainder must be checked for a division by
+      zero. This applies to the division operations rem and mod.
+      The generated C code should, if a remainder by zero occurs,
+      raise the exception NUMERIC_ERROR instead of doing the
+      illegal divide operation.
+
+  CHECK_INT_REM_ZERO_BY_ZERO:
+      TRUE if the C expression 0%0 might not trigger SIGFPE.
+      C compilers assume that so called "undefined behavior" will
+      not happen. According to the C standard a division by 0
+      triggers undefined behavior. This way a C compiler is allowed
+      to optimize the expressions 0%0 and 0%variable to 0. Likewise
+      the expression variable%variable can be optimized to 1.
+      In Seed7 a division by zero is defined behavior, since it
+      raises the exception NUMERIC_ERROR. This configuration
+      setting applies to the division operations rem and mod.
+      The generated C code should, if a division by zero occurs,
+      raise the exception NUMERIC_ERROR instead of allowing the
+      C compiler to do its optimization.
 
   TURN_OFF_FP_EXCEPTIONS: In Seed7 floating point errors such
                           as the division by zero should create
@@ -2040,3 +2053,26 @@ MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
 
   INT64TYPE_LITERAL_SUFFIX: The suffix used by the literals of the
                             64 bits wide integer type.
+
+
+MACROS DEFINED IN CONFIG.H
+
+  WITH_SQL: 1 if SQL should be supported, 0 otherwise.
+
+  MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS: Defined in config.h, if
+                                      absolute paths (paths
+                                      starting with '/') must
+                                      be mapped to operating
+                                      system paths with drive
+                                      letter. E.g.: "/c" is
+                                      mapped to the drive letter
+                                      "C:".
+
+  FORBID_DRIVE_LETTERS: Defined in config.h, if a Seed7 path
+                        with drive letters must raise
+                        RANGE_ERROR.
+
+  EMULATE_ROOT_CWD: Defined in config.h, if the operating
+                    system uses drive letters and reading the
+                    directory "/" must return a list of
+                    available drives.

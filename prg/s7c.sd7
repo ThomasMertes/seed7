@@ -86,7 +86,7 @@ const type: funcparam_data_hash is hash [reference] string;
 const type: element_repeat_count_hash is hash [reference] integer;
 const type: stringLengthHash is hash [integer] integer;
 const type: lengthToStriNumHash is hash [integer] array integer;
-const type: funcname_hash is hash [integer] string;
+const type: profiledFunctionsHash is hash [integer] reference;
 
 var boolean_type_hash: generic_cpy_declared is boolean_type_hash.EMPTY_HASH;
 var boolean_type_hash: generic_create_declared is boolean_type_hash.EMPTY_HASH;
@@ -102,7 +102,7 @@ var setOfString: definedActualFuncParams is setOfString.value;
 var funcparam_data_hash: funcparam_data is funcparam_data_hash.EMPTY_HASH;
 var funcparam_data_hash: funcparam_reference is funcparam_data_hash.EMPTY_HASH;
 var element_repeat_count_hash: element_repeat_count is element_repeat_count_hash.EMPTY_HASH;
-var funcname_hash: function_name is funcname_hash.value;
+var profiledFunctionsHash: profiledFunctions is profiledFunctionsHash.value;
 
 
 const func boolean: isFuncParamData (in reference: currExpr) is
@@ -2017,7 +2017,7 @@ const proc: process_const_func_declaration (in reference: function,
             c_expr.expr &:= "fflush(stdout);\n";
           end if;
           if profile_function then
-            function_name @:= [objNumber(function)] create_name(function);
+            profiledFunctions @:= [objNumber(function)] function;
             c_expr.expr &:= "profile[";
             c_expr.expr &:= str(objNumber(function));
             c_expr.expr &:= "].count++;\n";
@@ -2094,7 +2094,7 @@ const proc: process_const_func_declaration (in reference: function,
           c_expr.expr &:= "fflush(stdout);\n";
         end if;
         if profile_function then
-          function_name @:= [objNumber(function)] create_name(function);
+          profiledFunctions @:= [objNumber(function)] function;
           c_expr.expr &:= "profile[";
           c_expr.expr &:= str(objNumber(function));
           c_expr.expr &:= "].count++;\n";
@@ -2213,7 +2213,8 @@ const proc: process_main_declaration (in reference: current_object,
       main_prolog &:= "fflush(stdout);\n";
     end if;
     if profile_function then
-      function_name @:= [objNumber(main_object)] create_name(main_object);
+      main_prolog &:= "initProfile();\n";
+      profiledFunctions @:= [objNumber(main_object)] main_object;
       main_prolog &:= "profile[";
       main_prolog &:= str(objNumber(main_object));
       main_prolog &:= "].count++;\n";
@@ -2283,11 +2284,12 @@ const proc: process_main_declaration (in reference: current_object,
       main_epilog &:= "  if (profile_file != NULL) {\n";
       main_epilog &:= "    qsort(profile, profile_size, sizeof(struct profileElement),\n";
       main_epilog &:= "          cmpProfileElement);\n";
-      main_epilog &:= "    fprintf(profile_file, \"usecs\\tcalls\\tname\\n\");\n";
+      main_epilog &:= "    fprintf(profile_file, \"usecs\\tcalls\\tplace\\tname\\n\");\n";
       main_epilog &:= "    for (index = 0; index < profile_size; index++) {\n";
       main_epilog &:= "      if (profile[index].count != 0) {\n";
-      main_epilog &:= "        fprintf(profile_file, \"%ld\\t%ld\\t%s\\n\",\n";
+      main_epilog &:= "        fprintf(profile_file, \"%ld\\t%ld\\t%s(%lu)\\t%s\\n\",\n";
       main_epilog &:= "                (long) profile[index].time, (long) profile[index].count,\n";
+      main_epilog &:= "                profile[index].file, (long unsigned) profile[index].line,\n";
       main_epilog &:= "                profile[index].name);\n";
       main_epilog &:= "      }\n";
       main_epilog &:= "    }\n";
@@ -5106,9 +5108,12 @@ const proc: write_file_head is func
       writeln(c_prog, "  intType time;");
       writeln(c_prog, "  intType count;");
       writeln(c_prog, "  intType depth;");
+      writeln(c_prog, "  char *file;");
+      writeln(c_prog, "  intType line;");
       writeln(c_prog, "  char *name;");
       writeln(c_prog, "};");
       writeln(c_prog, "static struct profileElement profile[];");
+      writeln(c_prog, "static void initProfile (void);");
       writeln(c_prog, "static int cmpProfileElement (const void *elem1, const void *elem2)");
       writeln(c_prog, "{");
       writeln(c_prog, "  int signumValue;");
@@ -5125,8 +5130,8 @@ const proc: write_file_head is func
       writeln(c_prog, "             ((struct profileElement *) elem2)->count) {");
       writeln(c_prog, "    signumValue = -1;");
       writeln(c_prog, "  } else {");
-      writeln(c_prog, "    signumValue = -strcmp(((struct profileElement *) elem1)->name,");
-      writeln(c_prog, "                          ((struct profileElement *) elem2)->name);");
+      writeln(c_prog, "    signumValue = strcmp(((struct profileElement *) elem1)->name,");
+      writeln(c_prog, "                         ((struct profileElement *) elem2)->name);");
       writeln(c_prog, "  }");
       writeln(c_prog, "  return signumValue;");
       writeln(c_prog, "}");
@@ -6764,19 +6769,28 @@ const proc: process_global_declarations (in program: prog) is func
       int_type := getValue(sysVar(prog, "integer"), type);
       numObjects := objNumber(alloc(TRUE, int_type, 0));
       writeln(c_prog, "static unsigned int profile_size = " <& numObjects <& ";");
-      writeln(c_prog, "static struct profileElement profile[" <& numObjects <& "] = {{0, 0, 0, \"\"},");
-      for index range 1 to numObjects do
-        write(c_prog, "  {0, 0, 0, ");
-        if index = objNumber(main_object) then
-          write(c_prog, "\"main\"");
-        elsif index in function_name then
-          write(c_prog, c_literal(function_name[index]));
-        else
-          write(c_prog, "\"\"");
+      writeln(c_prog, "static struct profileElement profile[" <& numObjects <& "];");
+      writeln(c_prog);
+      writeln(c_prog, "static void initProfile (void)");
+      writeln(c_prog, "{");
+      writeln(c_prog, "  memSizeType index;");
+      writeln(c_prog, "  memset(profile, 0, " <& numObjects <& " * sizeof(struct profileElement));");
+      writeln(c_prog, "  for (index = 0; index < " <& numObjects <& "; index++) {");
+      writeln(c_prog, "    profile[index].file = \"\";");
+      writeln(c_prog, "    profile[index].name = \"\";");
+      writeln(c_prog, "  }");
+      for index range 1 to pred(numObjects) do
+        if index in profiledFunctions then
+          write(c_prog, "  profile[" <& index <& "].file = " <&
+                c_literal(striToUtf8(file(profiledFunctions[index]))) <& ";");
+          write(c_prog, " profile[" <& index <& "].line = " <&
+                line(profiledFunctions[index]) <& ";");
+          writeln(c_prog, " profile[" <& index <& "].name = " <&
+                  c_literal(striToUtf8(str(profiledFunctions[index]))) <& ";");
         end if;
-        writeln(c_prog, "},");
       end for;
-      writeln(c_prog, "};");
+      writeln(c_prog, "}");
+      writeln(c_prog);
     end if;
     write(c_prog, global_c_expr.expr);
     write(c_prog, c_expr.expr);
@@ -6882,14 +6896,18 @@ const proc: pass_1 (in string: source, inout program: prog,
       end if;
       setOptimizationSettings(evaluate_const_expr);
       if "-s" in compiler_option then
-        if pos(compiler_option["-s"], 'r') <> 0 then
-          array_range_check := FALSE;
-          conversion_range_check := FALSE;
+        if pos(compiler_option["-s"], 'd') <> 0 then
+          integer_division_check := FALSE;
         end if;
         if pos(compiler_option["-s"], 'o') <> 0 then
           integer_overflow_check := FALSE;
         end if;
+        if pos(compiler_option["-s"], 'r') <> 0 then
+          array_range_check := FALSE;
+          conversion_range_check := FALSE;
+        end if;
       end if;
+      setIntegerDivisionCheck(integer_division_check);
       setIntegerOverflowCheck(integer_overflow_check);
       if "-c" in compiler_option then
         generate_c_plus_plus := compiler_option["-c"] = "++";
@@ -7312,6 +7330,9 @@ const proc: pass_3 (in string: sourcePath, in string: sourceExtension, in progra
             if consoleLibraryUsed then
               linkParams &:= ccConf.SYSTEM_CONSOLE_LIBS;
             end if;
+            if databaseLibraryUsed then
+              linkParams &:= ccConf.SYSTEM_DATABASE_LIBS;
+            end if;
             linkParams &:= ccConf.SYSTEM_LIBS;
             linkParams &:= ccConf.ADDITIONAL_SYSTEM_LIBS;
             if ccConf.CALL_C_COMPILER_FROM_SHELL then
@@ -7374,8 +7395,9 @@ const proc: writeHelp is func
     writeln("  -p   Activate simple function profiling.");
     writeln("  -sx  Suppress checks specified with x. E.g.: -sr or -sro");
     writeln("       The checks x are specified with letters from the following list:");
-    writeln("         r Suppress the generation of range checks for strings and arrays.");
+    writeln("         d Suppress the generation of checks for integer division by zero.");
     writeln("         o Suppress the generation of integer overflow checks.");
+    writeln("         r Suppress the generation of range checks for strings and arrays.");
     writeln("  -tx  Set runtime trace level to x. Where x is a string consisting of:");
     writeln("         e Trace exceptions and handlers");
     writeln("         f Trace functions");

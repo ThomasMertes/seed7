@@ -171,6 +171,7 @@ filebits.s7i File mode bits used by archive file systems.
 filesys.s7i  Interface for file systems (os, tar, zip, ...)
 float.s7i    Floating point support library
 font.s7i     Defines the font interface
+font8x8.s7i  font with 8x8 pixel used by TI-99/4A.
 forloop.s7i  For-loop and templates to define for-loop
 ftp.s7i      Support for FTP (file transfer protocol)
 ftpserv.s7i  FTP (file transfer protocol) server library.

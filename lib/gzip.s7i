@@ -206,7 +206,7 @@ type_implements_interface(gunzipFile, file);
 
 
 (**
- *  Open a ''gunzipFile'' to decompress a compressed string.
+ *  Open a ''gunzipFile'' to decompress a compressed file.
  *  @return the file opened.
  *)
 const func file: openGunzipFile (inout file: compressed) is func

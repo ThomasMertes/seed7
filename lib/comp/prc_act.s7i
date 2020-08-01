@@ -798,6 +798,7 @@ const proc: process (PRC_BLOCK, in reference: function,
     var reference: current_catch is NIL;
     var ref_list: catch_expr is ref_list.EMPTY;
     var reference: catch_value is NIL;
+    var string: exception_name is "";
   begin
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "{\n";
@@ -827,6 +828,12 @@ const proc: process (PRC_BLOCK, in reference: function,
         category(current_catch) = MATCHOBJECT and
         length(catch_expr) >= 5 do
       catch_value := catch_expr[3];
+      exception_name := str(catch_value);
+      if  (not integer_division_check and exception_name = "NUMERIC_ERROR") or
+          (not integer_overflow_check and exception_name = "OVERFLOW_ERROR") or
+          (not (array_range_check and conversion_range_check) and exception_name = "RANGE_ERROR") then
+        warning(CATCH_WITH_SUPPRESSED_CHECK, exception_name, current_catch);
+      end if;
       c_expr.expr &:= diagnosticLine(current_catch);
       c_expr.expr &:= "if (";
       process_expr(catch_value, c_expr);
@@ -895,6 +902,7 @@ const proc: process (PRC_BLOCK_OTHERWISE, in reference: function,
     var reference: current_catch is NIL;
     var ref_list: catch_expr is ref_list.EMPTY;
     var reference: catch_value is NIL;
+    var string: exception_name is "";
   begin
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "{\n";
@@ -924,6 +932,12 @@ const proc: process (PRC_BLOCK_OTHERWISE, in reference: function,
         category(current_catch) = MATCHOBJECT and
         length(catch_expr) >= 5 do
       catch_value := catch_expr[3];
+      exception_name := str(catch_value);
+      if  (not integer_division_check and exception_name = "NUMERIC_ERROR") or
+          (not integer_overflow_check and exception_name = "OVERFLOW_ERROR") or
+          (not (array_range_check and conversion_range_check) and exception_name = "RANGE_ERROR") then
+        warning(CATCH_WITH_SUPPRESSED_CHECK, exception_name, current_catch);
+      end if;
       c_expr.expr &:= diagnosticLine(current_catch);
       c_expr.expr &:= "if (";
       process_expr(catch_value, c_expr);

@@ -199,6 +199,7 @@ const proc: process_const_chr_iconv (in integer: number, inout expr_type: c_expr
   begin
     incr(countOptimizations);
     if number < pred(-2147483647) or number > 2147483647 then
+      warning(DOES_RAISE, "RANGE_ERROR", c_expr);
       c_expr.expr &:= intRaiseError("RANGE_ERROR");
     else
       c_expr.expr &:= "(charType) ";

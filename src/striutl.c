@@ -2139,6 +2139,15 @@ striType wstri_buf_to_stri (const_wstriType wstri, memSizeType length,
 
 
 
+/**
+ *  Copy a wide string with length to a null terminated C string.
+ *  This function is used to convert (ASCII) date and time values.
+ *  @param cstri Destination of the null terminated string.
+ *  @param wstri Source wide char string to be copied.
+ *  @param length Length of wstri measured in wide characters.
+ *  @return OKAY_NO_ERROR if the conversion succeeded, or
+ *          RANGE_ERROR if non-ASCII characters were found.
+ */
 errInfoType conv_wstri_buf_to_cstri (cstriType cstri, const_wstriType wstri,
     memSizeType length)
 
@@ -3032,6 +3041,13 @@ os_striType temp_name_in_dir (const const_os_striType path)
 
 
 
+/**
+ *  Add escapes and quotes to a command for system() and popen().
+ *  @param inBuffer Null terminated string with the shell command.
+ *  @param outBuffer Destination for the processed command.
+ *  @param err_info Unchanged if the function succeeds, and
+ *                  RANGE_ERROR if there are illegal chars in inBuffer.
+ */
 static void escape_command (const const_os_striType inBuffer, os_striType outBuffer,
     errInfoType *err_info)
 
@@ -3104,7 +3120,22 @@ static void escape_command (const const_os_striType inBuffer, os_striType outBuf
 
 
 
-os_striType cp_to_command (const const_striType commandPath,
+/**
+ *  Create a command string that is usable for system() and popen().
+ *  @param command Name of the command to be executed. A path must
+ *                 use the standard path representation.
+ *  @param parameters Space separated list of parameters for the
+ *                    'command', or "" if there are no parameters.
+ *                    Parameters which contain a space must be
+ *                    enclosed in double quotes.
+ *  @param err_info Unchanged if the function succeeds, and
+ *                  MEMORY_ERROR if a memory allocation failed, and
+ *                  RANGE_ERROR if command or parameters are not okay.
+ *  @return command string with all necessary escapes and quotes
+ *          such that it can be used for system() and popen(), or
+ *          NULL if an error occurred.
+ */
+os_striType cp_to_command (const const_striType command,
     const const_striType parameters, errInfoType *err_info)
 
   {
@@ -3118,21 +3149,21 @@ os_striType cp_to_command (const const_striType commandPath,
 
   /* cp_to_command */
     logFunction(printf("cp_to_command(\"%s\", ",
-                       striAsUnquotedCStri(commandPath));
+                       striAsUnquotedCStri(command));
                 printf("\"%s\", *)\n",
                        striAsUnquotedCStri(parameters)););
 #if EMULATE_ROOT_CWD
-    if (memchr_strelem(commandPath->mem, '/', commandPath->size) != NULL) {
-      os_commandPath = cp_to_os_path(commandPath, &path_info, err_info);
-    } else if (unlikely(memchr_strelem(commandPath->mem, '\\',
-                                       commandPath->size) != NULL)) {
+    if (memchr_strelem(command->mem, '/', command->size) != NULL) {
+      os_commandPath = cp_to_os_path(command, &path_info, err_info);
+    } else if (unlikely(memchr_strelem(command->mem, '\\',
+                                       command->size) != NULL)) {
       *err_info = RANGE_ERROR;
       os_commandPath = NULL;
     } else {
-      os_commandPath = stri_to_os_stri(commandPath, err_info);
+      os_commandPath = stri_to_os_stri(command, err_info);
     } /* if */
 #else
-    os_commandPath = cp_to_os_path(commandPath, &path_info, err_info);
+    os_commandPath = cp_to_os_path(command, &path_info, err_info);
 #endif
     logMessage(printf("cp_to_command: os_commandPath: \"" FMT_S_OS "\"\n",
                       os_commandPath););

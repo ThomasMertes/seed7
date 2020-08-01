@@ -24,13 +24,9 @@ LDFLAGS = -Wl,--gc-sections -L%%LOCALBASE%%/lib
 SYSTEM_LIBS = -lm
 # SYSTEM_LIBS = -lm -lgmp
 # SYSTEM_LIBS = -lm_p -lc_p
-# SYSTEM_DRAW_LIBS is defined in the file "macros". When doing "make depend" chkccomp.c writes it.
-# SYSTEM_DRAW_LIBS = -lX11
-# SYSTEM_DRAW_LIBS = /usr/Xlib/libX11.so
-# SYSTEM_DRAW_LIBS = -lX11 -lXext
-# SYSTEM_DRAW_LIBS = -lGL -lGLEW -lglut
-# SYSTEM_DRAW_LIBS = -lGL -lGLEW -lX11
-SYSTEM_CONSOLE_LIBS = -lncurses
+# SYSTEM_DRAW_LIBS is defined in the file "macros". The program chkccomp.c writes it to "macros" when doing "make depend".
+# SYSTEM_CONSOLE_LIBS is defined in the file "macros". The program chkccomp.c writes it to "macros" when doing "make depend".
+# SYSTEM_DATABASE_LIBS is defined in the file "macros". The program chkccomp.c writes it to "macros" when doing "make depend".
 SEED7_LIB = seed7_05.a
 DRAW_LIB = s7_draw.a
 CONSOLE_LIB = s7_con.a
@@ -39,30 +35,6 @@ COMP_DATA_LIB = s7_data.a
 COMPILER_LIB = s7_comp.a
 ALL_S7_LIBS = ../bin/$(COMPILER_LIB) ../bin/$(COMP_DATA_LIB) ../bin/$(DRAW_LIB) ../bin/$(CONSOLE_LIB) ../bin/$(DATABASE_LIB) ../bin/$(SEED7_LIB)
 GET_CC_VERSION_INFO = $(CC) --version >
-
-TERMINFO_OR_TERMCAP = USE_TERMINFO
-CONSOLE_LIB_OBJ = kbd_rtl.o con_inf.o kbd_inf.o trm_inf.o
-CONSOLE_LIB_SRC = kbd_rtl.c con_inf.c kbd_inf.c trm_inf.c
-# TERMINFO_OR_TERMCAP = USE_TERMCAP
-# CONSOLE_LIB_OBJ = kbd_rtl.o con_inf.o kbd_inf.o trm_cap.o
-# CONSOLE_LIB_SRC = kbd_rtl.c con_inf.c kbd_inf.c trm_cap.c
-# TERMINFO_OR_TERMCAP = USE_TERMINFO
-# CONSOLE_LIB_OBJ = kbd_rtl.o con_inf.o kbd_poll.o trm_inf.o
-# CONSOLE_LIB_SRC = kbd_rtl.c con_inf.c kbd_poll.c trm_inf.c
-# TERMINFO_OR_TERMCAP = USE_TERMCAP
-# CONSOLE_LIB_OBJ = kbd_rtl.o con_inf.o kbd_poll.o trm_cap.o
-# CONSOLE_LIB_SRC = kbd_rtl.c con_inf.c kbd_poll.c trm_cap.c
-
-# CONSOLE_LIB_OBJ = kbd_rtl.o con_cur.o
-# CONSOLE_LIB_SRC = kbd_rtl.c con_cur.c
-# CONSOLE_LIB_OBJ = kbd_rtl.o con_cap.o
-# CONSOLE_LIB_SRC = kbd_rtl.c con_cap.c
-# CONSOLE_LIB_OBJ = kbd_rtl.o con_tcp.o
-# CONSOLE_LIB_SRC = kbd_rtl.c con_tcp.c
-# CONSOLE_LIB_OBJ = kbd_rtl.o con_x11.o
-# CONSOLE_LIB_SRC = kbd_rtl.c con_x11.c
-# CONSOLE_LIB_OBJ = kbd_rtl.o con_win.o
-# CONSOLE_LIB_SRC = kbd_rtl.c con_win.c
 
 MOBJ = s7.o
 POBJ = runerr.o option.o primitiv.o
@@ -84,7 +56,9 @@ DOBJ = big_rtl.o big_gmp.o cmd_unx.o dir_win.o dll_unx.o fil_unx.o pcs_unx.o pol
 OBJ = $(MOBJ)
 SEED7_LIB_OBJ = $(ROBJ) $(DOBJ)
 DRAW_LIB_OBJ = gkb_rtl.o drw_x11.o gkb_x11.o fwd_x11.o
-DATABASE_LIB_OBJ = sql_base.o sql_db2.o sql_fire.o sql_lite.o sql_my.o sql_oci.o sql_odbc.o sql_post.o sql_srv.o
+CONSOLE_LIB_OBJ = kbd_rtl.o con_inf.o kbd_inf.o kbd_poll.o trm_inf.o trm_cap.o fwd_term.o
+DATABASE_LIB_OBJ = sql_base.o sql_db2.o sql_fire.o sql_lite.o sql_my.o sql_oci.o sql_odbc.o \
+                   sql_post.o sql_srv.o sql_tds.o
 COMP_DATA_LIB_OBJ = typ_data.o rfl_data.o ref_data.o listutl.o flistutl.o typeutl.o datautl.o
 COMPILER_LIB_OBJ = $(POBJ) $(LOBJ) $(EOBJ) $(AOBJ) $(GOBJ)
 
@@ -108,7 +82,9 @@ DSRC = big_rtl.c big_gmp.c cmd_unx.c dir_win.c dll_unx.c fil_unx.c pcs_unx.c pol
 SRC = $(MSRC)
 SEED7_LIB_SRC = $(RSRC) $(DSRC)
 DRAW_LIB_SRC = gkb_rtl.c drw_x11.c gkb_x11.c fwd_x11.c
-DATABASE_LIB_SRC_STD_INCL = sql_base.c sql_fire.c sql_lite.c sql_my.c sql_oci.c sql_odbc.c sql_post.c
+CONSOLE_LIB_SRC = kbd_rtl.c con_inf.c kbd_inf.c kbd_poll.c trm_inf.c trm_cap.c fwd_term.c
+DATABASE_LIB_SRC_STD_INCL = sql_base.c sql_fire.c sql_lite.c sql_my.c sql_oci.c sql_odbc.c \
+                            sql_post.c sql_tds.c
 DATABASE_LIB_SRC = $(DATABASE_LIB_SRC_STD_INCL) sql_db2.c sql_srv.c
 COMP_DATA_LIB_SRC = typ_data.c rfl_data.c ref_data.c listutl.c flistutl.c typeutl.c datautl.c
 COMPILER_LIB_SRC = $(PSRC) $(LSRC) $(ESRC) $(ASRC) $(GSRC)
@@ -119,7 +95,7 @@ s7: ../bin/s7 ../prg/s7
 s7c: ../bin/s7c ../prg/s7c
 
 ../bin/s7: $(OBJ) $(ALL_S7_LIBS)
-	$(CC) $(LDFLAGS) $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS) -o ../bin/s7
+	$(CC) $(LDFLAGS) $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_DATABASE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS) -o ../bin/s7
 
 ../prg/s7:
 	ln -s ../bin/s7 ../prg
@@ -168,12 +144,21 @@ chkccomp.h:
 	echo "#define POSTGRESQL_LIBRARY_PATH \"-L%%LOCALBASE%%/lib\"" >> chkccomp.h
 	echo "#define ODBC_INCLUDE_OPTIONS \"-I%%LOCALBASE%%/include\"" >> chkccomp.h
 	echo "#define ODBC_LIBRARY_PATH \"-L%%LOCALBASE%%/lib\"" >> chkccomp.h
+	echo "#define OCI_INCLUDE_OPTIONS \"-I%%LOCALBASE%%/include\"" >> chkccomp.h
+	echo "#define OCI_LIBRARY_PATH \"-L%%LOCALBASE%%/lib\"" >> chkccomp.h
+	echo "#define FIRE_INCLUDE_OPTIONS \"-I%%LOCALBASE%%/include\"" >> chkccomp.h
+	echo "#define FIRE_LIBRARY_PATH \"-L%%LOCALBASE%%/lib\"" >> chkccomp.h
+	echo "#define DB2_INCLUDE_OPTIONS \"-I%%LOCALBASE%%/include\"" >> chkccomp.h
+	echo "#define DB2_LIBRARY_PATH \"-L%%LOCALBASE%%/lib\"" >> chkccomp.h
+	echo "#define SQL_SERVER_INCLUDE_OPTIONS \"-I%%LOCALBASE%%/include\"" >> chkccomp.h
+	echo "#define SQL_SERVER_LIBRARY_PATH \"-L%%LOCALBASE%%/lib\"" >> chkccomp.h
+	echo "#define TDS_INCLUDE_OPTIONS \"-I%%LOCALBASE%%/include\"" >> chkccomp.h
+	echo "#define TDS_LIBRARY_PATH \"-L%%LOCALBASE%%/lib\"" >> chkccomp.h
 
 version.h: chkccomp.h
 	echo "#define PATH_DELIMITER '/'" > version.h
 	echo "#define SEARCH_PATH_DELIMITER ':'" >> version.h
 	echo "#define AWAIT_WITH_SELECT" >> version.h
-	echo "#define $(TERMINFO_OR_TERMCAP)" >> version.h
 	echo "#define SIGNAL_HANDLER_CAN_DO_IO" >> version.h
 	echo "#define CONSOLE_UTF8" >> version.h
 	echo "#define OS_STRI_UTF8" >> version.h
@@ -186,13 +171,13 @@ version.h: chkccomp.h
 	echo "#define CC_SOURCE_UTF8" >> version.h
 	echo "#define CC_OPT_DEBUG_INFO \"-g\"" >> version.h
 	echo "#define CC_OPT_NO_WARNINGS \"-w\"" >> version.h
-	echo "#define CC_FLAGS \"-ffunction-sections -fdata-sections -ftrapv\"" >> version.h
+	echo "#define CC_OPT_TRAP_OVERFLOW \"-ftrapv\"" >> version.h
+	echo "#define CC_FLAGS \"-ffunction-sections -fdata-sections\"" >> version.h
 	echo "#define CC_ERROR_FILDES 2" >> version.h
 	echo "#define LINKER_OPT_NO_DEBUG_INFO \"-Wl,--strip-debug\"" >> version.h
 	echo "#define LINKER_OPT_OUTPUT_FILE \"-o \"" >> version.h
 	echo "#define LINKER_FLAGS \"$(LDFLAGS)\"" >> version.h
 	echo "#define SYSTEM_LIBS \"$(SYSTEM_LIBS)\"" >> version.h
-	echo "#define SYSTEM_CONSOLE_LIBS \"$(SYSTEM_CONSOLE_LIBS)\"" >> version.h
 	$(GET_CC_VERSION_INFO) cc_vers.txt
 	$(CC) -ftrapv chkccomp.c -o chkccomp
 	./chkccomp version.h
@@ -286,10 +271,10 @@ wc: $(SRC)
 	wc $(COMPILER_LIB_SRC)
 
 lint: $(SRC)
-	lint -p $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS)
+	lint -p $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_DATABASE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS)
 
 lint2: $(SRC)
-	lint -Zn2048 $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS)
+	lint -Zn2048 $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_DATABASE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS)
 
 .if exists(depend)
 .include "depend"

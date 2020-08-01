@@ -58,7 +58,8 @@ const proc: main is func
         write(ord(ch) <& " ");
         if ch in keyDescription then
           writeln(keyDescription[ch]);
-        elsif ch >= ' ' and ch <= '~' or ch >= '\160;' then
+        elsif ch >= ' ' and ch <= '~' or
+            ch >= '\160;' and ch <= char.last then
           writeln(ch);
         else
           writeln;
@@ -73,15 +74,21 @@ const proc: main is func
       end if;
       xPos +:= xIncr;
       rect(xPos, 10, 10, 10, buttonColor[buttonPressed(KEYBOARD, lastChar)]);
-      rect(240, 100, 40, 20, buttonColor[buttonPressed(KEYBOARD, KEY_SHIFT)]);
-      rect(10, 50, 40, 20, buttonColor[buttonPressed(KEYBOARD, KEY_LEFT_SHIFT)]);
-      rect(590, 50, 40, 20, buttonColor[buttonPressed(KEYBOARD, KEY_RIGHT_SHIFT)]);
-      rect(300, 100, 40, 20, buttonColor[buttonPressed(KEYBOARD, KEY_CONTROL)]);
-      rect(10, 100, 40, 20, buttonColor[buttonPressed(KEYBOARD, KEY_LEFT_CONTROL)]);
-      rect(590, 100, 40, 20, buttonColor[buttonPressed(KEYBOARD, KEY_RIGHT_CONTROL)]);
-      rect(360, 100, 40, 20, buttonColor[buttonPressed(KEYBOARD, KEY_ALT)]);
-      rect(60, 100, 40, 20, buttonColor[buttonPressed(KEYBOARD, KEY_LEFT_ALT)]);
-      rect(540, 100, 40, 20, buttonColor[buttonPressed(KEYBOARD, KEY_RIGHT_ALT)]);
+      rect( 10, 100, 40, 20, buttonColor[buttonPressed(KEYBOARD, KEY_SHIFT_LOCK)]);
+      rect( 10, 130, 40, 20, buttonColor[buttonPressed(KEYBOARD, KEY_LEFT_SHIFT)]);
+      rect( 10, 160, 40, 20, buttonColor[buttonPressed(KEYBOARD, KEY_LEFT_CONTROL)]);
+      rect( 60, 160, 40, 20, buttonColor[buttonPressed(KEYBOARD, KEY_LEFT_ALT)]);
+      rect(540, 100, 40, 20, buttonColor[buttonPressed(KEYBOARD, KEY_SCROLL_LOCK)]);
+      rect(590, 100, 40, 20, buttonColor[buttonPressed(KEYBOARD, KEY_NUM_LOCK)]);
+      rect(590, 130, 40, 20, buttonColor[buttonPressed(KEYBOARD, KEY_RIGHT_SHIFT)]);
+      rect(590, 160, 40, 20, buttonColor[buttonPressed(KEYBOARD, KEY_RIGHT_CONTROL)]);
+      rect(540, 160, 40, 20, buttonColor[buttonPressed(KEYBOARD, KEY_RIGHT_ALT)]);
+      rect(240, 160, 40, 20, buttonColor[buttonPressed(KEYBOARD, KEY_SHIFT)]);
+      rect(300, 160, 40, 20, buttonColor[buttonPressed(KEYBOARD, KEY_CONTROL)]);
+      rect(360, 160, 40, 20, buttonColor[buttonPressed(KEYBOARD, KEY_ALT)]);
+      rect(580,  50, 10, 10, buttonColor[buttonPressed(KEYBOARD, KEY_NUM_LOCK_ON)]);
+      rect(600,  50, 10, 10, buttonColor[buttonPressed(KEYBOARD, KEY_SHIFT_LOCK_ON)]);
+      rect(620,  50, 10, 10, buttonColor[buttonPressed(KEYBOARD, KEY_SCROLL_LOCK_ON)]);
       DRAW_FLUSH;
       await(waitTime);
     until lastChar = '!';

@@ -133,6 +133,27 @@
 #endif
 
 
+#if HAS_BUILTIN_OVERFLOW_OPERATIONS
+#if INTTYPE_SIZE == INT_SIZE
+#define BUILTIN_ADD_OVERFLOW "__builtin_sadd_overflow"
+#define BUILTIN_SUB_OVERFLOW "__builtin_ssub_overflow"
+#define BUILTIN_MULT_OVERFLOW "__builtin_smul_overflow"
+#elif INTTYPE_SIZE == LONG_SIZE
+#define BUILTIN_ADD_OVERFLOW "__builtin_saddl_overflow"
+#define BUILTIN_SUB_OVERFLOW "__builtin_ssubl_overflow"
+#define BUILTIN_MULT_OVERFLOW "__builtin_smull_overflow"
+#elif defined(LONG_LONG_SIZE) && INTTYPE_SIZE == LONG_LONG_SIZE
+#define BUILTIN_ADD_OVERFLOW "__builtin_saddll_overflow"
+#define BUILTIN_SUB_OVERFLOW "__builtin_ssubll_overflow"
+#define BUILTIN_MULT_OVERFLOW "__builtin_smulll_overflow"
+#endif
+#else
+#define BUILTIN_ADD_OVERFLOW ""
+#define BUILTIN_SUB_OVERFLOW ""
+#define BUILTIN_MULT_OVERFLOW ""
+#endif
+
+
 #ifndef INT64TYPE
 #define INT64TYPE_STRI ""
 #define UINT64TYPE_STRI ""
@@ -1658,6 +1679,8 @@ striType cmdConfigValue (const const_striType name)
       opt = SYSTEM_DRAW_LIBS;
     } else if (strcmp(opt_name, "SYSTEM_CONSOLE_LIBS") == 0) {
       opt = SYSTEM_CONSOLE_LIBS;
+    } else if (strcmp(opt_name, "SYSTEM_DATABASE_LIBS") == 0) {
+      opt = SYSTEM_DATABASE_LIBS;
     } else if (strcmp(opt_name, "ADDITIONAL_SYSTEM_LIBS") == 0) {
       opt = ADDITIONAL_SYSTEM_LIBS;
     } else if (strcmp(opt_name, "SEED7_LIB") == 0) {
@@ -1731,12 +1754,20 @@ striType cmdConfigValue (const const_striType name)
       opt = MACRO_DEFS  OS_ISNAN_DEFINITION;
     } else if (strcmp(opt_name, "OVERFLOW_SIGNAL") == 0) {
       opt = OVERFLOW_SIGNAL_STR;
+    } else if (strcmp(opt_name, "BUILTIN_ADD_OVERFLOW") == 0) {
+      opt = BUILTIN_ADD_OVERFLOW;
+    } else if (strcmp(opt_name, "BUILTIN_SUB_OVERFLOW") == 0) {
+      opt = BUILTIN_SUB_OVERFLOW;
+    } else if (strcmp(opt_name, "BUILTIN_MULT_OVERFLOW") == 0) {
+      opt = BUILTIN_MULT_OVERFLOW;
     } else if (strcmp(opt_name, "FLOATTYPE_DOUBLE") == 0) {
       opt = FLOATTYPE_DOUBLE ? "TRUE" : "FALSE";
     } else if (strcmp(opt_name, "HAS_SIGSETJMP") == 0) {
       opt = HAS_SIGSETJMP ? "TRUE" : "FALSE";
     } else if (strcmp(opt_name, "CHECK_INT_DIV_BY_ZERO") == 0) {
       opt = CHECK_INT_DIV_BY_ZERO ? "TRUE" : "FALSE";
+    } else if (strcmp(opt_name, "CHECK_INT_DIV_ZERO_BY_ZERO") == 0) {
+      opt = CHECK_INT_DIV_ZERO_BY_ZERO ? "TRUE" : "FALSE";
     } else if (strcmp(opt_name, "CHECK_INT_REM_BY_ZERO") == 0) {
       opt = CHECK_INT_REM_BY_ZERO ? "TRUE" : "FALSE";
     } else if (strcmp(opt_name, "CHECK_INT_REM_ZERO_BY_ZERO") == 0) {

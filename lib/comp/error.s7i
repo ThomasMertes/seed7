@@ -76,6 +76,13 @@ const proc: warning (DOES_RAISE, in string: exceptionName, in expr_type: c_expr)
   end func;
 
 
+const proc: warning (CATCH_WITH_SUPPRESSED_CHECK, in string: exceptionName, in reference: current_catch) is func
+  begin
+    writeln("*** " <& sourceNameString(file(current_catch)) <& "(" <& line(current_catch) <&
+            "): Catch of " <& exceptionName <& " although the checks are suppressed.");
+  end func;
+
+
 const proc: error (WHEN_OVERLAPPING, in bitset: overlappingWhenValues,
     in reference: current_expression) is func
   begin

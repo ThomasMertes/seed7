@@ -245,7 +245,9 @@ const func string: fromQuotedPrintable (in string: quoted) is func
  *  representation. The radix-64 digits are encoded with consecutive
  *  ASCII characters starting from ' ' (which represents 0). Every
  *  line starts with a radix-64 digit character indicating the number
- *  of data bytes encoded on that line.
+ *  of data bytes encoded on that line. Some newer uuencode tools use
+ *  grave accent ('`') instead of space (' ') to encode 0. This can
+ *  be emulated by using: replace(toUuencoded(source), " ", "`").
  *  @return the encoded string.
  *  @exception RANGE_ERROR If characters beyond '\255;' are present.
  *)
@@ -300,6 +302,7 @@ const func string: toUuencoded (in string: byteStri) is func
 
 (**
  *  Decode an uuencoded string.
+ *  Space (' ') and grave accent ('`') both are used to encode 0.
  *  @return the decoded string.
  *  @exception RANGE_ERROR If ''uuencoded'' is not in uuencoded format.
  *)

@@ -58,7 +58,7 @@
 #define AND_SO_ON_LIMIT           128
 
 /* DECIMAL_WITH_LIMIT provides parameters for the format string \"%.*s%s\" */
-#define DECIMAL_WITH_LIMIT(decimal, limit) \
+#define DECIMAL_WITH_LIMIT(decimal, length) \
     (int) (length <= AND_SO_ON_LIMIT ? length : AND_SO_ON_LIMIT), \
     decimal, length > AND_SO_ON_LIMIT ? "\\ *AND_SO_ON* " : ""
 
@@ -343,7 +343,7 @@ intType getDecimalInt (const const_ustriType decimal, memSizeType length)
 
   /* getDecimalInt */
     logFunction(printf("getDecimalInt(\"%.*s%s\", " FMT_U_MEM ")\n",
-                       DECIMAL_WITH_LIMIT(decimal, limit), length););
+                       DECIMAL_WITH_LIMIT(decimal, length), length););
     if (likely(length != 0)) {
       if (decimal[0] == '-') {
         negative = TRUE;
@@ -416,7 +416,7 @@ bigIntType getDecimalBigInt (const const_ustriType decimal, memSizeType length)
 
   /* getDecimalBigInt */
     logFunction(printf("getDecimalBigInt(\"%.*s%s\", " FMT_U_MEM ")\n",
-                       DECIMAL_WITH_LIMIT(decimal, limit), length););
+                       DECIMAL_WITH_LIMIT(decimal, length), length););
     stri = cstri_buf_to_stri((const_cstriType) decimal, length);
     /* printf("getDecimalBigInt: stri: ");
        prot_stri(stri);
@@ -451,7 +451,7 @@ bigIntType getDecimalBigRational (const const_ustriType decimal, memSizeType len
 
   /* getDecimalBigRational */
     logFunction(printf("getDecimalBigRational(\"%.*s%s\", " FMT_U_MEM ")\n",
-                       DECIMAL_WITH_LIMIT(decimal, limit), length););
+                       DECIMAL_WITH_LIMIT(decimal, length), length););
     if (unlikely(!ALLOC_STRI_CHECK_SIZE(stri, length))) {
       *denominator = NULL;
       raise_error(MEMORY_ERROR);
@@ -527,7 +527,7 @@ floatType getDecimalFloat (const const_ustriType decimal, memSizeType length)
 
   /* getDecimalFloat */
     logFunction(printf("getDecimalFloat(\"%.*s%s\", " FMT_U_MEM ")\n",
-                       DECIMAL_WITH_LIMIT(decimal, limit), length););
+                       DECIMAL_WITH_LIMIT(decimal, length), length););
     if (length > MAX_DECIMAL_BUFFER_LENGTH) {
       charBuffer = (char *) malloc(length + NULL_TERMINATION_LEN);
     } else {
