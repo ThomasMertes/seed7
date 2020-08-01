@@ -1,0 +1,473 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  bin_act.s7i   Generate code for bin32 and bin64 actions.        *)
+(*  Copyright (C) 1990 - 1994, 2004 - 2015  Thomas Mertes           *)
+(*                                                                  *)
+(*  This file is part of the Seed7 compiler.                        *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const ACTION: BIN_AND               is action "BIN_AND";
+const ACTION: BIN_AND_ASSIGN        is action "BIN_AND_ASSIGN";
+const ACTION: BIN_BIG               is action "BIN_BIG";
+const ACTION: BIN_BINARY            is action "BIN_BINARY";
+const ACTION: BIN_LSHIFT            is action "BIN_LSHIFT";
+const ACTION: BIN_LSHIFT_ASSIGN     is action "BIN_LSHIFT_ASSIGN";
+const ACTION: BIN_OR                is action "BIN_OR";
+const ACTION: BIN_OR_ASSIGN         is action "BIN_OR_ASSIGN";
+const ACTION: BIN_radix             is action "BIN_radix";
+const ACTION: BIN_RADIX             is action "BIN_RADIX";
+const ACTION: BIN_RSHIFT            is action "BIN_RSHIFT";
+const ACTION: BIN_RSHIFT_ASSIGN     is action "BIN_RSHIFT_ASSIGN";
+const ACTION: BIN_STR               is action "BIN_STR";
+const ACTION: BIN_XOR               is action "BIN_XOR";
+const ACTION: BIN_XOR_ASSIGN        is action "BIN_XOR_ASSIGN";
+
+
+const proc: bin_prototypes (inout file: c_prog) is func
+
+  begin
+    declareExtern(c_prog, "striType    uintRadix (uintType, intType, boolType);");
+    declareExtern(c_prog, "striType    uintRadixPow2 (uintType, int, int, boolType);");
+    declareExtern(c_prog, "striType    uintStr (uintType);");
+  end func;
+
+
+const proc: process (BIN_AND, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ") & (";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (BIN_AND_ASSIGN, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: statement is expr_type.value;
+  begin
+    process_expr(params[1], statement);
+    statement.expr &:= "&=";
+    process_expr(params[3], statement);
+    statement.expr &:= ";\n";
+    doLocalDeclsOfStatement(statement, c_expr);
+  end func;
+
+
+const proc: process (BIN_BIG, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_bigint_result(c_expr);
+    c_expr.result_expr := "bigFromUInt64(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (BIN_BINARY, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "bigToUInt64(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process_const_bin_lshift (in reference: number, in integer: lshift,
+    inout expr_type: c_expr) is func
+
+  begin
+    if lshift < 0 or lshift >= ccConf.INTTYPE_SIZE then
+      incr(countOptimizations);
+      warning(DOES_RAISE, "OVERFLOW_ERROR", c_expr);
+      c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
+    else
+      c_expr.expr &:= "(intType)((uintType)(";
+      process_expr(number, c_expr);
+      c_expr.expr &:= ") << ";
+      c_expr.expr &:= integerLiteral(lshift);
+      c_expr.expr &:= ")";
+    end if;
+  end func;
+
+
+const proc: process (BIN_LSHIFT, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedParam is NIL;
+    var string: lshift_name is "";
+  begin
+    if getConstant(params[3], INTOBJECT, evaluatedParam) then
+      process_const_bin_lshift(params[1], getValue(evaluatedParam, integer), c_expr);
+    elsif check_int_shift_overflow then
+      incr(countOverflowChecks);
+      c_expr.expr &:= "(";
+      lshift_name := getParameterAsVariable("intType", "lshift_", params[3], c_expr);
+      c_expr.expr &:= "ovfChk(";
+      checkRangeFromZero(lshift_name, integerLiteral(ccConf.INTTYPE_SIZE), c_expr);
+      c_expr.expr &:= ")?";
+      c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
+      c_expr.expr &:= ":(intType)((uintType)(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= ") << ";
+      c_expr.expr &:= lshift_name;
+      c_expr.expr &:= "))";
+    else
+      c_expr.expr &:= "(intType)((uintType)(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= ") << (";
+      process_expr(params[3], c_expr);
+      c_expr.expr &:= "))";
+    end if;
+  end func;
+
+
+const proc: process_const_bin_lshift_assign (in reference: variable, in integer: lshift,
+    inout expr_type: c_expr) is func
+
+  local
+    var string: variable_name is "";
+    var expr_type: statement is expr_type.value;
+  begin
+    if lshift < 0 or lshift >= ccConf.INTTYPE_SIZE then
+      incr(countOptimizations);
+      setDiagnosticLine(c_expr);
+      warning(DOES_RAISE, "OVERFLOW_ERROR", c_expr);
+      c_expr.expr &:= voidRaiseError("OVERFLOW_ERROR");
+      c_expr.expr &:= "\n";
+    else
+      variable_name := getParameterAsReference("intType", "tmp_", variable, statement);
+      statement.expr &:= variable_name;
+      statement.expr &:= "=(intType)((uintType)(";
+      statement.expr &:= variable_name;
+      statement.expr &:= ") << ";
+      statement.expr &:= integerLiteral(lshift);
+      statement.expr &:= ");\n";
+      doLocalDeclsOfStatement(statement, c_expr);
+    end if;
+  end func;
+
+
+const proc: process (BIN_LSHIFT_ASSIGN, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedParam is NIL;
+    var expr_type: statement is expr_type.value;
+    var string: variable_name is "";
+    var string: lshift_name is "";
+  begin
+    if getConstant(params[3], INTOBJECT, evaluatedParam) then
+      process_const_bin_lshift_assign(params[1], getValue(evaluatedParam, integer), c_expr);
+    elsif check_int_shift_overflow then
+      incr(countOverflowChecks);
+      variable_name := getParameterAsReference("intType", "tmp_", params[1], statement);
+      lshift_name := getParameterAsVariable("intType", "tmp_", params[3], statement);
+      statement.expr &:= "ovfChk(";
+      checkRangeFromZero(lshift_name, integerLiteral(ccConf.INTTYPE_SIZE), statement);
+      statement.expr &:= ")?";
+      statement.expr &:= intRaiseError("OVERFLOW_ERROR");
+      statement.expr &:= ":(";
+      statement.expr &:= variable_name;
+      statement.expr &:= "=(intType)((uintType)(";
+      statement.expr &:= variable_name;
+      statement.expr &:= ") << ";
+      statement.expr &:= lshift_name;
+      statement.expr &:= "));\n";
+      doLocalDeclsOfStatement(statement, c_expr);
+    else
+      variable_name := getParameterAsReference("intType", "tmp_", params[1], statement);
+      statement.expr &:= variable_name;
+      statement.expr &:= "=(intType)((uintType)(";
+      statement.expr &:= variable_name;
+      statement.expr &:= ") << (";
+      process_expr(params[3], statement);
+      statement.expr &:= "));\n";
+      doLocalDeclsOfStatement(statement, c_expr);
+    end if;
+  end func;
+
+
+const proc: process (BIN_OR, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ") | (";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (BIN_OR_ASSIGN, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: statement is expr_type.value;
+  begin
+    process_expr(params[1], statement);
+    statement.expr &:= "|=";
+    process_expr(params[3], statement);
+    statement.expr &:= ";\n";
+    doLocalDeclsOfStatement(statement, c_expr);
+  end func;
+
+
+const proc: process_bin_str (in reference: param1, inout expr_type: c_expr) is func
+
+  begin
+    prepare_stri_result(c_expr);
+    c_expr.result_expr := "uintStr(";
+    getStdParamToResultExpr(param1, c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process_const_bin_radix (in reference: param1, in integer: base,
+    in boolean: upperCase, inout expr_type: c_expr) is func
+
+  begin
+    if base < 2 or base > 36 then
+      incr(countOptimizations);
+      warning(DOES_RAISE, "RANGE_ERROR", c_expr);
+      c_expr.expr &:= intRaiseError("RANGE_ERROR");
+    elsif base = 10 then
+      incr(countOptimizations);
+      process_bin_str(param1, c_expr);
+    elsif 2 ** log2(base) = base then
+      incr(countOptimizations);
+      prepare_stri_result(c_expr);
+      c_expr.result_expr := "binRadixPow2(";
+      getStdParamToResultExpr(param1, c_expr);
+      c_expr.result_expr &:= ",";
+      c_expr.result_expr &:= integerLiteral(log2(base));
+      c_expr.result_expr &:= ",";
+      c_expr.result_expr &:= integerLiteral(pred(base));
+      c_expr.result_expr &:= ",";
+      c_expr.result_expr &:= str(ord(upperCase));
+      c_expr.result_expr &:= ")";
+    else
+      prepare_stri_result(c_expr);
+      c_expr.result_expr := "binRadix(";
+      getStdParamToResultExpr(param1, c_expr);
+      c_expr.result_expr &:= ", ";
+      c_expr.result_expr &:= integerLiteral(base);
+      c_expr.result_expr &:= ",";
+      c_expr.result_expr &:= str(ord(upperCase));
+      c_expr.result_expr &:= ")";
+    end if;
+  end func;
+
+
+const proc: process_bin_radix (in ref_list: params, in boolean: upperCase,
+    inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedParam is NIL;
+  begin
+    if getConstant(params[3], INTOBJECT, evaluatedParam) then
+      process_const_bin_radix(params[1], getValue(evaluatedParam, integer),
+          upperCase, c_expr);
+    else
+      prepare_stri_result(c_expr);
+      c_expr.result_expr := "intRadix(";
+      getStdParamToResultExpr(params[1], c_expr);
+      c_expr.result_expr &:= ", ";
+      getStdParamToResultExpr(params[3], c_expr);
+      c_expr.result_expr &:= ",";
+      c_expr.result_expr &:= str(ord(upperCase));
+      c_expr.result_expr &:= ")";
+    end if;
+  end func;
+
+
+const proc: process (BIN_radix, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    process_bin_radix(params, FALSE, c_expr);
+  end func;
+
+
+const proc: process (BIN_RADIX, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    process_bin_radix(params, TRUE, c_expr);
+  end func;
+
+
+const proc: process_const_bin_rshift (in reference: number, in integer: rshift,
+    inout expr_type: c_expr) is func
+
+  begin
+    if rshift < 0 or rshift >= ccConf.INTTYPE_SIZE then
+      incr(countOptimizations);
+      warning(DOES_RAISE, "OVERFLOW_ERROR", c_expr);
+      c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
+    else
+      c_expr.expr &:= "(intType)((uintType)(";
+      process_expr(number, c_expr);
+      c_expr.expr &:= ") >> ";
+      c_expr.expr &:= integerLiteral(rshift);
+      c_expr.expr &:= ")";
+    end if;
+  end func;
+
+
+const proc: process (BIN_RSHIFT, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedParam is NIL;
+    var string: rshift_name is "";
+  begin
+    if getConstant(params[3], INTOBJECT, evaluatedParam) then
+      process_const_bin_rshift(params[1], getValue(evaluatedParam, integer), c_expr);
+    elsif check_int_shift_overflow then
+      incr(countOverflowChecks);
+      c_expr.expr &:= "(";
+      rshift_name := getParameterAsVariable("intType", "rshift_", params[3], c_expr);
+      c_expr.expr &:= "ovfChk(";
+      checkRangeFromZero(rshift_name, integerLiteral(ccConf.INTTYPE_SIZE), c_expr);
+      c_expr.expr &:= ")?";
+      c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
+      c_expr.expr &:= ":(intType)((uintType)(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= ") >> ";
+      c_expr.expr &:= rshift_name;
+      c_expr.expr &:= "))";
+    else
+      c_expr.expr &:= "(intType)((uintType)(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= ") >> (";
+      process_expr(params[3], c_expr);
+      c_expr.expr &:= "))";
+    end if;
+  end func;
+
+
+const proc: process_const_bin_rshift_assign (in reference: variable, in integer: rshift,
+    inout expr_type: c_expr) is func
+
+  local
+    var string: variable_name is "";
+    var expr_type: statement is expr_type.value;
+  begin
+    if rshift < 0 or rshift >= ccConf.INTTYPE_SIZE then
+      incr(countOptimizations);
+      setDiagnosticLine(c_expr);
+      warning(DOES_RAISE, "OVERFLOW_ERROR", c_expr);
+      c_expr.expr &:= voidRaiseError("OVERFLOW_ERROR");
+      c_expr.expr &:= "\n";
+    else
+      variable_name := getParameterAsReference("intType", "tmp_", variable, statement);
+      statement.expr &:= variable_name;
+      statement.expr &:= "=(intType)((uintType)(";
+      statement.expr &:= variable_name;
+      statement.expr &:= ") >> ";
+      statement.expr &:= integerLiteral(rshift);
+      statement.expr &:= ");\n";
+      doLocalDeclsOfStatement(statement, c_expr);
+    end if;
+  end func;
+
+
+const proc: process (BIN_RSHIFT_ASSIGN, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedParam is NIL;
+    var expr_type: statement is expr_type.value;
+    var string: variable_name is "";
+    var string: rshift_name is "";
+  begin
+    if getConstant(params[3], INTOBJECT, evaluatedParam) then
+      process_const_bin_rshift_assign(params[1], getValue(evaluatedParam, integer), c_expr);
+    elsif check_int_shift_overflow then
+      incr(countOverflowChecks);
+      variable_name := getParameterAsReference("intType", "tmp_", params[1], statement);
+      rshift_name := getParameterAsVariable("intType", "tmp_", params[3], statement);
+      statement.expr &:= "ovfChk(";
+      checkRangeFromZero(rshift_name, integerLiteral(ccConf.INTTYPE_SIZE), statement);
+      statement.expr &:= ")?";
+      statement.expr &:= intRaiseError("OVERFLOW_ERROR");
+      statement.expr &:= ":(";
+      statement.expr &:= variable_name;
+      statement.expr &:= "=(intType)((uintType)(";
+      statement.expr &:= variable_name;
+      statement.expr &:= ") >> ";
+      statement.expr &:= rshift_name;
+      statement.expr &:= "));\n";
+      doLocalDeclsOfStatement(statement, c_expr);
+    else
+      variable_name := getParameterAsReference("intType", "tmp_", params[1], statement);
+      statement.expr &:= variable_name;
+      statement.expr &:= "=(intType)((uintType)(";
+      statement.expr &:= variable_name;
+      statement.expr &:= ") >> (";
+      process_expr(params[3], statement);
+      statement.expr &:= "));\n";
+      doLocalDeclsOfStatement(statement, c_expr);
+    end if;
+  end func;
+
+
+const proc: process (BIN_STR, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    process_bin_str(params[1], c_expr);
+  end func;
+
+
+const proc: process (BIN_XOR, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ") ^ (";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (BIN_XOR_ASSIGN, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: statement is expr_type.value;
+  begin
+    process_expr(params[1], statement);
+    statement.expr &:= "^=";
+    process_expr(params[3], statement);
+    statement.expr &:= ";\n";
+    doLocalDeclsOfStatement(statement, c_expr);
+  end func;

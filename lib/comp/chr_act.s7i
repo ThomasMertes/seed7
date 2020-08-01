@@ -36,6 +36,7 @@ const ACTION: CHR_GT        is action "CHR_GT";
 const ACTION: CHR_HASHCODE  is action "CHR_HASHCODE";
 const ACTION: CHR_ICONV     is action "CHR_ICONV";
 const ACTION: CHR_INCR      is action "CHR_INCR";
+const ACTION: CHR_IS_LETTER is action "CHR_IS_LETTER";
 const ACTION: CHR_LE        is action "CHR_LE";
 const ACTION: CHR_LOW       is action "CHR_LOW";
 const ACTION: CHR_LT        is action "CHR_LT";
@@ -46,6 +47,7 @@ const ACTION: CHR_STR       is action "CHR_STR";
 const ACTION: CHR_SUCC      is action "CHR_SUCC";
 const ACTION: CHR_UP        is action "CHR_UP";
 const ACTION: CHR_VALUE     is action "CHR_VALUE";
+const ACTION: CHR_WIDTH     is action "CHR_WIDTH";
 
 
 const proc: chr_prototypes (inout file: c_prog) is func
@@ -56,6 +58,7 @@ const proc: chr_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "intType     chrCmp (charType, charType);");
     declareExtern(c_prog, "intType     chrCmpGeneric (const genericType, const genericType);");
     declareExtern(c_prog, "void        chrCpyGeneric (genericType *const, const genericType);");
+    declareExtern(c_prog, "boolType    chrIsLetter (charType);");
     declareExtern(c_prog, "charType    chrLow (charType);");
     declareExtern(c_prog, "striType    chrStr (charType);");
     if ccConf.ALLOW_STRITYPE_SLICES then
@@ -65,6 +68,7 @@ const proc: chr_prototypes (inout file: c_prog) is func
     end if;
     declareExtern(c_prog, "charType    chrUp (charType);");
     declareExtern(c_prog, "charType    chrValue (const const_objRefType);");
+    declareExtern(c_prog, "intType     chrWidth (charType);");
   end func;
 
 
@@ -256,6 +260,16 @@ const proc: process (CHR_INCR, in reference: function,
   end func;
 
 
+const proc: process (CHR_IS_LETTER, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "chrIsLetter(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
 const proc: process (CHR_LE, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
@@ -373,6 +387,16 @@ const proc: process (CHR_VALUE, in reference: function,
 
   begin
     c_expr.expr &:= "chrValue(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (CHR_WIDTH, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "chrWidth(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
   end func;

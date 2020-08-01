@@ -808,7 +808,7 @@ const proc: process_prc_semicol (in ref_list: params, inout expr_type: c_expr) i
   end func;
 
 
-const proc: do_noop_param(in reference: formal_param, in reference: actual_param,
+const proc: do_noop_param (in reference: formal_param, in reference: actual_param,
     inout expr_type: c_expr) is func
 
   local

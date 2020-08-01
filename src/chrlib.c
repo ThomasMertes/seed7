@@ -280,6 +280,24 @@ objectType chr_incr (listType arguments)
 
 
 /**
+ * Check whether a character is an alphabetic Unicode character.
+ * @return TRUE if alphabetic property holds,
+ *         FALSE otherwise
+ */
+objectType chr_is_letter (listType arguments)
+
+  { /* chr_is_letter */
+    isit_char(arg_1(arguments));
+    if (chrIsLetter(take_char(arg_1(arguments)))) {
+      return SYS_TRUE_OBJECT;
+    } else {
+      return SYS_FALSE_OBJECT;
+    }
+  } /* chr_is_letter */
+
+
+
+/**
  *  Check if ch1 is less than or equal to ch2.
  *  @return TRUE if ch1 is less than or equal to ch2,
  *          FALSE otherwise.
@@ -455,3 +473,18 @@ objectType chr_value (listType arguments)
       return bld_char_temp(take_char(obj_arg));
     } /* if */
   } /* chr_value */
+
+
+
+/**
+ * Calculate the displayed width of a Unicode character.
+ * Non-spacing characters and control characters have width of 0.
+ * Most ideographic symbols have width 2.
+ * @return 0,1 or 2
+ */
+objectType chr_width (listType arguments)
+
+  { /* chr_width */
+    isit_char(arg_1(arguments));
+    return bld_int_temp(chrWidth(take_char(arg_1(arguments))));
+  } /* chr_width */

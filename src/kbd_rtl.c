@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  kbd_rtl.c     Generic keyboard support for console keyboard.    */
+/*  kbd_rtl.c     Platform idependent console keyboard support.     */
 /*  Copyright (C) 1989 - 2011  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
@@ -25,7 +25,7 @@
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/kbd_rtl.c                                       */
 /*  Changes: 1992, 1993, 1994  Thomas Mertes                        */
-/*  Content: Generic keyboard support for console keyboard.         */
+/*  Content: Platform idependent console keyboard support.          */
 /*                                                                  */
 /********************************************************************/
 

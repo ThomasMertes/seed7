@@ -195,7 +195,7 @@ boolType do_wrstri (objectType outfile, striType stri)
     } /* if */
     set_fail_flag(FALSE);
 #ifdef TRACE_DOANY
-    printf("BEGIN do_wrstri\n");
+    printf("END do_wrstri\n");
 #endif
     return result;
   } /* do_wrstri */

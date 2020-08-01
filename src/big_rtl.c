@@ -7033,6 +7033,43 @@ int64Type bigToInt64 (const const_bigIntType big1)
       return result;
     } /* if */
   } /* bigToInt64 */
+
+
+
+uint64Type bigToUInt64 (const const_bigIntType big1)
+
+  {
+    memSizeType pos;
+    uint64Type result;
+
+  /* bigToUInt64 */
+    /* printf("bigToUInt64(%s)\n", bigHexCStri(big1)); */
+    pos = big1->size - 1;
+    if (unlikely(IS_NEGATIVE(big1->bigdigits[pos]))) {
+      raise_error(RANGE_ERROR);
+      result = 0;
+    } else {
+      /* Assume that BIGDIGIT_SIZE <= 32 holds. */
+      if (big1->bigdigits[pos] == 0 && pos > 0) {
+        pos--;
+      } /* if */
+      if (unlikely(pos >= sizeof(int64Type) / (BIGDIGIT_SIZE >> 3))) {
+        raise_error(RANGE_ERROR);
+        result = 0;
+      } else {
+        result = (uint64Type) big1->bigdigits[pos];
+#if BIGDIGIT_SIZE < 64
+        while (pos > 0) {
+          pos--;
+          result <<= BIGDIGIT_SIZE;
+          result |= (uint64Type) big1->bigdigits[pos];
+        } /* while */
+#endif
+      } /* if */
+    } /* if */
+    /* printf("bigToUInt64(%s) --> " FMT_U64 "\n", bigHexCStri(big1), result); */
+    return result;
+  } /* bigToUInt64 */
 #endif
 
 

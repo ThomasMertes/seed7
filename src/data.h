@@ -206,6 +206,7 @@ typedef union {
     hashType     hashValue;     /* HASHOBJECT */
     setType      setValue;      /* SETOBJECT */
     structType   structValue;   /* STRUCTOBJECT */
+    uintType     binaryValue;   /* INTOBJECT */
     fileType     fileValue;     /* FILEOBJECT */
     fileDesType  fileDesValue;  /* FILEDESOBJECT */
     socketType   socketValue;   /* SOCKETOBJECT */

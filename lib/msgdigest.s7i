@@ -334,14 +334,14 @@ const func string: sha224 (in var string: message) is func
     # Initialize array of round constants with the first 32 bits of
     # the fractional parts of the cube roots of the first 64 primes 2..311.
     const array integer: k is [] (
-       16#428a2f98, 16#71374491, 16#b5c0fbcf, 16#e9b5dba5, 16#3956c25b, 16#59f111f1, 16#923f82a4, 16#ab1c5ed5,
-       16#d807aa98, 16#12835b01, 16#243185be, 16#550c7dc3, 16#72be5d74, 16#80deb1fe, 16#9bdc06a7, 16#c19bf174,
-       16#e49b69c1, 16#efbe4786, 16#0fc19dc6, 16#240ca1cc, 16#2de92c6f, 16#4a7484aa, 16#5cb0a9dc, 16#76f988da,
-       16#983e5152, 16#a831c66d, 16#b00327c8, 16#bf597fc7, 16#c6e00bf3, 16#d5a79147, 16#06ca6351, 16#14292967,
-       16#27b70a85, 16#2e1b2138, 16#4d2c6dfc, 16#53380d13, 16#650a7354, 16#766a0abb, 16#81c2c92e, 16#92722c85,
-       16#a2bfe8a1, 16#a81a664b, 16#c24b8b70, 16#c76c51a3, 16#d192e819, 16#d6990624, 16#f40e3585, 16#106aa070,
-       16#19a4c116, 16#1e376c08, 16#2748774c, 16#34b0bcb5, 16#391c0cb3, 16#4ed8aa4a, 16#5b9cca4f, 16#682e6ff3,
-       16#748f82ee, 16#78a5636f, 16#84c87814, 16#8cc70208, 16#90befffa, 16#a4506ceb, 16#bef9a3f7, 16#c67178f2);
+        16#428a2f98, 16#71374491, 16#b5c0fbcf, 16#e9b5dba5, 16#3956c25b, 16#59f111f1, 16#923f82a4, 16#ab1c5ed5,
+        16#d807aa98, 16#12835b01, 16#243185be, 16#550c7dc3, 16#72be5d74, 16#80deb1fe, 16#9bdc06a7, 16#c19bf174,
+        16#e49b69c1, 16#efbe4786, 16#0fc19dc6, 16#240ca1cc, 16#2de92c6f, 16#4a7484aa, 16#5cb0a9dc, 16#76f988da,
+        16#983e5152, 16#a831c66d, 16#b00327c8, 16#bf597fc7, 16#c6e00bf3, 16#d5a79147, 16#06ca6351, 16#14292967,
+        16#27b70a85, 16#2e1b2138, 16#4d2c6dfc, 16#53380d13, 16#650a7354, 16#766a0abb, 16#81c2c92e, 16#92722c85,
+        16#a2bfe8a1, 16#a81a664b, 16#c24b8b70, 16#c76c51a3, 16#d192e819, 16#d6990624, 16#f40e3585, 16#106aa070,
+        16#19a4c116, 16#1e376c08, 16#2748774c, 16#34b0bcb5, 16#391c0cb3, 16#4ed8aa4a, 16#5b9cca4f, 16#682e6ff3,
+        16#748f82ee, 16#78a5636f, 16#84c87814, 16#8cc70208, 16#90befffa, 16#a4506ceb, 16#bef9a3f7, 16#c67178f2);
     var integer: length is 0;
     var integer: chunkIndex is 0;
     var integer: index is 0;
@@ -458,14 +458,14 @@ const func string: sha256 (in var string: message) is func
     # Initialize array of round constants with the first 32 bits of
     # the fractional parts of the cube roots of the first 64 primes 2..311.
     const array integer: k is [] (
-       16#428a2f98, 16#71374491, 16#b5c0fbcf, 16#e9b5dba5, 16#3956c25b, 16#59f111f1, 16#923f82a4, 16#ab1c5ed5,
-       16#d807aa98, 16#12835b01, 16#243185be, 16#550c7dc3, 16#72be5d74, 16#80deb1fe, 16#9bdc06a7, 16#c19bf174,
-       16#e49b69c1, 16#efbe4786, 16#0fc19dc6, 16#240ca1cc, 16#2de92c6f, 16#4a7484aa, 16#5cb0a9dc, 16#76f988da,
-       16#983e5152, 16#a831c66d, 16#b00327c8, 16#bf597fc7, 16#c6e00bf3, 16#d5a79147, 16#06ca6351, 16#14292967,
-       16#27b70a85, 16#2e1b2138, 16#4d2c6dfc, 16#53380d13, 16#650a7354, 16#766a0abb, 16#81c2c92e, 16#92722c85,
-       16#a2bfe8a1, 16#a81a664b, 16#c24b8b70, 16#c76c51a3, 16#d192e819, 16#d6990624, 16#f40e3585, 16#106aa070,
-       16#19a4c116, 16#1e376c08, 16#2748774c, 16#34b0bcb5, 16#391c0cb3, 16#4ed8aa4a, 16#5b9cca4f, 16#682e6ff3,
-       16#748f82ee, 16#78a5636f, 16#84c87814, 16#8cc70208, 16#90befffa, 16#a4506ceb, 16#bef9a3f7, 16#c67178f2);
+        16#428a2f98, 16#71374491, 16#b5c0fbcf, 16#e9b5dba5, 16#3956c25b, 16#59f111f1, 16#923f82a4, 16#ab1c5ed5,
+        16#d807aa98, 16#12835b01, 16#243185be, 16#550c7dc3, 16#72be5d74, 16#80deb1fe, 16#9bdc06a7, 16#c19bf174,
+        16#e49b69c1, 16#efbe4786, 16#0fc19dc6, 16#240ca1cc, 16#2de92c6f, 16#4a7484aa, 16#5cb0a9dc, 16#76f988da,
+        16#983e5152, 16#a831c66d, 16#b00327c8, 16#bf597fc7, 16#c6e00bf3, 16#d5a79147, 16#06ca6351, 16#14292967,
+        16#27b70a85, 16#2e1b2138, 16#4d2c6dfc, 16#53380d13, 16#650a7354, 16#766a0abb, 16#81c2c92e, 16#92722c85,
+        16#a2bfe8a1, 16#a81a664b, 16#c24b8b70, 16#c76c51a3, 16#d192e819, 16#d6990624, 16#f40e3585, 16#106aa070,
+        16#19a4c116, 16#1e376c08, 16#2748774c, 16#34b0bcb5, 16#391c0cb3, 16#4ed8aa4a, 16#5b9cca4f, 16#682e6ff3,
+        16#748f82ee, 16#78a5636f, 16#84c87814, 16#8cc70208, 16#90befffa, 16#a4506ceb, 16#bef9a3f7, 16#c67178f2);
     var integer: length is 0;
     var integer: chunkIndex is 0;
     var integer: index is 0;
@@ -602,12 +602,12 @@ const func string: msgDigest (SHA256, in string: message)    is return sha256(me
  *)
 const func integer: blockSize (in digestAlgorithm: digestAlg) is DYNAMIC;
 
-const func integer: blockSize (NO_DIGEST) is  0;
-const func integer: blockSize (MD4)       is 64;
-const func integer: blockSize (MD5)       is 64;
-const func integer: blockSize (SHA1)      is 64;
-const func integer: blockSize (SHA224)    is 64;
-const func integer: blockSize (SHA256)    is 64;
+const func integer: blockSize (NO_DIGEST) is   0;
+const func integer: blockSize (MD4)       is  64;
+const func integer: blockSize (MD5)       is  64;
+const func integer: blockSize (SHA1)      is  64;
+const func integer: blockSize (SHA224)    is  64;
+const func integer: blockSize (SHA256)    is  64;
 
 
 (**

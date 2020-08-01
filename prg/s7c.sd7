@@ -5178,6 +5178,7 @@ const proc: write_prototypes is func
     act_prototypes(c_prog);
     arr_prototypes(c_prog);
     big_prototypes(c_prog);
+    bin_prototypes(c_prog);
     bln_prototypes(c_prog);
     bst_prototypes(c_prog);
     chr_prototypes(c_prog);

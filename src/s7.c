@@ -350,7 +350,8 @@ int main (int argc, char **argv)
     } else {
       processOptions(arg_v);
       /* printOptions(); */
-      setup_signal_handlers(option.handle_signals, option.parser_options & TRACE_SIGNALS);
+      setup_signal_handlers((option.parser_options & HANDLE_SIGNALS) != 0,
+                            (option.parser_options & TRACE_SIGNALS) != 0);
       if (fail_flag) {
         printf("\n*** Processing the options failed. Program terminated.\n");
       } else {

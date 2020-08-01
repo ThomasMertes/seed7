@@ -2011,8 +2011,16 @@ int main (int argc, char **argv)
     if (compileAndLinkOk("#include <unistd.h>\nint main(int argc,char *argv[]){return 0;}\n")) {
       fputs("#define UNISTD_H_PRESENT\n", versionFile);
     } /* if */
-    if (!compileAndLinkOk("static inline int test(int a){return 2*a;}\n"
-                          "int main(int argc,char *argv[]){return test(argc);}\n")) {
+    if (compileAndLinkOk("static inline int test(int a){return 2*a;}\n"
+                         "int main(int argc,char *argv[]){return test(argc);}\n")) {
+      /* The C compiler accepts the definition of inline functions. */
+    } else if (compileAndLinkOk("static __inline int test(int a){return 2*a;}\n"
+                                "int main(int argc,char *argv[]){return test(argc);}\n")) {
+      fputs("#define inline __inline\n", versionFile);
+    } else if (compileAndLinkOk("static __inline__ int test(int a){return 2*a;}\n"
+                                "int main(int argc,char *argv[]){return test(argc);}\n")) {
+      fputs("#define inline __inline__\n", versionFile);
+    } else {
       fputs("#define inline\n", versionFile);
     } /* if */
     if (!compileAndLinkOk("int test (int *restrict ptrA, int *restrict ptrB, int *restrict ptrC)\n"

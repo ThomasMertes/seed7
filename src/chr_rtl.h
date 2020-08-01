@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
-/*  chr_rtl.h     Primitive actions for the integer type.           */
-/*  Copyright (C) 1989 - 2006  Thomas Mertes                        */
+/*  chr_rtl.h     Primitive actions for the char type.              */
+/*  Copyright (C) 1989 - 2015  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -34,6 +34,8 @@ striType chrCLit (charType character);
 striType chrCLitToBuffer (charType character, striType buffer);
 #endif
 intType chrCmp (charType char1, charType char2);
+boolType chrIsLetter (charType ch);
 charType chrLow (charType ch);
 striType chrStr (charType ch);
 charType chrUp (charType ch);
+intType chrWidth (charType ch);

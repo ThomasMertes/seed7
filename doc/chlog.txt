@@ -1,3 +1,34 @@
+20150216:
+- The functions isLetter and width have been added to the library
+  char.s7i. Compiler and interpreter have been changed to support
+  this functions. Thanks go to Arkady Kuleshov for providing a patch.
+- The library unionfnd.s7i and the program percolation.sd7 have been
+  added. Thanks go to Arkady Kuleshov for providing them.
+- The makefile mk_icc.mak has been added. This makefile supports
+  compiling with the icc C compiler.
+- The library bin64.s7i, a 64-bit binary value support library, has
+  been added.
+- The functions fourBytesLeToBin32, fourBytesBeToBin32,
+  bin32AsFourBytesLe and bin32AsFourBytesBe have been added to
+  bin32.s7i.
+- The functions bigAsEightBytesLe and bigAsEightBytesBe have been
+  added to bytedata.s7i
+- Interpreter and compiler have been improved to support the actions
+  BIN_STR, BIN_radix, BIN_RADIX, BIN_AND, BIN_OR, BIN_XOR,
+  BIN_LSHIFT, BIN_RSHIFT, BIN_LSHIFT_ASSIGN, BIN_RSHIFT_ASSIGN,
+  BIN_AND_ASSIGN, BIN_OR_ASSIGN, BIN_XOR_ASSIGN, CHR_IS_LETTER and
+  CHR_WIDTH.
+- The support for the actions INT_AND, INT_AND_ASSIGN, INT_OR,
+  INT_OR_ASSIGN, INT_ULSHIFT, INT_ULSHIFT_ASSIGN, INT_URSHIFT,
+  INT_URSHIFT_ASSIGN, INT_XOR and INT_XOR_ASSIGN has been removed
+  from interpreter and compiler.
+- The compiler library comp/bin_act.s7i has been added.
+- The functions isConstantCall and isPureFunction in comp/const.s7i
+  have been improved.
+- The functions uintRadix, uintRadixPow2 and uintStr have been added
+  to int_rtl.c.
+- The function bld_binary_temp has been added to objutl.c.
+
 20150201:
 - The option -p of the interpreter (Specify a protocol file, for
   trace output) has been documented in FAQ, s7.1 and in the help
@@ -11,12 +42,13 @@
   the programs.
 - Documentation comments in integer.s7i, bigint.s7i and char.s7i have
   been improved.
-- The function bitsetElemAsHex (in comp/set_act.s7i) has been
-  improved by a factor of 7 (measured with gcc and Valgrind).
+- The runtime of the function bitsetElemAsHex (in comp/set_act.s7i)
+  has been improved by a factor of 7 (measured with gcc and
+  Valgrind).
 - The operator sci has been improved in integer.s7i and bigint.s7i.
-- The function check_sci, which checks the sci operator has been
+- The function check_sci, which checks the sci operator, has been
   added to chkint.sd7.
-- The function check_str, which checks the str function has been
+- The function check_str, which checks the str function, has been
   added to chkset.sd7.
 - The function doRemoveCmd in cli_cmds.s7i has been improved to write
   a message when the operation is not permitted.
@@ -31,7 +63,7 @@
   (measured with gcc and Valgrind).
 - The function strMult in str_rtl.c has been improved to use a binary
   method for string multiplication. This improves the speed of
-  setMult by a factor of 2 (measured with gcc and Valgrind).
+  strMult by a factor of 2 (measured with gcc and Valgrind).
 - The function drwEmpty has been added to drw_x11.c drw_win.c and
   drw_dos.c.
 

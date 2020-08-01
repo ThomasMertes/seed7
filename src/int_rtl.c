@@ -729,6 +729,144 @@ int uint64LeastSignificantBit (uint64Type number)
 
 
 /**
+ *  Convert an unsigned number to a string using a radix.
+ *  The conversion uses the numeral system with the given base.
+ *  Digit values from 10 upward are encoded with letters.
+ *  @param upperCase Decides about the letter case.
+ *  @return the string result of the conversion.
+ *  @exception RANGE_ERROR When base < 2 or base > 36 holds.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
+striType uintRadix (uintType number, intType base, boolType upperCase)
+
+  {
+    const_cstriType digits;
+    strElemType buffer_1[RADIX_BUFFER_SIZE];
+    strElemType *buffer;
+    memSizeType length;
+    striType result;
+
+  /* uintRadix */
+#ifdef TRACE_INT_RTL
+    printf("uintRadix(" FMT_U ", " FMT_D ", %d)\n",
+           number, base, upperCase);
+#endif
+    if (unlikely(base < 2 || base > 36)) {
+      logError(printf(" *** uintRadix(" FMT_U ", " FMT_D ", %d): "
+                      "base < 2 or base > 36.\n",
+                      number, base, upperCase););
+      raise_error(RANGE_ERROR);
+      result = NULL;
+    } else {
+      digits = digitTable[upperCase];
+      buffer = &buffer_1[RADIX_BUFFER_SIZE];
+      do {
+        *(--buffer) = (strElemType) (digits[number % (uintType) base]);
+      } while ((number /= (uintType) base) != 0);
+      length = (memSizeType) (&buffer_1[RADIX_BUFFER_SIZE] - buffer);
+      if (unlikely(!ALLOC_STRI_SIZE_OK(result, length))) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        result->size = length;
+        memcpy(result->mem, buffer, (size_t) (length * sizeof(strElemType)));
+      } /* if */
+    } /* if */
+#ifdef TRACE_INT_RTL
+    printf("uintRadix --> ");
+    prot_stri(result);
+    printf("\n");
+#endif
+    return result;
+  } /* uintRadix */
+
+
+
+/**
+ *  Convert an integer number to a string using a radix.
+ *  The conversion uses the numeral system with the specified base.
+ *  The base is a power of two and it is specified indirectly with
+ *  shift and mask. Digit values from 10 upward are encoded with
+ *  letters.
+ *  @param shift Logarithm (log2) of the base (=number of bits in mask).
+ *  @param mask Mask to get the bits of a digit (equivalent to base-1).
+ *  @param upperCase Decides about the letter case.
+ *  @return the string result of the conversion.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
+striType uintRadixPow2 (uintType number, int shift, int mask, boolType upperCase)
+
+  {
+    const_cstriType digits;
+    strElemType buffer_1[RADIX_BUFFER_SIZE];
+    strElemType *buffer;
+    memSizeType length;
+    striType result;
+
+  /* uintRadixPow2 */
+#ifdef TRACE_INT_RTL
+    printf("uintRadixPow2(" FMT_U ", %d, %x, %d)\n",
+           number, shift, mask, upperCase);
+#endif
+    digits = digitTable[upperCase];
+    buffer = &buffer_1[RADIX_BUFFER_SIZE];
+    do {
+      *(--buffer) = (strElemType) (digits[number & (uintType) mask]);
+    } while ((number >>= shift) != 0);
+    length = (memSizeType) (&buffer_1[RADIX_BUFFER_SIZE] - buffer);
+    if (unlikely(!ALLOC_STRI_SIZE_OK(result, length))) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      result->size = length;
+      memcpy(result->mem, buffer, (size_t) (length * sizeof(strElemType)));
+    } /* if */
+#ifdef TRACE_INT_RTL
+    printf("uintRadixPow2 --> ");
+    prot_stri(result);
+    printf("\n");
+#endif
+    return result;
+  } /* uintRadixPow2 */
+
+
+
+/**
+ *  Convert an unsigned integer number to a string.
+ *  The number is converted to a string with decimal representation.
+ *  @return the string result of the conversion.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
+striType uintStr (uintType number)
+
+  {
+    strElemType *buffer;
+    memSizeType length;
+    striType result;
+
+  /* uintStr */
+#ifdef TRACE_INT_RTL
+    printf("uintStr(" FMT_U ")\n", number);
+#endif
+    length = DECIMAL_DIGITS(number);
+    if (unlikely(!ALLOC_STRI_SIZE_OK(result, length))) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      result->size = length;
+      buffer = &result->mem[length];
+      do {
+        *(--buffer) = (strElemType) (number % 10 + '0');
+      } while ((number /= 10) != 0);
+    } /* if */
+#ifdef TRACE_INT_RTL
+    printf("intStr --> ");
+    prot_stri(result);
+    printf("\n");
+#endif
+    return result;
+  } /* uintStr */
+
+
+
+/**
  *  Compare two generic values.
  *  @return -1, 0 or 1 if the first argument is considered to be
  *          respectively less than, equal to, or greater than the

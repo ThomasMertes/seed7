@@ -88,3 +88,22 @@ const proc: error (FORWARD_CALLED, in reference: current_expression,
    writeln("*** " <& file(function) <& "(" <& line(function) <&
             "): Forward definition of the called function.");
   end func;
+
+
+const proc: checkRangeFromZero (in string: number_name, in string: beyond,
+    inout expr_type: c_expr) is func
+
+  begin
+    if ccConf.TWOS_COMPLEMENT_INTTYPE then
+      c_expr.expr &:= "(uintType)";
+      c_expr.expr &:= number_name;
+      c_expr.expr &:= ">=(uintType)";
+      c_expr.expr &:= beyond;
+    else
+      c_expr.expr &:= number_name;
+      c_expr.expr &:= "<0||";
+      c_expr.expr &:= number_name;
+      c_expr.expr &:= ">=";
+      c_expr.expr &:= beyond;
+    end if;
+  end func;

@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2013  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2015  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,11 +20,25 @@
 /*                                                                  */
 /*  Module: Library                                                 */
 /*  File: seed7/src/binlib.h                                        */
-/*  Changes: 2013  Thomas Mertes                                    */
-/*  Content: All primitive actions for the type binary.             */
+/*  Changes: 2015  Thomas Mertes                                    */
+/*  Content: All primitive actions for the types bin64 and bin32.   */
 /*                                                                  */
 /********************************************************************/
 
-objectType bin_and (listType arguments);
-objectType bin_or (listType arguments);
-objectType bin_xor (listType arguments);
+objectType bin_add           (listType arguments);
+objectType bin_add_assign    (listType arguments);
+objectType bin_and           (listType arguments);
+objectType bin_and_assign    (listType arguments);
+objectType bin_big           (listType arguments);
+objectType bin_binary        (listType arguments);
+objectType bin_lshift        (listType arguments);
+objectType bin_lshift_assign (listType arguments);
+objectType bin_or            (listType arguments);
+objectType bin_or_assign     (listType arguments);
+objectType bin_radix         (listType arguments);
+objectType bin_RADIX         (listType arguments);
+objectType bin_rshift        (listType arguments);
+objectType bin_rshift_assign (listType arguments);
+objectType bin_str           (listType arguments);
+objectType bin_xor           (listType arguments);
+objectType bin_xor_assign    (listType arguments);

@@ -40,6 +40,7 @@
 
 #define take_action(arg)    (arg)->value.actValue
 #define take_array(arg)     (arg)->value.arrayValue
+#define take_binary(arg)    (arg)->value.binaryValue
 #define take_block(arg)     (arg)->value.blockValue
 #define take_bool(arg)      (CATEGORY_OF_OBJ(arg) == CONSTENUMOBJECT || CATEGORY_OF_OBJ(arg) == VARENUMOBJECT ? (arg)->value.objValue : (arg))
 #define take_bstri(arg)     (arg)->value.bstriValue
@@ -78,6 +79,7 @@
 #define isit_action(arg)    hasCategory(arg, ACTOBJECT)
 #define isit_array(arg)     hasCategory(arg, ARRAYOBJECT); \
                             if (unlikely(take_array(arg) == NULL))      { empty_value(arg); return(NULL); }
+#define isit_binary(arg)    hasCategory(arg, INTOBJECT)
 #define isit_bigint(arg)    hasCategory(arg, BIGINTOBJECT)
 #define isit_block(arg)     hasCategory(arg, BLOCKOBJECT)
 #define isit_bool(arg)      if (take_bool(arg) != SYS_TRUE_OBJECT && \
@@ -187,6 +189,7 @@ void isit_list (objectType argument);
 objectType bld_action_temp (actType temp_action);
 objectType bld_array_temp (arrayType temp_array);
 objectType bld_bigint_temp (bigIntType temp_bigint);
+objectType bld_binary_temp (uintType temp_binary);
 objectType bld_block_temp (blockType temp_block);
 objectType bld_bstri_temp (bstriType temp_bstri);
 objectType bld_char_temp (charType temp_char);

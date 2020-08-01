@@ -1824,6 +1824,40 @@ int64Type bigToInt64 (const const_bigIntType big1)
 #endif
     return result;
   } /* bigToInt64 */
+
+
+
+uint64Type bigToUInt64 (const const_bigIntType big1)
+
+  {
+    uint64Type result;
+
+  /* bigToUInt64 */
+#if LONG_SIZE == 64
+    if (!mpz_fits_slong_p(big1)) {
+      raise_error(RANGE_ERROR);
+      result = 0;
+    } else {
+      result = mpz_get_ui(big1);
+    } /* if */
+#else
+    {
+      mpz_t help;
+
+      mpz_init_set(help, big1);
+      mpz_fdiv_q_2exp(help, help, 32);
+      if (!mpz_fits_slong_p(help)) {
+        raise_error(RANGE_ERROR);
+        result = 0;
+      } else {
+        result = (uint64Type) (mpz_get_ui(help) & 0xFFFFFFFF) << 32 |
+                 (uint64Type) (mpz_get_ui(big1) & 0xFFFFFFFF);
+        mpz_clear(help);
+      } /* if */
+    }
+#endif
+    return result;
+  } /* bigToUInt64 */
 #endif
 
 

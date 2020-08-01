@@ -58,6 +58,7 @@ nicoma.sd7   Puzzle from arithmetica of Nicomachus (A.D. 90)!
 pac.sd7      Pacman game
 pairs.sd7    Concentration game
 panic.sd7    Catch aliens in traps game
+percolation.sd7 Given a composite systems comprised of randomly
 planets.sd7  Display information about the planets
 prime.sd7    Write a list of prime numbers
 printpi1.sd7 PI with 1000 digits using John Machin's formula
@@ -101,6 +102,7 @@ bigfile.s7i  bigInteger versions of seek, tell and length
 bigint.s7i   Unlimited precision integer support library
 bigrat.s7i   Big rational number support library
 bin32.s7i    32-bit binary value support library
+bin64.s7i    64-bit binary value support library
 bitmapfont.s7i Font implementation type for bitmap fonts
 bitset.s7i   Support for sets of integer numbers
 bitsetof.s7i Support for bitsets of a base type
@@ -222,6 +224,7 @@ text.s7i     Interface type for line/column oriented files
 time.s7i     Time and date library
 tls.s7i      Support for Transport Layer Security (TLS/SSL).
 unicode.s7i  Functions to convert between Unicode encodings.
+unionfnd.s7i Implementation of disjoint sets structure which
 upper.s7i    Filter file which turns characters to upper case
 utf16.s7i    File implementation type for UTF-16 files
 utf8.s7i     File implementation type for UTF-8 files

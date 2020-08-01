@@ -44,10 +44,18 @@ const func boolean: isConstantCall (in reference: current_expression,
   result
     var boolean: isConstantCall is FALSE;
   local
+    const set of string: copyActions is
+        {"ACT_CPY", "ARR_CPY", "BIG_CPY", "BLN_CPY", "BST_CPY", "CHR_CPY",
+         "DRW_CPY", "ENU_CPY", "FIL_CPY", "FLT_CPY", "HSH_CPY", "INT_CPY",
+         "ITF_CPY", "LST_CPY", "PCS_CPY", "POL_CPY", "PRC_CPY", "PRG_CPY",
+         "REF_CPY", "RFL_CPY", "SCT_CPY", "SET_CPY", "SOC_CPY", "SQL_CPY_DB",
+         "SQL_CPY_STMT", "STR_CPY", "TYP_CPY"};
     var ref_list: params is ref_list.EMPTY;
     var reference: function is NIL;
     var reference: obj is NIL;
+    var string: action_name is "";
   begin
+    # write(file(current_expression) <& "(" <& line(current_expression) <& "): ");
     params := getValue(current_expression, ref_list);
     function := params[1];
     params := params[2 ..];
@@ -62,14 +70,27 @@ const func boolean: isConstantCall (in reference: current_expression,
           isConstantCall := FALSE;
         end if;
       end for;
-(*
     else
       # write(" [not isPureFunction(" <& str(function) <& ") " <& str(category(function)) <& "]");
       if category(function) = ACTOBJECT then
         # write(" [" <& str(getValue(function, ACTION)) <& "]");
+        action_name := str(getValue(function, ACTION));
+        if action_name = "PRC_NOOP" then
+          isConstantCall := TRUE;
+          for obj range params until not isConstantCall do
+            if not isConstant(obj, local_objects) then
+              # write(" [not isConstant(" <& str(obj) <& ") " <& str(category(obj)) <& "]");
+              isConstantCall := FALSE;
+            end if;
+          end for;
+        elsif action_name in copyActions then
+          # writeln(str(params[1]) <& " := ...");
+          noop;
+        end if;
       end if;
-*)
+      # writeln;
     end if;
+    # writeln(" -- > " <& isConstantCall);
   end func;
 
 
@@ -142,6 +163,8 @@ const func boolean: isPureFunction (in reference: function) is func
          "BIG_PARSE", "BIG_PARSE_BASED", "BIG_PLUS", "BIG_PRED", "BIG_radix",
          "BIG_RADIX", "BIG_REM", "BIG_RSHIFT", "BIG_SBTR", "BIG_STR", "BIG_SUCC",
          "BIG_TO_BSTRI_BE", "BIG_TO_BSTRI_LE", "BIG_VALUE",
+         "BIN_AND", "BIN_BIG", "BIN_BINARY", "BIN_LSHIFT", "BIN_OR", "BIN_ORD",
+         "BIN_radix", "BIN_RADIX", "BIN_RSHIFT", "BIN_STR", "BIN_XOR",
          "BLN_AND", "BLN_EQ", "BLN_GE", "BLN_GT", "BLN_ICONV", "BLN_LE", "BLN_LT",
          "BLN_NE", "BLN_NOT", "BLN_OR", "BLN_ORD", "BLN_VALUE",
          "BST_CAT", "BST_CMP", "BST_EMPTY", "BST_EQ", "BST_HASHCODE", "BST_IDX",
@@ -162,15 +185,16 @@ const func boolean: isPureFunction (in reference: function) is func
          "FLT_TAN", "FLT_TANH", "FLT_TRUNC", "FLT_VALUE",
          "HSH_CONTAINS", "HSH_EMPTY", "HSH_IDX", "HSH_KEYS", "HSH_LNG",
          "HSH_VALUES",
-         "INT_ABS", "INT_ADD", "INT_AND", "INT_BINOM", "INT_BIT_LENGTH",
-         "INT_BYTES_BE", "INT_BYTES_BE_2_INT", "INT_BYTES_LE",
-         "INT_BYTES_LE_2_INT", "INT_CMP", "INT_CONV", "INT_DIV", "INT_EQ",
-         "INT_FACT", "INT_GE", "INT_GT", "INT_HASHCODE", "INT_LE", "INT_LOG10",
-         "INT_LOG2", "INT_LOWEST_SET_BIT", "INT_LPAD0", "INT_LSHIFT", "INT_LT",
-         "INT_MDIV", "INT_MOD", "INT_MULT", "INT_NE", "INT_NEGATE", "INT_ODD",
-         "INT_OR", "INT_ORD", "INT_PARSE", "INT_PLUS", "INT_POW", "INT_PRED",
-         "INT_radix", "INT_RADIX", "INT_REM", "INT_RSHIFT", "INT_SBTR",
-         "INT_SQRT", "INT_STR", "INT_SUCC", "INT_URSHIFT", "INT_VALUE", "INT_XOR",
+         "INT_ABS", "INT_ADD", "INT_BINOM", "INT_BIT_LENGTH", "INT_BYTES_BE",
+         "INT_BYTES_BE_2_INT", "INT_BYTES_BE_2_UINT", "INT_BYTES_BE_SIGNED",
+         "INT_BYTES_BE_UNSIGNED", "INT_BYTES_LE_2_INT", "INT_BYTES_LE_2_UINT",
+         "INT_BYTES_LE_SIGNED", "INT_BYTES_LE_UNSIGNED", "INT_CMP", "INT_CONV",
+         "INT_DIV", "INT_EQ", "INT_FACT", "INT_GE", "INT_GT", "INT_HASHCODE",
+         "INT_LE", "INT_LOG10", "INT_LOG2", "INT_LOWEST_SET_BIT", "INT_LPAD0",
+         "INT_LSHIFT", "INT_LT", "INT_MDIV", "INT_MOD", "INT_MULT", "INT_NE",
+         "INT_NEGATE", "INT_ODD", "INT_ORD", "INT_PARSE", "INT_PLUS", "INT_POW",
+         "INT_PRED", "INT_radix", "INT_RADIX", "INT_REM", "INT_RSHIFT",
+         "INT_SBTR", "INT_SQRT", "INT_STR", "INT_SUCC", "INT_VALUE",
          "ITF_CMP", "ITF_EQ", "ITF_HASHCODE", "ITF_NE",
          "LST_CAT", "LST_ELEM", "LST_EMPTY", "LST_HEAD", "LST_IDX", "LST_LNG",
          "LST_RANGE", "LST_TAIL",

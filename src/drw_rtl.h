@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  drw_rtl.h     Generic graphic drawing functions.                */
+/*  drw_rtl.h     Platform idependent drawing functions.            */
 /*  Copyright (C) 1989 - 2007  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
@@ -25,7 +25,7 @@
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/drw_rtl.h                                       */
 /*  Changes: 2007  Thomas Mertes                                    */
-/*  Content: Generic graphic drawing functions.                     */
+/*  Content: Platform idependent drawing functions.                 */
 /*                                                                  */
 /********************************************************************/
 

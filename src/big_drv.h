@@ -119,6 +119,7 @@ int16Type bigToInt16 (const const_bigIntType big1);
 int32Type bigToInt32 (const const_bigIntType big1);
 #ifdef INT64TYPE
   int64Type bigToInt64 (const const_bigIntType big1);
+  uint64Type bigToUInt64 (const const_bigIntType big1);
 #endif
 bigIntType bigXor (const_bigIntType big1, const_bigIntType big2);
 bigIntType bigZero (void);

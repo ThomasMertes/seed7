@@ -240,12 +240,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 200000 lines of Seed7. For version 2015-02-01 the number of lines is:
+than 200000 lines of Seed7. For version 2015-02-16 the number of lines is:
 
-  121862  C source files (*.c)
-    9968  C header files (*.h)
-  120152  Seed7 source files (*.sd7)
-  127055  Seed7 library/include files (*.s7i)
+  122558  C source files (*.c)
+    9984  C header files (*.h)
+  120489  Seed7 source files (*.sd7)
+  127805  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -330,6 +330,7 @@ operating system, make utility, C compiler and shell:
   -------------+-----------------+--------------+------------+--------
   mk_linux.mak | Linux/Unix/BSD  | (g)make      | gcc        | sh
   mk_clang.mak | Linux/Unix/BSD  | (g)make      | clang      | sh
+  mk_icc.mak   | Linux/Unix/BSD  | (g)make      | icc        | sh
   mk_cygw.mak  | Windows (Cygwin)| (g)make      | gcc        | sh
   mk_msys.mak  | Windows (MSYS)  | mingw32-make | gcc        | sh
   mk_mingw.mak | Windows (MinGW) | mingw32-make | gcc        | cmd.exe
@@ -338,7 +339,8 @@ operating system, make utility, C compiler and shell:
   mk_bcc32.mak | Windows (bcc32) | make         | bcc32      | cmd.exe
   mk_bccv5.mak | Windows (bcc32) | make         | bcc32 V5.5 | cmd.exe
   mk_djgpp.mak | DOS             | (g)make      | gcc        | cmd.exe
-  mk_osx.mak   | Mac OS X (Xcode)| (g)make      | gcc        | sh
+  mk_osx.mak   | Mac OS X        | make         | gcc        | sh
+  mk_osxcl.mak | Mac OS X        | make         | clang      | sh
   mk_freebsd.mk| FreeBSD         | make         | clang/gcc  | sh
 
 In the optimal case you just copy one of this files to 'makefile' and do (with

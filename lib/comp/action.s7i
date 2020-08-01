@@ -34,6 +34,7 @@ const proc: declareExtern (inout file: c_prog, in string: prototype) is forward;
 include "comp/act_act.s7i";
 include "comp/arr_act.s7i";
 include "comp/big_act.s7i";
+include "comp/bin_act.s7i";
 include "comp/bln_act.s7i";
 include "comp/bst_act.s7i";
 include "comp/chr_act.s7i";
@@ -276,10 +277,34 @@ const proc: process_action (in reference: function, in ref_list: params,
     elsif action_prefix = "BIN" then
       if action_name = "BIN_AND" then
         process(BIN_AND, function, params, c_expr);
+      elsif action_name = "BIN_AND_ASSIGN" then
+        process(BIN_AND_ASSIGN, function, params, c_expr);
+      elsif action_name = "BIN_BIG" then
+        process(BIN_BIG, function, params, c_expr);
+      elsif action_name = "BIN_BINARY" then
+        process(BIN_BINARY, function, params, c_expr);
+      elsif action_name = "BIN_LSHIFT" then
+        process(BIN_LSHIFT, function, params, c_expr);
+      elsif action_name = "BIN_LSHIFT_ASSIGN" then
+        process(BIN_LSHIFT_ASSIGN, function, params, c_expr);
       elsif action_name = "BIN_OR" then
         process(BIN_OR, function, params, c_expr);
+      elsif action_name = "BIN_OR_ASSIGN" then
+        process(BIN_OR_ASSIGN, function, params, c_expr);
+      elsif action_name = "BIN_radix" then
+        process(BIN_radix, function, params, c_expr);
+      elsif action_name = "BIN_RADIX" then
+        process(BIN_RADIX, function, params, c_expr);
+      elsif action_name = "BIN_RSHIFT" then
+        process(BIN_RSHIFT, function, params, c_expr);
+      elsif action_name = "BIN_RSHIFT_ASSIGN" then
+        process(BIN_RSHIFT_ASSIGN, function, params, c_expr);
+      elsif action_name = "BIN_STR" then
+        process(BIN_STR, function, params, c_expr);
       elsif action_name = "BIN_XOR" then
         process(BIN_XOR, function, params, c_expr);
+      elsif action_name = "BIN_XOR_ASSIGN" then
+        process(BIN_XOR_ASSIGN, function, params, c_expr);
       else
         process_unknown_action(action_name, c_expr);
       end if;
@@ -364,6 +389,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(CHR_ICONV, function, params, c_expr);
       elsif action_name = "CHR_INCR" then
         process(CHR_INCR, function, params, c_expr);
+      elsif action_name = "CHR_IS_LETTER" then
+        process(CHR_IS_LETTER, function, params, c_expr);
       elsif action_name = "CHR_LE" then
         process(CHR_LE, function, params, c_expr);
       elsif action_name = "CHR_LOW" then
@@ -384,6 +411,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(CHR_UP, function, params, c_expr);
       elsif action_name = "CHR_VALUE" then
         process(CHR_VALUE, function, params, c_expr);
+      elsif action_name = "CHR_WIDTH" then
+        process(CHR_WIDTH, function, params, c_expr);
       else
         process_unknown_action(action_name, c_expr);
       end if;
@@ -867,10 +896,6 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(INT_ADD, function, params, c_expr);
       elsif action_name = "INT_ADD_ASSIGN" then
         process(INT_ADD_ASSIGN, function, params, c_expr);
-      elsif action_name = "INT_AND" then
-        process(INT_AND, function, params, c_expr);
-      elsif action_name = "INT_AND_ASSIGN" then
-        process(INT_AND_ASSIGN, function, params, c_expr);
       elsif action_name = "INT_BINOM" then
         process(INT_BINOM, function, params, c_expr);
       elsif action_name = "INT_BIT_LENGTH" then
@@ -943,12 +968,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(INT_NEGATE, function, params, c_expr);
       elsif action_name = "INT_ODD" then
         process(INT_ODD, function, params, c_expr);
-      elsif action_name = "INT_OR" then
-        process(INT_OR, function, params, c_expr);
       elsif action_name = "INT_ORD" then
         process(INT_ORD, function, params, c_expr);
-      elsif action_name = "INT_OR_ASSIGN" then
-        process(INT_OR_ASSIGN, function, params, c_expr);
       elsif action_name = "INT_PARSE" then
         process(INT_PARSE, function, params, c_expr);
       elsif action_name = "INT_PLUS" then
@@ -979,20 +1000,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(INT_STR, function, params, c_expr);
       elsif action_name = "INT_SUCC" then
         process(INT_SUCC, function, params, c_expr);
-      elsif action_name = "INT_ULSHIFT" then
-        process(INT_ULSHIFT, function, params, c_expr);
-      elsif action_name = "INT_ULSHIFT_ASSIGN" then
-        process(INT_ULSHIFT_ASSIGN, function, params, c_expr);
-      elsif action_name = "INT_URSHIFT" then
-        process(INT_URSHIFT, function, params, c_expr);
-      elsif action_name = "INT_URSHIFT_ASSIGN" then
-        process(INT_URSHIFT_ASSIGN, function, params, c_expr);
       elsif action_name = "INT_VALUE" then
         process(INT_VALUE, function, params, c_expr);
-      elsif action_name = "INT_XOR" then
-        process(INT_XOR, function, params, c_expr);
-      elsif action_name = "INT_XOR_ASSIGN" then
-        process(INT_XOR_ASSIGN, function, params, c_expr);
       else
         process_unknown_action(action_name, c_expr);
       end if;

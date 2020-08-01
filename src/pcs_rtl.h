@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  pcs_rtl.h     Primitive actions for the process type.           */
+/*  pcs_rtl.h     Platform idependent process handling functions.   */
 /*  Copyright (C) 1989 - 2014  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
@@ -25,7 +25,7 @@
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/pcs_rtl.h                                       */
 /*  Changes: 2014  Thomas Mertes                                    */
-/*  Content: Primitive actions for the process type.                */
+/*  Content: Platform idependent process handling functions.        */
 /*                                                                  */
 /********************************************************************/
 

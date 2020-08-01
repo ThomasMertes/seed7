@@ -171,40 +171,6 @@ objectType int_add_assign (listType arguments)
 
 
 /**
- *  Compute a bitwise 'and' of two integer values.
- *  @return the bitwise 'and' of the two values.
- */
-objectType int_and (listType arguments)
-
-  { /* int_and */
-    isit_int(arg_1(arguments));
-    isit_int(arg_3(arguments));
-    return bld_int_temp(
-        take_int(arg_1(arguments)) & take_int(arg_3(arguments)));
-  } /* int_and */
-
-
-
-/**
- *  Compute a bitwise 'and' and assign the result back.
- */
-objectType int_and_assign (listType arguments)
-
-  {
-    objectType int_variable;
-
-  /* int_and_assign */
-    int_variable = arg_1(arguments);
-    isit_int(int_variable);
-    is_variable(int_variable);
-    isit_int(arg_3(arguments));
-    int_variable->value.intValue &= take_int(arg_3(arguments));
-    return SYS_EMPTY_OBJECT;
-  } /* int_and_assign */
-
-
-
-/**
  *  Binomial coefficient
  *  @return n over k
  */
@@ -1045,21 +1011,6 @@ objectType int_odd (listType arguments)
 
 
 /**
- *  Compute a bitwise inclusive 'or' of two integer values.
- *  @return the bitwise inclusive 'or' of the two values.
- */
-objectType int_or (listType arguments)
-
-  { /* int_or */
-    isit_int(arg_1(arguments));
-    isit_int(arg_3(arguments));
-    return bld_int_temp(
-        take_int(arg_1(arguments)) | take_int(arg_3(arguments)));
-  } /* int_or */
-
-
-
-/**
  *  Convert to integer.
  *  @return the unchanged number.
  */
@@ -1069,25 +1020,6 @@ objectType int_ord (listType arguments)
     isit_int(arg_1(arguments));
     return bld_int_temp(take_int(arg_1(arguments)));
   } /* int_ord */
-
-
-
-/**
- *  Compute a bitwise inclusive 'or' and assign the result back.
- */
-objectType int_or_assign (listType arguments)
-
-  {
-    objectType int_variable;
-
-  /* int_or_assign */
-    int_variable = arg_1(arguments);
-    isit_int(int_variable);
-    is_variable(int_variable);
-    isit_int(arg_3(arguments));
-    int_variable->value.intValue |= take_int(arg_3(arguments));
-    return SYS_EMPTY_OBJECT;
-  } /* int_or_assign */
 
 
 
@@ -1492,94 +1424,6 @@ objectType int_umult (listType arguments)
 
 
 
-objectType int_ulshift (listType arguments)
-
-  {
-    intType lshift;
-
-  /* int_ulshift */
-    isit_int(arg_1(arguments));
-    isit_int(arg_3(arguments));
-    lshift = take_int(arg_3(arguments));
-#ifdef CHECK_INT_OVERFLOW
-    if (unlikely(lshift < 0 || lshift >= INTTYPE_SIZE)) {
-      return raise_exception(SYS_OVF_EXCEPTION);
-    } /* if */
-#endif
-    return bld_int_temp((intType) (
-        (uintType) (take_int(arg_1(arguments))) << lshift));
-  } /* int_ulshift */
-
-
-
-objectType int_ulshift_assign (listType arguments)
-
-  {
-    objectType int_variable;
-    intType lshift;
-
-  /* int_ulshift_assign */
-    int_variable = arg_1(arguments);
-    isit_int(int_variable);
-    is_variable(int_variable);
-    isit_int(arg_3(arguments));
-    lshift = take_int(arg_3(arguments));
-#ifdef CHECK_INT_OVERFLOW
-    if (unlikely(lshift < 0 || lshift >= INTTYPE_SIZE)) {
-      return raise_exception(SYS_OVF_EXCEPTION);
-    } /* if */
-#endif
-    int_variable->value.intValue = (intType) (
-        (uintType) (take_int(int_variable)) << lshift);
-    return SYS_EMPTY_OBJECT;
-  } /* int_ulshift_assign */
-
-
-
-objectType int_urshift (listType arguments)
-
-  {
-    intType rshift;
-
-  /* int_urshift */
-    isit_int(arg_1(arguments));
-    isit_int(arg_3(arguments));
-    rshift = take_int(arg_3(arguments));
-#ifdef CHECK_INT_OVERFLOW
-    if (unlikely(rshift < 0 || rshift >= INTTYPE_SIZE)) {
-      return raise_exception(SYS_OVF_EXCEPTION);
-    } /* if */
-#endif
-    return bld_int_temp((intType) (
-        (uintType) (take_int(arg_1(arguments))) >> rshift));
-  } /* int_urshift */
-
-
-
-objectType int_urshift_assign (listType arguments)
-
-  {
-    objectType int_variable;
-    intType rshift;
-
-  /* int_urshift_assign */
-    int_variable = arg_1(arguments);
-    isit_int(int_variable);
-    is_variable(int_variable);
-    isit_int(arg_3(arguments));
-    rshift = take_int(arg_3(arguments));
-#ifdef CHECK_INT_OVERFLOW
-    if (unlikely(rshift < 0 || rshift >= INTTYPE_SIZE)) {
-      return raise_exception(SYS_OVF_EXCEPTION);
-    } /* if */
-#endif
-    int_variable->value.intValue = (intType) (
-        (uintType) (take_int(int_variable)) >> rshift);
-    return SYS_EMPTY_OBJECT;
-  } /* int_urshift_assign */
-
-
-
 #ifdef OUT_OF_ORDER
 objectType int_usbtr (listType arguments)
 
@@ -1608,33 +1452,3 @@ objectType int_value (listType arguments)
       return bld_int_temp(take_int(obj_arg));
     } /* if */
   } /* int_value */
-
-
-
-objectType int_xor (listType arguments)
-
-  { /* int_xor */
-    isit_int(arg_1(arguments));
-    isit_int(arg_3(arguments));
-    return bld_int_temp(
-        take_int(arg_1(arguments)) ^ take_int(arg_3(arguments)));
-  } /* int_xor */
-
-
-
-/**
- *  Compute a bitwise exclusive or ('xor') and assign the result back.
- */
-objectType int_xor_assign (listType arguments)
-
-  {
-    objectType int_variable;
-
-  /* int_xor_assign */
-    int_variable = arg_1(arguments);
-    isit_int(int_variable);
-    is_variable(int_variable);
-    isit_int(arg_3(arguments));
-    int_variable->value.intValue ^= take_int(arg_3(arguments));
-    return SYS_EMPTY_OBJECT;
-  } /* int_xor_assign */

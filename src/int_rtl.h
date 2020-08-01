@@ -50,6 +50,9 @@ int uint32LeastSignificantBit (uint32Type number);
 #ifdef INT64TYPE
 int uint64LeastSignificantBit (uint64Type number);
 #endif
+striType uintRadix (uintType number, intType base, boolType upperCase);
+striType uintRadixPow2 (uintType number, int shift, int mask, boolType upperCase);
+striType uintStr (uintType number);
 intType intBinom (intType n_number, intType k_number);
 uintType uintBinomNoChk (uintType n_number, intType k_number);
 intType intBitLength (intType number);

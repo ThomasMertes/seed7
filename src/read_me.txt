@@ -18,6 +18,7 @@ THE MAKEFILES
   -------------+-----------------+--------------+------------+--------
   mk_linux.mak | Linux/Unix/BSD  | (g)make      | gcc        | sh
   mk_clang.mak | Linux/Unix/BSD  | (g)make      | clang      | sh
+  mk_icc.mak   | Linux/Unix/BSD  | (g)make      | icc        | sh
   mk_cygw.mak  | Windows (Cygwin)| (g)make      | gcc        | sh
   mk_msys.mak  | Windows (MSYS)  | mingw32-make | gcc        | sh
   mk_mingw.mak | Windows (MinGW) | mingw32-make | gcc        | cmd.exe
@@ -488,6 +489,7 @@ HOW TO VERIFY THAT THE INTERPRETER WORKS CORRECT?
 
     compiling the compiler - okay
     chkint ........... okay
+    chkovf ........... okay
     chkflt ........... okay
     chkstr ........... okay
     chkprc ........... okay
@@ -643,6 +645,7 @@ PRIMITIVE ACTION FUNCTIONS
     itflib.c   interface (ITF_*) actions
     kbdlib.c   Keyboard (KBD_*) actions
     lstlib.c   List (LST_*) actions
+    pcslib.c   Process (PCS_*) actions
     pollib.c   Poll (POL_*) actions
     prclib.c   proc/statement (PRC_*) actions
     prglib.c   Program (PRG_*) actions
@@ -695,13 +698,14 @@ RUNTIME LIBRARY
     cmd_rtl.c  Directory, file and other system functions.
     con_rtl.c  Primitive actions for console/terminal output.
     dir_rtl.c  Primitive actions for the directory type.
-    drw_rtl.c  Generic graphic drawing functions.
+    drw_rtl.c  Platform idependent drawing functions.
     fil_rtl.c  Primitive actions for the C library file type.
     flt_rtl.c  Primitive actions for the float type.
     hsh_rtl.c  Primitive actions for the hash map type.
     int_rtl.c  Primitive actions for the integer type.
     itf_rtl.c  Primitive actions for the interface type.
-    kbd_rtl.c  Generic keyboard support for console keyboard.
+    kbd_rtl.c  Platform idependent console keyboard support.
+    pcs_rtl.c  Platform idependent process handling functions.
     set_rtl.c  Primitive actions for the set type.
     soc_rtl.c  Primitive actions for the socket type.
     str_rtl.c  Primitive actions for the string type.
@@ -744,6 +748,8 @@ DRIVERS
     gkb_x11.c  Keyboard and mouse access with X11 capabilities.
     kbd_inf.c  Driver for terminfo keyboard access.
     kbd_poll.c Driver for terminfo keyboard access using poll().
+    pcs_unx.c  Process functions which use the Unix API.
+    pcs_win.c  Process functions which use the Windows API.
     pol_dos.c  Poll type and function using DOS capabilities.
     pol_sel.c  Poll type and function based on select function.
     pol_unx.c  Poll type and function using UNIX capabilities.

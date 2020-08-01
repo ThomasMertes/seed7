@@ -607,12 +607,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 200000 lines of Seed7. For version 2015-02-01 the number of lines is:
+than 200000 lines of Seed7. For version 2015-02-16 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right">121862</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right">  9968</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">120152</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right">127055</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right">122558</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right">  9984</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">120489</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right">127805</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -697,6 +697,7 @@ operating system, make utility, C compiler and shell:
   
   <tr><td>mk_linux.mak </td><td> Linux/Unix/BSD  </td><td> (g)make      </td><td> gcc        </td><td> sh</td></tr>
   <tr><td>mk_clang.mak </td><td> Linux/Unix/BSD  </td><td> (g)make      </td><td> clang      </td><td> sh</td></tr>
+  <tr><td>mk_icc.mak   </td><td> Linux/Unix/BSD  </td><td> (g)make      </td><td> icc        </td><td> sh</td></tr>
   <tr><td>mk_cygw.mak  </td><td> Windows (Cygwin)</td><td> (g)make      </td><td> gcc        </td><td> sh</td></tr>
   <tr><td>mk_msys.mak  </td><td> Windows (MSYS)  </td><td> mingw32-make </td><td> gcc        </td><td> sh</td></tr>
   <tr><td>mk_mingw.mak </td><td> Windows (MinGW) </td><td> mingw32-make </td><td> gcc        </td><td> cmd.exe</td></tr>
@@ -705,7 +706,8 @@ operating system, make utility, C compiler and shell:
   <tr><td>mk_bcc32.mak </td><td> Windows (bcc32) </td><td> make         </td><td> bcc32      </td><td> cmd.exe</td></tr>
   <tr><td>mk_bccv5.mak </td><td> Windows (bcc32) </td><td> make         </td><td> bcc32 V5.5 </td><td> cmd.exe</td></tr>
   <tr><td>mk_djgpp.mak </td><td> DOS             </td><td> (g)make      </td><td> gcc        </td><td> cmd.exe</td></tr>
-  <tr><td>mk_osx.mak   </td><td> Mac OS X (Xcode)</td><td> (g)make      </td><td> gcc        </td><td> sh</td></tr>
+  <tr><td>mk_osx.mak   </td><td> Mac OS X        </td><td> make         </td><td> gcc        </td><td> sh</td></tr>
+  <tr><td>mk_osxcl.mak </td><td> Mac OS X        </td><td> make         </td><td> clang      </td><td> sh</td></tr>
   <tr><td>mk_freebsd.mk</td><td> FreeBSD         </td><td> make         </td><td> clang/gcc  </td><td> sh</td></tr>
 </table></dd></dl><p>
 In the optimal case you just copy one of this files to 'makefile' and do (with

@@ -7505,6 +7505,7 @@ const proc: chkGrow is func
 
 const proc: chkSubtraction is func
   local
+    var bigInteger: number is 12345_;
     var boolean: okay is TRUE;
   begin
     if  -2147483650_ - -2147483650_ <>           0_ or
@@ -7908,6 +7909,11 @@ const proc: chkSubtraction is func
          2147483649_ -  2147483648_ <>           1_ or
          2147483649_ -  2147483649_ <>           0_ then
       writeln("Subtraction of bigInteger does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if number - number <> 0_ then
+      writeln("Subtraction of bigInteger by itself does not work correct.");
       okay := FALSE;
     end if;
 

@@ -172,6 +172,25 @@ objectType bld_bigint_temp (bigIntType temp_bigint)
 
 
 
+objectType bld_binary_temp (uintType temp_binary)
+
+  {
+    register objectType result;
+
+  /* bld_binary_temp */
+    if (ALLOC_OBJECT(result)) {
+      result->type_of = NULL;
+      result->descriptor.property = NULL;
+      INIT_CATEGORY_OF_TEMP(result, INTOBJECT);
+      result->value.binaryValue = temp_binary;
+      return result;
+    } else {
+      return raise_exception(SYS_MEM_EXCEPTION);
+    } /* if */
+  } /* bld_binary_temp */
+
+
+
 objectType bld_block_temp (blockType temp_block)
 
   {

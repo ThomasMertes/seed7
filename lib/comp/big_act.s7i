@@ -112,6 +112,7 @@ const proc: big_prototypes (inout file: c_prog) is func
     end if;
     declareExtern(c_prog, "bigIntType  bigFromBStriBe (const const_bstriType, const boolType);");
     declareExtern(c_prog, "bigIntType  bigFromBStriLe (const const_bstriType, const boolType);");
+    declareExtern(c_prog, "bigIntType  bigFromUInt64 (uint64Type);");
     declareExtern(c_prog, "bigIntType  bigGcd (const const_bigIntType, const const_bigIntType);");
     declareExtern(c_prog, "intType     bigHashCode (const const_bigIntType);");
     declareExtern(c_prog, "char       *bigHexCStri (const const_bigIntType);");
@@ -161,6 +162,7 @@ const proc: big_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "bigIntType  bigSuccTemp (bigIntType);");
     declareExtern(c_prog, "bstriType   bigToBStriBe (const const_bigIntType, const boolType);");
     declareExtern(c_prog, "bstriType   bigToBStriLe (const const_bigIntType, const boolType);");
+    declareExtern(c_prog, "uint64Type  bigToUInt64 (const const_bigIntType);");
     declareExtern(c_prog, "bigIntType  bigValue (const const_objRefType);");
     declareExtern(c_prog, "bigIntType  bigXor (const_bigIntType, const_bigIntType);");
     declareExtern(c_prog, "bigIntType  bigZero (void);");
@@ -1682,6 +1684,9 @@ const proc: process (BIG_SBTR, in reference: function,
   begin
     if getConstant(params[3], BIGINTOBJECT, evaluatedParam) then
       process_const_big_add(params[1], -getValue(evaluatedParam, bigInteger), c_expr);
+    elsif params[1] = params[3] then
+      incr(countOptimizations);
+      c_expr.expr &:= bigIntegerLiteral(0_);
     else
       prepare_bigint_result(c_expr);
       prepareAnyParamTemporarys(params[1], c_param1, c_expr);

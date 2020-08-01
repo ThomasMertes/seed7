@@ -24,9 +24,6 @@
 (********************************************************************)
 
 
-const ACTION: BIN_AND    is action "BIN_AND";
-const ACTION: BIN_OR     is action "BIN_OR";
-const ACTION: BIN_XOR    is action "BIN_XOR";
 const ACTION: BLN_AND    is action "BLN_AND";
 const ACTION: BLN_CPY    is action "BLN_CPY";
 const ACTION: BLN_EQ     is action "BLN_EQ";
@@ -47,42 +44,6 @@ const proc: bln_prototypes (inout file: c_prog) is func
   begin
     declareExtern(c_prog, "void        blnCpyGeneric (genericType *const, const genericType);");
     declareExtern(c_prog, "boolType    blnValue (const const_objRefType);");
-  end func;
-
-
-const proc: process (BIN_AND, in reference: function,
-    in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    c_expr.expr &:= "bigAnd(";
-    getAnyParamToExpr(params[1], c_expr);
-    c_expr.expr &:= ", ";
-    getAnyParamToExpr(params[3], c_expr);
-    c_expr.expr &:= ")";
-  end func;
-
-
-const proc: process (BIN_OR, in reference: function,
-    in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    c_expr.expr &:= "bigOr(";
-    getAnyParamToExpr(params[1], c_expr);
-    c_expr.expr &:= ", ";
-    getAnyParamToExpr(params[3], c_expr);
-    c_expr.expr &:= ")";
-  end func;
-
-
-const proc: process (BIN_XOR, in reference: function,
-    in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    c_expr.expr &:= "bigXor(";
-    getAnyParamToExpr(params[1], c_expr);
-    c_expr.expr &:= ", ";
-    getAnyParamToExpr(params[3], c_expr);
-    c_expr.expr &:= ")";
   end func;
 
 

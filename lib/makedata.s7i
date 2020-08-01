@@ -477,7 +477,7 @@ const func string: filter (in stringHash: macros, in string: parameters,
     var string: pattern is "";
     var string: names is "";
     var string: name is "";
-	var array string: patternList is 0 times "";
+    var array string: patternList is 0 times "";
   begin
     # writeln("filter: " <& literal(parameters));
     patterns := getMacroParameter(parameters, pos, ',');
@@ -515,7 +515,7 @@ const func string: filterOut (in stringHash: macros, in string: parameters,
     var string: pattern is "";
     var string: names is "";
     var string: name is "";
-	var array string: patternList is 0 times "";
+    var array string: patternList is 0 times "";
   begin
     # writeln("filterOut: " <& literal(parameters));
     patterns := getMacroParameter(parameters, pos, ',');

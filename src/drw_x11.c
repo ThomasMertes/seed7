@@ -654,7 +654,8 @@ void drwArc2 (const_winType actual_window,
     XDrawArc(mydisplay, to_window(actual_window), mygc,
         castToInt(x1 - radius), castToInt(y1 - radius),
         (unsigned) (2 * radius), (unsigned) (2 * radius), 0, 23040);
-    XDrawLine(mydisplay, to_window(actual_window), mygc, x1, y1, x2, y2);
+    XDrawLine(mydisplay, to_window(actual_window), mygc,
+        castToInt(x1), castToInt(y1), castToInt(x2), castToInt(y2));
   } /* drwArc2 */
 
 
@@ -973,8 +974,8 @@ bstriType drwGetImage (const_winType actual_window)
 
   {
     XImage *image;
-    intType xPos;
-    intType yPos;
+    unsigned int xPos;
+    unsigned int yPos;
     memSizeType result_size;
     int32Type *image_data;
     bstriType result;
@@ -1003,7 +1004,7 @@ bstriType drwGetImage (const_winType actual_window)
       for (yPos = 0; yPos < to_height(actual_window); yPos++) {
         for (xPos = 0; xPos < to_width(actual_window); xPos++) {
           image_data[yPos * to_width(actual_window) + xPos] =
-              (int32Type) XGetPixel(image, xPos, yPos);
+              (int32Type) XGetPixel(image, (int) xPos, (int) yPos);
         } /* for */
       } /* for */
     } /* if */
