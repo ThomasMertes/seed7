@@ -76,9 +76,9 @@ const proc: process_statements (in expr_type: condition, in expr_type: statement
   begin
     c_expr.currentFile := statements.currentFile;
     c_expr.currentLine := statements.currentLine;
-    if statements.temp_num <> 0 then
+    if statements.temp_decls <> "" or condition.temp_decls <> "" then
       appendWithDiagnostic(statements.temp_decls, c_expr);
-      if condition.temp_num <> 0 then
+      if condition.temp_decls <> "" then
         appendWithDiagnostic(condition.temp_frees, c_expr);
         appendWithDiagnostic(condition.temp_to_null, c_expr);
       end if;
@@ -338,10 +338,12 @@ const proc: process (PRC_WHILE, in reference: function,
     var string: statementFile is "";
     var integer: statementLine is 0;
   begin
+    c_condition.temp_num := c_expr.temp_num;
     process_call_by_name_expr(params[2], c_condition);
     c_statement.temp_num := c_condition.temp_num;
     process_call_by_name_expr(params[4], c_statement);
-    if c_condition.temp_num <> 0 then
+    c_expr.temp_num := c_statement.temp_num;
+    if c_condition.temp_decls <> "" then
       c_expr.expr &:= "{\n";
       appendWithDiagnostic(c_condition.temp_decls, c_expr);
       appendWithDiagnostic(c_condition.temp_assigns, c_expr);
@@ -354,7 +356,7 @@ const proc: process (PRC_WHILE, in reference: function,
     c_expr.expr &:= ") {\n";
     process_statements(c_condition, c_statement, c_expr);
     c_expr.expr &:= "}\n";
-    if c_condition.temp_num <> 0 then
+    if c_condition.temp_decls <> "" then
       c_expr.currentFile := statementFile;
       c_expr.currentLine := statementLine;
       appendWithDiagnostic(c_condition.temp_frees, c_expr);
@@ -370,10 +372,12 @@ const proc: process (PRC_REPEAT, in reference: function,
     var expr_type: c_condition is expr_type.value;
     var expr_type: c_statement is expr_type.value;
   begin
+    c_condition.temp_num := c_expr.temp_num;
     process_call_by_name_expr(params[4], c_condition);
     c_statement.temp_num := c_condition.temp_num;
     process_call_by_name_expr(params[2], c_statement);
-    if c_condition.temp_num <> 0 then
+    c_expr.temp_num := c_statement.temp_num;
+    if c_condition.temp_decls <> "" then
       c_expr.expr &:= "{\n";
       appendWithDiagnostic(c_condition.temp_decls, c_expr);
       appendWithDiagnostic(c_condition.temp_assigns, c_expr);
@@ -385,7 +389,7 @@ const proc: process (PRC_REPEAT, in reference: function,
     c_expr.expr &:= "} while (!(";
     c_expr.expr &:= c_condition.expr;
     c_expr.expr &:= "));\n";
-    if c_condition.temp_num <> 0 then
+    if c_condition.temp_decls <> "" then
       c_expr.currentFile := file(params[4]);
       c_expr.currentLine := line(params[4]);
       appendWithDiagnostic(c_condition.temp_frees, c_expr);
@@ -400,7 +404,6 @@ const proc: process_prc_for (in reference: variable, in reference: startExpr,
 
   local
     var expr_type: c_start_expr is expr_type.value;
-    var expr_type: c_end_expr is expr_type.value;
     var reference: evaluatedParam is NIL;
     var string: start_name is "";
     var string: end_name is "";
@@ -413,8 +416,8 @@ const proc: process_prc_for (in reference: variable, in reference: startExpr,
     c_start_expr.temp_num := c_expr.temp_num;
     process_expr(startExpr, c_start_expr);
     c_expr.temp_num := c_start_expr.temp_num;
+    statement.temp_num := c_expr.temp_num;
     if c_start_expr.temp_frees <> "" then
-      statement.temp_num := c_expr.temp_num;
       incr(statement.temp_num);
       start_name := "start_" & str(statement.temp_num);
       statement.temp_decls &:= "intType ";
@@ -431,8 +434,6 @@ const proc: process_prc_for (in reference: variable, in reference: startExpr,
       statement.temp_assigns &:= "}\n";
     else
       if c_start_expr.temp_decls <> "" or c_start_expr.temp_assigns <> "" then
-        statement.temp_num := c_expr.temp_num;
-        incr(statement.temp_num);
         statement.temp_decls &:= c_start_expr.temp_decls;
         statement.temp_assigns &:= c_start_expr.temp_assigns;
       end if;

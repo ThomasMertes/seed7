@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  file.s7i      Interface type describing sequential files.       *)
-(*  Copyright (C) 1989 - 2011  Thomas Mertes                        *)
+(*  Copyright (C) 1989 - 2013, 2019  Thomas Mertes                  *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -294,6 +294,20 @@ const proc: readln (inout file: inFile) is func
 
 
 (**
+ *  Skip ''numChars'' characters from ''inFile''.
+ *)
+const proc: skip (inout file: inFile, in var integer: numChars) is func
+  local
+    var string: buffer is "";
+  begin
+    while numChars <> 0 do
+      buffer := gets(inFile, min(numChars, 1000000));
+      numChars -:= length(buffer);
+    end while;
+  end func;
+
+
+(**
  *  Copy a file from source to destination.
  *  The ''source'' file is copied to ''dest'' until end-of-file
  *  is reached.
@@ -306,5 +320,27 @@ const proc: copyFile (inout file: source, inout file: dest) is func
     while buffer <> "" do
       write(dest, buffer);
       buffer := gets(source, 1000000);
+    end while;
+  end func;
+
+
+(**
+ *  Copy at most ''numChars'' bytes from ''source'' to ''dest''.
+ *  The ''source'' file is copied to ''dest'' until '''numChars'' bytes
+ *  are copied or end-of-file is reached.
+ *  @return the number of bytes copied (which is less or equal ''numChars'').
+ *)
+const func integer: copyFile (inout file: source, inout file: dest,
+    in integer: numChars) is func
+  result
+    var integer: charsCopied is 0;
+  local
+    var string: buffer is "";
+  begin
+    buffer := gets(source, min(numChars, 1000000));
+    while buffer <> "" do
+      charsCopied +:= length(buffer);
+      write(dest, buffer);
+      buffer := gets(source, min(numChars - charsCopied, 1000000));
     end while;
   end func;

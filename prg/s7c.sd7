@@ -79,6 +79,7 @@ const type: enum_literal_hash is hash [type] element_number_hash;
 const type: act_to_form_param_hash is hash [reference] reference;
 const type: params_added_hash is hash [reference] act_to_form_param_hash;
 const type: setOfCategory is set of category;
+const type: setOfString is set of string;
 const type: funcparam_data_hash is hash [reference] string;
 const type: element_repeat_count_hash is hash [reference] integer;
 const type: stringLengthHash is hash [integer] integer;
@@ -95,10 +96,15 @@ var ref_list: dynamic_functions is ref_list.EMPTY;
 var interface_hash: interfaceOfType is interface_hash.EMPTY_HASH;
 var enum_literal_hash: enum_literal is enum_literal_hash.EMPTY_HASH;
 var params_added_hash: params_added is params_added_hash.EMPTY_HASH;
+var setOfString: definedActualFuncParams is setOfString.value;
 var funcparam_data_hash: funcparam_data is funcparam_data_hash.EMPTY_HASH;
 var funcparam_data_hash: funcparam_reference is funcparam_data_hash.EMPTY_HASH;
 var element_repeat_count_hash: element_repeat_count is element_repeat_count_hash.EMPTY_HASH;
 var funcname_hash: function_name is funcname_hash.value;
+
+
+const func boolean: isFuncParamData (in reference: currExpr) is
+  return currExpr in funcparam_data;
 
 
 const proc: count_declarations (inout expr_type: c_expr) is func
@@ -276,10 +282,47 @@ const proc: getAnyParamToTempAssigns (in expr_type: c_param, inout expr_type: c_
 const proc: getAnyParamToTempAssigns (in reference: aParam, inout expr_type: c_expr) is func
 
   local
+    var category: exprCategory is category.value;
+    var reference: paramValue is NIL;
+    var string: variableName is "";
     var expr_type: c_param is expr_type.value;
   begin
     prepareAnyParamTemporarys(aParam, c_param, c_expr);
-    getAnyParamToTempAssigns(c_param, c_expr);
+    if aParam not in funcparam_data and
+        not isFunc(getType(aParam)) and
+        aParam in inlineParam and
+        inlineParam[aParam][1].paramValue <> NIL then
+      paramValue := inlineParam[aParam][1].paramValue;
+      exprCategory := category(paramValue);
+      if not isVar(paramValue) and
+          (exprCategory = INTOBJECT or
+           exprCategory = FLOATOBJECT or
+           exprCategory = CHAROBJECT or
+           exprCategory = STRIOBJECT or
+           exprCategory = BSTRIOBJECT) then
+        incr(c_expr.temp_num);
+        variableName := "tmp_" & str(c_expr.temp_num);
+        c_expr.temp_decls &:= type_name(getType(paramValue));
+        c_expr.temp_decls &:= " ";
+        c_expr.temp_decls &:= variableName;
+        c_expr.temp_decls &:= ";\n";
+        c_expr.temp_assigns &:= "(";
+        c_expr.temp_assigns &:= variableName;
+        c_expr.temp_assigns &:= "=";
+        getAnyParamToTempAssigns(c_param, c_expr);
+        c_expr.temp_assigns &:= ", &";
+        c_expr.temp_assigns &:= variableName;
+        c_expr.temp_assigns &:= ")";
+      else
+        c_expr.temp_assigns &:= "&(";
+        getAnyParamToTempAssigns(c_param, c_expr);
+        c_expr.temp_assigns &:= ")";
+      end if;
+    else
+      c_expr.temp_assigns &:= "&(";
+      getAnyParamToTempAssigns(c_param, c_expr);
+      c_expr.temp_assigns &:= ")";
+    end if;
   end func;
 
 
@@ -822,6 +865,68 @@ const func ref_list: determineDataForActualFuncParam (in reference: current_expr
   end func;
 
 
+const proc: defineFunctype (in string: valueName, in reference: actual_param,
+    in ref_list: data_list, inout expr_type: c_expr) is func
+  local
+    var reference: dataItem is NIL;
+    var string: data_value is "";
+  begin
+    c_expr.expr &:= "typedef struct {\n";
+    c_expr.expr &:= type_name(resultType(getType(actual_param)));
+    c_expr.expr &:= " (*func) (void *data_";
+    c_expr.expr &:= valueName;
+    c_expr.expr &:= ");\n";
+    c_expr.expr &:= "struct {\n";
+    for dataItem range data_list do
+      c_expr.expr &:= type_name(getType(dataItem));
+      if isFunc(getType(dataItem)) then
+        c_expr.expr &:= " data_";
+      else
+        c_expr.expr &:= " *data_";
+      end if;
+      create_name(dataItem, c_expr.expr);
+      c_expr.expr &:= ";\n";
+      if isFunc(getType(dataItem)) then
+        data_value := "((functype_";
+        data_value &:= valueName;
+        data_value &:= " *) data_";
+        data_value &:= valueName;
+        data_value &:= ")->data.data_";
+        create_name(dataItem, data_value);
+        data_value &:= "->func(((functype_";
+        data_value &:= valueName;
+        data_value &:= " *) data_";
+        data_value &:= valueName;
+        data_value &:= ")->data.data_";
+        create_name(dataItem, data_value);
+        data_value &:= ")";
+        if getType(dataItem) = proctype then
+          data_value &:= ";\n";
+        end if;
+      else
+        data_value := "*((functype_";
+        data_value &:= valueName;
+        data_value &:= " *) data_";
+        data_value &:= valueName;
+        data_value &:= ")->data.data_";
+        create_name(dataItem, data_value);
+      end if;
+      funcparam_data @:= [dataItem] data_value;
+      data_value := "((functype_";
+      data_value &:= valueName;
+      data_value &:= " *) data_";
+      data_value &:= valueName;
+      data_value &:= ")->data.data_";
+      create_name(dataItem, data_value);
+      funcparam_reference @:= [dataItem] data_value;
+    end for;
+    c_expr.expr &:= "} data;\n";
+    c_expr.expr &:= "} functype_";
+    c_expr.expr &:= valueName;
+    c_expr.expr &:= ";\n\n";
+  end func;
+
+
 const proc: defineActualFuncParam (in string: valueName, in reference: actual_param,
     in ref_list: data_list, inout expr_type: c_expr) is func
 
@@ -835,59 +940,7 @@ const proc: defineActualFuncParam (in string: valueName, in reference: actual_pa
     funcparam_data_backup := funcparam_data;
     funcparam_reference_backup := funcparam_reference;
     if data_list <> ref_list.EMPTY then
-      c_expr.expr &:= "typedef struct {\n";
-      c_expr.expr &:= type_name(resultType(getType(actual_param)));
-      c_expr.expr &:= " (*func) (void *data_";
-      c_expr.expr &:= valueName;
-      c_expr.expr &:= ");\n";
-      c_expr.expr &:= "struct {\n";
-      for dataItem range data_list do
-        c_expr.expr &:= type_name(getType(dataItem));
-        if isFunc(getType(dataItem)) then
-          c_expr.expr &:= " data_";
-        else
-          c_expr.expr &:= " *data_";
-        end if;
-        create_name(dataItem, c_expr.expr);
-        c_expr.expr &:= ";\n";
-        if isFunc(getType(dataItem)) then
-          data_value := "((functype_";
-          data_value &:= valueName;
-          data_value &:= " *) data_";
-          data_value &:= valueName;
-          data_value &:= ")->data.data_";
-          create_name(dataItem, data_value);
-          data_value &:= "->func(((functype_";
-          data_value &:= valueName;
-          data_value &:= " *) data_";
-          data_value &:= valueName;
-          data_value &:= ")->data.data_";
-          create_name(dataItem, data_value);
-          data_value &:= ")";
-          if getType(dataItem) = proctype then
-            data_value &:= ";\n";
-          end if;
-        else
-          data_value := "*((functype_";
-          data_value &:= valueName;
-          data_value &:= " *) data_";
-          data_value &:= valueName;
-          data_value &:= ")->data.data_";
-          create_name(dataItem, data_value);
-        end if;
-        funcparam_data @:= [dataItem] data_value;
-        data_value := "((functype_";
-        data_value &:= valueName;
-        data_value &:= " *) data_";
-        data_value &:= valueName;
-        data_value &:= ")->data.data_";
-        create_name(dataItem, data_value);
-        funcparam_reference @:= [dataItem] data_value;
-      end for;
-      c_expr.expr &:= "} data;\n";
-      c_expr.expr &:= "} functype_";
-      c_expr.expr &:= valueName;
-      c_expr.expr &:= ";\n\n";
+      defineFunctype(valueName, actual_param, data_list, c_expr);
     end if;
     c_expr.expr &:= "static ";
     c_expr.expr &:= type_name(resultType(getType(actual_param)));
@@ -964,9 +1017,7 @@ const proc: defineFuncValue (in string: valueName, in type: genericFuncType,
         c_expr.temp_assigns &:= "o_";
         create_name(dataItem, c_expr.temp_assigns);
       else
-        c_expr.temp_assigns &:= "&(";
         getAnyParamToTempAssigns(dataItem, c_expr);
-        c_expr.temp_assigns &:= ")";
       end if;
       c_expr.temp_assigns &:= ";\n";
     end for;
@@ -999,7 +1050,10 @@ const proc: processFuncValue (in string: valueName, in type: genericFuncType,
   begin
     declare_type_if_necessary(genericFuncType, global_c_expr);
     data_list := determineDataForActualFuncParam(closure);
-    defineActualFuncParam(valueName, closure, data_list, function_c_expr);
+    if valueName not in definedActualFuncParams then
+      defineActualFuncParam(valueName, closure, data_list, function_c_expr);
+      incl(definedActualFuncParams, valueName);
+    end if;
     global_c_expr.expr  &:= function_c_expr.temp_decls;
     global_init.expr    &:= function_c_expr.temp_assigns;
     global_c_expr.expr  &:= function_c_expr.expr;
@@ -1138,13 +1192,15 @@ const proc: process_const_func_call (in reference: function,
       call_params(formal_params, actual_params, c_params);
       c_expr.temp_num := c_params.temp_num;
       c_expr.temp_decls &:= c_params.temp_decls;
-      c_expr.temp_decls &:= c_params.temp_assigns;
+      c_expr.temp_assigns &:= c_params.temp_assigns;
       c_expr.temp_frees &:= c_params.temp_frees;
       c_expr.temp_to_null &:= c_params.temp_to_null;
       c_expr.result_expr &:= c_params.expr;
       c_expr.result_expr &:= ")";
     elsif result_type = voidtype then
+      c_params.temp_num := c_expr.temp_num;
       call_params(formal_params, actual_params, c_params);
+      c_expr.temp_num := c_params.temp_num;
       if c_params.temp_decls <> "" or c_params.temp_assigns <> "" then
         setDiagnosticLine(c_expr);
         c_expr.expr &:= "{\n";
@@ -1937,6 +1993,7 @@ const proc: process_const_func_declaration (in reference: function,
         if isFunctionCallingSpecialAction(function) then
           write_object_declaration := FALSE;
         end if;
+        c_func_body.demand := REQUIRE_RESULT;
         process_expr(body(function), c_func_body);
         if c_param_list.temp_decls <> "" or c_func_body.temp_decls <> "" or
             trace_function or profile_function then
@@ -2340,8 +2397,14 @@ const proc: process_prototype_declaration (in reference: current_object,
 const proc: process_forward_declaration (in reference: fwd_ref,
     inout expr_type: c_expr) is func
 
+  local
+    var reference: function is NIL;
   begin
-    process_prototype_declaration(getValue(fwd_ref, reference), c_expr);
+    function := getValue(fwd_ref, reference);
+    if function not in prototype_declared then
+      process_prototype_declaration(function, c_expr);
+      prototype_declared @:= [function] TRUE;
+    end if;
   end func;
 
 
@@ -3353,32 +3416,36 @@ const proc: process_dynamic_param_implements (in reference: current_object,
   local
     var reference: formal_param is NIL;
     var type: implementationType is void;
+    var bitset: usedCaseLabels is {};
   begin
     formal_param := formal_params[paramNum];
     c_expr.expr &:= diagnosticLine(current_object);
+    c_expr.expr &:= "switch (((interfaceType) ";
+    if isPointerParam(formal_param) then
+      c_expr.expr &:= "*o_";
+    else
+      c_expr.expr &:= "o_";
+    end if;
+    create_name(formal_param, c_expr.expr);
+    c_expr.expr &:= ")->type_num) {\n";
     for implementationType range implements[param_type] do
-      c_expr.expr &:= "if (((interfaceType) ";
-      if isPointerParam(formal_param) then
-        c_expr.expr &:= "*o_";
-      else
-        c_expr.expr &:= "o_";
+      if typeNumber(implementationType) not in usedCaseLabels then
+        c_expr.expr &:= "case ";
+        c_expr.expr &:= str(typeNumber(implementationType));
+        c_expr.expr &:= "/*";
+        c_expr.expr &:= str(implementationType);
+        c_expr.expr &:= "*/";
+        c_expr.expr &:= ":\n";
+        setType(formal_params[paramNum], implementationType);
+        process_dynamic_condition(current_object,
+            formal_params, paramNum, c_expr);
+        setType(formal_params[paramNum], param_type);
+        c_expr.expr &:= diagnosticLine(current_object);
+        c_expr.expr &:= "break;\n";
+        incl(usedCaseLabels, typeNumber(implementationType));
       end if;
-      create_name(formal_param, c_expr.expr);
-      c_expr.expr &:= ")->type_num==";
-      c_expr.expr &:= str(typeNumber(implementationType));
-      c_expr.expr &:= "/*";
-      c_expr.expr &:= str(implementationType);
-      c_expr.expr &:= "*/";
-      c_expr.expr &:= ") {\n";
-
-      setType(formal_params[paramNum], implementationType);
-      process_dynamic_condition(current_object,
-          formal_params, paramNum, c_expr);
-      setType(formal_params[paramNum], param_type);
-      c_expr.expr &:= diagnosticLine(current_object);
-      c_expr.expr &:= "} else ";
     end for;
-    c_expr.expr &:= "{\n";
+    c_expr.expr &:= "default:\n";
     c_expr.expr &:= diagnosticLine(current_object);
     c_expr.expr &:= "raiseError(ACTION_ERROR);\n";
     (*
@@ -3400,6 +3467,7 @@ const proc: process_dynamic_param_implements (in reference: current_object,
     c_expr.expr &:= "printf(\")\\n\");\n";
     *)
     c_expr.expr &:= diagnosticLine(current_object);
+    c_expr.expr &:= "break;\n";
     c_expr.expr &:= "}\n";
   end func;
 
@@ -4839,7 +4907,14 @@ const proc: write_file_head is func
     writeln(c_prog, "  categoryType objcategory;");
     writeln(c_prog, "};");
     writeln(c_prog, "struct typeStruct {");
-    writeln(c_prog, "  int dummy;");
+    writeln(c_prog, "  objRefType match_obj;");
+    writeln(c_prog, "  typeType meta;");
+    writeln(c_prog, "  typeType func_type;");
+    writeln(c_prog, "  typeType varfunc_type;");
+    writeln(c_prog, "  typeType result_type;");
+    writeln(c_prog, "  boolType is_varfunc_type;");
+    writeln(c_prog, "  void *interfaces;");
+    writeln(c_prog, "  void *name;");
     writeln(c_prog, "};");
     writeln(c_prog, "struct listStruct {");
     writeln(c_prog, "  listType next;");
@@ -6117,18 +6192,18 @@ const proc: init_type_constants (inout expr_type: c_expr) is func
       aType := type_index[number][1];
       c_expr.expr &:= "/* typ[";
       c_expr.expr &:= str(number);
-      c_expr.expr &:= "] */ static unsigned char typ_";
+      c_expr.expr &:= "] */ static struct typeStruct typ_";
       c_expr.expr &:= str(number);
-      c_expr.expr &:= "[]={";
-      c_expr.expr &:= "0, 0, 0, 0, 0, 0, 0";
-      #% c_expr.expr &:= c_literal(aType);
+      c_expr.expr &:= "={";
+      c_expr.expr &:= "NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL";
+      # c_expr.expr &:= c_literal(aType);
       c_expr.expr &:= "};\n";
     end for;
     c_expr.expr &:= "typeType typ[]={\n";
     if length(type_const_table) > 0 then
       for number range sort(keys(type_index)) do
         aType := type_index[number][1];
-        c_expr.expr &:= "(typeType) typ_";
+        c_expr.expr &:= "&typ_";
         c_expr.expr &:= str(number);
         c_expr.expr &:= ", /* ";
         c_expr.expr &:= type_name2(aType);
@@ -6537,16 +6612,26 @@ const proc: declare_rtlRaiseError (inout expr_type: c_expr) is func
     c_expr.expr &:= "{\n";
     if trace_exception then
       c_expr.expr &:= "  int ch;\n";
+      c_expr.expr &:= "  if (catch_stack_pos == 0) {\n";
+      c_expr.expr &:= "    printf(\"\\n*** Uncaught EXCEPTION \");\n";
+      c_expr.expr &:= "    } else {\n";
+      c_expr.expr &:= "    printf(\"\\n*** Caught EXCEPTION \");\n";
+      c_expr.expr &:= "  }\n";
       c_expr.expr &:= "  if (fail_value >= 0 && fail_value < sizeof(exception_name) / sizeof(char *)) {\n";
-      c_expr.expr &:= "    printf(\"*** EXCEPTION %s\", exception_name[fail_value]);\n";
+      c_expr.expr &:= "    printf(\"%s\", exception_name[fail_value]);\n";
       c_expr.expr &:= "  } else {\n";
-      c_expr.expr &:= "    printf(\"*** EXCEPTION %d\", fail_value);\n";
+      c_expr.expr &:= "    printf(\"%d\", fail_value);\n";
       c_expr.expr &:= "  }\n";
       c_expr.expr &:= "  printf(\" raised at %s(%d)\\n\", file_name, line_number);\n";
-      c_expr.expr &:= "  printf(\"\\n*** (Type RETURN to continue or '*' to terminate)\\n\");\n";
+      c_expr.expr &:= "  printf(\"\\n*** The following commands are possible:\\n\"\n";
+      c_expr.expr &:= "         \"  RETURN  Continue\\n\"\n";
+      c_expr.expr &:= "         \"  *       Terminate\\n\"\n";
+      c_expr.expr &:= "         \"  /       Trigger SIGFPE\\n\");\n";
       c_expr.expr &:= "  ch = fgetc(stdin);\n";
       c_expr.expr &:= "  if (ch == (int) '*') {\n";
       c_expr.expr &:= "    exit(1);\n";
+      c_expr.expr &:= "  } else if (ch == (int) '/') {\n";
+      c_expr.expr &:= "    triggerSigfpe();\n";
       c_expr.expr &:= "  }\n";
     end if;
     c_expr.expr &:= "  error_file = file_name;\n";
@@ -6583,21 +6668,26 @@ const proc: declare_raise_error2 (inout expr_type: c_expr) is func
     c_expr.expr &:= "void raise_error2 (int fail_value, const char *file_name, int line_number)\n";
     c_expr.expr &:= "{\n";
     if compilerLibraryUsed then
-      if trace_exception then
-        c_expr.expr &:= "  int ch;\n";
-        c_expr.expr &:= "  if (fail_value >= 0 && fail_value < sizeof(exception_name) / sizeof(char *)) {\n";
-        c_expr.expr &:= "    printf(\"*** EXCEPTION %s\", exception_name[fail_value]);\n";
-        c_expr.expr &:= "  } else {\n";
-        c_expr.expr &:= "    printf(\"*** EXCEPTION %d\", fail_value);\n";
-        c_expr.expr &:= "  }\n";
-        c_expr.expr &:= "  printf(\" raised at %s(%d)\\n\", file_name, line_number);\n";
-        c_expr.expr &:= "  printf(\"\\n*** (Type RETURN to continue or '*' to terminate)\\n\");\n";
-        c_expr.expr &:= "  ch = fgetc(stdin);\n";
-        c_expr.expr &:= "  if (ch == (int) '*') {\n";
-        c_expr.expr &:= "    exit(1);\n";
-        c_expr.expr &:= "  }\n";
-      end if;
       c_expr.expr &:= "  if (interpreter_exception) {\n";
+      if trace_exception then
+        c_expr.expr &:= "    int ch;\n";
+        c_expr.expr &:= "    if (fail_value >= 0 && fail_value < sizeof(exception_name) / sizeof(char *)) {\n";
+        c_expr.expr &:= "      printf(\"*** EXCEPTION %s\", exception_name[fail_value]);\n";
+        c_expr.expr &:= "    } else {\n";
+        c_expr.expr &:= "      printf(\"*** EXCEPTION %d\", fail_value);\n";
+        c_expr.expr &:= "    }\n";
+        c_expr.expr &:= "    printf(\" raised at %s(%d)\\n\", file_name, line_number);\n";
+        c_expr.expr &:= "    printf(\"\\n*** The following commands are possible:\\n\"\n";
+        c_expr.expr &:= "           \"  RETURN  Continue\\n\"\n";
+        c_expr.expr &:= "           \"  *       Terminate\\n\"\n";
+        c_expr.expr &:= "           \"  /       Trigger SIGFPE\\n\");\n";
+        c_expr.expr &:= "    ch = fgetc(stdin);\n";
+        c_expr.expr &:= "    if (ch == (int) '*') {\n";
+        c_expr.expr &:= "      exit(1);\n";
+        c_expr.expr &:= "    } else if (ch == (int) '/') {\n";
+        c_expr.expr &:= "      triggerSigfpe();\n";
+        c_expr.expr &:= "    }\n";
+      end if;
       c_expr.expr &:= "    interprRaiseError(fail_value, file_name, line_number);\n";
       c_expr.expr &:= "  } else {\n";
       c_expr.expr &:= "    rtlRaiseError(fail_value, file_name, line_number);\n";

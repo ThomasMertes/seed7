@@ -334,6 +334,55 @@ void filPipe (fileType *inFile, fileType *outFile)
 
 
 
+#ifdef DEFINE_FTELLI64_EXT
+#if DEFINE_FTELLI64_EXT == 1
+os_off_t ftelli64Ext (FILE *aFile)
+
+  {
+    fpos_t pos;
+    os_off_t filePosition;
+
+  /* ftelli64Ext */
+    if (fgetpos(aFile, &pos) == 0) {
+      memcpy(&filePosition, &pos, sizeof(os_off_t));
+    } else {
+      filePosition = -1;
+    } /* if */
+    return filePosition;
+  } /* ftelli64Ext */
+
+
+
+#elif DEFINE_FTELLI64_EXT == 2
+os_off_t ftelli64Ext (FILE *aFile)
+
+  {
+    int file_no;
+    fpos_t pos;
+    os_off_t filePosition;
+
+  /* ftelli64Ext */
+    file_no = fileno(aFile);
+    if (file_no == -1) {
+      filePosition = -1;
+    } else {
+      /* Use fgetpos() and fsetpos() to ensure, that the internal buffer */
+      /* of aFile is synchonized with the underlying file descriptor file. */
+      /* This way _telli64() returns the same value as _ftelli64() would do. */
+      if (fgetpos(aFile, &pos) == 0 && fsetpos(aFile, &pos) == 0) {
+        filePosition = _telli64(file_no);
+      } else {
+        filePosition = -1;
+      } /* if */
+    } /* if */
+    return filePosition;
+  } /* ftelli64Ext */
+
+#endif
+#endif
+
+
+
 #if !HAS_SNPRINTF
 int snprintf (char *buffer, size_t bufsize, const char *fmt, ...)
 

@@ -440,7 +440,10 @@ const proc: push_inline_proc_param (in reference: formal_param,
         c_expr.temp_assigns &:= assign_decls.temp_assigns;
         c_expr.temp_frees &:= assign_decls.temp_frees;
         if not isVar(formal_param) then
-          c_expr.temp_decls &:= "const ";
+          if assign_decls.expr = "" or assign_decls.temp_assigns = "" then
+            # There will be no assignment in c_expr.temp_assigns.
+            c_expr.temp_decls &:= "const ";
+          end if;
           if not isPointerParam(formal_param) and useConstPrefix(param_type) then
             c_expr.temp_decls &:= "const_";
           end if;
@@ -453,10 +456,21 @@ const proc: push_inline_proc_param (in reference: formal_param,
         c_expr.temp_decls &:= "o_";
         create_name(formal_param, c_expr.temp_decls);
         if assign_decls.expr <> "" then
-          c_expr.temp_decls &:= "=";
-          c_expr.temp_decls &:= assign_decls.expr;
+          if assign_decls.temp_assigns = "" then
+            c_expr.temp_decls &:= "=";
+            c_expr.temp_decls &:= assign_decls.expr;
+            c_expr.temp_decls &:= ";\n";
+          else
+            c_expr.temp_decls &:= ";\n";
+            c_expr.temp_assigns &:= "o_";
+            create_name(formal_param, c_expr.temp_assigns);
+            c_expr.temp_assigns &:= "=";
+            c_expr.temp_assigns &:= assign_decls.expr;
+            c_expr.temp_assigns &:= ";\n";
+          end if;
+        else
+          c_expr.temp_decls &:= ";\n";
         end if;
-        c_expr.temp_decls &:= ";\n";
       end if;
       pushInlineParam(formal_param, paramData);
     end if;

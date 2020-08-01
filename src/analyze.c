@@ -80,7 +80,11 @@
 
 /* when the analyzer is used from a compiled program this */
 /* flag decides which exception handler should be called: */
+#if CHECK_STACK
+extern boolType interpreter_exception;
+#else
 boolType interpreter_exception = FALSE;
+#endif
 
 static boolType analyze_initialized = FALSE;
 progType prog;

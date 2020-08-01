@@ -40,24 +40,6 @@ var webPage: goodbyePage is webPage("DB7 Goodbye",
     ));
 
 
-const func string: noCtrlChars (in string: stri) is func
-  result
-    var string: noCtrlChars is "";
-  local
-    var char: ch is ' ';
-    var integer: index is 0;
-  begin
-    noCtrlChars := stri;
-    for ch key index range stri do
-      if ch < ' ' or ch >= '\127;' and ch <= '\160;' then
-        noCtrlChars @:= [index] '?';
-      elsif ch = '\173;' then
-        noCtrlChars @:= [index] '-';
-      end if;
-    end for;
-  end func;
-
-
 const func boolean: failed (in proc: statement) is func
   result
     var boolean: failed is FALSE;

@@ -438,7 +438,7 @@ const func integer: compare (in boolean: aBoolean1, in boolean: aBoolean2) is
 
 $ include "char.s7i";
 
-(* Procedures literal and c_literal defined after string *)
+(* Function c_literal defined after string *)
 
 (* Procedure read defined after operations for IN and OUT *)
 
@@ -640,6 +640,29 @@ const func type: varptr (in type: baseType) is func
 (* FOR *)
 
 $ include "forloop.s7i";
+
+
+(**
+ *  Get string with question marks (?) instead of control characters.
+ *  @return the string without control characters.
+ *)
+const func string: noCtrlChars (in string: stri) is func
+  result
+    var string: noCtrlChars is "";
+  local
+    var char: ch is ' ';
+    var integer: index is 0;
+  begin
+    noCtrlChars := stri;
+    for ch key index range stri do
+      if ch < ' ' or ch >= '\127;' and ch <= '\160;' then
+        noCtrlChars @:= [index] '?';
+      elsif ch = '\173;' then
+        noCtrlChars @:= [index] '-';
+      end if;
+    end for;
+  end func;
+
 
 (* STRUCT *)
 

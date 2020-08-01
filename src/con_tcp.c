@@ -40,6 +40,7 @@
 #include "termios.h"
 
 #include "common.h"
+#include "os_decls.h"
 #include "con_drv.h"
 
 

@@ -69,27 +69,14 @@
 #include "sql_drv.h"
 
 
-#define DECSIZE 30
-typedef unsigned char NumericDigit;
-
 typedef struct {
     int ndigits; /* number of digits in digits[] - can be 0! */
     int weight;  /* weight of first digit */
     int rscale;  /* result scale */
     int dscale;  /* display scale */
     int sign;    /* NUMERIC_POS, NUMERIC_NEG, or NUMERIC_NAN */
-    NumericDigit *buf; /* start of alloc'd space for digits[] */
-    NumericDigit *digits; /* decimal digits */
+    const unsigned char *digits; /* decimal digits */
   } numeric;
-
-typedef struct {
-    int ndigits; /* number of digits in digits[] - can be 0! */
-    int weight;  /* weight of first digit */
-    int rscale;  /* result scale */
-    int dscale;  /* display scale */
-    int sign;    /* NUMERIC_POS, NUMERIC_NEG, or NUMERIC_NAN */
-    NumericDigit digits[DECSIZE]; /* decimal digits */
-  } decimal;
 
 typedef struct {
     uintType     usage_count;
@@ -391,7 +378,7 @@ static PGresult *PQdeallocate (PGconn *conn, const char *stmtName)
     if (command == NULL) {
       deallocate_result = NULL;
     } else {
-      strcpy(command, deallocateCommand);
+      memcpy(command, deallocateCommand, STRLEN(deallocateCommand));
       strcpy(&command[STRLEN(deallocateCommand)], stmtName);
       deallocate_result = PQexec(conn, command);
       free(command);
@@ -944,7 +931,7 @@ static void dumpNumeric (const unsigned char *buffer)
 
 
 
-static cstriType getNumericAsCStri (numeric numStruct, const unsigned char *buffer)
+static cstriType getNumericAsCStri (numeric *numStruct)
 
   {
     unsigned int length;
@@ -952,66 +939,66 @@ static cstriType getNumericAsCStri (numeric numStruct, const unsigned char *buff
     unsigned int fourDigits;
     unsigned int digitNum;
     unsigned int scale;
-    cstriType cstri;
+    cstriType decimal;
 
    /* getNumericAsCStri */
-    if (numStruct.weight < numStruct.ndigits - 1) {
-      scale = 4 * (unsigned int) (numStruct.ndigits - 1 - numStruct.weight);
+    if (numStruct->weight < numStruct->ndigits - 1) {
+      scale = 4 * (unsigned int) (numStruct->ndigits - 1 - numStruct->weight);
       /* printf("getNumericAsCStri: 1 scale: %d\n", scale); */
       /* Provide space for sign, decimal point and a possible leading zero. */
-      if (likely(ALLOC_CSTRI(cstri, 4 * (memSizeType) numStruct.ndigits + 3 + scale))) {
-        length = 4 * (unsigned int) numStruct.ndigits + 1;
+      if (likely(ALLOC_CSTRI(decimal, 4 * (memSizeType) numStruct->ndigits + 3 + scale))) {
+        length = 4 * (unsigned int) numStruct->ndigits + 1;
         /* printf("length: %u\n", length); */
-        cstri[0] = numStruct.sign ? '-' : '+';
-        for (idx = 0; idx < numStruct.ndigits; idx++) {
-          fourDigits = 256 * (unsigned int) buffer[8 + 2 * idx] +
-                             (unsigned int) buffer[9 + 2 * idx];
+        decimal[0] = numStruct->sign ? '-' : '+';
+        for (idx = 0; idx < numStruct->ndigits; idx++) {
+          fourDigits = 256 * (unsigned int) numStruct->digits[2 * idx] +
+                             (unsigned int) numStruct->digits[2 * idx + 1];
           for (digitNum = 4; digitNum >= 1; digitNum--) {
-            cstri[4 * idx + digitNum] = (char) (fourDigits % 10 + '0');
+            decimal[4 * idx + digitNum] = (char) (fourDigits % 10 + '0');
             fourDigits /= 10;
           } /* for */
         } /* for */
         if (scale >= length - 1) {
-          memmove(&cstri[scale - length + 4], &cstri[1], length - 1);
-          cstri[1] = '0';
-          cstri[2] = '.';
-          memset(&cstri[3], '0', scale - length + 1);
-          cstri[scale + 3] = '\0';
+          memmove(&decimal[scale - length + 4], &decimal[1], length - 1);
+          decimal[1] = '0';
+          decimal[2] = '.';
+          memset(&decimal[3], '0', scale - length + 1);
+          decimal[scale + 3] = '\0';
         } else {
-          memmove(&cstri[length - scale + 1], &cstri[length - scale], scale);
-          cstri[length - scale] = '.';
-          cstri[length + 1] = '\0';
+          memmove(&decimal[length - scale + 1], &decimal[length - scale], scale);
+          decimal[length - scale] = '.';
+          decimal[length + 1] = '\0';
         } /* if */
       } /* if */
     } else {
-      scale = 4 * (unsigned int) (numStruct.weight - (numStruct.ndigits - 1));
+      scale = 4 * (unsigned int) (numStruct->weight - (numStruct->ndigits - 1));
       /* printf("getNumericAsCStri: 2 scale: %d\n", scale); */
       /* Provide space for sign, decimal point and a possible trailing zero. */
-      if (likely(ALLOC_CSTRI(cstri, 4 * (memSizeType) numStruct.ndigits + 3 + scale))) {
-        length = 4 * (unsigned int) numStruct.ndigits + 1;
+      if (likely(ALLOC_CSTRI(decimal, 4 * (memSizeType) numStruct->ndigits + 3 + scale))) {
+        length = 4 * (unsigned int) numStruct->ndigits + 1;
         /* printf("length: %u\n", length); */
-        cstri[0] = numStruct.sign ? '-' : '+';
-        for (idx = 0; idx < numStruct.ndigits; idx++) {
-          fourDigits = 256 * (unsigned int) buffer[8 + 2 * idx] +
-                             (unsigned int) buffer[9 + 2 * idx];
+        decimal[0] = numStruct->sign ? '-' : '+';
+        for (idx = 0; idx < numStruct->ndigits; idx++) {
+          fourDigits = 256 * (unsigned int) numStruct->digits[2 * idx] +
+                             (unsigned int) numStruct->digits[2 * idx + 1];
           for (digitNum = 4; digitNum >= 1; digitNum--) {
-            cstri[4 * idx + digitNum] = (char) (fourDigits % 10 + '0');
+            decimal[4 * idx + digitNum] = (char) (fourDigits % 10 + '0');
             fourDigits /= 10;
           } /* for */
         } /* for */
-        memset(&cstri[length], '0', scale);
-        cstri[length + scale] = '.';
-        cstri[length + scale + 1] = '0';
-        cstri[length + scale + 2] = '\0';
+        memset(&decimal[length], '0', scale);
+        decimal[length + scale] = '.';
+        decimal[length + scale + 1] = '0';
+        decimal[length + scale + 2] = '\0';
       } /* if */
     } /* if */
-    logFunction(printf("getNumericAsCStri --> %s\n", cstri));
-    return cstri;
+    logFunction(printf("getNumericAsCStri --> %s\n", decimal));
+    return decimal;
   } /* getNumericAsCStri */
 
 
 
-static striType getNumericAsStri (numeric numStruct, const unsigned char *buffer)
+static striType getNumericAsStri (numeric *numStruct)
 
   {
     unsigned int idx;
@@ -1021,12 +1008,12 @@ static striType getNumericAsStri (numeric numStruct, const unsigned char *buffer
 
    /* getNumericAsStri */
     /* Provide space for sign. */
-    if (likely(ALLOC_STRI_SIZE_OK(stri, 4 * (memSizeType) numStruct.ndigits + 1))) {
-      stri->size = 4 * (memSizeType) numStruct.ndigits + 1;
-      stri->mem[0] = numStruct.sign ? '-' : '+';
-      for (idx = 0; idx < numStruct.ndigits; idx++) {
-        fourDigits = 256 * (unsigned int) buffer[8 + 2 * idx] +
-                           (unsigned int) buffer[9 + 2 * idx];
+    if (likely(ALLOC_STRI_SIZE_OK(stri, 4 * (memSizeType) numStruct->ndigits + 1))) {
+      stri->size = 4 * (memSizeType) numStruct->ndigits + 1;
+      stri->mem[0] = numStruct->sign ? '-' : '+';
+      for (idx = 0; idx < numStruct->ndigits; idx++) {
+        fourDigits = 256 * (unsigned int) numStruct->digits[2 * idx] +
+                           (unsigned int) numStruct->digits[2 * idx + 1];
         for (digitNum = 4; digitNum >= 1; digitNum--) {
           stri->mem[4 * idx + digitNum] = (strElemType) (fourDigits % 10 + '0');
           fourDigits /= 10;
@@ -1056,6 +1043,7 @@ static intType getNumericAsInt (const unsigned char *buffer)
     numStruct.rscale  = 256 * (buffer[4] & 0x3f) + buffer[5];
     numStruct.dscale  = 256 * (buffer[6] & 0x3f) + buffer[7];
     numStruct.sign    = (buffer[4] & 0x40) != 0;
+    numStruct.digits  = &buffer[8];
     if (numStruct.ndigits == 0) {
       intValue = 0;
     } else if (unlikely(numStruct.weight < numStruct.ndigits - 1 ||
@@ -1064,7 +1052,7 @@ static intType getNumericAsInt (const unsigned char *buffer)
       logError(printf("getNumericAsInt: Number not integer\n"););
       raise_error(RANGE_ERROR);
       intValue = 0;
-    } else if (unlikely((stri = getNumericAsStri(numStruct, buffer)) == NULL)) {
+    } else if (unlikely((stri = getNumericAsStri(&numStruct)) == NULL)) {
       raise_error(MEMORY_ERROR);
       intValue = 0;
     } else {
@@ -1126,6 +1114,7 @@ static bigIntType getNumericAsBigInt (const unsigned char *buffer)
     numStruct.rscale  = 256 * (buffer[4] & 0x3f) + buffer[5];
     numStruct.dscale  = 256 * (buffer[6] & 0x3f) + buffer[7];
     numStruct.sign    = (buffer[4] & 0x40) != 0;
+    numStruct.digits  = &buffer[8];
     if (numStruct.ndigits == 0) {
       bigIntValue = bigZero();
     } else if (unlikely(numStruct.weight < numStruct.ndigits - 1 ||
@@ -1134,7 +1123,7 @@ static bigIntType getNumericAsBigInt (const unsigned char *buffer)
       logError(printf("getNumericAsBigInt: Number not integer\n"););
       raise_error(RANGE_ERROR);
       bigIntValue = NULL;
-    } else if (unlikely((stri = getNumericAsStri(numStruct, buffer)) == NULL)) {
+    } else if (unlikely((stri = getNumericAsStri(&numStruct)) == NULL)) {
       raise_error(MEMORY_ERROR);
       bigIntValue = NULL;
     } else {
@@ -1173,10 +1162,11 @@ static bigIntType getNumericAsBigRat (const unsigned char *buffer,
     numStruct.rscale  = 256 * (buffer[4] & 0x3f) + buffer[5];
     numStruct.dscale  = 256 * (buffer[6] & 0x3f) + buffer[7];
     numStruct.sign    = (buffer[4] & 0x40) != 0;
+    numStruct.digits  = &buffer[8];
     if (numStruct.ndigits == 0) {
       numerator = bigZero();
       *denominator = bigFromInt32(1);
-    } else if (unlikely((stri = getNumericAsStri(numStruct, buffer)) == NULL)) {
+    } else if (unlikely((stri = getNumericAsStri(&numStruct)) == NULL)) {
       raise_error(MEMORY_ERROR);
       numerator = NULL;
     } else {
@@ -1212,7 +1202,7 @@ static floatType getNumericAsFloat (const unsigned char *buffer)
 
   {
     numeric numStruct;
-    cstriType cstri;
+    cstriType decimal;
     floatType floatValue;
 
   /* getNumericAsFloat */
@@ -1223,14 +1213,15 @@ static floatType getNumericAsFloat (const unsigned char *buffer)
     numStruct.rscale  = 256 * (buffer[4] & 0x3f) + buffer[5];
     numStruct.dscale  = 256 * (buffer[6] & 0x3f) + buffer[7];
     numStruct.sign    = (buffer[4] & 0x40) != 0;
+    numStruct.digits  = &buffer[8];
     if (numStruct.ndigits == 0) {
       floatValue = 0.0;
-    } else if (unlikely((cstri = getNumericAsCStri(numStruct, buffer)) == NULL)) {
+    } else if (unlikely((decimal = getNumericAsCStri(&numStruct)) == NULL)) {
       raise_error(MEMORY_ERROR);
       floatValue = 0.0;
     } else {
-      floatValue = (floatType) strtod(cstri, NULL);
-      UNALLOC_CSTRI(cstri, strlen(cstri));
+      floatValue = (floatType) strtod(decimal, NULL);
+      UNALLOC_CSTRI(decimal, strlen(decimal));
     } /* if */
     logFunction(printf("getNumericAsFloat --> " FMT_E "\n", floatValue););
     return floatValue;

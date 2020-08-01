@@ -80,11 +80,13 @@ const proc: process (BLN_CPY, in reference: function,
   local
     var expr_type: statement is expr_type.value;
   begin
+    statement.temp_num := c_expr.temp_num;
     process_expr(params[1], statement);
     statement.expr &:= "=";
     process_expr(params[3], statement);
     statement.expr &:= ";\n";
     doLocalDeclsOfStatement(statement, c_expr);
+    c_expr.temp_num := statement.temp_num;
   end func;
 
 

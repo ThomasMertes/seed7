@@ -35,14 +35,14 @@ const type: socketAddress is newtype;
 IN_PARAM_IS_REFERENCE(socketAddress);
 
 const proc: destroy (ref socketAddress: aValue)                             is action "BST_DESTR";
-const proc: (ref socketAddress: dest) ::= (ref socketAddress: source)       is action "BST_CREATE";
-const proc: (inout socketAddress: dest) := (ref socketAddress: source)      is action "BST_CPY";
+const proc: (ref socketAddress: dest) ::= (in socketAddress: source)        is action "BST_CREATE";
+const proc: (inout socketAddress: dest) := (in socketAddress: source)       is action "BST_CPY";
 
 const func socketAddress: _GENERATE_EMPTY_SOCKET_ADDRESS                    is action "BST_EMPTY";
 const socketAddress: (attr socketAddress) . value                           is _GENERATE_EMPTY_SOCKET_ADDRESS;
 
-const func boolean: (ref socketAddress: addr1) = (ref socketAddress: addr2) is action "BST_EQ";
-const func boolean: (ref socketAddress: addr1) <> (ref socketAddress: addr2) is action "BST_NE";
+const func boolean: (in socketAddress: addr1) = (in socketAddress: addr2) is action "BST_EQ";
+const func boolean: (in socketAddress: addr1) <> (in socketAddress: addr2) is action "BST_NE";
 
 const func integer: addrFamily (in socketAddress: address)                  is action "SOC_ADDR_FAMILY";
 
@@ -128,8 +128,8 @@ const type: PRIMITIVE_SOCKET is newtype;
 IN_PARAM_IS_VALUE(PRIMITIVE_SOCKET);
 
 const proc: destroy (ref PRIMITIVE_SOCKET: aValue)                          is action "GEN_DESTR";
-const proc: (ref PRIMITIVE_SOCKET: dest) ::= (ref PRIMITIVE_SOCKET: source) is action "SOC_CREATE";
-const proc: (inout PRIMITIVE_SOCKET: dest) := (ref PRIMITIVE_SOCKET: source) is action "SOC_CPY";
+const proc: (ref PRIMITIVE_SOCKET: dest) ::= (in PRIMITIVE_SOCKET: source)  is action "SOC_CREATE";
+const proc: (inout PRIMITIVE_SOCKET: dest) := (in PRIMITIVE_SOCKET: source) is action "SOC_CPY";
 
 const func boolean: (in PRIMITIVE_SOCKET: sock1) = (in PRIMITIVE_SOCKET: sock2)  is action "SOC_EQ";
 const func boolean: (in PRIMITIVE_SOCKET: sock1) <> (in PRIMITIVE_SOCKET: sock2) is action "SOC_NE";

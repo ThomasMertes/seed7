@@ -24,6 +24,20 @@
 (********************************************************************)
 
 
+(**
+ *  Some of the process() functions can produce c_expr.expr and
+ *  c_expr.result_expr expressions. The value c_expr.demand can
+ *  be used to regulate which kind of expression should be prefered.
+ *  PREFER_EXPR is the default.
+ *  ASSIGN_RESULT is used, when the expression will be assigned.
+ *  REQUIRE_RESULT is used, when the expression will be returned by a function.
+ *  Independed of the value of c_expr.demand the process() functions
+ *  can produce both c_expr.expr and c_expr.result_expr expressions.
+ *)
+const type: exprDemand is new enum
+    PREFER_EXPR, ASSIGN_RESULT, REQUIRE_RESULT
+  end enum;
+
 const type: expr_type is new struct
     var string: currentFile is "";
     var integer: currentLine is 0;
@@ -33,7 +47,7 @@ const type: expr_type is new struct
     var string: expr is "";
     var string: temp_frees is "";
     var string: temp_to_null is "";
-    var boolean: prefer_result_expr is FALSE;
+    var exprDemand: demand is PREFER_EXPR;
     var string: result_name is "";
     var string: result_decl is "";
     var string: result_free is "";

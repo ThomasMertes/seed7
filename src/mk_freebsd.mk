@@ -199,7 +199,7 @@ version.h: chkccomp.h
 	echo "#define SYSTEM_CONSOLE_LIBS \"$(SYSTEM_CONSOLE_LIBS)\"" >> version.h
 	echo "#define SYSTEM_DRAW_LIBS \"$(SYSTEM_DRAW_LIBS)\"" >> version.h
 	$(GET_CC_VERSION_INFO) cc_vers.txt
-	$(CC) -ftrapv chkccomp.c -lm -o chkccomp
+	$(CC) -ftrapv chkccomp.c -o chkccomp
 	./chkccomp version.h
 	rm chkccomp
 	rm cc_vers.txt

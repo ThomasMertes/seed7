@@ -411,17 +411,22 @@ const func boolean: canEvaluateSpecialAction (in reference: current_expression,
   end func;
 
 
+const func boolean: isFuncParamData (in reference: currExpr) is forward;
+
+
 const func boolean: getConstant (in var reference: currExpr, in category: exprCategory,
     inout reference: evaluatedExpr) is func
   result
     var boolean: okay is FALSE;
   begin
-    if canEvaluateSpecialAction(currExpr, evaluatedExpr) then
+    if isFuncParamData(currExpr) then
+      okay := FALSE;
+    elsif canEvaluateSpecialAction(currExpr, evaluatedExpr) then
       okay := TRUE;
     elsif currExpr in inlineParam and
           inlineParam[currExpr][1].paramValue <> NIL then
-       evaluatedExpr := inlineParam[currExpr][1].paramValue;
-       okay := TRUE;
+      evaluatedExpr := inlineParam[currExpr][1].paramValue;
+      okay := TRUE;
     elsif evaluate_const_expr >= 1 and category(currExpr) = exprCategory and
         not isVar(currExpr) then
       evaluatedExpr := currExpr;

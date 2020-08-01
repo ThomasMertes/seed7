@@ -1,0 +1,187 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  csv.s7i       Comma-separated values (CSV) support library.     *)
+(*  Copyright (C) 2019  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+(**
+ *  Convert an array of [[string]]s to a CSV line.
+ *  @param data String array to be converted.
+ *  @param separator Separator character to be used in the CSV line.
+ *  @return the CSV line created from ta data array.
+ *)
+const func string: toCsvLine (in array string: data, in char: separator) is func
+  result
+    var string: csvLine is "";
+  local
+    var string: field is "";
+    var integer: index is 0;
+  begin
+    for field key index range data do
+      if index <> 1 then
+        csvLine &:= separator;
+      end if;
+      if startsWith(field, "\"") or endsWith(field, "\"") or
+          pos(field, separator) <> 0 or pos(field, '\n') <> 0 or pos(field, '\r') <> 0 then
+        csvLine &:= "\"" & replace(field, "\"", "\"\"") & "\"";
+      else
+        csvLine &:= field;
+      end if;
+    end for;
+  end func;
+
+
+(**
+ *  Convert a CSV line to an array of [[string]]s.
+ *  CSV fields in the CSV line are delimited by the ''separator'' character
+ *  or the beginning or the end of the CSV line. A CSV field might be
+ *  enclosed in double quotes ("). A double quoted CSV field might contain
+ *  ''separator'' characters, double quotes (") or linefeed characters.
+ *  This function is intended to be used, when the CSV line is already in
+ *  a [[string]]. To read CSV lines from a file the function
+ *  [[#readCsvLine(inout_file,in_char)|readCsvLine]] should be used
+ *  instead of a combination of [[file#getln(inout_file)|getln]] and
+ *  [[#fromCsvLine(in_string,in_char)|fromCsvLine]]. The function
+ *  [[#readCsvLine(inout_file,in_char)|readCsvLine]] allows to read
+ *  CSV fields, which contain linefeed characters.
+ *  @param csvLine CSV line to be converted.
+ *  @param separator Separator character used in the CSV line.
+ *  @return the array of CSV fields from the CSV line.
+ *  @exception RANGE_ERROR When ''csvLine'' is not in CSV format.
+ *)
+const func array string: fromCsvLine (in string: csvLine, in char: separator) is func
+  result
+    var array string: data is 0 times "";
+  local
+    var integer: pos is 0;
+    var string: field is "";
+  begin
+    repeat
+      field := "";
+      incr(pos);
+      if pos <= length(csvLine) and csvLine[pos] = '"' then
+        repeat
+          incr(pos);
+          while pos <= length(csvLine) and csvLine[pos] <> '"' do
+            field &:= csvLine[pos];
+            incr(pos);
+          end while;
+          if pos <= length(csvLine) and csvLine[pos] = '"' then
+            incr(pos);
+            if pos <= length(csvLine) and csvLine[pos] = '"' then
+              field &:= '"';
+            end if;
+          end if;
+        until pos > length(csvLine) or csvLine[pos] <> '"';
+      else
+        repeat
+          while pos <= length(csvLine) and csvLine[pos] <> separator and
+              csvLine[pos] <> '\n' and csvLine[pos] <> '\r' do
+            field &:= csvLine[pos];
+            incr(pos);
+          end while;
+          if pos <= length(csvLine) and csvLine[pos] = '\r' then
+            incr(pos);
+            if pos <= length(csvLine) and csvLine[pos] <> '\n' then
+              field &:= '\r';
+            end if;
+          end if;
+        until pos > length(csvLine) or csvLine[pos] = separator or
+            csvLine[pos] = '\n';
+      end if;
+      data &:= [] (field);
+    until pos > length(csvLine) or csvLine[pos] <> separator;
+    if pos <= length(csvLine) and csvLine[pos] = '\r' then
+      incr(pos);
+    end if;
+    if pos <= length(csvLine) and csvLine[pos] <> '\n' then
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+(**
+ *  Read the fields of a CSV line with a given ''separator'' from a file.
+ *  CSV fields are delimited by the ''separator'' character or the
+ *  beginning or the end of a CSV line. A CSV line is terminated
+ *  with '\n', "\r\n" or [[char#EOF|EOF]]. A CSV field might be enclosed
+ *  in double quotes ("). A double quoted CSV field might contain
+ *  ''separator'' characters, double quotes (") or linefeed characters.
+ *  This function works also for UTF-8 encoded data. In this case the
+ *  function [[unicode#utf8ToStri(in_string)|utf8ToStri]] must be used,
+ *  to convert each CSV field from the result array.
+ *  @param inFile File from which the CSV line is read.
+ *  @param separator Separator character used in the CSV line.
+ *  @return the array of CSV fields from the CSV line.
+ *  @exception RANGE_ERROR When the CSV line is not in CSV format.
+ *)
+const func array string: readCsvLine (inout file: inFile, in char: separator) is func
+  result
+    var array string: data is 0 times "";
+  local
+    var char: ch is ' ';
+    var string: field is "";
+  begin
+    repeat
+      ch := getc(inFile);
+      field := "";
+      if ch = '"' then
+        repeat
+          ch := getc(inFile);
+          while ch <> '"' and ch <> EOF do
+            field &:= ch;
+            ch := getc(inFile);
+          end while;
+          if ch = '"' then
+            ch := getc(inFile);
+            if ch = '"' then
+              field &:= ch;
+            end if;
+          end if;
+        until ch <> '"';
+      else
+        repeat
+          while ch <> separator and ch <> '\n' and ch <> '\r' and ch <> EOF do
+            field &:= ch;
+            ch := getc(inFile);
+          end while;
+          if ch = '\r' then
+            ch := getc(inFile);
+            if ch <> '\n' then
+              field &:= '\r';
+            end if;
+          end if;
+        until ch = separator or ch = '\n' or ch = EOF;
+      end if;
+      data &:= [] (field);
+    until ch <> separator;
+    if ch = '\r' then
+      ch := getc(inFile);
+    end if;
+    if ch <> '\n' and ch <> EOF then
+      raise RANGE_ERROR;
+    end if;
+    inFile.bufferChar := ch;
+  end func;

@@ -1009,7 +1009,8 @@ static errInfoType setupParameters (preparedStmtType preparedStmt)
  * necessary and setting the data pointer is ommited.
  */
 static errInfoType setNumericPrecisionAndScale (preparedStmtType preparedStmt,
-    SQLSMALLINT column_num, resultDescrType columnDescr, boolType withBinding)
+    SQLSMALLINT column_num, resultDescrType columnDescr,
+    resultDataType columnData, boolType withBinding)
   {
     SQLHDESC descriptorHandle;
     errInfoType err_info = OKAY_NO_ERROR;
@@ -1067,7 +1068,7 @@ static errInfoType setNumericPrecisionAndScale (preparedStmtType preparedStmt,
                SQLSetDescField(descriptorHandle,
                                column_num,
                                SQL_DESC_DATA_PTR,
-                               resultData->buffer,
+                               columnData->buffer,
                                0) != SQL_SUCCESS) {
       setDbErrorMsg("setNumericPrecisionAndScale", "SQLSetDescField",
                     SQL_HANDLE_DESC, descriptorHandle);
@@ -1427,13 +1428,13 @@ static errInfoType bindResultColumn (preparedStmtType preparedStmt,
 #if DECODE_NUMERIC_STRUCT
         } else if (columnDescr->c_type == SQL_C_NUMERIC) {
           err_info = setNumericPrecisionAndScale(preparedStmt, column_num,
-                                                 columnDescr, TRUE);
+                                                 columnDescr, columnData, TRUE);
 #endif
         } /* if */
 #if DECODE_NUMERIC_STRUCT
       } else if (columnDescr->c_type == SQL_C_NUMERIC) {
         err_info = setNumericPrecisionAndScale(preparedStmt, column_num,
-                                               columnDescr, FALSE);
+                                               columnDescr, columnData, FALSE);
 #endif
       } /* if */
     } /* if */
@@ -1578,53 +1579,128 @@ static boolType allParametersBound (preparedStmtType preparedStmt)
 
 
 #if DECODE_NUMERIC_STRUCT
+static cstriType getNumericAsCStri (SQL_NUMERIC_STRUCT *numStruct)
+
+  {
+    bigIntType mantissa;
+    striType stri;
+    memSizeType decimalLen;
+    memSizeType decimalIdx = 0;
+    memSizeType idx;
+    cstriType decimal;
+
+  /* getNumericAsCStri */
+    mantissa = bigFromByteBufferLe(SQL_MAX_NUMERIC_LEN, numStruct->val, FALSE);
+    if (unlikely(mantissa == NULL)) {
+      decimal = NULL;
+    } else {
+      stri = bigStr(mantissa);
+      if (unlikely(stri == NULL)) {
+        bigDestr(mantissa);
+        raise_error(MEMORY_ERROR);
+        decimal = NULL;
+      } else {
+        if (numStruct->scale < 0) {
+          decimalLen = stri->size + (memSizeType) (-numStruct->scale) + 1 /* Space for decimal point */;
+        } else if (numStruct->scale <= stri->size) {
+          decimalLen = stri->size + 1 /* Space for decimal point */;
+        } else {
+          decimalLen = (memSizeType) numStruct->scale + 1 /* Space for decimal point */;
+        } /* if */
+        if (numStruct->sign != 1) {
+          decimalLen++; /* Space for sign */
+        } /* if */
+        if (unlikely(!ALLOC_CSTRI(decimal, decimalLen))) {
+          bigDestr(mantissa);
+          strDestr(stri);
+          raise_error(MEMORY_ERROR);
+        } else {
+          if (numStruct->sign != 1) {
+            decimal[decimalIdx++] = '-';
+          } /* if */
+          for (idx = 0; idx < stri->size; idx++) {
+            decimal[decimalIdx++] = (char) stri->mem[idx];
+          } /* for */
+          /* decimal[decimalIdx] = '\0';
+          printf("# \"%s\", scale: %d, size: " FMT_U_MEM ", len: " FMT_U_MEM "\n",
+              decimal, numStruct->scale, stri->size, decimalLen); */
+          if (numStruct->scale < 0) {
+            memset(&decimal[decimalIdx], '0', (memSizeType) (-numStruct->scale));
+            decimal[decimalLen - 1] = '.';
+            decimal[decimalLen] = '\0';
+          } else if (numStruct->scale <= stri->size) {
+            memmove(&decimal[decimalLen - (memSizeType) numStruct->scale],
+                    &decimal[decimalLen - (memSizeType) numStruct->scale - 1],
+                    (memSizeType) numStruct->scale);
+            decimal[decimalLen - (memSizeType) numStruct->scale - 1] = '.';
+            decimal[decimalLen] = '\0';
+          } else {
+            memmove(&decimal[decimalLen - stri->size],
+                    &decimal[decimalLen - (memSizeType) numStruct->scale - 1],
+                    stri->size);
+            memset(&decimal[decimalLen - (memSizeType) numStruct->scale], '0',
+                   (memSizeType) numStruct->scale - stri->size);
+            decimal[decimalLen - (memSizeType) numStruct->scale - 1] = '.';
+            decimal[decimalLen] = '\0';
+          } /* if */
+          bigDestr(mantissa);
+          strDestr(stri);
+        } /* if */
+      } /* if */
+    } /* if */
+    logFunction(printf("getNumericAsCStri --> %s\n", decimal));
+    return decimal;
+  } /* getNumericAsCStri */
+
+
+
 static intType getNumericInt (const void *buffer)
 
   {
-    SQL_NUMERIC_STRUCT *numStr;
+    SQL_NUMERIC_STRUCT *numStruct;
     bigIntType bigIntValue;
     bigIntType powerOfTen;
     intType intValue = 0;
 
   /* getNumericInt */
-    numStr = (SQL_NUMERIC_STRUCT *) buffer;
+    numStruct = (SQL_NUMERIC_STRUCT *) buffer;
     logFunction(printf("getNumericInt\n");
-                printf("numStr->precision: %u\n", numStr->precision);
-                printf("numStr->scale: %d\n", numStr->scale);
-                printf("numStr->sign: %u\n", numStr->sign);
-                printf("numStr->val:");
+                printf("numStruct->precision: %u\n", numStruct->precision);
+                printf("numStruct->scale: %d\n", numStruct->scale);
+                printf("numStruct->sign: %u\n", numStruct->sign);
+                printf("numStruct->val:");
                 {
                   int pos;
                   for (pos = 0; pos < SQL_MAX_NUMERIC_LEN; pos++) {
-                    printf(" %d", numStr->val[pos]);
+                    printf(" %d", numStruct->val[pos]);
                   }
                   printf("\n");
                 });
-    if (unlikely(numStr->scale > 0)) {
+    if (unlikely(numStruct->scale > 0)) {
       raise_error(RANGE_ERROR);
       intValue = 0;
     } else {
-      bigIntValue = bigFromByteBufferLe(SQL_MAX_NUMERIC_LEN, numStr->val, FALSE);
+      bigIntValue = bigFromByteBufferLe(SQL_MAX_NUMERIC_LEN, numStruct->val, FALSE);
 #if 0
       if (bigIntValue != NULL) {
-        printf("numStr->val: ");
+        printf("numStruct->val: ");
         prot_stri_unquoted(bigStr(bigIntValue));
         printf("\n");
       }
 #endif
-      if (bigIntValue != NULL && numStr->scale < 0) {
-        powerOfTen = bigIPowSignedDigit(10, (intType) -numStr->scale);
+      if (bigIntValue != NULL && numStruct->scale < 0) {
+        powerOfTen = bigIPowSignedDigit(10, (intType) -numStruct->scale);
         if (powerOfTen != NULL) {
           bigMultAssign(&bigIntValue, powerOfTen);
           bigDestr(powerOfTen);
         } /* if */
       } /* if */
-      if (bigIntValue != NULL && numStr->sign != 1) {
+      if (bigIntValue != NULL && numStruct->sign != 1) {
         bigIntValue = bigNegateTemp(bigIntValue);
       } /* if */
       if (bigIntValue != NULL) {
 #if 0
-        printf("numStr->val: ");
+        printf("numStruct->val: ");
         prot_stri_unquoted(bigStr(bigIntValue));
         printf("\n");
 #endif
@@ -1645,44 +1721,44 @@ static intType getNumericInt (const void *buffer)
 static bigIntType getNumericBigInt (const void *buffer)
 
   {
-    SQL_NUMERIC_STRUCT *numStr;
+    SQL_NUMERIC_STRUCT *numStruct;
     bigIntType powerOfTen;
     bigIntType bigIntValue;
 
   /* getNumericBigInt */
-    numStr = (SQL_NUMERIC_STRUCT *) buffer;
+    numStruct = (SQL_NUMERIC_STRUCT *) buffer;
     logFunction(printf("getNumericBigInt\n");
-                printf("numStr->precision: %u\n", numStr->precision);
-                printf("numStr->scale: %d\n", numStr->scale);
-                printf("numStr->sign: %u\n", numStr->sign);
-                printf("numStr->val:");
+                printf("numStruct->precision: %u\n", numStruct->precision);
+                printf("numStruct->scale: %d\n", numStruct->scale);
+                printf("numStruct->sign: %u\n", numStruct->sign);
+                printf("numStruct->val:");
                 {
                   int pos;
                   for (pos = 0; pos < SQL_MAX_NUMERIC_LEN; pos++) {
-                    printf(" %d", numStr->val[pos]);
+                    printf(" %d", numStruct->val[pos]);
                   }
                   printf("\n");
                 });
-    if (unlikely(numStr->scale > 0)) {
+    if (unlikely(numStruct->scale > 0)) {
       raise_error(RANGE_ERROR);
       bigIntValue = NULL;
     } else {
-      bigIntValue = bigFromByteBufferLe(SQL_MAX_NUMERIC_LEN, numStr->val, FALSE);
+      bigIntValue = bigFromByteBufferLe(SQL_MAX_NUMERIC_LEN, numStruct->val, FALSE);
 #if 0
       if (bigIntValue != NULL) {
-        printf("numStr->val: ");
+        printf("numStruct->val: ");
         prot_stri_unquoted(bigStr(bigIntValue));
         printf("\n");
       } /* if */
 #endif
-      if (bigIntValue != NULL && numStr->scale < 0) {
-        powerOfTen = bigIPowSignedDigit(10, (intType) -numStr->scale);
+      if (bigIntValue != NULL && numStruct->scale < 0) {
+        powerOfTen = bigIPowSignedDigit(10, (intType) -numStruct->scale);
         if (powerOfTen != NULL) {
           bigMultAssign(&bigIntValue, powerOfTen);
           bigDestr(powerOfTen);
         } /* if */
       } /* if */
-      if (bigIntValue != NULL && numStr->sign != 1) {
+      if (bigIntValue != NULL && numStruct->sign != 1) {
         bigIntValue = bigNegateTemp(bigIntValue);
       } /* if */
     } /* if */
@@ -1701,45 +1777,45 @@ static bigIntType getNumericBigInt (const void *buffer)
 static bigIntType getNumericBigRational (const void *buffer, bigIntType *denominator)
 
   {
-    SQL_NUMERIC_STRUCT *numStr;
+    SQL_NUMERIC_STRUCT *numStruct;
     bigIntType powerOfTen;
     bigIntType numerator;
 
   /* getNumericBigRational */
-    numStr = (SQL_NUMERIC_STRUCT *) buffer;
+    numStruct = (SQL_NUMERIC_STRUCT *) buffer;
     logFunction(printf("getNumericBigRational\n");
-                printf("numStr->precision: %u\n", numStr->precision);
-                printf("numStr->scale: %d\n", numStr->scale);
-                printf("numStr->sign: %u\n", numStr->sign);
-                printf("numStr->val:");
+                printf("numStruct->precision: %u\n", numStruct->precision);
+                printf("numStruct->scale: %d\n", numStruct->scale);
+                printf("numStruct->sign: %u\n", numStruct->sign);
+                printf("numStruct->val:");
                 {
                   int pos;
                   for (pos = 0; pos < SQL_MAX_NUMERIC_LEN; pos++) {
-                    printf(" %d", numStr->val[pos]);
+                    printf(" %d", numStruct->val[pos]);
                   }
                   printf("\n");
                 });
-    numerator = bigFromByteBufferLe(SQL_MAX_NUMERIC_LEN, numStr->val, FALSE);
+    numerator = bigFromByteBufferLe(SQL_MAX_NUMERIC_LEN, numStruct->val, FALSE);
 #if 0
     if (numerator != NULL) {
-      printf("numStr->val: ");
+      printf("numStruct->val: ");
       prot_stri_unquoted(bigStr(numerator));
       printf("\n");
     } /* if */
 #endif
-    if (numerator != NULL && numStr->sign != 1) {
+    if (numerator != NULL && numStruct->sign != 1) {
       numerator = bigNegateTemp(numerator);
     } /* if */
     if (numerator != NULL) {
-      if (numStr->scale < 0) {
-        powerOfTen = bigIPowSignedDigit(10, (intType) -numStr->scale);
+      if (numStruct->scale < 0) {
+        powerOfTen = bigIPowSignedDigit(10, (intType) -numStruct->scale);
         if (powerOfTen != NULL) {
           bigMultAssign(&numerator, powerOfTen);
           bigDestr(powerOfTen);
         } /* if */
         *denominator = bigFromInt32(1);
       } else {
-        *denominator = bigIPowSignedDigit(10, (intType) numStr->scale);
+        *denominator = bigIPowSignedDigit(10, (intType) numStruct->scale);
       } /* if */
     } /* if */
     return numerator;
@@ -1750,20 +1826,31 @@ static bigIntType getNumericBigRational (const void *buffer, bigIntType *denomin
 static floatType getNumericFloat (const void *buffer)
 
   {
-    bigIntType numerator;
-    bigIntType denominator = NULL;
+    SQL_NUMERIC_STRUCT *numStruct;
+    cstriType decimal;
     floatType floatValue;
 
   /* getNumericFloat */
-    /* printf("getNumericFloat\n"); */
-    numerator = getNumericBigRational(buffer, &denominator);
-    if (numerator == NULL || denominator == NULL) {
+    numStruct = (SQL_NUMERIC_STRUCT *) buffer;
+    logFunction(printf("getNumericFloat\n");
+                printf("numStruct->precision: %u\n", numStruct->precision);
+                printf("numStruct->scale: %d\n", numStruct->scale);
+                printf("numStruct->sign: %u\n", numStruct->sign);
+                printf("numStruct->val:");
+                {
+                  int pos;
+                  for (pos = 0; pos < SQL_MAX_NUMERIC_LEN; pos++) {
+                    printf(" %d", numStruct->val[pos]);
+                  }
+                  printf("\n");
+                });
+    if (unlikely((decimal = getNumericAsCStri(numStruct)) == NULL)) {
       floatValue = 0.0;
     } else {
-      floatValue = bigRatToDouble(numerator, denominator);
+      floatValue = (floatType) strtod(decimal, NULL);
+      UNALLOC_CSTRI(decimal, strlen(decimal));
     } /* if */
-    bigDestr(numerator);
-    bigDestr(denominator);
+    logFunction(printf("getNumericFloat --> " FMT_E "\n", floatValue););
     return floatValue;
   } /* getNumericFloat */
 #endif
@@ -1827,21 +1914,24 @@ static memSizeType setNumericBigInt (void **buffer, memSizeType *buffer_capacity
     bigIntType absoluteValue;
     boolType negative;
     bstriType bstri;
-    SQL_NUMERIC_STRUCT *numStr;
+    SQL_NUMERIC_STRUCT *numStruct;
 
   /* setNumericBigInt */
     logFunction(printf("setNumericBigInt(*, *, %s, *)\n",
                        bigHexCStri(bigIntValue)););
     if (*buffer == NULL) {
-      if ((*buffer = malloc(sizeof(SQL_NUMERIC_STRUCT))) == NULL) {
-        *err_info = MEMORY_ERROR;
-      } else {
+      if ((*buffer = malloc(sizeof(SQL_NUMERIC_STRUCT))) != NULL) {
         *buffer_capacity = sizeof(SQL_NUMERIC_STRUCT);
       } /* if */
-    } else if (*buffer_capacity != sizeof(SQL_NUMERIC_STRUCT)) {
-      *err_info = MEMORY_ERROR;
+    } else if (*buffer_capacity < sizeof(SQL_NUMERIC_STRUCT)) {
+      free(*buffer);
+      if ((*buffer = malloc(sizeof(SQL_NUMERIC_STRUCT))) != NULL) {
+        *buffer_capacity = sizeof(SQL_NUMERIC_STRUCT);
+      } /* if */
     } /* if */
-    if (*err_info == OKAY_NO_ERROR) {
+    if (unlikely(*buffer == NULL)) {
+      *err_info = MEMORY_ERROR;
+    } else {
       negative = bigCmpSignedDigit(bigIntValue, 0) < 0;
       if (negative) {
         absoluteValue = bigAbs(bigIntValue);
@@ -1862,12 +1952,12 @@ static memSizeType setNumericBigInt (void **buffer, memSizeType *buffer_capacity
                           " does not fit into a numeric.\n", bstri->size););
           *err_info = RANGE_ERROR;
         } else {
-          numStr = (SQL_NUMERIC_STRUCT *) *buffer;
-          numStr->precision = MAX_NUMERIC_PRECISION;
-          numStr->scale = 0;
-          numStr->sign = negative ? 0 : 1;
-          memcpy(numStr->val, bstri->mem, bstri->size);
-          memset(&numStr->val[bstri->size], 0, SQL_MAX_NUMERIC_LEN - bstri->size);
+          numStruct = (SQL_NUMERIC_STRUCT *) *buffer;
+          numStruct->precision = MAX_NUMERIC_PRECISION;
+          numStruct->scale = 0;
+          numStruct->sign = negative ? 0 : 1;
+          memcpy(numStruct->val, bstri->mem, bstri->size);
+          memset(&numStruct->val[bstri->size], 0, SQL_MAX_NUMERIC_LEN - bstri->size);
         } /* if */
         bstDestr(bstri);
       } /* if */
@@ -1887,18 +1977,19 @@ static memSizeType setNumericBigRat (void **buffer,
     bigIntType absoluteValue;
     boolType negative;
     bstriType bstri;
-    SQL_NUMERIC_STRUCT *numStr;
+    SQL_NUMERIC_STRUCT *numStruct;
 
   /* setNumericBigRat */
     logFunction(printf("setNumericBigRat(*, %s, %s, " FMT_D16 ", *)\n",
                        bigHexCStri(numerator), bigHexCStri(denominator),
                        decimalDigits););
-    if (*buffer == NULL) {
-      if ((*buffer = malloc(sizeof(SQL_NUMERIC_STRUCT))) == NULL) {
-        *err_info = MEMORY_ERROR;
-      } /* if */
+    if (*buffer != NULL) {
+      free(*buffer);
     } /* if */
-    if (*err_info == OKAY_NO_ERROR) {
+    *buffer = malloc(sizeof(SQL_NUMERIC_STRUCT));
+    if (unlikely(*buffer == NULL)) {
+      *err_info = MEMORY_ERROR;
+    } else {
       if (unlikely(bigEqSignedDigit(denominator, 0))) {
         /* Numeric values do not support Infinity and NaN. */
         logError(printf("setNumericBigRat: Decimal values do not support Infinity and NaN.\n"););
@@ -1934,20 +2025,22 @@ static memSizeType setNumericBigRat (void **buffer,
                               " does not fit into a numeric.\n", bstri->size););
               *err_info = RANGE_ERROR;
             } else {
-              numStr = (SQL_NUMERIC_STRUCT *) *buffer;
-              numStr->precision = MAX_NUMERIC_PRECISION;
-              numStr->scale = decimalDigits;
-              numStr->sign = negative ? 0 : 1;
-              memcpy(numStr->val, bstri->mem, bstri->size);
-              memset(&numStr->val[bstri->size], 0, SQL_MAX_NUMERIC_LEN - bstri->size);
+              numStruct = (SQL_NUMERIC_STRUCT *) *buffer;
+              numStruct->precision = MAX_NUMERIC_PRECISION;
+              numStruct->scale = decimalDigits;
+              numStruct->sign = negative ? 0 : 1;
+              memcpy(numStruct->val, bstri->mem, bstri->size);
+              memset(&numStruct->val[bstri->size], 0, SQL_MAX_NUMERIC_LEN - bstri->size);
+              /* printf("setNumericToBigRat: \"%s\"\n", getNumericAsCStri(numStruct)); */
 #if 0
-              printf("numStr->precision: %u\n", numStr->precision);
-              printf("numStr->scale: %d\n", numStr->scale);
-              printf("numStr->sign: %u\n", numStr->sign);
-              printf("numStr->val: ");
+              printf("numStruct->precision: %u\n", numStruct->precision);
+              printf("numStruct->scale: %d\n", numStruct->scale);
+              printf("numStruct->sign: %u\n", numStruct->sign);
+              printf("numStruct->val: ");
               prot_stri_unquoted(bigStr(mantissaValue));
               printf("\n");
-              { int pos; for (pos = 0; pos < SQL_MAX_NUMERIC_LEN; pos++) { printf(" %d", numStr->val[pos]); } printf("\n"); }
+              { int pos; for (pos = 0; pos < SQL_MAX_NUMERIC_LEN; pos++) {
+                printf(" %d", numStruct->val[pos]); } printf("\n"); }
 #endif
               /*{
                 bigIntType numerator2;

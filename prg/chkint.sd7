@@ -14399,9 +14399,15 @@ const proc: check_rShift is func
   end func;
 
 
+const func string: strFunction (in integer: num) is
+  return str(num);
+
+
 const proc: check_str is func
   local
     var boolean: okay is TRUE;
+    var boolean: ok is TRUE;
+    var string: stri is "";
   begin
     if  str(                  0) <>                   "0" or
         str(                  1) <>                   "1" or
@@ -14720,6 +14726,43 @@ const proc: check_str is func
         str(intExpr(-9223372036854775807)) <> "-9223372036854775807" or
         str(intExpr(INT64_MIN))            <> "-9223372036854775808" then
       writeln(" ***** Integer str of a negative integer expression does not work correct.");
+      okay := FALSE;
+    end if;
+
+    stri := str(          INT64_MIN); ok := ok and stri = "-9223372036854775808";
+    stri := str(   -123456789012345); ok := ok and stri =     "-123456789012345";
+    stri := str(                 -1); ok := ok and stri =                   "-1";
+    stri := str(                  0); ok := ok and stri =                    "0";
+    stri := str(                  1); ok := ok and stri =                    "1";
+    stri := str(    123456789012345); ok := ok and stri =      "123456789012345";
+    stri := str(9223372036854775807); ok := ok and stri =  "9223372036854775807";
+    stri := str(intExpr(          INT64_MIN)); ok := ok and stri = "-9223372036854775808";
+    stri := str(intExpr(   -123456789012345)); ok := ok and stri =     "-123456789012345";
+    stri := str(intExpr(                 -1)); ok := ok and stri =                   "-1";
+    stri := str(intExpr(                  0)); ok := ok and stri =                    "0";
+    stri := str(intExpr(                  1)); ok := ok and stri =                    "1";
+    stri := str(intExpr(    123456789012345)); ok := ok and stri =      "123456789012345";
+    stri := str(intExpr(9223372036854775807)); ok := ok and stri =  "9223372036854775807";
+    if not ok then
+      writeln(" ***** Integer str assigned to a variable does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  strFunction(          INT64_MIN) <> "-9223372036854775808" or
+        strFunction(   -123456789012345) <>     "-123456789012345" or
+        strFunction(                 -1) <>                   "-1" or
+        strFunction(                  0) <>                    "0" or
+        strFunction(                  1) <>                    "1" or
+        strFunction(    123456789012345) <>      "123456789012345" or
+        strFunction(9223372036854775807) <>  "9223372036854775807" or
+        strFunction(intExpr(          INT64_MIN)) <> "-9223372036854775808" or
+        strFunction(intExpr(   -123456789012345)) <>     "-123456789012345" or
+        strFunction(intExpr(                 -1)) <>                   "-1" or
+        strFunction(intExpr(                  0)) <>                    "0" or
+        strFunction(intExpr(                  1)) <>                    "1" or
+        strFunction(intExpr(    123456789012345)) <>      "123456789012345" or
+        strFunction(intExpr(9223372036854775807)) <>  "9223372036854775807" then
+      writeln(" ***** Integer str called via a function does not work correct.");
       okay := FALSE;
     end if;
 

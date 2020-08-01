@@ -190,7 +190,7 @@ const func integer: tarChksum (in string: stri) is func
   end func;
 
 
-const func tarHeader: tarHeader(in string: stri) is func
+const func tarHeader: tarHeader (in string: stri) is func
   result
     var tarHeader: header is tarHeader.value;
   begin
@@ -1106,6 +1106,7 @@ const proc: putFile (inout tarArchive: tar, in string: filePath,
       tar.catalog @:= [filePath] header;
       write(tar.tarFile, data);
       write(tar.tarFile, "\0;" mult pred(TAR_BLOCK_SIZE) - pred(header.size) mod TAR_BLOCK_SIZE);
+      flush(tar.tarFile);
     end if;
   end func;
 

@@ -55,17 +55,9 @@ typedef BOOLTYPE boolType;
 
 
 #ifdef RENAMED_POSIX_FUNCTIONS
-#ifndef fileno
-#define fileno   _fileno
-#endif
-#ifndef isatty
-#define isatty   _isatty
-#endif
 #define kbhit    _kbhit
 #define setmode  _setmode
 #define fdopen   _fdopen
-#define fseeki64 _fseeki64
-#define ftelli64 _ftelli64
 #endif
 
 
@@ -609,7 +601,7 @@ typedef struct bstriStruct {
   } bstriRecord;
 
 typedef struct pollStruct {
-#ifdef NO_EMPTY_STRUCTS
+#if !EMPTY_STRUCTS_ALLOWED
     int dummy;
 #endif
   } pollRecord;
@@ -702,11 +694,21 @@ typedef mpz_srcptr  const_bigIntType;
 /* Logging */
 
 #if LOG_FUNCTIONS_EVERYWHERE || (defined LOG_FUNCTIONS && LOG_FUNCTIONS)
+#if CHECK_STACK
+#define logFunction(logStatements) checkStack(TRUE); printf(__FILE__ ": "); logStatements
+#else
 #define logFunction(logStatements) printf(__FILE__ ": "); logStatements
+#endif
 #define logFunctionResult(logStatements) printf(" --> "); logStatements
+#define logSignalFunction(logStatements) printf(__FILE__ ": "); logStatements
+#elif CHECK_STACK
+#define logFunction(logStatements) checkStack(TRUE)
+#define logFunctionResult(logStatements)
+#define logSignalFunction(logStatements)
 #else
 #define logFunction(logStatements)
 #define logFunctionResult(logStatements)
+#define logSignalFunction(logStatements)
 #endif
 
 #define logMessage(logStatements)
@@ -726,5 +728,6 @@ typedef mpz_srcptr  const_bigIntType;
 
 #define logFunctionX(logStatements) printf(__FILE__ ": "); logStatements
 #define logFunctionResultX(logStatements) printf(" --> "); logStatements
+#define logSignalFunctionX(logStatements) printf(__FILE__ ": "); logStatements
 #define logMessageX(logStatements) logStatements
 #define logErrorX(logStatements) printf(" *** "); logStatements

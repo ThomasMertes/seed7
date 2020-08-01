@@ -173,7 +173,7 @@ version.h: chkccomp.h
 	echo #define SYSTEM_CONSOLE_LIBS "$(SYSTEM_CONSOLE_LIBS)" >> version.h
 	echo #define SYSTEM_DRAW_LIBS "$(SYSTEM_DRAW_LIBS)" >> version.h
 	$(GET_CC_VERSION_INFO) cc_vers.txt
-	$(CC) chkccomp.c -w -lm -o chkccomp
+	$(CC) chkccomp.c -w -o chkccomp
 	.\chkccomp.exe version.h
 	del chkccomp.exe
 	del cc_vers.txt
@@ -240,17 +240,17 @@ utils: ..\bin\bas7.exe ..\bin\calc7.exe ..\bin\cat.exe ..\bin\comanche.exe ..\bi
        ..\bin\sql7.exe ..\bin\sydir7.exe ..\bin\tar7.exe ..\bin\toutf8.exe ..\bin\which.exe
 
 wc: $(SRC)
-	echo SRC:
+	@echo SRC:
 	wc $(SRC)
-	echo SEED7_LIB_SRC:
+	@echo SEED7_LIB_SRC:
 	wc $(SEED7_LIB_SRC)
-	echo CONSOLE_LIB_SRC:
+	@echo CONSOLE_LIB_SRC:
 	wc $(CONSOLE_LIB_SRC)
-	echo DRAW_LIB_SRC:
+	@echo DRAW_LIB_SRC:
 	wc $(DRAW_LIB_SRC)
-	echo COMP_DATA_LIB_SRC:
+	@echo COMP_DATA_LIB_SRC:
 	wc $(COMP_DATA_LIB_SRC)
-	echo COMPILER_LIB_SRC:
+	@echo COMPILER_LIB_SRC:
 	wc $(COMPILER_LIB_SRC)
 
 lint: $(SRC)

@@ -928,9 +928,13 @@ void err_object (errorType err, const_objectType obj_found)
         prot_nl();
         break;
       case EXCEPTION_RAISED:
-        prot_cstri("Exception \"");
-        prot_ustri(GET_ENTITY(obj_found)->ident->name);
-        prot_cstri("\" raised");
+        if (HAS_ENTITY(obj_found)) {
+          prot_cstri("Exception \"");
+          prot_ustri(GET_ENTITY(obj_found)->ident->name);
+          prot_cstri("\" raised");
+        } else {
+          prot_cstri("Exception raised");
+        } /* if */
         prot_nl();
         break;
       case IDENT_EXPECTED:

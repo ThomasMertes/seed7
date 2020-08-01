@@ -1,6 +1,122 @@
+20190303:
+- The makefile mk_tcc_l.mak has been added. This makefile supports
+  compiling with the tcc C compiler under Linux.
+- The makefile mk_tcc_w.mak has been added. This makefile is
+  experimental and supports compiling with the tcc C compiler under
+  Windows.
+- The example program brainf7.sd7 has been added. Brainf7 is a
+  Brainfuck interpreter.
+- The example program hilbert.sd7 has been added. Hilbert displays a
+  Hilbert curve.
+- The example program queen.sd7 has been added. Queen solves the n
+  queen problem.
+- The example program spigotpi.sd7 has been added. Spigotpi writes
+  digits of PI with a spigot algorithm.
+- The new library csv.s7i has been added. This library supports
+  converting to and from comma-separated values (CSV).
+- Several improvements in the Seed7 compiler (s7c) have been done:
+  - In flt_act.s7i the function to process FLT_ISNAN has been improved
+    to make sure, that the argument of the isnan() macro never contains
+    preprocessor directives (e.g. #line directives). Some C compilers
+    do not allow preprocessor directives in the argument list of a
+    macro. Many thanks go to Alexander Vlasov for reporting this
+    problem and for his help to find a solution.
+  - In comp/str_act.s7i the function optimize_str_cat has been improved
+    to assign the constant parts of strConcatN() outside of the actual
+    expression. This might open possibilities to optimize the
+    expression.
+  - The function process_forward_declaration in the compiler (s7c) has
+    been improved to avoid, that a prototype of a forward declared
+    function, is written twice.
+  - The function process_dynamic_param_implements has been improved to
+    generate a switch-statement instead of an if-then-else chain.
+    Additionally double entries are avoided now.
+  - The function process_const_func_call has been improved to assign
+    c_params.temp_assigns to c_expr.temp_assigns instead of
+    c_expr.temp_decls.
+  - The function processFuncValue has been improved to define the type
+    and the function of the actual name parameter only once (with
+    defineActualFuncParam()). A redefinition could happen when
+    functions, that call functions with name parameters, are inlined.
+  - The handling of the option -te (trace exceptions) has been
+    improved.
+  - The function process_const_func_declaration() has been improved to
+    request, that for functions using the result mechanism the result
+    is returned, when possible, as c_expr.expr_result. This way
+    process_return_value() does not need to copy this string values.
+    E.g. When the result of intStrToBuffer(), chrCLitToBuffer(),
+    chrStrMacro(), strHeadSlice(), chrStrMacro() or strTailSlice() is
+    used as the result value of a user defined function.
+  - The function defineFunctype has been added and the function
+    getAnyParamToTempAssigns has been improved to provide addresses
+    of plain INTOBJECT, FLOATOBJECT, CHAROBJECT, STRIOBJECT and
+    BSTRIOBJECT values. In this case the address is taken from a
+    temporary variable.
+  - In write_file_head() and init_type_constants() the creation of type
+    constants has been improved.
+- The functions skip() and copyFile() have been added to file.s7i.
+- The function makeParentDirs() has been added to osfiles.s7i.
+- In cli_cmds.s7i the function doMkdirCmd has been improved to call
+  the new function makeParentDirs().
+- In tar_cmds.s7i the functions tarXtract and tarCreate have been
+  improved to avoid, that the whole file is read into a string. This
+  avoids a MEMORY_ERROR, when the file does not fit into a string.
+- The function tarXtract has been improved to extract empty regular
+  files and to create non-existing parent directories (with
+  makeParentDirs())
+- In gzip.s7i the functions openGzipFile(), close() and write() have
+  been improved, to write the compressed data in blocks with a maximum
+  size. This avoids a MEMORY_ERROR, when huge files are compressed.
+- In gzip.s7i the function openGunzipFile has been changed to have a
+  file as parameter instead of a string. This way it is not necessary
+  to read the whole compressed data into a string.
+- A variant of the function readGzipHeader has been added to gzip.s7i.
+- A variant of the function getAsciiz has been added to bytedata.s7i.
+- A variant of the function crc32 has been added to crc32.s7i.
+- The program ftp7.sd7 has been improved to support the commands
+  !ls -l, !dir, !ls, !pwd, !mkdir and !rmdir.
+- The function noCtrlChars has been removed from db7.sd7 and sql7.sd7
+  and added to seed7_05.s7i.
+- The program chkchr.sd7 has been has been improved to check the
+  functions literal() and c_literal().
+- Tests for the function str(), when str() assigned to a variable and
+  when str() is called via a function, have been added to chkint.sd7.
+- Tests for aString[.. pos], aString[pos ..], aString[pos1 .. pos2],
+  aString[pos len length], when they are called via a function, have
+  been added to chkstr.sd7.
+- The example program chkdb.sd7 has been improved to test decimal and
+  numeric fields with negative values.
+- In x509cert.s7i the constant stdCertificate has been improved to
+  have a new validity (until end of 2021).
+- The program chkccomp.c has been improved to determine, if
+  preprocessor directives are allowed in the argument list of a macro
+  invocation (DIRECTIVES_IN_MACRO_ARGUMENTS_OK).
+- In fil_rtl.c the functions filBigLng() and filLng() have been
+  improved to determine the file length always with os_fseek and
+  os_ftell. This guarantees that the correct length is returned, when
+  data is written to a file and it has not been flushed.
+- The function ftelli64Ext() has been added to fil_win.c. This
+  function is used when fseeki64() is available and ftelli64() is
+  missing. Either fgetpos() or _telli64() is used to implement
+  ftelli64Ext().
+- Calls of logFunction have been added in ref_data.c and typ_data.c.
+- In sql_my.c the function sqlBindDuration() has been improved.
+- In sql_odbc.c the function getNumericAsCStri() has been added.
+- In sql_odbc.c the function getNumericFloat() has been improved to 
+  convert a SQL_NUMERIC_STRUCT to a double via the decimal
+  representation.
+- In sql_post.c the functions getNumericAsCStri(), getNumericAsStri()
+  and getNumericAsFloat have been improved.
+- The program chkccomp.c has been improved to define the macros
+  'os_isatty' and 'os_fileno', when the functions isatty() and
+  fileno() are not available.
+- A definition of 'isatty' and 'fileno' has been added to os_decls.h.
+- The mechanism to check for stack overflow has been improved. By
+  default the mechanism is deactivated.
+
 20190126:
 - The program db7.sd7 (Database Inspector 7) has been improved to
-  provide a list of tables and a possiblility to view table contents
+  provide a list of tables and a possibility to view table contents
   from this list.
 - The program tar7.sd7 and the library tar.s7i have been improved to
   support Unicode file names.
@@ -21,10 +137,10 @@
     processStatementStri. Now it removes comments from the statement
     string.
   - The local variable 'param' has been introduced in the parameter
-    binding functions. This improves readablity by avoiding many
+    binding functions. This improves readability by avoiding many
     accesses to the param_array.
   - The local variable 'columnData' has been introduced in the column
-    accessing functions. This improves readablity by avoiding many
+    accessing functions. This improves readability by avoiding many
     accesses to the result_array.
   - The function sqlColumnFloat has been improved to accept integer
     fields with all sizes.
@@ -47,10 +163,10 @@
   - The function sqlBindStri has been improved to preserve trailing
     blanks in a string.
   - The local variable 'param' has been introduced in the parameter
-    binding functions. This improves readablity by avoiding many
+    binding functions. This improves readability by avoiding many
     accesses to the param_array.
   - The local variable 'columnData' has been introduced in the column
-    accessing functions. This improves readablity by avoiding many
+    accessing functions. This improves readability by avoiding many
     accesses to the result_array.
 - The database driver sql_odbc.c has been improved:
   - The maximum number of concurrent activities is determined. If the
@@ -79,7 +195,7 @@
     processStatementStri. Now it removes comments from the statement
     string.
   - The local variable 'param' has been introduced in the parameter
-    binding functions. This improves readablity by avoiding many
+    binding functions. This improves readability by avoiding many
     accesses to the param_array.
   - The function sqlColumnFloat has been improved to accept integer
     fields with all sizes.
@@ -1105,10 +1221,10 @@
 - The functions getFile and putFile have been added to osfiles.s7i.
 - The bas7.sd7 (basic interpreter) example program has been improved.
   Support for the commands FILES and LOAD has been added.
-- Testcases for the power operator (**) and the operators div, rem,
+- Test cases for the power operator (**) and the operators div, rem,
   mdiv and mod have been added to chkbig.sd7.
-- Testcases for the new string optimizations done by the compiler have
-  been added to chkstr.sd7.
+- Test cases for the new string optimizations done by the compiler
+  have been added to chkstr.sd7.
 - Interpreter and compiler have been improved to support the action
   PRC_IF_NOOP.
 - The new library http_response.s7i has been added. It contains
@@ -1241,7 +1357,7 @@
   (HAS_SIGACTION is TRUE).
 - The compiler has been improved to reactivate the signal handler,
   when necessary (SIGNAL_RESETS_HANDLER is TRUE).
-- Testcases for the parse function with whitespace and control
+- Test cases for the parse function with whitespace and control
   characters have been added to chkbig.sd7.
 - in big_gmp.c the functions bigParse and bigParseBased have been
   improved, to raise RANGE_ERROR when whitespace characters are in the
@@ -1624,7 +1740,7 @@
 - Checks for the string length function have been added to
   chkstr.sd7.
 - The checks for the string operators := and &:= have been rewritten
-  to use one line for each testcase.
+  to use one line for each test case.
 - The example program rever.sd7 has been improved to allow a level
   of 10.
 - The compiler has been improved to create code that raises the
@@ -1632,7 +1748,7 @@
   is found for an interface function.
 - The performance of the hash table functions keys (which returns
   all keys) and values (which returns all values) has been improved
-  in interpreted and compiled programs. For an average testcase
+  in interpreted and compiled programs. For an average test case
   hshKeys() (in hsh_rtl.c) now uses only 27% of the previous runtime
   (measured with gcc and valgrind).
 - In hshlib.c the performance of the functions free_hash,
@@ -3171,7 +3287,7 @@
   are converted.
 - Interpreter and compiler have been improved to support the actions
   BIG_radix and BIG_RADIX.
-- Testcases for the operators radix and RADIX have been added to
+- Test cases for the operators radix and RADIX have been added to
   chkbig.sd7.
 - The compiler has been improved to do an optimization for the action
   INT_MDIV when the divisor is known at compile time. When the
@@ -4564,7 +4680,7 @@
   necessary.
 - A documentation comment for getSearchPath was added to shell.s7i.
 - The functions ltrim and rtrim were added to the library string.s7i.
-- Testcases for ltrim and rtrim were added to chkstr.sd7.
+- Test cases for ltrim and rtrim were added to chkstr.sd7.
 - The function getProgramName in arr_rtl.c was improved to do the
   comparison with EXECUTABLE_FILE_EXTENSION correctly.
 - The program tar7.sd7 was improved to accept also DOS paths for the
@@ -4646,7 +4762,7 @@
   is used by programs other than make7.sd7.
 - The library tar.s7i was improved to set the file mode, when an
   archive is extracted.
-- Testcases for a variant of the @:= operator, which copies a string
+- Test cases for a variant of the @:= operator, which copies a string
   to another, were added to the program chkstr.sd7.
 - Interpreter and compiler were improved to support the situation,
   when source and destination of the @:= operator (action STR_POSCPY)
@@ -5063,7 +5179,7 @@
 - The compiler (comp.sd7) was improved to generate optimized code
   for the actions "STR_ELEMCPY" and "STR_POSCPY" (which were used
   by the @:= operator).
-- Testcases for the @:= operator were added to "chkstr.sd7".
+- Test cases for the @:= operator were added to "chkstr.sd7".
 - The program "chkccomp.c" was changed to include "version.h" and
   to define OS_OFF_T_SIZE. This way "chkccomp.c" can use the macro
   definitions for os_off_t, TURN_OFF_FP_EXCEPTIONS and
@@ -5199,7 +5315,7 @@
 20111111:
 - Documentation comments were improved in "dir.s7i", "stdio.s7i"
   and "enable_io.s7i".
-- Testcases for the operators 'sci' and 'exp' in "chkflt.sd7" were
+- Test cases for the operators 'sci' and 'exp' in "chkflt.sd7" were
   changed to succeed on all supported platforms.
 - The compiler (comp.sd7) was improved, to create better debugging
   information for compiler generated (DYNAMIC) dispatcher functions.
@@ -5221,7 +5337,7 @@
   "scanstri.s7i" and "float.s7i".
 - The operators 'sci' and 'exp' were added to "float.s7i". This
   operators write floating point values in scientific notation.
-- Testcases for the operators 'sci' and 'exp' were added to
+- Test cases for the operators 'sci' and 'exp' were added to
   "chkflt.sd7".
 - The function 'getInteger' was added to "scanfile.s7i" and
   "scanstri.s7i".
@@ -5233,7 +5349,7 @@
   ARR_DESTR, HSH_DESTR, SCT_DESTR ARR_CPY, HSH_CPY, SCT_CPY and
   ARR_TIMES).
 - The creation of code for for-loops in the compiler was improved.
-- Testcases for the for-loop were added to "chkprc.sd7".
+- Test cases for the for-loop were added to "chkprc.sd7".
 - Interpreter, compiler and runtime library (function 'fltSci' in
   "flt_rtl.c") were improved to support the new action "FLT_SCI".
 - The debugging options in "mk_msvc.mak" were improved.
@@ -5320,7 +5436,7 @@
   "forloop.s7i".
 - For-loops, with traverse array elements and keys, were introduced
   in "seed7_05.s7i".
-- Testcases for bigInteger exponentiation, when it raises an
+- Test cases for bigInteger exponentiation, when it raises an
   exception, were added to "chkexc.sd7".
 - The recognition of constant expressions and their use to optimize
   the program in the compiler ("comp.sd7"), was improved.
@@ -5353,8 +5469,8 @@
   currently not work correctly for pipes.
 - Support for 'SOC_INPUT_READY' was added to the compiler (comp.sd7).
 - The experimental function pipe2 was added to "shell.s7i".
-- Testcases for bigInteger multiplication and squaring were added to
-  "chkbig.sd7".
+- Test cases for bigInteger multiplication and squaring were added
+  to "chkbig.sd7".
 - The type 'flisttype' was introduced in "common.h" and used in
   "heaputl.h", "big_rtl.c" and "big_gmp.c".
 
@@ -7111,7 +7227,7 @@
 
 20080622:
 - A new example program (cellauto.sd7), which simulates cellular automata, was added.
-- Testcases for the @:= statement were added to the chkstr.sd7 program.
+- Test cases for the @:= statement were added to the chkstr.sd7 program.
 - The compiler (comp.sd7) was improved such that the generated code raises MEMORY_ERROR
   when the 'malloc' function fails.
 - Support for the actions SET_ICONV and SET_SCONV was added to the (hi) interpreter
@@ -7351,7 +7467,7 @@
 - The bas.sd7 (basic interpreter) example program was improved.
 - A new example program (carddemo.sd7), which demonstrates the playing cards of the
   french deck, was added.
-- Testcases for the rpos function were added to the chkstr.sd7 program.
+- Test cases for the rpos function were added to the chkstr.sd7 program.
 
 20071210:
 - The interpreter was improved to flag match errors only once instead of multiple times.
@@ -7361,7 +7477,7 @@
   added to the draw.s7i library .
 - The functions pos (search for a character in a string) and isDigitString were added
   to the seed7_05.s7i library.
-- Several testcases were added to the chkint.sd7 and chkstr.sd7 programs.
+- Several test cases were added to the chkint.sd7 and chkstr.sd7 programs.
 - The drwSetTransparentColor function was added to the drw_x11.c driver.
 - An analog clock program (clock3.sd7) provided by Volker Schuller was added.
 - The compiler was improved to support the new graphic and string functions.
@@ -7378,7 +7494,7 @@
 - The compiler was improved to support functions with 'in var' parameter called by DYNAMIC
   dispatch functions with a corresponding 'val' parameter.
 - The compiler was improved to support the ref_line and ref_file actions.
-- An error was fixed in the strIpos function and testcases were added to the chkstr.sd7
+- An error was fixed in the strIpos function and test cases were added to the chkstr.sd7
   program.
 
 20071110:
@@ -7514,7 +7630,7 @@
 - The compiler support for result variables, which are initialized with expressions, was improved.
 - The bas (basic interpreter) example program was improved.
 - The bigrat.s7i, rational.s7i libraries were improved.
-- Some multiplication testcases were added to the chkbig.sd7 example program.
+- Some multiplication test cases were added to the chkbig.sd7 example program.
 - The compiler was changed to mark its temporary *.c files with a temp_marker.
 - Several performance improvements for uBigMultSub, uBigAddTo, uBigDiv, uBigMult,
   uBigMultIntoHelp, bigGrow, bigMult and bigShrink were done.
@@ -7643,19 +7759,19 @@
 20061023:
 - The bigInteger library was improved to support modulo, power and
   several comparisons (<, >, <=, >=).
-- Testcases for incr, decr, modulo, power and compare were added to
+- Test cases for incr, decr, modulo, power and compare were added to
   the chkbig.sd7 program.
 - The compiler was improved to support the new bigInteger functionality.
 
 20061008:
 - The bigInteger library was improved to support division and remainder.
-- Testcases for division and remainder were added to the chkbig.sd7 program.
+- Test cases for division and remainder were added to the chkbig.sd7 program.
 - The compiler was improved to support bigInteger division and remainder.
 
 20060926:
 - The bigInteger library was improved to support addition, subtraction,
   multiplication, negation, absolute value, string conversions and more.
-- A lot of testcases have been added to the chkbig.sd7 program.
+- A lot of test cases have been added to the chkbig.sd7 program.
 - The compiler was improved to support more bigInteger functionality.
 - The makefile was changed to work on BSD (suggested by Dave Bodenstab).
 

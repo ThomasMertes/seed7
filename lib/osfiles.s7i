@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  osfiles.s7i   Functions to handle operating system files        *)
-(*  Copyright (C) 1989 - 2013  Thomas Mertes                        *)
+(*  Copyright (C) 1989 - 2017, 2019  Thomas Mertes                  *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -393,7 +393,7 @@ const proc: moveFile (in string: sourcePath, in string: destPath)  is action "CM
  *             path type.
  *  @exception FILE_ERROR A system function returns an error.
  *)
-const proc: mkdir (in string: dirPath)                          is action "CMD_MKDIR";
+const proc: mkdir (in string: dirPath)                       is action "CMD_MKDIR";
 
 
 (**
@@ -415,7 +415,7 @@ const func string: getcwd                                    is action "CMD_GETC
  *             path type.
  *  @exception FILE_ERROR A system function returns an error.
  *)
-const proc: chdir (in string: dirPath)                          is action "CMD_CHDIR";
+const proc: chdir (in string: dirPath)                       is action "CMD_CHDIR";
 
 
 (**
@@ -508,6 +508,39 @@ const func string: parentDir (in string: path) is func
     else
       parentDir := path[.. pred(slashPos)];
     end if;
+  end func;
+
+
+(**
+ *  Create the parent directories of the given 'filePath'.
+ *  @exception MEMORY_ERROR Not enough memory to convert ''filePath'' to
+ *             the system path type.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR A system function returns an error, or
+ *             a component of 'filePath' is not a directory.
+ *)
+const proc: makeParentDirs (in string: filePath) is func
+  local
+    var integer: slashPos is 0;
+    var string: dirPath is "";
+  begin
+    slashPos := pos(filePath, '/');
+    if slashPos = 1 then
+      slashPos := pos(filePath, '/', succ(slashPos));
+    end if;
+    while slashPos <> 0 do
+      dirPath := filePath[.. pred(slashPos)];
+      if fileTypeSL(dirPath) = FILE_ABSENT then
+        mkdir(dirPath);
+        slashPos := pos(filePath, '/', succ(slashPos));
+      elsif fileTypeSL(dirPath) = FILE_DIR then
+        slashPos := pos(filePath, '/', succ(slashPos));
+      else
+        raise FILE_ERROR;
+      end if;
+    end while;
   end func;
 
 

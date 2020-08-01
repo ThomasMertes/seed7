@@ -56,10 +56,10 @@ volatile static suspendInterprType suspendInterpreter;
 void shutDrivers (void)
 
   { /* shutDrivers */
-    logFunction(printf("shutDrivers\n"););
+    logSignalFunction(printf("shutDrivers\n"););
     /* The actual shut functionality is now via atexit(). */
     fflush(NULL);
-    logFunction(printf("shutDrivers -->\n"););
+    logSignalFunction(printf("shutDrivers -->\n"););
   } /* shutDrivers */
 
 
@@ -71,7 +71,7 @@ const_cstriType signalName (int signalNum)
     const_cstriType sigName;
 
   /* signalName */
-    logFunction(printf("signalName(%d)\n", signalNum););
+    logSignalFunction(printf("signalName(%d)\n", signalNum););
     switch (signalNum) {
       case SIGABRT: sigName = "SIGABRT"; break;
       case SIGFPE:  sigName = "SIGFPE";  break;
@@ -90,8 +90,8 @@ const_cstriType signalName (int signalNum)
         sigName = buffer;
         break;
     } /* switch */
-    logFunction(printf("signalName(%d) --> \"%s\"\n",
-                       signalNum, sigName););
+    logSignalFunction(printf("signalName(%d) --> \"%s\"\n",
+                             signalNum, sigName););
     return sigName;
   } /* signalName */
 
@@ -138,8 +138,8 @@ static boolType signalDecision (int signalNum, boolType inHandler)
     boolType resume = FALSE;
 
   /* signalDecision */
-    logFunction(printf("signalDecision(%d, %d)\n",
-                       signalNum, inHandler););
+    logSignalFunction(printf("signalDecision(%d, %d)\n",
+                             signalNum, inHandler););
     printf("\n*** SIGNAL %s RAISED\n"
            "\n*** The following commands are possible:\n"
            "  RETURN  Continue\n"
@@ -236,8 +236,8 @@ static void handleOverflowError (int signalNum)
 static void handleTermSignal (int signalNum)
 
   { /* handleTermSignal */
-    printf("\n*** SIGNAL %s RAISED\n", signalName(signalNum));
-    printf("\n*** Program terminated.\n");
+    printf("\n*** SIGNAL %s RAISED\n"
+           "\n*** Program terminated.\n", signalName(signalNum));
     shutDrivers();
     exit(1);
   } /* handleTermSignal */

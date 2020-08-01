@@ -439,11 +439,13 @@ const func integer: getBitLsb (inout file: inFile, inout integer: bitPos) is fun
     var integer: resultBit is 0;
   begin
     if bitPos = 8 then
-      bitPos := 0;
       inFile.bufferChar := getc(inFile);
+      resultBit := ord(inFile.bufferChar) mod 2;
+      bitPos := 1;
+    else
+      resultBit := (ord(inFile.bufferChar) >> bitPos) mod 2;
+      incr(bitPos);
     end if;
-    resultBit := (ord(inFile.bufferChar) >> bitPos) mod 2;
-    incr(bitPos);
   end func;
 
 

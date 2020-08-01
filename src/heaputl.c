@@ -44,6 +44,7 @@
 
 #include "common.h"
 #include "data_rtl.h"
+#include "rtl_err.h"
 
 #undef EXTERN
 #define EXTERN
@@ -56,6 +57,14 @@
 /* STACK_SIZE_DEFINITION which contains this variable definition.   */
 #ifdef STACK_SIZE_DEFINITION
 STACK_SIZE_DEFINITION;
+#endif
+
+#if CHECK_STACK
+char *stack_base = 0;
+memSizeType max_stack_size = 0;
+boolType interpreter_exception = FALSE;
+#else
+extern boolType interpreter_exception;
 #endif
 
 
@@ -71,12 +80,16 @@ void setupStack (void)
 #if HAS_GETRLIMIT && defined STACK_SIZE
     struct rlimit rlim;
 #endif
+#if CHECK_STACK
+    char aVariable;
+#endif
 
   /* setupStack */
+    logFunction(printf("setupStack\n"););
 #if HAS_GETRLIMIT && defined STACK_SIZE
     /* printf("STACK_SIZE:      %ld\n", STACK_SIZE); */
     if (getrlimit(RLIMIT_STACK, &rlim) == 0) {
-      /* printf("old stack limit: %ld/%ld\n", rlim.rlim_cur, rlim.rlim_max); */
+      /* printf("old stack limit: %ld/%ld\n", (long) rlim.rlim_cur, (long) rlim.rlim_max); */
       if (rlim.rlim_cur != RLIM_INFINITY && (rlim_t) STACK_SIZE > rlim.rlim_cur) {
         if (rlim.rlim_max == RLIM_INFINITY || (rlim_t) STACK_SIZE <= rlim.rlim_max) {
           rlim.rlim_cur = (rlim_t) STACK_SIZE;
@@ -85,12 +98,73 @@ void setupStack (void)
         } /* if */
         setrlimit(RLIMIT_STACK, &rlim);
         /* if (getrlimit(RLIMIT_STACK, &rlim) == 0) {
-          printf("new stack limit: %ld/%ld\n", rlim.rlim_cur, rlim.rlim_max);
+          printf("new stack limit: %ld/%ld\n", (long) rlim.rlim_cur, (long) rlim.rlim_max);
         } ** if */
       } /* if */
     } /* if */
 #endif
+#if CHECK_STACK
+    stack_base = &aVariable;
+    /* printf("base:  " F_U_MEM(8) "\n", (memSizeType) stack_base); */
+#endif
+    logFunction(printf("setupStack -->\n"););
   } /* setupStack */
+
+
+
+#if CHECK_STACK
+boolType checkStack (boolType inLogMacro)
+
+  {
+    char aVariable;
+    boolType stackOverflow = FALSE;
+
+  /* checkStack */
+#if STACK_GROWS_UPWARD
+    if (&aVariable - stack_base > max_stack_size &&
+        stack_base != 0) {
+      max_stack_size = (memSizeType) (&aVariable - stack_base);
+    } /* if */
+#else
+    if (stack_base - &aVariable > max_stack_size &&
+        stack_base != 0) {
+      max_stack_size = (memSizeType) (stack_base - &aVariable);
+    } /* if */
+#endif
+    /* This check is outside the maximum check on purpose. */
+    /* A new maximum can occur from a logFunction, but the */
+    /* check for the stack size limit can happen later,    */
+    /* when the function is called from the interpreter.   */
+    if (unlikely(max_stack_size > CHECKED_STACK_SIZE_LIMIT &&
+                 inLogMacro != interpreter_exception)) {
+      /* The logFunctions (when inLogMacro is TRUE) should */
+      /* only trigger an exeption for compiled programs    */
+      /* (when interpreter_exception is FALSE). In the     */
+      /* interpreter the stack checking is called from the */
+      /* function exec_action() (in this case inLogMacro   */
+      /* is FALSE and interpreter_exception is TRUE).      */
+      printf("\n*** Stack size above limit\n");
+      printf("size:    " F_U_MEM(8) "\n", max_stack_size);
+      printf("limit:   " F_U_MEM(8) "\n", (memSizeType) CHECKED_STACK_SIZE_LIMIT);
+      printf("base:    " F_U_MEM(8) "\n", (memSizeType) stack_base);
+      printf("current: " F_U_MEM(8) "\n", (memSizeType) &aVariable);
+      if (inLogMacro) {
+        raise_error(MEMORY_ERROR);
+      } /* if */
+      stackOverflow = TRUE;
+    } /* if */
+    return stackOverflow;
+  } /* checkStack */
+
+
+
+memSizeType getMaxStackSize (void)
+
+  { /* getMaxStackSize */
+    return max_stack_size;
+  } /* getMaxStackSize */
+
+#endif
 
 
 

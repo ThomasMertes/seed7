@@ -38,6 +38,7 @@
 /* #include "term.h" */
 
 #include "common.h"
+#include "os_decls.h"
 #include "con_drv.h"
 
 #undef EXTERN

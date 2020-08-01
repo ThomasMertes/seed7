@@ -19,6 +19,7 @@ THE MAKEFILES
   mk_linux.mak | Linux/Unix/BSD  | (g)make      | gcc        | sh
   mk_clang.mak | Linux/Unix/BSD  | (g)make      | clang      | sh
   mk_icc.mak   | Linux/Unix/BSD  | (g)make      | icc        | sh
+  mk_tcc_l.mak | Linux/Unix/BSD  | (g)make      | tcc        | sh
   mk_cygw.mak  | Windows (Cygwin)| (g)make      | gcc        | sh
   mk_msys.mak  | Windows (MSYS)  | mingw32-make | gcc        | sh
   mk_mingw.mak | Windows (MinGW) | mingw32-make | gcc        | cmd.exe
@@ -169,6 +170,46 @@ COMPILING UNDER WINDOWS WITH BCC32
     copy mk_bccv5.mak makefile
     make depend
     make
+
+
+COMPILING UNDER WINDOWS WITH TCC
+
+    To compile Seed7 with tcc (Tiny C Compiler) and mingw32-make
+  you need version 0.9.27 of tcc. The support for tcc under
+  Windows is experimental.
+
+  You need to decide, which archiver utility should be used
+  to create libraries. In the makefile mk_tcc_w.mak the value
+  ARCHIVER defines the archiver utility to be used. For the ar
+  utility from MinGW (ar should be in the search path) use the
+  following lines (this is the default):
+  
+    ARCHIVER = ar -r
+    # ARCHIVER = tiny_libmaker
+
+  As an alternative the tiny_libmaker utility can be used.
+  Note that tiny_libmaker supports only 32-bit executables.
+  You might need to copy tiny_libmaker.exe to the directory
+  tcc. You need to change mk_tcc_w.mak also. Use the lines:
+  
+    # ARCHIVER = ar -r
+    ARCHIVER = tiny_libmaker
+
+  Additionally you need some things:
+  
+    - The include file winsock2.h (copy it to tcc\include)
+
+  Then use a console, go to the 'seed7\src' directory and type:
+
+    copy mk_tcc_w.mak makefile
+    make depend
+    make
+
+  After the compilation the interpreter executable can be found
+  in the 'bin' directory and it is also copied to prg/s7.exe.
+  Note that tcc for Windows has some bugs. The program chk_all.sd7
+  shows this bugs. Therefore Seed7 does not support the
+  compilation with tcc under windows officially. 
 
 
 COMPILING UNDER WINDOWS WITH CYGWIN

@@ -62,6 +62,7 @@
 #include "sys/ioctl.h"
 
 #include "common.h"
+#include "os_decls.h"
 #include "heaputl.h"
 #include "striutl.h"
 #include "rtl_err.h"

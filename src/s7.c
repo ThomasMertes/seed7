@@ -68,11 +68,6 @@ typedef struct {
 typedef HINSTANCE__ *HINSTANCE;
 #endif
 
-#if CHECK_STACK
-char *stack_base;
-memSizeType max_stack_size = 0;
-#endif
-
 #define VERSION_INFO "SEED7 INTERPRETER Version 5.0.%d  Copyright (c) 1990-2019 Thomas Mertes\n"
 
 
@@ -376,9 +371,6 @@ int main (int argc, char **argv)
 
   /* main */
     logFunction(printf("main\n"););
-#if CHECK_STACK
-    stack_base = (char *) &arg_v;
-#endif
     setupStack();
     setupFiles();
     set_protfile_name(NULL);
@@ -445,7 +437,7 @@ int main (int argc, char **argv)
     /* getchar(); */
     /* heap_statistic(); */
 #if CHECK_STACK
-    printf("max_stack_size: %lu (0x%lx)\n", max_stack_size, max_stack_size);
+    printf("max_stack_size: " FMT_U_MEM "\n", getMaxStackSize());
 #endif
     logFunction(printf("main --> 0\n"););
     return 0;

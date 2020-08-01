@@ -140,7 +140,8 @@ const string: chkbin_output is "\n\
 
 const string: chkchr_output is "\n\
   \isLetter function works correctly.\n\
-  \width function works correctly.\n";
+  \width function works correctly.\n\
+  \Char literal functions work correct.\n";
 
 const string: chkstr_output is "\n\
   \String literals work correct.\n\

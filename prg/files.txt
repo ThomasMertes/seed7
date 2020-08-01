@@ -3,6 +3,7 @@
 addup.sd7    Game of adding numbers to reach a goal number
 bas7.sd7     Basic interpreter
 bifurk.sd7   Display the bifurcation diagram
+brainf7.sd7  Brainfuck interpreter
 calc7.sd7    Calculator
 carddemo.sd7 Demonstate the playing cards of the french deck
 castle.sd7   Castle Adventure
@@ -55,6 +56,7 @@ hamu.sd7     Game to govern the ancient kingdom of sumeria.
 hanoi.sd7    Solve the tower of hanoi problem
 hd.sd7       Write a hexdump of a given file.
 hello.sd7    Hello world
+hilbert.sd7  Display a Hilbert curve.
 ide7.sd7     Cgi dialog demo program.
 kbd.sd7      Keyboard test program
 klondike.sd7 Klondike solitaire game
@@ -74,6 +76,7 @@ prime.sd7    Write a list of prime numbers
 printpi1.sd7 PI with 1000 digits using John Machin's formula
 printpi2.sd7 PI with 1000 digits (Bailey/Borwein/Plouffe)
 printpi3.sd7 Print 1000 digits of PI with Newtons formula
+queen.sd7    Solve the n queen problem
 rand.sd7     Floating point random numbers test
 raytrace.sd7 Raytracing demo program.
 rever.sd7    Reversi game
@@ -85,6 +88,7 @@ shisen.sd7   Shisen game
 sl.sd7       Game of Life
 snake.sd7    Snake eats apple game
 sokoban.sd7  Sokoban puzzle game
+spigotpi.sd7 Write digits of PI with a spigot algorithm.
 sql7.sd7     Sql command line tool
 startrek.sd7 Classical startrek game
 sudoku7.sd7  Sudoku program
@@ -140,6 +144,7 @@ console.s7i  Text implementation type for text console/window.
 crc32.s7i    CRC-32 cyclic redundancy check support library
 cronos16.s7i Cronos vector font with capHeight 16.
 cronos27.s7i Cronos vector font with capHeight 27.
+csv.s7i      Comma-separated values (CSV) support library.
 deflate.s7i  Deflate compression algorithm
 des.s7i      DES (Data Encryption Standard) cipher support.
 dialog.s7i   Dialog support library

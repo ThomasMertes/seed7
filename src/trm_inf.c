@@ -51,6 +51,7 @@
 #endif
 
 #include "common.h"
+#include "os_decls.h"
 
 #undef EXTERN
 #define EXTERN

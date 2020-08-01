@@ -136,6 +136,16 @@
 #define os_getenv_string_free(env_var)
 #endif
 
+/* The definition of isatty and fileno below take place */
+/* after the system include files. This avoids warnings */
+/* about _isatty and _fileno being deprecated.          */
+#ifdef os_isatty
+#define isatty os_isatty
+#endif
+#ifdef os_fileno
+#define fileno os_fileno
+#endif
+
 #if FILENO_WORKS_FOR_NULL
 #define safe_fileno(stream) fileno(stream)
 #else

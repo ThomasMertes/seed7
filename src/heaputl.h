@@ -541,6 +541,10 @@ EXTERN unsigned int sflist_allowed;
 
 
 void setupStack (void);
+#if CHECK_STACK
+boolType checkStack (boolType inLogMacro);
+memSizeType getMaxStackSize (void);
+#endif
 #if WITH_STRI_CAPACITY
 striType growStri (striType stri, memSizeType len);
 striType shrinkStri (striType stri, memSizeType len);

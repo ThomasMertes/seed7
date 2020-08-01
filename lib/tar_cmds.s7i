@@ -3,6 +3,7 @@
 (*                                                                  *)
 (*  tar_cmds.s7   Commands of the tar program.                      *)
 (*  Copyright (C) 1994, 2004, 2005, 2010, 2014, 2017  Thomas Mertes *)
+(*  Copyright (C) 2019 Thomas Mertes                                *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -28,7 +29,6 @@
 
 include "tar.s7i";
 include "osfiles.s7i";
-include "getf.s7i";
 include "gzip.s7i";
 
 
@@ -112,7 +112,7 @@ const proc: tarTell (in string: inFileName, in array string: arg_list,
       magicBytes := gets(inFile, 2);
       seek(inFile, 1);
       if magicBytes = "\31;\139;" then
-        inFile := gunzip(inFile);
+        inFile := openGunzipFile(inFile);
       elsif do_unzip then
         write("tar7: File \"");
         write(inFileName);
@@ -132,8 +132,9 @@ const proc: tarTell (in string: inFileName, in array string: arg_list,
 const proc: tarXtract (inout file: inFile, in array string: arg_list,
     in boolean: do_view) is func
   local
-    var string: stri is "";
     var tarHeader: header is tarHeader.value;
+    var file: aFile is STD_NULL;
+    var integer: bytesCopied is 0;
     var time: modTime is time.value;
     var array tarHeader: dirHeaderList is 0 times tarHeader.value;
     var integer: index is 0;
@@ -149,6 +150,7 @@ const proc: tarXtract (inout file: inFile, in array string: arg_list,
         if fileType(header.filePath) = FILE_DIR then
           dirHeaderList &:= [] (header);
         elsif fileType(header.filePath) = FILE_ABSENT then
+          makeParentDirs(header.filePath);
           mkdir(header.filePath);
           dirHeaderList &:= [] (header);
         else
@@ -156,20 +158,29 @@ const proc: tarXtract (inout file: inFile, in array string: arg_list,
           okay := FALSE;
         end if;
       elsif header.typeflag = REGTYPE or header.typeflag = AREGTYPE then
-        if header.size <> 0 then
-          stri := gets(inFile, succ(pred(header.size) mdiv TAR_BLOCK_SIZE) * TAR_BLOCK_SIZE);
-          if fileType(header.filePath) = FILE_REGULAR then
-            removeFile(header.filePath);
-          end if;
-          if fileType(header.filePath) = FILE_ABSENT then
-            putf(header.filePath, stri[ .. header.size]);
+        if fileType(header.filePath) = FILE_REGULAR then
+          removeFile(header.filePath);
+        end if;
+        if fileType(header.filePath) = FILE_ABSENT then
+          aFile  := open(header.filePath, "w");
+          if aFile <> STD_NULL then
+            bytesCopied := copyFile(inFile, aFile, header.size);
+            close(aFile);
             setFileMode(header.filePath, header.mode);
             modTime := timestamp1970ToTime(header.mtime);
             setMTime(header.filePath, modTime);
+            # Skip bytes up to header.size and then up to a multiple of TAR_BLOCK_SIZE.
+            skip(inFile, header.size - bytesCopied +
+                 pred(TAR_BLOCK_SIZE) - pred(header.size) mod TAR_BLOCK_SIZE);
           else
-            writeln("*** The file " <& literal(header.filePath) <& " exists, but is not a regular file");
+            skip(inFile, succ(pred(header.size) mdiv TAR_BLOCK_SIZE) * TAR_BLOCK_SIZE);
+            writeln("*** Cannot create file " <& literal(header.filePath));
             okay := FALSE;
           end if;
+        else
+          skip(inFile, succ(pred(header.size) mdiv TAR_BLOCK_SIZE) * TAR_BLOCK_SIZE);
+          writeln("*** The file " <& literal(header.filePath) <& " exists, but is not a regular file");
+          okay := FALSE;
         end if;
       end if;
       readHead(inFile, header);
@@ -193,7 +204,7 @@ const proc: tarXtract (in string: inFileName, in array string: arg_list,
       magicBytes := gets(inFile, 2);
       seek(inFile, 1);
       if magicBytes = "\31;\139;" then
-        inFile := gunzip(inFile);
+        inFile := openGunzipFile(inFile);
       elsif do_unzip then
         write("tar7: File \"");
         write(inFileName);
@@ -227,28 +238,40 @@ const proc: tarCreate (inout file: outFile, in string: basePath, in string: path
   local
     var string: name is "";
     var array string: dir_content is 0 times "";
-    var string: stri is "";
+    var file: aFile is STD_NULL;
+    var integer: bytesCopied is 0;
     var tarHeader: header is tarHeader.value;
   begin
     for name range arg_list do
       name := pathFromBase & name;
-      if do_view then
-        write("c ");
-        writeln(name);
-      end if;
-      if fileType(basePath & name) = FILE_DIR then
-        dir_content := readDir(basePath & name);
-        setUpHead(basePath, name, "/", header);
-        header.typeflag := DIRTYPE;
-        writeHead(outFile, header);
-        tarCreate(outFile, basePath, name & "/", dir_content, do_view);
+      if fileType(basePath & name) = FILE_ABSENT then
+        writeln("*** The file " <& literal(basePath & name) <& " does not exist.");
       else
-        stri := getf(basePath & name);
-        setUpHead(basePath, name, "", header);
-        header.size := length(stri);
-        writeHead(outFile, header);
-        write(outFile, stri);
-        write(outFile, "\0;" mult pred(TAR_BLOCK_SIZE) - pred(header.size) mod TAR_BLOCK_SIZE);
+        if do_view then
+          write("c ");
+          writeln(name);
+        end if;
+        if fileType(basePath & name) = FILE_DIR then
+          dir_content := readDir(basePath & name);
+          setUpHead(basePath, name, "/", header);
+          header.typeflag := DIRTYPE;
+          writeHead(outFile, header);
+          tarCreate(outFile, basePath, name & "/", dir_content, do_view);
+        else
+          setUpHead(basePath, name, "", header);
+          aFile := open(basePath & name, "r");
+          if aFile <> STD_NULL then
+            header.size := length(aFile);
+            writeHead(outFile, header);
+            bytesCopied := copyFile(aFile, outFile, header.size);
+            # Fill with '\0;' up to header.size and then up to a multiple of TAR_BLOCK_SIZE.
+            write(outFile, "\0;" mult header.size - bytesCopied +
+                  pred(TAR_BLOCK_SIZE) - pred(header.size) mod TAR_BLOCK_SIZE);
+            close(aFile);
+          else
+            writeHead(outFile, header);
+          end if;
+        end if;
       end if;
     end for;
   end func;

@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  x509cert.s7i  Support for X.509 public key certificates.        *)
-(*  Copyright (C) 2013 - 2015  Thomas Mertes                        *)
+(*  Copyright (C) 2013 - 2016, 2018, 2019  Thomas Mertes            *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -654,6 +654,6 @@ const func certAndKey: selfSignedX509Cert (in string: commonName,
 
 
 const certAndKey: stdCertificate is selfSignedX509Cert(
-    stdRsaKeyPair, 2_, "localhost",
+    stdRsaKeyPair, 3_, "localhost",
     "AT", "Vienna", "Black Hole", "Super Massive",
-    validityType(date(2016, 1, 1), date(2018, 1, 1)));
+    validityType(date(2018, 1, 1), date(2022, 1, 1)));

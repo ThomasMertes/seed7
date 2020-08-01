@@ -78,6 +78,25 @@ const func string: getAsciiz (in string: stri, inout integer: currPos) is func
 
 
 (**
+ *  Get a zero terminated string from ''inFile''.
+ *  The file position is advanced after the zero ('\0;') character.
+ *  @return the zero terminated string without the zero ('\0;') character.
+ *)
+const func string: getAsciiz (inout file: inFile) is func
+  result
+    var string: resultStri is "";
+  local
+    var char: ch is ' ';
+  begin
+    ch := getc(inFile);
+    while ch <> '\0;' do
+      resultStri &:= ch;
+      ch := getc(inFile);
+    end while;
+  end func;
+
+
+(**
  *  Convert a [[string]] of bytes to its hexadecimal representation.
  *  Each byte is represented by two hexadecimal digits.
  *   hex("!;Mn")  returns "213b4d6e"

@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  cli_cmds.s7i  Emulate CLI commands from Unix and Dos.           *)
-(*  Copyright (C) 2010 - 2014  Thomas Mertes                        *)
+(*  Copyright (C) 2010 - 2015, 2017, 2019  Thomas Mertes            *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -253,30 +253,18 @@ const proc: doMkdirCmd (in array string: fileList,
     in boolean: parentDirs) is func
   local
     var string: fileName is "";
-    var integer: slashPos is 0;
-    var string: dirPath is "";
     var boolean: okay is TRUE;
   begin
     for fileName range fileList do
       okay := TRUE;
       if parentDirs then
-        slashPos := pos(fileName, '/');
-        if slashPos = 1 then
-          slashPos := pos(fileName, '/', succ(slashPos));
-        end if;
-        while slashPos <> 0 do
-          dirPath := fileName[.. pred(slashPos)];
-          if fileTypeSL(dirPath) = FILE_ABSENT then
-            mkdir(dirPath);
-            slashPos := pos(fileName, '/', succ(slashPos));
-          elsif fileTypeSL(dirPath) = FILE_DIR then
-            slashPos := pos(fileName, '/', succ(slashPos));
-          else
-            writeln(" *** Cannot make directory " <& dirPath <& " - Not a directory");
-            slashPos := 0;
+        block
+          makeParentDirs(fileName);
+        exception
+          catch FILE_ERROR:
+            writeln(" *** Cannot make parent directories of " <& fileName <& " - Element is not a directory");
             okay := FALSE;
-          end if;
-        end while;
+        end block;
       end if;
       if okay then
         if fileTypeSL(fileName) = FILE_ABSENT then

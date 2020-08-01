@@ -25,6 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -90,15 +93,15 @@ intType typCmpGeneric (const genericType value1, const genericType value2)
 typeType typFunc (typeType basic_type)
 
   {
-    typeType result;
+    typeType func_type;
 
   /* typFunc */
-    if ((result = get_func_type(NULL, basic_type)) == NULL) {
+    logFunction(printf("typFunc(" FMT_X_MEM ")\n", (memSizeType) basic_type););
+    if (unlikely((func_type = get_func_type(NULL, basic_type)) == NULL)) {
       raise_error(MEMORY_ERROR);
-      return NULL;
-    } else {
-      return result;
     } /* if */
+    logFunction(printf("typFunc --> " FMT_X_MEM "\n", (memSizeType) func_type););
+    return func_type;
   } /* typFunc */
 
 
@@ -137,13 +140,17 @@ objectType typMatchobj (typeType actual_type)
 
 typeType typMeta (typeType any_type)
 
-  { /* typMeta */
-    if (any_type->meta == NULL) {
+  {
+    typeType meta;
+
+  /* typMeta */
+    logFunction(printf("typMeta(" FMT_X_MEM ")\n", (memSizeType) any_type););
+    meta = any_type->meta;
+    if (unlikely(meta == NULL)) {
       raise_error(RANGE_ERROR);
-      return NULL;
-    } else {
-      return any_type->meta;
     } /* if */
+    logFunction(printf("typMeta --> " FMT_X_MEM "\n", (memSizeType) meta););
+    return meta;
   } /* typMeta */
 
 
@@ -153,43 +160,47 @@ intType typNum (typeType actual_type)
   {
     static rtlHashType type_table = NULL;
     static intType next_free_number = 1;
-    intType result;
+    intType type_num;
 
   /* typNum */
     logFunction(printf("typNum(" FMT_X_MEM ")\n", (memSizeType) actual_type););
     if (unlikely(actual_type == NULL)) {
-      result = 0;
+      type_num = 0;
     } else {
       if (unlikely(type_table == NULL)) {
         type_table = hshEmpty();
       } /* if */
       if (unlikely(type_table == NULL)) {
         raise_error(MEMORY_ERROR);
-        result = 0;
+        type_num = 0;
       } else {
-        result = (intType) hshIdxEnterDefault(type_table, (genericType) (memSizeType) actual_type,
+        type_num = (intType) hshIdxEnterDefault(type_table, (genericType) (memSizeType) actual_type,
             (genericType) next_free_number,
             (intType) (((memSizeType) actual_type) >> 6));
-        if (result == next_free_number) {
+        if (type_num == next_free_number) {
           next_free_number++;
         } /* if */
       } /* if */
     } /* if */
-    logFunction(printf("typNum --> " FMT_D "\n", result););
-    return result;
+    logFunction(printf("typNum --> " FMT_D "\n", type_num););
+    return type_num;
   } /* typNum */
 
 
 
 typeType typResult (typeType any_type)
 
-  { /* typResult */
-    if (any_type->result_type == NULL) {
+  {
+    typeType result_type;
+
+  /* typResult */
+    logFunction(printf("typResult(" FMT_X_MEM ")\n", (memSizeType) any_type););
+    result_type = any_type->result_type;
+    if (unlikely(result_type == NULL)) {
       raise_error(RANGE_ERROR);
-      return NULL;
-    } else {
-      return any_type->result_type;
     } /* if */
+    logFunction(printf("typResult --> " FMT_X_MEM "\n", (memSizeType) result_type););
+    return result_type;
   } /* typResult */
 
 
@@ -202,18 +213,19 @@ striType typStr (typeType type_arg)
     striType result;
 
   /* typStr */
-    if (type_arg->name != NULL) {
+    logFunction(printf("typStr(" FMT_X_MEM ")\n", (memSizeType) type_arg););
+    if (unlikely(type_arg == NULL)) {
+      stri = "*NULL_TYPE*";
+    } else if (type_arg->name != NULL) {
       stri = id_string2(type_arg->name);
-/*  } else if type_arg->result_type != NULL &&
-        type_arg->result_type->name != NULL) {
-      stri = id_string2(type_arg->result_type->name); */
     } else {
       stri = "*ANONYM_TYPE*";
     } /* if */
     result = cstri8_to_stri(stri, &err_info);
-    if (result == NULL) {
-      raise_error(MEMORY_ERROR);
+    if (unlikely(result == NULL)) {
+      raise_error(err_info);
     } /* if */
+    logFunction(printf("typStr --> \"%s\"\n", striAsUnquotedCStri(result)););
     return result;
   } /* typStr */
 
@@ -225,10 +237,10 @@ typeType typVarfunc (typeType basic_type)
     typeType result;
 
   /* typVarfunc */
-    if ((result = get_varfunc_type(NULL, basic_type)) == NULL) {
+    logFunction(printf("typVarfunc(" FMT_X_MEM ")\n", (memSizeType) basic_type););
+    if (unlikely((result = get_varfunc_type(NULL, basic_type)) == NULL)) {
       raise_error(MEMORY_ERROR);
-      return NULL;
-    } else {
-      return result;
     } /* if */
+    logFunction(printf("typVarfunc --> " FMT_X_MEM "\n", (memSizeType) result););
+    return result;
   } /* typVarfunc */

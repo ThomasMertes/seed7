@@ -809,14 +809,14 @@ static errInfoType setupResult (preparedStmtType preparedStmt,
 static boolType allParametersBound (preparedStmtType preparedStmt)
 
   {
-    memSizeType column_index;
+    int column_index;
     boolType okay = TRUE;
 
   /* allParametersBound */
     for (column_index = 0; column_index < preparedStmt->in_sqlda->sqld;
          column_index++) {
       if (unlikely(!preparedStmt->param_array[column_index].bound)) {
-        logError(printf("sqlExecute: Unbound parameter " FMT_U_MEM ".\n",
+        logError(printf("sqlExecute: Unbound parameter %d.\n",
                         column_index + 1););
         okay = FALSE;
       } /* if */
@@ -1318,7 +1318,8 @@ static void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
             if (decimalNumber == NULL) {
               err_info = MEMORY_ERROR;
             } else {
-              if (unlikely(sqlvar->sqllen < decimalNumber->size)) {
+              /* setupParameters() has already checked that sqllen > 0 holds */
+              if (unlikely((memSizeType) sqlvar->sqllen < decimalNumber->size)) {
                 logError(printf("sqlBindBigInt: Parameter " FMT_D ": "
                                 "Decimal representation of %s longer than allowed (%hd).\n",
                                 pos, striAsUnquotedCStri(decimalNumber),
@@ -1338,7 +1339,8 @@ static void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
             if (decimalNumber == NULL) {
               err_info = MEMORY_ERROR;
             } else {
-              if (unlikely(sqlvar->sqllen < decimalNumber->size)) {
+              /* setupParameters() has already checked that sqllen > 0 holds */
+              if (unlikely((memSizeType) sqlvar->sqllen < decimalNumber->size)) {
                 logError(printf("sqlBindBigInt: Parameter " FMT_D ": "
                                 "Decimal representation of %s longer than allowed (%hd).\n",
                                 pos, striAsUnquotedCStri(decimalNumber),
@@ -1569,7 +1571,8 @@ static void sqlBindBStri (sqlStmtType sqlStatement, intType pos, bstriType bstri
             err_info = putBlob(preparedStmt, bstri, sqlvar);
             break;
           case SQL_TEXT:
-            if (unlikely(sqlvar->sqllen < bstri->size)) {
+            /* setupParameters() has already checked that sqllen > 0 holds */
+            if (unlikely((memSizeType) sqlvar->sqllen < bstri->size)) {
               logError(printf("sqlBindBStri(*, " FMT_D ", \"%s\"): "
                               "Bstring longer than allowed (%hd).\n",
                               pos, bstriAsUnquotedCStri(bstri),
@@ -1582,7 +1585,8 @@ static void sqlBindBStri (sqlStmtType sqlStatement, intType pos, bstriType bstri
             } /* if */
             break;
           case SQL_VARYING:
-            if (unlikely(sqlvar->sqllen < bstri->size)) {
+            /* setupParameters() has already checked that sqllen > 0 holds */
+            if (unlikely((memSizeType) sqlvar->sqllen < bstri->size)) {
               logError(printf("sqlBindBStri(*, " FMT_D ", \"%s\"): "
                               "Bstring longer than allowed (%hd).\n",
                               pos, bstriAsUnquotedCStri(bstri),
@@ -1987,7 +1991,8 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos, striType stri)
             if (unlikely(stri8 == NULL)) {
               err_info = MEMORY_ERROR;
             } else {
-              if (unlikely(sqlvar->sqllen < length)) {
+              /* setupParameters() has already checked that sqllen > 0 holds */
+              if (unlikely((memSizeType) sqlvar->sqllen < length)) {
                 logError(printf("sqlBindStri(*, " FMT_D ", \"%s\"): "
                                 "UTF-8 length (" FMT_U_MEM ") longer than allowed (%hd).\n",
                                 pos, striAsUnquotedCStri(stri), length, sqlvar->sqllen););
@@ -2005,7 +2010,8 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos, striType stri)
             if (unlikely(stri8 == NULL)) {
               err_info = MEMORY_ERROR;
             } else {
-              if (unlikely(sqlvar->sqllen < length)) {
+              /* setupParameters() has already checked that sqllen > 0 holds */
+              if (unlikely((memSizeType) sqlvar->sqllen < length)) {
                 logError(printf("sqlBindStri(*, " FMT_D ", \"%s\"): "
                                 "UTF-8 length (" FMT_U_MEM ") longer than allowed (%hd).\n",
                                 pos, striAsUnquotedCStri(stri), length, sqlvar->sqllen););
@@ -3260,6 +3266,7 @@ static sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
           err_info = MEMORY_ERROR;
           preparedStmt = NULL;
         } else {
+          /* printf("sqlPrepare: query: %s\n", query); */
           memset(out_sqlda, 0, XSQLDA_LENGTH(1));
           memset(preparedStmt, 0, sizeof(preparedStmtRecord));
           out_sqlda->version = SQLDA_VERSION1;

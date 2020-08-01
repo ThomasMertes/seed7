@@ -1,36 +1,33 @@
-# Makefile for mingw32-make and gcc from MinGW. Commands executed by: cmd.exe
+# Makefile for mingw32-make and tcc. Commands executed by: cmd.exe
 # To compile use a Windows console and call:
-#   mingw32-make -f mk_mingw.mak depend
-#   mingw32-make -f mk_mingw.mak
-# When your make utility uses Unix commands, you should use mk_msys.mak instead.
-# When the nmake utility from Windows is available, you can use mk_nmake.mak instead.
-# When you are using the MSYS console from MinGW you should use mk_msys.mak instead.
+#   mingw32-make -f mk_tcc_w.mak depend
+#   mingw32-make -f mk_tcc_w.mak
+# If you are using tcc under linux/unix/bsd you should use mk_tcc_l.mak instead.
 
 # CFLAGS = -O2 -fomit-frame-pointer -funroll-loops -Wall
 # CFLAGS = -O2 -fomit-frame-pointer -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
-CFLAGS = -O2 -g -ffunction-sections -fdata-sections $(INCLUDE_OPTIONS) -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
-# CFLAGS = -O2 -g -ffunction-sections -fdata-sections $(INCLUDE_OPTIONS) -Wall -Winline -Wconversion -Wshadow -Wpointer-arith
+CFLAGS = -g $(INCLUDE_OPTIONS) -Wall -Wimplicit-function-declaration -Wunusupported -Wwrite-strings
 # CFLAGS = -O2 -g -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -funroll-loops -Wall -pg
-LDFLAGS = -Wl,--gc-sections,--stack,8388608
-# LDFLAGS = -Wl,--gc-sections,--stack,8388608,--subsystem,windows
+LDFLAGS = -Wl,-stack=16777216
 # LDFLAGS = -pg
 # LDFLAGS = -pg -lc_p
-SYSTEM_LIBS = -lm -lws2_32
-# SYSTEM_LIBS = -lm -lws2_32 -lgmp
+SYSTEM_LIBS = -lws2_32
+# SYSTEM_LIBS = -lgmp
 SYSTEM_CONSOLE_LIBS =
-SYSTEM_DRAW_LIBS = -lgdi32
+SYSTEM_DRAW_LIBS = -lgdi32 -luser32
 SEED7_LIB = seed7_05.a
 CONSOLE_LIB = s7_con.a
 DRAW_LIB = s7_draw.a
 COMP_DATA_LIB = s7_data.a
 COMPILER_LIB = s7_comp.a
 ALL_S7_LIBS = ..\bin\$(COMPILER_LIB) ..\bin\$(COMP_DATA_LIB) ..\bin\$(DRAW_LIB) ..\bin\$(CONSOLE_LIB) ..\bin\$(SEED7_LIB)
-# CC = g++
-CC = gcc
-GET_CC_VERSION_INFO = $(CC) --version >
+CC = tcc
+GET_CC_VERSION_INFO = $(CC) -v >
+ARCHIVER = ar -r
+# ARCHIVER = tiny_libmaker
 
 MOBJ = s7.o
 POBJ = runerr.o option.o primitiv.o
@@ -92,7 +89,7 @@ s7c: ..\bin\s7c.exe ..\prg\s7c.exe
 	@echo.
 
 ..\bin\s7.exe: $(OBJ) $(ALL_S7_LIBS)
-	$(CC) $(LDFLAGS) $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS) -o ..\bin\s7
+	$(CC) $(LDFLAGS) $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS) -o ..\bin\s7.exe
 
 ..\prg\s7.exe: ..\bin\s7.exe
 	copy ..\bin\s7.exe ..\prg /Y
@@ -117,8 +114,6 @@ clean:
 	del chkccomp.h
 	del version.h
 	del setwpath.exe
-	del wrdepend.exe
-	del sudo.exe
 	@echo.
 	@echo Use 'make depend' (with your make command) to create the dependencies.
 	@echo.
@@ -129,9 +124,8 @@ distclean: clean
 test:
 	..\bin\s7 -l ..\lib ..\prg\chk_all build
 	@echo.
-	@echo Use 'sudo make install' (with your make command) to install Seed7.
-	@echo Or open a console as administrator, go to the directory seed7/src
-	@echo and use 'make install' (with your make command) to install Seed7.
+	@echo Open a console as administrator, go to the directory seed7/src and
+	@echo use 'make install' (with your make command) to install Seed7.
 	@echo.
 
 install: setwpath.exe
@@ -147,7 +141,6 @@ strip:
 
 chkccomp.h:
 	echo #define LIST_DIRECTORY_CONTENTS "dir" >> chkccomp.h
-	echo #define LINKER_OPT_STATIC_LINKING "-static" >> chkccomp.h
 	echo #define MYSQL_DLL "libmariadb.dll", "libmysql.dll" >> chkccomp.h
 	echo #define MYSQL_USE_DLL >> chkccomp.h
 	echo #define SQLITE_DLL "sqlite3.dll" >> chkccomp.h
@@ -166,9 +159,13 @@ chkccomp.h:
 version.h: chkccomp.h
 	echo #define PATH_DELIMITER '\\' > version.h
 	echo #define SEARCH_PATH_DELIMITER ';' >> version.h
+	echo #define INT_DIV_BY_ZERO_POPUP >> version.h
+	echo #define DO_SIGFPE_WITH_DIV_BY_ZERO 1 >> version.h
+	echo #define DEFINE_COMMAND_LINE_TO_ARGV_W >> version.h
 	echo #define CONSOLE_WCHAR >> version.h
 	echo #define OS_STRI_WCHAR >> version.h
-	echo #define os_getch _getwch >> version.h
+	echo #define os_getch getch >> version.h
+	echo #define OS_GETCH_READS_BYTES >> version.h
 	echo #define QUOTE_WHOLE_SHELL_COMMAND >> version.h
 	echo #define OBJECT_FILE_EXTENSION ".o" >> version.h
 	echo #define LIBRARY_FILE_EXTENSION ".a" >> version.h
@@ -177,16 +174,14 @@ version.h: chkccomp.h
 	echo #define GET_CC_VERSION_INFO "$(GET_CC_VERSION_INFO)" >> version.h
 	echo #define CC_OPT_DEBUG_INFO "-g" >> version.h
 	echo #define CC_OPT_NO_WARNINGS "-w" >> version.h
-	echo #define CC_FLAGS "-ffunction-sections -fdata-sections" >> version.h
 	echo #define CC_ERROR_FILDES 2 >> version.h
-	echo #define LINKER_OPT_NO_DEBUG_INFO "-Wl,--strip-debug" >> version.h
 	echo #define LINKER_OPT_OUTPUT_FILE "-o " >> version.h
 	echo #define LINKER_FLAGS "$(LDFLAGS)" >> version.h
 	echo #define SYSTEM_LIBS "$(SYSTEM_LIBS)" >> version.h
 	echo #define SYSTEM_CONSOLE_LIBS "$(SYSTEM_CONSOLE_LIBS)" >> version.h
 	echo #define SYSTEM_DRAW_LIBS "$(SYSTEM_DRAW_LIBS)" >> version.h
 	$(GET_CC_VERSION_INFO) cc_vers.txt
-	$(CC) chkccomp.c -o chkccomp
+	$(CC) -o chkccomp.exe chkccomp.c
 	.\chkccomp.exe version.h
 	del chkccomp.exe
 	del cc_vers.txt
@@ -195,20 +190,14 @@ version.h: chkccomp.h
 	echo #define DRAW_LIB "$(DRAW_LIB)" >> version.h
 	echo #define COMP_DATA_LIB "$(COMP_DATA_LIB)" >> version.h
 	echo #define COMPILER_LIB "$(COMPILER_LIB)" >> version.h
-	$(CC) -o setpaths setpaths.c
-	.\setpaths.exe "S7_LIB_DIR=$(S7_LIB_DIR)" "SEED7_LIBRARY=$(SEED7_LIBRARY)" >> version.h
+	$(CC) -o setpaths.exe setpaths.c
+	.\setpaths.exe S7_LIB_DIR=$(S7_LIB_DIR) SEED7_LIBRARY=$(SEED7_LIBRARY) >> version.h
 	del setpaths.exe
-	$(CC) setwpath.c -o setwpath
-	$(CC) wrdepend.c -o wrdepend
-	$(CC) sudo.c -w -o sudo
+	$(CC) -o setwpath.exe setwpath.c -luser32 -ladvapi32
+	$(CC) -o wrdepend.exe wrdepend.c
 
 depend: version.h
-	.\wrdepend.exe $(CFLAGS) -M $(SRC) "> depend"
-	.\wrdepend.exe $(CFLAGS) -M $(SEED7_LIB_SRC) ">> depend"
-	.\wrdepend.exe $(CFLAGS) -M $(CONSOLE_LIB_SRC) ">> depend"
-	.\wrdepend.exe $(CFLAGS) -M $(DRAW_LIB_SRC) ">> depend"
-	.\wrdepend.exe $(CFLAGS) -M $(COMP_DATA_LIB_SRC) ">> depend"
-	.\wrdepend.exe $(CFLAGS) -M $(COMPILER_LIB_SRC) ">> depend"
+	@echo Working without C header dependency checks.
 	@echo.
 	@echo Use 'make' (with your make command) to create the interpreter.
 	@echo.
@@ -217,19 +206,19 @@ level.h:
 	..\bin\s7 -l ..\lib level
 
 ..\bin\$(SEED7_LIB): $(SEED7_LIB_OBJ)
-	ar r ..\bin\$(SEED7_LIB) $(SEED7_LIB_OBJ)
+	$(ARCHIVER) ..\bin\$(SEED7_LIB) $(SEED7_LIB_OBJ)
 
 ..\bin\$(CONSOLE_LIB): $(CONSOLE_LIB_OBJ)
-	ar r ..\bin\$(CONSOLE_LIB) $(CONSOLE_LIB_OBJ)
+	$(ARCHIVER) ..\bin\$(CONSOLE_LIB) $(CONSOLE_LIB_OBJ)
 
 ..\bin\$(DRAW_LIB): $(DRAW_LIB_OBJ)
-	ar r ..\bin\$(DRAW_LIB) $(DRAW_LIB_OBJ)
+	$(ARCHIVER) ..\bin\$(DRAW_LIB) $(DRAW_LIB_OBJ)
 
 ..\bin\$(COMP_DATA_LIB): $(COMP_DATA_LIB_OBJ)
-	ar r ..\bin\$(COMP_DATA_LIB) $(COMP_DATA_LIB_OBJ)
+	$(ARCHIVER) ..\bin\$(COMP_DATA_LIB) $(COMP_DATA_LIB_OBJ)
 
 ..\bin\$(COMPILER_LIB): $(COMPILER_LIB_OBJ)
-	ar r ..\bin\$(COMPILER_LIB) $(COMPILER_LIB_OBJ)
+	$(ARCHIVER) ..\bin\$(COMPILER_LIB) $(COMPILER_LIB_OBJ)
 
 ..\bin\bas7.exe: ..\prg\bas7.sd7 ..\bin\s7c.exe
 	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\bas7
@@ -345,10 +334,6 @@ lint: $(SRC)
 
 lint2: $(SRC)
 	lint -Zn2048 $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS)
-
-ifeq (depend,$(wildcard depend))
-include depend
-endif
 
 ifeq (macros,$(wildcard macros))
 include macros

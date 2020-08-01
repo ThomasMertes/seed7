@@ -1,0 +1,148 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  queen.sd7     Solve the n queen problem                         *)
+(*  Copyright (C) 2006  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+  include "keybd.s7i";
+
+
+const integer: MAXBOARDSIZE is 15;
+const type: chessBoard is array array integer;
+var chessBoard: board is 0 times 0 times 0;
+var integer: boardSize is 0;
+var integer: nSolution is 0;
+
+
+const proc: initialize (in integer: col) is func
+  local
+    var integer: i is 0;
+    var integer: j is 0;
+  begin
+    (*zero all rows and columns from column no. 'col'*)
+    for i range 1 to boardSize do
+      for j range col to boardSize do
+        board[i][j] := 0;
+      end for;
+    end for;
+  end func;
+
+
+const proc: display (inout chessBoard: board, in integer: size) is func
+  local
+    var integer: i is 0;
+    var integer: j is 0;
+  begin
+    (*increment no. of current solution*)
+    incr(nSolution);
+
+    (*display the board*)
+    (* clear; *)
+    writeln("Solution No: " <& nSolution <& ".");
+    for i range 1 to boardSize do          (*all rows*)
+      for j range 1 to boardSize do        (*all columns*)
+        if board[i][j] = 1 then
+          write("Q")
+        else
+          write(" ");
+        end if;
+      end for;
+      writeln;
+    end for;
+    writeln;
+    writeln("Press any key to continue or ESC to exit.");
+    if getc(KEYBOARD) = KEY_ESC then
+      exit(PROGRAM);                       (*if ESC then exit*)
+    end if;
+    writeln;
+  end func;
+
+
+const func boolean: canPlace (in integer: row, in integer: col) is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var integer: i is 0;
+    var integer: j is 0;
+  begin
+    (*initialize the boolean variable*)
+    okay := TRUE;
+
+    (*any queen in the same row*)
+    for j range 1 to pred(col) do
+      if board[row][j] = 1 then
+        okay := FALSE;
+      end if;
+    end for;
+
+    (*diagonal up*)
+    i := row;
+    j := col;
+    while i > 1 and j > 1 and okay do
+      decr(i);          (*previous row*)
+      decr(j);          (*previous column*)
+      if board[i][j] = 1 then
+        okay := FALSE;
+      end if;
+    end while;
+
+    (*diagonal down*)
+    i := row;
+    j := col;
+    while i < boardSize and j > 1 and okay do
+      incr(i);          (*next row*)
+      decr(j);          (*previous column*)
+      if board[i][j] = 1 then
+        okay := FALSE;
+      end if;
+    end while;
+  end func;
+
+
+const proc: place (inout chessBoard: board, in var integer: row, in integer: col) is func
+  begin
+    if col > boardSize then             (*done one solution*)
+      display(board, boardSize);
+    else
+      repeat                            (*repeat for all rows in a column*)
+        initialize(col);                (*clear all columns after 'col'*)
+        if canPlace(row, col) then      (*check for conflicts*)
+          board[row][col] := 1;         (*place the queen*)
+          place(board, 1, succ(col));   (*go to next column*)
+        end if;
+        incr(row);                      (*after returning, proceed to next row*)
+      until row > boardSize;
+    end if;
+  end func;
+
+
+const proc: main is func
+  begin
+    (*Read the size of the board and call place*)
+    repeat
+      write("Enter board size (4.." <& MAXBOARDSIZE <& "): ");
+      readln(boardSize);
+      writeln;
+    until boardSize >= 4 and boardSize <= MAXBOARDSIZE;
+    board := boardSize times boardSize times 0;
+    place(board, 1, 1);
+ end func;

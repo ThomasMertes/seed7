@@ -57,11 +57,6 @@
 #include "exec.h"
 
 
-#if CHECK_STACK
-extern char *stack_base;
-extern memSizeType max_stack_size;
-#endif
-
 extern boolType interpreter_exception;
 
 
@@ -609,27 +604,9 @@ static objectType exec_action (const_objectType act_object,
     logFunction(printf("exec_action(%s)\n",
                        getActEntry(act_object->value.actValue)->name););
 #if CHECK_STACK
-#if STACK_GROWS_UPWARD
-    if ((char *) &evaluated_act_params - stack_base > max_stack_size) {
-      max_stack_size = (char *) &evaluated_act_params - stack_base;
-    } /* if */
-    if (stack_base + CHECKED_STACK_SIZE_LIMIT < (char *) &evaluated_act_params) {
-      printf("\n*** Stack size above limit\n");
-      printf("size:  %8lu\n", (char *) &evaluated_act_params - stack_base);
-      printf("limit: %8lu\n", CHECKED_STACK_SIZE_LIMIT);
+    if (checkStack(FALSE)) {
       return raise_with_arguments(SYS_MEM_EXCEPTION, act_param_list);
     } /* if */
-#else
-    if (stack_base - (char *) &evaluated_act_params > max_stack_size) {
-      max_stack_size = stack_base - (char *) &evaluated_act_params;
-    } /* if */
-    if (stack_base - CHECKED_STACK_SIZE_LIMIT > (char *) &evaluated_act_params) {
-      printf("\n*** Stack size above limit\n");
-      printf("size:  %8lu\n", stack_base - (char *) &evaluated_act_params);
-      printf("limit: %8lu\n", CHECKED_STACK_SIZE_LIMIT);
-      return raise_with_arguments(SYS_MEM_EXCEPTION, act_param_list);
-    } /* if */
-#endif
 #endif
     evaluated_act_params = eval_arg_list(act_param_list, &temp_bits);
     if (interrupt_flag) {

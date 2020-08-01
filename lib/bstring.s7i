@@ -38,8 +38,8 @@ const type: bstring is newtype;
 IN_PARAM_IS_REFERENCE(bstring);
 
 const proc: destroy (ref bstring: aValue)                               is action "BST_DESTR";
-const proc: (ref bstring: dest) ::= (ref bstring: source)               is action "BST_CREATE";
-const proc: (inout bstring: dest) := (ref bstring: source)              is action "BST_CPY";
+const proc: (ref bstring: dest) ::= (in bstring: source)                is action "BST_CREATE";
+const proc: (inout bstring: dest) := (in bstring: source)               is action "BST_CPY";
 
 const func bstring: _GENERATE_EMPTY_BSTRING                             is action "BST_EMPTY";
 const bstring: (attr bstring) . value                                   is _GENERATE_EMPTY_BSTRING;

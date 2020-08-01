@@ -725,7 +725,6 @@ const proc: optimize_int_add (in addSubIntListType: addSubParamList,
     var string: summand2_name is "";
     var boolean: doAdd is FALSE;
     var integer: index is 1;
-    var expr_type: c_param1 is expr_type.value;
   begin
     if length(addSubParamList) >= 3 then
       incr(countOptimizations);
@@ -1225,11 +1224,13 @@ const proc: process (INT_CPY, in reference: function,
   local
     var expr_type: statement is expr_type.value;
   begin
+    statement.temp_num := c_expr.temp_num;
     process_expr(params[1], statement);
     statement.expr &:= "=";
     process_expr(params[3], statement);
     statement.expr &:= ";\n";
     doLocalDeclsOfStatement(statement, c_expr);
+    c_expr.temp_num := statement.temp_num;
   end func;
 
 
@@ -3113,7 +3114,7 @@ const proc: process_int_str (in reference: param1, inout expr_type: c_expr) is f
   local
     var string: buffer_name is "";
   begin
-    if ccConf.ALLOW_STRITYPE_SLICES and not c_expr.prefer_result_expr then
+    if ccConf.ALLOW_STRITYPE_SLICES and c_expr.demand < ASSIGN_RESULT then
       incr(c_expr.temp_num);
       buffer_name := "buffer_" & str(c_expr.temp_num);
       c_expr.temp_decls &:= "union {\n";

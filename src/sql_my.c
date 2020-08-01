@@ -1101,78 +1101,57 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
       raise_error(RANGE_ERROR);
     } else {
       param = &preparedStmt->param_array[pos - 1];
-      monthDuration = (int64Type) year * 12 + (int64Type) month;
-      microsecDuration = (((((int64Type) day) * 24 +
-                             (int64Type) hour) * 60 +
-                             (int64Type) minute) * 60 +
-                             (int64Type) second) * 1000000 +
-                             (int64Type) micro_second;
-      /* printf("monthDuration: " FMT_D64 "\n", monthDuration);
-         printf("microsecDuration: " FMT_D64 "\n", microsecDuration); */
-      if (unlikely(!((monthDuration >= 0 && microsecDuration >= 0) ||
-                     (monthDuration <= 0 && microsecDuration <= 0)))) {
-        logError(printf("sqlBindDuration: Duration neither clearly positive nor negative.\n"););
-        raise_error(RANGE_ERROR);
+      if (preparedStmt->param_data_array[pos - 1].buffer_capacity < sizeof(MYSQL_TIME)) {
+        free(param->buffer);
+        if (unlikely((param->buffer = malloc(sizeof(MYSQL_TIME))) == NULL)) {
+          preparedStmt->param_data_array[pos - 1].buffer_capacity = 0;
+          err_info = MEMORY_ERROR;
+        } else {
+          preparedStmt->param_data_array[pos - 1].buffer_capacity = sizeof(MYSQL_TIME);
+        } /* if */
+      } /* if */
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        raise_error(err_info);
       } else {
-        if (monthDuration < 0) {
-          monthDuration = -monthDuration;
-          month = -(monthDuration % 12);
-          year = -(monthDuration / 12);
-        } else {
-          month = monthDuration % 12;
-          year = monthDuration / 12;
-        } /* if */
-        if (microsecDuration < 0) {
-          microsecDuration = -microsecDuration;
-          micro_second = -(microsecDuration % 1000000);
-          microsecDuration /= 1000000;
-          second = -(microsecDuration % 60);
-          microsecDuration /= 60;
-          minute = -(microsecDuration % 60);
-          microsecDuration /= 60;
-          hour = -(microsecDuration % 24);
-          day = -(microsecDuration / 24);
-        } else {
-          micro_second = microsecDuration % 1000000;
-          microsecDuration /= 1000000;
-          second = microsecDuration % 60;
-          microsecDuration /= 60;
-          minute = microsecDuration % 60;
-          microsecDuration /= 60;
-          hour = microsecDuration % 24;
-          day = microsecDuration / 24;
-        } /* if */
-        if (preparedStmt->param_data_array[pos - 1].buffer_capacity < sizeof(MYSQL_TIME)) {
-          free(param->buffer);
-          if (unlikely((param->buffer = malloc(sizeof(MYSQL_TIME))) == NULL)) {
-            preparedStmt->param_data_array[pos - 1].buffer_capacity = 0;
-            err_info = MEMORY_ERROR;
-          } else {
-            preparedStmt->param_data_array[pos - 1].buffer_capacity = sizeof(MYSQL_TIME);
-          } /* if */
-        } /* if */
-        if (unlikely(err_info != OKAY_NO_ERROR)) {
-          raise_error(err_info);
+        monthDuration = (int64Type) year * 12 + (int64Type) month;
+        microsecDuration = (((((int64Type) day) * 24 +
+                               (int64Type) hour) * 60 +
+                               (int64Type) minute) * 60 +
+                               (int64Type) second) * 1000000 +
+                               (int64Type) micro_second;
+        /* printf("monthDuration: " FMT_D64 "\n", monthDuration);
+           printf("microsecDuration: " FMT_D64 "\n", microsecDuration); */
+        if (unlikely(!((monthDuration >= 0 && microsecDuration >= 0) ||
+                       (monthDuration <= 0 && microsecDuration <= 0)))) {
+          logError(printf("sqlBindDuration: Duration neither clearly positive nor negative.\n"););
+          raise_error(RANGE_ERROR);
         } else {
           param->buffer_type = MYSQL_TYPE_DATETIME;
           param->is_unsigned = 0;
           param->is_null     = NULL;
           param->length      = NULL;
           timeValue = (MYSQL_TIME *) param->buffer;
-          timeValue->year   = (unsigned int) abs((int) year);
-          timeValue->month  = (unsigned int) abs((int) month);
-          timeValue->day    = (unsigned int) abs((int) day);
-          timeValue->hour   = (unsigned int) abs((int) hour);
-          timeValue->minute = (unsigned int) abs((int) minute);
-          timeValue->second = (unsigned int) abs((int) second);
-          timeValue->neg    = year < 0 || month < 0 || day < 0 ||
-              hour < 0 || minute < 0 || second < 0 || micro_second < 0;
-          timeValue->second_part = (unsigned long) micro_second;
-          timeValue->time_type = MYSQL_TIMESTAMP_DATETIME;
+          if (monthDuration >= 0 && microsecDuration >= 0) {
+            timeValue->neg    = 0;
+          } else {
+            monthDuration = -monthDuration;
+            microsecDuration = -microsecDuration;
+            timeValue->neg    = 1;
+          } /* if */
+          timeValue->month       = (unsigned int) monthDuration % 12;
+          timeValue->year        = (unsigned int) monthDuration / 12;
+          timeValue->second_part = (unsigned long) microsecDuration % 1000000;
+          microsecDuration /= 1000000;
+          timeValue->second      = (unsigned int) microsecDuration % 60;
+          microsecDuration /= 60;
+          timeValue->minute      = (unsigned int) microsecDuration % 60;
+          microsecDuration /= 60;
+          timeValue->hour        = (unsigned int) microsecDuration % 24;
+          timeValue->day         = (unsigned int) microsecDuration / 24;
+          timeValue->time_type   = MYSQL_TIMESTAMP_DATETIME;
           preparedStmt->executeSuccessful = FALSE;
           preparedStmt->fetchOkay = FALSE;
           preparedStmt->param_data_array[pos - 1].bound = TRUE;
-          /* printf("timeValue->neg: %d\n", timeValue->neg); */
         } /* if */
       } /* if */
     } /* if */

@@ -319,11 +319,13 @@ const proc: process (FLT_CPY, in reference: function,
   local
     var expr_type: statement is expr_type.value;
   begin
+    statement.temp_num := c_expr.temp_num;
     process_expr(params[1], statement);
     statement.expr &:= "=";
     process_expr(params[3], statement);
     statement.expr &:= ";\n";
     doLocalDeclsOfStatement(statement, c_expr);
+    c_expr.temp_num := statement.temp_num;
   end func;
 
 
@@ -1115,10 +1117,20 @@ const proc: process (FLT_IPOW, in reference: function,
 const proc: process (FLT_ISNAN, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var string: argument_name is "";
   begin
+    # There are two reasons to use a variable as argument of os_isnan():
+    # 1. os_isnan() is probably a macro, which might evaluate the argument
+    #    multiple times.
+    # 2. The argument of os_isnan() might contain preprocessor directives.
+    #    Some C compilers do not allow preprocessor directives (e.g.
+    #    #line directives) in the argument list of a macro.
+    c_expr.expr &:= "(";
+    argument_name := getParameterAsVariable("floatType", "arg_", params[1], c_expr);
     c_expr.expr &:= "os_isnan(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ")";
+    c_expr.expr &:= argument_name;
+    c_expr.expr &:= "))";
   end func;
 
 

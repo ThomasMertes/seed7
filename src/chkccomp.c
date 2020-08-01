@@ -2453,6 +2453,15 @@ static void determinePreprocessorProperties (FILE *versionFile)
                              "       strcmp(\"1 + 2 + 3\", STRINGIFY(TEST3)) == 0);\n"
                              "return 0;}\n") &&
             doTest() == 1);
+    fprintf(versionFile, "#define DIRECTIVES_IN_MACRO_ARGUMENTS_OK %d\n",
+            compileAndLinkOk("#include <stdio.h>\n"
+                             "#define X(A) A\n"
+                             "int x = X(\n"
+                             "#line 3 \"test.c\"\n"
+                             "0\n"
+                             ");\n"
+                             "int main(int argc, char *argv[]) {\n"
+                             "return 0;}\n"));
   } /* determinePreprocessorProperties */
 
 
@@ -2638,11 +2647,15 @@ static void determineGetaddrlimit (FILE *versionFile)
                            "#include <sys/types.h>\n#include <sys/resource.h>\n"
                            "int main(int argc, char *argv[]){\n"
                            "struct rlimit rlim;\n"
-                           "getrlimit(RLIMIT_STACK, &rlim);"
-                           "if (rlim.rlim_cur == RLIM_INFINITY)\n"
-                           "printf(\"0\\n\");\n"
-                           "else\n"
-                           "printf(\"%d\\n\", rlim.rlim_cur / 1024);\n"
+                           "if (getrlimit(RLIMIT_STACK, &rlim) == 0) {\n"
+                           "  if (rlim.rlim_cur == RLIM_INFINITY) {\n"
+                           "    printf(\"0\\n\");\n"
+                           "  } else {\n"
+                           "    printf(\"%d\\n\", (int) (rlim.rlim_cur / 1024));\n"
+                           "  }\n"
+                           "} else {\n"
+                           "  printf(\"-1\\n\");\n"
+                           "}\n"
                            "return 0;}\n")) {
         fprintf(versionFile, "#define SOFT_STACK_LIMIT %lu\n", (unsigned long) doTest() * 1024);
       } /* if */
@@ -2650,11 +2663,15 @@ static void determineGetaddrlimit (FILE *versionFile)
                            "#include <sys/types.h>\n#include <sys/resource.h>\n"
                            "int main(int argc, char *argv[]){\n"
                            "struct rlimit rlim;\n"
-                           "getrlimit(RLIMIT_STACK, &rlim);"
-                           "if (rlim.rlim_max == RLIM_INFINITY)\n"
-                           "printf(\"0\\n\");\n"
-                           "else\n"
-                           "printf(\"%d\\n\", rlim.rlim_max / 1024);\n"
+                           "if (getrlimit(RLIMIT_STACK, &rlim) == 0) {\n"
+                           "  if (rlim.rlim_max == RLIM_INFINITY) {\n"
+                           "    printf(\"0\\n\");\n"
+                           "  } else {\n"
+                           "    printf(\"%d\\n\", (int) (rlim.rlim_max / 1024));\n"
+                           "  }\n"
+                           "} else {\n"
+                           "  printf(\"-1\\n\");\n"
+                           "}\n"
                            "return 0;}\n")) {
         fprintf(versionFile, "#define HARD_STACK_LIMIT %lu\n", (unsigned long) doTest() * 1024);
       } /* if */
@@ -2717,6 +2734,7 @@ static void determineOsDirAccess (FILE *versionFile)
 
   /* determineOsDirAccess */
     if (compileAndLinkOk("#include <stdio.h>\n#include <windows.h>\n"
+                         "#include <direct.h>\n"
                          "int main (int argc, char *argv[]) {\n"
                          "HANDLE dirHandle;\n"
                          "WIN32_FIND_DATAW findData;\n"
@@ -2766,7 +2784,7 @@ static void determineOsDirAccess (FILE *versionFile)
 
 
 
-static void determineFseekFunctions (FILE *versionFile)
+static void determineFseekFunctions (FILE *versionFile, const char *fileno)
 
   {
     int sizeof_off_t;
@@ -2926,6 +2944,71 @@ static void determineFseekFunctions (FILE *versionFile)
       os_off_t_stri = "__int64";
       os_fseek_stri = "_fseeki64";
       os_ftell_stri = "_ftelli64";
+    } /* if */
+    if (os_fseek_stri == NULL &&
+        compileAndLinkOk("#include <stdio.h>\n#include <string.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{FILE *aFile;\n"
+                         "int fseek_result = -1;\n"
+                         "__int64 ftell_result = -1;\n"
+                         "fpos_t pos;\n"
+                         "char buffer1[10];\n"
+                         "char buffer2[10];\n"
+                         "aFile = fopen(\"tst_vers.h\", \"rb\");\n"
+                         "if (aFile != NULL) {\n"
+                         "  fread(buffer1, 1, 10, aFile);\n"
+                         "  fseek_result = _fseeki64(aFile, (__int64) 0, SEEK_SET);\n"
+                         "  fread(buffer2, 1, 10, aFile);\n"
+                         "  if (fgetpos(aFile, &pos) == 0) {\n"
+                         "    memcpy(&ftell_result, &pos, sizeof(ftell_result));\n"
+                         "  } else {\n"
+                         "    ftell_result = -1;\n"
+                         "  }\n"
+                         "  fclose(aFile);\n"
+                         "}\n"
+                         "printf(\"%d\\n\", fseek_result == 0 && ftell_result == 10 &&\n"
+                         "       memcmp(buffer1, buffer2, 10) == 0 &&\n"
+                         "       sizeof(fpos_t) == sizeof(__int64));\n"
+                         "return 0;}\n") && doTest() == 1) {
+      fputs("#define DEFINE_FTELLI64_EXT 1\n", versionFile);
+      os_off_t_size = 64;
+      os_off_t_stri = "__int64";
+      os_fseek_stri = "_fseeki64";
+      os_ftell_stri = "ftelli64Ext";
+    } /* if */
+    if (os_fseek_stri == NULL) {
+      sprintf(buffer,
+              "#include <stdio.h>\n#include <string.h>\n"
+              "#include <io.h>\n"
+              "int main(int argc,char *argv[])\n"
+              "{FILE *aFile;\n"
+              "int fseek_result = -1;\n"
+              "__int64 ftell_result = -1;\n"
+              "fpos_t pos;\n"
+              "char buffer1[10];\n"
+              "char buffer2[10];\n"
+              "aFile = fopen(\"tst_vers.h\", \"rb\");\n"
+              "if (aFile != NULL) {\n"
+              "  fread(buffer1, 1, 10, aFile);\n"
+              "  fseek_result = _fseeki64(aFile, (__int64) 0, SEEK_SET);\n"
+              "  fread(buffer2, 1, 10, aFile);\n"
+              "  if (fgetpos(aFile, &pos) == 0 && fsetpos(aFile, &pos) == 0) {\n"
+              "    ftell_result = _telli64(%s(aFile));\n"
+              "  } else {\n"
+              "    ftell_result = -1;\n"
+              "  }\n"
+              "  fclose(aFile);\n"
+              "}\n"
+              "printf(\"%%d\\n\", fseek_result == 0 && ftell_result == 10 &&\n"
+              "       memcmp(buffer1, buffer2, 10) == 0);\n"
+              "return 0;}\n", fileno);
+      if (compileAndLinkOk(buffer) && doTest() == 1) {
+        fputs("#define DEFINE_FTELLI64_EXT 2\n", versionFile);
+        os_off_t_size = 64;
+        os_off_t_stri = "__int64";
+        os_fseek_stri = "_fseeki64";
+        os_ftell_stri = "ftelli64Ext";
+      } /* if */
     } /* if */
     if (os_fseek_stri == NULL) {
       sprintf(buffer,
@@ -3691,16 +3774,76 @@ static void determineOsWCharFunctions (FILE *versionFile)
 
 
 
-static void determineOsFunctions (FILE *versionFile)
+static void determineIsattyFunction (FILE *versionFile)
+
+  { /* determineIsattyFunction */
+    if (!compileAndLinkOk("#include <stdio.h>\n#include <unistd.h>\n"
+                          "int main(int argc,char *argv[]){\n"
+                          "printf(\"%d\\n\", isatty(0)==0);\n"
+                          "return 0;}\n")) {
+      if (compileAndLinkOk("#include <stdio.h>\n#include <io.h>\n"
+                           "int main(int argc,char *argv[]){\n"
+                           "printf(\"%d\\n\", isatty(0)==0);\n"
+                           "return 0;}\n")) {
+        fprintf(versionFile, "#define ISATTY_INCLUDE_IO_H\n");
+      } else if (compileAndLinkOk("#include <stdio.h>\n#include <io.h>\n"
+                                  "int main(int argc,char *argv[]){\n"
+                                  "printf(\"%d\\n\", _isatty(0)==0);\n"
+                                  "return 0;}\n")) {
+        fprintf(versionFile, "#define ISATTY_INCLUDE_IO_H\n");
+        fprintf(versionFile, "#define os_isatty _isatty\n");
+      } /* if */
+    } /* if */
+  } /* determineIsattyFunction */
+
+
+
+static const char *determineFilenoFunction (FILE *versionFile)
 
   {
     char buffer[BUFFER_SIZE];
     const char *fileno = "fileno";
 
+  /* determineFilenoFunction */
+    if (!compileAndLinkOk("#include <stdio.h>\n"
+                          "int main(int argc,char *argv[]){\n"
+                          "printf(\"%d\\n\", fileno(stdin)==0);\n"
+                          "return 0;}\n") &&
+        compileAndLinkOk("#include <stdio.h>\n"
+                         "int main(int argc,char *argv[]){\n"
+                         "printf(\"%d\\n\", _fileno(stdin)==0);\n"
+                         "return 0;}\n")) {
+      fileno = "_fileno";
+      fprintf(versionFile, "#define os_fileno _fileno\n");
+    } /* if */
+#ifndef FILENO_WORKS_FOR_NULL
+    sprintf(buffer, "#include <stdlib.h>\n#include <stdio.h>\n#include <signal.h>\n"
+                    "void handleSig(int sig){puts(\"2\");exit(0);}\n"
+                    "int main(int argc, char *argv[]){\n"
+                    "FILE *aFile = NULL;\n"
+                    "signal(SIGSEGV,handleSig);\n"
+                    "printf(\"%%d\\n\", %s(aFile) == -1); return 0;}\n", fileno);
+    if (assertCompAndLnk(buffer)) {
+      fprintf(versionFile, "#define FILENO_WORKS_FOR_NULL %d\n", doTest() == 1);
+    } /* if */
+#endif
+    return fileno;
+  } /* determineFilenoFunction */
+
+
+
+static void determineOsFunctions (FILE *versionFile)
+
+  {
+    char buffer[BUFFER_SIZE];
+    const char *fileno;
+
   /* determineOsFunctions */
+    determineIsattyFunction(versionFile);
+    fileno = determineFilenoFunction(versionFile);
     determineSocketLib(versionFile);
     determineOsDirAccess(versionFile);
-    determineFseekFunctions(versionFile);
+    determineFseekFunctions(versionFile, fileno);
 #if defined OS_STRI_WCHAR
     determineOsWCharFunctions(versionFile);
 #elif PATH_DELIMITER == '\\'
@@ -3724,45 +3867,6 @@ static void determineOsFunctions (FILE *versionFile)
       fprintf(versionFile, "#define flockfile(aFile)\n");
       fprintf(versionFile, "#define funlockfile(aFile)\n");
       fprintf(versionFile, "#define getc_unlocked(aFile) getc(aFile)\n");
-    } /* if */
-    if (!compileAndLinkOk("#include <stdio.h>\n"
-                          "int main(int argc,char *argv[]){\n"
-                          "printf(\"%d\\n\", fileno(stdin)==0);\n"
-                          "return 0;}\n") &&
-        compileAndLinkOk("#include <stdio.h>\n"
-                         "int main(int argc,char *argv[]){\n"
-                         "printf(\"%d\\n\", _fileno(stdin)==0);\n"
-                         "return 0;}\n")) {
-      fprintf(versionFile, "#define fileno _fileno\n");
-      fileno = "_fileno";
-    } /* if */
-#ifndef FILENO_WORKS_FOR_NULL
-    sprintf(buffer, "#include <stdlib.h>\n#include <stdio.h>\n#include <signal.h>\n"
-                    "void handleSig(int sig){puts(\"2\");exit(0);}\n"
-                    "int main(int argc, char *argv[]){\n"
-                    "FILE *aFile = NULL;\n"
-                    "signal(SIGSEGV,handleSig);\n"
-                    "printf(\"%%d\\n\", %s(aFile) == -1); return 0;}\n", fileno);
-    if (assertCompAndLnk(buffer)) {
-      fprintf(versionFile, "#define FILENO_WORKS_FOR_NULL %d\n", doTest() == 1);
-    } /* if */
-#endif
-    if (!compileAndLinkOk("#include <stdio.h>\n#include <unistd.h>\n"
-                          "int main(int argc,char *argv[]){\n"
-                          "printf(\"%d\\n\", isatty(0)==0);\n"
-                          "return 0;}\n")) {
-      if (compileAndLinkOk("#include <stdio.h>\n#include <io.h>\n"
-                           "int main(int argc,char *argv[]){\n"
-                           "printf(\"%d\\n\", isatty(0)==0);\n"
-                           "return 0;}\n")) {
-        fprintf(versionFile, "#define ISATTY_INCLUDE_IO_H\n");
-      } else if (compileAndLinkOk("#include <stdio.h>\n#include <io.h>\n"
-                                  "int main(int argc,char *argv[]){\n"
-                                  "printf(\"%d\\n\", _isatty(0)==0);\n"
-                                  "return 0;}\n")) {
-        fprintf(versionFile, "#define ISATTY_INCLUDE_IO_H\n");
-        fprintf(versionFile, "#define isatty _isatty\n");
-      } /* if */
     } /* if */
     if (compileAndLinkOk("#include <stdio.h>\n#include <windows.h>\n"
                          "int main(int argc,char *argv[])\n"
@@ -5258,16 +5362,15 @@ int main (int argc, char **argv)
                          "printf(\"%d\\n\",aUnion.ch==(char)aUnion.gen);return 0;}\n")) {
       fprintf(versionFile, "#define CASTING_GETS_A_UNION_ELEMENT %d\n", doTest() == 1);
     } /* if */
-    if (expectTestResult("#include <stdio.h>\nint main(int argc, char *argv[])\n"
-                         "{printf(\"%d\\n\",EOF!= -1);return 0;}\n", 1)) {
-      fputs("#define EOF_IS_NOT_MINUS_ONE\n", versionFile);
+    if (assertCompAndLnk("#include <stdio.h>\nint main(int argc, char *argv[])\n"
+                         "{printf(\"%d\\n\", EOF == -1); return 0;}\n")) {
+      fprintf(versionFile, "#define EOF_IS_MINUS_ONE %d\n", doTest());
     } /* if */
-    if (!compileAndLinkOk("#include <stdio.h>\n"
-                          "typedef struct emptyStruct { } emptyRecord;\n"
-                          "int main(int argc, char *argv[]){\n"
-                          "return 0;}\n")) {
-      fputs("#define NO_EMPTY_STRUCTS\n", versionFile);
-    } /* if */
+    fprintf(versionFile, "#define EMPTY_STRUCTS_ALLOWED %d\n",
+            compileAndLinkOk("#include <stdio.h>\n"
+                             "typedef struct emptyStruct { } emptyRecord;\n"
+                             "int main(int argc, char *argv[]){\n"
+                             "return 0;}\n"));
     checkForLimitedStringLiteralLength(versionFile);
     checkForLimitedArrayLiteralLength(versionFile);
     checkForSwitchWithInt64Type(versionFile);

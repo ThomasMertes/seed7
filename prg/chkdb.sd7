@@ -568,12 +568,7 @@ const proc: DECL_INSERT (in type: elemType) is func
           bind(statement, 1, anElement);
           execute(statement);
         exception
-          catch RANGE_ERROR:
-            succeeded := FALSE;
-          catch FILE_ERROR:
-            succeeded := FALSE;
-          catch DATABASE_ERROR:
-            succeeded := FALSE;
+          otherwise: succeeded := FALSE;
         end block;
         if succeeded then
           succeedAction;
@@ -591,12 +586,7 @@ const proc: DECL_INSERT (in type: elemType) is func
           bind(state.statement, 1, anElement);
           execute(state.statement);
         exception
-          catch RANGE_ERROR:
-            succeeded := FALSE;
-          catch FILE_ERROR:
-            succeeded := FALSE;
-          catch DATABASE_ERROR:
-            succeeded := FALSE;
+          otherwise: succeeded := FALSE;
         end block;
         if succeeded then
           succeedAction;
@@ -617,12 +607,7 @@ const proc: DECL_INSERT (in type: elemType) is func
           bind(state.statement, 1, num);
           execute(state.statement);
         exception
-          catch RANGE_ERROR:
-            succeeded := FALSE;
-          catch FILE_ERROR:
-            succeeded := FALSE;
-          catch DATABASE_ERROR:
-            succeeded := FALSE;
+          otherwise: succeeded := FALSE;
         end block;
         if succeeded then
           succeedAction;
@@ -649,12 +634,7 @@ const proc: DECL_INSERT (in type: elemType) is func
           bind(state.statement, 1, num);
           execute(state.statement);
         exception
-          catch RANGE_ERROR:
-            succeeded := FALSE;
-          catch FILE_ERROR:
-            succeeded := FALSE;
-          catch DATABASE_ERROR:
-            succeeded := FALSE;
+          otherwise: succeeded := FALSE;
         end block;
         if succeeded then
           succeedAction;
@@ -681,12 +661,7 @@ const proc: DECL_INSERT (in type: elemType) is func
           bind(state.statement, 1, anElement);
           execute(state.statement);
         exception
-          catch RANGE_ERROR:
-            succeeded := FALSE;
-          catch FILE_ERROR:
-            succeeded := FALSE;
-          catch DATABASE_ERROR:
-            succeeded := FALSE;
+          otherwise: succeeded := FALSE;
         end block;
         if succeeded then
           succeedAction;
@@ -720,12 +695,7 @@ const proc: insert (inout sqlStatement: statement, NULL,
       bind(statement, 1, NULL);
       execute(statement);
     exception
-      catch RANGE_ERROR:
-        succeeded := FALSE;
-      catch FILE_ERROR:
-        succeeded := FALSE;
-      catch DATABASE_ERROR:
-        succeeded := FALSE;
+      otherwise: succeeded := FALSE;
     end block;
     if succeeded then
       succeedAction;
@@ -743,12 +713,7 @@ const proc: insert (inout testState: state, NULL, in proc: succeedAction) is fun
       bind(state.statement, 1, NULL);
       execute(state.statement);
     exception
-      catch RANGE_ERROR:
-        succeeded := FALSE;
-      catch FILE_ERROR:
-        succeeded := FALSE;
-      catch DATABASE_ERROR:
-        succeeded := FALSE;
+      otherwise: succeeded := FALSE;
     end block;
     if succeeded then
       succeedAction;
@@ -765,21 +730,11 @@ const proc: insert (in database: testDb, inout testState: state,
     in string: aValue, in proc: succeedAction) is func
   local
     var sqlStatement: statement is sqlStatement.value;
-    var boolean: succeeded is TRUE;
   begin
-    block
-      statement := prepare(testDb, "INSERT INTO " & state.tableName &
-                           " (" & state.fieldName & ") VALUES (" & aValue & ")");
-      execute(statement);
-    exception
-      catch RANGE_ERROR:
-        succeeded := FALSE;
-      catch FILE_ERROR:
-        succeeded := FALSE;
-      catch DATABASE_ERROR:
-        succeeded := FALSE;
-    end block;
-    if succeeded then
+    if succeeds(statement :=
+          prepare(testDb, "INSERT INTO " & state.tableName &
+                  " (" & state.fieldName & ") VALUES (" & aValue & ")")) and
+        succeeds(execute(statement)) then
       succeedAction;
     else
       state.okay := FALSE;
@@ -2820,6 +2775,7 @@ const proc: testAnyRationalField (in database: testDb, inout testState: state,
       insert(state, NULL,  expect &:= 0_/1_);
 
       if scale > 0 then
+        # Positive values
         insert(testDb, state, str(1_ / 10_ ** scale), expect &:= 1_ / 10_ ** scale);
         bigValue := pred(10_ ** literalPrecision) / 10_ ** scale;
         insert(testDb, state, str(bigValue), expect &:= bigValue);
@@ -2832,14 +2788,37 @@ const proc: testAnyRationalField (in database: testDb, inout testState: state,
         bigValue := (1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890_ div
                      10_ ** (100 - literalPrecision)) / 10_ ** scale;
         insert(testDb, state, str(bigValue), expect &:= bigValue);
+
+        # Negative values:
+        insert(testDb, state, str(-1_ / 10_ ** scale), expect &:= -1_ / 10_ ** scale);
+        bigValue := -pred(10_ ** literalPrecision) / 10_ ** scale;
+        insert(testDb, state, str(bigValue), expect &:= bigValue);
+        bigValue := -10_ ** pred(literalPrecision) / 10_ ** scale;
+        insert(testDb, state, str(bigValue), expect &:= bigValue);
+        bigValue := -1234567890_ / 10_ ** scale;
+        insert(testDb, state, str(bigValue), expect &:= bigValue);
+        bigValue := -123456789012345_ / 10_ ** scale;
+        insert(testDb, state, str(bigValue), expect &:= bigValue);
+        bigValue := -(1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890_ div
+                     10_ ** (100 - literalPrecision)) / 10_ ** scale;
+        insert(testDb, state, str(bigValue), expect &:= bigValue);
       else
         # We use integer literals here, because some databases (Firebird)
         # refuse some floating point literals (999999999999999999.0),
         # when the scale is zero and the literalPrecision is at the maximum (18).
+        # Positive values
         insert(testDb, state, 10_ ** (-scale) / 1_ digits 0, expect &:= 10_ ** (-scale) / 1_);
         bigValue := pred(10_ ** literalPrecision) * 10_ ** (-scale) / 1_;
         insert(testDb, state, bigValue digits 0, expect &:= bigValue);
         bigValue := (1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890_ div
+                     10_ ** (100 - literalPrecision)) * 10_ ** (-scale) / 1_;
+        insert(testDb, state, bigValue digits 0, expect &:= bigValue);
+
+        # Negative values:
+        insert(testDb, state, -10_ ** (-scale) / 1_ digits 0, expect &:= -10_ ** (-scale) / 1_);
+        bigValue := -pred(10_ ** literalPrecision) * 10_ ** (-scale) / 1_;
+        insert(testDb, state, bigValue digits 0, expect &:= bigValue);
+        bigValue := -(1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890_ div
                      10_ ** (100 - literalPrecision)) * 10_ ** (-scale) / 1_;
         insert(testDb, state, bigValue digits 0, expect &:= bigValue);
       end if;
@@ -2848,6 +2827,7 @@ const proc: testAnyRationalField (in database: testDb, inout testState: state,
                                  " (" & state.fieldName & ") VALUES (?)");
       insert(state, 0_/1_, expect &:= 0_/1_);
       if scale > 0 then
+        # Positive values
         insert(state, 1_ / 10_ ** scale, expect &:= 1_ / 10_ ** scale);
         bigValue := pred(10_ ** precision) / 10_ ** scale;
         insert(state, bigValue, expect &:= bigValue);
@@ -2860,11 +2840,34 @@ const proc: testAnyRationalField (in database: testDb, inout testState: state,
         bigValue := (1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890_ div
                      10_ ** (100 - precision)) / 10_ ** scale;
         insert(state, bigValue, expect &:= bigValue);
+
+        # Negative values:
+        insert(state, -1_ / 10_ ** scale, expect &:= -1_ / 10_ ** scale);
+        bigValue := -pred(10_ ** precision) / 10_ ** scale;
+        insert(state, bigValue, expect &:= bigValue);
+        bigValue := -10_ ** pred(precision) / 10_ ** scale;
+        insert(state, bigValue, expect &:= bigValue);
+        bigValue := -1234567890_ / 10_ ** scale;
+        insert(state, bigValue, expect &:= bigValue);
+        bigValue := -123456789012345_ / 10_ ** scale;
+        insert(state, bigValue, expect &:= bigValue);
+        bigValue := -(1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890_ div
+                     10_ ** (100 - precision)) / 10_ ** scale;
+        insert(state, bigValue, expect &:= bigValue);
       else
+        # Positive values
         insert(state, 10_ ** (-scale) / 1_, expect &:= 10_ ** (-scale) / 1_);
         bigValue := pred(10_ ** precision) * 10_ ** (-scale) / 1_;
         insert(state, bigValue, expect &:= bigValue);
         bigValue := (1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890_ div
+                     10_ ** (100 - precision)) * 10_ ** (-scale) / 1_;
+        insert(state, bigValue, expect &:= bigValue);
+
+        # Negative values:
+        insert(state, -10_ ** (-scale) / 1_, expect &:= -10_ ** (-scale) / 1_);
+        bigValue := -pred(10_ ** precision) * 10_ ** (-scale) / 1_;
+        insert(state, bigValue, expect &:= bigValue);
+        bigValue := -(1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890_ div
                      10_ ** (100 - precision)) * 10_ ** (-scale) / 1_;
         insert(state, bigValue, expect &:= bigValue);
       end if;
@@ -4144,7 +4147,7 @@ const proc: testCharField (in database: testDb, in dbCategory: databaseKind) is 
         insert(testDb, state, "'a '",       expect &:= "a");
         # insert(testDb, state, "'" & "b" mult 3999 & " '", expect &:= "b" mult 3999);
       end if;
- 
+
       state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
                                  " (" & state.fieldName & ") VALUES (?)");
       insert(state, "",           expect &:= "");
@@ -4255,7 +4258,7 @@ const proc: testCharField (in database: testDb, in dbCategory: databaseKind) is 
 
 const proc: testCharField2 (in database: testDb, in dbCategory: databaseKind) is func
   local
-    var testState: state is testState("charTest", "charField", TRUE);
+    var testState: state is testState("charTest", "charField", FALSE);
     var array string: expect is 0 times "";
     var string: stringColumn is "";
     var integer: row is 1;
@@ -4313,7 +4316,7 @@ const proc: testCharField2 (in database: testDb, in dbCategory: databaseKind) is
         insert(testDb, state, "\"a \"",       expect &:= "a");
         # insert(testDb, state, "\"" & "b" mult 3999 & " \"", expect &:= "b" mult 3999);
       end if;
- 
+
       state.statement := prepare(testDb, "SELECT * FROM " & state.tableName);
       execute(state.statement);
       while fetch(state.statement) do

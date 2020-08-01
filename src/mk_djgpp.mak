@@ -149,7 +149,7 @@ version.h: chkccomp.h
 	$(ECHO) "#define SYSTEM_LIBS \"$(SYSTEM_LIBS)\"" >> version.h
 	$(ECHO) "#define SYSTEM_CONSOLE_LIBS \"$(SYSTEM_CONSOLE_LIBS)\"" >> version.h
 	$(ECHO) "#define SYSTEM_DRAW_LIBS \"$(SYSTEM_DRAW_LIBS)\"" >> version.h
-	$(CC) chkccomp.c -lm -o chkccomp.exe
+	$(CC) chkccomp.c -o chkccomp.exe
 	$(ECHO) "The following C compiler errors can be safely ignored"
 	.\chkccomp.exe version.h
 	del chkccomp.exe

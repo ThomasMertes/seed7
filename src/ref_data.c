@@ -902,6 +902,9 @@ typeType refType (const const_objectType aReference)
     typeType result;
 
   /* refType */
+    logFunction(printf("refType(");
+                trace1(aReference);
+                printf(")\n"););
     if (unlikely(aReference == NULL ||
                  aReference->type_of == NULL)) {
       logError(printf("refType(NULL): Object is NULL.\n"););
@@ -910,6 +913,7 @@ typeType refType (const const_objectType aReference)
     } else {
       result = aReference->type_of;
     } /* if */
+    logFunction(printf("refType --> " FMT_X_MEM "\n", (memSizeType) result););
     return result;
   } /* refType */
 
@@ -1384,15 +1388,23 @@ striType strValue (const const_objectType aReference)
  */
 typeType typValue (const const_objectType aReference)
 
-  { /* typValue */
+  {
+    typeType result;
+
+  /* typValue */
+    logFunction(printf("refValue(");
+                trace1(aReference);
+                printf(")\n"););
     if (unlikely(aReference == NULL ||
                  CATEGORY_OF_OBJ(aReference) != TYPEOBJECT)) {
       logError(printf("typValue(");
                trace1(aReference);
                printf("): Category is not TYPEOBJECT.\n"););
       raise_error(RANGE_ERROR);
-      return NULL;
+      result = NULL;
     } else {
-      return take_type(aReference);
+      result = take_type(aReference);
     } /* if */
+    logFunction(printf("typValue --> " FMT_X_MEM "\n", (memSizeType) result););
+    return result;
   } /* typValue */

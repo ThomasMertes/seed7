@@ -1980,7 +1980,7 @@ static floatType getFloat (const void *buffer, memSizeType length)
         pos++;
       } /* if */
       precision = striBuffer.striBuf.size - pos;
-      if (scale < precision) {
+      if ((memSizeType) scale < precision) {
         for (; pos < striBuffer.striBuf.size - (memSizeType) scale; pos++) {
           cstriBuf[destPos++] = (char) striBuffer.striBuf.mem[pos];
         } /* for */
@@ -2663,7 +2663,7 @@ static void sqlBindBStri (sqlStmtType sqlStatement, intType pos, bstriType bstri
           } /* if */
         } /* if */
       } /* if */
-	  if (likely(err_info == OKAY_NO_ERROR)) {
+      if (likely(err_info == OKAY_NO_ERROR)) {
         if (OCILobCreateTemporary(preparedStmt->oci_service_context,
                                   preparedStmt->oci_error,
                                   (OCILobLocator *) param->descriptor,

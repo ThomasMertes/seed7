@@ -61,6 +61,10 @@
 #include "unistd.h"
 #endif
 
+#if HAS_MMAP
+#include "sys/mman.h"
+#endif
+
 #include "common.h"
 #include "data_rtl.h"
 #include "os_decls.h"
@@ -79,10 +83,6 @@
 #include "cmd_drv.h"
 #include "stat_drv.h"
 #include "rtl_err.h"
-
-#if HAS_MMAP
-#include "sys/mman.h"
-#endif
 
 #undef EXTERN
 #define EXTERN

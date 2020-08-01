@@ -39,7 +39,7 @@ const proc: writeHelp is func
   end func;
 
 
-const proc: longFileListing (inout ftpFileSys: ftp, in var string: directory) is func
+const proc: longFileListing (inout fileSys: aFileSys, in var string: directory) is func
   local
     var array string: dir is 0 times "";
     var integer: currentYear is 0;
@@ -47,15 +47,17 @@ const proc: longFileListing (inout ftpFileSys: ftp, in var string: directory) is
     var string: filePath is "";
     var boolean: continue is TRUE;
     var string: line is "";
+    var fileType: aFileType is FILE_ABSENT; 
     var time: modificationTime is time.value;
+    const string: fileTypeIndicator is " ?-dcbfls";
     const array string: monthName is [1] (
         "Jan", "Feb", "Mar", "Apr", "May", "Jun",
         "Jul", "Aug", "Sep", "Oct", "Nov", "Dec");
   begin
     if directory = "" then
-      dir := readDir(ftp, ".");
+      dir := readDir(aFileSys, ".");
     else
-      dir := readDir(ftp, directory);
+      dir := readDir(aFileSys, directory);
       directory &:= "/";
     end if;
     currentYear := time(NOW).year;
@@ -66,15 +68,18 @@ const proc: longFileListing (inout ftpFileSys: ftp, in var string: directory) is
       end if;
       if continue then
         filePath := directory & fileName;
-        if fileType(ftp, filePath) = FILE_DIR then
-          line := "drwxrwxrwx 1 user users ";
+        aFileType := fileType(aFileSys, filePath);
+        line := str(fileTypeIndicator[succ(aFileType)]);
+        line &:= "rwxrwxrwx 1 user users ";
+        if aFileType = FILE_ABSENT then
+          line &:= 0 lpad 10 <& " ";
+          modificationTime := time(NOW);
         else
-          line := "-rwxrwxrwx 1 user users ";
+          line &:= bigFileSize(aFileSys, filePath) lpad 10 <& " ";
+          modificationTime := getMTime(aFileSys, filePath);
         end if;
-        line &:= bigFileSize(ftp, filePath) lpad 10 <& " ";
-        modificationTime := getMTime(ftp, filePath);
         line &:= monthName[modificationTime.month];
-        line &:= modificationTime.day  lpad 3;
+        line &:= modificationTime.day lpad 3;
         if modificationTime.year = currentYear then
           line &:= modificationTime.hour lpad 3 <& ":";
           line &:= modificationTime.minute lpad0 2;
@@ -82,23 +87,23 @@ const proc: longFileListing (inout ftpFileSys: ftp, in var string: directory) is
           line &:= modificationTime.year lpad 6;
         end if;
         line &:= " ";
-        line &:= fileName;
+        line &:= noCtrlChars(fileName);
         writeln(line);
       end if;
     end for;
   end func;
 
 
-const proc: fileListing (inout ftpFileSys: ftp, in string: directory) is func
+const proc: fileListing (inout fileSys: aFileSys, in string: directory) is func
   local
     var array string: dir is 0 times "";
     var string: name is "";
     var boolean: continue is TRUE;
   begin
     if directory = "" then
-      dir := readDir(ftp, ".");
+      dir := readDir(aFileSys, ".");
     else
-      dir := readDir(ftp, directory);
+      dir := readDir(aFileSys, directory);
     end if;
     for name range dir do
       if busy_getc(KEYBOARD) = KEY_CTL_C then
@@ -106,7 +111,7 @@ const proc: fileListing (inout ftpFileSys: ftp, in string: directory) is func
         continue := FALSE;
       end if;
       if continue then
-        writeln(name);
+        writeln(noCtrlChars(name));
       end if;
     end for;
   end func;
@@ -213,6 +218,16 @@ const proc: execute (inout ftpFileSys: ftp, in string: command) is func
     elsif startsWith(command, "put ") then
       copyFtpFile(osFiles, trim(command[5 ..]), ftp, trim(command[5 ..]),
           getAsciiTransfer(ftp));
+    elsif startsWith(command, "!ls -l") or startsWith(command, "!dir") then
+      longFileListing(osFiles, trim(command[7 ..]));
+    elsif startsWith(command, "!ls") then
+      fileListing(osFiles, trim(command[4 ..]));
+    elsif command = "!pwd" then
+      writeln(getcwd(osFiles));
+    elsif startsWith(command, "!mkdir ") then
+      mkdir(osFiles, trim(command[7 ..]));
+    elsif startsWith(command, "!rmdir ") then
+      rmdir(osFiles, trim(command[7 ..]));
     elsif startsWith(command, "help") then
       writeHelp;
     elsif command <> "" then

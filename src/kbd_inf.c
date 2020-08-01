@@ -60,6 +60,7 @@
 
 #include "errno.h"
 
+#include "os_decls.h"
 #include "trm_drv.h"
 
 #ifdef USE_TERMCAP

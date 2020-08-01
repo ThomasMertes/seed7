@@ -458,6 +458,7 @@ const proc: optimize_str_cat (in ref_list: params, inout expr_type: c_expr) is f
     var array reference: concatNParamList is 0 times NIL;
     var string: concatNParamName is "";
     var integer: index is 1;
+    var reference: evaluatedParam is NIL;
     var expr_type: c_param1 is expr_type.value;
   begin
     concatNParamList := getConcatNParamList(params);
@@ -474,12 +475,21 @@ const proc: optimize_str_cat (in ref_list: params, inout expr_type: c_expr) is f
       c_expr.temp_decls &:= "];\n";
       c_expr.result_expr := "(";
       for key index range concatNParamList do
-        c_expr.result_expr &:= concatNParamName;
-        c_expr.result_expr &:= "[";
-        c_expr.result_expr &:= str(pred(index));
-        c_expr.result_expr &:= "] = ";
-        getAnyParamToResultExpr(concatNParamList[index], c_expr);
-        c_expr.result_expr &:= ", ";
+        if getConstant(concatNParamList[index], STRIOBJECT, evaluatedParam) then
+          c_expr.temp_assigns &:= concatNParamName;
+          c_expr.temp_assigns &:= "[";
+          c_expr.temp_assigns &:= str(pred(index));
+          c_expr.temp_assigns &:= "] = ";
+          c_expr.temp_assigns &:= stringLiteral(getValue(evaluatedParam, string));
+          c_expr.temp_assigns &:= ";\n";
+        else
+          c_expr.result_expr &:= concatNParamName;
+          c_expr.result_expr &:= "[";
+          c_expr.result_expr &:= str(pred(index));
+          c_expr.result_expr &:= "] = ";
+          getAnyParamToResultExpr(concatNParamList[index], c_expr);
+          c_expr.result_expr &:= ", ";
+        end if;
       end for;
       c_expr.result_expr &:= "strConcatN(";
       c_expr.result_expr &:= concatNParamName;
@@ -504,7 +514,7 @@ const proc: optimize_str_cat (in ref_list: params, inout expr_type: c_expr) is f
       process_expr(concatNParamList[1], c_expr);
     else
       incr(countOptimizations);
-      if c_expr.prefer_result_expr then
+      if c_expr.demand >= ASSIGN_RESULT then
         c_expr.result_expr := "strEmpty()";
       else
         c_expr.expr &:= stringLiteral("");
@@ -612,6 +622,7 @@ const proc: process (STR_CPY, in reference: function,
         getActionParameter(params[3], 1) = params[1] then
       process_str_append(params[1], getActionParameter(params[3], 3), c_expr);
     else
+      statement.temp_num := c_expr.temp_num;
       prepareAnyParamTemporarys(params[1], c_param1, statement);
       if isActionExpression(params[3], "STR_HEAD") and
           getActionParameter(params[3], 1) = params[1] then
@@ -634,19 +645,19 @@ const proc: process (STR_CPY, in reference: function,
         statement.expr &:= c_param1.expr;
         statement.expr &:= ");\n";
       else
-        c_param3.prefer_result_expr := TRUE;
+        c_param3.demand := ASSIGN_RESULT;
         prepareAnyParamTemporarys(params[3], c_param3, statement);
         if c_param3.result_expr <> "" then
           if isNormalVariable(params[1]) then
-            statement.expr &:= "striType old_stri=";
-            statement.expr &:= c_param1.expr;
-            statement.expr &:= ";\n";
+            statement.temp_decls &:= "striType old_stri=";
+            statement.temp_decls &:= c_param1.expr;
+            statement.temp_decls &:= ";\n";
             statement.expr &:= c_param1.expr;
             statement.expr &:= "=";
           else
-            statement.expr &:= "striType *stri_ptr=&(";
-            statement.expr &:= c_param1.expr;
-            statement.expr &:= ");\n";
+            statement.temp_decls &:= "striType *stri_ptr=&(";
+            statement.temp_decls &:= c_param1.expr;
+            statement.temp_decls &:= ");\n";
             statement.expr &:= "striType old_stri=*stri_ptr;\n";
             statement.expr &:= "*stri_ptr=";
           end if;
@@ -1320,7 +1331,7 @@ const proc: process_const_str_head (in string: stri, in reference: param4,
       c_expr.expr &:= ":";
       c_expr.expr &:= stringLiteral("");
       c_expr.expr &:= ")";
-    elsif ccConf.ALLOW_STRITYPE_SLICES then
+    elsif ccConf.ALLOW_STRITYPE_SLICES and c_expr.demand < REQUIRE_RESULT then
       incr(c_expr.temp_num);
       slice_name := "slice_" & str(c_expr.temp_num);
       c_expr.temp_decls &:= "struct striStruct ";
@@ -1352,23 +1363,37 @@ const proc: process_const_str_head1 (in reference: param1,
   local
     var string: temp_name is "";
     var string: stri1_name is "";
+    var expr_type: c_param1 is expr_type.value;
   begin
-    incr(countOptimizations);
-    c_expr.expr &:= "(";
-    temp_name := getParameterAsVariable("const_striType", "tmp_", param1, c_expr);
-    incr(c_expr.temp_num);
-    stri1_name := "stri1_" & str(c_expr.temp_num);
-    c_expr.temp_decls &:= "struct striStruct ";
-    c_expr.temp_decls &:= stri1_name;
-    c_expr.temp_decls &:= ";\n";
-    c_expr.expr &:= temp_name;
-    c_expr.expr &:= "->size>=1?chrStrMacro(";
-    c_expr.expr &:= temp_name;
-    c_expr.expr &:= "->mem[0],";
-    c_expr.expr &:= stri1_name;
-    c_expr.expr &:= "):";
-    c_expr.expr &:= stringLiteral("");
-    c_expr.expr &:= ")";
+    if c_expr.demand < REQUIRE_RESULT then
+      incr(countOptimizations);
+      c_expr.expr &:= "(";
+      temp_name := getParameterAsVariable("const_striType", "tmp_", param1, c_expr);
+      incr(c_expr.temp_num);
+      stri1_name := "stri1_" & str(c_expr.temp_num);
+      c_expr.temp_decls &:= "struct striStruct ";
+      c_expr.temp_decls &:= stri1_name;
+      c_expr.temp_decls &:= ";\n";
+      c_expr.expr &:= temp_name;
+      c_expr.expr &:= "->size>=1?chrStrMacro(";
+      c_expr.expr &:= temp_name;
+      c_expr.expr &:= "->mem[0],";
+      c_expr.expr &:= stri1_name;
+      c_expr.expr &:= "):";
+      c_expr.expr &:= stringLiteral("");
+      c_expr.expr &:= ")";
+    else
+      prepareAnyParamTemporarys(param1, c_param1, c_expr);
+      prepare_stri_result(c_expr);
+      if c_param1.result_expr <> "" then
+        c_expr.result_expr := "strHeadTemp(";
+        c_expr.result_expr &:= c_param1.result_expr;
+      else
+        c_expr.result_expr := "strHead(";
+        c_expr.result_expr &:= c_param1.expr;
+      end if;
+      c_expr.result_expr &:= ", 1)";
+    end if;
   end func;
 
 
@@ -1394,7 +1419,7 @@ const proc: process_str_head (in reference: param1, in reference: param4,
         c_expr.result_expr &:= ", ";
         getStdParamToResultExpr(param4, c_expr);
         c_expr.result_expr &:= ")";
-      elsif ccConf.ALLOW_STRITYPE_SLICES then
+      elsif ccConf.ALLOW_STRITYPE_SLICES and c_expr.demand < REQUIRE_RESULT then
         incr(c_expr.temp_num);
         slice_name := "slice_" & str(c_expr.temp_num);
         c_expr.temp_decls &:= "struct striStruct ";
@@ -2466,7 +2491,7 @@ const proc: process (STR_RANGE, in reference: function,
         getValue(evaluatedParam, integer) = 1 then
       incr(countOptimizations);
       process_str_head(params[1], params[5], c_expr);
-    elsif ccConf.ALLOW_STRITYPE_SLICES then
+    elsif ccConf.ALLOW_STRITYPE_SLICES and c_expr.demand < REQUIRE_RESULT then
       c_expr.expr &:= "(";
       incr(c_expr.temp_num);
       slice_name := "slice_" & str(c_expr.temp_num);
@@ -2709,48 +2734,57 @@ const proc: process_str_substr1 (in reference: param1, in reference: param3,
     var string: index_name is "";
     var string: striStruct_name is "";
   begin
-    incr(countOptimizations);
-    c_expr.expr &:= "(";
-    stri_name := getParameterAsVariable("const_striType", "tmp_", param1, c_expr);
-    incr(c_expr.temp_num);
-    index_name := "idx_" & str(c_expr.temp_num);
-    if ccConf.TWOS_COMPLEMENT_INTTYPE then
-      c_expr.temp_decls &:= "uintType ";
-    else
-      c_expr.temp_decls &:= "intType ";
-    end if;
-    c_expr.temp_decls &:= index_name;
-    c_expr.temp_decls &:= ";\n";
-    incr(c_expr.temp_num);
-    striStruct_name := "stri_" & str(c_expr.temp_num);
-    c_expr.temp_decls &:= "struct striStruct ";
-    c_expr.temp_decls &:= striStruct_name;
-    c_expr.temp_decls &:= ";\n";
-    c_expr.expr &:= index_name;
-    c_expr.expr &:= "=";
-    if ccConf.TWOS_COMPLEMENT_INTTYPE then
-      c_expr.expr &:= "(uintType)((";
-      process_expr(param3, c_expr);
-      c_expr.expr &:= ")-1), ";
-    else
+    if c_expr.demand < REQUIRE_RESULT then
+      incr(countOptimizations);
       c_expr.expr &:= "(";
-      process_expr(param3, c_expr);
-      c_expr.expr &:= ")-1, ";
+      stri_name := getParameterAsVariable("const_striType", "tmp_", param1, c_expr);
+      incr(c_expr.temp_num);
+      index_name := "idx_" & str(c_expr.temp_num);
+      if ccConf.TWOS_COMPLEMENT_INTTYPE then
+        c_expr.temp_decls &:= "uintType ";
+      else
+        c_expr.temp_decls &:= "intType ";
+      end if;
+      c_expr.temp_decls &:= index_name;
+      c_expr.temp_decls &:= ";\n";
+      incr(c_expr.temp_num);
+      striStruct_name := "stri_" & str(c_expr.temp_num);
+      c_expr.temp_decls &:= "struct striStruct ";
+      c_expr.temp_decls &:= striStruct_name;
+      c_expr.temp_decls &:= ";\n";
       c_expr.expr &:= index_name;
-      c_expr.expr &:= "<0 || ";
+      c_expr.expr &:= "=";
+      if ccConf.TWOS_COMPLEMENT_INTTYPE then
+        c_expr.expr &:= "(uintType)((";
+        process_expr(param3, c_expr);
+        c_expr.expr &:= ")-1), ";
+      else
+        c_expr.expr &:= "(";
+        process_expr(param3, c_expr);
+        c_expr.expr &:= ")-1, ";
+        c_expr.expr &:= index_name;
+        c_expr.expr &:= "<0 || ";
+      end if;
+      c_expr.expr &:= index_name;
+      c_expr.expr &:= ">=";
+      c_expr.expr &:= stri_name;
+      c_expr.expr &:= "->size ? ";
+      c_expr.expr &:= stringLiteral("");
+      c_expr.expr &:= " : chrStrMacro(";
+      c_expr.expr &:= stri_name;
+      c_expr.expr &:= "->mem[";
+      c_expr.expr &:= index_name;
+      c_expr.expr &:= "],";
+      c_expr.expr &:= striStruct_name;
+      c_expr.expr &:= "))";
+    else
+      prepare_stri_result(c_expr);
+      c_expr.result_expr := "strSubstr(";
+      getAnyParamToResultExpr(param1, c_expr);
+      c_expr.result_expr &:= ", ";
+      getStdParamToResultExpr(param3, c_expr);
+      c_expr.result_expr &:= ", 1)";
     end if;
-    c_expr.expr &:= index_name;
-    c_expr.expr &:= ">=";
-    c_expr.expr &:= stri_name;
-    c_expr.expr &:= "->size ? ";
-    c_expr.expr &:= stringLiteral("");
-    c_expr.expr &:= " : chrStrMacro(";
-    c_expr.expr &:= stri_name;
-    c_expr.expr &:= "->mem[";
-    c_expr.expr &:= index_name;
-    c_expr.expr &:= "],";
-    c_expr.expr &:= striStruct_name;
-    c_expr.expr &:= "))";
   end func;
 
 
@@ -2921,7 +2955,7 @@ const proc: process (STR_SUBSTR, in reference: function,
         c_expr.expr &:= stringLiteral("");
         c_expr.expr &:= ")";
       end if;
-    elsif ccConf.ALLOW_STRITYPE_SLICES then
+    elsif ccConf.ALLOW_STRITYPE_SLICES and c_expr.demand < REQUIRE_RESULT then
       c_expr.expr &:= "(";
       incr(c_expr.temp_num);
       slice_name := "slice_" & str(c_expr.temp_num);
@@ -2973,7 +3007,7 @@ const proc: process (STR_TAIL, in reference: function,
       c_expr.expr &:= ",";
       c_expr.expr &:= stringLiteral("");
       c_expr.expr &:= ")";
-    elsif ccConf.ALLOW_STRITYPE_SLICES and not c_expr.prefer_result_expr then
+    elsif ccConf.ALLOW_STRITYPE_SLICES and c_expr.demand < ASSIGN_RESULT then
       incr(c_expr.temp_num);
       slice_name := "slice_" & str(c_expr.temp_num);
       c_expr.temp_decls &:= "struct striStruct ";

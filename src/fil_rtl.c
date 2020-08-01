@@ -74,11 +74,11 @@
 #endif
 
 #ifdef DEFINE_FSEEKI64_PROTOTYPE
-extern C int __cdecl _fseeki64(FILE *, __int64, int);
+extern C int __cdecl _fseeki64 (FILE *, __int64, int);
 #endif
 
 #ifdef DEFINE_FTELLI64_PROTOTYPE
-extern C __int64 __cdecl _ftelli64(FILE *);
+extern C __int64 __cdecl _ftelli64 (FILE *);
 #endif
 
 #ifdef DEFINE_WPOPEN
@@ -494,6 +494,8 @@ memSizeType remainingBytesInFile (fileType aFile)
       file_no = fileno(aFile);
       if (file_no != -1 && os_fstat(file_no, &stat_buf) == 0 &&
           S_ISREG(stat_buf.st_mode)) {
+        /* Using stat_buf.st_size, which is filled by os_fstat() */
+        /* is okay, because we do read from a file.              */
         file_length = stat_buf.st_size;
       } else {
         file_length = seekFileLength(aFile);
@@ -854,33 +856,13 @@ static striType doWordReadFromTerminal (fileType inFile, charType *terminationCh
 bigIntType filBigLng (fileType aFile)
 
   {
-    int file_no;
-    os_fstat_struct stat_buf;
     bigIntType length;
 
   /* filBigLng */
     logFunction(printf("filBigLng(%d)\n", safe_fileno(aFile)););
-    file_no = fileno(aFile);
-    if (file_no != -1 && os_fstat(file_no, &stat_buf) == 0 &&
-        S_ISREG(stat_buf.st_mode)) {
-      if (unlikely(stat_buf.st_size < 0)) {
-        logError(printf("filBigLng(%d, *): "
-                        "fstat() returns file size less than zero: " FMT_D64 ".\n",
-                        safe_fileno(aFile), (int64Type) stat_buf.st_size););
-        raise_error(FILE_ERROR);
-        length = NULL;
-      } else {
-#if OS_OFF_T_SIZE == 32
-        length = bigFromUInt32((uint32Type) stat_buf.st_size);
-#elif OS_OFF_T_SIZE == 64
-        length = bigFromUInt64((uint64Type) stat_buf.st_size);
-#else
-#error "sizeof(os_off_t) is neither 4 nor 8."
-#endif
-      } /* if */
-    } else {
-      length = getBigFileLengthUsingSeek(aFile);
-    } /* if */
+    /* os_fstat() is not used, because when writing to a */
+    /* file the stat data is only updated after a flush. */
+    length = getBigFileLengthUsingSeek(aFile);
     logFunction(printf("filBigLng --> %s\n", bigHexCStri(length)););
     return length;
   } /* filBigLng */
@@ -1417,33 +1399,13 @@ striType filLit (fileType aFile)
 intType filLng (fileType aFile)
 
   {
-    int file_no;
-    os_fstat_struct stat_buf;
     intType length;
 
   /* filLng */
     logFunction(printf("filLng(%d)\n", safe_fileno(aFile)););
-    file_no = fileno(aFile);
-    if (file_no != -1 && os_fstat(file_no, &stat_buf) == 0 &&
-        S_ISREG(stat_buf.st_mode)) {
-      if (unlikely(stat_buf.st_size < 0)) {
-        logError(printf("filLng(%d): "
-                        "fstat() returns File size less than zero: " FMT_D64 ".\n",
-                        safe_fileno(aFile), (int64Type) stat_buf.st_size););
-        raise_error(FILE_ERROR);
-        length = 0;
-      } else if (unlikely(stat_buf.st_size > INTTYPE_MAX)) {
-        logError(printf("filLng(%d): "
-                        "File length does not fit into an integer: " FMT_D_OFF ".\n",
-                        safe_fileno(aFile), stat_buf.st_size););
-        raise_error(RANGE_ERROR);
-        length = 0;
-      } else {
-        length = (intType) stat_buf.st_size;
-      } /* if */
-    } else {
-      length = getFileLengthUsingSeek(aFile);
-    } /* if */
+    /* os_fstat() is not used, because when writing to a */
+    /* file the stat data is only updated after a flush. */
+    length = getFileLengthUsingSeek(aFile);
     logFunction(printf("filLng --> " FMT_D "\n", length););
     return length;
   } /* filLng */

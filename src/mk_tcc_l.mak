@@ -1,8 +1,8 @@
-# Makefile for Mac OS X with gcc from Xcode. Commands executed by: bash
+# Makefile for linux/bsd/unix and tcc. Commands executed by: bash
 # To compile use a command shell and call:
-#   make -f mk_osx.mak depend
-#   make -f mk_osx.mak
-# If you are not using Mac OS X with Xcode look into the file read_me.txt for the makefile to use.
+#   make -f mk_tcc_l.mak depend
+#   make -f mk_tcc_l.mak
+# If you are using tcc under windows you should use mk_tcc_w.mak instead.
 
 # CFLAGS =
 # CFLAGS = -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
@@ -11,22 +11,18 @@
 # CFLAGS = -O2 -g -x c++ -Wall -Wextra -Wswitch-default -Wswitch-enum -Wcast-qual -Waggregate-return -Wwrite-strings -Winline -Wconversion -Wshadow -Wpointer-arith -Wmissing-noreturn -Wno-multichar
 # CFLAGS = -O2 -fomit-frame-pointer -Wall -Wextra -Wswitch-default -Wcast-qual -Waggregate-return -Wwrite-strings -Winline -Wconversion -Wshadow -Wpointer-arith -Wmissing-noreturn -Wno-multichar
 # CFLAGS = -O2 -g -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith -ftrapv
-# CFLAGS = -O2 -g -x c++ $(INCLUDE_OPTIONS) -Wall -Winline -Wconversion -Wshadow -Wpointer-arith
-CFLAGS = -O2 -g $(INCLUDE_OPTIONS) -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
-# CFLAGS = -O2 -g $(INCLUDE_OPTIONS) -Wall -Winline -Wconversion -Wshadow -Wpointer-arith
-# CFLAGS = -O2 -g $(INCLUDE_OPTIONS) -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith -fsanitize=address,undefined
-# CFLAGS = -O2 -g -std=c99 -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
+# CFLAGS = -O2 -g -x c++ -Wall -Winline -Wconversion -Wshadow -Wpointer-arith
+CFLAGS = -g $(INCLUDE_OPTIONS) -Wall -Wimplicit-function-declaration -Wunusupported -Wwrite-strings
 # CFLAGS = -O2 -g -Wall -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -g -Wall
 # CFLAGS = -O2 -g -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -fomit-frame-pointer -funroll-loops -Wall
 # CFLAGS = -O2 -funroll-loops -Wall -pg
-LDFLAGS = -L/usr/X11R6/lib
-# LDFLAGS = -L/usr/X11R6/lib -fsanitize=address,undefined
+LDFLAGS =
 # LDFLAGS = -pg
 # LDFLAGS = -pg -lc_p
-SYSTEM_LIBS = -lm -ldl
-# SYSTEM_LIBS = -lm -ldl -lgmp
+SYSTEM_LIBS = -lm
+# SYSTEM_LIBS = -lm -lgmp
 # SYSTEM_LIBS = -lm_p -lc_p
 SYSTEM_CONSOLE_LIBS = -lncurses
 SYSTEM_DRAW_LIBS = -lX11
@@ -40,9 +36,8 @@ DRAW_LIB = s7_draw.a
 COMP_DATA_LIB = s7_data.a
 COMPILER_LIB = s7_comp.a
 ALL_S7_LIBS = ../bin/$(COMPILER_LIB) ../bin/$(COMP_DATA_LIB) ../bin/$(DRAW_LIB) ../bin/$(CONSOLE_LIB) ../bin/$(SEED7_LIB)
-# CC = g++
-CC = gcc
-GET_CC_VERSION_INFO = $(CC) --version >
+CC = tcc
+GET_CC_VERSION_INFO = $(CC) -v >
 
 # TERMINFO_OR_TERMCAP = USE_TERMINFO
 # CONSOLE_LIB_OBJ = kbd_rtl.o con_inf.o kbd_inf.o trm_inf.o
@@ -140,7 +135,7 @@ s7c: ../bin/s7c ../prg/s7c
 clear: clean
 
 clean:
-	rm -f *.o ../bin/*.a ../bin/s7 ../bin/s7c ../prg/s7 ../prg/s7c depend macros chkccomp.h version.h wrdepend
+	rm -f *.o ../bin/*.a ../bin/s7 ../bin/s7c ../prg/s7 ../prg/s7c depend macros chkccomp.h version.h
 	@echo
 	@echo "  Use 'make depend' (with your make command) to create the dependencies."
 	@echo
@@ -155,7 +150,6 @@ test:
 	@echo
 
 install:
-	mkdir -p /usr/local/bin
 	cd ../bin; ln -s `pwd`/s7 /usr/local/bin
 	cd ../bin; ln -s `pwd`/s7c /usr/local/bin
 	gzip -c ../doc/s7.1 > /usr/share/man/man1/s7.1.gz
@@ -174,24 +168,23 @@ strip:
 
 chkccomp.h:
 	echo "#define LIST_DIRECTORY_CONTENTS \"ls\"" >> chkccomp.h
-	echo "#define LINKER_OPT_STATIC_LINKING \"-static\"" >> chkccomp.h
 	echo "#define MYSQL_LIBS \"-lmysqlclient\"" >> chkccomp.h
-	echo "#define MYSQL_DLL \"libmysqlclient.dylib\"" >> chkccomp.h
+	echo "#define MYSQL_DLL \"libmysqlclient.so\"" >> chkccomp.h
 	echo "#define MYSQL_USE_LIB" >> chkccomp.h
 	echo "#define SQLITE_LIBS \"-lsqlite3\"" >> chkccomp.h
-	echo "#define SQLITE_DLL \"libsqlite3.dylib\"" >> chkccomp.h
+	echo "#define SQLITE_DLL \"libsqlite3.so\"" >> chkccomp.h
 	echo "#define SQLITE_USE_LIB" >> chkccomp.h
 	echo "#define POSTGRESQL_LIBS \"-lpq\"" >> chkccomp.h
-	echo "#define POSTGRESQL_DLL \"libpq.dylib\"" >> chkccomp.h
+	echo "#define POSTGRESQL_DLL \"libpq.so\"" >> chkccomp.h
 	echo "#define POSTGRESQL_USE_LIB" >> chkccomp.h
-	echo "#define ODBC_LIBS \"-liodbc\"" >> chkccomp.h
-	echo "#define ODBC_DLL \"libiodbc.dylib\"" >> chkccomp.h
+	echo "#define ODBC_LIBS \"-lodbc\"" >> chkccomp.h
+	echo "#define ODBC_DLL \"libodbc.so\"" >> chkccomp.h
 	echo "#define ODBC_USE_LIB" >> chkccomp.h
 	echo "#define OCI_LIBS \"-lclntsh\"" >> chkccomp.h
-	echo "#define OCI_DLL \"libclntsh.dylib\"" >> chkccomp.h
+	echo "#define OCI_DLL \"libclntsh.so\"" >> chkccomp.h
 	echo "#define OCI_USE_DLL" >> chkccomp.h
 	echo "#define FIRE_LIBS \"-lfbclient\"" >> chkccomp.h
-	echo "#define FIRE_DLL \"libfbclient.dylib\"" >> chkccomp.h
+	echo "#define FIRE_DLL \"libfbclient.so\"" >> chkccomp.h
 	echo "#define FIRE_USE_DLL" >> chkccomp.h
 
 version.h: chkccomp.h
@@ -230,15 +223,9 @@ version.h: chkccomp.h
 	$(CC) setpaths.c -o setpaths
 	./setpaths "S7_LIB_DIR=$(S7_LIB_DIR)" "SEED7_LIBRARY=$(SEED7_LIBRARY)" >> version.h
 	rm setpaths
-	$(CC) wrdepend.c -o wrdepend
 
 depend: version.h
-	./wrdepend $(CFLAGS) -M $(SRC) "> depend"
-	./wrdepend $(CFLAGS) -M $(SEED7_LIB_SRC) ">> depend"
-	./wrdepend $(CFLAGS) -M $(CONSOLE_LIB_SRC) ">> depend"
-	./wrdepend $(CFLAGS) -M $(DRAW_LIB_SRC) ">> depend"
-	./wrdepend $(CFLAGS) -M $(COMP_DATA_LIB_SRC) ">> depend"
-	./wrdepend $(CFLAGS) -M $(COMPILER_LIB_SRC) ">> depend"
+	@echo "Working without C header dependency checks."
 	@echo
 	@echo "  Use 'make' (with your make command) to create the interpreter."
 	@echo
@@ -305,9 +292,8 @@ lint: $(SRC)
 lint2: $(SRC)
 	lint -Zn2048 $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS)
 
-ifeq (depend,$(wildcard depend))
-include depend
-endif
+cppcheck: $(SRC) $(SEED7_LIB_SRC) $(DRAW_LIB_SRC) $(COMP_DATA_LIB_SRC) $(COMPILER_LIB_SRC)
+	cppcheck --force --enable=all $(SRC) $(SEED7_LIB_SRC) $(DRAW_LIB_SRC) $(COMP_DATA_LIB_SRC) $(COMPILER_LIB_SRC)
 
 ifeq (macros,$(wildcard macros))
 include macros
