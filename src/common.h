@@ -84,7 +84,11 @@ typedef UINT64TYPE         uint64type;
 typedef int64type          inttype;
 typedef uint64type         uinttype;
 #define MAX_INTEGER 9223372036854775807
+#ifdef INT64TYPE_SUFFIX_LL
 #define INTTYPE_LITERAL_SUFFIX "LL"
+#else
+#define INTTYPE_LITERAL_SUFFIX ""
+#endif
 #endif
 #else
 typedef int32type          inttype;
@@ -160,14 +164,35 @@ typedef int errinfotype;
 #ifndef os_chdir
 #define os_chdir chdir
 #endif
+#ifndef os_getcwd
+#define os_getcwd getcwd
+#endif
 #ifndef os_mkdir
 #define os_mkdir mkdir
 #endif
 #ifndef os_rmdir
 #define os_rmdir rmdir
 #endif
+#ifndef os_opendir
+#define os_opendir  opendir
+#endif
+#ifndef os_readdir
+#define os_readdir  readdir
+#endif
+#ifndef os_closedir
+#define os_closedir closedir
+#endif
+#ifndef os_DIR
+#define os_DIR DIR
+#endif
+#ifndef os_dirent_struct
+#define os_dirent_struct struct dirent
+#endif
 #ifndef os_fstat
 #define os_fstat fstat
+#endif
+#ifndef os_lstat
+#define os_lstat lstat
 #endif
 #ifndef os_stat
 #define os_stat stat

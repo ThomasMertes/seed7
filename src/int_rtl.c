@@ -489,7 +489,7 @@ inttype pad_size;
 
   {
     uinttype unsigned_number;
-    booltype sign;
+    booltype negative;
     strelemtype buffer_1[50];
     strelemtype *buffer;
     memsizetype length;
@@ -497,7 +497,8 @@ inttype pad_size;
     stritype result;
 
   /* intLpad0 */
-    if ((sign = (number < 0))) {
+    negative = (number < 0);
+    if (negative) {
       unsigned_number = -number;
     } else {
       unsigned_number = number;
@@ -510,7 +511,7 @@ inttype pad_size;
     if (pad_size > (inttype) length) {
       result_size = (memsizetype) pad_size;
     } else {
-      if (sign) {
+      if (negative) {
         result_size = length + 1;
       } else {
         result_size = length;
@@ -526,7 +527,7 @@ inttype pad_size;
         strelemtype *elem = result->mem;
         memsizetype len0 = result_size - length;
 
-        if (sign) {
+        if (negative) {
           len0--;
           *elem++ = (strelemtype) '-';
         } /* if */
@@ -535,7 +536,7 @@ inttype pad_size;
         } /* while */
       }
 #else
-     if (sign) {
+     if (negative) {
        result->mem[0] = (strelemtype) '-';
        memset(&result->mem[1], '0', (SIZE_TYPE) (result_size - length - 1));
      } else {
@@ -735,14 +736,15 @@ inttype number;
 
   {
     uinttype unsigned_number;
-    booltype sign;
+    booltype negative;
     strelemtype buffer_1[50];
     strelemtype *buffer;
     memsizetype len;
     stritype result;
 
   /* intStr */
-    if ((sign = (number < 0))) {
+    negative = (number < 0);
+    if (negative) {
       unsigned_number = -number;
     } else {
       unsigned_number = number;
@@ -751,7 +753,7 @@ inttype number;
     do {
       *(--buffer) = (strelemtype) (unsigned_number % 10 + '0');
     } while ((unsigned_number /= 10) != 0);
-    if (sign) {
+    if (negative) {
       *(--buffer) = (strelemtype) '-';
     } /* if */
     len = &buffer_1[50] - buffer;
@@ -779,7 +781,7 @@ inttype base;
 
   {
     uinttype unsigned_number;
-    booltype sign;
+    booltype negative;
     strelemtype buffer_1[75];
     strelemtype *buffer;
     memsizetype len;
@@ -790,7 +792,8 @@ inttype base;
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
-      if ((sign = (number < 0))) {
+      negative = (number < 0);
+      if (negative) {
         unsigned_number = -number;
       } else {
         unsigned_number = number;
@@ -799,7 +802,7 @@ inttype base;
       do {
         *(--buffer) = (strelemtype) (digits[unsigned_number % base]);
       } while ((unsigned_number /= base) != 0);
-      if (sign) {
+      if (negative) {
         *(--buffer) = (strelemtype) '-';
       } /* if */
       len = &buffer_1[75] - buffer;
@@ -826,14 +829,15 @@ inttype number;
 
   {
     uinttype unsigned_number;
-    booltype sign;
+    booltype negative;
     strelemtype buffer_1[50];
     strelemtype *buffer;
     memsizetype len;
     stritype result;
 
   /* intStrHex */
-    if ((sign = (number < 0))) {
+    negative = (number < 0);
+    if (negative) {
       unsigned_number = -number;
     } else {
       unsigned_number = number;
@@ -842,7 +846,7 @@ inttype number;
     do {
       *(--buffer) = (strelemtype) (digits[unsigned_number & 0xF]);
     } while ((unsigned_number >>= 4) != 0);
-    if (sign) {
+    if (negative) {
       *(--buffer) = (strelemtype) '-';
     } /* if */
     len = &buffer_1[50] - buffer;

@@ -12,7 +12,7 @@ COMPILING THE INTERPRETER
 
 THE MAKEFILES
 
-    Several makefiles are prepared vor various combinations
+    Several makefiles are prepared for various combinations
   of operating system, make utility, C compiler and shell:
 
   makefile name|operating system |make prog|compiler|shell
@@ -306,28 +306,31 @@ THE VERSION.H FILE
               on _dos_findfirst() and _dos_findnext(). Only one
               #define of USE_DIRxxx is allowed.
 
-  READDIR_UTF8: Use the functions opendir(), readdir() and
-                closedir() to read directorys, but assume that
-                an UTF-8 encoding is used for the file names.
-
-  USE_WOPENDIR: Use the functions wopendir(), wreaddir() and
-                wclosedir() together with the types 'WDIR' and
-                'wdirent' to read directorys with wide (unicode)
-                characters. If the wide directory read functions
-                and types are present, but have different names
-                such as _wopendir() additional defines for the
-                function and type names are necessary. When no
-                implementation of the wide directory read
-                functions is present in the runtime library,
-                the implementation from dir_win.c can be used.
-
-  WCHAR_OS_PATH: Defined when the system calls (os_...) use
+  OS_PATH_WCHAR: Defined when the system calls (os_...) use
                  wide characters (type wchar_t) for the
-                 parameters describing a path.
+                 parameters describing a path. In this case
+                 functions like _wgetcwd(), wreaddir() and
+                 _wstati64() together with types like 'WDIR',
+                 'wdirent' and 'struct _stati64' must be used.
+                 It is therefore necessary to define the os_...
+                 macros accordingly.
+
+  OS_PATH_UTF8: Defined when the system calls (os_...) use
+                UTF-8 characters (type char) for the parameters
+                describing a path. In this case functions like
+                getcwd(), readdir() and stat() together  with
+                types like 'DIR', 'dirent' and 'struct stat'
+                must be used. When this functions and types do
+                not use the POSIX/SUS names it is necessary to
+                define the os_... macros accordingly.
 
   os_chdir: Function to be used instead of chdir() under the
             target operating system. If not defined chdir()
             is used.
+
+  os_getcwd: Function to be used instead of getcwd() under the
+             target operating system. If not defined getcwd()
+             is used.
 
   os_mkdir(path,mode): Function to be used instead of mkdir()
                        under the target operating system.
@@ -341,15 +344,38 @@ THE VERSION.H FILE
             target operating system. If not defined rmdir()
             is used.
 
+  os_opendir: Function to be used instead of opendir() under the
+              target operating system. If not defined opendir()
+              is used.
+
+  os_readdir: Function to be used instead of readdir() under the
+              target operating system. If not defined readdir()
+              is used.
+
+  os_closedir: Function to be used instead of closedir() under
+               the target operating system. If not defined
+               closedir() is used.
+
+  os_DIR: Type to be used instead of 'DIR' under the target
+          operating system. If not defined 'DIR' is used.
+
+  os_dirent_struct: Type to be used instead of 'struct dirent'
+                    under the target operating system. If not
+                    defined 'struct dirent' is used.
+
   os_fstat: Function to be used instead of fstat() under the
             target operating system. If not defined fstat()
+            is used.
+
+  os_lstat: Function to be used instead of lstat() under the
+            target operating system. If not defined lstat()
             is used.
 
   os_stat: Function to be used instead of stat() under the
            target operating system. If not defined stat()
            is used.
 
-  os_stat_struct: Struct to be used instead of 'struct stat'
+  os_stat_struct: Type to be used instead of 'struct stat'
                   under the target operating system. If not
                   defined 'struct stat' is used.
 
@@ -367,7 +393,7 @@ THE VERSION.H FILE
             target operating system. If not defined utime() is
             used.
 
-  os_utimbuf_struct: Struct to be used instead of
+  os_utimbuf_struct: Type to be used instead of
                      'struct utimbuf' under the target operating
                      system. If not defined 'struct utimbuf' is
                      used.

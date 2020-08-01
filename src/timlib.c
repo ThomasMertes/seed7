@@ -62,14 +62,14 @@ listtype arguments;
     isit_int(arg_6(arguments));
     isit_int(arg_7(arguments));
     isit_int(arg_8(arguments));
-    timAwait(arg_1(arguments)->value.intvalue,
-             arg_2(arguments)->value.intvalue,
-             arg_3(arguments)->value.intvalue,
-             arg_4(arguments)->value.intvalue,
-             arg_5(arguments)->value.intvalue,
-             arg_6(arguments)->value.intvalue,
-             arg_7(arguments)->value.intvalue,
-             arg_8(arguments)->value.intvalue);
+    timAwait(take_int(arg_1(arguments)),
+             take_int(arg_2(arguments)),
+             take_int(arg_3(arguments)),
+             take_int(arg_4(arguments)),
+             take_int(arg_5(arguments)),
+             take_int(arg_6(arguments)),
+             take_int(arg_7(arguments)),
+             take_int(arg_8(arguments)));
     return(SYS_EMPTY_OBJECT);
   } /* tim_await */
 
@@ -84,7 +84,10 @@ objecttype tim_now (arguments)
 listtype arguments;
 #endif
 
-  { /* tim_now */
+  {
+    booltype is_dst;
+
+  /* tim_now */
     isit_int(arg_1(arguments));
     isit_int(arg_2(arguments));
     isit_int(arg_3(arguments));
@@ -93,6 +96,7 @@ listtype arguments;
     isit_int(arg_6(arguments));
     isit_int(arg_7(arguments));
     isit_int(arg_8(arguments));
+    isit_bool(arg_9(arguments));
     timNow(&arg_1(arguments)->value.intvalue,
            &arg_2(arguments)->value.intvalue,
            &arg_3(arguments)->value.intvalue,
@@ -100,7 +104,13 @@ listtype arguments;
            &arg_5(arguments)->value.intvalue,
            &arg_6(arguments)->value.intvalue,
            &arg_7(arguments)->value.intvalue,
-           &arg_8(arguments)->value.intvalue);
+           &arg_8(arguments)->value.intvalue,
+           &is_dst);
+    if (is_dst) {
+      arg_9(arguments)->value.objvalue = SYS_TRUE_OBJECT;
+    } else {
+      arg_9(arguments)->value.objvalue = SYS_FALSE_OBJECT;
+    } /* if */
 /*  fprintf(stderr, "now      %04ld/%02ld/%02ld %02ld:%02ld:%02ld %7ld\n",
         arg_1(arguments)->value.intvalue,
         arg_2(arguments)->value.intvalue,

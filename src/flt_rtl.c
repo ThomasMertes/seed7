@@ -397,6 +397,7 @@ floattype upper_limit;
     floattype result;
 
   /* fltRand */
+    /* printf("fltRand(%f, %f)\n", lower_limit, upper_limit); */
     if (lower_limit > upper_limit) {
       raise_error(RANGE_ERROR);
       return(0.0);

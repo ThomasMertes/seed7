@@ -1542,6 +1542,13 @@ CONTENTS
                     A <= rand(A, B) and rand(A, B) <= B holds.
                     rand(A, A) => A,
                     rand(TRUE, FALSE) => EXCEPTION RANGE_ERROR )
+      compare(A, B) Compare function
+                  ( Type of result: integer,
+                    compare(FALSE, TRUE) => -1,
+                    compare(TRUE, TRUE) => 0,
+                    compare(TRUE, FALSE) => 1 )
+      hashCode(A) Hash function
+                  ( Type of result: integer )
     Statements:
       incr(A)   Increment
                   ( incr(A) => A:=succ(A) )
@@ -2348,10 +2355,10 @@ CONTENTS
 
 5.8 char
 
-    The type 'char' describes UNICODE characters. The 'char'
-  values use the UTF-32 encoding. In the source file a
-  character literal is written as UTF-8 UNICODE character
-  enclosed in single quotes. In order to represent nonprintable
+    The type 'char' describes UNICODE characters encoded
+  with UTF-32. In the source file a character literal is
+  written as UTF-8 encoded UNICODE character enclosed in
+  single quotes. In order to represent nonprintable
   characters and certain printable characters the following
   escape sequences may be used.
 
@@ -2437,8 +2444,8 @@ CONTENTS
   are allowed to grow very big, it can happen that there is not
   enough memory to represent a 'string' value. In this case the
   exception 'MEMORY_ERROR' is raised. In the source file a string
-  literal is a sequence of UTF-8 UNICODE characters surrounded
-  by double quotes.
+  literal is a sequence of UTF-8 encoded UNICODE characters
+  surrounded by double quotes.
 
   To represent control characters and certain other characters
   in strings the same escape sequences as for character literals
@@ -2596,9 +2603,9 @@ CONTENTS
                   ( lower("Lower")=>"lower" )
       compare(A, B) Compare function
                   ( Type of result: integer,
-                    compare("ABC", "ABCD")=>-1,
-                    compare("ABC", "ABC")=>0,
-                    compare("ABCD", "ABCC")=>1 )
+                    compare("ABC", "ABCD") => -1,
+                    compare("ABC", "ABC") => 0,
+                    compare("ABCD", "ABCC") => 1 )
       hashCode(A) Hash function
                   ( Type of result: integer )
     Statements:
@@ -3240,9 +3247,11 @@ CONTENTS
       time(NOW) Gets the current time
       str(A)    Conversion to string
                   ( Type of result: string )
-      str_date(A) Conversion of the date to string
+      strDate(A) Conversion of the date to string
                   ( Type of result: string )
-      str_time(A) Conversion of the daytime to string
+      strTime(A) Conversion of the daytime to string
+                  ( Type of result: string )
+      strTimeZone(A) Conversion of the time zone to string
                   ( Type of result: string )
       truncToSecond(A) Trunc a time to a second
       truncToMinute(A) Trunc a time to a minute
@@ -3269,7 +3278,7 @@ CONTENTS
                   ( Type of result: integer )
       weekDateWeek(A) Compute the week of the ISO 8601 week date
                   ( Type of result: integer )
-      toGMT(A)  Conversion to Greenwich Mean Time
+      toUTC(A)  Conversion to Coordinated Universal Time (UTC)
       julianDayNumber(A)  Number of days that have elapsed since
                 January 1, 4713 BC in the proleptic Julian calendar
                   ( Type of result: integer )

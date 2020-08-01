@@ -3454,14 +3454,15 @@ const func string: getenv (in string param) is action "STR_GETENV";
 
 (* DIRECTORY *)
 
-const integer: FILE_UNKNOWN is 0;
-const integer: FILE_REG     is 1;
-const integer: FILE_DIR     is 2;
-const integer: FILE_CHR     is 3;
-const integer: FILE_BLK     is 4;
-const integer: FILE_FIFO    is 5;
-const integer: FILE_LNK     is 6;
-const integer: FILE_SOCK    is 7;
+const integer: FILE_ABSENT  is 0; # A component of path does not exist
+const integer: FILE_UNKNOWN is 1; # File exists but has an unknown type
+const integer: FILE_REGULAR is 2;
+const integer: FILE_DIR     is 3;
+const integer: FILE_CHAR    is 4;
+const integer: FILE_BLOCK   is 5;
+const integer: FILE_FIFO    is 6;
+const integer: FILE_SYMLINK is 7;
+const integer: FILE_SOCKET  is 8;
 
 const proc: chdir (in string param) is                    action "CMD_CHDIR";
 const proc: mkdir (in string param) is                    action "CMD_MKDIR";
@@ -3470,8 +3471,10 @@ const func integer: fileSize (in string param) is         action "CMD_FILESIZE";
 const func integer: fileType (in string param) is         action "CMD_FILETYPE";
 const func array string: read_dir (in string param) is    action "CMD_LS";
 const proc: remove (in string param) is                   action "CMD_REMOVE";
+const proc: removeAnyFile (in string param) is            action "CMD_REMOVE_ANY_FILE";
 const proc: rename (in string param, in string param) is  action "CMD_MOVE";
 const proc: copy (in string param, in string param) is    action "CMD_COPY";
+const func string: readlink (in string param) is          action "CMD_READLINK";
 const proc: symlink (in string param, in string param) is action "CMD_SYMLINK";
 const func string: configValue (in string param) is       action "CMD_CONFIG_VALUE";
 

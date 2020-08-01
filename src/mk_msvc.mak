@@ -53,8 +53,8 @@ AOBJ3 = error.obj infile.obj symbol.obj info.obj stat.obj fatal.obj match.obj
 GOBJ1 = syvarutl.obj traceutl.obj actutl.obj arrutl.obj executl.obj blockutl.obj
 GOBJ2 = entutl.obj identutl.obj chclsutl.obj sigutl.obj
 ROBJ1 = arr_rtl.obj bln_rtl.obj bst_rtl.obj chr_rtl.obj cmd_rtl.obj dir_rtl.obj drw_rtl.obj fil_rtl.obj flt_rtl.obj
-ROBJ2 = hsh_rtl.obj int_rtl.obj kbd_rtl.obj scr_rtl.obj set_rtl.obj soc_rtl.obj str_rtl.obj ut8_rtl.obj heaputl.obj
-ROBJ3 = striutl.obj
+ROBJ2 = hsh_rtl.obj int_rtl.obj kbd_rtl.obj scr_rtl.obj set_rtl.obj soc_rtl.obj str_rtl.obj tim_rtl.obj ut8_rtl.obj
+ROBJ3 = heaputl.obj striutl.obj
 DOBJ1 = $(BIGINT_LIB).obj $(SCREEN_OBJ) tim_win.obj drw_win.obj dir_win.obj
 OBJ = $(MOBJ1)
 SEED7_LIB_OBJ = $(ROBJ1) $(ROBJ2) $(ROBJ3) $(DOBJ1)
@@ -73,8 +73,8 @@ ASRC3 = error.c infile.c symbol.c info.c stat.c fatal.c match.c
 GSRC1 = syvarutl.c traceutl.c actutl.c arrutl.c executl.c blockutl.c
 GSRC2 = entutl.c identutl.c chclsutl.c sigutl.c
 RSRC1 = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c dir_rtl.c drw_rtl.c fil_rtl.c flt_rtl.c
-RSRC2 = hsh_rtl.c int_rtl.c kbd_rtl.c scr_rtl.c set_rtl.c soc_rtl.c str_rtl.c ut8_rtl.c heaputl.c
-RSRC3 = striutl.c
+RSRC2 = hsh_rtl.c int_rtl.c kbd_rtl.c scr_rtl.c set_rtl.c soc_rtl.c str_rtl.c tim_rtl.c ut8_rtl.c
+RSRC3 = heaputl.c striutl.c
 DSRC1 = $(BIGINT_LIB).c $(SCREEN_SRC) tim_win.c drw_win.c dir_win.c
 SRC = $(MSRC1)
 SEED7_LIB_SRC = $(RSRC1) $(RSRC2) $(RSRC3) $(DSRC1)
@@ -144,17 +144,25 @@ version.h:
 	echo #undef  USE_MMAP >> version.h
 	echo #undef  INCL_NCURSES_TERM >> version.h
 	echo #undef  INCL_CURSES_BEFORE_TERM >> version.h
+	echo #define INCLUDE_SYS_UTIME >> version.h
 	echo #define ISNAN_WITH_UNDERLINE >> version.h
 	echo #define CHECK_INT_DIV_BY_ZERO >> version.h
 	echo #define FLOAT_ZERO_DIV_ERROR >> version.h
 	echo #define USE_MYUNISTD_H >> version.h
 	echo #define INT64TYPE __int64 >> version.h
 	echo #define UINT64TYPE unsigned __int64 >> version.h
-	echo #define WCHAR_OS_PATH >> version.h
+	echo #define OS_PATH_WCHAR >> version.h
 	echo #define os_chdir _wchdir >> version.h
+	echo #define os_getcwd _wgetcwd >> version.h
 	echo #define os_mkdir(path,mode) _wmkdir(path) >> version.h
 	echo #define os_rmdir _wrmdir >> version.h
+	echo #define os_opendir wopendir >> version.h
+	echo #define os_readdir wreaddir >> version.h
+	echo #define os_closedir wclosedir >> version.h
+	echo #define os_DIR WDIR >> version.h
+	echo #define os_dirent_struct struct wdirent >> version.h
 	echo #define os_fstat _fstati64 >> version.h
+	echo #define os_lstat _wstati64 >> version.h
 	echo #define os_stat _wstati64 >> version.h
 	echo #define os_stat_struct struct _stati64 >> version.h
 	echo #define os_chown(name,uid,gid) >> version.h
@@ -164,7 +172,6 @@ version.h:
 	echo #define os_remove _wremove >> version.h
 	echo #define os_rename _wrename >> version.h
 	echo #define wide_fopen _wfopen >> version.h
-	echo #define USE_WOPENDIR >> version.h
 	echo #define USE_FSEEKI64 >> version.h
 	echo #define USE_WINSOCK >> version.h
 	echo #define popen _popen >> version.h

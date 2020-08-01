@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  tim_dos.c     Time access using the dos capabilitys.            */
-/*  Copyright (C) 1989 - 2006  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2009  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/tim_dos.c                                       */
-/*  Changes: 1992, 1993, 1994  Thomas Mertes                        */
+/*  Changes: 1992, 1993, 1994, 2009  Thomas Mertes                  */
 /*  Content: Time access using the dos capabilitys.                 */
 /*                                                                  */
 /********************************************************************/
@@ -38,6 +38,8 @@
 #include "sys/timeb.h"
 
 #include "common.h"
+#include "tim_rtl.h"
+#include "rtl_err.h"
 
 #undef EXTERN
 #define EXTERN
@@ -65,36 +67,31 @@ inttype time_zone;
 #endif
 
   {
-    static struct tm *local_time = NULL;
+    struct tm tm_time;
     struct timeb tstruct;
     time_t await_second;
 
   /* timAwait */
 #ifdef TRACE_TIM_DOS
-    printf("BEGIN timAwait\n");
+    printf("BEGIN timAwait(%04ld-%02ld-%02ld %02ld:%02ld:%02ld.%06ld %ld)\n",
+        year, month, day, hour, min, sec, mycro_sec, time_zone);
 #endif
-    if (local_time == NULL) {
-      ftime(&tstruct);
-      local_time = localtime(&tstruct.time);
-    } /* if */
-    local_time->tm_year = (int) year - 1900;
-    local_time->tm_mon = (int) month - 1;
-    local_time->tm_mday = (int) day;
-    local_time->tm_hour = (int) hour;
-    local_time->tm_min = (int) min;
-    local_time->tm_sec = (int) sec;
-    await_second = mktime(local_time);
-    await_second += time_zone * 60;
+    tm_time.tm_year  = (int) year - 1900;
+    tm_time.tm_mon   = (int) month - 1;
+    tm_time.tm_mday  = (int) day;
+    tm_time.tm_hour  = (int) hour;
+    tm_time.tm_min   = (int) min;
+    tm_time.tm_sec   = (int) sec;
+    tm_time.tm_isdst = 0;
+    await_second = mkutc(&tm_time) - time_zone * 60;
 
     ftime(&tstruct);
-/*  printf("%d %d %d\n", tstruct.time, tstruct.timezone, tstruct.dstflag); */
-    await_second -= 60 * (int) tstruct.timezone;
-    if (tstruct.dstflag) {
-      await_second += 3600;
-    } /* if */
-/*  printf("%d %d %d %d\n",
-        tstruct.time, tstruct.millitm, await_second, mycro_sec); */
-/*  printf("tstruct.time < await_second: %d < %d\n", tstruct.time, await_second); */
+    /* printf("%ld %d %d %d\n",
+           tstruct.time, tstruct.millitm, tstruct.timezone, tstruct.dstflag);
+       printf("%ld %ld %ld\n",
+           await_second, mycro_sec, time_zone);
+       printf("tstruct.time < await_second: %d < %d\n",
+           tstruct.time, await_second); */
     if (tstruct.time < await_second) {
       do {
         ftime(&tstruct);
@@ -120,10 +117,11 @@ inttype time_zone;
 #ifdef ANSI_C
 
 void timNow (inttype *year, inttype *month, inttype *day, inttype *hour,
-    inttype *min, inttype *sec, inttype *mycro_sec, inttype *time_zone)
+    inttype *min, inttype *sec, inttype *mycro_sec, inttype *time_zone,
+    booltype *is_dst)
 #else
 
-void timNow (year, month, day, hour, min, sec, mycro_sec, time_zone)
+void timNow (year, month, day, hour, min, sec, mycro_sec, time_zone, is_dst)
 inttype *year;
 inttype *month;
 inttype *day;
@@ -132,10 +130,14 @@ inttype *min;
 inttype *sec;
 inttype *mycro_sec;
 inttype *time_zone;
+booltype *is_dst;
 #endif
 
   {
     struct timeb tstruct;
+#ifdef USE_LOCALTIME_R
+    struct tm tm_result;
+#endif
     struct tm *local_time;
 
   /* timNow */
@@ -143,20 +145,35 @@ inttype *time_zone;
     printf("BEGIN timNow\n");
 #endif
     ftime(&tstruct);
+#ifdef USE_LOCALTIME_R
+    local_time = localtime_r(&tstruct.time, &tm_result);
+#else
     local_time = localtime(&tstruct.time);
-    *year      = local_time->tm_year + 1900;
-    *month     = local_time->tm_mon + 1;
-    *day       = local_time->tm_mday;
-    *hour      = local_time->tm_hour;
-    *min       = local_time->tm_min;
-    *sec       = local_time->tm_sec;
-    *mycro_sec = 1000 * ((long) tstruct.millitm);
-    *time_zone = (long) tstruct.timezone;
-    if (tstruct.dstflag) {
-      *time_zone -= 60;
+#endif
+    if (local_time == NULL) {
+      raise_error(RANGE_ERROR);
+    } else {
+      *year      = local_time->tm_year + 1900;
+      *month     = local_time->tm_mon + 1;
+      *day       = local_time->tm_mday;
+      *hour      = local_time->tm_hour;
+      *min       = local_time->tm_min;
+      *sec       = local_time->tm_sec;
+      *mycro_sec = 1000 * ((long) tstruct.millitm);
+#ifdef TAKE_TIMEZONE_FROM_TSTRUCT
+      *time_zone = - (inttype) tstruct.timezone;
+      if (tstruct.dstflag) {
+        *time_zone += 60;
+      } /* if */
+      *is_dst    = tstruct.dstflag;
+#else
+      *time_zone = (mkutc(local_time) - tstruct.time) / 60;
+      *is_dst    = local_time->tm_isdst;
+#endif
     } /* if */
 #ifdef TRACE_TIM_DOS
-    printf("END timNow(%d, %d, %d, %d, %d, %d, %d, %d)\n",
-        *year, *month, *day, *hour, *min, *sec, *mycro_sec, *time_zone);
+    printf("END timNow(%04ld-%02ld-%02ld %02ld:%02ld:%02ld.%06ld %ld %d)\n",
+        *year, *month, *day, *hour, *min, *sec,
+        *mycro_sec, *time_zone, *is_dst);
 #endif
   } /* timNow */

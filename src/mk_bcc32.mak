@@ -10,6 +10,7 @@
 # CFLAGS = -O2 -fomit-frame-pointer -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2
 CFLAGS = -O2 -v
+# CFLAGS = -O2 -v -w-
 # CFLAGS = -O2 -g -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -fomit-frame-pointer -funroll-loops -Wall
 # CFLAGS = -O2 -funroll-loops -Wall -pg
@@ -54,8 +55,8 @@ AOBJ3 = error.obj infile.obj symbol.obj info.obj stat.obj fatal.obj match.obj
 GOBJ1 = syvarutl.obj traceutl.obj actutl.obj arrutl.obj executl.obj blockutl.obj
 GOBJ2 = entutl.obj identutl.obj chclsutl.obj sigutl.obj
 ROBJ1 = arr_rtl.obj bln_rtl.obj bst_rtl.obj chr_rtl.obj cmd_rtl.obj dir_rtl.obj drw_rtl.obj fil_rtl.obj flt_rtl.obj
-ROBJ2 = hsh_rtl.obj int_rtl.obj kbd_rtl.obj scr_rtl.obj set_rtl.obj soc_rtl.obj str_rtl.obj ut8_rtl.obj heaputl.obj
-ROBJ3 = striutl.obj
+ROBJ2 = hsh_rtl.obj int_rtl.obj kbd_rtl.obj scr_rtl.obj set_rtl.obj soc_rtl.obj str_rtl.obj tim_rtl.obj ut8_rtl.obj
+ROBJ3 = heaputl.obj striutl.obj
 DOBJ1 = $(BIGINT_LIB).obj $(SCREEN_OBJ) tim_win.obj drw_win.obj
 OBJ = $(MOBJ1)
 SEED7_LIB_OBJ = $(ROBJ1) $(ROBJ2) $(ROBJ3) $(DOBJ1)
@@ -74,8 +75,8 @@ ASRC3 = error.c infile.c symbol.c info.c stat.c fatal.c match.c
 GSRC1 = syvarutl.c traceutl.c actutl.c arrutl.c executl.c blockutl.c
 GSRC2 = entutl.c identutl.c chclsutl.c sigutl.c
 RSRC1 = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c dir_rtl.c drw_rtl.c fil_rtl.c flt_rtl.c
-RSRC2 = hsh_rtl.c int_rtl.c kbd_rtl.c scr_rtl.c set_rtl.c soc_rtl.c str_rtl.c ut8_rtl.c heaputl.c
-RSRC3 = striutl.c
+RSRC2 = hsh_rtl.c int_rtl.c kbd_rtl.c scr_rtl.c set_rtl.c soc_rtl.c str_rtl.c tim_rtl.c ut8_rtl.c
+RSRC3 = heaputl.c striutl.c
 DSRC1 = $(BIGINT_LIB).c $(SCREEN_SRC) tim_win.c drw_win.c
 SRC = $(MSRC1)
 SEED7_LIB_SRC = $(RSRC1) $(RSRC2) $(RSRC3) $(DSRC1)
@@ -148,6 +149,8 @@ version.h:
 	cmd /S /C "echo #define PATH_DELIMITER '\\'" >> version.h
 	cmd /S /C "echo #define NO_EMPTY_STRUCTS" >> version.h
 	cmd /S /C "echo #define CATCH_SIGNALS" >> version.h
+	cmd /S /C "echo #define USE_LOCALTIME_R" >> version.h
+	cmd /S /C "echo #define USE_ALTERNATE_LOCALTIME_R" >> version.h
 	cmd /S /C "echo #undef  USE_MMAP" >> version.h
 	cmd /S /C "echo #undef  INCL_NCURSES_TERM" >> version.h
 	cmd /S /C "echo #undef  INCL_CURSES_BEFORE_TERM" >> version.h
@@ -158,22 +161,28 @@ version.h:
 	cmd /S /C "echo #define USE_MYUNISTD_H" >> version.h
 	cmd /S /C "echo #define INT64TYPE __int64" >> version.h
 	cmd /S /C "echo #define UINT64TYPE unsigned __int64" >> version.h
-	cmd /S /C "echo #define WCHAR_OS_PATH" >> version.h
+	cmd /S /C "echo #define INT64TYPE_SUFFIX_LL" >> version.h
+	cmd /S /C "echo #define OS_PATH_WCHAR" >> version.h
 	cmd /S /C "echo #define os_chdir _wchdir" >> version.h
+	cmd /S /C "echo #define os_getcwd _wgetcwd" >> version.h
 	cmd /S /C "echo #define os_mkdir(path,mode) _wmkdir(path)" >> version.h
 	cmd /S /C "echo #define os_rmdir _wrmdir" >> version.h
+	cmd /S /C "echo #define os_opendir wopendir" >> version.h
+	cmd /S /C "echo #define os_readdir wreaddir" >> version.h
+	cmd /S /C "echo #define os_closedir wclosedir" >> version.h
+	cmd /S /C "echo #define os_DIR wDIR" >> version.h
+	cmd /S /C "echo #define os_dirent_struct struct wdirent >> version.h
 	cmd /S /C "echo #define os_fstat _fstat" >> version.h
+	cmd /S /C "echo #define os_lstat _wstat" >> version.h
 	cmd /S /C "echo #define os_stat _wstat" >> version.h
 	cmd /S /C "echo #define os_stat_struct struct _stat" >> version.h
 	cmd /S /C "echo #define os_chown(NAME,UID,GID)" >> version.h
 	cmd /S /C "echo #define os_chmod _wchmod" >> version.h
 	cmd /S /C "echo #define os_utime _wutime" >> version.h
-	cmd /S /C "echo #define os_utimbuf_struct struct _utimbuf" >> version.h
+	cmd /S /C "echo #define os_utimbuf_struct struct utimbuf" >> version.h
 	cmd /S /C "echo #define os_remove _wremove" >> version.h
 	cmd /S /C "echo #define os_rename _wrename" >> version.h
 	cmd /S /C "echo #define wide_fopen _wfopen" >> version.h
-	cmd /S /C "echo #define USE_WOPENDIR" >> version.h
-	cmd /S /C "echo #define WDIR wDIR" >> version.h
 	cmd /S /C "echo #define USE_WINSOCK" >> version.h
 	cmd /S /C "echo #define popen _popen" >> version.h
 	cmd /S /C "echo #$(USE_BIG_RTL_LIBRARY) USE_BIG_RTL_LIBRARY" >> version.h

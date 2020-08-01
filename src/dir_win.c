@@ -81,7 +81,7 @@ char *name;
       if (result->dir_handle != INVALID_HANDLE_VALUE) {
 /*      printf("==> OK\n");
         printf(">%s<\n", result->find_record.name); */
-        result->first_element = TRUE;
+        result->first_element = 1;
       } else {
 /*      printf("==> ERROR\n"); */
         free(result);
@@ -109,7 +109,7 @@ DIR *curr_dir;
 /*  printf("readdir();\n"); */
     if (curr_dir->first_element) {
 /*    printf("first\n"); */
-      curr_dir->first_element = FALSE;
+      curr_dir->first_element = 0;
       curr_dir->dir_entry.d_name = (char *) curr_dir->find_record.cFileName;
       result = &curr_dir->dir_entry;
 /*    printf(">%s<\n", result->d_name); */
@@ -180,7 +180,7 @@ wchar_t *name;
       if (result->dir_handle != INVALID_HANDLE_VALUE) {
 /*      printf("==> OK\n");
         printf(">%s<\n", result->find_record.name); */
-        result->first_element = TRUE;
+        result->first_element = 1;
       } else {
 /*      printf("==> ERROR\n"); */
         free(result);
@@ -208,7 +208,7 @@ WDIR *curr_dir;
 /*  printf("wreaddir();\n"); */
     if (curr_dir->first_element) {
 /*    printf("first\n"); */
-      curr_dir->first_element = FALSE;
+      curr_dir->first_element = 0;
       curr_dir->dir_entry.d_name = (wchar_t *) curr_dir->find_record.cFileName;
       result = &curr_dir->dir_entry;
 /*    printf(">%s<\n", result->d_name); */

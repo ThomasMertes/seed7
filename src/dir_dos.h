@@ -43,7 +43,7 @@ struct dirent {
 typedef struct {
     long dir_handle;
     struct _finddata_t find_record;
-    booltype first_element;
+    int first_element;
     struct dirent dir_entry;
   } DIR;
 
@@ -57,7 +57,7 @@ struct dirent {
 
 typedef struct {
     struct find_t find_record;
-    booltype first_element;
+    int first_element;
     struct dirent dir_entry;
   } DIR;
 

@@ -322,37 +322,41 @@ const func float: localSiderealToCivilTime (in float: localSiderealTime,
     t := greenwichSiderealTime - flt(dayOfYear(aTime)) * 0.0657098 + b;
     hoursToRange(t);
     greenwichMeanTime := t * 0.99727;
-    result := greenwichMeanTime - flt(aTime.timezone) / 60.0;
+    result := greenwichMeanTime + flt(aTime.timeZone) / 60.0;
   end func;
 
 
 const proc: showLocalTime (inout text: win) is func
   local
     var string: timeStri is "";
+    const integer: column is 1;
   begin
     timeStri := aTime lpad 19;
-    setPos(win, 1, 5);
+    setPos(win, 1, column);
     writeln(win, timeStri);
     color(win, light_cyan);
     case currTimeChange of
       when {1}:
-        setPos(win, 1, 5);
+        setPos(win, 1, column);
         write(win, timeStri[.. 4]);
       when {2}:
-        setPos(win, 1, 10);
+        setPos(win, 1, column + 5);
         write(win, timeStri[6 .. 7]);
       when {3}:
-        setPos(win, 1, 13);
+        setPos(win, 1, column + 8);
         write(win, timeStri[9 .. 10]);
       when {4}:
-        setPos(win, 1, 16);
+        setPos(win, 1, column + 11);
         write(win, timeStri[12 .. 13]);
       when {5}:
-        setPos(win, 1, 19);
+        setPos(win, 1, column + 14);
         write(win, timeStri[15 .. 16]);
       when {6}:
-        setPos(win, 1, 22);
+        setPos(win, 1, column + 17);
         write(win, timeStri[18 .. 19]);
+      when {7}:
+        setPos(win, 1, column + 20);
+        write(win, timeStri[21 .. 26]);
     end case;
     color(win, white);
     writeln(win);
@@ -392,10 +396,10 @@ const proc: showTime is func
     writeln(win, "Longitude    = " <& angleAsDegrees(posAtEarth.longitude));
     writeln(win, "Latitude     = " <& angleAsDegrees(posAtEarth.latitude));
     write(win, "localCivilTime        = ");
-    writeln(win, str_time(aTime));
-    gmTime := toGMT(aTime);
+    writeln(win, strTime(aTime));
+    gmTime := toUTC(aTime);
     write(win, "greenwichMeanTime     = ");
-    writeln(win, str_time(gmTime));
+    writeln(win, strTime(gmTime));
     greenwichMeanSiderealTime := calculateGreenwichMeanSiderealTime(gmTime);
     write(win, "greenwichSiderealTime = ");
     write(win, trunc(greenwichMeanSiderealTime) lpad0 2);
@@ -1409,14 +1413,14 @@ const proc: main is func
     IN := open_echo(KEYBOARD, scr);
     IN := open_line(IN);
     OUT := scr;
-    aTime := time(NOW);
+    aTime := truncToSecond(time(NOW));
     initOrbitDescr;
 
     showMenu;
     repeat
       ch := getc(KEYBOARD);
       if ch = KEY_RIGHT then
-        if currTimeChange < 6 then
+        if currTimeChange < 7 then
           incr(currTimeChange);
         end if;
       elsif ch = KEY_LEFT then
@@ -1431,6 +1435,9 @@ const proc: main is func
           when {4}: aTime -:= 1 . HOURS;
           when {5}: aTime -:= 1 . MINUTES;
           when {6}: aTime -:= 1 . SECONDS;
+          when {7}: if aTime.timeZone > -720 then
+                      aTime.timeZone -:= 60;
+                    end if;
         end case;
       elsif ch = KEY_DOWN then
         case currTimeChange of
@@ -1440,6 +1447,9 @@ const proc: main is func
           when {4}: aTime +:= 1 . HOURS;
           when {5}: aTime +:= 1 . MINUTES;
           when {6}: aTime +:= 1 . SECONDS;
+          when {7}: if aTime.timeZone < 840 then
+                      aTime.timeZone +:= 60;
+                    end if;
         end case;
       else
         old_command := command;

@@ -35,6 +35,8 @@
 #include "stdio.h"
 #include "string.h"
 
+#include "dir_drv.h"
+
 #include "common.h"
 #include "striutl.h"
 #include "heaputl.h"
@@ -45,7 +47,7 @@
 #include "dir_rtl.h"
 
 
-#ifdef USE_WOPENDIR
+#ifdef OS_PATH_WCHAR
 wchar_t dot[]    = {'.', 0};
 wchar_t dotdot[] = {'.', '.', 0};
 wchar_t slash[]  = {'/', 0};
@@ -122,10 +124,10 @@ dirtype directory;
     if (current_entry == NULL) {
       result = NULL;
     } else {
-#ifdef USE_WOPENDIR
+#ifdef OS_PATH_WCHAR
       result = wstri_to_stri(current_entry->d_name);
 #else
-#ifdef READDIR_UTF8
+#ifdef OS_PATH_UTF8
       result = cstri8_to_stri(current_entry->d_name);
       if (result == NULL) {
         result = cstri_to_stri(current_entry->d_name);

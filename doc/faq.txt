@@ -121,7 +121,7 @@ the 'src' directory and type:
     make depend
     make
 
-For other cases several makefiles are prepared vor various
+For other cases several makefiles are prepared for various
 combinations of operating system, make utility, C compiler
 and shell:
 

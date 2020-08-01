@@ -1,6 +1,45 @@
+20090309:
+- The chapters about boolean, complex, char, string and time in the manual were improved.
+- A new library named utf16.s7i, which contains support to read and write UTF-16 files,
+  was added.
+- The functions removeAnyFile, readlink and symlink were added to the seed7_05.s7i
+  library.
+- The seed7_05.s7i function fileType was improved to return the values FILE_ABSENT,
+  FILE_UNKNOWN, FILE_REGULAR, FILE_DIR, FILE_CHAR, FILE_BLOCK, FILE_FIFO, FILE_SYMLINK
+  and FILE_SOCKET.
+- The functions strTimeZone, getATime, setATime, getMTime and setMTime were added to the
+  time.s7i library.
+- The time.s7i functions str_date, str_time and toGMT were renamed to strDate, strTime
+  and getUTC respectively.
+- The time.s7i function 'str' for the type 'time' was improved to include also a time
+  zone description.
+- The K&R function headers in several files were corrected.
+- The files tim_rtl.c and tim_rtl.h were introduced to support conversion between 'time'
+  and unix timestamps with the functions mkutc, timFromTimestamp and timToTimestamp.
+- The driver functions timAwait and timNow were improved in the files tim_dos.c,
+  tim_unx.c and tim_win.c .
+- The functions remove_dir, remove_any_file, copy_dir, copy_any_file, cmdBigFileSize,
+  cmdFileType, cmdGetcwd and cmdSymlink in the file cmd_rtl.c were improved.
+- The functions cmdGetATime, cmdGetMTime, cmdReadlink, cmdRemoveAnyFile, cmdSetATime
+  and cmdSetMTime were added to the file cmd_rtl.c .
+- The feature test macro WCHAR_OS_PATH was renamed to OS_PATH_WCHAR in several files.
+- Several makefiles were improved to create defines for HAS_SYMLINKS, USE_LOCALTIME_R,
+  INT64TYPE_SUFFIX_LL, OS_PATH_UTF8, OS_PATH_WCHAR, os_getcwd, os_opendir, os_readdir,
+  os_closedir, os_DIR, os_dirent_struct and os_lstat in the file version.h .
+- The interpreter and the compiler (comp.sd7) were improved to support the new
+  primitive actions CMD_GET_ATIME, CMD_GET_MTIME, CMD_READLINK, CMD_REMOVE_ANY_FILE,
+  CMD_SET_ATIME and CMD_SET_MTIME.
+- An explanation of the defines OS_PATH_WCHAR, OS_PATH_UTF8, os_getcwd, os_opendir,
+  os_readdir, os_closedir, os_DIR, os_dirent_struct and os_lstat was added to the file
+  'src/read_me.txt'.
+- The function alternate_localtime_r was introduced to be used with bcc32 (which has
+  strange ideas about when daylight saving time begins).
+- The files bas7.sd7 and planets.sd7 were adjusted to use the improved time functions.
+- Spelling errors in the FAQ and in src/read_me.txt were fixed.
+
 20090222:
 - A new example program (chkhsh.sd7), which checks hash table operations, was added.
-- The logic to link to librarys in the compiler (comp.sd7) was improved,
+- The logic to link to librarys in the compiler (comp.sd7) was improved.
 - A compare function was added for the type 'boolean'.
 - The file big_rtl.c was improved to avoid unnecessary shifts wider than the size of
   the type (the result of this shifts was not used anyway).

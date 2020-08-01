@@ -44,16 +44,16 @@
 #endif
 #include "errno.h"
 
-#include "common.h"
-#include "heaputl.h"
-#include "striutl.h"
-#include "rtl_err.h"
-
 #ifdef USE_MYUNISTD_H
 #include "myunistd.h"
 #else
 #include "unistd.h"
 #endif
+
+#include "common.h"
+#include "heaputl.h"
+#include "striutl.h"
+#include "rtl_err.h"
 
 #undef EXTERN
 #define EXTERN

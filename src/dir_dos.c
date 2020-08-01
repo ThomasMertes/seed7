@@ -85,7 +85,7 @@ char *name;
 #endif
 /*      printf("==> OK\n");
         printf(">%s<\n", result->find_record.name); */
-        result->first_element = TRUE;
+        result->first_element = 1;
       } else {
 /*      printf("==> ERROR\n"); */
         free(result);
@@ -115,7 +115,7 @@ DIR *curr_dir;
     result = &curr_dir->dir_entry;
     if (curr_dir->first_element) {
 /*    printf("first\n"); */
-      curr_dir->first_element = FALSE;
+      curr_dir->first_element = 0;
       name_len = strlen(curr_dir->find_record.name);
       if (name_len >= sizeof(result->d_name)) {
         name_len = sizeof(result->d_name) - 1;

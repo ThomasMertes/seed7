@@ -31,6 +31,8 @@
 #include "stdio.h"
 #include "string.h"
 
+#include "dir_drv.h"
+
 #include "common.h"
 #include "data.h"
 #include "heaputl.h"
@@ -262,6 +264,92 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype cmd_get_atime (listtype arguments)
+#else
+
+objecttype cmd_get_atime (arguments)
+listtype arguments;
+#endif
+
+  {
+    booltype is_dst;
+
+  /* cmd_get_atime */
+    isit_stri(arg_1(arguments));
+    isit_int(arg_2(arguments));
+    isit_int(arg_3(arguments));
+    isit_int(arg_4(arguments));
+    isit_int(arg_5(arguments));
+    isit_int(arg_6(arguments));
+    isit_int(arg_7(arguments));
+    isit_int(arg_8(arguments));
+    isit_int(arg_9(arguments));
+    isit_bool(arg_10(arguments));
+    cmdGetATime(take_stri(arg_1(arguments)),
+            &arg_2(arguments)->value.intvalue,
+            &arg_3(arguments)->value.intvalue,
+            &arg_4(arguments)->value.intvalue,
+            &arg_5(arguments)->value.intvalue,
+            &arg_6(arguments)->value.intvalue,
+            &arg_7(arguments)->value.intvalue,
+            &arg_8(arguments)->value.intvalue,
+            &arg_9(arguments)->value.intvalue,
+            &is_dst);
+    if (is_dst) {
+      arg_10(arguments)->value.objvalue = SYS_TRUE_OBJECT;
+    } else {
+      arg_10(arguments)->value.objvalue = SYS_FALSE_OBJECT;
+    } /* if */
+    return(SYS_EMPTY_OBJECT);
+  } /* cmd_get_atime */
+
+
+
+#ifdef ANSI_C
+
+objecttype cmd_get_mtime (listtype arguments)
+#else
+
+objecttype cmd_get_mtime (arguments)
+listtype arguments;
+#endif
+
+  {
+    booltype is_dst;
+
+  /* cmd_get_mtime */
+    isit_stri(arg_1(arguments));
+    isit_int(arg_2(arguments));
+    isit_int(arg_3(arguments));
+    isit_int(arg_4(arguments));
+    isit_int(arg_5(arguments));
+    isit_int(arg_6(arguments));
+    isit_int(arg_7(arguments));
+    isit_int(arg_8(arguments));
+    isit_int(arg_9(arguments));
+    isit_bool(arg_10(arguments));
+    cmdGetMTime(take_stri(arg_1(arguments)),
+            &arg_2(arguments)->value.intvalue,
+            &arg_3(arguments)->value.intvalue,
+            &arg_4(arguments)->value.intvalue,
+            &arg_5(arguments)->value.intvalue,
+            &arg_6(arguments)->value.intvalue,
+            &arg_7(arguments)->value.intvalue,
+            &arg_8(arguments)->value.intvalue,
+            &arg_9(arguments)->value.intvalue,
+            &is_dst);
+    if (is_dst) {
+      arg_10(arguments)->value.objvalue = SYS_TRUE_OBJECT;
+    } else {
+      arg_10(arguments)->value.objvalue = SYS_FALSE_OBJECT;
+    } /* if */
+    return(SYS_EMPTY_OBJECT);
+  } /* cmd_get_mtime */
+
+
+
+#ifdef ANSI_C
+
 objecttype cmd_ls (listtype arguments)
 #else
 
@@ -332,6 +420,23 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype cmd_readlink (listtype arguments)
+#else
+
+objecttype cmd_readlink (arguments)
+listtype arguments;
+#endif
+
+  { /* cmd_readlink */
+    isit_stri(arg_1(arguments));
+    return(bld_stri_temp(
+        cmdReadlink(take_stri(arg_1(arguments)))));
+  } /* cmd_readlink */
+
+
+
+#ifdef ANSI_C
+
 objecttype cmd_remove (listtype arguments)
 #else
 
@@ -344,6 +449,89 @@ listtype arguments;
     cmdRemove(take_stri(arg_1(arguments)));
     return(SYS_EMPTY_OBJECT);
   } /* cmd_remove */
+
+
+
+#ifdef ANSI_C
+
+objecttype cmd_remove_any_file (listtype arguments)
+#else
+
+objecttype cmd_remove_any_file (arguments)
+listtype arguments;
+#endif
+
+  { /* cmd_remove_any_file */
+    isit_stri(arg_1(arguments));
+    cmdRemoveAnyFile(take_stri(arg_1(arguments)));
+    return(SYS_EMPTY_OBJECT);
+  } /* cmd_remove_any_file */
+
+
+
+#ifdef ANSI_C
+
+objecttype cmd_set_atime (listtype arguments)
+#else
+
+objecttype cmd_set_atime (arguments)
+listtype arguments;
+#endif
+
+  { /* cmd_set_atime */
+    isit_stri(arg_1(arguments));
+    isit_int(arg_2(arguments));
+    isit_int(arg_3(arguments));
+    isit_int(arg_4(arguments));
+    isit_int(arg_5(arguments));
+    isit_int(arg_6(arguments));
+    isit_int(arg_7(arguments));
+    isit_int(arg_8(arguments));
+    isit_int(arg_9(arguments));
+    cmdSetATime(take_stri(arg_1(arguments)),
+                take_int(arg_2(arguments)),
+                take_int(arg_3(arguments)),
+                take_int(arg_4(arguments)),
+                take_int(arg_5(arguments)),
+                take_int(arg_6(arguments)),
+                take_int(arg_7(arguments)),
+                take_int(arg_8(arguments)),
+                take_int(arg_9(arguments)));
+    return(SYS_EMPTY_OBJECT);
+  } /* cmd_set_atime */
+
+
+
+#ifdef ANSI_C
+
+objecttype cmd_set_mtime (listtype arguments)
+#else
+
+objecttype cmd_set_mtime (arguments)
+listtype arguments;
+#endif
+
+  { /* cmd_set_mtime */
+    isit_stri(arg_1(arguments));
+    isit_int(arg_2(arguments));
+    isit_int(arg_3(arguments));
+    isit_int(arg_4(arguments));
+    isit_int(arg_5(arguments));
+    isit_int(arg_6(arguments));
+    isit_int(arg_7(arguments));
+    isit_int(arg_8(arguments));
+    isit_int(arg_9(arguments));
+    cmdSetMTime(take_stri(arg_1(arguments)),
+                take_int(arg_2(arguments)),
+                take_int(arg_3(arguments)),
+                take_int(arg_4(arguments)),
+                take_int(arg_5(arguments)),
+                take_int(arg_6(arguments)),
+                take_int(arg_7(arguments)),
+                take_int(arg_8(arguments)),
+                take_int(arg_9(arguments)));
+    return(SYS_EMPTY_OBJECT);
+  } /* cmd_set_mtime */
 
 
 

@@ -29,26 +29,16 @@
 /*                                                                  */
 /********************************************************************/
 
-#include "dir_drv.h"
+typedef os_DIR *dirtype;
 
-#ifdef USE_WOPENDIR
-typedef WDIR *dirtype;
-typedef struct wdirent os_dirent_struct;
+#ifdef OS_PATH_WCHAR
 extern wchar_t dot[];
 extern wchar_t dotdot[];
 extern wchar_t slash[];
-#define os_closedir wclosedir
-#define os_opendir  wopendir
-#define os_readdir  wreaddir
 #else
-typedef DIR *dirtype;
-typedef struct dirent os_dirent_struct;
 extern char dot[];
 extern char dotdot[];
 extern char slash[];
-#define os_closedir closedir
-#define os_opendir  opendir
-#define os_readdir  readdir
 #endif
 
 

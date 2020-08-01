@@ -214,7 +214,7 @@ settype set2;
           return(-1);
         } /* if */
       } /* for */
-    } else if (set1->min_position > set2->min_position) {
+    } else {
       min1_index = 0;
       min2_index = set1->min_position - set2->min_position;
       for (bitset_index = 0; bitset_index < min2_index; bitset_index++) {

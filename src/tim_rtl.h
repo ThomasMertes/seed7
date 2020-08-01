@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
-/*  dir_win.h     Directory access using the windows capabilitys.   */
-/*  Copyright (C) 1989 - 2007  Thomas Mertes                        */
+/*  tim_rtl.h     Time access using the C capabilitys.              */
+/*  Copyright (C) 1989 - 2009  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -23,57 +23,26 @@
 /*  Fifth Floor, Boston, MA  02110-1301, USA.                       */
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
-/*  File: seed7/src/dir_win.h                                       */
-/*  Changes: 1993, 1994, 2007  Thomas Mertes                        */
-/*  Content: Directory access using _findfirst and _findnext.       */
-/*                                                                  */
-/*  Implements opendir, readdir and closedir in the way it is       */
-/*  defined in unix.                                                */
+/*  File: seed7/src/tim_rtl.h                                       */
+/*  Changes: 2009  Thomas Mertes                                    */
+/*  Content: Time access using the C capabilitys.                   */
 /*                                                                  */
 /********************************************************************/
 
-#include "windows.h"
-
-
-struct dirent {
-    char *d_name;
-  };
-
-typedef struct {
-    HANDLE dir_handle;
-    WIN32_FIND_DATAA find_record;
-    int first_element;
-    struct dirent dir_entry;
-  } DIR;
-
-struct wdirent {
-    wchar_t *d_name;
-  };
-
-typedef struct {
-    HANDLE dir_handle;
-    WIN32_FIND_DATAW find_record;
-    int first_element;
-    struct wdirent dir_entry;
-  } WDIR;
-
-
 #ifdef ANSI_C
 
-DIR *opendir (char *);
-struct dirent *readdir (DIR *);
-int closedir (DIR *);
-WDIR *wopendir (wchar_t *);
-struct wdirent *wreaddir (WDIR *);
-int wclosedir (WDIR *);
+time_t mkutc (struct tm *timeptr);
+void timFromTimestamp (time_t st_time,
+    inttype *year, inttype *month, inttype *day, inttype *hour,
+    inttype *min, inttype *sec, inttype *mycro_sec, inttype *time_zone,
+    booltype *is_dst);
+time_t timToTimestamp (inttype year, inttype month, inttype day, inttype hour,
+    inttype min, inttype sec, inttype mycro_sec, inttype time_zone);
 
 #else
 
-DIR *opendir ();
-struct dirent *readdir ();
-int closedir ();
-WDIR *wopendir ();
-struct wdirent *wreaddir ();
-int wclosedir ();
+time_t mkutc ();
+void timFromTimestamp ();
+time_t timToTimestamp ();
 
 #endif

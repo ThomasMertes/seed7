@@ -34,10 +34,7 @@ const proc: main is func
     writeln;
     while busy_getc(KEYBOARD) = KEY_NONE do
       last_time := time(NOW);
-      write(last_time);
-      write(" ");
-      write(last_time.mycro_second lpad0 6);
-      write("\r");
+      write(last_time <& "\r");
       flush(OUT);
     end while;
     writeln;

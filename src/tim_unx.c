@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  tim_unx.c     Time access using the unix capabilitys.           */
-/*  Copyright (C) 1989 - 2006  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2009  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/tim_unx.c                                       */
-/*  Changes: 1992, 1993, 1994  Thomas Mertes                        */
+/*  Changes: 1992, 1993, 1994, 2009  Thomas Mertes                  */
 /*  Content: Time access using the unix capabilitys.                */
 /*                                                                  */
 /********************************************************************/
@@ -38,6 +38,8 @@
 #include "setjmp.h"
 
 #include "common.h"
+#include "tim_rtl.h"
+#include "rtl_err.h"
 
 #undef EXTERN
 #define EXTERN
@@ -45,7 +47,6 @@
 
 #undef TRACE_TIM_UNX
 #define USE_SIGACTION
-#define GET_TIME_ZONE_ALWAYS
 
 
 #ifdef ANSI_C
@@ -65,42 +66,11 @@ int pause ();
 #endif
 
 
-#ifndef GET_TIME_ZONE_ALWAYS
-static booltype refresh_time_zone = TRUE;
-static inttype local_time_zone;
-#endif
-
-
 #ifdef USE_SIGACTION
 sigjmp_buf wait_finished;
 #else
 jmp_buf wait_finished;
 #endif
-
-
-
-#ifdef ANSI_C
-
-static inttype get_time_zone (time_t tv_sec)
-#else
-
-static inttype get_time_zone (tv_sec)
-time_t tv_sec;
-#endif
-
-  {
-    struct tm *gm_time;
-
-  /* get_time_zone */
-#ifdef TRACE_TIM_UNX
-    printf("BEGIN get_time_zone\n");
-#endif
-    gm_time = gmtime(&tv_sec);
-    return((mktime(gm_time) - tv_sec) / 60);
-#ifdef TRACE_TIM_UNX
-    printf("END get_time_zone\n");
-#endif
-  } /* get_time_zone */
 
 
 
@@ -147,51 +117,27 @@ inttype time_zone;
 #endif
 
   {
-    static struct tm *local_time = NULL;
+    struct tm tm_time;
     time_t await_second;
     struct timeval time_val;
-    struct timezone this_time_zone;
     struct itimerval timer_value;
     struct sigaction action;
 
   /* timAwait */
 #ifdef TRACE_TIM_UNX
-    printf("BEGIN timAwait\n");
+    printf("BEGIN timAwait(%04ld-%02ld-%02ld %02ld:%02ld:%02ld.%06ld %ld)\n",
+        year, month, day, hour, min, sec, mycro_sec, time_zone);
 #endif
-    /* fprintf(stderr, "await     %04ld-%02ld-%02ld %02ld:%02ld:%02ld %7ld %ld\n",
-        year,
-        month,
-        day,
-        hour,
-        min,
-        sec,
-        mycro_sec,
-        time_zone); */
-    if (local_time == NULL) {
-      gettimeofday(&time_val, &this_time_zone);
-      local_time = localtime(&time_val.tv_sec);
-    } /* if */
-    local_time->tm_year = (int) year - 1900;
-    local_time->tm_mon  = (int) month - 1;
-    local_time->tm_mday = (int) day;
-    local_time->tm_hour = (int) hour;
-    local_time->tm_min  = (int) min;
-    local_time->tm_sec  = (int) sec;
-    await_second = mktime(local_time);
-    gettimeofday(&time_val, &this_time_zone);
-#ifdef USE_TZ_MINUTESWEST
-    await_second += (time_zone - this_time_zone.tz_minuteswest) * 60;
-#else
-#ifdef GET_TIME_ZONE_ALWAYS
-    await_second += (time_zone - get_time_zone(time_val.tv_sec)) * 60;
-#else
-    if (refresh_time_zone) {
-      local_time_zone = get_time_zone(time_val.tv_sec);
-      refresh_time_zone = FALSE;
-    } /* if */
-    await_second += (time_zone - local_time_zone) * 60;
-#endif
-#endif
+    tm_time.tm_year  = (int) year - 1900;
+    tm_time.tm_mon   = (int) month - 1;
+    tm_time.tm_mday  = (int) day;
+    tm_time.tm_hour  = (int) hour;
+    tm_time.tm_min   = (int) min;
+    tm_time.tm_sec   = (int) sec;
+    tm_time.tm_isdst = 0;
+    await_second = mkutc(&tm_time) - time_zone * 60;
+
+    gettimeofday(&time_val, NULL);
     if (time_val.tv_sec < await_second ||
         (time_val.tv_sec == await_second &&
         time_val.tv_usec < mycro_sec)) {
@@ -203,16 +149,15 @@ inttype time_zone;
         timer_value.it_value.tv_sec--;
       } /* if */
 #ifdef TRACE_TIM_UNX
-    fprintf(stderr, "%d %ld %ld %ld %ld %ld %ld %ld %ld\n",
-        this_time_zone.tz_minuteswest,
-        time_val.tv_sec,
-        await_second,
-        await_second - time_val.tv_sec,
-        time_val.tv_usec,
-        mycro_sec,
-        mycro_sec - time_val.tv_usec,
-        timer_value.it_value.tv_sec,
-        timer_value.it_value.tv_usec);
+      fprintf(stderr, "%ld %ld %ld %ld %ld %ld %ld %ld\n",
+          time_val.tv_sec,
+          await_second,
+          await_second - time_val.tv_sec,
+          time_val.tv_usec,
+          mycro_sec,
+          mycro_sec - time_val.tv_usec,
+          timer_value.it_value.tv_sec,
+          timer_value.it_value.tv_usec);
 #endif
       timer_value.it_interval.tv_sec = 0;
       timer_value.it_interval.tv_usec = 0;
@@ -277,50 +222,26 @@ inttype time_zone;
 #endif
 
   {
-    static struct tm *local_time = NULL;
+    struct tm tm_time;
     time_t await_second;
     struct timeval time_val;
-    struct timezone this_time_zone;
     struct itimerval timer_value;
 
   /* timAwait */
 #ifdef TRACE_TIM_UNX
-    printf("BEGIN timAwait\n");
+    printf("BEGIN timAwait(%04ld-%02ld-%02ld %02ld:%02ld:%02ld.%06ld %ld)\n",
+        year, month, day, hour, min, sec, mycro_sec, time_zone);
 #endif
-    /* fprintf(stderr, "await     %04ld-%02ld-%02ld %02ld:%02ld:%02ld %7ld %ld\n",
-        year,
-        month,
-        day,
-        hour,
-        min,
-        sec,
-        mycro_sec,
-        time_zone); */
-    if (local_time == NULL) {
-      gettimeofday(&time_val, &this_time_zone);
-      local_time = localtime(&time_val.tv_sec);
-    } /* if */
-    local_time->tm_year = (int) year - 1900;
-    local_time->tm_mon  = (int) month - 1;
-    local_time->tm_mday = (int) day;
-    local_time->tm_hour = (int) hour;
-    local_time->tm_min  = (int) min;
-    local_time->tm_sec  = (int) sec;
-    await_second = mktime(local_time);
-    gettimeofday(&time_val, &this_time_zone);
-#ifdef USE_TZ_MINUTESWEST
-    await_second += (time_zone - this_time_zone.tz_minuteswest) * 60;
-#else
-#ifdef GET_TIME_ZONE_ALWAYS
-    await_second += (time_zone - get_time_zone(time_val.tv_sec)) * 60;
-#else
-    if (refresh_time_zone) {
-      local_time_zone = get_time_zone(time_val.tv_sec);
-      refresh_time_zone = FALSE;
-    } /* if */
-    await_second += (time_zone - local_time_zone) * 60;
-#endif
-#endif
+    tm_time.tm_year  = (int) year - 1900;
+    tm_time.tm_mon   = (int) month - 1;
+    tm_time.tm_mday  = (int) day;
+    tm_time.tm_hour  = (int) hour;
+    tm_time.tm_min   = (int) min;
+    tm_time.tm_sec   = (int) sec;
+    tm_time.tm_isdst = 0;
+    await_second = mkutc(&tm_time) - time_zone * 60;
+
+    gettimeofday(&time_val, NULL);
     if (time_val.tv_sec < await_second ||
         (time_val.tv_sec == await_second &&
         time_val.tv_usec < mycro_sec)) {
@@ -332,8 +253,7 @@ inttype time_zone;
         timer_value.it_value.tv_sec--;
       } /* if */
 #ifdef TRACE_TIM_UNX
-      fprintf(stderr, "%d %ld %ld %ld %ld %ld %ld %ld %ld\n",
-          this_time_zone.tz_minuteswest,
+      fprintf(stderr, "%ld %ld %ld %ld %ld %ld %ld %ld\n",
           time_val.tv_sec,
           await_second,
           await_second - time_val.tv_sec,
@@ -364,69 +284,14 @@ inttype time_zone;
 
 
 
-#ifdef OUT_OF_ORDER
-#ifdef ANSI_C
-
-void timFromTimeType (time_t st_time,
-    inttype *year, inttype *month, inttype *day, inttype *hour,
-    inttype *min, inttype *sec, inttype *mycro_sec, inttype *time_zone)
-#else
-
-void timFromTimeType (st_time,
-    year, month, day, hour, min, sec, mycro_sec, time_zone)
-time_t st_time;
-inttype *year;
-inttype *month;
-inttype *day;
-inttype *hour;
-inttype *min;
-inttype *sec;
-inttype *mycro_sec;
-inttype *time_zone;
-#endif
-
-  {
-    struct timeval time_val;
-    struct timezone this_time_zone;
-    struct tm *local_time;
-
-  /* timFromTimeType */
-#ifdef TRACE_TIM_UNX
-    printf("BEGIN timFromTimeType(%ld)\n", st_time);
-#endif
-    local_time = localtime(&st_time);
-    *year      = local_time->tm_year + 1900;
-    *month     = local_time->tm_mon + 1;
-    *day       = local_time->tm_mday;
-    *hour      = local_time->tm_hour;
-    *min       = local_time->tm_min;
-    *sec       = local_time->tm_sec;
-    *mycro_sec = 0;
-#ifdef GET_TIME_ZONE_ALWAYS
-    *time_zone = get_time_zone(time_val.tv_sec);
-#else
-    if (refresh_time_zone) {
-      local_time_zone = get_time_zone(time_val.tv_sec);
-      refresh_time_zone = FALSE;
-    } /* if */
-    *time_zone = local_time_zone;
-#endif
-#ifdef TRACE_TIM_UNX
-    printf("END timFromTimeType(%ld, %d, %d, %d, %d, %d, %d, %d, %d)\n",
-        st_time, *year, *month, *day, *hour, *min, *sec, *mycro_sec, *time_zone);
-#endif
-  } /* timFromTimeType */
-#endif
-
-
-
 #ifdef ANSI_C
 
 void timNow (inttype *year, inttype *month, inttype *day, inttype *hour,
-    inttype *min, inttype *sec, inttype *mycro_sec, inttype *time_zone)
+    inttype *min, inttype *sec, inttype *mycro_sec, inttype *time_zone,
+    booltype *is_dst)
 #else
 
-void timNow (year, month, day, hour, min, sec, mycro_sec, time_zone)
+void timNow (year, month, day, hour, min, sec, mycro_sec, time_zone, is_dst)
 inttype *year;
 inttype *month;
 inttype *day;
@@ -435,41 +300,42 @@ inttype *min;
 inttype *sec;
 inttype *mycro_sec;
 inttype *time_zone;
+booltype *is_dst;
 #endif
 
   {
     struct timeval time_val;
-    struct timezone this_time_zone;
+#ifdef USE_LOCALTIME_R
+    struct tm tm_result;
+#endif
     struct tm *local_time;
 
   /* timNow */
 #ifdef TRACE_TIM_UNX
     printf("BEGIN timNow\n");
 #endif
-    gettimeofday(&time_val, &this_time_zone);
+    gettimeofday(&time_val, NULL);
+#ifdef USE_LOCALTIME_R
+    local_time = localtime_r(&time_val.tv_sec, &tm_result);
+#else
     local_time = localtime(&time_val.tv_sec);
-    *year      = local_time->tm_year + 1900;
-    *month     = local_time->tm_mon + 1;
-    *day       = local_time->tm_mday;
-    *hour      = local_time->tm_hour;
-    *min       = local_time->tm_min;
-    *sec       = local_time->tm_sec;
-    *mycro_sec = time_val.tv_usec;
-#ifdef USE_TZ_MINUTESWEST
-    *time_zone = this_time_zone.tz_minuteswest;
-#else
-#ifdef GET_TIME_ZONE_ALWAYS
-    *time_zone = get_time_zone(time_val.tv_sec);
-#else
-    if (refresh_time_zone) {
-      local_time_zone = get_time_zone(time_val.tv_sec);
-      refresh_time_zone = FALSE;
+#endif
+    if (local_time == NULL) {
+      raise_error(RANGE_ERROR);
+    } else {
+      *year      = local_time->tm_year + 1900;
+      *month     = local_time->tm_mon + 1;
+      *day       = local_time->tm_mday;
+      *hour      = local_time->tm_hour;
+      *min       = local_time->tm_min;
+      *sec       = local_time->tm_sec;
+      *mycro_sec = time_val.tv_usec;
+      *time_zone = (mkutc(local_time) - time_val.tv_sec) / 60;
+      *is_dst    = local_time->tm_isdst;
     } /* if */
-    *time_zone = local_time_zone;
-#endif
-#endif
 #ifdef TRACE_TIM_UNX
-    printf("END timNow(%d, %d, %d, %d, %d, %d, %d, %d)\n",
-        *year, *month, *day, *hour, *min, *sec, *mycro_sec, *time_zone);
+    printf("END timNow(%04ld-%02ld-%02ld %02ld:%02ld:%02ld.%06ld %ld %d)\n",
+        *year, *month, *day, *hour, *min, *sec,
+        *mycro_sec, *time_zone, *is_dst);
 #endif
   } /* timNow */

@@ -227,7 +227,7 @@ inttype length;
     memsizetype chars_missing;
     uchartype buffer[BUFFER_SIZE + 6];
     memsizetype bytes_remaining;
-    memsizetype old_bytes_remaining;
+    /* memsizetype old_bytes_remaining; */
     memsizetype bytes_missing;
     memsizetype bytes_in_buffer;
     memsizetype chars_read;
@@ -274,7 +274,7 @@ inttype length;
             BUFFER_SIZE, aFile);
         /* printf("#1-A# bytes_in_buffer=%d result->size=%d\n", bytes_in_buffer, stri_dest - result->mem); */
         if (bytes_in_buffer != 0) {
-          old_bytes_remaining = bytes_remaining;
+          /* old_bytes_remaining = bytes_remaining; */
           bytes_in_buffer += bytes_remaining;
           /* printf("#1-A# bytes_in_buffer=%d %X %X\n", bytes_in_buffer, buffer[0], buffer[1]); */
           bytes_remaining = utf8_to_stri(stri_dest, &chars_read, buffer, bytes_in_buffer);
@@ -310,7 +310,7 @@ inttype length;
         /* printf("#1-B# bytes_in_buffer=%d chars_missing=%d chars_read=%d chars_there=%d bytes_missing=%d result->size=%d\n",
             bytes_in_buffer, chars_missing, chars_read, chars_there, bytes_missing, stri_dest - result->mem); */
         if (bytes_in_buffer != 0) {
-          old_bytes_remaining = bytes_remaining;
+          /* old_bytes_remaining = bytes_remaining; */
           bytes_in_buffer += bytes_remaining;
           /* printf("#1-B# bytes_in_buffer=%d %X %X\n", bytes_in_buffer, buffer[0], buffer[1]); */
           bytes_remaining = utf8_to_stri(stri_dest, &chars_read, buffer, bytes_in_buffer);

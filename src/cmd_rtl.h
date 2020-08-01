@@ -42,10 +42,25 @@ void cmdCopy (stritype source_name, stritype dest_name);
 inttype cmdFileSize (stritype file_name);
 inttype cmdFileType (stritype file_name);
 stritype cmdGetcwd (void);
+void cmdGetATime (stritype file_name,
+    inttype *year, inttype *month, inttype *day, inttype *hour,
+    inttype *min, inttype *sec, inttype *mycro_sec, inttype *time_zone,
+    booltype *is_dst);
+void cmdGetMTime (stritype file_name,
+    inttype *year, inttype *month, inttype *day, inttype *hour,
+    inttype *min, inttype *sec, inttype *mycro_sec, inttype *time_zone,
+    booltype *is_dst);
 void cmdMkdir (stritype dir_name);
 void cmdMove (stritype source_name, stritype dest_name);
 stritype cmdReadlink (stritype link_name);
 void cmdRemove (stritype file_name);
+void cmdRemoveAnyFile (stritype file_name);
+void cmdSetATime (stritype file_name,
+    inttype year, inttype month, inttype day, inttype hour,
+    inttype min, inttype sec, inttype mycro_sec, inttype time_zone);
+void cmdSetMTime (stritype file_name,
+    inttype year, inttype month, inttype day, inttype hour,
+    inttype min, inttype sec, inttype mycro_sec, inttype time_zone);
 void cmdSh (stritype command_stri);
 void cmdSymlink (stritype source_name, stritype dest_name);
 #ifdef FTELL_WRONG_FOR_PIPE
@@ -61,10 +76,15 @@ void cmdCopy ();
 inttype cmdFileSize ();
 inttype cmdFileType ();
 stritype cmdGetcwd ();
+void cmdGetATime ();
+void cmdGetMTime ();
 void cmdMkdir ();
 void cmdMove ();
 stritype cmdReadlink ();
 void cmdRemove ();
+void cmdRemoveAnyFile ();
+void cmdSetATime ();
+void cmdSetMTime ();
 void cmdSh ();
 void cmdSymlink ();
 #ifdef FTELL_WRONG_FOR_PIPE

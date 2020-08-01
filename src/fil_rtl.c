@@ -40,18 +40,18 @@
 #include "io.h"
 #endif
 
+#ifdef USE_MYUNISTD_H
+#include "myunistd.h"
+#else
+#include "unistd.h"
+#endif
+
 #include "common.h"
 #include "heaputl.h"
 #include "striutl.h"
 #include "cmd_rtl.h"
 #include "big_drv.h"
 #include "rtl_err.h"
-
-#ifdef USE_MYUNISTD_H
-#include "myunistd.h"
-#else
-#include "unistd.h"
-#endif
 
 #undef EXTERN
 #define EXTERN
@@ -705,7 +705,7 @@ stritype file_mode;
   {
     os_path_stri os_path;
     char mode[4];
-#ifdef WCHAR_OS_PATH
+#ifdef OS_PATH_WCHAR
     wchar_t wide_mode[4];
 #endif
     errinfotype err_info = OKAY_NO_ERROR;
@@ -722,7 +722,7 @@ stritype file_mode;
         raise_error(err_info);
         result = NULL;
       } else {
-#ifdef WCHAR_OS_PATH
+#ifdef OS_PATH_WCHAR
         wide_mode[0] = mode[0];
         wide_mode[1] = mode[1];
         wide_mode[2] = mode[2];
@@ -818,6 +818,7 @@ inttype file_position;
 #endif
 
   { /* filSeek */
+    /* printf("filSeek(%ld, %ld)\n", aFile, file_position); */
     if (file_position <= 0) {
       raise_error(RANGE_ERROR);
     } else if (fseek(aFile, file_position - 1, SEEK_SET) != 0) {

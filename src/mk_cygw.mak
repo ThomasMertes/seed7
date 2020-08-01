@@ -52,8 +52,8 @@ AOBJ3 = error.o infile.o symbol.o info.o stat.o fatal.o match.o
 GOBJ1 = syvarutl.o traceutl.o actutl.o arrutl.o executl.o blockutl.o
 GOBJ2 = entutl.o identutl.o chclsutl.o sigutl.o
 ROBJ1 = arr_rtl.o bln_rtl.o bst_rtl.o chr_rtl.o cmd_rtl.o dir_rtl.o drw_rtl.o fil_rtl.o flt_rtl.o
-ROBJ2 = hsh_rtl.o int_rtl.o kbd_rtl.o scr_rtl.o set_rtl.o soc_rtl.o str_rtl.o ut8_rtl.o heaputl.o
-ROBJ3 = striutl.o
+ROBJ2 = hsh_rtl.o int_rtl.o kbd_rtl.o scr_rtl.o set_rtl.o soc_rtl.o str_rtl.o tim_rtl.o ut8_rtl.o
+ROBJ3 = heaputl.o striutl.o
 DOBJ1 = $(BIGINT_LIB).o $(SCREEN_OBJ) tim_unx.o drw_x11.o
 OBJ = $(MOBJ1)
 SEED7_LIB_OBJ = $(ROBJ1) $(ROBJ2) $(ROBJ3) $(DOBJ1)
@@ -72,8 +72,8 @@ ASRC3 = error.c infile.c symbol.c info.c stat.c fatal.c match.c
 GSRC1 = syvarutl.c traceutl.c actutl.c arrutl.c executl.c blockutl.c
 GSRC2 = entutl.c identutl.c chclsutl.c sigutl.c
 RSRC1 = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c dir_rtl.c drw_rtl.c fil_rtl.c flt_rtl.c
-RSRC2 = hsh_rtl.c int_rtl.c kbd_rtl.c scr_rtl.c set_rtl.c soc_rtl.c str_rtl.c ut8_rtl.c heaputl.c
-RSRC3 = striutl.c
+RSRC2 = hsh_rtl.c int_rtl.c kbd_rtl.c scr_rtl.c set_rtl.c soc_rtl.c str_rtl.c tim_rtl.c ut8_rtl.c
+RSRC3 = heaputl.c striutl.c
 DSRC1 = $(BIGINT_LIB).c $(SCREEN_SRC) tim_unx.c drw_x11.c
 SRC = $(MSRC1)
 SEED7_LIB_SRC = $(RSRC1) $(RSRC2) $(RSRC3) $(DSRC1)
@@ -141,11 +141,13 @@ version.h:
 	echo "#define USE_DIRENT" >> version.h
 	echo "#define PATH_DELIMITER '\\\\'" >> version.h
 	echo "#define CATCH_SIGNALS" >> version.h
+	echo "#define HAS_SYMLINKS" >> version.h
 	echo "#define USE_MMAP" >> version.h
 	echo "#define INCL_NCURSES_TERM" >> version.h
 	echo "#undef  INCL_CURSES_BEFORE_TERM" >> version.h
 	echo "#define INT64TYPE long long int" >> version.h
 	echo "#define UINT64TYPE unsigned long long" >> version.h
+	echo "#define INT64TYPE_SUFFIX_LL" >> version.h
 	echo "#define _FILE_OFFSET_BITS 64" >> version.h
 	echo "#$(USE_BIG_RTL_LIBRARY) USE_BIG_RTL_LIBRARY" >> version.h
 	echo "#include \"stdio.h\"" > chkftell.c

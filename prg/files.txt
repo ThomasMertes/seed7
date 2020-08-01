@@ -125,6 +125,7 @@ syntax.s7i   Syntax definition of the standard Seed7 library
 tee.s7i      Filter file which emulates the tee functionality  
 time.s7i     Time library                                      
 upper.s7i    Filter file which turns characters to upper case  
+utf16.s7i    Read and write utf-16 files                       
 utf8.s7i     Read and write utf-8 files                        
 window.s7i   Filter file for text windows with random access   
 wrinum.s7i   Functions to write numbers                        

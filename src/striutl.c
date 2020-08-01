@@ -430,7 +430,7 @@ stritype stri;
 
 
 
-#ifdef WCHAR_OS_PATH
+#ifdef OS_PATH_WCHAR
 #ifdef ANSI_C
 
 wchar_t *cp_to_wpath (const_stritype stri, errinfotype *err_info)

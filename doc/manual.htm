@@ -1542,6 +1542,13 @@
                     A &lt;= rand(A, B) <font color=blue>and</font> rand(A, B) &lt;= B holds.
                     rand(A, A) => A,
                     rand(TRUE, FALSE) => EXCEPTION RANGE_ERROR )
+      compare(A, B) Compare function
+                  ( Type of result: <font color=red>integer</font>,
+                    compare(FALSE, TRUE) => -1,
+                    compare(TRUE, TRUE) => 0,
+                    compare(TRUE, FALSE) => 1 )
+      hashCode(A) Hash function
+                  ( Type of result: <font color=red>integer</font> )
     Statements:
       incr(A)   Increment
                   ( incr(A) => A:=succ(A) )
@@ -2288,7 +2295,7 @@
     Prefix operators:
       +         Identity
       -         Change sign
-      conj      Complex conjugate
+      <font color=blue>conj</font>      Complex conjugate
     Infix operators:
       +         Addition
       -         Subtraction
@@ -2348,10 +2355,10 @@
 
 <a name="char"><b>5.8 char</b></a>
 <p>
-    The type <tt>'<font color=red>char</font>'</tt> describes UNICODE characters. The <tt>'<font color=red>char</font>'</tt>
-  values use the UTF-32 encoding. In the source file a
-  character literal is written as UTF-8 UNICODE character
-  enclosed in single quotes. In order to represent nonprintable
+    The type <tt>'<font color=red>char</font>'</tt> describes UNICODE characters encoded
+  with UTF-32. In the source file a character literal is
+  written as UTF-8 encoded UNICODE character enclosed in
+  single quotes. In order to represent nonprintable
   characters and certain printable characters the following
   escape sequences may be used.
 </p><pre>
@@ -2437,8 +2444,8 @@
   are allowed to grow very big, it can happen that there is not
   enough memory to represent a <tt>'<font color=red>string</font>'</tt> value. In this case the
   exception <tt>'MEMORY_ERROR'</tt> is raised. In the source file a string
-  literal is a sequence of UTF-8 UNICODE characters surrounded
-  by double quotes.
+  literal is a sequence of UTF-8 encoded UNICODE characters
+  surrounded by double quotes.
 </p><p>
   To represent control characters and certain other characters
   in strings the same escape sequences as for character literals
@@ -2596,9 +2603,9 @@
                   ( lower(<font color=maroon>"Lower"</font>)=><font color=maroon>"lower"</font> )
       compare(A, B) Compare function
                   ( Type of result: <font color=red>integer</font>,
-                    compare(<font color=maroon>"ABC"</font>, <font color=maroon>"ABCD"</font>)=>-1,
-                    compare(<font color=maroon>"ABC"</font>, <font color=maroon>"ABC"</font>)=>0,
-                    compare(<font color=maroon>"ABCD"</font>, <font color=maroon>"ABCC"</font>)=>1 )
+                    compare(<font color=maroon>"ABC"</font>, <font color=maroon>"ABCD"</font>) => -1,
+                    compare(<font color=maroon>"ABC"</font>, <font color=maroon>"ABC"</font>) => 0,
+                    compare(<font color=maroon>"ABCD"</font>, <font color=maroon>"ABCC"</font>) => 1 )
       hashCode(A) Hash function
                   ( Type of result: <font color=red>integer</font> )
     Statements:
@@ -3240,9 +3247,11 @@
       time(NOW) Gets the current time
       str(A)    Conversion to <font color=red>string</font>
                   ( Type of result: <font color=red>string</font> )
-      str_date(A) Conversion of the date to <font color=red>string</font>
+      strDate(A) Conversion of the date to <font color=red>string</font>
                   ( Type of result: <font color=red>string</font> )
-      str_time(A) Conversion of the daytime to <font color=red>string</font>
+      strTime(A) Conversion of the daytime to <font color=red>string</font>
+                  ( Type of result: <font color=red>string</font> )
+      strTimeZone(A) Conversion of the time zone to <font color=red>string</font>
                   ( Type of result: <font color=red>string</font> )
       truncToSecond(A) Trunc a time to a second
       truncToMinute(A) Trunc a time to a minute
@@ -3269,7 +3278,7 @@
                   ( Type of result: <font color=red>integer</font> )
       weekDateWeek(A) Compute the week of the ISO 8601 week date
                   ( Type of result: <font color=red>integer</font> )
-      toGMT(A)  Conversion to Greenwich Mean Time
+      toUTC(A)  Conversion to Coordinated Universal Time (UTC)
       julianDayNumber(A)  Number of days that have elapsed since
                 January 1, 4713 BC in the proleptic Julian calendar
                   ( Type of result: <font color=red>integer</font> )

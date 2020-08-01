@@ -4089,6 +4089,60 @@ const proc: process_cmd_getcwd (in ref_list: params, inout expr_type: c_expr) is
   end func;
 
 
+const proc: process_cmd_get_atime (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "cmdGetATime(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", &(";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[5], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[6], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[7], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[8], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[9], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[10], c_expr);
+    c_expr.expr &:= "));\n";
+  end func;
+
+
+const proc: process_cmd_get_mtime (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "cmdGetMTime(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", &(";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[5], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[6], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[7], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[8], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[9], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[10], c_expr);
+    c_expr.expr &:= "));\n";
+  end func;
+
+
 const proc: process_cmd_ls (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -4124,6 +4178,56 @@ const proc: process_cmd_remove (in ref_list: params, inout expr_type: c_expr) is
   begin
     c_expr.expr &:= "cmdRemove(";
     getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process_cmd_set_atime (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "cmdSetATime(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[5], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[6], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[7], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[8], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[9], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process_cmd_set_mtime (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "cmdSetMTime(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[5], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[6], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[7], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[8], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[9], c_expr);
     c_expr.expr &:= ");\n";
   end func;
 
@@ -10858,6 +10962,8 @@ const proc: process_tim_now (in ref_list: params, inout expr_type: c_expr) is fu
     process_expr(params[7], c_expr);
     c_expr.expr &:= "), &(";
     process_expr(params[8], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[9], c_expr);
     c_expr.expr &:= "));\n";
   end func;
 
@@ -11356,6 +11462,10 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_cmd_filetype(params, c_expr);
       elsif action_name = "CMD_GETCWD" then
         process_cmd_getcwd(params, c_expr);
+      elsif action_name = "CMD_GET_ATIME" then
+        process_cmd_get_atime(params, c_expr);
+      elsif action_name = "CMD_GET_MTIME" then
+        process_cmd_get_mtime(params, c_expr);
       elsif action_name = "CMD_LS" then
         process_cmd_ls(params, c_expr);
       elsif action_name = "CMD_MKDIR" then
@@ -11364,6 +11474,10 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_cmd_move(params, c_expr);
       elsif action_name = "CMD_REMOVE" then
         process_cmd_remove(params, c_expr);
+      elsif action_name = "CMD_SET_ATIME" then
+        process_cmd_set_atime(params, c_expr);
+      elsif action_name = "CMD_SET_MTIME" then
+        process_cmd_set_mtime(params, c_expr);
       elsif action_name = "CMD_SH" then
         process_cmd_sh(params, c_expr);
       else
@@ -15920,9 +16034,13 @@ const proc: write_prototypes is func
     writeln(c_prog, "void        cmdCopy (stritype, stritype);");
     writeln(c_prog, "inttype     cmdFileSize (stritype);");
     writeln(c_prog, "stritype    cmdGetcwd (void);");
+    writeln(c_prog, "void        cmdGetATime (stritype, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, booltype *);");
+    writeln(c_prog, "void        cmdGetMTime (stritype, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, booltype *);");
     writeln(c_prog, "arraytype   cmdLs (stritype);");
     writeln(c_prog, "void        cmdMove (stritype, stritype);");
     writeln(c_prog, "void        cmdRemove (stritype);");
+    writeln(c_prog, "void        cmdSetATime (stritype, inttype, inttype, inttype, inttype, inttype, inttype, inttype, inttype);");
+    writeln(c_prog, "void        cmdSetMTime (stritype, inttype, inttype, inttype, inttype, inttype, inttype, inttype, inttype);");
     writeln(c_prog, "void        cmdSh (stritype);");
     writeln(c_prog, "void        drwArc (wintype, inttype, inttype, inttype, floattype, floattype);");
     writeln(c_prog, "void        drwArc2 (wintype, inttype, inttype, inttype, inttype, inttype);");
@@ -16144,7 +16262,7 @@ const proc: write_prototypes is func
     writeln(c_prog, "stritype    cstri_to_stri (char *);");
     writeln(c_prog, "char *      str_to_cstri (stritype a)                     {printf(\"str_to_cstri\\n\");}");
     writeln(c_prog, "void        timAwait (inttype, inttype, inttype, inttype, inttype, inttype, inttype, inttype);");
-    writeln(c_prog, "void        timNow (inttype *, inttype *, inttype*, inttype *, inttype *, inttype *, inttype *, inttype *);");
+    writeln(c_prog, "void        timNow (inttype *, inttype *, inttype*, inttype *, inttype *, inttype *, inttype *, inttype *, booltype *);");
     writeln(c_prog, "inttype     typCmp (typetype, typetype);");
     writeln(c_prog, "void        typCpy (typetype *, typetype);");
     writeln(c_prog, "typetype    typCreate (typetype);");
@@ -16647,12 +16765,12 @@ const proc: generate_main (in program: prog) is func
       c_expr.expr &:= "{\n";
       c_expr.expr &:= "  error_file = file_name;\n";
       c_expr.expr &:= "  error_line = line_number;\n";
+#     c_expr.expr &:= "  printf(\"error: %s(%d)\\n\", file_name, line_number);\n";
       if USE_SIGSETJMP then
         c_expr.expr &:= "  siglongjmp(catch_stack[catch_stack_pos], a);\n";
       else
         c_expr.expr &:= "  longjmp(catch_stack[catch_stack_pos], a);\n";
       end if;
-#     c_expr.expr &:= "  printf(\"error: %s(%d)\\n\", file_name, line_number);\n";
 #     c_expr.expr &:= "  raise(SIGINT);\n";
 #     c_expr.expr &:= "  raise(SIGSEGV);\n";
       c_expr.expr &:= "}\n";

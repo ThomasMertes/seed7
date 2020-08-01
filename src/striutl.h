@@ -34,13 +34,14 @@
 #define free_wstri(wstri,stri) free(wstri);
 #define cstri_expand(stri,cstri,size) ustri_expand(stri, (const_ustritype) cstri, size)
 
-#ifdef WCHAR_OS_PATH
+#ifdef OS_PATH_WCHAR
 typedef wchar_t          os_path_char;
 typedef wchar_t         *os_path_stri;
 #define cp_to_os_path    cp_to_wpath
 #define os_path_strlen   wcslen
 #define os_path_strcpy   wcscpy
 #define os_path_strcat   wcscat
+#define os_path_alloc    ALLOC_WSTRI
 #define os_path_realloc  REALLOC_WSTRI
 #define os_path_free     free
 #else
@@ -50,6 +51,7 @@ typedef cstritype        os_path_stri;
 #define os_path_strlen   strlen
 #define os_path_strcpy   strcpy
 #define os_path_strcat   strcat
+#define os_path_alloc    ALLOC_CSTRI
 #define os_path_realloc  REALLOC_CSTRI
 #define os_path_free     free
 #endif
@@ -61,7 +63,7 @@ memsizetype stri_to_utf8 (ustritype, const_stritype);
 memsizetype utf8_to_stri (strelemtype *, memsizetype *, const_ustritype, SIZE_TYPE);
 memsizetype utf8_bytes_missing (const_ustritype, SIZE_TYPE);
 cstritype cp_to_cstri (const_stritype);
-#ifdef WCHAR_OS_PATH
+#ifdef OS_PATH_WCHAR
 wchar_t *cp_to_wpath (const_stritype, errinfotype *);
 #else
 cstritype cp_to_cpath (const_stritype, errinfotype *);
@@ -80,7 +82,7 @@ memsizetype stri_to_utf8 ();
 memsizetype utf8_to_stri ();
 memsizetype utf8_bytes_missing ();
 cstritype cp_to_cstri ();
-#ifdef WCHAR_OS_PATH
+#ifdef OS_PATH_WCHAR
 wchar_t *cp_to_wpath ();
 #else
 cstritype cp_to_cpath ();

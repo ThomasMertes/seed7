@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  tim_win.c     Time access using the windows capabilitys.        */
-/*  Copyright (C) 1989 - 2006  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2009  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/tim_win.c                                       */
-/*  Changes: 2006  Thomas Mertes                                    */
+/*  Changes: 2006, 2009  Thomas Mertes                              */
 /*  Content: Time access using the windows capabilitys.             */
 /*                                                                  */
 /********************************************************************/
@@ -33,15 +33,26 @@
 
 #include "stdio.h"
 #include "string.h"
+#include "time.h"
 #include "windows.h"
 
 #include "common.h"
+#include "tim_rtl.h"
+#include "rtl_err.h"
 
 #undef EXTERN
 #define EXTERN
 #include "tim_drv.h"
 
 #undef TRACE_TIM_WIN
+
+
+/* Seconds between 1601-01-01 and 1970-01-01 */
+#ifdef INT64TYPE_SUFFIX_LL
+#define SECONDS_1601_1970 11644473600ULL
+#else
+#define SECONDS_1601_1970 11644473600
+#endif
 
 
 
@@ -64,9 +75,10 @@ inttype time_zone;
 
   {
     SYSTEMTIME await_time_struct;
-    FILETIME await_file_time;
-    FILETIME current_time;
-    ULARGE_INTEGER time_64;
+    union {
+      uint64type nanosecs100; /*time since 1 Jan 1601 in 100ns units */
+      FILETIME filetime;
+    } await_file_time, current_time;
     long await_second;
     long current_second;
     long current_mycro_sec;
@@ -74,7 +86,8 @@ inttype time_zone;
 
   /* timAwait */
 #ifdef TRACE_TIM_WIN
-    printf("BEGIN timAwait\n");
+    printf("BEGIN timAwait(%04ld-%02ld-%02ld %02ld:%02ld:%02ld.%06ld %ld)\n",
+        year, month, day, hour, min, sec, mycro_sec, time_zone);
 #endif
     await_time_struct.wYear         = year;
     await_time_struct.wMonth        = month;
@@ -82,14 +95,14 @@ inttype time_zone;
     await_time_struct.wHour         = hour;
     await_time_struct.wMinute       = min;
     await_time_struct.wSecond       = sec;
-    SystemTimeToFileTime(&await_time_struct, &await_file_time);
-    memcpy(&time_64, &await_file_time, sizeof(ULARGE_INTEGER));
-    await_second = time_64.QuadPart / 10000000 - 3054539008LU;
-    await_second +=  time_zone * 60;
-    GetSystemTimeAsFileTime(&current_time);
-    memcpy(&time_64, &current_time, sizeof(ULARGE_INTEGER));
-    current_second =  time_64.QuadPart / 10000000 - 3054539008LU;
-    current_mycro_sec = (time_64.QuadPart / 10) % 1000000;
+    await_time_struct.wMilliseconds = 0;
+    SystemTimeToFileTime(&await_time_struct, &await_file_time.filetime);
+    await_second = await_file_time.nanosecs100 / 10000000 - SECONDS_1601_1970;
+    await_second -= time_zone * 60;
+
+    GetSystemTimeAsFileTime(&current_time.filetime);
+    current_second = current_time.nanosecs100 / 10000000 - SECONDS_1601_1970;
+    current_mycro_sec = (current_time.nanosecs100 / 10) % 1000000;
     if (current_second < await_second ||
         (current_second == await_second &&
         current_mycro_sec < mycro_sec)) {
@@ -116,10 +129,11 @@ inttype time_zone;
 #ifdef ANSI_C
 
 void timNow (inttype *year, inttype *month, inttype *day, inttype *hour,
-    inttype *min, inttype *sec, inttype *mycro_sec, inttype *time_zone)
+    inttype *min, inttype *sec, inttype *mycro_sec, inttype *time_zone,
+    booltype *is_dst)
 #else
 
-void timNow (year, month, day, hour, min, sec, mycro_sec, time_zone)
+void timNow (year, month, day, hour, min, sec, mycro_sec, time_zone, is_dst)
 inttype *year;
 inttype *month;
 inttype *day;
@@ -128,41 +142,96 @@ inttype *min;
 inttype *sec;
 inttype *mycro_sec;
 inttype *time_zone;
+booltype *is_dst;
 #endif
 
   {
-    FILETIME system_time;
-    FILETIME local_time;
-    SYSTEMTIME time_struct;
-    ULARGE_INTEGER time_64;
-    long utc_seconds;
-    long local_seconds;
+    union {
+      uint64type nanosecs100; /*time since 1 Jan 1601 in 100ns units */
+      FILETIME filetime;
+    } utc_time;
+    time_t utc_seconds;
+#ifdef USE_LOCALTIME_R
+    struct tm tm_result;
+#endif
+    struct tm *local_time;
 
   /* timNow */
 #ifdef TRACE_TIM_WIN
     printf("BEGIN timNow\n");
 #endif
-    GetSystemTimeAsFileTime(&system_time);
-    memcpy(&time_64, &system_time, sizeof(ULARGE_INTEGER));
-    utc_seconds = time_64.QuadPart / 10000000 - 3054539008LU;
-    FileTimeToLocalFileTime(&system_time, &local_time);
-    FileTimeToSystemTime(&local_time, &time_struct);
-    *year  = time_struct.wYear;
-    *month = time_struct.wMonth;
-    *day   = time_struct.wDay;
-    *hour  = time_struct.wHour;
-    *min   = time_struct.wMinute;
-    *sec   = time_struct.wSecond;
-    memcpy(&time_64, &local_time, sizeof(ULARGE_INTEGER));
-    local_seconds = time_64.QuadPart / 10000000 - 3054539008LU;
-    *mycro_sec = (time_64.QuadPart / 10) % 1000000;
-    *time_zone = (utc_seconds - local_seconds) / 60;
+    GetSystemTimeAsFileTime(&utc_time.filetime);
+    utc_seconds = utc_time.nanosecs100 / 10000000 - SECONDS_1601_1970;
+#ifdef USE_LOCALTIME_R
+    local_time = localtime_r(&utc_seconds, &tm_result);
+#else
+    local_time = localtime(&utc_seconds);
+#endif
+    if (local_time == NULL) {
+      raise_error(RANGE_ERROR);
+    } else {
+      *year      = local_time->tm_year + 1900;
+      *month     = local_time->tm_mon + 1;
+      *day       = local_time->tm_mday;
+      *hour      = local_time->tm_hour;
+      *min       = local_time->tm_min;
+      *sec       = local_time->tm_sec;
+      *mycro_sec = (utc_time.nanosecs100 / 10) % 1000000;
+      *time_zone = (mkutc(local_time) - utc_seconds) / 60;
+      *is_dst    = local_time->tm_isdst;
+    } /* if */
 #ifdef TRACE_TIM_WIN
-    printf("timNow %lu %lu %lu %lu %ld %d %d\n",
-        system_time.dwHighDateTime, system_time.dwLowDateTime,
-        local_time.dwHighDateTime, local_time.dwLowDateTime,
-        *time_zone, utc_seconds, local_seconds);
-    printf("END timNow(%d, %d, %d, %d, %d, %d, %d, %d)\n",
-        *year, *month, *day, *hour, *min, *sec, *mycro_sec, *time_zone);
+    printf("END timNow(%04ld-%02ld-%02ld %02ld:%02ld:%02ld.%06ld %ld %d)\n",
+        *year, *month, *day, *hour, *min, *sec,
+        *mycro_sec, *time_zone, *is_dst);
 #endif
   } /* timNow */
+
+
+
+#ifdef USE_ALTERNATE_LOCALTIME_R
+#undef localtime_r
+
+
+
+#ifdef ANSI_C
+
+struct tm *alternate_localtime_r (time_t *utc_seconds, struct tm *tm_result)
+#else
+
+struct tm *alternate_localtime_r (utc_seconds, tm_result)
+time_t *utc_seconds;
+struct tm *tm_result;
+#endif
+
+  {
+    union {
+      uint64type nanosecs100; /*time since 1 Jan 1601 in 100ns units */
+      FILETIME filetime;
+    } utc_time, time_zone_delta;
+    SYSTEMTIME utc_time_struct;
+    SYSTEMTIME local_time_struct;
+    static time_t time_zone_seconds = 1;
+
+  /* alternate_localtime_r */
+#ifdef TRACE_TIM_WIN
+    printf("BEGIN alternate_localtime_r(%ld)\n", *utc_seconds);
+#endif
+    utc_time.nanosecs100 = (*utc_seconds + SECONDS_1601_1970) * 10000000;
+    FileTimeToSystemTime(&utc_time.filetime, &utc_time_struct);
+    SystemTimeToTzSpecificLocalTime(NULL, &utc_time_struct, &local_time_struct);
+    tm_result->tm_year  = local_time_struct.wYear - 1900;
+    tm_result->tm_mon   = local_time_struct.wMonth - 1;
+    tm_result->tm_mday  = local_time_struct.wDay;
+    tm_result->tm_hour  = local_time_struct.wHour;
+    tm_result->tm_min   = local_time_struct.wMinute;
+    tm_result->tm_sec   = local_time_struct.wSecond;
+    if (time_zone_seconds == 1) {
+      utc_time.nanosecs100 = SECONDS_1601_1970 * 10000000;
+      FileTimeToLocalFileTime(&utc_time.filetime, &time_zone_delta.filetime);
+      time_zone_seconds = time_zone_delta.nanosecs100 / 10000000 - SECONDS_1601_1970;
+    } /* if */
+    tm_result->tm_isdst = mkutc(tm_result) - *utc_seconds != time_zone_seconds;
+    return(tm_result);
+  } /* alternate_localtime_r */
+#endif

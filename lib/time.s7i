@@ -34,18 +34,34 @@ const type: time is new object struct
     var integer: minute is 0;
     var integer: second is 0;
     var integer: mycro_second is 0;
-    var integer: timezone is 0;
-    var boolean: is_daylight_saving_time is FALSE;
+    var integer: timeZone is 0;
+    var boolean: daylightSavingTime is FALSE;
   end struct;
 
 
 const proc: GET_TIME (inout integer param, inout integer param, inout integer param,
     inout integer param, inout integer param, inout integer param, inout integer param,
-    inout integer param) is action "TIM_NOW";
+    inout integer param, inout boolean param) is action "TIM_NOW";
 
 const proc: AWAIT_TIME (ref integer param, ref integer param, ref integer param,
     ref integer param, ref integer param, ref integer param, ref integer param,
     ref integer param) is action "TIM_AWAIT";
+
+const proc: GET_ATIME (in string param, inout integer param, inout integer param,
+    inout integer param, inout integer param, inout integer param, inout integer param,
+    inout integer param, inout integer param, inout boolean param) is action "CMD_GET_ATIME";
+
+const proc: SET_ATIME (in string param, in integer param, in integer param,
+    in integer param, in integer param, in integer param, in integer param,
+    in integer param, in integer param) is action "CMD_SET_ATIME";
+
+const proc: GET_MTIME (in string param, inout integer param, inout integer param,
+    inout integer param, inout integer param, inout integer param, inout integer param,
+    inout integer param, inout integer param, inout boolean param) is action "CMD_GET_MTIME";
+
+const proc: SET_MTIME (in string param, in integer param, in integer param,
+    in integer param, in integer param, in integer param, in integer param,
+    in integer param, in integer param) is action "CMD_SET_MTIME";
 
 
 (**
@@ -81,16 +97,42 @@ const func integer: daysInMonth (in integer: year, in integer: month) is func
   end func;
 
 
-const func string: str_date (in time: aTime) is
+const func string: strDate (in time: aTime) is
   return aTime.year  lpad0 4 <& "-" <&
          aTime.month lpad0 2 <& "-" <&
          aTime.day   lpad0 2;
 
 
-const func string: str_time (in time: aTime) is
-  return aTime.hour   lpad0 2 <& ":" <&
-         aTime.minute lpad0 2 <& ":" <&
-         aTime.second lpad0 2;
+const func string: strTime (in time: aTime) is func
+  result
+    var string: result is "";
+  begin
+    result := aTime.hour   lpad0 2 <& ":" <&
+              aTime.minute lpad0 2 <& ":" <&
+              aTime.second lpad0 2;
+    if aTime.mycro_second <> 0 then
+      result &:= "." <& aTime.mycro_second lpad0 6;
+    end if;
+  end func;
+
+
+const func string: strTimeZone (in time: aTime) is func
+  result
+    var string: result is "UTC";
+  begin
+    if aTime.timeZone <> 0 then
+      if aTime.timeZone > 0 then
+        result &:= "+";
+      end if;
+      result &:= str(aTime.timeZone div 60);
+      if aTime.timeZone rem 60 <> 0 then
+        result &:= ":" & str(abs(aTime.timeZone) rem 60);
+      end if;
+    end if;
+    if aTime.daylightSavingTime then
+      result &:= " (DST)";
+    end if;
+  end func;
 
 
 const func string: str_yyyy_mm_dd (in time: aTime, in string: delimiter) is
@@ -127,7 +169,9 @@ const func string: str_d_m_yyyy (in time: aTime, in string: delimiter) is
  *  Return the conversion of a time to a string.
  *)
 const func string: str (in time: aTime) is
-  return str_date(aTime) & " " & str_time(aTime);
+  return strDate(aTime) <& " " <&
+         strTime(aTime) <& " " <&
+         strTimeZone(aTime);
 
 
 (**
@@ -181,8 +225,8 @@ const func time: (attr time) parse (in var string: stri) is func
       end if;
     end if;
     result.mycro_second := 0;
-    result.timezone := 0;
-    result.is_daylight_saving_time := FALSE;
+    result.timeZone := 0;
+    result.daylightSavingTime := FALSE;
     if result.month < 1 or result.month > 12 or
         result.day < 1 or result.day > daysInMonth(result.year, result.month) or
         result.hour < 0 or result.hour > 23 or
@@ -588,15 +632,15 @@ const proc: NORMALIZE (inout time: tim) is func
 
 
 (**
- *  Convert a time to Greenwich Mean Time.
+ *  Convert a time to Coordinated Universal Time (UTC).
  *)
-const func time: toGMT (in time: tim) is func
+const func time: toUTC (in time: tim) is func
   result
     var time: result is time.value;
   begin
     result := tim;
-    result.minute +:= tim.timezone;
-    result.timezone := 0;
+    result.minute -:= tim.timeZone;
+    result.timeZone := 0;
     NORMALIZE(result);
   end func;
 
@@ -661,11 +705,10 @@ const func time: time (NOW) is func
   result
     var time: result is time.value;
   begin
-    (* writeln("before get_time"); *)
     GET_TIME(result.year, result.month, result.day,
         result.hour, result.minute, result.second,
-        result.mycro_second, result.timezone);
-    result.is_daylight_saving_time := FALSE;
+        result.mycro_second, result.timeZone,
+        result.daylightSavingTime);
   end func;
 
 
@@ -675,7 +718,46 @@ const func time: time (NOW) is func
 const proc: await (ref time: aTime) is func
   begin
     AWAIT_TIME(aTime.year, aTime.month, aTime.day,
-        aTime.hour, aTime.minute, aTime.second, aTime.mycro_second, aTime.timezone);
+        aTime.hour, aTime.minute, aTime.second,
+        aTime.mycro_second, aTime.timeZone);
+  end func;
+
+
+const func time: getATime (in string: fileName) is func
+  result
+    var time: result is time.value;
+  begin
+    GET_ATIME(fileName, result.year, result.month, result.day,
+        result.hour, result.minute, result.second,
+        result.mycro_second, result.timeZone,
+        result.daylightSavingTime);
+  end func;
+
+
+const proc: setATime (in string: fileName, in time: aTime) is func
+  begin
+    SET_ATIME(fileName, aTime.year, aTime.month, aTime.day,
+        aTime.hour, aTime.minute, aTime.second,
+        aTime.mycro_second, aTime.timeZone);
+  end func;
+
+
+const func time: getMTime (in string: fileName) is func
+  result
+    var time: result is time.value;
+  begin
+    GET_MTIME(fileName, result.year, result.month, result.day,
+        result.hour, result.minute, result.second,
+        result.mycro_second, result.timeZone,
+        result.daylightSavingTime);
+  end func;
+
+
+const proc: setMTime (in string: fileName, in time: aTime) is func
+  begin
+    SET_MTIME(fileName, aTime.year, aTime.month, aTime.day,
+        aTime.hour, aTime.minute, aTime.second,
+        aTime.mycro_second, aTime.timeZone);
   end func;
 
 
@@ -1115,7 +1197,7 @@ const func time: (in time: tim) + (in duration: aDuration) is func
     result.minute := tim.minute + aDuration.minute;
     result.second := tim.second + aDuration.second;
     result.mycro_second := tim.mycro_second + aDuration.mycro_second;
-    result.timezone := tim.timezone;
+    result.timeZone := tim.timeZone;
     NORMALIZE(result);
   end func;
 
@@ -1131,7 +1213,7 @@ const func time: (in time: tim) - (in duration: aDuration) is func
     result.minute := tim.minute - aDuration.minute;
     result.second := tim.second - aDuration.second;
     result.mycro_second := tim.mycro_second - aDuration.mycro_second;
-    result.timezone := tim.timezone;
+    result.timeZone := tim.timeZone;
     NORMALIZE(result);
   end func;
 

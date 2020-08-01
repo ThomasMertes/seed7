@@ -1871,7 +1871,7 @@ const func string: exec_str_primary (
       writeln(log, "OCT$(" <& num1 <& ") -> " <& literal(result));
     elsif symbol = "TIME$" then
       symbol := get_symbol(line);
-      result := str_time(time(NOW));
+      result := strTime(truncToSecond(time(NOW)));
       writeln(log, "TIME$ -> " <& literal(result));
     elsif symbol = "DATE$" then
       symbol := get_symbol(line);
@@ -4838,7 +4838,7 @@ const func file: basicOpen (in var string: filePath, in string: access) is func
       end if;
       for number range startElem to length(pathElems) do
         # writeln(log, literal(path) <& " " <& literal(pathElems[number]));
-        if fileType(path & "/" & pathElems[number]) <> FILE_UNKNOWN then
+        if fileType(path & "/" & pathElems[number]) <> FILE_ABSENT then
           path &:= "/" & pathElems[number];
         elsif fileType(path) = FILE_DIR then
           directoryContent := read_dir(path);
@@ -4854,7 +4854,7 @@ const func file: basicOpen (in var string: filePath, in string: access) is func
             end if;
           end for;
           if foundElement <> "" and not foundTwice and
-              fileType(path & "/" & foundElement) <> FILE_UNKNOWN then
+              fileType(path & "/" & foundElement) <> FILE_ABSENT then
             path &:= "/" & foundElement;
           elsif access[1 len 1] <> "r" then
             path &:= "/" & pathElems[number];
