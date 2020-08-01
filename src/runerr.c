@@ -88,8 +88,6 @@ void continue_question ()
 
 #ifdef ANSI_C
 
-#ifdef ANSI_C
-
 void write_call_stack (const_listtype stack_elem)
 #else
 
@@ -258,6 +256,8 @@ void raise_error2 (int exception_num, char *filename, int line)
 
 void raise_error2 (exception_num, filename, line)
 int exception_num;
+char *filename;
+int line;
 #endif
 
   { /* raise_error2 */
@@ -265,6 +265,8 @@ int exception_num;
   } /* raise_error2 */
 
 
+
+#ifdef ANSI_C
 
 void run_error (objectcategory required, objecttype argument)
 #else

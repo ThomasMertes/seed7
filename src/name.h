@@ -44,7 +44,7 @@ objecttype dollar_entername (nodetype, objecttype, errinfotype *);
 
 listtype create_parameter_list ();
 void init_stack ();
-void close_stack (void);
+void close_stack ();
 void grow_stack ();
 void shrink_stack ();
 void push_stack ();

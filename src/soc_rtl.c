@@ -75,7 +75,7 @@
 sockettype socAccept (sockettype sock, bstritype *address)
 #else
 
-sockettype socAccept (sock)
+sockettype socAccept (sock, address)
 sockettype sock;
 bstritype *address;
 #endif
@@ -128,7 +128,7 @@ bstritype *address;
 void socBind (sockettype sock, const_bstritype address)
 #else
 
-void socBind (sock)
+void socBind (sock, address)
 sockettype sock;
 bstritype address;
 #endif
@@ -168,7 +168,7 @@ sockettype sock;
 void socConnect (sockettype sock, const_bstritype address)
 #else
 
-void socConnect (sock)
+void socConnect (sock, address)
 sockettype sock;
 bstritype address;
 #endif

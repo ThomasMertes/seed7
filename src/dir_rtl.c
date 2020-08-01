@@ -45,8 +45,15 @@
 #include "dir_rtl.h"
 
 
-
 #ifdef USE_WOPENDIR
+wchar_t dot[]    = {'.', 0};
+wchar_t dotdot[] = {'.', '.', 0};
+wchar_t slash[]  = {'/', 0};
+#else
+char dot[]    = ".";
+char dotdot[] = "..";
+char slash[]  = "/";
+#endif
 
 
 
@@ -60,7 +67,7 @@ dirtype directory;
 #endif
 
   { /* dirClose */
-    wclosedir(directory);
+    os_closedir(directory);
   } /* dirClose */
 
 
@@ -75,17 +82,18 @@ stritype file_name;
 #endif
 
   {
-    wchar_t *name;
+    os_path_stri name;
+    errinfotype err_info = OKAY_NO_ERROR;
     dirtype result;
 
   /* dirOpen */
-    name = cp_to_wstri(file_name);
+    name = cp_to_os_path(file_name, &err_info);
     if (name == NULL) {
-      raise_error(MEMORY_ERROR);
+      raise_error(err_info);
       result = NULL;
     } else {
-      result = wopendir(name);
-      free_wstri(name, file_name);
+      result = os_opendir(name);
+      os_path_free(name);
     } /* if */
     return(result);
   } /* dirOpen */
@@ -102,98 +110,21 @@ dirtype directory;
 #endif
 
   {
-    struct wdirent *current_entry;
-    wchar_t dot[]    = {'.', 0};
-    wchar_t dotdot[] = {'.', '.', 0};
+    os_dirent_struct *current_entry;
     stritype result;
 
   /* dirRead */
     do {
-      current_entry = wreaddir(directory);
+      current_entry = os_readdir(directory);
     } while (current_entry != NULL &&
-        (memcmp(current_entry->d_name, dot,    sizeof(dot))    == 0 ||
-         memcmp(current_entry->d_name, dotdot, sizeof(dotdot)) == 0));
+        (memcmp(current_entry->d_name, dot,    sizeof(os_path_char) * 2) == 0 ||
+         memcmp(current_entry->d_name, dotdot, sizeof(os_path_char) * 3) == 0));
     if (current_entry == NULL) {
       result = NULL;
     } else {
+#ifdef USE_WOPENDIR
       result = wstri_to_stri(current_entry->d_name);
-      if (result == NULL) {
-        raise_error(MEMORY_ERROR);
-      } /* if */
-    } /* if */
-    return(result);
-  } /* dirRead */
-
-
-
 #else
-
-
-
-#ifdef ANSI_C
-
-void dirClose (dirtype directory)
-#else
-
-void dirClose (directory)
-dirtype directory;
-#endif
-
-  { /* dirClose */
-    closedir(directory);
-  } /* dirClose */
-
-
-
-#ifdef ANSI_C
-
-dirtype dirOpen (stritype file_name)
-#else
-
-dirtype dirOpen (file_name)
-stritype file_name;
-#endif
-
-  {
-    cstritype name;
-    dirtype result;
-
-  /* dirOpen */
-    name = cp_to_cstri(file_name);
-    if (name == NULL) {
-      raise_error(MEMORY_ERROR);
-      result = NULL;
-    } else {
-      result = opendir(name);
-      free_cstri(name, file_name);
-    } /* if */
-    return(result);
-  } /* dirOpen */
-
-
-
-#ifdef ANSI_C
-
-stritype dirRead (dirtype directory)
-#else
-
-stritype dirRead (directory)
-dirtype directory;
-#endif
-
-  {
-    struct dirent *current_entry;
-    stritype result;
-
-  /* dirRead */
-    do {
-      current_entry = readdir(directory);
-    } while (current_entry != NULL &&
-        (strcmp(current_entry->d_name, ".")  == 0 ||
-         strcmp(current_entry->d_name, "..") == 0));
-    if (current_entry == NULL) {
-      result = NULL;
-    } else {
 #ifdef READDIR_UTF8
       result = cstri8_to_stri(current_entry->d_name);
       if (result == NULL) {
@@ -202,13 +133,10 @@ dirtype directory;
 #else
       result = cstri_to_stri(current_entry->d_name);
 #endif
+#endif
       if (result == NULL) {
         raise_error(MEMORY_ERROR);
       } /* if */
     } /* if */
     return(result);
   } /* dirRead */
-
-
-
-#endif

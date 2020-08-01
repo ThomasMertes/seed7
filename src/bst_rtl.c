@@ -83,9 +83,9 @@ bstritype bstri_from;
 bstritype bstCat (const const_bstritype bstri1, const const_bstritype bstri2)
 #else
 
-bstritype bstCat (stri1, stri2)
-bstritype stri1;
-bstritype stri2;
+bstritype bstCat (bstri1, bstri2)
+bstritype bstri1;
+bstritype bstri2;
 #endif
 
   {

@@ -101,6 +101,6 @@ int next_line ();
 ustritype file_name ();
 void find_include_file ();
 void append_to_lib_path ();
-void init_lib_path ()
+void init_lib_path ();
 
 #endif

@@ -379,7 +379,7 @@ void close_stack (const_progtype currentProg)
 #else
 
 void close_stack (currentProg)
-progtype currentProg
+progtype currentProg;
 #endif
 
   {

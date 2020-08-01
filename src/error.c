@@ -288,7 +288,7 @@ static void write_symbol ()
 static void write_type (const_typetype anytype)
 #else
 
-static void write_type (params)
+static void write_type (anytype)
 typetype anytype;
 #endif
 

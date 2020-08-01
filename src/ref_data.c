@@ -577,7 +577,7 @@ objecttype obj_arg;
 
   {
     static rtlHashtype obj_table = NULL;
-    static unsigned int next_free_number = 1;
+    static inttype next_free_number = 1;
     inttype result;
 
   /* refNum */
@@ -748,7 +748,7 @@ void refSetParams (objecttype obj_arg, listtype params)
 
 void refSetParams (obj_arg, params)
 objecttype obj_arg;
-listvalue params;
+listtype params;
 #endif
 
   {
@@ -793,7 +793,7 @@ typetype any_type;
 void refSetVar (objecttype obj_arg, booltype var_flag)
 #else
 
-void refSetVar (obj_arg, any_type)
+void refSetVar (obj_arg, var_flag)
 objecttype obj_arg;
 booltype var_flag;
 #endif

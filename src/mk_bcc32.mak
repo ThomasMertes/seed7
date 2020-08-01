@@ -151,9 +151,6 @@ version.h:
 	cmd /S /C "echo #undef  USE_MMAP" >> version.h
 	cmd /S /C "echo #undef  INCL_NCURSES_TERM" >> version.h
 	cmd /S /C "echo #undef  INCL_CURSES_BEFORE_TERM" >> version.h
-	cmd /S /C "echo #define MKDIR_WITH_ONE_PARAMETER" >> version.h
-	cmd /S /C "echo #define CHOWN_MISSING" >> version.h
-	cmd /S /C "echo #undef  CHMOD_MISSING" >> version.h
 	cmd /S /C "echo #define TURN_OFF_FP_EXCEPTIONS" >> version.h
 	cmd /S /C "echo #define DEFINE_MATHERR_FUNCTION" >> version.h
 	cmd /S /C "echo #define ISNAN_WITH_UNDERLINE" >> version.h
@@ -164,9 +161,16 @@ version.h:
 	cmd /S /C "echo #define WCHAR_OS_PATH" >> version.h
 	cmd /S /C "echo #define os_chdir _wchdir" >> version.h
 	cmd /S /C "echo #define os_mkdir(path,mode) _wmkdir(path)" >> version.h
+	cmd /S /C "echo #define os_rmdir _wrmdir" >> version.h
 	cmd /S /C "echo #define os_fstat _fstat" >> version.h
 	cmd /S /C "echo #define os_stat _wstat" >> version.h
 	cmd /S /C "echo #define os_stat_struct struct _stat" >> version.h
+	cmd /S /C "echo #define os_chown(NAME,UID,GID)" >> version.h
+	cmd /S /C "echo #define os_chmod _wchmod" >> version.h
+	cmd /S /C "echo #define os_utime _wutime" >> version.h
+	cmd /S /C "echo #define os_utimbuf_struct struct _utimbuf" >> version.h
+	cmd /S /C "echo #define os_remove _wremove" >> version.h
+	cmd /S /C "echo #define os_rename _wrename" >> version.h
 	cmd /S /C "echo #define wide_fopen _wfopen" >> version.h
 	cmd /S /C "echo #define USE_WOPENDIR" >> version.h
 	cmd /S /C "echo #define WDIR wDIR" >> version.h

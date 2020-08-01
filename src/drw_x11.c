@@ -1095,7 +1095,7 @@ void drwPCircle (const_wintype actual_window,
     inttype x, inttype y, inttype radius, inttype col)
 #else
 
-void drwPCircle (actual_window, x, y, col)
+void drwPCircle (actual_window, x, y, radius, col)
 wintype actual_window;
 inttype x, y, radius;
 inttype col;
@@ -1945,7 +1945,7 @@ void drwPolyLine (const_wintype actual_window,
     inttype x1, inttype y1, const_bstritype point_list, inttype col)
 #else
 
-void drwPolyLine (actual_window, x1, y1, point_list)
+void drwPolyLine (actual_window, x1, y1, point_list, col)
 wintype actual_window;
 inttype x1, y1;
 const_bstritype point_list;
@@ -1979,7 +1979,7 @@ void drwFPolyLine (const_wintype actual_window,
     inttype x1, inttype y1, const_bstritype point_list, inttype col)
 #else
 
-void drwFPolyLine (actual_window, x1, y1, point_list)
+void drwFPolyLine (actual_window, x1, y1, point_list, col)
 wintype actual_window;
 inttype x1, y1;
 const_bstritype point_list;

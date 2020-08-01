@@ -368,6 +368,12 @@ inttype number2;
 #endif
 
   { /* intCmp */
+/*
+    printf("intCmp(%lX, ", number1);
+    printf("%lX)\n", number2);
+    printf("intCmp(%llX, ", number1);
+    printf("%llX)\n", number2);
+*/
     if (number1 < number2) {
       return(-1);
     } else if (number1 > number2) {
@@ -449,7 +455,7 @@ inttype intLowestSetBit (inttype number)
 #else
 
 inttype intLowestSetBit (number)
-biginttype number;
+inttype number;
 #endif
 
   {

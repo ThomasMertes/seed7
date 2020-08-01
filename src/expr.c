@@ -105,8 +105,8 @@ inttype position;
 static objecttype read_call_expression (booltype do_match_expr)
 #else
 
-static objecttype read_call_expression ()
-booltype  do_match_expr;
+static objecttype read_call_expression (do_match_expr)
+booltype do_match_expr;
 #endif
 
   {
@@ -180,8 +180,8 @@ booltype  do_match_expr;
 static objecttype read_dot_subexpression (booltype do_match_expr)
 #else
 
-static objecttype read_dot_subexpression ()
-booltype  do_match_expr;
+static objecttype read_dot_subexpression (do_match_expr)
+booltype do_match_expr;
 #endif
 
   {
@@ -234,7 +234,7 @@ booltype  do_match_expr;
 static objecttype read_dot_expression (booltype do_match_expr)
 #else
 
-static objecttype read_dot_expression ()
+static objecttype read_dot_expression (do_match_expr)
 booltype do_match_expr;
 #endif
 

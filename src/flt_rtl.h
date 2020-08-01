@@ -61,7 +61,7 @@ stritype fltStr (floattype number);
 void setupFloat ();
 inttype fltCmp ();
 void fltCpy ();
-floattype fltCreate ();
+generictype fltCreate ();
 stritype fltDgts ();
 floattype fltIPow ();
 floattype fltParse ();

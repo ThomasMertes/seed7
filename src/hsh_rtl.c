@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  hsh_rtl.c     Primitive actions for the string type.            */
-/*  Copyright (C) 1989 - 2007  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2009  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -510,6 +510,14 @@ comparetype cmp_func;
     result_hashelem = NULL;
     hashelem = hash1->table[hashcode & hash1->mask];
     while (hashelem != NULL) {
+/*
+printf("sizeof(hashelem->key.value.genericvalue)=%lu\n", sizeof(hashelem->key.value.genericvalue));
+printf("sizeof(key)=%lu\n", sizeof(key));
+printf("%llX\n", hashelem->key.value.genericvalue);
+printf("%lX\n", (long unsigned) hashelem->key.value.genericvalue);
+printf("%llX\n", key);
+printf("%lX\n", (long unsigned) key);
+*/
       cmp = cmp_func(hashelem->key.value.genericvalue, key);
       if (cmp < 0) {
         hashelem = hashelem->next_less;
@@ -647,7 +655,7 @@ void hshExcl (const rtlHashtype hash1, const rtlGenerictype key,
     destrfunctype data_destr_func)
 #else
 
-void hshExcl (hash1, key, hashcode, cmp_func)
+void hshExcl (hash1, key, hashcode, cmp_func, key_destr_func, data_destr_func)
 rtlHashtype hash1;
 rtlGenerictype key;
 inttype hashcode;

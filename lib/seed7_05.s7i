@@ -386,23 +386,24 @@ const boolean: (attr boolean) . last is  TRUE;
 
 const func boolean: not (in boolean param) is action "BLN_NOT";
 
-const func boolean: (in boolean param) and (in func boolean param) is    action "BLN_AND";
+const func boolean: (in boolean param) and (in func boolean param)    is action "BLN_AND";
 const func boolean: (in boolean param) and (in varfunc boolean param) is action "BLN_AND";
-const func boolean: (in boolean param) and (in boolean param) is         action "BLN_AND";
-const func boolean: (in boolean param) or (in func boolean param) is     action "BLN_OR";
-const func boolean: (in boolean param) or (in varfunc boolean param) is  action "BLN_OR";
-const func boolean: (in boolean param) or (in boolean param) is          action "BLN_OR";
+const func boolean: (in boolean param) and (in boolean param)         is action "BLN_AND";
+const func boolean: (in boolean param) or (in func boolean param)     is action "BLN_OR";
+const func boolean: (in boolean param) or (in varfunc boolean param)  is action "BLN_OR";
+const func boolean: (in boolean param) or (in boolean param)          is action "BLN_OR";
 
-const func boolean: (in boolean param) = (in boolean param) is           action "ENU_EQ";
-const func boolean: (in boolean param) < (in boolean param) is           action "BLN_LT";
-const func boolean: (in boolean param) > (in boolean param) is           action "BLN_GT";
-const func boolean: (in boolean param) <= (in boolean param) is          action "BLN_LE";
-const func boolean: (in boolean param) >= (in boolean param) is          action "BLN_GE";
-const func boolean: (in boolean param) <> (in boolean param) is          action "ENU_NE";
+const func boolean: (in boolean param) = (in boolean param)           is action "ENU_EQ";
+const func boolean: (in boolean param) < (in boolean param)           is action "BLN_LT";
+const func boolean: (in boolean param) > (in boolean param)           is action "BLN_GT";
+const func boolean: (in boolean param) <= (in boolean param)          is action "BLN_LE";
+const func boolean: (in boolean param) >= (in boolean param)          is action "BLN_GE";
+const func boolean: (in boolean param) <> (in boolean param)          is action "ENU_NE";
 
-const func integer: ord (in boolean param) is                            action "BLN_ORD";
-const func boolean: (attr boolean) conv (in integer param) is            action "BLN_ICONV";
-const varfunc boolean: (attr boolean) varConv (inout integer param) is   action "TYP_VARCONV";
+const func integer: hashCode (in boolean param)                       is action "BLN_ORD";
+const func integer: ord (in boolean param)                            is action "BLN_ORD";
+const func boolean: (attr boolean) conv (in integer param)            is action "BLN_ICONV";
+const varfunc boolean: (attr boolean) varConv (inout integer param)   is action "TYP_VARCONV";
 
 
 const boolean: succ (FALSE) is TRUE;
@@ -584,6 +585,9 @@ const func integer: (attr integer) parse (in string param) is       action "INT_
 
 const func boolean: rand (in boolean: low, in boolean: high) is
   return odd(rand(ord(low), ord(high)));
+
+const func integer: compare (in boolean: aBoolean1, in boolean: aBoolean2) is
+  return compare(ord(aBoolean1), ord(aBoolean2));
 
 
 (* char *)

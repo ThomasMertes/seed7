@@ -223,6 +223,7 @@ EXTERN memsizetype hs;
 
 #define SIZ_USTRI(len)   ((len) + 1)
 #define SIZ_CSTRI(len)   ((len) + 1)
+#define SIZ_WSTRI(len)   (sizeof(wchar_t) * ((len) + 1))
 #define SIZ_ID(len)      ((((len) >> 3) + 1) << 3)
 #define SIZ_STRI(len)    ((sizeof(strirecord)     - sizeof(strelemtype))  + (len) * sizeof(strelemtype))
 #define SIZ_BSTRI(len)   ((sizeof(bstrirecord)    - sizeof(uchartype))    + (len) * sizeof(uchartype))
@@ -309,17 +310,20 @@ EXTERN memsizetype hs;
 
 
 #define ALLOC_CSTRI(var,len)       ALLOC_HEAP(var, cstritype, SIZ_CSTRI(len))
+#define REALLOC_CSTRI(var,len)     ((char *) REALLOC_HEAP(var, ustritype, SIZ_CSTRI(len)))
 #define UNALLOC_CSTRI(var,len)     FREE_HEAP(var, SIZ_CSTRI(len))
 
 
-#define ALLOC_STRIx(var,len)        (ALLOC_HEAP(var, stritype, SIZ_STRI(len))?((var)->capacity = len, printf("ALLOC_STRI(%lX)\n", var), CNT1_STRI(len, SIZ_STRI(len)), TRUE):FALSE)
-#define REALLOC_STRIx(v1,v2,l1,l2)  ((v1=REALLOC_HEAP(v2, stritype, SIZ_STRI(l2)))?printf("REALLOC_STRI(%lX)\n", v1), (v1)->capacity=l2:0)
+#define ALLOC_WSTRI(var,len)       ALLOC_HEAP(var, cstritype, SIZ_WSTRI(len))
+#define REALLOC_WSTRI(var,len)     ((wchar_t *) REALLOC_HEAP(var, ustritype, SIZ_WSTRI(len)))
+#define UNALLOC_WSTRI(var,len)     FREE_HEAP(var, SIZ_WSTRI(len))
+
 
 #ifndef WITH_STRI_FLIST
 #ifdef WITH_STRI_CAPACITY
 #define ALLOC_STRI(var,len)        (ALLOC_HEAP(var, stritype, SIZ_STRI(len))?((var)->capacity = len, CNT1_STRI(len, SIZ_STRI(len)), TRUE):FALSE)
 #define FREE_STRI(var,len)         (CNT2_STRI(len, SIZ_STRI(len)) FREE_HEAP(var, SIZ_STRI(len)))
-#define REALLOC_STRI(v1,v2,l1,l2)  ((v1=REALLOC_HEAP(v2, stritype, SIZ_STRI(l2)))?(v1)->capacity=l2:0)
+#define REALLOC_STRI(v1,v2,l1,l2)  ((v1=REALLOC_HEAP(v2, stritype, SIZ_STRI(l2)))!=NULL?(v1)->capacity=l2:0)
 #define GROW_STRI(v1,v2,l1,l2)     ((l2)>(v2)->capacity?(v1=growStri(v2,l2)):(v1=(v2)))
 #define SHRINK_STRI(v1,v2,l1,l2)   ((l2)<(v2)->capacity>>2?(v1=shrinkStri(v2,l2)):(v1=(v2)))
 #else

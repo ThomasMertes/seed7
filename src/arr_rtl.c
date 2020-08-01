@@ -199,7 +199,7 @@ rtlArraytype arrBaselit (rtlObjecttype element)
 #else
 
 rtlArraytype arrBaselit (element)
-objecttype element;
+rtlObjecttype element;
 #endif
 
   {
@@ -227,7 +227,7 @@ rtlArraytype arrBaselit2 (inttype start_position, rtlObjecttype element)
 
 rtlArraytype arrBaselit2 (start_position, element)
 inttype start_position;
-objecttype element;
+rtlObjecttype element;
 #endif
 
   {

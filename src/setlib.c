@@ -79,6 +79,7 @@ listtype arguments;
   {
     arraytype arr1;
     memsizetype length;
+    memsizetype array_index;
     inttype number;
     inttype position;
     unsigned int bit_index;
@@ -102,8 +103,8 @@ listtype arguments;
         result->max_position = position;
         bit_index = ((unsigned int) number) & bitset_mask;
         result->bitset[0] = (((bitsettype) 1) << bit_index);
-        for (number = 1; number < length; number++) {
-          setIncl(&result, take_int(&arr1->arr[number]));
+        for (array_index = 1; array_index < length; array_index++) {
+          setIncl(&result, take_int(&arr1->arr[array_index]));
           if (fail_flag) {
             FREE_SET(result, result->max_position - result->min_position + 1);
             return(fail_value);
@@ -161,7 +162,7 @@ listtype arguments;
     settype set1;
     memsizetype bitset_index;
     unsigned char *byte;
-    int idx;
+    SIZE_TYPE idx;
     inttype result;
 
   /* set_card */

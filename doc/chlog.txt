@@ -1,3 +1,25 @@
+20090222:
+- A new example program (chkhsh.sd7), which checks hash table operations, was added.
+- The logic to link to librarys in the compiler (comp.sd7) was improved,
+- A compare function was added for the type 'boolean'.
+- The file big_rtl.c was improved to avoid unnecessary shifts wider than the size of
+  the type (the result of this shifts was not used anyway).
+- The functions remove_dir, remove_any_file, copy_file, copy_dir, copy_any_file and
+  move_any_file in the file cmd_rtl.c were improved to use 'os_path_stri' instead of
+  'char *'.
+- The driver functions cmdCopy, cmdMove and cmdRemove were improved to use wide char
+  (UTF-16) functions under windows and normal (UTF-8) functions under UNIX/Linux/BSD.
+- The file common.h was improved to contain default defines for os_rmdir, os_chown,
+  os_chmod, os_utime, os_utimbuf_struct, os_remove and os_rename.
+- The functions dirOpen, dirRead and dirClose in the file dir_rtl.c were improved
+  to use os_opendir, os_readdir and os_closedir (defined in dir_rtl.h).
+- Commands to create defines for MKDIR_WITH_ONE_PARAMETER, CHOWN_MISSING and
+  CHMOD_MISSING in the file version.h were removed from the makefiles.
+- The K&R function headers in several files were corrected.
+- An explanation of the defines WCHAR_OS_PATH, os_chdir, os_mkdir, os_rmdir, os_fstat,
+  os_stat, os_stat_struct, os_chown, os_chmod, os_utime, os_utimbuf_struct, os_remove
+  and os_rename was added to the file 'src/read_me.txt'.
+
 20090201:
 - A new saving phase was added to the savehd7.sd7 example program. Savehd7 can be used
   to save a potentially damaged harddisk partition to an image file.

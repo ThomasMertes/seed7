@@ -314,7 +314,9 @@ const func string: select_value_from_rtlObjectstruct (in type: typeWanted) is fu
   result
     var string: result is "";
   begin
-    if typeWanted = floattype then
+    if typeWanted = typetype then
+      result := ".value.typevalue";
+    elsif typeWanted = floattype then
       result := ".value.floatvalue";
     elsif typeWanted = stritype then
       result := ".value.strivalue";
@@ -6242,7 +6244,10 @@ const proc: process_hsh_idx (in reference: function, in ref_list: params,
     proc_type := getType(function);
     result_type := result_type(proc_type);
     if result_type = floattype then
-      c_expr.expr &:= "*(floattype *)hshIdxAddr(";
+#     c_expr.expr &:= "*(floattype *)hshIdxAddr(";
+      c_expr.expr &:= "hshIdxAddr(";
+    elsif result_type = typetype then
+      c_expr.expr &:= "hshIdxAddr(";
     elsif is_varfunc(proc_type) then
       c_expr.expr &:= "*hshIdxAddr(";
     else
@@ -6260,6 +6265,11 @@ const proc: process_hsh_idx (in reference: function, in ref_list: params,
     c_expr.expr &:= ", (comparetype)(";
     process_expr(params[4], c_expr);
     c_expr.expr &:= "))";
+if result_type = floattype then
+    c_expr.expr &:= "->value.floatvalue";
+elsif result_type = typetype then
+    c_expr.expr &:= "->value.typevalue";
+end if;
   end func;
 
 
@@ -8474,6 +8484,18 @@ const proc: process_ref_trace (in ref_list: params, inout expr_type: c_expr) is 
       c_expr.expr &:= "printf(\" *NULL_ARRAY* \");\n";
       c_expr.expr &:= "} else {\n";
       c_expr.expr &:= "printf(\" array[%ld .. %ld]\", arr->min_position, arr->max_position);\n";
+      c_expr.expr &:= "}\n";
+      c_expr.expr &:= "}\n";
+    elsif object_type in isHashType then
+      c_expr.expr &:= "{\n";
+      c_expr.expr &:= "hashtype hsh = (hashtype)(";
+      process_expr(traceParam, c_expr);
+      c_expr.expr &:= ");\n";
+      c_expr.expr &:= "printf(\"<HASHOBJECT>\");\n";
+      c_expr.expr &:= "if (hsh == NULL) {\n";
+      c_expr.expr &:= "printf(\" *NULL_HASH* \");\n";
+      c_expr.expr &:= "} else {\n";
+      c_expr.expr &:= "printf(\" hash[%ld]\", hsh->size);\n";
       c_expr.expr &:= "}\n";
       c_expr.expr &:= "}\n";
     elsif object_type in struct_elements then
@@ -15700,6 +15722,7 @@ const proc: write_file_head is func
     writeln(c_prog, "typedef union {");
     writeln(c_prog, "  generictype genericvalue;");
     writeln(c_prog, "  inttype     intvalue;");
+    writeln(c_prog, "  typetype    typevalue;");
     writeln(c_prog, "  floattype   floatvalue;");
     writeln(c_prog, "  stritype    strivalue;");
     writeln(c_prog, "  biginttype  bigintvalue;");
@@ -15974,7 +15997,7 @@ const proc: write_prototypes is func
     writeln(c_prog, "hashtype    hshEmpty (void);");
     writeln(c_prog, "void        hshExcl (hashtype, generictype, inttype, comparetype, destrfunctype, destrfunctype);");
     writeln(c_prog, "generictype hshIdx (hashtype, generictype, inttype, comparetype);");
-    writeln(c_prog, "generictype *hshIdxAddr (hashtype, generictype, inttype, comparetype);");
+    writeln(c_prog, "rtlObjecttype *hshIdxAddr (hashtype, generictype, inttype, comparetype);");
     writeln(c_prog, "void        hshIncl (hashtype, generictype, generictype, inttype, comparetype, createfunctype, createfunctype, copyfunctype);");
     writeln(c_prog, "arraytype   hshKeys (hashtype, createfunctype, destrfunctype);");
     writeln(c_prog, "arraytype   hshValues (hashtype, createfunctype, destrfunctype);");
@@ -16633,11 +16656,18 @@ const proc: generate_main (in program: prog) is func
 #     c_expr.expr &:= "  raise(SIGINT);\n";
 #     c_expr.expr &:= "  raise(SIGSEGV);\n";
       c_expr.expr &:= "}\n";
+      c_expr.expr &:= "\n";
+    end if;
+    if not compDataLibraryUsed then
       c_expr.expr &:= "inttype heapsize (void) {return(0);}\n";
 #!    c_expr.expr &:= "inttype heapsize (void) {rtlHeapStatistic(); return(0);}\n";
       c_expr.expr &:= "inttype refType (objreftype a) {printf(\"refType\\n\");}\n";
       c_expr.expr &:= "inttype typValue (objreftype a) {printf(\"typValue\\n\");}\n";
-      c_expr.expr &:= "\n";
+    end if;
+    if compDataLibraryUsed and not compilerLibraryUsed then
+      c_expr.expr &:= "unsigned char *file_name (unsigned int a) {printf(\"file_name\\n\");}\n";
+      c_expr.expr &:= "void *get_param_list (listtype a, int *b) {printf(\"get_param_list\\n\");}\n";
+      c_expr.expr &:= "void *create_parameter_list (listtype a, int *b) {printf(\"create_parameter_list\\n\");}\n";
     end if;
     process_dynamic_decisions(c_expr);
     const_index := flip(const_table);
@@ -17026,10 +17056,9 @@ const proc: pass_3 (in string: source, in program: prog,
         link_cmd &:= " " & temp_name(source) & OBJECT_FILE_EXTENSION;
         if compilerLibraryUsed then
           link_cmd &:= " " & literal(COMPILER_LIB);
-          link_cmd &:= " " & literal(COMP_DATA_LIB);
         end if;
         if compDataLibraryUsed then
-          noop;
+          link_cmd &:= " " & literal(COMP_DATA_LIB);
         end if;
         link_cmd &:= " " & literal(SEED7_LIB);
         link_cmd &:= " " & SYSTEM_LIBS;

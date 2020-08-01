@@ -41,8 +41,8 @@ listtype get_local_const_list (listtype, errinfotype *);
 void free_block ();
 blocktype new_block ();
 void get_result_var ();
-lvoid get_return_var ();
-oclisttype get_param_list ();
+void get_return_var ();
+loclisttype get_param_list ();
 loclisttype get_local_var_list ();
 listtype get_local_const_list ();
 

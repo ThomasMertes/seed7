@@ -196,7 +196,7 @@ void rflElemcpy (listtype list, inttype position, objecttype elem)
 void rflElemcpy (list, position, elem)
 listtype list;
 inttype position;
-objecttype elem
+objecttype elem;
 #endif
 
   {
@@ -302,7 +302,7 @@ objecttype rflIdx (listtype list, inttype position)
 
 objecttype rflIdx (list, position)
 listtype list;
-inttype position,
+inttype position;
 #endif
 
   {
@@ -497,7 +497,7 @@ inttype from_index;
 listtype rflRange (listtype list, inttype start, inttype stop)
 #else
 
-listtype rflRange (arguments)
+listtype rflRange (list, start, stop)
 listtype list;
 inttype start;
 inttype stop;

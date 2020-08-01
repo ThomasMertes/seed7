@@ -105,7 +105,7 @@ void drwFEllipse ();
 void drwPFEllipse ();
 void drwFlush ();
 void drwFree ();
-inttype drwGet ();
+wintype drwGet ();
 inttype drwHeight ();
 wintype drwImage ();
 void drwLine ();

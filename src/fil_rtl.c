@@ -101,7 +101,7 @@ typedef long               offsettype;
 static void get_mode (char mode[4], stritype file_mode)
 #else
 
-static void get_mode (mode)
+static void get_mode (mode, file_mode)
 char mode[4];
 stritype file_mode;
 #endif
@@ -708,17 +708,18 @@ stritype file_mode;
 #ifdef WCHAR_OS_PATH
     wchar_t wide_mode[4];
 #endif
+    errinfotype err_info = OKAY_NO_ERROR;
     filetype result;
 
   /* filOpen */
-    os_path = cp_to_os_path(file_name);
     get_mode(mode, file_mode);
     if (mode[0] == '\0') {
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
+      os_path = cp_to_os_path(file_name, &err_info);
       if (os_path == NULL) {
-        raise_error(MEMORY_ERROR);
+        raise_error(err_info);
         result = NULL;
       } else {
 #ifdef WCHAR_OS_PATH
@@ -730,8 +731,8 @@ stritype file_mode;
 #else
         result = fopen(os_path, mode);
 #endif
+        os_path_free(os_path);
       } /* if */
-      free_os_path(os_path, file_name);
     } /* if */
     return(result);
   } /* filOpen */
@@ -831,9 +832,10 @@ inttype file_position;
 void filSetbuf (filetype aFile, inttype mode, inttype size)
 #else
 
-void filSetbuf (aFile, file_position)
+void filSetbuf (aFile, mode, size)
 filetype aFile;
-inttype file_position;
+inttype mode;
+inttype size;
 #endif
 
   { /* filSetbuf */
@@ -945,7 +947,7 @@ chartype *termination_char;
 void filWrite (filetype aFile, stritype stri)
 #else
 
-void filWrite (stri)
+void filWrite (aFile, stri)
 filetype aFile;
 stritype stri;
 #endif

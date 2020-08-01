@@ -2671,7 +2671,9 @@ const proc: play_game is func
       if not game.quit and not player.living then
         decr(game.num_players);
       elsif game.num_monsters = 0 then
-        incr(game.round_number);
+        if game.round_number < length(round_description) then
+          incr(game.round_number);
+        end if;
         game.num_players +:= round_description[game.round_number][5];
       end if;
     end while;

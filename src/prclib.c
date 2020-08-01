@@ -67,7 +67,7 @@
 static void fix_posinfo (objecttype block_body, objecttype block_body_list)
 #else
 
-static void fix_posinfo (arg_c, arg_v)
+static void fix_posinfo (block_body, block_body_list)
 objecttype block_body;
 objecttype block_body_list;
 #endif

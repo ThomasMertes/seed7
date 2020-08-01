@@ -163,6 +163,9 @@ typedef int errinfotype;
 #ifndef os_mkdir
 #define os_mkdir mkdir
 #endif
+#ifndef os_rmdir
+#define os_rmdir rmdir
+#endif
 #ifndef os_fstat
 #define os_fstat fstat
 #endif
@@ -171,6 +174,24 @@ typedef int errinfotype;
 #endif
 #ifndef os_stat_struct
 #define os_stat_struct struct stat
+#endif
+#ifndef os_chown
+#define os_chown chown
+#endif
+#ifndef os_chmod
+#define os_chmod chmod
+#endif
+#ifndef os_utime
+#define os_utime utime
+#endif
+#ifndef os_utimbuf_struct
+#define os_utimbuf_struct struct utimbuf
+#endif
+#ifndef os_remove
+#define os_remove remove
+#endif
+#ifndef os_rename
+#define os_rename rename
 #endif
 
 

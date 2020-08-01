@@ -67,7 +67,7 @@ static listrecord wrstri_expr[3];
 objecttype exec1 (listtype list)
 #else
 
-objecttype exec1 (listtype)
+objecttype exec1 (list)
 listtype list;
 #endif
 

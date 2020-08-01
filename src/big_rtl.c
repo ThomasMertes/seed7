@@ -236,7 +236,7 @@ rtlBiginttype big1;
 static rtlBiginttype normalize (rtlBiginttype big1)
 #else
 
-static rtlBiginttype normalize (arg1)
+static rtlBiginttype normalize (big1)
 rtlBiginttype big1;
 #endif
 
@@ -1439,7 +1439,6 @@ rtlBiginttype big2;
       sbtr_carry = uBigMultSub(big1, big2, quotientdigit, pos1 - big2->size);
       if (sbtr_carry == 0) {
         uBigAddTo(big1, big2, pos1 - big2->size);
-        quotientdigit--;
       } /* if */
     } /* for */
   } /* uBigRem */
@@ -1473,7 +1472,7 @@ rtlBiginttype *big_help;
   {
     memsizetype pos1;
     memsizetype pos2;
-    doublebigdigittype carry = 0;
+    doublebigdigittype carry;
     doublebigdigittype product;
     bigdigittype digit;
     rtlBiginttype result;
@@ -1605,8 +1604,7 @@ static void uBigDigitAddTo (bigdigittype *const big1,  const memsizetype size1,
     const bigdigittype *const big2, const memsizetype size2)
 #else
 
-static void uBigDigitAddTo (bigdigittype *big1,  memsizetype size1,
-    bigdigittype *big2, memsizetype size2)
+static void uBigDigitAddTo (big1, size1, big2, size2)
 bigdigittype *big1;
 memsizetype size1;
 bigdigittype *big2;
@@ -2866,16 +2864,16 @@ int32type number;
     result_size = sizeof(int32type) / sizeof(bigdigittype);
     if (!ALLOC_BIG(result, result_size)) {
       raise_error(MEMORY_ERROR);
-      return(NULL);
     } else {
       result->size = result_size;
-      for (pos = 0; pos < result_size; pos++) {
-        result->bigdigits[pos] = (bigdigittype) (number & BIGDIGIT_MASK);
+      result->bigdigits[0] = (bigdigittype) (number & BIGDIGIT_MASK);
+      for (pos = 1; pos < result_size; pos++) {
         number >>= 8 * sizeof(bigdigittype);
+        result->bigdigits[pos] = (bigdigittype) (number & BIGDIGIT_MASK);
       } /* for */
       result = normalize(result);
-      return(result);
     } /* if */
+    return(result);
   } /* bigFromInt32 */
 
 
@@ -2932,17 +2930,17 @@ uint32type number;
     result_size = sizeof(uint32type) / sizeof(bigdigittype) + 1;
     if (!ALLOC_BIG(result, result_size)) {
       raise_error(MEMORY_ERROR);
-      return(NULL);
     } else {
       result->size = result_size;
-      for (pos = 0; pos < result_size - 1; pos++) {
-        result->bigdigits[pos] = (bigdigittype) (number & BIGDIGIT_MASK);
+      result->bigdigits[0] = (bigdigittype) (number & BIGDIGIT_MASK);
+      for (pos = 1; pos < result_size - 1; pos++) {
         number >>= 8 * sizeof(bigdigittype);
+        result->bigdigits[pos] = (bigdigittype) (number & BIGDIGIT_MASK);
       } /* for */
       result->bigdigits[result_size - 1] = (bigdigittype) 0;
       result = normalize(result);
-      return(result);
     } /* if */
+    return(result);
   } /* bigFromUInt32 */
 
 
@@ -3460,7 +3458,7 @@ rtlBiginttype bigLShift (const const_rtlBiginttype big1, const inttype lshift)
 
 rtlBiginttype bigLShift (big1, lshift)
 rtlBiginttype big1;
-inttype rshift;
+inttype lshift;
 #endif
 
   {
@@ -3555,7 +3553,7 @@ inttype rshift;
 void bigLShiftAssign (rtlBiginttype *const big_variable, inttype lshift)
 #else
 
-void bigLShiftAssign (big_variable, rshift)
+void bigLShiftAssign (big_variable, lshift)
 rtlBiginttype *const big_variable;
 inttype lshift;
 #endif

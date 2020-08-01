@@ -549,7 +549,7 @@ chartype *termination_char;
 void ut8Write (filetype aFile, stritype stri)
 #else
 
-void ut8Write (stri)
+void ut8Write (aFile, stri)
 filetype aFile;
 stritype stri;
 #endif

@@ -147,7 +147,7 @@ blocktype new_block (loclisttype block_params, const_locobjtype block_result,
 blocktype new_block (block_params, block_result,
     block_local_vars,  block_local_consts, block_body)
 loclisttype block_params;
-objecttype block_result;
+locobjtype block_result;
 loclisttype block_local_vars;
 listtype block_local_consts;
 objecttype block_body;

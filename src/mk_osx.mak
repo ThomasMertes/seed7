@@ -145,9 +145,6 @@ version.h:
 	echo "#define USE_MMAP" >> version.h
 	echo "#undef  INCL_NCURSES_TERM" >> version.h
 	echo "#undef  INCL_CURSES_BEFORE_TERM" >> version.h
-	echo "#undef  MKDIR_WITH_ONE_PARAMETER" >> version.h
-	echo "#undef  CHOWN_MISSING" >> version.h
-	echo "#undef  CHMOD_MISSING" >> version.h
 	echo "#define READDIR_UTF8" >> version.h
 	echo "#define SCREEN_UTF8" >> version.h
 	echo "#define INT64TYPE long long int" >> version.h

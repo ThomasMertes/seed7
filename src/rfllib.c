@@ -397,7 +397,6 @@ listtype arguments;
   {
     listtype list1;
     objecttype arg1_object;
-    objecttype operator;
     objecttype arg3_object;
     booltype okay;
     errinfotype err_info = OKAY_NO_ERROR;
@@ -430,7 +429,6 @@ listtype arguments;
             list1->next->next != NULL &&
             list1->next->next->next == NULL) {
           arg1_object = arg_1(list1);
-          operator = arg_2(list1);
           arg3_object = arg_3(list1);
           incl_list(&result, arg3_object, &err_info);
           if (CATEGORY_OF_OBJ(arg1_object) == EXPROBJECT) {

@@ -123,7 +123,7 @@ chartype ch;
 stritype chrStr (chartype ch)
 #else
 
-stritype chrStr (arguments)
+stritype chrStr (ch)
 chartype ch;
 #endif
 

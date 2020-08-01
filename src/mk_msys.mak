@@ -6,13 +6,13 @@
 # If you do not have a MSYS console you could use a windows console together with mk_mingw.mak or mk_nmake.mak.
 
 # CFLAGS = -O2 -fomit-frame-pointer -funroll-loops -Wall
-CFLAGS = -O2 -fomit-frame-pointer -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
-# CFLAGS = -O2 -g -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
+# CFLAGS = -O2 -fomit-frame-pointer -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
+CFLAGS = -O2 -g -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -g -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -funroll-loops -Wall -pg
-LFLAGS =
+LFLAGS = -Wl,--stack,4194304
 # LFLAGS = -pg
 # LFLAGS = -pg -lc_p
 LIBS = -lm -lgdi32 -lws2_32
@@ -143,17 +143,21 @@ version.h:
 	echo "#undef  USE_MMAP" >> version.h
 	echo "#undef  INCL_NCURSES_TERM" >> version.h
 	echo "#undef  INCL_CURSES_BEFORE_TERM" >> version.h
-	echo "#define MKDIR_WITH_ONE_PARAMETER" >> version.h
-	echo "#define CHOWN_MISSING" >> version.h
-	echo "#undef  CHMOD_MISSING" >> version.h
 	echo "#define INT64TYPE long long int" >> version.h
 	echo "#define UINT64TYPE unsigned long long" >> version.h
 	echo "#define WCHAR_OS_PATH" >> version.h
 	echo "#define os_chdir _wchdir" >> version.h
 	echo "#define os_mkdir(path,mode) _wmkdir(path)" >> version.h
+	echo "#define os_rmdir _wrmdir" >> version.h
 	echo "#define os_fstat _fstati64" >> version.h
 	echo "#define os_stat _wstati64" >> version.h
 	echo "#define os_stat_struct struct _stati64" >> version.h
+	echo "#define os_chown(name,uid,gid)" >> version.h
+	echo "#define os_chmod _wchmod" >> version.h
+	echo "#define os_utime _wutime" >> version.h
+	echo "#define os_utimbuf_struct struct _utimbuf" >> version.h
+	echo "#define os_remove _wremove" >> version.h
+	echo "#define os_rename _wrename" >> version.h
 	echo "#define wide_fopen _wfopen" >> version.h
 	echo "#define USE_WOPENDIR" >> version.h
 	echo "#define WDIR _WDIR" >> version.h

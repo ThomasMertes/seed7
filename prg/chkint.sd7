@@ -32,7 +32,6 @@ const func integer: intExpr (in integer: number) is
 const proc: check_exponent_integer_literal is func
   local
     var boolean: okay is TRUE;
-    var integer: number is 0;
   begin
     okay := TRUE;
     if 0 <> 0E0 or 0E0 <> 0e0 or
@@ -95,7 +94,6 @@ const proc: check_exponent_integer_literal is func
 const proc: chack_based_integer_literal is func
   local
     var boolean: okay is TRUE;
-    var integer: number is 0;
   begin
     okay := TRUE;
     if     0 <>  2#0 or  2#0 <>  3#0 or

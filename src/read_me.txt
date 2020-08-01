@@ -321,17 +321,71 @@ THE VERSION.H FILE
                 functions is present in the runtime library,
                 the implementation from dir_win.c can be used.
 
+  WCHAR_OS_PATH: Defined when the system calls (os_...) use
+                 wide characters (type wchar_t) for the
+                 parameters describing a path.
+
+  os_chdir: Function to be used instead of chdir() under the
+            target operating system. If not defined chdir()
+            is used.
+
+  os_mkdir(path,mode): Function to be used instead of mkdir()
+                       under the target operating system.
+                       If not defined mkdir() is used. Under
+                       windows the mkdir() function usually
+                       has only one parameter while under
+                       unix/linux/bsd mkdir() has two
+                       parameters.
+
+  os_rmdir: Function to be used instead of rmdir() under the
+            target operating system. If not defined rmdir()
+            is used.
+
+  os_fstat: Function to be used instead of fstat() under the
+            target operating system. If not defined fstat()
+            is used.
+
+  os_stat: Function to be used instead of stat() under the
+           target operating system. If not defined stat()
+           is used.
+
+  os_stat_struct: Struct to be used instead of 'struct stat'
+                  under the target operating system. If not
+                  defined 'struct stat' is used.
+
+  os_chown(name,uid,gid): Function to be used instead of chown()
+                          under the target operating system.
+                          If not defined chown() is used. When
+                          chown() is not supported this macro is
+                          defined empty.
+
+  os_chmod: Function to be used instead of chmod() under the
+            target operating system. If not defined chmod() is
+            used.
+
+  os_utime: Function to be used instead of utime() under the
+            target operating system. If not defined utime() is
+            used.
+
+  os_utimbuf_struct: Struct to be used instead of
+                     'struct utimbuf' under the target operating
+                     system. If not defined 'struct utimbuf' is
+                     used.
+
+  os_remove: Function to be used instead of remove() under the
+            target operating system. If not defined remove() is
+            used.
+
+  os_rename: Function to be used instead of rename() under the
+            target operating system. If not defined rename() is
+            used.
+
   USE_WFOPEN: Use the function _wfopen() to open files with
               wide (unicode) characters instead of fopen() with
               UTF-8 encoded characters.
 
   USE_WINSOCK: Use thw winsocket functions instead of the
                normal unix socket functions.
-
-  MKDIR_WITH_ONE_PARAMETER: Under windows the mkdir() function
-                            usually has only one parameter while
-                            under unix/linux/bsd mkdir() has two
-                            parameters.
 
   PATH_DELIMITER: This is the path delimiter character used by
                   the command shell of the operating system. It

@@ -433,32 +433,73 @@ stritype stri;
 #ifdef WCHAR_OS_PATH
 #ifdef ANSI_C
 
-wchar_t *cp_to_wstri (stritype stri)
+wchar_t *cp_to_wpath (const_stritype stri, errinfotype *err_info)
 #else
 
-wchar_t *cp_to_wstri (stri)
+wchar_t *cp_to_wpath (stri, err_info)
 stritype stri;
+errinfotype *err_info;
 #endif
 
   {
     wchar_t *stri_buffer;
     wchar_t *wstri;
-    strelemtype *strelem;
+    const strelemtype *strelem;
     memsizetype len;
 
-  /* cp_to_wstri */
-    stri_buffer = (wchar_t *) malloc(sizeof(wchar_t) * (stri->size + 1));
-    if (stri_buffer != NULL) {
+  /* cp_to_wpath */
+    stri_buffer = (wchar_t *) malloc(sizeof(wchar_t) * (stri->size * 2 + 1));
+    if (stri_buffer == NULL) {
+      *err_info = MEMORY_ERROR;
+    } else {
       wstri = stri_buffer;
       strelem = stri->mem;
       len = stri->size;
       for (; len > 0; wstri++, strelem++, len--) {
-        *wstri = *strelem;
+        if (*strelem <= 0xFFFF) {
+          *wstri = *strelem;
+        } else if (*strelem <= 0x10FFFF) {
+          strelemtype currChar = *strelem - 0x10000;
+          *wstri = (wchar_t) (0xD800 | (currChar >> 10));
+          wstri++;
+          *wstri = (wchar_t) (0xDC00 | (currChar & 0x3FF));
+        } else {
+          *err_info = RANGE_ERROR;
+          os_path_free(stri_buffer);
+          stri_buffer = NULL;
+          len = 0;
+        } /* if */
       } /* while */
       *wstri = 0;
     } /* if */
     return(stri_buffer);
-  } /* cp_to_wstri */
+  } /* cp_to_wpath */
+
+
+#else
+
+
+#ifdef ANSI_C
+
+cstritype cp_to_cpath (const_stritype stri, errinfotype *err_info)
+#else
+
+cstritype cp_to_cpath (stri, err_info)
+stritype stri;
+errinfotype *err_info;
+#endif
+
+  {
+    cstritype cstri;
+
+  /* cp_to_cpath */
+    if (!ALLOC_CSTRI(cstri, compr_size(stri))) {
+      *err_info = MEMORY_ERROR;
+    } else {
+      stri_export((ustritype) cstri, stri);
+    } /* if */
+    return(cstri);
+  } /* cp_to_cpath */
 #endif
 
 

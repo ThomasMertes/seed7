@@ -61,7 +61,7 @@ objecttype decl_type (int *is_dollar_type, errinfotype *err_info)
 
 objecttype decl_type (is_dollar_type, err_info)
 int *is_dollar_type;
-errinfotype *err_info
+errinfotype *err_info;
 #endif
 
   {

@@ -97,8 +97,8 @@ char *strg2;
 
 
 #ifdef ANSI_C
-static void remove_any_file (char *, errinfotype *);
-static void copy_any_file (char *, char *, errinfotype *);
+static void remove_any_file (os_path_stri, errinfotype *);
+static void copy_any_file (os_path_stri, os_path_stri, errinfotype *);
 #else
 static void remove_any_file ();
 static void copy_any_file ();
@@ -108,19 +108,21 @@ static void copy_any_file ();
 
 #ifdef ANSI_C
 
-static void remove_dir (char *file_name, errinfotype *err_info)
+static void remove_dir (os_path_stri file_name, errinfotype *err_info)
 #else
 
 static void remove_dir (file_name, err_info)
-char *file_name;
+os_path_stri file_name;
 errinfotype *err_info;
 #endif
 
   {
-    DIR *directory;
-    struct dirent *current_entry;
-    SIZE_TYPE rem_file_name_size;
-    cstritype rem_file_name;
+    dirtype directory;
+    os_dirent_struct *current_entry;
+    SIZE_TYPE rem_file_name_size = 0;
+    os_path_stri rem_file_name = NULL;
+    SIZE_TYPE new_size;
+    os_path_stri resized_path;
 
   /* remove_dir */
 #ifdef TRACE_CMD_RTL
@@ -128,41 +130,53 @@ errinfotype *err_info;
 #endif
 /*  printf("opendir(%s);\n", file_name);
     fflush(stdout); */
-    if ((directory = opendir(file_name)) == NULL) {
+    if ((directory = os_opendir(file_name)) == NULL) {
       *err_info = FILE_ERROR;
     } else {
       do {
-        current_entry = readdir(directory);
+        current_entry = os_readdir(directory);
 /*      printf("$%ld$\n", (long) current_entry);
         fflush(stdout); */
       } while (current_entry != NULL &&
-          (strcmp(current_entry->d_name, ".") == 0 ||
-          strcmp(current_entry->d_name, "..") == 0));
+          (memcmp(current_entry->d_name, dot,    sizeof(os_path_char) * 2) == 0 ||
+           memcmp(current_entry->d_name, dotdot, sizeof(os_path_char) * 3) == 0));
       while (*err_info == OKAY_NO_ERROR && current_entry != NULL) {
 /*      printf("!%s!\n", current_entry->d_name);
         fflush(stdout); */
-        rem_file_name_size = strlen(file_name) + 1 + strlen(current_entry->d_name);
-        if (ALLOC_CSTRI(rem_file_name, rem_file_name_size)) {
-          strcpy(rem_file_name, file_name);
-          strcat(rem_file_name, "/");
-          strcat(rem_file_name, current_entry->d_name);
+        new_size = os_path_strlen(file_name) + 1 + os_path_strlen(current_entry->d_name);
+        if (new_size > rem_file_name_size) {
+          resized_path = os_path_realloc(rem_file_name, new_size);
+          if (resized_path != NULL) {
+            rem_file_name = resized_path;
+            rem_file_name_size = new_size;
+          } else if (rem_file_name != NULL) {
+            os_path_free(rem_file_name);
+            rem_file_name = NULL;
+          } /* if */
+        } /* if */
+        if (rem_file_name != NULL) {
+          os_path_strcpy(rem_file_name, file_name);
+          os_path_strcat(rem_file_name, slash);
+          os_path_strcat(rem_file_name, current_entry->d_name);
           remove_any_file(rem_file_name, err_info);
-          UNALLOC_CSTRI(rem_file_name, rem_file_name_size);
         } else {
           *err_info = MEMORY_ERROR;
         } /* if */
         do {
-          current_entry = readdir(directory);
+          current_entry = os_readdir(directory);
 /*        printf("$%ld$\n", (long) current_entry);
           fflush(stdout); */
         } while (current_entry != NULL &&
-            (strcmp(current_entry->d_name, ".") == 0 ||
-            strcmp(current_entry->d_name, "..") == 0));
+            (memcmp(current_entry->d_name, dot,    sizeof(os_path_char) * 2) == 0 ||
+             memcmp(current_entry->d_name, dotdot, sizeof(os_path_char) * 3) == 0));
       } /* while */
-      closedir(directory);
+      if (rem_file_name != NULL) {
+        os_path_free(rem_file_name);
+      } /* if */
+      os_closedir(directory);
       if (*err_info == OKAY_NO_ERROR) {
         /* printf("before remove directory <%s>\n", file_name); */
-        if (rmdir(file_name) != 0) {
+        if (os_rmdir(file_name) != 0) {
           *err_info = FILE_ERROR;
         } /* if */
 /*      okay = errno;
@@ -181,27 +195,27 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-static void remove_any_file (char *file_name, errinfotype *err_info)
+static void remove_any_file (os_path_stri file_name, errinfotype *err_info)
 #else
 
 static void remove_any_file (file_name, err_info)
-char *file_name;
+os_path_stri file_name;
 errinfotype *err_info;
 #endif
 
   {
-    struct stat file_stat;
+    os_stat_struct file_stat;
 
   /* remove_any_file */
 #ifdef TRACE_CMD_RTL
     printf("BEGIN remove_any_file (\"%s\")\n", file_name);
 #endif
-    if (stat(file_name, &file_stat) == 0) {
+    if (os_stat(file_name, &file_stat) == 0) {
       *err_info = FILE_ERROR;
     } else {
       if (S_ISLNK(file_stat.st_mode)) {
       } else if (S_ISREG(file_stat.st_mode)) {
-        if (remove(file_name) != 0) {
+        if (os_remove(file_name) != 0) {
           *err_info = FILE_ERROR;
         } /* if */
       } else if (S_ISDIR(file_stat.st_mode)) {
@@ -217,12 +231,12 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-static void copy_file (char *from_name, char *to_name, errinfotype *err_info)
+static void copy_file (os_path_stri from_name, os_path_stri to_name, errinfotype *err_info)
 #else
 
 static void copy_file (from_name, to_name, err_info)
-char *from_name;
-char *to_name;
+os_path_stri from_name;
+os_path_stri to_name;
 errinfotype *err_info;
 #endif
 
@@ -230,7 +244,7 @@ errinfotype *err_info;
     FILE *from_file;
     FILE *to_file;
 #ifdef USE_MMAP
-    struct stat file_stat;
+    os_stat_struct file_stat;
     memsizetype file_length;
     ustritype file_content;
 #else
@@ -244,10 +258,15 @@ errinfotype *err_info;
 #ifdef TRACE_CMD_RTL
     printf("BEGIN copy_file (\"%s\", \"%s\")\n", from_name, to_name);
 #endif
+#ifdef WCHAR_OS_PATH
+    if ((from_file = wide_fopen(from_name, L"rb")) != NULL) {
+      if ((to_file = wide_fopen(to_name, L"wb")) != NULL) {
+#else
     if ((from_file = fopen(from_name, "rb")) != NULL) {
       if ((to_file = fopen(to_name, "wb")) != NULL) {
+#endif
 #ifdef USE_MMAP
-        if (fstat(fileno(from_file), &file_stat) == 0) {
+        if (os_fstat(fileno(from_file), &file_stat) == 0) {
           file_length = file_stat.st_size;
           if ((file_content = (ustritype) mmap(NULL, file_length,
               PROT_READ, MAP_PRIVATE, fileno(from_file),
@@ -281,7 +300,7 @@ errinfotype *err_info;
           *err_info = FILE_ERROR;
         } /* if */
         if (*err_info != OKAY_NO_ERROR) {
-          remove(to_name);
+          os_remove(to_name);
         } /* if */
       } else {
         fclose(from_file);
@@ -299,21 +318,25 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-static void copy_dir (char *from_name, char *to_name, errinfotype *err_info)
+static void copy_dir (os_path_stri from_name, os_path_stri to_name, errinfotype *err_info)
 #else
 
 static void copy_dir (from_name, to_name, err_info)
-char *from_name;
-char *to_name;
+os_path_stri from_name;
+os_path_stri to_name;
 errinfotype *err_info;
 #endif
 
   {
-    DIR *directory;
-    struct dirent *current_entry;
-    char from_file_name[2000];
-    char to_file_name[2000];
-    struct stat to_stat;
+    dirtype directory;
+    os_dirent_struct *current_entry;
+    SIZE_TYPE from_file_name_size = 0;
+    os_path_stri from_file_name = NULL;
+    SIZE_TYPE to_file_name_size = 0;
+    os_path_stri to_file_name = NULL;
+    SIZE_TYPE new_size;
+    os_path_stri resized_path;
+    os_stat_struct to_stat;
 
   /* copy_dir */
 #ifdef TRACE_CMD_RTL
@@ -321,47 +344,79 @@ errinfotype *err_info;
 #endif
 /*  printf("opendir(%s);\n", from_name);
     fflush(stdout); */
-    if ((directory = opendir(from_name)) == NULL) {
+    if ((directory = os_opendir(from_name)) == NULL) {
       *err_info = FILE_ERROR;
     } else {
-      if (stat(to_name, &to_stat) == 0) {
+      if (os_stat(to_name, &to_stat) == 0) {
         /* Directore exists already */
         *err_info = FILE_ERROR;
       } else {
-        if (mkdir(to_name, (S_IRWXU | S_IRWXG | S_IRWXO)) != 0) {
+        if (os_mkdir(to_name, (S_IRWXU | S_IRWXG | S_IRWXO)) != 0) {
           *err_info = FILE_ERROR;
         } else {
           do {
-            current_entry = readdir(directory);
+            current_entry = os_readdir(directory);
   /*        printf("$%ld$\n", (long) current_entry);
             fflush(stdout); */
           } while (current_entry != NULL &&
-              (strcmp(current_entry->d_name, ".") == 0 ||
-              strcmp(current_entry->d_name, "..") == 0));
+              (memcmp(current_entry->d_name, dot,    sizeof(os_path_char) * 2) == 0 ||
+               memcmp(current_entry->d_name, dotdot, sizeof(os_path_char) * 3) == 0));
           while (*err_info == OKAY_NO_ERROR && current_entry != NULL) {
   /*        printf("!%s!\n", current_entry->d_name);
             fflush(stdout); */
-            strcpy(from_file_name, from_name);
-            strcat(from_file_name, "/");
-            strcat(from_file_name, current_entry->d_name);
-            strcpy(to_file_name, to_name);
-            strcat(to_file_name, "/");
-            strcat(to_file_name, current_entry->d_name);
-            copy_any_file(from_file_name, to_file_name, err_info);
+            new_size = os_path_strlen(from_file_name) + 1 + os_path_strlen(current_entry->d_name);
+            if (new_size > from_file_name_size) {
+              resized_path = os_path_realloc(from_file_name, new_size);
+              if (resized_path != NULL) {
+                from_file_name = resized_path;
+                from_file_name_size = new_size;
+              } else if (from_file_name != NULL) {
+                os_path_free(from_file_name);
+                from_file_name = NULL;
+              } /* if */
+            } /* if */
+            new_size = os_path_strlen(to_file_name) + 1 + os_path_strlen(current_entry->d_name);
+            if (new_size > to_file_name_size) {
+              resized_path = os_path_realloc(to_file_name, new_size);
+              if (resized_path != NULL) {
+                to_file_name = resized_path;
+                to_file_name_size = new_size;
+              } else if (to_file_name != NULL) {
+                os_path_free(to_file_name);
+                to_file_name = NULL;
+              } /* if */
+            } /* if */
+            if (from_file_name != NULL && to_file_name != NULL) {
+              os_path_strcpy(from_file_name, from_name);
+              os_path_strcat(from_file_name, slash);
+              os_path_strcat(from_file_name, current_entry->d_name);
+              os_path_strcpy(to_file_name, to_name);
+              os_path_strcat(to_file_name, slash);
+              os_path_strcat(to_file_name, current_entry->d_name);
+              copy_any_file(from_file_name, to_file_name, err_info);
+            } else {
+              *err_info = MEMORY_ERROR;
+            } /* if */
             do {
-              current_entry = readdir(directory);
+              current_entry = os_readdir(directory);
   /*          printf("$%ld$\n", (long) current_entry);
               fflush(stdout); */
             } while (current_entry != NULL &&
-                (strcmp(current_entry->d_name, ".") == 0 ||
-                strcmp(current_entry->d_name, "..") == 0));
+                (memcmp(current_entry->d_name, dot,    sizeof(os_path_char) * 2) == 0 ||
+                 memcmp(current_entry->d_name, dotdot, sizeof(os_path_char) * 3) == 0));
           } /* while */
           if (*err_info != OKAY_NO_ERROR) {
             remove_dir(to_name, err_info);
           } /* if */
+          if (from_file_name != NULL) {
+            os_path_free(from_file_name);
+          } /* if */
+          if (from_file_name != NULL) {
+            os_path_free(from_file_name);
+          } /* if */
         } /* if */
       } /* if */
-      closedir(directory);
+      os_closedir(directory);
     } /* if */
 #ifdef TRACE_CMD_RTL
     printf("END copy_dir (\"%s\", \"%s\")\n", from_name, to_name);
@@ -372,27 +427,27 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-static void copy_any_file (char *from_name, char *to_name, errinfotype *err_info)
+static void copy_any_file (os_path_stri from_name, os_path_stri to_name, errinfotype *err_info)
 #else
 
 static void copy_any_file (from_name, to_name, err_info)
-char *from_name;
-char *to_name;
+os_path_stri from_name;
+os_path_stri to_name;
 errinfotype *err_info;
 #endif
 
   {
-    struct stat from_stat;
-    struct stat to_stat;
+    os_stat_struct from_stat;
+    os_stat_struct to_stat;
 
   /* copy_any_file */
 #ifdef TRACE_CMD_RTL
     printf("BEGIN copy_any_file (\"%s\", \"%s\")\n", from_name, to_name);
 #endif
-    if (stat(from_name, &from_stat) != 0) {
+    if (os_stat(from_name, &from_stat) != 0) {
       *err_info = FILE_ERROR;
     } else {
-      if (stat(to_name, &to_stat) == 0) {
+      if (os_stat(to_name, &to_stat) == 0) {
         *err_info = FILE_ERROR;
       } else {
         if (S_ISLNK(from_stat.st_mode)) {
@@ -401,8 +456,8 @@ errinfotype *err_info;
         } else if (S_ISDIR(from_stat.st_mode)) {
           copy_dir(from_name, to_name, err_info);
         } /* if */
-        chmod(to_name, from_stat.st_mode);
-        chown(to_name, from_stat.st_uid, from_stat.st_gid);
+        os_chmod(to_name, from_stat.st_mode);
+        os_chown(to_name, from_stat.st_uid, from_stat.st_gid);
       } /* if */
     } /* if */
 #ifdef TRACE_CMD_RTL
@@ -414,12 +469,12 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-static void move_any_file (char *from_name, char *to_name, errinfotype *err_info)
+static void move_any_file (os_path_stri from_name, os_path_stri to_name, errinfotype *err_info)
 #else
 
 static void move_any_file (from_name, to_name, err_info)
-char *from_name;
-char *to_name;
+os_path_stri from_name;
+os_path_stri to_name;
 errinfotype *err_info;
 #endif
 
@@ -427,7 +482,7 @@ errinfotype *err_info;
 #ifdef TRACE_CMD_RTL
     printf("BEGIN move_any_file (\"%s\", \"%s\")\n", from_name, to_name);
 #endif
-    if (rename(from_name, to_name) != 0) {
+    if (os_rename(from_name, to_name) != 0) {
       switch (errno) {
         case EXDEV:
           copy_any_file(from_name, to_name, err_info);
@@ -516,7 +571,7 @@ errinfotype *err_info;
       } else {
         *err_info = MEMORY_ERROR;
       } /* if */
-      closedir(directory);
+      dirClose(directory);
     } else {
       dir_array = NULL;
       *err_info = FILE_ERROR;
@@ -544,9 +599,8 @@ stritype file_name;
     biginttype result;
 
   /* cmdBigFileSize */
-    os_path = cp_to_os_path(file_name);
+    os_path = cp_to_os_path(file_name, &err_info);
     if (os_path == NULL) {
-      err_info = MEMORY_ERROR;
       result = 0;
     } else {
       stat_result = os_stat(os_path, &stat_buf);
@@ -572,7 +626,7 @@ stritype file_name;
           fclose(aFile);
         } /* if */
       } /* if */
-      free_os_path(os_path, file_name);
+      os_path_free(os_path);
     } /* if */
     if (err_info != OKAY_NO_ERROR) {
       raise_error(err_info);
@@ -593,15 +647,16 @@ stritype dir_name;
 
   {
     os_path_stri os_path;
+    errinfotype err_info = OKAY_NO_ERROR;
     int chdir_result;
 
   /* cmdChdir */
-    os_path = cp_to_os_path(dir_name);
+    os_path = cp_to_os_path(dir_name, &err_info);
     if (os_path == NULL) {
-      raise_error(MEMORY_ERROR);
+      raise_error(err_info);
     } else {
       chdir_result = os_chdir(os_path);
-      free_os_path(os_path, dir_name);
+      os_path_free(os_path);
       if (chdir_result != 0) {
         raise_error(FILE_ERROR);
       } /* if */
@@ -725,23 +780,19 @@ stritype dest_name;
 #endif
 
   {
-    cstritype os_source_name;
-    cstritype os_dest_name;
+    os_path_stri os_source_name;
+    os_path_stri os_dest_name;
     errinfotype err_info = OKAY_NO_ERROR;
 
   /* cmdCopy */
-    os_source_name = cp_to_cstri(source_name);
-    if (os_source_name == NULL) {
-      err_info = MEMORY_ERROR;
-    } else {
-      os_dest_name = cp_to_cstri(dest_name);
-      if (os_dest_name == NULL) {
-        err_info = MEMORY_ERROR;
-      } else {
+    os_source_name = cp_to_os_path(source_name, &err_info);
+    if (os_source_name != NULL) {
+      os_dest_name = cp_to_os_path(dest_name, &err_info);
+      if (os_dest_name != NULL) {
         copy_any_file(os_source_name, os_dest_name, &err_info); /* SYS_FILE_EXCEPTION */
-        free_cstri(os_dest_name, dest_name);
+        os_path_free(os_dest_name);
       } /* if */
-      free_cstri(os_source_name, source_name);
+      os_path_free(os_source_name);
     } /* if */
     if (err_info != OKAY_NO_ERROR) {
       raise_error(err_info);
@@ -766,16 +817,17 @@ stritype file_name;
     os_path_stri os_path;
     os_stat_struct stat_buf;
     int stat_result;
+    errinfotype err_info = OKAY_NO_ERROR;
     inttype result;
 
   /* cmdFileCTime */
-    os_path = cp_to_os_path(file_name);
+    os_path = cp_to_os_path(file_name, &err_info);
     if (os_path == NULL) {
-      raise_error(MEMORY_ERROR);
+      raise_error(err_info);
       return(0);
     } else {
       stat_result = os_stat(os_path, &stat_buf);
-      free_os_path(os_path, dir_name);
+      os_path_free(os_path);
       if (stat_result == 0) {
         stat_buf.st_ctime;
       } else {
@@ -806,9 +858,8 @@ stritype file_name;
     inttype result;
 
   /* cmdFileSize */
-    os_path = cp_to_os_path(file_name);
+    os_path = cp_to_os_path(file_name, &err_info);
     if (os_path == NULL) {
-      err_info = MEMORY_ERROR;
       result = 0;
     } else {
       stat_result = os_stat(os_path, &stat_buf);
@@ -835,7 +886,7 @@ stritype file_name;
           fclose(aFile);
         } /* if */
       } /* if */
-      free_os_path(os_path, file_name);
+      os_path_free(os_path);
     } /* if */
     if (err_info != OKAY_NO_ERROR) {
       raise_error(err_info);
@@ -858,16 +909,17 @@ stritype file_name;
     os_path_stri os_path;
     os_stat_struct stat_buf;
     int stat_result;
+    errinfotype err_info = OKAY_NO_ERROR;
     inttype result;
 
   /* cmdFileType */
-    os_path = cp_to_os_path(file_name);
+    os_path = cp_to_os_path(file_name, &err_info);
     if (os_path == NULL) {
-      raise_error(MEMORY_ERROR);
+      raise_error(err_info);
       return(0);
     } else {
       stat_result = os_stat(os_path, &stat_buf);
-      free_os_path(os_path, dir_name);
+      os_path_free(os_path);
       if (stat_result == 0) {
         if (S_ISREG(stat_buf.st_mode)) {
           result = 1;
@@ -964,14 +1016,15 @@ stritype dir_name;
   {
     os_path_stri os_path;
     int mkdir_result;
+    errinfotype err_info = OKAY_NO_ERROR;
 
   /* cmdMkdir */
-    os_path = cp_to_os_path(dir_name);
+    os_path = cp_to_os_path(dir_name, &err_info);
     if (os_path == NULL) {
-      raise_error(MEMORY_ERROR);
+      raise_error(err_info);
     } else {
       mkdir_result = os_mkdir(os_path, 0777);
-      free_os_path(os_path, dir_name);
+      os_path_free(os_path);
       if (mkdir_result != 0) {
         raise_error(FILE_ERROR);
       } /* if */
@@ -991,23 +1044,19 @@ stritype dest_name;
 #endif
 
   {
-    cstritype os_source_name;
-    cstritype os_dest_name;
+    os_path_stri os_source_name;
+    os_path_stri os_dest_name;
     errinfotype err_info = OKAY_NO_ERROR;
 
   /* cmdMove */
-    os_source_name = cp_to_cstri(source_name);
-    if (os_source_name == NULL) {
-      err_info = MEMORY_ERROR;
-    } else {
-      os_dest_name = cp_to_cstri(dest_name);
-      if (os_dest_name == NULL) {
-        err_info = MEMORY_ERROR;
-      } else {
+    os_source_name = cp_to_os_path(source_name, &err_info);
+    if (os_source_name != NULL) {
+      os_dest_name = cp_to_os_path(dest_name, &err_info);
+      if (os_dest_name != NULL) {
         move_any_file(os_source_name, os_dest_name, &err_info); /* SYS_FILE_EXCEPTION */
-        free_cstri(os_dest_name, dest_name);
+        os_path_free(os_dest_name);
       } /* if */
-      free_cstri(os_source_name, source_name);
+      os_path_free(os_source_name);
     } /* if */
     if (err_info != OKAY_NO_ERROR) {
       raise_error(err_info);
@@ -1071,15 +1120,16 @@ stritype file_name;
 #endif
 
   {
-    cstritype os_file_name;
+    os_path_stri os_file_name;
+    errinfotype err_info = OKAY_NO_ERROR;
 
   /* cmdRemove */
-    os_file_name = cp_to_cstri(file_name);
+    os_file_name = cp_to_os_path(file_name, &err_info);
     if (os_file_name == NULL) {
-      raise_error(MEMORY_ERROR);
+      raise_error(err_info);
     } else {
-      remove(os_file_name);
-      free_cstri(os_file_name, file_name);
+      os_remove(os_file_name);
+      os_path_free(os_file_name);
     } /* if */
   } /* cmdRemove */
 
@@ -1120,27 +1170,23 @@ stritype dest_name;
 #endif
 
   {
-    cstritype os_source_name;
-    cstritype os_dest_name;
+    os_path_stri os_source_name;
+    os_path_stri os_dest_name;
     errinfotype err_info = OKAY_NO_ERROR;
 
   /* cmdSymlink */
-    os_source_name = cp_to_cstri(source_name);
-    if (os_source_name == NULL) {
-      err_info = MEMORY_ERROR;
-    } else {
-      os_dest_name = cp_to_cstri(dest_name);
-      if (os_dest_name == NULL) {
-        err_info = MEMORY_ERROR;
-      } else {
+    os_source_name = cp_to_os_path(source_name, &err_info);
+    if (os_source_name != NULL) {
+      os_dest_name = cp_to_os_path(dest_name, &err_info);
+      if (os_dest_name != NULL) {
 #ifdef OUT_OF_ORDER
         if (symlink(os_source_name, os_dest_name) != 0) {
           err_info = FILE_ERROR;
         } /* if */
 #endif
-        free_cstri(os_dest_name, dest_name);
+        os_path_free(os_dest_name);
       } /* if */
-      free_cstri(os_source_name, source_name);
+      os_path_free(os_source_name);
     } /* if */
     if (err_info != OKAY_NO_ERROR) {
       raise_error(err_info);

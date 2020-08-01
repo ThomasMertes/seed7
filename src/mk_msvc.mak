@@ -144,9 +144,6 @@ version.h:
 	echo #undef  USE_MMAP >> version.h
 	echo #undef  INCL_NCURSES_TERM >> version.h
 	echo #undef  INCL_CURSES_BEFORE_TERM >> version.h
-	echo #define MKDIR_WITH_ONE_PARAMETER >> version.h
-	echo #define CHOWN_MISSING >> version.h
-	echo #define CHMOD_MISSING >> version.h
 	echo #define ISNAN_WITH_UNDERLINE >> version.h
 	echo #define CHECK_INT_DIV_BY_ZERO >> version.h
 	echo #define FLOAT_ZERO_DIV_ERROR >> version.h
@@ -156,9 +153,16 @@ version.h:
 	echo #define WCHAR_OS_PATH >> version.h
 	echo #define os_chdir _wchdir >> version.h
 	echo #define os_mkdir(path,mode) _wmkdir(path) >> version.h
+	echo #define os_rmdir _wrmdir >> version.h
 	echo #define os_fstat _fstati64 >> version.h
 	echo #define os_stat _wstati64 >> version.h
 	echo #define os_stat_struct struct _stati64 >> version.h
+	echo #define os_chown(name,uid,gid) >> version.h
+	echo #define os_chmod _wchmod >> version.h
+	echo #define os_utime _wutime >> version.h
+	echo #define os_utimbuf_struct struct _utimbuf >> version.h
+	echo #define os_remove _wremove >> version.h
+	echo #define os_rename _wrename >> version.h
 	echo #define wide_fopen _wfopen >> version.h
 	echo #define USE_WOPENDIR >> version.h
 	echo #define USE_FSEEKI64 >> version.h

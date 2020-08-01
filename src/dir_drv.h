@@ -76,16 +76,3 @@ extern int rmdir();
 #include "direct.h"
 #include "dir_win.h"
 #endif
-
-
-#ifdef MKDIR_WITH_ONE_PARAMETER
-#define mkdir(NAME,MODE) mkdir(NAME)
-#endif
-
-#ifdef CHOWN_MISSING
-#define chown(NAME,UID,GID)
-#endif
-
-#ifdef CHMOD_MISSING
-#define chmod(NAME,MODE)
-#endif
