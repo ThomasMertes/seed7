@@ -144,11 +144,11 @@ The Seed7 Runtime Library is under the LGPL (Lesser General Public License,
 see also the file LGPL). The Seed7 include files (extension .s7i) are a part
 of the Seed7 Runtime Library.
 </p><p>
-Seed7 allows the interpretation and compilation of programms with any license.
+Seed7 allows the interpretation and compilation of programs with any license.
 There is no restriction on the license of your Seed7 programs.
 </p><p>
 For the development of the Seed7 compiler it will be necessary to move some
-sourcecode from the hi Interpreter (under GPL) to the Seed7 Runtime Library
+source code from the hi Interpreter (under GPL) to the Seed7 Runtime Library
 (under LGPL). This will only be done to for the Seed7 runtime library and only
 as far as necessary to make no restriction on the license of compiled Seed7
 programs.
@@ -188,7 +188,7 @@ never written to a file. After the analyze phase the call-code is interpreted.
 <p>
 The analyzer reads successive expressions according to the syntax definitions.
 For each expression the analyzer searches the internal database of declared
-objects (this search proceess is called matching) and generates call-code for
+objects (this search process is called matching) and generates call-code for
 this expression. Then the call code for this expression is executed. Normally
 this expressions are declaration statements. In that case new declared objects
 are added to the internal database.
@@ -200,7 +200,7 @@ are added to the internal database.
 Generally Seed7 is designed to allow the compilation from Seed7 to C. The Seed7
 compiler (written in Seed7) uses the analyze phase of the interpreter to convert
 a program to call-code and then generates a corresponding C program. This C
-program is compiled and linked aterwards.
+program is compiled and linked afterwards.
 (Note that the compiler is currently not finished)
 </p>
 
@@ -268,13 +268,13 @@ statements and new operators on one side and the strong typing requirements with
 compile time checks of the parameters on the other side would make the job of analyzing
 expressions with undeclared functions very complex.
 </p><p>
-Forward declarations help, if someting needs to be used before it can be declared fully.
+Forward declarations help, if something needs to be used before it can be declared fully.
 </p>
 
 <a name="casts"><b>Are there automatic casts to the right type?
 </b></a><hr><!-- ============================================ -->
 <p>
-No, because Seed7 is strong typed. This means that for every expression (and subexpression)
+No, because Seed7 is strong typed. This means that for every expression (and sub expression)
 you know its type at compile time without knowing where this expression is used.
 Although this means that you have to convert types explicit (for example from integer
 to float) it has more advantages than disadvantages:
@@ -311,17 +311,17 @@ The read macros of Lisp could be used to define the syntax of a statement, but
 read macros make no type checks at compile time. Any type checking must be written
 by the programmer and is not mandated by Lisp. The type checks will be performed
 at runtime and might issue warnings at compile time (this is implementation
-dependend). In general: Lisp 'statement' declarations do not force compile time
+dependent). In general: Lisp 'statement' declarations do not force compile time
 checks and look less elegant. Seed7 statement declarations force a type check at
 compile time.
 </p><p>
 While Lisp allows new and overloaded functions, the Lisp 'operators' are
 functions which use the prefix notation (with lots of parentheses).
-Aggain read macros could be used to support infix operators with priority
+Again read macros could be used to support infix operators with priority
 and associativity. This read macros would have the same problems as above.
 Although Lisp fanatics would never admit it, infix operators with priority
 and associativity are not really supported by Lisp. If somebody tells you
-that everyting can be done in Lisp, send him to the next advocacy group.
+that everything can be done in Lisp, send him to the next advocacy group.
 In general: Seed7 supports user definable infix operators with priority and
 associativity. Such operators can be overloaded and the type checks are done
 at compile time. In Lisp all this would be a hack.
@@ -334,7 +334,7 @@ No, because functions with variable parameter lists as the C printf function hav
 some problems:
 </p><ul>
 <li><!--  -  -->Type checking is only possible at run time.</li>
-<li><!--  -  -->The recognicion of overloaded functions becomes more complicated.</li>
+<li><!--  -  -->The recognition of overloaded functions becomes more complicated.</li>
 </ul><p>
 Instead Seed7 has array aggregates and allows functions with arrays as parameters.
 So you could declare a function
@@ -482,9 +482,9 @@ implementation type (<tt>'<font color=red>Integer</font>'</tt> or a <tt>'<font c
 <p>
 Abstract data types are used to replace container classes. When using an
 abstract data type as container you have to specify the type of the element
-in the type declaration. Therefore abstract data types are always typesafe.
+in the type declaration. Therefore abstract data types are always type safe.
 Typeless container classes with object elements do not exist. The only thing
-which comes near to this is the <tt>'<font color=red>ref_list</font>'</tt> which ist used in the reflection.
+which comes near to this is the <tt>'<font color=red>ref_list</font>'</tt> which is used in the reflection.
 A <tt>'<font color=red>ref_list</font>'</tt> should not be misused as container class. Examples of abstract
 data types are:
 </p><pre>
@@ -557,12 +557,12 @@ primitive types the value itself is copied. Since values can be very big
 (think of arrays of structs with string elements) value copies can be time
 consuming.
 </p><p>
-In pure object oriented languages the effect of independend objects after
+In pure object oriented languages the effect of independent objects after
 the assignment is reached in a different way: Every change to an object
 creates a new object and therefore the time consuming copy takes place with
 every change. Because usually changes to an object are more frequent than
 assignments this approach can be even more time consuming than the approach
-using value copys for the assignment.
+using value copies for the assignment.
 </p>
 
 <a name="two_forms_of_assignment"><b>Why are there two forms of assignment?
@@ -716,8 +716,8 @@ the action and deliver a result.
 <a name="dollar_signs"><b>Why are there dollar signs at some places?
 </b></a><hr><!-- ========================================== -->
 <p>
-The $ is used to force the analyzer to use a hardcoded expression recognition
-instead of the configuratable one. This mechanism is used to boot the Seed7 language:
+The $ is used to force the analyzer to use a hard coded expression recognition
+instead of the configurable one. This mechanism is used to boot the Seed7 language:
 </p><p>
 At the beginning of the seed7_05.s7i file nothing is declared. This means that
 no statements, no functions, no operators, no types and no variables are predeclared.
@@ -732,7 +732,7 @@ onward almost no $ statements are needed.
 <a name="seed7_version_number"><b>Why does "seed7_05.s7i" contain a version number?
 </b></a><hr><!-- ================================================= -->
 <p>
-The number 05 is acctually a 'branch info'. As if C had headers like
+The number 05 is actually a 'branch info'. As if C had headers like
 </p><pre>
   &lt;stdlib_c78.h> /* For K&amp;R C programs */
   &lt;stdlib_c89.h> /* For ANSI C */
@@ -748,7 +748,7 @@ prototypes, you change the <stdlib...> include file as well.
 </p><p>
 Programming languages change over long time periods.
 This results in different language standards.
-Seed7 trys to address this problem from the beginning.
+Seed7 tries to address this problem from the beginning.
 Since most of the Seed7's constructs (statements, operators, types, ... )
 are defined in "seed7_05.s7i" this is the right place to do it.
 </p>
@@ -759,8 +759,8 @@ are defined in "seed7_05.s7i" this is the right place to do it.
 Theoretically yes. In practice there would be several problems. For example:
 </p><ul>
 <li> <!-- - --> All primitive actions are defined such that they fit to Seed7.</li>
-<li> <!-- - --> Some conepts like goto's, return's, brake's are not supported.</li>
-<li> <!-- - --> Some things like comments and $ pragmas are hardcoded.</li>
+<li> <!-- - --> Some concepts like goto's, return's, brake's are not supported.</li>
+<li> <!-- - --> Some things like comments and $ pragmas are hard coded.</li>
 </ul><p>
 But basically booting various languages was one of the goals of the extensible
 programming language Seed7 and the hi Interpreter.

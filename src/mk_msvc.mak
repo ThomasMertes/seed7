@@ -133,7 +133,9 @@ version.h:
 	echo #define DEFINE_IEEE_754_STUFF >> version.h
 	echo #define FLOAT_ZERO_DIV_ERROR >> version.h
 	echo #define USE_MYUNISTD_H >> version.h
-	echo #undef  USE_FSEEKO64 >> version.h
+	echo #define HAS_LONGTYPE_64 >> version.h
+	echo #define LONGTYPE_64_IS_INT64 >> version.h
+	echo #define USE_FSEEKI64 >> version.h
 	echo #define USE_WINSOCK >> version.h
 	echo #define popen _popen >> version.h
 	echo #define OBJECT_FILE_EXTENSION ".obj" >> version.h

@@ -131,7 +131,9 @@ version.h:
 	echo "#undef  MKDIR_WITH_ONE_PARAMETER" >> version.h
 	echo "#undef  CHOWN_MISSING" >> version.h
 	echo "#undef  CHMOD_MISSING" >> version.h
+	echo "#define HAS_LONGTYPE_64" >> version.h
 	echo "#define _FILE_OFFSET_BITS 64" >> version.h
+	echo "#define USE_LSEEK" >> version.h
 	echo "#define OBJECT_FILE_EXTENSION \".o\"" >> version.h
 	echo "#define EXECUTABLE_FILE_EXTENSION \"\"" >> version.h
 	echo "#define C_COMPILER \"$(CC)\"" >> version.h

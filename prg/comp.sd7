@@ -3840,7 +3840,7 @@ const proc: process_fil_seek (in ref_list: params, inout expr_type: c_expr) is f
 const proc: process_fil_tell (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "ftell(";
+    c_expr.expr &:= "filTell(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
   end func;
@@ -4107,14 +4107,14 @@ const proc: process_flt_hashcode (in ref_list: params, inout expr_type: c_expr) 
   begin
     incr(c_expr.temp_num);
     temp_num := c_expr.temp_num;
-    c_expr.temp_decls &:= "float2int tmp_a_";
+    c_expr.temp_decls &:= "float2int tmp_";
     c_expr.temp_decls &:= str(temp_num);
     c_expr.temp_decls &:= ";\n";
-    c_expr.expr &:= "(tmp_a_";
+    c_expr.expr &:= "(tmp_";
     c_expr.expr &:= str(temp_num);
     c_expr.expr &:= ".floatvalue=(";
     process_expr(params[1], c_expr);
-    c_expr.expr &:= "),tmp_a_";
+    c_expr.expr &:= "),tmp_";
     c_expr.expr &:= str(temp_num);
     c_expr.expr &:= ".intvalue)";
   end func;
@@ -4477,7 +4477,7 @@ const proc: process_hsh_contains (in ref_list: params, inout expr_type: c_expr) 
     c_expr.expr &:= "hshContains(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ", ";
-    process_expr(params[2], c_expr);
+    process_cast_from_float_expr(params[2], c_expr);
     c_expr.expr &:= ", ";
     process_expr(params[3], c_expr);
     c_expr.expr &:= ", ";
@@ -4586,7 +4586,7 @@ const proc: process_hsh_excl (in ref_list: params, inout expr_type: c_expr) is f
     c_expr.expr &:= "hshExcl(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ", ";
-    process_expr(params[2], c_expr);
+    process_cast_from_float_expr(params[2], c_expr);
     c_expr.expr &:= ", ";
     process_expr(params[3], c_expr);
     c_expr.expr &:= ", ";
@@ -7199,12 +7199,49 @@ const proc: process_str_head (in ref_list: params, inout expr_type: c_expr) is f
 
 const proc: process_str_idx (in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var integer: string_temp_num is 0;
+    var integer: index_temp_num is 0;
   begin
-    c_expr.expr &:= "((stritype)(";
-    process_arg(params[1], c_expr);
-    c_expr.expr &:= "))->mem[";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= "-1]";
+    if array_range_check then
+      incr(c_expr.temp_num);
+      string_temp_num := c_expr.temp_num;
+      c_expr.temp_decls &:= "stritype tmp_";
+      c_expr.temp_decls &:= str(string_temp_num);
+      c_expr.temp_decls &:= ";\n";
+      c_expr.expr &:= "(*(tmp_";
+      c_expr.expr &:= str(string_temp_num);
+      c_expr.expr &:= "=(stritype)(";
+      process_arg(params[1], c_expr);
+      c_expr.expr &:= "), &tmp_";
+      c_expr.expr &:= str(string_temp_num);
+      c_expr.expr &:= "->mem[";
+      incr(c_expr.temp_num);
+      index_temp_num := c_expr.temp_num;
+      c_expr.temp_decls &:= "inttype tmp_";
+      c_expr.temp_decls &:= str(index_temp_num);
+      c_expr.temp_decls &:= ";\n";
+      c_expr.expr &:= "(tmp_";
+      c_expr.expr &:= str(index_temp_num);
+      c_expr.expr &:= "=";
+      process_expr(params[3], c_expr);
+      c_expr.expr &:= ", tmp_";
+      c_expr.expr &:= str(index_temp_num);
+      c_expr.expr &:= " < 1 || tmp_";
+      c_expr.expr &:= str(index_temp_num);
+      c_expr.expr &:= " > tmp_";
+      c_expr.expr &:= str(string_temp_num);
+      c_expr.expr &:= "->size ? raise_error(RANGE_ERROR) : 0, tmp_";
+      c_expr.expr &:= str(index_temp_num);
+      c_expr.expr &:= "-1)";
+      c_expr.expr &:= "]))";
+    else
+      c_expr.expr &:= "((stritype)(";
+      process_arg(params[1], c_expr);
+      c_expr.expr &:= "))->mem[(";
+      process_expr(params[3], c_expr);
+      c_expr.expr &:= ")-1]";
+    end if;
   end func;
 
 
@@ -11956,6 +11993,7 @@ const proc: write_file_head is func
     c_prog << "inttype     filLng (filetype );\n";
     c_prog << "filetype    filOpen (stritype, stritype);\n";
     c_prog << "void        filSeek (filetype, inttype);\n";
+    c_prog << "inttype     filTell (filetype);\n";
     c_prog << "stritype    filWordRead (filetype, chartype *);\n";
     c_prog << "void        filWrite (filetype, stritype);\n";
     c_prog << "floattype   fltValue (void * );\n";

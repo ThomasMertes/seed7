@@ -63,24 +63,19 @@ typedef int booltype;
 #define WIDE_CHAR_STRINGS
 #undef  MMAP_ABLE_STRI
 #define BIGDIGIT_SIZE 16
-#undef  HAS_LONGTYPE_64
 
-
-#if defined _FILE_OFFSET_BITS && _FILE_OFFSET_BITS == 64
-#define HAS_LONGTYPE_64
-#define USE_LSEEK
-#endif
-
-#if defined USE_FSEEKO64
-#define HAS_LONGTYPE_64
-#endif
 
 typedef long int           inttype;
 typedef unsigned long int  uinttype;
 
 #ifdef HAS_LONGTYPE_64
+#ifdef LONGTYPE_64_IS_INT64
+typedef __int64            longtype;
+typedef unsigned __int64   ulongtype;
+#else
 typedef long long int      longtype;
 typedef unsigned long long ulongtype;
+#endif
 #endif
 
 typedef float              floattype;
@@ -113,6 +108,9 @@ typedef char *             cstritype;
 typedef unsigned char *    ustritype;
 typedef FILE *             filetype;
 typedef int                sockettype;
+
+typedef const char *           const_cstritype;
+typedef const unsigned char *  const_ustritype;
 
 #define MAX_INTEGER 2147483647
 

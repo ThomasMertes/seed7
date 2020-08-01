@@ -220,9 +220,11 @@ const proc: main is func
         ch := getc(KEYBOARD);
       end if;
       doCommand(ch);
-      while ch in {'h', 'H', 'r', 'R', ' ', KEY_MOUSE1, KEY_MOUSE2, KEY_MOUSE3} do
-        displayMandelbrotSet(center, zoom);
-        DRAW_FLUSH;
+      while ch not in {'q', 'Q', KEY_ESC} do
+        if ch in {'r', 'R', KEY_MOUSE1, KEY_MOUSE2, KEY_MOUSE3} then
+          displayMandelbrotSet(center, zoom);
+          DRAW_FLUSH;
+        end if;
         ch := getc(KEYBOARD);
         doCommand(ch);
       end while;

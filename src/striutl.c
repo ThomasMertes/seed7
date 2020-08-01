@@ -102,7 +102,7 @@ stritype in_stri;
 #ifdef ANSI_C
 
 memsizetype utf8_to_stri (strelemtype *dest_stri, memsizetype *dest_len,
-    ustritype ustri, SIZE_TYPE len)
+    const_ustritype ustri, SIZE_TYPE len)
 #else
 
 memsizetype utf8_to_stri (dest_stri, dest_len, ustri, len)
@@ -183,7 +183,7 @@ SIZE_TYPE len;
 
 #ifdef ANSI_C
 
-memsizetype utf8_bytes_missing (ustritype ustri, SIZE_TYPE len)
+memsizetype utf8_bytes_missing (const_ustritype ustri, SIZE_TYPE len)
 #else
 
 memsizetype utf8_bytes_missing (ustri, len)
@@ -333,7 +333,7 @@ SIZE_TYPE len;
 
 #ifdef ANSI_C
 
-void stri_expand (strelemtype *stri, ustritype ustri, SIZE_TYPE len)
+void stri_expand (strelemtype *stri, const_ustritype ustri, SIZE_TYPE len)
 #else
 
 void stri_expand (stri, ustri, len)
@@ -352,7 +352,7 @@ SIZE_TYPE len;
 
 #ifdef ANSI_C
 
-void stri_compress (ustritype ustri, strelemtype *stri, SIZE_TYPE len)
+void stri_compress (ustritype ustri, const strelemtype *stri, SIZE_TYPE len)
 #else
 
 void stri_compress (ustri, stri, len)
@@ -485,7 +485,7 @@ stritype stri;
 
 #ifdef ANSI_C
 
-stritype cstri_to_stri (cstritype cstri)
+stritype cstri_to_stri (const_cstritype cstri)
 #else
 
 stritype cstri_to_stri (cstri)
@@ -510,7 +510,7 @@ cstritype stri;
 
 #ifdef ANSI_C
 
-stritype cstri8_to_stri (cstritype cstri)
+stritype cstri8_to_stri (const_cstritype cstri)
 #else
 
 stritype cstri8_to_stri (cstri)

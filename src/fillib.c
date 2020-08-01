@@ -574,7 +574,7 @@ listtype arguments;
   { /* fil_tell */
     isit_file(arg_1(arguments));
     return(bld_int_temp(
-        (inttype) ftell(take_file(arg_1(arguments))) + 1));
+        filTell(take_file(arg_1(arguments)))));
   } /* fil_tell */
 
 

@@ -255,10 +255,12 @@ inttype port;
     } else {
       name = cp_to_cstri(host_name);
       if (name == NULL) {
+        result = NULL;
         raise_error(MEMORY_ERROR);
       } else {
         host_ent = gethostbyname(name);
         if (host_ent == NULL) {
+          result = NULL;
           raise_error(IO_ERROR);
         } else {
           /*
@@ -271,6 +273,7 @@ inttype port;
           */
           if (host_ent->h_addrtype != AF_INET ||
               host_ent->h_length != sizeof(inet_address->sin_addr.s_addr)) {
+            result = NULL;
             raise_error(IO_ERROR);
           } else {
             if (!ALLOC_BSTRI(result, sizeof(struct sockaddr_in))) {

@@ -79,7 +79,12 @@ const directtype: EAST is 3;
 const directtype: WEST is 4;
 const directtype: UP is 5;
 const directtype: DOWN is 6;
-const array string: direct_str is []("north", "south", "east", "west", "up", "down");
+
+const func string: str (in directtype: direct) is
+  return [] ("north", "south", "east", "west", "up", "down")[direct];
+
+enable_output(directtype);
+
 const array integer: delta_x is [](-1,  1,  0,  0,  0,  0);
 const array integer: delta_y is []( 0,  0,  1, -1,  0,  0);
 const array integer: delta_z is []( 0,  0,  0,  0, -1,  1);
@@ -332,14 +337,6 @@ const func integer: range18 (in integer: number) is func
       result := number;
     end if;
   end func; (* range18 *)
-
-
-const func string: str (in directtype: direct) is func
-  result
-    var string: result is "";
-  begin (* str *)
-    result := direct_str[direct];
-  end func; (* str *)
 
 
 const proc: startText is func
@@ -1189,7 +1186,11 @@ const proc: readChar (inout char: ch) is func
     var string: stri is "";
   begin (* readChar *)
     readln(stri);
-    ch := upper(stri[1]);
+	if stri <> "" then
+      ch := upper(stri[1]);
+	else
+	  ch := '\0\';
+	end if;
   end func; (* readChar *)
 
 

@@ -34,7 +34,7 @@
 void scrHScroll (inttype, inttype, inttype, inttype, inttype);
 void scrSetpos (inttype, inttype);
 void scrVScroll (inttype, inttype, inttype, inttype, inttype);
-void scrWrite (stritype);
+void scrWrite (const_stritype);
 
 #else
 

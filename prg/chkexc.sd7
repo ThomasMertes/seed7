@@ -347,6 +347,163 @@ const proc: check_float is func
   end func;
 
 
+const proc: check_string is func
+  local
+    var boolean: okay is TRUE;
+    var integer: number is 0;
+    var integer: i_num is 0;
+    var string: stri is "";
+    var char: ch is ' ';
+  begin
+    block
+      ch := "asdf"[-1];
+      writeln(" ***** \"asdf\"[-1] did not raise RANGE_ERROR");
+      okay := FALSE;
+    exception
+      catch RANGE_ERROR:
+        incr(number);
+    end block;
+
+    block
+      ch := "asdf"[0];
+      writeln(" ***** \"asdf\"[0] did not raise RANGE_ERROR");
+      okay := FALSE;
+    exception
+      catch RANGE_ERROR:
+        incr(number);
+    end block;
+
+    block
+      ch := "asdf"[1];
+      incr(number);
+    exception
+      catch RANGE_ERROR:
+        writeln(" ***** \"asdf\"[1] did raise RANGE_ERROR");
+        okay := FALSE;
+    end block;
+
+    block
+      ch := "asdf"[4];
+      incr(number);
+    exception
+      catch RANGE_ERROR:
+        writeln(" ***** \"asdf\"[4] did raise RANGE_ERROR");
+        okay := FALSE;
+    end block;
+
+    block
+      ch := "asdf"[5];
+      writeln(" ***** \"asdf\"[5] did not raise RANGE_ERROR");
+      okay := FALSE;
+    exception
+      catch RANGE_ERROR:
+        incr(number);
+    end block;
+
+    block
+      ch := "asdf"[6];
+      writeln(" ***** \"asdf\"[6] did not raise RANGE_ERROR");
+      okay := FALSE;
+    exception
+      catch RANGE_ERROR:
+        incr(number);
+    end block;
+
+    block
+      stri := "asdf";
+      stri @:= [-1] 'x';
+      writeln(" ***** stri @:= [-1] 'x'; did not raise RANGE_ERROR");
+      okay := FALSE;
+    exception
+      catch RANGE_ERROR:
+        incr(number);
+    end block;
+
+    block
+      stri := "asdf";
+      stri @:= [0] 'x';
+      writeln(" ***** stri @:= [0] 'x'; did not raise RANGE_ERROR");
+      okay := FALSE;
+    exception
+      catch RANGE_ERROR:
+        incr(number);
+    end block;
+
+    block
+      stri := "asdf";
+      stri @:= [1] 'x';
+      incr(number);
+    exception
+      catch RANGE_ERROR:
+        writeln(" ***** stri @:= [1] 'x'; did raise RANGE_ERROR");
+        okay := FALSE;
+    end block;
+
+    block
+      stri := "asdf";
+      stri @:= [4] 'x';
+      incr(number);
+    exception
+      catch RANGE_ERROR:
+        writeln(" ***** stri @:= [4] 'x'; did raise RANGE_ERROR");
+        okay := FALSE;
+    end block;
+
+    block
+      stri := "asdf";
+      stri @:= [5] 'x';
+      writeln(" ***** stri @:= [5] 'x'; did not raise RANGE_ERROR");
+      okay := FALSE;
+    exception
+      catch RANGE_ERROR:
+        incr(number);
+    end block;
+
+    block
+      stri := "asdf";
+      stri @:= [6] 'x';
+      writeln(" ***** stri @:= [6] 'x'; did not raise RANGE_ERROR");
+      okay := FALSE;
+    exception
+      catch RANGE_ERROR:
+        incr(number);
+    end block;
+
+    block
+      stri := "asdf" mult -1;
+      writeln(" ***** \"asdf\" mult -1 did not raise RANGE_ERROR");
+      okay := FALSE;
+    exception
+      catch RANGE_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := pos("asdf", "df", -1);
+      writeln(" ***** pos(\"asdf\", \"df\", -1) did not raise RANGE_ERROR");
+      okay := FALSE;
+    exception
+      catch RANGE_ERROR:
+        incr(number);
+    end block;
+
+    block
+      stri := str('\99999\');
+      incr(number);
+    exception
+      catch RANGE_ERROR: writeln(" ***** str('\\99999\\') raises RANGE_ERROR");
+      okay := FALSE;
+    end block;
+
+    if okay and number = 15 then
+      writeln("String exceptions work correct.");
+    else
+      writeln(" ***** String exceptions do not work correct");
+      writeln;
+    end if;
+  end func;
+
+
 const proc: main is func
   local
     var string: stri is "";
@@ -359,13 +516,7 @@ const proc: main is func
     writeln;
     check_integer;
     check_float;
-
-    block
-      stri := "asdf" mult -1;
-      writeln(" ***** \"asdf\" mult -1 did not raise RANGE_ERROR");
-    exception
-      catch RANGE_ERROR: writeln("\"asdf\" mult -1 raises RANGE_ERROR");
-    end block;
+    check_string;
 
     block
       arr := -1 times TRUE;
@@ -379,13 +530,6 @@ const proc: main is func
       writeln(" ***** (1 times 2)[0] did not raise RANGE_ERROR");
     exception
       catch RANGE_ERROR: writeln("(1 times 2)[0] raises RANGE_ERROR");
-    end block;
-
-    block
-      stri := str('\99999\');
-      writeln("str('\\99999\\') did not raise RANGE_ERROR");
-    exception
-      catch RANGE_ERROR: writeln(" ***** str('\\99999\\') raises RANGE_ERROR");
     end block;
 
     block

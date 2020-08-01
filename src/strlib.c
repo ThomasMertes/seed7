@@ -925,7 +925,7 @@ listtype arguments;
     if (position >= 1 && position <= str1->size) {
       return(bld_char_temp((chartype) str1->mem[position - 1]));
     } else {
-      return(bld_char_temp('\0'));
+      return(raise_exception(SYS_RNG_EXCEPTION));
     } /* if */
   } /* str_idx */
 

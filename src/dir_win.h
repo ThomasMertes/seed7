@@ -34,8 +34,6 @@
 
 #include "io.h"
 
-#define PATH_MAX 2048
-
 
 struct dirent {
     char d_name[13];

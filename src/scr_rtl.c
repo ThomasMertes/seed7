@@ -115,7 +115,7 @@ inttype count;
 
 #ifdef ANSI_C
 
-void scrWrite (stritype stri)
+void scrWrite (const_stritype stri)
 #else
 
 void scrWrite (stri)
@@ -131,11 +131,16 @@ stritype stri;
   { /* scrWrite */
 #ifdef WIDE_CHAR_STRINGS
     {
+      memsizetype size;
       uchartype stri_buffer[2000];
 
-      stri_compress(stri_buffer, stri->mem, stri->size);
+      size = stri->size;
+      if (size > 2000) {
+        size = 2000;
+      } /* if */
+      stri_compress(stri_buffer, stri->mem, size);
       scrText(cursor_line, cursor_column,
-        stri_buffer, stri->size);
+          stri_buffer, size);
     }
 #else
     scrText(cursor_line, cursor_column,

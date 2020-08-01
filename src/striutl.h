@@ -35,13 +35,13 @@
 
 #ifdef ANSI_C
 
-memsizetype utf8_to_stri (strelemtype *, memsizetype *, ustritype, SIZE_TYPE);
-memsizetype utf8_bytes_missing (ustritype, SIZE_TYPE);
+memsizetype utf8_to_stri (strelemtype *, memsizetype *, const_ustritype, SIZE_TYPE);
+memsizetype utf8_bytes_missing (const_ustritype, SIZE_TYPE);
 cstritype cp_to_cstri (stritype);
 bstritype stri_to_bstri (stritype);
 bstritype stri_to_bstri8 (stritype);
-stritype cstri_to_stri (cstritype);
-stritype cstri8_to_stri (cstritype);
+stritype cstri_to_stri (const_cstritype);
+stritype cstri8_to_stri (const_cstritype);
 strelemtype *stri_charpos (stritype, strelemtype);
 
 #else
@@ -63,8 +63,8 @@ strelemtype *stri_charpos ();
 #ifdef ANSI_C
 
 void stri_export (ustritype, stritype);
-void stri_expand (strelemtype *, ustritype, SIZE_TYPE);
-void stri_compress (ustritype, strelemtype *, SIZE_TYPE);
+void stri_expand (strelemtype *, const_ustritype, SIZE_TYPE);
+void stri_compress (ustritype, const strelemtype *, SIZE_TYPE);
 
 #else
 

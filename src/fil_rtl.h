@@ -41,6 +41,7 @@ inttype filLng (filetype);
 filetype filOpen (stritype, stritype);
 filetype filPopen (stritype, stritype);
 void filSeek (filetype, inttype);
+inttype filTell (filetype);
 stritype filWordRead (filetype, chartype *);
 void filWrite (filetype, stritype);
 
@@ -56,6 +57,7 @@ inttype filLng ();
 filetype filOpen ();
 filetype filPopen ();
 void filSeek ();
+inttype filTell ();
 stritype filWordRead ();
 void filWrite ();
 

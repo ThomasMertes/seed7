@@ -65,6 +65,11 @@
 #undef TRACE_CMD_RTL
 
 
+#ifndef PATH_MAX
+#define PATH_MAX 2048
+#endif
+
+
 #ifndef S_ISLNK
 #ifdef S_IFLNK
 #define S_ISLNK(mode) (((mode) & S_IFMT) == S_IFLNK)

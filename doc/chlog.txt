@@ -1,3 +1,14 @@
+20070925:
+- The compiler support for fil_tell, hsh_contains, hsh_excl and str_idx was improved.
+- The string indexing (str_idx) was changed to raise RANGE_ERROR for indices outside of
+  the string.
+- Various spelling errors in faq.htm, faq.txt, manual.htm and manual.txt where fixed.
+- The functions filBigLng, filBigSeek, filBigTell and filLng were improved to use _fseeki64
+  when available.
+- The mandelbr.sd7, chkstr.sd7, chkexc.sd7 and wiz.sd7 example programs were improved.
+- A protection aggainst a buffer overflow in scrWrite was added.
+- Several function prototypes were changed to use 'const' types.
+
 20070909:
 - A gtk-server connection library (gtkserver.s7i), a test program (gtksvtst.sd7) and
   documentation (see doc/gtksvdoc.txt) were added (Patch from Leonardo Cecchi).
