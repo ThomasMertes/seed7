@@ -132,11 +132,11 @@ static void free_args (objectType arg_v)
 
 
 
-void interpret (const const_progType currentProg, const const_rtlArrayType argv,
+void interpret (const progType currentProg, const const_rtlArrayType argv,
     memSizeType argvStart, uintType options, const const_striType protFileName)
 
   {
-    progRecord prog_backup;
+    progType progBackup;
 
   /* interpret */
     logFunction(printf("interpret(\"%s\")\n",
@@ -147,19 +147,19 @@ void interpret (const const_progType currentProg, const const_rtlArrayType argv,
       fail_expression = (listType) NULL;
       fail_stack = NULL;
       if (currentProg->main_object != NULL) {
-        memcpy(&prog_backup, &prog, sizeof(progRecord));
-        memcpy(&prog, currentProg, sizeof(progRecord));
-        prog.option_flags = options;
+        progBackup = prog;
+        prog = currentProg;
+        prog->option_flags = options;
         setup_signal_handlers((options & HANDLE_SIGNALS) != 0,
                               (options & TRACE_SIGNALS) != 0);
-        set_trace(prog.option_flags);
+        set_trace(prog->option_flags);
         set_protfile_name(protFileName);
-        prog.arg_v = copy_args(argv, argvStart);
-        if (prog.arg_v == NULL) {
+        prog->arg_v = copy_args(argv, argvStart);
+        if (prog->arg_v == NULL) {
           raise_error(MEMORY_ERROR);
         } else {
           /* printf("main defined as: ");
-          trace1(prog.main_object);
+          trace1(prog->main_object);
           printf("\n"); */
 #ifdef WITH_PROTOCOL
           if (trace.actions) {
@@ -172,7 +172,7 @@ void interpret (const const_progType currentProg, const const_rtlArrayType argv,
           } /* if */
 #endif
           interpreter_exception = TRUE;
-          exec_call(prog.main_object);
+          exec_call(prog->main_object);
           interpreter_exception = FALSE;
 #ifdef WITH_PROTOCOL
           if (trace.actions) {
@@ -184,7 +184,7 @@ void interpret (const const_progType currentProg, const const_rtlArrayType argv,
             prot_nl();
           } /* if */
 #endif
-          free_args(prog.arg_v);
+          free_args(prog->arg_v);
 #ifdef OUT_OF_ORDER
           shut_drivers();
           if (fail_flag) {
@@ -196,8 +196,8 @@ void interpret (const const_progType currentProg, const const_rtlArrayType argv,
             write_call_stack(fail_stack);
           } /* if */
 #endif
-          memcpy(&prog, &prog_backup, sizeof(progRecord));
         } /* if */
+        prog = progBackup;
       } /* if */
     } /* if */
     logFunction(printf("interpret(\"%s\") -->\n",
@@ -242,7 +242,7 @@ progType prgCreate (const progType prog_from)
 void prgDestr (progType old_prog)
 
   {
-    progRecord prog_backup;
+    progType progBackup;
 
   /* prgDestr */
     logFunction(printf("prgDestr(%lx)\n", (unsigned long) old_prog););
@@ -250,9 +250,9 @@ void prgDestr (progType old_prog)
       /* printf("prgDestr: usage_count=%d\n", old_prog->usage_count); */
       old_prog->usage_count--;
       if (old_prog->usage_count == 0) {
-        /* printf("prgDestr: old progRecord: %lx\n", old_prog); */
-        memcpy(&prog_backup, &prog, sizeof(progRecord));
-        memcpy(&prog, old_prog, sizeof(progRecord));
+        /* printf("prgDestr: old progType: %lx\n", old_prog); */
+        progBackup = prog;
+        prog = old_prog;
         /* printf("heapsize: %ld\n", heapsize()); */
         /* heap_statistic(); */
         close_stack(old_prog);
@@ -264,7 +264,7 @@ void prgDestr (progType old_prog)
         dump_list(old_prog->literals);
         free_entity(old_prog, old_prog->entity.literal);
         FREE_RECORD(old_prog->property.literal, propertyRecord, count.property);
-        memcpy(&prog, &prog_backup, sizeof(progRecord));
+        prog = progBackup;
         FREE_STRI(old_prog->arg0, old_prog->arg0->size);
         FREE_STRI(old_prog->program_name, old_prog->program_name->size);
         FREE_STRI(old_prog->program_path, old_prog->program_path->size);
@@ -313,7 +313,7 @@ objectType prgEval (progType currentProg, objectType object)
 
 
 
-void prgExec (const const_progType currentProg, const const_rtlArrayType argv,
+void prgExec (const progType currentProg, const const_rtlArrayType argv,
     const const_setType options, const const_striType protFileName)
 
   {

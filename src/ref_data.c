@@ -602,6 +602,9 @@ listType refSctToList (const const_objectType obj_arg)
 void refSetCategory (objectType obj_arg, intType aCategory)
 
   { /* refSetCategory */
+    logFunction(printf("refSetCategory(");
+                trace1(obj_arg);
+                printf(", " FMT_D ")\n"););
     if (unlikely(obj_arg == NULL)) {
       logError(printf("refSetCategory(NULL, " FMT_D "): Object is NULL.\n",
                       aCategory););
@@ -619,6 +622,11 @@ void refSetParams (objectType obj_arg, const_listType params)
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* refSetParams */
+    logFunction(printf("refSetParams(");
+                trace1(obj_arg);
+                printf(", ");
+                prot_list(params);
+                printf(")\n"););
     if (unlikely(obj_arg == NULL)) {
       logError(printf("refSetParams(NULL, " FMT_U_MEM "): Object is NULL.\n",
                       (memSizeType) params););

@@ -84,7 +84,7 @@ static void fix_posinfo (objectType block_body, const const_objectType block_bod
 objectType prc_args (listType arguments)
 
   { /* prc_args */
-    return prog.arg_v;
+    return prog->arg_v;
   } /* prc_args */
 
 
@@ -296,7 +296,7 @@ objectType prc_case (listType arguments)
       } /* if */
     } /* while */
     if (unlikely(err_info != OKAY_NO_ERROR)) {
-      return raise_with_arguments(prog.sys_var[err_info], err_arguments);
+      return raise_with_arguments(prog->sys_var[err_info], err_arguments);
     } else if (when_statement != NULL) {
       evaluate(when_statement);
     } /* if */
@@ -361,7 +361,7 @@ objectType prc_case_def (listType arguments)
       } /* if */
     } /* while */
     if (unlikely(err_info != OKAY_NO_ERROR)) {
-      return raise_with_arguments(prog.sys_var[err_info], err_arguments);
+      return raise_with_arguments(prog->sys_var[err_info], err_arguments);
     } else if (when_statement != NULL) {
       evaluate(when_statement);
     } else {
@@ -423,7 +423,7 @@ objectType prc_case_hashset (listType arguments)
       } /* if */
     } /* while */
     if (unlikely(err_info != OKAY_NO_ERROR)) {
-      return raise_with_arguments(prog.sys_var[err_info], err_arguments);
+      return raise_with_arguments(prog->sys_var[err_info], err_arguments);
     } else if (when_statement != NULL) {
       evaluate(when_statement);
     } /* if */
@@ -483,7 +483,7 @@ objectType prc_case_hashset_def (listType arguments)
       } /* if */
     } /* while */
     if (unlikely(err_info != OKAY_NO_ERROR)) {
-      return raise_with_arguments(prog.sys_var[err_info], err_arguments);
+      return raise_with_arguments(prog->sys_var[err_info], err_arguments);
     } else if (when_statement != NULL) {
       evaluate(when_statement);
     } else {
@@ -949,7 +949,7 @@ objectType prc_res_begin (listType arguments)
     printf("\n"); */
     grow_stack(&err_info);
     if (err_info == OKAY_NO_ERROR) {
-      result_var.object = entername(prog.declaration_root, result_var_name, &err_info);
+      result_var.object = entername(prog->declaration_root, result_var_name, &err_info);
       shrink_stack();
     } /* if */
     if (err_info == OKAY_NO_ERROR) {
@@ -1017,7 +1017,7 @@ objectType prc_res_local (listType arguments)
     push_stack();
     grow_stack(&err_info);
     if (err_info == OKAY_NO_ERROR) {
-      result_var.object = entername(prog.declaration_root, result_var_name, &err_info);
+      result_var.object = entername(prog->declaration_root, result_var_name, &err_info);
       shrink_stack();
     } /* if */
     if (err_info == OKAY_NO_ERROR) {
@@ -1177,8 +1177,8 @@ objectType prc_settrace (listType arguments)
 
   { /* prc_settrace */
     isit_stri(arg_1(arguments));
-    mapTraceFlags(take_stri(arg_1(arguments)), &prog.option_flags);
-    set_trace(prog.option_flags);
+    mapTraceFlags(take_stri(arg_1(arguments)), &prog->option_flags);
+    set_trace(prog->option_flags);
     return SYS_EMPTY_OBJECT;
   } /* prc_settrace */
 

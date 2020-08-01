@@ -104,28 +104,28 @@ static objectType read_call_expression (boolType do_match_expr)
   /* read_call_expression */
     logFunction(printf("read_call_expression(%d) %s\n",
                        do_match_expr, id_string(current_ident)););
-    if (current_ident == prog.id_for.lparen) {
+    if (current_ident == prog->id_for.lparen) {
       scan_symbol();
-      if (current_ident == prog.id_for.rparen) {
+      if (current_ident == prog->id_for.rparen) {
         err_warning(EXPR_EXPECTED);
         scan_symbol();
         expression = SYS_EMPTY_OBJECT;
       } else {
         expression = pars_infix_expression(WEAKEST_PRIORITY,
             do_match_expr);
-        if (current_ident == prog.id_for.rparen) {
+        if (current_ident == prog->id_for.rparen) {
           scan_symbol();
         } else {
-          err_ident(EXPECTED_SYMBOL, prog.id_for.rparen);
+          err_ident(EXPECTED_SYMBOL, prog->id_for.rparen);
         } /* if */
       } /* if */
     } else {
       file_number = in_file.file_number;
       line = in_file.line;
       expression = read_atom();
-      if (current_ident == prog.id_for.lparen) {
+      if (current_ident == prog->id_for.lparen) {
         scan_symbol();
-        if (current_ident == prog.id_for.rparen) {
+        if (current_ident == prog->id_for.rparen) {
           scan_symbol();
         } else {
           procnameobject = expression;
@@ -133,16 +133,16 @@ static objectType read_call_expression (boolType do_match_expr)
               pars_infix_expression(COM_PRIORITY, do_match_expr),
               &helplist, SYS_EXPR_TYPE);
           expression->descriptor.posinfo = CREATE_POSINFO(line, file_number);
-          while (current_ident == prog.id_for.comma) {
+          while (current_ident == prog->id_for.comma) {
             scan_symbol();
             helplist = add_element_to_list(helplist,
                 pars_infix_expression(COM_PRIORITY, do_match_expr));
           } /* while */
           helplist = add_element_to_list(helplist, procnameobject);
-          if (current_ident == prog.id_for.rparen) {
+          if (current_ident == prog->id_for.rparen) {
             scan_symbol();
           } else {
-            err_ident(EXPECTED_SYMBOL, prog.id_for.rparen);
+            err_ident(EXPECTED_SYMBOL, prog->id_for.rparen);
           } /* if */
         } /* if */
       } /* if */
@@ -164,9 +164,9 @@ static objectType read_dot_subexpression (boolType do_match_expr)
 
   /* read_dot_subexpression */
     logFunction(printf("read_dot_subexpression(%d)\n", do_match_expr););
-    if (current_ident == prog.id_for.lparen) {
+    if (current_ident == prog->id_for.lparen) {
       scan_symbol();
-      if (current_ident == prog.id_for.rparen) {
+      if (current_ident == prog->id_for.rparen) {
         scan_symbol();
         expression = new_empty_list_object(SYS_EXPR_TYPE);
       } else {
@@ -175,16 +175,16 @@ static objectType read_dot_subexpression (boolType do_match_expr)
             SYS_EXPR_TYPE);
 #ifdef OUT_OF_ORDER
         SET_CATEGORY_OF_OBJ(expression, LISTOBJECT);
-        while (current_ident == prog.id_for.comma) {
+        while (current_ident == prog->id_for.comma) {
           scan_symbol();
           helplist = add_element_to_list(helplist,
               pars_infix_expression(COM_PRIORITY, FALSE));
         } /* while */
 #endif
-        if (current_ident == prog.id_for.rparen) {
+        if (current_ident == prog->id_for.rparen) {
           scan_symbol();
         } else {
-          err_ident(EXPECTED_SYMBOL, prog.id_for.rparen);
+          err_ident(EXPECTED_SYMBOL, prog->id_for.rparen);
         } /* if */
       } /* if */
     } else {
@@ -209,10 +209,10 @@ static objectType read_dot_expression (boolType do_match_expr)
   /* read_dot_expression */
     logFunction(printf("read_dot_expression(%d) %s\n",
                        do_match_expr, id_string(current_ident)););
-    if (current_ident == prog.id_for.dot) {
+    if (current_ident == prog->id_for.dot) {
       scan_symbol();
       expression = read_dot_subexpression(do_match_expr);
-      if (current_ident == prog.id_for.dot) {
+      if (current_ident == prog->id_for.dot) {
         expression = new_nonempty_expression_object(expression, &helplist,
             SYS_EXPR_TYPE);
         SET_CATEGORY_OF_OBJ(expression, LISTOBJECT);
@@ -230,7 +230,7 @@ static objectType read_dot_expression (boolType do_match_expr)
           trace1(expression);
           printf("\n");
 #endif
-        } while (current_ident == prog.id_for.dot);
+        } while (current_ident == prog->id_for.dot);
       } /* if */
     } else {
       expression = read_call_expression(do_match_expr);
@@ -346,7 +346,7 @@ objectType pars_infix_expression (priorityType priority,
         formal_token = current_ident->prefix_token;
         expression = new_expression_object(&helplist);
         helplist->obj = read_name();
-        if (current_ident == prog.id_for.dot) {
+        if (current_ident == prog->id_for.dot) {
           err_num_stri(DOT_EXPR_ILLEGAL,
               (int) GET_ENTITY(helplist->obj)->ident->prefix_priority,
               (int) STRONGEST_PRIORITY, GET_ENTITY(helplist->obj)->ident->name);

@@ -654,7 +654,7 @@ objectType ref_scan (listType arguments)
       raise_error(err_info);
       result = NULL;
     } else {
-      ident_found = get_ident(&prog, (const_ustriType) name);
+      ident_found = get_ident(prog, (const_ustriType) name);
       free_cstri8(name, str1);
       if (ident_found == NULL ||
           ident_found->entity == NULL ||

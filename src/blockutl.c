@@ -92,7 +92,7 @@ static void free_locobj (const_locObjType locobj)
             CATEGORY_OF_OBJ(locobj->object) != REFPARAMOBJECT) {
           /* Parameters are freed by the function free_params (in name.c). */
           if (HAS_PROPERTY(locobj->object) &&
-              locobj->object->descriptor.property != prog.property.literal) {
+              locobj->object->descriptor.property != prog->property.literal) {
             FREE_RECORD(locobj->object->descriptor.property, propertyRecord, count.property);
           } /* if */
           FREE_OBJECT(locobj->object);

@@ -1783,12 +1783,12 @@ void checkForLimitedStringLiteralLength (FILE *versionFile)
 
 
 
-void detemineStackDirection (FILE *versionFile)
+void determineStackDirection (FILE *versionFile)
 
   {
     int stackDir;
 
-  /* detemineStackDirection */
+  /* determineStackDirection */
     if (compileAndLinkOk("#include <stdio.h>\n"
                          "char *stack_base;\n"
                          "void subFunc()\n"
@@ -1804,7 +1804,7 @@ void detemineStackDirection (FILE *versionFile)
         fputs("#define STACK_GROWS_DOWNWARD\n", versionFile);
       } /* if */
     } /* if */
-  } /* detemineStackDirection */
+  } /* determineStackDirection */
 
 
 
@@ -2010,7 +2010,7 @@ void determineX11Includes (FILE *versionFile, char *include_options)
 
 
 #ifdef WITH_SQL
-void detemineMySqlDefines (FILE *versionFile,
+void determineMySqlDefines (FILE *versionFile,
     char *include_options, char *system_db_libs)
 
   {
@@ -2035,7 +2035,7 @@ void detemineMySqlDefines (FILE *versionFile,
     int writeDllList = 0;
     int idx;
 
-  /* detemineMySqlDefines */
+  /* determineMySqlDefines */
 #ifdef MYSQL_INCLUDE_OPTIONS
     strcpy(includeOption, MYSQL_INCLUDE_OPTIONS);
     mySqlInclude = "mysql.h";
@@ -2162,11 +2162,11 @@ void detemineMySqlDefines (FILE *versionFile,
         fprintf(versionFile, "\n");
       } /* if */
     } /* if */
-  } /* detemineMySqlDefines */
+  } /* determineMySqlDefines */
 
 
 
-void detemineSqliteDefines (FILE *versionFile,
+void determineSqliteDefines (FILE *versionFile,
     char *include_options, char *system_db_libs)
 
   {
@@ -2188,7 +2188,7 @@ void detemineSqliteDefines (FILE *versionFile,
     int writeDllList = 0;
     int idx;
 
-  /* detemineSqliteDefines */
+  /* determineSqliteDefines */
 #ifdef SQLITE_INCLUDE_OPTIONS
     strcpy(includeOption, SQLITE_INCLUDE_OPTIONS);
 #else
@@ -2296,7 +2296,7 @@ void detemineSqliteDefines (FILE *versionFile,
         fprintf(versionFile, "\n");
       } /* if */
     } /* if */
-  } /* detemineSqliteDefines */
+  } /* determineSqliteDefines */
 
 
 
@@ -2427,7 +2427,7 @@ static int findPgTypeInclude (const char *includeOption, const char *pgTypeInclu
 
 
 
-void deteminePostgresDefines (FILE *versionFile,
+void determinePostgresDefines (FILE *versionFile,
     char *include_options, char *system_db_libs)
 
   {
@@ -2457,7 +2457,7 @@ void deteminePostgresDefines (FILE *versionFile,
     int writeDllList = 0;
     int idx;
 
-  /* deteminePostgresDefines */
+  /* determinePostgresDefines */
 #ifdef POSTGRESQL_INCLUDE_OPTIONS
     strcpy(includeOption, POSTGRESQL_INCLUDE_OPTIONS);
 #else
@@ -2631,11 +2631,11 @@ void deteminePostgresDefines (FILE *versionFile,
         fprintf(versionFile, "\n");
       } /* if */
     } /* if */
-  } /* deteminePostgresDefines */
+  } /* determinePostgresDefines */
 
 
 
-void detemineOdbcDefines (FILE *versionFile,
+void determineOdbcDefines (FILE *versionFile,
     char *include_options, char *system_db_libs)
 
   {
@@ -2652,7 +2652,7 @@ void detemineOdbcDefines (FILE *versionFile,
     int writeDllList = 0;
     int idx;
 
-  /* detemineOdbcDefines */
+  /* determineOdbcDefines */
 #ifdef ODBC_INCLUDE_OPTIONS
     strcpy(includeOption, ODBC_INCLUDE_OPTIONS);
 #else
@@ -2721,11 +2721,11 @@ void detemineOdbcDefines (FILE *versionFile,
       } /* for */
       fprintf(versionFile, "\n");
     } /* if */
-  } /* detemineOdbcDefines */
+  } /* determineOdbcDefines */
 
 
 
-void detemineOciDefines (FILE *versionFile,
+void determineOciDefines (FILE *versionFile,
     char *include_options, char *system_db_libs)
 
   {
@@ -2749,7 +2749,7 @@ void detemineOciDefines (FILE *versionFile,
     int idx;
     int found = 0;
 
-  /* detemineOciDefines */
+  /* determineOciDefines */
 #ifdef OCI_INCLUDE_OPTIONS
     strcpy(includeOption, OCI_INCLUDE_OPTIONS);
 #else
@@ -2852,28 +2852,28 @@ void detemineOciDefines (FILE *versionFile,
         fprintf(versionFile, "\n");
       } /* if */
     } /* if */
-  } /* detemineOciDefines */
+  } /* determineOciDefines */
 #endif
 
 
 
-void detemineIncludesAndLibs (FILE *versionFile)
+void determineIncludesAndLibs (FILE *versionFile)
 
   {
     char include_options[4096];
     char system_db_libs[4096];
     char buffer[4096];
 
-  /* detemineIncludesAndLibs */
+  /* determineIncludesAndLibs */
     include_options[0] = '\0';
     system_db_libs[0] = '\0';
     determineX11Includes(versionFile, include_options);
 #ifdef WITH_SQL
-    detemineMySqlDefines(versionFile, include_options, system_db_libs);
-    detemineSqliteDefines(versionFile, include_options, system_db_libs);
-    deteminePostgresDefines(versionFile, include_options, system_db_libs);
-    detemineOdbcDefines(versionFile, include_options, system_db_libs);
-    detemineOciDefines(versionFile, include_options, system_db_libs);
+    determineMySqlDefines(versionFile, include_options, system_db_libs);
+    determineSqliteDefines(versionFile, include_options, system_db_libs);
+    determinePostgresDefines(versionFile, include_options, system_db_libs);
+    determineOdbcDefines(versionFile, include_options, system_db_libs);
+    determineOciDefines(versionFile, include_options, system_db_libs);
     sprintf(buffer, "INCLUDE_OPTIONS = %s\n", include_options);
     appendToFile("macros", buffer);
     sprintf(buffer, "SYSTEM_DB_LIBS = %s\n", system_db_libs);
@@ -2885,7 +2885,7 @@ void detemineIncludesAndLibs (FILE *versionFile)
     fprintf(versionFile, "#define SYSTEM_DB_LIBS \"");
     escapeString(versionFile, system_db_libs);
     fprintf(versionFile, "\"\n");
-  } /* detemineIncludesAndLibs */
+  } /* determineIncludesAndLibs */
 
 
 
@@ -3224,7 +3224,7 @@ int main (int argc, char **argv)
       fprintf(versionFile, "#define TRIGRAPH_SEQUENCES_ARE_REPLACED %d\n", doTest() == 1);
     } /* if */
     checkForLimitedStringLiteralLength(versionFile);
-    detemineStackDirection(versionFile);
+    determineStackDirection(versionFile);
 #ifndef STACK_SIZE
     if (sizeof(char *) == 8) { /* Machine with 64-bit addresses */
       /* Due to alignment some 64-bit machines have huge stack requirements. */
@@ -3306,7 +3306,7 @@ int main (int argc, char **argv)
     fprintf(versionFile, "#define HAS_POLL %d\n",
         compileAndLinkOk("#include<poll.h>\nint main(int argc,char *argv[])"
                          "{struct pollfd pollFd[1];poll(pollFd, 1, 0);return 0;}\n"));
-    detemineIncludesAndLibs(versionFile);
+    determineIncludesAndLibs(versionFile);
     writeReadBufferEmptyMacro(versionFile);
     cleanUpCompilation();
     closeVersionFile(versionFile);

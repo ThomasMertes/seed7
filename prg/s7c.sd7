@@ -5705,15 +5705,9 @@ const func string: int32AsFourBytes (in integer: number) is func
     var string: stri is "";
   begin
     if ccConf.LITTLE_ENDIAN_INTTYPE then
-      stri := str(chr( number        mod 256)) &
-              str(chr((number >>  8) mod 256)) &
-              str(chr((number >> 16) mod 256)) &
-              str(chr((number >> 24) mod 256));
+      stri := int32AsFourBytesLe(number);
     else
-      stri := str(chr((number >> 24) mod 256)) &
-              str(chr((number >> 16) mod 256)) &
-              str(chr((number >>  8) mod 256)) &
-              str(chr( number        mod 256));
+      stri := int32AsFourBytesBe(number);
     end if;
   end func;
 
@@ -5723,31 +5717,17 @@ const func string: int64AsEightBytes (in integer: number) is func
     var string: stri is "";
   begin
     if ccConf.LITTLE_ENDIAN_INTTYPE then
-      stri := str(chr( number        mod 256)) &
-              str(chr((number >>  8) mod 256)) &
-              str(chr((number >> 16) mod 256)) &
-              str(chr((number >> 24) mod 256));
       if ccConf.INTTYPE_SIZE = 64 then
-        stri &:= str(chr((number >> 32) mod 256)) &
-                 str(chr((number >> 40) mod 256)) &
-                 str(chr((number >> 48) mod 256)) &
-                 str(chr((number >> 56) mod 256));
+        stri := int64AsEightBytesLe(number);
       else
-        stri &:= "\0;\0;\0;\0;";
+        stri := int32AsFourBytesLe(number) & "\0;\0;\0;\0;";
       end if;
     else
       if ccConf.INTTYPE_SIZE = 64 then
-        stri := str(chr((number >> 56) mod 256)) &
-                str(chr((number >> 48) mod 256)) &
-                str(chr((number >> 40) mod 256)) &
-                str(chr((number >> 32) mod 256));
+        stri := int64AsEightBytesBe(number);
       else
-        stri := "\0;\0;\0;\0;";
+        stri := "\0;\0;\0;\0;" & int32AsFourBytesBe(number);
       end if;
-      stri &:= str(chr((number >> 24) mod 256)) &
-               str(chr((number >> 16) mod 256)) &
-               str(chr((number >>  8) mod 256)) &
-               str(chr( number        mod 256));
     end if;
   end func;
 

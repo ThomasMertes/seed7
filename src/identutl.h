@@ -29,6 +29,7 @@
 /* #define IDENT_TABLE(PROG, STRI, LEN) (PROG)->ident.table[((STRI[0] << 4) | LEN) & (ID_TABLE_SIZE - 1)] */
 /* #define IDENT_TABLE(PROG, STRI, LEN) (PROG)->ident.table[((STRI[0] << 4) ^ (STRI[1] << 2) ^ LEN) & (ID_TABLE_SIZE - 1)] */
 #define IDENT_TABLE(PROG, STRI, LEN) (PROG)->ident.table[((STRI[0] << 4) ^ (STRI[LEN - 1] << 2) ^ (int) LEN) & (ID_TABLE_SIZE - 1)]
+#define IS_NORMAL_IDENT(ident) ((ident) != NULL && (ident)->name != NULL && (ident)->name[0] != ' ')
 
 
 identType new_ident (const_ustriType name, sySizeType length);

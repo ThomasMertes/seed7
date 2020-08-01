@@ -121,7 +121,7 @@ void init_sysvar (void)
   /* init_sysvar */
     logFunction(printf("init_sysvar\n"););
     for (number = 0; number < NUMBER_OF_SYSVARS; number++) {
-      prog.sys_var[number] = NULL;
+      prog->sys_var[number] = NULL;
     } /* for */
     logFunction(printf("init_sysvar -->\n"););
   } /* init_sysvar */

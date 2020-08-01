@@ -354,7 +354,7 @@ objectType sct_elem (listType arguments)
       printf("\n");
 #endif
       push_stack();
-      current_object = entername(prog.declaration_root, name_expr, &err_info);
+      current_object = entername(prog->declaration_root, name_expr, &err_info);
       pop_stack();
       value = copy_expression(value_expr, &err_info);
       if (err_info == OKAY_NO_ERROR) {

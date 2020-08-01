@@ -241,7 +241,7 @@ objectType typ_gentype (listType arguments)
 
   /* typ_gentype */
     logFunction(printf("typ_gentype\n"););
-    if ((result = new_type(prog.owningProg, NULL, NULL)) == NULL) {
+    if ((result = new_type(prog, NULL, NULL)) == NULL) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
     logFunction(printf("typ_gentype -->\n"););
@@ -276,7 +276,7 @@ objectType typ_getcreate (listType arguments)
     isit_type(arg_1(arguments));
     ;
     get_create_call_obj(take_type(arg_1(arguments)), errInfoType *err_info)
-    if ((result = new_type(prog.owningProg, NULL, NULL)) == NULL) {
+    if ((result = new_type(prog, NULL, NULL)) == NULL) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
     return bld_type_temp(result);

@@ -25,14 +25,14 @@
 /*                                                                  */
 /********************************************************************/
 
-void interpret (const const_progType currentProg, const const_rtlArrayType argv,
+void interpret (const progType currentProg, const const_rtlArrayType argv,
     memSizeType argvStart, uintType options, const const_striType protFileName);
 void prgCpy (progType *const prog_to, const progType prog_from);
 progType prgCreate (const progType prog_from);
 void prgDestr (progType old_prog);
 intType prgErrorCount (const const_progType aProg);
 objectType prgEval (progType currentProg, objectType object);
-void prgExec (const const_progType currentProg, const const_rtlArrayType argv,
+void prgExec (const progType currentProg, const const_rtlArrayType argv,
     const const_setType options, const const_striType protFileName);
 progType prgFilParse (const const_striType fileName, const const_setType options,
     const const_rtlArrayType libraryDirs, const const_striType protFileName);

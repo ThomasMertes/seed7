@@ -83,7 +83,7 @@
 boolType interpreter_exception = FALSE;
 
 static boolType analyze_initialized = FALSE;
-progRecord prog;
+progType prog;
 
 
 
@@ -96,7 +96,7 @@ static void initAnalyze (void)
       init_chclass();
       init_primitiv();
       init_do_any();
-      memset(&prog, 0, sizeof(progRecord)); /* not used, saved in analyze and interpr */
+      prog = NULL;
       analyze_initialized = TRUE;
     } /* if */
     logFunction(printf("initAnalyze -->\n"););
@@ -123,22 +123,22 @@ static inline void systemVar (void)
       indexFound = -1;
     } /* if */
     scan_symbol();
-    if (current_ident == prog.id_for.is) {
+    if (current_ident == prog->id_for.is) {
       scan_symbol();
     } else {
-      err_ident(EXPECTED_SYMBOL, prog.id_for.is);
+      err_ident(EXPECTED_SYMBOL, prog->id_for.is);
     } /* if */
     sysObject = read_atom();
     /* printf("sys_var[%d] = ", indexFound);
         trace1(sysObject);
         printf("\n"); */
     if (indexFound != -1) {
-      prog.sys_var[indexFound] = sysObject;
+      prog->sys_var[indexFound] = sysObject;
     } /* if */
-    if (current_ident == prog.id_for.semicolon) {
+    if (current_ident == prog->id_for.semicolon) {
       scan_symbol();
     } else {
-      err_ident(EXPECTED_SYMBOL, prog.id_for.semicolon);
+      err_ident(EXPECTED_SYMBOL, prog->id_for.semicolon);
     } /* if */
     logFunction(printf("systemVar -->\n"););
   } /* systemVar */
@@ -162,8 +162,8 @@ static inline void includeFile (void)
         memcpy(includeFileName->mem, symbol.striValue->mem,
                (size_t) symbol.striValue->size * sizeof(strElemType));
         scan_symbol();
-        if (current_ident != prog.id_for.semicolon) {
-          err_ident(EXPECTED_SYMBOL, prog.id_for.semicolon);
+        if (current_ident != prog->id_for.semicolon) {
+          err_ident(EXPECTED_SYMBOL, prog->id_for.semicolon);
         } /* if */
         if (strChPos(includeFileName, (charType) '\\') != 0) {
           err_stri(WRONG_PATH_DELIMITER, includeFileName);
@@ -184,11 +184,11 @@ static inline void includeFile (void)
       } /* if */
     } else {
       err_warning(STRI_EXPECTED);
-      if (current_ident != prog.id_for.semicolon) {
+      if (current_ident != prog->id_for.semicolon) {
         scan_symbol();
       } /* if */
-      if (current_ident != prog.id_for.semicolon) {
-        err_ident(EXPECTED_SYMBOL, prog.id_for.semicolon);
+      if (current_ident != prog->id_for.semicolon) {
+        err_ident(EXPECTED_SYMBOL, prog->id_for.semicolon);
       } else {
         scan_symbol();
       } /* if */
@@ -268,8 +268,8 @@ static void processPragma (void)
       } else if (strcmp((cstriType) symbol.name, "trace") == 0) {
         scan_symbol();
         if (symbol.sycategory == STRILITERAL) {
-          mapTraceFlags(symbol.striValue, &prog.option_flags);
-          set_trace(prog.option_flags);
+          mapTraceFlags(symbol.striValue, &prog->option_flags);
+          set_trace(prog->option_flags);
         } else {
           err_warning(STRI_EXPECTED);
         } /* if */
@@ -303,22 +303,22 @@ static inline void declAny (nodeType objects)
     logFunction(printf("declAny\n"););
     scan_symbol();
     while (symbol.sycategory != STOPSYMBOL) {
-      if (current_ident == prog.id_for.dollar) {
+      if (current_ident == prog->id_for.dollar) {
         err_info = OKAY_NO_ERROR;
         scan_symbol();
-        if (current_ident == prog.id_for.constant) {
+        if (current_ident == prog->id_for.constant) {
           decl_const(objects, &err_info);
-        } else if (current_ident == prog.id_for.syntax) {
+        } else if (current_ident == prog->id_for.syntax) {
           decl_syntax();
-        } else if (current_ident == prog.id_for.system) {
+        } else if (current_ident == prog->id_for.system) {
           systemVar();
-        } else if (current_ident == prog.id_for.include) {
+        } else if (current_ident == prog->id_for.include) {
           includeFile();
         } else {
           processPragma();
           scan_symbol();
-          if (current_ident != prog.id_for.semicolon) {
-            err_ident(EXPECTED_SYMBOL, prog.id_for.semicolon);
+          if (current_ident != prog->id_for.semicolon) {
+            err_ident(EXPECTED_SYMBOL, prog->id_for.semicolon);
           } else {
             scan_symbol();
           } /* if */
@@ -340,8 +340,8 @@ static inline void declAny (nodeType objects)
         if (CATEGORY_OF_OBJ(declExpression) == EXPROBJECT) {
           match_expression(declExpression);
         } /* if */
-        if (current_ident != prog.id_for.semicolon) {
-          err_ident(EXPECTED_SYMBOL, prog.id_for.semicolon);
+        if (current_ident != prog->id_for.semicolon) {
+          err_ident(EXPECTED_SYMBOL, prog->id_for.semicolon);
         } /* if */
         set_fail_flag(FALSE);
         evaluate(declExpression);
@@ -350,7 +350,7 @@ static inline void declAny (nodeType objects)
           set_fail_flag(FALSE);
         } /* if */
         free_expression(declExpression);
-        if (current_ident == prog.id_for.semicolon) {
+        if (current_ident == prog->id_for.semicolon) {
           scan_symbol();
         } /* if */
       } /* if */
@@ -427,7 +427,7 @@ static progType analyzeProg (const const_striType sourceFileArgument,
   {
     striType sourceFileArgumentCopy;
     traceRecord traceBackup;
-    progRecord progBackup;
+    progType progBackup;
     progType resultProg;
 
   /* analyzeProg */
@@ -451,29 +451,33 @@ static progType analyzeProg (const const_striType sourceFileArgument,
       resultProg->usage_count = 1;
       resultProg->main_object = NULL;
       resultProg->types = NULL;
-      memcpy(&progBackup, &prog, sizeof(progRecord));
-      prog.owningProg = resultProg;
+      progBackup = prog;
+      prog = resultProg;
       in_file.owningProg = resultProg;
       init_lib_path(sourceFileArgument, libraryDirs, err_info);
-      init_idents(&prog, err_info);
+      init_idents(prog, err_info);
       init_findid(err_info);
       init_entity(err_info);
       init_sysvar();
-      init_declaration_root(&prog, err_info);
-      init_stack(&prog, err_info);
+      init_declaration_root(prog, err_info);
+      init_stack(prog, err_info);
       init_symbol(err_info);
       reset_statistic();
-      prog.error_count = 0;
-      prog.types = NULL;
-      prog.literals = NULL;
+      prog->error_count = 0;
+      prog->types = NULL;
+      prog->literals = NULL;
       if (*err_info == OKAY_NO_ERROR) {
+        resultProg->arg0         = sourceFileArgumentCopy;
+        resultProg->program_name = getProgramName(sourceFileArgument);
+        resultProg->program_path = getProgramPath(sourceFilePath);
+        resultProg->arg_v        = NULL;
         memcpy(&traceBackup, &trace, sizeof(traceRecord));
-        prog.option_flags = options;
-        set_trace(prog.option_flags);
+        prog->option_flags = options;
+        set_trace(prog->option_flags);
         set_protfile_name(protFileName);
-        declAny(prog.declaration_root);
+        declAny(prog->declaration_root);
         if (SYS_MAIN_OBJECT == NULL) {
-          prog.error_count++;
+          prog->error_count++;
           printf("*** System declaration for main missing\n");
         } else if (CATEGORY_OF_OBJ(SYS_MAIN_OBJECT) != FORWARDOBJECT) {
 /*          printf("main defined as: ");
@@ -488,19 +492,19 @@ static progType analyzeProg (const const_striType sourceFileArgument,
                   trace1(resultProg->main_object);
                   printf("\n"); */
                 } else {
-                  prog.error_count++;
+                  prog->error_count++;
                   printf("*** Main not callobject\n");
                 } /* if */
               } else {
-                prog.error_count++;
+                prog->error_count++;
                 printf("*** GET_ENTITY(SYS_MAIN_OBJECT)->objects->obj == NULL\n");
               } /* if */
             } else {
-              prog.error_count++;
+              prog->error_count++;
               printf("*** GET_ENTITY(SYS_MAIN_OBJECT)->objects == NULL\n");
             } /* if */
           } else {
-            prog.error_count++;
+            prog->error_count++;
             printf("*** GET_ENTITY(SYS_MAIN_OBJECT) == NULL\n");
           } /* if */
         } /* if */
@@ -508,24 +512,7 @@ static progType analyzeProg (const const_striType sourceFileArgument,
           write_idents();
         } /* if */
         clean_idents();
-        resultProg->owningProg       = resultProg;
-        resultProg->arg0             = sourceFileArgumentCopy;
-        resultProg->program_name     = getProgramName(sourceFileArgument);
-        resultProg->program_path     = getProgramPath(sourceFilePath);
-        resultProg->arg_v            = NULL;
-        resultProg->option_flags     = prog.option_flags;
-        resultProg->error_count      = prog.error_count;
-        memcpy(&resultProg->ident,    &prog.ident, sizeof(idRootType));
-        memcpy(&resultProg->id_for,   &prog.id_for, sizeof(findIdType));
-        memcpy(&resultProg->entity,   &prog.entity, sizeof(entityRootType));
-        memcpy(&resultProg->property, &prog.property, sizeof(propertyRootType));
-        memcpy(&resultProg->sys_var,  &prog.sys_var, sizeof(sysType));
-        resultProg->literals         = prog.literals;
-        resultProg->declaration_root = prog.declaration_root;
-        resultProg->stack_global     = prog.stack_global;
-        resultProg->stack_data       = prog.stack_data;
-        resultProg->stack_current    = prog.stack_current;
-        memcpy(&prog, &progBackup, sizeof(progRecord));
+        prog = progBackup;
         close_infile();
         close_symbol();
         free_lib_path();
@@ -540,7 +527,7 @@ static progType analyzeProg (const const_striType sourceFileArgument,
         /* trace_list(resultProg->stack_current->local_object_list); */
         memcpy(&trace, &traceBackup, sizeof(traceRecord));
       } else {
-        memcpy(&prog, &progBackup, sizeof(progRecord));
+        prog = progBackup;
         FREE_RECORD(resultProg, progRecord, count.prog);
         FREE_STRI(sourceFileArgumentCopy, sourceFileArgumentCopy->size);
         resultProg = NULL;

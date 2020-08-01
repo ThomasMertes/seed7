@@ -44,6 +44,7 @@
 #include "striutl.h"
 #include "chclsutl.h"
 #include "entutl.h"
+#include "identutl.h"
 #include "syvarutl.h"
 #include "actutl.h"
 #include "infile.h"
@@ -622,8 +623,7 @@ void printvalue (const_objectType anyobject)
   { /* printvalue */
     logFunction(printf("printvalue\n"););
     if (HAS_ENTITY(anyobject) &&
-        GET_ENTITY(anyobject) != prog.entity.literal &&
-        GET_ENTITY(anyobject)->ident != NULL) {
+        IS_NORMAL_IDENT(GET_ENTITY(anyobject)->ident)) {
       prot_cstri8(id_string(GET_ENTITY(anyobject)->ident));
     } else {
       print_real_value(anyobject);
@@ -876,8 +876,7 @@ void prot_list (const_listType list)
           case VARENUMOBJECT:
             if (list->obj->value.objValue != NULL) {
               if (HAS_ENTITY(list->obj->value.objValue) &&
-                  GET_ENTITY(list->obj->value.objValue)->ident != NULL &&
-                  GET_ENTITY(list->obj->value.objValue)->ident != prog.ident.literal) {
+                  IS_NORMAL_IDENT(GET_ENTITY(list->obj->value.objValue)->ident)) {
                 prot_cstri8(id_string(GET_ENTITY(list->obj->value.objValue)->ident));
               } else {
                 prot_cstri("<");
@@ -1247,37 +1246,37 @@ void trace_nodes (void)
     prot_cstri("Names declared:");
     prot_nl();
     for (position = 0; position < ID_TABLE_SIZE; position++) {
-      list_ident_names(prog.ident.table[position]);
+      list_ident_names(prog->ident.table[position]);
     } /* for */
     for (character = (int) '!'; character <= (int) '~'; character++) {
       if (op_character(character) ||
           char_class(character) == LEFTPARENCHAR ||
           char_class(character) == PARENCHAR) {
-        if (prog.ident.table1[character]->entity != NULL) {
-          if (prog.ident.table1[character]->entity->data.owner != NULL) {
-            prot_cstri8(id_string(prog.ident.table1[character]));
+        if (prog->ident.table1[character]->entity != NULL) {
+          if (prog->ident.table1[character]->entity->data.owner != NULL) {
+            prot_cstri8(id_string(prog->ident.table1[character]));
             prot_cstri(" is ");
-            printobject(prog.ident.table1[character]->entity->data.owner->obj);
+            printobject(prog->ident.table1[character]->entity->data.owner->obj);
             prot_nl();
           } /* if */
         } /* if */
       } /* if */
     } /* for */
-    if (prog.declaration_root->symbol != NULL) {
+    if (prog->declaration_root->symbol != NULL) {
       buffer[0] = '\0';
-      list_node_names(prog.declaration_root->symbol, buffer);
+      list_node_names(prog->declaration_root->symbol, buffer);
     } /* if */
-    if (prog.declaration_root->inout_param != NULL) {
+    if (prog->declaration_root->inout_param != NULL) {
       strcpy(buffer, "inout_param ");
-      list_node_names(prog.declaration_root->inout_param, buffer);
+      list_node_names(prog->declaration_root->inout_param, buffer);
     } /* if */
-    if (prog.declaration_root->other_param != NULL) {
+    if (prog->declaration_root->other_param != NULL) {
       strcpy(buffer, "other_param ");
-      list_node_names(prog.declaration_root->other_param, buffer);
+      list_node_names(prog->declaration_root->other_param, buffer);
     } /* if */
-    if (prog.declaration_root->attr != NULL) {
+    if (prog->declaration_root->attr != NULL) {
       strcpy(buffer, "attr ");
-      list_node_names(prog.declaration_root->attr, buffer);
+      list_node_names(prog->declaration_root->attr, buffer);
     } /* if */
     prot_cstri("----------");
     prot_nl();

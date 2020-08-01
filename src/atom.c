@@ -129,11 +129,11 @@ static objectType gen_literal_object (const_objectType typeof_object,
         } else {
           literal_object->type_of = take_type(typeof_object);
         } /* if */
-        literal_object->descriptor.property = prog.property.literal;
+        literal_object->descriptor.property = prog->property.literal;
         INIT_CATEGORY_OF_OBJ(literal_object, category);
         list_elem->obj = literal_object;
-        list_elem->next = prog.literals;
-        prog.literals = list_elem;
+        list_elem->next = prog->literals;
+        prog->literals = list_elem;
       } /* if */
     } /* if */
     logFunction(printf("gen_literal_object --> " FMT_U_MEM "\n",

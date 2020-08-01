@@ -279,7 +279,7 @@ static objectType match_symbol (objectType object)
       err_match(EXPR_EXPECTED, object);
       result = NULL;
     } else {
-      obj_found = find_name(prog.declaration_root, GET_ENTITY(object)->syobject, &err_info);
+      obj_found = find_name(prog->declaration_root, GET_ENTITY(object)->syobject, &err_info);
       if (obj_found == NULL) {
         err_match(EXPR_EXPECTED, object);
         result = NULL;
@@ -332,7 +332,7 @@ objectType match_object (objectType object)
       case FORWARDOBJECT:
         if (ALLOC_OBJECT(result)) {
           result->type_of = object->type_of;
-          result->descriptor.property = prog.property.literal;
+          result->descriptor.property = prog->property.literal;
           result->value.listValue = NULL;
           INIT_CATEGORY_OF_OBJ(result, CALLOBJECT);
           incl_list(&result->value.listValue, object, &err_info);
@@ -411,7 +411,7 @@ static objectType match_object2 (objectType object, const_objectType expr_object
             result->descriptor.posinfo = expr_object->descriptor.posinfo;
             INIT_CATEGORY_OF_POSINFO(result, CALLOBJECT);
           } else {
-            result->descriptor.property = prog.property.literal;
+            result->descriptor.property = prog->property.literal;
             INIT_CATEGORY_OF_OBJ(result, CALLOBJECT);
           } /* if */
           result->value.listValue = NULL;
@@ -972,14 +972,14 @@ objectType match_expression (objectType expr_object)
       fflush(stdout);
     } /* if */
     if (expr_list != NULL) {
-      matched_object = match_subexpr(expr_object, prog.declaration_root,
+      matched_object = match_subexpr(expr_object, prog->declaration_root,
           expr_list, FALSE, TRUE);
     } else {
       matched_object = NULL;
     } /* if */
     if (matched_object == NULL && !HAS_MATCH_ERR(expr_object)) {
       if (expr_list != NULL) {
-        matched_object = match_subexpr(expr_object, prog.declaration_root,
+        matched_object = match_subexpr(expr_object, prog->declaration_root,
             expr_list, TRUE, TRUE);
       } /* if */
       if (matched_object != NULL) {

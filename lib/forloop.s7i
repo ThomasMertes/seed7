@@ -274,3 +274,123 @@ const proc: for (inout char: variable) key (inout integer: keyVar) range (in str
       statements;
     end for;
   end func;
+
+
+(**
+ *  For-loop which loops over the [[char|characters]] of a [[string]]
+ *  Additionally a condition is checked before the statements in
+ *  the loop body are executed.
+ *)
+const proc: for (inout char: forVar)
+            range (in string: stri)
+            until (ref func boolean: condition) do
+              (in proc: statements)
+            end for is func
+  local
+    var integer: number is 1;
+  begin
+    if stri <> "" then
+      forVar := stri[1];
+      while number <= length(stri) and not condition do
+        statements;
+        incr(number);
+        if number <= length(stri) then
+          forVar := stri[number];
+        end if;
+      end while;
+    end if;
+  end func;
+
+
+const proc: for (inout char: forVar)
+            range (in string: stri)
+            until (ref boolean: condition) do
+              (in proc: statements)
+            end for is func
+  local
+    var integer: number is 0;
+  begin
+    if stri <> "" then
+      forVar := stri[1];
+      while number <= length(stri) and not condition do
+        statements;
+        incr(number);
+        if number <= length(stri) then
+          forVar := stri[number];
+        end if;
+      end while;
+    end if;
+  end func;
+
+
+(**
+ *  For-loop which loops over the keys (indices) of a [[string]].
+ *  Additionally a condition is checked before the statements in
+ *  the loop body are executed.
+ *)
+const proc: for key (inout integer: number)
+            range (in string: stri)
+            until (ref func boolean: condition) do
+              (in proc: statements)
+            end for is func
+  begin
+    for number range 1 to length(stri) until condition do
+      statements;
+    end for;
+  end func;
+
+
+const proc: for key (inout integer: number)
+            range (in string: stri)
+            until (ref boolean: condition) do
+              (in proc: statements)
+            end for is func
+  begin
+    for number range 1 to length(stri) until condition do
+      statements;
+    end for;
+  end func;
+
+
+(**
+ *  For-loop which loops over [[char|characters]] and keys (indices) of a [[string]].
+ *  Additionally a condition is checked before the statements in
+ *  the loop body are executed.
+ *)
+const proc: for (inout char: forVar)
+            key (inout integer: number)
+            range (in string: stri)
+            until (ref func boolean: condition) do
+              (in proc: statements)
+            end for is func
+  begin
+    if stri <> "" then
+      forVar := stri[1];
+      while number <= length(stri) and not condition do
+        statements;
+        incr(number);
+        if number <= length(stri) then
+          forVar := stri[number];
+        end if;
+      end while;
+    end if;
+  end func;
+
+const proc: for (inout char: forVar)
+            key (inout integer: number)
+            range (in string: stri)
+            until (ref boolean: condition) do
+              (in proc: statements)
+            end for is func
+  begin
+    if stri <> "" then
+      forVar := stri[1];
+      while number <= length(stri) and not condition do
+        statements;
+        incr(number);
+        if number <= length(stri) then
+          forVar := stri[number];
+        end if;
+      end while;
+    end if;
+  end func;

@@ -384,7 +384,7 @@ static inline tokenType def_statement_syntax (objectType syntax_expression,
       token_list_end = NULL;
     } else {
       identifier = GET_ENTITY(syntax_expression)->ident;
-      if (identifier == prog.ident.literal) {
+      if (identifier == prog->ident.literal) {
         err_object(IDENT_EXPECTED, syntax_expression);
       } /* if */
       if (identifier->prefix_priority == 0) {
@@ -416,7 +416,7 @@ void decl_syntax (void)
   /* decl_syntax */
     logFunction(printf("decl_syntax\n"););
     scan_symbol();
-    if (current_ident == prog.id_for.colon) {
+    if (current_ident == prog->id_for.colon) {
       typeof_object = NULL;
       scan_symbol();
     } else {
@@ -427,25 +427,25 @@ void decl_syntax (void)
         err_object(TYPE_EXPECTED, type_object);
         typeof_object = NULL;
       } /* if */
-      if (current_ident == prog.id_for.colon) {
+      if (current_ident == prog->id_for.colon) {
         scan_symbol();
       } else {
-        err_ident(EXPECTED_SYMBOL, prog.id_for.colon);
+        err_ident(EXPECTED_SYMBOL, prog->id_for.colon);
       } /* if */
     } /* if */
     expression = pars_infix_expression(WEAKEST_PRIORITY, FALSE);
-    if (current_ident == prog.id_for.is) {
+    if (current_ident == prog->id_for.is) {
       scan_symbol();
     } else {
-      err_ident(EXPECTED_SYMBOL, prog.id_for.is);
+      err_ident(EXPECTED_SYMBOL, prog->id_for.is);
     } /* if */
-    if (current_ident == prog.id_for.r_arrow) {            /*  ->   */
+    if (current_ident == prog->id_for.r_arrow) {            /*  ->   */
       assoc = YFX;
-    } else if (current_ident == prog.id_for.l_arrow) {     /*  <-   */
+    } else if (current_ident == prog->id_for.l_arrow) {     /*  <-   */
       assoc = XFY;
-    } else if (current_ident == prog.id_for.out_arrow) {   /*  <->  */
+    } else if (current_ident == prog->id_for.out_arrow) {   /*  <->  */
       assoc = XFX;
-    } else if (current_ident == prog.id_for.in_arrow) {    /*  -><- */
+    } else if (current_ident == prog->id_for.in_arrow) {    /*  -><- */
       assoc = YFY;
     } else {
       err_warning(ILLEGAL_ASSOCIATIVITY);
@@ -464,7 +464,7 @@ void decl_syntax (void)
             (priorityType) symbol.intValue, assoc);
         scan_symbol();
         if (token_list_end != NULL) {
-          if (current_ident == prog.id_for.lbrack) {
+          if (current_ident == prog->id_for.lbrack) {
             scan_symbol();
             if (symbol.sycategory != INTLITERAL) {
               err_string(CARD_EXPECTED, symbol.name);
@@ -473,10 +473,10 @@ void decl_syntax (void)
               token_list_end->token_value.select = symbol.intValue;
             } /* if */
             scan_symbol();
-            if (current_ident == prog.id_for.rbrack) {
+            if (current_ident == prog->id_for.rbrack) {
               scan_symbol();
             } else {
-              err_ident(EXPECTED_SYMBOL, prog.id_for.rbrack);
+              err_ident(EXPECTED_SYMBOL, prog->id_for.rbrack);
             } /* if */
           } else {
             token_list_end->token_category = LIST_WITH_TYPEOF_SYNTAX;
@@ -485,10 +485,10 @@ void decl_syntax (void)
         } /* if */
       } /* if */
     } /* if */
-    if (current_ident == prog.id_for.semicolon) {
+    if (current_ident == prog->id_for.semicolon) {
       scan_symbol();
     } else {
-      err_ident(EXPECTED_SYMBOL, prog.id_for.semicolon);
+      err_ident(EXPECTED_SYMBOL, prog->id_for.semicolon);
     } /* if */
 /*  printcategory(CATEGORY_OF_OBJ(expression)); */
     free_expression(expression);

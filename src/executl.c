@@ -62,6 +62,7 @@ objectType get_create_call_obj (objectType obj, errInfoType *err_info)
     listRecord expr_list[3];
     objectType match_result;
     objectType create_call_obj;
+    progType progBackup;
 
   /* get_create_call_obj */
 #ifdef WITH_PROTOCOL
@@ -73,6 +74,8 @@ objectType get_create_call_obj (objectType obj, errInfoType *err_info)
 #endif
     create_call_obj = NULL;
 
+    progBackup = prog;
+    prog = obj->type_of->owningProg;
     expr_object.type_of = take_type(SYS_EXPR_TYPE);
     expr_object.descriptor.property = NULL;
     expr_object.value.listValue = expr_list;
@@ -95,6 +98,7 @@ objectType get_create_call_obj (objectType obj, errInfoType *err_info)
         /* because match_result == &expr_object holds. */
       } /* if */
     } /* if */
+    prog = progBackup;
 
     return create_call_obj;
   } /* get_create_call_obj */
@@ -108,6 +112,7 @@ objectType get_destroy_call_obj (objectType obj, errInfoType *err_info)
     listRecord expr_list[2];
     objectType match_result;
     objectType destroy_call_obj;
+    progType progBackup;
 
   /* get_destroy_call_obj */
 #ifdef WITH_PROTOCOL
@@ -119,6 +124,8 @@ objectType get_destroy_call_obj (objectType obj, errInfoType *err_info)
 #endif
     destroy_call_obj = NULL;
 
+    progBackup = prog;
+    prog = obj->type_of->owningProg;
     expr_object.type_of = take_type(SYS_EXPR_TYPE);
     expr_object.descriptor.property = NULL;
     expr_object.value.listValue = expr_list;
@@ -139,6 +146,7 @@ objectType get_destroy_call_obj (objectType obj, errInfoType *err_info)
         /* because match_result == &expr_object holds. */
       } /* if */
     } /* if */
+    prog = progBackup;
 
     return destroy_call_obj;
   } /* get_destroy_call_obj */

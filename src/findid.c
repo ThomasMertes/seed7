@@ -81,7 +81,7 @@ void find_normal_ident (sySizeType length)
 
   /* find_normal_ident */
     logFunction(printf("find_normal_ident\n"););
-    if ((search_ident = IDENT_TABLE(&prog, symbol.name, length)) != NULL) { /*  1.49% */
+    if ((search_ident = IDENT_TABLE(prog, symbol.name, length)) != NULL) { /*  1.49% */
       if ((comparison = strcmp((cstriType) symbol.name,
           (cstriType) search_ident->name)) != 0) {              /*  0.73% */
         do {
@@ -123,7 +123,7 @@ void find_normal_ident (sySizeType length)
       current_ident = search_ident;                             /*  0.12% */
     } else {
       current_ident = id_generation(symbol.name, length);       /*  0.01% */
-      IDENT_TABLE(&prog, symbol.name, length) = current_ident;  /*  0.02% */
+      IDENT_TABLE(prog, symbol.name, length) = current_ident;   /*  0.02% */
     } /* if */
     logFunction(printf("find_normal_ident -->\n"););
   } /* find_normal_ident */                                     /*  0.62% */
@@ -137,7 +137,7 @@ static identType put_ident (const_cstriType stri, errInfoType *err_info)
 
   /* put_ident */
     logFunction(printf("put_ident\n"););
-    if ((ident_found = get_ident(&prog, (const_ustriType) stri)) == NULL) {
+    if ((ident_found = get_ident(prog, (const_ustriType) stri)) == NULL) {
       *err_info = MEMORY_ERROR;
     } /* if */
     logFunction(printf("put_ident -->\n"););
@@ -157,7 +157,7 @@ void check_list_of_syntax_elements (const_listType elem_list)
         } /* if */
       } /* if */
 #ifdef OUT_OF_ORDER
-      if (GET_ENTITY(elem_list->obj) == prog.entity.literal) {
+      if (GET_ENTITY(elem_list->obj) == prog->entity.literal) {
         if (CATEGORY_OF_OBJ(elem_list->obj) != EXPROBJECT) {
           err_object(IDENT_EXPECTED, elem_list->obj);
         } /* if */
@@ -197,13 +197,13 @@ void clean_idents (void)
   /* clean_idents */
     logFunction(printf("clean_idents\n"););
     for (position = 0; position < ID_TABLE_SIZE; position++) {
-      clean_ident_tree(prog.ident.table[position]);
+      clean_ident_tree(prog->ident.table[position]);
     } /* for */
     for (character = '!'; character <= '~'; character++) {
       if (op_character(character) ||
           char_class(character) == LEFTPARENCHAR ||
           char_class(character) == PARENCHAR) {
-        actual_ident = prog.ident.table1[character];
+        actual_ident = prog->ident.table1[character];
         free_tokens(actual_ident->prefix_token);
         actual_ident->prefix_token = NULL;
         free_tokens(actual_ident->infix_token);
@@ -253,21 +253,21 @@ void write_idents (void)
       prot_cstri(" ====== ");
       prot_int((intType) position);
       prot_cstri(" ======\n");
-      wri_binary_ident_tree(prog.ident.table[position]);
+      wri_binary_ident_tree(prog->ident.table[position]);
     } /* for */
     for (character = '!'; character <= '~'; character++) {
       if (op_character(character) ||
           char_class(character) == LEFTPARENCHAR ||
           char_class(character) == PARENCHAR) {
-        prot_cstri8(id_string(prog.ident.table1[character]));
+        prot_cstri8(id_string(prog->ident.table1[character]));
         prot_cstri(" ");
-        if (prog.ident.table1[character]->entity != NULL &&
-            prog.ident.table1[character]->entity->syobject != NULL) {
-          if (CATEGORY_OF_OBJ(prog.ident.table1[character]->entity->syobject) == SYMBOLOBJECT) {
+        if (prog->ident.table1[character]->entity != NULL &&
+            prog->ident.table1[character]->entity->syobject != NULL) {
+          if (CATEGORY_OF_OBJ(prog->ident.table1[character]->entity->syobject) == SYMBOLOBJECT) {
             prot_cstri(" ");
-            prot_string(get_file_name(GET_POS_FILE_NUM(prog.ident.table1[character]->entity->syobject)));
+            prot_string(get_file_name(GET_POS_FILE_NUM(prog->ident.table1[character]->entity->syobject)));
             prot_cstri("(");
-            prot_int((intType) GET_POS_LINE_NUM(prog.ident.table1[character]->entity->syobject));
+            prot_int((intType) GET_POS_LINE_NUM(prog->ident.table1[character]->entity->syobject));
             prot_cstri(")");
           } /* if */
         } /* if */
@@ -283,33 +283,33 @@ void init_findid (errInfoType *err_info)
 
   { /* init_findid */
     logFunction(printf("init_findid\n"););
-    prog.id_for.lparen =    put_ident("(",       err_info);
-    prog.id_for.lbrack =    put_ident("[",       err_info);
-    prog.id_for.lbrace =    put_ident("{",       err_info);
-    prog.id_for.rparen =    put_ident(")",       err_info);
-    prog.id_for.rbrack =    put_ident("]",       err_info);
-    prog.id_for.rbrace =    put_ident("}",       err_info);
-    prog.id_for.dot =       put_ident(".",       err_info);
-    prog.id_for.colon =     put_ident(":",       err_info);
-    prog.id_for.comma =     put_ident(",",       err_info);
-    prog.id_for.semicolon = put_ident(";",       err_info);
-    prog.id_for.dollar =    put_ident("$",       err_info);
-    prog.id_for.r_arrow =   put_ident("->",      err_info);
-    prog.id_for.l_arrow =   put_ident("<-",      err_info);
-    prog.id_for.out_arrow = put_ident("<->",     err_info);
-    prog.id_for.in_arrow =  put_ident("-><-",    err_info);
-    prog.id_for.type =      put_ident("type",    err_info);
-    prog.id_for.constant =  put_ident("const",   err_info);
-    prog.id_for.ref =       put_ident("ref",     err_info);
-    prog.id_for.syntax =    put_ident("syntax",  err_info);
-    prog.id_for.system =    put_ident("system",  err_info);
-    prog.id_for.include =   put_ident("include", err_info);
-    prog.id_for.is =        put_ident("is",      err_info);
-    prog.id_for.func =      put_ident("func",    err_info);
-    prog.id_for.param =     put_ident("param",   err_info);
-    prog.id_for.enumlit =   put_ident("enumlit", err_info);
-    prog.id_for.subtype =   put_ident("subtype", err_info);
-    prog.id_for.newtype =   put_ident("newtype", err_info);
-    prog.id_for.action =    put_ident("action",  err_info);
+    prog->id_for.lparen =    put_ident("(",       err_info);
+    prog->id_for.lbrack =    put_ident("[",       err_info);
+    prog->id_for.lbrace =    put_ident("{",       err_info);
+    prog->id_for.rparen =    put_ident(")",       err_info);
+    prog->id_for.rbrack =    put_ident("]",       err_info);
+    prog->id_for.rbrace =    put_ident("}",       err_info);
+    prog->id_for.dot =       put_ident(".",       err_info);
+    prog->id_for.colon =     put_ident(":",       err_info);
+    prog->id_for.comma =     put_ident(",",       err_info);
+    prog->id_for.semicolon = put_ident(";",       err_info);
+    prog->id_for.dollar =    put_ident("$",       err_info);
+    prog->id_for.r_arrow =   put_ident("->",      err_info);
+    prog->id_for.l_arrow =   put_ident("<-",      err_info);
+    prog->id_for.out_arrow = put_ident("<->",     err_info);
+    prog->id_for.in_arrow =  put_ident("-><-",    err_info);
+    prog->id_for.type =      put_ident("type",    err_info);
+    prog->id_for.constant =  put_ident("const",   err_info);
+    prog->id_for.ref =       put_ident("ref",     err_info);
+    prog->id_for.syntax =    put_ident("syntax",  err_info);
+    prog->id_for.system =    put_ident("system",  err_info);
+    prog->id_for.include =   put_ident("include", err_info);
+    prog->id_for.is =        put_ident("is",      err_info);
+    prog->id_for.func =      put_ident("func",    err_info);
+    prog->id_for.param =     put_ident("param",   err_info);
+    prog->id_for.enumlit =   put_ident("enumlit", err_info);
+    prog->id_for.subtype =   put_ident("subtype", err_info);
+    prog->id_for.newtype =   put_ident("newtype", err_info);
+    prog->id_for.action =    put_ident("action",  err_info);
     logFunction(printf("init_findid -->\n"););
   } /* init_findid */

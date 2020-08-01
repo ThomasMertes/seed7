@@ -709,17 +709,17 @@ void init_entity (errInfoType *err_info)
 
   { /* init_entity */
     logFunction(printf("init_entity\n"););
-    prog.entity.inactive_list = NULL;
-    if ((prog.entity.literal = new_entity(prog.ident.literal)) == NULL) {
+    prog->entity.inactive_list = NULL;
+    if ((prog->entity.literal = new_entity(prog->ident.literal)) == NULL) {
       *err_info = MEMORY_ERROR;
     } /* if */
-    if (!ALLOC_RECORD(prog.property.literal, propertyRecord, count.property)) {
+    if (!ALLOC_RECORD(prog->property.literal, propertyRecord, count.property)) {
       *err_info = MEMORY_ERROR;
     } /* if */
-    prog.property.literal->entity = prog.entity.literal;
-    prog.property.literal->params = NULL;
-    prog.property.literal->file_number = 0;
-    prog.property.literal->line = 0;
-    prog.property.literal->syNumberInLine = 0;
+    prog->property.literal->entity = prog->entity.literal;
+    prog->property.literal->params = NULL;
+    prog->property.literal->file_number = 0;
+    prog->property.literal->line = 0;
+    prog->property.literal->syNumberInLine = 0;
     logFunction(printf("init_entity -->\n"););
   } /* init_entity */

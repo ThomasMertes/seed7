@@ -1,3 +1,31 @@
+20151216:
+- A compiler bug, triggered with a nested function and an array
+  parameter, has been fixed. Many thanks go to "rfnbs" for providing
+  an excellent bug report. The bug was fixed by changing the type of
+  the global variable 'prog' and by saving and restoring the 'prog'
+  variable in the functions get_create_call_obj and
+  get_destroy_call_obj.
+- The functions toAscii85 and fromAscii85 have been added to the
+  library encoding.s7i.
+- Definitions of for-each-loops, which have an until condition and
+  loop over the characters of a string, have been added to the
+  library forloop.s7i.
+- The function gzcompress has been added to the library gzip.s7i.
+- The type of the global variable 'prog' has been changed from
+  progRecord to progType (pointer to progRecord).
+- Changes have been done in analyze.c, atom.c, blockutl.c, dcllib.c,
+  doany.c, entutl.c, error.c, exec.c, expr.c, findid.c, findid.h,
+  match.c, name.c, parser.c, prclib.c, prg_comp.c, prglib.c,
+  reflib.c, runerr.c, s7.c, sctlib.c, syntax.c, syvarutl.c,
+  syvarutl.h, traceutl.c and type.c to reflect that the type of the
+  variable 'prog' changed from struct to pointer to struct.
+- The functions get_create_call_obj and get_destroy_call_obj in
+  executl.c have been changed to save, set and restore the variable
+  'prog'.
+- In chkccomp.c all functions, which have a name starting with
+  'detemine', have been renamed such that the name starts with
+  'determine'.
+
 20151129:
 - The library bitdata.s7i, which provides functions to read and
   write bits to and from strings, has been added.

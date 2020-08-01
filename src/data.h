@@ -387,7 +387,6 @@ typedef struct {
 
 typedef struct progStruct {
     uintType usage_count;
-    progType owningProg;
     objectType main_object;
     const_striType arg0;
     const_striType program_name;
@@ -439,7 +438,7 @@ typedef struct inFileStruct {
   } inFileRecord;
 
 
-extern progRecord prog;
+extern progType prog;
 
 
 #define INIT_POS(O,L,F)     (O)->value.pos = ((posType) (L)) | (((posType) (F)) << 20)

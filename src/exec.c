@@ -990,7 +990,7 @@ objectType exec_dynamic (listType expr_list)
     dynamic_call_obj = curr_exec_object;
     if (ALLOC_OBJECT(match_expr)) {
       match_expr->type_of = take_type(SYS_EXPR_TYPE);
-      match_expr->descriptor.property = prog.property.literal;
+      match_expr->descriptor.property = prog->property.literal;
       match_expr->value.listValue = NULL;
       list_insert_place = &match_expr->value.listValue;
       INIT_CATEGORY_OF_OBJ(match_expr, EXPROBJECT);
@@ -1047,7 +1047,7 @@ printf("\n"); */
       /* printf("match_expr ");
       trace1(match_expr);
       printf("\n"); */
-      if (match_prog_expression(prog.declaration_root, match_expr) != NULL &&
+      if (match_prog_expression(prog->declaration_root, match_expr) != NULL &&
           (match_result = match_object(match_expr)) != NULL) {
 #ifdef WITH_PROTOCOL
         if (trace.dynamic) {
@@ -1096,11 +1096,11 @@ printf("\n"); */
 
 
 
-objectType exec_expr (const_progType currentProg, objectType object,
+objectType exec_expr (const progType currentProg, objectType object,
     errInfoType *err_info)
 
   {
-    progRecord prog_backup;
+    progType progBackup;
     objectType result;
 
   /* exec_expr */
@@ -1109,11 +1109,11 @@ objectType exec_expr (const_progType currentProg, objectType object,
       set_fail_flag(FALSE);
       fail_value = (objectType) NULL;
       fail_expression = (listType) NULL;
-      memcpy(&prog_backup, &prog, sizeof(progRecord));
-      memcpy(&prog, currentProg, sizeof(progRecord));
+      progBackup = prog;
+      prog = currentProg;
       set_protfile_name(NULL);
-      prog.option_flags = 0;
-      set_trace(prog.option_flags);
+      prog->option_flags = 0;
+      set_trace(prog->option_flags);
       interpreter_exception = TRUE;
       result = exec_object(object);
       interpreter_exception = FALSE;
@@ -1142,7 +1142,7 @@ objectType exec_expr (const_progType currentProg, objectType object,
         fail_value = (objectType) NULL;
         fail_expression = (listType) NULL;
       } /* if */
-      memcpy(&prog, &prog_backup, sizeof(progRecord));
+      prog = progBackup;
     } else {
       result = NULL;
     } /* if */

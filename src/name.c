@@ -74,7 +74,7 @@ static void push_owner (ownerType *owner, objectType obj_to_push,
                 printf("\n"););
     if (ALLOC_RECORD(created_owner, ownerRecord, count.owner)) {
       created_owner->obj = obj_to_push;
-      created_owner->decl_level = prog.stack_current;
+      created_owner->decl_level = prog->stack_current;
       created_owner->next = *owner;
       *owner = created_owner;
     } else {
@@ -104,7 +104,7 @@ static void free_params (listType params)
         /* printf("free_params %lx: ", (unsigned long int) param);
         trace1(param);
         printf("\n"); */
-        if (HAS_PROPERTY(param) && param->descriptor.property != prog.property.literal) {
+        if (HAS_PROPERTY(param) && param->descriptor.property != prog->property.literal) {
           FREE_RECORD(param->descriptor.property, propertyRecord, count.property);
         } /* if */
         FREE_OBJECT(param);
@@ -128,7 +128,7 @@ static objectType get_object (entityType entity, listType params,
   /* get_object */
     logFunction(printf("get_object\n"););
     if (entity->data.owner != NULL &&
-        entity->data.owner->decl_level == prog.stack_current) {
+        entity->data.owner->decl_level == prog->stack_current) {
       defined_object = entity->data.owner->obj;
       if (CATEGORY_OF_OBJ(defined_object) != FORWARDOBJECT) {
         err_object(OBJTWICEDECLARED, entity->data.owner->obj);
@@ -146,10 +146,10 @@ static objectType get_object (entityType entity, listType params,
           forward_reference->descriptor.property = NULL;
           INIT_CATEGORY_OF_OBJ(forward_reference, FWDREFOBJECT);
           forward_reference->value.objValue = defined_object;
-          replace_list_elem(prog.stack_current->local_object_list,
+          replace_list_elem(prog->stack_current->local_object_list,
               defined_object, forward_reference);
-          prog.stack_current->object_list_insert_place = append_element_to_list(
-              prog.stack_current->object_list_insert_place, defined_object, err_info);
+          prog->stack_current->object_list_insert_place = append_element_to_list(
+              prog->stack_current->object_list_insert_place, defined_object, err_info);
         } else {
           *err_info = MEMORY_ERROR;
         } /* if */
@@ -167,8 +167,8 @@ static objectType get_object (entityType entity, listType params,
           INIT_CATEGORY_OF_OBJ(defined_object, DECLAREDOBJECT);
           defined_object->value.objValue = NULL;
           push_owner(&entity->data.owner, defined_object, err_info);
-          prog.stack_current->object_list_insert_place = append_element_to_list(
-              prog.stack_current->object_list_insert_place, defined_object, err_info);
+          prog->stack_current->object_list_insert_place = append_element_to_list(
+              prog->stack_current->object_list_insert_place, defined_object, err_info);
         } else {
           FREE_OBJECT(defined_object);
           *err_info = MEMORY_ERROR;
@@ -266,7 +266,7 @@ static void free_name_list (listType name_list, boolType freeParamObject)
             printf("free param_obj %lx %d: ", (unsigned long int) param_obj, HAS_PROPERTY(param_obj));
             trace1(param_obj);
             printf("\n"); */
-            /* if (HAS_PROPERTY(param_obj) && param_obj->descriptor.property != prog.property.literal) {
+            /* if (HAS_PROPERTY(param_obj) && param_obj->descriptor.property != prog->property.literal) {
               * free_params(param_obj->descriptor.property->params); *
               FREE_RECORD(param_obj->descriptor.property, propertyRecord, count.property);
             } * if */
@@ -380,7 +380,7 @@ static void disconnect_entity (const objectType anObject)
           lst = lst->next;
         } /* if */
       } /* while */
-      pop_object(&prog, anObject);
+      pop_object(prog, anObject);
       FREE_RECORD(anObject->descriptor.property, propertyRecord, count.property);
       anObject->descriptor.property = NULL;
     } /* if */
@@ -509,12 +509,12 @@ void grow_stack (errInfoType *err_info)
     if (ALLOC_RECORD(created_stack_element, stackRecord, count.stack)) {
       /* printf("%lx grow_stack %d\n", created_stack_element, data_depth + 1); */
       created_stack_element->upward = NULL;
-      created_stack_element->downward = prog.stack_data;
+      created_stack_element->downward = prog->stack_data;
       created_stack_element->local_object_list = NULL;
       created_stack_element->object_list_insert_place =
           &created_stack_element->local_object_list;
-      prog.stack_data->upward = created_stack_element;
-      prog.stack_data = created_stack_element;
+      prog->stack_data->upward = created_stack_element;
+      prog->stack_data = created_stack_element;
       data_depth++;
     } else {
       *err_info = MEMORY_ERROR;
@@ -532,16 +532,16 @@ void shrink_stack (void)
 
   /* shrink_stack */
     logFunction(printf("shrink_stack %d\n", data_depth););
-    /* printf("%lx shrink_stack %d\n", prog.stack_data, data_depth); */
-    list_element = prog.stack_data->local_object_list;
+    /* printf("%lx shrink_stack %d\n", prog->stack_data, data_depth); */
+    list_element = prog->stack_data->local_object_list;
     while (list_element != NULL) {
-      pop_object(&prog, list_element->obj);
+      pop_object(prog, list_element->obj);
       list_element = list_element->next;
     } /* while */
-    free_list(prog.stack_data->local_object_list);
-    old_stack_element = prog.stack_data;
-    prog.stack_data = prog.stack_data->downward;
-    prog.stack_data->upward = NULL;
+    free_list(prog->stack_data->local_object_list);
+    old_stack_element = prog->stack_data;
+    prog->stack_data = prog->stack_data->downward;
+    prog->stack_data->upward = NULL;
     FREE_RECORD(old_stack_element, stackRecord, count.stack);
     data_depth--;
     logFunction(printf("shrink_stack %d\n", data_depth););
@@ -553,9 +553,9 @@ void push_stack (void)
 
   { /* push_stack */
     logFunction(printf("push_stack %d\n", depth););
-    if (prog.stack_current->upward != NULL) {
-      /* printf("%lx push_stack %d\n", prog.stack_current->upward, depth + 1); */
-      prog.stack_current = prog.stack_current->upward;
+    if (prog->stack_current->upward != NULL) {
+      /* printf("%lx push_stack %d\n", prog->stack_current->upward, depth + 1); */
+      prog->stack_current = prog->stack_current->upward;
       depth++;
     } else {
       /* printf("cannot go up\n"); */
@@ -572,18 +572,18 @@ void pop_stack (void)
 
   /* pop_stack */
     logFunction(printf("pop_stack %d\n", depth););
-    if (prog.stack_current->downward != NULL) {
-      /* printf("%lx pop_stack %d\n", prog.stack_current, depth); */
-      list_element = prog.stack_current->local_object_list;
+    if (prog->stack_current->downward != NULL) {
+      /* printf("%lx pop_stack %d\n", prog->stack_current, depth); */
+      list_element = prog->stack_current->local_object_list;
       while (list_element != NULL) {
-        pop_object(&prog, list_element->obj);
+        pop_object(prog, list_element->obj);
         list_element = list_element->next;
       } /* while */
-      free_list(prog.stack_current->local_object_list);
-      prog.stack_current->local_object_list = NULL;
-      prog.stack_current->object_list_insert_place =
-          &prog.stack_current->local_object_list;
-      prog.stack_current = prog.stack_current->downward;
+      free_list(prog->stack_current->local_object_list);
+      prog->stack_current->local_object_list = NULL;
+      prog->stack_current->object_list_insert_place =
+          &prog->stack_current->local_object_list;
+      prog->stack_current = prog->stack_current->downward;
       depth--;
     } else {
       /* printf("cannot go down\n"); */
@@ -597,9 +597,9 @@ static void down_stack (void)
 
   { /* down_stack */
     logFunction(printf("down_stack %d\n", depth););
-    if (prog.stack_current->downward != NULL) {
-      /* printf("%lx down_stack %d\n", prog.stack_current, depth); */
-      prog.stack_current = prog.stack_current->downward;
+    if (prog->stack_current->downward != NULL) {
+      /* printf("%lx down_stack %d\n", prog->stack_current, depth); */
+      prog->stack_current = prog->stack_current->downward;
       depth--;
     } else {
       printf("cannot go down");
@@ -612,7 +612,7 @@ static void down_stack (void)
 listType *get_local_object_insert_place (void)
 
   { /* get_local_object_insert_place */
-    return prog.stack_current->object_list_insert_place;
+    return prog->stack_current->object_list_insert_place;
   } /* get_local_object_insert_place */
 
 
@@ -715,7 +715,7 @@ static objectType inst_object (const_nodeType declaration_base, objectType name_
     logFunction(printf("inst_object(");
                 trace1(name_object);
                 printf(")\n"););
-    if (name_object->descriptor.property == prog.property.literal) {
+    if (name_object->descriptor.property == prog->property.literal) {
       err_object(IDENT_EXPECTED, name_object);
     } /* if */
     defined_object = get_object(GET_ENTITY(name_object), NULL,
@@ -975,7 +975,7 @@ static objectType dollar_parameter (objectType param_object)
                 printf(")\n"););
     param_descr = param_object->value.listValue;
     if (param_descr != NULL) {
-      if (GET_ENTITY(param_descr->obj)->ident == prog.id_for.ref) {
+      if (GET_ENTITY(param_descr->obj)->ident == prog->id_for.ref) {
         /* printf("### ref param\n"); */
         if (param_descr->next != NULL) {
           type_of_parameter = param_descr->next->obj;
@@ -984,7 +984,7 @@ static objectType dollar_parameter (objectType param_object)
           } /* if */
           if (param_descr->next->next != NULL) {
             FREE_OBJECT(param_object);
-            if (GET_ENTITY(param_descr->next->next->obj)->ident == prog.id_for.colon) {
+            if (GET_ENTITY(param_descr->next->next->obj)->ident == prog->id_for.colon) {
               param_object = dcl_ref2(param_descr);
             } else {
               param_object = dcl_ref1(param_descr);

@@ -415,7 +415,9 @@ void place_of_error (errorType err)
 
   { /* place_of_error */
 /*  print_error_line(); */
-    prog.error_count++;
+    if (prog != NULL) {
+      prog->error_count++;
+    } /* if */
     if (in_file.name != NULL) {
       write_place(err, in_file.name, in_file.line);
     } else {
@@ -877,7 +879,9 @@ void err_object (errorType err, const_objectType obj_found)
 
   { /* err_object */
     /* place_of_error(err); */
-    prog.error_count++;
+    if (prog != NULL) {
+      prog->error_count++;
+    } /* if */
     if (HAS_POSINFO(obj_found)){
       write_place(err, get_file_name(GET_FILE_NUM(obj_found)),
           GET_LINE_NUM(obj_found));
@@ -1021,7 +1025,9 @@ void err_expr_obj (errorType err, const_objectType expr_object,
 
   { /* err_expr_obj */
     /* place_of_error(err); */
-    prog.error_count++;
+    if (prog != NULL) {
+      prog->error_count++;
+    } /* if */
     if (HAS_POSINFO(expr_object)){
       write_place(err, get_file_name(GET_FILE_NUM(expr_object)),
           GET_LINE_NUM(expr_object));
@@ -1081,7 +1087,9 @@ void err_match (errorType err, objectType obj_found)
   { /* err_match */
     if (!contains_match_err_flag(obj_found)) {
       /* place_of_error(err); */
-      prog.error_count++;
+      if (prog != NULL) {
+        prog->error_count++;
+      } /* if */
       if (HAS_POSINFO(obj_found)){
         write_place(err, get_file_name(GET_FILE_NUM(obj_found)),
             GET_LINE_NUM(obj_found));
@@ -1313,7 +1321,9 @@ void err_char (errorType err, charType character)
 void err_at_line (errorType err, lineNumType line)
 
   { /* err_at_line */
-    prog.error_count++;
+    if (prog != NULL) {
+      prog->error_count++;
+    } /* if */
     write_place(err, in_file.name, line);
     switch (err) {
       case COMMENTOPEN:
@@ -1334,7 +1344,9 @@ void err_undeclared (errorType err, fileNumType file_num,
     lineNumType line, const_ustriType stri)
 
   { /* err_undeclared */
-    prog.error_count++;
+    if (prog != NULL) {
+      prog->error_count++;
+    } /* if */
     write_place(err, get_file_name(file_num), line);
     switch (err) {
       case OBJUNDECLARED:
@@ -1356,7 +1368,9 @@ void err_undeclared (errorType err, fileNumType file_num,
 void err_message (errorType err, const_striType stri)
 
   { /* err_message */
-    prog.error_count++;
+    if (prog != NULL) {
+      prog->error_count++;
+    } /* if */
     prot_cstri("*** ");
     switch (err) {
       case NO_SOURCEFILE:

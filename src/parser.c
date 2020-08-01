@@ -73,7 +73,7 @@ static void init_dollar_type (objectType declared_object,
 
   /* init_dollar_type */
     logFunction(printf("init_dollar_type\n"););
-    if ((generated_type = new_type(prog.owningProg, meta_type, NULL)) == NULL) {
+    if ((generated_type = new_type(prog, meta_type, NULL)) == NULL) {
       *err_info = MEMORY_ERROR;
     } else {
       SET_CATEGORY_OF_OBJ(declared_object, TYPEOBJECT);
@@ -104,13 +104,13 @@ static inline void init_dollar (objectType declared_object,
   /* init_dollar */
     logFunction(printf("init_dollar\n"););
     scan_symbol();
-    if (current_ident == prog.id_for.newtype) {
+    if (current_ident == prog->id_for.newtype) {
       scan_symbol();
       init_dollar_type(declared_object, NULL, err_info);
       /* printf("newtype: declared_object: <%lx> ", declared_object);
       trace1(declared_object);
       printf("\n"); */
-    } else if (current_ident == prog.id_for.subtype) {
+    } else if (current_ident == prog->id_for.subtype) {
       scan_symbol();
       meta_type = pars_infix_expression(SCOL_PRIORITY, TRUE);
       if (CATEGORY_OF_OBJ(meta_type) == TYPEOBJECT) {
@@ -118,7 +118,7 @@ static inline void init_dollar (objectType declared_object,
       } else {
         err_object(TYPE_EXPECTED, meta_type);
       } /* if */
-    } else if (current_ident == prog.id_for.func) {
+    } else if (current_ident == prog->id_for.func) {
       scan_symbol();
       basic_type = pars_infix_expression(SCOL_PRIORITY, TRUE);
       if (CATEGORY_OF_OBJ(basic_type) == TYPEOBJECT) {
@@ -140,11 +140,11 @@ static inline void init_dollar (objectType declared_object,
       } else {
         err_object(TYPE_EXPECTED, basic_type);
       } /* if */
-    } else if (current_ident == prog.id_for.enumlit) {
+    } else if (current_ident == prog->id_for.enumlit) {
       scan_symbol();
       SET_CATEGORY_OF_OBJ(declared_object, ENUMLITERALOBJECT);
       declared_object->value.nodeValue = NULL;
-    } else if (current_ident == prog.id_for.action) {
+    } else if (current_ident == prog->id_for.action) {
       scan_symbol();
       if (symbol.sycategory == STRILITERAL) {
         SET_CATEGORY_OF_OBJ(declared_object, ACTOBJECT);
@@ -157,7 +157,7 @@ static inline void init_dollar (objectType declared_object,
       } /* if */
     } else {
       err_warning(DOLLAR_VALUE_WRONG);
-      if (current_ident != prog.id_for.semicolon) {
+      if (current_ident != prog->id_for.semicolon) {
         scan_symbol();
       } /* if */
     } /* if */
@@ -177,9 +177,9 @@ static void decl_value (objectType typeof_object, objectType declared_object,
 
   /* decl_value */
     logFunction(printf("decl_value\n"););
-    if (current_ident == prog.id_for.is) {
+    if (current_ident == prog->id_for.is) {
       scan_symbol();
-      if (current_ident == prog.id_for.dollar) {
+      if (current_ident == prog->id_for.dollar) {
         init_dollar(declared_object, err_info);
         /* printf("A declared_object: <%lx> ", declared_object);
         trace1(declared_object);
@@ -253,17 +253,17 @@ static void decl_value (objectType typeof_object, objectType declared_object,
         } /* if */
       } /* if */
     } else {
-      err_ident(EXPECTED_SYMBOL, prog.id_for.is);
+      err_ident(EXPECTED_SYMBOL, prog->id_for.is);
     } /* if */
-    if (current_ident == prog.id_for.semicolon) {
+    if (current_ident == prog->id_for.semicolon) {
       scan_symbol();
     } else {
-      err_ident(EXPECTED_SYMBOL, prog.id_for.semicolon);
+      err_ident(EXPECTED_SYMBOL, prog->id_for.semicolon);
       do {
         scan_symbol();
-      } while (current_ident != prog.id_for.semicolon &&
+      } while (current_ident != prog->id_for.semicolon &&
           symbol.sycategory != STOPSYMBOL);
-      if (current_ident == prog.id_for.semicolon) {
+      if (current_ident == prog->id_for.semicolon) {
         scan_symbol();
       } /* if */
     } /* if */
@@ -280,7 +280,7 @@ static objectType decl_name (nodeType node_level, errInfoType *err_info)
 
   /* decl_name */
     logFunction(printf("decl_name\n"););
-    if (current_ident == prog.id_for.dollar) {
+    if (current_ident == prog->id_for.dollar) {
       scan_symbol();
       object_name = pars_infix_expression(COM_PRIORITY, FALSE);
 #ifdef OUT_OF_ORDER

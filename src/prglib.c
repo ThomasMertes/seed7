@@ -178,7 +178,7 @@ objectType prg_eval (listType arguments)
       /* The global variable curr_argument_list does not contain */
       /* the arguments of this function. Therefore the parameter */
       /* arguments is used instead.                              */
-      return raise_with_arguments(prog.sys_var[err_info], arguments);
+      return raise_with_arguments(prog->sys_var[err_info], arguments);
     } else {
       return bld_reference_temp(result);
     } /* if */
@@ -325,7 +325,7 @@ objectType prg_ne (listType arguments)
 objectType prg_own_name (listType arguments)
 
   { /* prg_own_name */
-    return bld_stri_temp(strCreate(prog.program_name));
+    return bld_stri_temp(strCreate(prog->program_name));
   } /* prg_own_name */
 
 
@@ -333,7 +333,7 @@ objectType prg_own_name (listType arguments)
 objectType prg_own_path (listType arguments)
 
   { /* prg_own_path */
-    return bld_stri_temp(strCreate(prog.program_path));
+    return bld_stri_temp(strCreate(prog->program_path));
   } /* prg_own_path */
 
 

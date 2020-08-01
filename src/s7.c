@@ -80,7 +80,7 @@ void raise_error2 (int exception_num, const_cstriType filename, int line)
 
   { /* raise_error2 */
     /* printf("raise_error2(%d, %s, %d)\n", exception_num, filename, line); */
-    (void) raise_exception(prog.sys_var[exception_num]);
+    (void) raise_exception(prog->sys_var[exception_num]);
   } /* raise_error2 */
 
 

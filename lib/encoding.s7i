@@ -27,6 +27,7 @@
 
 
 include "chartype.s7i";
+include "bytedata.s7i";
 
 
 (**
@@ -474,4 +475,95 @@ const func string: fromUrlEncoded (in string: urlEncoded) is func
       end if;
     end for;
     decoded &:= urlEncoded[start ..];
+  end func;
+
+
+(**
+ *  Encode a string with the Ascii85 encoding.
+ *  Ascii85 encodes a byte string as ASCII string. This is done by
+ *  encoded every four bytes with five printable ASCII characters.
+ *  Five radix 85 digits provide enough possible values to encode
+ *  the possible values of four bytes. The radix 85 digits are encoded
+ *  with the characters '!' (encodes 0) through 'u' (encodes 84).
+ *  If the last block of the byte string contains fewer than 4 bytes,
+ *  the block is padded with up to three null bytes before encoding.
+ *  After encoding, as many bytes as were added as padding are removed 
+ *  from the end of the output.
+ *  @return the Ascii85 encoded string.
+ *  @exception RANGE_ERROR When characters beyond '\255;' are present.
+ *)
+const func string: toAscii85 (in string: byteStri) is func
+  result
+    var string: ascii85 is "";
+  local
+    var integer: index is 0;
+    var integer: subIndex is 0;
+    var integer: fourBytes is 0;
+    var string: fiveBytes is "     ";
+    var char: ch is ' ';
+  begin
+    for index range 1 to length(byteStri) step 4 do
+      fourBytes := 0;
+      for subIndex range index to index + 3 do
+        fourBytes <<:= 8;
+        if subIndex <= length(byteStri) then
+          ch := byteStri[subIndex];
+          if ch >= '\256;' then
+            raise RANGE_ERROR;
+          end if;
+          fourBytes +:= ord(ch);
+        end if;
+      end for;
+      if fourBytes = 0 then
+        ascii85 &:= 'z';
+      else
+        for subIndex range 5 downto 1 do
+          fiveBytes @:= [subIndex] chr(ord('!') + fourBytes rem 85);
+          fourBytes := fourBytes div 85;
+        end for;
+        ascii85 &:= fiveBytes;
+      end if;
+    end for;
+    if length(byteStri) rem 4 <> 0 then
+      ascii85 := ascii85[.. length(ascii85) - 4 + length(byteStri) rem 4];
+    end if;
+    ascii85 &:= "~>";
+  end func;
+
+
+(**
+ *  Decode a Ascii85 encoded string.
+ *  @return the decoded string.
+ *  @exception RANGE_ERROR When ''ascii85'' is not in Ascii85 format.
+ *)
+const func string: fromAscii85 (in string: ascii85) is func
+  result
+    var string: decoded is "";
+  local
+    var char: ch is ' ';
+    var integer: digitIndex is 0;
+    var integer: base85Number is 0;
+    var integer: idx is 0;
+  begin
+    for ch range ascii85 until ch = '~' do
+      if ch >= '!' and ch <= 'u' then
+        incr(digitIndex);
+        base85Number := base85Number * 85 + (ord(ch) - ord('!'));
+        if digitIndex = 5 then
+          decoded &:= int32AsFourBytesBe(base85Number);
+          digitIndex := 0;
+          base85Number := 0;
+        end if;
+      elsif ch = 'z' and digitIndex = 0 then
+        decoded &:= "\0;\0;\0;\0;";
+      else
+        raise RANGE_ERROR;
+      end if;
+    end for;
+    if digitIndex <> 0 then
+      for idx range 1 to 5 - digitIndex do
+        base85Number := base85Number * 85 + 84;
+      end for;
+      decoded &:= int32AsFourBytesBe(base85Number)[.. pred(digitIndex)];
+    end if;
   end func;

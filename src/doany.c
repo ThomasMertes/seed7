@@ -132,19 +132,19 @@ boolType do_flush (objectType outfile)
 
   {
     progType outfileProg;
-    progRecord prog_backup;
+    progType progBackup;
     boolType result;
 
   /* do_flush */
     logFunction(printf("do_flush\n"););
     outfileProg = outfile->type_of->owningProg;
-    memcpy(&prog_backup, &prog, sizeof(progRecord));
-    memcpy(&prog, outfileProg, sizeof(progRecord));
+    progBackup = prog;
+    prog = outfileProg;
     flush_expr[0].obj = outfile;
     flush_expr[1].obj = SYS_FLUSH_OBJECT;
     result = (boolType) (exec1(flush_expr) == SYS_EMPTY_OBJECT);
     set_fail_flag(FALSE);
-    memcpy(&prog, &prog_backup, sizeof(progRecord));
+    prog = progBackup;
     logFunction(printf("do_flush -->\n"););
     return result;
   } /* do_flush */
@@ -155,19 +155,19 @@ boolType do_wrnl (objectType outfile)
 
   {
     progType outfileProg;
-    progRecord prog_backup;
+    progType progBackup;
     boolType result;
 
   /* do_wrnl */
     logFunction(printf("do_wrnl\n"););
     outfileProg = outfile->type_of->owningProg;
-    memcpy(&prog_backup, &prog, sizeof(progRecord));
-    memcpy(&prog, outfileProg, sizeof(progRecord));
+    progBackup = prog;
+    prog = outfileProg;
     wrnl_expr[0].obj = outfile;
     wrnl_expr[1].obj = SYS_WRLN_OBJECT;
     result = (boolType) (exec1(wrnl_expr) == SYS_EMPTY_OBJECT);
     set_fail_flag(FALSE);
-    memcpy(&prog, &prog_backup, sizeof(progRecord));
+    prog = progBackup;
     logFunction(printf("do_wrnl -->\n"););
     return result;
   } /* do_wrnl */
@@ -178,15 +178,15 @@ boolType do_wrstri (objectType outfile, striType stri)
 
   {
     progType outfileProg;
-    progRecord prog_backup;
+    progType progBackup;
     objectType out_stri;
     boolType result;
 
   /* do_wrstri */
     logFunction(printf("do_wrstri\n"););
     outfileProg = outfile->type_of->owningProg;
-    memcpy(&prog_backup, &prog, sizeof(progRecord));
-    memcpy(&prog, outfileProg, sizeof(progRecord));
+    progBackup = prog;
+    prog = outfileProg;
     result = FALSE;
     if ((out_stri = bld_stri_temp(stri)) != SYS_MEM_EXCEPTION) {
       wrstri_expr[0].obj = outfile;
@@ -197,7 +197,7 @@ boolType do_wrstri (objectType outfile, striType stri)
       FREE_OBJECT(out_stri);
     } /* if */
     set_fail_flag(FALSE);
-    memcpy(&prog, &prog_backup, sizeof(progRecord));
+    prog = progBackup;
     logFunction(printf("do_wrstri -->\n"););
     return result;
   } /* do_wrstri */

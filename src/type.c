@@ -67,14 +67,14 @@ objectType decl_type (int *is_dollar_type, errInfoType *err_info)
     logFunction(printf("decl_type\n"););
     *is_dollar_type = 0;
     scan_symbol();
-    if (current_ident == prog.id_for.colon) {
+    if (current_ident == prog->id_for.colon) {
       err_warning(TYPE_EXPECTED);
       type_of_object = NULL;
       scan_symbol();
     } else {
-      if (current_ident == prog.id_for.dollar) {
+      if (current_ident == prog->id_for.dollar) {
         scan_symbol();
-        if (current_ident == prog.id_for.func) {
+        if (current_ident == prog->id_for.func) {
           scan_symbol();
           basic_type = pars_infix_expression(WEAKEST_PRIORITY, TRUE);
           if (CATEGORY_OF_OBJ(basic_type) == TYPEOBJECT) {
@@ -88,13 +88,13 @@ objectType decl_type (int *is_dollar_type, errInfoType *err_info)
             err_object(TYPE_EXPECTED, basic_type);
             type_of_object = NULL;
           } /* if */
-        } else if (current_ident == prog.id_for.type) {
+        } else if (current_ident == prog->id_for.type) {
           type_of_object = pars_infix_expression(WEAKEST_PRIORITY, TRUE);
           *is_dollar_type = 1;
         } else {
           err_warning(DOLLAR_TYPE_WRONG);
           type_of_object = NULL;
-          if (current_ident != prog.id_for.colon) {
+          if (current_ident != prog->id_for.colon) {
             scan_symbol();
           } /* if */
         } /* if */
@@ -124,10 +124,10 @@ objectType decl_type (int *is_dollar_type, errInfoType *err_info)
           type_of_object = type_expression;
         } /* if */
       } /* if */
-      if (current_ident == prog.id_for.colon) {
+      if (current_ident == prog->id_for.colon) {
         scan_symbol();
       } else {
-        err_ident(EXPECTED_SYMBOL, prog.id_for.colon);
+        err_ident(EXPECTED_SYMBOL, prog->id_for.colon);
       } /* if */
     } /* if */
     logFunction(printf("decl_type --> ");

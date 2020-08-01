@@ -109,7 +109,7 @@ objectType dcl_const (listType arguments)
       trace1(value_expr);
       printf("\n");
 #endif
-      current_object = entername(prog.declaration_root, name_expr, &err_info);
+      current_object = entername(prog->declaration_root, name_expr, &err_info);
       /* printf(":%lu\n", (long unsigned) GET_ENTITY(current_object)); */
       value = copy_expression(value_expr, &err_info);
       if (err_info == OKAY_NO_ERROR) {
@@ -241,7 +241,7 @@ objectType dcl_fwd (listType arguments)
 #endif
     grow_stack(&err_info);
     if (err_info == OKAY_NO_ERROR) {
-      current_object = entername(prog.declaration_root, name_expr, &err_info);
+      current_object = entername(prog->declaration_root, name_expr, &err_info);
       if (err_info == OKAY_NO_ERROR) {
         current_object->type_of = object_type;
         INIT_CATEGORY_OF_OBJ(current_object, FORWARDOBJECT);
@@ -285,7 +285,7 @@ objectType dcl_fwdvar (listType arguments)
 #endif
     grow_stack(&err_info);
     if (err_info == OKAY_NO_ERROR) {
-      current_object = entername(prog.declaration_root, name_expr, &err_info);
+      current_object = entername(prog->declaration_root, name_expr, &err_info);
       if (err_info == OKAY_NO_ERROR) {
         current_object->type_of = object_type;
         INIT_CATEGORY_OF_VAR(current_object, FORWARDOBJECT);
@@ -324,7 +324,7 @@ objectType dcl_getfunc (listType arguments)
 #endif
     grow_stack(&err_info);
     if (err_info == OKAY_NO_ERROR) {
-      object_found = search_name(prog.declaration_root, name_expr, &err_info);
+      object_found = search_name(prog->declaration_root, name_expr, &err_info);
       shrink_stack();
     } /* if */
 #ifdef TRACE_DCL
@@ -357,7 +357,7 @@ objectType dcl_getobj (listType arguments)
     trace1(name_expr);
     printf("\n");
 #endif
-    object_found = find_name(prog.declaration_root, name_expr, &err_info);
+    object_found = find_name(prog->declaration_root, name_expr, &err_info);
 #ifdef TRACE_DCL
     printf("entity=%lu ", (unsigned long) GET_ENTITY(object_found));
     printf("%lu ", (unsigned long) object_found);
@@ -384,20 +384,20 @@ objectType dcl_global (listType arguments)
 
   /* dcl_global */
     statement = arg_2(arguments);
-    stack_data_backup = prog.stack_data;
-    stack_current_backup = prog.stack_current;
-    stack_upward_backup = prog.stack_global->upward;
-    prog.stack_data = prog.stack_global;
-    prog.stack_current = prog.stack_global;
+    stack_data_backup = prog->stack_data;
+    stack_current_backup = prog->stack_current;
+    stack_upward_backup = prog->stack_global->upward;
+    prog->stack_data = prog->stack_global;
+    prog->stack_current = prog->stack_global;
 
     evaluate(statement);
 
-    prog.stack_data = stack_data_backup;
-    prog.stack_current = stack_current_backup;
-    if (prog.stack_global->upward != NULL) {
-      printf(" *** dcl_global: prog.stack_global->upward != NULL\n");
+    prog->stack_data = stack_data_backup;
+    prog->stack_current = stack_current_backup;
+    if (prog->stack_global->upward != NULL) {
+      printf(" *** dcl_global: prog->stack_global->upward != NULL\n");
     } else {
-      prog.stack_global->upward = stack_upward_backup;
+      prog->stack_global->upward = stack_upward_backup;
     } /* if */
     return SYS_EMPTY_OBJECT;
   } /* dcl_global */
@@ -448,7 +448,7 @@ objectType dcl_in2var (listType arguments)
          printf(": ");
          trace1(name_expr);
          printf(";\n"); */
-      created_object = entername(prog.declaration_root, name_expr, &err_info);
+      created_object = entername(prog->declaration_root, name_expr, &err_info);
       if (err_info == OKAY_NO_ERROR) {
         created_object->type_of = object_type;
         INIT_CATEGORY_OF_VAR(created_object, VALUEPARAMOBJECT);
@@ -514,7 +514,7 @@ objectType dcl_inout2 (listType arguments)
          printf(": ");
          trace1(name_expr);
          printf(";\n"); */
-      created_object = entername(prog.declaration_root, name_expr, &err_info);
+      created_object = entername(prog->declaration_root, name_expr, &err_info);
       if (err_info == OKAY_NO_ERROR) {
         created_object->type_of = object_type;
         INIT_CATEGORY_OF_VAR(created_object, REFPARAMOBJECT);
@@ -627,7 +627,7 @@ objectType dcl_ref2 (listType arguments)
        printf(";\n"); */
     grow_stack(&err_info);
     if (err_info == OKAY_NO_ERROR) {
-      created_object = entername(prog.declaration_root, name_expr, &err_info);
+      created_object = entername(prog->declaration_root, name_expr, &err_info);
       if (err_info == OKAY_NO_ERROR) {
         created_object->type_of = object_type;
         INIT_CATEGORY_OF_OBJ(created_object, REFPARAMOBJECT);
@@ -715,7 +715,7 @@ objectType dcl_val2 (listType arguments)
          printf(": ");
          trace1(name_expr);
          printf(";\n"); */
-      created_object = entername(prog.declaration_root, name_expr, &err_info);
+      created_object = entername(prog->declaration_root, name_expr, &err_info);
       if (err_info == OKAY_NO_ERROR) {
         created_object->type_of = object_type;
         INIT_CATEGORY_OF_OBJ(created_object, VALUEPARAMOBJECT);
@@ -771,7 +771,7 @@ objectType dcl_var (listType arguments)
       trace1(value_expr);
       printf("\n");
 #endif
-      current_object = entername(prog.declaration_root, name_expr, &err_info);
+      current_object = entername(prog->declaration_root, name_expr, &err_info);
       value = copy_expression(value_expr, &err_info);
       if (err_info == OKAY_NO_ERROR) {
         current_object->type_of = object_type;
