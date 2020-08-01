@@ -130,10 +130,8 @@ version.h:
 	echo #define LINKER_FLAGS "$(LDFLAGS)" >> version.h
 	$(GET_CC_VERSION_INFO) cc_vers.txt
 	echo #include "direct.h" > chkccomp.h
-	echo #define USE_BUILTIN_EXPECT >> chkccomp.h
+	echo #include "unistd.h" >> chkccomp.h
 	echo #define LIST_DIRECTORY_CONTENTS "dir" >> chkccomp.h
-	echo #define long_long_EXISTS >> chkccomp.h
-	echo #define long_long_SUFFIX_LL >> chkccomp.h
 	$(CC) chkccomp.c -lm -o chkccomp.exe
 	.\chkccomp.exe >> version.h
 	del chkccomp.h

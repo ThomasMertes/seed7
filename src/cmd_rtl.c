@@ -54,9 +54,7 @@
 #endif
 #include "errno.h"
 
-#ifdef USE_MYUNISTD_H
-#include "myunistd.h"
-#else
+#ifdef UNISTD_H_PRESENT
 #include "unistd.h"
 #endif
 
@@ -1246,6 +1244,12 @@ stritype name;
 #else
         opt = "FALSE";
 #endif
+      } else if (strcmp(opt_name, "CHECK_FLOAT_DIV_BY_ZERO") == 0) {
+#ifdef CHECK_FLOAT_DIV_BY_ZERO
+        opt = "TRUE";
+#else
+        opt = "FALSE";
+#endif
       } else if (strcmp(opt_name, "SIGILL_ON_OVERFLOW") == 0) {
 #ifdef SIGILL_ON_OVERFLOW
         opt = "TRUE";
@@ -2030,6 +2034,37 @@ rtlArraytype cmdGetSearchPath ()
     } /* if */
     return result;
   } /* cmdGetSearchPath */
+
+
+
+#ifdef ANSI_C
+
+stritype cmdHomeDir (void)
+#else
+
+stritype cmdHomeDir ()
+#endif
+
+  {
+    static const os_chartype home_dir_env_var[] = HOME_DIR_ENV_VAR;
+    os_stritype os_home_dir;
+    errinfotype err_info = OKAY_NO_ERROR;
+    stritype home_dir;
+
+  /* cmdHomeDir */
+    os_home_dir = os_getenv(home_dir_env_var);
+    if (os_home_dir == NULL) {
+      raise_error(FILE_ERROR);
+      home_dir = NULL;
+    } else {
+      home_dir = cp_from_os_path(os_home_dir, &err_info);
+      os_getenv_string_free(os_home_dir);
+    } /* if */
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
+      raise_error(err_info);
+    } /* if */
+    return home_dir;
+  } /* cmdHomeDir */
 
 
 

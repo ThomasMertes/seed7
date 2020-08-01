@@ -32,6 +32,16 @@
 #ifdef ISNAN_WITH_UNDERLINE
 #define isnan _isnan
 #endif
+#ifdef FLOAT_ZERO_DIV_ERROR
+extern const rtlValueunion f_const[];
+#define NOT_A_NUMBER      f_const[0].floatvalue
+#define POSITIVE_INFINITY f_const[1].floatvalue
+#define NEGATIVE_INFINITY f_const[2].floatvalue
+#else
+#define NOT_A_NUMBER      ( 0.0 / 0.0)
+#define POSITIVE_INFINITY ( 1.0 / 0.0)
+#define NEGATIVE_INFINITY (-1.0 / 0.0)
+#endif
 
 
 #ifdef ANSI_C

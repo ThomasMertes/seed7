@@ -36,6 +36,7 @@
 
 #include "common.h"
 #include "data.h"
+#include "data_rtl.h"
 #include "heaputl.h"
 #include "flistutl.h"
 #include "syvarutl.h"
@@ -314,12 +315,27 @@ objecttype flt_div (arguments)
 listtype arguments;
 #endif
 
-  { /* flt_div */
+  {
+    floattype dividend;
+    floattype divisor;
+
+  /* flt_div */
     isit_float(arg_1(arguments));
     isit_float(arg_3(arguments));
-    return bld_float_temp(
-        ((double) take_float(arg_1(arguments))) /
-        ((double) take_float(arg_3(arguments))));
+    dividend = take_float(arg_1(arguments));
+    divisor = take_float(arg_3(arguments));
+#ifdef CHECK_FLOAT_DIV_BY_ZERO
+    if (divisor == 0.0) {
+      if (dividend == 0.0 || isnan(dividend)) {
+        return bld_float_temp(NOT_A_NUMBER);
+      } else if ((dividend < 0.0) == fltIsNegativeZero(divisor)) {
+        return bld_float_temp(POSITIVE_INFINITY);
+      } else {
+        return bld_float_temp(NEGATIVE_INFINITY);
+      } /* if */
+    } /* if */
+#endif
+    return bld_float_temp(((double) dividend) / ((double) divisor));
   } /* flt_div */
 
 
@@ -335,13 +351,33 @@ listtype arguments;
 
   {
     objecttype flt_variable;
+#ifdef CHECK_FLOAT_DIV_BY_ZERO
+    floattype dividend;
+#endif
+    floattype divisor;
 
   /* flt_div_assign */
     flt_variable = arg_1(arguments);
     isit_float(flt_variable);
     is_variable(flt_variable);
     isit_float(arg_3(arguments));
-    flt_variable->value.floatvalue /= take_float(arg_3(arguments));
+    divisor = take_float(arg_3(arguments));
+#ifdef CHECK_FLOAT_DIV_BY_ZERO
+    if (divisor == 0.0) {
+      dividend = take_float(flt_variable);
+      if (dividend == 0.0 || isnan(dividend)) {
+        flt_variable->value.floatvalue = NOT_A_NUMBER;
+      } else if ((dividend < 0.0) == fltIsNegativeZero(divisor)) {
+        flt_variable->value.floatvalue = POSITIVE_INFINITY;
+      } else {
+        flt_variable->value.floatvalue = NEGATIVE_INFINITY;
+      } /* if */
+    } else {
+      flt_variable->value.floatvalue /= divisor;
+    } /* if */
+#else
+    flt_variable->value.floatvalue /= divisor;
+#endif
     return SYS_EMPTY_OBJECT;
   } /* flt_div_assign */
 

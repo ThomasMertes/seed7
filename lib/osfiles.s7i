@@ -177,6 +177,16 @@ const proc: mkdir (in string: name)                          is action "CMD_MKDI
 
 
 (**
+ *  Determine the home directory of the user.
+ *  @return The absolute path of the home directory.
+ *  @exception MEMORY_ERROR Not enough memory to represent the
+ *             result [[string]].
+ *  @exception FILE_ERROR Not able to determine the home directory.
+ *)
+const func string: homeDir                                   is action "CMD_HOME_DIR";
+
+
+(**
  *  Determine the type of a file.
  *  The function does follow symbolic links. Therefore it never
  *  returns ''FILE_SYMLINK''. A return value of ''FILE_ABSENT'' does

@@ -130,7 +130,6 @@ version.h:
 	echo "#define SEARCH_PATH_DELIMITER ':'" >> version.h
 	echo "#define CATCH_SIGNALS" >> version.h
 	echo "#define HAS_SYMLINKS" >> version.h
-	echo "#define USE_LOCALTIME_R" >> version.h
 	echo "#define USE_MMAP" >> version.h
 	echo "#define AWAIT_WITH_SIGACTION" >> version.h
 	echo "#define $(TERMINFO_OR_TERMCAP)" >> version.h
@@ -161,10 +160,7 @@ version.h:
 	echo "#include \"sys/stat.h\"" > chkccomp.h
 	echo "#include \"sys/types.h\"" >> chkccomp.h
 	echo "#include \"unistd.h\"" >> chkccomp.h
-	echo "#define USE_BUILTIN_EXPECT" >> chkccomp.h
 	echo "#define LIST_DIRECTORY_CONTENTS \"ls\"" >> chkccomp.h
-	echo "#define long_long_EXISTS" >> chkccomp.h
-	echo "#define long_long_SUFFIX_LL" >> chkccomp.h
 	$(CC) chkccomp.c -lm -o chkccomp
 	./chkccomp.exe >> version.h
 	rm chkccomp.h

@@ -49,9 +49,7 @@
 #endif
 #include "errno.h"
 
-#ifdef USE_MYUNISTD_H
-#include "myunistd.h"
-#else
+#ifdef UNISTD_H_PRESENT
 #include "unistd.h"
 #endif
 

@@ -13,6 +13,7 @@
 # CFLAGS = -O2 -g -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith -ftrapv
 # CFLAGS = -O2 -g -x c++ -Wall -Winline -Wconversion -Wshadow -Wpointer-arith
 CFLAGS = -O2 -g -ffunction-sections -fdata-sections -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
+# CFLAGS = -O2 -g -ffunction-sections -fdata-sections -Wall -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -g -std=c99 -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -g -Wall -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -g -Wall
@@ -139,7 +140,6 @@ version.h:
 	echo "#define CATCH_SIGNALS" >> version.h
 	echo "#define HAS_SYMLINKS" >> version.h
 	echo "#define HAS_FIFO_FILES" >> version.h
-	echo "#define USE_LOCALTIME_R" >> version.h
 	echo "#define USE_MMAP" >> version.h
 	echo "#define AWAIT_WITH_SELECT" >> version.h
 	echo "#define $(TERMINFO_OR_TERMCAP)" >> version.h
@@ -171,10 +171,7 @@ version.h:
 	echo "#include \"sys/stat.h\"" > chkccomp.h
 	echo "#include \"sys/types.h\"" >> chkccomp.h
 	echo "#include \"unistd.h\"" >> chkccomp.h
-	echo "#define USE_BUILTIN_EXPECT" >> chkccomp.h
 	echo "#define LIST_DIRECTORY_CONTENTS \"ls\"" >> chkccomp.h
-	echo "#define long_long_EXISTS" >> chkccomp.h
-	echo "#define long_long_SUFFIX_LL" >> chkccomp.h
 	$(CC) chkccomp.c -lm -o chkccomp
 	./chkccomp >> version.h
 	rm chkccomp.h

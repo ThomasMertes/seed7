@@ -46,6 +46,7 @@ const boolean: SIGILL_ON_OVERFLOW        is boolean parse configValue("SIGILL_ON
 const boolean: FLOAT_ZERO_DIV_ERROR      is boolean parse configValue("FLOAT_ZERO_DIV_ERROR");
 const boolean: ISNAN_WITH_UNDERLINE      is boolean parse configValue("ISNAN_WITH_UNDERLINE");
 const boolean: CHECK_INT_DIV_BY_ZERO     is boolean parse configValue("CHECK_INT_DIV_BY_ZERO");
+const boolean: CHECK_FLOAT_DIV_BY_ZERO   is boolean parse configValue("CHECK_FLOAT_DIV_BY_ZERO");
 const boolean: LIMITED_CSTRI_LITERAL_LEN is boolean parse configValue("LIMITED_CSTRI_LITERAL_LEN");
 const boolean: CC_SOURCE_UTF8            is boolean parse configValue("CC_SOURCE_UTF8");
 const boolean: USE_WMAIN                 is boolean parse configValue("USE_WMAIN");
@@ -756,23 +757,11 @@ const func string: floatLiteral (in float: aFloat) is func
     var string: expr is "";
   begin
     if isNaN(aFloat) then
-      if FLOAT_ZERO_DIV_ERROR then
-        expr := "f_const[0].floatvalue /* 0.0/0.0 */";
-      else
-        expr := "(0.0/0.0)";
-      end if;
+      expr := "NOT_A_NUMBER";
     elsif aFloat = Infinity then
-      if FLOAT_ZERO_DIV_ERROR then
-        expr := "f_const[1].floatvalue /* 1.0/0.0 */";
-      else
-        expr := "(1.0/0.0)";
-      end if;
+      expr := "POSITIVE_INFINITY";
     elsif aFloat = -Infinity then
-      if FLOAT_ZERO_DIV_ERROR then
-        expr := "f_const[2].floatvalue /* -1.0/0.0 */";
-      else
-        expr := "(-1.0/0.0)";
-      end if;
+      expr := "NEGATIVE_INFINITY";
     elsif isNegativeZero(aFloat) then
       expr := "negativeZero";
     else
@@ -6825,6 +6814,14 @@ const proc: process_cmd_get_search_path (in reference: function, in ref_list: pa
   end func;
 
 
+const proc: process_cmd_homedir (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_stri_result(c_expr);
+    c_expr.result_expr := "cmdHomeDir()";
+  end func;
+
+
 const proc: process_cmd_ls (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -8582,15 +8579,15 @@ const proc: process_const_flt_div (in reference: param1, in float: divisor,
     var integer: temp_num is 0;
   begin
     incr(countOptimizations);
-    if divisor = 0.0 and FLOAT_ZERO_DIV_ERROR then
+    if divisor = 0.0 and (FLOAT_ZERO_DIV_ERROR or CHECK_FLOAT_DIV_BY_ZERO) then
       if getConstant(param1, FLOATOBJECT, evaluatedParam) then
         dividend := getValue(evaluatedParam, float);
         if dividend = 0.0 or isNaN(dividend) then
-          c_expr.expr &:= "f_const[0].floatvalue /* 0.0/0.0 */";
+          c_expr.expr &:= "NOT_A_NUMBER";
         elsif (dividend < 0.0) = isNegativeZero(divisor) then
-          c_expr.expr &:= "f_const[1].floatvalue /* 1.0/0.0 */";
+          c_expr.expr &:= "POSITIVE_INFINITY";
         else
-          c_expr.expr &:= "f_const[2].floatvalue /* -1.0/0.0 */";
+          c_expr.expr &:= "NEGATIVE_INFINITY";
         end if;
       else
         incr(c_expr.temp_num);
@@ -8611,14 +8608,12 @@ const proc: process_const_flt_div (in reference: param1, in float: divisor,
         c_expr.expr &:= str(temp_num);
         c_expr.expr &:= ") || tmp_";
         c_expr.expr &:= str(temp_num);
-        c_expr.expr &:= " == 0.0 ? f_const[0].floatvalue /* 0.0/0.0 */ : (tmp_";
+        c_expr.expr &:= " == 0.0 ? NOT_A_NUMBER : (tmp_";
         c_expr.expr &:= str(temp_num);
         if isNegativeZero(divisor) then
-          c_expr.expr &:= " < 0.0 ? f_const[1].floatvalue /* 1.0/0.0 */ \
-                                 \: f_const[2].floatvalue /* -1.0/0.0 */))";
+          c_expr.expr &:= " < 0.0 ? POSITIVE_INFINITY : NEGATIVE_INFINITY))";
         else
-          c_expr.expr &:= " < 0.0 ? f_const[2].floatvalue /* -1.0/0.0 */ \
-                                 \: f_const[1].floatvalue /* 1.0/0.0 */))";
+          c_expr.expr &:= " < 0.0 ? NEGATIVE_INFINITY : POSITIVE_INFINITY))";
         end if;
       end if;
     else
@@ -8634,6 +8629,8 @@ const proc: process_flt_div (in ref_list: params, inout expr_type: c_expr) is fu
 
   local
     var reference: evaluatedParam is NIL;
+    var string: dividend is "";
+    var string: divisor is "";
   begin
     if getConstant(params[3], FLOATOBJECT, evaluatedParam) then
       process_const_flt_div(params[1], getValue(evaluatedParam, float), c_expr);
@@ -8641,6 +8638,46 @@ const proc: process_flt_div (in ref_list: params, inout expr_type: c_expr) is fu
         category(getActionParameter(params[3], 2)) = FLOATOBJECT and
         not isVar(getActionParameter(params[3], 2)) then
       process_const_flt_div(params[1], getValue(evaluate(prog, params[3]), float), c_expr);
+    elsif CHECK_FLOAT_DIV_BY_ZERO then
+      c_expr.expr &:= "(";
+      if isNormalVariable(params[1]) then
+        dividend := normalVariable(params[1], c_expr);
+      else
+        incr(c_expr.temp_num);
+        dividend := "tmp_" & str(c_expr.temp_num);
+        c_expr.temp_decls &:= "inttype ";
+        c_expr.temp_decls &:= dividend;
+        c_expr.temp_decls &:= ";\n";
+        c_expr.expr &:= dividend;
+        c_expr.expr &:= "=";
+        process_expr(params[1], c_expr);
+        c_expr.expr &:= ",";
+      end if;
+      if isNormalVariable(params[3]) then
+        divisor := normalVariable(params[3], c_expr);
+      else
+        incr(c_expr.temp_num);
+        divisor := "tmp_" & str(c_expr.temp_num);
+        c_expr.temp_decls &:= "inttype ";
+        c_expr.temp_decls &:= divisor;
+        c_expr.temp_decls &:= ";\n";
+        c_expr.expr &:= divisor;
+        c_expr.expr &:= "=";
+        process_expr(params[3], c_expr);
+        c_expr.expr &:= ",";
+      end if;
+      c_expr.expr &:= divisor;
+      c_expr.expr &:= "==0.0 ? (";
+      c_expr.expr &:= dividend;
+      c_expr.expr &:= "==0.0 ? NOT_A_NUMBER : ((";
+      c_expr.expr &:= dividend;
+      c_expr.expr &:= "<0.0)==fltIsNegativeZero(";
+      c_expr.expr &:= divisor;
+      c_expr.expr &:= ") ? POSITIVE_INFINITY : NEGATIVE_INFINITY)) : ";
+      c_expr.expr &:= dividend;
+      c_expr.expr &:= " / ";
+      c_expr.expr &:= divisor;
+      c_expr.expr &:= ")";
     else
       c_expr.expr &:= "(";
       process_expr(params[1], c_expr);
@@ -13622,7 +13659,7 @@ const proc: process_set_elem (in reference: param1, in reference: param3,
       else
         incr(c_expr.temp_num);
         set_name := "tmp_" & str(c_expr.temp_num);
-        c_expr.temp_decls &:= "settype ";
+        c_expr.temp_decls &:= "const_settype ";
         c_expr.temp_decls &:= set_name;
         c_expr.temp_decls &:= ";\n";
         c_expr.expr &:= set_name;
@@ -16792,6 +16829,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_cmd_get_mtime(params, c_expr);
       elsif action_name = "CMD_GET_SEARCH_PATH" then
         process_cmd_get_search_path(function, params, c_expr);
+      elsif action_name = "CMD_HOME_DIR" then
+        process_cmd_homedir(params, c_expr);
       elsif action_name = "CMD_LS" then
         process_cmd_ls(params, c_expr);
       elsif action_name = "CMD_MKDIR" then
@@ -22317,7 +22356,16 @@ const proc: write_file_head is func
     writeln(c_prog, "    1, 1, 2, 6, 24, 120, 720, 5040, 40320,");
     writeln(c_prog, "    362880, 3628800, 39916800, 479001600");
     writeln(c_prog, "  };");
-    writeln(c_prog, "extern const rtlValueunion f_const[];");
+    if FLOAT_ZERO_DIV_ERROR then
+      writeln(c_prog, "extern const rtlValueunion f_const[];");
+      writeln(c_prog, "#define NOT_A_NUMBER      f_const[0].floatvalue");
+      writeln(c_prog, "#define POSITIVE_INFINITY f_const[1].floatvalue");
+      writeln(c_prog, "#define NEGATIVE_INFINITY f_const[2].floatvalue");
+    else
+      writeln(c_prog, "#define NOT_A_NUMBER      ( 0.0 / 0.0)");
+      writeln(c_prog, "#define POSITIVE_INFINITY ( 1.0 / 0.0)");
+      writeln(c_prog, "#define NEGATIVE_INFINITY (-1.0 / 0.0)");
+    end if;
     writeln(c_prog, "extern const floattype negativeZero;");
     writeln(c_prog, "#define OKAY_NO_ERROR 0");
     writeln(c_prog, "#define MEMORY_ERROR  1");
@@ -22519,6 +22567,7 @@ const proc: write_prototypes is func
     declareExtern("void        cmdGetCTime (const const_stritype, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, booltype *);");
     declareExtern("void        cmdGetMTime (const const_stritype, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, booltype *);");
     declareExtern("arraytype   cmdGetSearchPath (void);");
+    declareExtern("stritype    cmdHomeDir (void);");
     declareExtern("arraytype   cmdLs (const const_stritype);");
     declareExtern("void        cmdMkdir (const const_stritype);");
     declareExtern("void        cmdMove (const const_stritype, const const_stritype);");
@@ -22681,7 +22730,7 @@ const proc: write_prototypes is func
     declareExtern("stritype    intStrBased (inttype, inttype);");
     declareExtern("stritype    intStrPow2Base (inttype, int, int);");
     declareExtern("inttype     intValue (objreftype);");
-    declareExtern("void        itfDestr (const const_rtlInterfacetype);");
+    declareExtern("void        itfDestr (const const_interfacetype);");
     declareExtern("chartype    kbdGetc (void);");
     declareExtern("stritype    kbdGets (inttype);");
     declareExtern("booltype    kbdKeyPressed (void);");
@@ -22791,7 +22840,7 @@ const proc: write_prototypes is func
     declareExtern("inttype     setRand (const const_settype);");
     declareExtern("settype     setRangelit (const inttype, const inttype);");
     declareExtern("inttype     setSConv (const const_settype);");
-    declareExtern("settype     setSymdiff (settype, settype);");
+    declareExtern("settype     setSymdiff (const const_settype, const const_settype);");
     declareExtern("settype     setUnion (const const_settype, const const_settype);");
     declareExtern("settype     setValue (objreftype);");
     declareExtern("sockettype  socAccept (sockettype, bstritype *);");

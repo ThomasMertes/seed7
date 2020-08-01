@@ -1,3 +1,25 @@
+20121104:
+- The new function homeDir was added to the library osfiles.s7i.
+  Interpreter and compiler were improved to support homeDir.
+- The libraries makedata.s7i and make.s7i were improved to support
+  replacement macros.
+- A check for division by zero with /:= was added to chkflt.sd7.
+- The compiler (comp.sd7) was improved to use definitions of
+  NOT_A_NUMBER, POSITIVE_INFINITY and NEGATIVE_INFINITY.
+- The program chkccomp.c was improved. Now it manages the macros
+  likely, unlikely, UNISTD_H_PRESENT, POPEN_MISSING, os_utime_orig,
+  os_utime, USE_ALTERNATE_UTIME, INCLUDE_SYS_UTIME, USE_LOCALTIME_R,
+  USE_LOCALTIME_S, FLOAT_ZERO_DIV_ERROR, CHECK_FLOAT_DIV_BY_ZERO,
+  ISNAN_WITH_UNDERLINE and HOME_DIR_ENV_VAR. Additionally chkccomp.c
+  does not depend on the definitions of long_long_EXISTS,
+  long_long_SUFFIX_LL, __int64_EXISTS, __int64_SUFFIX_LL and
+  USE_BUILTIN_EXPECT in chkccomp.h.
+- The functions flt_div and flt_div_assign in fltlib.c were improved
+  to work correctly when CHECK_FLOAT_DIV_BY_ZERO is defined.
+- Several #defines were ommitted from the makefiles.
+- Explanations of several version.h #defines were added to
+  read_me.txt.
+
 20121021:
 - The library vecfont10.s7i, which defines the standard vector font
   with capital height 10, was added. Now mahjong.sd7 and shisen.sd7

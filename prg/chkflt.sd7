@@ -1823,7 +1823,7 @@ const proc: check_conversion is func
         float conv   10000000  <>   10000000.0 or
         float conv  100000000  <>  100000000.0 or
         float conv 1000000000  <> 1000000000.0 then
-      writeln(" ***** Decimal conversion of float does not work correct.");
+      writeln(" ***** Conversion from integer to float does not work correct.");
       okay := FALSE;
     end if;
 
@@ -2034,6 +2034,41 @@ const proc: check_ipower is func
   end func;
 
 
+const proc: check_negative_zero is func
+  local
+    const float: neg_zero1 is -0.0;
+    const float: neg_zero2 is -1.0 /  Infinity;
+    const float: neg_zero3 is  1.0 / -Infinity;
+  begin
+    if not isNegativeZero(                      -0.0)  or
+       not isNegativeZero(                 neg_zero1)  or
+       not isNegativeZero(          -1.0 /  Infinity)  or
+       not isNegativeZero(                 neg_zero2)  or
+       not isNegativeZero(           1.0 / -Infinity)  or
+       not isNegativeZero(                 neg_zero3)  or
+       not isNegativeZero(floatExpr(            -0.0)) or
+       not isNegativeZero(floatExpr(       neg_zero1)) or
+       not isNegativeZero(floatExpr(-1.0 /  Infinity)) or
+       not isNegativeZero(floatExpr(       neg_zero2)) or
+       not isNegativeZero(floatExpr( 1.0 / -Infinity)) or
+       not isNegativeZero(floatExpr(       neg_zero3)) then
+      writeln(" ***** Negative zero does not work correct");
+    else
+      writeln("Negative zero does work correct.");
+    end if;
+  end func;
+
+
+const func float: checkDivAssign (inout float: floatVar, in float: initial, ref proc: divAssign) is func
+  result
+    var float: result is 0.0;
+  begin
+    floatVar := initial;
+    divAssign;
+    result := floatVar;
+  end func;
+
+
 const proc: check_inf is func
   local
     const float: minusZero is -0.0;
@@ -2042,6 +2077,7 @@ const proc: check_inf is func
     const float: minusInf is -Infinity;
     const float: minusBig is -1.0E37;
     const float: minusSmall is -1.0E-37;
+    var float: floatVar is 0.0;
     var boolean: okay is TRUE;
   begin
     if             -1.0E37  /                -0.0  <>  Infinity or
@@ -2117,6 +2153,46 @@ const proc: check_inf is func
         floatExpr(  1.0E37) / floatExpr(minusZero) <> -Infinity or
         floatExpr(  1.0E37) / floatExpr(      0.0) <>  Infinity then
       writeln(" ***** Division by 0.0 does not return Infinity");
+      okay := FALSE;
+    end if;
+
+    if  checkDivAssign(floatVar,  -1.0E37, floatVar /:=                -0.0)  <>  Infinity or
+        checkDivAssign(floatVar,  -1.0E37, floatVar /:=           minusZero)  <>  Infinity or
+        checkDivAssign(floatVar,  -1.0E37, floatVar /:=                 0.0)  <> -Infinity or
+        checkDivAssign(floatVar, minusBig, floatVar /:=                -0.0)  <>  Infinity or
+        checkDivAssign(floatVar, minusBig, floatVar /:=           minusZero)  <>  Infinity or
+        checkDivAssign(floatVar, minusBig, floatVar /:=                 0.0)  <> -Infinity or
+        checkDivAssign(floatVar,     -1.0, floatVar /:=                -0.0)  <>  Infinity or
+        checkDivAssign(floatVar,     -1.0, floatVar /:=           minusZero)  <>  Infinity or
+        checkDivAssign(floatVar,     -1.0, floatVar /:=                 0.0)  <> -Infinity or
+        checkDivAssign(floatVar, minusOne, floatVar /:=                -0.0)  <>  Infinity or
+        checkDivAssign(floatVar, minusOne, floatVar /:=           minusZero)  <>  Infinity or
+        checkDivAssign(floatVar, minusOne, floatVar /:=                 0.0)  <> -Infinity or
+        checkDivAssign(floatVar,      1.0, floatVar /:=                -0.0)  <> -Infinity or
+        checkDivAssign(floatVar,      1.0, floatVar /:=           minusZero)  <> -Infinity or
+        checkDivAssign(floatVar,      1.0, floatVar /:=                 0.0)  <>  Infinity or
+        checkDivAssign(floatVar,   1.0E37, floatVar /:=                -0.0)  <> -Infinity or
+        checkDivAssign(floatVar,   1.0E37, floatVar /:=           minusZero)  <> -Infinity or
+        checkDivAssign(floatVar,   1.0E37, floatVar /:=                 0.0)  <>  Infinity or
+        checkDivAssign(floatVar,  -1.0E37, floatVar /:= floatExpr(     -0.0)) <>  Infinity or
+        checkDivAssign(floatVar,  -1.0E37, floatVar /:= floatExpr(minusZero)) <>  Infinity or
+        checkDivAssign(floatVar,  -1.0E37, floatVar /:= floatExpr(      0.0)) <> -Infinity or
+        checkDivAssign(floatVar, minusBig, floatVar /:= floatExpr(     -0.0)) <>  Infinity or
+        checkDivAssign(floatVar, minusBig, floatVar /:= floatExpr(minusZero)) <>  Infinity or
+        checkDivAssign(floatVar, minusBig, floatVar /:= floatExpr(      0.0)) <> -Infinity or
+        checkDivAssign(floatVar,     -1.0, floatVar /:= floatExpr(     -0.0)) <>  Infinity or
+        checkDivAssign(floatVar,     -1.0, floatVar /:= floatExpr(minusZero)) <>  Infinity or
+        checkDivAssign(floatVar,     -1.0, floatVar /:= floatExpr(      0.0)) <> -Infinity or
+        checkDivAssign(floatVar, minusOne, floatVar /:= floatExpr(     -0.0)) <>  Infinity or
+        checkDivAssign(floatVar, minusOne, floatVar /:= floatExpr(minusZero)) <>  Infinity or
+        checkDivAssign(floatVar, minusOne, floatVar /:= floatExpr(      0.0)) <> -Infinity or
+        checkDivAssign(floatVar,      1.0, floatVar /:= floatExpr(     -0.0)) <> -Infinity or
+        checkDivAssign(floatVar,      1.0, floatVar /:= floatExpr(minusZero)) <> -Infinity or
+        checkDivAssign(floatVar,      1.0, floatVar /:= floatExpr(      0.0)) <>  Infinity or
+        checkDivAssign(floatVar,   1.0E37, floatVar /:= floatExpr(     -0.0)) <> -Infinity or
+        checkDivAssign(floatVar,   1.0E37, floatVar /:= floatExpr(minusZero)) <> -Infinity or
+        checkDivAssign(floatVar,   1.0E37, floatVar /:= floatExpr(      0.0)) <>  Infinity then
+      writeln(" ***** Assignment division by 0.0 does not assign Infinity");
       okay := FALSE;
     end if;
 
@@ -2560,7 +2636,7 @@ const proc: check_inf is func
         floatExpr(    1000.0) * floatExpr(  Infinity) <>  Infinity or
         floatExpr(    1.0E37) * floatExpr(  Infinity) <>  Infinity or
         floatExpr(  Infinity) * floatExpr(  Infinity) <>  Infinity then
-      writeln(" ***** Infinity multiplied by any value except zero, is not infinite");
+      writeln(" ***** Infinity multiplied by any value except zero, is not Infinity");
       okay := FALSE;
     end if;
 
@@ -2788,7 +2864,7 @@ const proc: check_inf is func
         floatExpr(    1000.0) * floatExpr(  minusInf) <> -Infinity or
         floatExpr(    1.0E37) * floatExpr(  minusInf) <> -Infinity or
         floatExpr(  Infinity) * floatExpr(  minusInf) <> -Infinity then
-      writeln(" ***** -Infinity multiplied by any value except zero, is not infinite");
+      writeln(" ***** -Infinity multiplied by any value except zero, is not Infinity");
       okay := FALSE;
     end if;
 
@@ -3940,31 +4016,6 @@ const proc: check_nan is func
   end func;
 
 
-const proc: check_negative_zero is func
-  local
-    const float: neg_zero1 is -0.0;
-    const float: neg_zero2 is -1.0 /  Infinity;
-    const float: neg_zero3 is  1.0 / -Infinity;
-  begin
-    if not isNegativeZero(                      -0.0)  or
-       not isNegativeZero(                 neg_zero1)  or
-       not isNegativeZero(          -1.0 /  Infinity)  or
-       not isNegativeZero(                 neg_zero2)  or
-       not isNegativeZero(           1.0 / -Infinity)  or
-       not isNegativeZero(                 neg_zero3)  or
-       not isNegativeZero(floatExpr(            -0.0)) or
-       not isNegativeZero(floatExpr(       neg_zero1)) or
-       not isNegativeZero(floatExpr(-1.0 /  Infinity)) or
-       not isNegativeZero(floatExpr(       neg_zero2)) or
-       not isNegativeZero(floatExpr( 1.0 / -Infinity)) or
-       not isNegativeZero(floatExpr(       neg_zero3)) then
-      writeln(" ***** Negative zero does not work correct");
-    else
-      writeln("Negative zero does work correct.");
-    end if;
-  end func;
-
-
 const proc: main is func
 
   begin
@@ -3977,7 +4028,7 @@ const proc: main is func
     check_add;
     check_power;
     check_ipower;
+    check_negative_zero;
     check_inf;
     check_nan;
-    check_negative_zero;
   end func;

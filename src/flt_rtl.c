@@ -59,20 +59,14 @@ const rtlValueunion f_const[] =
 #else
     {0xffc00000, 0x7f800000, 0xff800000};
 #endif
-#define NOT_A_NUMBER      f_const[0].floatvalue
-#define POSITIVE_INFINITY f_const[1].floatvalue
-#define NEGATIVE_INFINITY f_const[2].floatvalue
-#else
-#define NOT_A_NUMBER      ( 0.0 / 0.0)
-#define POSITIVE_INFINITY ( 1.0 / 0.0)
-#define NEGATIVE_INFINITY (-1.0 / 0.0)
 #endif
 
 #ifdef USE_NEGATIVE_ZERO_BITPATTERN
+static const rtlValueunion neg_zero_const =
 #ifdef FLOATTYPE_DOUBLE
-const rtlValueunion neg_zero_const = {0x8000000000000000};
+    {0x8000000000000000};
 #else
-const rtlValueunion neg_zero_const = {0x80000000};
+    {0x80000000};
 #endif
 #endif
 
@@ -99,8 +93,10 @@ void setupFloat ()
 #endif
 
   {
+#ifndef USE_NEGATIVE_ZERO_BITPATTERN
     floattype zero = 0.0;
     floattype plusInf;
+#endif
 
   /* setupFloat */
 #ifdef TURN_OFF_FP_EXCEPTIONS

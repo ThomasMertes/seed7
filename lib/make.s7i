@@ -34,7 +34,7 @@ include "getf.s7i";
 include "shell.s7i";
 
 
-const set of char: parameter_char is {'!' .. '~'} - {'<', '>', '|', ';'};
+const set of char: parameter_char is {'!' .. '~'} - {'<', '>', '|', ';', ')'};
 const set of char: dos_parameter_char is {'!' .. '~'} - {'&', '<', '>', '|'};
 
 const type: makeFlag is new enum
@@ -359,7 +359,7 @@ const func string: doEcho (inout string: command, in boolean: doLog) is func
     var string: parameter is "";
   begin
     whiteSpace := getWhiteSpace(command);
-    if command <> "" and command[1] = '"' or command[1] = ''' then
+    if command <> "" and (command[1] = '"' or command[1] = ''') then
       while command <> "" and command[1] in parameter_char do
         if result <> "" then
           result &:= whiteSpace;
@@ -370,7 +370,8 @@ const func string: doEcho (inout string: command, in boolean: doLog) is func
       end while;
     else
       while command <> "" and command[1] in parameter_char do
-        result &:= getDosCommandParameter(command, dos_parameter_char);
+        parameter := getDosCommandParameter(command, dos_parameter_char);
+        result &:= parameter;
         result &:= getWhiteSpace(command);
       end while;
     end if;
@@ -417,7 +418,7 @@ const proc: doMake (inout string: command, in boolean: doLog) is func
     if doLog then
       write("make");
     end if;
-    while command <> "" do
+    while command <> "" and command[1] in parameter_char do
       parameter := getCommandParameter(command);
       if doLog then
         write(" " <& parameter);
@@ -489,6 +490,8 @@ const func boolean: doOneCommand (inout string: command,
       elsif commandName = "make" or commandName = "make7" then
         doMake(command, doLog);
         commandOutput := "";
+      elsif commandName = "(" then
+        result := doOneCommand(command, commandOutput, doLog);
       else
         result := FALSE;
         commandOutput := "";
@@ -578,8 +581,6 @@ const func integer: processCommand (in makeDataType: makeData, in var string: co
     var string: commandOutput is "";
   begin
     # writeln("process command: " <& command);
-    command := applyMacros(makeData.macros, command, FALSE);
-    # writeln("macros applied: " <& command);
     fullCommand := command;
     if not doCommands(command, doLog) then
       gtPos := rpos(fullCommand, ">");
@@ -629,15 +630,41 @@ const func integer: processCommand (in makeDataType: makeData, in var string: co
   end func;
 
 
+const func string: executeInternalMacro (in char: macro, in ruleType: rule,
+    in array string: strictDependencies) is func
+  result
+    var string: result is "";
+  begin
+    case macro of
+      when {'@'}:
+          result := rule.name;
+      when {'<'}:
+          if length(rule.dependencies) <> 0 then
+            result := rule.dependencies[1];
+          end if;
+      when {'?'}:
+          result := join(strictDependencies, " ");
+      when {'^'}:
+          result := join(strictDependencies, " ");
+      when {'+'}:
+          result := join(rule.dependencies, " ");
+    end case;
+  end func;
+
+
 const func string: applyInternalMacros (in ruleType: rule, in string: stri) is func
   result
     var string: result is "";
   local
+    const set of char: iternalMacroDesignator is {'@', '<', '?', '^', '+'};
     var integer: dollarPos is 0;
-    var integer: closeParenPos is 0;
+    var integer: pos is 0;
     var string: dependency is "";
     var set of string: dependencySet is (set of string).value;
     var array string: strictDependencies is 0 times "";
+    var char: macro is ' ';
+    var string: suffix is "";
+    var string: replacement is "";
   begin
     for dependency range rule.dependencies do
       if dependency not in dependencySet then
@@ -649,18 +676,43 @@ const func string: applyInternalMacros (in ruleType: rule, in string: stri) is f
     dollarPos := pos(result, '$');
     while dollarPos <> 0 do
       if dollarPos < length(result) then
-        if result[succ(dollarPos)] = '@' then
-          result := result[.. pred(dollarPos)] & rule.name & result[dollarPos + 2 ..];
-        elsif result[succ(dollarPos)] = '<' then
-          if length(rule.dependencies) <> 0 then
-            result := result[.. pred(dollarPos)] & rule.dependencies[1] & result[dollarPos + 2 ..];
+        if result[succ(dollarPos)] in iternalMacroDesignator then
+          result := result[.. pred(dollarPos)] &
+              executeInternalMacro(result[succ(dollarPos)], rule, strictDependencies) &
+              result[dollarPos + 2 ..];
+        elsif result[succ(dollarPos)] = '(' then
+          pos := dollarPos + 2;
+          if pos <= length(result) and result[pos] in iternalMacroDesignator then
+            macro := result[pos];
+            incr(pos);
+            if pos <= length(result) then
+              if result[pos] = ')' then
+                result := result[.. pred(dollarPos)] &
+                    executeInternalMacro(macro, rule, strictDependencies) &
+                    result[succ(pos) ..];
+              elsif result[pos] = ':' then
+                incr(pos);
+                suffix := "";
+                while pos <= length(result) and result[pos] <> '=' do
+                  suffix &:= result[pos];
+                  incr(pos);
+                end while;
+                if pos <= length(result) then
+                  incr(pos);
+                  replacement := "";
+                  while pos <= length(result) and result[pos] <> ')' do
+                    replacement &:= result[pos];
+                    incr(pos);
+                  end while;
+                  if pos <= length(result) then
+                    result := result[.. pred(dollarPos)] &
+                        replaceSuffixes(executeInternalMacro(macro, rule, strictDependencies), suffix, replacement) &
+                        result[succ(pos) ..];
+                  end if;
+                end if;
+              end if;
+            end if;
           end if;
-        elsif result[succ(dollarPos)] = '?' then
-          result := result[.. pred(dollarPos)] & join(strictDependencies, " ") & result[dollarPos + 2 ..];
-        elsif result[succ(dollarPos)] = '^' then
-          result := result[.. pred(dollarPos)] & join(strictDependencies, " ") & result[dollarPos + 2 ..];
-        elsif result[succ(dollarPos)] = '+' then
-          result := result[.. pred(dollarPos)] & join(rule.dependencies, " ") & result[dollarPos + 2 ..];
         elsif result[succ(dollarPos)] = '$' then
           result := result[.. pred(dollarPos)] & result[succ(dollarPos) ..];
         end if;
@@ -679,6 +731,8 @@ const proc: processCommands (in makeDataType: makeData, inout ruleType: rule) is
   begin
     for command range rule.commands do
       command := applyInternalMacros(rule, command);
+      printCommand := TRUE;
+      ignoreError := FALSE;
       if startsWith(command, "@-") or startsWith(command, "-@")then
         printCommand := FALSE;
         ignoreError := TRUE;
@@ -695,6 +749,7 @@ const proc: processCommands (in makeDataType: makeData, inout ruleType: rule) is
         flush(STD_OUT);
       end if;
       if makeData.executeCommands then
+        command := applyMacros(makeData.macros, command, FALSE);
         commandStatus := processCommand(makeData, command, FALSE);
         if commandStatus <> 0 and not makeData.doIgnoreErrors then
           writeln(" *** [" <& rule.name <& "] Error " <& commandStatus);

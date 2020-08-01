@@ -1146,7 +1146,10 @@ inttype base;
 
 /**
  *  Convert an integer number to a string.
- *  The number is converted to a string with hexadecimal representation.
+ *  The conversion uses the numeral system with the specified base.
+ *  The base is a power of two and it is specified indirectly with
+ *  shift and mask. Digit values from 10 upward are encoded with
+ *  upper case letters. E.g.: 10 is encoded with A, 11 with B, etc.
  *  @return the string result of the conversion.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */

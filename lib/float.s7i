@@ -220,7 +220,7 @@ const float: NaN is 0.0 / 0.0;
  *  Because ''compare'' is used to sort float values, a total
  *  order of all float values is needed. Therefore ''compare''
  *  considers [[#NaN|NaN]] as equal to itself and greater than
- *  ''Infinite''.
+ *  ''Infinity''.
  *  @return -1, 0 or 1 if the first argument is considered to be
  *          respectively less than, equal to, or greater than the
  *          second.

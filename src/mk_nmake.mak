@@ -108,7 +108,6 @@ version.h:
 	echo #define SEARCH_PATH_DELIMITER ';' >> version.h
 	echo #define OS_PATH_HAS_DRIVE_LETTERS >> version.h
 	echo #define CATCH_SIGNALS >> version.h
-	echo #define USE_ALTERNATE_UTIME >> version.h
 	echo #define CONSOLE_WCHAR >> version.h
 	echo #define OS_STRI_WCHAR >> version.h
 	echo #define os_chdir _wchdir >> version.h
@@ -126,8 +125,7 @@ version.h:
 	echo #define os_stat_struct struct _stati64 >> version.h
 	echo #define os_chown(name,uid,gid) >> version.h
 	echo #define os_chmod _wchmod >> version.h
-	echo #define os_utime_orig _wutime >> version.h
-	echo #define os_utime alternate_utime >> version.h
+	echo #define os_utime _wutime >> version.h
 	echo #define os_utimbuf_struct struct _utimbuf >> version.h
 	echo #define os_remove _wremove >> version.h
 	echo #define os_rename _wrename >> version.h
@@ -157,12 +155,10 @@ version.h:
 	echo #define LINKER_OPT_OUTPUT_FILE "-o " >> version.h
 	echo #define LINKER_FLAGS "$(LDFLAGS)" >> version.h
 	echo #include "direct.h" > chkccomp.h
+	echo #include "unistd.h" >> chkccomp.h
 	echo #define WRITE_CC_VERSION_INFO system("$(GET_CC_VERSION_INFO) cc_vers.txt"); >> chkccomp.h
 	echo #define mkdir(path,mode) mkdir(path) >> chkccomp.h
-	echo #define USE_BUILTIN_EXPECT >> chkccomp.h
 	echo #define LIST_DIRECTORY_CONTENTS "dir" >> chkccomp.h
-	echo #define long_long_EXISTS >> chkccomp.h
-	echo #define long_long_SUFFIX_LL >> chkccomp.h
 	$(CC) chkccomp.c -lm -o chkccomp
 	.\chkccomp.exe >> version.h
 	del chkccomp.h

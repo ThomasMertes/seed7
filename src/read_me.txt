@@ -870,6 +870,13 @@ THE VERSION.H FILE
             target operating system. If not defined utime() is
             used.
 
+  os_utime_orig: Defined when the function alternate_utime is
+                 used instead of the function defined with
+                 os_utime. In this case os_utime_orig refers to
+                 the original os_utime function and the macro
+                 os_utime is redefined to refer to
+                 alternate_utime.
+
   os_utimbuf_struct: Type to be used instead of
                      'struct utimbuf' under the target operating
                      system. If not defined 'struct utimbuf' is
@@ -972,6 +979,9 @@ THE VERSION.H FILE
                        library is used to implement the
                        bigInteger functions.
 
+  UNISTD_H_PRESENT: Defined when the include file <unistd.h> is
+                    present.
+
   FTELL_WRONG_FOR_PIPE: The ftell() function should return -1
                         when it is called with a pipe (since a
                         pipe is not seekable). This macro is
@@ -981,6 +991,25 @@ THE VERSION.H FILE
                         when the check with fstat() does not
                         verify that the parameter is a regular
                         file.
+
+  FWRITE_WRONG_FOR_READ_ONLY_FILES: Defined when fwrite() to a
+                                    read only file succeeds (it
+                                    does not return 0).
+
+  REMOVE_FAILS_FOR_EMPTY_DIRS: Defined when remove() cannot
+                               remove an empty directory (it does
+                               not return 0).
+
+  FOPEN_OPENS_DIRECTORIES: Defined when fopen() is able to open
+                           directories (it does not return NULL).
+
+  INCLUDE_SYS_UTIME: Defined when utime() respectively _wutime()
+                     is defined in <sys/utime.h>.
+
+  USE_ALTERNATE_UTIME: Defined when utime() is not able to change
+                       the access and modification times of a
+                       directory (utime() does not return 0 and
+                       errno has the value EACCES).
 
   RSHIFT_DOES_SIGN_EXTEND: The C standard specifies that the
                            right shift of signed integers is
@@ -1022,7 +1051,7 @@ THE VERSION.H FILE
                        and the exponent is negative.
 
   CHECK_INT_DIV_BY_ZERO: Instruct the Seed7 to C compiler to
-                         generate C code which checks all integer
+                         generate C code, which checks all integer
                          divisions (div, rem, mdiv and mod) for
                          division by zero. The generated C code
                          should, when executed, raise the
@@ -1032,6 +1061,44 @@ THE VERSION.H FILE
   FLOAT_ZERO_DIV_ERROR: Defined when the C compiler classifies a
                         floating point division by zero as fatal
                         error.
+
+  CHECK_FLOAT_DIV_BY_ZERO: Defined when a C floating point division
+                           by zero does not return the IEEE 754
+                           values Infinity, -Infinity or NaN. In
+                           this case the interpreter checks all
+                           float divisions and returns the correct
+                           result. Additionally the Seed7 to C
+                           compiler generates C code, which checks
+                           all float divisions ( / and /:= ) for
+                           division by zero. The generated C code
+                           should, when executed, return Infinity,
+                           -Infinity or NaN instead of doing the
+                           divide operation.
+
+  ISNAN_WITH_UNDERLINE: Defined when the macro/function _isnan() is
+                        defined in <float.h> respectively <math.h>
+                        instead of isnan().
+
+  USE_ALTERNATE_LOCALTIME_R: Defined when the function
+                             alternate_localtime_r() should be used
+                             instead of localtime().
+
+  USE_LOCALTIME_R: Defined when the thread-safe function
+                   localtime_r() should be used instead of
+                   localtime().
+
+  USE_LOCALTIME_S: Defined when the thread-safe function
+                   localtime_s() should be used instead of
+                   localtime().
+
+  DEFINE_OS_ENVIRON: Defined when environ respectively _wenviron
+                     is not defined in <stdlib.h> or <unistd.h>.
+                     In this case environ respectively _wenviron
+                     must be defined.
+
+  INITIALIZE_OS_ENVIRON: Defined when environ respectively
+                         _wenviron is NULL unless getenv() is
+                         called.
 
   LIMITED_CSTRI_LITERAL_LEN: Defined when the C compiler limits
                              the length of string literals.

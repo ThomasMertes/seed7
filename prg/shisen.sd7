@@ -42,13 +42,13 @@ const integer: CARD_SIZE is 64;
 const integer: CARD_BORDER is 4;
 const integer: WINDOW_WIDTH is (CARD_SIZE + 2 * CARD_BORDER) * 12 + 2 * LEFT_BORDER;
 const integer: WINDOW_HEIGHT is (CARD_SIZE + 2 * CARD_BORDER) * 8 + 2 * UPPER_BORDER;
-const integer: FIELD_STEP is CARD_SIZE + 2 * CARD_BORDER;
-const integer: HALF_FIELD is FIELD_STEP div 2;
+const integer: FIELD_SIZE is CARD_SIZE + 2 * CARD_BORDER;
+const integer: HALF_FIELD is FIELD_SIZE div 2;
 const integer: FRAME_THICKNESS is 3;
 const integer: FIELD_LINES is 8;
 const integer: FIELD_COLUMNS is 12;
 const integer: COMPUTER_HIT_XPOS is 8;
-const integer: PLAYER_HIT_XPOS is UPPER_BORDER + FIELD_LINES * FIELD_STEP + FIELD_STEP + 8;
+const integer: PLAYER_HIT_XPOS is UPPER_BORDER + FIELD_LINES * FIELD_SIZE + FIELD_SIZE + 8;
 
 var array PRIMITIVE_WINDOW: digit_pixmap is 0 times PRIMITIVE_WINDOW.value;
 
@@ -734,8 +734,8 @@ const proc: draw (in integer: xPos, in integer: yPos,
 
 const proc: put (inout cardType: aCard, in integer: line, in integer: column) is func
   begin
-    draw(LEFT_BORDER + CARD_BORDER + FIELD_STEP * pred(column),
-        UPPER_BORDER + CARD_BORDER + FIELD_STEP * pred(line), aCard);
+    draw(LEFT_BORDER + CARD_BORDER + FIELD_SIZE * pred(column),
+        UPPER_BORDER + CARD_BORDER + FIELD_SIZE * pred(line), aCard);
   end func;
 
 
@@ -749,17 +749,17 @@ const proc: show (in integer: line, in integer: column) is func
 const proc: mark (in integer: line, in integer: column) is func
   begin
     if field[line][column].visible = normal then
-      rect(LEFT_BORDER + FIELD_STEP * pred(column),
-          UPPER_BORDER + FIELD_STEP * pred(line),
+      rect(LEFT_BORDER + FIELD_SIZE * pred(column),
+          UPPER_BORDER + FIELD_SIZE * pred(line),
           CARD_SIZE + 2 * CARD_BORDER, FRAME_THICKNESS, light_red);
-      rect(LEFT_BORDER + FIELD_STEP * pred(column),
-          UPPER_BORDER + FIELD_STEP * pred(line),
+      rect(LEFT_BORDER + FIELD_SIZE * pred(column),
+          UPPER_BORDER + FIELD_SIZE * pred(line),
           FRAME_THICKNESS, CARD_SIZE + 2 * CARD_BORDER, light_red);
-      rect(LEFT_BORDER + FIELD_STEP * column - FRAME_THICKNESS,
-          UPPER_BORDER + FIELD_STEP * pred(line),
+      rect(LEFT_BORDER + FIELD_SIZE * column - FRAME_THICKNESS,
+          UPPER_BORDER + FIELD_SIZE * pred(line),
           FRAME_THICKNESS, CARD_SIZE + 2 * CARD_BORDER, light_red);
-      rect(LEFT_BORDER + FIELD_STEP * pred(column),
-          UPPER_BORDER + FIELD_STEP * line - FRAME_THICKNESS,
+      rect(LEFT_BORDER + FIELD_SIZE * pred(column),
+          UPPER_BORDER + FIELD_SIZE * line - FRAME_THICKNESS,
           CARD_SIZE + 2 * CARD_BORDER, FRAME_THICKNESS, light_red);
       field[line][column].visible := marked;
       field[line][column].selected := TRUE;
@@ -770,17 +770,17 @@ const proc: mark (in integer: line, in integer: column) is func
 const proc: unmark (in integer: line, in integer: column) is func
   begin
     if field[line][column].visible = marked then
-      rect(LEFT_BORDER + FIELD_STEP * pred(column),
-          UPPER_BORDER + FIELD_STEP * pred(line),
+      rect(LEFT_BORDER + FIELD_SIZE * pred(column),
+          UPPER_BORDER + FIELD_SIZE * pred(line),
           CARD_SIZE + 2 * CARD_BORDER, FRAME_THICKNESS, white);
-      rect(LEFT_BORDER + FIELD_STEP * pred(column),
-          UPPER_BORDER + FIELD_STEP * pred(line),
+      rect(LEFT_BORDER + FIELD_SIZE * pred(column),
+          UPPER_BORDER + FIELD_SIZE * pred(line),
           FRAME_THICKNESS, CARD_SIZE + 2 * CARD_BORDER, white);
-      rect(LEFT_BORDER + FIELD_STEP * column - FRAME_THICKNESS,
-          UPPER_BORDER + FIELD_STEP * pred(line),
+      rect(LEFT_BORDER + FIELD_SIZE * column - FRAME_THICKNESS,
+          UPPER_BORDER + FIELD_SIZE * pred(line),
           FRAME_THICKNESS, CARD_SIZE + 2 * CARD_BORDER, white);
-      rect(LEFT_BORDER + FIELD_STEP * pred(column),
-          UPPER_BORDER + FIELD_STEP * line - FRAME_THICKNESS,
+      rect(LEFT_BORDER + FIELD_SIZE * pred(column),
+          UPPER_BORDER + FIELD_SIZE * line - FRAME_THICKNESS,
           CARD_SIZE + 2 * CARD_BORDER, FRAME_THICKNESS, white);
       field[line][column].visible := normal;
       field[line][column].selected := FALSE;
@@ -791,8 +791,8 @@ const proc: unmark (in integer: line, in integer: column) is func
 const proc: remove (in integer: line, in integer: column) is func
   begin
     if field[line][column].visible <> removed then
-      rect(LEFT_BORDER + CARD_BORDER + FIELD_STEP * pred(column),
-          UPPER_BORDER + CARD_BORDER + FIELD_STEP * pred(line), CARD_SIZE, CARD_SIZE, white);
+      rect(LEFT_BORDER + CARD_BORDER + FIELD_SIZE * pred(column),
+          UPPER_BORDER + CARD_BORDER + FIELD_SIZE * pred(line), CARD_SIZE, CARD_SIZE, white);
       field[line][column].visible := removed;
     end if;
   end func;
@@ -845,10 +845,10 @@ const proc: horizontal (in integer: line, in integer: column1, in integer: colum
     in color: currColor) is func
   begin
     if currColor <> black then
-      rectTo(LEFT_BORDER + HALF_FIELD + FIELD_STEP * pred(column1),
-          UPPER_BORDER + HALF_FIELD+ FIELD_STEP * pred(line) - 2,
-          LEFT_BORDER + HALF_FIELD + FIELD_STEP * pred(column2),
-          UPPER_BORDER + HALF_FIELD+ FIELD_STEP * pred(line) + 2, currColor);
+      rectTo(LEFT_BORDER + HALF_FIELD + FIELD_SIZE * pred(column1),
+          UPPER_BORDER + HALF_FIELD+ FIELD_SIZE * pred(line) - 2,
+          LEFT_BORDER + HALF_FIELD + FIELD_SIZE * pred(column2),
+          UPPER_BORDER + HALF_FIELD+ FIELD_SIZE * pred(line) + 2, currColor);
     end if;
   end func;
 
@@ -857,10 +857,10 @@ const proc: vertical (in integer: column, in integer: line1, in integer: line2,
     in color: currColor) is func
   begin
     if currColor <> black then
-      rectTo(LEFT_BORDER + HALF_FIELD + FIELD_STEP * pred(column) - 2,
-          UPPER_BORDER + HALF_FIELD+ FIELD_STEP * pred(line1),
-          LEFT_BORDER + HALF_FIELD + FIELD_STEP * pred(column) + 2,
-          UPPER_BORDER + HALF_FIELD+ FIELD_STEP * pred(line2), currColor);
+      rectTo(LEFT_BORDER + HALF_FIELD + FIELD_SIZE * pred(column) - 2,
+          UPPER_BORDER + HALF_FIELD+ FIELD_SIZE * pred(line1),
+          LEFT_BORDER + HALF_FIELD + FIELD_SIZE * pred(column) + 2,
+          UPPER_BORDER + HALF_FIELD+ FIELD_SIZE * pred(line2), currColor);
     end if;
   end func;
 
@@ -1321,8 +1321,8 @@ const proc: playerMove (inout integer: line1, inout integer: column1,
         line := getypos(KEYBOARD);
         column := getxpos(KEYBOARD);
         if line >= UPPER_BORDER and column >= LEFT_BORDER then
-          line := (line - UPPER_BORDER) div FIELD_STEP + 1;
-          column := (column - LEFT_BORDER) div FIELD_STEP + 1;
+          line := (line - UPPER_BORDER) div FIELD_SIZE + 1;
+          column := (column - LEFT_BORDER) div FIELD_SIZE + 1;
           if line >= 1 and line <= length(field) and
               column >= 1 and column <= length(field[line]) then
             if field[line][column].visible = normal then

@@ -216,6 +216,7 @@ static primactrecord prim_act_table[] = {
     { "CMD_GET_CTIME",           cmd_get_ctime,           },
     { "CMD_GET_MTIME",           cmd_get_mtime,           },
     { "CMD_GET_SEARCH_PATH",     cmd_getSearchPath,       },
+    { "CMD_HOME_DIR",            cmd_homeDir,             },
     { "CMD_LS",                  cmd_ls,                  },
     { "CMD_MKDIR",               cmd_mkdir,               },
     { "CMD_MOVE",                cmd_move,                },

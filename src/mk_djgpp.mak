@@ -130,11 +130,9 @@ version.h:
 	$(ECHO) "#define LINKER_OPT_OUTPUT_FILE \"-o \"" >> version.h
 	$(ECHO) "#define LINKER_FLAGS \"$(LDFLAGS)\"" >> version.h
 	$(ECHO) "#include \"direct.h\"" > chkccomp.h
+	$(ECHO) "#include \"unistd.h\"" >> chkccomp.h
 	$(ECHO) "#define WRITE_CC_VERSION_INFO system(\"$(GET_CC_VERSION_INFO) cc_vers.txt\");" >> chkccomp.h
-	$(ECHO) "#define USE_BUILTIN_EXPECT" >> chkccomp.h
 	$(ECHO) "#define LIST_DIRECTORY_CONTENTS \"dir\"" >> chkccomp.h
-	$(ECHO) "#define long_long_EXISTS" >> chkccomp.h
-	$(ECHO) "#define long_long_SUFFIX_LL" >> chkccomp.h
 	$(CC) chkccomp.c -lm -o chkccomp.exe
 	.\chkccomp.exe >> version.h
 	del chkccomp.h

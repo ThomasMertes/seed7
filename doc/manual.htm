@@ -257,6 +257,7 @@ pre.indent {
 <li><a class="link" href="#os_getcwd"><b>getcwd</b></a></li>
 <li><a class="link" href="#os_chdir"><b>chdir</b></a></li>
 <li><a class="link" href="#os_mkdir"><b>mkdir</b></a></li>
+<li><a class="link" href="#os_homeDir"><b>homeDir</b></a></li>
 <li><a class="link" href="#os_fileType"><b>fileType</b></a></li>
 <li><a class="link" href="#os_fileMode"><b>fileMode</b></a></li>
 <li><a class="link" href="#os_setFileMode"><b>setFileMode</b></a></li>
@@ -8173,7 +8174,32 @@ mkdir(<span class="stri">"my_dir"</span>);
     creates the directory <tt><span class="stri">"my_dir"</span></tt>.
 </p></dd></dl></div><p></p>
 
-<a name="os_fileType"><h3>12.7 fileType</h3></a>
+<a name="os_homeDir"><h3>12.7 homeDir</h3></a>
+<p>
+    The function <tt><span class="func">homeDir</span></tt> returns the home directory current
+  of the user as absolute path.
+</p><pre class="indent">
+<span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_string">string</a>: homeDir <span class="keywd">is</span> ...
+</pre>
+  <div><dl><dt><p>Returns:</p></dt><dd><p>
+    The absolute path of the home directory.
+</p></dd></dl></div>
+  <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
+    <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
+        <dd>Not enough memory to represent the result <tt><a class="type" href="#types_string">string</a></tt>.</dd>
+    <dt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></dt>
+        <dd>Not able to determine the home directory.</dd>
+</dl></dd></dl></div>
+  <div><dl><dt><p>Examples:</p></dt><dd><p>
+    The statement
+</p><pre class="indent">
+my_dir := homeDir;
+</pre><p>
+    assigns the full path of the home directory to the
+    <tt><a class="type" href="#types_string">string</a></tt> variable <tt>'my_dir'</tt>.
+</p></dd></dl></div><p></p>
+
+<a name="os_fileType"><h3>12.8 fileType</h3></a>
 <p>
     The type of a file can determined with <tt><span class="func">fileType</span></tt> or
   <tt><span class="func">fileTypeSL</span></tt>:
@@ -8220,7 +8246,7 @@ mkdir(<span class="stri">"my_dir"</span>);
         ENOTDIR or ENAMETOOLONG.</dd>
 </dl></dd></dl></div><p></p>
 
-<a name="os_fileMode"><h3>12.8 fileMode</h3></a>
+<a name="os_fileMode"><h3>12.9 fileMode</h3></a>
 <p>
     The permissions of a file can determined with <tt><span class="func">fileMode</span></tt>:
 </p><pre class="indent">
@@ -8259,7 +8285,7 @@ mkdir(<span class="stri">"my_dir"</span>);
         <dd>A system function returns an error.</dd>
 </dl></dd></dl></div><p></p>
 
-<a name="os_setFileMode"><h3>12.9 setFileMode</h3></a>
+<a name="os_setFileMode"><h3>12.10 setFileMode</h3></a>
 <p>
     The permissions of a file can changed with <tt><span class="func">setFileMode</span></tt>:
 </p><pre class="indent">
@@ -8297,7 +8323,7 @@ mkdir(<span class="stri">"my_dir"</span>);
         <dd>A system function returns an error.</dd>
 </dl></dd></dl></div><p></p>
 
-<a name="os_fileSize"><h3>12.10 fileSize</h3></a>
+<a name="os_fileSize"><h3>12.11 fileSize</h3></a>
 <p>
     The size of a file can be determined with <tt><span class="func">fileSize</span></tt> and <tt><span class="func">bigFileSize</span></tt>:
 </p><pre class="indent">
@@ -8324,7 +8350,7 @@ mkdir(<span class="stri">"my_dir"</span>);
         <dd>It was not possible to determine the file size.</dd>
 </dl></dd></dl></div><p></p>
 
-<a name="os_getATime"><h3>12.11 getATime</h3></a>
+<a name="os_getATime"><h3>12.12 getATime</h3></a>
 <p>
     The access time of a file is returned by the function <tt><span class="func">getATime</span></tt>:
 </p><pre class="indent">
@@ -8340,7 +8366,7 @@ mkdir(<span class="stri">"my_dir"</span>);
         <dd>A system function returns an error.</dd>
 </dl></dd></dl></div><p></p>
 
-<a name="os_getCTime"><h3>12.12 getCTime</h3></a>
+<a name="os_getCTime"><h3>12.13 getCTime</h3></a>
 <p>
     The change time of a file is returned by the function <tt><span class="func">getCTime</span></tt>:
 </p><pre class="indent">
@@ -8356,7 +8382,7 @@ mkdir(<span class="stri">"my_dir"</span>);
         <dd>A system function returns an error.</dd>
 </dl></dd></dl></div><p></p>
 
-<a name="os_getMTime"><h3>12.13 getMTime</h3></a>
+<a name="os_getMTime"><h3>12.14 getMTime</h3></a>
 <p>
     The modification time of a file is returned by the function <tt><span class="func">getMTime</span></tt>:
 </p><pre class="indent">
@@ -8372,7 +8398,7 @@ mkdir(<span class="stri">"my_dir"</span>);
         <dd>A system function returns an error.</dd>
 </dl></dd></dl></div><p></p>
 
-<a name="os_setATime"><h3>12.14 setATime</h3></a>
+<a name="os_setATime"><h3>12.15 setATime</h3></a>
 <p>
     The function <tt><span class="func">setATime</span></tt> sets the access time of a file:
 </p><pre class="indent">
@@ -8389,7 +8415,7 @@ mkdir(<span class="stri">"my_dir"</span>);
         <dd>A system function returns an error.</dd>
 </dl></dd></dl></div><p></p>
 
-<a name="os_setMTime"><h3>12.15 setMTime</h3></a>
+<a name="os_setMTime"><h3>12.16 setMTime</h3></a>
 <p>
     The function <tt><span class="func">setMTime</span></tt> sets the modification time of a file:
 </p><pre class="indent">
@@ -8406,7 +8432,7 @@ mkdir(<span class="stri">"my_dir"</span>);
         <dd>A system function returns an error.</dd>
 </dl></dd></dl></div><p></p>
 
-<a name="os_readlink"><h3>12.16 readlink</h3></a>
+<a name="os_readlink"><h3>12.17 readlink</h3></a>
 <p>
     The function <tt><span class="func">readlink</span></tt> reads the destination of a symbolic link:
 </p><pre class="indent">
@@ -8426,7 +8452,7 @@ mkdir(<span class="stri">"my_dir"</span>);
         <dd>The file described with <tt>'filePath'</tt> does not exist or is not a symbolic link.</dd>
 </dl></dd></dl></div><p></p>
 
-<a name="os_symlink"><h3>12.17 symlink</h3></a>
+<a name="os_symlink"><h3>12.18 symlink</h3></a>
 <p>
     The function <tt><span class="func">symlink</span></tt> creates a symbolic link called
   <tt>'dest'</tt> that contains the string referred by <tt>'source'</tt>:
@@ -8451,7 +8477,7 @@ mkdir(<span class="stri">"my_dir"</span>);
         <dd>A system function returns an error.</dd>
 </dl></dd></dl></div><p></p>
 
-<a name="os_removeFile"><h3>12.18 removeFile</h3></a>
+<a name="os_removeFile"><h3>12.19 removeFile</h3></a>
 <p>
     The function <tt><span class="func">removeFile</span></tt> removes a file or
   empty directory:
@@ -8468,7 +8494,7 @@ mkdir(<span class="stri">"my_dir"</span>);
         <dd>The file does not exist or a system function returns an error.</dd>
 </dl></dd></dl></div><p></p>
 
-<a name="os_removeAnyFile"><h3>12.19 removeAnyFile</h3></a>
+<a name="os_removeAnyFile"><h3>12.20 removeAnyFile</h3></a>
 <p>
     The function <tt><span class="func">removeAnyFile</span></tt> removes a file independent
   of its file type:
@@ -8485,7 +8511,7 @@ mkdir(<span class="stri">"my_dir"</span>);
         <dd>The file does not exist or a system function returns an error.</dd>
 </dl></dd></dl></div>
 
-<a name="os_copyFile"><h3>12.20 copyFile</h3></a>
+<a name="os_copyFile"><h3>12.21 copyFile</h3></a>
 <p>
     The function <tt><span class="func">copyFile</span></tt> copies a file or directory
   tree:
@@ -8515,7 +8541,7 @@ mkdir(<span class="stri">"my_dir"</span>);
         a system function returns an error.</dd>
 </dl></dd></dl></div><p></p>
 
-<a name="os_cloneFile"><h3>12.21 cloneFile</h3></a>
+<a name="os_cloneFile"><h3>12.22 cloneFile</h3></a>
 <p>
     The function <tt><span class="func">cloneFile</span></tt> clones a file or directory
   tree:
@@ -8540,7 +8566,7 @@ mkdir(<span class="stri">"my_dir"</span>);
         a system function returns an error.</dd>
 </dl></dd></dl></div><p></p>
 
-<a name="os_moveFile"><h3>12.22 moveFile</h3></a>
+<a name="os_moveFile"><h3>12.23 moveFile</h3></a>
 <p>
     The function <tt><span class="func">moveFile</span></tt> moves and/or renames a
   file or directory tree:
@@ -8571,7 +8597,7 @@ mkdir(<span class="stri">"my_dir"</span>);
         a system function returns an error.</dd>
 </dl></dd></dl></div><p></p>
 
-<a name="os_argv_PROGRAM"><h3>12.23 argv(PROGRAM)</h3></a>
+<a name="os_argv_PROGRAM"><h3>12.24 argv(PROGRAM)</h3></a>
 <p>
     The function <tt>'argv(PROGRAM)'</tt> returns the argument
   vector of the program as array of strings.
@@ -8582,7 +8608,7 @@ mkdir(<span class="stri">"my_dir"</span>);
     An array of strings containing the argument vector.
 </p></dd></dl></div><p></p>
 
-<a name="os_path_PROGRAM"><h3>12.24 path(PROGRAM)</h3></a>
+<a name="os_path_PROGRAM"><h3>12.25 path(PROGRAM)</h3></a>
 <p>
     The function <tt>'path(PROGRAM)'</tt> returns the absolute
   path of the program.
@@ -8593,7 +8619,7 @@ mkdir(<span class="stri">"my_dir"</span>);
     The absolute path of the program.
 </p></dd></dl></div><p></p>
 
-<a name="os_dir_PROGRAM"><h3>12.25 dir(PROGRAM)</h3></a>
+<a name="os_dir_PROGRAM"><h3>12.26 dir(PROGRAM)</h3></a>
 <p>
     The function <tt>'dir(PROGRAM)'</tt> returns the absolute
   path of the directory containing the program. The dir(PROGRAM)
@@ -8606,7 +8632,7 @@ mkdir(<span class="stri">"my_dir"</span>);
     The absolute path of the directory containing the program.
 </p></dd></dl></div><p></p>
 
-<a name="os_getenv"><h3>12.26 getenv</h3></a>
+<a name="os_getenv"><h3>12.27 getenv</h3></a>
 <p>
     The function <tt>'getenv'</tt> determines the value of an
   environment variable.
@@ -8628,7 +8654,7 @@ mkdir(<span class="stri">"my_dir"</span>);
         enough memory to represent the result <tt><a class="type" href="#types_string">string</a></tt>.</dd>
 </dl></dd></dl></div><p></p>
 
-<a name="os_setenv"><h3>12.27 setenv</h3></a>
+<a name="os_setenv"><h3>12.28 setenv</h3></a>
 <p>
     The function <tt>'setenv'</tt> adds or changes an environment
   variable.

@@ -545,6 +545,21 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype cmd_homeDir (listtype arguments)
+#else
+
+objecttype cmd_homeDir (arguments)
+listtype arguments;
+#endif
+
+  { /* cmd_homeDir */
+    return bld_stri_temp(cmdHomeDir());
+  } /* cmd_homeDir */
+
+
+
+#ifdef ANSI_C
+
 objecttype cmd_ls (listtype arguments)
 #else
 

@@ -68,38 +68,40 @@ typedef const struct rtlHelemstruct  *const_rtlHelemtype;
 typedef const struct rtlHashstruct   *const_rtlHashtype;
 
 typedef union {
+  /* Genericvalue must be the first element in the union. */
+  /* This allows initialisations of rtlValueunion values. */
     rtlGenerictype genericvalue;
-/*    postype    pos;          ** SYMBOLOBJECT */
-/*    nodetype   nodevalue;    ** MDULEOBJECT */
-/*    typetype   typevalue;    ** TYPEOBJECT */
-/*    booltype   boolvalue;         */
-    inttype       intvalue;     /* INTOBJECT */
-    biginttype    bigintvalue;  /* BIGINTOBJECT */
-    chartype      charvalue;    /* CHAROBJECT */
-    stritype      strivalue;    /* STRIOBJECT */
-    rtlArraytype  arrayvalue;   /* ARRAYOBJECT */
-    rtlHashtype   hashvalue;    /* HASHOBJECT */
-    settype       setvalue;     /* SETOBJECT */
-    rtlStructtype structvalue;  /* STRUCTOBJECT */
-    filetype      filevalue;    /* FILEOBJECT */
-    sockettype    socketvalue;  /* SOCKETOBJECT */
-    rtlListtype   listvalue;    /* LISTOBJECT, EXPROBJECT */
-    wintype       winvalue;     /* WINOBJECT */
-/*    interfacetype interfacevalue; */
-/*    enumtype      enumvalue;      */
-/*    bstritype     bstrivalue;     */
-/*    polltype      pollvalue;      */
-/*    objreftype    objrefvalue;    */
-/*    rtlObjecttype objvalue;     ** ENUMLITERALOBJECT, CONSTENUMOBJECT */
-                             /* VARENUMOBJECT, VALUEPARAMOBJECT */
-                             /* REFPARAMOBJECT, RESULTOBJECT */
-                             /* LOCALVOBJECT, FORMPARAMOBJECT */
-                             /* INTERFACEOBJECT */
+/*    postype        pos;          ** SYMBOLOBJECT */
+/*    nodetype       nodevalue;    ** MDULEOBJECT */
+/*    typetype       typevalue;    ** TYPEOBJECT */
+/*    booltype       boolvalue;      */
+    inttype        intvalue;     /* INTOBJECT */
+    biginttype     bigintvalue;  /* BIGINTOBJECT */
+    chartype       charvalue;    /* CHAROBJECT */
+    stritype       strivalue;    /* STRIOBJECT */
+    rtlArraytype   arrayvalue;   /* ARRAYOBJECT */
+    rtlHashtype    hashvalue;    /* HASHOBJECT */
+    settype        setvalue;     /* SETOBJECT */
+    rtlStructtype  structvalue;  /* STRUCTOBJECT */
+    filetype       filevalue;    /* FILEOBJECT */
+    sockettype     socketvalue;  /* SOCKETOBJECT */
+    rtlListtype    listvalue;    /* LISTOBJECT, EXPROBJECT */
+    wintype        winvalue;     /* WINOBJECT */
+/*    interfacetype  interfacevalue; */
+/*    enumtype       enumvalue;      */
+/*    bstritype      bstrivalue;     */
+/*    polltype       pollvalue;      */
+/*    objreftype     objrefvalue;    */
+/*    rtlObjecttype  objvalue;     ** ENUMLITERALOBJECT, CONSTENUMOBJECT */
+                                 /* VARENUMOBJECT, VALUEPARAMOBJECT */
+                                 /* REFPARAMOBJECT, RESULTOBJECT */
+                                 /* LOCALVOBJECT, FORMPARAMOBJECT */
+                                 /* INTERFACEOBJECT */
 /*    blocktype  blockvalue;   ** BLOCKOBJECT */
 /*    acttype    actvalue;     ** ACTOBJECT */
 /*    progtype   progvalue;    ** PROGOBJECT */
 #ifdef WITH_FLOAT
-    floattype     floatvalue;   /* FLOATOBJECT */
+    floattype      floatvalue;   /* FLOATOBJECT */
 #endif
   } rtlValueunion;
 

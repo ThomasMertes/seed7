@@ -56,6 +56,8 @@
 FILE *protfile = NULL; /* was: stdout; */
 booltype internal_protocol = FALSE;
 
+#define prot_ptr(ptr) prot_int((inttype) (memsizetype) ptr)
+
 
 
 #ifdef ANSI_C
@@ -617,7 +619,7 @@ objecttype anyobject;
             prot_cstri(">");
           } /* if */
           prot_cstri(" ");
-          prot_int((inttype) anyobject->value.structvalue);
+          prot_ptr(anyobject->value.structvalue);
         } else {
           prot_cstri(" *NULL_STRUCT* ");
         } /* if */
@@ -635,7 +637,7 @@ objecttype anyobject;
           prot_cstri(" *NULL_BLOCK* ");
         } else {
           prot_cstri("func ");
-          prot_int((inttype) anyobject->value.blockvalue);
+          prot_ptr(anyobject->value.blockvalue);
         } /* if */
         break;
       case WINOBJECT:
@@ -645,7 +647,7 @@ objecttype anyobject;
           prot_cstri("window [");
           prot_int((inttype) anyobject->value.winvalue->usage_count);
           prot_cstri("] ");
-          prot_int((inttype) anyobject->value.winvalue);
+          prot_ptr(anyobject->value.winvalue);
         } /* if */
         break;
       case PROGOBJECT:
@@ -653,7 +655,7 @@ objecttype anyobject;
           prot_cstri(" *NULL_PROG* ");
         } else {
           prot_cstri("prog ");
-          prot_int((inttype) anyobject->value.progvalue);
+          prot_ptr(anyobject->value.progvalue);
         } /* if */
         break;
       default:
@@ -1449,7 +1451,7 @@ nodetype anynode;
           } /* if */
         } /* if */
         prot_cstri("=");
-        prot_int((inttype) anynode->match_obj);
+        prot_ptr(anynode->match_obj);
       } else {
         prot_cstri(" *NULL_MATCH_OBJ* ");
       } /* if */
@@ -1520,9 +1522,9 @@ objecttype traceobject;
         case REFPARAMOBJECT:
         case RESULTOBJECT:
         case LOCALVOBJECT:
-          prot_int((inttype) traceobject);
+          prot_ptr(traceobject);
           prot_cstri(" ");
-          prot_int((inttype) traceobject->value.objvalue);
+          prot_ptr(traceobject->value.objvalue);
           prot_nl();
           prot_cstri("  ");
           trace1(traceobject->value.objvalue);
@@ -1612,7 +1614,7 @@ objecttype traceobject;
           } /* if */
           break;
         case SYMBOLOBJECT:
-          prot_int((inttype) traceobject);
+          prot_ptr(traceobject);
           break;
         default:
           break;

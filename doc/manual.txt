@@ -135,27 +135,28 @@ CONTENTS
   12.4    getcwd
   12.5    chdir
   12.6    mkdir
-  12.7    fileType
-  12.8    fileMode
-  12.9    setFileMode
-  12.10   fileSize
-  12.11   getATime
-  12.12   getCTime
-  12.13   getMTime
-  12.14   setATime
-  12.15   setMTime
-  12.16   readlink
-  12.17   symlink
-  12.18   removeFile
-  12.19   removeAnyFile
-  12.20   copyFile
-  12.21   cloneFile
-  12.22   moveFile
-  12.23   argv(PROGRAM)
-  12.24   path(PROGRAM)
-  12.25   dir(PROGRAM)
-  12.26   getenv
-  12.27   setenv
+  12.7    homeDir
+  12.8    fileType
+  12.9    fileMode
+  12.10   setFileMode
+  12.11   fileSize
+  12.12   getATime
+  12.13   getCTime
+  12.14   getMTime
+  12.15   setATime
+  12.16   setMTime
+  12.17   readlink
+  12.18   symlink
+  12.19   removeFile
+  12.20   removeAnyFile
+  12.21   copyFile
+  12.22   cloneFile
+  12.23   moveFile
+  12.24   argv(PROGRAM)
+  12.25   path(PROGRAM)
+  12.26   dir(PROGRAM)
+  12.27   getenv
+  12.28   setenv
   13.   PRIMITIVE ACTIONS
   13.1    Actions for the type ACTION
   13.2    Actions for array types
@@ -8051,7 +8052,32 @@ CONTENTS
     creates the directory "my_dir".
 
 
-12.7 fileType
+12.7 homeDir
+
+    The function 'homeDir' returns the home directory current
+  of the user as absolute path.
+
+    const func string: homeDir is ...
+
+  Returns:
+    The absolute path of the home directory.
+
+  Possible exceptions:
+    MEMORY_ERROR
+        Not enough memory to represent the result 'string'.
+    FILE_ERROR
+        Not able to determine the home directory.
+
+  Examples:
+    The statement
+
+      my_dir := homeDir;
+
+    assigns the full path of the home directory to the
+    'string' variable 'my_dir'.
+
+
+12.8 fileType
 
     The type of a file can determined with 'fileType' or
   'fileTypeSL':
@@ -8098,7 +8124,7 @@ CONTENTS
         ENOTDIR or ENAMETOOLONG.
 
 
-12.8 fileMode
+12.9 fileMode
 
     The permissions of a file can determined with 'fileMode':
 
@@ -8137,7 +8163,7 @@ CONTENTS
         A system function returns an error.
 
 
-12.9 setFileMode
+12.10 setFileMode
 
     The permissions of a file can changed with 'setFileMode':
 
@@ -8175,7 +8201,7 @@ CONTENTS
         A system function returns an error.
 
 
-12.10 fileSize
+12.11 fileSize
 
     The size of a file can be determined with 'fileSize' and 'bigFileSize':
 
@@ -8202,7 +8228,7 @@ CONTENTS
         It was not possible to determine the file size.
 
 
-12.11 getATime
+12.12 getATime
 
     The access time of a file is returned by the function 'getATime':
 
@@ -8218,7 +8244,7 @@ CONTENTS
         A system function returns an error.
 
 
-12.12 getCTime
+12.13 getCTime
 
     The change time of a file is returned by the function 'getCTime':
 
@@ -8234,7 +8260,7 @@ CONTENTS
         A system function returns an error.
 
 
-12.13 getMTime
+12.14 getMTime
 
     The modification time of a file is returned by the function 'getMTime':
 
@@ -8250,7 +8276,7 @@ CONTENTS
         A system function returns an error.
 
 
-12.14 setATime
+12.15 setATime
 
     The function 'setATime' sets the access time of a file:
 
@@ -8267,7 +8293,7 @@ CONTENTS
         A system function returns an error.
 
 
-12.15 setMTime
+12.16 setMTime
 
     The function 'setMTime' sets the modification time of a file:
 
@@ -8284,7 +8310,7 @@ CONTENTS
         A system function returns an error.
 
 
-12.16 readlink
+12.17 readlink
 
     The function 'readlink' reads the destination of a symbolic link:
 
@@ -8304,7 +8330,7 @@ CONTENTS
         The file described with 'filePath' does not exist or is not a symbolic link.
 
 
-12.17 symlink
+12.18 symlink
 
     The function 'symlink' creates a symbolic link called
   'dest' that contains the string referred by 'source':
@@ -8329,7 +8355,7 @@ CONTENTS
         A system function returns an error.
 
 
-12.18 removeFile
+12.19 removeFile
 
     The function 'removeFile' removes a file or
   empty directory:
@@ -8346,7 +8372,7 @@ CONTENTS
         The file does not exist or a system function returns an error.
 
 
-12.19 removeAnyFile
+12.20 removeAnyFile
 
     The function 'removeAnyFile' removes a file independent
   of its file type:
@@ -8363,7 +8389,7 @@ CONTENTS
         The file does not exist or a system function returns an error.
 
 
-12.20 copyFile
+12.21 copyFile
 
     The function 'copyFile' copies a file or directory
   tree:
@@ -8393,7 +8419,7 @@ CONTENTS
         a system function returns an error.
 
 
-12.21 cloneFile
+12.22 cloneFile
 
     The function 'cloneFile' clones a file or directory
   tree:
@@ -8418,7 +8444,7 @@ CONTENTS
         a system function returns an error.
 
 
-12.22 moveFile
+12.23 moveFile
 
     The function 'moveFile' moves and/or renames a
   file or directory tree:
@@ -8449,7 +8475,7 @@ CONTENTS
         a system function returns an error.
 
 
-12.23 argv(PROGRAM)
+12.24 argv(PROGRAM)
 
     The function 'argv(PROGRAM)' returns the argument
   vector of the program as array of strings.
@@ -8460,7 +8486,7 @@ CONTENTS
     An array of strings containing the argument vector.
 
 
-12.24 path(PROGRAM)
+12.25 path(PROGRAM)
 
     The function 'path(PROGRAM)' returns the absolute
   path of the program.
@@ -8471,7 +8497,7 @@ CONTENTS
     The absolute path of the program.
 
 
-12.25 dir(PROGRAM)
+12.26 dir(PROGRAM)
 
     The function 'dir(PROGRAM)' returns the absolute
   path of the directory containing the program. The dir(PROGRAM)
@@ -8484,7 +8510,7 @@ CONTENTS
     The absolute path of the directory containing the program.
 
 
-12.26 getenv
+12.27 getenv
 
     The function 'getenv' determines the value of an
   environment variable.
@@ -8506,7 +8532,7 @@ CONTENTS
         enough memory to represent the result 'string'.
 
 
-12.27 setenv
+12.28 setenv
 
     The function 'setenv' adds or changes an environment
   variable.

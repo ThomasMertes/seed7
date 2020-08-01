@@ -33,7 +33,7 @@ include "scanstri.s7i";
 
 
 const set of char: target_name_char is {'!' .. '~'} - {':', '='};
-const set of char: macro_name_char is {'!' .. '~'} - {')', '='};
+const set of char: macro_name_char is {'!' .. '~'} - {')', ':', '='};
 
 const type: ruleType is new struct
     var string: name is "";
@@ -121,6 +121,25 @@ const func array string: findMatchingFiles (in string: pattern) is func
   end func;
 
 
+const func string: replaceSuffixes (in var string: stri, in string: suffix, in string: replacement) is func
+  result
+    var string: result is ""
+  local
+    var string: symbol is "";
+  begin
+    repeat
+      result &:= getWhiteSpace(stri);
+      symbol := getWord(stri);
+      if symbol <> "" then
+        if endsWith(symbol, suffix) then
+          symbol := symbol[.. length(symbol) - length(suffix)] & replacement;
+        end if;
+        result &:= symbol;
+      end if;
+    until symbol = "";
+  end func;
+
+
 const func string: applyMacros (in string_hash: macros, in string: stri, in boolean: leaveUndefMacros) is func
   result
     var string: result is "";
@@ -193,6 +212,8 @@ const func string: getMacro (inout file: makefile, in string_hash: macros) is fu
     var string: result is "";
   local
     var string: name is "";
+    var string: suffix is "";
+    var string: replacement is "";
     var array string: matches is 0 times "";
   begin
     makefile.bufferChar := getc(makefile);
@@ -205,6 +226,25 @@ const func string: getMacro (inout file: makefile, in string_hash: macros) is fu
           result := macros[name];
         else
           result := "$(" & name & ")";
+        end if;
+      elsif makefile.bufferChar = ':' then
+        makefile.bufferChar := getc(makefile);
+        suffix := getMacroName(makefile);
+        if makefile.bufferChar = '=' then
+          makefile.bufferChar := getc(makefile);
+          replacement := getMacroName(makefile);
+          if makefile.bufferChar = ')' then
+            makefile.bufferChar := getc(makefile);
+            if name in macros then
+              result := replaceSuffixes(macros[name], suffix, replacement);
+            else
+              result := "$(" & name & ":" & suffix & "=" & replacement & ")";
+            end if;
+          else
+            result := "$(" & name & ":" & suffix & "=" & replacement;
+          end if;
+        else
+          result := "$(" & name & ":" & suffix;
         end if;
       elsif makefile.bufferChar in space_or_tab then
         skipSpaceOrTab(makefile);
@@ -438,19 +478,20 @@ const proc: readRule (inout makeDataType: makeData, in string: name) is func
     # writeln;
     makefile.bufferChar := getc(makefile);
     while makefile.bufferChar = '\t' or makefile.bufferChar = ' ' or
-        makefile.bufferChar = '\r' or makefile.bufferChar = '\n' do
+        makefile.bufferChar = '\r' or makefile.bufferChar = '\n' or
+        makefile.bufferChar = '#' do
       skipSpaceOrTab(makefile);
       if makefile.bufferChar = '\r' then
         makefile.bufferChar := getc(makefile);
       end if;
-      if makefile.bufferChar = '\n' then
-        makefile.bufferChar := getc(makefile);
-      else
+      if makefile.bufferChar = '#' then
+        skipLineComment(makefile);
+      elsif makefile.bufferChar <> '\n' then
         command := getLineWithMacrosApplied(makeData);
         rule.commands &:= [] (command);
-        makefile.bufferChar := getc(makefile);
         # writeln("\t" <& command);
       end if;
+      makefile.bufferChar := getc(makefile);
     end while;
     if length(makeData.rules) = 0 then
       makeData.nameOfFirstRule := name;

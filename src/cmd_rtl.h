@@ -62,6 +62,7 @@ void cmdGetMTime (const const_stritype file_name,
     inttype *min, inttype *sec, inttype *micro_sec, inttype *time_zone,
     booltype *is_dst);
 rtlArraytype cmdGetSearchPath (void);
+stritype cmdHomeDir (void);
 void cmdMkdir (const const_stritype dir_name);
 void cmdMove (const const_stritype source_name, const const_stritype dest_name);
 stritype cmdReadlink (const const_stritype link_name);
@@ -104,6 +105,7 @@ void cmdGetATime ();
 void cmdGetCTime ();
 void cmdGetMTime ();
 rtlArraytype cmdGetSearchPath ();
+stritype cmdHomeDir ();
 void cmdMkdir ();
 void cmdMove ();
 stritype cmdReadlink ();
