@@ -1097,3 +1097,51 @@ errinfotype *err_info;
     } /* if */
     return cmd;
   } /* cp_to_command */
+
+
+
+#ifdef PATHS_RELATIVE_TO_EXECUTABLE
+#ifdef ANSI_C
+
+stritype relativeToProgramPath (const const_stritype basePath,
+    const const_cstritype dir, const const_cstritype library_name)
+#else
+
+stritype relativeToProgramPath (basePath, dir, library_name)
+stritype basePath;
+cstritype dir;
+cstritype library_name;
+#endif
+
+  {
+    memsizetype dir_path_size;
+    memsizetype position;
+    stritype result;
+
+  /* relativeToProgramPath */
+    dir_path_size = 0;
+    for (position = 0; position < basePath->size; position++) {
+      if (basePath->mem[position] == '/') {
+        dir_path_size = position;
+      } /* if */
+    } /* for */
+    if (dir_path_size >= 4 &&
+        basePath->mem[dir_path_size - 4] == '/' && ((
+        basePath->mem[dir_path_size - 3] == 'b' &&
+        basePath->mem[dir_path_size - 2] == 'i' &&
+        basePath->mem[dir_path_size - 1] == 'n') || (
+        basePath->mem[dir_path_size - 3] == 'p' &&
+        basePath->mem[dir_path_size - 2] == 'r' &&
+        basePath->mem[dir_path_size - 1] == 'g'))) {
+      if (likely(ALLOC_STRI_SIZE_OK(result, dir_path_size - 3 + strlen(dir) + strlen(library_name)))) {
+        result->size = dir_path_size - 3 + strlen(dir) + strlen(library_name);
+        memcpy(result->mem, basePath->mem, (dir_path_size - 3) * sizeof(strelemtype));
+        cstri_expand(&result->mem[dir_path_size - 3], dir, strlen(dir));
+        cstri_expand(&result->mem[dir_path_size - 3 + strlen(dir)], library_name, strlen(library_name));
+      } /* if */
+    } else {
+      result = cstri_to_stri(library_name);
+    } /* if */
+    return result;
+  } /* relativeToProgramPath */
+#endif

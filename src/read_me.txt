@@ -19,7 +19,7 @@ THE MAKEFILES
   -------------+-----------------+--------------+------------+--------
   mk_linux.mak | Linux/Unix/BSD  | (g)make      | gcc        | sh
   mk_cygw.mak  | Windows (Cygwin)| (g)make      | gcc        | sh
-  mk_msys.mak  | Windows (MinGW) | (g)make      | gcc        | sh
+  mk_msys.mak  | Windows (MSYS)  | (g)make      | gcc        | sh
   mk_mingw.mak | Windows (MinGW) | mingw32-make | gcc        | cmd.exe
   mk_nmake.mak | Windows (MinGW) | nmake        | gcc        | cmd.exe
   mk_msvc.mak  | Windows (MSVC)  | nmake        | cl         | cmd.exe

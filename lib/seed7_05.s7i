@@ -3567,7 +3567,9 @@ const func string: dir (PROGRAM) is func
   begin
     result := path(PROGRAM);
     slashPos := rpos(result, '/');
-    if slashPos > 1 then
+    if slashPos = 1 then
+      result := "/";
+    elsif slashPos > 1 then
       result := result[.. pred(slashPos)];
     end if;
   end func;

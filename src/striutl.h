@@ -81,6 +81,10 @@ stritype cp_from_os_path (const_os_stritype os_stri);
 os_stritype cp_to_os_path (const_stritype stri, errinfotype *err_info);
 const strelemtype *stri_charpos (const_stritype stri, strelemtype ch);
 os_stritype cp_to_command (const_stritype stri, errinfotype *err_info);
+#ifdef PATHS_RELATIVE_TO_EXECUTABLE
+stritype relativeToProgramPath (const const_stritype basePath,
+    const const_cstritype dir, const const_cstritype library_name);
+#endif
 
 #else
 
@@ -98,6 +102,9 @@ stritype cp_from_os_path ();
 os_stritype cp_to_os_path ();
 strelemtype *stri_charpos ();
 os_stritype cp_to_command ();
+#ifdef PATHS_RELATIVE_TO_EXECUTABLE
+stritype relativeToProgramPath ();
+#endif
 
 #endif
 

@@ -8610,14 +8610,18 @@ ont color=blue>is "";
     Action name         bstlib.c function   bst_rtl.c function
     BST_APPEND          bst_append          bstAppend
     BST_CAT             bst_cat             bstCat
+    BST_CMP             bst_cmp             bstCmp
     BST_CPY             bst_cpy             bstCpy
     BST_CREATE          bst_create          bstCreate
     BST_DESTR           bst_destr           bstDestr
     BST_EMPTY           bst_empty            
-    BST_EQ              bst_eq              a->size==b->size&amp;&amp;memcmp(a,b,a->size*sizeof(unsigned char))==0
+    BST_EQ              bst_eq              a->size==b->size &amp;&amp; memcmp(a,b,a->size*sizeof(unsigned char))==0
+    BST_HASHCODE        bst_hashcode        bstHashCode
+    BST_IDX             bst_idx             a-&gt;mem[b-1]
     BST_LNG             bst_lng             a->size
-    BST_NE              bst_ne              a->size!=b->size||memcmp(a,b,a->size*sizeof(unsigned char))!=0
+    BST_NE              bst_ne              a->size!=b->size || memcmp(a,b,a->size*sizeof(unsigned char))!=0
     BST_PARSE           bst_parse           bstParse
+    BST_STR             bst_str             bstStr
     BST_VALUE           bst_value           bstValue
 
 13.6 Actions for the type char
@@ -8632,7 +8636,7 @@ ont color=blue>is "";
     CHR_EQ              chr_eq              ==
     CHR_GE              chr_ge              &gt;=
     CHR_GT              chr_gt              &gt;
-    CHR_HASHCODE        chr_hashcode        (inttype)
+    CHR_HASHCODE        chr_hashcode        (inttype)((schartype)a)
     CHR_ICONV           chr_iconv           (chartype)
     CHR_INCR            chr_incr            ++
     CHR_LE              chr_le              <=
@@ -8673,6 +8677,7 @@ ont color=blue>is "";
     CMD_SET_MTIME       cmd_set_mtime       cmdSetMTime
     CMD_SHELL           cmd_shell           cmdShell
     CMD_SYMLINK         cmd_symlink         cmdSymlink
+    CMD_TO_OS_PATH      cmd_to_os_path      cmdToOsPath
 
 13.8 Actions for declarations
 
@@ -8718,6 +8723,7 @@ ont color=blue>is "";
     DRW_FPOLYLINE       drw_fpolyLine       drwFPolyLine
     DRW_GENPOINTLIST    drw_genPointList    drwGenPointList
     DRW_GET             drw_get             drwGet
+    DRW_HASHCODE        drw_hashcode        (inttype)(((memsizetype)a)&gt;&gt;6)
     DRW_HEIGHT          drw_height          drwHeight
     DRW_IMAGE           drw_image           drwImage
     DRW_LINE            drw_line            drwLine
@@ -8786,6 +8792,7 @@ ont color=blue>is "";
     FIL_NE              fil_ne              !=
     FIL_OPEN            fil_open            filOpen
     FIL_OUT             fil_out             stdout
+    FIL_PCLOSE          fil_pclose          filPclose
     FIL_POPEN           fil_popen           filPopen
     FIL_PRINT           fil_print           filPrint
     FIL_SEEK            fil_seek            filSeek
@@ -8910,9 +8917,9 @@ ont color=blue>is "";
     INT_LSHIFT          int_lshift          <<
     INT_LSHIFT_ASSIGN   int_lshift_assign   <<=
     INT_LT              int_lt              <
-    INT_MDIV            int_mdiv            a&gt;0&amp;&amp;b<0?(a-1)/b-1:a<0&amp;&amp;b&gt;0?(a+1)/b-1:a/b
+    INT_MDIV            int_mdiv            a&gt;0&amp;&amp;b<0 ? (a-1)/b-1 : a<0&amp;&amp;b&gt;0 ? (a+1)/b-1 : a/b
     INT_MINUS           int_minus           -
-    INT_MOD             int_mod             c=a%b,((a&gt;0&amp;&amp;b<0)||(a<0&amp;&amp;b&gt;0))&amp;&amp;c!=0?c+b:c
+    INT_MOD             int_mod             c=a%b, ((a&gt;0&amp;&amp;b<0) || (a<0&amp;&amp;b&gt;0)) &amp;&amp; c!=0 ? c+b : c
     INT_MULT            int_mult            *
     INT_MULT_ASSIGN     int_mult_assign     *=
     INT_NE              int_ne              !=
@@ -8937,12 +8944,14 @@ ont color=blue>is "";
 13.16 Actions for interface types
 
     Action name         itflib.c function    
+    ITF_CMP             itf_cmp             uintCmpGeneric
     ITF_CONV2           itf_conv2           (noop)
     ITF_CPY             itf_cpy             =
     ITF_CPY2            itf_cpy2            =
     ITF_CREATE          itf_create           
     ITF_CREATE2         itf_create2          
     ITF_EQ              itf_eq              ==
+    ITF_HASHCODE        itf_hashcode        (inttype)(((memsizetype)a)&gt;&gt;6)
     ITF_NE              itf_ne              !=
     ITF_SELECT          itf_select           
 
@@ -9054,7 +9063,7 @@ ont color=blue>is "";
     REF_EQ              ref_eq              ==
     REF_FILE            ref_file            refFile
     REF_FIND            ref_find             
-    REF_HASHCODE        ref_hashcode        (inttype)(((uinttype)a)&gt;&gt;6)
+    REF_HASHCODE        ref_hashcode        (inttype)(((memsizetype)a)&gt;&gt;6)
     REF_ISSYMB          ref_issymb           
     REF_ISVAR           ref_isvar           refIsvar
     REF_ITFTOSCT        ref_itftosct        refItftosct
@@ -9180,6 +9189,7 @@ ont color=blue>is "";
 
     Action name         strlib.c function   str_rtl.c function
     SOC_ACCEPT          soc_accept          socAccept
+    SOC_ADDR_FAMILY     soc_addr_family     socAddrFamily
     SOC_BIND            soc_bind            socBind
     SOC_CLOSE           soc_close           socClose
     SOC_CONNECT         soc_connect         socConnect
@@ -9217,7 +9227,7 @@ ont color=blue>is "";
     STR_CREATE          str_create          strCreate
     STR_DESTR           str_destr           strDestr
     STR_ELEMCPY         str_elemcpy         a-&gt;mem[b-1]=c
-    STR_EQ              str_eq              a->size==b->size&amp;&amp;memcmp(a,b,a->size*sizeof(strelemtype))==0
+    STR_EQ              str_eq              a->size==b->size &amp;&amp; memcmp(a,b,a->size*sizeof(strelemtype))==0
     STR_GE              str_ge              strGe
     STR_GETENV          str_getenv          strGetenv
     STR_GT              str_gt              strGt
@@ -9233,10 +9243,11 @@ ont color=blue>is "";
     STR_LPAD0           str_lpad0           strLpad0, strLpad0Temp
     STR_LT              str_lt              strLt
     STR_MULT            str_mult            strMult
-    STR_NE              str_ne              a->size!=b->size||memcmp(a,b,a->size*sizeof(strelemtype))!=0
+    STR_NE              str_ne              a->size!=b->size || memcmp(a,b,a->size*sizeof(strelemtype))!=0
     STR_POS             str_pos             strPos
     STR_PUSH            str_push            strPush
     STR_RANGE           str_range           strRange
+    STR_RCHIPOS         str_rchipos         strRChIpos
     STR_RCHPOS          str_rchpos          strRChPos
     STR_REPL            str_repl            strRepl
     STR_RPAD            str_rpad            strRpad
@@ -9271,7 +9282,7 @@ ont color=blue>is "";
     TYP_FUNC            typ_func            typFunc
     TYP_GENSUB          typ_gensub           
     TYP_GENTYPE         typ_gentype          
-    TYP_HASHCODE        typ_hashcode        (inttype)(((uinttype)a)&gt;&gt;6)
+    TYP_HASHCODE        typ_hashcode        (inttype)(((memsizetype)a)&gt;&gt;6)
     TYP_ISDECLARED      typ_isdeclared       
     TYP_ISDERIVED       typ_isderived       typIsDerived
     TYP_ISFORWARD       typ_isforward        

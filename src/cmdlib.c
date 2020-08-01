@@ -719,3 +719,20 @@ listtype arguments;
     cmdSymlink(take_stri(arg_1(arguments)), take_stri(arg_2(arguments)));
     return(SYS_EMPTY_OBJECT);
   } /* cmd_symlink */
+
+
+
+#ifdef ANSI_C
+
+objecttype cmd_to_os_path (listtype arguments)
+#else
+
+objecttype cmd_to_os_path (arguments)
+listtype arguments;
+#endif
+
+  { /* cmd_to_os_path */
+    isit_stri(arg_1(arguments));
+    return(bld_stri_temp(
+        cmdToOsPath(take_stri(arg_1(arguments)))));
+  } /* cmd_to_os_path */

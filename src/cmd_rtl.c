@@ -131,6 +131,8 @@
 #define OTH_BITS_NORMAL (S_IROTH == 0004 && S_IWOTH == 0002 && S_IXOTH == 0001)
 #define MODE_BITS_NORMAL (USR_BITS_NORMAL && GRP_BITS_NORMAL && OTH_BITS_NORMAL)
 
+extern stritype programPath; /* defined in hi.c or in the executable of a program */
+
 
 
 #ifdef ANSI_C
@@ -376,10 +378,12 @@ errinfotype *err_info;
           os_remove(to_name);
         } /* if */
       } else {
+        /* printf("cannot open destination file: %s\n", to_name); */
         fclose(from_file);
         *err_info = FILE_ERROR;
       } /* if */
     } else {
+      /* printf("cannot open source file: %s\n", from_name); */
       *err_info = FILE_ERROR;
     } /* if */
 #ifdef TRACE_CMD_RTL
@@ -953,11 +957,26 @@ stritype name;
       } else if (strcmp(opt_name, "SYSTEM_LIBS") == 0) {
         opt = SYSTEM_LIBS;
       } else if (strcmp(opt_name, "SEED7_LIB") == 0) {
+#ifdef PATHS_RELATIVE_TO_EXECUTABLE
+        result = relativeToProgramPath(programPath, "bin/", SEED7_LIB);
+	opt = NULL;
+#else
         opt = SEED7_LIB;
+#endif
       } else if (strcmp(opt_name, "COMP_DATA_LIB") == 0) {
+#ifdef PATHS_RELATIVE_TO_EXECUTABLE
+        result = relativeToProgramPath(programPath, "bin/", COMP_DATA_LIB);
+	opt = NULL;
+#else
         opt = COMP_DATA_LIB;
+#endif
       } else if (strcmp(opt_name, "COMPILER_LIB") == 0) {
+#ifdef PATHS_RELATIVE_TO_EXECUTABLE
+        result = relativeToProgramPath(programPath, "bin/", COMPILER_LIB);
+	opt = NULL;
+#else
         opt = COMPILER_LIB;
+#endif
       } else if (strcmp(opt_name, "INT32TYPE") == 0) {
         opt = INT32TYPE_STRI;
       } else if (strcmp(opt_name, "UINT32TYPE") == 0) {
@@ -1055,7 +1074,9 @@ stritype name;
         opt = "";
       } /* if */
     } /* if */
-    result = cstri_to_stri(opt);
+    if (opt != NULL) {
+      result = cstri8_or_cstri_to_stri(opt);
+    } /* if */
     if (unlikely(result == NULL)) {
       raise_error(MEMORY_ERROR);
     } /* if */
@@ -2163,3 +2184,109 @@ stritype dest_name;
       raise_error(err_info);
     } /* if */
   } /* cmdSymlink */
+
+
+
+#ifdef ANSI_C
+
+stritype cmdToOsPath (const const_stritype standardPath)
+#else
+
+stritype cmdToOsPath (standardPath)
+stritype stri;
+#endif
+
+  {
+    errinfotype err_info = OKAY_NO_ERROR;
+    stritype result;
+
+  /* cmdToOsPath */
+#ifdef TRACE_CMD_RTL
+    printf("cmdToOsPath(");
+    prot_stri(standardPath);
+    printf(")\n");
+#endif
+#ifdef ALLOW_DRIVE_LETTERS
+    if (unlikely(standardPath->size >= 2 && standardPath->mem[standardPath->size - 1] == '/' &&
+                 (standardPath->size != 3 || standardPath->mem[1] != ':' ||
+                 ((standardPath->mem[0] < 'a' || standardPath->mem[0] > 'z') &&
+                  (standardPath->mem[0] < 'A' || standardPath->mem[0] > 'Z'))))) {
+#else
+    if (unlikely(standardPath->size >= 2 && (standardPath->mem[standardPath->size - 1] == '/' ||
+                 (standardPath->mem[1] == ':' &&
+                 ((standardPath->mem[0] >= 'a' && standardPath->mem[0] <= 'z') ||
+                  (standardPath->mem[0] >= 'A' && standardPath->mem[0] <= 'Z')))))) {
+#endif
+      err_info = RANGE_ERROR;
+    } else {
+#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+      if (standardPath->size >= 1 && standardPath->mem[0] == '/') {
+        /* Absolute path: Try to map the path to a drive letter */
+        if (unlikely(standardPath->size == 1)) {
+          /* "/"    cannot be mapped to a drive letter */
+          err_info = RANGE_ERROR;
+        } else if (standardPath->mem[1] >= 'a' && standardPath->mem[1] <= 'z') {
+          if (standardPath->size == 2) {
+            /* "/c"   is mapped to "c:\"  */
+            if (unlikely(!ALLOC_STRI_SIZE_OK(result, 3))) {
+              err_info = MEMORY_ERROR;
+            } else {
+              result->size = 3;
+              result->mem[0] = (os_chartype) standardPath->mem[1];
+              result->mem[1] = ':';
+              result->mem[2] = '\\';
+            } /* if */
+          } else if (unlikely(standardPath->mem[2] != '/')) {
+            /* "/cd"  cannot be mapped to a drive letter */
+            err_info = RANGE_ERROR;
+          } else {
+            /* "/c/d" is mapped to "c:\d" */
+            if (unlikely(!ALLOC_STRI_SIZE_OK(result, standardPath->size))) {
+              err_info = MEMORY_ERROR;
+            } else {
+              result->size = standardPath->size;
+              result->mem[0] = (os_chartype) standardPath->mem[1];
+              result->mem[1] = ':';
+              result->mem[2] = '\\';
+              memcpy(&result->mem[3], &standardPath->mem[3], (standardPath->size - 3) * sizeof(strelemtype));
+            } /* if */
+          } /* if */
+        } else {
+          /* "/C"  cannot be mapped to a drive letter */
+          err_info = RANGE_ERROR;
+        } /* if */
+      } else {
+#endif
+        if (unlikely(!ALLOC_STRI_SIZE_OK(result, standardPath->size))) {
+          err_info = MEMORY_ERROR;
+        } else {
+          result->size = standardPath->size;
+          memcpy(result->mem, standardPath->mem, standardPath->size * sizeof(strelemtype));
+        } /* if */
+#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+      } /* if */
+#endif
+    } /* if */
+    if (err_info != OKAY_NO_ERROR) {
+      raise_error(err_info);
+      result = NULL;
+    } else {
+#if PATH_DELIMITER != '/'
+      memsizetype position;
+
+      for (position = 0; position < result->size; position++) {
+        if (result->mem[position] == '/') {
+          result->mem[position] = PATH_DELIMITER;
+        } /* if */
+      } /* for */
+#endif
+    } /* if */
+#ifdef TRACE_CMD_RTL
+    printf("cmdToOsPath(");
+    prot_stri(standardPath);
+    printf(") --> ");
+    prot_stri(result);
+    printf("\n");
+#endif
+    return result;
+  } /* cmdToOsPath */

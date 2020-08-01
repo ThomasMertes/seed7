@@ -48,7 +48,6 @@
 #include "runerr.h"
 #include "match.h"
 #include "name.h"
-#include "option.h"
 #include "str_rtl.h"
 #include "cmd_rtl.h"
 #include "prg_comp.h"

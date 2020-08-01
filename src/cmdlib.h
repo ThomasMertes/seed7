@@ -53,6 +53,7 @@ objecttype cmd_set_filemode    (listtype arguments);
 objecttype cmd_set_mtime       (listtype arguments);
 objecttype cmd_shell           (listtype arguments);
 objecttype cmd_symlink         (listtype arguments);
+objecttype cmd_to_os_path      (listtype arguments);
 
 #else
 
@@ -82,5 +83,6 @@ objecttype cmd_set_filemode ();
 objecttype cmd_set_mtime ();
 objecttype cmd_shell ();
 objecttype cmd_symlink ();
+objecttype cmd_to_os_path ();
 
 #endif

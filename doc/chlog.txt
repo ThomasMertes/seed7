@@ -1,3 +1,25 @@
+20110508:
+- FAQ answers about Seed7s application area, Unicode support, Seed7s
+  closures and how the compiler implements them, were added.
+- A new example program (sydir7.sd7), an utility to syncronize directory
+  trees, was added.
+- The comanche.sd7 webserver was improved to use the Seed7 interpreter (hi)
+  to execute CGI scripts with the extension ".sd7".
+- Interpreter, compiler and runtime library were improved to support the
+  action CMD_TO_OS_PATH.
+- The compiler (comp.sd7) was improved to create #line directives with the
+  path notation of the operating system.
+- The file "setpaths.c" was added. It is used during the make process to
+  write the configuration macros SEED7_LIB, COMPILER_LIB, COMP_DATA_LIB
+  and SEED7_LIBRARY to the file "version.h".
+- The makefiles mk_mingw.mak, mk_nmake.mak, mk_msvc.mak, mk_bcc32.mak and
+  mk_bccv5.mak were improved to use the new file "setpaths.c", instead of
+  creating their own versions of "setpaths.c".
+- The configuration macros SEED7_LIB, COMPILER_LIB, COMP_DATA_LIB and
+  SEED7_LIBRARY were changed to use the standard path representation and
+  UTF-8 encoding.
+- The function relativeToProgramPath was added to the file "striutl.c".
+
 20110424:
 - Information about the lines of code in Seed7 was added to the FAQ.
 - The FAQ answers about supported operating systems and the analyze

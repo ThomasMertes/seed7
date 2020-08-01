@@ -70,6 +70,7 @@ void cmdSetMTime (const const_stritype file_name,
     inttype min, inttype sec, inttype micro_sec, inttype time_zone);
 inttype cmdShell (const const_stritype command_stri);
 void cmdSymlink (const const_stritype source_name, const const_stritype dest_name);
+stritype cmdToOsPath (const const_stritype standardPath);
 
 #else
 
@@ -99,5 +100,6 @@ void cmdSetFileMode ();
 void cmdSetMTime ();
 inttype cmdShell ();
 void cmdSymlink ();
+stritype cmdToOsPath ();
 
 #endif

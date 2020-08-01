@@ -19,7 +19,7 @@ programming languages:
    type parameters or a type result.
  - Seed7 has abstract data types. For example the types array, hash,
    struct and set. They are not hard coded in the compiler, but are
-   templates written in Seed7. User defined abstract datatypes are
+   templates written in Seed7. User defined abstract data types are
    also possible.
  - The object orientation of Seed7 allows multiple dispatch. That
    means that a function or method is connected to more than one type.
@@ -79,14 +79,12 @@ are defined to avoid the need to use shell (and cmd.exe) commands.
 
  - Different Unicode encodings (e.g.: UTF-8 or UTF-16) in system
    calls (e.g. fopen()/wopen()) are hidden from the programmer.
- - Copying, moving and removing files (and directory trees)
-   is supported with portable functions.
- - File properties such as size, type, time and mode can be
-   obtained and changed with portable functions.
- - A forward slash is used as path delimiter on all operating systems
-   and an attempt to use a backslash as path delimiter is an error.
- - Drive letters are prohibited. Instead of a path starting with
-   "C:" a standard path starting with "/c" must be used.
+ - Portable file functions:
+    - Copying, moving and removing files (and directory trees).
+    - File properties such as size, type, time and mode can be
+      obtained and changed.
+    - A standard path representation removes all problems with
+      drive letters and different path delimiters.
  - Differences between Unix sockets and winsockets are hidden and
    Seed7 sockets are files (as in Unix).
  - Reading keys and key combinations such as ctrl-F1 from a text
@@ -104,6 +102,7 @@ are defined to avoid the need to use shell (and cmd.exe) commands.
 Which license does Seed7 use?
 =============================
 
+Seed7 is "Free as in Freedom" and not only "Free as in Free Beer".
 The hi Interpreter and the example programs (extension .sd7) are under the
 GPL (General Public License, see also the file COPYING).
 
@@ -125,23 +124,50 @@ accept license changes from GPL to LGPL for parts of code which need to be
 in the runtime library to support compilation of Seed7 programs.
 
 
-But Java and C# are also free?
-==============================
+What kind of programs can be written in Seed7?
+==============================================
 
-Seed7 is "Free as in Freedom" and not only "Free as in Free Beer" and this can
-make a big difference. Undocumented native interfaces are just not possible.
+Seed7 can be used in various application areas:
+
+ - Applications, like an Excel look-alike (Seed7 is a general
+   purpose language and programs can be compiled to an executable).
+ - Scripts that deal with files and directories (The Seed7 Homepage
+   and the Seed7 release are created with Seed7 scripts).
+ - Tools for networking (There is support for sockets, HTTP and
+   HTML parsing).
+ - Programs that deal with XML (There is support for XML parsing and
+   the possibility to read XML into a DOM data structure).
+ - CGI scripts (A CGI support library is available and the Comanche web server
+   can be used to test CGI scripts).
+ - As language to describe algorithms.
+ - Command line utilities. E.g.:
+    - A make utility capable to process Unix and Windows makefiles
+    - A tar archiving utility
+    - A program to save a potentially damaged harddisk partition to an image file
+ - 2D games. E.g.:
+    - Panic
+    - Mahjong solitaire
+    - Pairs
+ - Simulations. E.g.:
+    - Planet Wator simulation with fish and sharks
+    - Bacteria which fight against each other
+ - Functions to explore mathematics. E.g.:
+    - Mandelbrot set
+    - Bifurcation
+    - Cellular automaton
+
 
 
 How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 150000 lines of Seed7. For version 2011-04-03 the number of lines is:
+than 150000 lines of Seed7. For version 2011-05-08 the number of lines is:
 
-  91660  C source files (*.c)
-   9617  C header files (*.h)
-  98027  Seed7 source files (*.sd7)
-  58928  Seed7 library/include files (*.s7i)
+  92102  C source files (*.c)
+   9628  C header files (*.h)
+  98269  Seed7 source files (*.sd7)
+  58932  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -229,7 +255,7 @@ and shell:
   -------------+-----------------+--------------+------------+--------
   mk_linux.mak | Linux/Unix/BSD  | (g)make      | gcc        | sh
   mk_cygw.mak  | Windows (Cygwin)| (g)make      | gcc        | sh
-  mk_msys.mak  | Windows (MinGW) | (g)make      | gcc        | sh
+  mk_msys.mak  | Windows (MSYS)  | (g)make      | gcc        | sh
   mk_mingw.mak | Windows (MinGW) | mingw32-make | gcc        | cmd.exe
   mk_nmake.mak | Windows (MinGW) | nmake        | gcc        | cmd.exe
   mk_msvc.mak  | Windows (MSVC)  | nmake        | cl         | cmd.exe
@@ -422,7 +448,7 @@ Possible options are
                  message to stdout and the user will be ask to continue (with enter) or
                  to terminate (with * ).
   -r suppresses the generation of range checks for strings and arrays.
-  -e generates code which sends a signal when an uncaught exception occurs.
+  -e generates code which sends a signal, when an uncaught exception occurs.
                 This option allows debuggers to handle uncaught Seed7 exceptions.
 
 
@@ -656,7 +682,7 @@ the program that is currently running.
 
 Seed7 declarations are not executed at runtime. Functions with type parameters
 and type result are executed at compile-time. This is done in templates and
-abstract datatypes (both are executed at compile-time) .It is possible to have
+abstract data types (both are executed at compile-time) .It is possible to have
 type variables and type expressions at runtime but is not possible to declare
 objects with such a variable type for the program which currently runs. Such
 type variables and type expressions are used in the Seed7 compiler.
@@ -768,6 +794,22 @@ Forgetting to initialize a variable is a common source of errors. In some progra
 languages uninitialized variables have a random value which could lead to errors.
 To avoid errors caused by uninitialized variables in Seed7 each variable must be
 initialized when it is declared.
+
+
+Is Unicode supported?
+=====================
+
+Seed7 characters and strings support Unicode.
+Unicode values are encoded with UTF-32. This way it is not necessary to
+distinguish character-length from byte-length. All functions which exchange
+strings with the operating system automatically convert the strings
+to and from UTF-32. It is possible to read and write files with Latin-1,
+UTF-8 and UTF-16 encoding. Functions to deal with codepages and functions
+to convert between different Unicode encodings are also available.
+
+Seed7 source code allows Unicode in char literals, string literals, block comments and line comments.
+Interpreter and compiler assume that a Seed7 program is written with UTF-8
+encoding. Therefore a program editor with UTF-8 encoding should be used.
 
 
 Is there a garbage collection?
@@ -903,6 +945,51 @@ The declarations of the normal '+' operators (which do not convert) are:
 
 The decision which '+' operator should be called at runtime is based on the
 implementation type ('Integer' or a 'Float') of both arguments of the '+'.
+
+
+What is a closure?
+==================
+
+Closures are expressions and they might be executed once, many
+times or not at all. Examples of closures are:
+
+ - The conditions of while loops
+ - The statements in loop bodies
+ - The statements that are conditionally executed in
+   an if statement
+
+As can be seen closures are used all the time without realizing it. 
+A closure is a function without parameters. Function types such
+as 'proc' or 'func boolean' are used as type of formal closure
+parameters. An expression with the correct type is allowed
+as actual closure parameter. This actual parameter expression is
+not evaluated when the function is called. Instead the closure
+expression is evaluated every time the formal closure parameter
+is used. A 'conditional' function (similar to the ?: operator from C)
+is defined with:
+
+  const func integer: conditional (in boolean: condition,
+      (in func integer: trueValue, in func integer: falseValue) is func
+    result
+      var integer: result is 0;
+    begin
+      if condition then
+        result := trueValue;
+      else
+        result := falseValue;
+      end if;
+    end func;
+
+Seed7 does not require a special notation (like brackets) for
+actual closure parameters, therefore the 'conditional' function
+can be called with:
+
+  conditional(a < 100.0, sqrt(a), a ** 2)
+
+Depending on the condition 'a < 100.0' only one of the expressions
+'sqrt(a)' and 'a ** 2' is evaluated. This evaluation
+takes place when 'trueValue' or 'falseValue' is assigned
+to 'result'.
 
 
 What container classes do exist?
@@ -1349,6 +1436,32 @@ The analyzer executes the call-code of the parsed and matched expressions.
 Normally parsed and matched expressions represents declaration statements.
 Executing a declaration statement adds new defined objects to the internal
 database.
+
+
+How does the compiler implement closure parameters?
+===================================================
+
+Every function with closure parameters is searched for recursive calls.
+When no recursive call of the function is present it can be implemented
+with code inlining. In this case every call of the function is inlined
+and the actual closure parameters replace all occurrences of the formal
+closure parameter in the function body.
+
+When a function cannot be implemented with code inlining (recursive calls
+occur) pointers to a closure structure are used as formal closure parameters.
+This closure structure contains a function pointer and a structure which
+represents the environment of the closure. When a formal closure parameter
+is used the function of the closure structure is called with a pointer to
+the closure environment as parameter.
+
+When a function with closure parameters is called the following things are done:
+For every actual closure parameter a closure structure with the function
+pointer and the closure environment structure is generated. An actual
+function representing the closure code is also generated. Before a function
+with a closure parameter is called a closure structure variable is
+initialized. This includes initializing the function pointer and the
+environment data of the closure structure variable. Finally a pointer
+to the closure structure variable is used as actual closure parameter.
 
 
 What does action "XYZ_SOMETHING" mean?

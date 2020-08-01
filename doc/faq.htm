@@ -17,8 +17,8 @@ Are Seed7 programs portable?
 <li><a href="#license"><b>
 Which license does Seed7 use?
 </b></a></li>
-<li><a href="#free"><b>
-But Java and C# are also free?
+<li><a href="#application_area"><b>
+What kind of programs can be written in Seed7?
 </b></a></li>
 <li><a href="#lines_of_code"><b>
 How many lines of code are in the Seed7 project?
@@ -92,6 +92,9 @@ Why is it necessary to initialize all variables?
 <li><a href="#garbage_collection"><b>
 Is there a garbage collection?
 </b></a></li>
+<li><a href="#unicode"><b>
+Is Unicode supported?
+</b></a></li>
 <li><a href="#object_oriented"><b>
 Is Seed7 object oriented?
 </b></a></li>
@@ -103,6 +106,9 @@ What is the difference between overloading and object orientation?
 </b></a></li>
 <li><a href="#multiple_dispatch"><b>
 What is multiple dispatch?
+</b></a></li>
+<li><a href="#closure"><b>
+What is a closure?
 </b></a></li>
 <li><a href="#container_classes"><b>
 What container classes do exist?
@@ -158,6 +164,9 @@ Does the interpreter use bytecode?
 <li><a href="#analyze"><b>
 How does the analyze phase of the interpreter work?
 </b></a></li>
+<li><a href="#compile_closure"><b>
+How does the compiler implement closure parameters?
+</b></a></li>
 <li><a href="#action"><b>
 What does action "XYZ_SOMETHING" mean?
 </b></a></li>
@@ -189,9 +198,9 @@ programming languages:
    type parameters or a type result.</li>
 <li><!--  -  -->Seed7 has abstract data types. For example the types array, hash,
    struct and set. They are not hard coded in the compiler, but are
-   templates written in Seed7. User defined abstract datatypes are
+   templates written in Seed7. User defined abstract data types are
    also possible.</li>
-<li><!--  -  -->The object orientation of Seed7 allows multiple dispatch. That
+<li><!--  -  -->The object orientation of Seed7 allows <a href="#multiple_dispatch">multiple dispatch</a>. That
    means that a function or method is connected to more than one type.</li>
 <li><!--  -  -->Seed7 is a syntactically and semantically extensible language:
    Almost all of the Seed7 language (statements, operators,
@@ -232,10 +241,10 @@ which was done without knowing that the historic extensible
 programming language movement existed. Although Seed7 has different
 roots it reaches many of the original extensible programming language
 goals. Seed7 differentiates between syntactic and semantic extensions.
-Syntactic extensions are described in <a href="manual/syntax.htm#">Chapter 9 (Structured syntax
+Syntactic extensions are described in <a href="manual/syntax.htm">Chapter 9 (Structured syntax
 definition)</a> of the manual. The semantic extensions of Seed7 are done
 by declaring statements and operators as functions. To do this
-statically typed closure parameters are used.
+statically typed <a href="#closure">closure</a> parameters are used.
 </p></p>
 
 <p><br><a name="portable"><h3>Are Seed7 programs portable?
@@ -247,19 +256,17 @@ resources such as files, directories, network, clock, keyboard,
 console and graphics are done in a portable way. Many functions
 are defined to avoid the need to use shell (and cmd.exe) commands.
 </p><ul>
-<li><!--  -  -->Different Unicode encodings (e.g.: UTF-8 or UTF-16) in system
+<li><!--  -  -->Different <a href="#unicode">Unicode</a> encodings (e.g.: UTF-8 or UTF-16) in system
    calls (e.g. fopen()/wopen()) are hidden from the programmer.</li>
-<li><!--  -  -->Copying, moving and removing files (and directory trees)
-   is supported with portable functions.</li>
-<li><!--  -  -->File properties such as size, type, time and mode can be
-   obtained and changed with portable functions.</li>
-<li><!--  -  -->A forward slash is used as path delimiter on all operating systems
-   and an attempt to use a backslash as path delimiter is an error.</li>
-<li><!--  -  -->Drive letters are prohibited. Instead of a path starting with
-   <tt><font color=maroon>"C:"</font></tt> a standard path starting with <tt><font color=maroon>"/c"</font></tt> must be used.</li>
+<li><!--  -  -->Portable file functions:<ul>
+<li><!--     -  --><a href="manual/os.htm#copyFile">Copying</a>, <a href="manual/os.htm#moveFile">moving</a> and <a href="manual/os.htm#removeFile">removing files</a> (and directory trees).</li>
+<li><!--     -  -->File properties such as <a href="manual/os.htm#fileSize">size</a>, <a href="manual/os.htm#fileType">type</a>, <a href="manual/os.htm#getATime">time</a> and <a href="manual/os.htm#fileMode">mode</a> can be
+      obtained and changed.</li>
+<li><!--     -  -->A <a href="manual/os.htm#Standard_path_representation">standard path representation</a> removes all problems with
+      drive letters and different path delimiters.</li></ul></li>
 <li><!--  -  -->Differences between Unix sockets and winsockets are hidden and
-   Seed7 sockets are files (as in Unix).</li>
-<li><!--  -  -->Reading keys and key combinations such as ctrl-F1 from a text
+   Seed7 <a href="manual/file.htm#Sockets">sockets</a> are files (as in Unix).</li>
+<li><!--  -  --><a href="manual/file.htm#Keyboard_file">Reading keys</a> and key combinations such as ctrl-F1 from a text
    console or a graphic window under different operating systems
    always delivers the same character code.</li>
 <li><!--  -  -->A portable graphics library allows drawing, image operations,
@@ -267,13 +274,14 @@ are defined to avoid the need to use shell (and cmd.exe) commands.
    and other annoyances are managed in the graphics library.</li>
 <li><!--  -  -->Weaknesses of operating systems are hidden (E.g.: The windows
    function utime() does not work on directories, but Seed7 allows
-   to modify directory access and modification times also under
+   to modify directory <a href="manual/os.htm#setATime">access</a> and <a href="manual/os.htm#setMTime">modification times</a> also under
    windows).</li>
 </ul></p>
 
 <p><br><a name="license"><h3>Which license does Seed7 use?
 </h3></a><hr><!-- ============================= -->
 <p>
+Seed7 is "Free as in Freedom" and not only "Free as in Free Beer".
 The hi Interpreter and the example programs (extension .sd7) are under the
 GPL (General Public License, see also the file COPYING).
 </p><p>
@@ -295,23 +303,50 @@ accept license changes from GPL to LGPL for parts of code which need to be
 in the runtime library to support compilation of Seed7 programs.
 </p></p>
 
-<p><br><a name="free"><h3>But Java and C# are also free?
-</h3></a><hr><!-- ============================== -->
+<p><br><a name="application_area"><h3>What kind of programs can be written in Seed7?
+</h3></a><hr><!-- ============================================== -->
 <p>
-Seed7 is "Free as in Freedom" and not only "Free as in Free Beer" and this can
-make a big difference. Undocumented native interfaces are just not possible.
+Seed7 can be used in various application areas:
+</p><ul>
+<li><!--  -  -->Applications, like an Excel look-alike (Seed7 is a general
+   purpose language and programs can be <a href="#compile">compiled</a> to an executable).</li>
+<li><!--  -  -->Scripts that deal with <a href="manual/os.htm">files and directories</a> (The Seed7 Homepage
+   and the Seed7 release are created with Seed7 scripts).</li>
+<li><!--  -  -->Tools for networking (There is support for <a href="manual/file.htm#Sockets">sockets</a>, HTTP and
+   HTML parsing).</li>
+<li><!--  -  -->Programs that deal with XML (There is support for XML parsing and
+   the possibility to read XML into a DOM data structure).</li>
+<li><!--  -  -->CGI scripts (A CGI support library is available and the <a href="scrshots/comanche.htm">Comanche</a> web server
+   can be used to test CGI scripts).</li>
+<li><!--  -  -->As language to describe <a href="algorith/index.htm">algorithms</a>.</li>
+<li><!--  -  -->Command line utilities. E.g.:<ul>
+<li><!--     -  --><a href="scrshots/make7.htm">A make utility capable to process Unix and Windows makefiles</a></li>
+<li><!--     -  --><a href="scrshots/tar7.htm">A tar archiving utility</a></li>
+<li><!--     -  --><a href="scrshots/savehd7.htm">A program to save a potentially damaged harddisk partition to an image file</a></li></ul></li>
+<li><!--  -  -->2D games. E.g.:<ul>
+<li><!--     -  --><a href="scrshots/panic.htm">Panic</a></li>
+<li><!--     -  --><a href="scrshots/mahjong.htm">Mahjong solitaire</a></li>
+<li><!--     -  --><a href="scrshots/pairs.htm">Pairs</a></li></ul></li>
+<li><!--  -  -->Simulations. E.g.:<ul>
+<li><!--     -  --><a href="scrshots/wator.htm">Planet Wator simulation with fish and sharks</a></li>
+<li><!--     -  --><a href="scrshots/dnafight.htm">Bacteria which fight against each other</a></li></ul></li>
+<li><!--  -  -->Functions to explore mathematics. E.g.:<ul>
+<li><!--     -  --><a href="scrshots/mandelbr.htm">Mandelbrot set</a></li>
+<li><!--     -  --><a href="algorith/graphic.htm#bifurk">Bifurcation</a></li>
+<li><!--     -  --><a href="algorith/graphic.htm#cellauto">Cellular automaton</a></li></ul></li>
+</ul><p>
 </p></p>
 
 <p><br><a name="lines_of_code"><h3>How many lines of code are in the Seed7 project?
 </h3></a><hr><!-- ================================================ -->
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 150000 lines of Seed7. For version 2011-04-03 the number of lines is:
+than 150000 lines of Seed7. For version 2011-05-08 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right">91660</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right"> 9617</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">98027</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right">58928</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right">92102</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right"> 9628</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">98269</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right">58932</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -340,7 +375,7 @@ Seed7 runs on the following operating systems:
 <li><!--     -  -->MinGW GCC (the binary Windows release of Seed7 uses MinGW)</li>
 <li><!--     -  -->Cygwin GCC (the X11 graphics is untested)</li>
 <li><!--     -  -->MSVC cl.exe (cl.exe is the stand-alone compiler of MSVC)</li>
-<li><!--     -  -->BDS bcc32.exe (bcc32.exe is the stand-alone compiler of the BDS)</li></ul>
+<li><!--     -  -->BDS bcc32.exe (bcc32.exe is the stand-alone compiler of the BDS)</li></ul></li>
 <li><!--  -  -->Mac OS X</li>
 </ul><p>
 For other operating systems it might be necessary to
@@ -399,7 +434,7 @@ and shell:
   <!-- -------------+-----------------+--------------+------------+-------- -->
   <tr><td>mk_linux.mak </td><!-- | --><td> Linux/Unix/BSD  </td><!-- | --><td> (g)make      </td><!-- | --><td> gcc        </td><!-- | --><td> sh</td></tr>
   <tr><td>mk_cygw.mak  </td><!-- | --><td> Windows (Cygwin)</td><!-- | --><td> (g)make      </td><!-- | --><td> gcc        </td><!-- | --><td> sh</td></tr>
-  <tr><td>mk_msys.mak  </td><!-- | --><td> Windows (MinGW) </td><!-- | --><td> (g)make      </td><!-- | --><td> gcc        </td><!-- | --><td> sh</td></tr>
+  <tr><td>mk_msys.mak  </td><!-- | --><td> Windows (MSYS)  </td><!-- | --><td> (g)make      </td><!-- | --><td> gcc        </td><!-- | --><td> sh</td></tr>
   <tr><td>mk_mingw.mak </td><!-- | --><td> Windows (MinGW) </td><!-- | --><td> mingw32-make </td><!-- | --><td> gcc        </td><!-- | --><td> cmd.exe</td></tr>
   <tr><td>mk_nmake.mak </td><!-- | --><td> Windows (MinGW) </td><!-- | --><td> nmake        </td><!-- | --><td> gcc        </td><!-- | --><td> cmd.exe</td></tr>
   <tr><td>mk_msvc.mak  </td><!-- | --><td> Windows (MSVC)  </td><!-- | --><td> nmake        </td><!-- | --><td> cl         </td><!-- | --><td> cmd.exe</td></tr>
@@ -574,7 +609,7 @@ The following options are recognized by hi:
 </h3></a><hr><!-- ========================================= -->
 <p>
 Generally Seed7 is designed to allow the compilation from Seed7 to C. The Seed7
-compiler (written in Seed7) uses the analyze phase of the interpreter to convert
+<a href="scrshots/comp.htm">compiler</a> (written in Seed7) uses the analyze phase of the interpreter to convert
 a program to call-code and then generates a corresponding C program. This C
 program is compiled and linked afterwards. The Seed7 compiler can be called with:
 </p><pre>
@@ -592,7 +627,7 @@ Possible options are
                  message to stdout and the user will be ask to continue (with enter) or
                  to terminate (with * ).</li>
   <li><b>-r</b> suppresses the generation of range checks for strings and arrays.</li>
-  <li><b>-e</b> generates code which sends a signal when an uncaught exception occurs.
+  <li><b>-e</b> generates code which sends a signal, when an uncaught exception occurs.
                 This option allows debuggers to handle uncaught Seed7 exceptions.</li>
 </ul></p></p>
 
@@ -607,7 +642,7 @@ are used in the middle of statements (or other constructs). Finally there are
 also keywords like <tt>'<font color=blue>div</font>'</tt>, <tt>'<font color=blue>rem</font>'</tt>, <tt>'<font color=blue>lpad</font>'</tt>, <tt>'<font color=blue>times</font>'</tt>, etc. which are used as
 operator symbols.
 </p><p>
-Seed7 uses syntax declarations to specify the syntax of statements. A keyword
+Seed7 uses <a href="manual/syntax.htm">syntax declarations</a> to specify the syntax of statements. A keyword
 is a name which is used somewhere in a syntax declaration. Syntax declarations
 reduce the possibilities to use a keyword out of context. E.g.: After the keyword
 <tt>'<font color=blue>if</font>'</tt> the parser expects always an expression. This makes <tt>'<font color=blue>if</font>'</tt> unusable as
@@ -826,7 +861,7 @@ the program that is currently running.
 </p><p>
 Seed7 declarations are not executed at runtime. Functions with type parameters
 and type result are executed at compile-time. This is done in templates and
-abstract datatypes (both are executed at compile-time) .It is possible to have
+abstract data types (both are executed at compile-time) .It is possible to have
 type variables and type expressions at runtime but is not possible to declare
 objects with such a variable type for the program which currently runs. Such
 type variables and type expressions are used in the Seed7 compiler.
@@ -940,6 +975,22 @@ To avoid errors caused by uninitialized variables in Seed7 each variable must be
 initialized when it is declared.
 </p></p>
 
+<p><br><a name="unicode"><h3>Is Unicode supported?
+</h3></a><hr><!-- ===================== -->
+<p>
+Seed7 <a href="manual/types.htm#char">characters</a> and <a href="manual/types.htm#string">strings</a> support Unicode.
+Unicode values are encoded with UTF-32. This way it is not necessary to
+distinguish character-length from byte-length. All functions which exchange
+strings with the operating system automatically convert the strings
+to and from UTF-32. It is possible to read and write files with Latin-1,
+UTF-8 and UTF-16 encoding. Functions to deal with codepages and functions
+to convert between different Unicode encodings are also available.
+</p><p>
+Seed7 source code allows Unicode in <a href="manual/tokens.htm#Character_literals">char literals</a>, <a href="manual/tokens.htm#String_literals">string literals</a>, <a href="manual/tokens.htm#Comments">block comments</a> and <a href="manual/tokens.htm#Line_comments">line comments</a>.
+Interpreter and compiler assume that a Seed7 program is written with UTF-8
+encoding. Therefore a program editor with UTF-8 encoding should be used.
+</p></p>
+
 <p><br><a name="garbage_collection"><h3>Is there a garbage collection?
 </h3></a><hr><!-- ============================== -->
 <p>
@@ -966,7 +1017,7 @@ at compile time.
 </h3></a><hr><!-- ========================= -->
 <p>
 Yes, but object orientation is organized different compared to other object
-oriented languages. <a href="manual/objects.htm#">Chapter 7 (Object orientation)</a> of the manual
+oriented languages. <a href="manual/objects.htm">Chapter 7 (Object orientation)</a> of the manual
 contains a detailed description of the Seed7 object orientation.
 </p><p>
 An example of an object oriented type is <tt>'<font color=red>file</font>'</tt>. A <tt>'<font color=red>file</font>'</tt> describes references to
@@ -1073,6 +1124,51 @@ The declarations of the normal <tt>'+'</tt> operators (which do not convert) are
 </pre><p>
 The decision which <tt>'+'</tt> operator should be called at runtime is based on the
 implementation type (<tt>'<font color=red>Integer</font>'</tt> or a <tt>'<font color=red>Float</font>'</tt>) of both arguments of the <tt>'+'</tt>.
+</p></p>
+
+<p><br><a name="closure"><h3>What is a closure?
+</h3></a><hr><!-- ================== -->
+<p>
+Closures are expressions and they might be executed once, many
+times or not at all. Examples of closures are:
+</p><ul>
+<li><!--  -  -->The conditions of while loops</li>
+<li><!--  -  -->The statements in loop bodies</li>
+<li><!--  -  -->The statements that are conditionally executed in
+   an if statement</li>
+</ul><p>
+As can be seen closures are used all the time without realizing it. 
+A closure is a function without parameters. Function types such
+as <tt>'<font color=red>proc</font>'</tt> or <tt>'<font color=red>func boolean</font>'</tt> are used as type of formal closure
+parameters. An expression with the correct type is allowed
+as actual closure parameter. This actual parameter expression is
+not evaluated when the function is called. Instead the closure
+expression is evaluated every time the formal closure parameter
+is used. A <tt>'conditional'</tt> function (similar to the ?: operator from C)
+is defined with:
+</p><pre>
+  <font color=blue>const</font> <font color=red>func integer</font>: conditional (<font color=blue>in</font> <font color=red>boolean</font>: condition,
+      (<font color=blue>in</font> <font color=red>func integer</font>: trueValue, <font color=blue>in</font> <font color=red>func integer</font>: falseValue) <font color=blue>is func</font>
+    <font color=blue>result</font>
+      <font color=blue>var</font> <font color=red>integer</font>: result <font color=blue>is</font> 0;
+    <font color=blue>begin</font>
+      <font color=blue>if</font> condition <font color=blue>then</font>
+        result := trueValue;
+      <font color=blue>else</font>
+        result := falseValue;
+      <font color=blue>end if</font>;
+    <font color=blue>end func</font>;
+</pre><p>
+Seed7 does not require a special notation (like brackets) for
+actual closure parameters, therefore the <tt>'conditional'</tt> function
+can be called with:
+</p><pre>
+  conditional(a < 100.0, sqrt(a), a ** 2)
+</pre><p>
+Depending on the condition <tt>'a < 100.0'</tt> only one of the expressions
+<tt>'sqrt(a)'</tt> and <tt>'a ** 2'</tt> is evaluated. This evaluation
+takes place when <tt>'trueValue'</tt> or <tt>'falseValue'</tt> is assigned
+to <tt>'result'</tt>.
 </p></p>
 
 <p><br><a name="container_classes"><h3>What container classes do exist?
@@ -1519,6 +1615,32 @@ The analyzer executes the call-code of the parsed and matched expressions.
 Normally parsed and matched expressions represents declaration statements.
 Executing a declaration statement adds new defined objects to the internal
 database.
+</p></p>
+
+<p><br><a name="compile_closure"><h3>How does the compiler implement closure parameters?
+</h3></a><hr><!-- =================================================== -->
+<p>
+Every function with closure parameters is searched for recursive calls.
+When no recursive call of the function is present it can be implemented
+with code inlining. In this case every call of the function is inlined
+and the actual closure parameters replace all occurrences of the formal
+closure parameter in the function body.
+</p><p>
+When a function cannot be implemented with code inlining (recursive calls
+occur) pointers to a closure structure are used as formal closure parameters.
+This closure structure contains a function pointer and a structure which
+represents the environment of the closure. When a formal closure parameter
+is used the function of the closure structure is called with a pointer to
+the closure environment as parameter.
+</p><p>
+When a function with closure parameters is called the following things are done:
+For every actual closure parameter a closure structure with the function
+pointer and the closure environment structure is generated. An actual
+function representing the closure code is also generated. Before a function
+with a closure parameter is called a closure structure variable is
+initialized. This includes initializing the function pointer and the
+environment data of the closure structure variable. Finally a pointer
+to the closure structure variable is used as actual closure parameter.
 </p></p>
 
 <p><br><a name="action"><h3>What does action "XYZ_SOMETHING" mean?

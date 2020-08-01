@@ -70,6 +70,7 @@ snake.sd7    Snake eats apple game
 sokoban.sd7  Sokoban puzzle game                               
 startrek.sd7 Classical startrek game                           
 sudoku7.sd7  Sudoku program                                    
+sydir7.sd7   Utility to syncronize directory trees             
 tak.sd7      Little benchmark computing tak(18, 12, 6)         
 tar7.sd7     Tar archiving utility                             
 tch.sd7      The hitchhikers guide ...                         

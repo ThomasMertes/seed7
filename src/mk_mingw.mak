@@ -178,45 +178,8 @@ version.h:
 	echo #define LINKER_OPT_OUTPUT_FILE "-o " >> version.h
 	echo #define LINKER_FLAGS "$(LDFLAGS)" >> version.h
 	echo #define SYSTEM_LIBS "$(LIBS)" >> version.h
-	echo #include "stdio.h" > setpaths.c
-	echo #include "stddef.h" >> setpaths.c
-	echo int chdir(char *path); >> setpaths.c
-	echo char *getcwd(char *buf, size_t size); >> setpaths.c
-	echo int main (int argc, char **argv) >> setpaths.c
-	echo { >> setpaths.c
-	echo char buffer[4096]; >> setpaths.c
-	echo int position; >> setpaths.c
-	echo chdir("../bin"); >> setpaths.c
-	echo getcwd(buffer, sizeof(buffer)); >> setpaths.c
-	echo printf("\043define SEED7_LIB \042"); >> setpaths.c
-	echo for (position = 0; buffer[position] != '\0'; position++) { >> setpaths.c
-	echo putchar(buffer[position] == '\\' ? '/' : buffer[position]); >> setpaths.c
-	echo } >> setpaths.c
-	echo printf("/$(SEED7_LIB)\042\n"); >> setpaths.c
-	echo getcwd(buffer, sizeof(buffer)); >> setpaths.c
-	echo printf("\043define COMP_DATA_LIB \042"); >> setpaths.c
-	echo for (position = 0; buffer[position] != '\0'; position++) { >> setpaths.c
-	echo putchar(buffer[position] == '\\' ? '/' : buffer[position]); >> setpaths.c
-	echo } >> setpaths.c
-	echo printf("/$(COMP_DATA_LIB)\042\n"); >> setpaths.c
-	echo getcwd(buffer, sizeof(buffer)); >> setpaths.c
-	echo printf("\043define COMPILER_LIB \042"); >> setpaths.c
-	echo for (position = 0; buffer[position] != '\0'; position++) { >> setpaths.c
-	echo putchar(buffer[position] == '\\' ? '/' : buffer[position]); >> setpaths.c
-	echo } >> setpaths.c
-	echo printf("/$(COMPILER_LIB)\042\n"); >> setpaths.c
-	echo chdir("../lib"); >> setpaths.c
-	echo getcwd(buffer, sizeof(buffer)); >> setpaths.c
-	echo printf("\043define SEED7_LIBRARY \042"); >> setpaths.c
-	echo for (position = 0; buffer[position] != '\0'; position++) { >> setpaths.c
-	echo putchar(buffer[position] == '\\' ? '/' : buffer[position]); >> setpaths.c
-	echo } >> setpaths.c
-	echo printf("\042\n"); >> setpaths.c
-	echo return 0; >> setpaths.c
-	echo } >> setpaths.c
 	$(CC) -o setpaths setpaths.c
-	.\setpaths.exe >> version.h
-	del setpaths.c
+	.\setpaths.exe $(SEED7_LIB) $(COMP_DATA_LIB) $(COMPILER_LIB) >> version.h
 	del setpaths.exe
 
 depend: a_depend b_depend c_depend version.h

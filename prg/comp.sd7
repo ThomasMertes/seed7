@@ -212,6 +212,34 @@ const proc: count_declarations is func
   end func;
 
 
+const func boolean: isByteString (in string: stri) is func
+
+  result
+    var boolean: result is TRUE;
+  local
+    var char: ch is ' ';
+  begin
+    for ch range stri do
+      if ord(ch) > 255 then
+        result := FALSE;
+      end if;
+    end for;
+  end func;
+
+
+const func string: sourceNameString (in string: sourceName) is func
+
+  result
+    var string: result is "";
+  begin
+    if CC_SOURCE_UTF8 or not isByteString(sourceName) then
+      result := c_literal(striToUtf8(toOsPath(sourceName)));
+    else
+      result := c_literal(toOsPath(sourceName));
+    end if;
+  end func;
+
+
 const func string: noDiagnosticLine is func
 
   result
@@ -234,21 +262,13 @@ const func string: diagnosticLine (in reference: current_object) is func
       result &:= "#line ";
       result &:= str(line(current_object));
       result &:= " ";
-      if CC_SOURCE_UTF8 then
-        result &:= c_literal(striToUtf8(file(current_object)));
-      else
-        result &:= c_literal(file(current_object));
-      end if;
+      result &:= sourceNameString(file(current_object));
       result &:= "\n";
     else
       result &:= "/* line ";
       result &:= str(line(current_object));
       result &:= " ";
-      if CC_SOURCE_UTF8 then
-        result &:= c_literal(striToUtf8(file(current_object)));
-      else
-        result &:= c_literal(file(current_object));
-      end if;
+      result &:= sourceNameString(file(current_object));
       result &:= " */\n";
     end if;
   end func;
@@ -261,21 +281,13 @@ const proc: setDiagnosticLine (inout expr_type: c_expr) is func
       c_expr.expr &:= "#line ";
       c_expr.expr &:= str(c_expr.currentLine);
       c_expr.expr &:= " ";
-      if CC_SOURCE_UTF8 then
-        c_expr.expr &:= c_literal(striToUtf8(c_expr.currentFile));
-      else
-        c_expr.expr &:= c_literal(c_expr.currentFile);
-      end if;
+      c_expr.expr &:= sourceNameString(c_expr.currentFile);
       c_expr.expr &:= "\n";
     else
       c_expr.expr &:= "/* line ";
       c_expr.expr &:= str(c_expr.currentLine);
       c_expr.expr &:= " ";
-      if CC_SOURCE_UTF8 then
-        c_expr.expr &:= c_literal(striToUtf8(c_expr.currentFile));
-      else
-        c_expr.expr &:= c_literal(c_expr.currentFile);
-      end if;
+      c_expr.expr &:= sourceNameString(c_expr.currentFile);
       c_expr.expr &:= " */\n";
     end if;
   end func;
@@ -617,7 +629,7 @@ const proc: process_raise_error (in string: exceptionName, in reference: functio
       c_expr.expr &:= "(raise_error2(";
       c_expr.expr &:= exceptionName;
       c_expr.expr &:= ", ";
-      c_expr.expr &:= c_literal(file(function));
+      c_expr.expr &:= sourceNameString(file(function));
       c_expr.expr &:= ", ";
       c_expr.expr &:= str(line(function));
       c_expr.expr &:= "),0)";
@@ -2907,7 +2919,7 @@ const proc: process_prc_raise (in reference: function, in ref_list: params,
     c_expr.expr &:= "raise_error2(";
     getAnyParamToExpr(params[2], c_expr);
     c_expr.expr &:= "+1, ";
-    c_expr.expr &:= c_literal(c_expr.currentFile);
+    c_expr.expr &:= sourceNameString(c_expr.currentFile);
     c_expr.expr &:= ", ";
     c_expr.expr &:= str(c_expr.currentLine);
     c_expr.expr &:= ");\n";
@@ -6419,6 +6431,16 @@ const proc: process_cmd_symlink (in ref_list: params, inout expr_type: c_expr) i
     c_expr.expr &:= ", ";
     getAnyParamToExpr(params[2], c_expr);
     c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process_cmd_to_os_path (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_stri_result(c_expr);
+    c_expr.result_expr := "cmdToOsPath(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 
@@ -14802,6 +14824,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_cmd_shell(params, c_expr);
       elsif action_name = "CMD_SYMLINK" then
         process_cmd_symlink(params, c_expr);
+      elsif action_name = "CMD_TO_OS_PATH" then
+        process_cmd_to_os_path(params, c_expr);
       else
         process_unknown_action(action_name, c_expr);
       end if;
@@ -17767,9 +17791,7 @@ const proc: process_main_declaration (in reference: function,
     main_prolog &:= "arg_v = getArgv(argc, argv, &arg_0, &programPath);\n";
     main_prolog &:= "setupFloat();\n";
     main_prolog &:= "init_values();\n";
-    if not signal_exception then
-      main_prolog &:= "activate_signal_handlers();\n";
-    end if;
+    main_prolog &:= "activate_signal_handlers();\n";
     main_prolog &:= "init_globals();\n";
     main_prolog &:= "{\n";
 
@@ -20226,6 +20248,7 @@ const proc: write_prototypes is func
     declareExtern("void        cmdSetMTime (const const_stritype, inttype, inttype, inttype, inttype, inttype, inttype, inttype, inttype);");
     declareExtern("inttype     cmdShell (const const_stritype);");
     declareExtern("void        cmdSymlink (const_stritype, const_stritype);");
+    declareExtern("stritype    cmdToOsPath (const const_stritype);");
     declareExtern("inttype     drwPointerXpos (const_wintype);");
     declareExtern("inttype     drwPointerYpos (const_wintype);");
     declareExtern("void        drwArc (const_wintype, inttype, inttype, inttype, floattype, floattype);");
@@ -21668,7 +21691,10 @@ const proc: declare_raise_error2 (inout expr_type: c_expr) is func
 #     c_expr.expr &:= "    raise(SIGFPE);\n";
 #     c_expr.expr &:= "    raise(SIGINT);\n";
 #     c_expr.expr &:= "    raise(SIGSEGV);\n";
-      c_expr.expr &:= "    activate_signal_handlers();\n";
+#     c_expr.expr &:= "    printf(\"after signal handler\\n\");\n";
+#     c_expr.expr &:= "    fflush(stdout);\n";
+#     c_expr.expr &:= "    activate_signal_handlers();\n";
+#     c_expr.expr &:= "    signal(SIGFPE, SIG_DFL);\n";
       c_expr.expr &:= "  }\n";
     end if;
     if USE_SIGSETJMP then
@@ -22001,15 +22027,15 @@ const proc: pass_3 (in string: source, in program: prog,
         removeFile(cErrorFile);
       end if;
       if okay then
-        if fileType(convDosPath(SEED7_LIB)) <> FILE_REGULAR then
+        if fileType(SEED7_LIB) <> FILE_REGULAR then
           writeln("*** Seed7 library " <& literal(SEED7_LIB) <& " missing");
           okay := FALSE;
         end if;
-        if compilerLibraryUsed and fileType(convDosPath(COMPILER_LIB)) <> FILE_REGULAR then
+        if compilerLibraryUsed and fileType(COMPILER_LIB) <> FILE_REGULAR then
           writeln("*** Compiler library " <& literal(COMPILER_LIB) <& " missing");
           okay := FALSE;
         end if;
-        if compDataLibraryUsed and fileType(convDosPath(COMP_DATA_LIB)) <> FILE_REGULAR then
+        if compDataLibraryUsed and fileType(COMP_DATA_LIB) <> FILE_REGULAR then
           writeln("*** Compiler data library " <& literal(COMP_DATA_LIB) <& " missing");
           okay := FALSE;
         end if;
@@ -22038,12 +22064,12 @@ const proc: pass_3 (in string: source, in program: prog,
             end if;
             link_cmd &:= " " & objectFile;
             if compilerLibraryUsed then
-              link_cmd &:= " " & literal(COMPILER_LIB);
+              link_cmd &:= " \"" & toOsPath(COMPILER_LIB) & "\"";
             end if;
             if compDataLibraryUsed then
-              link_cmd &:= " " & literal(COMP_DATA_LIB);
+              link_cmd &:= " \"" & toOsPath(COMP_DATA_LIB) & "\"";
             end if;
-            link_cmd &:= " " & literal(SEED7_LIB);
+            link_cmd &:= " \"" & toOsPath(SEED7_LIB) & "\"";
             link_cmd &:= " " & SYSTEM_LIBS;
             link_cmd &:= " " & REDIRECT_C_ERRORS & linkErrFile;
             writeln(link_cmd);

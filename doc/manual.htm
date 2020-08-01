@@ -8610,14 +8610,18 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><th>Action name</th>         <th>bstlib.c function</th>   <th>bst_rtl.c function</th></tr>
     <tr><td>BST_APPEND</td>          <td>bst_append</td>          <td>bstAppend</td></tr>
     <tr><td>BST_CAT</td>             <td>bst_cat</td>             <td>bstCat</td></tr>
+    <tr><td>BST_CMP</td>             <td>bst_cmp</td>             <td>bstCmp</td></tr>
     <tr><td>BST_CPY</td>             <td>bst_cpy</td>             <td>bstCpy</td></tr>
     <tr><td>BST_CREATE</td>          <td>bst_create</td>          <td>bstCreate</td></tr>
     <tr><td>BST_DESTR</td>           <td>bst_destr</td>           <td>bstDestr</td></tr>
     <tr><td>BST_EMPTY</td>           <td>bst_empty</td>           <td>&nbsp;</td></tr>
-    <tr><td>BST_EQ</td>              <td>bst_eq</td>              <td>a->size==b->size&amp;&amp;memcmp(a,b,a->size*sizeof(unsigned char))==0</td></tr>
+    <tr><td>BST_EQ</td>              <td>bst_eq</td>              <td>a->size==b->size &amp;&amp; memcmp(a,b,a->size*sizeof(unsigned char))==0</td></tr>
+    <tr><td>BST_HASHCODE</td>        <td>bst_hashcode</td>        <td>bstHashCode</td></tr>
+    <tr><td>BST_IDX</td>             <td>bst_idx</td>             <td>a-&gt;mem[b-1]</td></tr>
     <tr><td>BST_LNG</td>             <td>bst_lng</td>             <td>a->size</td></tr>
-    <tr><td>BST_NE</td>              <td>bst_ne</td>              <td>a->size!=b->size||memcmp(a,b,a->size*sizeof(unsigned char))!=0</td></tr>
+    <tr><td>BST_NE</td>              <td>bst_ne</td>              <td>a->size!=b->size || memcmp(a,b,a->size*sizeof(unsigned char))!=0</td></tr>
     <tr><td>BST_PARSE</td>           <td>bst_parse</td>           <td>bstParse</td></tr>
+    <tr><td>BST_STR</td>             <td>bst_str</td>             <td>bstStr</td></tr>
     <tr><td>BST_VALUE</td>           <td>bst_value</td>           <td>bstValue</td></tr>
 </table><p></p>
 <a name="char"><h3>13.6 Actions for the type char</h3></a>
@@ -8632,7 +8636,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>CHR_EQ</td>              <td>chr_eq</td>              <td>==</td></tr>
     <tr><td>CHR_GE</td>              <td>chr_ge</td>              <td>&gt;=</td></tr>
     <tr><td>CHR_GT</td>              <td>chr_gt</td>              <td>&gt;</td></tr>
-    <tr><td>CHR_HASHCODE</td>        <td>chr_hashcode</td>        <td>(inttype)</td></tr>
+    <tr><td>CHR_HASHCODE</td>        <td>chr_hashcode</td>        <td>(inttype)((schartype)a)</td></tr>
     <tr><td>CHR_ICONV</td>           <td>chr_iconv</td>           <td>(chartype)</td></tr>
     <tr><td>CHR_INCR</td>            <td>chr_incr</td>            <td>++</td></tr>
     <tr><td>CHR_LE</td>              <td>chr_le</td>              <td>&lt;=</td></tr>
@@ -8673,6 +8677,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>CMD_SET_MTIME</td>       <td>cmd_set_mtime</td>       <td>cmdSetMTime</td></tr>
     <tr><td>CMD_SHELL</td>           <td>cmd_shell</td>           <td>cmdShell</td></tr>
     <tr><td>CMD_SYMLINK</td>         <td>cmd_symlink</td>         <td>cmdSymlink</td></tr>
+    <tr><td>CMD_TO_OS_PATH</td>      <td>cmd_to_os_path</td>      <td>cmdToOsPath</td></tr>
 </table><p></p>
 <a name="declarations"><h3>13.8 Actions for declarations</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
@@ -8718,6 +8723,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>DRW_FPOLYLINE</td>       <td>drw_fpolyLine</td>       <td>drwFPolyLine</td></tr>
     <tr><td>DRW_GENPOINTLIST</td>    <td>drw_genPointList</td>    <td>drwGenPointList</td></tr>
     <tr><td>DRW_GET</td>             <td>drw_get</td>             <td>drwGet</td></tr>
+    <tr><td>DRW_HASHCODE</td>        <td>drw_hashcode</td>        <td>(inttype)(((memsizetype)a)&gt;&gt;6)</td></tr>
     <tr><td>DRW_HEIGHT</td>          <td>drw_height</td>          <td>drwHeight</td></tr>
     <tr><td>DRW_IMAGE</td>           <td>drw_image</td>           <td>drwImage</td></tr>
     <tr><td>DRW_LINE</td>            <td>drw_line</td>            <td>drwLine</td></tr>
@@ -8786,6 +8792,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>FIL_NE</td>              <td>fil_ne</td>              <td>!=</td></tr>
     <tr><td>FIL_OPEN</td>            <td>fil_open</td>            <td>filOpen</td></tr>
     <tr><td>FIL_OUT</td>             <td>fil_out</td>             <td>stdout</td></tr>
+    <tr><td>FIL_PCLOSE</td>          <td>fil_pclose</td>          <td>filPclose</td></tr>
     <tr><td>FIL_POPEN</td>           <td>fil_popen</td>           <td>filPopen</td></tr>
     <tr><td>FIL_PRINT</td>           <td>fil_print</td>           <td>filPrint</td></tr>
     <tr><td>FIL_SEEK</td>            <td>fil_seek</td>            <td>filSeek</td></tr>
@@ -8910,9 +8917,9 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>INT_LSHIFT</td>          <td>int_lshift</td>          <td>&lt;&lt;</td></tr>
     <tr><td>INT_LSHIFT_ASSIGN</td>   <td>int_lshift_assign</td>   <td>&lt;&lt;=</td></tr>
     <tr><td>INT_LT</td>              <td>int_lt</td>              <td>&lt;</td></tr>
-    <tr><td>INT_MDIV</td>            <td>int_mdiv</td>            <td>a&gt;0&amp;&amp;b&lt;0?(a-1)/b-1:a&lt;0&amp;&amp;b&gt;0?(a+1)/b-1:a/b</td></tr>
+    <tr><td>INT_MDIV</td>            <td>int_mdiv</td>            <td>a&gt;0&amp;&amp;b&lt;0 ? (a-1)/b-1 : a&lt;0&amp;&amp;b&gt;0 ? (a+1)/b-1 : a/b</td></tr>
     <tr><td>INT_MINUS</td>           <td>int_minus</td>           <td>-</td></tr>
-    <tr><td>INT_MOD</td>             <td>int_mod</td>             <td>c=a%b,((a&gt;0&amp;&amp;b&lt;0)||(a&lt;0&amp;&amp;b&gt;0))&amp;&amp;c!=0?c+b:c</td></tr>
+    <tr><td>INT_MOD</td>             <td>int_mod</td>             <td>c=a%b, ((a&gt;0&amp;&amp;b&lt;0) || (a&lt;0&amp;&amp;b&gt;0)) &amp;&amp; c!=0 ? c+b : c</td></tr>
     <tr><td>INT_MULT</td>            <td>int_mult</td>            <td>*</td></tr>
     <tr><td>INT_MULT_ASSIGN</td>     <td>int_mult_assign</td>     <td>*=</td></tr>
     <tr><td>INT_NE</td>              <td>int_ne</td>              <td>!=</td></tr>
@@ -8937,12 +8944,14 @@ ont color=blue>is</font> <font color=maroon>""</font>;
 <a name="interface"><h3>13.16 Actions for interface types</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>itflib.c function</th>   <th>&nbsp;</th></tr>
+    <tr><td>ITF_CMP</td>             <td>itf_cmp</td>             <td>uintCmpGeneric</td></tr>
     <tr><td>ITF_CONV2</td>           <td>itf_conv2</td>           <td>(noop)</td></tr>
     <tr><td>ITF_CPY</td>             <td>itf_cpy</td>             <td>=</td></tr>
     <tr><td>ITF_CPY2</td>            <td>itf_cpy2</td>            <td>=</td></tr>
     <tr><td>ITF_CREATE</td>          <td>itf_create</td>          <td>&nbsp;</td></tr>
     <tr><td>ITF_CREATE2</td>         <td>itf_create2</td>         <td>&nbsp;</td></tr>
     <tr><td>ITF_EQ</td>              <td>itf_eq</td>              <td>==</td></tr>
+    <tr><td>ITF_HASHCODE</td>        <td>itf_hashcode</td>        <td>(inttype)(((memsizetype)a)&gt;&gt;6)</td></tr>
     <tr><td>ITF_NE</td>              <td>itf_ne</td>              <td>!=</td></tr>
     <tr><td>ITF_SELECT</td>          <td>itf_select</td>          <td>&nbsp;</td></tr>
 </table><p></p>
@@ -9054,7 +9063,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>REF_EQ</td>              <td>ref_eq</td>              <td>==</td></tr>
     <tr><td>REF_FILE</td>            <td>ref_file</td>            <td>refFile</td></tr>
     <tr><td>REF_FIND</td>            <td>ref_find</td>            <td>&nbsp;</td></tr>
-    <tr><td>REF_HASHCODE</td>        <td>ref_hashcode</td>        <td>(inttype)(((uinttype)a)&gt;&gt;6)</td></tr>
+    <tr><td>REF_HASHCODE</td>        <td>ref_hashcode</td>        <td>(inttype)(((memsizetype)a)&gt;&gt;6)</td></tr>
     <tr><td>REF_ISSYMB</td>          <td>ref_issymb</td>          <td>&nbsp;</td></tr>
     <tr><td>REF_ISVAR</td>           <td>ref_isvar</td>           <td>refIsvar</td></tr>
     <tr><td>REF_ITFTOSCT</td>        <td>ref_itftosct</td>        <td>refItftosct</td></tr>
@@ -9180,6 +9189,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>strlib.c function</th>   <th>str_rtl.c function</th></tr>
     <tr><td>SOC_ACCEPT</td>          <td>soc_accept</td>          <td>socAccept</td></tr>
+    <tr><td>SOC_ADDR_FAMILY</td>     <td>soc_addr_family</td>     <td>socAddrFamily</td></tr>
     <tr><td>SOC_BIND</td>            <td>soc_bind</td>            <td>socBind</td></tr>
     <tr><td>SOC_CLOSE</td>           <td>soc_close</td>           <td>socClose</td></tr>
     <tr><td>SOC_CONNECT</td>         <td>soc_connect</td>         <td>socConnect</td></tr>
@@ -9217,7 +9227,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>STR_CREATE</td>          <td>str_create</td>          <td>strCreate</td></tr>
     <tr><td>STR_DESTR</td>           <td>str_destr</td>           <td>strDestr</td></tr>
     <tr><td>STR_ELEMCPY</td>         <td>str_elemcpy</td>         <td>a-&gt;mem[b-1]=c</td></tr>
-    <tr><td>STR_EQ</td>              <td>str_eq</td>              <td>a->size==b->size&amp;&amp;memcmp(a,b,a->size*sizeof(strelemtype))==0</td></tr>
+    <tr><td>STR_EQ</td>              <td>str_eq</td>              <td>a->size==b->size &amp;&amp; memcmp(a,b,a->size*sizeof(strelemtype))==0</td></tr>
     <tr><td>STR_GE</td>              <td>str_ge</td>              <td>strGe</td></tr>
     <tr><td>STR_GETENV</td>          <td>str_getenv</td>          <td>strGetenv</td></tr>
     <tr><td>STR_GT</td>              <td>str_gt</td>              <td>strGt</td></tr>
@@ -9233,10 +9243,11 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>STR_LPAD0</td>           <td>str_lpad0</td>           <td>strLpad0, strLpad0Temp</td></tr>
     <tr><td>STR_LT</td>              <td>str_lt</td>              <td>strLt</td></tr>
     <tr><td>STR_MULT</td>            <td>str_mult</td>            <td>strMult</td></tr>
-    <tr><td>STR_NE</td>              <td>str_ne</td>              <td>a->size!=b->size||memcmp(a,b,a->size*sizeof(strelemtype))!=0</td></tr>
+    <tr><td>STR_NE</td>              <td>str_ne</td>              <td>a->size!=b->size || memcmp(a,b,a->size*sizeof(strelemtype))!=0</td></tr>
     <tr><td>STR_POS</td>             <td>str_pos</td>             <td>strPos</td></tr>
     <tr><td>STR_PUSH</td>            <td>str_push</td>            <td>strPush</td></tr>
     <tr><td>STR_RANGE</td>           <td>str_range</td>           <td>strRange</td></tr>
+    <tr><td>STR_RCHIPOS</td>         <td>str_rchipos</td>         <td>strRChIpos</td></tr>
     <tr><td>STR_RCHPOS</td>          <td>str_rchpos</td>          <td>strRChPos</td></tr>
     <tr><td>STR_REPL</td>            <td>str_repl</td>            <td>strRepl</td></tr>
     <tr><td>STR_RPAD</td>            <td>str_rpad</td>            <td>strRpad</td></tr>
@@ -9271,7 +9282,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>TYP_FUNC</td>            <td>typ_func</td>            <td>typFunc</td></tr>
     <tr><td>TYP_GENSUB</td>          <td>typ_gensub</td>          <td>&nbsp;</td></tr>
     <tr><td>TYP_GENTYPE</td>         <td>typ_gentype</td>         <td>&nbsp;</td></tr>
-    <tr><td>TYP_HASHCODE</td>        <td>typ_hashcode</td>        <td>(inttype)(((uinttype)a)&gt;&gt;6)</td></tr>
+    <tr><td>TYP_HASHCODE</td>        <td>typ_hashcode</td>        <td>(inttype)(((memsizetype)a)&gt;&gt;6)</td></tr>
     <tr><td>TYP_ISDECLARED</td>      <td>typ_isdeclared</td>      <td>&nbsp;</td></tr>
     <tr><td>TYP_ISDERIVED</td>       <td>typ_isderived</td>       <td>typIsDerived</td></tr>
     <tr><td>TYP_ISFORWARD</td>       <td>typ_isforward</td>       <td>&nbsp;</td></tr>

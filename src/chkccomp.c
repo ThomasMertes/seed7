@@ -19,7 +19,7 @@
 /*  Fifth Floor, Boston, MA  02110-1301, USA.                       */
 /*                                                                  */
 /*  Module: Chkcomp                                                 */
-/*  File: seed7/src/chkcomp.c                                       */
+/*  File: seed7/src/chkccomp.c                                      */
 /*  Changes: 2010  Thomas Mertes                                    */
 /*  Content: Program to Check properties of C compiler and runtime. */
 /*                                                                  */
@@ -79,6 +79,7 @@
  *  Program to Check properties of C compiler and runtime.
  */
 int main (int argc, char **argv)
+
   {
     FILE *aFile;
     time_t timestamp;

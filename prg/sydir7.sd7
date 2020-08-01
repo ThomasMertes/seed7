@@ -1,0 +1,216 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  sydir7.sd7    Utility to syncronize directory trees             *)
+(*  Copyright (C) 2009 - 2011  Thomas Mertes                        *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+  include "time.s7i";
+
+
+const proc: syncFile (in string: sourcePath, in string: destPath) is forward;
+
+
+const proc: syncDir (in string: sourcePath, in string: destPath) is func
+  local
+    var array string: sourceContent is 0 times "";
+    var array string: destContent is 0 times "";
+    var boolean: updateMtime is FALSE;
+    var integer: sourceIndex is 1;
+    var integer: destIndex is 1;
+    var string: sourceName is "";
+    var string: destName is "";
+  begin
+    if getMTime(sourcePath) + 1 . SECONDS >= getMTime(destPath) then
+      updateMtime := TRUE;
+    end if;
+    sourceContent := read_dir(sourcePath);
+    destContent := read_dir(destPath);
+    # writeln("syncDir " <& literal(sourcePath) <& " " <& literal(destPath));
+    while sourceIndex <= length(sourceContent) and
+        destIndex <= length(destContent) do
+      sourceName := sourceContent[sourceIndex];
+      destName := destContent[destIndex];
+      if sourceName = destName then
+        # writeln("syncFile = " <& literal(sourceName) <& " " <& literal(destName));
+        syncFile(sourcePath & "/" & sourceName,
+                 destPath & "/" & destName);
+        incr(sourceIndex);
+        incr(destIndex);
+      elsif sourceName < destName then
+        # writeln("syncFile < " <& literal(sourceName) <& " " <& literal(destName));
+        syncFile(sourcePath & "/" & sourceName,
+                 destPath & "/" & sourceName);
+        incr(sourceIndex);
+      else # sourceName > destName then
+        # writeln("syncFile > " <& literal(sourceName) <& " " <& literal(destName));
+        syncFile(sourcePath & "/" & destName,
+                 destPath & "/" & destName);
+        incr(destIndex);
+      end if;
+    end while;
+    while sourceIndex <= length(sourceContent) do
+      sourceName := sourceContent[sourceIndex];
+      # writeln("syncFile S " <& literal(sourceName));
+      syncFile(sourcePath & "/" & sourceName,
+               destPath & "/" & sourceName);
+      incr(sourceIndex);
+    end while;
+    while destIndex <= length(destContent) do
+      destName := destContent[destIndex];
+      # writeln("syncFile D " <& literal(destName));
+      syncFile(sourcePath & "/" & destName,
+               destPath & "/" & destName);
+      incr(destIndex);
+    end while;
+    if updateMtime then
+      # writeln("update mtime " <& literal(sourcePath) <& " to " <& literal(destPath));
+      setMTime(destPath, getMTime(sourcePath));
+    end if;
+  end func;
+
+
+const func boolean: equalFileContent (in string: sourcePath, in string: destPath) is func
+  result
+    var boolean: equal is FALSE;
+  local
+    var file: sourceFile is STD_NULL;
+    var file: destFile is STD_NULL;
+    var string: sourceBlock is "";
+    var string: destBlock is "";
+  begin
+    sourceFile := open(sourcePath, "r");
+    if sourceFile <> STD_NULL then
+      destFile := open(destPath, "r");
+      if destFile <> STD_NULL then
+        equal := TRUE;
+        while equal and not eof(sourceFile) and not eof(destFile) do
+          sourceBlock := gets(sourceFile, 134217728);
+          destBlock := gets(destFile, 134217728);
+          equal := sourceBlock = destBlock;
+        end while;
+        close(destFile);
+      end if;
+      close(sourceFile);
+    end if;
+  end func;
+
+
+const proc: syncFile (in string: sourcePath, in string: destPath) is func
+  local
+    var array string: dirContent is 0 times "";
+    var string: fileName is "";
+  begin
+    if fileTypeSL(sourcePath) = FILE_ABSENT then
+      if fileTypeSL(destPath) <> FILE_ABSENT then
+        # writeln("leave file " <& literal(destPath));
+        noop;
+        # writeln("delete file " <& literal(destPath));
+        # removeAnyFile(destPath);
+      end if;
+    elsif fileTypeSL(sourcePath) = FILE_SYMLINK then
+      if fileTypeSL(destPath) = FILE_ABSENT then
+        block
+          cloneFile(sourcePath, destPath);
+          writeln("copy symlink " <& literal(sourcePath) <& " to " <& literal(destPath));
+        exception
+          catch FILE_ERROR:
+            writeln(" *** Cannot copy symlink " <& literal(sourcePath) <& " to " <& literal(destPath));
+        end block;
+      elsif fileTypeSL(destPath) = FILE_SYMLINK then
+        if readlink(sourcePath) <> readlink(destPath) then
+          writeln("Source link " <& literal(sourcePath) <&
+                  " and destination link " <& literal(destPath) <&
+                  " point to different paths");
+        end if;
+      else
+        writeln(" *** Destination " <& literal(destPath) <& " is not a symbolic link");
+      end if;
+    elsif fileTypeSL(sourcePath) = FILE_DIR then
+      if fileTypeSL(destPath) = FILE_ABSENT then
+        writeln("copy directory " <& literal(sourcePath) <& " to " <& literal(destPath));
+        mkdir(destPath);
+        syncDir(sourcePath, destPath);
+        setMTime(destPath, getMTime(sourcePath));
+      elsif fileTypeSL(destPath) = FILE_DIR then
+        syncDir(sourcePath, destPath);
+      else
+        writeln(" *** Destination " <& literal(destPath) <& " is not a directory");
+      end if;
+    elsif fileTypeSL(sourcePath) = FILE_REGULAR then
+      if fileTypeSL(destPath) = FILE_ABSENT then
+        block
+          cloneFile(sourcePath, destPath);
+          writeln("copy file " <& literal(sourcePath) <& " to " <& literal(destPath));
+        exception
+          catch FILE_ERROR:
+            writeln(" *** Cannot copy file " <& literal(sourcePath) <& " to " <& literal(destPath));
+        end block;
+      elsif fileTypeSL(destPath) = FILE_REGULAR then
+        # writeln(getMTime(sourcePath));
+        # writeln(getMTime(destPath));
+        if getMTime(sourcePath) > getMTime(destPath) + 1 . SECONDS then
+          writeln("update file " <& literal(sourcePath) <& " to " <& literal(destPath));
+          removeFile(destPath);
+          cloneFile(sourcePath, destPath);
+        elsif getMTime(sourcePath) < getMTime(destPath) - 1 . SECONDS then
+          if fileSize(sourcePath) = fileSize(destPath) and equalFileContent(sourcePath, destPath) then
+            writeln(" *** Correct time of identical files " <& literal(sourcePath) <& " - " <& literal(destPath));
+            setMTime(destPath, getMTime(sourcePath));
+          else
+            writeln(" *** Destination newer " <& literal(sourcePath) <& " - " <& literal(destPath));
+            # writeln(getMTime(sourcePath) <& "   " <& getMTime(destPath) <& "   " <& getMTime(destPath) - 1 . SECONDS);
+          end if;
+        elsif fileSize(sourcePath) <> fileSize(destPath) then
+          writeln("Correct file " <& literal(sourcePath) <& " to " <& literal(destPath));
+          removeFile(destPath);
+          cloneFile(sourcePath, destPath);
+        end if;
+      else
+        writeln(" *** Destination " <& literal(destPath) <& " is not a regular file");
+      end if;
+    else
+      writeln(" *** Source " <& literal(sourcePath) <& " has file type " <& fileTypeSL(sourcePath));
+    end if;
+  end func;
+
+
+const proc: main is func
+  local
+    var string: fromName is "";
+    var string: toName is "";
+  begin
+    if length(argv(PROGRAM)) < 2 then
+      writeln("Sydir7 Version 1.0 - Utility to syncronize directory trees");
+      writeln("Copyright (C) 2009 - 2011 Thomas Mertes");
+      writeln("This is free software; see the source for copying conditions.  There is NO");
+      writeln("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.");
+      writeln("Sydir7 is written in the Seed7 programming language");
+      writeln("Homepage: http://seed7.sourceforge.net");
+      writeln;
+      writeln("usage: sydir7 source destination");
+      writeln;
+    else
+      fromName := argv(PROGRAM)[1];
+      toName := argv(PROGRAM)[2];
+      syncFile(fromName, toName);
+    end if;
+  end func;

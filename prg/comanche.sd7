@@ -118,8 +118,11 @@ const func string: callCgi (in string: filePath, in string: queryParams,
     # writeln(cgiInput, "*");
     # writeln(cgiInput, "*");
     close(cgiInput);
-    # cgiOutput := popen("./hi -q " <& cgiPath & " < " & tempName, "r");
-    cgiOutput := popen(cgiPath & " < " & tempName, "r");
+    if endsWith(cgiPath, ".sd7") then
+      cgiOutput := popen("./hi -q " <& cgiPath & " < " & tempName, "r");
+    else
+      cgiOutput := popen(cgiPath & " < " & tempName, "r");
+    end if;
     if cgiOutput <> STD_NULL then
       line := getln(cgiOutput);
       while line <> "" do
