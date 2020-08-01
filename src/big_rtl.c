@@ -197,12 +197,12 @@ uint8Type radixDigitsInBigdigit[] = {
 
 #define IS_NEGATIVE(digit) (((digit) & BIGDIGIT_SIGN) != 0)
 
-static const int digit_value[] = {
+static const unsigned int digit_value[] = {
      0,  1,  2,  3,  4,  5,  6,  7,  8,  9,              /* Digits 0 - 9   */
-    -1, -1, -1, -1, -1, -1, -1,                          /* Illegal digits */
+    36, 36, 36, 36, 36, 36, 36,                          /* Illegal digits */
     10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22,  /* Digits A - M */
     23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35,  /* Digits N - Z */
-    -1, -1, -1, -1, -1, -1,                              /* Illegal digits */
+    36, 36, 36, 36, 36, 36,                              /* Illegal digits */
     10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22,  /* Digits a - m */
     23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35   /* Digits n - z */
   };
@@ -680,7 +680,8 @@ static bigIntType bigParseBasedPow2 (const const_striType stri, unsigned int shi
     boolType okay;
     memSizeType charPos;
     strElemType digit;
-    int digitval;
+    unsigned int base;
+    unsigned int digitval;
     memSizeType bigDigitPos;
     doubleBigDigitType bigDigit;
     unsigned int bigDigitShift;
@@ -712,6 +713,7 @@ static bigIntType bigParseBasedPow2 (const const_striType stri, unsigned int shi
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
+      base = (unsigned int) 1 << shift;
       /* Compute the number of bits necessary: */
       bits_necessary = (stri->size - mostSignificantDigitPos) * (memSizeType) shift;
       /* printf("bits_necessary: %lu\n", bits_necessary); */
@@ -721,7 +723,8 @@ static bigIntType bigParseBasedPow2 (const const_striType stri, unsigned int shi
         digit = stri->mem[mostSignificantDigitPos];
         if (digit >= '0' && digit <= 'z') {
           digitval = digit_value[digit - (strElemType) '0'];
-          if ((digitval >> (shift - 1) & 1) == 1) {
+          if (digitval < base &&
+              (digitval >> (shift - 1) & 1) == 1) {
             /* The highest bit of the most significant digit is set. */
             result_size++;
           } /* if */
@@ -737,16 +740,16 @@ static bigIntType bigParseBasedPow2 (const const_striType stri, unsigned int shi
         bigDigitShift = 0;
         for (charPos = stri->size; charPos > mostSignificantDigitPos && okay; charPos--) {
           digit = stri->mem[charPos - 1];
-          if (digit >= '0' && digit <= 'z') {
+          if (likely(digit >= '0' && digit <= 'z')) {
             digitval = digit_value[digit - (strElemType) '0'];
-            if (digitval == -1) {
+            if (likely(digitval < base)) {
+              bigDigit |= (doubleBigDigitType) digitval << bigDigitShift;
+            } else {
               okay = FALSE;
             } /* if */
           } else {
-            digitval = -1;
             okay = FALSE;
           } /* if */
-          bigDigit |= (doubleBigDigitType) digitval << bigDigitShift;
           bigDigitShift += shift;
           if (bigDigitShift >= BIGDIGIT_SIZE) {
             /* printf("result->bigdigits[%lu] = " F_X_DIG(08) "\n",
@@ -809,7 +812,8 @@ static bigIntType bigParseBased2To36 (const const_striType stri, intType base)
     bigDigitType power_of_base_in_bigdigit;
     memSizeType limit;
     strElemType digit;
-    bigDigitType digitval;
+    unsigned int digitval;
+    bigDigitType bigDigit;
     memSizeType result_size;
     bigIntType result;
 
@@ -853,27 +857,22 @@ static bigIntType bigParseBased2To36 (const const_striType stri, intType base)
           power_of_base_in_bigdigit = powerOfRadixInBigdigit[base - 2];
           limit = (stri->size - position - 1) % based_digits_in_bigdigit + position + 1;
           do {
-            digitval = 0;
+            bigDigit = 0;
             while (position < limit && okay) {
               digit = stri->mem[position];
-              if (digit >= ((strElemType) '0') &&
-                  digit <= ((strElemType) '9')) {
-                digitval = (bigDigitType) base * digitval +
-                    (bigDigitType) digit - (bigDigitType) '0';
-              } else if (digit >= ((strElemType) 'a') &&
-                         digit <= ((strElemType) 'z')) {
-                digitval = (bigDigitType) base * digitval +
-                    (bigDigitType) digit - (bigDigitType) 'a' + (bigDigitType) 10;
-              } else if (digit >= ((strElemType) 'A') &&
-                         digit <= ((strElemType) 'Z')) {
-                digitval = (bigDigitType) base * digitval +
-                    (bigDigitType) digit - (bigDigitType) 'A' + (bigDigitType) 10;
+              if (likely(digit >= '0' && digit <= 'z')) {
+                digitval = digit_value[digit - (strElemType) '0'];
+                if (likely(digitval < base)) {
+                  bigDigit = (bigDigitType) base * bigDigit + digitval;
+                } else {
+                  okay = FALSE;
+                } /* if */
               } else {
                 okay = FALSE;
               } /* if */
               position++;
             } /* while */
-            uBigMultiplyAndAdd(result, power_of_base_in_bigdigit, (doubleBigDigitType) digitval);
+            uBigMultiplyAndAdd(result, power_of_base_in_bigdigit, (doubleBigDigitType) bigDigit);
             limit += based_digits_in_bigdigit;
           } while (position < stri->size && okay);
         } /* if */
@@ -5638,7 +5637,7 @@ bigIntType bigParse (const const_striType stri)
     boolType negative;
     memSizeType position;
     memSizeType limit;
-    bigDigitType digitval;
+    bigDigitType bigDigit;
     bigIntType result;
 
   /* bigParse */
@@ -5669,18 +5668,18 @@ bigIntType bigParse (const const_striType stri)
         } else {
           limit = (stri->size - position - 1) % DECIMAL_DIGITS_IN_BIGDIGIT + position + 1;
           do {
-            digitval = 0;
+            bigDigit = 0;
             while (position < limit && okay) {
               if (likely(stri->mem[position] >= ((strElemType) '0') &&
                          stri->mem[position] <= ((strElemType) '9'))) {
-                digitval = (bigDigitType) 10 * digitval +
+                bigDigit = (bigDigitType) 10 * bigDigit +
                     (bigDigitType) stri->mem[position] - (bigDigitType) '0';
               } else {
                 okay = FALSE;
               } /* if */
               position++;
             } /* while */
-            uBigMultByPowerOf10AndAdd(result, (doubleBigDigitType) digitval);
+            uBigMultByPowerOf10AndAdd(result, (doubleBigDigitType) bigDigit);
             limit += DECIMAL_DIGITS_IN_BIGDIGIT;
           } while (position < stri->size && okay);
         } /* if */

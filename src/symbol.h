@@ -34,25 +34,29 @@ typedef struct {
     unsigned int syNumberInLine;
     ustriType name;
     sySizeType name_length;
+    ucharType utf8_repr[4];
+    sySizeType utf8_length;
     intType intValue;
     bigIntType bigIntValue;
     charType charValue;
     striType striValue;
     memSizeType stri_max;
     floatType floatValue;
+    boolType unicodeNames;
   } symbolType;
 
 #ifdef DO_INIT
-symbolType symbol = {STOPSYMBOL, 0, NULL, 0,
-    (intType) 0, (bigIntType) NULL, (charType) 0,
-    (striType) NULL, 0, (floatType) 0.0};
+symbolType symbol = {STOPSYMBOL, 0, NULL, 0, "\0\0\0\0", 0,
+                     (intType) 0, (bigIntType) NULL, (charType) 0,
+                     (striType) NULL, 0, (floatType) 0.0, FALSE};
 #else
 EXTERN symbolType symbol;
 #endif
 
 
-#define check_symb_length(LEN) if (LEN == symbol.name_length) extend_symb_length()
-#define check_stri_length(LEN) if (LEN == symbol.stri_max) extend_stri_length()
+#define check_symb_length(len)              if (len == symbol.name_length) extend_symb_length()
+#define check_symb_length_delta(len, delta) if (len + delta > symbol.name_length) extend_symb_length()
+#define check_stri_length(len)              if (len == symbol.stri_max) extend_stri_length()
 
 
 void extend_symb_length (void);

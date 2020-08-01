@@ -244,16 +244,19 @@ static void wri_binary_ident_tree (const_identType actual_ident)
 #endif
     if (actual_ident != NULL) {
       wri_binary_ident_tree(actual_ident->next1);
-      printf("%s ", id_string(actual_ident));
+      prot_cstri8(id_string(actual_ident));
+      prot_cstri(" ");
       if (actual_ident->entity != NULL &&
           actual_ident->entity->syobject != NULL) {
         if (CATEGORY_OF_OBJ(actual_ident->entity->syobject) == SYMBOLOBJECT) {
-          printf(" %s(%lu)",
-                 get_file_name_ustri(GET_POS_FILE_NUM(actual_ident->entity->syobject)),
-                 (long unsigned) GET_POS_LINE_NUM(actual_ident->entity->syobject));
+          prot_cstri(" ");
+          prot_string(get_file_name(GET_POS_FILE_NUM(actual_ident->entity->syobject)));
+          prot_cstri("(");
+          prot_int((intType) GET_POS_LINE_NUM(actual_ident->entity->syobject));
+          prot_cstri(")");
         } /* if */
       } /* if */
-      printf("\n");
+      prot_nl();
       wri_binary_ident_tree(actual_ident->next2);
     } /* if */
 #ifdef TRACE_FINDID
@@ -274,23 +277,28 @@ void write_idents (void)
     printf("BEGIN write_idents\n");
 #endif
     for (position = 0; position < ID_TABLE_SIZE; position++) {
-      printf(" ====== %d ======\n", position);
+      prot_cstri(" ====== ");
+      prot_int((intType) position);
+      prot_cstri(" ======\n");
       wri_binary_ident_tree(prog.ident.table[position]);
     } /* for */
     for (character = '!'; character <= '~'; character++) {
       if (op_character(character) ||
           char_class(character) == LEFTPARENCHAR ||
           char_class(character) == PARENCHAR) {
-        printf("%s ", id_string(prog.ident.table1[character]));
+        prot_cstri8(id_string(prog.ident.table1[character]));
+        prot_cstri(" ");
         if (prog.ident.table1[character]->entity != NULL &&
             prog.ident.table1[character]->entity->syobject != NULL) {
           if (CATEGORY_OF_OBJ(prog.ident.table1[character]->entity->syobject) == SYMBOLOBJECT) {
-            printf(" %s(%lu)",
-                   get_file_name_ustri(GET_POS_FILE_NUM(prog.ident.table1[character]->entity->syobject)),
-                   (long unsigned) GET_POS_LINE_NUM(prog.ident.table1[character]->entity->syobject));
+            prot_cstri(" ");
+            prot_string(get_file_name(GET_POS_FILE_NUM(prog.ident.table1[character]->entity->syobject)));
+            prot_cstri("(");
+            prot_int((intType) GET_POS_LINE_NUM(prog.ident.table1[character]->entity->syobject));
+            prot_cstri(")");
           } /* if */
         } /* if */
-        printf("\n");
+        prot_nl();
       } /* if */
     } /* for */
 #ifdef TRACE_FINDID

@@ -30,6 +30,7 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "signal.h"
+#include "setjmp.h"
 
 #include "common.h"
 #include "data.h"
@@ -48,6 +49,9 @@
 #undef EXTERN
 #define EXTERN
 #include "runerr.h"
+
+
+static long_jump_position sigsegv_occurred;
 
 
 
@@ -104,10 +108,35 @@ void continue_question (void)
 
 
 
+static void write_position_info (objectType currObject, boolType writeNoInfo)
+
+  { /* write_position_info */
+    if (currObject != NULL) {
+      if (HAS_POSINFO(currObject)) {
+        prot_cstri("at ");
+        prot_string(get_file_name(GET_FILE_NUM(currObject)));
+        prot_cstri("(");
+        prot_int((intType) GET_LINE_NUM(currObject));
+        prot_cstri(")");
+      } else if (HAS_PROPERTY(currObject) &&
+          currObject->descriptor.property->line != 0) {
+        prot_cstri("at ");
+        prot_string(get_file_name(currObject->descriptor.property->file_number));
+        prot_cstri("(");
+        prot_int((intType) currObject->descriptor.property->line);
+        prot_cstri(")");
+      } else if (writeNoInfo) {
+        prot_cstri("no POSITION INFORMATION ");
+        /* trace1(currObject); */
+      } /* if */
+    } /* if */
+  } /* write_position_info */
+
+
+
 static void write_call_stack_element (const_listType stack_elem)
 
   {
-    const_listType position_stack_elem;
     objectType func_object;
 
   /* write_call_stack_element */
@@ -120,53 +149,79 @@ static void write_call_stack_element (const_listType stack_elem)
           func_object = stack_elem->obj;
         } /* if */
         if (HAS_ENTITY(func_object)) {
-          printf("in ");
+          prot_cstri("in ");
           if (GET_ENTITY(func_object)->ident != NULL) {
-            printf("%s ", id_string(GET_ENTITY(func_object)->ident));
+            prot_cstri8(id_string(GET_ENTITY(func_object)->ident));
+            prot_cstri(" ");
           } else if (func_object->descriptor.property->params != NULL) {
             prot_params(func_object->descriptor.property->params);
-            printf(" ");
+            prot_cstri(" ");
           } else if (GET_ENTITY(func_object)->fparam_list != NULL) {
             prot_name(GET_ENTITY(func_object)->fparam_list);
-            printf(" ");
+            prot_cstri(" ");
           } /* if */
         } /* if */
-        position_stack_elem = stack_elem->next;
-        if (HAS_POSINFO(position_stack_elem->obj)) {
-          /*
-          printf("\n");
-          trace1(position_stack_elem->obj);
-          printf("\n");
-          trace1(func_object);
-          printf("\n");
-          */
-          printf("at %s(%u)\n",
-              get_file_name_ustri(GET_FILE_NUM(position_stack_elem->obj)),
-              GET_LINE_NUM(position_stack_elem->obj));
-        } else if (HAS_PROPERTY(position_stack_elem->obj) &&
-            position_stack_elem->obj->descriptor.property->line != 0) {
-          printf("at %s(%u)\n",
-              get_file_name_ustri(position_stack_elem->obj->descriptor.property->file_number),
-              position_stack_elem->obj->descriptor.property->line);
-        } else {
-          printf("no POSITION INFORMATION ");
-          /* trace1(position_stack_elem->obj); */
-          printf("\n");
-        } /* if */
+        write_position_info(stack_elem->next->obj, TRUE);
+        prot_nl();
       } /* if */
     } else {
-      printf("NULL\n");
+      prot_cstri("NULL");
+      prot_nl();
     } /* if */
   } /* write_call_stack_element */
 
 
 
+static void sigsegv_handler (int sig_num)
+
+  { /* sigsegv_handler */
+#ifdef TRACE_TIM_UNX
+    printf("BEGIN sigsegv_handler\n");
+#endif
+    do_longjmp(sigsegv_occurred, 1);
+#ifdef TRACE_TIM_UNX
+    printf("END sigsegv_handler\n");
+#endif
+  } /* sigsegv_handler */
+
+
+
 void write_call_stack (const_listType stack_elem)
 
-  { /* write_call_stack */
+  {
+#ifdef HAS_SIGACTION
+    struct sigaction action;
+    struct sigaction old_action;
+#endif
+    void (*old_sigsegv_handler) (int sig_num);
+
+  /* write_call_stack */
     if (stack_elem != NULL) {
       write_call_stack(stack_elem->next);
-      write_call_stack_element(stack_elem);
+#ifdef HAS_SIGACTION
+      action.sa_handler = &sigsegv_handler;
+      sigemptyset(&action.sa_mask);
+      action.sa_flags = 0;
+      if (sigaction(SIGSEGV, &action, &old_action) == 0) {
+        old_sigsegv_handler = old_action.sa_handler;
+#else
+      if ((old_sigsegv_handler = signal(SIGSEGV, sigsegv_handler)) != SIG_ERR) {
+#endif
+        if (do_setjmp(sigsegv_occurred) == 0) {
+          write_call_stack_element(stack_elem);
+        } else {
+          prot_cstri("unaccessable stack data");
+          prot_nl();
+        } /* if */
+#ifdef HAS_SIGACTION
+        action.sa_handler = old_sigsegv_handler;
+        sigemptyset(&action.sa_mask);
+        action.sa_flags = 0;
+        sigaction(SIGSEGV, &action, NULL);
+#else
+        signal(SIGSEGV, old_sigsegv_handler);
+#endif
+      } /* if */
     } /* if */
   } /* write_call_stack */
 
@@ -176,39 +231,22 @@ static void write_curr_position (listType list)
 
   { /* write_curr_position */
     if (list == curr_argument_list) {
-      if (curr_action_object != NULL) {
-        if (HAS_POSINFO(curr_action_object)) {
-          printf(" at %s(%u)",
-              get_file_name_ustri(GET_FILE_NUM(curr_action_object)),
-              GET_LINE_NUM(curr_action_object));
-        } else if (HAS_PROPERTY(curr_action_object) &&
-            curr_action_object->descriptor.property->line != 0) {
-          printf(" at %s(%u)",
-              get_file_name_ustri(curr_action_object->descriptor.property->file_number),
-              curr_action_object->descriptor.property->line);
-        } /* if */
-      } /* if */
-      printf("\n");
+      prot_cstri(" ");
+      write_position_info(curr_action_object, FALSE);
+      prot_nl();
       prot_list(list);
-      if (curr_exec_object != NULL) {
-        if (HAS_POSINFO(curr_exec_object)) {
-          printf(" at %s(%u)",
-              get_file_name_ustri(GET_FILE_NUM(curr_exec_object)),
-              GET_LINE_NUM(curr_exec_object));
-        } else if (HAS_PROPERTY(curr_exec_object) &&
-            curr_exec_object->descriptor.property->line != 0) {
-          printf(" at %s(%u)",
-              get_file_name_ustri(curr_exec_object->descriptor.property->file_number),
-              curr_exec_object->descriptor.property->line);
-        } /* if */
-      } /* if */
-      printf("\n");
+      prot_cstri(" ");
+      write_position_info(curr_exec_object, FALSE);
+      prot_nl();
       if (curr_action_object->value.actValue != NULL) {
-        printf("*** ACTION \"%s\"\n",
-            get_primact(curr_action_object->value.actValue)->name);
+        prot_cstri("*** ACTION \"");
+        prot_cstri(get_primact(curr_action_object->value.actValue)->name);
+        prot_cstri("\"");
+        prot_nl();
       } /* if */
     } else {
-      printf(" with\n");
+      prot_cstri(" with");
+      prot_nl();
       prot_list(list);
     } /* if */
   } /* write_curr_position */
@@ -232,7 +270,7 @@ objectType raise_with_arguments (objectType exception, listType list)
       prot_nl();
       prot_cstri("*** EXCEPTION ");
       printobject(exception);
-      printf(" raised");
+      prot_cstri(" raised");
       write_curr_position(list);
       continue_question();
     } /* if */
@@ -299,26 +337,20 @@ void run_error (objectCategory required, objectType argument)
     } else {
       printf("NULL");
     } /* if */
-    if (HAS_POSINFO(curr_action_object)) {
-      printf(" AT %s(%u)",
-          get_file_name_ustri(GET_FILE_NUM(curr_action_object)),
-          GET_LINE_NUM(curr_action_object));
-    } else if (HAS_PROPERTY(curr_action_object) &&
-        curr_action_object->descriptor.property->line != 0) {
-      printf(" AT %s(%u)",
-          get_file_name_ustri(curr_action_object->descriptor.property->file_number),
-          curr_action_object->descriptor.property->line);
-    } /* if */
-    printf(" REQUIRES ");
+    prot_cstri(" ");
+    write_position_info(curr_action_object, FALSE);
+    printf(" requires ");
     printcategory(required);
-    printf(" NOT ");
+    printf(" not ");
     printcategory(CATEGORY_OF_OBJ(argument));
     printf("\n");
     trace1(argument);
     printf("\n");
     prot_list(curr_argument_list);
     continue_question();
-    raise_error(RANGE_ERROR);
+    if (!fail_flag) {
+      raise_error(RANGE_ERROR);
+    } /* if */
   } /* run_error */
 
 
@@ -340,7 +372,9 @@ void empty_value (objectType argument)
     printf("\nobject_ptr=" FMT_X_MEM "\n", (memSizeType) argument);
     prot_list(curr_argument_list);
     continue_question();
-    raise_error(RANGE_ERROR);
+    if (!fail_flag) {
+      raise_error(RANGE_ERROR);
+    } /* if */
   } /* empty_value */
 
 
@@ -364,5 +398,7 @@ void var_required (objectType argument)
     printf("\nobject_ptr=" FMT_X_MEM "\n", (memSizeType) argument);
     prot_list(curr_argument_list);
     continue_question();
-    raise_error(RANGE_ERROR);
+    if (!fail_flag) {
+      raise_error(RANGE_ERROR);
+    } /* if */
   } /* var_required */

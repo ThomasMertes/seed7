@@ -1,3 +1,50 @@
+20150322:
+- The program chkchr.sd7 has been added. This program checks the
+  correctness of the functions isLetter and width. Thanks go to
+  Arkady Kuleshov for providing chkchr.sd7.
+- Interpreter and compiler have been improved to allow Unicode names.
+  This functionality is inspired by patches from Arkady Kuleshov.
+  Unicode names are switch off by default. They must be activated
+  with the pragma: $ names unicode;
+- The library smtp.s7i, with support for SMTP (simple mail transfer
+  protocol), has been added.
+- Interpreter and compiler have been changed to write an error
+  message, when a deprecated string escape sequence (e.g.: "\7\")
+  is used instead of a new escape sequence (e.g.: "\7;").
+- The function getHttpLocation in gethttp.s7i has been improved to
+  handle IPv6 addresses correctly.
+- In cli_cmds.s7i error messages have been added to doCopyCmd and
+  doMoveCmd.
+- Documentation comments have been added or improved in console.s7i,
+  ftp.s7i and cli_cmds.s7i. 
+- Checks for the function bigInteger have been added to chkbig.sd7.
+- Checks for the integer for-loop have been added to chkprc.sd7.
+- In big_rtl.c the functions bigParseBasedPow2 and bigParseBased2To36
+  have been improved to raise RANGE_ERROR when a digit is too big.
+- The program chkccomp.c has been changed to use test programs for
+  various settings. This has been done to allow that chkccomp.c can
+  be compiled with any compiler (not just the one that is to be
+  tested).
+- The function write_position_info has been added to runerr.c.
+- In runerr.c the function write_call_stack has been improved to
+  catch the signal SIGSEGV.
+- The function scan_symbol_utf8 has been added to scanner.c.
+- The functions prot_cstri8 and prot_string have been added to
+  traceutl.c.
+- The function escape_sequence in literal.c has been changed to write
+  an error when a deprecated string escape sequence is used.
+- The function utf8_char in literal.c has been changed to save the
+  UTF-8 sequence.
+- The function basedValue in numlit.c has been changed to write the
+  error ILLEGALBASEDDIGIT with the correct digit.
+- In prclib.c the functions prc_for_downto, prc_for_downto_step,
+  prc_for_to and prc_for_to_step have been changed such that the
+  loop variable has a defined value after the loop. After the
+  for-loop the loop variable must be beyond the upper bound (or below
+  the lower bound for for-downto-loops).
+- In doany.c the functions do_flush, do_wrnl and do_wrstri have been
+  changed to allow that outfile is from a different program.
+
 20150308:
 - The compile time error messages have been improved. Now Unicode
   characters in the error line are displayed correctly. Before they

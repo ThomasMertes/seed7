@@ -97,7 +97,8 @@ static ustriType read_ustri8_line (memSizeType *line_len)
 
 
 
-striType ustri8_buffer_to_stri (ustriType ustri, const memSizeType length)
+static striType ustri8_buffer_to_stri (const const_ustriType ustri,
+    const memSizeType length)
 
   {
     memSizeType stri_size = 0;
@@ -208,7 +209,7 @@ static void print_stri (striType stri)
         width = (memSizeType) chrWidth(ch);
         if (width >= 1) {
           stri1 = chrStrMacro(ch, stri1_buffer);
-          conWrite(stri1);
+          prot_string(stri1);
           output_length += width;
         } else if (ch < ' ') {
           if (ch == '\t') {
@@ -288,7 +289,7 @@ static void print_line (lineNumType err_line)
 
   /* print_line */
     /* printf("err_line=%lu in_file.line=%lu\n", err_line, in_file.line); */
-    if (in_file.name_ustri != NULL && in_file.curr_infile != NULL &&
+    if (in_file.name != NULL && in_file.curr_infile != NULL &&
         (current_position = IN_FILE_TELL()) >= 0L) {
       /* printf("current_position=%lu in_file.character=%d\n",
          current_position, in_file.character); */
@@ -350,7 +351,7 @@ static void print_error_line (void)
     int ch;
 
   /* print_error_line */
-    if (in_file.name_ustri != NULL && in_file.curr_infile != NULL &&
+    if (in_file.name != NULL && in_file.curr_infile != NULL &&
         (current_position = IN_FILE_TELL()) >= 0L) {
       if (current_position >= BUFFER_SIZE + 1) {
         chars_to_read = BUFFER_SIZE;
@@ -398,11 +399,11 @@ static void print_error_line (void)
 
 
 
-static void write_place (errorType err, const const_ustriType name, const lineNumType line)
+static void write_place (errorType err, const striType name, const lineNumType line)
 
   { /* write_place */
     prot_cstri("*** ");
-    prot_cstri((const_cstriType) name);
+    prot_string(name);
     prot_cstri("(");
     prot_int((intType) line);
     prot_cstri("):");
@@ -417,8 +418,8 @@ void place_of_error (errorType err)
   { /* place_of_error */
 /*  print_error_line(); */
     prog.error_count++;
-    if (in_file.name_ustri != NULL) {
-      write_place(err, in_file.name_ustri, in_file.line);
+    if (in_file.name != NULL) {
+      write_place(err, in_file.name, in_file.line);
     } else {
       prot_cstri("*** ");
     } /* if */
@@ -451,7 +452,7 @@ static void write_symbol (void)
     } else if (symbol.sycategory == BIGINTLITERAL) {
       prot_cstri(" \"");
       prot_ustri(symbol.name);
-      prot_cstri("_\"\n");
+      prot_cstri("_\"");
       prot_nl();
     } else if (symbol.sycategory == CHARLITERAL) {
       prot_cstri(" ");
@@ -652,7 +653,7 @@ static void write_object (objectType anyobject)
           break;
         default:
           if (HAS_ENTITY(anyobject)) {
-            prot_cstri(id_string(GET_ENTITY(anyobject)->ident));
+            prot_cstri8(id_string(GET_ENTITY(anyobject)->ident));
           } else {
             printcategory(CATEGORY_OF_OBJ(anyobject));
             prot_cstri(" *NULL_ENTITY_OBJECT*");
@@ -804,7 +805,7 @@ void err_num_stri (errorType err, int num_found, int num_expected,
       case DOT_EXPR_ILLEGAL:
         prot_cstri("\"");
         prot_ustri(stri);
-        prot_cstri("\" must have priority");
+        prot_cstri("\" must have priority ");
         prot_int((intType) num_expected);
         prot_cstri(" not ");
         prot_int((intType) num_found);
@@ -880,10 +881,10 @@ void err_object (errorType err, const_objectType obj_found)
     /* place_of_error(err); */
     prog.error_count++;
     if (HAS_POSINFO(obj_found)){
-      write_place(err, get_file_name_ustri(GET_FILE_NUM(obj_found)),
+      write_place(err, get_file_name(GET_FILE_NUM(obj_found)),
           GET_LINE_NUM(obj_found));
-    } else if (in_file.name_ustri != NULL) {
-      write_place(err, in_file.name_ustri, in_file.line);
+    } else if (in_file.name != NULL) {
+      write_place(err, in_file.name, in_file.line);
     } else {
       prot_cstri("*** ");
     } /* if */
@@ -926,7 +927,7 @@ void err_object (errorType err, const_objectType obj_found)
       case EXCEPTION_RAISED:
         prot_cstri("Exception \"");
         prot_ustri(GET_ENTITY(obj_found)->ident->name);
-        prot_cstri("\" raised\n");
+        prot_cstri("\" raised");
         prot_nl();
         break;
       case IDENT_EXPECTED:
@@ -1024,10 +1025,10 @@ void err_expr_obj (errorType err, const_objectType expr_object,
     /* place_of_error(err); */
     prog.error_count++;
     if (HAS_POSINFO(expr_object)){
-      write_place(err, get_file_name_ustri(GET_FILE_NUM(expr_object)),
+      write_place(err, get_file_name(GET_FILE_NUM(expr_object)),
           GET_LINE_NUM(expr_object));
-    } else if (in_file.name_ustri != NULL) {
-      write_place(err, in_file.name_ustri, in_file.line);
+    } else if (in_file.name != NULL) {
+      write_place(err, in_file.name, in_file.line);
     } else {
       prot_cstri("*** ");
     } /* if */
@@ -1084,10 +1085,10 @@ void err_match (errorType err, objectType obj_found)
       /* place_of_error(err); */
       prog.error_count++;
       if (HAS_POSINFO(obj_found)){
-        write_place(err, get_file_name_ustri(GET_FILE_NUM(obj_found)),
+        write_place(err, get_file_name(GET_FILE_NUM(obj_found)),
             GET_LINE_NUM(obj_found));
-      } else if (in_file.name_ustri != NULL) {
-        write_place(err, in_file.name_ustri, in_file.line);
+      } else if (in_file.name != NULL) {
+        write_place(err, in_file.name, in_file.line);
       } else {
         prot_cstri("*** ");
       } /* if */
@@ -1309,7 +1310,7 @@ void err_at_line (errorType err, lineNumType line)
 
   { /* err_at_line */
     prog.error_count++;
-    write_place(err, in_file.name_ustri, line);
+    write_place(err, in_file.name, line);
     switch (err) {
       case COMMENTOPEN:
         prot_cstri("Unclosed comment");
@@ -1330,7 +1331,7 @@ void err_undeclared (errorType err, fileNumType file_num,
 
   { /* err_undeclared */
     prog.error_count++;
-    write_place(err, get_file_name_ustri(file_num), line);
+    write_place(err, get_file_name(file_num), line);
     switch (err) {
       case OBJUNDECLARED:
         prot_cstri("\"");

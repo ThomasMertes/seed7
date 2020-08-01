@@ -1003,7 +1003,7 @@ const proc: check_repeat is func
 const proc: check_for_int_to is func
   local
     var boolean: okay is TRUE;
-    var integer: number is 0;
+    var integer: number is 12345;
     var integer: counter is 0;
     var integer: startVariable is 4;
     var integer: endVariable is 6;
@@ -1013,6 +1013,10 @@ const proc: check_for_int_to is func
       writeln(" ***** for integer range 1 to 0 ...  does not work correct");
       okay := FALSE;
     end for;
+    if number <> 1 then
+      writeln(" ***** for integer range 1 to 0 ...  does not work correct");
+      okay := FALSE;
+    end if;
     counter := 0;
     for number range 1 to 1 do
       incr(counter);
@@ -1021,7 +1025,7 @@ const proc: check_for_int_to is func
         okay := FALSE;
       end if;
     end for;
-    if counter <> 1 then
+    if counter <> 1 or number <> 2 then
       writeln(" ***** for integer range 1 to 1 ...  does not work correct");
       okay := FALSE;
     end if;
@@ -1033,7 +1037,7 @@ const proc: check_for_int_to is func
         okay := FALSE;
       end if;
     end for;
-    if counter <> 2 then
+    if counter <> 2 or number <> 3 then
       writeln(" ***** for integer range 1 to 2 ...  does not work correct");
       okay := FALSE;
     end if;
@@ -1045,7 +1049,7 @@ const proc: check_for_int_to is func
         okay := FALSE;
       end if;
     end for;
-    if counter <> 3 then
+    if counter <> 3 or number <> 4 then
       writeln(" ***** for integer range 1 to 3 ...  does not work correct");
       okay := FALSE;
     end if;
@@ -1058,7 +1062,7 @@ const proc: check_for_int_to is func
         okay := FALSE;
       end if;
     end for;
-    if counter <> 1 then
+    if counter <> 1 or number <> 1 then
       writeln(" ***** for integer range 0 to VARIABLE ...  does not work correct");
       okay := FALSE;
     end if;
@@ -1071,7 +1075,7 @@ const proc: check_for_int_to is func
         okay := FALSE;
       end if;
     end for;
-    if counter <> 3 then
+    if counter <> 3 or number <> 7 then
       writeln(" ***** for integer range CONSTANT to VARIABLE ...  does not work correct");
       okay := FALSE;
     end if;
@@ -1084,7 +1088,7 @@ const proc: check_for_int_to is func
         okay := FALSE;
       end if;
     end for;
-    if counter <> 3 then
+    if counter <> 3 or number <> 7 then
       writeln(" ***** for integer range VARIABLE to CONSTANT ...  does not work correct");
       okay := FALSE;
     end if;
@@ -1097,7 +1101,7 @@ const proc: check_for_int_to is func
         okay := FALSE;
       end if;
     end for;
-    if counter <> 3 then
+    if counter <> 3 or number <> 7 then
       writeln(" ***** for integer range VARIABLE to VARIABLE ...  does not work correct");
       okay := FALSE;
     end if;
@@ -1110,7 +1114,7 @@ const proc: check_for_int_to is func
         okay := FALSE;
       end if;
     end for;
-    if counter <> 3 then
+    if counter <> 3 or number <> 7 then
       writeln(" ***** for integer range CONSTANT to EXPRESSION ...  does not work correct");
       okay := FALSE;
     end if;
@@ -1123,7 +1127,7 @@ const proc: check_for_int_to is func
         okay := FALSE;
       end if;
     end for;
-    if counter <> 3 then
+    if counter <> 3 or number <> 7 then
       writeln(" ***** for integer range EXPRESSION to CONSTANT ...  does not work correct");
       okay := FALSE;
     end if;
@@ -1136,7 +1140,7 @@ const proc: check_for_int_to is func
         okay := FALSE;
       end if;
     end for;
-    if counter <> 3 then
+    if counter <> 3 or number <> 7 then
       writeln(" ***** for integer range EXPRESSION to EXPRESSION ...  does not work correct");
       okay := FALSE;
     end if;
@@ -1149,7 +1153,7 @@ const proc: check_for_int_to is func
         okay := FALSE;
       end if;
     end for;
-    if counter <> 3 then
+    if counter <> 3 or number <> 7 then
       writeln(" ***** for integer range CONSTANT to EXPRESSION ...  does not work correct");
       okay := FALSE;
     end if;
@@ -1162,7 +1166,7 @@ const proc: check_for_int_to is func
         okay := FALSE;
       end if;
     end for;
-    if counter <> 3 then
+    if counter <> 3 or number <> 7 then
       writeln(" ***** for integer range EXPRESSION to CONSTANT ...  does not work correct");
       okay := FALSE;
     end if;
@@ -1175,8 +1179,21 @@ const proc: check_for_int_to is func
         okay := FALSE;
       end if;
     end for;
-    if counter <> 3 then
+    if counter <> 3 or number <> 7 then
       writeln(" ***** for integer range EXPRESSION to EXPRESSION ...  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    for number range 1 to 32 step 2 do
+      incr(counter);
+      if number < 1 or number > 32 or number <> 2 * counter - 1 then
+        writeln(" ***** for integer range 1 to 32 step 2 ...  does not work correct");
+        number := 33;
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 16 or number <> 33 then
+      writeln(" ***** for integer range 1 to 32 step 2 ...  does not work correct");
       okay := FALSE;
     end if;
     if okay then
@@ -1191,7 +1208,7 @@ const proc: check_for_int_to is func
 const proc: check_for_int_downto is func
   local
     var boolean: okay is TRUE;
-    var integer: number is 0;
+    var integer: number is 12345;
     var integer: counter is 0;
     var integer: startVariable is 6;
     var integer: endVariable is 4;
@@ -1201,6 +1218,10 @@ const proc: check_for_int_downto is func
       writeln(" ***** for integer range 0 downto 1 ...  does not work correct");
       okay := FALSE;
     end for;
+    if number <> 0 then
+      writeln(" ***** for integer range 0 downto 1 ...  does not work correct");
+      okay := FALSE;
+    end if;
     counter := 2;
     for number range 1 downto 1 do
       decr(counter);
@@ -1209,7 +1230,7 @@ const proc: check_for_int_downto is func
         okay := FALSE;
       end if;
     end for;
-    if counter <> 1 then
+    if counter <> 1 or number <> 0 then
       writeln(" ***** for integer range 1 downto 1 ...  does not work correct");
       okay := FALSE;
     end if;
@@ -1221,7 +1242,7 @@ const proc: check_for_int_downto is func
         okay := FALSE;
       end if;
     end for;
-    if counter <> 1 then
+    if counter <> 1 or number <> 0 then
       writeln(" ***** for integer range 2 downto 1 ...  does not work correct");
       okay := FALSE;
     end if;
@@ -1233,7 +1254,7 @@ const proc: check_for_int_downto is func
         okay := FALSE;
       end if;
     end for;
-    if counter <> 1 then
+    if counter <> 1 or number <> 0 then
       writeln(" ***** for integer range 3 downto 1 ...  does not work correct");
       okay := FALSE;
     end if;
@@ -1246,7 +1267,7 @@ const proc: check_for_int_downto is func
         okay := FALSE;
       end if;
     end for;
-    if counter <> 1 then
+    if counter <> 1 or number <> -1 then
       writeln(" ***** for integer range VARIABLE downto 0 ...  does not work correct");
       okay := FALSE;
     end if;
@@ -1259,7 +1280,7 @@ const proc: check_for_int_downto is func
         okay := FALSE;
       end if;
     end for;
-    if counter <> 3 then
+    if counter <> 3 or number <> 3 then
       writeln(" ***** for integer range CONSTANT downto VARIABLE ...  does not work correct");
       okay := FALSE;
     end if;
@@ -1272,7 +1293,7 @@ const proc: check_for_int_downto is func
         okay := FALSE;
       end if;
     end for;
-    if counter <> 3 then
+    if counter <> 3 or number <> 3 then
       writeln(" ***** for integer range VARIABLE downto CONSTANT ...  does not work correct");
       okay := FALSE;
     end if;
@@ -1285,7 +1306,7 @@ const proc: check_for_int_downto is func
         okay := FALSE;
       end if;
     end for;
-    if counter <> 3 then
+    if counter <> 3 or number <> 3 then
       writeln(" ***** for integer range VARIABLE downto VARIABLE ...  does not work correct");
       okay := FALSE;
     end if;
@@ -1298,7 +1319,7 @@ const proc: check_for_int_downto is func
         okay := FALSE;
       end if;
     end for;
-    if counter <> 3 then
+    if counter <> 3 or number <> 3 then
       writeln(" ***** for integer range CONSTANT downto EXPRESSION ...  does not work correct");
       okay := FALSE;
     end if;
@@ -1311,7 +1332,7 @@ const proc: check_for_int_downto is func
         okay := FALSE;
       end if;
     end for;
-    if counter <> 3 then
+    if counter <> 3 or number <> 3 then
       writeln(" ***** for integer range EXPRESSION downto CONSTANT ...  does not work correct");
       okay := FALSE;
     end if;
@@ -1324,7 +1345,7 @@ const proc: check_for_int_downto is func
         okay := FALSE;
       end if;
     end for;
-    if counter <> 3 then
+    if counter <> 3 or number <> 3 then
       writeln(" ***** for integer range EXPRESSION downto EXPRESSION ...  does not work correct");
       okay := FALSE;
     end if;
@@ -1337,7 +1358,7 @@ const proc: check_for_int_downto is func
         okay := FALSE;
       end if;
     end for;
-    if counter <> 3 then
+    if counter <> 3 or number <> 3 then
       writeln(" ***** for integer range CONSTANT downto EXPRESSION ...  does not work correct");
       okay := FALSE;
     end if;
@@ -1350,7 +1371,7 @@ const proc: check_for_int_downto is func
         okay := FALSE;
       end if;
     end for;
-    if counter <> 3 then
+    if counter <> 3 or number <> 3 then
       writeln(" ***** for integer range EXPRESSION downto CONSTANT ...  does not work correct");
       okay := FALSE;
     end if;
@@ -1363,8 +1384,21 @@ const proc: check_for_int_downto is func
         okay := FALSE;
       end if;
     end for;
-    if counter <> 3 then
+    if counter <> 3 or number <> 3 then
       writeln(" ***** for integer range EXPRESSION downto EXPRESSION ...  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    for number range 32 downto 1 step 2 do
+      incr(counter);
+      if number < 1 or number > 32 or number <> 34 - 2 * counter then
+        writeln(" ***** for integer range 1 downto 32 step 2 ...  does not work correct");
+        number := 0;
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 16 or number <> 0 then
+      writeln(" ***** for integer range 1 downto 32 step 2 ...  does not work correct");
       okay := FALSE;
     end if;
     if okay then

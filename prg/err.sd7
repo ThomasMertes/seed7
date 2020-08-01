@@ -42,7 +42,8 @@ ignore(          (* Character literal exceeds source line        *) '
 ignore("a""b");  (* Use \" instead of "" to represent " in a string  *)
 include "\\a";   (* Use / instead of \ as path delimiter         *)
 ignore("\!");    (* Illegal string escape "\!"                   *)
-ignore("\8y");   (* Numerical escape sequences should end with ";" not "y"  *) ignore("\
+ignore("\8y");   (* Numerical escape sequences should end with ";" not "y"  *)
+ignore("\8\");   (* Numerical escape sequences should end with ";" not "\"  *) ignore("\
 continued");     (* String continuations should end with "\" not "c"  *)
 ignore(" ...     (* String literal exceeds source line  *)
 );

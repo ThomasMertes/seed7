@@ -124,6 +124,10 @@ const string: chkflt_output is "\n\
   \Infinity works correct for selected values.\n\
   \NaN works correct for selected values.\n";
 
+const string: chkchr_output is "\n\
+  \isLetter function works correctly.\n\
+  \width function works correctly.\n";
+
 const string: chkstr_output is "\n\
   \String literals work correct.\n\
   \String comparisons work correct.\n\
@@ -512,6 +516,7 @@ const proc: main is func
     check("chkint",  chkint_output);
     check("chkovf",  chkovf_output);
     check("chkflt",  chkflt_output);
+    check("chkchr",  chkchr_output);
     check("chkstr",  chkstr_output);
     check("chkprc",  chkprc_output);
     check("chkbig",  chkbig_output);

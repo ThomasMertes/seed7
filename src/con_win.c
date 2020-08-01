@@ -476,7 +476,7 @@ void conWrite (const const_striType stri)
     hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     if (hConsole != INVALID_HANDLE_VALUE &&
         GetFileType(hConsole) == FILE_TYPE_CHAR &&
-        GetConsoleMode(GetStdHandle(STD_OUTPUT_HANDLE), &mode) != 0) {
+        GetConsoleMode(hConsole, &mode) != 0) {
       /* hConsole refers to a real console */
       doWriteConsole(hConsole, stri);
     } else {

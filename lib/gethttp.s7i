@@ -64,6 +64,7 @@ const func httpLocation: getHttpLocation (in string: location, in integer: defau
   local
     var integer: slashPos is 0;
     var integer: questionMarkPos is 0;
+    var integer: bracketPos is 0;
     var integer: colonPos is 0;
   begin
     # writeln("getHttpLocation: " <& location);
@@ -94,12 +95,21 @@ const func httpLocation: getHttpLocation (in string: location, in integer: defau
         locationData.params   := location[succ(questionMarkPos) ..];
       end if;
     end if;
-    colonPos := pos(locationData.hostName, ":");
-    if colonPos <> 0 and isDigitString(locationData.hostName[succ(colonPos) ..]) then
-      locationData.portNumber := integer parse (locationData.hostName[succ(colonPos) ..]);
-      locationData.hostName := locationData.hostName[.. pred(colonPos)];
+    bracketPos := pos(locationData.hostName, "]:");
+    if bracketPos <> 0 and startsWith(locationData.hostName, "[") and
+        isDigitString(locationData.hostName[bracketPos + 2 ..]) then
+      locationData.portNumber := integer parse (locationData.hostName[bracketPos + 2 ..]);
+      locationData.hostName := locationData.hostName[2 .. pred(bracketPos)];
     else
-      locationData.portNumber := defaultPortNumber;
+      colonPos := pos(locationData.hostName, ":");
+      if colonPos <> 0 and
+          not isDigitString(locationData.hostName[.. pred(colonPos)]) and
+          isDigitString(locationData.hostName[succ(colonPos) ..]) then
+        locationData.portNumber := integer parse (locationData.hostName[succ(colonPos) ..]);
+        locationData.hostName := locationData.hostName[.. pred(colonPos)];
+      else
+        locationData.portNumber := defaultPortNumber;
+      end if;
     end if;
     locationData.serverName := locationData.hostName;
   end func;

@@ -328,6 +328,9 @@ const proc: process_prc_for (in reference: variable, in reference: startExpr,
     var string: start_name is "";
     var string: end_name is "";
     var string: step_name is "";
+    var boolean: constant_end_value is FALSE;
+    var integer: end_value is 0;
+    var boolean: raises_exception is FALSE;
     var expr_type: statement is expr_type.value;
   begin
     c_start_expr.temp_num := c_expr.temp_num;
@@ -359,7 +362,9 @@ const proc: process_prc_for (in reference: variable, in reference: startExpr,
       start_name := c_start_expr.expr;
     end if;
     if getConstant(endExpr, INTOBJECT, evaluatedParam) then
-      end_name := integerLiteral(getValue(evaluatedParam, integer));
+      constant_end_value := TRUE;
+      end_value := getValue(evaluatedParam, integer);
+      end_name := integerLiteral(end_value);
     else
       end_name := defineTempConstant("intType", "end_", endExpr, statement);
     end if;
@@ -370,39 +375,73 @@ const proc: process_prc_for (in reference: variable, in reference: startExpr,
         step_name := defineTempConstant("intType", "step_", incrStep, statement);
       end if;
     end if;
-    statement.expr &:= "for (";
-    process_expr(variable, statement);
-    statement.expr &:= "=";
-    statement.expr &:= start_name;
-    statement.expr &:= "; ";
-    process_expr(variable, statement);
-    if for_to then
-      statement.expr &:= "<=";
-    else
-      statement.expr &:= ">=";
-    end if;
-    statement.expr &:= end_name;
-    statement.expr &:= "; (";
-    process_expr(variable, statement);
-    if for_to then
-      if incrStep = NIL then
-        statement.expr &:= ")++) {\n";
+    if for_loop_variable_check and incrStep = NIL then
+      if constant_end_value then
+        if for_to then
+          if end_value = integer.last then
+            warning(DOES_RAISE, "RANGE_ERROR", c_expr);
+            statement.expr &:= voidRaiseError("RANGE_ERROR");
+            statement.expr &:= "\n";
+            raises_exception := TRUE;
+          end if;
+        else
+          if end_value = integer.first then
+            warning(DOES_RAISE, "RANGE_ERROR", c_expr);
+            statement.expr &:= voidRaiseError("RANGE_ERROR");
+            statement.expr &:= "\n";
+            raises_exception := TRUE;
+          end if;
+        end if;
       else
-        statement.expr &:= ")+=";
-        statement.expr &:= step_name;
-        statement.expr &:= ") {\n";
-      end if;
-    else
-      if incrStep = NIL then
-        statement.expr &:= ")--) {\n";
-      else
-        statement.expr &:= ")-=";
-        statement.expr &:= step_name;
-        statement.expr &:= ") {\n";
+        incr(countOverflowChecks);
+        statement.expr &:= "if (rngChk(";
+        statement.expr &:= end_name;
+        statement.expr &:= "==";
+        if for_to then
+          statement.expr &:= integerLiteral(integer.last);
+        else
+          statement.expr &:= integerLiteral(integer.first);
+        end if;
+        statement.expr &:= "))";
+        statement.expr &:= voidRaiseError("RANGE_ERROR");
+        statement.expr &:= "\n";
       end if;
     end if;
-    process_expr(statements, statement);
-    statement.expr &:= "}\n";
+    if not raises_exception then
+      statement.expr &:= "for (";
+      process_expr(variable, statement);
+      statement.expr &:= "=";
+      statement.expr &:= start_name;
+      statement.expr &:= "; ";
+      process_expr(variable, statement);
+      if for_to then
+        statement.expr &:= "<=";
+      else
+        statement.expr &:= ">=";
+      end if;
+      statement.expr &:= end_name;
+      statement.expr &:= "; (";
+      process_expr(variable, statement);
+      if for_to then
+        if incrStep = NIL then
+          statement.expr &:= ")++) {\n";
+        else
+          statement.expr &:= ")+=";
+          statement.expr &:= step_name;
+          statement.expr &:= ") {\n";
+        end if;
+      else
+        if incrStep = NIL then
+          statement.expr &:= ")--) {\n";
+        else
+          statement.expr &:= ")-=";
+          statement.expr &:= step_name;
+          statement.expr &:= ") {\n";
+        end if;
+      end if;
+      process_expr(statements, statement);
+      statement.expr &:= "}\n";
+    end if;
     doLocalDeclsOfStatement(statement, c_expr);
   end func;
 

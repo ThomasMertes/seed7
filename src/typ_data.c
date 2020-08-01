@@ -185,6 +185,7 @@ striType typStr (typeType type_arg)
 
   {
     const_cstriType stri;
+    errInfoType err_info = OKAY_NO_ERROR;
     striType result;
 
   /* typStr */
@@ -196,7 +197,7 @@ striType typStr (typeType type_arg)
     } else {
       stri = "*ANONYM_TYPE*";
     } /* if */
-    result = cstri_to_stri(stri);
+    result = cstri8_to_stri(stri, &err_info);
     if (result == NULL) {
       raise_error(MEMORY_ERROR);
     } /* if */

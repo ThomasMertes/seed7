@@ -281,6 +281,15 @@ static void process_pragma (void)
         } /* if */
       } else if (strcmp((cstriType) symbol.name, "decls") == 0) {
         trace_nodes();
+      } else if (strcmp((cstriType) symbol.name, "names") == 0) {
+        scan_symbol();
+        if (strcmp((cstriType) symbol.name, "unicode") == 0) {
+          symbol.unicodeNames = TRUE;
+        } else if (strcmp((cstriType) symbol.name, "ascii") == 0) {
+          symbol.unicodeNames = FALSE;
+        } else {
+          err_warning(ILLEGALPRAGMA);
+        } /* if */
       } else {
         err_warning(ILLEGALPRAGMA);
       } /* if */

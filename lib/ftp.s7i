@@ -55,7 +55,7 @@ const type: ftpConnection is new struct
 
 const proc: ftpCommand (inout ftpConnection: ftp, in string: command) is func
   begin
-    # writeln("-> " <& command);
+    # writeln("<- " <& command);
     write(ftp.control, command <& "\r\n");
   end func;
 
@@ -67,17 +67,17 @@ const proc: ftpResponse (inout ftpConnection: ftp) is func
     ftp.response := getln(ftp.control);
     if ftp.response[4 len 1] = "-" then
       responseCode := ftp.response[.. 3] & " ";
-      # writeln("<- " <& ftp.response);
+      # writeln("-> " <& ftp.response);
       ftp.responseContent := "";
       ftp.response := getln(ftp.control);
       while not startsWith(ftp.response, responseCode) do
-        # writeln("<- " <& ftp.response);
+        # writeln("-> " <& ftp.response);
         ftp.responseContent &:= ftp.response;
         ftp.responseContent &:= '\n';
         ftp.response := getln(ftp.control);
       end while;
     end if;
-    # writeln("<- " <& ftp.response);
+    # writeln("-> " <& ftp.response);
   end func;
 
 
@@ -98,10 +98,15 @@ const func string: allowUtf8 (in string: inStri) is func
 
 (**
  *  Open an FTP connection to the specified host, user and port.
- *  The ''hostName'' is either a host name ("e.g.: "www.example.org"),
- *  or an IPv4 address in standard dot notation (e.g.: "192.0.2.235").
- *  Operating systems supporting IPv6 may also accept an IPv6 address
- *  in colon notation.
+ *  @param hostName Either a host name ("e.g.: "www.example.org"),
+ *                  or an IPv4 address in standard dot notation
+ *                  (e.g.: "192.0.2.235"), or an IPv6 address in
+ *                  colon notation.
+ *  @param user Username to be used for the login.
+ *  @param password Password to be used for the login.
+ *  @param ftpControlPort Port to be used for the control connection.
+ *                        FTP usually uses the port 21, but other
+ *                        ports can also be specified.
  *  @return the FTP connection.
  *)
 const func ftpConnection: openFtp (in string: hostName, in string: user,
@@ -134,10 +139,12 @@ const func ftpConnection: openFtp (in string: hostName, in string: user,
 (**
  *  Open an FTP connection to the specified host and user.
  *  This function uses port 21.
- *  The ''hostName'' is either a host name ("e.g.: "www.example.org"),
- *  or an IPv4 address in standard dot notation (e.g.: "192.0.2.235").
- *  Operating systems supporting IPv6 may also accept an IPv6 address
- *  in colon notation.
+ *  @param hostName Either a host name ("e.g.: "www.example.org"),
+ *                  or an IPv4 address in standard dot notation
+ *                  (e.g.: "192.0.2.235"), or an IPv6 address in
+ *                  colon notation.
+ *  @param user Username to be used for the login.
+ *  @param password Password to be used for the login.
  *  @return the FTP connection.
  *)
 const func ftpConnection: openFtp (in string: hostName,

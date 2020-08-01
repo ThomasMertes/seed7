@@ -116,7 +116,10 @@ static inline intType basedValue (const uintType base, const const_ustriType dig
     while (digits[position] != '\0') {
       digitval = (uintType) digit_value[(int) digits[position]];
       if (unlikely(digitval >= base)) {
-        illegalDigit = TRUE;
+        if (!illegalDigit) {
+          err_num_stri(ILLEGALBASEDDIGIT, (int) digits[position], (int) base, digits);
+          illegalDigit = TRUE;
+        } /* if */
       } else if (unlikely(uintValue > max_div_base)) {
         tooBig = TRUE;
       } else {
@@ -125,7 +128,6 @@ static inline intType basedValue (const uintType base, const const_ustriType dig
       position++;
     } /* while */
     if (unlikely(illegalDigit)) {
-      err_num_stri(ILLEGALBASEDDIGIT, (int) digits[position], (int) base, digits);
       uintValue = 0;
     } else if (unlikely(tooBig || uintValue > (uintType) INTTYPE_MAX)) {
       err_num_stri(CARD_BASED_TOO_BIG, 0, (int) base, digits);

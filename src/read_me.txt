@@ -492,6 +492,7 @@ HOW TO VERIFY THAT THE INTERPRETER WORKS CORRECT?
     chkovf ........... okay
     chkflt ........... okay
     chkstr ........... okay
+    chkchr ........... okay
     chkprc ........... okay
     chkbig ........... okay
     chkbool ........... okay

@@ -35,6 +35,256 @@ const set of char: parameter_char is {'!' .. '~'} - {'<', '>', '|', ';', ')'};
 const set of char: dos_parameter_char is {'!' .. '~'} - {'&', '<', '>', '|'};
 
 
+(**
+ *  Remove files and directories.
+ *  When errors occur messages are written to STD_OUT.
+ *  @param fileList List of files to be removed.
+ *  @param recursive TRUE when subdirectories should be
+ *                   removed recursively, FALSE otherwise.
+ *  @param force TRUE when absent files should not
+ *               trigger error messages, FALSE otherwise.
+ *)
+const proc: doRemoveCmd (in array string: fileList,
+    in boolean: recursive, in boolean: force) is func
+  local
+    var string: fileName is "";
+  begin
+    for fileName range fileList do
+      if fileTypeSL(fileName) = FILE_ABSENT then
+        if not force then
+          writeln("Cannot remove " <& fileName <& " - No such file or directory");
+        end if;
+      else
+        block
+          if recursive then
+            removeTree(fileName);
+          else
+            removeFile(fileName);
+          end if;
+        exception
+          catch FILE_ERROR:
+            writeln("Cannot remove " <& fileName <& " - Not permitted");
+        end block;
+      end if;
+    end for;
+  end func;
+
+
+(**
+ *  Copy files and directories.
+ *  The list of files must have at least two elements. If the
+ *  last element of the list is a directory the other files
+ *  are copied into this directory. When errors occur messages
+ *  are written to STD_OUT.
+ *  @param fileList List of files to be copied. The last
+ *                  element is the destination.
+ *  @param recursive TRUE when subdirectories should be
+ *                   copied recursively, FALSE otherwise.
+ *  @param overwriteExisting TRUE when existing files
+ *                           should be overwritten,
+ *                           FALSE otherwise.
+ *  @param archive TRUE when file properties should be
+ *                 preserved, FALSE otherwise.
+ *)
+const proc: doCopyCmd (in var array string: fileList,
+   in boolean: recursive, in boolean: overwriteExisting, in boolean: archive) is func
+  local
+    var string: fileName is "";
+    var string: destination is "";
+    var string: destFileName is "";
+    var integer: slashPos is 0;
+  begin
+    if length(fileList) >= 2 then
+      destination := fileList[length(fileList)];
+      fileList := fileList[.. pred(length(fileList))];
+      if fileType(destination) = FILE_DIR then
+        for fileName range fileList do
+          if fileType(fileName) = FILE_REGULAR or
+              (recursive and fileType(fileName) = FILE_DIR) then
+            slashPos := rpos(fileName, "/");
+            if slashPos = 0 then
+              destFileName := destination & "/" & fileName;
+            else
+              destFileName := destination & "/" & fileName[succ(slashPos) ..];
+            end if;
+            if fileTypeSL(destFileName) = FILE_REGULAR and overwriteExisting then
+              block
+                removeFile(destFileName);
+              exception
+                catch FILE_ERROR:
+                  writeln(" *** Cannot remove " <& destFileName);
+              end block;
+            end if;
+            if fileType(destFileName) = FILE_ABSENT then
+              # write("copyFile " <& fileName <& " " <& destination);
+              if archive then
+                cloneFile(fileName, destFileName);
+              else
+                copyFile(fileName, destFileName);
+              end if;
+            end if;
+          else
+            writeln("Does not copy " <& fileName);
+          end if;
+        end for;
+      elsif length(fileList) = 1 then
+        fileName := fileList[1];
+        if fileType(fileName) = FILE_REGULAR or
+            (recursive and fileType(fileName) = FILE_DIR) then
+          if fileTypeSL(destination) = FILE_REGULAR and overwriteExisting then
+            block
+              removeFile(destination);
+            exception
+              catch FILE_ERROR:
+                writeln(" *** Cannot remove " <& destFileName);
+            end block;
+          end if;
+          if fileType(destination) = FILE_ABSENT then
+            # write("copyFile " <& fileName <& " " <& destination);
+            if archive then
+              cloneFile(fileName, destFileName);
+            else
+              copyFile(fileName, destFileName);
+            end if;
+          end if;
+        else
+          writeln("Does not copy " <& fileName);
+        end if;
+      else
+        writeln("Target " <& destination <& " is not a directory");
+      end if;
+    else
+      writeln("Missing destination file");
+    end if;
+  end func;
+
+
+(**
+ *  Move files and directories.
+ *  The list of files must have at least two elements. If the
+ *  last element of the list is a directory the other files
+ *  are moved into this directory. When errors occur messages
+ *  are written to STD_OUT.
+ *  @param fileList List of files to be moved. The last
+ *                  element is the destination.
+ *  @param overwriteExisting TRUE when existing files
+ *                           should be overwritten,
+ *                           FALSE otherwise.
+ *)
+const proc: doMoveCmd (in var array string: fileList,
+    in boolean: overwriteExisting) is func
+  local
+    var string: fileName is "";
+    var string: destination is "";
+    var string: destFileName is "";
+    var integer: slashPos is 0;
+  begin
+    if length(fileList) >= 2 then
+      destination := fileList[length(fileList)];
+      fileList := fileList[.. pred(length(fileList))];
+      if fileType(destination) = FILE_DIR then
+        for fileName range fileList do
+          if fileType(fileName) = FILE_REGULAR or fileType(fileName) = FILE_DIR then
+            slashPos := rpos(fileName, "/");
+            if slashPos = 0 then
+              destFileName := destination & "/" & fileName;
+            else
+              destFileName := destination & "/" & fileName[succ(slashPos) ..];
+            end if;
+            if fileTypeSL(destFileName) = FILE_REGULAR and overwriteExisting then
+              block
+                removeFile(destFileName);
+              exception
+                catch FILE_ERROR:
+                  writeln(" *** Cannot remove " <& destFileName);
+              end block;
+            end if;
+            if fileType(destFileName) = FILE_ABSENT then
+              # write("moveFile " <& fileName <& " " <& destination);
+              moveFile(fileName, destFileName);
+            end if;
+          else
+            writeln("Does not move " <& fileName);
+          end if;
+        end for;
+      elsif length(fileList) = 1 then
+        fileName := fileList[1];
+        if fileType(fileName) = FILE_REGULAR or fileType(fileName) = FILE_DIR then
+          if fileTypeSL(destination) = FILE_REGULAR and overwriteExisting then
+            block
+              removeFile(destination);
+            exception
+              catch FILE_ERROR:
+                writeln(" *** Cannot remove " <& destFileName);
+            end block;
+          end if;
+          if fileType(destination) = FILE_ABSENT then
+            # write("moveFile " <& fileName <& " " <& destination);
+            moveFile(fileName, destFileName);
+          end if;
+        else
+          writeln("Does not move " <& fileName);
+        end if;
+      else
+        writeln("Target " <& destination <& " is not a directory");
+      end if;
+    else
+      writeln("Missing destination file");
+    end if;
+  end func;
+
+
+(**
+ *  Make directories.
+ *  @param fileList List of directories to be created.
+ *  @param parentDirs TRUE when parent directories should
+ *                    be created as needed, FALSE otherwise.
+ *)
+const proc: doMkdirCmd (in array string: fileList,
+    in boolean: parentDirs) is func
+  local
+    var string: fileName is "";
+    var integer: slashPos is 0;
+    var string: dirPath is "";
+    var boolean: okay is TRUE;
+  begin
+    for fileName range fileList do
+      okay := TRUE;
+      if parentDirs then
+        slashPos := pos(fileName, '/');
+        if slashPos = 1 then
+          slashPos := pos(fileName, '/', succ(slashPos));
+        end if;
+        while slashPos <> 0 do
+          dirPath := fileName[.. pred(slashPos)];
+          if fileTypeSL(dirPath) = FILE_ABSENT then
+            mkdir(dirPath);
+            slashPos := pos(fileName, '/', succ(slashPos));
+          elsif fileTypeSL(dirPath) = FILE_DIR then
+            slashPos := pos(fileName, '/', succ(slashPos));
+          else
+            writeln(" *** Cannot make directory " <& dirPath <& " - Not a directory");
+            slashPos := 0;
+            okay := FALSE;
+          end if;
+        end while;
+      end if;
+      if okay then
+        if fileTypeSL(fileName) = FILE_ABSENT then
+          block
+            mkdir(fileName);
+          exception
+            catch FILE_ERROR:
+              writeln(" *** Cannot make directory " <& fileName);
+          end block;
+        elsif fileTypeSL(fileName) = FILE_DIR and not parentDirs then
+          writeln(" *** Cannot make directory " <& fileName <& " - File exists");
+        end if;
+      end if;
+    end for;
+  end func;
+
+
 const func boolean: wildcardMatch (in string: main_stri, in string: pattern) is func
   result
     var boolean: doesMatch is FALSE;
@@ -364,32 +614,6 @@ const proc: addToFileList (inout array string: fileList, in var string: paramete
   end func;
 
 
-const proc: doRemoveCmd (in array string: fileList,
-    in boolean: recursive, in boolean: force) is func
-  local
-    var string: fileName is "";
-  begin
-    for fileName range fileList do
-      if fileTypeSL(fileName) = FILE_ABSENT then
-        if not force then
-          writeln("Cannot remove " <& fileName <& " - No such file or directory");
-        end if;
-      else
-        block
-          if recursive then
-            removeTree(fileName);
-          else
-            removeFile(fileName);
-          end if;
-        exception
-          catch FILE_ERROR:
-            writeln("Cannot remove " <& fileName <& " - Not permitted");
-        end block;
-      end if;
-    end for;
-  end func;
-
-
 (**
  *  Remove files and directories like the Unix rm command.
  *  The command accepts the options -r, -R and -f.
@@ -456,75 +680,6 @@ const proc: doDel (inout string: parameters) is func
       aParam := getDosCommandParameter(parameters);
     end while;
     doRemoveCmd(fileList, recursive, FALSE);
-  end func;
-
-
-const proc: doCopyCmd (in var array string: fileList,
-   in boolean: recursive, in boolean: overwriteExisting, in boolean: archive) is func
-  local
-    var string: fileName is "";
-    var string: destination is "";
-    var string: destFileName is "";
-    var integer: slashPos is 0;
-  begin
-    if length(fileList) >= 2 then
-      destination := fileList[length(fileList)];
-      fileList := fileList[.. pred(length(fileList))];
-      if fileType(destination) = FILE_DIR then
-        for fileName range fileList do
-          if fileType(fileName) = FILE_REGULAR or
-              (recursive and fileType(fileName) = FILE_DIR) then
-            slashPos := rpos(fileName, "/");
-            if slashPos = 0 then
-              destFileName := destination & "/" & fileName;
-            else
-              destFileName := destination & "/" & fileName[succ(slashPos) ..];
-            end if;
-            if fileTypeSL(destFileName) = FILE_REGULAR and overwriteExisting then
-              block
-                removeFile(destFileName);
-              exception
-                catch FILE_ERROR:
-                  writeln(" *** Cannot remove " <& destFileName);
-              end block;
-            end if;
-            if fileType(destFileName) = FILE_ABSENT then
-              # write("copyFile " <& fileName <& " " <& destination);
-              if archive then
-                cloneFile(fileName, destFileName);
-              else
-                copyFile(fileName, destFileName);
-              end if;
-            end if;
-          else
-            writeln("Does not copy " <& fileName);
-          end if;
-        end for;
-      elsif length(fileList) = 1 then
-        fileName := fileList[1];
-        if fileType(fileName) = FILE_REGULAR or
-            (recursive and fileType(fileName) = FILE_DIR) then
-          if fileTypeSL(destination) = FILE_REGULAR and overwriteExisting then
-            block
-              removeFile(destination);
-            exception
-              catch FILE_ERROR:
-                writeln(" *** Cannot remove " <& destFileName);
-            end block;
-          end if;
-          if fileType(destination) = FILE_ABSENT then
-            # write("copyFile " <& fileName <& " " <& destination);
-            if archive then
-              cloneFile(fileName, destFileName);
-            else
-              copyFile(fileName, destFileName);
-            end if;
-          end if;
-        else
-          writeln("Does not copy " <& fileName);
-        end if;
-      end if;
-    end if;
   end func;
 
 
@@ -635,65 +790,6 @@ const proc: doXCopy (inout string: parameters) is func
   end func;
 
 
-const proc: doMoveCmd (in var array string: fileList,
-    in boolean: overwriteExisting) is func
-  local
-    var string: fileName is "";
-    var string: destination is "";
-    var string: destFileName is "";
-    var integer: slashPos is 0;
-  begin
-    if length(fileList) >= 2 then
-      destination := fileList[length(fileList)];
-      fileList := fileList[.. pred(length(fileList))];
-      if fileType(destination) = FILE_DIR then
-        for fileName range fileList do
-          if fileType(fileName) = FILE_REGULAR or fileType(fileName) = FILE_DIR then
-            slashPos := rpos(fileName, "/");
-            if slashPos = 0 then
-              destFileName := destination & "/" & fileName;
-            else
-              destFileName := destination & "/" & fileName[succ(slashPos) ..];
-            end if;
-            if fileTypeSL(destFileName) = FILE_REGULAR and overwriteExisting then
-              block
-                removeFile(destFileName);
-              exception
-                catch FILE_ERROR:
-                  writeln(" *** Cannot remove " <& destFileName);
-              end block;
-            end if;
-            if fileType(destFileName) = FILE_ABSENT then
-              # write("moveFile " <& fileName <& " " <& destination);
-              moveFile(fileName, destFileName);
-            end if;
-          else
-            writeln("Does not move " <& fileName);
-          end if;
-        end for;
-      elsif length(fileList) = 1 then
-        fileName := fileList[1];
-        if fileType(fileName) = FILE_REGULAR or fileType(fileName) = FILE_DIR then
-          if fileTypeSL(destination) = FILE_REGULAR and overwriteExisting then
-            block
-              removeFile(destination);
-            exception
-              catch FILE_ERROR:
-                writeln(" *** Cannot remove " <& destFileName);
-            end block;
-          end if;
-          if fileType(destination) = FILE_ABSENT then
-            # write("moveFile " <& fileName <& " " <& destination);
-            moveFile(fileName, destFileName);
-          end if;
-        else
-          writeln("Does not move " <& fileName);
-        end if;
-      end if;
-    end if;
-  end func;
-
-
 (**
  *  Move files and directories like the Unix mv command.
  *  The command accepts the option -n.
@@ -758,51 +854,6 @@ const proc: doMove (inout string: parameters) is func
       aParam := getDosCommandParameter(parameters);
     end while;
     doMoveCmd(fileList, overwriteExisting);
-  end func;
-
-
-const proc: doMkdirCmd (in array string: fileList,
-    in boolean: parentDirs) is func
-  local
-    var string: fileName is "";
-    var integer: slashPos is 0;
-    var string: dirPath is "";
-    var boolean: okay is TRUE;
-  begin
-    for fileName range fileList do
-      okay := TRUE;
-      if parentDirs then
-        slashPos := pos(fileName, '/');
-        if slashPos = 1 then
-          slashPos := pos(fileName, '/', succ(slashPos));
-        end if;
-        while slashPos <> 0 do
-          dirPath := fileName[.. pred(slashPos)];
-          if fileTypeSL(dirPath) = FILE_ABSENT then
-            mkdir(dirPath);
-            slashPos := pos(fileName, '/', succ(slashPos));
-          elsif fileTypeSL(dirPath) = FILE_DIR then
-            slashPos := pos(fileName, '/', succ(slashPos));
-          else
-            writeln(" *** Cannot make directory " <& dirPath <& " - Not a directory");
-            slashPos := 0;
-            okay := FALSE;
-          end if;
-        end while;
-      end if;
-      if okay then
-        if fileTypeSL(fileName) = FILE_ABSENT then
-          block
-            mkdir(fileName);
-          exception
-            catch FILE_ERROR:
-              writeln(" *** Cannot make directory " <& fileName);
-          end block;
-        elsif fileTypeSL(fileName) = FILE_DIR and not parentDirs then
-          writeln(" *** Cannot make directory " <& fileName <& " - File exists");
-        end if;
-      end if;
-    end for;
   end func;
 
 

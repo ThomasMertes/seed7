@@ -197,9 +197,10 @@ void substitute_params (const_objectType expr_object)
         if (current_element->value.objValue != NULL) {
 #ifdef TRACE_MATCH_extended
           if (HAS_POSINFO(expr_object)) {
-            printf("%s(%u): ",
-                   get_file_name_ustri(GET_FILE_NUM(expr_object)),
-                   GET_LINE_NUM(expr_object));
+            prot_string(get_file_name(GET_FILE_NUM(expr_object)));
+            prot_cstri("(");
+            prot_int((intType) GET_LINE_NUM(expr_object));
+            prot_cstri(")");
           }
           printf("Parameter already has value: ");
           prot_int((intType) current_element);

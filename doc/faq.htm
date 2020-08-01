@@ -469,8 +469,8 @@ should be no need to <span class="link">call foreign C functions</span>, or to <
 <li>Differences between Unix sockets and winsockets are hidden and
    a Seed7 <tt><span class="type">socket</span></tt> is a <tt><span class="type">file</span></tt> (as in Unix). The type <tt><span class="type">pollData</span></tt> allows
    to wait until a socket is ready to read or write data. <span class="link">TLS/SSL</span>
-   and higher level protocols such as <span class="link">HTTP</span>, <span class="link">HTTPS</span> and <span class="link">FTP</span>
-   are also supported.</li>
+   and higher level protocols such as <span class="link">HTTP</span>, <span class="link">HTTPS</span>, <span class="link">FTP</span>
+   and <span class="link">SMTP</span> are also supported.</li>
 <li>The library <span class="lib">keybd.s7i</span> defines the file <span class="var">KEYBOARD</span>, which supports
    reading single key presses. The characters read from <span class="var">KEYBOARD</span> are
    not echoed to the console and there is no need to press ENTER.
@@ -576,7 +576,7 @@ Seed7 can be used in various application areas:
 <li>Scripts that deal with <span class="link">files and directories</span> (The Seed7 Homepage
    and the Seed7 release are created with Seed7 scripts).</li>
 <li>Tools for networking (There is support for <span class="link">sockets</span>, <span class="link">TLS/SSL</span>, <span class="link">listeners</span>,
-   <span class="link">HTTP</span>, <span class="link">HTTPS</span>, <span class="link">FTP</span> and HTML parsing). E.g.:<ul>
+   <span class="link">HTTP</span>, <span class="link">HTTPS</span>, <span class="link">FTP</span>, <span class="link">SMTP</span> and HTML parsing). E.g.:<ul>
 <li><span class="link">A ftp file transfer program</span></li>
 <li><span class="link">A ftp server</span></li>
 <li><span class="link">A web server</span></li></ul></li>
@@ -607,12 +607,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 200000 lines of Seed7. For version 2015-03-08 the number of lines is:
+than 200000 lines of Seed7. For version 2015-03-22 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right">122874</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right">  9994</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">120649</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right">127858</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right">123324</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right">  9999</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">122081</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right">128231</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -844,6 +844,7 @@ compiling the compiler - okay
 chkint ........... okay
 chkovf ........... okay
 chkflt ........... okay
+chkchr ........... okay
 chkstr ........... okay
 chkprc ........... okay
 chkbig ........... okay

@@ -608,6 +608,7 @@ striType refStr (const const_objectType obj_arg)
     char *buffer;
     listType name_elem;
     objectType param_obj;
+    errInfoType err_info = OKAY_NO_ERROR;
     striType result;
 
   /* refStr */
@@ -648,7 +649,7 @@ striType refStr (const const_objectType obj_arg)
         stri = " *UNKNOWN_NAME* ";
       } /* if */
     } /* if */
-    result = cstri_to_stri(stri);
+    result = cstri8_to_stri(stri, &err_info);
     if (buffer != NULL) {
       UNALLOC_CSTRI(buffer, buffer_len);
     } /* if */

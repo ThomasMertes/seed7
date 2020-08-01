@@ -395,7 +395,7 @@ static entityType new_entity (identType id)
     } /* if */
 #ifdef TRACE_ENTITY
     printf("END new_entity --> ");
-    prot_cstri(id_string(created_entity->ident));
+    prot_cstri8(id_string(created_entity->ident));
     printf("\n");
 #endif
     return created_entity;

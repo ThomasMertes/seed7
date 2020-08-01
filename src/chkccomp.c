@@ -120,14 +120,6 @@
 
 char c_compiler[1024];
 
-static const int alignmentTable[] = {
-    6, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
-    4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
-    5, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
-    4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
-  };
-
-char *stack_base;
 FILE *logFile;
 
 
@@ -198,6 +190,36 @@ int fileIsDir (const char *fileName)
 
 
 
+void doRemove (const char *fileName)
+
+  {
+
+  /* doRemove */
+    if (remove(fileName) != 0) {
+#if defined OS_STRI_WCHAR && defined USE_WINSOCK
+      /* This workaround is necessary for windows. */
+      time_t start_time;
+      char command[1024];
+
+      sprintf(command, "DEL %s 2>NUL:", fileName);
+      start_time = time(NULL);
+      while (time(NULL) < start_time + 20 &&
+             fileIsRegular(fileName)) {
+        if (remove(fileName) != 0) {
+          system(command);
+        } /* if */
+      } /* while */
+      if (fileIsRegular(fileName)) {
+        fprintf(logFile, " *** Cannot remove %s\n", fileName);
+      } /* if */
+#else
+      fprintf(logFile, " *** Cannot remove %s\n", fileName);
+#endif
+    } /* if */
+  } /* doRemove */
+
+
+
 void cleanUpCompilation (void)
 
   {
@@ -205,24 +227,24 @@ void cleanUpCompilation (void)
 
   /* cleanUpCompilation */
     if (fileIsRegular("ctest.c")) {
-      remove("ctest.c");
+      doRemove("ctest.c");
     } /* if */
     if (fileIsRegular("ctest.cerrs")) {
-      remove("ctest.cerrs");
+      doRemove("ctest.cerrs");
     } /* if */
     if (fileIsRegular("ctest.lerrs")) {
-      remove("ctest.lerrs");
+      doRemove("ctest.lerrs");
     } /* if */
     sprintf(fileName, "ctest%s", OBJECT_FILE_EXTENSION);
     if (fileIsRegular(fileName)) {
-      remove(fileName);
+      doRemove(fileName);
     } /* if */
     sprintf(fileName, "ctest%s", EXECUTABLE_FILE_EXTENSION);
     if (fileIsRegular(fileName)) {
-      remove(fileName);
+      doRemove(fileName);
     } /* if */
     if (fileIsRegular("ctest.out")) {
-      remove("ctest.out");
+      doRemove("ctest.out");
     } /* if */
   } /* cleanUpCompilation */
 
@@ -324,13 +346,60 @@ int doTest (void)
     int result = -1;
 
   /* doTest */
+#ifdef INTERPRETER_FOR_EXECUTABLE
+    sprintf(command, "%s .%cctest%s>ctest.out",
+            INTERPRETER_FOR_EXECUTABLE, PATH_DELIMITER, EXECUTABLE_FILE_EXTENSION);
+#else
     sprintf(command, ".%cctest%s>ctest.out", PATH_DELIMITER, EXECUTABLE_FILE_EXTENSION);
+#endif
     if (system(command) != -1 && (outFile = fopen("ctest.out", "r")) != NULL) {
       fscanf(outFile, "%d", &result);
       fclose(outFile);
     } /* if */
     return result;
   } /* doTest */
+
+
+
+int expectTestResult (const char *content, int expected)
+
+  {
+    int testResult = -1;
+    int okay = 0;
+
+  /* expectTestResult */
+    if (compileAndLinkOk(content)) {
+      testResult = doTest();
+      okay = testResult == expected;
+    } else {
+      fprintf(logFile, " *** Unable to compile test program:\n%s\n", content);
+    } /* if */
+    return okay;
+  } /* expectTestResult */
+
+
+
+void testOutputToVersionFile (FILE *versionFile)
+
+  {
+    char command[1024];
+    FILE *outFile;
+    int ch;
+
+  /* testOutputToVersionFile */
+#ifdef INTERPRETER_FOR_EXECUTABLE
+    sprintf(command, "%s .%cctest%s>ctest.out",
+            INTERPRETER_FOR_EXECUTABLE, PATH_DELIMITER, EXECUTABLE_FILE_EXTENSION);
+#else
+    sprintf(command, ".%cctest%s>ctest.out", PATH_DELIMITER, EXECUTABLE_FILE_EXTENSION);
+#endif
+    if (system(command) != -1 && (outFile = fopen("ctest.out", "r")) != NULL) {
+      while ((ch = getc(outFile)) != EOF) {
+        putc(ch, versionFile);
+      } /* while */
+      fclose(outFile);
+    } /* if */
+  } /* testOutputToVersionFile */
 
 
 
@@ -380,10 +449,66 @@ void determineEnvironDefines (FILE *versionFile)
 
 
 
+int getSizeof (const char *typeName)
+
+  {
+    char buffer[4096];
+    int computedSize = -1;
+
+  /* getSizeof */
+    /* fprintf(logFile, "getSizeof(%s)\n", typeName); */
+    sprintf(buffer, "#include <stdio.h>\n"
+                    "#include <stddef.h>\n"
+                    "#include <time.h>\n"
+                    "#include \"tst_vers.h\"\n"
+                    "int main(int argc, char *argv[])"
+                    "{printf(\"%%d\\n\",(int)sizeof(%s));return 0;}\n",
+                    typeName);
+    if (compileAndLinkOk(buffer)) {
+      computedSize = doTest();
+      if (computedSize == -1) {
+        fprintf(logFile, " *** Unable to determine sizeof(%s).\n", typeName);
+      } /* if */
+    } /* if */
+    return computedSize;
+  } /* getSizeof */
+
+
+
+int isSignedType (const char *typeName)
+
+  {
+    char buffer[4096];
+    int isSigned = -1;
+
+  /* isSignedType */
+    /* fprintf(logFile, "isSignedType(%s)\n", typeName); */
+    sprintf(buffer, "#include <stdio.h>\n"
+                    "#include <stddef.h>\n"
+                    "#include <time.h>\n"
+                    "#include \"tst_vers.h\"\n"
+                    "int main(int argc, char *argv[])"
+                    "{printf(\"%%d\\n\",(%s)-1<0);return 0;}\n",
+                    typeName);
+    if (compileAndLinkOk(buffer)) {
+      isSigned = doTest();
+    } /* if */
+    if (isSigned == -1) {
+      fprintf(logFile, " *** Unable to determine if %s is signed.\n", typeName);
+    } /* if */
+    return isSigned == 1;
+  } /* isSignedType */
+
+
+
 void numericSizes (FILE *versionFile)
 
   {
-    int testResult;
+    int sizeof_char;
+    int sizeof_short;
+    int sizeof_int;
+    int sizeof_long;
+    int sizeof_long_long;
     const char *int32TypeStri = NULL;
     const char *uint32TypeStri;
     const char *int32TypeSuffix = "";
@@ -394,56 +519,56 @@ void numericSizes (FILE *versionFile)
     const char *int64TypeFormat = NULL;
     const char *int128TypeStri = NULL;
     const char *uint128TypeStri = NULL;
-    char buffer[4096];
 
   /* numericSizes */
     fprintf(logFile, "Numeric sizes:");
     fflush(stdout);
-    fprintf(versionFile, "#define SHORT_SIZE %lu\n",    (long unsigned) (8 * sizeof(short)));
-    fprintf(versionFile, "#define INT_SIZE %lu\n",      (long unsigned) (8 * sizeof(int)));
-    fprintf(versionFile, "#define LONG_SIZE %lu\n",     (long unsigned) (8 * sizeof(long)));
-    if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])"
-                         "{printf(\"%d\\n\",sizeof(long long));return 0;}\n")) {
-      testResult = doTest();
-      if (testResult != -1) {
-        fprintf(versionFile, "#define LONG_LONG_SIZE %lu\n",     (long unsigned) (8 * testResult));
-      } /* if */
+    sizeof_char      = getSizeof("char");
+    sizeof_short     = getSizeof("short");
+    sizeof_int       = getSizeof("int");
+    sizeof_long      = getSizeof("long");
+    sizeof_long_long = getSizeof("long long");
+    fprintf(versionFile, "#define SHORT_SIZE %d\n",       8 * sizeof_short);
+    fprintf(versionFile, "#define INT_SIZE %d\n",         8 * sizeof_int);
+    fprintf(versionFile, "#define LONG_SIZE %d\n",        8 * sizeof_long);
+    if (sizeof_long_long != -1) {
+      fprintf(versionFile, "#define LONG_LONG_SIZE %d\n", 8 * sizeof_long_long);
     } /* if */
-    fprintf(versionFile, "#define POINTER_SIZE %lu\n",  (long unsigned) (8 * sizeof(char *)));
-    fprintf(versionFile, "#define FLOAT_SIZE %lu\n",    (long unsigned) (8 * sizeof(float)));
-    fprintf(versionFile, "#define DOUBLE_SIZE %lu\n",   (long unsigned) (8 * sizeof(double)));
-    fprintf(versionFile, "#define WCHAR_T_SIZE %lu\n",  (long unsigned) (8 * sizeof(wchar_t)));
-    fprintf(versionFile, "#define OS_OFF_T_SIZE %lu\n", (long unsigned) (8 * sizeof(os_off_t)));
-    fprintf(versionFile, "#define TIME_T_SIZE %lu\n",   (long unsigned) (8 * sizeof(time_t)));
-    if ((time_t) -1 < 0) {
+    fprintf(versionFile, "#define POINTER_SIZE %d\n",     8 * getSizeof("char *"));
+    fprintf(versionFile, "#define FLOAT_SIZE %d\n",       8 * getSizeof("float"));
+    fprintf(versionFile, "#define DOUBLE_SIZE %d\n",      8 * getSizeof("double"));
+    fprintf(versionFile, "#define WCHAR_T_SIZE %d\n",     8 * getSizeof("wchar_t"));
+    fprintf(versionFile, "#define OS_OFF_T_SIZE %d\n",    8 * getSizeof("os_off_t"));
+    fprintf(versionFile, "#define TIME_T_SIZE %d\n",      8 * getSizeof("time_t"));
+    if (isSignedType("time_t")) {
       fputs("#define TIME_T_SIGNED\n", versionFile);
     } /* if */
-    if ((size_t) -1 < 0) {
+    if (isSignedType("size_t")) {
       fputs("#define SIZE_T_SIGNED\n", versionFile);
     } /* if */
-    if (sizeof(char) == 1) {
+    if (sizeof_char == 1) {
       fputs("#define INT8TYPE signed char\n", versionFile);
       fputs("#define INT8TYPE_STRI \"signed char\"\n", versionFile);
       fputs("#define UINT8TYPE unsigned char\n", versionFile);
       fputs("#define UINT8TYPE_STRI \"unsigned char\"\n", versionFile);
     } /* if */
-    if (sizeof(short int) == 2) {
+    if (sizeof_short == 2) {
       fputs("#define INT16TYPE short int\n", versionFile);
       fputs("#define INT16TYPE_STRI \"short int\"\n", versionFile);
       fputs("#define UINT16TYPE unsigned short int\n", versionFile);
       fputs("#define UINT16TYPE_STRI \"unsigned short int\"\n", versionFile);
-    } else if (sizeof(int) == 4) {
+    } else if (sizeof_int == 2) {
       fputs("#define INT16TYPE int\n", versionFile);
       fputs("#define INT16TYPE_STRI \"int\"\n", versionFile);
       fputs("#define UINT16TYPE unsigned int\n", versionFile);
       fputs("#define UINT16TYPE_STRI \"unsigned int\"\n", versionFile);
     } /* if */
-    if (sizeof(int) == 4) {
+    if (sizeof_int == 4) {
       int32TypeStri = "int";
       uint32TypeStri = "unsigned int";
       int32TypeSuffix = "";
       int32TypeFormat = "";
-    } else if (sizeof(long) == 4) {
+    } else if (sizeof_long == 4) {
       int32TypeStri = "long";
       uint32TypeStri = "unsigned long";
       int32TypeSuffix = "L";
@@ -463,16 +588,15 @@ void numericSizes (FILE *versionFile)
       fprintf(versionFile, "#define INT32TYPE_LITERAL_SUFFIX \"%s\"\n", int32TypeSuffix);
       fprintf(versionFile, "#define INT32TYPE_FORMAT \"%s\"\n", int32TypeFormat);
     } /* if */
-    if (sizeof(long) == 8) {
+    if (sizeof_long == 8) {
       int64TypeStri = "long";
       uint64TypeStri = "unsigned long";
-      if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])"
-                           "{long n=12345678L;printf(\"%d\\n\",(int)sizeof(1L));return 0;}\n") && doTest() == 8) {
+      if (expectTestResult("#include <stdio.h>\nint main(int argc, char *argv[])"
+                           "{long n=12345678L;printf(\"%d\\n\",(int)sizeof(1L));return 0;}\n", 8)) {
         int64TypeSuffix = "L";
       } /* if */
       int64TypeFormat = "l";
-    } else if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])"
-                                "{printf(\"%d\\n\",sizeof(long long));return 0;}\n") && doTest() == 8) {
+    } else if (sizeof_long_long == 8) {
       /* The type long long is defined and it is a 64-bit type */
       int64TypeStri = "long long";
       uint64TypeStri = "unsigned long long";
@@ -496,8 +620,7 @@ void numericSizes (FILE *versionFile)
                                   "printf(\"%d\\n\", strcmp(b,\"A4294967296B\")==0);return 0;}\n") && doTest() == 1) {
         int64TypeFormat = "I64";
       } /* if */
-    } else if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])\n"
-                                "{printf(\"%d\\n\",sizeof(__int64));return 0;}\n") && doTest() == 8) {
+    } else if (getSizeof("__int64") == 8) {
       /* The type __int64 is defined and it is a 64-bit type */
       int64TypeStri = "__int64";
       uint64TypeStri = "unsigned __int64";
@@ -533,7 +656,7 @@ void numericSizes (FILE *versionFile)
       fprintf(versionFile, "#define INT64TYPE_LITERAL_SUFFIX \"\"\n");
 #else
       if (int64TypeSuffix[0] == '\0') {
-        fprintf(versionFile, "#define INT64_SUFFIX(num) num\n");
+        fprintf(versionFile, "#define INT64_SUFFIX(num) ((%s) num)\n", int64TypeStri);
       } else {
         fprintf(versionFile, "#define INT64_SUFFIX(num) num ## %s\n", int64TypeSuffix);
       } /* if */
@@ -576,7 +699,6 @@ void numericProperties (FILE *versionFile)
 
   {
     int testResult;
-    long number;
     char buffer[4096];
     int zero_divide_triggers_signal = 0;
     float zero = 0.0;
@@ -586,22 +708,25 @@ void numericProperties (FILE *versionFile)
     float nanValue2;
     float plusInf;
     float minusInf;
-    int floatRadixFactor;
 
   /* numericProperties */
     fprintf(logFile, "Numeric properties:");
     fflush(stdout);
-    number = -1;
-    if (number >> 1 == (long) -1) {
+    if (expectTestResult("#include <stdio.h>\nint main(int argc,char *argv[])"
+                         "{long num=-1;printf(\"%d\\n\",num>>1==(long)-1);return 0;}\n", 1)) {
       fputs("#define RSHIFT_DOES_SIGN_EXTEND\n", versionFile);
     } /* if */
-    if (~number == (long) 0) {
+    if (compileAndLinkOk("#include <stdio.h>\nint main(int argc,char *argv[])"
+                         "{long num=-1;printf(\"%d\\n\",~num==(long)0);return 0;}\n") &&
+                         doTest() == 1) {
       fputs("#define TWOS_COMPLEMENT_INTTYPE\n", versionFile);
-    } else if (~number == (long) 1) {
+    } else if (compileAndLinkOk("#include <stdio.h>\nint main(int argc,char *argv[])"
+                                "{long num=-1;printf(\"%d\\n\",~num==(long)1);return 0;}\n") &&
+                                doTest() == 1) {
       fputs("#define ONES_COMPLEMENT_INTTYPE\n", versionFile);
     } /* if */
-    number = 1;
-    if (((char *) &number)[0] == 1) {
+    if (expectTestResult("#include <stdio.h>\nint main(int argc,char *argv[])"
+                         "{long num=1;printf(\"%d\\n\",((char*)&num)[0]==1);return 0;}\n", 1)) {
       fputs("#define LITTLE_ENDIAN_INTTYPE\n", versionFile);
     } else {
       fputs("#define BIG_ENDIAN_INTTYPE\n", versionFile);
@@ -710,18 +835,44 @@ void numericProperties (FILE *versionFile)
                strcmp(buffer, "1 2 3 1.3 1.8 0.13 0.38 -0 -1 -2 -1.2 -1.7 -0.12 -0.37") == 0) {
       fputs("#define ROUND_HALF_UP\n", versionFile);
     } /* if */
-    sprintf(buffer, "%1.10e", DBL_MAX);
-    sscanf(strchr(buffer,'e') + 1, "%ld", &number);
-    fprintf(versionFile, "#define DOUBLE_MAX_EXP10 %ld\n", number);
-    sprintf(buffer, "%ld", number);
-    fprintf(versionFile, "#define DOUBLE_MAX_EXP10_DIGITS %lu\n",
-            (long unsigned) strlen(buffer));
-    sprintf(buffer, "%1.14e", 1.12345678901234);
-    fprintf(versionFile, "#define DOUBLE_MIN_EXP10_DIGITS %u\n", (unsigned int) strlen(buffer) - 18);
-    fprintf(versionFile, "#define FLOAT_STR_FORMAT \"%%1.%de\"\n", FLT_DIG - 1);
-    fprintf(versionFile, "#define FLOAT_STR_LARGE_NUMBER 1.0e%d\n", FLT_DIG);
-    fprintf(versionFile, "#define DOUBLE_STR_FORMAT \"%%1.%de\"\n", DBL_DIG - 1);
-    fprintf(versionFile, "#define DOUBLE_STR_LARGE_NUMBER 1.0e%d\n", DBL_DIG);
+    if (compileAndLinkOk("#include<stdio.h>\n#include<string.h>\n#include<float.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{int maxExp10;char buffer[128];\n"
+                         "sprintf(buffer, \"%1.10e\", DBL_MAX);\n"
+                         "sscanf(strchr(buffer,'e') + 1, \"%d\", &maxExp10);\n"
+                         "printf(\"%d\\n\",maxExp10);return 0;}\n")) {
+      fprintf(versionFile, "#define DOUBLE_MAX_EXP10 %d\n", doTest());
+    } /* if */
+    if (compileAndLinkOk("#include<stdio.h>\n#include<string.h>\n#include<float.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{int maxExp10;char buffer[128];\n"
+                         "sprintf(buffer, \"%1.10e\", DBL_MAX);\n"
+                         "sscanf(strchr(buffer,'e') + 1, \"%d\", &maxExp10);\n"
+                         "sprintf(buffer, \"%d\", maxExp10);\n"
+                         "printf(\"%d\\n\",(int)strlen(buffer));return 0;}\n")) {
+      fprintf(versionFile, "#define DOUBLE_MAX_EXP10_DIGITS %u\n", doTest());
+    } /* if */
+    if (compileAndLinkOk("#include<stdio.h>\n#include<string.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{char buffer[128];\n"
+                         "sprintf(buffer, \"%1.14e\", 1.12345678901234);\n"
+                         "printf(\"%d\\n\",(int)strlen(buffer)-18);return 0;}\n")) {
+      fprintf(versionFile, "#define DOUBLE_MIN_EXP10_DIGITS %u\n", doTest());
+    } /* if */
+    if (compileAndLinkOk("#include<stdio.h>\n#include<float.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{printf(\"%d\\n\",FLT_DIG);return 0;}\n")) {
+      testResult = doTest();
+      fprintf(versionFile, "#define FLOAT_STR_FORMAT \"%%1.%de\"\n", testResult - 1);
+      fprintf(versionFile, "#define FLOAT_STR_LARGE_NUMBER 1.0e%d\n", testResult);
+    } /* if */
+    if (compileAndLinkOk("#include<stdio.h>\n#include<float.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{printf(\"%d\\n\",DBL_DIG);return 0;}\n")) {
+      testResult = doTest();
+      fprintf(versionFile, "#define DOUBLE_STR_FORMAT \"%%1.%de\"\n", testResult - 1);
+      fprintf(versionFile, "#define DOUBLE_STR_LARGE_NUMBER 1.0e%d\n", testResult);
+    } /* if */
     if (!compileAndLinkOk("#include<stdio.h>\n"
                           "int main(int argc,char *argv[]){"
                           "printf(\"%f\", 1.0/0.0);return 0;}\n") ||
@@ -837,19 +988,20 @@ void numericProperties (FILE *versionFile)
         fprintf(versionFile, "#define FLOAT_TO_INT_OVERFLOW_GARBAGE %d\n", testResult);
       } /* if */
     } /* if */
-#if FLT_RADIX == 2
-    floatRadixFactor = 1;
-#elif FLT_RADIX == 4
-    floatRadixFactor = 2;
-#elif FLT_RADIX == 8
-    floatRadixFactor = 3;
-#elif FLT_RADIX == 16
-    floatRadixFactor = 4;
-#endif
-    fprintf(versionFile, "#define FLOAT_MANTISSA_FACTOR %0.1f\n", pow((double) FLT_RADIX, (double) FLT_MANT_DIG));
-    fprintf(versionFile, "#define FLOAT_MANTISSA_SHIFT %u\n", FLT_MANT_DIG * floatRadixFactor);
-    fprintf(versionFile, "#define DOUBLE_MANTISSA_FACTOR %0.1f\n", pow((double) FLT_RADIX, (double) DBL_MANT_DIG));
-    fprintf(versionFile, "#define DOUBLE_MANTISSA_SHIFT %u\n", DBL_MANT_DIG * floatRadixFactor);
+    if (compileAndLinkOk("#include<stdio.h>\n#include<float.h>\n"
+                         "int main(int argc,char *argv[]){\n"
+                         "int floatRadixFactor;\n"
+                         "if (FLT_RADIX == 2) floatRadixFactor = 1;\n"
+                         "else if (FLT_RADIX == 4) floatRadixFactor = 2;\n"
+                         "else if (FLT_RADIX == 8) floatRadixFactor = 3;\n"
+                         "else if (FLT_RADIX == 16) floatRadixFactor = 4;\n"
+                         "printf(\"#define FLOAT_MANTISSA_FACTOR %0.1f\\n\", pow((double) FLT_RADIX, (double) FLT_MANT_DIG));\n"
+                         "printf(\"#define FLOAT_MANTISSA_SHIFT %u\\n\", FLT_MANT_DIG * floatRadixFactor);\n"
+                         "printf(\"#define DOUBLE_MANTISSA_FACTOR %0.1f\\n\", pow((double) FLT_RADIX, (double) DBL_MANT_DIG));\n"
+                         "printf(\"#define DOUBLE_MANTISSA_SHIFT %u\\n\", DBL_MANT_DIG * floatRadixFactor);\n"
+                         "return 0;}\n")) {
+      testOutputToVersionFile(versionFile);
+    } /* if */
     if (compileAndLinkOk("#include<stdio.h>\n#include<string.h>\n"
                          "int main(int argc,char *argv[]){\n"
                          "char buffer[100003];\n"
@@ -869,20 +1021,39 @@ void numericProperties (FILE *versionFile)
 void determineMallocAlignment (FILE *versionFile)
 
   {
-    int count;
-    unsigned long malloc_result;
-    int alignment;
-    int minAlignment = 7;
+    int alignment = -1;
 
   /* determineMallocAlignment */
-    for (count = 1; count <= 64; count++) {
-      malloc_result = (unsigned long) (size_t) malloc(count);
-      alignment = alignmentTable[malloc_result & 0x3f];
-      if (alignment < minAlignment) {
-        minAlignment = alignment;
-      } /* if */
-    } /* for */
-    fprintf(versionFile, "#define MALLOC_ALIGNMENT %d\n", minAlignment);
+    if (compileAndLinkOk("#include <stdio.h>\n#include <stdlib.h>\n"
+                         "static const int alignmentTable[] = {\n"
+                         "    6, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,\n"
+                         "    4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,\n"
+                         "    5, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,\n"
+                         "    4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,\n"
+                         "  };\n"
+                         "int main(int argc, char *argv[])"
+                         "{\n"
+                         "  int count;\n"
+                         "  unsigned long malloc_result;\n"
+                         "  int alignment;\n"
+                         "  int minAlignment = 7;\n"
+                         "  for (count = 1; count <= 64; count++) {\n"
+                         "    malloc_result = (unsigned long) (size_t) malloc(count);\n"
+                         "    alignment = alignmentTable[malloc_result & 0x3f];\n"
+                         "    if (alignment < minAlignment) {\n"
+                         "      minAlignment = alignment;\n"
+                         "    }\n"
+                         "  }\n"
+                         "  printf(\"%d\\n\", minAlignment);\n"
+                         "  return 0;"
+                         "}\n")) {
+      alignment = doTest();
+    } /* if */
+    if (alignment == -1) {
+      fprintf(logFile, " *** Unable to determine malloc alignment.\n");
+    } else {
+      fprintf(versionFile, "#define MALLOC_ALIGNMENT %d\n", alignment);
+    } /* if */
   } /* determineMallocAlignment */
 
 
@@ -983,13 +1154,23 @@ void checkMoveDirectory (FILE *versionFile)
 void detemineStackDirection (FILE *versionFile)
 
   {
-    char aVariable;
+    int stackDir;
 
   /* detemineStackDirection */
-    if (stack_base < &aVariable) {
-      fputs("#define STACK_GROWS_UPWARD\n", versionFile);
-    } else {
-      fputs("#define STACK_GROWS_DOWNWARD\n", versionFile);
+    if (compileAndLinkOk("#include <stdio.h>\n"
+                         "char *stack_base;\n"
+                         "void subFunc()\n"
+                         "{char localVar;\n"
+                         "printf(\"%d\\n\",stack_base<&localVar);return;}\n"
+                         "int main(int argc, char *argv[])\n"
+                         "{char mainVar;stack_base=&mainVar;\n"
+                         "subFunc();return 0;}\n") &&
+        (stackDir = doTest()) != -1) {
+      if (stackDir) {
+        fputs("#define STACK_GROWS_UPWARD\n", versionFile);
+      } else {
+        fputs("#define STACK_GROWS_DOWNWARD\n", versionFile);
+      } /* if */
     } /* if */
   } /* detemineStackDirection */
 
@@ -1559,7 +1740,7 @@ void deteminePostgresDefines (FILE *versionFile,
       } /* if */
       sprintf(buffer, "#include <%s>\n#include <%s>\n"
                       "int main(int argc,char *argv[]){return 0;}\n",
-	              postgresInclude, pgTypeInclude);
+                      postgresInclude, pgTypeInclude);
       if (compileAndLinkWithOptionsOk(buffer, includeOption, "")) {
         fprintf(logFile, "PostgreSQL: %s found in system include directory.\n", pgTypeInclude);
       } else if (findPgTypeInclude(includeOption, pgTypeInclude)) {
@@ -1981,15 +2162,8 @@ int main (int argc, char **argv)
     FILE *versionFile = NULL;
     char aVariable;
     FILE *aFile;
-    time_t timestamp;
-    struct tm *local_time;
     char buffer[4096];
     int ch;
-    union {
-      char           charValue;
-      unsigned long  genericValue;
-    } testUnion;
-    int testResult;
     const char *define_read_buffer_empty;
 
   /* main */
@@ -1997,6 +2171,7 @@ int main (int argc, char **argv)
     if (argc >= 2) {
       versionFileName = argv[1];
     } /* if */
+    copyFile(versionFileName, "tst_vers.h");
     versionFile = openVersionFile(versionFileName);
     prepareCompileCommand();
 #ifdef WRITE_CC_VERSION_INFO
@@ -2078,23 +2253,30 @@ int main (int argc, char **argv)
     } else {
       fputs("#define POPEN_MISSING\n", versionFile);
     } /* if */
-    if ((aFile = fopen("tmp_test_file","w")) != NULL) {
-      fwrite("asdf",1,4,aFile);
-      fclose(aFile);
-      if ((aFile = fopen("tmp_test_file","r")) != NULL) {
-        if (fwrite("qwert",1,5,aFile) != 0) {
-          fputs("#define FWRITE_WRONG_FOR_READ_ONLY_FILES\n", versionFile);
-        } /* if */
-        fclose(aFile);
-      } /* if */
-      remove("tmp_test_file");
+    if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])\n"
+                         "{int canWrite=0;FILE *aFile;\n"
+                         "if((aFile=fopen(\"tmp_test_file\",\"w\"))!=NULL){\n"
+                         " fwrite(\"asdf\",1,4,aFile);fclose(aFile);\n"
+                         " if((aFile=fopen(\"tmp_test_file\",\"r\"))!=NULL){\n"
+                         "  canWrite=fwrite(\"qwert\",1,5,aFile)!=0;fclose(aFile);}\n"
+                         " remove(\"tmp_test_file\");}\n"
+                         "printf(\"%d\\n\",canWrite);return 0;}\n") && doTest() == 1) {
+      fputs("#define FWRITE_WRONG_FOR_READ_ONLY_FILES\n", versionFile);
     } /* if */
-    mkdir("tmp_empty_dir", 0755);
+    if (compileAndLinkOk("#include <stdio.h>\n#include \"chkccomp.h\"\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{int rmFail=0;mkdir(\"tmp_empty_dir1\",0755);\n"
+                         "if(remove(\"tmp_empty_dir1\")!=0){rmFail=1;rmdir(\"tmp_empty_dir1\");}\n"
+                         "printf(\"%d\\n\",rmFail);return 0;}\n") && doTest() == 1) {
+      fputs("#define REMOVE_FAILS_FOR_EMPTY_DIRS\n", versionFile);
+    } /* if */
     if (compileAndLinkOk(
-        "#include <stdio.h>\n#include <utime.h>\n#include <errno.h>\nint main(int argc,char *argv[])"
-        "{struct utimbuf utime_buf;\n"
+        "#include <stdio.h>\n#include <utime.h>\n#include <errno.h>\n#include \"chkccomp.h\"\n"
+        "int main(int argc,char *argv[])"
+        "{struct utimbuf utime_buf;mkdir(\"tmp_empty_dir2\",0755);\n"
         "utime_buf.actime=1234567890;utime_buf.modtime=1234567890;\n"
-        "printf(\"%d\\n\",utime(\"tmp_empty_dir\",&utime_buf)!=0&&errno==EACCES);return 0;}\n") &&
+        "printf(\"%d\\n\",utime(\"tmp_empty_dir2\",&utime_buf)!=0&&errno==EACCES);\n"
+        "if(remove(\"tmp_empty_dir2\")!=0)rmdir(\"tmp_empty_dir2\");return 0;}\n") &&
         doTest() == 1) {
       fputs("#define USE_ALTERNATE_UTIME\n", versionFile);
 #ifdef os_utime
@@ -2105,10 +2287,12 @@ int main (int argc, char **argv)
 #endif
       fputs("#define os_utime alternate_utime\n", versionFile);
     } else if (compileAndLinkOk(
-        "#include <stdio.h>\n#include <sys/utime.h>\n#include <errno.h>\nint main(int argc,char *argv[])"
-        "{struct utimbuf utime_buf;\n"
+        "#include <stdio.h>\n#include <sys/utime.h>\n#include <errno.h>\n#include \"chkccomp.h\"\n"
+        "int main(int argc,char *argv[])"
+        "{struct utimbuf utime_buf;mkdir(\"tmp_empty_dir3\",0755);\n"
         "utime_buf.actime=1234567890;utime_buf.modtime=1234567890;\n"
-        "printf(\"%d\\n\",utime(\"tmp_empty_dir\",&utime_buf)!=0&&errno==EACCES);return 0;}\n") &&
+        "printf(\"%d\\n\",utime(\"tmp_empty_dir3\",&utime_buf)!=0&&errno==EACCES);\n"
+        "if(remove(\"tmp_empty_dir3\")!=0)rmdir(\"tmp_empty_dir3\");return 0;}\n") &&
         doTest() == 1) {
       fputs("#define INCLUDE_SYS_UTIME\n", versionFile);
       fputs("#define USE_ALTERNATE_UTIME\n", versionFile);
@@ -2119,10 +2303,6 @@ int main (int argc, char **argv)
       fputs("#define os_utime_orig utime\n", versionFile);
 #endif
       fputs("#define os_utime alternate_utime\n", versionFile);
-    } /* if */
-    if (remove("tmp_empty_dir") != 0) {
-      fputs("#define REMOVE_FAILS_FOR_EMPTY_DIRS\n", versionFile);
-      rmdir("tmp_empty_dir");
     } /* if */
     checkMoveDirectory(versionFile);
     if (compileAndLinkOk("#include <stdio.h>\n#include <errno.h>\nint main(int argc,char *argv[])"
@@ -2140,10 +2320,11 @@ int main (int argc, char **argv)
     /* removed.                                    */
     fputs("#define RENAME_BEFORE_REMOVE\n", versionFile);
 #endif
-    aFile = fopen(".","r");
-    if (aFile != NULL) {
+    if (expectTestResult("#include <stdio.h>\nint main(int argc, char *argv[])\n"
+                         "{FILE *aFile; aFile=fopen(\".\",\"r\");\n"
+                         "printf(\"%d\\n\",aFile!=NULL);\n"
+                         "if(aFile!=NULL)fclose(aFile);return 0;}\n", 1)) {
       fputs("#define FOPEN_OPENS_DIRECTORIES\n", versionFile);
-      fclose(aFile);
     } /* if */
     numericSizes(versionFile);
     determineMallocAlignment(versionFile);
@@ -2168,12 +2349,14 @@ int main (int argc, char **argv)
         fputs("#define UNALIGNED_MEMORY_ACCESS_FAILS\n", versionFile);
       } /* if */
     } /* if */
-    memset(&testUnion, 0, sizeof(testUnion));
-    testUnion.charValue = 'X';
-    if (testUnion.charValue != (char) testUnion.genericValue) {
+    if (expectTestResult("#include <stdio.h>\nint main(int argc, char *argv[])\n"
+                         "{union{char ch;unsigned long gen;}aUnion;\n"
+                         "memset(&aUnion,0,sizeof(aUnion));aUnion.ch='X';\n"
+                         "printf(\"%d\\n\",aUnion.ch!=(char)aUnion.gen);return 0;}\n", 1)) {
       fputs("#define CASTING_DOES_NOT_GET_A_UNION_ELEMENT\n", versionFile);
     } /* if */
-    if (EOF != -1) {
+    if (expectTestResult("#include <stdio.h>\nint main(int argc, char *argv[])\n"
+                         "{printf(\"%d\\n\",EOF!= -1);return 0;}\n", 1)) {
       fputs("#define EOF_IS_NOT_MINUS_ONE\n", versionFile);
     } /* if */
     if (!compileAndLinkOk("#include <stdio.h>\n"
@@ -2189,7 +2372,6 @@ int main (int argc, char **argv)
       fputs("#define TRIGRAPH_SEQUENCES_ARE_REPLACED\n", versionFile);
     } /* if */
     checkForLimitedStringLiteralLength(versionFile);
-    stack_base = &aVariable;
     detemineStackDirection(versionFile);
 #ifndef STACK_SIZE
     if (sizeof(char *) == 8) { /* Machine with 64-bit addresses */
@@ -2202,34 +2384,35 @@ int main (int argc, char **argv)
     numericProperties(versionFile);
 #ifdef USE_ALTERNATE_LOCALTIME_R
     fputs("#define USE_LOCALTIME_R\n", versionFile);
-    if ((time_t) -1 < 0) {
+    if (isSignedType("time_t")) {
       fputs("#define LOCALTIME_WORKS_SIGNED\n", versionFile);
     } /* if */
 #else
     if (compileAndLinkOk("#include<time.h>\nint main(int argc,char *argv[])"
                          "{time_t ts;struct tm res;struct tm*lt;lt=localtime_r(&ts,&res);return 0;}\n")) {
       fputs("#define USE_LOCALTIME_R\n", versionFile);
-      if (compileAndLinkOk("#include<time.h>\nint main(int argc,char *argv[])"
+      if (expectTestResult("#include <stdio.h>\n#include<time.h>\n"
+                           "int main(int argc,char *argv[])"
                            "{time_t ts=-2147483647-1;struct tm res;struct tm*lt;\n"
                            "lt=localtime_r(&ts,&res);\n"
-                           "printf(\"%d\\n\",lt!=NULL&&lt->tm_year==1);return 0;}\n") && doTest() == 1) {
+                           "printf(\"%d\\n\",lt!=NULL&&lt->tm_year==1);return 0;}\n", 1)) {
         fputs("#define LOCALTIME_WORKS_SIGNED\n", versionFile);
       } /* if */
     } else if (compileAndLinkOk("#include<time.h>\nint main(int argc,char *argv[])"
                                 "{time_t ts;struct tm res;localtime_s(&res,&ts);return 0;}\n")) {
       fputs("#define USE_LOCALTIME_S\n", versionFile);
-      if (compileAndLinkOk("#include<time.h>\nint main(int argc,char *argv[])"
+      if (expectTestResult("#include <stdio.h>\n#include<time.h>\n"
+                           "int main(int argc,char *argv[])"
                            "{time_t ts=-2147483647-1;struct tm res;\n"
-                           "localtime_s(&res,&ts);\n"
-                           "printf(\"%d\\n\",lt!=NULL&&lt->tm_year==1);return 0;}\n") && doTest() == 1) {
+                           "printf(\"%d\\n\",localtime_s(&res,&ts)==0&&res.tm_year==1);return 0;}\n", 1)) {
         fputs("#define LOCALTIME_WORKS_SIGNED\n", versionFile);
       } /* if */
-    } else {
-      timestamp = -2147483647 - 1;
-      local_time = localtime(&timestamp);
-      if (local_time != NULL && local_time->tm_year == 1) {
-        fputs("#define LOCALTIME_WORKS_SIGNED\n", versionFile);
-      } /* if */
+    } else if (compileAndLinkOk("#include <stdio.h>\n#include<time.h>\n"
+                                "int main(int argc,char *argv[])"
+                                "{time_t ts=-2147483647-1;struct tm*lt;\n"
+                                "lt = localtime(&ts);\n"
+                                "printf(\"%d\\n\",lt!=NULL&&lt->tm_year==1);return 0;}\n") && doTest() == 1) {
+      fputs("#define LOCALTIME_WORKS_SIGNED\n", versionFile);
     } /* if */
 #endif
     /* Make sure that the file version.h up to this position is copied to tst_vers.h. */

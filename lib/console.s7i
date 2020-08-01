@@ -49,7 +49,10 @@ type_implements_interface(console_file, text);
  *  When characters are written to ''STD_CONSOLE'' they are displayed
  *  on the console/terminal (when it exists and is able to display them).
  *  Unlike the byte file [[stdio#STD_OUT|STD_OUT]] ''STD_CONSOLE''
- *  accepts also Unicode characters.
+ *  accepts also Unicode characters. Unicode characters are written
+ *  with the encoding of the operating system. When the standard output
+ *  file of the operating system has been redirected UTF-8 encoded
+ *  characters are written to the redirected file.
  *)
 var console_file: STD_CONSOLE is console_file.value;
 
@@ -140,6 +143,10 @@ const proc: color (in console_file: aConsoleFile, in color: foreground, in color
 
 (**
  *  Write a string to the current position of 'aConsoleFile'.
+ *  Unicode characters are written with the encoding of the
+ *  operating system. When the standard output file of the
+ *  operating system has been redirected UTF-8 encoded
+ *  characters are written to the redirected file.
  *)
 const proc: write (in console_file: aConsoleFile, in string: stri) is action "CON_WRITE";
 

@@ -61,6 +61,8 @@ const proc: main is func
           \include \"time.s7i\";\n\
           \include \"duration.s7i\";\n\
           \include \"bytedata.s7i\";\n\
+          \include \"unicode.s7i\";\n\
+          \include \"encoding.s7i\";\n\
           \\n\
           \const proc: main is func\n\
           \  begin\n\

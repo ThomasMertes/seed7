@@ -30,6 +30,9 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
+#ifdef MOUNT_NODEFS
+#include "emscripten.h"
+#endif
 
 #include "common.h"
 #include "sigutl.h"
@@ -338,6 +341,21 @@ int main (int argc, char **argv)
     stack_base = (char *) &arg_v;
 #endif
     setupStack();
+#ifdef MOUNT_NODEFS
+#ifdef OS_PATH_HAS_DRIVE_LETTERS
+    EM_ASM(
+      var fs = require('fs');
+      FS.unmount('/');
+      FS.mount(NODEFS, { root: 'c:/' }, '/');
+    );
+#else
+    EM_ASM(
+      var fs = require('fs');
+      FS.unmount('/');
+      FS.mount(NODEFS, { root: '/' }, '/');
+    );
+#endif
+#endif
     set_protfile_name(NULL);
 #ifdef USE_WINMAIN
     arg_v = getArgv(0, NULL, NULL, NULL, &programPath);
@@ -394,11 +412,15 @@ int main (int argc, char **argv)
         } /* if */
         shut_drivers();
         if (fail_flag) {
-          printf("\n*** Uncaught EXCEPTION ");
+          prot_nl();
+          prot_cstri("*** Uncaught EXCEPTION ");
           printobject(fail_value);
-          printf(" raised with\n");
+          prot_cstri(" raised with");
+          prot_nl();
           prot_list(fail_expression);
-          printf("\n\nStack:\n");
+          prot_nl();
+          prot_nl();
+          prot_cstri("Stack:\n");
           write_call_stack(fail_stack);
         } /* if */
       } /* if */

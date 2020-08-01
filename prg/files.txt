@@ -11,6 +11,7 @@ celsius.sd7  Print a Fahrenheit-Celsius table
 chk_all.sd7  Runs interpreted and compiled checks.
 chkbig.sd7   Checks bigInteger literals and operations
 chkbool.sd7  Checks boolean operations
+chkchr.sd7   Checks character properties
 chkcmd.sd7   Check functions that manipulate files.
 chkdb.sd7    Checks the database interface.
 chkexc.sd7   Checks exceptions
@@ -196,6 +197,7 @@ scanstri.s7i String scanner functions
 seed7_05.s7i Standard Seed7 library
 set.s7i      Support for sets of a base type
 shell.s7i    Support for shell commands
+smtp.s7i     Support for SMTP (simple mail transfer protocol)
 sockbase.s7i Support for socket address and primitive socket
 socket.s7i   File implementation type for sockets
 sokoban1.s7i Classic sokoban levels 1 to 90.

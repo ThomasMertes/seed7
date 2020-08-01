@@ -813,8 +813,11 @@ void dump_temp_value (objectType object)
         do_destroy(object, &err_info); */
         break;
     } /* switch */
-    interrupt_flag = save_interrupt_flag;
-    fail_flag = save_fail_flag;
+    interrupt_flag |= save_interrupt_flag;
+    fail_flag |= save_fail_flag;
+    /* if (!fail_flag && err_info != OKAY_NO_ERROR) {
+      raise_error(err_info);
+    } * if */
 #ifdef TRACE_DUMP_TEMP_VALUE
     if (trace.actions) {
       prot_heapsize();

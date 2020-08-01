@@ -103,6 +103,7 @@ void init_symbol (errInfoType *err_info)
         *err_info = MEMORY_ERROR;
       } /* if */
     } /* if */
+    symbol.unicodeNames = FALSE;
   } /* init_symbol */
 
 

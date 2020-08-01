@@ -723,7 +723,7 @@ const proc: create_name (in reference: current_object, inout string: expr) is fu
     end if;
     if raw_name <> "" then
       expr &:= "/*";
-      expr &:= raw_name;
+      expr &:= striToUtf8(raw_name);
       expr &:= "*/";
     end if;
   end func;
@@ -744,7 +744,7 @@ const proc: create_name2 (in reference: current_object, inout string: expr) is f
     end if;
     if raw_name <> "" then
       expr &:= "/ ";
-      expr &:= raw_name;
+      expr &:= striToUtf8(raw_name);
     end if;
   end func;
 

@@ -49,7 +49,9 @@
 #include "option.h"
 #include "set_rtl.h"
 #include "str_rtl.h"
+#include "ut8_rtl.h"
 #include "big_drv.h"
+#include "con_drv.h"
 #include "pcs_drv.h"
 
 #undef EXTERN
@@ -112,7 +114,7 @@ void prot_nl (void)
 
 
 
-void prot_cstri (const_cstriType stri)
+void prot_cstri (const const_cstriType cstri)
 
   {
     traceRecord trace_backup;
@@ -122,20 +124,61 @@ void prot_cstri (const_cstriType stri)
       if (SYS_PROT_OUTFILE_OBJECT != NULL) {
         memcpy(&trace_backup, &trace, sizeof(traceRecord));
         memset(&trace, 0, sizeof(traceRecord));
-        do_wrcstri(SYS_PROT_OUTFILE_OBJECT, stri);
+        do_wrcstri(SYS_PROT_OUTFILE_OBJECT, cstri);
         memcpy(&trace, &trace_backup, sizeof(traceRecord));
       } /* if */
     } else {
       if (protfile == NULL) {
         protfile = stdout;
       } /* if */
-      if (stri == NULL) {
+      if (cstri == NULL) {
         fputs("*NULL*", protfile);
       } else {
-        fputs(stri, protfile);
+        fputs(cstri, protfile);
       } /* if */
     } /* if */
   } /* prot_cstri */
+
+
+
+void prot_cstri8 (const const_cstriType cstri8)
+
+  {
+    traceRecord trace_backup;
+    striType stri;
+    errInfoType err_info = OKAY_NO_ERROR;
+
+  /* prot_cstri8 */
+    if (internal_protocol) {
+      if (SYS_PROT_OUTFILE_OBJECT != NULL) {
+        memcpy(&trace_backup, &trace, sizeof(traceRecord));
+        memset(&trace, 0, sizeof(traceRecord));
+        stri = cstri8_to_stri(cstri8, &err_info);
+        if (stri != NULL) {
+          do_wrstri(SYS_PROT_OUTFILE_OBJECT, stri);
+          FREE_STRI(stri, stri->size);
+        } else {
+          do_wrcstri(SYS_PROT_OUTFILE_OBJECT, cstri8);
+        } /* if */
+        memcpy(&trace, &trace_backup, sizeof(traceRecord));
+      } /* if */
+    } else {
+      if (protfile == NULL) {
+        protfile = stdout;
+      } /* if */
+      if (protfile == stdout) {
+        stri = cstri8_to_stri(cstri8, &err_info);
+        if (stri != NULL) {
+          conWrite(stri);
+          FREE_STRI(stri, stri->size);
+        } else {
+          fputs(cstri8, protfile);
+        } /* if */
+      } else {
+        fputs(cstri8, protfile);
+      } /* if */
+    } /* if */
+  } /* prot_cstri8 */
 
 
 
@@ -263,6 +306,33 @@ void prot_os_stri (const const_os_striType os_stri)
       prot_cstri(" *NULL_OS_STRING* ");
     } /* if */
   } /* prot_os_stri */
+
+
+
+void prot_string (const striType stri)
+
+  {
+    traceRecord trace_backup;
+
+  /* prot_string */
+    if (internal_protocol) {
+      if (SYS_PROT_OUTFILE_OBJECT != NULL) {
+        memcpy(&trace_backup, &trace, sizeof(traceRecord));
+        memset(&trace, 0, sizeof(traceRecord));
+        do_wrstri(SYS_PROT_OUTFILE_OBJECT, stri);
+        memcpy(&trace, &trace_backup, sizeof(traceRecord));
+      } /* if */
+    } else {
+      if (protfile == NULL) {
+        protfile = stdout;
+      } /* if */
+      if (protfile == stdout) {
+        conWrite(stri);
+      } else {
+        ut8Write(protfile, stri);
+      } /* if */
+    } /* if */
+  } /* prot_string */
 
 
 
@@ -479,7 +549,7 @@ void printtype (const_typeType anytype)
 #endif
     if (anytype != NULL) {
       if (anytype->name != NULL) {
-        prot_cstri(id_string(anytype->name));
+        prot_cstri8(id_string(anytype->name));
       } else if (anytype->result_type != NULL) {
         if (anytype->is_varfunc_type) {
           prot_cstri("varfunc ");
@@ -684,7 +754,7 @@ void printvalue (const_objectType anyobject)
     if (HAS_ENTITY(anyobject) &&
         GET_ENTITY(anyobject) != prog.entity.literal &&
         GET_ENTITY(anyobject)->ident != NULL) {
-      prot_cstri(id_string(GET_ENTITY(anyobject)->ident));
+      prot_cstri8(id_string(GET_ENTITY(anyobject)->ident));
     } else {
       print_real_value(anyobject);
     } /* if */
@@ -713,7 +783,7 @@ void printobject (const_objectType anyobject)
       switch (CATEGORY_OF_OBJ(anyobject)) {
         case VARENUMOBJECT:
           if (HAS_ENTITY(anyobject)) {
-            prot_cstri(id_string(GET_ENTITY(anyobject)->ident));
+            prot_cstri8(id_string(GET_ENTITY(anyobject)->ident));
           } else {
             prot_cstri("*NULL_ENTITY_OBJECT*");
           } /* if */
@@ -773,7 +843,7 @@ void printobject (const_objectType anyobject)
               GET_ENTITY(anyobject)->ident != NULL) {
             if (GET_ENTITY(anyobject)->ident->name != NULL) {
               if (GET_ENTITY(anyobject)->ident->name[0] != '\0') {
-                prot_cstri(id_string(GET_ENTITY(anyobject)->ident));
+                prot_cstri8(id_string(GET_ENTITY(anyobject)->ident));
               } else {
                 prot_cstri("(");
                 prot_list(anyobject->value.listValue);
@@ -792,7 +862,7 @@ void printobject (const_objectType anyobject)
           break;
         default:
           if (HAS_ENTITY(anyobject)) {
-            prot_cstri(id_string(GET_ENTITY(anyobject)->ident));
+            prot_cstri8(id_string(GET_ENTITY(anyobject)->ident));
           } else {
             printcategory(CATEGORY_OF_OBJ(anyobject));
             prot_cstri(" *NULL_ENTITY_OBJECT*");
@@ -827,7 +897,7 @@ static void printformparam (const_objectType aParam)
           printtype(aParam->type_of);
           if (HAS_ENTITY(aParam)) {
             prot_cstri(": ");
-            prot_cstri(id_string(GET_ENTITY(aParam)->ident));
+            prot_cstri8(id_string(GET_ENTITY(aParam)->ident));
           } else {
             prot_cstri(" param");
           } /* if */
@@ -841,7 +911,7 @@ static void printformparam (const_objectType aParam)
           printtype(aParam->type_of);
           if (HAS_ENTITY(aParam)) {
             prot_cstri(": ");
-            prot_cstri(id_string(GET_ENTITY(aParam)->ident));
+            prot_cstri8(id_string(GET_ENTITY(aParam)->ident));
           } else {
             prot_cstri(" param");
           } /* if */
@@ -908,7 +978,7 @@ void prot_list (const_listType list)
               prot_cstri(get_primact(list->obj->value.listValue->obj->value.actValue)->name);
             } else if (HAS_ENTITY(list->obj->value.listValue->obj) &&
                 GET_ENTITY(list->obj->value.listValue->obj)->ident != NULL) {
-              prot_cstri(id_string(GET_ENTITY(list->obj->value.listValue->obj)->ident));
+              prot_cstri8(id_string(GET_ENTITY(list->obj->value.listValue->obj)->ident));
             } else {
               printtype(list->obj->value.listValue->obj->type_of);
               prot_cstri(": <");
@@ -954,7 +1024,7 @@ void prot_list (const_listType list)
               if (HAS_ENTITY(list->obj->value.objValue) &&
                   GET_ENTITY(list->obj->value.objValue)->ident != NULL &&
                   GET_ENTITY(list->obj->value.objValue)->ident != prog.ident.literal) {
-                prot_cstri(id_string(GET_ENTITY(list->obj->value.objValue)->ident));
+                prot_cstri8(id_string(GET_ENTITY(list->obj->value.objValue)->ident));
               } else {
                 prot_cstri("<");
                 printcategory(CATEGORY_OF_OBJ(list->obj->value.objValue));
@@ -979,7 +1049,7 @@ void prot_list (const_listType list)
               prot_cstri(" ");
               fflush(stdout);
               if (GET_ENTITY(list->obj)->ident != NULL) {
-                prot_cstri(id_string(GET_ENTITY(list->obj)->ident));
+                prot_cstri8(id_string(GET_ENTITY(list->obj)->ident));
               } /* if */
             } /* if */
             break;
@@ -996,14 +1066,14 @@ void prot_list (const_listType list)
             */
             if (HAS_ENTITY(list->obj) &&
                 GET_ENTITY(list->obj)->ident != NULL) {
-              prot_cstri(id_string(GET_ENTITY(list->obj)->ident));
+              prot_cstri8(id_string(GET_ENTITY(list->obj)->ident));
             } else {
               printtype(list->obj->type_of);
               prot_cstri(": <");
               printcategory(CATEGORY_OF_OBJ(list->obj));
               prot_cstri("> ");
               if (HAS_POSINFO(list->obj)) {
-                prot_cstri((const_cstriType) get_file_name_ustri(GET_FILE_NUM(list->obj)));
+                prot_string(get_file_name(GET_FILE_NUM(list->obj)));
                 prot_cstri("(");
                 prot_int((intType) GET_LINE_NUM(list->obj));
                 prot_cstri(")");
@@ -1070,7 +1140,7 @@ void prot_params (const_listType list)
           HAS_ENTITY(list_end->obj) &&
           GET_ENTITY(list_end->obj)->ident != NULL &&
           GET_ENTITY(list_end->obj)->ident->infix_priority == 0) {
-        prot_cstri(id_string(GET_ENTITY(list_end->obj)->ident));
+        prot_cstri8(id_string(GET_ENTITY(list_end->obj)->ident));
         first_elem = FALSE;
         previous_elem_was_symbol = TRUE;
       } else {
@@ -1135,7 +1205,7 @@ void prot_name (const_listType list)
           HAS_ENTITY(list_end->obj) &&
           GET_ENTITY(list_end->obj)->ident != NULL &&
           GET_ENTITY(list_end->obj)->ident->infix_priority == 0) {
-        prot_cstri(id_string(GET_ENTITY(list_end->obj)->ident));
+        prot_cstri8(id_string(GET_ENTITY(list_end->obj)->ident));
         prot_cstri(" (");
         while (list->next != NULL) {
           if (list->obj == NULL) {
@@ -1196,7 +1266,7 @@ static void list_ident_names (const_identType anyident)
       list_ident_names(anyident->next1);
       if (anyident->entity != NULL) {
         if (anyident->entity->data.owner != NULL) {
-          prot_cstri(id_string(anyident));
+          prot_cstri8(id_string(anyident));
           prot_cstri(" is ");
           printobject(anyident->entity->data.owner->obj);
           prot_nl();
@@ -1222,7 +1292,7 @@ void trace_node (const_nodeType anynode)
     } else {
       if (anynode->match_obj != NULL) {
         if (HAS_ENTITY(anynode->match_obj)) {
-          prot_cstri(id_string(GET_ENTITY(anynode->match_obj)->ident));
+          prot_cstri8(id_string(GET_ENTITY(anynode->match_obj)->ident));
         } else {
           prot_cstri(" *NULL_MATCH_OBJ_ENTITY* ");
         } /* if */
@@ -1312,7 +1382,7 @@ static void list_node_names (const_nodeType anynode, char *buffer)
         strcat(buffer, ">");
         if (anynode->entity != NULL) {
           if (anynode->entity->data.owner != NULL) {
-            prot_cstri(buffer);
+            prot_cstri8(buffer);
             prot_cstri(" is ");
             printobject(anynode->entity->data.owner->obj);
             prot_nl();
@@ -1377,7 +1447,7 @@ void trace_nodes (void)
           char_class(character) == PARENCHAR) {
         if (prog.ident.table1[character]->entity != NULL) {
           if (prog.ident.table1[character]->entity->data.owner != NULL) {
-            prot_cstri(id_string(prog.ident.table1[character]));
+            prot_cstri8(id_string(prog.ident.table1[character]));
             prot_cstri(" is ");
             printobject(prog.ident.table1[character]->entity->data.owner->obj);
             prot_nl();
@@ -1426,7 +1496,7 @@ void printnodes (const_nodeType anynode)
           printtype(anynode->match_obj->value.typeValue);
         } else {
           if (HAS_ENTITY(anynode->match_obj)) {
-            prot_cstri(id_string(GET_ENTITY(anynode->match_obj)->ident));
+            prot_cstri8(id_string(GET_ENTITY(anynode->match_obj)->ident));
           } else {
             prot_cstri(" *NULL_MATCH_OBJ_ENTITY* ");
           } /* if */
@@ -1472,20 +1542,20 @@ void trace1 (const_objectType traceobject)
       } /* if */
       prot_cstri(": ");
       if (HAS_POSINFO(traceobject)) {
-        prot_cstri((const_cstriType) get_file_name_ustri(GET_FILE_NUM(traceobject)));
+        prot_string(get_file_name(GET_FILE_NUM(traceobject)));
         prot_cstri("(");
         prot_int((intType) GET_LINE_NUM(traceobject));
         prot_cstri(")");
       } else {
         if (HAS_ENTITY(traceobject)) {
           if (GET_ENTITY(traceobject)->ident != NULL) {
-            prot_cstri(id_string(GET_ENTITY(traceobject)->ident));
+            prot_cstri8(id_string(GET_ENTITY(traceobject)->ident));
           } else if (traceobject->descriptor.property->params != NULL) {
             prot_params(traceobject->descriptor.property->params);
           } else if (GET_ENTITY(traceobject)->fparam_list != NULL) {
             prot_name(GET_ENTITY(traceobject)->fparam_list);
           } else {
-            prot_cstri(id_string(NULL));
+            prot_cstri8(id_string(NULL));
           } /* if */
         } else {
           prot_cstri("*NULL_ENTITY_OBJECT*");
@@ -1577,7 +1647,7 @@ void trace1 (const_objectType traceobject)
               prot_cstri(get_primact(traceobject->value.listValue->obj->value.actValue)->name);
             } else if (HAS_ENTITY(traceobject->value.listValue->obj) &&
                 GET_ENTITY(traceobject->value.listValue->obj)->ident != NULL) {
-              prot_cstri(id_string(GET_ENTITY(traceobject->value.listValue->obj)->ident));
+              prot_cstri8(id_string(GET_ENTITY(traceobject->value.listValue->obj)->ident));
             } else {
               printtype(traceobject->value.listValue->obj->type_of);
               prot_cstri(": <");
@@ -1615,7 +1685,7 @@ void trace_entity (const_entityType anyentity)
   { /* trace_entity */
     if (anyentity != NULL) {
       prot_cstri("anyentity->ident ");
-      prot_cstri(id_string(anyentity->ident));
+      prot_cstri8(id_string(anyentity->ident));
       prot_cstri("\n");
       prot_cstri("anyentity->syobject ");
       trace1(anyentity->syobject);

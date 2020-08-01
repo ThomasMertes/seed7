@@ -892,6 +892,32 @@ const proc: chkStringConv is func
          2386420683693101055_ <> bigInteger("xxxxxxxxxxxx", 34) or
          3379220508056640624_ <> bigInteger("yyyyyyyyyyyy", 35) or
          4738381338321616895_ <> bigInteger("zzzzzzzzzzzz", 36) or
+         5559917313492231480_ <> bigInteger("AAAAAAAAAAAAAAAAAA", 11) or
+          184884258895036415_ <> bigInteger("BBBBBBBBBBBBBBBB", 12) or
+          665416609183179840_ <> bigInteger("CCCCCCCCCCCCCCCC", 13) or
+         2177953337809371135_ <> bigInteger("DDDDDDDDDDDDDDDD", 14) or
+         6568408355712890624_ <> bigInteger("EEEEEEEEEEEEEEEE", 15) or
+           72057594037927935_ <> bigInteger("FFFFFFFFFFFFFF", 16) or
+          168377826559400928_ <> bigInteger("GGGGGGGGGGGGGG", 17) or
+          374813367582081023_ <> bigInteger("HHHHHHHHHHHHHH", 18) or
+          799006685782884120_ <> bigInteger("IIIIIIIIIIIIII", 19) or
+         1638399999999999999_ <> bigInteger("JJJJJJJJJJJJJJ", 20) or
+         3243919932521508680_ <> bigInteger("KKKKKKKKKKKKKK", 21) or
+         6221821273427820543_ <> bigInteger("LLLLLLLLLLLLLL", 22) or
+        11592836324538749808_ <> bigInteger("MMMMMMMMMMMMMM", 23) or
+           36520347436056575_ <> bigInteger("NNNNNNNNNNNN", 24) or
+           59604644775390624_ <> bigInteger("OOOOOOOOOOOO", 25) or
+           95428956661682175_ <> bigInteger("PPPPPPPPPPPP", 26) or
+          150094635296999120_ <> bigInteger("QQQQQQQQQQQQ", 27) or
+          232218265089212415_ <> bigInteger("RRRRRRRRRRRR", 28) or
+          353814783205469040_ <> bigInteger("SSSSSSSSSSSS", 29) or
+          531440999999999999_ <> bigInteger("TTTTTTTTTTTT", 30) or
+          787662783788549760_ <> bigInteger("UUUUUUUUUUUU", 31) or
+         1152921504606846975_ <> bigInteger("VVVVVVVVVVVV", 32) or
+         1667889514952984960_ <> bigInteger("WWWWWWWWWWWW", 33) or
+         2386420683693101055_ <> bigInteger("XXXXXXXXXXXX", 34) or
+         3379220508056640624_ <> bigInteger("YYYYYYYYYYYY", 35) or
+         4738381338321616895_ <> bigInteger("ZZZZZZZZZZZZ", 36) or
          4611686018427387904_ <> bigInteger("100000000000000000000000000000000000000000000000000000000000000", 2) or
         12157665459056928801_ <> bigInteger("10000000000000000000000000000000000000000", 3) or
          1152921504606846976_ <> bigInteger("1000000000000000000000000000000", 4) or
@@ -966,6 +992,32 @@ const proc: chkStringConv is func
          -2386420683693101055_ <> bigInteger("-xxxxxxxxxxxx", 34) or
          -3379220508056640624_ <> bigInteger("-yyyyyyyyyyyy", 35) or
          -4738381338321616895_ <> bigInteger("-zzzzzzzzzzzz", 36) or
+         -5559917313492231480_ <> bigInteger("-AAAAAAAAAAAAAAAAAA", 11) or
+          -184884258895036415_ <> bigInteger("-BBBBBBBBBBBBBBBB", 12) or
+          -665416609183179840_ <> bigInteger("-CCCCCCCCCCCCCCCC", 13) or
+         -2177953337809371135_ <> bigInteger("-DDDDDDDDDDDDDDDD", 14) or
+         -6568408355712890624_ <> bigInteger("-EEEEEEEEEEEEEEEE", 15) or
+           -72057594037927935_ <> bigInteger("-FFFFFFFFFFFFFF", 16) or
+          -168377826559400928_ <> bigInteger("-GGGGGGGGGGGGGG", 17) or
+          -374813367582081023_ <> bigInteger("-HHHHHHHHHHHHHH", 18) or
+          -799006685782884120_ <> bigInteger("-IIIIIIIIIIIIII", 19) or
+         -1638399999999999999_ <> bigInteger("-JJJJJJJJJJJJJJ", 20) or
+         -3243919932521508680_ <> bigInteger("-KKKKKKKKKKKKKK", 21) or
+         -6221821273427820543_ <> bigInteger("-LLLLLLLLLLLLLL", 22) or
+        -11592836324538749808_ <> bigInteger("-MMMMMMMMMMMMMM", 23) or
+           -36520347436056575_ <> bigInteger("-NNNNNNNNNNNN", 24) or
+           -59604644775390624_ <> bigInteger("-OOOOOOOOOOOO", 25) or
+           -95428956661682175_ <> bigInteger("-PPPPPPPPPPPP", 26) or
+          -150094635296999120_ <> bigInteger("-QQQQQQQQQQQQ", 27) or
+          -232218265089212415_ <> bigInteger("-RRRRRRRRRRRR", 28) or
+          -353814783205469040_ <> bigInteger("-SSSSSSSSSSSS", 29) or
+          -531440999999999999_ <> bigInteger("-TTTTTTTTTTTT", 30) or
+          -787662783788549760_ <> bigInteger("-UUUUUUUUUUUU", 31) or
+         -1152921504606846975_ <> bigInteger("-VVVVVVVVVVVV", 32) or
+         -1667889514952984960_ <> bigInteger("-WWWWWWWWWWWW", 33) or
+         -2386420683693101055_ <> bigInteger("-XXXXXXXXXXXX", 34) or
+         -3379220508056640624_ <> bigInteger("-YYYYYYYYYYYY", 35) or
+         -4738381338321616895_ <> bigInteger("-ZZZZZZZZZZZZ", 36) or
          -4611686018427387904_ <> bigInteger("-100000000000000000000000000000000000000000000000000000000000000", 2) or
         -12157665459056928801_ <> bigInteger("-10000000000000000000000000000000000000000", 3) or
          -1152921504606846976_ <> bigInteger("-1000000000000000000000000000000", 4) or
@@ -1129,6 +1181,128 @@ const proc: chkStringConv is func
         bigInteger("AaBbCcDdEeFfGgHhIiJjKkLlMm", 36) <>  8314392270933518733105677545691200337086_ or
         bigInteger("NnOoPpQqRrSsTtUuVvWwXxYyZz", 36) <> 19122267638176649601133944203224314202799_ then
       writeln(" ***** Conversion of numeric string with specified radix does not work correct for upper case chars.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesRangeError(bigInteger("11111111111111112111111111111111111111111111111111111111111111", 2)) or
+        not raisesRangeError(bigInteger("2222222222222223222222222222222222222222", 3)) or
+        not raisesRangeError(bigInteger("333333333333334333333333333333", 4)) or
+        not raisesRangeError(bigInteger("44444444444445444444444444", 5)) or
+        not raisesRangeError(bigInteger("555555555555655555555555", 6)) or
+        not raisesRangeError(bigInteger("6666666666676666666666", 7)) or
+        not raisesRangeError(bigInteger("77777777778777777777", 8)) or
+        not raisesRangeError(bigInteger("88888888898888888888", 9)) or
+        not raisesRangeError(bigInteger("99999999a999999999", 10)) or
+        not raisesRangeError(bigInteger("aaaaaaabaaaaaaaaaa", 11)) or
+        not raisesRangeError(bigInteger("bbbbbbcbbbbbbbbb", 12)) or
+        not raisesRangeError(bigInteger("cccccdcccccccccc", 13)) or
+        not raisesRangeError(bigInteger("ddddeddddddddddd", 14)) or
+        not raisesRangeError(bigInteger("eeefeeeeeeeeeeee", 15)) or
+        not raisesRangeError(bigInteger("ffgfffffffffff", 16)) or
+        not raisesRangeError(bigInteger("ghgggggggggggg", 17)) or
+        not raisesRangeError(bigInteger("hhihhhhhhhhhhh", 18)) or
+        not raisesRangeError(bigInteger("iiijiiiiiiiiii", 19)) or
+        not raisesRangeError(bigInteger("jjjjkjjjjjjjjj", 20)) or
+        not raisesRangeError(bigInteger("kkkkklkkkkkkkk", 21)) or
+        not raisesRangeError(bigInteger("llllllmlllllll", 22)) or
+        not raisesRangeError(bigInteger("mmmmmmmnmmmmmm", 23)) or
+        not raisesRangeError(bigInteger("nnnnnnnnonnn", 24)) or
+        not raisesRangeError(bigInteger("ooooooooopoo", 25)) or
+        not raisesRangeError(bigInteger("ppppppppppqp", 26)) or
+        not raisesRangeError(bigInteger("qqqqqqqqqrqq", 27)) or
+        not raisesRangeError(bigInteger("rrrrrrrrsrrr", 28)) or
+        not raisesRangeError(bigInteger("ssssssstssss", 29)) or
+        not raisesRangeError(bigInteger("ttttttuttttt", 30)) or
+        not raisesRangeError(bigInteger("uuuuuvuuuuuu", 31)) or
+        not raisesRangeError(bigInteger("vvvvwvvvvvvv", 32)) or
+        not raisesRangeError(bigInteger("wwwxwwwwwwww", 33)) or
+        not raisesRangeError(bigInteger("xxyxxxxxxxxx", 34)) or
+        not raisesRangeError(bigInteger("yzyyyyyyyyyy", 35)) or
+        not raisesRangeError(bigInteger("AAAAAAAAAAAAAAAABA", 11)) or
+        not raisesRangeError(bigInteger("BBBBBBBBBBBBBBBC", 12)) or
+        not raisesRangeError(bigInteger("CCCCCCCCCCCCCCDC", 13)) or
+        not raisesRangeError(bigInteger("DDDDDDDDDDDDDEDD", 14)) or
+        not raisesRangeError(bigInteger("EEEEEEEEEEEEFEEE", 15)) or
+        not raisesRangeError(bigInteger("FFFFFFFFFFFGFF", 16)) or
+        not raisesRangeError(bigInteger("GGGGGGGGGGHGGG", 17)) or
+        not raisesRangeError(bigInteger("HHHHHHHHHIHHHH", 18)) or
+        not raisesRangeError(bigInteger("IIIIIIIIJIIIII", 19)) or
+        not raisesRangeError(bigInteger("JJJJJJJKJJJJJJ", 20)) or
+        not raisesRangeError(bigInteger("KKKKKKLKKKKKKK", 21)) or
+        not raisesRangeError(bigInteger("LLLLLMLLLLLLLL", 22)) or
+        not raisesRangeError(bigInteger("MMMMNMMMMMMMMM", 23)) or
+        not raisesRangeError(bigInteger("NNNONNNNNNNN", 24)) or
+        not raisesRangeError(bigInteger("OOPOOOOOOOOO", 25)) or
+        not raisesRangeError(bigInteger("PQPPPPPPPPPP", 26)) or
+        not raisesRangeError(bigInteger("QQRQQQQQQQQQ", 27)) or
+        not raisesRangeError(bigInteger("RRRSRRRRRRRR", 28)) or
+        not raisesRangeError(bigInteger("SSSSTSSSSSSS", 29)) or
+        not raisesRangeError(bigInteger("TTTTTUTTTTTT", 30)) or
+        not raisesRangeError(bigInteger("UUUUUUVUUUUU", 31)) or
+        not raisesRangeError(bigInteger("VVVVVVVWVVVV", 32)) or
+        not raisesRangeError(bigInteger("WWWWWWWWXWWW", 33)) or
+        not raisesRangeError(bigInteger("XXXXXXXXXYXX", 34)) or
+        not raisesRangeError(bigInteger("YYYYYYYYYYZY", 35)) or
+        not raisesRangeError(bigInteger("-11111111111111111111111112111111111111111111111111111111111111", 2)) or
+        not raisesRangeError(bigInteger("-2222222222222222222222223222222222222222", 3)) or
+        not raisesRangeError(bigInteger("-333333333333333333333334333333", 4)) or
+        not raisesRangeError(bigInteger("-44444444444444444444445444", 5)) or
+        not raisesRangeError(bigInteger("-555555555555555555555655", 6)) or
+        not raisesRangeError(bigInteger("-6666666666666666666676", 7)) or
+        not raisesRangeError(bigInteger("-77777777777777777778", 8)) or
+        not raisesRangeError(bigInteger("-88888888888888888898", 9)) or
+        not raisesRangeError(bigInteger("-99999999999999999a", 10)) or
+        not raisesRangeError(bigInteger("-aaaaaaaaaaaaaaaaba", 11)) or
+        not raisesRangeError(bigInteger("-bbbbbbbbbbbbbbbc", 12)) or
+        not raisesRangeError(bigInteger("-ccccccccccccccdc", 13)) or
+        not raisesRangeError(bigInteger("-dddddddddddddedd", 14)) or
+        not raisesRangeError(bigInteger("-eeeeeeeeeeeefeee", 15)) or
+        not raisesRangeError(bigInteger("-fffffffffffgff", 16)) or
+        not raisesRangeError(bigInteger("-gggggggggghggg", 17)) or
+        not raisesRangeError(bigInteger("-hhhhhhhhhihhhh", 18)) or
+        not raisesRangeError(bigInteger("-iiiiiiiijiiiii", 19)) or
+        not raisesRangeError(bigInteger("-jjjjjjjkjjjjjj", 20)) or
+        not raisesRangeError(bigInteger("-kkkkkklkkkkkkk", 21)) or
+        not raisesRangeError(bigInteger("-lllllmllllllll", 22)) or
+        not raisesRangeError(bigInteger("-mmmmnmmmmmmmmm", 23)) or
+        not raisesRangeError(bigInteger("-nnnonnnnnnnn", 24)) or
+        not raisesRangeError(bigInteger("-oopooooooooo", 25)) or
+        not raisesRangeError(bigInteger("-pqpppppppppp", 26)) or
+        not raisesRangeError(bigInteger("-qqrqqqqqqqqq", 27)) or
+        not raisesRangeError(bigInteger("-rrrsrrrrrrrr", 28)) or
+        not raisesRangeError(bigInteger("-sssstsssssss", 29)) or
+        not raisesRangeError(bigInteger("-tttttutttttt", 30)) or
+        not raisesRangeError(bigInteger("-uuuuuuvuuuuu", 31)) or
+        not raisesRangeError(bigInteger("-vvvvvvvwvvvv", 32)) or
+        not raisesRangeError(bigInteger("-wwwwwwwwxwww", 33)) or
+        not raisesRangeError(bigInteger("-xxxxxxxxxyxx", 34)) or
+        not raisesRangeError(bigInteger("-yyyyyyyyyyzy", 35)) or
+        not raisesRangeError(bigInteger("-AAAAAAABAAAAAAAAAA", 11)) or
+        not raisesRangeError(bigInteger("-BBBBBBCBBBBBBBBB", 12)) or
+        not raisesRangeError(bigInteger("-CCCCCDCCCCCCCCCC", 13)) or
+        not raisesRangeError(bigInteger("-DDDDEDDDDDDDDDDD", 14)) or
+        not raisesRangeError(bigInteger("-EEEFEEEEEEEEEEEE", 15)) or
+        not raisesRangeError(bigInteger("-FFGFFFFFFFFFFF", 16)) or
+        not raisesRangeError(bigInteger("-GHGGGGGGGGGGGG", 17)) or
+        not raisesRangeError(bigInteger("-HHIHHHHHHHHHHH", 18)) or
+        not raisesRangeError(bigInteger("-IIIJIIIIIIIIII", 19)) or
+        not raisesRangeError(bigInteger("-JJJJKJJJJJJJJJ", 20)) or
+        not raisesRangeError(bigInteger("-KKKKKLKKKKKKKK", 21)) or
+        not raisesRangeError(bigInteger("-LLLLLLMLLLLLLL", 22)) or
+        not raisesRangeError(bigInteger("-MMMMMMMNMMMMMM", 23)) or
+        not raisesRangeError(bigInteger("-NNNNNNNNONNN", 24)) or
+        not raisesRangeError(bigInteger("-OOOOOOOOOPOO", 25)) or
+        not raisesRangeError(bigInteger("-PPPPPPPPPPQP", 26)) or
+        not raisesRangeError(bigInteger("-QQQQQQQQQRQQ", 27)) or
+        not raisesRangeError(bigInteger("-RRRRRRRRSRRR", 28)) or
+        not raisesRangeError(bigInteger("-SSSSSSSTSSSS", 29)) or
+        not raisesRangeError(bigInteger("-TTTTTTUTTTTT", 30)) or
+        not raisesRangeError(bigInteger("-UUUUUVUUUUUU", 31)) or
+        not raisesRangeError(bigInteger("-VVVVWVVVVVVV", 32)) or
+        not raisesRangeError(bigInteger("-WWWXWWWWWWWW", 33)) or
+        not raisesRangeError(bigInteger("-XXYXXXXXXXXX", 34)) or
+        not raisesRangeError(bigInteger("-YZYYYYYYYYYY", 35)) then
+      writeln(" ***** Conversion of numeric string with specified radix does not raise RANGE_ERROR.");
       okay := FALSE;
     end if;
 

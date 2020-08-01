@@ -48,7 +48,8 @@ EXTERN traceRecord trace;
 
 void prot_flush (void);
 void prot_nl (void);
-void prot_cstri (const_cstriType stri);
+void prot_cstri (const const_cstriType cstri);
+void prot_cstri8 (const const_cstriType cstri8);
 void prot_cchar (char ch);
 void prot_writeln (const_cstriType stri);
 void prot_int (intType ivalue);
@@ -58,6 +59,7 @@ void prot_float (floatType floatValue);
 #endif
 void prot_char (charType cvalue);
 /* void prot_os_stri (const const_os_striType os_stri); */
+void prot_string (const striType stri);
 void prot_stri_unquoted (const const_striType stri);
 void prot_stri (const const_striType stri);
 void prot_bstri (bstriType bstri);

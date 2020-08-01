@@ -27,4 +27,3 @@
 
 void scan_byte_order_mark (void);
 void scan_symbol (void);
-

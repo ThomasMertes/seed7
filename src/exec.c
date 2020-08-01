@@ -528,8 +528,7 @@ static objectType exec_lambda (const_blockType block,
               if (HAS_ENTITY(object)) {
                 printf("HAS_ENTITY\n");
                 if (GET_ENTITY(object)->ident != NULL) {
-                  printf("%s",
-                      id_string(GET_ENTITY(object)->ident));
+                  prot_cstri8(id_string(GET_ENTITY(object)->ident));
                 } else if (GET_ENTITY(object)->name_list != NULL) {
                   prot_list(GET_ENTITY(object)->name_list);
                 } /* if */
@@ -953,9 +952,9 @@ objectType evaluate (objectType object)
         result = exec_action(object, NULL, NULL);
         break;
       default:
-        printf("evaluate unknown ");
+        prot_cstri("evaluate unknown ");
         trace1(object);
-        printf("\n");
+        prot_nl();
         result = object;
         break;
     } /* switch */

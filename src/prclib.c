@@ -533,12 +533,15 @@ objectType prc_for_downto (listType arguments)
     upper_limit = take_int(arg_4(arguments));
     lower_limit = take_int(arg_6(arguments));
     statement = arg_8(arguments);
-    if (upper_limit >= lower_limit) {
+    if (lower_limit == INTTYPE_MIN) {
+      return raise_exception(SYS_RNG_EXCEPTION);
+    } else {
       for_variable->value.intValue = upper_limit;
-      evaluate(statement);
-      while (take_int(for_variable) > lower_limit && !fail_flag) {
-        for_variable->value.intValue--;
+      while (take_int(for_variable) >= lower_limit && !fail_flag) {
         evaluate(statement);
+        if (!fail_flag) {
+          for_variable->value.intValue--;
+        } /* if */
       } /* while */
     } /* if */
     return SYS_EMPTY_OBJECT;
@@ -566,14 +569,13 @@ objectType prc_for_downto_step (listType arguments)
     lower_limit = take_int(arg_6(arguments));
     incr_step = take_int(arg_8(arguments));
     statement = arg_10(arguments);
-    if (upper_limit >= lower_limit) {
-      for_variable->value.intValue = upper_limit;
+    for_variable->value.intValue = upper_limit;
+    while (take_int(for_variable) >= lower_limit && !fail_flag) {
       evaluate(statement);
-      while (take_int(for_variable) > lower_limit && !fail_flag) {
+      if (!fail_flag) {
         for_variable->value.intValue -= incr_step;
-        evaluate(statement);
-      } /* while */
-    } /* if */
+      } /* if */
+    } /* while */
     return SYS_EMPTY_OBJECT;
   } /* prc_for_downto_step */
 
@@ -596,12 +598,15 @@ objectType prc_for_to (listType arguments)
     lower_limit = take_int(arg_4(arguments));
     upper_limit = take_int(arg_6(arguments));
     statement = arg_8(arguments);
-    if (lower_limit <= upper_limit) {
+    if (upper_limit == INTTYPE_MAX) {
+      return raise_exception(SYS_RNG_EXCEPTION);
+    } else {
       for_variable->value.intValue = lower_limit;
-      evaluate(statement);
-      while (take_int(for_variable) < upper_limit && !fail_flag) {
-        for_variable->value.intValue++;
+      while (take_int(for_variable) <= upper_limit && !fail_flag) {
         evaluate(statement);
+        if (!fail_flag) {
+          for_variable->value.intValue++;
+        } /* if */
       } /* while */
     } /* if */
     return SYS_EMPTY_OBJECT;
@@ -629,14 +634,13 @@ objectType prc_for_to_step (listType arguments)
     upper_limit = take_int(arg_6(arguments));
     incr_step = take_int(arg_8(arguments));
     statement = arg_10(arguments);
-    if (lower_limit <= upper_limit) {
-      for_variable->value.intValue = lower_limit;
+    for_variable->value.intValue = lower_limit;
+    while (take_int(for_variable) <= upper_limit && !fail_flag) {
       evaluate(statement);
-      while (take_int(for_variable) < upper_limit && !fail_flag) {
+      if (!fail_flag) {
         for_variable->value.intValue += incr_step;
-        evaluate(statement);
-      } /* while */
-    } /* if */
+      } /* if */
+    } /* while */
     return SYS_EMPTY_OBJECT;
   } /* prc_for_to_step */
 

@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: Interpreter                                             */
 /*  File: seed7/src/doany.c                                         */
-/*  Changes: 1993, 1994  Thomas Mertes                              */
+/*  Changes: 1993, 1994, 2015  Thomas Mertes                        */
 /*  Content: Procedures to call several Seed7 functions from C.     */
 /*                                                                  */
 /*  This File contains a set of do_.. functions that allow to       */
@@ -135,16 +135,22 @@ objectType exec1 (listType list)
 boolType do_flush (objectType outfile)
 
   {
+    progType outfileProg;
+    progRecord prog_backup;
     boolType result;
 
   /* do_flush */
 #ifdef TRACE_DOANY
     printf("BEGIN do_flush\n");
 #endif
+    outfileProg = outfile->type_of->owningProg;
+    memcpy(&prog_backup, &prog, sizeof(progRecord));
+    memcpy(&prog, outfileProg, sizeof(progRecord));
     flush_expr[0].obj = outfile;
     flush_expr[1].obj = SYS_FLUSH_OBJECT;
     result = (boolType) (exec1(flush_expr) == SYS_EMPTY_OBJECT);
     set_fail_flag(FALSE);
+    memcpy(&prog, &prog_backup, sizeof(progRecord));
 #ifdef TRACE_DOANY
     printf("END do_flush\n");
 #endif
@@ -156,16 +162,22 @@ boolType do_flush (objectType outfile)
 boolType do_wrnl (objectType outfile)
 
   {
+    progType outfileProg;
+    progRecord prog_backup;
     boolType result;
 
   /* do_wrnl */
 #ifdef TRACE_DOANY
     printf("BEGIN do_wrnl\n");
 #endif
+    outfileProg = outfile->type_of->owningProg;
+    memcpy(&prog_backup, &prog, sizeof(progRecord));
+    memcpy(&prog, outfileProg, sizeof(progRecord));
     wrnl_expr[0].obj = outfile;
     wrnl_expr[1].obj = SYS_WRLN_OBJECT;
     result = (boolType) (exec1(wrnl_expr) == SYS_EMPTY_OBJECT);
     set_fail_flag(FALSE);
+    memcpy(&prog, &prog_backup, sizeof(progRecord));
 #ifdef TRACE_DOANY
     printf("END do_wrnl\n");
 #endif
@@ -177,6 +189,8 @@ boolType do_wrnl (objectType outfile)
 boolType do_wrstri (objectType outfile, striType stri)
 
   {
+    progType outfileProg;
+    progRecord prog_backup;
     objectType out_stri;
     boolType result;
 
@@ -184,6 +198,9 @@ boolType do_wrstri (objectType outfile, striType stri)
 #ifdef TRACE_DOANY
     printf("BEGIN do_wrstri\n");
 #endif
+    outfileProg = outfile->type_of->owningProg;
+    memcpy(&prog_backup, &prog, sizeof(progRecord));
+    memcpy(&prog, outfileProg, sizeof(progRecord));
     result = FALSE;
     if ((out_stri = bld_stri_temp(stri)) != SYS_MEM_EXCEPTION) {
       wrstri_expr[0].obj = outfile;
@@ -194,6 +211,7 @@ boolType do_wrstri (objectType outfile, striType stri)
       FREE_OBJECT(out_stri);
     } /* if */
     set_fail_flag(FALSE);
+    memcpy(&prog, &prog_backup, sizeof(progRecord));
 #ifdef TRACE_DOANY
     printf("END do_wrstri\n");
 #endif

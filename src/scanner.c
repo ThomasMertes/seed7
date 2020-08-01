@@ -192,7 +192,8 @@ static void scan_illegal (void)
       err_cchar(CHAR_ILLEGAL, in_file.character);
       do {
         in_file.character = next_character();
-      } while (char_class(in_file.character) == ILLEGALCHAR);
+      } while (char_class(in_file.character) == ILLEGALCHAR &&
+               (!symbol.unicodeNames || in_file.character < 0xC0));
     } /* if */
 #ifdef TRACE_SCANNER
     printf("END scan_illegal\n");
@@ -227,6 +228,65 @@ static inline void scan_eof (void)
   } /* scan_eof */
 
 
+
+void scan_symbol_utf8 (int character, register sySizeType position)
+
+  {
+    charType unicode_char;
+    boolType reading_symbol = TRUE;
+
+  /* scan_symbol_utf8 */
+    unicode_char = utf8_char(character);
+    if (chrIsLetter(unicode_char)) {
+      check_symb_length_delta(position, symbol.utf8_length);
+      memcpy(&symbol.name[position], symbol.utf8_repr, symbol.utf8_length);
+      position += symbol.utf8_length;
+      character = in_file.character;
+      do {
+        if (character >= 0xC0 && character <= 0xFF) {
+          unicode_char = utf8_char(character);
+          if (chrIsLetter(unicode_char)) {
+            check_symb_length_delta(position, symbol.utf8_length);
+            memcpy(&symbol.name[position], symbol.utf8_repr, symbol.utf8_length);
+            position += symbol.utf8_length;
+            character = in_file.character;
+          } else {
+            reading_symbol = FALSE;
+          } /* if */
+        } else {
+          if (name_character(character)) {
+            check_symb_length(position);
+            symbol.name[position++] = (ucharType) character;
+            character = next_character();
+          } else {
+            reading_symbol = FALSE;
+            in_file.character = character;
+            unicode_char = 0;
+          } /* if */
+        } /* if */
+      } while (reading_symbol);
+      symbol.name[position] = '\0';
+      find_normal_ident(position);
+      symbol.sycategory = NAMESYMBOL;
+      symbol.syNumberInLine++;
+    } else if (position != 0) {
+      symbol.name[position] = '\0';
+      find_normal_ident(position);
+      in_file.character = character;
+      symbol.sycategory = NAMESYMBOL;
+      symbol.syNumberInLine++;
+    } /* if */
+    if (unicode_char != 0) {
+      /* ILLEGALCHAR */
+      err_char(CHAR_ILLEGAL, unicode_char);
+      while (char_class(in_file.character) == ILLEGALCHAR &&
+             character < 0xC0) {
+        in_file.character = next_character();
+      } /* while */
+    } /* if */
+  } /* scan_symbol_utf8 */
+
+ 
 
 void scan_symbol (void)
 
@@ -273,18 +333,17 @@ void scan_symbol (void)
           check_symb_length(position);
         } while (name_character(character));
 
-#ifdef OUT_OF_ORDER
-        while (name_character(character = next_character())) {  /*  2.87%  3.45% */
-          check_symb_length(position);                          /*  1.85%  1.88% */
-          symbol.name[position++] = (ucharType) character;      /*  2.31%  2.36% */
-        } /* while */                                           /*  9.71% 11.78% */
-#endif
-
-        symbol.name[position] = '\0';                           /*  0.36%  0.37% */
-        find_normal_ident(position);                            /*  0.24%  0.25% */
-        in_file.character = character;                          /*  0.12%  0.12% */
-        symbol.sycategory = NAMESYMBOL;                         /*  0.24%  0.25% */
-        symbol.syNumberInLine++;
+        if (symbol.unicodeNames &&
+            character >= 0xC0 && character <= 0xFF) {
+          /* character range 192 to 255 (leading bits 11......) */
+          scan_symbol_utf8(character, position);
+        } else {
+          symbol.name[position] = '\0';                         /*  0.36%  0.37% */
+          find_normal_ident(position);                          /*  0.24%  0.25% */
+          in_file.character = character;                        /*  0.12%  0.12% */
+          symbol.sycategory = NAMESYMBOL;                       /*  0.24%  0.25% */
+          symbol.syNumberInLine++;
+        } /* if */
         break;                                                  /*  0.12%  0.12% */
       case ' ':  case '\t':  case '\r':
         /* SPACECHAR */
@@ -367,10 +426,16 @@ void scan_symbol (void)
         scan_eof();
         break;
       default:
-        /* ILLEGALCHAR */
-        in_file.character = character;
-        scan_illegal();
-        scan_symbol();                                          /*  1.46%  1.28% */
+        if (symbol.unicodeNames &&
+            character >= 0xC0 && character <= 0xFF) {
+          /* character range 192 to 255 (leading bits 11......) */
+          scan_symbol_utf8(character, 0);
+        } else {
+          /* ILLEGALCHAR */
+          in_file.character = character;
+          scan_illegal();
+          scan_symbol();                                        /*  1.46%  1.28% */
+        } /* if */
         break;
     } /* switch */
 #ifdef TRACE_SCANNER
