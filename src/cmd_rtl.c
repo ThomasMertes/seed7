@@ -750,7 +750,8 @@ static rtlArrayType addStriToRtlArray (const striType stri,
     rtlArrayType resized_work_array;
 
   /* addStriToRtlArray */
-    logFunction(printf("addStriToRtlArray\n"););
+    logFunction(printf("addStriToRtlArray(\"%s\", *, " FMT_D ")\n",
+                       striAsUnquotedCStri(stri), used_max_position););
     if (used_max_position >= work_array->max_position) {
       if (unlikely(work_array->max_position > MAX_RTL_ARR_INDEX - ARRAY_SIZE_DELTA ||
           (resized_work_array = REALLOC_RTL_ARRAY(work_array,
@@ -1578,8 +1579,8 @@ striType cmdConfigValue (const const_striType name)
       opt = HAS_CBRT ? "TRUE" : "FALSE";
     } else if (strcmp(opt_name, "CHECK_FLOAT_DIV_BY_ZERO") == 0) {
       opt = CHECK_FLOAT_DIV_BY_ZERO ? "TRUE" : "FALSE";
-    } else if (strcmp(opt_name, "NAN_COMPARISON_OKAY") == 0) {
-      opt = NAN_COMPARISON_OKAY ? "TRUE" : "FALSE";
+    } else if (strcmp(opt_name, "FLOAT_COMPARISON_OKAY") == 0) {
+      opt = FLOAT_COMPARISON_OKAY ? "TRUE" : "FALSE";
     } else if (strcmp(opt_name, "WITH_STRI_CAPACITY") == 0) {
       opt = WITH_STRI_CAPACITY ? "TRUE" : "FALSE";
     } else if (strcmp(opt_name, "ALLOW_STRITYPE_SLICES") == 0) {
@@ -1596,14 +1597,20 @@ striType cmdConfigValue (const const_striType name)
       opt = POW_FUNCTION_OKAY ? "TRUE" : "FALSE";
     } else if (strcmp(opt_name, "SQRT_FUNCTION_OKAY") == 0) {
       opt = SQRT_FUNCTION_OKAY ? "TRUE" : "FALSE";
+    } else if (strcmp(opt_name, "EXP_FUNCTION_OKAY") == 0) {
+      opt = EXP_FUNCTION_OKAY ? "TRUE" : "FALSE";
     } else if (strcmp(opt_name, "LOG_FUNCTION_OKAY") == 0) {
       opt = LOG_FUNCTION_OKAY ? "TRUE" : "FALSE";
     } else if (strcmp(opt_name, "LOG10_FUNCTION_OKAY") == 0) {
       opt = LOG10_FUNCTION_OKAY ? "TRUE" : "FALSE";
     } else if (strcmp(opt_name, "LOG2_FUNCTION_OKAY") == 0) {
       opt = LOG2_FUNCTION_OKAY ? "TRUE" : "FALSE";
-    } else if (strcmp(opt_name, "FREXP_INFINITY_NAN_OKAY") == 0) {
-      opt = FREXP_INFINITY_NAN_OKAY ? "TRUE" : "FALSE";
+    } else if (strcmp(opt_name, "FMOD_FUNCTION_OKAY") == 0) {
+      opt = FMOD_FUNCTION_OKAY ? "TRUE" : "FALSE";
+    } else if (strcmp(opt_name, "LDEXP_FUNCTION_OKAY") == 0) {
+      opt = LDEXP_FUNCTION_OKAY ? "TRUE" : "FALSE";
+    } else if (strcmp(opt_name, "FREXP_FUNCTION_OKAY") == 0) {
+      opt = FREXP_FUNCTION_OKAY ? "TRUE" : "FALSE";
     } else if (strcmp(opt_name, "FLOAT_ZERO_DIV_ERROR") == 0) {
       opt = FLOAT_ZERO_DIV_ERROR ? "TRUE" : "FALSE";
     } else if (strcmp(opt_name, "LIMITED_CSTRI_LITERAL_LEN") == 0) {

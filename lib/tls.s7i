@@ -39,15 +39,18 @@ include "aes.s7i";
 
 const type: cipherSuite is integer;
 
-const cipherSuite: TLS_NULL_WITH_NULL_NULL         is 16#0000;
-const cipherSuite: TLS_RSA_WITH_RC4_128_MD5        is 16#0004;
-const cipherSuite: TLS_RSA_WITH_RC4_128_SHA        is 16#0005;
-const cipherSuite: TLS_RSA_WITH_DES_CBC_SHA        is 16#0009;
-const cipherSuite: TLS_RSA_WITH_3DES_EDE_CBC_SHA   is 16#000a; # Mandatory TLS 1.1 Cipher
-const cipherSuite: TLS_RSA_WITH_AES_128_CBC_SHA    is 16#002f; # Mandatory TLS 1.2 Cipher
-const cipherSuite: TLS_RSA_WITH_AES_256_CBC_SHA    is 16#0035;
-const cipherSuite: TLS_RSA_WITH_AES_128_CBC_SHA256 is 16#003c;
-const cipherSuite: TLS_RSA_WITH_AES_256_CBC_SHA256 is 16#003d;
+const cipherSuite: TLS_NULL_WITH_NULL_NULL              is 16#0000;
+const cipherSuite: TLS_RSA_WITH_RC4_128_MD5             is 16#0004;
+const cipherSuite: TLS_RSA_WITH_RC4_128_SHA             is 16#0005;
+const cipherSuite: TLS_RSA_WITH_DES_CBC_SHA             is 16#0009;
+const cipherSuite: TLS_RSA_WITH_3DES_EDE_CBC_SHA        is 16#000a; # Mandatory TLS 1.1 Cipher
+const cipherSuite: TLS_RSA_WITH_AES_128_CBC_SHA         is 16#002f; # Mandatory TLS 1.2 Cipher
+const cipherSuite: TLS_RSA_WITH_AES_256_CBC_SHA         is 16#0035;
+const cipherSuite: TLS_RSA_WITH_AES_128_CBC_SHA256      is 16#003c;
+const cipherSuite: TLS_RSA_WITH_AES_256_CBC_SHA256      is 16#003d;
+const cipherSuite: TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA is 16#c009;
+const cipherSuite: TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA is 16#c00a;
+
 
 const array cipherSuite: supportedCiphers is [] (
     TLS_RSA_WITH_3DES_EDE_CBC_SHA,
@@ -368,18 +371,49 @@ const proc: showServerHello (in string: stri, inout integer: pos) is func
 
 const proc: showX509Cert (in x509cert: cert) is func
   local
+    var tbsCertificateType: tbsCertificate is tbsCertificateType.value;
+    var string: aKey is "";
+    var integer: number is 0;
     var integer: pos is 1;
     var string: publicKey is "";
   begin
-    writeln("Algorithm: " <& literal(cert.tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm));
-    writeln("Public key: " <& literal(cert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey));
-    publicKey := cert.tbsCertificate.subjectPublicKeyInfo.subjectPublicKey;
-    while pos < length(publicKey) do
-      printAsn1(publicKey, pos);
-    end while;
-    writeln("rsa public key modulus:  " <& cert.tbsCertificate.subjectPublicKeyInfo.publicRsaKey.modulus radix 16);
-    writeln("rsa public modulus len:  " <& bitLength(cert.tbsCertificate.subjectPublicKeyInfo.publicRsaKey.modulus));
-    writeln("rsa public key exponent: " <& cert.tbsCertificate.subjectPublicKeyInfo.publicRsaKey.exponent radix 16);
+    tbsCertificate := cert.tbsCertificate;
+    writeln("Version: " <& tbsCertificate.version);
+    writeln("SerialNumber: " <& literal(tbsCertificate.serialNumber));
+    writeln("Signature algorithm: " <& literal(tbsCertificate.signature.algorithm));
+    writeln("Signature parameters: " <& literal(tbsCertificate.signature.parameters));
+    for aKey range keys(tbsCertificate.issuer) do
+      writeln("Issuer " <& literal(aKey) <& ": " <& tbsCertificate.issuer[aKey]);
+    end for;
+    writeln("Valid not before: " <& tbsCertificate.validity.notBefore);
+    writeln("Valid not after: " <& tbsCertificate.validity.notAfter);
+    for aKey range keys(tbsCertificate.subject) do
+      writeln("Subject " <& literal(aKey) <& ": " <& tbsCertificate.subject[aKey]);
+    end for;
+    writeln("Algorithm: " <& literal(tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm));
+    write("Algorithm: ");
+    for number range decodeObjectIdentifier(tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm) do
+      write(number <& " ");
+    end for;
+    writeln;
+    writeln("Algorithm parameters: " <& literal(tbsCertificate.subjectPublicKeyInfo.algorithm.parameters));
+    write("Algorithm parameters: ");
+    if tbsCertificate.subjectPublicKeyInfo.algorithm.parameters <> "" then
+      for number range decodeObjectIdentifier(tbsCertificate.subjectPublicKeyInfo.algorithm.parameters) do
+        write(number <& " ");
+      end for;
+    end if;
+    writeln;
+    writeln("Public key: " <& literal(tbsCertificate.subjectPublicKeyInfo.subjectPublicKey));
+    publicKey := tbsCertificate.subjectPublicKeyInfo.subjectPublicKey;
+    if tbsCertificate.subjectPublicKeyInfo.algorithm.algorithm = RSA_ENCRYPTION_OID then
+      while pos < length(publicKey) do
+        printAsn1(publicKey, pos);
+      end while;
+    end if;
+    writeln("rsa public key modulus:  " <& tbsCertificate.subjectPublicKeyInfo.publicRsaKey.modulus radix 16);
+    writeln("rsa public modulus len:  " <& bitLength(tbsCertificate.subjectPublicKeyInfo.publicRsaKey.modulus));
+    writeln("rsa public key exponent: " <& tbsCertificate.subjectPublicKeyInfo.publicRsaKey.exponent radix 16);
   end func;
 
 

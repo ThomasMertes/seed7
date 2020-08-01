@@ -499,6 +499,10 @@ uintType uintRandLimited (uintType rand_max)
 
 
 
+/**
+ *  Compute the greatest common divisor (gcd) of two unsigned integers.
+ *  @return the greatest common divisor.
+ */
 static uintType uintGcd (uintType number1, uintType number2)
 
   {
@@ -1699,10 +1703,6 @@ intType intLowestSetBit (intType number)
  *  Convert integer to string and pad it with zeros at the left side.
  *  The number is converted to a string with decimal representation.
  *  For negative numbers a minus sign is prepended.
- *   123 lpad0 5   returns "00123"
- *   -123 lpad0 5  returns "-0123"
- *   123 lpad0 2   returns "123"
- *   -123 lpad0 2  returns "-123"
  *  @param number Number to be converted to a [[string]].
  *  @param length Minimum length of the result.
  *  @return number as decimal string left padded with zeroes.
@@ -2102,6 +2102,7 @@ intType intPowOvfChk (intType base, intType exponent)
  *  Convert an integer number to a string using a radix.
  *  The conversion uses the numeral system with the given base.
  *  Digit values from 10 upward are encoded with letters.
+ *  E.g.: 10 is encoded with A or a, 11 with B or b, etc.
  *  For negative numbers a minus sign is prepended.
  *  @param number Number to be converted to a string.
  *  @param base Base of the numeral system used for the conversion.
@@ -2352,6 +2353,12 @@ striType intStr (intType number)
 
 
 #if ALLOW_STRITYPE_SLICES
+/**
+ *  Convert an integer number to a string in a buffer.
+ *  The number is converted to a string with decimal representation.
+ *  For negative numbers a minus sign is prepended.
+ *  @return the buffer with the string result of the conversion.
+ */
 striType intStrToBuffer (intType number, striType buffer)
 
   {

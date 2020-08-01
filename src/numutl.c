@@ -225,7 +225,7 @@ bigIntType doubleToBigRat (const double doubleValue, bigIntType *denominator)
       *denominator = bigFromInt32(0);
     } else {
       intMantissa = getMantissaAndExponent(doubleValue, &exponent);
-      /* printf("intMantissa: %ld\n", intMantissa);
+      /* printf("intMantissa: " FMT_D64 "\n", intMantissa);
       printf("exponent: %d\n", exponent); */
       numerator = bigFromInt64(intMantissa);
       if (exponent > 0) {

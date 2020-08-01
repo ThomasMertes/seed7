@@ -40,7 +40,7 @@ const type: fontVectorType is hash [char] charVectorType;
 
 (**
  *  [[font|Font]] implementation type for vector fonts.
- *  The following vector fonts are available:
+ *  The following vector fonts are available: vecfont10.s7i,
  *  vecfont18.s7i, cronos16.s7i, cronos27.s7i, modern27.s7i
  *)
 const type: vectorFont is sub fontProperties struct

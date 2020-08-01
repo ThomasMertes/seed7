@@ -54,6 +54,9 @@
 #include "big_drv.h"
 #include "pol_drv.h"
 #include "rtl_err.h"
+#if ANY_LOG_ACTIVE
+#include "traceutl.h"
+#endif
 
 #undef EXTERN
 #define EXTERN

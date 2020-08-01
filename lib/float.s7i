@@ -93,6 +93,42 @@ const func float: (in float: dividend) / (in float: divisor)   is action "FLT_DI
 
 
 (**
+ *  Compute the floating-point remainder of a division.
+ *  The remainder has the same sign as the dividend.
+ *  The remainder is dividend - flt(trunc(dividend / divisor)) * divisor
+ *  The remainder is computed without a conversion to integer.
+ *    A        rem NaN       returns NaN
+ *    NaN      rem B         returns NaN
+ *    A        rem 0.0       returns NaN
+ *    Infinity rem B         returns NaN
+ *   -Infinity rem B         returns NaN
+ *    0.0      rem B         returns 0.0  for B &lt;> 0.0
+ *    A        rem Infinity  returns A
+ *  @return the floating-point remainder of the division.
+ *)
+const func float: (in float: dividend) rem (in float: divisor) is action "FLT_REM";
+
+
+(**
+ *  Compute the floating-point modulo of a division.
+ *  The modulo has the same sign as the divisor.
+ *  The modulo is dividend - floor(dividend / divisor) * divisor
+ *    A        mod  NaN       returns  NaN
+ *    NaN      mod  B         returns  NaN
+ *    A        mod  0.0       returns  NaN
+ *    Infinity mod  B         returns  NaN
+ *   -Infinity mod  B         returns  NaN
+ *    0.0      mod  B         returns  0.0         for B &lt;> 0.0
+ *    A        mod  Infinity  returns  A           for A > 0 
+ *    A        mod  Infinity  returns  Infinity    for A < 0
+ *    A        mod -Infinity  returns  A           for A < 0
+ *    A        mod -Infinity  returns -Infinity    for A > 0
+ *  @return the floating-point modulo of the division.
+ *)
+const func float: (in float: dividend) mod (in float: divisor) is action "FLT_MOD";
+
+
+(**
  *  Compute the exponentiation of a float ''base'' with an [[integer]] ''exponent''.
  *     A    ** 0  returns 1.0
  *     NaN  ** 0  returns 1.0

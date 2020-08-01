@@ -75,12 +75,14 @@ const type: ccConfigType is new struct
     var boolean: LITTLE_ENDIAN_INTTYPE       is FALSE;
 
     (**
-     *  TRUE, when comparisons between NaN and any other value return FALSE.
+     *  TRUE, when float comparisons with NaN and negative zero work okay.
+     *  A comparison between NaN and any other value should return FALSE.
+     *  Negative zero should be considered as identical to positive zero.
      *  Comparison refers to comparisons with  ==  <  >  <=  or  >= .
-     *  If NAN_COMPARISON_OKAY is FALSE fltEq(), fltLt(), fltGt(), fltLe()
+     *  If FLOAT_COMPARISON_OKAY is FALSE fltEq(), fltLt(), fltGt(), fltLe()
      *  and fltGe() should be used to do comparisons of float values.
      *)
-    var boolean: NAN_COMPARISON_OKAY         is FALSE;
+    var boolean: FLOAT_COMPARISON_OKAY         is FALSE;
 
     (**
      *  TRUE, when pow() works okay for a base of zero, one and NaN.
@@ -89,10 +91,22 @@ const type: ccConfigType is new struct
     var boolean: POW_FUNCTION_OKAY           is FALSE;
 
     (**
-     *  TRUE, when sqrt() works okay for a negative argument.
+     *  TRUE, when fmod() works okay for a base of zero, one and NaN.
+     *  If it is FALSE fltRem() should be used instead of pow().
+     *)
+    var boolean: FMOD_FUNCTION_OKAY          is FALSE;
+
+    (**
+     *  TRUE, when sqrt() works okay for a negative argument and NaN.
      *  If it is FALSE fltSqrt() should be used instead of sqrt().
      *)
     var boolean: SQRT_FUNCTION_OKAY          is FALSE;
+
+    (**
+     *  TRUE, when exp() works okay for NaN.
+     *  If it is FALSE fltExp() should be used instead of exp().
+     *)
+    var boolean: EXP_FUNCTION_OKAY           is FALSE;
 
     (**
      *  TRUE, when log() works okay for zero, a negative values and NaN.
@@ -113,12 +127,16 @@ const type: ccConfigType is new struct
     var boolean: LOG2_FUNCTION_OKAY          is FALSE;
 
     (**
-     *  TRUE, when frexp(Infinity, &exponent), frexp(-Infinity, &exponent)
-     *  and frexp(NaN, &exponent) return the first argument and set the
-     *  exponent to 0.
-     *  If it is FALSE checks for this special cases must be done.
+     *  TRUE, when ldexp() works okay for NaNs.
+     *  If it is FALSE fltLdexp() should be used instead of lsexp().
      *)
-    var boolean: FREXP_INFINITY_NAN_OKAY     is FALSE;
+    var boolean: LDEXP_FUNCTION_OKAY         is FALSE;
+
+    (**
+     *  TRUE, when frexp() works okay for Infinity, NaN and subnormal numbers.
+     *  If it is FALSE fltDecompose() should be used instead of frexp().
+     *)
+    var boolean: FREXP_FUNCTION_OKAY         is FALSE;
 
     (**
      *  TRUE, when the functions sigsetjmp() and siglongjmp() are available.
@@ -585,13 +603,16 @@ const func ccConfigType: getBuiltInConfig is func
     conf.RSHIFT_DOES_SIGN_EXTEND    := boolean(configValue("RSHIFT_DOES_SIGN_EXTEND"));
     conf.TWOS_COMPLEMENT_INTTYPE    := boolean(configValue("TWOS_COMPLEMENT_INTTYPE"));
     conf.LITTLE_ENDIAN_INTTYPE      := boolean(configValue("LITTLE_ENDIAN_INTTYPE"));
-    conf.NAN_COMPARISON_OKAY        := boolean(configValue("NAN_COMPARISON_OKAY"));
+    conf.FLOAT_COMPARISON_OKAY      := boolean(configValue("FLOAT_COMPARISON_OKAY"));
     conf.POW_FUNCTION_OKAY          := boolean(configValue("POW_FUNCTION_OKAY"));
+    conf.FMOD_FUNCTION_OKAY         := boolean(configValue("FMOD_FUNCTION_OKAY"));
     conf.SQRT_FUNCTION_OKAY         := boolean(configValue("SQRT_FUNCTION_OKAY"));
+    conf.EXP_FUNCTION_OKAY          := boolean(configValue("EXP_FUNCTION_OKAY"));
     conf.LOG_FUNCTION_OKAY          := boolean(configValue("LOG_FUNCTION_OKAY"));
     conf.LOG10_FUNCTION_OKAY        := boolean(configValue("LOG10_FUNCTION_OKAY"));
     conf.LOG2_FUNCTION_OKAY         := boolean(configValue("LOG2_FUNCTION_OKAY"));
-    conf.FREXP_INFINITY_NAN_OKAY    := boolean(configValue("FREXP_INFINITY_NAN_OKAY"));
+    conf.LDEXP_FUNCTION_OKAY        := boolean(configValue("LDEXP_FUNCTION_OKAY"));
+    conf.FREXP_FUNCTION_OKAY        := boolean(configValue("FREXP_FUNCTION_OKAY"));
     conf.HAS_SIGSETJMP              := boolean(configValue("HAS_SIGSETJMP"));
     conf.FLOAT_ZERO_DIV_ERROR       := boolean(configValue("FLOAT_ZERO_DIV_ERROR"));
     conf.CHECK_INT_DIV_BY_ZERO      := boolean(configValue("CHECK_INT_DIV_BY_ZERO"));

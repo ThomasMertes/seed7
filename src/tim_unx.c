@@ -268,6 +268,71 @@ void timAwait (intType year, intType month, intType day, intType hour,
 
 
 
+#elif defined AWAIT_WITH_NANOSLEEP
+
+
+
+/**
+ *  Wait until the given time is reached
+ *  @param time_zone Difference to UTC in minutes (for UTC+1 it is 60).
+ *                   The time_zone includes the effect of a daylight saving time.
+ */
+void timAwait (intType year, intType month, intType day, intType hour,
+    intType min, intType sec, intType micro_sec, intType time_zone)
+
+  {
+    struct tm tm_time;
+    time_t await_second;
+    struct timeval time_val;
+    struct timespec timeout_value;
+    int nanosleep_result;
+
+  /* timAwait */
+    logFunction(printf("timAwait(" F_D(04) "-" F_D(02) "-" F_D(02) " "
+                                   F_D(02) ":" F_D(02) ":" F_D(02) "."
+                                   F_D(06) ", " FMT_D ")\n",
+                       year, month, day, hour, min, sec, micro_sec, time_zone););
+    tm_time.tm_year  = (int) year - 1900;
+    tm_time.tm_mon   = (int) month - 1;
+    tm_time.tm_mday  = (int) day;
+    tm_time.tm_hour  = (int) hour;
+    tm_time.tm_min   = (int) min;
+    tm_time.tm_sec   = (int) sec;
+    tm_time.tm_isdst = 0;
+    await_second = mkutc(&tm_time);
+    if (unlikely(await_second == (time_t) -1)) {
+      logError(printf("timAwait: mkutc() failed.\n"););
+      raise_error(RANGE_ERROR);
+    } else {
+      await_second -= time_zone * 60;
+      do {
+        gettimeofday(&time_val, NULL);
+        if (time_val.tv_sec > await_second ||
+            (time_val.tv_sec == await_second &&
+            time_val.tv_usec >= micro_sec)) {
+          /* The point in time has been reached.    */
+          /* Act as if nanosleep() has been successful. */
+          nanosleep_result = 0;
+        } else {
+          timeout_value.tv_sec = await_second - time_val.tv_sec;
+          if (micro_sec >= time_val.tv_usec) {
+            timeout_value.tv_nsec = (micro_sec - time_val.tv_usec) * 1000;
+          } else {
+            timeout_value.tv_nsec = (1000000 - time_val.tv_usec + micro_sec) * 1000;
+            timeout_value.tv_sec--;
+          } /* if */
+          /* printf("nanosleep(tv_sec=" FMT_T ", %ld)\n",
+              timeout_value.tv_sec, timeout_value.tv_nsec); */
+          nanosleep_result = nanosleep(&timeout_value, NULL);
+          /* printf("nanosleep --> %d\n", nanosleep_result); */
+        } /* if */
+      } while (unlikely(nanosleep_result == -1 && errno == EINTR));
+    } /* if */
+    logFunction(printf("timAwait -->\n"););
+  } /* timAwait */
+
+
+
 #elif defined AWAIT_WITH_SIGACTION
 
 

@@ -400,6 +400,7 @@ const proc: printAsn1 (in string: stri, inout integer: pos) is func
       # Long form
       numOctets := length mod 128;
       length := bytes2Int(stri[pos len numOctets], UNSIGNED, BE);
+      # writeln("Long form: numOctets=" <& numOctets <& ", length=" <& length);
       pos +:= numOctets;
       contents := stri[pos len length];
       posAfterwards := pos + length;

@@ -66,6 +66,16 @@
 #define FLT_SCI_ADDITIONAL_CHARS STRLEN("-1.e+")
 #define FLT_SCI_LEN (FLT_SCI_ADDITIONAL_CHARS + MAX_PRINTED_EXPONENT_DIGITS)
 
+#if FLOATTYPE_DOUBLE
+#define MIN_NEGATIVE_SUBNORMAL -2.2250738585072009e-308
+#define MAX_POSITIVE_SUBNORMAL  2.2250738585072009e-308
+#define FREXP_SUBNORMAL_FACTOR  1.8446744073709552e+19 /* == 0x1p64 */
+#else
+#define MIN_NEGATIVE_SUBNORMAL -1.1754942106924411e-38
+#define MAX_POSITIVE_SUBNORMAL  1.1754942106924411e-38
+#define FREXP_SUBNORMAL_FACTOR  4.294967296e+09 /* == 0x1p32 */
+#endif
+
 /* Natural logarithm of 2: */
 #define LN2 0.693147180559945309417232121458176568075500134360255254120680009493393
 
@@ -169,13 +179,21 @@ int64Type getMantissaAndExponent (double doubleValue, int *binaryExponent)
 
   {
     double mantissa;
+#if FREXP_FUNCTION_OKAY
     int exponent;
+#else
+    intType exponent;
+#endif
     int64Type intMantissa;
 
   /* getMantissaAndExponent */
+#if FREXP_FUNCTION_OKAY
     mantissa = frexp(doubleValue, &exponent);
+#else
+    mantissa = fltDecompose(doubleValue, &exponent);
+#endif
     intMantissa = (int64Type) (mantissa * DOUBLE_MANTISSA_FACTOR);
-    *binaryExponent = exponent - DOUBLE_MANTISSA_SHIFT;
+    *binaryExponent = (int) (exponent - DOUBLE_MANTISSA_SHIFT);
     return intMantissa;
   } /* getMantissaAndExponent */
 
@@ -197,7 +215,7 @@ double setMantissaAndExponent (int64Type intMantissa, int binaryExponent)
   /* setMantissaAndExponent */
     mantissa = (double) intMantissa / DOUBLE_MANTISSA_FACTOR;
     exponent = binaryExponent + DOUBLE_MANTISSA_SHIFT;
-    doubleValue = ldexp(mantissa, exponent);
+    doubleValue = fltLdexp(mantissa, exponent);
     return doubleValue;
   } /* setMantissaAndExponent */
 
@@ -323,7 +341,7 @@ intType fltCmp (floatType number1, floatType number2)
   /* fltCmp */
     logFunction(printf("fltCmp(" FMT_E ", " FMT_E ")\n",
                        number1, number2););
-#if NAN_COMPARISON_OKAY
+#if FLOAT_COMPARISON_OKAY
     if (number1 < number2) {
       signumValue = -1;
     } else if (number1 > number2) {
@@ -338,11 +356,19 @@ intType fltCmp (floatType number1, floatType number2)
       signumValue = os_isnan(number2) == 0;
     } else if (unlikely(os_isnan(number2))) {
       signumValue = -1;
+#if !FLOAT_ZERO_COMPARISON_OKAY
+    } else if (fltLt(number1, number2)) {
+      signumValue = -1;
+    } else {
+      signumValue = fltGt(number1, number2);
+    } /* if */
+#else
     } else if (number1 < number2) {
       signumValue = -1;
     } else {
       signumValue = number1 > number2;
     } /* if */
+#endif
 #endif
     logFunction(printf("fltCmp --> " FMT_D "\n", signumValue););
     return signumValue;
@@ -380,6 +406,54 @@ void fltCpyGeneric (genericType *const dest, const genericType source)
     ((rtlObjectType *) dest)->value.floatValue =
         ((const_rtlObjectType *) &source)->value.floatValue;
   } /* fltCpyGeneric */
+
+
+
+#if !FREXP_FUNCTION_OKAY
+/**
+ *  Decompose float into normalized fraction and integral exponent for 2.
+ *  If the argument (number) is 0.0, -0.0, Infinity, -Infinity or NaN the
+ *  fraction is set to the argument and the exponent is set to 0.
+ *  For all other arguments the fraction is set to an absolute value
+ *  between 0.5(included) and 1.0(excluded) and the exponent is set such
+ *  that number = fraction * 2.0 ** exponent holds.
+ *  @param exponent Destination for the exponent of the decomposed number.
+ *  @param number Number to be decomposed into fraction and exponent.
+ *  @return the normalized fraction.
+ */
+floatType fltDecompose (const floatType number, intType *const exponent)
+
+  {
+    int exponent_var = 0;
+    floatType fraction;
+
+  /* fltDecompose */
+    logFunction(printf("fltDecompose(" FMT_E ", *)\n", number););
+#if !FREXP_INFINITY_NAN_OKAY
+    if (unlikely(os_isnan(number) ||
+                 number == POSITIVE_INFINITY ||
+                 number == NEGATIVE_INFINITY)) {
+      fraction = number;
+      *exponent = 0;
+    } else
+#endif
+#if !FREXP_SUBNORMAL_OKAY
+    if (number >= MIN_NEGATIVE_SUBNORMAL &&
+        number <= MAX_POSITIVE_SUBNORMAL && number != 0.0) {
+      /* Subnormal number */
+      fraction = frexp(number * FREXP_SUBNORMAL_FACTOR, &exponent_var);
+      *exponent = (intType) exponent_var - FLOATTYPE_SIZE;
+    } else
+#endif
+    {
+      fraction = frexp(number, &exponent_var);
+      *exponent = (intType) exponent_var;
+    } /* if */
+    logFunction(printf("fltDecompose(" FMT_E ", " FMT_D ") --> " FMT_E "\n",
+                       number, *exponent, fraction););
+    return fraction;
+  } /* fltDecompose */
+#endif
 
 
 
@@ -502,7 +576,7 @@ striType fltDgts (floatType number, intType precision)
 
 
 
-#if !NAN_COMPARISON_OKAY
+#if !FLOAT_COMPARISON_OKAY
 /**
  *  Check if two float numbers are equal.
  *  According to IEEE 754 a NaN is not equal to any float value.
@@ -518,9 +592,23 @@ boolType fltEq (floatType number1, floatType number2)
   /* fltEq */
     logFunction(printf("fltEq(" FMT_E ", " FMT_E ")\n",
                        number1, number2););
+#if !FLOAT_NAN_COMPARISON_OKAY
     if (os_isnan(number1) || os_isnan(number2)) {
       isEqual = FALSE;
-    } else {
+    } else
+#endif
+#if !FLOAT_ZERO_COMPARISON_OKAY
+    if (fltIsNegativeZero(number1)) {
+      if (fltIsNegativeZero(number2)) {
+        isEqual = TRUE;
+      } else {
+        isEqual = 0.0 == number2;
+      } /* if */
+    } else if (fltIsNegativeZero(number2)) {
+      isEqual = number1 == 0.0;
+    } else
+#endif
+    {
       isEqual = number1 == number2;
     } /* if */
     logFunction(printf("fltEq --> %d\n", isEqual););
@@ -530,7 +618,34 @@ boolType fltEq (floatType number1, floatType number2)
 
 
 
-#if !NAN_COMPARISON_OKAY
+#if !EXP_FUNCTION_OKAY
+/**
+ *  Compute Euler's number e raised to the power of x.
+ *  @return e raised to the power of x.
+ */
+floatType fltExp (floatType exponent)
+
+  {
+    floatType power;
+
+  /* fltExp */
+    logFunction(printf("fltExp(" FMT_E ", *)\n", exponent););
+#if !EXP_OF_NAN_OKAY
+    if (unlikely(os_isnan(exponent))) {
+      power = NOT_A_NUMBER;
+    } else
+#endif
+    {
+      power = exp(exponent);
+    } /* if */
+    logFunction(printf("fltExp --> " FMT_E "\n", power););
+    return power;
+  } /* fltExp */
+#endif
+
+
+
+#if !FLOAT_COMPARISON_OKAY
 /**
  *  Check if 'number1' is greater than or equal to 'number2'.
  *  According to IEEE 754 a NaN is neither less than,
@@ -548,9 +663,23 @@ boolType fltGe (floatType number1, floatType number2)
   /* fltGe */
     logFunction(printf("fltGe(" FMT_E ", " FMT_E ")\n",
                        number1, number2););
+#if !FLOAT_NAN_COMPARISON_OKAY
     if (os_isnan(number1) || os_isnan(number2)) {
       isGreaterEqual = FALSE;
-    } else {
+    } else
+#endif
+#if !FLOAT_ZERO_COMPARISON_OKAY
+    if (fltIsNegativeZero(number1)) {
+      if (fltIsNegativeZero(number2)) {
+        isGreaterEqual = TRUE;
+      } else {
+        isGreaterEqual = 0.0 >= number2;
+      } /* if */
+    } else if (fltIsNegativeZero(number2)) {
+      isGreaterEqual = number1 >= 0.0;
+    } else
+#endif
+    {
       isGreaterEqual = number1 >= number2;
     } /* if */
     logFunction(printf("fltGe --> %d\n", isGreaterEqual););
@@ -560,7 +689,7 @@ boolType fltGe (floatType number1, floatType number2)
 
 
 
-#if !NAN_COMPARISON_OKAY
+#if !FLOAT_COMPARISON_OKAY
 /**
  *  Check if 'number1' is greater than 'number2'.
  *  According to IEEE 754 a NaN is neither less than,
@@ -578,9 +707,23 @@ boolType fltGt (floatType number1, floatType number2)
   /* fltGt */
     logFunction(printf("fltGt(" FMT_E ", " FMT_E ")\n",
                        number1, number2););
+#if !FLOAT_NAN_COMPARISON_OKAY
     if (os_isnan(number1) || os_isnan(number2)) {
       isGreaterThan = FALSE;
-    } else {
+    } else
+#endif
+#if !FLOAT_ZERO_COMPARISON_OKAY
+    if (fltIsNegativeZero(number1)) {
+      if (fltIsNegativeZero(number2)) {
+        isGreaterThan = FALSE;
+      } else {
+        isGreaterThan = 0.0 > number2;
+      } /* if */
+    } else if (fltIsNegativeZero(number2)) {
+      isGreaterThan = number1 > 0.0;
+    } else
+#endif
+    {
       isGreaterThan = number1 > number2;
     } /* if */
     logFunction(printf("fltGt --> %d\n", isGreaterThan););
@@ -613,7 +756,7 @@ floatType fltIPow (floatType base, intType exponent)
 
   /* fltIPow */
     logFunction(printf("fltIPow(" FMT_E ", " FMT_D ")\n", base, exponent););
-#if !NAN_COMPARISON_OKAY
+#if !FLOAT_NAN_COMPARISON_OKAY
     /* This is checked first on purpose. NaN should not be equal  */
     /* to any value. E.g.: NaN == x should always return FALSE.   */
     /* Beyond that NaN should not be equal to itself also. Some   */
@@ -725,7 +868,30 @@ boolType fltIsNegativeZero (floatType number)
 
 
 
-#if !NAN_COMPARISON_OKAY
+#if !LDEXP_FUNCTION_OKAY
+floatType fltLdexp (floatType number, int exponent)
+
+  {
+    floatType product;
+
+  /* fltLdexp */
+    logFunction(printf("fltLdexp(" FMT_E ", %d)\n", number, exponent););
+#if !LDEXP_OF_NAN_OKAY
+    if (unlikely(os_isnan(number))) {
+      product = NOT_A_NUMBER;
+    } else
+#endif
+    {
+      product = ldexp(number, exponent);
+    } /* if */
+    logFunction(printf("fltLdexp --> " FMT_E "\n", product););
+    return product;
+  } /* fltLdexp */
+#endif
+
+
+
+#if !FLOAT_COMPARISON_OKAY
 /**
  *  Check if 'number1' is less than or equal to 'number2'.
  *  According to IEEE 754 a NaN is neither less than,
@@ -743,9 +909,23 @@ boolType fltLe (floatType number1, floatType number2)
   /* fltLe */
     logFunction(printf("fltLe(" FMT_E ", " FMT_E ")\n",
                        number1, number2););
+#if !FLOAT_NAN_COMPARISON_OKAY
     if (os_isnan(number1) || os_isnan(number2)) {
       isLessEqual = FALSE;
-    } else {
+    } else
+#endif
+#if !FLOAT_ZERO_COMPARISON_OKAY
+    if (fltIsNegativeZero(number1)) {
+      if (fltIsNegativeZero(number2)) {
+        isLessEqual = TRUE;
+      } else {
+        isLessEqual = 0.0 <= number2;
+      } /* if */
+    } else if (fltIsNegativeZero(number2)) {
+      isLessEqual = number1 <= 0.0;
+    } else
+#endif
+    {
       isLessEqual = number1 <= number2;
     } /* if */
     logFunction(printf("fltLe --> %d\n", isLessEqual););
@@ -903,7 +1083,7 @@ floatType fltLog2 (floatType number)
 
 
 
-#if !NAN_COMPARISON_OKAY
+#if !FLOAT_COMPARISON_OKAY
 /**
  *  Check if 'number1' is less than 'number2'.
  *  According to IEEE 754 a NaN is neither less than,
@@ -921,15 +1101,66 @@ boolType fltLt (floatType number1, floatType number2)
   /* fltLt */
     logFunction(printf("fltLt(" FMT_E ", " FMT_E ")\n",
                        number1, number2););
+#if !FLOAT_NAN_COMPARISON_OKAY
     if (os_isnan(number1) || os_isnan(number2)) {
       isLessThan = FALSE;
-    } else {
+    } else
+#endif
+#if !FLOAT_ZERO_COMPARISON_OKAY
+    if (fltIsNegativeZero(number1)) {
+      if (fltIsNegativeZero(number2)) {
+        isLessThan = FALSE;
+      } else {
+        isLessThan = 0.0 < number2;
+      } /* if */
+    } else if (fltIsNegativeZero(number2)) {
+      isLessThan = number1 < 0.0;
+    } else
+#endif
+    {
       isLessThan = number1 < number2;
     } /* if */
     logFunction(printf("fltLt --> %d\n", isLessThan););
     return isLessThan;
   } /* fltLt */
 #endif
+
+
+
+/**
+ *  Compute the floating-point modulo of a division.
+ *  The modulo has the same sign as the divisor.
+ *  The modulo is dividend - floor(dividend / divisor) * divisor
+ *    A        mod  NaN       returns  NaN
+ *    NaN      mod  B         returns  NaN
+ *    A        mod  0.0       returns  NaN
+ *    Infinity mod  B         returns  NaN
+ *   -Infinity mod  B         returns  NaN
+ *    0.0      mod  B         returns  0.0         for B &lt;> 0.0
+ *    A        mod  Infinity  returns  A           for A > 0 
+ *    A        mod  Infinity  returns  Infinity    for A < 0
+ *    A        mod -Infinity  returns  A           for A < 0
+ *    A        mod -Infinity  returns -Infinity    for A > 0
+ *  @return the floating-point modulo of the division.
+ */
+floatType fltMod (floatType dividend, floatType divisor)
+
+  {
+    floatType modulo;
+
+  /* fltMod */
+    logFunction(printf("fltMod(" FMT_E ", " FMT_E ")\n", dividend, divisor););
+    modulo = fltRem(dividend, divisor);
+#if FLOAT_COMPARISON_OKAY
+    if ((dividend < 0.0) ^ (divisor < 0.0) && modulo != 0.0) {
+#else
+	if (fltLt(dividend, 0.0) ^ fltLt(divisor, 0.0) && !fltEq(modulo, 0.0)) {
+#endif
+      modulo += divisor;
+    } /* if */
+    logFunction(printf("fltMod --> " FMT_E "\n", modulo););
+    return modulo;
+  } /* fltMod */
 
 
 
@@ -1077,7 +1308,11 @@ floatType fltPow (floatType base, floatType exponent)
     /* C compilers do not compute comparisons with NaN correctly. */
     /* As a consequence the NaN check is done first.              */
     if (unlikely(os_isnan(base))) {
+#if FLOAT_NAN_COMPARISON_OKAY
       if (unlikely(exponent == 0.0)) {
+#else
+      if (unlikely(!os_isnan(exponent) && exponent == 0.0)) {
+#endif
         power = 1.0;
       } else {
         power = base;
@@ -1187,6 +1422,67 @@ floatType fltRand (floatType low, floatType high)
     logFunction(printf("fltRand --> " FMT_E "\n", randomNumber););
     return randomNumber;
   } /* fltRand */
+
+
+
+#if !FMOD_FUNCTION_OKAY
+/**
+ *  Compute the floating-point remainder of a division.
+ *  The remainder has the same sign as the dividend.
+ *  The remainder is dividend - flt(trunc(dividend / divisor)) * divisor
+ *  The remainder is computed without a conversion to integer.
+ *    A        rem NaN       returns NaN
+ *    NaN      rem B         returns NaN
+ *    A        rem 0.0       returns NaN
+ *    Infinity rem B         returns NaN
+ *   -Infinity rem B         returns NaN
+ *    0.0      rem B         returns 0.0  for B &lt;> 0.0
+ *    A        rem Infinity  returns A
+ *  @return the floating-point remainder of the division.
+ */
+floatType fltRem (floatType dividend, floatType divisor)
+
+  {
+    floatType remainder;
+
+  /* fltRem */
+    logFunction(printf("fltRem(" FMT_E ", " FMT_E ")\n", dividend, divisor););
+#if !FMOD_DIVIDEND_NAN_OKAY
+    if (unlikely(os_isnan(dividend))) {
+      remainder = NOT_A_NUMBER;
+    } else
+#endif
+#if !FMOD_DIVISOR_NAN_OKAY
+    if (unlikely(os_isnan(divisor))) {
+      remainder = NOT_A_NUMBER;
+    } else
+#endif
+#if !FMOD_DIVIDEND_INFINITY_OKAY
+    if (dividend == POSITIVE_INFINITY || dividend == NEGATIVE_INFINITY) {
+      remainder = NOT_A_NUMBER;
+    } else
+#endif
+#if !FMOD_DIVISOR_INFINITY_OKAY
+    if (divisor == POSITIVE_INFINITY || divisor == NEGATIVE_INFINITY) {
+      if (dividend == POSITIVE_INFINITY || dividend == NEGATIVE_INFINITY) {
+        remainder = NOT_A_NUMBER;
+      } else {
+        remainder = dividend;
+      } /* if */
+    } else
+#endif
+#if !FMOD_DIVISOR_ZERO_OKAY
+    if (divisor == 0.0) {
+      remainder = NOT_A_NUMBER;
+    } else
+#endif
+    {
+      remainder = fmod(dividend, divisor);
+    } /* if */
+    logFunction(printf("fltRem --> " FMT_E "\n", remainder););
+    return remainder;
+  } /* fltRem */
+#endif
 
 
 
@@ -1358,9 +1654,17 @@ floatType fltSqrt (floatType radicand)
 
   /* fltSqrt */
     logFunction(printf("fltSqrt(" FMT_E ")\n", radicand););
+#if !SQRT_OF_NAN_OKAY
+    if (unlikely(os_isnan(radicand))) {
+      squareRoot = NOT_A_NUMBER;
+    } else
+#endif
+#if !SQRT_OF_NEGATIVE_OKAY
     if (radicand < 0.0) {
       squareRoot = NOT_A_NUMBER;
-    } else {
+    } else
+#endif
+    {
       squareRoot = sqrt(radicand);
     } /* if */
     logFunction(printf("fltSqrt(" FMT_E ") --> " FMT_E "\n",

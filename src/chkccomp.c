@@ -1871,6 +1871,92 @@ static void numericProperties (FILE *versionFile)
             "int main(int argc,char *argv[]){\n"
             "%s\n"
             "printf(\"%%d\\n\",\n"
+            "    !(floatNanValue1 == floatNanValue2 ||\n"
+            "      floatNanValue1 <  floatNanValue2 ||\n"
+            "      floatNanValue1 >  floatNanValue2 ||\n"
+            "      floatNanValue1 <= floatNanValue2 ||\n"
+            "      floatNanValue1 >= floatNanValue2 ||\n"
+            "      floatNanValue1 == 0.0 ||\n"
+            "      floatNanValue1 <  0.0 ||\n"
+            "      floatNanValue1 >  0.0 ||\n"
+            "      floatNanValue1 <= 0.0 ||\n"
+            "      floatNanValue1 >= 0.0 ||\n"
+            "      0.0 == floatNanValue2 ||\n"
+            "      0.0 <  floatNanValue2 ||\n"
+            "      0.0 >  floatNanValue2 ||\n"
+            "      0.0 <= floatNanValue2 ||\n"
+            "      0.0 >= floatNanValue2 ||\n"
+            "      doubleNanValue1 == doubleNanValue2 ||\n"
+            "      doubleNanValue1 <  doubleNanValue2 ||\n"
+            "      doubleNanValue1 >  doubleNanValue2 ||\n"
+            "      doubleNanValue1 <= doubleNanValue2 ||\n"
+            "      doubleNanValue1 >= doubleNanValue2 ||\n"
+            "      doubleNanValue1 == 0.0 ||\n"
+            "      doubleNanValue1 <  0.0 ||\n"
+            "      doubleNanValue1 >  0.0 ||\n"
+            "      doubleNanValue1 <= 0.0 ||\n"
+            "      doubleNanValue1 >= 0.0 ||\n"
+            "      0.0 == doubleNanValue2 ||\n"
+            "      0.0 <  doubleNanValue2 ||\n"
+            "      0.0 >  doubleNanValue2 ||\n"
+            "      0.0 <= doubleNanValue2 ||\n"
+            "      0.0 >= doubleNanValue2));\n"
+            "return 0;}\n",
+            os_isnan_definition, computeValues);
+    fprintf(versionFile, "#define FLOAT_NAN_COMPARISON_OKAY %d\n",
+        compileAndLinkWithOptionsOk(buffer, "", "") && doTest() == 1);
+    sprintf(buffer,
+            "#include<stdio.h>\n#include<float.h>\n#include<math.h>\n"
+            "%s\n"
+            "int main(int argc,char *argv[]){\n"
+            "%s\n"
+            "printf(\"%%d\\n\",\n"
+            "       0.0 == -0.0  &&\n"
+            "    !( 0.0 != -0.0) &&\n"
+            "    !( 0.0 <  -0.0) &&\n"
+            "    !( 0.0 >  -0.0) &&\n"
+            "       0.0 >= -0.0  &&\n"
+            "       0.0 <= -0.0  &&\n"
+            "      -0.0 ==  0.0  &&\n"
+            "    !(-0.0 !=  0.0) &&\n"
+            "    !(-0.0 <   0.0) &&\n"
+            "    !(-0.0 >   0.0) &&\n"
+            "      -0.0 >=  0.0  &&\n"
+            "      -0.0 <=  0.0  &&\n"
+            "       floatZero == floatNegativeZero  &&\n"
+            "    !( floatZero != floatNegativeZero) &&\n"
+            "    !( floatZero <  floatNegativeZero) &&\n"
+            "    !( floatZero >  floatNegativeZero) &&\n"
+            "       floatZero >= floatNegativeZero  &&\n"
+            "       floatZero <= floatNegativeZero  &&\n"
+            "      floatNegativeZero ==  floatZero  &&\n"
+            "    !(floatNegativeZero !=  floatZero) &&\n"
+            "    !(floatNegativeZero <   floatZero) &&\n"
+            "    !(floatNegativeZero >   floatZero) &&\n"
+            "      floatNegativeZero >=  floatZero  &&\n"
+            "      floatNegativeZero <=  floatZero  &&\n"
+            "       doubleZero == doubleNegativeZero  &&\n"
+            "    !( doubleZero != doubleNegativeZero) &&\n"
+            "    !( doubleZero <  doubleNegativeZero) &&\n"
+            "    !( doubleZero >  doubleNegativeZero) &&\n"
+            "       doubleZero >= doubleNegativeZero  &&\n"
+            "       doubleZero <= doubleNegativeZero  &&\n"
+            "      doubleNegativeZero ==  doubleZero  &&\n"
+            "    !(doubleNegativeZero !=  doubleZero) &&\n"
+            "    !(doubleNegativeZero <   doubleZero) &&\n"
+            "    !(doubleNegativeZero >   doubleZero) &&\n"
+            "      doubleNegativeZero >=  doubleZero  &&\n"
+            "      doubleNegativeZero <=  doubleZero);\n"
+            "return 0;}\n",
+            os_isnan_definition, computeValues);
+    fprintf(versionFile, "#define FLOAT_ZERO_COMPARISON_OKAY %d\n",
+        compileAndLinkWithOptionsOk(buffer, "", "") && doTest() == 1);
+    sprintf(buffer,
+            "#include<stdio.h>\n#include<float.h>\n#include<math.h>\n"
+            "%s\n"
+            "int main(int argc,char *argv[]){\n"
+            "%s\n"
+            "printf(\"%%d\\n\",\n"
             "       exp(0.0) == 1.0 &&\n"
             "       exp(floatZero) == 1.0 &&\n"
             "       exp(floatNegativeZero) == 1.0 &&\n"
@@ -1943,6 +2029,69 @@ static void numericProperties (FILE *versionFile)
             "#include<stdio.h>\n#include<float.h>\n#include<math.h>\n"
             "%s\n"
             "int main(int argc,char *argv[]){\n"
+            "%s\n"
+            "printf(\"%%d\\n\",\n"
+            "       os_isnan(sqrt(floatNanValue1)) &&\n"
+            "       os_isnan(sqrt(doubleNanValue1)));\n"
+            "return 0;}\n",
+            os_isnan_definition, computeValues);
+    fprintf(versionFile, "#define SQRT_OF_NAN_OKAY %d\n",
+        compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS) && doTest() == 1);
+    sprintf(buffer,
+            "#include<stdio.h>\n#include<float.h>\n#include<math.h>\n"
+            "%s\n"
+            "int main(int argc,char *argv[]){\n"
+            "float floatMinusOne = -1.0;\n"
+            "float floatMinusTwo = -2.0;\n"
+            "double doubleMinusOne = -1.0;\n"
+            "double doubleMinusTwo = -2.0;\n"
+            "%s\n"
+            "printf(\"%%d\\n\",\n"
+            "       os_isnan(sqrt(doubleMinusInf)) &&\n"
+            "       os_isnan(sqrt(floatMinusInf)) &&\n"
+            "       os_isnan(sqrt(-1.7976931348623157e308)) &&\n"			
+            "       os_isnan(sqrt(-3.4028234664e38)) &&\n"
+            "       os_isnan(sqrt(-2.0)) &&\n"
+            "       os_isnan(sqrt(-1.5)) &&\n"
+            "       os_isnan(sqrt(-1.0)) &&\n"
+            "       os_isnan(sqrt(-0.5)) &&\n"
+            "       os_isnan(sqrt(floatMinusTwo)) &&\n"
+            "       os_isnan(sqrt(doubleMinusTwo)) &&\n"
+            "       os_isnan(sqrt(floatMinusOne)) &&\n"
+            "       os_isnan(sqrt(doubleMinusOne)));\n"
+            "return 0;}\n",
+            os_isnan_definition, computeValues);
+    fprintf(versionFile, "#define SQRT_OF_NEGATIVE_OKAY %d\n",
+        compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS) && doTest() == 1);
+    sprintf(buffer,
+            "#include<stdio.h>\n#include<float.h>\n#include<math.h>\n"
+            "%s\n"
+            "int main(int argc,char *argv[]){\n"
+            "%s\n"
+            "printf(\"%%d\\n\",\n"
+            "       os_isnan(exp(floatNanValue1)) &&\n"
+            "       os_isnan(exp(doubleNanValue1)));\n"
+            "return 0;}\n",
+            os_isnan_definition, computeValues);
+    fprintf(versionFile, "#define EXP_OF_NAN_OKAY %d\n",
+        compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS) && doTest() == 1);
+    sprintf(buffer,
+            "#include<stdio.h>\n#include<float.h>\n#include<math.h>\n"
+            "%s\n"
+            "int main(int argc,char *argv[]){\n"
+            "%s\n"
+            "printf(\"%%d\\n\",\n"
+            "       os_isnan(ldexp(doubleNanValue1, -1000)) &&\n"
+            "       os_isnan(ldexp(doubleNanValue1,  0)) &&\n"
+            "       os_isnan(ldexp(doubleNanValue1, 1000)));\n"
+            "return 0;}\n",
+            os_isnan_definition, computeValues);
+    fprintf(versionFile, "#define LDEXP_OF_NAN_OKAY %d\n",
+        compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS) && doTest() == 1);
+    sprintf(buffer,
+            "#include<stdio.h>\n#include<float.h>\n#include<math.h>\n"
+            "%s\n"
+            "int main(int argc,char *argv[]){\n"
             "int exponent1 = 999999;\n"
             "int exponent2 = 999999;\n"
             "int exponent3 = 999999;\n"
@@ -1969,6 +2118,104 @@ static void numericProperties (FILE *versionFile)
             os_isnan_definition, computeValues);
     fprintf(versionFile, "#define FREXP_INFINITY_NAN_OKAY %d\n",
             compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS) ? doTest() : 0);
+    sprintf(buffer,
+            "#include<stdio.h>\n#include<float.h>\n#include<math.h>\n"
+            "int main(int argc,char *argv[]){\n"
+            "int exponent1 = 999999;\n"
+            "int exponent2 = 999999;\n"
+            "int frexp_okay = 1;\n"
+            "if (frexp(5.0e-324,                &exponent1) != 0.5 ||\n"
+            "    frexp(2.2250738585072009e-308, &exponent2) != 0.9999999999999998) {\n"
+            "  frexp_okay = 0;\n"
+            "}\n"
+            "if (exponent1 != -1073 || exponent2 != -1022) {\n"
+            "  frexp_okay = 0;\n"
+            "}\n"
+            "printf(\"%%d\\n\", frexp_okay);\n"
+            "return 0;}\n");
+    fprintf(versionFile, "#define FREXP_SUBNORMAL_OKAY %d\n",
+            compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS) ? doTest() : 0);
+    sprintf(buffer,
+            "#include<stdio.h>\n#include<float.h>\n#include<math.h>\n"
+            "%s\n"
+            "int main(int argc,char *argv[]){\n"
+            "%s\n"
+            "printf(\"%%d\\n\",\n"
+            "       os_isnan(fmod(doubleNanValue1, -13.25)) &&\n"
+            "       os_isnan(fmod(doubleNanValue1, 13.25)) &&\n"
+            "       os_isnan(fmod(doubleNanValue1, doubleMinusInf)) &&\n"
+            "       os_isnan(fmod(doubleNanValue1, doublePlusInf)) &&\n"
+            "       os_isnan(fmod(doubleNanValue1, doubleNanValue1)));\n"
+            "return 0;}\n",
+            os_isnan_definition, computeValues);
+    fprintf(versionFile, "#define FMOD_DIVIDEND_NAN_OKAY %d\n",
+        compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS) && doTest() == 1);
+    sprintf(buffer,
+            "#include<stdio.h>\n#include<float.h>\n#include<math.h>\n"
+            "%s\n"
+            "int main(int argc,char *argv[]){\n"
+            "%s\n"
+            "printf(\"%%d\\n\",\n"
+            "       os_isnan(fmod(-31.125, doubleNanValue1)) &&\n"
+            "       os_isnan(fmod(31.125, doubleNanValue1)) &&\n"
+            "       os_isnan(fmod(doubleMinusInf, doubleNanValue1)) &&\n"
+            "       os_isnan(fmod(doublePlusInf, doubleNanValue1)) &&\n"
+            "       os_isnan(fmod(doubleNanValue1, doubleNanValue1)));\n"
+            "return 0;}\n",
+            os_isnan_definition, computeValues);
+    fprintf(versionFile, "#define FMOD_DIVISOR_NAN_OKAY %d\n",
+        compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS) && doTest() == 1);
+    sprintf(buffer,
+            "#include<stdio.h>\n#include<float.h>\n#include<math.h>\n"
+            "%s\n"
+            "int main(int argc,char *argv[]){\n"
+            "%s\n"
+            "printf(\"%%d\\n\",\n"
+            "       os_isnan(fmod(doubleMinusInf, -13.25)) &&\n"
+            "       os_isnan(fmod(doublePlusInf, -13.25)) &&\n"
+            "       os_isnan(fmod(doubleMinusInf, 13.25)) &&\n"
+            "       os_isnan(fmod(doublePlusInf, 13.25)) &&\n"
+            "       os_isnan(fmod(doubleMinusInf, doubleMinusInf)) &&\n"
+            "       os_isnan(fmod(doubleMinusInf, doublePlusInf)) &&\n"
+            "       os_isnan(fmod(doublePlusInf, doubleMinusInf)) &&\n"
+            "       os_isnan(fmod(doublePlusInf, doublePlusInf)));\n"
+            "return 0;}\n",
+            os_isnan_definition, computeValues);
+    fprintf(versionFile, "#define FMOD_DIVIDEND_INFINITY_OKAY %d\n",
+        compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS) && doTest() == 1);
+    sprintf(buffer,
+            "#include<stdio.h>\n#include<float.h>\n#include<math.h>\n"
+            "%s\n"
+            "int main(int argc,char *argv[]){\n"
+            "%s\n"
+            "printf(\"%%d\\n\",\n"
+            "       fmod(-31.125, doubleMinusInf) == -31.125 &&\n"
+            "       fmod(-31.125, doublePlusInf) == -31.125 &&\n"
+            "       fmod(31.125, doubleMinusInf) == 31.125 &&\n"
+            "       fmod(31.125, doublePlusInf) == 31.125 &&\n"
+            "       os_isnan(fmod(doubleMinusInf, doubleMinusInf)) &&\n"
+            "       os_isnan(fmod(doubleMinusInf, doublePlusInf)) &&\n"
+            "       os_isnan(fmod(doublePlusInf, doubleMinusInf)) &&\n"
+            "       os_isnan(fmod(doublePlusInf, doublePlusInf)));\n"
+            "return 0;}\n",
+            os_isnan_definition, computeValues);
+    fprintf(versionFile, "#define FMOD_DIVISOR_INFINITY_OKAY %d\n",
+        compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS) && doTest() == 1);
+    sprintf(buffer,
+            "#include<stdio.h>\n#include<float.h>\n#include<math.h>\n"
+            "%s\n"
+            "int main(int argc,char *argv[]){\n"
+            "%s\n"
+            "printf(\"%%d\\n\",\n"
+            "       os_isnan(fmod(-31.125, 0.0)) &&\n"
+            "       os_isnan(fmod(0.0, 0.0)) &&\n"
+            "       os_isnan(fmod(31.125, 0.0)) &&\n"
+            "       os_isnan(fmod(doubleMinusInf, 0.0)) &&\n"
+            "       os_isnan(fmod(doublePlusInf, 0.0)));\n"
+            "return 0;}\n",
+            os_isnan_definition, computeValues);
+    fprintf(versionFile, "#define FMOD_DIVISOR_ZERO_OKAY %d\n",
+        compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS) && doTest() == 1);
     sprintf(buffer,
             "#include<stdio.h>\n#include<string.h>\n"
             "#include<float.h>\n#include<math.h>\n"
@@ -1998,37 +2245,6 @@ static void numericProperties (FILE *versionFile)
             "    0.0 * doubleMinusInf != doubleNanValue1 ||\n"
             "    doublePlusInf * 0.0 != doubleNanValue1 ||\n"
             "    doubleMinusInf * 0.0 != doubleNanValue1);\n"
-            "printf(\"#define NAN_COMPARISON_OKAY %%d\\n\",\n"
-            "    !(floatNanValue1 == floatNanValue2 ||\n"
-            "      floatNanValue1 <  floatNanValue2 ||\n"
-            "      floatNanValue1 >  floatNanValue2 ||\n"
-            "      floatNanValue1 <= floatNanValue2 ||\n"
-            "      floatNanValue1 >= floatNanValue2 ||\n"
-            "      floatNanValue1 == 0.0 ||\n"
-            "      floatNanValue1 <  0.0 ||\n"
-            "      floatNanValue1 >  0.0 ||\n"
-            "      floatNanValue1 <= 0.0 ||\n"
-            "      floatNanValue1 >= 0.0 ||\n"
-            "      0.0 == floatNanValue2 ||\n"
-            "      0.0 <  floatNanValue2 ||\n"
-            "      0.0 >  floatNanValue2 ||\n"
-            "      0.0 <= floatNanValue2 ||\n"
-            "      0.0 >= floatNanValue2 ||\n"
-            "      doubleNanValue1 == doubleNanValue2 ||\n"
-            "      doubleNanValue1 <  doubleNanValue2 ||\n"
-            "      doubleNanValue1 >  doubleNanValue2 ||\n"
-            "      doubleNanValue1 <= doubleNanValue2 ||\n"
-            "      doubleNanValue1 >= doubleNanValue2 ||\n"
-            "      doubleNanValue1 == 0.0 ||\n"
-            "      doubleNanValue1 <  0.0 ||\n"
-            "      doubleNanValue1 >  0.0 ||\n"
-            "      doubleNanValue1 <= 0.0 ||\n"
-            "      doubleNanValue1 >= 0.0 ||\n"
-            "      0.0 == doubleNanValue2 ||\n"
-            "      0.0 <  doubleNanValue2 ||\n"
-            "      0.0 >  doubleNanValue2 ||\n"
-            "      0.0 <= doubleNanValue2 ||\n"
-            "      0.0 >= doubleNanValue2));\n"
             "printf(\"#define NAN_MULTIPLICATION_OKAY %%d\\n\",\n"
             "    os_isnan(floatNanValue1 * 1.0) &&\n"
             "    os_isnan(floatNanValue1 * floatOne) &&\n"
@@ -2045,11 +2261,15 @@ static void numericProperties (FILE *versionFile)
             "    os_isnan(floatNanValue1 / floatOne) &&\n"
             "    os_isnan(1.0 / floatNanValue1) &&\n"
             "    os_isnan(floatOne / floatNanValue1) &&\n"
+            "    os_isnan(floatMinusInf / floatNanValue1) &&\n"
+            "    os_isnan(floatPlusInf / floatNanValue1) &&\n"
             "    os_isnan(floatNanValue1 / floatNanValue2) &&\n"
             "    os_isnan(doubleNanValue1 / 1.0) &&\n"
             "    os_isnan(doubleNanValue1 / doubleOne) &&\n"
             "    os_isnan(1.0 / doubleNanValue1) &&\n"
             "    os_isnan(doubleOne / doubleNanValue1) &&\n"
+            "    os_isnan(doubleMinusInf / doubleNanValue1) &&\n"
+            "    os_isnan(doublePlusInf / doubleNanValue1) &&\n"
             "    os_isnan(doubleNanValue1 / doubleNanValue2));\n"
             "printf(\"#define MAX_ODD_FLOAT %%0.1f\\n\", getMaxOddFloat(FLT_MANT_DIG));\n"
             "printf(\"#define MAX_ODD_DOUBLE %%0.1f\\n\", getMaxOddFloat(DBL_MANT_DIG));\n"
@@ -2102,11 +2322,6 @@ static void numericProperties (FILE *versionFile)
             "printf(\"#define POW_UNDERFLOW_WITH_SIGN %%d\\n\",\n"
             "    doubleCompare(pow(-2.0, -2147483649.0), doubleNegativeZero) == 0 &&\n"
             "    doubleCompare(pow(-doubleTwo, -2147483649.0), doubleNegativeZero) == 0);\n"
-            "printf(\"#define SQRT_FUNCTION_OKAY %%d\\n\",\n"
-            "    os_isnan(sqrt(-2.0)) &&\n"
-            "    os_isnan(sqrt(-1.5)) &&\n"
-            "    os_isnan(sqrt(-1.0)) &&\n"
-            "    os_isnan(sqrt(-0.5)));\n"
             "printf(\"#define LOG_OF_NAN_OKAY %%d\\n\",\n"
             "    os_isnan(log(floatNanValue1)) &&\n"
             "    os_isnan(log(doubleNanValue1)));\n"

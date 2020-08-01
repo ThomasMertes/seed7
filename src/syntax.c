@@ -48,6 +48,9 @@
 #include "findid.h"
 #include "expr.h"
 #include "object.h"
+#if ANY_LOG_ACTIVE
+#include "traceutl.h"
+#endif
 
 #undef EXTERN
 #define EXTERN

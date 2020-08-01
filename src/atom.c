@@ -50,6 +50,9 @@
 #include "error.h"
 #include "stat.h"
 #include "infile.h"
+#if ANY_LOG_ACTIVE
+#include "traceutl.h"
+#endif
 
 #undef EXTERN
 #define EXTERN

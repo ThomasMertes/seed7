@@ -26,6 +26,7 @@ $ include "seed7_05.s7i";
   include "stdio.s7i";
   include "float.s7i";
   include "math.s7i";
+  include "bin64.s7i";
 
 
 const float: FLOAT_MIN is 2.22507385850720138309e-308;
@@ -86,6 +87,279 @@ const func boolean: raisesRangeError (ref func integer: expression) is func
       catch RANGE_ERROR:
         raisesRangeError := TRUE;
     end block;
+  end func;
+
+
+const proc: check_literal is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if  bin64(          0.0) <> bin64(16#0000000000000000) or
+        bin64(         -0.0) <> bin64(16#8000000000000000_) or
+        bin64(          1.0) <> bin64(16#3ff0000000000000) or
+        bin64(         -1.0) <> bin64(16#bff0000000000000_) or
+        bin64( 123.456000000000000000000000000000000) <> bin64(16#405edd2f1a9fbe77) or
+        bin64(+123.456000000000000000000000000000000) <> bin64(16#405edd2f1a9fbe77) or
+        bin64(-123.456000000000000000000000000000000) <> bin64(16#c05edd2f1a9fbe77_) or
+        bin64( 0.00000000000000000000000000000000001) <> bin64(16#38aa95a5b7f87a0f) or
+        bin64(+0.00000000000000000000000000000000001) <> bin64(16#38aa95a5b7f87a0f) or
+        bin64(-0.00000000000000000000000000000000001) <> bin64(16#b8aa95a5b7f87a0f_) or
+        bin64( 00000000000000000000000000000000000.5) <> bin64(16#3fe0000000000000) or
+        bin64(+00000000000000000000000000000000000.5) <> bin64(16#3fe0000000000000) or
+        bin64(-00000000000000000000000000000000000.5) <> bin64(16#bfe0000000000000_) or
+        bin64( 9007199254740991.0) <> bin64(16#433fffffffffffff) or
+        bin64(-9007199254740991.0) <> bin64(16#c33fffffffffffff_) then
+      writeln(" ***** Float literals do not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  bin64(                              1.0) <> bin64(16#3ff0000000000000) or
+        bin64(                              2.0) <> bin64(16#4000000000000000) or
+        bin64(                              4.0) <> bin64(16#4010000000000000) or
+        bin64(                              8.0) <> bin64(16#4020000000000000) or
+        bin64(                             16.0) <> bin64(16#4030000000000000) or
+        bin64(                             32.0) <> bin64(16#4040000000000000) or
+        bin64(                             64.0) <> bin64(16#4050000000000000) or
+        bin64(                            128.0) <> bin64(16#4060000000000000) or
+        bin64(                            256.0) <> bin64(16#4070000000000000) or
+        bin64(                            512.0) <> bin64(16#4080000000000000) or
+        bin64(                           1024.0) <> bin64(16#4090000000000000) or
+        bin64(                           2048.0) <> bin64(16#40a0000000000000) or
+        bin64(                           4096.0) <> bin64(16#40b0000000000000) or
+        bin64(                           8192.0) <> bin64(16#40c0000000000000) or
+        bin64(                          16384.0) <> bin64(16#40d0000000000000) or
+        bin64(                          32768.0) <> bin64(16#40e0000000000000) or
+        bin64(                          65536.0) <> bin64(16#40f0000000000000) or
+        bin64(                         131072.0) <> bin64(16#4100000000000000) or
+        bin64(                         262144.0) <> bin64(16#4110000000000000) or
+        bin64(                         524288.0) <> bin64(16#4120000000000000) or
+        bin64(                        1048576.0) <> bin64(16#4130000000000000) or
+        bin64(                        2097152.0) <> bin64(16#4140000000000000) or
+        bin64(                        4194304.0) <> bin64(16#4150000000000000) or
+        bin64(                        8388608.0) <> bin64(16#4160000000000000) or
+        bin64(                       16777216.0) <> bin64(16#4170000000000000) or
+        bin64(                       33554432.0) <> bin64(16#4180000000000000) or
+        bin64(                       67108864.0) <> bin64(16#4190000000000000) or
+        bin64(                      134217728.0) <> bin64(16#41a0000000000000) or
+        bin64(                      268435456.0) <> bin64(16#41b0000000000000) or
+        bin64(                      536870912.0) <> bin64(16#41c0000000000000) or
+        bin64(                     1073741824.0) <> bin64(16#41d0000000000000) or
+        bin64(                     2147483648.0) <> bin64(16#41e0000000000000) or
+        bin64(                     4294967296.0) <> bin64(16#41f0000000000000) or
+        bin64(                     8589934592.0) <> bin64(16#4200000000000000) or
+        bin64(                    17179869184.0) <> bin64(16#4210000000000000) or
+        bin64(                    34359738368.0) <> bin64(16#4220000000000000) or
+        bin64(                    68719476736.0) <> bin64(16#4230000000000000) or
+        bin64(                   137438953472.0) <> bin64(16#4240000000000000) or
+        bin64(                   274877906944.0) <> bin64(16#4250000000000000) or
+        bin64(                   549755813888.0) <> bin64(16#4260000000000000) or
+        bin64(                  1099511627776.0) <> bin64(16#4270000000000000) or
+        bin64(                  2199023255552.0) <> bin64(16#4280000000000000) or
+        bin64(                  4398046511104.0) <> bin64(16#4290000000000000) or
+        bin64(                  8796093022208.0) <> bin64(16#42a0000000000000) or
+        bin64(                 17592186044416.0) <> bin64(16#42b0000000000000) or
+        bin64(                 35184372088832.0) <> bin64(16#42c0000000000000) or
+        bin64(                 70368744177664.0) <> bin64(16#42d0000000000000) or
+        bin64(                140737488355328.0) <> bin64(16#42e0000000000000) or
+        bin64(                281474976710656.0) <> bin64(16#42f0000000000000) or
+        bin64(                562949953421312.0) <> bin64(16#4300000000000000) or
+        bin64(               1125899906842624.0) <> bin64(16#4310000000000000) or
+        bin64(               2251799813685248.0) <> bin64(16#4320000000000000) or
+        bin64(               4503599627370496.0) <> bin64(16#4330000000000000) or
+        bin64(               9007199254740992.0) <> bin64(16#4340000000000000) or
+        bin64(              18014398509481984.0) <> bin64(16#4350000000000000) or
+        bin64(              36028797018963968.0) <> bin64(16#4360000000000000) or
+        bin64(              72057594037927936.0) <> bin64(16#4370000000000000) or
+        bin64(             144115188075855872.0) <> bin64(16#4380000000000000) or
+        bin64(             288230376151711744.0) <> bin64(16#4390000000000000) or
+        bin64(             576460752303423488.0) <> bin64(16#43a0000000000000) or
+        bin64(            1152921504606846976.0) <> bin64(16#43b0000000000000) or
+        bin64(            2305843009213693952.0) <> bin64(16#43c0000000000000) or
+        bin64(            4611686018427387904.0) <> bin64(16#43d0000000000000) or
+        bin64(            9223372036854775808.0) <> bin64(16#43e0000000000000) or
+        bin64(           18446744073709551616.0) <> bin64(16#43f0000000000000) or
+        bin64(           36893488147419103232.0) <> bin64(16#4400000000000000) or
+        bin64(           73786976294838206464.0) <> bin64(16#4410000000000000) or
+        bin64(          147573952589676412928.0) <> bin64(16#4420000000000000) or
+        bin64(          295147905179352825856.0) <> bin64(16#4430000000000000) or
+        bin64(          590295810358705651712.0) <> bin64(16#4440000000000000) or
+        bin64(         1180591620717411303424.0) <> bin64(16#4450000000000000) or
+        bin64(         2361183241434822606848.0) <> bin64(16#4460000000000000) or
+        bin64(         4722366482869645213696.0) <> bin64(16#4470000000000000) or
+        bin64(         9444732965739290427392.0) <> bin64(16#4480000000000000) or
+        bin64(        18889465931478580854784.0) <> bin64(16#4490000000000000) or
+        bin64(        37778931862957161709568.0) <> bin64(16#44a0000000000000) or
+        bin64(        75557863725914323419136.0) <> bin64(16#44b0000000000000) or
+        bin64(       151115727451828646838272.0) <> bin64(16#44c0000000000000) or
+        bin64(       302231454903657293676544.0) <> bin64(16#44d0000000000000) or
+        bin64(       604462909807314587353088.0) <> bin64(16#44e0000000000000) or
+        bin64(      1208925819614629174706176.0) <> bin64(16#44f0000000000000) or
+        bin64(      2417851639229258349412352.0) <> bin64(16#4500000000000000) or
+        bin64(      4835703278458516698824704.0) <> bin64(16#4510000000000000) or
+        bin64(      9671406556917033397649408.0) <> bin64(16#4520000000000000) or
+        bin64(     19342813113834066795298816.0) <> bin64(16#4530000000000000) or
+        bin64(     38685626227668133590597632.0) <> bin64(16#4540000000000000) or
+        bin64(     77371252455336267181195264.0) <> bin64(16#4550000000000000) or
+        bin64(     15474250491067253436239052.0) <> bin64(16#452999999999999a) or
+        bin64(     30948500982134506872478105.0) <> bin64(16#453999999999999a) or
+        bin64(    618970019642690137449562112.0) <> bin64(16#4580000000000000) or
+        bin64(   1237940039285380274899124224.0) <> bin64(16#4590000000000000) or
+        bin64(   2475880078570760549798248448.0) <> bin64(16#45a0000000000000) or
+        bin64(   4951760157141521099596496896.0) <> bin64(16#45b0000000000000) or
+        bin64(   9903520314283042199192993792.0) <> bin64(16#45c0000000000000) or
+        bin64(  19807040628566084398385987584.0) <> bin64(16#45d0000000000000) or
+        bin64(  39614081257132168796771975168.0) <> bin64(16#45e0000000000000) or
+        bin64(  79228162514264337593543950336.0) <> bin64(16#45f0000000000000) or
+        bin64( 158456325028528675187087900672.0) <> bin64(16#4600000000000000) or
+        bin64( 316912650057057350374175801344.0) <> bin64(16#4610000000000000) or
+        bin64( 633825300114114700748351602688.0) <> bin64(16#4620000000000000) or
+        bin64(1267650600228229401496703205376.0) <> bin64(16#4630000000000000) then
+      writeln(" ***** Float literals with power of two do not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    if  bin64(0.5)                               <> bin64(16#3fe0000000000000) or
+        bin64(0.25)                              <> bin64(16#3fd0000000000000) or
+        bin64(0.125)                             <> bin64(16#3fc0000000000000) or
+        bin64(0.0625)                            <> bin64(16#3fb0000000000000) or
+        bin64(0.03125)                           <> bin64(16#3fa0000000000000) or
+        bin64(0.015625)                          <> bin64(16#3f90000000000000) or
+        bin64(0.0078125)                         <> bin64(16#3f80000000000000) or
+        bin64(0.00390625)                        <> bin64(16#3f70000000000000) or
+        bin64(0.001953125)                       <> bin64(16#3f60000000000000) or
+        bin64(0.0009765625)                      <> bin64(16#3f50000000000000) or
+        bin64(0.00048828125)                     <> bin64(16#3f40000000000000) or
+        bin64(0.000244140625)                    <> bin64(16#3f30000000000000) or
+        bin64(0.0001220703125)                   <> bin64(16#3f20000000000000) or
+        bin64(0.00006103515625)                  <> bin64(16#3f10000000000000) or
+        bin64(0.000030517578125)                 <> bin64(16#3f00000000000000) or
+        bin64(0.0000152587890625)                <> bin64(16#3ef0000000000000) or
+        bin64(0.00000762939453125)               <> bin64(16#3ee0000000000000) or
+        bin64(0.000003814697265625)              <> bin64(16#3ed0000000000000) or
+        bin64(0.0000019073486328125)             <> bin64(16#3ec0000000000000) or
+        bin64(0.00000095367431640625)            <> bin64(16#3eb0000000000000) or
+        bin64(0.000000476837158203125)           <> bin64(16#3ea0000000000000) or
+        bin64(0.0000002384185791015625)          <> bin64(16#3e90000000000000) or
+        bin64(0.00000011920928955078125)         <> bin64(16#3e80000000000000) or
+        bin64(0.000000059604644775390625)        <> bin64(16#3e70000000000000) or
+        bin64(0.0000000298023223876953125)       <> bin64(16#3e60000000000000) or
+        bin64(0.00000001490116119384765625)      <> bin64(16#3e50000000000000) or
+        bin64(0.000000007450580596923828125)     <> bin64(16#3e40000000000000) or
+        bin64(0.0000000037252902984619140625)    <> bin64(16#3e30000000000000) or
+        bin64(0.00000000186264514923095703125)   <> bin64(16#3e20000000000000) or
+        bin64(0.000000000931322574615478515625)  <> bin64(16#3e10000000000000) or
+        bin64(0.0000000004656612873077392578125) <> bin64(16#3e00000000000000) or
+        bin64(0.00000000023283064365386962890625)                                            <> bin64(16#3df0000000000000) or
+        bin64(0.000000000116415321826934814453125)                                           <> bin64(16#3de0000000000000) or
+        bin64(0.0000000000582076609134674072265625)                                          <> bin64(16#3dd0000000000000) or
+        bin64(0.00000000002910383045673370361328125)                                         <> bin64(16#3dc0000000000000) or
+        bin64(0.000000000014551915228366851806640625)                                        <> bin64(16#3db0000000000000) or
+        bin64(0.0000000000072759576141834259033203125)                                       <> bin64(16#3da0000000000000) or
+        bin64(0.00000000000363797880709171295166015625)                                      <> bin64(16#3d90000000000000) or
+        bin64(0.000000000001818989403545856475830078125)                                     <> bin64(16#3d80000000000000) or
+        bin64(0.0000000000009094947017729282379150390625)                                    <> bin64(16#3d70000000000000) or
+        bin64(0.00000000000045474735088646411895751953125)                                   <> bin64(16#3d60000000000000) or
+        bin64(0.000000000000227373675443232059478759765625)                                  <> bin64(16#3d50000000000000) or
+        bin64(0.0000000000001136868377216160297393798828125)                                 <> bin64(16#3d40000000000000) or
+        bin64(0.00000000000005684341886080801486968994140625)                                <> bin64(16#3d30000000000000) or
+        bin64(0.000000000000028421709430404007434844970703125)                               <> bin64(16#3d20000000000000) or
+        bin64(0.0000000000000142108547152020037174224853515625)                              <> bin64(16#3d10000000000000) or
+        bin64(0.00000000000000710542735760100185871124267578125)                             <> bin64(16#3d00000000000000) or
+        bin64(0.000000000000003552713678800500929355621337890625)                            <> bin64(16#3cf0000000000000) or
+        bin64(0.0000000000000017763568394002504646778106689453125)                           <> bin64(16#3ce0000000000000) or
+        bin64(0.00000000000000088817841970012523233890533447265625)                          <> bin64(16#3cd0000000000000) or
+        bin64(0.000000000000000444089209850062616169452667236328125)                         <> bin64(16#3cc0000000000000) or
+        bin64(0.0000000000000002220446049250313080847263336181640625)                        <> bin64(16#3cb0000000000000) or
+        bin64(0.00000000000000011102230246251565404236316680908203125)                       <> bin64(16#3ca0000000000000) or
+        bin64(0.000000000000000055511151231257827021181583404541015625)                      <> bin64(16#3c90000000000000) or
+        bin64(0.0000000000000000277555756156289135105907917022705078125)                     <> bin64(16#3c80000000000000) or
+        bin64(0.00000000000000001387778780781445675529539585113525390625)                    <> bin64(16#3c70000000000000) or
+        bin64(0.000000000000000006938893903907228377647697925567626953125)                   <> bin64(16#3c60000000000000) or
+        bin64(0.0000000000000000034694469519536141888238489627838134765625)                  <> bin64(16#3c50000000000000) or
+        bin64(0.00000000000000000173472347597680709441192448139190673828125)                 <> bin64(16#3c40000000000000) or
+        bin64(0.000000000000000000867361737988403547205962240695953369140625)                <> bin64(16#3c30000000000000) or
+        bin64(0.0000000000000000004336808689942017736029811203479766845703125)               <> bin64(16#3c20000000000000) or
+        bin64(0.00000000000000000021684043449710088680149056017398834228515625)              <> bin64(16#3c10000000000000) or
+        bin64(0.000000000000000000108420217248550443400745280086994171142578125)             <> bin64(16#3c00000000000000) or
+        bin64(0.0000000000000000000542101086242752217003726400434970855712890625)            <> bin64(16#3bf0000000000000) or
+        bin64(0.00000000000000000002710505431213761085018632002174854278564453125)           <> bin64(16#3be0000000000000) or
+        bin64(0.000000000000000000013552527156068805425093160010874271392822265625)          <> bin64(16#3bd0000000000000) or
+        bin64(0.0000000000000000000067762635780344027125465800054371356964111328125)         <> bin64(16#3bc0000000000000) or
+        bin64(0.00000000000000000000338813178901720135627329000271856784820556640625)        <> bin64(16#3bb0000000000000) or
+        bin64(0.000000000000000000001694065894508600678136645001359283924102783203125)       <> bin64(16#3ba0000000000000) or
+        bin64(0.0000000000000000000008470329472543003390683225006796419620513916015625)      <> bin64(16#3b90000000000000) or
+        bin64(0.00000000000000000000042351647362715016953416125033982098102569580078125)     <> bin64(16#3b80000000000000) or
+        bin64(0.000000000000000000000211758236813575084767080625169910490512847900390625)    <> bin64(16#3b70000000000000) or
+        bin64(0.0000000000000000000001058791184067875423835403125849552452564239501953125)   <> bin64(16#3b60000000000000) or
+        bin64(0.00000000000000000000005293955920339377119177015629247762262821197509765625)  <> bin64(16#3b50000000000000) or
+        bin64(0.000000000000000000000026469779601696885595885078146238811314105987548828125) <> bin64(16#3b40000000000000) then
+      writeln(" ***** Float literals with power of two do not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if  bin64(1.0e-324) <> bin64(16#0000000000000000) or
+        bin64(1.0e-323) <> bin64(16#0000000000000002) or
+        bin64(1.0e-322) <> bin64(16#0000000000000014) or
+        bin64(1.0e-321) <> bin64(16#00000000000000ca) or
+        bin64(1.0e-320) <> bin64(16#00000000000007e8) or
+        bin64(1.0e-315) <> bin64(16#000000000c1069cd) or
+        bin64(1.0e-310) <> bin64(16#000012688b70e62b) or
+      # bin64(1.0e-309) <> bin64(16#0000b8157268fdaf) or  # Problem with MSVC
+        bin64(1.0e-308) <> bin64(16#000730d67819e8d2) or
+        bin64(1.0e-307) <> bin64(16#0031fa182c40c60d) or
+        bin64(1.0e-300) <> bin64(16#01a56e1fc2f8f359) or
+        bin64(1.0e-275) <> bin64(16#06d62884f31e93ff) or
+        bin64(1.0e-250) <> bin64(16#0c06e93f5da2824c) or
+        bin64(1.0e-225) <> bin64(16#1137b08617a104ee) or
+        bin64(1.0e-200) <> bin64(16#16687e92154ef7ac) or
+        bin64(1.0e-175) <> bin64(16#1b99539e3a40dfb8) or
+        bin64(1.0e-150) <> bin64(16#20ca2fe76a3f9475) or
+        bin64(1.0e-125) <> bin64(16#25fb13ac9aaf4c0f) or
+        bin64(1.0e-101) <> bin64(16#2af665bf1d3e6a8d) or
+        bin64(1.0e-100) <> bin64(16#2b2bff2ee48e0530) or
+        bin64(1.0e-99 ) <> bin64(16#2b617f7d4ed8c33e) or
+        bin64(1.0e-75 ) <> bin64(16#305cf2b1970e7258) or
+        bin64(1.0e-50 ) <> bin64(16#358dee7a4ad4b81f) or
+        bin64(1.0e-25 ) <> bin64(16#3abef2d0f5da7dd9) or
+        bin64(1.0e-20 ) <> bin64(16#3bc79ca10c924223) or
+        bin64(1.0e-15 ) <> bin64(16#3cd203af9ee75616) or
+        bin64(1.0e-11 ) <> bin64(16#3da5fd7fe1796495) or
+        bin64(1.0e-10 ) <> bin64(16#3ddb7cdfd9d7bdbb) or
+        bin64(1.0e-9  ) <> bin64(16#3e112e0be826d695) or
+        bin64(1.0e-2  ) <> bin64(16#3f847ae147ae147b) or
+        bin64(1.0e-1  ) <> bin64(16#3fb999999999999a) or
+        bin64(1.0e0   ) <> bin64(16#3ff0000000000000) or
+        bin64(1.0e1   ) <> bin64(16#4024000000000000) or
+        bin64(1.0e2   ) <> bin64(16#4059000000000000) or
+        bin64(1.0e9   ) <> bin64(16#41cdcd6500000000) or
+        bin64(1.0e10  ) <> bin64(16#4202a05f20000000) or
+        bin64(1.0e11  ) <> bin64(16#42374876e8000000) or
+        bin64(1.0e15  ) <> bin64(16#430c6bf526340000) or
+        bin64(1.0e20  ) <> bin64(16#4415af1d78b58c40) or
+        bin64(1.0e25  ) <> bin64(16#45208b2a2c280291) or
+        bin64(1.0e50  ) <> bin64(16#4a511b0ec57e649a) or
+        bin64(1.0e75  ) <> bin64(16#4f81afd6ec0e1411) or
+        bin64(1.0e99  ) <> bin64(16#547d42aea2879f2e) or
+        bin64(1.0e100 ) <> bin64(16#54b249ad2594c37d) or
+        bin64(1.0e101 ) <> bin64(16#54e6dc186ef9f45c) or
+        bin64(1.0e125 ) <> bin64(16#59e2e8bd69aa19cc) or
+        bin64(1.0e150 ) <> bin64(16#5f138d352e5096af) or
+        bin64(1.0e175 ) <> bin64(16#6444374374f3c2c6) or
+        bin64(1.0e200 ) <> bin64(16#6974e718d7d7625a) or
+        bin64(1.0e225 ) <> bin64(16#6ea59ce797fb817f) or
+        bin64(1.0e250 ) <> bin64(16#73d658e3ab795204) or
+        bin64(1.0e275 ) <> bin64(16#79071b42cc5cf601) or
+        bin64(1.0e300 ) <> bin64(16#7e37e43c8800759c) or
+        bin64(1.0e307 ) <> bin64(16#7fac7b1f3cac7433) or
+      # bin64(1.0e308 ) <> bin64(16#7fe1ccf385ebc8a0) or  # Problem with BCC v5
+        bin64(1.0e309 ) <> bin64(16#7ff0000000000000) then
+      writeln(" ***** Float literals with exponent do not work correct.");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("Float literals work correct.");
+    end if;
   end func;
 
 
@@ -5107,11 +5381,860 @@ const proc: check_division is func
   end func;
 
 
+const proc: check_remainder is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if  not isNaN(      NaN rem       NaN)           or
+        not isNaN(      NaN rem -Infinity)           or
+        not isNaN(      NaN rem    -13.25)           or
+        not isNaN(      NaN rem     -1.0 )           or
+        not isNaN(      NaN rem     -0.75)           or
+        not isNaN(      NaN rem     -0.0 )           or
+        not isNaN(      NaN rem      0.0 )           or
+        not isNaN(      NaN rem      0.75)           or
+        not isNaN(      NaN rem      1.0 )           or
+        not isNaN(      NaN rem     13.25)           or
+        not isNaN(      NaN rem  Infinity)           or
+        not isNaN(-Infinity rem       NaN)           or
+        not isNaN(-Infinity rem -Infinity)           or
+        not isNaN(-Infinity rem    -13.25)           or
+        not isNaN(-Infinity rem     -1.0 )           or
+        not isNaN(-Infinity rem     -0.75)           or
+        not isNaN(-Infinity rem     -0.0 )           or
+        not isNaN(-Infinity rem      0.0 )           or
+        not isNaN(-Infinity rem      0.75)           or
+        not isNaN(-Infinity rem      1.0 )           or
+        not isNaN(-Infinity rem     13.25)           or
+        not isNaN(-Infinity rem  Infinity)           or
+        not isNaN(  -31.125 rem       NaN)           or
+                    -31.125 rem -Infinity <> -31.125 or
+                    -31.125 rem    -13.25 <>  -4.625 or
+                    -31.125 rem     -1.0  <>  -0.125 or
+                    -31.125 rem     -0.75 <>  -0.375 or
+        not isNaN(  -31.125 rem     -0.0 )           or
+        not isNaN(  -31.125 rem      0.0 )           or
+                    -31.125 rem      0.75 <>  -0.375 or
+                    -31.125 rem      1.0  <>  -0.125 or
+                    -31.125 rem     13.25 <>  -4.625 or
+                    -31.125 rem  Infinity <> -31.125 or
+        not isNaN(   -1.0   rem       NaN)           or
+                     -1.0   rem -Infinity <>  -1.0   or
+                     -1.0   rem    -13.25 <>  -1.0   or
+                     -1.0   rem     -1.0  <>   0.0   or
+                     -1.0   rem     -0.75 <>  -0.25  or
+        not isNaN(   -1.0   rem     -0.0 )           or
+        not isNaN(   -1.0   rem      0.0 )           or
+                     -1.0   rem      0.75 <>  -0.25  or
+                     -1.0   rem      1.0  <>   0.0   or
+                     -1.0   rem     13.25 <>  -1.0   or
+                     -1.0   rem  Infinity <>  -1.0   or
+        not isNaN(   -0.0   rem       NaN)           or
+                     -0.0   rem -Infinity <>   0.0   or
+                     -0.0   rem    -13.25 <>   0.0   or
+                     -0.0   rem     -1.0  <>   0.0   or
+                     -0.0   rem     -0.75 <>   0.0   or
+        not isNaN(   -0.0   rem     -0.0 )           or
+        not isNaN(   -0.0   rem      0.0 )           or
+                     -0.0   rem      0.75 <>   0.0   or
+                     -0.0   rem      1.0  <>   0.0   or
+                     -0.0   rem     13.25 <>   0.0   or
+                     -0.0   rem  Infinity <>   0.0   or
+        not isNaN(    0.0   rem       NaN)           or
+                      0.0   rem -Infinity <>   0.0   or
+                      0.0   rem    -13.25 <>   0.0   or
+                      0.0   rem     -1.0  <>   0.0   or
+                      0.0   rem     -0.75 <>   0.0   or
+        not isNaN(    0.0   rem     -0.0 )           or
+        not isNaN(    0.0   rem      0.0 )           or
+                      0.0   rem      0.75 <>   0.0   or
+                      0.0   rem      1.0  <>   0.0   or
+                      0.0   rem     13.25 <>   0.0   or
+                      0.0   rem  Infinity <>   0.0   or
+        not isNaN(    1.0   rem       NaN)           or
+                      1.0   rem -Infinity <>   1.0   or
+                      1.0   rem    -13.25 <>   1.0   or
+                      1.0   rem     -1.0  <>   0.0   or
+                      1.0   rem     -0.75 <>   0.25  or
+        not isNaN(    1.0   rem     -0.0 )           or
+        not isNaN(    1.0   rem      0.0 )           or
+                      1.0   rem      0.75 <>   0.25  or
+                      1.0   rem      1.0  <>   0.0   or
+                      1.0   rem     13.25 <>   1.0   or
+                      1.0   rem  Infinity <>   1.0   or
+        not isNaN(   31.125 rem       NaN)           or
+                     31.125 rem -Infinity <>  31.125 or
+                     31.125 rem    -13.25 <>   4.625 or
+                     31.125 rem     -1.0  <>   0.125 or
+                     31.125 rem     -0.75 <>   0.375 or
+        not isNaN(   31.125 rem     -0.0 )           or
+        not isNaN(   31.125 rem      0.0 )           or
+                     31.125 rem      0.75 <>   0.375 or
+                     31.125 rem      1.0  <>   0.125 or
+                     31.125 rem     13.25 <>   4.625 or
+                     31.125 rem  Infinity <>  31.125 or
+        not isNaN( Infinity rem       NaN)           or
+        not isNaN( Infinity rem -Infinity)           or
+        not isNaN( Infinity rem    -13.25)           or
+        not isNaN( Infinity rem     -1.0 )           or
+        not isNaN( Infinity rem     -0.75)           or
+        not isNaN( Infinity rem     -0.0 )           or
+        not isNaN( Infinity rem      0.0 )           or
+        not isNaN( Infinity rem      0.75)           or
+        not isNaN( Infinity rem      1.0 )           or
+        not isNaN( Infinity rem     13.25)           or
+        not isNaN( Infinity rem  Infinity)           then
+      writeln(" ***** Remainder does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not isNaN(floatExpr(      NaN) rem       NaN)           or
+        not isNaN(floatExpr(      NaN) rem -Infinity)           or
+        not isNaN(floatExpr(      NaN) rem    -13.25)           or
+        not isNaN(floatExpr(      NaN) rem     -1.0 )           or
+        not isNaN(floatExpr(      NaN) rem     -0.75)           or
+        not isNaN(floatExpr(      NaN) rem     -0.0 )           or
+        not isNaN(floatExpr(      NaN) rem      0.0 )           or
+        not isNaN(floatExpr(      NaN) rem      0.75)           or
+        not isNaN(floatExpr(      NaN) rem      1.0 )           or
+        not isNaN(floatExpr(      NaN) rem     13.25)           or
+        not isNaN(floatExpr(      NaN) rem  Infinity)           or
+        not isNaN(floatExpr(-Infinity) rem       NaN)           or
+        not isNaN(floatExpr(-Infinity) rem -Infinity)           or
+        not isNaN(floatExpr(-Infinity) rem    -13.25)           or
+        not isNaN(floatExpr(-Infinity) rem     -1.0 )           or
+        not isNaN(floatExpr(-Infinity) rem     -0.75)           or
+        not isNaN(floatExpr(-Infinity) rem     -0.0 )           or
+        not isNaN(floatExpr(-Infinity) rem      0.0 )           or
+        not isNaN(floatExpr(-Infinity) rem      0.75)           or
+        not isNaN(floatExpr(-Infinity) rem      1.0 )           or
+        not isNaN(floatExpr(-Infinity) rem     13.25)           or
+        not isNaN(floatExpr(-Infinity) rem  Infinity)           or
+        not isNaN(floatExpr(  -31.125) rem       NaN)           or
+                  floatExpr(  -31.125) rem -Infinity <> -31.125 or
+                  floatExpr(  -31.125) rem    -13.25 <>  -4.625 or
+                  floatExpr(  -31.125) rem     -1.0  <>  -0.125 or
+                  floatExpr(  -31.125) rem     -0.75 <>  -0.375 or
+        not isNaN(floatExpr(  -31.125) rem     -0.0 )           or
+        not isNaN(floatExpr(  -31.125) rem      0.0 )           or
+                  floatExpr(  -31.125) rem      0.75 <>  -0.375 or
+                  floatExpr(  -31.125) rem      1.0  <>  -0.125 or
+                  floatExpr(  -31.125) rem     13.25 <>  -4.625 or
+                  floatExpr(  -31.125) rem  Infinity <> -31.125 or
+        not isNaN(floatExpr(   -1.0  ) rem       NaN)           or
+                  floatExpr(   -1.0  ) rem -Infinity <>  -1.0   or
+                  floatExpr(   -1.0  ) rem    -13.25 <>  -1.0   or
+                  floatExpr(   -1.0  ) rem     -1.0  <>   0.0   or
+                  floatExpr(   -1.0  ) rem     -0.75 <>  -0.25  or
+        not isNaN(floatExpr(   -1.0  ) rem     -0.0 )           or
+        not isNaN(floatExpr(   -1.0  ) rem      0.0 )           or
+                  floatExpr(   -1.0  ) rem      0.75 <>  -0.25  or
+                  floatExpr(   -1.0  ) rem      1.0  <>   0.0   or
+                  floatExpr(   -1.0  ) rem     13.25 <>  -1.0   or
+                  floatExpr(   -1.0  ) rem  Infinity <>  -1.0   or
+        not isNaN(floatExpr(   -0.0  ) rem       NaN)           or
+                  floatExpr(   -0.0  ) rem -Infinity <>   0.0   or
+                  floatExpr(   -0.0  ) rem    -13.25 <>   0.0   or
+                  floatExpr(   -0.0  ) rem     -1.0  <>   0.0   or
+                  floatExpr(   -0.0  ) rem     -0.75 <>   0.0   or
+        not isNaN(floatExpr(   -0.0  ) rem     -0.0 )           or
+        not isNaN(floatExpr(   -0.0  ) rem      0.0 )           or
+                  floatExpr(   -0.0  ) rem      0.75 <>   0.0   or
+                  floatExpr(   -0.0  ) rem      1.0  <>   0.0   or
+                  floatExpr(   -0.0  ) rem     13.25 <>   0.0   or
+                  floatExpr(   -0.0  ) rem  Infinity <>   0.0   or
+        not isNaN(floatExpr(    0.0  ) rem       NaN)           or
+                  floatExpr(    0.0  ) rem -Infinity <>   0.0   or
+                  floatExpr(    0.0  ) rem    -13.25 <>   0.0   or
+                  floatExpr(    0.0  ) rem     -1.0  <>   0.0   or
+                  floatExpr(    0.0  ) rem     -0.75 <>   0.0   or
+        not isNaN(floatExpr(    0.0  ) rem     -0.0 )           or
+        not isNaN(floatExpr(    0.0  ) rem      0.0 )           or
+                  floatExpr(    0.0  ) rem      0.75 <>   0.0   or
+                  floatExpr(    0.0  ) rem      1.0  <>   0.0   or
+                  floatExpr(    0.0  ) rem     13.25 <>   0.0   or
+                  floatExpr(    0.0  ) rem  Infinity <>   0.0   or
+        not isNaN(floatExpr(    1.0  ) rem       NaN)           or
+                  floatExpr(    1.0  ) rem -Infinity <>   1.0   or
+                  floatExpr(    1.0  ) rem    -13.25 <>   1.0   or
+                  floatExpr(    1.0  ) rem     -1.0  <>   0.0   or
+                  floatExpr(    1.0  ) rem     -0.75 <>   0.25  or
+        not isNaN(floatExpr(    1.0  ) rem     -0.0 )           or
+        not isNaN(floatExpr(    1.0  ) rem      0.0 )           or
+                  floatExpr(    1.0  ) rem      0.75 <>   0.25  or
+                  floatExpr(    1.0  ) rem      1.0  <>   0.0   or
+                  floatExpr(    1.0  ) rem     13.25 <>   1.0   or
+                  floatExpr(    1.0  ) rem  Infinity <>   1.0   or
+        not isNaN(floatExpr(   31.125) rem       NaN)           or
+                  floatExpr(   31.125) rem -Infinity <>  31.125 or
+                  floatExpr(   31.125) rem    -13.25 <>   4.625 or
+                  floatExpr(   31.125) rem     -1.0  <>   0.125 or
+                  floatExpr(   31.125) rem     -0.75 <>   0.375 or
+        not isNaN(floatExpr(   31.125) rem     -0.0 )           or
+        not isNaN(floatExpr(   31.125) rem      0.0 )           or
+                  floatExpr(   31.125) rem      0.75 <>   0.375 or
+                  floatExpr(   31.125) rem      1.0  <>   0.125 or
+                  floatExpr(   31.125) rem     13.25 <>   4.625 or
+                  floatExpr(   31.125) rem  Infinity <>  31.125 or
+        not isNaN(floatExpr( Infinity) rem       NaN)           or
+        not isNaN(floatExpr( Infinity) rem -Infinity)           or
+        not isNaN(floatExpr( Infinity) rem    -13.25)           or
+        not isNaN(floatExpr( Infinity) rem     -1.0 )           or
+        not isNaN(floatExpr( Infinity) rem     -0.75)           or
+        not isNaN(floatExpr( Infinity) rem     -0.0 )           or
+        not isNaN(floatExpr( Infinity) rem      0.0 )           or
+        not isNaN(floatExpr( Infinity) rem      0.75)           or
+        not isNaN(floatExpr( Infinity) rem      1.0 )           or
+        not isNaN(floatExpr( Infinity) rem     13.25)           or
+        not isNaN(floatExpr( Infinity) rem  Infinity)           then
+      writeln(" ***** Remainder does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if  not isNaN(      NaN rem floatExpr(      NaN))           or
+        not isNaN(      NaN rem floatExpr(-Infinity))           or
+        not isNaN(      NaN rem floatExpr(   -13.25))           or
+        not isNaN(      NaN rem floatExpr(    -1.0 ))           or
+        not isNaN(      NaN rem floatExpr(    -0.75))           or
+        not isNaN(      NaN rem floatExpr(    -0.0 ))           or
+        not isNaN(      NaN rem floatExpr(     0.0 ))           or
+        not isNaN(      NaN rem floatExpr(     0.75))           or
+        not isNaN(      NaN rem floatExpr(     1.0 ))           or
+        not isNaN(      NaN rem floatExpr(    13.25))           or
+        not isNaN(      NaN rem floatExpr( Infinity))           or
+        not isNaN(-Infinity rem floatExpr(      NaN))           or
+        not isNaN(-Infinity rem floatExpr(-Infinity))           or
+        not isNaN(-Infinity rem floatExpr(   -13.25))           or
+        not isNaN(-Infinity rem floatExpr(    -1.0 ))           or
+        not isNaN(-Infinity rem floatExpr(    -0.75))           or
+        not isNaN(-Infinity rem floatExpr(    -0.0 ))           or
+        not isNaN(-Infinity rem floatExpr(     0.0 ))           or
+        not isNaN(-Infinity rem floatExpr(     0.75))           or
+        not isNaN(-Infinity rem floatExpr(     1.0 ))           or
+        not isNaN(-Infinity rem floatExpr(    13.25))           or
+        not isNaN(-Infinity rem floatExpr( Infinity))           or
+        not isNaN(  -31.125 rem floatExpr(      NaN))           or
+                    -31.125 rem floatExpr(-Infinity) <> -31.125 or
+                    -31.125 rem floatExpr(   -13.25) <>  -4.625 or
+                    -31.125 rem floatExpr(    -1.0 ) <>  -0.125 or
+                    -31.125 rem floatExpr(    -0.75) <>  -0.375 or
+        not isNaN(  -31.125 rem floatExpr(    -0.0 ))           or
+        not isNaN(  -31.125 rem floatExpr(     0.0 ))           or
+                    -31.125 rem floatExpr(     0.75) <>  -0.375 or
+                    -31.125 rem floatExpr(     1.0 ) <>  -0.125 or
+                    -31.125 rem floatExpr(    13.25) <>  -4.625 or
+                    -31.125 rem floatExpr( Infinity) <> -31.125 or
+        not isNaN(   -1.0   rem floatExpr(      NaN))           or
+                     -1.0   rem floatExpr(-Infinity) <>  -1.0   or
+                     -1.0   rem floatExpr(   -13.25) <>  -1.0   or
+                     -1.0   rem floatExpr(    -1.0 ) <>   0.0   or
+                     -1.0   rem floatExpr(    -0.75) <>  -0.25  or
+        not isNaN(   -1.0   rem floatExpr(    -0.0 ))           or
+        not isNaN(   -1.0   rem floatExpr(     0.0 ))           or
+                     -1.0   rem floatExpr(     0.75) <>  -0.25  or
+                     -1.0   rem floatExpr(     1.0 ) <>   0.0   or
+                     -1.0   rem floatExpr(    13.25) <>  -1.0   or
+                     -1.0   rem floatExpr( Infinity) <>  -1.0   or
+        not isNaN(   -0.0   rem floatExpr(      NaN))           or
+                     -0.0   rem floatExpr(-Infinity) <>   0.0   or
+                     -0.0   rem floatExpr(   -13.25) <>   0.0   or
+                     -0.0   rem floatExpr(    -1.0 ) <>   0.0   or
+                     -0.0   rem floatExpr(    -0.75) <>   0.0   or
+        not isNaN(   -0.0   rem floatExpr(    -0.0 ))           or
+        not isNaN(   -0.0   rem floatExpr(     0.0 ))           or
+                     -0.0   rem floatExpr(     0.75) <>   0.0   or
+                     -0.0   rem floatExpr(     1.0 ) <>   0.0   or
+                     -0.0   rem floatExpr(    13.25) <>   0.0   or
+                     -0.0   rem floatExpr( Infinity) <>   0.0   or
+        not isNaN(    0.0   rem floatExpr(      NaN))           or
+                      0.0   rem floatExpr(-Infinity) <>   0.0   or
+                      0.0   rem floatExpr(   -13.25) <>   0.0   or
+                      0.0   rem floatExpr(    -1.0 ) <>   0.0   or
+                      0.0   rem floatExpr(    -0.75) <>   0.0   or
+        not isNaN(    0.0   rem floatExpr(    -0.0 ))           or
+        not isNaN(    0.0   rem floatExpr(     0.0 ))           or
+                      0.0   rem floatExpr(     0.75) <>   0.0   or
+                      0.0   rem floatExpr(     1.0 ) <>   0.0   or
+                      0.0   rem floatExpr(    13.25) <>   0.0   or
+                      0.0   rem floatExpr( Infinity) <>   0.0   or
+        not isNaN(    1.0   rem floatExpr(      NaN))           or
+                      1.0   rem floatExpr(-Infinity) <>   1.0   or
+                      1.0   rem floatExpr(   -13.25) <>   1.0   or
+                      1.0   rem floatExpr(    -1.0 ) <>   0.0   or
+                      1.0   rem floatExpr(    -0.75) <>   0.25  or
+        not isNaN(    1.0   rem floatExpr(    -0.0 ))           or
+        not isNaN(    1.0   rem floatExpr(     0.0 ))           or
+                      1.0   rem floatExpr(     0.75) <>   0.25  or
+                      1.0   rem floatExpr(     1.0 ) <>   0.0   or
+                      1.0   rem floatExpr(    13.25) <>   1.0   or
+                      1.0   rem floatExpr( Infinity) <>   1.0   or
+        not isNaN(   31.125 rem floatExpr(      NaN))           or
+                     31.125 rem floatExpr(-Infinity) <>  31.125 or
+                     31.125 rem floatExpr(   -13.25) <>   4.625 or
+                     31.125 rem floatExpr(    -1.0 ) <>   0.125 or
+                     31.125 rem floatExpr(    -0.75) <>   0.375 or
+        not isNaN(   31.125 rem floatExpr(    -0.0 ))           or
+        not isNaN(   31.125 rem floatExpr(     0.0 ))           or
+                     31.125 rem floatExpr(     0.75) <>   0.375 or
+                     31.125 rem floatExpr(     1.0 ) <>   0.125 or
+                     31.125 rem floatExpr(    13.25) <>   4.625 or
+                     31.125 rem floatExpr( Infinity) <>  31.125 or
+        not isNaN( Infinity rem floatExpr(      NaN))           or
+        not isNaN( Infinity rem floatExpr(-Infinity))           or
+        not isNaN( Infinity rem floatExpr(   -13.25))           or
+        not isNaN( Infinity rem floatExpr(    -1.0 ))           or
+        not isNaN( Infinity rem floatExpr(    -0.75))           or
+        not isNaN( Infinity rem floatExpr(    -0.0 ))           or
+        not isNaN( Infinity rem floatExpr(     0.0 ))           or
+        not isNaN( Infinity rem floatExpr(     0.75))           or
+        not isNaN( Infinity rem floatExpr(     1.0 ))           or
+        not isNaN( Infinity rem floatExpr(    13.25))           or
+        not isNaN( Infinity rem floatExpr( Infinity))           then
+      writeln(" ***** Remainder does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    if  not isNaN(floatExpr(      NaN) rem floatExpr(      NaN))           or
+        not isNaN(floatExpr(      NaN) rem floatExpr(-Infinity))           or
+        not isNaN(floatExpr(      NaN) rem floatExpr(   -13.25))           or
+        not isNaN(floatExpr(      NaN) rem floatExpr(    -1.0 ))           or
+        not isNaN(floatExpr(      NaN) rem floatExpr(    -0.75))           or
+        not isNaN(floatExpr(      NaN) rem floatExpr(    -0.0 ))           or
+        not isNaN(floatExpr(      NaN) rem floatExpr(     0.0 ))           or
+        not isNaN(floatExpr(      NaN) rem floatExpr(     0.75))           or
+        not isNaN(floatExpr(      NaN) rem floatExpr(     1.0 ))           or
+        not isNaN(floatExpr(      NaN) rem floatExpr(    13.25))           or
+        not isNaN(floatExpr(      NaN) rem floatExpr( Infinity))           or
+        not isNaN(floatExpr(-Infinity) rem floatExpr(      NaN))           or
+        not isNaN(floatExpr(-Infinity) rem floatExpr(-Infinity))           or
+        not isNaN(floatExpr(-Infinity) rem floatExpr(   -13.25))           or
+        not isNaN(floatExpr(-Infinity) rem floatExpr(    -1.0 ))           or
+        not isNaN(floatExpr(-Infinity) rem floatExpr(    -0.75))           or
+        not isNaN(floatExpr(-Infinity) rem floatExpr(    -0.0 ))           or
+        not isNaN(floatExpr(-Infinity) rem floatExpr(     0.0 ))           or
+        not isNaN(floatExpr(-Infinity) rem floatExpr(     0.75))           or
+        not isNaN(floatExpr(-Infinity) rem floatExpr(     1.0 ))           or
+        not isNaN(floatExpr(-Infinity) rem floatExpr(    13.25))           or
+        not isNaN(floatExpr(-Infinity) rem floatExpr( Infinity))           or
+        not isNaN(floatExpr(  -31.125) rem floatExpr(      NaN))           or
+                  floatExpr(  -31.125) rem floatExpr(-Infinity) <> -31.125 or
+                  floatExpr(  -31.125) rem floatExpr(   -13.25) <>  -4.625 or
+                  floatExpr(  -31.125) rem floatExpr(    -1.0 ) <>  -0.125 or
+                  floatExpr(  -31.125) rem floatExpr(    -0.75) <>  -0.375 or
+        not isNaN(floatExpr(  -31.125) rem floatExpr(    -0.0 ))           or
+        not isNaN(floatExpr(  -31.125) rem floatExpr(     0.0 ))           or
+                  floatExpr(  -31.125) rem floatExpr(     0.75) <>  -0.375 or
+                  floatExpr(  -31.125) rem floatExpr(     1.0 ) <>  -0.125 or
+                  floatExpr(  -31.125) rem floatExpr(    13.25) <>  -4.625 or
+                  floatExpr(  -31.125) rem floatExpr( Infinity) <> -31.125 or
+        not isNaN(floatExpr(   -1.0  ) rem floatExpr(      NaN))           or
+                  floatExpr(   -1.0  ) rem floatExpr(-Infinity) <>  -1.0   or
+                  floatExpr(   -1.0  ) rem floatExpr(   -13.25) <>  -1.0   or
+                  floatExpr(   -1.0  ) rem floatExpr(    -1.0 ) <>   0.0   or
+                  floatExpr(   -1.0  ) rem floatExpr(    -0.75) <>  -0.25  or
+        not isNaN(floatExpr(   -1.0  ) rem floatExpr(    -0.0 ))           or
+        not isNaN(floatExpr(   -1.0  ) rem floatExpr(     0.0 ))           or
+                  floatExpr(   -1.0  ) rem floatExpr(     0.75) <>  -0.25  or
+                  floatExpr(   -1.0  ) rem floatExpr(     1.0 ) <>   0.0   or
+                  floatExpr(   -1.0  ) rem floatExpr(    13.25) <>  -1.0   or
+                  floatExpr(   -1.0  ) rem floatExpr( Infinity) <>  -1.0   or
+        not isNaN(floatExpr(   -0.0  ) rem floatExpr(      NaN))           or
+                  floatExpr(   -0.0  ) rem floatExpr(-Infinity) <>   0.0   or
+                  floatExpr(   -0.0  ) rem floatExpr(   -13.25) <>   0.0   or
+                  floatExpr(   -0.0  ) rem floatExpr(    -1.0 ) <>   0.0   or
+                  floatExpr(   -0.0  ) rem floatExpr(    -0.75) <>   0.0   or
+        not isNaN(floatExpr(   -0.0  ) rem floatExpr(    -0.0 ))           or
+        not isNaN(floatExpr(   -0.0  ) rem floatExpr(     0.0 ))           or
+                  floatExpr(   -0.0  ) rem floatExpr(     0.75) <>   0.0   or
+                  floatExpr(   -0.0  ) rem floatExpr(     1.0 ) <>   0.0   or
+                  floatExpr(   -0.0  ) rem floatExpr(    13.25) <>   0.0   or
+                  floatExpr(   -0.0  ) rem floatExpr( Infinity) <>   0.0   or
+        not isNaN(floatExpr(    0.0  ) rem floatExpr(      NaN))           or
+                  floatExpr(    0.0  ) rem floatExpr(-Infinity) <>   0.0   or
+                  floatExpr(    0.0  ) rem floatExpr(   -13.25) <>   0.0   or
+                  floatExpr(    0.0  ) rem floatExpr(    -1.0 ) <>   0.0   or
+                  floatExpr(    0.0  ) rem floatExpr(    -0.75) <>   0.0   or
+        not isNaN(floatExpr(    0.0  ) rem floatExpr(    -0.0 ))           or
+        not isNaN(floatExpr(    0.0  ) rem floatExpr(     0.0 ))           or
+                  floatExpr(    0.0  ) rem floatExpr(     0.75) <>   0.0   or
+                  floatExpr(    0.0  ) rem floatExpr(     1.0 ) <>   0.0   or
+                  floatExpr(    0.0  ) rem floatExpr(    13.25) <>   0.0   or
+                  floatExpr(    0.0  ) rem floatExpr( Infinity) <>   0.0   or
+        not isNaN(floatExpr(    1.0  ) rem floatExpr(      NaN))           or
+                  floatExpr(    1.0  ) rem floatExpr(-Infinity) <>   1.0   or
+                  floatExpr(    1.0  ) rem floatExpr(   -13.25) <>   1.0   or
+                  floatExpr(    1.0  ) rem floatExpr(    -1.0 ) <>   0.0   or
+                  floatExpr(    1.0  ) rem floatExpr(    -0.75) <>   0.25  or
+        not isNaN(floatExpr(    1.0  ) rem floatExpr(    -0.0 ))           or
+        not isNaN(floatExpr(    1.0  ) rem floatExpr(     0.0 ))           or
+                  floatExpr(    1.0  ) rem floatExpr(     0.75) <>   0.25  or
+                  floatExpr(    1.0  ) rem floatExpr(     1.0 ) <>   0.0   or
+                  floatExpr(    1.0  ) rem floatExpr(    13.25) <>   1.0   or
+                  floatExpr(    1.0  ) rem floatExpr( Infinity) <>   1.0   or
+        not isNaN(floatExpr(   31.125) rem floatExpr(      NaN))           or
+                  floatExpr(   31.125) rem floatExpr(-Infinity) <>  31.125 or
+                  floatExpr(   31.125) rem floatExpr(   -13.25) <>   4.625 or
+                  floatExpr(   31.125) rem floatExpr(    -1.0 ) <>   0.125 or
+                  floatExpr(   31.125) rem floatExpr(    -0.75) <>   0.375 or
+        not isNaN(floatExpr(   31.125) rem floatExpr(    -0.0 ))           or
+        not isNaN(floatExpr(   31.125) rem floatExpr(     0.0 ))           or
+                  floatExpr(   31.125) rem floatExpr(     0.75) <>   0.375 or
+                  floatExpr(   31.125) rem floatExpr(     1.0 ) <>   0.125 or
+                  floatExpr(   31.125) rem floatExpr(    13.25) <>   4.625 or
+                  floatExpr(   31.125) rem floatExpr( Infinity) <>  31.125 or
+        not isNaN(floatExpr( Infinity) rem floatExpr(      NaN))           or
+        not isNaN(floatExpr( Infinity) rem floatExpr(-Infinity))           or
+        not isNaN(floatExpr( Infinity) rem floatExpr(   -13.25))           or
+        not isNaN(floatExpr( Infinity) rem floatExpr(    -1.0 ))           or
+        not isNaN(floatExpr( Infinity) rem floatExpr(    -0.75))           or
+        not isNaN(floatExpr( Infinity) rem floatExpr(    -0.0 ))           or
+        not isNaN(floatExpr( Infinity) rem floatExpr(     0.0 ))           or
+        not isNaN(floatExpr( Infinity) rem floatExpr(     0.75))           or
+        not isNaN(floatExpr( Infinity) rem floatExpr(     1.0 ))           or
+        not isNaN(floatExpr( Infinity) rem floatExpr(    13.25))           or
+        not isNaN(floatExpr( Infinity) rem floatExpr( Infinity))           then
+      writeln(" ***** Remainder does not work correct. (4)");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("Remainder works correct for selected values.");
+    else
+      writeln(" ***** Remainder does not work correct.");
+    end if;
+  end func;
+
+
+const proc: check_modulo is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if  not isNaN(      NaN mod       NaN)             or
+        not isNaN(      NaN mod -Infinity)             or
+        not isNaN(      NaN mod    -13.25)             or
+        not isNaN(      NaN mod     -1.0 )             or
+        not isNaN(      NaN mod     -0.75)             or
+        not isNaN(      NaN mod     -0.0 )             or
+        not isNaN(      NaN mod      0.0 )             or
+        not isNaN(      NaN mod      0.75)             or
+        not isNaN(      NaN mod      1.0 )             or
+        not isNaN(      NaN mod     13.25)             or
+        not isNaN(      NaN mod  Infinity)             or
+        not isNaN(-Infinity mod       NaN)             or
+        not isNaN(-Infinity mod -Infinity)             or
+        not isNaN(-Infinity mod    -13.25)             or
+        not isNaN(-Infinity mod     -1.0 )             or
+        not isNaN(-Infinity mod     -0.75)             or
+        not isNaN(-Infinity mod     -0.0 )             or
+        not isNaN(-Infinity mod      0.0 )             or
+        not isNaN(-Infinity mod      0.75)             or
+        not isNaN(-Infinity mod      1.0 )             or
+        not isNaN(-Infinity mod     13.25)             or
+        not isNaN(-Infinity mod  Infinity)             or
+        not isNaN(  -31.125 mod       NaN)             or
+                    -31.125 mod -Infinity <>   -31.125 or
+                    -31.125 mod    -13.25 <>    -4.625 or
+                    -31.125 mod     -1.0  <>    -0.125 or
+                    -31.125 mod     -0.75 <>    -0.375 or
+        not isNaN(  -31.125 mod     -0.0 )             or
+        not isNaN(  -31.125 mod      0.0 )             or
+                    -31.125 mod      0.75 <>     0.375 or
+                    -31.125 mod      1.0  <>     0.875 or
+                    -31.125 mod     13.25 <>     8.625 or
+                    -31.125 mod  Infinity <>  Infinity or
+        not isNaN(   -1.0   mod       NaN)             or
+                     -1.0   mod -Infinity <>    -1.0   or
+                     -1.0   mod    -13.25 <>    -1.0   or
+                     -1.0   mod     -1.0  <>     0.0   or
+                     -1.0   mod     -0.75 <>    -0.25  or
+        not isNaN(   -1.0   mod     -0.0 )             or
+        not isNaN(   -1.0   mod      0.0 )             or
+                     -1.0   mod      0.75 <>     0.5   or
+                     -1.0   mod      1.0  <>     0.0   or
+                     -1.0   mod     13.25 <>    12.25  or
+                     -1.0   mod  Infinity <>  Infinity or
+        not isNaN(   -0.0   mod       NaN)             or
+                     -0.0   mod -Infinity <>     0.0   or
+                     -0.0   mod    -13.25 <>     0.0   or
+                     -0.0   mod     -1.0  <>     0.0   or
+                     -0.0   mod     -0.75 <>     0.0   or
+        not isNaN(   -0.0   mod     -0.0 )             or
+        not isNaN(   -0.0   mod      0.0 )             or
+                     -0.0   mod      0.75 <>     0.0   or
+                     -0.0   mod      1.0  <>     0.0   or
+                     -0.0   mod     13.25 <>     0.0   or
+                     -0.0   mod  Infinity <>     0.0   or
+        not isNaN(    0.0   mod       NaN)             or
+                      0.0   mod -Infinity <>     0.0   or
+                      0.0   mod    -13.25 <>     0.0   or
+                      0.0   mod     -1.0  <>     0.0   or
+                      0.0   mod     -0.75 <>     0.0   or
+        not isNaN(    0.0   mod     -0.0 )             or
+        not isNaN(    0.0   mod      0.0 )             or
+                      0.0   mod      0.75 <>     0.0   or
+                      0.0   mod      1.0  <>     0.0   or
+                      0.0   mod     13.25 <>     0.0   or
+                      0.0   mod  Infinity <>     0.0   or
+        not isNaN(    1.0   mod       NaN)             or
+                      1.0   mod -Infinity <> -Infinity or
+                      1.0   mod    -13.25 <>   -12.25  or
+                      1.0   mod     -1.0  <>     0.0   or
+                      1.0   mod     -0.75 <>    -0.5   or
+        not isNaN(    1.0   mod     -0.0 )             or
+        not isNaN(    1.0   mod      0.0 )             or
+                      1.0   mod      0.75 <>     0.25  or
+                      1.0   mod      1.0  <>     0.0   or
+                      1.0   mod     13.25 <>     1.0   or
+                      1.0   mod  Infinity <>     1.0   or
+        not isNaN(   31.125 mod       NaN)             or
+                     31.125 mod -Infinity <> -Infinity or
+                     31.125 mod    -13.25 <>    -8.625 or
+                     31.125 mod     -1.0  <>    -0.875 or
+                     31.125 mod     -0.75 <>    -0.375 or
+        not isNaN(   31.125 mod     -0.0 )             or
+        not isNaN(   31.125 mod      0.0 )             or
+                     31.125 mod      0.75 <>     0.375 or
+                     31.125 mod      1.0  <>     0.125 or
+                     31.125 mod     13.25 <>     4.625 or
+                     31.125 mod  Infinity <>    31.125 or
+        not isNaN( Infinity mod       NaN)             or
+        not isNaN( Infinity mod -Infinity)             or
+        not isNaN( Infinity mod    -13.25)             or
+        not isNaN( Infinity mod     -1.0 )             or
+        not isNaN( Infinity mod     -0.75)             or
+        not isNaN( Infinity mod     -0.0 )             or
+        not isNaN( Infinity mod      0.0 )             or
+        not isNaN( Infinity mod      0.75)             or
+        not isNaN( Infinity mod      1.0 )             or
+        not isNaN( Infinity mod     13.25)             or
+        not isNaN( Infinity mod  Infinity)             then
+      writeln(" ***** Modulo does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not isNaN(floatExpr(      NaN) mod       NaN)             or
+        not isNaN(floatExpr(      NaN) mod -Infinity)             or
+        not isNaN(floatExpr(      NaN) mod    -13.25)             or
+        not isNaN(floatExpr(      NaN) mod     -1.0 )             or
+        not isNaN(floatExpr(      NaN) mod     -0.75)             or
+        not isNaN(floatExpr(      NaN) mod     -0.0 )             or
+        not isNaN(floatExpr(      NaN) mod      0.0 )             or
+        not isNaN(floatExpr(      NaN) mod      0.75)             or
+        not isNaN(floatExpr(      NaN) mod      1.0 )             or
+        not isNaN(floatExpr(      NaN) mod     13.25)             or
+        not isNaN(floatExpr(      NaN) mod  Infinity)             or
+        not isNaN(floatExpr(-Infinity) mod       NaN)             or
+        not isNaN(floatExpr(-Infinity) mod -Infinity)             or
+        not isNaN(floatExpr(-Infinity) mod    -13.25)             or
+        not isNaN(floatExpr(-Infinity) mod     -1.0 )             or
+        not isNaN(floatExpr(-Infinity) mod     -0.75)             or
+        not isNaN(floatExpr(-Infinity) mod     -0.0 )             or
+        not isNaN(floatExpr(-Infinity) mod      0.0 )             or
+        not isNaN(floatExpr(-Infinity) mod      0.75)             or
+        not isNaN(floatExpr(-Infinity) mod      1.0 )             or
+        not isNaN(floatExpr(-Infinity) mod     13.25)             or
+        not isNaN(floatExpr(-Infinity) mod  Infinity)             or
+        not isNaN(floatExpr(  -31.125) mod       NaN)             or
+                  floatExpr(  -31.125) mod -Infinity <>   -31.125 or
+                  floatExpr(  -31.125) mod    -13.25 <>    -4.625 or
+                  floatExpr(  -31.125) mod     -1.0  <>    -0.125 or
+                  floatExpr(  -31.125) mod     -0.75 <>    -0.375 or
+        not isNaN(floatExpr(  -31.125) mod     -0.0 )             or
+        not isNaN(floatExpr(  -31.125) mod      0.0 )             or
+                  floatExpr(  -31.125) mod      0.75 <>     0.375 or
+                  floatExpr(  -31.125) mod      1.0  <>     0.875 or
+                  floatExpr(  -31.125) mod     13.25 <>     8.625 or
+                  floatExpr(  -31.125) mod  Infinity <>  Infinity or
+        not isNaN(floatExpr(   -1.0  ) mod       NaN)             or
+                  floatExpr(   -1.0  ) mod -Infinity <>    -1.0   or
+                  floatExpr(   -1.0  ) mod    -13.25 <>    -1.0   or
+                  floatExpr(   -1.0  ) mod     -1.0  <>     0.0   or
+                  floatExpr(   -1.0  ) mod     -0.75 <>    -0.25  or
+        not isNaN(floatExpr(   -1.0  ) mod     -0.0 )             or
+        not isNaN(floatExpr(   -1.0  ) mod      0.0 )             or
+                  floatExpr(   -1.0  ) mod      0.75 <>     0.5   or
+                  floatExpr(   -1.0  ) mod      1.0  <>     0.0   or
+                  floatExpr(   -1.0  ) mod     13.25 <>    12.25  or
+                  floatExpr(   -1.0  ) mod  Infinity <>  Infinity or
+        not isNaN(floatExpr(   -0.0  ) mod       NaN)             or
+                  floatExpr(   -0.0  ) mod -Infinity <>     0.0   or
+                  floatExpr(   -0.0  ) mod    -13.25 <>     0.0   or
+                  floatExpr(   -0.0  ) mod     -1.0  <>     0.0   or
+                  floatExpr(   -0.0  ) mod     -0.75 <>     0.0   or
+        not isNaN(floatExpr(   -0.0  ) mod     -0.0 )             or
+        not isNaN(floatExpr(   -0.0  ) mod      0.0 )             or
+                  floatExpr(   -0.0  ) mod      0.75 <>     0.0   or
+                  floatExpr(   -0.0  ) mod      1.0  <>     0.0   or
+                  floatExpr(   -0.0  ) mod     13.25 <>     0.0   or
+                  floatExpr(   -0.0  ) mod  Infinity <>     0.0   or
+        not isNaN(floatExpr(    0.0  ) mod       NaN)             or
+                  floatExpr(    0.0  ) mod -Infinity <>     0.0   or
+                  floatExpr(    0.0  ) mod    -13.25 <>     0.0   or
+                  floatExpr(    0.0  ) mod     -1.0  <>     0.0   or
+                  floatExpr(    0.0  ) mod     -0.75 <>     0.0   or
+        not isNaN(floatExpr(    0.0  ) mod     -0.0 )             or
+        not isNaN(floatExpr(    0.0  ) mod      0.0 )             or
+                  floatExpr(    0.0  ) mod      0.75 <>     0.0   or
+                  floatExpr(    0.0  ) mod      1.0  <>     0.0   or
+                  floatExpr(    0.0  ) mod     13.25 <>     0.0   or
+                  floatExpr(    0.0  ) mod  Infinity <>     0.0   or
+        not isNaN(floatExpr(    1.0  ) mod       NaN)             or
+                  floatExpr(    1.0  ) mod -Infinity <> -Infinity or
+                  floatExpr(    1.0  ) mod    -13.25 <>   -12.25  or
+                  floatExpr(    1.0  ) mod     -1.0  <>     0.0   or
+                  floatExpr(    1.0  ) mod     -0.75 <>    -0.5   or
+        not isNaN(floatExpr(    1.0  ) mod     -0.0 )             or
+        not isNaN(floatExpr(    1.0  ) mod      0.0 )             or
+                  floatExpr(    1.0  ) mod      0.75 <>     0.25  or
+                  floatExpr(    1.0  ) mod      1.0  <>     0.0   or
+                  floatExpr(    1.0  ) mod     13.25 <>     1.0   or
+                  floatExpr(    1.0  ) mod  Infinity <>     1.0   or
+        not isNaN(floatExpr(   31.125) mod       NaN)             or
+                  floatExpr(   31.125) mod -Infinity <> -Infinity or
+                  floatExpr(   31.125) mod    -13.25 <>    -8.625 or
+                  floatExpr(   31.125) mod     -1.0  <>    -0.875 or
+                  floatExpr(   31.125) mod     -0.75 <>    -0.375 or
+        not isNaN(floatExpr(   31.125) mod     -0.0 )             or
+        not isNaN(floatExpr(   31.125) mod      0.0 )             or
+                  floatExpr(   31.125) mod      0.75 <>     0.375 or
+                  floatExpr(   31.125) mod      1.0  <>     0.125 or
+                  floatExpr(   31.125) mod     13.25 <>     4.625 or
+                  floatExpr(   31.125) mod  Infinity <>    31.125 or
+        not isNaN(floatExpr( Infinity) mod       NaN)             or
+        not isNaN(floatExpr( Infinity) mod -Infinity)             or
+        not isNaN(floatExpr( Infinity) mod    -13.25)             or
+        not isNaN(floatExpr( Infinity) mod     -1.0 )             or
+        not isNaN(floatExpr( Infinity) mod     -0.75)             or
+        not isNaN(floatExpr( Infinity) mod     -0.0 )             or
+        not isNaN(floatExpr( Infinity) mod      0.0 )             or
+        not isNaN(floatExpr( Infinity) mod      0.75)             or
+        not isNaN(floatExpr( Infinity) mod      1.0 )             or
+        not isNaN(floatExpr( Infinity) mod     13.25)             or
+        not isNaN(floatExpr( Infinity) mod  Infinity)             then
+      writeln(" ***** Modulo does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if  not isNaN(      NaN mod floatExpr(      NaN))             or
+        not isNaN(      NaN mod floatExpr(-Infinity))             or
+        not isNaN(      NaN mod floatExpr(   -13.25))             or
+        not isNaN(      NaN mod floatExpr(    -1.0 ))             or
+        not isNaN(      NaN mod floatExpr(    -0.75))             or
+        not isNaN(      NaN mod floatExpr(    -0.0 ))             or
+        not isNaN(      NaN mod floatExpr(     0.0 ))             or
+        not isNaN(      NaN mod floatExpr(     0.75))             or
+        not isNaN(      NaN mod floatExpr(     1.0 ))             or
+        not isNaN(      NaN mod floatExpr(    13.25))             or
+        not isNaN(      NaN mod floatExpr( Infinity))             or
+        not isNaN(-Infinity mod floatExpr(      NaN))             or
+        not isNaN(-Infinity mod floatExpr(-Infinity))             or
+        not isNaN(-Infinity mod floatExpr(   -13.25))             or
+        not isNaN(-Infinity mod floatExpr(    -1.0 ))             or
+        not isNaN(-Infinity mod floatExpr(    -0.75))             or
+        not isNaN(-Infinity mod floatExpr(    -0.0 ))             or
+        not isNaN(-Infinity mod floatExpr(     0.0 ))             or
+        not isNaN(-Infinity mod floatExpr(     0.75))             or
+        not isNaN(-Infinity mod floatExpr(     1.0 ))             or
+        not isNaN(-Infinity mod floatExpr(    13.25))             or
+        not isNaN(-Infinity mod floatExpr( Infinity))             or
+        not isNaN(  -31.125 mod floatExpr(      NaN))             or
+                    -31.125 mod floatExpr(-Infinity) <>   -31.125 or
+                    -31.125 mod floatExpr(   -13.25) <>    -4.625 or
+                    -31.125 mod floatExpr(    -1.0 ) <>    -0.125 or
+                    -31.125 mod floatExpr(    -0.75) <>    -0.375 or
+        not isNaN(  -31.125 mod floatExpr(    -0.0 ))             or
+        not isNaN(  -31.125 mod floatExpr(     0.0 ))             or
+                    -31.125 mod floatExpr(     0.75) <>     0.375 or
+                    -31.125 mod floatExpr(     1.0 ) <>     0.875 or
+                    -31.125 mod floatExpr(    13.25) <>     8.625 or
+                    -31.125 mod floatExpr( Infinity) <>  Infinity or
+        not isNaN(   -1.0   mod floatExpr(      NaN))             or
+                     -1.0   mod floatExpr(-Infinity) <>    -1.0   or
+                     -1.0   mod floatExpr(   -13.25) <>    -1.0   or
+                     -1.0   mod floatExpr(    -1.0 ) <>     0.0   or
+                     -1.0   mod floatExpr(    -0.75) <>    -0.25  or
+        not isNaN(   -1.0   mod floatExpr(    -0.0 ))             or
+        not isNaN(   -1.0   mod floatExpr(     0.0 ))             or
+                     -1.0   mod floatExpr(     0.75) <>     0.5   or
+                     -1.0   mod floatExpr(     1.0 ) <>     0.0   or
+                     -1.0   mod floatExpr(    13.25) <>    12.25  or
+                     -1.0   mod floatExpr( Infinity) <>  Infinity or
+        not isNaN(   -0.0   mod floatExpr(      NaN))             or
+                     -0.0   mod floatExpr(-Infinity) <>     0.0   or
+                     -0.0   mod floatExpr(   -13.25) <>     0.0   or
+                     -0.0   mod floatExpr(    -1.0 ) <>     0.0   or
+                     -0.0   mod floatExpr(    -0.75) <>     0.0   or
+        not isNaN(   -0.0   mod floatExpr(    -0.0 ))             or
+        not isNaN(   -0.0   mod floatExpr(     0.0 ))             or
+                     -0.0   mod floatExpr(     0.75) <>     0.0   or
+                     -0.0   mod floatExpr(     1.0 ) <>     0.0   or
+                     -0.0   mod floatExpr(    13.25) <>     0.0   or
+                     -0.0   mod floatExpr( Infinity) <>     0.0   or
+        not isNaN(    0.0   mod floatExpr(      NaN))             or
+                      0.0   mod floatExpr(-Infinity) <>     0.0   or
+                      0.0   mod floatExpr(   -13.25) <>     0.0   or
+                      0.0   mod floatExpr(    -1.0 ) <>     0.0   or
+                      0.0   mod floatExpr(    -0.75) <>     0.0   or
+        not isNaN(    0.0   mod floatExpr(    -0.0 ))             or
+        not isNaN(    0.0   mod floatExpr(     0.0 ))             or
+                      0.0   mod floatExpr(     0.75) <>     0.0   or
+                      0.0   mod floatExpr(     1.0 ) <>     0.0   or
+                      0.0   mod floatExpr(    13.25) <>     0.0   or
+                      0.0   mod floatExpr( Infinity) <>     0.0   or
+        not isNaN(    1.0   mod floatExpr(      NaN))             or
+                      1.0   mod floatExpr(-Infinity) <> -Infinity or
+                      1.0   mod floatExpr(   -13.25) <>   -12.25  or
+                      1.0   mod floatExpr(    -1.0 ) <>     0.0   or
+                      1.0   mod floatExpr(    -0.75) <>    -0.5   or
+        not isNaN(    1.0   mod floatExpr(    -0.0 ))             or
+        not isNaN(    1.0   mod floatExpr(     0.0 ))             or
+                      1.0   mod floatExpr(     0.75) <>     0.25  or
+                      1.0   mod floatExpr(     1.0 ) <>     0.0   or
+                      1.0   mod floatExpr(    13.25) <>     1.0   or
+                      1.0   mod floatExpr( Infinity) <>     1.0   or
+        not isNaN(   31.125 mod floatExpr(      NaN))             or
+                     31.125 mod floatExpr(-Infinity) <> -Infinity or
+                     31.125 mod floatExpr(   -13.25) <>    -8.625 or
+                     31.125 mod floatExpr(    -1.0 ) <>    -0.875 or
+                     31.125 mod floatExpr(    -0.75) <>    -0.375 or
+        not isNaN(   31.125 mod floatExpr(    -0.0 ))             or
+        not isNaN(   31.125 mod floatExpr(     0.0 ))             or
+                     31.125 mod floatExpr(     0.75) <>     0.375 or
+                     31.125 mod floatExpr(     1.0 ) <>     0.125 or
+                     31.125 mod floatExpr(    13.25) <>     4.625 or
+                     31.125 mod floatExpr( Infinity) <>    31.125 or
+        not isNaN( Infinity mod floatExpr(      NaN))             or
+        not isNaN( Infinity mod floatExpr(-Infinity))             or
+        not isNaN( Infinity mod floatExpr(   -13.25))             or
+        not isNaN( Infinity mod floatExpr(    -1.0 ))             or
+        not isNaN( Infinity mod floatExpr(    -0.75))             or
+        not isNaN( Infinity mod floatExpr(    -0.0 ))             or
+        not isNaN( Infinity mod floatExpr(     0.0 ))             or
+        not isNaN( Infinity mod floatExpr(     0.75))             or
+        not isNaN( Infinity mod floatExpr(     1.0 ))             or
+        not isNaN( Infinity mod floatExpr(    13.25))             or
+        not isNaN( Infinity mod floatExpr( Infinity))             then
+      writeln(" ***** Modulo does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    if  not isNaN(floatExpr(      NaN) mod floatExpr(      NaN))             or
+        not isNaN(floatExpr(      NaN) mod floatExpr(-Infinity))             or
+        not isNaN(floatExpr(      NaN) mod floatExpr(   -13.25))             or
+        not isNaN(floatExpr(      NaN) mod floatExpr(    -1.0 ))             or
+        not isNaN(floatExpr(      NaN) mod floatExpr(    -0.75))             or
+        not isNaN(floatExpr(      NaN) mod floatExpr(    -0.0 ))             or
+        not isNaN(floatExpr(      NaN) mod floatExpr(     0.0 ))             or
+        not isNaN(floatExpr(      NaN) mod floatExpr(     0.75))             or
+        not isNaN(floatExpr(      NaN) mod floatExpr(     1.0 ))             or
+        not isNaN(floatExpr(      NaN) mod floatExpr(    13.25))             or
+        not isNaN(floatExpr(      NaN) mod floatExpr( Infinity))             or
+        not isNaN(floatExpr(-Infinity) mod floatExpr(      NaN))             or
+        not isNaN(floatExpr(-Infinity) mod floatExpr(-Infinity))             or
+        not isNaN(floatExpr(-Infinity) mod floatExpr(   -13.25))             or
+        not isNaN(floatExpr(-Infinity) mod floatExpr(    -1.0 ))             or
+        not isNaN(floatExpr(-Infinity) mod floatExpr(    -0.75))             or
+        not isNaN(floatExpr(-Infinity) mod floatExpr(    -0.0 ))             or
+        not isNaN(floatExpr(-Infinity) mod floatExpr(     0.0 ))             or
+        not isNaN(floatExpr(-Infinity) mod floatExpr(     0.75))             or
+        not isNaN(floatExpr(-Infinity) mod floatExpr(     1.0 ))             or
+        not isNaN(floatExpr(-Infinity) mod floatExpr(    13.25))             or
+        not isNaN(floatExpr(-Infinity) mod floatExpr( Infinity))             or
+        not isNaN(floatExpr(  -31.125) mod floatExpr(      NaN))             or
+                  floatExpr(  -31.125) mod floatExpr(-Infinity) <>   -31.125 or
+                  floatExpr(  -31.125) mod floatExpr(   -13.25) <>    -4.625 or
+                  floatExpr(  -31.125) mod floatExpr(    -1.0 ) <>    -0.125 or
+                  floatExpr(  -31.125) mod floatExpr(    -0.75) <>    -0.375 or
+        not isNaN(floatExpr(  -31.125) mod floatExpr(    -0.0 ))             or
+        not isNaN(floatExpr(  -31.125) mod floatExpr(     0.0 ))             or
+                  floatExpr(  -31.125) mod floatExpr(     0.75) <>     0.375 or
+                  floatExpr(  -31.125) mod floatExpr(     1.0 ) <>     0.875 or
+                  floatExpr(  -31.125) mod floatExpr(    13.25) <>     8.625 or
+                  floatExpr(  -31.125) mod floatExpr( Infinity) <>  Infinity or
+        not isNaN(floatExpr(   -1.0  ) mod floatExpr(      NaN))             or
+                  floatExpr(   -1.0  ) mod floatExpr(-Infinity) <>    -1.0   or
+                  floatExpr(   -1.0  ) mod floatExpr(   -13.25) <>    -1.0   or
+                  floatExpr(   -1.0  ) mod floatExpr(    -1.0 ) <>     0.0   or
+                  floatExpr(   -1.0  ) mod floatExpr(    -0.75) <>    -0.25  or
+        not isNaN(floatExpr(   -1.0  ) mod floatExpr(    -0.0 ))             or
+        not isNaN(floatExpr(   -1.0  ) mod floatExpr(     0.0 ))             or
+                  floatExpr(   -1.0  ) mod floatExpr(     0.75) <>     0.5   or
+                  floatExpr(   -1.0  ) mod floatExpr(     1.0 ) <>     0.0   or
+                  floatExpr(   -1.0  ) mod floatExpr(    13.25) <>    12.25  or
+                  floatExpr(   -1.0  ) mod floatExpr( Infinity) <>  Infinity or
+        not isNaN(floatExpr(   -0.0  ) mod floatExpr(      NaN))             or
+                  floatExpr(   -0.0  ) mod floatExpr(-Infinity) <>     0.0   or
+                  floatExpr(   -0.0  ) mod floatExpr(   -13.25) <>     0.0   or
+                  floatExpr(   -0.0  ) mod floatExpr(    -1.0 ) <>     0.0   or
+                  floatExpr(   -0.0  ) mod floatExpr(    -0.75) <>     0.0   or
+        not isNaN(floatExpr(   -0.0  ) mod floatExpr(    -0.0 ))             or
+        not isNaN(floatExpr(   -0.0  ) mod floatExpr(     0.0 ))             or
+                  floatExpr(   -0.0  ) mod floatExpr(     0.75) <>     0.0   or
+                  floatExpr(   -0.0  ) mod floatExpr(     1.0 ) <>     0.0   or
+                  floatExpr(   -0.0  ) mod floatExpr(    13.25) <>     0.0   or
+                  floatExpr(   -0.0  ) mod floatExpr( Infinity) <>     0.0   or
+        not isNaN(floatExpr(    0.0  ) mod floatExpr(      NaN))             or
+                  floatExpr(    0.0  ) mod floatExpr(-Infinity) <>     0.0   or
+                  floatExpr(    0.0  ) mod floatExpr(   -13.25) <>     0.0   or
+                  floatExpr(    0.0  ) mod floatExpr(    -1.0 ) <>     0.0   or
+                  floatExpr(    0.0  ) mod floatExpr(    -0.75) <>     0.0   or
+        not isNaN(floatExpr(    0.0  ) mod floatExpr(    -0.0 ))             or
+        not isNaN(floatExpr(    0.0  ) mod floatExpr(     0.0 ))             or
+                  floatExpr(    0.0  ) mod floatExpr(     0.75) <>     0.0   or
+                  floatExpr(    0.0  ) mod floatExpr(     1.0 ) <>     0.0   or
+                  floatExpr(    0.0  ) mod floatExpr(    13.25) <>     0.0   or
+                  floatExpr(    0.0  ) mod floatExpr( Infinity) <>     0.0   or
+        not isNaN(floatExpr(    1.0  ) mod floatExpr(      NaN))             or
+                  floatExpr(    1.0  ) mod floatExpr(-Infinity) <> -Infinity or
+                  floatExpr(    1.0  ) mod floatExpr(   -13.25) <>   -12.25  or
+                  floatExpr(    1.0  ) mod floatExpr(    -1.0 ) <>     0.0   or
+                  floatExpr(    1.0  ) mod floatExpr(    -0.75) <>    -0.5   or
+        not isNaN(floatExpr(    1.0  ) mod floatExpr(    -0.0 ))             or
+        not isNaN(floatExpr(    1.0  ) mod floatExpr(     0.0 ))             or
+                  floatExpr(    1.0  ) mod floatExpr(     0.75) <>     0.25  or
+                  floatExpr(    1.0  ) mod floatExpr(     1.0 ) <>     0.0   or
+                  floatExpr(    1.0  ) mod floatExpr(    13.25) <>     1.0   or
+                  floatExpr(    1.0  ) mod floatExpr( Infinity) <>     1.0   or
+        not isNaN(floatExpr(   31.125) mod floatExpr(      NaN))             or
+                  floatExpr(   31.125) mod floatExpr(-Infinity) <> -Infinity or
+                  floatExpr(   31.125) mod floatExpr(   -13.25) <>    -8.625 or
+                  floatExpr(   31.125) mod floatExpr(    -1.0 ) <>    -0.875 or
+                  floatExpr(   31.125) mod floatExpr(    -0.75) <>    -0.375 or
+        not isNaN(floatExpr(   31.125) mod floatExpr(    -0.0 ))             or
+        not isNaN(floatExpr(   31.125) mod floatExpr(     0.0 ))             or
+                  floatExpr(   31.125) mod floatExpr(     0.75) <>     0.375 or
+                  floatExpr(   31.125) mod floatExpr(     1.0 ) <>     0.125 or
+                  floatExpr(   31.125) mod floatExpr(    13.25) <>     4.625 or
+                  floatExpr(   31.125) mod floatExpr( Infinity) <>    31.125 or
+        not isNaN(floatExpr( Infinity) mod floatExpr(      NaN))             or
+        not isNaN(floatExpr( Infinity) mod floatExpr(-Infinity))             or
+        not isNaN(floatExpr( Infinity) mod floatExpr(   -13.25))             or
+        not isNaN(floatExpr( Infinity) mod floatExpr(    -1.0 ))             or
+        not isNaN(floatExpr( Infinity) mod floatExpr(    -0.75))             or
+        not isNaN(floatExpr( Infinity) mod floatExpr(    -0.0 ))             or
+        not isNaN(floatExpr( Infinity) mod floatExpr(     0.0 ))             or
+        not isNaN(floatExpr( Infinity) mod floatExpr(     0.75))             or
+        not isNaN(floatExpr( Infinity) mod floatExpr(     1.0 ))             or
+        not isNaN(floatExpr( Infinity) mod floatExpr(    13.25))             or
+        not isNaN(floatExpr( Infinity) mod floatExpr( Infinity))             then
+      writeln(" ***** Modulo does not work correct. (4)");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("Modulo works correct for selected values.");
+    else
+      writeln(" ***** Modulo does not work correct.");
+    end if;
+  end func;
+
+
 const proc: check_power is func
   local
     const float: minusZero is -0.0;
     const float: minusOne is -1.0;
     const float: minusTwo is -2.0;
+    const float: minusThree is -3.0;
     var boolean: okay is TRUE;
   begin
     if            (-2.0) ** (-2.0) <>  0.25 or
@@ -5873,78 +6996,114 @@ const proc: check_power is func
       okay := FALSE;
     end if;
 
-    if                (-0.0) **              (-2.0) <>  Infinity or
-                      (-0.0) **           minusTwo  <>  Infinity or
-                      (-0.0) **              (-1.5) <>  Infinity or
-                      (-0.0) **              (-1.0) <> -Infinity or
-                      (-0.0) **           minusOne  <> -Infinity or
-                      (-0.0) **              (-0.5) <>  Infinity or
-                  minusZero  **              (-2.0) <>  Infinity or
-                  minusZero  **           minusTwo  <>  Infinity or
-                  minusZero  **              (-1.5) <>  Infinity or
-                  minusZero  **              (-1.0) <> -Infinity or
-                  minusZero  **           minusOne  <> -Infinity or
-                  minusZero  **              (-0.5) <>  Infinity or
-                        0.0  **              (-2.0) <>  Infinity or
-                        0.0  **           minusTwo  <>  Infinity or
-                        0.0  **              (-1.5) <>  Infinity or
-                        0.0  **              (-1.0) <>  Infinity or
-                        0.0  **           minusOne  <>  Infinity or
-                        0.0  **              (-0.5) <>  Infinity or
-        floatExpr(     -0.0) **              (-2.0) <>  Infinity or
-        floatExpr(     -0.0) **           minusTwo  <>  Infinity or
-        floatExpr(     -0.0) **              (-1.5) <>  Infinity or
-        floatExpr(     -0.0) **              (-1.0) <> -Infinity or
-        floatExpr(     -0.0) **           minusOne  <> -Infinity or
-        floatExpr(     -0.0) **              (-0.5) <>  Infinity or
-        floatExpr(minusZero) **              (-2.0) <>  Infinity or
-        floatExpr(minusZero) **           minusTwo  <>  Infinity or
-        floatExpr(minusZero) **              (-1.5) <>  Infinity or
-        floatExpr(minusZero) **              (-1.0) <> -Infinity or
-        floatExpr(minusZero) **           minusOne  <> -Infinity or
-        floatExpr(minusZero) **              (-0.5) <>  Infinity or
-        floatExpr(      0.0) **              (-2.0) <>  Infinity or
-        floatExpr(      0.0) **           minusTwo  <>  Infinity or
-        floatExpr(      0.0) **              (-1.5) <>  Infinity or
-        floatExpr(      0.0) **              (-1.0) <>  Infinity or
-        floatExpr(      0.0) **           minusOne  <>  Infinity or
-        floatExpr(      0.0) **              (-0.5) <>  Infinity or
-                      (-0.0) ** floatExpr(    -2.0) <>  Infinity or
-                      (-0.0) ** floatExpr(minusTwo) <>  Infinity or
-                      (-0.0) ** floatExpr(    -1.5) <>  Infinity or
-                      (-0.0) ** floatExpr(    -1.0) <> -Infinity or
-                      (-0.0) ** floatExpr(minusOne) <> -Infinity or
-                      (-0.0) ** floatExpr(    -0.5) <>  Infinity or
-                  minusZero  ** floatExpr(    -2.0) <>  Infinity or
-                  minusZero  ** floatExpr(minusTwo) <>  Infinity or
-                  minusZero  ** floatExpr(    -1.5) <>  Infinity or
-                  minusZero  ** floatExpr(    -1.0) <> -Infinity or
-                  minusZero  ** floatExpr(minusOne) <> -Infinity or
-                  minusZero  ** floatExpr(    -0.5) <>  Infinity or
-                        0.0  ** floatExpr(    -2.0) <>  Infinity or
-                        0.0  ** floatExpr(minusTwo) <>  Infinity or
-                        0.0  ** floatExpr(    -1.5) <>  Infinity or
-                        0.0  ** floatExpr(    -1.0) <>  Infinity or
-                        0.0  ** floatExpr(minusOne) <>  Infinity or
-                        0.0  ** floatExpr(    -0.5) <>  Infinity or
-        floatExpr(     -0.0) ** floatExpr(    -2.0) <>  Infinity or
-        floatExpr(     -0.0) ** floatExpr(minusTwo) <>  Infinity or
-        floatExpr(     -0.0) ** floatExpr(    -1.5) <>  Infinity or
-        floatExpr(     -0.0) ** floatExpr(    -1.0) <> -Infinity or
-        floatExpr(     -0.0) ** floatExpr(minusOne) <> -Infinity or
-        floatExpr(     -0.0) ** floatExpr(    -0.5) <>  Infinity or
-        floatExpr(minusZero) ** floatExpr(    -2.0) <>  Infinity or
-        floatExpr(minusZero) ** floatExpr(minusTwo) <>  Infinity or
-        floatExpr(minusZero) ** floatExpr(    -1.5) <>  Infinity or
-        floatExpr(minusZero) ** floatExpr(    -1.0) <> -Infinity or
-        floatExpr(minusZero) ** floatExpr(minusOne) <> -Infinity or
-        floatExpr(minusZero) ** floatExpr(    -0.5) <>  Infinity or
-        floatExpr(      0.0) ** floatExpr(    -2.0) <>  Infinity or
-        floatExpr(      0.0) ** floatExpr(minusTwo) <>  Infinity or
-        floatExpr(      0.0) ** floatExpr(    -1.5) <>  Infinity or
-        floatExpr(      0.0) ** floatExpr(    -1.0) <>  Infinity or
-        floatExpr(      0.0) ** floatExpr(minusOne) <>  Infinity or
-        floatExpr(      0.0) ** floatExpr(    -0.5) <>  Infinity then
+    if                (-0.0) **                (-3.0) <> -Infinity or
+                      (-0.0) **           minusThree  <> -Infinity or
+                      (-0.0) **                (-2.5) <>  Infinity or
+                      (-0.0) **                (-2.0) <>  Infinity or
+                      (-0.0) **             minusTwo  <>  Infinity or
+                      (-0.0) **                (-1.5) <>  Infinity or
+                      (-0.0) **                (-1.0) <> -Infinity or
+                      (-0.0) **             minusOne  <> -Infinity or
+                      (-0.0) **                (-0.5) <>  Infinity or
+                  minusZero  **                (-3.0) <> -Infinity or
+                  minusZero  **           minusThree  <> -Infinity or
+                  minusZero  **                (-2.5) <>  Infinity or
+                  minusZero  **                (-2.0) <>  Infinity or
+                  minusZero  **             minusTwo  <>  Infinity or
+                  minusZero  **                (-1.5) <>  Infinity or
+                  minusZero  **                (-1.0) <> -Infinity or
+                  minusZero  **             minusOne  <> -Infinity or
+                  minusZero  **                (-0.5) <>  Infinity or
+                        0.0  **                (-3.0) <>  Infinity or
+                        0.0  **           minusThree  <>  Infinity or
+                        0.0  **                (-2.5) <>  Infinity or
+                        0.0  **                (-2.0) <>  Infinity or
+                        0.0  **             minusTwo  <>  Infinity or
+                        0.0  **                (-1.5) <>  Infinity or
+                        0.0  **                (-1.0) <>  Infinity or
+                        0.0  **             minusOne  <>  Infinity or
+                        0.0  **                (-0.5) <>  Infinity or
+        floatExpr(     -0.0) **                (-3.0) <> -Infinity or
+        floatExpr(     -0.0) **           minusThree  <> -Infinity or
+        floatExpr(     -0.0) **                (-2.5) <>  Infinity or
+        floatExpr(     -0.0) **                (-2.0) <>  Infinity or
+        floatExpr(     -0.0) **             minusTwo  <>  Infinity or
+        floatExpr(     -0.0) **                (-1.5) <>  Infinity or
+        floatExpr(     -0.0) **                (-1.0) <> -Infinity or
+        floatExpr(     -0.0) **             minusOne  <> -Infinity or
+        floatExpr(     -0.0) **                (-0.5) <>  Infinity or
+        floatExpr(minusZero) **                (-3.0) <> -Infinity or
+        floatExpr(minusZero) **           minusThree  <> -Infinity or
+        floatExpr(minusZero) **                (-2.5) <>  Infinity or
+        floatExpr(minusZero) **                (-2.0) <>  Infinity or
+        floatExpr(minusZero) **             minusTwo  <>  Infinity or
+        floatExpr(minusZero) **                (-1.5) <>  Infinity or
+        floatExpr(minusZero) **                (-1.0) <> -Infinity or
+        floatExpr(minusZero) **             minusOne  <> -Infinity or
+        floatExpr(minusZero) **                (-0.5) <>  Infinity or
+        floatExpr(      0.0) **                (-3.0) <>  Infinity or
+        floatExpr(      0.0) **           minusThree  <>  Infinity or
+        floatExpr(      0.0) **                (-2.5) <>  Infinity or
+        floatExpr(      0.0) **                (-2.0) <>  Infinity or
+        floatExpr(      0.0) **             minusTwo  <>  Infinity or
+        floatExpr(      0.0) **                (-1.5) <>  Infinity or
+        floatExpr(      0.0) **                (-1.0) <>  Infinity or
+        floatExpr(      0.0) **             minusOne  <>  Infinity or
+        floatExpr(      0.0) **                (-0.5) <>  Infinity or
+                      (-0.0) ** floatExpr(      -3.0) <> -Infinity or
+                      (-0.0) ** floatExpr(minusThree)  <> -Infinity or
+                      (-0.0) ** floatExpr(      -2.5) <>  Infinity or
+                      (-0.0) ** floatExpr(      -2.0) <>  Infinity or
+                      (-0.0) ** floatExpr(  minusTwo) <>  Infinity or
+                      (-0.0) ** floatExpr(      -1.5) <>  Infinity or
+                      (-0.0) ** floatExpr(      -1.0) <> -Infinity or
+                      (-0.0) ** floatExpr(  minusOne) <> -Infinity or
+                      (-0.0) ** floatExpr(      -0.5) <>  Infinity or
+                  minusZero  ** floatExpr(      -3.0) <> -Infinity or
+                  minusZero  ** floatExpr(minusThree) <> -Infinity or
+                  minusZero  ** floatExpr(      -2.5) <>  Infinity or
+                  minusZero  ** floatExpr(      -2.0) <>  Infinity or
+                  minusZero  ** floatExpr(  minusTwo) <>  Infinity or
+                  minusZero  ** floatExpr(      -1.5) <>  Infinity or
+                  minusZero  ** floatExpr(      -1.0) <> -Infinity or
+                  minusZero  ** floatExpr(  minusOne) <> -Infinity or
+                  minusZero  ** floatExpr(      -0.5) <>  Infinity or
+                        0.0  ** floatExpr(      -3.0) <>  Infinity or
+                        0.0  ** floatExpr(minusThree) <>  Infinity or
+                        0.0  ** floatExpr(      -2.5) <>  Infinity or
+                        0.0  ** floatExpr(      -2.0) <>  Infinity or
+                        0.0  ** floatExpr(  minusTwo) <>  Infinity or
+                        0.0  ** floatExpr(      -1.5) <>  Infinity or
+                        0.0  ** floatExpr(      -1.0) <>  Infinity or
+                        0.0  ** floatExpr(  minusOne) <>  Infinity or
+                        0.0  ** floatExpr(      -0.5) <>  Infinity or
+        floatExpr(     -0.0) ** floatExpr(      -3.0) <> -Infinity or
+        floatExpr(     -0.0) ** floatExpr(minusThree) <> -Infinity or
+        floatExpr(     -0.0) ** floatExpr(      -2.5) <>  Infinity or
+        floatExpr(     -0.0) ** floatExpr(      -2.0) <>  Infinity or
+        floatExpr(     -0.0) ** floatExpr(  minusTwo) <>  Infinity or
+        floatExpr(     -0.0) ** floatExpr(      -1.5) <>  Infinity or
+        floatExpr(     -0.0) ** floatExpr(      -1.0) <> -Infinity or
+        floatExpr(     -0.0) ** floatExpr(  minusOne) <> -Infinity or
+        floatExpr(     -0.0) ** floatExpr(      -0.5) <>  Infinity or
+        floatExpr(minusZero) ** floatExpr(      -3.0) <> -Infinity or
+        floatExpr(minusZero) ** floatExpr(minusThree) <> -Infinity or
+        floatExpr(minusZero) ** floatExpr(      -2.5) <>  Infinity or
+        floatExpr(minusZero) ** floatExpr(      -2.0) <>  Infinity or
+        floatExpr(minusZero) ** floatExpr(  minusTwo) <>  Infinity or
+        floatExpr(minusZero) ** floatExpr(      -1.5) <>  Infinity or
+        floatExpr(minusZero) ** floatExpr(      -1.0) <> -Infinity or
+        floatExpr(minusZero) ** floatExpr(  minusOne) <> -Infinity or
+        floatExpr(minusZero) ** floatExpr(      -0.5) <>  Infinity or
+        floatExpr(      0.0) ** floatExpr(      -3.0) <>  Infinity or
+        floatExpr(      0.0) ** floatExpr(minusThree) <>  Infinity or
+        floatExpr(      0.0) ** floatExpr(      -2.5) <>  Infinity or
+        floatExpr(      0.0) ** floatExpr(      -2.0) <>  Infinity or
+        floatExpr(      0.0) ** floatExpr(  minusTwo) <>  Infinity or
+        floatExpr(      0.0) ** floatExpr(      -1.5) <>  Infinity or
+        floatExpr(      0.0) ** floatExpr(      -1.0) <>  Infinity or
+        floatExpr(      0.0) ** floatExpr(  minusOne) <>  Infinity or
+        floatExpr(      0.0) ** floatExpr(      -0.5) <>  Infinity then
       writeln(" ***** Power of 0.0 with selected negative exponents does not return Infinity.");
       okay := FALSE;
     end if;
@@ -10083,8 +11242,12 @@ const proc: check_nan is func
         not isNaN(floatExpr(NaN) / floatExpr(   1000.0)) or
         not isNaN(floatExpr(NaN) / floatExpr(   1.0E37)) or
         not isNaN(floatExpr(NaN) / floatExpr( Infinity)) or
-        not isNaN(floatExpr(NaN) / floatExpr(      NaN)) or
-        not isNaN(          -Infinity  /           NaN)  or
+        not isNaN(floatExpr(NaN) / floatExpr(      NaN)) then
+      writeln(" ***** Dividing NaN does not return NaN.");
+      okay := FALSE;
+    end if;
+
+    if  not isNaN(          -Infinity  /           NaN)  or
         not isNaN(           minusInf  /           NaN)  or
         not isNaN(            -1.0E37  /           NaN)  or
         not isNaN(           minusBig  /           NaN)  or
@@ -10132,7 +11295,7 @@ const proc: check_nan is func
         not isNaN(floatExpr(   1.0E37) / floatExpr(NaN)) or
         not isNaN(floatExpr( Infinity) / floatExpr(NaN)) or
         not isNaN(floatExpr(      NaN) / floatExpr(NaN)) then
-      writeln(" ***** Dividing NaN or dividing by NaN does not return NaN.");
+      writeln(" ***** Dividing by NaN does not return NaN.");
       okay := FALSE;
     end if;
 
@@ -10826,6 +11989,7 @@ const proc: main is func
 
   begin
     writeln;
+    check_literal;
     check_comparison;
     check_compare;
     check_parse;
@@ -10835,6 +11999,8 @@ const proc: main is func
     check_add;
     check_mult;
     check_division;
+    check_remainder;
+    check_modulo;
     check_power;
     check_ipower;
     check_lshift;

@@ -725,6 +725,15 @@ objectType int_lowest_set_bit (listType arguments)
 
 
 
+/**
+ *  Convert integer to string and pad it with zeros at the left side.
+ *  The number is converted to a string with decimal representation.
+ *  For negative numbers a minus sign is prepended.
+ *  @param number/arg_1 Number to be converted to a [[string]].
+ *  @param length/arg_3 Minimum length of the result.
+ *  @return number as decimal string left padded with zeroes.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 objectType int_lpad0 (listType arguments)
 
   { /* int_lpad0 */

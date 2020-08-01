@@ -49,6 +49,7 @@ const type: subjectPublicKeyInfoType is new struct
     var algorithmIdentifierType: algorithm is algorithmIdentifierType.value;
     var string: subjectPublicKey is "";  # BIT STRING
     var rsaKey: publicRsaKey is rsaKey.value;
+    var boolean: isEcPublicKey is FALSE;
   end struct;
 
 const type: tbsCertificateType is new struct
@@ -106,7 +107,7 @@ const string: EXT_KEY_USAGE_OID             is encodeObjectIdentifier([] (2, 5, 
 const string: CERT_TYPE_OID                 is encodeObjectIdentifier([] (2, 16, 840, 1, 113730, 1, 1));  # "`\134;H\1;\134;�B\1;\1;"
 
 # iso(1) member-body(2) us(840) rsadsi(113549) pkcs(1) 1
-const string: PKCS_1 is  encodeObjectIdentifier([] (1, 2, 840, 113549, 1, 1));  # "*\134;H\134;\247;\r\1;\1;";
+const string: PKCS_1 is  encodeObjectIdentifier([] (1, 2, 840, 113549, 1, 1));  # "*\134;H\134;\247;\r\1;\1;"
 const string: RSA_ENCRYPTION_OID         is PKCS_1 & "\1;";
 const string: MD2_WITH_RSA_ENCRYPTION    is PKCS_1 & "\2;";
 const string: MD5_WITH_RSA_ENCRYPTION    is PKCS_1 & "\4;";
@@ -118,6 +119,9 @@ const string: RSASSA_PSS_OID             is PKCS_1 & "\10;";
 const string: SHA256_WITH_RSA_ENCRYPTION is PKCS_1 & "\11;";
 const string: SHA384_WITH_RSA_ENCRYPTION is PKCS_1 & "\12;";
 const string: SHA512_WITH_RSA_ENCRYPTION is PKCS_1 & "\13;";
+
+const string: EC_PUBLIC_KEY is  encodeObjectIdentifier([] (1, 2, 840, 10045, 2, 1));  # "*\134;H\206;=\2;\1;"
+const string: PRIME256_V1  is  encodeObjectIdentifier([] (1, 2, 840, 10045, 3, 1, 7));  # "*\134;H\206;=\3;\1;\a"
 
 const string: SHA1_OID is encodeObjectIdentifier([] (1, 3, 14, 3, 2, 26));  # "+\14;\3;\2;\26;"
 
@@ -206,16 +210,25 @@ const func subjectPublicKeyInfoType: getPublicKeyInfo (in string: stri, inout in
     if dataElem.tagCategory = tagSequence then
       keyInfo.algorithm := getAlgorithmIdentifier(stri, pos);
       dataElem := getAsn1DataElement(stri, pos);
+      # writeln("tag: " <& classTagName[ord(dataElem.tagCategory)]);
       if dataElem.tagCategory = tagBitString then
         # The initial octet of a bit-string encodes
         # the number of unused bits in the final octet.
-        keyInfo.subjectPublicKey := getData(stri, pos, dataElem)[2 ..];
-        # writeln("algorithm:          " <& literal(keyInfo.algorithm.algorithm));
-        # writeln("RSA_ENCRYPTION_OID: " <& literal(RSA_ENCRYPTION_OID));
-        # writeln("algorithm:          " <& ord(keyInfo.algorithm.algorithm[5]));
-        # writeln("RSA_ENCRYPTION_OID: " <& ord(RSA_ENCRYPTION_OID[5]));
+        keyInfo.subjectPublicKey := getData(stri, pos, dataElem);
+        if keyInfo.subjectPublicKey[1] <> '\0;' then
+          writeln("Initial octet of bit-string: " <& ord(keyInfo.subjectPublicKey[1]));
+        end if;
+        keyInfo.subjectPublicKey := keyInfo.subjectPublicKey[2 ..];
+        # keyInfo.subjectPublicKey := getData(stri, pos, dataElem)[2 ..];
+        # writeln("subjectPublicKey: " <& literal(keyInfo.subjectPublicKey));
+        # writeln("length(subjectPublicKey): " <& length(keyInfo.subjectPublicKey));
+        # writeln("algorithm: " <& literal(keyInfo.algorithm.algorithm));
+        # writeln("algorithm parameters: " <& literal(keyInfo.algorithm.parameters));
         if keyInfo.algorithm.algorithm = RSA_ENCRYPTION_OID then
           keyInfo.publicRsaKey := getRsaKey(keyInfo.subjectPublicKey);
+        elsif keyInfo.algorithm.algorithm = EC_PUBLIC_KEY then
+          # writeln("EC_PUBLIC_KEY");
+          keyInfo.isEcPublicKey := TRUE;
         end if;
       end if;
     end if;

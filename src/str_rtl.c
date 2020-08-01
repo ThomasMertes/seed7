@@ -1594,6 +1594,24 @@ striType strChRepl (const const_striType mainStri,
 
 
 
+/**
+ *  Split 'mainStri' around matches of 'delimiter' into an array of strings.
+ *  The array returned by strSplit() contains each substring of
+ *  'mainStri' that is terminated by another substring that is equal
+ *  to the 'delimiter' or is terminated by the end of 'mainStri'.
+ *  The substrings in the array are in the order in which they occur in
+ *  'mainStri'. If 'delimiter' does not match any part of 'mainStri'
+ *  then the resulting array has just one element, namely 'mainStri'. 
+ *   split("", ':')       returns  []("")
+ *   split("x", ':')      returns  []("x")
+ *   split(":", ':')      returns  []("", "")
+ *   split("x:", ':')     returns  []("x", "")
+ *   split(":x", ':')     returns  []("", "x")
+ *   split("15:30", ':')  returns  []("15", "30")
+ *  @return the array of strings computed by splitting 'mainStri' around
+ *          matches of the given 'delimiter'.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */ 
 rtlArrayType strChSplit (const const_striType mainStri, const charType delimiter)
 
   {
@@ -3779,6 +3797,24 @@ striType strRtrim (const const_striType stri)
 
 
 
+/**
+ *  Split 'mainStri' around matches of 'delimiter' into an array of strings.
+ *  The array returned by strSplit() contains each substring of
+ *  'mainStri' that is terminated by another substring that is equal
+ *  to the 'delimiter' or is terminated by the end of 'mainStri'.
+ *  The substrings in the array are in the order in which they occur in
+ *  'mainStri'. If 'delimiter' does not match any part of 'mainStri'
+ *  then the resulting array has just one element, namely 'mainStri'. 
+ *   split("", ":")       returns  []("")
+ *   split("x", ":")      returns  []("x")
+ *   split(":", ":")      returns  []("", "")
+ *   split("x:", ":")     returns  []("x", "")
+ *   split(":x", ":")     returns  []("", "x")
+ *   split("15:30", ":")  returns  []("15", "30")
+ *  @return the array of strings computed by splitting 'mainStri' around
+ *          matches of the given 'delimiter'.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */ 
 rtlArrayType strSplit (const const_striType mainStri,
     const const_striType delimiter)
 

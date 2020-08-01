@@ -43,6 +43,9 @@
 #include "infile.h"
 #include "fatal.h"
 #include "stat.h"
+#if ANY_LOG_ACTIVE
+#include "traceutl.h"
+#endif
 
 #undef EXTERN
 #define EXTERN
@@ -195,6 +198,6 @@ listType add_element_to_list (listType list, objectType object)
       return NULL;
     } /* if */
     logFunction(printf("add_element_to_list --> ");
-                prot_list(*list);
+                prot_list(list);
                 printf("\n"););
   } /* add_element_to_list */

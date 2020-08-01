@@ -162,6 +162,18 @@ static void check_access_rights (const_objectType object)
 
 
 
+/**
+ *  In the expr_object all parameter objects are replaced by values.
+ *  Parameters have the category VALUEPARAMOBJECT or REFPARAMOBJECT.
+ *  The values of normal parameters are set with do_create().
+ *  Do_create() is also used when a variable or parameter is initialized.
+ *  When a parameter has an expression as value (category EXPROBJECT,
+ *  CALLOBJECT, MATCHOBJECT or LISTOBJECT) the expression is copied
+ *  to the place of the parameter instead. This copiing is necessary,
+ *  because for expressions do_create() would just creates a reference
+ *  to the expression and this would leads to a double free of the
+ *  expression.
+ */
 void substitute_params (const_objectType expr_object)
 
   {

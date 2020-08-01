@@ -1,3 +1,57 @@
+20190610:
+- The library float.s7i has been improved to support the float
+  operators 'rem' (floating-point remainder) and 'mod' (floating-point
+  modulo).
+- The program chkflt.sd7 has been improved to check floating-point
+  literals and the new operators 'rem' and 'mod'. The tests for the
+  operator ** have been improved also.
+- Compiler and interpreter have been improved to work correct, even
+  when the C functions fmod(), exp(), ldexp(), frexp() and sqrt() do
+  not work 100% correct.
+- The program chkccomp.c has been improved to detect weaknesses of
+  numeric functions. These weaknesses happen when handling with NaN,
+  Infinity or when other special cases occur.
+- A new version of the function timAwait() has been added to tim_unx.c.
+  This function is used when AWAIT_WITH_NANOSLEEP is defined.
+- The makefiles mk_emccl.mak and mk_emccw.mak have been improved to
+  define AWAIT_WITH_NANOSLEEP instead of AWAIT_WITH_SELECT.
+- Interpreter and compiler have been improved to support the actions
+  FLT_MOD and FLT_REM.
+- In the compiler (in comp/flt_act.s7i) a corner case of the action
+  FLT_IPOW (when CHECK_FLOAT_DIV_BY_ZERO is TRUE and the exponent is
+  negative and the base is zero (0.0 or -0.0)) has been fixed.
+- The configuration values FLOAT_COMPARISON_OKAY, FMOD_FUNCTION_OKAY,
+  EXP_FUNCTION_OKAY, LDEXP_FUNCTION_OKAY and FREXP_FUNCTION_OKAY have
+  been added to cc_conf.s7i. The configuration values
+  NAN_COMPARISON_OKAY and FREXP_INFINITY_NAN_OKAY have been removed.
+- The functions fltDecompose(), fltExp(), fltLdexp(), fltMod() and
+  fltRem() have been added to flt_rtl.c. These functions are used, when
+  the corresponding C functions frexp(), exp(), ldexp() and fmod() do
+  not work 100% correct.
+- In flt_rtl.c the functions fltEq(), fltGe(), fltGt(), fltLe() and
+  fltLt() have been improved. These improvements help, when the
+  comparison of float or double values does not work 100% correct.
+- In flt_rtl.c the functions fltPow(), getMantissaAndExponent(),
+  setMantissaAndExponent() and fltSqrt() have been improved. These
+  improvements help, when the underlying C functions pow(), frexp(),
+  ldexp() and sqrt() do not work 100% correct.
+- The program chkccomp.c has been improved to define the macros
+  FLOAT_NAN_COMPARISON_OKAY, FLOAT_ZERO_COMPARISON_OKAY,
+  SQRT_OF_NAN_OKAY, SQRT_OF_NEGATIVE_OKAY, EXP_OF_NAN_OKAY,
+  LDEXP_OF_NAN_OKAY, FREXP_SUBNORMAL_OKAY, FMOD_DIVIDEND_NAN_OKAY,
+  FMOD_DIVISOR_NAN_OKAY, FMOD_DIVIDEND_INFINITY_OKAY,
+  FMOD_DIVISOR_INFINITY_OKAY and FMOD_DIVISOR_ZERO_OKAY.
+- In cmd_rtl.c the function cmdConfigValue has been improved to support
+  the config values FLOAT_COMPARISON_OKAY, EXP_FUNCTION_OKAY,
+  FMOD_FUNCTION_OKAY, LDEXP_FUNCTION_OKAY and FREXP_FUNCTION_OKAY.
+- Definitions of the macros FLOAT_COMPARISON_OKAY, SQRT_FUNCTION_OKAY,
+  EXP_FUNCTION_OKAY, LDEXP_FUNCTION_OKAY, FREXP_FUNCTION_OKAY and
+  FMOD_FUNCTION_OKAY have been added to commpn.h
+- Documentation comments have been improved in intlib.c, int_rtl.c,
+  match.c, str_rtl.c, keybd.s7i and vectorfont.s7i.
+- In comp/int_act.s7i the variable quotient_name has been renamed to
+  remainder_name.
+
 20190523:
 - In match.c the function substitute_params() has been fixed to copy
   parameters with expressions instead of calling do_create(). For

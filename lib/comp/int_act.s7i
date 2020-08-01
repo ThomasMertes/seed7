@@ -2133,7 +2133,7 @@ const proc: process_const_int_mod (in reference: dividend, in integer: divisor,
   local
     var reference: evaluatedDividend is NIL;
     var string: dividend_name is "";
-    var string: quotient_name is "";
+    var string: remainder_name is "";
   begin
     incr(countOptimizations);
     if divisor = 0 then
@@ -2186,9 +2186,9 @@ const proc: process_const_int_mod (in reference: dividend, in integer: divisor,
     else
       c_expr.expr &:= "(";
       dividend_name := getParameterAsVariable("intType", "tmp_a_", dividend, c_expr);
-      quotient_name := defineTempVariable("intType", "tmp_c_", c_expr);
+      remainder_name := defineTempVariable("intType", "tmp_c_", c_expr);
       (* Formula used: c=a%b,a<0^b<0&&c!=0?c+b:c *)
-      c_expr.expr &:= quotient_name;
+      c_expr.expr &:= remainder_name;
       c_expr.expr &:= "=";
       c_expr.expr &:= dividend_name;
       c_expr.expr &:= "%";
@@ -2203,13 +2203,13 @@ const proc: process_const_int_mod (in reference: dividend, in integer: divisor,
         c_expr.expr &:= ">0";
       end if;
       c_expr.expr &:= "&&";
-      c_expr.expr &:= quotient_name;
+      c_expr.expr &:= remainder_name;
       c_expr.expr &:= "!=0?";
-      c_expr.expr &:= quotient_name;
+      c_expr.expr &:= remainder_name;
       c_expr.expr &:= "+";
       c_expr.expr &:= integerLiteral(divisor);
       c_expr.expr &:= ":";
-      c_expr.expr &:= quotient_name;
+      c_expr.expr &:= remainder_name;
       c_expr.expr &:= ")";
     end if;
   end func;
@@ -2220,7 +2220,7 @@ const proc: process_const_int_mod (in integer: dividend, in reference: divisor,
 
   local
     var string: divisor_name is "";
-    var string: quotient_name is "";
+    var string: remainder_name is "";
   begin
     incr(countOptimizations);
     if dividend = 0 then
@@ -2245,7 +2245,7 @@ const proc: process_const_int_mod (in integer: dividend, in reference: divisor,
     else
       c_expr.expr &:= "(";
       divisor_name := getParameterAsVariable("intType", "tmp_b_", divisor, c_expr);
-      quotient_name := defineTempVariable("intType", "tmp_c_", c_expr);
+      remainder_name := defineTempVariable("intType", "tmp_c_", c_expr);
       if check_int_division_overflow and
           dividend = integer.first then
         incr(countOverflowChecks);
@@ -2265,7 +2265,7 @@ const proc: process_const_int_mod (in integer: dividend, in reference: divisor,
       end if;
       c_expr.expr &:= "(";
       (* Formula used: c=a%b,a<0^b<0&&c!=0?c+b:c *)
-      c_expr.expr &:= quotient_name;
+      c_expr.expr &:= remainder_name;
       c_expr.expr &:= "=";
       c_expr.expr &:= integerLiteral(dividend);
       c_expr.expr &:= "%";
@@ -2280,13 +2280,13 @@ const proc: process_const_int_mod (in integer: dividend, in reference: divisor,
         c_expr.expr &:= ">0";
       end if;
       c_expr.expr &:= "&&";
-      c_expr.expr &:= quotient_name;
+      c_expr.expr &:= remainder_name;
       c_expr.expr &:= "!=0?";
-      c_expr.expr &:= quotient_name;
+      c_expr.expr &:= remainder_name;
       c_expr.expr &:= "+";
       c_expr.expr &:= divisor_name;
       c_expr.expr &:= ":";
-      c_expr.expr &:= quotient_name;
+      c_expr.expr &:= remainder_name;
       c_expr.expr &:= "))";
     end if;
   end func;
@@ -2299,7 +2299,7 @@ const proc: process (INT_MOD, in reference: function,
     var reference: evaluatedParam is NIL;
     var string: dividend_name is "";
     var string: divisor_name is "";
-    var string: quotient_name is "";
+    var string: remainder_name is "";
   begin
     if getConstant(params[3], INTOBJECT, evaluatedParam) then
       process_const_int_mod(params[1], getValue(evaluatedParam, integer), c_expr);
@@ -2329,7 +2329,7 @@ const proc: process (INT_MOD, in reference: function,
       c_expr.expr &:= "(";
       dividend_name := getParameterAsVariable("intType", "tmp_a_", params[1], c_expr);
       divisor_name := getParameterAsVariable("intType", "tmp_b_", params[3], c_expr);
-      quotient_name := defineTempVariable("intType", "tmp_c_", c_expr);
+      remainder_name := defineTempVariable("intType", "tmp_c_", c_expr);
       if check_int_division_overflow then
         incr(countOverflowChecks);
         c_expr.expr &:= "ovfChk(";
@@ -2352,7 +2352,7 @@ const proc: process (INT_MOD, in reference: function,
       end if;
       c_expr.expr &:= "(";
       (* Formula used: c=a%b,a<0^b<0&&c!=0?c+b:c *)
-      c_expr.expr &:= quotient_name;
+      c_expr.expr &:= remainder_name;
       c_expr.expr &:= "=";
       c_expr.expr &:= dividend_name;
       c_expr.expr &:= "%";
@@ -2362,13 +2362,13 @@ const proc: process (INT_MOD, in reference: function,
       c_expr.expr &:= "<0^";
       c_expr.expr &:= divisor_name;
       c_expr.expr &:= "<0&&";
-      c_expr.expr &:= quotient_name;
+      c_expr.expr &:= remainder_name;
       c_expr.expr &:= "!=0?";
-      c_expr.expr &:= quotient_name;
+      c_expr.expr &:= remainder_name;
       c_expr.expr &:= "+";
       c_expr.expr &:= divisor_name;
       c_expr.expr &:= ":";
-      c_expr.expr &:= quotient_name;
+      c_expr.expr &:= remainder_name;
       c_expr.expr &:= "))";
     end if;
   end func;

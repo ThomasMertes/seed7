@@ -837,6 +837,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(FLT_LSHIFT, function, params, c_expr);
       when {"FLT_LT"}:
         process(FLT_LT, function, params, c_expr);
+      when {"FLT_MOD"}:
+        process(FLT_MOD, function, params, c_expr);
       when {"FLT_MULT"}:
         process(FLT_MULT, function, params, c_expr);
       when {"FLT_MULT_ASSIGN"}:
@@ -853,6 +855,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(FLT_POW, function, params, c_expr);
       when {"FLT_RAND"}:
         process(FLT_RAND, function, params, c_expr);
+      when {"FLT_REM"}:
+        process(FLT_REM, function, params, c_expr);
       when {"FLT_ROUND"}:
         process(FLT_ROUND, function, params, c_expr);
       when {"FLT_RSHIFT"}:

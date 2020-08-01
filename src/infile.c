@@ -202,7 +202,6 @@ void open_infile (const_striType sourceFileName, boolType write_library_names,
       in_fil = os_fopen(os_path, os_mode_rb);
       /* printf("fopen(\"" FMT_S_OS "\") --> " FMT_U_MEM "\n",
              os_path, (memSizeType) in_fil); */
-      os_stri_free(os_path);
       if (in_fil == NULL) {
         logError(printf("open_infile: "
                         "fopen(\"" FMT_S_OS "\", \"" FMT_S_OS "\") failed:\n"
@@ -272,6 +271,7 @@ void open_infile (const_striType sourceFileName, boolType write_library_names,
           } /* if */
         } /* if */
       } /* if */
+      os_stri_free(os_path);
     } /* if */
     logFunction(printf("open_infile --> err_info=%d\n", *err_info););
   } /* open_infile */

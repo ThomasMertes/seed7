@@ -49,46 +49,86 @@ double setMantissaAndExponent (int64Type intMantissa, int binaryExponent);
 memSizeType doubleToCharBuffer (const double doubleValue,
     const double largeNumber, const char *format, char *buffer);
 intType fltCmp (floatType number1, floatType number2);
+
+#if !FREXP_FUNCTION_OKAY
+floatType fltDecompose (const floatType number, intType *const exponent);
+#endif
+
 striType fltDgts (floatType number, intType precision);
-#if !NAN_COMPARISON_OKAY
+
+#if !FLOAT_COMPARISON_OKAY
 boolType fltEq (floatType number1, floatType number2);
+#endif
+
+#if EXP_FUNCTION_OKAY
+#define fltExp(exponent) exp(exponent)
+#else
+floatType fltExp (floatType exponent);
+#endif
+
+#if !FLOAT_COMPARISON_OKAY
 boolType fltGe (floatType number1, floatType number2);
 boolType fltGt (floatType number1, floatType number2);
 #endif
+
 floatType fltIPow (floatType base, intType exponent);
 boolType fltIsNegativeZero (floatType number);
-#if !NAN_COMPARISON_OKAY
+
+#if LDEXP_FUNCTION_OKAY
+#define fltLdexp(number, exponent) ldexp(number, exponent)
+#else
+floatType fltLdexp (floatType number, int exponent);
+#endif
+
+#if !FLOAT_COMPARISON_OKAY
 boolType fltLe (floatType number1, floatType number2);
 #endif
+
 #if LOG_FUNCTION_OKAY
 #define fltLog(number) log(number)
 #else
 floatType fltLog (floatType number);
 #endif
+
 #if LOG10_FUNCTION_OKAY
 #define fltLog10(number) log10(number)
 #else
 floatType fltLog10 (floatType number);
 #endif
+
 #if LOG2_FUNCTION_OKAY
 #define fltLog2(number) log2(number)
 #else
 floatType fltLog2 (floatType number);
 #endif
-#if !NAN_COMPARISON_OKAY
+
+#if !FLOAT_COMPARISON_OKAY
 boolType fltLt (floatType number1, floatType number2);
 #endif
+
+floatType fltMod (floatType dividend, floatType divisor);
 floatType fltParse (const const_striType stri);
+
 #if POW_FUNCTION_OKAY
 #define fltPow(base, exponent) pow(base, exponent)
 #else
 floatType fltPow (floatType base, floatType exponent);
 #endif
+
 floatType fltRand (floatType lower_limit, floatType upper_limit);
+
+#if FMOD_FUNCTION_OKAY
+#define fltRem(dividend, divisor) fmod(dividend, divisor)
+#else
+floatType fltRem (floatType dividend, floatType divisor);
+#endif
+
 striType fltSci (floatType number, intType precision);
+
 #if SQRT_FUNCTION_OKAY
 #define fltSqrt(number) sqrt(number)
 #else
 floatType fltSqrt (floatType number);
 #endif
+
 striType fltStr (floatType number);

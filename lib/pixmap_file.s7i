@@ -114,6 +114,16 @@ const proc: flush (inout pixmapFontFile: aFile) is func
 const proc: setFont (inout text: aText, in font: aFont) is DYNAMIC;
 
 
+(**
+ *  Get the current font of ''aText''.
+ *)
+const func font: getFont (in text: aText) is DYNAMIC;
+
+
+const func font: getFont (in pixmapFontFile: fontFile) is
+  return fontFile.font.baseFont;
+
+
 const proc: cursor (ref pixmapFontFile: fontFile, ref boolean: active) is noop;
 const func integer: height (in pixmapFontFile: fontFile) is return fontFile.height;
 const func integer: width (in pixmapFontFile: fontFile) is return fontFile.width;

@@ -319,6 +319,8 @@ const func string: getln (inout graph_keybd_file: keybd) is func
  *  and can be read directly, without the need to press ENTER or
  *  RETURN. There is also no possibility to correct a key, once it
  *  is pressed. Additionally KEYBOARD does not echo the characters.
+ *  KEYBOARD delivers cursor keys and function keys as single
+ *  characters (e.g. KEY_LEFT or KEY_F1). 
  *  This variable is initialized with CONSOLE_KEYBOARD.
  *  When a program wants to work with the graphic keyboard,
  *  the following assignment is necessary:

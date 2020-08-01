@@ -371,7 +371,6 @@ objectType flt_decompose (listType arguments)
     objectType fraction_var;
     objectType exponent_var;
     floatType number;
-    floatType fraction;
     int exponent;
 
   /* flt_decompose */
@@ -384,22 +383,16 @@ objectType flt_decompose (listType arguments)
     is_variable(exponent_var);
     number = take_float(arg_1(arguments));
     logFunction(printf("flt_decompose(" FMT_E ", ...)\n", number););
-#if FREXP_INFINITY_NAN_OKAY
-    fraction = frexp(number, &exponent);
-#else
-    if (unlikely(os_isnan(number) ||
-                 number == POSITIVE_INFINITY ||
-                 number == NEGATIVE_INFINITY)) {
-      fraction = number;
-      exponent = 0;
-    } else {
-      fraction = frexp(number, &exponent);
-    } /* if */
-#endif
-    fraction_var->value.floatValue = fraction;
+#if FREXP_FUNCTION_OKAY
+    fraction_var->value.floatValue = frexp(number, &exponent);
     exponent_var->value.intValue = (intType) exponent;
-    logFunction(printf("flt_decompose --> " FMT_E ", %d\n",
-                       fraction, exponent););
+#else
+    fraction_var->value.floatValue =
+        fltDecompose(number, &exponent_var->value.intValue);
+#endif
+    logFunction(printf("flt_decompose --> " FMT_E ", " FMT_D "\n",
+                       fraction_var->value.floatValue,
+                       exponent_var->value.intValue););
     return SYS_EMPTY_OBJECT;
   } /* flt_decompose */
 
@@ -536,7 +529,7 @@ objectType flt_eq (listType arguments)
   { /* flt_eq */
     isit_float(arg_1(arguments));
     isit_float(arg_3(arguments));
-#if NAN_COMPARISON_OKAY
+#if FLOAT_COMPARISON_OKAY
     if (take_float(arg_1(arguments)) ==
         take_float(arg_3(arguments))) {
 #else
@@ -560,7 +553,7 @@ objectType flt_exp (listType arguments)
   { /* flt_exp */
     isit_float(arg_1(arguments));
     return bld_float_temp(
-        exp(take_float(arg_1(arguments))));
+        fltExp(take_float(arg_1(arguments))));
   } /* flt_exp */
 
 
@@ -595,7 +588,7 @@ objectType flt_ge (listType arguments)
   { /* flt_ge */
     isit_float(arg_1(arguments));
     isit_float(arg_3(arguments));
-#if NAN_COMPARISON_OKAY
+#if FLOAT_COMPARISON_OKAY
     if (take_float(arg_1(arguments)) >=
         take_float(arg_3(arguments))) {
 #else
@@ -624,7 +617,7 @@ objectType flt_gt (listType arguments)
   { /* flt_gt */
     isit_float(arg_1(arguments));
     isit_float(arg_3(arguments));
-#if NAN_COMPARISON_OKAY
+#if FLOAT_COMPARISON_OKAY
     if (take_float(arg_1(arguments)) >
         take_float(arg_3(arguments))) {
 #else
@@ -768,7 +761,7 @@ objectType flt_le (listType arguments)
   { /* flt_le */
     isit_float(arg_1(arguments));
     isit_float(arg_3(arguments));
-#if NAN_COMPARISON_OKAY
+#if FLOAT_COMPARISON_OKAY
     if (take_float(arg_1(arguments)) <=
         take_float(arg_3(arguments))) {
 #else
@@ -861,7 +854,7 @@ objectType flt_lshift (listType arguments)
     } /* if */
 #endif
     return bld_float_temp(
-        ldexp(take_float(arg_1(arguments)), (int) exponent));
+        fltLdexp(take_float(arg_1(arguments)), (int) exponent));
   } /* flt_lshift */
 
 
@@ -880,7 +873,7 @@ objectType flt_lt (listType arguments)
   { /* flt_lt */
     isit_float(arg_1(arguments));
     isit_float(arg_3(arguments));
-#if NAN_COMPARISON_OKAY
+#if FLOAT_COMPARISON_OKAY
     if (take_float(arg_1(arguments)) <
         take_float(arg_3(arguments))) {
 #else
@@ -892,6 +885,33 @@ objectType flt_lt (listType arguments)
       return SYS_FALSE_OBJECT;
     } /* if */
   } /* flt_lt */
+
+
+
+/**
+ *  Compute the floating-point modulo of a division.
+ *  The modulo has the same sign as the divisor.
+ *  The modulo is dividend - floor(dividend / divisor) * divisor
+ *    A        mod  NaN       returns  NaN
+ *    NaN      mod  B         returns  NaN
+ *    A        mod  0.0       returns  NaN
+ *    Infinity mod  B         returns  NaN
+ *   -Infinity mod  B         returns  NaN
+ *    0.0      mod  B         returns  0.0         for B &lt;> 0.0
+ *    A        mod  Infinity  returns  A           for A > 0 
+ *    A        mod  Infinity  returns  Infinity    for A < 0
+ *    A        mod -Infinity  returns  A           for A < 0
+ *    A        mod -Infinity  returns -Infinity    for A > 0
+ *  @return the floating-point modulo of the division.
+ */
+objectType flt_mod (listType arguments)
+
+  { /* flt_mod */
+    isit_float(arg_1(arguments));
+    isit_float(arg_3(arguments));
+    return bld_float_temp(
+        fltMod(take_float(arg_1(arguments)), take_float(arg_3(arguments))));
+  } /* flt_mod */
 
 
 
@@ -942,7 +962,7 @@ objectType flt_ne (listType arguments)
   { /* flt_ne */
     isit_float(arg_1(arguments));
     isit_float(arg_3(arguments));
-#if NAN_COMPARISON_OKAY
+#if FLOAT_COMPARISON_OKAY
     if (take_float(arg_1(arguments)) !=
         take_float(arg_3(arguments))) {
 #else
@@ -1046,6 +1066,31 @@ objectType flt_rand (listType arguments)
 
 
 /**
+ *  Compute the floating-point remainder of a division.
+ *  The remainder has the same sign as the dividend.
+ *  The remainder is dividend - flt(trunc(dividend / divisor)) * divisor
+ *  The remainder is computed without a conversion to integer.
+ *    A        rem NaN       returns NaN
+ *    NaN      rem B         returns NaN
+ *    A        rem 0.0       returns NaN
+ *    Infinity rem B         returns NaN
+ *   -Infinity rem B         returns NaN
+ *    0.0      rem B         returns 0.0  for B &lt;> 0.0
+ *    A        rem Infinity  returns A
+ *  @return the floating-point remainder of the division.
+ */
+objectType flt_rem (listType arguments)
+
+  { /* flt_rem */
+    isit_float(arg_1(arguments));
+    isit_float(arg_3(arguments));
+    return bld_float_temp(
+        fltRem(take_float(arg_1(arguments)), take_float(arg_3(arguments))));
+  } /* flt_rem */
+
+
+
+/**
  *  Round towards the nearest integer.
  *  Halfway cases are rounded away from zero.
  *  @return the rounded value.
@@ -1115,7 +1160,7 @@ objectType flt_rshift (listType arguments)
     } /* if */
 #endif
     return bld_float_temp(
-        ldexp(take_float(arg_1(arguments)), (int) -exponent));
+        fltLdexp(take_float(arg_1(arguments)), (int) -exponent));
   } /* flt_rshift */
 
 
