@@ -37,8 +37,8 @@ const func bigInteger: + (ref bigInteger param) is                         actio
 const func bigInteger: - (ref bigInteger param) is                         action "BIG_MINUS";
 
 const proc: (inout bigInteger param) := (ref bigInteger param) is          action "BIG_CPY";
-# const proc: (inout bigInteger param) +:= (ref bigInteger param) is         action "BIG_GROW";
-# const proc: (inout bigInteger param) -:= (ref bigInteger param) is         action "BIG_SHRINK";
+const proc: (inout bigInteger param) +:= (ref bigInteger param) is         action "BIG_GROW";
+const proc: (inout bigInteger param) -:= (ref bigInteger param) is         action "BIG_SHRINK";
 const func bigInteger: (ref bigInteger param) + (ref bigInteger param) is  action "BIG_ADD";
 const func bigInteger: (ref bigInteger param) - (ref bigInteger param) is  action "BIG_SBTR";
 const func bigInteger: (ref bigInteger param) * (ref bigInteger param) is  action "BIG_MULT";
@@ -63,6 +63,7 @@ const func bigInteger: abs (in bigInteger param) is                        actio
 const func boolean: odd (in bigInteger param) is                           action "BIG_ODD";
 const func string: str (ref bigInteger param) is                           action "BIG_STR";
 const func string: c_literal (in bigInteger param) is                      action "BIG_CLIT";
+const func bigInteger: rand (in bigInteger param, in bigInteger param) is  action "BIG_RAND";
 const func bigInteger: (attr bigInteger) parse (in string param) is        action "BIG_PARSE";
 
 const bigInteger: (attr bigInteger) . value is bigInteger parse "0";

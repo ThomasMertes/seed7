@@ -112,7 +112,8 @@ CONTENTS
   13.1    Compile time errors
   13.2    Exceptions
   13.3    Handlers
-  13.4    Other errors and warnings
+  13.4    Stack trace
+  13.5    Other errors and warnings
 
 
 
@@ -4790,6 +4791,7 @@ CONTENTS
 
     ACT_  actlib.c  ACTION operations
     ARR_  arrlib.c  array operations
+    BIG_  biglib.c  bigInteger operations
     BLN_  blnlib.c  boolean operations
     CHR_  chrlib.c  char operations
     CMD_  cmdlib.c  Various directory, file and other commands
@@ -4831,6 +4833,7 @@ CONTENTS
     _ABS     Absolute value
     _ADD     Addition
     _CAT     Concatenation
+    _CMP     Compare
     _CPY     Copy (Assignment)
     _CREATE  Initialize (Construct)
     _DESTR   Destroy (Destruct)
@@ -4943,25 +4946,38 @@ CONTENTS
     NUMERIC_ERROR:
       May be raised from the following 'integer' operations:
           !, **, div, rem, mdiv, mod, ld
+      May be raised from the following 'bigInteger' operations:
+          **, div, rem, mdiv, mod
       May be raised from the following 'float' operations:
           /, **, acos, asin, ln, sqrt
     RANGE_ERROR:
       May be raised from the following 'integer' operation:
-          rand
+          parse, rand
+      May be raised from the following 'bigInteger' operation:
+          parse, rand
       May be raised from the following 'float' operation:
-          rand
+          parse, rand
       May be raised from the following 'char' operation:
           str
+      May be raised from the following 'string' operation:
+          @:=, mult, pos
+      May be raised from the following 'bitset' operation:
+          min, max, rand
       May be raised from the following 'array' operation:
           [ ]
       May be raised from the following 'hash' operation:
           [ ]
+      May be raised from the following 'file' operation:
+          open, gets, write, seek
     IO_ERROR:
       May be raised with the following statement:
           cp
     ILLEGAL_ACTION:
       May be raised by the interpreter kernel when a primitive action
-      points to nowhere.
+      does not point to any legal action. This check is only done when
+      the hi interpreter is compiled with '#define WITH_ACTION_CHECK'.
+      The ILLEGAL_ACTION exception is also raised when the primitive
+      action ACT_ILLEGAL is executed.
 
 
 13.3 Handlers
@@ -4976,7 +4992,23 @@ CONTENTS
     end block;
 
 
-13.4 Other errors and warnings
+13.4 Stack trace
+
+  When an EXCEPTION is not catched at any level the program is
+  terminated and the hi interpreter generates a stack trace.
+  For example:
+
+    *** Uncaught EXCEPTION NUMERIC_ERROR raised with
+    {integer <80b2e64>: <SYMBOLOBJECT> 0 div integer <80b2e64>: <SYMBOLOBJECT> 0 }
+
+    {(in integer <80b2e64> param) div (in integer <80b2e64> param) } at lander.sd7(1028)
+    drawLogo {} at lander.sd7(1080)
+    advanced_lander {} at lander.sd7(873)
+    setup {} at lander.sd7(1441)
+    main {} no POSINFO
+
+
+13.5 Other errors and warnings
 
   No more memory. Program terminated.
     This error message is displayed after the compile time error 1
@@ -4994,10 +5026,6 @@ CONTENTS
     If your trace level specifies exception tracing exceptions
     and handlers are displayed with this messages and the user
     must type the ENTER-key to accept.
-
-  Uncaught EXCEPTION %s raised with
-    If a program terminates due to a uncaught exception this
-    message is displayed at program termination.
 
   ACTION $%s REQUIRES %s NOT %s
     This error can happen when an action tries to do something

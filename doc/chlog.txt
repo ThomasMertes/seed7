@@ -117,3 +117,12 @@
 - A bigrat.s7i include file to support bigRational numbers has been added.
 - The compiler support for bigInteger, setBaselit and strTrim has
   been improved.
+
+20061120:
+- The rand function and the +:= and -:= operators were added to
+  the bigInteger library.
+- The checks for bigInteger addition and subtraction in chkbig.sd7
+  were improved and checks for the +:= and -:= operators
+  were added.
+- The compiler support for bigInteger was improved.
+- The documentation (manual and faq) was improved.

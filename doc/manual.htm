@@ -112,7 +112,8 @@
 <li><!--   13.1     --><a href="#Compile_time_errors"><b>Compile time errors</b></a></li>
 <li><!--   13.2     --><a href="#Exceptions"><b>Exceptions</b></a></li>
 <li><!--   13.3     --><a href="#Handlers"><b>Handlers</b></a></li>
-<li><!--   13.4     --><a href="#Other_errors_and_warnings"><b>Other errors and warnings</b></a></li></ol>
+<li><!--   13.4     --><a href="#Stack_trace"><b>Stack trace</b></a></li>
+<li><!--   13.5     --><a href="#Other_errors_and_warnings"><b>Other errors and warnings</b></a></li></ol>
 </ol></p><hr>
 
 <p></p>
@@ -4790,6 +4791,7 @@
 </p><pre>
     ACT_  actlib.c  <font color=red>ACTION</font> operations
     ARR_  arrlib.c  <font color=red>array</font> operations
+    BIG_  biglib.c  <font color=red>bigInteger</font> operations
     BLN_  blnlib.c  <font color=red>boolean</font> operations
     CHR_  chrlib.c  <font color=red>char</font> operations
     CMD_  cmdlib.c  Various directory, file and other commands
@@ -4831,6 +4833,7 @@
     _ABS     Absolute value
     _ADD     Addition
     _CAT     Concatenation
+    _CMP     Compare
     _CPY     Copy (Assignment)
     _CREATE  Initialize (Construct)
     _DESTR   Destroy (Destruct)
@@ -4943,25 +4946,38 @@
     NUMERIC_ERROR:</dt><dd>
       May be raised from the following <tt>'<font color=red>integer</font>'</tt> operations:
           !, **, <font color=blue>div</font>, <font color=blue>rem</font>, <font color=blue>mdiv</font>, <font color=blue>mod</font>, ld
+      May be raised from the following <tt>'<font color=red>bigInteger</font>'</tt> operations:
+          **, <font color=blue>div</font>, <font color=blue>rem</font>, <font color=blue>mdiv</font>, <font color=blue>mod</font>
       May be raised from the following <tt>'<font color=red>float</font>'</tt> operations:
           /, **, acos, asin, ln, sqrt</dd><dt>
     RANGE_ERROR:</dt><dd>
       May be raised from the following <tt>'<font color=red>integer</font>'</tt> operation:
-          rand
+          <font color=blue>parse</font>, rand
+      May be raised from the following <tt>'<font color=red>bigInteger</font>'</tt> operation:
+          <font color=blue>parse</font>, rand
       May be raised from the following <tt>'<font color=red>float</font>'</tt> operation:
-          rand
+          <font color=blue>parse</font>, rand
       May be raised from the following <tt>'<font color=red>char</font>'</tt> operation:
           str
+      May be raised from the following <tt>'<font color=red>string</font>'</tt> operation:
+          @:=, <font color=blue>mult</font>, pos
+      May be raised from the following <tt>'<font color=red>bitset</font>'</tt> operation:
+          min, max, rand
       May be raised from the following <tt>'<font color=red>array</font>'</tt> operation:
           [ ]
       May be raised from the following <tt>'<font color=red>hash</font>'</tt> operation:
-          [ ]</dd><dt>
+          [ ]
+      May be raised from the following <tt>'<font color=red>file</font>'</tt> operation:
+          open, gets, write, seek</dd><dt>
     IO_ERROR:</dt><dd>
       May be raised with the following statement:
           cp</dd><dt>
     ILLEGAL_ACTION:</dt><dd>
       May be raised by the interpreter kernel when a primitive action
-      points to nowhere.</dd><dt>
+      does not point to any legal action. This check is only done when
+      the hi interpreter is compiled with <tt>'#define WITH_ACTION_CHECK'</tt>.
+      The ILLEGAL_ACTION exception is also raised when the primitive
+      action ACT_ILLEGAL is executed.</dd><dt>
 </dl><p></p>
 
 <a name="Handlers"><b>13.3 Handlers</b></a>
@@ -4976,7 +4992,23 @@
     <font color=blue>end block</font>;
 </pre><p></p>
 
-<a name="Other_errors_and_warnings"><b>13.4 Other errors and warnings</b></a>
+<a name="Stack_trace"><b>13.4 Stack trace</b></a>
+<p>
+  When an EXCEPTION is not catched at any level the program is
+  terminated and the hi interpreter generates a stack trace.
+  For example:
+</p><pre>
+    *** Uncaught EXCEPTION NUMERIC_ERROR raised with
+    {integer <80b2e64>: <SYMBOLOBJECT> 0 div integer <80b2e64>: <SYMBOLOBJECT> 0 }
+
+    {(in integer <80b2e64> param) div (in integer <80b2e64> param) } at lander.sd7(1028)
+    drawLogo {} at lander.sd7(1080)
+    advanced_lander {} at lander.sd7(873)
+    setup {} at lander.sd7(1441)
+    main {} no POSINFO
+</pre><p></p>
+
+<a name="Other_errors_and_warnings"><b>13.5 Other errors and warnings</b></a>
 <p><dl><dt>
   No more memory. Program terminated.</dt><dd>
     This error message is displayed after the compile time error 1
@@ -4994,10 +5026,6 @@
     If your trace level specifies exception tracing exceptions
     and handlers are displayed with this messages and the user
     must type the ENTER-key to accept.</dd><dt>
-
-  Uncaught EXCEPTION %s raised with</dt><dd>
-    If a program terminates due to a uncaught exception this
-    message is displayed at program termination.</dd><dt>
 
   ACTION $%s REQUIRES %s NOT %s</dt><dd>
     This error can happen when an action tries to do something

@@ -3,6 +3,9 @@ Frequently asked questions
 </p></big></b><hr><!-- ========================== -->
 <p></p><!--(*-->
 <ul>
+<li><a href="#new_language"><b>
+Why a new programming language?
+</b></a></li>
 <li><a href="#license"><b>
 Which license does Seed7 use?
 </b></a></li>
@@ -102,6 +105,31 @@ Can I use an "abc.s7i" include file to boot to the abc language?
 </ul><hr>
 <p></p><!--*)-->
 
+<a name="new_language"><b>Why a new programming language?
+</b></a><hr><!-- =============================== -->
+<p>
+Because Seed7 has several features which are not found in other
+programming languages:
+</p><ul>
+<li><!--  -  -->The possibility to declare new statements (syntactical and
+   semantically) in the same way as functions are declared (There are
+   also user definable operators with priority and associativity).</li>
+<li><!--  -  -->Declaration constructs for constant-, variable-, function-,
+   parameter-, and other declarations are described in Seed7 (The user
+   can change existing declaration constructs or invent new ones).</li>
+<li><!--  -  -->Templates use no special syntax. They are just functions
+   with type parameters or a type result (For example: array, hash, struct
+   and set use a Pascal inspired syntax and semantic. In Seed7 they are
+   not hard coded in the compiler but are templates described in Seed7).</li>
+<li><!--  -  -->Seed7 is a syntactically and semantically extendable
+   language: Almost all of the Seed7 language (statements, operators,
+   declaration constructs, and more) is defined in Seed7 in an include
+   file (seed7_05.s7i).</li>
+<li><!--  -  -->The application program contains an include statement and
+   the hi interpreter is booted with the language description when it
+   starts. This way it is possible to define language variants or a
+   totally different language.</li>
+</ul><p></p>
 
 <a name="license"><b>Which license does Seed7 use?
 </b></a><hr><!-- ============================= -->

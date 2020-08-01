@@ -1696,6 +1696,17 @@ const proc: process_big_ge (in ref_list: params, inout expr_type: c_expr) is fun
   end func;
 
 
+const proc: process_big_grow (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "bigGrow(&(";
+    process_arg(params[1], c_expr);
+    c_expr.expr &:= "), ";
+    process_arg(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
 const proc: process_big_gt (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -1807,6 +1818,16 @@ const proc: process_big_ne (in ref_list: params, inout expr_type: c_expr) is fun
   end func;
 
 
+const proc: process_big_odd (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_bigint_result(c_expr);
+    c_expr.result_expr := "(((biginttype)(";
+    get_bigint_arg(params[1], c_expr);
+    c_expr.result_expr &:= "))->bigdigits[0] & 1)";
+  end func;
+
+
 const proc: process_big_parse (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -1823,6 +1844,18 @@ const proc: process_big_pred (in ref_list: params, inout expr_type: c_expr) is f
     prepare_bigint_result(c_expr);
     c_expr.result_expr := "bigPred(";
     get_bigint_arg(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process_big_rand (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_bigint_result(c_expr);
+    c_expr.result_expr := "bigRand(";
+    get_bigint_arg(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    get_bigint_arg(params[2], c_expr);
     c_expr.result_expr &:= ")";
   end func;
 
@@ -1848,6 +1881,17 @@ const proc: process_big_sbtr (in ref_list: params, inout expr_type: c_expr) is f
     c_expr.result_expr &:= ", ";
     get_bigint_arg(params[3], c_expr);
     c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process_big_shrink (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "bigShrink(&(";
+    process_arg(params[1], c_expr);
+    c_expr.expr &:= "), ";
+    process_arg(params[3], c_expr);
+    c_expr.expr &:= ")";
   end func;
 
 
@@ -5967,6 +6011,8 @@ const proc: process_action (in reference: procedure, in ref_list: params,
         process_big_eq(params, c_expr);
       elsif action_name = "BIG_GE" then
         process_big_ge(params, c_expr);
+      elsif action_name = "BIG_GROW" then
+        process_big_grow(params, c_expr);
       elsif action_name = "BIG_GT" then
         process_big_gt(params, c_expr);
       elsif action_name = "BIG_INCR" then
@@ -5987,12 +6033,18 @@ const proc: process_action (in reference: procedure, in ref_list: params,
         process_big_mult(params, c_expr);
       elsif action_name = "BIG_NE" then
         process_big_ne(params, c_expr);
+      elsif action_name = "BIG_ODD" then
+        process_big_odd(params, c_expr);
       elsif action_name = "BIG_PARSE" then
         process_big_parse(params, c_expr);
       elsif action_name = "BIG_SBTR" then
         process_big_sbtr(params, c_expr);
+      elsif action_name = "BIG_SHRINK" then
+        process_big_shrink(params, c_expr);
       elsif action_name = "BIG_PRED" then
         process_big_pred(params, c_expr);
+      elsif action_name = "BIG_RAND" then
+        process_big_rand(params, c_expr);
       elsif action_name = "BIG_REM" then
         process_big_rem(params, c_expr);
       elsif action_name = "BIG_STR" then

@@ -79,6 +79,10 @@
 
 
 
+/**
+ *  Remove leading zero (or BIGDIGIT_MASK) digits from a
+ *  signed big integer.
+ */
 #ifdef ANSI_C
 
 static void normalize (biginttype big1)
@@ -356,12 +360,16 @@ unsigned int rshift;
 
 
 
+/**
+ *  Increments an unsigned big integer by 1. This function does
+ *  overflow silently when big1 contains not enough digits.
+ */
 #ifdef ANSI_C
 
-void uBigIncr (biginttype big1)
+static void uBigIncr (biginttype big1)
 #else
 
-void uBigIncr (big1)
+static void uBigIncr (big1)
 biginttype big1;
 #endif
 
@@ -1028,7 +1036,7 @@ biginttype big2;
     doublebigdigittype carry = 0;
     doublebigdigittype big2_sign;
 
-  /* bigAdd */
+  /* bigAddTo */
     pos = 0;
     do {
       carry += (doublebigdigittype) big1->bigdigits[pos] + big2->bigdigits[pos];
@@ -1042,7 +1050,7 @@ biginttype big2;
       big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
       carry >>= 8 * sizeof(bigdigittype);
     } /* for */
-  } /* bigAdd */
+  } /* bigAddTo */
 
 
 
@@ -1190,7 +1198,12 @@ biginttype big2;
  *  the variable big1 is assigned to big_help. This way it is possible
  *  to square a given base with base = uBigSqare(base, &big_help).
  *  Note that the old base is in the scratch variable big_help
- *  afterwards.
+ *  afterwards. This squaring algorithm takes into account that
+ *  digit1 * digit2 + digit2 * digit1 == (digit1 * digit2) << 1.
+ *  This reduces the number of multiplications approx. by factor 2.
+ *  Unfortunately one bit more than sizeof(doublebigdigittype) is
+ *  needed to store the shifted product. Therefore extra effort is
+ *  necessary to avoid an overflow.
  */
 #ifdef ANSI_C
 
@@ -1271,10 +1284,10 @@ biginttype *big_help;
  */
 #ifdef ANSI_C
 
-biginttype uBigMult (biginttype big1, biginttype big2, biginttype *big_help)
+static biginttype uBigMult (biginttype big1, biginttype big2, biginttype *big_help)
 #else
 
-biginttype uBigMult (big1, big2, big_help)
+static biginttype uBigMult (big1, big2, big_help)
 biginttype big1;
 biginttype big2;
 biginttype *big_help;
@@ -1331,10 +1344,10 @@ biginttype *big_help;
 
 #ifdef ANSI_C
 
-int uBigIsNot0 (biginttype big)
+static int uBigIsNot0 (biginttype big)
 #else
 
-int uBigIsNot0 (big)
+static int uBigIsNot0 (big)
 biginttype big;
 #endif
 
@@ -1354,6 +1367,9 @@ biginttype big;
 
 
 
+/**
+ *  Returns the absolute value of a signed big integer.
+ */
 #ifdef ANSI_C
 
 biginttype bigAbs (biginttype big1)
@@ -1403,6 +1419,11 @@ biginttype big1;
 
 
 
+/**
+ *  Returns the sum of two signed big integers. The two values
+ *  are sorted by size. This way there is a loop up to the
+ *  shorter size and a second loop up to the longer size.
+ */
 #ifdef ANSI_C
 
 biginttype bigAdd (biginttype big1, biginttype big2)
@@ -1803,7 +1824,6 @@ biginttype big2;
 
 
 
-#ifdef OUT_OF_ORDER
 #ifdef ANSI_C
 
 void bigGrow (biginttype *big_variable, biginttype big2)
@@ -1820,19 +1840,18 @@ biginttype big2;
     doublebigdigittype carry = 0;
     doublebigdigittype big1_sign;
     doublebigdigittype big2_sign;
-    bigdigittype big1_negative;
 
   /* bigGrow */
     big1 = *big_variable;
-    if (big1->size > big2->size) {
+    if (big1->size >= big2->size) {
+      big1_sign = IS_NEGATIVE(big1->bigdigits[big1->size - 1]) ? BIGDIGIT_MASK : 0;
       pos = 0;
       do {
-        carry += big1->bigdigits[pos] + big2->bigdigits[pos];
+        carry += (doublebigdigittype) big1->bigdigits[pos] + big2->bigdigits[pos];
         big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
         carry >>= 8 * sizeof(bigdigittype);
         pos++;
       } while (pos < big2->size);
-      big1_sign = IS_NEGATIVE(big1->bigdigits[big1->size - 1]) ? BIGDIGIT_MASK : 0;
       big2_sign = IS_NEGATIVE(big2->bigdigits[pos - 1]) ? BIGDIGIT_MASK : 0;
       for (; pos < big1->size; pos++) {
         carry += big1->bigdigits[pos] + big2_sign;
@@ -1840,28 +1859,31 @@ biginttype big2;
         carry >>= 8 * sizeof(bigdigittype);
       } /* for */
       carry += big1_sign + big2_sign;
-      if (carry != 0) {
-        if (!RESIZE_BIG(big1, big1->size + 1)) {
+      carry &= BIGDIGIT_MASK;
+      if ((carry != 0 || IS_NEGATIVE(big1->bigdigits[pos - 1])) &&
+          (carry != BIGDIGIT_MASK || !IS_NEGATIVE(big1->bigdigits[pos - 1]))) {
+        if (!RESIZE_BIG(big1, big1->size, big1->size + 1)) {
           raise_error(MEMORY_ERROR);
-          return(NULL);
+          return;
         } else {
-          COUNT_BIG(big1->size + 1);
-          big1->size++
-          big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
+          COUNT3_BIG(big1->size, big1->size + 1);
+          big1->size++;
+          big1->bigdigits[pos] = (bigdigittype) carry;
           *big_variable = big1;
         } /* if */
-      } /* if */
-      normalize(big1);
-    } else {
-      if (!RESIZE_BIG(big1, big2->size + 1)) {
-        raise_error(MEMORY_ERROR);
-        return(NULL);
       } else {
-        COUNT_BIG(big2->size + 1);
+        normalize(big1);
+      } /* if */
+    } else {
+      if (!RESIZE_BIG(big1, big1->size, big2->size + 1)) {
+        raise_error(MEMORY_ERROR);
+        return;
+      } else {
+        COUNT3_BIG(big1->size, big2->size + 1);
         big1_sign = IS_NEGATIVE(big1->bigdigits[big1->size - 1]) ? BIGDIGIT_MASK : 0;
         pos = 0;
         do {
-          carry += big1->bigdigits[pos] + big2->bigdigits[pos];
+          carry += (doublebigdigittype) big1->bigdigits[pos] + big2->bigdigits[pos];
           big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
           carry >>= 8 * sizeof(bigdigittype);
           pos++;
@@ -1875,12 +1897,11 @@ biginttype big2;
         carry += big1_sign + big2_sign;
         big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
         big1->size = pos + 1;
-        normalize(result);
+        normalize(big1);
         *big_variable = big1;
       } /* if */
     } /* if */
   } /* bigGrow */
-#endif
 
 
 
@@ -1935,6 +1956,15 @@ biginttype *big_variable;
 
 
 
+/**
+ *  Computes base to the power of exp for signed big integers.
+ *  The result variable is set to base or 1 depending on the
+ *  rightmost bit of the exponent. After that the base is
+ *  squared in a loop and every time the corresponding bit of
+ *  the exponent is set the current square is multiplied
+ *  with the result variable. This reduces the number of square
+ *  operations to ld(exp).
+ */
 #ifdef ANSI_C
 
 biginttype bigIPow (biginttype base, inttype exp)
@@ -2017,6 +2047,33 @@ inttype exp;
       } /* if */
     } /* if */
   } /* bigIPow */
+
+
+
+#ifdef OUT_OF_ORDER
+#ifdef ANSI_C
+
+inttype bigLd (biginttype big1)
+#else
+
+inttype bigLd (big1)
+biginttype big1;
+#endif
+
+  {
+    inttype result;
+
+  /* bigLd */
+    if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
+      raise_error(NUMERIC_ERROR);
+      return(0);
+    } else {
+      result = (big1->size - 1) * 8 * sizeof(bigdigittype);
+      result += most_significant_bit(big1->bigdigits[big1->size - 1]);
+      return(result);
+    } /* if */
+  } /* bigLd */
+#endif
 
 
 
@@ -2500,6 +2557,75 @@ biginttype big1;
 
 
 /**
+ *  Computes a random number between lower_limit and upper_limit
+ *  for signed big integers. The memory for the result is requested
+ *  and the normalized result is returned. The random numbers are
+ *  uniform distributed over the whole range.
+ */
+#ifdef ANSI_C
+
+biginttype bigRand (biginttype lower_limit, biginttype upper_limit)
+#else
+
+biginttype bigRand (lower_limit, upper_limit)
+biginttype lower_limit;
+biginttype upper_limit;
+#endif
+
+  {
+    biginttype scale_limit;
+    bigdigittype mask;
+    memsizetype pos;
+    uinttype random_number = 0;
+    memsizetype result_size;
+    biginttype result;
+
+  /* bigRand */
+    if (bigCmp(lower_limit, upper_limit) > 0) {
+      raise_error(RANGE_ERROR);
+      return(0);
+    } else {
+      scale_limit = bigSbtr(upper_limit, lower_limit);
+      if (lower_limit->size > scale_limit->size) {
+        result_size = lower_limit->size + 1;
+      } else {
+        result_size = scale_limit->size + 1;
+      } /* if */
+      if (!ALLOC_BIG(result, result_size)) {
+        raise_error(MEMORY_ERROR);
+        return(NULL);
+      } else {
+        COUNT_BIG(result_size);
+        memset(&result->bigdigits[scale_limit->size], 0,
+            (SIZE_TYPE) (result_size - scale_limit->size) * sizeof(bigdigittype));
+        result->size = scale_limit->size;
+        mask = ((bigdigittype) BIGDIGIT_MASK) >>
+            (8 * sizeof(bigdigittype) -
+            most_significant_bit(scale_limit->bigdigits[scale_limit->size - 1]) - 1);
+        do {
+          pos = 0;
+          do {
+            if (random_number == 0) {
+              random_number = rand_32();
+            } /* if */
+            result->bigdigits[pos] = (bigdigittype) (random_number & BIGDIGIT_MASK);
+            random_number >>= 8 * sizeof(bigdigittype);
+            pos++;
+          } while (pos < scale_limit->size);
+          result->bigdigits[pos - 1] &= mask;
+        } while (bigCmp(result, scale_limit) > 0);
+        result->size = result_size;
+        bigAddTo(result, lower_limit);
+        normalize(result);
+        FREE_BIG(scale_limit, scale_limit->size);
+        return(result);
+      } /* if */
+    } /* if */
+  } /* bigRand */
+
+
+
+/**
  *  Computes the remainder of an integer division of big1 by big2
  *  for signed big integers. The memory for the result is requested
  *  and the normalized result is returned. When big2 has just one
@@ -2667,6 +2793,89 @@ biginttype big2;
 
 #ifdef ANSI_C
 
+void bigShrink (biginttype *big_variable, biginttype big2)
+#else
+
+void bigShrink (big_variable, big2)
+biginttype *big_variable;
+biginttype big2;
+#endif
+
+  {
+    biginttype big1;
+    memsizetype pos;
+    doublebigdigittype carry = 1;
+    doublebigdigittype big1_sign;
+    doublebigdigittype big2_sign;
+
+  /* bigShrink */
+    big1 = *big_variable;
+    if (big1->size >= big2->size) {
+      big1_sign = IS_NEGATIVE(big1->bigdigits[big1->size - 1]) ? BIGDIGIT_MASK : 0;
+      pos = 0;
+      do {
+        carry += (doublebigdigittype) big1->bigdigits[pos] +
+            (~big2->bigdigits[pos] & BIGDIGIT_MASK);
+        big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
+        carry >>= 8 * sizeof(bigdigittype);
+        pos++;
+      } while (pos < big2->size);
+      big2_sign = IS_NEGATIVE(big2->bigdigits[pos - 1]) ? 0 : BIGDIGIT_MASK;
+      for (; pos < big1->size; pos++) {
+        carry += big1->bigdigits[pos] + big2_sign;
+        big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
+        carry >>= 8 * sizeof(bigdigittype);
+      } /* for */
+      carry += big1_sign + big2_sign;
+      carry &= BIGDIGIT_MASK;
+      if ((carry != 0 || IS_NEGATIVE(big1->bigdigits[pos - 1])) &&
+          (carry != BIGDIGIT_MASK || !IS_NEGATIVE(big1->bigdigits[pos - 1]))) {
+        if (!RESIZE_BIG(big1, big1->size, big1->size + 1)) {
+          raise_error(MEMORY_ERROR);
+          return;
+        } else {
+          COUNT3_BIG(big1->size, big1->size + 1);
+          big1->size++;
+          big1->bigdigits[pos] = (bigdigittype) carry;
+          *big_variable = big1;
+        } /* if */
+      } else {
+        normalize(big1);
+      } /* if */
+    } else {
+      if (!RESIZE_BIG(big1, big1->size, big2->size + 1)) {
+        raise_error(MEMORY_ERROR);
+        return;
+      } else {
+        COUNT3_BIG(big1->size, big2->size + 1);
+        big1_sign = IS_NEGATIVE(big1->bigdigits[big1->size - 1]) ? BIGDIGIT_MASK : 0;
+        pos = 0;
+        do {
+          carry += (doublebigdigittype) big1->bigdigits[pos] +
+              (~big2->bigdigits[pos] & BIGDIGIT_MASK);
+          big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
+          carry >>= 8 * sizeof(bigdigittype);
+          pos++;
+        } while (pos < big1->size);
+        big2_sign = IS_NEGATIVE(big2->bigdigits[big2->size - 1]) ? 0 : BIGDIGIT_MASK;
+        for (; pos < big2->size; pos++) {
+          carry += big1_sign + (~big2->bigdigits[pos] & BIGDIGIT_MASK);
+          big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
+          carry >>= 8 * sizeof(bigdigittype);
+        } /* for */
+        carry += big1_sign + big2_sign;
+        big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
+        big1->size = pos + 1;
+        normalize(big1);
+        *big_variable = big1;
+      } /* if */
+    } /* if */
+  } /* bigShrink */
+
+
+
+#ifdef ANSI_C
+
 stritype bigStr (biginttype big1)
 #else
 
@@ -2708,7 +2917,6 @@ biginttype big1;
         } /* if */
         do {
           if (pos + DECIMAL_DIGITS_IN_BIGDIGIT > result_size) {
-	    /* printf("%lu >= %lu\n", pos, result_size); */
             if (!RESIZE_STRI(result, result_size, result_size + 256)) {
               FREE_STRI(result, result_size);
               FREE_BIG(help_big, big1->size + 1);

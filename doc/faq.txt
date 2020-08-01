@@ -3,6 +3,31 @@ Frequently asked questions
 ==========================
 
 
+Why a new programming language?
+===============================
+
+Because Seed7 has several features which are not found in other
+programming languages:
+
+ - The possibility to declare new statements (syntactical and
+   semantically) in the same way as functions are declared (There are
+   also user definable operators with priority and associativity).
+ - Declaration constructs for constant-, variable-, function-,
+   parameter-, and other declarations are described in Seed7 (The user
+   can change existing declaration constructs or invent new ones).
+ - Templates use no special syntax. They are just functions
+   with type parameters or a type result (For example: array, hash, struct
+   and set use a Pascal inspired syntax and semantic. In Seed7 they are
+   not hard coded in the compiler but are templates described in Seed7).
+ - Seed7 is a syntactically and semantically extendable
+   language: Almost all of the Seed7 language (statements, operators,
+   declaration constructs, and more) is defined in Seed7 in an include
+   file (seed7_05.s7i).
+ - The application program contains an include statement and
+   the hi interpreter is booted with the language description when it
+   starts. This way it is possible to define language variants or a
+   totally different language.
+
 
 Which license does Seed7 use?
 =============================

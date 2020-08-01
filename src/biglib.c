@@ -317,6 +317,25 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype big_grow (listtype arguments)
+#else
+
+objecttype big_grow (arguments)
+listtype arguments;
+#endif
+
+  { /* big_grow */
+    isit_bigint(arg_1(arguments));
+    isit_bigint(arg_3(arguments));
+    is_variable(arg_1(arguments));
+    bigGrow(&take_bigint(arg_1(arguments)), take_bigint(arg_3(arguments)));
+    return(SYS_EMPTY_OBJECT);
+  } /* big_grow */
+
+
+
+#ifdef ANSI_C
+
 objecttype big_gt (listtype arguments)
 #else
 
@@ -634,6 +653,24 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype big_rand (listtype arguments)
+#else
+
+objecttype big_rand (arguments)
+listtype arguments;
+#endif
+
+  { /* big_rand */
+    isit_bigint(arg_1(arguments));
+    isit_bigint(arg_2(arguments));
+    return(bld_bigint_temp(
+        bigRand(take_bigint(arg_1(arguments)), take_bigint(arg_2(arguments)))));
+  } /* big_rand */
+
+
+
+#ifdef ANSI_C
+
 objecttype big_rem (listtype arguments)
 #else
 
@@ -665,6 +702,25 @@ listtype arguments;
     return(bld_bigint_temp(
         bigSbtr(take_bigint(arg_1(arguments)), take_bigint(arg_3(arguments)))));
   } /* big_sbtr */
+
+
+
+#ifdef ANSI_C
+
+objecttype big_shrink (listtype arguments)
+#else
+
+objecttype big_shrink (arguments)
+listtype arguments;
+#endif
+
+  { /* big_shrink */
+    isit_bigint(arg_1(arguments));
+    isit_bigint(arg_3(arguments));
+    is_variable(arg_1(arguments));
+    bigShrink(&take_bigint(arg_1(arguments)), take_bigint(arg_3(arguments)));
+    return(SYS_EMPTY_OBJECT);
+  } /* big_shrink */
 
 
 
