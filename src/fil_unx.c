@@ -55,6 +55,8 @@
 
 #include "common.h"
 #include "os_decls.h"
+#include "striutl.h"
+#include "cmd_drv.h"
 #include "rtl_err.h"
 
 #if HAS_SIGACTION || HAS_SIGNAL
@@ -331,7 +333,7 @@ void filPipe (fileType *inFile, fileType *outFile)
 
 
 
-#ifdef SETUP_NODE_ENVIRONMENT
+#ifdef EMULATE_ENVIRONMENT
 EMSCRIPTEN_KEEPALIVE void setEnvironmentVar (char *key, char *value)
 
   { /* setEnvironmentVar */
@@ -350,35 +352,58 @@ void setupFiles (void)
     EM_ASM(
       if (typeof require === "function") {
         var fs;
+        var os;
         try {
           fs = require('fs');
+          os = require('os');
         } catch (e) {
           fs = null;
+          os = null;
         }
         if (fs !== null) {
+          var statData;
+          if (os.platform() === 'win32') {
+            for (var drive = 0; drive < 26; drive++) {
+              var ch = String.fromCharCode('a'.charCodeAt(0) + drive);
+              try {
+                statData = fs.statSync(ch + ':/');
+                // console.log('drive: ' + ch + ' exists');
+                if (statData.isDirectory()) {
+                  try {
+                    statData = FS.stat('/' + ch);
+                  } catch (e) {
+                    // console.log('mkdir: ' + '/' + ch);
+                    FS.mkdir('/' + ch);
+                  }
+                  FS.mount(NODEFS, { root: ch + ':/' }, '/' + ch);
+                }
+              } catch (e) {
+              }
+            }
+          } else {
+            var files = fs.readdirSync('/');
+            for (var idx in files) {
+              // console.log('file: ' + files[idx]);
+              if (fs.statSync('/' + files[idx]).isDirectory()) {
+                try {
+                  statData = FS.stat('/' + files[idx]);
+                } catch (e) {
+                  // console.log('mkdir: ' + '/' + files[idx]);
+                  FS.mkdir('/' + files[idx]);
+                }
+                FS.mount(NODEFS, { root: '/' + files[idx] }, '/' + files[idx]);
+              }
+            }
+          }
           var bslash = String.fromCharCode(92);
           var workDir = process.cwd().replace(new RegExp(bslash + bslash, "g"), '/');
-          if (workDir.charAt(1) == ':' && workDir.charAt(2) == '/') {
+          if (workDir.charAt(1) === ':' && workDir.charAt(2) === '/') {
             workDir = '/' + workDir.charAt(0).toLowerCase() + workDir.substring(2);
           }
           // console.log('workDir: ' + workDir);
-          var workPath = workDir.split("/");
-          var goUp = workPath.length - 2;
-          var mountDir = workPath.slice(0, workPath.length - goUp).join('/');
-          // console.log('mountDir: ' + mountDir);
-          var mountPath = mountDir.split("/");
-          var mountPoint = new Array(1 + goUp).join('/..').substring(1);
-          // console.log('mountPoint: ' + mountPoint);
-          var aDir;
-          var i;
-          for (i = 2; i <= mountPath.length; i++) {
-            aDir = mountPath.slice(0, i).join('/');
-            FS.mkdir(aDir);
-          }
-          FS.mount(NODEFS, { root: mountPoint }, mountDir);
           FS.chdir(workDir);
         }
-#ifdef SETUP_NODE_ENVIRONMENT
+#ifdef EMULATE_ENVIRONMENT
         // Setup environment
         let setEnvVar = Module.cwrap('setEnvironmentVar', 'number', ['string', 'string']);
         Object.keys(process.env).forEach(function(key) {

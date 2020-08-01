@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  soc_rtl.c     Primitive actions for the socket type.            */
-/*  Copyright (C) 1989 - 2015  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2015, 2018 - 2019  Thomas Mertes           */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -789,16 +789,22 @@ charType socGetc (socketType inSocket, charType *const eofIndicator)
   {
     unsigned char ch;
     memSizeType bytes_received;
+    charType result;
 
   /* socGetc */
+    logFunction(printf("socGetc(%d, '\\" FMT_U32 ";')\n",
+                       inSocket, *eofIndicator););
     bytes_received = (memSizeType) recv((os_socketType) inSocket,
                                         cast_send_recv_data(&ch), 1, 0);
     if (bytes_received != 1) {
       *eofIndicator = (charType) EOF;
-      return (charType) EOF;
+      result = (charType) EOF;
     } else {
-      return (charType) ch;
+      result = (charType) ch;
     } /* if */
+    logFunction(printf("socGetc (%d, '\\" FMT_U32 ";') --> '\\" FMT_U32 ";'\n",
+                       inSocket, *eofIndicator, result););
+    return result;
   } /* socGetc */
 
 

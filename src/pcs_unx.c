@@ -587,10 +587,10 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
       if (unlikely(argv == NULL)) {
         process = NULL;
       } else if (unlikely(access(argv[0], X_OK) != 0)) {
-        freeArgVector(argv);
         logError(printf("pcsStart: access(" FMT_S_OS ", X_OK) not granted:\n"
                         "errno=%d\nerror: %s\n",
                         argv[0], errno, strerror(errno)););
+        freeArgVector(argv);
         err_info = FILE_ERROR;
         process = NULL;
       } else if (unlikely(!ALLOC_RECORD(process, unx_processRecord, count.process))) {

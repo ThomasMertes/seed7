@@ -11,7 +11,7 @@ CFLAGS = -O2 -g -ffunction-sections -fdata-sections -Wall -Wstrict-prototypes -W
 # CFLAGS = -O2 -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -funroll-loops -Wall -pg
-LDFLAGS = -Wl,--gc-sections -s ASSERTIONS=0 -s ALLOW_MEMORY_GROWTH=1
+LDFLAGS = -s ASSERTIONS=0 -s ALLOW_MEMORY_GROWTH=1 -s EXTRA_EXPORTED_RUNTIME_METHODS=['ccall','cwrap','UTF8ToString']
 # LDFLAGS = -Wl,--gc-sections,--stack,8388608,--subsystem,windows
 # LDFLAGS = -pg
 # LDFLAGS = -pg -lc_p
@@ -102,7 +102,7 @@ s7c: ..\bin\s7c.js ..\prg\s7c.js
 	copy ..\prg\s7c.wasm ..\bin /Y
 
 ..\prg\s7c.js: ..\prg\s7c.sd7 $(ALL_S7_LIBS)
-	node ..\bin\s7.js -l ..\lib ..\prg\s7c -l ..\lib -b ..\bin -O2 ..\prg\s7c
+	node --stack_size=2048 ..\bin\s7.js -l ..\lib ..\prg\s7c -l ..\lib -b ..\bin -O2 ..\prg\s7c
 
 sql_%.o: sql_%.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(INCLUDE_OPTIONS) -c $< -o $@
@@ -175,7 +175,7 @@ chkccomp.h:
 
 version.h: chkccomp.h
 	echo #define PATH_DELIMITER '\\' > version.h
-	echo #define SEARCH_PATH_DELIMITER ';' >> version.h
+	echo #define SEARCH_PATH_DELIMITER 0 >> version.h
 	echo #define AWAIT_WITH_NANOSLEEP >> version.h
 	echo #define IMPLEMENT_PTY_WITH_PIPE2 >> version.h
 	echo #define USE_EGL >> version.h
@@ -185,10 +185,13 @@ version.h: chkccomp.h
 	echo #define QUOTE_WHOLE_SHELL_COMMAND >> version.h
 	echo #define OBJECT_FILE_EXTENSION ".o" >> version.h
 	echo #define LIBRARY_FILE_EXTENSION ".a" >> version.h
-	echo #define EXECUTABLE_FILE_EXTENSION ".js" >> version.h
+	echo #define LINKED_PROGRAM_EXTENSION ".js" >> version.h
+	echo #define INTERPRETER_FOR_LINKED_PROGRAM "node" >> version.h
 	echo #define MOUNT_NODEFS >> version.h
-	echo #define INTERPRETER_FOR_EXECUTABLE "node" >> version.h
+	echo #define EMULATE_ENVIRONMENT >> version.h
+	echo #define DEFINE_SYSTEM_FUNCTION >> version.h
 	echo #define C_COMPILER "$(CC)" >> version.h
+	echo #define CALL_C_COMPILER_FROM_SHELL 1 >> version.h
 	echo #define CPLUSPLUS_COMPILER "em++" >> version.h
 	echo #define GET_CC_VERSION_INFO "$(GET_CC_VERSION_INFO)" >> version.h
 	echo #define CC_OPT_DEBUG_INFO "-g" >> version.h
@@ -232,7 +235,7 @@ depend: version.h
 	@echo.
 
 level.h:
-	..\bin\s7 -l ..\lib level
+	node ../bin/s7.js -l ../lib level
 
 ..\bin\$(SEED7_LIB): $(SEED7_LIB_OBJ)
 	ar r ..\bin\$(SEED7_LIB) $(SEED7_LIB_OBJ)

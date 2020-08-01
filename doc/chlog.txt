@@ -1,3 +1,55 @@
+20191020:
+- The support for Emscripten has been improved to allow the compilation
+  of Seed7 programs.
+- Improvements have been done in sql_odbc.c to support the connection
+  with a DB2 database.
+- Testcases for pos() and rpos() have been added to chkstr.sd7.
+- The compiler has been improved to optimize the functions pos() and
+  rpos() (actions STR_POS, STR_RPOS, STR_CHPOS, STR_RCHPOS).
+- The program setwpath.c has been improved to work correct in more
+  situations (E.g.: If no PATH variable exists, if the path to be added
+  is a substring of an existing path, if the first path in the PATH
+  variable is to be removed, if there is only on path in the PATH
+  variable and this path is to be removed).
+- In fil.unx.c the function setupFiles() has been improved to mount the
+  file systems for Emscripten and node.js with a better strategy.
+- In sql_odbc.c the function sqlStmtColumnName() has been improved to
+  work with one call of SQLColAttributeW(), if the length of the column
+  name is below a limit. Additionally a parameter of NULL as
+  destination for the name has be replaced by a valid adress. The usage
+  of NULL triggered an error with DB2.
+- The configuration value LINKED_PROGRAM_EXTENSION has been added to
+  cc_conf.s7i. The linker produces a file with the extension defined by
+  LINKED_PROGRAM_EXTENSION. Usually LINKED_PROGRAM_EXTENSION is
+  identical to EXECUTABLE_FILE_EXTENSION. Except for Emscripten where,
+  the value is ".js".
+- The makefiles mk_emccl.mak and mk_emccw.mak have been improved to
+  define LINKED_PROGRAM_EXTENSION.
+- The compiler (s7c.s7i), the function getProgramName() in arr_rtl.c,
+  the function cmdConfigValue() in cmd_rtl.c and the program chkccomp.c
+  have been improved to use LINKED_PROGRAM_EXTENSION.
+- In chkccomp.c the function determineEnvironDefines() has been
+  improved to determine, if getenv() works case sensitive. A definition
+  of GETENV_IS_CASE_SENSITIVE, with a value of 0 or 1, is written to
+  version.h.
+- The function getSearchPathDelimiter() has been added to cmd_rtl.c.
+  This function is used if SEARCH_PATH_DELIMITER is 0. In this case
+  the search path delimiter must be determined at run-time.
+- The function systemForNodeJs() has been added to cmd_rtl.c. This
+  function is used for Emscripten and node.js as replacement for the
+  C run-time library function system().
+- The files sql_fire.c, sql_lite.c, sql_my.c, sql_oci.c, sql_odbc.c
+  and sql_post.c have been improved to work correct, if no database
+  include file could be found. Normally this should not happen,
+  because Seed7 can provide its own database include files.
+- The functions getenv7() and setenv7() have been added to cmd_unx.c.
+  This functions are used for Emscripten, because of a limitation in
+  the Emscripten implementations of getenv() and setenv().
+- Documentation comments have been improved in external_file.s7i,
+  file.s7i, leb128.s7i, scanfile.s7i, scanstri.s7i and string.s7i.
+- Comments explaining the usage of undefined behavior have been added
+  to arrlib.c, bstlib.c, set_rtl.c and strlib.c.
+
 20190919:
 - A chapter about the database abstraction API has been added to the
   manual.

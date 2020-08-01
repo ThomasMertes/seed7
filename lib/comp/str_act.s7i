@@ -562,15 +562,61 @@ const proc: process (STR_CHIPOS, in reference: function,
   end func;
 
 
+const proc: process_const_str_chpos (in string: mainStri, in reference: param2,
+    inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedParam is NIL;
+  begin
+    if getConstant(param2, CHAROBJECT, evaluatedParam) then
+      incr(countOptimizations);
+      c_expr.expr &:= "/* pos(";
+      c_expr.expr &:= replace(literal(mainStri), "*/", "*\\/");
+      c_expr.expr &:= ",";
+      c_expr.expr &:= literal(getValue(evaluatedParam, char));
+      c_expr.expr &:= ") */ ";
+      c_expr.expr &:= integerLiteral(pos(mainStri, getValue(evaluatedParam, char)));
+    elsif length(mainStri) = 0 then
+      incr(countOptimizations);
+      c_expr.expr &:= "/* pos(\"\", *) */ ";
+      c_expr.expr &:= integerLiteral(0);
+    elsif length(mainStri) = 1 then
+      incr(countOptimizations);
+      c_expr.expr &:= "/* pos(";
+      c_expr.expr &:= literal(mainStri);
+      c_expr.expr &:= ", *) */ ";
+      c_expr.expr &:= charLiteral(mainStri[1]);
+      c_expr.expr &:= "==(";
+      getAnyParamToExpr(param2, c_expr);
+      c_expr.expr &:= ")?";
+      c_expr.expr &:= integerLiteral(1);
+      c_expr.expr &:= ":";
+      c_expr.expr &:= integerLiteral(0);
+    else
+      c_expr.expr &:= "strChPos(";
+      c_expr.expr &:= stringLiteral(mainStri);
+      c_expr.expr &:= ", ";
+      getAnyParamToExpr(param2, c_expr);
+      c_expr.expr &:= ")";
+    end if;
+  end func;
+
+
 const proc: process (STR_CHPOS, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var reference: evaluatedParam is NIL;
   begin
-    c_expr.expr &:= "strChPos(";
-    getAnyParamToExpr(params[1], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[2], c_expr);
-    c_expr.expr &:= ")";
+    if getConstant(params[1], STRIOBJECT, evaluatedParam) then
+      process_const_str_chpos(getValue(evaluatedParam, string), params[2], c_expr);
+    else
+      c_expr.expr &:= "strChPos(";
+      getAnyParamToExpr(params[1], c_expr);
+      c_expr.expr &:= ", ";
+      process_expr(params[2], c_expr);
+      c_expr.expr &:= ")";
+    end if;
   end func;
 
 
@@ -2142,20 +2188,54 @@ const proc: process (STR_NE, in reference: function,
   end func;
 
 
+const proc: process_const_str_pos (in reference: param1, in string: searched,
+    inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedParam is NIL;
+  begin
+    if getConstant(param1, STRIOBJECT, evaluatedParam) then
+      incr(countOptimizations);
+      c_expr.expr &:= "/* pos(";
+      c_expr.expr &:= replace(literal(getValue(evaluatedParam, string)), "*/", "*\\/");
+      c_expr.expr &:= ",";
+      c_expr.expr &:= replace(literal(searched), "*/", "*\\/");
+      c_expr.expr &:= ") */ ";
+      c_expr.expr &:= integerLiteral(pos(getValue(evaluatedParam, string), searched));
+    elsif length(searched) = 0 then
+      incr(countOptimizations);
+      c_expr.expr &:= "/* pos(*, \"\") */ ";
+      c_expr.expr &:= integerLiteral(0);
+    elsif length(searched) = 1 then
+      incr(countOptimizations);
+      c_expr.expr &:= "strChPos(";
+      getAnyParamToExpr(param1, c_expr);
+      c_expr.expr &:= ", ";
+      c_expr.expr &:= charLiteral(searched[1]);
+      c_expr.expr &:= ")";
+    else
+      c_expr.expr &:= "strPos(";
+      getAnyParamToExpr(param1, c_expr);
+      c_expr.expr &:= ", ";
+      c_expr.expr &:= stringLiteral(searched);
+      c_expr.expr &:= ")";
+    end if;
+  end func;
+
+
 const proc: process (STR_POS, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   local
     var reference: evaluatedParam is NIL;
   begin
-    if getConstant(params[2], STRIOBJECT, evaluatedParam) and
-        length(getValue(evaluatedParam, string)) = 1 then
+    if getConstant(params[2], STRIOBJECT, evaluatedParam) then
+      process_const_str_pos(params[1], getValue(evaluatedParam, string), c_expr);
+    elsif getConstant(params[1], STRIOBJECT, evaluatedParam) and
+        length(getValue(evaluatedParam, string)) = 0 then
       incr(countOptimizations);
-      c_expr.expr &:= "strChPos(";
-      getAnyParamToExpr(params[1], c_expr);
-      c_expr.expr &:= ", ";
-      c_expr.expr &:= charLiteral(getValue(evaluatedParam, string)[1]);
-      c_expr.expr &:= ")";
+      c_expr.expr &:= "/* pos(\"\", *) */ ";
+      c_expr.expr &:= integerLiteral(0);
     else
       c_expr.expr &:= "strPos(";
       getAnyParamToExpr(params[1], c_expr);
@@ -2541,15 +2621,61 @@ const proc: process (STR_RCHIPOS, in reference: function,
   end func;
 
 
+const proc: process_const_str_rchpos (in string: mainStri, in reference: param2,
+    inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedParam is NIL;
+  begin
+    if getConstant(param2, CHAROBJECT, evaluatedParam) then
+      incr(countOptimizations);
+      c_expr.expr &:= "/* rpos(";
+      c_expr.expr &:= replace(literal(mainStri), "*/", "*\\/");
+      c_expr.expr &:= ",";
+      c_expr.expr &:= literal(getValue(evaluatedParam, char));
+      c_expr.expr &:= ") */ ";
+      c_expr.expr &:= integerLiteral(rpos(mainStri, getValue(evaluatedParam, char)));
+    elsif length(mainStri) = 0 then
+      incr(countOptimizations);
+      c_expr.expr &:= "/* rpos(\"\", *) */ ";
+      c_expr.expr &:= integerLiteral(0);
+    elsif length(mainStri) = 1 then
+      incr(countOptimizations);
+      c_expr.expr &:= "/* rpos(";
+      c_expr.expr &:= literal(mainStri);
+      c_expr.expr &:= ", *) */ ";
+      c_expr.expr &:= charLiteral(mainStri[1]);
+      c_expr.expr &:= "==(";
+      getAnyParamToExpr(param2, c_expr);
+      c_expr.expr &:= ")?";
+      c_expr.expr &:= integerLiteral(1);
+      c_expr.expr &:= ":";
+      c_expr.expr &:= integerLiteral(0);
+    else
+      c_expr.expr &:= "strRChPos(";
+      c_expr.expr &:= stringLiteral(mainStri);
+      c_expr.expr &:= ", ";
+      getAnyParamToExpr(param2, c_expr);
+      c_expr.expr &:= ")";
+    end if;
+  end func;
+
+
 const proc: process (STR_RCHPOS, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var reference: evaluatedParam is NIL;
   begin
-    c_expr.expr &:= "strRChPos(";
-    getAnyParamToExpr(params[1], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[2], c_expr);
-    c_expr.expr &:= ")";
+    if getConstant(params[1], STRIOBJECT, evaluatedParam) then
+      process_const_str_rchpos(getValue(evaluatedParam, string), params[2], c_expr);
+    else
+      c_expr.expr &:= "strRChPos(";
+      getAnyParamToExpr(params[1], c_expr);
+      c_expr.expr &:= ", ";
+      process_expr(params[2], c_expr);
+      c_expr.expr &:= ")";
+    end if;
   end func;
 
 
@@ -2658,20 +2784,54 @@ const proc: process (STR_RPAD, in reference: function,
   end func;
 
 
+const proc: process_const_str_rpos (in reference: param1, in string: searched,
+    inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedParam is NIL;
+  begin
+    if getConstant(param1, STRIOBJECT, evaluatedParam) then
+      incr(countOptimizations);
+      c_expr.expr &:= "/* rpos(";
+      c_expr.expr &:= replace(literal(getValue(evaluatedParam, string)), "*/", "*\\/");
+      c_expr.expr &:= ",";
+      c_expr.expr &:= replace(literal(searched), "*/", "*\\/");
+      c_expr.expr &:= ") */ ";
+      c_expr.expr &:= integerLiteral(rpos(getValue(evaluatedParam, string), searched));
+    elsif length(searched) = 0 then
+      incr(countOptimizations);
+      c_expr.expr &:= "/* rpos(*, \"\") */ ";
+      c_expr.expr &:= integerLiteral(0);
+    elsif length(searched) = 1 then
+      incr(countOptimizations);
+      c_expr.expr &:= "strRChPos(";
+      getAnyParamToExpr(param1, c_expr);
+      c_expr.expr &:= ", ";
+      c_expr.expr &:= charLiteral(searched[1]);
+      c_expr.expr &:= ")";
+    else
+      c_expr.expr &:= "strRPos(";
+      getAnyParamToExpr(param1, c_expr);
+      c_expr.expr &:= ", ";
+      c_expr.expr &:= stringLiteral(searched);
+      c_expr.expr &:= ")";
+    end if;
+  end func;
+
+
 const proc: process (STR_RPOS, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   local
     var reference: evaluatedParam is NIL;
   begin
-    if getConstant(params[2], STRIOBJECT, evaluatedParam) and
-        length(getValue(evaluatedParam, string)) = 1 then
+    if getConstant(params[2], STRIOBJECT, evaluatedParam) then
+      process_const_str_rpos(params[1], getValue(evaluatedParam, string), c_expr);
+    elsif getConstant(params[1], STRIOBJECT, evaluatedParam) and
+        length(getValue(evaluatedParam, string)) = 0 then
       incr(countOptimizations);
-      c_expr.expr &:= "strRChPos(";
-      getAnyParamToExpr(params[1], c_expr);
-      c_expr.expr &:= ", ";
-      c_expr.expr &:= charLiteral(getValue(evaluatedParam, string)[1]);
-      c_expr.expr &:= ")";
+      c_expr.expr &:= "/* rpos(\"\", *) */ ";
+      c_expr.expr &:= integerLiteral(0);
     else
       c_expr.expr &:= "strRPos(";
       getAnyParamToExpr(params[1], c_expr);

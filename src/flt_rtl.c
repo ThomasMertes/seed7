@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  flt_rtl.c     Primitive actions for the float type.             */
-/*  Copyright (C) 1989 - 2018  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2019  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */

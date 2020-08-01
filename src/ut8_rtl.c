@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  ut8_rtl.c     Primitive actions for the UTF-8 file type.        */
-/*  Copyright (C) 1989 - 2014  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2015, 2018  Thomas Mertes                  */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -740,8 +740,7 @@ striType ut8LineRead (fileType inFile, charType *terminationChar)
             FREE_STRI(result, position);
             logError(printf("ut8LineRead(%d, '\\" FMT_U32 ";'): "
                             "The file contains an illegal encoding.\n",
-                            safe_fileno(inFile), *terminationChar,
-                            safe_fileno(inFile)););
+                            safe_fileno(inFile), *terminationChar););
             raise_error(RANGE_ERROR);
             result = NULL;
           } else {
@@ -919,8 +918,7 @@ striType ut8WordRead (fileType inFile, charType *terminationChar)
             FREE_STRI(result, position);
             logError(printf("ut8WordRead(%d, '\\" FMT_U32 ";'): "
                             "The file contains an illegal encoding.\n",
-                            safe_fileno(inFile), *terminationChar,
-                            safe_fileno(inFile)););
+                            safe_fileno(inFile), *terminationChar););
             raise_error(RANGE_ERROR);
             result = NULL;
           } else {

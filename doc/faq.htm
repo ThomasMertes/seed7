@@ -597,6 +597,9 @@ Seed7 can be used in various application areas:
    the possibility to <span class="link">read XML</span> into a DOM data structure).</li>
 <li>CGI scripts (A <span class="link">CGI support library</span> is available and the <span class="link">Comanche</span>
    web server can be used to test CGI scripts).</li>
+<li>Programs that use the browser as user interface:<ul>
+<li><span class="link">A database inspector</span></li>
+<li><span class="link">A simple editor</span></li></ul></li>
 <li>As language to describe <span class="link">algorithms</span>.</li>
 <li>Command line utilities. E.g.:<ul>
 <li><span class="link">A calculator that works like a read-eval-print loop (REPL)</span></li>
@@ -620,12 +623,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 300000 lines of Seed7. For version 2019-09-19 the number of lines is:
+than 300000 lines of Seed7. For version 2019-10-20 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right">148118</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right">148604</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
   <tr><td align="right"> 11129</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">163486</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right">146565</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right">165342</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right">146740</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -1092,7 +1095,7 @@ Yes, Eclipse can be easily configured to work with Seed7:
   <li>In Eclipse: Create a Debug Configuration with: Run <b>&rArr;</b> Debug&nbsp;Configurations...
        Right click on C/C++&nbsp;Application and select New.</li>
   <li>In the Main tab of the new Debug Configuration: Press the Browse... button
-       to select the executable you want to debug.</li>
+       below <tt>C/C++&nbsp;Application</tt> to select the executable you want to debug.</li>
   <li>Select the C project you created.</li>
   <li>In the Arguments tab you can set program arguments and current working directory.</li>
   <li>Press the Debug button to start the program.</li>

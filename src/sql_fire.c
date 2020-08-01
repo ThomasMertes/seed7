@@ -34,13 +34,14 @@
 
 #include "version.h"
 
-#ifdef FIRE_INCLUDE
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
 #include "limits.h"
 #include "time.h"
+#ifdef FIRE_INCLUDE
 #include FIRE_INCLUDE
+#endif
 
 #include "common.h"
 #include "data_rtl.h"
@@ -56,6 +57,8 @@
 #include "dll_drv.h"
 #include "sql_base.h"
 #include "sql_drv.h"
+
+#ifdef FIRE_INCLUDE
 
 
 typedef struct {

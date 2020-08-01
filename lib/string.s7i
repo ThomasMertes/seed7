@@ -307,10 +307,10 @@ const func integer: pos (in string: mainStri, in char: searched)    is action "S
  *  is the result. The first character in a string has the position 1.
  *  The pos function is designed to allow loops like:
  *
- *   index := pos(stri, searched_stri);
+ *   index := pos(stri, searchedStri);
  *   while index <> 0 do
  *     # Do something with index
- *     index := pos(stri, searched_stri, succ(index));
+ *     index := pos(stri, searchedStri, succ(index));
  *   end while;
  *
  *  @return the position of ''searched'' or 0 if ''mainStri''
@@ -358,10 +358,10 @@ const func integer: rpos (in string: mainStri, in char: searched)   is action "S
  *  The first character in a string has the position 1.
  *  The rpos function is designed to allow loops like:
  *
- *   index := rpos(stri, searched_stri);
+ *   index := rpos(stri, searchedStri);
  *   while index <> 0 do
  *     # Do something with index
- *     index := rpos(stri, searched_stri, pred(index));
+ *     index := rpos(stri, searchedStri, pred(index));
  *   end while;
  *
  *  @return the position of ''searched'' or 0 if ''mainStri''

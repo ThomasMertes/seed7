@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  tim_rtl.c     Time access using the C capabilities.             */
-/*  Copyright (C) 1989 - 2013  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2015, 2018  Thomas Mertes                  */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */

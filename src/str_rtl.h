@@ -51,13 +51,13 @@ void strAppend (striType *const destination, const_striType extension);
 void strAppendN (striType *const destination,
     const const_striType extensionArray[], memSizeType arraySize);
 void strAppendTemp (striType *const destination, const striType extension);
-intType strChIPos (const const_striType main_stri, const charType searched,
-    const intType from_index);
+intType strChIPos (const const_striType mainStri, const charType searched,
+    const intType fromIndex);
 striType strChMult (const charType ch, const intType factor);
-intType strChPos (const const_striType main_stri, const charType searched);
+intType strChPos (const const_striType mainStri, const charType searched);
 striType strChRepl (const const_striType mainStri,
     const charType searched, const const_striType replacement);
-/* rtlArrayType strChSplit (const const_striType main_stri,
+/* rtlArrayType strChSplit (const const_striType mainStri,
     const charType delimiter); */
 striType strCLit (const const_striType stri);
 intType strCompare (const const_striType stri1, const const_striType stri2);
@@ -76,34 +76,34 @@ void strHeadSlice (const const_striType stri, const intType stop, striType slice
 #endif
 striType strHead (const const_striType stri, const intType stop);
 striType strHeadTemp (const striType stri, const intType stop);
-intType strIPos (const const_striType main_stri, const const_striType searched,
-    const intType from_index);
+intType strIPos (const const_striType mainStri, const const_striType searched,
+    const intType fromIndex);
 boolType strLe (const const_striType stri1, const const_striType stri2);
 striType strLit (const const_striType stri);
 striType strLow (const const_striType stri);
 striType strLowTemp (const striType stri);
-striType strLpad (const const_striType stri, const intType pad_size);
-striType strLpadTemp (const striType stri, const intType pad_size);
-striType strLpad0 (const const_striType stri, const intType pad_size);
-striType strLpad0Temp (const striType stri, const intType pad_size);
+striType strLpad (const const_striType stri, const intType padSize);
+striType strLpadTemp (const striType stri, const intType padSize);
+striType strLpad0 (const const_striType stri, const intType padSize);
+striType strLpad0Temp (const striType stri, const intType padSize);
 boolType strLt (const const_striType stri1, const const_striType stri2);
 striType strLtrim (const const_striType stri);
 striType strMult (const const_striType stri, const intType factor);
-intType strPos (const const_striType main_stri, const const_striType searched);
+intType strPos (const const_striType mainStri, const const_striType searched);
 void strPush (striType *const destination, const charType extension);
 #if ALLOW_STRITYPE_SLICES
 void strRangeSlice (const const_striType stri, intType start, intType stop, striType slice);
 #endif
 striType strRange (const const_striType stri, intType start, intType stop);
-intType strRChIPos (const const_striType main_stri, const charType searched,
-    const intType from_index);
-intType strRChPos (const const_striType main_stri, const charType searched);
-striType strRepl (const const_striType main_stri,
+intType strRChIPos (const const_striType mainStri, const charType searched,
+    const intType fromIndex);
+intType strRChPos (const const_striType mainStri, const charType searched);
+striType strRepl (const const_striType mainStri,
     const const_striType searched, const const_striType replace);
-intType strRIPos (const const_striType main_stri, const const_striType searched,
-    const intType from_index);
-striType strRpad (const const_striType stri, const intType pad_size);
-intType strRPos (const const_striType main_stri, const const_striType searched);
+intType strRIPos (const const_striType mainStri, const const_striType searched,
+    const intType fromIndex);
+striType strRpad (const const_striType stri, const intType padSize);
+intType strRPos (const const_striType mainStri, const const_striType searched);
 striType strRtrim (const const_striType stri);
 /* rtlArrayType strSplit (const const_striType main_stri,
     const const_striType delimiter); */

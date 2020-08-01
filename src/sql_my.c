@@ -34,13 +34,14 @@
 
 #include "version.h"
 
-#ifdef MYSQL_INCLUDE
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
 #include "time.h"
 #include "limits.h"
+#ifdef MYSQL_INCLUDE
 #include MYSQL_INCLUDE
+#endif
 
 #include "common.h"
 #include "data_rtl.h"
@@ -56,6 +57,8 @@
 #include "dll_drv.h"
 #include "sql_base.h"
 #include "sql_drv.h"
+
+#ifdef MYSQL_INCLUDE
 
 
 typedef struct {

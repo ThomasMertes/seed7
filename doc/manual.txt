@@ -9128,7 +9128,7 @@ CONTENTS
         var integer: index is 0;
       begin
         currDb := openDatabase(DB_MYSQL, "testDb", "testUser", "testPassword");
-        if currDb (in_sqlStatement)"><> database.value then
+        if currDb <> database.value then
           statement := prepare(currDb, "SELECT * FROM testTable");
           execute(statement);
           while fetch(statement) do

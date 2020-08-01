@@ -34,7 +34,6 @@
 
 #include "version.h"
 
-#ifdef POSTGRESQL_INCLUDE
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
@@ -45,12 +44,14 @@
 #elif SOCKET_LIB == WINSOCK_SOCKETS
 #include "winsock2.h"
 #endif
+#ifdef POSTGRESQL_INCLUDE
 #ifdef POSTGRESQL_POSTGRES_H
 #include POSTGRESQL_POSTGRES_H
 #endif
 #include POSTGRESQL_INCLUDE
 #ifdef POSTGRESQL_PG_TYPE_H
 #include POSTGRESQL_PG_TYPE_H
+#endif
 #endif
 
 #include "common.h"
@@ -67,6 +68,8 @@
 #include "dll_drv.h"
 #include "sql_base.h"
 #include "sql_drv.h"
+
+#ifdef POSTGRESQL_INCLUDE
 
 
 typedef struct {

@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: Library                                                 */
 /*  File: seed7/src/prglib.c                                        */
-/*  Changes: 1991 - 1994, 2008, 2013  Thomas Mertes                 */
+/*  Changes: 1991 - 1994, 2008, 2013 - 2016  Thomas Mertes          */
 /*  Content: All primitive actions for the program type.            */
 /*                                                                  */
 /********************************************************************/

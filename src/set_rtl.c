@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  set_rtl.c     Primitive actions for the set type.               */
-/*  Copyright (C) 1989 - 2014  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2019  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -694,6 +694,8 @@ boolType setEq (const const_setType set1, const const_setType set2)
           } /* if */
         } /* for */
       } /* if */
+      /* 'bitset1' and 'bitset2' might be NULL. In this case 'size' is 0. */
+      /* According to the specification memcmp() returns 0 when size is 0. */
       return memcmp(bitset1, bitset2, size * sizeof(bitSetType)) == 0;
     } /* if */
   } /* setEq */
@@ -1256,7 +1258,7 @@ intType setMax (const const_setType aSet)
       curr_bitset = aSet->bitset[bitset_index];
       if (curr_bitset != 0) {
         result = bitsetMostSignificantBit(curr_bitset);
-        result += (aSet->min_position + (intType) bitset_index) << bitset_shift;
+        result += lowestBitsetPosAsInteger(aSet->min_position + (intType) bitset_index);
         return result;
       } /* if */
     } /* while */
@@ -1290,7 +1292,7 @@ intType setMin (const const_setType aSet)
       curr_bitset = aSet->bitset[bitset_index];
       if (curr_bitset != 0) {
         result = bitsetLeastSignificantBit(curr_bitset);
-        result += (aSet->min_position + (intType) bitset_index) << bitset_shift;
+        result += lowestBitsetPosAsInteger(aSet->min_position + (intType) bitset_index);
         return result;
       } /* if */
       bitset_index++;
@@ -1330,7 +1332,7 @@ intType setNext (const const_setType aSet, const intType number)
       curr_bitset = aSet->bitset[bitset_index] & (~(bitSetType) 1 << bit_index);
       if (curr_bitset != 0) {
         result = bitsetLeastSignificantBit(curr_bitset);
-        result += (aSet->min_position + (intType) bitset_index) << bitset_shift;
+        result += lowestBitsetPosAsInteger(aSet->min_position + (intType) bitset_index);
         return result;
       } /* if */
       bitset_index++;
@@ -1342,7 +1344,7 @@ intType setNext (const const_setType aSet, const intType number)
       if (bitset_ptr != NULL) {
         bitset_index = (memSizeType) (bitset_ptr - aSet->bitset);
         result = bitsetLeastSignificantBit(*bitset_ptr);
-        result += (aSet->min_position + (intType) bitset_index) << bitset_shift;
+        result += lowestBitsetPosAsInteger(aSet->min_position + (intType) bitset_index);
         return result;
       } /* if */
     } /* if */
@@ -1391,7 +1393,7 @@ intType setRand (const const_setType aSet)
           elem_index--;
           if (elem_index == 0) {
             result = bitsetLeastSignificantBit(curr_bitset) +
-                ((aSet->min_position + (intType) (bitset_index - 1)) << bitset_shift);
+                lowestBitsetPosAsInteger(aSet->min_position + (intType) (bitset_index - 1));
             return result;
           } /* if */
           /* Turn off the rightmost one bit of curr_bitset: */

@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  arr_rtl.c     Primitive actions for the array type.             */
-/*  Copyright (C) 1989 - 2013  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2016, 2018, 2019  Thomas Mertes            */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -171,7 +171,7 @@ static striType getProgramName (const const_striType arg_0)
 
   {
     memSizeType name_len;
-#ifdef EXECUTABLE_FILE_EXTENSION
+#if defined LINKED_PROGRAM_EXTENSION || defined EXECUTABLE_FILE_EXTENSION
     striType exeExtension;
 #endif
     intType lastSlashPos;
@@ -182,8 +182,12 @@ static striType getProgramName (const const_striType arg_0)
                        striAsUnquotedCStri(arg_0));
                 fflush(stdout););
     name_len = arg_0->size;
-#ifdef EXECUTABLE_FILE_EXTENSION
+#if defined LINKED_PROGRAM_EXTENSION || defined EXECUTABLE_FILE_EXTENSION
+#ifdef LINKED_PROGRAM_EXTENSION
+    exeExtension = CSTRI_LITERAL_TO_STRI(LINKED_PROGRAM_EXTENSION);
+#else
     exeExtension = CSTRI_LITERAL_TO_STRI(EXECUTABLE_FILE_EXTENSION);
+#endif
     if (name_len > exeExtension->size &&
         memcmp(&arg_0->mem[arg_0->size - exeExtension->size],
                exeExtension->mem, exeExtension->size * sizeof(strElemType)) == 0) {

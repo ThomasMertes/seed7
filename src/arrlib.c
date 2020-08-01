@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2013  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2019  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: Library                                                 */
 /*  File: seed7/src/arrlib.c                                        */
-/*  Changes: 1993, 1994, 2013  Thomas Mertes                        */
+/*  Changes: 1993, 1994, 2013, 2015, 2016, 2019  Thomas Mertes      */
 /*  Content: All primitive actions for array types.                 */
 /*                                                                  */
 /********************************************************************/
@@ -619,6 +619,8 @@ objectType arr_empty (listType arguments)
     if (unlikely(!ALLOC_ARRAY(result, 0))) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
+      /* Note that the size of the allocated memory is smaller, than the */
+      /* struct. But this is okay, because the element 'arr' is not used. */
       result->min_position = 1;
       result->max_position = 0;
     } /* if */

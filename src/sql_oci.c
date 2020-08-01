@@ -34,7 +34,6 @@
 
 #include "version.h"
 
-#ifdef OCI_INCLUDE
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
@@ -42,7 +41,9 @@
 #include "math.h"
 #include "float.h"
 #include "limits.h"
+#ifdef OCI_INCLUDE
 #include OCI_INCLUDE
+#endif
 
 #include "common.h"
 #include "data_rtl.h"
@@ -59,6 +60,8 @@
 #include "dll_drv.h"
 #include "sql_base.h"
 #include "sql_drv.h"
+
+#ifdef OCI_INCLUDE
 
 
 typedef struct {

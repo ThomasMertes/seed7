@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  fil_rtl.c     Primitive actions for the C library file type.    */
-/*  Copyright (C) 1989 - 2018  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2019  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -1602,10 +1602,12 @@ fileType filPopen (const const_striType command,
     const const_striType parameters, const const_striType mode)
 
   {
+#if HAS_POPEN
     os_striType os_command;
     os_charType os_mode[MAX_MODE_LEN];
     int mode_pos = 0;
     errInfoType err_info = OKAY_NO_ERROR;
+#endif
     fileType result;
 
   /* filPopen */

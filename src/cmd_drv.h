@@ -42,6 +42,10 @@ striType getExecutablePath (const const_striType arg_0);
 os_striType *getEnvironment (void);
 void freeEnvironment (os_striType *environment);
 #endif
+#ifdef EMULATE_ENVIRONMENT
+char *getenv7 (const char *name);
+int setenv7 (const char *name, const char *value, int overwrite);
+#endif
 #ifdef DEFINE_WGETENV
 os_striType wgetenv (const const_os_striType name);
 #endif

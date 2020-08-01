@@ -1404,7 +1404,7 @@ const func string: getHtmlAttributeValue (inout file: inFile) is func
  *  are present in the HTML tag. If the HTML tag ends with / the
  *  function assigns "/" to ''attributeValue'' and ''attributeName'' is
  *  set to "". If the HTML tag does not end with / ''attributeValue''
- *  and ''attributeName'' are set to "" when no more attributes are
+ *  and ''attributeName'' are set to "" if no more attributes are
  *  present.
  *)
 const proc: getNextHtmlAttribute (inout file: inFile,

@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  int_rtl.c     Primitive actions for the integer type.           */
-/*  Copyright (C) 1989 - 2018  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2019  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -1708,7 +1708,7 @@ intType intLowestSetBit (intType number)
  *  @return number as decimal string left padded with zeroes.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-striType intLpad0 (intType number, const intType pad_size)
+striType intLpad0 (intType number, const intType padSize)
 
   {
     uintType unsigned_number;
@@ -1720,7 +1720,7 @@ striType intLpad0 (intType number, const intType pad_size)
 
   /* intLpad0 */
     logFunction(printf("intLpad0(" FMT_D ", " FMT_D ")\n",
-                       number, pad_size););
+                       number, padSize););
     negative = (number < 0);
     if (negative) {
       /* The unsigned value is negated to avoid a signed integer */
@@ -1733,12 +1733,12 @@ striType intLpad0 (intType number, const intType pad_size)
     if (negative) {
       length++;
     } /* if */
-    if (pad_size > (intType) length) {
-      if (unlikely((uintType) pad_size > MAX_STRI_LEN)) {
+    if (padSize > (intType) length) {
+      if (unlikely((uintType) padSize > MAX_STRI_LEN)) {
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
-        result_size = (memSizeType) pad_size;
+        result_size = (memSizeType) padSize;
       } /* if */
     } else {
       result_size = length;

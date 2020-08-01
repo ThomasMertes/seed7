@@ -1069,7 +1069,9 @@ MACROS WRITTEN TO VERSION.H BY THE MAKEFILE
   SEARCH_PATH_DELIMITER: The paths in the PATH environment
                          variable are separated with this
                          character. Linux/Unix/BSD use ':' and
-                         Windows uses ';'.
+                         Windows uses ';'. If it is unknown at
+                         compile-time it is set to 0 and at
+                         run-time a function tries to guess it.
 
   AWAIT_WITH_POLL: The function timAwait() uses the function
                    poll() to implement waiting for a time.
@@ -1185,6 +1187,18 @@ MACROS WRITTEN TO VERSION.H BY THE MAKEFILE
                              used under Linux/Unix/BSD it is ""
                              for them. Under Windows the value
                              ".exe" is used.
+
+  LINKED_PROGRAM_EXTENSION: The extension of the file produced by
+                            compiling and linking a program.
+                            Normally this is identical to the
+                            EXECUTABLE_FILE_EXTENSION, but in case
+                            of Emscripten this is independend from
+                            the EXECUTABLE_FILE_EXTENSION.
+
+  INTERPRETER_FOR_LINKED_PROGRAM: Defines an interpreter that is
+                                  used if compiler and linker
+                                  create a file that must be
+                                  interpreted.
 
   C_COMPILER: Contains the command to call the stand-alone C
               compiler and linker (Most IDEs provide also a

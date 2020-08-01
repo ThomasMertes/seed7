@@ -251,7 +251,9 @@ const func integer: length (in external_file: aFile) is
  *  Set the current file position.
  *  The file position is measured in bytes from the start of the file.
  *  The first byte in the file has the position 1.
- *  @exception RANGE_ERROR The file position is negative or zero.
+ *  @exception RANGE_ERROR The file position is negative or zero or
+ *             the file position is not representable in the system
+ *             file position type.
  *  @exception FILE_ERROR A system function returns an error.
  *)
 const proc: seek (in external_file: aFile, in integer: position) is func

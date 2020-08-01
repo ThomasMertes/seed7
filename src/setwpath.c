@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  setwpath.c   Set the search path (PATH variable) under Windows. */
-/*  Copyright (C) 2014  Thomas Mertes                               */
+/*  Copyright (C) 2014, 2017 - 2019  Thomas Mertes                  */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: Setwpath                                                */
 /*  File: seed7/src/setwpath.c                                      */
-/*  Changes: 2014  Thomas Mertes                                    */
+/*  Changes: 2014, 2017 - 2019  Thomas Mertes                       */
 /*  Content: Set the search path (PATH variable) under Windows.     */
 /*                                                                  */
 /********************************************************************/
@@ -53,22 +53,30 @@
 #define ALREADY_OKAY     1
 #define CHANGE_DONE      2
 
+/* The include files of some C compilers do not define DWORD_PTR. */
+/* Instead of checking, if DWORD_PTR has been defined, we used memSizeType instead. */
+#if POINTER_SIZE == 32
+typedef UINT32TYPE memSizeType;
+#elif POINTER_SIZE == 64
+typedef UINT64TYPE memSizeType;
+#endif
+
 
 static void notifySettingChange (void)
 
   {
-    DWORD_PTR result;
+    memSizeType /* DWORD_PTR */ result;
 
   /* notifySettingChange */
     SendMessageTimeoutW(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM) L"Environment",
-                        SMTO_NORMAL, 10000, &result);
+                        SMTO_NORMAL, 10000, (void *) &result);
   } /* notifySettingChange */
 
 
 static int set_path (int add_to_path, wchar_t *directory, HKEY key, int read_only)
 
   {
-    size_t cwd_len;
+    size_t directory_len;
     size_t value_len;
     DWORD value_type;
     DWORD size_of_value = 0;
@@ -78,19 +86,30 @@ static int set_path (int add_to_path, wchar_t *directory, HKEY key, int read_onl
     int success = SET_PATH_FAILED;
 
   /* set_path */
-    cwd_len = wcslen(directory);
+    directory_len = wcslen(directory);
     /* printf("directory: %ls\n", directory);
-       printf("cwd_len: %lu\n", cwd_len); */
-    if (RegQueryValueExW(key, L"Path", NULL, NULL, NULL,
+       printf("directory_len: %lu\n", directory_len); */
+    if (RegQueryValueExW(key, DESTINATION, NULL, NULL, NULL,
                          &size_of_value) != ERROR_SUCCESS) {
-      printf(" *** Unable to get the size of the registry value.\n");
+      if (add_to_path) {
+        if (!read_only) {
+          size_of_value = (directory_len + 1) * sizeof(wchar_t);
+          if (RegSetValueExW(key, DESTINATION, 0, REG_SZ, (BYTE *) directory,
+                             size_of_value) != ERROR_SUCCESS) {
+            printf(" *** Unable to set registry value.\n");
+          } else {
+            notifySettingChange();
+            success = CHANGE_DONE;
+          } /* if */
+        } /* if */
+      } /* if */
     } else {
       /* printf("size_of_value: %lu\n", size_of_value); */
       if ((value_data = (wchar_t *)
-           malloc(size_of_value + (1 + cwd_len) * sizeof(wchar_t))) == NULL) {
-        printf(" *** Unable to request memory for the regestry value.\n");
+           malloc(size_of_value + (1 + directory_len) * sizeof(wchar_t))) == NULL) {
+        printf(" *** Unable to request memory for the registry value.\n");
       } else {
-        if (RegQueryValueExW(key, L"Path", NULL, &value_type, (LPBYTE) value_data,
+        if (RegQueryValueExW(key, DESTINATION, NULL, &value_type, (LPBYTE) value_data,
                              &size_of_value) != ERROR_SUCCESS) {
           printf(" *** Unable to query the registry value.\n");
         } else {
@@ -100,28 +119,50 @@ static int set_path (int add_to_path, wchar_t *directory, HKEY key, int read_onl
              printf("strlen(value_data): %lu\n", value_len);
              printf("value_data:\n%ls\n", value_data); */
           position = wcsstr(value_data, directory);
+          while (position != NULL &&
+              ((position != value_data && position[-1] != ';') ||
+              (position[directory_len] != ';' && position[directory_len] != '\0'))) {
+            position = wcsstr(&position[1], directory);
+          } /* while */
           if (position != NULL) {
             if (add_to_path) {
               success = ALREADY_OKAY;
             } else {
-              if (position != value_data && position[-1] == ';') {
-                memmove(&position[-1], &position[cwd_len],
-                        (&value_data[value_len + 1] - &position[cwd_len]) *
-                        sizeof(wchar_t));
+              if (position != value_data) {
+                if (position[-1] == ';' &&
+                    (value_data[directory_len] == ';' || value_data[directory_len] == '\0')) {
+                  memmove(&position[-1], &position[directory_len],
+                          (&value_data[value_len + 1] - &position[directory_len]) *
+                          sizeof(wchar_t));
+                  size_of_value -= (1 + directory_len) * sizeof(wchar_t);
+                  save_value = 1;
+                } /* if */
               } else {
-                memmove(position, &position[cwd_len],
-                        (&value_data[value_len + 1] - &position[cwd_len]) *
-                        sizeof(wchar_t));
+                if (value_data[directory_len] == ';') {
+                  memmove(value_data, &value_data[directory_len + 1],
+                          (&value_data[value_len + 1] - &value_data[directory_len + 1]) *
+                          sizeof(wchar_t));
+                  size_of_value -= (directory_len + 1) * sizeof(wchar_t);
+                  save_value = 1;
+                } else if (value_data[directory_len] == '\0') {
+                  value_data[0] = '\0';
+                  size_of_value -= (directory_len) * sizeof(wchar_t);
+                  save_value = 1;
+                } /* if */
               } /* if */
-              size_of_value -= (1 + cwd_len) * sizeof(wchar_t);
-              save_value = 1;
             } /* if */
           } else {
             if (add_to_path) {
-              value_data[value_len] = ';';  /* delimiter */
-              memcpy(&value_data[value_len + 1], directory,
-                     (cwd_len + 1) * sizeof(wchar_t));
-              size_of_value += (1 + cwd_len) * sizeof(wchar_t);
+              if (value_len == 0) {
+                memcpy(value_data, directory,
+                       (directory_len + 1) * sizeof(wchar_t));
+                size_of_value += (directory_len) * sizeof(wchar_t);
+              } else {
+                value_data[value_len] = ';';  /* delimiter */
+                memcpy(&value_data[value_len + 1], directory,
+                       (directory_len + 1) * sizeof(wchar_t));
+                size_of_value += (1 + directory_len) * sizeof(wchar_t);
+              } /* if */
               save_value = 1;
             } else {
               success = ALREADY_OKAY;

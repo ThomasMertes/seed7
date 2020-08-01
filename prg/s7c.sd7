@@ -2281,7 +2281,7 @@ const proc: process_main_declaration (in reference: current_object,
       main_epilog &:= "  if (profile_file != NULL) {\n";
       main_epilog &:= "    qsort(profile, profile_size, sizeof(struct profileElement),\n";
       main_epilog &:= "          cmpProfileElement);\n";
-      main_epilog &:= "    fprintf(profile_file, \"msecs\\tcalls\\tname\\n\");\n";
+      main_epilog &:= "    fprintf(profile_file, \"usecs\\tcalls\\tname\\n\");\n";
       main_epilog &:= "    for (index = 0; index < profile_size; index++) {\n";
       main_epilog &:= "      if (profile[index].count != 0) {\n";
       main_epilog &:= "        fprintf(profile_file, \"%ld\\t%ld\\t%s\\n\",\n";
@@ -7078,7 +7078,7 @@ const proc: pass_3 (in string: sourcePath, in string: sourceExtension, in progra
     var string: objectFile     is "";
     var string: linkErrFile    is "";
     var string: tempExeFile    is "";
-    var string: executableFile is "";
+    var string: linkedProgram  is "";
     var string: compile_cmd    is "";
     var array string: compileParams is 0 times "";
     var string: link_cmd       is "";
@@ -7117,11 +7117,11 @@ const proc: pass_3 (in string: sourcePath, in string: sourceExtension, in progra
       cErrorFile     := "tmp_" & sourceFile & ".cerrs";
       objectFile     := "tmp_" & sourceFile & ccConf.OBJECT_FILE_EXTENSION;
       linkErrFile    := "tmp_" & sourceFile & ".lerrs";
-      tempExeFile    := "tmp_" & sourceFile & ccConf.EXECUTABLE_FILE_EXTENSION;
-      if sourceExtension = "" and ccConf.EXECUTABLE_FILE_EXTENSION = "" then
-        executableFile :=        sourceFile & "_exe";
+      tempExeFile    := "tmp_" & sourceFile & ccConf.LINKED_PROGRAM_EXTENSION;
+      if sourceExtension = "" and ccConf.LINKED_PROGRAM_EXTENSION = "" then
+        linkedProgram :=         sourceFile & "_exe";
       else
-        executableFile :=        sourceFile & ccConf.EXECUTABLE_FILE_EXTENSION;
+        linkedProgram :=         sourceFile & ccConf.LINKED_PROGRAM_EXTENSION;
       end if;
       if fileType(objectFile) = FILE_REGULAR then
         removeFile(objectFile);
@@ -7206,16 +7206,16 @@ const proc: pass_3 (in string: sourcePath, in string: sourceExtension, in progra
           okay := FALSE;
         end if;
         if okay and not compileLibrary then
-          if fileType(executableFile) = FILE_REGULAR then
+          if fileType(linkedProgram) = FILE_REGULAR then
             block
-              removeFile(executableFile);
+              removeFile(linkedProgram);
             exception
               catch FILE_ERROR:
                 writeln("*** Cannot remove old executable: " <&
-                    literal(executableFile));
+                    literal(linkedProgram));
             end block;
           end if;
-          if fileType(executableFile) = FILE_ABSENT then
+          if fileType(linkedProgram) = FILE_ABSENT then
             writeln("Calling the linker ...");
             if generate_c_plus_plus then
               link_cmd := ccConf.CPLUSPLUS_COMPILER;
@@ -7235,10 +7235,10 @@ const proc: pass_3 (in string: sourcePath, in string: sourceExtension, in progra
             if ccConf.LINKER_OPT_OUTPUT_FILE <> "" then
               if endsWith(ccConf.LINKER_OPT_OUTPUT_FILE, " ") then
                 linkParams &:= rtrim(ccConf.LINKER_OPT_OUTPUT_FILE);
-                linkParams &:= toOsPath(executableFile);
+                linkParams &:= toOsPath(linkedProgram);
               else
                 linkParams &:= ccConf.LINKER_OPT_OUTPUT_FILE &
-                               toOsPath(executableFile);
+                               toOsPath(linkedProgram);
               end if;
             end if;
             linkParams &:= toOsPath(objectFile);
@@ -7270,9 +7270,9 @@ const proc: pass_3 (in string: sourcePath, in string: sourceExtension, in progra
             end if;
             if ccConf.LINKER_OPT_OUTPUT_FILE = "" and
                 fileType(tempExeFile) = FILE_REGULAR then
-              moveFile(tempExeFile, executableFile);
+              moveFile(tempExeFile, linkedProgram);
             end if;
-            if fileType(executableFile) <> FILE_REGULAR then
+            if fileType(linkedProgram) <> FILE_REGULAR then
               if fileType(linkErrFile) = FILE_REGULAR and
                   fileSize(linkErrFile) = 0 then
                 removeFile(linkErrFile);

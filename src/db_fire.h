@@ -101,12 +101,10 @@ typedef struct {
 typedef UINT32TYPE     FB_API_HANDLE;
 
 #if POINTER_SIZE == 32
-typedef INT32TYPE  intptr_t;
+typedef INT32TYPE  ISC_STATUS;
 #elif POINTER_SIZE == 64
-typedef INT64TYPE  intptr_t;
+typedef INT64TYPE  ISC_STATUS;
 #endif
-
-typedef intptr_t ISC_STATUS;
 
 const ISC_STATUS isc_segment = 335544366L;
 

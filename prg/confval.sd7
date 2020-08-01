@@ -93,6 +93,7 @@ const proc: main is func
     writeln("OBJECT_FILE_EXTENSION:      " <& ccConf.OBJECT_FILE_EXTENSION);
     writeln("LIBRARY_FILE_EXTENSION:     " <& ccConf.LIBRARY_FILE_EXTENSION);
     writeln("EXECUTABLE_FILE_EXTENSION:  " <& ccConf.EXECUTABLE_FILE_EXTENSION);
+    writeln("LINKED_PROGRAM_EXTENSION:   " <& ccConf.LINKED_PROGRAM_EXTENSION);
     writeln("C_COMPILER:                 " <& ccConf.C_COMPILER);
     writeln("CPLUSPLUS_COMPILER:         " <& ccConf.CPLUSPLUS_COMPILER);
     writeln("CALL_C_COMPILER_FROM_SHELL: " <& ccConf.CALL_C_COMPILER_FROM_SHELL);

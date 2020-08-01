@@ -401,6 +401,14 @@ const type: ccConfigType is new struct
     var string: EXECUTABLE_FILE_EXTENSION    is "";
 
     (**
+     *  The extension of the file produced by linking a program.
+     *  Normally this is identical to the EXECUTABLE_FILE_EXTENSION,
+     *  but in case of Emscripten this is independend from the
+     *  EXECUTABLE_FILE_EXTENSION.
+     *)
+    var string: LINKED_PROGRAM_EXTENSION     is "";
+
+    (**
      *  Command to call the stand-alone C compiler and linker.
      *  Most IDEs provide also a stand-alone compiler/linker.
      *)
@@ -480,7 +488,7 @@ const type: ccConfigType is new struct
      *  If no such option exists the value of LINKER_OPT_OUTPUT_FILE
      *  should be "". In this case it is assumed that the linker
      *  replaces the OBJECT_FILE_EXTENSION of the file with the
-     *  EXECUTABLE_FILE_EXTENSION.
+     *  LINKED_PROGRAM_EXTENSION.
      *)
     var string: LINKER_OPT_OUTPUT_FILE       is "";
 
@@ -648,6 +656,7 @@ const func ccConfigType: getBuiltInConfig is func
     conf.OBJECT_FILE_EXTENSION      := configValue("OBJECT_FILE_EXTENSION");
     conf.LIBRARY_FILE_EXTENSION     := configValue("LIBRARY_FILE_EXTENSION");
     conf.EXECUTABLE_FILE_EXTENSION  := configValue("EXECUTABLE_FILE_EXTENSION");
+    conf.LINKED_PROGRAM_EXTENSION   := configValue("LINKED_PROGRAM_EXTENSION");
     conf.C_COMPILER                 := configValue("C_COMPILER");
     conf.CPLUSPLUS_COMPILER         := configValue("CPLUSPLUS_COMPILER");
     conf.CALL_C_COMPILER_FROM_SHELL := boolean(configValue("CALL_C_COMPILER_FROM_SHELL"));

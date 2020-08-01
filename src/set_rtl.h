@@ -39,6 +39,11 @@
 #define bitset_pos(number) ((number)<0?~(~(number)>>bitset_shift):(number)>>bitset_shift)
 #endif
 
+#if TWOS_COMPLEMENT_INTTYPE
+#define lowestBitsetPosAsInteger(bitset_pos) ((bitset_pos) << bitset_shift)
+#else
+#define lowestBitsetPosAsInteger(bitset_pos) ((bitset_pos)<0?~(~(bitset_pos)>>bitset_shift):(bitset_pos)>>bitset_shift)
+#endif
 
 setType setBaselit (const intType number);
 intType setCard (const const_setType set1);

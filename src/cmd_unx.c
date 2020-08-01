@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  cmd_unx.c     Command functions which call the Unix API.        */
-/*  Copyright (C) 1989 - 2012  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2016, 2018, 2019  Thomas Mertes            */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -63,6 +63,10 @@
 
 #ifndef PATH_MAX
 #define PATH_MAX 2048
+#endif
+
+#ifdef EMULATE_ENVIRONMENT
+char **environ7 = NULL;
 #endif
 
 
@@ -127,3 +131,73 @@ striType getExecutablePath (const const_striType arg_0)
                        striAsUnquotedCStri(executablePath)););
     return executablePath;
   } /* getExecutablePath */
+
+
+
+#ifdef EMULATE_ENVIRONMENT
+char *getenv7 (const char *name)
+
+  {
+    size_t len;
+    char **p, *c;
+
+  /* getenv7 */
+    if (name == NULL || environ7 == NULL || strchr(name, '=') != NULL) {
+      return NULL;
+    } else {
+      len = strlen(name);
+      for (p = environ7; (c = *p) != NULL; ++p) {
+        if (strncmp(c, name, len) == 0 && c[len] == '=') {
+          return &c[len + 1];
+        } /* if */
+      } /* for */
+      return NULL;
+    } /* if */
+  } /* getenv7 */
+
+
+
+int setenv7 (const char *name, const char *value, int overwrite)
+
+  {
+    size_t len;
+    char **p, *c;
+    size_t nameCount = 0;
+
+  /* setenv7 */
+    if (name == NULL || name[0] == '\0' || strchr(name, '=') != NULL) {
+      errno = EINVAL;
+      return -1;
+    } else {
+      len = strlen(name);
+      if (environ7 != NULL) {
+        for (p = environ7; (c = *p) != NULL; ++p) {
+          nameCount ++;
+          if (strncmp(c, name, len) == 0 && c[len] == '=') {
+            if (overwrite) {
+              if ((*p = realloc(*p, len + strlen(value) + 2)) == NULL) {
+                errno = ENOMEM;
+                return -1;
+              } else {
+                strcpy(&c[len + 1], value);
+              } /* if */
+            } /* if **/
+            return 0;
+          } /* if */
+        } /* for */
+      } /* if */
+      if ((environ7 = realloc(environ7, sizeof(char *) * (nameCount + 2))) == NULL ||
+          (c = malloc(len + strlen(value) + 2)) == NULL) {
+        errno = ENOMEM;
+        return -1;
+      } else {
+        memcpy(c, name, len);
+        c[len] = '=';
+        strcpy(&c[len + 1], value);
+        environ7[nameCount] = c;
+        environ7[nameCount + 1] = NULL;
+        return 0;
+      } /* if */
+    } /* if */
+  } /* setenv7 */
+#endif

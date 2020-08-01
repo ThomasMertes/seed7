@@ -43,6 +43,13 @@
  *      The extension used by the C compiler for object files.
  *  EXECUTABLE_FILE_EXTENSION:
  *      The extension which is used by the operating system for executables.
+ *  LINKED_PROGRAM_EXTENSION:
+ *      The extension of the file produced by compiling and linking a program.
+ *      Normally this is identical to the EXECUTABLE_FILE_EXTENSION, but in case
+ *      of Emscripten this is independend from the EXECUTABLE_FILE_EXTENSION.
+ *  INTERPRETER_FOR_LINKED_PROGRAM:
+ *      Defines an interpreter that is used if compiler and linker create
+ *      a file that must be interpreted.
  *  C_COMPILER:
  *      Contains the command to call the stand-alone C compiler and linker.
  *      If the C compiler is called via a script C_COMPILER_SCRIPT is defined
@@ -63,9 +70,6 @@
  *      Contains the linker option to provide the output filename (e.g.: "-o ").
  *  SYSTEM_LIBS:
  *      Contains system libraries for the stand-alone linker.
- *  INTERPRETER_FOR_EXECUTABLE:
- *      Defines an interpreter that is used if compiler and linker create
- *      a file that must be interpreted.
  *  INT64TYPE_NO_SUFFIX_BUT_CAST:
  *      Defined if 64-bit integer literals do not use a suffix.
  *  INT_DIV_BY_ZERO_POPUP:
@@ -126,8 +130,12 @@
  */
 
 
-#ifndef EXECUTABLE_FILE_EXTENSION
-#define EXECUTABLE_FILE_EXTENSION ""
+#ifndef LINKED_PROGRAM_EXTENSION
+#ifdef EXECUTABLE_FILE_EXTENSION
+#define LINKED_PROGRAM_EXTENSION EXECUTABLE_FILE_EXTENSION
+#else
+#define LINKED_PROGRAM_EXTENSION ""
+#endif
 #endif
 
 #ifndef CC_FLAGS
@@ -362,7 +370,7 @@ static void cleanUpCompilation (int testNumber)
     doRemove(fileName);
     sprintf(fileName, "ctest%d%s", testNumber, OBJECT_FILE_EXTENSION);
     doRemove(fileName);
-    sprintf(fileName, "ctest%d%s", testNumber, EXECUTABLE_FILE_EXTENSION);
+    sprintf(fileName, "ctest%d%s", testNumber, LINKED_PROGRAM_EXTENSION);
     doRemove(fileName);
     sprintf(fileName, "ctest%d.out", testNumber);
     doRemove(fileName);
@@ -392,7 +400,7 @@ static int doCompileAndLink (const char *compilerOptions, const char *linkerOpti
     replaceNLBySpace(command);
 #if !defined LINKER && defined LINKER_OPT_OUTPUT_FILE && !defined CC_NO_OPT_OUTPUT_FILE
     sprintf(&command[strlen(command)], " %sctest%d%s",
-            LINKER_OPT_OUTPUT_FILE, testNumber, EXECUTABLE_FILE_EXTENSION);
+            LINKER_OPT_OUTPUT_FILE, testNumber, LINKED_PROGRAM_EXTENSION);
 #endif
 #ifdef CC_ERROR_FILDES
     /* A missing CC_ERROR_FILDES or an CC_ERROR_FILDES of zero means: Do not redirect. */
@@ -420,12 +428,12 @@ static int doCompileAndLink (const char *compilerOptions, const char *linkerOpti
       /* fprintf(logFile, "returncode: %d\n", returncode); */
       sprintf(command, "%s ctest%d%s %s %sctest%d%s",
               LINKER, testNumber, OBJECT_FILE_EXTENSION, linkerOptions,
-              LINKER_OPT_OUTPUT_FILE, testNumber, EXECUTABLE_FILE_EXTENSION);
+              LINKER_OPT_OUTPUT_FILE, testNumber, LINKED_PROGRAM_EXTENSION);
       /* fprintf(logFile, "command: %s\n", command); */
       returncode = system(command);
     } /* if */
 #endif
-    sprintf(fileName, "ctest%d%s", testNumber, EXECUTABLE_FILE_EXTENSION);
+    sprintf(fileName, "ctest%d%s", testNumber, LINKED_PROGRAM_EXTENSION);
     if (fileIsRegular(fileName)) {
       if (returncode == 0) {
         okay = 1;
@@ -564,13 +572,13 @@ static int doTest (void)
   /* doTest */
     fprintf(logFile, "+");
     fflush(logFile);
-#ifdef INTERPRETER_FOR_EXECUTABLE
+#ifdef INTERPRETER_FOR_LINKED_PROGRAM
     sprintf(command, "%s .%cctest%d%s>ctest%d.out",
-            INTERPRETER_FOR_EXECUTABLE, PATH_DELIMITER, testNumber,
-            EXECUTABLE_FILE_EXTENSION, testNumber);
+            INTERPRETER_FOR_LINKED_PROGRAM, PATH_DELIMITER, testNumber,
+            LINKED_PROGRAM_EXTENSION, testNumber);
 #else
     sprintf(command, ".%cctest%d%s>ctest%d.out", PATH_DELIMITER,
-            testNumber, EXECUTABLE_FILE_EXTENSION, testNumber);
+            testNumber, LINKED_PROGRAM_EXTENSION, testNumber);
 #endif
     returncode = system(command);
     if (returncode != -1) {
@@ -618,13 +626,13 @@ static void testOutputToVersionFile (FILE *versionFile)
   /* testOutputToVersionFile */
     fprintf(logFile, ">");
     fflush(logFile);
-#ifdef INTERPRETER_FOR_EXECUTABLE
+#ifdef INTERPRETER_FOR_LINKED_PROGRAM
     sprintf(command, "%s .%cctest%d%s>ctest%d.out",
-            INTERPRETER_FOR_EXECUTABLE, PATH_DELIMITER, testNumber,
-            EXECUTABLE_FILE_EXTENSION, testNumber);
+            INTERPRETER_FOR_LINKED_PROGRAM, PATH_DELIMITER, testNumber,
+            LINKED_PROGRAM_EXTENSION, testNumber);
 #else
     sprintf(command, ".%cctest%d%s>ctest%d.out", PATH_DELIMITER,
-            testNumber, EXECUTABLE_FILE_EXTENSION, testNumber);
+            testNumber, LINKED_PROGRAM_EXTENSION, testNumber);
 #endif
     returncode = system(command);
     if (returncode != -1) {
@@ -1006,8 +1014,8 @@ static void checkPopen (FILE *versionFile)
       if (assertCompAndLnk("#include <stdio.h>\n"
                            "int main(int argc, char *argv[])\n"
                            "{printf(\"x\\n\"); return 0;}\n")) {
-        sprintf(fileName, "ctest%d%s", testNumber, EXECUTABLE_FILE_EXTENSION);
-        if (rename(fileName, "ctest_a" EXECUTABLE_FILE_EXTENSION) == 0) {
+        sprintf(fileName, "ctest%d%s", testNumber, LINKED_PROGRAM_EXTENSION);
+        if (rename(fileName, "ctest_a" LINKED_PROGRAM_EXTENSION) == 0) {
           sprintf(buffer, "#include <stdio.h>\n#include <string.h>\n"
                           "int main(int argc, char *argv[])\n"
                           "{char buffer[5]; FILE *aFile; aFile=%s(\""
@@ -1017,14 +1025,14 @@ static void checkPopen (FILE *versionFile)
                           "printf(\"%%d\\n\", memcmp(buffer, \"x\\r\\n\", 3) == 0);\n"
                           "else printf(\"0\\n\"); return 0;}\n",
                           popen, PATH_DELIMITER == '\\' ? "\\" : "", PATH_DELIMITER,
-                          EXECUTABLE_FILE_EXTENSION, binary_mode);
+                          LINKED_PROGRAM_EXTENSION, binary_mode);
           if (assertCompAndLnk(buffer)) {
             fprintf(versionFile, "#define STDOUT_IS_IN_TEXT_MODE %d\n", doTest() == 1);
           } /* if */
-          doRemove("ctest_a" EXECUTABLE_FILE_EXTENSION);
+          doRemove("ctest_a" LINKED_PROGRAM_EXTENSION);
         } else {
           fprintf(logFile, "\n *** Unable to rename %s to ctest_a%s\n",
-                  fileName, EXECUTABLE_FILE_EXTENSION);
+                  fileName, LINKED_PROGRAM_EXTENSION);
         } /* if */
       } /* if */
     } /* if */
@@ -1042,8 +1050,8 @@ static void checkSystemResult (FILE *versionFile)
   /* checkSystemResult */
     if (assertCompAndLnk("int main (int argc, char *argv[])\n"
                          "{ return 0; }\n")) {
-      sprintf(fileName, "ctest%d%s", testNumber, EXECUTABLE_FILE_EXTENSION);
-      if (rename(fileName, "ctest_b" EXECUTABLE_FILE_EXTENSION) == 0) {
+      sprintf(fileName, "ctest%d%s", testNumber, LINKED_PROGRAM_EXTENSION);
+      if (rename(fileName, "ctest_b" LINKED_PROGRAM_EXTENSION) == 0) {
         sprintf(buffer, "#include <stdio.h>\n#include <stdlib.h>\n"
                         "int main(int argc, char *argv[])\n"
                         "{char buffer[5]; int retVal; retVal=system(\""
@@ -1051,7 +1059,7 @@ static void checkSystemResult (FILE *versionFile)
                         "\");\n"
                         "printf(\"%%d\\n\", retVal); return 0;}\n",
                         PATH_DELIMITER == '\\' ? "\\" : "", PATH_DELIMITER,
-                        EXECUTABLE_FILE_EXTENSION);
+                        LINKED_PROGRAM_EXTENSION);
         if (assertCompAndLnk(buffer)) {
           testResult = doTest();
           fprintf(versionFile, "#define SYSTEM_RESULT_FOR_RETURN_0 %d\n", testResult);
@@ -1059,10 +1067,10 @@ static void checkSystemResult (FILE *versionFile)
             fprintf(logFile, "\n *** System result for return 0 is %d\n", testResult);
           } /* if */
         } /* if */
-        doRemove("ctest_b" EXECUTABLE_FILE_EXTENSION);
+        doRemove("ctest_b" LINKED_PROGRAM_EXTENSION);
       } else {
         fprintf(logFile, "\n *** Unable to rename %s to ctest_b%s\n",
-                fileName, EXECUTABLE_FILE_EXTENSION);
+                fileName, LINKED_PROGRAM_EXTENSION);
       } /* if */
     } /* if */
   } /* checkSystemResult */
@@ -3478,12 +3486,18 @@ static void determineEnvironDefines (FILE *versionFile)
     int use_get_environment = 0;
     int initialize_os_environ = 0;
     int define_os_getenv = 0;
+    int test_result;
+    int getenv_is_case_sensitive = 0;
     char *os_getenv = NULL;
     char *os_putenv = NULL;
     char *os_setenv = NULL;
 
   /* determineEnvironDefines */
     buffer[0] = '\0';
+#ifdef EMULATE_ENVIRONMENT
+    os_environ = "environ7";
+    declare_os_environ = 1;
+#else
 #ifdef OS_STRI_WCHAR
     if (compileAndLinkOk("#include <stdio.h>\n#include <stdlib.h>\n"
                          "int main(int argc,char *argv[])\n"
@@ -3522,11 +3536,6 @@ static void determineEnvironDefines (FILE *versionFile)
     } else {
       use_get_environment = 1;
     } /* if */
-    if (os_environ != NULL) {
-      fprintf(versionFile, "#define os_environ %s\n", os_environ);
-    } /* if */
-    fprintf(versionFile, "#define DECLARE_OS_ENVIRON %d\n", declare_os_environ);
-    fprintf(versionFile, "#define USE_GET_ENVIRONMENT %d\n", use_get_environment);
     if (!use_get_environment) {
       strcat(buffer, "#include <stdio.h>\n");
       strcat(buffer, "#include \"tst_vers.h\"\n");
@@ -3552,8 +3561,16 @@ static void determineEnvironDefines (FILE *versionFile)
         initialize_os_environ = 1;
       } /* if */
     } /* if */
+#endif
+    if (os_environ != NULL) {
+      fprintf(versionFile, "#define os_environ %s\n", os_environ);
+    } /* if */
+    fprintf(versionFile, "#define DECLARE_OS_ENVIRON %d\n", declare_os_environ);
+    fprintf(versionFile, "#define USE_GET_ENVIRONMENT %d\n", use_get_environment);
     fprintf(versionFile, "#define INITIALIZE_OS_ENVIRON %d\n", initialize_os_environ);
-#ifdef OS_STRI_WCHAR
+#ifdef EMULATE_ENVIRONMENT
+    os_getenv = "getenv7";
+#elif defined OS_STRI_WCHAR
     if (compileAndLinkOk("#include <stdio.h>\n#include <stdlib.h>\n"
                          "int main(int argc,char *argv[])\n"
                          "{printf(\"%d\\n\",\n"
@@ -3584,7 +3601,27 @@ static void determineEnvironDefines (FILE *versionFile)
                          "  wgetenv(L\"OS\") != NULL);\n"
                          "return 0;}\n") && doTest() == 1) {
       os_getenv = "wgetenv";
+    } else if (compileAndLinkOk("#include <stdio.h>\n#include <stdlib.h>\n"
+                                "#include <windows.h>\n"
+                                "int main(int argc,char *argv[])\n"
+                                "{wchar_t buf[4096];\n"
+                                "printf(\"%d\\n\",\n"
+                                "  GetEnvironmentVariableW(L\"PATH\", buf, 4096) != 0 ||\n"
+                                "  GetEnvironmentVariableW(L\"HOME\", buf, 4096) != 0 ||\n"
+                                "  GetEnvironmentVariableW(L\"TERM\", buf, 4096) != 0 ||\n"
+                                "  GetEnvironmentVariableW(L\"LOGNAME\", buf, 4096) != 0 ||\n"
+                                "  GetEnvironmentVariableW(L\"PROMPT\", buf, 4096) != 0 ||\n"
+                                "  GetEnvironmentVariableW(L\"HOMEPATH\", buf, 4096) != 0 ||\n"
+                                "  GetEnvironmentVariableW(L\"USERNAME\", buf, 4096) != 0 ||\n"
+                                "  GetEnvironmentVariableW(L\"TEMP\", buf, 4096) != 0 ||\n"
+                                "  GetEnvironmentVariableW(L\"TMP\", buf, 4096) != 0 ||\n"
+                                "  GetEnvironmentVariableW(L\"OS\", buf, 4096) != 0);\n"
+                                "return 0;}\n") && doTest() == 1) {
+      define_os_getenv = 1;
+      fputs("#define DEFINE_WGETENV\n", versionFile);
+      os_getenv = "wgetenv";
     } else {
+      fprintf(logFile, "\nAssume that wgetenv() should be defined.\n");
       define_os_getenv = 1;
       fputs("#define DEFINE_WGETENV\n", versionFile);
       os_getenv = "wgetenv";
@@ -3612,55 +3649,130 @@ static void determineEnvironDefines (FILE *versionFile)
     } else {
       fprintf(logFile, "\n *** Cannot define os_getenv.\n");
     } /* if */
-#ifdef OS_STRI_WCHAR
+#ifdef EMULATE_ENVIRONMENT
+    os_setenv = "setenv7";
+    getenv_is_case_sensitive = 1;
+#elif defined OS_STRI_WCHAR
     if (compileAndLinkOk("#include <stdio.h>\n#include <stdlib.h>\n"
+                         "#include <string.h>\n"
                          "int main(int argc,char *argv[])\n"
-                         "{printf(\"%d\\n\","
-                         "  _wsetenv(L\"ASDFGHJKL\", L\"asdfghjkl\", 1) == 0);\n"
-                         "return 0;}\n") && doTest() == 1) {
+                         "{printf(\"%d\\n\",\n"
+                         "    (_wsetenv(L\"AsDfGhJkL\", L\"asdfghjkl\", 1) == 0 &&\n"
+                         "     getenv(\"AsDfGhJkL\") != NULL &&\n"
+                         "     strcmp(getenv(\"AsDfGhJkL\"), \"asdfghjkl\") == 0) +\n"
+                         "    (getenv(\"ASDFGHJKL\") != NULL &&\n"
+                         "     strcmp(getenv(\"ASDFGHJKL\"), \"asdfghjkl\") == 0));\n"
+                         "return 0;}\n") && (test_result = doTest()) >= 1) {
       os_setenv = "_wsetenv";
+      getenv_is_case_sensitive = test_result == 1;
     } else if (compileAndLinkOk("#include <stdio.h>\n#include <stdlib.h>\n"
-                         "int main(int argc,char *argv[])\n"
-                         "{printf(\"%d\\n\","
-                         "  wsetenv(L\"ASDFGHJKL\", L\"asdfghjkl\", 1) == 0);\n"
-                         "return 0;}\n") && doTest() == 1) {
+                                "#include <string.h>\n"
+                                "int main(int argc,char *argv[])\n"
+                                "{printf(\"%d\\n\",\n"
+                                "    (wsetenv(L\"AsDfGhJkL\", L\"asdfghjkl\", 1) == 0 &&\n"
+                                "     getenv(\"AsDfGhJkL\") != NULL &&\n"
+                                "     strcmp(getenv(\"AsDfGhJkL\"), \"asdfghjkl\") == 0) +\n"
+                                "    (getenv(\"ASDFGHJKL\") != NULL &&\n"
+                                "     strcmp(getenv(\"ASDFGHJKL\"), \"asdfghjkl\") == 0));\n"
+                                "return 0;}\n") && (test_result = doTest()) >= 1) {
       os_setenv = "wsetenv";
+      getenv_is_case_sensitive = test_result == 1;
     } else if (!define_os_getenv &&
                compileAndLinkOk("#include <stdio.h>\n#include <stdlib.h>\n"
+                                "#include <string.h>\n"
+                                "wchar_t *key_value = L\"AsDfGhJkL=asdfghjkl\";\n"
                                 "int main(int argc,char *argv[])\n"
-                                "{printf(\"%d\\n\","
-                                "  _wputenv(L\"ASDFGHJKL=asdfghjkl\") == 0);\n"
-                                "return 0;}\n") && doTest() == 1) {
+                                "{printf(\"%d\\n\",\n"
+                                "    (_wputenv(key_value) == 0 &&\n"
+                                "     getenv(\"AsDfGhJkL\") != NULL &&\n"
+                                "     strcmp(getenv(\"AsDfGhJkL\"), \"asdfghjkl\") == 0) +\n"
+                                "    (getenv(\"ASDFGHJKL\") != NULL &&\n"
+                                "     strcmp(getenv(\"ASDFGHJKL\"), \"asdfghjkl\") == 0));\n"
+                                "return 0;}\n") && (test_result = doTest()) >= 1) {
       os_putenv = "_wputenv";
+      getenv_is_case_sensitive = test_result == 1;
     } else if (!define_os_getenv &&
                compileAndLinkOk("#include <stdio.h>\n#include <stdlib.h>\n"
+                                "#include <string.h>\n"
+                                "wchar_t *key_value = L\"AsDfGhJkL=asdfghjkl\";\n"
                                 "int main(int argc,char *argv[])\n"
-                                "{printf(\"%d\\n\","
-                                "  wputenv(L\"ASDFGHJKL=asdfghjkl\") == 0);\n"
-                                "return 0;}\n") && doTest() == 1) {
+                                "{printf(\"%d\\n\",\n"
+                                "    (wputenv(key_value) == 0 &&\n"
+                                "     getenv(\"AsDfGhJkL\") != NULL &&\n"
+                                "     strcmp(getenv(\"AsDfGhJkL\"), \"asdfghjkl\") == 0) +\n"
+                                "    (getenv(\"ASDFGHJKL\") != NULL &&\n"
+                                "     strcmp(getenv(\"ASDFGHJKL\"), \"asdfghjkl\") == 0));\n"
+                                "return 0;}\n") && (test_result = doTest()) >= 1) {
       os_putenv = "wputenv";
+      getenv_is_case_sensitive = test_result == 1;
+    } else if (!define_os_getenv &&
+               compileAndLinkOk("#include <stdio.h>\n#include <stdlib.h>\n"
+                                "#include <string.h>\n#include <windows.h>\n"
+                                "int main(int argc,char *argv[])\n"
+                                "{printf(\"%d\\n\",\n"
+                                "    (SetEnvironmentVariableW(L\"AsDfGhJkL\", L\"asdfghjkl\") != 0 &&\n"
+                                "     getenv(\"AsDfGhJkL\") != NULL &&\n"
+                                "     strcmp(getenv(\"AsDfGhJkL\"), \"asdfghjkl\") == 0) +\n"
+                                "    (getenv(\"ASDFGHJKL\") != NULL &&\n"
+                                "     strcmp(getenv(\"ASDFGHJKL\"), \"asdfghjkl\") == 0));\n"
+                                "return 0;}\n") && (test_result = doTest()) >= 1) {
+      fputs("#define DEFINE_WSETENV\n", versionFile);
+      os_setenv = "wsetenv";
+      getenv_is_case_sensitive = test_result == 1;
+    } else if (compileAndLinkOk("#include <stdio.h>\n#include <stdlib.h>\n"
+                                "#include <string.h>\n#include <windows.h>\n"
+                                "int main(int argc,char *argv[])\n"
+                                "{char buf1[10], buf2[10];\n"
+                                "printf(\"%d\\n\",\n"
+                                "    (SetEnvironmentVariableW(L\"AsDfGhJkL\", L\"asdfghjkl\") != 0 &&\n"
+                                "     GetEnvironmentVariable(\"AsDfGhJkL\", buf1, 10) == 9 &&\n"
+                                "     strcmp(buf1, \"asdfghjkl\") == 0) +\n"
+                                "    (GetEnvironmentVariable(\"ASDFGHJKL\", buf2, 10) == 9 &&\n"
+                                "     strcmp(buf2, \"asdfghjkl\") == 0));\n"
+                                "return 0;}\n") && (test_result = doTest()) >= 1) {
+      fputs("#define DEFINE_WSETENV\n", versionFile);
+      os_setenv = "wsetenv";
+      getenv_is_case_sensitive = test_result == 1;
     } else {
+      fprintf(logFile, "\nAssume that wsetenv() should be defined.\n");
       fputs("#define DEFINE_WSETENV\n", versionFile);
       os_setenv = "wsetenv";
     } /* if */
 #else
     if (compileAndLinkOk("#include <stdio.h>\n#include <stdlib.h>\n"
+                         "#include <string.h>\n"
                          "int main(int argc,char *argv[])\n"
-                         "{printf(\"%d\\n\","
-                         "  setenv(\"ASDFGHJKL\", \"asdfghjkl\", 1) == 0);\n"
-                         "return 0;}\n") && doTest() == 1) {
+                         "{printf(\"%d\\n\",\n"
+                         "    (setenv(\"AsDfGhJkL\", \"asdfghjkl\", 1) == 0 &&\n"
+                         "     getenv(\"AsDfGhJkL\") != NULL &&\n"
+                         "     strcmp(getenv(\"AsDfGhJkL\"), \"asdfghjkl\") == 0) +\n"
+                         "    (getenv(\"ASDFGHJKL\") != NULL &&\n"
+                         "     strcmp(getenv(\"ASDFGHJKL\"), \"asdfghjkl\") == 0));\n"
+                         "return 0;}\n") && (test_result = doTest()) >= 1) {
       os_setenv = "setenv";
+      getenv_is_case_sensitive = test_result == 1;
     } else if (compileAndLinkOk("#include <stdio.h>\n#include <stdlib.h>\n"
+                                "#include <string.h>\n"
+                                "char *key_value = \"AsDfGhJkL=asdfghjkl\";\n"
                                 "int main(int argc,char *argv[])\n"
-                                "{printf(\"%d\\n\","
-                                "  putenv(\"ASDFGHJKL=asdfghjkl\") == 0);\n"
-                                "return 0;}\n") && doTest() == 1) {
+                                "{printf(\"%d\\n\",\n"
+                                "    (putenv(key_value) == 0 &&\n"
+                                "     getenv(\"AsDfGhJkL\") != NULL &&\n"
+                                "     strcmp(getenv(\"AsDfGhJkL\"), \"asdfghjkl\") == 0) +\n"
+                                "    (getenv(\"ASDFGHJKL\") != NULL &&\n"
+                                "     strcmp(getenv(\"ASDFGHJKL\"), \"asdfghjkl\") == 0));\n"
+                                "return 0;}\n") && (test_result = doTest()) >= 1) {
       os_putenv = "putenv";
+      getenv_is_case_sensitive = test_result == 1;
     } /* if */
 #endif
     if (os_setenv != NULL) {
+      fprintf(versionFile, "#define GETENV_IS_CASE_SENSITIVE %d\n",
+              getenv_is_case_sensitive);
       fprintf(versionFile, "#define os_setenv %s\n", os_setenv);
     } else if (os_putenv != NULL && os_getenv != NULL && !define_os_getenv) {
+      fprintf(versionFile, "#define GETENV_IS_CASE_SENSITIVE %d\n",
+              getenv_is_case_sensitive);
       fprintf(versionFile, "#define os_putenv %s\n", os_putenv);
       sprintf(buffer, "#include <stdio.h>\n"
                       "#include <stdlib.h>\n"
@@ -5360,6 +5472,17 @@ static void determineFireDefines (FILE *versionFile,
       fprintf(logFile, "\rFirebird: %s found in system include directory.\n",
               fireInclude);
     } else if (compileAndLinkWithOptionsOk("#include \"tst_vers.h\"\n"
+                                           "#include \"db_fire.h\"\n"
+                                           "int main(int argc,char *argv[]){\n"
+                                           "isc_db_handle conn;\n"
+                                           "isc_stmt_handle stmt;\n"
+                                           "ISC_STATUS status_vector[20];\n"
+                                           "char name = isc_dpb_user_name;\n"
+                                           "char passwd = isc_dpb_password;\n"
+                                           "return 0;}\n",
+                                           "", "") ||
+               compileAndLinkWithOptionsOk("#define STDCALL\n"
+                                           "#include \"tst_vers.h\"\n"
                                            "#include \"db_fire.h\"\n"
                                            "int main(int argc,char *argv[]){\n"
                                            "isc_db_handle conn;\n"

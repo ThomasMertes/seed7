@@ -9274,7 +9274,7 @@ my_dir := homeDir;
     <span class="keywd">var</span> <a class="type" href="#types_integer">integer</a>: index <span class="keywd">is</span> 0;
   <span class="keywd">begin</span>
     currDb := <span class="func">openDatabase</span>(<span class="var">DB_MYSQL</span>, <span class="stri">"testDb"</span>, <span class="stri">"testUser"</span>, <span class="stri">"testPassword"</span>);
-    <span class="keywd">if</span> currDb <span class="op">(in_sqlStatement)">&lt;></span> <span class="type">database</span>.value <span class="keywd">then</span>
+    <span class="keywd">if</span> currDb <span class="op">&lt;></span> <span class="type">database</span>.value <span class="keywd">then</span>
       statement := <span class="func">prepare</span>(currDb, <span class="stri">"SELECT * FROM testTable"</span>);
       <span class="func">execute</span>(statement);
       <span class="keywd">while</span> <span class="func">fetch</span>(statement) <span class="keywd">do</span>

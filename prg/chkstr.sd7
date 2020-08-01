@@ -12545,7 +12545,7 @@ const proc: check_string_ops is func
   end func;
 
 
-const proc: check_string_funcs is func
+const proc: check_string_pos is func
   local
     var boolean: okay is TRUE;
   begin
@@ -12556,7 +12556,7 @@ const proc: check_string_funcs is func
         pos("abcde",  "") <> 0 or
         pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", "") <> 0 or
         pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", "") <> 0 then
-      writeln(" ***** pos(STRING, \"\") does not work correct.");
+      writeln(" ***** pos(STRING, \"\") does not work correct. (1)");
       okay := FALSE;
     end if;
     if  pos("",       "\0;") <> 0 or
@@ -12566,13 +12566,13 @@ const proc: check_string_funcs is func
         pos("abcde",  "\0;") <> 0 or
         pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", "\0;") <> 0 or
         pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", "\0;") <> 0 then
-      writeln(" ***** pos(STRING, \"\\0;\") does not work correct.");
+      writeln(" ***** pos(STRING, \"\\0;\") does not work correct. (1)");
       okay := FALSE;
     end if;
     if  pos("\4096;\0;\0;", "\4096;") <> 1 or
         pos("\0;\4096;\0;", "\4096;") <> 2 or
         pos("\0;\0;\4096;", "\4096;") <> 3 then
-      writeln(" ***** pos(STRING, \"\\4096;\") does not work correct.");
+      writeln(" ***** pos(STRING, \"\\4096;\") does not work correct. (1)");
       okay := FALSE;
     end if;
     if  pos("",       "a") <> 0 or
@@ -12603,7 +12603,7 @@ const proc: check_string_funcs is func
         pos("xyzaa",  "a") <> 4 or
         pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", "a") <> 1 or
         pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", "a") <> 26 then
-      writeln(" ***** pos(STRING, \"a\") does not work correct.");
+      writeln(" ***** pos(STRING, \"a\") does not work correct. (1)");
       okay := FALSE;
     end if;
     if  pos("",       "ab") <> 0 or
@@ -12646,7 +12646,7 @@ const proc: check_string_funcs is func
         pos("cbazb",  "ab") <> 0 or
         pos("aaaaa",  "ab") <> 0 or
         pos("bbbbb",  "ab") <> 0 then
-      writeln(" ***** pos(STRING, \"ab\") does not work correct.");
+      writeln(" ***** pos(STRING, \"ab\") does not work correct. (1)");
       okay := FALSE;
     end if;
     if  pos("",       "aa") <> 0 or
@@ -12687,7 +12687,7 @@ const proc: check_string_funcs is func
         pos("aaaab",  "aa") <> 1 or
         pos("zaaaa",  "aa") <> 2 or
         pos("aaaaa",  "aa") <> 1 then
-      writeln(" ***** pos(STRING, \"aa\") does not work correct.");
+      writeln(" ***** pos(STRING, \"aa\") does not work correct. (1)");
       okay := FALSE;
     end if;
     if  pos("",       "abc") <> 0 or
@@ -12745,7 +12745,7 @@ const proc: check_string_funcs is func
         pos("bcbcbcbcbcbcbcbcbcbcbcbcbcbcbcabcbcbcbcbcbcbcbcbcbc",  "abc") <> 31 or
         pos("acbacbacbacbacbacbacbacbacbacbabcacbacbacbacbacbacb",  "abc") <> 31 or
         pos("ababababababcbababababcbababababcbababababcbabababa",  "abc") <> 11 then
-      writeln(" ***** pos(STRING, \"abc\") does not work correct.");
+      writeln(" ***** pos(STRING, \"abc\") does not work correct. (1)");
       okay := FALSE;
     end if;
     if  pos("",       "aba") <> 0 or
@@ -12824,9 +12824,1218 @@ const proc: check_string_funcs is func
         pos("bcbcbcbcbcbcbcbcbcbcbcbcbcbcbcababcbcbcbcbcbcbcbcbc",  "aba") <> 31 or
         pos("acbacbacbacbacbacbacbacbacbacbabaacbacbacbacbacbacb",  "aba") <> 31 or
         pos("cbabcbabcbababababababababababababababababababababa",  "aba") <> 11 then
-      writeln(" ***** pos(STRING, \"aba\") does not work correct.");
+      writeln(" ***** pos(STRING, \"aba\") does not work correct. (1)");
       okay := FALSE;
     end if;
+
+    if  pos(striExpr(""),       "") <> 0 or
+        pos(striExpr("a"),      "") <> 0 or
+        pos(striExpr("ab"),     "") <> 0 or
+        pos(striExpr("abc"),    "") <> 0 or
+        pos(striExpr("abcde"),  "") <> 0 or
+        pos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), "") <> 0 or
+        pos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), "") <> 0 then
+      writeln(" ***** pos(STRING, \"\") does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    if  pos(striExpr(""),       "\0;") <> 0 or
+        pos(striExpr("a"),      "\0;") <> 0 or
+        pos(striExpr("ab"),     "\0;") <> 0 or
+        pos(striExpr("abc"),    "\0;") <> 0 or
+        pos(striExpr("abcde"),  "\0;") <> 0 or
+        pos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), "\0;") <> 0 or
+        pos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), "\0;") <> 0 then
+      writeln(" ***** pos(STRING, \"\\0;\") does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    if  pos(striExpr("\4096;\0;\0;"), "\4096;") <> 1 or
+        pos(striExpr("\0;\4096;\0;"), "\4096;") <> 2 or
+        pos(striExpr("\0;\0;\4096;"), "\4096;") <> 3 then
+      writeln(" ***** pos(STRING, \"\\4096;\") does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    if  pos(striExpr(""),       "a") <> 0 or
+        pos(striExpr("b"),      "a") <> 0 or
+        pos(striExpr("a"),      "a") <> 1 or
+        pos(striExpr("bc"),     "a") <> 0 or
+        pos(striExpr("ab"),     "a") <> 1 or
+        pos(striExpr("za"),     "a") <> 2 or
+        pos(striExpr("aa"),     "a") <> 1 or
+        pos(striExpr("bcd"),    "a") <> 0 or
+        pos(striExpr("abc"),    "a") <> 1 or
+        pos(striExpr("zab"),    "a") <> 2 or
+        pos(striExpr("yza"),    "a") <> 3 or
+        pos(striExpr("aab"),    "a") <> 1 or
+        pos(striExpr("aba"),    "a") <> 1 or
+        pos(striExpr("zaa"),    "a") <> 2 or
+        pos(striExpr("aaa"),    "a") <> 1 or
+        pos(striExpr("bcdef"),  "a") <> 0 or
+        pos(striExpr("abcde"),  "a") <> 1 or
+        pos(striExpr("zabcd"),  "a") <> 2 or
+        pos(striExpr("yzabc"),  "a") <> 3 or
+        pos(striExpr("xyzab"),  "a") <> 4 or
+        pos(striExpr("wxyza"),  "a") <> 5 or
+        pos(striExpr("ababc"),  "a") <> 1 or
+        pos(striExpr("zabad"),  "a") <> 2 or
+        pos(striExpr("yzaba"),  "a") <> 3 or
+        pos(striExpr("yzaab"),  "a") <> 3 or
+        pos(striExpr("xyzaa"),  "a") <> 4 or
+        pos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), "a") <> 1 or
+        pos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), "a") <> 26 then
+      writeln(" ***** pos(STRING, \"a\") does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    if  pos(striExpr(""),       "ab") <> 0 or
+        pos(striExpr("c"),      "ab") <> 0 or
+        pos(striExpr("a"),      "ab") <> 0 or
+        pos(striExpr("b"),      "ab") <> 0 or
+        pos(striExpr("cd"),     "ab") <> 0 or
+        pos(striExpr("ac"),     "ab") <> 0 or
+        pos(striExpr("bc"),     "ab") <> 0 or
+        pos(striExpr("ab"),     "ab") <> 1 or
+        pos(striExpr("za"),     "ab") <> 0 or
+        pos(striExpr("zb"),     "ab") <> 0 or
+        pos(striExpr("cde"),    "ab") <> 0 or
+        pos(striExpr("bcd"),    "ab") <> 0 or
+        pos(striExpr("abc"),    "ab") <> 1 or
+        pos(striExpr("zab"),    "ab") <> 2 or
+        pos(striExpr("yza"),    "ab") <> 0 or
+        pos(striExpr("azy"),    "ab") <> 0 or
+        pos(striExpr("baz"),    "ab") <> 0 or
+        pos(striExpr("cba"),    "ab") <> 0 or
+        pos(striExpr("dcb"),    "ab") <> 0 or
+        pos(striExpr("aaa"),    "ab") <> 0 or
+        pos(striExpr("bbb"),    "ab") <> 0 or
+        pos(striExpr("cdefg"),  "ab") <> 0 or
+        pos(striExpr("bcdef"),  "ab") <> 0 or
+        pos(striExpr("abcde"),  "ab") <> 1 or
+        pos(striExpr("zabcd"),  "ab") <> 2 or
+        pos(striExpr("yzabc"),  "ab") <> 3 or
+        pos(striExpr("xyzab"),  "ab") <> 4 or
+        pos(striExpr("wxyza"),  "ab") <> 0 or
+        pos(striExpr("abbbb"),  "ab") <> 1 or
+        pos(striExpr("aabbb"),  "ab") <> 2 or
+        pos(striExpr("aaabb"),  "ab") <> 3 or
+        pos(striExpr("aaaab"),  "ab") <> 4 or
+        pos(striExpr("ababc"),  "ab") <> 1 or
+        pos(striExpr("abcab"),  "ab") <> 1 or
+        pos(striExpr("zabab"),  "ab") <> 2 or
+        pos(striExpr("azbaz"),  "ab") <> 0 or
+        pos(striExpr("bazba"),  "ab") <> 0 or
+        pos(striExpr("cbazb"),  "ab") <> 0 or
+        pos(striExpr("aaaaa"),  "ab") <> 0 or
+        pos(striExpr("bbbbb"),  "ab") <> 0 then
+      writeln(" ***** pos(STRING, \"ab\") does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    if  pos(striExpr(""),       "aa") <> 0 or
+        pos(striExpr("b"),      "aa") <> 0 or
+        pos(striExpr("a"),      "aa") <> 0 or
+        pos(striExpr("bc"),     "aa") <> 0 or
+        pos(striExpr("ab"),     "aa") <> 0 or
+        pos(striExpr("za"),     "aa") <> 0 or
+        pos(striExpr("aa"),     "aa") <> 1 or
+        pos(striExpr("bcd"),    "aa") <> 0 or
+        pos(striExpr("abc"),    "aa") <> 0 or
+        pos(striExpr("zab"),    "aa") <> 0 or
+        pos(striExpr("yza"),    "aa") <> 0 or
+        pos(striExpr("aab"),    "aa") <> 1 or
+        pos(striExpr("zaa"),    "aa") <> 2 or
+        pos(striExpr("aaa"),    "aa") <> 1 or
+        pos(striExpr("bcdef"),  "aa") <> 0 or
+        pos(striExpr("abcde"),  "aa") <> 0 or
+        pos(striExpr("zabcd"),  "aa") <> 0 or
+        pos(striExpr("yzabc"),  "aa") <> 0 or
+        pos(striExpr("xyzab"),  "aa") <> 0 or
+        pos(striExpr("wxyza"),  "aa") <> 0 or
+        pos(striExpr("ababc"),  "aa") <> 0 or
+        pos(striExpr("zabab"),  "aa") <> 0 or
+        pos(striExpr("yzaba"),  "aa") <> 0 or
+        pos(striExpr("ababa"),  "aa") <> 0 or
+        pos(striExpr("aabcd"),  "aa") <> 1 or
+        pos(striExpr("zaabc"),  "aa") <> 2 or
+        pos(striExpr("yzaab"),  "aa") <> 3 or
+        pos(striExpr("xyzaa"),  "aa") <> 4 or
+        pos(striExpr("aabab"),  "aa") <> 1 or
+        pos(striExpr("zaaba"),  "aa") <> 2 or
+        pos(striExpr("aabaa"),  "aa") <> 1 or
+        pos(striExpr("aaabc"),  "aa") <> 1 or
+        pos(striExpr("zaaab"),  "aa") <> 2 or
+        pos(striExpr("yzaaa"),  "aa") <> 3 or
+        pos(striExpr("aaaba"),  "aa") <> 1 or
+        pos(striExpr("aaaab"),  "aa") <> 1 or
+        pos(striExpr("zaaaa"),  "aa") <> 2 or
+        pos(striExpr("aaaaa"),  "aa") <> 1 then
+      writeln(" ***** pos(STRING, \"aa\") does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    if  pos(striExpr(""),       "abc") <> 0 or
+        pos(striExpr("d"),      "abc") <> 0 or
+        pos(striExpr("a"),      "abc") <> 0 or
+        pos(striExpr("b"),      "abc") <> 0 or
+        pos(striExpr("c"),      "abc") <> 0 or
+        pos(striExpr("de"),     "abc") <> 0 or
+        pos(striExpr("bc"),     "abc") <> 0 or
+        pos(striExpr("ab"),     "abc") <> 0 or
+        pos(striExpr("za"),     "abc") <> 0 or
+        pos(striExpr("cde"),    "abc") <> 0 or
+        pos(striExpr("bcd"),    "abc") <> 0 or
+        pos(striExpr("abc"),    "abc") <> 1 or
+        pos(striExpr("zab"),    "abc") <> 0 or
+        pos(striExpr("yza"),    "abc") <> 0 or
+        pos(striExpr("azy"),    "abc") <> 0 or
+        pos(striExpr("baz"),    "abc") <> 0 or
+        pos(striExpr("cba"),    "abc") <> 0 or
+        pos(striExpr("dcb"),    "abc") <> 0 or
+        pos(striExpr("aaa"),    "abc") <> 0 or
+        pos(striExpr("bbb"),    "abc") <> 0 or
+        pos(striExpr("ccc"),    "abc") <> 0 or
+        pos(striExpr("abcz"),   "abc") <> 1 or
+        pos(striExpr("zabc"),   "abc") <> 2 or
+        pos(striExpr("aabc"),   "abc") <> 2 or
+        pos(striExpr("yzab"),   "abc") <> 0 or
+        pos(striExpr("xyza"),   "abc") <> 0 or
+        pos(striExpr("cbax"),   "abc") <> 0 or
+        pos(striExpr("xcba"),   "abc") <> 0 or
+        pos(striExpr("abab"),   "abc") <> 0 or
+        pos(striExpr("xaba"),   "abc") <> 0 or
+        pos(striExpr("cdefg"),  "abc") <> 0 or
+        pos(striExpr("bcdef"),  "abc") <> 0 or
+        pos(striExpr("abcde"),  "abc") <> 1 or
+        pos(striExpr("zabcd"),  "abc") <> 2 or
+        pos(striExpr("yzabc"),  "abc") <> 3 or
+        pos(striExpr("xyzab"),  "abc") <> 0 or
+        pos(striExpr("wxyza"),  "abc") <> 0 or
+        pos(striExpr("bcccc"),  "abc") <> 0 or
+        pos(striExpr("abccc"),  "abc") <> 1 or
+        pos(striExpr("aabcc"),  "abc") <> 2 or
+        pos(striExpr("aaabc"),  "abc") <> 3 or
+        pos(striExpr("aaaab"),  "abc") <> 0 or
+        pos(striExpr("abcab"),  "abc") <> 1 or
+        pos(striExpr("aabcc"),  "abc") <> 2 or
+        pos(striExpr("zabab"),  "abc") <> 0 or
+        pos(striExpr("azbaz"),  "abc") <> 0 or
+        pos(striExpr("bazba"),  "abc") <> 0 or
+        pos(striExpr("cbazb"),  "abc") <> 0 or
+        pos(striExpr("aaaaa"),  "abc") <> 0 or
+        pos(striExpr("bbbbb"),  "abc") <> 0 or
+        pos(striExpr("ccccc"),  "abc") <> 0 or
+        pos(striExpr("ababababababababababababababababcababababababababab"),  "abc") <> 31 or
+        pos(striExpr("bcbcbcbcbcbcbcbcbcbcbcbcbcbcbcabcbcbcbcbcbcbcbcbcbc"),  "abc") <> 31 or
+        pos(striExpr("acbacbacbacbacbacbacbacbacbacbabcacbacbacbacbacbacb"),  "abc") <> 31 or
+        pos(striExpr("ababababababcbababababcbababababcbababababcbabababa"),  "abc") <> 11 then
+      writeln(" ***** pos(STRING, \"abc\") does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    if  pos(striExpr(""),       "aba") <> 0 or
+        pos(striExpr("c"),      "aba") <> 0 or
+        pos(striExpr("a"),      "aba") <> 0 or
+        pos(striExpr("b"),      "aba") <> 0 or
+        pos(striExpr("cd"),     "aba") <> 0 or
+        pos(striExpr("bc"),     "aba") <> 0 or
+        pos(striExpr("ab"),     "aba") <> 0 or
+        pos(striExpr("ba"),     "aba") <> 0 or
+        pos(striExpr("za"),     "aba") <> 0 or
+        pos(striExpr("cde"),    "aba") <> 0 or
+        pos(striExpr("bcd"),    "aba") <> 0 or
+        pos(striExpr("aba"),    "aba") <> 1 or
+        pos(striExpr("abc"),    "aba") <> 0 or
+        pos(striExpr("aca"),    "aba") <> 0 or
+        pos(striExpr("cba"),    "aba") <> 0 or
+        pos(striExpr("bab"),    "aba") <> 0 or
+        pos(striExpr("zab"),    "aba") <> 0 or
+        pos(striExpr("yza"),    "aba") <> 0 or
+        pos(striExpr("azy"),    "aba") <> 0 or
+        pos(striExpr("baz"),    "aba") <> 0 or
+        pos(striExpr("cba"),    "aba") <> 0 or
+        pos(striExpr("dcb"),    "aba") <> 0 or
+        pos(striExpr("aaa"),    "aba") <> 0 or
+        pos(striExpr("bbb"),    "aba") <> 0 or
+        pos(striExpr("ccc"),    "aba") <> 0 or
+        pos(striExpr("abaa"),   "aba") <> 1 or
+        pos(striExpr("abab"),   "aba") <> 1 or
+        pos(striExpr("abaz"),   "aba") <> 1 or
+        pos(striExpr("zaba"),   "aba") <> 2 or
+        pos(striExpr("aaba"),   "aba") <> 2 or
+        pos(striExpr("baba"),   "aba") <> 2 or
+        pos(striExpr("azab"),   "aba") <> 0 or
+        pos(striExpr("baza"),   "aba") <> 0 or
+        pos(striExpr("yzab"),   "aba") <> 0 or
+        pos(striExpr("xyza"),   "aba") <> 0 or
+        pos(striExpr("cbax"),   "aba") <> 0 or
+        pos(striExpr("xcba"),   "aba") <> 0 or
+        pos(striExpr("baaa"),   "aba") <> 0 or
+        pos(striExpr("aaab"),   "aba") <> 0 or
+        pos(striExpr("cdefg"),  "aba") <> 0 or
+        pos(striExpr("bcdef"),  "aba") <> 0 or
+        pos(striExpr("abacd"),  "aba") <> 1 or
+        pos(striExpr("abaaa"),  "aba") <> 1 or
+        pos(striExpr("abaab"),  "aba") <> 1 or
+        pos(striExpr("ababa"),  "aba") <> 1 or
+        pos(striExpr("ababb"),  "aba") <> 1 or
+        pos(striExpr("zabac"),  "aba") <> 2 or
+        pos(striExpr("aabac"),  "aba") <> 2 or
+        pos(striExpr("cabaa"),  "aba") <> 2 or
+        pos(striExpr("aabaa"),  "aba") <> 2 or
+        pos(striExpr("zabab"),  "aba") <> 2 or
+        pos(striExpr("babab"),  "aba") <> 2 or
+        pos(striExpr("babac"),  "aba") <> 2 or
+        pos(striExpr("yzaba"),  "aba") <> 3 or
+        pos(striExpr("aaaba"),  "aba") <> 3 or
+        pos(striExpr("baaba"),  "aba") <> 3 or
+        pos(striExpr("bbaba"),  "aba") <> 3 or
+        pos(striExpr("acaba"),  "aba") <> 3 or
+        pos(striExpr("cbaba"),  "aba") <> 3 or
+        pos(striExpr("xyzab"),  "aba") <> 0 or
+        pos(striExpr("wxyza"),  "aba") <> 0 or
+        pos(striExpr("bcccc"),  "aba") <> 0 or
+        pos(striExpr("aaaab"),  "aba") <> 0 or
+        pos(striExpr("azbaz"),  "aba") <> 0 or
+        pos(striExpr("bazba"),  "aba") <> 0 or
+        pos(striExpr("cbazb"),  "aba") <> 0 or
+        pos(striExpr("abczb"),  "aba") <> 0 or
+        pos(striExpr("aaaaa"),  "aba") <> 0 or
+        pos(striExpr("bbbbb"),  "aba") <> 0 or
+        pos(striExpr("ccccc"),  "aba") <> 0 or
+        pos(striExpr("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabaaaaaaaaaaaaaaaaaaa"),  "aba") <> 31 or
+        pos(striExpr("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbababbbbbbbbbbbbbbbbbb"),  "aba") <> 31 or
+        pos(striExpr("abbabbabbabbabbabbabbabbabbabbababbabbabbabbabbabba"),  "aba") <> 31 or
+        pos(striExpr("bcbcbcbcbcbcbcbcbcbcbcbcbcbcbcababcbcbcbcbcbcbcbcbc"),  "aba") <> 31 or
+        pos(striExpr("acbacbacbacbacbacbacbacbacbacbabaacbacbacbacbacbacb"),  "aba") <> 31 or
+        pos(striExpr("cbabcbabcbababababababababababababababababababababa"),  "aba") <> 11 then
+      writeln(" ***** pos(STRING, \"aba\") does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if  pos("",       striExpr("")) <> 0 or
+        pos("a",      striExpr("")) <> 0 or
+        pos("ab",     striExpr("")) <> 0 or
+        pos("abc",    striExpr("")) <> 0 or
+        pos("abcde",  striExpr("")) <> 0 or
+        pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", striExpr("")) <> 0 or
+        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", striExpr("")) <> 0 then
+      writeln(" ***** pos(STRING, \"\") does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    if  pos("",       striExpr("\0;")) <> 0 or
+        pos("a",      striExpr("\0;")) <> 0 or
+        pos("ab",     striExpr("\0;")) <> 0 or
+        pos("abc",    striExpr("\0;")) <> 0 or
+        pos("abcde",  striExpr("\0;")) <> 0 or
+        pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", striExpr("\0;")) <> 0 or
+        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", striExpr("\0;")) <> 0 then
+      writeln(" ***** pos(STRING, \"\\0;\") does not work correct (3).");
+      okay := FALSE;
+    end if;
+    if  pos("\4096;\0;\0;", striExpr("\4096;")) <> 1 or
+        pos("\0;\4096;\0;", striExpr("\4096;")) <> 2 or
+        pos("\0;\0;\4096;", striExpr("\4096;")) <> 3 then
+      writeln(" ***** pos(STRING, \"\\4096;\") does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    if  pos("",       striExpr("a")) <> 0 or
+        pos("b",      striExpr("a")) <> 0 or
+        pos("a",      striExpr("a")) <> 1 or
+        pos("bc",     striExpr("a")) <> 0 or
+        pos("ab",     striExpr("a")) <> 1 or
+        pos("za",     striExpr("a")) <> 2 or
+        pos("aa",     striExpr("a")) <> 1 or
+        pos("bcd",    striExpr("a")) <> 0 or
+        pos("abc",    striExpr("a")) <> 1 or
+        pos("zab",    striExpr("a")) <> 2 or
+        pos("yza",    striExpr("a")) <> 3 or
+        pos("aab",    striExpr("a")) <> 1 or
+        pos("aba",    striExpr("a")) <> 1 or
+        pos("zaa",    striExpr("a")) <> 2 or
+        pos("aaa",    striExpr("a")) <> 1 or
+        pos("bcdef",  striExpr("a")) <> 0 or
+        pos("abcde",  striExpr("a")) <> 1 or
+        pos("zabcd",  striExpr("a")) <> 2 or
+        pos("yzabc",  striExpr("a")) <> 3 or
+        pos("xyzab",  striExpr("a")) <> 4 or
+        pos("wxyza",  striExpr("a")) <> 5 or
+        pos("ababc",  striExpr("a")) <> 1 or
+        pos("zabad",  striExpr("a")) <> 2 or
+        pos("yzaba",  striExpr("a")) <> 3 or
+        pos("yzaab",  striExpr("a")) <> 3 or
+        pos("xyzaa",  striExpr("a")) <> 4 or
+        pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", striExpr("a")) <> 1 or
+        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", striExpr("a")) <> 26 then
+      writeln(" ***** pos(STRING, \"a\") does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    if  pos("",       striExpr("ab")) <> 0 or
+        pos("c",      striExpr("ab")) <> 0 or
+        pos("a",      striExpr("ab")) <> 0 or
+        pos("b",      striExpr("ab")) <> 0 or
+        pos("cd",     striExpr("ab")) <> 0 or
+        pos("ac",     striExpr("ab")) <> 0 or
+        pos("bc",     striExpr("ab")) <> 0 or
+        pos("ab",     striExpr("ab")) <> 1 or
+        pos("za",     striExpr("ab")) <> 0 or
+        pos("zb",     striExpr("ab")) <> 0 or
+        pos("cde",    striExpr("ab")) <> 0 or
+        pos("bcd",    striExpr("ab")) <> 0 or
+        pos("abc",    striExpr("ab")) <> 1 or
+        pos("zab",    striExpr("ab")) <> 2 or
+        pos("yza",    striExpr("ab")) <> 0 or
+        pos("azy",    striExpr("ab")) <> 0 or
+        pos("baz",    striExpr("ab")) <> 0 or
+        pos("cba",    striExpr("ab")) <> 0 or
+        pos("dcb",    striExpr("ab")) <> 0 or
+        pos("aaa",    striExpr("ab")) <> 0 or
+        pos("bbb",    striExpr("ab")) <> 0 or
+        pos("cdefg",  striExpr("ab")) <> 0 or
+        pos("bcdef",  striExpr("ab")) <> 0 or
+        pos("abcde",  striExpr("ab")) <> 1 or
+        pos("zabcd",  striExpr("ab")) <> 2 or
+        pos("yzabc",  striExpr("ab")) <> 3 or
+        pos("xyzab",  striExpr("ab")) <> 4 or
+        pos("wxyza",  striExpr("ab")) <> 0 or
+        pos("abbbb",  striExpr("ab")) <> 1 or
+        pos("aabbb",  striExpr("ab")) <> 2 or
+        pos("aaabb",  striExpr("ab")) <> 3 or
+        pos("aaaab",  striExpr("ab")) <> 4 or
+        pos("ababc",  striExpr("ab")) <> 1 or
+        pos("abcab",  striExpr("ab")) <> 1 or
+        pos("zabab",  striExpr("ab")) <> 2 or
+        pos("azbaz",  striExpr("ab")) <> 0 or
+        pos("bazba",  striExpr("ab")) <> 0 or
+        pos("cbazb",  striExpr("ab")) <> 0 or
+        pos("aaaaa",  striExpr("ab")) <> 0 or
+        pos("bbbbb",  striExpr("ab")) <> 0 then
+      writeln(" ***** pos(STRING, \"ab\") does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    if  pos("",       striExpr("aa")) <> 0 or
+        pos("b",      striExpr("aa")) <> 0 or
+        pos("a",      striExpr("aa")) <> 0 or
+        pos("bc",     striExpr("aa")) <> 0 or
+        pos("ab",     striExpr("aa")) <> 0 or
+        pos("za",     striExpr("aa")) <> 0 or
+        pos("aa",     striExpr("aa")) <> 1 or
+        pos("bcd",    striExpr("aa")) <> 0 or
+        pos("abc",    striExpr("aa")) <> 0 or
+        pos("zab",    striExpr("aa")) <> 0 or
+        pos("yza",    striExpr("aa")) <> 0 or
+        pos("aab",    striExpr("aa")) <> 1 or
+        pos("zaa",    striExpr("aa")) <> 2 or
+        pos("aaa",    striExpr("aa")) <> 1 or
+        pos("bcdef",  striExpr("aa")) <> 0 or
+        pos("abcde",  striExpr("aa")) <> 0 or
+        pos("zabcd",  striExpr("aa")) <> 0 or
+        pos("yzabc",  striExpr("aa")) <> 0 or
+        pos("xyzab",  striExpr("aa")) <> 0 or
+        pos("wxyza",  striExpr("aa")) <> 0 or
+        pos("ababc",  striExpr("aa")) <> 0 or
+        pos("zabab",  striExpr("aa")) <> 0 or
+        pos("yzaba",  striExpr("aa")) <> 0 or
+        pos("ababa",  striExpr("aa")) <> 0 or
+        pos("aabcd",  striExpr("aa")) <> 1 or
+        pos("zaabc",  striExpr("aa")) <> 2 or
+        pos("yzaab",  striExpr("aa")) <> 3 or
+        pos("xyzaa",  striExpr("aa")) <> 4 or
+        pos("aabab",  striExpr("aa")) <> 1 or
+        pos("zaaba",  striExpr("aa")) <> 2 or
+        pos("aabaa",  striExpr("aa")) <> 1 or
+        pos("aaabc",  striExpr("aa")) <> 1 or
+        pos("zaaab",  striExpr("aa")) <> 2 or
+        pos("yzaaa",  striExpr("aa")) <> 3 or
+        pos("aaaba",  striExpr("aa")) <> 1 or
+        pos("aaaab",  striExpr("aa")) <> 1 or
+        pos("zaaaa",  striExpr("aa")) <> 2 or
+        pos("aaaaa",  striExpr("aa")) <> 1 then
+      writeln(" ***** pos(STRING, \"aa\") does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    if  pos("",       striExpr("abc")) <> 0 or
+        pos("d",      striExpr("abc")) <> 0 or
+        pos("a",      striExpr("abc")) <> 0 or
+        pos("b",      striExpr("abc")) <> 0 or
+        pos("c",      striExpr("abc")) <> 0 or
+        pos("de",     striExpr("abc")) <> 0 or
+        pos("bc",     striExpr("abc")) <> 0 or
+        pos("ab",     striExpr("abc")) <> 0 or
+        pos("za",     striExpr("abc")) <> 0 or
+        pos("cde",    striExpr("abc")) <> 0 or
+        pos("bcd",    striExpr("abc")) <> 0 or
+        pos("abc",    striExpr("abc")) <> 1 or
+        pos("zab",    striExpr("abc")) <> 0 or
+        pos("yza",    striExpr("abc")) <> 0 or
+        pos("azy",    striExpr("abc")) <> 0 or
+        pos("baz",    striExpr("abc")) <> 0 or
+        pos("cba",    striExpr("abc")) <> 0 or
+        pos("dcb",    striExpr("abc")) <> 0 or
+        pos("aaa",    striExpr("abc")) <> 0 or
+        pos("bbb",    striExpr("abc")) <> 0 or
+        pos("ccc",    striExpr("abc")) <> 0 or
+        pos("abcz",   striExpr("abc")) <> 1 or
+        pos("zabc",   striExpr("abc")) <> 2 or
+        pos("aabc",   striExpr("abc")) <> 2 or
+        pos("yzab",   striExpr("abc")) <> 0 or
+        pos("xyza",   striExpr("abc")) <> 0 or
+        pos("cbax",   striExpr("abc")) <> 0 or
+        pos("xcba",   striExpr("abc")) <> 0 or
+        pos("abab",   striExpr("abc")) <> 0 or
+        pos("xaba",   striExpr("abc")) <> 0 or
+        pos("cdefg",  striExpr("abc")) <> 0 or
+        pos("bcdef",  striExpr("abc")) <> 0 or
+        pos("abcde",  striExpr("abc")) <> 1 or
+        pos("zabcd",  striExpr("abc")) <> 2 or
+        pos("yzabc",  striExpr("abc")) <> 3 or
+        pos("xyzab",  striExpr("abc")) <> 0 or
+        pos("wxyza",  striExpr("abc")) <> 0 or
+        pos("bcccc",  striExpr("abc")) <> 0 or
+        pos("abccc",  striExpr("abc")) <> 1 or
+        pos("aabcc",  striExpr("abc")) <> 2 or
+        pos("aaabc",  striExpr("abc")) <> 3 or
+        pos("aaaab",  striExpr("abc")) <> 0 or
+        pos("abcab",  striExpr("abc")) <> 1 or
+        pos("aabcc",  striExpr("abc")) <> 2 or
+        pos("zabab",  striExpr("abc")) <> 0 or
+        pos("azbaz",  striExpr("abc")) <> 0 or
+        pos("bazba",  striExpr("abc")) <> 0 or
+        pos("cbazb",  striExpr("abc")) <> 0 or
+        pos("aaaaa",  striExpr("abc")) <> 0 or
+        pos("bbbbb",  striExpr("abc")) <> 0 or
+        pos("ccccc",  striExpr("abc")) <> 0 or
+        pos("ababababababababababababababababcababababababababab",  striExpr("abc")) <> 31 or
+        pos("bcbcbcbcbcbcbcbcbcbcbcbcbcbcbcabcbcbcbcbcbcbcbcbcbc",  striExpr("abc")) <> 31 or
+        pos("acbacbacbacbacbacbacbacbacbacbabcacbacbacbacbacbacb",  striExpr("abc")) <> 31 or
+        pos("ababababababcbababababcbababababcbababababcbabababa",  striExpr("abc")) <> 11 then
+      writeln(" ***** pos(STRING, \"abc\") does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    if  pos("",       striExpr("aba")) <> 0 or
+        pos("c",      striExpr("aba")) <> 0 or
+        pos("a",      striExpr("aba")) <> 0 or
+        pos("b",      striExpr("aba")) <> 0 or
+        pos("cd",     striExpr("aba")) <> 0 or
+        pos("bc",     striExpr("aba")) <> 0 or
+        pos("ab",     striExpr("aba")) <> 0 or
+        pos("ba",     striExpr("aba")) <> 0 or
+        pos("za",     striExpr("aba")) <> 0 or
+        pos("cde",    striExpr("aba")) <> 0 or
+        pos("bcd",    striExpr("aba")) <> 0 or
+        pos("aba",    striExpr("aba")) <> 1 or
+        pos("abc",    striExpr("aba")) <> 0 or
+        pos("aca",    striExpr("aba")) <> 0 or
+        pos("cba",    striExpr("aba")) <> 0 or
+        pos("bab",    striExpr("aba")) <> 0 or
+        pos("zab",    striExpr("aba")) <> 0 or
+        pos("yza",    striExpr("aba")) <> 0 or
+        pos("azy",    striExpr("aba")) <> 0 or
+        pos("baz",    striExpr("aba")) <> 0 or
+        pos("cba",    striExpr("aba")) <> 0 or
+        pos("dcb",    striExpr("aba")) <> 0 or
+        pos("aaa",    striExpr("aba")) <> 0 or
+        pos("bbb",    striExpr("aba")) <> 0 or
+        pos("ccc",    striExpr("aba")) <> 0 or
+        pos("abaa",   striExpr("aba")) <> 1 or
+        pos("abab",   striExpr("aba")) <> 1 or
+        pos("abaz",   striExpr("aba")) <> 1 or
+        pos("zaba",   striExpr("aba")) <> 2 or
+        pos("aaba",   striExpr("aba")) <> 2 or
+        pos("baba",   striExpr("aba")) <> 2 or
+        pos("azab",   striExpr("aba")) <> 0 or
+        pos("baza",   striExpr("aba")) <> 0 or
+        pos("yzab",   striExpr("aba")) <> 0 or
+        pos("xyza",   striExpr("aba")) <> 0 or
+        pos("cbax",   striExpr("aba")) <> 0 or
+        pos("xcba",   striExpr("aba")) <> 0 or
+        pos("baaa",   striExpr("aba")) <> 0 or
+        pos("aaab",   striExpr("aba")) <> 0 or
+        pos("cdefg",  striExpr("aba")) <> 0 or
+        pos("bcdef",  striExpr("aba")) <> 0 or
+        pos("abacd",  striExpr("aba")) <> 1 or
+        pos("abaaa",  striExpr("aba")) <> 1 or
+        pos("abaab",  striExpr("aba")) <> 1 or
+        pos("ababa",  striExpr("aba")) <> 1 or
+        pos("ababb",  striExpr("aba")) <> 1 or
+        pos("zabac",  striExpr("aba")) <> 2 or
+        pos("aabac",  striExpr("aba")) <> 2 or
+        pos("cabaa",  striExpr("aba")) <> 2 or
+        pos("aabaa",  striExpr("aba")) <> 2 or
+        pos("zabab",  striExpr("aba")) <> 2 or
+        pos("babab",  striExpr("aba")) <> 2 or
+        pos("babac",  striExpr("aba")) <> 2 or
+        pos("yzaba",  striExpr("aba")) <> 3 or
+        pos("aaaba",  striExpr("aba")) <> 3 or
+        pos("baaba",  striExpr("aba")) <> 3 or
+        pos("bbaba",  striExpr("aba")) <> 3 or
+        pos("acaba",  striExpr("aba")) <> 3 or
+        pos("cbaba",  striExpr("aba")) <> 3 or
+        pos("xyzab",  striExpr("aba")) <> 0 or
+        pos("wxyza",  striExpr("aba")) <> 0 or
+        pos("bcccc",  striExpr("aba")) <> 0 or
+        pos("aaaab",  striExpr("aba")) <> 0 or
+        pos("azbaz",  striExpr("aba")) <> 0 or
+        pos("bazba",  striExpr("aba")) <> 0 or
+        pos("cbazb",  striExpr("aba")) <> 0 or
+        pos("abczb",  striExpr("aba")) <> 0 or
+        pos("aaaaa",  striExpr("aba")) <> 0 or
+        pos("bbbbb",  striExpr("aba")) <> 0 or
+        pos("ccccc",  striExpr("aba")) <> 0 or
+        pos("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabaaaaaaaaaaaaaaaaaaa",  striExpr("aba")) <> 31 or
+        pos("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbababbbbbbbbbbbbbbbbbb",  striExpr("aba")) <> 31 or
+        pos("abbabbabbabbabbabbabbabbabbabbababbabbabbabbabbabba",  striExpr("aba")) <> 31 or
+        pos("bcbcbcbcbcbcbcbcbcbcbcbcbcbcbcababcbcbcbcbcbcbcbcbc",  striExpr("aba")) <> 31 or
+        pos("acbacbacbacbacbacbacbacbacbacbabaacbacbacbacbacbacb",  striExpr("aba")) <> 31 or
+        pos("cbabcbabcbababababababababababababababababababababa",  striExpr("aba")) <> 11 then
+      writeln(" ***** pos(STRING, \"aba\") does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    if  pos(striExpr(""),       striExpr("")) <> 0 or
+        pos(striExpr("a"),      striExpr("")) <> 0 or
+        pos(striExpr("ab"),     striExpr("")) <> 0 or
+        pos(striExpr("abc"),    striExpr("")) <> 0 or
+        pos(striExpr("abcde"),  striExpr("")) <> 0 or
+        pos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), striExpr("")) <> 0 or
+        pos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), striExpr("")) <> 0 then
+      writeln(" ***** pos(STRING, \"\") does not work correct. (4)");
+      okay := FALSE;
+    end if;
+    if  pos(striExpr(""),       striExpr("\0;")) <> 0 or
+        pos(striExpr("a"),      striExpr("\0;")) <> 0 or
+        pos(striExpr("ab"),     striExpr("\0;")) <> 0 or
+        pos(striExpr("abc"),    striExpr("\0;")) <> 0 or
+        pos(striExpr("abcde"),  striExpr("\0;")) <> 0 or
+        pos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), striExpr("\0;")) <> 0 or
+        pos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), striExpr("\0;")) <> 0 then
+      writeln(" ***** pos(STRING, \"\\0;\") does not work correct. (4)");
+      okay := FALSE;
+    end if;
+    if  pos(striExpr("\4096;\0;\0;"), striExpr("\4096;")) <> 1 or
+        pos(striExpr("\0;\4096;\0;"), striExpr("\4096;")) <> 2 or
+        pos(striExpr("\0;\0;\4096;"), striExpr("\4096;")) <> 3 then
+      writeln(" ***** pos(STRING, \"\\4096;\") does not work correct. (4)");
+      okay := FALSE;
+    end if;
+    if  pos(striExpr(""),       striExpr("a")) <> 0 or
+        pos(striExpr("b"),      striExpr("a")) <> 0 or
+        pos(striExpr("a"),      striExpr("a")) <> 1 or
+        pos(striExpr("bc"),     striExpr("a")) <> 0 or
+        pos(striExpr("ab"),     striExpr("a")) <> 1 or
+        pos(striExpr("za"),     striExpr("a")) <> 2 or
+        pos(striExpr("aa"),     striExpr("a")) <> 1 or
+        pos(striExpr("bcd"),    striExpr("a")) <> 0 or
+        pos(striExpr("abc"),    striExpr("a")) <> 1 or
+        pos(striExpr("zab"),    striExpr("a")) <> 2 or
+        pos(striExpr("yza"),    striExpr("a")) <> 3 or
+        pos(striExpr("aab"),    striExpr("a")) <> 1 or
+        pos(striExpr("aba"),    striExpr("a")) <> 1 or
+        pos(striExpr("zaa"),    striExpr("a")) <> 2 or
+        pos(striExpr("aaa"),    striExpr("a")) <> 1 or
+        pos(striExpr("bcdef"),  striExpr("a")) <> 0 or
+        pos(striExpr("abcde"),  striExpr("a")) <> 1 or
+        pos(striExpr("zabcd"),  striExpr("a")) <> 2 or
+        pos(striExpr("yzabc"),  striExpr("a")) <> 3 or
+        pos(striExpr("xyzab"),  striExpr("a")) <> 4 or
+        pos(striExpr("wxyza"),  striExpr("a")) <> 5 or
+        pos(striExpr("ababc"),  striExpr("a")) <> 1 or
+        pos(striExpr("zabad"),  striExpr("a")) <> 2 or
+        pos(striExpr("yzaba"),  striExpr("a")) <> 3 or
+        pos(striExpr("yzaab"),  striExpr("a")) <> 3 or
+        pos(striExpr("xyzaa"),  striExpr("a")) <> 4 or
+        pos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), striExpr("a")) <> 1 or
+        pos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), striExpr("a")) <> 26 then
+      writeln(" ***** pos(STRING, \"a\") does not work correct. (4)");
+      okay := FALSE;
+    end if;
+    if  pos(striExpr(""),       striExpr("ab")) <> 0 or
+        pos(striExpr("c"),      striExpr("ab")) <> 0 or
+        pos(striExpr("a"),      striExpr("ab")) <> 0 or
+        pos(striExpr("b"),      striExpr("ab")) <> 0 or
+        pos(striExpr("cd"),     striExpr("ab")) <> 0 or
+        pos(striExpr("ac"),     striExpr("ab")) <> 0 or
+        pos(striExpr("bc"),     striExpr("ab")) <> 0 or
+        pos(striExpr("ab"),     striExpr("ab")) <> 1 or
+        pos(striExpr("za"),     striExpr("ab")) <> 0 or
+        pos(striExpr("zb"),     striExpr("ab")) <> 0 or
+        pos(striExpr("cde"),    striExpr("ab")) <> 0 or
+        pos(striExpr("bcd"),    striExpr("ab")) <> 0 or
+        pos(striExpr("abc"),    striExpr("ab")) <> 1 or
+        pos(striExpr("zab"),    striExpr("ab")) <> 2 or
+        pos(striExpr("yza"),    striExpr("ab")) <> 0 or
+        pos(striExpr("azy"),    striExpr("ab")) <> 0 or
+        pos(striExpr("baz"),    striExpr("ab")) <> 0 or
+        pos(striExpr("cba"),    striExpr("ab")) <> 0 or
+        pos(striExpr("dcb"),    striExpr("ab")) <> 0 or
+        pos(striExpr("aaa"),    striExpr("ab")) <> 0 or
+        pos(striExpr("bbb"),    striExpr("ab")) <> 0 or
+        pos(striExpr("cdefg"),  striExpr("ab")) <> 0 or
+        pos(striExpr("bcdef"),  striExpr("ab")) <> 0 or
+        pos(striExpr("abcde"),  striExpr("ab")) <> 1 or
+        pos(striExpr("zabcd"),  striExpr("ab")) <> 2 or
+        pos(striExpr("yzabc"),  striExpr("ab")) <> 3 or
+        pos(striExpr("xyzab"),  striExpr("ab")) <> 4 or
+        pos(striExpr("wxyza"),  striExpr("ab")) <> 0 or
+        pos(striExpr("abbbb"),  striExpr("ab")) <> 1 or
+        pos(striExpr("aabbb"),  striExpr("ab")) <> 2 or
+        pos(striExpr("aaabb"),  striExpr("ab")) <> 3 or
+        pos(striExpr("aaaab"),  striExpr("ab")) <> 4 or
+        pos(striExpr("ababc"),  striExpr("ab")) <> 1 or
+        pos(striExpr("abcab"),  striExpr("ab")) <> 1 or
+        pos(striExpr("zabab"),  striExpr("ab")) <> 2 or
+        pos(striExpr("azbaz"),  striExpr("ab")) <> 0 or
+        pos(striExpr("bazba"),  striExpr("ab")) <> 0 or
+        pos(striExpr("cbazb"),  striExpr("ab")) <> 0 or
+        pos(striExpr("aaaaa"),  striExpr("ab")) <> 0 or
+        pos(striExpr("bbbbb"),  striExpr("ab")) <> 0 then
+      writeln(" ***** pos(STRING, \"ab\") does not work correct. (4)");
+      okay := FALSE;
+    end if;
+    if  pos(striExpr(""),       striExpr("aa")) <> 0 or
+        pos(striExpr("b"),      striExpr("aa")) <> 0 or
+        pos(striExpr("a"),      striExpr("aa")) <> 0 or
+        pos(striExpr("bc"),     striExpr("aa")) <> 0 or
+        pos(striExpr("ab"),     striExpr("aa")) <> 0 or
+        pos(striExpr("za"),     striExpr("aa")) <> 0 or
+        pos(striExpr("aa"),     striExpr("aa")) <> 1 or
+        pos(striExpr("bcd"),    striExpr("aa")) <> 0 or
+        pos(striExpr("abc"),    striExpr("aa")) <> 0 or
+        pos(striExpr("zab"),    striExpr("aa")) <> 0 or
+        pos(striExpr("yza"),    striExpr("aa")) <> 0 or
+        pos(striExpr("aab"),    striExpr("aa")) <> 1 or
+        pos(striExpr("zaa"),    striExpr("aa")) <> 2 or
+        pos(striExpr("aaa"),    striExpr("aa")) <> 1 or
+        pos(striExpr("bcdef"),  striExpr("aa")) <> 0 or
+        pos(striExpr("abcde"),  striExpr("aa")) <> 0 or
+        pos(striExpr("zabcd"),  striExpr("aa")) <> 0 or
+        pos(striExpr("yzabc"),  striExpr("aa")) <> 0 or
+        pos(striExpr("xyzab"),  striExpr("aa")) <> 0 or
+        pos(striExpr("wxyza"),  striExpr("aa")) <> 0 or
+        pos(striExpr("ababc"),  striExpr("aa")) <> 0 or
+        pos(striExpr("zabab"),  striExpr("aa")) <> 0 or
+        pos(striExpr("yzaba"),  striExpr("aa")) <> 0 or
+        pos(striExpr("ababa"),  striExpr("aa")) <> 0 or
+        pos(striExpr("aabcd"),  striExpr("aa")) <> 1 or
+        pos(striExpr("zaabc"),  striExpr("aa")) <> 2 or
+        pos(striExpr("yzaab"),  striExpr("aa")) <> 3 or
+        pos(striExpr("xyzaa"),  striExpr("aa")) <> 4 or
+        pos(striExpr("aabab"),  striExpr("aa")) <> 1 or
+        pos(striExpr("zaaba"),  striExpr("aa")) <> 2 or
+        pos(striExpr("aabaa"),  striExpr("aa")) <> 1 or
+        pos(striExpr("aaabc"),  striExpr("aa")) <> 1 or
+        pos(striExpr("zaaab"),  striExpr("aa")) <> 2 or
+        pos(striExpr("yzaaa"),  striExpr("aa")) <> 3 or
+        pos(striExpr("aaaba"),  striExpr("aa")) <> 1 or
+        pos(striExpr("aaaab"),  striExpr("aa")) <> 1 or
+        pos(striExpr("zaaaa"),  striExpr("aa")) <> 2 or
+        pos(striExpr("aaaaa"),  striExpr("aa")) <> 1 then
+      writeln(" ***** pos(STRING, \"aa\") does not work correct. (4)");
+      okay := FALSE;
+    end if;
+    if  pos(striExpr(""),       striExpr("abc")) <> 0 or
+        pos(striExpr("d"),      striExpr("abc")) <> 0 or
+        pos(striExpr("a"),      striExpr("abc")) <> 0 or
+        pos(striExpr("b"),      striExpr("abc")) <> 0 or
+        pos(striExpr("c"),      striExpr("abc")) <> 0 or
+        pos(striExpr("de"),     striExpr("abc")) <> 0 or
+        pos(striExpr("bc"),     striExpr("abc")) <> 0 or
+        pos(striExpr("ab"),     striExpr("abc")) <> 0 or
+        pos(striExpr("za"),     striExpr("abc")) <> 0 or
+        pos(striExpr("cde"),    striExpr("abc")) <> 0 or
+        pos(striExpr("bcd"),    striExpr("abc")) <> 0 or
+        pos(striExpr("abc"),    striExpr("abc")) <> 1 or
+        pos(striExpr("zab"),    striExpr("abc")) <> 0 or
+        pos(striExpr("yza"),    striExpr("abc")) <> 0 or
+        pos(striExpr("azy"),    striExpr("abc")) <> 0 or
+        pos(striExpr("baz"),    striExpr("abc")) <> 0 or
+        pos(striExpr("cba"),    striExpr("abc")) <> 0 or
+        pos(striExpr("dcb"),    striExpr("abc")) <> 0 or
+        pos(striExpr("aaa"),    striExpr("abc")) <> 0 or
+        pos(striExpr("bbb"),    striExpr("abc")) <> 0 or
+        pos(striExpr("ccc"),    striExpr("abc")) <> 0 or
+        pos(striExpr("abcz"),   striExpr("abc")) <> 1 or
+        pos(striExpr("zabc"),   striExpr("abc")) <> 2 or
+        pos(striExpr("aabc"),   striExpr("abc")) <> 2 or
+        pos(striExpr("yzab"),   striExpr("abc")) <> 0 or
+        pos(striExpr("xyza"),   striExpr("abc")) <> 0 or
+        pos(striExpr("cbax"),   striExpr("abc")) <> 0 or
+        pos(striExpr("xcba"),   striExpr("abc")) <> 0 or
+        pos(striExpr("abab"),   striExpr("abc")) <> 0 or
+        pos(striExpr("xaba"),   striExpr("abc")) <> 0 or
+        pos(striExpr("cdefg"),  striExpr("abc")) <> 0 or
+        pos(striExpr("bcdef"),  striExpr("abc")) <> 0 or
+        pos(striExpr("abcde"),  striExpr("abc")) <> 1 or
+        pos(striExpr("zabcd"),  striExpr("abc")) <> 2 or
+        pos(striExpr("yzabc"),  striExpr("abc")) <> 3 or
+        pos(striExpr("xyzab"),  striExpr("abc")) <> 0 or
+        pos(striExpr("wxyza"),  striExpr("abc")) <> 0 or
+        pos(striExpr("bcccc"),  striExpr("abc")) <> 0 or
+        pos(striExpr("abccc"),  striExpr("abc")) <> 1 or
+        pos(striExpr("aabcc"),  striExpr("abc")) <> 2 or
+        pos(striExpr("aaabc"),  striExpr("abc")) <> 3 or
+        pos(striExpr("aaaab"),  striExpr("abc")) <> 0 or
+        pos(striExpr("abcab"),  striExpr("abc")) <> 1 or
+        pos(striExpr("aabcc"),  striExpr("abc")) <> 2 or
+        pos(striExpr("zabab"),  striExpr("abc")) <> 0 or
+        pos(striExpr("azbaz"),  striExpr("abc")) <> 0 or
+        pos(striExpr("bazba"),  striExpr("abc")) <> 0 or
+        pos(striExpr("cbazb"),  striExpr("abc")) <> 0 or
+        pos(striExpr("aaaaa"),  striExpr("abc")) <> 0 or
+        pos(striExpr("bbbbb"),  striExpr("abc")) <> 0 or
+        pos(striExpr("ccccc"),  striExpr("abc")) <> 0 or
+        pos(striExpr("ababababababababababababababababcababababababababab"),  striExpr("abc")) <> 31 or
+        pos(striExpr("bcbcbcbcbcbcbcbcbcbcbcbcbcbcbcabcbcbcbcbcbcbcbcbcbc"),  striExpr("abc")) <> 31 or
+        pos(striExpr("acbacbacbacbacbacbacbacbacbacbabcacbacbacbacbacbacb"),  striExpr("abc")) <> 31 or
+        pos(striExpr("ababababababcbababababcbababababcbababababcbabababa"),  striExpr("abc")) <> 11 then
+      writeln(" ***** pos(STRING, \"abc\") does not work correct. (4)");
+      okay := FALSE;
+    end if;
+    if  pos(striExpr(""),       striExpr("aba")) <> 0 or
+        pos(striExpr("c"),      striExpr("aba")) <> 0 or
+        pos(striExpr("a"),      striExpr("aba")) <> 0 or
+        pos(striExpr("b"),      striExpr("aba")) <> 0 or
+        pos(striExpr("cd"),     striExpr("aba")) <> 0 or
+        pos(striExpr("bc"),     striExpr("aba")) <> 0 or
+        pos(striExpr("ab"),     striExpr("aba")) <> 0 or
+        pos(striExpr("ba"),     striExpr("aba")) <> 0 or
+        pos(striExpr("za"),     striExpr("aba")) <> 0 or
+        pos(striExpr("cde"),    striExpr("aba")) <> 0 or
+        pos(striExpr("bcd"),    striExpr("aba")) <> 0 or
+        pos(striExpr("aba"),    striExpr("aba")) <> 1 or
+        pos(striExpr("abc"),    striExpr("aba")) <> 0 or
+        pos(striExpr("aca"),    striExpr("aba")) <> 0 or
+        pos(striExpr("cba"),    striExpr("aba")) <> 0 or
+        pos(striExpr("bab"),    striExpr("aba")) <> 0 or
+        pos(striExpr("zab"),    striExpr("aba")) <> 0 or
+        pos(striExpr("yza"),    striExpr("aba")) <> 0 or
+        pos(striExpr("azy"),    striExpr("aba")) <> 0 or
+        pos(striExpr("baz"),    striExpr("aba")) <> 0 or
+        pos(striExpr("cba"),    striExpr("aba")) <> 0 or
+        pos(striExpr("dcb"),    striExpr("aba")) <> 0 or
+        pos(striExpr("aaa"),    striExpr("aba")) <> 0 or
+        pos(striExpr("bbb"),    striExpr("aba")) <> 0 or
+        pos(striExpr("ccc"),    striExpr("aba")) <> 0 or
+        pos(striExpr("abaa"),   striExpr("aba")) <> 1 or
+        pos(striExpr("abab"),   striExpr("aba")) <> 1 or
+        pos(striExpr("abaz"),   striExpr("aba")) <> 1 or
+        pos(striExpr("zaba"),   striExpr("aba")) <> 2 or
+        pos(striExpr("aaba"),   striExpr("aba")) <> 2 or
+        pos(striExpr("baba"),   striExpr("aba")) <> 2 or
+        pos(striExpr("azab"),   striExpr("aba")) <> 0 or
+        pos(striExpr("baza"),   striExpr("aba")) <> 0 or
+        pos(striExpr("yzab"),   striExpr("aba")) <> 0 or
+        pos(striExpr("xyza"),   striExpr("aba")) <> 0 or
+        pos(striExpr("cbax"),   striExpr("aba")) <> 0 or
+        pos(striExpr("xcba"),   striExpr("aba")) <> 0 or
+        pos(striExpr("baaa"),   striExpr("aba")) <> 0 or
+        pos(striExpr("aaab"),   striExpr("aba")) <> 0 or
+        pos(striExpr("cdefg"),  striExpr("aba")) <> 0 or
+        pos(striExpr("bcdef"),  striExpr("aba")) <> 0 or
+        pos(striExpr("abacd"),  striExpr("aba")) <> 1 or
+        pos(striExpr("abaaa"),  striExpr("aba")) <> 1 or
+        pos(striExpr("abaab"),  striExpr("aba")) <> 1 or
+        pos(striExpr("ababa"),  striExpr("aba")) <> 1 or
+        pos(striExpr("ababb"),  striExpr("aba")) <> 1 or
+        pos(striExpr("zabac"),  striExpr("aba")) <> 2 or
+        pos(striExpr("aabac"),  striExpr("aba")) <> 2 or
+        pos(striExpr("cabaa"),  striExpr("aba")) <> 2 or
+        pos(striExpr("aabaa"),  striExpr("aba")) <> 2 or
+        pos(striExpr("zabab"),  striExpr("aba")) <> 2 or
+        pos(striExpr("babab"),  striExpr("aba")) <> 2 or
+        pos(striExpr("babac"),  striExpr("aba")) <> 2 or
+        pos(striExpr("yzaba"),  striExpr("aba")) <> 3 or
+        pos(striExpr("aaaba"),  striExpr("aba")) <> 3 or
+        pos(striExpr("baaba"),  striExpr("aba")) <> 3 or
+        pos(striExpr("bbaba"),  striExpr("aba")) <> 3 or
+        pos(striExpr("acaba"),  striExpr("aba")) <> 3 or
+        pos(striExpr("cbaba"),  striExpr("aba")) <> 3 or
+        pos(striExpr("xyzab"),  striExpr("aba")) <> 0 or
+        pos(striExpr("wxyza"),  striExpr("aba")) <> 0 or
+        pos(striExpr("bcccc"),  striExpr("aba")) <> 0 or
+        pos(striExpr("aaaab"),  striExpr("aba")) <> 0 or
+        pos(striExpr("azbaz"),  striExpr("aba")) <> 0 or
+        pos(striExpr("bazba"),  striExpr("aba")) <> 0 or
+        pos(striExpr("cbazb"),  striExpr("aba")) <> 0 or
+        pos(striExpr("abczb"),  striExpr("aba")) <> 0 or
+        pos(striExpr("aaaaa"),  striExpr("aba")) <> 0 or
+        pos(striExpr("bbbbb"),  striExpr("aba")) <> 0 or
+        pos(striExpr("ccccc"),  striExpr("aba")) <> 0 or
+        pos(striExpr("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabaaaaaaaaaaaaaaaaaaa"),  striExpr("aba")) <> 31 or
+        pos(striExpr("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbababbbbbbbbbbbbbbbbbb"),  striExpr("aba")) <> 31 or
+        pos(striExpr("abbabbabbabbabbabbabbabbabbabbababbabbabbabbabbabba"),  striExpr("aba")) <> 31 or
+        pos(striExpr("bcbcbcbcbcbcbcbcbcbcbcbcbcbcbcababcbcbcbcbcbcbcbcbc"),  striExpr("aba")) <> 31 or
+        pos(striExpr("acbacbacbacbacbacbacbacbacbacbabaacbacbacbacbacbacb"),  striExpr("aba")) <> 31 or
+        pos(striExpr("cbabcbabcbababababababababababababababababababababa"),  striExpr("aba")) <> 11 then
+      writeln(" ***** pos(STRING, \"aba\") does not work correct. (4)");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("pos(string) works correct.");
+    end if;
+  end func;
+
+
+const proc: check_string_char_pos is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if  pos("",       '\0;') <> 0 or
+        pos("a",      '\0;') <> 0 or
+        pos("ab",     '\0;') <> 0 or
+        pos("abc",    '\0;') <> 0 or
+        pos("abcde",  '\0;') <> 0 or
+        pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", '\0;') <> 0 or
+        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", '\0;') <> 0 then
+      writeln(" ***** pos(STRING, '\\0;') does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    if  pos("\4096;\0;\0;", '\4096;') <> 1 or
+        pos("\0;\4096;\0;", '\4096;') <> 2 or
+        pos("\0;\0;\4096;", '\4096;') <> 3 then
+      writeln(" ***** pos(STRING, '\\4096;') does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    if  pos("",       'a') <> 0 or
+        pos("b",      'a') <> 0 or
+        pos("a",      'a') <> 1 or
+        pos("bc",     'a') <> 0 or
+        pos("ab",     'a') <> 1 or
+        pos("za",     'a') <> 2 or
+        pos("aa",     'a') <> 1 or
+        pos("bcd",    'a') <> 0 or
+        pos("abc",    'a') <> 1 or
+        pos("zab",    'a') <> 2 or
+        pos("yza",    'a') <> 3 or
+        pos("aab",    'a') <> 1 or
+        pos("aba",    'a') <> 1 or
+        pos("zaa",    'a') <> 2 or
+        pos("aaa",    'a') <> 1 or
+        pos("bcdef",  'a') <> 0 or
+        pos("abcde",  'a') <> 1 or
+        pos("zabcd",  'a') <> 2 or
+        pos("yzabc",  'a') <> 3 or
+        pos("xyzab",  'a') <> 4 or
+        pos("wxyza",  'a') <> 5 or
+        pos("ababc",  'a') <> 1 or
+        pos("zabad",  'a') <> 2 or
+        pos("yzaba",  'a') <> 3 or
+        pos("yzaab",  'a') <> 3 or
+        pos("xyzaa",  'a') <> 4 or
+        pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", 'a') <> 1 or
+        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", 'a') <> 26 then
+      writeln(" ***** pos(STRING, 'a') does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    if  pos(striExpr(""),       '\0;') <> 0 or
+        pos(striExpr("a"),      '\0;') <> 0 or
+        pos(striExpr("ab"),     '\0;') <> 0 or
+        pos(striExpr("abc"),    '\0;') <> 0 or
+        pos(striExpr("abcde"),  '\0;') <> 0 or
+        pos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), '\0;') <> 0 or
+        pos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), '\0;') <> 0 then
+      writeln(" ***** pos(STRING, '\\0;') does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    if  pos(striExpr("\4096;\0;\0;"), '\4096;') <> 1 or
+        pos(striExpr("\0;\4096;\0;"), '\4096;') <> 2 or
+        pos(striExpr("\0;\0;\4096;"), '\4096;') <> 3 then
+      writeln(" ***** pos(STRING, '\\4096;') does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    if  pos(striExpr(""),       'a') <> 0 or
+        pos(striExpr("b"),      'a') <> 0 or
+        pos(striExpr("a"),      'a') <> 1 or
+        pos(striExpr("bc"),     'a') <> 0 or
+        pos(striExpr("ab"),     'a') <> 1 or
+        pos(striExpr("za"),     'a') <> 2 or
+        pos(striExpr("aa"),     'a') <> 1 or
+        pos(striExpr("bcd"),    'a') <> 0 or
+        pos(striExpr("abc"),    'a') <> 1 or
+        pos(striExpr("zab"),    'a') <> 2 or
+        pos(striExpr("yza"),    'a') <> 3 or
+        pos(striExpr("aab"),    'a') <> 1 or
+        pos(striExpr("aba"),    'a') <> 1 or
+        pos(striExpr("zaa"),    'a') <> 2 or
+        pos(striExpr("aaa"),    'a') <> 1 or
+        pos(striExpr("bcdef"),  'a') <> 0 or
+        pos(striExpr("abcde"),  'a') <> 1 or
+        pos(striExpr("zabcd"),  'a') <> 2 or
+        pos(striExpr("yzabc"),  'a') <> 3 or
+        pos(striExpr("xyzab"),  'a') <> 4 or
+        pos(striExpr("wxyza"),  'a') <> 5 or
+        pos(striExpr("ababc"),  'a') <> 1 or
+        pos(striExpr("zabad"),  'a') <> 2 or
+        pos(striExpr("yzaba"),  'a') <> 3 or
+        pos(striExpr("yzaab"),  'a') <> 3 or
+        pos(striExpr("xyzaa"),  'a') <> 4 or
+        pos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), 'a') <> 1 or
+        pos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), 'a') <> 26 then
+      writeln(" ***** pos(STRING, 'a') does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if  pos("",       charExpr('\0;')) <> 0 or
+        pos("a",      charExpr('\0;')) <> 0 or
+        pos("ab",     charExpr('\0;')) <> 0 or
+        pos("abc",    charExpr('\0;')) <> 0 or
+        pos("abcde",  charExpr('\0;')) <> 0 or
+        pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", charExpr('\0;')) <> 0 or
+        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", charExpr('\0;')) <> 0 then
+      writeln(" ***** pos(STRING, '\\0;') does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    if  pos("\4096;\0;\0;", charExpr('\4096;')) <> 1 or
+        pos("\0;\4096;\0;", charExpr('\4096;')) <> 2 or
+        pos("\0;\0;\4096;", charExpr('\4096;')) <> 3 then
+      writeln(" ***** pos(STRING, '\\4096;') does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    if  pos("",       charExpr('a')) <> 0 or
+        pos("b",      charExpr('a')) <> 0 or
+        pos("a",      charExpr('a')) <> 1 or
+        pos("bc",     charExpr('a')) <> 0 or
+        pos("ab",     charExpr('a')) <> 1 or
+        pos("za",     charExpr('a')) <> 2 or
+        pos("aa",     charExpr('a')) <> 1 or
+        pos("bcd",    charExpr('a')) <> 0 or
+        pos("abc",    charExpr('a')) <> 1 or
+        pos("zab",    charExpr('a')) <> 2 or
+        pos("yza",    charExpr('a')) <> 3 or
+        pos("aab",    charExpr('a')) <> 1 or
+        pos("aba",    charExpr('a')) <> 1 or
+        pos("zaa",    charExpr('a')) <> 2 or
+        pos("aaa",    charExpr('a')) <> 1 or
+        pos("bcdef",  charExpr('a')) <> 0 or
+        pos("abcde",  charExpr('a')) <> 1 or
+        pos("zabcd",  charExpr('a')) <> 2 or
+        pos("yzabc",  charExpr('a')) <> 3 or
+        pos("xyzab",  charExpr('a')) <> 4 or
+        pos("wxyza",  charExpr('a')) <> 5 or
+        pos("ababc",  charExpr('a')) <> 1 or
+        pos("zabad",  charExpr('a')) <> 2 or
+        pos("yzaba",  charExpr('a')) <> 3 or
+        pos("yzaab",  charExpr('a')) <> 3 or
+        pos("xyzaa",  charExpr('a')) <> 4 or
+        pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", charExpr('a')) <> 1 or
+        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", charExpr('a')) <> 26 then
+      writeln(" ***** pos(STRING, 'a') does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    if  pos(striExpr(""),       charExpr('\0;')) <> 0 or
+        pos(striExpr("a"),      charExpr('\0;')) <> 0 or
+        pos(striExpr("ab"),     charExpr('\0;')) <> 0 or
+        pos(striExpr("abc"),    charExpr('\0;')) <> 0 or
+        pos(striExpr("abcde"),  charExpr('\0;')) <> 0 or
+        pos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), charExpr('\0;')) <> 0 or
+        pos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), charExpr('\0;')) <> 0 then
+      writeln(" ***** pos(STRING, '\\0;') does not work correct. (4)");
+      okay := FALSE;
+    end if;
+    if  pos(striExpr("\4096;\0;\0;"), charExpr('\4096;')) <> 1 or
+        pos(striExpr("\0;\4096;\0;"), charExpr('\4096;')) <> 2 or
+        pos(striExpr("\0;\0;\4096;"), charExpr('\4096;')) <> 3 then
+      writeln(" ***** pos(STRING, '\\4096;') does not work correct. (4)");
+      okay := FALSE;
+    end if;
+    if  pos(striExpr(""),       charExpr('a')) <> 0 or
+        pos(striExpr("b"),      charExpr('a')) <> 0 or
+        pos(striExpr("a"),      charExpr('a')) <> 1 or
+        pos(striExpr("bc"),     charExpr('a')) <> 0 or
+        pos(striExpr("ab"),     charExpr('a')) <> 1 or
+        pos(striExpr("za"),     charExpr('a')) <> 2 or
+        pos(striExpr("aa"),     charExpr('a')) <> 1 or
+        pos(striExpr("bcd"),    charExpr('a')) <> 0 or
+        pos(striExpr("abc"),    charExpr('a')) <> 1 or
+        pos(striExpr("zab"),    charExpr('a')) <> 2 or
+        pos(striExpr("yza"),    charExpr('a')) <> 3 or
+        pos(striExpr("aab"),    charExpr('a')) <> 1 or
+        pos(striExpr("aba"),    charExpr('a')) <> 1 or
+        pos(striExpr("zaa"),    charExpr('a')) <> 2 or
+        pos(striExpr("aaa"),    charExpr('a')) <> 1 or
+        pos(striExpr("bcdef"),  charExpr('a')) <> 0 or
+        pos(striExpr("abcde"),  charExpr('a')) <> 1 or
+        pos(striExpr("zabcd"),  charExpr('a')) <> 2 or
+        pos(striExpr("yzabc"),  charExpr('a')) <> 3 or
+        pos(striExpr("xyzab"),  charExpr('a')) <> 4 or
+        pos(striExpr("wxyza"),  charExpr('a')) <> 5 or
+        pos(striExpr("ababc"),  charExpr('a')) <> 1 or
+        pos(striExpr("zabad"),  charExpr('a')) <> 2 or
+        pos(striExpr("yzaba"),  charExpr('a')) <> 3 or
+        pos(striExpr("yzaab"),  charExpr('a')) <> 3 or
+        pos(striExpr("xyzaa"),  charExpr('a')) <> 4 or
+        pos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), charExpr('a')) <> 1 or
+        pos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), charExpr('a')) <> 26 then
+      writeln(" ***** pos(STRING, 'a') does not work correct. (4)");
+      okay := FALSE;
+    end if;
+
+    if  pos("",       'a', 1) <> 0 or
+        pos("",       'a', 2) <> 0 or
+        pos("",       'a', 9) <> 0 or
+        pos("b",      'a', 1) <> 0 or
+        pos("b",      'a', 2) <> 0 or
+        pos("b",      'a', 9) <> 0 or
+        pos("a",      'a', 1) <> 1 or
+        pos("a",      'a', 2) <> 0 or
+        pos("a",      'a', 9) <> 0 or
+        pos("bc",     'a', 1) <> 0 or
+        pos("bc",     'a', 2) <> 0 or
+        pos("bc",     'a', 3) <> 0 or
+        pos("bc",     'a', 9) <> 0 or
+        pos("ab",     'a', 1) <> 1 or
+        pos("ab",     'a', 2) <> 0 or
+        pos("ab",     'a', 3) <> 0 or
+        pos("ab",     'a', 9) <> 0 or
+        pos("za",     'a', 1) <> 2 or
+        pos("za",     'a', 2) <> 2 or
+        pos("za",     'a', 3) <> 0 or
+        pos("za",     'a', 9) <> 0 or
+        pos("aa",     'a', 1) <> 1 or
+        pos("aa",     'a', 2) <> 2 or
+        pos("aa",     'a', 3) <> 0 or
+        pos("aa",     'a', 9) <> 0 or
+        pos("bcd",    'a', 1) <> 0 or
+        pos("bcd",    'a', 2) <> 0 or
+        pos("bcd",    'a', 3) <> 0 or
+        pos("bcd",    'a', 4) <> 0 or
+        pos("bcd",    'a', 9) <> 0 or
+        pos("abc",    'a', 1) <> 1 or
+        pos("abc",    'a', 2) <> 0 or
+        pos("abc",    'a', 3) <> 0 or
+        pos("abc",    'a', 4) <> 0 or
+        pos("abc",    'a', 9) <> 0 or
+        pos("zab",    'a', 1) <> 2 or
+        pos("zab",    'a', 2) <> 2 or
+        pos("zab",    'a', 3) <> 0 or
+        pos("zab",    'a', 4) <> 0 or
+        pos("zab",    'a', 9) <> 0 or
+        pos("yza",    'a', 1) <> 3 or
+        pos("yza",    'a', 2) <> 3 or
+        pos("yza",    'a', 3) <> 3 or
+        pos("yza",    'a', 4) <> 0 or
+        pos("yza",    'a', 9) <> 0 or
+        pos("aab",    'a', 1) <> 1 or
+        pos("aab",    'a', 2) <> 2 or
+        pos("aab",    'a', 3) <> 0 or
+        pos("aab",    'a', 4) <> 0 or
+        pos("aab",    'a', 9) <> 0 or
+        pos("aba",    'a', 1) <> 1 or
+        pos("aba",    'a', 2) <> 3 or
+        pos("aba",    'a', 3) <> 3 or
+        pos("aba",    'a', 4) <> 0 or
+        pos("aba",    'a', 9) <> 0 or
+        pos("zaa",    'a', 1) <> 2 or
+        pos("zaa",    'a', 2) <> 2 or
+        pos("zaa",    'a', 3) <> 3 or
+        pos("zaa",    'a', 4) <> 0 or
+        pos("zaa",    'a', 9) <> 0 or
+        pos("aaa",    'a', 1) <> 1 or
+        pos("aaa",    'a', 2) <> 2 or
+        pos("aaa",    'a', 3) <> 3 or
+        pos("aaa",    'a', 4) <> 0 or
+        pos("aaa",    'a', 9) <> 0 or
+        pos("bcdef",  'a', 1) <> 0 or
+        pos("bcdef",  'a', 2) <> 0 or
+        pos("bcdef",  'a', 3) <> 0 or
+        pos("bcdef",  'a', 4) <> 0 or
+        pos("bcdef",  'a', 5) <> 0 or
+        pos("bcdef",  'a', 6) <> 0 or
+        pos("bcdef",  'a', 9) <> 0 or
+        pos("abcde",  'a', 1) <> 1 or
+        pos("abcde",  'a', 2) <> 0 or
+        pos("abcde",  'a', 3) <> 0 or
+        pos("abcde",  'a', 4) <> 0 or
+        pos("abcde",  'a', 5) <> 0 or
+        pos("abcde",  'a', 6) <> 0 or
+        pos("abcde",  'a', 9) <> 0 or
+        pos("zabcd",  'a', 1) <> 2 or
+        pos("zabcd",  'a', 2) <> 2 or
+        pos("zabcd",  'a', 3) <> 0 or
+        pos("zabcd",  'a', 4) <> 0 or
+        pos("zabcd",  'a', 5) <> 0 or
+        pos("zabcd",  'a', 6) <> 0 or
+        pos("zabcd",  'a', 9) <> 0 or
+        pos("yzabc",  'a', 1) <> 3 or
+        pos("yzabc",  'a', 2) <> 3 or
+        pos("yzabc",  'a', 3) <> 3 or
+        pos("yzabc",  'a', 4) <> 0 or
+        pos("yzabc",  'a', 5) <> 0 or
+        pos("yzabc",  'a', 6) <> 0 or
+        pos("yzabc",  'a', 9) <> 0 or
+        pos("xyzab",  'a', 1) <> 4 or
+        pos("xyzab",  'a', 2) <> 4 or
+        pos("xyzab",  'a', 3) <> 4 or
+        pos("xyzab",  'a', 4) <> 4 or
+        pos("xyzab",  'a', 5) <> 0 or
+        pos("xyzab",  'a', 6) <> 0 or
+        pos("xyzab",  'a', 9) <> 0 or
+        pos("wxyza",  'a', 1) <> 5 or
+        pos("wxyza",  'a', 2) <> 5 or
+        pos("wxyza",  'a', 3) <> 5 or
+        pos("wxyza",  'a', 4) <> 5 or
+        pos("wxyza",  'a', 5) <> 5 or
+        pos("wxyza",  'a', 6) <> 0 or
+        pos("wxyza",  'a', 9) <> 0 or
+        pos("ababc",  'a', 1) <> 1 or
+        pos("ababc",  'a', 2) <> 3 or
+        pos("ababc",  'a', 3) <> 3 or
+        pos("ababc",  'a', 4) <> 0 or
+        pos("ababc",  'a', 5) <> 0 or
+        pos("ababc",  'a', 6) <> 0 or
+        pos("ababc",  'a', 9) <> 0 or
+        pos("zabad",  'a', 1) <> 2 or
+        pos("zabad",  'a', 2) <> 2 or
+        pos("zabad",  'a', 3) <> 4 or
+        pos("zabad",  'a', 4) <> 4 or
+        pos("zabad",  'a', 5) <> 0 or
+        pos("zabad",  'a', 6) <> 0 or
+        pos("zabad",  'a', 9) <> 0 or
+        pos("yzaba",  'a', 1) <> 3 or
+        pos("yzaba",  'a', 2) <> 3 or
+        pos("yzaba",  'a', 3) <> 3 or
+        pos("yzaba",  'a', 4) <> 5 or
+        pos("yzaba",  'a', 5) <> 5 or
+        pos("yzaba",  'a', 6) <> 0 or
+        pos("yzaba",  'a', 9) <> 0 or
+        pos("yzaab",  'a', 1) <> 3 or
+        pos("yzaab",  'a', 2) <> 3 or
+        pos("yzaab",  'a', 3) <> 3 or
+        pos("yzaab",  'a', 4) <> 4 or
+        pos("yzaab",  'a', 5) <> 0 or
+        pos("yzaab",  'a', 6) <> 0 or
+        pos("yzaab",  'a', 9) <> 0 or
+        pos("xyzaa",  'a', 1) <> 4 or
+        pos("xyzaa",  'a', 2) <> 4 or
+        pos("xyzaa",  'a', 3) <> 4 or
+        pos("xyzaa",  'a', 4) <> 4 or
+        pos("xyzaa",  'a', 5) <> 5 or
+        pos("xyzaa",  'a', 6) <> 0 or
+        pos("xyzaa",  'a', 9) <> 0 or
+        pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba",  'a',  1) <>  1 or
+        pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba",  'a',  2) <> 51 or
+        pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba",  'a',  9) <> 51 or
+        pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba",  'a', 50) <> 51 or
+        pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba",  'a', 51) <> 51 or
+        pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba",  'a', 52) <>  0 or
+        pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba",  'a', 99) <>  0 or
+        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  'a',  1) <> 26 or
+        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  'a',  2) <> 26 or
+        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  'a', 25) <> 26 or
+        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  'a', 26) <> 26 or
+        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  'a', 27) <>  0 or
+        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  'a', 99) <>  0 then
+      writeln(" ***** pos(STRING, 'a', start) does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("pos(string, char) works correct.");
+    end if;
+  end func;
+
+
+const proc: check_string_pos_idx is func
+  local
+    var boolean: okay is TRUE;
+  begin
     if  pos("",       "", 1) <> 0 or
         pos("",       "", 2) <> 0 or
         pos("",       "", 9) <> 0 or
@@ -13476,6 +14685,16 @@ const proc: check_string_funcs is func
       writeln(" ***** pos(STRING, \"aa\", start) does not work correct.");
       okay := FALSE;
     end if;
+    if okay then
+      writeln("pos(string) with start index works correct.");
+    end if;
+  end func;
+
+
+const proc: check_string_rpos is func
+  local
+    var boolean: okay is TRUE;
+  begin
     if  rpos("",       "") <> 0 or
         rpos("a",      "") <> 0 or
         rpos("ab",     "") <> 0 or
@@ -13483,7 +14702,7 @@ const proc: check_string_funcs is func
         rpos("abcde",  "") <> 0 or
         rpos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", "") <> 0 or
         rpos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", "") <> 0 then
-      writeln(" ***** rpos(STRING, \"\") does not work correct.");
+      writeln(" ***** rpos(STRING, \"\") does not work correct. (1)");
       okay := FALSE;
     end if;
     if  rpos("",       "\0;") <> 0 or
@@ -13493,11 +14712,11 @@ const proc: check_string_funcs is func
         rpos("abcde",  "\0;") <> 0 or
         rpos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", "\0;") <> 0 or
         rpos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", "\0;") <> 0 then
-      writeln(" ***** rpos(STRING, \"\\0;\") does not work correct.");
+      writeln(" ***** rpos(STRING, \"\\0;\") does not work correct. (1)");
       okay := FALSE;
     end if;
     if  rpos("\0;\4096;\0;",  "\4096;") <> 2 then
-      writeln(" ***** rpos(STRING, \"\\4096;\") does not work correct.");
+      writeln(" ***** rpos(STRING, \"\\4096;\") does not work correct. (1)");
       okay := FALSE;
     end if;
     if  rpos("",       "a") <> 0 or
@@ -13528,7 +14747,7 @@ const proc: check_string_funcs is func
         rpos("xyzaa",  "a") <> 5 or
         rpos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", "a") <> 51 or
         rpos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", "a") <> 26 then
-      writeln(" ***** rpos(STRING, \"a\") does not work correct.");
+      writeln(" ***** rpos(STRING, \"a\") does not work correct. (1)");
       okay := FALSE;
     end if;
     if  rpos("",       "ab") <> 0 or
@@ -13571,7 +14790,7 @@ const proc: check_string_funcs is func
         rpos("cbazb",  "ab") <> 0 or
         rpos("aaaaa",  "ab") <> 0 or
         rpos("bbbbb",  "ab") <> 0 then
-      writeln(" ***** rpos(STRING, \"ab\") does not work correct.");
+      writeln(" ***** rpos(STRING, \"ab\") does not work correct. (1)");
       okay := FALSE;
     end if;
     if  rpos("",       "abc") <> 0 or
@@ -13629,9 +14848,874 @@ const proc: check_string_funcs is func
         rpos("bcbcbcbcbcbcbcbcbcbcbcbcbcbcbcabcbcbcbcbcbcbcbcbcbc", "abc") <> 31 or
         rpos("acbacbacbacbacbacbacbacbacbacbabcacbacbacbacbacbacb", "abc") <> 31 or
         rpos("ababababababcbababababcbababababcbababababcbabababa", "abc") <> 41 then
-      writeln(" ***** rpos(STRING, \"abc\") does not work correct.");
+      writeln(" ***** rpos(STRING, \"abc\") does not work correct. (1)");
       okay := FALSE;
     end if;
+
+    if  rpos(striExpr(""),       "") <> 0 or
+        rpos(striExpr("a"),      "") <> 0 or
+        rpos(striExpr("ab"),     "") <> 0 or
+        rpos(striExpr("abc"),    "") <> 0 or
+        rpos(striExpr("abcde"),  "") <> 0 or
+        rpos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), "") <> 0 or
+        rpos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), "") <> 0 then
+      writeln(" ***** rpos(STRING, \"\") does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    if  rpos(striExpr(""),       "\0;") <> 0 or
+        rpos(striExpr("a"),      "\0;") <> 0 or
+        rpos(striExpr("ab"),     "\0;") <> 0 or
+        rpos(striExpr("abc"),    "\0;") <> 0 or
+        rpos(striExpr("abcde"),  "\0;") <> 0 or
+        rpos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), "\0;") <> 0 or
+        rpos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), "\0;") <> 0 then
+      writeln(" ***** rpos(STRING, \"\\0;\") does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    if  rpos(striExpr("\0;\4096;\0;"),  "\4096;") <> 2 then
+      writeln(" ***** rpos(STRING, \"\\4096;\") does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    if  rpos(striExpr(""),       "a") <> 0 or
+        rpos(striExpr("b"),      "a") <> 0 or
+        rpos(striExpr("a"),      "a") <> 1 or
+        rpos(striExpr("bc"),     "a") <> 0 or
+        rpos(striExpr("ab"),     "a") <> 1 or
+        rpos(striExpr("za"),     "a") <> 2 or
+        rpos(striExpr("aa"),     "a") <> 2 or
+        rpos(striExpr("bcd"),    "a") <> 0 or
+        rpos(striExpr("abc"),    "a") <> 1 or
+        rpos(striExpr("zab"),    "a") <> 2 or
+        rpos(striExpr("yza"),    "a") <> 3 or
+        rpos(striExpr("aab"),    "a") <> 2 or
+        rpos(striExpr("aba"),    "a") <> 3 or
+        rpos(striExpr("zaa"),    "a") <> 3 or
+        rpos(striExpr("aaa"),    "a") <> 3 or
+        rpos(striExpr("bcdef"),  "a") <> 0 or
+        rpos(striExpr("abcde"),  "a") <> 1 or
+        rpos(striExpr("zabcd"),  "a") <> 2 or
+        rpos(striExpr("yzabc"),  "a") <> 3 or
+        rpos(striExpr("xyzab"),  "a") <> 4 or
+        rpos(striExpr("wxyza"),  "a") <> 5 or
+        rpos(striExpr("ababc"),  "a") <> 3 or
+        rpos(striExpr("zabad"),  "a") <> 4 or
+        rpos(striExpr("yzaba"),  "a") <> 5 or
+        rpos(striExpr("yzaab"),  "a") <> 4 or
+        rpos(striExpr("xyzaa"),  "a") <> 5 or
+        rpos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), "a") <> 51 or
+        rpos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), "a") <> 26 then
+      writeln(" ***** rpos(STRING, \"a\") does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    if  rpos(striExpr(""),       "ab") <> 0 or
+        rpos(striExpr("c"),      "ab") <> 0 or
+        rpos(striExpr("a"),      "ab") <> 0 or
+        rpos(striExpr("b"),      "ab") <> 0 or
+        rpos(striExpr("cd"),     "ab") <> 0 or
+        rpos(striExpr("ac"),     "ab") <> 0 or
+        rpos(striExpr("bc"),     "ab") <> 0 or
+        rpos(striExpr("ab"),     "ab") <> 1 or
+        rpos(striExpr("za"),     "ab") <> 0 or
+        rpos(striExpr("zb"),     "ab") <> 0 or
+        rpos(striExpr("cde"),    "ab") <> 0 or
+        rpos(striExpr("bcd"),    "ab") <> 0 or
+        rpos(striExpr("abc"),    "ab") <> 1 or
+        rpos(striExpr("zab"),    "ab") <> 2 or
+        rpos(striExpr("yza"),    "ab") <> 0 or
+        rpos(striExpr("azy"),    "ab") <> 0 or
+        rpos(striExpr("baz"),    "ab") <> 0 or
+        rpos(striExpr("cba"),    "ab") <> 0 or
+        rpos(striExpr("dcb"),    "ab") <> 0 or
+        rpos(striExpr("aaa"),    "ab") <> 0 or
+        rpos(striExpr("bbb"),    "ab") <> 0 or
+        rpos(striExpr("cdefg"),  "ab") <> 0 or
+        rpos(striExpr("bcdef"),  "ab") <> 0 or
+        rpos(striExpr("abcde"),  "ab") <> 1 or
+        rpos(striExpr("zabcd"),  "ab") <> 2 or
+        rpos(striExpr("yzabc"),  "ab") <> 3 or
+        rpos(striExpr("xyzab"),  "ab") <> 4 or
+        rpos(striExpr("wxyza"),  "ab") <> 0 or
+        rpos(striExpr("abbbb"),  "ab") <> 1 or
+        rpos(striExpr("aabbb"),  "ab") <> 2 or
+        rpos(striExpr("aaabb"),  "ab") <> 3 or
+        rpos(striExpr("aaaab"),  "ab") <> 4 or
+        rpos(striExpr("ababc"),  "ab") <> 3 or
+        rpos(striExpr("abcab"),  "ab") <> 4 or
+        rpos(striExpr("zabab"),  "ab") <> 4 or
+        rpos(striExpr("azbaz"),  "ab") <> 0 or
+        rpos(striExpr("bazba"),  "ab") <> 0 or
+        rpos(striExpr("cbazb"),  "ab") <> 0 or
+        rpos(striExpr("aaaaa"),  "ab") <> 0 or
+        rpos(striExpr("bbbbb"),  "ab") <> 0 then
+      writeln(" ***** rpos(STRING, \"ab\") does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    if  rpos(striExpr(""),       "abc") <> 0 or
+        rpos(striExpr("d"),      "abc") <> 0 or
+        rpos(striExpr("a"),      "abc") <> 0 or
+        rpos(striExpr("b"),      "abc") <> 0 or
+        rpos(striExpr("c"),      "abc") <> 0 or
+        rpos(striExpr("de"),     "abc") <> 0 or
+        rpos(striExpr("bc"),     "abc") <> 0 or
+        rpos(striExpr("ab"),     "abc") <> 0 or
+        rpos(striExpr("za"),     "abc") <> 0 or
+        rpos(striExpr("cde"),    "abc") <> 0 or
+        rpos(striExpr("bcd"),    "abc") <> 0 or
+        rpos(striExpr("abc"),    "abc") <> 1 or
+        rpos(striExpr("zab"),    "abc") <> 0 or
+        rpos(striExpr("yza"),    "abc") <> 0 or
+        rpos(striExpr("azy"),    "abc") <> 0 or
+        rpos(striExpr("baz"),    "abc") <> 0 or
+        rpos(striExpr("cba"),    "abc") <> 0 or
+        rpos(striExpr("dcb"),    "abc") <> 0 or
+        rpos(striExpr("aaa"),    "abc") <> 0 or
+        rpos(striExpr("bbb"),    "abc") <> 0 or
+        rpos(striExpr("ccc"),    "abc") <> 0 or
+        rpos(striExpr("abcz"),   "abc") <> 1 or
+        rpos(striExpr("zabc"),   "abc") <> 2 or
+        rpos(striExpr("aabc"),   "abc") <> 2 or
+        rpos(striExpr("yzab"),   "abc") <> 0 or
+        rpos(striExpr("xyza"),   "abc") <> 0 or
+        rpos(striExpr("cbax"),   "abc") <> 0 or
+        rpos(striExpr("xcba"),   "abc") <> 0 or
+        rpos(striExpr("abab"),   "abc") <> 0 or
+        rpos(striExpr("xaba"),   "abc") <> 0 or
+        rpos(striExpr("cdefg"),  "abc") <> 0 or
+        rpos(striExpr("bcdef"),  "abc") <> 0 or
+        rpos(striExpr("abcde"),  "abc") <> 1 or
+        rpos(striExpr("zabcd"),  "abc") <> 2 or
+        rpos(striExpr("yzabc"),  "abc") <> 3 or
+        rpos(striExpr("xyzab"),  "abc") <> 0 or
+        rpos(striExpr("wxyza"),  "abc") <> 0 or
+        rpos(striExpr("bcccc"),  "abc") <> 0 or
+        rpos(striExpr("abccc"),  "abc") <> 1 or
+        rpos(striExpr("aabcc"),  "abc") <> 2 or
+        rpos(striExpr("aaabc"),  "abc") <> 3 or
+        rpos(striExpr("aaaab"),  "abc") <> 0 or
+        rpos(striExpr("abcab"),  "abc") <> 1 or
+        rpos(striExpr("aabcc"),  "abc") <> 2 or
+        rpos(striExpr("zabab"),  "abc") <> 0 or
+        rpos(striExpr("azbaz"),  "abc") <> 0 or
+        rpos(striExpr("bazba"),  "abc") <> 0 or
+        rpos(striExpr("cbazb"),  "abc") <> 0 or
+        rpos(striExpr("aaaaa"),  "abc") <> 0 or
+        rpos(striExpr("bbbbb"),  "abc") <> 0 or
+        rpos(striExpr("ccccc"),  "abc") <> 0 or
+        rpos(striExpr("ababababababababababababababababcababababababababab"), "abc") <> 31 or
+        rpos(striExpr("bcbcbcbcbcbcbcbcbcbcbcbcbcbcbcabcbcbcbcbcbcbcbcbcbc"), "abc") <> 31 or
+        rpos(striExpr("acbacbacbacbacbacbacbacbacbacbabcacbacbacbacbacbacb"), "abc") <> 31 or
+        rpos(striExpr("ababababababcbababababcbababababcbababababcbabababa"), "abc") <> 41 then
+      writeln(" ***** rpos(STRING, \"abc\") does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if  rpos("",       striExpr("")) <> 0 or
+        rpos("a",      striExpr("")) <> 0 or
+        rpos("ab",     striExpr("")) <> 0 or
+        rpos("abc",    striExpr("")) <> 0 or
+        rpos("abcde",  striExpr("")) <> 0 or
+        rpos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", striExpr("")) <> 0 or
+        rpos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", striExpr("")) <> 0 then
+      writeln(" ***** rpos(STRING, \"\") does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    if  rpos("",       striExpr("\0;")) <> 0 or
+        rpos("a",      striExpr("\0;")) <> 0 or
+        rpos("ab",     striExpr("\0;")) <> 0 or
+        rpos("abc",    striExpr("\0;")) <> 0 or
+        rpos("abcde",  striExpr("\0;")) <> 0 or
+        rpos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", striExpr("\0;")) <> 0 or
+        rpos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", striExpr("\0;")) <> 0 then
+      writeln(" ***** rpos(STRING, \"\\0;\") does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    if  rpos("\0;\4096;\0;",  striExpr("\4096;")) <> 2 then
+      writeln(" ***** rpos(STRING, \"\\4096;\") does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    if  rpos("",       striExpr("a")) <> 0 or
+        rpos("b",      striExpr("a")) <> 0 or
+        rpos("a",      striExpr("a")) <> 1 or
+        rpos("bc",     striExpr("a")) <> 0 or
+        rpos("ab",     striExpr("a")) <> 1 or
+        rpos("za",     striExpr("a")) <> 2 or
+        rpos("aa",     striExpr("a")) <> 2 or
+        rpos("bcd",    striExpr("a")) <> 0 or
+        rpos("abc",    striExpr("a")) <> 1 or
+        rpos("zab",    striExpr("a")) <> 2 or
+        rpos("yza",    striExpr("a")) <> 3 or
+        rpos("aab",    striExpr("a")) <> 2 or
+        rpos("aba",    striExpr("a")) <> 3 or
+        rpos("zaa",    striExpr("a")) <> 3 or
+        rpos("aaa",    striExpr("a")) <> 3 or
+        rpos("bcdef",  striExpr("a")) <> 0 or
+        rpos("abcde",  striExpr("a")) <> 1 or
+        rpos("zabcd",  striExpr("a")) <> 2 or
+        rpos("yzabc",  striExpr("a")) <> 3 or
+        rpos("xyzab",  striExpr("a")) <> 4 or
+        rpos("wxyza",  striExpr("a")) <> 5 or
+        rpos("ababc",  striExpr("a")) <> 3 or
+        rpos("zabad",  striExpr("a")) <> 4 or
+        rpos("yzaba",  striExpr("a")) <> 5 or
+        rpos("yzaab",  striExpr("a")) <> 4 or
+        rpos("xyzaa",  striExpr("a")) <> 5 or
+        rpos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", striExpr("a")) <> 51 or
+        rpos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", striExpr("a")) <> 26 then
+      writeln(" ***** rpos(STRING, \"a\") does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    if  rpos("",       striExpr("ab")) <> 0 or
+        rpos("c",      striExpr("ab")) <> 0 or
+        rpos("a",      striExpr("ab")) <> 0 or
+        rpos("b",      striExpr("ab")) <> 0 or
+        rpos("cd",     striExpr("ab")) <> 0 or
+        rpos("ac",     striExpr("ab")) <> 0 or
+        rpos("bc",     striExpr("ab")) <> 0 or
+        rpos("ab",     striExpr("ab")) <> 1 or
+        rpos("za",     striExpr("ab")) <> 0 or
+        rpos("zb",     striExpr("ab")) <> 0 or
+        rpos("cde",    striExpr("ab")) <> 0 or
+        rpos("bcd",    striExpr("ab")) <> 0 or
+        rpos("abc",    striExpr("ab")) <> 1 or
+        rpos("zab",    striExpr("ab")) <> 2 or
+        rpos("yza",    striExpr("ab")) <> 0 or
+        rpos("azy",    striExpr("ab")) <> 0 or
+        rpos("baz",    striExpr("ab")) <> 0 or
+        rpos("cba",    striExpr("ab")) <> 0 or
+        rpos("dcb",    striExpr("ab")) <> 0 or
+        rpos("aaa",    striExpr("ab")) <> 0 or
+        rpos("bbb",    striExpr("ab")) <> 0 or
+        rpos("cdefg",  striExpr("ab")) <> 0 or
+        rpos("bcdef",  striExpr("ab")) <> 0 or
+        rpos("abcde",  striExpr("ab")) <> 1 or
+        rpos("zabcd",  striExpr("ab")) <> 2 or
+        rpos("yzabc",  striExpr("ab")) <> 3 or
+        rpos("xyzab",  striExpr("ab")) <> 4 or
+        rpos("wxyza",  striExpr("ab")) <> 0 or
+        rpos("abbbb",  striExpr("ab")) <> 1 or
+        rpos("aabbb",  striExpr("ab")) <> 2 or
+        rpos("aaabb",  striExpr("ab")) <> 3 or
+        rpos("aaaab",  striExpr("ab")) <> 4 or
+        rpos("ababc",  striExpr("ab")) <> 3 or
+        rpos("abcab",  striExpr("ab")) <> 4 or
+        rpos("zabab",  striExpr("ab")) <> 4 or
+        rpos("azbaz",  striExpr("ab")) <> 0 or
+        rpos("bazba",  striExpr("ab")) <> 0 or
+        rpos("cbazb",  striExpr("ab")) <> 0 or
+        rpos("aaaaa",  striExpr("ab")) <> 0 or
+        rpos("bbbbb",  striExpr("ab")) <> 0 then
+      writeln(" ***** rpos(STRING, \"ab\") does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    if  rpos("",       striExpr("abc")) <> 0 or
+        rpos("d",      striExpr("abc")) <> 0 or
+        rpos("a",      striExpr("abc")) <> 0 or
+        rpos("b",      striExpr("abc")) <> 0 or
+        rpos("c",      striExpr("abc")) <> 0 or
+        rpos("de",     striExpr("abc")) <> 0 or
+        rpos("bc",     striExpr("abc")) <> 0 or
+        rpos("ab",     striExpr("abc")) <> 0 or
+        rpos("za",     striExpr("abc")) <> 0 or
+        rpos("cde",    striExpr("abc")) <> 0 or
+        rpos("bcd",    striExpr("abc")) <> 0 or
+        rpos("abc",    striExpr("abc")) <> 1 or
+        rpos("zab",    striExpr("abc")) <> 0 or
+        rpos("yza",    striExpr("abc")) <> 0 or
+        rpos("azy",    striExpr("abc")) <> 0 or
+        rpos("baz",    striExpr("abc")) <> 0 or
+        rpos("cba",    striExpr("abc")) <> 0 or
+        rpos("dcb",    striExpr("abc")) <> 0 or
+        rpos("aaa",    striExpr("abc")) <> 0 or
+        rpos("bbb",    striExpr("abc")) <> 0 or
+        rpos("ccc",    striExpr("abc")) <> 0 or
+        rpos("abcz",   striExpr("abc")) <> 1 or
+        rpos("zabc",   striExpr("abc")) <> 2 or
+        rpos("aabc",   striExpr("abc")) <> 2 or
+        rpos("yzab",   striExpr("abc")) <> 0 or
+        rpos("xyza",   striExpr("abc")) <> 0 or
+        rpos("cbax",   striExpr("abc")) <> 0 or
+        rpos("xcba",   striExpr("abc")) <> 0 or
+        rpos("abab",   striExpr("abc")) <> 0 or
+        rpos("xaba",   striExpr("abc")) <> 0 or
+        rpos("cdefg",  striExpr("abc")) <> 0 or
+        rpos("bcdef",  striExpr("abc")) <> 0 or
+        rpos("abcde",  striExpr("abc")) <> 1 or
+        rpos("zabcd",  striExpr("abc")) <> 2 or
+        rpos("yzabc",  striExpr("abc")) <> 3 or
+        rpos("xyzab",  striExpr("abc")) <> 0 or
+        rpos("wxyza",  striExpr("abc")) <> 0 or
+        rpos("bcccc",  striExpr("abc")) <> 0 or
+        rpos("abccc",  striExpr("abc")) <> 1 or
+        rpos("aabcc",  striExpr("abc")) <> 2 or
+        rpos("aaabc",  striExpr("abc")) <> 3 or
+        rpos("aaaab",  striExpr("abc")) <> 0 or
+        rpos("abcab",  striExpr("abc")) <> 1 or
+        rpos("aabcc",  striExpr("abc")) <> 2 or
+        rpos("zabab",  striExpr("abc")) <> 0 or
+        rpos("azbaz",  striExpr("abc")) <> 0 or
+        rpos("bazba",  striExpr("abc")) <> 0 or
+        rpos("cbazb",  striExpr("abc")) <> 0 or
+        rpos("aaaaa",  striExpr("abc")) <> 0 or
+        rpos("bbbbb",  striExpr("abc")) <> 0 or
+        rpos("ccccc",  striExpr("abc")) <> 0 or
+        rpos("ababababababababababababababababcababababababababab", striExpr("abc")) <> 31 or
+        rpos("bcbcbcbcbcbcbcbcbcbcbcbcbcbcbcabcbcbcbcbcbcbcbcbcbc", striExpr("abc")) <> 31 or
+        rpos("acbacbacbacbacbacbacbacbacbacbabcacbacbacbacbacbacb", striExpr("abc")) <> 31 or
+        rpos("ababababababcbababababcbababababcbababababcbabababa", striExpr("abc")) <> 41 then
+      writeln(" ***** rpos(STRING, \"abc\") does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    if  rpos(striExpr(""),       striExpr("")) <> 0 or
+        rpos(striExpr("a"),      striExpr("")) <> 0 or
+        rpos(striExpr("ab"),     striExpr("")) <> 0 or
+        rpos(striExpr("abc"),    striExpr("")) <> 0 or
+        rpos(striExpr("abcde"),  striExpr("")) <> 0 or
+        rpos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), striExpr("")) <> 0 or
+        rpos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), striExpr("")) <> 0 then
+      writeln(" ***** rpos(STRING, \"\") does not work correct. (4)");
+      okay := FALSE;
+    end if;
+    if  rpos(striExpr(""),       striExpr("\0;")) <> 0 or
+        rpos(striExpr("a"),      striExpr("\0;")) <> 0 or
+        rpos(striExpr("ab"),     striExpr("\0;")) <> 0 or
+        rpos(striExpr("abc"),    striExpr("\0;")) <> 0 or
+        rpos(striExpr("abcde"),  striExpr("\0;")) <> 0 or
+        rpos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), striExpr("\0;")) <> 0 or
+        rpos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), striExpr("\0;")) <> 0 then
+      writeln(" ***** rpos(STRING, \"\\0;\") does not work correct. (4)");
+      okay := FALSE;
+    end if;
+    if  rpos(striExpr("\0;\4096;\0;"),  striExpr("\4096;")) <> 2 then
+      writeln(" ***** rpos(STRING, \"\\4096;\") does not work correct. (4)");
+      okay := FALSE;
+    end if;
+    if  rpos(striExpr(""),       striExpr("a")) <> 0 or
+        rpos(striExpr("b"),      striExpr("a")) <> 0 or
+        rpos(striExpr("a"),      striExpr("a")) <> 1 or
+        rpos(striExpr("bc"),     striExpr("a")) <> 0 or
+        rpos(striExpr("ab"),     striExpr("a")) <> 1 or
+        rpos(striExpr("za"),     striExpr("a")) <> 2 or
+        rpos(striExpr("aa"),     striExpr("a")) <> 2 or
+        rpos(striExpr("bcd"),    striExpr("a")) <> 0 or
+        rpos(striExpr("abc"),    striExpr("a")) <> 1 or
+        rpos(striExpr("zab"),    striExpr("a")) <> 2 or
+        rpos(striExpr("yza"),    striExpr("a")) <> 3 or
+        rpos(striExpr("aab"),    striExpr("a")) <> 2 or
+        rpos(striExpr("aba"),    striExpr("a")) <> 3 or
+        rpos(striExpr("zaa"),    striExpr("a")) <> 3 or
+        rpos(striExpr("aaa"),    striExpr("a")) <> 3 or
+        rpos(striExpr("bcdef"),  striExpr("a")) <> 0 or
+        rpos(striExpr("abcde"),  striExpr("a")) <> 1 or
+        rpos(striExpr("zabcd"),  striExpr("a")) <> 2 or
+        rpos(striExpr("yzabc"),  striExpr("a")) <> 3 or
+        rpos(striExpr("xyzab"),  striExpr("a")) <> 4 or
+        rpos(striExpr("wxyza"),  striExpr("a")) <> 5 or
+        rpos(striExpr("ababc"),  striExpr("a")) <> 3 or
+        rpos(striExpr("zabad"),  striExpr("a")) <> 4 or
+        rpos(striExpr("yzaba"),  striExpr("a")) <> 5 or
+        rpos(striExpr("yzaab"),  striExpr("a")) <> 4 or
+        rpos(striExpr("xyzaa"),  striExpr("a")) <> 5 or
+        rpos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), striExpr("a")) <> 51 or
+        rpos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), striExpr("a")) <> 26 then
+      writeln(" ***** rpos(STRING, \"a\") does not work correct. (4)");
+      okay := FALSE;
+    end if;
+    if  rpos(striExpr(""),       striExpr("ab")) <> 0 or
+        rpos(striExpr("c"),      striExpr("ab")) <> 0 or
+        rpos(striExpr("a"),      striExpr("ab")) <> 0 or
+        rpos(striExpr("b"),      striExpr("ab")) <> 0 or
+        rpos(striExpr("cd"),     striExpr("ab")) <> 0 or
+        rpos(striExpr("ac"),     striExpr("ab")) <> 0 or
+        rpos(striExpr("bc"),     striExpr("ab")) <> 0 or
+        rpos(striExpr("ab"),     striExpr("ab")) <> 1 or
+        rpos(striExpr("za"),     striExpr("ab")) <> 0 or
+        rpos(striExpr("zb"),     striExpr("ab")) <> 0 or
+        rpos(striExpr("cde"),    striExpr("ab")) <> 0 or
+        rpos(striExpr("bcd"),    striExpr("ab")) <> 0 or
+        rpos(striExpr("abc"),    striExpr("ab")) <> 1 or
+        rpos(striExpr("zab"),    striExpr("ab")) <> 2 or
+        rpos(striExpr("yza"),    striExpr("ab")) <> 0 or
+        rpos(striExpr("azy"),    striExpr("ab")) <> 0 or
+        rpos(striExpr("baz"),    striExpr("ab")) <> 0 or
+        rpos(striExpr("cba"),    striExpr("ab")) <> 0 or
+        rpos(striExpr("dcb"),    striExpr("ab")) <> 0 or
+        rpos(striExpr("aaa"),    striExpr("ab")) <> 0 or
+        rpos(striExpr("bbb"),    striExpr("ab")) <> 0 or
+        rpos(striExpr("cdefg"),  striExpr("ab")) <> 0 or
+        rpos(striExpr("bcdef"),  striExpr("ab")) <> 0 or
+        rpos(striExpr("abcde"),  striExpr("ab")) <> 1 or
+        rpos(striExpr("zabcd"),  striExpr("ab")) <> 2 or
+        rpos(striExpr("yzabc"),  striExpr("ab")) <> 3 or
+        rpos(striExpr("xyzab"),  striExpr("ab")) <> 4 or
+        rpos(striExpr("wxyza"),  striExpr("ab")) <> 0 or
+        rpos(striExpr("abbbb"),  striExpr("ab")) <> 1 or
+        rpos(striExpr("aabbb"),  striExpr("ab")) <> 2 or
+        rpos(striExpr("aaabb"),  striExpr("ab")) <> 3 or
+        rpos(striExpr("aaaab"),  striExpr("ab")) <> 4 or
+        rpos(striExpr("ababc"),  striExpr("ab")) <> 3 or
+        rpos(striExpr("abcab"),  striExpr("ab")) <> 4 or
+        rpos(striExpr("zabab"),  striExpr("ab")) <> 4 or
+        rpos(striExpr("azbaz"),  striExpr("ab")) <> 0 or
+        rpos(striExpr("bazba"),  striExpr("ab")) <> 0 or
+        rpos(striExpr("cbazb"),  striExpr("ab")) <> 0 or
+        rpos(striExpr("aaaaa"),  striExpr("ab")) <> 0 or
+        rpos(striExpr("bbbbb"),  striExpr("ab")) <> 0 then
+      writeln(" ***** rpos(STRING, \"ab\") does not work correct. (4)");
+      okay := FALSE;
+    end if;
+    if  rpos(striExpr(""),       striExpr("abc")) <> 0 or
+        rpos(striExpr("d"),      striExpr("abc")) <> 0 or
+        rpos(striExpr("a"),      striExpr("abc")) <> 0 or
+        rpos(striExpr("b"),      striExpr("abc")) <> 0 or
+        rpos(striExpr("c"),      striExpr("abc")) <> 0 or
+        rpos(striExpr("de"),     striExpr("abc")) <> 0 or
+        rpos(striExpr("bc"),     striExpr("abc")) <> 0 or
+        rpos(striExpr("ab"),     striExpr("abc")) <> 0 or
+        rpos(striExpr("za"),     striExpr("abc")) <> 0 or
+        rpos(striExpr("cde"),    striExpr("abc")) <> 0 or
+        rpos(striExpr("bcd"),    striExpr("abc")) <> 0 or
+        rpos(striExpr("abc"),    striExpr("abc")) <> 1 or
+        rpos(striExpr("zab"),    striExpr("abc")) <> 0 or
+        rpos(striExpr("yza"),    striExpr("abc")) <> 0 or
+        rpos(striExpr("azy"),    striExpr("abc")) <> 0 or
+        rpos(striExpr("baz"),    striExpr("abc")) <> 0 or
+        rpos(striExpr("cba"),    striExpr("abc")) <> 0 or
+        rpos(striExpr("dcb"),    striExpr("abc")) <> 0 or
+        rpos(striExpr("aaa"),    striExpr("abc")) <> 0 or
+        rpos(striExpr("bbb"),    striExpr("abc")) <> 0 or
+        rpos(striExpr("ccc"),    striExpr("abc")) <> 0 or
+        rpos(striExpr("abcz"),   striExpr("abc")) <> 1 or
+        rpos(striExpr("zabc"),   striExpr("abc")) <> 2 or
+        rpos(striExpr("aabc"),   striExpr("abc")) <> 2 or
+        rpos(striExpr("yzab"),   striExpr("abc")) <> 0 or
+        rpos(striExpr("xyza"),   striExpr("abc")) <> 0 or
+        rpos(striExpr("cbax"),   striExpr("abc")) <> 0 or
+        rpos(striExpr("xcba"),   striExpr("abc")) <> 0 or
+        rpos(striExpr("abab"),   striExpr("abc")) <> 0 or
+        rpos(striExpr("xaba"),   striExpr("abc")) <> 0 or
+        rpos(striExpr("cdefg"),  striExpr("abc")) <> 0 or
+        rpos(striExpr("bcdef"),  striExpr("abc")) <> 0 or
+        rpos(striExpr("abcde"),  striExpr("abc")) <> 1 or
+        rpos(striExpr("zabcd"),  striExpr("abc")) <> 2 or
+        rpos(striExpr("yzabc"),  striExpr("abc")) <> 3 or
+        rpos(striExpr("xyzab"),  striExpr("abc")) <> 0 or
+        rpos(striExpr("wxyza"),  striExpr("abc")) <> 0 or
+        rpos(striExpr("bcccc"),  striExpr("abc")) <> 0 or
+        rpos(striExpr("abccc"),  striExpr("abc")) <> 1 or
+        rpos(striExpr("aabcc"),  striExpr("abc")) <> 2 or
+        rpos(striExpr("aaabc"),  striExpr("abc")) <> 3 or
+        rpos(striExpr("aaaab"),  striExpr("abc")) <> 0 or
+        rpos(striExpr("abcab"),  striExpr("abc")) <> 1 or
+        rpos(striExpr("aabcc"),  striExpr("abc")) <> 2 or
+        rpos(striExpr("zabab"),  striExpr("abc")) <> 0 or
+        rpos(striExpr("azbaz"),  striExpr("abc")) <> 0 or
+        rpos(striExpr("bazba"),  striExpr("abc")) <> 0 or
+        rpos(striExpr("cbazb"),  striExpr("abc")) <> 0 or
+        rpos(striExpr("aaaaa"),  striExpr("abc")) <> 0 or
+        rpos(striExpr("bbbbb"),  striExpr("abc")) <> 0 or
+        rpos(striExpr("ccccc"),  striExpr("abc")) <> 0 or
+        rpos(striExpr("ababababababababababababababababcababababababababab"), striExpr("abc")) <> 31 or
+        rpos(striExpr("bcbcbcbcbcbcbcbcbcbcbcbcbcbcbcabcbcbcbcbcbcbcbcbcbc"), striExpr("abc")) <> 31 or
+        rpos(striExpr("acbacbacbacbacbacbacbacbacbacbabcacbacbacbacbacbacb"), striExpr("abc")) <> 31 or
+        rpos(striExpr("ababababababcbababababcbababababcbababababcbabababa"), striExpr("abc")) <> 41 then
+      writeln(" ***** rpos(STRING, \"abc\") does not work correct. (4)");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("rpos(string) works correct.");
+    end if;
+  end func;
+
+
+const proc: check_string_char_rpos is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if  rpos("",       '\0;') <> 0 or
+        rpos("a",      '\0;') <> 0 or
+        rpos("ab",     '\0;') <> 0 or
+        rpos("abc",    '\0;') <> 0 or
+        rpos("abcde",  '\0;') <> 0 or
+        rpos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", '\0;') <> 0 or
+        rpos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", '\0;') <> 0 then
+      writeln(" ***** rpos(STRING, '\\0;') does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    if  rpos("\0;\4096;\0;",  '\4096;') <> 2 then
+      writeln(" ***** rpos(STRING, '\\4096;') does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    if  rpos("",       'a') <> 0 or
+        rpos("b",      'a') <> 0 or
+        rpos("a",      'a') <> 1 or
+        rpos("bc",     'a') <> 0 or
+        rpos("ab",     'a') <> 1 or
+        rpos("za",     'a') <> 2 or
+        rpos("aa",     'a') <> 2 or
+        rpos("bcd",    'a') <> 0 or
+        rpos("abc",    'a') <> 1 or
+        rpos("zab",    'a') <> 2 or
+        rpos("yza",    'a') <> 3 or
+        rpos("aab",    'a') <> 2 or
+        rpos("aba",    'a') <> 3 or
+        rpos("zaa",    'a') <> 3 or
+        rpos("aaa",    'a') <> 3 or
+        rpos("bcdef",  'a') <> 0 or
+        rpos("abcde",  'a') <> 1 or
+        rpos("zabcd",  'a') <> 2 or
+        rpos("yzabc",  'a') <> 3 or
+        rpos("xyzab",  'a') <> 4 or
+        rpos("wxyza",  'a') <> 5 or
+        rpos("ababc",  'a') <> 3 or
+        rpos("zabad",  'a') <> 4 or
+        rpos("yzaba",  'a') <> 5 or
+        rpos("yzaab",  'a') <> 4 or
+        rpos("xyzaa",  'a') <> 5 or
+        rpos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", 'a') <> 51 or
+        rpos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", 'a') <> 26 then
+      writeln(" ***** rpos(STRING, 'a') does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    if  rpos(striExpr(""),       '\0;') <> 0 or
+        rpos(striExpr("a"),      '\0;') <> 0 or
+        rpos(striExpr("ab"),     '\0;') <> 0 or
+        rpos(striExpr("abc"),    '\0;') <> 0 or
+        rpos(striExpr("abcde"),  '\0;') <> 0 or
+        rpos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), '\0;') <> 0 or
+        rpos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), '\0;') <> 0 then
+      writeln(" ***** rpos(STRING, '\\0;') does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    if  rpos(striExpr("\0;\4096;\0;"),  '\4096;') <> 2 then
+      writeln(" ***** rpos(STRING, '\\4096;') does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    if  rpos(striExpr(""),       'a') <> 0 or
+        rpos(striExpr("b"),      'a') <> 0 or
+        rpos(striExpr("a"),      'a') <> 1 or
+        rpos(striExpr("bc"),     'a') <> 0 or
+        rpos(striExpr("ab"),     'a') <> 1 or
+        rpos(striExpr("za"),     'a') <> 2 or
+        rpos(striExpr("aa"),     'a') <> 2 or
+        rpos(striExpr("bcd"),    'a') <> 0 or
+        rpos(striExpr("abc"),    'a') <> 1 or
+        rpos(striExpr("zab"),    'a') <> 2 or
+        rpos(striExpr("yza"),    'a') <> 3 or
+        rpos(striExpr("aab"),    'a') <> 2 or
+        rpos(striExpr("aba"),    'a') <> 3 or
+        rpos(striExpr("zaa"),    'a') <> 3 or
+        rpos(striExpr("aaa"),    'a') <> 3 or
+        rpos(striExpr("bcdef"),  'a') <> 0 or
+        rpos(striExpr("abcde"),  'a') <> 1 or
+        rpos(striExpr("zabcd"),  'a') <> 2 or
+        rpos(striExpr("yzabc"),  'a') <> 3 or
+        rpos(striExpr("xyzab"),  'a') <> 4 or
+        rpos(striExpr("wxyza"),  'a') <> 5 or
+        rpos(striExpr("ababc"),  'a') <> 3 or
+        rpos(striExpr("zabad"),  'a') <> 4 or
+        rpos(striExpr("yzaba"),  'a') <> 5 or
+        rpos(striExpr("yzaab"),  'a') <> 4 or
+        rpos(striExpr("xyzaa"),  'a') <> 5 or
+        rpos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), 'a') <> 51 or
+        rpos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), 'a') <> 26 then
+      writeln(" ***** rpos(STRING, 'a') does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if  rpos("",       charExpr('\0;')) <> 0 or
+        rpos("a",      charExpr('\0;')) <> 0 or
+        rpos("ab",     charExpr('\0;')) <> 0 or
+        rpos("abc",    charExpr('\0;')) <> 0 or
+        rpos("abcde",  charExpr('\0;')) <> 0 or
+        rpos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", charExpr('\0;')) <> 0 or
+        rpos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", charExpr('\0;')) <> 0 then
+      writeln(" ***** rpos(STRING, '\\0;') does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    if  rpos("\0;\4096;\0;",  charExpr('\4096;')) <> 2 then
+      writeln(" ***** rpos(STRING, '\\4096;') does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    if  rpos("",       charExpr('a')) <> 0 or
+        rpos("b",      charExpr('a')) <> 0 or
+        rpos("a",      charExpr('a')) <> 1 or
+        rpos("bc",     charExpr('a')) <> 0 or
+        rpos("ab",     charExpr('a')) <> 1 or
+        rpos("za",     charExpr('a')) <> 2 or
+        rpos("aa",     charExpr('a')) <> 2 or
+        rpos("bcd",    charExpr('a')) <> 0 or
+        rpos("abc",    charExpr('a')) <> 1 or
+        rpos("zab",    charExpr('a')) <> 2 or
+        rpos("yza",    charExpr('a')) <> 3 or
+        rpos("aab",    charExpr('a')) <> 2 or
+        rpos("aba",    charExpr('a')) <> 3 or
+        rpos("zaa",    charExpr('a')) <> 3 or
+        rpos("aaa",    charExpr('a')) <> 3 or
+        rpos("bcdef",  charExpr('a')) <> 0 or
+        rpos("abcde",  charExpr('a')) <> 1 or
+        rpos("zabcd",  charExpr('a')) <> 2 or
+        rpos("yzabc",  charExpr('a')) <> 3 or
+        rpos("xyzab",  charExpr('a')) <> 4 or
+        rpos("wxyza",  charExpr('a')) <> 5 or
+        rpos("ababc",  charExpr('a')) <> 3 or
+        rpos("zabad",  charExpr('a')) <> 4 or
+        rpos("yzaba",  charExpr('a')) <> 5 or
+        rpos("yzaab",  charExpr('a')) <> 4 or
+        rpos("xyzaa",  charExpr('a')) <> 5 or
+        rpos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", charExpr('a')) <> 51 or
+        rpos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", charExpr('a')) <> 26 then
+      writeln(" ***** rpos(STRING, 'a') does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    if  rpos(striExpr(""),       charExpr('\0;')) <> 0 or
+        rpos(striExpr("a"),      charExpr('\0;')) <> 0 or
+        rpos(striExpr("ab"),     charExpr('\0;')) <> 0 or
+        rpos(striExpr("abc"),    charExpr('\0;')) <> 0 or
+        rpos(striExpr("abcde"),  charExpr('\0;')) <> 0 or
+        rpos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), charExpr('\0;')) <> 0 or
+        rpos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), charExpr('\0;')) <> 0 then
+      writeln(" ***** rpos(STRING, '\\0;') does not work correct. (4)");
+      okay := FALSE;
+    end if;
+    if  rpos(striExpr("\0;\4096;\0;"),  charExpr('\4096;')) <> 2 then
+      writeln(" ***** rpos(STRING, '\\4096;') does not work correct. (4)");
+      okay := FALSE;
+    end if;
+    if  rpos(striExpr(""),       charExpr('a')) <> 0 or
+        rpos(striExpr("b"),      charExpr('a')) <> 0 or
+        rpos(striExpr("a"),      charExpr('a')) <> 1 or
+        rpos(striExpr("bc"),     charExpr('a')) <> 0 or
+        rpos(striExpr("ab"),     charExpr('a')) <> 1 or
+        rpos(striExpr("za"),     charExpr('a')) <> 2 or
+        rpos(striExpr("aa"),     charExpr('a')) <> 2 or
+        rpos(striExpr("bcd"),    charExpr('a')) <> 0 or
+        rpos(striExpr("abc"),    charExpr('a')) <> 1 or
+        rpos(striExpr("zab"),    charExpr('a')) <> 2 or
+        rpos(striExpr("yza"),    charExpr('a')) <> 3 or
+        rpos(striExpr("aab"),    charExpr('a')) <> 2 or
+        rpos(striExpr("aba"),    charExpr('a')) <> 3 or
+        rpos(striExpr("zaa"),    charExpr('a')) <> 3 or
+        rpos(striExpr("aaa"),    charExpr('a')) <> 3 or
+        rpos(striExpr("bcdef"),  charExpr('a')) <> 0 or
+        rpos(striExpr("abcde"),  charExpr('a')) <> 1 or
+        rpos(striExpr("zabcd"),  charExpr('a')) <> 2 or
+        rpos(striExpr("yzabc"),  charExpr('a')) <> 3 or
+        rpos(striExpr("xyzab"),  charExpr('a')) <> 4 or
+        rpos(striExpr("wxyza"),  charExpr('a')) <> 5 or
+        rpos(striExpr("ababc"),  charExpr('a')) <> 3 or
+        rpos(striExpr("zabad"),  charExpr('a')) <> 4 or
+        rpos(striExpr("yzaba"),  charExpr('a')) <> 5 or
+        rpos(striExpr("yzaab"),  charExpr('a')) <> 4 or
+        rpos(striExpr("xyzaa"),  charExpr('a')) <> 5 or
+        rpos(striExpr("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"), charExpr('a')) <> 51 or
+        rpos(striExpr("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz"), charExpr('a')) <> 26 then
+      writeln(" ***** rpos(STRING, 'a') does not work correct. (4)");
+      okay := FALSE;
+    end if;
+
+    if  rpos("",       'a', -5) <> 0 or
+        rpos("",       'a', -1) <> 0 or
+        rpos("",       'a',  0) <> 0 or
+        rpos("b",      'a', -5) <> 0 or
+        rpos("b",      'a', -1) <> 0 or
+        rpos("b",      'a',  0) <> 0 or
+        rpos("b",      'a',  1) <> 0 or
+        rpos("a",      'a', -5) <> 0 or
+        rpos("a",      'a', -1) <> 0 or
+        rpos("a",      'a',  0) <> 0 or
+        rpos("a",      'a',  1) <> 1 or
+        rpos("bc",     'a', -5) <> 0 or
+        rpos("bc",     'a', -1) <> 0 or
+        rpos("bc",     'a',  0) <> 0 or
+        rpos("bc",     'a',  1) <> 0 or
+        rpos("bc",     'a',  2) <> 0 or
+        rpos("ab",     'a', -5) <> 0 or
+        rpos("ab",     'a', -1) <> 0 or
+        rpos("ab",     'a',  0) <> 0 or
+        rpos("ab",     'a',  1) <> 1 or
+        rpos("ab",     'a',  2) <> 1 or
+        rpos("za",     'a', -5) <> 0 or
+        rpos("za",     'a', -1) <> 0 or
+        rpos("za",     'a',  0) <> 0 or
+        rpos("za",     'a',  1) <> 0 or
+        rpos("za",     'a',  2) <> 2 or
+        rpos("aa",     'a', -5) <> 0 or
+        rpos("aa",     'a', -1) <> 0 or
+        rpos("aa",     'a',  0) <> 0 or
+        rpos("aa",     'a',  1) <> 1 or
+        rpos("aa",     'a',  2) <> 2 or
+        rpos("bcd",    'a', -5) <> 0 or
+        rpos("bcd",    'a', -1) <> 0 or
+        rpos("bcd",    'a',  0) <> 0 or
+        rpos("bcd",    'a',  1) <> 0 or
+        rpos("bcd",    'a',  2) <> 0 or
+        rpos("bcd",    'a',  3) <> 0 or
+        rpos("abc",    'a', -5) <> 0 or
+        rpos("abc",    'a', -1) <> 0 or
+        rpos("abc",    'a',  0) <> 0 or
+        rpos("abc",    'a',  1) <> 1 or
+        rpos("abc",    'a',  2) <> 1 or
+        rpos("abc",    'a',  3) <> 1 or
+        rpos("zab",    'a', -5) <> 0 or
+        rpos("zab",    'a', -1) <> 0 or
+        rpos("zab",    'a',  0) <> 0 or
+        rpos("zab",    'a',  1) <> 0 or
+        rpos("zab",    'a',  2) <> 2 or
+        rpos("zab",    'a',  3) <> 2 or
+        rpos("yza",    'a', -5) <> 0 or
+        rpos("yza",    'a', -1) <> 0 or
+        rpos("yza",    'a',  0) <> 0 or
+        rpos("yza",    'a',  1) <> 0 or
+        rpos("yza",    'a',  2) <> 0 or
+        rpos("yza",    'a',  3) <> 3 or
+        rpos("aab",    'a', -5) <> 0 or
+        rpos("aab",    'a', -1) <> 0 or
+        rpos("aab",    'a',  0) <> 0 or
+        rpos("aab",    'a',  1) <> 1 or
+        rpos("aab",    'a',  2) <> 2 or
+        rpos("aab",    'a',  3) <> 2 or
+        rpos("aba",    'a', -5) <> 0 or
+        rpos("aba",    'a', -1) <> 0 or
+        rpos("aba",    'a',  0) <> 0 or
+        rpos("aba",    'a',  1) <> 1 or
+        rpos("aba",    'a',  2) <> 1 or
+        rpos("aba",    'a',  3) <> 3 or
+        rpos("zaa",    'a', -5) <> 0 or
+        rpos("zaa",    'a', -1) <> 0 or
+        rpos("zaa",    'a',  0) <> 0 or
+        rpos("zaa",    'a',  1) <> 0 or
+        rpos("zaa",    'a',  2) <> 2 or
+        rpos("zaa",    'a',  3) <> 3 or
+        rpos("aaa",    'a', -5) <> 0 or
+        rpos("aaa",    'a', -1) <> 0 or
+        rpos("aaa",    'a',  0) <> 0 or
+        rpos("aaa",    'a',  1) <> 1 or
+        rpos("aaa",    'a',  2) <> 2 or
+        rpos("aaa",    'a',  3) <> 3 or
+        rpos("bcdef",  'a', -5) <> 0 or
+        rpos("bcdef",  'a', -1) <> 0 or
+        rpos("bcdef",  'a',  0) <> 0 or
+        rpos("bcdef",  'a',  1) <> 0 or
+        rpos("bcdef",  'a',  2) <> 0 or
+        rpos("bcdef",  'a',  3) <> 0 or
+        rpos("bcdef",  'a',  4) <> 0 or
+        rpos("bcdef",  'a',  5) <> 0 or
+        rpos("abcde",  'a', -5) <> 0 or
+        rpos("abcde",  'a', -1) <> 0 or
+        rpos("abcde",  'a',  0) <> 0 or
+        rpos("abcde",  'a',  1) <> 1 or
+        rpos("abcde",  'a',  2) <> 1 or
+        rpos("abcde",  'a',  3) <> 1 or
+        rpos("abcde",  'a',  4) <> 1 or
+        rpos("abcde",  'a',  5) <> 1 or
+        rpos("zabcd",  'a', -5) <> 0 or
+        rpos("zabcd",  'a', -1) <> 0 or
+        rpos("zabcd",  'a',  0) <> 0 or
+        rpos("zabcd",  'a',  1) <> 0 or
+        rpos("zabcd",  'a',  2) <> 2 or
+        rpos("zabcd",  'a',  3) <> 2 or
+        rpos("zabcd",  'a',  4) <> 2 or
+        rpos("zabcd",  'a',  5) <> 2 or
+        rpos("yzabc",  'a', -5) <> 0 or
+        rpos("yzabc",  'a', -1) <> 0 or
+        rpos("yzabc",  'a',  0) <> 0 or
+        rpos("yzabc",  'a',  1) <> 0 or
+        rpos("yzabc",  'a',  2) <> 0 or
+        rpos("yzabc",  'a',  3) <> 3 or
+        rpos("yzabc",  'a',  4) <> 3 or
+        rpos("yzabc",  'a',  5) <> 3 or
+        rpos("xyzab",  'a', -5) <> 0 or
+        rpos("xyzab",  'a', -1) <> 0 or
+        rpos("xyzab",  'a',  0) <> 0 or
+        rpos("xyzab",  'a',  1) <> 0 or
+        rpos("xyzab",  'a',  2) <> 0 or
+        rpos("xyzab",  'a',  3) <> 0 or
+        rpos("xyzab",  'a',  4) <> 4 or
+        rpos("xyzab",  'a',  5) <> 4 or
+        rpos("wxyza",  'a', -5) <> 0 or
+        rpos("wxyza",  'a', -1) <> 0 or
+        rpos("wxyza",  'a',  0) <> 0 or
+        rpos("wxyza",  'a',  1) <> 0 or
+        rpos("wxyza",  'a',  2) <> 0 or
+        rpos("wxyza",  'a',  3) <> 0 or
+        rpos("wxyza",  'a',  4) <> 0 or
+        rpos("wxyza",  'a',  5) <> 5 or
+        rpos("ababc",  'a', -5) <> 0 or
+        rpos("ababc",  'a', -1) <> 0 or
+        rpos("ababc",  'a',  0) <> 0 or
+        rpos("ababc",  'a',  1) <> 1 or
+        rpos("ababc",  'a',  2) <> 1 or
+        rpos("ababc",  'a',  3) <> 3 or
+        rpos("ababc",  'a',  4) <> 3 or
+        rpos("ababc",  'a',  5) <> 3 or
+        rpos("zabad",  'a', -5) <> 0 or
+        rpos("zabad",  'a', -1) <> 0 or
+        rpos("zabad",  'a',  0) <> 0 or
+        rpos("zabad",  'a',  1) <> 0 or
+        rpos("zabad",  'a',  2) <> 2 or
+        rpos("zabad",  'a',  3) <> 2 or
+        rpos("zabad",  'a',  4) <> 4 or
+        rpos("zabad",  'a',  5) <> 4 or
+        rpos("yzaba",  'a', -5) <> 0 or
+        rpos("yzaba",  'a', -1) <> 0 or
+        rpos("yzaba",  'a',  0) <> 0 or
+        rpos("yzaba",  'a',  1) <> 0 or
+        rpos("yzaba",  'a',  2) <> 0 or
+        rpos("yzaba",  'a',  3) <> 3 or
+        rpos("yzaba",  'a',  4) <> 3 or
+        rpos("yzaba",  'a',  5) <> 5 or
+        rpos("yzaab",  'a', -5) <> 0 or
+        rpos("yzaab",  'a', -1) <> 0 or
+        rpos("yzaab",  'a',  0) <> 0 or
+        rpos("yzaab",  'a',  1) <> 0 or
+        rpos("yzaab",  'a',  2) <> 0 or
+        rpos("yzaab",  'a',  3) <> 3 or
+        rpos("yzaab",  'a',  4) <> 4 or
+        rpos("yzaab",  'a',  5) <> 4 or
+        rpos("xyzaa",  'a', -5) <> 0 or
+        rpos("xyzaa",  'a', -1) <> 0 or
+        rpos("xyzaa",  'a',  0) <> 0 or
+        rpos("xyzaa",  'a',  1) <> 0 or
+        rpos("xyzaa",  'a',  2) <> 0 or
+        rpos("xyzaa",  'a',  3) <> 0 or
+        rpos("xyzaa",  'a',  4) <> 4 or
+        rpos("xyzaa",  'a',  5) <> 5 or
+        rpos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba",  'a', -5) <>  0 or
+        rpos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba",  'a', -1) <>  0 or
+        rpos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba",  'a',  0) <>  0 or
+        rpos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba",  'a',  1) <>  1 or
+        rpos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba",  'a',  2) <>  1 or
+        rpos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba",  'a',  9) <>  1 or
+        rpos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba",  'a', 50) <>  1 or
+        rpos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba",  'a', 51) <> 51 or
+        rpos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  'a', -5) <>  0 or
+        rpos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  'a', -1) <>  0 or
+        rpos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  'a',  0) <>  0 or
+        rpos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  'a',  1) <>  0 or
+        rpos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  'a',  2) <>  0 or
+        rpos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  'a', 25) <>  0 or
+        rpos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  'a', 26) <> 26 or
+        rpos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  'a', 27) <> 26 or
+        rpos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  'a', 50) <> 26 or
+        rpos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  'a', 51) <> 26 then
+      writeln(" ***** rpos(STRING, 'a', start) does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("rpos(string, char) works correct.");
+    end if;
+  end func;
+
+
+const proc: check_string_rpos_idx is func
+  local
+    var boolean: okay is TRUE;
+  begin
     if  rpos("",       "", -5) <> 0 or
         rpos("",       "", -1) <> 0 or
         rpos("",       "",  0) <> 0 or
@@ -14396,256 +16480,16 @@ const proc: check_string_funcs is func
       writeln(" ***** rpos(STRING, \"aa\", start) does not work correct.");
       okay := FALSE;
     end if;
-    if  pos("",       '\0;') <> 0 or
-        pos("a",      '\0;') <> 0 or
-        pos("ab",     '\0;') <> 0 or
-        pos("abc",    '\0;') <> 0 or
-        pos("abcde",  '\0;') <> 0 or
-        pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", '\0;') <> 0 or
-        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", '\0;') <> 0 then
-      writeln(" ***** pos(STRING, \'\\0;\') does not work correct.");
-      okay := FALSE;
+    if okay then
+      writeln("rpos(string) with start index works correct.");
     end if;
-    if  pos("\4096;\0;\0;", '\4096;') <> 1 or
-        pos("\0;\4096;\0;", '\4096;') <> 2 or
-        pos("\0;\0;\4096;", '\4096;') <> 3 then
-      writeln(" ***** pos(STRING, \'\\4096;\') does not work correct.");
-      okay := FALSE;
-    end if;
-    if  pos("",       'a') <> 0 or
-        pos("b",      'a') <> 0 or
-        pos("a",      'a') <> 1 or
-        pos("bc",     'a') <> 0 or
-        pos("ab",     'a') <> 1 or
-        pos("za",     'a') <> 2 or
-        pos("aa",     'a') <> 1 or
-        pos("bcd",    'a') <> 0 or
-        pos("abc",    'a') <> 1 or
-        pos("zab",    'a') <> 2 or
-        pos("yza",    'a') <> 3 or
-        pos("aab",    'a') <> 1 or
-        pos("aba",    'a') <> 1 or
-        pos("zaa",    'a') <> 2 or
-        pos("aaa",    'a') <> 1 or
-        pos("bcdef",  'a') <> 0 or
-        pos("abcde",  'a') <> 1 or
-        pos("zabcd",  'a') <> 2 or
-        pos("yzabc",  'a') <> 3 or
-        pos("xyzab",  'a') <> 4 or
-        pos("wxyza",  'a') <> 5 or
-        pos("ababc",  'a') <> 1 or
-        pos("zabad",  'a') <> 2 or
-        pos("yzaba",  'a') <> 3 or
-        pos("yzaab",  'a') <> 3 or
-        pos("xyzaa",  'a') <> 4 or
-        pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", 'a') <> 1 or
-        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", 'a') <> 26 then
-      writeln(" ***** pos(STRING, \'a\') does not work correct.");
-      okay := FALSE;
-    end if;
-    if  pos("",       'a', 1) <> 0 or
-        pos("",       'a', 2) <> 0 or
-        pos("",       'a', 9) <> 0 or
-        pos("b",      'a', 1) <> 0 or
-        pos("b",      'a', 2) <> 0 or
-        pos("b",      'a', 9) <> 0 or
-        pos("a",      'a', 1) <> 1 or
-        pos("a",      'a', 2) <> 0 or
-        pos("a",      'a', 9) <> 0 or
-        pos("bc",     'a', 1) <> 0 or
-        pos("bc",     'a', 2) <> 0 or
-        pos("bc",     'a', 3) <> 0 or
-        pos("bc",     'a', 9) <> 0 or
-        pos("ab",     'a', 1) <> 1 or
-        pos("ab",     'a', 2) <> 0 or
-        pos("ab",     'a', 3) <> 0 or
-        pos("ab",     'a', 9) <> 0 or
-        pos("za",     'a', 1) <> 2 or
-        pos("za",     'a', 2) <> 2 or
-        pos("za",     'a', 3) <> 0 or
-        pos("za",     'a', 9) <> 0 or
-        pos("aa",     'a', 1) <> 1 or
-        pos("aa",     'a', 2) <> 2 or
-        pos("aa",     'a', 3) <> 0 or
-        pos("aa",     'a', 9) <> 0 or
-        pos("bcd",    'a', 1) <> 0 or
-        pos("bcd",    'a', 2) <> 0 or
-        pos("bcd",    'a', 3) <> 0 or
-        pos("bcd",    'a', 4) <> 0 or
-        pos("bcd",    'a', 9) <> 0 or
-        pos("abc",    'a', 1) <> 1 or
-        pos("abc",    'a', 2) <> 0 or
-        pos("abc",    'a', 3) <> 0 or
-        pos("abc",    'a', 4) <> 0 or
-        pos("abc",    'a', 9) <> 0 or
-        pos("zab",    'a', 1) <> 2 or
-        pos("zab",    'a', 2) <> 2 or
-        pos("zab",    'a', 3) <> 0 or
-        pos("zab",    'a', 4) <> 0 or
-        pos("zab",    'a', 9) <> 0 or
-        pos("yza",    'a', 1) <> 3 or
-        pos("yza",    'a', 2) <> 3 or
-        pos("yza",    'a', 3) <> 3 or
-        pos("yza",    'a', 4) <> 0 or
-        pos("yza",    'a', 9) <> 0 or
-        pos("aab",    'a', 1) <> 1 or
-        pos("aab",    'a', 2) <> 2 or
-        pos("aab",    'a', 3) <> 0 or
-        pos("aab",    'a', 4) <> 0 or
-        pos("aab",    'a', 9) <> 0 or
-        pos("aba",    'a', 1) <> 1 or
-        pos("aba",    'a', 2) <> 3 or
-        pos("aba",    'a', 3) <> 3 or
-        pos("aba",    'a', 4) <> 0 or
-        pos("aba",    'a', 9) <> 0 or
-        pos("zaa",    'a', 1) <> 2 or
-        pos("zaa",    'a', 2) <> 2 or
-        pos("zaa",    'a', 3) <> 3 or
-        pos("zaa",    'a', 4) <> 0 or
-        pos("zaa",    'a', 9) <> 0 or
-        pos("aaa",    'a', 1) <> 1 or
-        pos("aaa",    'a', 2) <> 2 or
-        pos("aaa",    'a', 3) <> 3 or
-        pos("aaa",    'a', 4) <> 0 or
-        pos("aaa",    'a', 9) <> 0 or
-        pos("bcdef",  'a', 1) <> 0 or
-        pos("bcdef",  'a', 2) <> 0 or
-        pos("bcdef",  'a', 3) <> 0 or
-        pos("bcdef",  'a', 4) <> 0 or
-        pos("bcdef",  'a', 5) <> 0 or
-        pos("bcdef",  'a', 6) <> 0 or
-        pos("bcdef",  'a', 9) <> 0 or
-        pos("abcde",  'a', 1) <> 1 or
-        pos("abcde",  'a', 2) <> 0 or
-        pos("abcde",  'a', 3) <> 0 or
-        pos("abcde",  'a', 4) <> 0 or
-        pos("abcde",  'a', 5) <> 0 or
-        pos("abcde",  'a', 6) <> 0 or
-        pos("abcde",  'a', 9) <> 0 or
-        pos("zabcd",  'a', 1) <> 2 or
-        pos("zabcd",  'a', 2) <> 2 or
-        pos("zabcd",  'a', 3) <> 0 or
-        pos("zabcd",  'a', 4) <> 0 or
-        pos("zabcd",  'a', 5) <> 0 or
-        pos("zabcd",  'a', 6) <> 0 or
-        pos("zabcd",  'a', 9) <> 0 or
-        pos("yzabc",  'a', 1) <> 3 or
-        pos("yzabc",  'a', 2) <> 3 or
-        pos("yzabc",  'a', 3) <> 3 or
-        pos("yzabc",  'a', 4) <> 0 or
-        pos("yzabc",  'a', 5) <> 0 or
-        pos("yzabc",  'a', 6) <> 0 or
-        pos("yzabc",  'a', 9) <> 0 or
-        pos("xyzab",  'a', 1) <> 4 or
-        pos("xyzab",  'a', 2) <> 4 or
-        pos("xyzab",  'a', 3) <> 4 or
-        pos("xyzab",  'a', 4) <> 4 or
-        pos("xyzab",  'a', 5) <> 0 or
-        pos("xyzab",  'a', 6) <> 0 or
-        pos("xyzab",  'a', 9) <> 0 or
-        pos("wxyza",  'a', 1) <> 5 or
-        pos("wxyza",  'a', 2) <> 5 or
-        pos("wxyza",  'a', 3) <> 5 or
-        pos("wxyza",  'a', 4) <> 5 or
-        pos("wxyza",  'a', 5) <> 5 or
-        pos("wxyza",  'a', 6) <> 0 or
-        pos("wxyza",  'a', 9) <> 0 or
-        pos("ababc",  'a', 1) <> 1 or
-        pos("ababc",  'a', 2) <> 3 or
-        pos("ababc",  'a', 3) <> 3 or
-        pos("ababc",  'a', 4) <> 0 or
-        pos("ababc",  'a', 5) <> 0 or
-        pos("ababc",  'a', 6) <> 0 or
-        pos("ababc",  'a', 9) <> 0 or
-        pos("zabad",  'a', 1) <> 2 or
-        pos("zabad",  'a', 2) <> 2 or
-        pos("zabad",  'a', 3) <> 4 or
-        pos("zabad",  'a', 4) <> 4 or
-        pos("zabad",  'a', 5) <> 0 or
-        pos("zabad",  'a', 6) <> 0 or
-        pos("zabad",  'a', 9) <> 0 or
-        pos("yzaba",  'a', 1) <> 3 or
-        pos("yzaba",  'a', 2) <> 3 or
-        pos("yzaba",  'a', 3) <> 3 or
-        pos("yzaba",  'a', 4) <> 5 or
-        pos("yzaba",  'a', 5) <> 5 or
-        pos("yzaba",  'a', 6) <> 0 or
-        pos("yzaba",  'a', 9) <> 0 or
-        pos("yzaab",  'a', 1) <> 3 or
-        pos("yzaab",  'a', 2) <> 3 or
-        pos("yzaab",  'a', 3) <> 3 or
-        pos("yzaab",  'a', 4) <> 4 or
-        pos("yzaab",  'a', 5) <> 0 or
-        pos("yzaab",  'a', 6) <> 0 or
-        pos("yzaab",  'a', 9) <> 0 or
-        pos("xyzaa",  'a', 1) <> 4 or
-        pos("xyzaa",  'a', 2) <> 4 or
-        pos("xyzaa",  'a', 3) <> 4 or
-        pos("xyzaa",  'a', 4) <> 4 or
-        pos("xyzaa",  'a', 5) <> 5 or
-        pos("xyzaa",  'a', 6) <> 0 or
-        pos("xyzaa",  'a', 9) <> 0 or
-        pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba",  'a',  1) <>  1 or
-        pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba",  'a',  2) <> 51 or
-        pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba",  'a',  9) <> 51 or
-        pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba",  'a', 50) <> 51 or
-        pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba",  'a', 51) <> 51 or
-        pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba",  'a', 52) <>  0 or
-        pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba",  'a', 99) <>  0 or
-        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  'a',  1) <> 26 or
-        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  'a',  2) <> 26 or
-        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  'a', 25) <> 26 or
-        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  'a', 26) <> 26 or
-        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  'a', 27) <>  0 or
-        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz",  'a', 99) <>  0 then
-      writeln(" ***** pos(STRING, \'a\', start) does not work correct.");
-      okay := FALSE;
-    end if;
-    if  rpos("",       '\0;') <> 0 or
-        rpos("a",      '\0;') <> 0 or
-        rpos("ab",     '\0;') <> 0 or
-        rpos("abc",    '\0;') <> 0 or
-        rpos("abcde",  '\0;') <> 0 or
-        rpos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", '\0;') <> 0 or
-        rpos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", '\0;') <> 0 then
-      writeln(" ***** rpos(STRING, '\\0;') does not work correct.");
-      okay := FALSE;
-    end if;
-    if  rpos("\0;\4096;\0;",  '\4096;') <> 2 then
-      writeln(" ***** rpos(STRING, '\\4096;') does not work correct.");
-      okay := FALSE;
-    end if;
-    if  rpos("",       'a') <> 0 or
-        rpos("b",      'a') <> 0 or
-        rpos("a",      'a') <> 1 or
-        rpos("bc",     'a') <> 0 or
-        rpos("ab",     'a') <> 1 or
-        rpos("za",     'a') <> 2 or
-        rpos("aa",     'a') <> 2 or
-        rpos("bcd",    'a') <> 0 or
-        rpos("abc",    'a') <> 1 or
-        rpos("zab",    'a') <> 2 or
-        rpos("yza",    'a') <> 3 or
-        rpos("aab",    'a') <> 2 or
-        rpos("aba",    'a') <> 3 or
-        rpos("zaa",    'a') <> 3 or
-        rpos("aaa",    'a') <> 3 or
-        rpos("bcdef",  'a') <> 0 or
-        rpos("abcde",  'a') <> 1 or
-        rpos("zabcd",  'a') <> 2 or
-        rpos("yzabc",  'a') <> 3 or
-        rpos("xyzab",  'a') <> 4 or
-        rpos("wxyza",  'a') <> 5 or
-        rpos("ababc",  'a') <> 3 or
-        rpos("zabad",  'a') <> 4 or
-        rpos("yzaba",  'a') <> 5 or
-        rpos("yzaab",  'a') <> 4 or
-        rpos("xyzaa",  'a') <> 5 or
-        rpos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", 'a') <> 51 or
-        rpos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz", 'a') <> 26 then
-      writeln(" ***** rpos(STRING, 'a') does not work correct.");
-      okay := FALSE;
-    end if;
+  end func;
+
+
+const proc: check_string_funcs is func
+  local
+    var boolean: okay is TRUE;
+  begin
     if  replace(         "abcd",               "",    "d")  <> "abcd" or
         replace(         "abcd",               "b",   "d")  <> "adcd" or
         replace(         "abcd",               "p",   "b")  <> "abcd" or
@@ -16917,6 +18761,12 @@ const proc: main is func
     check_string_concat;
     check_string_mult;
     check_string_ops;
+    check_string_pos;
+    check_string_char_pos;
+    check_string_pos_idx;
+    check_string_rpos;
+    check_string_char_rpos;
+    check_string_rpos_idx;
     check_string_funcs;
     check_string_split;
     check_string_join;

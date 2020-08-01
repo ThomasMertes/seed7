@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  str_rtl.c     Primitive actions for the string type.            */
-/*  Copyright (C) 1989 - 2018  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2019  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -2464,6 +2464,8 @@ intType strIPos (const const_striType mainStri, const const_striType searched,
         if (searched_size >= BOYER_MOORE_SEARCHED_STRI_THRESHOLD &&
             main_size >= BOYER_MOORE_MAIN_STRI_THRESHOLD) {
           return strIPos2(mainStri, searched, fromIndex);
+        } else if (searched_size == 1) {
+          return strChIPos(mainStri, searched->mem[0], fromIndex);
         } else {
           searched_mem = searched->mem;
           ch_n = searched_mem[searched_size - 1];
@@ -2659,10 +2661,10 @@ striType strLowTemp (const striType stri)
 
 
 /**
- *  Pad a string with spaces at the left side up to pad_size.
+ *  Pad a string with spaces at the left side up to padSize.
  *  @return the string left padded with spaces.
  */
-striType strLpad (const const_striType stri, const intType pad_size)
+striType strLpad (const const_striType stri, const intType padSize)
 
   {
     memSizeType striSize;
@@ -2670,26 +2672,26 @@ striType strLpad (const const_striType stri, const intType pad_size)
 
   /* strLpad */
     striSize = stri->size;
-    if (pad_size > 0 && (uintType) pad_size > striSize) {
-      if (unlikely((uintType) pad_size > MAX_STRI_LEN ||
-                   !ALLOC_STRI_SIZE_OK(result, (memSizeType) pad_size))) {
+    if (padSize > 0 && (uintType) padSize > striSize) {
+      if (unlikely((uintType) padSize > MAX_STRI_LEN ||
+                   !ALLOC_STRI_SIZE_OK(result, (memSizeType) padSize))) {
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
-        result->size = (memSizeType) pad_size;
+        result->size = (memSizeType) padSize;
 #if LPAD_WITH_MEMSET_TO_STRELEM
-        memset_to_strelem(result->mem, ' ', (memSizeType) pad_size - striSize);
+        memset_to_strelem(result->mem, ' ', (memSizeType) padSize - striSize);
 #else
         {
           strElemType *elem = result->mem;
-          memSizeType idx = (memSizeType) pad_size - striSize - 1;
+          memSizeType idx = (memSizeType) padSize - striSize - 1;
 
           do {
             elem[idx] = (strElemType) ' ';
           } while (idx-- != 0);
         }
 #endif
-        memcpy(&result->mem[(memSizeType) pad_size - striSize], stri->mem,
+        memcpy(&result->mem[(memSizeType) padSize - striSize], stri->mem,
                striSize * sizeof(strElemType));
       } /* if */
     } else {
@@ -2706,12 +2708,12 @@ striType strLpad (const const_striType stri, const intType pad_size)
 
 
 /**
- *  Pad a string with spaces at the left side up to pad_size.
+ *  Pad a string with spaces at the left side up to padSize.
  *  StrLpadTemp is used by the compiler if 'stri' is temporary
  *  value that can be reused.
  *  @return the string left padded with spaces.
  */
-striType strLpadTemp (const striType stri, const intType pad_size)
+striType strLpadTemp (const striType stri, const intType padSize)
 
   {
     memSizeType striSize;
@@ -2719,26 +2721,26 @@ striType strLpadTemp (const striType stri, const intType pad_size)
 
   /* strLpadTemp */
     striSize = stri->size;
-    if (pad_size > 0 && (uintType) pad_size > striSize) {
-      if (unlikely((uintType) pad_size > MAX_STRI_LEN ||
-                   !ALLOC_STRI_SIZE_OK(result, (memSizeType) pad_size))) {
+    if (padSize > 0 && (uintType) padSize > striSize) {
+      if (unlikely((uintType) padSize > MAX_STRI_LEN ||
+                   !ALLOC_STRI_SIZE_OK(result, (memSizeType) padSize))) {
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
-        result->size = (memSizeType) pad_size;
+        result->size = (memSizeType) padSize;
 #if LPAD_WITH_MEMSET_TO_STRELEM
-        memset_to_strelem(result->mem, ' ', (memSizeType) pad_size - striSize);
+        memset_to_strelem(result->mem, ' ', (memSizeType) padSize - striSize);
 #else
         {
           strElemType *elem = result->mem;
-          memSizeType idx = (memSizeType) pad_size - striSize - 1;
+          memSizeType idx = (memSizeType) padSize - striSize - 1;
 
           do {
             elem[idx] = (strElemType) ' ';
           } while (idx-- != 0);
         }
 #endif
-        memcpy(&result->mem[(memSizeType) pad_size - striSize], stri->mem,
+        memcpy(&result->mem[(memSizeType) padSize - striSize], stri->mem,
                striSize * sizeof(strElemType));
         FREE_STRI(stri, striSize);
       } /* if */
@@ -2751,10 +2753,10 @@ striType strLpadTemp (const striType stri, const intType pad_size)
 
 
 /**
- *  Pad a string with zeroes at the left side up to pad_size.
+ *  Pad a string with zeroes at the left side up to padSize.
  *  @return the string left padded with zeroes.
  */
-striType strLpad0 (const const_striType stri, const intType pad_size)
+striType strLpad0 (const const_striType stri, const intType padSize)
 
   {
     memSizeType striSize;
@@ -2765,16 +2767,16 @@ striType strLpad0 (const const_striType stri, const intType pad_size)
 
   /* strLpad0 */
     striSize = stri->size;
-    if (pad_size > 0 && (uintType) pad_size > striSize) {
-      if (unlikely((uintType) pad_size > MAX_STRI_LEN ||
-                   !ALLOC_STRI_SIZE_OK(result, (memSizeType) pad_size))) {
+    if (padSize > 0 && (uintType) padSize > striSize) {
+      if (unlikely((uintType) padSize > MAX_STRI_LEN ||
+                   !ALLOC_STRI_SIZE_OK(result, (memSizeType) padSize))) {
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
-        result->size = (memSizeType) pad_size;
+        result->size = (memSizeType) padSize;
         sourceElem = stri->mem;
         destElem = result->mem;
-        len = (memSizeType) pad_size - striSize;
+        len = (memSizeType) padSize - striSize;
         if (striSize != 0 && (sourceElem[0] == '-' || sourceElem[0] == '+')) {
           *destElem++ = sourceElem[0];
           sourceElem++;
@@ -2799,12 +2801,12 @@ striType strLpad0 (const const_striType stri, const intType pad_size)
 
 
 /**
- *  Pad a string with zeroes at the left side up to pad_size.
+ *  Pad a string with zeroes at the left side up to padSize.
  *  StrLpad0Temp is used by the compiler if 'stri' is temporary
  *  value that can be reused.
  *  @return the string left padded with zeroes.
  */
-striType strLpad0Temp (const striType stri, const intType pad_size)
+striType strLpad0Temp (const striType stri, const intType padSize)
 
   {
     memSizeType striSize;
@@ -2815,16 +2817,16 @@ striType strLpad0Temp (const striType stri, const intType pad_size)
 
   /* strLpad0Temp */
     striSize = stri->size;
-    if (pad_size > 0 && (uintType) pad_size > striSize) {
-      if (unlikely((uintType) pad_size > MAX_STRI_LEN ||
-                   !ALLOC_STRI_SIZE_OK(result, (memSizeType) pad_size))) {
+    if (padSize > 0 && (uintType) padSize > striSize) {
+      if (unlikely((uintType) padSize > MAX_STRI_LEN ||
+                   !ALLOC_STRI_SIZE_OK(result, (memSizeType) padSize))) {
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
-        result->size = (memSizeType) pad_size;
+        result->size = (memSizeType) padSize;
         sourceElem = stri->mem;
         destElem = result->mem;
-        len = (memSizeType) pad_size - striSize;
+        len = (memSizeType) padSize - striSize;
         if (striSize != 0 && (sourceElem[0] == '-' || sourceElem[0] == '+')) {
           *destElem++ = sourceElem[0];
           sourceElem++;
@@ -3059,6 +3061,8 @@ intType strPos (const const_striType mainStri, const const_striType searched)
       if (searched_size >= BOYER_MOORE_SEARCHED_STRI_THRESHOLD &&
           main_size >= BOYER_MOORE_MAIN_STRI_THRESHOLD) {
         return strPos2(mainStri, searched);
+      } else if (searched_size == 1) {
+        return strChPos(mainStri, searched->mem[0]);
       } else {
         searched_mem = searched->mem;
         ch_n = searched_mem[searched_size - 1];
@@ -3608,10 +3612,10 @@ intType strRIPos (const const_striType mainStri, const const_striType searched,
 
 
 /**
- *  Pad a string with spaces at the right side up to pad_size.
+ *  Pad a string with spaces at the right side up to padSize.
  *  @return the string right padded with spaces.
  */
-striType strRpad (const const_striType stri, const intType pad_size)
+striType strRpad (const const_striType stri, const intType padSize)
 
   {
     memSizeType striSize;
@@ -3619,17 +3623,17 @@ striType strRpad (const const_striType stri, const intType pad_size)
 
   /* strRpad */
     striSize = stri->size;
-    if (pad_size > 0 && (uintType) pad_size > striSize) {
-      if (unlikely((uintType) pad_size > MAX_STRI_LEN ||
-                   !ALLOC_STRI_SIZE_OK(result, (memSizeType) pad_size))) {
+    if (padSize > 0 && (uintType) padSize > striSize) {
+      if (unlikely((uintType) padSize > MAX_STRI_LEN ||
+                   !ALLOC_STRI_SIZE_OK(result, (memSizeType) padSize))) {
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
-        result->size = (memSizeType) pad_size;
+        result->size = (memSizeType) padSize;
         memcpy(result->mem, stri->mem, striSize * sizeof(strElemType));
         {
           strElemType *elem = &result->mem[striSize];
-          memSizeType len = (memSizeType) pad_size - striSize;
+          memSizeType len = (memSizeType) padSize - striSize;
 
           while (len--) {
             *elem++ = (strElemType) ' ';

@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2014  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2019  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: Library                                                 */
 /*  File: seed7/src/biglib.c                                        */
-/*  Changes: 2005, 2006, 2013, 2014  Thomas Mertes                  */
+/*  Changes: 2005, 2006, 2013 - 2018  Thomas Mertes                 */
 /*  Content: All primitive actions for the bigInteger type.         */
 /*                                                                  */
 /********************************************************************/

@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  dir_rtl.c     Primitive actions for the directory type.         */
-/*  Copyright (C) 1989 - 2008  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2011, 2014 - 2016, 2018  Thomas Mertes     */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */

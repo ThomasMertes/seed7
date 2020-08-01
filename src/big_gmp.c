@@ -902,8 +902,9 @@ intType bigHashCode (const const_bigIntType big1)
     size = mpz_size(big1);
     if (size == 0) {
       result = 0;
+    } else {
+      result = (intType) (mpz_getlimbn(big1, 0) << 5 ^ size << 3 ^ mpz_getlimbn(big1, size - 1));
     } /* if */
-    result = (intType) (mpz_getlimbn(big1, 0) << 5 ^ size << 3 ^ mpz_getlimbn(big1, size - 1));
     return result;
   } /* bigHashCode */
 

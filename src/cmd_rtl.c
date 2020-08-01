@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  cmd_rtl.c     Directory, file and other system functions.       */
-/*  Copyright (C) 1989 - 2011  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2016, 2018, 2019  Thomas Mertes            */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -54,6 +54,9 @@
 #ifdef OS_CHMOD_INCLUDE_IO_H
 #include "io.h"
 #endif
+#endif
+#ifdef DEFINE_SYSTEM_FUNCTION
+#include "emscripten.h"
 #endif
 #include "errno.h"
 
@@ -115,6 +118,14 @@
 #ifndef LINKER_FLAGS
 #define LINKER_FLAGS ""
 #endif
+#ifndef LINKED_PROGRAM_EXTENSION
+#ifdef EXECUTABLE_FILE_EXTENSION
+#define LINKED_PROGRAM_EXTENSION EXECUTABLE_FILE_EXTENSION
+#else
+#define LINKED_PROGRAM_EXTENSION ""
+#endif
+#endif
+
 
 #ifndef INT64TYPE
 #define INT64TYPE_STRI ""
@@ -156,6 +167,8 @@
 #if DECLARE_OS_ENVIRON
 extern os_striType *os_environ;
 #endif
+
+static const os_charType path_variable[] = {'P', 'A', 'T', 'H', 0};
 
 
 
@@ -948,11 +961,56 @@ static void setEnvironmentVariable (const const_striType name, const const_striT
 
 
 
+#if SEARCH_PATH_DELIMITER != 0
+#define getSearchPathDelimiter(path) SEARCH_PATH_DELIMITER
+#else
+
+
+
+static os_charType getSearchPathDelimiter (os_striType path)
+
+  {
+    static os_charType searchPathDelimiter = 0;
+    boolType colonFound = FALSE;
+
+  /* getSearchPathDelimiter */
+    if (searchPathDelimiter == 0) {
+      if (SEARCH_PATH_DELIMITER != 0) {
+        searchPathDelimiter = SEARCH_PATH_DELIMITER;
+      } else if (path != NULL) {
+        /* Try to guess the search path delimiter. */
+        if (((path[0] >= 'a' && path[0] <= 'z') ||
+             (path[0] >= 'A' && path[0] <= 'Z')) && path[1] == ':') {
+          searchPathDelimiter = ';';
+        } else {
+          while (*path != '\0' && searchPathDelimiter == 0) {
+            if (*path == ';' &&
+                ((path[1] >= 'a' && path[1] <= 'z') ||
+                 (path[1] >= 'A' && path[1] <= 'Z')) && path[2] == ':') {
+              searchPathDelimiter = ';';
+            } else if (*path == ':') {
+              colonFound = TRUE;
+            } /* if */
+            path++;
+          } /* while */
+          if (searchPathDelimiter == 0 && colonFound) {
+            searchPathDelimiter = ':';
+          } /* if */
+        } /* if */
+      } /* if */
+    } /* if */
+    return searchPathDelimiter;
+  } /* getSearchPathDelimiter */
+
+#endif
+
+
+
 static rtlArrayType getSearchPath (errInfoType *err_info)
 
   {
-    static const os_charType path_variable[] = {'P', 'A', 'T', 'H', 0};
-    os_striType path_environment_variable;
+    os_striType search_path_value;
+    os_charType searchPathDelimiter;
     memSizeType path_length;
     os_striType path_copy;
     os_striType path_start;
@@ -963,21 +1021,29 @@ static rtlArrayType getSearchPath (errInfoType *err_info)
 
   /* getSearchPath */
     logFunction(printf("getSearchPath(*)\n"););
-    if (ALLOC_RTL_ARRAY(path_array, INITAL_ARRAY_SIZE)) {
+    search_path_value = os_getenv(path_variable);
+    searchPathDelimiter = getSearchPathDelimiter(search_path_value);
+    if (unlikely(searchPathDelimiter == 0)) {
+      logError(printf("getSearchPath(*): "
+                      "Unable to determine the search path delimiter."););
+      path_array = NULL;
+      *err_info = FILE_ERROR;
+    } else if (unlikely(!ALLOC_RTL_ARRAY(path_array, INITAL_ARRAY_SIZE))) {
+      *err_info = MEMORY_ERROR;
+    } else {
       path_array->min_position = 1;
       path_array->max_position = INITAL_ARRAY_SIZE;
       used_max_position = 0;
-      path_environment_variable = os_getenv(path_variable);
-      if (path_environment_variable != NULL) {
-        /* printf("path: " FMT_S_OS "\n", path_environment_variable); */
-        path_length = os_stri_strlen(path_environment_variable);
+      if (search_path_value != NULL) {
+        /* printf("path: " FMT_S_OS "\n", search_path_value); */
+        path_length = os_stri_strlen(search_path_value);
         if (unlikely(!os_stri_alloc(path_copy, path_length))) {
           *err_info = MEMORY_ERROR;
         } else {
-          os_stri_strcpy(path_copy, path_environment_variable);
+          os_stri_strcpy(path_copy, search_path_value);
           path_start = path_copy;
           do {
-            path_end = os_stri_strchr(path_start, SEARCH_PATH_DELIMITER);
+            path_end = os_stri_strchr(path_start, searchPathDelimiter);
             if (path_end != NULL) {
               *path_end = '\0';
             } /* if */
@@ -1002,14 +1068,14 @@ static rtlArrayType getSearchPath (errInfoType *err_info)
           } while (path_start != NULL && path_array != NULL);
           os_stri_free(path_copy);
         } /* if */
-        os_getenv_string_free(path_environment_variable);
       } /* if */
       path_array = completeRtlStriArray(path_array, used_max_position);
       if (unlikely(path_array == NULL)) {
         *err_info = MEMORY_ERROR;
       } /* if */
-    } else {
-      *err_info = MEMORY_ERROR;
+    } /* if */
+    if (search_path_value != NULL) {
+      os_getenv_string_free(search_path_value);
     } /* if */
     logFunction(printf("getSearchPath --> " FMT_U_MEM
                        " (size=" FMT_U_MEM ", err_info=%d)\n",
@@ -1024,6 +1090,7 @@ static rtlArrayType getSearchPath (errInfoType *err_info)
 static void setSearchPath (rtlArrayType searchPath, errInfoType *err_info)
 
   {
+    os_charType searchPathDelimiter;
     memSizeType numElements;
     memSizeType idx;
     memSizeType length = 0;
@@ -1033,39 +1100,54 @@ static void setSearchPath (rtlArrayType searchPath, errInfoType *err_info)
     striType pathVariableName;
 
   /* setSearchPath */
-    numElements = arraySize(searchPath);
-    if (numElements != 0) {
-      for (idx = 0; idx < numElements; idx++) {
-        length += searchPath->arr[idx].value.striValue->size;
-      } /* for */
-      length += numElements - 1;
+    logFunction(printf("setSearchPath(" FMT_U_MEM " (size = " FMT_U_MEM "), *)\n",
+                       (memSizeType) searchPath,
+                       searchPath != NULL ? arraySize(searchPath) : 0););
+    searchPathDelimiter = getSearchPathDelimiter(NULL);
+    if (searchPathDelimiter == 0) {
+      searchPathDelimiter = getSearchPathDelimiter(os_getenv(path_variable));
     } /* if */
-    if (!ALLOC_STRI_SIZE_OK(pathStri, length)) {
-      *err_info = MEMORY_ERROR;
+    if (unlikely(searchPathDelimiter == 0)) {
+      logError(printf("setSearchPath(*): "
+                      "Unable to determine the search path delimiter."););
+      *err_info = FILE_ERROR;
     } else {
-      pathStri->size = length;
+      numElements = arraySize(searchPath);
       if (numElements != 0) {
-        pathElement = searchPath->arr[0].value.striValue;
-        memcpy(pathStri->mem, pathElement->mem, pathElement->size * sizeof(strElemType));
-        pos = pathElement->size;
-        for (idx = 1; idx < numElements; idx++) {
-          pathStri->mem[pos] = (charType) SEARCH_PATH_DELIMITER;
-          pos++;
-          pathElement = searchPath->arr[idx].value.striValue;
-          memcpy(&pathStri->mem[pos], pathElement->mem,
-                 pathElement->size * sizeof(strElemType));
-          pos += pathElement->size;
+        for (idx = 0; idx < numElements; idx++) {
+          length += searchPath->arr[idx].value.striValue->size;
         } /* for */
+        length += numElements - 1;
       } /* if */
-      pathVariableName = CSTRI_LITERAL_TO_STRI("PATH");
-      if (pathVariableName == NULL) {
+      if (!ALLOC_STRI_SIZE_OK(pathStri, length)) {
         *err_info = MEMORY_ERROR;
       } else {
-        setEnvironmentVariable(pathVariableName, pathStri, err_info);
-        FREE_STRI(pathVariableName, pathVariableName->size);
+        pathStri->size = length;
+        if (numElements != 0) {
+          pathElement = searchPath->arr[0].value.striValue;
+          memcpy(pathStri->mem, pathElement->mem, pathElement->size * sizeof(strElemType));
+          pos = pathElement->size;
+          for (idx = 1; idx < numElements; idx++) {
+            pathStri->mem[pos] = (charType) searchPathDelimiter;
+            pos++;
+            pathElement = searchPath->arr[idx].value.striValue;
+            memcpy(&pathStri->mem[pos], pathElement->mem,
+                   pathElement->size * sizeof(strElemType));
+            pos += pathElement->size;
+          } /* for */
+        } /* if */
+        pathVariableName = CSTRI_LITERAL_TO_STRI("PATH");
+        if (pathVariableName == NULL) {
+          *err_info = MEMORY_ERROR;
+        } else {
+          setEnvironmentVariable(pathVariableName, pathStri, err_info);
+          FREE_STRI(pathVariableName, pathVariableName->size);
+        } /* if */
+        FREE_STRI(pathStri, pathStri->size);
       } /* if */
-      FREE_STRI(pathStri, pathStri->size);
     } /* if */
+    logFunction(printf("setSearchPath --> (err_info=%d)\n",
+                       *err_info););
   } /* setSearchPath */
 
 
@@ -1220,6 +1302,55 @@ void initEmulatedCwd (errInfoType *err_info)
     } /* if */
     logFunction(printf("initEmulatedCwd(%d) -->\n", *err_info););
   } /* initEmulatedCwd */
+#endif
+
+
+
+#ifdef DEFINE_SYSTEM_FUNCTION
+static int systemForNodeJs (const char *command)
+
+  { /* systemForNodeJs */
+    logFunction(printf("systemForNodeJs(\"%s\")\n", command););
+    EM_ASM_({
+      var cmd = Module.UTF8ToString($0);
+      // console.log('I received: ' + cmd);
+      if (typeof require === "function") {
+        var child_process;
+        try {
+          child_process = require('child_process');
+        } catch (e) {
+          child_process = null;
+        }
+        if (child_process !== null) {
+          var bslash = String.fromCharCode(92);
+          var currDir = process.cwd().replace(new RegExp(bslash + bslash, "g"), '/');
+          var newDir = FS.cwd();
+          // console.log('emcc cwd: ' + newDir);
+          // console.log('node cwd: ' + currDir);
+          if (currDir.charAt(1) === ':' && currDir.charAt(2) === '/') {
+            if (newDir !== '/') {
+              if (newDir.charAt(0) === '/' && newDir.charAt(1).match(/[a-z]/i) && newDir.charAt(2) === '/') {
+                newDir = newDir.charAt(1) + ':' + newDir.substring(2);
+              }
+            }
+          }
+          try {
+            process.chdir(newDir);
+          } catch (e) {
+            // console.log('chdir: ' + e);
+          }
+          var exec_result = child_process.execSync(cmd);
+          // console.log('exec_result: ' + exec_result);
+        }
+      }
+    }, command);
+    return 1;
+  } /* systemForNodeJs */
+
+#ifdef os_system
+#undef os_system
+#endif
+#define os_system(cmd) systemForNodeJs(cmd)
 #endif
 
 
@@ -1464,6 +1595,8 @@ striType cmdConfigValue (const const_striType name)
       opt = LIBRARY_FILE_EXTENSION;
     } else if (strcmp(opt_name, "EXECUTABLE_FILE_EXTENSION") == 0) {
       opt = EXECUTABLE_FILE_EXTENSION;
+    } else if (strcmp(opt_name, "LINKED_PROGRAM_EXTENSION") == 0) {
+      opt = LINKED_PROGRAM_EXTENSION;
     } else if (strcmp(opt_name, "C_COMPILER") == 0) {
       opt = C_COMPILER;
     } else if (strcmp(opt_name, "CPLUSPLUS_COMPILER") == 0) {
@@ -1993,6 +2126,8 @@ intType cmdFileType (const const_striType filePath)
     } else {
       stat_result = os_stat(os_path, &stat_buf);
       saved_errno = errno;
+      /* printf("stat(\"" FMT_S_OS "\") returns: %d, errno=%d\n",
+         os_path, stat_result, saved_errno); */
       if (stat_result == 0) {
         if (S_ISREG(stat_buf.st_mode)) {
           type_of_file = FILE_REGULAR;
@@ -2095,6 +2230,8 @@ intType cmdFileTypeSL (const const_striType filePath)
     } else {
       stat_result = os_lstat(os_path, &stat_buf);
       saved_errno = errno;
+      /* printf("lstat(\"" FMT_S_OS "\") returns: %d, errno=%d\n",
+          os_path, stat_result, saved_errno); */
       if (stat_result == 0) {
         if (S_ISREG(stat_buf.st_mode)) {
           type_of_file = FILE_REGULAR;
@@ -2551,7 +2688,10 @@ striType cmdHomeDir (void)
     striType home_dir;
 
   /* cmdHomeDir */
+    logFunction(printf("cmdHomeDir\n"););
     os_home_dir = os_getenv(home_dir_env_var);
+    /* printf("os_getenv(\"" FMT_S_OS "\") returns: " FMT_S_OS "\n",
+        home_dir_env_var, os_home_dir); */
     if (unlikely(os_home_dir == NULL)) {
 #ifdef DEFAULT_HOME_DIR
       home_dir = cp_from_os_path(default_home_dir, &err_info);
@@ -2566,6 +2706,7 @@ striType cmdHomeDir (void)
     if (unlikely(home_dir == NULL)) {
       raise_error(err_info);
     } /* if */
+    logFunction(printf("cmdHomeDir --> \"%s\"\n", striAsUnquotedCStri(home_dir)););
     return home_dir;
   } /* cmdHomeDir */
 
