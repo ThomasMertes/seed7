@@ -1,0 +1,220 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  struct.s7i    Struct support library                            *)
+(*  Copyright (C) 1989 - 2012  Thomas Mertes                        *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const type: STRUCT is newtype;
+IN_PARAM_IS_REFERENCE(STRUCT);
+const proc: (ref STRUCT param) ::= (in STRUCT param) is                         action "SCT_CREATE";
+const proc: destroy (ref STRUCT param) is                                       action "SCT_DESTR";
+const proc: (inout STRUCT param) := (in STRUCT param) is                        action "SCT_CPY";
+const func integer: length (in STRUCT param) is                                 action "SCT_LNG";
+(* const func STRUCT: elem (in type param) : (in expr param) is (in expr param) is action "SCT_ELEM"; *)
+const func STRUCT: (in STRUCT param) & (in STRUCT param) is                     action "SCT_CAT";
+const proc: incl (inout STRUCT param, in reference param) is                    action "SCT_INCL";
+const func STRUCT: empty (attr STRUCT) is                                       action "SCT_EMPTY";
+
+(* const func reference: (in STRUCT param) [ (in integer param) ] is               action "SCT_REFIDX"; *)
+
+const func ref_list: declare_elements (ref proc param) is                       action "DCL_ELEMENTS";
+
+(*
+const proc: (attr integer) <- ( (in integer param) ) is noop;
+integer<-(1);
+*)
+
+const func type: new struct (ref proc: elem_decl) end struct is func
+  result
+    var type: structType is void;
+  local
+    var type: ptrType is void;
+    var type: varptrType is void;
+    var ref_list: elem_list is ref_list.EMPTY;
+    var STRUCT: struct_value is empty(STRUCT);
+    var integer: number is 0;
+    var reference: elem_obj is NIL;
+  begin
+    structType := newtype;
+    IN_PARAM_IS_REFERENCE(structType);
+    ptrType := ptr structType;
+    CURR_STRUCT_PTR := ptrType;
+    varptrType := varptr structType;
+    elem_list := declare_elements(elem_decl);
+    const proc: (ref structType param) ::= (in structType param) is    action "SCT_CREATE";
+    const proc: destroy (ref structType param) is                      action "SCT_DESTR";
+    const proc: (inout structType param) := (in structType param) is   action "SCT_CPY";
+    const func ptrType: alloc (in structType param) is                 action "SCT_ALLOC";
+    const func varptrType: varalloc (in structType param) is           action "SCT_ALLOC";
+    const func structType: (attr structType) conv (in STRUCT param) is action "SCT_CONV";
+    const func STRUCT: (attr STRUCT) conv (in structType param) is     action "SCT_CONV";
+    for number range 1 to length(elem_list) do
+      elem_obj := elem_list[number];
+      if is_symb(elem_obj) then
+        (* TRACE(elem_obj); PRINT("\n"); *)
+        incl(struct_value, elem_obj);
+        const func    getType(elem_obj):    (in structType param) .  (symb elem_obj) is action "SCT_SELECT";
+        const varfunc getType(elem_obj): (inout structType param) .  (symb elem_obj) is action "SCT_SELECT";
+        const func    getType(elem_obj):    (in ptrType    param) -> (symb elem_obj) is action "REF_SELECT";
+        const varfunc getType(elem_obj):    (in varptrType param) -> (symb elem_obj) is action "REF_SELECT";
+      end if;
+    end for;
+    const structType: (attr structType) . value is                     structType conv struct_value;
+  end func;
+
+const func type: new struct end struct is func
+  result
+    var type: structType is void;
+  local
+    var type: ptrType is void;
+    var type: varptrType is void;
+  begin
+    structType := newtype;
+    IN_PARAM_IS_REFERENCE(structType);
+    ptrType := ptr structType;
+    varptrType := varptr structType;
+    const proc: (ref structType param) ::= (in structType param) is    action "SCT_CREATE";
+    const proc: destroy (ref structType param) is                      action "SCT_DESTR";
+    const proc: (inout structType param) := (in structType param) is   action "SCT_CPY";
+    const func ptrType: alloc (in structType param) is                 action "SCT_ALLOC";
+    const func varptrType: varalloc (in structType param) is           action "SCT_ALLOC";
+    const func structType: (attr structType) conv (in STRUCT param) is action "SCT_CONV";
+    const func STRUCT: (attr STRUCT) conv (in structType param) is     action "SCT_CONV";
+    const structType: (attr structType) . value is                     structType conv empty(STRUCT);
+  end func;
+
+const func type: new (in type: baseType) struct (ref proc: elem_decl) end struct is func
+  result
+    var type: structType is void;
+  local
+    var type: ptrType is void;
+    var type: varptrType is void;
+    var ref_list: elem_list is ref_list.EMPTY;
+    var STRUCT: struct_value is empty(STRUCT);
+    var integer: number is 0;
+    var reference: elem_obj is NIL;
+  begin
+    structType := subtype baseType;
+    IN_PARAM_IS_REFERENCE(structType);
+    ptrType := ptr structType;
+    varptrType := varptr structType;
+    elem_list := declare_elements(elem_decl);
+    const proc: (ref structType param) ::= (in structType param) is    action "SCT_CREATE";
+    const proc: destroy (ref structType param) is                      action "SCT_DESTR";
+    const proc: (inout structType param) := (in structType param) is   action "SCT_CPY";
+    const func ptrType: alloc (in structType param) is                 action "SCT_ALLOC";
+    const func varptrType: varalloc (in structType param) is           action "SCT_ALLOC";
+    const func structType: (attr structType) conv (in STRUCT param) is action "SCT_CONV";
+    const func STRUCT: (attr STRUCT) conv (in structType param) is     action "SCT_CONV";
+    for number range 1 to length(elem_list) do
+      elem_obj := elem_list[number];
+      if is_symb(elem_obj) then
+        incl(struct_value, elem_obj);
+        const func    getType(elem_obj):    (in structType param) .  (symb elem_obj) is action "SCT_SELECT";
+        const varfunc getType(elem_obj): (inout structType param) .  (symb elem_obj) is action "SCT_SELECT";
+        const func    getType(elem_obj):    (in ptrType    param) -> (symb elem_obj) is action "REF_SELECT";
+        const varfunc getType(elem_obj):    (in varptrType param) -> (symb elem_obj) is action "REF_SELECT";
+      end if;
+    end for;
+    const structType: (attr structType) . value is                     structType conv struct_value;
+  end func;
+
+const func type: new (in type: baseType) struct end struct is func
+  result
+    var type: structType is void;
+  local
+    var type: ptrType is void;
+    var type: varptrType is void;
+  begin
+    structType := subtype baseType;
+    IN_PARAM_IS_REFERENCE(structType);
+    ptrType := ptr structType;
+    varptrType := varptr structType;
+    const proc: (ref structType param) ::= (in structType param) is    action "SCT_CREATE";
+    const proc: destroy (ref structType param) is                      action "SCT_DESTR";
+    const proc: (inout structType param) := (in structType param) is   action "SCT_CPY";
+    const func ptrType: alloc (in structType param) is                 action "SCT_ALLOC";
+    const func varptrType: varalloc (in structType param) is           action "SCT_ALLOC";
+    const func structType: (attr structType) conv (in STRUCT param) is action "SCT_CONV";
+    const func STRUCT: (attr STRUCT) conv (in structType param) is     action "SCT_CONV";
+    const structType: (attr structType) . value is                     structType conv empty(STRUCT);
+  end func;
+
+const func type: sub (in type: baseType) struct (ref proc: elem_decl) end struct is func
+  result
+    var type: structType is void;
+  local
+    var type: ptrType is void;
+    var type: varptrType is void;
+    var ref_list: elem_list is ref_list.EMPTY;
+    var STRUCT: struct_value is empty(STRUCT);
+    var integer: number is 0;
+    var reference: elem_obj is NIL;
+  begin
+    structType := subtype baseType;
+    IN_PARAM_IS_REFERENCE(structType);
+    ptrType := ptr structType;
+    varptrType := varptr structType;
+    elem_list := declare_elements(elem_decl);
+    const proc: (ref structType param) ::= (in structType param) is    action "SCT_CREATE";
+    const proc: destroy (ref structType param) is                      action "SCT_DESTR";
+    const proc: (inout structType param) := (in structType param) is   action "SCT_CPY";
+    const func ptrType: alloc (in structType param) is                 action "SCT_ALLOC";
+    const func varptrType: varalloc (in structType param) is           action "SCT_ALLOC";
+    const func structType: (attr structType) conv (in STRUCT param) is action "SCT_CONV";
+    const func STRUCT: (attr STRUCT) conv (in structType param) is     action "SCT_CONV";
+    for number range 1 to length(elem_list) do
+      elem_obj := elem_list[number];
+      if is_symb(elem_obj) then
+        incl(struct_value, elem_obj);
+        const func    getType(elem_obj):    (in structType param) .  (symb elem_obj) is action "SCT_SELECT";
+        const varfunc getType(elem_obj): (inout structType param) .  (symb elem_obj) is action "SCT_SELECT";
+        const func    getType(elem_obj):    (in ptrType    param) -> (symb elem_obj) is action "REF_SELECT";
+        const varfunc getType(elem_obj):    (in varptrType param) -> (symb elem_obj) is action "REF_SELECT";
+      end if;
+    end for;
+    const structType: (attr structType) . value is      structType conv (STRUCT conv (baseType.value) & struct_value);
+  end func;
+
+const func type: sub (in type: baseType) struct end struct is func
+  result
+    var type: structType is void;
+  local
+    var type: ptrType is void;
+    var type: varptrType is void;
+  begin
+    structType := subtype baseType;
+    IN_PARAM_IS_REFERENCE(structType);
+    ptrType := ptr structType;
+    varptrType := varptr structType;
+    const proc: (ref structType param) ::= (in structType param) is    action "SCT_CREATE";
+    const proc: destroy (ref structType param) is                      action "SCT_DESTR";
+    const proc: (inout structType param) := (in structType param) is   action "SCT_CPY";
+    const func ptrType: alloc (in structType param) is                 action "SCT_ALLOC";
+    const func varptrType: varalloc (in structType param) is           action "SCT_ALLOC";
+    const func structType: (attr structType) conv (in STRUCT param) is action "SCT_CONV";
+    const func STRUCT: (attr STRUCT) conv (in structType param) is     action "SCT_CONV";
+    const structType: (attr structType) . value is     structType conv (STRUCT conv (baseType.value));
+  end func;

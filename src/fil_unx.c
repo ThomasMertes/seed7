@@ -33,10 +33,12 @@
 
 #include "stdlib.h"
 #include "stdio.h"
-#ifdef OUT_OF_ORDER
-#include "sys/select.h"
-#endif
+#ifdef read_buffer_empty
 #include "poll.h"
+#else
+#include "fcntl.h"
+#include "errno.h"
+#endif
 
 #include "common.h"
 #include "os_decls.h"
@@ -44,6 +46,7 @@
 
 
 
+#ifdef read_buffer_empty
 #ifdef ANSI_C
 
 booltype filInputReady (filetype aFile)
@@ -82,8 +85,62 @@ filetype aFile;
         result = FALSE;
       } /* if */
     } /* if */
+    /* printf("filInputReady(%lx) --> %d\n", aFile, result); */
     return result;
   } /* filInputReady */
+
+#else
+
+
+
+#ifdef ANSI_C
+
+booltype filInputReady (filetype aFile)
+#else
+
+booltype filInputReady (aFile)
+filetype aFile;
+#endif
+
+  {
+    int file_no;
+    int flags;
+    int ch;
+    int err_num;
+    booltype result;
+
+  /* filInputReady */
+    /* printf("filInputReady(%lx)\n", aFile); */
+    file_no = fileno(aFile);
+    if (file_no != -1) {
+      /* printf("file_no=%d\n", file_no); */
+      flags = fcntl(file_no, F_GETFL);
+      fcntl(file_no, F_SETFL, flags|O_NONBLOCK);
+      ch = getc(aFile);
+      err_num = errno;
+      /* printf("errno=%d ", err_num); */
+      if (ch == EOF) {
+        if (feof(aFile)) {
+          clearerr(aFile);
+          result = TRUE;
+        } else if (err_num == EAGAIN || err_num == EIO) {
+          result = FALSE;
+        } else {
+	  result = TRUE;
+        } /* if */
+      } else {
+        ungetc(ch, aFile);
+        result = TRUE;
+      } /* if */
+      fcntl(file_no, F_SETFL, flags);
+    } else {
+      raise_error(FILE_ERROR);
+      result = FALSE;
+    } /* if */
+    /* printf("filInputReady(%lx) --> %d\n", aFile, result); */
+    return result;
+  } /* filInputReady */
+#endif
 
 
 

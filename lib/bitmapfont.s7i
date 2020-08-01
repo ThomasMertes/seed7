@@ -148,8 +148,6 @@ const func pixmapFontType: genPixmapFont (in bitmapFont: bmpFont,
     in color: foreground, in color: background) is func
   result
     var pixmapFontType: result is pixmapFontType.value;
-  local
-    var char: ch is ' ';
   begin
     if ' ' in bmpFont.fontPictures then
       incl(result.pixmap, ' ', genPixmap(bmpFont.fontPictures[' '],

@@ -459,6 +459,8 @@ int main (int argc, char **argv)
       define_read_buffer_empty = "#define read_buffer_empty(fp) ((fp)->_IO_read_ptr >= (fp)->_IO_read_end)";
     } else if (compilationOkay("#include<stdio.h>\nint main(int argc,char *argv[]){FILE*fp;fp->_cnt <= 0;}\n")) {
       define_read_buffer_empty = "#define read_buffer_empty(fp) ((fp)->_cnt <= 0)";
+    } else if (compilationOkay("#include<stdio.h>\nint main(int argc,char *argv[]){FILE*fp;fp->__cnt <= 0;}\n")) {
+      define_read_buffer_empty = "#define read_buffer_empty(fp) ((fp)->__cnt <= 0)";
     } else if (compilationOkay("#include<stdio.h>\nint main(int argc,char *argv[]){FILE*fp;fp->level <= 0;}\n")) {
       define_read_buffer_empty = "#define read_buffer_empty(fp) ((fp)->level <= 0)";
     } else if (compilationOkay("#include<stdio.h>\nint main(int argc,char *argv[]){FILE*fp;fp->_r <= 0;}\n")) {
@@ -478,8 +480,6 @@ int main (int argc, char **argv)
     } /* if */
     if (define_read_buffer_empty != NULL) {
       puts(define_read_buffer_empty);
-    } else {
-      puts("#error unable to define the macro read_buffer_empty");
     } /* if */
     cleanUpCompilation();
     return 0;

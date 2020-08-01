@@ -290,15 +290,15 @@ programming languages:
    parameter-, and other declarations are described in Seed7 (The user
    can change existing declaration constructs or invent new ones).</li>
 <li><!--  -  --><a href="#generics">Templates</a> use no special syntax. They are just functions with
-   type parameters or a type result.</li>
-<li><!--  -  -->Seed7 has <a href="#abstract_data_type">abstract data types</a>. For example the types array, hash,
-   struct and set. They are not hard coded in the compiler, but are
+   <tt><a class="type" href="manual/types.htm#type">type</a></tt> parameters or a <tt><a class="type" href="manual/types.htm#type">type</a></tt> result.</li>
+<li><!--  -  -->Seed7 has <a href="#abstract_data_type">abstract data types</a>. For example the types <tt><a class="type" href="manual/types.htm#array">array</a></tt>, <tt><a class="type" href="manual/types.htm#hash">hash</a></tt>,
+   <tt><a class="type" href="manual/types.htm#struct">struct</a></tt> and <tt><a class="type" href="manual/types.htm#set">set</a></tt>. They are not hard coded in the compiler, but are
    abstract data types written in Seed7. User defined abstract data
    types are also possible.</li>
 <li><!--  -  -->The <a href="#object_oriented">object orientation</a> of Seed7 allows <a href="#multiple_dispatch">multiple dispatch</a>. That
    means that a function or method is connected to more than one type.</li>
 <li><!--  -  -->Seed7 is a syntactically and semantically extensible language:
-   Almost all of the Seed7 language (statements, operators,
+   Almost all of the Seed7 language (<a href="manual/stats.htm">statements</a>, <a href="examples/operator.htm">operators</a>,
    declaration constructs, and more) is defined in Seed7 in an include
    file (seed7_05.s7i).</li>
 <li><!--  -  -->The application program contains an include statement and the hi
@@ -361,9 +361,9 @@ are defined to avoid the need to use shell (and cmd.exe) commands.
 <li><!--     -  -->A <a href="manual/os.htm#Standard_path_representation">standard path representation</a> removes all problems with
       drive letters and different path delimiters.</li></ul></li>
 <li><!--  -  -->Differences between Unix sockets and winsockets are hidden and
-   Seed7 <a href="manual/file.htm#Sockets">sockets</a> are files (as in Unix).</li>
-<li><!--  -  -->The library <a href="libraries/keybd.htm">keyboard.s7i</a> defines the file <a href="manual/file.htm#Keyboard_file">KEYBOARD</a>, which supports
-   reading single keypresses. The characters read from KEYBOARD are
+   in Seed7 a <tt><a class="type" href="manual/file.htm#Sockets">socket</a></tt> is a <tt><a class="type" href="manual/types.htm#file">file</a></tt> (as in Unix).</li>
+<li><!--  -  -->The library <a class="lib" href="libraries/keybd.htm">keybd.s7i</a> defines the file <a class="var" href="manual/file.htm#Keyboard_file">KEYBOARD</a>, which supports
+   reading single keypresses. The characters read from <a class="var" href="manual/file.htm#Keyboard_file">KEYBOARD</a> are
    not echoed to the console and there is no need to press ENTER.
    There is also a portable way to check, if a <a href="libraries/keybd.htm#keypressed(in_keyboard_file)">key has been pressed</a>.</li>
 <li><!--  -  --><a href="manual/file.htm#Keyboard_file">Reading keys</a> and key combinations such as ctrl-F1 from a
@@ -371,7 +371,7 @@ are defined to avoid the need to use shell (and cmd.exe) commands.
    systems always delivers the same character code.</li>
 <li><!--  -  -->An operating system independend type for <a href="manual/types.htm#time">times and dates</a>,
    based on the proleptic Gregorian calendar, is provided in
-   the library <a href="libraries/time.htm">time.s7i</a>.</li>
+   the library <a class="lib" href="libraries/time.htm">time.s7i</a>.</li>
 <li><!--  -  -->A <a href="libraries/console.htm">text console</a> which allows <a href="libraries/console.htm#setPos(ref_console_file,__ref_integer,ref_integer)">cursor positioning</a>.</li>
 <li><!--  -  -->A <a href="libraries/draw.htm">portable graphics library</a> allows drawing, image operations,
    windows manipulation and bitmap <a href="libraries/font.htm">fonts</a>. Events to redraw a window
@@ -469,12 +469,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr><!-- ================================================ -->
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 150000 lines of Seed7. For version 2012-05-06 the number of lines is:
+than 150000 lines of Seed7. For version 2012-06-03 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right">101226</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right">101283</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
   <tr><td align="right"> 10093</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">111481</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right"> 76908</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right">111601</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right"> 77500</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -548,7 +548,7 @@ operating system and the development tools used. You need a
 stand-alone C compiler and a make utility to compile the
 interpreter. A C compiler which is only usable from an IDE
 is not so useful, since some Seed7 programs (e.g. The
-Seed7 to C compiler comp.sd7) need to call the C compiler
+Seed7 to C compiler <tt><a class="prog" href="scrshots/comp.htm">comp.sd7</a></tt>) need to call the C compiler
 as well. To compile the interpreter under Linux just go to
 the <tt>'src'</tt> directory and type:
 </p><pre>
@@ -579,11 +579,12 @@ and do (with the make program from the table above):
   make
 </pre><p>
 When the interpreter is compiled successfully the executable
-is placed in the <tt>'src'</tt> directory. Additionally a symbolic link
-to the executable is placed in the 'prg' directory (Under
-windows symbolic links are not supported, so a copy of the
-executable is placed in the 'prg' directory). If you do several
-compilation attempts in succession you need to do
+and the libraries are placed in the <tt>'bin'</tt> directory.
+Additionally a symbolic link to the executable is placed in
+the <tt>'prg'</tt> directory (Under Windows symbolic links are not
+supported, so a copy of the executable is placed in the <tt>'prg'</tt>
+directory). If you do several compilation attempts in
+succession you need to do
 </p><pre>
   make clean
 </pre><p>
@@ -714,7 +715,7 @@ and searched for that file.
 The following options are recognized by hi:
 </p><ul>
   <li><b>-a</b>   Analyze only and suppress the execution phase.</li>
-  <li><b>-dx</b>  Set compile-time trace level to x. Where x is a string consisting
+  <li><b>-d</b><font color=blue>x</font>  Set compile-time trace level to <font color=blue>x</font>. Where <font color=blue>x</font> is a string consisting
        of the following characters:<ul>
          <li><b>a</b> Trace primitive actions</li>
          <li><b>c</b> Do action check</li>
@@ -728,7 +729,7 @@ The following options are recognized by hi:
        option.</li>
   <li><b>-q</b>   Compile quiet. Line and file information and compilation
        statistics are suppressed.</li>
-  <li><b>-tx</b>  Set runtime trace level to x. Where x is a string consisting
+  <li><b>-t</b><font color=blue>x</font>  Set runtime trace level to <font color=blue>x</font>. Where <font color=blue>x</font> is a string consisting
        of the following characters:<ul>
          <li><b>a</b> Trace primitive actions</li>
          <li><b>c</b> Do action check</li>
@@ -736,7 +737,7 @@ The following options are recognized by hi:
          <li><b>e</b> Trace exceptions and handlers</li>
          <li><b>h</b> Trace heap size (in combination with 'a')</li></ul></li>
   <li><b>-t</b>   Equivalent to <b>-ta</b></li>
-  <li><b>-vn</b>  Set verbosity level of analyse phase to n. Where n is one
+  <li><b>-v</b><font color=blue>n</font>  Set verbosity level of analyse phase to <font color=blue>n</font>. Where <font color=blue>n</font> is one
        of the following characters:<ul>
          <li><b>0</b> Compile quiet (equivalent to <b>-q</b>)</li>
          <li><b>1</b> Write just the header with version information (default)</li>
@@ -747,7 +748,7 @@ The following options are recognized by hi:
 </ul><p>
   In the program the <tt>'parameters'</tt> can be accessed via <tt><!-- ' --><a class="func" href="manual/os.htm#argv_PROGRAM">argv</a>(PROGRAM)<!-- ' --></tt>.
   The function <tt><!-- ' --><a class="func" href="manual/os.htm#argv_PROGRAM">argv</a>(PROGRAM)<!-- ' --></tt> delivers an array of strings. The number
-  of parameters is <tt>'length(argv(PROGRAM))'</tt> and <tt>'argv(PROGRAM)[1]'</tt>
+  of parameters is <tt>'length(<a class="func" href="manual/os.htm#argv_PROGRAM">argv</a>(PROGRAM))'</tt> and <tt>'<a class="func" href="manual/os.htm#argv_PROGRAM">argv</a>(PROGRAM)[1]'</tt>
   returns the first parameter.
 </p></div>
 
@@ -763,18 +764,24 @@ program is compiled and linked afterwards. The Seed7 compiler can be called with
 </pre><p>
 Possible options are
 </p><ul>
-  <li><b>-O</b>  and <b>-O2</b> tell the C compiler to optimize.</li>
-  <li><b>-g</b>  tells the C compiler to generate an executable with debug information.
-      This way the debugger will refer to Seed7 source files and line numbers.
-      To generate debug information which refers to the temporary C program
-      the option <b>-g-debug_c</b> can be used.</li>
-  <li><b>-te</b> generates code to trace exceptions. This option works in the same way
-      as the interpreter option <b>-te</b>: Every exception will write a
-      message to stdout and the user will be ask to continue (with enter) or
-      to terminate (with * ).</li>
-  <li><b>-r</b>  suppresses the generation of range checks for strings and arrays.</li>
-  <li><b>-e</b>  generates code which sends a signal, when an uncaught exception occurs.
-      This option allows debuggers to handle uncaught Seed7 exceptions.</li>
+  <li><b>-O</b>  and <b>-O2</b> Tell the C compiler to optimize.</li>
+  <li><b>-g</b>  Tell the C compiler to generate an executable with debug information.
+       This way the debugger will refer to Seed7 source files and line numbers.
+       To generate debug information which refers to the temporary C program
+       the option <b>-g-debug_c</b> can be used.</li>
+  <li><b>-oc</b><font color=blue>n</font>  Optimize constants with level <font color=blue>n</font>. E.g.: <b>-oc3</b>. Where <font color=blue>n</font> is a digit
+       between 0 and 3:<ul>
+         <li><b>0</b> Do no optimizations with constants.</li>
+         <li><b>1</b> Use literals and named constants to simplify expressions (default).</li>
+         <li><b>2</b> Evaluate constant expressions to simplify expressions.</li>
+         <li><b>3</b> Like <b>-oc2</b> and additionally evaluate all constant expressions</li></ul></li>
+  <li><b>-te</b> Generate code to trace exceptions. This option works in the same way
+       as the interpreter option <b>-te</b>: Every exception will write a
+       message to stdout and the user will be ask to continue (with enter) or
+       to terminate (with * ).</li>
+  <li><b>-r</b>  Suppress the generation of range checks for strings and arrays.</li>
+  <li><b>-e</b>  Generate code which sends a signal, when an uncaught exception occurs.
+       This option allows debuggers to handle uncaught Seed7 exceptions.</li>
 </ul></div>
 
 <div><br><a name="reserved_words"><h3>What are the reserved words of Seed7?
@@ -832,7 +839,7 @@ were also operators:
 </pre><p>
 S7SSD is a simple syntax description that can be used by humans and
 compilers/interpreters. The syntax of a Seed7 program is defined
-in the library "<a href="prg/syntax.htm">syntax.s7i</a>". When a Seed7 program is interpreted
+in the library "<a class="lib" href="prg/syntax.htm">syntax.s7i</a>". When a Seed7 program is interpreted
 or compiled the syntax definitions are read from "syntax.s7i".
 </p></div>
 
@@ -880,7 +887,7 @@ The C statements have some weaknesses which are avoided with the Seed7 statement
     }
 </pre><p>
   Forgetting break statements in a switch is another possible source of errors which
-  is avoided in Seed7:
+  is avoided with the <a class="keywd" href="manual/stats.htm#case-statement">case-statement</a> of Seed7:
 </p><pre>
     <font color=blue>case</font> number <font color=blue>of</font>
       <font color=blue>when</font> {1, 2}:
@@ -1032,7 +1039,7 @@ the debugging.
 <p>
 This question refers to something which seems paradox: When Seed7 types are
 created at runtime how can they be checked at compile time. The simple answer
-is that a type created at runtime cannot be used to define something in
+is that a <tt><a class="type" href="manual/types.htm#type">type</a></tt> created at runtime cannot be used to define something in
 the program that is currently running.
 </p><p>
 Seed7 declarations are not executed at runtime. Functions with type parameters
@@ -1048,10 +1055,10 @@ type variables and type expressions are used in the Seed7 compiler.
 <p>
 Seed7 has a basic principle that would break if type
 inference would be used:
-</p><pre>
-  For every expression (and sub expression) you know its type at
-  compile time without knowing where this expression is used.
-</pre><p>
+</p><dl><dd><table border="1" cellspacing="0" cellpadding="5"><tr><td>
+  &nbsp;For every expression (and sub expression) you know its type at&nbsp;<br />
+  &nbsp;compile time without knowing where this expression is used.&nbsp;
+</td></tr></table></dd></dl><p>
 It is exactly the violation of this principle that makes type
 inference possible. As long as this principle holds you need
 to know the global and local declarations to find out the result
@@ -1103,10 +1110,10 @@ to define new operators and statements.
 No, it is not possible to overload functions (operators, statements) which have
 the same parameter types and just differ in the result type. This type of overloading
 has a big advantage:
-</p><pre>
-  For every expression (and sub expression) you know its type at
-  compile time without knowing where this expression is used.
-</pre><p>
+</p><dl><dd><table border="1" cellspacing="0" cellpadding="5"><tr><td>
+  &nbsp;For every expression (and sub expression) you know its type at&nbsp;<br />
+  &nbsp;compile time without knowing where this expression is used.&nbsp;
+</td></tr></table></dd></dl><p>
 Therefore it is not possible to overload something which has no parameters (like
 a variable or a literal). As a consequence it is sometimes necessary to cast a
 literal to get an unambiguous expression. This concept parallels the approach
@@ -1337,10 +1344,10 @@ the function is called. When the function is executed the
 call-by-name parameter might be executed once, many times
 or not at all. Examples of call-by-name parameters are:
 </p><ul>
-<li><!--  -  -->The conditions of while loops</li>
+<li><!--  -  -->The conditions of <a class="keywd" href="manual/stats.htm#while-statement">while-loops</a></li>
 <li><!--  -  -->The statements in loop bodies</li>
 <li><!--  -  -->The statements that are conditionally executed in
-   an if statement</li>
+   an <a class="keywd" href="manual/stats.htm#if-statement">if-statement</a></li>
 </ul><p>
 As can be seen, call-by-name parameters are used all the time,
 without realizing it. A call-by-name parameter is a function

@@ -50,6 +50,7 @@ $ include "seed7_05.s7i";
   include "osfiles.s7i";
   include "scanfile.s7i";
   include "scanstri.s7i";
+  include "chartype.s7i";
   include "float.s7i";
   include "console.s7i";
   include "draw.s7i";
@@ -4792,7 +4793,7 @@ const proc: exec_print_using (inout file: outFile,
                   end if;
                   ch2 := param2[index3];
                   if ch1 = ',' then
-                    if index3 >= 2 and param2[pred(index3)] in digit then
+                    if index3 >= 2 and param2[pred(index3)] in digit_char then
                       param2 := param2[.. pred(index3)] & "," & param2[index3 ..];
                     else
                       param2 := param2[.. pred(index3)] & " " & param2[index3 ..];

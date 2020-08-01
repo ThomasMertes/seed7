@@ -377,8 +377,22 @@ const func integer: lowestSetBit (in bigInteger: number)                 is acti
 
 const bigInteger: (attr bigInteger) . value                              is bigInteger parse "0";
 
+
+(**
+ *  Increment a bigInteger number.
+ *  This is equivalent to:
+ *   number := succ(number);
+ *)
 const proc: incr (inout bigInteger param)                                is action "BIG_INCR";
+
+
+(**
+ *  Decrement a bigInteger number.
+ *  This is equivalent to:
+ *   number := pred(number);
+ *)
 const proc: decr (inout bigInteger param)                                is action "BIG_DECR";
+
 
 const boolean: ord (in bigInteger param, mayRaiseRangeError)             is TRUE;
 

@@ -3420,6 +3420,9 @@ const proc: process_arr_baselit (in reference: function, in ref_list: params,
     inout expr_type: c_expr) is func
 
   begin
+    if result_type(getType(function)) not in array_element then
+      array_element @:= [result_type(getType(function))] getType(params[3]);
+    end if;
     prepare_array_result(result_type(getType(function)), c_expr);
     c_expr.result_expr := "arrBaselit((generictype)(";
     getTemporaryToResultExpr(params[3], c_expr);
@@ -3431,6 +3434,9 @@ const proc: process_arr_baselit2 (in reference: function, in ref_list: params,
     inout expr_type: c_expr) is func
 
   begin
+    if result_type(getType(function)) not in array_element then
+      array_element @:= [result_type(getType(function))] getType(params[4]);
+    end if;
     prepare_array_result(result_type(getType(function)), c_expr);
     c_expr.result_expr := "arrBaselit2(";
     getStdParamToResultExpr(params[2], c_expr);
@@ -3822,6 +3828,9 @@ const proc: process_arr_idx (in reference: function, in ref_list: params,
     var string: index_name is "";
     var string: result_name is "";
   begin
+    if getType(params[1]) not in array_element then
+      array_element @:= [getType(params[1])] result_type(getType(function));
+    end if;
     if getConstant(params[1], ARRAYOBJECT, evaluatedParam) then
       process_const_arr_idx(function, evaluatedParam, params[3], c_expr);
     elsif getConstant(params[3], INTOBJECT, evaluatedParam) then
@@ -4029,6 +4038,9 @@ const proc: process_arr_push (in ref_list: params, inout expr_type: c_expr) is f
     var expr_type: c_param1 is expr_type.value;
     var expr_type: c_param3 is expr_type.value;
   begin
+    if getType(params[1]) not in array_element then
+      array_element @:= [getType(params[1])] getType(params[3]);
+    end if;
     process_expr(params[1], c_param1);
     c_param3.temp_num := c_param1.temp_num;
     getTemporaryToResultExpr(params[3], c_param3);

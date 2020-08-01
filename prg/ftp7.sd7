@@ -33,8 +33,8 @@ $ include "seed7_05.s7i";
 const proc: writeHelp is func
   begin
     writeln("Accepted commands:");
-    writeln("  ascii, binary, bye, cd, dir, exit, get, help, lcd, ls, ls -l, mkdir,");
-    writeln("  modtime, put, pwd, quit, rmdir, size");
+    writeln("  ascii, binary, bye, cd, delete, dir, exit, get, help, lcd, ls, ls -l,");
+    writeln("  mkdir, modtime, put, pwd, quit, rename, rmdir, size");
     writeln;
   end func;
 
@@ -135,6 +135,7 @@ const proc: execute (inout ftpConnection: ftp, in string: command) is func
   local
     var array string: dir is 0 times "";
     var string: name is "";
+    var integer: blankPos is 0;
     var boolean: continue is TRUE;
   begin
     # writeln(command);
@@ -150,6 +151,20 @@ const proc: execute (inout ftpConnection: ftp, in string: command) is func
       mkdir(ftp, trim(command[7 ..]));
     elsif startsWith(command, "rmdir ") then
       rmdir(ftp, trim(command[7 ..]));
+    elsif startsWith(command, "delete ") then
+      removeFile(ftp, trim(command[8 ..]));
+    elsif startsWith(command, "rename ") then
+      name := trim(command[8 ..]);
+      if name = "" then
+        writeln(" ***** From-name missing");
+      else
+        blankPos := pos(name, ' ');
+        if blankPos <> 0 then
+          moveFile(ftp, name[.. pred(blankPos)], name[succ(blankPos) ..]);
+        else
+          writeln(" ***** To-name missing");
+        end if;
+      end if;
     elsif command = "pwd" then
       writeln(getcwd(ftp));
     elsif startsWith(command, "size ") then

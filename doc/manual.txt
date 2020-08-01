@@ -3,7 +3,7 @@
 (*                                                                  *)
 (*  manual.txt                                                      *)
 (*                                                                  *)
-(*  Copyright (C) 1989 - 2009  Thomas Mertes                        *)
+(*  Copyright (C) 1989 - 2012  Thomas Mertes                        *)
 (*  All rights reserved.                                            *)
 (*                                                                  *)
 (*  Documentation: Manual for the Seed7 programming language        *)
@@ -221,7 +221,7 @@ CONTENTS
   defined in a way to be easy readable and understandable. This
   practical approach can be summarized as:
 
-    "Programming should be fun"
+    <font color="orange"> Programming should be fun 
 
   Seed7 programs can be interpreted or compiled. Therefore Seed7
   can be used for scripting and for "real" programs.
@@ -531,7 +531,7 @@ CONTENTS
   initialized when they are declared. This program contains
   also an assignment, a while-statement and the expression to
   compute the 'celsius' value. Note that the statements inside
-  the 'while' loop are between 'do' and 'end while'. The
+  the while-loop are between 'do' and 'end while'. The
   expression to compute the 'celsius' value uses an integer
   division ('div'). The 'write' statement can be used to write
   strings and integers without a newline character. The output
@@ -2239,8 +2239,8 @@ CONTENTS
 
 5.6 float
 
-    The type 'float' consists of single precision floating
-  point numbers. Float literals are base 10 and contain a decimal point.
+    The type 'float' consists of single precision floating point
+  numbers. Float literals are base 10 and contain a decimal point.
   There must be at least one digit before and after the decimal point.
   An exponent part, which is introduced with E or e, is optional.
   The exponent can be signed, but the mantissa is not. A literal does
@@ -2252,8 +2252,10 @@ CONTENTS
   0.1234
 
   The functions 'str' and the operators 'digits' and 'parse'
-  create and accept float literals with sign. The 'float'
+  create and accept float literals with sign. Basic 'float'
   functions are defined in the library "float.s7i".
+  Trigonometric- and other mathematical functions are defined
+  in the library "math.s7i".
 
     Constants:
       Infinity  Positive infinity
@@ -2760,7 +2762,9 @@ CONTENTS
   and can be obtained with the functions 'minIdx' and 'maxIdx'.
   There are functions which generate arrays with the default minimal
   index of 1 and other functions which generate arrays with the minimal
-  index taken from a parameter.
+  index taken from a parameter. The 'array' functions are defined
+  in the library "array.s7i". Arrays with non-integer index are defined
+  in the library "idxarray.s7i".
 
     Literal:
       [] (elem1, elem2)  Create an array with the given elements
@@ -2839,15 +2843,15 @@ CONTENTS
 5.11 hash
 
     The type 'hash [keyType] baseType' describes hash tables with
-  elements of 'baseType'. The elements can be accessed with an index of
-  'keyType'.
+  elements of 'baseType'. The elements can be accessed with an index
+  of 'keyType'.
 
     For example: 'hash [string] integer' describes hash tables with
     'integer' elements and 'string' keys.
 
-  The 'keyType' of a hash needs to provide the functions
-  'hashCode' and 'compare'. Besides this the 'keyType'
-  can be any type.
+  The 'keyType' of a hash needs to provide the functions 'hashCode'
+  and 'compare'. Besides this the 'keyType' can be any type. The
+  'hash' functions are defined in the library "hash.s7i".
 
     Constants:
       hashType.EMPTY_HASH  Empty hash table
@@ -2902,8 +2906,9 @@ CONTENTS
 5.12 set
 
     The type 'set of baseType' describes a set of elements of a
-  'baseType'. (including the empty set). The type 'bitset' is
-  defined as 'set of integer'.
+  'baseType'. (including the empty set). The type 'set of integer'
+  is an alternate name for 'bitset', which is defined in the library
+  "bitset.s7i".
 
     Constants:
       setType.EMPTY_SET  Empty set
@@ -4939,8 +4944,8 @@ CONTENTS
     readln(user_comment_string);
 
   In the previous examples all 'read' statements read from the
-  file IN and all 'write' statements write to the file OUT. The
-  files IN and OUT are initialized with 'STD_IN' and 'STD_OUT'
+  file 'IN' and all 'write' statements write to the file 'OUT'. The
+  files 'IN' and 'OUT' are initialized with 'STD_IN' and 'STD_OUT'
   which are the stdin and stdout files of the operating system.
   (Usually the keyboard and the screen). When we want to write
   to other files we use write statements with the file as first
@@ -4970,12 +4975,12 @@ CONTENTS
 
   For doing I/O to a window on the screen we write:
 
-    window1 := open_window(SCREEN, 10, 10, 5, 60);
+    window1 := open_window(screen, 10, 10, 5, 60);
     box(window1);
     setPos(window1, 3, 1);
     write(window1, "hello there");
 
-  This opens the window 'window1' on the SCREEN at the position
+  This opens the window 'window1' on the 'screen' at the position
   10, 10. This window has 5 lines and 60 columns. A box (of
   characters: - | + ) is written to surround the 'window1' and
   finally the string "hello there" is written in the window
@@ -5043,7 +5048,7 @@ CONTENTS
       end func;
 
   The 'str' function must deliver a corresponding string for
-  every value of the type. The 'parse' function parses a string
+  every value of the type. The 'parse' operator parses a string
   and delivers the converted value as result. If the conversion
   is not successful the exception RANGE_ERROR is raised. The
   attribute used with 'parse' allows that it is overloaded for
@@ -5419,7 +5424,7 @@ CONTENTS
     stri := getln(IN);
 
   and 'getln' may call gets(IN, 1) in a loop or may be defined
-  for the file IN. Finally the 'parse' function converts the
+  for the file 'IN'. Finally the 'parse' function converts the
   string read into an 'integer' and assigns it to 'number'
 
     number := integer parse stri;
@@ -5427,15 +5432,15 @@ CONTENTS
 
 8.5 Standard input and output files
 
-    The standard I/O files are 'OUT' for output and 'IN' for input.
-  This TWO are file-variables which are declared as follows:
+    The standard I/O files are 'IN' for input and 'OUT' for output.
+  'IN' and 'OUT' are 'file' variables, which are defined as follows:
 
     var file: IN is STD_IN;
     var file: OUT is STD_OUT;
 
   The files 'STD_IN' and 'STD_OUT' are the standard input and
   output files of the operating system (Usually the keyboard and
-  the screen). Because IN and OUT are variables redirection of
+  the screen). Because 'IN' and 'OUT' are variables redirection of
   standard input or standard output can be done easily by
   assigning a new value to them:
 
@@ -5459,8 +5464,8 @@ CONTENTS
 
     var file: MY_FILE is STD_NULL;
 
-  It is also used to represent an illegal file value when for
-  example an 'open' procedure fails.
+  It is also used to represent an illegal file value, when for
+  example an attempt to 'open' a 'file' fails.
 
 
 8.6 Access to operating system files
@@ -5896,42 +5901,39 @@ CONTENTS
 
 8.8 Files with line structure
 
-  The type 'text' is a subtype of 'file', which adds a
-  line structure and other features such as scrolling and color.
-  The lines and columns of a type 'text' start with 1
-  in the upper left corner and increase downward and rightward.
-  The function 'setPos' sets the current line and column of a
-  'text':
+  The library "text.s7i" defines the type 'text', which is a
+  subtype of 'file'. The type 'text' adds a line structure and
+  other features such as scrolling and color to 'file'. The
+  lines and columns of a 'text' start with 1 in the upper left
+  corner and increase downward and rightward. The function
+  'setPos' sets the current line and column of a 'text':
 
-    const proc: setPos (inout text: aText, in integer: line, in integer: column) is ...
+    setPos(aText, 10, 20);
 
   The functions 'setLine' and 'setColumn' set just the
   line and column respectively:
 
-    const proc: setLine (inout text: aText, in integer: line) is ...
-
-    const proc: setColumn (inout text: aText, in integer: column) is ...
+    setLine(aText, 2);
+    setColumn(aText, 72);
 
   The current line and column of a 'text' file can be retrieved
   with 'line' and 'column':
 
-    const func integer: line (ref text: aText) is ...
-
-    const func integer: column (ref text: aText) is ...
+    writeln("The curent line is: " <& line(aText));
+    writeln("The curent column is: " <& column(aText));
 
   The current height and width of a 'text' file can be retrieved
   with 'height' and 'width':
 
-    const func integer: height (ref text: aText) is ...
+    writeln("The height is: " <& height(aText));
+    writeln("The width is: " <& width(aText));
 
-    const func integer: width (ref text: aText) is ...
+  To allow random access output to a text console (or text window)
+  the library "console.s7i" defines the type 'console_file'. The function
 
-  To allow random access output to a text screen (or text window)
-  the type SCREEN_FILE is defined. The function
+    open(CONSOLE)
 
-    open(SCREEN_FILE)
-
-  returns a SCREEN_FILE.
+  returns a 'console_file'.
 
 
 8.9 Sockets
@@ -5947,9 +5949,30 @@ CONTENTS
     clientSocket := openInetSocket("www.google.com", 80);
 
   The function 'openInetSocket' creates and connects a socket.
-  Opening an Internet socket at the local host is done with:
+  Opening an Internet socket at the local host is also done with
+  a variant of 'openInetSocket':
 
     clientSocket := openInetSocket(1080);
+
+  Since sockets use the 'file' interface functions
+  like 'writeln' and 'getln' can be used:
+
+    sock := openInetSocket(serverName, 80);
+    if sock <> STD_NULL then
+      writeln(sock, "GET " <& address <& " HTTP/1.1");
+      writeln(sock, "Host: " <& hostname);
+      writeln(sock, "User-Agent: BlackHole");
+      writeln(sock);
+      line := getln(sock);
+      if startsWith(line, "HTTP") then
+        statusInfo := trim(line[pos(line, " ") ..]);
+        statusCode := statusInfo[.. pred(pos(statusInfo, " "))];
+      end if;
+    end if;
+
+  The example above sends a HTTP request to a server and gets
+  the status code from the response. The example above consists
+  of code from the library "gethttp.s7i".
 
   Server sockets are supported with the type 'listener'.
   A listener is defined with:
@@ -8317,6 +8340,7 @@ CONTENTS
     _ICONV    Conversion of 'integer' to another type
     _IDX      Index (Element) of 'string', 'array' or 'ref_list'
     _INCR     Increment
+    _IPOW     Power with 'integer' exponent
     _LE       Less equal
     _LNG      Length
     _LOG2     Base 2 logarithm
@@ -8383,7 +8407,7 @@ CONTENTS
     STR_  strlib.c  'string' operations
     TIM_  timlib.c  'time' and 'duration' operations
     TYP_  typlib.c  'type' operations
-    UT8_  ut8lib.c  utf8_file operations
+    UT8_  ut8lib.c  'utf8_file' operations
 
   The C functions which implement primitive actions have
   lowercase names. E.g.: The action 'PRC_WHILE' is implemented
@@ -8568,15 +8592,41 @@ CONTENTS
     PRIMITIVE_FILE   filetype   FILE *
     PRIMITIVE_SOCKET sockettype int or unsigned int
 
-  Other Seed7 types correspond to C pointers, which point to a struct,
-  which is defined in 'common.h':
+  Other Seed7 types correspond to C pointers, which point to a struct.
+  Some of this structs are used in all situations: In the interpreter
+  and in the compiler and under different operation systems and with
+  different runtime libraries. This invariant structs are defined
+  in 'common.h':
 
     Seed7 type       C type    C struct           Comment
     string           stritype  struct stristruct  UTF-32 encoded, can contain null chars
     set              settype   struct setstruct    
-    pollData         polltype  struct pollstruct  Functions cast it to implementation dependent struct
     bstring          bstritype struct bstristruct Byte sequence, can contain null bytes
-    PRIMITIVE_WINDOW wintype   struct winstruct   Functions cast it to implementation dependent struct
+
+  Other Seed7 types also correspond to struct pointers, but the structs
+  are different in interpreted and compiled Seed7 programs. The
+  structs for interpreted programs are defined in 'data.h' and
+  the structs for compiled programs are defined in 'data_rtl.h':
+
+    Seed7 type  C type (interpreted)  C struct (interpreted)  C type (compiled)  C struct (compiled)
+    array       arraytype             struct stristruct       rtlArraytype       struct rtlArraystruct
+    hash        hashtype              struct hashstruct       rtlHashtype        struct rtlHashstruct
+    struct      structtype            struct structstruct     rtlStructtype      struct rtlStructstruct
+
+  Because interpreter and compiler use different structs the
+  functions from e.g. 'arrlib.c' cannot use functions
+  from 'arr_rtl.c'.
+
+  Finally some Seed7 types depend on the operating system or runtime
+  library used:
+
+    Seed7 type       C type      Defined as                        Sourcefile  Comment
+    bigInteger       biginttype  struct bigintstruct *             big_rtl.c   The built-in bigInteger library
+                     biginttype  mpz_ptr                           big_gmp.c   The GNU Multiple Precision Arithmetic Library
+    pollData         polltype    struct select_based_pollstruct *  pol_sel.c   Functions cast it to implementation dependent struct
+                     polltype    struct poll_based_pollstruct *    pol_unx.c   Functions cast it to implementation dependent struct
+    PRIMITIVE_WINDOW wintype     struct x11_winstruct *            drw_x11.c   Functions cast from winstruct * to x11_winstruct *
+                     wintype     struct win_winstruct *            drw_win.c   Functions cast from winstruct * to win_winstruct *
 
   Seed7 strings are UTF-32 encoded and C strings are zero
   terminated byte sequences. To convert between the different

@@ -509,6 +509,26 @@ const proc: removeFile (inout ftpConnection: ftp, in string: fileName) is func
 
 
 (**
+ *  Rename a file.
+ *  @exception FILE_ERROR The remote host returns an error.
+ *)
+const proc: moveFile (inout ftpConnection: ftp, in string: sourcePath, in string: destPath)  is func
+  begin
+    ftpCommand(ftp, "RNFR " <& striToUtf8(sourcePath));
+    ftpResponse(ftp);
+    if not startsWith(ftp.response, "350") then
+      raise FILE_ERROR;
+    else
+      ftpCommand(ftp, "RNTO " <& striToUtf8(destPath));
+      ftpResponse(ftp);
+      if not startsWith(ftp.response, "250") then
+        raise FILE_ERROR;
+      end if;
+    end if;
+  end func;
+
+
+(**
  *  Change the current working directory of a FTP connection.
  *  @exception FILE_ERROR The remote host returns an error.
  *)

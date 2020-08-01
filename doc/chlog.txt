@@ -1,3 +1,33 @@
+20120603:
+- An alternate version of the function 'filInputReady' was added to
+  the file "fil_unx.c" (thanks to Rainer Weikusat and Geoff Clare
+  for their help). The new function is used when "version.h" does
+  not define the macro 'read_buffer_empty'.
+- A check and a definition of the macro 'read_buffer_empty' for
+  HPUX was added to "chkccomp.c" (thanks to Richard Kettlewell and
+  Marc for their suggestions).
+- The example program "make7.sd7" was improved. Now it supports the
+  commands 'ifeq', 'wildcard' and 'include'. The commands of a rule
+  can now contain empty lines. Pattern rules can now be combined with
+  dependency rules (rules without commands).
+- The "ftp7.sd7" example program was improved to support the commands
+  'delete' and 'rename'.
+- The FAQ and the manual were improved to contain more links. The
+  additional links improve also the Seed7 homepage.
+- The new libraries "array.s7i", "hash.s7i", "bitset.s7i," "set.s7i",
+  "bitsetof.s7i", "hashsetof.s7i", "idxarray.s7i" and "struct.s7i"
+  were added. The contents of this libraries were extracted from the
+  "seed7_05.s7i" library. They are included from "seed7_05.s7i", so
+  no change in existing programs is necessary.
+- Documentation comments were added to "array.s7i", "idxarray.s7i",
+  "pixmapfont.s7i", "bitset.s7i", "bitsetof.s7i", "hashsetof.s7i",
+  "set.s7i", "hash.s7i" and "bigint.s7i".
+- The function 'moveFile' was added to the "ftp.s7i" library.
+- Comment blocks with deactivated code were removed from the
+  "seed7_05.s7i" library.
+- The program "chkccomp.c" was improved, to produce no error, when
+  the macro 'filInputReady' cannot be defined.
+
 20120520:
 - The FAQ and the manual were improved to contain more links. The
   additional links improve also the Seed7 homepage.
@@ -11,8 +41,8 @@
   'bigParse'.
 - The factorial operator (!) was added to "bigint.s7i".
 - A for-until-loop for 'bitset' was added to "seed7_05.s7i".
-- Tests for the 'parse' operator, when it parses integer literals with
-  a + sign, were added to "chkbig.sd7".
+- Tests for the 'parse' operator, when it parses integer literals
+  with a + sign, were added to "chkbig.sd7".
 - Tests of the function 'compare' were added to "chkbool.sd7".
 - Tests of the bigInteger operator 'parse' were added to
   "chkexc.sd7".

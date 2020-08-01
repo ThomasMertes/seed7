@@ -1,0 +1,284 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  hash.s7i      Hash map support library                          *)
+(*  Copyright (C) 1989 - 2012  Thomas Mertes                        *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+(**
+ *  Abstract data type, describing hash maps.
+ *  A hash map stores key-value pairs. A hash map guarantees that a
+ *  key can be mapped quickly to its corresponding value. The keys
+ *  of a hash map have the type ''keyType'' and the value have the
+ *  type ''baseType''. A hash map is only possible, when ''keyType''
+ *  supports the functions ''hashCode'' and ''compare''.
+ *)
+const func type: hash [ (in type: keyType) ] (in type: baseType) is func
+  result
+    var type: hashType is void;
+  begin
+    hashType := get_type(getfunc(hash [ (attr keyType) ] (attr baseType)));
+    if hashType = void then
+      global
+      hashType := newtype;
+      IN_PARAM_IS_REFERENCE(hashType);
+      const type: hash [ (attr keyType) ] (attr baseType) is                     hashType;
+      const type: key_type (attr hashType) is                                    keyType;
+      const type: base_type (attr hashType) is                                   baseType;
+
+      const reference: (attr hashType) . keyCreate   is getfunc((ref keyType param) ::= (in keyType param));
+      const reference: (attr hashType) . keyDestroy  is getfunc(destroy(ref keyType param));
+      const reference: (attr hashType) . keyCopy     is getfunc((inout keyType param) := (in keyType param));
+      const reference: (attr hashType) . keyCompare  is getfunc(compare(in keyType param, in keyType param));
+      const reference: (attr hashType) . dataCreate  is getfunc((ref baseType param) ::= (in baseType param));
+      const reference: (attr hashType) . dataDestroy is getfunc(destroy(ref baseType param));
+      const reference: (attr hashType) . dataCopy    is getfunc((inout baseType param) := (in baseType param));
+
+      const proc: CREATE (ref hashType param, in hashType param,
+                          in reference param, in reference param,
+                          in reference param, in reference param) is             action "HSH_CREATE";
+      const proc: DESTROY (ref hashType param, in reference param,
+                           in reference param) is                                action "HSH_DESTR";
+      const proc: COPY (inout hashType param, in hashType param,
+                        in reference param, in reference param,
+                        in reference param, in reference param) is               action "HSH_CPY";
+      const proc: FOR_DATA (inout baseType param, in hashType param,
+                            in proc param, in reference param) is                action "HSH_FOR";
+      const proc: FOR_KEY (inout keyType param, in hashType param,
+                           in proc param, in reference param) is                 action "HSH_FOR_KEY";
+      const proc: FOR_DATA_KEY (inout baseType param, inout keyType param,
+                                in hashType param, in proc param,
+                                in reference param, in reference param) is       action "HSH_FOR_DATA_KEY";
+      const func array keyType: KEYS (in hashType param, in reference param,
+                                      in reference param) is                     action "HSH_KEYS";
+      const func array baseType: VALUES (in hashType param, in reference param,
+                                         in reference param) is                  action "HSH_VALUES";
+
+      const proc: (ref hashType: dest) ::= (in hashType: source) is func
+        begin
+          CREATE(dest, source, hashType.keyCreate, hashType.keyDestroy,
+              hashType.dataCreate, hashType.dataDestroy);
+        end func;
+
+      const proc: destroy (ref hashType: oldHash) is func
+        begin
+          DESTROY(oldHash, hashType.keyDestroy, hashType.dataDestroy);
+        end func;
+
+      const proc: (inout hashType: dest) := (in hashType: source) is func
+        begin
+          COPY(dest, source, hashType.keyCreate, hashType.keyDestroy,
+              hashType.dataCreate, hashType.dataDestroy);
+        end func;
+
+      (**
+       *  Number of elements in the hash map ''aHash''.
+       *  @return the number of elements in ''aHash''.
+       *)
+      const func integer: length (in hashType: aHash)                         is action "HSH_LNG";
+
+      const func baseType: INDEX (in hashType param, in keyType param,
+                                  in integer param, in reference param) is       action "HSH_IDX";
+      const varfunc baseType: INDEX (inout hashType param, in keyType param,
+                                       in integer param, in reference param) is  action "HSH_IDX";
+
+      const func baseType: INDEX2 (in hashType param, in keyType param,
+                                   in baseType param, in integer param,
+                                   in reference param, in reference param,
+                                   in reference param) is                        action "HSH_IDX2";
+      const varfunc baseType: INDEX2 (inout hashType param, in keyType param,
+                                      in baseType param, in integer param,
+                                      in reference param, in reference param,
+                                      in reference param) is                     action "HSH_IDX2";
+
+      const func ptr baseType: REFINDEX (in hashType param, in keyType param,
+                                         in integer param, in reference param) is action "HSH_REFIDX";
+      const proc: INCL (inout hashType param, in keyType param,
+                        in baseType param, in integer param,
+                        in reference param, in reference param,
+                        in reference param, in reference param) is               action "HSH_INCL";
+      const proc: EXCL (inout hashType param, in keyType param,
+                        in integer param, in reference param,
+                        in reference param, in reference param) is               action "HSH_EXCL";
+(*
+      const func ptr baseType: @ (in hashType param) [ (in string param) ] is    action "HSH_REFIDX";
+      const func varptr baseType: @ (inout hashType param) [ (in string param) ] is action "HSH_REFIDX";
+      const varfunc baseType: table (inout hashType param, in baseType param) is action "HSH_NEW";
+      const func baseType: free (inout hashType param, in baseType param) is     action "HSH_FREE";
+*)
+      const func boolean: CONTAINS (in hashType param, in keyType param,
+                                    in integer param, in reference param) is     action "HSH_CONTAINS";
+(*
+      const func hashType: (attr hashType) conv (in hashType param) is           action "HSH_CONV";
+      const varfunc hashType: (attr hashType) conv (inout hashType param) is     action "TYP_VARCONV";
+*)
+      const func hashType: (attr hashType) . _GENERATE_EMPTY_HASH is             action "HSH_EMPTY";
+      const hashType: (attr hashType) . EMPTY_HASH is                            hashType._GENERATE_EMPTY_HASH;
+      const hashType: (attr hashType) . value is                                 hashType._GENERATE_EMPTY_HASH;
+
+      (**
+       *  Access one value from the hash table ''aHash''.
+       *  @return the element with the key ''aKey'' from ''aHash''.
+       *  @exception RANGE_ERROR When the ''aKey'' is not found in ''aHash''.
+       *)
+      const func baseType: (in hashType: aHash) [ (in keyType: aKey) ] is
+        return INDEX(aHash, aKey, hashCode(aKey), hashType.keyCompare);
+
+      const varfunc baseType: (inout hashType: aHash) [ (in keyType: aKey) ] is
+        return var INDEX(aHash, aKey, hashCode(aKey), hashType.keyCompare);
+
+      (**
+       *  Hash membership test.
+       *  Determine if ''aKey'' is a member of the hash map ''aHash''.
+       *  @return TRUE when ''aKey'' is a member of  ''aHash'',
+       *          FALSE otherwise.
+       *)
+      const func boolean: (in keyType: aKey) in (in hashType: aHash) is
+        return CONTAINS(aHash, aKey, hashCode(aKey), hashType.keyCompare);
+
+      (**
+       *  Negated hash membership test.
+       *  Determine if ''aKey'' is not a member of the hash map ''aHash''.
+       *  @return FALSE when ''aKey'' is a member of  ''aHash'',
+       *          TRUE otherwise.
+       *)
+      const func boolean: (in keyType: aKey) not in (in hashType: aHash) is
+        return not CONTAINS(aHash, aKey, hashCode(aKey), hashType.keyCompare);
+
+      (**
+       *  Add ''anElem'' with the key ''aKey'' to the hash map ''aHash''.
+       *  When an element with the key ''aKey'' already exists,
+       *  it is overwritten with ''anElem''.
+       *  @exception MEMORY_ERROR When there is not enough memory.
+       *)
+      const proc: incl (inout hashType: aHash, in keyType: aKey, in baseType: anElem) is func
+        begin
+          INCL(aHash, aKey, anElem, hashCode(aKey), hashType.keyCompare,
+              hashType.keyCreate, hashType.dataCreate, hashType.dataCopy);
+        end func;
+
+      (**
+       *  Remove the element with the key ''aKey'' from the hash map ''aHash''.
+       *)
+      const proc: excl (inout hashType: aHash, in keyType: aKey) is func
+        begin
+          EXCL(aHash, aKey, hashCode(aKey), hashType.keyCompare,
+              hashType.keyDestroy, hashType.dataDestroy);
+        end func;
+
+      (**
+       *  Add ''anElem'' with the key ''aKey'' to the hash map ''aHash''.
+       *  When an element with the key ''aKey'' already exists,
+       *  it is overwritten with ''anElem''.
+       *  @exception MEMORY_ERROR When there is not enough memory.
+       *)
+      const proc: (inout hashType: aHash) @:= [ (in keyType: aKey) ] (in baseType: anElem) is func
+        begin
+          INCL(aHash, aKey, anElem, hashCode(aKey), hashType.keyCompare,
+              hashType.keyCreate, hashType.dataCreate, hashType.dataCopy);
+        end func;
+
+(*
+      const proc: clear (inout hashType: aHash) is func
+        local
+          var baseType: anElem is baseType.value;
+        begin
+          for anElem range source do
+            excl(dest, anElem);
+          end for;
+        end func;
+*)
+
+      (**
+       *  For-loop where ''forVar'' loops over the values of the hash map ''aHash''.
+       *)
+      const proc: for (inout baseType: forVar) range (in hashType: aHash) do
+                    (in proc: statements)
+                  end for is func
+        begin
+          FOR_DATA(forVar, aHash, statements, hashType.dataCopy);
+        end func;
+
+      (**
+       *  For-loop where ''keyVar'' loops over the keys of the hash map ''aHash''.
+       *)
+      const proc: for key (inout keyType: keyVar) range (in hashType: aHash) do
+                    (in proc: statements)
+                  end for is func
+        begin
+          FOR_KEY(keyVar, aHash, statements, hashType.keyCopy);
+        end func;
+
+      (**
+       *  For-loop where ''forVar'' and ''keyVar' loop over the hash map ''aHash''.
+       *)
+      const proc: for (inout baseType: forVar) key (inout keyType: keyVar) range (in hashType: aHash) do
+                    (in proc: statements)
+                  end for is func
+        begin
+          FOR_DATA_KEY(forVar, keyVar, aHash, statements, hashType.dataCopy, hashType.keyCopy);
+        end func;
+
+      (**
+       *  Obtain the keys of the hash map ''aHash''.
+       *  @return the keys of the hash map.
+       *)
+      const func array keyType: keys (in hashType: aHash) is
+        return KEYS(aHash, hashType.keyCreate, hashType.keyDestroy);
+
+      (**
+       *  Obtain the values of the hash map ''aHash''.
+       *  @return the values of the hash map.
+       *)
+      const func array baseType: values (in hashType: aHash) is
+        return VALUES(aHash, hashType.dataCreate, hashType.dataDestroy);
+
+      if getfunc(hashCode(in baseType param)) <> NIL and
+          getfunc(compare(in baseType param, in baseType param)) <> NIL then
+
+        (**
+         *  Create a hash map from ''aHash'' where key and value are exchanged.
+         *  Since a hash value can correspond to many keys the type returned
+         *  is ''hash [baseType] array keyType''.
+         *)
+        const func hash [baseType] array keyType: flip (in hashType: aHash) is func
+          result
+            var hash [baseType] array keyType: result is (hash [baseType] array keyType).value;
+          local
+            var keyType: aKey is keyType.value;
+            var baseType: aValue is baseType.value;
+          begin
+            for aValue key aKey range aHash do
+              if aValue in result then
+                result[aValue] &:= aKey;
+              else
+                result @:= [aValue] [] (aKey);
+              end if;
+            end for;
+          end func;
+      end if;
+
+      end global;
+    end if;
+  end func;

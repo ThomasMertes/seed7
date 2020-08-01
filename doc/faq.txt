@@ -87,8 +87,8 @@ are defined to avoid the need to use shell (and cmd.exe) commands.
     - A standard path representation removes all problems with
       drive letters and different path delimiters.
  - Differences between Unix sockets and winsockets are hidden and
-   Seed7 sockets are files (as in Unix).
- - The library keyboard.s7i defines the file KEYBOARD, which supports
+   in Seed7 a socket is a file (as in Unix).
+ - The library keybd.s7i defines the file KEYBOARD, which supports
    reading single keypresses. The characters read from KEYBOARD are
    not echoed to the console and there is no need to press ENTER.
    There is also a portable way to check, if a key has been pressed.
@@ -195,12 +195,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 150000 lines of Seed7. For version 2012-05-06 the number of lines is:
+than 150000 lines of Seed7. For version 2012-06-03 the number of lines is:
 
-  101226  C source files (*.c)
+  101283  C source files (*.c)
    10093  C header files (*.h)
-  111481  Seed7 source files (*.sd7)
-   76908  Seed7 library/include files (*.s7i)
+  111601  Seed7 source files (*.sd7)
+   77500  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -305,11 +305,12 @@ and do (with the make program from the table above):
   make
 
 When the interpreter is compiled successfully the executable
-is placed in the 'src' directory. Additionally a symbolic link
-to the executable is placed in the 'prg' directory (Under
-windows symbolic links are not supported, so a copy of the
-executable is placed in the 'prg' directory). If you do several
-compilation attempts in succession you need to do
+and the libraries are placed in the 'bin' directory.
+Additionally a symbolic link to the executable is placed in
+the 'prg' directory (Under Windows symbolic links are not
+supported, so a copy of the executable is placed in the 'prg'
+directory). If you do several compilation attempts in
+succession you need to do
 
   make clean
 
@@ -489,18 +490,24 @@ program is compiled and linked afterwards. The Seed7 compiler can be called with
 
 Possible options are
 
-  -O  and -O2 tell the C compiler to optimize.
-  -g  tells the C compiler to generate an executable with debug information.
-      This way the debugger will refer to Seed7 source files and line numbers.
-      To generate debug information which refers to the temporary C program
-      the option -g-debug_c can be used.
-  -te generates code to trace exceptions. This option works in the same way
-      as the interpreter option -te: Every exception will write a
-      message to stdout and the user will be ask to continue (with enter) or
-      to terminate (with * ).
-  -r  suppresses the generation of range checks for strings and arrays.
-  -e  generates code which sends a signal, when an uncaught exception occurs.
-      This option allows debuggers to handle uncaught Seed7 exceptions.
+  -O  and -O2 Tell the C compiler to optimize.
+  -g  Tell the C compiler to generate an executable with debug information.
+       This way the debugger will refer to Seed7 source files and line numbers.
+       To generate debug information which refers to the temporary C program
+       the option -g-debug_c can be used.
+  -ocn  Optimize constants with level n. E.g.: -oc3. Where n is a digit
+       between 0 and 3:
+         0 Do no optimizations with constants.
+         1 Use literals and named constants to simplify expressions (default).
+         2 Evaluate constant expressions to simplify expressions.
+         3 Like -oc2 and additionally evaluate all constant expressions
+  -te Generate code to trace exceptions. This option works in the same way
+       as the interpreter option -te: Every exception will write a
+       message to stdout and the user will be ask to continue (with enter) or
+       to terminate (with * ).
+  -r  Suppress the generation of range checks for strings and arrays.
+  -e  Generate code which sends a signal, when an uncaught exception occurs.
+       This option allows debuggers to handle uncaught Seed7 exceptions.
 
 
 What are the reserved words of Seed7?
@@ -606,7 +613,7 @@ The C statements have some weaknesses which are avoided with the Seed7 statement
     }
 
   Forgetting break statements in a switch is another possible source of errors which
-  is avoided in Seed7:
+  is avoided with the case-statement of Seed7:
 
     case number of
       when {1, 2}:
@@ -775,8 +782,8 @@ Why does Seed7 not use type inference?
 Seed7 has a basic principle that would break if type
 inference would be used:
 
-  For every expression (and sub expression) you know its type at
-  compile time without knowing where this expression is used.
+   For every expression (and sub expression) you know its type at <br />
+   compile time without knowing where this expression is used. 
 
 It is exactly the violation of this principle that makes type
 inference possible. As long as this principle holds you need
@@ -830,8 +837,8 @@ No, it is not possible to overload functions (operators, statements) which have
 the same parameter types and just differ in the result type. This type of overloading
 has a big advantage:
 
-  For every expression (and sub expression) you know its type at
-  compile time without knowing where this expression is used.
+   For every expression (and sub expression) you know its type at <br />
+   compile time without knowing where this expression is used. 
 
 Therefore it is not possible to overload something which has no parameters (like
 a variable or a literal). As a consequence it is sometimes necessary to cast a
@@ -1063,10 +1070,10 @@ the function is called. When the function is executed the
 call-by-name parameter might be executed once, many times
 or not at all. Examples of call-by-name parameters are:
 
- - The conditions of while loops
+ - The conditions of while-loops
  - The statements in loop bodies
  - The statements that are conditionally executed in
-   an if statement
+   an if-statement
 
 As can be seen, call-by-name parameters are used all the time,
 without realizing it. A call-by-name parameter is a function

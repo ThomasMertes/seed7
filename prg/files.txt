@@ -89,11 +89,14 @@ wrinum.sd7   Write numbers as english text
 wumpus.sd7   Hunt the Wumpus game
 
   Seed7 include files:
+array.s7i    Support for arrays with integer index
 bigfile.s7i  bigInteger versions of seek, tell and length
 bigint.s7i   Unlimited precision integer support library
 bigrat.s7i   Big rational number support library
 binary.s7i   Functions to read binary data from string or file
 bitmapfont.s7i Font implementation type for bitmap fonts
+bitset.s7i   Support for sets of integer numbers
+bitsetof.s7i Support for bitsets of a base type
 boolean.s7i  Boolean support library
 cards.s7i    Playing card pictures of a french deck
 cgi.s7i      Support for the Common Gateway Interface
@@ -125,8 +128,11 @@ graph.s7i    Basic graphic library
 graph_file.s7i Implementation type to display graphic text
 gtkserver.s7i Gtk-server connection library
 gzip.s7i     Gzip uncompression function
+hash.s7i     Hash map support library
+hashsetof.s7i Support for hashsets of a base type
 html.s7i     Support functions for html
 html_ent.s7i HTML entity handling library
+idxarray.s7i Support for arrays with non-integer index
 inifile.s7i  Read key value pairs from an INI file
 integer.s7i  Integer support library
 keybd.s7i    Read from keyboard without buffering and echo
@@ -151,6 +157,7 @@ reverse.s7i  Filter file which writes right to left on output
 scanfile.s7i File scanner functions
 scanstri.s7i String scanner functions
 seed7_05.s7i Standard Seed7 library
+set.s7i      Support for sets of a base type
 shell.s7i    Support for shell commands
 sockbase.s7i Support for socket address and primitive socket
 socket.s7i   File implementation type for sockets
@@ -167,6 +174,7 @@ stdio.s7i    Standard input and output via files
 strifile.s7i Implementation type for files stored in a string
 string.s7i   String support library
 stritext.s7i string text library (uses an array string)
+struct.s7i   Struct support library
 syntax.s7i   Syntax definition of the standard Seed7 library
 tar.s7i      Tar archive library
 tee.s7i      Filter file which emulates the tee functionality

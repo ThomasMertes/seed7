@@ -99,7 +99,7 @@ const func string: (in string: stri) [ .. (in integer: stop) ]   is action "STR_
 
 
 (**
- *  Get a substring from a start position to a stop position .
+ *  Get a substring from a start position to a stop position.
  *  The first character in a string has the position 1.
  *  @return the substring from position start to stop.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.

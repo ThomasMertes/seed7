@@ -144,8 +144,6 @@ const func pixmapFontType: genPixmapFont (in vectorFont: vecFont,
     in color: foreground, in color: background) is func
   result
     var pixmapFontType: result is pixmapFontType.value;
-  local
-    var char: ch is ' ';
   begin
     if ' ' in vecFont.fontVectors then
       incl(result.pixmap, ' ', genPixmap(vecFont, vecFont.fontVectors[' '],

@@ -43,6 +43,11 @@ const func integer:           line_delta (in activeFont param)       is DYNAMIC;
 const func integer:           column_delta (in activeFont param)     is DYNAMIC;
 const func integer:           characterSpacing (in activeFont param) is DYNAMIC;
 
+(**
+ *  Type to describe a font, based on pixmap images.
+ *  Pixmap images are rectangular off screen windows, which are
+ *  supported by graphic system of the operating system.
+ *)
 const type: pixmapFontType is new struct
     var pixmapHashType: pixmap is pixmapHashType.value;
     var font: baseFont is emptyFont.value;
@@ -83,6 +88,9 @@ const func integer: characterSpacing (in pixmapFontType: actFont) is return actF
 #
 
 
+(**
+ *  Type used as key for the font cache.
+ *)
 const type: fontKeyType is new struct
     var font: baseFont is emptyFont.value;
     var integer: fontSize is 0;
@@ -114,6 +122,9 @@ const func integer: compare (in fontKeyType: fontKey1, in fontKeyType: fontKey2)
     end if;
   end func;
 
+(**
+ *  Type of the font cache.
+ *)
 const type: fontCacheType is hash [fontKeyType] activeFont;
 
 var fontCacheType: fontCache is fontCacheType.value;
@@ -124,8 +135,6 @@ const func pixmapFontType: genPixmapFont (in fontProperties: properties,
     in color: foreground, in color: background) is func
   result
     var pixmapFontType: result is pixmapFontType.value;
-  local
-    var char: ch is ' ';
   begin
     incl(result.pixmap, ' ', PRIMITIVE_WINDOW.value);
     result.baseFont := properties;
@@ -140,6 +149,9 @@ const func pixmapFontType: genPixmapFont (in fontProperties: properties,
   end func;
 
 
+(**
+ *  Get the specified font, either from the font cache or create it.
+ *)
 const func activeFont: getFont (in font: baseFont, in integer: fontSize,
     in integer: scale, in color: foreground, in color: background) is func
   result

@@ -89,7 +89,7 @@ pre.indent {
 (*                                                                  *)
 (*  manual.txt                                                      *)
 (*                                                                  *)
-(*  Copyright (C) 1989 - 2009  Thomas Mertes                        *)
+(*  Copyright (C) 1989 - 2012  Thomas Mertes                        *)
 (*  All rights reserved.                                            *)
 (*                                                                  *)
 (*  Documentation:  --><p></p><hr><h1 align="center">Manual for the Seed7 programming language</h1><hr><!--         *)
@@ -306,9 +306,9 @@ pre.indent {
   semantic concept. The predefined constructs of Seed7 are
   defined in a way to be easy readable and understandable. This
   practical approach can be summarized as:
-</p><pre>
-    "Programming should be fun"
-</pre><p>
+</p><dl><dd><table border="1" cellspacing="0" cellpadding="5"><tr><td>
+    <big><b><font color="orange">&nbsp;Programming should be fun&nbsp;</font></b></big>
+</td></tr></table></dd></dl><p>
   Seed7 programs can be interpreted or compiled. Therefore Seed7
   can be used for scripting and for "real" programs.
 </p>
@@ -521,7 +521,7 @@ pre.indent {
 <a name="tutorial_Hello_world"><h3>2.1 Hello world</h3></a>
 <p>
     A Seed7 program consists of a sequence of declarations.
-  With each declaration a type and a name is attached to the
+  With each declaration a <tt><a class="type" href="#types_type">type</a></tt> and a name is attached to the
   new object. In addition every new declared object gets an
   initial value. 
 </p><p>
@@ -615,9 +615,9 @@ pre.indent {
   This program contains local constants and variables of the
   type <tt><!-- ' --><a class="type" href="#types_integer">integer</a><!-- ' --></tt>. The constants and variables must be
   initialized when they are declared. This program contains
-  also an <a href="#stats_Assignment">assignment</a>, a <a href="#stats_while-statement">while-statement</a> and the expression to
+  also an <a class="keywd" href="#stats_Assignment">assignment</a>, a <a class="keywd" href="#stats_while-statement">while-statement</a> and the expression to
   compute the <tt>'celsius'</tt> value. Note that the statements inside
-  the <tt>'<font color=blue>while</font>'</tt> loop are between <tt>'<font color=blue>do</font>'</tt> and <tt>'<font color=blue>end while</font>'</tt>. The
+  the <a class="keywd" href="#stats_while-statement">while-loop</a> are between <tt>'<font color=blue>do</font>'</tt> and <tt>'<font color=blue>end while</font>'</tt>. The
   expression to compute the <tt>'celsius'</tt> value uses an integer
   division (<tt><!-- ' -->div<!-- ' --></tt>). The <tt>'write'</tt> statement can be used to write
   strings and integers without a newline character. The output
@@ -791,10 +791,10 @@ pre.indent {
   'call by value' and 'call by reference' and have a constant
   formal parameter. The <tt>'<font color=blue>in</font>'</tt> parameter is called by
   <tt>'val / ref'</tt> in this table which is easily explained:
-</p><pre>
+</p><dl><dd>
     An <tt>'<font color=blue>in</font>'</tt> parameter is either a <tt>'<font color=blue>val</font>'</tt> or a <tt>'<font color=blue>ref</font>'</tt> parameter
     depending on the type of the parameter.
-</pre><p>
+</dd></dl><p>
   The parameter
 </p><pre>
     <font color=blue>in</font> <font color=red>integer</font>: number
@@ -2325,8 +2325,8 @@ pre.indent {
 
 <a name="types_float"><h3>5.6 float</h3></a>
 <p>
-    The type <tt>'<font color=red>float</font>'</tt> consists of single precision floating
-  point numbers. Float literals are base 10 and contain a decimal point.
+    The type <tt>'<font color=red>float</font>'</tt> consists of single precision floating point
+  numbers. Float literals are base 10 and contain a decimal point.
   There must be at least one digit before and after the decimal point.
   An exponent part, which is introduced with E or e, is optional.
   The exponent can be signed, but the mantissa is not. A literal does
@@ -2338,8 +2338,10 @@ pre.indent {
   0.1234
 </pre><p>
   The functions <tt>'str'</tt> and the operators <tt>'digits'</tt> and <tt>'parse'</tt>
-  create and accept float literals with sign. The <tt>'<font color=red>float</font>'</tt>
+  create and accept float literals with sign. Basic <tt>'<font color=red>float</font>'</tt>
   functions are defined in the library <font color=maroon>"float.s7i"</font>.
+  Trigonometric- and other mathematical functions are defined
+  in the library <font color=maroon>"math.s7i"</font>.
 </p><pre>
     Constants:
       Infinity  Positive infinity
@@ -2846,7 +2848,9 @@ pre.indent {
   and can be obtained with the functions <tt>'minIdx'</tt> and <tt>'maxIdx'</tt>.
   There are functions which generate arrays with the default minimal
   index of 1 and other functions which generate arrays with the minimal
-  index taken from a parameter.
+  index taken from a parameter. The <tt>'<font color=red>array</font>'</tt> functions are defined
+  in the library <font color=maroon>"array.s7i"</font>. Arrays with non-integer index are defined
+  in the library <font color=maroon>"idxarray.s7i"</font>.
 </p><pre>
     Literal:
       [] (elem1, elem2)  Create an array with the given elements
@@ -2925,15 +2929,15 @@ pre.indent {
 <a name="types_hash"><h3>5.11 hash</h3></a>
 <p>
     The type <tt>'<font color=red>hash [keyType] baseType</font>'</tt> describes hash tables with
-  elements of <tt>'<font color=red>baseType</font>'</tt>. The elements can be accessed with an index of
-  <tt>'<font color=red>keyType</font>'</tt>.
+  elements of <tt>'<font color=red>baseType</font>'</tt>. The elements can be accessed with an index
+  of <tt>'<font color=red>keyType</font>'</tt>.
 </p><dl>
     <dt></dt><dd>For example: <tt>'<font color=red>hash [string] integer</font>'</tt> describes hash tables with
     <tt>'<font color=red>integer</font>'</tt> elements and <tt>'<font color=red>string</font>'</tt> keys.</dd>
 </dl><p>
-  The <tt>'<font color=red>keyType</font>'</tt> of a hash needs to provide the functions
-  <tt>'hashCode'</tt> and <tt>'compare'</tt>. Besides this the <tt>'<font color=red>keyType</font>'</tt>
-  can be any type.
+  The <tt>'<font color=red>keyType</font>'</tt> of a hash needs to provide the functions <tt>'hashCode'</tt>
+  and <tt>'compare'</tt>. Besides this the <tt>'<font color=red>keyType</font>'</tt> can be any type. The
+  <tt>'<font color=red>hash</font>'</tt> functions are defined in the library <font color=maroon>"hash.s7i"</font>.
 </p><pre>
     Constants:
       <font color=red>hashType</font>.EMPTY_HASH  Empty hash table
@@ -2988,8 +2992,9 @@ pre.indent {
 <a name="types_set"><h3>5.12 set</h3></a>
 <p>
     The type <tt>'<font color=red>set of baseType</font>'</tt> describes a set of elements of a
-  <tt>'<font color=red>baseType</font>'</tt>. (including the empty set). The type <tt>'<font color=red>bitset</font>'</tt> is
-  defined as <tt>'<font color=red>set of integer</font>'</tt>.
+  <tt>'<font color=red>baseType</font>'</tt>. (including the empty set). The type <tt>'<font color=red>set of integer</font>'</tt>
+  is an alternate name for <tt>'<font color=red>bitset</font>'</tt>, which is defined in the library
+  <font color=maroon>"bitset.s7i"</font>.
 </p><pre>
     Constants:
       <font color=red>setType</font>.EMPTY_SET  Empty set
@@ -5025,8 +5030,8 @@ pre.indent {
     readln(user_comment_string);
 </pre><p>
   In the previous examples all <tt>'read'</tt> statements read from the
-  file IN and all <tt>'write'</tt> statements write to the file OUT. The
-  files IN and OUT are initialized with <tt><!-- ' -->STD_IN<!-- ' --></tt> and <tt><!-- ' -->STD_OUT<!-- ' --></tt>
+  file <tt><!-- ' -->IN<!-- ' --></tt> and all <tt>'write'</tt> statements write to the file <tt><!-- ' -->OUT<!-- ' --></tt>. The
+  files <tt><!-- ' -->IN<!-- ' --></tt> and <tt><!-- ' -->OUT<!-- ' --></tt> are initialized with <tt><!-- ' -->STD_IN<!-- ' --></tt> and <tt><!-- ' -->STD_OUT<!-- ' --></tt>
   which are the stdin and stdout files of the operating system.
   (Usually the keyboard and the screen). When we want to write
   to other files we use write statements with the file as first
@@ -5056,16 +5061,16 @@ pre.indent {
 </pre><p>
   For doing I/O to a window on the screen we write:
 </p><pre>
-    window1 := open_window(SCREEN, 10, 10, 5, 60);
+    window1 := open_window(screen, 10, 10, 5, 60);
     box(window1);
     setPos(window1, 3, 1);
     write(window1, <font color=maroon>"hello there"</font>);
 </pre><p>
-  This opens the window 'window1' on the SCREEN at the position
+  This opens the window <tt>'window1'</tt> on the <tt>'screen'</tt> at the position
   10, 10. This window has 5 lines and 60 columns. A box (of
-  characters: - | + ) is written to surround the 'window1' and
+  characters: - | + ) is written to surround the <tt>'window1'</tt> and
   finally the string <tt><font color=maroon>"hello there"</font></tt> is written in the window
-  <tt>'window1'</tt> at Position 3, 1. If we want to clear the 'window1'
+  <tt>'window1'</tt> at Position 3, 1. If we want to clear the <tt>'window1'</tt>
   we write:
 </p><pre>
     clear(window1);
@@ -5128,11 +5133,11 @@ pre.indent {
         <font color=blue>end if</font>;
       <font color=blue>end func</font>;
 </pre><p>
-  The <tt>'str'</tt> function must deliver a corresponding string for
-  every value of the type. The <tt>'<font color=blue>parse</font>'</tt> function parses a string
+  The <tt><!-- ' -->str<!-- ' --></tt> function must deliver a corresponding string for
+  every value of the type. The <tt><!-- ' -->parse<!-- ' --></tt> operator parses a string
   and delivers the converted value as result. If the conversion
   is not successful the exception RANGE_ERROR is raised. The
-  attribute used with <tt>'<font color=blue>parse</font>'</tt> allows that it is overloaded for
+  attribute used with <tt><!-- ' --><font color=blue>parse</font><!-- ' --></tt> allows that it is overloaded for
   different types.
 </p><p>
   After defining the <tt>'str'</tt> and <tt>'<font color=blue>parse</font>'</tt> functions for a type the
@@ -5505,7 +5510,7 @@ pre.indent {
     stri := getln(IN);
 </pre><p>
   and <tt>'getln'</tt> may call gets(IN, 1) in a loop or may be defined
-  for the file IN. Finally the <tt>'<font color=blue>parse</font>'</tt> function converts the
+  for the file <tt><!-- ' -->IN<!-- ' --></tt>. Finally the <tt>'<font color=blue>parse</font>'</tt> function converts the
   string read into an <tt><!-- ' --><a class="type" href="#types_integer">integer</a><!-- ' --></tt> and assigns it to <tt>'number'</tt>
 </p><pre>
     number := <font color=red>integer</font> <font color=blue>parse</font> stri;
@@ -5513,21 +5518,21 @@ pre.indent {
 
 <a name="file_Standard_input_and_output_files"><h3>8.5 Standard input and output files</h3></a>
 <p>
-    The standard I/O files are <tt><!-- ' -->OUT<!-- ' --></tt> for output and <tt><!-- ' -->IN<!-- ' --></tt> for input.
-  This TWO are file-variables which are declared as follows:
+    The standard I/O files are <tt><!-- ' -->IN<!-- ' --></tt> for input and <tt><!-- ' -->OUT<!-- ' --></tt> for output.
+  <tt><!-- ' -->IN<!-- ' --></tt> and <tt><!-- ' -->OUT<!-- ' --></tt> are <tt><!-- ' --><a class="type" href="#types_file">file</a><!-- ' --></tt> variables, which are defined as follows:
 </p><pre>
     <font color=blue>var</font> <font color=red>file</font>: IN <font color=blue>is</font> STD_IN;
     <font color=blue>var</font> <font color=red>file</font>: OUT <font color=blue>is</font> STD_OUT;
 </pre><p>
   The files <tt><!-- ' -->STD_IN<!-- ' --></tt> and <tt><!-- ' -->STD_OUT<!-- ' --></tt> are the standard input and
   output files of the operating system (Usually the keyboard and
-  the screen). Because IN and OUT are variables redirection of
+  the screen). Because <tt><!-- ' -->IN<!-- ' --></tt> and <tt><!-- ' -->OUT<!-- ' --></tt> are variables redirection of
   standard input or standard output can be done easily by
   assigning a new value to them:
 </p><pre>
     IN := OTHER_FILE;
 </pre><p>
-  After that all <tt>'read'</tt> statements refer to OTHER_FILE.
+  After that all <tt>'read'</tt> statements refer to <tt>OTHER_FILE</tt>.
   Most operating systems have also a stderr file which
   can be accessed via the name <tt><!-- ' -->STD_ERR<!-- ' --></tt>. If you want to
   write error messages to the screen even when stdout
@@ -5545,8 +5550,8 @@ pre.indent {
 </p><pre>
     <font color=blue>var</font> <font color=red>file</font>: MY_FILE <font color=blue>is</font> STD_NULL;
 </pre><p>
-  It is also used to represent an illegal file value when for
-  example an <tt>'open'</tt> procedure fails.
+  It is also used to represent an illegal file value, when for
+  example an attempt to <tt><!-- ' -->open<!-- ' --></tt> a <tt><!-- ' --><a class="type" href="#types_file">file</a><!-- ' --></tt> fails.
 </p>
 
 <a name="file_Access_to_operating_system_files"><h3>8.6 Access to operating system files</h3></a>
@@ -5982,42 +5987,39 @@ pre.indent {
 
 <a name="file_Files_with_line_structure"><h3>8.8 Files with line structure</h3></a>
 <p>
-  The type <tt><!-- ' --><a class="type" href="#types_text">text</a><!-- ' --></tt> is a subtype of <tt><!-- ' --><a class="type" href="#types_file">file</a><!-- ' --></tt>, which adds a
-  line structure and other features such as scrolling and color.
-  The lines and columns of a type <tt><!-- ' --><a class="type" href="#types_text">text</a><!-- ' --></tt> start with 1
-  in the upper left corner and increase downward and rightward.
-  The function <tt><!-- ' -->setPos<!-- ' --></tt> sets the current line and column of a
-  <tt><!-- ' --><a class="type" href="#types_text">text</a><!-- ' --></tt>:
+  The library <font color=maroon>"text.s7i"</font> defines the type <tt><!-- ' --><a class="type" href="#types_text">text</a><!-- ' --></tt>, which is a
+  subtype of <tt><!-- ' --><a class="type" href="#types_file">file</a><!-- ' --></tt>. The type <tt><!-- ' --><a class="type" href="#types_text">text</a><!-- ' --></tt> adds a line structure and
+  other features such as scrolling and color to <tt><!-- ' --><a class="type" href="#types_file">file</a><!-- ' --></tt>. The
+  lines and columns of a <tt><!-- ' --><a class="type" href="#types_text">text</a><!-- ' --></tt> start with 1 in the upper left
+  corner and increase downward and rightward. The function
+  <tt><!-- ' -->setPos<!-- ' --></tt> sets the current line and column of a <tt><!-- ' --><a class="type" href="#types_text">text</a><!-- ' --></tt>:
 </p><pre>
-    <font color=blue>const</font> <font color=red>proc</font>: setPos (<font color=blue>inout</font> <font color=red>text</font>: aText, <font color=blue>in</font> <font color=red>integer</font>: line, <font color=blue>in</font> <font color=red>integer</font>: column) <font color=blue>is</font> ...
+    setPos(aText, 10, 20);
 </pre><p>
   The functions <tt><!-- ' -->setLine<!-- ' --></tt> and <tt><!-- ' -->setColumn<!-- ' --></tt> set just the
   line and column respectively:
 </p><pre>
-    <font color=blue>const</font> <font color=red>proc</font>: setLine (<font color=blue>inout</font> <font color=red>text</font>: aText, <font color=blue>in</font> <font color=red>integer</font>: line) <font color=blue>is</font> ...
-
-    <font color=blue>const</font> <font color=red>proc</font>: setColumn (<font color=blue>inout</font> <font color=red>text</font>: aText, <font color=blue>in</font> <font color=red>integer</font>: column) <font color=blue>is</font> ...
+    setLine(aText, 2);
+    setColumn(aText, 72);
 </pre><p>
   The current line and column of a <tt><!-- ' --><a class="type" href="#types_text">text</a><!-- ' --></tt> file can be retrieved
-  with <tt><!-- ' -->line'</tt> and <tt>'column<!-- ' --></tt>:
+  with <tt><!-- ' -->line<!-- ' --></tt> and <tt><!-- ' -->column<!-- ' --></tt>:
 </p><pre>
-    <font color=blue>const</font> <font color=red>func integer</font>: line (<font color=blue>ref</font> <font color=red>text</font>: aText) <font color=blue>is</font> ...
-
-    <font color=blue>const</font> <font color=red>func integer</font>: column (<font color=blue>ref</font> <font color=red>text</font>: aText) <font color=blue>is</font> ...
+    writeln(<font color=maroon>"The curent line is: "</font> &lt;& line(aText));
+    writeln(<font color=maroon>"The curent column is: "</font> &lt;& column(aText));
 </pre><p>
   The current height and width of a <tt><!-- ' --><a class="type" href="#types_text">text</a><!-- ' --></tt> file can be retrieved
-  with <tt>'height'</tt> and <tt>'width'</tt>:
+  with <tt><!-- ' -->height<!-- ' --></tt> and <tt><!-- ' -->width<!-- ' --></tt>:
 </p><pre>
-    <font color=blue>const</font> <font color=red>func integer</font>: height (<font color=blue>ref</font> <font color=red>text</font>: aText) <font color=blue>is</font> ...
-
-    <font color=blue>const</font> <font color=red>func integer</font>: width (<font color=blue>ref</font> <font color=red>text</font>: aText) <font color=blue>is</font> ...
+    writeln(<font color=maroon>"The height is: "</font> &lt;& height(aText));
+    writeln(<font color=maroon>"The width is: "</font> &lt;& width(aText));
 </pre><p>
-  To allow random access output to a text screen (or text window)
-  the type SCREEN_FILE is defined. The function
+  To allow random access output to a text console (or text window)
+  the library <font color=maroon>"console.s7i"</font> defines the type <tt><!-- ' -->console_file<!-- ' --></tt>. The function
 </p><pre>
-    open(SCREEN_FILE)
+    open(CONSOLE)
 </pre><p>
-  returns a SCREEN_FILE.
+  returns a <tt><!-- ' -->console_file<!-- ' --></tt>.
 </p>
 
 <a name="file_Sockets"><h3>8.9 Sockets</h3></a>
@@ -6028,15 +6030,36 @@ pre.indent {
 </p><pre>
     <font color=blue>var</font> <font color=red>file</font>: clientSocket <font color=blue>is</font> STD_NULL;
 </pre><p>
-  With <tt>'openInetSocket'</tt> an Internet client socket can be opened:
+  With <tt><!-- ' -->openInetSocket<!-- ' --></tt> an Internet client socket can be opened:
 </p><pre>
     clientSocket := openInetSocket(<font color=maroon>"www.google.com"</font>, 80);
 </pre><p>
-  The function <tt>'openInetSocket'</tt> creates and connects a socket.
-  Opening an Internet socket at the local host is done with:
+  The function <tt><!-- ' -->openInetSocket<!-- ' --></tt> creates and connects a socket.
+  Opening an Internet socket at the local host is also done with
+  a variant of <tt><!-- ' -->openInetSocket<!-- ' --></tt>:
 </p><pre>
     clientSocket := openInetSocket(1080);
 </pre><p>
+  Since sockets use the <tt><!-- ' --><a class="type" href="#types_file">file</a><!-- ' --></tt> interface functions
+  like <tt><!-- ' -->writeln<!-- ' --></tt> and <tt><!-- ' -->getln<!-- ' --></tt> can be used:
+</p><pre>
+    sock := openInetSocket(serverName, 80);
+    <font color=blue>if</font> sock <> STD_NULL <font color=blue>then</font>
+      writeln(sock, <font color=maroon>"GET "</font> <& address <& <font color=maroon>" HTTP/1.1"</font>);
+      writeln(sock, <font color=maroon>"Host: "</font> <& hostname);
+      writeln(sock, <font color=maroon>"User-Agent: BlackHole"</font>);
+      writeln(sock);
+      line := getln(sock);
+      <font color=blue>if</font> startsWith(line, <font color=maroon>"HTTP"</font>) <font color=blue>then</font>
+        statusInfo := trim(line[pos(line, <font color=maroon>" "</font>) ..]);
+        statusCode := statusInfo[.. pred(pos(statusInfo, <font color=maroon>" "</font>))];
+      <font color=blue>end if</font>;
+    <font color=blue>end if</font>;
+</pre><p>
+  The example above sends a HTTP request to a server and gets
+  the status code from the response. The example above consists
+  of code from the library <font color=maroon>"gethttp.s7i"</font>.
+</p><p>
   Server sockets are supported with the type <tt><!-- ' -->listener<!-- ' --></tt>.
   A listener is defined with:
 </p><pre>
@@ -8403,6 +8426,7 @@ pre.indent {
     <tr><td>_ICONV    <td width="20"></td><td>Conversion of <tt><!-- ' --><a class="type" href="#types_integer">integer</a><!-- ' --></tt> to another type</td></tr>
     <tr><td>_IDX      <td width="20"></td><td>Index (Element) of <tt><!-- ' --><a class="type" href="#types_string">string</a><!-- ' --></tt>, <tt><!-- ' --><a class="type" href="#types_array">array</a><!-- ' --></tt> or <tt><!-- ' --><a class="type" href="#types_ref_list">ref_list</a><!-- ' --></tt></td></tr>
     <tr><td>_INCR     <td width="20"></td><td>Increment</td></tr>
+    <tr><td>_IPOW     <td width="20"></td><td>Power with <tt><!-- ' --><a class="type" href="#types_integer">integer</a><!-- ' --></tt> exponent</td></tr>
     <tr><td>_LE       <td width="20"></td><td>Less equal</td></tr>
     <tr><td>_LNG      <td width="20"></td><td>Length</td></tr>
     <tr><td>_LOG2     <td width="20"></td><td>Base 2 logarithm</td></tr>
@@ -8469,7 +8493,7 @@ pre.indent {
     <tr><td>STR_  <td width="20"></td><td>strlib.c  <td width="20"></td><td><tt><!-- ' --><a class="type" href="#types_string">string</a><!-- ' --></tt> operations</td></tr>
     <tr><td>TIM_  <td width="20"></td><td>timlib.c  <td width="20"></td><td><tt><!-- ' --><a class="type" href="#types_time">time</a><!-- ' --></tt> and <tt><!-- ' --><a class="type" href="#types_duration">duration</a><!-- ' --></tt> operations</td></tr>
     <tr><td>TYP_  <td width="20"></td><td>typlib.c  <td width="20"></td><td><tt><!-- ' --><a class="type" href="#types_type">type</a><!-- ' --></tt> operations</td></tr>
-    <tr><td>UT8_  <td width="20"></td><td>ut8lib.c  <td width="20"></td><td><font color=red>utf8_file</font> operations</td></tr>
+    <tr><td>UT8_  <td width="20"></td><td>ut8lib.c  <td width="20"></td><td><tt><!-- ' -->utf8_file<!-- ' --></tt> operations</td></tr>
 </table></dd></dl><p>
   The C functions which implement primitive actions have
   lowercase names. E.g.: The action <tt>'PRC_WHILE'</tt> is implemented
@@ -8647,22 +8671,48 @@ pre.indent {
   defined in <tt>'common.h'</tt>:
 </p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Seed7 type</th>       <th>C type</th>     <th>Comment</th></tr>
-    <tr><td><font color=red>boolean</font></td>          <td>booltype</td>   <td>int</td></tr>
-    <tr><td><font color=red>integer</font></td>          <td>inttype</td>    <td>32- or 64-bit signed int</td></tr>
-    <tr><td><font color=red>float</font></td>            <td>floattype</td>  <td>float (or double)</td></tr>
-    <tr><td><font color=red>char</font></td>             <td>chartype</td>   <td>32-bit unsigned int</td></tr>
-    <tr><td><font color=red>PRIMITIVE_FILE</font></td>   <td>filetype</td>   <td>FILE *</td></tr>
-    <tr><td><font color=red>PRIMITIVE_SOCKET</font></td> <td>sockettype</td> <td>int or unsigned int</td></tr>
+    <tr><td><tt><a class="type" href="#types_boolean">boolean</a></tt></td>          <td>booltype</td>   <td>int</td></tr>
+    <tr><td><tt><a class="type" href="#types_integer">integer</a></tt></td>          <td>inttype</td>    <td>32- or 64-bit signed int</td></tr>
+    <tr><td><tt><a class="type" href="#types_float">float</a></tt></td>            <td>floattype</td>  <td>float (or double)</td></tr>
+    <tr><td><tt><a class="type" href="#types_char">char</a></tt></td>             <td>chartype</td>   <td>32-bit unsigned int</td></tr>
+    <tr><td><tt><font color=red>PRIMITIVE_FILE</font></tt></td>   <td>filetype</td>   <td>FILE *</td></tr>
+    <tr><td><tt><font color=red>PRIMITIVE_SOCKET</font></tt></td> <td>sockettype</td> <td>int or unsigned int</td></tr>
 </table><p>
-  Other Seed7 types correspond to C pointers, which point to a struct,
-  which is defined in <tt>'common.h'</tt>:
+  Other Seed7 types correspond to C pointers, which point to a struct.
+  Some of this structs are used in all situations: In the interpreter
+  and in the compiler and under different operation systems and with
+  different runtime libraries. This invariant structs are defined
+  in <tt>'common.h'</tt>:
 </p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Seed7 type</th>       <th>C type</th>    <th>C struct</th>           <th>Comment</th></tr>
-    <tr><td><font color=red>string</font></td>           <td>stritype</td>  <td>struct stristruct</td>  <td>UTF-32 encoded, can contain null chars</td></tr>
-    <tr><td><font color=red>set</font></td>              <td>settype</td>   <td>struct setstruct</td>   <td>&nbsp;</td></tr>
-    <tr><td><font color=red>pollData</font></td>         <td>polltype</td>  <td>struct pollstruct</td>  <td>Functions cast it to implementation dependent struct</td></tr>
-    <tr><td><font color=red>bstring</font></td>          <td>bstritype</td> <td>struct bstristruct</td> <td>Byte sequence, can contain null bytes</td></tr>
-    <tr><td><font color=red>PRIMITIVE_WINDOW</font></td> <td>wintype</td>   <td>struct winstruct</td>   <td>Functions cast it to implementation dependent struct</td></tr>
+    <tr><td><tt><a class="type" href="#types_string">string</a></tt></td>           <td>stritype</td>  <td>struct stristruct</td>  <td>UTF-32 encoded, can contain null chars</td></tr>
+    <tr><td><tt><a class="type" href="#types_set">set</a></tt></td>              <td>settype</td>   <td>struct setstruct</td>   <td>&nbsp;</td></tr>
+    <tr><td><tt><font color=red>bstring</font></tt></td>          <td>bstritype</td> <td>struct bstristruct</td> <td>Byte sequence, can contain null bytes</td></tr>
+</table><p>
+  Other Seed7 types also correspond to struct pointers, but the structs
+  are different in interpreted and compiled Seed7 programs. The
+  structs for interpreted programs are defined in <tt>'data.h'</tt> and
+  the structs for compiled programs are defined in <tt>'data_rtl.h'</tt>:
+</p><table border="1" cellspacing="0" cellpadding="5">
+    <tr><th>Seed7 type</th>  <th>C type (interpreted)</th>  <th>C struct (interpreted)</th>  <th>C type (compiled)</th>  <th>C struct (compiled)</th></tr>
+    <tr><td><tt><a class="type" href="#types_array">array</a></tt></td>       <td>arraytype</td>             <td>struct stristruct</td>       <td>rtlArraytype</td>       <td>struct rtlArraystruct</td></tr>
+    <tr><td><tt><a class="type" href="#types_hash">hash</a></tt></td>        <td>hashtype</td>              <td>struct hashstruct</td>       <td>rtlHashtype</td>        <td>struct rtlHashstruct</td></tr>
+    <tr><td><tt><a class="type" href="#types_struct">struct</a></tt></td>      <td>structtype</td>            <td>struct structstruct</td>     <td>rtlStructtype</td>      <td>struct rtlStructstruct</td></tr>
+</table><p>
+  Because interpreter and compiler use different structs the
+  functions from e.g. <tt>'arrlib.c'</tt> cannot use functions
+  from <tt>'arr_rtl.c'</tt>.
+</p><p>
+  Finally some Seed7 types depend on the operating system or runtime
+  library used:
+</p><table border="1" cellspacing="0" cellpadding="5">
+    <tr><th>Seed7 type</th>       <th>C type</th>      <th>Defined as</th>                        <th>Sourcefile</th>  <th>Comment</th></tr>
+    <tr><td rowspan="2"><tt><a class="type" href="#types_bigInteger">bigInteger</a></tt></td>       <td>biginttype</td>  <td>struct bigintstruct *</td>             <td>big_rtl.c</td>   <td>The built-in bigInteger library</td></tr>
+    <tr><!--                   --><td>biginttype</td>  <td>mpz_ptr</td>                           <td>big_gmp.c</td>   <td>The GNU Multiple Precision Arithmetic Library</td></tr>
+    <tr><td rowspan="2"><tt>pollData</tt></td>         <td>polltype</td>    <td>struct select_based_pollstruct *</td>  <td>pol_sel.c</td>   <td>Functions cast it to implementation dependent struct</td></tr>
+    <tr><!--                   --><td>polltype</td>    <td>struct poll_based_pollstruct *</td>    <td>pol_unx.c</td>   <td>Functions cast it to implementation dependent struct</td></tr>
+    <tr><td rowspan="2"><tt><font color=red>PRIMITIVE_WINDOW</font></tt></td> <td>wintype</td>     <td>struct x11_winstruct *</td>            <td>drw_x11.c</td>   <td>Functions cast from winstruct * to x11_winstruct *</td></tr>
+    <tr><!--                   --><td>wintype</td>     <td>struct win_winstruct *</td>            <td>drw_win.c</td>   <td>Functions cast from winstruct * to win_winstruct *</td></tr>
 </table><p>
   Seed7 strings are UTF-32 encoded and C strings are zero
   terminated byte sequences. To convert between the different
