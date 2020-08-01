@@ -44,6 +44,35 @@
 
 
 
+acttype actIConv (inttype ordinal)
+
+  {
+    acttype anAction;
+
+  /* actIConv */
+    if (ordinal < 0 || ordinal >= act_table.size) {
+      raise_error(RANGE_ERROR);
+      anAction = NULL;
+    } else {
+      anAction = act_table.primitive[ordinal].action;
+    } /* if */
+    return anAction;
+  } /* actIConv */
+
+
+
+inttype actOrd (acttype anAction)
+
+  {
+    inttype result;
+
+  /* actOrd */
+    result = get_primact(anAction) - act_table.primitive;
+    return result;
+  } /* actOrd */
+
+
+
 stritype actStr (acttype anAction)
 
   {

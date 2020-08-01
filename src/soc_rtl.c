@@ -204,11 +204,17 @@ static void dump_addrinfo (struct addrinfo *addrinfo_list)
     addr = addrinfo_list;
     do {
       printf("ai_flags=%d\n",    addr->ai_flags);
-      printf("ai_family=%d  (AF_INET=%d, AF_INET6=%d)\n", addr->ai_family, AF_INET, AF_INET6);
+      printf("ai_family=%d (%s)\n", addr->ai_family,
+          addr->ai_family == AF_INET ? "AF_INET" :
+          (addr->ai_family == AF_INET6 ? "AF_INET6" :
+          (addr->ai_family == AF_UNSPEC ? "AF_UNSPEC" : "UNKNOWN")));
       printf("ai_socktype=%d\n", addr->ai_socktype);
       printf("ai_protocol=%d\n", addr->ai_protocol);
       printf("ai_addrlen=%d\n", addr->ai_addrlen);
-      printf("sa_family=%d  (AF_INET=%d, AF_INET6=%d)\n", addr->ai_addr->sa_family, AF_INET, AF_INET6);
+      printf("sa_family=%d (%s)\n", addr->ai_addr->sa_family,
+          addr->ai_addr->sa_family == AF_INET ? "AF_INET" :
+          (addr->ai_addr->sa_family == AF_INET6 ? "AF_INET6" :
+          (addr->ai_addr->sa_family == AF_UNSPEC ? "AF_UNSPEC" : "UNKNOWN")));
       if (addr->ai_addr->sa_family == AF_INET) {
         struct sockaddr_in *inet_address = (struct sockaddr_in *) addr->ai_addr;
         uint32type ip4_address = ntohl(inet_address->sin_addr.s_addr);
@@ -225,15 +231,15 @@ static void dump_addrinfo (struct addrinfo *addrinfo_list)
         printf("sin_port=%d\n", ntohs(inet6_address->sin6_port));
         for (pos = 0; pos <= 7; pos++) {
           digitGroup[pos] =
-              inet6_address->sin6_addr.s6_addr[pos << 1] << 8 |
-              inet6_address->sin6_addr.s6_addr[(pos << 1) + 1];
+              (unsigned int) inet6_address->sin6_addr.s6_addr[pos << 1] << 8 |
+              (unsigned int) inet6_address->sin6_addr.s6_addr[(pos << 1) + 1];
         } /* for */
         printf("sin_addr.s_addr=%x:%x:%x:%x:%x:%x:%x:%x\n",
             digitGroup[0], digitGroup[1], digitGroup[2], digitGroup[3],
             digitGroup[4], digitGroup[5], digitGroup[6], digitGroup[7]);
       }
       printf("ai_canonname=%s\n", addr->ai_canonname);
-      printf("ai_next=%x\n", (memsizetype) addr->ai_next);
+      printf("ai_next=%lx\n", (memsizetype) addr->ai_next);
       /* {
         char name[1024];
         char serv[1024];

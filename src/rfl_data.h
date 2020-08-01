@@ -43,4 +43,4 @@ inttype rflLng (const_listtype list);
 listtype rflMklist (objecttype elem);
 inttype rflPos (const_listtype list_element, const const_objecttype searched_object);
 listtype rflRange (const listtype list, inttype start, inttype stop);
-listtype rflTail (const listtype list, inttype start);
+listtype rflTail (const_listtype list, inttype start);

@@ -43,6 +43,11 @@
 
 
 
+/**
+ *  Read a character from an UTF-8 file.
+ *  @return the character read, or EOF at the end of the file.
+ *  @exception RANGE_ERROR The file contains an illegal encoding.
+ */
 objecttype ut8_getc (listtype arguments)
 
   { /* ut8_getc */
@@ -53,6 +58,12 @@ objecttype ut8_getc (listtype arguments)
 
 
 
+/**
+ *  Return a string read with a maximum length from an UTF-8 file.
+ *  @return the string read.
+ *  @exception RANGE_ERROR The length is negative or the file
+ *             contains an illegal encoding.
+ */
 objecttype ut8_gets (listtype arguments)
 
   { /* ut8_gets */
@@ -64,22 +75,45 @@ objecttype ut8_gets (listtype arguments)
 
 
 
+/**
+ *  Read a line from an UTF-8 file.
+ *  The function accepts lines ending with '\n', "\r\n" or EOF.
+ *  The line ending characters are not copied into the string.
+ *  That means that the '\r' of a "\r\n" sequence is silently removed.
+ *  When the function is left the 2nd parameter (terminationChar)
+ *  contains '\n' or EOF.
+ *  @return the line read.
+ *  @exception RANGE_ERROR The file contains an illegal encoding.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *  @exception FILE_ERROR A system function returns an error.
+ */
 objecttype ut8_line_read (listtype arguments)
 
   {
-    objecttype ch_variable;
+    objecttype terminationChar;
 
   /* ut8_line_read */
     isit_file(arg_1(arguments));
-    ch_variable = arg_2(arguments);
-    isit_char(ch_variable);
-    is_variable(ch_variable);
+    terminationChar = arg_2(arguments);
+    isit_char(terminationChar);
+    is_variable(terminationChar);
     return bld_stri_temp(
-        ut8LineRead(take_file(arg_1(arguments)), &ch_variable->value.charvalue));
+        ut8LineRead(take_file(arg_1(arguments)),
+                    &terminationChar->value.charvalue));
   } /* ut8_line_read */
 
 
 
+/**
+ *  Set the current file position.
+ *  The file position is measured in bytes from the start of the file.
+ *  The first byte in the file has the position 1.
+ *  When the file position would be in the middle of an UTF-8 encoded
+ *  character the position is advanced to the beginning of the next
+ *  UTF-8 character.
+ *  @exception RANGE_ERROR The file position is negative or zero.
+ *  @exception FILE_ERROR The system function returns an error.
+ */
 objecttype ut8_seek (listtype arguments)
 
   { /* ut8_seek */
@@ -91,22 +125,40 @@ objecttype ut8_seek (listtype arguments)
 
 
 
+/**
+ *  Read a word from an UTF-8 file.
+ *  Before reading the word it skips spaces and tabs. The function
+ *  accepts words ending with ' ', '\t', '\n', "\r\n" or EOF.
+ *  The word ending characters are not copied into the string.
+ *  That means that the '\r' of a "\r\n" sequence is silently removed.
+ *  When the function is left the 2nd parameter (terminationChar)
+ *  contains ' ', '\t', '\n' or EOF.
+ *  @return the word read.
+ *  @exception RANGE_ERROR The file contains an illegal encoding.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *  @exception FILE_ERROR A system function returns an error.
+ */
 objecttype ut8_word_read (listtype arguments)
 
   {
-    objecttype ch_variable;
+    objecttype terminationChar;
 
   /* ut8_word_read */
     isit_file(arg_1(arguments));
-    ch_variable = arg_2(arguments);
-    isit_char(ch_variable);
-    is_variable(ch_variable);
+    terminationChar = arg_2(arguments);
+    isit_char(terminationChar);
+    is_variable(terminationChar);
     return bld_stri_temp(
-        ut8WordRead(take_file(arg_1(arguments)), &ch_variable->value.charvalue));
+        ut8WordRead(take_file(arg_1(arguments)),
+                    &terminationChar->value.charvalue));
   } /* ut8_word_read */
 
 
 
+/**
+ *  Write a string to an UTF-8 file.
+ *  @exception FILE_ERROR A system function returns an error.
+ */
 objecttype ut8_write (listtype arguments)
 
   { /* ut8_write */

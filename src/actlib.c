@@ -100,11 +100,43 @@ objecttype act_gen (listtype arguments)
 
 
 
+objecttype act_iconv (listtype arguments)
+
+  {
+    inttype ordinal;
+
+  /* act_iconv */
+    isit_int(arg_3(arguments));
+    ordinal = take_int(arg_3(arguments));
+    if (ordinal < 0 || ordinal >= act_table.size) {
+      return raise_exception(SYS_RNG_EXCEPTION);
+    } else {
+      return bld_action_temp(act_table.primitive[ordinal].action);
+    } /* if */
+  } /* act_iconv */
+
+
+
 objecttype act_illegal (listtype arguments)
 
   { /* act_illegal */
     return raise_exception(SYS_ACT_ILLEGAL_EXCEPTION);
   } /* act_illegal */
+
+
+
+objecttype act_ord (listtype arguments)
+
+  {
+    primacttype primact;
+    inttype result;
+
+  /* act_ord */
+    isit_action(arg_1(arguments));
+    primact = get_primact(take_action(arg_1(arguments)));
+    result = primact - act_table.primitive;
+    return bld_int_temp(result);
+  } /* act_ord */
 
 
 

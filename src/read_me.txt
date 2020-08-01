@@ -467,6 +467,7 @@ HOW TO VERIFY THAT THE INTERPRETER WORKS CORRECT?
     chkbig - okay
     chkbool - okay
     chkset - okay
+    chkhsh - okay
     chkexc - okay
 
   This verifies that interpreter and compiler work correct.
@@ -530,7 +531,8 @@ SOURCE FILES
 
     The C code of Seed7 can be grouped into several categorys:
   Interpreter main, Parser, Interpreter core, Primitive action functions,
-  General helper functions, Runtime library and Compiler data library.
+  General helper functions, Runtime library, Drivers and Compiler data
+  library.
 
 
 INTERPRETER MAIN
@@ -564,6 +566,7 @@ PARSER
     findid.c   Procedures to maintain the identifier table.
     error.c    Submit normal compile time error messages.
     infile.c   Procedures to open, close and read the source file.
+    libpath.c  Procedures to manage the include library search path.
     symbol.c   Maintains the current symbol of the scanner.
     info.c     Procedures for compile time info.
     stat.c     Procedures for maintaining an analyze phase statistic.
@@ -597,10 +600,12 @@ PRIMITIVE ACTION FUNCTIONS
     actlib.c   ACTION (ACT_*) actions
     arrlib.c   array (ARR_*) actions
     biglib.c   bigInteger (BIG_*) actions
+    binlib.c   binary (BIN_*) actions
     blnlib.c   boolean (BLN_*) actions
     bstlib.c   byte string (BST_*) actions
     chrlib.c   char (CHR_*) actions
     cmdlib.c   Directory, file and system command (CMD_*) actions
+    conlib.c   Text console (CON_*) actions
     dcllib.c   Declaration (DCL_*) actions
     drwlib.c   Drawing (DRW_*) actions
     enulib.c   Enumeration (ENU_*) actions
@@ -611,11 +616,11 @@ PRIMITIVE ACTION FUNCTIONS
     itflib.c   interface (ITF_*) actions
     kbdlib.c   Keyboard (KBD_*) actions
     lstlib.c   List (LST_*) actions
+    pollib.c   Poll (POL_*) actions
     prclib.c   proc/statement (PRC_*) actions
     prglib.c   Program (PRG_*) actions
     reflib.c   reference (REF_*) actions
     rfllib.c   ref_list (RFL_*) actions
-    scrlib.c   Screen (SCR_*) actions
     sctlib.c   struct (SCT_*) actions
     setlib.c   set (SET_*) actions
     soclib.c   PRIMITIVE_SOCKET (SOC_*) actions
@@ -644,6 +649,7 @@ GENERAL HELPER FUNCTIONS
     identutl.c Procedures to maintain objects of type identtype.
     chclsutl.c Compute the type of a character very quickly.
     sigutl.c   Driver shutdown and signal handling.
+    arrutl.c   Maintain objects of type arraytype.
 
   The general helper functions are licensed under the GPL.
 
@@ -654,44 +660,74 @@ RUNTIME LIBRARY
   interpreted and compiled code (The Seed7 runtime library is
   linked to every compiled Seed7 program).
 
-    arr_rtl.c  array library
-    big_rtl.c  bigInteger library
-    bln_rtl.c  boolean library
-    bst_rtl.c  byte string library
-    chr_rtl.c  char library
-    cmd_rtl.c  Various directory, file and other commands
-    dir_rtl.c  Directory library
-    drw_rtl.c  Drawing library
-    fil_rtl.c  File library
-    flt_rtl.c  float library
-    hsh_rtl.c  hash library
-    int_rtl.c  integer library
-    kbd_rtl.c  Keyboard library
-    scr_rtl.c  Screen (text console/terminal) library
-    set_rtl.c  set library
-    soc_rtl.c  Socket library
-    str_rtl.c  string library
-    tim_rtl.c  time library
-    ut8_rtl.c  utf8_file library
-    heaputl.c  heap utility library
-    striutl.c  string utility library
-    big_gmp.c  Alternate bigInteger library based on GMP
-    cmd_unx.c  Unix functions for commands
-    cmd_win.c  Windows functions for commands
-    dir_dos.c  Dos directory access functions
-    dir_win.c  Windows directory access functions
-    scr_inf.c  Terminfo screen (text console/terminal) driver
-    scr_win.c  Windows screen (text console/terminal) driver
-    kbd_inf.c  Terminfo keybord driver
-    kbd_poll.c Terminfo keyboard driver using poll()
-    trm_inf.c  Terminfo support
-    tim_unx.c  Unix time driver
-    tim_win.c  Windows time driver
-    drw_dos.c  Dos drawing functions (dummy functions)
-    drw_win.c  Windows drawing functions
-    drw_x11.c  X11 drawing functions
+    arr_rtl.c  Primitive actions for the array type.
+    big_rtl.c  Functions for the built-in bigInteger support.
+    bln_rtl.c  Primitive actions for the boolean type.
+    bst_rtl.c  Primitive actions for the byte string type.
+    chr_rtl.c  Primitive actions for the integer type.
+    cmd_rtl.c  Directory, file and other system functions.
+    con_rtl.c  Primitive actions for console/terminal output.
+    dir_rtl.c  Primitive actions for the directory type.
+    drw_rtl.c  Generic graphic drawing functions.
+    fil_rtl.c  Primitive actions for the C library file type.
+    flt_rtl.c  Primitive actions for the float type.
+    hsh_rtl.c  Primitive actions for the hash map type.
+    int_rtl.c  Primitive actions for the integer type.
+    itf_rtl.c  Primitive actions for the interface type.
+    kbd_rtl.c  Generic keyboard support for console keyboard.
+    set_rtl.c  Primitive actions for the set type.
+    soc_rtl.c  Primitive actions for the socket type.
+    str_rtl.c  Primitive actions for the string type.
+    tim_rtl.c  Time access using the C capabilities.
+    ut8_rtl.c  Primitive actions for the UTF-8 file type.
+    heaputl.c  Procedures for heap allocation and maintainance.
+    striutl.c  Procedures to work with wide char strings.
 
   The runtime library is licensed under the LGPL.
+
+
+DRIVERS
+
+    The drivers are also part of the runtime library.
+  Depending on operating system and C compiler the makefile
+  decides, which driver is used.
+
+    big_gmp.c  Alternate bigInteger library based on GMP.
+    cmd_unx.c  Command functions which call the Unix API.
+    cmd_win.c  Command functions which call the Windows API.
+    con_cap.c  Driver for termcap console access.
+    con_con.c  Driver for conio console access.
+    con_cur.c  Driver for curses console access.
+    con_dos.c  Driver for dos console access.
+    con_inf.c  Driver for terminfo console access.
+    con_tcp.c  Driver for termcap console access.
+    con_wat.c  Driver for watcom console access.
+    con_win.c  Driver for windows console access.
+    con_x11.c  Driver for X11 text console access.
+    dir_dos.c  Directory functions which call the Dos API.
+    dir_win.c  Directory functions which call the Windows API.
+    drw_dos.c  Graphic access using the dos capabilities.
+    drw_win.c  Graphic access using the windows capabilities.
+    drw_x11.c  Graphic access using the X11 capabilities.
+    fil_dos.c  File functions which call the Dos API.
+    fil_unx.c  File functions which call the Unix API.
+    fil_win.c  File functions which call the Windows API.
+    gkb_rtl.c  Generic keyboard support for graphics keyboard.
+    gkb_win.c  Keyboard and mouse access for windows.
+    gkb_x11.c  Keyboard and mouse access with X11 capabilities.
+    kbd_inf.c  Driver for terminfo keyboard access.
+    kbd_poll.c Driver for terminfo keyboard access using poll().
+    pol_dos.c  Poll type and function using DOS capabilities.
+    pol_sel.c  Poll type and function based on select function.
+    pol_unx.c  Poll type and function using UNIX capabilities.
+    soc_dos.c  Dummy functions for the socket type.
+    trm_cap.c  Driver for termcap screen access.
+    trm_inf.c  Driver for terminfo screen access.
+    tim_dos.c  Time functions which call the Dos API.
+    tim_unx.c  Time functions which call the Unix API.
+    tim_win.c  Time functions which call the Windows API.
+
+  The drivers are licensed under the LGPL.
 
 
 COMPILER DATA LIBRARY
@@ -711,6 +747,18 @@ COMPILER DATA LIBRARY
     datautl.c  Procedures to maintain objects of type identtype.
 
   The compiler data library is licensed under the GPL.
+
+
+PROGRAMS USED BY THE MAKEFILES
+
+    The makefiles use programs to write definitions to
+  version.h . This are stand alone programs that are not
+  linked to the interpreter or to the runtime library.
+
+    chkccomp   Check properties of C compiler and runtime.
+    setpaths   Write definitions for Seed7 specific paths.
+
+  The programs used by the makefiles are licensed under the GPL.
 
 
 THE VERSION.H FILE
@@ -768,20 +816,19 @@ THE VERSION.H FILE
                         a SIGALRM signal. Only one #define of
                         AWAIT_WITH_xxx is allowed.
 
-  AWAIT_WITH_SIGNAL: The function timAwait() uses the
-                        functions signal(), setjmp(),
-                        setitimer(), pause(), longjmp() and
-                        a signal handler function to catch
-                        a SIGALRM signal. Only one #define of
-                        AWAIT_WITH_xxx is allowed.
+  AWAIT_WITH_SIGNAL: The function timAwait() uses the functions
+                     signal(), setjmp(), setitimer(), pause(),
+                     longjmp() and a signal handler function to
+                     catch a SIGALRM signal. Only one #define of
+                     AWAIT_WITH_xxx is allowed.
 
-  OS_STRI_WCHAR: Defined when the system calls (os_...)
-                 use wide characters (type wchar_t) for
-                 string and path parameters. In this case
-                 functions like _wgetcwd(), wreaddir() and
-                 _wstati64() together with types like 'WDIR',
-                 'wdirent' and 'struct _stati64' must be used.
-                 It is therefore necessary to define the os_...
+  OS_STRI_WCHAR: Defined when the system calls (os_...) use
+                 wide characters (type wchar_t) for string
+                 and path parameters. In this case functions
+                 like _wgetcwd(), wreaddir() and _wstati64()
+                 together with types like 'WDIR', 'wdirent'
+                 and 'struct _stati64' must be used. It is
+                 therefore necessary to define the os_...
                  macros accordingly.
 
   OS_STRI_UTF8: Defined when the system calls (os_...) use
@@ -910,6 +957,12 @@ THE VERSION.H FILE
   os_off_t: Type used for os_fseek(), os_ftell(), offsetSeek(),
             offsetTell() and seekFileLength().
 
+  SHORT_SIZE: Size of a short int in bits.
+
+  INT_SIZE: Size of an int in bits.
+
+  LONG_SIZE: Size of a long int in bits.
+
   POINTER_SIZE: Size of a pointer in bits.
 
   FLOAT_SIZE: Size of a float in bits.
@@ -1031,6 +1084,55 @@ THE VERSION.H FILE
                            This macro is defined when
                            ~(-1) == 0 holds.
 
+  ONES_COMPLEMENT_INTTYPE: Defined when signed integers are
+                           represented as ones complement
+                           numbers. This macro is currently
+                           not used.
+
+  LITTLE_ENDIAN_INTTYPE: Defined when the byte ordering of
+                         integers is little endian.
+
+  BIG_ENDIAN_INTTYPE: Defined when the byte ordering of integers
+                      is big endian.
+
+  MALLOC_ALIGNMENT: Contains the number of zero bits (counting
+                    from the least significant bit) in an address
+                    returned by malloc(). The memory management
+                    in the parser uses this alignment.
+
+  UNALIGNED_MEMORY_ACCESS_OKAY: Defined when integers can be read
+                                from unaligned memory positions.
+                                This macro is currently not used.
+
+  INT_DIV_BY_ZERO_POPUP: Defined when an integer division by zero
+                         may trigger a popup window. Consequently
+                         chkccomp.c defines CHECK_INT_DIV_BY_ZERO,
+                         to avoid the popup.
+
+  INT_DIV_BY_ZERO_SIGNALS: Defined when an integer division by
+                           zero triggers the signal SIGFPE. When
+                           it is defined chkccomp.c defines also
+                           DO_SIGFPE_WITH_DIV_BY_ZERO.
+
+  DO_SIGFPE_WITH_DIV_BY_ZERO: Defined when SIGFPE should be raised
+                              with a division by zero instead of
+                              just calling raise(SIGFPE). Under
+                              Windows it is necessary to trigger
+                              SIGFPE this way to assure that the
+                              debugger can catch it. The Seed7 to
+                              C compiler produces code to raise
+                              SIGFPE when an uncaught EXCEPTION
+                              occurs (when the compiler was called
+                              with the option -e).
+
+  CHECK_INT_DIV_BY_ZERO: Instruct the Seed7 to C compiler to
+                         generate C code, which checks all integer
+                         divisions (div, rem, mdiv and mod) for
+                         division by zero. The generated C code
+                         should, when executed, raise the
+                         exception NUMERIC_ERROR instead of doing
+                         the illegal divide operation.
+
   TURN_OFF_FP_EXCEPTIONS: In Seed7 floating point errors such
                           as the division by zero should create
                           values like Infinite and NaN which
@@ -1054,14 +1156,6 @@ THE VERSION.H FILE
   POWER_OF_ZERO_WRONG: Defined when the pow() function does not
                        work correctly, when the base is zero and
                        and the exponent is negative.
-
-  CHECK_INT_DIV_BY_ZERO: Instruct the Seed7 to C compiler to
-                         generate C code, which checks all integer
-                         divisions (div, rem, mdiv and mod) for
-                         division by zero. The generated C code
-                         should, when executed, raise the
-                         exception NUMERIC_ERROR instead of doing
-                         the illegal divide operation.
 
   FLOAT_ZERO_DIV_ERROR: Defined when the C compiler classifies a
                         floating point division by zero as fatal
@@ -1104,6 +1198,9 @@ THE VERSION.H FILE
   INITIALIZE_OS_ENVIRON: Defined when environ respectively
                          _wenviron is NULL unless getenv() is
                          called.
+
+  HOME_DIR_ENV_VAR: Name of the environment variable that contains
+                    the path of the home directory.
 
   LIMITED_CSTRI_LITERAL_LEN: Defined when the C compiler limits
                              the length of string literals.

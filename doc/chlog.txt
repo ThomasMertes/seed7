@@ -1,3 +1,60 @@
+20131027:
+- Compiler and runtime library have been improved to support
+  big-endian systems. Thanks go to Brian Callahan, for his support
+  and for providing access to his PowerPC Macintosh under OpenBSD.
+- The list of source files and the chapter about the defines used in
+  version.h have been improved in src/read_me.txt.
+- The library tls.s7i has been improved to avoid raising an
+  exception, when the remote side closes the socket.
+- The program chkccomp.c has been improved to write defines for
+  CHECK_INT_DIV_BY_ZERO, INT_DIV_BY_ZERO_SIGNALS and
+  DO_SIGFPE_WITH_DIV_BY_ZERO to version.h.
+- Documentation comments have been added or improved in fillib.c,
+  int_rtl.c, soclib.c, tim_dos.c, tim_unx.c, tim_win.c, ut8lib.c,
+  ut8_rtl.c, tls.s7i and bytedata.s7i.
+- The generic compare functions bigCmpGeneric, bstCmpGeneric,
+  chrCmpGeneric, intCmpGeneric, rflCmpGeneric, setCmpGeneric,
+  strCmpGeneric and typCmpGeneric have been improved to work
+  endianness neutral. Now they work correct on little- and
+  big-endian systems.
+- The generic create functions bigCreateGeneric, bstCreateGeneric,
+  drwCreateGeneric, rflCreateGeneric, setCreateGeneric,
+  strCreateGeneric and itfCreateGeneric have been improved to work
+  endianness neutral. Now they work correct on little- and
+  big-endian systems.
+- The new generic copy functions bigCpyGeneric, bstCpyGeneric,
+  drwCpyGeneric, fltCpyGeneric, rflCpyGeneric, setCpyGeneric and
+  strCpyGeneric have been added. This functions work endianness
+  neutral.
+- The new generic destroy functions bigDestrGeneric,
+  drwDestrGeneric, rflDestrGeneric, setDestrGeneric and
+  strDestrGeneric have been added. This functions work endianness
+  neutral.
+- The functions uintCmpGeneric, intCreateGeneric and intDestrGeneric
+  have been renamed to genericCmp, genericCreate respectively
+  genericDestr.
+- The functions genericCpy, ptrCmp, ptrCmpGeneric, ptrCpyGeneric and
+  ptrCreateGeneric have been added to int_rtl.c.
+- The function cmdConfigValue in cmd_rtl.c has been improved to
+  support the config value DO_SIGFPE_WITH_DIV_BY_ZERO.
+- The handling of the option -l in processOptions (file s7.c) has
+  been improved to work endianness neutral.
+- Several functions have been optimized:
+  In infile.c:   get_file_name and get_file_name_ustri
+  In prg_comp.c: prgSyobject
+  In rfllib.c:   rfl_elemcpy and rfl_idx
+  In rfl_data.c: rflElemcpy, rflIdx and rflTail
+- The function get_ident and the macro IDENT_TABLE have been changed
+  to have an additional progtype argument.
+- The function typNum in typ_data.c has been improved to use a
+  hashtable.
+- In typlib.c the functions typ_num and typ_str have been improved
+  to call typNum respectively typStr.
+- Support for the actions ACT_ICONV and ACT_ORD has been added to
+  interpreter, compiler and runtime library.
+- The function id_string2 has been added to datautl.c, and used in
+  ref_data.c and typ_data.c.
+
 20131013:
 - Libraries for TLS (Transport Layer Security), SSL (Secure Sockets
   Layer) and HTTPS (HyperText Transfer Protocol Secure) support have

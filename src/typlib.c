@@ -33,6 +33,7 @@
 
 #include "common.h"
 #include "data.h"
+#include "data_rtl.h"
 #include "heaputl.h"
 #include "flistutl.h"
 #include "datautl.h"
@@ -44,6 +45,7 @@
 #include "objutl.h"
 #include "runerr.h"
 #include "traceutl.h"
+#include "typ_data.h"
 
 #undef EXTERN
 #define EXTERN
@@ -462,51 +464,10 @@ objecttype typ_ne (listtype arguments)
 
 objecttype typ_num (listtype arguments)
 
-  {
-    static unsigned int table_size = 0;
-    static unsigned int table_used = 0;
-    static typetype *type_table = NULL;
-    register typetype *actual_type_ptr;
-    register typetype actual_type;
-    unsigned int result;
-
-  /* typ_num */
+  { /* typ_num */
     isit_type(arg_1(arguments));
-    actual_type = take_type(arg_1(arguments));
-    if (actual_type == NULL) {
-      result = 0;
-    } else {
-      table_used++;
-      if (table_used > table_size) {
-        if (type_table == NULL) {
-          (void) ALLOC_TABLE(type_table, typetype, table_used + TYPE_TABLE_INCREMENT);
-        } else {
-          type_table = REALLOC_TABLE(type_table, typetype,
-              table_size, table_used + TYPE_TABLE_INCREMENT);
-          if (type_table != NULL) {
-            COUNT3_TABLE(typetype, table_size, table_used + TYPE_TABLE_INCREMENT);
-          } /* if */
-        } /* if */
-        if (type_table == NULL) {
-          table_size = 0;
-          table_used = 0;
-          return raise_exception(SYS_MEM_EXCEPTION);
-        } /* if */
-        table_size = table_used + TYPE_TABLE_INCREMENT;
-      } /* if */
-      type_table[table_used - 1] = actual_type;
-      actual_type_ptr = type_table;
-      while (*actual_type_ptr != actual_type) {
-        actual_type_ptr++;
-      } /* while */
-      result = (unsigned int) (actual_type_ptr - type_table);
-      if (result != table_used - 1) {
-        table_used--;
-      } /* if */
-      result++;
-    } /* if */
-    /* printf("typ_num: %lx %lx %lu\n", arg_1(arguments), actual_type, result); */
-    return bld_int_temp((inttype) result);
+    return bld_int_temp(
+        typNum(take_type(arg_1(arguments))));
   } /* typ_num */
 
 
@@ -539,28 +500,10 @@ objecttype typ_result (listtype arguments)
 
 objecttype typ_str (listtype arguments)
 
-  {
-    typetype type_arg;
-    const_cstritype stri;
-    stritype result;
-
-  /* typ_str */
+  { /* typ_str */
     isit_type(arg_1(arguments));
-    type_arg = take_type(arg_1(arguments));
-    if (type_arg->name != NULL) {
-      stri = id_string(type_arg->name);
-/*  } else if type_arg->result_type != NULL &&
-        type_arg->result_type->name != NULL) {
-      stri = id_string(type_arg->result_type->name); */
-    } else {
-      stri = "*ANONYM_TYPE*";
-    } /* if */
-    result = cstri_to_stri(stri);
-    if (result == NULL) {
-      return raise_exception(SYS_MEM_EXCEPTION);
-    } else {
-      return bld_stri_temp(result);
-    } /* if */
+    return bld_stri_temp(
+        typStr(take_type(arg_1(arguments))));
   } /* typ_str */
 
 

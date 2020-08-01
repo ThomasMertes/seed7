@@ -140,7 +140,7 @@ version.h: chkccomp.h
 	echo ^#define UTIME_ORIG_BUGGY_FOR_FAT_FILES >> version.h
 	echo ^#define TURN_OFF_FP_EXCEPTIONS >> version.h
 	echo ^#define DEFINE_MATHERR_FUNCTION >> version.h
-	echo ^#define CHECK_INT_DIV_BY_ZERO >> version.h
+	echo ^#define DO_SIGFPE_WITH_DIV_BY_ZERO >> version.h
 	echo ^#define CONSOLE_WCHAR >> version.h
 	echo ^#define OS_STRI_WCHAR >> version.h
 	echo ^#define OS_WIDE_DIR_INCLUDE_DIR_H >> version.h

@@ -143,8 +143,8 @@ static void addCheck (const poll_based_polltype pollData, short eventsToCheck,
   /* addCheck */
     pos = (memsizetype) hshIdxEnterDefault(pollData->indexHash,
         (rtlGenerictype) (memsizetype) aSocket, (rtlGenerictype) pollData->size,
-        (inttype) (memsizetype) aSocket, (comparetype) &uintCmpGeneric,
-        (createfunctype) &intCreateGeneric, (createfunctype) &intCreateGeneric);
+        (inttype) (memsizetype) aSocket, (comparetype) &genericCmp,
+        (createfunctype) &genericCreate, (createfunctype) &genericCreate);
     if (pos == pollData->size) {
       if (pollData->size + NUM_OF_EXTRA_ELEMS >= pollData->capacity) {
         pollData->pollFds = REALLOC_TABLE(pollData->pollFds, struct pollfd,
@@ -187,7 +187,7 @@ static void removeCheck (const poll_based_polltype pollData, short eventsToCheck
   /* removeCheck */
     pos = (memsizetype) hshIdxWithDefault(pollData->indexHash,
         (rtlGenerictype) (memsizetype) aSocket, (rtlGenerictype) pollData->size,
-        (inttype) (memsizetype) aSocket, (comparetype) &uintCmpGeneric);
+        (inttype) (memsizetype) aSocket, (comparetype) &genericCmp);
     if (pos != pollData->size) {
       aPollFd = &pollData->pollFds[pos];
       aPollFd->events &= ~eventsToCheck;
@@ -202,7 +202,7 @@ static void removeCheck (const poll_based_polltype pollData, short eventsToCheck
             hshIdxAddr(pollData->indexHash,
                        (rtlGenerictype) (memsizetype) pollData->pollFds[pos].fd,
                        (inttype) (memsizetype) pollData->pollFds[pos].fd,
-                       (comparetype) &uintCmpGeneric)->value.genericvalue = (rtlGenerictype) pos;
+                       (comparetype) &genericCmp)->value.genericvalue = (rtlGenerictype) pos;
             pos = pollData->iterPos;
           } /* if */
         } /* if */
@@ -214,11 +214,11 @@ static void removeCheck (const poll_based_polltype pollData, short eventsToCheck
           hshIdxAddr(pollData->indexHash,
                      (rtlGenerictype) (memsizetype) pollData->pollFds[pos].fd,
                      (inttype) (memsizetype) pollData->pollFds[pos].fd,
-                     (comparetype) &uintCmpGeneric)->value.genericvalue = (rtlGenerictype) pos;
+                     (comparetype) &genericCmp)->value.genericvalue = (rtlGenerictype) pos;
         } /* if */
         hshExcl(pollData->indexHash, (rtlGenerictype) (memsizetype) aSocket,
-                (inttype) (memsizetype) aSocket, (comparetype) &uintCmpGeneric,
-                (destrfunctype) &intDestrGeneric, (destrfunctype) &intDestrGeneric);
+                (inttype) (memsizetype) aSocket, (comparetype) &genericCmp,
+                (destrfunctype) &genericDestr, (destrfunctype) &genericDestr);
       } /* if */
     } /* if */
   } /* removeCheck */
@@ -375,8 +375,8 @@ void polClear (const polltype pollData)
     var_conv(pollData)->iterPos = 0;
     var_conv(pollData)->iterEvents = 0;
     var_conv(pollData)->numOfEvents = 0;
-    hshDestr(conv(pollData)->indexHash, (destrfunctype) &intDestrGeneric,
-             (destrfunctype) &intDestrGeneric);
+    hshDestr(conv(pollData)->indexHash, (destrfunctype) &genericDestr,
+             (destrfunctype) &genericDestr);
     var_conv(pollData)->indexHash = hshEmpty();
   } /* polClear */
 
@@ -398,11 +398,11 @@ void polCpy (const polltype poll_to, const const_polltype pollDataFrom)
   /* polCpy */
     if (poll_to != pollDataFrom) {
       newIndexHash = hshCreate(conv(pollDataFrom)->indexHash,
-          (createfunctype) &intCreateGeneric, (destrfunctype) &intDestrGeneric,
-          (createfunctype) &intCreateGeneric, (destrfunctype) &intDestrGeneric);
+          (createfunctype) &genericCreate, (destrfunctype) &genericDestr,
+          (createfunctype) &genericCreate, (destrfunctype) &genericDestr);
       pollData = var_conv(poll_to);
-      hshDestr(pollData->indexHash, (destrfunctype) &intDestrGeneric,
-               (destrfunctype) &intDestrGeneric);
+      hshDestr(pollData->indexHash, (destrfunctype) &genericDestr,
+               (destrfunctype) &genericDestr);
       oldPollFiles = pollData->pollFiles;
       oldPollFilesSize = pollData->size;
       oldPollFilesCapacity = pollData->capacity;
@@ -474,8 +474,8 @@ polltype polCreate (const const_polltype pollDataFrom)
           result = NULL;
         } else {
           result->indexHash = hshCreate(conv(pollDataFrom)->indexHash,
-              (createfunctype) &intCreateGeneric, (destrfunctype) &intDestrGeneric,
-              (createfunctype) &intCreateGeneric, (destrfunctype) &intDestrGeneric);
+              (createfunctype) &genericCreate, (destrfunctype) &genericDestr,
+              (createfunctype) &genericCreate, (destrfunctype) &genericDestr);
           result->size = conv(pollDataFrom)->size;
           result->capacity = conv(pollDataFrom)->capacity;
           result->iteratorMode = conv(pollDataFrom)->iteratorMode;
@@ -511,8 +511,8 @@ void polDestr (const polltype oldPollData)
       } /* for */
       FREE_TABLE(conv(oldPollData)->pollFds, struct pollfd, conv(oldPollData)->capacity);
       FREE_TABLE(conv(oldPollData)->pollFiles, rtlGenerictype, conv(oldPollData)->capacity);
-      hshDestr(conv(oldPollData)->indexHash, (destrfunctype) &intDestrGeneric,
-               (destrfunctype) &intDestrGeneric);
+      hshDestr(conv(oldPollData)->indexHash, (destrfunctype) &genericDestr,
+               (destrfunctype) &genericDestr);
       FREE_RECORD(var_conv(oldPollData), poll_based_pollrecord, count.polldata);
     } /* if */
   } /* polDestr */
@@ -568,7 +568,7 @@ inttype polGetCheck (const const_polltype pollData, const sockettype aSocket)
   /* polGetCheck */
     pos = (memsizetype) hshIdxWithDefault(conv(pollData)->indexHash,
         (rtlGenerictype) (memsizetype) aSocket, (rtlGenerictype) conv(pollData)->size,
-        (inttype) (memsizetype) aSocket, (comparetype) &uintCmpGeneric);
+        (inttype) (memsizetype) aSocket, (comparetype) &genericCmp);
     if (pos == conv(pollData)->size) {
       result = POLL_NOTHING;
     } else {
@@ -600,7 +600,7 @@ inttype polGetFinding (const const_polltype pollData, const sockettype aSocket)
   /* polGetFinding */
     pos = (memsizetype) hshIdxWithDefault(conv(pollData)->indexHash,
         (rtlGenerictype) (memsizetype) aSocket, (rtlGenerictype) conv(pollData)->size,
-        (inttype) (memsizetype) aSocket, (comparetype) &uintCmpGeneric);
+        (inttype) (memsizetype) aSocket, (comparetype) &genericCmp);
     if (pos == conv(pollData)->size) {
       result = POLL_NOTHING;
     } else {

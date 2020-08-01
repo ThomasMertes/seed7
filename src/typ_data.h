@@ -25,10 +25,8 @@
 /*                                                                  */
 /********************************************************************/
 
+inttype typCmp (const const_typetype type1, const const_typetype type2);
 inttype typCmpGeneric (rtlGenerictype type1, rtlGenerictype type2);
-void typCpy (typetype *dest, typetype source);
-typetype typCreate (typetype type_from);
-void typDestr (typetype old_type);
 typetype typFunc (typetype basic_type);
 booltype typIsDerived (typetype any_type);
 booltype typIsFunc (typetype any_type);

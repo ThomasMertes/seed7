@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  con_wat.c     Driver for watcom console access                  */
+/*  con_wat.c     Driver for watcom console access.                 */
 /*  Copyright (C) 1989 - 2005  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
@@ -25,7 +25,7 @@
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/con_wat.c                                       */
 /*  Changes: 1994  Thomas Mertes                                    */
-/*  Content: Driver for watcom console access                       */
+/*  Content: Driver for watcom console access.                      */
 /*                                                                  */
 /********************************************************************/
 

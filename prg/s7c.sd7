@@ -35,31 +35,33 @@ $ include "seed7_05.s7i";
 
 const string: temp_marker is "/* Seed7 compiler temp file */";
 
-const boolean: WITH_STRI_CAPACITY        is boolean parse configValue("WITH_STRI_CAPACITY");
-const boolean: ALLOW_STRITYPE_SLICES     is boolean parse configValue("ALLOW_STRITYPE_SLICES");
-const boolean: RSHIFT_DOES_SIGN_EXTEND   is boolean parse configValue("RSHIFT_DOES_SIGN_EXTEND");
-const boolean: TWOS_COMPLEMENT_INTTYPE   is boolean parse configValue("TWOS_COMPLEMENT_INTTYPE");
-const boolean: LITTLE_ENDIAN_INTTYPE     is boolean parse configValue("LITTLE_ENDIAN_INTTYPE");
-const boolean: NAN_COMPARISON_WRONG      is boolean parse configValue("NAN_COMPARISON_WRONG");
-const boolean: POWER_OF_ZERO_WRONG       is boolean parse configValue("POWER_OF_ZERO_WRONG");
-const boolean: USE_SIGSETJMP             is boolean parse configValue("USE_SIGSETJMP");
-const boolean: SIGILL_ON_OVERFLOW        is boolean parse configValue("SIGILL_ON_OVERFLOW");
-const boolean: FLOAT_ZERO_DIV_ERROR      is boolean parse configValue("FLOAT_ZERO_DIV_ERROR");
-const boolean: ISNAN_WITH_UNDERLINE      is boolean parse configValue("ISNAN_WITH_UNDERLINE");
-const boolean: CHECK_INT_DIV_BY_ZERO     is boolean parse configValue("CHECK_INT_DIV_BY_ZERO");
-const boolean: CHECK_FLOAT_DIV_BY_ZERO   is boolean parse configValue("CHECK_FLOAT_DIV_BY_ZERO");
-const boolean: LIMITED_CSTRI_LITERAL_LEN is boolean parse configValue("LIMITED_CSTRI_LITERAL_LEN");
-const boolean: CC_SOURCE_UTF8            is boolean parse configValue("CC_SOURCE_UTF8");
-const boolean: USE_WMAIN                 is boolean parse configValue("USE_WMAIN");
-const boolean: USE_WINMAIN               is boolean parse configValue("USE_WINMAIN");
-const boolean: FLOATTYPE_DOUBLE          is boolean parse configValue("FLOATTYPE_DOUBLE");
-const integer: INTTYPE_SIZE              is integer parse configValue("INTTYPE_SIZE");
-const integer: FLOATTYPE_SIZE            is integer parse configValue("FLOATTYPE_SIZE");
-const integer: POINTER_SIZE              is integer parse configValue("POINTER_SIZE");
-const integer: GENERIC_SIZE              is max({INTTYPE_SIZE, FLOATTYPE_SIZE, POINTER_SIZE});
-const integer: INT_SIZE                  is integer parse configValue("INT_SIZE");
-const string:  INT32TYPE_LITERAL_SUFFIX  is configValue("INT32TYPE_LITERAL_SUFFIX");
-const string:  INT64TYPE_LITERAL_SUFFIX  is configValue("INT64TYPE_LITERAL_SUFFIX");
+const boolean: WITH_STRI_CAPACITY         is boolean parse configValue("WITH_STRI_CAPACITY");
+const boolean: ALLOW_STRITYPE_SLICES      is boolean parse configValue("ALLOW_STRITYPE_SLICES");
+const boolean: RSHIFT_DOES_SIGN_EXTEND    is boolean parse configValue("RSHIFT_DOES_SIGN_EXTEND");
+const boolean: TWOS_COMPLEMENT_INTTYPE    is boolean parse configValue("TWOS_COMPLEMENT_INTTYPE");
+const boolean: LITTLE_ENDIAN_INTTYPE      is boolean parse configValue("LITTLE_ENDIAN_INTTYPE");
+const boolean: NAN_COMPARISON_WRONG       is boolean parse configValue("NAN_COMPARISON_WRONG");
+const boolean: POWER_OF_ZERO_WRONG        is boolean parse configValue("POWER_OF_ZERO_WRONG");
+const boolean: USE_SIGSETJMP              is boolean parse configValue("USE_SIGSETJMP");
+const boolean: SIGILL_ON_OVERFLOW         is boolean parse configValue("SIGILL_ON_OVERFLOW");
+const boolean: FLOAT_ZERO_DIV_ERROR       is boolean parse configValue("FLOAT_ZERO_DIV_ERROR");
+const boolean: ISNAN_WITH_UNDERLINE       is boolean parse configValue("ISNAN_WITH_UNDERLINE");
+const boolean: DO_SIGFPE_WITH_DIV_BY_ZERO is boolean parse configValue("DO_SIGFPE_WITH_DIV_BY_ZERO");
+const boolean: CHECK_INT_DIV_BY_ZERO      is boolean parse configValue("CHECK_INT_DIV_BY_ZERO");
+const boolean: CHECK_FLOAT_DIV_BY_ZERO    is boolean parse configValue("CHECK_FLOAT_DIV_BY_ZERO");
+const boolean: LIMITED_CSTRI_LITERAL_LEN  is boolean parse configValue("LIMITED_CSTRI_LITERAL_LEN");
+const boolean: CC_SOURCE_UTF8             is boolean parse configValue("CC_SOURCE_UTF8");
+const boolean: USE_WMAIN                  is boolean parse configValue("USE_WMAIN");
+const boolean: USE_WINMAIN                is boolean parse configValue("USE_WINMAIN");
+const boolean: FLOATTYPE_DOUBLE           is boolean parse configValue("FLOATTYPE_DOUBLE");
+const integer: INTTYPE_SIZE               is integer parse configValue("INTTYPE_SIZE");
+const integer: FLOATTYPE_SIZE             is integer parse configValue("FLOATTYPE_SIZE");
+const integer: POINTER_SIZE               is integer parse configValue("POINTER_SIZE");
+const integer: GENERIC_SIZE               is max({INTTYPE_SIZE, FLOATTYPE_SIZE, POINTER_SIZE});
+const integer: INT_SIZE                   is integer parse configValue("INT_SIZE");
+const string:  INT32TYPE_LITERAL_SUFFIX   is configValue("INT32TYPE_LITERAL_SUFFIX");
+const string:  INT64TYPE_LITERAL_SUFFIX   is configValue("INT64TYPE_LITERAL_SUFFIX");
+const boolean: CASTING_DOES_NOT_GET_A_UNION_ELEMENT is not LITTLE_ENDIAN_INTTYPE;
 
 var string: INTTYPE_LITERAL_SUFFIX is "";
 
@@ -206,6 +208,8 @@ var boolean_type_hash: create_declared is boolean_type_hash.EMPTY_HASH;
 var boolean_type_hash: destr_declared is boolean_type_hash.EMPTY_HASH;
 var boolean_type_hash: cpy_declared is boolean_type_hash.EMPTY_HASH;
 var boolean_type_hash: generic_cpy_declared is boolean_type_hash.EMPTY_HASH;
+var boolean_type_hash: generic_create_declared is boolean_type_hash.EMPTY_HASH;
+var boolean_type_hash: generic_destr_declared is boolean_type_hash.EMPTY_HASH;
 var boolean_type_hash: generic_cmp_declared is boolean_type_hash.EMPTY_HASH;
 var boolean_type_hash: create_prototype_declared is boolean_type_hash.EMPTY_HASH;
 var boolean_type_hash: destr_prototype_declared is boolean_type_hash.EMPTY_HASH;
@@ -690,9 +694,12 @@ const func boolean: useConstPrefix (in reference: a_param) is
 
 
 const func boolean: isNormalVariable (in reference: a_param) is
-  return category(a_param) in {ARRAYOBJECT, BIGINTOBJECT, STRIOBJECT, BSTRIOBJECT,
-      STRUCTOBJECT, SETOBJECT, WINOBJECT, REFLISTOBJECT, PROGOBJECT,
-      REFPARAMOBJECT, VALUEPARAMOBJECT, LOCALVOBJECT, RESULTOBJECT};
+  return category(a_param) in {TYPEOBJECT, INTOBJECT, BIGINTOBJECT,
+      CHAROBJECT, STRIOBJECT, BSTRIOBJECT, ARRAYOBJECT, HASHOBJECT,
+      STRUCTOBJECT, INTERFACEOBJECT, SETOBJECT, FILEOBJECT,
+      SOCKETOBJECT, POLLOBJECT, LISTOBJECT, FLOATOBJECT, WINOBJECT,
+      REFOBJECT, REFLISTOBJECT, ACTOBJECT, VALUEPARAMOBJECT,
+      REFPARAMOBJECT, RESULTOBJECT, LOCALVOBJECT, PROGOBJECT};
 
 
 const func string: raiseError (in string: exceptionName) is func
@@ -1148,7 +1155,7 @@ const proc: process_create_call (in type: object_type,
     if object_type in typeCategory then
       case typeCategory[object_type] of
         when {BOOLOBJECT, ENUMOBJECT, INTOBJECT, FLOATOBJECT, CHAROBJECT,
-              FILEOBJECT, SOCKETOBJECT, REFOBJECT,
+              FILEOBJECT, SOCKETOBJECT, REFOBJECT, TYPEOBJECT,
               ACTOBJECT, BLOCKOBJECT}:
                                 expr &:= param_b;
         when {BIGINTOBJECT}:    expr &:= "bigCreate(" & param_b & ")";
@@ -1159,7 +1166,6 @@ const proc: process_create_call (in type: object_type,
         when {REFLISTOBJECT}:   expr &:= "rflCreate(" & param_b & ")";
         when {WINOBJECT}:       expr &:= "drwCreate(" & param_b & ")";
         when {PROGOBJECT}:      expr &:= "prgCreate(" & param_b & ")";
-        when {TYPEOBJECT}:      expr &:= "typCreate(" & param_b & ")";
         when {INTERFACEOBJECT}: expr &:= "itfCreate(" & param_b & ")";
         when {ARRAYOBJECT, HASHOBJECT, STRUCTOBJECT}:
           expr &:= "create_";
@@ -1752,8 +1758,8 @@ const proc: process_cpy_call (in type: object_type,
     if object_type in typeCategory then
       case typeCategory[object_type] of
         when {BOOLOBJECT, ENUMOBJECT, INTOBJECT, FLOATOBJECT, CHAROBJECT,
-              FILEOBJECT, SOCKETOBJECT, REFOBJECT,
-              TYPEOBJECT, ACTOBJECT, BLOCKOBJECT}:
+              FILEOBJECT, SOCKETOBJECT, REFOBJECT, TYPEOBJECT,
+              ACTOBJECT, BLOCKOBJECT}:
                                 expr &:= param_a & "=" & param_b;
         when {BIGINTOBJECT}:    expr &:= "bigCpy(&(" & param_a & "), " & param_b & ")";
         when {STRIOBJECT}:      expr &:= "strCopy(&(" & param_a & "), " & param_b & ")";
@@ -1798,7 +1804,7 @@ const proc: process_cpy_call (in type: object_type,
   end func;
 
 
-const proc: process_generic_sct_cpy_declaration (in type: object_type,
+const proc: process_generic_cpy_declaration (in type: object_type,
     inout expr_type: c_expr) is func
 
   begin
@@ -1806,17 +1812,59 @@ const proc: process_generic_sct_cpy_declaration (in type: object_type,
       process_cpy_declaration(object_type, c_expr);
       c_expr.expr &:= "static void generic_cpy_";
       c_expr.expr &:= str(typeNumber(object_type));
-      c_expr.expr &:= " (";
-      c_expr.expr &:= type_name(object_type);
-      c_expr.expr &:= " *a, ";
-      c_expr.expr &:= type_name(object_type);
-      c_expr.expr &:= " b)\n";
+      c_expr.expr &:= " (generictype *a, const generictype b)\n";
       c_expr.expr &:= "{\n";
-      c_expr.expr &:= "cpy_";
-      c_expr.expr &:= str(typeNumber(object_type));
-      c_expr.expr &:= "(*a, b);\n";
+      process_cpy_call(object_type,
+          "((const_rtlObjecttype *) a)->value." & raw_type_value(object_type),
+          "((const_rtlObjecttype *) &b)->value." & raw_type_value(object_type),
+          c_expr.expr);
+      c_expr.expr &:= ";\n";
       c_expr.expr &:= "}\n\n";
       generic_cpy_declared @:= [object_type] TRUE;
+    end if;
+  end func;
+
+
+const proc: process_generic_create_declaration (in type: object_type,
+    inout expr_type: c_expr) is func
+
+  begin
+    if object_type not in generic_create_declared then
+      process_create_declaration(object_type, c_expr);
+      c_expr.expr &:= "static generictype generic_create_";
+      c_expr.expr &:= str(typeNumber(object_type));
+      c_expr.expr &:= " (const generictype b)\n";
+      c_expr.expr &:= "{\n";
+      c_expr.expr &:= "rtlObjecttype result;\n";
+      c_expr.expr &:= "result.value.";
+      c_expr.expr &:= raw_type_value(object_type);
+      c_expr.expr &:= "=";
+      process_create_call(object_type,
+          "((const_rtlObjecttype *) &b)->value." & raw_type_value(object_type),
+          c_expr.expr);
+      c_expr.expr &:= ";\n";
+      c_expr.expr &:= "return result.value.genericvalue;\n";
+      c_expr.expr &:= "}\n\n";
+      generic_create_declared @:= [object_type] TRUE;
+    end if;
+  end func;
+
+
+const proc: process_generic_destr_declaration (in type: object_type,
+    inout expr_type: c_expr) is func
+
+  begin
+    if object_type not in generic_destr_declared then
+      process_destr_declaration(object_type, c_expr);
+      c_expr.expr &:= "static void generic_destr_";
+      c_expr.expr &:= str(typeNumber(object_type));
+      c_expr.expr &:= " (const generictype b)\n";
+      c_expr.expr &:= "{\n";
+      process_destr_call(object_type,
+          "((const_rtlObjecttype *) &b)->value." & raw_type_value(object_type),
+          c_expr.expr);
+      c_expr.expr &:= "}\n\n";
+      generic_destr_declared @:= [object_type] TRUE;
     end if;
   end func;
 
@@ -1827,17 +1875,17 @@ const proc: process_generic_cmp_declaration (in reference: function,
   begin
     if object_type not in generic_cmp_declared then
       process_cpy_declaration(object_type, c_expr);
-      c_expr.expr &:= "static booltype generic_cmp_";
+      c_expr.expr &:= "static inttype generic_cmp_";
       c_expr.expr &:= str(typeNumber(object_type));
-      c_expr.expr &:= " (generictype a, generictype b)\n";
+      c_expr.expr &:= " (const generictype a, const generictype b)\n";
       c_expr.expr &:= "{\n";
       c_expr.expr &:= "return o_";
       create_name(function, c_expr.expr);
-      c_expr.expr &:= "((";
-      c_expr.expr &:= type_name(object_type);
-      c_expr.expr &:= ") a, (";
-      c_expr.expr &:= type_name(object_type);
-      c_expr.expr &:= ") b);\n";
+      c_expr.expr &:= "(((const_rtlObjecttype *) &a)->value.";
+      c_expr.expr &:= raw_type_value(object_type);
+      c_expr.expr &:= ", ((const_rtlObjecttype *) &b)->value.";
+      c_expr.expr &:= raw_type_value(object_type);
+      c_expr.expr &:= ");\n";
       c_expr.expr &:= "}\n\n";
       generic_cmp_declared @:= [object_type] TRUE;
     end if;
@@ -2229,15 +2277,18 @@ const proc: getGenericValue (in reference: current_expression,
     var string: temp_name is "";
   begin
     result_type := getExprResultType(current_expression);
-    if result_type in typeCategory and typeCategory[result_type] = FLOATOBJECT then
+    if result_type in typeCategory and typeCategory[result_type] = FLOATOBJECT or
+        CASTING_DOES_NOT_GET_A_UNION_ELEMENT then
       incr(c_expr.temp_num);
       temp_name := "tmp_" & str(c_expr.temp_num);
-      c_expr.temp_decls &:= "rtlValueunion ";
+      c_expr.temp_decls &:= "const_rtlValueunion ";
       c_expr.temp_decls &:= temp_name;
       c_expr.temp_decls &:= ";\n";
       c_expr.expr &:= "(";
       c_expr.expr &:= temp_name;
-      c_expr.expr &:= ".floatvalue=";
+      c_expr.expr &:= ".";
+      c_expr.expr &:= raw_type_value(result_type);
+      c_expr.expr &:= "=";
       process_expr(current_expression, c_expr);
       c_expr.expr &:= ",";
       c_expr.expr &:= temp_name;
@@ -2258,15 +2309,18 @@ const proc: getGenericValueToResultExpr (in reference: current_expression,
     var string: temp_name is "";
   begin
     result_type := getExprResultType(current_expression);
-    if result_type in typeCategory and typeCategory[result_type] = FLOATOBJECT then
+    if result_type in typeCategory and typeCategory[result_type] = FLOATOBJECT or
+        CASTING_DOES_NOT_GET_A_UNION_ELEMENT then
       incr(c_expr.temp_num);
       temp_name := "tmp_" & str(c_expr.temp_num);
-      c_expr.temp_decls &:= "rtlValueunion ";
+      c_expr.temp_decls &:= "const_rtlValueunion ";
       c_expr.temp_decls &:= temp_name;
       c_expr.temp_decls &:= ";\n";
       c_expr.result_expr &:= "(";
       c_expr.result_expr &:= temp_name;
-      c_expr.result_expr &:= ".floatvalue=";
+      c_expr.result_expr &:= ".";
+      c_expr.result_expr &:= raw_type_value(result_type);
+      c_expr.result_expr &:= "=";
       getAnyParamToResultExpr(current_expression, c_expr);
       c_expr.result_expr &:= ",";
       c_expr.result_expr &:= temp_name;
@@ -2276,6 +2330,54 @@ const proc: getGenericValueToResultExpr (in reference: current_expression,
       getAnyParamToResultExpr(current_expression, c_expr);
       c_expr.result_expr &:= ")";
     end if;
+  end func;
+
+
+const proc: getGenericTemporaryToResultExpr (in type: param_type, in expr_type: c_param,
+    inout expr_type: c_expr) is func
+
+  local
+    var string: temp_name is "";
+  begin
+    if param_type in typeCategory and typeCategory[param_type] = FLOATOBJECT or
+        CASTING_DOES_NOT_GET_A_UNION_ELEMENT then
+      incr(c_expr.temp_num);
+      temp_name := "tmp_" & str(c_expr.temp_num);
+      c_expr.temp_decls &:= "rtlValueunion ";
+      c_expr.temp_decls &:= temp_name;
+      c_expr.temp_decls &:= ";\n";
+      c_expr.result_expr &:= "(";
+      c_expr.result_expr &:= temp_name;
+      c_expr.result_expr &:= ".";
+      c_expr.result_expr &:= raw_type_value(param_type);
+      c_expr.result_expr &:= "=";
+      if c_param.result_expr <> "" then
+        c_expr.result_expr &:= c_param.result_expr;
+      else
+        process_create_declaration(param_type, global_c_expr);
+        process_create_call(param_type, c_param.expr, c_expr.result_expr);
+      end if;
+      c_expr.result_expr &:= ",";
+      c_expr.result_expr &:= temp_name;
+      c_expr.result_expr &:= ".genericvalue)";
+    elsif c_param.result_expr <> "" then
+      c_expr.result_expr &:= c_param.result_expr;
+    else
+      process_create_declaration(param_type, global_c_expr);
+      process_create_call(param_type, c_param.expr, c_expr.result_expr);
+    end if;
+  end func;
+
+
+const proc: getGenericTemporaryToResultExpr (in reference: aParam, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: c_param is expr_type.value;
+    var type: param_type is void;
+  begin
+    param_type := getExprResultType(aParam);
+    prepareAnyParamTemporarys(aParam, c_param, c_expr);
+    getGenericTemporaryToResultExpr(param_type, c_param, c_expr);
   end func;
 
 
@@ -2316,6 +2418,78 @@ const proc: getTemporaryToResultExpr (in reference: aParam, inout expr_type: c_e
     param_type := getExprResultType(aParam);
     prepareAnyParamTemporarys(aParam, c_param, c_expr);
     getTemporaryToResultExpr(param_type, c_param, c_expr);
+  end func;
+
+
+const func string: beginCastGeneric (in type: dest_type, inout expr_type: c_expr) is func
+
+  result
+    var string: temp_name is "";
+  begin
+    c_expr.expr &:= "(";
+    if dest_type in typeCategory and typeCategory[dest_type] = FLOATOBJECT or
+        CASTING_DOES_NOT_GET_A_UNION_ELEMENT then
+      incr(c_expr.temp_num);
+      temp_name := "tmp_" & str(c_expr.temp_num);
+      c_expr.temp_decls &:= "rtlValueunion ";
+      c_expr.temp_decls &:= temp_name;
+      c_expr.temp_decls &:= ";\n";
+      c_expr.expr &:= temp_name;
+      c_expr.expr &:= ".genericvalue=";
+    else
+      c_expr.expr &:= type_name(dest_type);
+      c_expr.expr &:= ")(";
+    end if;
+  end func;
+
+
+const proc: endCastGeneric (in type: dest_type, in string: temp_name, inout expr_type: c_expr) is func
+
+  begin
+    if dest_type in typeCategory and typeCategory[dest_type] = FLOATOBJECT or
+        CASTING_DOES_NOT_GET_A_UNION_ELEMENT then
+      c_expr.expr &:= ",";
+      c_expr.expr &:= temp_name;
+      c_expr.expr &:= ".";
+      c_expr.expr &:= raw_type_value(dest_type);
+    end if;
+    c_expr.expr &:= ")";
+  end func;
+
+
+const func string: beginCastGenericToResultExpr (in type: dest_type, inout expr_type: c_expr) is func
+
+  result
+    var string: temp_name is "";
+  begin
+    c_expr.result_expr &:= "(";
+    if dest_type in typeCategory and typeCategory[dest_type] = FLOATOBJECT or
+        CASTING_DOES_NOT_GET_A_UNION_ELEMENT then
+      incr(c_expr.temp_num);
+      temp_name := "tmp_" & str(c_expr.temp_num);
+      c_expr.temp_decls &:= "rtlValueunion ";
+      c_expr.temp_decls &:= temp_name;
+      c_expr.temp_decls &:= ";\n";
+      c_expr.result_expr &:= temp_name;
+      c_expr.result_expr &:= ".genericvalue=";
+    else
+      c_expr.result_expr &:= type_name(dest_type);
+      c_expr.result_expr &:= ")(";
+    end if;
+  end func;
+
+
+const proc: endCastGenericToResultExpr (in type: dest_type, in string: temp_name, inout expr_type: c_expr) is func
+
+  begin
+    if dest_type in typeCategory and typeCategory[dest_type] = FLOATOBJECT or
+        CASTING_DOES_NOT_GET_A_UNION_ELEMENT then
+      c_expr.result_expr &:= ",";
+      c_expr.result_expr &:= temp_name;
+      c_expr.result_expr &:= ".";
+      c_expr.result_expr &:= raw_type_value(dest_type);
+    end if;
+    c_expr.result_expr &:= ")";
   end func;
 
 
@@ -2404,72 +2578,6 @@ const func string: getParameterAsVariable (in string: typeName, in string: nameP
     else
       variableName := getTempVariable(typeName, namePrefix, param1, c_expr);
     end if;
-  end func;
-
-
-const func string: beginCastGeneric (in type: dest_type, inout expr_type: c_expr) is func
-
-  result
-    var string: temp_name is "";
-  begin
-    c_expr.expr &:= "(";
-    if dest_type in typeCategory and typeCategory[dest_type] = FLOATOBJECT then
-      incr(c_expr.temp_num);
-      temp_name := "tmp_" & str(c_expr.temp_num);
-      c_expr.temp_decls &:= "rtlValueunion ";
-      c_expr.temp_decls &:= temp_name;
-      c_expr.temp_decls &:= ";\n";
-      c_expr.expr &:= temp_name;
-      c_expr.expr &:= ".genericvalue=";
-    else
-      c_expr.expr &:= type_name(dest_type);
-      c_expr.expr &:= ")(";
-    end if;
-  end func;
-
-
-const proc: endCastGeneric (in type: dest_type, in string: temp_name, inout expr_type: c_expr) is func
-
-  begin
-    if dest_type in typeCategory and typeCategory[dest_type] = FLOATOBJECT then
-      c_expr.expr &:= ",";
-      c_expr.expr &:= temp_name;
-      c_expr.expr &:= ".floatvalue";
-    end if;
-    c_expr.expr &:= ")";
-  end func;
-
-
-const func string: beginCastGenericToResultExpr (in type: dest_type, inout expr_type: c_expr) is func
-
-  result
-    var string: temp_name is "";
-  begin
-    c_expr.result_expr &:= "(";
-    if dest_type in typeCategory and typeCategory[dest_type] = FLOATOBJECT then
-      incr(c_expr.temp_num);
-      temp_name := "tmp_" & str(c_expr.temp_num);
-      c_expr.temp_decls &:= "rtlValueunion ";
-      c_expr.temp_decls &:= temp_name;
-      c_expr.temp_decls &:= ";\n";
-      c_expr.result_expr &:= temp_name;
-      c_expr.result_expr &:= ".genericvalue=";
-    else
-      c_expr.result_expr &:= type_name(dest_type);
-      c_expr.result_expr &:= ")(";
-    end if;
-  end func;
-
-
-const proc: endCastGenericToResultExpr (in type: dest_type, in string: temp_name, inout expr_type: c_expr) is func
-
-  begin
-    if dest_type in typeCategory and typeCategory[dest_type] = FLOATOBJECT then
-      c_expr.result_expr &:= ",";
-      c_expr.result_expr &:= temp_name;
-      c_expr.result_expr &:= ".floatvalue";
-    end if;
-    c_expr.result_expr &:= ")";
   end func;
 
 
@@ -3615,6 +3723,26 @@ const proc: process_act_cpy (in ref_list: params, inout expr_type: c_expr) is fu
   end func;
 
 
+const proc: process_act_iconv (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compDataLibraryUsed := TRUE;
+    c_expr.expr &:= "actIConv(";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process_act_ord (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compilerLibraryUsed := TRUE;
+    c_expr.expr := "actOrd(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
 const proc: process_act_str (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -3718,7 +3846,7 @@ const proc: process_arr_baselit (in reference: function, in ref_list: params,
     end if;
     prepare_typed_result(resultType(getType(function)), c_expr);
     c_expr.result_expr := "arrBaselit((generictype)(";
-    getTemporaryToResultExpr(params[3], c_expr);
+    getGenericTemporaryToResultExpr(params[3], c_expr);
     c_expr.result_expr &:= "))";
   end func;
 
@@ -3734,7 +3862,7 @@ const proc: process_arr_baselit2 (in reference: function, in ref_list: params,
     c_expr.result_expr := "arrBaselit2(";
     getStdParamToResultExpr(params[2], c_expr);
     c_expr.result_expr &:= ", (generictype)(";
-    getTemporaryToResultExpr(params[4], c_expr);
+    getGenericTemporaryToResultExpr(params[4], c_expr);
     c_expr.result_expr &:= "))";
   end func;
 
@@ -3864,7 +3992,7 @@ const proc: process_arr_extend (in ref_list: params, inout expr_type: c_expr) is
     c_expr.result_expr := "arrExtend(";
     getTemporaryToResultExpr(params[1], c_expr);
     c_expr.result_expr &:= ", (generictype)(";
-    getTemporaryToResultExpr(params[3], c_expr);
+    getGenericTemporaryToResultExpr(params[3], c_expr);
     c_expr.result_expr &:= "))";
   end func;
 
@@ -3875,9 +4003,9 @@ const proc: process_arr_gen (in reference: function, in ref_list: params,
   begin
     prepare_typed_result(resultType(getType(function)), c_expr);
     c_expr.result_expr := "arrGen((generictype)(";
-    getTemporaryToResultExpr(params[1], c_expr);
+    getGenericTemporaryToResultExpr(params[1], c_expr);
     c_expr.result_expr &:= "), (generictype)(";
-    getTemporaryToResultExpr(params[3], c_expr);
+    getGenericTemporaryToResultExpr(params[3], c_expr);
     c_expr.result_expr &:= "))";
   end func;
 
@@ -4310,7 +4438,7 @@ const proc: process_arr_push (in ref_list: params, inout expr_type: c_expr) is f
     end if;
     process_expr(params[1], c_param1);
     c_param3.temp_num := c_param1.temp_num;
-    getTemporaryToResultExpr(params[3], c_param3);
+    getGenericTemporaryToResultExpr(params[3], c_param3);
     incr(c_param3.temp_num);
     if has_temp_values(c_param3) then
       c_expr.expr &:= "{\n";
@@ -7338,11 +7466,11 @@ const proc: process_drw_clear (in ref_list: params, inout expr_type: c_expr) is 
 const proc: process_drw_cmp (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "uintCmpGeneric((generictype)(memsizetype)(";
+    c_expr.expr &:= "ptrCmp(";
     process_expr(params[1], c_expr);
-    c_expr.expr &:= "), (generictype)(memsizetype)(";
+    c_expr.expr &:= ", ";
     process_expr(params[2], c_expr);
-    c_expr.expr &:= "))";
+    c_expr.expr &:= ")";
   end func;
 
 
@@ -9763,9 +9891,9 @@ const proc: process_hsh_excl (in ref_list: params, inout expr_type: c_expr) is f
 
 
 const proc: process_hsh_for_generic (in reference: forDataVariable,
-  in reference: forKeyVariable, in reference: hashTable,
-  in reference: statement, in reference: dataCopyFunc,
-  in reference: keyCopyFunc, inout expr_type: c_expr) is func
+    in reference: forKeyVariable, in reference: hashTable,
+    in reference: statement, in reference: dataCopyFunc,
+    in reference: keyCopyFunc, inout expr_type: c_expr) is func
 
   local
     var string: hash_temp_name is "";
@@ -9842,25 +9970,23 @@ const proc: process_hsh_for_generic (in reference: forDataVariable,
     c_expr.expr &:= "} /* if */\n";
 
     if forDataVariable <> NIL then
+      process_cpy_declaration(getType(forDataVariable), global_c_expr);
       setDiagnosticLine(c_expr);
-      c_expr.expr &:= "((copyfunctype)";
-      process_expr(dataCopyFunc, c_expr);
-      c_expr.expr &:= ")((generictype *)(&(";
-      process_expr(forDataVariable, c_expr);
-      c_expr.expr &:= ")), ";
-      c_expr.expr &:= helem_temp_name;
-      c_expr.expr &:= "->data.value.genericvalue);\n";
+      process_cpy_call(getType(forDataVariable),
+          normalVariable(forDataVariable, c_expr),
+          helem_temp_name & "->data.value." & raw_type_value(getType(forDataVariable)),
+          c_expr.expr);
+      c_expr.expr &:= ";\n";
     end if;
 
     if forKeyVariable <> NIL then
+      process_cpy_declaration(getType(forKeyVariable), global_c_expr);
       setDiagnosticLine(c_expr);
-      c_expr.expr &:= "((copyfunctype)";
-      process_expr(keyCopyFunc, c_expr);
-      c_expr.expr &:= ")((generictype *)(&(";
-      process_expr(forKeyVariable, c_expr);
-      c_expr.expr &:= ")), ";
-      c_expr.expr &:= helem_temp_name;
-      c_expr.expr &:= "->key.value.genericvalue);\n";
+      process_cpy_call(getType(forKeyVariable),
+          normalVariable(forKeyVariable, c_expr),
+          helem_temp_name & "->key.value." & raw_type_value(getType(forKeyVariable)),
+          c_expr.expr);
+      c_expr.expr &:= ";\n";
     end if;
 
     process_expr(statement, c_expr);
@@ -10068,7 +10194,7 @@ const proc: process_hsh_update (in reference: function, in ref_list: params,
       c_expr.result_expr &:= ", ";
       getGenericValueToResultExpr(params[2], c_expr);
       c_expr.result_expr &:= ", (generictype)(";
-      getTemporaryToResultExpr(params[3], c_expr);
+      getGenericTemporaryToResultExpr(params[3], c_expr);
       c_expr.result_expr &:= "), ";
       getAnyParamToResultExpr(params[4], c_expr);
       c_expr.result_expr &:= ", (comparetype)(";
@@ -11633,11 +11759,11 @@ const proc: process_int_xor (in ref_list: params, inout expr_type: c_expr) is fu
 const proc: process_itf_cmp (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "uintCmpGeneric((generictype)(memsizetype)(";
+    c_expr.expr &:= "ptrCmp(";
     process_expr(params[1], c_expr);
-    c_expr.expr &:= "), (generictype)(memsizetype)(";
+    c_expr.expr &:= ", ";
     process_expr(params[2], c_expr);
-    c_expr.expr &:= "))";
+    c_expr.expr &:= ")";
   end func;
 
 
@@ -12371,11 +12497,11 @@ const proc: process_ref_cat_str (in ref_list: params, inout expr_type: c_expr) i
 const proc: process_ref_cmp (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "uintCmpGeneric((generictype)(memsizetype)(";
+    c_expr.expr &:= "ptrCmp(";
     process_expr(params[1], c_expr);
-    c_expr.expr &:= "), (generictype)(memsizetype)(";
+    c_expr.expr &:= ", ";
     process_expr(params[2], c_expr);
-    c_expr.expr &:= "))";
+    c_expr.expr &:= ")";
   end func;
 
 
@@ -16571,11 +16697,11 @@ const proc: process_tim_set_local_tz (in ref_list: params, inout expr_type: c_ex
 const proc: process_typ_cmp (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "typCmpGeneric((generictype)(";
+    c_expr.expr &:= "typCmp(";
     process_expr(params[1], c_expr);
-    c_expr.expr &:= "), (generictype)(";
+    c_expr.expr &:= ", ";
     process_expr(params[2], c_expr);
-    c_expr.expr &:= "))";
+    c_expr.expr &:= ")";
   end func;
 
 
@@ -16830,6 +16956,10 @@ const proc: process_action (in reference: function, in ref_list: params,
     if action_prefix = "ACT" then
       if action_name = "ACT_CPY" then
         process_act_cpy(params, c_expr);
+      elsif action_name = "ACT_ICONV" then
+        process_act_iconv(params, c_expr);
+      elsif action_name = "ACT_ORD" then
+        process_act_ord(params, c_expr);
       elsif action_name = "ACT_STR" then
         process_act_str(params, c_expr);
       elsif action_name = "ACT_VALUE" then
@@ -20534,140 +20664,142 @@ const proc: action_address (in reference: function, inout expr_type: c_expr) is 
     action_name := str(current_action);
     if action_name = "ARR_CPY" then
       object_type := getType(formalParams(function)[1]);
-      process_cpy_declaration(object_type, global_c_expr);
-      c_expr.expr &:= "&cpy_";
+      process_generic_cpy_declaration(object_type, global_c_expr);
+      c_expr.expr &:= "&generic_cpy_";
       c_expr.expr &:= str(typeNumber(object_type));
     elsif action_name = "ARR_CREATE" then
       object_type := getType(formalParams(function)[1]);
       typeCategory @:= [object_type] ARRAYOBJECT;
-      process_create_declaration(object_type, global_c_expr);
-      c_expr.expr &:= "&create_";
+      process_generic_create_declaration(object_type, global_c_expr);
+      c_expr.expr &:= "&generic_create_";
       c_expr.expr &:= str(typeNumber(object_type));
     elsif action_name = "ARR_DESTR" then
       object_type := getType(formalParams(function)[1]);
-      process_destr_declaration(object_type, global_c_expr);
-      c_expr.expr &:= "&destr_";
+      process_generic_destr_declaration(object_type, global_c_expr);
+      c_expr.expr &:= "&generic_destr_";
       c_expr.expr &:= str(typeNumber(object_type));
     elsif action_name = "BIG_CMP" then
       c_expr.expr &:= "&bigCmpGeneric";
     elsif action_name = "BIG_CPY" then
-      c_expr.expr &:= "&bigCpy";
+      c_expr.expr &:= "&bigCpyGeneric";
     elsif action_name = "BIG_CREATE" then
       c_expr.expr &:= "&bigCreateGeneric";
     elsif action_name = "BIG_DESTR" then
-      c_expr.expr &:= "&bigDestr";
+      c_expr.expr &:= "&bigDestrGeneric";
     elsif action_name = "BLN_CPY" then
-      c_expr.expr &:= "&blnCpy";
+      c_expr.expr &:= "&genericCpy";
     elsif action_name = "BLN_CREATE" then
-      c_expr.expr &:= "&intCreateGeneric";
+      c_expr.expr &:= "&genericCreate";
     elsif action_name = "BST_CMP" then
       c_expr.expr &:= "&bstCmpGeneric";
     elsif action_name = "BST_CPY" then
-      c_expr.expr &:= "&bstCpy";
+      c_expr.expr &:= "&bstCpyGeneric";
     elsif action_name = "BST_CREATE" then
       c_expr.expr &:= "&bstCreateGeneric";
     elsif action_name = "BST_DESTR" then
-      c_expr.expr &:= "&bstDestr";
+      c_expr.expr &:= "&bstDestrGeneric";
     elsif action_name = "CHR_CMP" then
       c_expr.expr &:= "&chrCmpGeneric";
     elsif action_name = "CHR_CPY" then
-      c_expr.expr &:= "&chrCpy";
+      c_expr.expr &:= "&genericCpy";
     elsif action_name = "CHR_CREATE" then
-      c_expr.expr &:= "&intCreateGeneric";
+      c_expr.expr &:= "&genericCreate";
     elsif action_name = "DRW_CMP" then
-      c_expr.expr &:= "&uintCmpGeneric";
+      c_expr.expr &:= "&ptrCmpGeneric";
     elsif action_name = "DRW_CPY" then
-      c_expr.expr &:= "&drwCpy";
+      c_expr.expr &:= "&drwCpyGeneric";
     elsif action_name = "DRW_CREATE" then
       c_expr.expr &:= "&drwCreateGeneric";
     elsif action_name = "DRW_DESTR" then
-      c_expr.expr &:= "&drwDestr";
+      c_expr.expr &:= "&drwDestrGeneric";
     elsif action_name = "ENU_CPY" then
-      c_expr.expr &:= "&intCpy";
+      c_expr.expr &:= "&genericCpy";
     elsif action_name = "ENU_CREATE" then
-      c_expr.expr &:= "&intCreateGeneric";
+      c_expr.expr &:= "&genericCreate";
     elsif action_name = "FLT_CMP" then
       c_expr.expr &:= "&fltCmpGeneric";
     elsif action_name = "FLT_CPY" then
       c_expr.expr &:= "&fltCpyGeneric";
     elsif action_name = "FLT_CREATE" then
-      c_expr.expr &:= "&intCreateGeneric";
+      c_expr.expr &:= "&genericCreate";
     elsif action_name = "GEN_DESTR" then
-      c_expr.expr &:= "&intDestrGeneric";
+      c_expr.expr &:= "&genericDestr";
     elsif action_name = "INT_CMP" then
       c_expr.expr &:= "&intCmpGeneric";
     elsif action_name = "INT_CPY" then
-      c_expr.expr &:= "&intCpy";
+      c_expr.expr &:= "&genericCpy";
     elsif action_name = "INT_CREATE" then
-      c_expr.expr &:= "&intCreateGeneric";
+      c_expr.expr &:= "&genericCreate";
     elsif action_name = "ITF_CMP" then
-      c_expr.expr &:= "&uintCmpGeneric";
+      c_expr.expr &:= "&ptrCmpGeneric";
     elsif action_name = "ITF_CPY" then
       object_type := getType(formalParams(function)[1]);
-      process_cpy_declaration(object_type, global_c_expr);
-      c_expr.expr &:= "&cpy_";
+      process_generic_cpy_declaration(object_type, global_c_expr);
+      c_expr.expr &:= "&generic_cpy_";
       c_expr.expr &:= str(typeNumber(object_type));
     elsif action_name = "ITF_CREATE" then
-      c_expr.expr &:= "&itfCreate";
+      c_expr.expr &:= "&itfCreateGeneric";
     elsif action_name = "ITF_DESTR" then
       object_type := getType(formalParams(function)[1]);
-      process_destr_declaration(object_type, global_c_expr);
-      c_expr.expr &:= "&destr_";
+      process_generic_destr_declaration(object_type, global_c_expr);
+      c_expr.expr &:= "&generic_destr_";
       c_expr.expr &:= str(typeNumber(object_type));
     elsif action_name = "PRC_NOOP" then
       c_expr.expr &:= "&prcNoop";
     elsif action_name = "REF_CMP" then
-      c_expr.expr &:= "&uintCmpGeneric";
+      c_expr.expr &:= "&ptrCmpGeneric";
     elsif action_name = "REF_CPY" then
-      c_expr.expr &:= "&refCpy";
+      c_expr.expr &:= "&ptrCpyGeneric";
     elsif action_name = "REF_CREATE" then
-      c_expr.expr &:= "&intCreateGeneric";
+      c_expr.expr &:= "&ptrCreateGeneric";
+    elsif action_name = "RFL_CMP" then
+      c_expr.expr &:= "&rflCmpGeneric";
     elsif action_name = "RFL_CPY" then
-      c_expr.expr &:= "&rflCpy";
+      c_expr.expr &:= "&rflCpyGeneric";
     elsif action_name = "RFL_CREATE" then
       c_expr.expr &:= "&rflCreateGeneric";
     elsif action_name = "RFL_DESTR" then
-      c_expr.expr &:= "&rflDestr";
+      c_expr.expr &:= "&rflDestrGeneric";
     elsif action_name = "SCT_CPY" then
       object_type := getType(formalParams(function)[1]);
-      process_generic_sct_cpy_declaration(object_type, global_c_expr);
+      process_generic_cpy_declaration(object_type, global_c_expr);
       c_expr.expr &:= "&generic_cpy_";
       c_expr.expr &:= str(typeNumber(object_type));
     elsif action_name = "SCT_CREATE" then
       object_type := getType(formalParams(function)[1]);
       typeCategory @:= [object_type] STRUCTOBJECT;
-      process_create_declaration(object_type, global_c_expr);
-      c_expr.expr &:= "&create_";
+      process_generic_create_declaration(object_type, global_c_expr);
+      c_expr.expr &:= "&generic_create_";
       c_expr.expr &:= str(typeNumber(object_type));
     elsif action_name = "SCT_DESTR" then
       object_type := getType(formalParams(function)[1]);
-      process_destr_declaration(object_type, global_c_expr);
-      c_expr.expr &:= "&destr_";
+      process_generic_destr_declaration(object_type, global_c_expr);
+      c_expr.expr &:= "&generic_destr_";
       c_expr.expr &:= str(typeNumber(object_type));
     elsif action_name = "SET_CMP" then
       c_expr.expr &:= "&setCmpGeneric";
     elsif action_name = "SET_CPY" then
-      c_expr.expr &:= "&setCpy";
+      c_expr.expr &:= "&setCpyGeneric";
     elsif action_name = "SET_CREATE" then
       c_expr.expr &:= "&setCreateGeneric";
     elsif action_name = "SET_DESTR" then
-      c_expr.expr &:= "&setDestr";
+      c_expr.expr &:= "&setDestrGeneric";
     elsif action_name = "STR_CMP" then
       c_expr.expr &:= "&strCmpGeneric";
     elsif action_name = "STR_CPY" then
-      c_expr.expr &:= "&strCopy";
+      c_expr.expr &:= "&strCpyGeneric";
     elsif action_name = "STR_CREATE" then
       c_expr.expr &:= "&strCreateGeneric";
     elsif action_name = "STR_DESTR" then
-      c_expr.expr &:= "&strDestr";
+      c_expr.expr &:= "&strDestrGeneric";
     elsif action_name = "TYP_CMP" then
       c_expr.expr &:= "&typCmpGeneric";
     elsif action_name = "TYP_CPY" then
-      c_expr.expr &:= "&typCpy";
+      c_expr.expr &:= "&ptrCpyGeneric";
     elsif action_name = "TYP_CREATE" then
-      c_expr.expr &:= "&intCreateGeneric";
+      c_expr.expr &:= "&ptrCreateGeneric";
     elsif action_name = "TYP_DESTR" then
-      c_expr.expr &:= "&typDestr";
+      c_expr.expr &:= "&genericDestr";
     else
       c_expr.expr &:= "NULL /* ACTOBJECT { ";
       c_expr.expr &:= action_name;
@@ -20686,20 +20818,34 @@ const proc: block_address (in reference: function, inout expr_type: c_expr) is f
   begin
     formal_params := formalParams(function);
     if length(formal_params) = 3 and category(formal_params[2]) = SYMBOLOBJECT and
+        str(formal_params[2]) = ":=" then
+      formal_param := formal_params[1];
+      object_type := getType(formal_param);
+      process_generic_cpy_declaration(object_type, global_c_expr);
+      c_expr.expr &:= "&generic_cpy_";
+      c_expr.expr &:= str(typeNumber(object_type));
+      address_written := TRUE;
+    elsif length(formal_params) = 3 and category(formal_params[2]) = SYMBOLOBJECT and
         str(formal_params[2]) = "::=" then
       formal_param := formal_params[1];
       object_type := getType(formal_param);
-      if object_type in parametersOfHshCreate then
-        process_create_declaration(object_type, global_c_expr);
-        c_expr.expr &:= "&create_";
-        c_expr.expr &:= str(typeNumber(object_type));
-        address_written := TRUE;
-      end if;
+      process_generic_create_declaration(object_type, global_c_expr);
+      c_expr.expr &:= "&generic_create_";
+      c_expr.expr &:= str(typeNumber(object_type));
+      address_written := TRUE;
+    elsif length(formal_params) = 2 and category(formal_params[2]) = SYMBOLOBJECT and
+        str(formal_params[2]) = "destroy" then
+      formal_param := formal_params[1];
+      object_type := getType(formal_param);
+      process_generic_destr_declaration(object_type, global_c_expr);
+      c_expr.expr &:= "&generic_destr_";
+      c_expr.expr &:= str(typeNumber(object_type));
+      address_written := TRUE;
     elsif length(formal_params) = 3 and category(formal_params[3]) = SYMBOLOBJECT and
         str(formal_params[3]) = "compare" then
       formal_param := formal_params[1];
       object_type := getType(formal_param);
-      if bitSize(object_type) <> GENERIC_SIZE then
+      if bitSize(object_type) <> GENERIC_SIZE or CASTING_DOES_NOT_GET_A_UNION_ELEMENT then
         process_generic_cmp_declaration(function, object_type, global_c_expr);
         c_expr.expr &:= "&generic_cmp_";
         c_expr.expr &:= str(typeNumber(object_type));
@@ -22535,6 +22681,7 @@ const proc: process_object (in reference: current_object) is func
     process_object_declaration(current_object, c_expr);
     write(c_prog, global_c_expr.expr);
     if write_object_declaration then
+      # writeln(c_prog, "/* " <& countDeclarations <& " */");
       write(c_prog, c_expr.expr);
 (*
     else
@@ -22580,7 +22727,6 @@ const proc: write_file_head is func
     end if;
     writeln(c_prog, "typedef int booltype;");
     writeln(c_prog, "typedef int enumtype;");
-    writeln(c_prog, "typedef struct typestruct *typetype;");
     if FLOATTYPE_DOUBLE then
       writeln(c_prog, "typedef double floattype;");
     else
@@ -22633,6 +22779,8 @@ const proc: write_file_head is func
     writeln(c_prog, "  uinttype usage_count;");
     writeln(c_prog, "} *progtype;");
     writeln(c_prog, "typedef const struct progstruct *const_progtype;");
+    writeln(c_prog, "typedef struct typestruct *typetype;");
+    writeln(c_prog, "typedef const struct typestruct *const_typetype;");
     writeln(c_prog, "typedef struct rtlArraystruct *arraytype;");
     writeln(c_prog, "typedef const struct rtlArraystruct *const_arraytype;");
     writeln(c_prog, "typedef struct rtlHashstruct *hashtype;");
@@ -22674,9 +22822,35 @@ const proc: write_file_head is func
     writeln(c_prog, "  listtype      listvalue;");
     writeln(c_prog, "  acttype       actvalue;");
     writeln(c_prog, "} rtlValueunion;");
+    writeln(c_prog, "typedef union {");
+    writeln(c_prog, "  generictype         genericvalue;");
+    writeln(c_prog, "  const_typetype      typevalue;");
+    writeln(c_prog, "  booltype            boolvalue;");
+    writeln(c_prog, "  enumtype            enumvalue;");
+    writeln(c_prog, "  inttype             intvalue;");
+    writeln(c_prog, "  const_biginttype    bigintvalue;");
+    writeln(c_prog, "  floattype           floatvalue;");
+    writeln(c_prog, "  chartype            charvalue;");
+    writeln(c_prog, "  const_stritype      strivalue;");
+    writeln(c_prog, "  const_bstritype     bstrivalue;");
+    writeln(c_prog, "  filetype            filevalue;");
+    writeln(c_prog, "  sockettype          socketvalue;");
+    writeln(c_prog, "  const_polltype      pollvalue;");
+    writeln(c_prog, "  const_settype       setvalue;");
+    writeln(c_prog, "  const_wintype       winvalue;");
+    writeln(c_prog, "  const_progtype      progvalue;");
+    writeln(c_prog, "  const_arraytype     arrayvalue;");
+    writeln(c_prog, "  const_hashtype      hashvalue;");
+    writeln(c_prog, "  const_structtype    structvalue;");
+    writeln(c_prog, "  const_interfacetype interfacevalue;");
+    writeln(c_prog, "  const_objreftype    objrefvalue;");
+    writeln(c_prog, "  const_listtype      listvalue;");
+    writeln(c_prog, "  acttype             actvalue;");
+    writeln(c_prog, "} const_rtlValueunion;");
     writeln(c_prog, "typedef struct rtlObjectstruct {");
     writeln(c_prog, "  rtlValueunion value;");
     writeln(c_prog, "} rtlObjecttype;");
+    writeln(c_prog, "typedef const struct rtlObjectstruct const_rtlObjecttype;");
     writeln(c_prog, "typedef inttype (*intfunctype)();");
     writeln(c_prog, "typedef unsigned int categorytype;");
     writeln(c_prog, "struct objectstruct {");
@@ -22850,6 +23024,8 @@ const proc: declareExtern (in string: prototype) is func
 const proc: write_prototypes is func
 
   begin
+    declareExtern("acttype     actIConv (inttype);");
+    declareExtern("inttype     actOrd (acttype);");
     declareExtern("stritype    actStr (acttype);");
     declareExtern("acttype     actValue (objreftype);");
     declareExtern("void        arrAppend (arraytype *const, const arraytype);");
@@ -22884,10 +23060,12 @@ const proc: write_prototypes is func
     declareExtern("inttype     bigCmpGeneric (const generictype, const generictype);");
     declareExtern("inttype     bigCmpSignedDigit (const const_biginttype, inttype);");
     declareExtern("void        bigCpy (biginttype *const, const const_biginttype);");
+    declareExtern("void        bigCpyGeneric (generictype *const, const generictype);");
     declareExtern("biginttype  bigCreate (const const_biginttype);");
     declareExtern("generictype bigCreateGeneric (const generictype);");
     declareExtern("void        bigDecr (biginttype *const);");
     declareExtern("void        bigDestr (const const_biginttype);");
+    declareExtern("void        bigDestrGeneric (const generictype);");
     declareExtern("biginttype  bigDiv (const const_biginttype, const const_biginttype);");
     declareExtern("booltype    bigEq (const const_biginttype, const const_biginttype);");
     declareExtern("booltype    bigEqSignedDigit (const const_biginttype, inttype);");
@@ -22951,12 +23129,14 @@ const proc: write_prototypes is func
     declareExtern("void        blnCpy (booltype *, booltype);");
     declareExtern("void        bstAppend (bstritype *const, const_bstritype);");
     declareExtern("bstritype   bstCat (const_bstritype, const_bstritype);");
-    declareExtern("inttype     bstCmp (const_bstritype, const_bstritype);");
+    declareExtern("inttype     bstCmp (const const_bstritype, const const_bstritype);");
     declareExtern("inttype     bstCmpGeneric (const generictype, const generictype);");
     declareExtern("void        bstCpy (bstritype *const, const const_bstritype);");
+    declareExtern("void        bstCpyGeneric (generictype *const, const generictype);");
     declareExtern("bstritype   bstCreate (const const_bstritype);");
     declareExtern("generictype bstCreateGeneric (const generictype);");
     declareExtern("void        bstDestr (const const_bstritype);");
+    declareExtern("void        bstDestrGeneric (const generictype);");
     declareExtern("inttype     bstHashCode (const const_bstritype);");
     declareExtern("bstritype   bstParse (const const_stritype);");
     declareExtern("stritype    bstStr (const const_bstritype);");
@@ -23029,9 +23209,11 @@ const proc: write_prototypes is func
     declareExtern("void        drwColor (inttype);");
     declareExtern("void        drwCopyArea (const_wintype, const_wintype, inttype, inttype, inttype, inttype, inttype, inttype);");
     declareExtern("void        drwCpy (wintype *, wintype);");
+    declareExtern("void        drwCpyGeneric (generictype *const, const generictype);");
     declareExtern("wintype     drwCreate (wintype);");
     declareExtern("generictype drwCreateGeneric (const generictype);");
     declareExtern("void        drwDestr (wintype);");
+    declareExtern("void        drwDestrGeneric (const generictype);");
     declareExtern("void        drwFArcChord (const_wintype, inttype, inttype, inttype, floattype, floattype);");
     declareExtern("void        drwFArcPieSlice (const_wintype, inttype, inttype, inttype, floattype, floattype);");
     declareExtern("void        drwFCircle (const_wintype, inttype, inttype, inttype);");
@@ -23095,7 +23277,7 @@ const proc: write_prototypes is func
     declareExtern("filetype    filValue (objreftype);");
     declareExtern("inttype     fltCmp (floattype, floattype);");
     declareExtern("inttype     fltCmpGeneric (const generictype, const generictype);");
-    declareExtern("void        fltCpyGeneric (floattype *, const generictype);");
+    declareExtern("void        fltCpyGeneric (generictype *const, const generictype);");
     declareExtern("stritype    fltDgts (floattype, inttype);");
     if NAN_COMPARISON_WRONG then
       declareExtern("booltype    fltEq (floattype, floattype);");
@@ -23145,8 +23327,6 @@ const proc: write_prototypes is func
     declareExtern("inttype     intCmp (inttype, inttype);");
     declareExtern("inttype     intCmpGeneric (const generictype, const generictype);");
     declareExtern("void        intCpy (inttype *, inttype);");
-    declareExtern("generictype intCreateGeneric (generictype);");
-    declareExtern("void        intDestrGeneric (generictype);");
     declareExtern("inttype     intLog2 (inttype);");
     declareExtern("inttype     intLowestSetBit (inttype);");
     declareExtern("stritype    intLpad0 (inttype, const inttype);");
@@ -23162,6 +23342,7 @@ const proc: write_prototypes is func
     declareExtern("bstritype   intToBStriLe (inttype);");
     declareExtern("inttype     intValue (objreftype);");
     declareExtern("interfacetype itfCreate (const interfacetype);");
+    declareExtern("generictype itfCreateGeneric (const generictype);");
     declareExtern("chartype    kbdGetc (void);");
     declareExtern("stritype    kbdGets (inttype);");
     declareExtern("booltype    kbdKeyPressed (void);");
@@ -23208,7 +23389,6 @@ const proc: write_prototypes is func
     declareExtern("objreftype  refBody (objreftype);");
     declareExtern("inttype     refCategory (objreftype);");
     declareExtern("stritype    refCatStr (inttype);");
-    declareExtern("void        refCpy (objreftype *, objreftype);");
     declareExtern("stritype    refFile (objreftype);");
     declareExtern("listtype    refHshDataToList (objreftype);");
     declareExtern("listtype    refHshKeysToList (objreftype);");
@@ -23231,10 +23411,13 @@ const proc: write_prototypes is func
     declareExtern("objreftype  refValue (objreftype);");
     declareExtern("void        rflAppend (listtype *const, const listtype);");
     declareExtern("listtype    rflCat (listtype, const listtype);");
+    declareExtern("inttype     rflCmpGeneric (const generictype, const generictype);");
     declareExtern("void        rflCpy (listtype *const, const const_listtype);");
+    declareExtern("void        rflCpyGeneric (generictype *const, const generictype);");
     declareExtern("listtype    rflCreate (const const_listtype);");
     declareExtern("generictype rflCreateGeneric (const generictype);");
     declareExtern("void        rflDestr (const listtype);");
+    declareExtern("void        rflDestrGeneric (const generictype);");
     declareExtern("booltype    rflElem (const const_objreftype, const_listtype);");
     declareExtern("void        rflElemcpy (listtype, inttype, objreftype);");
     declareExtern("booltype    rflEq (const_listtype, const_listtype);");
@@ -23246,7 +23429,7 @@ const proc: write_prototypes is func
     declareExtern("listtype    rflMklist (objreftype);");
     declareExtern("inttype     rflPos (const_listtype, const const_objreftype);");
     declareExtern("void        rflSetvalue (objreftype, listtype);");
-    declareExtern("listtype    rflTail (const listtype, inttype);");
+    declareExtern("listtype    rflTail (const_listtype, inttype);");
     declareExtern("listtype    rflValue (objreftype);");
     declareExtern("settype     setArrlit (const_arraytype);");
     declareExtern("settype     setBaselit (const inttype);");
@@ -23254,9 +23437,11 @@ const proc: write_prototypes is func
     declareExtern("inttype     setCmp (const const_settype, const const_settype);");
     declareExtern("inttype     setCmpGeneric (const generictype, const generictype);");
     declareExtern("void        setCpy (settype *const, const const_settype);");
+    declareExtern("void        setCpyGeneric (generictype *const, const generictype);");
     declareExtern("settype     setCreate (const const_settype);");
     declareExtern("generictype setCreateGeneric (const generictype);");
     declareExtern("void        setDestr (const const_settype);");
+    declareExtern("void        setDestrGeneric (const generictype);");
     declareExtern("settype     setDiff (const const_settype, const const_settype);");
     declareExtern("booltype    setElem (const inttype, const const_settype);");
     declareExtern("booltype    setEq (const const_settype, const const_settype);");
@@ -23314,9 +23499,11 @@ const proc: write_prototypes is func
     declareExtern("stritype    strConcatTemp (stritype, const const_stritype);");
     declareExtern("stritype    strCLit (const const_stritype);");
     declareExtern("void        strCopy (stritype *const, const const_stritype);");
+    declareExtern("void        strCpyGeneric (generictype *const, const generictype);");
     declareExtern("stritype    strCreate (const const_stritype);");
     declareExtern("generictype strCreateGeneric (const generictype);");
     declareExtern("void        strDestr (const const_stritype);");
+    declareExtern("void        strDestrGeneric (const generictype);");
     declareExtern("stritype    strEmpty(void);");
     declareExtern("booltype    strGe (const const_stritype, const const_stritype);");
     declareExtern("booltype    strGt (const const_stritype, const const_stritype);");
@@ -23363,10 +23550,8 @@ const proc: write_prototypes is func
     declareExtern("void        timFromIntTimestamp (inttype, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, booltype *);");
     declareExtern("void        timNow (inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, booltype *);");
     declareExtern("void        timSetLocalTZ (inttype, inttype, inttype, inttype, inttype, inttype, inttype *, booltype *);");
+    declareExtern("inttype     typCmp (const const_typetype, const const_typetype);");
     declareExtern("inttype     typCmpGeneric (generictype, generictype);");
-    declareExtern("void        typCpy (typetype *, typetype);");
-    declareExtern("typetype    typCreate (typetype);");
-    declareExtern("void        typDestr (typetype);");
     declareExtern("typetype    typFunc (typetype);");
     declareExtern("booltype    typIsDerived (typetype);");
     declareExtern("booltype    typIsFunc (typetype);");
@@ -23392,7 +23577,13 @@ const proc: write_prototypes is func
     writeln(c_prog, "static void        init_values (void);");
     writeln(c_prog, "static void        init_globals (void);");
     declareExtern("void        initPollOperations (const createfunctype, const destrfunctype);");
-    declareExtern("inttype     uintCmpGeneric (const generictype value1, const generictype value2);");
+    declareExtern("void        genericCpy (generictype *const, const generictype);");
+    declareExtern("generictype genericCreate (generictype);");
+    declareExtern("void        genericDestr (generictype);");
+    declareExtern("inttype     ptrCmp (const void *const, const void *const);");
+    declareExtern("inttype     ptrCmpGeneric (const generictype, const generictype);");
+    declareExtern("void        ptrCpyGeneric (generictype *const, const generictype);");
+    declareExtern("generictype ptrCreateGeneric (const generictype);");
     declareExtern("void        raise_error2 (int, const char *, int);");
     writeln(c_prog, "#define raise_error(num) raise_error2(num, __FILE__, __LINE__)\n");
 (*
@@ -24666,7 +24857,13 @@ const proc: declare_raise_error2 (inout expr_type: c_expr) is func
       c_expr.expr &:= "    signal(SIGFPE, SIG_DFL);\n";
 #     c_expr.expr &:= "    signal(SIGINT, SIG_DFL);\n";
 #     c_expr.expr &:= "    signal(SIGSEGV, SIG_DFL);\n";
-      c_expr.expr &:= "    flt2int.intvalue = fail_value / (error_line - line_number); /* trigger SIGFPE on purpose */\n";
+      if DO_SIGFPE_WITH_DIV_BY_ZERO then
+        # Under Windows it is necessary to trigger SIGFPE this way
+        # to assure that the debugger can catch it.
+        c_expr.expr &:= "    flt2int.intvalue = fail_value / (error_line - line_number); /* trigger SIGFPE on purpose */\n";
+      else
+        c_expr.expr &:= "    raise(SIGFPE);\n";
+      end if;
 #     c_expr.expr &:= "    raise(SIGTRAP);\n";
 #     c_expr.expr &:= "    raise(SIGFPE);\n";
 #     c_expr.expr &:= "    raise(SIGINT);\n";

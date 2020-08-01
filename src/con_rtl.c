@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  con_rtl.c     Primitive actions for console output.             */
+/*  con_rtl.c     Primitive actions for console/terminal output.    */
 /*  Copyright (C) 1989 - 2007  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
@@ -25,7 +25,7 @@
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/con_rtl.c                                       */
 /*  Changes: 2007  Thomas Mertes                                    */
-/*  Content: Primitive actions for console output.                  */
+/*  Content: Primitive actions for console/terminal output.         */
 /*                                                                  */
 /********************************************************************/
 
@@ -42,6 +42,9 @@
 #undef EXTERN
 #define EXTERN
 #include "con_rtl.h"
+
+
+#define WRITE_STRI_BLOCK_SIZE    256
 
 
 static inttype cursor_line = 1;
@@ -97,18 +100,18 @@ void conWrite (const_stritype stri)
     memsizetype size;
 
   /* conWrite */
-    if (stri->size <= 256) {
+    if (stri->size <= WRITE_STRI_BLOCK_SIZE) {
 #ifdef CONSOLE_UTF8
-      uchartype stri_buffer[max_utf8_size(256)];
+      uchartype stri_buffer[max_utf8_size(WRITE_STRI_BLOCK_SIZE)];
 
       size = stri_to_utf8(stri_buffer, stri->mem, stri->size);
 #elif defined CONSOLE_WCHAR
-      wchar_t stri_buffer[2 * 256];
+      wchar_t stri_buffer[2 * WRITE_STRI_BLOCK_SIZE];
       errinfotype err_info = OKAY_NO_ERROR;
 
       size = stri_to_wstri(stri_buffer, stri->mem, stri->size, &err_info);
 #else
-      uchartype stri_buffer[256];
+      uchartype stri_buffer[WRITE_STRI_BLOCK_SIZE];
 
       stri_compress(stri_buffer, stri->mem, stri->size);
       size = stri->size;

@@ -52,6 +52,7 @@
 #define GETS_STRI_SIZE_DELTA    4096
 #define READ_STRI_INIT_SIZE      256
 #define READ_STRI_SIZE_DELTA    2048
+#define WRITE_STRI_BLOCK_SIZE    512
 
 
 typedef struct {
@@ -231,7 +232,7 @@ static stritype read_and_alloc_utf8_stri (filetype inFile, memsizetype chars_mis
 /**
  *  Read a character from an UTF-8 file.
  *  @return the character read, or EOF at the end of the file.
- *  @exception RANGE_ERROR - The file contains an illegal encoding.
+ *  @exception RANGE_ERROR The file contains an illegal encoding.
  */
 chartype ut8Getc (filetype inFile)
 
@@ -436,7 +437,7 @@ chartype ut8Getc (filetype inFile)
  *  strategy is used. In this case a smaller block is requested. This
  *  block is filled with data, resized and filled in a loop.
  *  @return the string read.
- *  @exception RANGE_ERROR - The length is negative or the file
+ *  @exception RANGE_ERROR The length is negative or the file
  *             contains an illegal encoding.
  */
 stritype ut8Gets (filetype inFile, inttype length)
@@ -525,6 +526,17 @@ stritype ut8Gets (filetype inFile, inttype length)
 
 
 
+/**
+ *  Read a line from an UTF-8 file.
+ *  The function accepts lines ending with '\n', "\r\n" or EOF.
+ *  The line ending characters are not copied into the string.
+ *  That means that the '\r' of a "\r\n" sequence is silently removed.
+ *  When the function is left terminationChar contains '\n' or EOF.
+ *  @return the line read.
+ *  @exception RANGE_ERROR The file contains an illegal encoding.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *  @exception FILE_ERROR A system function returns an error.
+ */
 stritype ut8LineRead (filetype inFile, chartype *terminationChar)
 
   {
@@ -609,8 +621,8 @@ stritype ut8LineRead (filetype inFile, chartype *terminationChar)
  *  When the file position would be in the middle of an UTF-8 encoded
  *  character the position is advanced to the beginning of the next
  *  UTF-8 character.
- *  @exception RANGE_ERROR - The file position is negative or zero.
- *  @exception FILE_ERROR - The system function returns an error.
+ *  @exception RANGE_ERROR The file position is negative or zero.
+ *  @exception FILE_ERROR The system function returns an error.
  */
 void ut8Seek (filetype aFile, inttype file_position)
 
@@ -635,6 +647,19 @@ void ut8Seek (filetype aFile, inttype file_position)
 
 
 
+/**
+ *  Read a word from an UTF-8 file.
+ *  Before reading the word it skips spaces and tabs. The function
+ *  accepts words ending with ' ', '\t', '\n', "\r\n" or EOF.
+ *  The word ending characters are not copied into the string.
+ *  That means that the '\r' of a "\r\n" sequence is silently removed.
+ *  When the function is left terminationChar contains ' ', '\t', '\n' or
+ *  EOF.
+ *  @return the word read.
+ *  @exception RANGE_ERROR The file contains an illegal encoding.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *  @exception FILE_ERROR A system function returns an error.
+ */
 stritype ut8WordRead (filetype inFile, chartype *terminationChar)
 
   {
@@ -717,13 +742,17 @@ stritype ut8WordRead (filetype inFile, chartype *terminationChar)
 
 
 
+/**
+ *  Write a string to an UTF-8 file.
+ *  @exception FILE_ERROR A system function returns an error.
+ */
 void ut8Write (filetype outFile, const const_stritype stri)
 
   {
     strelemtype *str;
     memsizetype len;
     memsizetype size;
-    uchartype stri_buffer[max_utf8_size(512)];
+    uchartype stri_buffer[max_utf8_size(WRITE_STRI_BLOCK_SIZE)];
 
   /* ut8Write */
 #ifdef FWRITE_WRONG_FOR_READ_ONLY_FILES
@@ -732,8 +761,9 @@ void ut8Write (filetype outFile, const const_stritype stri)
       return;
     } /* if */
 #endif
-    for (str = stri->mem, len = stri->size; len >= 512; str += 512, len -= 512) {
-      size = stri_to_utf8(stri_buffer, str, 512);
+    for (str = stri->mem, len = stri->size; len >= WRITE_STRI_BLOCK_SIZE;
+        str += WRITE_STRI_BLOCK_SIZE, len -= WRITE_STRI_BLOCK_SIZE) {
+      size = stri_to_utf8(stri_buffer, str, WRITE_STRI_BLOCK_SIZE);
       if (size != fwrite(stri_buffer, sizeof(uchartype), (size_t) size, outFile)) {
         raise_error(FILE_ERROR);
         return;

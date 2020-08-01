@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  fil_rtl.h     Primitive actions for the primitive file type.    */
+/*  fil_rtl.h     Primitive actions for the C library file type.    */
 /*  Copyright (C) 1989 - 2009  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
@@ -25,7 +25,7 @@
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/fil_rtl.h                                       */
 /*  Changes: 1992, 1993, 1994, 2009  Thomas Mertes                  */
-/*  Content: Primitive actions for the primitive file type.         */
+/*  Content: Primitive actions for the C library file type.         */
 /*                                                                  */
 /********************************************************************/
 

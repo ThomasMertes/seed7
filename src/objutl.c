@@ -611,10 +611,7 @@ void dump_temp_value (objecttype object)
       case ENUMLITERALOBJECT:
       case MATCHOBJECT:
       case FWDREFOBJECT:
-        SET_UNUSED_FLAG(object);
-        break;
       case TYPEOBJECT:
-        typDestr(object->value.typevalue);
         SET_UNUSED_FLAG(object);
         break;
       case BIGINTOBJECT:

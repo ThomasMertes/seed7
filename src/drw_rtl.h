@@ -29,7 +29,7 @@
 /*                                                                  */
 /********************************************************************/
 
-void drwCpy (wintype *win_to, wintype win_from);
-wintype drwCreate (wintype win_from);
-void drwDestr (wintype old_win);
+void drwCpy (wintype *const win_to, const wintype win_from);
+wintype drwCreate (const wintype win_from);
+void drwDestr (const wintype old_win);
 wintype drwRtlImage (const const_rtlArraytype image);

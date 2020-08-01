@@ -38,6 +38,7 @@
 #include "datautl.h"
 #include "typeutl.h"
 #include "striutl.h"
+#include "hsh_rtl.h"
 #include "rtl_err.h"
 
 #undef EXTERN
@@ -47,84 +48,28 @@
 
 #define TYPE_TABLE_INCREMENT 127
 
-#if 0
-typedef struct typestruct     *typetype;
-typedef const struct typestruct     *const_typetype;
-
-typedef struct typestruct {
-    /* objecttype match_obj; */
-    typetype meta;
-    typetype func_type;
-    typetype varfunc_type;
-    typetype result_type;
-    booltype is_varfunc_type;
-    /* typelisttype interfaces; */
-    /* identtype name; */
-    /*
-    objecttype create_call_obj;
-    objecttype destroy_call_obj;
-    objecttype copy_call_obj;
-    objecttype ord_call_obj;
-    objecttype in_call_obj;
-    */
-  } typerecord;
-#endif
 
 
+inttype typCmp (const const_typetype type1, const const_typetype type2)
 
-#if 0
-inttype typHashCode (typetype type1)
-
-  { /* typHashCode */
-    return (inttype) type1;
-  } /* typHashCode */
-
-
-
-objecttype typHashcode (listtype arguments)
-
-  { /* typHashcode */
-    isit_type(arg_1(arguments));
-    return bld_int_temp((inttype) take_type(arg_1(arguments)));
-  } /* typHashcode */
-#endif
-
-
-
-inttype typCmpGeneric (rtlGenerictype type1, rtlGenerictype type2)
-
-  { /* typCmpGeneric */
-    if (type1 < type2) {
+  { /* typCmp */
+    if ((memsizetype) type1 < (memsizetype) type2) {
       return -1;
-    } else if (type1 > type2) {
+    } else if ((memsizetype) type1 > (memsizetype) type2) {
       return 1;
     } else {
       return 0;
     } /* if */
+  } /* typCmp */
+
+
+
+inttype typCmpGeneric (const rtlGenerictype value1, const rtlGenerictype value2)
+
+  { /* typCmpGeneric */
+    return typCmp((const_typetype) ((const_rtlObjecttype *) &value1)->value.typevalue,
+                  (const_typetype) ((const_rtlObjecttype *) &value2)->value.typevalue);
   } /* typCmpGeneric */
-
-
-
-void typCpy (typetype *dest, typetype source)
-
-  { /* typCpy */
-    *dest = source;
-  } /* typCpy */
-
-
-
-typetype typCreate (typetype type_from)
-
-  { /* typCreate */
-    return type_from;
-  } /* typCreate */
-
-
-
-void typDestr (typetype old_type)
-
-  { /* typDestr */
-  } /* typDestr */
 
 
 
@@ -192,48 +137,33 @@ typetype typMeta (typetype any_type)
 inttype typNum (typetype actual_type)
 
   {
-    static unsigned int table_size = 0;
-    static unsigned int table_used = 0;
-    static typetype *type_table = NULL;
-    register typetype *actual_type_ptr;
-    unsigned int result;
+    static rtlHashtype type_table = NULL;
+    static inttype next_free_number = 1;
+    inttype result;
 
   /* typNum */
-    if (actual_type == NULL) {
+    /* printf("typNum(%lx)\n", actual_type); */
+    if (unlikely(actual_type == NULL)) {
       result = 0;
     } else {
-      table_used++;
-      if (table_used > table_size) {
-        if (type_table == NULL) {
-          (void) ALLOC_TABLE(type_table, typetype, table_used + TYPE_TABLE_INCREMENT);
-        } else {
-          type_table = REALLOC_TABLE(type_table, typetype,
-              table_size, table_used + TYPE_TABLE_INCREMENT);
-          if (type_table != NULL) {
-            COUNT3_TABLE(typetype, table_size, table_used + TYPE_TABLE_INCREMENT);
-          } /* if */
-        } /* if */
-        if (type_table == NULL) {
-          table_size = 0;
-          table_used = 0;
-          raise_error(MEMORY_ERROR);
-          return 0;
-        } /* if */
-        table_size = table_used + TYPE_TABLE_INCREMENT;
+      if (unlikely(type_table == NULL)) {
+        type_table = hshEmpty();
       } /* if */
-      type_table[table_used - 1] = actual_type;
-      actual_type_ptr = type_table;
-      while (*actual_type_ptr != actual_type) {
-        actual_type_ptr++;
-      } /* while */
-      result = (unsigned int) (actual_type_ptr - type_table);
-      if (result != table_used - 1) {
-        table_used--;
+      if (unlikely(type_table == NULL)) {
+        raise_error(MEMORY_ERROR);
+        result = 0;
+      } else {
+        result = (inttype) hshIdxEnterDefault(type_table, (rtlGenerictype) (memsizetype) actual_type,
+            (rtlGenerictype) next_free_number,
+            (inttype) (((memsizetype) actual_type) >> 6), (comparetype) &genericCmp,
+            (createfunctype) &genericCreate, (createfunctype) &genericCreate);
+        if (result == next_free_number) {
+          next_free_number++;
+        } /* if */
       } /* if */
-      result++;
     } /* if */
-    /* printf("typ_num: %lx %lx %lu\n", arg_1(arguments), actual_type, result); */
-    return (inttype) result;
+    /* printf("typNum => %ld\n", result); */
+    return result;
   } /* typNum */
 
 
@@ -259,10 +189,10 @@ stritype typStr (typetype type_arg)
 
   /* typStr */
     if (type_arg->name != NULL) {
-      stri = id_string(type_arg->name);
+      stri = id_string2(type_arg->name);
 /*  } else if type_arg->result_type != NULL &&
         type_arg->result_type->name != NULL) {
-      stri = id_string(type_arg->result_type->name); */
+      stri = id_string2(type_arg->result_type->name); */
     } else {
       stri = "*ANONYM_TYPE*";
     } /* if */

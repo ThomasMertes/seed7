@@ -53,53 +53,57 @@ typedef uint64type rtlGenerictype;
 typedef uint32type rtlGenerictype;
 #endif
 
+typedef struct rtlTypestruct   *rtlTypetype;
 typedef struct rtlListstruct   *rtlListtype;
 typedef struct rtlArraystruct  *rtlArraytype;
 typedef struct rtlStructstruct *rtlStructtype;
 typedef struct rtlStructstruct *rtlInterfacetype;
 typedef struct rtlHelemstruct  *rtlHelemtype;
 typedef struct rtlHashstruct   *rtlHashtype;
+typedef void *rtlPtrtype;
 
+typedef const struct rtlTypestruct   *const_rtlTypetype;
 typedef const struct rtlListstruct   *const_rtlListtype;
 typedef const struct rtlArraystruct  *const_rtlArraytype;
 typedef const struct rtlStructstruct *const_rtlStructtype;
 typedef const struct rtlStructstruct *const_rtlInterfacetype;
 typedef const struct rtlHelemstruct  *const_rtlHelemtype;
 typedef const struct rtlHashstruct   *const_rtlHashtype;
+typedef const void *const_rtlPtrtype;
 
 typedef union {
   /* Genericvalue must be the first element in the union. */
   /* This allows initialisations of rtlValueunion values. */
     rtlGenerictype genericvalue;
-/*    postype        pos;          ** SYMBOLOBJECT */
-/*    nodetype       nodevalue;    ** MDULEOBJECT */
-/*    typetype       typevalue;    ** TYPEOBJECT */
-/*    booltype       boolvalue;      */
-    inttype        intvalue;     /* INTOBJECT */
-    biginttype     bigintvalue;  /* BIGINTOBJECT */
-    chartype       charvalue;    /* CHAROBJECT */
-    stritype       strivalue;    /* STRIOBJECT */
-    rtlArraytype   arrayvalue;   /* ARRAYOBJECT */
-    rtlHashtype    hashvalue;    /* HASHOBJECT */
-    settype        setvalue;     /* SETOBJECT */
-    rtlStructtype  structvalue;  /* STRUCTOBJECT */
-    filetype       filevalue;    /* FILEOBJECT */
-    sockettype     socketvalue;  /* SOCKETOBJECT */
-    rtlListtype    listvalue;    /* LISTOBJECT, EXPROBJECT */
-    wintype        winvalue;     /* WINOBJECT */
-/*    interfacetype  interfacevalue; */
-/*    enumtype       enumvalue;      */
-/*    bstritype      bstrivalue;     */
-/*    polltype       pollvalue;      */
-/*    objreftype     objrefvalue;    */
-/*    rtlObjecttype  objvalue;     ** ENUMLITERALOBJECT, CONSTENUMOBJECT */
-                                 /* VARENUMOBJECT, VALUEPARAMOBJECT */
-                                 /* REFPARAMOBJECT, RESULTOBJECT */
-                                 /* LOCALVOBJECT, FORMPARAMOBJECT */
-                                 /* INTERFACEOBJECT */
-/*    blocktype  blockvalue;   ** BLOCKOBJECT */
-/*    acttype    actvalue;     ** ACTOBJECT */
-/*    progtype   progvalue;    ** PROGOBJECT */
+/*    postype          pos;            ** SYMBOLOBJECT */
+/*    nodetype         nodevalue;      ** MDULEOBJECT */
+/*    booltype         boolvalue;      */
+    rtlTypetype      typevalue;      /* TYPEOBJECT */
+    inttype          intvalue;       /* INTOBJECT */
+    biginttype       bigintvalue;    /* BIGINTOBJECT */
+    chartype         charvalue;      /* CHAROBJECT */
+    stritype         strivalue;      /* STRIOBJECT */
+    bstritype        bstrivalue;     /* BSTRIOBJECT */
+    rtlArraytype     arrayvalue;     /* ARRAYOBJECT */
+    rtlHashtype      hashvalue;      /* HASHOBJECT */
+    settype          setvalue;       /* SETOBJECT */
+    rtlStructtype    structvalue;    /* STRUCTOBJECT */
+    rtlInterfacetype interfacevalue; /* INTERFACEOBJECT */
+    filetype         filevalue;      /* FILEOBJECT */
+    sockettype       socketvalue;    /* SOCKETOBJECT */
+    rtlListtype      listvalue;      /* LISTOBJECT, EXPROBJECT */
+    wintype          winvalue;       /* WINOBJECT */
+    rtlPtrtype       ptrvalue;
+/*    enumtype         enumvalue;      */
+/*    polltype         pollvalue;      */
+/*    objreftype       objrefvalue;    */
+/*    rtlObjecttype    objvalue;       ** ENUMLITERALOBJECT, CONSTENUMOBJECT */
+                                     /* VARENUMOBJECT, VALUEPARAMOBJECT */
+                                     /* REFPARAMOBJECT, RESULTOBJECT */
+                                     /* LOCALVOBJECT, FORMPARAMOBJECT */
+/*    blocktype        blockvalue;     ** BLOCKOBJECT */
+/*    acttype          actvalue;       ** ACTOBJECT */
+/*    progtype         progvalue;      ** PROGOBJECT */
 #ifdef WITH_FLOAT
     floattype      floatvalue;   /* FLOATOBJECT */
 #endif
@@ -110,6 +114,10 @@ typedef struct rtlObjectstruct {
   } rtlObjecttype;
 
 typedef const struct rtlObjectstruct const_rtlObjecttype;
+
+typedef struct rtlTypestruct {
+    int dummy;
+  } rtlTyperecord;
 
 typedef struct rtlListstruct {
     rtlListtype next;
@@ -149,6 +157,7 @@ typedef void (*destrfunctype) (rtlGenerictype);
 typedef void (*copyfunctype) (rtlGenerictype *, rtlGenerictype);
 
 
-rtlGenerictype intCreateGeneric (rtlGenerictype source);
-void intDestrGeneric (rtlGenerictype old_value);
-inttype uintCmpGeneric (const rtlGenerictype value1, const rtlGenerictype value2);
+inttype genericCmp (const rtlGenerictype value1, const rtlGenerictype value2);
+void genericCpy (rtlGenerictype *const dest, const rtlGenerictype source);
+rtlGenerictype genericCreate (rtlGenerictype source);
+void genericDestr (rtlGenerictype old_value);

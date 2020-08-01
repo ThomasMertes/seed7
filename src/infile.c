@@ -497,15 +497,13 @@ stritype get_file_name (filenumtype file_num)
 #ifdef TRACE_INFILE
     printf("BEGIN get_file_name\n");
 #endif
-    result = NULL;
     help_file = file_pointer;
-    while (help_file != NULL) {
-      if (help_file->file_number == file_num) {
-        result = help_file->name;
-      } /* if */
+    while (help_file != NULL && help_file->file_number != file_num) {
       help_file = help_file->next;
     } /* while */
-    if (result == NULL) {
+    if (help_file != NULL) {
+      result = help_file->name;
+    } else {
       if (question_mark == NULL) {
         question_mark = cstri_to_stri("?");
       } /* if */
@@ -529,14 +527,15 @@ const_ustritype get_file_name_ustri (filenumtype file_num)
 #ifdef TRACE_INFILE
     printf("BEGIN get_file_name_ustri\n");
 #endif
-    result = (const_ustritype) "?";
     help_file = file_pointer;
-    while (help_file != NULL) {
-      if (help_file->file_number == file_num) {
-        result = help_file->name_ustri;
-      } /* if */
+    while (help_file != NULL && help_file->file_number != file_num) {
       help_file = help_file->next;
     } /* while */
+    if (help_file != NULL) {
+      result = help_file->name_ustri;
+    } else {
+      result = (const_ustritype) "?";
+    } /* if */
 #ifdef TRACE_INFILE
     printf("END get_file_name_ustri\n");
 #endif

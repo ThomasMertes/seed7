@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  kbd_inf.c     Driver for terminfo keyboard access               */
+/*  kbd_inf.c     Driver for terminfo keyboard access.              */
 /*  Copyright (C) 1989 - 2013  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
@@ -25,7 +25,7 @@
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/kbd_inf.c                                       */
 /*  Changes: 1994, 2006, 2010, 2013  Thomas Mertes                  */
-/*  Content: Driver for terminfo keyboard access                    */
+/*  Content: Driver for terminfo keyboard access.                   */
 /*                                                                  */
 /********************************************************************/
 

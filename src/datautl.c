@@ -144,3 +144,21 @@ const_cstritype id_string (const_identtype actual_ident)
     } /* if */
     return result;
   } /* id_string */
+
+
+
+const_cstritype id_string2 (const_identtype actual_ident)
+
+  {
+    const_cstritype result;
+
+  /* id_string2 */
+    if (actual_ident == NULL) {
+      result = " *NULL_IDENT* ";
+    } else if (actual_ident->name == NULL) {
+      result = " *NULL_NAME_IDENT* ";
+    } else {
+      result = (const_cstritype) actual_ident->name;
+    } /* if */
+    return result;
+  } /* id_string2 */

@@ -78,6 +78,8 @@ static primactrecord prim_act_table[] = {
     { "ACT_CPY",                 act_cpy,                 },
     { "ACT_CREATE",              act_create,              },
     { "ACT_GEN",                 act_gen,                 },
+    { "ACT_ICONV",               act_iconv,               },
+    { "ACT_ORD",                 act_ord,                 },
     { "ACT_STR",                 act_str,                 },
     { "ACT_VALUE",               act_value,               },
 

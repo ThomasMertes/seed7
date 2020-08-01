@@ -914,7 +914,7 @@ wintype find_window (Window sys_window)
                             (rtlGenerictype) (memsizetype) sys_window,
                             (rtlGenerictype) (memsizetype) NULL,
                             (inttype) ((memsizetype) sys_window) >> 6,
-                            (comparetype) &uintCmpGeneric);
+                            (comparetype) &genericCmp);
     } /* if */
     return window;
   } /* find_window */
@@ -931,9 +931,9 @@ void enter_window (wintype curr_window, Window sys_window)
                               (rtlGenerictype) (memsizetype) sys_window,
                               (rtlGenerictype) (memsizetype) curr_window,
                               (inttype) ((memsizetype) sys_window) >> 6,
-                              (comparetype) &uintCmpGeneric,
-                              (createfunctype) &intCreateGeneric,
-                              (createfunctype) &intCreateGeneric);
+                              (comparetype) &genericCmp,
+                              (createfunctype) &genericCreate,
+                              (createfunctype) &genericCreate);
   } /* enter_window */
 
 
@@ -944,9 +944,9 @@ void remove_window (Window sys_window)
     hshExcl(window_hash,
             (rtlGenerictype) (memsizetype) sys_window,
             (inttype) ((memsizetype) sys_window) >> 6,
-            (comparetype) &uintCmpGeneric,
-            (destrfunctype) &intDestrGeneric,
-            (destrfunctype) &intDestrGeneric);
+            (comparetype) &genericCmp,
+            (destrfunctype) &genericDestr,
+            (destrfunctype) &genericDestr);
   } /* remove_window */
 
 

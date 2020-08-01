@@ -240,7 +240,6 @@ objecttype rfl_elemcpy (listtype arguments)
 
   {
     inttype position;
-    inttype number;
     listtype list_element;
 
   /* rfl_elemcpy */
@@ -251,9 +250,9 @@ objecttype rfl_elemcpy (listtype arguments)
     list_element = take_reflist(arg_1(arguments));
     position = take_int(arg_4(arguments));
     if (position >= 1) {
-      number = 1;
-      while (number < position && list_element != NULL) {
-        number++;
+      position--;
+      while (position != 0 && list_element != NULL) {
+        position--;
         list_element = list_element->next;
       } /* while */
       if (list_element != NULL) {
@@ -532,7 +531,6 @@ objecttype rfl_idx (listtype arguments)
 
   {
     inttype position;
-    inttype number;
     listtype list_element;
     objecttype result;
 
@@ -542,9 +540,9 @@ objecttype rfl_idx (listtype arguments)
     list_element = take_reflist(arg_1(arguments));
     position = take_int(arg_3(arguments));
     if (position >= 1) {
-      number = 1;
-      while (number < position && list_element != NULL) {
-        number++;
+      position--;
+      while (position != 0 && list_element != NULL) {
+        position--;
         list_element = list_element->next;
       } /* while */
       if (list_element != NULL) {

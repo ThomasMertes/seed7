@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  cmd_rtl.c     Primitive actions for various commands.           */
+/*  cmd_rtl.c     Directory, file and other system functions.       */
 /*  Copyright (C) 1989 - 2011  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
@@ -25,7 +25,7 @@
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/cmd_rtl.c                                       */
 /*  Changes: 1994, 2006, 2009  Thomas Mertes                        */
-/*  Content: Primitive actions for various commands.                */
+/*  Content: Directory, file and other system functions.            */
 /*                                                                  */
 /********************************************************************/
 
@@ -1142,6 +1142,12 @@ stritype cmdConfigValue (const const_stritype name)
 #endif
       } else if (strcmp(opt_name, "ISNAN_WITH_UNDERLINE") == 0) {
 #ifdef ISNAN_WITH_UNDERLINE
+        opt = "TRUE";
+#else
+        opt = "FALSE";
+#endif
+      } else if (strcmp(opt_name, "DO_SIGFPE_WITH_DIV_BY_ZERO") == 0) {
+#ifdef DO_SIGFPE_WITH_DIV_BY_ZERO
         opt = "TRUE";
 #else
         opt = "FALSE";

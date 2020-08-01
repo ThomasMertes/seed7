@@ -28,3 +28,4 @@
 const_cstritype category_cstri (objectcategory category);
 inttype category_value (const const_cstritype stri);
 const_cstritype id_string (const_identtype actual_ident);
+const_cstritype id_string2 (const_identtype actual_ident);

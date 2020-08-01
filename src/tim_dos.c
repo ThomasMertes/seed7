@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  tim_unx.c     Time functions which call the Dos API.            */
+/*  tim_dos.c     Time functions which call the Dos API.            */
 /*  Copyright (C) 1989 - 2009  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
@@ -49,6 +49,11 @@
 
 
 
+/**
+ *  Wait until the given time is reached
+ *  @param time_zone Difference to UTC in minutes (for UTC+1 it is 60).
+ *                   The time_zone includes the effect of a daylight saving time.
+ */
 void timAwait (inttype year, inttype month, inttype day, inttype hour,
     inttype min, inttype sec, inttype micro_sec, inttype time_zone)
 
@@ -118,6 +123,12 @@ inttype timMicroSec (void)
 
 
 
+/**
+ *  Determine the current local time.
+ *  @param time_zone Difference to UTC in minutes (for UTC+1 it is 60).
+ *                   The time_zone includes the effect of a daylight saving time.
+ *  @param is_dst Is TRUE, when a daylight saving time is currently in effect.
+ */
 void timNow (inttype *year, inttype *month, inttype *day, inttype *hour,
     inttype *min, inttype *sec, inttype *micro_sec, inttype *time_zone,
     booltype *is_dst)
@@ -145,7 +156,7 @@ void timNow (inttype *year, inttype *month, inttype *day, inttype *hour,
 #else
     local_time = localtime(&tstruct.time);
 #endif
-    if (local_time == NULL) {
+    if (unlikely(local_time == NULL)) {
       raise_error(RANGE_ERROR);
     } else {
       *year      = local_time->tm_year + 1900;

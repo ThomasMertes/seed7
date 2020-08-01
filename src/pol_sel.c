@@ -378,8 +378,8 @@ static void addCheck (testType *test, const sockettype aSocket,
 #endif
     pos = (memsizetype) hshIdxEnterDefault(test->indexHash,
         (rtlGenerictype) (memsizetype) aSocket, (rtlGenerictype) test->size,
-        (inttype) (memsizetype) aSocket, (comparetype) &uintCmpGeneric,
-        (createfunctype) &intCreateGeneric, (createfunctype) &intCreateGeneric);
+        (inttype) (memsizetype) aSocket, (comparetype) &genericCmp,
+        (createfunctype) &genericCreate, (createfunctype) &genericCreate);
     if (pos == test->size) {
       if (test->size >= test->capacity) {
         test->files = REALLOC_TABLE(test->files,
@@ -421,7 +421,7 @@ static void removeCheck (testType *test, const sockettype aSocket)
     /* printf("removeCheck(..., %u)\n", aSocket); */
     pos = (memsizetype) hshIdxWithDefault(test->indexHash,
         (rtlGenerictype) (memsizetype) aSocket, (rtlGenerictype) test->size,
-        (inttype) (memsizetype) aSocket, (comparetype) &uintCmpGeneric);
+        (inttype) (memsizetype) aSocket, (comparetype) &genericCmp);
     if (pos != test->size) {
       fileObjectOps.decrUsageCount(test->files[pos].file);
       if (pos + 1 <= test->iterPos) {
@@ -432,7 +432,7 @@ static void removeCheck (testType *test, const sockettype aSocket)
           hshIdxAddr(test->indexHash,
                      (rtlGenerictype) (memsizetype) test->files[pos].fd,
                      (inttype) (memsizetype) test->files[pos].fd,
-                     (comparetype) &uintCmpGeneric)->value.genericvalue = (rtlGenerictype) pos;
+                     (comparetype) &genericCmp)->value.genericvalue = (rtlGenerictype) pos;
           pos = test->iterPos;
         } /* if */
       } /* if */
@@ -443,11 +443,11 @@ static void removeCheck (testType *test, const sockettype aSocket)
         hshIdxAddr(test->indexHash,
                    (rtlGenerictype) (memsizetype) test->files[pos].fd,
                    (inttype) (memsizetype) test->files[pos].fd,
-                   (comparetype) &uintCmpGeneric)->value.genericvalue = (rtlGenerictype) pos;
+                   (comparetype) &genericCmp)->value.genericvalue = (rtlGenerictype) pos;
       } /* if */
       hshExcl(test->indexHash, (rtlGenerictype) (memsizetype) aSocket,
-              (inttype) (memsizetype) aSocket, (comparetype) &uintCmpGeneric,
-              (destrfunctype) &intDestrGeneric, (destrfunctype) &intDestrGeneric);
+              (inttype) (memsizetype) aSocket, (comparetype) &genericCmp,
+              (destrfunctype) &genericDestr, (destrfunctype) &genericDestr);
 #ifdef USE_PREPARED_FD_SET
       FD_CLR(aSocket, to_inFdset(test));
 #endif
@@ -544,7 +544,7 @@ static booltype isChecked (const testType *test, const sockettype aSocket)
   /* isChecked */
     pos = (memsizetype) hshIdxWithDefault(test->indexHash,
         (rtlGenerictype) (memsizetype) aSocket, (rtlGenerictype) test->size,
-        (inttype) (memsizetype) aSocket, (comparetype) &uintCmpGeneric);
+        (inttype) (memsizetype) aSocket, (comparetype) &genericCmp);
     result = pos != test->size;
     /* printf("isChecked: sock=%d, pos=%d, fd=%d\n",
         aSocket, pos, test->files[pos].fd); */
@@ -562,7 +562,7 @@ static booltype isReady (const testType *test, const sockettype aSocket)
   /* isReady */
     pos = (memsizetype) hshIdxWithDefault(test->indexHash,
         (rtlGenerictype) (memsizetype) aSocket, (rtlGenerictype) test->size,
-        (inttype) (memsizetype) aSocket, (comparetype) &uintCmpGeneric);
+        (inttype) (memsizetype) aSocket, (comparetype) &genericCmp);
     if (pos == test->size) {
       result = FALSE;
     } else {
@@ -719,8 +719,8 @@ void polClear (const polltype pollData)
     } /* for */
     var_conv(pollData)->readTest.size = 0;
     var_conv(pollData)->readTest.iterPos = 0;
-    hshDestr(conv(pollData)->readTest.indexHash, (destrfunctype) &intDestrGeneric,
-             (destrfunctype) &intDestrGeneric);
+    hshDestr(conv(pollData)->readTest.indexHash, (destrfunctype) &genericDestr,
+             (destrfunctype) &genericDestr);
     var_conv(pollData)->readTest.indexHash = hshEmpty();
     /* Clear writeTest */
     for (pos = 0; pos < conv(pollData)->readTest.size; pos++) {
@@ -728,8 +728,8 @@ void polClear (const polltype pollData)
     } /* for */
     var_conv(pollData)->writeTest.size = 0;
     var_conv(pollData)->writeTest.iterPos = 0;
-    hshDestr(conv(pollData)->writeTest.indexHash, (destrfunctype) &intDestrGeneric,
-             (destrfunctype) &intDestrGeneric);
+    hshDestr(conv(pollData)->writeTest.indexHash, (destrfunctype) &genericDestr,
+             (destrfunctype) &genericDestr);
     var_conv(pollData)->writeTest.indexHash = hshEmpty();
     var_conv(pollData)->iteratorMode = ITER_EMPTY;
     var_conv(pollData)->iterEvents = 0;
@@ -760,11 +760,11 @@ void polCpy (const polltype poll_to, const const_polltype pollDataFrom)
     /* printf("polCpy\n"); */
     if (poll_to != pollDataFrom) {
       newReadIndexHash = hshCreate(conv(pollDataFrom)->readTest.indexHash,
-          (createfunctype) &intCreateGeneric, (destrfunctype) &intDestrGeneric,
-          (createfunctype) &intCreateGeneric, (destrfunctype) &intDestrGeneric);
+          (createfunctype) &genericCreate, (destrfunctype) &genericDestr,
+          (createfunctype) &genericCreate, (destrfunctype) &genericDestr);
       newWriteIndexHash = hshCreate(conv(pollDataFrom)->writeTest.indexHash,
-          (createfunctype) &intCreateGeneric, (destrfunctype) &intDestrGeneric,
-          (createfunctype) &intCreateGeneric, (destrfunctype) &intDestrGeneric);
+          (createfunctype) &genericCreate, (destrfunctype) &genericDestr,
+          (createfunctype) &genericCreate, (destrfunctype) &genericDestr);
       if (unlikely(newReadIndexHash == NULL || newWriteIndexHash == NULL)) {
         raise_error(MEMORY_ERROR);
       } else {
@@ -827,8 +827,8 @@ void polCpy (const polltype poll_to, const const_polltype pollDataFrom)
         pollData->readTest.size = conv(pollDataFrom)->readTest.size;
         pollData->readTest.files = newReadFiles;
         pollData->readTest.iterPos = conv(pollDataFrom)->readTest.iterPos;
-        hshDestr(pollData->readTest.indexHash, (destrfunctype) &intDestrGeneric,
-                 (destrfunctype) &intDestrGeneric);
+        hshDestr(pollData->readTest.indexHash, (destrfunctype) &genericDestr,
+                 (destrfunctype) &genericDestr);
         pollData->readTest.indexHash = newReadIndexHash;
 #ifdef USE_PREPARED_FD_SET
         copyFdSet(to_var_write_inFdset(pollData), to_write_inFdset(pollDataFrom),
@@ -842,8 +842,8 @@ void polCpy (const polltype poll_to, const const_polltype pollDataFrom)
         pollData->writeTest.size = conv(pollDataFrom)->writeTest.size;
         pollData->writeTest.files = newWriteFiles;
         pollData->writeTest.iterPos = conv(pollDataFrom)->writeTest.iterPos;
-        hshDestr(pollData->writeTest.indexHash, (destrfunctype) &intDestrGeneric,
-                 (destrfunctype) &intDestrGeneric);
+        hshDestr(pollData->writeTest.indexHash, (destrfunctype) &genericDestr,
+                 (destrfunctype) &genericDestr);
         pollData->writeTest.indexHash = newWriteIndexHash;
         pollData->iteratorMode = conv(pollDataFrom)->iteratorMode;
         pollData->iterEvents = conv(pollDataFrom)->iterEvents;
@@ -885,11 +885,11 @@ polltype polCreate (const const_polltype pollDataFrom)
   /* polCreate */
     /* printf("polCreate\n"); */
     newReadIndexHash = hshCreate(conv(pollDataFrom)->readTest.indexHash,
-        (createfunctype) &intCreateGeneric, (destrfunctype) &intDestrGeneric,
-        (createfunctype) &intCreateGeneric, (destrfunctype) &intDestrGeneric);
+        (createfunctype) &genericCreate, (destrfunctype) &genericDestr,
+        (createfunctype) &genericCreate, (destrfunctype) &genericDestr);
     newWriteIndexHash = hshCreate(conv(pollDataFrom)->writeTest.indexHash,
-        (createfunctype) &intCreateGeneric, (destrfunctype) &intDestrGeneric,
-        (createfunctype) &intCreateGeneric, (destrfunctype) &intDestrGeneric);
+        (createfunctype) &genericCreate, (destrfunctype) &genericDestr,
+        (createfunctype) &genericCreate, (destrfunctype) &genericDestr);
     if (unlikely(newReadIndexHash == NULL || newWriteIndexHash == NULL ||
                  !ALLOC_RECORD(result, select_based_pollrecord, count.polldata))) {
       raise_error(MEMORY_ERROR);
@@ -980,8 +980,8 @@ void polDestr (const polltype oldPollData)
       FREE_FDSET(conv(oldPollData)->readTest.outFdset, capacity);
 #endif
       FREE_TABLE(conv(oldPollData)->readTest.files, fdAndFileType, capacity);
-      hshDestr(conv(oldPollData)->readTest.indexHash, (destrfunctype) &intDestrGeneric,
-               (destrfunctype) &intDestrGeneric);
+      hshDestr(conv(oldPollData)->readTest.indexHash, (destrfunctype) &genericDestr,
+               (destrfunctype) &genericDestr);
       /* Free writeTest */
       for (pos = 0; pos < conv(oldPollData)->writeTest.size; pos++) {
         fileObjectOps.decrUsageCount(conv(oldPollData)->writeTest.files[pos].file);
@@ -994,8 +994,8 @@ void polDestr (const polltype oldPollData)
       FREE_FDSET(conv(oldPollData)->writeTest.outFdset, capacity);
 #endif
       FREE_TABLE(conv(oldPollData)->writeTest.files, fdAndFileType, capacity);
-      hshDestr(conv(oldPollData)->writeTest.indexHash, (destrfunctype) &intDestrGeneric,
-               (destrfunctype) &intDestrGeneric);
+      hshDestr(conv(oldPollData)->writeTest.indexHash, (destrfunctype) &genericDestr,
+               (destrfunctype) &genericDestr);
       FREE_RECORD(var_conv(oldPollData), select_based_pollrecord, count.polldata);
     } /* if */
   } /* polDestr */

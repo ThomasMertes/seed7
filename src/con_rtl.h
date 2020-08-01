@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  con_rtl.h     Primitive actions for console output.             */
+/*  con_rtl.h     Primitive actions for console/terminal output.    */
 /*  Copyright (C) 1989 - 2007  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
@@ -25,7 +25,7 @@
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/con_rtl.h                                       */
 /*  Changes: 2007  Thomas Mertes                                    */
-/*  Content: Primitive actions for console output.                  */
+/*  Content: Primitive actions for console/terminal output.         */
 /*                                                                  */
 /********************************************************************/
 

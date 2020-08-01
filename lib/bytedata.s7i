@@ -189,7 +189,7 @@ const func integer: bytesBe2Int (in string: byteStri) is func
 
 
 (**
- *  Convert a [[integer]] into a little-endian [[bstring]].
+ *  Convert an [[integer]] into a little-endian [[bstring]].
  *  The result uses a twos-complement representation with a base of 256.
  *  For a negative ''number'' the most significant byte of the result
  *  (the last byte) has an ordinal >= 128.
@@ -199,7 +199,7 @@ const func bstring: bStriLe (in integer: number)              is action "INT_TO_
 
 
 (**
- *  Convert a [[integer]] into a little-endian [[string]].
+ *  Convert an [[integer]] into a little-endian [[string]].
  *  The result uses a twos-complement representation with a base of 256.
  *  The result contains chars (bytes) with an ordinal <= 255.
  *  For a negative ''number'' the most significant byte of the result
@@ -211,7 +211,7 @@ const func string: bytesLe (in integer: number) is
 
 
 (**
- *  Convert a [[integer]] into a big-endian [[bstring]].
+ *  Convert an [[integer]] into a big-endian [[bstring]].
  *  The result uses a twos-complement representation with a base of 256.
  *  For a negative ''number'' the most significant byte of the result
  *  (the first byte) has an ordinal >= 128.
@@ -221,7 +221,7 @@ const func bstring: bStriBe (in integer: number)              is action "INT_TO_
 
 
 (**
- *  Convert a [[integer]] into a big-endian [[string]].
+ *  Convert an [[integer]] into a big-endian [[string]].
  *  The result uses a twos-complement representation with a base of 256.
  *  The result contains chars (bytes) with an ordinal <= 255.
  *  For a negative ''number'' the most significant byte of the result

@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  hsh_rtl.c     Primitive actions for the string type.            */
+/*  hsh_rtl.c     Primitive actions for the hash map type.          */
 /*  Copyright (C) 1989 - 2013  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
@@ -25,7 +25,7 @@
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/hsh_rtl.c                                       */
 /*  Changes: 2005, 2006, 2007, 2013  Thomas Mertes                  */
-/*  Content: Primitive actions for the hash type.                   */
+/*  Content: Primitive actions for the hash map type.               */
 /*                                                                  */
 /*  The functions from this file should only be used in compiled    */
 /*  Seed7 programs. The interpreter should not use functions of     */

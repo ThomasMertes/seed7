@@ -178,6 +178,11 @@ objecttype soc_empty (listtype arguments)
 
 
 
+/**
+ *  Check if two sockets are equal.
+ *  @return TRUE if the two sockets are equal,
+ *          FALSE otherwise.
+ */
 objecttype soc_eq (listtype arguments)
 
   { /* soc_eq */
@@ -200,16 +205,16 @@ objecttype soc_eq (listtype arguments)
 objecttype soc_getc (listtype arguments)
 
   {
-    objecttype ch_variable;
+    objecttype eofIndicator;
 
   /* soc_getc */
     isit_socket(arg_1(arguments));
-    ch_variable = arg_2(arguments);
-    isit_char(ch_variable);
-    is_variable(ch_variable);
+    eofIndicator = arg_2(arguments);
+    isit_char(eofIndicator);
+    is_variable(eofIndicator);
     return bld_char_temp((chartype)
         socGetc(take_socket(arg_1(arguments)),
-                &ch_variable->value.charvalue));
+                &eofIndicator->value.charvalue));
   } /* soc_getc */
 
 
@@ -223,18 +228,18 @@ objecttype soc_getc (listtype arguments)
 objecttype soc_gets (listtype arguments)
 
   {
-    objecttype ch_variable;
+    objecttype eofIndicator;
 
   /* soc_gets */
     isit_socket(arg_1(arguments));
     isit_int(arg_2(arguments));
-    ch_variable = arg_3(arguments);
-    isit_char(ch_variable);
-    is_variable(ch_variable);
+    eofIndicator = arg_3(arguments);
+    isit_char(eofIndicator);
+    is_variable(eofIndicator);
     return bld_stri_temp(
         socGets(take_socket(arg_1(arguments)),
                 take_int(arg_2(arguments)),
-                &ch_variable->value.charvalue));
+                &eofIndicator->value.charvalue));
   } /* soc_gets */
 
 
@@ -331,22 +336,24 @@ objecttype soc_input_ready (listtype arguments)
  *  The function accepts lines ending with "\n", "\r\n" or EOF.
  *  The line ending characters are not copied into the string.
  *  That means that the "\r" of a "\r\n" sequence is silently removed.
- *  When the function is left terminationChar contains '\n' or EOF.
+ *  When the function is left the 2nd parameter (terminationChar)
+ *  contains '\n' or EOF.
  *  @return the line read.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 objecttype soc_line_read (listtype arguments)
 
   {
-    objecttype ch_variable;
+    objecttype terminationChar;
 
   /* soc_line_read */
     isit_socket(arg_1(arguments));
-    ch_variable = arg_2(arguments);
-    isit_char(ch_variable);
-    is_variable(ch_variable);
+    terminationChar = arg_2(arguments);
+    isit_char(terminationChar);
+    is_variable(terminationChar);
     return bld_stri_temp(
-        socLineRead(take_socket(arg_1(arguments)), &ch_variable->value.charvalue));
+        socLineRead(take_socket(arg_1(arguments)),
+                    &terminationChar->value.charvalue));
   } /* soc_line_read */
 
 
@@ -368,6 +375,11 @@ objecttype soc_listen (listtype arguments)
 
 
 
+/**
+ *  Check if two sockets are not equal.
+ *  @return FALSE if both sockets are equal,
+ *          TRUE otherwise.
+ */
 objecttype soc_ne (listtype arguments)
 
   { /* soc_ne */
@@ -525,23 +537,24 @@ objecttype soc_socket (listtype arguments)
  *  accepts words ending with " ", "\t", "\n", "\r\n" or EOF.
  *  The word ending characters are not copied into the string.
  *  That means that the "\r" of a "\r\n" sequence is silently removed.
- *  When the function is left terminationChar contains ' ', '\t', '\n' or
- *  EOF.
+ *  When the function is left the 2nd parameter (terminationChar)
+ *  contains ' ', '\t', '\n' or EOF.
  *  @return the word read.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 objecttype soc_word_read (listtype arguments)
 
   {
-    objecttype ch_variable;
+    objecttype terminationChar;
 
   /* soc_word_read */
     isit_socket(arg_1(arguments));
-    ch_variable = arg_2(arguments);
-    isit_char(ch_variable);
-    is_variable(ch_variable);
+    terminationChar = arg_2(arguments);
+    isit_char(terminationChar);
+    is_variable(terminationChar);
     return bld_stri_temp(
-        socWordRead(take_socket(arg_1(arguments)), &ch_variable->value.charvalue));
+        socWordRead(take_socket(arg_1(arguments)),
+                    &terminationChar->value.charvalue));
   } /* soc_word_read */
 
 

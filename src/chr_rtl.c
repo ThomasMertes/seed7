@@ -126,7 +126,8 @@ inline inttype chrCmp (chartype char1, chartype char2)
 inttype chrCmpGeneric (const rtlGenerictype value1, const rtlGenerictype value2)
 
   { /* chrCmpGeneric */
-    return chrCmp((chartype) value1, (chartype) value2);
+    return chrCmp(((const_rtlObjecttype *) &value1)->value.charvalue,
+                  ((const_rtlObjecttype *) &value2)->value.charvalue);
   } /* chrCmpGeneric */
 
 

@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  cmd_rtl.h     Primitive actions for various commands.           */
+/*  cmd_rtl.h     Directory, file and other system functions.       */
 /*  Copyright (C) 1989 - 2009  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
@@ -25,7 +25,7 @@
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/cmd_rtl.h                                       */
 /*  Changes: 1994, 2006, 2009  Thomas Mertes                        */
-/*  Content: Primitive actions for various commands.                */
+/*  Content: Directory, file and other system functions.            */
 /*                                                                  */
 /********************************************************************/
 

@@ -33,7 +33,6 @@ objecttype refBody (objecttype obj_arg);
 inttype refCategory (objecttype obj_arg);
 inttype refCatParse (stritype category_name);
 stritype refCatStr (inttype aCategory);
-void refCpy (objecttype *dest, objecttype source);
 stritype refFile (objecttype obj_arg1);
 listtype refHshDataToList (objecttype obj_arg);
 listtype refHshKeysToList (objecttype obj_arg);

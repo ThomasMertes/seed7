@@ -626,7 +626,7 @@ const proc: main is func
       aListener := openInetListener(ftpControlPort);
       listen(aListener, 10);
       writeln("To test ftpserv you can call the ftp7 FTP client with:");
-      writeln("  ./s7 ftp7 localhost " <& ftpControlPort);
+      writeln("  ./s7 ftp7 " <& getHostname <& " " <& ftpControlPort);
       writeln("To stop ftpserv press CTRL-C.");
       while TRUE do
         waitForRequest(aListener, existingConnection, newConnection);

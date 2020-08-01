@@ -103,7 +103,7 @@ static void free_ident (const_progtype currentProg, identtype old_ident)
 
 
 
-identtype get_ident (const_ustritype name)
+identtype get_ident (progtype currentProg, const_ustritype name)
 
   {
     register identtype ident_found;
@@ -119,13 +119,13 @@ identtype get_ident (const_ustritype name)
     if (length == 1 && (op_character(name[0]) ||
         char_class(name[0]) == LEFTPARENCHAR ||
         char_class(name[0]) == PARENCHAR)) {
-      ident_found = prog.ident.table1[(int) name[0]];
+      ident_found = currentProg->ident.table1[(int) name[0]];
     } else {
-      if (IDENT_TABLE(name, length) == NULL) {
+      if (IDENT_TABLE(currentProg, name, length) == NULL) {
         ident_found = new_ident(name, length);
-        IDENT_TABLE(name, length) = ident_found;
+        IDENT_TABLE(currentProg, name, length) = ident_found;
       } else {
-        ident_found = IDENT_TABLE(name, length);
+        ident_found = IDENT_TABLE(currentProg, name, length);
         searching = TRUE;
         do {
           if ((comparison = strncmp((const_cstritype) name,

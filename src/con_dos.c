@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  con_dos.c     Driver for dos console access                     */
+/*  con_dos.c     Driver for dos console access.                    */
 /*  Copyright (C) 1989 - 2005  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
@@ -25,7 +25,7 @@
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/con_dos.c                                       */
 /*  Changes: 1990, 1991, 1992, 1993, 1994  Thomas Mertes            */
-/*  Content: Driver for dos console access                          */
+/*  Content: Driver for dos console access.                         */
 /*                                                                  */
 /********************************************************************/
 

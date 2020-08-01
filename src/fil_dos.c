@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  fil_unx.c     File functions which call the Dos API.            */
+/*  fil_dos.c     File functions which call the Dos API.            */
 /*  Copyright (C) 1989 - 2011  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */

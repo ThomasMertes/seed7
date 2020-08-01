@@ -151,7 +151,7 @@ inttype refCategory (objecttype obj_arg)
     inttype result;
 
   /* refCategory */
-    if (obj_arg == NULL) {
+    if (unlikely(obj_arg == NULL)) {
       raise_error(RANGE_ERROR);
       result = 0;
     } else {
@@ -200,14 +200,6 @@ stritype refCatStr (inttype aCategory)
 
 
 
-void refCpy (objecttype *dest, objecttype source)
-
-  { /* refCpy */
-    *dest = source;
-  } /* refCpy */
-
-
-
 stritype refFile (objecttype obj_arg)
 
   {
@@ -215,7 +207,7 @@ stritype refFile (objecttype obj_arg)
     stritype result;
 
   /* refFile */
-    if (obj_arg == NULL) {
+    if (unlikely(obj_arg == NULL)) {
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -415,21 +407,21 @@ inttype refNum (objecttype obj_arg)
     inttype result;
 
   /* refNum */
-    /* printf("refNum(%lX)\n", obj_arg); */
-    if (obj_arg == NULL) {
+    /* printf("refNum(%lx)\n", obj_arg); */
+    if (unlikely(obj_arg == NULL)) {
       result = 0;
     } else {
-      if (obj_table == NULL) {
+      if (unlikely(obj_table == NULL)) {
         obj_table = hshEmpty();
       } /* if */
-      if (obj_table == NULL) {
+      if (unlikely(obj_table == NULL)) {
         raise_error(MEMORY_ERROR);
         result = 0;
       } else {
         result = (inttype) hshIdxEnterDefault(obj_table, (rtlGenerictype) (memsizetype) obj_arg,
             (rtlGenerictype) next_free_number,
-            (inttype) (((memsizetype) obj_arg) >> 6), (comparetype) &uintCmpGeneric,
-            (createfunctype) &intCreateGeneric, (createfunctype) &intCreateGeneric);
+            (inttype) (((memsizetype) obj_arg) >> 6), (comparetype) &genericCmp,
+            (createfunctype) &genericCreate, (createfunctype) &genericCreate);
         if (result == next_free_number) {
           next_free_number++;
         } /* if */
@@ -606,7 +598,7 @@ stritype refStr (objecttype obj_arg)
     } else if (!HAS_ENTITY(obj_arg)) {
       stri = " *NULL_ENTITY_OBJECT* ";
     } else if (GET_ENTITY(obj_arg)->ident != NULL) {
-      stri = id_string(GET_ENTITY(obj_arg)->ident);
+      stri = id_string2(GET_ENTITY(obj_arg)->ident);
     } else {
       stri = NULL;
       name_elem = GET_ENTITY(obj_arg)->fparam_list;
@@ -616,10 +608,10 @@ stritype refStr (objecttype obj_arg)
           if (CATEGORY_OF_OBJ(param_obj) != VALUEPARAMOBJECT &&
               CATEGORY_OF_OBJ(param_obj) != REFPARAMOBJECT &&
               CATEGORY_OF_OBJ(param_obj) != TYPEOBJECT) {
-            stri = id_string(GET_ENTITY(param_obj)->ident);
+            stri = id_string2(GET_ENTITY(param_obj)->ident);
           } /* if */
         } else {
-          stri = id_string(GET_ENTITY(name_elem->obj)->ident);
+          stri = id_string2(GET_ENTITY(name_elem->obj)->ident);
         } /* if */
         name_elem = name_elem->next;
       } /* while */

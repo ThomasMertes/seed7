@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  con_inf.c     Driver for terminfo console access                */
+/*  con_inf.c     Driver for terminfo console access.               */
 /*  Copyright (C) 1989 - 2005  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
@@ -25,7 +25,7 @@
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/con_inf.c                                       */
 /*  Changes: 1994 - 1999  Thomas Mertes                             */
-/*  Content: Driver for terminfo console access                     */
+/*  Content: Driver for terminfo console access.                    */
 /*                                                                  */
 /********************************************************************/
 

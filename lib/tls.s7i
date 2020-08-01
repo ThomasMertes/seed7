@@ -122,6 +122,7 @@ const type: securityParameters is new struct
     var string:              handshake_messages      is "";
   end struct;
 
+const integer: NO_MESSAGE         is -1;
 const integer: CHANGE_CIPHER_SPEC is 20;
 const integer: ALERT              is 21;
 const integer: HANDSHAKE          is 22;
@@ -837,10 +838,12 @@ const proc: getTlsMsgRecord (inout file: sock, inout tlsParseState: state) is fu
         until missing = 0;
         state.pos := 6;
       else
-        writeln("EOF = " <& eof(sock));
-        writeln("length(message) = " <& length(state.message));
-        writeln("message = " <& literal(state.message));
-        raise RANGE_ERROR;
+        state.contentType := NO_MESSAGE;
+        state.length := 0;
+        # writeln("EOF = " <& eof(sock));
+        # writeln("length(message) = " <& length(state.message));
+        # writeln("message = " <& literal(state.message));
+        # raise RANGE_ERROR;
       end if;
     end if;
     # writeln("getTlsMsgRecord -> " <& length(state.message) <& " " <& literal(state.message));
@@ -1162,7 +1165,7 @@ const proc: tlsDecryptRecord (inout securityParameters: parameters, inout tlsPar
 
 (**
  *  Return a connected TLS socket file based on the given ''sock''.
- *  @param sock A connected internet socket file.
+ *  @param sock A connected internet socket file (client side).
  *  @return an open TLS socket file, or [[null_file#STD_NULL|STD_NULL]]
  *          if it could not be opened.
  *  @exception MEMORY_ERROR An out of memory situation occurred.
@@ -1203,8 +1206,9 @@ const func file: openTlsSocket (inout file: sock) is func
             end if;
           end if;
         until serverHelloDone or
-              new_file.parseState.contentType = ALERT;
-        if new_file.parseState.contentType <> ALERT then
+              new_file.parseState.contentType = ALERT or
+              new_file.parseState.contentType = NO_MESSAGE;
+        if serverHelloDone then
           clientKeyExchange := genClientKeyExchange(new_file.parameters);
           # showMsg(clientKeyExchange);
           write(sock, clientKeyExchange);
@@ -1220,7 +1224,8 @@ const func file: openTlsSocket (inout file: sock) is func
             # writeln(literal(new_file.parseState.message));
             # showMsg(new_file.parseState.message);
           until new_file.parseState.contentType = CHANGE_CIPHER_SPEC or
-                new_file.parseState.contentType = ALERT;
+                new_file.parseState.contentType = ALERT or
+                new_file.parseState.contentType = NO_MESSAGE;
           if new_file.parseState.contentType = CHANGE_CIPHER_SPEC then
             processChangeCipherSpec(new_file.parameters, new_file.parseState);
             getTlsMsgRecord(sock, new_file.parseState);
@@ -1278,6 +1283,13 @@ const func file: openTlsSocket (in string: hostName, in integer: portNumber) is 
   end func;
 
 
+(**
+ *  Return a connected TLS socket file based on the given ''sock''.
+ *  @param sock A connected internet socket file (server side).
+ *  @return an open TLS socket file, or [[null_file#STD_NULL|STD_NULL]]
+ *          if it could not be opened.
+ *  @exception MEMORY_ERROR An out of memory situation occurred.
+ *)
 const func file: openServerTls (inout file: sock, in array string: certList,
     in rsaKey: privateKey) is func
   result
@@ -1295,45 +1307,53 @@ const func file: openServerTls (inout file: sock, in array string: certList,
     new_file.parameters.privateCertificateKey := privateKey;
     # Read and process the request from sock.
     getTlsMsgRecord(sock, new_file.parseState);
-    # writeln(literal(new_file.parseState.message));
-    # showMsg(new_file.parseState.message);
-    processClientHello(new_file.parameters, new_file.parseState);
-    serverHello := genServerHello(new_file.parameters);
-    # showMsg(serverHello);
-    write(sock, serverHello);
-    certificate := genCertificate(new_file.parameters, certList);
-    # showMsg(certificate);
-    write(sock, certificate);
-    serverHelloDone := genServerHelloDone(new_file.parameters);
-    # showMsg(serverHelloDone);
-    write(sock, serverHelloDone);
-    repeat
-      getTlsMsgRecord(sock, new_file.parseState);
+    if new_file.parseState.contentType = HANDSHAKE and
+        new_file.parseState.message[new_file.parseState.pos] = '\1\' then  # ClientHello
       # writeln(literal(new_file.parseState.message));
       # showMsg(new_file.parseState.message);
-      if new_file.parseState.contentType = HANDSHAKE and
-          new_file.parseState.message[new_file.parseState.pos] = '\16\' then  # ClientKeyExchange
-        processClientKeyExchange(new_file.parameters, new_file.parseState);
-      end if;
-    until new_file.parseState.contentType = CHANGE_CIPHER_SPEC or
-          new_file.parseState.contentType = ALERT;
-    if new_file.parseState.contentType = CHANGE_CIPHER_SPEC then
-      processChangeCipherSpec(new_file.parameters, new_file.parseState);
-      getTlsMsgRecord(sock, new_file.parseState);
-      if new_file.parseState.contentType = HANDSHAKE then  # Handshake with encoded Finished message
-        tlsDecryptRecord(new_file.parameters, new_file.parseState);
+      processClientHello(new_file.parameters, new_file.parseState);
+      serverHello := genServerHello(new_file.parameters);
+      # showMsg(serverHello);
+      write(sock, serverHello);
+      certificate := genCertificate(new_file.parameters, certList);
+      # showMsg(certificate);
+      write(sock, certificate);
+      serverHelloDone := genServerHelloDone(new_file.parameters);
+      # showMsg(serverHelloDone);
+      write(sock, serverHelloDone);
+      repeat
+        getTlsMsgRecord(sock, new_file.parseState);
         # writeln(literal(new_file.parseState.message));
         # showMsg(new_file.parseState.message);
-        processFinished(new_file.parameters, new_file.parseState);
-        changeCipherSpec := genChangeCipherSpec(new_file.parameters);
-        # showMsg(changeCipherSpec);
-        write(sock, changeCipherSpec);
-        finished := genFinished(new_file.parameters);
-        # showMsg(finished);
-        finished := tlsEncryptRecord(new_file.parameters, finished);
-        write(sock, finished);
-        new_file.sock := sock;
-        tlsSock := toInterface(new_file);
+        if new_file.parseState.contentType = HANDSHAKE and
+            new_file.parseState.message[new_file.parseState.pos] = '\16\' then  # ClientKeyExchange
+          processClientKeyExchange(new_file.parameters, new_file.parseState);
+        end if;
+      until new_file.parseState.contentType = CHANGE_CIPHER_SPEC or
+            new_file.parseState.contentType = ALERT or
+            new_file.parseState.contentType = NO_MESSAGE;
+      if new_file.parseState.contentType = CHANGE_CIPHER_SPEC then
+        processChangeCipherSpec(new_file.parameters, new_file.parseState);
+        getTlsMsgRecord(sock, new_file.parseState);
+        if new_file.parseState.contentType = HANDSHAKE then  # Handshake with encoded Finished message
+          tlsDecryptRecord(new_file.parameters, new_file.parseState);
+          # writeln(literal(new_file.parseState.message));
+          # showMsg(new_file.parseState.message);
+          processFinished(new_file.parameters, new_file.parseState);
+          changeCipherSpec := genChangeCipherSpec(new_file.parameters);
+          # showMsg(changeCipherSpec);
+          write(sock, changeCipherSpec);
+          finished := genFinished(new_file.parameters);
+          # showMsg(finished);
+          finished := tlsEncryptRecord(new_file.parameters, finished);
+          write(sock, finished);
+          new_file.sock := sock;
+          tlsSock := toInterface(new_file);
+        else
+          noop;  showMsg(new_file.parseState.message);
+          writeln("Version: " <& ord(new_file.parameters.tls_version[1]) <& "." <& ord(new_file.parameters.tls_version[2]));
+          writeln("Cipher: " <& ord(new_file.parameters.cipher_suite));
+        end if;
       else
         noop;  showMsg(new_file.parseState.message);
         writeln("Version: " <& ord(new_file.parameters.tls_version[1]) <& "." <& ord(new_file.parameters.tls_version[2]));
@@ -1367,8 +1387,6 @@ const proc: close (inout tlsFile: aFile) is func
 const func string: getApplicationData (inout tlsFile: inFile) is func
   result
     var string: applicationData is "";
-  local
-    var string: closeNotify is "";
   begin
     getTlsMsgRecord(inFile.sock, inFile.parseState);
     if inFile.parseState.contentType = APPLICATION_DATA then
@@ -1390,6 +1408,13 @@ const func string: getApplicationData (inout tlsFile: inFile) is func
         showMsg(inFile.parseState.message);
       end if;
       inFile.parseState.pos +:= inFile.parseState.length;
+    elsif inFile.parseState.contentType = NO_MESSAGE then
+      if eof(inFile.sock) then
+        close(inFile.sock);
+        inFile.sock := STD_NULL;
+      else
+        close(inFile);
+      end if;
     else
       writeln(" ***** Unexpected message type " <& inFile.parseState.contentType);
       raise RANGE_ERROR;

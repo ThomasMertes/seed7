@@ -1905,8 +1905,11 @@ const proc: check_string_range is func
         "1234567890" [ intExpr(15) .. intExpr(10) ] <> "" or
         "1234567890" [ intExpr(15) .. intExpr(11) ] <> "" or
         "1234567890" [ intExpr(15) .. intExpr(15) ] <> "" or
-        "1234567890" [ intExpr(15) .. intExpr(20) ] <> "" or
-        striExpr("") [ -5 .. -9 ] <> "" or
+        "1234567890" [ intExpr(15) .. intExpr(20) ] <> "" then
+      writeln(" ***** STRING [ START .. STOP ] does not work correct");
+      okay := FALSE;
+    end if;
+    if  striExpr("") [ -5 .. -9 ] <> "" or
         striExpr("") [ -5 .. -6 ] <> "" or
         striExpr("") [ -5 .. -5 ] <> "" or
         striExpr("") [ -5 .. -4 ] <> "" or

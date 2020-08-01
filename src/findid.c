@@ -84,7 +84,7 @@ void find_normal_ident (sysizetype length)
 #ifdef TRACE_FINDID
     printf("BEGIN find_normal_ident\n");
 #endif
-    if ((search_ident = IDENT_TABLE(symbol.name, length)) != NULL) { /*  1.49% */
+    if ((search_ident = IDENT_TABLE(&prog, symbol.name, length)) != NULL) { /*  1.49% */
       if ((comparison = strcmp((cstritype) symbol.name,
           (cstritype) search_ident->name)) != 0) {              /*  0.73% */
         do {
@@ -126,7 +126,7 @@ void find_normal_ident (sysizetype length)
       current_ident = search_ident;                             /*  0.12% */
     } else {
       current_ident = id_generation(symbol.name, length);       /*  0.01% */
-      IDENT_TABLE(symbol.name, length) = current_ident;         /*  0.02% */
+      IDENT_TABLE(&prog, symbol.name, length) = current_ident;  /*  0.02% */
     } /* if */
 #ifdef TRACE_FINDID
     printf("END find_normal_ident\n");
@@ -144,7 +144,7 @@ static identtype put_ident (const_cstritype stri, errinfotype *err_info)
 #ifdef TRACE_FINDID
     printf("BEGIN put_ident\n");
 #endif
-    if ((ident_found = get_ident((const_ustritype) stri)) == NULL) {
+    if ((ident_found = get_ident(&prog, (const_ustritype) stri)) == NULL) {
       *err_info = MEMORY_ERROR;
     } /* if */
 #ifdef TRACE_FINDID

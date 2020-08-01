@@ -119,6 +119,8 @@ static const int alignmentTable[] = {
     4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
   };
 
+char *stack_base;
+
 
 
 #ifdef DEFINE_MATHERR_FUNCTION
@@ -337,12 +339,28 @@ void determineMallocAlignment (void)
 
 
 
+void detemineStackDirection (void)
+
+  {
+    char aVariable;
+
+  /* detemineStackDirection */
+    if (stack_base < &aVariable) {
+      puts("#define STACK_GROWS_UPWARD");
+    } else {
+      puts("#define STACK_GROWS_DOWNWARD");
+    } /* if */
+  } /* detemineStackDirection */
+
+
+
 /**
  *  Program to Check properties of C compiler and runtime.
  */
 int main (int argc, char **argv)
 
   {
+    char aVariable;
     FILE *aFile;
     time_t timestamp;
     struct tm *local_time;
@@ -353,6 +371,7 @@ int main (int argc, char **argv)
       char           charvalue;
       unsigned long  genericvalue;
     } testUnion;
+    int sigbus_signal_defined = 0;
     int zero_divide_triggers_signal = 0;
     float zero = 0.0;
     float negativeZero;
@@ -561,18 +580,58 @@ int main (int argc, char **argv)
       puts("#define BIG_ENDIAN_INTTYPE");
     } /* if */
     determineMallocAlignment();
-    if (compilationOkay("#include <stdio.h>\nint main(int argc, char *argv[])\n"
-                        "{int p[3]={12,34,56}, q, *pp; pp=(int *)((char *)&p[1]+1); q=*pp;\n"
-                        "printf(\"1\\n\"); return 0;}\n") && doTest() == 1) {
-      puts("#define UNALIGNED_MEMORY_ACCESS_OKAY");
+    if (compilationOkay("#include<signal.h>\nint main(int argc, char *argv[]){\n"
+                        "signal(SIGBUS,SIG_DFL); return 0;}\n")) {
+      if (compilationOkay("#include<stdlib.h>\n#include <stdio.h>\n#include<signal.h>\n"
+                          "void handleSig(int sig){puts(\"2\");exit(0);}\n"
+                          "int main(int argc, char *argv[]){\n"
+                          "signal(SIGBUS,handleSig);\n"
+                          "int p[3]={12,34,56}, q, *pp; pp=(int *)((char *)&p[1]+1); q=*pp;\n"
+                          "printf(\"1\\n\"); return 0;}\n") && doTest() == 1) {
+        puts("#define UNALIGNED_MEMORY_ACCESS_OKAY");
+      } else {
+        puts("#define UNALIGNED_MEMORY_ACCESS_FAILS");
+      } /* if */
     } else {
-      puts("#define UNALIGNED_MEMORY_ACCESS_FAILS");
+      if (compilationOkay("#include <stdio.h>\nint main(int argc, char *argv[])\n"
+                          "{int p[3]={12,34,56}, q, *pp; pp=(int *)((char *)&p[1]+1); q=*pp;\n"
+                          "printf(\"1\\n\"); return 0;}\n") && doTest() == 1) {
+        puts("#define UNALIGNED_MEMORY_ACCESS_OKAY");
+      } else {
+        puts("#define UNALIGNED_MEMORY_ACCESS_FAILS");
+      } /* if */
     } /* if */
     memset(&testUnion, 0, sizeof(testUnion));
     testUnion.charvalue = 'X';
     if (testUnion.charvalue != (char) testUnion.genericvalue) {
       puts("#define CASTING_DOES_NOT_GET_A_UNION_ELEMENT");
     } /* if */
+    stack_base = &aVariable;
+    detemineStackDirection();
+#ifdef INT_DIV_BY_ZERO_POPUP
+    puts("#define CHECK_INT_DIV_BY_ZERO");
+#else
+    if (!compilationOkay("#include<stdio.h>\nint main(int argc,char *argv[]){printf(\"%d\", 1/0);return 0;}\n")) {
+      puts("#define CHECK_INT_DIV_BY_ZERO");
+    } else if (compilationOkay("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
+                               "void handleSig(int sig){puts(\"2\");exit(0);}\n"
+                               "int main(int argc,char *argv[]){\n"
+                               "signal(SIGFPE,handleSig);\n"
+                               "printf(\"%d\\n\",1/0==0);return 0;}\n") && doTest() == 2 &&
+               compilationOkay("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
+                               "void handleSig(int sig){puts(\"2\");exit(0);}\n"
+                               "int main(int argc,char *argv[]){\n"
+                               "int zero=0;\n"
+                               "signal(SIGFPE,handleSig);\n"
+                               "printf(\"%d\\n\",1/zero==0);return 0;}\n") && doTest() == 2) {
+      puts("#define INT_DIV_BY_ZERO_SIGNALS");
+#ifndef DO_SIGFPE_WITH_DIV_BY_ZERO
+      puts("#define DO_SIGFPE_WITH_DIV_BY_ZERO");
+#endif
+    } else {
+      puts("#define CHECK_INT_DIV_BY_ZERO");
+    } /* if */
+#endif
 #ifdef TURN_OFF_FP_EXCEPTIONS
     _control87(MCW_EM, MCW_EM);
 #endif
@@ -595,7 +654,7 @@ int main (int argc, char **argv)
                          "_control87(MCW_EM, MCW_EM);\n"
 #endif
                          "signal(SIGFPE,handleSig);\nsignal(SIGILL,handleSig);\nsignal(SIGINT,handleSig);\n"
-                         "printf(\"%d\\n\",1.0/0.0==0);return 0;}\n") || doTest() == 2) {
+                         "printf(\"%d\\n\",1.0/0.0==0.0);return 0;}\n") || doTest() == 2) {
       puts("#define FLOAT_ZERO_DIV_ERROR");
     } /* if */
     if (!compilationOkay("#include<stdlib.h>\n#include<stdio.h>\n#include<float.h>\n#include<signal.h>\n"
@@ -606,7 +665,7 @@ int main (int argc, char **argv)
                          "_control87(MCW_EM, MCW_EM);\n"
 #endif
                          "signal(SIGFPE,handleSig);\nsignal(SIGILL,handleSig);\nsignal(SIGINT,handleSig);\n"
-                         "printf(\"%d\\n\",1.0/zero==0);return 0;}\n") || doTest() == 2) {
+                         "printf(\"%d\\n\",1.0/zero==0.0);return 0;}\n") || doTest() == 2) {
       puts("#define CHECK_FLOAT_DIV_BY_ZERO");
       zero_divide_triggers_signal = 1;
       if (sizeof(float) == sizeof(int)) {

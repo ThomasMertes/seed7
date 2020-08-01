@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  con_win.c     Driver for windows console access                 */
+/*  con_win.c     Driver for windows console access.                */
 /*  Copyright (C) 1989 - 2005  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
@@ -25,7 +25,7 @@
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/con_win.c                                       */
 /*  Changes: 2005  Thomas Mertes                                    */
-/*  Content: Driver for windows console access                      */
+/*  Content: Driver for windows console access.                     */
 /*                                                                  */
 /********************************************************************/
 

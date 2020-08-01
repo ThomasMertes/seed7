@@ -64,6 +64,11 @@ typedef HINSTANCE__* HINSTANCE;
 
 stritype programPath;
 
+#ifdef CHECK_STACK
+char *stack_base;
+memsizetype max_stack_size = 0;
+#endif
+
 #define VERSION_INFO "SEED7 INTERPRETER Version 5.0.%d  Copyright (c) 1990-2013 Thomas Mertes\n"
 
 
@@ -122,6 +127,7 @@ static void processOptions (rtlArraytype arg_v)
     const_cstritype exec_trace_level = NULL;
     int verbosity_level = 1;
     rtlArraytype seed7_libraries;
+    rtlObjecttype path_obj;
     booltype error = FALSE;
 
   /* processOptions */
@@ -184,9 +190,9 @@ static void processOptions (rtlArraytype arg_v)
                 arg_v->arr[position].value.strivalue = NULL;
                 FREE_STRI(opt, opt->size);
                 position++;
-                opt = stri_to_standard_path(arg_v->arr[position].value.strivalue);
+                path_obj.value.strivalue = stri_to_standard_path(arg_v->arr[position].value.strivalue);
                 if (seed7_libraries != NULL) {
-                  arrPush(&seed7_libraries, (rtlGenerictype) (memsizetype) opt);
+                  arrPush(&seed7_libraries, path_obj.value.genericvalue);
                 } /* if */
                 arg_v->arr[position].value.strivalue = NULL;
                 opt = NULL;
@@ -315,6 +321,9 @@ int main (int argc, char **argv)
 #ifdef TRACE_S7
     printf("BEGIN S7\n");
 #endif
+#ifdef CHECK_STACK
+    stack_base = (char *) &arg_v;
+#endif
     set_protfile_name(NULL);
 #ifdef USE_WINMAIN
     arg_v = getArgv(0, NULL, NULL, NULL, &programPath);
@@ -381,6 +390,10 @@ int main (int argc, char **argv)
       } /* if */
     } /* if */
     /* getchar(); */
+    /* heap_statistic(); */
+#ifdef CHECK_STACK
+    printf("max_stack_size: %lu (0x%lx)\n", max_stack_size, max_stack_size);
+#endif
 #ifdef TRACE_S7
     printf("END S7\n");
 #endif
