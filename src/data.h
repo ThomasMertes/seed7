@@ -270,6 +270,7 @@ typedef struct hashstruct {
     int bits;
     int mask;
     int table_size;
+    memsizetype size;
     helemtype table[1];
   } hashrecord;
 

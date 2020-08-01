@@ -73,7 +73,8 @@
 /*      isit_enum(arg)      */
 #define isit_file(arg)      if (CLASS_OF_OBJ(arg) != FILEOBJECT)    run_error(FILEOBJECT, arg)
 #define isit_float(arg)     if (CLASS_OF_OBJ(arg) != FLOATOBJECT)   run_error(FLOATOBJECT, arg)
-#define isit_hash(arg)      if (CLASS_OF_OBJ(arg) != HASHOBJECT)    run_error(HASHOBJECT, arg)
+#define isit_hash(arg)      if (CLASS_OF_OBJ(arg) != HASHOBJECT)    run_error(HASHOBJECT, arg); \
+                            if (take_hash(arg) == NULL)             empty_value(arg)
 #define isit_int(arg)       if (CLASS_OF_OBJ(arg) != INTOBJECT)     run_error(INTOBJECT, arg)
 /*      isit_list(arg)      */
 #define isit_proc(arg)      if (CLASS_OF_OBJ(arg) != BLOCKOBJECT && \

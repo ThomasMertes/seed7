@@ -33,6 +33,7 @@
 
 rtlArraytype arrArrlit (rtlArraytype);
 rtlArraytype arrBaselit (rtlObjecttype);
+rtlArraytype arrBaselit2 (inttype, rtlObjecttype);
 rtlArraytype arrExtend (rtlArraytype, rtlObjecttype);
 rtlArraytype arrGen (rtlObjecttype, rtlObjecttype);
 
@@ -40,6 +41,7 @@ rtlArraytype arrGen (rtlObjecttype, rtlObjecttype);
 
 rtlArraytype arrArrlit ();
 rtlArraytype arrBaselit ();
+rtlArraytype arrBaselit2 ();
 rtlArraytype arrExtend ();
 rtlArraytype arrGen ();
 

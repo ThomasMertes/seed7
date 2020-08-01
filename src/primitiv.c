@@ -511,6 +511,7 @@ static primactrecord prim_act_table[] = {
     { "REF_TYPE",          ref_type,          },
     { "REF_VALUE",         ref_value,         },
 
+    { "RFL_APPEND",        rfl_append,        },
     { "RFL_CAT",           rfl_cat,           },
     { "RFL_CPY",           rfl_cpy,           },
     { "RFL_CREATE",        rfl_create,        },

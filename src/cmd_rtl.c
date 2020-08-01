@@ -852,6 +852,30 @@ stritype dir_name;
 
 #ifdef ANSI_C
 
+void cmdMkdir (stritype str1)
+#else
+
+void cmdMkdir (str1)
+stritype str1;
+#endif
+
+  {
+    cstritype dir_name;
+
+  /* cmdMkdir */
+    dir_name = cp_to_cstri(str1);
+    if (dir_name == NULL) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      mkdir(dir_name, 0777);
+      free_cstri(dir_name, str1);
+    } /* if */
+  } /* cmdMkdir */
+
+
+
+#ifdef ANSI_C
+
 void cmdMove (stritype source_name, stritype dest_name)
 #else
 

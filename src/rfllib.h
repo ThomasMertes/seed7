@@ -27,6 +27,7 @@
 
 #ifdef ANSI_C
 
+objecttype rfl_append (listtype);
 objecttype rfl_cat (listtype);
 objecttype rfl_cpy (listtype);
 objecttype rfl_create (listtype);
@@ -50,6 +51,7 @@ objecttype rfl_value (listtype);
 
 #else
 
+objecttype rfl_append ();
 objecttype rfl_cat ();
 objecttype rfl_cpy ();
 objecttype rfl_create ();

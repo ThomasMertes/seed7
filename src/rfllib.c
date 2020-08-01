@@ -48,6 +48,53 @@
 
 #ifdef ANSI_C
 
+objecttype rfl_append (listtype arguments)
+#else
+
+objecttype rfl_append (arguments)
+listtype arguments;
+#endif
+
+  {
+    objecttype rfl_variable;
+    listtype rfl_to;
+    listtype rfl_from;
+    listtype list1_end;
+    listtype list2_start;
+    errinfotype err_info = OKAY_NO_ERROR;
+
+  /* rfl_append */
+    rfl_variable = arg_1(arguments);
+    isit_reflist(rfl_variable);
+    is_variable(rfl_variable);
+    rfl_to = take_reflist(rfl_variable);
+    isit_reflist(arg_3(arguments));
+    rfl_from = take_reflist(arg_3(arguments));
+    if (TEMP_OBJECT(arg_3(arguments))) {
+      list2_start = rfl_from;
+      arg_3(arguments)->value.listvalue = NULL;
+    } else {
+      copy_list(rfl_from, &list2_start, &err_info);
+      if (err_info != OKAY_NO_ERROR) {
+        return(raise_exception(SYS_MEM_EXCEPTION));
+      } /* if */
+    } /* if */
+    if (rfl_to != NULL) {
+      list1_end = rfl_to;
+      while (list1_end->next != NULL) {
+        list1_end = list1_end->next;
+      } /* while */
+      list1_end->next = list2_start;
+    } else {
+      rfl_variable->value.listvalue = list2_start;
+    } /* if */
+    return(SYS_EMPTY_OBJECT);
+  } /* rfl_append */
+
+
+
+#ifdef ANSI_C
+
 objecttype rfl_cat (listtype arguments)
 #else
 

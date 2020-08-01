@@ -1,0 +1,158 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  complex.s7i   Complex support library                           *)
+(*  Copyright (C) 2007  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 59 Temple Place, Suite 330,     *)
+(*  Boston, MA 02111-1307 USA                                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const type: complex is new object struct
+    var float: re is 0.0;
+    var float: im is 0.0;
+  end struct;
+
+
+const func complex: complex (in float: re, in float: im) is func
+  result
+    var complex: result is complex.value;
+  begin
+    result.re := re;
+    result.im := im;
+  end func;
+
+
+const func complex: + (in complex: num1) is func
+  result
+    var complex: result is complex.value;
+  begin
+    result.re := num1.re;
+    result.im := num1.im;
+  end func;
+
+
+const func complex: - (in complex: num1) is func
+  result
+    var complex: result is complex.value;
+  begin
+    result.re := -num1.re;
+    result.im := -num1.im;
+  end func;
+
+
+const func complex: (in complex: num1) + (in complex: num2) is func
+  result
+    var complex: result is complex.value;
+  begin
+    result.re := num1.re + num2.re;
+    result.im := num1.im + num2.im;
+  end func;
+
+
+const func complex: (in complex: num1) - (in complex: num2) is func
+  result
+    var complex: result is complex.value;
+  begin
+    result.re := num1.re - num2.re;
+    result.im := num1.im - num2.im;
+  end func;
+
+
+const func complex: (in complex: num1) * (in complex: num2) is func
+  result
+    var complex: result is complex.value;
+  begin
+    result.re := num1.re * num2.re - num1.im * num2.im;
+    result.im := num1.re * num2.im + num1.im * num2.re;
+  end func;
+
+
+const func complex: (in complex: num1) / (in complex: num2) is func
+  result
+    var complex: result is complex.value;
+  local
+    var float: help is 0.0;
+  begin
+    help := num2.re * num2.re + num2.im * num2.im;
+    result.re := (num1.re * num2.re + num1.im * num2.im) / help;
+    result.im := (num1.im * num2.re - num1.re * num2.im) / help;
+  end func;
+
+
+const proc: (inout complex: num1) +:= (in complex: num2) is func
+  begin
+    num1.re +:= num2.re;
+    num1.im +:= num2.im;
+  end func;
+
+
+const proc: (inout complex: num1) -:= (in complex: num2) is func
+  begin
+    num1.re -:= num2.re;
+    num1.im -:= num2.im;
+  end func;
+
+
+const func float: abs (in complex: num1) is
+  return sqrt(num1.re * num1.re + num1.im * num1.im);
+
+
+const func float: arg (in complex: num1) is
+  return atan2(num1.im, num1.re);
+
+
+const func complex: (in complex: num1) ** (in integer: int2) is func
+  result
+    var complex: result is complex.value;
+  local
+    var float: r is 0.0;
+    var float: phi is 0.0;
+  begin
+    r := abs(num1) ** int2;
+    phi := arg(num1) * flt(int2);
+    result.re := r * cos(phi);
+    result.im := r * sin(phi);
+  end func;
+
+
+const func string: str (in complex: num) is func
+  result
+    var string: result is "";
+  begin
+    if num.im < 0.0 then
+      result := str(num.re) & str(num.im) & "i";
+    else
+      result := str(num.re) & "+" & str(num) & "i";
+    end if;
+  end func;
+
+
+const func string: (in complex: num) digits (in integer: numDigits) is func
+  result
+    var string: result is "";
+  begin
+    if num.im < 0.0 then
+      result := num.re digits numDigits <& num.im digits numDigits <& "i";
+    else
+      result := num.re digits numDigits <& "+" <& num.im digits numDigits <& "i";
+    end if;
+  end func;

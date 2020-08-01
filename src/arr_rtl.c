@@ -180,6 +180,35 @@ objecttype element;
 
 
 
+#ifdef ANSI_C
+
+rtlArraytype arrBaselit2 (inttype start_position, rtlObjecttype element)
+#else
+
+rtlArraytype arrBaselit2 (start_position, element)
+inttype start_position;
+objecttype element;
+#endif
+
+  {
+    memsizetype result_size;
+    rtlArraytype result;
+
+  /* arrBaselit2 */
+    result_size = 1;
+    if (!ALLOC_RTL_ARRAY(result, result_size)) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      COUNT_RTL_ARRAY(result_size);
+      result->min_position = start_position;
+      result->max_position = start_position;
+      result->arr[0] = element;
+    } /* if */
+    return(result);
+  } /* arrBaselit2 */
+
+
+
 #ifdef OUT_OF_ORDER
 #ifdef ANSI_C
 
@@ -276,6 +305,60 @@ rtlObjecttype element2;
     } /* if */
     return(result);
   } /* arrGen */
+
+
+
+#ifdef OUT_OF_ORDER
+#ifdef ANSI_C
+
+rtlArraytype arrRange (arraytype arr1, inttype start, inttype stop)
+#else
+
+rtlArraytype arrRange (arr1, start, stop)
+arraytype arr1;
+inttype start;
+inttype stop;
+#endif
+
+  {
+    memsizetype length;
+    memsizetype result_size;
+    rtlArraytype result;
+
+  /* arrRange */
+    length = arr1->max_position - arr1->min_position + 1;
+    if (stop >= start && start <= arr1->max_position &&
+        stop >= arr1->min_position && length >= 1) {
+      if (start < arr1->min_position) {
+        start = arr1->min_position;
+      } /* if */
+      if (stop > arr1->max_position) {
+        stop = arr1->max_position;
+      } /* if */
+      result_size = (memsizetype) (stop - start + 1);
+      if (!ALLOC_ARRAY(result, result_size)) {
+        return(raise_exception(SYS_MEM_EXCEPTION));
+      } /* if */
+      COUNT_ARRAY(result_size);
+      result->min_position = arr1->min_position;
+      result->max_position = arr1->min_position + result_size - 1;
+        memcpy(result->arr, &arr1->arr[(memsizetype) (start - 1)],
+            (SIZE_TYPE) (result_size * sizeof(objectrecord)));
+        destr_array(arr1->arr, (memsizetype) start - 1);
+        destr_array(&arr1->arr[stop], length - (memsizetype) stop);
+        FREE_ARRAY(arr1, length);
+        arg_1(arguments)->value.arrayvalue = NULL;
+    } else {
+      if (!ALLOC_ARRAY(result, 0)) {
+        return(raise_exception(SYS_MEM_EXCEPTION));
+      } /* if */
+      COUNT_ARRAY(0);
+      result->min_position = arr1->min_position;
+      result->max_position = arr1->min_position - 1;
+    } /* if */
+    return(result);
+  } /* arrRange */
+#endif
 
 
 

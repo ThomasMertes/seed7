@@ -79,7 +79,7 @@
 20060826:
 - A description of the 'attr' parameter was added to the manual.
 - The first steps towards bigInteger support were done.
-- The graphic and keyborad drivers for windows have been improved.
+- The graphic and keyboard drivers for windows have been improved.
 - A check for the maximum of fish and sharks was added to the wator example program.
 
 20060910:
@@ -150,3 +150,11 @@
 - The exception handling was corrected to work with hash objects.
 - A bug in the in_file handling of the analyzer was fixed.
 - The 'hi' interpreter was improved to support the actions rfl_trace and str_split.
+
+20070104:
+- The hashtype was changend to maintain the size of the hash instead of computing it.
+- The &:= statement for the type ref_list was added.
+- The compiler was improved to support 'in var' parameters.
+- A new include file (complex.s7i) to support complex numbers was added.
+- The support for the bigIConv, bigOrd, cmdMkdir, drwPArc, drwPCircle, drwPFEllipse,
+  filBigLng, filBigSeek and filBigTell functions was added to the compiler.

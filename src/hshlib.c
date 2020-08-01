@@ -172,6 +172,7 @@ errinfotype *err_info;
       hash->bits = bits;
       hash->mask = TABLE_MASK(bits);
       hash->table_size = TABLE_SIZE(bits);
+      hash->size = 0;
       memset(hash->table, 0, hash->table_size * sizeof(helemtype));
     } /* if */
     return(hash);
@@ -243,87 +244,27 @@ errinfotype *err_info;
     hashtype dest_hash;
 
   /* copy_hash */
-    if (source_hash != NULL) {
-      new_size = source_hash->table_size;
-      if (!ALLOC_HASH(dest_hash, new_size)) {
-        *err_info = MEMORY_ERROR;
-      } else {
-        COUNT_HASH(new_size);
-        dest_hash->bits = source_hash->bits;
-        dest_hash->mask = source_hash->mask;
-        dest_hash->table_size = source_hash->table_size;
-        number = source_hash->table_size;
-        source_helem = &source_hash->table[0];
-        dest_helem = &dest_hash->table[0];
-        while (number > 0 && *err_info == OKAY_NO_ERROR) {
-          *dest_helem = copy_helem(*source_helem, key_create_func, data_create_func, err_info);
-          number--;
-          source_helem++;
-          dest_helem++;
-        } /* while */
-      } /* if */
+    new_size = source_hash->table_size;
+    if (!ALLOC_HASH(dest_hash, new_size)) {
+      *err_info = MEMORY_ERROR;
     } else {
-      dest_hash = NULL;
+      COUNT_HASH(new_size);
+      dest_hash->bits = source_hash->bits;
+      dest_hash->mask = source_hash->mask;
+      dest_hash->table_size = source_hash->table_size;
+      dest_hash->size = source_hash->size;
+      number = source_hash->table_size;
+      source_helem = &source_hash->table[0];
+      dest_helem = &dest_hash->table[0];
+      while (number > 0 && *err_info == OKAY_NO_ERROR) {
+        *dest_helem = copy_helem(*source_helem, key_create_func, data_create_func, err_info);
+        number--;
+        source_helem++;
+        dest_helem++;
+      } /* while */
     } /* if */
     return(dest_hash);
   } /* copy_hash */
-
-
-
-#ifdef ANSI_C
-
-static inttype size_helem (helemtype helem)
-#else
-
-static inttype size_helem (helem)
-helemtype helem;
-#endif
-
-  {
-    inttype result;
-
-  /* size_helem */
-    result = 1;
-    if (helem->next_less != NULL) {
-      result += size_helem(helem->next_less);
-    } /* if */
-    if (helem->next_greater != NULL) {
-      result += size_helem(helem->next_greater);
-    } /* if */
-    return(result);
-  } /* size_helem */
-
-
-
-#ifdef ANSI_C
-
-inttype size_hash (hashtype hash)
-#else
-
-inttype size_hash (hash)
-hashtype hash;
-#endif
-
-  {
-    memsizetype number;
-    helemtype *curr_helem;
-    inttype result;
-
-  /* size_hash */
-    result = 0;
-    if (hash != NULL) {
-      number = hash->table_size;
-      curr_helem = &hash->table[0];
-      while (number > 0) {
-        if (*curr_helem != NULL) {
-          result += size_helem(*curr_helem);
-        } /* if */
-        number--;
-        curr_helem++;
-      } /* while */
-    } /* if */
-    return(result);
-  } /* size_hash */
 
 
 
@@ -737,6 +678,7 @@ objecttype key_copy_func;
 
 
 
+#ifdef OUT_OF_ORDER
 #ifdef ANSI_C
 
 static void helem_to_list (listtype *list_insert_place,
@@ -759,7 +701,6 @@ errinfotype *err_info;
 
 
 
-#ifdef OUT_OF_ORDER
 #ifdef ANSI_C
 
 static listtype hash_to_list (hashtype hash, errinfotype *err_info)
@@ -820,30 +761,26 @@ listtype arguments;
     key      =                arg_2(arguments);
     hashcode =       take_int(arg_3(arguments));
     cmp_func = take_reference(arg_4(arguments));
-    if (hash1 == NULL) {
-      result = SYS_FALSE_OBJECT;
-    } else {
-      result_hashelem = NULL;
-      hashelem = hash1->table[hashcode & hash1->mask];
-      while (hashelem != NULL) {
-        cmp_obj = param2_call(cmp_func, &hashelem->key, key);
-        isit_int(cmp_obj);
-        cmp = take_int(cmp_obj);
-        FREE_OBJECT(cmp_obj);
-        if (cmp < 0) {
-          hashelem = hashelem->next_less;
-        } else if (cmp == 0) {
-          result_hashelem = hashelem;
-          hashelem = NULL;
-        } else {
-          hashelem = hashelem->next_greater;
-        } /* if */
-      } /* while */
-      if (result_hashelem != NULL) {
-        result = SYS_TRUE_OBJECT;
+    result_hashelem = NULL;
+    hashelem = hash1->table[hashcode & hash1->mask];
+    while (hashelem != NULL) {
+      cmp_obj = param2_call(cmp_func, &hashelem->key, key);
+      isit_int(cmp_obj);
+      cmp = take_int(cmp_obj);
+      FREE_OBJECT(cmp_obj);
+      if (cmp < 0) {
+        hashelem = hashelem->next_less;
+      } else if (cmp == 0) {
+        result_hashelem = hashelem;
+        hashelem = NULL;
       } else {
-        result = SYS_FALSE_OBJECT;
+        hashelem = hashelem->next_greater;
       } /* if */
+    } /* while */
+    if (result_hashelem != NULL) {
+      result = SYS_TRUE_OBJECT;
+    } else {
+      result = SYS_FALSE_OBJECT;
     } /* if */
     return(result);
   } /* hsh_contains */
@@ -1070,7 +1007,6 @@ listtype arguments;
     helemtype old_hashelem;
     objecttype cmp_obj;
     int cmp;
-    objecttype result;
 
   /* hsh_excl */
     isit_hash(arg_1(arguments));
@@ -1082,45 +1018,42 @@ listtype arguments;
     cmp_func        = take_reference(arg_4(arguments));
     key_destr_func  = take_reference(arg_5(arguments));
     data_destr_func = take_reference(arg_6(arguments));
-    if (hash1 == NULL) {
-      result = raise_exception(SYS_RNG_EXCEPTION);
-    } else {
-      delete_pos = &hash1->table[hashcode & hash1->mask];
-      hashelem = hash1->table[hashcode & hash1->mask];
-      while (hashelem != NULL) {
-        cmp_obj = param2_call(cmp_func, &hashelem->key, key);
-        isit_int(cmp_obj);
-        cmp = take_int(cmp_obj);
-        FREE_OBJECT(cmp_obj);
-        if (cmp < 0) {
-          delete_pos = &hashelem->next_less;
-          hashelem = hashelem->next_less;
-        } else if (cmp == 0) {
-          if (hashelem->next_less == NULL) {
-            *delete_pos = hashelem->next_greater;
-          } else if (hashelem->next_greater == NULL) {
-            *delete_pos = hashelem->next_less;
-          } else {
-            old_hashelem = hashelem;
-            *delete_pos = hashelem->next_less;
-            greater_hashelems = hashelem->next_greater;
-            hashelem = hashelem->next_less;
-            while (hashelem->next_greater != NULL) {
-              hashelem = hashelem->next_greater;
-            } /* while */
-            hashelem->next_greater = greater_hashelems;
-            old_hashelem->next_less = NULL;
-            old_hashelem->next_greater = NULL;
-            free_helem(old_hashelem, key_destr_func,
-                data_destr_func);
-          } /* if */
-          hashelem = NULL;
+    delete_pos = &hash1->table[hashcode & hash1->mask];
+    hashelem = hash1->table[hashcode & hash1->mask];
+    while (hashelem != NULL) {
+      cmp_obj = param2_call(cmp_func, &hashelem->key, key);
+      isit_int(cmp_obj);
+      cmp = take_int(cmp_obj);
+      FREE_OBJECT(cmp_obj);
+      if (cmp < 0) {
+        delete_pos = &hashelem->next_less;
+        hashelem = hashelem->next_less;
+      } else if (cmp == 0) {
+        if (hashelem->next_less == NULL) {
+          *delete_pos = hashelem->next_greater;
+        } else if (hashelem->next_greater == NULL) {
+          *delete_pos = hashelem->next_less;
         } else {
-          delete_pos = &hashelem->next_greater;
-          hashelem = hashelem->next_greater;
+          old_hashelem = hashelem;
+          *delete_pos = hashelem->next_less;
+          greater_hashelems = hashelem->next_greater;
+          hashelem = hashelem->next_less;
+          while (hashelem->next_greater != NULL) {
+            hashelem = hashelem->next_greater;
+          } /* while */
+          hashelem->next_greater = greater_hashelems;
+          old_hashelem->next_less = NULL;
+          old_hashelem->next_greater = NULL;
+          free_helem(old_hashelem, key_destr_func,
+              data_destr_func);
+          hash1->size--;
         } /* if */
-      } /* while */
-    } /* if */
+        hashelem = NULL;
+      } else {
+        delete_pos = &hashelem->next_greater;
+        hashelem = hashelem->next_greater;
+      } /* if */
+    } /* while */
     return(SYS_EMPTY_OBJECT);
   } /* hsh_excl */
 
@@ -1240,36 +1173,32 @@ listtype arguments;
     key      =                arg_2(arguments);
     hashcode =       take_int(arg_3(arguments));
     cmp_func = take_reference(arg_4(arguments));
-    if (hash1 == NULL) {
-      result = raise_exception(SYS_RNG_EXCEPTION);
-    } else {
-      result_hashelem = NULL;
-      hashelem = hash1->table[hashcode & hash1->mask];
-      while (hashelem != NULL) {
-        cmp_obj = param2_call(cmp_func, &hashelem->key, key);
-        isit_int(cmp_obj);
-        cmp = take_int(cmp_obj);
-        FREE_OBJECT(cmp_obj);
-        if (cmp < 0) {
-          hashelem = hashelem->next_less;
-        } else if (cmp == 0) {
-          result_hashelem = hashelem;
-          hashelem = NULL;
-        } else {
-          hashelem = hashelem->next_greater;
-        } /* if */
-      } /* while */
-      if (result_hashelem != NULL) {
-        result = &result_hashelem->data;
-        if (TEMP2_OBJECT(arg_1(arguments))) {
-          /* The hash will be destroyed after indexing. */
-          /* Therefore it is necessary here to remove it */
-          /* from the hashtable to avoid a crash !!!!! */
-          return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
-        } /* if */
+    result_hashelem = NULL;
+    hashelem = hash1->table[hashcode & hash1->mask];
+    while (hashelem != NULL) {
+      cmp_obj = param2_call(cmp_func, &hashelem->key, key);
+      isit_int(cmp_obj);
+      cmp = take_int(cmp_obj);
+      FREE_OBJECT(cmp_obj);
+      if (cmp < 0) {
+        hashelem = hashelem->next_less;
+      } else if (cmp == 0) {
+        result_hashelem = hashelem;
+        hashelem = NULL;
       } else {
-        result = raise_with_arguments(SYS_RNG_EXCEPTION, arguments);
+        hashelem = hashelem->next_greater;
       } /* if */
+    } /* while */
+    if (result_hashelem != NULL) {
+      result = &result_hashelem->data;
+      if (TEMP2_OBJECT(arg_1(arguments))) {
+        /* The hash will be destroyed after indexing. */
+        /* Therefore it is necessary here to remove it */
+        /* from the hashtable to avoid a crash !!!!! */
+        return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
+      } /* if */
+    } else {
+      result = raise_with_arguments(SYS_RNG_EXCEPTION, arguments);
     } /* if */
     return(result);
   } /* hsh_idx */
@@ -1311,45 +1240,40 @@ listtype arguments;
     cmp_func         = take_reference(arg_5(arguments));
     key_create_func  = take_reference(arg_6(arguments));
     data_create_func = take_reference(arg_7(arguments));
-    if (hash1 == NULL) {
-      arg_1(arguments)->value.hashvalue = new_hash(TABLE_BITS, &err_info);
-      hash1 = take_hash(arg_1(arguments));
-      result_hashelem = new_helem(key, data,
-          key_create_func, data_create_func, &err_info);
-      hash1->table[hashcode & hash1->mask] = result_hashelem;
-    } else {
-      result_hashelem = NULL;
-      hashelem = hash1->table[hashcode & hash1->mask];
-      while (hashelem != NULL) {
-        cmp_obj = param2_call(cmp_func, &hashelem->key, key);
-        isit_int(cmp_obj);
-        cmp = take_int(cmp_obj);
-        FREE_OBJECT(cmp_obj);
-        if (cmp < 0) {
-          if (hashelem->next_less == NULL) {
-            result_hashelem = new_helem(key, data,
-                key_create_func, data_create_func, &err_info);
-            hashelem->next_less = result_hashelem;
-            hashelem = NULL;
-          } else {
-            hashelem = hashelem->next_less;
-          } /* if */
-        } else if (cmp == 0) {
-          result_hashelem = hashelem;
+    result_hashelem = NULL;
+    hashelem = hash1->table[hashcode & hash1->mask];
+    while (hashelem != NULL) {
+      cmp_obj = param2_call(cmp_func, &hashelem->key, key);
+      isit_int(cmp_obj);
+      cmp = take_int(cmp_obj);
+      FREE_OBJECT(cmp_obj);
+      if (cmp < 0) {
+        if (hashelem->next_less == NULL) {
+          result_hashelem = new_helem(key, data,
+              key_create_func, data_create_func, &err_info);
+          hash1->size++;
+          hashelem->next_less = result_hashelem;
           hashelem = NULL;
         } else {
-          if (hashelem->next_greater == NULL) {
-            result_hashelem = new_helem(key, data,
-                key_create_func, data_create_func, &err_info);
-            hashelem->next_greater = result_hashelem;
-            hashelem = NULL;
-          } else {
-            hashelem = hashelem->next_greater;
-          } /* if */
+          hashelem = hashelem->next_less;
         } /* if */
-      } /* while */
-    } /* if */
+      } else if (cmp == 0) {
+        result_hashelem = hashelem;
+        hashelem = NULL;
+      } else {
+        if (hashelem->next_greater == NULL) {
+          result_hashelem = new_helem(key, data,
+              key_create_func, data_create_func, &err_info);
+          hash1->size++;
+          hashelem->next_greater = result_hashelem;
+          hashelem = NULL;
+        } else {
+          hashelem = hashelem->next_greater;
+        } /* if */
+      } /* if */
+    } /* while */
     if (err_info != OKAY_NO_ERROR) {
+      hash1->size--;
       return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
     } else {
       result = &result_hashelem->data;
@@ -1400,46 +1324,43 @@ listtype arguments;
     key_create_func  = take_reference(arg_6(arguments));
     data_create_func = take_reference(arg_7(arguments));
     data_copy_func   = take_reference(arg_8(arguments));
-    if (hash1 == NULL) {
-      hash1 = new_hash(TABLE_BITS, &err_info);
-      arg_1(arguments)->value.hashvalue = hash1;
+    hashelem = hash1->table[hashcode & hash1->mask];
+    if (hashelem == NULL) {
       hash1->table[hashcode & hash1->mask] = new_helem(key, data,
           key_create_func, data_create_func, &err_info);
+      hash1->size++;
     } else {
-      hashelem = hash1->table[hashcode & hash1->mask];
-      if (hashelem == NULL) {
-        hash1->table[hashcode & hash1->mask] = new_helem(key, data,
-            key_create_func, data_create_func, &err_info);
-      } else {
-        do {
-          cmp_obj = param2_call(cmp_func, &hashelem->key, key);
-          isit_int(cmp_obj);
-          cmp = take_int(cmp_obj);
-          FREE_OBJECT(cmp_obj);
-          if (cmp < 0) {
-            if (hashelem->next_less == NULL) {
-              hashelem->next_less = new_helem(key, data,
-                  key_create_func, data_create_func, &err_info);
-              hashelem = NULL;
-            } else {
-              hashelem = hashelem->next_less;
-            } /* if */
-          } else if (cmp == 0) {
-            param3_call(data_copy_func, &hashelem->data, SYS_ASSIGN_OBJECT, data);
+      do {
+        cmp_obj = param2_call(cmp_func, &hashelem->key, key);
+        isit_int(cmp_obj);
+        cmp = take_int(cmp_obj);
+        FREE_OBJECT(cmp_obj);
+        if (cmp < 0) {
+          if (hashelem->next_less == NULL) {
+            hashelem->next_less = new_helem(key, data,
+                key_create_func, data_create_func, &err_info);
+            hash1->size++;
             hashelem = NULL;
           } else {
-            if (hashelem->next_greater == NULL) {
-              hashelem->next_greater = new_helem(key, data,
-                  key_create_func, data_create_func, &err_info);
-              hashelem = NULL;
-            } else {
-              hashelem = hashelem->next_greater;
-            } /* if */
+            hashelem = hashelem->next_less;
           } /* if */
-        } while (hashelem != NULL);
-      } /* if */
+        } else if (cmp == 0) {
+          param3_call(data_copy_func, &hashelem->data, SYS_ASSIGN_OBJECT, data);
+          hashelem = NULL;
+        } else {
+          if (hashelem->next_greater == NULL) {
+            hashelem->next_greater = new_helem(key, data,
+                key_create_func, data_create_func, &err_info);
+            hash1->size++;
+            hashelem = NULL;
+          } else {
+            hashelem = hashelem->next_greater;
+          } /* if */
+        } /* if */
+      } while (hashelem != NULL);
     } /* if */
     if (err_info != OKAY_NO_ERROR) {
+      hash1->size--;
       return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
     } else {
       return(SYS_EMPTY_OBJECT);
@@ -1488,7 +1409,7 @@ listtype arguments;
   { /* hsh_lng */
     isit_hash(arg_1(arguments));
     return(bld_int_temp(
-        size_hash(take_hash(arg_1(arguments)))));
+        take_hash(arg_1(arguments))->size));
   } /* hsh_lng */
 
 
@@ -1521,36 +1442,32 @@ listtype arguments;
     key      =                arg_2(arguments);
     hashcode =       take_int(arg_3(arguments));
     cmp_func = take_reference(arg_4(arguments));
-    if (hash1 == NULL) {
-      result = NULL;
-    } else {
-      result_hashelem = NULL;
-      hashelem = hash1->table[hashcode & hash1->mask];
-      while (hashelem != NULL) {
-        cmp_obj = param2_call(cmp_func, &hashelem->key, key);
-        isit_int(cmp_obj);
-        cmp = take_int(cmp_obj);
-        FREE_OBJECT(cmp_obj);
-        if (cmp < 0) {
-          hashelem = hashelem->next_less;
-        } else if (cmp == 0) {
-          result_hashelem = hashelem;
-          hashelem = NULL;
-        } else {
-          hashelem = hashelem->next_greater;
-        } /* if */
-      } /* while */
-      if (result_hashelem != NULL) {
-        result = &result_hashelem->data;
-        if (TEMP_OBJECT(arg_1(arguments))) {
-          /* The hash will be destroyed after indexing. */
-          /* Therefore it is necessary here to remove it */
-          /* from the hashtable to avoid a crash !!!!! */
-          return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
-        } /* if */
+    result_hashelem = NULL;
+    hashelem = hash1->table[hashcode & hash1->mask];
+    while (hashelem != NULL) {
+      cmp_obj = param2_call(cmp_func, &hashelem->key, key);
+      isit_int(cmp_obj);
+      cmp = take_int(cmp_obj);
+      FREE_OBJECT(cmp_obj);
+      if (cmp < 0) {
+        hashelem = hashelem->next_less;
+      } else if (cmp == 0) {
+        result_hashelem = hashelem;
+        hashelem = NULL;
       } else {
-        result = NULL;
+        hashelem = hashelem->next_greater;
       } /* if */
+    } /* while */
+    if (result_hashelem != NULL) {
+      result = &result_hashelem->data;
+      if (TEMP_OBJECT(arg_1(arguments))) {
+        /* The hash will be destroyed after indexing. */
+        /* Therefore it is necessary here to remove it */
+        /* from the hashtable to avoid a crash !!!!! */
+        return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
+      } /* if */
+    } else {
+      result = NULL;
     } /* if */
     return(bld_reference_temp(result));
   } /* hsh_refidx */

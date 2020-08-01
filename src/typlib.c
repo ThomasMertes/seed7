@@ -465,6 +465,34 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype typ_meta (listtype arguments)
+#else
+
+objecttype typ_meta (arguments)
+listtype arguments;
+#endif
+
+  {
+    typetype any_type;
+    typetype result;
+
+  /* typ_meta */
+#ifdef TRACE_TYPLIB
+    printf("BEGIN typ_meta\n");
+#endif
+    isit_type(arg_1(arguments));
+    any_type = take_type(arg_1(arguments));
+    result = any_type->meta;
+#ifdef TRACE_TYPLIB
+    printf("END typ_meta\n");
+#endif
+    return(bld_type_temp(result));
+  } /* typ_meta */
+
+
+
+#ifdef ANSI_C
+
 objecttype typ_ne (listtype arguments)
 #else
 

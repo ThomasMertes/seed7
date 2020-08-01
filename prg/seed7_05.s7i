@@ -832,6 +832,7 @@ IN_PARAM_IS_REFERENCE(ref_list);
 const proc: (ref ref_list param) ::= (in ref_list param) is              action "RFL_CREATE";
 const proc: destroy (ref ref_list param) is                              action "RFL_DESTR";
 const proc: (inout ref_list param) := (in ref_list param) is             action "RFL_CPY";
+const proc: (inout ref_list param) &:= (in ref_list param) is            action "RFL_APPEND";
 
 const func ref_list: _GENERATE_EMPTY_REFLIST is                          action "RFL_EMPTY";
 const ref_list: (attr ref_list) . EMPTY is                               _GENERATE_EMPTY_REFLIST;
@@ -2159,22 +2160,14 @@ const func type: sub (in type: baseType) struct (ref proc: elem_decl) end struct
     const func varptrType: varalloc (in structType param) is           action "SCT_ALLOC";
     const func structType: (attr structType) conv (in STRUCT param) is action "SCT_CONV";
     const func STRUCT: (attr STRUCT) conv (in structType param) is     action "SCT_CONV";
-(* PRINT(str(length(elem_list)));
-PRINT("\n"); *)
     for number range 1 to length(elem_list) do
       elem_obj := elem_list[number];
       if is_symb(elem_obj) then
-(* PRINT(str(number));
-PRINT(": ");
-TRACE(elem_obj);
-PRINT("\n");
-if number <= 6 then *)
         incl(struct_value, elem_obj);
         const func    getType(elem_obj):    (in structType param) .  (symb elem_obj) is action "SCT_SELECT";
         const varfunc getType(elem_obj): (inout structType param) .  (symb elem_obj) is action "SCT_SELECT";
         const func    getType(elem_obj):    (in ptrType    param) -> (symb elem_obj) is action "REF_SELECT";
         const varfunc getType(elem_obj):    (in varptrType param) -> (symb elem_obj) is action "REF_SELECT";
-(* end if; *)
       end if;
     end for;
     const structType: (attr structType) . value is      structType conv (STRUCT conv (baseType.value) & struct_value);
