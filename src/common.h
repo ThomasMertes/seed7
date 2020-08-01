@@ -53,6 +53,7 @@ typedef int boolType;
 
 #define EXTERN          extern
 
+
 typedef INT8TYPE           int8Type;
 typedef UINT8TYPE          uint8Type;
 
@@ -84,77 +85,27 @@ typedef UINT16TYPE         uint16Type;
 typedef INT32TYPE          int32Type;
 typedef UINT32TYPE         uint32Type;
 
-#ifdef INT32TYPE_SUFFIX_L
-#define INT32_SUFFIX(num)  num ## L
-#define UINT32_SUFFIX(num) num ## UL
-#define INT32TYPE_LITERAL_SUFFIX "L"
-#define INT32TYPE_MAX                2147483647L
+#define INT32TYPE_MAX            INT32_SUFFIX(2147483647)
 #ifdef TWOS_COMPLEMENT_INTTYPE
-#define INT32TYPE_MIN       (-INT32TYPE_MAX - 1L)
+#define INT32TYPE_MIN            (-INT32TYPE_MAX - INT32_SUFFIX(1))
 #else
-#define INT32TYPE_MIN              (-2147483647L)
+#define INT32TYPE_MIN            INT32_SUFFIX(-2147483647)
 #endif
-#define UINT32TYPE_MAX ((uint32Type) 0xffffffffL)
-#else
-#define INT32_SUFFIX(num)  num
-#define UINT32_SUFFIX(num) num ## U
-#define INT32TYPE_LITERAL_SUFFIX ""
-#define INT32TYPE_MAX                2147483647
-#ifdef TWOS_COMPLEMENT_INTTYPE
-#define INT32TYPE_MIN       (-INT32TYPE_MAX - 1)
-#else
-#define INT32TYPE_MIN              (-2147483647)
-#endif
-#define UINT32TYPE_MAX ((uint32Type) 0xffffffff)
-#endif
+#define UINT32TYPE_MAX           UINT32_SUFFIX(0xffffffff)
 
-#if   defined INT32TYPE_FORMAT_L
-#define F_D32(width) "%" #width "ld"
-#define F_U32(width) "%" #width "lu"
-#define F_X32(width) "%" #width "lx"
-#define FMT_D32  "%ld"
-#define FMT_U32  "%lu"
-#define FMT_X32  "%lx"
-#else
-#define F_D32(width) "%" #width "d"
-#define F_U32(width) "%" #width "u"
-#define F_X32(width) "%" #width "x"
-#define FMT_D32  "%d"
-#define FMT_U32  "%u"
-#define FMT_X32  "%x"
-#endif
+#define F_D32(width) "%" #width INT32TYPE_FORMAT "d"
+#define F_U32(width) "%" #width INT32TYPE_FORMAT "u"
+#define F_X32(width) "%" #width INT32TYPE_FORMAT "x"
+#define FMT_D32      "%" INT32TYPE_FORMAT "d"
+#define FMT_U32      "%" INT32TYPE_FORMAT "u"
+#define FMT_X32      "%" INT32TYPE_FORMAT "x"
 
 
 #ifdef INT64TYPE
 typedef INT64TYPE          int64Type;
 typedef UINT64TYPE         uint64Type;
 
-#if   defined INT64TYPE_SUFFIX_LL
-#define INT64_SUFFIX(num)  num ## LL
-#define UINT64_SUFFIX(num) num ## ULL
-#define INT64TYPE_LITERAL_SUFFIX "LL"
-#define INT64TYPE_MAX                 9223372036854775807LL
-#ifdef TWOS_COMPLEMENT_INTTYPE
-#define INT64TYPE_MIN                 (-INT64TYPE_MAX - 1LL)
-#else
-#define INT64TYPE_MIN               (-9223372036854775807LL)
-#endif
-#define UINT64TYPE_MAX ((uint64Type)   0xffffffffffffffffLL)
-#elif defined INT64TYPE_SUFFIX_L
-#define INT64_SUFFIX(num)  num ## L
-#define UINT64_SUFFIX(num) num ## UL
-#define INT64TYPE_LITERAL_SUFFIX "L"
-#define INT64TYPE_MAX                 9223372036854775807L
-#ifdef TWOS_COMPLEMENT_INTTYPE
-#define INT64TYPE_MIN                 (-INT64TYPE_MAX - 1L)
-#else
-#define INT64TYPE_MIN               (-9223372036854775807L)
-#endif
-#define UINT64TYPE_MAX ((uint64Type)   0xffffffffffffffffL)
-#elif defined INT64TYPE_NO_SUFFIX_BUT_CAST
-#define INT64_SUFFIX(num)  ((int64Type) num)
-#define UINT64_SUFFIX(num) ((uint64Type) num ## U)
-#define INT64TYPE_LITERAL_SUFFIX ""
+#ifdef INT64TYPE_NO_SUFFIX_BUT_CAST
 #define INT64TYPE_MAX   ((int64Type)  9223372036854775807)
 #ifdef TWOS_COMPLEMENT_INTTYPE
 #define INT64TYPE_MIN   ((int64Type) (-INT64TYPE_MAX - 1))
@@ -163,55 +114,23 @@ typedef UINT64TYPE         uint64Type;
 #endif
 #define UINT64TYPE_MAX  ((uint64Type)  0xffffffffffffffff)
 #else
-#define INT64_SUFFIX(num)  num
-#define UINT64_SUFFIX(num) num ## U
-#define INT64TYPE_LITERAL_SUFFIX ""
-#define INT64TYPE_MAX                 9223372036854775807
+#define INT64TYPE_MAX            INT64_SUFFIX(9223372036854775807)
 #ifdef TWOS_COMPLEMENT_INTTYPE
-#define INT64TYPE_MIN                 (-INT64TYPE_MAX - 1)
+#define INT64TYPE_MIN            (-INT64TYPE_MAX - INT64_SUFFIX(1))
 #else
-#define INT64TYPE_MIN               (-9223372036854775807)
+#define INT64TYPE_MIN            INT64_SUFFIX(-9223372036854775807)
 #endif
-#define UINT64TYPE_MAX ((uint64Type)   0xffffffffffffffff)
+#define UINT64TYPE_MAX           UINT64_SUFFIX(0xffffffffffffffff)
 #endif
 
-#if   defined INT64TYPE_FORMAT_L
-#define F_D64(width) "%" #width "ld"
-#define F_U64(width) "%" #width "lu"
-#define F_X64(width) "%" #width "lx"
-#define FMT_D64  "%ld"
-#define FMT_U64  "%lu"
-#define FMT_X64  "%lx"
-#elif defined INT64TYPE_FORMAT_LL
-#define F_D64(width) "%" #width "lld"
-#define F_U64(width) "%" #width "llu"
-#define F_X64(width) "%" #width "llx"
-#define FMT_D64  "%lld"
-#define FMT_U64  "%llu"
-#define FMT_X64  "%llx"
-#elif defined INT64TYPE_FORMAT_CAPITAL_L
-#define F_D64(width) "%" #width "Ld"
-#define F_U64(width) "%" #width "Lu"
-#define F_X64(width) "%" #width "Lx"
-#define FMT_D64  "%Ld"
-#define FMT_U64  "%Lu"
-#define FMT_X64  "%Lx"
-#elif defined INT64TYPE_FORMAT_I64
-#define F_D64(width) "%" #width "I64d"
-#define F_U64(width) "%" #width "I64u"
-#define F_X64(width) "%" #width "I64x"
-#define FMT_D64  "%I64d"
-#define FMT_U64  "%I64u"
-#define FMT_X64  "%I64x"
-#else
-#define F_D64(width) "%" #width "d"
-#define F_U64(width) "%" #width "u"
-#define F_X64(width) "%" #width "x"
-#define FMT_D64  "%d"
-#define FMT_U64  "%u"
-#define FMT_X64  "%x"
+#define F_D64(width) "%" #width INT64TYPE_FORMAT "d"
+#define F_U64(width) "%" #width INT64TYPE_FORMAT "u"
+#define F_X64(width) "%" #width INT64TYPE_FORMAT "x"
+#define FMT_D64  "%" INT64TYPE_FORMAT "d"
+#define FMT_U64  "%" INT64TYPE_FORMAT "u"
+#define FMT_X64  "%" INT64TYPE_FORMAT "x"
 #endif
-#endif
+
 
 #ifdef INT128TYPE
 typedef INT128TYPE          int128Type;

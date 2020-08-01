@@ -622,8 +622,8 @@ static void setupResultColumn (preparedStmtType preparedStmt,
           /* printf("%s:\n", nameOfBufferType(resultData->buffer_type));
           printf("octetLength: %ld\n", octetLength);
           printf("column_size: %lu\n", column_size);
-          printf("precision: %d\n", precision);
-          printf("scale: %d\n", scale); */
+          printf("precision: " FMT_D64 "\n", precision);
+          printf("scale: " FMT_D64 "\n", scale); */
           break;
         case SQL_TINYINT:
           c_type = SQL_C_STINYINT;
@@ -659,8 +659,8 @@ static void setupResultColumn (preparedStmtType preparedStmt,
           printf("octetLength: %ld\n", octetLength);
           printf("DataLength: %ld\n", dataLength);
           printf("column_size: %lu\n", column_size);
-          printf("precision: %d\n", precision);
-          printf("scale: %d\n", scale); */
+          printf("precision: " FMT_D64 "\n", precision);
+          printf("scale: " FMT_D64 "\n", scale); */
           break;
         case SQL_NUMERIC:
 #if 0
@@ -755,10 +755,10 @@ static void setupResultColumn (preparedStmtType preparedStmt,
           column_size = sizeof(SQL_NUMERIC_STRUCT);
 #else
           c_type = SQL_C_CHAR;
-          if (precision < 0 || (SQLULEN) precision < DEFAULT_DECIMAL_PRECISION) {
+          if (precision < 0 || (SQLULEN) precision > DEFAULT_DECIMAL_PRECISION) {
             column_size = DEFAULT_DECIMAL_PRECISION;
           } else {
-            column_size = (SQLULEN) precision;
+            column_size = (memSizeType) (SQLULEN) precision;
           } /* if */
           /* Place for sign, decimal point and zero byte. */
           column_size += 3;
@@ -901,8 +901,8 @@ static void setupResultColumn (preparedStmtType preparedStmt,
         } /* if */
         if (c_type == SQL_C_NUMERIC) {
           printf("SQL_C_NUMERIC:\n");
-          printf("precision: %ld\n", precision);
-          printf("scale: %ld\n", scale);
+          printf("precision: " FMT_D64 "\n", precision);
+          printf("scale:" FMT_D64 "\n", scale);
           /* Set the datatype, precision and scale. */
           /* Otherwise the driver defined default precision is used. */
           if (SQLGetStmtAttr(preparedStmt->ppStmt,

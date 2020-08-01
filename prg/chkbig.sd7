@@ -9062,6 +9062,13 @@ const proc: chkMultiplication is func
       okay := FALSE;
     end if;
 
+    number := 123456789_;
+    if number  *     -1_ <> -123456789_ or
+           -1_ * number  <> -123456789_  then
+      writeln("Multiplication of bigInteger with -1 does not work correct.");
+      okay := FALSE;
+    end if;
+
     if                 65535_ *               196607_ <>                             12884639745_ or
                       196607_ *                65535_ <>                             12884639745_ or
                1078203909375_ * 17878103347812890625_ <>        19276240921822134027894287109375_ or
@@ -9968,6 +9975,7 @@ const func bigInteger: testMultCopy (in var bigInteger: big1, in bigInteger: big
 
 const proc: chkMultCopy is func
   local
+    var bigInteger: big1 is 0_;
     var boolean: okay is TRUE;
   begin
     if  testMultCopy(   -65538_,      -65538_) <>  4295229444_ or
@@ -10431,6 +10439,69 @@ const proc: chkMultCopy is func
       okay := FALSE;
     end if;
 
+    big1 := 123456789_;
+    big1 *:= -4_;
+    if big1 <> -493827156_ then
+      writeln(" ***** 'big1 *:= -4' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := 123456789_;
+    big1 *:= -3_;
+    if big1 <> -370370367_ then
+      writeln(" ***** 'big1 *:= -3' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := 123456789_;
+    big1 *:= -2_;
+    if big1 <> -246913578_ then
+      writeln(" ***** 'big1 *:= -2' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := 123456789_;
+    big1 *:= -1_;
+    if big1 <> -123456789_ then
+      writeln(" ***** 'big1 *:= -1' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := 123456789_;
+    big1 *:= 0_;
+    if big1 <> 0_ then
+      writeln(" ***** 'big1 *:= 0' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := 123456789_;
+    big1 *:= 1_;
+    if big1 <> 123456789_ then
+      writeln(" ***** 'big1 *:= 1' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := 123456789_;
+    big1 *:= 2_;
+    if big1 <> 246913578_ then
+      writeln(" ***** 'big1 *:= 2' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := 123456789_;
+    big1 *:= 3_;
+    if big1 <> 370370367_ then
+      writeln(" ***** 'big1 *:= 3' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := 123456789_;
+    big1 *:= 4_;
+    if big1 <> 493827156_ then
+      writeln(" ***** 'big1 *:= 4' does not work correct.");
+      okay := FALSE;
+    end if;
+
     if okay then
       writeln("Multiplicating copy for bigInteger works correct.");
     else
@@ -10442,6 +10513,7 @@ const proc: chkMultCopy is func
 
 const proc: chkDivision is func
   local
+    var bigInteger: number is 0_;
     var boolean: okay is TRUE;
   begin
     if                  32766_ div                     1_ <>            32766_ or
@@ -10871,6 +10943,25 @@ const proc: chkDivision is func
         bigintExpr(-280223983525050_) div bigintExpr(   -4294967296_) <>            65244_ or
         bigintExpr(-280223983525050_) div bigintExpr(-1099511627776_) <>              254_ then
       writeln("Division of bigInteger by power of two does not work correct.");
+      okay := FALSE;
+    end if;
+
+    number := 123456789012345678901234567890_;
+    if number div                            -1_ <> -123456789012345678901234567890_ or
+       number div                            -2_ <>  -61728394506172839450617283945_ or
+       number div                            -3_ <>  -41152263004115226300411522630_ or
+       number div                            -4_ <>  -30864197253086419725308641972_ or
+       number div                         -1023_ <>    -120681123179223537537863702_ or
+       number div                         -1024_ <>    -120563270519868827051986882_ or
+       number div                      -1048576_ <>       -117737568867059401417955_ or
+       number div                   -1073741824_ <>          -114978094596737696697_ or
+       number div                   -2147483647_ <>           -57489047325139272132_ or
+       number div                   -4294967295_ <>           -28744523655877030118_ or
+       number div                -1099511627776_ <>             -112283295504626656_ or
+       number div          -1152921504606846976_ <>                   -107081695084_ or
+       number div    -1208925819614629174706176_ <>                         -102121_ or
+       number div -1237940039285380274899124224_ <>                             -99_ then
+      writeln("Division of bigInteger by negative number does not work correct.");
       okay := FALSE;
     end if;
 
@@ -11328,6 +11419,7 @@ const proc: chkRemainder is func
 
 const proc: chkModDivision is func
   local
+    var bigInteger: number is 0_;
     var boolean: okay is TRUE;
   begin
     if                  32766_ mdiv                     1_ <>            32766_ or
@@ -11793,6 +11885,25 @@ const proc: chkModDivision is func
         bigintExpr(-280223983525050_) mdiv bigintExpr(   -4294967296_) <>            65244_ or
         bigintExpr(-280223983525050_) mdiv bigintExpr(-1099511627776_) <>              254_ then
       writeln("Modulo division of bigInteger by power of two does not work correct.");
+      okay := FALSE;
+    end if;
+
+    number := 123456789012345678901234567890_;
+    if number mdiv                            -1_ <> -123456789012345678901234567890_ or
+       number mdiv                            -2_ <>  -61728394506172839450617283945_ or
+       number mdiv                            -3_ <>  -41152263004115226300411522630_ or
+       number mdiv                            -4_ <>  -30864197253086419725308641973_ or
+       number mdiv                         -1023_ <>    -120681123179223537537863703_ or
+       number mdiv                         -1024_ <>    -120563270519868827051986883_ or
+       number mdiv                      -1048576_ <>       -117737568867059401417956_ or
+       number mdiv                   -1073741824_ <>          -114978094596737696698_ or
+       number mdiv                   -2147483647_ <>           -57489047325139272133_ or
+       number mdiv                   -4294967295_ <>           -28744523655877030119_ or
+       number mdiv                -1099511627776_ <>             -112283295504626657_ or
+       number mdiv          -1152921504606846976_ <>                   -107081695085_ or
+       number mdiv    -1208925819614629174706176_ <>                         -102122_ or
+       number mdiv -1237940039285380274899124224_ <>                            -100_ then
+      writeln("Modulo division of bigInteger by negative number does not work correct.");
       okay := FALSE;
     end if;
 

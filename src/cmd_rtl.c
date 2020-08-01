@@ -117,6 +117,7 @@
 #ifndef INT64TYPE
 #define INT64TYPE_STRI ""
 #define UINT64TYPE_STRI ""
+#undef INT32TYPE_LITERAL_SUFFIX
 #define INT32TYPE_LITERAL_SUFFIX ""
 #define INT64TYPE_LITERAL_SUFFIX ""
 #endif
@@ -223,7 +224,7 @@ static void remove_dir (const const_os_striType dir_name, errInfoType *err_info)
     } else {
       do {
         current_entry = os_readdir(directory);
-/*      printf("$%ld$\n", (long) current_entry);
+/*      printf("$" FMT_U_MEM "$\n", (memSizeType) current_entry);
         fflush(stdout); */
       } while (current_entry != NULL &&
           (memcmp(current_entry->d_name, dot,    sizeof(os_charType) * 2) == 0 ||
@@ -256,7 +257,7 @@ static void remove_dir (const const_os_striType dir_name, errInfoType *err_info)
         } /* if */
         do {
           current_entry = os_readdir(directory);
-/*        printf("$%ld$\n", (long) current_entry);
+/*        printf("$" FMT_U_MEM "$\n", (memSizeType) current_entry);
           fflush(stdout); */
         } while (current_entry != NULL &&
             (memcmp(current_entry->d_name, dot,    sizeof(os_charType) * 2) == 0 ||
@@ -450,7 +451,7 @@ static void copy_dir (const const_os_striType from_name,
       } else {
         do {
           current_entry = os_readdir(directory);
-          /* printf("$%ld$\n", (long) current_entry);
+          /* printf("$" FMT_U_MEM "$\n", (memSizeType) current_entry);
              fflush(stdout); */
         } while (current_entry != NULL &&
             (memcmp(current_entry->d_name, dot,    sizeof(os_charType) * 2) == 0 ||
@@ -499,7 +500,7 @@ static void copy_dir (const const_os_striType from_name,
           } /* if */
           do {
             current_entry = os_readdir(directory);
-            /* printf("$%ld$\n", (long) current_entry);
+            /* printf("$" FMT_U_MEM "$\n", (memSizeType) current_entry);
                fflush(stdout); */
           } while (current_entry != NULL &&
               (memcmp(current_entry->d_name, dot,    sizeof(os_charType) * 2) == 0 ||

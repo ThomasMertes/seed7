@@ -158,7 +158,7 @@ double bigRatToDouble (const const_bigIntType numerator,
         } else {
           bigRShiftAssign(&absNumerator, exponent - DOUBLE_MANTISSA_SHIFT - 1);
         } /* if */
-        bigGrow(&absNumerator, denominator);
+        bigAddAssign(&absNumerator, denominator);
         if (absNumerator != NULL) {
           mantissa = bigDiv(absNumerator, shiftedDenominator);
           if (mantissa != NULL) {

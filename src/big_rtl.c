@@ -65,6 +65,7 @@
 /* typedef uint8Type             bigDigitType; */
 typedef int8Type                 signedBigDigitType;
 typedef uint16Type               doubleBigDigitType;
+typedef int16Type                signedDoubleBigDigitType;
 #define digitMostSignificantBit  uint8MostSignificantBit
 #define digitLeastSignificantBit uint8LeastSignificantBit
 #define BIGDIGIT_MASK                    0xFF
@@ -81,6 +82,12 @@ typedef uint16Type               doubleBigDigitType;
 #define FMT_D_DIG FMT_D8
 #define FMT_U_DIG FMT_U8
 #define FMT_X_DIG FMT_X8
+#define F_D_DIG2(width) F_D16(width)
+#define F_U_DIG2(width) F_U16(width)
+#define F_X_DIG2(width) F_X16(width)
+#define FMT_D_DIG2 FMT_D16
+#define FMT_U_DIG2 FMT_U16
+#define FMT_X_DIG2 FMT_X16
 bigDigitType powerOfRadixInBigdigit[] = {
     /*  2 */ 128, 243,  64, 125, 216,
     /*  7 */  49,  64,  81, 100, 121,
@@ -102,6 +109,7 @@ uint8Type radixDigitsInBigdigit[] = {
 /* typedef uint16Type            bigDigitType; */
 typedef int16Type                signedBigDigitType;
 typedef uint32Type               doubleBigDigitType;
+typedef int32Type                signedDoubleBigDigitType;
 #define digitMostSignificantBit  uint16MostSignificantBit
 #define digitLeastSignificantBit uint16LeastSignificantBit
 #define BIGDIGIT_MASK                  0xFFFF
@@ -118,6 +126,12 @@ typedef uint32Type               doubleBigDigitType;
 #define FMT_D_DIG FMT_D16
 #define FMT_U_DIG FMT_U16
 #define FMT_X_DIG FMT_X16
+#define F_D_DIG2(width) F_D32(width)
+#define F_U_DIG2(width) F_U32(width)
+#define F_X_DIG2(width) F_X32(width)
+#define FMT_D_DIG2 FMT_D32
+#define FMT_U_DIG2 FMT_U32
+#define FMT_X_DIG2 FMT_X32
 bigDigitType powerOfRadixInBigdigit[] = {
     /*  2 */ 32768, 59049, 16384, 15625, 46656,
     /*  7 */ 16807, 32768, 59049, 10000, 14641,
@@ -139,6 +153,7 @@ uint8Type radixDigitsInBigdigit[] = {
 /* typedef uint32Type            bigDigitType; */
 typedef int32Type                signedBigDigitType;
 typedef uint64Type               doubleBigDigitType;
+typedef int64Type                signedDoubleBigDigitType;
 #define digitMostSignificantBit  uint32MostSignificantBit
 #define digitLeastSignificantBit uint32LeastSignificantBit
 #define BIGDIGIT_MASK              0xFFFFFFFF
@@ -155,6 +170,12 @@ typedef uint64Type               doubleBigDigitType;
 #define FMT_D_DIG FMT_D32
 #define FMT_U_DIG FMT_U32
 #define FMT_X_DIG FMT_X32
+#define F_D_DIG2(width) F_D64(width)
+#define F_U_DIG2(width) F_U64(width)
+#define F_X_DIG2(width) F_X64(width)
+#define FMT_D_DIG2 FMT_D64
+#define FMT_U_DIG2 FMT_U64
+#define FMT_X_DIG2 FMT_X64
 bigDigitType powerOfRadixInBigdigit[] = {
     /*  2 */ 2147483648u, 3486784401u, 1073741824u, 1220703125u, 2176782336u,
     /*  7 */ 1977326743u, 1073741824u, 3486784401u, 1000000000u, 2357947691u,
@@ -260,14 +281,14 @@ static unsigned int flist_allowed = 100;
 #define REALLOC_BIG_CHECK_SIZE(v1,v2,l1,l2) if((l2) <= MAX_BIG_LEN){HEAP_REALLOC_BIG(v1,v2,l1,l2)}else v1=NULL;
 
 
-void bigGrow (bigIntType *const big_variable, const const_bigIntType delta);
+void bigAddAssign (bigIntType *const big_variable, const const_bigIntType delta);
 intType bigLowestSetBit (const const_bigIntType big1);
 void bigLShiftAssign (bigIntType *const big_variable, intType lshift);
 bigIntType bigRem (const const_bigIntType dividend, const const_bigIntType divisor);
 bigIntType bigRShift (const const_bigIntType big1, const intType rshift);
 void bigRShiftAssign (bigIntType *const big_variable, intType rshift);
 bigIntType bigSbtr (const const_bigIntType minuend, const const_bigIntType subtrahend);
-void bigShrink (bigIntType *const big_variable, const const_bigIntType big2);
+void bigSbtrAssign (bigIntType *const big_variable, const const_bigIntType big2);
 striType bigStr (const const_bigIntType big1);
 
 
@@ -2817,13 +2838,13 @@ static bigIntType bigIPowN (const bigDigitType base, intType exponent, unsigned 
   /* bigIPowN */
     /* printf("bigIPowN(" FMT_U_DIG ", " FMT_D ", %u)\n", base, exponent, bit_size); */
     /* help_size = (bit_size * ((uintType) exponent) - 1) / BIGDIGIT_SIZE + 2; */
-    /* printf("help_sizeA=%ld\n", help_size); */
+    /* printf("help_sizeA=" FMT_U_MEM "\n", help_size); */
     if (unlikely((uintType) exponent + 1 > MAX_BIG_LEN)) {
       raise_error(MEMORY_ERROR);
       power = NULL;
     } else {
       help_size = (memSizeType) ((uintType) exponent + 1);
-      /* printf("help_sizeB=%ld\n", help_size); */
+      /* printf("help_sizeB=" FMT_U_MEM "\n", help_size); */
       if (unlikely(!ALLOC_BIG_SIZE_OK(square, help_size))) {
         raise_error(MEMORY_ERROR);
         power = NULL;
@@ -3046,6 +3067,178 @@ bigIntType bigAdd (const_bigIntType summand1, const_bigIntType summand2)
 
 
 /**
+ *  Increment a 'bigInteger' variable by a delta.
+ *  Adds delta to *big_variable. The operation is done in
+ *  place and *big_variable is only resized when necessary.
+ *  When the size of delta is smaller than *big_variable the
+ *  algorithm tries to save computations. Therefore there are
+ *  checks for carry == 0 and carry != 0.
+ *  In case the resizing fails the content of *big_variable
+ *  is freed and *big_variable is set to NULL.
+ *  @param delta The delta to be added to *big_variable.
+ *  @exception MEMORY_ERROR When the resizing of *big_variable fails.
+ */
+void bigAddAssign (bigIntType *const big_variable, const const_bigIntType delta)
+
+  {
+    bigIntType big1;
+    memSizeType pos;
+    memSizeType big1_size;
+    doubleBigDigitType carry = 0;
+    doubleBigDigitType big1_sign;
+    doubleBigDigitType delta_sign;
+    bigIntType resized_big1;
+
+  /* bigAddAssign */
+    big1 = *big_variable;
+    if (big1->size >= delta->size) {
+      big1_sign = IS_NEGATIVE(big1->bigdigits[big1->size - 1]) ? BIGDIGIT_MASK : 0;
+      pos = 0;
+      do {
+        carry += (doubleBigDigitType) big1->bigdigits[pos] + delta->bigdigits[pos];
+        big1->bigdigits[pos] = (bigDigitType) (carry & BIGDIGIT_MASK);
+        carry >>= BIGDIGIT_SIZE;
+        pos++;
+      } while (pos < delta->size);
+      if (IS_NEGATIVE(delta->bigdigits[pos - 1])) {
+        for (; carry == 0 && pos < big1->size; pos++) {
+          carry = (doubleBigDigitType) big1->bigdigits[pos] + BIGDIGIT_MASK;
+          big1->bigdigits[pos] = (bigDigitType) (carry & BIGDIGIT_MASK);
+          carry >>= BIGDIGIT_SIZE;
+        } /* for */
+        carry += BIGDIGIT_MASK;
+      } else {
+        for (; carry != 0 && pos < big1->size; pos++) {
+          carry += big1->bigdigits[pos];
+          big1->bigdigits[pos] = (bigDigitType) (carry & BIGDIGIT_MASK);
+          carry >>= BIGDIGIT_SIZE;
+        } /* for */
+      } /* if */
+      big1_size = big1->size;
+      carry += big1_sign;
+      carry &= BIGDIGIT_MASK;
+      if ((carry != 0 || IS_NEGATIVE(big1->bigdigits[big1_size - 1])) &&
+          (carry != BIGDIGIT_MASK || !IS_NEGATIVE(big1->bigdigits[big1_size - 1]))) {
+        REALLOC_BIG_CHECK_SIZE(resized_big1, big1, big1_size, big1_size + 1);
+        if (unlikely(resized_big1 == NULL)) {
+          FREE_BIG(big1, big1_size);
+          *big_variable = NULL;
+          raise_error(MEMORY_ERROR);
+        } else {
+          /* It is possible that big1 == delta holds. Since */
+          /* 'delta' is not used after realloc() enlarged   */
+          /* 'big1' a correction of delta is not necessary. */
+          big1 = resized_big1;
+          COUNT3_BIG(big1_size, big1_size + 1);
+          big1->size++;
+          big1->bigdigits[big1_size] = (bigDigitType) (carry & BIGDIGIT_MASK);
+          *big_variable = big1;
+        } /* if */
+      } else {
+        *big_variable = normalize(big1);
+      } /* if */
+    } else {
+      REALLOC_BIG_CHECK_SIZE(resized_big1, big1, big1->size, delta->size + 1);
+      if (unlikely(resized_big1 == NULL)) {
+        FREE_BIG(big1, big1->size);
+        *big_variable = NULL;
+        raise_error(MEMORY_ERROR);
+      } else {
+        big1 = resized_big1;
+        COUNT3_BIG(big1->size, delta->size + 1);
+        big1_sign = IS_NEGATIVE(big1->bigdigits[big1->size - 1]) ? BIGDIGIT_MASK : 0;
+        pos = 0;
+        do {
+          carry += (doubleBigDigitType) big1->bigdigits[pos] + delta->bigdigits[pos];
+          big1->bigdigits[pos] = (bigDigitType) (carry & BIGDIGIT_MASK);
+          carry >>= BIGDIGIT_SIZE;
+          pos++;
+        } while (pos < big1->size);
+        delta_sign = IS_NEGATIVE(delta->bigdigits[delta->size - 1]) ? BIGDIGIT_MASK : 0;
+        for (; pos < delta->size; pos++) {
+          carry += big1_sign + delta->bigdigits[pos];
+          big1->bigdigits[pos] = (bigDigitType) (carry & BIGDIGIT_MASK);
+          carry >>= BIGDIGIT_SIZE;
+        } /* for */
+        carry += big1_sign + delta_sign;
+        big1->bigdigits[pos] = (bigDigitType) (carry & BIGDIGIT_MASK);
+        big1->size = pos + 1;
+        *big_variable = normalize(big1);
+      } /* if */
+    } /* if */
+  } /* bigAddAssign */
+
+
+
+/**
+ *  Increment a 'bigInteger' variable by a delta.
+ *  Adds delta to *big_variable. The operation is done in
+ *  place and *big_variable is only resized when necessary.
+ *  In case the resizing fails the content of *big_variable
+ *  is freed and *big_variable is set to NULL.
+ *  @param delta The delta to be added to *big_variable.
+ *         Delta must be in the range of signedBigDigitType.
+ */
+void bigAddAssignSignedDigit (bigIntType *const big_variable, const intType delta)
+
+  {
+    bigIntType big1;
+    memSizeType pos;
+    memSizeType big1_size;
+    doubleBigDigitType carry = 0;
+    doubleBigDigitType big1_sign;
+    bigIntType resized_big1;
+
+  /* bigAddAssignSignedDigit */
+    /* printf("bigAddAssignSignedDigit(%s, " FMT_D ")\n",
+       bigHexCStri(*big_variable), delta); */
+    big1 = *big_variable;
+    big1_sign = IS_NEGATIVE(big1->bigdigits[big1->size - 1]) ? BIGDIGIT_MASK : 0;
+    carry += (doubleBigDigitType) big1->bigdigits[0] + (bigDigitType) (delta & BIGDIGIT_MASK);
+    big1->bigdigits[0] = (bigDigitType) (carry & BIGDIGIT_MASK);
+    carry >>= BIGDIGIT_SIZE;
+    pos = 1;
+    if (delta < 0) {
+      for (; carry == 0 && pos < big1->size; pos++) {
+        carry = (doubleBigDigitType) big1->bigdigits[pos] + BIGDIGIT_MASK;
+        big1->bigdigits[pos] = (bigDigitType) (carry & BIGDIGIT_MASK);
+        carry >>= BIGDIGIT_SIZE;
+      } /* for */
+      carry += BIGDIGIT_MASK;
+    } else {
+      for (; carry != 0 && pos < big1->size; pos++) {
+        carry += big1->bigdigits[pos];
+        big1->bigdigits[pos] = (bigDigitType) (carry & BIGDIGIT_MASK);
+        carry >>= BIGDIGIT_SIZE;
+      } /* for */
+    } /* if */
+    big1_size = big1->size;
+    carry += big1_sign;
+    carry &= BIGDIGIT_MASK;
+    if ((carry != 0 || IS_NEGATIVE(big1->bigdigits[big1_size - 1])) &&
+        (carry != BIGDIGIT_MASK || !IS_NEGATIVE(big1->bigdigits[big1_size - 1]))) {
+      REALLOC_BIG_CHECK_SIZE(resized_big1, big1, big1_size, big1_size + 1);
+      if (unlikely(resized_big1 == NULL)) {
+        FREE_BIG(big1, big1_size);
+        *big_variable = NULL;
+        raise_error(MEMORY_ERROR);
+      } else {
+        big1 = resized_big1;
+        COUNT3_BIG(big1_size, big1_size + 1);
+        big1->size++;
+        big1->bigdigits[big1_size] = (bigDigitType) (carry & BIGDIGIT_MASK);
+        *big_variable = big1;
+      } /* if */
+    } else {
+      *big_variable = normalize(big1);
+    } /* if */
+    /* printf("bigAddAssignSignedDigit: variable=%s\n",
+       bigHexCStri(*big_variable)); */
+  } /* bigAddAssignSignedDigit */
+
+
+
+/**
  *  Add two 'bigInteger' numbers.
  *  Summand1 is assumed to be a temporary value which is reused.
  *  @return the sum of the two numbers in 'summand1'.
@@ -3053,7 +3246,7 @@ bigIntType bigAdd (const_bigIntType summand1, const_bigIntType summand2)
 bigIntType bigAddTemp (bigIntType summand1, const const_bigIntType summand2)
 
   { /* bigAddTemp */
-    bigGrow(&summand1, summand2);
+    bigAddAssign(&summand1, summand2);
     return summand1;
   } /* bigAddTemp */
 
@@ -3965,7 +4158,7 @@ bigIntType bigGcd (const const_bigIntType big1,
         do {
           bigRShiftAssign(&big2_help, bigLowestSetBit(big2_help));
           if (bigCmp(big1_help, big2_help) < 0) {
-            bigShrink(&(big2_help), big1_help);
+            bigSbtrAssign(&(big2_help), big1_help);
           } else {
             help_big = bigSbtr(big1_help, big2_help);
             bigDestr(big1_help);
@@ -3980,173 +4173,6 @@ bigIntType bigGcd (const const_bigIntType big1,
     } /* if */
     return result;
   } /* bigGcd */
-
-
-
-/**
- *  Increment a 'bigInteger' variable by a delta.
- *  Adds delta to *big_variable. The operation is done in
- *  place and *big_variable is only resized when necessary.
- *  When the size of delta is smaller than *big_variable the
- *  algorithm tries to save computations. Therefore there are
- *  checks for carry == 0 and carry != 0.
- *  In case the resizing fails the content of *big_variable
- *  is freed and *big_variable is set to NULL.
- *  @param delta The delta to be added to *big_variable.
- */
-void bigGrow (bigIntType *const big_variable, const const_bigIntType delta)
-
-  {
-    bigIntType big1;
-    memSizeType pos;
-    memSizeType big1_size;
-    doubleBigDigitType carry = 0;
-    doubleBigDigitType big1_sign;
-    doubleBigDigitType delta_sign;
-    bigIntType resized_big1;
-
-  /* bigGrow */
-    big1 = *big_variable;
-    if (big1->size >= delta->size) {
-      big1_sign = IS_NEGATIVE(big1->bigdigits[big1->size - 1]) ? BIGDIGIT_MASK : 0;
-      pos = 0;
-      do {
-        carry += (doubleBigDigitType) big1->bigdigits[pos] + delta->bigdigits[pos];
-        big1->bigdigits[pos] = (bigDigitType) (carry & BIGDIGIT_MASK);
-        carry >>= BIGDIGIT_SIZE;
-        pos++;
-      } while (pos < delta->size);
-      if (IS_NEGATIVE(delta->bigdigits[pos - 1])) {
-        for (; carry == 0 && pos < big1->size; pos++) {
-          carry = (doubleBigDigitType) big1->bigdigits[pos] + BIGDIGIT_MASK;
-          big1->bigdigits[pos] = (bigDigitType) (carry & BIGDIGIT_MASK);
-          carry >>= BIGDIGIT_SIZE;
-        } /* for */
-        carry += BIGDIGIT_MASK;
-      } else {
-        for (; carry != 0 && pos < big1->size; pos++) {
-          carry += big1->bigdigits[pos];
-          big1->bigdigits[pos] = (bigDigitType) (carry & BIGDIGIT_MASK);
-          carry >>= BIGDIGIT_SIZE;
-        } /* for */
-      } /* if */
-      big1_size = big1->size;
-      carry += big1_sign;
-      carry &= BIGDIGIT_MASK;
-      if ((carry != 0 || IS_NEGATIVE(big1->bigdigits[big1_size - 1])) &&
-          (carry != BIGDIGIT_MASK || !IS_NEGATIVE(big1->bigdigits[big1_size - 1]))) {
-        REALLOC_BIG_CHECK_SIZE(resized_big1, big1, big1_size, big1_size + 1);
-        if (unlikely(resized_big1 == NULL)) {
-          FREE_BIG(big1, big1_size);
-          *big_variable = NULL;
-          raise_error(MEMORY_ERROR);
-        } else {
-          /* It is possible that big1 == delta holds. Since */
-          /* 'delta' is not used after realloc() enlarged   */
-          /* 'big1' a correction of delta is not necessary. */
-          big1 = resized_big1;
-          COUNT3_BIG(big1_size, big1_size + 1);
-          big1->size++;
-          big1->bigdigits[big1_size] = (bigDigitType) (carry & BIGDIGIT_MASK);
-          *big_variable = big1;
-        } /* if */
-      } else {
-        *big_variable = normalize(big1);
-      } /* if */
-    } else {
-      REALLOC_BIG_CHECK_SIZE(resized_big1, big1, big1->size, delta->size + 1);
-      if (unlikely(resized_big1 == NULL)) {
-        FREE_BIG(big1, big1->size);
-        *big_variable = NULL;
-        raise_error(MEMORY_ERROR);
-      } else {
-        big1 = resized_big1;
-        COUNT3_BIG(big1->size, delta->size + 1);
-        big1_sign = IS_NEGATIVE(big1->bigdigits[big1->size - 1]) ? BIGDIGIT_MASK : 0;
-        pos = 0;
-        do {
-          carry += (doubleBigDigitType) big1->bigdigits[pos] + delta->bigdigits[pos];
-          big1->bigdigits[pos] = (bigDigitType) (carry & BIGDIGIT_MASK);
-          carry >>= BIGDIGIT_SIZE;
-          pos++;
-        } while (pos < big1->size);
-        delta_sign = IS_NEGATIVE(delta->bigdigits[delta->size - 1]) ? BIGDIGIT_MASK : 0;
-        for (; pos < delta->size; pos++) {
-          carry += big1_sign + delta->bigdigits[pos];
-          big1->bigdigits[pos] = (bigDigitType) (carry & BIGDIGIT_MASK);
-          carry >>= BIGDIGIT_SIZE;
-        } /* for */
-        carry += big1_sign + delta_sign;
-        big1->bigdigits[pos] = (bigDigitType) (carry & BIGDIGIT_MASK);
-        big1->size = pos + 1;
-        *big_variable = normalize(big1);
-      } /* if */
-    } /* if */
-  } /* bigGrow */
-
-
-
-/**
- *  Increment a 'bigInteger' variable by a delta.
- *  Adds delta to *big_variable. The operation is done in
- *  place and *big_variable is only resized when necessary.
- *  In case the resizing fails the content of *big_variable
- *  is freed and *big_variable is set to NULL.
- *  @param delta The delta to be added to *big_variable.
- *         Delta must be in the range of signedBigDigitType.
- */
-void bigGrowSignedDigit (bigIntType *const big_variable, const intType delta)
-
-  {
-    bigIntType big1;
-    memSizeType pos;
-    memSizeType big1_size;
-    doubleBigDigitType carry = 0;
-    doubleBigDigitType big1_sign;
-    bigIntType resized_big1;
-
-  /* bigGrowSignedDigit */
-    big1 = *big_variable;
-    big1_sign = IS_NEGATIVE(big1->bigdigits[big1->size - 1]) ? BIGDIGIT_MASK : 0;
-    carry += (doubleBigDigitType) big1->bigdigits[0] + (bigDigitType) delta;
-    big1->bigdigits[0] = (bigDigitType) (carry & BIGDIGIT_MASK);
-    carry >>= BIGDIGIT_SIZE;
-    pos = 1;
-    if (delta < 0) {
-      for (; carry == 0 && pos < big1->size; pos++) {
-        carry = (doubleBigDigitType) big1->bigdigits[pos] + BIGDIGIT_MASK;
-        big1->bigdigits[pos] = (bigDigitType) (carry & BIGDIGIT_MASK);
-        carry >>= BIGDIGIT_SIZE;
-      } /* for */
-      carry += BIGDIGIT_MASK;
-    } else {
-      for (; carry != 0 && pos < big1->size; pos++) {
-        carry += big1->bigdigits[pos];
-        big1->bigdigits[pos] = (bigDigitType) (carry & BIGDIGIT_MASK);
-        carry >>= BIGDIGIT_SIZE;
-      } /* for */
-    } /* if */
-    big1_size = big1->size;
-    carry += big1_sign;
-    carry &= BIGDIGIT_MASK;
-    if ((carry != 0 || IS_NEGATIVE(big1->bigdigits[big1_size - 1])) &&
-        (carry != BIGDIGIT_MASK || !IS_NEGATIVE(big1->bigdigits[big1_size - 1]))) {
-      REALLOC_BIG_CHECK_SIZE(resized_big1, big1, big1_size, big1_size + 1);
-      if (unlikely(resized_big1 == NULL)) {
-        FREE_BIG(big1, big1_size);
-        *big_variable = NULL;
-        raise_error(MEMORY_ERROR);
-      } else {
-        big1 = resized_big1;
-        COUNT3_BIG(big1_size, big1_size + 1);
-        big1->size++;
-        big1->bigdigits[big1_size] = (bigDigitType) (carry & BIGDIGIT_MASK);
-        *big_variable = big1;
-      } /* if */
-    } else {
-      *big_variable = normalize(big1);
-    } /* if */
-  } /* bigGrowSignedDigit */
 
 
 
@@ -4454,11 +4480,11 @@ bigIntType bigLog10 (const const_bigIntType big1)
           {
             bigIntType numDigits = bigFromUInt32(
                 largeDecimalBlockCount * QUINARY_DIGITS_IN_BIGDIGIT);
-            bigGrow(&logarithm, numDigits);
+            bigAddAssign(&logarithm, numDigits);
             bigDestr(numDigits);
           }
 #else
-          bigGrowSignedDigit(&logarithm,
+          bigAddAssignSignedDigit(&logarithm,
               (intType) (largeDecimalBlockCount * QUINARY_DIGITS_IN_BIGDIGIT));
 #endif
           /* printf("digit: " FMT_U_DIG "\n", digit); */
@@ -6352,20 +6378,6 @@ bigIntType bigSbtr (const const_bigIntType minuend, const const_bigIntType subtr
 
 
 /**
- *  Compute the subtraction of two 'bigInteger' numbers.
- *  Minuend is assumed to be a temporary value which is reused.
- *  @return the difference of the two numbers in 'minuend'.
- */
-bigIntType bigSbtrTemp (bigIntType minuend, const_bigIntType subtrahend)
-
-  { /* bigSbtrTemp */
-    bigShrink(&minuend, subtrahend);
-    return minuend;
-  } /* bigSbtrTemp */
-
-
-
-/**
  *  Decrement a 'bigInteger' variable by a delta.
  *  Subtracts delta from *big_variable. The operation is done in
  *  place and *big_variable is only resized when necessary.
@@ -6374,8 +6386,10 @@ bigIntType bigSbtrTemp (bigIntType minuend, const_bigIntType subtrahend)
  *  checks for carry != 0 and carry == 0.
  *  In case the resizing fails the content of *big_variable
  *  is freed and *big_variable is set to NULL.
+ *  @param delta The delta to be subtracted from *big_variable.
+ *  @exception MEMORY_ERROR When the resizing of *big_variable fails.
  */
-void bigShrink (bigIntType *const big_variable, const const_bigIntType delta)
+void bigSbtrAssign (bigIntType *const big_variable, const const_bigIntType delta)
 
   {
     bigIntType big1;
@@ -6386,7 +6400,7 @@ void bigShrink (bigIntType *const big_variable, const const_bigIntType delta)
     doubleBigDigitType delta_sign;
     bigIntType resized_big1;
 
-  /* bigShrink */
+  /* bigSbtrAssign */
     big1 = *big_variable;
     if (big1->size >= delta->size) {
       big1_sign = IS_NEGATIVE(big1->bigdigits[big1->size - 1]) ? BIGDIGIT_MASK : 0;
@@ -6465,7 +6479,21 @@ void bigShrink (bigIntType *const big_variable, const const_bigIntType delta)
         *big_variable = normalize(big1);
       } /* if */
     } /* if */
-  } /* bigShrink */
+  } /* bigSbtrAssign */
+
+
+
+/**
+ *  Compute the subtraction of two 'bigInteger' numbers.
+ *  Minuend is assumed to be a temporary value which is reused.
+ *  @return the difference of the two numbers in 'minuend'.
+ */
+bigIntType bigSbtrTemp (bigIntType minuend, const_bigIntType subtrahend)
+
+  { /* bigSbtrTemp */
+    bigSbtrAssign(&minuend, subtrahend);
+    return minuend;
+  } /* bigSbtrTemp */
 
 
 

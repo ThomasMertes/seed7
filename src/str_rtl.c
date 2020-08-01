@@ -1164,7 +1164,7 @@ striType strChMult (const charType ch, const intType factor)
 
   /* strChMult */
 #ifdef TRACE_STR_RTL
-    printf("strChMult(%lu, %ld)\n", ch, factor);
+    printf("strChMult(%lu, " FMT_D ")\n", ch, factor);
 #endif
     if (unlikely(factor < 0)) {
       raise_error(RANGE_ERROR);
@@ -1463,7 +1463,7 @@ striType strConcatN (const const_striType striArray[], memSizeType arraySize)
 
   /* strConcatN */
 #ifdef TRACE_STR_RTL
-    printf("strConcatN(%lu)\n", arraySize);
+    printf("strConcatN(" FMT_U_MEM ")\n", arraySize);
 #endif
     for (pos = arraySize; pos > 0; pos--) {
       /* printf("arr[%lu]->size=%lu\n", pos, striArray[pos - 1]->size);
@@ -2520,7 +2520,7 @@ striType strMult (const const_striType stri, const intType factor)
 
   /* strMult */
 #ifdef TRACE_STR_RTL
-    printf("strMult(stri->size=%lu, %ld)\n", stri->size, factor);
+    printf("strMult(stri->size=" FMT_U_MEM ", " FMT_D ")\n", stri->size, factor);
 #endif
     if (unlikely(factor < 0)) {
       raise_error(RANGE_ERROR);
@@ -2993,7 +2993,7 @@ striType strRepl (const const_striType mainStri,
   /* strRepl */
     main_size = mainStri->size;
     searched_size = searched->size;
-    /* printf("main_size=%ld, searched_size=%ld, replacement->size=%ld\n",
+    /* printf("main_size=" FMT_U_MEM ", searched_size=" FMT_U_MEM ", replacement->size=" FMT_U_MEM "\n",
        main_size, searched_size, replacement->size); */
     if (searched_size != 0 && replacement->size > searched_size) {
       if (unlikely(main_size / searched_size + 1 > MAX_STRI_LEN / replacement->size)) {
@@ -4014,7 +4014,7 @@ striType strZero (const intType factor)
 
   /* strZero */
 #ifdef TRACE_STR_RTL
-    printf("strZero(%ld)\n", factor);
+    printf("strZero(" FMT_D ")\n", factor);
 #endif
     if (unlikely(factor < 0)) {
       raise_error(RANGE_ERROR);

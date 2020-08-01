@@ -191,6 +191,37 @@ bigIntType bigAdd (const_bigIntType summand1, const_bigIntType summand2)
 
 
 /**
+ *  Increment a 'bigInteger' variable by a delta.
+ *  Adds delta to *big_variable.
+ *  @param delta The delta to be added to *big_variable.
+ */
+void bigAddAssign (bigIntType *const big_variable, const const_bigIntType delta)
+
+  { /* bigAddAssign */
+    mpz_add(*big_variable, *big_variable, delta);
+  } /* bigAddAssign */
+
+
+
+/**
+ *  Increment a 'bigInteger' variable by a delta.
+ *  Adds delta to *big_variable.
+ *  @param delta The delta to be added to *big_variable.
+ *         Delta must be in the range of a long int.
+ */
+void bigAddAssignSignedDigit (bigIntType *const big_variable, const intType delta)
+
+  { /* bigAddAssignSignedDigit */
+    if (delta < 0) {
+      mpz_sub_ui(*big_variable, *big_variable, (unsigned long int) -delta);
+    } else {
+      mpz_add_ui(*big_variable, *big_variable, (unsigned long int) delta);
+    } /* if */
+  } /* bigAddAssignSignedDigit */
+
+
+
+/**
  *  Add two 'bigInteger' numbers.
  *  Summand1 is assumed to be a temporary value which is reused.
  *  @return the sum of the two numbers in 'summand1'.
@@ -670,37 +701,6 @@ bigIntType bigGcd (const const_bigIntType big1,
     mpz_gcd(result, big1, big2);
     return result;
   } /* bigGcd */
-
-
-
-/**
- *  Increment a 'bigInteger' variable by a delta.
- *  Adds delta to *big_variable.
- *  @param delta The delta to be added to *big_variable.
- */
-void bigGrow (bigIntType *const big_variable, const const_bigIntType delta)
-
-  { /* bigGrow */
-    mpz_add(*big_variable, *big_variable, delta);
-  } /* bigGrow */
-
-
-
-/**
- *  Increment a 'bigInteger' variable by a delta.
- *  Adds delta to *big_variable.
- *  @param delta The delta to be added to *big_variable.
- *         Delta must be in the range of a long int.
- */
-void bigGrowSignedDigit (bigIntType *const big_variable, const intType delta)
-
-  { /* bigGrowSignedDigit */
-    if (delta < 0) {
-      mpz_sub_ui(*big_variable, *big_variable, (unsigned long int) -delta);
-    } else {
-      mpz_add_ui(*big_variable, *big_variable, (unsigned long int) delta);
-    } /* if */
-  } /* bigGrowSignedDigit */
 
 
 
@@ -1465,6 +1465,18 @@ bigIntType bigSbtr (const const_bigIntType minuend, const const_bigIntType subtr
 
 
 /**
+ *  Decrement a 'bigInteger' variable by a delta.
+ *  Subtracts delta from *big_variable.
+ */
+void bigSbtrAssign (bigIntType *const big_variable, const const_bigIntType delta)
+
+  { /* bigSbtrAssign */
+    mpz_sub(*big_variable, *big_variable, delta);
+  } /* bigSbtrAssign */
+
+
+
+/**
  *  Compute the subtraction of two 'bigInteger' numbers.
  *  Minuend is assumed to be a temporary value which is reused.
  *  @return the difference of the two numbers in 'minuend'.
@@ -1475,18 +1487,6 @@ bigIntType bigSbtrTemp (bigIntType minuend, const_bigIntType subtrahend)
     mpz_sub(minuend, minuend, subtrahend);
     return minuend;
   } /* bigSbtrTemp */
-
-
-
-/**
- *  Decrement a 'bigInteger' variable by a delta.
- *  Subtracts delta from *big_variable.
- */
-void bigShrink (bigIntType *const big_variable, const const_bigIntType delta)
-
-  { /* bigShrink */
-    mpz_sub(*big_variable, *big_variable, delta);
-  } /* bigShrink */
 
 
 

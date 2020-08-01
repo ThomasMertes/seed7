@@ -4952,6 +4952,8 @@ const proc: write_file_head is func
     writeln(c_prog, "  winType       winValue;");
     writeln(c_prog, "  processType   processValue;");
     writeln(c_prog, "  progType      progValue;");
+    writeln(c_prog, "  databaseType  databaseValue;");
+    writeln(c_prog, "  sqlStmtType   sqlStmtValue;");
     writeln(c_prog, "  arrayType     arrayValue;");
     writeln(c_prog, "  hashType      hashValue;");
     writeln(c_prog, "  structType    structValue;");

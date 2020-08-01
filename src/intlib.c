@@ -133,6 +133,44 @@ objectType int_add (listType arguments)
 
 
 /**
+ *  Increment an integer variable by a delta.
+ *  @exception OVERFLOW_ERROR When an integer overflow occurs.
+ */
+objectType int_add_assign (listType arguments)
+
+  {
+    objectType int_variable;
+    intType delta;
+
+  /* int_add_assign */
+    int_variable = arg_1(arguments);
+    isit_int(int_variable);
+    is_variable(int_variable);
+    isit_int(arg_3(arguments));
+    delta = take_int(arg_3(arguments));
+#ifdef CHECK_INT_OVERFLOW
+    {
+      intType number;
+
+      number = take_int(int_variable);
+      if (delta < 0) {
+        if (unlikely(number < INTTYPE_MIN - delta)) {
+          return raise_exception(SYS_OVF_EXCEPTION);
+        } /* if */
+      } else {
+        if (unlikely(number > INTTYPE_MAX - delta)) {
+          return raise_exception(SYS_OVF_EXCEPTION);
+        } /* if */
+      } /* if */
+    }
+#endif
+    int_variable->value.intValue += delta;
+    return SYS_EMPTY_OBJECT;
+  } /* int_add_assign */
+
+
+
+/**
  *  Compute a bitwise 'and' of two integer values.
  *  @return the bitwise 'and' of the two values.
  */
@@ -491,44 +529,6 @@ objectType int_ge (listType arguments)
       return SYS_FALSE_OBJECT;
     } /* if */
   } /* int_ge */
-
-
-
-/**
- *  Increment an integer variable by a delta.
- *  @exception OVERFLOW_ERROR When an integer overflow occurs.
- */
-objectType int_grow (listType arguments)
-
-  {
-    objectType int_variable;
-    intType delta;
-
-  /* int_grow */
-    int_variable = arg_1(arguments);
-    isit_int(int_variable);
-    is_variable(int_variable);
-    isit_int(arg_3(arguments));
-    delta = take_int(arg_3(arguments));
-#ifdef CHECK_INT_OVERFLOW
-    {
-      intType number;
-
-      number = take_int(int_variable);
-      if (delta < 0) {
-        if (unlikely(number < INTTYPE_MIN - delta)) {
-          return raise_exception(SYS_OVF_EXCEPTION);
-        } /* if */
-      } else {
-        if (unlikely(number > INTTYPE_MAX - delta)) {
-          return raise_exception(SYS_OVF_EXCEPTION);
-        } /* if */
-      } /* if */
-    }
-#endif
-    int_variable->value.intValue += delta;
-    return SYS_EMPTY_OBJECT;
-  } /* int_grow */
 
 
 
@@ -1331,13 +1331,13 @@ objectType int_sbtr (listType arguments)
  *  Decrement an integer variable by a delta.
  *  @exception OVERFLOW_ERROR When an integer overflow occurs.
  */
-objectType int_shrink (listType arguments)
+objectType int_sbtr_assign (listType arguments)
 
   {
     objectType int_variable;
     intType delta;
 
-  /* int_shrink */
+  /* int_sbtr_assign */
     int_variable = arg_1(arguments);
     isit_int(int_variable);
     is_variable(int_variable);
@@ -1361,7 +1361,7 @@ objectType int_shrink (listType arguments)
 #endif
     int_variable->value.intValue -= delta;
     return SYS_EMPTY_OBJECT;
-  } /* int_shrink */
+  } /* int_sbtr_assign */
 
 
 

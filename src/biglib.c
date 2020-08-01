@@ -76,6 +76,21 @@ objectType big_add (listType arguments)
 
 
 /**
+ *  Increment a 'bigInteger' variable by a delta.
+ */
+objectType big_add_assign (listType arguments)
+
+  { /* big_add_assign */
+    isit_bigint(arg_1(arguments));
+    isit_bigint(arg_3(arguments));
+    is_variable(arg_1(arguments));
+    bigAddAssign(&take_bigint(arg_1(arguments)), take_bigint(arg_3(arguments)));
+    return SYS_EMPTY_OBJECT;
+  } /* big_add_assign */
+
+
+
+/**
  *  Number of bits in the minimal two's-complement representation.
  *  The high bits equivalent to the sign bit are not part of the
  *  minimal two's-complement representation.
@@ -324,21 +339,6 @@ objectType big_ge (listType arguments)
       return SYS_FALSE_OBJECT;
     } /* if */
   } /* big_ge */
-
-
-
-/**
- *  Increment a 'bigInteger' variable by a delta.
- */
-objectType big_grow (listType arguments)
-
-  { /* big_grow */
-    isit_bigint(arg_1(arguments));
-    isit_bigint(arg_3(arguments));
-    is_variable(arg_1(arguments));
-    bigGrow(&take_bigint(arg_1(arguments)), take_bigint(arg_3(arguments)));
-    return SYS_EMPTY_OBJECT;
-  } /* big_grow */
 
 
 
@@ -892,15 +892,15 @@ objectType big_sbtr (listType arguments)
 /**
  *  Decrement a 'bigInteger' variable by a delta.
  */
-objectType big_shrink (listType arguments)
+objectType big_sbtr_assign (listType arguments)
 
-  { /* big_shrink */
+  { /* big_sbtr_assign */
     isit_bigint(arg_1(arguments));
     isit_bigint(arg_3(arguments));
     is_variable(arg_1(arguments));
-    bigShrink(&take_bigint(arg_1(arguments)), take_bigint(arg_3(arguments)));
+    bigSbtrAssign(&take_bigint(arg_1(arguments)), take_bigint(arg_3(arguments)));
     return SYS_EMPTY_OBJECT;
-  } /* big_shrink */
+  } /* big_sbtr_assign */
 
 
 

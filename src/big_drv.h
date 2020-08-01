@@ -46,6 +46,8 @@
 cstriType bigHexCStri (const const_bigIntType big1);
 bigIntType bigAbs (const const_bigIntType big1);
 bigIntType bigAdd (const_bigIntType summand1, const_bigIntType summand2);
+void bigAddAssign (bigIntType *const big_variable, const const_bigIntType delta);
+void bigAddAssignSignedDigit (bigIntType *const big_variable, const intType delta);
 bigIntType bigAddTemp (bigIntType summand1, const const_bigIntType summand2);
 bigIntType bigAnd (const_bigIntType big1, const_bigIntType big2);
 intType bigBitLength (const const_bigIntType big1);
@@ -73,8 +75,6 @@ bigIntType bigFromUInt32 (uint32Type number);
   bigIntType bigFromUInt64 (uint64Type number);
 #endif
 bigIntType bigGcd (const const_bigIntType big1, const const_bigIntType big2);
-void bigGrow (bigIntType *const big_variable, const const_bigIntType delta);
-void bigGrowSignedDigit (bigIntType *const big_variable, const intType delta);
 intType bigHashCode (const const_bigIntType big1);
 void bigIncr (bigIntType *const big_variable);
 bigIntType bigIPow (const const_bigIntType base, intType exponent);
@@ -107,8 +107,8 @@ bigIntType bigRem (const const_bigIntType dividend, const const_bigIntType divis
 bigIntType bigRShift (const const_bigIntType big1, const intType rshift);
 void bigRShiftAssign (bigIntType *const big_variable, intType rshift);
 bigIntType bigSbtr (const const_bigIntType minuend, const const_bigIntType subtrahend);
+void bigSbtrAssign (bigIntType *const big_variable, const const_bigIntType delta);
 bigIntType bigSbtrTemp (bigIntType minuend, const_bigIntType subtrahend);
-void bigShrink (bigIntType *const big_variable, const const_bigIntType delta);
 bigIntType bigSquare (const_bigIntType big1);
 striType bigStr (const const_bigIntType big1);
 bigIntType bigSucc (const const_bigIntType big1);

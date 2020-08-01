@@ -379,6 +379,17 @@ void numericSizes (FILE *versionFile)
 
   {
     int testResult;
+    const char *int32TypeStri = NULL;
+    const char *uint32TypeStri;
+    const char *int32TypeSuffix = "";
+    const char *int32TypeFormat = NULL;
+    const char *int64TypeStri = NULL;
+    const char *uint64TypeStri;
+    const char *int64TypeSuffix = "";
+    const char *int64TypeFormat = NULL;
+    const char *int128TypeStri = NULL;
+    const char *uint128TypeStri = NULL;
+    char buffer[4096];
 
   /* numericSizes */
     printf("Numeric sizes:");
@@ -423,82 +434,108 @@ void numericSizes (FILE *versionFile)
       fputs("#define UINT16TYPE_STRI \"unsigned int\"\n", versionFile);
     } /* if */
     if (sizeof(int) == 4) {
-      fputs("#define INT32TYPE int\n", versionFile);
-      fputs("#define INT32TYPE_STRI \"int\"\n", versionFile);
-      fputs("#define UINT32TYPE unsigned int\n", versionFile);
-      fputs("#define UINT32TYPE_STRI \"unsigned int\"\n", versionFile);
+      int32TypeStri = "int";
+      uint32TypeStri = "unsigned int";
+      int32TypeSuffix = "";
+      int32TypeFormat = "";
     } else if (sizeof(long) == 4) {
-      fputs("#define INT32TYPE long\n", versionFile);
-      fputs("#define INT32TYPE_STRI \"long\"\n", versionFile);
-      fputs("#define UINT32TYPE unsigned long\n", versionFile);
-      fputs("#define UINT32TYPE_STRI \"unsigned long\"\n", versionFile);
-      fputs("#define INT32TYPE_SUFFIX_L\n", versionFile);
-      fputs("#define INT32TYPE_FORMAT_L\n", versionFile);
+      int32TypeStri = "long";
+      uint32TypeStri = "unsigned long";
+      int32TypeSuffix = "L";
+      int32TypeFormat = "l";
+    } /* if */
+    if (int32TypeStri != NULL) {
+      fprintf(versionFile, "#define INT32TYPE %s\n", int32TypeStri);
+      fprintf(versionFile, "#define INT32TYPE_STRI \"%s\"\n", int32TypeStri);
+      fprintf(versionFile, "#define UINT32TYPE %s\n", uint32TypeStri);
+      fprintf(versionFile, "#define UINT32TYPE_STRI \"%s\"\n", uint32TypeStri);
+      if (int32TypeSuffix[0] == '\0') {
+        fprintf(versionFile, "#define INT32_SUFFIX(num) num\n");
+      } else {
+        fprintf(versionFile, "#define INT32_SUFFIX(num) num ## %s\n", int32TypeSuffix);
+      } /* if */
+      fprintf(versionFile, "#define UINT32_SUFFIX(num) num ## U%s\n", int32TypeSuffix);
+      fprintf(versionFile, "#define INT32TYPE_LITERAL_SUFFIX \"%s\"\n", int32TypeSuffix);
+      fprintf(versionFile, "#define INT32TYPE_FORMAT \"%s\"\n", int32TypeFormat);
     } /* if */
     if (sizeof(long) == 8) {
-      fputs("#define INT64TYPE long\n", versionFile);
-      fputs("#define INT64TYPE_STRI \"long\"\n", versionFile);
-      fputs("#define UINT64TYPE unsigned long\n", versionFile);
-      fputs("#define UINT64TYPE_STRI \"unsigned long\"\n", versionFile);
+      int64TypeStri = "long";
+      uint64TypeStri = "unsigned long";
       if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])"
-                           "{long long n=12345678L;printf(\"%d\\n\",sizeof(1L));return 0;}\n") && doTest() == 8) {
-        fputs("#define INT64TYPE_SUFFIX_L\n", versionFile);
+                           "{long n=12345678L;printf(\"%d\\n\",(int)sizeof(1L));return 0;}\n") && doTest() == 8) {
+        int64TypeSuffix = "L";
       } /* if */
-      fputs("#define INT64TYPE_FORMAT_L\n", versionFile);
+      int64TypeFormat = "l";
     } else if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])"
                                 "{printf(\"%d\\n\",sizeof(long long));return 0;}\n") && doTest() == 8) {
       /* The type long long is defined and it is a 64-bit type */
-      fputs("#define INT64TYPE long long\n", versionFile);
-      fputs("#define INT64TYPE_STRI \"long long\"\n", versionFile);
-      fputs("#define UINT64TYPE unsigned long long\n", versionFile);
-      fputs("#define UINT64TYPE_STRI \"unsigned long long\"\n", versionFile);
+      int64TypeStri = "long long";
+      uint64TypeStri = "unsigned long long";
       if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])"
                            "{long long n=12345678LL;printf(\"%d\\n\",sizeof(1LL));return 0;}\n") && doTest() == 8) {
-        fputs("#define INT64TYPE_SUFFIX_LL\n", versionFile);
+        int64TypeSuffix = "LL";
       } /* if */
       if (compileAndLinkOk("#include <stdio.h>\n#include <string.h>\n"
                            "int main(int argc, char *argv[])\n"
                            "{char b[99]; sprintf(b, \"A%lldB\", (long long) 1 << 32);\n"
                            "printf(\"%d\\n\", strcmp(b,\"A4294967296B\")==0);return 0;}\n") && doTest() == 1) {
-        fputs("#define INT64TYPE_FORMAT_LL\n", versionFile);
+        int64TypeFormat = "ll";
       } else if (compileAndLinkOk("#include <stdio.h>\n#include <string.h>\n"
                                   "int main(int argc, char *argv[])\n"
                                   "{char b[99]; sprintf(b, \"A%LdB\", (long long) 1 << 32);\n"
                                   "printf(\"%d\\n\", strcmp(b,\"A4294967296B\")==0);return 0;}\n") && doTest() == 1) {
-        fputs("#define INT64TYPE_FORMAT_CAPITAL_L\n", versionFile);
+        int64TypeFormat = "L";
       } else if (compileAndLinkOk("#include <stdio.h>\n#include <string.h>\n"
                                   "int main(int argc, char *argv[])\n"
                                   "{char b[99]; sprintf(b, \"A%I64dB\", (long long) 1 << 32);\n"
                                   "printf(\"%d\\n\", strcmp(b,\"A4294967296B\")==0);return 0;}\n") && doTest() == 1) {
-        fputs("#define INT64TYPE_FORMAT_I64\n", versionFile);
+        int64TypeFormat = "I64";
       } /* if */
     } else if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])\n"
                                 "{printf(\"%d\\n\",sizeof(__int64));return 0;}\n") && doTest() == 8) {
       /* The type __int64 is defined and it is a 64-bit type */
-      fputs("#define INT64TYPE __int64\n", versionFile);
-      fputs("#define INT64TYPE_STRI \"__int64\"\n", versionFile);
-      fputs("#define UINT64TYPE unsigned __int64\n", versionFile);
-      fputs("#define UINT64TYPE_STRI \"unsigned __int64\"\n", versionFile);
+      int64TypeStri = "__int64";
+      uint64TypeStri = "unsigned __int64";
       if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])"
                            "{__int64 n=12345678LL;printf(\"%d\\n\",sizeof(1LL));return 0;}\n") && doTest() == 8) {
-        fputs("#define INT64TYPE_SUFFIX_LL\n", versionFile);
+        int64TypeSuffix = "LL";
       } /* if */
       if (compileAndLinkOk("#include <stdio.h>\n#include <string.h>\n"
                            "int main(int argc, char *argv[])\n"
                            "{char b[99]; sprintf(b, \"A%lldB\", (__int64) 1 << 32);\n"
                            "printf(\"%d\\n\", strcmp(b,\"A4294967296B\")==0);return 0;}\n") && doTest() == 1) {
-        fputs("#define INT64TYPE_FORMAT_LL\n", versionFile);
+        int64TypeFormat = "ll";
       } else if (compileAndLinkOk("#include <stdio.h>\n#include <string.h>\n"
                                   "int main(int argc, char *argv[])\n"
                                   "{char b[99]; sprintf(b, \"A%LdB\", (__int64) 1 << 32);\n"
                                   "printf(\"%d\\n\", strcmp(b,\"A4294967296B\")==0);return 0;}\n") && doTest() == 1) {
-        fputs("#define INT64TYPE_FORMAT_CAPITAL_L\n", versionFile);
+        int64TypeFormat = "L";
       } else if (compileAndLinkOk("#include <stdio.h>\n#include <string.h>\n"
                                   "int main(int argc, char *argv[])\n"
                                   "{char b[99]; sprintf(b, \"A%I64dB\", (__int64) 1 << 32);\n"
                                   "printf(\"%d\\n\", strcmp(b,\"A4294967296B\")==0);return 0;}\n") && doTest() == 1) {
-        fputs("#define INT64TYPE_FORMAT_I64\n", versionFile);
+        int64TypeFormat = "I64";
       } /* if */
+    } /* if */
+    if (int64TypeStri != NULL) {
+      fprintf(versionFile, "#define INT64TYPE %s\n", int64TypeStri);
+      fprintf(versionFile, "#define INT64TYPE_STRI \"%s\"\n", int64TypeStri);
+      fprintf(versionFile, "#define UINT64TYPE %s\n", uint64TypeStri);
+      fprintf(versionFile, "#define UINT64TYPE_STRI \"%s\"\n", uint64TypeStri);
+#ifdef INT64TYPE_NO_SUFFIX_BUT_CAST
+      fprintf(versionFile, "#define INT64_SUFFIX(num)  ((int64Type) num)\n");
+      fprintf(versionFile, "#define UINT64_SUFFIX(num) ((uint64Type) num ## U)\n");
+      fprintf(versionFile, "#define INT64TYPE_LITERAL_SUFFIX \"\"\n");
+#else
+      if (int64TypeSuffix[0] == '\0') {
+        fprintf(versionFile, "#define INT64_SUFFIX(num) num\n");
+      } else {
+        fprintf(versionFile, "#define INT64_SUFFIX(num) num ## %s\n", int64TypeSuffix);
+      } /* if */
+      fprintf(versionFile, "#define UINT64_SUFFIX(num) num ## U%s\n", int64TypeSuffix);
+      fprintf(versionFile, "#define INT64TYPE_LITERAL_SUFFIX \"%s\"\n", int64TypeSuffix);
+#endif
+      fprintf(versionFile, "#define INT64TYPE_FORMAT \"%s\"\n", int64TypeFormat);
     } /* if */
     if (compileAndLinkOk("#include <stdio.h>\n#include <time.h>\n"
                          "int main(int argc, char *argv[])\n"
@@ -507,10 +544,8 @@ void numericSizes (FILE *versionFile)
                          "printf(\"%d\\n\",sizeof(__int128));\n"
                          "else printf(\"0\\n\");return 0;}\n") && doTest() == 16) {
       /* The type __int128 is defined and it is a 128-bit type */
-      fputs("#define INT128TYPE __int128\n", versionFile);
-      fputs("#define INT128TYPE_STRI \"__int128\"\n", versionFile);
-      fputs("#define UINT128TYPE unsigned __int128\n", versionFile);
-      fputs("#define UINT128TYPE_STRI \"unsigned __int128\"\n", versionFile);
+      int128TypeStri = "__int128";
+      uint128TypeStri = "unsigned __int128";
     } else if (compileAndLinkOk("#include <stdio.h>\n#include <time.h>\n"
                                 "int main(int argc, char *argv[])\n"
                                 "{__int128 a = (__int128) time(NULL) * (__int128) clock();\n"
@@ -518,10 +553,14 @@ void numericSizes (FILE *versionFile)
                                 "printf(\"%d\\n\",sizeof(__int128_t));\n"
                                 "else printf(\"0\\n\");return 0;}\n") && doTest() == 16) {
       /* The type __int128_t is defined and it is a 128-bit type */
-      fputs("#define INT128TYPE __int128_t\n", versionFile);
-      fputs("#define INT128TYPE_STRI \"__int128_t\"\n", versionFile);
-      fputs("#define UINT128TYPE __uint128_t\n", versionFile);
-      fputs("#define UINT128TYPE_STRI \"__uint128_t\"\n", versionFile);
+      int128TypeStri = "__int128_t";
+      uint128TypeStri = "__uint128_t";
+    } /* if */
+    if (int128TypeStri != NULL && uint128TypeStri != NULL) {
+      fprintf(versionFile, "#define INT128TYPE %s\n", int128TypeStri);
+      fprintf(versionFile, "#define INT128TYPE_STRI \"%s\"\n", int128TypeStri);
+      fprintf(versionFile, "#define UINT128TYPE %s\n", uint128TypeStri);
+      fprintf(versionFile, "#define UINT128TYPE_STRI \"%s\"\n", uint128TypeStri);
     } /* if */
     printf(" determined\n");
   } /* numericSizes */
@@ -666,8 +705,14 @@ void numericProperties (FILE *versionFile)
                strcmp(buffer, "1 2 3 1.3 1.8 0.13 0.38 -0 -1 -2 -1.2 -1.7 -0.12 -0.37") == 0) {
       fputs("#define ROUND_HALF_UP\n", versionFile);
     } /* if */
+    sprintf(buffer, "%1.10e", DBL_MAX);
+    sscanf(strchr(buffer,'e') + 1, "%ld", &number);
+    fprintf(versionFile, "#define DOUBLE_MAX_EXP10 %ld\n", number);
+    sprintf(buffer, "%ld", number);
+    fprintf(versionFile, "#define DOUBLE_MAX_EXP10_DIGITS %lu\n",
+            (long unsigned) strlen(buffer));
     sprintf(buffer, "%1.14e", 1.12345678901234);
-    fprintf(versionFile, "#define DOUBLE_DECIMAL_EXPONENT_DIGITS %u\n", (unsigned int) strlen(buffer) - 18);
+    fprintf(versionFile, "#define DOUBLE_MIN_EXP10_DIGITS %u\n", (unsigned int) strlen(buffer) - 18);
     fprintf(versionFile, "#define FLOAT_STR_FORMAT \"%%1.%de\"\n", FLT_DIG - 1);
     fprintf(versionFile, "#define FLOAT_STR_LARGE_NUMBER 1.0e%d\n", FLT_DIG);
     fprintf(versionFile, "#define DOUBLE_STR_FORMAT \"%%1.%de\"\n", DBL_DIG - 1);
@@ -800,6 +845,17 @@ void numericProperties (FILE *versionFile)
     fprintf(versionFile, "#define FLOAT_MANTISSA_SHIFT %u\n", FLT_MANT_DIG * floatRadixFactor);
     fprintf(versionFile, "#define DOUBLE_MANTISSA_FACTOR %0.1f\n", pow((double) FLT_RADIX, (double) DBL_MANT_DIG));
     fprintf(versionFile, "#define DOUBLE_MANTISSA_SHIFT %u\n", DBL_MANT_DIG * floatRadixFactor);
+    if (compileAndLinkOk("#include<stdio.h>\n#include<string.h>\n"
+                         "int main(int argc,char *argv[]){\n"
+                         "char buffer[100003];\n"
+                         "sprintf(buffer, \"%1.100000f\", 1.0);\n"
+                         "printf(\"%lu\\n\",(unsigned long)strlen(buffer));\n"
+                         "return 0;}\n")) {
+      testResult = doTest();
+      if (testResult >= 2 && testResult < 100002) {
+        fprintf(versionFile, "#define PRINTF_MAXIMUM_FLOAT_PRECISION %d\n", testResult - 2);
+      } /* if */
+    } /* if */
     printf(" determined\n");
   } /* numericProperties */
 
@@ -1044,7 +1100,7 @@ void detemineMySqlDefines (FILE *versionFile,
                                       "int main(int argc,char *argv[]){return 0;}\n",
                                       includeOption, "")) {
         mySqlInclude = "mysql.h";
-        printf("MySql/MariaDb: %s found at: %s/include\n", mySqlInclude, dbHome);
+        printf("MySql/MariaDb: %s found in %s/include\n", mySqlInclude, dbHome);
         appendOption(include_options, includeOption);
       } else {
         mySqlInclude = NULL;
@@ -1053,13 +1109,13 @@ void detemineMySqlDefines (FILE *versionFile,
       sprintf(buffer, "#include <%s>\n"
                       "int main(int argc,char *argv[]){return 0;}\n", mySqlInclude);
       if (compileAndLinkWithOptionsOk(buffer, includeOption, "")) {
-        printf("MySql/MariaDb found at: %s\n", mySqlInclude);
+        printf("MySql/MariaDb: %s found in system include directory.\n", mySqlInclude);
         appendOption(include_options, includeOption);
       } else if (compileAndLinkWithOptionsOk("#include \"db_my.h\"\n"
                                              "int main(int argc,char *argv[]){return 0;}\n",
                                              includeOption, "")) {
         mySqlInclude = "db_my.h";
-        printf("MySql/MariaDb found at: %s\n", mySqlInclude);
+        printf("MySql/MariaDb: %s found in Seed7 include directory.\n", mySqlInclude);
       } /* if */
     } /* if */
     if (mySqlInclude != NULL) {
@@ -1177,20 +1233,20 @@ void detemineSqliteDefines (FILE *versionFile,
                                       "int main(int argc,char *argv[]){return 0;}\n",
                                       includeOption, "")) {
         sqliteInclude = "sqlite3.h";
-        printf("SQLite: %s found at: %s\n", sqliteInclude, dbHome);
+        printf("SQLite: %s found in %s\n", sqliteInclude, dbHome);
         appendOption(include_options, includeOption);
       } /* if */
     } else if (compileAndLinkWithOptionsOk("#include <sqlite3.h>\n"
                                            "int main(int argc,char *argv[]){return 0;}\n",
                                            includeOption, "")) {
       sqliteInclude = "sqlite3.h";
-      printf("SQLite found at: %s\n", sqliteInclude);
+      printf("SQLite: %s found in system include directory.\n", sqliteInclude);
       appendOption(include_options, includeOption);
     } else if (compileAndLinkWithOptionsOk("#include \"tst_vers.h\"\n#include \"db_lite.h\"\n"
                                            "int main(int argc,char *argv[]){return 0;}\n",
                                            includeOption, "")) {
       sqliteInclude = "db_lite.h";
-      printf("SQLite found at: %s\n", sqliteInclude);
+      printf("SQLite: %s found in Seed7 include directory.\n", sqliteInclude);
       appendOption(include_options, includeOption);
     } /* if */
     if (sqliteInclude != NULL) {
@@ -1343,6 +1399,54 @@ static void extractPostgresOid (const char* pgTypeFileName)
 
 
 
+static int findPgTypeInclude (const char *includeOption, const char *pgTypeInclude)
+
+  {
+    const char *optionPos;
+    const char *optionEnd;
+    char includeDir[4096];
+    char pgTypeFileName[4096];
+    int found = 0;
+
+  /* findPgTypeInclude */
+    /* printf("findPgTypeInclude(\"%s\")\n", includeOption); */
+    while (includeOption != NULL && (optionPos = strstr(includeOption, "-I")) != NULL) {
+      if (optionPos[2] == '\"') {
+        optionEnd = strchr(&optionPos[3], '\"');
+        if (optionEnd == NULL) {
+          strcpy(includeDir, &optionPos[3]);
+          includeOption = NULL;
+        } else {
+          memcpy(includeDir, &optionPos[3], optionEnd - &optionPos[3]);
+          includeDir[optionEnd - &optionPos[3]] = '\0';
+          includeOption = optionEnd + 1;
+        } /* if */
+      } else {
+        optionEnd = strchr(&optionPos[2], ' ');
+        if (optionEnd == NULL) {
+          strcpy(includeDir, &optionPos[2]);
+          includeOption = NULL;
+        } else {
+          memcpy(includeDir, &optionPos[2], optionEnd - &optionPos[2]);
+          includeDir[optionEnd - &optionPos[2]] = '\0';
+          includeOption = optionEnd + 1;
+        } /* if */
+      } /* if */
+      /* printf("includeDir: \"%s\"\n", includeDir); */
+      if (includeDir[0] != '\0'  && fileIsDir(includeDir)) {
+        sprintf(pgTypeFileName, "%s/%s", includeDir, pgTypeInclude);
+        if (fileIsRegular(pgTypeFileName)) {
+          extractPostgresOid(pgTypeFileName);
+          includeOption = NULL;
+          found = 1;
+        } /* if */
+      } /* if */
+    } /* while */
+    return found;
+  } /* findPgTypeInclude */
+
+
+
 void deteminePostgresDefines (FILE *versionFile,
     char *include_options, char *system_db_libs)
 
@@ -1365,6 +1469,8 @@ void deteminePostgresDefines (FILE *versionFile,
     char dbHome[4096];
     char includeOption[4096];
     const char *postgresqlInclude = NULL;
+    const char *postgresInclude = NULL;
+    const char *pgTypeInclude = NULL;
     char buffer[4096];
     char linkerOptions[4096];
     int dbHomeExists = 0;
@@ -1400,50 +1506,67 @@ void deteminePostgresDefines (FILE *versionFile,
                                       "int main(int argc,char *argv[]){return 0;}\n",
                                       includeOption, "")) {
         postgresqlInclude = "libpq-fe.h";
-        printf("PostgreSQL: %s found at: %s/include\n", postgresqlInclude, dbHome);
+        printf("PostgreSQL: %s found in %s/include\n", postgresqlInclude, dbHome);
         appendOption(include_options, includeOption);
         sprintf(buffer, "%s/include/server", dbHome);
         if (fileIsDir(buffer)) {
           sprintf(buffer, "%s/include/server/catalog/pg_type.h", dbHome);
-          extractPostgresOid(buffer);
         } else {
           sprintf(buffer, "%s/include/catalog/pg_type.h", dbHome);
-          extractPostgresOid(buffer);
         } /* if */
-        fputs("#define POSTGRESQL_PG_TYPE_H \"pg_type.h\"\n", versionFile);
+        extractPostgresOid(buffer);
+        pgTypeInclude = "pg_type.h";
+        printf("PostgreSQL: %s found in Seed7 directory.\n", pgTypeInclude);
       } /* if */
     } else if (compileAndLinkWithOptionsOk("#include <libpq-fe.h>\n"
                                     "int main(int argc,char *argv[]){return 0;}\n",
                                     includeOption, "")) {
       postgresqlInclude = "libpq-fe.h";
-      printf("PostgreSQL found at: %s\n", postgresqlInclude);
+      printf("PostgreSQL: %s found in system include directory.\n", postgresqlInclude);
       appendOption(include_options, includeOption);
       if (compileAndLinkWithOptionsOk("#include <server/postgres.h>\n"
                                       "int main(int argc,char *argv[]){return 0;}\n",
                                       includeOption, "")) {
-        fputs("#define POSTGRESQL_POSTGRES_H \"server/postgres.h\"\n", versionFile);
-        fputs("#define POSTGRESQL_PG_TYPE_H \"server/catalog/pg_type.h\"\n", versionFile);
+        postgresInclude = "server/postgres.h";
+        pgTypeInclude = "server/catalog/pg_type.h";
       } else {
         appendOption(includeOption, serverIncludeOption);
         if (compileAndLinkWithOptionsOk("#include <server/postgres.h>\n"
                                         "int main(int argc,char *argv[]){return 0;}\n",
                                         includeOption, "")) {
           appendOption(include_options, serverIncludeOption);
-          fputs("#define POSTGRESQL_POSTGRES_H \"server/postgres.h\"\n", versionFile);
-          fputs("#define POSTGRESQL_PG_TYPE_H \"server/catalog/pg_type.h\"\n", versionFile);
+          postgresInclude = "server/postgres.h";
+          pgTypeInclude = "server/catalog/pg_type.h";
         } else {
-          fputs("#define POSTGRESQL_POSTGRES_H \"postgres.h\"\n", versionFile);
-          fputs("#define POSTGRESQL_PG_TYPE_H \"catalog/pg_type.h\"\n", versionFile);
+          postgresInclude = "postgres.h";
+          pgTypeInclude = "catalog/pg_type.h";
         } /* if */
+      } /* if */
+      sprintf(buffer, "#include <%s>\n#include <%s>\n"
+                      "int main(int argc,char *argv[]){return 0;}\n",
+	              postgresInclude, pgTypeInclude);
+      if (compileAndLinkWithOptionsOk(buffer, includeOption, "")) {
+        printf("PostgreSQL: %s found in system include directory.\n", pgTypeInclude);
+      } else if (findPgTypeInclude(includeOption, pgTypeInclude)) {
+        pgTypeInclude = "pg_type.h";
+        printf("PostgreSQL: %s found in Seed7 include directory.\n", pgTypeInclude);
+      } else {
+        printf("PostgreSQL: %s not found in include directories.\n", pgTypeInclude);
       } /* if */
     } else if (compileAndLinkWithOptionsOk("#include \"db_post.h\"\n"
                                            "int main(int argc,char *argv[]){return 0;}\n",
                                            "", "")) {
       postgresqlInclude = "db_post.h";
-      printf("PostgreSQL found at: %s\n", postgresqlInclude);
+      printf("PostgreSQL: %s found in Seed7 include directory.\n", postgresqlInclude);
     } /* if */
     if (postgresqlInclude != NULL) {
       fprintf(versionFile, "#define POSTGRESQL_INCLUDE \"%s\"\n", postgresqlInclude);
+    } /* if */
+    if (postgresInclude != NULL) {
+      fprintf(versionFile, "#define POSTGRESQL_POSTGRES_H \"%s\"\n", postgresInclude);
+    } /* if */
+    if (pgTypeInclude != NULL) {
+      fprintf(versionFile, "#define POSTGRESQL_PG_TYPE_H \"%s\"\n", pgTypeInclude);
     } /* if */
     /* Handle libraries: */
     if (dbHomeExists) {
@@ -1555,19 +1678,21 @@ void detemineOdbcDefines (FILE *versionFile,
       fputs("#define WINDOWS_ODBC\n", versionFile);
       fputs("#define ODBC_INCLUDE_SQLEXT\n", versionFile);
       odbcInclude = "sql.h";
+      printf("Odbc: %s found in system include directory.\n", odbcInclude);
     } else if (compileAndLinkWithOptionsOk("#include <sql.h>\n"
                                            "int main(int argc,char *argv[]){return 0;}\n",
                                            includeOption, "")) {
       fputs("#define ODBC_INCLUDE_SQLEXT\n", versionFile);
       odbcInclude = "sql.h";
+      printf("Odbc: %s found in system include directory.\n", odbcInclude);
     } else if (compileAndLinkWithOptionsOk("#include \"tst_vers.h\"\n#include \"db_odbc.h\"\n"
                                            "int main(int argc,char *argv[]){return 0;}\n",
                                            "", "")) {
       odbcInclude = "db_odbc.h";
+      printf("Odbc: %s found in Seed7 include directory.\n", odbcInclude);
       includeOption[0] = '\0';
     } /* if */
     if (odbcInclude != NULL) {
-      printf("Odbc found at: %s\n", odbcInclude);
       fprintf(versionFile, "#define ODBC_INCLUDE \"%s\"\n", odbcInclude);
       appendOption(include_options, includeOption);
     } /* if */
@@ -1651,23 +1776,23 @@ void detemineOciDefines (FILE *versionFile,
                                           "int main(int argc,char *argv[]){return 0;}\n",
                                           includeOption, "")) {
             ociInclude = "oci.h";
-            printf("Oracle: %s found at: %s%s\n", ociInclude, oracle_home, oci_incl_dir[incl_dir_idx]);
+            printf("Oracle: %s found in %s%s\n", ociInclude, oracle_home, oci_incl_dir[incl_dir_idx]);
             appendOption(include_options, includeOption);
           } /* if */
         } /* if */
       } /* for */
-    } else if (compileAndLinkWithOptionsOk("#include \"oci.h\"\n"
+    } else if (compileAndLinkWithOptionsOk("#include <oci.h>\n"
                                            "int main(int argc,char *argv[]){return 0;}\n",
                                            includeOption, "")) {
       ociInclude = "oci.h";
-      printf("Oracle found at: %s\n", ociInclude);
+      printf("Oracle: %s found in system include directory.\n", ociInclude);
       appendOption(include_options, includeOption);
     } else if (compileAndLinkWithOptionsOk("#include \"tst_vers.h\"\n#include \"stdlib.h\"\n"
                                            "#include \"db_oci.h\"\n"
                                            "int main(int argc,char *argv[]){return 0;}\n",
                                            includeOption, "")) {
       ociInclude = "db_oci.h";
-      printf("Oracle found at: %s\n", ociInclude);
+      printf("Oracle: %s found in Seed7 include directory.\n", ociInclude);
       appendOption(include_options, includeOption);
     } /* if */
     if (ociInclude != NULL) {
@@ -1883,7 +2008,8 @@ int main (int argc, char **argv)
     } /* if */
     buffer[0] = '\0';
     if (compileAndLinkOk("#include <stdio.h>\nint main(int argc,char *argv[])\n"
-                         "{if(__builtin_expect(1,1))puts(\"1\");else puts(\"0\");return 0;}\n")) {
+                         "{if(__builtin_expect(1,1))puts(\"1\");else puts(\"0\");\n"
+                         "return 0;}\n") && doTest() == 1) {
       fputs("#define likely(x)   __builtin_expect((x),1)\n", versionFile);
       fputs("#define unlikely(x) __builtin_expect((x),0)\n", versionFile);
       strcat(buffer, "#define likely(x)   __builtin_expect((x),1)\\n");

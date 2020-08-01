@@ -276,6 +276,8 @@ const proc: process_create_call (in type: object_type,
         when {WINOBJECT}:       expr &:= "drwCreate(" & param_b & ")";
         when {PROCESSOBJECT}:   expr &:= "pcsCreate(" & param_b & ")";
         when {PROGOBJECT}:      expr &:= "prgCreate(" & param_b & ")";
+        when {DATABASEOBJECT}:  expr &:= "sqlCreateDb(" & param_b & ")";
+        when {SQLSTMTOBJECT}:   expr &:= "sqlCreateStmt(" & param_b & ")";
         when {INTERFACEOBJECT}: expr &:= "itfCreate(" & param_b & ")";
         when {ARRAYOBJECT, HASHOBJECT, STRUCTOBJECT}:
           expr &:= "create_";

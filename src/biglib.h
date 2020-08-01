@@ -27,6 +27,7 @@
 
 objectType big_abs            (listType arguments);
 objectType big_add            (listType arguments);
+objectType big_add_assign     (listType arguments);
 objectType big_bit_length     (listType arguments);
 objectType big_cmp            (listType arguments);
 objectType big_conv           (listType arguments);
@@ -40,7 +41,6 @@ objectType big_fromBStriBe    (listType arguments);
 objectType big_fromBStriLe    (listType arguments);
 objectType big_gcd            (listType arguments);
 objectType big_ge             (listType arguments);
-objectType big_grow           (listType arguments);
 objectType big_gt             (listType arguments);
 objectType big_hashcode       (listType arguments);
 objectType big_iconv          (listType arguments);
@@ -72,7 +72,7 @@ objectType big_rem            (listType arguments);
 objectType big_rshift         (listType arguments);
 objectType big_rshift_assign  (listType arguments);
 objectType big_sbtr           (listType arguments);
-objectType big_shrink         (listType arguments);
+objectType big_sbtr_assign    (listType arguments);
 objectType big_str            (listType arguments);
 objectType big_succ           (listType arguments);
 objectType big_toBStriBe      (listType arguments);

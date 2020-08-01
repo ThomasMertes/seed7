@@ -29,6 +29,10 @@
 /*                                                                  */
 /********************************************************************/
 
-void cmdProcessCpy (processType *const process_to, const processType process_from);
-processType cmdProcessCreate (const processType process_from);
-void cmdProcessDestr (const processType old_process);
+intType pcsCmpGeneric (const genericType value1, const genericType value2);
+void pcsCpy (processType *const process_to, const processType process_from);
+void pcsCpyGeneric (genericType *const dest, const genericType source);
+processType pcsCreate (const processType process_from);
+genericType pcsCreateGeneric (const genericType from_value);
+void pcsDestr (const processType old_process);
+void pcsDestrGeneric (const genericType old_value);

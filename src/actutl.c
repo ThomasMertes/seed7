@@ -132,7 +132,7 @@ static boolType search_action (cstriType stri, actType *action_found)
     } else {
       action_number = 0;
     } /* if */
-/*  printf("action number: %d\n", action_number); */
+/*  printf("action number: %u\n", action_number); */
 #else
     action_number = 0;
     lower = 0;
@@ -288,7 +288,7 @@ primActType get_primact (actType action_searched)
       upper = (int) act_ptr_table.size;
       while (lower + 1 < upper) {
         middle = (lower + upper) >> 1;
-        /* printf("%d %d %d >%lu< >%lu<\n", lower, middle, upper,
+        /* printf("%d %d %d <" FMT_U_MEM "> <" FMT_U_MEM ">\n", lower, middle, upper,
             (memSizeType) act_ptr_table.primitive_ptr[middle]->action,
             (memSizeType) action_searched); */
         if (((memSizeType) act_ptr_table.primitive_ptr[middle]->action) <

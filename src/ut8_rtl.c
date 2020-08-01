@@ -183,7 +183,7 @@ static striType read_and_alloc_utf8_stri (fileType inFile, memSizeType chars_mis
     striType result;
 
   /* read_and_alloc_utf8_stri */
-    /* printf("read_and_alloc_utf8_stri(%d, %d, *, *)\n", fileno(inFile), chars_missing); */
+    /* printf("read_and_alloc_utf8_stri(%d, " FMT_U_MEM ", *, *)\n", fileno(inFile), chars_missing); */
     if (!ALLOC_STRI_SIZE_OK(result, GETS_STRI_SIZE_DELTA)) {
       *err_info = MEMORY_ERROR;
       result = NULL;
@@ -475,7 +475,7 @@ striType ut8Gets (fileType inFile, intType length)
     striType result;
 
   /* ut8Gets */
-    /* printf("ut8Gets(%d, %d)\n", fileno(inFile), length); */
+    /* printf("ut8Gets(%d, " FMT_D ")\n", fileno(inFile), length); */
     if (length < 0) {
       raise_error(RANGE_ERROR);
       result = NULL;
@@ -541,7 +541,7 @@ striType ut8Gets (fileType inFile, intType length)
         } /* if */
       } /* if */
     } /* if */
-    /* printf("ut8Gets(%d, %d) ==> ", fileno(inFile), length);
+    /* printf("ut8Gets(%d, " FMT_D ") ==> ", fileno(inFile), length);
         prot_stri(result);
         printf("\n"); */
     return result;

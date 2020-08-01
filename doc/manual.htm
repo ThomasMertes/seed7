@@ -329,6 +329,7 @@ pre.indent {
 <li><a class="link" href="#actions_interface"><b>Actions for interface types</b></a></li>
 <li><a class="link" href="#actions_console_keyboard"><b>Actions to support the text (console) screen keyboard</b></a></li>
 <li><a class="link" href="#actions_list"><b>Actions for the list type</b></a></li>
+<li><a class="link" href="#actions_process"><b>Actions for the type process</b></a></li>
 <li><a class="link" href="#actions_pollData"><b>Actions for the type pollData</b></a></li>
 <li><a class="link" href="#actions_proc"><b>Actions for proc operations and statements</b></a></li>
 <li><a class="link" href="#actions_program"><b>Actions for the type program</b></a></li>
@@ -337,6 +338,7 @@ pre.indent {
 <li><a class="link" href="#actions_struct"><b>Actions for struct types</b></a></li>
 <li><a class="link" href="#actions_set"><b>Actions for set types</b></a></li>
 <li><a class="link" href="#actions_PRIMITIVE_SOCKET"><b>Actions for the type PRIMITIVE_SOCKET</b></a></li>
+<li><a class="link" href="#actions_database"><b>Actions for the types database and sqlStatement</b></a></li>
 <li><a class="link" href="#actions_string"><b>Actions for the type string</b></a></li>
 <li><a class="link" href="#actions_time"><b>Actions for the type time</b></a></li>
 <li><a class="link" href="#actions_type"><b>Actions for the type type</b></a></li>
@@ -9354,7 +9356,11 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>ACT_ILLEGAL</td>         <td>act_illegal</td>         <td>&nbsp;</td></tr>
     <tr><td>ACT_CPY</td>             <td>act_cpy</td>             <td>=</td></tr>
     <tr><td>ACT_CREATE</td>          <td>act_create</td>          <td>&nbsp;</td></tr>
+    <tr><td>ACT_EQ</td>              <td>act_eq/td>               <td>==</td></tr>
     <tr><td>ACT_GEN</td>             <td>act_gen</td>             <td>&nbsp;</td></tr>
+    <tr><td>ACT_ICONV</td>           <td>act_iconv/td>            <td>actIConv</td></tr>
+    <tr><td>ACT_NE</td>              <td>act_ne/td>               <td>!=</td></tr>
+    <tr><td>ACT_ORD</td>             <td>act_ord/td>              <td>actOrd</td></tr>
     <tr><td>ACT_STR</td>             <td>act_str</td>             <td>actStr</td></tr>
     <tr><td>ACT_VALUE</td>           <td>act_value</td>           <td>actValue</td></tr>
 </table><p></p>
@@ -9384,6 +9390,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>ARR_RANGE</td>           <td>arr_range</td>           <td>arrRange</td></tr>
     <tr><td>ARR_REMOVE</td>          <td>arr_remove</td>          <td>arrRemove</td></tr>
     <tr><td>ARR_SORT</td>            <td>arr_sort</td>            <td>arrSort</td></tr>
+    <tr><td>ARR_SUBARR</td>          <td>arr_subarr</td>          <td>arrSubarr, arrSubarrTemp</td></tr>
     <tr><td>ARR_TAIL</td>            <td>arr_tail</td>            <td>arrTail</td></tr>
     <tr><td>ARR_TIMES</td>           <td>arr_times</td>           <td>times_ ...</td></tr>
 </table><p></p>
@@ -9393,24 +9400,27 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><th>Action name</th>         <th>biglib.c function</th>   <th>big_rtl.c function</th></tr>
     <tr><td>BIG_ABS</td>             <td>big_abs</td>             <td>bigAbs</td></tr>
     <tr><td>BIG_ADD</td>             <td>big_add</td>             <td>bigAdd, bigAddTemp</td></tr>
+    <tr><td>BIG_ADD_ASSIGN</td>      <td>big_add_assign</td>      <td>bigAddAssign, bigAddAssignSignedDigit</td></tr>
     <tr><td>BIG_BIT_LENGTH</td>      <td>big_bit_length</td>      <td>bigBitLength</td></tr>
-    <tr><td>BIG_CLIT</td>            <td>big_clit</td>            <td>bigCLit</td></tr>
     <tr><td>BIG_CMP</td>             <td>big_cmp</td>             <td>bigCmp</td></tr>
+    <tr><td>BIG_CONV</td>            <td>big_conv</td>            <td>&nbsp;</td></tr>
     <tr><td>BIG_CPY</td>             <td>big_cpy</td>             <td>bigCpy</td></tr>
     <tr><td>BIG_CREATE</td>          <td>big_create</td>          <td>bigCreate</td></tr>
     <tr><td>BIG_DECR</td>            <td>big_decr</td>            <td>bigDecr</td></tr>
     <tr><td>BIG_DESTR</td>           <td>big_destr</td>           <td>bigDestr</td></tr>
     <tr><td>BIG_DIV</td>             <td>big_div</td>             <td>bigDiv</td></tr>
     <tr><td>BIG_EQ</td>              <td>big_eq</td>              <td>bigEq</td></tr>
+    <tr><td>BIG_FROM_BSTRI_BE</td>   <td>big_fromBStriBe</td>     <td>bigFromBStriBe</td></tr>
+    <tr><td>BIG_FROM_BSTRI_LE</td>   <td>big_fromBStriLe</td>     <td>bigFromBStriLe</td></tr>
     <tr><td>BIG_GCD</td>             <td>big_gcd</td>             <td>bigGcd</td></tr>
     <tr><td>BIG_GE</td>              <td>big_ge</td>              <td>bigCmp >= 0</td></tr>
-    <tr><td>BIG_GROW</td>            <td>big_grow</td>            <td>bigGrow</td></tr>
     <tr><td>BIG_GT</td>              <td>big_gt</td>              <td>bigCmp > 0</td></tr>
     <tr><td>BIG_HASHCODE</td>        <td>big_hashcode</td>        <td>bigHashCode</td></tr>
     <tr><td>BIG_ICONV</td>           <td>big_iconv</td>           <td>bigIConv</td></tr>
     <tr><td>BIG_INCR</td>            <td>big_incr</td>            <td>bigIncr</td></tr>
     <tr><td>BIG_IPOW</td>            <td>big_ipow</td>            <td>bigIPow</td></tr>
     <tr><td>BIG_LE</td>              <td>big_le</td>              <td>bigCmp &lt;= 0</td></tr>
+    <tr><td>BIG_LOG10</td>           <td>big_log10</td>           <td>bigLog10</td></tr>
     <tr><td>BIG_LOG2</td>            <td>big_log2</td>            <td>bigLog2</td></tr>
     <tr><td>BIG_LOWEST_SET_BIT</td>  <td>big_lowest_set_bit</td>  <td>bigLowestSetBit</td></tr>
     <tr><td>BIG_LSHIFT</td>          <td>big_lshift</td>          <td>bigLShift</td></tr>
@@ -9425,17 +9435,22 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>BIG_ODD</td>             <td>big_odd</td>             <td>bigOdd</td></tr>
     <tr><td>BIG_ORD</td>             <td>big_ord</td>             <td>bigOrd</td></tr>
     <tr><td>BIG_PARSE</td>           <td>big_parse</td>           <td>bigParse</td></tr>
+    <tr><td>BIG_PARSE_BASED</td>     <td>big_parse_based</td>     <td>bigParseBased</td></tr>
     <tr><td>BIG_PLUS</td>            <td>big_plus</td>            <td>(noop)</td></tr>
     <tr><td>BIG_PRED</td>            <td>big_pred</td>            <td>bigPred</td></tr>
+    <tr><td>BIG_RADIX</td>           <td>big_RADIX</td>           <td>bigRadix</td></tr>
     <tr><td>BIG_RAND</td>            <td>big_rand</td>            <td>bigRand</td></tr>
     <tr><td>BIG_REM</td>             <td>big_rem</td>             <td>bigRem</td></tr>
     <tr><td>BIG_RSHIFT</td>          <td>big_rshift</td>          <td>bigRShift</td></tr>
     <tr><td>BIG_RSHIFT_ASSIGN</td>   <td>big_rshift_assign</td>   <td>bigRShiftAssign</td></tr>
     <tr><td>BIG_SBTR</td>            <td>big_sbtr</td>            <td>bigSbtr, bigSbtrTemp</td></tr>
-    <tr><td>BIG_SHRINK</td>          <td>big_shrink</td>          <td>bigShrink</td></tr>
+    <tr><td>BIG_SBTR_ASSIGN</td>     <td>big_sbtr_assign</td>     <td>bigSbtrAssign, bigAddAssignSignedDigit</td></tr>
     <tr><td>BIG_STR</td>             <td>big_str</td>             <td>bigStr</td></tr>
     <tr><td>BIG_SUCC</td>            <td>big_succ</td>            <td>bigSucc</td></tr>
+    <tr><td>BIG_TO_BSTRI_BE</td>     <td>big_toBStriBe</td>       <td>bigToBStriBe</td></tr>
+    <tr><td>BIG_TO_BSTRI_LE</td>     <td>big_toBStriLe</td>       <td>bigToBStriLe</td></tr>
     <tr><td>BIG_VALUE</td>           <td>big_value</td>           <td>bigValue</td></tr>
+    <tr><td>BIG_radix</td>           <td>big_radix</td>           <td>bigRadix</td></tr>
 </table><p></p>
 
 <a name="actions_boolean"><h3>13.4 Actions for the type boolean</h3></a>
@@ -9444,14 +9459,17 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>BLN_AND</td>             <td>bln_and</td>             <td>&amp;&amp;</td></tr>
     <tr><td>BLN_CPY</td>             <td>bln_cpy</td>             <td>blnCpy</td></tr>
     <tr><td>BLN_CREATE</td>          <td>bln_create</td>          <td>blnCreate</td></tr>
+    <tr><td>BLN_EQ</td>              <td>bln_eq</td>              <td>==</td></tr>
     <tr><td>BLN_GE</td>              <td>bln_ge</td>              <td>&gt;=</td></tr>
     <tr><td>BLN_GT</td>              <td>bln_gt</td>              <td>&gt;</td></tr>
     <tr><td>BLN_ICONV</td>           <td>bln_iconv</td>           <td>&amp; 1</td></tr>
     <tr><td>BLN_LE</td>              <td>bln_le</td>              <td>&lt;=</td></tr>
     <tr><td>BLN_LT</td>              <td>bln_lt</td>              <td>&lt;</td></tr>
+    <tr><td>BLN_NE</td>              <td>bln_ne</td>              <td>!=</td></tr>
     <tr><td>BLN_NOT</td>             <td>bln_not</td>             <td>!</td></tr>
     <tr><td>BLN_OR</td>              <td>bln_or</td>              <td>||</td></tr>
     <tr><td>BLN_ORD</td>             <td>bln_ord</td>             <td>(intType)</td></tr>
+    <tr><td>BLN_VALUE</td>           <td>bln_value</td>           <td>blnValue</td></tr>
 </table><p></p>
 
 <a name="actions_bstring"><h3>13.5 Actions for byte strings</h3></a>
@@ -9525,18 +9543,16 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>CMD_LS</td>              <td>cmd_ls</td>              <td>cmdLs</td></tr>
     <tr><td>CMD_MKDIR</td>           <td>cmd_mkdir</td>           <td>cmdMkdir</td></tr>
     <tr><td>CMD_MOVE</td>            <td>cmd_move</td>            <td>cmdMove</td></tr>
-    <tr><td>CMD_PIPE2</td>           <td>cmd_pipe2</td>           <td>cmdPipe2</td></tr>
-    <tr><td>CMD_PTY</td>             <td>cmd_pty</td>             <td>cmdPty</td></tr>
     <tr><td>CMD_READLINK</td>        <td>cmd_readlink</td>        <td>cmdReadlink</td></tr>
-    <tr><td>CMD_REMOVE</td>          <td>cmd_remove</td>          <td>cmdRemove</td></tr>
-    <tr><td>CMD_REMOVE_ANY_FILE</td> <td>cmd_remove_any_file</td> <td>cmdRemoveAnyFile</td></tr>
+    <tr><td>CMD_REMOVE_FILE</td>     <td>cmd_remove_file</td>     <td>cmdRemoveFile</td></tr>
+    <tr><td>CMD_REMOVE_TREE</td>     <td>cmd_remove_tree</td>     <td>cmdRemoveTree</td></tr>
     <tr><td>CMD_SETENV</td>          <td>cmd_setenv</td>          <td>cmdSetenv</td></tr>
     <tr><td>CMD_SET_ATIME</td>       <td>cmd_set_atime</td>       <td>cmdSetATime</td></tr>
     <tr><td>CMD_SET_FILEMODE</td>    <td>cmd_set_filemode</td>    <td>cmdSetFileMode</td></tr>
     <tr><td>CMD_SET_MTIME</td>       <td>cmd_set_mtime</td>       <td>cmdSetMTime</td></tr>
+    <tr><td>CMD_SET_SEARCH_PATH</td> <td>cmd_setSearchPath</td>   <td>cmdSetSearchPath</td></tr>
     <tr><td>CMD_SHELL</td>           <td>cmd_shell</td>           <td>cmdShell</td></tr>
     <tr><td>CMD_SHELL_ESCAPE</td>    <td>cmd_shell_escape</td>    <td>cmdShellEscape</td></tr>
-    <tr><td>CMD_START_PROCESS</td>   <td>cmd_start_process</td>   <td>cmdStartProcess</td></tr>
     <tr><td>CMD_SYMLINK</td>         <td>cmd_symlink</td>         <td>cmdSymlink</td></tr>
     <tr><td>CMD_TO_OS_PATH</td>      <td>cmd_to_os_path</td>      <td>cmdToOsPath</td></tr>
 </table><p></p>
@@ -9604,6 +9620,8 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>DRW_FPOLYLINE</td>       <td>drw_fpolyLine</td>       <td>drwFPolyLine</td></tr>
     <tr><td>DRW_GENPOINTLIST</td>    <td>drw_genPointList</td>    <td>drwGenPointList</td></tr>
     <tr><td>DRW_GET</td>             <td>drw_get</td>             <td>drwGet</td></tr>
+    <tr><td>DRW_GETIMAGE</td>        <td>drw_getImage</td>        <td>drwGetImage</td></tr>
+    <tr><td>DRW_GETIMAGEPIXEL</td>   <td>drw_getImagePixel</td>   <td>drwGetImagePixel</td></tr>
     <tr><td>DRW_GETPIXEL</td>        <td>drw_getPixel</td>        <td>drwGetPixel</td></tr>
     <tr><td>DRW_HASHCODE</td>        <td>drw_hashcode</td>        <td>(intType)(((memSizeType)a)&gt;&gt;6)</td></tr>
     <tr><td>DRW_HEIGHT</td>          <td>drw_height</td>          <td>drwHeight</td></tr>
@@ -9636,6 +9654,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>DRW_TEXT</td>            <td>drw_text</td>            <td>drwText</td></tr>
     <tr><td>DRW_TOBOTTOM</td>        <td>drw_toBottom</td>        <td>drwToBottom</td></tr>
     <tr><td>DRW_TOTOP</td>           <td>drw_toTop</td>           <td>drwToTop</td></tr>
+    <tr><td>DRW_VALUE</td>           <td>drw_value</td>           <td>drwValue</td></tr>
     <tr><td>DRW_WIDTH</td>           <td>drw_width</td>           <td>drwWidth</td></tr>
     <tr><td>DRW_XPOS</td>            <td>drw_xpos</td>            <td>drwXPos</td></tr>
     <tr><td>DRW_YPOS</td>            <td>drw_ypos</td>            <td>drwYPos</td></tr>
@@ -9698,6 +9717,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>FLT_ABS</td>             <td>flt_abs</td>             <td>fabs</td></tr>
     <tr><td>FLT_ACOS</td>            <td>flt_acos</td>            <td>acos</td></tr>
     <tr><td>FLT_ADD</td>             <td>flt_add</td>             <td>+</td></tr>
+    <tr><td>FLT_ADD_ASSIGN</td>      <td>flt_add_assign</td>      <td>+=</td></tr>
     <tr><td>FLT_ASIN</td>            <td>flt_asin</td>            <td>asin</td></tr>
     <tr><td>FLT_ATAN</td>            <td>flt_atan</td>            <td>atan</td></tr>
     <tr><td>FLT_CAST</td>            <td>flt_cast</td>            <td>(x.floatValue=a, x.intValue)</td></tr>
@@ -9714,7 +9734,6 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>FLT_EXP</td>             <td>flt_exp</td>             <td>exp</td></tr>
     <tr><td>FLT_FLOOR</td>           <td>flt_floor</td>           <td>floor</td></tr>
     <tr><td>FLT_GE</td>              <td>flt_ge</td>              <td>&gt;=</td></tr>
-    <tr><td>FLT_GROW</td>            <td>flt_grow</td>            <td>+=</td></tr>
     <tr><td>FLT_GT</td>              <td>flt_gt</td>              <td>&gt;</td></tr>
     <tr><td>FLT_HASHCODE</td>        <td>flt_hashcode</td>        <td>(x.floatValue=a, x.intValue)</td></tr>
     <tr><td>FLT_ICAST</td>           <td>flt_icast</td>           <td>(x.intValue=a, x.floatValue)</td></tr>
@@ -9737,8 +9756,8 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>FLT_RAND</td>            <td>flt_rand</td>            <td>fltRand</td></tr>
     <tr><td>FLT_ROUND</td>           <td>flt_round</td>           <td>a&lt;0.0?-((intType)(0.5-a)):(intType)(0.5+a)</td></tr>
     <tr><td>FLT_SBTR</td>            <td>flt_sbtr</td>            <td>-</td></tr>
+    <tr><td>FLT_SBTR_ASSIGN</td>     <td>flt_sbtr_assign</td>     <td>-=</td></tr>
     <tr><td>FLT_SCI</td>             <td>flt_sci</td>             <td>fltSci</td></tr>
-    <tr><td>FLT_SHRINK</td>          <td>flt_shrink</td>          <td>-=</td></tr>
     <tr><td>FLT_SIN</td>             <td>flt_sin</td>             <td>sin</td></tr>
     <tr><td>FLT_SINH</td>            <td>flt_sinh</td>            <td>sinh</td></tr>
     <tr><td>FLT_SQRT</td>            <td>flt_sqrt</td>            <td>sqrt</td></tr>
@@ -9783,6 +9802,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>HSH_KEYS</td>            <td>hsh_keys</td>            <td>hshKeys</td></tr>
     <tr><td>HSH_LNG</td>             <td>hsh_lng</td>             <td>a->size</td></tr>
     <tr><td>HSH_REFIDX</td>          <td>hsh_refidx</td>          <td>&nbsp;</td></tr>
+    <tr><td>HSH_UPDATE</td>          <td>hsh_update</td>          <td>hshUpdate</td></tr>
     <tr><td>HSH_VALUES</td>          <td>hsh_values</td>          <td>hshValues</td></tr>
 </table><p></p>
 
@@ -9791,8 +9811,15 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><th>Action name</th>         <th>intlib.c function</th>   <th>int_rtl.c function</th></tr>
     <tr><td>INT_ABS</td>             <td>int_abs</td>             <td>labs</td></tr>
     <tr><td>INT_ADD</td>             <td>int_add</td>             <td>+</td></tr>
+    <tr><td>INT_ADD_ASSIGN</td>      <td>int_add_assign</td>      <td>+=</td></tr>
+    <tr><td>INT_AND</td>             <td>int_and</td>             <td>&</td></tr>
+    <tr><td>INT_AND_ASSIGN</td>      <td>int_and_assign</td>      <td>&=</td></tr>
     <tr><td>INT_BINOM</td>           <td>int_binom</td>           <td>intBinom</td></tr>
     <tr><td>INT_BIT_LENGTH</td>      <td>int_bit_length</td>      <td>intBitLength</td></tr>
+    <tr><td>INT_BYTES_BE</td>        <td>int_bytesBe</td>         <td>intBytesBe</td></tr>
+    <tr><td>INT_BYTES_BE_2_INT</td>  <td>int_bytesBe2Int</td>     <td>intBytesBe2Int</td></tr>
+    <tr><td>INT_BYTES_LE</td>        <td>int_bytesLe</td>         <td>intBytesLe</td></tr>
+    <tr><td>INT_BYTES_LE_2_INT</td>  <td>int_bytesLe2Int</td>     <td>intBytesLe2Int</td></tr>
     <tr><td>INT_CMP</td>             <td>int_cmp</td>             <td>intCmp</td></tr>
     <tr><td>INT_CONV</td>            <td>int_conv</td>            <td>(noop)</td></tr>
     <tr><td>INT_CPY</td>             <td>int_cpy</td>             <td>intCpy</td></tr>
@@ -9802,11 +9829,11 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>INT_EQ</td>              <td>int_eq</td>              <td>==</td></tr>
     <tr><td>INT_FACT</td>            <td>int_fact</td>            <td>fact[a]</td></tr>
     <tr><td>INT_GE</td>              <td>int_ge</td>              <td>&gt;=</td></tr>
-    <tr><td>INT_GROW</td>            <td>int_grow</td>            <td>+=</td></tr>
     <tr><td>INT_GT</td>              <td>int_gt</td>              <td>&gt;</td></tr>
     <tr><td>INT_HASHCODE</td>        <td>int_hashcode</td>        <td>(noop)</td></tr>
     <tr><td>INT_INCR</td>            <td>int_incr</td>            <td>++</td></tr>
     <tr><td>INT_LE</td>              <td>int_le</td>              <td>&lt;=</td></tr>
+    <tr><td>INT_LOG10</td>           <td>int_log10</td>           <td>intLog10</td></tr>
     <tr><td>INT_LOG2</td>            <td>int_log2</td>            <td>intLog2</td></tr>
     <tr><td>INT_LOWEST_SET_BIT</td>  <td>int_lowest_set_bit</td>  <td>intLowestSetBit</td></tr>
     <tr><td>INT_LPAD0</td>           <td>int_lpad0</td>           <td>intLpad0</td></tr>
@@ -9820,7 +9847,9 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>INT_NE</td>              <td>int_ne</td>              <td>!=</td></tr>
     <tr><td>INT_NEGATE</td>          <td>int_negate</td>          <td>-</td></tr>
     <tr><td>INT_ODD</td>             <td>int_odd</td>             <td>&amp;1</td></tr>
+    <tr><td>INT_OR</td>              <td>int_or</td>              <td>|</td></tr>
     <tr><td>INT_ORD</td>             <td>int_ord</td>             <td>(noop)</td></tr>
+    <tr><td>INT_OR_ASSIGN</td>       <td>int_or_assign</td>       <td>|= </td></tr>
     <tr><td>INT_PARSE</td>           <td>int_parse</td>           <td>intParse</td></tr>
     <tr><td>INT_PLUS</td>            <td>int_plus</td>            <td>(noop)</td></tr>
     <tr><td>INT_POW</td>             <td>int_pow</td>             <td>intPow</td></tr>
@@ -9833,11 +9862,17 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>INT_RSHIFT_ASSIGN</td>   <td>int_rshift_assign</td>   <td>a&gt;&gt;=b <span class="comment">/* C with arithmetic shift */</span><br />
                                             if (a<0) a= ~(~a&gt;&gt;b); else a&gt;&gt;=b; <span class="comment">/* C with logical shift */</span></td></tr>
     <tr><td>INT_SBTR</td>            <td>int_sbtr</td>            <td>-</td></tr>
-    <tr><td>INT_SHRINK</td>          <td>int_shrink</td>          <td>-=</td></tr>
+    <tr><td>INT_SBTR_ASSIGN</td>     <td>int_sbtr_assign</td>     <td>-=</td></tr>
     <tr><td>INT_SQRT</td>            <td>int_sqrt</td>            <td>intSqrt</td></tr>
     <tr><td>INT_STR</td>             <td>int_str</td>             <td>intStr</td></tr>
     <tr><td>INT_SUCC</td>            <td>int_succ</td>            <td>+1</td></tr>
+    <tr><td>INT_ULSHIFT</td>         <td>int_ulshift</td>         <td>(intType)((uintType)(a&lt;&lt;b</td></tr>
+    <tr><td>INT_ULSHIFT_ASSIGN</td>  <td>int_ulshift_assign</td>  <td>a=(intType)((uintType)(a&lt;&lt;b</td></tr>
+    <tr><td>INT_URSHIFT</td>         <td>int_urshift</td>         <td>(intType)((uintType)(a&gt;&gt;b</td></tr>
+    <tr><td>INT_URSHIFT_ASSIGN</td>  <td>int_urshift_assign</td>  <td>a=(intType)((uintType)(a&gt;&gt;b</td></tr>
     <tr><td>INT_VALUE</td>           <td>int_value</td>           <td>intValue</td></tr>
+    <tr><td>INT_XOR</td>             <td>int_xor</td>             <td>^</td></tr>
+    <tr><td>INT_XOR_ASSIGN</td>      <td>int_xor_assign</td>      <td>^=</td></tr>
     <tr><td>INT_radix</td>           <td>int_radix</td>           <td>intRadix</td></tr>
 </table><p></p>
 
@@ -9854,7 +9889,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>ITF_EQ</td>              <td>itf_eq</td>              <td>==</td></tr>
     <tr><td>ITF_HASHCODE</td>        <td>itf_hashcode</td>        <td>(intType)(((memSizeType)a)&gt;&gt;6)</td></tr>
     <tr><td>ITF_NE</td>              <td>itf_ne</td>              <td>!=</td></tr>
-    <tr><td>ITF_TO_HEAP</td>         <td>itf_to_heap</td>         <td>&nbsp;</td></tr>
+    <tr><td>ITF_SELECT</td>          <td>itf_select</td>          <td>&nbsp;</td></tr>
     <tr><td>ITF_TO_INTERFACE</td>    <td>itf_to_interface</td>    <td>&nbsp;</td></tr>
 </table><p></p>
 
@@ -9888,7 +9923,29 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>LST_TAIL</td>            <td>lst_tail</td></tr>
 </table><p></p>
 
-<a name="actions_pollData"><h3>13.20 Actions for the type pollData</h3></a>
+<a name="actions_process"><h3>13.20 Actions for the type process</h3></a>
+<p></p><table border="1" cellspacing="0" cellpadding="5">
+    <tr><th>Action name</th>         <th>pcslib.c function</th>   <th>pcs_rtl.c function</th></tr>
+    <tr><td>PCS_CMP</td>             <td>pcs_cmp</td>             <td>pcsCmp</td></tr>
+    <tr><td>PCS_CPY</td>             <td>pcs_cpy</td>             <td>pcsCpy</td></tr>
+    <tr><td>PCS_CREATE</td>          <td>pcs_create</td>          <td>pcsCreate</td></tr>
+    <tr><td>PCS_DESTR</td>           <td>pcs_destr</td>           <td>pcsDestr</td></tr>
+    <tr><td>PCS_EMPTY</td>           <td>pcs_empty</td>           <td>&nbsp;</td></tr>
+    <tr><td>PCS_EQ</td>              <td>pcs_eq</td>              <td>pcsEq</td></tr>
+    <tr><td>PCS_EXIT_VALUE</td>      <td>pcs_exit_value</td>      <td>pcsExitValue</td></tr>
+    <tr><td>PCS_HASHCODE</td>        <td>pcs_hashcode</td>        <td>pcsHashCode</td></tr>
+    <tr><td>PCS_IS_ALIVE</td>        <td>pcs_is_alive</td>        <td>pcsIsAlive</td></tr>
+    <tr><td>PCS_KILL</td>            <td>pcs_kill</td>            <td>pcsKill</td></tr>
+    <tr><td>PCS_NE</td>              <td>pcs_ne</td>              <td>!pcsEq</td></tr>
+    <tr><td>PCS_PIPE2</td>           <td>pcs_pipe2</td>           <td>pcsPipe2</td></tr>
+    <tr><td>PCS_PTY</td>             <td>pcs_pty</td>             <td>pcsPty</td></tr>
+    <tr><td>PCS_START</td>           <td>pcs_start</td>           <td>pcsStart</td></tr>
+    <tr><td>PCS_STR</td>             <td>pcs_str</td>             <td>pcsStr</td></tr>
+    <tr><td>PCS_VALUE</td>           <td>pcs_value</td>           <td>pcsValue</td></tr>
+    <tr><td>PCS_WAIT_FOR</td>        <td>pcs_wait_for</td>        <td>pcsWaitFor</td></tr>
+</table><p></p>
+
+<a name="actions_pollData"><h3>13.21 Actions for the type pollData</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>pollib.c function</th>   <th>pol_unx.c/pol_sel.c function</th></tr>
     <tr><td>POL_ADD_CHECK</td>       <td>pol_addCheck</td>        <td>polAddCheck</td></tr>
@@ -9908,13 +9965,14 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>POL_VALUE</td>           <td>pol_value</td>           <td>polValue</td></tr>
 </table><p></p>
 
-<a name="actions_proc"><h3>13.21 Actions for proc operations and statements</h3></a>
+<a name="actions_proc"><h3>13.22 Actions for proc operations and statements</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>prclib.c function</th>   <th>&nbsp;</th></tr>
     <tr><td>PRC_ARGS</td>            <td>prc_args</td>            <td>&nbsp;</td></tr>
     <tr><td>PRC_BEGIN</td>           <td>prc_begin</td>           <td>&nbsp;</td></tr>
     <tr><td>PRC_BLOCK</td>           <td>prc_block</td>           <td>&nbsp;</td></tr>
-    <tr><td>PRC_BLOCK_DEF</td>       <td>prc_block_def</td>       <td>&nbsp;</td></tr>
+    <tr><td>PRC_BLOCK_CATCH_ALL</td> <td>prc_block_catch_all</td> <td>&nbsp;</td></tr>
+    <tr><td>PRC_BLOCK_OTHERWISE</td> <td>prc_block_otherwise</td> <td>&nbsp;</td></tr>
     <tr><td>PRC_CASE</td>            <td>prc_case</td>            <td>switch</td></tr>
     <tr><td>PRC_CASE_DEF</td>        <td>prc_case_def</td>        <td>switch</td></tr>
     <tr><td>PRC_CPY</td>             <td>prc_cpy</td>             <td>&nbsp;</td></tr>
@@ -9944,12 +10002,11 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>PRC_WHILE</td>           <td>prc_while</td>           <td>while</td></tr>
 </table><p></p>
 
-<a name="actions_program"><h3>13.22 Actions for the type program</h3></a>
+<a name="actions_program"><h3>13.23 Actions for the type program</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>prglib.c function</th>   <th>prg_comp.c function</th></tr>
     <tr><td>PRG_CPY</td>             <td>prg_cpy</td>             <td>prgCpy</td></tr>
     <tr><td>PRG_CREATE</td>          <td>prg_create</td>          <td>&nbsp;</td></tr>
-    <tr><td>PRG_DECL_OBJECTS</td>    <td>prg_decl_objects</td>    <td>prgDeclObjects</td></tr>
     <tr><td>PRG_DESTR</td>           <td>prg_destr</td>           <td>&nbsp;</td></tr>
     <tr><td>PRG_EMPTY</td>           <td>prg_empty</td>           <td>&nbsp;</td></tr>
     <tr><td>PRG_EQ</td>              <td>prg_eq</td>              <td>==</td></tr>
@@ -9958,10 +10015,13 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>PRG_EXEC</td>            <td>prg_exec</td>            <td>prgExec</td></tr>
     <tr><td>PRG_FIL_PARSE</td>       <td>prg_fil_parse</td>       <td>prgFilParse</td></tr>
     <tr><td>PRG_FIND</td>            <td>prg_find</td>            <td>&nbsp;</td></tr>
+    <tr><td>PRG_GLOBAL_OBJECTS</td>  <td>prg_global_objects</td>  <td>prgGlobalObjects</td></tr>
     <tr><td>PRG_MATCH</td>           <td>prg_match</td>           <td>prgMatch</td></tr>
     <tr><td>PRG_MATCH_EXPR</td>      <td>prg_match_expr</td>      <td>prgMatchExpr</td></tr>
     <tr><td>PRG_NAME</td>            <td>prg_name</td>            <td>arg_0</td></tr>
     <tr><td>PRG_NE</td>              <td>prg_ne</td>              <td>!=</td></tr>
+    <tr><td>PRG_OWN_NAME</td>        <td>prg_own_name</td>        <td>programName</td></tr>
+    <tr><td>PRG_OWN_PATH</td>        <td>prg_own_path</td>        <td>programPath</td></tr>
     <tr><td>PRG_PATH</td>            <td>prg_path</td>            <td>programPath</td></tr>
     <tr><td>PRG_PROG</td>            <td>prg_prog</td>            <td>&nbsp;</td></tr>
     <tr><td>PRG_STR_PARSE</td>       <td>prg_str_parse</td>       <td>prgStrParse</td></tr>
@@ -9970,7 +10030,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>PRG_VALUE</td>           <td>prg_value</td>           <td>prgValue</td></tr>
 </table><p></p>
 
-<a name="actions_reference"><h3>13.23 Actions for the type reference</h3></a>
+<a name="actions_reference"><h3>13.24 Actions for the type reference</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>reflib.c function</th>   <th>ref_data.c function</th></tr>
     <tr><td>REF_ADDR</td>            <td>ref_addr</td>            <td>&</td></tr>
@@ -9979,7 +10039,6 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>REF_ARRMINIDX</td>       <td>ref_arrminidx</td>       <td>refArrminidx</td></tr>
     <tr><td>REF_ARRTOLIST</td>       <td>ref_arrtolist</td>       <td>refArrtolist</td></tr>
     <tr><td>REF_BODY</td>            <td>ref_body</td>            <td>refBody</td></tr>
-    <tr><td>REF_BUILD</td>           <td>ref_build</td>           <td>&nbsp;</td></tr>
     <tr><td>REF_CAST</td>            <td>ref_cast</td>            <td>&nbsp;</td></tr>
     <tr><td>REF_CATEGORY</td>        <td>ref_category</td>        <td>refCategory</td></tr>
     <tr><td>REF_CAT_PARSE</td>       <td>ref_cat_parse</td>       <td>refCatParse</td></tr>
@@ -9993,9 +10052,10 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>REF_EQ</td>              <td>ref_eq</td>              <td>==</td></tr>
     <tr><td>REF_FILE</td>            <td>ref_file</td>            <td>refFile</td></tr>
     <tr><td>REF_FIND</td>            <td>ref_find</td>            <td>&nbsp;</td></tr>
+    <tr><td>REF_GETREF</td>          <td>ref_getref</td>          <td>refGetRef</td></tr>
     <tr><td>REF_HASHCODE</td>        <td>ref_hashcode</td>        <td>(intType)(((memSizeType)a)&gt;&gt;6)</td></tr>
     <tr><td>REF_HSHDATATOLIST</td>   <td>ref_hshdatatolist</td>   <td>refHshDataToList</td></tr>
-    <tr><td>REF_HSHKEYTOLIST</td>    <td>ref_hshkeytolist</td>    <td>refHshKeyToList</td></tr>
+    <tr><td>REF_HSHKEYSTOLIST</td>   <td>ref_hshkeystolist</td>   <td>refHshKeysToList</td></tr>
     <tr><td>REF_ISSYMB</td>          <td>ref_issymb</td>          <td>&nbsp;</td></tr>
     <tr><td>REF_ISVAR</td>           <td>ref_isvar</td>           <td>refIsvar</td></tr>
     <tr><td>REF_ITFTOSCT</td>        <td>ref_itftosct</td>        <td>refItftosct</td></tr>
@@ -10016,6 +10076,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>REF_SETCATEGORY</td>     <td>ref_setcategory</td>     <td>refSetCategory</td></tr>
     <tr><td>REF_SETPARAMS</td>       <td>ref_setparams</td>       <td>refSetParams</td></tr>
     <tr><td>REF_SETTYPE</td>         <td>ref_settype</td>         <td>refSetType</td></tr>
+    <tr><td>REF_SETVAR</td>          <td>ref_setvar</td>          <td>refSetVar</td></tr>
     <tr><td>REF_STR</td>             <td>ref_str</td>             <td>refStr</td></tr>
     <tr><td>REF_SYMB</td>            <td>ref_symb</td>            <td>&nbsp;</td></tr>
     <tr><td>REF_TRACE</td>           <td>ref_trace</td>           <td>printf</td></tr>
@@ -10023,7 +10084,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>REF_VALUE</td>           <td>ref_value</td>           <td>refValue</td></tr>
 </table><p></p>
 
-<a name="actions_ref_list"><h3>13.24 Actions for the type ref_list</h3></a>
+<a name="actions_ref_list"><h3>13.25 Actions for the type ref_list</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>rfllib.c function</th>   <th>rfl_data.c function</th></tr>
     <tr><td>RFL_APPEND</td>          <td>rfl_append</td>          <td>rflAppend</td></tr>
@@ -10055,7 +10116,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>RFL_VALUE</td>           <td>rfl_value</td>           <td>rflValue</td></tr>
 </table><p></p>
 
-<a name="actions_struct"><h3>13.25 Actions for struct types</h3></a>
+<a name="actions_struct"><h3>13.26 Actions for struct types</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>sctlib.c function</th>   <th>&nbsp;</th></tr>
     <tr><td>SCT_ALLOC</td>           <td>sct_alloc</td>           <td>&nbsp;</td></tr>
@@ -10072,7 +10133,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>SCT_SELECT</td>          <td>sct_select</td>          <td>a->stru[b]</td></tr>
 </table><p></p>
 
-<a name="actions_set"><h3>13.26 Actions for set types</h3></a>
+<a name="actions_set"><h3>13.27 Actions for set types</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>setlib.c function</th>   <th>set_rtl.c function</th></tr>
     <tr><td>SET_ARRLIT</td>          <td>set_arrlit</td>          <td>setArrlit</td></tr>
@@ -10109,7 +10170,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>SET_VALUE</td>           <td>set_value</td>           <td>setValue</td></tr>
 </table><p></p>
 
-<a name="actions_PRIMITIVE_SOCKET"><h3>13.27 Actions for the type PRIMITIVE_SOCKET</h3></a>
+<a name="actions_PRIMITIVE_SOCKET"><h3>13.28 Actions for the type PRIMITIVE_SOCKET</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>strlib.c function</th>   <th>str_rtl.c function</th></tr>
     <tr><td>SOC_ACCEPT</td>          <td>soc_accept</td>          <td>socAccept</td></tr>
@@ -10139,12 +10200,54 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>SOC_RECVFROM</td>        <td>soc_recvfrom</td>        <td>socRecvfrom</td></tr>
     <tr><td>SOC_SEND</td>            <td>soc_send</td>            <td>socSend</td></tr>
     <tr><td>SOC_SENDTO</td>          <td>soc_sendto</td>          <td>socSendto</td></tr>
+    <tr><td>SOC_SET_OPT_BOOL</td>    <td>soc_setOptBool</td>      <td>socSetOptBool</td></tr>
     <tr><td>SOC_SOCKET</td>          <td>soc_socket</td>          <td>socSocket</td></tr>
     <tr><td>SOC_WORD_READ</td>       <td>soc_word_read</td>       <td>socWordRead</td></tr>
     <tr><td>SOC_WRITE</td>           <td>soc_write</td>           <td>socWrite</td></tr>
 </table><p></p>
 
-<a name="actions_string"><h3>13.28 Actions for the type string</h3></a>
+<a name="actions_database"><h3>13.29 Actions for the types database and sqlStatement</h3></a>
+<p></p><table border="1" cellspacing="0" cellpadding="5">
+    <tr><th>Action name</th>         <th>sqllib.c function</th>   <th>sql_rtl.c function</th></tr>
+    <tr><td>SQL_BIND_BIGINT</td>     <td>sql_bind_bigint</td>     <td>sqlBindBigInt</td></tr>
+    <tr><td>SQL_BIND_BIGRAT</td>     <td>sql_bind_bigrat</td>     <td>sqlBindBigRat</td></tr>
+    <tr><td>SQL_BIND_BOOL</td>       <td>sql_bind_bool</td>       <td>sqlBindBool</td></tr>
+    <tr><td>SQL_BIND_BSTRI</td>      <td>sql_bind_bstri</td>      <td>sqlBindBStri</td></tr>
+    <tr><td>SQL_BIND_DURATION</td>   <td>sql_bind_duration</td>   <td>sqlBindDuration</td></tr>
+    <tr><td>SQL_BIND_FLOAT</td>      <td>sql_bind_float</td>      <td>sqlBindFloat</td></tr>
+    <tr><td>SQL_BIND_INT</td>        <td>sql_bind_int</td>        <td>sqlBindInt</td></tr>
+    <tr><td>SQL_BIND_NULL</td>       <td>sql_bind_null</td>       <td>sqlBindNull</td></tr>
+    <tr><td>SQL_BIND_STRI</td>       <td>sql_bind_stri</td>       <td>sqlBindStri</td></tr>
+    <tr><td>SQL_BIND_TIME</td>       <td>sql_bind_time</td>       <td>sqlBindTime</td></tr>
+    <tr><td>SQL_CLOSE</td>           <td>sql_close</td>           <td>sqlClose</td></tr>
+    <tr><td>SQL_COLUMN_BIGINT</td>   <td>sql_column_bigint</td>   <td>sqlColumnBigInt</td></tr>
+    <tr><td>SQL_COLUMN_BIGRAT</td>   <td>sql_column_bigrat</td>   <td>sqlColumnBigRat</td></tr>
+    <tr><td>SQL_COLUMN_BOOL</td>     <td>sql_column_bool</td>     <td>sqlColumnBool</td></tr>
+    <tr><td>SQL_COLUMN_BSTRI</td>    <td>sql_column_bstri</td>    <td>sqlColumnBStri</td></tr>
+    <tr><td>SQL_COLUMN_DURATION</td> <td>sql_column_duration</td> <td>sqlColumnDuration</td></tr>
+    <tr><td>SQL_COLUMN_FLOAT</td>    <td>sql_column_float</td>    <td>sqlColumnFloat</td></tr>
+    <tr><td>SQL_COLUMN_INT</td>      <td>sql_column_int</td>      <td>sqlColumnInt</td></tr>
+    <tr><td>SQL_COLUMN_STRI</td>     <td>sql_column_stri</td>     <td>sqlColumnStri</td></tr>
+    <tr><td>SQL_COLUMN_TIME</td>     <td>sql_column_time</td>     <td>sqlColumnTime</td></tr>
+    <tr><td>SQL_COMMIT</td>          <td>sql_commit</td>          <td>sqlCommit</td></tr>
+    <tr><td>SQL_CPY_DB</td>          <td>sql_cpy_db</td>          <td>sqlCpyDb</td></tr>
+    <tr><td>SQL_CPY_STMT</td>        <td>sql_cpy_stmt</td>        <td>sqlCpyStmt</td></tr>
+    <tr><td>SQL_CREATE_DB</td>       <td>sql_create_db</td>       <td>sqlCreateDb</td></tr>
+    <tr><td>SQL_CREATE_STMT</td>     <td>sql_create_stmt</td>     <td>sqlCreateStmt</td></tr>
+    <tr><td>SQL_DESTR_DB</td>        <td>sql_destr_db</td>        <td>sqlDestrDb</td></tr>
+    <tr><td>SQL_DESTR_STMT</td>      <td>sql_destr_stmt</td>      <td>sqlDestrStmt</td></tr>
+    <tr><td>SQL_EMPTY_DB</td>        <td>sql_empty_db</td>        <td>&nbsp;</td></tr>
+    <tr><td>SQL_EMPTY_STMT</td>      <td>sql_empty_stmt</td>      <td>&nbsp;</td></tr>
+    <tr><td>SQL_EXECUTE</td>         <td>sql_execute</td>         <td>sqlExecute</td></tr>
+    <tr><td>SQL_FETCH</td>           <td>sql_fetch</td>           <td>sqlFetch</td></tr>
+    <tr><td>SQL_IS_NULL</td>         <td>sql_is_null</td>         <td>sqlIsNull</td></tr>
+    <tr><td>SQL_OPEN</td>            <td>sql_open</td>            <td>sqlOpen</td></tr>
+    <tr><td>SQL_PREPARE</td>         <td>sql_prepare</td>         <td>sqlPrepare</td></tr>
+    <tr><td>SQL_STMT_COLUMN_COUNT</td> <td>sql_stmt_column_count</td> <td>sqlStmtColumnCount</td></tr>
+    <tr><td>SQL_STMT_COLUMN_NAME</td>  <td>sql_stmt_column_name</td>  <td>sqlStmtColumnName</td></tr>
+</table><p></p>
+
+<a name="actions_string"><h3>13.30 Actions for the type string</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>strlib.c function</th>   <th>str_rtl.c function</th></tr>
     <tr><td>STR_APPEND</td>          <td>str_append</td>          <td>strAppend</td></tr>
@@ -10172,6 +10275,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>STR_LPAD</td>            <td>str_lpad</td>            <td>strLpad</td></tr>
     <tr><td>STR_LPAD0</td>           <td>str_lpad0</td>           <td>strLpad0, strLpad0Temp</td></tr>
     <tr><td>STR_LT</td>              <td>str_lt</td>              <td>strLt</td></tr>
+    <tr><td>STR_LTRIM</td>           <td>str_ltrim</td>           <td>strLtrim</td></tr>
     <tr><td>STR_MULT</td>            <td>str_mult</td>            <td>strMult</td></tr>
     <tr><td>STR_NE</td>              <td>str_ne</td>              <td>a->size!=b->size || memcmp(a,b,a->size*sizeof(strElemType))!=0</td></tr>
     <tr><td>STR_POS</td>             <td>str_pos</td>             <td>strPos</td></tr>
@@ -10184,6 +10288,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>STR_RIPOS</td>           <td>str_ripos</td>           <td>strRIPos</td></tr>
     <tr><td>STR_RPAD</td>            <td>str_rpad</td>            <td>strRpad</td></tr>
     <tr><td>STR_RPOS</td>            <td>str_rpos</td>            <td>strRpos</td></tr>
+    <tr><td>STR_RTRIM</td>           <td>str_rtrim</td>           <td>strRtrim</td></tr>
     <tr><td>STR_SPLIT</td>           <td>str_split</td>           <td>strSplit</td></tr>
     <tr><td>STR_STR</td>             <td>str_str</td>             <td>(noop)</td></tr>
     <tr><td>STR_SUBSTR</td>          <td>str_substr</td>          <td>strSubstr</td></tr>
@@ -10195,7 +10300,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>STR_VALUE</td>           <td>str_value</td>           <td>strValue</td></tr>
 </table><p></p>
 
-<a name="actions_time"><h3>13.29 Actions for the type time</h3></a>
+<a name="actions_time"><h3>13.31 Actions for the type time</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>timlib.c function</th>   <th>tim_unx.c/tim_win.c function</th></tr>
     <tr><td>TIM_AWAIT</td>           <td>tim_await</td>           <td>timAwait</td></tr>
@@ -10204,7 +10309,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>TIM_SET_LOCAL_TZ</td>    <td>tim_set_local_tz</td>    <td>timSetLocalTZ</td></tr>
 </table><p></p>
 
-<a name="actions_type"><h3>13.30 Actions for the type type</h3></a>
+<a name="actions_type"><h3>13.32 Actions for the type type</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>typlib.c function</th>   <th>typ_data.c function</th></tr>
     <tr><td>TYP_ADDINTERFACE</td>    <td>typ_addinterface</td>    <td>&nbsp;</td></tr>
@@ -10233,7 +10338,7 @@ declareExtern(<span class="stri">"intType     intLog2 (intType);"</span>);
     <tr><td>TYP_VARFUNC</td>         <td>typ_varfunc</td>         <td>typVarfunc</td></tr>
 </table><p></p>
 
-<a name="actions_utf8_file"><h3>13.31 Actions for the type utf8_file</h3></a>
+<a name="actions_utf8_file"><h3>13.33 Actions for the type utf8_file</h3></a>
 <p></p><table border="1" cellspacing="0" cellpadding="5">
     <tr><th>Action name</th>         <th>ut8lib.c function</th>   <th>ut8_rtl.c function</th></tr>
     <tr><td>UT8_GETC</td>            <td>ut8_getc</td>            <td>ut8Getc</td></tr>

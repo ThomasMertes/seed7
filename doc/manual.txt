@@ -183,18 +183,20 @@ CONTENTS
   13.17   Actions for interface types
   13.18   Actions to support the text (console) screen keyboard
   13.19   Actions for the list type
-  13.20   Actions for the type pollData
-  13.21   Actions for proc operations and statements
-  13.22   Actions for the type program
-  13.23   Actions for the type reference
-  13.24   Actions for the type ref_list
-  13.25   Actions for struct types
-  13.26   Actions for set types
-  13.27   Actions for the type PRIMITIVE_SOCKET
-  13.28   Actions for the type string
-  13.29   Actions for the type time
-  13.30   Actions for the type type
-  13.31   Actions for the type utf8_file
+  13.20   Actions for the type process
+  13.21   Actions for the type pollData
+  13.22   Actions for proc operations and statements
+  13.23   Actions for the type program
+  13.24   Actions for the type reference
+  13.25   Actions for the type ref_list
+  13.26   Actions for struct types
+  13.27   Actions for set types
+  13.28   Actions for the type PRIMITIVE_SOCKET
+  13.29   Actions for the types database and sqlStatement
+  13.30   Actions for the type string
+  13.31   Actions for the type time
+  13.32   Actions for the type type
+  13.33   Actions for the type utf8_file
   14.   FOREIGN FUNCTION INTERFACE
   14.1    C types used by the implementation
   14.2    String and path conversions
@@ -9208,7 +9210,11 @@ CONTENTS
     ACT_ILLEGAL         act_illegal
     ACT_CPY             act_cpy             =
     ACT_CREATE          act_create
+    ACT_EQ              act_eq/td>               ==
     ACT_GEN             act_gen
+    ACT_ICONV           act_iconv/td>            actIConv
+    ACT_NE              act_ne/td>               !=
+    ACT_ORD             act_ord/td>              actOrd
     ACT_STR             act_str             actStr
     ACT_VALUE           act_value           actValue
 
@@ -9238,6 +9244,7 @@ CONTENTS
     ARR_RANGE           arr_range           arrRange
     ARR_REMOVE          arr_remove          arrRemove
     ARR_SORT            arr_sort            arrSort
+    ARR_SUBARR          arr_subarr          arrSubarr, arrSubarrTemp
     ARR_TAIL            arr_tail            arrTail
     ARR_TIMES           arr_times           times_ ...
 
@@ -9247,24 +9254,27 @@ CONTENTS
     Action name         biglib.c function   big_rtl.c function
     BIG_ABS             big_abs             bigAbs
     BIG_ADD             big_add             bigAdd, bigAddTemp
+    BIG_ADD_ASSIGN      big_add_assign      bigAddAssign, bigAddAssignSignedDigit
     BIG_BIT_LENGTH      big_bit_length      bigBitLength
-    BIG_CLIT            big_clit            bigCLit
     BIG_CMP             big_cmp             bigCmp
+    BIG_CONV            big_conv
     BIG_CPY             big_cpy             bigCpy
     BIG_CREATE          big_create          bigCreate
     BIG_DECR            big_decr            bigDecr
     BIG_DESTR           big_destr           bigDestr
     BIG_DIV             big_div             bigDiv
     BIG_EQ              big_eq              bigEq
+    BIG_FROM_BSTRI_BE   big_fromBStriBe     bigFromBStriBe
+    BIG_FROM_BSTRI_LE   big_fromBStriLe     bigFromBStriLe
     BIG_GCD             big_gcd             bigGcd
     BIG_GE              big_ge              bigCmp >= 0
-    BIG_GROW            big_grow            bigGrow
     BIG_GT              big_gt              bigCmp > 0
     BIG_HASHCODE        big_hashcode        bigHashCode
     BIG_ICONV           big_iconv           bigIConv
     BIG_INCR            big_incr            bigIncr
     BIG_IPOW            big_ipow            bigIPow
     BIG_LE              big_le              bigCmp <= 0
+    BIG_LOG10           big_log10           bigLog10
     BIG_LOG2            big_log2            bigLog2
     BIG_LOWEST_SET_BIT  big_lowest_set_bit  bigLowestSetBit
     BIG_LSHIFT          big_lshift          bigLShift
@@ -9279,17 +9289,22 @@ CONTENTS
     BIG_ODD             big_odd             bigOdd
     BIG_ORD             big_ord             bigOrd
     BIG_PARSE           big_parse           bigParse
+    BIG_PARSE_BASED     big_parse_based     bigParseBased
     BIG_PLUS            big_plus            (noop)
     BIG_PRED            big_pred            bigPred
+    BIG_RADIX           big_RADIX           bigRadix
     BIG_RAND            big_rand            bigRand
     BIG_REM             big_rem             bigRem
     BIG_RSHIFT          big_rshift          bigRShift
     BIG_RSHIFT_ASSIGN   big_rshift_assign   bigRShiftAssign
     BIG_SBTR            big_sbtr            bigSbtr, bigSbtrTemp
-    BIG_SHRINK          big_shrink          bigShrink
+    BIG_SBTR_ASSIGN     big_sbtr_assign     bigSbtrAssign, bigAddAssignSignedDigit
     BIG_STR             big_str             bigStr
     BIG_SUCC            big_succ            bigSucc
+    BIG_TO_BSTRI_BE     big_toBStriBe       bigToBStriBe
+    BIG_TO_BSTRI_LE     big_toBStriLe       bigToBStriLe
     BIG_VALUE           big_value           bigValue
+    BIG_radix           big_radix           bigRadix
 
 
 13.4 Actions for the type boolean
@@ -9298,14 +9313,17 @@ CONTENTS
     BLN_AND             bln_and             &&
     BLN_CPY             bln_cpy             blnCpy
     BLN_CREATE          bln_create          blnCreate
+    BLN_EQ              bln_eq              ==
     BLN_GE              bln_ge              >=
     BLN_GT              bln_gt              >
     BLN_ICONV           bln_iconv           & 1
     BLN_LE              bln_le              <=
     BLN_LT              bln_lt              <
+    BLN_NE              bln_ne              !=
     BLN_NOT             bln_not             !
     BLN_OR              bln_or              ||
     BLN_ORD             bln_ord             (intType)
+    BLN_VALUE           bln_value           blnValue
 
 
 13.5 Actions for byte strings
@@ -9379,18 +9397,16 @@ CONTENTS
     CMD_LS              cmd_ls              cmdLs
     CMD_MKDIR           cmd_mkdir           cmdMkdir
     CMD_MOVE            cmd_move            cmdMove
-    CMD_PIPE2           cmd_pipe2           cmdPipe2
-    CMD_PTY             cmd_pty             cmdPty
     CMD_READLINK        cmd_readlink        cmdReadlink
-    CMD_REMOVE          cmd_remove          cmdRemove
-    CMD_REMOVE_ANY_FILE cmd_remove_any_file cmdRemoveAnyFile
+    CMD_REMOVE_FILE     cmd_remove_file     cmdRemoveFile
+    CMD_REMOVE_TREE     cmd_remove_tree     cmdRemoveTree
     CMD_SETENV          cmd_setenv          cmdSetenv
     CMD_SET_ATIME       cmd_set_atime       cmdSetATime
     CMD_SET_FILEMODE    cmd_set_filemode    cmdSetFileMode
     CMD_SET_MTIME       cmd_set_mtime       cmdSetMTime
+    CMD_SET_SEARCH_PATH cmd_setSearchPath   cmdSetSearchPath
     CMD_SHELL           cmd_shell           cmdShell
     CMD_SHELL_ESCAPE    cmd_shell_escape    cmdShellEscape
-    CMD_START_PROCESS   cmd_start_process   cmdStartProcess
     CMD_SYMLINK         cmd_symlink         cmdSymlink
     CMD_TO_OS_PATH      cmd_to_os_path      cmdToOsPath
 
@@ -9458,6 +9474,8 @@ CONTENTS
     DRW_FPOLYLINE       drw_fpolyLine       drwFPolyLine
     DRW_GENPOINTLIST    drw_genPointList    drwGenPointList
     DRW_GET             drw_get             drwGet
+    DRW_GETIMAGE        drw_getImage        drwGetImage
+    DRW_GETIMAGEPIXEL   drw_getImagePixel   drwGetImagePixel
     DRW_GETPIXEL        drw_getPixel        drwGetPixel
     DRW_HASHCODE        drw_hashcode        (intType)(((memSizeType)a)>>6)
     DRW_HEIGHT          drw_height          drwHeight
@@ -9490,6 +9508,7 @@ CONTENTS
     DRW_TEXT            drw_text            drwText
     DRW_TOBOTTOM        drw_toBottom        drwToBottom
     DRW_TOTOP           drw_toTop           drwToTop
+    DRW_VALUE           drw_value           drwValue
     DRW_WIDTH           drw_width           drwWidth
     DRW_XPOS            drw_xpos            drwXPos
     DRW_YPOS            drw_ypos            drwYPos
@@ -9552,6 +9571,7 @@ CONTENTS
     FLT_ABS             flt_abs             fabs
     FLT_ACOS            flt_acos            acos
     FLT_ADD             flt_add             +
+    FLT_ADD_ASSIGN      flt_add_assign      +=
     FLT_ASIN            flt_asin            asin
     FLT_ATAN            flt_atan            atan
     FLT_CAST            flt_cast            (x.floatValue=a, x.intValue)
@@ -9568,7 +9588,6 @@ CONTENTS
     FLT_EXP             flt_exp             exp
     FLT_FLOOR           flt_floor           floor
     FLT_GE              flt_ge              >=
-    FLT_GROW            flt_grow            +=
     FLT_GT              flt_gt              >
     FLT_HASHCODE        flt_hashcode        (x.floatValue=a, x.intValue)
     FLT_ICAST           flt_icast           (x.intValue=a, x.floatValue)
@@ -9591,8 +9610,8 @@ CONTENTS
     FLT_RAND            flt_rand            fltRand
     FLT_ROUND           flt_round           a<0.0?-((intType)(0.5-a)):(intType)(0.5+a)
     FLT_SBTR            flt_sbtr            -
+    FLT_SBTR_ASSIGN     flt_sbtr_assign     -=
     FLT_SCI             flt_sci             fltSci
-    FLT_SHRINK          flt_shrink          -=
     FLT_SIN             flt_sin             sin
     FLT_SINH            flt_sinh            sinh
     FLT_SQRT            flt_sqrt            sqrt
@@ -9637,6 +9656,7 @@ CONTENTS
     HSH_KEYS            hsh_keys            hshKeys
     HSH_LNG             hsh_lng             a->size
     HSH_REFIDX          hsh_refidx
+    HSH_UPDATE          hsh_update          hshUpdate
     HSH_VALUES          hsh_values          hshValues
 
 
@@ -9645,8 +9665,15 @@ CONTENTS
     Action name         intlib.c function   int_rtl.c function
     INT_ABS             int_abs             labs
     INT_ADD             int_add             +
+    INT_ADD_ASSIGN      int_add_assign      +=
+    INT_AND             int_and             &
+    INT_AND_ASSIGN      int_and_assign      &=
     INT_BINOM           int_binom           intBinom
     INT_BIT_LENGTH      int_bit_length      intBitLength
+    INT_BYTES_BE        int_bytesBe         intBytesBe
+    INT_BYTES_BE_2_INT  int_bytesBe2Int     intBytesBe2Int
+    INT_BYTES_LE        int_bytesLe         intBytesLe
+    INT_BYTES_LE_2_INT  int_bytesLe2Int     intBytesLe2Int
     INT_CMP             int_cmp             intCmp
     INT_CONV            int_conv            (noop)
     INT_CPY             int_cpy             intCpy
@@ -9656,11 +9683,11 @@ CONTENTS
     INT_EQ              int_eq              ==
     INT_FACT            int_fact            fact[a]
     INT_GE              int_ge              >=
-    INT_GROW            int_grow            +=
     INT_GT              int_gt              >
     INT_HASHCODE        int_hashcode        (noop)
     INT_INCR            int_incr            ++
     INT_LE              int_le              <=
+    INT_LOG10           int_log10           intLog10
     INT_LOG2            int_log2            intLog2
     INT_LOWEST_SET_BIT  int_lowest_set_bit  intLowestSetBit
     INT_LPAD0           int_lpad0           intLpad0
@@ -9674,7 +9701,9 @@ CONTENTS
     INT_NE              int_ne              !=
     INT_NEGATE          int_negate          -
     INT_ODD             int_odd             &1
+    INT_OR              int_or              |
     INT_ORD             int_ord             (noop)
+    INT_OR_ASSIGN       int_or_assign       |=
     INT_PARSE           int_parse           intParse
     INT_PLUS            int_plus            (noop)
     INT_POW             int_pow             intPow
@@ -9687,11 +9716,17 @@ CONTENTS
     INT_RSHIFT_ASSIGN   int_rshift_assign   a>>=b /* C with arithmetic shift */
                                             if (a<0) a= ~(~a>>b); else a>>=b; /* C with logical shift */
     INT_SBTR            int_sbtr            -
-    INT_SHRINK          int_shrink          -=
+    INT_SBTR_ASSIGN     int_sbtr_assign     -=
     INT_SQRT            int_sqrt            intSqrt
     INT_STR             int_str             intStr
     INT_SUCC            int_succ            +1
+    INT_ULSHIFT         int_ulshift         (intType)((uintType)(a<<b
+    INT_ULSHIFT_ASSIGN  int_ulshift_assign  a=(intType)((uintType)(a<<b
+    INT_URSHIFT         int_urshift         (intType)((uintType)(a>>b
+    INT_URSHIFT_ASSIGN  int_urshift_assign  a=(intType)((uintType)(a>>b
     INT_VALUE           int_value           intValue
+    INT_XOR             int_xor             ^
+    INT_XOR_ASSIGN      int_xor_assign      ^=
     INT_radix           int_radix           intRadix
 
 
@@ -9708,7 +9743,7 @@ CONTENTS
     ITF_EQ              itf_eq              ==
     ITF_HASHCODE        itf_hashcode        (intType)(((memSizeType)a)>>6)
     ITF_NE              itf_ne              !=
-    ITF_TO_HEAP         itf_to_heap
+    ITF_SELECT          itf_select
     ITF_TO_INTERFACE    itf_to_interface
 
 
@@ -9742,7 +9777,29 @@ CONTENTS
     LST_TAIL            lst_tail
 
 
-13.20 Actions for the type pollData
+13.20 Actions for the type process
+
+    Action name         pcslib.c function   pcs_rtl.c function
+    PCS_CMP             pcs_cmp             pcsCmp
+    PCS_CPY             pcs_cpy             pcsCpy
+    PCS_CREATE          pcs_create          pcsCreate
+    PCS_DESTR           pcs_destr           pcsDestr
+    PCS_EMPTY           pcs_empty
+    PCS_EQ              pcs_eq              pcsEq
+    PCS_EXIT_VALUE      pcs_exit_value      pcsExitValue
+    PCS_HASHCODE        pcs_hashcode        pcsHashCode
+    PCS_IS_ALIVE        pcs_is_alive        pcsIsAlive
+    PCS_KILL            pcs_kill            pcsKill
+    PCS_NE              pcs_ne              !pcsEq
+    PCS_PIPE2           pcs_pipe2           pcsPipe2
+    PCS_PTY             pcs_pty             pcsPty
+    PCS_START           pcs_start           pcsStart
+    PCS_STR             pcs_str             pcsStr
+    PCS_VALUE           pcs_value           pcsValue
+    PCS_WAIT_FOR        pcs_wait_for        pcsWaitFor
+
+
+13.21 Actions for the type pollData
 
     Action name         pollib.c function   pol_unx.c/pol_sel.c function
     POL_ADD_CHECK       pol_addCheck        polAddCheck
@@ -9762,13 +9819,14 @@ CONTENTS
     POL_VALUE           pol_value           polValue
 
 
-13.21 Actions for proc operations and statements
+13.22 Actions for proc operations and statements
 
     Action name         prclib.c function
     PRC_ARGS            prc_args
     PRC_BEGIN           prc_begin
     PRC_BLOCK           prc_block
-    PRC_BLOCK_DEF       prc_block_def
+    PRC_BLOCK_CATCH_ALL prc_block_catch_all
+    PRC_BLOCK_OTHERWISE prc_block_otherwise
     PRC_CASE            prc_case            switch
     PRC_CASE_DEF        prc_case_def        switch
     PRC_CPY             prc_cpy
@@ -9798,12 +9856,11 @@ CONTENTS
     PRC_WHILE           prc_while           while
 
 
-13.22 Actions for the type program
+13.23 Actions for the type program
 
     Action name         prglib.c function   prg_comp.c function
     PRG_CPY             prg_cpy             prgCpy
     PRG_CREATE          prg_create
-    PRG_DECL_OBJECTS    prg_decl_objects    prgDeclObjects
     PRG_DESTR           prg_destr
     PRG_EMPTY           prg_empty
     PRG_EQ              prg_eq              ==
@@ -9812,10 +9869,13 @@ CONTENTS
     PRG_EXEC            prg_exec            prgExec
     PRG_FIL_PARSE       prg_fil_parse       prgFilParse
     PRG_FIND            prg_find
+    PRG_GLOBAL_OBJECTS  prg_global_objects  prgGlobalObjects
     PRG_MATCH           prg_match           prgMatch
     PRG_MATCH_EXPR      prg_match_expr      prgMatchExpr
     PRG_NAME            prg_name            arg_0
     PRG_NE              prg_ne              !=
+    PRG_OWN_NAME        prg_own_name        programName
+    PRG_OWN_PATH        prg_own_path        programPath
     PRG_PATH            prg_path            programPath
     PRG_PROG            prg_prog
     PRG_STR_PARSE       prg_str_parse       prgStrParse
@@ -9824,7 +9884,7 @@ CONTENTS
     PRG_VALUE           prg_value           prgValue
 
 
-13.23 Actions for the type reference
+13.24 Actions for the type reference
 
     Action name         reflib.c function   ref_data.c function
     REF_ADDR            ref_addr            &
@@ -9833,7 +9893,6 @@ CONTENTS
     REF_ARRMINIDX       ref_arrminidx       refArrminidx
     REF_ARRTOLIST       ref_arrtolist       refArrtolist
     REF_BODY            ref_body            refBody
-    REF_BUILD           ref_build
     REF_CAST            ref_cast
     REF_CATEGORY        ref_category        refCategory
     REF_CAT_PARSE       ref_cat_parse       refCatParse
@@ -9847,9 +9906,10 @@ CONTENTS
     REF_EQ              ref_eq              ==
     REF_FILE            ref_file            refFile
     REF_FIND            ref_find
+    REF_GETREF          ref_getref          refGetRef
     REF_HASHCODE        ref_hashcode        (intType)(((memSizeType)a)>>6)
     REF_HSHDATATOLIST   ref_hshdatatolist   refHshDataToList
-    REF_HSHKEYTOLIST    ref_hshkeytolist    refHshKeyToList
+    REF_HSHKEYSTOLIST   ref_hshkeystolist   refHshKeysToList
     REF_ISSYMB          ref_issymb
     REF_ISVAR           ref_isvar           refIsvar
     REF_ITFTOSCT        ref_itftosct        refItftosct
@@ -9870,6 +9930,7 @@ CONTENTS
     REF_SETCATEGORY     ref_setcategory     refSetCategory
     REF_SETPARAMS       ref_setparams       refSetParams
     REF_SETTYPE         ref_settype         refSetType
+    REF_SETVAR          ref_setvar          refSetVar
     REF_STR             ref_str             refStr
     REF_SYMB            ref_symb
     REF_TRACE           ref_trace           printf
@@ -9877,7 +9938,7 @@ CONTENTS
     REF_VALUE           ref_value           refValue
 
 
-13.24 Actions for the type ref_list
+13.25 Actions for the type ref_list
 
     Action name         rfllib.c function   rfl_data.c function
     RFL_APPEND          rfl_append          rflAppend
@@ -9909,7 +9970,7 @@ CONTENTS
     RFL_VALUE           rfl_value           rflValue
 
 
-13.25 Actions for struct types
+13.26 Actions for struct types
 
     Action name         sctlib.c function
     SCT_ALLOC           sct_alloc
@@ -9926,7 +9987,7 @@ CONTENTS
     SCT_SELECT          sct_select          a->stru[b]
 
 
-13.26 Actions for set types
+13.27 Actions for set types
 
     Action name         setlib.c function   set_rtl.c function
     SET_ARRLIT          set_arrlit          setArrlit
@@ -9963,7 +10024,7 @@ CONTENTS
     SET_VALUE           set_value           setValue
 
 
-13.27 Actions for the type PRIMITIVE_SOCKET
+13.28 Actions for the type PRIMITIVE_SOCKET
 
     Action name         strlib.c function   str_rtl.c function
     SOC_ACCEPT          soc_accept          socAccept
@@ -9993,12 +10054,54 @@ CONTENTS
     SOC_RECVFROM        soc_recvfrom        socRecvfrom
     SOC_SEND            soc_send            socSend
     SOC_SENDTO          soc_sendto          socSendto
+    SOC_SET_OPT_BOOL    soc_setOptBool      socSetOptBool
     SOC_SOCKET          soc_socket          socSocket
     SOC_WORD_READ       soc_word_read       socWordRead
     SOC_WRITE           soc_write           socWrite
 
 
-13.28 Actions for the type string
+13.29 Actions for the types database and sqlStatement
+
+    Action name         sqllib.c function   sql_rtl.c function
+    SQL_BIND_BIGINT     sql_bind_bigint     sqlBindBigInt
+    SQL_BIND_BIGRAT     sql_bind_bigrat     sqlBindBigRat
+    SQL_BIND_BOOL       sql_bind_bool       sqlBindBool
+    SQL_BIND_BSTRI      sql_bind_bstri      sqlBindBStri
+    SQL_BIND_DURATION   sql_bind_duration   sqlBindDuration
+    SQL_BIND_FLOAT      sql_bind_float      sqlBindFloat
+    SQL_BIND_INT        sql_bind_int        sqlBindInt
+    SQL_BIND_NULL       sql_bind_null       sqlBindNull
+    SQL_BIND_STRI       sql_bind_stri       sqlBindStri
+    SQL_BIND_TIME       sql_bind_time       sqlBindTime
+    SQL_CLOSE           sql_close           sqlClose
+    SQL_COLUMN_BIGINT   sql_column_bigint   sqlColumnBigInt
+    SQL_COLUMN_BIGRAT   sql_column_bigrat   sqlColumnBigRat
+    SQL_COLUMN_BOOL     sql_column_bool     sqlColumnBool
+    SQL_COLUMN_BSTRI    sql_column_bstri    sqlColumnBStri
+    SQL_COLUMN_DURATION sql_column_duration sqlColumnDuration
+    SQL_COLUMN_FLOAT    sql_column_float    sqlColumnFloat
+    SQL_COLUMN_INT      sql_column_int      sqlColumnInt
+    SQL_COLUMN_STRI     sql_column_stri     sqlColumnStri
+    SQL_COLUMN_TIME     sql_column_time     sqlColumnTime
+    SQL_COMMIT          sql_commit          sqlCommit
+    SQL_CPY_DB          sql_cpy_db          sqlCpyDb
+    SQL_CPY_STMT        sql_cpy_stmt        sqlCpyStmt
+    SQL_CREATE_DB       sql_create_db       sqlCreateDb
+    SQL_CREATE_STMT     sql_create_stmt     sqlCreateStmt
+    SQL_DESTR_DB        sql_destr_db        sqlDestrDb
+    SQL_DESTR_STMT      sql_destr_stmt      sqlDestrStmt
+    SQL_EMPTY_DB        sql_empty_db
+    SQL_EMPTY_STMT      sql_empty_stmt
+    SQL_EXECUTE         sql_execute         sqlExecute
+    SQL_FETCH           sql_fetch           sqlFetch
+    SQL_IS_NULL         sql_is_null         sqlIsNull
+    SQL_OPEN            sql_open            sqlOpen
+    SQL_PREPARE         sql_prepare         sqlPrepare
+    SQL_STMT_COLUMN_COUNT sql_stmt_column_count sqlStmtColumnCount
+    SQL_STMT_COLUMN_NAME  sql_stmt_column_name  sqlStmtColumnName
+
+
+13.30 Actions for the type string
 
     Action name         strlib.c function   str_rtl.c function
     STR_APPEND          str_append          strAppend
@@ -10026,6 +10129,7 @@ CONTENTS
     STR_LPAD            str_lpad            strLpad
     STR_LPAD0           str_lpad0           strLpad0, strLpad0Temp
     STR_LT              str_lt              strLt
+    STR_LTRIM           str_ltrim           strLtrim
     STR_MULT            str_mult            strMult
     STR_NE              str_ne              a->size!=b->size || memcmp(a,b,a->size*sizeof(strElemType))!=0
     STR_POS             str_pos             strPos
@@ -10038,6 +10142,7 @@ CONTENTS
     STR_RIPOS           str_ripos           strRIPos
     STR_RPAD            str_rpad            strRpad
     STR_RPOS            str_rpos            strRpos
+    STR_RTRIM           str_rtrim           strRtrim
     STR_SPLIT           str_split           strSplit
     STR_STR             str_str             (noop)
     STR_SUBSTR          str_substr          strSubstr
@@ -10049,7 +10154,7 @@ CONTENTS
     STR_VALUE           str_value           strValue
 
 
-13.29 Actions for the type time
+13.31 Actions for the type time
 
     Action name         timlib.c function   tim_unx.c/tim_win.c function
     TIM_AWAIT           tim_await           timAwait
@@ -10058,7 +10163,7 @@ CONTENTS
     TIM_SET_LOCAL_TZ    tim_set_local_tz    timSetLocalTZ
 
 
-13.30 Actions for the type type
+13.32 Actions for the type type
 
     Action name         typlib.c function   typ_data.c function
     TYP_ADDINTERFACE    typ_addinterface
@@ -10087,7 +10192,7 @@ CONTENTS
     TYP_VARFUNC         typ_varfunc         typVarfunc
 
 
-13.31 Actions for the type utf8_file
+13.33 Actions for the type utf8_file
 
     Action name         ut8lib.c function   ut8_rtl.c function
     UT8_GETC            ut8_getc            ut8Getc

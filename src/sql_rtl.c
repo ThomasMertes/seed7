@@ -568,7 +568,7 @@ databaseType sqlOpen (intType driver, const const_striType dbName,
     databaseType database;
 
   /* sqlOpen */
-    /* printf("sqlOpen(%ld, ...)\n", driver); */
+    /* printf("sqlOpen(" FMT_D ", ...)\n", driver); */
     switch (driver) {
 #ifdef MYSQL_INCLUDE
       case 1:
@@ -596,7 +596,7 @@ databaseType sqlOpen (intType driver, const const_striType dbName,
         break;
 #endif
       default:
-        /* printf("driver: %ld\n", driver); */
+        /* printf("driver: " FMT_D "\n", driver); */
         raise_error(RANGE_ERROR);
         database = NULL;
         break;

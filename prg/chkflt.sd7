@@ -28,6 +28,10 @@ $ include "seed7_05.s7i";
   include "math.s7i";
 
 
+const float: FLOAT_MIN is 2.22507385850720138309e-308;
+const float: FLOAT_MAX is 1.79769313486231570815e+308;
+
+
 const func string: striExpr (in string: stri) is
   return stri & str(rand(1, 9))[2 ..];
 
@@ -2293,6 +2297,326 @@ const proc: check_parse is func
         (floatExpr(NaN      ) sci 7 exp 2)   <> "NaN"        or
         (floatExpr(-0.004   ) sci 2 exp 2)   <> "-4.00e-03"  then
       writeln(" ***** Decimal conversion of float does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  float parse "1.0e-308" <> 1.0e-308 or
+        float parse "1.0e-307" <> 1.0e-307 or
+        float parse "1.0e-300" <> 1.0e-300 or
+        float parse "1.0e-275" <> 1.0e-275 or
+        float parse "1.0e-250" <> 1.0e-250 or
+        float parse "1.0e-225" <> 1.0e-225 or
+        float parse "1.0e-200" <> 1.0e-200 or
+        float parse "1.0e-175" <> 1.0e-175 or
+        float parse "1.0e-150" <> 1.0e-150 or
+        float parse "1.0e-125" <> 1.0e-125 or
+        float parse "1.0e-101" <> 1.0e-101 or
+        float parse "1.0e-100" <> 1.0e-100 or
+        float parse "1.0e-99"  <> 1.0e-99  or
+        float parse "1.0e-75"  <> 1.0e-75  or
+        float parse "1.0e-25"  <> 1.0e-25  or
+        float parse "1.0e-11"  <> 1.0e-11  or
+        float parse "1.0e-10"  <> 1.0e-10  or
+        float parse "1.0e-9"   <> 1.0e-9   or
+        float parse "1.0e-2"   <> 1.0e-2   or
+        float parse "1.0e-1"   <> 1.0e-1   or
+        float parse "1.0e0"    <> 1.0e0    or
+        float parse "1.0e1"    <> 1.0e1    or
+        float parse "1.0e2"    <> 1.0e2    or
+        float parse "1.0e9"    <> 1.0e9    or
+        float parse "1.0e10"   <> 1.0e10   or
+        float parse "1.0e11"   <> 1.0e11   or
+        float parse "1.0e25"   <> 1.0e25   or
+        float parse "1.0e50"   <> 1.0e50   or
+        float parse "1.0e75"   <> 1.0e75   or
+        float parse "1.0e99"   <> 1.0e99   or
+        float parse "1.0e100"  <> 1.0e100  or
+        float parse "1.0e101"  <> 1.0e101  or
+        float parse "1.0e125"  <> 1.0e125  or
+        float parse "1.0e150"  <> 1.0e150  or
+        float parse "1.0e175"  <> 1.0e175  or
+        float parse "1.0e200"  <> 1.0e200  or
+        float parse "1.0e225"  <> 1.0e225  or
+        float parse "1.0e250"  <> 1.0e250  or
+        float parse "1.0e275"  <> 1.0e275  or
+        float parse "1.0e300"  <> 1.0e300  or
+        float parse "1.0e307"  <> 1.0e307  or
+        float parse "1.0e308"  <> 1.0e308  or
+        float parse striExpr("1.0e-308") <> 1.0e-308 or
+        float parse striExpr("1.0e-307") <> 1.0e-307 or
+        float parse striExpr("1.0e-300") <> 1.0e-300 or
+        float parse striExpr("1.0e-275") <> 1.0e-275 or
+        float parse striExpr("1.0e-250") <> 1.0e-250 or
+        float parse striExpr("1.0e-225") <> 1.0e-225 or
+        float parse striExpr("1.0e-200") <> 1.0e-200 or
+        float parse striExpr("1.0e-175") <> 1.0e-175 or
+        float parse striExpr("1.0e-150") <> 1.0e-150 or
+        float parse striExpr("1.0e-125") <> 1.0e-125 or
+        float parse striExpr("1.0e-101") <> 1.0e-101 or
+        float parse striExpr("1.0e-100") <> 1.0e-100 or
+        float parse striExpr("1.0e-99")  <> 1.0e-99  or
+        float parse striExpr("1.0e-75")  <> 1.0e-75  or
+        float parse striExpr("1.0e-25")  <> 1.0e-25  or
+        float parse striExpr("1.0e-11")  <> 1.0e-11  or
+        float parse striExpr("1.0e-10")  <> 1.0e-10  or
+        float parse striExpr("1.0e-9")   <> 1.0e-9   or
+        float parse striExpr("1.0e-2")   <> 1.0e-2   or
+        float parse striExpr("1.0e-1")   <> 1.0e-1   or
+        float parse striExpr("1.0e0")    <> 1.0e0    or
+        float parse striExpr("1.0e1")    <> 1.0e1    or
+        float parse striExpr("1.0e2")    <> 1.0e2    or
+        float parse striExpr("1.0e9")    <> 1.0e9    or
+        float parse striExpr("1.0e10")   <> 1.0e10   or
+        float parse striExpr("1.0e11")   <> 1.0e11   or
+        float parse striExpr("1.0e25")   <> 1.0e25   or
+        float parse striExpr("1.0e50")   <> 1.0e50   or
+        float parse striExpr("1.0e75")   <> 1.0e75   or
+        float parse striExpr("1.0e99")   <> 1.0e99   or
+        float parse striExpr("1.0e100")  <> 1.0e100  or
+        float parse striExpr("1.0e101")  <> 1.0e101  or
+        float parse striExpr("1.0e125")  <> 1.0e125  or
+        float parse striExpr("1.0e150")  <> 1.0e150  or
+        float parse striExpr("1.0e175")  <> 1.0e175  or
+        float parse striExpr("1.0e200")  <> 1.0e200  or
+        float parse striExpr("1.0e225")  <> 1.0e225  or
+        float parse striExpr("1.0e250")  <> 1.0e250  or
+        float parse striExpr("1.0e275")  <> 1.0e275  or
+        float parse striExpr("1.0e300")  <> 1.0e300  or
+        float parse striExpr("1.0e307")  <> 1.0e307  or
+        float parse striExpr("1.0e308")  <> 1.0e308  or
+        float parse str(1.0e-308) <> 1.0e-308 or
+        float parse str(1.0e-307) <> 1.0e-307 or
+        float parse str(1.0e-300) <> 1.0e-300 or
+        float parse str(1.0e-275) <> 1.0e-275 or
+        float parse str(1.0e-250) <> 1.0e-250 or
+        float parse str(1.0e-225) <> 1.0e-225 or
+        float parse str(1.0e-200) <> 1.0e-200 or
+        float parse str(1.0e-175) <> 1.0e-175 or
+        float parse str(1.0e-150) <> 1.0e-150 or
+        float parse str(1.0e-125) <> 1.0e-125 or
+        float parse str(1.0e-101) <> 1.0e-101 or
+        float parse str(1.0e-100) <> 1.0e-100 or
+        float parse str(1.0e-99)  <> 1.0e-99  or
+        float parse str(1.0e-75)  <> 1.0e-75  or
+        float parse str(1.0e-25)  <> 1.0e-25  or
+        float parse str(1.0e-11)  <> 1.0e-11  or
+        float parse str(1.0e-10)  <> 1.0e-10  or
+        float parse str(1.0e-9)   <> 1.0e-9   or
+        float parse str(1.0e-2)   <> 1.0e-2   or
+        float parse str(1.0e-1)   <> 1.0e-1   or
+        float parse str(1.0e0)    <> 1.0e0    or
+        float parse str(1.0e1)    <> 1.0e1    or
+        float parse str(1.0e2)    <> 1.0e2    or
+        float parse str(1.0e9)    <> 1.0e9    or
+        float parse str(1.0e10)   <> 1.0e10   or
+        float parse str(1.0e11)   <> 1.0e11   or
+        float parse str(1.0e25)   <> 1.0e25   or
+        float parse str(1.0e50)   <> 1.0e50   or
+        float parse str(1.0e75)   <> 1.0e75   or
+        float parse str(1.0e99)   <> 1.0e99   or
+        float parse str(1.0e100)  <> 1.0e100  or
+        float parse str(1.0e101)  <> 1.0e101  or
+        float parse str(1.0e125)  <> 1.0e125  or
+        float parse str(1.0e150)  <> 1.0e150  or
+        float parse str(1.0e175)  <> 1.0e175  or
+        float parse str(1.0e200)  <> 1.0e200  or
+        float parse str(1.0e225)  <> 1.0e225  or
+        float parse str(1.0e250)  <> 1.0e250  or
+        float parse str(1.0e275)  <> 1.0e275  or
+        float parse str(1.0e300)  <> 1.0e300  or
+        float parse str(1.0e307)  <> 1.0e307  or
+        float parse str(1.0e308)  <> 1.0e308  or
+        float parse str(floatExpr(1.0e-308)) <> 1.0e-308 or
+        float parse str(floatExpr(1.0e-307)) <> 1.0e-307 or
+        float parse str(floatExpr(1.0e-300)) <> 1.0e-300 or
+        float parse str(floatExpr(1.0e-275)) <> 1.0e-275 or
+        float parse str(floatExpr(1.0e-250)) <> 1.0e-250 or
+        float parse str(floatExpr(1.0e-225)) <> 1.0e-225 or
+        float parse str(floatExpr(1.0e-200)) <> 1.0e-200 or
+        float parse str(floatExpr(1.0e-175)) <> 1.0e-175 or
+        float parse str(floatExpr(1.0e-150)) <> 1.0e-150 or
+        float parse str(floatExpr(1.0e-125)) <> 1.0e-125 or
+        float parse str(floatExpr(1.0e-101)) <> 1.0e-101 or
+        float parse str(floatExpr(1.0e-100)) <> 1.0e-100 or
+        float parse str(floatExpr(1.0e-99))  <> 1.0e-99  or
+        float parse str(floatExpr(1.0e-75))  <> 1.0e-75  or
+        float parse str(floatExpr(1.0e-25))  <> 1.0e-25  or
+        float parse str(floatExpr(1.0e-11))  <> 1.0e-11  or
+        float parse str(floatExpr(1.0e-10))  <> 1.0e-10  or
+        float parse str(floatExpr(1.0e-9))   <> 1.0e-9   or
+        float parse str(floatExpr(1.0e-2))   <> 1.0e-2   or
+        float parse str(floatExpr(1.0e-1))   <> 1.0e-1   or
+        float parse str(floatExpr(1.0e0))    <> 1.0e0    or
+        float parse str(floatExpr(1.0e1))    <> 1.0e1    or
+        float parse str(floatExpr(1.0e2))    <> 1.0e2    or
+        float parse str(floatExpr(1.0e9))    <> 1.0e9    or
+        float parse str(floatExpr(1.0e10))   <> 1.0e10   or
+        float parse str(floatExpr(1.0e11))   <> 1.0e11   or
+        float parse str(floatExpr(1.0e25))   <> 1.0e25   or
+        float parse str(floatExpr(1.0e50))   <> 1.0e50   or
+        float parse str(floatExpr(1.0e75))   <> 1.0e75   or
+        float parse str(floatExpr(1.0e99))   <> 1.0e99   or
+        float parse str(floatExpr(1.0e100))  <> 1.0e100  or
+        float parse str(floatExpr(1.0e101))  <> 1.0e101  or
+        float parse str(floatExpr(1.0e125))  <> 1.0e125  or
+        float parse str(floatExpr(1.0e150))  <> 1.0e150  or
+        float parse str(floatExpr(1.0e175))  <> 1.0e175  or
+        float parse str(floatExpr(1.0e200))  <> 1.0e200  or
+        float parse str(floatExpr(1.0e225))  <> 1.0e225  or
+        float parse str(floatExpr(1.0e250))  <> 1.0e250  or
+        float parse str(floatExpr(1.0e275))  <> 1.0e275  or
+        float parse str(floatExpr(1.0e300))  <> 1.0e300  or
+        float parse str(floatExpr(1.0e307))  <> 1.0e307  or
+        float parse str(floatExpr(1.0e308))  <> 1.0e308  then
+      writeln(" ***** Decimal conversion of float with exponent does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if (          1.0  digits  0)      <> "1" or
+       (          1.0  digits  1)      <> "1.0" or
+       (          1.0  digits  2)      <> "1.00" or
+       (          1.0  digits  3)      <> "1.000" or
+       (          1.0  digits  4)      <> "1.0000" or
+       (          1.0  digits  5)      <> "1.00000" or
+       (          1.0  digits  6)      <> "1.000000" or
+       (          1.0  digits  7)      <> "1.0000000" or
+       (          1.0  digits  8)      <> "1.00000000" or
+       (          1.0  digits  9)      <> "1.000000000" or
+       (          1.0  digits 10)      <> "1.0000000000" or
+       (          1.0  digits 11)      <> "1.00000000000" or
+       (          1.0  digits 12)      <> "1.000000000000" or
+       (          1.0  digits 13)      <> "1.0000000000000" or
+       (          1.0  digits 14)      <> "1.00000000000000" or
+       (          1.0  digits 15)      <> "1.000000000000000" or
+       (          1.0  digits 16)      <> "1.0000000000000000" or
+       (          1.0  digits 17)      <> "1.00000000000000000" or
+       (          1.0  digits 18)      <> "1.000000000000000000" or
+       (          1.0  digits 19)      <> "1.0000000000000000000" or
+       (          1.0  digits 20)      <> "1.00000000000000000000" or
+       (          1.0  digits 21)      <> "1.000000000000000000000" or
+       (          1.0  digits 22)      <> "1.0000000000000000000000" or
+       (          1.0  digits 23)      <> "1.00000000000000000000000" or
+       (          1.0  digits 24)      <> "1.000000000000000000000000" or
+       (          1.0  digits 25)      <> "1.0000000000000000000000000" or
+       (          1.0  digits 26)      <> "1.00000000000000000000000000" or
+       (          1.0  digits 27)      <> "1.000000000000000000000000000" or
+       (          1.0  digits 28)      <> "1.0000000000000000000000000000" or
+       (          1.0  digits 29)      <> "1.00000000000000000000000000000" or
+       (          1.0  digits 30)      <> "1.000000000000000000000000000000" or
+       (          1.0  digits 100)     <> "1." & "0" mult 100 or
+       (          1.0  digits 1000)    <> "1." & "0" mult 1000 or
+       (          1.0  digits 10000)   <> "1." & "0" mult 10000 or
+       (          1.0  digits 100000)  <> "1." & "0" mult 100000 or
+       (          1.0  digits 1000000) <> "1." & "0" mult 1000000 or
+       (floatExpr(1.0) digits  0)      <> "1" or
+       (floatExpr(1.0) digits  1)      <> "1.0" or
+       (floatExpr(1.0) digits  2)      <> "1.00" or
+       (floatExpr(1.0) digits  3)      <> "1.000" or
+       (floatExpr(1.0) digits  4)      <> "1.0000" or
+       (floatExpr(1.0) digits  5)      <> "1.00000" or
+       (floatExpr(1.0) digits  6)      <> "1.000000" or
+       (floatExpr(1.0) digits  7)      <> "1.0000000" or
+       (floatExpr(1.0) digits  8)      <> "1.00000000" or
+       (floatExpr(1.0) digits  9)      <> "1.000000000" or
+       (floatExpr(1.0) digits 10)      <> "1.0000000000" or
+       (floatExpr(1.0) digits 11)      <> "1.00000000000" or
+       (floatExpr(1.0) digits 12)      <> "1.000000000000" or
+       (floatExpr(1.0) digits 13)      <> "1.0000000000000" or
+       (floatExpr(1.0) digits 14)      <> "1.00000000000000" or
+       (floatExpr(1.0) digits 15)      <> "1.000000000000000" or
+       (floatExpr(1.0) digits 16)      <> "1.0000000000000000" or
+       (floatExpr(1.0) digits 17)      <> "1.00000000000000000" or
+       (floatExpr(1.0) digits 18)      <> "1.000000000000000000" or
+       (floatExpr(1.0) digits 19)      <> "1.0000000000000000000" or
+       (floatExpr(1.0) digits 20)      <> "1.00000000000000000000" or
+       (floatExpr(1.0) digits 21)      <> "1.000000000000000000000" or
+       (floatExpr(1.0) digits 22)      <> "1.0000000000000000000000" or
+       (floatExpr(1.0) digits 23)      <> "1.00000000000000000000000" or
+       (floatExpr(1.0) digits 24)      <> "1.000000000000000000000000" or
+       (floatExpr(1.0) digits 25)      <> "1.0000000000000000000000000" or
+       (floatExpr(1.0) digits 26)      <> "1.00000000000000000000000000" or
+       (floatExpr(1.0) digits 27)      <> "1.000000000000000000000000000" or
+       (floatExpr(1.0) digits 28)      <> "1.0000000000000000000000000000" or
+       (floatExpr(1.0) digits 29)      <> "1.00000000000000000000000000000" or
+       (floatExpr(1.0) digits 30)      <> "1.000000000000000000000000000000" or
+       (floatExpr(1.0) digits 100)     <> "1." & "0" mult 100 or
+       (floatExpr(1.0) digits 1000)    <> "1." & "0" mult 1000 or
+       (floatExpr(1.0) digits 10000)   <> "1." & "0" mult 10000 or
+       (floatExpr(1.0) digits 100000)  <> "1." & "0" mult 100000 or
+       (floatExpr(1.0) digits 1000000) <> "1." & "0" mult 1000000 or
+       (          1.0  sci  0)         <> "1e+0" or
+       (          1.0  sci  1)         <> "1.0e+0" or
+       (          1.0  sci  2)         <> "1.00e+0" or
+       (          1.0  sci  3)         <> "1.000e+0" or
+       (          1.0  sci  4)         <> "1.0000e+0" or
+       (          1.0  sci  5)         <> "1.00000e+0" or
+       (          1.0  sci  6)         <> "1.000000e+0" or
+       (          1.0  sci  7)         <> "1.0000000e+0" or
+       (          1.0  sci  8)         <> "1.00000000e+0" or
+       (          1.0  sci  9)         <> "1.000000000e+0" or
+       (          1.0  sci 10)         <> "1.0000000000e+0" or
+       (          1.0  sci 11)         <> "1.00000000000e+0" or
+       (          1.0  sci 12)         <> "1.000000000000e+0" or
+       (          1.0  sci 13)         <> "1.0000000000000e+0" or
+       (          1.0  sci 14)         <> "1.00000000000000e+0" or
+       (          1.0  sci 15)         <> "1.000000000000000e+0" or
+       (          1.0  sci 16)         <> "1.0000000000000000e+0" or
+       (          1.0  sci 17)         <> "1.00000000000000000e+0" or
+       (          1.0  sci 18)         <> "1.000000000000000000e+0" or
+       (          1.0  sci 19)         <> "1.0000000000000000000e+0" or
+       (          1.0  sci 20)         <> "1.00000000000000000000e+0" or
+       (          1.0  sci 21)         <> "1.000000000000000000000e+0" or
+       (          1.0  sci 22)         <> "1.0000000000000000000000e+0" or
+       (          1.0  sci 23)         <> "1.00000000000000000000000e+0" or
+       (          1.0  sci 24)         <> "1.000000000000000000000000e+0" or
+       (          1.0  sci 25)         <> "1.0000000000000000000000000e+0" or
+       (          1.0  sci 26)         <> "1.00000000000000000000000000e+0" or
+       (          1.0  sci 27)         <> "1.000000000000000000000000000e+0" or
+       (          1.0  sci 28)         <> "1.0000000000000000000000000000e+0" or
+       (          1.0  sci 29)         <> "1.00000000000000000000000000000e+0" or
+       (          1.0  sci 30)         <> "1.000000000000000000000000000000e+0" or
+       (          1.0  sci 100)        <> "1." & "0" mult 100 & "e+0" or
+       (          1.0  sci 1000)       <> "1." & "0" mult 1000 & "e+0" or
+       (          1.0  sci 10000)      <> "1." & "0" mult 10000 & "e+0" or
+       (          1.0  sci 100000)     <> "1." & "0" mult 100000 & "e+0" or
+       (          1.0  sci 1000000)    <> "1." & "0" mult 1000000 & "e+0" or
+       (floatExpr(1.0) sci  0)         <> "1e+0" or
+       (floatExpr(1.0) sci  1)         <> "1.0e+0" or
+       (floatExpr(1.0) sci  2)         <> "1.00e+0" or
+       (floatExpr(1.0) sci  3)         <> "1.000e+0" or
+       (floatExpr(1.0) sci  4)         <> "1.0000e+0" or
+       (floatExpr(1.0) sci  5)         <> "1.00000e+0" or
+       (floatExpr(1.0) sci  6)         <> "1.000000e+0" or
+       (floatExpr(1.0) sci  7)         <> "1.0000000e+0" or
+       (floatExpr(1.0) sci  8)         <> "1.00000000e+0" or
+       (floatExpr(1.0) sci  9)         <> "1.000000000e+0" or
+       (floatExpr(1.0) sci 10)         <> "1.0000000000e+0" or
+       (floatExpr(1.0) sci 11)         <> "1.00000000000e+0" or
+       (floatExpr(1.0) sci 12)         <> "1.000000000000e+0" or
+       (floatExpr(1.0) sci 13)         <> "1.0000000000000e+0" or
+       (floatExpr(1.0) sci 14)         <> "1.00000000000000e+0" or
+       (floatExpr(1.0) sci 15)         <> "1.000000000000000e+0" or
+       (floatExpr(1.0) sci 16)         <> "1.0000000000000000e+0" or
+       (floatExpr(1.0) sci 17)         <> "1.00000000000000000e+0" or
+       (floatExpr(1.0) sci 18)         <> "1.000000000000000000e+0" or
+       (floatExpr(1.0) sci 19)         <> "1.0000000000000000000e+0" or
+       (floatExpr(1.0) sci 20)         <> "1.00000000000000000000e+0" or
+       (floatExpr(1.0) sci 21)         <> "1.000000000000000000000e+0" or
+       (floatExpr(1.0) sci 22)         <> "1.0000000000000000000000e+0" or
+       (floatExpr(1.0) sci 23)         <> "1.00000000000000000000000e+0" or
+       (floatExpr(1.0) sci 24)         <> "1.000000000000000000000000e+0" or
+       (floatExpr(1.0) sci 25)         <> "1.0000000000000000000000000e+0" or
+       (floatExpr(1.0) sci 26)         <> "1.00000000000000000000000000e+0" or
+       (floatExpr(1.0) sci 27)         <> "1.000000000000000000000000000e+0" or
+       (floatExpr(1.0) sci 28)         <> "1.0000000000000000000000000000e+0" or
+       (floatExpr(1.0) sci 29)         <> "1.00000000000000000000000000000e+0" or
+       (floatExpr(1.0) sci 30)         <> "1.000000000000000000000000000000e+0" or
+       (floatExpr(1.0) sci 100)        <> "1." & "0" mult 100 & "e+0" or
+       (floatExpr(1.0) sci 1000)       <> "1." & "0" mult 1000 & "e+0" or
+       (floatExpr(1.0) sci 10000)      <> "1." & "0" mult 10000 & "e+0" or
+       (floatExpr(1.0) sci 100000)     <> "1." & "0" mult 100000 & "e+0" or
+       (floatExpr(1.0) sci 1000000)    <> "1." & "0" mult 1000000 & "e+0" then
+      writeln(" ***** Decimal conversion of float with many digits does not work correct.");
       okay := FALSE;
     end if;
 

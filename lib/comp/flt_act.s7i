@@ -28,6 +28,7 @@ const ACTION: FLT_A2TAN           is action "FLT_A2TAN";
 const ACTION: FLT_ABS             is action "FLT_ABS";
 const ACTION: FLT_ACOS            is action "FLT_ACOS";
 const ACTION: FLT_ADD             is action "FLT_ADD";
+const ACTION: FLT_ADD_ASSIGN      is action "FLT_ADD_ASSIGN";
 const ACTION: FLT_ASIN            is action "FLT_ASIN";
 const ACTION: FLT_ATAN            is action "FLT_ATAN";
 const ACTION: FLT_CAST            is action "FLT_CAST";
@@ -43,7 +44,6 @@ const ACTION: FLT_EQ              is action "FLT_EQ";
 const ACTION: FLT_EXP             is action "FLT_EXP";
 const ACTION: FLT_FLOOR           is action "FLT_FLOOR";
 const ACTION: FLT_GE              is action "FLT_GE";
-const ACTION: FLT_GROW            is action "FLT_GROW";
 const ACTION: FLT_GT              is action "FLT_GT";
 const ACTION: FLT_HASHCODE        is action "FLT_HASHCODE";
 const ACTION: FLT_ICAST           is action "FLT_ICAST";
@@ -66,8 +66,8 @@ const ACTION: FLT_POW             is action "FLT_POW";
 const ACTION: FLT_RAND            is action "FLT_RAND";
 const ACTION: FLT_ROUND           is action "FLT_ROUND";
 const ACTION: FLT_SBTR            is action "FLT_SBTR";
+const ACTION: FLT_SBTR_ASSIGN     is action "FLT_SBTR_ASSIGN";
 const ACTION: FLT_SCI             is action "FLT_SCI";
-const ACTION: FLT_SHRINK          is action "FLT_SHRINK";
 const ACTION: FLT_SIN             is action "FLT_SIN";
 const ACTION: FLT_SINH            is action "FLT_SINH";
 const ACTION: FLT_SQRT            is action "FLT_SQRT";
@@ -149,6 +149,20 @@ const proc: process (FLT_ADD, in reference: function,
     c_expr.expr &:= ") + (";
     process_expr(params[3], c_expr);
     c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (FLT_ADD_ASSIGN, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: statement is expr_type.value;
+  begin
+    process_expr(params[1], statement);
+    statement.expr &:= "+=";
+    process_expr(params[3], statement);
+    statement.expr &:= ";\n";
+    doLocalDeclsOfStatement(statement, c_expr);
   end func;
 
 
@@ -633,20 +647,6 @@ const proc: process (FLT_GE, in reference: function,
   end func;
 
 
-const proc: process (FLT_GROW, in reference: function,
-    in ref_list: params, inout expr_type: c_expr) is func
-
-  local
-    var expr_type: statement is expr_type.value;
-  begin
-    process_expr(params[1], statement);
-    statement.expr &:= "+=";
-    process_expr(params[3], statement);
-    statement.expr &:= ";\n";
-    doLocalDeclsOfStatement(statement, c_expr);
-  end func;
-
-
 const proc: process (FLT_GT, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
@@ -1072,20 +1072,7 @@ const proc: process (FLT_SBTR, in reference: function,
   end func;
 
 
-const proc: process (FLT_SCI, in reference: function,
-    in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    prepare_stri_result(c_expr);
-    c_expr.result_expr := "fltSci(";
-    getStdParamToResultExpr(params[1], c_expr);
-    c_expr.result_expr &:= ", ";
-    getStdParamToResultExpr(params[3], c_expr);
-    c_expr.result_expr &:= ")";
-  end func;
-
-
-const proc: process (FLT_SHRINK, in reference: function,
+const proc: process (FLT_SBTR_ASSIGN, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   local
@@ -1096,6 +1083,19 @@ const proc: process (FLT_SHRINK, in reference: function,
     process_expr(params[3], statement);
     statement.expr &:= ";\n";
     doLocalDeclsOfStatement(statement, c_expr);
+  end func;
+
+
+const proc: process (FLT_SCI, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_stri_result(c_expr);
+    c_expr.result_expr := "fltSci(";
+    getStdParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    getStdParamToResultExpr(params[3], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 

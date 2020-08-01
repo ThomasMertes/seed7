@@ -207,7 +207,7 @@ const func string: floatLiteral (in float: aFloat) is func
     else
       expr := str(aFloat);
       # Make sure that the literal is parsed to the same value.
-      if float parse expr <> aFloat then
+      if float parse expr <> aFloat or length(expr) >= 100 then
         expr := aFloat sci 100;
         exponentPos := pos(expr, 'e');
         pos := pred(exponentPos);

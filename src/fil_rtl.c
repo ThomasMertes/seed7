@@ -511,7 +511,7 @@ static memSizeType read_string (fileType inFile, striType stri, errInfoType *err
     memSizeType stri_pos;
 
   /* read_string */
-    /* printf("stri->size=%lu\n", stri->size); */
+    /* printf("stri->size=" FMT_U_MEM "\n", stri->size); */
     stri_pos = 0;
     while (stri->size - stri_pos >= BUFFER_SIZE && bytes_in_buffer > 0 &&
         *err_info == OKAY_NO_ERROR) {
@@ -539,7 +539,7 @@ static memSizeType read_string (fileType inFile, striType stri, errInfoType *err
         stri_pos += bytes_in_buffer;
       } /* if */
     } /* if */
-    /* printf("stri_pos=%lu\n", stri_pos); */
+    /* printf("stri_pos=" FMT_U_MEM "\n", stri_pos); */
     return stri_pos;
   } /* read_string */
 
@@ -557,13 +557,13 @@ static striType read_and_alloc_stri (fileType inFile, memSizeType chars_missing,
     striType result;
 
   /* read_and_alloc_stri */
-    /* printf("read_and_alloc_stri(%d, %d, *, *)\n", fileno(inFile), chars_missing); */
+    /* printf("read_and_alloc_stri(%d, " FMT_U_MEM ", *, *)\n", fileno(inFile), chars_missing); */
     if (!ALLOC_STRI_SIZE_OK(result, GETS_STRI_SIZE_DELTA)) {
       *err_info = MEMORY_ERROR;
       result = NULL;
     } else {
       result->size = GETS_STRI_SIZE_DELTA;
-      /* printf("chars_missing=%lu\n", chars_missing); */
+      /* printf("chars_missing=" FMT_U_MEM "\n", chars_missing); */
       result_pos = 0;
       while (chars_missing - result_pos >= BUFFER_SIZE && bytes_in_buffer > 0 &&
           *err_info == OKAY_NO_ERROR) {
@@ -615,7 +615,7 @@ static striType read_and_alloc_stri (fileType inFile, memSizeType chars_missing,
           result_pos += bytes_in_buffer;
         } /* if */
       } /* if */
-      /* printf("result_pos=%lu\n", result_pos); */
+      /* printf("result_pos=" FMT_U_MEM "\n", result_pos); */
       *num_of_chars_read = result_pos;
     } /* if */
     return result;
@@ -1210,7 +1210,7 @@ striType filGets (fileType inFile, intType length)
     striType result;
 
   /* filGets */
-    /* printf("filGets(%d, %d)\n", fileno(inFile), length); */
+    /* printf("filGets(%d, " FMT_D ")\n", fileno(inFile), length); */
     if (unlikely(length < 0)) {
       raise_error(RANGE_ERROR);
       result = NULL;
@@ -1292,7 +1292,7 @@ striType filGets (fileType inFile, intType length)
         } /* if */
       } /* if */
     } /* if */
-    /* printf("filGets(%d, %d) ==> ", fileno(inFile), length);
+    /* printf("filGets(%d, " FMT_D ") ==> ", fileno(inFile), length);
        prot_stri(result);
        printf("\n"); */
     return result;
@@ -1307,14 +1307,14 @@ striType filGetsChkCtrlC (fileType inFile, intType length)
     striType result;
 
   /* filGetsChkCtrlC */
-    /* printf("filGets(%d, %d)\n", fileno(inFile), length); */
+    /* printf("filGetsChkCtrlC(%d, " FMT_D ")\n", fileno(inFile), length); */
     file_no = fileno(inFile);
     if (file_no != -1 && isatty(file_no)) {
       result = doGetsFromTerminal(inFile, length);
     } else {
       result = filGets(inFile, length);
     } /* if */
-    /* printf("filGets(%d, %d) ==> ", fileno(inFile), length);
+    /* printf("filGetsChkCtrlC(%d, " FMT_D ") ==> ", fileno(inFile), length);
        prot_stri(result);
        printf("\n"); */
     return result;

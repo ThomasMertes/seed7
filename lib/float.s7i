@@ -118,13 +118,13 @@ const func float: (in float: base) ** (in float: exponent)     is action "FLT_PO
 (**
  *  Increment a float ''number'' by a ''delta''.
  *)
-const proc: (inout float: number) +:= (in float: delta)        is action "FLT_GROW";
+const proc: (inout float: number) +:= (in float: delta)        is action "FLT_ADD_ASSIGN";
 
 
 (**
  *  Decrement a float ''number'' by a ''delta''.
  *)
-const proc: (inout float: number) -:= (in float: delta)        is action "FLT_SHRINK";
+const proc: (inout float: number) -:= (in float: delta)        is action "FLT_SBTR_ASSIGN";
 
 
 (**

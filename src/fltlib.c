@@ -121,6 +121,25 @@ objectType flt_add (listType arguments)
 
 
 /**
+ *  Increment a float 'number' by a 'delta'.
+ */
+objectType flt_add_assign (listType arguments)
+
+  {
+    objectType flt_variable;
+
+  /* flt_add_assign */
+    flt_variable = arg_1(arguments);
+    isit_float(flt_variable);
+    is_variable(flt_variable);
+    isit_float(arg_3(arguments));
+    flt_variable->value.floatValue += take_float(arg_3(arguments));
+    return SYS_EMPTY_OBJECT;
+  } /* flt_add_assign */
+
+
+
+/**
  *  Compute the arc sine of x; that is the value whose sine is x.
  *  @return the arc sine of x in radians. The return angle is in the
  *          range [-PI/2, PI/2].
@@ -431,25 +450,6 @@ objectType flt_ge (listType arguments)
       return SYS_FALSE_OBJECT;
     } /* if */
   } /* flt_ge */
-
-
-
-/**
- *  Increment a float 'number' by a 'delta'.
- */
-objectType flt_grow (listType arguments)
-
-  {
-    objectType flt_variable;
-
-  /* flt_grow */
-    flt_variable = arg_1(arguments);
-    isit_float(flt_variable);
-    is_variable(flt_variable);
-    isit_float(arg_3(arguments));
-    flt_variable->value.floatValue += take_float(arg_3(arguments));
-    return SYS_EMPTY_OBJECT;
-  } /* flt_grow */
 
 
 
@@ -857,6 +857,25 @@ objectType flt_sbtr (listType arguments)
 
 
 /**
+ *  Decrement a float 'number' by a 'delta'.
+ */
+objectType flt_sbtr_assign (listType arguments)
+
+  {
+    objectType flt_variable;
+
+  /* flt_sbtr_assign */
+    flt_variable = arg_1(arguments);
+    isit_float(flt_variable);
+    is_variable(flt_variable);
+    isit_float(arg_3(arguments));
+    flt_variable->value.floatValue -= take_float(arg_3(arguments));
+    return SYS_EMPTY_OBJECT;
+  } /* flt_sbtr_assign */
+
+
+
+/**
  *  Convert a 'float' number to a [[string]] in scientific notation.
  *  Scientific notation uses a decimal significand and a decimal exponent.
  *  The significand has an optional sign and exactly one digit before the
@@ -880,25 +899,6 @@ objectType flt_sci (listType arguments)
         fltSci(take_float(arg_1(arguments)),
                take_int(arg_3(arguments))));
   } /* flt_sci */
-
-
-
-/**
- *  Decrement a float 'number' by a 'delta'.
- */
-objectType flt_shrink (listType arguments)
-
-  {
-    objectType flt_variable;
-
-  /* flt_shrink */
-    flt_variable = arg_1(arguments);
-    isit_float(flt_variable);
-    is_variable(flt_variable);
-    isit_float(arg_3(arguments));
-    flt_variable->value.floatValue -= take_float(arg_3(arguments));
-    return SYS_EMPTY_OBJECT;
-  } /* flt_shrink */
 
 
 

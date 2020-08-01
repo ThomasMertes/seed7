@@ -1020,7 +1020,9 @@ intType drwHeight (const_winType actual_window)
   /* drwHeight */
     /* printf("drwHeight(" FMT_U_MEM "), usage=" FMT_U "\n",
        actual_window, actual_window->usage_count); */
-    if (XGetGeometry(mydisplay, to_window(actual_window), &root,
+    if (is_pixmap(actual_window)) {
+      height = to_height(actual_window);
+    } else if (XGetGeometry(mydisplay, to_window(actual_window), &root,
         &x, &y, &width, &height, &border_width, &depth) == 0) {
       raise_error(RANGE_ERROR);
       height = 0;
@@ -2155,7 +2157,9 @@ intType drwWidth (const_winType actual_window)
   /* drwWidth */
     /* printf("drwWidth(" FMT_U_MEM "), usage=" FMT_U "\n",
        actual_window, actual_window->usage_count); */
-    if (XGetGeometry(mydisplay, to_window(actual_window), &root,
+    if (is_pixmap(actual_window)) {
+      width = to_width(actual_window);
+    } else if (XGetGeometry(mydisplay, to_window(actual_window), &root,
         &x, &y, &width, &height, &border_width, &depth) == 0) {
       raise_error(RANGE_ERROR);
       width = 0;

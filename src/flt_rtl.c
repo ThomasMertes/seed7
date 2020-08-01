@@ -34,6 +34,7 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
+#include "limits.h"
 #include "math.h"
 #include "float.h"
 #include "ctype.h"
@@ -53,6 +54,11 @@
 #define USE_STRTOD
 #define MAX_CSTRI_BUFFER_LEN 25
 #define IPOW_EXPONENTIATION_BY_SQUARING
+#define PRECISION_BUFFER_LEN 1000
+/* The 4 additional chars below are for: -1 . and \0. */
+#define FLT_DGTS_LEN DOUBLE_MAX_EXP10 + 4
+/* The 6 additional chars below are for: -1. e+ and \0. */
+#define FLT_SCI_LEN DOUBLE_MAX_EXP10_DIGITS + 6
 
 #ifdef FLOAT_ZERO_DIV_ERROR
 const rtlValueUnion f_const[] =
@@ -75,9 +81,13 @@ static const rtlValueUnion neg_zero_const =
 floatType negativeZero;
 
 #ifndef USE_VARIABLE_FORMATS
-#define MAX_FORM 28
+static char *fmt_e[] = {"%1.0e", "%1.1e", "%1.2e", "%1.3e", "%1.4e",
+    "%1.5e",  "%1.6e",  "%1.7e",  "%1.8e",  "%1.9e",  "%1.10e",
+    "%1.11e", "%1.12e", "%1.13e", "%1.14e", "%1.15e", "%1.16e",
+    "%1.17e", "%1.18e", "%1.19e", "%1.20e", "%1.21e", "%1.22e",
+    "%1.23e", "%1.24e", "%1.25e", "%1.26e", "%1.27e", "%1.28e"};
 
-static char *form[] = {"%1.0f", "%1.1f", "%1.2f", "%1.3f", "%1.4f",
+static char *fmt_f[] = {"%1.0f", "%1.1f", "%1.2f", "%1.3f", "%1.4f",
     "%1.5f",  "%1.6f",  "%1.7f",  "%1.8f",  "%1.9f",  "%1.10f",
     "%1.11f", "%1.12f", "%1.13f", "%1.14f", "%1.15f", "%1.16f",
     "%1.17f", "%1.18f", "%1.19f", "%1.20f", "%1.21f", "%1.22f",
@@ -170,15 +180,17 @@ memSizeType doubleToCharBuffer (double doubleValue, double largeNumber,
     } else {
       sprintf(buffer, format, doubleValue);
       /* printf("buffer: \"%s\"\n", buffer); */
-      len = strlen(buffer);
-      decimalExponent = strtol(&buffer[len - DOUBLE_DECIMAL_EXPONENT_DIGITS - 1], NULL, 10);
+      len = strlen(buffer) - DOUBLE_MIN_EXP10_DIGITS - 2;
+      while (buffer[len] != 'e') {
+        len--;
+      } /* while */
+      decimalExponent = strtol(&buffer[len + 1], NULL, 10);
       /* printf("decimalExponent: %ld\n", decimalExponent); */
-      len -= DOUBLE_DECIMAL_EXPONENT_DIGITS + 2;
       do {
         len--;
       } while (buffer[len] == '0');
       len++;
-      /* printf("len: %lu\n", len); */
+      /* printf("len: " FMT_U_MEM "\n", len); */
       start = buffer[0] == '-';
       if (decimalExponent > 0) {
         scale = (memSizeType) decimalExponent;
@@ -201,7 +213,7 @@ memSizeType doubleToCharBuffer (double doubleValue, double largeNumber,
       } else if (buffer[len - 1] == '.') {
         len++;
       } /* if */
-      /* printf("len: %lu\n", len);
+      /* printf("len: " FMT_U_MEM "\n", len);
          buffer[len] = '\0';
          printf("buffer: \"%s\"\n", buffer); */
     } /* if */
@@ -301,22 +313,23 @@ void fltCpyGeneric (genericType *const dest, const genericType source)
 striType fltDgts (floatType number, intType precision)
 
   {
-    char buffer[2001];
+    char buffer_1[PRECISION_BUFFER_LEN + FLT_DGTS_LEN];
+    char *buffer = buffer_1;
     const_cstriType buffer_ptr;
-#ifndef USE_VARIABLE_FORMATS
-    char form_buffer[10];
-#endif
+    /* The 5 additional chars below are for %1. f and \0. */
+    char form_buffer[INTTYPE_DECIMAL_SIZE + 5];
     memSizeType pos;
     striType result;
 
   /* fltDgts */
-    if (precision < 0) {
+    if (unlikely(precision < 0)) {
       raise_error(RANGE_ERROR);
       result = NULL;
+    } else if (unlikely(precision > PRECISION_BUFFER_LEN &&
+                        !ALLOC_BYTES(buffer, precision + FLT_DGTS_LEN))) {
+      raise_error(MEMORY_ERROR);
+      result = NULL;
     } else {
-      if (precision > 1000) {
-        precision = 1000;
-      } /* if */
       if (isnan(number)) {
         buffer_ptr = "NaN";
       } else if (number == POSITIVE_INFINITY) {
@@ -325,13 +338,26 @@ striType fltDgts (floatType number, intType precision)
         buffer_ptr = "-Infinity";
       } else {
 #ifdef USE_VARIABLE_FORMATS
-        sprintf(buffer, "%1.*f", (int) precision, number);
-#else
-        if (precision > MAX_FORM) {
-          sprintf(form_buffer, "%%1.%ldf", precision);
+        if (unlikely(precision > INT_MAX)) {
+          sprintf(form_buffer, "%%1." FMT_D "f", precision);
           sprintf(buffer, form_buffer, number);
         } else {
-          sprintf(buffer, form[precision], number);
+          sprintf(buffer, "%1.*f", (int) precision, number);
+        } /* if */
+#else
+        if (unlikely(precision >= sizeof(fmt_f) / sizeof(char *))) {
+          sprintf(form_buffer, "%%1." FMT_D "f", precision);
+          sprintf(buffer, form_buffer, number);
+        } else {
+          sprintf(buffer, fmt_f[precision], number);
+        } /* if */
+#endif
+#ifdef PRINTF_MAXIMUM_FLOAT_PRECISION
+        if (precision > PRINTF_MAXIMUM_FLOAT_PRECISION) {
+          pos = strlen(buffer);
+          memset(&buffer[pos], '0',
+                 (memSizeType) (precision - PRINTF_MAXIMUM_FLOAT_PRECISION));
+          buffer[pos + (memSizeType) (precision - PRINTF_MAXIMUM_FLOAT_PRECISION)] = '\0';
         } /* if */
 #endif
         buffer_ptr = buffer;
@@ -351,6 +377,9 @@ striType fltDgts (floatType number, intType precision)
         } /* if */
       } /* if */
       result = cstri_to_stri(buffer_ptr);
+      if (buffer != buffer_1) {
+        FREE_BYTES(buffer, precision + FLT_DGTS_LEN);
+      } /* if */
       if (unlikely(result == NULL)) {
         raise_error(MEMORY_ERROR);
       } /* if */
@@ -759,11 +788,11 @@ floatType fltRand (floatType low, floatType high)
 striType fltSci (floatType number, intType precision)
 
   {
-    char buffer[2001];
+    char buffer_1[PRECISION_BUFFER_LEN + FLT_SCI_LEN];
+    char *buffer = buffer_1;
     const_cstriType buffer_ptr;
-#ifndef USE_VARIABLE_FORMATS
-    char form_buffer[10];
-#endif
+    /* The 5 additional chars below are for %1. e and \0. */
+    char form_buffer[INTTYPE_DECIMAL_SIZE + 5];
     memSizeType startPos;
     memSizeType pos;
     memSizeType len;
@@ -771,13 +800,14 @@ striType fltSci (floatType number, intType precision)
     striType result;
 
   /* fltSci */
-    if (precision < 0) {
+    if (unlikely(precision < 0)) {
       raise_error(RANGE_ERROR);
       result = NULL;
+    } else if (unlikely(precision > PRECISION_BUFFER_LEN &&
+                        !ALLOC_BYTES(buffer, precision + FLT_SCI_LEN))) {
+      raise_error(MEMORY_ERROR);
+      result = NULL;
     } else {
-      if (precision > 1000) {
-        precision = 1000;
-      } /* if */
       if (isnan(number)) {
         buffer_ptr = "NaN";
       } else if (number == POSITIVE_INFINITY) {
@@ -786,13 +816,27 @@ striType fltSci (floatType number, intType precision)
         buffer_ptr = "-Infinity";
       } else {
 #ifdef USE_VARIABLE_FORMATS
-        sprintf(buffer, "%1.*e", (int) precision, number);
-#else
-        if (precision > MAX_FORM) {
-          sprintf(form_buffer, "%%1.%lde", precision);
+        if (unlikely(precision > INT_MAX)) {
+          sprintf(form_buffer, "%%1." FMT_D "e", precision);
           sprintf(buffer, form_buffer, number);
         } else {
-          sprintf(buffer, form[precision], number);
+          sprintf(buffer, "%1.*e", (int) precision, number);
+        } /* if */
+#else
+        if (unlikely(precision >= sizeof(fmt_e) / sizeof(char *))) {
+          sprintf(form_buffer, "%%1." FMT_D "e", precision);
+          sprintf(buffer, form_buffer, number);
+        } else {
+          sprintf(buffer, fmt_e[precision], number);
+        } /* if */
+#endif
+#ifdef PRINTF_MAXIMUM_FLOAT_PRECISION
+        if (precision > PRINTF_MAXIMUM_FLOAT_PRECISION) {
+          pos = strchr(buffer, 'e') - buffer;
+          memmove(&buffer[pos + (memSizeType) (precision - PRINTF_MAXIMUM_FLOAT_PRECISION)],
+                  &buffer[pos], strlen(&buffer[pos]) + 1);
+          memset(&buffer[pos], '0',
+                 (memSizeType) (precision - PRINTF_MAXIMUM_FLOAT_PRECISION));
         } /* if */
 #endif
         startPos = 0;
@@ -842,6 +886,9 @@ striType fltSci (floatType number, intType precision)
         buffer_ptr = &buffer[startPos];
       } /* if */
       result = cstri_to_stri(buffer_ptr);
+      if (buffer != buffer_1) {
+        FREE_BYTES(buffer, precision + FLT_SCI_LEN);
+      } /* if */
       if (unlikely(result == NULL)) {
         raise_error(MEMORY_ERROR);
       } /* if */

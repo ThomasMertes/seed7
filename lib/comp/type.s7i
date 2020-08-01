@@ -82,6 +82,8 @@ const func string: raw_type_name (in type: object_type) is func
         when {WINOBJECT}:       typeName := "winType";
         when {PROCESSOBJECT}:   typeName := "processType";
         when {PROGOBJECT}:      typeName := "progType";
+        when {DATABASEOBJECT}:  typeName := "databaseType";
+        when {SQLSTMTOBJECT}:   typeName := "sqlStmtType";
         when {ARRAYOBJECT}:     typeName := "arrayType";
         when {HASHOBJECT}:      typeName := "hashType";
         when {STRUCTOBJECT}:    typeName := "structType";
@@ -179,6 +181,8 @@ const func string: raw_type_value (in type: object_type) is func
         when {WINOBJECT}:       valueName := "winValue";
         when {PROCESSOBJECT}:   valueName := "processValue";
         when {PROGOBJECT}:      valueName := "progValue";
+        when {DATABASEOBJECT}:  valueName := "databaseValue";
+        when {SQLSTMTOBJECT}:   valueName := "sqlStmtValue";
         when {ARRAYOBJECT}:     valueName := "arrayValue";
         when {HASHOBJECT}:      valueName := "hashValue";
         when {STRUCTOBJECT}:    valueName := "structValue";
@@ -209,8 +213,9 @@ const func boolean: valueIsAtHeap (in type: aType) is func
     var boolean: isAtHeap is FALSE;
   local
     const set of category: heapCategories is {
-        BIGINTOBJECT, STRIOBJECT, BSTRIOBJECT, WINOBJECT, PROCESSOBJECT, PROGOBJECT,
-        ARRAYOBJECT, STRUCTOBJECT, SETOBJECT, HASHOBJECT, INTERFACEOBJECT};
+        BIGINTOBJECT, STRIOBJECT, BSTRIOBJECT, WINOBJECT, PROCESSOBJECT,
+        PROGOBJECT, DATABASEOBJECT, SQLSTMTOBJECT, SETOBJECT,
+        ARRAYOBJECT, STRUCTOBJECT, HASHOBJECT, INTERFACEOBJECT};
   begin
     if aType in typeCategory and typeCategory[aType] in heapCategories then
       isAtHeap := TRUE;

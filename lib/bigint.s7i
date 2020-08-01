@@ -178,13 +178,13 @@ const func bigInteger: (in bigInteger: number) >> (in integer: rshift)   is acti
 (**
  *  Increment a ''bigInteger'' variable by a delta.
  *)
-const proc: (inout bigInteger: number) +:= (in bigInteger: delta)        is action "BIG_GROW";
+const proc: (inout bigInteger: number) +:= (in bigInteger: delta)        is action "BIG_ADD_ASSIGN";
 
 
 (**
  *  Decrement a ''bigInteger'' variable by a delta.
  *)
-const proc: (inout bigInteger: number) -:= (in bigInteger: delta)        is action "BIG_SHRINK";
+const proc: (inout bigInteger: number) -:= (in bigInteger: delta)        is action "BIG_SBTR_ASSIGN";
 
 
 (**

@@ -299,6 +299,8 @@ const proc: process_cpy_call (in type: object_type,
         when {WINOBJECT}:       expr &:= "drwCpy(&(" & param_a & "), " & param_b & ")";
         when {PROCESSOBJECT}:   expr &:= "pcsCpy(&(" & param_a & "), " & param_b & ")";
         when {PROGOBJECT}:      expr &:= "prgCpy(&(" & param_a & "), " & param_b & ")";
+        when {DATABASEOBJECT}:  expr &:= "sqlCpyDb(&(" & param_a & "), " & param_b & ")";
+        when {SQLSTMTOBJECT}:   expr &:= "sqlCpyStmt(&(" & param_a & "), " & param_b & ")";
         when {ARRAYOBJECT, HASHOBJECT, INTERFACEOBJECT}:
           expr &:= "cpy_";
           expr &:= str(typeNumber(object_type));

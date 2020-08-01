@@ -172,6 +172,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(BIG_ABS, function, params, c_expr);
       elsif action_name = "BIG_ADD" then
         process(BIG_ADD, function, params, c_expr);
+      elsif action_name = "BIG_ADD_ASSIGN" then
+        process(BIG_ADD_ASSIGN, function, params, c_expr);
       elsif action_name = "BIG_BIT_LENGTH" then
         process(BIG_BIT_LENGTH, function, params, c_expr);
       elsif action_name = "BIG_CMP" then
@@ -194,8 +196,6 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(BIG_GCD, function, params, c_expr);
       elsif action_name = "BIG_GE" then
         process(BIG_GE, function, params, c_expr);
-      elsif action_name = "BIG_GROW" then
-        process(BIG_GROW, function, params, c_expr);
       elsif action_name = "BIG_GT" then
         process(BIG_GT, function, params, c_expr);
       elsif action_name = "BIG_HASHCODE" then
@@ -258,8 +258,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(BIG_RSHIFT_ASSIGN, function, params, c_expr);
       elsif action_name = "BIG_SBTR" then
         process(BIG_SBTR, function, params, c_expr);
-      elsif action_name = "BIG_SHRINK" then
-        process(BIG_SHRINK, function, params, c_expr);
+      elsif action_name = "BIG_SBTR_ASSIGN" then
+        process(BIG_SBTR_ASSIGN, function, params, c_expr);
       elsif action_name = "BIG_STR" then
         process(BIG_STR, function, params, c_expr);
       elsif action_name = "BIG_SUCC" then
@@ -700,6 +700,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(FLT_ACOS, function, params, c_expr);
       elsif action_name = "FLT_ADD" then
         process(FLT_ADD, function, params, c_expr);
+      elsif action_name = "FLT_ADD_ASSIGN" then
+        process(FLT_ADD_ASSIGN, function, params, c_expr);
       elsif action_name = "FLT_ASIN" then
         process(FLT_ASIN, function, params, c_expr);
       elsif action_name = "FLT_ATAN" then
@@ -730,8 +732,6 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(FLT_FLOOR, function, params, c_expr);
       elsif action_name = "FLT_GE" then
         process(FLT_GE, function, params, c_expr);
-      elsif action_name = "FLT_GROW" then
-        process(FLT_GROW, function, params, c_expr);
       elsif action_name = "FLT_GT" then
         process(FLT_GT, function, params, c_expr);
       elsif action_name = "FLT_HASHCODE" then
@@ -776,10 +776,10 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(FLT_ROUND, function, params, c_expr);
       elsif action_name = "FLT_SBTR" then
         process(FLT_SBTR, function, params, c_expr);
+      elsif action_name = "FLT_SBTR_ASSIGN" then
+        process(FLT_SBTR_ASSIGN, function, params, c_expr);
       elsif action_name = "FLT_SCI" then
         process(FLT_SCI, function, params, c_expr);
-      elsif action_name = "FLT_SHRINK" then
-        process(FLT_SHRINK, function, params, c_expr);
       elsif action_name = "FLT_SIN" then
         process(FLT_SIN, function, params, c_expr);
       elsif action_name = "FLT_SINH" then
@@ -865,6 +865,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(INT_ABS, function, params, c_expr);
       elsif action_name = "INT_ADD" then
         process(INT_ADD, function, params, c_expr);
+      elsif action_name = "INT_ADD_ASSIGN" then
+        process(INT_ADD_ASSIGN, function, params, c_expr);
       elsif action_name = "INT_AND" then
         process(INT_AND, function, params, c_expr);
       elsif action_name = "INT_AND_ASSIGN" then
@@ -897,8 +899,6 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(INT_FACT, function, params, c_expr);
       elsif action_name = "INT_GE" then
         process(INT_GE, function, params, c_expr);
-      elsif action_name = "INT_GROW" then
-        process(INT_GROW, function, params, c_expr);
       elsif action_name = "INT_GT" then
         process(INT_GT, function, params, c_expr);
       elsif action_name = "INT_HASHCODE" then
@@ -963,8 +963,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(INT_RSHIFT_ASSIGN, function, params, c_expr);
       elsif action_name = "INT_SBTR" then
         process(INT_SBTR, function, params, c_expr);
-      elsif action_name = "INT_SHRINK" then
-        process(INT_SHRINK, function, params, c_expr);
+      elsif action_name = "INT_SBTR_ASSIGN" then
+        process(INT_SBTR_ASSIGN, function, params, c_expr);
       elsif action_name = "INT_SQRT" then
         process(INT_SQRT, function, params, c_expr);
       elsif action_name = "INT_STR" then

@@ -197,14 +197,14 @@ const func integer: (in integer: number) >> (in integer: rshift)    is action "I
  *  Increment an integer variable by a delta.
  *  @exception OVERFLOW_ERROR When an integer overflow occurs.
  *)
-const proc: (inout integer: number) +:= (in integer: delta)         is action "INT_GROW";
+const proc: (inout integer: number) +:= (in integer: delta)         is action "INT_ADD_ASSIGN";
 
 
 (**
  *  Decrement an integer variable by a delta.
  *  @exception OVERFLOW_ERROR When an integer overflow occurs.
  *)
-const proc: (inout integer: number) -:= (in integer: delta)         is action "INT_SHRINK";
+const proc: (inout integer: number) -:= (in integer: delta)         is action "INT_SBTR_ASSIGN";
 
 
 (**

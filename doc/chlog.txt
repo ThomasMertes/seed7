@@ -1,3 +1,47 @@
+20141223:
+- The chapter about primitive actions in the manual has been
+  improved.
+- The compiler optimization of bigInteger divisions and
+  multiplications by -1 has been improved.
+- Tests of bigInteger divisions and multiplications have been added
+  to chkbig.sd7.
+- The functions fltDgts and fltSci have been improved to allow a
+  precision greater than 1000.
+- Tests of the operators digits and sci with large precision values
+  have been added to chkflt.sd7.
+- In drw_x11.c the functions drwHeight and drwWidth have been
+  improved to avoid a call of XGetGeometry, when the window is a
+  pixmap. This significantly improves the writing with Seed7 fonts
+  under Mac OS X.
+- The compiler has been improved to limit the length of float
+  literals to 100 characters. The length of a float literal accepted
+  by the cl C compiler from msvc is limited.
+- The function doubleToCharBuffer in flt_rtl.c has been improved to
+  work correctly for numbers with big and small exponents.
+- Tests of float to string conversions have been added to chkflt.sd7.
+  The tested float values have exponents from the allowed range.
+- The function bigAddAssignSignedDigit (former bigGrowSignedDigit) in
+  big_rtl.c has been changed to mask the delta value with
+  BIGDIGIT_MASK.
+- The functions numericSizes and deteminePostgresDefines in
+  chkccomp.c have been improved. Now the macros INT32_SUFFIX,
+  UINT32_SUFFIX, INT32TYPE_LITERAL_SUFFIX, INT32TYPE_FORMAT,
+  INT64_SUFFIX, UINT64_SUFFIX, INT64TYPE_LITERAL_SUFFIX and
+  INT64TYPE_FORMAT are written by chkccomp.c instead of being defined
+  in common.h.
+- The function findPgTypeInclude has been added to chkccomp.c.
+- The check for the function __builtin_expect in chkccomp.c has been
+  improved.
+- The actions BIG_GROW, BIG_SHRINK, FLT_GROW, FLT_SHRINK, INT_GROW 
+  and INT_SHRINK have been renamed to BIG_ADD_ASSIGN,
+  BIG_SBTR_ASSIGN, FLT_ADD_ASSIGN, FLT_SBTR_ASSIGN, INT_ADD_ASSIGN
+  and INT_SBTR_ASSIGN respectively.
+- In big_rtl.c and big_gmp.c the functions bigGrowSignedDigit,
+  bigGrow and bigShrink have been renamed to bigAddAssignSignedDigit,
+  bigAddAssign and bigSbtrAssign respectively.
+- A check for DEFAULT_DECIMAL_PRECISION in sql_odbc.c has been
+  corrected.
+
 20141210:
 - The database drivers sql_lite.c, sql_my.c, sql_oci.c, sql_odbc.c
   and sql_post.c have been improved to select a shared library / DLL
