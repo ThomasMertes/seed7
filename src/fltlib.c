@@ -255,11 +255,16 @@ objectType flt_create (listType arguments)
 
 /**
  *  Convert a float to a string in decimal fixed point notation.
- *  The 'precision' parameter specifies the number of digits after
- *  the decimal point. When the 'precision' is zero the decimal
- *  point is omitted. When all digits in the result are 0 a negative
- *  sign is omitted.
+ *  The number is rounded to the specified number of digits ('precision').
+ *  Halfway cases are rounded away from zero. Except for a 'precision' of
+ *  zero the representation has a decimal point and at least one digit
+ *  before and after the decimal point. Negative numbers are preceeded by
+ *  a minus sign (e.g.: "-1.25"). When all digits in the result are 0 a
+ *  possible negative sign is omitted.
+ *  @param precision/arg_3 Number of digits after the decimal point.
+ *         When the 'precision' is zero the decimal point is omitted.
  *  @return the string result of the conversion.
+ *  @exception RANGE_ERROR When the 'precision' is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 objectType flt_dgts (listType arguments)
@@ -850,15 +855,18 @@ objectType flt_sbtr (listType arguments)
 
 
 /**
- *  Convert a float to a string in scientific notation.
- *  Scientific notation uses a decimal float with optional sign, which
- *  has only one digit before the decimal point. The float is followed
- *  by the letter e and an exponent, which is always signed.
- *  The 'precision' parameter specifies the number of digits after
- *  the decimal point. When the 'precision' is zero the decimal
- *  point is omitted. When all digits in the result are 0 a negative
- *  sign is omitted.
+ *  Convert a 'float' number to a [[string]] in scientific notation.
+ *  Scientific notation uses a decimal significand and a decimal exponent.
+ *  The significand has an optional sign and exactly one digit before the
+ *  decimal point. The fractional part of the significand is rounded
+ *  to the specified number of digits ('precision'). Halfway cases are
+ *  rounded away from zero. The fractional part is followed by the
+ *  letter e and an exponent, which is always signed. The value zero is
+ *  never written with a negative sign.
+ *  @param precision/arg_3 Number of digits after the decimal point.
+ *         When the 'precision' is zero the decimal point is omitted.
  *  @return the string result of the conversion.
+ *  @exception RANGE_ERROR When the 'precision' is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 objectType flt_sci (listType arguments)

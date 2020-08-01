@@ -73,6 +73,8 @@ typedef uint16Type               doubleBigDigitType;
 #define BIGDIGIT_LOG2_SIZE                  3
 #define POWER_OF_10_IN_BIGDIGIT           100
 #define DECIMAL_DIGITS_IN_BIGDIGIT          2
+#define POWER_OF_5_IN_BIGDIGIT            125
+#define QUINARY_DIGITS_IN_BIGDIGIT          3
 bigDigitType powerOfRadixInBigdigit[] = {
     /*  2 */ 128, 243,  64, 125, 216,
     /*  7 */  49,  64,  81, 100, 121,
@@ -102,6 +104,8 @@ typedef uint32Type               doubleBigDigitType;
 #define BIGDIGIT_LOG2_SIZE                  4
 #define POWER_OF_10_IN_BIGDIGIT         10000
 #define DECIMAL_DIGITS_IN_BIGDIGIT          4
+#define POWER_OF_5_IN_BIGDIGIT          15625
+#define QUINARY_DIGITS_IN_BIGDIGIT          6
 bigDigitType powerOfRadixInBigdigit[] = {
     /*  2 */ 32768, 59049, 16384, 15625, 46656,
     /*  7 */ 16807, 32768, 59049, 10000, 14641,
@@ -131,6 +135,8 @@ typedef uint64Type               doubleBigDigitType;
 #define BIGDIGIT_LOG2_SIZE                  5
 #define POWER_OF_10_IN_BIGDIGIT    1000000000
 #define DECIMAL_DIGITS_IN_BIGDIGIT          9
+#define POWER_OF_5_IN_BIGDIGIT     1220703125
+#define QUINARY_DIGITS_IN_BIGDIGIT         13
 bigDigitType powerOfRadixInBigdigit[] = {
     /*  2 */ 2147483648u, 3486784401u, 1073741824u, 1220703125u, 2176782336u,
     /*  7 */ 1977326743u, 1073741824u, 3486784401u, 1000000000u, 2357947691u,
@@ -238,13 +244,14 @@ static unsigned int flist_allowed = 100;
 
 void bigGrow (bigIntType *const big_variable, const const_bigIntType delta);
 intType bigLowestSetBit (const const_bigIntType big1);
-bigIntType bigLShift (const const_bigIntType big1, const intType lshift);
 void bigLShiftAssign (bigIntType *const big_variable, intType lshift);
-bigIntType bigNegate (const const_bigIntType big1);
+bigIntType bigLShiftOne (const intType lshift);
 bigIntType bigRem (const const_bigIntType dividend, const const_bigIntType divisor);
+bigIntType bigRShift (const const_bigIntType big1, const intType rshift);
 void bigRShiftAssign (bigIntType *const big_variable, intType rshift);
 bigIntType bigSbtr (const const_bigIntType minuend, const const_bigIntType subtrahend);
 void bigShrink (bigIntType *const big_variable, const const_bigIntType big2);
+striType bigStr (const const_bigIntType big1);
 
 
 
@@ -545,6 +552,48 @@ static inline bigDigitType uBigDivideByPowerOf10 (const bigIntType big1)
     } while (pos > 0);
     return (bigDigitType) (carry);
   } /* uBigDivideByPowerOf10 */
+
+
+
+/**
+ *  Divides the unsigned big integer big1 by POWER_OF_5_IN_BIGDIGIT.
+ *  The quotient is assigned to big1.
+ *  @return the remainder of the unsigned big integer division.
+ */
+static inline void uBigDivideByPowerOf5 (const bigIntType big1)
+
+  {
+    memSizeType pos;
+    doubleBigDigitType carry = 0;
+    bigDigitType bigdigit;
+
+  /* uBigDivideByPowerOf5 */
+    pos = big1->size;
+    do {
+      pos--;
+      carry <<= BIGDIGIT_SIZE;
+      carry += big1->bigdigits[pos];
+      bigdigit = (bigDigitType) (carry / POWER_OF_5_IN_BIGDIGIT);
+#if POINTER_SIZE <= BIGDIGIT_SIZE
+      /* There is probably no machine instruction for division    */
+      /* and remainder of doubleBigDigitType values available.    */
+      /* To compute the remainder fast the % operator is avoided  */
+      /* and the remainder is computed with a multiplication and  */
+      /* a subtraction. The overflow in the multiplication can be */
+      /* ignored, since the result of the subtraction fits in the */
+      /* lower bigdigit of carry. The wrong bits in the higher    */
+      /* bigdigit of carry are masked away.                       */
+      carry = (carry - bigdigit * POWER_OF_5_IN_BIGDIGIT) & BIGDIGIT_MASK;
+#else
+      /* There is probably a machine instruction for division     */
+      /* and remainder of doubleBigDigitType values available.    */
+      /* In the optimal case quotient and remainder can be        */
+      /* computed with one instruction.                           */
+      carry %= POWER_OF_5_IN_BIGDIGIT;
+#endif
+      big1->bigdigits[pos] = bigdigit;
+    } while (pos > 0);
+  } /* uBigDivideByPowerOf5 */
 
 
 
@@ -2750,7 +2799,7 @@ static bigIntType bigIPowN (const bigDigitType base, intType exponent, unsigned 
     memSizeType help_size;
     bigIntType square;
     bigIntType big_help;
-    bigIntType result;
+    bigIntType power;
 
   /* bigIPowN */
     /* printf("bigIPowN(%lu, %lu, %u)\n", base, exponent, bit_size); */
@@ -2758,18 +2807,18 @@ static bigIntType bigIPowN (const bigDigitType base, intType exponent, unsigned 
     /* printf("help_sizeA=%ld\n", help_size); */
     if (unlikely((uintType) exponent + 1 > MAX_BIG_LEN)) {
       raise_error(MEMORY_ERROR);
-      result = NULL;
+      power = NULL;
     } else {
       help_size = (memSizeType) ((uintType) exponent + 1);
       /* printf("help_sizeB=%ld\n", help_size); */
       if (unlikely(!ALLOC_BIG_SIZE_OK(square, help_size))) {
         raise_error(MEMORY_ERROR);
-        result = NULL;
+        power = NULL;
       } else if (unlikely(!ALLOC_BIG_SIZE_OK(big_help, help_size))) {
         FREE_BIG(square,  help_size);
         raise_error(MEMORY_ERROR);
-        result = NULL;
-      } else if (unlikely(!ALLOC_BIG_SIZE_OK(result, help_size))) {
+        power = NULL;
+      } else if (unlikely(!ALLOC_BIG_SIZE_OK(power, help_size))) {
         FREE_BIG(square,  help_size);
         FREE_BIG(big_help,  help_size);
         raise_error(MEMORY_ERROR);
@@ -2777,31 +2826,31 @@ static bigIntType bigIPowN (const bigDigitType base, intType exponent, unsigned 
         square->size = 1;
         square->bigdigits[0] = base;
         if (exponent & 1) {
-          result->size = square->size;
-          memcpy(result->bigdigits, square->bigdigits,
+          power->size = square->size;
+          memcpy(power->bigdigits, square->bigdigits,
               (size_t) square->size * sizeof(bigDigitType));
         } else {
-          result->size = 1;
-          result->bigdigits[0] = 1;
+          power->size = 1;
+          power->bigdigits[0] = 1;
         } /* if */
         exponent >>= 1;
         while (exponent != 0) {
           square = uBigSquare(square, &big_help);
           if (exponent & 1) {
-            result = uBigMultIntoHelp(result, square, &big_help);
+            power = uBigMultIntoHelp(power, square, &big_help);
           } /* if */
           exponent >>= 1;
         } /* while */
-        memset(&result->bigdigits[result->size], 0,
-            (size_t) (help_size - result->size) * sizeof(bigDigitType));
-        result->size = help_size;
-        result = normalize(result);
+        memset(&power->bigdigits[power->size], 0,
+            (size_t) (help_size - power->size) * sizeof(bigDigitType));
+        power->size = help_size;
+        power = normalize(power);
         FREE_BIG(square, help_size);
         FREE_BIG(big_help, help_size);
       } /* if */
     } /* if */
-    /* printf("bigIPowN() => result->size=%lu\n", result->size); */
-    return result;
+    /* printf("bigIPowN() => power->size=%lu\n", power->size); */
+    return power;
   } /* bigIPowN */
 
 
@@ -2818,17 +2867,17 @@ static bigIntType bigIPow1 (bigDigitType base, intType exponent)
   {
     boolType negative;
     unsigned int bit_size;
-    bigIntType result;
+    bigIntType power;
 
   /* bigIPow1 */
     /* printf("bigIPow1(%ld, %lu)\n", base, exponent); */
     if (base == 0) {
-      if (unlikely(!ALLOC_BIG_SIZE_OK(result, 1))) {
+      if (unlikely(!ALLOC_BIG_SIZE_OK(power, 1))) {
         raise_error(MEMORY_ERROR);
-        result = NULL;
+        power = NULL;
       } else {
-        result->size = 1;
-        result->bigdigits[0] = 0;
+        power->size = 1;
+        power->bigdigits[0] = 0;
       } /* if */
     } else {
       if (IS_NEGATIVE(base)) {
@@ -2841,21 +2890,25 @@ static bigIntType bigIPow1 (bigDigitType base, intType exponent)
       } /* if */
       bit_size = (unsigned int) (digitMostSignificantBit(base) + 1);
       if (base == (bigDigitType) (1 << (bit_size - 1))) {
-        result = bigLShiftOne((intType) (bit_size - 1) * exponent);
-        if (negative) {
-          negate_positive_big(result);
-          result = normalize(result);
+        power = bigLShiftOne((intType) (bit_size - 1) * exponent);
+        if (power != NULL) {
+          if (negative) {
+            negate_positive_big(power);
+            power = normalize(power);
+          } /* if */
         } /* if */
       } else {
-        result = bigIPowN(base, exponent, bit_size);
-        if (negative) {
-          negate_positive_big(result);
+        power = bigIPowN(base, exponent, bit_size);
+        if (power != NULL) {
+          if (negative) {
+            negate_positive_big(power);
+          } /* if */
+          power = normalize(power);
         } /* if */
-        result = normalize(result);
       } /* if */
     } /* if */
-    /* printf("bigIPow1 => result->size=%lu\n", result->size); */
-    return result;
+    /* printf("bigIPow1 => power->size=%lu\n", power->size); */
+    return power;
   } /* bigIPow1 */
 
 
@@ -3339,7 +3392,7 @@ void bigDecr (bigIntType *const big_variable)
 
 
 
-void bigDestr (const bigIntType old_bigint)
+void bigDestr (const const_bigIntType old_bigint)
 
   { /* bigDestr */
     if (old_bigint != NULL) {
@@ -3850,6 +3903,7 @@ bigIntType bigFromUInt64 (uint64Type number)
 /**
  *  Compute the greatest common divisor of two 'bigInteger' numbers.
  *  @return the greatest common divisor of the two numbers.
+ *          The greatest common divisor is positive or zero.
  */
 bigIntType bigGcd (const const_bigIntType big1,
     const const_bigIntType big2)
@@ -3864,20 +3918,17 @@ bigIntType bigGcd (const const_bigIntType big1,
 
   /* bigGcd */
     if (big1->size == 1 && big1->bigdigits[0] == 0) {
-      result = bigCreate(big2);
+      result = bigAbs(big2);
     } else if (big2->size == 1 && big2->bigdigits[0] == 0) {
-      result = bigCreate(big1);
+      result = bigAbs(big1);
+    } else if (unlikely((big1_help = bigAbs(big1)) == NULL)) {
+      /* An exception was raised in bigAbs(). */
+      result = NULL;
+    } else if (unlikely((big2_help = bigAbs(big2)) == NULL)) {
+      /* An exception was raised in bigAbs(). */
+      bigDestr(big1_help);
+      result = NULL;
     } else {
-      if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
-        big1_help = bigNegate(big1);
-      } else {
-        big1_help = bigCreate(big1);
-      } /* if */
-      if (IS_NEGATIVE(big2->bigdigits[big2->size - 1])) {
-        big2_help = bigNegate(big2);
-      } else {
-        big2_help = bigCreate(big2);
-      } /* if */
       if ((big1_help->size > big2_help->size &&
           big1_help->size - big2_help->size > 10) ||
           (big1_help->size < big2_help->size &&
@@ -3890,7 +3941,6 @@ bigIntType bigGcd (const const_bigIntType big1,
         } /* while */
         result = big2_help;
         bigDestr(big1_help);
-        return result;
       } else {
         lowestSetBitA = bigLowestSetBit(big1_help);
         shift = bigLowestSetBit(big2_help);
@@ -3928,6 +3978,7 @@ bigIntType bigGcd (const const_bigIntType big1,
  *  checks for carry == 0 and carry != 0.
  *  In case the resizing fails the content of *big_variable
  *  is freed and *big_variable is set to NULL.
+ *  @param delta The delta to be added to *big_variable.
  */
 void bigGrow (bigIntType *const big_variable, const const_bigIntType delta)
 
@@ -4018,6 +4069,70 @@ void bigGrow (bigIntType *const big_variable, const const_bigIntType delta)
       } /* if */
     } /* if */
   } /* bigGrow */
+
+
+
+/**
+ *  Increment a 'bigInteger' variable by a delta.
+ *  Adds delta to *big_variable. The operation is done in
+ *  place and *big_variable is only resized when necessary.
+ *  In case the resizing fails the content of *big_variable
+ *  is freed and *big_variable is set to NULL.
+ *  @param delta The delta to be added to *big_variable.
+ *         Delta must be in the range of signedBigDigitType.
+ */
+void bigGrowSignedDigit (bigIntType *const big_variable, const intType delta)
+
+  {
+    bigIntType big1;
+    memSizeType pos;
+    memSizeType big1_size;
+    doubleBigDigitType carry = 0;
+    doubleBigDigitType big1_sign;
+    bigIntType resized_big1;
+
+  /* bigGrowSignedDigit */
+    big1 = *big_variable;
+    big1_sign = IS_NEGATIVE(big1->bigdigits[big1->size - 1]) ? BIGDIGIT_MASK : 0;
+    carry += (doubleBigDigitType) big1->bigdigits[0] + (bigDigitType) delta;
+    big1->bigdigits[0] = (bigDigitType) (carry & BIGDIGIT_MASK);
+    carry >>= BIGDIGIT_SIZE;
+    pos = 1;
+    if (delta < 0) {
+      for (; carry == 0 && pos < big1->size; pos++) {
+        carry = (doubleBigDigitType) big1->bigdigits[pos] + BIGDIGIT_MASK;
+        big1->bigdigits[pos] = (bigDigitType) (carry & BIGDIGIT_MASK);
+        carry >>= BIGDIGIT_SIZE;
+      } /* for */
+      carry += BIGDIGIT_MASK;
+    } else {
+      for (; carry != 0 && pos < big1->size; pos++) {
+        carry += big1->bigdigits[pos];
+        big1->bigdigits[pos] = (bigDigitType) (carry & BIGDIGIT_MASK);
+        carry >>= BIGDIGIT_SIZE;
+      } /* for */
+    } /* if */
+    big1_size = big1->size;
+    carry += big1_sign;
+    carry &= BIGDIGIT_MASK;
+    if ((carry != 0 || IS_NEGATIVE(big1->bigdigits[big1_size - 1])) &&
+        (carry != BIGDIGIT_MASK || !IS_NEGATIVE(big1->bigdigits[big1_size - 1]))) {
+      REALLOC_BIG_CHECK_SIZE(resized_big1, big1, big1_size, big1_size + 1);
+      if (unlikely(resized_big1 == NULL)) {
+        FREE_BIG(big1, big1_size);
+        *big_variable = NULL;
+        raise_error(MEMORY_ERROR);
+      } else {
+        big1 = resized_big1;
+        COUNT3_BIG(big1_size, big1_size + 1);
+        big1->size++;
+        big1->bigdigits[big1_size] = (bigDigitType) (carry & BIGDIGIT_MASK);
+        *big_variable = big1;
+      } /* if */
+    } else {
+      *big_variable = normalize(big1);
+    } /* if */
+  } /* bigGrowSignedDigit */
 
 
 
@@ -4133,38 +4248,38 @@ bigIntType bigIPow (const const_bigIntType base, intType exponent)
     memSizeType help_size;
     bigIntType square;
     bigIntType big_help;
-    bigIntType result;
+    bigIntType power;
 
   /* bigIPow */
     if (exponent <= 1) {
       if (exponent == 0) {
-        if (unlikely(!ALLOC_BIG_SIZE_OK(result, 1))) {
+        if (unlikely(!ALLOC_BIG_SIZE_OK(power, 1))) {
           raise_error(MEMORY_ERROR);
         } else {
-          result->size = 1;
-          result->bigdigits[0] = 1;
+          power->size = 1;
+          power->bigdigits[0] = 1;
         } /* if */
       } else if (exponent == 1) {
-        result = bigCreate(base);
+        power = bigCreate(base);
       } else {
         raise_error(NUMERIC_ERROR);
-        result = NULL;
+        power = NULL;
       } /* if */
     } else if (base->size == 1) {
-      result = bigIPow1(base->bigdigits[0], exponent);
+      power = bigIPow1(base->bigdigits[0], exponent);
     } else if (unlikely((uintType) exponent + 1 > MAX_BIG_LEN / base->size)) {
       raise_error(MEMORY_ERROR);
-      result = NULL;
+      power = NULL;
     } else {
       help_size = base->size * (memSizeType) ((uintType) exponent + 1);
       if (unlikely(!ALLOC_BIG_SIZE_OK(square, help_size))) {
         raise_error(MEMORY_ERROR);
-        result = NULL;
+        power = NULL;
       } else if (unlikely(!ALLOC_BIG_SIZE_OK(big_help, help_size))) {
         FREE_BIG(square,  help_size);
         raise_error(MEMORY_ERROR);
-        result = NULL;
-      } else if (unlikely(!ALLOC_BIG_SIZE_OK(result, help_size))) {
+        power = NULL;
+      } else if (unlikely(!ALLOC_BIG_SIZE_OK(power, help_size))) {
         FREE_BIG(square,  help_size);
         FREE_BIG(big_help,  help_size);
         raise_error(MEMORY_ERROR);
@@ -4178,35 +4293,159 @@ bigIntType bigIPow (const const_bigIntType base, intType exponent)
               (size_t) base->size * sizeof(bigDigitType));
         } /* if */
         if (exponent & 1) {
-          result->size = square->size;
-          memcpy(result->bigdigits, square->bigdigits,
+          power->size = square->size;
+          memcpy(power->bigdigits, square->bigdigits,
               (size_t) square->size * sizeof(bigDigitType));
         } else {
           negative = FALSE;
-          result->size = 1;
-          result->bigdigits[0] = 1;
+          power->size = 1;
+          power->bigdigits[0] = 1;
         } /* if */
         exponent >>= 1;
         while (exponent != 0) {
           square = uBigSquare(square, &big_help);
           if (exponent & 1) {
-            result = uBigMultIntoHelp(result, square, &big_help);
+            power = uBigMultIntoHelp(power, square, &big_help);
           } /* if */
           exponent >>= 1;
         } /* while */
-        memset(&result->bigdigits[result->size], 0,
-            (size_t) (help_size - result->size) * sizeof(bigDigitType));
-        result->size = help_size;
+        memset(&power->bigdigits[power->size], 0,
+            (size_t) (help_size - power->size) * sizeof(bigDigitType));
+        power->size = help_size;
         if (negative) {
-          negate_positive_big(result);
+          negate_positive_big(power);
         } /* if */
-        result = normalize(result);
+        power = normalize(power);
         FREE_BIG(square, help_size);
         FREE_BIG(big_help, help_size);
       } /* if */
     } /* if */
-    return result;
+    return power;
   } /* bigIPow */
+
+
+
+/**
+ *  Compute the exponentiation of a bigdigit base with an integer exponent.
+ *  @param base Base that must be in the range of signedBigDigitType.
+ *  @return the result of the exponentation.
+ *  @exception NUMERIC_ERROR When the exponent is negative.
+ */
+bigIntType bigIPowSignedDigit (intType base, intType exponent)
+
+  {
+    bigIntType power;
+
+  /* bigIPowSignedDigit */
+    if (exponent <= 1) {
+      if (unlikely(exponent < 0)) {
+        raise_error(NUMERIC_ERROR);
+        power = NULL;
+      } else {
+        if (unlikely(!ALLOC_BIG_SIZE_OK(power, 1))) {
+          raise_error(MEMORY_ERROR);
+        } else {
+          power->size = 1;
+          power->bigdigits[0] = exponent == 1 ? (bigDigitType) base : 1;
+        } /* if */
+      } /* if */
+    } else {
+      power = bigIPow1((bigDigitType) base, exponent);
+    } /* if */
+    return power;
+  } /* bigIPowSignedDigit */
+
+
+
+/**
+ *  Compute the truncated base 10 logarithm of a 'bigInteger' number.
+ *  The definition of 'log10' is extended by defining log10(0) = -1_.
+ *  @return the truncated base 10 logarithm.
+ *  @exception NUMERIC_ERROR The number is negative.
+ */
+bigIntType bigLog10 (const const_bigIntType big1)
+
+  {
+    bigIntType unsigned_big;
+    bigIntType powerOf10;
+    bigDigitType digit;
+    memSizeType largeDecimalBlockCount;
+    memSizeType decimalBlockCount;
+    bigIntType logarithm;
+
+  /* bigLog10 */
+    if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
+      raise_error(NUMERIC_ERROR);
+      logarithm = NULL;
+    } else if (big1->size == 1 && big1->bigdigits[0] == 0) {
+      if (unlikely(!ALLOC_BIG_SIZE_OK(logarithm, 1))) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        logarithm->size = 1;
+        logarithm->bigdigits[0] = BIGDIGIT_MASK;
+      } /* if */
+    } else {
+      if (unlikely(!ALLOC_BIG_SIZE_OK(unsigned_big, big1->size))) {
+        raise_error(MEMORY_ERROR);
+        logarithm = NULL;
+      } else {
+        unsigned_big->size = big1->size;
+        memcpy(unsigned_big->bigdigits, big1->bigdigits,
+            (size_t) big1->size * sizeof(bigDigitType));
+        decimalBlockCount = 0;
+        if (unsigned_big->size > 2) {
+          if (unsigned_big->size - 1 <= MAX_MEM_INDEX) {
+            decimalBlockCount = unsigned_big->size - 1;
+          } else {
+            decimalBlockCount = MAX_MEM_INDEX;
+          } /* if */
+          powerOf10 = bigIPow1(POWER_OF_10_IN_BIGDIGIT, (intType) (decimalBlockCount));
+          unsigned_big = bigMDiv(unsigned_big, powerOf10);
+          bigDestr(powerOf10);
+        } /* if */
+        largeDecimalBlockCount = 0;
+        while (unsigned_big->size > 2) {
+          uBigRShift(unsigned_big, QUINARY_DIGITS_IN_BIGDIGIT);
+          if (unsigned_big->bigdigits[unsigned_big->size - 1] == 0) {
+            unsigned_big->size--;
+          } /* if */
+          uBigDivideByPowerOf5(unsigned_big);
+          if (unsigned_big->bigdigits[unsigned_big->size - 1] == 0) {
+            unsigned_big->size--;
+          } /* if */
+          largeDecimalBlockCount++;
+        } /* while */
+        do {
+          digit = uBigDivideByPowerOf10(unsigned_big);
+          /* printf("unsigned_big->size=%lu, digit=%lu\n", unsigned_big->size, digit); */
+          if (unsigned_big->bigdigits[unsigned_big->size - 1] == 0) {
+            unsigned_big->size--;
+          } /* if */
+          if (unsigned_big->size > 1 || unsigned_big->bigdigits[0] != 0) {
+            decimalBlockCount++;
+          } /* if */
+        } while (unsigned_big->size > 1 || unsigned_big->bigdigits[0] != 0);
+        FREE_BIG(unsigned_big, big1->size + 1);
+#if POINTER_SIZE == 32
+        logarithm = bigFromUInt32(decimalBlockCount);
+#elif POINTER_SIZE == 64
+        logarithm = bigFromUInt64(decimalBlockCount);
+#endif
+        if (logarithm != NULL) {
+          bigMultAssign1(&logarithm, DECIMAL_DIGITS_IN_BIGDIGIT);
+          bigGrowSignedDigit(&logarithm,
+              (intType) (largeDecimalBlockCount * QUINARY_DIGITS_IN_BIGDIGIT));
+	  /* printf("digit: %lu\n", digit); */
+          digit /= 10;
+          while (digit != 0) {
+            bigIncr(&logarithm);
+            digit /= 10;
+          } /* while */
+        } /* if */
+      } /* if */
+    } /* if */
+    return logarithm;
+  } /* bigLog10 */
 
 
 

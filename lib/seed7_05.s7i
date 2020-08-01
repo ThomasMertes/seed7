@@ -767,6 +767,50 @@ const func integer: integer (in var string: stri, in integer: base) is func
   end func;
 
 
+const func string: (in integer: number) sci (in integer: precision) is func
+  result
+    var string: stri is "";
+  local
+    var integer: exponent is 0;
+    var integer: mantissa is 0;
+  begin
+    if precision < 0 then
+      raise RANGE_ERROR;
+    elsif number = 0 then
+      if precision = 0 then
+        stri := "0e+0";
+      else
+        stri := "0." & "0" mult precision & "e+0";
+      end if;
+    else
+      exponent := ord(log10(abs(number)));
+      if precision >= exponent then
+        stri := str(abs(number));
+        stri &:= "0" mult (precision - exponent);
+      else
+        mantissa := (abs(number) div 10 ** pred(exponent - precision) + 5) div 10;
+        stri := str(mantissa);
+        if length(stri) > succ(precision) then
+          # Rounding up increased the number of digits.
+          incr(exponent);
+          stri := stri[.. succ(precision)];
+        end if;
+      end if;
+      if precision <> 0 then
+        stri := stri[1 len 1] & "." & stri[2 .. ];
+      end if;
+      if exponent >= 0 then
+        stri &:= "e+" & str(exponent);
+      else
+        stri &:= "e" & str(exponent);
+      end if;
+      if number < 0 then
+        stri := "-" & stri;
+      end if;
+    end if;
+  end func;
+
+
 (* INTERFACE *)
 
 const func type: new interface is func

@@ -50,6 +50,7 @@ objectType int_gt             (listType arguments);
 objectType int_hashcode       (listType arguments);
 objectType int_incr           (listType arguments);
 objectType int_le             (listType arguments);
+objectType int_log10          (listType arguments);
 objectType int_log2           (listType arguments);
 objectType int_lowest_set_bit (listType arguments);
 objectType int_lpad0          (listType arguments);

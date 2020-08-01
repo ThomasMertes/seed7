@@ -1057,6 +1057,31 @@ void intCpy (intType *dest, intType source)
 
 
 /**
+ *  Compute the truncated base 10 logarithm of an integer number.
+ *  The definition of intLog10 is extended by defining intLog10(0) = -1.
+ *  @return the truncated base 10 logarithm.
+ *  @exception NUMERIC_ERROR The number is negative.
+ */
+intType intLog10 (intType number)
+
+  {
+    int logarithm;
+
+  /* intLog10 */
+    if (unlikely(number < 0)) {
+      raise_error(NUMERIC_ERROR);
+      logarithm = 0;
+    } else if (number == 0) {
+      logarithm = -1;
+    } else {
+      logarithm = DECIMAL_DIGITS((uintType) number) - 1;
+    } /* if */
+    return logarithm;
+  } /* intLog10 */
+
+
+
+/**
  *  Compute the truncated base 2 logarithm of an integer number.
  *  The definition of intLog2 is extended by defining intLog2(0) = -1.
  *  @return the truncated base 2 logarithm.
@@ -1065,16 +1090,16 @@ void intCpy (intType *dest, intType source)
 intType intLog2 (intType number)
 
   {
-    int result;
+    int logarithm;
 
   /* intLog2 */
     if (unlikely(number < 0)) {
       raise_error(NUMERIC_ERROR);
-      result = 0;
+      logarithm = 0;
     } else {
-      result = uintMostSignificantBit((uintType) number);
+      logarithm = uintMostSignificantBit((uintType) number);
     } /* if */
-    return result;
+    return logarithm;
   } /* intLog2 */
 
 
@@ -1500,7 +1525,7 @@ striType intStrToBuffer (intType number, striType buffer)
     } else {
       unsigned_number = (uintType) number;
     } /* if */
-    bufferPtr = &buffer->mem1[INTTYPE_DECIMAL_DIGITS + 1];
+    bufferPtr = &buffer->mem1[INTTYPE_DECIMAL_SIZE];
     do {
       *(--bufferPtr) = (strElemType) (unsigned_number % 10 + '0');
     } while ((unsigned_number /= 10) != 0);
@@ -1508,7 +1533,7 @@ striType intStrToBuffer (intType number, striType buffer)
       *(--bufferPtr) = (strElemType) '-';
     } /* if */
     buffer->mem = bufferPtr;
-    buffer->size = (memSizeType) (&buffer->mem1[INTTYPE_DECIMAL_DIGITS + 1] - bufferPtr);
+    buffer->size = (memSizeType) (&buffer->mem1[INTTYPE_DECIMAL_SIZE] - bufferPtr);
     /* printf(" --> ");
     prot_stri(buffer);
     printf("\n"); */

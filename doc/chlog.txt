@@ -1,3 +1,61 @@
+20140504:
+- The answer concerning Unicode support in the FAQ has been improved.
+- The chapters in the manual that describe the types integer,
+  bigInteger, rational, bigRational and float have been improved.
+- The function log10 has been added to the libraries integer.s7i and
+  bigint.s7i. This function computes the truncated base 10 logarithm.
+- The operator sci has been added to the libraries integer.s7i,
+  bigInteger.s7i, bigrat.s7i and rational.s7i. This operator converts
+  a number to a string in scientific notation. Halfway cases are
+  rounded away from zero.
+- The function round10 has been added to the libraries rational.s7i
+  and bigrat.s7i. It rounds halfway cases away from zero.
+- The function str has been improved in the libraries rational.s7i
+  and bigrat.s7i. Now the function converts to a string with a
+  decimal representation (e.g.: "1.25"). When repeating decimals are
+  recognizend they are enclosed in parentheses.
+- The operator digits has been improved in the libraries rational.s7i
+  and bigrat.s7i. Now the operator rounds halfway cases away from
+  zero.
+- Documentation comments have been improved in bigint.s7i, float.s7i,
+  rational.s7i, bigrat.s7i, char.s7i, big_gmp.c and fltlib.c.
+- Definitions of the constants integer.first and integer.last have
+  been added to integer.s7i.
+- In bigrat.s7i and rational.s7i the function reduce has been
+  improved to accept Infinity and NaN.
+- The function strDateTime has been added to time.s7i.
+- A definition of INTTYPE_DECIMAL_SIZE has been added to s7c.sd7 and
+  common.h.
+- The function bigGcd in big_rtl.c has been improved to make sure
+  that the greatest common divisor is positive or zero.
+- Checks for log10, **, +:= and -:= have been added to chkbig.sd7.
+- The checks for log2 have been improved and checks for log10 have
+  been added to chkint.sd7.
+- Checks for the function str have been added to chkflt.sd7.
+- The compiler has been improved to use the functions
+  bigIPowSignedDigit and bigGrowSignedDigit to optimize the operators
+  **, +:= and -:= for bigInteger operands.
+- The compiler has been improved to support the actions INT_LOG10 and
+  BIG_LOG10.
+- The function isPureFunction in the compiler has been improved.
+- The functions bigGrowSignedDigit and bigLog10 have been added to
+  big_rtl.c and big_gmp.c.
+- The program chkccomp.c has been improved to write definitions of
+  the macros isinf, DOUBLE_DECIMAL_EXPONENT_DIGITS, FLOAT_STR_FORMAT,
+  FLOAT_STR_LARGE_NUMBER, DOUBLE_STR_FORMAT, DOUBLE_STR_LARGE_NUMBER,
+  FLOAT_MANTISSA_FACTOR, FLOAT_MANTISSA_SHIFT, DOUBLE_MANTISSA_FACTOR
+  and DOUBLE_MANTISSA_SHIFT.
+- The functions fltDgts and fltSci in flt_rtl.c have been changed to
+  raise RANGE_ERROR when the precision is negative.
+- The function fltStri in flt_rtl.c has been improved to write a
+  reasonable number of fractional digits.
+- The functions getMantissaAndExponent, setMantissaAndExponent and
+  doubleToCharBuffer have been added to flt_rtl.c.
+- The function intLog10 has been added to int_rtl.c.
+- The function stri_to_wstri has been renamed to stri_to_utf16.
+- The functions stri_to_wstri_buf and wstri_buf_to_stri have been
+  added to striutl.c.
+
 20140420:
 - The chapter in the manual about the foreign function interface has
   been improved.

@@ -295,10 +295,21 @@ const func bigInteger: abs (in bigInteger: number)                       is acti
 
 
 (**
+ *  Compute the truncated base 10 logarithm of a ''bigInteger'' number.
+ *  The definition of ''log10'' is extended by defining log10(0_) = -1_.
+ *   log10(10_ ** A)        returns A       for A >= 0
+ *   log10(pred(10_ ** A))  returns pred(A) for A >= 0
+ *  @return the truncated base 10 logarithm.
+ *  @exception NUMERIC_ERROR The number is negative.
+ *)
+const func bigInteger: log10 (in bigInteger: number)                     is action "BIG_LOG10";
+
+
+(**
  *  Compute the truncated base 2 logarithm of a ''bigInteger'' number.
- *  The definition of ''log2'' is extended by defining log2(0) = -1_.
- *   log2(2 ** A)        returns A       for A >= 0
- *   log2(pred(2 ** A))  returns pred(A) for A >= 0
+ *  The definition of ''log2'' is extended by defining log2(0_) = -1_.
+ *   log2(2_ ** A)        returns A       for A >= 0
+ *   log2(pred(2_ ** A))  returns pred(A) for A >= 0
  *  @return the truncated base 2 logarithm.
  *  @exception NUMERIC_ERROR The number is negative.
  *)
@@ -324,6 +335,7 @@ const func integer: ord (in bigInteger: number)                          is acti
 (**
  *  Compute the greatest common divisor of two ''bigInteger'' numbers.
  *  @return the greatest common divisor of the two numbers.
+ *          The greatest common divisor is positive or zero.
  *)
 const func bigInteger: gcd (in bigInteger: number1, in bigInteger: number2)  is action "BIG_GCD";
 
@@ -465,6 +477,72 @@ const boolean: ord (in bigInteger: number, mayRaiseRangeError)           is TRUE
 
 enable_io(bigInteger);
 FOR_DECLS(bigInteger);
+
+
+(**
+ *  Convert a ''bigInteger'' number to a [[string]] in scientific notation.
+ *  Scientific notation uses a decimal significand and a decimal exponent.
+ *  The significand has an optional sign and exactly one digit before the
+ *  decimal point. The fractional part of the significand is rounded
+ *  to the specified number of digits (''precision''). Halfway cases are
+ *  rounded away from zero. The fractional part is followed by the
+ *  letter e and an exponent, which is always signed. The value zero is
+ *  never written with a negative sign.
+ *   12345_ sci 4     returns "1.2345e+4"
+ *   12345_ sci 3     returns "1.235e+4"
+ *   12345_ sci 2     returns "1.23e+4"
+ *   3141592_ sci 0   returns "3e+6"
+ *   27182818_ sci 0  returns "3e+7"
+ *   2_**64 sci 6     returns "1.844674e+19"
+ *   -1_ sci 3        returns "-1.000e+0"
+ *   -0_ sci 2        returns "0.00e+0"
+ *  @param precision Number of digits after the decimal point.
+ *         When the ''precision'' is zero the decimal point is omitted.
+ *  @return the string result of the conversion.
+ *  @exception RANGE_ERROR When the ''precision'' is negative.
+ *)
+const func string: (in bigInteger: number) sci (in integer: precision) is func
+  result
+    var string: stri is "";
+  local
+    var integer: exponent is 0;
+    var bigInteger: mantissa is 0_;
+  begin
+    if precision < 0 then
+      raise RANGE_ERROR;
+    elsif number = 0_ then
+      if precision = 0 then
+        stri := "0e+0";
+      else
+        stri := "0." & "0" mult precision & "e+0";
+      end if;
+    else
+      exponent := ord(log10(abs(number)));
+      if precision >= exponent then
+        stri := str(abs(number));
+        stri &:= "0" mult (precision - exponent);
+      else
+        mantissa := (abs(number) div 10_ ** pred(exponent - precision) + 5_) div 10_;
+        stri := str(mantissa);
+        if length(stri) > succ(precision) then
+          # Rounding up increased the number of digits.
+          incr(exponent);
+          stri := stri[.. succ(precision)];
+        end if;
+      end if;
+      if precision <> 0 then
+        stri := stri[1 len 1] & "." & stri[2 .. ];
+      end if;
+      if exponent >= 0 then
+        stri &:= "e+" <& exponent;
+      else
+        stri &:= "e" <& exponent;
+      end if;
+      if number < 0_ then
+        stri := "-" & stri;
+      end if;
+    end if;
+  end func;
 
 
 (**

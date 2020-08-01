@@ -160,7 +160,7 @@ void memcpy_to_strelem (register strElemType *const dest,
 
 
 
-void memset_to_strelem (register strElemType *dest,
+void memset_to_strelem (register strElemType *const dest,
     register const strElemType ch, memSizeType len)
 
   {
@@ -643,8 +643,7 @@ void conv_to_cstri8 (cstriType cstri, const const_striType stri,
 
 
 
-#ifdef OS_STRI_WCHAR
-memSizeType stri_to_wstri (const wstriType out_wstri,
+memSizeType stri_to_utf16 (const wstriType out_wstri,
     register const strElemType *strelem, memSizeType len,
     errInfoType *const err_info)
 
@@ -652,27 +651,28 @@ memSizeType stri_to_wstri (const wstriType out_wstri,
     register strElemType ch;
     register wstriType wstri;
 
-  /* stri_to_wstri */
+  /* stri_to_utf16 */
     wstri = out_wstri;
     for (; len > 0; wstri++, strelem++, len--) {
       ch = *strelem;
       if (likely(ch <= 0xFFFF)) {
-        *wstri = (os_charType) ch;
+        *wstri = (wcharType) ch;
       } else if (ch <= 0x10FFFF) {
         ch -= 0x10000;
-        *wstri = (os_charType) (0xD800 | (ch >> 10));
+        *wstri = (wcharType) (0xD800 | (ch >> 10));
         wstri++;
-        *wstri = (os_charType) (0xDC00 | (ch & 0x3FF));
+        *wstri = (wcharType) (0xDC00 | (ch & 0x3FF));
       } else {
         *err_info = RANGE_ERROR;
         len = 1;
       } /* if */
     } /* for */
     return (memSizeType) (wstri - out_wstri);
-  } /* stri_to_wstri */
+  } /* stri_to_utf16 */
 
 
 
+#ifdef OS_STRI_WCHAR
 static inline void conv_to_os_stri (register os_striType os_stri,
     register const strElemType *strelem, memSizeType len,
     errInfoType *const err_info)
@@ -898,14 +898,13 @@ static inline void conv_to_os_stri (const os_striType os_stri,
 
 
 
-#if defined OS_STRI_WCHAR
 static memSizeType wstri_expand (strElemType *const dest_stri,
     const_wstriType wstri, memSizeType len)
 
   {
     strElemType *stri;
-    os_charType ch1;
-    os_charType ch2;
+    wcharType ch1;
+    wcharType ch2;
 
   /* wstri_expand */
     stri = dest_stri;
@@ -930,6 +929,7 @@ static memSizeType wstri_expand (strElemType *const dest_stri,
 
 
 
+#if defined OS_STRI_WCHAR
 /**
  *  Convert an os_striType string with length to a Seed7 UTF-32 string.
  *  Many system calls return os_striType data with length. System calls
@@ -1352,7 +1352,7 @@ bstriType stri_to_bstriw (const_striType stri)
     if (stri->size > ((MAX_BSTRI_LEN / sizeof(os_charType)) / 2)) {
       bstri = NULL;
     } else if (ALLOC_BSTRI_SIZE_OK(bstri, stri->size * 2 * sizeof(os_charType))) {
-      wstri_size = stri_to_wstri((wstriType) bstri->mem, stri->mem, stri->size, &err_info);
+      wstri_size = stri_to_utf16((wstriType) bstri->mem, stri->mem, stri->size, &err_info);
       if (err_info != OKAY_NO_ERROR) {
         FREE_BSTRI(bstri, stri->size * 2 * sizeof(os_charType));
         bstri = NULL;
@@ -1399,6 +1399,26 @@ bstriType stri_to_os_bstri (const_striType stri)
     return bstri;
   } /* stri_to_os_bstri */
 #endif
+
+
+
+wstriType stri_to_wstri_buf (const const_striType stri, memSizeType *length,
+      errInfoType *err_info)
+
+  {
+    wstriType wstri;
+
+  /* stri_to_wstri_buf */
+    if (unlikely(stri->size > MAX_WSTRI_LEN / 2 ||
+                 !ALLOC_WSTRI(wstri, 2 * stri->size))) {
+      *err_info = MEMORY_ERROR;
+      wstri = NULL;
+    } else {
+      *length = stri_to_utf16(wstri, stri->mem, stri->size, err_info);
+      wstri[*length] = '\0';
+    } /* if */
+    return wstri;
+  } /* stri_to_wstri_buf */
 
 
 
@@ -1563,6 +1583,37 @@ striType cstri8_or_cstri_to_stri (const_cstriType cstri)
     } /* if */
     return stri;
   } /* cstri8_or_cstri_to_stri */
+
+
+
+striType wstri_buf_to_stri (const_wstriType wstri, memSizeType length,
+    errInfoType *err_info)
+
+  {
+    memSizeType stri_size;
+    striType resized_stri;
+    striType stri;
+
+  /* wstri_buf_to_stri */
+    if (!ALLOC_STRI_CHECK_SIZE(stri, length)) {
+      *err_info = MEMORY_ERROR;
+    } else {
+      stri_size = wstri_expand(stri->mem, wstri, length);
+      stri->size = stri_size;
+      if (stri_size != length) {
+        REALLOC_STRI_SIZE_SMALLER(resized_stri, stri, length, stri_size);
+        if (resized_stri == NULL) {
+          *err_info = MEMORY_ERROR;
+          FREE_STRI(stri, length);
+          stri = NULL;
+        } else {
+          stri = resized_stri;
+          COUNT3_STRI(length, stri_size);
+        } /* if */
+      } /* if */
+    } /* if */
+    return stri;
+  } /* wstri_buf_to_stri */
 
 
 

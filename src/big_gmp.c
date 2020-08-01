@@ -48,7 +48,7 @@
 #include "big_drv.h"
 
 
-#define HEAP_ALLOC_BIG     malloc(sizeof(__mpz_struct))
+#define HEAP_ALLOC_BIG     (bigIntType) malloc(sizeof(__mpz_struct))
 #define HEAP_FREE_BIG(var) free(var)
 
 #ifdef WITH_BIGINT_FREELIST
@@ -91,7 +91,7 @@ cstriType bigHexCStri (const const_bigIntType big1)
   /* bigHexCStri */
     if (big1 != NULL) {
       count = (mpz_sizeinbase(big1, 2) + 7) / 8;
-      buffer = malloc(count);
+      buffer = (ustriType) malloc(count);
       if (buffer == NULL) {
         raise_error(MEMORY_ERROR);
         result = NULL;
@@ -379,12 +379,12 @@ void bigDecr (bigIntType *const big_variable)
 
 
 
-void bigDestr (const bigIntType old_bigint)
+void bigDestr (const const_bigIntType old_bigint)
 
   { /* bigDestr */
     if (old_bigint != NULL) {
-      mpz_clear(old_bigint);
-      FREE_BIG(old_bigint);
+      mpz_clear((bigIntType) old_bigint);
+      FREE_BIG((bigIntType) old_bigint);
     } /* if */
   } /* bigDestr */
 
@@ -473,7 +473,7 @@ bigIntType bigFromByteBufferBe (const memSizeType size,
     ALLOC_BIG(result);
     mpz_init(result);
     if (isSigned && size != 0 && buffer[0] >= 128) {
-      negated_buffer = malloc(size);
+      negated_buffer = (ustriType) malloc(size);
       carry = 1;
       pos = size;
       while (pos > 0) {
@@ -507,7 +507,7 @@ bigIntType bigFromByteBufferLe (const memSizeType size,
     ALLOC_BIG(result);
     mpz_init(result);
     if (isSigned && size != 0 && buffer[size - 1] >= 128) {
-      negated_buffer = malloc(size);
+      negated_buffer = (ustriType) malloc(size);
       carry = 1;
       pos = 0;
       while (pos < size) {
@@ -655,6 +655,7 @@ bigIntType bigFromUInt64 (uint64Type number)
 /**
  *  Compute the greatest common divisor of two 'bigInteger' numbers.
  *  @return the greatest common divisor of the two numbers.
+ *          The greatest common divisor is positive or zero.
  */
 bigIntType bigGcd (const const_bigIntType big1,
     const const_bigIntType big2)
@@ -674,12 +675,31 @@ bigIntType bigGcd (const const_bigIntType big1,
 /**
  *  Increment a 'bigInteger' variable by a delta.
  *  Adds delta to *big_variable.
+ *  @param delta The delta to be added to *big_variable.
  */
 void bigGrow (bigIntType *const big_variable, const const_bigIntType delta)
 
   { /* bigGrow */
     mpz_add(*big_variable, *big_variable, delta);
   } /* bigGrow */
+
+
+
+/**
+ *  Increment a 'bigInteger' variable by a delta.
+ *  Adds delta to *big_variable.
+ *  @param delta The delta to be added to *big_variable.
+ *         Delta must be in the range of a long int.
+ */
+void bigGrowSignedDigit (bigIntType *const big_variable, const intType delta)
+
+  { /* bigGrowSignedDigit */
+    if (delta < 0) {
+      mpz_sub_ui(*big_variable, *big_variable, (unsigned long int) -delta);
+    } else {
+      mpz_add_ui(*big_variable, *big_variable, (unsigned long int) delta);
+    } /* if */
+  } /* bigGrowSignedDigit */
 
 
 
@@ -724,19 +744,76 @@ void bigIncr (bigIntType *const big_variable)
 bigIntType bigIPow (const const_bigIntType base, intType exponent)
 
   {
-    bigIntType result;
+    bigIntType power;
 
   /* bigIPow */
-    if (exponent < 0) {
+    if (unlikely(exponent < 0)) {
       raise_error(NUMERIC_ERROR);
-      result = NULL;
+      power = NULL;
     } else {
-      ALLOC_BIG(result);
-      mpz_init(result);
-      mpz_pow_ui(result, base, (uintType) exponent);
+      ALLOC_BIG(power);
+      mpz_init(power);
+      mpz_pow_ui(power, base, (uintType) exponent);
     } /* if */
-    return result;
+    return power;
   } /* bigIPow */
+
+
+
+/**
+ *  Compute the exponentiation of a bigdigit base with an integer exponent.
+ *  @param base Base that must be in the range of a long int.
+ *  @return the result of the exponentation.
+ *  @exception NUMERIC_ERROR When the exponent is negative.
+ */
+bigIntType bigIPowSignedDigit (intType base, intType exponent)
+
+  {
+    bigIntType power;
+
+  /* bigIPowSignedDigit */
+    if (unlikely(exponent < 0)) {
+      raise_error(NUMERIC_ERROR);
+      power = NULL;
+    } else {
+      ALLOC_BIG(power);
+      mpz_init_set_si(power, base);
+      mpz_pow_ui(power, power, (uintType) exponent);
+    } /* if */
+    return power;
+  } /* bigIPowSignedDigit */
+
+
+
+/**
+ *  Compute the truncated base 10 logarithm of a 'bigInteger' number.
+ *  The definition of 'log10' is extended by defining log10(0) = -1_.
+ *  @return the truncated base 10 logarithm.
+ *  @exception NUMERIC_ERROR The number is negative.
+ */
+bigIntType bigLog10 (const const_bigIntType big1)
+
+  {
+    int sign;
+    char *cstri;
+    bigIntType logarithm;
+
+  /* bigLog10 */
+    sign = mpz_sgn(big1);
+    if (sign < 0) {
+      raise_error(NUMERIC_ERROR);
+      logarithm = NULL;
+    } else if (sign == 0) {
+      ALLOC_BIG(logarithm);
+      mpz_init_set_si(logarithm, -1);
+    } else {
+      cstri = mpz_get_str(NULL, 10, big1);
+      ALLOC_BIG(logarithm);
+      mpz_init_set_ui(logarithm, strlen(cstri) - 1);
+      free(cstri);
+    } /* if */
+    return logarithm;
+  } /* bigLog10 */
 
 
 
@@ -1518,7 +1595,7 @@ bstriType bigToBStriBe (const const_bigIntType big1, const boolType isSigned)
 
   /* bigToBStriBe */
     count = (mpz_sizeinbase(big1, 2) + 7) / 8;
-    buffer = malloc(count);
+    buffer = (ustriType) malloc(count);
     if (buffer == NULL) {
       raise_error(MEMORY_ERROR);
       result = NULL;
@@ -1608,7 +1685,7 @@ bstriType bigToBStriLe (const const_bigIntType big1, const boolType isSigned)
 
   /* bigToBStriLe */
     count = (mpz_sizeinbase(big1, 2) + 7) / 8;
-    buffer = malloc(count);
+    buffer = (ustriType) malloc(count);
     if (buffer == NULL) {
       raise_error(MEMORY_ERROR);
       result = NULL;

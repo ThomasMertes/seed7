@@ -110,7 +110,7 @@ void conWrite (const_striType stri)
 #elif defined CONSOLE_WCHAR
       wchar_t stri_buffer[2 * WRITE_STRI_BLOCK_SIZE];
 
-      size = stri_to_wstri(stri_buffer, stri->mem, stri->size, &err_info);
+      size = stri_to_utf16(stri_buffer, stri->mem, stri->size, &err_info);
 #else
       ucharType stri_buffer[WRITE_STRI_BLOCK_SIZE + 1];
 

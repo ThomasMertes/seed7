@@ -118,6 +118,97 @@ int _matherr (struct _exception *a)
 
 
 
+int64Type getMantissaAndExponent (double doubleValue, int *binaryExponent)
+
+  {
+    double mantissa;
+    int exponent;
+    int64Type intMantissa;
+
+  /* getMantissaAndExponent */
+    mantissa = frexp(doubleValue, &exponent);
+    intMantissa = (int64Type) (mantissa * DOUBLE_MANTISSA_FACTOR);
+    *binaryExponent = exponent - DOUBLE_MANTISSA_SHIFT;
+    return intMantissa;
+  } /* getMantissaAndExponent */
+
+
+
+double setMantissaAndExponent (int64Type intMantissa, int binaryExponent)
+
+  {
+    double mantissa;
+    int exponent;
+    double doubleValue;
+
+  /* setMantissaAndExponent */
+    mantissa = (double) intMantissa / DOUBLE_MANTISSA_FACTOR;
+    exponent = binaryExponent + DOUBLE_MANTISSA_SHIFT;
+    doubleValue = ldexp(mantissa, exponent);
+    return doubleValue;
+  } /* setMantissaAndExponent */
+
+
+
+memSizeType doubleToCharBuffer (double doubleValue, double largeNumber,
+    char *format, char *buffer)
+
+  {
+    long decimalExponent;
+    memSizeType start;
+    memSizeType scale;
+    memSizeType len;
+
+  /* doubleToCharBuffer */
+    if (doubleValue == 0.0) {
+      memcpy(buffer, "0.0", 3);
+      len = 3;
+    } else if (doubleValue < -largeNumber || doubleValue > largeNumber) {
+      sprintf(buffer, "%1.1f", doubleValue);
+      len = strlen(buffer);
+    } else {
+      sprintf(buffer, format, doubleValue);
+      /* printf("buffer: \"%s\"\n", buffer); */
+      len = strlen(buffer);
+      decimalExponent = strtol(&buffer[len - DOUBLE_DECIMAL_EXPONENT_DIGITS - 1], NULL, 10);
+      /* printf("decimalExponent: %ld\n", decimalExponent); */
+      len -= DOUBLE_DECIMAL_EXPONENT_DIGITS + 2;
+      do {
+        len--;
+      } while (buffer[len] == '0');
+      len++;
+      /* printf("len: %lu\n", len); */
+      start = buffer[0] == '-';
+      if (decimalExponent > 0) {
+        scale = (memSizeType) decimalExponent;
+        if (scale >= len - start - 2) {
+          memmove(&buffer[start + 1], &buffer[start + 2], len - start - 2);
+          memset(&buffer[len - 1], '0', scale + 2 - len + start);
+          memcpy(&buffer[start + scale + 1], ".0", 2);
+          len = start + scale + 3;
+        } else {
+          memmove(&buffer[start + 1], &buffer[start + 2], scale);
+          buffer[start + scale + 1] = '.';
+        } /* if */
+      } else if (decimalExponent < 0) {
+        scale = (memSizeType) -decimalExponent;
+        memmove(&buffer[start + 2 + scale], &buffer[start + 2], len - start - 2);
+        buffer[start + 1 + scale] = buffer[start];
+        memset(&buffer[start + 2], '0', scale - 1);
+        memcpy(&buffer[start], "0.", 2);
+        len += scale;
+      } else if (buffer[len - 1] == '.') {
+        len++;
+      } /* if */
+      /* printf("len: %lu\n", len);
+         buffer[len] = '\0';
+         printf("buffer: \"%s\"\n", buffer); */
+    } /* if */
+    return len;
+  } /* doubleToCharBuffer */
+
+
+
 /**
  *  Compare two float numbers.
  *  Because fltCmp is used to sort float values, a total
@@ -194,14 +285,19 @@ void fltCpyGeneric (genericType *const dest, const genericType source)
 
 /**
  *  Convert a float to a string in decimal fixed point notation.
- *  The 'precision' parameter specifies the number of digits after
- *  the decimal point. When the 'precision' is zero the decimal
- *  point is omitted. When all digits in the result are 0 a negative
- *  sign is omitted.
+ *  The number is rounded to the specified number of digits ('precision').
+ *  Halfway cases are rounded away from zero. Except for a 'precision' of
+ *  zero the representation has a decimal point and at least one digit
+ *  before and after the decimal point. Negative numbers are preceeded by
+ *  a minus sign (e.g.: "-1.25"). When all digits in the result are 0 a
+ *  possible negative sign is omitted.
+ *  @param precision Number of digits after the decimal point.
+ *         When the 'precision' is zero the decimal point is omitted.
  *  @return the string result of the conversion.
+ *  @exception RANGE_ERROR When the 'precision' is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-striType fltDgts (floatType number, intType digits_precision)
+striType fltDgts (floatType number, intType precision)
 
   {
     char buffer[2001];
@@ -213,48 +309,50 @@ striType fltDgts (floatType number, intType digits_precision)
     striType result;
 
   /* fltDgts */
-    if (digits_precision < 0) {
-      digits_precision = 0;
-    } /* if */
-    if (digits_precision > 1000) {
-      digits_precision = 1000;
-    } /* if */
-    if (isnan(number)) {
-      buffer_ptr = "NaN";
-    } else if (number == POSITIVE_INFINITY) {
-      buffer_ptr = "Infinity";
-    } else if (number == NEGATIVE_INFINITY) {
-      buffer_ptr = "-Infinity";
+    if (precision < 0) {
+      raise_error(RANGE_ERROR);
+      result = NULL;
     } else {
-#ifdef USE_VARIABLE_FORMATS
-      sprintf(buffer, "%1.*f", (int) digits_precision, number);
-#else
-      if (digits_precision > MAX_FORM) {
-        sprintf(form_buffer, "%%1.%ldf", digits_precision);
-        sprintf(buffer, form_buffer, number);
-      } else {
-        sprintf(buffer, form[digits_precision], number);
+      if (precision > 1000) {
+        precision = 1000;
       } /* if */
+      if (isnan(number)) {
+        buffer_ptr = "NaN";
+      } else if (number == POSITIVE_INFINITY) {
+        buffer_ptr = "Infinity";
+      } else if (number == NEGATIVE_INFINITY) {
+        buffer_ptr = "-Infinity";
+      } else {
+#ifdef USE_VARIABLE_FORMATS
+        sprintf(buffer, "%1.*f", (int) precision, number);
+#else
+        if (precision > MAX_FORM) {
+          sprintf(form_buffer, "%%1.%ldf", precision);
+          sprintf(buffer, form_buffer, number);
+        } else {
+          sprintf(buffer, form[precision], number);
+        } /* if */
 #endif
-      buffer_ptr = buffer;
-      if (buffer[0] == '-' && buffer[1] == '0') {
-        /* All forms of -0 are converted to 0 */
-        if (buffer[2] == '.') {
-          pos = 3;
-          while (buffer[pos] == '0') {
-            pos++;
-          } /* while */
-          if (buffer[pos] == '\0') {
+        buffer_ptr = buffer;
+        if (buffer[0] == '-' && buffer[1] == '0') {
+          /* All forms of -0 are converted to 0 */
+          if (buffer[2] == '.') {
+            pos = 3;
+            while (buffer[pos] == '0') {
+              pos++;
+            } /* while */
+            if (buffer[pos] == '\0') {
+              buffer_ptr++;
+            } /* if */
+          } else if (buffer[2] == '\0') {
             buffer_ptr++;
           } /* if */
-        } else if (buffer[2] == '\0') {
-          buffer_ptr++;
         } /* if */
       } /* if */
-    } /* if */
-    result = cstri_to_stri(buffer_ptr);
-    if (unlikely(result == NULL)) {
-      raise_error(MEMORY_ERROR);
+      result = cstri_to_stri(buffer_ptr);
+      if (unlikely(result == NULL)) {
+        raise_error(MEMORY_ERROR);
+      } /* if */
     } /* if */
     return result;
   } /* fltDgts */
@@ -620,15 +718,18 @@ floatType fltRand (floatType low, floatType high)
 
 
 /**
- *  Convert a float to a string in scientific notation.
- *  Scientific notation uses a decimal float with optional sign, which
- *  has only one digit before the decimal point. The float is followed
- *  by the letter e and an exponent, which is always signed.
- *  The 'precision' parameter specifies the number of digits after
- *  the decimal point. When the 'precision' is zero the decimal
- *  point is omitted. When all digits in the result are 0 a negative
- *  sign is omitted.
+ *  Convert a 'float' number to a [[string]] in scientific notation.
+ *  Scientific notation uses a decimal significand and a decimal exponent.
+ *  The significand has an optional sign and exactly one digit before the
+ *  decimal point. The fractional part of the significand is rounded
+ *  to the specified number of digits ('precision'). Halfway cases are
+ *  rounded away from zero. The fractional part is followed by the
+ *  letter e and an exponent, which is always signed. The value zero is
+ *  never written with a negative sign.
+ *  @param precision Number of digits after the decimal point.
+ *         When the 'precision' is zero the decimal point is omitted.
  *  @return the string result of the conversion.
+ *  @exception RANGE_ERROR When the 'precision' is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 striType fltSci (floatType number, intType precision)
@@ -647,38 +748,48 @@ striType fltSci (floatType number, intType precision)
 
   /* fltSci */
     if (precision < 0) {
-      precision = 0;
-    } /* if */
-    if (precision > 1000) {
-      precision = 1000;
-    } /* if */
-    if (isnan(number)) {
-      buffer_ptr = "NaN";
-    } else if (number == POSITIVE_INFINITY) {
-      buffer_ptr = "Infinity";
-    } else if (number == NEGATIVE_INFINITY) {
-      buffer_ptr = "-Infinity";
+      raise_error(RANGE_ERROR);
+      result = NULL;
     } else {
-#ifdef USE_VARIABLE_FORMATS
-      sprintf(buffer, "%1.*e", (int) precision, number);
-#else
-      if (precision > MAX_FORM) {
-        sprintf(form_buffer, "%%1.%lde", precision);
-        sprintf(buffer, form_buffer, number);
-      } else {
-        sprintf(buffer, form[precision], number);
+      if (precision > 1000) {
+        precision = 1000;
       } /* if */
+      if (isnan(number)) {
+        buffer_ptr = "NaN";
+      } else if (number == POSITIVE_INFINITY) {
+        buffer_ptr = "Infinity";
+      } else if (number == NEGATIVE_INFINITY) {
+        buffer_ptr = "-Infinity";
+      } else {
+#ifdef USE_VARIABLE_FORMATS
+        sprintf(buffer, "%1.*e", (int) precision, number);
+#else
+        if (precision > MAX_FORM) {
+          sprintf(form_buffer, "%%1.%lde", precision);
+          sprintf(buffer, form_buffer, number);
+        } else {
+          sprintf(buffer, form[precision], number);
+        } /* if */
 #endif
-      startPos = 0;
-      if (buffer[0] == '-' && buffer[1] == '0') {
-        /* All forms of -0 are converted to 0 */
-        if (buffer[2] == '.') {
-          pos = 3;
-          while (buffer[pos] == '0') {
-            pos++;
-          } /* while */
-          if (buffer[pos] == 'e' && buffer[pos + 2] == '0') {
-            pos += 3;
+        startPos = 0;
+        if (buffer[0] == '-' && buffer[1] == '0') {
+          /* All forms of -0 are converted to 0 */
+          if (buffer[2] == '.') {
+            pos = 3;
+            while (buffer[pos] == '0') {
+              pos++;
+            } /* while */
+            if (buffer[pos] == 'e' && buffer[pos + 2] == '0') {
+              pos += 3;
+              while (buffer[pos] == '0') {
+                pos++;
+              } /* while */
+              if (buffer[pos] == '\0') {
+                startPos++;
+              } /* if */
+            } /* if */
+          } else if (buffer[2] == 'e' && buffer[4] == '0') {
+            pos = 5;
             while (buffer[pos] == '0') {
               pos++;
             } /* while */
@@ -686,38 +797,30 @@ striType fltSci (floatType number, intType precision)
               startPos++;
             } /* if */
           } /* if */
-        } else if (buffer[2] == 'e' && buffer[4] == '0') {
-          pos = 5;
-          while (buffer[pos] == '0') {
-            pos++;
+        } /* if */
+        len = strlen(buffer);
+        if (len > startPos) {
+          pos = len;
+          do {
+            pos--;
+          } while (pos > startPos && buffer[pos] != 'e');
+          pos += 2;
+          after_zeros = pos;
+          while (buffer[after_zeros] == '0') {
+            after_zeros++;
           } /* while */
-          if (buffer[pos] == '\0') {
-            startPos++;
+          if (buffer[after_zeros] == '\0') {
+            after_zeros--;
           } /* if */
+          memmove(&buffer[pos], &buffer[after_zeros],
+              sizeof(char) * (len - after_zeros + 1));
         } /* if */
+        buffer_ptr = &buffer[startPos];
       } /* if */
-      len = strlen(buffer);
-      if (len > startPos) {
-        pos = len;
-        do {
-          pos--;
-        } while (pos > startPos && buffer[pos] != 'e');
-        pos += 2;
-        after_zeros = pos;
-        while (buffer[after_zeros] == '0') {
-          after_zeros++;
-        } /* while */
-        if (buffer[after_zeros] == '\0') {
-          after_zeros--;
-        } /* if */
-        memmove(&buffer[pos], &buffer[after_zeros],
-            sizeof(char) * (len - after_zeros + 1));
+      result = cstri_to_stri(buffer_ptr);
+      if (unlikely(result == NULL)) {
+        raise_error(MEMORY_ERROR);
       } /* if */
-      buffer_ptr = &buffer[startPos];
-    } /* if */
-    result = cstri_to_stri(buffer_ptr);
-    if (unlikely(result == NULL)) {
-      raise_error(MEMORY_ERROR);
     } /* if */
     return result;
   } /* fltSci */
@@ -734,39 +837,34 @@ striType fltSci (floatType number, intType precision)
 striType fltStr (floatType number)
 
   {
-    char buffer[1001];
+    char buffer[1024];
     memSizeType len;
     striType result;
 
   /* fltStr */
     if (isnan(number)) {
       strcpy(buffer, "NaN");
+      len = 3;
     } else if (number == POSITIVE_INFINITY) {
       strcpy(buffer, "Infinity");
+      len = 8;
     } else if (number == NEGATIVE_INFINITY) {
       strcpy(buffer, "-Infinity");
+      len = 9;
     } else {
-      sprintf(buffer, "%1.50f", number);
-    } /* if */
-    len = strlen(buffer);
-    do {
-      len--;
-    } while (len >= 1 && buffer[len] == '0');
-    if (buffer[len] == '.') {
-      len++;
-    } /* if */
-    len++;
-    if (len == 4 && memcmp(buffer, "-0.0", 4) == 0) {
-      /* -0.0 is converted to 0.0 */
-      memcpy(buffer, "0.0", 3);
-      len = 3;
+#ifdef FLOATTYPE_DOUBLE
+      len = doubleToCharBuffer(number, DOUBLE_STR_LARGE_NUMBER,
+                               DOUBLE_STR_FORMAT, buffer);
+#else
+      len = doubleToCharBuffer(number, FLOAT_STR_LARGE_NUMBER,
+                               FLOAT_STR_FORMAT, buffer);
+#endif
     } /* if */
     if (unlikely(!ALLOC_STRI_SIZE_OK(result, len))) {
       raise_error(MEMORY_ERROR);
-      return NULL;
     } else {
       result->size = len;
       memcpy_to_strelem(result->mem, (const_ustriType) buffer, len);
-      return result;
     } /* if */
+    return result;
   } /* fltStr */

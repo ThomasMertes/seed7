@@ -1752,19 +1752,18 @@ CONTENTS
 
 5.2 integer
 
-    The type 'integer' consists of signed integer numbers
-  which are at least 32 bits wide. An integer literal is
-  a sequence of digits which is taken to be decimal. The
-  sequence of digits may be followed by the letter E or e
-  an optional + sign and a decimal exponent. Based numbers
-  can be specified when the sequence of digits is followed
-  by the # character and a sequence of extended digits.
-  The decimal number in front of the # character specifies
-  the base of the number which follows the # character.
-  As base a number between 2 and 36 is allowed. As
-  extended digits the letters A or a can be used for 10,
-  B or b can be used for 11 and so on to Z or z which can
-  be used as 35. Examples of 'integer' literals are:
+    The type 'integer' consists of signed 64-bit integer
+  numbers. An integer integer literal is a sequence of digits
+  which is taken to be decimal. The sequence of digits may be
+  followed by the letter E or e an optional + sign and a
+  decimal exponent. Based numbers can be specified when the
+  sequence of digits is followed by the # character and a
+  sequence of extended digits. The decimal number in front of
+  the # character specifies the base of the number which
+  follows the # character. As base a number between 2 and 36
+  is allowed. As extended digits the letters A or a can be
+  used for 10, B or b can be used for 11 and so on to Z or z
+  which can be used as 35. Examples of 'integer' literals are:
 
     0   2147483647   1E6   2e+9   16#c0   16#FFFF   8#177777   2#1010101010
 
@@ -1853,6 +1852,16 @@ CONTENTS
                     -12 rpad  4 => "-12 ",
                     -12 rpad  3 => "-12",
                     -12 rpad  2 => "-12" )
+      sci       Conversion to a string in scientific notation
+                  ( Type of result: string,
+                    12345 sci 4 => "1.2345e+4",
+                    12345 sci 3 => "1.235e+4",
+                    12345 sci 2 => "1.23e+4",
+                    3141592 sci 0 => "3e+6",
+                    27182818 sci 0 => "3e+7",
+                    2**62 sci 6 => "4.611686e+18",
+                    -1 sci 3 => "-1.000e+0",
+                    -0 sci 2 => "0.00e+0" )
       integer conv A   Identity
                   ( integer conv A => A )
       integer parse A   Conversion of string to integer
@@ -1884,6 +1893,14 @@ CONTENTS
                   ( sqrt(A) is okay for A >= 0
                     sqrt(A) => trunc(sqrt(flt(A))),
                     sqrt(-1) => EXCEPTION NUMERIC_ERROR )
+      log10(A)  Truncated base 10 logarithm
+                  ( log10(A) is defined for A >= 0
+                    log10(10 ** A) = A for A >= 0,
+                    log10(pred(10 ** A)) = pred(A) for A >= 0,
+                    log10(10) => 1,
+                    log10(1) => 0,
+                    log10(0) => -1,
+                    log10(-1) => EXCEPTION NUMERIC_ERROR )
       log2(A)   Truncated base 2 logarithm
                   ( log2(A) returns the position of the
                     highest bit set. It is defined for A >= 0
@@ -2085,6 +2102,17 @@ CONTENTS
                     3735928559_ RADIX 16 => "DEADBEEF",
                     -3735928559_ RADIX 16 ) => "-DEADBEEF",
                     123_ RADIX 37 => EXCEPTION RANGE_ERROR )
+      sci       Conversion to a string in scientific notation
+                  ( Type of right operand: integer,
+                    Type of result: string,
+                    12345_ sci 4 => "1.2345e+4",
+                    12345_ sci 3 => "1.235e+4",
+                    12345_ sci 2 => "1.23e+4",
+                    3141592_ sci 0 => "3e+6",
+                    27182818_ sci 0 => "3e+7",
+                    2_**62 sci 6 => "4.611686e+18",
+                    -1_ sci 3 => "-1.000e+0",
+                    -0_ sci 2 => "0.00e+0" )
       bigInteger conv A   Conversion of integer to bigInteger
                   ( Type of argument A: integer,
                     bigInteger conv 1 => 1_ )
@@ -2117,6 +2145,14 @@ CONTENTS
                     sqrt(A) => trunc(sqrt(flt(A))),
                     sqrt(-1_) => EXCEPTION NUMERIC_ERROR )
       modInverse(A, B) Compute the modular multiplicative inverse of A modulo B
+      log10(A)  Truncated base 10 logarithm
+                  ( log10(A) is defined for A >= 0_
+                    log10(10_ ** A) = A for A >= 0_,
+                    log10(pred(10_ ** A)) = pred(A) for A >= 0_,
+                    log10(10_) => 1_,
+                    log10(1_) => 0_,
+                    log10(0_) => -1_,
+                    log10(-1_) => EXCEPTION NUMERIC_ERROR )
       log2(A)   Truncated base 2 logarithm
                   ( log2(A) returns the position of the
                     highest bit set. It is defined for A >= 0
@@ -2283,7 +2319,31 @@ CONTENTS
                     rational conv 1 => 1 / 1 )
       digits    Conversion to string with specified precision
                   ( Type of right operand: integer,
-                    Type of result: string )
+                    Type of result: string,
+                    1/64 digits 7 => "0.0156250",
+                    1/64 digits 4 => "0.0156",
+                    1/64 digits 2 => "0.02",
+                    355/113 digits 6 => "3.141593",
+                    22/7 digits 0 => "3",
+                    -1/2 digits 1 => "-1",
+                    1/0 digits 5 => "Infinity",
+                    -1/0 digits 6 => "-Infinity",
+                    0/0 digits 7 => "NaN",
+                    -1/2048 digits 3 => "0.000" )
+      sci       Conversion to a string in scientific notation
+                  ( Type of right operand: integer,
+                    Type of result: string,
+                    1/64 sci 4 => "1.5625e-2",
+                    1/64 sci 3 => "1.563e-2",
+                    1/64 sci 2 => "1.56e-2",
+                    355/113 sci 6 => "3.141593e+0",
+                    22/7 sci 0 => "3e+0",
+                    -1/2 sci 1 => "-5.0e-1",
+                    1/0 sci 5 => "Infinity",
+                    -1/0 sci 6 => "-Infinity",
+                    0/0 sci 7 => "NaN",
+                    -1/2048 sci 3 => "-4.883e-4",
+                    -0/1 sci 2 => "0.00e+0" )
       rational parse A   Conversion of string to rational
                   ( Type of argument A: string )
     Relations:
@@ -2373,7 +2433,31 @@ CONTENTS
                     bigRational conv 1_ => 1_ / 1_ )
       digits    Conversion to string with specified precision
                   ( Type of right operand: integer,
-                    Type of result: string )
+                    Type of result: string,
+                    1_/64_ digits 7 => "0.0156250",
+                    1_/64_ digits 4 => "0.0156",
+                    1_/64_ digits 2 => "0.02",
+                    355_/113_ digits 6 => "3.141593",
+                    22_/7_ digits 0 => "3",
+                    -1_/2_ digits 1 => "-1",
+                    1_/0_ digits 5 => "Infinity",
+                    -1_/0_ digits 6 => "-Infinity",
+                    0_/0_ digits 7 => "NaN",
+                    -1_/2048_ digits 3 => "0.000" )
+      sci       Conversion to a string in scientific notation
+                  ( Type of right operand: integer,
+                    Type of result: string,
+                    1_/64_ sci 4 => "1.5625e-2",
+                    1_/64_ sci 3 => "1.563e-2",
+                    1_/64_ sci 2 => "1.56e-2",
+                    355_/113_ sci 6 => "3.141593e+0",
+                    22_/7_ sci 0 => "3e+0",
+                    -1_/2_ sci 1 => "-5.0e-1",
+                    1_/0_ sci 5 => "Infinity",
+                    -1_/0_ sci 6 => "-Infinity",
+                    0_/0_ sci 7 => "NaN",
+                    -1_/2048_ sci 3 => "-4.883e-4",
+                    -0_/1_ sci 2 => "0.00e+0" )
       bigRational parse A   Conversion of string to bigRational
                   ( Type of argument A: string )
     Relations:
@@ -2428,7 +2512,7 @@ CONTENTS
 
 5.6 float
 
-    The type 'float' consists of single precision floating point
+    The type 'float' consists of double precision floating point
   numbers. Float literals use base 10 and contain a decimal point.
   There must be at least one digit before and after the decimal point.
   An exponent part, which is introduced with E or e, is optional.

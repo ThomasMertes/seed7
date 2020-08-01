@@ -56,6 +56,7 @@ striType intBytesLe (intType number, boolType isSigned);
 intType intBytesLe2Int (const const_striType byteStri, boolType isSigned);
 intType intCmp (intType number1, intType number2);
 void intCpy (intType *dest, intType source);
+intType intLog10 (intType number);
 intType intLog2 (intType number);
 intType intLowestSetBit (intType number);
 striType intLpad0 (intType number, const intType pad_size);

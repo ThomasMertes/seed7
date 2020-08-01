@@ -28,9 +28,9 @@
 
 (**
  *  Rational numbers represented with 'integer' numerator and denominator.
- *  The values of the type 'rational' are finite and periodical
+ *  The values of the type ''rational'' are finite and periodical
  *  decimal numbers. Rational literals do not exist. The result of a
- *  'rational' operation is undefined when it overflows.
+ *  ''rational'' operation is undefined when it overflows.
  *)
 const type: rational is new object struct
     var integer: numerator is 0;
@@ -53,19 +53,17 @@ const proc: reduce (inout rational: number) is func
     var integer: b is 0;
     var integer: help is 0;
   begin
-    if number.numerator >= 0 then
-      a := number.numerator;
-    else
-      a := -number.numerator;
-    end if;
+    a := abs(number.numerator);
     b := number.denominator;
     while a <> 0 do
       help := b rem a;
       b := a;
       a := help;
     end while;
-    number.numerator := number.numerator div b;
-    number.denominator := number.denominator div b;
+    if b >= 2 then
+      number.numerator := number.numerator div b;
+      number.denominator := number.denominator div b;
+    end if;
   end func;
 
 
@@ -106,8 +104,8 @@ const func integer: gcd2 (in integer: numerator, in integer: denominator) is fun
 
 
 (**
- *  Create a rational number from its numerator and denominator.
- *  @return the created rational value.
+ *  Create a ''rational'' number from its numerator and denominator.
+ *  @return the created ''rational'' value.
  *)
 const func rational: (in integer: numerator) / (in integer: denominator) is func
   result
@@ -121,7 +119,7 @@ const func rational: (in integer: numerator) / (in integer: denominator) is func
 
 
 (**
- *  Plus sign for rational numbers.
+ *  Plus sign for ''rational'' numbers.
  *  @return its operand unchanged.
  *)
 const func rational: + (in rational: number) is
@@ -129,7 +127,7 @@ const func rational: + (in rational: number) is
 
 
 (**
- *  Minus sign, negate a rational number.
+ *  Minus sign, negate a ''rational'' number.
  *  @return the negated value of the number.
  *)
 const func rational: - (in rational: number) is func
@@ -142,7 +140,7 @@ const func rational: - (in rational: number) is func
 
 
 (**
- *  Add two rational numbers.
+ *  Add two ''rational'' numbers.
  *  @return the sum of the two numbers.
  *)
 const func rational: (in rational: summand1) + (in rational: summand2) is func
@@ -160,7 +158,7 @@ const func rational: (in rational: summand1) + (in rational: summand2) is func
 
 
 (**
- *  Compute the subtraction of two rational numbers.
+ *  Compute the subtraction of two ''rational'' numbers.
  *  @return the difference of the two numbers.
  *)
 const func rational: (in rational: minuend) - (in rational: subtrahend) is func
@@ -178,7 +176,7 @@ const func rational: (in rational: minuend) - (in rational: subtrahend) is func
 
 
 (**
- *  Multiply two rational numbers.
+ *  Multiply two ''rational'' numbers.
  *  @return the product of the two numbers.
  *)
 const func rational: (in rational: factor1) * (in rational: factor2) is func
@@ -196,7 +194,7 @@ const func rational: (in rational: factor1) * (in rational: factor2) is func
 
 
 (**
- *  Compute the division of two rational numbers.
+ *  Compute the division of two ''rational'' numbers.
  *  @return the quotient of the division.
  *  @exception NUMERIC_ERROR When a division by zero occurs.
  *)
@@ -216,7 +214,7 @@ const func rational: (in rational: dividend) / (in rational: divisor) is func
 
 
 (**
- *  Increment a rational number by a delta.
+ *  Increment a ''rational'' number by a delta.
  *)
 const proc: (inout rational: number) +:= (in rational: delta) is func
   local
@@ -231,7 +229,7 @@ const proc: (inout rational: number) +:= (in rational: delta) is func
 
 
 (**
- *  Decrement a rational number by a delta.
+ *  Decrement a ''rational'' number by a delta.
  *)
 const proc: (inout rational: number) -:= (in rational: delta) is func
   local
@@ -246,7 +244,7 @@ const proc: (inout rational: number) -:= (in rational: delta) is func
 
 
 (**
- *  Multiply a rational number by a factor and assign the result back to number.
+ *  Multiply a ''rational'' number by a factor and assign the result back to number.
  *)
 const proc: (inout rational: number) *:= (in rational: factor) is func
   begin
@@ -257,7 +255,7 @@ const proc: (inout rational: number) *:= (in rational: factor) is func
 
 
 (**
- *  Divide a rational number by a divisor and assign the result back to number.
+ *  Divide a ''rational'' number by a divisor and assign the result back to number.
  *)
 const proc: (inout rational: number) /:= (in rational: divisor) is func
   begin
@@ -269,7 +267,7 @@ const proc: (inout rational: number) /:= (in rational: divisor) is func
 
 
 (**
- *  Compute the exponentiation of a rational base with an integer exponent.
+ *  Compute the exponentiation of a ''rational'' base with an integer exponent.
  *  @return the result of the exponentation.
  *)
 const func rational: (in rational: base) ** (in integer: exponent) is func
@@ -288,7 +286,7 @@ const func rational: (in rational: base) ** (in integer: exponent) is func
 
 
 (**
- *  Check if two rational numbers are equal.
+ *  Check if two ''rational'' numbers are equal.
  *  @return TRUE if both numbers are equal,
  *          FALSE otherwise.
  *)
@@ -298,7 +296,7 @@ const func boolean: (in rational: number1) = (in rational: number2) is
 
 
 (**
- *  Check if two rational numbers are not equal.
+ *  Check if two ''rational'' numbers are not equal.
  *  @return FALSE if both numbers are equal,
  *          TRUE otherwise.
  *)
@@ -348,7 +346,7 @@ const func boolean: (in rational: number1) >= (in rational: number2) is
 
 
 (**
- *  Compare two rational numbers.
+ *  Compare two ''rational'' numbers.
  *  @return -1, 0 or 1 if the first argument is considered to be
  *          respectively less than, equal to, or greater than the
  *          second.
@@ -368,7 +366,7 @@ const func integer: compare (in rational: number1, in rational: number2) is func
 
 
 (**
- *  Compute the hash value of a rational number.
+ *  Compute the hash value of a ''rational'' number.
  *  @return the hash value.
  *)
 const func integer: hashCode (in rational: number) is
@@ -376,7 +374,7 @@ const func integer: hashCode (in rational: number) is
 
 
 (**
- *  Return the conversion of an integer to a rational.
+ *  Return the conversion of an integer to a ''rational''.
  *)
 const func rational: rat (in integer: number) is func
   result
@@ -388,7 +386,7 @@ const func rational: rat (in integer: number) is func
 
 
 (**
- *  Return the conversion of an integer to a rational.
+ *  Return the conversion of an integer to a ''rational''.
  *)
 const func rational: (attr rational) conv (in integer: number) is func
   result
@@ -400,7 +398,7 @@ const func rational: (attr rational) conv (in integer: number) is func
 
 
 (**
- *  Compute the absolute value of a rational number.
+ *  Compute the absolute value of a ''rational'' number.
  *  @return the absolute value.
  *)
 const func rational: abs (in rational: number) is func
@@ -410,59 +408,6 @@ const func rational: abs (in rational: number) is func
     absoluteValue.numerator := abs(number.numerator);
     absoluteValue.denominator := number.denominator;
   end func;
-
-
-(**
- *  Convert a rational number to a string.
- *  The number is converted to a string with a fraction (e.g.: "3/5"),
- *  were numerator and denominator are separated with a slash (/).
- *  @return the string result of the conversion.
- *)
-const func string: str (in rational: number) is
-  return str(number.numerator) & "/" & str(number.denominator);
-
-
-(**
- *  Convert a rational number to a string.
- *  The number is converted to a string with decimal representation.
- *  The precision parameter specifies the number of digits after
- *  the decimal point.
- *  @return the string result of the conversion.
- *)
-const func string: (in rational: number) digits (in integer: precision) is func
-  result
-    var string: stri is "";
-  begin
-    stri := str((number.numerator * 10 ** precision) div number.denominator);
-    if precision + 1 - length(stri) > 0 then
-      stri := "0" mult (precision + 1 - length(stri)) & stri;
-    end if;
-    stri := stri[ .. length(stri) - precision] & "." &
-        stri[length(stri) - precision + 1 .. ];
-  end func;
-
-
-(**
- *  Convert a string to a rational number.
- *  The string must contain a fraction (e.g.: "3/5"), were numerator
- *  and denominator are separated with a slash (/).
- *  @return the rational result of the conversion.
- *  @exception RANGE_ERROR When stri contains not a valid rational value.
- *)
-const func rational: (attr rational) parse (in var string: stri) is func
-  result
-    var rational: aRational is rational.value;
-  begin
-    aRational.numerator := integer parse getint(stri);
-    if stri[1] <> '/' then
-      raise RANGE_ERROR;
-    end if;
-    stri := stri[2 ..];
-    aRational.denominator := integer parse getint(stri);
-  end func;
-
-
-enable_io(rational);
 
 
 (**
@@ -487,7 +432,9 @@ const func integer: trunc (in rational: number) is
 
 
 (**
- *  Return a rational number rounded towards zero.
+ *  Round a ''rational'' number to the nearest [[integer]].
+ *  Halfway cases are rounded away from zero.
+ *  @return the rounded value.
  *)
 const func integer: round (in rational: number) is func
   result
@@ -497,6 +444,31 @@ const func integer: round (in rational: number) is func
       int_val := (2 * number.numerator + number.denominator) div (2 * number.denominator);
     else
       int_val := (2 * number.numerator - number.denominator) div (2 * number.denominator);
+    end if;
+  end func;
+
+
+(**
+ *  Round a ''rational'' number with a decimal ''precision''.
+ *  Halfway cases are rounded away from zero.
+ *  @return the rounded value.
+ *)
+const func rational: round10 (in rational: number, in integer: precision) is func
+  result
+    var rational: rounded is rational.value;
+  begin
+    if precision < 0 then
+      rounded.numerator := (abs(number.numerator) div 10 ** pred(-precision) +
+                           number.denominator * 5) div (number.denominator * 10) *
+                           10 ** (-precision);
+      rounded.denominator := 1;
+    else
+      rounded.numerator := (abs(number.numerator) * 10 ** succ(precision) +
+                           number.denominator * 5) div (number.denominator * 10);
+      rounded.denominator := 10 ** precision;
+    end if;
+    if number.numerator < 0 then
+      rounded.numerator := -rounded.numerator;
     end if;
   end func;
 
@@ -531,3 +503,228 @@ const func rational: max (in rational: value1, in rational: value2) is func
       maximum := value2;
     end if;
   end func;
+
+
+const type: INT_REMAINDER_HASH_TYPE is hash [integer] integer;
+
+
+(**
+ *  Convert a ''rational'' number to a string.
+ *  The number is converted to a string with a decimal representation
+ *  (e.g.: "1.25"). The representation has a decimal point and at
+ *  least one digit before and after the decimal point. Negative
+ *  numbers are preceeded by a minus sign (e.g.: "-1.25"). The
+ *  decimal number can have repeating decimals, which are enclosed
+ *  in parentheses ("e.g.: "0.(3)"). The repeating decimals will
+ *  not start before the decimal point.
+ *  @return the string result of the conversion.
+ *)
+const func string: str (in rational: number) is func
+  result
+    var string: stri is "";
+  local
+    var integer: remainder is 0;
+    var INT_REMAINDER_HASH_TYPE: remainderHash is INT_REMAINDER_HASH_TYPE.value;
+    var integer: pos is 0;
+  begin
+    if number.denominator = 0 then
+      if number.numerator > 0 then
+        stri := "Infinity";
+      elsif number.numerator = 0 then
+        stri := "NaN";
+      else
+        stri := "-Infinity";
+      end if;
+    else
+      stri := str(abs(number.numerator) div number.denominator);
+      stri &:= ".";
+      remainder := abs(number.numerator) rem number.denominator;
+      if remainder = 0 then
+        stri &:= "0";
+      else
+        repeat
+          remainderHash @:= [remainder] length(stri);
+          remainder *:= 10;
+          stri &:= str(remainder div number.denominator);
+          remainder := remainder rem number.denominator;
+        until remainder = 0 or remainder in remainderHash;
+        if remainder <> 0 then
+          pos := remainderHash[remainder];
+          stri := stri[.. pos] & "(" & stri[succ(pos) ..] & ")";
+        end if;
+      end if;
+      if number.numerator < 0 then
+        stri := "-" & stri;
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Convert a ''rational'' number to a [[string]] in decimal fixed point notation.
+ *  The number is rounded to the specified number of digits (''precision'').
+ *  Halfway cases are rounded away from zero. Except for a ''precision'' of
+ *  zero the representation has a decimal point and at least one digit
+ *  before and after the decimal point. Negative numbers are preceeded by
+ *  a minus sign (e.g.: "-1.25"). When all digits in the result are 0 a
+ *  possible negative sign is omitted.
+ *   1/64 digits 7     returns "0.0156250"
+ *   1/64 digits 4     returns "0.0156"
+ *   1/64 digits 2     returns "0.02"
+ *   355/113 digits 6  returns "3.141593"
+ *   22/7 digits 0     returns "3"
+ *   -1/2 digits 1     returns "-1"
+ *   1/0 digits 5      returns "Infinity"
+ *   -1/0 digits 6     returns "-Infinity"
+ *   0/0 digits 7      returns "NaN"
+ *   -1/2048 digits 3  returns "0.000"
+ *  @param precision Number of digits after the decimal point.
+ *         When the ''precision'' is zero the decimal point is omitted.
+ *  @return the string result of the conversion.
+ *  @exception RANGE_ERROR When the ''precision'' is negative.
+ *)
+const func string: (in rational: number) digits (in integer: precision) is func
+  result
+    var string: stri is "";
+  local
+    var integer: mantissa is 0;
+  begin
+    if precision < 0 then
+      raise RANGE_ERROR;
+    elsif number.denominator = 0 then
+      if number.numerator > 0 then
+        stri := "Infinity";
+      elsif number.numerator = 0 then
+        stri := "NaN";
+      else
+        stri := "-Infinity";
+      end if;
+    else
+      mantissa := (abs(number.numerator) * 10 ** succ(precision) +
+                  number.denominator * 5) div (number.denominator * 10);
+      stri := str(mantissa);
+      if precision >= length(stri) then
+        stri := "0" mult (precision - length(stri) + 1) & stri;
+      end if;
+      if precision <> 0 then
+        stri := stri[ .. length(stri) - precision] & "." &
+            stri[length(stri) - precision + 1 .. ];
+      end if;
+      if number.numerator < 0 and mantissa <> 0 then
+        stri := "-" & stri;
+      end if;
+    end if;
+  end func;
+
+
+const func integer: decimalExponent (in rational: number) is func
+  result
+    var integer: exponent is 0;
+  begin
+    if abs(number.numerator) >= number.denominator then
+      exponent := log10(abs(number.numerator) div number.denominator);
+    else
+      exponent := -log10(number.denominator div abs(number.numerator)) - 1;
+    end if;
+  end func;
+
+
+(**
+ *  Convert a ''rational'' number to a [[string]] in scientific notation.
+ *  Scientific notation uses a decimal significand and a decimal exponent.
+ *  The significand has an optional sign and exactly one digit before the
+ *  decimal point. The fractional part of the significand is rounded
+ *  to the specified number of digits (''precision''). Halfway cases are
+ *  rounded away from zero. The fractional part is followed by the
+ *  letter e and an exponent, which is always signed. The value zero is
+ *  never written with a negative sign.
+ *   1/64 sci 4     returns "1.5625e-2"
+ *   1/64 sci 3     returns "1.563e-2"
+ *   1/64 sci 2     returns "1.56e-2"
+ *   355/113 sci 6  returns "3.141593e+0"
+ *   22/7 sci 0     returns "3e+0"
+ *   -1/2 sci 1     returns "-5.0e-1"
+ *   1/0 sci 5      returns "Infinity"
+ *   -1/0 sci 6     returns "-Infinity"
+ *   0/0 sci 7      returns "NaN"
+ *   -1/2048 sci 3  returns "-4.883e-4"
+ *   -0/1 sci 2     returns "0.00e+0"
+ *  @param precision Number of digits after the decimal point.
+ *         When the ''precision'' is zero the decimal point is omitted.
+ *  @return the string result of the conversion.
+ *  @exception RANGE_ERROR When the ''precision'' is negative.
+ *)
+const func string: (in rational: number) sci (in integer: precision) is func
+  result
+    var string: stri is "";
+  local
+    var integer: exponent is 0;
+    var integer: mantissa is 0;
+  begin
+    if precision < 0 then
+      raise RANGE_ERROR;
+    elsif number.denominator = 0 then
+      if number.numerator > 0 then
+        stri := "Infinity";
+      elsif number.numerator = 0 then
+        stri := "NaN";
+      else
+        stri := "-Infinity";
+      end if;
+    elsif number.numerator = 0 then
+      if precision = 0 then
+        stri := "0e+0";
+      else
+        stri := "0." & "0" mult precision & "e+0";
+      end if;
+    else
+      exponent := decimalExponent(number);
+      if succ(precision) >= exponent then
+        mantissa := (abs(number.numerator) * 10 ** succ(precision - exponent) +
+                    number.denominator * 5) div (number.denominator * 10);
+      else
+        mantissa := (abs(number.numerator) div 10 ** pred(exponent - precision) +
+                    number.denominator * 5) div (number.denominator * 10);
+      end if;
+      stri := str(mantissa);
+      if length(stri) > succ(precision) then
+        # Rounding up increased the number of digits.
+        incr(exponent);
+        stri := stri[.. succ(precision)];
+      end if;
+      if precision <> 0 then
+        stri := stri[1 len 1] & "." & stri[2 .. ];
+      end if;
+      if exponent >= 0 then
+        stri &:= "e+" <& exponent;
+      else
+        stri &:= "e" <& exponent;
+      end if;
+      if number.numerator < 0 then
+        stri := "-" & stri;
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Convert a string to a rational number.
+ *  The string must contain a fraction (e.g.: "3/5"), were numerator
+ *  and denominator are separated with a slash (/).
+ *  @return the rational result of the conversion.
+ *  @exception RANGE_ERROR When stri contains not a valid rational value.
+ *)
+const func rational: (attr rational) parse (in var string: stri) is func
+  result
+    var rational: aRational is rational.value;
+  begin
+    aRational.numerator := integer parse getint(stri);
+    if stri[1] <> '/' then
+      raise RANGE_ERROR;
+    end if;
+    stri := stri[2 ..];
+    aRational.denominator := integer parse getint(stri);
+  end func;
+
+
+enable_io(rational);

@@ -7256,6 +7256,111 @@ const proc: chkGrow is func
       okay := FALSE;
     end if;
 
+    big1 := 2147483647_;
+    big1 +:= -1_;
+    if big1 <> 2147483646_ then
+      writeln(" ***** 'big1 +:= -1_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := 2147483648_;
+    big1 +:= -1_;
+    if big1 <> 2147483647_ then
+      writeln(" ***** 'big1 +:= -1_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := 2147483649_;
+    big1 +:= -1_;
+    if big1 <> 2147483648_ then
+      writeln(" ***** 'big1 +:= -1_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := -2147483647_;
+    big1 +:= -1_;
+    if big1 <> -2147483648_ then
+      writeln(" ***** 'big1 +:= -1_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := -2147483648_;
+    big1 +:= -1_;
+    if big1 <> -2147483649_ then
+      writeln(" ***** 'big1 +:= -1_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := -2147483649_;
+    big1 +:= -1_;
+    if big1 <> -2147483650_ then
+      writeln(" ***** 'big1 +:= -1_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := 10_;
+    big1 +:= -2_;
+    if big1 <> 8_ then
+      writeln(" ***** 'big1 +:= -2_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := 2147483647_;
+    big1 +:= -2_;
+    if big1 <> 2147483645_ then
+      writeln(" ***** 'big1 +:= -2_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := 2147483648_;
+    big1 +:= -2_;
+    if big1 <> 2147483646_ then
+      writeln(" ***** 'big1 +:= -2_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := 2147483649_;
+    big1 +:= -2_;
+    if big1 <> 2147483647_ then
+      writeln(" ***** 'big1 +:= -2_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := 2147483650_;
+    big1 +:= -2_;
+    if big1 <> 2147483648_ then
+      writeln(" ***** 'big1 +:= -2_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := -2147483646_;
+    big1 +:= -2_;
+    if big1 <> -2147483648_ then
+      writeln(" ***** 'big1 +:= -2_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := -2147483647_;
+    big1 +:= -2_;
+    if big1 <> -2147483649_ then
+      writeln(" ***** 'big1 +:= -2_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := -2147483648_;
+    big1 +:= -2_;
+    if big1 <> -2147483650_ then
+      writeln(" ***** 'big1 +:= -2_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := -2147483649_;
+    big1 +:= -2_;
+    if big1 <> -2147483651_ then
+      writeln(" ***** 'big1 +:= -2_' does not work correct.");
+      okay := FALSE;
+    end if;
+
     big1 := 10_;
     big1 +:= 0_;
     if big1 <> 10_ then
@@ -7267,6 +7372,111 @@ const proc: chkGrow is func
     big1 +:= 1_;
     if big1 <> 11_ then
       writeln(" ***** 'big1 +:= 1_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := 2147483646_;
+    big1 +:= 1_;
+    if big1 <> 2147483647_ then
+      writeln(" ***** 'big1 +:= 1_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := 2147483647_;
+    big1 +:= 1_;
+    if big1 <> 2147483648_ then
+      writeln(" ***** 'big1 +:= 1_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := 2147483648_;
+    big1 +:= 1_;
+    if big1 <> 2147483649_ then
+      writeln(" ***** 'big1 +:= 1_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := -2147483647_;
+    big1 +:= 1_;
+    if big1 <> -2147483646_ then
+      writeln(" ***** 'big1 +:= 1_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := -2147483648_;
+    big1 +:= 1_;
+    if big1 <> -2147483647_ then
+      writeln(" ***** 'big1 +:= 1_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := -2147483649_;
+    big1 +:= 1_;
+    if big1 <> -2147483648_ then
+      writeln(" ***** 'big1 +:= 1_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := 10_;
+    big1 +:= 2_;
+    if big1 <> 12_ then
+      writeln(" ***** 'big1 +:= 2_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := 2147483645_;
+    big1 +:= 2_;
+    if big1 <> 2147483647_ then
+      writeln(" ***** 'big1 +:= 2_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := 2147483646_;
+    big1 +:= 2_;
+    if big1 <> 2147483648_ then
+      writeln(" ***** 'big1 +:= 2_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := 2147483647_;
+    big1 +:= 2_;
+    if big1 <> 2147483649_ then
+      writeln(" ***** 'big1 +:= 2_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := 2147483648_;
+    big1 +:= 2_;
+    if big1 <> 2147483650_ then
+      writeln(" ***** 'big1 +:= 2_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := -2147483648_;
+    big1 +:= 2_;
+    if big1 <> -2147483646_ then
+      writeln(" ***** 'big1 +:= -2_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := -2147483649_;
+    big1 +:= 2_;
+    if big1 <> -2147483647_ then
+      writeln(" ***** 'big1 +:= -2_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := -2147483650_;
+    big1 +:= 2_;
+    if big1 <> -2147483648_ then
+      writeln(" ***** 'big1 +:= -2_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := -2147483651_;
+    big1 +:= 2_;
+    if big1 <> -2147483649_ then
+      writeln(" ***** 'big1 +:= -2_' does not work correct.");
       okay := FALSE;
     end if;
 
@@ -8141,6 +8351,111 @@ const proc: chkShrink is func
       okay := FALSE;
     end if;
 
+    big1 := 2147483646_;
+    big1 -:= -1_;
+    if big1 <> 2147483647_ then
+      writeln(" ***** 'big1 -:= -1_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := 2147483647_;
+    big1 -:= -1_;
+    if big1 <> 2147483648_ then
+      writeln(" ***** 'big1 -:= -1_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := 2147483648_;
+    big1 -:= -1_;
+    if big1 <> 2147483649_ then
+      writeln(" ***** 'big1 -:= -1_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := -2147483647_;
+    big1 -:= -1_;
+    if big1 <> -2147483646_ then
+      writeln(" ***** 'big1 -:= -1_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := -2147483648_;
+    big1 -:= -1_;
+    if big1 <> -2147483647_ then
+      writeln(" ***** 'big1 -:= -1_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := -2147483649_;
+    big1 -:= -1_;
+    if big1 <> -2147483648_ then
+      writeln(" ***** 'big1 -:= -1_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := 10_;
+    big1 -:= -2_;
+    if big1 <> 12_ then
+      writeln(" ***** 'big1 -:= -2_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := 2147483645_;
+    big1 -:= -2_;
+    if big1 <> 2147483647_ then
+      writeln(" ***** 'big1 -:= -2_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := 2147483646_;
+    big1 -:= -2_;
+    if big1 <> 2147483648_ then
+      writeln(" ***** 'big1 -:= -2_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := 2147483647_;
+    big1 -:= -2_;
+    if big1 <> 2147483649_ then
+      writeln(" ***** 'big1 -:= -2_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := 2147483648_;
+    big1 -:= -2_;
+    if big1 <> 2147483650_ then
+      writeln(" ***** 'big1 -:= -2_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := -2147483647_;
+    big1 -:= -2_;
+    if big1 <> -2147483645_ then
+      writeln(" ***** 'big1 -:= -2_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := -2147483648_;
+    big1 -:= -2_;
+    if big1 <> -2147483646_ then
+      writeln(" ***** 'big1 -:= -2_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := -2147483649_;
+    big1 -:= -2_;
+    if big1 <> -2147483647_ then
+      writeln(" ***** 'big1 -:= -2_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := -2147483650_;
+    big1 -:= -2_;
+    if big1 <> -2147483648_ then
+      writeln(" ***** 'big1 -:= -2_' does not work correct.");
+      okay := FALSE;
+    end if;
+
     big1 := 10_;
     big1 -:= 0_;
     if big1 <> 10_ then
@@ -8152,6 +8467,111 @@ const proc: chkShrink is func
     big1 -:= 1_;
     if big1 <> 9_ then
       writeln(" ***** 'big1 -:= 1_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := 2147483647_;
+    big1 -:= 1_;
+    if big1 <> 2147483646_ then
+      writeln(" ***** 'big1 -:= 1_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := 2147483648_;
+    big1 -:= 1_;
+    if big1 <> 2147483647_ then
+      writeln(" ***** 'big1 -:= 1_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := 2147483649_;
+    big1 -:= 1_;
+    if big1 <> 2147483648_ then
+      writeln(" ***** 'big1 -:= 1_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := -2147483647_;
+    big1 -:= 1_;
+    if big1 <> -2147483648_ then
+      writeln(" ***** 'big1 -:= 1_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := -2147483648_;
+    big1 -:= 1_;
+    if big1 <> -2147483649_ then
+      writeln(" ***** 'big1 -:= 1_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := -2147483649_;
+    big1 -:= 1_;
+    if big1 <> -2147483650_ then
+      writeln(" ***** 'big1 -:= 1_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := 10_;
+    big1 -:= 2_;
+    if big1 <> 8_ then
+      writeln(" ***** 'big1 -:= 2_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := 2147483647_;
+    big1 -:= 2_;
+    if big1 <> 2147483645_ then
+      writeln(" ***** 'big1 -:= 2_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := 2147483648_;
+    big1 -:= 2_;
+    if big1 <> 2147483646_ then
+      writeln(" ***** 'big1 -:= 2_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := 2147483649_;
+    big1 -:= 2_;
+    if big1 <> 2147483647_ then
+      writeln(" ***** 'big1 -:= 2_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := 2147483650_;
+    big1 -:= 2_;
+    if big1 <> 2147483648_ then
+      writeln(" ***** 'big1 -:= 2_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := -2147483645_;
+    big1 -:= 2_;
+    if big1 <> -2147483647_ then
+      writeln(" ***** 'big1 -:= 2_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := -2147483646_;
+    big1 -:= 2_;
+    if big1 <> -2147483648_ then
+      writeln(" ***** 'big1 -:= 2_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := -2147483647_;
+    big1 -:= 2_;
+    if big1 <> -2147483649_ then
+      writeln(" ***** 'big1 -:= 2_' does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := -2147483648_;
+    big1 -:= 2_;
+    if big1 <> -2147483650_ then
+      writeln(" ***** 'big1 -:= 2_' does not work correct.");
       okay := FALSE;
     end if;
 
@@ -12140,6 +12560,19 @@ const proc: chkPower is func
              8_ **  32 <>                  79228162514264337593543950336_ or
              8_ **  50 <> 1427247692705959881058285969449495136382746624_ or
 
+            10_ **   0 <>                                              1_ or
+            10_ **   1 <>                                             10_ or
+            10_ **   2 <>                                            100_ or
+            10_ **   3 <>                                           1000_ or
+            10_ **   4 <>                                          10000_ or
+            10_ **   5 <>                                         100000_ or
+            10_ **  10 <>                                    10000000000_ or
+            10_ **  20 <>                          100000000000000000000_ or
+            10_ **  30 <>                1000000000000000000000000000000_ or
+            10_ **  35 <>           100000000000000000000000000000000000_ or
+            10_ **  40 <>      10000000000000000000000000000000000000000_ or
+            10_ **  45 <> 1000000000000000000000000000000000000000000000_ or
+
             16_ **   0 <>                                              1_ or
             16_ **   1 <>                                             16_ or
             16_ **   2 <>                                            256_ or
@@ -12150,6 +12583,18 @@ const proc: chkPower is func
             16_ **  25 <>                1267650600228229401496703205376_ or
             16_ **  32 <>        340282366920938463463374607431768211456_ or
             16_ **  38 <> 5708990770823839524233143877797980545530986496_ or
+
+            97_ **   0 <>                                              1_ or
+            97_ **   1 <>                                             97_ or
+            97_ **   2 <>                                           9409_ or
+            97_ **   3 <>                                         912673_ or
+            97_ **   4 <>                                       88529281_ or
+            97_ **   8 <>                               7837433594376961_ or
+            97_ **  10 <>                           73742412689492826049_ or
+            97_ **  15 <>                 633251189136789386043275954593_ or
+            97_ **  16 <>               61425365346268570446197767595521_ or
+            97_ **  20 <>       5437943429267472574499737549036572950401_ or
+            97_ **  23 <> 4963064143419831996986398968091856144361331873_ or
 
            255_ **   0 <>                                              1_ or
            255_ **   1 <>                                            255_ or
@@ -12296,6 +12741,19 @@ const proc: chkPower is func
         (-4_) **  75 <> -1427247692705959881058285969449495136382746624_ or
         (-4_) **  76 <>  5708990770823839524233143877797980545530986496_ or
 
+        (-10_) **   0 <>                                               1_ or
+        (-10_) **   1 <>                                             -10_ or
+        (-10_) **   2 <>                                             100_ or
+        (-10_) **   3 <>                                           -1000_ or
+        (-10_) **   4 <>                                           10000_ or
+        (-10_) **   5 <>                                         -100000_ or
+        (-10_) **  10 <>                                     10000000000_ or
+        (-10_) **  20 <>                           100000000000000000000_ or
+        (-10_) **  30 <>                 1000000000000000000000000000000_ or
+        (-10_) **  35 <>           -100000000000000000000000000000000000_ or
+        (-10_) **  40 <>       10000000000000000000000000000000000000000_ or
+        (-10_) **  45 <> -1000000000000000000000000000000000000000000000_ or
+
         (-65535_) ** 0 <>                                         1_ or
         (-65535_) ** 1 <>                                    -65535_ or
         (-65535_) ** 2 <>                                4294836225_ or
@@ -12309,21 +12767,25 @@ const proc: chkPower is func
       okay := FALSE;
     end if;
 
-    if  bigintExpr(     0_) **   0 <>                                              1_ or
-        bigintExpr(     0_) **   1 <>                                              0_ or
-        bigintExpr(     0_) **   2 <>                                              0_ or
-        bigintExpr(     0_) **  15 <>                                              0_ or
-        bigintExpr(     0_) **  64 <>                                              0_ or
-        bigintExpr(     0_) **  99 <>                                              0_ or
-        bigintExpr(     0_) ** 999 <>                                              0_ or
+    if  bigintExpr(     0_) **          0 <>                                       1_ or
+        bigintExpr(     0_) **          1 <>                                       0_ or
+        bigintExpr(     0_) **          2 <>                                       0_ or
+        bigintExpr(     0_) **         15 <>                                       0_ or
+        bigintExpr(     0_) **         64 <>                                       0_ or
+        bigintExpr(     0_) **         99 <>                                       0_ or
+        bigintExpr(     0_) **        999 <>                                       0_ or
+        bigintExpr(     0_) **  999999999 <>                                       0_ or
+        bigintExpr(     0_) ** 2147483647 <>                                       0_ or
 
-        bigintExpr(     1_) **   0 <>                                              1_ or
-        bigintExpr(     1_) **   1 <>                                              1_ or
-        bigintExpr(     1_) **   2 <>                                              1_ or
-        bigintExpr(     1_) **  15 <>                                              1_ or
-        bigintExpr(     1_) **  64 <>                                              1_ or
-        bigintExpr(     1_) **  99 <>                                              1_ or
-        bigintExpr(     1_) ** 999 <>                                              1_ or
+        bigintExpr(     1_) **          0 <>                                       1_ or
+        bigintExpr(     1_) **          1 <>                                       1_ or
+        bigintExpr(     1_) **          2 <>                                       1_ or
+        bigintExpr(     1_) **         15 <>                                       1_ or
+        bigintExpr(     1_) **         64 <>                                       1_ or
+        bigintExpr(     1_) **         99 <>                                       1_ or
+        bigintExpr(     1_) **        999 <>                                       1_ or
+        bigintExpr(     1_) **  999999999 <>                                       1_ or
+        bigintExpr(     1_) ** 2147483647 <>                                       1_ or
 
         bigintExpr(     2_) **   0 <>                                              1_ or
         bigintExpr(     2_) **   1 <>                                              2_ or
@@ -12371,6 +12833,19 @@ const proc: chkPower is func
         bigintExpr(     8_) **  32 <>                  79228162514264337593543950336_ or
         bigintExpr(     8_) **  50 <> 1427247692705959881058285969449495136382746624_ or
 
+        bigintExpr(    10_) **   0 <>                                              1_ or
+        bigintExpr(    10_) **   1 <>                                             10_ or
+        bigintExpr(    10_) **   2 <>                                            100_ or
+        bigintExpr(    10_) **   3 <>                                           1000_ or
+        bigintExpr(    10_) **   4 <>                                          10000_ or
+        bigintExpr(    10_) **   5 <>                                         100000_ or
+        bigintExpr(    10_) **  10 <>                                    10000000000_ or
+        bigintExpr(    10_) **  20 <>                          100000000000000000000_ or
+        bigintExpr(    10_) **  30 <>                1000000000000000000000000000000_ or
+        bigintExpr(    10_) **  35 <>           100000000000000000000000000000000000_ or
+        bigintExpr(    10_) **  40 <>      10000000000000000000000000000000000000000_ or
+        bigintExpr(    10_) **  45 <> 1000000000000000000000000000000000000000000000_ or
+
         bigintExpr(    16_) **   0 <>                                              1_ or
         bigintExpr(    16_) **   1 <>                                             16_ or
         bigintExpr(    16_) **   2 <>                                            256_ or
@@ -12381,6 +12856,18 @@ const proc: chkPower is func
         bigintExpr(    16_) **  25 <>                1267650600228229401496703205376_ or
         bigintExpr(    16_) **  32 <>        340282366920938463463374607431768211456_ or
         bigintExpr(    16_) **  38 <> 5708990770823839524233143877797980545530986496_ or
+
+        bigintExpr(    97_) **   0 <>                                              1_ or
+        bigintExpr(    97_) **   1 <>                                             97_ or
+        bigintExpr(    97_) **   2 <>                                           9409_ or
+        bigintExpr(    97_) **   3 <>                                         912673_ or
+        bigintExpr(    97_) **   4 <>                                       88529281_ or
+        bigintExpr(    97_) **   8 <>                               7837433594376961_ or
+        bigintExpr(    97_) **  10 <>                           73742412689492826049_ or
+        bigintExpr(    97_) **  15 <>                 633251189136789386043275954593_ or
+        bigintExpr(    97_) **  16 <>               61425365346268570446197767595521_ or
+        bigintExpr(    97_) **  20 <>       5437943429267472574499737549036572950401_ or
+        bigintExpr(    97_) **  23 <> 4963064143419831996986398968091856144361331873_ or
 
         bigintExpr(   255_) **   0 <>                                              1_ or
         bigintExpr(   255_) **   1 <>                                            255_ or
@@ -12504,21 +12991,25 @@ const proc: chkPower is func
       okay := FALSE;
     end if;
 
-    if       0_ ** intExpr(  0) <>                                              1_ or
-             0_ ** intExpr(  1) <>                                              0_ or
-             0_ ** intExpr(  2) <>                                              0_ or
-             0_ ** intExpr( 15) <>                                              0_ or
-             0_ ** intExpr( 64) <>                                              0_ or
-             0_ ** intExpr( 99) <>                                              0_ or
-             0_ ** intExpr(999) <>                                              0_ or
+    if       0_ ** intExpr(         0) <>                                       1_ or
+             0_ ** intExpr(         1) <>                                       0_ or
+             0_ ** intExpr(         2) <>                                       0_ or
+             0_ ** intExpr(        15) <>                                       0_ or
+             0_ ** intExpr(        64) <>                                       0_ or
+             0_ ** intExpr(        99) <>                                       0_ or
+             0_ ** intExpr(       999) <>                                       0_ or
+             0_ ** intExpr( 999999999) <>                                       0_ or
+             0_ ** intExpr(2147483647) <>                                       0_ or
 
-             1_ ** intExpr(  0) <>                                              1_ or
-             1_ ** intExpr(  1) <>                                              1_ or
-             1_ ** intExpr(  2) <>                                              1_ or
-             1_ ** intExpr( 15) <>                                              1_ or
-             1_ ** intExpr( 64) <>                                              1_ or
-             1_ ** intExpr( 99) <>                                              1_ or
-             1_ ** intExpr(999) <>                                              1_ or
+             1_ ** intExpr(         0) <>                                       1_ or
+             1_ ** intExpr(         1) <>                                       1_ or
+             1_ ** intExpr(         2) <>                                       1_ or
+             1_ ** intExpr(        15) <>                                       1_ or
+             1_ ** intExpr(        64) <>                                       1_ or
+             1_ ** intExpr(        99) <>                                       1_ or
+             1_ ** intExpr(       999) <>                                       1_ or
+             1_ ** intExpr( 999999999) <>                                       1_ or
+             1_ ** intExpr(2147483647) <>                                       1_ or
 
              2_ ** intExpr(  0) <>                                              1_ or
              2_ ** intExpr(  1) <>                                              2_ or
@@ -12566,6 +13057,19 @@ const proc: chkPower is func
              8_ ** intExpr( 32) <>                  79228162514264337593543950336_ or
              8_ ** intExpr( 50) <> 1427247692705959881058285969449495136382746624_ or
 
+            10_ ** intExpr(  0) <>                                              1_ or
+            10_ ** intExpr(  1) <>                                             10_ or
+            10_ ** intExpr(  2) <>                                            100_ or
+            10_ ** intExpr(  3) <>                                           1000_ or
+            10_ ** intExpr(  4) <>                                          10000_ or
+            10_ ** intExpr(  5) <>                                         100000_ or
+            10_ ** intExpr( 10) <>                                    10000000000_ or
+            10_ ** intExpr( 20) <>                          100000000000000000000_ or
+            10_ ** intExpr( 30) <>                1000000000000000000000000000000_ or
+            10_ ** intExpr( 35) <>           100000000000000000000000000000000000_ or
+            10_ ** intExpr( 40) <>      10000000000000000000000000000000000000000_ or
+            10_ ** intExpr( 45) <> 1000000000000000000000000000000000000000000000_ or
+
             16_ ** intExpr(  0) <>                                              1_ or
             16_ ** intExpr(  1) <>                                             16_ or
             16_ ** intExpr(  2) <>                                            256_ or
@@ -12576,6 +13080,18 @@ const proc: chkPower is func
             16_ ** intExpr( 25) <>                1267650600228229401496703205376_ or
             16_ ** intExpr( 32) <>        340282366920938463463374607431768211456_ or
             16_ ** intExpr( 38) <> 5708990770823839524233143877797980545530986496_ or
+
+            97_ ** intExpr(  0) <>                                              1_ or
+            97_ ** intExpr(  1) <>                                             97_ or
+            97_ ** intExpr(  2) <>                                           9409_ or
+            97_ ** intExpr(  3) <>                                         912673_ or
+            97_ ** intExpr(  4) <>                                       88529281_ or
+            97_ ** intExpr(  8) <>                               7837433594376961_ or
+            97_ ** intExpr( 10) <>                           73742412689492826049_ or
+            97_ ** intExpr( 15) <>                 633251189136789386043275954593_ or
+            97_ ** intExpr( 16) <>               61425365346268570446197767595521_ or
+            97_ ** intExpr( 20) <>       5437943429267472574499737549036572950401_ or
+            97_ ** intExpr( 23) <> 4963064143419831996986398968091856144361331873_ or
 
            255_ ** intExpr(  0) <>                                              1_ or
            255_ ** intExpr(  1) <>                                            255_ or
@@ -12699,21 +13215,25 @@ const proc: chkPower is func
       okay := FALSE;
     end if;
 
-    if  bigintExpr(     0_) ** intExpr(  0) <>                                              1_ or
-        bigintExpr(     0_) ** intExpr(  1) <>                                              0_ or
-        bigintExpr(     0_) ** intExpr(  2) <>                                              0_ or
-        bigintExpr(     0_) ** intExpr( 15) <>                                              0_ or
-        bigintExpr(     0_) ** intExpr( 64) <>                                              0_ or
-        bigintExpr(     0_) ** intExpr( 99) <>                                              0_ or
-        bigintExpr(     0_) ** intExpr(999) <>                                              0_ or
+    if  bigintExpr(     0_) ** intExpr(         0) <>                                       1_ or
+        bigintExpr(     0_) ** intExpr(         1) <>                                       0_ or
+        bigintExpr(     0_) ** intExpr(         2) <>                                       0_ or
+        bigintExpr(     0_) ** intExpr(        15) <>                                       0_ or
+        bigintExpr(     0_) ** intExpr(        64) <>                                       0_ or
+        bigintExpr(     0_) ** intExpr(        99) <>                                       0_ or
+        bigintExpr(     0_) ** intExpr(       999) <>                                       0_ or
+        bigintExpr(     0_) ** intExpr( 999999999) <>                                       0_ or
+        bigintExpr(     0_) ** intExpr(2147483647) <>                                       0_ or
 
-        bigintExpr(     1_) ** intExpr(  0) <>                                              1_ or
-        bigintExpr(     1_) ** intExpr(  1) <>                                              1_ or
-        bigintExpr(     1_) ** intExpr(  2) <>                                              1_ or
-        bigintExpr(     1_) ** intExpr( 15) <>                                              1_ or
-        bigintExpr(     1_) ** intExpr( 64) <>                                              1_ or
-        bigintExpr(     1_) ** intExpr( 99) <>                                              1_ or
-        bigintExpr(     1_) ** intExpr(999) <>                                              1_ or
+        bigintExpr(     1_) ** intExpr(         0) <>                                       1_ or
+        bigintExpr(     1_) ** intExpr(         1) <>                                       1_ or
+        bigintExpr(     1_) ** intExpr(         2) <>                                       1_ or
+        bigintExpr(     1_) ** intExpr(        15) <>                                       1_ or
+        bigintExpr(     1_) ** intExpr(        64) <>                                       1_ or
+        bigintExpr(     1_) ** intExpr(        99) <>                                       1_ or
+        bigintExpr(     1_) ** intExpr(       999) <>                                       1_ or
+        bigintExpr(     1_) ** intExpr( 999999999) <>                                       1_ or
+        bigintExpr(     1_) ** intExpr(2147483647) <>                                       1_ or
 
         bigintExpr(     2_) ** intExpr(  0) <>                                              1_ or
         bigintExpr(     2_) ** intExpr(  1) <>                                              2_ or
@@ -12761,6 +13281,19 @@ const proc: chkPower is func
         bigintExpr(     8_) ** intExpr( 32) <>                  79228162514264337593543950336_ or
         bigintExpr(     8_) ** intExpr( 50) <> 1427247692705959881058285969449495136382746624_ or
 
+        bigintExpr(    10_) ** intExpr(  0) <>                                              1_ or
+        bigintExpr(    10_) ** intExpr(  1) <>                                             10_ or
+        bigintExpr(    10_) ** intExpr(  2) <>                                            100_ or
+        bigintExpr(    10_) ** intExpr(  3) <>                                           1000_ or
+        bigintExpr(    10_) ** intExpr(  4) <>                                          10000_ or
+        bigintExpr(    10_) ** intExpr(  5) <>                                         100000_ or
+        bigintExpr(    10_) ** intExpr( 10) <>                                    10000000000_ or
+        bigintExpr(    10_) ** intExpr( 20) <>                          100000000000000000000_ or
+        bigintExpr(    10_) ** intExpr( 30) <>                1000000000000000000000000000000_ or
+        bigintExpr(    10_) ** intExpr( 35) <>           100000000000000000000000000000000000_ or
+        bigintExpr(    10_) ** intExpr( 40) <>      10000000000000000000000000000000000000000_ or
+        bigintExpr(    10_) ** intExpr( 45) <> 1000000000000000000000000000000000000000000000_ or
+
         bigintExpr(    16_) ** intExpr(  0) <>                                              1_ or
         bigintExpr(    16_) ** intExpr(  1) <>                                             16_ or
         bigintExpr(    16_) ** intExpr(  2) <>                                            256_ or
@@ -12771,6 +13304,18 @@ const proc: chkPower is func
         bigintExpr(    16_) ** intExpr( 25) <>                1267650600228229401496703205376_ or
         bigintExpr(    16_) ** intExpr( 32) <>        340282366920938463463374607431768211456_ or
         bigintExpr(    16_) ** intExpr( 38) <> 5708990770823839524233143877797980545530986496_ or
+
+        bigintExpr(    97_) ** intExpr(  0) <>                                              1_ or
+        bigintExpr(    97_) ** intExpr(  1) <>                                             97_ or
+        bigintExpr(    97_) ** intExpr(  2) <>                                           9409_ or
+        bigintExpr(    97_) ** intExpr(  3) <>                                         912673_ or
+        bigintExpr(    97_) ** intExpr(  4) <>                                       88529281_ or
+        bigintExpr(    97_) ** intExpr(  8) <>                               7837433594376961_ or
+        bigintExpr(    97_) ** intExpr( 10) <>                           73742412689492826049_ or
+        bigintExpr(    97_) ** intExpr( 15) <>                 633251189136789386043275954593_ or
+        bigintExpr(    97_) ** intExpr( 16) <>               61425365346268570446197767595521_ or
+        bigintExpr(    97_) ** intExpr( 20) <>       5437943429267472574499737549036572950401_ or
+        bigintExpr(    97_) ** intExpr( 23) <> 4963064143419831996986398968091856144361331873_ or
 
         bigintExpr(   255_) ** intExpr(  0) <>                                              1_ or
         bigintExpr(   255_) ** intExpr(  1) <>                                            255_ or
@@ -14683,6 +15228,204 @@ const proc: chkLog2 is func
   end func;
 
 
+const proc: chkLog10 is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if  log10(                                                            0_) <> -1_ or
+        log10(                                                            1_) <>  0_ or
+        log10(                                                            9_) <>  0_ or
+        log10(                                                           10_) <>  1_ or
+        log10(                                                           99_) <>  1_ or
+        log10(                                                          100_) <>  2_ or
+        log10(                                                          999_) <>  2_ or
+        log10(                                                         1000_) <>  3_ or
+        log10(                                                         9999_) <>  3_ or
+        log10(                                                        10000_) <>  4_ or
+        log10(                                                        99999_) <>  4_ or
+        log10(                                                       100000_) <>  5_ or
+        log10(                                                       999999_) <>  5_ or
+        log10(                                                      1000000_) <>  6_ or
+        log10(                                                      9999999_) <>  6_ or
+        log10(                                                     10000000_) <>  7_ or
+        log10(                                                     99999999_) <>  7_ or
+        log10(                                                    100000000_) <>  8_ or
+        log10(                                                    999999999_) <>  8_ or
+        log10(                                                   1000000000_) <>  9_ or
+        log10(                                                   9999999999_) <>  9_ or
+        log10(                                                  10000000000_) <> 10_ or
+        log10(                                                  99999999999_) <> 10_ or
+        log10(                                                 100000000000_) <> 11_ or
+        log10(                                                 999999999999_) <> 11_ or
+        log10(                                                1000000000000_) <> 12_ or
+        log10(                                                9999999999999_) <> 12_ or
+        log10(                                               10000000000000_) <> 13_ or
+        log10(                                               99999999999999_) <> 13_ or
+        log10(                                              100000000000000_) <> 14_ or
+        log10(                                              999999999999999_) <> 14_ or
+        log10(                                             1000000000000000_) <> 15_ or
+        log10(                                             9999999999999999_) <> 15_ or
+        log10(                                            10000000000000000_) <> 16_ or
+        log10(                                            99999999999999999_) <> 16_ or
+        log10(                                           100000000000000000_) <> 17_ or
+        log10(                                           999999999999999999_) <> 17_ or
+        log10(                                          1000000000000000000_) <> 18_ or
+        log10(                                          9999999999999999999_) <> 18_ or
+        log10(                                         10000000000000000000_) <> 19_ or
+        log10(                                         99999999999999999999_) <> 19_ or
+        log10(                                        100000000000000000000_) <> 20_ or
+        log10(                                        999999999999999999999_) <> 20_ or
+        log10(                                       1000000000000000000000_) <> 21_ or
+        log10(                                       9999999999999999999999_) <> 21_ or
+        log10(                                      10000000000000000000000_) <> 22_ or
+        log10(                                      99999999999999999999999_) <> 22_ or
+        log10(                                     100000000000000000000000_) <> 23_ or
+        log10(                                     999999999999999999999999_) <> 23_ or
+        log10(                                    1000000000000000000000000_) <> 24_ or
+        log10(                                    9999999999999999999999999_) <> 24_ or
+        log10(                                   10000000000000000000000000_) <> 25_ or
+        log10(                                   99999999999999999999999999_) <> 25_ or
+        log10(                                  100000000000000000000000000_) <> 26_ or
+        log10(                                  999999999999999999999999999_) <> 26_ or
+        log10(                                 1000000000000000000000000000_) <> 27_ or
+        log10(                                 9999999999999999999999999999_) <> 27_ or
+        log10(                                10000000000000000000000000000_) <> 28_ or
+        log10(                                99999999999999999999999999999_) <> 28_ or
+        log10(                               100000000000000000000000000000_) <> 29_ or
+        log10(                               999999999999999999999999999999_) <> 29_ or
+        log10(                              1000000000000000000000000000000_) <> 30_ or
+        log10(                              9999999999999999999999999999999_) <> 30_ or
+        log10(                             10000000000000000000000000000000_) <> 31_ or
+        log10(                             99999999999999999999999999999999_) <> 31_ or
+        log10(                            100000000000000000000000000000000_) <> 32_ or
+        log10(                            999999999999999999999999999999999_) <> 32_ or
+        log10(                           1000000000000000000000000000000000_) <> 33_ or
+        log10(                           9999999999999999999999999999999999_) <> 33_ or
+        log10(                          10000000000000000000000000000000000_) <> 34_ or
+        log10(                          99999999999999999999999999999999999_) <> 34_ or
+        log10(                         100000000000000000000000000000000000_) <> 35_ or
+        log10(                         999999999999999999999999999999999999_) <> 35_ or
+        log10(                        1000000000000000000000000000000000000_) <> 36_ or
+        log10(                        9999999999999999999999999999999999999_) <> 36_ or
+        log10(                       10000000000000000000000000000000000000_) <> 37_ or
+        log10(                       99999999999999999999999999999999999999_) <> 37_ or
+        log10(                      100000000000000000000000000000000000000_) <> 38_ or
+        log10(                      999999999999999999999999999999999999999_) <> 38_ or
+        log10(                     1000000000000000000000000000000000000000_) <> 39_ or
+        log10(                     9999999999999999999999999999999999999999_) <> 39_ or
+        log10(                    10000000000000000000000000000000000000000_) <> 40_ or
+        log10(                    99999999999999999999999999999999999999999_) <> 40_ or
+        log10(                   100000000000000000000000000000000000000000_) <> 41_ or
+        log10(                   999999999999999999999999999999999999999999_) <> 41_ or
+        log10(                  1000000000000000000000000000000000000000000_) <> 42_ or
+        log10(                  9999999999999999999999999999999999999999999_) <> 42_ or
+        log10(                 10000000000000000000000000000000000000000000_) <> 43_ or
+        log10(                 99999999999999999999999999999999999999999999_) <> 43_ or
+        log10(                100000000000000000000000000000000000000000000_) <> 44_ or
+        log10(                999999999999999999999999999999999999999999999_) <> 44_ or
+        log10(               1000000000000000000000000000000000000000000000_) <> 45_ or
+        log10(               9999999999999999999999999999999999999999999999_) <> 45_ or
+        log10(              10000000000000000000000000000000000000000000000_) <> 46_ or
+        log10(              99999999999999999999999999999999999999999999999_) <> 46_ or
+        log10(             100000000000000000000000000000000000000000000000_) <> 47_ or
+        log10(             999999999999999999999999999999999999999999999999_) <> 47_ or
+        log10(            1000000000000000000000000000000000000000000000000_) <> 48_ or
+        log10(            9999999999999999999999999999999999999999999999999_) <> 48_ or
+        log10(           10000000000000000000000000000000000000000000000000_) <> 49_ or
+        log10(           99999999999999999999999999999999999999999999999999_) <> 49_ or
+        log10(          100000000000000000000000000000000000000000000000000_) <> 50_ or
+        log10(          999999999999999999999999999999999999999999999999999_) <> 50_ or
+        log10(         1000000000000000000000000000000000000000000000000000_) <> 51_ or
+        log10(         9999999999999999999999999999999999999999999999999999_) <> 51_ or
+        log10(        10000000000000000000000000000000000000000000000000000_) <> 52_ or
+        log10(        99999999999999999999999999999999999999999999999999999_) <> 52_ or
+        log10(       100000000000000000000000000000000000000000000000000000_) <> 53_ or
+        log10(       999999999999999999999999999999999999999999999999999999_) <> 53_ or
+        log10(      1000000000000000000000000000000000000000000000000000000_) <> 54_ or
+        log10(      9999999999999999999999999999999999999999999999999999999_) <> 54_ or
+        log10(     10000000000000000000000000000000000000000000000000000000_) <> 55_ or
+        log10(     99999999999999999999999999999999999999999999999999999999_) <> 55_ or
+        log10(    100000000000000000000000000000000000000000000000000000000_) <> 56_ or
+        log10(    999999999999999999999999999999999999999999999999999999999_) <> 56_ or
+        log10(   1000000000000000000000000000000000000000000000000000000000_) <> 57_ or
+        log10(   9999999999999999999999999999999999999999999999999999999999_) <> 57_ or
+        log10(  10000000000000000000000000000000000000000000000000000000000_) <> 58_ or
+        log10(  99999999999999999999999999999999999999999999999999999999999_) <> 58_ or
+        log10( 100000000000000000000000000000000000000000000000000000000000_) <> 59_ or
+        log10( 999999999999999999999999999999999999999999999999999999999999_) <> 59_ or
+        log10(1000000000000000000000000000000000000000000000000000000000000_) <> 60_ or
+        log10(9999999999999999999999999999999999999999999999999999999999999_) <> 60_ then
+      writeln("The bigInteger log10 function does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  log10(pred(10_ **    100)) <>     99_ or
+        log10(     10_ **    100)  <>    100_ or
+        log10(succ(10_ **    100)) <>    100_ or
+        log10(pred(10_ **    200)) <>    199_ or
+        log10(     10_ **    200)  <>    200_ or
+        log10(succ(10_ **    200)) <>    200_ or
+        log10(pred(10_ **    300)) <>    299_ or
+        log10(     10_ **    300)  <>    300_ or
+        log10(succ(10_ **    300)) <>    300_ or
+        log10(pred(10_ **    400)) <>    399_ or
+        log10(     10_ **    400)  <>    400_ or
+        log10(succ(10_ **    400)) <>    400_ or
+        log10(pred(10_ **    600)) <>    599_ or
+        log10(     10_ **    600)  <>    600_ or
+        log10(succ(10_ **    600)) <>    600_ or
+        log10(pred(10_ **    800)) <>    799_ or
+        log10(     10_ **    800)  <>    800_ or
+        log10(succ(10_ **    800)) <>    800_ or
+        log10(pred(10_ **   1000)) <>    999_ or
+        log10(     10_ **   1000)  <>   1000_ or
+        log10(succ(10_ **   1000)) <>   1000_ or
+        log10(pred(10_ **   2000)) <>   1999_ or
+        log10(     10_ **   2000)  <>   2000_ or
+        log10(succ(10_ **   2000)) <>   2000_ or
+        log10(pred(10_ **   3000)) <>   2999_ or
+        log10(     10_ **   3000)  <>   3000_ or
+        log10(succ(10_ **   3000)) <>   3000_ or
+        log10(pred(10_ **   4000)) <>   3999_ or
+        log10(     10_ **   4000)  <>   4000_ or
+        log10(succ(10_ **   4000)) <>   4000_ or
+        log10(pred(10_ **   6000)) <>   5999_ or
+        log10(     10_ **   6000)  <>   6000_ or
+        log10(succ(10_ **   6000)) <>   6000_ or
+        log10(pred(10_ **   8000)) <>   7999_ or
+        log10(     10_ **   8000)  <>   8000_ or
+        log10(succ(10_ **   8000)) <>   8000_ or
+        log10(pred(10_ **  10000)) <>   9999_ or
+        log10(     10_ **  10000)  <>  10000_ or
+        log10(succ(10_ **  10000)) <>  10000_ or
+        log10(pred(10_ **  20000)) <>  19999_ or
+        log10(     10_ **  20000)  <>  20000_ or
+        log10(succ(10_ **  20000)) <>  20000_ or
+        log10(pred(10_ **  30000)) <>  29999_ or
+        log10(     10_ **  30000)  <>  30000_ or
+        log10(succ(10_ **  30000)) <>  30000_ or
+        log10(pred(10_ **  40000)) <>  39999_ or
+        log10(     10_ **  40000)  <>  40000_ or
+        log10(succ(10_ **  40000)) <>  40000_ or
+        log10(pred(10_ **  60000)) <>  59999_ or
+        log10(     10_ **  60000)  <>  60000_ or
+        log10(succ(10_ **  60000)) <>  60000_ or
+        log10(pred(10_ **  80000)) <>  79999_ or
+        log10(     10_ **  80000)  <>  80000_ or
+        log10(succ(10_ **  80000)) <>  80000_ then
+      writeln("The bigInteger log10 function does not work correct for big numbers.");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("The bigInteger log10 function works correct.");
+    else
+      writeln(" ***** The bigInteger log10 function does not work correct.");
+      writeln;
+    end if;
+  end func;
+
+
 const proc: chkBitLength is func
   local
     var boolean: okay is TRUE;
@@ -15996,6 +16739,7 @@ const proc: main is func
     chkBinom;
     chkCompare;
     chkLog2;
+    chkLog10;
     chkBitLength;
     chkLowestSetBit;
     chkLShift;

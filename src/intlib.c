@@ -548,6 +548,22 @@ objectType int_le (listType arguments)
 
 
 /**
+ *  Compute the truncated base 10 logarithm of an integer number.
+ *  The definition of log10 is extended by defining log10(0) = -1.
+ *  @return the truncated base 10 logarithm.
+ *  @exception NUMERIC_ERROR The number is negative.
+ */
+objectType int_log10 (listType arguments)
+
+  { /* int_log10 */
+    isit_int(arg_1(arguments));
+    return bld_int_temp(
+        intLog10(take_int(arg_1(arguments))));
+  } /* int_log10 */
+
+
+
+/**
  *  Compute the truncated base 2 logarithm of an integer number.
  *  The definition of log2 is extended by defining log2(0) = -1.
  *  @return the truncated base 2 logarithm.

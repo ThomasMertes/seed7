@@ -585,12 +585,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 200000 lines of Seed7. For version 2014-04-20 the number of lines is:
+than 200000 lines of Seed7. For version 2014-05-04 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right"> 98714</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right">  8332</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">120883</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right"> 97496</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right"> 99344</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right">  8348</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">122164</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right"> 98107</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -1323,12 +1323,22 @@ must be initialized when it is declared.
 </h3></a><hr />
 <p>
 Seed7 <tt><span class="type">char</span>acters</tt> and <tt><span class="type">string</span>s</tt> support Unicode.
-Unicode values are encoded with UTF-32. This way it is not necessary to
-distinguish character-length from byte-length. All functions which exchange
+Unicode values are encoded with UTF-32. All functions which exchange
 strings with the operating system automatically convert the strings
-to and from UTF-32. It is possible to read and write files with <span class="link">Latin-1</span>,
+from and to UTF-32. It is possible to read and write files with <span class="link">Latin-1</span>,
 <span class="link">UTF-8</span> and <span class="link">UTF-16</span> encoding. Functions to <span class="link">deal with code pages</span> and functions
 to convert between different Unicode encodings are also available.
+</p><p>
+The usage of UTF-32 has several advantages. With UTF-32 it is not
+necessary to distinguish character-length from byte-length. The
+character-length of an UTF-8 or UTF-16 string must be computed by
+processing the whole string. The character-length of an UTF-32
+string does not need such an effort. Accessing a character with an
+index in an UTF-32 string is also simple. With UTF-8 and UTF-16 it
+is necessary to process all characters up to the index. UTF-32 uses
+more memory, but todays computers are equipped with a lot of memory.
+The pressure to save memory is gone and the easy and fast handling
+of UTF-32 strings outweights the increased memory usage.
 </p><p>
 Conversions to <span class="func">upper</span> and to <span class="func">lower</span> case use the default Unicode case mapping,
 where each character is considered in isolation. Characters without case
@@ -1346,7 +1356,7 @@ with UTF-8 encoding. Therefore a program editor with UTF-8 encoding should be us
 <p>
 Regular expressions are a powerful feature. Unfortunately they lead also
 to code, that is hard to maintain. The regular expression language is
-usually embedded in the surrounding programming language. As with other
+usually embedded in a surrounding programming language. As with other
 language in language features this leads to maintenance problems. There
 are also other difficulties. Regular expressions work typeless but Seed7
 does not. For this reasons regular expressions are currently not supported,

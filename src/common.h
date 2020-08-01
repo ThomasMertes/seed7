@@ -164,33 +164,35 @@ typedef UINT64TYPE         uint64Type;
 
 
 #if   INTTYPE_SIZE == 32
-typedef int32Type               intType;
-typedef uint32Type              uintType;
-#define INT_SUFFIX(num)         INT32_SUFFIX(num)
-#define UINT_SUFFIX(num)        UINT32_SUFFIX(num)
-#define INTTYPE_LITERAL_SUFFIX  INT32TYPE_LITERAL_SUFFIX
-#define INTTYPE_MIN             INT32TYPE_MIN
-#define INTTYPE_MAX             INT32TYPE_MAX
-#define UINTTYPE_MAX            UINT32TYPE_MAX
-#define INTTYPE_FORMAT          INT32TYPE_FORMAT
-#define UINTTYPE_FORMAT         UINT32TYPE_FORMAT
-#define INTTYPE_DECIMAL_DIGITS  10
-#define uintMostSignificantBit  uint32MostSignificantBit
-#define uintLeastSignificantBit uint32LeastSignificantBit
+typedef int32Type                 intType;
+typedef uint32Type                uintType;
+#define INT_SUFFIX(num)           INT32_SUFFIX(num)
+#define UINT_SUFFIX(num)          UINT32_SUFFIX(num)
+#define INTTYPE_LITERAL_SUFFIX    INT32TYPE_LITERAL_SUFFIX
+#define INTTYPE_MIN               INT32TYPE_MIN
+#define INTTYPE_MAX               INT32TYPE_MAX
+#define UINTTYPE_MAX              UINT32TYPE_MAX
+#define INTTYPE_FORMAT            INT32TYPE_FORMAT
+#define UINTTYPE_FORMAT           UINT32TYPE_FORMAT
+#define INTTYPE_DECIMAL_SIZE      11
+#define DECIMAL_DIGITS_IN_INTTYPE 9
+#define uintMostSignificantBit    uint32MostSignificantBit
+#define uintLeastSignificantBit   uint32LeastSignificantBit
 #elif INTTYPE_SIZE == 64
-typedef int64Type               intType;
-typedef uint64Type              uintType;
-#define INT_SUFFIX(num)         INT64_SUFFIX(num)
-#define UINT_SUFFIX(num)        UINT64_SUFFIX(num)
-#define INTTYPE_LITERAL_SUFFIX  INT64TYPE_LITERAL_SUFFIX
-#define INTTYPE_MIN             INT64TYPE_MIN
-#define INTTYPE_MAX             INT64TYPE_MAX
-#define UINTTYPE_MAX            UINT64TYPE_MAX
-#define INTTYPE_FORMAT          INT64TYPE_FORMAT
-#define UINTTYPE_FORMAT         UINT64TYPE_FORMAT
-#define INTTYPE_DECIMAL_DIGITS  19
-#define uintMostSignificantBit  uint64MostSignificantBit
-#define uintLeastSignificantBit uint64LeastSignificantBit
+typedef int64Type                 intType;
+typedef uint64Type                uintType;
+#define INT_SUFFIX(num)           INT64_SUFFIX(num)
+#define UINT_SUFFIX(num)          UINT64_SUFFIX(num)
+#define INTTYPE_LITERAL_SUFFIX    INT64TYPE_LITERAL_SUFFIX
+#define INTTYPE_MIN               INT64TYPE_MIN
+#define INTTYPE_MAX               INT64TYPE_MAX
+#define UINTTYPE_MAX              UINT64TYPE_MAX
+#define INTTYPE_FORMAT            INT64TYPE_FORMAT
+#define UINTTYPE_FORMAT           UINT64TYPE_FORMAT
+#define INTTYPE_DECIMAL_SIZE      20
+#define DECIMAL_DIGITS_IN_INTTYPE 18
+#define uintMostSignificantBit    uint64MostSignificantBit
+#define uintLeastSignificantBit   uint64LeastSignificantBit
 #endif
 
 #if SHORT_SIZE < INTTYPE_SIZE

@@ -447,6 +447,22 @@ objectType big_le (listType arguments)
 
 
 /**
+ *  Compute the truncated base 10 logarithm of a 'bigInteger' number.
+ *  The definition of 'log10' is extended by defining log10(0) = -1_.
+ *  @return the truncated base 10 logarithm.
+ *  @exception NUMERIC_ERROR The number is negative.
+ */
+objectType big_log10 (listType arguments)
+
+  { /* big_log10 */
+    isit_bigint(arg_1(arguments));
+    return bld_bigint_temp(
+        bigLog10(take_bigint(arg_1(arguments))));
+  } /* big_log10 */
+
+
+
+/**
  *  Compute the truncated base 2 logarithm of a 'bigInteger' number.
  *  The definition of 'log2' is extended by defining log2(0) = -1_.
  *  @return the truncated base 2 logarithm.

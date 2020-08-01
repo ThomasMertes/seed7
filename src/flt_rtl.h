@@ -45,8 +45,12 @@ extern const rtlValueUnion f_const[];
 
 
 void setupFloat (void);
+int64Type getMantissaAndExponent (double doubleValue, int *binaryExponent);
+double setMantissaAndExponent (int64Type intMantissa, int binaryExponent);
+memSizeType doubleToCharBuffer (double doubleValue, double largeNumber,
+                                char *format, char *buffer);
 intType fltCmp (floatType number1, floatType number2);
-striType fltDgts (floatType number, intType digits_precision);
+striType fltDgts (floatType number, intType precision);
 #ifdef NAN_COMPARISON_WRONG
 boolType fltEq (floatType number1, floatType number2);
 boolType fltGe (floatType number1, floatType number2);
@@ -63,5 +67,5 @@ floatType fltParse (const const_striType stri);
 floatType fltPow (floatType base, floatType exponent);
 #endif
 floatType fltRand (floatType lower_limit, floatType upper_limit);
-striType fltSci (floatType number, intType digits_precision);
+striType fltSci (floatType number, intType precision);
 striType fltStr (floatType number);

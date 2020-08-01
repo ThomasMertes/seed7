@@ -1890,19 +1890,18 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
 
 <a name="types_integer"><h3>5.2 integer</h3></a>
 <p>
-    The type <tt><a class="type" href="#types_integer">integer</a></tt> consists of signed integer numbers
-  which are at least 32 bits wide. An <a class="link" href="#tokens_Integer_literals">integer literal</a> is
-  a sequence of digits which is taken to be decimal. The
-  sequence of digits may be followed by the letter E or e
-  an optional + sign and a decimal exponent. <a name="types_based_integer"></a>Based numbers
-  can be specified when the sequence of digits is followed
-  by the # character and a sequence of extended digits.
-  The decimal number in front of the # character specifies
-  the base of the number which follows the # character.
-  As base a number between 2 and 36 is allowed. As
-  extended digits the letters A or a can be used for 10,
-  B or b can be used for 11 and so on to Z or z which can
-  be used as 35. Examples of <tt><a class="type" href="#types_integer">integer</a></tt> literals are:
+    The type <tt><a class="type" href="#types_integer">integer</a></tt> consists of signed 64-bit integer
+  numbers. An integer <a class="link" href="#tokens_Integer_literals">integer literal</a> is a sequence of digits
+  which is taken to be decimal. The sequence of digits may be
+  followed by the letter E or e an optional + sign and a
+  decimal exponent. <a name="types_based_integer"></a>Based numbers can be specified when the
+  sequence of digits is followed by the # character and a
+  sequence of extended digits. The decimal number in front of
+  the # character specifies the base of the number which
+  follows the # character. As base a number between 2 and 36
+  is allowed. As extended digits the letters A or a can be
+  used for 10, B or b can be used for 11 and so on to Z or z
+  which can be used as 35. Examples of <tt><a class="type" href="#types_integer">integer</a></tt> literals are:
 </p><pre class="box">
     0   2147483647   1E6   2e+9   16#c0   16#FFFF   8#177777   2#1010101010
 </pre><p>
@@ -1991,6 +1990,16 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
                     -12 <span class="op">rpad</span>  4 <b>&rArr;</b> <span class="stri">"-12 "</span>,
                     -12 <span class="op">rpad</span>  3 <b>&rArr;</b> <span class="stri">"-12"</span>,
                     -12 <span class="op">rpad</span>  2 <b>&rArr;</b> <span class="stri">"-12"</span> )
+      <span class="op">sci</span>       Conversion to a <a class="type" href="#types_string">string</a> in scientific notation
+                  ( Type of result: <a class="type" href="#types_string">string</a>,
+                    12345 <span class="op">sci</span> 4 <b>&rArr;</b> <span class="stri">"1.2345e+4"</span>,
+                    12345 <span class="op">sci</span> 3 <b>&rArr;</b> <span class="stri">"1.235e+4"</span>,
+                    12345 <span class="op">sci</span> 2 <b>&rArr;</b> <span class="stri">"1.23e+4"</span>,
+                    3141592 <span class="op">sci</span> 0 <b>&rArr;</b> <span class="stri">"3e+6"</span>,
+                    27182818 <span class="op">sci</span> 0 <b>&rArr;</b> <span class="stri">"3e+7"</span>,
+                    2**62 <span class="op">sci</span> 6 <b>&rArr;</b> <span class="stri">"4.611686e+18"</span>,
+                    -1 <span class="op">sci</span> 3 <b>&rArr;</b> <span class="stri">"-1.000e+0"</span>,
+                    -0 <span class="op">sci</span> 2 <b>&rArr;</b> <span class="stri">"0.00e+0"</span> )
       <a class="type" href="#types_integer">integer</a> <span class="op">conv</span> A   Identity
                   ( <a class="type" href="#types_integer">integer</a> <span class="op">conv</span> A <b>&rArr;</b> A )
       <a class="type" href="#types_integer">integer</a> <span class="op">parse</span> A   Conversion of <a class="type" href="#types_string">string</a> to <a class="type" href="#types_integer">integer</a>
@@ -2022,6 +2031,14 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
                   ( sqrt(A) is okay for A >= 0
                     sqrt(A) <b>&rArr;</b> trunc(sqrt(flt(A))),
                     sqrt(-1) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_NUMERIC_ERROR">NUMERIC_ERROR</a> )
+      <span class="func">log10</span>(A)  Truncated base 10 logarithm
+                  ( log10(A) is defined for A >= 0
+                    log10(10 ** A) = A for A >= 0,
+                    log10(pred(10 ** A)) = pred(A) for A >= 0,
+                    log10(10) <b>&rArr;</b> 1,
+                    log10(1) <b>&rArr;</b> 0,
+                    log10(0) <b>&rArr;</b> -1,
+                    log10(-1) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_NUMERIC_ERROR">NUMERIC_ERROR</a> )
       <span class="func">log2</span>(A)   Truncated base 2 logarithm
                   ( log2(A) returns the position of the
                     highest bit set. It is defined for A >= 0
@@ -2223,6 +2240,17 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
                     3735928559_ <span class="op">RADIX</span> 16 <b>&rArr;</b> <span class="stri">"DEADBEEF"</span>,
                     -3735928559_ <span class="op">RADIX</span> 16 ) <b>&rArr;</b> <span class="stri">"-DEADBEEF"</span>,
                     123_ <span class="op">RADIX</span> 37 <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
+      <span class="op">sci</span>       Conversion to a <a class="type" href="#types_string">string</a> in scientific notation
+                  ( Type of right operand: <a class="type" href="#types_integer">integer</a>,
+                    Type of result: <a class="type" href="#types_string">string</a>,
+                    12345_ <span class="op">sci</span> 4 <b>&rArr;</b> <span class="stri">"1.2345e+4"</span>,
+                    12345_ <span class="op">sci</span> 3 <b>&rArr;</b> <span class="stri">"1.235e+4"</span>,
+                    12345_ <span class="op">sci</span> 2 <b>&rArr;</b> <span class="stri">"1.23e+4"</span>,
+                    3141592_ <span class="op">sci</span> 0 <b>&rArr;</b> <span class="stri">"3e+6"</span>,
+                    27182818_ <span class="op">sci</span> 0 <b>&rArr;</b> <span class="stri">"3e+7"</span>,
+                    2_**62 <span class="op">sci</span> 6 <b>&rArr;</b> <span class="stri">"4.611686e+18"</span>,
+                    -1_ <span class="op">sci</span> 3 <b>&rArr;</b> <span class="stri">"-1.000e+0"</span>,
+                    -0_ <span class="op">sci</span> 2 <b>&rArr;</b> <span class="stri">"0.00e+0"</span> )
       <a class="type" href="#types_bigInteger">bigInteger</a> <span class="op">conv</span> A   Conversion of <a class="type" href="#types_integer">integer</a> to <a class="type" href="#types_bigInteger">bigInteger</a>
                   ( Type of argument A: <a class="type" href="#types_integer">integer</a>,
                     <a class="type" href="#types_bigInteger">bigInteger</a> <span class="op">conv</span> 1 <b>&rArr;</b> 1_ )
@@ -2255,6 +2283,14 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
                     sqrt(A) <b>&rArr;</b> trunc(sqrt(flt(A))),
                     sqrt(-1_) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_NUMERIC_ERROR">NUMERIC_ERROR</a> )
       <span class="func">modInverse</span>(A, B) Compute the modular multiplicative inverse of A modulo B
+      <span class="func">log10</span>(A)  Truncated base 10 logarithm
+                  ( log10(A) is defined for A >= 0_
+                    log10(10_ ** A) = A for A >= 0_,
+                    log10(pred(10_ ** A)) = pred(A) for A >= 0_,
+                    log10(10_) <b>&rArr;</b> 1_,
+                    log10(1_) <b>&rArr;</b> 0_,
+                    log10(0_) <b>&rArr;</b> -1_,
+                    log10(-1_) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_NUMERIC_ERROR">NUMERIC_ERROR</a> )
       <span class="func">log2</span>(A)   Truncated base 2 logarithm
                   ( log2(A) returns the position of the
                     highest bit set. It is defined for A >= 0
@@ -2421,7 +2457,31 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
                     <a class="type" href="#types_rational">rational</a> <span class="op">conv</span> 1 <b>&rArr;</b> 1 / 1 )
       <span class="op">digits</span>    Conversion to <a class="type" href="#types_string">string</a> with specified precision
                   ( Type of right operand: <a class="type" href="#types_integer">integer</a>,
-                    Type of result: <a class="type" href="#types_string">string</a> )
+                    Type of result: <a class="type" href="#types_string">string</a>,
+                    1/64 <span class="op">digits</span> 7 <b>&rArr;</b> <span class="stri">"0.0156250"</span>,
+                    1/64 <span class="op">digits</span> 4 <b>&rArr;</b> <span class="stri">"0.0156"</span>,
+                    1/64 <span class="op">digits</span> 2 <b>&rArr;</b> <span class="stri">"0.02"</span>,
+                    355/113 <span class="op">digits</span> 6 <b>&rArr;</b> <span class="stri">"3.141593"</span>,
+                    22/7 <span class="op">digits</span> 0 <b>&rArr;</b> <span class="stri">"3"</span>,
+                    -1/2 <span class="op">digits</span> 1 <b>&rArr;</b> <span class="stri">"-1"</span>,
+                    1/0 <span class="op">digits</span> 5 <b>&rArr;</b> <span class="stri">"Infinity"</span>,
+                    -1/0 <span class="op">digits</span> 6 <b>&rArr;</b> <span class="stri">"-Infinity"</span>,
+                    0/0 <span class="op">digits</span> 7 <b>&rArr;</b> <span class="stri">"NaN"</span>,
+                    -1/2048 <span class="op">digits</span> 3 <b>&rArr;</b> <span class="stri">"0.000"</span> )
+      <span class="op">sci</span>       Conversion to a <a class="type" href="#types_string">string</a> in scientific notation
+                  ( Type of right operand: <a class="type" href="#types_integer">integer</a>,
+                    Type of result: <a class="type" href="#types_string">string</a>,
+                    1/64 <span class="op">sci</span> 4 <b>&rArr;</b> <span class="stri">"1.5625e-2"</span>,
+                    1/64 <span class="op">sci</span> 3 <b>&rArr;</b> <span class="stri">"1.563e-2"</span>,
+                    1/64 <span class="op">sci</span> 2 <b>&rArr;</b> <span class="stri">"1.56e-2"</span>,
+                    355/113 <span class="op">sci</span> 6 <b>&rArr;</b> <span class="stri">"3.141593e+0"</span>,
+                    22/7 <span class="op">sci</span> 0 <b>&rArr;</b> <span class="stri">"3e+0"</span>,
+                    -1/2 <span class="op">sci</span> 1 <b>&rArr;</b> <span class="stri">"-5.0e-1"</span>,
+                    1/0 <span class="op">sci</span> 5 <b>&rArr;</b> <span class="stri">"Infinity"</span>,
+                    -1/0 <span class="op">sci</span> 6 <b>&rArr;</b> <span class="stri">"-Infinity"</span>,
+                    0/0 <span class="op">sci</span> 7 <b>&rArr;</b> <span class="stri">"NaN"</span>,
+                    -1/2048 <span class="op">sci</span> 3 <b>&rArr;</b> <span class="stri">"-4.883e-4"</span>,
+                    -0/1 <span class="op">sci</span> 2 <b>&rArr;</b> <span class="stri">"0.00e+0"</span> )
       <a class="type" href="#types_rational">rational</a> <span class="op">parse</span> A   Conversion of <a class="type" href="#types_string">string</a> to <a class="type" href="#types_rational">rational</a>
                   ( Type of argument A: <a class="type" href="#types_string">string</a> )
     Relations:
@@ -2511,7 +2571,31 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
                     <a class="type" href="#types_bigRational">bigRational</a> <span class="op">conv</span> 1_ <b>&rArr;</b> 1_ / 1_ )
       <span class="op">digits</span>    Conversion to <a class="type" href="#types_string">string</a> with specified precision
                   ( Type of right operand: <a class="type" href="#types_integer">integer</a>,
-                    Type of result: <a class="type" href="#types_string">string</a> )
+                    Type of result: <a class="type" href="#types_string">string</a>,
+                    1_/64_ <span class="op">digits</span> 7 <b>&rArr;</b> <span class="stri">"0.0156250"</span>,
+                    1_/64_ <span class="op">digits</span> 4 <b>&rArr;</b> <span class="stri">"0.0156"</span>,
+                    1_/64_ <span class="op">digits</span> 2 <b>&rArr;</b> <span class="stri">"0.02"</span>,
+                    355_/113_ <span class="op">digits</span> 6 <b>&rArr;</b> <span class="stri">"3.141593"</span>,
+                    22_/7_ <span class="op">digits</span> 0 <b>&rArr;</b> <span class="stri">"3"</span>,
+                    -1_/2_ <span class="op">digits</span> 1 <b>&rArr;</b> <span class="stri">"-1"</span>,
+                    1_/0_ <span class="op">digits</span> 5 <b>&rArr;</b> <span class="stri">"Infinity"</span>,
+                    -1_/0_ <span class="op">digits</span> 6 <b>&rArr;</b> <span class="stri">"-Infinity"</span>,
+                    0_/0_ <span class="op">digits</span> 7 <b>&rArr;</b> <span class="stri">"NaN"</span>,
+                    -1_/2048_ <span class="op">digits</span> 3 <b>&rArr;</b> <span class="stri">"0.000"</span> )
+      <span class="op">sci</span>       Conversion to a <a class="type" href="#types_string">string</a> in scientific notation
+                  ( Type of right operand: <a class="type" href="#types_integer">integer</a>,
+                    Type of result: <a class="type" href="#types_string">string</a>,
+                    1_/64_ <span class="op">sci</span> 4 <b>&rArr;</b> <span class="stri">"1.5625e-2"</span>,
+                    1_/64_ <span class="op">sci</span> 3 <b>&rArr;</b> <span class="stri">"1.563e-2"</span>,
+                    1_/64_ <span class="op">sci</span> 2 <b>&rArr;</b> <span class="stri">"1.56e-2"</span>,
+                    355_/113_ <span class="op">sci</span> 6 <b>&rArr;</b> <span class="stri">"3.141593e+0"</span>,
+                    22_/7_ <span class="op">sci</span> 0 <b>&rArr;</b> <span class="stri">"3e+0"</span>,
+                    -1_/2_ <span class="op">sci</span> 1 <b>&rArr;</b> <span class="stri">"-5.0e-1"</span>,
+                    1_/0_ <span class="op">sci</span> 5 <b>&rArr;</b> <span class="stri">"Infinity"</span>,
+                    -1_/0_ <span class="op">sci</span> 6 <b>&rArr;</b> <span class="stri">"-Infinity"</span>,
+                    0_/0_ <span class="op">sci</span> 7 <b>&rArr;</b> <span class="stri">"NaN"</span>,
+                    -1_/2048_ <span class="op">sci</span> 3 <b>&rArr;</b> <span class="stri">"-4.883e-4"</span>,
+                    -0_/1_ <span class="op">sci</span> 2 <b>&rArr;</b> <span class="stri">"0.00e+0"</span> )
       <a class="type" href="#types_bigRational">bigRational</a> <span class="op">parse</span> A   Conversion of <a class="type" href="#types_string">string</a> to <a class="type" href="#types_bigRational">bigRational</a>
                   ( Type of argument A: <a class="type" href="#types_string">string</a> )
     Relations:
@@ -2566,7 +2650,7 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
 
 <a name="types_float"><h3>5.6 float</h3></a>
 <p>
-    The type <tt><span class="type">float</span></tt> consists of single precision floating point
+    The type <tt><span class="type">float</span></tt> consists of double precision floating point
   numbers. <a class="link" href="#tokens_Float_literals">Float literals</a> use base 10 and contain a decimal point.
   There must be at least one digit before and after the decimal point.
   An exponent part, which is introduced with E or e, is optional.

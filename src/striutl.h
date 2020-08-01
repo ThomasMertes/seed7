@@ -138,7 +138,7 @@ void conv_to_cstri (cstriType cstri, const const_striType stri,
 void conv_to_cstri8 (cstriType cstri, const const_striType stri,
                      errInfoType *err_info);
 #ifdef OS_STRI_WCHAR
-memSizeType stri_to_wstri (const wstriType out_wstri,
+memSizeType stri_to_utf16 (const wstriType out_wstri,
                            register const strElemType *strelem, memSizeType len,
                            errInfoType *const err_info);
 #endif
@@ -151,11 +151,15 @@ bstriType stri_to_bstri8 (const_striType stri);
 #ifdef CONSOLE_WCHAR
 bstriType stri_to_bstriw (const_striType stri);
 #endif
+wstriType stri_to_wstri_buf (const const_striType stri, memSizeType *length,
+                             errInfoType *err_info);
 striType cstri_to_stri (const_cstriType cstri);
 striType cstri8_to_stri (const_cstriType cstri, errInfoType *err_info);
 striType cstri8_buf_to_stri (const_cstriType cstri, memSizeType length,
                              errInfoType *err_info);
 striType cstri8_or_cstri_to_stri (const_cstriType cstri);
+striType wstri_buf_to_stri (const_wstriType wstri, memSizeType length,
+                            errInfoType *err_info);
 striType conv_from_os_stri (const const_os_striType os_stri, memSizeType length);
 os_striType stri_to_os_stri (const_striType stri, errInfoType *err_info);
 striType os_stri_to_stri (const_os_striType os_stri, errInfoType *err_info);

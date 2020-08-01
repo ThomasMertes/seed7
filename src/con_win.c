@@ -423,7 +423,7 @@ static void doWriteConsole (HANDLE hConsole, const const_striType stri)
   /* doWriteConsole */
     /* fprintf(stderr, "doWriteConsole(%lx, ...)", (unsigned long) hConsole); */
     if (stri->size <= 256) {
-      wstri_size = stri_to_wstri(wstri_buffer, stri->mem, stri->size, &err_info);
+      wstri_size = stri_to_utf16(wstri_buffer, stri->mem, stri->size, &err_info);
       if (err_info != OKAY_NO_ERROR) {
         raise_error(RANGE_ERROR);
       } else {
@@ -433,7 +433,7 @@ static void doWriteConsole (HANDLE hConsole, const const_striType stri)
       if (stri->size > (MAX_WSTRI_LEN + 1) / 2) {
         raise_error(MEMORY_ERROR);
       } else if (ALLOC_WSTRI(wstri, stri->size * 2 - 1)) {
-        wstri_size = stri_to_wstri(wstri, stri->mem, stri->size, &err_info);
+        wstri_size = stri_to_utf16(wstri, stri->mem, stri->size, &err_info);
         if (err_info != OKAY_NO_ERROR) {
           raise_error(RANGE_ERROR);
         } else {

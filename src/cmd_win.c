@@ -472,7 +472,7 @@ static os_striType prepareCommandLine (const const_os_striType os_command_stri,
       if (destChar >= beyondDest) {
         *err_info = MEMORY_ERROR;
       } else {
-        *(destChar++) = '\0';
+        *destChar = '\0';
       } /* if */
       if (*err_info != OKAY_NO_ERROR) {
         os_stri_free(command_line);

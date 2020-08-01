@@ -31,9 +31,22 @@ IN_PARAM_IS_VALUE(integer);
 
 const proc: (ref integer param) ::= (ref integer param)             is action "INT_CREATE";
 
+const proc: (inout integer: dest) := (in integer: source)           is action "INT_CPY";
+
+
 const integer: (attr integer) . value is 0;
 
-const proc: (inout integer: dest) := (in integer: source)           is action "INT_CPY";
+
+(**
+ *  Minimum value of ''integer''.
+ *)
+const integer: (attr integer) . first is forward;
+
+
+(**
+ *  Maximum value of ''integer''.
+ *)
+const integer: (attr integer) . last  is  9223372036854775807;
 
 
 (**
@@ -71,6 +84,9 @@ const func integer: (in integer: summand1) + (in integer: summand2)    is action
  *  @return the difference of the two numbers.
  *)
 const func integer: (in integer: minuend) - (in integer: subtrahend)   is action "INT_SBTR";
+
+
+const integer: (attr integer) . first is -9223372036854775807 - 1;
 
 
 (**
@@ -296,6 +312,17 @@ const func integer: sqrt (in integer: number)                    is action "INT_
 
 
 (**
+ *  Compute the truncated base 10 logarithm of an integer number.
+ *  The definition of ''log10'' is extended by defining log10(0) = -1.
+ *   log10(10 ** A)        returns A        for A >= 0
+ *   log10(pred(10 ** A))  returns pred(A)  for A >= 0
+ *  @return the truncated base 10 logarithm.
+ *  @exception NUMERIC_ERROR The number is negative.
+ *)
+const func integer: log10 (in integer: number)                   is action "INT_LOG10";
+
+
+(**
  *  Compute the truncated base 2 logarithm of an integer number.
  *  The definition of ''log2'' is extended by defining log2(0) = -1.
  *   log2(2 ** A)        returns A        for A >= 0
@@ -459,6 +486,31 @@ const func integer: (attr integer) parse (in string: stri)       is action "INT_
  *             literal with the specified base.
  *)
 const func integer: integer (in string: stri, in integer: base)  is forward;
+
+
+(**
+ *  Convert an ''integer'' number to a [[string]] in scientific notation.
+ *  Scientific notation uses a decimal significand and a decimal exponent.
+ *  The significand has an optional sign and exactly one digit before the
+ *  decimal point. The fractional part of the significand is rounded
+ *  to the specified number of digits (''precision''). Halfway cases are
+ *  rounded away from zero. The fractional part is followed by the
+ *  letter e and an exponent, which is always signed. The value zero is
+ *  never written with a negative sign.
+ *   12345 sci 4     returns "1.2345e+4"
+ *   12345 sci 3     returns "1.235e+4"
+ *   12345 sci 2     returns "1.23e+4"
+ *   3141592 sci 0   returns "3e+6"
+ *   27182818 sci 0  returns "3e+7"
+ *   2**62 sci 6     returns "4.611686e+18"
+ *   -1 sci 3        returns "-1.000e+0"
+ *   -0 sci 2        returns "0.00e+0"
+ *  @param precision Number of digits after the decimal point.
+ *         When the ''precision'' is zero the decimal point is omitted.
+ *  @return the string result of the conversion.
+ *  @exception RANGE_ERROR When the ''precision'' is negative.
+ *)
+const func string: (in integer: number) sci (in integer: precision)  is forward;
 
 
 (**

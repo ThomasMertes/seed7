@@ -45,6 +45,8 @@
  *      The extension used by the C compiler for object files.
  *  EXECUTABLE_FILE_EXTENSION:
  *      The extension which is used by the operating system for executables.
+ *  C_COMPILER:
+ *      Contains the command to call the stand-alone C compiler and linker.
  *  CC_NO_OPT_OUTPUT_FILE:
  *      Defined, when compiling and linking with one command cannot use -o.
  *  REDIRECT_C_ERRORS:
@@ -108,6 +110,10 @@
 #define S_ISREG(mode) (((mode) & S_IFMT) == S_IFREG)
 #endif
 
+#ifndef S_ISDIR
+#define S_ISDIR(mode) (((mode) & S_IFMT) == S_IFDIR)
+#endif
+
 #define xstr(s) str(s)
 #define str(s) #s
 
@@ -168,31 +174,52 @@ void prepareCompileCommand (void)
 
 
 
-void cleanUpCompilation (void)
+int fileIsRegular (char *fileName)
 
   {
     struct stat stat_buf;
+
+  /* fileIsRegular */
+    return stat(fileName, &stat_buf) == 0 && S_ISREG(stat_buf.st_mode);
+  } /* fileIsRegular */
+
+
+
+int fileIsDir (char *fileName)
+
+  {
+    struct stat stat_buf;
+
+  /* fileIsDir */
+    return stat(fileName, &stat_buf) == 0 && S_ISDIR(stat_buf.st_mode);
+  } /* fileIsDir */
+
+
+
+void cleanUpCompilation (void)
+
+  {
     char fileName[1024];
 
   /* cleanUpCompilation */
-    if (stat("ctest.c", &stat_buf) == 0 && S_ISREG(stat_buf.st_mode)) {
+    if (fileIsRegular("ctest.c")) {
       remove("ctest.c");
     } /* if */
-    if (stat("ctest.cerrs", &stat_buf) == 0 && S_ISREG(stat_buf.st_mode)) {
+    if (fileIsRegular("ctest.cerrs")) {
       remove("ctest.cerrs");
     } /* if */
-    if (stat("ctest.lerrs", &stat_buf) == 0 && S_ISREG(stat_buf.st_mode)) {
+    if (fileIsRegular("ctest.lerrs")) {
       remove("ctest.lerrs");
     } /* if */
     sprintf(fileName, "ctest%s", OBJECT_FILE_EXTENSION);
-    if (stat(fileName, &stat_buf) == 0 && S_ISREG(stat_buf.st_mode)) {
+    if (fileIsRegular(fileName)) {
       remove(fileName);
     } /* if */
     sprintf(fileName, "ctest%s", EXECUTABLE_FILE_EXTENSION);
-    if (stat(fileName, &stat_buf) == 0 && S_ISREG(stat_buf.st_mode)) {
+    if (fileIsRegular(fileName)) {
       remove(fileName);
     } /* if */
-    if (stat("ctest.out", &stat_buf) == 0 && S_ISREG(stat_buf.st_mode)) {
+    if (fileIsRegular("ctest.out")) {
       remove("ctest.out");
     } /* if */
   } /* cleanUpCompilation */
@@ -204,7 +231,6 @@ int doCompileAndLink (const char *options)
   {
     char command[1024];
     int len;
-    struct stat stat_buf;
     char fileName[1024];
     int returncode;
     int result = 0;
@@ -234,7 +260,7 @@ int doCompileAndLink (const char *options)
 #endif
     returncode = system(command);
     sprintf(fileName, "ctest%s", EXECUTABLE_FILE_EXTENSION);
-    if (stat(fileName, &stat_buf) == 0 && S_ISREG(stat_buf.st_mode)) {
+    if (fileIsRegular(fileName)) {
       if (returncode == 0) {
         result = 1;
       } else {
@@ -432,12 +458,69 @@ void appendToFile (const char *fileName, const char *data)
 
 
 
-void detemineDatabaseDefines (void)
+#ifdef WITH_SQL
+void detemineOciDefines (char *include_options, char *system_db_libs)
 
   {
     char *oracle_home;
+    const char *oci_incl_dir[] = {"/rdbms/public", "/oci/include"};
+    const char *oci_lib_dir[] = {"/lib", "/oci/lib/msdn"};
+    const char *oci_link_opt[] = {"-lclntsh -lnnz11"};
+    char incl_path[4096];
+    char lib_path[4096];
+    char link_opt[4096];
+    char buffer[4096];
+    int incl_idx;
+    int lib_idx;
+    int opt_idx;
     char *db_libs;
+    int found = 0;
+
+  /* detemineOciDefines */
+    if ((oracle_home = getenv("ORACLE_HOME")) != NULL) {
+      for (incl_idx = 0; !found && incl_idx < sizeof(oci_incl_dir) / sizeof(char *); incl_idx++) {
+        sprintf(incl_path, "%s%s/oci.h", oracle_home, oci_incl_dir[incl_idx]);
+        if (fileIsRegular(incl_path)) {
+          for (lib_idx = 0; !found && lib_idx < sizeof(oci_lib_dir) / sizeof(char *); lib_idx++) {
+            sprintf(lib_path, "%s%s", oracle_home, oci_lib_dir[lib_idx]);
+            if (fileIsDir(lib_path)) {
+              for (opt_idx = 0; !found && opt_idx < sizeof(oci_link_opt) / sizeof(char *); opt_idx++) {
+                sprintf(buffer, "-I%s%s -L%s%s %s",
+                        oracle_home, oci_incl_dir[incl_idx],
+                        oracle_home, oci_lib_dir[lib_idx], oci_link_opt[lib_idx]);
+                if (compileAndLinkWithOptionsOk("#include \"oci.h\"\nint main(int argc,char *argv[]){return 0;}\n",
+                                                buffer)) {
+                  puts("#define OCI_INCLUDE \"oci.h\"");
+                  sprintf(buffer, "-I%s%s", oracle_home, oci_incl_dir[incl_idx]);
+                  if (include_options[0] != '\0') {
+                    strcat(include_options, " ");
+                  } /* if */
+                  strcat(include_options, buffer);
+                  sprintf(buffer, "-L%s%s %s -Wl,-rpath=%s%s",
+                          oracle_home, oci_lib_dir[lib_idx], oci_link_opt[lib_idx],
+                          oracle_home, oci_lib_dir[lib_idx]);
+                  if (system_db_libs[0] != '\0') {
+                    strcat(system_db_libs, " ");
+                  } /* if */
+                  strcat(system_db_libs, buffer);
+                  found = 1;
+                } /* if */
+              } /* if */
+            } /* if */
+          } /* for */
+        } /* if */
+      } /* for */
+    } /* if */
+  } /* detemineOciDefines */
+#endif
+
+
+
+void detemineDatabaseDefines (void)
+
+  {
     char *include_opt;
+    char *db_libs;
     char include_options[4096];
     char system_db_libs[4096];
     char buffer[4096];
@@ -482,39 +565,26 @@ void detemineDatabaseDefines (void)
       } /* if */
       strcat(system_db_libs, db_libs);
     } /* if */
-    if ((oracle_home = getenv("ORACLE_HOME")) != NULL) {
-      sprintf(buffer, "-I%s/rdbms/public -L%s/lib -lclntsh -lnnz11", oracle_home, oracle_home);
-      if (compileAndLinkWithOptionsOk("#include \"oci.h\"\nint main(int argc,char *argv[]){return 0;}\n",
-                                      buffer)) {
-        puts("#define OCI_INCLUDE \"oci.h\"");
-#ifdef OCI_INCLUDE_OPTION
-        include_opt = OCI_INCLUDE_OPTION;
+    if (compileAndLinkOk("#include <sql.h>\nint main(int argc,char *argv[]){return 0;}\n")) {
+      puts("#define ODBC_INCLUDE \"sql.h\"");
+#ifdef ODBC_LIBS
+      db_libs = ODBC_LIBS;
 #else
-        sprintf(buffer, "-I%s/rdbms/public", oracle_home);
-        include_opt = buffer;
+      db_libs = "-lodbc";
 #endif
-        if (include_options[0] != '\0') {
-          strcat(include_options, " ");
-        } /* if */
-        strcat(include_options, include_opt);
-#ifdef OCI_LIBS
-        db_libs = OCI_LIBS;
-#else
-        sprintf(buffer, "-L%s/lib -lclntsh -lnnz11 -Wl,-rpath=%s/lib", oracle_home, oracle_home);
-        db_libs = buffer;
-#endif
-        if (system_db_libs[0] != '\0') {
-          strcat(system_db_libs, " ");
-        } /* if */
-        strcat(system_db_libs, db_libs);
+      if (system_db_libs[0] != '\0') {
+        strcat(system_db_libs, " ");
       } /* if */
+      strcat(system_db_libs, db_libs);
     } /* if */
-#endif
-    printf("#define SYSTEM_DB_LIBS \"%s\"\n", system_db_libs);
+    detemineOciDefines(include_options, system_db_libs);
     sprintf(buffer, "INCLUDE_OPTIONS = %s\n", include_options);
     appendToFile("macros", buffer);
     sprintf(buffer, "SYSTEM_DB_LIBS = %s\n", system_db_libs);
     appendToFile("macros", buffer);
+#endif
+    printf("#define INCLUDE_OPTIONS \"%s\"\n", include_options);
+    printf("#define SYSTEM_DB_LIBS \"%s\"\n", system_db_libs);
   } /* detemineDatabaseDefines */
 
 
@@ -544,6 +614,7 @@ int main (int argc, char **argv)
     float nanValue2;
     float plusInf;
     float minusInf;
+    int floatRadixFactor;
     int testResult;
     const char *define_read_buffer_empty;
 
@@ -896,6 +967,12 @@ int main (int argc, char **argv)
                strcmp(buffer, "1 2 3 1.3 1.8 0.13 0.38 -0 -1 -2 -1.2 -1.7 -0.12 -0.37") == 0) {
       puts("#define ROUND_HALF_UP");
     } /* if */
+    sprintf(buffer, "%1.14e", 1.12345678901234);
+    printf("#define DOUBLE_DECIMAL_EXPONENT_DIGITS %u\n", (unsigned int) strlen(buffer) - 18);
+    printf("#define FLOAT_STR_FORMAT \"%%1.%de\"\n", FLT_DIG - 1);
+    printf("#define FLOAT_STR_LARGE_NUMBER 1.0e%d\n", FLT_DIG);
+    printf("#define DOUBLE_STR_FORMAT \"%%1.%de\"\n", DBL_DIG - 1);
+    printf("#define DOUBLE_STR_LARGE_NUMBER 1.0e%d\n", DBL_DIG);
     if (!compileAndLinkOk("#include<stdio.h>\n"
                           "int main(int argc,char *argv[]){"
                           "printf(\"%f\", 1.0/0.0);return 0;}\n") ||
@@ -981,6 +1058,12 @@ int main (int argc, char **argv)
                          "{float f=0.0; _isnan(f); return 0;}\n")) {
       puts("#define ISNAN_WITH_UNDERLINE");
     } /* if */
+    if (!compileAndLinkOk("#include<float.h>\n#include<math.h>\nint main(int argc,char *argv[])"
+                          "{float f=0.0; isinf(f); return 0;}\n") &&
+        compileAndLinkOk("#include<float.h>\n#include<math.h>\nint main(int argc,char *argv[])"
+                         "{float f=0.0; _isinf(f); return 0;}\n")) {
+      puts("#define isinf _isinf");
+    } /* if */
     if (compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<float.h>\n#include<signal.h>\n"
                          "void handleSig(int sig){puts(\"2\");exit(0);}\n"
                          "int main(int argc,char *argv[]){\n"
@@ -1002,6 +1085,19 @@ int main (int argc, char **argv)
         printf("#define FLOAT_TO_INT_OVERFLOW_GARBAGE %d\n", testResult);
       } /* if */
     } /* if */
+#if FLT_RADIX == 2
+    floatRadixFactor = 1;
+#elif FLT_RADIX == 4
+    floatRadixFactor = 2;
+#elif FLT_RADIX == 8
+    floatRadixFactor = 3;
+#elif FLT_RADIX == 16
+    floatRadixFactor = 4;
+#endif
+    printf("#define FLOAT_MANTISSA_FACTOR %0.1f\n", pow((double) FLT_RADIX, (double) FLT_MANT_DIG));
+    printf("#define FLOAT_MANTISSA_SHIFT %u\n", FLT_MANT_DIG * floatRadixFactor);
+    printf("#define DOUBLE_MANTISSA_FACTOR %0.1f\n", pow((double) FLT_RADIX, (double) DBL_MANT_DIG));
+    printf("#define DOUBLE_MANTISSA_SHIFT %u\n", DBL_MANT_DIG * floatRadixFactor);
 #ifdef USE_ALTERNATE_LOCALTIME_R
     puts("#define USE_LOCALTIME_R");
 #else

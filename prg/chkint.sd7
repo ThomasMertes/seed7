@@ -6186,39 +6186,208 @@ const proc: check_sqrt is func
 const proc: check_log2 is func
   local
     var boolean: okay is TRUE;
+    var boolean: okay2 is TRUE;
     var integer: number is 0;
     var integer: power_of_two is 0;
     var integer: counter is 0;
     var integer: log2_arg is 0;
     var integer: log2_num is 0;
   begin
-    okay := TRUE;
-    if log2(0) <> -1 then
-      write("log2(0) = ");
-      write(log2(0));
-      writeln(" instead of -1");
+    if  log2(                  0) <>  -1 or
+        log2(                  1) <>   0 or
+        log2(                  2) <>   1 or
+        log2(                  3) <>   1 or
+        log2(                  4) <>   2 or
+        log2(                  5) <>   2 or
+        log2(                  6) <>   2 or
+        log2(                  7) <>   2 or
+        log2(                  8) <>   3 or
+        log2(                  9) <>   3 or
+        log2(                 10) <>   3 or
+        log2(                 15) <>   3 or
+        log2(                 16) <>   4 or
+        log2(                 25) <>   4 or
+        log2(                 31) <>   4 or
+        log2(                 32) <>   5 or
+        log2(                 50) <>   5 or
+        log2(                 63) <>   5 or
+        log2(                 64) <>   6 or
+        log2(                 71) <>   6 or
+        log2(                127) <>   6 or
+        log2(                128) <>   7 or
+        log2(                243) <>   7 or
+        log2(                255) <>   7 or
+        log2(                256) <>   8 or
+        log2(                467) <>   8 or
+        log2(                511) <>   8 or
+        log2(                512) <>   9 or
+        log2(                873) <>   9 or
+        log2(               1023) <>   9 or
+        log2(               1024) <>  10 or
+        log2(               1715) <>  10 or
+        log2(               2047) <>  10 or
+        log2(               2048) <>  11 or
+        log2(               3761) <>  11 or
+        log2(               4095) <>  11 or
+        log2(               4096) <>  12 or
+        log2(               5965) <>  12 or
+        log2(               8191) <>  12 or
+        log2(               8192) <>  13 or
+        log2(              10445) <>  13 or
+        log2(              16383) <>  13 or
+        log2(              16384) <>  14 or
+        log2(              22490) <>  14 or
+        log2(              32767) <>  14 or
+        log2(              32768) <>  15 or
+        log2(              46524) <>  15 or
+        log2(              65535) <>  15 or
+        log2(              65536) <>  16 or
+        log2(             106275) <>  16 or
+        log2(             131071) <>  16 or
+        log2(             131072) <>  17 or
+        log2(             206206) <>  17 or
+        log2(             262143) <>  17 or
+        log2(             262144) <>  18 or
+        log2(             415694) <>  18 or
+        log2(             524287) <>  18 or
+        log2(             524288) <>  19 or
+        log2(             923667) <>  19 or
+        log2(            1048575) <>  19 or
+        log2(            1048576) <>  20 or
+        log2(            1430124) <>  20 or
+        log2(            2097151) <>  20 or
+        log2(            2097152) <>  21 or
+        log2(            3297211) <>  21 or
+        log2(            4194303) <>  21 or
+        log2(            4194304) <>  22 or
+        log2(            5622078) <>  22 or
+        log2(            8388607) <>  22 or
+        log2(            8388608) <>  23 or
+        log2(           11404725) <>  23 or
+        log2(           16777215) <>  23 or
+        log2(           16777216) <>  24 or
+        log2(           23839458) <>  24 or
+        log2(           33554431) <>  24 or
+        log2(           33554432) <>  25 or
+        log2(           51314883) <>  25 or
+        log2(           67108863) <>  25 or
+        log2(           67108864) <>  26 or
+        log2(          118996825) <>  26 or
+        log2(          134217727) <>  26 or
+        log2(          134217728) <>  27 or
+        log2(          226885284) <>  27 or
+        log2(          268435455) <>  27 or
+        log2(          268435456) <>  28 or
+        log2(          374980260) <>  28 or
+        log2(          536870911) <>  28 or
+        log2(          536870912) <>  29 or
+        log2(          697499480) <>  29 or
+        log2(         1073741823) <>  29 or
+        log2(         1073741824) <>  30 or
+        log2(         1597096129) <>  30 or
+        log2(         2147483647) <>  30 or
+        log2(         2147483648) <>  31 or
+        log2(         3073770207) <>  31 or
+        log2(         4294967295) <>  31 or
+        log2(         4294967296) <>  32 or
+        log2(         6469698993) <>  32 or
+        log2(         8589934591) <>  32 or
+        log2(         8589934592) <>  33 or
+        log2(        13650611573) <>  33 or
+        log2(        17179869183) <>  33 or
+        log2(        17179869184) <>  34 or
+        log2(        25287317515) <>  34 or
+        log2(        34359738367) <>  34 or
+        log2(        34359738368) <>  35 or
+        log2(        34937365876) <>  35 or
+        log2(        68719476735) <>  35 or
+        log2(        68719476736) <>  36 or
+        log2(       130647586224) <>  36 or
+        log2(       137438953471) <>  36 or
+        log2(       137438953472) <>  37 or
+        log2(       237256050880) <>  37 or
+        log2(       274877906943) <>  37 or
+        log2(       274877906944) <>  38 or
+        log2(       421334752930) <>  38 or
+        log2(       549755813887) <>  38 or
+        log2(       549755813888) <>  39 or
+        log2(       831060064087) <>  39 or
+        log2(      1099511627775) <>  39 or
+        log2(      1099511627776) <>  40 or
+        log2(      1872306393824) <>  40 or
+        log2(      2199023255551) <>  40 or
+        log2(      2199023255552) <>  41 or
+        log2(      3817804165435) <>  41 or
+        log2(      4398046511103) <>  41 or
+        log2(      4398046511104) <>  42 or
+        log2(      4470677607017) <>  42 or
+        log2(      8796093022207) <>  42 or
+        log2(      8796093022208) <>  43 or
+        log2(     10425849001579) <>  43 or
+        log2(     17592186044415) <>  43 or
+        log2(     17592186044416) <>  44 or
+        log2(     19482147609919) <>  44 or
+        log2(     35184372088831) <>  44 or
+        log2(     35184372088832) <>  45 or
+        log2(     66834682939110) <>  45 or
+        log2(     70368744177663) <>  45 or
+        log2(     70368744177664) <>  46 or
+        log2(     82108268360545) <>  46 or
+        log2(    140737488355327) <>  46 or
+        log2(    140737488355328) <>  47 or
+        log2(    206038244745902) <>  47 or
+        log2(    281474976710655) <>  47 or
+        log2(    281474976710656) <>  48 or
+        log2(    544184170812622) <>  48 or
+        log2(    562949953421311) <>  48 or
+        log2(    562949953421312) <>  49 or
+        log2(    603954099898818) <>  49 or
+        log2(   1125899906842623) <>  49 or
+        log2(   1125899906842624) <>  50 or
+        log2(   1511254381298056) <>  50 or
+        log2(   2251799813685247) <>  50 or
+        log2(   2251799813685248) <>  51 or
+        log2(   2421662232362017) <>  51 or
+        log2(   4503599627370495) <>  51 or
+        log2(   4503599627370496) <>  52 or
+        log2(   5024025365870990) <>  52 or
+        log2(   9007199254740991) <>  52 or
+        log2(   9007199254740992) <>  53 or
+        log2(  16073745370364365) <>  53 or
+        log2(  18014398509481983) <>  53 or
+        log2(  18014398509481984) <>  54 or
+        log2(  24311821029932255) <>  54 or
+        log2(  36028797018963967) <>  54 or
+        log2(  36028797018963968) <>  55 or
+        log2(  56759843666346693) <>  55 or
+        log2(  72057594037927935) <>  55 or
+        log2(  72057594037927936) <>  56 or
+        log2( 113417824017025917) <>  56 or
+        log2( 144115188075855871) <>  56 or
+        log2( 144115188075855872) <>  57 or
+        log2( 176271357130037000) <>  57 or
+        log2( 288230376151711743) <>  57 or
+        log2( 288230376151711744) <>  58 or
+        log2( 497522024285611367) <>  58 or
+        log2( 576460752303423487) <>  58 or
+        log2( 576460752303423488) <>  59 or
+        log2( 644824263403665048) <>  59 or
+        log2(1152921504606846975) <>  59 or
+        log2(1152921504606846976) <>  60 or
+        log2(2059329953095273116) <>  60 or
+        log2(2305843009213693951) <>  60 or
+        log2(2305843009213693952) <>  61 or
+        log2(4164578334614561140) <>  61 or
+        log2(4611686018427387903) <>  61 or
+        log2(4611686018427387904) <>  62 or
+        log2(5807647918387067678) <>  62 or
+        log2(9223372036854775807) <>  62 then
+      writeln("The integer log2 function does not work correct.");
       okay := FALSE;
     end if;
+
     power_of_two := 1;
-    for number range 0 to 30 do
-      if log2(power_of_two) <> number then
-        write("log2(");
-        write(power_of_two);
-        write(") = ");
-        write(log2(power_of_two));
-        write(" instead of ");
-        writeln(number);
-        okay := FALSE;
-      end if;
-      if log2(pred(power_of_two)) <> pred(number) then
-        write("log2(");
-        write(pred(power_of_two));
-        write(") = ");
-        write(log2(pred(power_of_two)));
-        write(" instead of ");
-        writeln(pred(number));
-        okay := FALSE;
-      end if;
+    for number range 0 to 62 do
       for counter range 1 to 200 do
         log2_arg := power_of_two + rand(0, power_of_two div 2);
         log2_num := log2(log2_arg);
@@ -6229,15 +6398,79 @@ const proc: check_log2 is func
           write(log2_num);
           write(" instead of ");
           writeln(number);
-          okay := FALSE;
+          okay2 := FALSE;
         end if;
       end for;
-      if number < 30 then
+      if number < 62 then
         power_of_two := power_of_two * 2;
       end if;
     end for;
+    if not okay2 then
+      writeln("The integer log2 function does not work correct for random values.");
+      okay := FALSE;
+    end if;
+
     if okay then
-      writeln("log2 is correct for results between 0 and 30.");
+      writeln("The integer log2 function works correct.");
+    else
+      writeln(" ***** The integer log2 function does not work correct.");
+      writeln;
+    end if;
+  end func;
+
+
+const proc: check_log10 is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if  log10(                  0) <> -1 or
+        log10(                  1) <>  0 or
+        log10(                  9) <>  0 or
+        log10(                 10) <>  1 or
+        log10(                 99) <>  1 or
+        log10(                100) <>  2 or
+        log10(                999) <>  2 or
+        log10(               1000) <>  3 or
+        log10(               9999) <>  3 or
+        log10(              10000) <>  4 or
+        log10(              99999) <>  4 or
+        log10(             100000) <>  5 or
+        log10(             999999) <>  5 or
+        log10(            1000000) <>  6 or
+        log10(            9999999) <>  6 or
+        log10(           10000000) <>  7 or
+        log10(           99999999) <>  7 or
+        log10(          100000000) <>  8 or
+        log10(          999999999) <>  8 or
+        log10(         1000000000) <>  9 or
+        log10(         9999999999) <>  9 or
+        log10(        10000000000) <> 10 or
+        log10(        99999999999) <> 10 or
+        log10(       100000000000) <> 11 or
+        log10(       999999999999) <> 11 or
+        log10(      1000000000000) <> 12 or
+        log10(      9999999999999) <> 12 or
+        log10(     10000000000000) <> 13 or
+        log10(     99999999999999) <> 13 or
+        log10(    100000000000000) <> 14 or
+        log10(    999999999999999) <> 14 or
+        log10(   1000000000000000) <> 15 or
+        log10(   9999999999999999) <> 15 or
+        log10(  10000000000000000) <> 16 or
+        log10(  99999999999999999) <> 16 or
+        log10( 100000000000000000) <> 17 or
+        log10( 999999999999999999) <> 17 or
+        log10(1000000000000000000) <> 18 or
+        log10(9223372036854775807) <> 18 then
+      writeln("The integer log10 function does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("The integer log10 function works correct.");
+    else
+      writeln(" ***** The integer log10 function does not work correct.");
+      writeln;
     end if;
   end func;
 
@@ -7727,6 +7960,7 @@ const proc: main is func
     check_powers_of_2;
     check_sqrt;
     check_log2;
+    check_log10;
     check_lShift;
     check_rShift;
     check_str;

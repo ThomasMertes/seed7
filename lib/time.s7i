@@ -231,6 +231,22 @@ const func string: str_hh_mm_ss (in time: aTime, in string: delimiter) is
 
 (**
  *  Convert a time to a string with ISO 8601 date and time format.
+ *  The time is converted to the YYYY-MM-DD hh:mm:ss format.
+ *  Microseconds, time zone and information about the daylight
+ *  saving time are omitted.
+ *  @return the string result of the conversion.
+ *)
+const func string: strDateTime (in time: aTime) is
+  return aTime.year   lpad0 4 <& "-" <&
+         aTime.month  lpad0 2 <& "-" <&
+         aTime.day    lpad0 2 <& " " <&
+         aTime.hour   lpad0 2 <& ":" <&
+         aTime.minute lpad0 2 <& ":" <&
+         aTime.second lpad0 2;
+
+
+(**
+ *  Convert a time to a string with ISO 8601 date and time format.
  *  The string has the format YYYY-MM-DD hh:mm:ss.uuuuuu followed by a
  *  time zone in the format UTC+n and (DST) when it is a daylight
  *  saving time. The microseconds (uuuuuu) are omitted when they are

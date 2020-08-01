@@ -57,7 +57,7 @@ const proc: reduce (inout bigRational: number) is func
     var bigInteger: gcd is 0_;
   begin
     gcd := gcd(number.numerator, number.denominator);
-    if gcd <> 1_ then
+    if gcd >= 2_ then
       number.numerator := number.numerator div gcd;
       number.denominator := number.denominator div gcd;
     end if;
@@ -384,38 +384,305 @@ const func bigRational: abs (in bigRational: number) is func
 
 
 (**
- *  Convert a ''bigRational'' number to a string.
- *  The number is converted to a string with a fraction (e.g.: "3/5"),
- *  were numerator and denominator are separated with a slash (/).
- *  @return the string result of the conversion.
+ *  Return a ''bigRational'' number truncated towards negative infinity.
  *)
-const func string: str (in bigRational: number) is
-  return str(number.numerator) & "/" & str(number.denominator);
+const func bigInteger: floor (in bigRational: number) is
+  return number.numerator mdiv number.denominator;
 
 
 (**
- *  Convert a ''bigRational'' number to a string.
- *  The number is converted to a string with decimal representation.
- *  The precision parameter specifies the number of digits after
- *  the decimal point.
- *  @return the string result of the conversion.
+ *  Return a ''bigRational'' number rounded up towards positive infinity.
  *)
-const func string: (in bigRational: number) digits (in integer: precision) is func
+const func bigInteger: ceil (in bigRational: number) is
+  return -(number.numerator mdiv -number.denominator);
+
+
+(**
+ *  Return a ''bigRational'' number truncated towards zero.
+ *)
+const func bigInteger: trunc (in bigRational: number) is
+  return number.numerator div number.denominator;
+
+
+(**
+ *  Round a ''bigRational'' number to the nearest [[bigint|bigInteger]].
+ *  Halfway cases are rounded away from zero.
+ *  @return the rounded value.
+ *)
+const func bigInteger: round (in bigRational: number) is func
   result
-    var string: stri is "";
+    var bigInteger: int_val is 0_;
   begin
-    stri := str((number.numerator * 10_ ** precision) div number.denominator);
-    if precision + 1 - length(stri) > 0 then
-      stri := "0" mult (precision + 1 - length(stri)) & stri;
+    if number.numerator >= 0_ then
+      int_val := (2_ * number.numerator + number.denominator) div (2_ * number.denominator);
+    else
+      int_val := (2_ * number.numerator - number.denominator) div (2_ * number.denominator);
     end if;
-    stri := stri[ .. length(stri) - precision] & "." &
-        stri[length(stri) - precision + 1 .. ];
   end func;
 
 
 (**
- *  Convert a string to a ''bigRational'' number.
- *  The string must contain a fraction (e.g.: "3/5") or a decimal number
+ *  Round a ''bigRational'' number with a decimal ''precision''.
+ *  Halfway cases are rounded away from zero.
+ *  @return the rounded value.
+ *)
+const func bigRational: round10 (in bigRational: number, in integer: precision) is func
+  result
+    var bigRational: rounded is bigRational.value;
+  begin
+    if precision < 0 then
+      rounded.numerator := (abs(number.numerator) div 10_ ** pred(-precision) +
+                           number.denominator * 5_) div (number.denominator * 10_) *
+                           10_ ** (-precision);
+      rounded.denominator := 1_;
+    else
+      rounded.numerator := (abs(number.numerator) * 10_ ** succ(precision) +
+                           number.denominator * 5_) div (number.denominator * 10_);
+      rounded.denominator := 10_ ** precision;
+    end if;
+    if number.numerator < 0_ then
+      rounded.numerator := -rounded.numerator;
+    end if;
+  end func;
+
+
+(**
+ *  Determine the minimum of two ''bigRational'' numbers.
+ *  @return the minimum of the two numbers.
+ *)
+const func bigRational: min (in bigRational: value1, in bigRational: value2) is func
+  result
+    var bigRational: minimum is bigRational.value;
+  begin
+    if value1 < value2 then
+      minimum := value1;
+    else
+      minimum := value2;
+    end if;
+  end func;
+
+
+(**
+ *  Determine the maximum of two ''bigRational'' numbers.
+ *  @return the maximum of the two numbers.
+ *)
+const func bigRational: max (in bigRational: value1, in bigRational: value2) is func
+  result
+    var bigRational: maximum is bigRational.value;
+  begin
+    if value1 > value2 then
+      maximum := value1;
+    else
+      maximum := value2;
+    end if;
+  end func;
+
+
+const type: BIG_REMAINDER_HASH_TYPE is hash [bigInteger] integer;
+
+
+(**
+ *  Convert a ''bigRational'' number to a [[string]].
+ *  The number is converted to a [[string]] with a decimal representation
+ *  (e.g.: "1.25"). The representation has a decimal point and at
+ *  least one digit before and after the decimal point. Negative
+ *  numbers are preceeded by a minus sign (e.g.: "-1.25"). The
+ *  decimal number can have repeating decimals, which are enclosed
+ *  in parentheses ("e.g.: "0.(3)"). The repeating decimals will
+ *  not start before the decimal point.
+ *  @return the string result of the conversion.
+ *)
+const func string: str (in bigRational: number) is func
+  result
+    var string: stri is "";
+  local
+    var bigInteger: remainder is 0_;
+    var BIG_REMAINDER_HASH_TYPE: remainderHash is BIG_REMAINDER_HASH_TYPE.value;
+    var integer: pos is 0;
+  begin
+    if number.denominator = 0_ then
+      if number.numerator > 0_ then
+        stri := "Infinity";
+      elsif number.numerator = 0_ then
+        stri := "NaN";
+      else
+        stri := "-Infinity";
+      end if;
+    else
+      stri := str(abs(number.numerator) div number.denominator);
+      stri &:= ".";
+      remainder := abs(number.numerator) rem number.denominator;
+      if remainder = 0_ then
+        stri &:= "0";
+      else
+        repeat
+          remainderHash @:= [remainder] length(stri);
+          remainder *:= 10_;
+          stri &:= str(remainder div number.denominator);
+          remainder := remainder rem number.denominator;
+        until remainder = 0_ or remainder in remainderHash;
+        if remainder <> 0_ then
+          pos := remainderHash[remainder];
+          stri := stri[.. pos] & "(" & stri[succ(pos) ..] & ")";
+        end if;
+      end if;
+      if number.numerator < 0_ then
+        stri := "-" & stri;
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Convert a ''bigRational'' number to a [[string]] in decimal fixed point notation.
+ *  The number is rounded to the specified number of digits (''precision'').
+ *  Halfway cases are rounded away from zero. Except for a ''precision'' of
+ *  zero the representation has a decimal point and at least one digit
+ *  before and after the decimal point. Negative numbers are preceeded by
+ *  a minus sign (e.g.: "-1.25"). When all digits in the result are 0 a
+ *  possible negative sign is omitted.
+ *   1_/64_ digits 7     returns "0.0156250"
+ *   1_/64_ digits 4     returns "0.0156"
+ *   1_/64_ digits 2     returns "0.02"
+ *   355_/113_ digits 6  returns "3.141593"
+ *   22_/7_ digits 0     returns "3"
+ *   -1_/2_ digits 1     returns "-1"
+ *   1_/0_ digits 5      returns "Infinity"
+ *   -1_/0_ digits 6     returns "-Infinity"
+ *   0_/0_ digits 7      returns "NaN"
+ *   -1_/2048_ digits 3  returns "0.000"
+ *  @param precision Number of digits after the decimal point.
+ *         When the ''precision'' is zero the decimal point is omitted.
+ *  @return the string result of the conversion.
+ *  @exception RANGE_ERROR When the ''precision'' is negative.
+ *)
+const func string: (in bigRational: number) digits (in integer: precision) is func
+  result
+    var string: stri is "";
+  local
+    var bigInteger: mantissa is 0_;
+  begin
+    if precision < 0 then
+      raise RANGE_ERROR;
+    elsif number.denominator = 0_ then
+      if number.numerator > 0_ then
+        stri := "Infinity";
+      elsif number.numerator = 0_ then
+        stri := "NaN";
+      else
+        stri := "-Infinity";
+      end if;
+    else
+      mantissa := (abs(number.numerator) * 10_ ** succ(precision) +
+                  number.denominator * 5_) div (number.denominator * 10_);
+      stri := str(mantissa);
+      if precision >= length(stri) then
+        stri := "0" mult (precision - length(stri) + 1) & stri;
+      end if;
+      if precision <> 0 then
+        stri := stri[ .. length(stri) - precision] & "." &
+            stri[length(stri) - precision + 1 .. ];
+      end if;
+      if number.numerator < 0_ and mantissa <> 0_ then
+        stri := "-" & stri;
+      end if;
+    end if;
+  end func;
+
+
+const func integer: decimalExponent (in bigRational: number) is func
+  result
+    var integer: exponent is 0;
+  begin
+    if abs(number.numerator) >= number.denominator then
+      exponent := ord(log10(abs(number.numerator) div number.denominator));
+    else
+      exponent := -ord(log10(number.denominator div abs(number.numerator))) - 1;
+    end if;
+  end func;
+
+
+(**
+ *  Convert a ''bigRational'' number to a [[string]] in scientific notation.
+ *  Scientific notation uses a decimal significand and a decimal exponent.
+ *  The significand has an optional sign and exactly one digit before the
+ *  decimal point. The fractional part of the significand is rounded
+ *  to the specified number of digits (''precision''). Halfway cases are
+ *  rounded away from zero. The fractional part is followed by the
+ *  letter e and an exponent, which is always signed. The value zero is
+ *  never written with a negative sign.
+ *   1_/64_ sci 4     returns "1.5625e-2"
+ *   1_/64_ sci 3     returns "1.563e-2"
+ *   1_/64_ sci 2     returns "1.56e-2"
+ *   355_/113_ sci 6  returns "3.141593e+0"
+ *   22_/7_ sci 0     returns "3e+0"
+ *   -1_/2_ sci 1     returns "-5.0e-1"
+ *   1_/0_ sci 5      returns "Infinity"
+ *   -1_/0_ sci 6     returns "-Infinity"
+ *   0_/0_ sci 7      returns "NaN"
+ *   -1_/2048_ sci 3  returns "-4.883e-4"
+ *   -0_/1_ sci 2     returns "0.00e+0"
+ *  @param precision Number of digits after the decimal point.
+ *         When the ''precision'' is zero the decimal point is omitted.
+ *  @return the string result of the conversion.
+ *  @exception RANGE_ERROR When the ''precision'' is negative.
+ *)
+const func string: (in bigRational: number) sci (in integer: precision) is func
+  result
+    var string: stri is "";
+  local
+    var integer: exponent is 0;
+    var bigInteger: mantissa is 0_;
+  begin
+    if precision < 0 then
+      raise RANGE_ERROR;
+    elsif number.denominator = 0_ then
+      if number.numerator > 0_ then
+        stri := "Infinity";
+      elsif number.numerator = 0_ then
+        stri := "NaN";
+      else
+        stri := "-Infinity";
+      end if;
+    elsif number.numerator = 0_ then
+      if precision = 0 then
+        stri := "0e+0";
+      else
+        stri := "0." & "0" mult precision & "e+0";
+      end if;
+    else
+      exponent := decimalExponent(number);
+      if succ(precision) >= exponent then
+        mantissa := (abs(number.numerator) * 10_ ** succ(precision - exponent) +
+                    number.denominator * 5_) div (number.denominator * 10_);
+      else
+        mantissa := (abs(number.numerator) div 10_ ** pred(exponent - precision) +
+                    number.denominator * 5_) div (number.denominator * 10_);
+      end if;
+      stri := str(mantissa);
+      if length(stri) > succ(precision) then
+        # Rounding up increased the number of digits.
+        incr(exponent);
+        stri := stri[.. succ(precision)];
+      end if;
+      if precision <> 0 then
+        stri := stri[1 len 1] & "." & stri[2 .. ];
+      end if;
+      if exponent >= 0 then
+        stri &:= "e+" <& exponent;
+      else
+        stri &:= "e" <& exponent;
+      end if;
+      if number.numerator < 0_ then
+        stri := "-" & stri;
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Convert a [[string]] to a ''bigRational'' number.
+ *  The [[string]] must contain a fraction (e.g.: "3/5") or a decimal number
  *  (e.g.: "1.25"). In a fraction numerator and denominator are separated
  *  with a slash (/). A decimal number can have repeating decimals,
  *  which are enclosed in parentheses ("e.g.: "0.(3)"). The repeating
@@ -487,71 +754,3 @@ const func bigRational: (attr bigRational) parse (in var string: stri) is func
 
 
 enable_io(bigRational);
-
-
-(**
- *  Return a ''bigRational'' number truncated towards negative infinity.
- *)
-const func bigInteger: floor (in bigRational: number) is
-  return number.numerator mdiv number.denominator;
-
-
-(**
- *  Return a ''bigRational'' number rounded up towards positive infinity.
- *)
-const func bigInteger: ceil (in bigRational: number) is
-  return -(number.numerator mdiv -number.denominator);
-
-
-(**
- *  Return a ''bigRational'' number truncated towards zero.
- *)
-const func bigInteger: trunc (in bigRational: number) is
-  return number.numerator div number.denominator;
-
-
-(**
- *  Return a ''bigRational'' number rounded towards zero.
- *)
-const func bigInteger: round (in bigRational: number) is func
-  result
-    var bigInteger: int_val is 0_;
-  begin
-    if number.numerator >= 0_ then
-      int_val := (2_ * number.numerator + number.denominator) div (2_ * number.denominator);
-    else
-      int_val := (2_ * number.numerator - number.denominator) div (2_ * number.denominator);
-    end if;
-  end func;
-
-
-(**
- *  Determine the minimum of two ''bigRational'' numbers.
- *  @return the minimum of the two numbers.
- *)
-const func bigRational: min (in bigRational: value1, in bigRational: value2) is func
-  result
-    var bigRational: minimum is bigRational.value;
-  begin
-    if value1 < value2 then
-      minimum := value1;
-    else
-      minimum := value2;
-    end if;
-  end func;
-
-
-(**
- *  Determine the maximum of two ''bigRational'' numbers.
- *  @return the maximum of the two numbers.
- *)
-const func bigRational: max (in bigRational: value1, in bigRational: value2) is func
-  result
-    var bigRational: maximum is bigRational.value;
-  begin
-    if value1 > value2 then
-      maximum := value1;
-    else
-      maximum := value2;
-    end if;
-  end func;

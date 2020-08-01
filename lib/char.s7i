@@ -40,10 +40,22 @@ const proc: destroy (ref char param)                          is action "GEN_DES
 
 const proc: (ref char param) ::= (in char param)              is action "CHR_CREATE";
 
-const char: (attr char) . value is ' ';
-const char: (attr char) . first is '\0;';
-const char: (attr char) . last is  '\16#10ffff;';
 const proc: (inout char: dest) := (in char: source)           is action "CHR_CPY";
+
+
+const char: (attr char) . value is ' ';
+
+
+(**
+ *  Minimum value of ''char''.
+ *)
+const char: (attr char) . first is '\0;';
+
+
+(**
+ *  Maximum value of an Unicode character.
+ *)
+const char: (attr char) . last  is '\16#10ffff;';
 
 
 (**

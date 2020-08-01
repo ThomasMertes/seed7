@@ -30,7 +30,7 @@ include "enable_io.s7i";
 
 
 (**
- *  Single precision floating point numbers.
+ *  Double precision floating point numbers.
  *)
 const type: float is          subtype object;
 
@@ -48,42 +48,42 @@ const proc: (inout float: dest) := (in float: source)          is action "FLT_CP
 
 
 (**
- *  Plus sign for float numbers.
+ *  Plus sign for ''float'' numbers.
  *  @return its operand unchanged.
  *)
 const func float: + (in float: number)                         is action "FLT_PLUS";
 
 
 (**
- *  Minus sign, negate a float ''number''.
+ *  Minus sign, negate a ''float'' number.
  *  @return the negated value of the number.
  *)
 const func float: - (in float: number)                         is action "FLT_NEGATE";
 
 
 (**
- *  Add two float numbers.
+ *  Add two ''float'' numbers.
  *  @return the sum of the two numbers.
  *)
 const func float: (in float: summand1) + (in float: summand2)  is action "FLT_ADD";
 
 
 (**
- *  Compute the subtraction of two float numbers.
+ *  Compute the subtraction of two ''float'' numbers.
  *  @return the difference of the two numbers.
  *)
 const func float: (in float: minuend) - (in float: subtrahend) is action "FLT_SBTR";
 
 
 (**
- *  Multiply two float numbers.
+ *  Multiply two ''float'' numbers.
  *  @return the product of the two numbers.
  *)
 const func float: (in float: factor1) * (in float: factor2)    is action "FLT_MULT";
 
 
 (**
- *  Compute the division of two float numbers.
+ *  Compute the division of two ''float'' numbers.
  *   A / 0.0    returns  Infinity  for A > 0.0
  *   A / 0.0    returns -Infinity  for A &lt; 0.0
  *   0.0 / 0.0  returns NaN
@@ -271,11 +271,13 @@ const func float: (attr float) parse (in string: stri)         is action "FLT_PA
 
 
 (**
- *  Convert a float to a [[string]] in decimal fixed point notation.
- *  The ''precision'' parameter specifies the number of digits after
- *  the decimal point. When the ''precision'' is zero the decimal
- *  point is omitted. When all digits in the result are 0 a negative
- *  sign is omitted.
+ *  Convert a ''float'' to a [[string]] in decimal fixed point notation.
+ *  The number is rounded to the specified number of digits (''precision'').
+ *  Halfway cases are rounded away from zero. Except for a ''precision'' of
+ *  zero the representation has a decimal point and at least one digit
+ *  before and after the decimal point. Negative numbers are preceeded by
+ *  a minus sign (e.g.: "-1.25"). When all digits in the result are 0 a
+ *  possible negative sign is omitted.
  *   0.012345 digits 4   returns "0.0123"
  *   1.2468 digits 2     returns "1.25"
  *   3.1415 digits 0     returns "3"
@@ -285,21 +287,24 @@ const func float: (attr float) parse (in string: stri)         is action "FLT_PA
  *   -Infinity digits 6  returns "-Infinity"
  *   NaN digits 7        returns "NaN"
  *   -0.004 digits 2     returns "0.00"
+ *  @param precision Number of digits after the decimal point.
+ *         When the ''precision'' is zero the decimal point is omitted.
  *  @return the string result of the conversion.
+ *  @exception RANGE_ERROR When the ''precision'' is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
 const func string: (in float: number) digits (in integer: precision) is action "FLT_DGTS";
 
 
 (**
- *  Convert a float to a [[string]] in scientific notation.
- *  Scientific notation uses a decimal float with optional sign, which
- *  has only one digit before the decimal point. The float is followed
- *  by the letter e and an exponent, which is always signed.
- *  The ''precision'' parameter specifies the number of digits after
- *  the decimal point. When the ''precision'' is zero the decimal
- *  point is omitted. When all digits in the result are 0 a negative
- *  sign is omitted.
+ *  Convert a ''float'' to a [[string]] in scientific notation.
+ *  Scientific notation uses a decimal significand and a decimal exponent.
+ *  The significand has an optional sign and exactly one digit before the
+ *  decimal point. The fractional part of the significand is rounded
+ *  to the specified number of digits (''precision''). Halfway cases are
+ *  rounded away from zero. The fractional part is followed by the
+ *  letter e and an exponent, which is always signed. The value zero is
+ *  never written with a negative sign.
  *   0.012345 sci 4   returns "1.2345e-2"
  *   1.2468 sci 2     returns "1.25e+0"
  *   3.1415 sci 0     returns "3e+0"
@@ -309,7 +314,11 @@ const func string: (in float: number) digits (in integer: precision) is action "
  *   -Infinity sci 6  returns "-Infinity"
  *   NaN sci 7        returns "NaN"
  *   -0.004 sci 2     returns "-4.00e-3"
+ *   -0.0 sci 2       returns "0.00e+0"
+ *  @param precision Number of digits after the decimal point.
+ *         When the ''precision'' is zero the decimal point is omitted.
  *  @return the string result of the conversion.
+ *  @exception RANGE_ERROR When the ''precision'' is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
 const func string: (in float: number) sci (in integer: precision)    is action "FLT_SCI";
@@ -370,8 +379,12 @@ const func float: (attr float) conv (in integer: number)       is action "FLT_IC
 
 
 (**
- *  Round towards the nearest [[integer]].
+ *  Round a ''float'' to the nearest [[integer]].
  *  Halfway cases are rounded away from zero.
+ *   round(0.5)    returns  1
+ *   round(0.499)  returns  0
+ *   round(-0.48)  returns  0
+ *   round(-0.5)   returns -1
  *  @return the rounded value.
  *)
 const func integer: round (in float: number)                   is action "FLT_ROUND";

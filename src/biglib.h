@@ -47,6 +47,7 @@ objectType big_iconv          (listType arguments);
 objectType big_incr           (listType arguments);
 objectType big_ipow           (listType arguments);
 objectType big_le             (listType arguments);
+objectType big_log10          (listType arguments);
 objectType big_log2           (listType arguments);
 objectType big_lowest_set_bit (listType arguments);
 objectType big_lshift         (listType arguments);
