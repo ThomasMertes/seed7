@@ -1,4 +1,46 @@
-29130203:
+20130217:
+- The description of exceptions in the manual has been improved.
+- The handling of program data in interpreter and compiler has been
+  improved to free more unused memory.
+- The handling of the actions PRG_FIL_PARSE and PRG_STR_PARSE in the
+  Seed7 compiler (s7c) has been improved to support releasing unused
+  programs.
+- The function prgDestr (in prg_comp.c) has been improved to free
+  (most of) the data used by a program. Several functions, which need
+  to free program data, have been improved to call prgDestr.
+- The functions prgCpy (in prg_comp.c) and prg_cpy (in prglib.c) have
+  been improve to free a program when the usage_count reaches zero.
+- The functions getPixmap in draw.s7i have been improved.
+- The functions decl_any (in analyze.c), dcl_const and dcl_var (both
+  in dcllib.c) have been improved to free unused expressions.
+- The actions ARR_BASELIT, ARR_BASELIT2, ARR_TIMES, ARR_GEN, ARR_PUSH
+  and ARR_EXTEND in the interpreter (file arrlit.c) have been
+  improved to work correctly for arrays with interface elements.
+- In blockutl.c the functions free_locobj, free_body, free_block and
+  free_local_consts have been added or improved.
+- In entutl.c the function free_entity has been improved to free also
+  syobject and name_list.
+- The function close_entity has been added to entutl.c. This function
+  frees the list of inactive entities.
+- In executl.c the function destroy_local_init_value has been added
+  and the function destroy_object_list has been removed.
+- The parameter dest_type has been added to the function
+  any_var_initialisation (file executl.c).
+- The functions heap_statistic (in flistutl.c) and rtlHeapStatistic
+  (in heaputl.c) have been improved to write information about
+  pollData elements.
+- The functions free_ident and close_idents in identutl.c have been
+  improved.
+- The function free_expression has been added to listutl.c.
+- The function pop_object in name.c has been improved to add inactive
+  entities to a list of inactive entities
+- The function close_stack in name.c has been improved to reverse the
+  list of local objects and to dump and free the local objects.
+- The function dump_temp_value, which releases a value without
+  releasing the object, has been added to objutl.c.
+- The function free_args has been added to prg_comp.c.
+
+20130203:
 - Files to generate man pages for Seed7 interpreter and compiler have
   been added to the documentation (files doc/s7.1 and doc/s7c.1).
 - The makefiles have been improved to support the targets distclean

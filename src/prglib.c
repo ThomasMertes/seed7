@@ -74,6 +74,7 @@ listtype arguments;
   {
     objecttype prog_to;
     objecttype prog_from;
+    progtype old_prog;
     progtype prog_value;
 
   /* prg_cpy */
@@ -82,22 +83,20 @@ listtype arguments;
     isit_prog(prog_to);
     isit_prog(prog_from);
     is_variable(prog_to);
-    prog_value = take_prog(prog_to);
-    if (prog_value != NULL) {
-      prog_value->usage_count--;
-      if (prog_value->usage_count == 0) {
-        FREE_RECORD(prog_value, progrecord, count.prog);
-      } /* if */
-    } /* if */
+    old_prog = take_prog(prog_to);
     prog_value = take_prog(prog_from);
-    prog_to->value.progvalue = prog_value;
-    if (TEMP_OBJECT(prog_from)) {
-      prog_from->value.progvalue = NULL;
-    } else {
-      if (prog_value != NULL) {
-        prog_value->usage_count++;
+    if (old_prog != prog_value) {
+      prgDestr(old_prog);
+      prog_to->value.progvalue = prog_value;
+      if (TEMP_OBJECT(prog_from)) {
+        prog_from->value.progvalue = NULL;
+      } else {
+        if (prog_value != NULL) {
+          prog_value->usage_count++;
+        } /* if */
       } /* if */
     } /* if */
+    /* printf("prg_cpy: usage_count=%d\n", prog_value->usage_count); */
     return SYS_EMPTY_OBJECT;
   } /* prg_cpy */
 
@@ -160,21 +159,9 @@ objecttype prg_destr (arguments)
 listtype arguments;
 #endif
 
-  {
-    progtype old_prog;
-
-  /* prg_destr */
-    old_prog = take_prog(arg_1(arguments));
-    if (old_prog != NULL) {
-      old_prog->usage_count--;
-      if (old_prog->usage_count == 0) {
-        close_stack(old_prog);
-        close_declaration_root(old_prog);
-        close_idents(old_prog);
-        FREE_RECORD(old_prog, progrecord, count.prog);
-      } /* if */
-      arg_1(arguments)->value.progvalue = NULL;
-    } /* if */
+  { /* prg_destr */
+    isit_prog(arg_1(arguments));
+    prgDestr(take_prog(arg_1(arguments)));
     return SYS_EMPTY_OBJECT;
   } /* prg_destr */
 

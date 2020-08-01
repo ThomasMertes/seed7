@@ -1184,35 +1184,74 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-void destroy_object_list (const_listtype obj_list)
+void destroy_local_init_value (const_locobjtype local, errinfotype *err_info)
 #else
 
-void destroy_object_list (obj_list)
-listtype obj_list;
+void destroy_local_init_value (local, err_info)
+locobjtype local;
+errinfotype *err_info;
 #endif
 
-  { /* destroy_object_list */
-    while (obj_list != NULL) {
-      /* prot_cstri("destroy_object ");
-      trace1(obj_list->obj);
-      prot_nl(); */
-      if (CATEGORY_OF_OBJ(obj_list->obj) != ARRAYOBJECT &&
-          CATEGORY_OF_OBJ(obj_list->obj) != STRUCTOBJECT &&
-          CATEGORY_OF_OBJ(obj_list->obj) != TYPEOBJECT) {
-        dump_any_temp(obj_list->obj);
-      } /* if */
-      obj_list = obj_list->next;
-    } /* while */
-  } /* destroy_object_list */
+  {
+    objectrecord call_object;
+    listrecord call_list[3];
+    objecttype call_result;
+
+  /* destroy_local_init_value */
+    switch (CATEGORY_OF_OBJ(local->init_value)) {
+      case INTOBJECT:
+      case CHAROBJECT:
+      case FILEOBJECT:
+      case FLOATOBJECT:
+      case REFOBJECT:
+      case ACTOBJECT:
+      case CONSTENUMOBJECT:
+      case VARENUMOBJECT:
+      case ENUMLITERALOBJECT:
+        break;
+      default:
+        call_object.type_of = NULL;
+        call_object.descriptor.property = NULL;
+        call_object.value.listvalue = call_list;
+        INIT_CATEGORY_OF_OBJ(&call_object, CALLOBJECT);
+
+        call_list[0].next = &call_list[1];
+        call_list[1].next = &call_list[2];
+        call_list[2].next = NULL;
+        call_list[0].obj = local->destroy_call_obj;
+        call_list[1].obj = local->init_value;
+        call_list[2].obj = SYS_DESTR_OBJECT;
+
+        /* printf("destroy_local_object: local->destroy_call_obj ");
+        trace1(local->destroy_call_obj);
+        printf("\n");
+        printf("destroy_local_object: local->object ");
+        trace1(local->object);
+        printf("\n");
+        printf("destroy_local_object: before exec_call ");
+        trace1(&call_object);
+        printf("\n");
+        fflush(stdout); */
+        call_result = exec_call(&call_object);
+        /* printf("destroy_local_object: after exec_call\n");
+           fflush(stdout); */
+        if (call_result != SYS_EMPTY_OBJECT) {
+          fail_flag = FALSE;
+          *err_info = CREATE_ERROR;
+        } /* if */
+        break;
+    } /* switch */
+  } /* destroy_local_init_value */
 
 
 
 #ifdef ANSI_C
 
-booltype any_var_initialisation (objecttype obj_to, objecttype obj_from)
+booltype any_var_initialisation (typetype dest_type, objecttype obj_to, objecttype obj_from)
 #else
 
-booltype any_var_initialisation (obj_to, obj_from)
+booltype any_var_initialisation (dest_type, obj_to, obj_from)
+typetype dest_type;
 objecttype obj_to;
 objecttype obj_from;
 #endif
@@ -1224,7 +1263,7 @@ objecttype obj_from;
     memcpy(&obj_to->descriptor, &obj_from->descriptor, sizeof(descriptorunion));
     INIT_CATEGORY_OF_VAR(obj_to, DECLAREDOBJECT);
     SET_ANY_FLAG(obj_to, HAS_POSINFO(obj_from));
-    obj_to->type_of = obj_from->type_of;
+    obj_to->type_of = dest_type;
     do_create(obj_to, obj_from, &err_info);
     return err_info == OKAY_NO_ERROR;
   } /* any_var_initialisation */
@@ -1311,7 +1350,7 @@ memsizetype new_size;
     okay = TRUE;
     position = 0;
     while (position < new_size && okay) {
-      if (!any_var_initialisation(&elem_to[position], &elem_from[position])) {
+      if (!any_var_initialisation(elem_from[position].type_of, &elem_to[position], &elem_from[position])) {
         /* When one create fails (mostly no memory) all elements */
         /* created up to this point must be destroyed to recycle */
         /* the memory correct. */

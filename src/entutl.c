@@ -34,6 +34,7 @@
 #include "data.h"
 #include "heaputl.h"
 #include "flistutl.h"
+#include "listutl.h"
 #include "datautl.h"
 #include "traceutl.h"
 
@@ -379,20 +380,39 @@ progtype currentProg;
 
 #ifdef ANSI_C
 
-void free_entity (entitytype old_entity)
+void free_entity (const_progtype currentProg, entitytype old_entity)
 #else
 
 void free_entity (old_entity)
+progtype currentProg;
 entitytype old_entity;
 #endif
 
-  { /* free_entity */
+  {
+    listtype name_elem;
+
+  /* free_entity */
 #ifdef TRACE_ENTITY
     printf("BEGIN free_entity\n");
 #endif
     if (old_entity != NULL) {
-      if (old_entity->owner != NULL) {
-        printf("entity has owner\n");
+      if (old_entity->syobject != NULL) {
+        if (HAS_PROPERTY(old_entity->syobject) && old_entity->syobject->descriptor.property != currentProg->property.literal) {
+          /* trace1(old_entity->syobject);
+             printf("\n"); */
+          FREE_RECORD(old_entity->syobject->descriptor.property, propertyrecord, count.property);
+        } /* if */
+        FREE_OBJECT(old_entity->syobject);
+      } /* if */
+      if (old_entity->name_list != NULL) {
+        name_elem = old_entity->name_list;
+        while (name_elem != NULL) {
+          if (CATEGORY_OF_OBJ(name_elem->obj) == FORMPARAMOBJECT) {
+            FREE_OBJECT(name_elem->obj);
+          } /* if */
+          name_elem = name_elem->next;
+        } /* if */
+        emptylist(old_entity->name_list);
       } /* if */
       FREE_RECORD(old_entity, entityrecord, count.entity);
     } /* if */
@@ -423,7 +443,7 @@ identtype id;
       created_entity->ident = id;
       created_entity->syobject = NULL;
       created_entity->name_list = NULL;
-      created_entity->owner = NULL;
+      created_entity->data.owner = NULL;
     } /* if */
 #ifdef TRACE_ENTITY
     printf("END new_entity --> ");
@@ -698,12 +718,12 @@ printf("\n"); */
 
 #ifdef ANSI_C
 
-void pop_entity (nodetype declaration_base, const_entitytype ent)
+void pop_entity (nodetype declaration_base, const_entitytype entity)
 #else
 
-void pop_entity (declaration_base, ent)
+void pop_entity (declaration_base, entity)
 nodetype declaration_base;
-entitytype ent;
+entitytype entity;
 #endif
 
   {
@@ -715,7 +735,8 @@ entitytype ent;
 #ifdef TRACE_ENTITY
     printf("BEGIN pop_entity\n");
 #endif
-    name_elem = ent->name_list;
+    /* trace_entity(ent); */
+    name_elem = entity->name_list;
     if (name_elem != NULL) {
       curr_node = declaration_base;
       while (name_elem != NULL && curr_node != NULL) {
@@ -744,6 +765,31 @@ entitytype ent;
 
 #ifdef ANSI_C
 
+void close_entity (progtype currentProg)
+#else
+
+void close_entity (currentProg)
+progtype currentProg;
+#endif
+
+  {
+    entitytype entity;
+    entitytype old_entity;
+
+  /* close_entity */
+    entity = currentProg->entity.inactive_list;
+    while (entity != NULL) {
+      old_entity = entity;
+      entity = entity->data.next;
+      free_entity(currentProg, old_entity);
+    } /* while */
+    currentProg->entity.inactive_list = NULL;
+  } /* close_entity */
+
+
+
+#ifdef ANSI_C
+
 void init_entity (errinfotype *err_info)
 #else
 
@@ -755,19 +801,17 @@ errinfotype *err_info;
 #ifdef TRACE_ENTITY
     printf("BEGIN init_entity\n");
 #endif
-#ifdef OUT_OF_ORDER
-    entity.literal = NULL;
-#endif
-    if ((entity.literal = new_entity(prog.ident.literal)) == NULL) {
+    prog.entity.inactive_list = NULL;
+    if ((prog.entity.literal = new_entity(prog.ident.literal)) == NULL) {
       *err_info = MEMORY_ERROR;
     } /* if */
-    if (!ALLOC_RECORD(property.literal, propertyrecord, count.property)) {
+    if (!ALLOC_RECORD(prog.property.literal, propertyrecord, count.property)) {
       *err_info = MEMORY_ERROR;
     } /* if */
-    property.literal->entity = entity.literal;
-    property.literal->file_number = 0;
-    property.literal->line = 0;
-    property.literal->syNumberInLine = 0;
+    prog.property.literal->entity = prog.entity.literal;
+    prog.property.literal->file_number = 0;
+    prog.property.literal->line = 0;
+    prog.property.literal->syNumberInLine = 0;
 #ifdef TRACE_ENTITY
     printf("END init_entity\n");
 #endif

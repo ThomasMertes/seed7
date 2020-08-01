@@ -90,7 +90,7 @@ static objecttype gen_object ()
           atomic_entity->ident = current_ident;
           atomic_entity->syobject = atomic_object;
           atomic_entity->name_list = NULL;
-          atomic_entity->owner = NULL;
+          atomic_entity->data.owner = NULL;
           current_ident->entity = atomic_entity;
           atomic_property->entity = atomic_entity;
           atomic_property->file_number = in_file.file_number;
@@ -141,7 +141,7 @@ objectcategory category;
       } else {
         literal_object->type_of = take_type(typeof_object);
       } /* if */
-      literal_object->descriptor.property = property.literal;
+      literal_object->descriptor.property = prog.property.literal;
       INIT_CATEGORY_OF_OBJ(literal_object, category);
     } /* if */
 #ifdef TRACE_OBJECT
@@ -225,8 +225,8 @@ objecttype read_atom ()
         if (current_ident->entity == NULL) {
           atomic_object = gen_object();
           /* printf("read_atom a: %s  %lu  %lu  %lu\n", id_string(current_ident), (unsigned long) current_ident->entity, (unsigned long) GET_ENTITY(atomic_object), (unsigned long) atomic_object); */
-        } else if (current_ident->entity->owner != NULL) {
-          atomic_object = current_ident->entity->owner->obj;
+        } else if (current_ident->entity->data.owner != NULL) {
+          atomic_object = current_ident->entity->data.owner->obj;
         } else {
           atomic_object = current_ident->entity->syobject;
           /* if (HAS_PROPERTY(atomic_object)) {
@@ -296,8 +296,8 @@ objecttype read_name ()
 #endif
     if (current_ident->entity == NULL) {
       atomic_object = gen_object();
-    } else if (current_ident->entity->owner != NULL) {
-      atomic_object = current_ident->entity->owner->obj;
+    } else if (current_ident->entity->data.owner != NULL) {
+      atomic_object = current_ident->entity->data.owner->obj;
     } else {
       atomic_object = current_ident->entity->syobject;
       /* printf("read_name b: %s  %lu  %lu  %lu\n", id_string(current_ident), (unsigned long) current_ident->entity, (unsigned long) GET_ENTITY(atomic_object), (unsigned long) atomic_object); */

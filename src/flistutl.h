@@ -66,7 +66,7 @@ EXTERN freelisttype flist;
 
 #ifdef USE_CHUNK_ALLOCS
 #define ALLOC_ID_NAME(var,len)     ALLOC_CHUNK(var, ustritype, SIZ_ID(len))
-#define FREE_ID_NAME(var,len)      (CNT2_USTRI(len, SIZ_ID(len), count.idt, count.idt_bytes) FREE_CHUNK(var, SIZ_ID(len)))
+#define FREE_ID_NAME(var,len)      (CNT2_USTRI(len, SIZ_USTRI(len), count.idt, count.idt_bytes) FREE_CHUNK(var, SIZ_ID(len)))
 #else
 #define ALLOC_ID_NAME(var,len)     ALLOC_HEAP(var, ustritype, SIZ_USTRI(len))
 #define FREE_ID_NAME(var,len)      (CNT2_USTRI(len, SIZ_USTRI(len), count.idt, count.idt_bytes) FREE_HEAP(var, SIZ_USTRI(len)))

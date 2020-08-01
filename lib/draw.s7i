@@ -565,12 +565,8 @@ const proc: put (in integer: x, in integer: y,
  *  @return the new pixmap.
  *)
 const func PRIMITIVE_WINDOW: getPixmap (in integer: x1, in integer: y1,
-    in integer: width, in integer: height) is func
-  result
-    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
-  begin
-    pixmap := DRAW_GET(curr_win, x1, y1, width, height);
-  end func;
+    in integer: width, in integer: height) is
+  return DRAW_GET(curr_win, x1, y1, width, height);
 
 
 (**
@@ -580,12 +576,8 @@ const func PRIMITIVE_WINDOW: getPixmap (in integer: x1, in integer: y1,
  *  @return the new pixmap.
  *)
 const func PRIMITIVE_WINDOW: getPixmap (in PRIMITIVE_WINDOW: source_win,
-    in integer: x1, in integer: y1, in integer: width, in integer: height) is func
-  result
-    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
-  begin
-    pixmap := DRAW_GET(source_win, x1, y1, width, height);
-  end func;
+    in integer: x1, in integer: y1, in integer: width, in integer: height) is
+  return DRAW_GET(source_win, x1, y1, width, height);
 
 
 (**
@@ -593,12 +585,8 @@ const func PRIMITIVE_WINDOW: getPixmap (in PRIMITIVE_WINDOW: source_win,
  *  The content of 'source_win' is copied the new pixmap.
  *  @return the new pixmap.
  *)
-const func PRIMITIVE_WINDOW: getPixmap (in PRIMITIVE_WINDOW: source_win) is func
-  result
-    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
-  begin
-    pixmap := DRAW_GET(source_win, 0, 0, width(source_win), height(source_win));
-  end func;
+const func PRIMITIVE_WINDOW: getPixmap (in PRIMITIVE_WINDOW: source_win) is
+  return DRAW_GET(source_win, 0, 0, width(source_win), height(source_win));
 
 
 (**

@@ -45,8 +45,9 @@ objecttype create_return_object (const_locobjtype local, objecttype init_value,
 void create_local_object (const_locobjtype local, objecttype init_value,
     errinfotype *err_info);
 void destroy_local_object (const_locobjtype local, errinfotype *err_info);
-void destroy_object_list (const_listtype obj_list);
-booltype any_var_initialisation (objecttype obj_to, objecttype obj_from);
+void destroy_local_init_value (const_locobjtype local, errinfotype *err_info);
+booltype any_var_initialisation (typetype dest_type, objecttype obj_to,
+    objecttype obj_from);
 void destr_struct (objecttype old_elem, memsizetype old_size);
 void destr_array (objecttype old_elem, memsizetype old_size);
 booltype crea_array (objecttype elem_to, objecttype elem_from,
@@ -68,7 +69,7 @@ objecttype param3_call ();
 objecttype create_return_object ();
 void create_local_object ();
 void destroy_local_object ();
-void destroy_object_list ();
+void destroy_local_init_value ();
 booltype any_var_initialisation ();
 void destr_struct ();
 void destr_array ();

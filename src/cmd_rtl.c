@@ -893,7 +893,7 @@ stritype path;
   {
     stritype startPath;
     stritype helpPath;
-    int count = 5;
+    int number_of_links_followed = 5;
 
   /* followLink */
     if (cmdFileTypeSL(path) == 7) {
@@ -902,13 +902,13 @@ stritype path;
          printf("\n"); */
       startPath = path;
       path = cmdReadlink(startPath);
-      while (cmdFileTypeSL(path) == 7 && count != 0) {
+      while (cmdFileTypeSL(path) == 7 && number_of_links_followed != 0) {
         helpPath = path;
         path = cmdReadlink(helpPath);
         FREE_STRI(helpPath, helpPath->size);
-        count--;
+        number_of_links_followed--;
       } /* if */
-      if (count == 0) {
+      if (number_of_links_followed == 0) {
         FREE_STRI(path, path->size);
         path = startPath;
       } else {

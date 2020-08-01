@@ -30,7 +30,7 @@
 void disconnect_param_entities (const const_objecttype objWithParams);
 listtype create_parameter_list (listtype name_list, errinfotype *err_info);
 void init_stack (progtype currentProg, errinfotype *err_info);
-void close_stack (const_progtype currentProg);
+void close_stack (progtype currentProg);
 void grow_stack (errinfotype *err_info);
 void shrink_stack (void);
 void push_stack (void);

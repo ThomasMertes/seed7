@@ -68,6 +68,8 @@ typedef struct {
     unsigned long prog;
     unsigned long win;
     memsizetype size_winrecord;
+    unsigned long polldata;
+    memsizetype size_pollrecord;
     unsigned long fnam;
     memsizetype fnam_bytes;
     unsigned long symb;
@@ -80,7 +82,7 @@ counttype count = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                   0};
+                   0, 0, 0};
 #else
 EXTERN counttype count;
 #endif
@@ -313,7 +315,7 @@ EXTERN memsizetype hs;
 
 #define ALLOC_USTRI(var,len)       ALLOC_HEAP(var, ustritype, SIZ_USTRI(len))
 #define UNALLOC_USTRI(var,len)     FREE_HEAP(var, SIZ_USTRI(len))
-#define FREE_USTRI(var,L,cnt,byt)  (CNT2_USTRI(L, SIZ_USTRI(L), cnt, byt) FREE_HEAP(var, byt))
+#define FREE_USTRI(var,L,cnt,byt)  (CNT2_USTRI(L, SIZ_USTRI(L), cnt, byt) FREE_HEAP(var, SIZ_USTRI(L)))
 #define REALLOC_USTRI(var,L1,L2)   REALLOC_HEAP(var, ustritype, SIZ_USTRI(L2))
 #define COUNT_USTRI(len,cnt,byt)   CNT1_USTRI(len, SIZ_USTRI(len), cnt, byt)
 #define COUNT3_USTRI(L1,L2,CT,byt) CNT3(CNT2_USTRI(L1, SIZ_USTRI(L1), CT, byt) CNT1_USTRI(L2, SIZ_USTRI(L2), CT, byt))
@@ -350,7 +352,7 @@ EXTERN memsizetype hs;
 #define COUNT3_STRI(len1,len2)         CNT3(CNT2_STRI(len1, SIZ_STRI(len1)) CNT1_STRI(len2, SIZ_STRI(len2)))
 
 
-#ifdef WITH_STRI_FLIST
+#ifdef WITH_STRI_FREELIST
 
 #define STRI_FREELIST_LENGTH_LIMIT 40
 

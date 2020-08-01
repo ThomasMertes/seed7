@@ -10685,10 +10685,16 @@ CONTENTS
       May be raised from the following 'bigInteger' operations:
           !, **, div, rem, mdiv, mod, sqrt, log2.
     RANGE_ERROR:
+      May be raised from the following 'boolean' operations:
+          parse, rand.
       May be raised from the following 'integer' operations:
-          parse, str, rand.
+          parse, radix, RADIX, rand.
       May be raised from the following 'bigInteger' operations:
-          parse, str, rand, ord, bitLength.
+          parse, radix, RADIX, rand, ord, bitLength, modInverse.
+      May be raised from the following 'rational' operations:
+          parse.
+      May be raised from the following 'bigRational' operations:
+          parse.
       May be raised from the following 'float' operations:
           parse, rand.
       May be raised from the following 'char' operations:
@@ -10701,6 +10707,10 @@ CONTENTS
           [, times, remove, rand.
       May be raised from the following 'hash' operations:
           [.
+      May be raised from the following 'category' operations:
+          parse.
+      May be raised from the following 'ref_list' operations:
+          [, @:=, pos.
       May be raised from the following 'file' operations:
           open, write, gets, length, seek, tell.
     FILE_ERROR:
@@ -10708,7 +10718,7 @@ CONTENTS
           fileSize, bigFileSize, fileType, fileTypeSL, fileMode, setFileMode,
           readDir, removeFile, removeAnyFile, moveFile, cloneFile, copyFile,
           readlink, symlink, hasNext, seek, tell, bigTell, setbuf, write,
-          inetSocketAddress, openInetSocket, openInetListener
+          inetSocketAddress, inetListenerAddress, openInetSocket, openInetListener.
     ILLEGAL_ACTION:
       May be raised by the interpreter kernel when a primitive action
       does not point to any legal action. This check is only done when
@@ -10832,9 +10842,7 @@ CONTENTS
     This error message is displayed after the compile time error 1
     (Out of heap space) . The file name and line number of the
     analyzer source code where this happens is displayed together
-    with internal heap information. If this happens the -m option
-    can be used to make more memory available. Perhaps this slows
-    the compilation phase down.
+    with internal heap information.
 
   System declaration for main missing
     Each program must contain a system declaration that describes

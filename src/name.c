@@ -104,12 +104,12 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-static objecttype get_object (entitytype ent, listtype params,
+static objecttype get_object (entitytype entity, listtype params,
     filenumtype file_number, linenumtype line, errinfotype *err_info)
 #else
 
-static objecttype get_object (ent, params, file_number, line, err_info)
-entitytype ent;
+static objecttype get_object (entity, params, file_number, line, err_info)
+entitytype entity;
 listtype params;
 filenumtype file_number;
 linenumtype line;
@@ -125,12 +125,12 @@ errinfotype *err_info;
 #ifdef TRACE_NAME
     printf("BEGIN get_object\n");
 #endif
-    if (ent->owner != NULL &&
-        ent->owner->decl_level == prog.stack_current) {
-      defined_object = ent->owner->obj;
-      ent->owner->params = params;
+    if (entity->data.owner != NULL &&
+        entity->data.owner->decl_level == prog.stack_current) {
+      defined_object = entity->data.owner->obj;
+      entity->data.owner->params = params;
       if (CATEGORY_OF_OBJ(defined_object) != FORWARDOBJECT) {
-        err_object(OBJTWICEDECLARED, ent->owner->obj);
+        err_object(OBJTWICEDECLARED, entity->data.owner->obj);
         SET_CATEGORY_OF_OBJ(defined_object, DECLAREDOBJECT);
       } else {
         SET_CATEGORY_OF_OBJ(defined_object, DECLAREDOBJECT);
@@ -153,7 +153,7 @@ errinfotype *err_info;
     } else {
       if (ALLOC_OBJECT(defined_object)) {
         if (ALLOC_RECORD(defined_property, propertyrecord, count.property)) {
-          defined_property->entity = ent;
+          defined_property->entity = entity;
           defined_property->file_number = file_number;
           defined_property->line = line;
           /* defined_property->syNumberInLine = symbol.syNumberInLine; */
@@ -161,7 +161,7 @@ errinfotype *err_info;
           defined_object->descriptor.property = defined_property;
           INIT_CATEGORY_OF_OBJ(defined_object, DECLAREDOBJECT);
           defined_object->value.objvalue = NULL;
-          push_owner(&ent->owner, defined_object, params, err_info);
+          push_owner(&entity->data.owner, defined_object, params, err_info);
           prog.stack_current->object_list_insert_place = append_element_to_list(
               prog.stack_current->object_list_insert_place, defined_object, err_info);
         } else {
@@ -268,7 +268,7 @@ errinfotype *err_info;
 #endif
 
   {
-    entitytype ent;
+    entitytype entity;
     listtype params;
     objecttype defined_object;
 
@@ -278,13 +278,13 @@ errinfotype *err_info;
     prot_list(name_list);
     printf(")\n");
 #endif
-    ent = get_entity(declaration_base, name_list);
-    if (ent == NULL) {
+    entity = get_entity(declaration_base, name_list);
+    if (entity == NULL) {
       *err_info = MEMORY_ERROR;
       defined_object = NULL;
     } else {
       params = create_parameter_list(name_list, err_info);
-      defined_object = get_object(ent, params,
+      defined_object = get_object(entity, params,
           file_number, line, err_info);
     } /* if */
 #ifdef TRACE_NAME
@@ -300,15 +300,16 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-static void pop_object (const_objecttype obj_to_pop)
+static void pop_object (progtype currentProg, const_objecttype obj_to_pop)
 #else
 
-static void pop_object (obj_to_pop)
+static void pop_object (obj_to_pop, freeUnusedEntity)
+progtype currentProg;
 objecttype obj_to_pop;
 #endif
 
   {
-    entitytype ent;
+    entitytype entity;
     ownertype owner;
 
   /* pop_object */
@@ -319,13 +320,15 @@ objecttype obj_to_pop;
     fflush(stdout);
 #endif
     if (HAS_ENTITY(obj_to_pop)) {
-      ent = GET_ENTITY(obj_to_pop);
-      owner = ent->owner;
+      entity = GET_ENTITY(obj_to_pop);
+      owner = entity->data.owner;
       if (owner != NULL) {
-        ent->owner = owner->next;
+        entity->data.owner = owner->next;
         FREE_RECORD(owner, ownerrecord, count.owner);
-        if (ent->owner == NULL && ent->name_list != NULL) {
-          pop_entity(prog.declaration_root, ent);
+        if (entity->data.owner == NULL && entity->name_list != NULL) {
+          pop_entity(currentProg->declaration_root, entity);
+          entity->data.next = currentProg->entity.inactive_list;
+          currentProg->entity.inactive_list = entity;
         } /* if */
       } /* if */
     } /* if */
@@ -346,19 +349,19 @@ objecttype anObject;
 #endif
 
   {
-    entitytype ent;
+    entitytype entity;
     stacktype decl_lev;
     listtype *lstptr;
     listtype lst;
     listtype old_elem;
 
   /* disconnect_entity */
-    ent = GET_ENTITY(anObject);
-    if (ent->owner != NULL && ent->owner->obj == anObject) {
+    entity = GET_ENTITY(anObject);
+    if (entity->data.owner != NULL && entity->data.owner->obj == anObject) {
       /* printf("disconnect_entity ");
          trace1(anObject);
          printf("\n"); */
-      decl_lev = ent->owner->decl_level;
+      decl_lev = entity->data.owner->decl_level;
       lstptr = &decl_lev->local_object_list;
       lst = decl_lev->local_object_list;
       while (lst != NULL) {
@@ -375,7 +378,7 @@ objecttype anObject;
           lst = lst->next;
         } /* if */
       } /* while */
-      pop_object(anObject);
+      pop_object(&prog, anObject);
       FREE_RECORD(anObject->descriptor.property, propertyrecord, count.property);
       anObject->descriptor.property = NULL;
     } /* if */
@@ -456,7 +459,7 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-void close_stack (const_progtype currentProg)
+void close_stack (progtype currentProg)
 #else
 
 void close_stack (currentProg)
@@ -464,19 +467,37 @@ progtype currentProg;
 #endif
 
   {
+    listtype reversed_list = NULL;
+    listtype next_elem;
     listtype list_element;
 
   /* close_stack */
 #ifdef TRACE_NAME
     printf("BEGIN close_stack %d\n", data_depth);
 #endif
-    destroy_object_list(currentProg->stack_data->local_object_list);
     list_element = currentProg->stack_data->local_object_list;
+    if (list_element != NULL) {
+      reversed_list = list_element;
+      list_element = list_element->next;
+      reversed_list->next = NULL;
+      while (list_element != NULL) {
+        next_elem = list_element->next;
+        list_element->next = reversed_list;
+        reversed_list = list_element;
+        list_element = next_elem;
+      } /* while */
+    } /* if */
+    list_element = reversed_list;
     while (list_element != NULL) {
-      pop_object(list_element->obj);
+      dump_temp_value(list_element->obj);
+      pop_object(currentProg, list_element->obj);
+      if (HAS_PROPERTY(list_element->obj) && list_element->obj->descriptor.property != currentProg->property.literal) {
+        FREE_RECORD(list_element->obj->descriptor.property, propertyrecord, count.property);
+      } /* if */
+      FREE_OBJECT(list_element->obj);
       list_element = list_element->next;
     } /* while */
-    emptylist(currentProg->stack_data->local_object_list);
+    emptylist(reversed_list);
     currentProg->stack_current->local_object_list = NULL;
 #ifdef TRACE_NAME
     printf("END close_stack %d\n", data_depth);
@@ -538,7 +559,7 @@ void shrink_stack ()
 #endif
     list_element = prog.stack_data->local_object_list;
     while (list_element != NULL) {
-      pop_object(list_element->obj);
+      pop_object(&prog, list_element->obj);
       list_element = list_element->next;
     } /* while */
     emptylist(prog.stack_data->local_object_list);
@@ -597,7 +618,7 @@ void pop_stack ()
     if (prog.stack_current->downward != NULL) {
       list_element = prog.stack_current->local_object_list;
       while (list_element != NULL) {
-        pop_object(list_element->obj);
+        pop_object(&prog, list_element->obj);
         list_element = list_element->next;
       } /* while */
       emptylist(prog.stack_current->local_object_list);
@@ -801,7 +822,7 @@ errinfotype *err_info;
     trace1(name_object);
     printf(")\n");
 #endif
-    if (name_object->descriptor.property == property.literal) {
+    if (name_object->descriptor.property == prog.property.literal) {
       err_object(IDENT_EXPECTED, name_object);
     } /* if */
     defined_object = get_object(GET_ENTITY(name_object), NULL,
@@ -946,7 +967,7 @@ errinfotype *err_info;
   {
     listtype name_list;
     objecttype param_obj;
-    entitytype ent;
+    entitytype entity;
     objecttype defined_object;
 
   /* find_name */
@@ -961,7 +982,7 @@ errinfotype *err_info;
         push_stack();
         name_list = eval_name_list(object_name->value.listvalue, err_info);
         down_stack();
-        ent = find_entity(declaration_base, name_list);
+        entity = find_entity(declaration_base, name_list);
         emptylist(name_list);
       } else if (CATEGORY_OF_OBJ(object_name->value.listvalue->obj) == EXPROBJECT ||
           CATEGORY_OF_OBJ(object_name->value.listvalue->obj) == MATCHOBJECT) {
@@ -974,21 +995,21 @@ errinfotype *err_info;
           if (CATEGORY_OF_OBJ(param_obj) == VALUEPARAMOBJECT ||
               CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT ||
               CATEGORY_OF_OBJ(param_obj) == TYPEOBJECT) {
-            ent = NULL;
+            entity = NULL;
           } else {
-            ent = GET_ENTITY(param_obj);
+            entity = GET_ENTITY(param_obj);
          } /* if */
         } else {
-          ent = NULL;
+          entity = NULL;
         } /* if */
       } else {
-        ent = GET_ENTITY(object_name->value.listvalue->obj);
+        entity = GET_ENTITY(object_name->value.listvalue->obj);
       } /* if */
     } else {
-      ent = GET_ENTITY(object_name);
+      entity = GET_ENTITY(object_name);
     } /* if */
-    if (ent != NULL && ent->owner != NULL) {
-      defined_object = ent->owner->obj;
+    if (entity != NULL && entity->data.owner != NULL) {
+      defined_object = entity->data.owner->obj;
     } else {
       defined_object = NULL;
     } /* if */
@@ -1025,7 +1046,7 @@ errinfotype *err_info;
   {
     listtype name_list;
     objecttype param_obj;
-    entitytype ent;
+    entitytype entity;
     objecttype defined_object;
 
   /* search_name */
@@ -1040,7 +1061,7 @@ errinfotype *err_info;
         push_stack();
         name_list = eval_name_list(object_name->value.listvalue, err_info);
         down_stack();
-        ent = search_entity(declaration_base, name_list);
+        entity = search_entity(declaration_base, name_list);
         emptylist(name_list);
       } else if (CATEGORY_OF_OBJ(object_name->value.listvalue->obj) == EXPROBJECT ||
           CATEGORY_OF_OBJ(object_name->value.listvalue->obj) == MATCHOBJECT) {
@@ -1053,21 +1074,21 @@ errinfotype *err_info;
           if (CATEGORY_OF_OBJ(param_obj) == VALUEPARAMOBJECT ||
               CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT ||
               CATEGORY_OF_OBJ(param_obj) == TYPEOBJECT) {
-            ent = NULL;
+            entity = NULL;
           } else {
-            ent = GET_ENTITY(param_obj);
+            entity = GET_ENTITY(param_obj);
          } /* if */
         } else {
-          ent = NULL;
+          entity = NULL;
         } /* if */
       } else {
-        ent = GET_ENTITY(object_name->value.listvalue->obj);
+        entity = GET_ENTITY(object_name->value.listvalue->obj);
       } /* if */
     } else {
-      ent = GET_ENTITY(object_name);
+      entity = GET_ENTITY(object_name);
     } /* if */
-    if (ent != NULL && ent->owner != NULL) {
-      defined_object = ent->owner->obj;
+    if (entity != NULL && entity->data.owner != NULL) {
+      defined_object = entity->data.owner->obj;
     } else {
       defined_object = NULL;
     } /* if */
@@ -1220,42 +1241,3 @@ errinfotype *err_info;
 #endif
     return defined_object;
   } /* dollar_entername */
-
-
-
-#ifdef ANSI_C
-
-objecttype enterFuncName (nodetype declaration_base, objecttype object_name,
-    errinfotype *err_info)
-#else
-
-objecttype enterFuncName (declaration_base, object_name, err_info)
-nodetype declaration_base;
-objecttype object_name;
-errinfotype *err_info;
-#endif
-
-  {
-    objecttype defined_object;
-
-  /* enterFuncName */
-#ifdef TRACE_NAME
-    printf("BEGIN enterFuncName(%ld, ", (long) declaration_base);
-    trace1(object_name);
-    printf(")\n");
-#endif
-    if (CATEGORY_OF_OBJ(object_name) == EXPROBJECT) {
-      if (object_name->value.listvalue->next != NULL) {
-        defined_object = inst_list(declaration_base, object_name, err_info);
-      } /* if */
-    } /* if */
-#ifdef TRACE_NAME
-    trace_nodes();
-    printf("END enterFuncName(");
-    trace1(object_name);
-    printf(") --> ");
-    trace1(defined_object);
-    printf("\n");
-#endif
-    return defined_object;
-  } /* enterFuncName */

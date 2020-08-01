@@ -820,7 +820,7 @@ listtype arguments;
     isit_int(arg_1(arguments));
     isit_int(arg_3(arguments));
     return bld_stri_temp(
-	intRadix(take_int(arg_1(arguments)), take_int(arg_3(arguments)), FALSE));
+        intRadix(take_int(arg_1(arguments)), take_int(arg_3(arguments)), FALSE));
   } /* int_radix */
 
 
@@ -839,7 +839,7 @@ listtype arguments;
     isit_int(arg_1(arguments));
     isit_int(arg_3(arguments));
     return bld_stri_temp(
-	intRadix(take_int(arg_1(arguments)), take_int(arg_3(arguments)), TRUE));
+        intRadix(take_int(arg_1(arguments)), take_int(arg_3(arguments)), TRUE));
   } /* int_RADIX */
 
 

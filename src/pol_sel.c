@@ -967,6 +967,9 @@ polltype pollDataFrom;
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
+#ifdef DO_HEAP_STATISTIC
+      count.size_pollrecord = sizeof(select_based_pollrecord);
+#endif
       if (unlikely(!ALLOC_TABLE(result->readTest.files, fdAndFileType,
                                 conv(pollDataFrom)->readTest.capacity) ||
                    !ALLOC_TABLE(result->writeTest.files, fdAndFileType,
@@ -1060,7 +1063,7 @@ polltype oldPollData;
       FREE_TABLE(conv(oldPollData)->writeTest.files, fdAndFileType, capacity);
       hshDestr(conv(oldPollData)->writeTest.indexHash, (destrfunctype) &intDestrGeneric,
                (destrfunctype) &intDestrGeneric);
-      FREE_RECORD(var_conv(oldPollData), select_based_pollrecord, count.pollData);
+      FREE_RECORD(var_conv(oldPollData), select_based_pollrecord, count.polldata);
     } /* if */
   } /* polDestr */
 
@@ -1088,6 +1091,9 @@ polltype polEmpty ()
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
+#ifdef DO_HEAP_STATISTIC
+      count.size_pollrecord = sizeof(select_based_pollrecord);
+#endif
       if (unlikely(!ALLOC_TABLE(result->readTest.files, fdAndFileType, TABLE_START_SIZE) ||
                    !ALLOC_TABLE(result->writeTest.files, fdAndFileType, TABLE_START_SIZE) ||
                    !allocFdSet(&result->readTest, TABLE_START_SIZE) ||

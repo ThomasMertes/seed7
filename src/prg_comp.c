@@ -38,10 +38,12 @@
 #include "flistutl.h"
 #include "striutl.h"
 #include "listutl.h"
+#include "entutl.h"
 #include "syvarutl.h"
 #include "identutl.h"
 #include "traceutl.h"
 #include "analyze.h"
+#include "name.h"
 #include "exec.h"
 #include "match.h"
 #include "objutl.h"
@@ -52,6 +54,8 @@
 #undef EXTERN
 #define EXTERN
 #include "prg_comp.h"
+
+#undef TRACE_PRG_COMP
 
 
 
@@ -115,6 +119,26 @@ memsizetype start;
 
 #ifdef ANSI_C
 
+static void free_args (objecttype arg_v)
+#else
+
+static void free_args (arg_v)
+objecttype arg_v;
+#endif
+
+  {
+    arraytype arg_array;
+
+  /* free_args */
+    arg_array = arg_v->value.arrayvalue;
+    FREE_ARRAY(arg_array, (uinttype) (arg_array->max_position - arg_array->min_position + 1));
+    FREE_OBJECT(arg_v);
+  } /* free_args */
+
+
+
+#ifdef ANSI_C
+
 void interpret (const const_progtype currentProg, const const_rtlArraytype argv,
                 memsizetype argv_start, uinttype options, const const_stritype prot_file_name)
 #else
@@ -146,42 +170,47 @@ stritype prot_file_name;
         set_trace(prog.option_flags);
         set_protfile_name(prot_file_name);
         prog.arg_v = copy_args(argv, argv_start);
-/*        printf("main defined as: ");
-        trace1(prog.main_object);
-        printf("\n"); */
+        if (prog.arg_v == NULL) {
+          raise_error(MEMORY_ERROR);
+        } else {
+          /* printf("main defined as: ");
+          trace1(prog.main_object);
+          printf("\n"); */
 #ifdef WITH_PROTOCOL
-        if (trace.actions) {
-          if (trace.heapsize) {
-            prot_heapsize();
-            prot_cstri(" ");
+          if (trace.actions) {
+            if (trace.heapsize) {
+              prot_heapsize();
+              prot_cstri(" ");
+            } /* if */
+            prot_cstri("begin main");
+            prot_nl();
           } /* if */
-          prot_cstri("begin main");
-          prot_nl();
-        } /* if */
 #endif
-        exec_call(prog.main_object);
+          exec_call(prog.main_object);
 #ifdef WITH_PROTOCOL
-        if (trace.actions) {
-          if (trace.heapsize) {
-            prot_heapsize();
-            prot_cstri(" ");
+          if (trace.actions) {
+            if (trace.heapsize) {
+              prot_heapsize();
+              prot_cstri(" ");
+            } /* if */
+            prot_cstri("end main");
+            prot_nl();
           } /* if */
-          prot_cstri("end main");
-          prot_nl();
-        } /* if */
 #endif
+          free_args(prog.arg_v);
 #ifdef OUT_OF_ORDER
-        shut_drivers();
-        if (fail_flag) {
-          printf("\n*** Uncaught EXCEPTION ");
-          printobject(fail_value);
-          printf(" raised with\n");
-          prot_list(fail_expression);
-          printf("\n");
-          write_call_stack(fail_stack);
-        } /* if */
+          shut_drivers();
+          if (fail_flag) {
+            printf("\n*** Uncaught EXCEPTION ");
+            printobject(fail_value);
+            printf(" raised with\n");
+            prot_list(fail_expression);
+            printf("\n");
+            write_call_stack(fail_stack);
+          } /* if */
 #endif
-        memcpy(&prog, &prog_backup, sizeof(progrecord));
+          memcpy(&prog, &prog_backup, sizeof(progrecord));
+        } /* if */
       } /* if */
     } /* if */
 #ifdef TRACE_PRG_COMP
@@ -206,16 +235,14 @@ progtype source;
 
   /* prgCpy */
     old_prog = *dest;
-    if (old_prog != NULL) {
-      old_prog->usage_count--;
-      if (old_prog->usage_count == 0) {
-        FREE_RECORD(old_prog, progrecord, count.prog);
+    if (old_prog != source) {
+      prgDestr(old_prog);
+      *dest = source;
+      if (source != NULL) {
+        source->usage_count++;
       } /* if */
     } /* if */
-    *dest = source;
-    if (source != NULL) {
-      source->usage_count++;
-    } /* if */
+    /* printf("prgCpy: usage_count=%d\n", (*dest)->usage_count); */
   } /* prgCpy */
 
 
@@ -257,11 +284,33 @@ void prgDestr (old_prog)
 progtype old_prog;
 #endif
 
-  { /* prgDestr */
+  {
+    progrecord prog_backup;
+
+  /* prgDestr */
     if (old_prog != NULL) {
+      /* printf("prgDestr: usage_count=%d\n", old_prog->usage_count); */
       old_prog->usage_count--;
       if (old_prog->usage_count == 0) {
+        /* printf("prgDestr: old progrecord: %lx\n", old_prog); */
+        memcpy(&prog_backup, &prog, sizeof(progrecord));
+        memcpy(&prog, old_prog, sizeof(progrecord));
+        /* printf("heapsize: %ld\n", heapsize()); */
+        /* heap_statistic(); */
+        close_stack(old_prog);
+        close_declaration_root(old_prog);
+        close_entity(old_prog);
+        close_idents(old_prog);
+        free_entity(old_prog, old_prog->entity.literal);
+        FREE_RECORD(old_prog->property.literal, propertyrecord, count.property);
+        memcpy(&prog, &prog_backup, sizeof(progrecord));
+        FREE_STRI(old_prog->arg0, old_prog->arg0->size);
+        FREE_STRI(old_prog->program_name, old_prog->program_name->size);
+        FREE_STRI(old_prog->program_path, old_prog->program_path->size);
+        FREE_RECORD(old_prog->stack_global, stackrecord, count.stack);
         FREE_RECORD(old_prog, progrecord, count.prog);
+        /* printf("heapsize: %ld\n", heapsize()); */
+        /* heap_statistic(); */
       } /* if */
     } /* if */
   } /* prgDestr */

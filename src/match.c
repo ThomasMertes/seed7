@@ -216,8 +216,8 @@ objecttype expr_object;
     while (expr_list != NULL) {
       current_element = expr_list->obj;
       if (HAS_ENTITY(current_element) &&
-          GET_ENTITY(current_element)->owner != NULL) {
-        expr_list->obj = GET_ENTITY(current_element)->owner->obj;
+          GET_ENTITY(current_element)->data.owner != NULL) {
+        expr_list->obj = GET_ENTITY(current_element)->data.owner->obj;
         current_element = expr_list->obj;
       } /* if */
       if (CATEGORY_OF_OBJ(current_element) == EXPROBJECT) {
@@ -325,7 +325,7 @@ objecttype object;
       case FORWARDOBJECT:
         if (ALLOC_OBJECT(result)) {
           result->type_of = object->type_of;
-          result->descriptor.property = property.literal;
+          result->descriptor.property = prog.property.literal;
           result->value.listvalue = NULL;
           INIT_CATEGORY_OF_OBJ(result, CALLOBJECT);
           incl_list(&result->value.listvalue, object, &err_info);
@@ -413,7 +413,7 @@ objecttype expr_object;
             result->descriptor.posinfo = expr_object->descriptor.posinfo;
             INIT_CATEGORY_OF_POSINFO(result, CALLOBJECT);
           } else {
-            result->descriptor.property = property.literal;
+            result->descriptor.property = prog.property.literal;
             INIT_CATEGORY_OF_OBJ(result, CALLOBJECT);
           } /* if */
           result->value.listvalue = NULL;
@@ -860,7 +860,7 @@ booltype look_for_interfaces;
         } /* if */
         matched_object = NULL;
       } else {
-        current_element = start_node->entity->owner->obj;
+        current_element = start_node->entity->data.owner->obj;
         if (trace.match) {
           printf("//ST2//");
           printcategory(CATEGORY_OF_OBJ(current_element));

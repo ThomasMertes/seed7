@@ -47,6 +47,7 @@
 void emptylist (listtype);
 listtype *append_element_to_list (listtype *, objecttype, errinfotype *);
 void copy_expression (objecttype, objecttype *, errinfotype *);
+void free_expression (objecttype object);
 void concat_lists (listtype *, listtype);
 void incl_list (listtype *, objecttype, errinfotype *);
 void excl_list (listtype *, const_objecttype);
@@ -63,6 +64,7 @@ listtype hash_key_to_list (hashtype hash, errinfotype *err_info);
 void emptylist ();
 listtype *append_element_to_list ();
 void copy_expression ();
+void free_expression ();
 void concat_lists ();
 void incl_list ();
 void excl_list ();

@@ -259,6 +259,7 @@ errinfotype *err_info;
               } /* if */
               *err_info = FILE_ERROR;
             } else {
+              COUNT_USTRI(max_utf8_size(source_file_name->size), count.fnam, count.fnam_bytes);
               in_file.name_ustri = name_ustri;
               in_file.name = in_name;
               in_file.character = next_character();
@@ -331,8 +332,6 @@ void close_infile ()
     } /* if */
 #endif
 #endif
-/*  FREE_USTRI(in_file.name, strlen((cstritype) in_file.name),
-        count.fnam, count.fnam_bytes); */
     if (in_file.curr_infile != NULL) {
       memcpy(in_file.curr_infile, &in_file, sizeof(infilrecord));
     } /* if */
@@ -383,10 +382,10 @@ errinfotype *err_info;
         if (!ALLOC_USTRI(name_ustri, name_length)) {
           *err_info = MEMORY_ERROR;
         } else if (!ALLOC_STRI_SIZE_OK(in_name, name_length)) {
-          free_cstri(name_ustri, name_length);
+          UNALLOC_USTRI(name_ustri, name_length);
           *err_info = MEMORY_ERROR;
         } else {
-          COUNT_USTRI(name_length, count.fnam, count.fnam_bytes);
+          /* COUNT_USTRI(name_length, count.fnam, count.fnam_bytes); */
           strcpy((cstritype) name_ustri, source_file_name);
           in_name->size = name_length;
           ustri_expand(in_name->mem, name_ustri, name_length);
@@ -419,6 +418,31 @@ errinfotype *err_info;
     printf("END open_string\n");
 #endif
   } /* open_string */
+
+
+
+#ifdef OUT_OF_ORDER
+#ifdef ANSI_C
+
+void free_file (infiltype old_file)
+#else
+
+void free_file (old_file)
+infiltype old_file;
+#endif
+
+  { /* free_file */
+#ifdef TRACE_INFILE
+    printf("BEGIN free_file\n");
+#endif
+    UNALLOC_USTRI(old_file->name_ustri, unknown);
+    FREE_STRI(old_file->name, old_file->name->size)
+    FREE_FILE(old_file);
+#ifdef TRACE_INFILE
+    printf("END free_file\n");
+#endif
+  } /* free_file */
+#endif
 
 
 
@@ -529,7 +553,7 @@ filenumtype file_num;
 
   /* get_file_name_ustri */
 #ifdef TRACE_INFILE
-    printf("BEGIN get_file_name\n");
+    printf("BEGIN get_file_name_ustri\n");
 #endif
     result = (const_ustritype) "?";
     help_file = file_pointer;
@@ -540,7 +564,7 @@ filenumtype file_num;
       help_file = help_file->next;
     } /* while */
 #ifdef TRACE_INFILE
-    printf("END get_file_name\n");
+    printf("END get_file_name_ustri\n");
 #endif
     return result;
   } /* get_file_name_ustri */

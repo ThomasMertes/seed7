@@ -931,6 +931,7 @@ objecttype object;
         trace1(subroutine_object);
         printf("\n");
         printf("\n");
+        /* printf("%d\n", 1/0); */
 /*        result = exec_dynamic(object->value.listvalue); */
         result = NULL;
         break;
@@ -1104,7 +1105,7 @@ listtype expr_list;
     dynamic_call_obj = curr_exec_object;
     if (ALLOC_OBJECT(match_expr)) {
       match_expr->type_of = take_type(SYS_EXPR_TYPE);
-      match_expr->descriptor.property = property.literal;
+      match_expr->descriptor.property = prog.property.literal;
       match_expr->value.listvalue = NULL;
       list_insert_place = &match_expr->value.listvalue;
       INIT_CATEGORY_OF_OBJ(match_expr, EXPROBJECT);

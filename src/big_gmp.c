@@ -48,7 +48,6 @@
 #include "big_drv.h"
 
 
-#define WITH_BIGINT_FREELIST
 #define BIG_FREELIST_LENGTH_LIMIT 20
 
 

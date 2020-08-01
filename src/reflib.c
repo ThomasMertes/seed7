@@ -933,11 +933,11 @@ listtype arguments;
       ident_found = get_ident((const_ustritype) name);
       if (ident_found == NULL ||
           ident_found->entity == NULL ||
-          ident_found->entity->owner == NULL) {
+          ident_found->entity->data.owner == NULL) {
         result = raise_exception(SYS_MEM_EXCEPTION);
       } else {
-        if (ident_found->entity->owner->obj != NULL) {
-          obj_variable->value.objvalue = ident_found->entity->owner->obj;
+        if (ident_found->entity->data.owner->obj != NULL) {
+          obj_variable->value.objvalue = ident_found->entity->data.owner->obj;
           result = SYS_TRUE_OBJECT;
         } else {
           obj_variable->value.objvalue = ident_found->entity->syobject;

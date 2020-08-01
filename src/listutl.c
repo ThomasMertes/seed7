@@ -140,6 +140,45 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
+void free_expression (objecttype object)
+#else
+
+void free_expression (object)
+objecttype object;
+#endif
+
+  {
+    listtype list_elem;
+
+  /* free_expression */
+    /* prot_cstri(" free_expression");
+    prot_nl(); */
+    if (object != NULL) {
+      switch (CATEGORY_OF_OBJ(object)) {
+        case CALLOBJECT:
+        case MATCHOBJECT:
+        case EXPROBJECT:
+          /* printf("free_expression: \n");
+          trace1(object);
+          printf("\n"); */
+          list_elem = object->value.listvalue;
+          while (list_elem != NULL) {
+            free_expression(list_elem->obj);
+            list_elem = list_elem->next;
+          } /* while */
+          emptylist(object->value.listvalue);
+          FREE_OBJECT(object);
+          break;
+        default:
+          break;
+      } /* switch */
+    } /* if */
+  } /* free_expression */
+
+
+
+#ifdef ANSI_C
+
 void concat_lists (listtype *list1, listtype list2)
 #else
 

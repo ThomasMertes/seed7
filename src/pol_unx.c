@@ -495,6 +495,9 @@ polltype pollDataFrom;
     if (unlikely(!ALLOC_RECORD(result, poll_based_pollrecord, count.polldata))) {
       raise_error(MEMORY_ERROR);
     } else {
+#ifdef DO_HEAP_STATISTIC
+      count.size_pollrecord = sizeof(poll_based_pollrecord);
+#endif
       if (unlikely(!ALLOC_TABLE(result->pollFds, struct pollfd, conv(pollDataFrom)->capacity))) {
         FREE_RECORD(result, poll_based_pollrecord, count.polldata);
         raise_error(MEMORY_ERROR);
@@ -546,7 +549,7 @@ polltype oldPollData;
       FREE_TABLE(conv(oldPollData)->pollFiles, rtlGenerictype, conv(oldPollData)->capacity);
       hshDestr(conv(oldPollData)->indexHash, (destrfunctype) &intDestrGeneric,
                (destrfunctype) &intDestrGeneric);
-      FREE_RECORD(var_conv(oldPollData), poll_based_pollrecord, count.pollData);
+      FREE_RECORD(var_conv(oldPollData), poll_based_pollrecord, count.polldata);
     } /* if */
   } /* polDestr */
 
@@ -567,6 +570,9 @@ polltype polEmpty ()
     if (unlikely(!ALLOC_RECORD(result, poll_based_pollrecord, count.polldata))) {
       raise_error(MEMORY_ERROR);
     } else {
+#ifdef DO_HEAP_STATISTIC
+      count.size_pollrecord = sizeof(poll_based_pollrecord);
+#endif
       if (unlikely(!ALLOC_TABLE(result->pollFds, struct pollfd, TABLE_START_SIZE))) {
         FREE_RECORD(result, poll_based_pollrecord, count.polldata);
         raise_error(MEMORY_ERROR);

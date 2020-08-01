@@ -45,6 +45,8 @@
 #include "entutl.h"
 #include "name.h"
 #include "runerr.h"
+#include "prg_comp.h"
+#include "typ_data.h"
 #include "big_drv.h"
 #include "drw_drv.h"
 #include "pol_drv.h"
@@ -720,10 +722,10 @@ wintype temp_win;
 
 #ifdef ANSI_C
 
-void dump_any_temp (objecttype object)
+void dump_temp_value (objecttype object)
 #else
 
-void dump_any_temp (object)
+void dump_temp_value (object)
 objecttype object;
 #endif
 
@@ -731,12 +733,12 @@ objecttype object;
     booltype save_fail_flag;
     errinfotype err_info = OKAY_NO_ERROR;
 
-  /* dump_any_temp */
-#ifdef TRACE_DUMP_ANY_TEMP
+  /* dump_temp_value */
+#ifdef TRACE_DUMP_TEMP_VALUE
     if (trace.actions) {
       prot_heapsize();
       prot_cstri(" ");
-      prot_cstri("dump_any_temp ");
+      prot_cstri("dump_temp_value ");
       printcategory(CATEGORY_OF_OBJ(object));
       prot_cstri(" ");
       prot_int((inttype) object);
@@ -760,28 +762,22 @@ objecttype object;
       case ENUMLITERALOBJECT:
       case MATCHOBJECT:
       case FWDREFOBJECT:
-        FREE_OBJECT(object);
         break;
       case TYPEOBJECT:
-        CLEAR_TEMP_FLAG(object);
-        do_destroy(object, &err_info);
-        FREE_OBJECT(object);
+        typDestr(object->value.typevalue);
         break;
       case BIGINTOBJECT:
         bigDestr(object->value.bigintvalue);
-        FREE_OBJECT(object);
         break;
       case STRIOBJECT:
         if (object->value.strivalue != NULL) {
           FREE_STRI(object->value.strivalue, object->value.strivalue->size);
         } /* if */
-        FREE_OBJECT(object);
         break;
       case BSTRIOBJECT:
         if (object->value.bstrivalue != NULL) {
           FREE_BSTRI(object->value.bstrivalue, object->value.bstrivalue->size);
         } /* if */
-        FREE_OBJECT(object);
         break;
       case SETOBJECT:
         if (object->value.setvalue != NULL) {
@@ -789,11 +785,10 @@ objecttype object;
               (memsizetype) (object->value.setvalue->max_position -
               object->value.setvalue->min_position + 1));
         } /* if */
-        FREE_OBJECT(object);
         break;
       case ARRAYOBJECT:
         if (object->value.arrayvalue != NULL) {
-#ifdef TRACE_DUMP_ANY_TEMP
+#ifdef TRACE_DUMP_TEMP_VALUE
           if (trace.actions) {
             prot_cstri("before do_destroy: ");
             trace1(object);
@@ -803,11 +798,10 @@ objecttype object;
           CLEAR_TEMP_FLAG(object);
           do_destroy(object, &err_info);
         } /* if */
-        FREE_OBJECT(object);
         break;
       case HASHOBJECT:
         if (object->value.hashvalue != NULL) {
-#ifdef TRACE_DUMP_ANY_TEMP
+#ifdef TRACE_DUMP_TEMP_VALUE
           if (trace.actions) {
             prot_cstri("before do_destroy: ");
             trace1(object);
@@ -817,11 +811,10 @@ objecttype object;
           CLEAR_TEMP_FLAG(object);
           do_destroy(object, &err_info);
         } /* if */
-        FREE_OBJECT(object);
         break;
       case STRUCTOBJECT:
         if (object->value.structvalue != NULL) {
-#ifdef TRACE_DUMP_ANY_TEMP
+#ifdef TRACE_DUMP_TEMP_VALUE
           if (trace.actions) {
             prot_cstri("before do_destroy: ");
             trace1(object);
@@ -831,37 +824,26 @@ objecttype object;
           CLEAR_TEMP_FLAG(object);
           do_destroy(object, &err_info);
         } /* if */
-        FREE_OBJECT(object);
         break;
       case POLLOBJECT:
         polDestr(object->value.pollvalue);
-        FREE_OBJECT(object);
         break;
       case REFLISTOBJECT:
         emptylist(object->value.listvalue);
-        FREE_OBJECT(object);
         break;
       case LISTOBJECT:
         emptylist(object->value.listvalue);
-        FREE_OBJECT(object);
         break;
       case BLOCKOBJECT:
         if (object->value.blockvalue != NULL) {
+          /* printf("free_block: ");
+          trace1(object);
+          printf("\n"); */
           free_block(object->value.blockvalue);
         } /* if */
-        FREE_OBJECT(object);
         break;
       case PROGOBJECT:
-        if (object->value.progvalue != NULL) {
-          object->value.progvalue->usage_count--;
-          if (object->value.progvalue->usage_count == 0) {
-            close_stack(object->value.progvalue);
-            close_declaration_root(object->value.progvalue);
-            close_idents(object->value.progvalue);
-            FREE_RECORD(object->value.progvalue, progrecord, count.prog);
-          } /* if */
-        } /* if */
-        FREE_OBJECT(object);
+        prgDestr(object->value.progvalue);
         break;
       case WINOBJECT:
         if (object->value.winvalue != NULL) {
@@ -870,11 +852,10 @@ objecttype object;
             drwFree(object->value.winvalue);
           } /* if */
         } /* if */
-        FREE_OBJECT(object);
         break;
       case INTERFACEOBJECT:
         if (object->value.objvalue != NULL) {
-#ifdef TRACE_DUMP_ANY_TEMP
+#ifdef TRACE_DUMP_TEMP_VALUE
           if (trace.actions) {
             prot_cstri("before do_destroy: ");
             trace1(object);
@@ -884,30 +865,45 @@ objecttype object;
           CLEAR_TEMP_FLAG(object);
           do_destroy(object, &err_info);
         } /* if */
-        FREE_OBJECT(object);
         break;
       default:
         if (trace.heapsize) {
           prot_heapsize();
           prot_cstri(" ");
         } /* if */
-        prot_cstri("dump_any_temp ");
+        prot_cstri("dump_temp_value ");
+        /* prot_int((inttype) CATEGORY_OF_OBJ(object)); */
         /* prot_int((inttype) object);
         printf("%lx", object);
         prot_cstri(" "); */
         trace1(object);
         prot_nl();
         /* CLEAR_TEMP_FLAG(object);
-        do_destroy(object, &err_info);
-        FREE_OBJECT(object); */
+        do_destroy(object, &err_info); */
         break;
     } /* switch */
     fail_flag = save_fail_flag;
-#ifdef TRACE_DUMP_ANY_TEMP
+#ifdef TRACE_DUMP_TEMP_VALUE
     if (trace.actions) {
       prot_heapsize();
-      prot_cstri(" end dump_any_temp ");
+      prot_cstri(" end dump_temp_value ");
       prot_nl();
     } /* if */
 #endif
+  } /* dump_temp_value */
+
+
+
+#ifdef ANSI_C
+
+void dump_any_temp (objecttype object)
+#else
+
+void dump_any_temp (object)
+objecttype object;
+#endif
+
+  { /* dump_any_temp */
+    dump_temp_value(object);
+    FREE_OBJECT(object);
   } /* dump_any_temp */

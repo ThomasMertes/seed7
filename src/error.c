@@ -97,7 +97,7 @@ linenumtype err_line;
           if (buffer_start_position >= MAX_AREA_SIZE) {
             area_size = MAX_AREA_SIZE;
           } else {
-            area_size = buffer_start_position;
+            area_size = (int) buffer_start_position;
           } /* if */
           buffer_start_position -= area_size;
           /* printf("buffer_start_position=%ld\n", buffer_start_position); */

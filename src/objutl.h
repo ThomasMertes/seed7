@@ -195,6 +195,7 @@ objecttype bld_stri_temp (stritype temp_stri);
 objecttype bld_struct_temp (structtype temp_struct);
 objecttype bld_type_temp (typetype temp_type);
 objecttype bld_win_temp (wintype temp_win);
+void dump_temp_value (objecttype object);
 void dump_any_temp (objecttype object);
 
 #else
@@ -250,6 +251,7 @@ objecttype bld_stri_temp ();
 objecttype bld_struct_temp ();
 objecttype bld_type_temp ();
 objecttype bld_win_temp ();
+void dump_temp_value ();
 void dump_any_temp ();
 
 #endif

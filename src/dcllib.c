@@ -175,10 +175,13 @@ listtype arguments;
 #endif
           } /* if */
         } /* if */
+        if (CATEGORY_OF_OBJ(current_object) != BLOCKOBJECT) {
+          free_expression(value);
+        } /* if */
         if (CATEGORY_OF_OBJ(current_object) == BLOCKOBJECT) {
           /*FIXME not ok since parameter names are important here !!! */
           current_object->value.blockvalue->params =
-              get_param_list(GET_ENTITY(current_object)->owner->params, &err_info);
+              get_param_list(GET_ENTITY(current_object)->data.owner->params, &err_info);
         } /* if */
       } /* if */
       shrink_stack();
@@ -942,6 +945,9 @@ listtype arguments;
             printf("\n");
 #endif
           } /* if */
+        } /* if */
+        if (CATEGORY_OF_OBJ(current_object) != BLOCKOBJECT) {
+          free_expression(value);
         } /* if */
       } /* if */
       shrink_stack();

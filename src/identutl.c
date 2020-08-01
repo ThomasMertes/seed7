@@ -89,10 +89,11 @@ sysizetype length;
 
 #ifdef ANSI_C
 
-static void free_ident (identtype old_ident)
+static void free_ident (const_progtype currentProg, identtype old_ident)
 #else
 
-static void free_ident (old_ident)
+static void free_ident (currentProg, old_ident)
+progtype currentProg;
 identtype old_ident;
 #endif
 
@@ -106,9 +107,9 @@ identtype old_ident;
     if (old_ident != NULL) {
       length = strlen((cstritype) old_ident->name);
       FREE_ID_NAME(old_ident->name, length);
-      free_ident(old_ident->next1);
-      free_ident(old_ident->next2);
-      free_entity(old_ident->entity);
+      free_ident(currentProg, old_ident->next1);
+      free_ident(currentProg, old_ident->next2);
+      free_entity(currentProg, old_ident->entity);
       FREE_RECORD(old_ident, identrecord, count.ident);
     } /* if */
 #ifdef TRACE_IDENTUTL
@@ -203,17 +204,17 @@ progtype currentProg;
     printf("BEGIN close_idents\n");
 #endif
     for (position = 0; position < ID_TABLE_SIZE; position++) {
-      free_ident(currentProg->ident.table[position]);
+      free_ident(currentProg, currentProg->ident.table[position]);
     } /* for */
     for (character = '!'; character <= '~'; character++) {
       if (op_character(character) ||
           char_class(character) == LEFTPARENCHAR ||
           char_class(character) == PARENCHAR) {
-        free_ident(currentProg->ident.table1[character]);
+        free_ident(currentProg, currentProg->ident.table1[character]);
       } /* if */
     } /* for */
-    free_ident(currentProg->ident.literal);
-    free_ident(currentProg->ident.end_of_file);;
+    free_ident(currentProg, currentProg->ident.literal);
+    free_ident(currentProg, currentProg->ident.end_of_file);;
 #ifdef TRACE_FINDID
     printf("END close_idents\n");
 #endif

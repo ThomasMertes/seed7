@@ -292,6 +292,7 @@ listtype arguments;
 
   {
     objecttype element;
+    typetype result_element_type;
     memsizetype result_size;
     arraytype result;
 
@@ -303,14 +304,17 @@ listtype arguments;
     } /* if */
     result->min_position = 1;
     result->max_position = 1;
-    if (TEMP_OBJECT(element)) {
+    /* The element type of the result is the type of the 3rd formal parameter */
+    result_element_type = GET_ENTITY(curr_exec_object->value.listvalue->obj)->
+                          name_list->next->next->obj->value.objvalue->type_of;
+    if (TEMP_OBJECT(element) && element->type_of == result_element_type) {
       CLEAR_TEMP_FLAG(element);
       SET_VAR_FLAG(element);
       memcpy(&result->arr[0], element, sizeof(objectrecord));
       FREE_OBJECT(element);
       arg_3(arguments) = NULL;
     } else {
-      if (!any_var_initialisation(&result->arr[0], element)) {
+      if (!any_var_initialisation(result_element_type, &result->arr[0], element)) {
         FREE_ARRAY(result, result_size);
         return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
       } /* if */
@@ -332,6 +336,7 @@ listtype arguments;
   {
     inttype start_position;
     objecttype element;
+    typetype result_element_type;
     memsizetype result_size;
     arraytype result;
 
@@ -345,14 +350,17 @@ listtype arguments;
     } /* if */
     result->min_position = start_position;
     result->max_position = start_position;
-    if (TEMP_OBJECT(element)) {
+    /* The element type of the result is the type of the 4th formal parameter */
+    result_element_type = GET_ENTITY(curr_exec_object->value.listvalue->obj)->
+                          name_list->next->next->next->obj->value.objvalue->type_of;
+    if (TEMP_OBJECT(element) && element->type_of == result_element_type) {
       CLEAR_TEMP_FLAG(element);
       SET_VAR_FLAG(element);
       memcpy(&result->arr[0], element, sizeof(objectrecord));
       FREE_OBJECT(element);
       arg_4(arguments) = NULL;
     } else {
-      if (!any_var_initialisation(&result->arr[0], element)) {
+      if (!any_var_initialisation(result_element_type, &result->arr[0], element)) {
         FREE_ARRAY(result, result_size);
         return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
       } /* if */
@@ -635,6 +643,7 @@ listtype arguments;
   {
     arraytype arr1;
     objecttype element;
+    typetype result_element_type;
     memsizetype arr1_size;
     memsizetype result_size;
     arraytype result;
@@ -665,14 +674,17 @@ listtype arguments;
         return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
       } /* if */
     } /* if */
-    if (TEMP_OBJECT(element)) {
+    /* The element type of the result is the type of the 3rd formal parameter */
+    result_element_type = GET_ENTITY(curr_exec_object->value.listvalue->obj)->
+                          name_list->next->next->obj->value.objvalue->type_of;
+    if (TEMP_OBJECT(element) && element->type_of == result_element_type) {
       CLEAR_TEMP_FLAG(element);
       SET_VAR_FLAG(element);
       memcpy(&result->arr[arr1_size], element, sizeof(objectrecord));
       FREE_OBJECT(element);
       arg_3(arguments) = NULL;
     } else {
-      if (!any_var_initialisation(&result->arr[arr1_size], element)) {
+      if (!any_var_initialisation(result_element_type, &result->arr[arr1_size], element)) {
         destr_array(result->arr, arr1_size);
         FREE_ARRAY(result, result_size);
         return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
@@ -695,6 +707,7 @@ listtype arguments;
   {
     objecttype element1;
     objecttype element2;
+    typetype result_element_type;
     memsizetype result_size;
     arraytype result;
 
@@ -707,26 +720,29 @@ listtype arguments;
     } /* if */
     result->min_position = 1;
     result->max_position = 2;
-    if (TEMP_OBJECT(element1)) {
+    /* The element type of the result is the type of the 1st formal parameter */
+    result_element_type = GET_ENTITY(curr_exec_object->value.listvalue->obj)->
+                          name_list->obj->value.objvalue->type_of;
+    if (TEMP_OBJECT(element1) && element1->type_of == result_element_type) {
       CLEAR_TEMP_FLAG(element1);
       SET_VAR_FLAG(element1);
       memcpy(&result->arr[0], element1, sizeof(objectrecord));
       FREE_OBJECT(element1);
       arg_1(arguments) = NULL;
     } else {
-      if (!any_var_initialisation(&result->arr[0], element1)) {
+      if (!any_var_initialisation(result_element_type, &result->arr[0], element1)) {
         FREE_ARRAY(result, result_size);
         return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
       } /* if */
     } /* if */
-    if (TEMP_OBJECT(element2)) {
+    if (TEMP_OBJECT(element2) && element2->type_of == result_element_type) {
       CLEAR_TEMP_FLAG(element2);
       SET_VAR_FLAG(element2);
       memcpy(&result->arr[1], element2, sizeof(objectrecord));
       FREE_OBJECT(element2);
       arg_3(arguments) = NULL;
     } else {
-      if (!any_var_initialisation(&result->arr[1], element2)) {
+      if (!any_var_initialisation(result_element_type, &result->arr[1], element2)) {
         destr_array(result->arr, 1);
         FREE_ARRAY(result, result_size);
         return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
@@ -932,6 +948,7 @@ listtype arguments;
     objecttype arr_variable;
     arraytype arr_to;
     objecttype element;
+    typetype result_element_type;
     arraytype new_arr;
     memsizetype new_size;
     memsizetype arr_to_size;
@@ -951,7 +968,10 @@ listtype arguments;
     } else {
       COUNT3_ARRAY(arr_to_size, new_size);
       arr_variable->value.arrayvalue = new_arr;
-      if (TEMP_OBJECT(element)) {
+      /* The element type of the result is the type of the 3rd formal parameter */
+      result_element_type = GET_ENTITY(curr_exec_object->value.listvalue->obj)->
+                            name_list->next->next->obj->value.objvalue->type_of;
+      if (TEMP_OBJECT(element) && element->type_of == result_element_type) {
         CLEAR_TEMP_FLAG(element);
         SET_VAR_FLAG(element);
         memcpy(&new_arr->arr[arr_to_size], element, sizeof(objectrecord));
@@ -959,7 +979,7 @@ listtype arguments;
         FREE_OBJECT(element);
         arg_3(arguments) = NULL;
       } else {
-        if (!any_var_initialisation(&new_arr->arr[arr_to_size], element)) {
+        if (!any_var_initialisation(result_element_type, &new_arr->arr[arr_to_size], element)) {
           arr_to = REALLOC_ARRAY(new_arr, new_size, arr_to_size);
           if (arr_to == NULL) {
             return raise_exception(SYS_MEM_EXCEPTION);
@@ -1216,6 +1236,7 @@ listtype arguments;
     objecttype element;
     memsizetype position;
     objecttype elem_to;
+    typetype result_element_type;
     memsizetype result_size;
     arraytype result;
 
@@ -1234,24 +1255,40 @@ listtype arguments;
         result->max_position = factor;
         elem_to = result->arr;
         if (result_size > 0) {
-/* printf("arr_times: ");
-trace1(element);
-printf("\n"); */
-          if (TEMP_OBJECT(element)) {
+          /* printf("arr_times: ");
+          trace1(element);
+          printf("\n");
+          trace1(curr_exec_object);
+          printf("\n");
+          trace1(curr_exec_object->value.listvalue->obj);
+          printf("\n");
+          printf("%d\n", HAS_ENTITY(curr_exec_object->value.listvalue->obj));
+          prot_list(GET_ENTITY(curr_exec_object->value.listvalue->obj)->name_list);
+          printf("\n");
+          trace1(GET_ENTITY(curr_exec_object->value.listvalue->obj)->name_list->next->next->obj);
+          printf("\n");
+          trace1(GET_ENTITY(curr_exec_object->value.listvalue->obj)->name_list->next->next->obj->value.objvalue);
+          printf("\n");
+          printtype(GET_ENTITY(curr_exec_object->value.listvalue->obj)->name_list->next->next->obj->value.objvalue->type_of);
+          printf("\n"); */
+          /* The element type of the result is the type of the 3rd formal parameter */
+          result_element_type = GET_ENTITY(curr_exec_object->value.listvalue->obj)->
+                                name_list->next->next->obj->value.objvalue->type_of;
+          if (TEMP_OBJECT(element) && element->type_of == result_element_type) {
             CLEAR_TEMP_FLAG(element);
             SET_VAR_FLAG(element);
             memcpy(elem_to, element, sizeof(objectrecord));
             FREE_OBJECT(element);
             arg_3(arguments) = NULL;
           } else {
-            if (!any_var_initialisation(elem_to, element)) {
+            if (!any_var_initialisation(result_element_type, elem_to, element)) {
               FREE_ARRAY(result, result_size);
               return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
             } /* if */
           } /* if */
           position = 1;
           while (position < result_size) {
-            if (!any_var_initialisation(&elem_to[position], elem_to)) {
+            if (!any_var_initialisation(result_element_type, &elem_to[position], elem_to)) {
               /* When one create fails (mostly no memory) all elements */
               /* created up to this point must be destroyed to recycle */
               /* the memory correct. */

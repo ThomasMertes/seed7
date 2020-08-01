@@ -10807,10 +10807,16 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
       May be raised from the following <tt><a class="type" href="#types_bigInteger">bigInteger</a></tt> operations:</dt><dd>
           <span class="op">!</span>, <span class="op">**</span>, <span class="op">div</span>, <span class="op">rem</span>, <span class="op">mdiv</span>, <span class="op">mod</span>, <span class="func">sqrt</span>, <span class="func">log2</span>.</dd><dt></dl></dd><dt>
     <a name="errors_RANGE_ERROR">RANGE_ERROR</a>:</dt><dd><dl><dt>
+      May be raised from the following <tt><a class="type" href="#types_boolean">boolean</a></tt> operations:</dt><dd>
+          <span class="op">parse</span>, <span class="func">rand</span>.</dd><dt>
       May be raised from the following <tt><a class="type" href="#types_integer">integer</a></tt> operations:</dt><dd>
-          <span class="op">parse</span>, <span class="func">str</span>, <span class="func">rand</span>.</dd><dt>
+          <span class="op">parse</span>, <span class="op">radix</span>, <span class="op">RADIX</span>, <span class="func">rand</span>.</dd><dt>
       May be raised from the following <tt><a class="type" href="#types_bigInteger">bigInteger</a></tt> operations:</dt><dd>
-          <span class="op">parse</span>, <span class="func">str</span>, <span class="func">rand</span>, <span class="func">ord</span>, <span class="func">bitLength</span>.</dd><dt>
+          <span class="op">parse</span>, <span class="op">radix</span>, <span class="op">RADIX</span>, <span class="func">rand</span>, <span class="func">ord</span>, <span class="func">bitLength</span>, <span class="func">modInverse</span>.</dd><dt>
+      May be raised from the following <tt><a class="type" href="#types_rational">rational</a></tt> operations:</dt><dd>
+          <span class="op">parse</span>.</dd><dt>
+      May be raised from the following <tt><a class="type" href="#types_bigRational">bigRational</a></tt> operations:</dt><dd>
+          <span class="op">parse</span>.</dd><dt>
       May be raised from the following <tt><a class="type" href="#types_float">float</a></tt> operations:</dt><dd>
           <span class="op">parse</span>, <span class="func">rand</span>.</dd><dt>
       May be raised from the following <tt><a class="type" href="#types_char">char</a></tt> operations:</dt><dd>
@@ -10823,6 +10829,10 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
           <span class="op">[</span>, <span class="op">times</span>, <span class="func">remove</span>, <span class="func">rand</span>.</dd><dt>
       May be raised from the following <tt><a class="type" href="#types_hash">hash</a></tt> operations:</dt><dd>
           <span class="op">[</span>.</dd><dt>
+      May be raised from the following <tt><a class="type" href="#types_category">category</a></tt> operations:</dt><dd>
+          <span class="op">parse</span>.</dd><dt>
+      May be raised from the following <tt><a class="type" href="#types_ref_list">ref_list</a></tt> operations:</dt><dd>
+          <span class="op">[</span>, <span class="op">@:=</span>, <span class="func">pos</span>.</dd><dt>
       May be raised from the following <tt><a class="type" href="#types_file">file</a></tt> operations:</dt><dd>
           <span class="func">open</span>, <span class="func">write</span>, <span class="func">gets</span>, <span class="func">length</span>, <span class="func">seek</span>, <span class="func">tell</span>.</dd><dt></dl></dd><dt>
     <a name="errors_FILE_ERROR">FILE_ERROR</a>:</dt><dd><dl><dt>
@@ -10830,7 +10840,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
           <a class="func" href="#os_fileSize">fileSize</a>, <a class="func" href="#os_fileSize">bigFileSize</a>, <a class="func" href="#os_fileType">fileType</a>, <a class="func" href="#os_fileType">fileTypeSL</a>, <a class="func" href="#os_fileMode">fileMode</a>, <a class="func" href="#os_setFileMode">setFileMode</a>,
           <a class="func" href="#os_readDir">readDir</a>, <a class="func" href="#os_removeFile">removeFile</a>, <a class="func" href="#os_removeAnyFile">removeAnyFile</a>, <a class="func" href="#os_moveFile">moveFile</a>, <a class="func" href="#os_cloneFile">cloneFile</a>, <a class="func" href="#os_copyFile">copyFile</a>,
           <a class="func" href="#os_readlink">readlink</a>, <a class="func" href="#os_symlink">symlink</a>, hasNext, seek, tell, bigTell, setbuf, write,
-          inetSocketAddress, openInetSocket, openInetListener</dd><dt></dl></dd><dt>
+          <span class="func">inetSocketAddress</span>, <span class="func">inetListenerAddress</span>, <span class="func">openInetSocket</span>, <span class="func">openInetListener</span>.</dd><dt></dl></dd><dt>
     <a name="errors_ILLEGAL_ACTION">ILLEGAL_ACTION</a>:</dt><dd>
       May be raised by the interpreter kernel when a primitive action
       does not point to any legal action. This check is only done when
@@ -10954,9 +10964,7 @@ Program received signal SIGFPE, Arithmetic exception.
     This error message is displayed after the compile time error 1
     (Out of heap space) . The file name and line number of the
     analyzer source code where this happens is displayed together
-    with internal heap information. If this happens the -m option
-    can be used to make more memory available. Perhaps this slows
-    the compilation phase down.</dd><dt>
+    with internal heap information.</dd><dt>
 
   System declaration for main missing</dt><dd>
     Each program must contain a system declaration that describes

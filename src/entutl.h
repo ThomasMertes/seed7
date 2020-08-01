@@ -25,29 +25,18 @@
 /*                                                                  */
 /********************************************************************/
 
-typedef struct entrootstruct {
-    entitytype literal;
-  } entroottype;
-
-EXTERN entroottype entity;
-
-typedef struct propertyrootstruct {
-    propertytype literal;
-  } propertyroottype;
-
-EXTERN propertyroottype property;
-
 #ifdef ANSI_C
 
 nodetype find_node (register nodetype node_tree,
     register objecttype object_searched);
 void init_declaration_root (progtype currentProg, errinfotype *err_info);
 void close_declaration_root (progtype currentProg);
-void free_entity (entitytype old_entity);
+void free_entity (const_progtype currentProg, entitytype old_entity);
 entitytype get_entity (nodetype declaration_base, listtype name_list);
 entitytype find_entity (nodetype declaration_base, listtype name_list);
 entitytype search_entity (const_nodetype start_node, const_listtype name_list);
-void pop_entity (nodetype declaration_base, const_entitytype ent);
+void pop_entity (nodetype declaration_base, const_entitytype entity);
+void close_entity (progtype currentProg);
 void init_entity (errinfotype *err_info);
 
 #else
@@ -60,6 +49,7 @@ entitytype get_entity ();
 entitytype find_entity ();
 entitytype search_entity ();
 void pop_entity ();
+void close_entity ();
 void init_entity ();
 
 #endif

@@ -1981,6 +1981,27 @@ const proc: prepare_struct_result (in type: struct_type, inout expr_type: c_expr
   end func;
 
 
+const proc: prepare_prog_result (inout expr_type: c_expr) is func
+
+  begin
+    incr(c_expr.temp_num);
+    c_expr.result_temp := "tmp_";
+    c_expr.result_temp &:= str(c_expr.temp_num);
+    c_expr.result_decl := "progtype tmp_";
+    c_expr.result_decl &:= str(c_expr.temp_num);
+    c_expr.result_decl &:= " = NULL;\n";
+    c_expr.result_free := "prgDestr(tmp_";
+    c_expr.result_free &:= str(c_expr.temp_num);
+    c_expr.result_free &:= ");\n";
+    c_expr.result_to_null := c_expr.result_temp;
+    c_expr.result_to_null &:= " = NULL;\n";
+    c_expr.result_intro := "(tmp_";
+    c_expr.result_intro &:= str(c_expr.temp_num);
+    c_expr.result_intro &:= "=";
+    c_expr.result_finish := ")";
+  end func;
+
+
 const proc: prepare_win_result (inout expr_type: c_expr) is func
 
   begin
@@ -12233,15 +12254,16 @@ const proc: process_prg_fil_parse (in ref_list: params, inout expr_type: c_expr)
 
   begin
     compilerLibraryUsed := TRUE;
-    c_expr.expr &:= "prgFilParse(";
-    getAnyParamToExpr(params[1], c_expr);
-    c_expr.expr &:= ", ";
-    getAnyParamToExpr(params[2], c_expr);
-    c_expr.expr &:= ", ";
-    getAnyParamToExpr(params[3], c_expr);
-    c_expr.expr &:= ", ";
-    getAnyParamToExpr(params[4], c_expr);
-    c_expr.expr &:= ")";
+    prepare_prog_result(c_expr);
+    c_expr.result_expr := "prgFilParse(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    getAnyParamToResultExpr(params[2], c_expr);
+    c_expr.result_expr &:= ", ";
+    getAnyParamToResultExpr(params[3], c_expr);
+    c_expr.result_expr &:= ", ";
+    getAnyParamToResultExpr(params[4], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 
@@ -12298,15 +12320,16 @@ const proc: process_prg_str_parse (in ref_list: params, inout expr_type: c_expr)
 
   begin
     compilerLibraryUsed := TRUE;
-    c_expr.expr &:= "prgStrParse(";
-    getAnyParamToExpr(params[1], c_expr);
-    c_expr.expr &:= ", ";
-    getAnyParamToExpr(params[2], c_expr);
-    c_expr.expr &:= ", ";
-    getAnyParamToExpr(params[3], c_expr);
-    c_expr.expr &:= ", ";
-    getAnyParamToExpr(params[4], c_expr);
-    c_expr.expr &:= ")";
+    prepare_prog_result(c_expr);
+    c_expr.result_expr := "prgStrParse(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    getAnyParamToResultExpr(params[2], c_expr);
+    c_expr.result_expr &:= ", ";
+    getAnyParamToResultExpr(params[3], c_expr);
+    c_expr.result_expr &:= ", ";
+    getAnyParamToResultExpr(params[4], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 

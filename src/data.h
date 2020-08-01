@@ -181,7 +181,10 @@ typedef struct entitystruct {
     identtype ident;
     objecttype syobject;
     listtype name_list;
-    ownertype owner;
+    union {
+      ownertype owner;
+      entitytype next;
+    } data;
   } entityrecord;
 
 typedef struct ownerstruct {
@@ -367,6 +370,15 @@ typedef struct {
     identtype action;
   } findidtype;
 
+typedef struct entrootstruct {
+    entitytype literal;
+    entitytype inactive_list;
+  } entroottype;
+
+typedef struct propertyrootstruct {
+    propertytype literal;
+  } propertyroottype;
+
 typedef struct progstruct {
     uinttype usage_count;
     objecttype main_object;
@@ -378,6 +390,8 @@ typedef struct progstruct {
     unsigned int error_count;
     idroottype ident;
     findidtype id_for;
+    entroottype entity;
+    propertyroottype property;
     systype sys_var;
     nodetype declaration_root;
     stacktype stack_global;

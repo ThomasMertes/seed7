@@ -197,7 +197,7 @@ listtype elem_list;
         } /* if */
       } /* if */
 #ifdef OUT_OF_ORDER
-      if (GET_ENTITY(elem_list->obj) == entity.literal) {
+      if (GET_ENTITY(elem_list->obj) == prog.entity.literal) {
         if (CATEGORY_OF_OBJ(elem_list->obj) != EXPROBJECT) {
           err_object(IDENT_EXPECTED, elem_list->obj);
         } /* if */

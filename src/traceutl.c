@@ -702,7 +702,7 @@ objecttype anyobject;
     printf("BEGIN printvalue\n");
 #endif
     if (HAS_ENTITY(anyobject) &&
-        GET_ENTITY(anyobject) != entity.literal &&
+        GET_ENTITY(anyobject) != prog.entity.literal &&
         GET_ENTITY(anyobject)->ident != NULL) {
       prot_cstri(id_string(GET_ENTITY(anyobject)->ident));
     } else {
@@ -1197,10 +1197,10 @@ identtype anyident;
     if (anyident != NULL) {
       list_ident_names(anyident->next1);
       if (anyident->entity != NULL) {
-        if (anyident->entity->owner != NULL) {
+        if (anyident->entity->data.owner != NULL) {
           prot_cstri(id_string(anyident));
           prot_cstri(" is ");
-          printobject(anyident->entity->owner->obj);
+          printobject(anyident->entity->data.owner->obj);
           prot_nl();
         } /* if */
       } /* if */
@@ -1240,8 +1240,8 @@ nodetype anynode;
       } /* if */
       prot_cstri(" is ");
       if (anynode->entity != NULL) {
-        if (anynode->entity->owner != NULL) {
-          printobject(anynode->entity->owner->obj);
+        if (anynode->entity->data.owner != NULL) {
+          printobject(anynode->entity->data.owner->obj);
         } else {
           prot_cstri(" *NULL_ENTITY_OBJECTS* ");
         } /* if */
@@ -1337,10 +1337,10 @@ char *buffer;
         strcat(buffer, obj_ptr(anynode->match_obj));
         strcat(buffer, ">");
         if (anynode->entity != NULL) {
-          if (anynode->entity->owner != NULL) {
+          if (anynode->entity->data.owner != NULL) {
             prot_cstri(buffer);
             prot_cstri(" is ");
-            printobject(anynode->entity->owner->obj);
+            printobject(anynode->entity->data.owner->obj);
             prot_nl();
           } /* if */
         } /* if */
@@ -1408,10 +1408,10 @@ void trace_nodes ()
           char_class(character) == LEFTPARENCHAR ||
           char_class(character) == PARENCHAR) {
         if (prog.ident.table1[character]->entity != NULL) {
-          if (prog.ident.table1[character]->entity->owner != NULL) {
+          if (prog.ident.table1[character]->entity->data.owner != NULL) {
             prot_cstri(id_string(prog.ident.table1[character]));
             prot_cstri(" is ");
-            printobject(prog.ident.table1[character]->entity->owner->obj);
+            printobject(prog.ident.table1[character]->entity->data.owner->obj);
             prot_nl();
           } /* if */
         } /* if */
@@ -1667,8 +1667,8 @@ entitytype anyentity;
       prot_cstri("anyentity->params ");
       prot_list(anyentity->name_list);
       prot_cstri("\n");
-      prot_cstri("anyentity->owner ");
-      prot_owner(anyentity->owner);
+      prot_cstri("anyentity->data.owner ");
+      prot_owner(anyentity->data.owner);
       prot_cstri("\n");
     } else {
       prot_cstri("anyentity is NULL\n");

@@ -42,6 +42,7 @@
 #include "chclsutl.h"
 #include "identutl.h"
 #include "entutl.h"
+#include "listutl.h"
 #include "fatal.h"
 #include "scanner.h"
 #include "parser.h"
@@ -390,6 +391,7 @@ nodetype objects;
           err_object(EXCEPTION_RAISED, fail_value);
           fail_flag = FALSE;
         } /* if */
+        free_expression(decl_expression);
         if (current_ident == prog.id_for.semicolon) {
           scan_symbol();
         } /* if */
@@ -498,6 +500,7 @@ errinfotype *err_info;
       FREE_RECORD(resultProg, progrecord, count.prog);
       resultProg = NULL;
     } else {
+      /* printf("analyze_prog: new progrecord: %lx\n", resultProg); */
       source_file_argument_copy->size = source_file_argument->size;
       memcpy(source_file_argument_copy->mem, source_file_argument->mem,
           source_file_argument->size * sizeof(strelemtype));
@@ -531,9 +534,9 @@ errinfotype *err_info;
           trace1(SYS_MAIN_OBJECT);
           printf("\n"); */
           if (HAS_ENTITY(SYS_MAIN_OBJECT)) {
-            if (GET_ENTITY(SYS_MAIN_OBJECT)->owner != NULL) {
-              if (GET_ENTITY(SYS_MAIN_OBJECT)->owner->obj != NULL) {
-                resultProg->main_object = GET_ENTITY(SYS_MAIN_OBJECT)->owner->obj;
+            if (GET_ENTITY(SYS_MAIN_OBJECT)->data.owner != NULL) {
+              if (GET_ENTITY(SYS_MAIN_OBJECT)->data.owner->obj != NULL) {
+                resultProg->main_object = GET_ENTITY(SYS_MAIN_OBJECT)->data.owner->obj;
                 if ((resultProg->main_object = match_object(resultProg->main_object)) != NULL) {
 /*                  printf("main after match_object: ");
                   trace1(resultProg->main_object);
@@ -555,8 +558,6 @@ errinfotype *err_info;
             printf("*** GET_ENTITY(SYS_MAIN_OBJECT) == NULL\n");
           } /* if */
         } /* if */
-        /* close_stack(&prog); * can be used when no matching is done during the runtime */
-        /* close_declaration_root(&prog); * can be used when no matching is done during the runtime */
         if (options & SHOW_IDENT_TABLE) {
           write_idents();
         } /* if */
@@ -564,10 +565,13 @@ errinfotype *err_info;
         resultProg->arg0             = source_file_argument_copy;
         resultProg->program_name     = getProgramName(source_file_argument);
         resultProg->program_path     = getProgramPath(source_name);
+        resultProg->arg_v            = NULL;
         resultProg->option_flags     = prog.option_flags;
         resultProg->error_count      = prog.error_count;
         memcpy(&resultProg->ident,    &prog.ident, sizeof(idroottype));
         memcpy(&resultProg->id_for,   &prog.id_for, sizeof(findidtype));
+        memcpy(&resultProg->entity,   &prog.entity, sizeof(entroottype));
+        memcpy(&resultProg->property, &prog.property, sizeof(propertyroottype));
         memcpy(&resultProg->sys_var,  &prog.sys_var, sizeof(systype));
         resultProg->declaration_root = prog.declaration_root;
         resultProg->stack_global     = prog.stack_global;

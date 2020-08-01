@@ -94,7 +94,6 @@ const func listener: openInetListener (in integer: portNumber) is func
  *)
 const proc: close (inout inetListener: aListener) is func
   local
-    var array file: managedFiles is 0 times STD_NULL;
     var file: aFile is STD_NULL;
   begin
     close(aListener.sock);
