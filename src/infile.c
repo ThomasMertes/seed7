@@ -203,7 +203,7 @@ void open_infile (const_striType source_file_name, boolType write_library_names,
     os_path = cp_to_os_path(source_file_name, &path_info, err_info);
     if (likely(*err_info == OKAY_NO_ERROR)) {
       in_fil = os_fopen(os_path, os_mode_rb);
-      /* printf("fopen(\"%s\") ==> %lu\n", os_path, in_fil); */
+      /* printf("fopen(\"" FMT_S_OS "\") ==> %lu\n", os_path, in_fil); */
       os_stri_free(os_path);
       if (in_fil == NULL) {
         *err_info = FILE_ERROR;

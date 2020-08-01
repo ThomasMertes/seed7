@@ -199,6 +199,11 @@ const func string: getMacroParameter (in string: stri, inout integer: pos,
         parameter &:= "(";
         parameter &:= getMacroParameter(stri, pos, ')');
         parameter &:= ")";
+      elsif stri[pos] = '{' then
+        incr(pos);
+        parameter &:= "{";
+        parameter &:= getMacroParameter(stri, pos, '}');
+        parameter &:= "}";
       else
         parameter &:= stri[pos];
       end if;
@@ -296,6 +301,22 @@ const func string: patsubst (in stringHash: macros, in string: parameters,
   end func;
 
 
+const func string: wildcard (in stringHash: macros, in string: parameters,
+    in boolean: leaveUndefMacros) is func
+  result
+    var string: funcResult is "";
+  local
+    var string: evaluatedParam is "";
+    var array string: matches is 0 times "";
+  begin
+    evaluatedParam := applyMacros(macros, parameters, leaveUndefMacros);
+    matches := findMatchingFiles(evaluatedParam);
+    if length(matches) <> 0 then
+      funcResult := join(matches, ' ');
+    end if;
+  end func;
+
+
 const func string: applyMacros (in stringHash: macros, in string: stri,
     in boolean: leaveUndefMacros) is func
   result
@@ -305,79 +326,76 @@ const func string: applyMacros (in stringHash: macros, in string: stri,
     var integer: closeParenPos is 0;
     var string: parameter is "";
     var string: name is "";
+    var string: macroValue is "";
     var boolean: done is FALSE;
   begin
     # writeln("applyMacros(macros, " <& literal(stri) <& ", " <& leaveUndefMacros <& ")");
     applied := stri;
     dollarPos := pos(applied, '$');
     while dollarPos <> 0 do
-      if dollarPos < length(applied) then
-        if applied[succ(dollarPos)] in {'(', '{'} then
-          if applied[succ(dollarPos)] = '(' then
-            closeParenPos := pos(applied, ')', dollarPos + 2);
+      if applied[succ(dollarPos)] in {'(', '{'} then
+        closeParenPos := dollarPos + 2;
+        if applied[succ(dollarPos)] = '(' then
+          parameter := getMacroParameter(applied, closeParenPos, ')');
+        else
+          parameter := getMacroParameter(applied, closeParenPos, '}');
+        end if;
+        if closeParenPos <= length(applied) then
+          name := getMacroName(parameter);
+          done := FALSE;
+          if parameter = "" then
+            if name in macros then
+              macroValue := applyMacros(macros, macros[name], leaveUndefMacros);
+              done := TRUE;
+            end if;
+          elsif parameter[1] = ':' then
+            if name in macros then
+              macroValue := replaceSuffixes(macros, macros[name],
+                                            parameter[2 ..], leaveUndefMacros);
+              done := TRUE;
+            end if;
+          elsif parameter[1] = ' ' then
+            skipSpaceOrTab(parameter);
+            if name = "strip" then
+              macroValue := strip(macros, parameter, leaveUndefMacros);
+              done := TRUE;
+            elsif name = "subst" then
+              macroValue := subst(macros, parameter, leaveUndefMacros);
+              done := TRUE;
+            elsif name = "patsubst" then
+              macroValue := patsubst(macros, parameter, leaveUndefMacros);
+              done := TRUE;
+            elsif name = "wildcard" then
+              macroValue := wildcard(macros, parameter, leaveUndefMacros);
+              done := TRUE;
+            elsif name = "error" then
+              writeln(" *** Error: " <& applyMacros(macros, parameter, FALSE));
+              raise FILE_ERROR;
+            elsif name = "warning" then
+              writeln(applyMacros(macros, parameter, FALSE));
+              macroValue := "";
+              done := TRUE;
+            end if;
+          end if;
+          if done then
+            applied := applied[.. pred(dollarPos)] &
+                       macroValue &
+                       applied[succ(closeParenPos) ..];
+          elsif leaveUndefMacros then
+            incr(dollarPos);
           else
-            closeParenPos := pos(applied, '}', dollarPos + 2);
+            applied := applied[.. pred(dollarPos)] &
+                       applied[succ(closeParenPos) ..];
           end if;
-          if closeParenPos <> 0 then
-            parameter := applied[dollarPos + 2 .. pred(closeParenPos)];
-            name := getMacroName(parameter);
-            done := FALSE;
-            if parameter = "" then
-              if name in macros then
-                applied := applied[.. pred(dollarPos)] &
-                           applyMacros(macros, macros[name], leaveUndefMacros) &
-                           applied[succ(closeParenPos) ..];
-                done := TRUE;
-              end if;
-            elsif parameter[1] = ':' then
-              if name in macros then
-                applied := applied[.. pred(dollarPos)] &
-                           replaceSuffixes(macros, macros[name],
-                                           parameter[2 ..], leaveUndefMacros) &
-                           applied[succ(closeParenPos) ..];
-                done := TRUE;
-              end if;
-            elsif parameter[1] = ' ' then
-              skipSpaceOrTab(parameter);
-              if name = "strip" then
-                applied := applied[.. pred(dollarPos)] &
-                           strip(macros, parameter, leaveUndefMacros) &
-                           applied[succ(closeParenPos) ..];
-                done := TRUE;
-              elsif name = "subst" then
-                applied := applied[.. pred(dollarPos)] &
-                           subst(macros, parameter, leaveUndefMacros) &
-                           applied[succ(closeParenPos) ..];
-                done := TRUE;
-              elsif name = "patsubst" then
-                applied := applied[.. pred(dollarPos)] &
-                           patsubst(macros, parameter, leaveUndefMacros) &
-                           applied[succ(closeParenPos) ..];
-                done := TRUE;
-              end if;
-            end if;
-            if not (done or leaveUndefMacros) then
-              applied := applied[.. pred(dollarPos)] & applied[succ(closeParenPos) ..];
-            end if;
-          end if;
-        elsif applied[succ(dollarPos)] = '$' then
+        else
           incr(dollarPos);
         end if;
+      elsif applied[succ(dollarPos)] = '$' then
+        dollarPos +:= 2;
+      else
+        incr(dollarPos);
       end if;
-      dollarPos := pos(applied, '$', succ(dollarPos));
-    end while;
-  end func;
-
-
-const func string: getMacroName (inout file: makefile) is func
-  result
-    var string: symbol is "";
-  begin
-    symbol := str(makefile.bufferChar);
-    makefile.bufferChar := getc(makefile);
-    while makefile.bufferChar in macro_name_char do
-      symbol &:= makefile.bufferChar;
-      makefile.bufferChar := getc(makefile);
+      dollarPos := pos(applied, '$', dollarPos);
     end while;
   end func;
 
@@ -392,6 +410,11 @@ const func string: getMacroParameter (inout file: makefile, in char: delimiter) 
         makefile.bufferChar := getc(makefile);
         parameter &:= getMacroParameter(makefile, ')');
         parameter &:= ")";
+      elsif makefile.bufferChar = '{' then
+        parameter &:= "{";
+        makefile.bufferChar := getc(makefile);
+        parameter &:= getMacroParameter(makefile, '}');
+        parameter &:= "}";
       else
         parameter &:= makefile.bufferChar;
       end if;
@@ -400,119 +423,7 @@ const func string: getMacroParameter (inout file: makefile, in char: delimiter) 
   end func;
 
 
-const func string: evalFunction (inout file: makefile, in stringHash: macros,
-    in string: funcName) is func
-  result
-    var string: funcResult is "";
-  local
-    var array string: matches is 0 times "";
-    var string: parameter is "";
-    var string: evaluatedParam is "";
-    var string: from is "";
-    var string: pattern is "";
-    var string: replacement is "";
-  begin
-    skipSpaceOrTab(makefile);
-    if funcName = "wildcard" then
-      matches := findMatchingFiles(getMacroName(makefile));
-      if length(matches) <> 0 then
-        funcResult := join(matches, ' ');
-      end if;
-    elsif funcName = "strip" then
-      parameter := getMacroParameter(makefile, ')');
-      funcResult := replace(applyMacros(macros, parameter, TRUE), "\t", " ");
-      funcResult := replaceN(funcResult, "  ", " ");
-      funcResult := trim(funcResult);
-    elsif funcName = "subst" then
-      from := getMacroParameter(makefile, ',');
-      if makefile.bufferChar = ',' then
-        makefile.bufferChar := getc(makefile);
-        replacement := getMacroParameter(makefile, ',');
-        if makefile.bufferChar = ',' then
-          makefile.bufferChar := getc(makefile);
-          parameter := getMacroParameter(makefile, ')');
-          evaluatedParam := applyMacros(macros, parameter, TRUE);
-          funcResult := replace(evaluatedParam, from, replacement);
-        else
-          funcResult := "$(subst " & from & "," & replacement;
-        end if;
-      else
-        funcResult := "$(subst " & from;
-      end if;
-    elsif funcName = "patsubst" then
-      pattern := getMacroParameter(makefile, ',');
-      if makefile.bufferChar = ',' then
-        makefile.bufferChar := getc(makefile);
-        replacement := getMacroParameter(makefile, ',');
-        if makefile.bufferChar = ',' then
-          makefile.bufferChar := getc(makefile);
-          parameter := getMacroParameter(makefile, ')');
-          evaluatedParam := applyMacros(macros, parameter, TRUE);
-          funcResult := patternSubstitute(evaluatedParam, pattern, replacement);
-        else
-          funcResult := "$(patsubst " & pattern & "," & replacement;
-        end if;
-      else
-        funcResult := "$(patsubst " & pattern;
-      end if;
-    else
-      funcResult := "$(" & funcName & " ";
-    end if;
-    skipSpaceOrTab(makefile);
-    if makefile.bufferChar = ')' then
-      makefile.bufferChar := getc(makefile);
-    end if;
-  end func;
-
-
-const func string: getMacro (inout file: makefile, in stringHash: macros) is func
-  result
-    var string: macro is "";
-  local
-    var string: name is "";
-    var string: suffix is "";
-    var string: replacement is "";
-  begin
-    makefile.bufferChar := getc(makefile);
-    if makefile.bufferChar = '(' then
-      makefile.bufferChar := getc(makefile);
-      name := getMacroName(makefile);
-      if makefile.bufferChar = ')' then
-        makefile.bufferChar := getc(makefile);
-        if name in macros then
-          macro := macros[name];
-        else
-          macro := "$(" & name & ")";
-        end if;
-      elsif makefile.bufferChar = ':' then
-        makefile.bufferChar := getc(makefile);
-        suffix := getMacroName(makefile);
-        if makefile.bufferChar = '=' then
-          makefile.bufferChar := getc(makefile);
-          replacement := getMacroName(makefile);
-          if makefile.bufferChar = ')' then
-            makefile.bufferChar := getc(makefile);
-            if name in macros then
-              macro := replaceSuffixes(macros[name], suffix, replacement);
-            else
-              macro := "$(" & name & ":" & suffix & "=" & replacement & ")";
-            end if;
-          else
-            macro := "$(" & name & ":" & suffix & "=" & replacement;
-          end if;
-        else
-          macro := "$(" & name & ":" & suffix;
-        end if;
-      elsif makefile.bufferChar in space_or_tab then
-        macro := evalFunction(makefile, macros, name);
-      end if;
-    else
-      macro := "$";
-    end if;
-  end func;
-
-
-const func string: getLine (inout makeDataType: makeData, in boolean: applyMacros) is func
+const func string: getLine (inout makeDataType: makeData) is func
   result
     var string: data is "";
   local
@@ -548,8 +459,6 @@ const func string: getLine (inout makeDataType: makeData, in boolean: applyMacro
         else
           data &:= '\\';
         end if;
-      elsif makefile.bufferChar = '$' and applyMacros then
-        data &:= getMacro(makefile, makeData.macros);
       else
         data &:= makefile.bufferChar;
         makefile.bufferChar := getc(makefile);
@@ -637,19 +546,6 @@ const proc: execIf (inout file: makefile, in stringHash: macros) is func
   end func;
 
 
-const func string: getExpression (inout file: makefile, in stringHash: macros) is func
-  result
-    var string: exprResult is "";
-  begin
-    skipSpaceOrTab(makefile);
-    if makefile.bufferChar = '$' then
-      exprResult := getMacro(makefile, macros);
-    else
-      exprResult := getName(makefile);
-    end if;
-  end func;
-
-
 const proc: find_endif (inout file: makefile) is func
   local
     var string: command is "";
@@ -682,26 +578,29 @@ const proc: find_endif_or_else (inout file: makefile) is func
 
 const proc: execIfeq (inout file: makefile, in stringHash: macros, in boolean: equal) is func
   local
+    var string: parameter is "";
     var string: value1 is "";
     var string: value2 is "";
-    var boolean: cond is FALSE;
-    var string: command is "";
   begin
     # writeln("ifeq");
     if makefile.bufferChar = '(' then
       makefile.bufferChar := getc(makefile);
-      value1 := getExpression(makefile, macros);
+      parameter := getMacroParameter(makefile, ',');
+      value1 := applyMacros(macros, parameter, TRUE);
       # writeln("value1=" <& literal(value1));
       skipSpaceOrTab(makefile);
       if makefile.bufferChar = ',' then
         makefile.bufferChar := getc(makefile);
-        value2 := getExpression(makefile, macros);
+        parameter := getMacroParameter(makefile, ')');
+        value2 := applyMacros(macros, parameter, TRUE);
         # writeln("value2=" <& literal(value2));
-        skipLine(makefile);
-        makefile.bufferChar := getc(makefile);
-        if (value1 = value2) <> equal then
-          # writeln("skip");
-          find_endif_or_else(makefile);
+        if makefile.bufferChar = ')' then
+          skipLine(makefile);
+          makefile.bufferChar := getc(makefile);
+          if (value1 = value2) <> equal then
+            # writeln("skip");
+            find_endif_or_else(makefile);
+          end if;
         end if;
       end if;
     end if;
@@ -747,7 +646,7 @@ const proc: readRule (inout makeDataType: makeData, in string: name) is func
     makefile := makeData.makefile;
     rule.name := name;
     skipSpaceOrTab(makefile);
-    dependencies := getLine(makeData, TRUE);
+    dependencies := applyMacros(makeData.macros, getLine(makeData), TRUE);
     # write(name <& ":");
     while dependencies <> "" do
       dependency := getDependency(dependencies);
@@ -767,7 +666,7 @@ const proc: readRule (inout makeDataType: makeData, in string: name) is func
       if makefile.bufferChar = '#' then
         skipLineComment(makefile);
       elsif makefile.bufferChar <> '\n' then
-        command := getLine(makeData, FALSE);
+        command := getLine(makeData);
         rule.commands &:= [] (command);
         # writeln("\t" <& command);
       end if;
@@ -838,8 +737,7 @@ const proc: readMakefile (inout makeDataType: makeData) is func
         if makefile.bufferChar = '=' then
           makefile.bufferChar := getc(makefile);
           skipSpace(makefile);
-          data := getLine(makeData, TRUE);
-          makeData.macros @:= [name] data;
+          makeData.macros @:= [name] getLine(makeData);
           # writeln(name <& " = " <& data);
           makefile.bufferChar := getc(makefile);
         elsif makefile.bufferChar = '+' then
@@ -847,7 +745,7 @@ const proc: readMakefile (inout makeDataType: makeData) is func
           if makefile.bufferChar = '=' then
             makefile.bufferChar := getc(makefile);
             skipSpace(makefile);
-            data := getLine(makeData, TRUE);
+            data := applyMacros(makeData.macros, getLine(makeData), TRUE);
             if name in makeData.macros then
               makeData.macros @:= [name] makeData.macros[name] & data;
             else
@@ -861,7 +759,7 @@ const proc: readMakefile (inout makeDataType: makeData) is func
           if makefile.bufferChar = '=' then
             makefile.bufferChar := getc(makefile);
             skipSpace(makefile);
-            data := getLine(makeData, TRUE);
+            data := applyMacros(makeData.macros, getLine(makeData), FALSE);
             makeData.macros @:= [name] data;
             # writeln(name <& " := " <& data);
             makefile.bufferChar := getc(makefile);
@@ -918,7 +816,7 @@ const proc: includeMakefile (inout makeDataType: makeData, in boolean: ignoreErr
     var file: surroundingFile is STD_NULL;
   begin
     skipSpace(makeData.makefile);
-    includeFiles := getLine(makeData, TRUE);
+    includeFiles := applyMacros(makeData.macros, getLine(makeData), TRUE);
     makeData.makefile.bufferChar := getc(makeData.makefile);
     while includeFiles <> "" do
       fileName := getWord(includeFiles);

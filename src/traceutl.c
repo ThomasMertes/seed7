@@ -137,6 +137,19 @@ void prot_cstri (const_cstriType stri)
 
 
 
+void prot_cchar (char ch)
+
+  {
+    char buffer[2];
+
+  /* prot_cchar */
+    buffer[0] = ch;
+    buffer[1] = '\0';
+    prot_cstri(buffer);
+  } /* prot_char */
+
+
+
 void prot_writeln (const_cstriType stri)
 
   { /* prot_writeln */
@@ -185,7 +198,7 @@ void prot_float (floatType floatValue)
 
 
 
-static void prot_char (charType cvalue)
+void prot_char (charType cvalue)
 
   {
     char buffer[51];
@@ -1626,7 +1639,7 @@ void set_protfile_name (const const_striType protfile_name)
     if (protfile_name != NULL && protfile_name->size != 0) {
       os_protfile_name = cp_to_os_path(protfile_name, &path_info, &err_info);
       if (err_info == OKAY_NO_ERROR) {
-        if (protfile != NULL) {
+        if (protfile != NULL && protfile != stdout) {
           fclose(protfile);
         } /* if */
         protfile = os_fopen(os_protfile_name, os_mode);

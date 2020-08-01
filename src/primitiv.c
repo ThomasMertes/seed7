@@ -253,6 +253,7 @@ static primActRecord prim_act_table[] = {
     { "CMD_SET_ATIME",           cmd_set_atime,           },
     { "CMD_SET_FILEMODE",        cmd_set_filemode,        },
     { "CMD_SET_MTIME",           cmd_set_mtime,           },
+    { "CMD_SET_SEARCH_PATH",     cmd_setSearchPath,       },
     { "CMD_SHELL",               cmd_shell,               },
     { "CMD_SHELL_ESCAPE",        cmd_shell_escape,        },
     { "CMD_START_PROCESS",       cmd_start_process,       },

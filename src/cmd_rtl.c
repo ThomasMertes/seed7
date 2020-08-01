@@ -888,10 +888,94 @@ void setupStack (void)
 
 
 
+#ifdef os_putenv
+static void setEnvironmentVariable (const const_striType name, const const_striType value,
+    errInfoType *err_info)
+
+  {
+    memSizeType stri_size;
+    striType stri;
+    os_striType env_stri;
+    int putenv_result;
+
+  /* setEnvironmentVariable */
+    if (strChPos(name, (charType) '=') != 0) {
+      /* Putenv() expects a string of the form "name=value". */
+      *err_info = RANGE_ERROR;
+    } else if (unlikely(name->size > MAX_STRI_LEN - value->size - 1)) {
+      /* Number of bytes does not fit into memSizeType. */
+      *err_info = MEMORY_ERROR;
+    } else {
+      stri_size = name->size + value->size + 1;
+      if (unlikely(!ALLOC_STRI_SIZE_OK(stri, stri_size))) {
+        *err_info = MEMORY_ERROR;
+      } else {
+        stri->size = stri_size;
+        memcpy(stri->mem, name->mem,
+            name->size * sizeof(strElemType));
+        stri->mem[name->size] = (strElemType) '=';
+        memcpy(&stri->mem[name->size + 1], value->mem,
+            value->size * sizeof(strElemType));
+        env_stri = stri_to_os_stri(stri, err_info);
+        FREE_STRI(stri, stri->size);
+        if (likely(env_stri != NULL)) {
+          putenv_result = os_putenv(env_stri);
+          os_stri_free(env_stri);
+          if (unlikely(putenv_result != 0)) {
+            logError(printf(" *** setEnvironmentVariable: os_putenv(\"" FMT_S_OS "\") failed:\n"
+                            "errno=%d\nerror: %s\n",
+                            env_stri, errno, strerror(errno)););
+            *err_info = RANGE_ERROR;
+          } /* if */
+        } /* if */
+      } /* if */
+    } /* if */
+  } /* setEnvironmentVariable */
+
+#else
+
+
+
+void setEnvironmentVariable (const const_striType name, const const_striType value,
+    errInfoType *err_info)
+
+  {
+    os_striType env_name;
+    os_striType env_value;
+    int setenv_result;
+    int saved_errno;
+
+  /* setEnvironmentVariable */
+    env_name = stri_to_os_stri(name, err_info);
+    if (likely(*err_info == OKAY_NO_ERROR)) {
+      env_value = stri_to_os_stri(value, err_info);
+      if (likely(*err_info == OKAY_NO_ERROR)) {
+        setenv_result = os_setenv(env_name, env_value, 1);
+        saved_errno = errno;
+        os_stri_free(env_value);
+        if (unlikely(setenv_result != 0)) {
+          logError(printf(" *** setEnvironmentVariable: os_setenv(\"" FMT_S_OS "\", \"" FMT_S_OS "\") failed:\n"
+                          "errno=%d\nerror: %s\n",
+                          env_name, env_value, saved_errno, strerror(saved_errno)););
+          if (saved_errno == ENOMEM) {
+            *err_info = MEMORY_ERROR;
+          } else {
+            *err_info = RANGE_ERROR;
+          } /* if */
+        } /* if */
+      } /* if */
+      os_stri_free(env_name);
+    } /* if */
+  } /* setEnvironmentVariable */
+
+#endif
+
+
+
 static rtlArrayType getSearchPath (errInfoType *err_info)
 
   {
-    static const os_charType path[] = {'P', 'A', 'T', 'H', 0};
+    static const os_charType path_variable[] = {'P', 'A', 'T', 'H', 0};
     os_striType path_environment_variable;
     memSizeType path_length;
     os_striType path_copy;
@@ -907,7 +991,7 @@ static rtlArrayType getSearchPath (errInfoType *err_info)
       path_array->min_position = 1;
       path_array->max_position = INITAL_ARRAY_SIZE;
       used_max_position = 0;
-      path_environment_variable = os_getenv(path);
+      path_environment_variable = os_getenv(path_variable);
       if (path_environment_variable != NULL) {
         path_length = os_stri_strlen(path_environment_variable);
         if (unlikely(!os_stri_alloc(path_copy, path_length))) {
@@ -947,6 +1031,54 @@ static rtlArrayType getSearchPath (errInfoType *err_info)
     } /* if */
     return path_array;
   } /* getSearchPath */
+
+
+
+void setSearchPath (rtlArrayType searchPath, errInfoType *err_info)
+
+  {
+    memSizeType numElements;
+    memSizeType idx;
+    memSizeType length = 0;
+    memSizeType pos;
+    striType pathElement;
+    striType pathStri;
+    striType pathVariableName;
+
+  /* setSearchPath */
+    numElements = arraySize(searchPath);
+    if (numElements != 0) {
+      for (idx = 0; idx < numElements; idx++) {
+        length += searchPath->arr[idx].value.striValue->size;
+      } /* for */
+      length += numElements - 1;
+    } /* if */
+    if (!ALLOC_STRI_SIZE_OK(pathStri, length)) {
+      *err_info = MEMORY_ERROR;
+    } else {
+      pathStri->size = length;
+      if (numElements != 0) {
+        pathElement = searchPath->arr[0].value.striValue;
+        memcpy(pathStri->mem, pathElement->mem, pathElement->size * sizeof(strElemType));
+        pos = pathElement->size;
+        for (idx = 1; idx < numElements; idx++) {
+          pathStri->mem[pos] = (charType) SEARCH_PATH_DELIMITER;
+          pos++;
+          pathElement = searchPath->arr[idx].value.striValue;
+          memcpy(&pathStri->mem[pos], pathElement->mem, pathElement->size * sizeof(strElemType));
+          pos += pathElement->size;
+        } /* for */
+      } /* if */
+      pathVariableName = cstri_to_stri("PATH");
+      if (pathVariableName == NULL) {
+        *err_info = MEMORY_ERROR;
+      } else {
+        setEnvironmentVariable(pathVariableName, pathStri, err_info);
+        FREE_STRI(pathVariableName, pathVariableName->size);
+      } /* if */
+      FREE_STRI(pathStri, pathStri->size);
+    } /* if */
+  } /* setSearchPath */
 
 
 
@@ -2662,7 +2794,6 @@ void cmdRemoveTree (const const_striType filePath)
 
 
 
-#ifdef os_putenv
 /**
  *  Add or change an environment variable.
  *  The function searches the environment for an environment variable
@@ -2678,100 +2809,14 @@ void cmdRemoveTree (const const_striType filePath)
 void cmdSetenv (const const_striType name, const const_striType value)
 
   {
-    memSizeType stri_size;
-    striType stri;
-    os_striType env_stri;
-    int putenv_result;
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* cmdSetenv */
-    if (strChPos(name, (charType) '=') != 0) {
-      /* Putenv() expects a string of the form "name=value". */
-      raise_error(RANGE_ERROR);
-    } else if (unlikely(name->size > MAX_STRI_LEN - value->size - 1)) {
-      /* Number of bytes does not fit into memSizeType. */
-      raise_error(MEMORY_ERROR);
-    } else {
-      stri_size = name->size + value->size + 1;
-      if (unlikely(!ALLOC_STRI_SIZE_OK(stri, stri_size))) {
-        raise_error(MEMORY_ERROR);
-      } else {
-        stri->size = stri_size;
-        memcpy(stri->mem, name->mem,
-            name->size * sizeof(strElemType));
-        stri->mem[name->size] = (strElemType) '=';
-        memcpy(&stri->mem[name->size + 1], value->mem,
-            value->size * sizeof(strElemType));
-        env_stri = stri_to_os_stri(stri, &err_info);
-        FREE_STRI(stri, stri->size);
-        if (unlikely(env_stri == NULL)) {
-          raise_error(err_info);
-        } else {
-          putenv_result = os_putenv(env_stri);
-          os_stri_free(env_stri);
-          if (unlikely(putenv_result != 0)) {
-            logError(printf(" *** cmdSetenv: os_putenv(\"" FMT_S_OS "\") failed:\n"
-                            "errno=%d\nerror: %s\n",
-                            env_stri, errno, strerror(errno)););
-            raise_error(RANGE_ERROR);
-          } /* if */
-        } /* if */
-      } /* if */
-    } /* if */
-  } /* cmdSetenv */
-
-#else
-
-
-
-/**
- *  Add or change an environment variable.
- *  The function searches the environment for an environment variable
- *  with the given 'name'. When such an environment variable exists the
- *  corresponding value is changed to 'value'. When no environment variable
- *  with the given 'name' exists a new environment variable 'name' with
- *  the value 'value' is created.
- *  @exception MEMORY_ERROR Not enough memory to convert 'name' or 'value'
- *             to the system string type.
- *  @exception RANGE_ERROR 'name' or 'value' cannot be converted to the
- *             system string type or a system function returns an error.
- */
-void cmdSetenv (const const_striType name, const const_striType value)
-
-  {
-    os_striType env_name;
-    os_striType env_value;
-    int setenv_result;
-    errInfoType err_info = OKAY_NO_ERROR;
-    int saved_errno;
-
-  /* cmdSetenv */
-    env_name = stri_to_os_stri(name, &err_info);
-    if (likely(err_info == OKAY_NO_ERROR)) {
-      env_value = stri_to_os_stri(value, &err_info);
-      if (likely(err_info == OKAY_NO_ERROR)) {
-        setenv_result = os_setenv(env_name, env_value, 1);
-        saved_errno = errno;
-        os_stri_free(env_value);
-        if (unlikely(setenv_result != 0)) {
-          logError(printf(" *** cmdSetenv: os_setenv(\"" FMT_S_OS "\", \"" FMT_S_OS "\") failed:\n"
-                          "errno=%d\nerror: %s\n",
-                          env_name, env_value, saved_errno, strerror(saved_errno)););
-          if (saved_errno == ENOMEM) {
-            err_info = MEMORY_ERROR;
-          } else {
-            err_info = RANGE_ERROR;
-          } /* if */
-        } /* if */
-      } /* if */
-      os_stri_free(env_name);
-    } /* if */
+    setEnvironmentVariable(name, value, &err_info);
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);
     } /* if */
   } /* cmdSetenv */
-
-#endif
 
 
 
@@ -2941,6 +2986,29 @@ void cmdSetMTime (const const_striType filePath,
       raise_error(err_info);
     } /* if */
   } /* cmdSetMTime */
+
+
+
+/**
+ *  Sets the search path from an array of strings.
+ *  The search path is used by the current process and its sub processes.
+ *  The path of parent processes is not affected by this function.
+ *  @exception MEMORY_ERROR Not enough memory to convert the path
+ *             to the system string type.
+ *  @exception RANGE_ERROR The path cannot be converted to the
+ *             system string type or a system function returns an error.
+ */
+void cmdSetSearchPath (rtlArrayType searchPath)
+
+  {
+    errInfoType err_info = OKAY_NO_ERROR;
+
+  /* cmdSetSearchPath */
+    setSearchPath(searchPath, &err_info);
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
+      raise_error(err_info);
+    } /* if */
+  } /* cmdSetSearchPath */
 
 
 

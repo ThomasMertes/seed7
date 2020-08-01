@@ -1652,7 +1652,7 @@ fileType filPopen (const const_striType command,
 #ifdef POPEN_MISSING
         result = NULL;
 #else
-        /* printf("os_command: \"%s\"\n", os_command); */
+        /* printf("os_command: \"" FMT_S_OS "\"\n", os_command); */
         result = os_popen(os_command, os_mode);
 #endif
       } /* if */

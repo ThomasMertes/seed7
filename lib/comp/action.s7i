@@ -441,6 +441,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(CMD_SET_FILEMODE, function, params, c_expr);
       elsif action_name = "CMD_SET_MTIME" then
         process(CMD_SET_MTIME, function, params, c_expr);
+      elsif action_name = "CMD_SET_SEARCH_PATH" then
+        process(CMD_SET_SEARCH_PATH, function, params, c_expr);
       elsif action_name = "CMD_SHELL" then
         process(CMD_SHELL, function, params, c_expr);
       elsif action_name = "CMD_SHELL_ESCAPE" then

@@ -918,6 +918,34 @@ objectType cmd_set_mtime (listType arguments)
 
 
 /**
+ *  Sets the search path from an array of strings.
+ *  The search path is used by the current process and its sub processes.
+ *  The path of parent processes is not affected by this function.
+ *  @exception MEMORY_ERROR Not enough memory to convert the path
+ *             to the system string type.
+ *  @exception RANGE_ERROR The path cannot be converted to the
+ *             system string type or a system function returns an error.
+ */
+objectType cmd_setSearchPath (listType arguments)
+
+  {
+    rtlArrayType searchPath;
+
+  /* cmd_setSearchPath */
+    isit_array(arg_1(arguments));
+    searchPath = gen_rtl_array(take_array(arg_1(arguments)));
+    if (searchPath == NULL) {
+      return raise_exception(SYS_MEM_EXCEPTION);
+    } else {
+      cmdSetSearchPath(searchPath);
+      FREE_RTL_ARRAY(searchPath, ARRAY_LENGTH(searchPath));
+    } /* if */
+    return SYS_EMPTY_OBJECT;
+  } /* cmd_setSearchPath */
+
+
+
+/**
  *  Use the shell to execute a 'command' with 'parameters'.
  *  Parameters which contain a space must be enclosed in double
  *  quotes (E.g.: shell("aCommand", "\"par 1\" par2"); ). The

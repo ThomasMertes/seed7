@@ -1794,7 +1794,7 @@ striType os_stri_to_stri (const_os_striType os_stri, errInfoType *err_info)
     striType stri;
 
   /* os_stri_to_stri */
-    /* printf("os_stri_to_stri(%s, *)\n", os_stri); */
+    /* printf("os_stri_to_stri(" FMT_S_OS ", *)\n", os_stri); */
     stri = conv_from_os_stri(os_stri, os_stri_strlen(os_stri));
     if (unlikely(stri == NULL)) {
       *err_info = MEMORY_ERROR;
@@ -1937,7 +1937,7 @@ static os_striType append_path (const const_os_striType absolutePath,
     os_striType result;
 
   /* append_path */
-    /* printf("append_path(\"%s\", \"%s\")\n", absolutePath, relative_path); */
+    /* printf("append_path(\"" FMT_S_OS "\")\n", absolutePath); */
     /* absolutePath[0] is always '/'. */
     if (absolutePath[1] == '\0') {
       abs_path_length = 0;
@@ -2018,8 +2018,8 @@ static os_striType append_path (const const_os_striType absolutePath,
         } /* if */
       } /* if */
     } /* if */
-    /* printf("append_path(\"%s\", \"%s\") --> \"%s\"\n",
-        absolutePath, relative_path, result); */
+    /* printf("append_path(\"" FMT_S_OS "\") --> \"" FMT_S_OS "\"\n",
+        absolutePath, result); */
     return result;
   } /* append_path */
 

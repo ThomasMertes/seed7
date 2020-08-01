@@ -116,16 +116,16 @@ static void print_line (lineNumType err_line)
           } /* if */
           while (ch != '\r' && ch != '\n' && ch != EOF) {
             if (ch == '\t') {
-              fputc(' ', stdout);
+              prot_cstri(" ");
             } else if (ch < ' ' || ch > '~') {
-              fputc('?', stdout);
+              prot_cstri("?");
             } else {
-              fputc(ch, stdout);
+              prot_cchar((char) ch);
             } /* if */
             ch = next_character();
           } /*while */
-          fputc('\n', stdout);
-          fputc('\n', stdout);
+          prot_nl();
+          prot_nl();
           FREE_TABLE(nl_table, long, table_size);
         } /* if */
       } /* if */
@@ -188,14 +188,23 @@ static void print_error_line (void)
         } /* if */
       } /* for */
       fwrite(&buffer[start + 1], 1, (size_t) (stop - start - 1), stdout);
-      printf("\n");
+      prot_nl();
       for (number = 0; number < start_index - start - 1; number++) {
-        fputc('-', stdout);
+        prot_cstri("-");
       } /* for */
-      printf("^\n");
+      prot_cstri("^");
+      prot_nl();
       IN_FILE_SEEK(current_position);
     } /* if */
   } /* print_error_line */
+
+
+
+static void write_place (errorType err, const const_ustriType name, const lineNumType line)
+
+  { /* write_place */
+    printf("*** %s(%1u):%d: ", in_file.name_ustri, in_file.line, ((int) err) + 1);
+  } /* write_place */
 
 
 
@@ -205,9 +214,9 @@ void place_of_error (errorType err)
 /*  print_error_line(); */
     prog.error_count++;
     if (in_file.name_ustri != NULL) {
-      printf("*** %s(%1u):%d: ", in_file.name_ustri, in_file.line, ((int) err) + 1);
+      write_place(err, in_file.name_ustri, in_file.line);
     } else {
-      printf("*** ");
+      prot_cstri("*** ");
     } /* if */
   } /* place_of_error */
 
@@ -216,7 +225,8 @@ void place_of_error (errorType err)
 static void undef_err (void)
 
   { /* undef_err */
-    printf("Undefined error\n");
+    prot_cstri("Undefined error");
+    prot_nl();
   } /* undef_err */
 
 
@@ -225,27 +235,40 @@ static void write_symbol (void)
 
   { /* write_symbol */
     if (symbol.sycategory == PARENSYMBOL) {
-      printf(" \"%c\"\n", symbol.name[0]);
+      prot_cstri(" \"");
+      prot_uchar(symbol.name[0]);
+      prot_cstri("\"");
+      prot_nl();
     } else if (symbol.sycategory == INTLITERAL) {
-      printf(" \"%ld\"\n", (long) symbol.intValue);
+      prot_cstri(" \"");
+      prot_int(symbol.intValue);
+      prot_cstri("\"");
+      prot_nl();
     } else if (symbol.sycategory == BIGINTLITERAL) {
-      printf(" \"%s_\"\n", symbol.name);
+      prot_cstri(" \"");
+      prot_ustri(symbol.name);
+      prot_cstri("_\"\n");
+      prot_nl();
     } else if (symbol.sycategory == CHARLITERAL) {
-      if (symbol.charValue >= ' ' && symbol.charValue <= '~') {
-        printf(" \"'%c'\"\n", (char) symbol.charValue);
-      } else {
-        printf(" \"'\\%lu;'\"\n", (unsigned long) symbol.charValue);
-      } /* if */
+      prot_cstri(" ");
+      prot_char(symbol.charValue);
+      prot_nl();
     } else if (symbol.sycategory == STRILITERAL) {
-      printf(" ");
+      prot_cstri(" ");
       prot_stri(symbol.striValue);
-      printf("\n");
+      prot_nl();
 #ifdef WITH_FLOAT
     } else if (symbol.sycategory == FLOATLITERAL) {
-      printf(" \"%f\"\n", symbol.floatValue);
+      prot_cstri(" \"");
+      prot_float(symbol.floatValue);
+      prot_cstri("\"");
+      prot_nl();
 #endif
     } else {
-      printf(" \"%s\"\n", symbol.name);
+      prot_cstri(" \"");
+      prot_ustri(symbol.name);
+      prot_cstri("\"");
+      prot_nl();
     } /* if */
   } /* write_symbol */
 
@@ -256,15 +279,16 @@ static void write_type (const_typeType anytype)
   { /* write_type */
     if (anytype != NULL) {
       if (anytype->name != NULL) {
-        printf("%s", anytype->name->entity->ident->name);
+        prot_ustri(anytype->name->entity->ident->name);
       } else if (anytype->result_type != NULL &&
           anytype->result_type->name != NULL) {
-        printf("func %s", anytype->result_type->name->entity->ident->name);
+        prot_cstri("func ");
+        prot_ustri(anytype->result_type->name->entity->ident->name);
       } else {
-        printf(" *ANONYM_TYPE* ");
+        prot_cstri(" *ANONYM_TYPE* ");
       } /* if */
     } else {
-      printf(" *NULL_TYPE* ");
+      prot_cstri(" *NULL_TYPE* ");
     } /* if */
   } /* write_type */
 
@@ -280,64 +304,67 @@ static void write_name_list (const_listType params)
     while (params != NULL) {
       if (CATEGORY_OF_OBJ(params->obj) == FORMPARAMOBJECT) {
         if (in_formal_param_list) {
-          printf(", ");
+          prot_cstri(", ");
         } else {
-          printf(" (");
+          prot_cstri(" (");
           in_formal_param_list = 1;
         } /* if */
         formal_param = params->obj->value.objValue;
         switch (CATEGORY_OF_OBJ(formal_param)) {
           case VALUEPARAMOBJECT:
-            printf("in ");
+            prot_cstri("in ");
             if (VAR_OBJECT(formal_param)) {
-              printf(" var ");
+              prot_cstri(" var ");
             } /* if */
             write_type(formal_param->type_of);
             if (HAS_ENTITY(formal_param)) {
-              printf(": %s", GET_ENTITY(formal_param)->ident->name);
+              prot_cstri(": ");
+              prot_ustri(GET_ENTITY(formal_param)->ident->name);
             } else {
-              printf(" param");
+              prot_cstri(" param");
             } /* if */
             break;
           case REFPARAMOBJECT:
             if (VAR_OBJECT(formal_param)) {
-              printf("inout ");
+              prot_cstri("inout ");
             } else {
-              printf("ref ");
+              prot_cstri("ref ");
             } /* if */
             write_type(formal_param->type_of);
             if (HAS_ENTITY(formal_param)) {
-              printf(": %s", GET_ENTITY(formal_param)->ident->name);
+              prot_cstri(": ");
+              prot_ustri(GET_ENTITY(formal_param)->ident->name);
             } else {
-              printf(" param");
+              prot_cstri(" param");
             } /* if */
             break;
           case TYPEOBJECT:
             if (HAS_ENTITY(formal_param)) {
-              printf("attr %s", GET_ENTITY(formal_param)->ident->name);
+              prot_cstri("attr ");
+              prot_ustri(GET_ENTITY(formal_param)->ident->name);
             } else {
-              printf("attr ");
+              prot_cstri("attr ");
               write_type(formal_param->value.typeValue);
             } /* if */
             break;
           default:
-            printf("unknown formal ");
+            prot_cstri("unknown formal ");
             trace1(formal_param);
             break;
         } /* switch */
       } else {
         if (in_formal_param_list) {
-          printf(") ");
+          prot_cstri(") ");
           in_formal_param_list = 0;
         } else {
-          printf(" ");
+          prot_cstri(" ");
         } /* if */
         switch (CATEGORY_OF_OBJ(params->obj)) {
           case SYMBOLOBJECT:
-            printf("%s", GET_ENTITY(params->obj)->ident->name);
+            prot_ustri(GET_ENTITY(params->obj)->ident->name);
             break;
           default:
-            printf("unknown param ");
+            prot_cstri("unknown param ");
             trace1(params->obj);
             break;
         } /* switch */
@@ -345,7 +372,7 @@ static void write_name_list (const_listType params)
       params = params->next;
     } /* while */
     if (in_formal_param_list) {
-      printf(") ");
+      prot_cstri(") ");
     } /* if */
   } /* write_name_list */
 
@@ -355,40 +382,42 @@ static void write_object (objectType anyobject)
 
   { /* write_object */
     if (anyobject == NULL) {
-      printf("(NULL)");
+      prot_cstri("(NULL)");
     } else {
       switch (CATEGORY_OF_OBJ(anyobject)) {
         case TYPEOBJECT:
-          printf("type ");
+          prot_cstri("type ");
           write_type(anyobject->value.typeValue);
           break;
         case VALUEPARAMOBJECT:
-          printf("parameter (in ");
+          prot_cstri("parameter (in ");
           if (VAR_OBJECT(anyobject)) {
-            printf(" var ");
+            prot_cstri(" var ");
           } /* if */
           write_type(anyobject->type_of);
           if (HAS_ENTITY(anyobject)) {
-            printf(": %s", GET_ENTITY(anyobject)->ident->name);
+            prot_cstri(": ");
+            prot_ustri(GET_ENTITY(anyobject)->ident->name);
           } else {
-            printf(" param");
+            prot_cstri(" param");
           } /* if */
-          printf(")");
+          prot_cstri(")");
           break;
         case REFPARAMOBJECT:
-          printf("parameter (");
+          prot_cstri("parameter (");
           if (VAR_OBJECT(anyobject)) {
-            printf("inout ");
+            prot_cstri("inout ");
           } else {
-            printf("ref ");
+            prot_cstri("ref ");
           } /* if */
           write_type(anyobject->type_of);
           if (HAS_ENTITY(anyobject)) {
-            printf(": %s", GET_ENTITY(anyobject)->ident->name);
+            prot_cstri(": ");
+            prot_ustri(GET_ENTITY(anyobject)->ident->name);
           } else {
-            printf(" param");
+            prot_cstri(" param");
           } /* if */
-          printf(")");
+          prot_cstri(")");
           break;
         case INTOBJECT:
         case CHAROBJECT:
@@ -399,30 +428,30 @@ static void write_object (objectType anyobject)
         case STRUCTOBJECT:
         case BLOCKOBJECT:
           if (VAR_OBJECT(anyobject)) {
-            printf("variable ");
+            prot_cstri("variable ");
           } else {
-            printf("constant ");
+            prot_cstri("constant ");
           } /* if */
           write_type(anyobject->type_of);
-          printf(": ");
+          prot_cstri(": ");
           printvalue(anyobject);
           break;
         case CALLOBJECT:
         case MATCHOBJECT:
           if (anyobject->value.listValue != NULL &&
               anyobject->value.listValue->obj != NULL) {
-            printf("expression (");
+            prot_cstri("expression (");
             prot_list(anyobject->value.listValue->next);
-            printf(") of type ");
+            prot_cstri(") of type ");
             write_type(anyobject->value.listValue->obj->type_of);
           } /* if */
           break;
         default:
           if (HAS_ENTITY(anyobject)) {
-            printf("%s", id_string(GET_ENTITY(anyobject)->ident));
+            prot_cstri(id_string(GET_ENTITY(anyobject)->ident));
           } else {
-            printf("%d ", CATEGORY_OF_OBJ(anyobject));
-            printf(" *NULL_ENTITY_OBJECT*");
+            printcategory(CATEGORY_OF_OBJ(anyobject));
+            prot_cstri(" *NULL_ENTITY_OBJECT*");
           } /* if */
           break;
       } /* switch */
@@ -437,64 +466,84 @@ void err_warning (errorType err)
     place_of_error(err);
     switch (err) {
       case OUT_OF_HEAP_SPACE:
-        printf("No more memory\n");
+        prot_cstri("No more memory");
+        prot_nl();
         break;
       case EOF_ENCOUNTERED:
-        printf("\"END OF FILE\" encountered\n");
+        prot_cstri("\"END OF FILE\" encountered");
+        prot_nl();
         break;
       case ILLEGALPRAGMA:
-        printf("Illegal pragma"); write_symbol();
+        prot_cstri("Illegal pragma");
+        write_symbol();
         break;
       case WRONGSYSTEM:
-        printf("Illegal system declaration"); write_symbol();
+        prot_cstri("Illegal system declaration");
+        write_symbol();
         break;
       case NEGATIVEEXPONENT:
-        printf("Negative exponent in integer literal\n");
+        prot_cstri("Negative exponent in integer literal");
+        prot_nl();
         break;
       case CHAREXCEEDS:
-        printf("Character literal exceeds source line\n");
+        prot_cstri("Character literal exceeds source line");
+        prot_nl();
         break;
       case STRINGEXCEEDS:
-        printf("String literal exceeds source line\n");
+        prot_cstri("String literal exceeds source line");
+        prot_nl();
         break;
       case WRONG_QUOTATION_REPRESENTATION:
-        printf("Use \\\" instead of \"\" to represent \" in a string\n");
+        prot_cstri("Use \\\" instead of \"\" to represent \" in a string");
+        prot_nl();
         break;
       case WRONG_PATH_DELIMITER:
-        printf("Use / instead of \\ as path delimiter\n");
+        prot_cstri("Use / instead of \\ as path delimiter");
+        prot_nl();
         break;
       case NAMEEXPECTED:
-        printf("Name expected found"); write_symbol();
+        prot_cstri("Name expected found");
+        write_symbol();
         break;
       case STRI_EXPECTED:
-        printf("String literal expected found"); write_symbol();
+        prot_cstri("String literal expected found");
+        write_symbol();
         break;
       case ILLEGAL_ASSOCIATIVITY:
-        printf("Associativity expected found"); write_symbol();
+        prot_cstri("Associativity expected found");
+        write_symbol();
         break;
       case EXPR_EXPECTED:
-        printf("Expression expected found"); write_symbol();
+        prot_cstri("Expression expected found");
+        write_symbol();
         break;
       case TWO_PARAMETER_SYNTAX:
-        printf("Syntax with two parameters before operator is illegal\n");
+        prot_cstri("Syntax with two parameters before operator is illegal");
+        prot_nl();
         break;
       case EMPTY_SYNTAX:
-        printf("Empty syntax declaration\n");
+        prot_cstri("Empty syntax declaration");
+        prot_nl();
         break;
       case DOT_EXPR_REQUESTED:
-        printf("Dot expression requested as syntax description\n");
+        prot_cstri("Dot expression requested as syntax description");
+        prot_nl();
         break;
       case TYPE_EXPECTED:
-        printf("Type expected found"); write_symbol();
+        prot_cstri("Type expected found");
+        write_symbol();
         break;
       case LITERAL_TYPE_UNDEFINED:
-        printf("Undefined type for literal"); write_symbol();
+        prot_cstri("Undefined type for literal");
+        write_symbol();
         break;
       case DOLLAR_VALUE_WRONG:
-        printf("\"newtype\", \"subtype\", \"func\", \"enumlit\" or \"action\" expected found"); write_symbol();
+        prot_cstri("\"newtype\", \"subtype\", \"func\", \"enumlit\" or \"action\" expected found");
+        write_symbol();
         break;
       case DOLLAR_TYPE_WRONG:
-        printf("\"func\" or \"type\" expected found"); write_symbol();
+        prot_cstri("\"func\" or \"type\" expected found");
+        write_symbol();
         break;
       default:
         undef_err();
@@ -513,36 +562,76 @@ void err_num_stri (errorType err, int num_found, int num_expected,
     place_of_error(err);
     switch (err) {
       case FALSE_INFIX_PRIORITY:
-        printf("\"%s\" redeclared with infix priority %d not %d\n",
-            stri, num_found, num_expected);
+        prot_cstri("\"");
+        prot_ustri(stri);
+        prot_cstri("\" redeclared with infix priority ");
+        prot_int((intType) num_found);
+        prot_cstri(" not ");
+        prot_int((intType) num_expected);
+        prot_nl();
         break;
       case FALSE_PREFIX_PRIORITY:
-        printf("\"%s\" redeclared with prefix priority %d not %d\n",
-            stri, num_found, num_expected);
+        prot_cstri("\"");
+        prot_ustri(stri);
+        prot_cstri("\" redeclared with prefix priority ");
+        prot_int((intType) num_found);
+        prot_cstri(" not ");
+        prot_int((intType) num_expected);
+        prot_nl();
         break;
       case WRONG_EXPR_PARAM_PRIORITY:
-        printf("Priority %d required for parameter after \"%s\" not %d\n",
-            num_expected, stri, num_found);
+        prot_cstri("Priority ");
+        prot_int((intType) num_expected);
+        prot_cstri(" required for parameter after \"");
+        prot_ustri(stri);
+        prot_cstri("\" not ");
+        prot_int((intType) num_found);
+        prot_nl();
         break;
       case WRONG_PREFIX_PRIORITY:
-        printf("Priority <= %d expected found \"%s\" with priority %d\n",
-            num_expected, stri, num_found);
+        prot_cstri("Priority <= ");
+        prot_int((intType) num_expected);
+        prot_cstri(" expected found \"");
+        prot_ustri(stri);
+        prot_cstri("\" with priority ");
+        prot_int((intType) num_found);
+        prot_nl();
         break;
       case DOT_EXPR_ILLEGAL:
-        printf("\"%s\" must have priority %d not %d for dot expression\n",
-            stri, num_expected, num_found);
+        prot_cstri("\"");
+        prot_ustri(stri);
+        prot_cstri("\" must have priority");
+        prot_int((intType) num_expected);
+        prot_cstri(" not ");
+        prot_int((intType) num_found);
+        prot_cstri(" for dot expression");
+        prot_nl();
         break;
       case ILLEGALBASEDDIGIT:
-        printf("Illegal digit \"%c\" in based integer \"%d#%s\"\n",
-            num_found, num_expected, stri);
+        prot_cstri("Illegal digit \"");
+        prot_cchar((char) num_found);
+        prot_cstri("\" in based integer \"");
+        prot_int((intType) num_expected);
+        prot_cstri("#");
+        prot_ustri(stri);
+        prot_cstri("\"");
+        prot_nl();
         break;
       case CARD_BASED_TOO_BIG:
-        printf("Based integer \"%d#%s\" too big\n",
-            num_expected, stri);
+        prot_cstri("Based integer \"");
+        prot_int((intType) num_expected);
+        prot_cstri("#");
+        prot_ustri(stri);
+        prot_cstri("\" too big");
+        prot_nl();
         break;
       case CARD_WITH_EXPONENT_TOO_BIG:
-        printf("Integer \"%dE%s\" too big\n",
-            num_expected, stri);
+        prot_cstri("Integer \"");
+        prot_int((intType) num_expected);
+        prot_cstri("E");
+        prot_ustri(stri);
+        prot_cstri("\" too big");
+        prot_nl();
         break;
       default:
         undef_err();
@@ -560,11 +649,15 @@ void err_ident (errorType err, const_identType ident)
     place_of_error(err);
     switch (err) {
       case PARAM_SPECIFIER_EXPECTED:
-        printf("Parameter specifier expected found \"%s\"\n",
-            ident->name);
+        prot_cstri("Parameter specifier expected found \"");
+        prot_ustri(ident->name);
+        prot_cstri("\"");
+        prot_nl();
         break;
       case EXPECTED_SYMBOL:
-        printf("\"%s\" expected found", ident->name);
+        prot_cstri("\"");
+        prot_ustri(ident->name);
+        prot_cstri("\" expected found");
         write_symbol();
         break;
       default:
@@ -583,90 +676,107 @@ void err_object (errorType err, const_objectType obj_found)
     /* place_of_error(err); */
     prog.error_count++;
     if (HAS_POSINFO(obj_found)){
-      printf("*** %s(%1u):%d: ", get_file_name_ustri(GET_FILE_NUM(obj_found)),
-          GET_LINE_NUM(obj_found), ((int) err) + 1);
+      write_place(err, get_file_name_ustri(GET_FILE_NUM(obj_found)),
+          GET_LINE_NUM(obj_found));
     } else if (in_file.name_ustri != NULL) {
-      printf("*** %s(%1u):%d: ", in_file.name_ustri, in_file.line, ((int) err) + 1);
+      write_place(err, in_file.name_ustri, in_file.line);
     } else {
-      printf("*** ");
+      prot_cstri("*** ");
     } /* if */
     switch (err) {
       case OBJTWICEDECLARED:
         if (GET_ENTITY(obj_found)->fparam_list == NULL) {
-          printf("\"%s\" declared twice\n", GET_ENTITY(obj_found)->ident->name);
+          prot_cstri("\"");
+          prot_ustri(GET_ENTITY(obj_found)->ident->name);
+          prot_cstri("\" declared twice");
         } else {
           write_name_list(GET_ENTITY(obj_found)->fparam_list);
-          printf(" declared twice\n");
+          prot_cstri(" declared twice");
         } /* if */
+        prot_nl();
         break;
       case OBJUNDECLARED:
-        printf("\"%s\" not declared\n", GET_ENTITY(obj_found)->ident->name);
+        prot_cstri("\"");
+        prot_ustri(GET_ENTITY(obj_found)->ident->name);
+        prot_cstri("\" not declared");
+        prot_nl();
         break;
       case PARAM_DECL_FAILED:
-        printf("Declaration of parameter ");
+        prot_cstri("Declaration of parameter ");
         prot_list(obj_found->value.listValue->next);
-        printf(" failed\n");
+        prot_cstri(" failed");
+        prot_nl();
         break;
       case DECL_FAILED:
         if (GET_ENTITY(obj_found)->fparam_list == NULL) {
-          printf("Declaration of \"%s\" failed\n", GET_ENTITY(obj_found)->ident->name);
+          prot_cstri("Declaration of \"");
+          prot_ustri(GET_ENTITY(obj_found)->ident->name);
+          prot_cstri("\" failed");
         } else {
-          printf("Declaration of ");
+          prot_cstri("Declaration of ");
           write_name_list(GET_ENTITY(obj_found)->fparam_list);
-          printf(" failed\n");
+          prot_cstri(" failed");
         } /* if */
+        prot_nl();
         break;
       case EXCEPTION_RAISED:
-        printf("Exception \"%s\" raised\n", GET_ENTITY(obj_found)->ident->name);
+        prot_cstri("Exception \"");
+        prot_ustri(GET_ENTITY(obj_found)->ident->name);
+        prot_cstri("\" raised\n");
+        prot_nl();
         break;
       case IDENT_EXPECTED:
-        printf("Identifier expected found ");
+        prot_cstri("Identifier expected found ");
         switch (CATEGORY_OF_OBJ(obj_found)) {
           case INTOBJECT:
-            printf("\"%ld\"", (long) obj_found->value.intValue);
+            prot_cstri("\"");
+            prot_int(obj_found->value.intValue);
+            prot_cstri("\"");
             break;
           case CHAROBJECT:
-            if (obj_found->value.charValue >= ' ' && obj_found->value.charValue <= '~') {
-              printf("\"'%c'\"\n", (char) obj_found->value.charValue);
-            } else {
-              printf("\"'\\%lu;'\"\n", (unsigned long) obj_found->value.charValue);
-            } /* if */
+            prot_char(obj_found->value.charValue);
             break;
           case STRIOBJECT:
             prot_stri(obj_found->value.striValue);
             break;
 #ifdef WITH_FLOAT
           case FLOATOBJECT:
-            printf("\"%f\"\n", obj_found->value.floatValue);
+            prot_cstri("\"");
+            prot_float(obj_found->value.floatValue);
+            prot_cstri("\"");
             break;
 #endif
           default:
             printcategory(CATEGORY_OF_OBJ(obj_found));
-            printf(" ");
+            prot_cstri(" ");
             trace1(obj_found);
             break;
         } /* switch */
-        printf("\n");
+        prot_nl();
         break;
       case NO_MATCH:
-        printf("Match for ");
+        prot_cstri("Match for ");
         prot_list(obj_found->value.listValue);
-        printf(" failed\n");
+        prot_cstri(" failed");
+        prot_nl();
         break;
       case PROC_EXPECTED:
-        printf("Procedure expected found ");
+        prot_cstri("Procedure expected found ");
         printobject(obj_found);
-        printf(" expression\n");
+        prot_cstri(" expression");
+        prot_nl();
         break;
       case TYPE_EXPECTED:
-        printf("Type expected found ");
+        prot_cstri("Type expected found ");
         printobject(obj_found);
-        printf(" \n");
+        prot_cstri(" ");
+        prot_nl();
         break;
       case EVAL_TYPE_FAILED:
-        printf("Evaluate type expression ");
+        prot_cstri("Evaluate type expression ");
         trace1(obj_found);
-        printf(" failed\n");
+        prot_cstri(" failed");
+        prot_nl();
         break;
       default:
         undef_err();
@@ -688,9 +798,10 @@ void err_type (errorType err, const_typeType type_found)
     place_of_error(err);
     switch (err) {
       case PROC_EXPECTED:
-        printf("Procedure expected found ");
+        prot_cstri("Procedure expected found ");
         printobject(type_found->match_obj);
-        printf(" expression\n");
+        prot_cstri(" expression");
+        prot_nl();
         break;
       default:
         undef_err();
@@ -709,20 +820,20 @@ void err_expr_obj (errorType err, const_objectType expr_object,
     /* place_of_error(err); */
     prog.error_count++;
     if (HAS_POSINFO(expr_object)){
-      printf("*** %s(%1u):%d: ", get_file_name_ustri(GET_FILE_NUM(expr_object)),
-          GET_LINE_NUM(expr_object), ((int) err) + 1);
+      write_place(err, get_file_name_ustri(GET_FILE_NUM(expr_object)),
+          GET_LINE_NUM(expr_object));
     } else if (in_file.name_ustri != NULL) {
-      printf("*** %s(%1u):%d: ", in_file.name_ustri, in_file.line, ((int) err) + 1);
+      write_place(err, in_file.name_ustri, in_file.line);
     } else {
-      printf("*** ");
+      prot_cstri("*** ");
     } /* if */
     switch (err) {
       case WRONGACCESSRIGHT:
-        printf("Variable expected in ");
+        prot_cstri("Variable expected in ");
         prot_list(expr_object->value.listValue->next);
-        printf(" found ");
+        prot_cstri(" found ");
         write_object(obj_found);
-        printf("\n");
+        prot_nl();
         break;
       default:
         undef_err();
@@ -769,18 +880,19 @@ void err_match (errorType err, objectType obj_found)
       /* place_of_error(err); */
       prog.error_count++;
       if (HAS_POSINFO(obj_found)){
-        printf("*** %s(%1u):%d: ", get_file_name_ustri(GET_FILE_NUM(obj_found)),
-            GET_LINE_NUM(obj_found), ((int) err) + 1);
+        write_place(err, get_file_name_ustri(GET_FILE_NUM(obj_found)),
+            GET_LINE_NUM(obj_found));
       } else if (in_file.name_ustri != NULL) {
-        printf("*** %s(%1u):%d: ", in_file.name_ustri, in_file.line, ((int) err) + 1);
+        write_place(err, in_file.name_ustri, in_file.line);
       } else {
-        printf("*** ");
+        prot_cstri("*** ");
       } /* if */
       switch (err) {
         case NO_MATCH:
-          printf("Match for ");
+          prot_cstri("Match for ");
           prot_list(obj_found->value.listValue);
-          printf(" failed\n");
+          prot_cstri(" failed");
+          prot_nl();
           break;
         default:
           undef_err();
@@ -804,16 +916,28 @@ void err_string (errorType err, const_ustriType stri)
     place_of_error(err);
     switch (err) {
       case UNEXPECTED_SYMBOL:
-        printf("\"%s\" expected found", stri); write_symbol();
+        prot_cstri("\"");
+        prot_ustri(stri);
+        prot_cstri("\" expected found");
+        write_symbol();
         break;
       case CARD_DECIMAL_TOO_BIG:
-        printf("Integer \"%s\" too big\n", stri);
+        prot_cstri("Integer \"");
+        prot_ustri(stri);
+        prot_cstri("\" too big");
+        prot_nl();
         break;
       case CARD_EXPECTED:
-        printf("Integer literal expected found \"%s\"\n", stri);
+        prot_cstri("Integer literal expected found \"");
+        prot_ustri(stri);
+        prot_cstri("\"");
+        prot_nl();
         break;
       case FILENOTFOUND:
-        printf("Include file \"%s\" not found\n", stri);
+        prot_cstri("Include file \"");
+        prot_ustri(stri);
+        prot_cstri("\" not found");
+        prot_nl();
         break;
       default:
         undef_err();
@@ -831,19 +955,20 @@ void err_stri (errorType err, const_striType stri)
     place_of_error(err);
     switch (err) {
       case FILENOTFOUND:
-        printf("Include file ");
+        prot_cstri("Include file ");
         prot_stri(stri);
-        printf(" not found\n");
+        prot_cstri(" not found");
+        prot_nl();
         break;
       case WRONGACTION:
-        printf("Illegal action ");
+        prot_cstri("Illegal action ");
         prot_stri(stri);
-        printf("\n");
+        prot_nl();
         break;
       case WRONG_PATH_DELIMITER:
-        printf("Use / instead of \\ as path delimiter in ");
+        prot_cstri("Use / instead of \\ as path delimiter in ");
         prot_stri(stri);
-        printf("\n");
+        prot_nl();
         break;
       default:
         undef_err();
@@ -861,10 +986,16 @@ void err_integer (errorType err, intType number)
     place_of_error(err);
     switch (err) {
       case BASE2TO36ALLOWED:
-        printf("Integer base \"%ld\" not between 2 and 36\n", (long) number);
+        prot_cstri("Integer base \"");
+        prot_int(number);
+        prot_cstri("\" not between 2 and 36");
+        prot_nl();
         break;
       case ILLEGAL_PRIORITY:
-        printf("Statement priority \"%ld\" too big\n", (long) number);
+        prot_cstri("Statement priority \"");
+        prot_int(number);
+        prot_cstri("\" too big");
+        prot_nl();
         break;
       default:
         undef_err();
@@ -882,31 +1013,31 @@ void err_cchar (errorType err, int character)
     place_of_error(err);
     switch (err) {
       case CHAR_ILLEGAL:
-        printf("Illegal character in text \"");
+        prot_cstri("Illegal character in text \"");
         break;
       case DIGITEXPECTED:
-        printf("Digit expected found \"");
+        prot_cstri("Digit expected found \"");
         break;
       case EXTDIGITEXPECTED:
-        printf("Extended digit expected found \"");
+        prot_cstri("Extended digit expected found \"");
         break;
       case APOSTROPHEXPECTED:
-        printf("\"'\" expected found \"");
+        prot_cstri("\"'\" expected found \"");
         break;
       case BACKSLASHEXPECTED:
-        printf("String continuations should end with \"\\\" not \"");
+        prot_cstri("String continuations should end with \"\\\" not \"");
         break;
       case WRONGNUMERICALESCAPE:
-        printf("Numerical escape sequences should end with \";\" not \"");
+        prot_cstri("Numerical escape sequences should end with \";\" not \"");
         break;
       case STRINGESCAPE:
-        printf("Illegal string escape \"\\");
+        prot_cstri("Illegal string escape \"\\");
         break;
       case UTF8_CONTINUATION_BYTE_EXPECTED:
-        printf("UTF-8 continuation byte expected found \"");
+        prot_cstri("UTF-8 continuation byte expected found \"");
         break;
       case UNEXPECTED_UTF8_CONTINUATION_BYTE:
-        printf("Unexpected UTF-8 continuation byte found \"");
+        prot_cstri("Unexpected UTF-8 continuation byte found \"");
         break;
       default:
         undef_err();
@@ -929,22 +1060,22 @@ void err_char (errorType err, charType character)
     place_of_error(err);
     switch (err) {
       case CHAR_ILLEGAL:
-        printf("Illegal character in text");
+        prot_cstri("Illegal character in text");
         break;
       case OVERLONG_UTF8_ENCODING:
-        printf("Overlong UTF-8 encoding used for character");
+        prot_cstri("Overlong UTF-8 encoding used for character");
         break;
       case UTF16_SURROGATE_CHAR_FOUND:
-        printf("UTF-16 surrogate character found in UTF-8 encoding");
+        prot_cstri("UTF-16 surrogate character found in UTF-8 encoding");
         break;
       case CHAR_NOT_UNICODE:
-        printf("Non Unicode character found");
+        prot_cstri("Non Unicode character found");
         break;
       case SOLITARY_UTF8_START_BYTE:
-        printf("Solitary UTF-8 start byte found");
+        prot_cstri("Solitary UTF-8 start byte found");
         break;
       case UTF16_BYTE_ORDER_MARK_FOUND:
-        printf("UTF-16 byte order mark found");
+        prot_cstri("UTF-16 byte order mark found");
         break;
       default:
         undef_err();
@@ -965,10 +1096,11 @@ void err_at_line (errorType err, lineNumType line)
 
   { /* err_at_line */
     prog.error_count++;
-    printf("*** %s(%1u):%d: ", in_file.name_ustri, line, ((int) err) + 1);
+    write_place(err, in_file.name_ustri, line);
     switch (err) {
       case COMMENTOPEN:
-        printf("Unclosed comment\n");
+        prot_cstri("Unclosed comment");
+        prot_nl();
         break;
       default:
         undef_err();
@@ -985,11 +1117,13 @@ void err_undeclared (errorType err, fileNumType file_num,
 
   { /* err_undeclared */
     prog.error_count++;
-    printf("*** %s(%1u):%d: ", get_file_name_ustri(file_num),
-        line, ((int) err) + 1);
+    write_place(err, get_file_name_ustri(file_num), line);
     switch (err) {
       case OBJUNDECLARED:
-        printf("\"%s\" not declared\n", stri);
+        prot_cstri("\"");
+        prot_ustri(stri);
+	prot_cstri("\" not declared");
+        prot_nl();
         break;
       default:
         undef_err();
@@ -1005,12 +1139,13 @@ void err_message (errorType err, const_striType stri)
 
   { /* err_message */
     prog.error_count++;
-    printf("*** ");
+    prot_cstri("*** ");
     switch (err) {
       case NO_SOURCEFILE:
-        printf("File ");
+        prot_cstri("File ");
         prot_stri(stri);
-        printf(" not found\n");
+        prot_cstri(" not found");
+        prot_nl();
         break;
       default:
         undef_err();

@@ -54,6 +54,7 @@ objectType cmd_setenv          (listType arguments);
 objectType cmd_set_atime       (listType arguments);
 objectType cmd_set_filemode    (listType arguments);
 objectType cmd_set_mtime       (listType arguments);
+objectType cmd_setSearchPath   (listType arguments);
 objectType cmd_shell           (listType arguments);
 objectType cmd_shell_escape    (listType arguments);
 objectType cmd_start_process   (listType arguments);

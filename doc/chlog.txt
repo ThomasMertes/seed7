@@ -1,3 +1,35 @@
+20140907:
+- The function setSearchPath has been added to the library
+  process.s7i.
+- The compiler has been improved to write an error message, when the
+  sets of a case-statement overlap. Until now this situation was only
+  recognized by the C compiler.
+- The interpreter has been improved to raise an exception, when the
+  current value of a case-statement is element of two sets.
+- There have been changes in the libraries makedata.s7i and make.s7i.
+- The macro expansion in makedata.s7i has been changed. Now all macro
+  expansions (except the expansions of internal macros) are done with
+  the function applyMacros.
+- In makedata.s7i the function applyMacros has been improved to
+  process the makefile macro functions wildcard, error and warning.
+- The functions evalFunction and getMacro, that where used to do
+  macro expansion when the makefile is read, have been removed.
+- The code to read the definition of recursively expanded variables
+  has been changed to do no macro expansion. This macros are expanded
+  when they are used.
+- The library make.s7i has been improved to read the parameters
+  for the commands rm, cp, and mv as Unix shell parameters (with the
+  function getUnixCommandParameter).
+- The library make.s7i has been improved to read the parameters
+  for the commands del, copy, xcopy and move as Dos/Windows batch
+  parameters (with the function getDosCommandParameter).
+- Interpreter and compiler have been improved to support the action
+  CMD_SET_SEARCH_PATH.
+- The batch file bin/call_gcc.bat has been changed to work correctly,
+  when it is called from any directory.
+- Writing error messages in error.c has been changed to use prot_...
+  functions instead of printf.
+
 20140817:
 - The chapter about files in the manual has been improved.
 - Variants of the for-each-loop with an until condition have been

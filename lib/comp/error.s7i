@@ -63,3 +63,18 @@ const proc: warning (DOES_RAISE, in string: exceptionName, in expr_type: c_expr)
     # writeln("*** " <& c_expr.currentFile <& "(" <& c_expr.currentLine <&
     #         "): Expression raises " <& exceptionName <& ".");
   end func;
+
+
+const proc: error (WHEN_OVERLAPPING, in bitset: overlappingWhenValues,
+    in reference: current_expression) is func
+  begin
+   writeln("*** " <& file(current_expression) <& "(" <& line(current_expression) <&
+            "): When values " <& overlappingWhenValues <& " do overlap.");
+  end func;
+
+
+const proc: error (VARIABLE_WHEN, in reference: current_expression) is func
+  begin
+   writeln("*** " <& file(current_expression) <& "(" <& line(current_expression) <&
+            "): When value must be constant.");
+  end func;

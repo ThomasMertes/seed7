@@ -620,6 +620,7 @@ void dump_temp_value (objectType object)
       case MATCHOBJECT:
       case FWDREFOBJECT:
       case TYPEOBJECT:
+      case DECLAREDOBJECT:
         SET_UNUSED_FLAG(object);
         break;
       case BIGINTOBJECT:

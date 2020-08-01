@@ -511,17 +511,25 @@ const proc: process_bitset (in bitset: currentSet, in string: diagnosticLine,
   end func;
 
 
-const proc: process_case_labels (in reference: current_expression, inout expr_type: c_expr) is func
+const proc: process_case_labels (in reference: current_expression,
+    inout bitset: allWhenValues, inout expr_type: c_expr) is func
 
   local
     var reference: case_labels is NIL;
     var category: labelCategory is category.value;
+    var bitset: currentWhenValues is bitset.EMPTY_SET;
   begin
     case_labels := evaluate(prog, current_expression);
     labelCategory := category(case_labels);
     if labelCategory = SETOBJECT then
-      process_bitset(getValue(case_labels, bitset),
+      currentWhenValues := getValue(case_labels, bitset);
+      if allWhenValues & currentWhenValues <> bitset.EMPTY_SET then
+        error(WHEN_OVERLAPPING, allWhenValues & currentWhenValues,
+              current_expression);
+      end if;
+      process_bitset(currentWhenValues,
           diagnosticLine(current_expression), c_expr);
+      allWhenValues := allWhenValues | currentWhenValues;
     else
       c_expr.expr &:= "/* case ";
       c_expr.expr &:= str(labelCategory);
@@ -530,7 +538,8 @@ const proc: process_case_labels (in reference: current_expression, inout expr_ty
   end func;
 
 
-const proc: process_when (in reference: when_expr, inout expr_type: c_expr) is func
+const proc: process_when (in reference: when_expr, in var bitset: allWhenValues,
+    inout expr_type: c_expr) is func
 
   local
     var ref_list: params is ref_list.EMPTY;
@@ -539,12 +548,12 @@ const proc: process_when (in reference: when_expr, inout expr_type: c_expr) is f
     params := getValue(when_expr, ref_list);
     function := params[1];
     params := params[2 ..];
-    process_case_labels(params[2], c_expr);
+    process_case_labels(params[2], allWhenValues, c_expr);
     process_expr(params[4], c_expr);
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "break;\n";
     if length(params) >= 5 then
-      process_when(params[5], c_expr);
+      process_when(params[5], allWhenValues, c_expr);
     end if;
   end func;
 
@@ -557,7 +566,7 @@ const proc: process (PRC_CASE, in reference: function,
     c_expr.expr &:= "switch (";
     process_expr(params[2], c_expr);
     c_expr.expr &:= ") {\n";
-    process_when(params[4], c_expr);
+    process_when(params[4], bitset.EMPTY_SET, c_expr);
     c_expr.expr &:= "}\n";
   end func;
 
@@ -570,7 +579,7 @@ const proc: process (PRC_CASE_DEF, in reference: function,
     c_expr.expr &:= "switch (";
     process_expr(params[2], c_expr);
     c_expr.expr &:= ") {\n";
-    process_when(params[4], c_expr);
+    process_when(params[4], bitset.EMPTY_SET, c_expr);
     c_expr.expr &:= "default:\n";
     process_expr(params[7], c_expr);
     c_expr.expr &:= "break;\n";

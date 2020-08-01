@@ -50,16 +50,27 @@ const func string: getCommandParameter (inout string: stri) is func
   local
     var integer: leng is 0;
     var integer: pos is 1;
+    var char: quotation is ' ';
   begin
     leng := length(stri);
-    if pos <= leng then
-      incr(pos);
-      while pos <= leng and stri[pos] in parameter_char do
+    repeat
+      if stri[pos] = '"' or stri[pos] = ''' then
+        quotation := stri[pos];
         incr(pos);
-      end while;
-      symbol := stri[.. pred(pos)];
-      stri := stri[pos ..];
-    end if;
+        while pos <= leng and stri[pos] <> quotation do
+          symbol &:= stri[pos];
+          incr(pos);
+        end while;
+        incr(pos);
+      else
+        repeat
+          symbol &:= stri[pos];
+          incr(pos);
+        until pos > leng or stri[pos] not in parameter_char or
+            stri[pos] = '"' or stri[pos] = ''';
+      end if;
+    until pos > leng or stri[pos] not in parameter_char;
+    stri := stri[pos ..];
   end func;
 
 
@@ -80,7 +91,7 @@ const func string: getCommandParameter (inout string: stri) is func
  *  character after the parameter.
  *  @return the next parameter for a Unix command.
  *)
-const func string: getUnixCommandParameter (inout string: stri, in set of char: allowed) is func
+const func string: getUnixCommandParameter (inout string: stri) is func
   result
     var string: symbol is "";
   local
@@ -88,11 +99,12 @@ const func string: getUnixCommandParameter (inout string: stri, in set of char: 
     var integer: pos is 1;
   begin
     leng := length(stri);
-    repeat
+    while pos <= leng and stri[pos] in parameter_char do
       if stri[pos] = '"' then
         incr(pos);
         while pos <= leng and stri[pos] <> '"' do
-          if stri[pos] = '\\' and pos < leng and (stri[succ(pos)] = '"' or stri[succ(pos)] = '\\') then
+          if stri[pos] = '\\' and pos < leng and
+              (stri[succ(pos)] = '"' or stri[succ(pos)] = '\\') then
             incr(pos);
           end if;
           symbol &:= stri[pos];
@@ -113,15 +125,64 @@ const func string: getUnixCommandParameter (inout string: stri, in set of char: 
           end if;
           symbol &:= stri[pos];
           incr(pos);
-        until pos > leng or stri[pos] not in allowed or stri[pos] = '"' or stri[pos] = ''';
+        until pos > leng or stri[pos] not in parameter_char or
+            stri[pos] = '"' or stri[pos] = ''';
       end if;
-    until pos > leng or stri[pos] not in allowed;
+    end while;
     stri := stri[pos ..];
   end func;
 
 
 (**
  *  Read a parameter for a Dos command from a 'string'.
+ *  Dos parameters consist of unquoted and quoted parts. Quoted parts
+ *  start with a double quote (") and end with the next double quote.
+ *  In an unquoted part a caret (^) can used to escape characters that
+ *  would otherwise have a special meaning. The caret is ignored and
+ *  the character after it is added to the word. To represent a caret
+ *  it must be doubled. When the function is called it is assumed that
+ *  stri[1] contains the first character of the parameter. When the
+ *  function is left 'stri' is empty or stri[1] contains the character
+ *  after the parameter.
+ *  @return the next parameter for a Dos command.
+ *)
+const func string: getDosCommandParameter (inout string: stri) is func
+  result
+    var string: symbol is "";
+  local
+    var integer: leng is 0;
+    var integer: pos is 1;
+  begin
+    leng := length(stri);
+    while pos <= leng and stri[pos] in dos_parameter_char do
+      if stri[pos] = '"' then
+        incr(pos);
+        while pos <= leng and stri[pos] <> '"' do
+          symbol &:= stri[pos];
+          incr(pos);
+        end while;
+        incr(pos);
+      else
+        repeat
+          if stri[pos] = '^' then
+            incr(pos);
+            if pos <= leng then
+              symbol &:= stri[pos];
+            end if;
+          else
+            symbol &:= stri[pos];
+          end if;
+          incr(pos);
+        until pos > leng or stri[pos] not in dos_parameter_char or
+            stri[pos] = '"';
+      end if;
+    end while;
+    stri := stri[pos ..];
+  end func;
+
+
+(**
+ *  Read a parameter for the Dos echo command from a 'string'.
  *  Dos parameters consist of unquoted and quoted parts. Quoted parts
  *  start with a double quote (") and end with the next double quote.
  *  The starting and ending double quotes are part of the result.
@@ -132,9 +193,9 @@ const func string: getUnixCommandParameter (inout string: stri, in set of char: 
  *  stri[1] contains the first character of the parameter. When the
  *  function is left 'stri' is empty or stri[1] contains the character
  *  after the parameter.
- *  @return the next parameter for a Dos command.
+ *  @return the next parameter for the Dos echo command.
  *)
-const func string: getDosCommandParameter (inout string: stri, in set of char: allowed) is func
+const func string: getDosEchoParameter (inout string: stri) is func
   result
     var string: symbol is "";
   local
@@ -167,9 +228,9 @@ const func string: getDosCommandParameter (inout string: stri, in set of char: a
             symbol &:= stri[pos];
           end if;
           incr(pos);
-        until pos > leng or stri[pos] not in allowed or stri[pos] = '"';
+        until pos > leng or stri[pos] not in dos_parameter_char or stri[pos] = '"';
       end if;
-    until pos > leng or stri[pos] not in allowed;
+    until pos > leng or stri[pos] not in dos_parameter_char;
     stri := stri[pos ..];
   end func;
 
@@ -261,8 +322,9 @@ const proc: doRm (inout string: command) is func
     var boolean: optionMayFollow is TRUE;
     var array string: fileList is 0 times "";
   begin
+    # writeln("doRm(" <& literal(command) <& ")");
     skipWhiteSpace(command);
-    parameter := getCommandParameter(command);
+    parameter := getUnixCommandParameter(command);
     while startsWith(parameter, "-") and optionMayFollow do
       parameter := parameter[2 ..];
       for option range parameter do
@@ -273,12 +335,12 @@ const proc: doRm (inout string: command) is func
         end case;
       end for;
       skipWhiteSpace(command);
-      parameter := getCommandParameter(command);
+      parameter := getUnixCommandParameter(command);
     end while;
     while parameter <> "" do
       addToFileList(fileList, parameter);
       skipWhiteSpace(command);
-      parameter := getCommandParameter(command);
+      parameter := getUnixCommandParameter(command);
     end while;
     doRemoveCmd(fileList, recursive, force);
   end func;
@@ -290,8 +352,9 @@ const proc: doDel (inout string: command) is func
     var boolean: recursive is FALSE;
     var array string: fileList is 0 times "";
   begin
+    # writeln("doDel(" <& literal(command) <& ")");
     skipWhiteSpace(command);
-    parameter := getCommandParameter(command);
+    parameter := getDosCommandParameter(command);
     while parameter <> "" do
       if upper(parameter) = "/S" then
         recursive := TRUE;
@@ -299,7 +362,7 @@ const proc: doDel (inout string: command) is func
         addToFileList(fileList, parameter);
       end if;
       skipWhiteSpace(command);
-      parameter := getCommandParameter(command);
+      parameter := getDosCommandParameter(command);
     end while;
     doRemoveCmd(fileList, recursive, FALSE);
   end func;
@@ -384,8 +447,9 @@ const proc: doCp (inout string: command) is func
     var boolean: optionMayFollow is TRUE;
     var array string: fileList is 0 times "";
   begin
+    # writeln("doCp(" <& literal(command) <& ")");
     skipWhiteSpace(command);
-    parameter := getCommandParameter(command);
+    parameter := getUnixCommandParameter(command);
     while startsWith(parameter, "-") and optionMayFollow do
       parameter := parameter[2 ..];
       for option range parameter do
@@ -398,12 +462,12 @@ const proc: doCp (inout string: command) is func
         end case;
       end for;
       skipWhiteSpace(command);
-      parameter := getCommandParameter(command);
+      parameter := getUnixCommandParameter(command);
     end while;
     while parameter <> "" do
       addToFileList(fileList, parameter);
       skipWhiteSpace(command);
-      parameter := getCommandParameter(command);
+      parameter := getUnixCommandParameter(command);
     end while;
     doCopyCmd(fileList, recursive, overwriteExisting, archive);
   end func;
@@ -415,8 +479,9 @@ const proc: doCopy (inout string: command) is func
     var boolean: overwriteExisting is FALSE;
     var array string: fileList is 0 times "";
   begin
+    # writeln("doCopy(" <& literal(command) <& ")");
     skipWhiteSpace(command);
-    parameter := getCommandParameter(command);
+    parameter := getDosCommandParameter(command);
     while parameter <> "" do
       if upper(parameter) = "/Y" then
         overwriteExisting := TRUE;
@@ -424,7 +489,7 @@ const proc: doCopy (inout string: command) is func
         addToFileList(fileList, parameter);
       end if;
       skipWhiteSpace(command);
-      parameter := getCommandParameter(command);
+      parameter := getDosCommandParameter(command);
     end while;
     doCopyCmd(fileList, FALSE, overwriteExisting, FALSE);
   end func;
@@ -438,8 +503,9 @@ const proc: doXCopy (inout string: command) is func
     var boolean: archive is FALSE;
     var array string: fileList is 0 times "";
   begin
+    # writeln("doXCopy(" <& literal(command) <& ")");
     skipWhiteSpace(command);
-    parameter := getCommandParameter(command);
+    parameter := getDosCommandParameter(command);
     while parameter <> "" do
       if upper(parameter) = "/E" then
         recursive := TRUE;
@@ -451,7 +517,7 @@ const proc: doXCopy (inout string: command) is func
         addToFileList(fileList, parameter);
       end if;
       skipWhiteSpace(command);
-      parameter := getCommandParameter(command);
+      parameter := getDosCommandParameter(command);
     end while;
     doCopyCmd(fileList, recursive, overwriteExisting, archive);
   end func;
@@ -524,8 +590,9 @@ const proc: doMv (inout string: command) is func
     var boolean: optionMayFollow is TRUE;
     var array string: fileList is 0 times "";
   begin
+    # writeln("doMv(" <& literal(command) <& ")");
     skipWhiteSpace(command);
-    parameter := getCommandParameter(command);
+    parameter := getUnixCommandParameter(command);
     while startsWith(parameter, "-") and optionMayFollow do
       parameter := parameter[2 ..];
       for option range parameter do
@@ -535,12 +602,12 @@ const proc: doMv (inout string: command) is func
         end case;
       end for;
       skipWhiteSpace(command);
-      parameter := getCommandParameter(command);
+      parameter := getUnixCommandParameter(command);
     end while;
     while parameter <> "" do
       addToFileList(fileList, parameter);
       skipWhiteSpace(command);
-      parameter := getCommandParameter(command);
+      parameter := getUnixCommandParameter(command);
     end while;
     doMoveCmd(fileList, overwriteExisting);
   end func;
@@ -552,8 +619,9 @@ const proc: doMove (inout string: command) is func
     var boolean: overwriteExisting is FALSE;
     var array string: fileList is 0 times "";
   begin
+    # writeln("doMove(" <& literal(command) <& ")");
     skipWhiteSpace(command);
-    parameter := getCommandParameter(command);
+    parameter := getDosCommandParameter(command);
     while parameter <> "" do
       if upper(parameter) = "/Y" then
         overwriteExisting := TRUE;
@@ -561,7 +629,7 @@ const proc: doMove (inout string: command) is func
         addToFileList(fileList, parameter);
       end if;
       skipWhiteSpace(command);
-      parameter := getCommandParameter(command);
+      parameter := getDosCommandParameter(command);
     end while;
     doMoveCmd(fileList, overwriteExisting);
   end func;
@@ -571,6 +639,7 @@ const func string: doPwd (inout string: command) is func
   result
     var string: commandOutput is "";
   begin
+    # writeln("doPwd(" <& literal(command) <& ")");
     skipWhiteSpace(command);
     if startsWith(command, "-W") then
       command := command[3 ..];
@@ -587,19 +656,20 @@ const func string: doEcho (inout string: command) is func
     var string: whiteSpace is "";
     var string: parameter is "";
   begin
+    # writeln("doEcho(" <& literal(command) <& ")");
     whiteSpace := getWhiteSpace(command);
     if command <> "" and (command[1] = '"' or command[1] = ''') then
       while command <> "" and command[1] in parameter_char do
         if commandOutput <> "" then
           commandOutput &:= whiteSpace;
         end if;
-        parameter := getUnixCommandParameter(command, parameter_char);
+        parameter := getUnixCommandParameter(command);
         commandOutput &:= execBacktickCommands(parameter);
         whiteSpace := getWhiteSpace(command);
       end while;
     else
       while command <> "" and command[1] in parameter_char do
-        parameter := getDosCommandParameter(command, dos_parameter_char);
+        parameter := getDosEchoParameter(command);
         commandOutput &:= parameter;
         commandOutput &:= getWhiteSpace(command);
       end while;
@@ -612,6 +682,7 @@ const proc: doCd (inout string: command) is func
   local
     var string: parameter is "";
   begin
+    # writeln("doCd(" <& literal(command) <& ")");
     skipWhiteSpace(command);
     if command <> "" then
       parameter := getCommandParameter(command);
@@ -638,6 +709,7 @@ const proc: doMake (inout string: command) is func
     var makeFlags: flags is makeFlags.value;
     var string: savedCurrentDir is "";
   begin
+    # writeln("doMake(" <& literal(command) <& ")");
     savedCurrentDir := getcwd;
     skipWhiteSpace(command);
     while command <> "" and command[1] in parameter_char do
@@ -687,7 +759,7 @@ const func boolean: doOneCommand (inout string: command,
     else
       commandName := lower(getWord(command));
       # writeln("doOneCommand: " <& commandName);
-      if commandName = "rm"then
+      if commandName = "rm" then
         doRm(command);
         commandOutput := "";
       elsif commandName = "del" or commandName = "erase" then

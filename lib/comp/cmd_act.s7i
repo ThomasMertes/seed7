@@ -51,6 +51,7 @@ const ACTION: CMD_SETENV           is action "CMD_SETENV";
 const ACTION: CMD_SET_ATIME        is action "CMD_SET_ATIME";
 const ACTION: CMD_SET_FILEMODE     is action "CMD_SET_FILEMODE";
 const ACTION: CMD_SET_MTIME        is action "CMD_SET_MTIME";
+const ACTION: CMD_SET_SEARCH_PATH  is action "CMD_SET_SEARCH_PATH";
 const ACTION: CMD_SHELL            is action "CMD_SHELL";
 const ACTION: CMD_SHELL_ESCAPE     is action "CMD_SHELL_ESCAPE";
 const ACTION: CMD_PIPE2            is action "CMD_PIPE2";
@@ -484,6 +485,16 @@ const proc: process (CMD_SET_MTIME, in reference: function,
     process_expr(params[8], c_expr);
     c_expr.expr &:= ", ";
     process_expr(params[9], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (CMD_SET_SEARCH_PATH, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "cmdSetSearchPath(";
+    getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ");\n";
   end func;
 

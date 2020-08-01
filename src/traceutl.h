@@ -41,13 +41,21 @@ traceRecord trace = {FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE};
 EXTERN traceRecord trace;
 #endif
 
+#define prot_ustri(stri) prot_cstri((const_cstriType) stri)
+#define prot_uchar(ch) prot_cchar((char) ch)
+
 
 void prot_flush (void);
 void prot_nl (void);
 void prot_cstri (const_cstriType stri);
+void prot_cchar (char ch);
 void prot_writeln (const_cstriType stri);
 void prot_int (intType ivalue);
 void prot_bigint (const const_bigIntType bintvalue);
+#ifdef WITH_FLOAT
+void prot_float (floatType floatValue);
+#endif
+void prot_char (charType cvalue);
 /* void prot_os_stri (const const_os_striType os_stri); */
 void prot_stri_unquoted (const const_striType stri);
 void prot_stri (const const_striType stri);

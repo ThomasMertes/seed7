@@ -243,17 +243,17 @@ objectType prc_case (listType arguments)
     objectType when_values;
     objectType when_set;
     setType set_value;
-    objectType when_statement;
+    objectType when_statement = NULL;
     errInfoType err_info = OKAY_NO_ERROR;
-    boolType searching;
+    listType err_arguments;
 
   /* prc_case */
-    searching = TRUE;
     switch_object = arg_2(arguments);
     when_objects = arg_4(arguments);
     current_when = when_objects;
+    err_arguments = arguments;
     switch_value = do_ord(switch_object, &err_info);
-    while (searching && current_when != NULL &&
+    while (err_info == OKAY_NO_ERROR && current_when != NULL &&
         CATEGORY_OF_OBJ(current_when) == MATCHOBJECT &&
         current_when->value.listValue->next->next->next->next != NULL) {
       when_values = arg_3(current_when->value.listValue);
@@ -266,22 +266,30 @@ objectType prc_case (listType arguments)
           when_values->descriptor.property = NULL;
           SET_CATEGORY_OF_OBJ(when_values, SETOBJECT);
           when_values->value.setValue = set_value;
+          current_when->value.listValue->next->next->obj = when_values;
         } /* if */
       } else {
         set_value = take_set(when_values);
       } /* if */
       if (setElem(switch_value, set_value)) {
-        when_statement = arg_5(current_when->value.listValue);
-        evaluate(when_statement);
-        searching = FALSE;
-      } else {
-        if (current_when->value.listValue->next->next->next->next->next != NULL) {
-          current_when = arg_6(current_when->value.listValue);
+        if (when_statement != NULL) {
+          err_info = ACTION_ERROR;
+          err_arguments = current_when->value.listValue->next;
         } else {
-          current_when = NULL;
+          when_statement = arg_5(current_when->value.listValue);
         } /* if */
       } /* if */
+      if (current_when->value.listValue->next->next->next->next->next != NULL) {
+        current_when = arg_6(current_when->value.listValue);
+      } else {
+        current_when = NULL;
+      } /* if */
     } /* while */
+    if (err_info != OKAY_NO_ERROR) {
+      return raise_with_arguments(prog.sys_var[err_info], err_arguments);
+    } else if (when_statement != NULL) {
+      evaluate(when_statement);
+    } /* if */
     return SYS_EMPTY_OBJECT;
   } /* prc_case */
 
@@ -298,17 +306,17 @@ objectType prc_case_def (listType arguments)
     objectType when_values;
     objectType when_set;
     setType set_value;
-    objectType when_statement;
+    objectType when_statement = NULL;
     errInfoType err_info = OKAY_NO_ERROR;
-    boolType searching;
+    listType err_arguments;
 
   /* prc_case_def */
-    searching = TRUE;
     switch_object = arg_2(arguments);
     when_objects = arg_4(arguments);
     current_when = when_objects;
+    err_arguments = arguments;
     switch_value = do_ord(switch_object, &err_info);
-    while (searching && current_when != NULL &&
+    while (err_info == OKAY_NO_ERROR && current_when != NULL &&
         CATEGORY_OF_OBJ(current_when) == MATCHOBJECT &&
         current_when->value.listValue->next->next->next->next != NULL) {
       when_values = arg_3(current_when->value.listValue);
@@ -321,23 +329,30 @@ objectType prc_case_def (listType arguments)
           when_values->descriptor.property = NULL;
           SET_CATEGORY_OF_OBJ(when_values, SETOBJECT);
           when_values->value.setValue = set_value;
+          current_when->value.listValue->next->next->obj = when_values;
         } /* if */
       } else {
         set_value = take_set(when_values);
       } /* if */
       if (setElem(switch_value, set_value)) {
-        when_statement = arg_5(current_when->value.listValue);
-        evaluate(when_statement);
-        searching = FALSE;
-      } else {
-        if (current_when->value.listValue->next->next->next->next->next != NULL) {
-          current_when = arg_6(current_when->value.listValue);
+        if (when_statement != NULL) {
+          err_info = ACTION_ERROR;
+          err_arguments = current_when->value.listValue->next;
         } else {
-          current_when = NULL;
+          when_statement = arg_5(current_when->value.listValue);
         } /* if */
       } /* if */
+      if (current_when->value.listValue->next->next->next->next->next != NULL) {
+        current_when = arg_6(current_when->value.listValue);
+      } else {
+        current_when = NULL;
+      } /* if */
     } /* while */
-    if (searching) {
+    if (err_info != OKAY_NO_ERROR) {
+      return raise_with_arguments(prog.sys_var[err_info], err_arguments);
+    } else if (when_statement != NULL) {
+      evaluate(when_statement);
+    } else {
       default_statement = arg_7(arguments);
       evaluate(default_statement);
     } /* if */

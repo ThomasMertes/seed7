@@ -38,6 +38,18 @@ include "cc_conf.s7i";
 const func array string: getSearchPath  is action "CMD_GET_SEARCH_PATH";
 
 
+(**
+ *  Sets the search path from an array of strings.
+ *  The search path is used by the current process and its sub processes.
+ *  The path of parent processes is not affected by this function.
+ *  @exception MEMORY_ERROR Not enough memory to convert the path
+ *             to the system string type.
+ *  @exception RANGE_ERROR The path cannot be converted to the
+ *             system string type or a system function returns an error.
+ *)
+const proc: setSearchPath (in array string: searchPath)  is action "CMD_SET_SEARCH_PATH";
+
+
 const func string: commandPath (in string: command) is func
   result
     var string: cmdPath is "";
