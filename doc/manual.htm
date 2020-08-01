@@ -18,28 +18,28 @@
 <big><b>CONTENTS</b></big>
 <!-- ======== -->
 <p><ol>
-<li><!--   1.     --><a href="#INTRODUCTION"><big><b>INTRODUCTION</b></big></a></li><ol>
+<li><!--   1.     --><a href="#INTRODUCTION"><big><b>INTRODUCTION</b></big></a><ol>
 <li><!--   1.1      --><a href="#What_is_Seed7"><b>What is Seed7?</b></a></li>
 <li><!--   1.2      --><a href="#Why_a_new_programming_language"><b>Why a new programming language?</b></a></li>
 <li><!--   1.3      --><a href="#Features_of_Seed7"><b>Features of Seed7</b></a></li>
-<li><!--   1.4      --><a href="#How_to_read_the_manual"><b>How to read the manual</b></a></li></ol>
-<li><!--   2.     --><a href="#TUTORIAL"><big><b>TUTORIAL</b></big></a></li><ol>
+<li><!--   1.4      --><a href="#How_to_read_the_manual"><b>How to read the manual</b></a></li></ol></li>
+<li><!--   2.     --><a href="#TUTORIAL"><big><b>TUTORIAL</b></big></a><ol>
 <li><!--   2.1      --><a href="#Hello_world"><b>Hello world</b></a></li>
 <li><!--   2.2      --><a href="#Local_declarations_and_expressions"><b>Local declarations and expressions</b></a></li>
 <li><!--   2.3      --><a href="#For_loop_and_float_expressions"><b>For loop and float expressions</b></a></li>
 <li><!--   2.4      --><a href="#Parameters"><b>Parameters</b></a></li>
 <li><!--   2.5      --><a href="#Declare_a_statement"><b>Declare a statement</b></a></li>
-<li><!--   2.6      --><a href="#Template_declaring_a_statement"><b>Template declaring a statement</b></a></li></ol>
+<li><!--   2.6      --><a href="#Template_declaring_a_statement"><b>Template declaring a statement</b></a></li></ol></li>
 <li><!--   3.     --><a href="#SYNTAX"><big><b>SYNTAX</b></big></a></li>
-<li><!--   4.     --><a href="#PREDEFINED_STATEMENTS"><big><b>PREDEFINED STATEMENTS</b></big></a></li><ol>
+<li><!--   4.     --><a href="#PREDEFINED_STATEMENTS"><big><b>PREDEFINED STATEMENTS</b></big></a><ol>
 <li><!--   4.1      --><a href="#Assignment"><b>Assignment</b></a></li>
 <li><!--   4.2      --><a href="#while-statement"><b>while-statement</b></a></li>
 <li><!--   4.3      --><a href="#repeat-statement"><b>repeat-statement</b></a></li>
 <li><!--   4.4      --><a href="#for-statement"><b>for-statement</b></a></li>
 <li><!--   4.5      --><a href="#for-iterator-statement"><b>for-iterator-statement</b></a></li>
 <li><!--   4.6      --><a href="#if-statement"><b>if-statement</b></a></li>
-<li><!--   4.7      --><a href="#case-statement"><b>case-statement</b></a></li></ol>
-<li><!--   5.     --><a href="#PREDEFINED_TYPES"><big><b>PREDEFINED TYPES</b></big></a></li><ol>
+<li><!--   4.7      --><a href="#case-statement"><b>case-statement</b></a></li></ol></li>
+<li><!--   5.     --><a href="#PREDEFINED_TYPES"><big><b>PREDEFINED TYPES</b></big></a><ol>
 <li><!--   5.1      --><a href="#boolean"><b>boolean</b></a></li>
 <li><!--   5.2      --><a href="#integer"><b>integer</b></a></li>
 <li><!--   5.3      --><a href="#bigInteger"><b>bigInteger</b></a></li>
@@ -70,61 +70,92 @@
 <li><!--   5.28     --><a href="#proc"><b>proc</b></a></li>
 <li><!--   5.29     --><a href="#type"><b>type</b></a></li>
 <li><!--   5.30     --><a href="#object"><b>object</b></a></li>
-<li><!--   5.31     --><a href="#expr"><b>expr</b></a></li></ol>
-<li><!--   6.     --><a href="#PARAMETERS"><big><b>PARAMETERS</b></big></a></li><ol>
+<li><!--   5.31     --><a href="#expr"><b>expr</b></a></li></ol></li>
+<li><!--   6.     --><a href="#PARAMETERS"><big><b>PARAMETERS</b></big></a><ol>
 <li><!--   6.1      --><a href="#val_parameter"><b>'val' parameter</b></a></li>
 <li><!--   6.2      --><a href="#ref_parameter"><b>'ref' parameter</b></a></li>
 <li><!--   6.3      --><a href="#in_parameter"><b>'in' parameter</b></a></li>
 <li><!--   6.4      --><a href="#in_var_parameter"><b>'in var' parameter</b></a></li>
 <li><!--   6.5      --><a href="#inout_parameter"><b>'inout' parameter</b></a></li>
 <li><!--   6.6      --><a href="#Symbol_parameter"><b>Symbol parameter</b></a></li>
-<li><!--   6.7      --><a href="#attr_parameter"><b>'attr' parameter</b></a></li></ol>
-<li><!--   7.     --><a href="#OBJECT_ORIENTATION"><big><b>OBJECT ORIENTATION</b></big></a></li><ol>
+<li><!--   6.7      --><a href="#attr_parameter"><b>'attr' parameter</b></a></li></ol></li>
+<li><!--   7.     --><a href="#OBJECT_ORIENTATION"><big><b>OBJECT ORIENTATION</b></big></a><ol>
 <li><!--   7.1      --><a href="#interface_and_implementation"><b>Interface and implementation</b></a></li>
 <li><!--   7.2      --><a href="#dynamic_dispatch"><b>Dynamic dispatch</b></a></li>
 <li><!--   7.3      --><a href="#inheritance"><b>Inheritance</b></a></li>
-<li><!--   7.4      --><a href="#multiple_dispatch"><b>Multiple dispatch</b></a></li></ol>
-<li><!--   8.     --><a href="#THE_FILE_SYSTEM"><big><b>THE FILE SYSTEM</b></big></a></li><ol>
+<li><!--   7.4      --><a href="#multiple_dispatch"><b>Multiple dispatch</b></a></li></ol></li>
+<li><!--   8.     --><a href="#THE_FILE_SYSTEM"><big><b>THE FILE SYSTEM</b></big></a><ol>
 <li><!--   8.1      --><a href="#Conversion_to_strings_and_back"><b>Conversion to strings and back</b></a></li>
 <li><!--   8.2      --><a href="#Basic_input_and_output_operations"><b>Basic input and output operations</b></a></li>
 <li><!--   8.3      --><a href="#Input_and_output_with_conversion"><b>Input and output with conversion</b></a></li>
 <li><!--   8.4      --><a href="#Simple_read_and_write_statements"><b>Simple read and write statements</b></a></li>
 <li><!--   8.5      --><a href="#Standard_input_and_output_files"><b>Standard input and output files</b></a></li>
 <li><!--   8.6      --><a href="#Access_to_operating_system_files"><b>Access to operating system files</b></a></li>
-<li><!--   8.7      --><a href="#User_defined_file_types"><b>User defined file types</b></a></li></ol>
-<li><!--   9.     --><a href="#DECLARATIONS"><big><b>DECLARATIONS</b></big></a></li><ol>
+<li><!--   8.7      --><a href="#User_defined_file_types"><b>User defined file types</b></a></li></ol></li>
+<li><!--   9.     --><a href="#DECLARATIONS"><big><b>DECLARATIONS</b></big></a><ol>
 <li><!--   9.1      --><a href="#System_declarations"><b>System declarations</b></a></li>
 <li><!--   9.2      --><a href="#Syntax_declarations"><b>Syntax declarations</b></a></li>
-<li><!--   9.3      --><a href="#Semantic_declarations"><b>Semantic declarations</b></a></li></ol>
-<li><!--   10.    --><a href="#TOKENS"><big><b>TOKENS</b></big></a></li><ol>
-<li><!--   10.1     --><a href="#White_space"><b>White space</b></a></li><ol>
+<li><!--   9.3      --><a href="#Semantic_declarations"><b>Semantic declarations</b></a></li></ol></li>
+<li><!--   10.    --><a href="#TOKENS"><big><b>TOKENS</b></big></a><ol>
+<li><!--   10.1     --><a href="#White_space"><b>White space</b></a><ol>
 <li><!--   10.1.1     --><a href="#Spaces"><b><i>Spaces</i></b></a></li>
 <li><!--   10.1.2     --><a href="#Comments"><b><i>Comments</i></b></a></li>
-<li><!--   10.1.3     --><a href="#Line comments"><b><i>Line comments</i></b></a></li></ol>
-<li><!--   10.2     --><a href="#Identifiers"><b>Identifiers</b></a></li><ol>
+<li><!--   10.1.3     --><a href="#Line comments"><b><i>Line comments</i></b></a></li></ol></li>
+<li><!--   10.2     --><a href="#Identifiers"><b>Identifiers</b></a><ol>
 <li><!--   10.2.1     --><a href="#Name identifiers"><b><i>Name identifiers</i></b></a></li>
 <li><!--   10.2.2     --><a href="#Special identifiers"><b><i>Special identifiers</i></b></a></li>
-<li><!--   10.2.3     --><a href="#Parentheses"><b><i>Parentheses</i></b></a></li></ol>
-<li><!--   10.3     --><a href="#Literals"><b>Literals</b></a></li><ol>
+<li><!--   10.2.3     --><a href="#Parentheses"><b><i>Parentheses</i></b></a></li></ol></li>
+<li><!--   10.3     --><a href="#Literals"><b>Literals</b></a><ol>
 <li><!--   10.3.1     --><a href="#Integer literals"><b><i>Integer literals</i></b></a></li>
 <li><!--   10.3.2     --><a href="#String literals"><b><i>String literals</i></b></a></li>
-<li><!--   10.3.3     --><a href="#Character literals"><b><i>Character literals</i></b></a></li></ol></ol>
-<li><!--   11.    --><a href="#EXPRESSIONS"><big><b>EXPRESSIONS</b></big></a></li><ol>
+<li><!--   10.3.3     --><a href="#Character literals"><b><i>Character literals</i></b></a></li></ol></li></ol></li>
+<li><!--   11.    --><a href="#EXPRESSIONS"><big><b>EXPRESSIONS</b></big></a><ol>
 <li><!--   11.1     --><a href="#EXPRESSION_Parentheses"><b>Parentheses</b></a></li>
 <li><!--   11.2     --><a href="#Call_expressions"><b>Call expressions</b></a></li>
-<li><!--   11.3     --><a href="#Dot_expressions"><b>Dot expressions</b></a></li></ol>
-<li><!--   12.    --><a href="#OPERATING_SYSTEM_ACCESS"><big><b>OPERATING SYSTEM ACCESS</b></big></a></li><ol>
+<li><!--   11.3     --><a href="#Dot_expressions"><b>Dot expressions</b></a></li></ol></li>
+<li><!--   12.    --><a href="#OPERATING_SYSTEM_ACCESS"><big><b>OPERATING SYSTEM ACCESS</b></big></a><ol>
 <li><!--   12.1     --><a href="#Directory_access"><b>Directory access</b></a></li>
 <li><!--   12.2     --><a href="#Other_directory_operations"><b>Other directory operations</b></a></li>
-<li><!--   12.3     --><a href="#File_operations"><b>File operations</b></a></li></ol>
-<li><!--   13.    --><a href="#PRIMITIVE_ACTIONS"><big><b>PRIMITIVE ACTIONS</b></big></a></li>
-<li><!--   14.    --><a href="#ERRORS"><big><b>ERRORS</b></big></a></li><ol>
+<li><!--   12.3     --><a href="#File_operations"><b>File operations</b></a></li></ol></li>
+<li><!--   13.    --><a href="#PRIMITIVE_ACTIONS"><big><b>PRIMITIVE ACTIONS</b></big></a><ol>
+<li><!--   13.1     --><a href="#ACTION"><b>Actions for the type ACTION</b></a></li>
+<li><!--   13.2     --><a href="#array"><b>Actions for array types</b></a></li>
+<li><!--   13.3     --><a href="#bigInteger"><b>Actions for the type bigInteger</b></a></li>
+<li><!--   13.4     --><a href="#boolean"><b>Actions for the type boolean</b></a></li>
+<li><!--   13.5     --><a href="#bstring"><b>Actions for byte strings</b></a></li>
+<li><!--   13.6     --><a href="#char"><b>Actions for the type char</b></a></li>
+<li><!--   13.7     --><a href="#commands"><b>Actions for various directory, file and other commands</b></a></li>
+<li><!--   13.8     --><a href="#declarations"><b>Actions for declarations</b></a></li>
+<li><!--   13.9     --><a href="#graphic_output"><b>Actions to do graphic output</b></a></li>
+<li><!--   13.10    --><a href="#enumeration"><b>Actions for enumeration types</b></a></li>
+<li><!--   13.11    --><a href="#PRIMITIVE_FILE"><b>Actions for the type PRIMITIVE_FILE</b></a></li>
+<li><!--   13.12    --><a href="#float"><b>Actions for the type float</b></a></li>
+<li><!--   13.13    --><a href="#graphic_keyboard"><b>Actions to support the graphic keyboard</b></a></li>
+<li><!--   13.14    --><a href="#hash"><b>Actions for hash types</b></a></li>
+<li><!--   13.15    --><a href="#integer"><b>Actions for the type integer</b></a></li>
+<li><!--   13.16    --><a href="#interface"><b>Actions for interface types</b></a></li>
+<li><!--   13.17    --><a href="#console_keyboard"><b>Actions to support the text (console) screen keyboard</b></a></li>
+<li><!--   13.18    --><a href="#list"><b>Actions for the list type</b></a></li>
+<li><!--   13.19    --><a href="#proc"><b>Actions for proc operations and statements</b></a></li>
+<li><!--   13.20    --><a href="#program"><b>Actions for the type program</b></a></li>
+<li><!--   13.21    --><a href="#reference"><b>Actions for the type reference</b></a></li>
+<li><!--   13.22    --><a href="#ref_list"><b>Actions for the type ref_list</b></a></li>
+<li><!--   13.23    --><a href="#console_output"><b>Actions for text (console) screen output</b></a></li>
+<li><!--   13.24    --><a href="#struct"><b>Actions for struct types</b></a></li>
+<li><!--   13.25    --><a href="#set"><b>Actions for set types</b></a></li>
+<li><!--   13.26    --><a href="#PRIMITIVE_SOCKET"><b>Actions for the type PRIMITIVE_SOCKET</b></a></li>
+<li><!--   13.27    --><a href="#string"><b>Actions for the type string</b></a></li>
+<li><!--   13.28    --><a href="#time"><b>Actions for the type time</b></a></li>
+<li><!--   13.29    --><a href="#type"><b>Actions for the type type</b></a></li>
+<li><!--   13.30    --><a href="#utf8_file"><b>Actions for the type utf8_file</b></a></li></ol></li>
+<li><!--   14.    --><a href="#ERRORS"><big><b>ERRORS</b></big></a><ol>
 <li><!--   14.1     --><a href="#Compile_time_errors"><b>Compile time errors</b></a></li>
 <li><!--   14.2     --><a href="#Exceptions"><b>Exceptions</b></a></li>
 <li><!--   14.3     --><a href="#Handlers"><b>Handlers</b></a></li>
 <li><!--   14.4     --><a href="#Stack_trace"><b>Stack trace</b></a></li>
-<li><!--   14.5     --><a href="#Other_errors_and_warnings"><b>Other errors and warnings</b></a></li></ol>
-</ol></p><hr>
+<li><!--   14.5     --><a href="#Other_errors_and_warnings"><b>Other errors and warnings</b></a></li></ol></li>
+</ol></p>
+<hr>
 
 <p></p>
 <a name="INTRODUCTION"><big><b>1. INTRODUCTION</b></big></a>
@@ -2850,9 +2881,9 @@
       obj_number(A) Delivers an unique number for each object
                   ( Type of result: <font color=red>integer</font>,
                     obj_number(NIL) => 0 )
-      is_var(A) Reference to a variable object
+      isVar(A)  Reference to a variable object
                   ( Type of result: <font color=red>boolean</font>,
-                    is_var(NIL) => EXCEPTION RANGE_ERROR )
+                    isVar(NIL) => EXCEPTION RANGE_ERROR )
       params(A) Gets the formal params of a function
                   ( Type of result: <font color=red>ref_list</font> )
       local_vars(A) Gets the local variables of a function
@@ -2950,6 +2981,9 @@
       hashCode(A) Hash function
                   ( Type of result: <font color=red>integer</font> )
     Statements:
+      setVar(A, B) Set var flag of referenced object A to B
+                  ( Type of argument B: <font color=red>boolean</font>,
+                    setVar(NIL, B) => EXCEPTION RANGE_ERROR )
       setCategory(A, B) Set the category of the referenced object A to B
                   ( Type of argument B: <font color=red>category</font>,
                     setCategory(NIL, B) => EXCEPTION RANGE_ERROR )
@@ -4071,14 +4105,30 @@
 <p>
   Seed7 uses interface types and implementation types.
   Objects declared with an interface type refer to a value
-  which has an implementation type. The interface type of
-  an object can always be determined at compile-time. Several
-  implementation types can belong to one interface type (they
-  implement the interface type). E.g.: The types <tt>'<font color=red>null_file</font>'</tt>,
-  <tt>'<font color=red>external_file</font>'</tt> and <tt>'<font color=red>socket</font>'</tt> implement the <tt>'<font color=red>file</font>'</tt> interface.
-  An interface object can only refer to a value with an
-  implementation type that implements the interface. E.g.:
-  A <tt>'<font color=red>shape</font>'</tt> variable cannot refer to a <tt>'<font color=red>socket</font>'</tt>.
+  which has an implementation type. This siuation is
+  described with the following picture:
+</p><pre>
+              +----------------+
+    declared  |    interface   |<--- interface type
+    object:   |     object     |     (known at compile-time)
+              +----------------+
+                      |
+                      | refer to value
+                      V
+              +----------------+
+    value:    | implementation |<--- implementation type
+              |     object     |     (unknown at compile-time)
+              +----------------+
+</pre><p>
+  The interface type of an object can always be determined
+  at compile-time. Several implementation types can belong
+  to one interface type (they implement the interface type).
+  E.g.: The types <tt>'<font color=red>null_file</font>'</tt>, <tt>'<font color=red>external_file</font>'</tt> and <tt>'<font color=red>socket</font>'</tt>
+  implement the <tt>'<font color=red>file</font>'</tt> interface. On the other hand: An
+  implementation type can also implement several interface
+  types. An interface object can only refer to a value with
+  an implementation type that implements the interface.
+  E.g.: A <tt>'<font color=red>shape</font>'</tt> variable cannot refer to a <tt>'<font color=red>socket</font>'</tt>.
 </p><p>
   A new interface type is declared with:
 </p><pre>
@@ -4112,12 +4162,25 @@
       <font color=blue>end func</font>;
 </pre><p>
   In the classic OOP philosopy a message is sent to an object.
+  To express this situation classic OO languages use the
+  following method call syntax:
+</p><pre>
+    param1.method(param2, param3)
+</pre><p>
   In the method the receiving object is referred with <tt>'self'</tt> or
   <tt>'this'</tt>. The other parameters use the same mechanisms as in
   procedural programming languages (value or reference parameter). 
-  Seed7 uses a different approach: All parameters get a user
-  defined name. In the above example the name <tt>'aCircle'</tt> was used
-  for the <tt>'self'</tt>/<tt>'this'</tt> parameter.
+  Seed7 uses a different approach: Instead of an implicit defined
+  <tt>'self'</tt> or <tt>'this'</tt> parameter, all formal parameters get a user
+  defined name. To reflect this symmetric approach a Seed7 method
+  call looks like a normal function call:
+</p><pre>
+    method(param1, param2, param3)
+</pre><p>
+  The definition of the <tt>'draw'</tt> function above uses the formal
+  parameter <tt>'aCircle'</tt> in the role of a <tt>'self'</tt> or <tt>'this'</tt> parameter.
+  Formal parameters which have an implementation type are
+  automatically in the role of a <tt>'self'</tt> or <tt>'this'</tt> parameter.
 </p><p>
   A function to create new circle objects can also be helpful:
 </p><pre>
@@ -4148,11 +4211,12 @@
   The type of the value, refered by an interface object, is not
   known at compile-time. In this case the program must decide at
   runtime which implementation of the function should be invoked.
-  This decision is based on the type of the value of an object.
-  A dynamic dispatch only takes place when a DYNAMIC (or
-  interface) function is called. When the program is analyzed
-  (in the interpreter or compiler) the interface functions take
-  precedence over normal functions when both are to be considered.
+  This decision is based on the implementation type of the value
+  (refered by the interface object). A dynamic dispatch only
+  takes place when a DYNAMIC (or interface) function is called.
+  When the program is analyzed (in the interpreter or compiler)
+  the interface functions take precedence over normal functions
+  when both are to be considered.
 </p><p>
   To demonstrate the dynamic dispatch we define the type <tt>'<font color=red>line</font>'</tt>
   which also implements a <tt>'<font color=red>shape</font>'</tt>:
@@ -6143,6 +6207,8 @@
   information to use this statement. But it is not possible
   to change the position or the type of the parameters because
   they are hard coded in the interpreter.
+  If you are interested in the Seed7 definitions of the
+  primitive actions just look into the file seed7_05.s7i .
 </p><p>
     Currently there are several hundred primitive actions
   predefined in the interpreter. They all have names in upper
@@ -6151,23 +6217,80 @@
     TYPE_ACTION
 </pre><p>
   Which means that for example all <tt>'<font color=red>integer</font>'</tt> actions start with
-  INT_ and all assignment actions end with _CPY . For the
-  following types exist primitive actions (which are grouped
-  together in the *lib.c files mentioned):
+  INT_ and all assignment actions end with _CPY .
+  The following list shows actions which are used with more
+  than one type:
+</p><pre>
+    _ABS      Absolute value
+    _ADD      Addition
+    _CAT      Concatenation
+    _CMP      Compare
+    _CPY      Copy (Assignment)
+    _CREATE   Initialize (Construct)
+    _DESTR    Destroy (Destruct)
+    _DECR     Decrement
+    _DIV      Division
+    _EQ       Equal
+    _GE       Greater equal
+    _GETC     Get one character from a <font color=red>file</font>
+    _GETS     Get string with maximum length from a <font color=red>file</font>
+    _GT       Greater than
+    _HASHCODE Compute a hashCode
+    _HEAD     Head of <font color=red>ref_list</font>, <font color=red>array</font>, <font color=red>string</font>
+    _ICONV    Conversion of <font color=red>integer</font> to another type
+    _IDX      Index (Element) of <font color=red>ref_list</font>, <font color=red>array</font>, <font color=red>string</font>
+    _INCR     Increment
+    _LE       Less equal
+    _LNG      Length
+    _LOG2     Base 2 logarithm
+    _LOWER    Convert to lower case
+    _LSHIFT   Shift left
+    _LT       Less than
+    _MDIV     Modulo division (Integer division truncated towards negative infinity)
+    _MINUS    Change sign
+    _MOD      Modulo (Reminder of _MDIV integer division)
+    _MULT     Multiply
+    _NE       Not equal
+    _ODD      Odd number
+    _ORD      Ordinal number
+    _PARSE    Conversion of  <font color=red>string</font> to another type
+    _PLUS     Positive sign (noop)
+    _POW      Power
+    _PRED     Predecessor
+    _RAND     Random value
+    _RANGE    Range of <font color=red>ref_list</font>, <font color=red>array</font>, <font color=red>string</font>
+    _REM      Remainder (Reminder of _DIV integer division)
+    _RSHIFT   Arithmetic shift right
+    _SBTR     Subtract
+    _SCAN     Convert from <font color=red>string</font> to another type
+    _SEEK     Set actual file position of a <font color=red>file</font>
+    _SQRT     Square root
+    _STR      Convert to <font color=red>string</font>
+    _SUCC     Successor
+    _TAIL     Tail of <font color=red>ref_list</font>, <font color=red>array</font>, <font color=red>string</font>
+    _TELL     Return the actual <font color=red>file</font> position
+    _UPPER    Convert to upper case
+    _VALUE    Dereference a <font color=red>reference</font>
+    _WRITE    Write <font color=red>string</font> to <font color=red>file</font>
+</pre><p>
+  For the following types primitive actions are defined (which
+  are grouped together in the *lib.c files mentioned):
 </p><pre>
     ACT_  actlib.c  <font color=red>ACTION</font> operations
     ARR_  arrlib.c  <font color=red>array</font> operations
     BIG_  biglib.c  <font color=red>bigInteger</font> operations
     BLN_  blnlib.c  <font color=red>boolean</font> operations
+    BST_  bstlib.c  Operations for byte strings
     CHR_  chrlib.c  <font color=red>char</font> operations
     CMD_  cmdlib.c  Various directory, file and other commands
     DCL_  dcllib.c  Declaration operations
     DRW_  drwlib.c  Drawing operations
     ENU_  enulib.c  Enumeration operations
-    FIL_  fillib.c  <font color=red>external_file</font> operations
+    FIL_  fillib.c  <font color=red>PRIMITIVE_FILE</font> operations
     FLT_  fltlib.c  <font color=red>float</font> operations
     HSH_  hshlib.c  <font color=red>hash</font> operations
     INT_  intlib.c  <font color=red>integer</font> operations
+    ITF_  itflib.c  Operations for interface types
     KBD_  kbdlib.c  Keyboard operations
     LST_  lstlib.c  List operations
     PRC_  prclib.c  <font color=red>proc</font> operations and statements
@@ -6177,63 +6300,835 @@
     SCR_  scrlib.c  Screen operations
     SCT_  sctlib.c  <font color=red>struct</font> operations
     SET_  setlib.c  <font color=red>set</font> operations
+    SOC_  soclib.c  <font color=red>PRIMITIVE_SOCKET</font> operations
     STR_  strlib.c  <font color=red>string</font> operations
     TIM_  timlib.c  <font color=red>time</font> and <font color=red>duration</font> operations
     TYP_  typlib.c  <font color=red>type</font> operations
     UT8_  ut8lib.c  <font color=red>utf8_file</font> operations
 </pre><p>
+  Every *lib.c file has a corresonding *lib.h file.
   The C functions in the *lib.c files have lowercase names.
   Therefore the <tt>'PRC_WHILE'</tt> action is implemented
   as the C function <tt>'prc_while'</tt> in the file <tt>'prclib.c'</tt>.
   The prototype for all C primitiv action functions is identical.
   The  <tt>'prc_while'</tt> function has the following prototype:
 </p><pre>
-    objecttype prc_while (listtype);
+    objecttype prc_while (listtype arguments);
 </pre><p>
-  All the *lib.c files containing primitive actions are grouped
-  together in the Seed7 runtime library (Licensed under LGPL).
-  Every *lib.c file has a corresonding *lib.h file.
-  The following list shows actions which are used with more than
-  one type:
+  The file <tt>'memory.h'</tt> contains several macros and functions which
+  help to handle the arguments (parameter list) of a C primitiv
+  action function.
+<ul>
+    <li><!-- -  -->The macros <tt>'arg_1'</tt>, <tt>'arg_2'</tt>,
+      <tt>'arg_3'</tt>, etc. can be used to get an individual argument
+      (E.g.: <tt>'arg_3(arguments)'</tt> ).</li>
+    <li><!-- -  -->The macros <tt>'isit_int'</tt>, <tt>'isit_stri'</tt>,
+      <tt>'isit_file'</tt>, etc. can be used to check for the correct
+      <font color=red>category</font> of an argument
+      (E.g.: <tt>'isit_int(arg_1(arguments))'</tt> ).</li>
+    <li><!-- -  -->The macros <tt>'take_char'</tt>, <tt>'take_float'</tt>,
+      <tt>'take_bigint'</tt>, etc. can be used to get the corresponding
+      value of an argument (E.g.: <tt>'take_int(arg_1(arguments))'</tt> ).</li>
+    <li><!-- -  -->The functions <tt>'bld_int_temp'</tt>, <tt>'bld_array_temp'</tt>,
+      <tt>'bld_win_temp'</tt>, etc. can be used to create the (objecttype)
+      result of a primitiv action (E.g.: <tt>'return(bld_int_temp(0))'</tt> ).</li>
+</ul><p>
+  The C primitiv action function for the <tt>'INT_ADD'</tt> action is
+  defined in the file <tt>'intlib.c'</tt> as:
 </p><pre>
-    _ABS     Absolute value
-    _ADD     Addition
-    _CAT     Concatenation
-    _CMP     Compare
-    _CPY     Copy (Assignment)
-    _CREATE  Initialize (Construct)
-    _DESTR   Destroy (Destruct)
-    _DECR    Decrement
-    _DIV     Division
-    _EQ      Equal
-    _GE      Greater equal
-    _GT      Greater than
-    _HEAD    Head of <font color=red>ref_list</font>, <font color=red>array</font>, <font color=red>string</font>
-    _IDX     Index (Element) of <font color=red>ref_list</font>, <font color=red>array</font>, <font color=red>string</font>
-    _INCR    Increment
-    _LE      Less equal
-    _LNG     Length
-    _LOWER   Convert to lower case
-    _LT      Less than
-    _MINUS   Change sign
-    _MULT    Multiply
-    _NE      Not equal
-    _PLUS    Positive sign (noop)
-    _POW     Power
-    _PRED    Predecessor
-    _RAND    Random value
-    _RANGE   Range of <font color=red>ref_list</font>, <font color=red>array</font>, <font color=red>string</font>
-    _SBTR    Subtract
-    _SCAN    Convert from <font color=red>string</font> to another type
-    _SQRT    Square root
-    _STR     Convert to <font color=red>string</font>
-    _SUCC    Successor
-    _TAIL    Tail of <font color=red>ref_list</font>, <font color=red>array</font>, <font color=red>string</font>
-    _UPPER   Convert to upper case
+    objecttype int_add (listtype arguments)
+
+      { /* int_add */
+        isit_int(arg_1(arguments));
+        isit_int(arg_3(arguments));
+        return(bld_int_temp(
+            take_int(arg_1(arguments)) +
+            take_int(arg_3(arguments))));
+      } /* int_add */
 </pre><p>
-  If you are interested in the primitive actions just look into
-  the file seed7_05.s7i .
-</p><hr>
+  All the *lib.c files containing primitive actions and various
+  other files with their functions are grouped together in the
+  <tt>'s7_comp.a'</tt> library (Licensed under GPL). Furthermore the C
+  primitiv action functions (E.g.: int_parse) of the *lib.c
+  files may use corresponding functions (E.g.: intParse) which
+  can be found in *_rtl.c files (E.g.: int_rtl.c). The *_rtl.c
+  files are grouped together in the <tt>'seed7_05.a'</tt> library
+  (Licensed under LGPL). When a Seed7 program is compiled with
+  the Seed7 compiler (comp.sd7) inline code is generated for
+  many primitive actions. To implement the remaining primitive
+  actions the functions of the <tt>'seed7_05.a'</tt> library are used.
+</p>
+<a name="ACTION"><b>13.1 Actions for the type ACTION</b></a>
+<p></p><table border="1">
+    <tr><td>Action name</td>         <td>actlib.c function</td>   <td>act_comp.c function</td></tr>
+    <tr><td>ACT_ILLEGAL</td>         <td>act_illegal</td>         <td></td></tr>
+    <tr><td>ACT_CPY</td>             <td>act_cpy</td>             <td>=</td></tr>
+    <tr><td>ACT_CREATE</td>          <td>act_create</td>          <td></td></tr>
+    <tr><td>ACT_GEN</td>             <td>act_gen</td>             <td></td></tr>
+    <tr><td>ACT_STR</td>             <td>act_str</td>             <td>actStr</td></tr>
+    <tr><td>ACT_VALUE</td>           <td>act_value</td>           <td>actValue</td></tr>
+</table><p></p>
+<a name="array"><b>13.2 Actions for array types</b></a>
+<p></p><table border="1">
+    <tr><td>Action name</td>         <td>arrlib.c function</td>   <td>arr_rtl.c function</td></tr>
+    <tr><td>ARR_APPEND</td>          <td>arr_append</td>          <td>arrAppend</td></tr>
+    <tr><td>ARR_ARRLIT</td>          <td>arr_arrlit</td>          <td>arrArrlit</td></tr>
+    <tr><td>ARR_ARRLIT2</td>         <td>arr_arrlit2</td>         <td>arrArrlit2</td></tr>
+    <tr><td>ARR_BASELIT</td>         <td>arr_baselit</td>         <td>arrBaselit</td></tr>
+    <tr><td>ARR_BASELIT2</td>        <td>arr_baselit2</td>        <td>arrBaselit2</td></tr>
+    <tr><td>ARR_CAT</td>             <td>arr_cat</td>             <td>arrCat</td></tr>
+    <tr><td>ARR_CONV</td>            <td>arr_conv</td>            <td>(noop)</td></tr>
+    <tr><td>ARR_CPY</td>             <td>arr_cpy</td>             <td>cpy_ ...</td></tr>
+    <tr><td>ARR_CREATE</td>          <td>arr_create</td>          <td>create_ ...</td></tr>
+    <tr><td>ARR_DESTR</td>           <td>arr_destr</td>           <td>destr_ ...</td></tr>
+    <tr><td>ARR_EMPTY</td>           <td>arr_empty</td>           <td></td></tr>
+    <tr><td>ARR_EXTEND</td>          <td>arr_extend</td>          <td>arrExtend</td></tr>
+    <tr><td>ARR_GEN</td>             <td>arr_gen</td>             <td>arrGen</td></tr>
+    <tr><td>ARR_HEAD</td>            <td>arr_head</td>            <td>arrHead</td></tr>
+    <tr><td>ARR_IDX</td>             <td>arr_idx</td>             <td>a-&gt;arr[b-a-&gt;min_position]</td></tr>
+    <tr><td>ARR_LNG</td>             <td>arr_lng</td>             <td>a->max_position-a->min_position + 1</td></tr>
+    <tr><td>ARR_MAXIDX</td>          <td>arr_maxidx</td>          <td>a->max_position</td></tr>
+    <tr><td>ARR_MINIDX</td>          <td>arr_minidx</td>          <td>a->min_position</td></tr>
+    <tr><td>ARR_RANGE</td>           <td>arr_range</td>           <td>arrRange</td></tr>
+    <tr><td>ARR_REMOVE</td>          <td>arr_remove</td>          <td>arrRemove</td></tr>
+    <tr><td>ARR_SORT</td>            <td>arr_sort</td>            <td>arrSort</td></tr>
+    <tr><td>ARR_TAIL</td>            <td>arr_tail</td>            <td>arrTail</td></tr>
+    <tr><td>ARR_TIMES</td>           <td>arr_times</td>           <td>times_ ...</td></tr>
+</table><p></p>
+<a name="bigInteger"><b>13.3 Actions for the type bigInteger</b></a>
+<p></p><table border="1">
+    <tr><td>Action name</td>         <td>biglib.c function</td>   <td>big_rtl.c function</td></tr>
+    <tr><td>BIG_ABS</td>             <td>big_abs</td>             <td>bigAbs</td></tr>
+    <tr><td>BIG_ADD</td>             <td>big_add</td>             <td>bigAdd, bigAddTemp</td></tr>
+    <tr><td>BIG_BIT_LENGTH</td>      <td>big_bit_length</td>      <td>bigBitLength</td></tr>
+    <tr><td>BIG_CLIT</td>            <td>big_clit</td>            <td>bigCLit</td></tr>
+    <tr><td>BIG_CMP</td>             <td>big_cmp</td>             <td>bigCmp</td></tr>
+    <tr><td>BIG_CPY</td>             <td>big_cpy</td>             <td>bigCpy</td></tr>
+    <tr><td>BIG_CREATE</td>          <td>big_create</td>          <td>bigCreate</td></tr>
+    <tr><td>BIG_DECR</td>            <td>big_decr</td>            <td>bigDecr</td></tr>
+    <tr><td>BIG_DESTR</td>           <td>big_destr</td>           <td>bigDestr</td></tr>
+    <tr><td>BIG_DIV</td>             <td>big_div</td>             <td>bigDiv</td></tr>
+    <tr><td>BIG_EQ</td>              <td>big_eq</td>              <td>bigEq</td></tr>
+    <tr><td>BIG_GCD</td>             <td>big_gcd</td>             <td>bigGcd</td></tr>
+    <tr><td>BIG_GE</td>              <td>big_ge</td>              <td>bigCmp >= 0</td></tr>
+    <tr><td>BIG_GROW</td>            <td>big_grow</td>            <td>bigGrow</td></tr>
+    <tr><td>BIG_GT</td>              <td>big_gt</td>              <td>bigCmp > 0</td></tr>
+    <tr><td>BIG_HASHCODE</td>        <td>big_hashcode</td>        <td>bigHashCode</td></tr>
+    <tr><td>BIG_ICONV</td>           <td>big_iconv</td>           <td>bigIConv</td></tr>
+    <tr><td>BIG_INCR</td>            <td>big_incr</td>            <td>bigIncr</td></tr>
+    <tr><td>BIG_IPOW</td>            <td>big_ipow</td>            <td>bigIPow</td></tr>
+    <tr><td>BIG_LE</td>              <td>big_le</td>              <td>bigCmp <= 0</td></tr>
+    <tr><td>BIG_LOG2</td>            <td>big_log2</td>            <td>bigLog2</td></tr>
+    <tr><td>BIG_LOWEST_SET_BIT</td>  <td>big_lowest_set_bit</td>  <td>bigLowestSetBit</td></tr>
+    <tr><td>BIG_LSHIFT</td>          <td>big_lshift</td>          <td>bigLShift</td></tr>
+    <tr><td>BIG_LSHIFT_ASSIGN</td>   <td>big_lshift_assign</td>   <td>bigLShiftAssign</td></tr>
+    <tr><td>BIG_LT</td>              <td>big_lt</td>              <td>bigCmp < 0</td></tr>
+    <tr><td>BIG_MDIV</td>            <td>big_mdiv</td>            <td>bigMDiv</td></tr>
+    <tr><td>BIG_MINUS</td>           <td>big_minus</td>           <td>bigMinus</td></tr>
+    <tr><td>BIG_MOD</td>             <td>big_mod</td>             <td>bigMod</td></tr>
+    <tr><td>BIG_MULT</td>            <td>big_mult</td>            <td>bigMult</td></tr>
+    <tr><td>BIG_MULT_ASSIGN</td>     <td>big_mult_assign</td>     <td>bigMultAssign</td></tr>
+    <tr><td>BIG_NE</td>              <td>big_ne</td>              <td>bigNe</td></tr>
+    <tr><td>BIG_ODD</td>             <td>big_odd</td>             <td>bigOdd</td></tr>
+    <tr><td>BIG_ORD</td>             <td>big_ord</td>             <td>bigOrd</td></tr>
+    <tr><td>BIG_PARSE</td>           <td>big_parse</td>           <td>bigParse</td></tr>
+    <tr><td>BIG_PLUS</td>            <td>big_plus</td>            <td>(noop)</td></tr>
+    <tr><td>BIG_PRED</td>            <td>big_pred</td>            <td>bigPred</td></tr>
+    <tr><td>BIG_RAND</td>            <td>big_rand</td>            <td>bigRand</td></tr>
+    <tr><td>BIG_REM</td>             <td>big_rem</td>             <td>bigRem</td></tr>
+    <tr><td>BIG_RSHIFT</td>          <td>big_rshift</td>          <td>bigRShift</td></tr>
+    <tr><td>BIG_RSHIFT_ASSIGN</td>   <td>big_rshift_assign</td>   <td>bigRShiftAssign</td></tr>
+    <tr><td>BIG_SBTR</td>            <td>big_sbtr</td>            <td>bigSbtr, bigSbtrTemp</td></tr>
+    <tr><td>BIG_SHRINK</td>          <td>big_shrink</td>          <td>bigShrink</td></tr>
+    <tr><td>BIG_STR</td>             <td>big_str</td>             <td>bigStr</td></tr>
+    <tr><td>BIG_SUCC</td>            <td>big_succ</td>            <td>bigSucc</td></tr>
+    <tr><td>BIG_VALUE</td>           <td>big_value</td>           <td>bigValue</td></tr>
+</table><p></p>
+<a name="boolean"><b>13.4 Actions for the type boolean</b></a>
+<p></p><table border="1">
+    <tr><td>Action name</td>         <td>blnlib.c function</td>   <td>bln_rtl.c function</td></tr>
+    <tr><td>BLN_AND</td>             <td>bln_and</td>             <td>&amp;&amp;</td></tr>
+    <tr><td>BLN_CPY</td>             <td>bln_cpy</td>             <td>blnCpy</td></tr>
+    <tr><td>BLN_CREATE</td>          <td>bln_create</td>          <td>blnCreate</td></tr>
+    <tr><td>BLN_GE</td>              <td>bln_ge</td>              <td>&gt;=</td></tr>
+    <tr><td>BLN_GT</td>              <td>bln_gt</td>              <td>&gt;</td></tr>
+    <tr><td>BLN_ICONV</td>           <td>bln_iconv</td>           <td>&amp; 1</td></tr>
+    <tr><td>BLN_LE</td>              <td>bln_le</td>              <td>&lt;=</td></tr>
+    <tr><td>BLN_LT</td>              <td>bln_lt</td>              <td>&lt;</td></tr>
+    <tr><td>BLN_NOT</td>             <td>bln_not</td>             <td>!</td></tr>
+    <tr><td>BLN_OR</td>              <td>bln_or</td>              <td>||</td></tr>
+    <tr><td>BLN_ORD</td>             <td>bln_ord</td>             <td>(inttype)</td></tr>
+</table><p></p>
+<a name="bstring"><b>13.5 Actions for byte strings</b></a>
+<p></p><table border="1">
+    <tr><td>Action name</td>         <td>bstlib.c function</td>   <td>bst_rtl.c function</td></tr>
+    <tr><td>BST_APPEND</td>          <td>bst_append</td>          <td>bstAppend</td></tr>
+    <tr><td>BST_CAT</td>             <td>bst_cat</td>             <td>bstCat</td></tr>
+    <tr><td>BST_CPY</td>             <td>bst_cpy</td>             <td>bstCpy</td></tr>
+    <tr><td>BST_CREATE</td>          <td>bst_create</td>          <td>bstCreate</td></tr>
+    <tr><td>BST_DESTR</td>           <td>bst_destr</td>           <td>bstDestr</td></tr>
+    <tr><td>BST_EMPTY</td>           <td>bst_empty</td>           <td></td></tr>
+</table><p></p>
+<a name="char"><b>13.6 Actions for the type char</b></a>
+<p></p><table border="1">
+    <tr><td>Action name</td>         <td>chrlib.c function</td>   <td>chr_rtl.c function</td></tr>
+    <tr><td>CHR_CHR</td>             <td>chr_chr</td>             <td>(chartype)</td></tr>
+    <tr><td>CHR_CMP</td>             <td>chr_cmp</td>             <td>chrCmp</td></tr>
+    <tr><td>CHR_CONV</td>            <td>chr_conv</td>            <td>(noop)</td></tr>
+    <tr><td>CHR_CPY</td>             <td>chr_cpy</td>             <td>chrCpy</td></tr>
+    <tr><td>CHR_CREATE</td>          <td>chr_create</td>          <td>chrCreate</td></tr>
+    <tr><td>CHR_DECR</td>            <td>chr_decr</td>            <td>--</td></tr>
+    <tr><td>CHR_EQ</td>              <td>chr_eq</td>              <td>==</td></tr>
+    <tr><td>CHR_GE</td>              <td>chr_ge</td>              <td>&gt;=</td></tr>
+    <tr><td>CHR_GT</td>              <td>chr_gt</td>              <td>&gt;</td></tr>
+    <tr><td>CHR_HASHCODE</td>        <td>chr_hashcode</td>        <td>(inttype)</td></tr>
+    <tr><td>CHR_ICONV</td>           <td>chr_iconv</td>           <td>(chartype)</td></tr>
+    <tr><td>CHR_INCR</td>            <td>chr_incr</td>            <td>++</td></tr>
+    <tr><td>CHR_LE</td>              <td>chr_le</td>              <td>&lt;=</td></tr>
+    <tr><td>CHR_LOW</td>             <td>chr_low</td>             <td>chrLow</td></tr>
+    <tr><td>CHR_LT</td>              <td>chr_lt</td>              <td>&lt;</td></tr>
+    <tr><td>CHR_NE</td>              <td>chr_ne</td>              <td>!=</td></tr>
+    <tr><td>CHR_ORD</td>             <td>chr_ord</td>             <td>(inttype)</td></tr>
+    <tr><td>CHR_PRED</td>            <td>chr_pred</td>            <td>-1</td></tr>
+    <tr><td>CHR_STR</td>             <td>chr_str</td>             <td>chrStr</td></tr>
+    <tr><td>CHR_SUCC</td>            <td>chr_succ</td>            <td>+1</td></tr>
+    <tr><td>CHR_UP</td>              <td>chr_up</td>              <td>chrUp</td></tr>
+    <tr><td>CHR_VALUE</td>           <td>chr_value</td>           <td>chrValue</td></tr>
+</table><p></p>
+<a name="commands"><b>13.7 Actions for various directory, file and other commands</b></a>
+<p></p><table border="1">
+    <tr><td>Action name</td>         <td>cmdlib.c function</td>   <td>cmd_rtl.c function</td></tr>
+    <tr><td>CMD_CHDIR</td>           <td>cmd_chdir</td>           <td>cmdChdir</td></tr>
+    <tr><td>CMD_CONFIG_VALUE</td>    <td>cmd_config_value</td>    <td>cmdConfigValue</td></tr>
+    <tr><td>CMD_COPY</td>            <td>cmd_copy</td>            <td>cmdCopy</td></tr>
+    <tr><td>CMD_FILETYPE</td>        <td>cmd_filetype</td>        <td>cmdFileType</td></tr>
+    <tr><td>CMD_GETCWD</td>          <td>cmd_getcwd</td>          <td>cmdGetcwd</td></tr>
+    <tr><td>CMD_LNG</td>             <td>cmd_lng</td>             <td>cmdLng</td></tr>
+    <tr><td>CMD_LS</td>              <td>cmd_ls</td>              <td>cmdLs</td></tr>
+    <tr><td>CMD_MKDIR</td>           <td>cmd_mkdir</td>           <td>cmdMkdir</td></tr>
+    <tr><td>CMD_MOVE</td>            <td>cmd_move</td>            <td>cmdMove</td></tr>
+    <tr><td>CMD_REMOVE</td>          <td>cmd_remove</td>          <td>cmdRemove</td></tr>
+    <tr><td>CMD_SH</td>              <td>cmd_sh</td>              <td>cmdSh</td></tr>
+    <tr><td>CMD_SYMLINK</td>         <td>cmd_symlink</td>         <td>cmdSymlink</td></tr>
+</table><p></p>
+<a name="declarations"><b>13.8 Actions for declarations</b></a>
+<p></p><table border="1">
+    <tr><td>Action name</td>         <td>dcllib.c function</td>   <td></td></tr>
+    <tr><td>DCL_ATTR</td>            <td>dcl_attr</td>            <td></td></tr>
+    <tr><td>DCL_CONST</td>           <td>dcl_const</td>           <td></td></tr>
+    <tr><td>DCL_ELEMENTS</td>        <td>dcl_elements</td>        <td></td></tr>
+    <tr><td>DCL_FWD</td>             <td>dcl_fwd</td>             <td></td></tr>
+    <tr><td>DCL_GETFUNC</td>         <td>dcl_getfunc</td>         <td></td></tr>
+    <tr><td>DCL_GETOBJ</td>          <td>dcl_getobj</td>          <td></td></tr>
+    <tr><td>DCL_GLOBAL</td>          <td>dcl_global</td>          <td></td></tr>
+    <tr><td>DCL_IN1VAR</td>          <td>dcl_in1var</td>          <td></td></tr>
+    <tr><td>DCL_IN2VAR</td>          <td>dcl_in2var</td>          <td></td></tr>
+    <tr><td>DCL_INOUT1</td>          <td>dcl_inout1</td>          <td></td></tr>
+    <tr><td>DCL_INOUT2</td>          <td>dcl_inout2</td>          <td></td></tr>
+    <tr><td>DCL_REF1</td>            <td>dcl_ref1</td>            <td></td></tr>
+    <tr><td>DCL_REF2</td>            <td>dcl_ref2</td>            <td></td></tr>
+    <tr><td>DCL_SYMB</td>            <td>dcl_symb</td>            <td></td></tr>
+    <tr><td>DCL_VAL1</td>            <td>dcl_val1</td>            <td></td></tr>
+    <tr><td>DCL_VAL2</td>            <td>dcl_val2</td>            <td></td></tr>
+    <tr><td>DCL_VAR</td>             <td>dcl_var</td>             <td></td></tr>
+</table><p></p>
+<a name="graphic_output"><b>13.9 Actions to do graphic output</b></a>
+<p></p><table border="1">
+    <tr><td>Action name</td>         <td>drwlib.c function</td>   <td>drw_rtl.c/drw_x11.c/drw_win.c function</td></tr>
+    <tr><td>DRW_ARC</td>             <td>drw_arc</td>             <td>drwArc</td></tr>
+    <tr><td>DRW_ARC2</td>            <td>drw_arc2</td>            <td>drwArc2</td></tr>
+    <tr><td>DRW_BACKGROUND</td>      <td>drw_background</td>      <td>drwBackground</td></tr>
+    <tr><td>DRW_CIRCLE</td>          <td>drw_circle</td>          <td>drwCircle</td></tr>
+    <tr><td>DRW_CLEAR</td>           <td>drw_clear</td>           <td>drwClear</td></tr>
+    <tr><td>DRW_COLOR</td>           <td>drw_color</td>           <td>drwColor</td></tr>
+    <tr><td>DRW_COPYAREA</td>        <td>drw_copyarea</td>        <td>drwCopyArea</td></tr>
+    <tr><td>DRW_CPY</td>             <td>drw_cpy</td>             <td>drwCpy</td></tr>
+    <tr><td>DRW_CREATE</td>          <td>drw_create</td>          <td>drwCreate</td></tr>
+    <tr><td>DRW_DESTR</td>           <td>drw_destr</td>           <td>drwDestr</td></tr>
+    <tr><td>DRW_EMPTY</td>           <td>drw_empty</td>           <td></td></tr>
+    <tr><td>DRW_EQ</td>              <td>drw_eq</td>              <td>==</td></tr>
+    <tr><td>DRW_FARCCHORD</td>       <td>drw_farcchord</td>       <td>drwFArcChord</td></tr>
+    <tr><td>DRW_FARCPIESLICE</td>    <td>drw_farcpieslice</td>    <td>drwFArcPieSlice</td></tr>
+    <tr><td>DRW_FCIRCLE</td>         <td>drw_fcircle</td>         <td>drwFCircle</td></tr>
+    <tr><td>DRW_FELLIPSE</td>        <td>drw_fellipse</td>        <td>drwFEllipse</td></tr>
+    <tr><td>DRW_FLUSH</td>           <td>drw_flush</td>           <td>drwFlush</td></tr>
+    <tr><td>DRW_FPOLYLINE</td>       <td>drw_fpolyLine</td>       <td>drwFPolyLine</td></tr>
+    <tr><td>DRW_GENPOINTLIST</td>    <td>drw_genPointList</td>    <td>drwGenPointList</td></tr>
+    <tr><td>DRW_GET</td>             <td>drw_get</td>             <td>drwGet</td></tr>
+    <tr><td>DRW_HEIGHT</td>          <td>drw_height</td>          <td>drwHeight</td></tr>
+    <tr><td>DRW_IMAGE</td>           <td>drw_image</td>           <td>drwImage</td></tr>
+    <tr><td>DRW_LINE</td>            <td>drw_line</td>            <td>drwLine</td></tr>
+    <tr><td>DRW_NE</td>              <td>drw_ne</td>              <td>!=</td></tr>
+    <tr><td>DRW_NEW_PIXMAP</td>      <td>drw_new_pixmap</td>      <td>drwNewPixmap</td></tr>
+    <tr><td>DRW_OPEN</td>            <td>drw_open</td>            <td>drwOpen</td></tr>
+    <tr><td>DRW_PARC</td>            <td>drw_parc</td>            <td>drwPArc</td></tr>
+    <tr><td>DRW_PCIRCLE</td>         <td>drw_pcircle</td>         <td>drwPCircle</td></tr>
+    <tr><td>DRW_PFARCCHORD</td>      <td>drw_pfarcchord</td>      <td>drwPFArcChord</td></tr>
+    <tr><td>DRW_PFARCPIESLICE</td>   <td>drw_pfarcpieslice</td>   <td>drwFArcPieSlice</td></tr>
+    <tr><td>DRW_PFCIRCLE</td>        <td>drw_pfcircle</td>        <td>drwPFCircle</td></tr>
+    <tr><td>DRW_PFELLIPSE</td>       <td>drw_pfellipse</td>       <td>drwPFEllipse</td></tr>
+    <tr><td>DRW_PLINE</td>           <td>drw_pline</td>           <td>drwPLine</td></tr>
+    <tr><td>DRW_POINT</td>           <td>drw_point</td>           <td>drwPoint</td></tr>
+    <tr><td>DRW_POLYLINE</td>        <td>drw_polyLine</td>        <td>drwPolyLine</td></tr>
+    <tr><td>DRW_PPOINT</td>          <td>drw_ppoint</td>          <td>drwPPoint</td></tr>
+    <tr><td>DRW_PRECT</td>           <td>drw_prect</td>           <td>drwPRect</td></tr>
+    <tr><td>DRW_PUT</td>             <td>drw_put</td>             <td>drwPut</td></tr>
+    <tr><td>DRW_RECT</td>            <td>drw_rect</td>            <td>drwRect</td></tr>
+    <tr><td>DRW_RGBCOL</td>          <td>drw_rgbcol</td>          <td>drwRgbColor</td></tr>
+    <tr><td>DRW_ROT</td>             <td>drw_rot</td>             <td></td></tr>
+    <tr><td>DRW_SCALE</td>           <td>drw_scale</td>           <td></td></tr>
+    <tr><td>DRW_SETTRANSPARENTCOLOR</td> <td>drw_setTransparentColor</td> <td>drwSetTransparentColor</td></tr>
+    <tr><td>DRW_TEXT</td>            <td>drw_text</td>            <td>drwText</td></tr>
+    <tr><td>DRW_WIDTH</td>           <td>drw_width</td>           <td>drwWidth</td></tr>
+</table><p></p>
+<a name="enumeration"><b>13.10 Actions for enumeration types</b></a>
+<p></p><table border="1">
+    <tr><td>Action name</td>         <td>enulib.c function</td>   <td></td></tr>
+    <tr><td>ENU_CONV</td>            <td>enu_conv</td>            <td>(noop)</td></tr>
+    <tr><td>ENU_CPY</td>             <td>enu_cpy</td>             <td>=</td></tr>
+    <tr><td>ENU_CREATE</td>          <td>enu_create</td>          <td></td></tr>
+    <tr><td>ENU_EQ</td>              <td>enu_eq</td>              <td>==</td></tr>
+    <tr><td>ENU_GENLIT</td>          <td>enu_genlit</td>          <td></td></tr>
+    <tr><td>ENU_ICONV2</td>          <td>enu_iconv2</td>          <td>(noop)</td></tr>
+    <tr><td>ENU_NE</td>              <td>enu_ne</td>              <td>!=</td></tr>
+    <tr><td>ENU_ORD2</td>            <td>enu_ord2</td>            <td>(noop)</td></tr>
+    <tr><td>ENU_SIZE</td>            <td>enu_size</td>            <td></td></tr>
+    <tr><td>ENU_VALUE</td>           <td>enu_value</td>           <td>enuValue</td></tr>
+</table><p></p>
+<a name="PRIMITIVE_FILE"><b>13.11 Actions for the type PRIMITIVE_FILE</b></a>
+<p></p><table border="1">
+    <tr><td>Action name</td>         <td>fillib.c function</td>   <td>fil_rtl.c function</td></tr>
+    <tr><td>FIL_BIG_LNG</td>         <td>fil_big_lng</td>         <td>filBigLng</td></tr>
+    <tr><td>FIL_BIG_SEEK</td>        <td>fil_big_seek</td>        <td>filBigSeek</td></tr>
+    <tr><td>FIL_BIG_TELL</td>        <td>fil_big_tell</td>        <td>filBigTell</td></tr>
+    <tr><td>FIL_CLOSE</td>           <td>fil_close</td>           <td>fclose</td></tr>
+    <tr><td>FIL_CPY</td>             <td>fil_cpy</td>             <td>fltCpy</td></tr>
+    <tr><td>FIL_CREATE</td>          <td>fil_create</td>          <td>fltCreate</td></tr>
+    <tr><td>FIL_EMPTY</td>           <td>fil_empty</td>           <td></td></tr>
+    <tr><td>FIL_EOF</td>             <td>fil_eof</td>             <td>feof</td></tr>
+    <tr><td>FIL_EQ</td>              <td>fil_eq</td>              <td>==</td></tr>
+    <tr><td>FIL_ERR</td>             <td>fil_err</td>             <td>stderr</td></tr>
+    <tr><td>FIL_FLUSH</td>           <td>fil_flush</td>           <td>fflush</td></tr>
+    <tr><td>FIL_GETC</td>            <td>fil_getc</td>            <td>fgetc</td></tr>
+    <tr><td>FIL_GETS</td>            <td>fil_gets</td>            <td>filGets</td></tr>
+    <tr><td>FIL_HAS_NEXT</td>        <td>fil_has_next</td>        <td>filHasNext</td></tr>
+    <tr><td>FIL_IN</td>              <td>fil_in</td>              <td>stdin</td></tr>
+    <tr><td>FIL_LINE_READ</td>       <td>fil_line_read</td>       <td>filLineRead</td></tr>
+    <tr><td>FIL_LIT</td>             <td>fil_lit</td>             <td>filLit</td></tr>
+    <tr><td>FIL_LNG</td>             <td>fil_lng</td>             <td>filLng</td></tr>
+    <tr><td>FIL_NE</td>              <td>fil_ne</td>              <td>!=</td></tr>
+    <tr><td>FIL_OPEN</td>            <td>fil_open</td>            <td>filOpen</td></tr>
+    <tr><td>FIL_OUT</td>             <td>fil_out</td>             <td>stdout</td></tr>
+    <tr><td>FIL_POPEN</td>           <td>fil_popen</td>           <td>filPopen</td></tr>
+    <tr><td>FIL_PRINT</td>           <td>fil_print</td>           <td>filPrint</td></tr>
+    <tr><td>FIL_SEEK</td>            <td>fil_seek</td>            <td>filSeek</td></tr>
+    <tr><td>FIL_TELL</td>            <td>fil_tell</td>            <td>filTell</td></tr>
+    <tr><td>FIL_VALUE</td>           <td>fil_value</td>           <td>filValue</td></tr>
+    <tr><td>FIL_WORD_READ</td>       <td>fil_word_read</td>       <td>filWordRead</td></tr>
+    <tr><td>FIL_WRITE</td>           <td>fil_write</td>           <td>filWrite</td></tr>
+</table><p></p>
+<a name="float"><b>13.12 Actions for the type float</b></a>
+<p></p><table border="1">
+    <tr><td>Action name</td>         <td>fltlib.c function</td>   <td>flt_rtl.c function</td></tr>
+    <tr><td>FLT_A2TAN</td>           <td>flt_a2tan</td>           <td>atan2</td></tr>
+    <tr><td>FLT_ABS</td>             <td>flt_abs</td>             <td>fabs</td></tr>
+    <tr><td>FLT_ACOS</td>            <td>flt_acos</td>            <td>acos</td></tr>
+    <tr><td>FLT_ADD</td>             <td>flt_add</td>             <td>+</td></tr>
+    <tr><td>FLT_ASIN</td>            <td>flt_asin</td>            <td>asin</td></tr>
+    <tr><td>FLT_ATAN</td>            <td>flt_atan</td>            <td>atan</td></tr>
+    <tr><td>FLT_CAST</td>            <td>flt_cast</td>            <td>(x.floatvalue=a, x.intvalue)</td></tr>
+    <tr><td>FLT_CEIL</td>            <td>flt_ceil</td>            <td>ceil</td></tr>
+    <tr><td>FLT_CMP</td>             <td>flt_cmp</td>             <td>fltCmp</td></tr>
+    <tr><td>FLT_COS</td>             <td>flt_cos</td>             <td>cos</td></tr>
+    <tr><td>FLT_COSH</td>            <td>flt_cosh</td>            <td>cosh</td></tr>
+    <tr><td>FLT_CPY</td>             <td>flt_cpy</td>             <td>fltCpy</td></tr>
+    <tr><td>FLT_CREATE</td>          <td>flt_create</td>          <td>fltCreate</td></tr>
+    <tr><td>FLT_DGTS</td>            <td>flt_dgts</td>            <td>fltDgts</td></tr>
+    <tr><td>FLT_DIV</td>             <td>flt_div</td>             <td>/</td></tr>
+    <tr><td>FLT_DIV_ASSIGN</td>      <td>flt_div_assign</td>      <td>/=</td></tr>
+    <tr><td>FLT_EQ</td>              <td>flt_eq</td>              <td>==</td></tr>
+    <tr><td>FLT_EXP</td>             <td>flt_exp</td>             <td>exp</td></tr>
+    <tr><td>FLT_FLOOR</td>           <td>flt_floor</td>           <td>floor</td></tr>
+    <tr><td>FLT_GE</td>              <td>flt_ge</td>              <td>&gt;=</td></tr>
+    <tr><td>FLT_GROW</td>            <td>flt_grow</td>            <td>+=</td></tr>
+    <tr><td>FLT_GT</td>              <td>flt_gt</td>              <td>&gt;</td></tr>
+    <tr><td>FLT_HASHCODE</td>        <td>flt_hashcode</td>        <td>(x.floatvalue=a, x.intvalue)</td></tr>
+    <tr><td>FLT_ICAST</td>           <td>flt_icast</td>           <td>(x.intvalue=a, x.floatvalue)</td></tr>
+    <tr><td>FLT_ICONV</td>           <td>flt_iconv</td>           <td>(float)</td></tr>
+    <tr><td>FLT_IFLT</td>            <td>flt_iflt</td>            <td>(float)</td></tr>
+    <tr><td>FLT_IPOW</td>            <td>flt_ipow</td>            <td>fltIPow</td></tr>
+    <tr><td>FLT_ISNAN</td>           <td>flt_isnan</td>           <td>isnan</td></tr>
+    <tr><td>FLT_LE</td>              <td>flt_le</td>              <td>&lt;=</td></tr>
+    <tr><td>FLT_LOG</td>             <td>flt_log</td>             <td>log</td></tr>
+    <tr><td>FLT_LOG10</td>           <td>flt_log10</td>           <td>log10</td></tr>
+    <tr><td>FLT_LT</td>              <td>flt_lt</td>              <td>&lt;</td></tr>
+    <tr><td>FLT_MINUS</td>           <td>flt_minus</td>           <td>-</td></tr>
+    <tr><td>FLT_MULT</td>            <td>flt_mult</td>            <td>*</td></tr>
+    <tr><td>FLT_MULT_ASSIGN</td>     <td>flt_mult_assign</td>     <td>*=</td></tr>
+    <tr><td>FLT_NE</td>              <td>flt_ne</td>              <td>!=</td></tr>
+    <tr><td>FLT_PARSE</td>           <td>flt_parse</td>           <td>fltParse</td></tr>
+    <tr><td>FLT_PLUS</td>            <td>flt_plus</td>            <td>(noop)</td></tr>
+    <tr><td>FLT_POW</td>             <td>flt_pow</td>             <td>pow</td></tr>
+    <tr><td>FLT_RAND</td>            <td>flt_rand</td>            <td>fltRand</td></tr>
+    <tr><td>FLT_ROUND</td>           <td>flt_round</td>           <td>a&lt;0.0?-((inttype)(0.5-a)):(inttype)(0.5+a)</td></tr>
+    <tr><td>FLT_SBTR</td>            <td>flt_sbtr</td>            <td>-</td></tr>
+    <tr><td>FLT_SHRINK</td>          <td>flt_shrink</td>          <td>-=</td></tr>
+    <tr><td>FLT_SIN</td>             <td>flt_sin</td>             <td>sin</td></tr>
+    <tr><td>FLT_SINH</td>            <td>flt_sinh</td>            <td>sinh</td></tr>
+    <tr><td>FLT_SQRT</td>            <td>flt_sqrt</td>            <td>sqrt</td></tr>
+    <tr><td>FLT_STR</td>             <td>flt_str</td>             <td>fltStr</td></tr>
+    <tr><td>FLT_TAN</td>             <td>flt_tan</td>             <td>tan</td></tr>
+    <tr><td>FLT_TANH</td>            <td>flt_tanh</td>            <td>tanh</td></tr>
+    <tr><td>FLT_TRUNC</td>           <td>flt_trunc</td>           <td>(inttype)</td></tr>
+    <tr><td>FLT_VALUE</td>           <td>flt_value</td>           <td>fltValue</td></tr>
+</table><p></p>
+<a name="graphic_keyboard"><b>13.13 Actions to support the graphic keyboard</b></a>
+<p></p><table border="1">
+    <tr><td>Action name</td>         <td>drwlib.c function</td>   <td>kbd_rtl.c/drw_x11.c/drw_win.c function</td></tr>
+    <tr><td>GKB_BUSY_GETC</td>       <td>gkb_busy_getc</td>       <td>gkbKeyPressed() ? gkbGetc() : 512</td></tr>
+    <tr><td>GKB_GETC</td>            <td>gkb_getc</td>            <td>gkbGetc</td></tr>
+    <tr><td>GKB_GETS</td>            <td>gkb_gets</td>            <td>gkbGets</td></tr>
+    <tr><td>GKB_KEYPRESSED</td>      <td>gkb_keypressed</td>      <td>gkbKeyPressed</td></tr>
+    <tr><td>GKB_LINE_READ</td>       <td>gkb_line_read</td>       <td>gkbLineRead</td></tr>
+    <tr><td>GKB_RAW_GETC</td>        <td>gkb_raw_getc</td>        <td>gkbRawGetc</td></tr>
+    <tr><td>GKB_WINDOW</td>          <td>gkb_window</td>          <td>gkbWindow</td></tr>
+    <tr><td>GKB_WORD_READ</td>       <td>gkb_word_read</td>       <td>gkbWordRead</td></tr>
+    <tr><td>GKB_XPOS</td>            <td>gkb_xpos</td>            <td>gkbXpos</td></tr>
+    <tr><td>GKB_YPOS</td>            <td>gkb_ypos</td>            <td>gkbYpos</td></tr>
+</table><p></p>
+<a name="hash"><b>13.14 Actions for hash types</b></a>
+<p></p><table border="1">
+    <tr><td>Action name</td>         <td>hshlib.c function</td>   <td>hsh_rtl.c function</td></tr>
+    <tr><td>HSH_CONTAINS</td>        <td>hsh_contains</td>        <td>hshContains</td></tr>
+    <tr><td>HSH_CPY</td>             <td>hsh_cpy</td>             <td>hshCpy</td></tr>
+    <tr><td>HSH_CREATE</td>          <td>hsh_create</td>          <td>hshCreate</td></tr>
+    <tr><td>HSH_DESTR</td>           <td>hsh_destr</td>           <td>hshDestr</td></tr>
+    <tr><td>HSH_EMPTY</td>           <td>hsh_empty</td>           <td>hshEmpty</td></tr>
+    <tr><td>HSH_EXCL</td>            <td>hsh_excl</td>            <td>hshExcl</td></tr>
+    <tr><td>HSH_FOR</td>             <td>hsh_for</td>             <td>for</td></tr>
+    <tr><td>HSH_FOR_DATA_KEY</td>    <td>hsh_for_data_key</td>    <td>for</td></tr>
+    <tr><td>HSH_FOR_KEY</td>         <td>hsh_for_key</td>         <td>for</td></tr>
+    <tr><td>HSH_IDX</td>             <td>hsh_idx</td>             <td>hshIdx, hshIdxAddr</td></tr>
+    <tr><td>HSH_IDX2</td>            <td>hsh_idx2</td>            <td></td></tr>
+    <tr><td>HSH_INCL</td>            <td>hsh_incl</td>            <td>hshIncl</td></tr>
+    <tr><td>HSH_KEYS</td>            <td>hsh_keys</td>            <td>hshKeys</td></tr>
+    <tr><td>HSH_LNG</td>             <td>hsh_lng</td>             <td>a->size</td></tr>
+    <tr><td>HSH_REFIDX</td>          <td>hsh_refidx</td>          <td></td></tr>
+    <tr><td>HSH_VALUES</td>          <td>hsh_values</td>          <td>hshValues</td></tr>
+</table><p></p>
+<a name="integer"><b>13.15 Actions for the type integer</b></a>
+<p></p><table border="1">
+    <tr><td>Action name</td>         <td>intlib.c function</td>   <td>int_rtl.c function</td></tr>
+    <tr><td>INT_ABS</td>             <td>int_abs</td>             <td>labs</td></tr>
+    <tr><td>INT_ADD</td>             <td>int_add</td>             <td>+</td></tr>
+    <tr><td>INT_BINOM</td>           <td>int_binom</td>           <td>intBinom</td></tr>
+    <tr><td>INT_BIT_LENGTH</td>      <td>int_bit_length</td>      <td>intBitLength</td></tr>
+    <tr><td>INT_CMP</td>             <td>int_cmp</td>             <td>intCmp</td></tr>
+    <tr><td>INT_CONV</td>            <td>int_conv</td>            <td>(noop)</td></tr>
+    <tr><td>INT_CPY</td>             <td>int_cpy</td>             <td>intCpy</td></tr>
+    <tr><td>INT_CREATE</td>          <td>int_create</td>          <td>intCreate</td></tr>
+    <tr><td>INT_DECR</td>            <td>int_decr</td>            <td>--</td></tr>
+    <tr><td>INT_DIV</td>             <td>int_div</td>             <td>/</td></tr>
+    <tr><td>INT_EQ</td>              <td>int_eq</td>              <td>==</td></tr>
+    <tr><td>INT_FACT</td>            <td>int_fact</td>            <td>fact[a]</td></tr>
+    <tr><td>INT_GE</td>              <td>int_ge</td>              <td>&gt;=</td></tr>
+    <tr><td>INT_GROW</td>            <td>int_grow</td>            <td>+=</td></tr>
+    <tr><td>INT_GT</td>              <td>int_gt</td>              <td>&gt;</td></tr>
+    <tr><td>INT_HASHCODE</td>        <td>int_hashcode</td>        <td>(noop)</td></tr>
+    <tr><td>INT_INCR</td>            <td>int_incr</td>            <td>++</td></tr>
+    <tr><td>INT_LE</td>              <td>int_le</td>              <td>&lt;=</td></tr>
+    <tr><td>INT_LOG2</td>            <td>int_log2</td>            <td>intLog2</td></tr>
+    <tr><td>INT_LOWEST_SET_BIT</td>  <td>int_lowest_set_bit</td>  <td>intLowestSetBit</td></tr>
+    <tr><td>INT_LPAD0</td>           <td>int_lpad0</td>           <td>intLpad0</td></tr>
+    <tr><td>INT_LSHIFT</td>          <td>int_lshift</td>          <td>&lt;&lt;</td></tr>
+    <tr><td>INT_LSHIFT_ASSIGN</td>   <td>int_lshift_assign</td>   <td>&lt;&lt;=</td></tr>
+    <tr><td>INT_LT</td>              <td>int_lt</td>              <td>&lt;</td></tr>
+    <tr><td>INT_MDIV</td>            <td>int_mdiv</td>            <td>a&gt;0&amp;&amp;b&lt;0?(a-1)/b-1:a&lt;0&amp;&amp;b&gt;0?(a+1)/b-1:a/b</td></tr>
+    <tr><td>INT_MINUS</td>           <td>int_minus</td>           <td>-</td></tr>
+    <tr><td>INT_MOD</td>             <td>int_mod</td>             <td>c=a%b,((a&gt;0&amp;&amp;b&lt;0)||(a&lt;0&amp;&amp;b&gt;0))&amp;&amp;c!=0?c+b:c</td></tr>
+    <tr><td>INT_MULT</td>            <td>int_mult</td>            <td>*</td></tr>
+    <tr><td>INT_MULT_ASSIGN</td>     <td>int_mult_assign</td>     <td>*=</td></tr>
+    <tr><td>INT_NE</td>              <td>int_ne</td>              <td>!=</td></tr>
+    <tr><td>INT_ODD</td>             <td>int_odd</td>             <td>&amp;1</td></tr>
+    <tr><td>INT_ORD</td>             <td>int_ord</td>             <td>(noop)</td></tr>
+    <tr><td>INT_PARSE</td>           <td>int_parse</td>           <td>intParse</td></tr>
+    <tr><td>INT_PLUS</td>            <td>int_plus</td>            <td>(noop)</td></tr>
+    <tr><td>INT_POW</td>             <td>int_pow</td>             <td>intPow</td></tr>
+    <tr><td>INT_PRED</td>            <td>int_pred</td>            <td>--</td></tr>
+    <tr><td>INT_RAND</td>            <td>int_rand</td>            <td>intRand</td></tr>
+    <tr><td>INT_REM</td>             <td>int_rem</td>             <td>%</td></tr>
+    <tr><td>INT_RSHIFT</td>          <td>int_rshift</td>          <td>a&gt;&gt;b<br />a&lt;0?~(~a&gt;&gt;b):a&gt;&gt;b</td></tr>
+    <tr><td>INT_RSHIFT_ASSIGN</td>   <td>int_rshift_assign</td>   <td>a&gt;&gt;=b<br />if (a<0) a= ~(~a&gt;&gt;b); else a&gt;&gt;=b;</td></tr>
+    <tr><td>INT_SBTR</td>            <td>int_sbtr</td>            <td>-</td></tr>
+    <tr><td>INT_SHRINK</td>          <td>int_shrink</td>          <td>-=</td></tr>
+    <tr><td>INT_SQRT</td>            <td>int_sqrt</td>            <td>intSqrt</td></tr>
+    <tr><td>INT_STR</td>             <td>int_str</td>             <td>intStr</td></tr>
+    <tr><td>INT_STR_BASED</td>       <td>int_str_based</td>       <td>intStrBased</td></tr>
+    <tr><td>INT_SUCC</td>            <td>int_succ</td>            <td>+1</td></tr>
+    <tr><td>INT_VALUE</td>           <td>int_value</td>           <td>intValue</td></tr>
+</table><p></p>
+<a name="interface"><b>13.16 Actions for interface types</b></a>
+<p></p><table border="1">
+    <tr><td>Action name</td>         <td>itflib.c function</td>   <td></td></tr>
+    <tr><td>ITF_CONV2</td>           <td>itf_conv2</td>           <td>(noop)</td></tr>
+    <tr><td>ITF_CPY</td>             <td>itf_cpy</td>             <td>=</td></tr>
+    <tr><td>ITF_CPY2</td>            <td>itf_cpy2</td>            <td>=</td></tr>
+    <tr><td>ITF_CREATE</td>          <td>itf_create</td>          <td></td></tr>
+    <tr><td>ITF_CREATE2</td>         <td>itf_create2</td>         <td></td></tr>
+    <tr><td>ITF_EQ</td>              <td>itf_eq</td>              <td>==</td></tr>
+    <tr><td>ITF_NE</td>              <td>itf_ne</td>              <td>!=</td></tr>
+    <tr><td>ITF_SELECT</td>          <td>itf_select</td>          <td></td></tr>
+</table><p></p>
+<a name="console_keyboard"><b>13.17 Actions to support the text (console) screen keyboard</b></a>
+<p></p><table border="1">
+    <tr><td>Action name</td>         <td>kbdlib.c function</td>   <td>kbd_rtl.c/kbd_inf.c function</td></tr>
+    <tr><td>KBD_BUSY_GETC</td>       <td>kbd_busy_getc</td>       <td>kbdKeyPressed() ? kbdGetc() : 512</td></tr>
+    <tr><td>KBD_GETC</td>            <td>kbd_getc</td>            <td>kbdGetc</td></tr>
+    <tr><td>KBD_GETS</td>            <td>kbd_gets</td>            <td>kbdGets</td></tr>
+    <tr><td>KBD_KEYPRESSED</td>      <td>kbd_keypressed</td>      <td>kbdKeyPressed</td></tr>
+    <tr><td>KBD_LINE_READ</td>       <td>kbd_line_read</td>       <td>kbdLineRead</td></tr>
+    <tr><td>KBD_RAW_GETC</td>        <td>kbd_raw_getc</td>        <td>kbdRawGetc</td></tr>
+    <tr><td>KBD_WORD_READ</td>       <td>kbd_word_read</td>       <td>kbdWordRead</td></tr>
+</table><p></p>
+<a name="list"><b>13.18 Actions for the list type</b></a>
+<p></p><table border="1">
+    <tr><td>Action name</td>         <td>lstlib.c function</td>   <td></td></tr>
+    <tr><td>LST_CAT</td>             <td>lst_cat</td>             <td></td></tr>
+    <tr><td>LST_CPY</td>             <td>lst_cpy</td>             <td></td></tr>
+    <tr><td>LST_CREATE</td>          <td>lst_create</td>          <td></td></tr>
+    <tr><td>LST_DESTR</td>           <td>lst_destr</td>           <td></td></tr>
+    <tr><td>LST_ELEM</td>            <td>lst_elem</td>            <td></td></tr>
+    <tr><td>LST_EMPTY</td>           <td>lst_empty</td>           <td></td></tr>
+    <tr><td>LST_EXCL</td>            <td>lst_excl</td>            <td></td></tr>
+    <tr><td>LST_HEAD</td>            <td>lst_head</td>            <td></td></tr>
+    <tr><td>LST_IDX</td>             <td>lst_idx</td>             <td></td></tr>
+    <tr><td>LST_INCL</td>            <td>lst_incl</td>            <td></td></tr>
+    <tr><td>LST_LNG</td>             <td>lst_lng</td>             <td></td></tr>
+    <tr><td>LST_RANGE</td>           <td>lst_range</td>           <td></td></tr>
+    <tr><td>LST_TAIL</td>            <td>lst_tail</td>            <td></td></tr>
+</table><p></p>
+<a name="proc"><b>13.19 Actions for proc operations and statements</b></a>
+<p></p><table border="1">
+    <tr><td>Action name</td>         <td>prclib.c function</td>   <td></td></tr>
+    <tr><td>PRC_ARGS</td>            <td>prc_args</td>            <td></td></tr>
+    <tr><td>PRC_BEGIN</td>           <td>prc_begin</td>           <td></td></tr>
+    <tr><td>PRC_BLOCK</td>           <td>prc_block</td>           <td></td></tr>
+    <tr><td>PRC_BLOCK_DEF</td>       <td>prc_block_def</td>       <td></td></tr>
+    <tr><td>PRC_CASE</td>            <td>prc_case</td>            <td>switch</td></tr>
+    <tr><td>PRC_CASE_DEF</td>        <td>prc_case_def</td>        <td>switch</td></tr>
+    <tr><td>PRC_CPY</td>             <td>prc_cpy</td>             <td></td></tr>
+    <tr><td>PRC_CREATE</td>          <td>prc_create</td>          <td></td></tr>
+    <tr><td>PRC_DECLS</td>           <td>prc_decls</td>           <td></td></tr>
+    <tr><td>PRC_DYNAMIC</td>         <td>prc_dynamic</td>         <td></td></tr>
+    <tr><td>PRC_EXIT</td>            <td>prc_exit</td>            <td>exit</td></tr>
+    <tr><td>PRC_FOR_DOWNTO</td>      <td>prc_for_downto</td>      <td>for</td></tr>
+    <tr><td>PRC_FOR_TO</td>          <td>prc_for_to</td>          <td>for</td></tr>
+    <tr><td>PRC_HEAPSTAT</td>        <td>prc_heapstat</td>        <td></td></tr>
+    <tr><td>PRC_HSIZE</td>           <td>prc_hsize</td>           <td>heapsize</td></tr>
+    <tr><td>PRC_IF</td>              <td>prc_if</td>              <td>if</td></tr>
+    <tr><td>PRC_IF_ELSIF</td>        <td>prc_if_elsif</td>        <td>if</td></tr>
+    <tr><td>PRC_INCLUDE</td>         <td>prc_include</td>         <td></td></tr>
+    <tr><td>PRC_LOCAL</td>           <td>prc_local</td>           <td></td></tr>
+    <tr><td>PRC_NOOP</td>            <td>prc_noop</td>            <td>prcNoop</td></tr>
+    <tr><td>PRC_RAISE</td>           <td>prc_raise</td>           <td>raise_error</td></tr>
+    <tr><td>PRC_REPEAT</td>          <td>prc_repeat</td>          <td>do</td></tr>
+    <tr><td>PRC_RES_BEGIN</td>       <td>prc_res_begin</td>       <td></td></tr>
+    <tr><td>PRC_RES_LOCAL</td>       <td>prc_res_local</td>       <td></td></tr>
+    <tr><td>PRC_RETURN</td>          <td>prc_return</td>          <td></td></tr>
+    <tr><td>PRC_RETURN2</td>         <td>prc_return2</td>         <td></td></tr>
+    <tr><td>PRC_SETTRACE</td>        <td>prc_settrace</td>        <td></td></tr>
+    <tr><td>PRC_TRACE</td>           <td>prc_trace</td>           <td></td></tr>
+    <tr><td>PRC_VARFUNC</td>         <td>prc_varfunc</td>         <td></td></tr>
+    <tr><td>PRC_VARFUNC2</td>        <td>prc_varfunc2</td>        <td></td></tr>
+    <tr><td>PRC_WHILE</td>           <td>prc_while</td>           <td>while</td></tr>
+</table><p></p>
+<a name="program"><b>13.20 Actions for the type program</b></a>
+<p></p><table border="1">
+    <tr><td>Action name</td>         <td>prglib.c function</td>   <td>prg_comp.c function</td></tr>
+    <tr><td>PRG_CPY</td>             <td>prg_cpy</td>             <td>prgCpy</td></tr>
+    <tr><td>PRG_CREATE</td>          <td>prg_create</td>          <td></td></tr>
+    <tr><td>PRG_DECL_OBJECTS</td>    <td>prg_decl_objects</td>    <td>prgDeclObjects</td></tr>
+    <tr><td>PRG_DESTR</td>           <td>prg_destr</td>           <td></td></tr>
+    <tr><td>PRG_EMPTY</td>           <td>prg_empty</td>           <td></td></tr>
+    <tr><td>PRG_EQ</td>              <td>prg_eq</td>              <td>==</td></tr>
+    <tr><td>PRG_ERROR_COUNT</td>     <td>prg_error_count</td>     <td>prgErrorCount</td></tr>
+    <tr><td>PRG_EVAL</td>            <td>prg_eval</td>            <td>prgEval</td></tr>
+    <tr><td>PRG_EXEC</td>            <td>prg_exec</td>            <td>prgExec</td></tr>
+    <tr><td>PRG_FIL_PARSE</td>       <td>prg_fil_parse</td>       <td>prgFilParse</td></tr>
+    <tr><td>PRG_FIND</td>            <td>prg_find</td>            <td></td></tr>
+    <tr><td>PRG_MATCH</td>           <td>prg_match</td>           <td>prgMatch</td></tr>
+    <tr><td>PRG_NAME</td>            <td>prg_name</td>            <td>arg_0</td></tr>
+    <tr><td>PRG_NE</td>              <td>prg_ne</td>              <td>!=</td></tr>
+    <tr><td>PRG_PROG</td>            <td>prg_prog</td>            <td></td></tr>
+    <tr><td>PRG_STR_PARSE</td>       <td>prg_str_parse</td>       <td>prgStrParse</td></tr>
+    <tr><td>PRG_SYOBJECT</td>        <td>prg_syobject</td>        <td>prgSyobject</td></tr>
+    <tr><td>PRG_SYSVAR</td>          <td>prg_sysvar</td>          <td>prgSysvar</td></tr>
+    <tr><td>PRG_VALUE</td>           <td>prg_value</td>           <td>prgValue</td></tr>
+</table><p></p>
+<a name="reference"><b>13.21 Actions for the type reference</b></a>
+<p></p><table border="1">
+    <tr><td>Action name</td>         <td>reflib.c function</td>   <td>ref_data.c function</td></tr>
+    <tr><td>REF_ADDR</td>            <td>ref_addr</td>            <td>&</td></tr>
+    <tr><td>REF_ALLOC</td>           <td>ref_alloc</td>           <td>refAlloc</td></tr>
+    <tr><td>REF_ARRMAXIDX</td>       <td>ref_arrmaxidx</td>       <td>refArrmaxidx</td></tr>
+    <tr><td>REF_ARRMINIDX</td>       <td>ref_arrminidx</td>       <td>refArrminidx</td></tr>
+    <tr><td>REF_ARRTOLIST</td>       <td>ref_arrtolist</td>       <td>refArrtolist</td></tr>
+    <tr><td>REF_BODY</td>            <td>ref_body</td>            <td>refBody</td></tr>
+    <tr><td>REF_BUILD</td>           <td>ref_build</td>           <td></td></tr>
+    <tr><td>REF_CATEGORY</td>        <td>ref_category</td>        <td>refCategory</td></tr>
+    <tr><td>REF_CAT_PARSE</td>       <td>ref_cat_parse</td>       <td>refCatParse</td></tr>
+    <tr><td>REF_CAT_STR</td>         <td>ref_cat_str</td>         <td>refCatStr</td></tr>
+    <tr><td>REF_CMP</td>             <td>ref_cmp</td>             <td>refCmp</td></tr>
+    <tr><td>REF_CONTENT</td>         <td>ref_content</td>         <td></td></tr>
+    <tr><td>REF_CONV</td>            <td>ref_conv</td>            <td>(noop)</td></tr>
+    <tr><td>REF_CPY</td>             <td>ref_cpy</td>             <td>refCpy</td></tr>
+    <tr><td>REF_CREATE</td>          <td>ref_create</td>          <td>refCreate</td></tr>
+    <tr><td>REF_DEREF</td>           <td>ref_deref</td>           <td></td></tr>
+    <tr><td>REF_EQ</td>              <td>ref_eq</td>              <td>==</td></tr>
+    <tr><td>REF_FILE</td>            <td>ref_file</td>            <td>refFile</td></tr>
+    <tr><td>REF_FIND</td>            <td>ref_find</td>            <td></td></tr>
+    <tr><td>REF_HASHCODE</td>        <td>ref_hashcode</td>        <td>(inttype)(((uinttype)a)&gt;&gt;6)</td></tr>
+    <tr><td>REF_ISSYMB</td>          <td>ref_issymb</td>          <td></td></tr>
+    <tr><td>REF_ISVAR</td>           <td>ref_isvar</td>           <td>refIsvar</td></tr>
+    <tr><td>REF_ITFTOSCT</td>        <td>ref_itftosct</td>        <td>refItftosct</td></tr>
+    <tr><td>REF_LINE</td>            <td>ref_line</td>            <td>refLine</td></tr>
+    <tr><td>REF_LOCAL_CONSTS</td>    <td>ref_local_consts</td>    <td>refLocalConsts</td></tr>
+    <tr><td>REF_LOCAL_VARS</td>      <td>ref_local_vars</td>      <td>refLocalVars</td></tr>
+    <tr><td>REF_MKREF</td>           <td>ref_mkref</td>           <td></td></tr>
+    <tr><td>REF_NAME</td>            <td>ref_name</td>            <td></td></tr>
+    <tr><td>REF_NE</td>              <td>ref_ne</td>              <td>!=</td></tr>
+    <tr><td>REF_NIL</td>             <td>ref_nil</td>             <td></td></tr>
+    <tr><td>REF_NUM</td>             <td>ref_num</td>             <td>refNum</td></tr>
+    <tr><td>REF_PARAMS</td>          <td>ref_params</td>          <td>refParams</td></tr>
+    <tr><td>REF_PROG</td>            <td>ref_prog</td>            <td></td></tr>
+    <tr><td>REF_RESINI</td>          <td>ref_resini</td>          <td>refResini</td></tr>
+    <tr><td>REF_RESULT</td>          <td>ref_result</td>          <td>refResult</td></tr>
+    <tr><td>REF_SCAN</td>            <td>ref_scan</td>            <td></td></tr>
+    <tr><td>REF_SCTTOLIST</td>       <td>ref_scttolist</td>       <td>refScttolist</td></tr>
+    <tr><td>REF_SELECT</td>          <td>ref_select</td>          <td>a->stru[b]</td></tr>
+    <tr><td>REF_SETCATEGORY</td>     <td>ref_setcategory</td>     <td>refSetCategory</td></tr>
+    <tr><td>REF_SETPARAMS</td>       <td>ref_setparams</td>       <td>refSetParams</td></tr>
+    <tr><td>REF_SETTYPE</td>         <td>ref_settype</td>         <td>refSetType</td></tr>
+    <tr><td>REF_STR</td>             <td>ref_str</td>             <td>refStr</td></tr>
+    <tr><td>REF_SYMB</td>            <td>ref_symb</td>            <td></td></tr>
+    <tr><td>REF_TRACE</td>           <td>ref_trace</td>           <td>printf</td></tr>
+    <tr><td>REF_TYPE</td>            <td>ref_type</td>            <td>refType</td></tr>
+    <tr><td>REF_VALUE</td>           <td>ref_value</td>           <td>refValue</td></tr>
+</table><p></p>
+<a name="ref_list"><b>13.22 Actions for the type ref_list</b></a>
+<p></p><table border="1">
+    <tr><td>Action name</td>         <td>rfllib.c function</td>   <td>rfl_data.c function</td></tr>
+    <tr><td>RFL_APPEND</td>          <td>rfl_append</td>          <td>rflAppend</td></tr>
+    <tr><td>RFL_CAT</td>             <td>rfl_cat</td>             <td>rflCat</td></tr>
+    <tr><td>RFL_CPY</td>             <td>rfl_cpy</td>             <td>rflCpy</td></tr>
+    <tr><td>RFL_CREATE</td>          <td>rfl_create</td>          <td>rflCreate</td></tr>
+    <tr><td>RFL_DESTR</td>           <td>rfl_destr</td>           <td>rflDestr</td></tr>
+    <tr><td>RFL_ELEM</td>            <td>rfl_elem</td>            <td>rflElem</td></tr>
+    <tr><td>RFL_ELEMCPY</td>         <td>rfl_elemcpy</td>         <td>rflElemcpy</td></tr>
+    <tr><td>RFL_EMPTY</td>           <td>rfl_empty</td>           <td></td></tr>
+    <tr><td>RFL_EQ</td>              <td>rfl_eq</td>              <td>rflEq</td></tr>
+    <tr><td>RFL_EXCL</td>            <td>rfl_excl</td>            <td></td></tr>
+    <tr><td>RFL_EXPR</td>            <td>rfl_expr</td>            <td></td></tr>
+    <tr><td>RFL_FOR</td>             <td>rfl_for</td>             <td>for</td></tr>
+    <tr><td>RFL_HEAD</td>            <td>rfl_head</td>            <td>rflHead</td></tr>
+    <tr><td>RFL_IDX</td>             <td>rfl_idx</td>             <td>rflIdx</td></tr>
+    <tr><td>RFL_INCL</td>            <td>rfl_incl</td>            <td>rflIncl</td></tr>
+    <tr><td>RFL_IPOS</td>            <td>rfl_ipos</td>            <td>rflIpos</td></tr>
+    <tr><td>RFL_LNG</td>             <td>rfl_lng</td>             <td>rflLng</td></tr>
+    <tr><td>RFL_MKLIST</td>          <td>rfl_mklist</td>          <td>rflMklist</td></tr>
+    <tr><td>RFL_NE</td>              <td>rfl_ne</td>              <td>rflNe</td></tr>
+    <tr><td>RFL_NOT_ELEM</td>        <td>rfl_not_elem</td>        <td>!rflElem</td></tr>
+    <tr><td>RFL_POS</td>             <td>rfl_pos</td>             <td>rflPos</td></tr>
+    <tr><td>RFL_RANGE</td>           <td>rfl_range</td>           <td>rflRange</td></tr>
+    <tr><td>RFL_SETVALUE</td>        <td>rfl_setvalue</td>        <td>rflSetvalue</td></tr>
+    <tr><td>RFL_TAIL</td>            <td>rfl_tail</td>            <td>rflTail</td></tr>
+    <tr><td>RFL_TRACE</td>           <td>rfl_trace</td>           <td></td></tr>
+    <tr><td>RFL_VALUE</td>           <td>rfl_value</td>           <td>rflValue</td></tr>
+</table><p></p>
+<a name="console_output"><b>13.23 Actions for text (console) screen output</b></a>
+<p></p><table border="1">
+    <tr><td>Action name</td>         <td>scrlib.c function</td>   <td>scr_inf.c/scr_rtl.c/scr_win.c function</td></tr>
+    <tr><td>SCR_CLEAR</td>           <td>scr_clear</td>           <td>scrClear</td></tr>
+    <tr><td>SCR_CURSOR</td>          <td>scr_cursor</td>          <td>scrCursor</td></tr>
+    <tr><td>SCR_FLUSH</td>           <td>scr_flush</td>           <td>scrFlush</td></tr>
+    <tr><td>SCR_HEIGHT</td>          <td>scr_height</td>          <td>scrHeight</td></tr>
+    <tr><td>SCR_H_SCL</td>           <td>scr_h_scl</td>           <td>scrHScroll</td></tr>
+    <tr><td>SCR_OPEN</td>            <td>scr_open</td>            <td>scrOpen</td></tr>
+    <tr><td>SCR_SETPOS</td>          <td>scr_setpos</td>          <td>scrSetpos</td></tr>
+    <tr><td>SCR_V_SCL</td>           <td>scr_v_scl</td>           <td>scrVScroll</td></tr>
+    <tr><td>SCR_WIDTH</td>           <td>scr_width</td>           <td>scrWidth</td></tr>
+    <tr><td>SCR_WRITE</td>           <td>scr_write</td>           <td>scrWrite</td></tr>
+</table><p></p>
+<a name="struct"><b>13.24 Actions for struct types</b></a>
+<p></p><table border="1">
+    <tr><td>Action name</td>         <td>sctlib.c function</td>   <td></td></tr>
+    <tr><td>SCT_ALLOC</td>           <td>sct_alloc</td>           <td></td></tr>
+    <tr><td>SCT_CAT</td>             <td>sct_cat</td>             <td></td></tr>
+    <tr><td>SCT_CONV</td>            <td>sct_conv</td>            <td></td></tr>
+    <tr><td>SCT_CPY</td>             <td>sct_cpy</td>             <td>cpy_ ...</td></tr>
+    <tr><td>SCT_CREATE</td>          <td>sct_create</td>          <td>create_ ...</td></tr>
+    <tr><td>SCT_DESTR</td>           <td>sct_destr</td>           <td>destr_ ...</td></tr>
+    <tr><td>SCT_ELEM</td>            <td>sct_elem</td>            <td></td></tr>
+    <tr><td>SCT_EMPTY</td>           <td>sct_empty</td>           <td></td></tr>
+    <tr><td>SCT_INCL</td>            <td>sct_incl</td>            <td></td></tr>
+    <tr><td>SCT_LNG</td>             <td>sct_lng</td>             <td></td></tr>
+    <tr><td>SCT_REFIDX</td>          <td>sct_refidx</td>          <td></td></tr>
+    <tr><td>SCT_SELECT</td>          <td>sct_select</td>          <td>a->stru[b]</td></tr>
+</table><p></p>
+<a name="set"><b>13.25 Actions for set types</b></a>
+<p></p><table border="1">
+    <tr><td>Action name</td>         <td>setlib.c function</td>   <td>set_rtl.c function</td></tr>
+    <tr><td>SET_ARRLIT</td>          <td>set_arrlit</td>          <td>setArrlit</td></tr>
+    <tr><td>SET_BASELIT</td>         <td>set_baselit</td>         <td>setBaselit</td></tr>
+    <tr><td>SET_CARD</td>            <td>set_card</td>            <td>setCard</td></tr>
+    <tr><td>SET_CMP</td>             <td>set_cmp</td>             <td>setCmp</td></tr>
+    <tr><td>SET_CONV</td>            <td>set_conv</td>            <td>(noop)</td></tr>
+    <tr><td>SET_CPY</td>             <td>set_cpy</td>             <td>setCpy</td></tr>
+    <tr><td>SET_CREATE</td>          <td>set_create</td>          <td>setCreate</td></tr>
+    <tr><td>SET_DESTR</td>           <td>set_destr</td>           <td>setDestr</td></tr>
+    <tr><td>SET_DIFF</td>            <td>set_diff</td>            <td>setDiff</td></tr>
+    <tr><td>SET_ELEM</td>            <td>set_elem</td>            <td>setElem</td></tr>
+    <tr><td>SET_EMPTY</td>           <td>set_empty</td>           <td></td></tr>
+    <tr><td>SET_EQ</td>              <td>set_eq</td>              <td>setEq</td></tr>
+    <tr><td>SET_EXCL</td>            <td>set_excl</td>            <td>setExcl</td></tr>
+    <tr><td>SET_GE</td>              <td>set_ge</td>              <td>setGe</td></tr>
+    <tr><td>SET_GT</td>              <td>set_gt</td>              <td>setGt</td></tr>
+    <tr><td>SET_HASHCODE</td>        <td>set_hashcode</td>        <td>setHashCode</td></tr>
+    <tr><td>SET_ICONV</td>           <td>set_iconv</td>           <td>setIConv</td></tr>
+    <tr><td>SET_INCL</td>            <td>set_incl</td>            <td>setIncl</td></tr>
+    <tr><td>SET_INTERSECT</td>       <td>set_intersect</td>       <td>setIntersect</td></tr>
+    <tr><td>SET_LE</td>              <td>set_le</td>              <td>setLe</td></tr>
+    <tr><td>SET_LT</td>              <td>set_lt</td>              <td>setLt</td></tr>
+    <tr><td>SET_MAX</td>             <td>set_max</td>             <td>setMax</td></tr>
+    <tr><td>SET_MIN</td>             <td>set_min</td>             <td>setMin</td></tr>
+    <tr><td>SET_NE</td>              <td>set_ne</td>              <td>setNe</td></tr>
+    <tr><td>SET_NOT_ELEM</td>        <td>set_not_elem</td>        <td>setNotElem</td></tr>
+    <tr><td>SET_RAND</td>            <td>set_rand</td>            <td>setRand</td></tr>
+    <tr><td>SET_SCONV</td>           <td>set_sconv</td>           <td>setSConv</td></tr>
+    <tr><td>SET_SYMDIFF</td>         <td>set_symdiff</td>         <td>setSymdiff</td></tr>
+    <tr><td>SET_UNION</td>           <td>set_union</td>           <td>setUnion</td></tr>
+    <tr><td>SET_VALUE</td>           <td>set_value</td>           <td>setValue</td></tr>
+</table><p></p>
+<a name="PRIMITIVE_SOCKET"><b>13.26 Actions for the type PRIMITIVE_SOCKET</b></a>
+<p></p><table border="1">
+    <tr><td>Action name</td>         <td>strlib.c function</td>   <td>str_rtl.c function</td></tr>
+    <tr><td>SOC_ACCEPT</td>          <td>soc_accept</td>          <td>socAccept</td></tr>
+    <tr><td>SOC_BIND</td>            <td>soc_bind</td>            <td>socBind</td></tr>
+    <tr><td>SOC_CLOSE</td>           <td>soc_close</td>           <td>socClose</td></tr>
+    <tr><td>SOC_CONNECT</td>         <td>soc_connect</td>         <td>socConnect</td></tr>
+    <tr><td>SOC_CPY</td>             <td>soc_cpy</td>             <td>=</td></tr>
+    <tr><td>SOC_CREATE</td>          <td>soc_create</td>          <td></td></tr>
+    <tr><td>SOC_EMPTY</td>           <td>soc_empty</td>           <td></td></tr>
+    <tr><td>SOC_EQ</td>              <td>soc_eq</td>              <td>==</td></tr>
+    <tr><td>SOC_GETC</td>            <td>soc_getc</td>            <td>socGetc</td></tr>
+    <tr><td>SOC_GETS</td>            <td>soc_gets</td>            <td>socGets</td></tr>
+    <tr><td>SOC_INET_ADDR</td>       <td>soc_inet_addr</td>       <td>socInetAddr</td></tr>
+    <tr><td>SOC_INET_LOCAL_ADDR</td> <td>soc_inet_local_addr</td> <td>socInetLocalAddr</td></tr>
+    <tr><td>SOC_INET_SERV_ADDR</td>  <td>soc_inet_serv_addr</td>  <td>socInetServAddr</td></tr>
+    <tr><td>SOC_LINE_READ</td>       <td>soc_line_read</td>       <td>socLineRead</td></tr>
+    <tr><td>SOC_LISTEN</td>          <td>soc_listen</td>          <td>socListen</td></tr>
+    <tr><td>SOC_NE</td>              <td>soc_ne</td>              <td>!=</td></tr>
+    <tr><td>SOC_RECV</td>            <td>soc_recv</td>            <td>socRecv</td></tr>
+    <tr><td>SOC_RECVFROM</td>        <td>soc_recvfrom</td>        <td>socRecvfrom</td></tr>
+    <tr><td>SOC_SEND</td>            <td>soc_send</td>            <td>socSend</td></tr>
+    <tr><td>SOC_SENDTO</td>          <td>soc_sendto</td>          <td>socSendto</td></tr>
+    <tr><td>SOC_SOCKET</td>          <td>soc_socket</td>          <td>socSocket</td></tr>
+    <tr><td>SOC_WORD_READ</td>       <td>soc_word_read</td>       <td>socWordRead</td></tr>
+    <tr><td>SOC_WRITE</td>           <td>soc_write</td>           <td>socWrite</td></tr>
+</table><p></p>
+<a name="string"><b>13.27 Actions for the type string</b></a>
+<p></p><table border="1">
+    <tr><td>Action name</td>         <td>strlib.c function</td>   <td>str_rtl.c function</td></tr>
+    <tr><td>STR_APPEND</td>          <td>str_append</td>          <td>strAppend</td></tr>
+    <tr><td>STR_CAT</td>             <td>str_cat</td>             <td>strConcat, strConcatTemp</td></tr>
+    <tr><td>STR_CHIPOS</td>          <td>str_chipos</td>          <td>strChIpos</td></tr>
+    <tr><td>STR_CHPOS</td>           <td>str_chpos</td>           <td>strChPos</td></tr>
+    <tr><td>STR_CHSPLIT</td>         <td>str_chsplit</td>         <td>strChSplit</td></tr>
+    <tr><td>STR_CLIT</td>            <td>str_clit</td>            <td>strCLit</td></tr>
+    <tr><td>STR_CMP</td>             <td>str_cmp</td>             <td>strCompare</td></tr>
+    <tr><td>STR_CNT</td>             <td>act_illegal</td>         <td></td></tr>
+    <tr><td>STR_CPY</td>             <td>str_cpy</td>             <td>strCopy</td></tr>
+    <tr><td>STR_CREATE</td>          <td>str_create</td>          <td>strCreate</td></tr>
+    <tr><td>STR_DESTR</td>           <td>str_destr</td>           <td>strDestr</td></tr>
+    <tr><td>STR_ELEMCPY</td>         <td>str_elemcpy</td>         <td>a-&gt;mem[b-1]=c</td></tr>
+    <tr><td>STR_EQ</td>              <td>str_eq</td>              <td>a->size==b->size&amp;&amp;memcmp(a,b,a->size*sizeof(strelemtype))==0</td></tr>
+    <tr><td>STR_GE</td>              <td>str_ge</td>              <td>strGe</td></tr>
+    <tr><td>STR_GETENV</td>          <td>str_getenv</td>          <td>strGetenv</td></tr>
+    <tr><td>STR_GT</td>              <td>str_gt</td>              <td>strGt</td></tr>
+    <tr><td>STR_HASHCODE</td>        <td>str_hashcode</td>        <td>strHashCode</td></tr>
+    <tr><td>STR_HEAD</td>            <td>str_head</td>            <td>strHead</td></tr>
+    <tr><td>STR_IDX</td>             <td>str_idx</td>             <td>a-&gt;mem[b-1]</td></tr>
+    <tr><td>STR_IPOS</td>            <td>str_ipos</td>            <td>strIpos</td></tr>
+    <tr><td>STR_LE</td>              <td>str_le</td>              <td>strLe</td></tr>
+    <tr><td>STR_LIT</td>             <td>str_lit</td>             <td>strLit</td></tr>
+    <tr><td>STR_LNG</td>             <td>str_lng</td>             <td>a->size</td></tr>
+    <tr><td>STR_LOW</td>             <td>str_low</td>             <td>strLow, strLowTemp</td></tr>
+    <tr><td>STR_LPAD</td>            <td>str_lpad</td>            <td>strLpad</td></tr>
+    <tr><td>STR_LPAD0</td>           <td>str_lpad0</td>           <td>strLpad0, strLpad0Temp</td></tr>
+    <tr><td>STR_LT</td>              <td>str_lt</td>              <td>strLt</td></tr>
+    <tr><td>STR_MULT</td>            <td>str_mult</td>            <td>strMult</td></tr>
+    <tr><td>STR_NE</td>              <td>str_ne</td>              <td>a->size==b->size&amp;&amp;memcmp(a,b,a->size*sizeof(strelemtype))==0</td></tr>
+    <tr><td>STR_POS</td>             <td>str_pos</td>             <td>strPos</td></tr>
+    <tr><td>STR_RANGE</td>           <td>str_range</td>           <td>strRange</td></tr>
+    <tr><td>STR_RCHPOS</td>          <td>str_rchpos</td>          <td>strRChPos</td></tr>
+    <tr><td>STR_REPL</td>            <td>str_repl</td>            <td>strRepl</td></tr>
+    <tr><td>STR_RPAD</td>            <td>str_rpad</td>            <td>strRpad</td></tr>
+    <tr><td>STR_RPOS</td>            <td>str_rpos</td>            <td>strRpos</td></tr>
+    <tr><td>STR_SPLIT</td>           <td>str_split</td>           <td>strSplit</td></tr>
+    <tr><td>STR_STR</td>             <td>str_str</td>             <td>(noop)</td></tr>
+    <tr><td>STR_SUBSTR</td>          <td>str_substr</td>          <td>strSubstr</td></tr>
+    <tr><td>STR_TAIL</td>            <td>str_tail</td>            <td>strTail</td></tr>
+    <tr><td>STR_TOUTF8</td>          <td>str_toutf8</td>          <td>strToUtf8</td></tr>
+    <tr><td>STR_TRIM</td>            <td>str_trim</td>            <td>strTrim</td></tr>
+    <tr><td>STR_UP</td>              <td>str_up</td>              <td>strUp, strUpTemp</td></tr>
+    <tr><td>STR_UTF8TOSTRI</td>      <td>str_utf8tostri</td>      <td>strUtf8ToStri</td></tr>
+    <tr><td>STR_VALUE</td>           <td>str_value</td>           <td>strValue</td></tr>
+</table><p></p>
+<a name="time"><b>13.28 Actions for the type time</b></a>
+<p></p><table border="1">
+    <tr><td>Action name</td>         <td>timlib.c function</td>   <td>tim_unx.c/tim_win.c function</td></tr>
+    <tr><td>TIM_AWAIT</td>           <td>tim_await</td>           <td>timAwait</td></tr>
+    <tr><td>TIM_NOW</td>             <td>tim_now</td>             <td>timNow</td></tr>
+</table><p></p>
+<a name="type"><b>13.29 Actions for the type type</b></a>
+<p></p><table border="1">
+    <tr><td>Action name</td>         <td>typlib.c function</td>   <td>typ_data.c function</td></tr>
+    <tr><td>TYP_ADDINTERFACE</td>    <td>typ_addinterface</td>    <td></td></tr>
+    <tr><td>TYP_CMP</td>             <td>typ_cmp</td>             <td>typCmp</td></tr>
+    <tr><td>TYP_CPY</td>             <td>typ_cpy</td>             <td>typCpy</td></tr>
+    <tr><td>TYP_CREATE</td>          <td>typ_create</td>          <td>typCreate</td></tr>
+    <tr><td>TYP_DESTR</td>           <td>typ_destr</td>           <td>typDestr</td></tr>
+    <tr><td>TYP_EQ</td>              <td>typ_eq</td>              <td>==</td></tr>
+    <tr><td>TYP_FUNC</td>            <td>typ_func</td>            <td>typFunc</td></tr>
+    <tr><td>TYP_GENSUB</td>          <td>typ_gensub</td>          <td></td></tr>
+    <tr><td>TYP_GENTYPE</td>         <td>typ_gentype</td>         <td></td></tr>
+    <tr><td>TYP_HASHCODE</td>        <td>typ_hashcode</td>        <td>(inttype)(((uinttype)a)&gt;&gt;6)</td></tr>
+    <tr><td>TYP_ISDECLARED</td>      <td>typ_isdeclared</td>      <td></td></tr>
+    <tr><td>TYP_ISDERIVED</td>       <td>typ_isderived</td>       <td>typIsDerived</td></tr>
+    <tr><td>TYP_ISFORWARD</td>       <td>typ_isforward</td>       <td></td></tr>
+    <tr><td>TYP_ISFUNC</td>          <td>typ_isfunc</td>          <td>typIsFunc</td></tr>
+    <tr><td>TYP_ISVARFUNC</td>       <td>typ_isvarfunc</td>       <td>typIsVarfunc</td></tr>
+    <tr><td>TYP_MATCHOBJ</td>        <td>typ_matchobj</td>        <td>typMatchobj</td></tr>
+    <tr><td>TYP_META</td>            <td>typ_meta</td>            <td>typMeta</td></tr>
+    <tr><td>TYP_NE</td>              <td>typ_ne</td>              <td>!=</td></tr>
+    <tr><td>TYP_NUM</td>             <td>typ_num</td>             <td>typNum</td></tr>
+    <tr><td>TYP_RESULT</td>          <td>typ_result</td>          <td>typResult</td></tr>
+    <tr><td>TYP_STR</td>             <td>typ_str</td>             <td>typStr</td></tr>
+    <tr><td>TYP_VALUE</td>           <td>typ_value</td>           <td>typValue</td></tr>
+    <tr><td>TYP_VARCONV</td>         <td>typ_varconv</td>         <td></td></tr>
+    <tr><td>TYP_VARFUNC</td>         <td>typ_varfunc</td>         <td>typVarfunc</td></tr>
+</table><p></p>
+<a name="utf8_file"><b>13.30 Actions for the type utf8_file</b></a>
+<p></p><table border="1">
+    <tr><td>Action name</td>         <td>ut8lib.c function</td>   <td>ut8_rtl.c function</td></tr>
+    <tr><td>UT8_GETC</td>            <td>ut8_getc</td>            <td>ut8Getc</td></tr>
+    <tr><td>UT8_GETS</td>            <td>ut8_gets</td>            <td>ut8Gets</td></tr>
+    <tr><td>UT8_LINE_READ</td>       <td>ut8_line_read</td>       <td>ut8LineRead</td></tr>
+    <tr><td>UT8_SEEK</td>            <td>ut8_seek</td>            <td>ut8Seek</td></tr>
+    <tr><td>UT8_WORD_READ</td>       <td>ut8_word_read</td>       <td>ut8WordRead</td></tr>
+    <tr><td>UT8_WRITE</td>           <td>ut8_write</td>           <td>ut8Write</td></tr>
+</table><p></p>
+<hr>
 
 <p></p>
 <a name="ERRORS"><big><b>14. ERRORS</b></big></a>

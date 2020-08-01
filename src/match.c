@@ -39,6 +39,7 @@
 #include "listutl.h"
 #include "entutl.h"
 #include "traceutl.h"
+#include "executl.h"
 #include "memory.h"
 #include "error.h"
 #include "prclib.h"

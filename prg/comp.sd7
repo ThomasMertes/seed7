@@ -294,11 +294,11 @@ const proc: declare_type_if_necessary (in type: aType, inout expr_type: c_expr) 
   end func;
 
 
-const func type: getExprResultType (in reference: type_ref) is func
+const func type: getExprResultType (in reference: aReference) is func
   result
     var type: result is void;
   begin
-    result := getType(type_ref);
+    result := getType(aReference);
     while is_func(result) or is_varfunc(result) do
       result := result_type(result);
     end while;
@@ -1321,7 +1321,7 @@ const func boolean: isConstant (in reference: current_expression) is func
   local
     var category: exprCategory is category.value;
   begin
-    if not is_var(current_expression) then
+    if not isVar(current_expression) then
       exprCategory := category(current_expression);
       if exprCategory in {INTOBJECT, BIGINTOBJECT, CHAROBJECT,
           STRIOBJECT, BSTRIOBJECT, ARRAYOBJECT, HASHOBJECT, STRUCTOBJECT,
@@ -2089,7 +2089,7 @@ const proc: process_const_arr_idx (in reference: procedure, in reference: anArra
     if anArray not in const_table then
       const_table @:= [anArray] length(const_table);
     end if;
-    if category(param3) = INTOBJECT and not is_var(param3) then
+    if category(param3) = INTOBJECT and not isVar(param3) then
       index := getValue(param3, integer);
       if index < array_min_index(anArray) or index > array_max_index(anArray) then
         c_expr.expr &:= "(raise_error(RANGE_ERROR), 0)";
@@ -2208,9 +2208,9 @@ const proc: process_arr_idx (in reference: procedure, in ref_list: params,
     var integer: array_temp_num is 0;
     var integer: index_temp_num is 0;
   begin
-    if category(params[1]) = ARRAYOBJECT and not is_var(params[1]) then
+    if category(params[1]) = ARRAYOBJECT and not isVar(params[1]) then
       process_const_arr_idx(procedure, params[1], params[3], c_expr);
-    elsif category(params[3]) = INTOBJECT and not is_var(params[3]) then
+    elsif category(params[3]) = INTOBJECT and not isVar(params[3]) then
       process_const_arr_idx(procedure, params[1], getValue(params[3], integer), c_expr);
     else
       incr(c_expr.temp_num);
@@ -2271,7 +2271,7 @@ const proc: process_arr_lng (in ref_list: params, inout expr_type: c_expr) is fu
   local
     var integer: temp_num is 0;
   begin
-    if category(params[1]) = ARRAYOBJECT and not is_var(params[1]) then
+    if category(params[1]) = ARRAYOBJECT and not isVar(params[1]) then
       incr(countOptimizations);
       if params[1] not in const_table then
         const_table @:= [params[1]] length(const_table);
@@ -2304,7 +2304,7 @@ const proc: process_arr_maxidx (in ref_list: params, inout expr_type: c_expr) is
   local
     var integer: temp_num is 0;
   begin
-    if category(params[1]) = ARRAYOBJECT and not is_var(params[1]) then
+    if category(params[1]) = ARRAYOBJECT and not isVar(params[1]) then
       incr(countOptimizations);
       if params[1] not in const_table then
         const_table @:= [params[1]] length(const_table);
@@ -2326,7 +2326,7 @@ const proc: process_arr_minidx (in ref_list: params, inout expr_type: c_expr) is
   local
     var integer: temp_num is 0;
   begin
-    if category(params[1]) = ARRAYOBJECT and not is_var(params[1]) then
+    if category(params[1]) = ARRAYOBJECT and not isVar(params[1]) then
       incr(countOptimizations);
       if params[1] not in const_table then
         const_table @:= [params[1]] length(const_table);
@@ -2492,7 +2492,7 @@ const proc: process_const_big_cmp (in reference: param1, in bigInteger: number,
     inout expr_type: c_expr) is func
 
   begin
-    if category(param1) = BIGINTOBJECT and not is_var(param1) then
+    if category(param1) = BIGINTOBJECT and not isVar(param1) then
       incr(countOptimizations);
       c_expr.expr &:= str(compare(getValue(param1, bigInteger), number));
     elsif abs(number) <= 127_ then
@@ -2531,9 +2531,9 @@ const proc: process_const_big_cmp (in bigInteger: number, in reference: param2,
 const proc: process_big_cmp (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    if category(params[2]) = BIGINTOBJECT and not is_var(params[2]) then
+    if category(params[2]) = BIGINTOBJECT and not isVar(params[2]) then
       process_const_big_cmp(params[1], getValue(params[2], bigInteger), c_expr);
-    elsif category(params[1]) = BIGINTOBJECT and not is_var(params[1]) then
+    elsif category(params[1]) = BIGINTOBJECT and not isVar(params[1]) then
       process_const_big_cmp(getValue(params[1], bigInteger), params[2], c_expr);
     else
       c_expr.expr &:= "bigCmp(";
@@ -2634,9 +2634,9 @@ const proc: process_big_gcd (in ref_list: params, inout expr_type: c_expr) is fu
 const proc: process_big_ge (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    if category(params[3]) = BIGINTOBJECT and not is_var(params[3]) then
+    if category(params[3]) = BIGINTOBJECT and not isVar(params[3]) then
       process_const_big_cmp(params[1], getValue(params[3], bigInteger), c_expr);
-    elsif category(params[1]) = BIGINTOBJECT and not is_var(params[1]) then
+    elsif category(params[1]) = BIGINTOBJECT and not isVar(params[1]) then
       process_const_big_cmp(getValue(params[1], bigInteger), params[3], c_expr);
     else
       c_expr.expr &:= "bigCmp(";
@@ -2689,9 +2689,9 @@ const proc: process_big_grow (in ref_list: params, inout expr_type: c_expr) is f
 const proc: process_big_gt (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    if category(params[3]) = BIGINTOBJECT and not is_var(params[3]) then
+    if category(params[3]) = BIGINTOBJECT and not isVar(params[3]) then
       process_const_big_cmp(params[1], getValue(params[3], bigInteger), c_expr);
-    elsif category(params[1]) = BIGINTOBJECT and not is_var(params[1]) then
+    elsif category(params[1]) = BIGINTOBJECT and not isVar(params[1]) then
       process_const_big_cmp(getValue(params[1], bigInteger), params[3], c_expr);
     else
       c_expr.expr &:= "bigCmp(";
@@ -2742,7 +2742,7 @@ const proc: process_const_big_ipow (in reference: param1, in integer: number,
     if number < 0 then
       incr(countOptimizations);
       c_expr.expr &:= "(raise_error(NUMERIC_ERROR), 0)";
-    elsif category(param1) = BIGINTOBJECT and not is_var(param1) then
+    elsif category(param1) = BIGINTOBJECT and not isVar(param1) then
       incr(countOptimizations);
       bigNumber := getValue(param1, bigInteger) ** number;
       if bigNumber not in bigint_const_table then
@@ -2887,9 +2887,9 @@ const proc: process_const_big_ipow (in bigInteger: number, in reference: param3,
 const proc: process_big_ipow (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    if category(params[3]) = INTOBJECT and not is_var(params[3]) then
+    if category(params[3]) = INTOBJECT and not isVar(params[3]) then
       process_const_big_ipow(params[1], getValue(params[3], integer), c_expr);
-    elsif category(params[1]) = BIGINTOBJECT and not is_var(params[1]) then
+    elsif category(params[1]) = BIGINTOBJECT and not isVar(params[1]) then
       process_const_big_ipow(getValue(params[1], bigInteger), params[3], c_expr);
     else
       prepare_bigint_result(c_expr);
@@ -2905,9 +2905,9 @@ const proc: process_big_ipow (in ref_list: params, inout expr_type: c_expr) is f
 const proc: process_big_le (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    if category(params[3]) = BIGINTOBJECT and not is_var(params[3]) then
+    if category(params[3]) = BIGINTOBJECT and not isVar(params[3]) then
       process_const_big_cmp(params[1], getValue(params[3], bigInteger), c_expr);
-    elsif category(params[1]) = BIGINTOBJECT and not is_var(params[1]) then
+    elsif category(params[1]) = BIGINTOBJECT and not isVar(params[1]) then
       process_const_big_cmp(getValue(params[1], bigInteger), params[3], c_expr);
     else
       c_expr.expr &:= "bigCmp(";
@@ -2986,9 +2986,9 @@ const proc: process_big_lshift_assign (in ref_list: params, inout expr_type: c_e
 const proc: process_big_lt (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    if category(params[3]) = BIGINTOBJECT and not is_var(params[3]) then
+    if category(params[3]) = BIGINTOBJECT and not isVar(params[3]) then
       process_const_big_cmp(params[1], getValue(params[3], bigInteger), c_expr);
-    elsif category(params[1]) = BIGINTOBJECT and not is_var(params[1]) then
+    elsif category(params[1]) = BIGINTOBJECT and not isVar(params[1]) then
       process_const_big_cmp(getValue(params[1], bigInteger), params[3], c_expr);
     else
       c_expr.expr &:= "bigCmp(";
@@ -2998,43 +2998,6 @@ const proc: process_big_lt (in ref_list: params, inout expr_type: c_expr) is fun
       c_expr.expr &:= ")";
     end if;
     c_expr.expr &:= " < 0";
-  end func;
-
-
-const proc: process_big_mcpy (in ref_list: params, inout expr_type: c_expr) is func
-
-  local
-    var expr_type: c_param1 is expr_type.value;
-    var expr_type: c_param3 is expr_type.value;
-  begin
-    process_expr(params[1], c_param1);
-    c_param3.temp_num := c_param1.temp_num;
-    process_expr(params[3], c_param3);
-    if has_temp_values(c_param3) or c_param3.result_expr <> "" then
-      c_expr.expr &:= "{\n";
-      c_expr.expr &:= c_param1.temp_decls;
-      c_expr.expr &:= c_param3.temp_decls;
-      c_expr.expr &:= c_param3.result_decl;
-      c_expr.expr &:= c_param1.temp_assigns;
-      c_expr.expr &:= c_param3.temp_assigns;
-    end if;
-    c_expr.expr &:= "bigMCpy(&(";
-    c_expr.expr &:= c_param1.expr;
-    c_expr.expr &:= "), ";
-    if c_param3.result_expr <> "" then
-      c_expr.expr &:= c_param3.result_intro;
-      c_expr.expr &:= c_param3.result_expr;
-      c_expr.expr &:= c_param3.result_finish;
-    else
-      c_expr.expr &:= c_param3.expr;
-    end if;
-    c_expr.expr &:= ");\n";
-    if has_temp_values(c_param3) or c_param3.result_expr <> "" then
-      c_expr.expr &:= c_param1.temp_frees;
-      c_expr.expr &:= c_param3.temp_frees;
-      c_expr.expr &:= c_param3.result_free;
-      c_expr.expr &:= "}\n";
-    end if;
   end func;
 
 
@@ -3048,7 +3011,7 @@ const proc: process_const_big_mdiv (in reference: param1, in bigInteger: number,
     incr(countOptimizations);
     if number = 0_ then
       c_expr.expr &:= "(raise_error(NUMERIC_ERROR), 0)";
-    elsif category(param1) = BIGINTOBJECT and not is_var(param1) then
+    elsif category(param1) = BIGINTOBJECT and not isVar(param1) then
       bigNumber := getValue(param1, bigInteger) mdiv number;
       if bigNumber not in bigint_const_table then
         bigint_const_table @:= [bigNumber] length(bigint_const_table);
@@ -3097,7 +3060,7 @@ const proc: process_const_big_mdiv (in reference: param1, in bigInteger: number,
 const proc: process_big_mdiv (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    if category(params[3]) = BIGINTOBJECT and not is_var(params[3]) then
+    if category(params[3]) = BIGINTOBJECT and not isVar(params[3]) then
       process_const_big_mdiv(params[1], getValue(params[3], bigInteger), c_expr);
     else
       prepare_bigint_result(c_expr);
@@ -3139,7 +3102,7 @@ const proc: process_const_big_mult (in reference: param1, in bigInteger: number,
     var bigInteger: bigNumber is 0_;
     var integer: log2base is 0;
   begin
-    if category(param1) = BIGINTOBJECT and not is_var(param1) then
+    if category(param1) = BIGINTOBJECT and not isVar(param1) then
       incr(countOptimizations);
       bigNumber := getValue(param1, bigInteger) * number;
       if bigNumber not in bigint_const_table then
@@ -3193,9 +3156,9 @@ const proc: process_const_big_mult (in reference: param1, in bigInteger: number,
 const proc: process_big_mult (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    if category(params[3]) = BIGINTOBJECT and not is_var(params[3]) then
+    if category(params[3]) = BIGINTOBJECT and not isVar(params[3]) then
       process_const_big_mult(params[1], getValue(params[3], bigInteger), c_expr);
-    elsif category(params[1]) = BIGINTOBJECT and not is_var(params[1]) then
+    elsif category(params[1]) = BIGINTOBJECT and not isVar(params[1]) then
       process_const_big_mult(params[3], getValue(params[1], bigInteger), c_expr);
     else
       prepare_bigint_result(c_expr);
@@ -3204,6 +3167,43 @@ const proc: process_big_mult (in ref_list: params, inout expr_type: c_expr) is f
       c_expr.result_expr &:= ", ";
       getAnyParamToResultExpr(params[3], c_expr);
       c_expr.result_expr &:= ")";
+    end if;
+  end func;
+
+
+const proc: process_big_mult_assign (in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: c_param1 is expr_type.value;
+    var expr_type: c_param3 is expr_type.value;
+  begin
+    process_expr(params[1], c_param1);
+    c_param3.temp_num := c_param1.temp_num;
+    process_expr(params[3], c_param3);
+    if has_temp_values(c_param3) or c_param3.result_expr <> "" then
+      c_expr.expr &:= "{\n";
+      c_expr.expr &:= c_param1.temp_decls;
+      c_expr.expr &:= c_param3.temp_decls;
+      c_expr.expr &:= c_param3.result_decl;
+      c_expr.expr &:= c_param1.temp_assigns;
+      c_expr.expr &:= c_param3.temp_assigns;
+    end if;
+    c_expr.expr &:= "bigMultAssign(&(";
+    c_expr.expr &:= c_param1.expr;
+    c_expr.expr &:= "), ";
+    if c_param3.result_expr <> "" then
+      c_expr.expr &:= c_param3.result_intro;
+      c_expr.expr &:= c_param3.result_expr;
+      c_expr.expr &:= c_param3.result_finish;
+    else
+      c_expr.expr &:= c_param3.expr;
+    end if;
+    c_expr.expr &:= ");\n";
+    if has_temp_values(c_param3) or c_param3.result_expr <> "" then
+      c_expr.expr &:= c_param1.temp_frees;
+      c_expr.expr &:= c_param3.temp_frees;
+      c_expr.expr &:= c_param3.result_free;
+      c_expr.expr &:= "}\n";
     end if;
   end func;
 
@@ -3636,7 +3636,7 @@ const proc: process_chr_chr (in ref_list: params, inout expr_type: c_expr) is fu
   local
     var integer: temp_num is 0;
   begin
-    if category(params[1]) = INTOBJECT and not is_var(params[1]) then
+    if category(params[1]) = INTOBJECT and not isVar(params[1]) then
       process_const_chr_chr(getValue(params[1], integer), c_expr);
     elsif INTTYPE_64BIT then
       incr(c_expr.temp_num);
@@ -3660,6 +3660,15 @@ const proc: process_chr_chr (in ref_list: params, inout expr_type: c_expr) is fu
       process_expr(params[1], c_expr);
       c_expr.expr &:= ")";
     end if;
+  end func;
+
+
+const proc: process_chr_conv (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ")";
   end func;
 
 
@@ -4255,6 +4264,23 @@ const proc: process_drw_flush (in ref_list: params, inout expr_type: c_expr) is 
   end func;
 
 
+const proc: process_drw_fpolyline (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "drwFPolyLine(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ", ";
+    getAnyParamToExpr(params[4], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[5], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
 const proc: process_drw_genpointlist (in ref_list: params, inout expr_type: c_expr) is func
 
   local
@@ -4527,21 +4553,6 @@ const proc: process_drw_point (in ref_list: params, inout expr_type: c_expr) is 
   end func;
 
 
-const proc: process_drw_ppoint (in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    c_expr.expr &:= "drwPPoint(";
-    getAnyParamToExpr(params[1], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[2], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[4], c_expr);
-    c_expr.expr &:= ");\n";
-  end func;
-
-
 const proc: process_drw_polyline (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -4559,19 +4570,17 @@ const proc: process_drw_polyline (in ref_list: params, inout expr_type: c_expr) 
   end func;
 
 
-const proc: process_drw_fpolyline (in ref_list: params, inout expr_type: c_expr) is func
+const proc: process_drw_ppoint (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "drwFPolyLine(";
+    c_expr.expr &:= "drwPPoint(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
     process_expr(params[2], c_expr);
     c_expr.expr &:= ", ";
     process_expr(params[3], c_expr);
     c_expr.expr &:= ", ";
-    getAnyParamToExpr(params[4], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[5], c_expr);
+    process_expr(params[4], c_expr);
     c_expr.expr &:= ");\n";
   end func;
 
@@ -4841,6 +4850,15 @@ const proc: process_fil_cpy (in ref_list: params, inout expr_type: c_expr) is fu
   end func;
 
 
+const proc: process_fil_eof (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "feof((FILE *)";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
 const proc: process_fil_eq (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -4848,15 +4866,6 @@ const proc: process_fil_eq (in ref_list: params, inout expr_type: c_expr) is fun
     process_expr(params[1], c_expr);
     c_expr.expr &:= ") == (";
     process_expr(params[3], c_expr);
-    c_expr.expr &:= ")";
-  end func;
-
-
-const proc: process_fil_eof (in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    c_expr.expr &:= "feof((FILE *)";
-    process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
   end func;
 
@@ -5072,6 +5081,15 @@ const proc: process_flt_abs (in ref_list: params, inout expr_type: c_expr) is fu
   end func;
 
 
+const proc: process_flt_acos (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "acos(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
 const proc: process_flt_add (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -5079,15 +5097,6 @@ const proc: process_flt_add (in ref_list: params, inout expr_type: c_expr) is fu
     process_expr(params[1], c_expr);
     c_expr.expr &:= ") + (";
     process_expr(params[3], c_expr);
-    c_expr.expr &:= ")";
-  end func;
-
-
-const proc: process_flt_acos (in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    c_expr.expr &:= "acos(";
-    process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
   end func;
 
@@ -5154,6 +5163,15 @@ const proc: process_flt_cos (in ref_list: params, inout expr_type: c_expr) is fu
 
   begin
     c_expr.expr &:= "cos(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process_flt_cosh (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "cosh(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
   end func;
@@ -5519,6 +5537,13 @@ const proc: process_flt_parse (in ref_list: params, inout expr_type: c_expr) is 
   end func;
 
 
+const proc: process_flt_plus (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    process_expr(params[2], c_expr);
+  end func;
+
+
 const proc: process_flt_pow (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -5614,6 +5639,15 @@ const proc: process_flt_sin (in ref_list: params, inout expr_type: c_expr) is fu
   end func;
 
 
+const proc: process_flt_sinh (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "sinh(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
 const proc: process_flt_sqrt (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -5637,6 +5671,15 @@ const proc: process_flt_tan (in ref_list: params, inout expr_type: c_expr) is fu
 
   begin
     c_expr.expr &:= "tan(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process_flt_tanh (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "tanh(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
   end func;
@@ -6321,6 +6364,17 @@ const proc: process_int_incr (in ref_list: params, inout expr_type: c_expr) is f
   end func;
 
 
+const proc: process_int_le (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ") <= (";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
 const proc: process_int_log2 (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -6351,17 +6405,6 @@ const proc: process_int_lpad0 (in ref_list: params, inout expr_type: c_expr) is 
   end func;
 
 
-const proc: process_int_le (in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    c_expr.expr &:= "(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ") <= (";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= ")";
-  end func;
-
-
 const proc: process_const_int_lshift (in reference: param1, in integer: number,
     inout expr_type: c_expr) is func
 
@@ -6383,7 +6426,7 @@ const proc: process_const_int_lshift (in reference: param1, in integer: number,
 const proc: process_int_lshift (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    if category(params[3]) = INTOBJECT and not is_var(params[3]) then
+    if category(params[3]) = INTOBJECT and not isVar(params[3]) then
       process_const_int_lshift(params[1], getValue(params[3], integer), c_expr);
     else
       c_expr.expr &:= "(";
@@ -6438,34 +6481,6 @@ const proc: process_int_lt (in ref_list: params, inout expr_type: c_expr) is fun
   end func;
 
 
-const proc: process_int_mcpy (in ref_list: params, inout expr_type: c_expr) is func
-
-  local
-    var expr_type: c_param1 is expr_type.value;
-    var expr_type: c_param3 is expr_type.value;
-  begin
-    process_expr(params[1], c_param1);
-    c_param3.temp_num := c_param1.temp_num;
-    process_expr(params[3], c_param3);
-    if c_param3.temp_num <> 0 then
-      c_expr.expr &:= "{\n";
-      c_expr.expr &:= c_param1.temp_decls;
-      c_expr.expr &:= c_param3.temp_decls;
-      c_expr.expr &:= c_param1.temp_assigns;
-      c_expr.expr &:= c_param3.temp_assigns;
-    end if;
-    c_expr.expr &:= c_param1.expr;
-    c_expr.expr &:= "*=(";
-    c_expr.expr &:= c_param3.expr;
-    c_expr.expr &:= ");\n";
-    if c_param3.temp_num <> 0 then
-      c_expr.expr &:= c_param1.temp_frees;
-      c_expr.expr &:= c_param3.temp_frees;
-      c_expr.expr &:= "}\n";
-    end if;
-  end func;
-
-
 const proc: process_const_int_mdiv (in reference: param1, in integer: number,
     inout expr_type: c_expr) is func
 
@@ -6475,7 +6490,7 @@ const proc: process_const_int_mdiv (in reference: param1, in integer: number,
     incr(countOptimizations);
     if number = 0 then
       c_expr.expr &:= "(raise_error(NUMERIC_ERROR), 0)";
-    elsif category(param1) = INTOBJECT and not is_var(param1) then
+    elsif category(param1) = INTOBJECT and not isVar(param1) then
       c_expr.expr &:= str(getValue(param1, integer) mdiv number);
     elsif number = 1 then
       c_expr.expr &:= "(";
@@ -6596,9 +6611,9 @@ const proc: process_int_mdiv (in ref_list: params, inout expr_type: c_expr) is f
   local
     var integer: temp_num is 0;
   begin
-    if category(params[3]) = INTOBJECT and not is_var(params[3]) then
+    if category(params[3]) = INTOBJECT and not isVar(params[3]) then
       process_const_int_mdiv(params[1], getValue(params[3], integer), c_expr);
-    elsif category(params[1]) = INTOBJECT and not is_var(params[1]) then
+    elsif category(params[1]) = INTOBJECT and not isVar(params[1]) then
       process_const_int_mdiv(getValue(params[1], integer), params[3], c_expr);
     else
       incr(c_expr.temp_num);
@@ -6661,7 +6676,7 @@ const proc: process_const_int_mod (in reference: param1, in integer: number,
     incr(countOptimizations);
     if number = 0 then
       c_expr.expr &:= "(raise_error(NUMERIC_ERROR), 0)";
-    elsif category(param1) = INTOBJECT and not is_var(param1) then
+    elsif category(param1) = INTOBJECT and not isVar(param1) then
       c_expr.expr &:= str(getValue(param1, integer) mod number);
     elsif number = 1 or number = -1 then
       c_expr.expr &:= "0";
@@ -6717,7 +6732,7 @@ const proc: process_int_mod (in ref_list: params, inout expr_type: c_expr) is fu
   local
     var integer: temp_num is 0;
   begin
-    if category(params[3]) = INTOBJECT and not is_var(params[3]) then
+    if category(params[3]) = INTOBJECT and not isVar(params[3]) then
       process_const_int_mod(params[1], getValue(params[3], integer), c_expr);
     else
       incr(c_expr.temp_num);
@@ -6778,6 +6793,34 @@ const proc: process_int_mult (in ref_list: params, inout expr_type: c_expr) is f
   end func;
 
 
+const proc: process_int_mult_assign (in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: c_param1 is expr_type.value;
+    var expr_type: c_param3 is expr_type.value;
+  begin
+    process_expr(params[1], c_param1);
+    c_param3.temp_num := c_param1.temp_num;
+    process_expr(params[3], c_param3);
+    if c_param3.temp_num <> 0 then
+      c_expr.expr &:= "{\n";
+      c_expr.expr &:= c_param1.temp_decls;
+      c_expr.expr &:= c_param3.temp_decls;
+      c_expr.expr &:= c_param1.temp_assigns;
+      c_expr.expr &:= c_param3.temp_assigns;
+    end if;
+    c_expr.expr &:= c_param1.expr;
+    c_expr.expr &:= "*=(";
+    c_expr.expr &:= c_param3.expr;
+    c_expr.expr &:= ");\n";
+    if c_param3.temp_num <> 0 then
+      c_expr.expr &:= c_param1.temp_frees;
+      c_expr.expr &:= c_param3.temp_frees;
+      c_expr.expr &:= "}\n";
+    end if;
+  end func;
+
+
 const proc: process_int_ne (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -6832,7 +6875,7 @@ const proc: process_const_int_pow (in reference: param1, in integer: number,
     if number < 0 then
       incr(countOptimizations);
       c_expr.expr &:= "(raise_error(NUMERIC_ERROR), 0)";
-    elsif category(param1) = INTOBJECT and not is_var(param1) then
+    elsif category(param1) = INTOBJECT and not isVar(param1) then
       incr(countOptimizations);
       c_expr.expr &:= str(getValue(param1, integer) ** number);
     elsif number = 0 then
@@ -6902,9 +6945,9 @@ const proc: process_const_int_pow (in integer: number, in reference: param3,
 const proc: process_int_pow (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    if category(params[3]) = INTOBJECT and not is_var(params[3]) then
+    if category(params[3]) = INTOBJECT and not isVar(params[3]) then
       process_const_int_pow(params[1], getValue(params[3], integer), c_expr);
-    elsif category(params[1]) = INTOBJECT and not is_var(params[1]) then
+    elsif category(params[1]) = INTOBJECT and not isVar(params[1]) then
       process_const_int_pow(getValue(params[1], integer), params[3], c_expr);
     else
       c_expr.expr &:= "intPow(";
@@ -6998,7 +7041,7 @@ const proc: process_int_rshift (in ref_list: params, inout expr_type: c_expr) is
   local
     var integer: temp_num is 0;
   begin
-    if category(params[3]) = INTOBJECT and not is_var(params[3]) then
+    if category(params[3]) = INTOBJECT and not isVar(params[3]) then
       process_const_int_rshift(params[1], getValue(params[3], integer), c_expr);
     else
       if RSHIFT_DOES_SIGN_EXTEND then
@@ -7068,7 +7111,7 @@ const proc: process_int_rshift_assign (in ref_list: params, inout expr_type: c_e
       end if;
       c_expr.expr &:= ");\n";
     else
-      (* Formula used: (a<0?~(~a>>b):a>>b) *)
+      (* Formula used: if (a<0) a= ~(~a>>b); else a>>=b; *)
       c_expr.expr &:= "tmp_";
       c_expr.expr &:= str(temp_num);
       c_expr.expr &:= "=(";
@@ -7185,7 +7228,7 @@ const proc: process_const_int_str_based (in reference: param1, in integer: base,
 const proc: process_int_str_based (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    if category(params[2]) = INTOBJECT and not is_var(params[2]) then
+    if category(params[2]) = INTOBJECT and not isVar(params[2]) then
       process_const_int_str_based(params[1], getValue(params[2], integer), c_expr);
     else
       prepare_stri_result(c_expr);
@@ -7493,6 +7536,18 @@ const proc: process_prg_match (in ref_list: params, inout expr_type: c_expr) is 
   end func;
 
 
+const proc: process_prg_match_expr (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compilerLibraryUsed := TRUE;
+    c_expr.expr &:= "prgMatchExpr(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
 const proc: process_prg_name (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -7624,6 +7679,16 @@ const proc: process_ref_category (in ref_list: params, inout expr_type: c_expr) 
   end func;
 
 
+const proc: process_ref_cat_parse (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compDataLibraryUsed := TRUE;
+    c_expr.expr &:= "refCatParse(";
+    getAnyParamToExpr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
 const proc: process_ref_cat_str (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -7632,6 +7697,15 @@ const proc: process_ref_cat_str (in ref_list: params, inout expr_type: c_expr) i
     c_expr.result_expr &:= "refCatStr(";
     getStdParamToResultExpr(params[1], c_expr);
     c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process_ref_conv (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ")";
   end func;
 
 
@@ -7706,11 +7780,31 @@ const proc: process_ref_hashcode (in ref_list: params, inout expr_type: c_expr) 
   end func;
 
 
+const proc: process_ref_hshdatatolist (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compDataLibraryUsed := TRUE;
+    c_expr.expr &:= "refHshDataToList(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process_ref_hshkeytolist (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compDataLibraryUsed := TRUE;
+    c_expr.expr &:= "refHshKeyToList(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
 const proc: process_ref_isvar (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
     compDataLibraryUsed := TRUE;
-    c_expr.expr &:= "refIsvar(";
+    c_expr.expr &:= "refIsVar(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
   end func;
@@ -7889,6 +7983,18 @@ const proc: process_ref_settype (in ref_list: params, inout expr_type: c_expr) i
   end func;
 
 
+const proc: process_ref_setvar (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    compDataLibraryUsed := TRUE;
+    c_expr.expr &:= "refSetVar(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
 const proc: process_ref_str (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -7908,7 +8014,7 @@ const proc: process_ref_trace (in ref_list: params, inout expr_type: c_expr) is 
   begin
     traceParam := params[1];
     object_type := getExprResultType(traceParam);
-    if is_var(traceParam) then
+    if isVar(traceParam) then
       c_expr.expr &:= "printf(\"var %s: %s is \", ";
     else
       c_expr.expr &:= "printf(\"const %s: %s is \", ";
@@ -9189,7 +9295,7 @@ const func string: evaluate_const_str_cat (in reference: param1, in string: stri
     var ref_list: param_list is ref_list.EMPTY;
     var string: action_name is "";
   begin
-    if category(param1) = STRIOBJECT and not is_var(param1) and
+    if category(param1) = STRIOBJECT and not isVar(param1) and
       result := getValue(param1, string) & stri2;
     else
       if category(param1) = CALLOBJECT then
@@ -9197,7 +9303,7 @@ const func string: evaluate_const_str_cat (in reference: param1, in string: stri
         if category(param_list[1]) = ACTOBJECT then
           action_name := str(getValue(param_list[1], ACTION));
           if action_name = "STR_CAT" then
-            if category(param_list[4]) = STRIOBJECT and not is_var(param_list[4]) then
+            if category(param_list[4]) = STRIOBJECT and not isVar(param_list[4]) then
               result := evaluate_const_str_cat(param_list[2],
                   getValue(params[4], string)) & stri2;
             end if;
@@ -9214,7 +9320,7 @@ const proc: process_const_str_cat (in reference: param1, in string: stri2,
     var string: stri is "";
   begin
     incr(countOptimizations);
-    if category(param1) = STRIOBJECT and not is_var(param1) and
+    if category(param1) = STRIOBJECT and not isVar(param1) and
       stri := getValue(param1, string) & stri2;
       if stri not in stri_const_table then
         stri_const_table @:= [stri] length(stri_const_table);
@@ -9368,7 +9474,9 @@ const proc: process_const_str_elemcpy (in reference: param1, in integer: index, 
       process_expr(param1, c_param1);
       c_param6.temp_num := c_param1.temp_num;
       process_expr(param6, c_param6);
-      c_expr.expr &:= "{\n";
+      if c_param6.temp_num <> 0 or array_range_check then
+        c_expr.expr &:= "{\n";
+      end if;
       if c_param6.temp_num <> 0 then
         c_expr.expr &:= c_param1.temp_decls;
         c_expr.expr &:= c_param6.temp_decls;
@@ -9403,7 +9511,9 @@ const proc: process_const_str_elemcpy (in reference: param1, in integer: index, 
         c_expr.expr &:= c_param1.temp_frees;
         c_expr.expr &:= c_param6.temp_frees;
       end if;
-      c_expr.expr &:= "}\n";
+      if c_param6.temp_num <> 0 or array_range_check then
+        c_expr.expr &:= "}\n";
+      end if;
     end if;
   end func;
 
@@ -9415,7 +9525,7 @@ const proc: process_str_elemcpy (in ref_list: params, inout expr_type: c_expr) i
     var expr_type: c_param4 is expr_type.value;
     var expr_type: c_param6 is expr_type.value;
   begin
-    if category(params[4]) = INTOBJECT and not is_var(params[4]) then
+    if category(params[4]) = INTOBJECT and not isVar(params[4]) then
       process_const_str_elemcpy(params[1], getValue(params[4], integer), params[6], c_expr);
     else
       process_expr(params[1], c_param1);
@@ -9423,7 +9533,9 @@ const proc: process_str_elemcpy (in ref_list: params, inout expr_type: c_expr) i
       process_expr(params[4], c_param4);
       c_param6.temp_num := c_param4.temp_num;
       process_expr(params[6], c_param6);
-      c_expr.expr &:= "{\n";
+      if c_param6.temp_num <> 0 or array_range_check then
+        c_expr.expr &:= "{\n";
+      end if;
       if c_param6.temp_num <> 0 then
         c_expr.expr &:= c_param1.temp_decls;
         c_expr.expr &:= c_param4.temp_decls;
@@ -9468,7 +9580,9 @@ const proc: process_str_elemcpy (in ref_list: params, inout expr_type: c_expr) i
         c_expr.expr &:= c_param4.temp_frees;
         c_expr.expr &:= c_param6.temp_frees;
       end if;
-      c_expr.expr &:= "}\n";
+      if c_param6.temp_num <> 0 or array_range_check then
+        c_expr.expr &:= "}\n";
+      end if;
     end if;
   end func;
 
@@ -9480,7 +9594,7 @@ const proc: process_const_str_eq (in reference: param1, in string: stri,
     var integer: temp_num is 0;
   begin
     incr(countOptimizations);
-    if category(param1) = STRIOBJECT and not is_var(param1) then
+    if category(param1) = STRIOBJECT and not isVar(param1) then
       c_expr.expr &:= "/* ";
       c_expr.expr &:= replace(literal(getValue(param1, string)), "*/", "*\\/");
       c_expr.expr &:= " == ";
@@ -9552,9 +9666,9 @@ const proc: process_str_eq (in ref_list: params, inout expr_type: c_expr) is fun
   local
     var integer: temp_num is 0;
   begin
-    if category(params[3]) = STRIOBJECT and not is_var(params[3]) then
+    if category(params[3]) = STRIOBJECT and not isVar(params[3]) then
       process_const_str_eq(params[1], getValue(params[3], string), c_expr);
-    elsif category(params[1]) = STRIOBJECT and not is_var(params[1]) then
+    elsif category(params[1]) = STRIOBJECT and not isVar(params[1]) then
       process_const_str_eq(params[3], getValue(params[1], string), c_expr);
     else
       incr(c_expr.temp_num);
@@ -9650,7 +9764,7 @@ const proc: process_const_str_idx (in string: stri, in reference: param3, inout 
     var integer: index_temp_num is 0;
   begin
     incr(countOptimizations);
-    if category(param3) = INTOBJECT and not is_var(param3) then
+    if category(param3) = INTOBJECT and not isVar(param3) then
       index := getValue(param3, integer);
       if index < 1 or index > length(stri) then
         c_expr.expr &:= "(raise_error(RANGE_ERROR), 0)";
@@ -9745,9 +9859,9 @@ const proc: process_str_idx (in ref_list: params, inout expr_type: c_expr) is fu
     var integer: string_temp_num is 0;
     var integer: index_temp_num is 0;
   begin
-    if category(params[1]) = STRIOBJECT and not is_var(params[1]) then
+    if category(params[1]) = STRIOBJECT and not isVar(params[1]) then
       process_const_str_idx(getValue(params[1], string), params[3], c_expr);
-    elsif category(params[3]) = INTOBJECT and not is_var(params[3]) then
+    elsif category(params[3]) = INTOBJECT and not isVar(params[3]) then
       process_const_str_idx(params[1], getValue(params[3], integer), c_expr);
     elsif array_range_check then
       incr(c_expr.temp_num);
@@ -9800,7 +9914,7 @@ const proc: process_str_idx (in ref_list: params, inout expr_type: c_expr) is fu
 const proc: process_str_ipos (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    if category(params[2]) = STRIOBJECT and not is_var(params[2]) and
+    if category(params[2]) = STRIOBJECT and not isVar(params[2]) and
         length(getValue(params[2], string)) = 1 then
       incr(countOptimizations);
       c_expr.expr &:= "strChIpos(";
@@ -9848,7 +9962,7 @@ const proc: process_str_lng (in ref_list: params, inout expr_type: c_expr) is fu
   local
     var string: stri is "";
   begin
-    if category(params[1]) = STRIOBJECT and not is_var(params[1]) then
+    if category(params[1]) = STRIOBJECT and not isVar(params[1]) then
       incr(countOptimizations);
       stri := getValue(params[1], string);
       c_expr.expr &:= str(length(stri));
@@ -9957,7 +10071,7 @@ const proc: process_const_str_ne (in reference: param1, in string: stri,
     var integer: temp_num is 0;
   begin
     incr(countOptimizations);
-    if category(param1) = STRIOBJECT and not is_var(param1) then
+    if category(param1) = STRIOBJECT and not isVar(param1) then
       c_expr.expr &:= "/* ";
       c_expr.expr &:= replace(literal(getValue(param1, string)), "*/", "*\\/");
       c_expr.expr &:= " != ";
@@ -10029,9 +10143,9 @@ const proc: process_str_ne (in ref_list: params, inout expr_type: c_expr) is fun
   local
     var integer: temp_num is 0;
   begin
-    if category(params[3]) = STRIOBJECT and not is_var(params[3]) then
+    if category(params[3]) = STRIOBJECT and not isVar(params[3]) then
       process_const_str_ne(params[1], getValue(params[3], string), c_expr);
-    elsif category(params[1]) = STRIOBJECT and not is_var(params[1]) then
+    elsif category(params[1]) = STRIOBJECT and not isVar(params[1]) then
       process_const_str_ne(params[3], getValue(params[1], string), c_expr);
     else
       incr(c_expr.temp_num);
@@ -10070,7 +10184,7 @@ const proc: process_str_ne (in ref_list: params, inout expr_type: c_expr) is fun
 const proc: process_str_pos (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    if category(params[2]) = STRIOBJECT and not is_var(params[2]) and
+    if category(params[2]) = STRIOBJECT and not isVar(params[2]) and
         length(getValue(params[2], string)) = 1 then
       incr(countOptimizations);
       c_expr.expr &:= "strChPos(";
@@ -10142,7 +10256,7 @@ const proc: process_str_rpad (in ref_list: params, inout expr_type: c_expr) is f
 const proc: process_str_rpos (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    if category(params[2]) = STRIOBJECT and not is_var(params[2]) and
+    if category(params[2]) = STRIOBJECT and not isVar(params[2]) and
         length(getValue(params[2], string)) = 1 then
       incr(countOptimizations);
       c_expr.expr &:= "strRChPos(";
@@ -10164,7 +10278,7 @@ const proc: process_str_split (in ref_list: params, inout expr_type: c_expr) is 
 
   begin
     prepare_array_result(array_type[getExprResultType(params[1])], c_expr);
-    if category(params[2]) = STRIOBJECT and not is_var(params[2]) and
+    if category(params[2]) = STRIOBJECT and not isVar(params[2]) and
         length(getValue(params[2], string)) = 1 then
       incr(countOptimizations);
       c_expr.result_expr := "strChSplit(";
@@ -10680,8 +10794,6 @@ const proc: process_action (in reference: procedure, in ref_list: params,
         process_big_lshift_assign(params, c_expr);
       elsif action_name = "BIG_LT" then
         process_big_lt(params, c_expr);
-      elsif action_name = "BIG_MCPY" then
-        process_big_mcpy(params, c_expr);
       elsif action_name = "BIG_MDIV" then
         process_big_mdiv(params, c_expr);
       elsif action_name = "BIG_MINUS" then
@@ -10690,6 +10802,8 @@ const proc: process_action (in reference: procedure, in ref_list: params,
         process_big_mod(params, c_expr);
       elsif action_name = "BIG_MULT" then
         process_big_mult(params, c_expr);
+      elsif action_name = "BIG_MULT_ASSIGN" then
+        process_big_mult_assign(params, c_expr);
       elsif action_name = "BIG_NE" then
         process_big_ne(params, c_expr);
       elsif action_name = "BIG_ODD" then
@@ -10760,6 +10874,8 @@ const proc: process_action (in reference: procedure, in ref_list: params,
     elsif action_prefix = "CHR" then
       if action_name = "CHR_CHR" then
         process_chr_chr(params, c_expr);
+      elsif action_name = "CHR_CONV" then
+        process_chr_conv(params, c_expr);
       elsif action_name = "CHR_CPY" then
         process_chr_cpy(params, c_expr);
       elsif action_name = "CHR_EQ" then
@@ -10870,6 +10986,8 @@ const proc: process_action (in reference: procedure, in ref_list: params,
         process_drw_fellipse(params, c_expr);
       elsif action_name = "DRW_FLUSH" then
         process_drw_flush(params, c_expr);
+      elsif action_name = "DRW_FPOLYLINE" then
+        process_drw_fpolyline(params, c_expr);
       elsif action_name = "DRW_GENPOINTLIST" then
         process_drw_genpointlist(params, c_expr);
       elsif action_name = "DRW_GET" then
@@ -10898,18 +11016,14 @@ const proc: process_action (in reference: procedure, in ref_list: params,
         process_drw_pfcircle(params, c_expr);
       elsif action_name = "DRW_PFELLIPSE" then
         process_drw_pfellipse(params, c_expr);
-      elsif action_name = "DRW_FELLIPSE" then
-        process_drw_fellipse(params, c_expr);
       elsif action_name = "DRW_PLINE" then
         process_drw_pline(params, c_expr);
       elsif action_name = "DRW_POINT" then
         process_drw_point(params, c_expr);
-      elsif action_name = "DRW_PPOINT" then
-        process_drw_ppoint(params, c_expr);
       elsif action_name = "DRW_POLYLINE" then
         process_drw_polyline(params, c_expr);
-      elsif action_name = "DRW_FPOLYLINE" then
-        process_drw_fpolyline(params, c_expr);
+      elsif action_name = "DRW_PPOINT" then
+        process_drw_ppoint(params, c_expr);
       elsif action_name = "DRW_PRECT" then
         process_drw_prect(params, c_expr);
       elsif action_name = "DRW_PUT" then
@@ -10956,10 +11070,10 @@ const proc: process_action (in reference: procedure, in ref_list: params,
         process_fil_close(params, c_expr);
       elsif action_name = "FIL_CPY" then
         process_fil_cpy(params, c_expr);
-      elsif action_name = "FIL_EQ" then
-        process_fil_eq(params, c_expr);
       elsif action_name = "FIL_EOF" then
         process_fil_eof(params, c_expr);
+      elsif action_name = "FIL_EQ" then
+        process_fil_eq(params, c_expr);
       elsif action_name = "FIL_ERR" then
         process_fil_err(params, c_expr);
       elsif action_name = "FIL_FLUSH" then
@@ -11008,10 +11122,10 @@ const proc: process_action (in reference: procedure, in ref_list: params,
         process_flt_a2tan(params, c_expr);
       elsif action_name = "FLT_ABS" then
         process_flt_abs(params, c_expr);
-      elsif action_name = "FLT_ADD" then
-        process_flt_add(params, c_expr);
       elsif action_name = "FLT_ACOS" then
         process_flt_acos(params, c_expr);
+      elsif action_name = "FLT_ADD" then
+        process_flt_add(params, c_expr);
       elsif action_name = "FLT_ASIN" then
         process_flt_asin(params, c_expr);
       elsif action_name = "FLT_ATAN" then
@@ -11024,6 +11138,8 @@ const proc: process_action (in reference: procedure, in ref_list: params,
         process_flt_cmp(params, c_expr);
       elsif action_name = "FLT_COS" then
         process_flt_cos(params, c_expr);
+      elsif action_name = "FLT_COSH" then
+        process_flt_cosh(params, c_expr);
       elsif action_name = "FLT_CPY" then
         process_flt_cpy(params, c_expr); 
       elsif action_name = "FLT_DGTS" then
@@ -11074,6 +11190,8 @@ const proc: process_action (in reference: procedure, in ref_list: params,
         process_flt_ne(params, c_expr);
       elsif action_name = "FLT_PARSE" then
         process_flt_parse(params, c_expr);
+      elsif action_name = "FLT_PLUS" then
+        process_flt_plus(params, c_expr);
       elsif action_name = "FLT_POW" then
         process_flt_pow(params, c_expr);
       elsif action_name = "FLT_RAND" then
@@ -11086,12 +11204,16 @@ const proc: process_action (in reference: procedure, in ref_list: params,
         process_flt_shrink(params, c_expr);
       elsif action_name = "FLT_SIN" then
         process_flt_sin(params, c_expr);
+      elsif action_name = "FLT_SINH" then
+        process_flt_sinh(params, c_expr);
       elsif action_name = "FLT_SQRT" then
         process_flt_sqrt(params, c_expr);
       elsif action_name = "FLT_STR" then
         process_flt_str(params, c_expr);
       elsif action_name = "FLT_TAN" then
         process_flt_tan(params, c_expr);
+      elsif action_name = "FLT_TANH" then
+        process_flt_tanh(params, c_expr);
       elsif action_name = "FLT_TRUNC" then
         process_flt_trunc(params, c_expr);
       elsif action_name = "FLT_VALUE" then
@@ -11186,22 +11308,20 @@ const proc: process_action (in reference: procedure, in ref_list: params,
         process_int_hashcode(params, c_expr);
       elsif action_name = "INT_INCR" then
         process_int_incr(params, c_expr);
+      elsif action_name = "INT_LE" then
+        process_int_le(params, c_expr);
       elsif action_name = "INT_LOG2" then
         process_int_log2(params, c_expr);
       elsif action_name = "INT_LOWEST_SET_BIT" then
         process_int_lowest_set_bit(params, c_expr);
       elsif action_name = "INT_LPAD0" then
         process_int_lpad0(params, c_expr);
-      elsif action_name = "INT_LE" then
-        process_int_le(params, c_expr);
       elsif action_name = "INT_LSHIFT" then
         process_int_lshift(params, c_expr);
       elsif action_name = "INT_LSHIFT_ASSIGN" then
         process_int_lshift_assign(params, c_expr);
       elsif action_name = "INT_LT" then
         process_int_lt(params, c_expr);
-      elsif action_name = "INT_MCPY" then
-        process_int_mcpy(params, c_expr);
       elsif action_name = "INT_MDIV" then
         process_int_mdiv(params, c_expr);
       elsif action_name = "INT_MINUS" then
@@ -11210,6 +11330,8 @@ const proc: process_action (in reference: procedure, in ref_list: params,
         process_int_mod(params, c_expr);
       elsif action_name = "INT_MULT" then
         process_int_mult(params, c_expr);
+      elsif action_name = "INT_MULT_ASSIGN" then
+        process_int_mult_assign(params, c_expr);
       elsif action_name = "INT_NE" then
         process_int_ne(params, c_expr);
       elsif action_name = "INT_ODD" then
@@ -11332,6 +11454,8 @@ const proc: process_action (in reference: procedure, in ref_list: params,
         process_prg_fil_parse(params, c_expr);
       elsif action_name = "PRG_MATCH" then
         process_prg_match(params, c_expr);
+      elsif action_name = "PRG_MATCH_EXPR" then
+        process_prg_match_expr(params, c_expr);
       elsif action_name = "PRG_NAME" then
         process_prg_name(params, c_expr);
       elsif action_name = "PRG_NE" then
@@ -11362,8 +11486,12 @@ const proc: process_action (in reference: procedure, in ref_list: params,
         process_ref_body(params, c_expr);
       elsif action_name = "REF_CATEGORY" then
         process_ref_category(params, c_expr);
+      elsif action_name = "REF_CAT_PARSE" then
+        process_ref_cat_parse(params, c_expr);
       elsif action_name = "REF_CAT_STR" then
         process_ref_cat_str(params, c_expr);
+      elsif action_name = "REF_CONV" then
+        process_ref_conv(params, c_expr);
       elsif action_name = "REF_CPY" then
         process_ref_cpy(params, c_expr);
       elsif action_name = "REF_DEREF" then
@@ -11374,6 +11502,10 @@ const proc: process_action (in reference: procedure, in ref_list: params,
         process_ref_file(params, c_expr);
       elsif action_name = "REF_HASHCODE" then
         process_ref_hashcode(params, c_expr);
+      elsif action_name = "REF_HSHDATATOLIST" then
+        process_ref_hshdatatolist(params, c_expr);
+      elsif action_name = "REF_HSHKEYTOLIST" then
+        process_ref_hshkeytolist(params, c_expr);
       elsif action_name = "REF_ISVAR" then
         process_ref_isvar(params, c_expr);
       elsif action_name = "REF_ITFTOSCT" then
@@ -11404,6 +11536,8 @@ const proc: process_action (in reference: procedure, in ref_list: params,
         process_ref_setparams(params, c_expr);
       elsif action_name = "REF_SETTYPE" then
         process_ref_settype(params, c_expr);
+      elsif action_name = "REF_SETVAR" then
+        process_ref_setvar(params, c_expr);
       elsif action_name = "REF_STR" then
         process_ref_str(params, c_expr);
       elsif action_name = "REF_TRACE" then
@@ -11765,7 +11899,7 @@ const func boolean: isPointerParam (in reference: a_param) is func
     var boolean: result is TRUE;
   begin
     result := category(a_param) = REFPARAMOBJECT and
-        (not valueIsAtHeap(a_param) or is_var(a_param));
+        (not valueIsAtHeap(a_param) or isVar(a_param));
   end func;
 
 
@@ -11784,7 +11918,7 @@ const func boolean: isInOutParam (in reference: a_param) is func
   result
     var boolean: result is TRUE;
   begin
-    result := category(a_param) = REFPARAMOBJECT and is_var(a_param);
+    result := category(a_param) = REFPARAMOBJECT and isVar(a_param);
   end func;
 
 
@@ -11800,7 +11934,7 @@ const func boolean: canTakeAddress (in reference: an_expression) is func
     if (exprCategory = INTOBJECT or
         exprCategory = CHAROBJECT or
         exprCategory = FLOATOBJECT) and
-        not is_var(an_expression) then
+        not isVar(an_expression) then
       result := FALSE;
     end if;
     if is_func(getType(an_expression)) then
@@ -11964,12 +12098,24 @@ const proc: process_local_declaration (in reference: current_object, in referenc
       process_destr_call(getType(current_object),
           param_name, c_expr.temp_frees);
     elsif valueCategory = HASHOBJECT then
+      if object_value not in const_table then
+        const_table @:= [object_value] length(const_table);
+      end if;
+      process_create_declaration(getType(current_object), global_c_expr);
+      process_destr_declaration(getType(current_object), global_c_expr);
       c_expr.temp_assigns &:= "o_";
       create_name(current_object, c_expr.temp_assigns);
-      c_expr.temp_assigns &:= "=hshEmpty();\n";
-      # c_expr.temp_frees &:= "hshDestr(o_";
-      # create_name(current_object, c_expr.temp_frees);
-      # c_expr.temp_frees  &:= ");\n";
+      c_expr.temp_assigns &:= "=";
+      param_value := "hsh[";
+      param_value &:= str(const_table[object_value]);
+      param_value &:= "]";
+      process_create_call(getType(current_object),
+          param_value, c_expr.temp_assigns);
+      c_expr.temp_assigns &:= ";\n";
+      param_name := "o_";
+      create_name(current_object, param_name);
+      process_destr_call(getType(current_object),
+          param_name, c_expr.temp_frees);
     elsif valueCategory = INTERFACEOBJECT then
       if object_value not in const_table then
         const_table @:= [object_value] length(const_table);
@@ -12516,7 +12662,7 @@ const proc: process_expr (in reference: current_expression, inout expr_type: c_e
       c_expr.expr &:= "o_";
       create_name(current_expression, c_expr.expr);
     elsif exprCategory = TYPEOBJECT then
-      if is_var(current_expression) then
+      if isVar(current_expression) then
         c_expr.expr &:= "o_";
         create_name(current_expression, c_expr.expr);
       else
@@ -12525,14 +12671,14 @@ const proc: process_expr (in reference: current_expression, inout expr_type: c_e
         c_expr.expr &:= "*/";
       end if;
     elsif exprCategory = INTOBJECT then
-      if is_var(current_expression) then
+      if isVar(current_expression) then
         c_expr.expr &:= "o_";
         create_name(current_expression, c_expr.expr);
       else
         c_expr.expr &:= str(getValue(current_expression, integer)) & INTTYPE_LITERAL_SUFFIX;
       end if;
     elsif exprCategory = BIGINTOBJECT then
-      if is_var(current_expression) then
+      if isVar(current_expression) then
         c_expr.expr &:= "o_";
         create_name(current_expression, c_expr.expr);
       else
@@ -12546,7 +12692,7 @@ const proc: process_expr (in reference: current_expression, inout expr_type: c_e
         c_expr.expr &:= " */";
       end if;
     elsif exprCategory = FLOATOBJECT then
-      if is_var(current_expression) then
+      if isVar(current_expression) then
         c_expr.expr &:= "o_";
         create_name(current_expression, c_expr.expr);
       elsif getValue(current_expression, float) = Infinity then
@@ -12559,14 +12705,14 @@ const proc: process_expr (in reference: current_expression, inout expr_type: c_e
         c_expr.expr &:= str(getValue(current_expression, float));
       end if;
     elsif exprCategory = CHAROBJECT then
-      if is_var(current_expression) then
+      if isVar(current_expression) then
         c_expr.expr &:= "o_";
         create_name(current_expression, c_expr.expr);
       else
         c_expr.expr &:= c_literal(getValue(current_expression, char));
       end if;
     elsif exprCategory = STRIOBJECT then
-      if is_var(current_expression) then
+      if isVar(current_expression) then
         c_expr.expr &:= "o_";
         create_name(current_expression, c_expr.expr);
       else
@@ -12580,14 +12726,14 @@ const proc: process_expr (in reference: current_expression, inout expr_type: c_e
         c_expr.expr &:= " */";
       end if;
     elsif exprCategory = BSTRIOBJECT then
-      if is_var(current_expression) then
+      if isVar(current_expression) then
         c_expr.expr &:= "o_";
         create_name(current_expression, c_expr.expr);
       else
         c_expr.expr &:= "&empty_bst";
       end if;
     elsif exprCategory = REFOBJECT then
-      if is_var(current_expression) then
+      if isVar(current_expression) then
         c_expr.expr &:= "o_";
         create_name(current_expression, c_expr.expr);
       else
@@ -12609,7 +12755,7 @@ const proc: process_expr (in reference: current_expression, inout expr_type: c_e
       c_expr.expr &:= "o_";
       create_name(current_expression, c_expr.expr);
     elsif exprCategory = SETOBJECT then
-      if is_var(current_expression) then
+      if isVar(current_expression) then
         c_expr.expr &:= "o_";
         create_name(current_expression, c_expr.expr);
       else
@@ -12633,14 +12779,14 @@ const proc: process_expr (in reference: current_expression, inout expr_type: c_e
       c_expr.expr &:= "o_";
       create_name(current_expression, c_expr.expr);
     elsif exprCategory = WINOBJECT then
-      if is_var(current_expression) then
+      if isVar(current_expression) then
         c_expr.expr &:= "o_";
         create_name(current_expression, c_expr.expr);
       else
         c_expr.expr &:= "/*WINOBJECT*/ NULL";
       end if;
     elsif exprCategory = PROGOBJECT then
-      if is_var(current_expression) then
+      if isVar(current_expression) then
         c_expr.expr &:= "o_";
         create_name(current_expression, c_expr.expr);
       else
@@ -12954,7 +13100,7 @@ const proc: process_type_declaration (in reference: current_object,
   local
     var type: aType is void;
   begin
-    if is_var(current_object) then
+    if isVar(current_object) then
       c_expr.expr &:= "typetype o_";
       create_name(current_object, c_expr.expr);
       c_expr.expr &:= "=NULL";
@@ -12976,7 +13122,7 @@ const proc: process_int_declaration (in reference: current_object,
     inout expr_type: c_expr) is func
 
   begin
-    if is_var(current_object) then
+    if isVar(current_object) then
       c_expr.expr &:= "inttype o_";
       create_name(current_object, c_expr.expr);
       c_expr.expr &:= "=";
@@ -12991,7 +13137,7 @@ const proc: process_bigint_declaration (in reference: current_object,
     inout expr_type: c_expr) is func
 
   begin
-    if is_var(current_object) then
+    if isVar(current_object) then
       c_expr.expr &:= "biginttype o_";
       create_name(current_object, c_expr.expr);
       c_expr.expr &:= ";\n\n";
@@ -13015,7 +13161,7 @@ const proc: process_char_declaration (in reference: current_object,
     inout expr_type: c_expr) is func
 
   begin
-    if is_var(current_object) then
+    if isVar(current_object) then
       c_expr.expr &:= "chartype o_";
       create_name(current_object, c_expr.expr);
       c_expr.expr &:= "=";
@@ -13030,7 +13176,7 @@ const proc: process_stri_declaration (in reference: current_object,
     inout expr_type: c_expr) is func
 
   begin
-    if is_var(current_object) then
+    if isVar(current_object) then
       c_expr.expr &:= "stritype o_";
       create_name(current_object, c_expr.expr);
       c_expr.expr &:= ";\n\n";
@@ -13047,7 +13193,7 @@ const proc: process_bstri_declaration (in reference: current_object,
     inout expr_type: c_expr) is func
 
   begin
-    if is_var(current_object) then
+    if isVar(current_object) then
       c_expr.expr &:= "bstritype o_";
       create_name(current_object, c_expr.expr);
       c_expr.expr &:= ";\n\n";
@@ -13063,7 +13209,7 @@ const proc: process_float_declaration (in reference: current_object,
     inout expr_type: c_expr) is func
 
   begin
-    if is_var(current_object) then
+    if isVar(current_object) then
       c_expr.expr &:= "floattype o_";
       create_name(current_object, c_expr.expr);
       c_expr.expr &:= "=";
@@ -13218,6 +13364,41 @@ const proc: block_address (in reference: procedure, inout expr_type: c_expr) is 
   end func;
 
 
+const proc: object_address (in reference: current_object, inout expr_type: c_expr) is func
+
+  local
+    var reference: curr_expr is NIL;
+    var category: exprCategory is category.value;
+  begin
+    curr_expr := getValue(current_object, reference);
+    if curr_expr = NIL then
+      c_expr.expr &:= "NULL";
+    else
+      exprCategory := category(curr_expr);
+      if exprCategory = ACTOBJECT then
+        action_address(curr_expr, c_expr);
+      elsif exprCategory = BLOCKOBJECT then
+        block_address(curr_expr, c_expr);
+      else
+        c_expr.expr &:= "/* ";
+        c_expr.expr &:= str(exprCategory);
+        c_expr.expr &:= " */";
+        block
+          c_expr.expr &:= "&(";
+          process_expr(curr_expr, c_expr);
+          c_expr.expr &:= ")";
+        exception
+          catch RANGE_ERROR:
+            c_expr.expr &:= "/*RANGE_ERROR*/";
+            writeln("] ");
+            TRACE(curr_expr);
+            writeln;
+        end block;
+      end if;
+    end if;
+  end func;
+
+
 const proc: process_reference_declaration (in reference: current_object,
     inout expr_type: c_expr) is func
 
@@ -13225,37 +13406,11 @@ const proc: process_reference_declaration (in reference: current_object,
     var reference: curr_expr is NIL;
     var category: exprCategory is category.value;
   begin
-    (* if is_var(current_object) then *)
+    (* if isVar(current_object) then *)
       c_expr.expr &:= "void *o_";
       create_name(current_object, c_expr.expr);
       c_expr.expr &:= "=";
-      if getValue(current_object, reference) = NIL then
-        c_expr.expr &:= "NULL";
-      else
-        curr_expr := getValue(current_object, reference);
-        exprCategory := category(curr_expr);
-        if exprCategory = ACTOBJECT then
-          action_address(curr_expr, c_expr);
-        elsif exprCategory = BLOCKOBJECT then
-          block_address(curr_expr, c_expr);
-        else
-          c_expr.expr &:= "/* ";
-          c_expr.expr &:= str(exprCategory);
-          c_expr.expr &:= " */";
-          block
-            c_expr.expr &:= "&(";
-            process_expr(getValue(current_object, reference), c_expr);
-            c_expr.expr &:= ")";
-          exception
-            catch RANGE_ERROR:
-              c_expr.expr &:= "/*RANGE_ERROR*/";
-              curr_expr := getValue(current_object, reference);
-              writeln("] ");
-              TRACE(curr_expr);
-              writeln;
-          end block;
-        end if;
-      end if;
+      object_address(current_object, c_expr);
       c_expr.expr &:= ";\n\n";
       function_pointer_declared @:= [current_object] TRUE;
       count_declarations;
@@ -13339,7 +13494,7 @@ const proc: process_array_declaration (in reference: current_object,
     param_value := "arr[";
     param_value &:= str(const_table[current_object]);
     param_value &:= "]";
-    if is_var(current_object) then
+    if isVar(current_object) then
       process_create_declaration(getType(current_object), global_c_expr);
       process_create_call(getType(current_object),
           param_value, global_init.expr);
@@ -13354,14 +13509,29 @@ const proc: process_array_declaration (in reference: current_object,
 const proc: process_hash_declaration (in reference: current_object,
     inout expr_type: c_expr) is func
 
+  local
+    var string: param_value is "";
   begin
     c_expr.expr &:= "hashtype o_";
     create_name(current_object, c_expr.expr);
-    c_expr.expr &:= "=NULL";
     c_expr.expr &:= ";\n\n";
+    if current_object not in const_table then
+      const_table @:= [current_object] length(const_table);
+    end if;
     global_init.expr &:= "o_";
     create_name(current_object, global_init.expr);
-    global_init.expr &:= "=hshEmpty();\n";
+    global_init.expr &:= "=";
+    param_value := "hsh[";
+    param_value &:= str(const_table[current_object]);
+    param_value &:= "]";
+    if isVar(current_object) then
+      process_create_declaration(getType(current_object), global_c_expr);
+      process_create_call(getType(current_object),
+          param_value, global_init.expr);
+    else
+      global_init.expr &:= param_value;
+    end if;
+    global_init.expr &:= ";\n";
     count_declarations;
   end func;
 
@@ -13370,7 +13540,7 @@ const proc: process_set_declaration (in reference: current_object,
     inout expr_type: c_expr) is func
 
   begin
-    if is_var(current_object) then
+    if isVar(current_object) then
       c_expr.expr &:= "settype o_";
       create_name(current_object, c_expr.expr);
       c_expr.expr &:= ";\n\n";
@@ -13405,7 +13575,7 @@ const proc: process_struct_declaration (in reference: current_object,
     param_value := "sct[";
     param_value &:= str(const_table[current_object]);
     param_value &:= "]";
-    if is_var(current_object) then
+    if isVar(current_object) then
       process_create_declaration(getType(current_object), global_c_expr);
       process_create_call(getType(current_object),
           param_value, global_init.expr);
@@ -13440,7 +13610,7 @@ const proc: process_win_declaration (in reference: current_object,
     inout expr_type: c_expr) is func
 
   begin
-    if is_var(current_object) then
+    if isVar(current_object) then
       c_expr.expr &:= "wintype o_";
       create_name(current_object, c_expr.expr);
       c_expr.expr &:= "=";
@@ -13455,7 +13625,7 @@ const proc: process_prog_declaration (in reference: current_object,
     inout expr_type: c_expr) is func
 
   begin
-    if is_var(current_object) then
+    if isVar(current_object) then
       c_expr.expr &:= "progtype o_";
       create_name(current_object, c_expr.expr);
       c_expr.expr &:= "=";
@@ -13470,7 +13640,7 @@ const proc: process_enum_declaration (in reference: current_object,
     inout expr_type: c_expr) is func
 
   begin
-    if is_var(current_object) then
+    if isVar(current_object) then
       declare_type_if_necessary(getType(current_object), c_expr);
       c_expr.expr &:= type_name(getType(current_object));
       c_expr.expr &:= " o_";
@@ -13619,7 +13789,7 @@ const proc: process_dynamic_parameter_list (in ref_list: actual_params,
         else
           c_expr.expr &:= ", ";
         end if;
-        if not is_var(actual_param) and isInOutParam(formal_param) then
+        if not isVar(actual_param) and isInOutParam(formal_param) then
           c_expr.expr &:= "/* SHOULD NOT HAPPEN &o_";
           create_name(actual_param, c_expr.expr);
           c_expr.expr &:= " */";
@@ -13629,7 +13799,7 @@ const proc: process_dynamic_parameter_list (in ref_list: actual_params,
         elsif isPointerParam(actual_param) and not isPointerParam(formal_param) then
           c_expr.expr &:= "*o_";
           create_name(actual_param, c_expr.expr);
-        else # if is_var(actual_param) or not isInOutParam(formal_param) then
+        else # if isVar(actual_param) or not isInOutParam(formal_param) then
           c_expr.expr &:= "&o_";
           create_name(actual_param, c_expr.expr);
         end if;
@@ -14004,6 +14174,71 @@ const func type: base_type (in type: array_type) is func
     if matched_object <> NIL and category(matched_object) = TYPEOBJECT then
       result := getValue(matched_object, type);
     end if;
+  end func;
+
+
+const proc: process_hashcode (in reference: current_object, inout expr_type: c_expr) is func
+  local
+    var ref_list: param_list is ref_list.EMPTY;
+    var reference: expression is NIL;
+  begin
+    setVar(current_object, FALSE);
+    param_list := make_list(current_object);
+    param_list &:= make_list(syobject(prog, "hashCode"));
+    expression := matchExpr(prog, param_list);
+    process_expr(expression, c_expr);
+  end func;
+
+
+const func reference: keyCreateObj (in type: hash_type) is func
+  result
+    var reference: result is NIL;
+  local
+    var ref_list: param_list is ref_list.EMPTY;
+  begin
+    param_list := make_list(match_obj(hash_type));
+    param_list &:= make_list(syobject(prog, "."));
+    param_list &:= make_list(syobject(prog, "keyCreate"));
+    result := match(prog, param_list);
+  end func;
+
+
+const func reference: keyCompareObj (in type: hash_type) is func
+  result
+    var reference: result is NIL;
+  local
+    var ref_list: param_list is ref_list.EMPTY;
+  begin
+    param_list := make_list(match_obj(hash_type));
+    param_list &:= make_list(syobject(prog, "."));
+    param_list &:= make_list(syobject(prog, "keyCompare"));
+    result := match(prog, param_list);
+  end func;
+
+
+const func reference: dataCreateObj (in type: hash_type) is func
+  result
+    var reference: result is NIL;
+  local
+    var ref_list: param_list is ref_list.EMPTY;
+  begin
+    param_list := make_list(match_obj(hash_type));
+    param_list &:= make_list(syobject(prog, "."));
+    param_list &:= make_list(syobject(prog, "dataCreate"));
+    result := match(prog, param_list);
+  end func;
+
+
+const func reference: dataCopyObj (in type: hash_type) is func
+  result
+    var reference: result is NIL;
+  local
+    var ref_list: param_list is ref_list.EMPTY;
+  begin
+    param_list := make_list(match_obj(hash_type));
+    param_list &:= make_list(syobject(prog, "."));
+    param_list &:= make_list(syobject(prog, "dataCopy"));
+    result := match(prog, param_list);
   end func;
 
 
@@ -15037,6 +15272,7 @@ const proc: write_file_head is func
     writeln(c_prog, "settype        set[];");
     writeln(c_prog, "arraytype     *arr;");
     writeln(c_prog, "structtype    *sct;");
+    writeln(c_prog, "hashtype      *hsh;");
     writeln(c_prog, "interfacetype *itf;");
     writeln(c_prog, "float2int      flt2int;");
     writeln(c_prog, "unsigned long int hs;");
@@ -15513,6 +15749,13 @@ const proc: walk_const_list (in ref_list: const_list, inout ref_list: sorted_lis
         end if;
         walk_const_list(struct_to_list(current_object), sorted_list);
         sorted_list &:= make_list(current_object);
+      elsif objectCategory = HASHOBJECT then
+        if current_object not in const_table then
+          const_table @:= [current_object] length(const_table);
+        end if;
+        walk_const_list(hash_key_to_list(current_object), sorted_list);
+        walk_const_list(hash_data_to_list(current_object), sorted_list);
+        sorted_list &:= make_list(current_object);
       elsif objectCategory = INTERFACEOBJECT then
         if current_object not in const_table then
           const_table @:= [current_object] length(const_table);
@@ -15611,7 +15854,9 @@ const proc: init_const_value (in reference: current_object, inout expr_type: c_e
       c_expr.expr &:= "]";
     elsif objectCategory = HASHOBJECT then
       c_expr.expr &:= ".value.intvalue=";
-      c_expr.expr &:= "hshEmpty()";
+      c_expr.expr &:= "hsh[";
+      c_expr.expr &:= str(const_table[current_object]);
+      c_expr.expr &:= "]";
     elsif objectCategory = INTERFACEOBJECT then
       c_expr.expr &:= ".value.intvalue=";
       c_expr.expr &:= "itf[";
@@ -15790,6 +16035,8 @@ const proc: generate_main (in program: prog) is func
     var integer: elem_num is 0;
     var ref_list: array_list is ref_list.EMPTY;
     var ref_list: struct_list is ref_list.EMPTY;
+    var ref_list: hash_key_list is ref_list.EMPTY;
+    var ref_list: hash_data_list is ref_list.EMPTY;
     var ref_list: sorted_list is ref_list.EMPTY;
   begin
     if not compilerLibraryUsed then
@@ -15815,6 +16062,10 @@ const proc: generate_main (in program: prog) is func
       elsif category(const_object) = STRUCTOBJECT then
         walk_const_list(struct_to_list(const_object), sorted_list);
         sorted_list &:= make_list(const_object);
+      elsif category(const_object) = HASHOBJECT then
+        walk_const_list(hash_key_to_list(const_object), sorted_list);
+        walk_const_list(hash_data_to_list(const_object), sorted_list);
+        sorted_list &:= make_list(const_object);
       elsif category(const_object) = INTERFACEOBJECT then
         if const_object not in const_table then
           const_table @:= [const_object] length(const_table);
@@ -15839,6 +16090,8 @@ const proc: generate_main (in program: prog) is func
     c_expr.expr &:= "\n";
     c_expr.expr &:= "{\n";
     c_expr.expr &:= "int fail_value;\n";
+    c_expr.expr &:= "rtlObjecttype hash_key;\n";
+    c_expr.expr &:= "rtlObjecttype hash_data;\n";
     c_expr.expr &:= "catch_stack_pos = 0;\n";
     c_expr.expr &:= "max_catch_stack = 128;\n";
     c_expr.expr &:= "catch_stack = malloc(max_catch_stack * sizeof(catch_type));\n";
@@ -15865,6 +16118,7 @@ const proc: generate_main (in program: prog) is func
     c_expr.expr &:= str(length(const_table));
     c_expr.expr &:= " * sizeof(arraytype));\n";
     c_expr.expr &:= "sct = arr;\n";
+    c_expr.expr &:= "hsh = arr;\n";
     c_expr.expr &:= "itf = arr;\n";
     for const_object range sorted_list do
       number := const_table[const_object];
@@ -15917,6 +16171,33 @@ const proc: generate_main (in program: prog) is func
           c_expr.expr &:= "]";
           init_const_value(struct_list[elem_num], c_expr);
           c_expr.expr &:= ";\n";
+        end for;
+      elsif category(const_object) = HASHOBJECT then
+        hash_key_list := hash_key_to_list(const_object);
+        hash_data_list := hash_data_to_list(const_object);
+        c_expr.expr &:= "hsh[";
+        c_expr.expr &:= str(number);
+        c_expr.expr &:= "]=hshEmpty();\n";
+        for elem_num range 1 to length(hash_key_list) do
+          c_expr.expr &:= "hash_key";
+          init_const_value(hash_key_list[elem_num], c_expr);
+          c_expr.expr &:= ";\n";
+          c_expr.expr &:= "hash_data";
+          init_const_value(hash_data_list[elem_num], c_expr);
+          c_expr.expr &:= ";\n";
+          c_expr.expr &:= "hshIncl(hsh[";
+          c_expr.expr &:= str(number);
+          c_expr.expr &:= "], hash_key.value.genericvalue, hash_data.value.genericvalue, ";
+          process_hashcode(hash_key_list[elem_num], c_expr);
+          c_expr.expr &:= ", ";
+          object_address(keyCompareObj(getType(const_object)), c_expr);
+          c_expr.expr &:= ", ";
+          object_address(keyCreateObj(getType(const_object)), c_expr);
+          c_expr.expr &:= ", ";
+          object_address(dataCreateObj(getType(const_object)), c_expr);
+          c_expr.expr &:= ", ";
+          object_address(dataCopyObj(getType(const_object)), c_expr);
+          c_expr.expr &:= ");\n";
         end for;
       elsif category(const_object) = INTERFACEOBJECT then
         struct_of_interface := interface_to_struct(const_object);

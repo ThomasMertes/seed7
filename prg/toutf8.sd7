@@ -110,7 +110,7 @@ const proc: main is func
           elsif conv_name = "-latin-1" then
             write(out_file, stri);
           elsif conv_name = "-latin-9" then
-            conv2unicode(stri, latin_9);
+            conv2unicode(stri, iso_8859_15);
             write(out_file, stri);
           elsif conv_name = "-ebcdic" then
             conv2unicode(stri, ebcdic);

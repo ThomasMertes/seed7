@@ -16,6 +16,7 @@ LFLAGS =
 # LFLAGS = -pg -lc_p
 # LIBS = /usr/Xlib/libX11.so -lncurses -lm
 LIBS = -lX11 -lncurses -lm
+# LIBS = -lX11 -lncurses -lm_p -lc_p
 # LIBS = -lX11 -lncurses -lm -lgmp
 SEED7_LIB = seed7_05.a
 COMP_DATA_LIB = s7_data.a

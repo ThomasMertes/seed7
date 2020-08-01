@@ -274,6 +274,7 @@ chartype gkbGetc ()
         lookup_count = XLookupString(&myevent.xkey, buffer, 20, &mykey, 0);
         buffer[lookup_count] = '\0';
         if (myevent.xkey.state & ShiftMask) {
+	  /* printf("ShiftMask\n"); */
           switch (mykey) {
             case XK_Return:     result = K_NL;          break;
             case XK_BackSpace:  result = K_BS;          break;
@@ -301,18 +302,7 @@ chartype gkbGetc ()
             case XK_Next:       result = K_PGDN;        break;
             case XK_Insert:     result = K_INS;         break;
             case XK_Delete:     result = K_DEL;         break;
-            case XK_KP_4:       result = K_LEFT;        break;
-            case XK_KP_6:       result = K_RIGHT;       break;
-            case XK_KP_8:       result = K_UP;          break;
-            case XK_KP_2:       result = K_DOWN;        break;
-            case XK_KP_7:       result = K_HOME;        break;
-            case XK_KP_1:       result = K_END;         break;
-            case XK_KP_9:       result = K_PGUP;        break;
-            case XK_KP_3:       result = K_PGDN;        break;
-            case XK_KP_0:       result = K_INS;         break;
-            case XK_KP_5:       result = K_UNDEF;       break;
             case XK_KP_Enter:   result = K_NL;          break;
-            case XK_KP_Decimal: result = K_DEL;         break;
             case XK_Shift_L:
             case XK_Shift_R:
             case XK_Control_L:
@@ -333,6 +323,7 @@ chartype gkbGetc ()
               break;
           } /* switch */
         } else if (myevent.xkey.state & ControlMask) {
+	  /* printf("ControlMask\n"); */
           switch (mykey) {
             case XK_Return:     result = K_CTL_NL;      break;
             case XK_BackSpace:  result = K_UNDEF;       break;
@@ -411,7 +402,8 @@ chartype gkbGetc ()
               } /* if */
               break;
           } /* switch */
-        } else if (myevent.xkey.state & Mod1Mask) {
+        } else if (myevent.xkey.state & Mod1Mask) { /* Left ALT modifier */
+	  /* printf("Mod1Mask\n"); */
           switch (mykey) {
             case XK_Return:     result = K_UNDEF;       break;
             case XK_BackSpace:  result = K_UNDEF;       break;
@@ -520,6 +512,57 @@ chartype gkbGetc ()
               } /* if */
               break;
           } /* switch */
+        } else if (myevent.xkey.state & Mod2Mask) { /* Num Lock modifier */
+	  /* printf("Mod2Mask\n"); */
+          switch (mykey) {
+            case XK_Return:     result = K_NL;          break;
+            case XK_BackSpace:  result = K_BS;          break;
+            case XK_Tab:        result = K_TAB;         break;
+            case XK_Linefeed:   result = K_NL;          break;
+            case XK_Escape:     result = K_ESC;         break;
+            case XK_F1:         result = K_F1;          break;
+            case XK_F2:         result = K_F2;          break;
+            case XK_F3:         result = K_F3;          break;
+            case XK_F4:         result = K_F4;          break;
+            case XK_F5:         result = K_F5;          break;
+            case XK_F6:         result = K_F6;          break;
+            case XK_F7:         result = K_F7;          break;
+            case XK_F8:         result = K_F8;          break;
+            case XK_F9:         result = K_F9;          break;
+            case XK_F10:        result = K_F10;         break;
+            case XK_Left:       result = K_LEFT;        break;
+            case XK_Right:      result = K_RIGHT;       break;
+            case XK_Up:         result = K_UP;          break;
+            case XK_Down:       result = K_DOWN;        break;
+            case XK_Home:       result = K_HOME;        break;
+            case XK_End:        result = K_END;         break;
+            case XK_Prior:      result = K_PGUP;        break;
+            case XK_Next:       result = K_PGDN;        break;
+            case XK_Insert:     result = K_INS;         break;
+            case XK_Delete:     result = K_DEL;         break;
+            case XK_KP_Enter:   result = K_NL;          break;
+            case XK_EuroSign:   result = mykey;         break;
+            case XK_Shift_L:
+            case XK_Shift_R:
+            case XK_Control_L:
+            case XK_Control_R:
+            case XK_Alt_L:
+            case XK_Alt_R:
+            case XK_Mode_switch:
+            case XK_Caps_Lock:
+            case XK_Num_Lock:
+            case XK_Shift_Lock:
+            case XK_ISO_Level3_Shift:
+              result = gkbGetc(); break;
+            default:
+              if (lookup_count == 1) {
+                result = buffer[0];
+              } else {
+                printf("5 undef key: %ld %lx\n", (long) mykey, (long) mykey);
+                result = K_UNDEF;
+              } /* if */
+              break;
+          } /* switch */
         } else {
           switch (mykey) {
             case XK_Return:     result = K_NL;          break;
@@ -587,7 +630,7 @@ chartype gkbGetc ()
               if (lookup_count == 1) {
                 result = buffer[0];
               } else {
-                printf("5 undef key: %ld %lx\n", (long) mykey, (long) mykey);
+                printf("6 undef key: %ld %lx\n", (long) mykey, (long) mykey);
                 result = K_UNDEF;
               } /* if */
               break;

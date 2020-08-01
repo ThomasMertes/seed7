@@ -237,6 +237,22 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype flt_cosh (listtype arguments)
+#else
+
+objecttype flt_cosh (arguments)
+listtype arguments;
+#endif
+
+  { /* flt_cosh */
+    isit_float(arg_1(arguments));
+    return(bld_float_temp(cosh(take_float(arg_1(arguments)))));
+  } /* flt_cosh */
+
+
+
+#ifdef ANSI_C
+
 objecttype flt_cpy (listtype arguments)
 #else
 
@@ -471,54 +487,6 @@ listtype arguments;
     /* The float value is taken as int on purpose */
     return(bld_int_temp(take_int(arg_1(arguments))));
   } /* flt_hashcode */
-
-
-
-#ifdef ANSI_C
-
-objecttype flt_hcos (listtype arguments)
-#else
-
-objecttype flt_hcos (arguments)
-listtype arguments;
-#endif
-
-  { /* flt_hcos */
-    isit_float(arg_1(arguments));
-    return(bld_float_temp(cosh(take_float(arg_1(arguments)))));
-  } /* flt_hcos */
-
-
-
-#ifdef ANSI_C
-
-objecttype flt_hsin (listtype arguments)
-#else
-
-objecttype flt_hsin (arguments)
-listtype arguments;
-#endif
-
-  { /* flt_hsin */
-    isit_float(arg_1(arguments));
-    return(bld_float_temp(sinh(take_float(arg_1(arguments)))));
-  } /* flt_hsin */
-
-
-
-#ifdef ANSI_C
-
-objecttype flt_htan (listtype arguments)
-#else
-
-objecttype flt_htan (arguments)
-listtype arguments;
-#endif
-
-  { /* flt_htan */
-    isit_float(arg_1(arguments));
-    return(bld_float_temp(tanh(take_float(arg_1(arguments)))));
-  } /* flt_htan */
 
 
 
@@ -921,6 +889,22 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype flt_sinh (listtype arguments)
+#else
+
+objecttype flt_sinh (arguments)
+listtype arguments;
+#endif
+
+  { /* flt_sinh */
+    isit_float(arg_1(arguments));
+    return(bld_float_temp(sinh(take_float(arg_1(arguments)))));
+  } /* flt_sinh */
+
+
+
+#ifdef ANSI_C
+
 objecttype flt_sqrt (listtype arguments)
 #else
 
@@ -965,6 +949,22 @@ listtype arguments;
     isit_float(arg_1(arguments));
     return(bld_float_temp(tan(take_float(arg_1(arguments)))));
   } /* flt_tan */
+
+
+
+#ifdef ANSI_C
+
+objecttype flt_tanh (listtype arguments)
+#else
+
+objecttype flt_tanh (arguments)
+listtype arguments;
+#endif
+
+  { /* flt_tanh */
+    isit_float(arg_1(arguments));
+    return(bld_float_temp(tanh(take_float(arg_1(arguments)))));
+  } /* flt_tanh */
 
 
 

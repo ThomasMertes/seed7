@@ -50,6 +50,7 @@ const func ref_list: declared_objects (ref program param) is               actio
 const func reference: syobject (ref program param, ref string param) is    action "PRG_SYOBJECT";
 
 const func reference: match (ref program param, ref ref_list param) is     action "PRG_MATCH";
+const func reference: matchExpr (ref program param, ref ref_list param) is action "PRG_MATCH_EXPR";
 # const func program: get (PROGRAM) is                                       action "PRG_PROG";
 
 
@@ -117,7 +118,8 @@ const proc: for (inout category param) range (in category param) downto (in cate
             end for is                                                     action "PRC_FOR_DOWNTO";
 
 
-const func boolean: is_var (ref reference param) is                        action "REF_ISVAR";
+const func boolean: isVar (ref reference param) is                         action "REF_ISVAR";
+const proc: setVar (ref reference param, ref boolean param) is             action "REF_SETVAR";
 const func category: category (ref reference param) is                     action "REF_CATEGORY";
 const proc: setCategory (ref reference param, ref category param) is       action "REF_SETCATEGORY";
 (* const func reference: meta (ref reference param) is                     action "REF_META"; *)
@@ -132,6 +134,8 @@ const func ref_list: array_to_list (ref reference param) is                actio
 const func integer: array_min_index (ref reference param) is               action "REF_ARRMINIDX";
 const func integer: array_max_index (ref reference param) is               action "REF_ARRMAXIDX";
 const func ref_list: struct_to_list (ref reference param) is               action "REF_SCTTOLIST";
+const func ref_list: hash_data_to_list (ref reference param) is            action "REF_HSHDATATOLIST";
+const func ref_list: hash_key_to_list (ref reference param) is             action "REF_HSHKEYTOLIST";
 const func reference: interface_to_struct (ref reference param) is         action "REF_ITFTOSCT";
 const func string: file (ref reference param) is                           action "REF_FILE";
 const func integer: line (ref reference param) is                          action "REF_LINE";

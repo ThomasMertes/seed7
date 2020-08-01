@@ -539,7 +539,7 @@ const func integer: ! (in integer param) is                         action "INT_
 const proc: (inout integer param) := (in integer param) is          action "INT_CPY";
 const proc: (inout integer param) +:= (in integer param) is         action "INT_GROW";
 const proc: (inout integer param) -:= (in integer param) is         action "INT_SHRINK";
-const proc: (inout integer param) *:= (in integer param) is         action "INT_MCPY";
+const proc: (inout integer param) *:= (in integer param) is         action "INT_MULT_ASSIGN";
 const proc: (inout integer param) <<:= (in integer param) is        action "INT_LSHIFT_ASSIGN";
 const proc: (inout integer param) >>:= (in integer param) is        action "INT_RSHIFT_ASSIGN";
 const func integer: (in integer param) + (in integer param) is      action "INT_ADD";

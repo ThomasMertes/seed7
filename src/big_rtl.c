@@ -2857,7 +2857,7 @@ rtlBiginttype big2;
     if (big1->size == 1 && big1->bigdigits[0] == 0) {
       result = bigCreate(big2);
     } else if (big2->size == 1 && big2->bigdigits[0] == 0) {
-      result = bigCreate(big1);;
+      result = bigCreate(big1);
     } else {
       if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
         big1_help = bigMinus(big1);
@@ -2867,7 +2867,7 @@ rtlBiginttype big2;
       if (IS_NEGATIVE(big2->bigdigits[big2->size - 1])) {
         big2_help = bigMinus(big2);
       } else {
-        big2_help=bigCreate(big2);
+        big2_help = bigCreate(big2);
       } /* if */
       if ((big1_help->size > big2_help->size &&
           big1_help->size - big2_help->size > 10) ||
@@ -3610,88 +3610,6 @@ inttype lshift;
 
 
 
-#ifdef ANSI_C
-
-void bigMCpy (rtlBiginttype *const big_variable, const_rtlBiginttype big2)
-#else
-
-void bigMCpy (big_variable, big2)
-rtlBiginttype *big_variable;
-rtlBiginttype big2;
-#endif
-
-  {
-    rtlBiginttype big1;
-    booltype negative = FALSE;
-    rtlBiginttype big1_help = NULL;
-    rtlBiginttype big2_help = NULL;
-    memsizetype pos1;
-    memsizetype pos2;
-    doublebigdigittype carry = 0;
-    rtlBiginttype result;
-
-  /* bigMCpy */
-    big1 = *big_variable;
-    if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
-      negative = TRUE;
-      big1_help = alloc_positive_copy_of_negative_big(big1);
-      big1 = big1_help;
-      if (big1_help == NULL) {
-        return;
-      } /* if */
-    } /* if */
-    if (IS_NEGATIVE(big2->bigdigits[big2->size - 1])) {
-      negative = !negative;
-      big2_help = alloc_positive_copy_of_negative_big(big2);
-      big2 = big2_help;
-      if (big2_help == NULL) {
-        if (big1_help != NULL) {
-          FREE_BIG(big1_help, big1_help->size);
-        } /* if */
-        return;
-      } /* if */
-    } /* if */
-    if (!ALLOC_BIG(result, big1->size + big2->size)) {
-      raise_error(MEMORY_ERROR);
-    } else {
-      pos2 = 0;
-      do {
-        carry += (doublebigdigittype) big1->bigdigits[0] * big2->bigdigits[pos2];
-        result->bigdigits[pos2] = (bigdigittype) (carry & BIGDIGIT_MASK);
-        carry >>= 8 * sizeof(bigdigittype);
-        pos2++;
-      } while (pos2 < big2->size);
-      result->bigdigits[big2->size] = (bigdigittype) (carry & BIGDIGIT_MASK);
-      for (pos1 = 1; pos1 < big1->size; pos1++) {
-        carry = 0;
-        pos2 = 0;
-        do {
-          carry += (doublebigdigittype) result->bigdigits[pos1 + pos2] +
-              (doublebigdigittype) big1->bigdigits[pos1] * big2->bigdigits[pos2];
-          result->bigdigits[pos1 + pos2] = (bigdigittype) (carry & BIGDIGIT_MASK);
-          carry >>= 8 * sizeof(bigdigittype);
-          pos2++;
-        } while (pos2 < big2->size);
-        result->bigdigits[pos1 + big2->size] = (bigdigittype) (carry & BIGDIGIT_MASK);
-      } /* for */
-      result->size = big1->size + big2->size;
-      if (negative) {
-        negate_positive_big(result);
-      } /* if */
-      result = normalize(result);
-      FREE_BIG(*big_variable, (*big_variable)->size);
-      *big_variable = result;
-    } /* if */
-    if (big1_help != NULL) {
-      FREE_BIG(big1_help, big1_help->size);
-    } /* if */
-    if (big2_help != NULL) {
-      FREE_BIG(big2_help, big2_help->size);
-    } /* if */
-  } /* bigMCpy */
-
-
-
 /**
  *  Computes an integer modulo division of big1 by big2 for signed
  *  big integers. The memory for the result is requested and the
@@ -4033,6 +3951,88 @@ rtlBiginttype big2;
     } /* if */
     return(result);
   } /* bigMult */
+
+
+
+#ifdef ANSI_C
+
+void bigMultAssign (rtlBiginttype *const big_variable, const_rtlBiginttype big2)
+#else
+
+void bigMultAssign (big_variable, big2)
+rtlBiginttype *big_variable;
+rtlBiginttype big2;
+#endif
+
+  {
+    rtlBiginttype big1;
+    booltype negative = FALSE;
+    rtlBiginttype big1_help = NULL;
+    rtlBiginttype big2_help = NULL;
+    memsizetype pos1;
+    memsizetype pos2;
+    doublebigdigittype carry = 0;
+    rtlBiginttype result;
+
+  /* bigMultAssign */
+    big1 = *big_variable;
+    if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
+      negative = TRUE;
+      big1_help = alloc_positive_copy_of_negative_big(big1);
+      big1 = big1_help;
+      if (big1_help == NULL) {
+        return;
+      } /* if */
+    } /* if */
+    if (IS_NEGATIVE(big2->bigdigits[big2->size - 1])) {
+      negative = !negative;
+      big2_help = alloc_positive_copy_of_negative_big(big2);
+      big2 = big2_help;
+      if (big2_help == NULL) {
+        if (big1_help != NULL) {
+          FREE_BIG(big1_help, big1_help->size);
+        } /* if */
+        return;
+      } /* if */
+    } /* if */
+    if (!ALLOC_BIG(result, big1->size + big2->size)) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      pos2 = 0;
+      do {
+        carry += (doublebigdigittype) big1->bigdigits[0] * big2->bigdigits[pos2];
+        result->bigdigits[pos2] = (bigdigittype) (carry & BIGDIGIT_MASK);
+        carry >>= 8 * sizeof(bigdigittype);
+        pos2++;
+      } while (pos2 < big2->size);
+      result->bigdigits[big2->size] = (bigdigittype) (carry & BIGDIGIT_MASK);
+      for (pos1 = 1; pos1 < big1->size; pos1++) {
+        carry = 0;
+        pos2 = 0;
+        do {
+          carry += (doublebigdigittype) result->bigdigits[pos1 + pos2] +
+              (doublebigdigittype) big1->bigdigits[pos1] * big2->bigdigits[pos2];
+          result->bigdigits[pos1 + pos2] = (bigdigittype) (carry & BIGDIGIT_MASK);
+          carry >>= 8 * sizeof(bigdigittype);
+          pos2++;
+        } while (pos2 < big2->size);
+        result->bigdigits[pos1 + big2->size] = (bigdigittype) (carry & BIGDIGIT_MASK);
+      } /* for */
+      result->size = big1->size + big2->size;
+      if (negative) {
+        negate_positive_big(result);
+      } /* if */
+      result = normalize(result);
+      FREE_BIG(*big_variable, (*big_variable)->size);
+      *big_variable = result;
+    } /* if */
+    if (big1_help != NULL) {
+      FREE_BIG(big1_help, big1_help->size);
+    } /* if */
+    if (big2_help != NULL) {
+      FREE_BIG(big2_help, big2_help->size);
+    } /* if */
+  } /* bigMultAssign */
 
 
 

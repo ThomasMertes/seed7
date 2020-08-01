@@ -355,6 +355,27 @@ listtype arguments;
 
 
 
+#ifdef OUT_OF_ORDER
+#ifdef ANSI_C
+
+objecttype prg_match (listtype arguments)
+#else
+
+objecttype prg_match (arguments)
+listtype arguments;
+#endif
+
+  { /* prg_match */
+    isit_prog(arg_1(arguments));
+    isit_reflist(arg_2(arguments));
+    return(bld_reference_temp(prgMatch(
+        take_reflist(arg_2(arguments)),
+        take_prog(arg_1(arguments)))));
+  } /* prg_match */
+#endif
+
+
+
 #ifdef ANSI_C
 
 objecttype prg_match (listtype arguments)
@@ -400,6 +421,51 @@ listtype arguments;
     printf("\n"); */
     return(bld_reference_temp(result));
   } /* prg_match */
+
+
+
+#ifdef ANSI_C
+
+objecttype prg_match_expr (listtype arguments)
+#else
+
+objecttype prg_match_expr (arguments)
+listtype arguments;
+#endif
+
+  {
+    progtype currentProg;
+    errinfotype err_info = OKAY_NO_ERROR;
+    objecttype result;
+
+  /* prg_match_expr */
+    isit_prog(arg_1(arguments));
+    isit_reflist(arg_2(arguments));
+    currentProg = take_prog(arg_1(arguments));
+    /* prot_list(take_reflist(arg_2(arguments)));
+    printf("\n"); */
+    if (!ALLOC_OBJECT(result)) {
+      return(raise_exception(SYS_MEM_EXCEPTION));
+    } else {
+      result->type_of = NULL;
+      result->descriptor.property = NULL;
+      INIT_CATEGORY_OF_OBJ(result, EXPROBJECT);
+      result->value.listvalue = copy_list(take_reflist(arg_2(arguments)), &err_info);
+      if (err_info != OKAY_NO_ERROR) {
+        return(raise_exception(SYS_MEM_EXCEPTION));
+      } else {
+        result = match_prog_expression(currentProg->declaration_root, result);
+        /* printf("result == %lx\n", result);
+        trace1(result);
+        printf("\n");
+        prot_list(take_reflist(arg_2(arguments)));
+        printf("\n");
+        prot_list(result->value.listvalue);
+        printf("\n"); */
+        return(bld_reference_temp(result));
+      } /* if */
+    } /* if */
+  } /* prg_match_expr */
 
 
 

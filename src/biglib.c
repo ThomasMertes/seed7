@@ -543,25 +543,6 @@ listtype arguments;
 
 #ifdef ANSI_C
 
-objecttype big_mcpy (listtype arguments)
-#else
-
-objecttype big_mcpy (arguments)
-listtype arguments;
-#endif
-
-  { /* big_mcpy */
-    isit_bigint(arg_1(arguments));
-    isit_bigint(arg_3(arguments));
-    is_variable(arg_1(arguments));
-    bigMCpy(&take_bigint(arg_1(arguments)), take_bigint(arg_3(arguments)));
-    return(SYS_EMPTY_OBJECT);
-  } /* big_mcpy */
-
-
-
-#ifdef ANSI_C
-
 objecttype big_mdiv (listtype arguments)
 #else
 
@@ -628,6 +609,25 @@ listtype arguments;
     return(bld_bigint_temp(
         bigMult(take_bigint(arg_1(arguments)), take_bigint(arg_3(arguments)))));
   } /* big_mult */
+
+
+
+#ifdef ANSI_C
+
+objecttype big_mult_assign (listtype arguments)
+#else
+
+objecttype big_mult_assign (arguments)
+listtype arguments;
+#endif
+
+  { /* big_mult_assign */
+    isit_bigint(arg_1(arguments));
+    isit_bigint(arg_3(arguments));
+    is_variable(arg_1(arguments));
+    bigMultAssign(&take_bigint(arg_1(arguments)), take_bigint(arg_3(arguments)));
+    return(SYS_EMPTY_OBJECT);
+  } /* big_mult_assign */
 
 
 

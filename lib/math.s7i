@@ -79,19 +79,19 @@ const func float: atan2 (ref float param, ref float param) is      action "FLT_A
 (**
  *  Returns the hyperbolic sine of a value.
  *)
-const func float: sinh (ref float param) is                        action "FLT_HSIN";
+const func float: sinh (ref float param) is                        action "FLT_SINH";
 
 
 (**
  *  Returns the hyperbolic cosine of a value.
  *)
-const func float: cosh (ref float param) is                        action "FLT_HCOS";
+const func float: cosh (ref float param) is                        action "FLT_COSH";
 
 
 (**
  *  Returns the hyperbolic tangent of a value.
  *)
-const func float: tanh (ref float param) is                        action "FLT_HTAN";
+const func float: tanh (ref float param) is                        action "FLT_TANH";
 
 
 (**

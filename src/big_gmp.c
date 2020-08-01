@@ -757,22 +757,6 @@ inttype lshift;
 
 
 
-#ifdef ANSI_C
-
-void bigMCpy (gmpBiginttype *const big_variable, const_gmpBiginttype big2)
-#else
-
-void bigMCpy (big_variable, big2)
-gmpBiginttype *big_variable;
-gmpBiginttype big2;
-#endif
-
-  { /* bigMCpy */
-    mpz_mul(*big_variable, *big_variable, big2);
-  } /* bigMCpy */
-
-
-
 /**
  *  Computes an integer modulo division of big1 by big2 for signed
  *  big integers.
@@ -878,6 +862,22 @@ gmpBiginttype big2;
     mpz_mul(result, big1, big2);
     return(result);
   } /* bigMult */
+
+
+
+#ifdef ANSI_C
+
+void bigMultAssign (gmpBiginttype *const big_variable, const_gmpBiginttype big2)
+#else
+
+void bigMultAssign (big_variable, big2)
+gmpBiginttype *big_variable;
+gmpBiginttype big2;
+#endif
+
+  { /* bigMultAssign */
+    mpz_mul(*big_variable, *big_variable, big2);
+  } /* bigMultAssign */
 
 
 

@@ -358,14 +358,72 @@ objecttype obj_arg1;
 
 #ifdef ANSI_C
 
-booltype refIsvar (objecttype obj_arg)
+listtype refHshDataToList (objecttype obj_arg)
 #else
 
-booltype refIsvar (obj_arg)
+listtype refHshDataToList (obj_arg)
 objecttype obj_arg;
 #endif
 
-  { /* refIsvar */
+  {
+    errinfotype err_info = OKAY_NO_ERROR;
+    listtype result;
+
+  /* refHshDataToList */
+    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != HASHOBJECT) {
+      raise_error(RANGE_ERROR);
+      result = NULL;
+    } else {
+      result = hash_data_to_list(take_hash(obj_arg), &err_info);
+      if (err_info != OKAY_NO_ERROR) {
+        raise_error(MEMORY_ERROR);
+        result = NULL;
+      } /* if */
+    } /* if */
+    return(result);
+  } /* refHshDataToList */
+
+
+
+#ifdef ANSI_C
+
+listtype refHshKeyToList (objecttype obj_arg)
+#else
+
+listtype refHshKeyToList (obj_arg)
+objecttype obj_arg;
+#endif
+
+  {
+    errinfotype err_info = OKAY_NO_ERROR;
+    listtype result;
+
+  /* refHshKeyToList */
+    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != HASHOBJECT) {
+      raise_error(RANGE_ERROR);
+      result = NULL;
+    } else {
+      result = hash_key_to_list(take_hash(obj_arg), &err_info);
+      if (err_info != OKAY_NO_ERROR) {
+        raise_error(MEMORY_ERROR);
+        result = NULL;
+      } /* if */
+    } /* if */
+    return(result);
+  } /* refHshKeyToList */
+
+
+
+#ifdef ANSI_C
+
+booltype refIsVar (objecttype obj_arg)
+#else
+
+booltype refIsVar (obj_arg)
+objecttype obj_arg;
+#endif
+
+  { /* refIsVar */
     /* printf("refIsvar(%lu)\n", obj_arg); */
     if (obj_arg == NULL) {
       raise_error(RANGE_ERROR);
@@ -373,7 +431,7 @@ objecttype obj_arg;
     } else {
       return(VAR_OBJECT(obj_arg) ? TRUE : FALSE);
     } /* if */
-  } /* refIsvar */
+  } /* refIsVar */
 
 
 
@@ -727,6 +785,30 @@ typetype any_type;
       obj_arg->type_of = any_type;
     } /* if */
   } /* refSetType */
+
+
+
+#ifdef ANSI_C
+
+void refSetVar (objecttype obj_arg, booltype var_flag)
+#else
+
+void refSetVar (obj_arg, any_type)
+objecttype obj_arg;
+booltype var_flag;
+#endif
+
+  { /* refSetVar */
+    if (obj_arg == NULL) {
+      raise_error(RANGE_ERROR);
+    } else {
+      if (var_flag) {
+        SET_VAR_FLAG(obj_arg);
+      } else {
+        CLEAR_VAR_FLAG(obj_arg);
+      } /* if */
+    } /* if */
+  } /* refSetVar */
 
 
 

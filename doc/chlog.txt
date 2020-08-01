@@ -1,3 +1,19 @@
+20080921:
+- The chapters about object orientation and primitive actions in the manual,
+  were improved.
+- The primitive actions BIG_MCPY, FLT_HSIN, FLT_HCOS and FLT_HTAN were renamed to
+  BIG_MULT_ASSIGN, FLT_SINH, FLT_COSH and FLT_TANH respectively.
+- The bas7.sd7 (basic interpreter) example program was improved.
+- The compiler (comp.sd7) was improved to support the primitive actions CHR_CONV,
+  FLT_PLUS, PRG_MATCH_EXPR, REF_CAT_PARSE, REF_CONV and REF_SETVAR.
+- The compiler (comp.sd7) was improved to support HASHOBJECT constants.
+- A binary gcd function (binaryGcd) was added to the gcd.sd7 example program.
+- The X11 keyboard driver was improved to support the num-lock functionality.
+- The functions hash_data_to_list and hash_key_to_list were added to the file listutl.c
+- The is_var function defined in progs.s7i library was renamed to isVar.
+- The functions matchExpr, setVar, hash_data_to_list and hash_key_to_list were added
+  to the progs.s7i library.
+
 20080902:
 - The FAQ about development speed and type checking was improved.
 - The chapters about boolean, bigInteger, rational, bigRational, float, char, complex,

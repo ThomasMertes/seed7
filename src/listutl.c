@@ -512,3 +512,109 @@ errinfotype *err_info;
 #endif
     return(list_to);
   } /* struct_to_list */
+
+
+
+#ifdef ANSI_C
+
+static void helem_data_to_list (listtype *list_insert_place,
+    helemtype helem, errinfotype *err_info)
+#else
+
+static void helem_data_to_list (list_insert_place, helem, err_info)
+listtype *list_insert_place;
+helemtype helem;
+errinfotype *err_info;
+#endif
+
+  { /* helem_data_to_list */
+    if (helem != NULL && *err_info == OKAY_NO_ERROR) {
+      incl_list(list_insert_place, &helem->data, err_info);
+      helem_data_to_list(list_insert_place, helem->next_less, err_info);
+      helem_data_to_list(list_insert_place, helem->next_greater, err_info);
+    } /* if */
+  } /* helem_data_to_list */
+
+
+
+#ifdef ANSI_C
+
+listtype hash_data_to_list (hashtype hash, errinfotype *err_info)
+#else
+
+listtype hash_data_to_list (hash, err_info)
+hashtype hash;
+errinfotype *err_info;
+#endif
+
+  {
+    int number;
+    helemtype *helem;
+    listtype result;
+
+  /* hash_data_to_list */
+    result = NULL;
+    if (hash != NULL) {
+      number = hash->table_size;
+      helem = &hash->table[0];
+      while (number > 0 && *err_info == OKAY_NO_ERROR) {
+        helem_data_to_list(&result, *helem, err_info);
+        number--;
+        helem++;
+      } /* while */
+    } /* if */
+    return(result);
+  } /* hash_data_to_list */
+
+
+
+#ifdef ANSI_C
+
+static void helem_key_to_list (listtype *list_insert_place,
+    helemtype helem, errinfotype *err_info)
+#else
+
+static void helem_key_to_list (list_insert_place, helem, err_info)
+listtype *list_insert_place;
+helemtype helem;
+errinfotype *err_info;
+#endif
+
+  { /* helem_key_to_list */
+    if (helem != NULL && *err_info == OKAY_NO_ERROR) {
+      incl_list(list_insert_place, &helem->key, err_info);
+      helem_key_to_list(list_insert_place, helem->next_less, err_info);
+      helem_key_to_list(list_insert_place, helem->next_greater, err_info);
+    } /* if */
+  } /* helem_key_to_list */
+
+
+
+#ifdef ANSI_C
+
+listtype hash_key_to_list (hashtype hash, errinfotype *err_info)
+#else
+
+listtype hash_key_to_list (hash, err_info)
+hashtype hash;
+errinfotype *err_info;
+#endif
+
+  {
+    int number;
+    helemtype *helem;
+    listtype result;
+
+  /* hash_key_to_list */
+    result = NULL;
+    if (hash != NULL) {
+      number = hash->table_size;
+      helem = &hash->table[0];
+      while (number > 0 && *err_info == OKAY_NO_ERROR) {
+        helem_key_to_list(&result, *helem, err_info);
+        number--;
+        helem++;
+      } /* while */
+    } /* if */
+    return(result);
+  } /* hash_key_to_list */

@@ -493,7 +493,7 @@ inttype position;
       resized_arr1 = REALLOC_RTL_ARRAY(arr1, arr1_size + 1, arr1_size);
       if (resized_arr1 == NULL) {
         raise_error(MEMORY_ERROR);
-        result = NULL;
+        result = 0;
       } else {
         arr1 = resized_arr1;
         COUNT3_RTL_ARRAY(arr1_size + 1, arr1_size);
@@ -501,7 +501,7 @@ inttype position;
       } /* if */
     } else {
       raise_error(RANGE_ERROR);
-      result = NULL;
+      result = 0;
     } /* if */
     return(result);
   } /* arrRemove */

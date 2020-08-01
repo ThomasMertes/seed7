@@ -394,13 +394,9 @@ objecttype ref_conv (arguments)
 listtype arguments;
 #endif
 
-  {
-    objecttype result;
-
-  /* ref_conv */
+  { /* ref_conv */
     isit_reference(arg_3(arguments));
-    result = take_reference(arg_3(arguments));
-    return(bld_reference_temp(result));
+    return(bld_reference_temp(take_reference(arg_3(arguments))));
   } /* ref_conv */
 
 
@@ -587,6 +583,40 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype ref_hshdatatolist (listtype arguments)
+#else
+
+objecttype ref_hshdatatolist (arguments)
+listtype arguments;
+#endif
+
+  { /* ref_hshdatatolist */
+    isit_reference(arg_1(arguments));
+    return(bld_reflist_temp(refHshDataToList(
+	take_reference(arg_1(arguments)))));
+  } /* ref_hshdatatolist */
+
+
+
+#ifdef ANSI_C
+
+objecttype ref_hshkeytolist (listtype arguments)
+#else
+
+objecttype ref_hshkeytolist (arguments)
+listtype arguments;
+#endif
+
+  { /* ref_hshkeytolist */
+    isit_reference(arg_1(arguments));
+    return(bld_reflist_temp(refHshKeyToList(
+	take_reference(arg_1(arguments)))));
+  } /* ref_hshkeytolist */
+
+
+
+#ifdef ANSI_C
+
 objecttype ref_issymb (listtype arguments)
 #else
 
@@ -624,7 +654,7 @@ listtype arguments;
 
   { /* ref_isvar */
     isit_reference(arg_1(arguments));
-    if (refIsvar(take_reference(arg_1(arguments)))) {
+    if (refIsVar(take_reference(arg_1(arguments)))) {
       return(SYS_TRUE_OBJECT);
     } else {
       return(SYS_FALSE_OBJECT);
@@ -1151,6 +1181,28 @@ listtype arguments;
                take_type(     arg_2(arguments)));
     return(SYS_EMPTY_OBJECT);
   } /* ref_settype */
+
+
+
+#ifdef ANSI_C
+
+objecttype ref_setvar (listtype arguments)
+#else
+
+objecttype ref_setvar (arguments)
+listtype arguments;
+#endif
+
+  { /* ref_setvar */
+    isit_reference(arg_1(arguments));
+    isit_bool(arg_2(arguments));
+    if (take_bool(arg_2(arguments)) == SYS_TRUE_OBJECT) {
+      refSetVar(take_reference(arg_1(arguments)), TRUE);
+    } else {
+      refSetVar(take_reference(arg_1(arguments)), FALSE);
+    } /* if */
+    return(SYS_EMPTY_OBJECT);
+  } /* ref_setvar */
 
 
 

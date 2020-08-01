@@ -216,19 +216,17 @@ stritype stri_from;
     stritype stri_dest;
 
   /* strAppend */
-    if (stri_from->size != 0) {
-      stri_dest = *stri_to;
-      new_size = stri_dest->size + stri_from->size;
-      GROW_STRI(stri_dest, stri_dest, stri_dest->size, new_size);
-      if (stri_dest == NULL) {
-        raise_error(MEMORY_ERROR);
-      } else {
-        COUNT3_STRI(stri_dest->size, new_size);
-        memcpy(&stri_dest->mem[stri_dest->size], stri_from->mem,
-            (SIZE_TYPE) stri_from->size * sizeof(strelemtype));
-        stri_dest->size = new_size;
-        *stri_to = stri_dest;
-      } /* if */
+    stri_dest = *stri_to;
+    new_size = stri_dest->size + stri_from->size;
+    GROW_STRI(stri_dest, stri_dest, stri_dest->size, new_size);
+    if (stri_dest == NULL) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      COUNT3_STRI(stri_dest->size, new_size);
+      memcpy(&stri_dest->mem[stri_dest->size], stri_from->mem,
+          (SIZE_TYPE) stri_from->size * sizeof(strelemtype));
+      stri_dest->size = new_size;
+      *stri_to = stri_dest;
     } /* if */
   } /* strAppend */
 
@@ -1352,25 +1350,23 @@ inttype factor;
         return(NULL);
       } else {
         result->size = result_size;
-        if (len != 0) {
-          if (len == 1) {
+        if (len == 1) {
 #ifdef WIDE_CHAR_STRINGS
-            ch = stri->mem[0];
-            result_pointer = result->mem;
-            for (number = factor; number > 0; number--) {
-              *result_pointer++ = ch;
-            } /* for */
+          ch = stri->mem[0];
+          result_pointer = result->mem;
+          for (number = factor; number > 0; number--) {
+            *result_pointer++ = ch;
+          } /* for */
 #else
-            memset(result->mem, (int) stri->mem[0], (SIZE_TYPE) factor);
+          memset(result->mem, (int) stri->mem[0], (SIZE_TYPE) factor);
 #endif
-          } else {
-            result_pointer = result->mem;
-            for (number = factor; number > 0; number--) {
-              memcpy(result_pointer, stri->mem,
-                  (SIZE_TYPE) len * sizeof(strelemtype));
-              result_pointer += (SIZE_TYPE) len;
-            } /* for */
-          } /* if */
+        } else if (len != 0) {
+          result_pointer = result->mem;
+          for (number = factor; number > 0; number--) {
+            memcpy(result_pointer, stri->mem,
+                (SIZE_TYPE) len * sizeof(strelemtype));
+            result_pointer += (SIZE_TYPE) len;
+          } /* for */
         } /* if */
         return(result);
       } /* if */
@@ -1419,6 +1415,45 @@ stritype searched;
     } /* if */
     return(0);
   } /* strPos */
+
+
+
+#ifdef ANSI_C
+
+void strPush (stritype *const stri_to, const chartype char_from)
+#else
+
+void strPush (stri_to, char_from)
+stritype *stri_to;
+chartype char_from;
+#endif
+
+  {
+    memsizetype new_size;
+    stritype stri_dest;
+
+  /* strPush */
+#ifndef WIDE_CHAR_STRINGS
+    if (char_from > (chartype) 255) {
+      raise_error(RANGE_ERROR);
+      return(NULL);
+    } else {
+#endif
+      stri_dest = *stri_to;
+      new_size = stri_dest->size + 1;
+      GROW_STRI(stri_dest, stri_dest, stri_dest->size, new_size);
+      if (stri_dest == NULL) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        COUNT3_STRI(stri_dest->size, new_size);
+        stri_dest->mem[stri_dest->size] = char_from;
+        stri_dest->size = new_size;
+        *stri_to = stri_dest;
+      } /* if */
+#ifndef WIDE_CHAR_STRINGS
+    } /* if */
+#endif
+  } /* strPush */
 
 
 

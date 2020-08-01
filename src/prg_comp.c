@@ -34,6 +34,7 @@
 #include "common.h"
 #include "data.h"
 #include "heaputl.h"
+#include "flistutl.h"
 #include "striutl.h"
 #include "listutl.h"
 #include "option.h"
@@ -254,6 +255,50 @@ listtype curr_expr;
     printf("\n"); */
     return(result);
   } /* prgMatch */
+
+
+
+#ifdef ANSI_C
+
+objecttype prgMatchExpr (progtype currentProg, listtype curr_expr)
+#else
+
+objecttype prgMatchExpr (currentProg, curr_expr)
+progtype currentProg;
+listtype curr_expr;
+#endif
+
+  {
+    errinfotype err_info = OKAY_NO_ERROR;
+    objecttype result;
+
+  /* prgMatchExpr */
+    /* prot_list(curr_expr);
+    printf("\n"); */
+    if (!ALLOC_OBJECT(result)) {
+      raise_error(MEMORY_ERROR);
+      result = NULL;
+    } else {
+      result->type_of = NULL;
+      result->descriptor.property = NULL;
+      INIT_CATEGORY_OF_OBJ(result, EXPROBJECT);
+      result->value.listvalue = copy_list(curr_expr, &err_info);
+      if (err_info != OKAY_NO_ERROR) {
+        raise_error(MEMORY_ERROR);
+        result = NULL;
+      } else {
+        result = match_prog_expression(currentProg->declaration_root, result);
+        /* printf("result == %lx\n", result);
+        trace1(result);
+        printf("\n");
+        prot_list(curr_expr);
+        printf("\n");
+        prot_list(result->value.listvalue);
+        printf("\n"); */
+      } /* if */
+    } /* if */
+    return(result);
+  } /* prgMatchExpr */
 
 
 
