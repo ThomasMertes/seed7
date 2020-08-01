@@ -2246,7 +2246,7 @@ static biginttype bigIPow1 (bigdigittype base, inttype exponent)
         /* The unsigned value is negated to avoid a signed integer */
         /* overflow when the smallest signed integer is negated.   */
         base = -base;
-        negative = exponent & 1;
+        negative = (booltype) (exponent & 1);
       } else {
         negative = FALSE;
       } /* if */
@@ -3005,7 +3005,7 @@ booltype bigEqSignedDigit (const const_biginttype big1, inttype number)
 
 
 static inline biginttype bigFromByteBufferBe (const memsizetype size,
-    const const_ustritype buffer, const booltype withSign)
+    const const_ustritype buffer, const booltype isSigned)
 
   {
     memsizetype byteIndex;
@@ -3016,14 +3016,14 @@ static inline biginttype bigFromByteBufferBe (const memsizetype size,
     biginttype result;
 
   /* bigFromByteBufferBe */
-    /* printf("bigFromByteBufferBe(%lu, *, %d)\n", size, withSign); */
+    /* printf("bigFromByteBufferBe(%lu, *, %d)\n", size, isSigned); */
     if (size == 0) {
       num_bigdigits = 0;
       result_size = 1;
     } else {
       num_bigdigits = (size + (BIGDIGIT_SIZE >> 3) - 1) / (BIGDIGIT_SIZE >> 3);
       result_size = num_bigdigits;
-      if (!withSign && size % (BIGDIGIT_SIZE >> 3) == 0 && buffer[0] >= 128) {
+      if (!isSigned && size % (BIGDIGIT_SIZE >> 3) == 0 && buffer[0] >= 128) {
         /* The number is unsigned, but highest bit is one: */
         /* A leading zero bigdigit must be added.          */
         result_size++;
@@ -3055,7 +3055,7 @@ static inline biginttype bigFromByteBufferBe (const memsizetype size,
 #endif
         } /* for */
         memcpy(&buffer2[4 - byteIndex], buffer, byteIndex);
-        if (withSign && buffer[0] >= 128) {
+        if (isSigned && buffer[0] >= 128) {
           memset(buffer2, 0xFF, 4 - byteIndex);
         } else {
           memset(buffer2, 0, 4 - byteIndex);
@@ -3086,7 +3086,7 @@ static inline biginttype bigFromByteBufferBe (const memsizetype size,
 
 
 static inline biginttype bigFromByteBufferLe (const memsizetype size,
-    const const_ustritype buffer, const booltype withSign)
+    const const_ustritype buffer, const booltype isSigned)
 
   {
     memsizetype byteIndex;
@@ -3097,14 +3097,14 @@ static inline biginttype bigFromByteBufferLe (const memsizetype size,
     biginttype result;
 
   /* bigFromByteBufferLe */
-    /* printf("bigFromByteBufferLe(%lu, *, %d)\n", size, withSign); */
+    /* printf("bigFromByteBufferLe(%lu, *, %d)\n", size, isSigned); */
     if (size == 0) {
       num_bigdigits = 0;
       result_size = 1;
     } else {
       num_bigdigits = (size + (BIGDIGIT_SIZE >> 3) - 1) / (BIGDIGIT_SIZE >> 3);
       result_size = num_bigdigits;
-      if (!withSign && size % (BIGDIGIT_SIZE >> 3) == 0 && buffer[0] >= 128) {
+      if (!isSigned && buffer[size - 1] >= 128) {
         /* The number is unsigned, but highest bit is one: */
         /* A leading zero bigdigit must be added.          */
         result_size++;
@@ -3136,7 +3136,7 @@ static inline biginttype bigFromByteBufferLe (const memsizetype size,
 #endif
         } /* for */
         memcpy(buffer2, &buffer[byteIndex], size - byteIndex);
-        if (withSign && buffer[size - 1] >= 128) {
+        if (isSigned && buffer[size - 1] >= 128) {
           memset(&buffer2[size - byteIndex], 0xFF, 4 - (size - byteIndex));
         } else {
           memset(&buffer2[size - byteIndex], 0, 4 - (size - byteIndex));
@@ -3168,32 +3168,36 @@ static inline biginttype bigFromByteBufferLe (const memsizetype size,
 
 /**
  *  Convert a bstring (interpreted as big-endian) to a bigInteger.
- *  The 'bstri' is interpreted as twos-complement representation
- *  with a base of 256. The result is negative when the most significant
- *  byte (the first byte) has an ordinal >= 128.
- *  @param bstri Bstring that contains the data to be converted.
- *  @return a signed bigInteger created from the big-endian bytes.
+ *  @param bstri Bstring to be converted. The bytes are interpreted
+ *         as binary big-endian representation with a base of 256.
+ *  @param isSigned Defines if 'bstri' is interpreted as signed value.
+ *         When 'isSigned' is TRUE the twos-complement representation
+ *         is used. In this case the result is negative when the most
+ *         significant byte (the first byte) has an ordinal >= 128.
+ *  @return a bigInteger created from the big-endian bytes.
  */
-biginttype bigFromBStriBe (const const_bstritype bstri)
+biginttype bigFromBStriBe (const const_bstritype bstri, const booltype isSigned)
 
   { /* bigFromBStriBe */
-    return bigFromByteBufferBe(bstri->size, bstri->mem, TRUE);
+    return bigFromByteBufferBe(bstri->size, bstri->mem, isSigned);
   } /* bigFromBStriBe */
 
 
 
 /**
  *  Convert a bstring (interpreted as little-endian) to a bigInteger.
- *  The 'bstri' is interpreted as twos-complement representation
- *  with a base of 256. The result is negative when the most significant
- *  byte (the last byte) has an ordinal >= 128.
- *  @param bstri Bstring that contains the data to be converted.
- *  @return a signed bigInteger created from the little-endian bytes.
+ *  @param bstri Bstring to be converted. The bytes are interpreted
+ *         as binary little-endian representation with a base of 256.
+ *  @param isSigned Defines if 'bstri' is interpreted as signed value.
+ *         When 'isSigned' is TRUE the twos-complement representation
+ *         is used. In this case the result is negative when the most
+ *         significant byte (the last byte) has an ordinal >= 128.
+ *  @return a bigInteger created from the little-endian bytes.
  */
-biginttype bigFromBStriLe (const const_bstritype bstri)
+biginttype bigFromBStriLe (const const_bstritype bstri, const booltype isSigned)
 
   { /* bigFromBStriLe */
-    return bigFromByteBufferLe(bstri->size, bstri->mem, TRUE);
+    return bigFromByteBufferLe(bstri->size, bstri->mem, isSigned);
   } /* bigFromBStriLe */
 
 
@@ -3824,7 +3828,7 @@ biginttype bigLowerBits (const const_biginttype big1, const inttype bits)
       if (pos >= big1_size) {
         if (IS_NEGATIVE(big1->bigdigits[big1_size - 1])) {
           result_size = pos + 1;
-          bit_pos = (bits - 1) & BIGDIGIT_SIZE_MASK;
+          bit_pos = (int) ((bits - 1) & BIGDIGIT_SIZE_MASK);
           digit_mask = BIGDIGIT_MASK >> (BIGDIGIT_SIZE - bit_pos - 1);
           if (bit_pos == BIGDIGIT_SIZE_MASK) {
             add_sign_digit = TRUE;
@@ -3836,7 +3840,7 @@ biginttype bigLowerBits (const const_biginttype big1, const inttype bits)
         } /* if */
       } else {
         result_size = pos + 1;
-        bit_pos = (bits - 1) & BIGDIGIT_SIZE_MASK;
+        bit_pos = (int) ((bits - 1) & BIGDIGIT_SIZE_MASK);
         digit_mask = BIGDIGIT_MASK >> (BIGDIGIT_SIZE - bit_pos - 1);
         if (bit_pos == BIGDIGIT_SIZE_MASK && IS_NEGATIVE(big1->bigdigits[pos])) {
           add_sign_digit = TRUE;
@@ -3914,7 +3918,7 @@ biginttype bigLowerBitsTemp (const biginttype big1, const inttype bits)
       if (pos >= big1_size) {
         if (IS_NEGATIVE(big1->bigdigits[big1_size - 1])) {
           result_size = pos + 1;
-          bit_pos = (bits - 1) & BIGDIGIT_SIZE_MASK;
+          bit_pos = (int) ((bits - 1) & BIGDIGIT_SIZE_MASK);
           digit_mask = BIGDIGIT_MASK >> (BIGDIGIT_SIZE - bit_pos - 1);
           if (bit_pos == BIGDIGIT_SIZE_MASK) {
             add_sign_digit = TRUE;
@@ -3926,7 +3930,7 @@ biginttype bigLowerBitsTemp (const biginttype big1, const inttype bits)
         } /* if */
       } else {
         result_size = pos + 1;
-        bit_pos = (bits - 1) & BIGDIGIT_SIZE_MASK;
+        bit_pos = (int) ((bits - 1) & BIGDIGIT_SIZE_MASK);
         digit_mask = BIGDIGIT_MASK >> (BIGDIGIT_SIZE - bit_pos - 1);
         if (bit_pos == BIGDIGIT_SIZE_MASK && IS_NEGATIVE(big1->bigdigits[pos])) {
           add_sign_digit = TRUE;
@@ -4055,7 +4059,7 @@ biginttype bigLShift (const const_biginttype big1, const inttype lshift)
       result = NULL;
     } else {
       result_size = big1->size + (memsizetype) ((uinttype) lshift >> BIGDIGIT_LOG2_SIZE) + 1;
-      digit_lshift = (uinttype) lshift & BIGDIGIT_SIZE_MASK;
+      digit_lshift = (unsigned int) ((uinttype) lshift & BIGDIGIT_SIZE_MASK);
       digit_rshift = BIGDIGIT_SIZE - digit_lshift;
       size_reduction = 0;
       low_digit = big1->bigdigits[big1->size - 1];
@@ -4158,7 +4162,7 @@ void bigLShiftAssign (biginttype *const big_variable, inttype lshift)
         raise_error(MEMORY_ERROR);
       } else {
         result_size = big1->size + (memsizetype) ((uinttype) lshift >> BIGDIGIT_LOG2_SIZE) + 1;
-        digit_lshift = (uinttype) lshift & BIGDIGIT_SIZE_MASK;
+        digit_lshift = (unsigned int) ((uinttype) lshift & BIGDIGIT_SIZE_MASK);
         digit_rshift = BIGDIGIT_SIZE - digit_lshift;
         size_reduction = 0;
         low_digit = big1->bigdigits[big1->size - 1];
@@ -4247,7 +4251,7 @@ biginttype bigLShiftOne (const inttype lshift)
         raise_error(MEMORY_ERROR);
       } else {
         result->size = result_size;
-        bit_pos = lshift & BIGDIGIT_SIZE_MASK;
+        bit_pos = (int) (lshift & BIGDIGIT_SIZE_MASK);
         if (bit_pos == BIGDIGIT_SIZE_MASK) {
           memset(result->bigdigits, 0, (result_size - 2) * sizeof(bigdigittype));
           result->bigdigits[result_size - 2] = ((bigdigittype) 1) << bit_pos;
@@ -5390,7 +5394,7 @@ biginttype bigRShift (const const_biginttype big1, const inttype rshift)
               (size_t) result_size * sizeof(bigdigittype));
         } /* if */
       } else {
-        digit_rshift = (uinttype) rshift & BIGDIGIT_SIZE_MASK;
+        digit_rshift = (unsigned int) ((uinttype) rshift & BIGDIGIT_SIZE_MASK);
         digit_lshift = BIGDIGIT_SIZE - digit_rshift;
         if (result_size > 1) {
           high_digit = big1->bigdigits[big1->size - 1];
@@ -5489,7 +5493,7 @@ void bigRShiftAssign (biginttype *const big_variable, inttype rshift)
             big1->size -= size_reduction;
           } /* if */
         } else {
-          digit_rshift = (uinttype) rshift & BIGDIGIT_SIZE_MASK;
+          digit_rshift = (unsigned int) ((uinttype) rshift & BIGDIGIT_SIZE_MASK);
           digit_lshift = BIGDIGIT_SIZE - digit_rshift;
           source_digits = &big1->bigdigits[size_reduction];
           dest_digits = big1->bigdigits;
@@ -6021,13 +6025,19 @@ biginttype bigSuccTemp (biginttype big1)
 
 
 /**
- *  Convert a 'bigInteger' into a little-endian 'bstring'.
- *  The result uses a twos-complement representation with a base of 256.
- *  For a negative 'number' the most significant byte of the result
- *  (the last byte) has an ordinal >= 128.
- *  @return a bstring with the little-endian representation.
+ *  Convert a 'bigInteger' into a big-endian 'bstring'.
+ *  The result uses binary representation with a base of 256.
+ *  @param big1 BigInteger number to be converted.
+ *  @param isSigned Determines the signedness of the result.
+ *         When 'isSigned' is TRUE the result is encoded with the
+ *         twos-complement representation. In this case a negative
+ *         'big1' is converted to a result where the most significant
+ *         byte (the first byte) has an ordinal >= 128.
+ *  @return a bstring with the big-endian representation.
+ *  @exception RANGE_ERROR When 'isSigned' is FALSE and 'big1' is negative.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-bstritype bigToBStriBe (const const_biginttype big1)
+bstritype bigToBStriBe (const const_biginttype big1, const booltype isSigned)
 
   {
     memsizetype pos;
@@ -6041,25 +6051,43 @@ bstritype bigToBStriBe (const const_biginttype big1)
     /* The expression computing result_size does not overflow           */
     /* because the number of bytes in a bigInteger fits in memsizetype. */
     result_size = big1->size * (BIGDIGIT_SIZE >> 3);
-    digit = big1->bigdigits[big1->size - 1];
+    pos = big1->size - 1;
+    digit = big1->bigdigits[pos];
     byteNum = (BIGDIGIT_SIZE >> 3) - 1;
-    if (IS_NEGATIVE(digit)) {
-      while (byteNum > 0 && (digit >> byteNum * 8 & 0xFF) == 0xFF) {
-        result_size--;
-        byteNum--;
-      } /* while */
-      if (byteNum < 3 && (digit >> byteNum * 8 & 0xFF) <= 127) {
-        result_size++;
-        byteNum++;
+    if (isSigned) {
+      if (IS_NEGATIVE(digit)) {
+        while (byteNum > 0 && (digit >> byteNum * 8 & 0xFF) == 0xFF) {
+          result_size--;
+          byteNum--;
+        } /* while */
+        if (byteNum < 3 && (digit >> byteNum * 8 & 0xFF) <= 127) {
+          result_size++;
+          byteNum++;
+        } /* if */
+      } else {
+        while (byteNum > 0 && (digit >> byteNum * 8 & 0xFF) == 0) {
+          result_size--;
+          byteNum--;
+        } /* while */
+        if (byteNum < 3 && (digit >> byteNum * 8 & 0xFF) >= 128) {
+          result_size++;
+          byteNum++;
+        } /* if */
       } /* if */
     } else {
-      while (byteNum > 0 && (digit >> byteNum * 8 & 0xFF) == 0) {
-        result_size--;
-        byteNum--;
-      } /* while */
-      if (byteNum < 3 && (digit >> byteNum * 8 & 0xFF) >= 128) {
-        result_size++;
-        byteNum++;
+      if (unlikely(IS_NEGATIVE(digit))) {
+        raise_error(RANGE_ERROR);
+        return NULL;
+      } else {
+        if (digit == 0 && pos > 0) {
+          result_size -= (BIGDIGIT_SIZE >> 3);
+          pos--;
+          digit = big1->bigdigits[pos];
+        } /* if */
+        while (byteNum > 0 && (digit >> byteNum * 8 & 0xFF) == 0) {
+          result_size--;
+          byteNum--;
+        } /* while */
       } /* if */
     } /* if */
     if (unlikely(!ALLOC_BSTRI_CHECK_SIZE(result, result_size))) {
@@ -6067,7 +6095,6 @@ bstritype bigToBStriBe (const const_biginttype big1)
     } else {
       result->size = result_size;
       charIndex = 0;
-      pos = big1->size - 1;
       for (; byteNum >= 0; byteNum--) {
         result->mem[charIndex] = (uchartype) (digit >> byteNum * 8 & 0xFF);
         charIndex++;
@@ -6087,13 +6114,19 @@ bstritype bigToBStriBe (const const_biginttype big1)
 
 
 /**
- *  Convert a 'bigInteger' into a big-endian 'bstring'.
- *  The result uses a twos-complement representation with a base of 256.
- *  For a negative 'number' the most significant byte of the result
- *  (the first byte) has an ordinal >= 128.
- *  @return a bstring with the big-endian representation.
+ *  Convert a 'bigInteger' into a little-endian 'bstring'.
+ *  The result uses binary representation with a base of 256.
+ *  @param big1 BigInteger number to be converted.
+ *  @param isSigned Determines the signedness of the result.
+ *         When 'isSigned' is TRUE the result is encoded with the
+ *         twos-complement representation. In this case a negative
+ *         'big1' is converted to a result where the most significant
+ *         byte (the last byte) has an ordinal >= 128.
+ *  @return a bstring with the little-endian representation.
+ *  @exception RANGE_ERROR When 'isSigned' is FALSE and 'big1' is negative.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-bstritype bigToBStriLe (const const_biginttype big1)
+bstritype bigToBStriLe (const const_biginttype big1, const booltype isSigned)
 
   {
     memsizetype pos;
@@ -6107,25 +6140,43 @@ bstritype bigToBStriLe (const const_biginttype big1)
     /* The expression computing result_size does not overflow           */
     /* because the number of bytes in a bigInteger fits in memsizetype. */
     result_size = big1->size * (BIGDIGIT_SIZE >> 3);
-    digit = big1->bigdigits[big1->size - 1];
+    pos = big1->size - 1;
+    digit = big1->bigdigits[pos];
     byteNum = (BIGDIGIT_SIZE >> 3) - 1;
-    if (IS_NEGATIVE(digit)) {
-      while (byteNum > 0 && (digit >> byteNum * 8 & 0xFF) == 0xFF) {
-        result_size--;
-        byteNum--;
-      } /* while */
-      if (byteNum < 3 && (digit >> byteNum * 8 & 0xFF) <= 127) {
-        result_size++;
-        byteNum++;
+    if (isSigned) {
+      if (IS_NEGATIVE(digit)) {
+        while (byteNum > 0 && (digit >> byteNum * 8 & 0xFF) == 0xFF) {
+          result_size--;
+          byteNum--;
+        } /* while */
+        if (byteNum < 3 && (digit >> byteNum * 8 & 0xFF) <= 127) {
+          result_size++;
+          byteNum++;
+        } /* if */
+      } else {
+        while (byteNum > 0 && (digit >> byteNum * 8 & 0xFF) == 0) {
+          result_size--;
+          byteNum--;
+        } /* while */
+        if (byteNum < 3 && (digit >> byteNum * 8 & 0xFF) >= 128) {
+          result_size++;
+          byteNum++;
+        } /* if */
       } /* if */
     } else {
-      while (byteNum > 0 && (digit >> byteNum * 8 & 0xFF) == 0) {
-        result_size--;
-        byteNum--;
-      } /* while */
-      if (byteNum < 3 && (digit >> byteNum * 8 & 0xFF) >= 128) {
-        result_size++;
-        byteNum++;
+      if (unlikely(IS_NEGATIVE(digit))) {
+        raise_error(RANGE_ERROR);
+        return NULL;
+      } else {
+        if (digit == 0 && pos > 0) {
+          result_size -= (BIGDIGIT_SIZE >> 3);
+          pos--;
+          digit = big1->bigdigits[pos];
+        } /* if */
+        while (byteNum > 0 && (digit >> byteNum * 8 & 0xFF) == 0) {
+          result_size--;
+          byteNum--;
+        } /* while */
       } /* if */
     } /* if */
     if (unlikely(!ALLOC_BSTRI_CHECK_SIZE(result, result_size))) {
@@ -6133,7 +6184,6 @@ bstritype bigToBStriLe (const const_biginttype big1)
     } else {
       result->size = result_size;
       charIndex = result_size - 1;
-      pos = big1->size - 1;
       for (; byteNum >= 0; byteNum--) {
         result->mem[charIndex] = (uchartype) (digit >> byteNum * 8 & 0xFF);
         charIndex--;

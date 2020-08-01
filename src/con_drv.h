@@ -49,8 +49,12 @@ int conWidth (void);
 void conFlush (void);
 void conCursor (booltype on);
 void conSetCursor (inttype lin, inttype col);
+#ifdef CONSOLE_USES_CON_TEXT
 void conText (inttype lin, inttype col, console_stritype stri,
     memsizetype length);
+#else
+void conWrite (const const_stritype stri);
+#endif
 void conClear (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol);
 void conUpScroll (inttype startlin, inttype startcol,

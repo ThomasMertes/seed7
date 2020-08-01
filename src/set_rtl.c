@@ -177,7 +177,7 @@ inttype setCard (const const_settype aSet)
 inttype setCmp (const const_settype set1, const const_settype set2)
 
   {
-    memsizetype index_byond;
+    memsizetype index_beyond;
     memsizetype bitset_index;
     memsizetype size;
     const bitsettype *bitset1;
@@ -200,8 +200,8 @@ inttype setCmp (const const_settype set1, const const_settype set2)
         bitset1 = &set1->bitset[bitset_index - 1];
         bitset2 = &set2->bitset[set2->max_position - set2->min_position];
       } /* if */
-      index_byond = bitsetSize(set1);
-      for (; bitset_index < index_byond; bitset_index++) {
+      index_beyond = bitsetSize(set1);
+      for (; bitset_index < index_beyond; bitset_index++) {
         if (set1->bitset[bitset_index] != 0) {
           return 1;
         } /* if */
@@ -222,8 +222,8 @@ inttype setCmp (const const_settype set1, const const_settype set2)
         bitset1 = &set1->bitset[set1->max_position - set1->min_position];
         bitset2 = &set2->bitset[bitset_index - 1];
       } /* if */
-      index_byond = bitsetSize(set2);
-      for (; bitset_index < index_byond; bitset_index++) {
+      index_beyond = bitsetSize(set2);
+      for (; bitset_index < index_beyond; bitset_index++) {
         if (set2->bitset[bitset_index] != 0) {
           return -1;
         } /* if */
@@ -240,22 +240,22 @@ inttype setCmp (const const_settype set1, const const_settype set2)
     } /* for */
     if (set1->min_position < set2->min_position) {
       if (set1->max_position < set2->min_position) {
-        index_byond = bitsetSize(set1);
+        index_beyond = bitsetSize(set1);
       } else {
-        index_byond = bitsetIndex(set1, set2->min_position);
+        index_beyond = bitsetIndex(set1, set2->min_position);
       } /* if */
-      for (bitset_index = 0; bitset_index < index_byond; bitset_index++) {
+      for (bitset_index = 0; bitset_index < index_beyond; bitset_index++) {
         if (set1->bitset[bitset_index] != 0) {
           return 1;
         } /* if */
       } /* for */
     } else if (set1->min_position > set2->min_position) {
       if (set1->min_position > set2->max_position) {
-        index_byond = bitsetSize(set2);
+        index_beyond = bitsetSize(set2);
       } else {
-        index_byond = bitsetIndex(set2, set1->min_position);
+        index_beyond = bitsetIndex(set2, set1->min_position);
       } /* if */
-      for (bitset_index = 0; bitset_index < index_byond; bitset_index++) {
+      for (bitset_index = 0; bitset_index < index_beyond; bitset_index++) {
         if (set2->bitset[bitset_index] != 0) {
           return -1;
         } /* if */
@@ -399,7 +399,7 @@ settype setDiff (const const_settype set1, const const_settype set2)
   {
     memsizetype bitset_index;
     memsizetype bitset_index2;
-    memsizetype index_byond;
+    memsizetype index_beyond;
     settype result;
 
   /* setDiff */
@@ -428,13 +428,13 @@ settype setDiff (const const_settype set1, const const_settype set2)
           bitset_index2 = bitsetIndex(set2, set1->min_position);
         } /* if */
         if (set1->max_position > set2->max_position) {
-          index_byond = bitsetIndex(set1, set2->max_position + 1);
-          memcpy(&result->bitset[index_byond], &set1->bitset[index_byond],
+          index_beyond = bitsetIndex(set1, set2->max_position + 1);
+          memcpy(&result->bitset[index_beyond], &set1->bitset[index_beyond],
               (size_t) (uinttype) (set1->max_position - set2->max_position) * sizeof(bitsettype));
         } else {
-          index_byond = bitsetSize(set1);
+          index_beyond = bitsetSize(set1);
         } /* if */
-        for (; bitset_index < index_byond; bitset_index++, bitset_index2++) {
+        for (; bitset_index < index_beyond; bitset_index++, bitset_index2++) {
           result->bitset[bitset_index] = set1->bitset[bitset_index] &
               ~ set2->bitset[bitset_index2];
         } /* for */
@@ -501,7 +501,7 @@ settype setEmpty (void)
 booltype setEq (const const_settype set1, const const_settype set2)
 
   {
-    memsizetype index_byond;
+    memsizetype index_beyond;
     memsizetype bitset_index;
     memsizetype size;
     const bitsettype *bitset1;
@@ -516,7 +516,7 @@ booltype setEq (const const_settype set1, const const_settype set2)
       if (set1->min_position < set2->min_position) {
         if (set1->max_position < set2->min_position) {
           size = 0;
-          index_byond = bitsetSize(set1);
+          index_beyond = bitsetSize(set1);
           bitset1 = NULL;
           bitset2 = NULL;
         } else {
@@ -525,11 +525,11 @@ booltype setEq (const const_settype set1, const const_settype set2)
           } else {
             size = bitsetSize(set2);
           } /* if */
-          index_byond = bitsetIndex(set1, set2->min_position);
-          bitset1 = &set1->bitset[index_byond];
+          index_beyond = bitsetIndex(set1, set2->min_position);
+          bitset1 = &set1->bitset[index_beyond];
           bitset2 = set2->bitset;
         } /* if */
-        for (bitset_index = 0; bitset_index < index_byond; bitset_index++) {
+        for (bitset_index = 0; bitset_index < index_beyond; bitset_index++) {
           if (set1->bitset[bitset_index] != 0) {
             return FALSE;
           } /* if */
@@ -537,7 +537,7 @@ booltype setEq (const const_settype set1, const const_settype set2)
       } else {
         if (set1->min_position > set2->max_position) {
           size = 0;
-          index_byond = bitsetSize(set2);
+          index_beyond = bitsetSize(set2);
           bitset1 = NULL;
           bitset2 = NULL;
         } else {
@@ -546,11 +546,11 @@ booltype setEq (const const_settype set1, const const_settype set2)
           } else {
             size = bitsetSize(set1);
           } /* if */
-          index_byond = bitsetIndex(set2, set1->min_position);
+          index_beyond = bitsetIndex(set2, set1->min_position);
           bitset1 = set1->bitset;
-          bitset2 = &set2->bitset[index_byond];
+          bitset2 = &set2->bitset[index_beyond];
         } /* if */
-        for (bitset_index = 0; bitset_index < index_byond; bitset_index++) {
+        for (bitset_index = 0; bitset_index < index_beyond; bitset_index++) {
           if (set2->bitset[bitset_index] != 0) {
             return FALSE;
           } /* if */
@@ -562,8 +562,8 @@ booltype setEq (const const_settype set1, const const_settype set2)
         } else {
           bitset_index = bitsetIndex(set1, set2->max_position + 1);
         } /* if */
-        index_byond = bitsetSize(set1);
-        for (; bitset_index < index_byond; bitset_index++) {
+        index_beyond = bitsetSize(set1);
+        for (; bitset_index < index_beyond; bitset_index++) {
           if (set1->bitset[bitset_index] != 0) {
             return FALSE;
           } /* if */
@@ -574,8 +574,8 @@ booltype setEq (const const_settype set1, const const_settype set2)
         } else {
           bitset_index = bitsetIndex(set2, set1->max_position + 1);
         } /* if */
-        index_byond = bitsetSize(set2);
-        for (; bitset_index < index_byond; bitset_index++) {
+        index_beyond = bitsetSize(set2);
+        for (; bitset_index < index_beyond; bitset_index++) {
           if (set2->bitset[bitset_index] != 0) {
             return FALSE;
           } /* if */
@@ -798,12 +798,12 @@ settype setIntersect (const const_settype set1, const const_settype set2)
 booltype setIsEmpty (const const_settype set1)
 
   {
-    memsizetype index_byond;
+    memsizetype index_beyond;
     memsizetype bitset_index;
 
   /* setIsEmpty */
-    index_byond = bitsetSize(set1);
-    for (bitset_index = 0; bitset_index < index_byond; bitset_index++) {
+    index_beyond = bitsetSize(set1);
+    for (bitset_index = 0; bitset_index < index_beyond; bitset_index++) {
       if (set1->bitset[bitset_index] != 0) {
         return FALSE;
       } /* if */
@@ -824,7 +824,7 @@ booltype setIsEmpty (const const_settype set1)
 booltype setIsProperSubset (const const_settype set1, const const_settype set2)
 
   {
-    memsizetype index_byond;
+    memsizetype index_beyond;
     memsizetype bitset_index;
     memsizetype size;
     const bitsettype *bitset1;
@@ -843,7 +843,7 @@ booltype setIsProperSubset (const const_settype set1, const const_settype set2)
     if (set1->min_position < set2->min_position) {
       if (set1->max_position < set2->min_position) {
         size = 0;
-        index_byond = bitsetSize(set1);
+        index_beyond = bitsetSize(set1);
         bitset1 = NULL;
         bitset2 = NULL;
       } else {
@@ -852,11 +852,11 @@ booltype setIsProperSubset (const const_settype set1, const const_settype set2)
         } else {
           size = bitsetSize(set2);
         } /* if */
-        index_byond = bitsetIndex(set1, set2->min_position);
-        bitset1 = &set1->bitset[index_byond];
+        index_beyond = bitsetIndex(set1, set2->min_position);
+        bitset1 = &set1->bitset[index_beyond];
         bitset2 = set2->bitset;
       } /* if */
-      for (bitset_index = 0; bitset_index < index_byond; bitset_index++) {
+      for (bitset_index = 0; bitset_index < index_beyond; bitset_index++) {
         if (set1->bitset[bitset_index] != 0) {
           return FALSE;
         } /* if */
@@ -864,7 +864,7 @@ booltype setIsProperSubset (const const_settype set1, const const_settype set2)
     } else {
       if (set1->min_position > set2->max_position) {
         size = 0;
-        index_byond = bitsetSize(set2);
+        index_beyond = bitsetSize(set2);
         bitset1 = NULL;
         bitset2 = NULL;
       } else {
@@ -873,11 +873,11 @@ booltype setIsProperSubset (const const_settype set1, const const_settype set2)
         } else {
           size = bitsetSize(set1);
         } /* if */
-        index_byond = bitsetIndex(set2, set1->min_position);
+        index_beyond = bitsetIndex(set2, set1->min_position);
         bitset1 = set1->bitset;
-        bitset2 = &set2->bitset[index_byond];
+        bitset2 = &set2->bitset[index_beyond];
       } /* if */
-      for (bitset_index = 0; bitset_index < index_byond && equal; bitset_index++) {
+      for (bitset_index = 0; bitset_index < index_beyond && equal; bitset_index++) {
         if (set2->bitset[bitset_index] != 0) {
           equal = FALSE;
         } /* if */
@@ -889,8 +889,8 @@ booltype setIsProperSubset (const const_settype set1, const const_settype set2)
       } else {
         bitset_index = bitsetIndex(set1, set2->max_position + 1);
       } /* if */
-      index_byond = bitsetSize(set1);
-      for (; bitset_index < index_byond; bitset_index++) {
+      index_beyond = bitsetSize(set1);
+      for (; bitset_index < index_beyond; bitset_index++) {
         if (set1->bitset[bitset_index] != 0) {
           return FALSE;
         } /* if */
@@ -901,8 +901,8 @@ booltype setIsProperSubset (const const_settype set1, const const_settype set2)
       } else {
         bitset_index = bitsetIndex(set2, set1->max_position + 1);
       } /* if */
-      index_byond = bitsetSize(set2);
-      for (; bitset_index < index_byond && equal; bitset_index++) {
+      index_beyond = bitsetSize(set2);
+      for (; bitset_index < index_beyond && equal; bitset_index++) {
         if (set2->bitset[bitset_index] != 0) {
           equal = FALSE;
         } /* if */
@@ -932,7 +932,7 @@ booltype setIsProperSubset (const const_settype set1, const const_settype set2)
 booltype setIsSubset (const const_settype set1, const const_settype set2)
 
   {
-    memsizetype index_byond;
+    memsizetype index_beyond;
     memsizetype bitset_index;
     memsizetype size;
     const bitsettype *bitset1;
@@ -949,7 +949,7 @@ booltype setIsSubset (const const_settype set1, const const_settype set2)
     if (set1->min_position < set2->min_position) {
       if (set1->max_position < set2->min_position) {
         size = 0;
-        index_byond = bitsetSize(set1);
+        index_beyond = bitsetSize(set1);
         bitset1 = NULL;
         bitset2 = NULL;
       } else {
@@ -958,11 +958,11 @@ booltype setIsSubset (const const_settype set1, const const_settype set2)
         } else {
           size = bitsetSize(set2);
         } /* if */
-        index_byond = bitsetIndex(set1, set2->min_position);
-        bitset1 = &set1->bitset[index_byond];
+        index_beyond = bitsetIndex(set1, set2->min_position);
+        bitset1 = &set1->bitset[index_beyond];
         bitset2 = set2->bitset;
       } /* if */
-      for (bitset_index = 0; bitset_index < index_byond; bitset_index++) {
+      for (bitset_index = 0; bitset_index < index_beyond; bitset_index++) {
         if (set1->bitset[bitset_index] != 0) {
           return FALSE;
         } /* if */
@@ -988,8 +988,8 @@ booltype setIsSubset (const const_settype set1, const const_settype set2)
       } else {
         bitset_index = bitsetIndex(set1, set2->max_position + 1);
       } /* if */
-      index_byond = bitsetSize(set1);
-      for (; bitset_index < index_byond; bitset_index++) {
+      index_beyond = bitsetSize(set1);
+      for (; bitset_index < index_beyond; bitset_index++) {
         if (set1->bitset[bitset_index] != 0) {
           return FALSE;
         } /* if */

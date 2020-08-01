@@ -1649,13 +1649,13 @@ void set_trace (uinttype options)
 #ifdef TRACE_TRACE
     printf("BEGIN set_trace\n");
 #endif
-    trace.actions       = options & TRACE_ACTIONS;
-    trace.check_actions = options & TRACE_DO_ACTION_CHECK;
-    trace.dynamic       = options & TRACE_DYNAMIC_CALLS;
-    trace.exceptions    = options & TRACE_EXCEPTIONS;
-    trace.heapsize      = options & TRACE_HEAP_SIZE;
-    trace.match         = options & TRACE_MATCH;
-    trace.executil      = options & TRACE_EXECUTIL;
+    trace.actions       = (options & TRACE_ACTIONS        ) != 0;
+    trace.check_actions = (options & TRACE_DO_ACTION_CHECK) != 0;
+    trace.dynamic       = (options & TRACE_DYNAMIC_CALLS  ) != 0;
+    trace.exceptions    = (options & TRACE_EXCEPTIONS     ) != 0;
+    trace.heapsize      = (options & TRACE_HEAP_SIZE      ) != 0;
+    trace.match         = (options & TRACE_MATCH          ) != 0;
+    trace.executil      = (options & TRACE_EXECUTIL       ) != 0;
 #ifdef TRACE_TRACE
     printf("END set_trace\n");
 #endif
@@ -1663,7 +1663,7 @@ void set_trace (uinttype options)
 
 
 
-#define DO_FLAG(bits) value |= (bits) & flag;  mask |= (bits);
+#define DO_FLAG(bits) *options = (*options & !(bits)) | (flag & (bits));
 
 
 
@@ -1672,8 +1672,6 @@ void mapTraceFlags (const_stritype trace_level, uinttype *options)
   {
     memsizetype position;
     uinttype flag = (uinttype) -1;
-    uinttype value = 0;
-    uinttype mask = 0;
 
   /* mapTraceFlags */
     if (trace_level != NULL) {
@@ -1695,9 +1693,6 @@ void mapTraceFlags (const_stritype trace_level, uinttype *options)
             break;
         } /* switch */
       } /* for */
-      /* printf("options before %x\n", *options); */
-      *options = (*options & !mask) | value;
-      /* printf("options after %x\n", *options); */
     } /* if */
   } /* mapTraceFlags */
 

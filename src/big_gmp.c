@@ -540,7 +540,7 @@ booltype bigEqSignedDigit (const const_biginttype big1, inttype number)
 
 
 static inline biginttype bigFromByteBufferBe (const memsizetype size,
-    const const_ustritype buffer, const booltype withSign)
+    const const_ustritype buffer, const booltype isSigned)
 
   {
     memsizetype pos;
@@ -549,10 +549,10 @@ static inline biginttype bigFromByteBufferBe (const memsizetype size,
     biginttype result;
 
   /* bigFromByteBufferBe */
-    /* printf("bigFromByteBufferBe(%lu, *, %d)\n", size, withSign); */
+    /* printf("bigFromByteBufferBe(%lu, *, %d)\n", size, isSigned); */
     ALLOC_BIG(result);
     mpz_init(result);
-    if (withSign && size != 0 && buffer[0] >= 128) {
+    if (isSigned && size != 0 && buffer[0] >= 128) {
       negated_buffer = malloc(size);
       carry = 1;
       pos = size;
@@ -574,7 +574,7 @@ static inline biginttype bigFromByteBufferBe (const memsizetype size,
 
 
 static inline biginttype bigFromByteBufferLe (const memsizetype size,
-    const const_ustritype buffer, const booltype withSign)
+    const const_ustritype buffer, const booltype isSigned)
 
   {
     memsizetype pos;
@@ -583,10 +583,10 @@ static inline biginttype bigFromByteBufferLe (const memsizetype size,
     biginttype result;
 
   /* bigFromByteBufferLe */
-    /* printf("bigFromByteBufferLe(%lu, *, %d)\n", size, withSign); */
+    /* printf("bigFromByteBufferLe(%lu, *, %d)\n", size, isSigned); */
     ALLOC_BIG(result);
     mpz_init(result);
-    if (withSign && size != 0 && buffer[size - 1] >= 128) {
+    if (isSigned && size != 0 && buffer[size - 1] >= 128) {
       negated_buffer = malloc(size);
       carry = 1;
       pos = 0;
@@ -609,32 +609,36 @@ static inline biginttype bigFromByteBufferLe (const memsizetype size,
 
 /**
  *  Convert a bstring (interpreted as big-endian) to a bigInteger.
- *  The 'bstri' is interpreted as twos-complement representation
- *  with a base of 256. The result is negative when the most significant
- *  byte (the first byte) has an ordinal >= 128.
- *  @param bstri Bstring that contains the data to be converted.
- *  @return a signed bigInteger created from the big-endian bytes.
+ *  @param bstri Bstring to be converted. The bytes are interpreted
+ *         as binary big-endian representation with a base of 256.
+ *  @param isSigned Defines if 'bstri' is interpreted as signed value.
+ *         When 'isSigned' is TRUE the twos-complement representation
+ *         is used. In this case the result is negative when the most
+ *         significant byte (the first byte) has an ordinal >= 128.
+ *  @return a bigInteger created from the big-endian bytes.
  */
-biginttype bigFromBStriBe (const const_bstritype bstri)
+biginttype bigFromBStriBe (const const_bstritype bstri, const booltype isSigned)
 
   { /* bigFromBStriBe */
-    return bigFromByteBufferBe(bstri->size, bstri->mem, TRUE);
+    return bigFromByteBufferBe(bstri->size, bstri->mem, isSigned);
   } /* bigFromBStriBe */
 
 
 
 /**
  *  Convert a bstring (interpreted as little-endian) to a bigInteger.
- *  The 'bstri' is interpreted as twos-complement representation
- *  with a base of 256. The result is negative when the most significant
- *  byte (the last byte) has an ordinal >= 128.
- *  @param bstri Bstring that contains the data to be converted.
- *  @return a signed bigInteger created from the little-endian bytes.
+ *  @param bstri Bstring to be converted. The bytes are interpreted
+ *         as binary little-endian representation with a base of 256.
+ *  @param isSigned Defines if 'bstri' is interpreted as signed value.
+ *         When 'isSigned' is TRUE the twos-complement representation
+ *         is used. In this case the result is negative when the most
+ *         significant byte (the last byte) has an ordinal >= 128.
+ *  @return a bigInteger created from the little-endian bytes.
  */
-biginttype bigFromBStriLe (const const_bstritype bstri)
+biginttype bigFromBStriLe (const const_bstritype bstri, const booltype isSigned)
 
   { /* bigFromBStriLe */
-    return bigFromByteBufferLe(bstri->size, bstri->mem, TRUE);
+    return bigFromByteBufferLe(bstri->size, bstri->mem, isSigned);
   } /* bigFromBStriLe */
 
 
@@ -1203,12 +1207,13 @@ biginttype bigParse (const const_stritype stri)
   {
     cstritype cstri;
     int mpz_result;
+    errinfotype err_info = OKAY_NO_ERROR;
     biginttype result;
 
   /* bigParse */
-    cstri = cp_to_cstri8(stri);
-    if (cstri == NULL) {
-      raise_error(MEMORY_ERROR);
+    cstri = stri_to_cstri(stri, &err_info);
+    if (unlikely(cstri == NULL)) {
+      raise_error(err_info);
       result = NULL;
     } else {
       ALLOC_BIG(result);
@@ -1217,14 +1222,12 @@ biginttype bigParse (const const_stritype stri)
       } else {
         mpz_result = mpz_init_set_str(result, cstri, 10);
       } /* if */
+      free_cstri(cstri, stri);
       if (mpz_result != 0) {
-        free_cstri(cstri, stri);
         mpz_clear(result);
         FREE_BIG(result);
         raise_error(RANGE_ERROR);
         result = NULL;
-      } else {
-        free_cstri(cstri, stri);
       } /* if */
     } /* if */
     return result;
@@ -1252,6 +1255,7 @@ biginttype bigParseBased (const const_stritype stri, inttype base)
   {
     cstritype cstri;
     int mpz_result;
+    errinfotype err_info = OKAY_NO_ERROR;
     biginttype result;
 
   /* bigParseBased */
@@ -1259,9 +1263,9 @@ biginttype bigParseBased (const const_stritype stri, inttype base)
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
-      cstri = cp_to_cstri8(stri);
-      if (cstri == NULL) {
-        raise_error(MEMORY_ERROR);
+      cstri = stri_to_cstri(stri, &err_info);
+      if (unlikely(cstri == NULL)) {
+        raise_error(err_info);
         result = NULL;
       } else {
         ALLOC_BIG(result);
@@ -1544,13 +1548,19 @@ biginttype bigSuccTemp (biginttype big1)
 
 
 /**
- *  Convert a 'bigInteger' into a little-endian 'bstring'.
- *  The result uses a twos-complement representation with a base of 256.
- *  For a negative 'number' the most significant byte of the result
- *  (the last byte) has an ordinal >= 128.
- *  @return a bstring with the little-endian representation.
+ *  Convert a 'bigInteger' into a big-endian 'bstring'.
+ *  The result uses binary representation with a base of 256.
+ *  @param big1 BigInteger number to be converted.
+ *  @param isSigned Determines the signedness of the result.
+ *         When 'isSigned' is TRUE the result is encoded with the
+ *         twos-complement representation. In this case a negative
+ *         'big1' is converted to a result where the most significant
+ *         byte (the first byte) has an ordinal >= 128.
+ *  @return a bstring with the big-endian representation.
+ *  @exception RANGE_ERROR When 'isSigned' is FALSE and 'big1' is negative.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-bstritype bigToBStriBe (const const_biginttype big1)
+bstritype bigToBStriBe (const const_biginttype big1, const booltype isSigned)
 
   {
     size_t count;
@@ -1572,20 +1582,30 @@ bstritype bigToBStriBe (const const_biginttype big1)
     } else {
       mpz_export(buffer, &export_count, 1, 1, 0, 0, big1);
       sign = mpz_sgn(big1);
-      if (sign < 0) {
-        carry = 1;
-        pos = export_count;
-        while (pos > 0) {
-          pos--;
-          carry += ~buffer[pos] & 0xFF;
-          buffer[pos] = (uchartype) (carry & 0xFF);
-          carry >>= 8;
-        } /* while */
-      } /* if */
-      result_size = count;
-      if ((sign > 0 && buffer[0] >= 128) ||
-          (sign < 0 && buffer[0] <= 127)) {
-        result_size++;
+      if (isSigned) {
+        if (sign < 0) {
+          carry = 1;
+          pos = export_count;
+          while (pos > 0) {
+            pos--;
+            carry += ~buffer[pos] & 0xFF;
+            buffer[pos] = (uchartype) (carry & 0xFF);
+            carry >>= 8;
+          } /* while */
+        } /* if */
+        result_size = count;
+        if ((sign > 0 && buffer[0] >= 128) ||
+            (sign < 0 && buffer[0] <= 127)) {
+          result_size++;
+        } /* if */
+      } else {
+        if (unlikely(sign < 0)) {
+          raise_error(RANGE_ERROR);
+          free(buffer);
+          return NULL;
+        } else {
+          result_size = count;
+        } /* if */
       } /* if */
       if (!ALLOC_BSTRI_CHECK_SIZE(result, result_size)) {
         raise_error(MEMORY_ERROR);
@@ -1595,17 +1615,19 @@ bstritype bigToBStriBe (const const_biginttype big1)
           result->mem[0] = 0;
         } else {
           charIndex = 0;
-          if (sign < 0) {
-            if (buffer[0] <= 127) {
-              result->mem[charIndex] = 255;
-              charIndex++;
+          if (isSigned) {
+            if (sign < 0) {
+              if (buffer[0] <= 127) {
+                result->mem[charIndex] = 255;
+                charIndex++;
+              } /* if */
+            } else {
+              if (buffer[0] >= 128) {
+                result->mem[charIndex] = 0;
+                charIndex++;
+              } /* if */
             } /* if */
-          } else {
-            if (buffer[0] >= 128) {
-              result->mem[charIndex] = 0;
-              charIndex++;
-            } /* if */
-          } /* for */
+          } /* if */
           memcpy(&result->mem[charIndex], buffer, export_count);
         } /* if */
       } /* if */
@@ -1617,13 +1639,19 @@ bstritype bigToBStriBe (const const_biginttype big1)
 
 
 /**
- *  Convert a 'bigInteger' into a big-endian 'bstring'.
- *  The result uses a twos-complement representation with a base of 256.
- *  For a negative 'number' the most significant byte of the result
- *  (the first byte) has an ordinal >= 128.
- *  @return a bstring with the big-endian representation.
+ *  Convert a 'bigInteger' into a little-endian 'bstring'.
+ *  The result uses binary representation with a base of 256.
+ *  @param big1 BigInteger number to be converted.
+ *  @param isSigned Determines the signedness of the result.
+ *         When 'isSigned' is TRUE the result is encoded with the
+ *         twos-complement representation. In this case a negative
+ *         'big1' is converted to a result where the most significant
+ *         byte (the last byte) has an ordinal >= 128.
+ *  @return a bstring with the little-endian representation.
+ *  @exception RANGE_ERROR When 'isSigned' is FALSE and 'big1' is negative.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-bstritype bigToBStriLe (const const_biginttype big1)
+bstritype bigToBStriLe (const const_biginttype big1, const booltype isSigned)
 
   {
     size_t count;
@@ -1644,20 +1672,30 @@ bstritype bigToBStriLe (const const_biginttype big1)
     } else {
       mpz_export(buffer, &export_count, -1, 1, 0, 0, big1);
       sign = mpz_sgn(big1);
-      if (sign < 0) {
-        carry = 1;
-        pos = 0;
-        while (pos < export_count) {
-          carry += ~buffer[pos] & 0xFF;
-          buffer[pos] = (uchartype) (carry & 0xFF);
-          carry >>= 8;
-          pos++;
-        } /* while */
-      } /* if */
-      result_size = count;
-      if ((sign > 0 && buffer[export_count - 1] >= 128) ||
-          (sign < 0 && buffer[export_count - 1] <= 127)) {
-        result_size++;
+      if (isSigned) {
+        if (sign < 0) {
+          carry = 1;
+          pos = 0;
+          while (pos < export_count) {
+            carry += ~buffer[pos] & 0xFF;
+            buffer[pos] = (uchartype) (carry & 0xFF);
+            carry >>= 8;
+            pos++;
+          } /* while */
+        } /* if */
+        result_size = count;
+        if ((sign > 0 && buffer[export_count - 1] >= 128) ||
+            (sign < 0 && buffer[export_count - 1] <= 127)) {
+          result_size++;
+        } /* if */
+      } else {
+        if (unlikely(sign < 0)) {
+          raise_error(RANGE_ERROR);
+          free(buffer);
+          return NULL;
+        } else {
+          result_size = count;
+        } /* if */
       } /* if */
       if (!ALLOC_BSTRI_CHECK_SIZE(result, result_size)) {
         raise_error(MEMORY_ERROR);
@@ -1667,15 +1705,17 @@ bstritype bigToBStriLe (const const_biginttype big1)
           result->mem[0] = 0;
         } else {
           memcpy(result->mem, buffer, export_count);
-          if (sign < 0) {
-            if (buffer[export_count - 1] <= 127) {
-              result->mem[export_count] = 255;
+          if (isSigned) {
+            if (sign < 0) {
+              if (buffer[export_count - 1] <= 127) {
+                result->mem[export_count] = 255;
+              } /* if */
+            } else {
+              if (buffer[export_count - 1] >= 128) {
+                result->mem[export_count] = 0;
+              } /* if */
             } /* if */
-          } else {
-            if (buffer[export_count - 1] >= 128) {
-              result->mem[export_count] = 0;
-            } /* if */
-          } /* for */
+          } /* if */
         } /* if */
       } /* if */
       free(buffer);

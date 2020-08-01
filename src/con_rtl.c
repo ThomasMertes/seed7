@@ -35,8 +35,8 @@
 #include "stdio.h"
 
 #include "common.h"
-#include "striutl.h"
 #include "heaputl.h"
+#include "striutl.h"
 #include "con_drv.h"
 
 #undef EXTERN
@@ -56,9 +56,9 @@ void conHScroll (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol, inttype count)
 
   { /* conHScroll */
-    if (count >= 0) {
+    if (count > 0) {
       conLeftScroll(startlin, startcol, stoplin, stopcol, count);
-    } else {
+    } else if (count < 0) {
       conRightScroll(startlin, startcol, stoplin, stopcol, -count);
     } /* if */
   } /* conHScroll */
@@ -79,15 +79,16 @@ void conVScroll (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol, inttype count)
 
   { /* conVScroll */
-    if (count >= 0) {
+    if (count > 0) {
       conUpScroll(startlin, startcol, stoplin, stopcol, count);
-    } else {
+    } else if (count < 0) {
       conDownScroll(startlin, startcol, stoplin, stopcol, -count);
     } /* if */
   } /* conVScroll */
 
 
 
+#ifdef CONSOLE_USES_CON_TEXT
 void conWrite (const_stritype stri)
 
   /* This function writes the string stri to the console at the     */
@@ -98,6 +99,7 @@ void conWrite (const_stritype stri)
 
   {
     memsizetype size;
+    errinfotype err_info = OKAY_NO_ERROR;
 
   /* conWrite */
     if (stri->size <= WRITE_STRI_BLOCK_SIZE) {
@@ -107,13 +109,12 @@ void conWrite (const_stritype stri)
       size = stri_to_utf8(stri_buffer, stri->mem, stri->size);
 #elif defined CONSOLE_WCHAR
       wchar_t stri_buffer[2 * WRITE_STRI_BLOCK_SIZE];
-      errinfotype err_info = OKAY_NO_ERROR;
 
       size = stri_to_wstri(stri_buffer, stri->mem, stri->size, &err_info);
 #else
-      uchartype stri_buffer[WRITE_STRI_BLOCK_SIZE];
+      uchartype stri_buffer[WRITE_STRI_BLOCK_SIZE + 1];
 
-      stri_compress(stri_buffer, stri->mem, stri->size);
+      conv_to_cstri(stri_buffer, stri->mem, stri->size, &err_info);
       size = stri->size;
 #endif
       conText(cursor_line, cursor_column, stri_buffer, size);
@@ -125,7 +126,7 @@ void conWrite (const_stritype stri)
 #elif defined CONSOLE_WCHAR
       bstri = stri_to_bstriw(stri);
 #else
-      bstri = stri_to_bstri(stri);
+      bstri = stri_to_bstri(stri, &err_info);
 #endif
       if (bstri != NULL) {
 #if defined CONSOLE_WCHAR
@@ -140,3 +141,4 @@ void conWrite (const_stritype stri)
     cursor_column = cursor_column + stri->size;
     conSetCursor(cursor_line, cursor_column);
   } /* conWrite */
+#endif

@@ -190,7 +190,7 @@ static void removeCheck (const poll_based_polltype pollData, short eventsToCheck
         (inttype) (memsizetype) aSocket, (comparetype) &genericCmp);
     if (pos != pollData->size) {
       aPollFd = &pollData->pollFds[pos];
-      aPollFd->events &= ~eventsToCheck;
+      aPollFd->events &= (short) ~eventsToCheck;
       if (aPollFd->events == 0) {
         fileObjectOps.decrUsageCount(pollData->pollFiles[pos]);
         if (pos + 1 <= pollData->iterPos) {
@@ -741,7 +741,9 @@ void polPoll (const polltype pollData)
   /* polPoll */
     /* printf("begin polPoll:\n");
        dumpPoll(pollData); */
-    poll_result = os_poll(conv(pollData)->pollFds, conv(pollData)->size, -1); /* &timeout); */
+    do {
+      poll_result = os_poll(conv(pollData)->pollFds, conv(pollData)->size, -1); /* &timeout); */
+    } while (unlikely(poll_result == -1 && errno == EINTR));
     if (unlikely(poll_result < 0)) {
       /* printf("errno=%d\n", errno);
       printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  ENOTDIR=%d  EROFS=%d\n",

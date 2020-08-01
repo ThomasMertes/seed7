@@ -173,6 +173,42 @@ objecttype int_bit_length (listtype arguments)
 
 
 /**
+ *  Convert a string of bytes (interpreted as big-endian) to an integer.
+ *  @param byteStri/arg_1 String of bytes interpreted as big-endian binary integer.
+ *  @return a non-negative integer created from the big-endian bytes.
+ *  @exception RANGE_ERROR When characters beyond '\255\' are present or
+ *             when the string is too long to fit into an integer or
+ *             when the result would be negative.
+ */
+objecttype int_bytes_be_2_uint (listtype arguments)
+
+  { /* int_bytes_be_2_uint */
+    isit_stri(arg_1(arguments));
+    return bld_int_temp(
+        intBytesBe2UInt(take_stri(arg_1(arguments))));
+  } /* int_bytes_be_2_uint */
+
+
+
+/**
+ *  Convert a string of bytes (interpreted as little-endian) to an integer.
+ *  @param byteStri/arg_1 String of bytes interpreted as little-endian binary integer.
+ *  @return a non-negative integer created from the little-endian bytes.
+ *  @exception RANGE_ERROR When characters beyond '\255\' are present or
+ *             when the string is too long to fit into an integer or
+ *             when the result would be negative.
+ */
+objecttype int_bytes_le_2_uint (listtype arguments)
+
+  { /* int_bytes_le_2_uint */
+    isit_stri(arg_1(arguments));
+    return bld_int_temp(
+        intBytesLe2UInt(take_stri(arg_1(arguments))));
+  } /* int_bytes_le_2_uint */
+
+
+
+/**
  *  Compare two integer numbers.
  *  @return -1, 0 or 1 if the first argument is considered to be
  *          respectively less than, equal to, or greater than the

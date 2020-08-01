@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2013  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2014  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -69,7 +69,7 @@ char *stack_base;
 memsizetype max_stack_size = 0;
 #endif
 
-#define VERSION_INFO "SEED7 INTERPRETER Version 5.0.%d  Copyright (c) 1990-2013 Thomas Mertes\n"
+#define VERSION_INFO "SEED7 INTERPRETER Version 5.0.%d  Copyright (c) 1990-2014 Thomas Mertes\n"
 
 
 
@@ -122,9 +122,7 @@ static void processOptions (rtlArraytype arg_v)
   {
     int position;
     stritype opt;
-    cstritype cstri_opt;
-    const_cstritype comp_trace_level = NULL;
-    const_cstritype exec_trace_level = NULL;
+    stritype trace_level;
     int verbosity_level = 1;
     rtlArraytype seed7_libraries;
     rtlObjecttype path_obj;
@@ -151,7 +149,12 @@ static void processOptions (rtlArraytype arg_v)
               option.analyze_only = TRUE;
               break;
             case 'd':
-              comp_trace_level = "a";
+              if (ALLOC_STRI_SIZE_OK(trace_level, 1)) {
+                trace_level->mem[0] = 'a';
+                trace_level->size = 1;
+                mapTraceFlags(trace_level, &option.parser_options);
+                FREE_STRI(trace_level, 1);
+              } /* if */
               break;
             case 'h':
             case '?':
@@ -177,7 +180,12 @@ static void processOptions (rtlArraytype arg_v)
               option.catch_signals = FALSE;
               break;
             case 't':
-              exec_trace_level = "a";
+              if (ALLOC_STRI_SIZE_OK(trace_level, 1)) {
+                trace_level->mem[0] = 'a';
+                trace_level->size = 1;
+                mapTraceFlags(trace_level, &option.exec_options);
+                FREE_STRI(trace_level, 1);
+              } /* if */
               break;
             case 'v':
               verbosity_level = 2;
@@ -211,23 +219,21 @@ static void processOptions (rtlArraytype arg_v)
         } else if (opt->size >= 3 && opt->mem[0] == '-') {
           switch (opt->mem[1]) {
             case 'd':
-              if (ALLOC_CSTRI(cstri_opt, opt->size - 2)) {
-                stri_compress((ustritype) cstri_opt,
-                    &opt->mem[2], opt->size - 2);
-                cstri_opt[opt->size - 2] = '\0';
-                comp_trace_level = cstri_opt;
-              } else {
-                comp_trace_level = "";
+              if (ALLOC_STRI_SIZE_OK(trace_level, opt->size - 2)) {
+                memcpy(trace_level->mem, &opt->mem[2],
+                       (opt->size - 2) * sizeof(strelemtype));
+                trace_level->size = opt->size - 2;
+                mapTraceFlags(trace_level, &option.parser_options);
+                FREE_STRI(trace_level, 1);
               } /* if */
               break;
             case 't':
-              if (ALLOC_CSTRI(cstri_opt, opt->size - 2)) {
-                stri_compress((ustritype) cstri_opt,
-                    &opt->mem[2], opt->size - 2);
-                cstri_opt[opt->size - 2] = '\0';
-                exec_trace_level = cstri_opt;
-              } else {
-                exec_trace_level = "";
+              if (ALLOC_STRI_SIZE_OK(trace_level, opt->size - 2)) {
+                memcpy(trace_level->mem, &opt->mem[2],
+                       (opt->size - 2) * sizeof(strelemtype));
+                trace_level->size = opt->size - 2;
+                mapTraceFlags(trace_level, &option.exec_options);
+                FREE_STRI(trace_level, 1);
               } /* if */
               break;
             case 'v':
@@ -264,8 +270,6 @@ static void processOptions (rtlArraytype arg_v)
         } /* if */
       } /* if */
     } /* for */
-    mapTraceFlags2(comp_trace_level, &option.parser_options);
-    mapTraceFlags2(exec_trace_level, &option.exec_options);
     option.seed7_libraries = seed7_libraries;
     if (verbosity_level >= 1) {
       if (verbosity_level >= 2) {

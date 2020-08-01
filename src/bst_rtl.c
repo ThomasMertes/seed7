@@ -291,27 +291,25 @@ inttype bstHashCode (const const_bstritype bstri)
 bstritype bstParse (const const_stritype stri)
 
   {
-    memsizetype len;
-    const strelemtype *strelem;
-    uchartype *bstrelem;
+    register const strelemtype *str;
+    register uchartype *ustri;
+    register memsizetype pos;
     bstritype result;
 
   /* bstParse */
-    len = stri->size;
-    if (unlikely(!ALLOC_BSTRI_CHECK_SIZE(result, len))) {
+    if (unlikely(!ALLOC_BSTRI_CHECK_SIZE(result, stri->size))) {
       raise_error(MEMORY_ERROR);
     } else {
-      result->size = len;
-      for (bstrelem = result->mem, strelem = stri->mem;
-           len > 0; bstrelem++, strelem++, len--) {
-        if (unlikely(*strelem >= 256)) {
+      result->size = stri->size;
+      str = stri->mem;
+      ustri = result->mem;
+      for (pos = 0; pos < stri->size; pos++) {
+        if (unlikely(str[pos] >= 256)) {
           FREE_BSTRI(result, result->size);
-          result = NULL;
           raise_error(RANGE_ERROR);
-          len = 0;
-        } else {
-          *bstrelem = (uchartype) *strelem;
+          return NULL;
         } /* if */
+        ustri[pos] = (uchartype) str[pos];
       } /* for */
     } /* if */
     return result;

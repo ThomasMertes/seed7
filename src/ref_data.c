@@ -167,12 +167,13 @@ inttype refCatParse (stritype category_name)
 
   {
     cstritype name;
+    errinfotype err_info = OKAY_NO_ERROR;
     inttype result;
 
   /* refCatParse */
-    name = cp_to_cstri8(category_name);
+    name = stri_to_cstri(category_name, &err_info);
     if (name == NULL) {
-      raise_error(MEMORY_ERROR);
+      raise_error(err_info);
       result = -1;
     } else {
       result = category_value(name);

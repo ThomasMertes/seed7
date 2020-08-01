@@ -26,6 +26,9 @@
 (********************************************************************)
 
 
+include "bigint.s7i";
+
+
 (**
  *  Type for byte strings.
  *)
@@ -119,3 +122,85 @@ const proc: for (inout char: variable) range (in bstring: bstri) do
       statements;
     end for;
   end func;
+
+
+(**
+ *  Convert an [[integer]] into a big-endian [[bstring]].
+ *  The result uses a twos-complement representation with a base of 256.
+ *  For a negative ''number'' the most significant byte of the result
+ *  (the first byte) has an ordinal >= 128.
+ *  @return a bstring with the big-endian representation.
+ *)
+const func bstring: bStriBe (in integer: number)              is action "INT_TO_BSTRI_BE";
+
+
+(**
+ *  Convert an [[integer]] into a little-endian [[bstring]].
+ *  The result uses a twos-complement representation with a base of 256.
+ *  For a negative ''number'' the most significant byte of the result
+ *  (the last byte) has an ordinal >= 128.
+ *  @return a bstring with the little-endian representation.
+ *)
+const func bstring: bStriLe (in integer: number)              is action "INT_TO_BSTRI_LE";
+
+
+(**
+ *  Convert a [[bstring]] (interpreted as big-endian) to a [[bigint|bigInteger]].
+ *  @param bstri Bstring to be converted. The bytes are interpreted
+ *         as binary big-endian representation with a base of 256.
+ *  @param isSigned Defines if ''bstri'' is interpreted as signed value.
+ *         When ''isSigned'' is TRUE the twos-complement representation
+ *         is used. In this case the result is negative when the most
+ *         significant byte (the first byte) has an ordinal >= 128.
+ *  @return a bigInteger created from the big-endian bytes.
+ *)
+const func bigInteger: bStriBe2BigInt (in bstring: bstri,
+    in boolean: isSigned)                                     is action "BIG_FROM_BSTRI_BE";
+
+
+(**
+ *  Convert a [[bstring]] (interpreted as little-endian) to a [[bigint|bigInteger]].
+ *  @param bstri Bstring to be converted. The bytes are interpreted
+ *         as binary little-endian representation with a base of 256.
+ *  @param isSigned Defines if ''bstri'' is interpreted as signed value.
+ *         When ''isSigned'' is TRUE the twos-complement representation
+ *         is used. In this case the result is negative when the most
+ *         significant byte (the last byte) has an ordinal >= 128.
+ *  @return a bigInteger created from the little-endian bytes.
+ *)
+const func bigInteger: bStriLe2BigInt (in bstring: bstri,
+    in boolean: isSigned)                                     is action "BIG_FROM_BSTRI_LE";
+
+
+(**
+ *  Convert a [[bigint|bigInteger]] into a big-endian [[bstring]].
+ *  The result uses binary representation with a base of 256.
+ *  @param number BigInteger number to be converted.
+ *  @param isSigned Determines the signedness of the result.
+ *         When ''isSigned'' is TRUE the result is encoded with the
+ *         twos-complement representation. In this case a negative
+ *         ''number'' is converted to a result where the most significant
+ *         byte (the first byte) has an ordinal >= 128.
+ *  @return a bstring with the big-endian representation.
+ *  @exception RANGE_ERROR When ''isSigned'' is FALSE and ''number'' is negative.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func bstring: bStriBe (in bigInteger: number,
+    in boolean: isSigned)                                     is action "BIG_TO_BSTRI_BE";
+
+
+(**
+ *  Convert a [[bigint|bigInteger]] into a little-endian [[bstring]].
+ *  The result uses binary representation with a base of 256.
+ *  @param number BigInteger number to be converted.
+ *  @param isSigned Determines the signedness of the result.
+ *         When ''isSigned'' is TRUE the result is encoded with the
+ *         twos-complement representation. In this case a negative
+ *         ''number'' is converted to a result where the most significant
+ *         byte (the last byte) has an ordinal >= 128.
+ *  @return a bstring with the little-endian representation.
+ *  @exception RANGE_ERROR When ''isSigned'' is FALSE and ''number'' is negative.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func bstring: bStriLe (in bigInteger: number,
+    in boolean: isSigned)                                     is action "BIG_TO_BSTRI_LE";

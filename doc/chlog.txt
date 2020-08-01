@@ -1,3 +1,78 @@
+20140202:
+- The manual chapter describing the foreign function interface has
+  been improved.
+- The handling of Unicode in the console has been improved. Cursor
+  positioning and writing Unicode strings to the desired position
+  works now also under Linux.
+- A strict checking of all strings, that are passed to C functions,
+  has been introduced. Zero bytes and non Unicode characters in the
+  original string raise the exception RANGE_ERROR now.
+- The performance of several loops in the runtime library has been
+  improved. Now the loops use indices instead of pointer increments
+  and they work downward towards an index of zero. This allows C
+  compilers to do more optimizations (verified with gcc and
+  valgrind).
+- The enumeration types signedness and endianess have been added to
+  bytedata.s7c.
+- The conversion functions bytes, bytes2Int and bytes2BigInt have
+  been added to bytedata.s7c. The new function allow conversions
+  to and from signed and unsigned byte strings with big- and
+  little-endian byte order. This functions replace the less flexible
+  functions bytesLe2Int, bytesBe2Int, bytesLe and bytesBe.
+- The functions bStriBe, bStriLe, bStriBe2BigInt and bStriLe2BigInt
+  have been moved from bytedata.s7c to bstring.s7i.
+- The performance of the functions int16AsTwoBytesLe,
+  int32AsFourBytesLe, int64AsEightBytesLe int16AsTwoBytesBe,
+  int32AsFourBytesBe and int64AsEightBytesBe has been improved.
+- Documentation comments have been added or improved in cc_conf.s7i,
+  bytedata.s7i, environment.s7i, sockbase.s7i, actutl.c, big_rtl.c,
+  big_gmp.c, biglib.c cmd_rtl.c, con_inf.c, con_win.c, con_wat.c,
+  int_rtl.c, intlib.c, soc_rtl.c, striutl.c and syvarutl.c.
+- The program chk_all.sd7 has been improved to check several
+  compiler options and to allow that the output of interpreted and
+  compiled compiler differs. The difference of the generated C code
+  is okay, when the execution of the compiled programs results in
+  the same output.
+- The compiler (s7c) has been improved to do more optimizations for
+  the action BIG_REM (operator rem).
+- The compiler has been improved to count inserted and suppressed
+  range checks.
+- Interpreter, compiler and runtime library have been improved to
+  allow bstrings with slices. This is used by the compiler to
+  reduce the memory used for constant bstrings.
+- The compiler has been improved to store the data of constant
+  bigIntegers in bstrings.
+- Checks for div, rem, mdiv and mod have been added to chkbig.sd7.
+- Checks for float division by zero have been added to chkexc.sd7.
+- Checks for float parse have been added to chkflt.sd7.
+- In con_inf.c, con_win.c and con_wat.c the function conText has
+  been replaced by conWrite. ConWrite takes an UTF-32 string and
+  writes it to the console. If stdout is redirected an UTF-8 string
+  is written to the destination file.
+- The function gen_act_ptr_table has been added to actutl.c. This
+  function creates act_ptr_table and removes double entries from it.
+- The functions intBytesBe2UInt and intBytesLe2UInt have been added
+  to int_rtl.c.
+- Interpreter and compiler have been improved to support the new
+  actions INT_BYTES_BE_2_UINT and INT_BYTES_LE_2_UINT.
+- Checks for the function sigaction() and for integer division and
+  remainder have been added to chkccomp.c.
+- The configuration values ALLOW_BSTRITYPE_SLICES,
+  CHECK_INT_REM_BY_ZERO and CHECK_INT_REM_ZERO_BY_ZERO have been
+  added to cc_conf.s7i, chkccomp.c, cmd_rtl.c and s7c.sd7.
+- Several versions of timAwait in tim_unx.c have been improved to
+  restart calls of poll(), ppoll() and select().
+- A check for the character '=' in the environment variable name has
+  been added to the function cmdSetenv (in cmd_rtl.c).
+- In striutl.c the functions stri_compress, stri_export_utf8 and
+  cp_to_cstri8 have been improved and renamed to conv_to_cstri
+  conv_to_cstri8 and stri_to_cstri8 respectively. Interpreter and
+  runtime library have been improved to use the new function names.
+- The function stri_to_cstri and the macro free_cstri8 have been
+  added to striutl.c.
+- The functions conv_to_cstri, conv_to_cstri8, stri_to_cstri8 and
+  stri_to_bstri have been improved to use an err_info parameter.
+
 20140119:
 - The library tdes.s7i with TDES (Triple DES respectively 3DES)
   cipher support has been added.

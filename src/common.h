@@ -56,15 +56,25 @@ typedef int booltype;
 typedef signed char        int8type;
 typedef unsigned char      uint8type;
 
+#define INT8TYPE_MAX        127
+#define INT8TYPE_MIN      (-128)
+#define UINT8TYPE_MAX      0xff
+
+
 typedef short int          int16type;
 typedef unsigned short int uint16type;
+
+#define INT16TYPE_MAX     32767
+#define INT16TYPE_MIN   (-32768)
+#define UINT16TYPE_MAX   0xffff
 
 
 typedef INT32TYPE          int32type;
 typedef UINT32TYPE         uint32type;
 
 #ifdef INT32TYPE_SUFFIX_L
-#define INT32_SUFFIX(num) num ## L
+#define INT32_SUFFIX(num)  num ## L
+#define UINT32_SUFFIX(num) num ## UL
 #define INT32TYPE_LITERAL_SUFFIX "L"
 #define INT32TYPE_MAX                2147483647L
 #ifdef TWOS_COMPLEMENT_INTTYPE
@@ -74,7 +84,8 @@ typedef UINT32TYPE         uint32type;
 #endif
 #define UINT32TYPE_MAX ((uint32type) 0xffffffffL)
 #else
-#define INT32_SUFFIX(num) num
+#define INT32_SUFFIX(num)  num
+#define UINT32_SUFFIX(num) num ## U
 #define INT32TYPE_LITERAL_SUFFIX ""
 #define INT32TYPE_MAX                2147483647
 #ifdef TWOS_COMPLEMENT_INTTYPE
@@ -97,7 +108,8 @@ typedef INT64TYPE          int64type;
 typedef UINT64TYPE         uint64type;
 
 #if   defined INT64TYPE_SUFFIX_LL
-#define INT64_SUFFIX(num) num ## LL
+#define INT64_SUFFIX(num)  num ## LL
+#define UINT64_SUFFIX(num) num ## ULL
 #define INT64TYPE_LITERAL_SUFFIX "LL"
 #define INT64TYPE_MAX                 9223372036854775807LL
 #ifdef TWOS_COMPLEMENT_INTTYPE
@@ -107,7 +119,8 @@ typedef UINT64TYPE         uint64type;
 #endif
 #define UINT64TYPE_MAX ((uint64type)   0xffffffffffffffffLL)
 #elif defined INT64TYPE_SUFFIX_L
-#define INT64_SUFFIX(num) num ## L
+#define INT64_SUFFIX(num)  num ## L
+#define UINT64_SUFFIX(num) num ## UL
 #define INT64TYPE_LITERAL_SUFFIX "L"
 #define INT64TYPE_MAX                 9223372036854775807L
 #ifdef TWOS_COMPLEMENT_INTTYPE
@@ -117,7 +130,8 @@ typedef UINT64TYPE         uint64type;
 #endif
 #define UINT64TYPE_MAX ((uint64type)   0xffffffffffffffffL)
 #else
-#define INT64_SUFFIX(num) num
+#define INT64_SUFFIX(num)  num
+#define UINT64_SUFFIX(num) num ## U
 #define INT64TYPE_LITERAL_SUFFIX ""
 #define INT64TYPE_MAX                 9223372036854775807
 #ifdef TWOS_COMPLEMENT_INTTYPE
@@ -146,6 +160,7 @@ typedef UINT64TYPE         uint64type;
 typedef int32type               inttype;
 typedef uint32type              uinttype;
 #define INT_SUFFIX(num)         INT32_SUFFIX(num)
+#define UINT_SUFFIX(num)        UINT32_SUFFIX(num)
 #define INTTYPE_LITERAL_SUFFIX  INT32TYPE_LITERAL_SUFFIX
 #define INTTYPE_MIN             INT32TYPE_MIN
 #define INTTYPE_MAX             INT32TYPE_MAX
@@ -158,6 +173,7 @@ typedef uint32type              uinttype;
 typedef int64type               inttype;
 typedef uint64type              uinttype;
 #define INT_SUFFIX(num)         INT64_SUFFIX(num)
+#define UINT_SUFFIX(num)        UINT64_SUFFIX(num)
 #define INTTYPE_LITERAL_SUFFIX  INT64TYPE_LITERAL_SUFFIX
 #define INTTYPE_MIN             INT64TYPE_MIN
 #define INTTYPE_MAX             INT64TYPE_MAX
@@ -361,7 +377,7 @@ typedef struct stristruct {
 
 typedef struct bstristruct {
     memsizetype size;
-#ifdef MMAP_ABLE_BSTRI
+#ifdef ALLOW_BSTRITYPE_SLICES
     uchartype *mem;
     uchartype  mem1[1];
 #else

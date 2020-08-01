@@ -1165,7 +1165,7 @@ inttype strChIPos (const const_stritype mainStri, const chartype searched,
 stritype strChMult (const chartype ch, const inttype factor)
 
   {
-    inttype number;
+    inttype pos;
     strelemtype *result_pointer;
     stritype result;
 
@@ -1184,8 +1184,8 @@ stritype strChMult (const chartype ch, const inttype factor)
       } else {
         result->size = (memsizetype) factor;
         result_pointer = result->mem;
-        for (number = factor; number > 0; number--) {
-          *result_pointer++ = (strelemtype) ch;
+        for (pos = factor; pos > 0; pos--) {
+          result_pointer[pos - 1] = (strelemtype) ch;
         } /* for */
       } /* if */
     } /* if */
@@ -1452,35 +1452,39 @@ stritype strConcatN (const const_stritype striArray[], memsizetype arraySize)
 
   {
     memsizetype pos;
-    memsizetype result_size = 0;
+    memsizetype result_size;
+    memsizetype size_limit = MAX_STRI_LEN;
+    memsizetype elem_size;
+    strelemtype *dest;
     stritype result;
 
   /* strConcatN */
 #ifdef TRACE_STR_RTL
     printf("strConcatN(%lu)\n", arraySize);
 #endif
-    for (pos = 0; pos < arraySize; pos++) {
-      /* printf("arr[%lu]->size=%lu\n", pos, striArray[pos]->size);
-      printf("arr[%lu]=(%08lx) ", pos, striArray[pos]);
-      prot_stri(striArray[pos]);
+    for (pos = arraySize; pos > 0; pos--) {
+      /* printf("arr[%lu]->size=%lu\n", pos, striArray[pos - 1]->size);
+      printf("arr[%lu]=(%08lx) ", pos, striArray[pos - 1]);
+      prot_stri(striArray[pos - 1]);
       printf("\n"); */
-      if (unlikely(result_size > MAX_STRI_LEN - striArray[pos]->size)) {
+      if (unlikely(striArray[pos - 1]->size > size_limit)) {
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
-        result_size += striArray[pos]->size;
+        size_limit -= striArray[pos - 1]->size;
       } /* if */
     } /* for */
+    result_size = MAX_STRI_LEN - size_limit;
     /* printf("result_size=%lu\n", result_size); */
     if (unlikely(!ALLOC_STRI_SIZE_OK(result, result_size))) {
       raise_error(MEMORY_ERROR);
     } else {
       result->size = result_size;
-      result_size = 0;
+      dest = result->mem;
       for (pos = 0; pos < arraySize; pos++) {
-        memcpy(&result->mem[result_size], striArray[pos]->mem,
-            striArray[pos]->size * sizeof(strelemtype));
-        result_size += striArray[pos]->size;
+        elem_size = striArray[pos]->size;
+        memcpy(dest, striArray[pos]->mem, elem_size * sizeof(strelemtype));
+        dest += elem_size;
       } /* for */
     } /* if */
 #ifdef TRACE_STR_RTL
@@ -1799,17 +1803,9 @@ booltype strGe (const const_stritype stri1, const const_stritype stri2)
 
   { /* strGe */
     if (stri1->size >= stri2->size) {
-      if (strelem_memcmp(stri1->mem, stri2->mem, stri2->size) >= 0) {
-        return TRUE;
-      } else {
-        return FALSE;
-      } /* if */
+      return strelem_memcmp(stri1->mem, stri2->mem, stri2->size) >= 0;
     } else {
-      if (strelem_memcmp(stri1->mem, stri2->mem, stri1->size) > 0) {
-        return TRUE;
-      } else {
-        return FALSE;
-      } /* if */
+      return strelem_memcmp(stri1->mem, stri2->mem, stri1->size) > 0;
     } /* if */
   } /* strGe */
 
@@ -1824,17 +1820,9 @@ booltype strGt (const const_stritype stri1, const const_stritype stri2)
 
   { /* strGt */
     if (stri1->size > stri2->size) {
-      if (strelem_memcmp(stri1->mem, stri2->mem, stri2->size) >= 0) {
-        return TRUE;
-      } else {
-        return FALSE;
-      } /* if */
+      return strelem_memcmp(stri1->mem, stri2->mem, stri2->size) >= 0;
     } else {
-      if (strelem_memcmp(stri1->mem, stri2->mem, stri1->size) > 0) {
-        return TRUE;
-      } else {
-        return FALSE;
-      } /* if */
+      return strelem_memcmp(stri1->mem, stri2->mem, stri1->size) > 0;
     } /* if */
   } /* strGt */
 
@@ -2138,17 +2126,9 @@ booltype strLe (const const_stritype stri1, const const_stritype stri2)
 
   { /* strLe */
     if (stri1->size <= stri2->size) {
-      if (strelem_memcmp(stri1->mem, stri2->mem, stri1->size) <= 0) {
-        return TRUE;
-      } else {
-        return FALSE;
-      } /* if */
+      return strelem_memcmp(stri1->mem, stri2->mem, stri1->size) <= 0;
     } else {
-      if (strelem_memcmp(stri1->mem, stri2->mem, stri2->size) < 0) {
-        return TRUE;
-      } else {
-        return FALSE;
-      } /* if */
+      return strelem_memcmp(stri1->mem, stri2->mem, stri2->size) < 0;
     } /* if */
   } /* strLe */
 
@@ -2446,17 +2426,9 @@ booltype strLt (const const_stritype stri1, const const_stritype stri2)
 
   { /* strLt */
     if (stri1->size < stri2->size) {
-      if (strelem_memcmp(stri1->mem, stri2->mem, stri1->size) <= 0) {
-        return TRUE;
-      } else {
-        return FALSE;
-      } /* if */
+      return strelem_memcmp(stri1->mem, stri2->mem, stri1->size) <= 0;
     } else {
-      if (strelem_memcmp(stri1->mem, stri2->mem, stri2->size) < 0) {
-        return TRUE;
-      } else {
-        return FALSE;
-      } /* if */
+      return strelem_memcmp(stri1->mem, stri2->mem, stri2->size) < 0;
     } /* if */
   } /* strLt */
 
@@ -2533,7 +2505,7 @@ stritype strMult (const const_stritype stri, const inttype factor)
           if (len == 1) {
             ch = stri->mem[0];
             for (number = factor; number > 0; number--) {
-              *result_pointer++ = ch;
+              result_pointer[number - 1] = ch;
             } /* for */
           } else {
             for (number = factor; number > 0; number--) {
@@ -3733,8 +3705,8 @@ stritype strToUtf8 (const const_stritype stri)
 
   {
     register strelemtype *dest;
-    register const strelemtype *source;
-    memsizetype len;
+    register strelemtype ch;
+    register memsizetype pos;
     memsizetype result_size;
     stritype resized_result;
     stritype result;
@@ -3746,35 +3718,40 @@ stritype strToUtf8 (const const_stritype stri)
       result = NULL;
     } else {
       dest = result->mem;
-      source = stri->mem;
-      for (len = stri->size; len > 0; source++, len--) {
-        if (*source <= 0x7F) {
-          *dest++ = *source;
-        } else if (*source <= 0x7FF) {
-          *dest++ = 0xC0 | ( *source >>  6);
-          *dest++ = 0x80 | ( *source        & 0x3F);
-        } else if (*source <= 0xFFFF) {
-          *dest++ = 0xE0 | ( *source >> 12);
-          *dest++ = 0x80 | ((*source >>  6) & 0x3F);
-          *dest++ = 0x80 | ( *source        & 0x3F);
-        } else if (*source <= 0x1FFFFF) {
-          *dest++ = 0xF0 | ( *source >> 18);
-          *dest++ = 0x80 | ((*source >> 12) & 0x3F);
-          *dest++ = 0x80 | ((*source >>  6) & 0x3F);
-          *dest++ = 0x80 | ( *source        & 0x3F);
-        } else if (*source <= 0x3FFFFFF) {
-          *dest++ = 0xF8 | ( *source >> 24);
-          *dest++ = 0x80 | ((*source >> 18) & 0x3F);
-          *dest++ = 0x80 | ((*source >> 12) & 0x3F);
-          *dest++ = 0x80 | ((*source >>  6) & 0x3F);
-          *dest++ = 0x80 | ( *source        & 0x3F);
+      for (pos = 0; pos < stri->size; pos++) {
+        ch = stri->mem[pos];
+        if (ch <= 0x7F) {
+          *dest++ = ch;
+        } else if (ch <= 0x7FF) {
+          dest[0] = 0xC0 | ( ch >>  6);
+          dest[1] = 0x80 | ( ch        & 0x3F);
+          dest += 2;
+        } else if (ch <= 0xFFFF) {
+          dest[0] = 0xE0 | ( ch >> 12);
+          dest[1] = 0x80 | ((ch >>  6) & 0x3F);
+          dest[2] = 0x80 | ( ch        & 0x3F);
+          dest += 3;
+        } else if (ch <= 0x1FFFFF) {
+          dest[0] = 0xF0 | ( ch >> 18);
+          dest[1] = 0x80 | ((ch >> 12) & 0x3F);
+          dest[2] = 0x80 | ((ch >>  6) & 0x3F);
+          dest[3] = 0x80 | ( ch        & 0x3F);
+          dest += 4;
+        } else if (ch <= 0x3FFFFFF) {
+          dest[0] = 0xF8 | ( ch >> 24);
+          dest[1] = 0x80 | ((ch >> 18) & 0x3F);
+          dest[2] = 0x80 | ((ch >> 12) & 0x3F);
+          dest[3] = 0x80 | ((ch >>  6) & 0x3F);
+          dest[4] = 0x80 | ( ch        & 0x3F);
+          dest += 5;
         } else {
-          *dest++ = 0xFC | ( *source >> 30);
-          *dest++ = 0x80 | ((*source >> 24) & 0x3F);
-          *dest++ = 0x80 | ((*source >> 18) & 0x3F);
-          *dest++ = 0x80 | ((*source >> 12) & 0x3F);
-          *dest++ = 0x80 | ((*source >>  6) & 0x3F);
-          *dest++ = 0x80 | ( *source        & 0x3F);
+          dest[0] = 0xFC | ( ch >> 30);
+          dest[1] = 0x80 | ((ch >> 24) & 0x3F);
+          dest[2] = 0x80 | ((ch >> 18) & 0x3F);
+          dest[3] = 0x80 | ((ch >> 12) & 0x3F);
+          dest[4] = 0x80 | ((ch >>  6) & 0x3F);
+          dest[5] = 0x80 | ( ch        & 0x3F);
+          dest += 6;
         } /* if */
       } /* for */
       result_size = (memsizetype) (dest - result->mem);

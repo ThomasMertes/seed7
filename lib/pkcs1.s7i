@@ -122,7 +122,7 @@ const func string: int2Octets (in bigInteger: number, in integer: length) is fun
   result
     var string: stri is "";
   begin
-    stri := bytesBe(number);
+    stri := bytes(number, SIGNED, BE);
     if length(stri) < length then
       stri := "\0\" mult (length - length(stri)) & stri;
     elsif length(stri) = succ(length) and stri[1] = '\0\' then
@@ -140,8 +140,7 @@ const func string: int2Octets (in bigInteger: number, in integer: length) is fun
  *  @exception RANGE_ERROR When characters beyond '\255\' are present.
  *)
 const func bigInteger: octets2int (in string: stri) is
-  # Add a leading '\0\' to make sure that a nonnegative integer is created.
-  return bytesBe2BigInt("\0\" & stri);
+  return bytes2BigInt(stri, UNSIGNED, BE);
 
 
 (**
@@ -408,7 +407,7 @@ const func string: rsaEncryptBytes (in rsaKey: encryptionKey, in string: message
   result
     var string: ciphertext is "";
   begin
-    ciphertext := bytesBe(rsaEncrypt(encryptionKey, octets2int("\1\\255\\255\\0\" & message)));
+    ciphertext := bytes(rsaEncrypt(encryptionKey, octets2int("\1\\255\\255\\0\" & message)), SIGNED, BE);
   end func;
 
 
@@ -418,7 +417,7 @@ const func string: rsaDecryptBytes (in rsaKey: decryptionKey, in string: ciphert
   local
     var integer: pos is 0;
   begin
-    message := bytesBe(rsaDecrypt(decryptionKey, octets2int(ciphertext)));
+    message := bytes(rsaDecrypt(decryptionKey, octets2int(ciphertext)), SIGNED, BE);
     if startsWith(message, "\1\") then
       pos := 2;
       while pos <= length(message) and message[pos] <> '\0\' do

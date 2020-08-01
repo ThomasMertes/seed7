@@ -1293,6 +1293,20 @@ const proc: check_float is func
     end block;
 
     block
+      f_num  := 1.0 / -0.0;
+      if f_num = -Infinity then
+        incr(number);
+      else
+        writeln(" ***** 1.0 / -0.0 did not deliver -Infinity");
+        okay := FALSE;
+      end if;
+    exception
+      catch NUMERIC_ERROR:
+        writeln(" ***** 1.0 / -0.0 raises NUMERIC_ERROR");
+        okay := FALSE;
+    end block;
+
+    block
       f_num  := -1.0 / 0.0;
       if f_num = -Infinity then
         incr(number);
@@ -1307,6 +1321,20 @@ const proc: check_float is func
     end block;
 
     block
+      f_num  := -1.0 / -0.0;
+      if f_num = Infinity then
+        incr(number);
+      else
+        writeln(" ***** -1.0 / -0.0 did not deliver Infinity");
+        okay := FALSE;
+      end if;
+    exception
+      catch NUMERIC_ERROR:
+        writeln(" ***** -1.0 / -0.0 raises NUMERIC_ERROR");
+        okay := FALSE;
+    end block;
+
+    block
       f_num  := 0.0 / 0.0;
       if isNaN(f_num) then
         incr(number);
@@ -1317,6 +1345,48 @@ const proc: check_float is func
     exception
       catch NUMERIC_ERROR:
         writeln(" ***** 0.0 / 0.0 raises NUMERIC_ERROR");
+        okay := FALSE;
+    end block;
+
+    block
+      f_num  := 0.0 / -0.0;
+      if isNaN(f_num) then
+        incr(number);
+      else
+        writeln(" ***** 0.0 / -0.0 did not deliver NaN");
+        okay := FALSE;
+      end if;
+    exception
+      catch NUMERIC_ERROR:
+        writeln(" ***** 0.0 / -0.0 raises NUMERIC_ERROR");
+        okay := FALSE;
+    end block;
+
+    block
+      f_num  := -0.0 / 0.0;
+      if isNaN(f_num) then
+        incr(number);
+      else
+        writeln(" ***** -0.0 / 0.0 did not deliver NaN");
+        okay := FALSE;
+      end if;
+    exception
+      catch NUMERIC_ERROR:
+        writeln(" ***** -0.0 / 0.0 raises NUMERIC_ERROR");
+        okay := FALSE;
+    end block;
+
+    block
+      f_num  := -0.0 / -0.0;
+      if isNaN(f_num) then
+        incr(number);
+      else
+        writeln(" ***** -0.0 / -0.0 did not deliver NaN");
+        okay := FALSE;
+      end if;
+    exception
+      catch NUMERIC_ERROR:
+        writeln(" ***** -0.0 / -0.0 raises NUMERIC_ERROR");
         okay := FALSE;
     end block;
 
@@ -1373,7 +1443,7 @@ const proc: check_float is func
         okay := FALSE;
     end block;
 
-    if okay and number = 9 then
+    if okay and number = 14 then
       writeln("Floating point exceptions work correct.");
     else
       writeln(" ***** Floating point exceptions do not work correct");

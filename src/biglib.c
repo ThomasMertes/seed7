@@ -260,36 +260,44 @@ objecttype big_eq (listtype arguments)
 
 /**
  *  Convert a bstring (interpreted as big-endian) to a bigInteger.
- *  The 'bstri' is interpreted as twos-complement representation
- *  with a base of 256. The result is negative when the most significant
- *  byte (the first byte) has an ordinal >= 128.
- *  @param bstri/arg_1 Bstring that contains the data to be converted.
- *  @return a signed bigInteger created from the big-endian bytes.
+ *  @param bstri/arg_1 Bstring to be converted. The bytes are interpreted
+ *         as binary big-endian representation with a base of 256.
+ *  @param isSigned/arg_2 Defines if 'bstri' is interpreted as signed value.
+ *         When 'isSigned' is TRUE the twos-complement representation
+ *         is used. In this case the result is negative when the most
+ *         significant byte (the first byte) has an ordinal >= 128.
+ *  @return a bigInteger created from the big-endian bytes.
  */
 objecttype big_fromBStriBe (listtype arguments)
 
   { /* big_fromBStriBe */
     isit_bstri(arg_1(arguments));
+    isit_bool(arg_2(arguments));
     return bld_bigint_temp(
-        bigFromBStriBe(take_bstri(arg_1(arguments))));
+        bigFromBStriBe(take_bstri(arg_1(arguments)),
+                       take_bool(arg_2(arguments)) == SYS_TRUE_OBJECT));
   } /* big_fromBStriBe */
 
 
 
 /**
  *  Convert a bstring (interpreted as little-endian) to a bigInteger.
- *  The 'bstri' is interpreted as twos-complement representation
- *  with a base of 256. The result is negative when the most significant
- *  byte (the last byte) has an ordinal >= 128.
- *  @param bstri/arg_1 Bstring that contains the data to be converted.
- *  @return a signed bigInteger created from the little-endian bytes.
+ *  @param bstri Bstring to be converted. The bytes are interpreted
+ *         as binary little-endian representation with a base of 256.
+ *  @param isSigned Defines if 'bstri' is interpreted as signed value.
+ *         When 'isSigned' is TRUE the twos-complement representation
+ *         is used. In this case the result is negative when the most
+ *         significant byte (the last byte) has an ordinal >= 128.
+ *  @return a bigInteger created from the little-endian bytes.
  */
 objecttype big_fromBStriLe (listtype arguments)
 
   { /* big_fromBStriLe */
     isit_bstri(arg_1(arguments));
+    isit_bool(arg_2(arguments));
     return bld_bigint_temp(
-        bigFromBStriLe(take_bstri(arg_1(arguments))));
+        bigFromBStriLe(take_bstri(arg_1(arguments)),
+                       take_bool(arg_2(arguments)) == SYS_TRUE_OBJECT));
   } /* big_fromBStriLe */
 
 
@@ -881,35 +889,51 @@ objecttype big_succ (listtype arguments)
 
 
 /**
- *  Convert a 'bigInteger' into a little-endian 'bstring'.
- *  The result uses a twos-complement representation with a base of 256.
- *  For a negative 'number' the most significant byte of the result
- *  (the last byte) has an ordinal >= 128.
- *  @return a bstring with the little-endian representation.
+ *  Convert a 'bigInteger' into a big-endian 'bstring'.
+ *  The result uses binary representation with a base of 256.
+ *  @param big1/arg_1 BigInteger number to be converted.
+ *  @param isSigned/arg_2 Determines the signedness of the result.
+ *         When 'isSigned' is TRUE the result is encoded with the
+ *         twos-complement representation. In this case a negative
+ *         'big1' is converted to a result where the most significant
+ *         byte (the first byte) has an ordinal >= 128.
+ *  @return a bstring with the big-endian representation.
+ *  @exception RANGE_ERROR When 'isSigned' is FALSE and 'big1' is negative.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 objecttype big_toBStriBe (listtype arguments)
 
   { /* big_toBStriBe */
     isit_bigint(arg_1(arguments));
+    isit_bool(arg_2(arguments));
     return bld_bstri_temp(
-        bigToBStriBe(take_bigint(arg_1(arguments))));
+        bigToBStriBe(take_bigint(arg_1(arguments)),
+                     take_bool(arg_2(arguments)) == SYS_TRUE_OBJECT));
   } /* big_toBStriBe */
 
 
 
 /**
- *  Convert a 'bigInteger' into a big-endian 'bstring'.
- *  The result uses a twos-complement representation with a base of 256.
- *  For a negative 'number' the most significant byte of the result
- *  (the first byte) has an ordinal >= 128.
- *  @return a bstring with the big-endian representation.
+ *  Convert a 'bigInteger' into a little-endian 'bstring'.
+ *  The result uses binary representation with a base of 256.
+ *  @param big1/arg_1 BigInteger number to be converted.
+ *  @param isSigned/arg_2 Determines the signedness of the result.
+ *         When 'isSigned' is TRUE the result is encoded with the
+ *         twos-complement representation. In this case a negative
+ *         'big1' is converted to a result where the most significant
+ *         byte (the last byte) has an ordinal >= 128.
+ *  @return a bstring with the little-endian representation.
+ *  @exception RANGE_ERROR When 'isSigned' is FALSE and 'big1' is negative.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 objecttype big_toBStriLe (listtype arguments)
 
   { /* big_toBStriLe */
     isit_bigint(arg_1(arguments));
+    isit_bool(arg_2(arguments));
     return bld_bstri_temp(
-        bigToBStriLe(take_bigint(arg_1(arguments))));
+        bigToBStriLe(take_bigint(arg_1(arguments)),
+                     take_bool(arg_2(arguments)) == SYS_TRUE_OBJECT));
   } /* big_toBStriLe */
 
 

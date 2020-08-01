@@ -66,6 +66,7 @@
 #include "runerr.h"
 #include "cmd_rtl.h"
 #include "str_rtl.h"
+#include "ut8_rtl.h"
 
 #undef EXTERN
 #define EXTERN
@@ -204,7 +205,6 @@ static inline void include_file (void)
 static void process_pragma (void)
 
   {
-    cstritype str1;
     errinfotype err_info = OKAY_NO_ERROR;
 
   /* process_pragma */
@@ -237,12 +237,9 @@ static void process_pragma (void)
             NL_LIN_INFO();
           } /* if */
 #endif
-          str1 = cp_to_cstri8(symbol.strivalue);
-          if (str1 != NULL) {
-            puts(str1);
-            fflush(stdout);
-            free_cstri(str1, symbol.strivalue);
-          } /* if */
+          ut8Write(stdout, symbol.strivalue);
+          putchar('\n');
+          fflush(stdout);
           display_compilation_info();
         } else {
           err_warning(STRI_EXPECTED);

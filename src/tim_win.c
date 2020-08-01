@@ -58,11 +58,7 @@
 
 
 /* Seconds between 1601-01-01 and 1970-01-01 */
-#ifdef INT64TYPE_SUFFIX_LL
-#define SECONDS_1601_1970 11644473600ULL
-#else
-#define SECONDS_1601_1970 11644473600
-#endif
+#define SECONDS_1601_1970 UINT64_SUFFIX(11644473600)
 
 
 
@@ -80,9 +76,9 @@ void timAwait (inttype year, inttype month, inttype day, inttype hour,
       uint64type nanosecs100; /*time since 1 Jan 1601 in 100ns units */
       FILETIME filetime;
     } await_file_time, current_time;
-    long await_second;
-    long current_second;
-    long current_micro_sec;
+    uint64type await_second;
+    uint64type current_second;
+    inttype current_micro_sec;
     unsigned long wait_milliseconds;
 
   /* timAwait */
@@ -101,20 +97,20 @@ void timAwait (inttype year, inttype month, inttype day, inttype hour,
         &await_time_struct, &await_file_time.filetime) == 0)) {
       raise_error(RANGE_ERROR);
     } else {
-      await_second = await_file_time.nanosecs100 / 10000000 - SECONDS_1601_1970;
+      await_second = await_file_time.nanosecs100 / 10000000;
       await_second -= time_zone * 60;
 
       GetSystemTimeAsFileTime(&current_time.filetime);
-      current_second = current_time.nanosecs100 / 10000000 - SECONDS_1601_1970;
-      current_micro_sec = (current_time.nanosecs100 / 10) % 1000000;
+      current_second = current_time.nanosecs100 / 10000000;
+      current_micro_sec = (inttype) ((current_time.nanosecs100 / 10) % 1000000);
       if (current_second < await_second ||
           (current_second == await_second &&
           current_micro_sec < micro_sec)) {
-        wait_milliseconds = (await_second - current_second) * 1000;
+        wait_milliseconds = (unsigned long) (await_second - current_second) * 1000;
         if (micro_sec >= current_micro_sec) {
-          wait_milliseconds += (micro_sec - current_micro_sec) / 1000;
+          wait_milliseconds += (unsigned long) ((micro_sec - current_micro_sec) / 1000);
         } else {
-          wait_milliseconds -= (current_micro_sec - micro_sec) / 1000;
+          wait_milliseconds -= (unsigned long) ((current_micro_sec - micro_sec) / 1000);
         } /* if */
 #ifdef TRACE_TIM_WIN
         printf("%lu %lu < %lu %lu Sleep(%lu)\n",
@@ -180,7 +176,7 @@ void timNow (inttype *year, inttype *month, inttype *day, inttype *hour,
     printf("BEGIN timNow\n");
 #endif
     GetSystemTimeAsFileTime(&utc_time.filetime);
-    utc_seconds = utc_time.nanosecs100 / 10000000 - SECONDS_1601_1970;
+    utc_seconds = (time_t) (utc_time.nanosecs100 / 10000000 - SECONDS_1601_1970);
 #if defined USE_LOCALTIME_R
     local_time = localtime_r(&utc_seconds, &tm_result);
 #elif defined USE_LOCALTIME_S
@@ -201,7 +197,7 @@ void timNow (inttype *year, inttype *month, inttype *day, inttype *hour,
       *hour      = local_time->tm_hour;
       *min       = local_time->tm_min;
       *sec       = local_time->tm_sec;
-      *micro_sec = (utc_time.nanosecs100 / 10) % 1000000;
+      *micro_sec = (inttype) ((utc_time.nanosecs100 / 10) % 1000000);
       *time_zone = (unchecked_mkutc(local_time) - utc_seconds) / 60;
       *is_dst    = local_time->tm_isdst > 0;
     } /* if */
@@ -323,8 +319,15 @@ int alternate_utime (wchar_t *os_path, os_utimbuf_struct *utime_buf)
       if (filehandle != INVALID_HANDLE_VALUE) {
         /* The case of utime_buf == NULL is not considered,   */
         /* since alternate_utime will never be used this way. */
-        actime.nanosecs100 = (utime_buf->actime + SECONDS_1601_1970) * 10000000;
-        modtime.nanosecs100 = (utime_buf->modtime + SECONDS_1601_1970) * 10000000;
+#ifdef TIME_T_SIGNED
+        actime.nanosecs100 = (uint64type) (
+            (int64type) utime_buf->actime + SECONDS_1601_1970) * 10000000;
+        modtime.nanosecs100 = (uint64type) (
+            (int64type) utime_buf->modtime + SECONDS_1601_1970) * 10000000;
+#else
+        actime.nanosecs100 = ((uint64type) utime_buf->actime + SECONDS_1601_1970) * 10000000;
+        modtime.nanosecs100 = ((uint64type) utime_buf->modtime + SECONDS_1601_1970) * 10000000;
+#endif
         /* printf("actime=%ld %Ld\n", utime_buf->actime, actime.nanosecs100);
            printf("modtime=%ld %Ld\n", utime_buf->modtime, modtime.nanosecs100); */
         if (SetFileTime(filehandle, NULL, &actime.filetime, &modtime.filetime) != 0) {

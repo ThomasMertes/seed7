@@ -50,15 +50,15 @@
 
 
 #define USE_STRTOD
-#define MAX_STRI_EXPORT_LEN 25
+#define MAX_CSTRI_BUFFER_LEN 25
 #define IPOW_EXPONENTIATION_BY_SQUARING
 
 #ifdef FLOAT_ZERO_DIV_ERROR
 const rtlValueunion f_const[] =
 #ifdef FLOATTYPE_DOUBLE
-    {0xfff8000000000000, 0x7ff0000000000000, 0xfff0000000000000};
+    {{0xfff8000000000000}, {0x7ff0000000000000}, {0xfff0000000000000}};
 #else
-    {0xffc00000, 0x7f800000, 0xff800000};
+    {{0xffc00000}, {0x7f800000}, {0xff800000}};
 #endif
 #endif
 
@@ -477,38 +477,47 @@ booltype fltLt (floattype number1, floattype number2)
 floattype fltParse (const const_stritype stri)
 
   {
-    booltype okay;
 #ifdef USE_STRTOD
-    char buffer[max_utf8_size(MAX_STRI_EXPORT_LEN) + 1];
+    char buffer[MAX_CSTRI_BUFFER_LEN + 1];
+    const_cstritype buffer_ptr;
+    const_cstritype cstri;
     char *next_ch;
 #else
     memsizetype position;
     floattype digitval;
 #endif
+    errinfotype err_info = OKAY_NO_ERROR;
     floattype result;
 
   /* fltParse */
-    okay = TRUE;
 #ifdef USE_STRTOD
-    if (stri->size <= MAX_STRI_EXPORT_LEN) {
-      stri_export_utf8((ustritype) buffer, stri);
-/*    result = (floattype) atof(buffer); */
-      result = (floattype) strtod(buffer, &next_ch);
-      if (next_ch == buffer) {
-        if (strcmp(buffer, "NaN") == 0) {
+    if (likely(stri->size <= MAX_CSTRI_BUFFER_LEN)) {
+      cstri = NULL;
+      conv_to_cstri(buffer, stri, &err_info);
+      buffer_ptr = buffer;
+    } else {
+      cstri = stri_to_cstri(stri, &err_info);
+      buffer_ptr = cstri;
+    } /* if */
+    if (likely(err_info == OKAY_NO_ERROR)) {
+/*    result = (floattype) atof(buffer_ptr); */
+      result = (floattype) strtod(buffer_ptr, &next_ch);
+      if (next_ch == buffer_ptr) {
+        if (strcmp(buffer_ptr, "NaN") == 0) {
           result = NOT_A_NUMBER;
-        } else if (strcmp(buffer, "Infinity") == 0) {
+        } else if (strcmp(buffer_ptr, "Infinity") == 0) {
           result = POSITIVE_INFINITY;
-        } else if (strcmp(buffer, "-Infinity") == 0) {
+        } else if (strcmp(buffer_ptr, "-Infinity") == 0) {
           result = NEGATIVE_INFINITY;
         } else {
-          okay = FALSE;
+          err_info = RANGE_ERROR;
         } /* if */
-      } else if (next_ch != &buffer[stri->size]) {
-        okay = FALSE;
+      } else if (next_ch != &buffer_ptr[stri->size]) {
+        err_info = RANGE_ERROR;
       } /* if */
-    } else {
-      okay = FALSE;
+      if (cstri != NULL) {
+        free_cstri(cstri, stri);
+      } /* if */
     } /* if */
 #else
     position = 0;
@@ -522,20 +531,19 @@ floattype fltParse (const const_stritype stri)
           digitval <= MAX_REM_10)) {
         result = ((floattype) 10.0) * result + digitval;
       } else {
-        okay = FALSE;
+        err_info = RANGE_ERROR;
       } /* if */
       position++;
     } /* while */
     if (position == 0 || position < stri->size) {
-      okay = FALSE;
+      err_info = RANGE_ERROR;
     } /* if */
 #endif
-    if (likely(okay)) {
-      return result;
-    } else {
-      raise_error(RANGE_ERROR);
-      return 0.0;
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
+      raise_error(err_info);
+      result = 0.0;
     } /* if */
+    return result;
   } /* fltParse */
 
 

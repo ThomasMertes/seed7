@@ -936,6 +936,7 @@ wintype drwOpen (inttype xPos, inttype yPos,
   {
     char *win_name;
     HFONT std_font;
+    errinfotype err_info = OKAY_NO_ERROR;
     win_wintype result;
 
   /* drwOpen */
@@ -953,9 +954,9 @@ wintype drwOpen (inttype xPos, inttype yPos,
         dra_init();
       } /* if */
       if (init_called != 0) {
-        win_name = cp_to_cstri8(window_name);
+        win_name = stri_to_cstri8(window_name, &err_info);
         if (win_name == NULL) {
-          raise_error(MEMORY_ERROR);
+          raise_error(err_info);
         } else {
           if (private_console()) {
             /* printf("private_session\n"); */
@@ -1012,7 +1013,7 @@ wintype drwOpen (inttype xPos, inttype yPos,
               UpdateWindow(result->hWnd);
             } /* if */
           } /* if */
-          free_cstri(win_name, window_name);
+          free_cstri8(win_name, window_name);
         } /* if */
       } /* if */
     } /* if */

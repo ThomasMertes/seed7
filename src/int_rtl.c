@@ -687,6 +687,7 @@ generictype ptrCreateGeneric (const generictype from_value)
 
 /**
  *  Binomial coefficient
+ *  This is equivalent to n! / k! / (n - k)!
  *  @return n over k
  */
 inttype intBinom (inttype n_number, inttype k_number)
@@ -750,6 +751,76 @@ inttype intBitLength (inttype number)
     result = uintMostSignificantBit((uinttype) number) + 1;
     return result;
   } /* intBitLength */
+
+
+
+/**
+ *  Convert a string of bytes (interpreted as big-endian) to an integer.
+ *  @param byteStri String of bytes interpreted as big-endian binary integer.
+ *  @return a non-negative integer created from the big-endian bytes.
+ *  @exception RANGE_ERROR When characters beyond '\255\' are present or
+ *             when the string is too long to fit into an integer or
+ *             when the result would be negative.
+ */
+inttype intBytesBe2UInt (const const_stritype byteStri)
+
+  {
+    memsizetype pos;
+    uinttype result = 0;
+
+  /* intBytesBe2UInt */
+    if (unlikely(byteStri->size > sizeof(inttype))) {
+      raise_error(RANGE_ERROR);
+    } else {
+      for (pos = 0; pos < byteStri->size; pos++) {
+        if (unlikely(byteStri->mem[pos] >= 256)) {
+          raise_error(RANGE_ERROR);
+        } /* if */
+        result <<= 8;
+        result += byteStri->mem[pos];
+      } /* for */
+    } /* if */
+    if (unlikely(result > INTTYPE_MAX)) {
+      raise_error(RANGE_ERROR);
+      result = 0;
+    } /* if */
+    return (inttype) result;
+  } /* intBytesBe2UInt */
+
+
+
+/**
+ *  Convert a string of bytes (interpreted as little-endian) to an integer.
+ *  @param byteStri String of bytes interpreted as little-endian binary integer.
+ *  @return a non-negative integer created from the big-endian bytes.
+ *  @exception RANGE_ERROR When characters beyond '\255\' are present or
+ *             when the string is too long to fit into an integer or
+ *             when the result would be negative.
+ */
+inttype intBytesLe2UInt (const const_stritype byteStri)
+
+  {
+    memsizetype pos;
+    uinttype result = 0;
+
+  /* intBytesLe2UInt */
+    if (unlikely(byteStri->size > sizeof(inttype))) {
+      raise_error(RANGE_ERROR);
+    } else {
+      for (pos = byteStri->size; pos > 0; pos--) {
+        if (unlikely(byteStri->mem[pos - 1] >= 256)) {
+          raise_error(RANGE_ERROR);
+        } /* if */
+        result <<= 8;
+        result += byteStri->mem[pos - 1];
+      } /* for */
+    } /* if */
+    if (unlikely(result > INTTYPE_MAX)) {
+      raise_error(RANGE_ERROR);
+      result = 0;
+    } /* if */
+    return (inttype) result;
+  } /* intBytesLe2UInt */
 
 
 

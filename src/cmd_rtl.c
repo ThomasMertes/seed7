@@ -89,7 +89,7 @@
 #undef TRACE_CMD_RTL
 
 
-#define MAX_STRI_EXPORT_LEN 40
+#define MAX_CSTRI_BUFFER_LEN 40
 
 #ifndef CPLUSPLUS_COMPILER
 #define CPLUSPLUS_COMPILER C_COMPILER
@@ -1067,17 +1067,21 @@ void cmdCloneFile (const const_stritype sourcePath, const const_stritype destPat
 stritype cmdConfigValue (const const_stritype name)
 
   {
-    char opt_name[max_utf8_size(MAX_STRI_EXPORT_LEN) + 1];
+    char opt_name[MAX_CSTRI_BUFFER_LEN + 1];
     const_cstritype opt;
     char buffer[4];
+    errinfotype err_info = OKAY_NO_ERROR;
     stritype result;
 
   /* cmdConfigValue */
-    if (name->size > MAX_STRI_EXPORT_LEN) {
+    if (name->size > MAX_CSTRI_BUFFER_LEN) {
       opt = "";
     } else {
-      stri_export_utf8((ustritype) opt_name, name);
-      if (strcmp(opt_name, "OBJECT_FILE_EXTENSION") == 0) {
+      conv_to_cstri(opt_name, name, &err_info);
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        raise_error(err_info);
+        return NULL;
+      } else if (strcmp(opt_name, "OBJECT_FILE_EXTENSION") == 0) {
         opt = OBJECT_FILE_EXTENSION;
       } else if (strcmp(opt_name, "LIBRARY_FILE_EXTENSION") == 0) {
         opt = LIBRARY_FILE_EXTENSION;
@@ -1194,6 +1198,18 @@ stritype cmdConfigValue (const const_stritype name)
 #else
         opt = "FALSE";
 #endif
+      } else if (strcmp(opt_name, "CHECK_INT_REM_BY_ZERO") == 0) {
+#ifdef CHECK_INT_REM_BY_ZERO
+        opt = "TRUE";
+#else
+        opt = "FALSE";
+#endif
+      } else if (strcmp(opt_name, "CHECK_INT_REM_ZERO_BY_ZERO") == 0) {
+#ifdef CHECK_INT_REM_ZERO_BY_ZERO
+        opt = "TRUE";
+#else
+        opt = "FALSE";
+#endif
       } else if (strcmp(opt_name, "CHECK_FLOAT_DIV_BY_ZERO") == 0) {
 #ifdef CHECK_FLOAT_DIV_BY_ZERO
         opt = "TRUE";
@@ -1214,6 +1230,12 @@ stritype cmdConfigValue (const const_stritype name)
 #endif
       } else if (strcmp(opt_name, "ALLOW_STRITYPE_SLICES") == 0) {
 #ifdef ALLOW_STRITYPE_SLICES
+        opt = "TRUE";
+#else
+        opt = "FALSE";
+#endif
+      } else if (strcmp(opt_name, "ALLOW_BSTRITYPE_SLICES") == 0) {
+#ifdef ALLOW_BSTRITYPE_SLICES
         opt = "TRUE";
 #else
         opt = "FALSE";
@@ -1568,6 +1590,7 @@ inttype cmdFileType (const const_stritype filePath)
     int stat_result;
     int path_info = PATH_IS_NORMAL;
     errinfotype err_info = OKAY_NO_ERROR;
+    int saved_errno;
     inttype result;
 
   /* cmdFileType */
@@ -1588,6 +1611,7 @@ inttype cmdFileType (const const_stritype filePath)
 #endif
     } else {
       stat_result = os_stat(os_path, &stat_buf);
+      saved_errno = errno;
       os_stri_free(os_path);
       if (stat_result == 0) {
         if (S_ISREG(stat_buf.st_mode)) {
@@ -1610,9 +1634,9 @@ inttype cmdFileType (const const_stritype filePath)
         } /* if */
       } else {
         result = FILE_ABSENT;
-        if (unlikely(filePath->size != 0 && errno != ENOENT &&
-            errno != ENOTDIR && errno != ENAMETOOLONG)) {
-          /* printf("errno=%d\n", errno);
+        if (unlikely(filePath->size != 0 && saved_errno != ENOENT &&
+            saved_errno != ENOTDIR && saved_errno != ENAMETOOLONG)) {
+          /* printf("errno=%d\n", saved_errno);
           printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d\n",
               EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT);
           printf("ENOTDIR=%d  EROFS=%d  EIO=%d  ELOOP=%d  ENAMETOOLONG=%d\n",
@@ -1652,6 +1676,7 @@ inttype cmdFileTypeSL (const const_stritype filePath)
     int stat_result;
     int path_info = PATH_IS_NORMAL;
     errinfotype err_info = OKAY_NO_ERROR;
+    int saved_errno;
     inttype result;
 
   /* cmdFileTypeSL */
@@ -1672,6 +1697,7 @@ inttype cmdFileTypeSL (const const_stritype filePath)
 #endif
     } else {
       stat_result = os_lstat(os_path, &stat_buf);
+      saved_errno = errno;
       os_stri_free(os_path);
       if (stat_result == 0) {
         if (S_ISREG(stat_buf.st_mode)) {
@@ -1693,9 +1719,9 @@ inttype cmdFileTypeSL (const const_stritype filePath)
         } /* if */
       } else {
         result = FILE_ABSENT;
-        if (unlikely(filePath->size != 0 && errno != ENOENT &&
-            errno != ENOTDIR && errno != ENAMETOOLONG)) {
-          /* printf("errno=%d\n", errno);
+        if (unlikely(filePath->size != 0 && saved_errno != ENOENT &&
+            saved_errno != ENOTDIR && saved_errno != ENAMETOOLONG)) {
+          /* printf("errno=%d\n", saved_errno);
           printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d\n",
               EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT);
           printf("ENOTDIR=%d  EROFS=%d  EIO=%d  ELOOP=%d  ENAMETOOLONG=%d\n",
@@ -2338,14 +2364,15 @@ void cmdRemoveAnyFile (const const_stritype filePath)
 #ifdef os_putenv
 /**
  *  Add or change an environment variable.
- *  The function setenv searches the environment for an environment variable
+ *  The function searches the environment for an environment variable
  *  with the given 'name'. When such an environment variable exists the
  *  corresponding value is changed to 'value'. When no environment variable
  *  with the given 'name' exists a new environment variable 'name' with
  *  the value 'value' is created.
  *  @exception MEMORY_ERROR Not enough memory to convert 'name' or 'value'
  *             to the system string type.
- *  @exception RANGE_ERROR A system function returns an error.
+ *  @exception RANGE_ERROR 'name' or 'value' cannot be converted to the
+ *             system string type or a system function returns an error.
  */
 void cmdSetenv (const const_stritype name, const const_stritype value)
 
@@ -2357,8 +2384,11 @@ void cmdSetenv (const const_stritype name, const const_stritype value)
     errinfotype err_info = OKAY_NO_ERROR;
 
   /* cmdSetenv */
-    if (unlikely(name->size > MAX_STRI_LEN - value->size - 1)) {
-      /* number of bytes does not fit into memsizetype */
+    if (strChPos(name, (chartype) '=') != 0) {
+      /* Putenv() expects a string of the form "name=value". */
+      raise_error(RANGE_ERROR);
+    } else if (unlikely(name->size > MAX_STRI_LEN - value->size - 1)) {
+      /* Number of bytes does not fit into memsizetype. */
       raise_error(MEMORY_ERROR);
     } else {
       stri_size = name->size + value->size + 1;
@@ -2374,7 +2404,7 @@ void cmdSetenv (const const_stritype name, const const_stritype value)
         env_stri = stri_to_os_stri(stri, &err_info);
         FREE_STRI(stri, stri->size);;
         if (unlikely(env_stri == NULL)) {
-          raise_error(MEMORY_ERROR);
+          raise_error(err_info);
         } else {
           putenv_result = os_putenv(env_stri);
           os_stri_free(env_stri);
@@ -2393,14 +2423,15 @@ void cmdSetenv (const const_stritype name, const const_stritype value)
 
 /**
  *  Add or change an environment variable.
- *  The function setenv searches the environment for an environment variable
+ *  The function searches the environment for an environment variable
  *  with the given 'name'. When such an environment variable exists the
  *  corresponding value is changed to 'value'. When no environment variable
  *  with the given 'name' exists a new environment variable 'name' with
  *  the value 'value' is created.
  *  @exception MEMORY_ERROR Not enough memory to convert 'name' or 'value'
  *             to the system string type.
- *  @exception RANGE_ERROR A system function returns an error.
+ *  @exception RANGE_ERROR 'name' or 'value' cannot be converted to the
+ *             system string type or a system function returns an error.
  */
 void cmdSetenv (const const_stritype name, const const_stritype value)
 
@@ -2409,6 +2440,7 @@ void cmdSetenv (const const_stritype name, const const_stritype value)
     os_stritype env_value;
     int setenv_result;
     errinfotype err_info = OKAY_NO_ERROR;
+    int saved_errno;
 
   /* cmdSetenv */
     env_name = stri_to_os_stri(name, &err_info);
@@ -2421,11 +2453,12 @@ void cmdSetenv (const const_stritype name, const const_stritype value)
         raise_error(err_info);
       } else {
         setenv_result = os_setenv(env_name, env_value, 1);
+        saved_errno = errno;
         os_stri_free(env_name);
         os_stri_free(env_value);
         if (unlikely(setenv_result != 0)) {
-          /* printf("errno=%d\n", errno); */
-          if (errno == ENOMEM) {
+          /* printf("errno=%d\n", saved_errno); */
+          if (saved_errno == ENOMEM) {
             raise_error(MEMORY_ERROR);
           } else {
             raise_error(RANGE_ERROR);

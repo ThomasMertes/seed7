@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2000  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2014  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: General                                                 */
 /*  File: seed7/src/actutl.c                                        */
-/*  Changes: 1992, 1993, 1994  Thomas Mertes                        */
+/*  Changes: 1992, 1993, 1994, 2014  Thomas Mertes                  */
 /*  Content: Conversion of strings to ACTIONs and back.             */
 /*                                                                  */
 /*  Actions are searched with a binary search. Normally a detailed  */
@@ -48,10 +48,15 @@
 
 
 #undef USE_BSEARCH
-#define MAX_STRI_EXPORT_LEN 40
+#define MAX_CSTRI_BUFFER_LEN 40
 
 
-static primacttype *action_ptr_table = NULL;
+typedef struct {
+    unsigned int size;
+    primacttype *primitive_ptr;
+} act_ptr_table_type;
+
+static act_ptr_table_type act_ptr_table = {0, NULL};
 
 
 
@@ -86,11 +91,11 @@ static int action_ptr_compare (const void *act_ptr1, const void *act_ptr2)
 #ifdef TRACE_ACTUTIL
     printf("BEGIN action_ptr_compare\n");
 #endif
-    if (((unsigned long) (*((const primacttype *) act_ptr1))->action) <
-        ((unsigned long) (*((const primacttype *) act_ptr2))->action)) {
+    if ((memsizetype) (*(const primacttype *) act_ptr1)->action <
+        (memsizetype) (*(const primacttype *) act_ptr2)->action) {
       return -1;
-    } else if (((unsigned long) (*((const primacttype *) act_ptr1))->action) ==
-               ((unsigned long) (*((const primacttype *) act_ptr2))->action)) {
+    } else if ((*(const primacttype *) act_ptr1)->action ==
+               (*(const primacttype *) act_ptr2)->action) {
       return 0;
     } else {
       return 1;
@@ -102,7 +107,7 @@ static int action_ptr_compare (const void *act_ptr1, const void *act_ptr2)
 
 
 
-static booltype search_action (ustritype stri, acttype *action_found)
+static booltype search_action (cstritype stri, acttype *action_found)
 
   {
 #ifdef USE_BSEARCH
@@ -136,8 +141,7 @@ static booltype search_action (ustritype stri, acttype *action_found)
       middle = (lower + upper) >> 1;
       /* printf("%u %u %u >%s< >%s<\n", lower, middle, upper,
          act_table.primitive[middle].name, stri); */
-      if ((comparison = strcmp(act_table.primitive[middle].name,
-          (cstritype) stri)) < 0) {
+      if ((comparison = strcmp(act_table.primitive[middle].name, stri)) < 0) {
         lower = middle;
       } else if (comparison == 0) {
         lower = upper - 1;
@@ -165,23 +169,30 @@ static booltype search_action (ustritype stri, acttype *action_found)
 booltype find_action (const const_stritype action_name, acttype *action_found)
 
   {
-    uchartype act_name[max_utf8_size(MAX_STRI_EXPORT_LEN) + 1];
+    char act_name[MAX_CSTRI_BUFFER_LEN + 1];
+    errinfotype err_info = OKAY_NO_ERROR;
     booltype result;
 
  /* find_action */
 #ifdef TRACE_ACTUTIL
     printf("BEGIN find_action\n");
 #endif
-    if (action_name->size > MAX_STRI_EXPORT_LEN) {
+    if (action_name->size > MAX_CSTRI_BUFFER_LEN) {
+      result = FALSE;
+    } else {
+      conv_to_cstri(act_name, action_name, &err_info);
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        result = FALSE;
+      } else {
+        result = search_action(act_name, action_found);
+      } /* if */
+    } /* if */
+    if (!result) {
       if (act_table.primitive != NULL) {
         *action_found = act_table.primitive[0].action;
       } else {
         *action_found = NULL;
       } /* if */
-      result = FALSE;
-    } else {
-      stri_export_utf8(act_name, action_name);
-      result = search_action(act_name, action_found);
     } /* if */
 #ifdef TRACE_ACTUTIL
     printf("END find_action\n");
@@ -191,10 +202,70 @@ booltype find_action (const const_stritype action_name, acttype *action_found)
 
 
 
-primacttype get_primact (acttype action_searched)
+/**
+ *  Create act_ptr_table and remove double acttype pointers from it.
+ *  The table act_ptr_table is used by get_primact() to map
+ *  acttype pointers to corresponding entries in act_table.
+ *  When the C compiler recognizes that the code of two functions
+ *  is identical it may decide to reuse the code. In this case
+ *  two or more acttype pointers refer to the same function.
+ *  To have predictable results double acttype pointers are removed
+ *  from act_ptr_table. The acttype pointer that referes to the
+ *  action with the alphabetically lower action name is kept.
+ *  Since the action names in act_table are sorted alphabetically
+ *  this is the entry that is nearer to the beginning of act_table.
+ */
+static void gen_act_ptr_table (void)
 
   {
     unsigned int number;
+
+  /* gen_act_ptr_table */
+#ifdef TRACE_ACTUTIL
+    printf("BEGIN gen_act_ptr_table\n");
+#endif
+    act_ptr_table.size = act_table.size;
+    if (ALLOC_TABLE(act_ptr_table.primitive_ptr, primacttype, act_ptr_table.size)) {
+      for (number = 0; number < act_ptr_table.size; number++) {
+        act_ptr_table.primitive_ptr[number] = &act_table.primitive[number];
+      } /* for */
+      qsort(act_ptr_table.primitive_ptr, act_ptr_table.size, sizeof(primacttype),
+          action_ptr_compare);
+      for (number = 1; number < act_ptr_table.size; number++) {
+        if (act_ptr_table.primitive_ptr[number]->action ==
+            act_ptr_table.primitive_ptr[number - 1]->action) {
+          /* printf("*** Actions %s and %s implemented by the same function\n",
+              act_ptr_table.primitive_ptr[number - 1]->name,
+              act_ptr_table.primitive_ptr[number]->name); */
+          /* Remove double entries */
+          if ((memsizetype) act_ptr_table.primitive_ptr[number - 1] >
+              (memsizetype) act_ptr_table.primitive_ptr[number]) {
+            memmove(&act_ptr_table.primitive_ptr[number - 1], &act_ptr_table.primitive_ptr[number],
+                    (act_ptr_table.size - number) * sizeof(primacttype));
+          } else {
+            memmove(&act_ptr_table.primitive_ptr[number], &act_ptr_table.primitive_ptr[number + 1],
+                    (act_ptr_table.size - number - 1) * sizeof(primacttype));
+          } /* if */
+          act_ptr_table.size--;
+          number--;
+          /* printf("size=%u, number=%u\n", act_ptr_table.size, number); */
+        } /* if */
+      } /* for */
+    } /* if */
+#ifdef TRACE_ACTUTIL
+    printf("END gen_act_ptr_table\n");
+#endif
+  } /* gen_act_ptr_table */
+
+
+
+/**
+ *  Get an act_table entry that corresponds to an acttype pointer.
+ *  @return pointer to an act_table entry.
+ */
+primacttype get_primact (acttype action_searched)
+
+  {
     int lower;
     int upper;
     int middle;
@@ -204,49 +275,35 @@ primacttype get_primact (acttype action_searched)
 #ifdef TRACE_ACTUTIL
     printf("BEGIN get_primact\n");
 #endif
-    if (action_ptr_table == NULL) {
-      if (!ALLOC_TABLE(action_ptr_table, primacttype, act_table.size)) {
+    if (unlikely(act_ptr_table.primitive_ptr == NULL)) {
+      gen_act_ptr_table();
+      if (unlikely(act_ptr_table.primitive_ptr == NULL)) {
         action_searched = act_table.primitive[0].action;
-      } else {
-        for (number = 0; number < act_table.size; number++) {
-          action_ptr_table[number] = &act_table.primitive[number];
-        } /* for */
-        qsort(action_ptr_table, act_table.size, sizeof(primacttype),
-            action_ptr_compare);
-#ifdef CHECK_FOR_EQUAL_FUNCTION_POINTERS
-        for (number = 1; number < act_table.size; number++) {
-          if (action_ptr_table[number]->action == action_ptr_table[number - 1]->action) {
-            printf("*** Actions %s and %s implemented by the same function\n",
-                action_ptr_table[number]->name,
-                action_ptr_table[number - 1]->name);
-          } /* if */
-        } /* for */
-#endif
       } /* if */
     } /* if */
 
     result = &act_table.primitive[0];
     if (action_searched != act_table.primitive[0].action) {
       lower = -1;
-      upper = (int) act_table.size;
+      upper = (int) act_ptr_table.size;
       while (lower + 1 < upper) {
         middle = (lower + upper) >> 1;
         /* printf("%d %d %d >%lu< >%lu<\n", lower, middle, upper,
-           action_ptr_table[middle]->action, action_searched); */
-
-        if (((unsigned long) action_ptr_table[middle]->action) <
-            ((unsigned long) action_searched)) {
+            (memsizetype) act_ptr_table.primitive_ptr[middle]->action,
+            (memsizetype) action_searched); */
+        if (((memsizetype) act_ptr_table.primitive_ptr[middle]->action) <
+            ((memsizetype) action_searched)) {
           lower = middle;
-        } else if (action_ptr_table[middle]->action == action_searched) {
+        } else if (act_ptr_table.primitive_ptr[middle]->action == action_searched) {
           lower = upper - 1;
-          result = action_ptr_table[middle];
+          result = act_ptr_table.primitive_ptr[middle];
         } else {
           upper = middle;
         } /* if */
       } /* while */
     } /* if */
 #ifdef TRACE_ACTUTIL
-    printf("END get_primact\n");
+    printf("END get_primact --> %s\n", result->name);
 #endif
     return result;
   } /* get_primact */

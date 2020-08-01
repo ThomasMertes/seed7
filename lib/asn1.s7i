@@ -229,7 +229,7 @@ const func asn1DataElement: getAsn1DataElement (in string: stri, inout integer: 
     else
       # Long form
       numOctets := length mod 128;
-      dataElement.length := bytesBe2Int(stri[pos len numOctets]);
+      dataElement.length := bytes2Int(stri[pos len numOctets], UNSIGNED, BE);
       pos +:= numOctets;
     end if;
     dataElement.dataStart := pos;
@@ -274,7 +274,7 @@ const func string: genAsn1Length (in integer: length) is func
       stri &:= chr(length);
     else
       # Long form
-      lengthAsBytes := bytesBe(length);
+      lengthAsBytes := bytes(length, SIGNED, BE);
       stri &:= chr(128 + length(lengthAsBytes));
       stri &:= lengthAsBytes;
     end if;
@@ -399,7 +399,7 @@ const proc: printAsn1 (in string: stri, inout integer: pos) is func
     else
       # Long form
       numOctets := length mod 128;
-      length := bytesBe2Int(stri[pos len numOctets]);
+      length := bytes2Int(stri[pos len numOctets], UNSIGNED, BE);
       pos +:= numOctets;
       contents := stri[pos len length];
       posAfterwards := pos + length;

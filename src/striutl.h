@@ -33,7 +33,8 @@ extern const_cstritype cstri_escape_sequence[];
 
 #define MAX_UTF8_EXPANSION_FACTOR 6
 #define max_utf8_size(size) (MAX_UTF8_EXPANSION_FACTOR * (size))
-#define free_cstri(cstri,stri) UNALLOC_CSTRI(cstri, max_utf8_size((stri)->size));
+#define free_cstri(cstri,stri) UNALLOC_CSTRI(cstri, (stri)->size);
+#define free_cstri8(cstri,stri) UNALLOC_CSTRI(cstri, max_utf8_size((stri)->size));
 #define free_wstri(wstri,stri) free(wstri);
 #define cstri_expand(stri,cstri,size) ustri_expand(stri, (const_ustritype) cstri, size)
 #define cstri_expand2(stri,cstri) ustri_expand2(stri, (const_ustritype) cstri)
@@ -84,18 +85,21 @@ memsizetype utf8_to_stri (strelemtype *const dest_stri, memsizetype *const dest_
                           const_ustritype ustri, size_t len);
 memsizetype utf8_bytes_missing (const const_ustritype ustri, const size_t len);
 memsizetype stri_to_utf8 (const ustritype out_stri,
-                          register const strelemtype *strelem, memsizetype len);
-void stri_export_utf8 (ustritype out_stri, const const_stritype in_stri);
+                          const strelemtype *strelem, memsizetype len);
+void conv_to_cstri (cstritype cstri, const const_stritype stri,
+                    errinfotype *err_info);
+void conv_to_cstri8 (cstritype cstri, const const_stritype stri,
+                     errinfotype *err_info);
 void ustri_expand (strelemtype *stri, const_ustritype ustri, size_t len);
 size_t ustri_expand2 (strelemtype *const stri, const_ustritype ustri);
-void stri_compress (ustritype ustri, const strelemtype *stri, size_t len);
 #ifdef OS_STRI_WCHAR
 memsizetype stri_to_wstri (const wstritype out_wstri,
                            register const strelemtype *strelem, memsizetype len,
                            errinfotype *const err_info);
 #endif
-cstritype cp_to_cstri8 (const const_stritype stri);
-bstritype stri_to_bstri (const_stritype stri);
+cstritype stri_to_cstri (const const_stritype stri, errinfotype *err_info);
+cstritype stri_to_cstri8 (const const_stritype stri, errinfotype *err_info);
+bstritype stri_to_bstri (const const_stritype stri, errinfotype *err_info);
 bstritype stri_to_bstri8 (const_stritype stri);
 #ifdef CONSOLE_WCHAR
 bstritype stri_to_bstriw (const_stritype stri);

@@ -512,7 +512,9 @@ static void doPoll (const polltype pollData, struct timeval *timeout)
     } /* for */
 #endif
     /* printf("doPoll %lx: nfds=%d\n", pollData, nfds); */
-    select_result = select(nfds, readFds, writeFds, NULL, timeout);
+    do {
+      select_result = select(nfds, readFds, writeFds, NULL, timeout);
+    } while (unlikely(select_result == -1 && errno == EINTR));
     if (unlikely(select_result < 0)) {
       /* printf("errno=%d\n", errno);
       printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  ENOTDIR=%d  EROFS=%d\n",

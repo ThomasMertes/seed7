@@ -95,7 +95,9 @@ static void handle_signals (int sig_num)
       shut_drivers();
       exit(1);
     } /* if */
+#ifndef HAS_SIGACTION
     activate_signal_handlers();
+#endif
 /*  exit(1); */
   } /* handle_signals */
 
@@ -115,12 +117,33 @@ static void handle_term_signal (int sig_num)
 void activate_signal_handlers (void)
 
   { /* activate_signal_handlers */
+#ifdef HAS_SIGACTION
+    {
+      struct sigaction sig_act;
+
+      sig_act.sa_handler = handle_signals;
+      sigemptyset(&sig_act.sa_mask);
+      sig_act.sa_flags = SA_RESTART;
+      if (sigaction(SIGABRT,  &sig_act, NULL) == -1 ||
+          sigaction(SIGFPE,   &sig_act, NULL) == -1 ||
+          sigaction(SIGILL,   &sig_act, NULL) == -1 ||
+          sigaction(SIGINT,   &sig_act, NULL) == -1 ||
+          sigaction(SIGSEGV,  &sig_act, NULL) == -1) {
+        printf("\n*** Activating signal handlers failed.\n");
+      } /* if */
+      sig_act.sa_handler = handle_term_signal;
+      if (sigaction(SIGTERM,  &sig_act, NULL) == -1) {
+        printf("\n*** Activating signal handlers failed.\n");
+      } /* if */
+    }
+#else
     signal(SIGABRT, handle_signals);
-    signal(SIGFPE, handle_signals);
-    signal(SIGILL, handle_signals);
-    signal(SIGINT, handle_signals);
+    signal(SIGFPE,  handle_signals);
+    signal(SIGILL,  handle_signals);
+    signal(SIGINT,  handle_signals);
     signal(SIGSEGV, handle_signals);
     signal(SIGTERM, handle_term_signal);
+#endif
 #ifdef SIGPIPE
     signal(SIGPIPE, SIG_IGN);
 #endif

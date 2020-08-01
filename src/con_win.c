@@ -38,6 +38,10 @@
 #include "conio.h"
 
 #include "common.h"
+#include "heaputl.h"
+#include "striutl.h"
+#include "ut8_rtl.h"
+#include "rtl_err.h"
 #include "con_drv.h"
 #include "kbd_drv.h"
 
@@ -160,7 +164,7 @@ static void kbd_init (void)
         /* if (saved_console_input_mode & ENABLE_QUICK_EDIT_MODE) { printf("QUICK_EDIT_MODE\n"); } */
         if (saved_console_input_mode & ENABLE_WINDOW_INPUT) { printf("WINDOW_INPUT\n"); }
 #endif
-        SetConsoleMode(hConsole, saved_console_input_mode & ~ENABLE_PROCESSED_INPUT);
+        SetConsoleMode(hConsole, saved_console_input_mode & (DWORD) ~ENABLE_PROCESSED_INPUT);
         keybd_initialized = TRUE;
       } /* if */
     } /* if */
@@ -372,89 +376,52 @@ void conCursor (booltype on)
 
 
 
-void conSetCursor (inttype lin, inttype col)
-
-  /* Moves the system curser to the given place of the console.     */
-  /* When no system cursor exists this procedure can be replaced by */
-  /* a dummy procedure.                                             */
+/**
+ *  Moves the system curser to the given place of the console.
+ *  When no system cursor exists this procedure can be replaced by
+ *  a dummy procedure.
+ */
+void conSetCursor (inttype line, inttype column)
 
   {
     HANDLE hConsole;
     COORD position;
 
   /* conSetCursor */
-    if (console_initialized) {
-      hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-      if (hConsole != INVALID_HANDLE_VALUE) {
-        position.X = col - 1;
-        position.Y = lin - 1;
-        if (!SetConsoleCursorPosition(hConsole, position)) {
-          /* printf("SetConsoleCursorPosition(%d, (%d, %d)) ==> Error %d\n",
-              hConsole, col - 1, lin - 1, GetLastError()); */
+    if (line <= 0 || column <= 0) {
+      raise_error(RANGE_ERROR);
+    } else if (line <= INT16TYPE_MAX && column <= INT16TYPE_MAX) {
+      if (console_initialized) {
+        hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+        if (hConsole != INVALID_HANDLE_VALUE) {
+          position.X = (int16type) (column - 1);
+          position.Y = (int16type) (line - 1);
+          if (!SetConsoleCursorPosition(hConsole, position)) {
+            /* printf("SetConsoleCursorPosition(%d, (%d, %d)) ==> Error %d\n",
+                hConsole, column - 1, line - 1, GetLastError()); */
+          } /* if */
+        } else {
+          /* printf("GetStdHandle(STD_OUTPUT_HANDLE) ==> %d / Error %d\n",
+              hConsole, GetLastError()); */
         } /* if */
-      } else {
-        /* printf("GetStdHandle(STD_OUTPUT_HANDLE) ==> %d / Error %d\n",
-            hConsole, GetLastError()); */
       } /* if */
     } /* if */
   } /* conSetCursor */
 
 
 
-void conText (inttype lin, inttype col, wstritype stri,
-memsizetype length)
-
-  /* This function writes the string stri to the console at the     */
-  /* position (lin, col). The position (lin, col) must be a legal   */
-  /* position of the console. The string stri is not allowed to go  */
-  /* beyond the right border of the console. All console output     */
-  /* must be done with this function.                               */
-
-  {
-    HANDLE hConsole;
-    COORD position;
-    DWORD numchars;
-    booltype doWrite = TRUE;
-
-  /* conText */
-    /* printf("conText(..., %lu)\n", length); */
-    hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-    if (hConsole != INVALID_HANDLE_VALUE) {
-      /* When GetFileType(hConsole) == FILE_TYPE_CHAR holds it is a console */
-      if (console_initialized) {
-        position.X = col - 1;
-        position.Y = lin - 1;
-        if (!SetConsoleCursorPosition(hConsole, position)) {
-          /* printf("SetConsoleCursorPosition(%d, (%d, %d)) ==> Error %d\n",
-              hConsole, col - 1, lin - 1, GetLastError()); */
-          doWrite = FALSE;
-        } /* if */
-      } /* if */
-      if (doWrite) {
-        /* Writing may fail for lengths above 26000 to 32000 */
-        while (length > 25000) {
-          WriteConsoleW(hConsole, stri, 25000, &numchars, NULL);
-          stri = &stri[25000];
-          length -= 25000;
-        } /* while */
-        WriteConsoleW(hConsole, stri, length, &numchars, NULL);
-      } /* if */
-    } /* if */
-  } /* conText */
-
-
-
-#ifdef OUT_OF_ORDER
-static void conWriteConsole (HANDLE hConsole, const_stritype stri)
+static void doWriteConsole (HANDLE hConsole, const const_stritype stri)
 
   {
     wchar_t wstri_buffer[2 * 256];
     wstritype wstri;
+    wstritype wstri_part;
     memsizetype wstri_size;
     errinfotype err_info = OKAY_NO_ERROR;
     DWORD numchars;
 
-  /* conWriteConsole */
+  /* doWriteConsole */
+    /* fprintf(stderr, "doWriteConsole(%lx, ...)", (unsigned long) hConsole); */
     if (stri->size <= 256) {
       wstri_size = stri_to_wstri(wstri_buffer, stri->mem, stri->size, &err_info);
       if (err_info != OKAY_NO_ERROR) {
@@ -470,22 +437,26 @@ static void conWriteConsole (HANDLE hConsole, const_stritype stri)
         if (err_info != OKAY_NO_ERROR) {
           raise_error(RANGE_ERROR);
         } else {
+          wstri_part = wstri;
           /* Writing may fail for lengths above 26000 to 32000 */
           while (wstri_size > 25000) {
-            WriteConsoleW(hConsole, wstri, 25000, &numchars, NULL);
-            wstri = &wstri[25000];
+            WriteConsoleW(hConsole, wstri_part, 25000, &numchars, NULL);
+            wstri_part = &wstri_part[25000];
             wstri_size -= 25000;
           } /* while */
-          WriteConsoleW(hConsole, wstri, wstri_size, &numchars, NULL);
+          WriteConsoleW(hConsole, wstri_part, wstri_size, &numchars, NULL);
         } /* if */
-        UNALLOC_WSTRI(wstri, stri->size * 2 - 1)
+        UNALLOC_WSTRI(wstri, stri->size * 2 - 1);
       } /* if */
     } /* if */
-  } /* conWriteConsole */
+  } /* doWriteConsole */
 
 
 
-void conWrite (const_stritype stri)
+/**
+ *  Writes the string stri to the console at the current position.
+ */
+void conWrite (const const_stritype stri)
 
   {
     HANDLE hConsole;
@@ -495,23 +466,22 @@ void conWrite (const_stritype stri)
     hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     if (hConsole != INVALID_HANDLE_VALUE &&
         GetFileType(hConsole) == FILE_TYPE_CHAR &&
-        GetConsoleMode(GetStdHandle(STD_OUTPUT_HANDLE), mode) != 0) {
+        GetConsoleMode(GetStdHandle(STD_OUTPUT_HANDLE), &mode) != 0) {
       /* hConsole refers to a real console */
-      conWriteConsole(hConsole, stri);
+      doWriteConsole(hConsole, stri);
     } else {
       /* The output has been redirected */
       ut8Write(stdout, stri);
     } /* if */
   } /* conWrite */
-#endif
 
 
 
+/**
+ *  Clears the area described by startlin, stoplin, startcol and stopcol.
+ */
 void conClear (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol)
-
-  /* Clears the area described by startlin, stoplin, startcol and   */
-  /* stopcol.                                                       */
 
   {
     HANDLE hConsole;
@@ -519,25 +489,38 @@ void conClear (inttype startlin, inttype startcol,
     DWORD numchars;
 
   /* conClear */
-    hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-    position.X = startcol - 1;
-    position.Y = startlin - 1;
-    while (position.Y < stoplin) {
-      FillConsoleOutputCharacter(hConsole, (TCHAR) ' ',
-          stopcol - startcol + 1, position, &numchars);
-      position.Y++;
-    } /* while */
+    if (startlin <= 0 || startcol <= 0 ||
+        stoplin < startlin || stopcol < startcol) {
+      raise_error(RANGE_ERROR);
+    } else if (startlin <= INT16TYPE_MAX && startcol <= INT16TYPE_MAX) {
+      if (stoplin > INT16TYPE_MAX) {
+        stoplin = INT16TYPE_MAX;
+      } /* if */
+      if (stopcol > INT16TYPE_MAX) {
+        stopcol = INT16TYPE_MAX;
+      } /* if */
+      hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+      position.X = (int16type) (startcol - 1);
+      position.Y = (int16type) (startlin - 1);
+      while (position.Y < (int16type) stoplin) {
+        FillConsoleOutputCharacter(hConsole, (TCHAR) ' ',
+            (unsigned int) (stopcol - startcol + 1), position, &numchars);
+        position.Y++;
+      } /* while */
+    } /* if */
   } /* conClear */
 
 
 
+/**
+ *  Scrolls the area inside startlin, startcol, stoplin and
+ *  stopcol upward by count lines. The upper count lines of the
+ *  area are overwritten. At the lower end of the area blank lines
+ *  are inserted. Nothing is changed outside the area.
+ *  The calling function assures that count is greater or equal 1.
+ */
 void conUpScroll (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol, inttype count)
-
-  /* Scrolls the area inside startlin, startcol, stoplin and        */
-  /* stopcol upward by count lines. The upper count lines of the    */
-  /* area are overwritten. At the lower end of the area blank lines */
-  /* are inserted. Nothing is changed outside the area.             */
 
   {
     HANDLE hConsole;
@@ -546,32 +529,49 @@ void conUpScroll (inttype startlin, inttype startcol,
     CHAR_INFO fillChar;
 
   /* conUpScroll */
-    hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-    if (hConsole != INVALID_HANDLE_VALUE) {
-      scrollRect.Left   = startcol - 1;
-      scrollRect.Top    = startlin + count - 1;
-      scrollRect.Right  = stopcol - 1;
-      scrollRect.Bottom = stoplin - 1;
-      destOrigin.X = startcol - 1;
-      destOrigin.Y = startlin - 1;
-      memset(&fillChar, 0, sizeof(CHAR_INFO));
-      fillChar.Char.AsciiChar = ' ';
-      ScrollConsoleScreenBuffer(hConsole, &scrollRect, NULL, destOrigin, &fillChar);
-    } else {
-      /* printf("GetStdHandle(STD_OUTPUT_HANDLE) ==> %d / Error %d\n",
-          hConsole, GetLastError()); */
+    if (startlin <= 0 || startcol <= 0 ||
+        stoplin < startlin || stopcol < startcol) {
+      raise_error(RANGE_ERROR);
+    } else if (startlin <= INT16TYPE_MAX && startcol <= INT16TYPE_MAX) {
+      if (count > stoplin - startlin + 1) {
+        conClear(startlin, startcol, stoplin, stopcol);
+      } else {
+        if (stoplin > INT16TYPE_MAX) {
+          stoplin = INT16TYPE_MAX;
+        } /* if */
+        if (stopcol > INT16TYPE_MAX) {
+          stopcol = INT16TYPE_MAX;
+        } /* if */
+        hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+        if (hConsole != INVALID_HANDLE_VALUE) {
+          scrollRect.Left   = (int16type) (startcol - 1);
+          scrollRect.Top    = (int16type) (startlin + count - 1);
+          scrollRect.Right  = (int16type) (stopcol - 1);
+          scrollRect.Bottom = (int16type) (stoplin - 1);
+          destOrigin.X = (int16type) (startcol - 1);
+          destOrigin.Y = (int16type) (startlin - 1);
+          memset(&fillChar, 0, sizeof(CHAR_INFO));
+          fillChar.Char.AsciiChar = ' ';
+          ScrollConsoleScreenBuffer(hConsole, &scrollRect, NULL, destOrigin, &fillChar);
+        } else {
+          /* printf("GetStdHandle(STD_OUTPUT_HANDLE) ==> %d / Error %d\n",
+              hConsole, GetLastError()); */
+        } /* if */
+      } /* if */
     } /* if */
   } /* conUpScroll */
 
 
 
+/**
+ *  Scrolls the area inside startlin, startcol, stoplin and
+ *  stopcol downward by count lines. The lower count lines of the
+ *  area are overwritten. At the upper end of the area blank lines
+ *  are inserted. Nothing is changed outside the area.
+ *  The calling function assures that count is greater or equal 1.
+ */
 void conDownScroll (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol, inttype count)
-
-  /* Scrolls the area inside startlin, startcol, stoplin and        */
-  /* stopcol downward by count lines. The lower count lines of the  */
-  /* area are overwritten. At the upper end of the area blank lines */
-  /* are inserted. Nothing is changed outside the area.             */
 
   {
     HANDLE hConsole;
@@ -580,32 +580,49 @@ void conDownScroll (inttype startlin, inttype startcol,
     CHAR_INFO fillChar;
 
   /* conDownScroll */
-    hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-    if (hConsole != INVALID_HANDLE_VALUE) {
-      scrollRect.Left   = startcol - 1;
-      scrollRect.Top    = startlin - 1;
-      scrollRect.Right  = stopcol - 1;
-      scrollRect.Bottom = stoplin - count - 1;
-      destOrigin.X = startcol - 1;
-      destOrigin.Y = startlin + count - 1;
-      memset(&fillChar, 0, sizeof(CHAR_INFO));
-      fillChar.Char.AsciiChar = ' ';
-      ScrollConsoleScreenBuffer(hConsole, &scrollRect, NULL, destOrigin, &fillChar);
-    } else {
-      /* printf("GetStdHandle(STD_OUTPUT_HANDLE) ==> %d / Error %d\n",
-          hConsole, GetLastError()); */
+    if (startlin <= 0 || startcol <= 0 ||
+        stoplin < startlin || stopcol < startcol) {
+      raise_error(RANGE_ERROR);
+    } else if (startlin <= INT16TYPE_MAX && startcol <= INT16TYPE_MAX) {
+      if (count > stoplin - startlin + 1) {
+        conClear(startlin, startcol, stoplin, stopcol);
+      } else {
+        if (stoplin > INT16TYPE_MAX) {
+          stoplin = INT16TYPE_MAX;
+        } /* if */
+        if (stopcol > INT16TYPE_MAX) {
+          stopcol = INT16TYPE_MAX;
+        } /* if */
+        hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+        if (hConsole != INVALID_HANDLE_VALUE) {
+          scrollRect.Left   = (int16type) (startcol - 1);
+          scrollRect.Top    = (int16type) (startlin - 1);
+          scrollRect.Right  = (int16type) (stopcol - 1);
+          scrollRect.Bottom = (int16type) (stoplin - count - 1);
+          destOrigin.X = (int16type) (startcol - 1);
+          destOrigin.Y = (int16type) (startlin + count - 1);
+          memset(&fillChar, 0, sizeof(CHAR_INFO));
+          fillChar.Char.AsciiChar = ' ';
+          ScrollConsoleScreenBuffer(hConsole, &scrollRect, NULL, destOrigin, &fillChar);
+        } else {
+          /* printf("GetStdHandle(STD_OUTPUT_HANDLE) ==> %d / Error %d\n",
+              hConsole, GetLastError()); */
+        } /* if */
+      } /* if */
     } /* if */
   } /* conDownScroll */
 
 
 
+/**
+ *  Scrolls the area inside startlin, startcol, stoplin and
+ *  stopcol leftward by count columns. The left count columns of the
+ *  area are overwritten. At the right end of the area blank columns
+ *  are inserted. Nothing is changed outside the area.
+ *  The calling function assures that count is greater or equal 1.
+ */
 void conLeftScroll (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol, inttype count)
-
-  /* Scrolls the area inside startlin, startcol, stoplin and        */
-  /* stopcol leftward by count lines. The left count lines of the   */
-  /* area are overwritten. At the right end of the area blank lines */
-  /* are inserted. Nothing is changed outside the area.             */
 
   {
     HANDLE hConsole;
@@ -614,32 +631,49 @@ void conLeftScroll (inttype startlin, inttype startcol,
     CHAR_INFO fillChar;
 
   /* conLeftScroll */
-    hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-    if (hConsole != INVALID_HANDLE_VALUE) {
-      scrollRect.Left   = startcol + count - 1;
-      scrollRect.Top    = startlin - 1;
-      scrollRect.Right  = stopcol - 1;
-      scrollRect.Bottom = stoplin - 1;
-      destOrigin.X = startcol - 1;
-      destOrigin.Y = startlin - 1;
-      memset(&fillChar, 0, sizeof(CHAR_INFO));
-      fillChar.Char.AsciiChar = ' ';
-      ScrollConsoleScreenBuffer(hConsole, &scrollRect, NULL, destOrigin, &fillChar);
-    } else {
-      /* printf("GetStdHandle(STD_OUTPUT_HANDLE) ==> %d / Error %d\n",
-          hConsole, GetLastError()); */
+    if (startlin <= 0 || startcol <= 0 ||
+        stoplin < startlin || stopcol < startcol) {
+      raise_error(RANGE_ERROR);
+    } else if (startlin <= INT16TYPE_MAX && startcol <= INT16TYPE_MAX) {
+      if (count > stopcol - startcol + 1) {
+        conClear(startlin, startcol, stoplin, stopcol);
+      } else {
+        if (stoplin > INT16TYPE_MAX) {
+          stoplin = INT16TYPE_MAX;
+        } /* if */
+        if (stopcol > INT16TYPE_MAX) {
+          stopcol = INT16TYPE_MAX;
+        } /* if */
+        hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+        if (hConsole != INVALID_HANDLE_VALUE) {
+          scrollRect.Left   = (int16type) (startcol + count - 1);
+          scrollRect.Top    = (int16type) (startlin - 1);
+          scrollRect.Right  = (int16type) (stopcol - 1);
+          scrollRect.Bottom = (int16type) (stoplin - 1);
+          destOrigin.X = (int16type) (startcol - 1);
+          destOrigin.Y = (int16type) (startlin - 1);
+          memset(&fillChar, 0, sizeof(CHAR_INFO));
+          fillChar.Char.AsciiChar = ' ';
+          ScrollConsoleScreenBuffer(hConsole, &scrollRect, NULL, destOrigin, &fillChar);
+        } else {
+          /* printf("GetStdHandle(STD_OUTPUT_HANDLE) ==> %d / Error %d\n",
+              hConsole, GetLastError()); */
+        } /* if */
+      } /* if */
     } /* if */
   } /* conLeftScroll */
 
 
 
+/**
+ *  Scrolls the area inside startlin, startcol, stoplin and
+ *  stopcol rightward by count columns. The right count columns of the
+ *  area are overwritten. At the left end of the area blank columns
+ *  are inserted. Nothing is changed outside the area.
+ *  The calling function assures that count is greater or equal 1.
+ */
 void conRightScroll (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol, inttype count)
-
-  /* Scrolls the area inside startlin, startcol, stoplin and        */
-  /* stopcol rightward by count lines. The right count lines of the */
-  /* area are overwritten. At the left end of the area blank lines  */
-  /* are inserted. Nothing is changed outside the area.             */
 
   {
     HANDLE hConsole;
@@ -648,20 +682,35 @@ void conRightScroll (inttype startlin, inttype startcol,
     CHAR_INFO fillChar;
 
   /* conRightScroll */
-    hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-    if (hConsole != INVALID_HANDLE_VALUE) {
-      scrollRect.Left   = startcol - 1;
-      scrollRect.Top    = startlin - 1;
-      scrollRect.Right  = stopcol - count - 1;
-      scrollRect.Bottom = stoplin - 1;
-      destOrigin.X = startcol + count - 1;
-      destOrigin.Y = startlin - 1;
-      memset(&fillChar, 0, sizeof(CHAR_INFO));
-      fillChar.Char.AsciiChar = ' ';
-      ScrollConsoleScreenBuffer(hConsole, &scrollRect, NULL, destOrigin, &fillChar);
-    } else {
-      /* printf("GetStdHandle(STD_OUTPUT_HANDLE) ==> %d / Error %d\n",
-          hConsole, GetLastError()); */
+    if (startlin <= 0 || startcol <= 0 ||
+        stoplin < startlin || stopcol < startcol) {
+      raise_error(RANGE_ERROR);
+    } else if (startlin <= INT16TYPE_MAX && startcol <= INT16TYPE_MAX) {
+      if (count > stopcol - startcol + 1) {
+        conClear(startlin, startcol, stoplin, stopcol);
+      } else {
+        if (stoplin > INT16TYPE_MAX) {
+          stoplin = INT16TYPE_MAX;
+        } /* if */
+        if (stopcol > INT16TYPE_MAX) {
+          stopcol = INT16TYPE_MAX;
+        } /* if */
+        hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+        if (hConsole != INVALID_HANDLE_VALUE) {
+          scrollRect.Left   = (int16type) (startcol - 1);
+          scrollRect.Top    = (int16type) (startlin - 1);
+          scrollRect.Right  = (int16type) (stopcol - count - 1);
+          scrollRect.Bottom = (int16type) (stoplin - 1);
+          destOrigin.X = (int16type) (startcol + count - 1);
+          destOrigin.Y = (int16type) (startlin - 1);
+          memset(&fillChar, 0, sizeof(CHAR_INFO));
+          fillChar.Char.AsciiChar = ' ';
+          ScrollConsoleScreenBuffer(hConsole, &scrollRect, NULL, destOrigin, &fillChar);
+        } else {
+          /* printf("GetStdHandle(STD_OUTPUT_HANDLE) ==> %d / Error %d\n",
+              hConsole, GetLastError()); */
+        } /* if */
+      } /* if */
     } /* if */
   } /* conRightScroll */
 
@@ -681,9 +730,10 @@ void conShut (void)
 
 
 
+/**
+ *  Initializes and clears the console.
+ */
 int conOpen (void)
-
-  /* Initializes and clears the console.                            */
 
   { /* conOpen */
     con_normalcolour();

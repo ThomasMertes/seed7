@@ -209,20 +209,23 @@ void open_infile (const_stritype source_file_name, booltype write_library_names,
         *err_info = FILE_ERROR;
       } else {
         if (!ALLOC_FILE(new_file)) {
-          fclose(in_file.fil);
+          fclose(in_fil);
           *err_info = MEMORY_ERROR;
         } else {
-          name_ustri = (ustritype) cp_to_cstri8(source_file_name);
+          name_ustri = (ustritype) stri_to_cstri8(source_file_name, err_info);
           if (name_ustri != NULL) {
+            /* printf("name_ustri: \"%s\"\n", name_ustri); */
             name_length = strlen((cstritype) name_ustri);
             name_ustri = REALLOC_USTRI(name_ustri, max_utf8_size(source_file_name->size), name_length);
+            if (name_ustri == NULL) {
+              *err_info = MEMORY_ERROR;
+            } /* if */
           } /* if */
           if (name_ustri == NULL) {
-            fclose(in_file.fil);
-            *err_info = MEMORY_ERROR;
+            fclose(in_fil);
           } else if (!ALLOC_STRI_CHECK_SIZE(in_name, source_file_name->size)) {
-            free_cstri(name_ustri, source_file_name);
-            fclose(in_file.fil);
+            free_cstri8(name_ustri, source_file_name);
+            fclose(in_fil);
             *err_info = MEMORY_ERROR;
           } else {
             in_name->size = source_file_name->size;
@@ -233,7 +236,7 @@ void open_infile (const_stritype source_file_name, booltype write_library_names,
             in_file.fil = in_fil;
             if (!speedup()) {
               fclose(in_file.fil);
-              free_cstri(name_ustri, source_file_name);
+              free_cstri8(name_ustri, source_file_name);
               FREE_STRI(in_name, source_file_name->size);
               if (in_file.curr_infile != NULL) {
                 memcpy(&in_file, in_file.curr_infile, sizeof(infilrecord));
@@ -335,7 +338,7 @@ void open_string (bstritype input_string, booltype write_library_names,
     booltype write_line_numbers, errinfotype *err_info)
 
   {
-    const_cstritype source_file_name = "STRING";
+    const const_cstritype source_file_name = "STRING";
     infiltype new_file;
     memsizetype name_length;
     ustritype name_ustri;

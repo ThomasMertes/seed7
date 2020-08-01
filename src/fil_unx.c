@@ -94,7 +94,7 @@ booltype filInputReady (filetype aFile)
     int file_no;
     int flags;
     int ch;
-    int err_num;
+    int saved_errno;
     booltype result;
 
   /* filInputReady */
@@ -105,13 +105,13 @@ booltype filInputReady (filetype aFile)
       flags = fcntl(file_no, F_GETFL);
       fcntl(file_no, F_SETFL, flags|O_NONBLOCK);
       ch = getc(aFile);
-      err_num = errno;
-      /* printf("errno=%d ", err_num); */
+      saved_errno = errno;
+      /* printf("errno=%d ", saved_errno); */
       if (ch == EOF) {
         if (feof(aFile)) {
           clearerr(aFile);
           result = TRUE;
-        } else if (err_num == EAGAIN || err_num == EIO) {
+        } else if (saved_errno == EAGAIN || saved_errno == EIO) {
           result = FALSE;
         } else {
           result = TRUE;

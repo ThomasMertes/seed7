@@ -51,6 +51,7 @@
 #include "infile.h"
 #include "str_rtl.h"
 #include "ref_data.h"
+#include "rtl_err.h"
 
 #undef EXTERN
 #define EXTERN
@@ -625,6 +626,7 @@ objecttype ref_scan (listtype arguments)
     objecttype obj_variable;
     cstritype name;
     identtype ident_found;
+    errinfotype err_info = OKAY_NO_ERROR;
     objecttype result;
 
   /* ref_scan */
@@ -633,11 +635,13 @@ objecttype ref_scan (listtype arguments)
     obj_variable = arg_2(arguments);
     isit_reference(obj_variable);
     is_variable(obj_variable);
-    name = cp_to_cstri8(str1);
+    name = stri_to_cstri8(str1, &err_info);
     if (name == NULL) {
-      result = raise_exception(SYS_MEM_EXCEPTION);
+      raise_error(err_info);
+      result = NULL;
     } else {
       ident_found = get_ident(&prog, (const_ustritype) name);
+      free_cstri8(name, str1);
       if (ident_found == NULL ||
           ident_found->entity == NULL ||
           ident_found->entity->data.owner == NULL) {

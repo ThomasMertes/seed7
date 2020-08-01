@@ -481,12 +481,13 @@ objecttype prgSyobject (const progtype aProg, const const_stritype syobjectName)
   {
     cstritype name;
     identtype ident_found;
+    errinfotype err_info = OKAY_NO_ERROR;
     objecttype result;
 
   /* prgSyobject */
-    name = cp_to_cstri8(syobjectName);
+    name = stri_to_cstri8(syobjectName, &err_info);
     if (name == NULL) {
-      raise_error(MEMORY_ERROR);
+      raise_error(err_info);
       result = NULL;
     } else {
       ident_found = get_ident(aProg, (const_ustritype) name);
@@ -496,7 +497,7 @@ objecttype prgSyobject (const progtype aProg, const const_stritype syobjectName)
       } else {
         result = ident_found->entity->syobject;
       } /* if */
-      free_cstri(name, syobjectName);
+      free_cstri8(name, syobjectName);
     } /* if */
     return result;
   } /* prgSyobject */

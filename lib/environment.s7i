@@ -120,7 +120,8 @@ const func string: getenv (in string: name)            is action "CMD_GETENV";
  *  the value ''value'' is created.
  *  @exception MEMORY_ERROR Not enough memory to convert ''name'' or ''value''
  *             to the system string type.
- *  @exception RANGE_ERROR A system function returns an error.
+ *  @exception RANGE_ERROR ''name'' or ''value'' cannot be converted to the
+ *             system string type or a system function returns an error.
  *)
 const proc: setenv (in string: name, in string: value) is action "CMD_SETENV";
 

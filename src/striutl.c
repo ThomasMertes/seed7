@@ -288,45 +288,94 @@ memsizetype utf8_bytes_missing (const const_ustritype ustri, const size_t len)
 
 
 memsizetype stri_to_utf8 (const ustritype out_stri,
-    register const strelemtype *strelem, memsizetype len)
+    const strelemtype *strelem, memsizetype len)
 
   {
     register ustritype ustri;
+    register strelemtype ch;
 
   /* stri_to_utf8 */
     ustri = out_stri;
     for (; len > 0; strelem++, len--) {
-      if (*strelem <= 0x7F) {
-        *ustri++ = (uchartype) *strelem;
-      } else if (*strelem <= 0x7FF) {
-        *ustri++ = (uchartype) (0xC0 | (*strelem >>  6));
-        *ustri++ = (uchartype) (0x80 |( *strelem        & 0x3F));
-      } else if (*strelem <= 0xFFFF) {
-        *ustri++ = (uchartype) (0xE0 | (*strelem >> 12));
-        *ustri++ = (uchartype) (0x80 |((*strelem >>  6) & 0x3F));
-        *ustri++ = (uchartype) (0x80 |( *strelem        & 0x3F));
-      } else if (*strelem <= 0x1FFFFF) {
-        *ustri++ = (uchartype) (0xF0 | (*strelem >> 18));
-        *ustri++ = (uchartype) (0x80 |((*strelem >> 12) & 0x3F));
-        *ustri++ = (uchartype) (0x80 |((*strelem >>  6) & 0x3F));
-        *ustri++ = (uchartype) (0x80 |( *strelem        & 0x3F));
-      } else if (*strelem <= 0x3FFFFFF) {
-        *ustri++ = (uchartype) (0xF8 | (*strelem >> 24));
-        *ustri++ = (uchartype) (0x80 |((*strelem >> 18) & 0x3F));
-        *ustri++ = (uchartype) (0x80 |((*strelem >> 12) & 0x3F));
-        *ustri++ = (uchartype) (0x80 |((*strelem >>  6) & 0x3F));
-        *ustri++ = (uchartype) (0x80 |( *strelem        & 0x3F));
+      ch = *strelem;
+      if (ch <= 0x7F) {
+        *ustri++ = (uchartype) ch;
+      } else if (ch <= 0x7FF) {
+        ustri[0] = (uchartype) (0xC0 | (ch >>  6));
+        ustri[1] = (uchartype) (0x80 |( ch        & 0x3F));
+        ustri += 2;
+      } else if (ch <= 0xFFFF) {
+        ustri[0] = (uchartype) (0xE0 | (ch >> 12));
+        ustri[1] = (uchartype) (0x80 |((ch >>  6) & 0x3F));
+        ustri[2] = (uchartype) (0x80 |( ch        & 0x3F));
+        ustri += 3;
+      } else if (ch <= 0x1FFFFF) {
+        ustri[0] = (uchartype) (0xF0 | (ch >> 18));
+        ustri[1] = (uchartype) (0x80 |((ch >> 12) & 0x3F));
+        ustri[2] = (uchartype) (0x80 |((ch >>  6) & 0x3F));
+        ustri[3] = (uchartype) (0x80 |( ch        & 0x3F));
+        ustri += 4;
+      } else if (ch <= 0x3FFFFFF) {
+        ustri[0] = (uchartype) (0xF8 | (ch >> 24));
+        ustri[1] = (uchartype) (0x80 |((ch >> 18) & 0x3F));
+        ustri[2] = (uchartype) (0x80 |((ch >> 12) & 0x3F));
+        ustri[3] = (uchartype) (0x80 |((ch >>  6) & 0x3F));
+        ustri[4] = (uchartype) (0x80 |( ch        & 0x3F));
+        ustri += 5;
       } else {
-        *ustri++ = (uchartype) (0xFC | (*strelem >> 30));
-        *ustri++ = (uchartype) (0x80 |((*strelem >> 24) & 0x3F));
-        *ustri++ = (uchartype) (0x80 |((*strelem >> 18) & 0x3F));
-        *ustri++ = (uchartype) (0x80 |((*strelem >> 12) & 0x3F));
-        *ustri++ = (uchartype) (0x80 |((*strelem >>  6) & 0x3F));
-        *ustri++ = (uchartype) (0x80 |( *strelem        & 0x3F));
+        ustri[0] = (uchartype) (0xFC | (ch >> 30));
+        ustri[1] = (uchartype) (0x80 |((ch >> 24) & 0x3F));
+        ustri[2] = (uchartype) (0x80 |((ch >> 18) & 0x3F));
+        ustri[3] = (uchartype) (0x80 |((ch >> 12) & 0x3F));
+        ustri[4] = (uchartype) (0x80 |((ch >>  6) & 0x3F));
+        ustri[5] = (uchartype) (0x80 |( ch        & 0x3F));
+        ustri += 6;
       } /* if */
     } /* for */
     return (memsizetype) (ustri - out_stri);
   } /* stri_to_utf8 */
+
+
+
+static inline void stri_to_os_utf8 (register ustritype out_stri,
+    register const strelemtype *strelem, register memsizetype len,
+    errinfotype *err_info)
+
+  {
+    register strelemtype ch;
+
+  /* stri_to_os_utf8 */
+    for (; len > 0; strelem++, len--) {
+      ch = *strelem;
+      if (ch <= 0x7F) {
+        if (unlikely(ch == '\0')) {
+          *err_info = RANGE_ERROR;
+          return;
+        } else {
+          *out_stri++ = (uchartype) ch;
+        } /* if */
+      } else if (ch <= 0x7FF) {
+        out_stri[0] = (uchartype) (0xC0 | (ch >>  6));
+        out_stri[1] = (uchartype) (0x80 |( ch        & 0x3F));
+        out_stri += 2;
+      } else if (ch <= 0xFFFF) {
+        out_stri[0] = (uchartype) (0xE0 | (ch >> 12));
+        out_stri[1] = (uchartype) (0x80 |((ch >>  6) & 0x3F));
+        out_stri[2] = (uchartype) (0x80 |( ch        & 0x3F));
+        out_stri += 3;
+      } else if (ch <= 0x10FFFF) {
+        out_stri[0] = (uchartype) (0xF0 | (ch >> 18));
+        out_stri[1] = (uchartype) (0x80 |((ch >> 12) & 0x3F));
+        out_stri[2] = (uchartype) (0x80 |((ch >>  6) & 0x3F));
+        out_stri[3] = (uchartype) (0x80 |( ch        & 0x3F));
+        out_stri += 4;
+      } else {
+        *err_info = RANGE_ERROR;
+        return;
+      } /* if */
+    } /* for */
+    *out_stri = '\0';
+  } /* stri_to_os_utf8 */
 
 
 
@@ -354,39 +403,73 @@ size_t ustri_expand2 (strelemtype *const stri, const_ustritype ustri)
 
 
 
-void stri_compress (ustritype ustri, const strelemtype *stri, size_t len)
+/**
+ *  Copy a Seed7 UTF-32 string to an ISO-8859-1 encoded C string buffer.
+ *  The buffer 'cstri' must be provided by the caller. The
+ *  size of the 'cstri' buffer can be calculated (in bytes) with
+ *  stri->size+1. When a fixed size 'cstri' buffer is used
+ *  (e.g.: char out_buffer[BUF_SIZE];) the condition
+ *    stri->size < BUF_SIZE
+ *  must hold. The C string written to 'out_buf' is zero byte
+ *  terminated. This function is intended to copy to temporary
+ *  string buffers, that are used as parameters. This function
+ *  is useful, when stri->size is somehow limited, such that
+ *  a fixed size 'cstri' buffer can be used.
+ *  @param cstri Caller provided buffer to which an ISO-8859-1
+ *         encoded null terminated C string is written.
+ *  @param stri Seed7 UTF-32 string to be converted.
+ *  @param err_info Unchanged when the function succeeds or
+ *                  RANGE_ERROR when stri contains a null character
+ *                        or a character that is higher than the
+ *                        highest allowed ISO-8859-1 character (255).
+ */
+void conv_to_cstri (cstritype cstri, const const_stritype stri,
+    errinfotype *err_info)
 
-  { /* stri_compress */
-    for (; len > 0; stri++, ustri++, len--) {
-      *ustri = (uchartype) *stri;
+  {
+    const strelemtype *str;
+    memsizetype pos;
+
+  /* conv_to_cstri */
+    str = stri->mem;
+    for (pos = stri->size; pos > 0; pos--) {
+      if (unlikely(str[pos - 1] == 0 || str[pos - 1] >= 256)) {
+        *err_info = RANGE_ERROR;
+        return;
+      } /* if */
+      cstri[pos - 1] = (char) (uchartype) str[pos - 1];
     } /* for */
-  } /* stri_compress */
+    cstri[stri->size] = '\0';
+  } /* conv_to_cstri */
 
 
 
 /**
  *  Copy a Seed7 UTF-32 string to an UTF-8 encoded C string buffer.
- *  The buffer 'out_stri' must be provided by the caller. The
- *  size of the 'out_stri' buffer can be calculated (in bytes) with
- *  max_utf8_size(in_stri->size)+1. When a fixed size 'out_stri'
+ *  The buffer 'cstri' must be provided by the caller. The
+ *  size of the 'cstri' buffer can be calculated (in bytes) with
+ *  max_utf8_size(stri->size)+1. When a fixed size 'cstri'
  *  buffer is used (e.g.: char out_buffer[BUF_SIZE];) the condition
- *    in_stri->size < BUF_SIZE / MAX_UTF8_EXPANSION_FACTOR
+ *    stri->size < BUF_SIZE / MAX_UTF8_EXPANSION_FACTOR
  *  must hold. The C string written to 'out_buf' is zero byte
- *  terminated. No special action is done, when the UTF-32 string
- *  contains a null character. This function is intended to copy
- *  to temporary string buffers, that are used as parameters. This
- *  function is useful, when in_stri->size is somehow limited,
- *  such that a fixed size 'out_stri' buffer can be used.
+ *  terminated. This function is intended to copy to temporary
+ *  string buffers, that are used as parameters. This function
+ *  is useful, when stri->size is somehow limited, such that
+ *  a fixed size 'cstri' buffer can be used.
+ *  @param cstri Caller provided buffer to which an UTF-8 encoded
+ *         null terminated C string is written.
+ *  @param stri Seed7 UTF-32 string to be converted.
+ *  @param err_info Unchanged when the function succeeds or
+ *                  RANGE_ERROR when stri contains a null character 
+ *                        or a character that is higher than the
+ *                        highest allowed Unicode character (U+10FFFF).
  */
-void stri_export_utf8 (ustritype out_stri, const const_stritype in_stri)
+void conv_to_cstri8 (cstritype cstri, const const_stritype stri,
+    errinfotype *err_info)
 
-  {
-    memsizetype len;
-
-  /* stri_export_utf8 */
-    len = stri_to_utf8(out_stri, in_stri->mem, in_stri->size);
-    out_stri[len] = '\0';
-  } /* stri_export_utf8 */
+  { /* conv_to_cstri8 */
+    stri_to_os_utf8((ustritype) cstri, stri->mem, stri->size, err_info);
+  } /* conv_to_cstri8 */
 
 
 
@@ -418,16 +501,30 @@ memsizetype stri_to_wstri (const wstritype out_wstri,
 
 
 
-static inline void conv_to_os_stri (const os_stritype os_stri,
-    const strelemtype *const strelem, const memsizetype len,
-    errinfotype *err_info)
+static inline void conv_to_os_stri (register os_stritype os_stri,
+    register const strelemtype *strelem, memsizetype len,
+    errinfotype *const err_info)
 
-  {
-    memsizetype length;
-
-  /* conv_to_os_stri */
-    length = stri_to_wstri(os_stri, strelem, len, err_info);
-    os_stri[length] = (os_chartype) 0;
+  { /* conv_to_os_stri */
+    for (; len > 0; os_stri++, strelem++, len--) {
+      if (likely(*strelem <= 0xFFFF)) {
+        if (*strelem == '\0') {
+          *err_info = RANGE_ERROR;
+          len = 1;
+        } else {
+          *os_stri = (os_chartype) *strelem;
+        } /* if */
+      } else if (*strelem <= 0x10FFFF) {
+        strelemtype currChar = *strelem - 0x10000;
+        *os_stri = (os_chartype) (0xD800 | (currChar >> 10));
+        os_stri++;
+        *os_stri = (os_chartype) (0xDC00 | (currChar & 0x3FF));
+      } else {
+        *err_info = RANGE_ERROR;
+        len = 1;
+      } /* if */
+    } /* for */
+    *os_stri = '\0';
   } /* conv_to_os_stri */
 
 
@@ -516,7 +613,12 @@ static inline void conv_to_os_stri (os_stritype os_stri,
     if (codepage == 437) {
       for (; len > 0; os_stri++, strelem++, len--) {
         if (*strelem <= 127) {
-          *os_stri = (os_chartype) *strelem;
+          if (*strelem == '\0') {
+            *err_info = RANGE_ERROR;
+            len = 1;
+          } else {
+            *os_stri = (os_chartype) *strelem;
+          } /* if */
         } else {
           if (*strelem >= 160 && *strelem <= 255) {
             ch = map_to_437_160[*strelem - 160];
@@ -554,7 +656,12 @@ static inline void conv_to_os_stri (os_stritype os_stri,
     } else if (codepage == 850) {
       for (; len > 0; os_stri++, strelem++, len--) {
         if (*strelem <= 127) {
-          *os_stri = (os_chartype) *strelem;
+          if (*strelem == '\0') {
+            *err_info = RANGE_ERROR;
+            len = 1;
+          } else {
+            *os_stri = (os_chartype) *strelem;
+          } /* if */
         } else {
           if (*strelem >= 160 && *strelem <= 255) {
             ch = map_to_850_160[*strelem - 160];
@@ -579,11 +686,10 @@ static inline void conv_to_os_stri (os_stritype os_stri,
     } else {
       *err_info = RANGE_ERROR;
     } /* if */
-    *os_stri = (os_chartype) 0;
+    *os_stri = '\0';
   } /* conv_to_os_stri */
 
 #elif defined OS_STRI_UTF8
-#define CONF_TO_OS_STRI_SUCCEEDS_ALWAYS
 
 
 
@@ -591,12 +697,8 @@ static inline void conv_to_os_stri (const os_stritype os_stri,
     const strelemtype *const strelem, const memsizetype len,
     errinfotype *err_info)
 
-  {
-    memsizetype length;
-
-  /* conv_to_os_stri */
-    length = stri_to_utf8((ustritype) os_stri, strelem, len);
-    os_stri[length] = '\0';
+  { /* conv_to_os_stri */
+    stri_to_os_utf8((ustritype) os_stri, strelem, len, err_info);
   } /* conv_to_os_stri */
 
 #else
@@ -608,7 +710,7 @@ static inline void conv_to_os_stri (os_stritype os_stri,
 
   { /* conv_to_os_stri */
     for (; len > 0; strelem++, os_stri++, len--) {
-      if (unlikely(*strelem >= 256)) {
+      if (unlikely(*strelem == '\0' || *strelem >= 256)) {
         *err_info = RANGE_ERROR;
       } /* if */
       *os_stri = (os_chartype) *strelem;
@@ -621,7 +723,7 @@ static inline void conv_to_os_stri (os_stritype os_stri,
 
 
 #if defined OS_STRI_WCHAR
-static memsizetype wstri_expand (const strelemtype *dest_stri,
+static memsizetype wstri_expand (strelemtype *const dest_stri,
     const_wstritype wstri, memsizetype len)
 
   {
@@ -869,30 +971,82 @@ stritype conv_from_os_stri (const const_os_stritype os_stri,
 
 
 /**
- *  Create an UTF-8 encoded C string from a Seed7 UTF-32 string.
+ *  Create an ISO-8859-1 encoded C string from a Seed7 UTF-32 string.
  *  The memory for the zero byte terminated C string is allocated.
  *  The C string result must be freed with the macro free_cstri().
+ *  @param stri Seed7 UTF-32 string to be converted.
+ *  @param err_info Unchanged when the function succeeds or
+ *                  MEMORY_ERROR when the memory allocation failed or
+ *                  RANGE_ERROR when stri contains a null character
+ *                        or a character that is higher than the
+ *                        highest allowed ISO-8859-1 character (255).
+ *  @return an ISO-8859-1 encoded null terminated C string or
+ *          NULL, when the memory allocation failed or when the
+ *          conversion failed (the error is indicated by err_info).
+ */
+cstritype stri_to_cstri (const const_stritype stri, errinfotype *err_info)
+
+  {
+    const strelemtype *str;
+    memsizetype pos;
+    cstritype cstri;
+
+  /* stri_to_cstri */
+    if (unlikely(!ALLOC_CSTRI(cstri, stri->size))) {
+      *err_info = MEMORY_ERROR;
+    } else {
+      str = stri->mem;
+      for (pos = stri->size; pos > 0; pos--) {
+        if (unlikely(str[pos - 1] == 0 || str[pos - 1] >= 256)) {
+          UNALLOC_CSTRI(cstri, stri->size);
+          *err_info = RANGE_ERROR;
+          return NULL;
+        } /* if */
+        cstri[pos - 1] = (char) (uchartype) str[pos - 1];
+      } /* for */
+      cstri[stri->size] = '\0';
+    } /* if */
+    return cstri;
+  } /* stri_to_cstri */
+
+
+
+/**
+ *  Create an UTF-8 encoded C string from a Seed7 UTF-32 string.
+ *  The memory for the zero byte terminated C string is allocated.
+ *  The C string result must be freed with the macro free_cstri8().
  *  This function is intended to create temporary strings, that
  *  are used as parameters. To get good performance the allocated
- *  memory for the C string is oversized. No special action is
- *  done, when the UTF-32 string contains a null character.
+ *  memory for the C string is oversized.
  *  @param stri Seed7 UTF-32 string to be converted.
+ *  @param err_info Unchanged when the function succeeds or
+ *                  MEMORY_ERROR when the memory allocation failed or
+ *                  RANGE_ERROR when stri contains a null character 
+ *                        or a character that is higher than the
+ *                        highest allowed Unicode character (U+10FFFF).
  *  @return an UTF-8 encoded null terminated C string or
- *          NULL, when the memory allocation failed.
+ *          NULL, when the memory allocation failed or when the
+ *          conversion failed (the error is indicated by err_info).
  */
-cstritype cp_to_cstri8 (const const_stritype stri)
+cstritype stri_to_cstri8 (const const_stritype stri, errinfotype *err_info)
 
   {
     cstritype cstri;
 
-  /* cp_to_cstri8 */
-    if (stri->size > MAX_CSTRI_LEN / MAX_UTF8_EXPANSION_FACTOR) {
+  /* stri_to_cstri8 */
+    if (unlikely(stri->size > MAX_CSTRI_LEN / MAX_UTF8_EXPANSION_FACTOR ||
+                 !ALLOC_CSTRI(cstri, max_utf8_size(stri->size)))) {
+      *err_info = MEMORY_ERROR;
       cstri = NULL;
-    } else if (ALLOC_CSTRI(cstri, max_utf8_size(stri->size))) {
-      stri_export_utf8((ustritype) cstri, stri);
+    } else {
+      stri_to_os_utf8((ustritype) cstri, stri->mem, stri->size, err_info);
+      if (unlikely(*err_info != OKAY_NO_ERROR)) {
+        free_cstri8(cstri, stri);
+        cstri = NULL;
+      } /* if */
     } /* if */
     return cstri;
-  } /* cp_to_cstri8 */
+  } /* stri_to_cstri8 */
 
 
 
@@ -900,43 +1054,39 @@ cstritype cp_to_cstri8 (const const_stritype stri)
  *  Create an ISO-8859-1 encoded bstring from a Seed7 UTF-32 string.
  *  The memory for the bstring is allocated. No zero byte is added
  *  to the end of the bstring. No special action is done, when the
- *  UTF-32 string contains a null character. When the UTF-32 string
- *  contains a character beyond ISO-8859-1 the bstring will end with
- *  the last ISO-8859-1 character. When the first UTF-32 character
- *  is beyond ISO-8859-1 an empty bstring is returned. The conversion
- *  was successful, when the bstring has the same size as the UTF-32
- *  string.
+ *  UTF-32 string contains a null character.
  *  @param stri Seed7 UTF-32 string to be converted.
+ *  @param err_info Unchanged when the function succeeds or
+ *                  MEMORY_ERROR when the memory allocation failed or
+ *                  RANGE_ERROR when stri contains a character
+ *                        that is higher than the highest
+ *                        allowed ISO-8859-1 character (255).
  *  @return an ISO-8859-1 encoded bstring or
- *          NULL, when the memory allocation failed.
+ *          NULL, when the memory allocation failed or when the
+ *          conversion failed (the error is indicated by err_info).
  */
-bstritype stri_to_bstri (const_stritype stri)
+bstritype stri_to_bstri (const const_stritype stri, errinfotype *err_info)
 
   {
     register const strelemtype *str;
     register uchartype *ustri;
-    register memsizetype len;
-    bstritype resized_bstri;
+    register memsizetype pos;
     bstritype bstri;
 
   /* stri_to_bstri */
-    if (ALLOC_BSTRI_CHECK_SIZE(bstri, stri->size)) {
+    if (unlikely(!ALLOC_BSTRI_CHECK_SIZE(bstri, stri->size))) {
+      *err_info = MEMORY_ERROR;
+    } else {
       bstri->size = stri->size;
-      for (str = stri->mem, ustri = bstri->mem, len = stri->size;
-          len > 0; str++, ustri++, len--) {
-        if (*str >= 256) {
-          bstri->size -= len;
-          REALLOC_BSTRI_SIZE_OK(resized_bstri, bstri, stri->size, bstri->size);
-          if (resized_bstri == NULL) {
-            FREE_BSTRI(bstri, stri->size);
-            bstri = NULL;
-          } else {
-            bstri = resized_bstri;
-            COUNT3_BSTRI(stri->size, bstri->size);
-          } /* if */
-          return bstri;
+      str = stri->mem;
+      ustri = bstri->mem;
+      for (pos = 0; pos < stri->size; pos++) {
+        if (unlikely(str[pos] >= 256)) {
+          FREE_BSTRI(bstri, bstri->size);
+          *err_info = RANGE_ERROR;
+          return NULL;
         } /* if */
-        *ustri = (uchartype) *str;
+        ustri[pos] = (uchartype) str[pos];
       } /* for */
     } /* if */
     return bstri;
@@ -1182,12 +1332,10 @@ os_stritype stri_to_os_stri (const_stritype stri, errinfotype *err_info)
         *err_info = MEMORY_ERROR;
       } else {
         conv_to_os_stri(result, stri->mem, stri->size, err_info);
-#ifndef CONF_TO_OS_STRI_SUCCEEDS_ALWAYS
         if (unlikely(*err_info != OKAY_NO_ERROR)) {
           os_stri_free(result);
           result = NULL;
         } /* if */
-#endif
       } /* if */
     } /* if */
     return result;
@@ -1633,12 +1781,10 @@ os_stritype cp_to_os_path (const_stritype std_path, int *path_info,
       result = NULL;
     } else {
       conv_to_os_stri(result, std_path->mem, std_path->size, err_info);
-#ifndef CONF_TO_OS_STRI_SUCCEEDS_ALWAYS
       if (unlikely(*err_info != OKAY_NO_ERROR)) {
         os_stri_free(result);
         result = NULL;
       } /* if */
-#endif
     } /* if */
 #ifdef TRACE_STRIUTL
     printf("END cp_to_os_path(%lx, %d) ==> %lx\n", std_path, *err_info, result);

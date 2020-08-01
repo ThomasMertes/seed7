@@ -678,25 +678,71 @@ int main (int argc, char **argv)
 #else
     if (!compilationOkay("#include<stdio.h>\n"
                          "int main(int argc,char *argv[]){"
-                         "printf(\"%d\\n\", 1/0);return 0;}\n")) {
+                         "printf(\"%d\\n\", 1/0);return 0;}\n") ||
+        !compilationOkay("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
+                         "void handleSig(int sig){puts(\"2\");exit(0);}\n"
+                         "int main(int argc,char *argv[]){\n"
+                         "signal(SIGFPE,handleSig);\n"
+                         "printf(\"%d\\n\",1/0==0);return 0;}\n") || doTest() != 2 ||
+        !compilationOkay("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
+                         "void handleSig(int sig){puts(\"2\");exit(0);}\n"
+                         "int main(int argc,char *argv[]){\n"
+                         "int zero=0;\n"
+                         "signal(SIGFPE,handleSig);\n"
+                         "printf(\"%d\\n\",1/zero==0);return 0;}\n") || doTest() != 2 ||
+        !compilationOkay("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
+                         "void handleSig(int sig){puts(\"2\");exit(0);}\n"
+                         "int main(int argc,char *argv[]){\n"
+                         "signal(SIGFPE,handleSig);\n"
+                         "printf(\"%d\\n\",0/0==0);return 0;}\n") || doTest() != 2 ||
+        !compilationOkay("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
+                         "void handleSig(int sig){puts(\"2\");exit(0);}\n"
+                         "int main(int argc,char *argv[]){\n"
+                         "int zero=0;\n"
+                         "signal(SIGFPE,handleSig);\n"
+                         "printf(\"%d\\n\",0/zero==0);return 0;}\n") || doTest() != 2) {
       puts("#define CHECK_INT_DIV_BY_ZERO");
-    } else if (compilationOkay("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
-                               "void handleSig(int sig){puts(\"2\");exit(0);}\n"
-                               "int main(int argc,char *argv[]){\n"
-                               "signal(SIGFPE,handleSig);\n"
-                               "printf(\"%d\\n\",1/0==0);return 0;}\n") && doTest() == 2 &&
-               compilationOkay("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
-                               "void handleSig(int sig){puts(\"2\");exit(0);}\n"
-                               "int main(int argc,char *argv[]){\n"
-                               "int zero=0;\n"
-                               "signal(SIGFPE,handleSig);\n"
-                               "printf(\"%d\\n\",1/zero==0);return 0;}\n") && doTest() == 2) {
+    } else {
       puts("#define INT_DIV_BY_ZERO_SIGNALS");
 #ifndef DO_SIGFPE_WITH_DIV_BY_ZERO
       puts("#define DO_SIGFPE_WITH_DIV_BY_ZERO");
 #endif
-    } else {
-      puts("#define CHECK_INT_DIV_BY_ZERO");
+    } /* if */
+    if (!compilationOkay("#include<stdio.h>\n"
+                         "int main(int argc,char *argv[]){"
+                         "printf(\"%d\\n\", 1%0);return 0;}\n") ||
+        !compilationOkay("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
+                         "void handleSig(int sig){puts(\"2\");exit(0);}\n"
+                         "int main(int argc,char *argv[]){\n"
+                         "int zero=0;\n"
+                         "signal(SIGFPE,handleSig);\n"
+                         "printf(\"%d\\n\",1%zero==0);return 0;}\n") || doTest() != 2 ||
+        !compilationOkay("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
+                         "void handleSig(int sig){puts(\"2\");exit(0);}\n"
+                         "int main(int argc,char *argv[]){\n"
+                         "int one=0, zero=0;\n"
+                         "signal(SIGFPE,handleSig);\n"
+                         "printf(\"%d\\n\",one%zero==0);return 0;}\n") || doTest() != 2 ||
+        !compilationOkay("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
+                         "void handleSig(int sig){puts(\"2\");exit(0);}\n"
+                         "int main(int argc,char *argv[]){\n"
+                         "int zero1=0, zero2=0;\n"
+                         "signal(SIGFPE,handleSig);\n"
+                         "printf(\"%d\\n\",zero1%zero2==0);return 0;}\n") || doTest() != 2) {
+      puts("#define CHECK_INT_REM_BY_ZERO");
+    } /* if */
+    if (!compilationOkay("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
+                         "void handleSig(int sig){puts(\"2\");exit(0);}\n"
+                         "int main(int argc,char *argv[]){\n"
+                         "signal(SIGFPE,handleSig);\n"
+                         "printf(\"%d\\n\",0%0==0);return 0;}\n") || doTest() != 2 ||
+        !compilationOkay("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
+                         "void handleSig(int sig){puts(\"2\");exit(0);}\n"
+                         "int main(int argc,char *argv[]){\n"
+                         "int zero=0;\n"
+                         "signal(SIGFPE,handleSig);\n"
+                         "printf(\"%d\\n\",0%zero==0);return 0;}\n") || doTest() != 2) {
+      puts("#define CHECK_INT_REM_ZERO_BY_ZERO");
     } /* if */
 #endif
 #ifdef TURN_OFF_FP_EXCEPTIONS
@@ -775,6 +821,10 @@ int main (int argc, char **argv)
         puts("#define CHECK_FLOAT_DIV_BY_ZERO");
       } /* if */
     } /* if */
+    if (0.0 * plusInf != nanValue1 || 0.0 * minusInf != nanValue1 ||
+        plusInf * 0.0 != nanValue1 || minusInf * 0.0 != nanValue1) {
+      puts("#define FLOAT_ZERO_TIMES_INFINITE_WRONG");
+    } /* if */
     if (nanValue1 == nanValue2 ||
         nanValue1 <  nanValue2 || nanValue1 >  nanValue2 ||
         nanValue1 <= nanValue2 || nanValue1 >= nanValue2) {
@@ -840,6 +890,18 @@ int main (int argc, char **argv)
 #else
     puts("#define HOME_DIR_ENV_VAR {'H', 'O', 'M', 'E', 0}");
 #endif
+    if (compilationOkay("#include <stdlib.h>\n#include <stdio.h>\n#include <signal.h>\n"
+                        "void handleSig(int sig){puts(\"1\");exit(0);}\n"
+                        "int main(int argc, char *argv[]){\n"
+                        "struct sigaction sig_act;\n"
+                        "sig_act.sa_handler = handleSig;\n"
+                        "sigemptyset(&sig_act.sa_mask);\n"
+                        "sig_act.sa_flags = SA_RESTART;\n"
+                        "if (sigaction(SIGINT, &sig_act, NULL) == -1)\n"
+                        "{puts(\"2\");}else{raise(SIGINT);puts(\"3\");}\n"
+                        "return 0;}\n") && doTest() == 1) {
+      puts("#define HAS_SIGACTION");
+    } /* if */
     if (compilationOkay("#include <stdio.h>\n#include <sys/resource.h>\n"
                         "int main(int argc, char *argv[]){\n"
                         "struct rlimit rlim;\n"

@@ -53,6 +53,16 @@ chartype map_1252_to_unicode[] = {
 /* 144 */    '?', 0x2018, 0x2019, 0x201C, 0x201D, 0x2022, 0x2013, 0x2014,
 /* 152 */ 0x02DC, 0x2122, 0x0161, 0x203A, 0x0153,    '?', 0x017E, 0x0178};
 
+#ifdef DMC_GKB_WIN_DEFINES
+#define WM_MOUSEWHEEL                   0x020A
+
+#if defined(_WIN64)
+ typedef __int64 INT_PTR;
+#else
+ typedef int INT_PTR;
+#endif
+#endif
+
 
 
 wintype find_window (HWND sys_window)

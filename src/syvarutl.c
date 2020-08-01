@@ -42,7 +42,7 @@
 #undef TRACE_SYSVAR
 
 
-#define MAX_STRI_EXPORT_LEN 25
+#define MAX_CSTRI_BUFFER_LEN 25
 
 static const_cstritype sys_name[NUMBER_OF_SYSVARS] = {
     "empty",
@@ -75,26 +75,36 @@ static const_cstritype sys_name[NUMBER_OF_SYSVARS] = {
 
 
 
+/**
+ *  Determine the index of a system variable with a given name.
+ *  @return the index of the system variable, or
+ *          -1 when no system variable with the name is found.
+ */
 int find_sysvar (const_stritype stri)
 
   {
+    char sysvar_name[MAX_CSTRI_BUFFER_LEN + 1];
+    errinfotype err_info = OKAY_NO_ERROR;
     int result;
-    char sysvar_name[max_utf8_size(MAX_STRI_EXPORT_LEN) + 1];
 
   /* find_sysvar */
 #ifdef TRACE_SYSVAR
     printf("BEGIN find_sysvar\n");
 #endif
-    if (stri->size > MAX_STRI_EXPORT_LEN) {
+    if (stri->size > MAX_CSTRI_BUFFER_LEN) {
       result = -1;
     } else {
-      stri_export_utf8((ustritype) sysvar_name, stri);
-      result = NUMBER_OF_SYSVARS - 1;
-      while (result >= 0 &&
-          strcmp(sysvar_name, sys_name[result]) != 0) {
-        result--;
-      } /* while */
-      /* printf("find_sysvar: %s -> %d\n", sysvar_name, result); */
+      conv_to_cstri(sysvar_name, stri, &err_info);
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        result = -1;
+      } else {
+        result = NUMBER_OF_SYSVARS - 1;
+        while (result >= 0 &&
+            strcmp(sysvar_name, sys_name[result]) != 0) {
+          result--;
+        } /* while */
+        /* printf("find_sysvar: %s -> %d\n", sysvar_name, result); */
+      } /* if */
     } /* if */
 #ifdef TRACE_SYSVAR
     printf("END find_sysvar -> %d\n", result);

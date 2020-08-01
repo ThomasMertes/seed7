@@ -45,6 +45,8 @@ int uint64LeastSignificantBit (uint64type number);
 #endif
 inttype intBinom (inttype n_number, inttype k_number);
 inttype intBitLength (inttype number);
+inttype intBytesBe2UInt (const const_stritype byteStri);
+inttype intBytesLe2UInt (const const_stritype byteStri);
 inttype intCmp (inttype number1, inttype number2);
 void intCpy (inttype *dest, inttype source);
 inttype intLog2 (inttype number);

@@ -260,21 +260,21 @@ const func string: cmdOutput (in var string: cmdAndParams) is func
   end func;
 
 
-const proc: check (in string: progName, in string: referenceOutput) is func
+const func boolean: checkInterpreter (in string: progName, in string: referenceOutput) is func
+  result
+    var boolean: okay is TRUE;
   local
     var string: interpretedOutput is "";
-    var string: compilerOutput is "";
-    var string: compiledOutput is "";
-    var boolean: okay is TRUE;
   begin
-    write(progName);
-    flush(OUT);
     interpretedOutput := cmdOutput(interpretProgram & progName);
     if interpretedOutput <> referenceOutput then
       writeln;
       writeln(" *** The interpreted " <& progName <& " does not work okay:");
       writeln(interpretedOutput);
       okay := FALSE;
+    else
+      write(".");
+      flush(OUT);
     end if;
     if fileType(progName & ccConf.EXECUTABLE_FILE_EXTENSION) <> FILE_ABSENT then
       block
@@ -283,7 +283,18 @@ const proc: check (in string: progName, in string: referenceOutput) is func
         catch FILE_ERROR: noop;
       end block;
     end if;
-    compilerOutput := cmdOutput(interpretCompiler & progName);
+  end func;
+
+
+const func boolean: checkCompiler (in string: progName, in string: option,
+    in string: referenceOutput) is func
+  result
+    var boolean: okay is TRUE;
+  local
+    var string: compilerOutput is "";
+    var string: compiledOutput is "";
+  begin
+    compilerOutput := cmdOutput(interpretCompiler & option & progName);
     if fileType(progName & ccConf.EXECUTABLE_FILE_EXTENSION) = FILE_REGULAR then
       compiledOutput := cmdOutput("./" & progName);
       if compiledOutput <> referenceOutput then
@@ -291,6 +302,9 @@ const proc: check (in string: progName, in string: referenceOutput) is func
         writeln(" *** The compiled " <& progName <& " does not work okay:");
         writeln(compiledOutput);
         okay := FALSE;
+      else
+        write(".");
+        flush(OUT);
       end if;
     else
       writeln;
@@ -305,22 +319,22 @@ const proc: check (in string: progName, in string: referenceOutput) is func
         end if;
         moveFile("tmp_" & progName & ".cerrs", "tmp1_" & progName & ".cerrs");
         writeln(" *** Errors in " <& literal("tmp1_" & progName & ".c") <&
-            " - see " <& literal("tmp1_" & progName & ".cerrs"));
+                " - see " <& literal("tmp1_" & progName & ".cerrs"));
       elsif fileType("tmp_" & progName & ".lerrs") = FILE_REGULAR then
         if fileType("tmp1_" & progName & ccConf.OBJECT_FILE_EXTENSION) = FILE_REGULAR then
           removeFile("tmp1_" & progName & ccConf.OBJECT_FILE_EXTENSION);
         end if;
         if fileType("tmp_" & progName & ccConf.OBJECT_FILE_EXTENSION) = FILE_REGULAR then
           moveFile("tmp_" & progName & ccConf.OBJECT_FILE_EXTENSION,
-              "tmp1_" & progName & ccConf.OBJECT_FILE_EXTENSION);
+                   "tmp1_" & progName & ccConf.OBJECT_FILE_EXTENSION);
         end if;
         if fileType("tmp1_" & progName & ".lerrs") = FILE_REGULAR then
           removeFile("tmp1_" & progName & ".lerrs");
         end if;
         moveFile("tmp_" & progName & ".lerrs", "tmp1_" & progName & ".lerrs");
         writeln(" *** Linker errors with " <&
-            literal("tmp1_" & progName & ccConf.OBJECT_FILE_EXTENSION) <&
-            " - see " <& literal("tmp1_" & progName & ".lerrs"));
+                literal("tmp1_" & progName & ccConf.OBJECT_FILE_EXTENSION) <&
+                " - see " <& literal("tmp1_" & progName & ".lerrs"));
       end if;
       okay := FALSE;
     end if;
@@ -338,18 +352,29 @@ const proc: check (in string: progName, in string: referenceOutput) is func
           catch FILE_ERROR: noop;
         end block;
       end if;
-      compilerOutput := cmdOutput(executeCompiler & progName);
+      compilerOutput := cmdOutput(executeCompiler & option & progName);
       if fileType(progName & ccConf.EXECUTABLE_FILE_EXTENSION) = FILE_REGULAR then
         if fileType("tmp1_" & progName & ".c") = FILE_REGULAR then
           if not equalFiles("tmp_" & progName & ".c", "tmp1_" & progName & ".c") then
-            writeln;
-            writeln(" *** The interpreted compiler and the compiled compiler do not produce the same output");
-            okay := FALSE;
+            compiledOutput := cmdOutput("./" & progName);
+            if compiledOutput <> referenceOutput then
+              writeln;
+              writeln(" *** The interpreted compiler and the compiled compiler do not produce the same output.");
+              writeln(" *** The program " <& progName <&
+                      " does not work okay, when it is compiled with the compiled compiler.");
+              writeln(compiledOutput);
+              okay := FALSE;
+            else
+              write(".");
+              flush(OUT);
+            end if;
           else
             removeFile("tmp_" & progName & ".c");
             removeFile("tmp1_" & progName & ".c");
             removeFile("tmp_" & progName & ccConf.OBJECT_FILE_EXTENSION);
             removeFile(progName & ccConf.EXECUTABLE_FILE_EXTENSION);
+            write(".");
+            flush(OUT);
           end if;
         end if;
       else
@@ -366,11 +391,30 @@ const proc: check (in string: progName, in string: referenceOutput) is func
         okay := FALSE;
       end if;
     end if;
+  end func;
+
+
+const proc: check (in string: progName, in string: referenceOutput) is func
+  local
+    const array string: options is [] ("", "-oc0 ", "-oc1 ", "-oc2 ", "-oc3 ");
+    var string: option is "";
+    var boolean: okay is TRUE;
+  begin
+    write(progName <& " ");
+    flush(OUT);
+    okay := checkInterpreter(progName, referenceOutput);
+    for option range options do
+      if not checkCompiler(progName, option, referenceOutput) then
+        writeln("The error happened with the option " <& option);
+        okay := FALSE;
+      end if;
+    end for;
     if okay then
-      writeln(" - okay");
+      write(" okay");
     else
       checkAllFailed := TRUE;
     end if;
+    writeln;
   end func;
 
 

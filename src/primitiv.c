@@ -488,6 +488,8 @@ static primactrecord prim_act_table[] = {
     { "INT_AND_ASSIGN",          int_and_assign,          },
     { "INT_BINOM",               int_binom,               },
     { "INT_BIT_LENGTH",          int_bit_length,          },
+    { "INT_BYTES_BE_2_UINT",     int_bytes_be_2_uint,     },
+    { "INT_BYTES_LE_2_UINT",     int_bytes_le_2_uint,     },
     { "INT_CMP",                 int_cmp,                 },
     { "INT_CONV",                int_conv,                },
     { "INT_CPY",                 int_cpy,                 },

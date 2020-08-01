@@ -47,6 +47,7 @@
 #include "os_decls.h"
 #include "heaputl.h"
 #include "striutl.h"
+#include "ut8_rtl.h"
 #include "big_drv.h"
 #include "rtl_err.h"
 
@@ -502,9 +503,8 @@ static memsizetype read_string (filetype inFile, stritype stri, errinfotype *err
     uchartype buffer[BUFFER_SIZE];
     memsizetype bytes_in_buffer = 1;
     memsizetype stri_pos;
-    register uchartype *from;
     register strelemtype *to;
-    register memsizetype number;
+    register memsizetype pos;
 
   /* read_string */
     /* printf("stri->size=%lu\n", stri->size); */
@@ -518,11 +518,9 @@ static memsizetype read_string (filetype inFile, stritype stri, errinfotype *err
       } else {
         /* printf("#A# bytes_in_buffer=%d stri_pos=%d\n",
             bytes_in_buffer, stri_pos); */
-        from = buffer;
         to = &stri->mem[stri_pos];
-        number = bytes_in_buffer;
-        for (; number > 0; from++, to++, number--) {
-          *to = *from;
+        for (pos = bytes_in_buffer; pos > 0; pos--) {
+          to[pos - 1] = buffer[pos - 1];
         } /* for */
         stri_pos += bytes_in_buffer;
       } /* if */
@@ -536,11 +534,9 @@ static memsizetype read_string (filetype inFile, stritype stri, errinfotype *err
       } else {
         /* printf("#B# bytes_in_buffer=%d stri_pos=%d\n",
             bytes_in_buffer, stri_pos); */
-        from = buffer;
         to = &stri->mem[stri_pos];
-        number = bytes_in_buffer;
-        for (; number > 0; from++, to++, number--) {
-          *to = *from;
+        for (pos = bytes_in_buffer; pos > 0; pos--) {
+          to[pos - 1] = buffer[pos - 1];
         } /* for */
         stri_pos += bytes_in_buffer;
       } /* if */
@@ -558,9 +554,8 @@ static stritype read_and_alloc_stri (filetype inFile, memsizetype chars_missing,
     uchartype buffer[BUFFER_SIZE];
     memsizetype bytes_in_buffer = 1;
     memsizetype result_pos;
-    register uchartype *from;
     register strelemtype *to;
-    register memsizetype number;
+    register memsizetype pos;
     memsizetype new_size;
     stritype resized_result;
     stritype result;
@@ -595,11 +590,9 @@ static stritype read_and_alloc_stri (filetype inFile, memsizetype chars_missing,
               result->size = new_size;
             } /* if */
           } /* if */
-          from = buffer;
           to = &result->mem[result_pos];
-          number = bytes_in_buffer;
-          for (; number > 0; from++, to++, number--) {
-            *to = *from;
+          for (pos = bytes_in_buffer; pos > 0; pos--) {
+            to[pos - 1] = buffer[pos - 1];
           } /* for */
           result_pos += bytes_in_buffer;
         } /* if */
@@ -625,11 +618,9 @@ static stritype read_and_alloc_stri (filetype inFile, memsizetype chars_missing,
               result->size = new_size;
             } /* if */
           } /* if */
-          from = buffer;
           to = &result->mem[result_pos];
-          number = bytes_in_buffer;
-          for (; number > 0; from++, to++, number--) {
-            *to = *from;
+          for (pos = bytes_in_buffer; pos > 0; pos--) {
+            to[pos - 1] = buffer[pos - 1];
           } /* for */
           result_pos += bytes_in_buffer;
         } /* if */
@@ -882,12 +873,12 @@ stritype filGets (filetype inFile, inttype length)
             printf("inFile=%lx\n", (long int) inFile); */
             err_info = FILE_ERROR;
           } else {
-            uchartype *from = &((uchartype *) result->mem)[num_of_chars_read - 1];
-            strelemtype *to = &result->mem[num_of_chars_read - 1];
-            memsizetype number = num_of_chars_read;
+            uchartype *from = (uchartype *) result->mem;
+            strelemtype *to = result->mem;
+            memsizetype pos;
 
-            for (; number > 0; from--, to--, number--) {
-              *to = *from;
+            for (pos = num_of_chars_read; pos > 0; pos--) {
+              to[pos - 1] = from[pos - 1];
             } /* for */
           } /* if */
         } else {
@@ -1194,9 +1185,11 @@ filetype filOpen (const const_stritype path, const const_stritype mode)
 void filPclose (filetype aFile)
 
   { /* filPclose */
+#ifndef POPEN_MISSING
     if (unlikely(os_pclose(aFile) == -1)) {
       raise_error(FILE_ERROR);
     } /* if */
+#endif
   } /* filPclose */
 
 
@@ -1247,8 +1240,12 @@ filetype filPopen (const const_stritype command,
         raise_error(RANGE_ERROR);
         result = NULL;
       } else {
+#ifdef POPEN_MISSING
+        result = NULL;
+#else
         /* printf("os_command: \"%s\"\n", os_command); */
         result = os_popen(os_command, os_mode);
+#endif
       } /* if */
       os_stri_free(os_command);
     } /* if */
@@ -1259,18 +1256,10 @@ filetype filPopen (const const_stritype command,
 
 void filPrint (const const_stritype stri)
 
-  {
-    cstritype str1;
-
-  /* filPrint */
-    str1 = cp_to_cstri8(stri);
-    if (unlikely(str1 == NULL)) {
-      raise_error(MEMORY_ERROR);
-    } else {
-      puts(str1);
-      fflush(stdout);
-      free_cstri(str1, stri);
-    } /* if */
+  { /* filPrint */
+    ut8Write(stdout, stri);
+    putchar('\n');
+    fflush(stdout);
   } /* filPrint */
 
 
@@ -1444,10 +1433,9 @@ stritype filWordRead (filetype inFile, chartype *terminationChar)
 void filWrite (filetype outFile, const const_stritype stri)
 
   {
-    register strelemtype *str;
+    register const strelemtype *str;
     memsizetype len;
-    register uchartype *ustri;
-    register uint16type buf_len;
+    register memsizetype pos;
     uchartype buffer[BUFFER_SIZE];
 
   /* filWrite */
@@ -1460,27 +1448,28 @@ void filWrite (filetype outFile, const const_stritype stri)
       return;
     } /* if */
 #endif
-    for (str = stri->mem, len = stri->size;
-        len >= BUFFER_SIZE; len -= BUFFER_SIZE) {
-      for (ustri = buffer, buf_len = BUFFER_SIZE; buf_len > 0; buf_len--) {
-        if (unlikely(*str >= 256)) {
+    str = stri->mem;
+    for (len = stri->size; len >= BUFFER_SIZE; len -= BUFFER_SIZE) {
+      for (pos = BUFFER_SIZE; pos > 0; pos--) {
+        if (unlikely(str[pos - 1] >= 256)) {
           raise_error(RANGE_ERROR);
           return;
         } /* if */
-        *ustri++ = (uchartype) *str++;
+        buffer[pos - 1] = (uchartype) str[pos - 1];
       } /* for */
+      str = &str[BUFFER_SIZE];
       if (unlikely(BUFFER_SIZE != fwrite(buffer, sizeof(uchartype), BUFFER_SIZE, outFile))) {
         raise_error(FILE_ERROR);
         return;
       } /* if */
     } /* for */
     if (len > 0) {
-      for (ustri = buffer, buf_len = (uint16type) len; buf_len > 0; buf_len--) {
-        if (unlikely(*str >= 256)) {
+      for (pos = len; pos > 0; pos--) {
+        if (unlikely(str[pos - 1] >= 256)) {
           raise_error(RANGE_ERROR);
           return;
         } /* if */
-        *ustri++ = (uchartype) *str++;
+        buffer[pos - 1] = (uchartype) str[pos - 1];
       } /* for */
       if (unlikely(len != fwrite(buffer, sizeof(uchartype), len, outFile))) {
         raise_error(FILE_ERROR);

@@ -10209,14 +10209,15 @@ declareExtern(<span class="stri">"inttype     intLog2 (inttype);"</span>);
 void <a name="ffi_supDoWurx1">supDoWurx1</a> (const <a class="type" href="#ffi_stritype">stritype</a> name)
   {
     <a class="type" href="#ffi_cstritype">cstritype</a> cName;
+    <span class="type">errinfotype</span> err_info = OKAY_NO_ERROR;
     <span class="type">int</span> wurxResult;
 
-    cName = <a class="func" href="#ffi_cp_to_cstri8">cp_to_cstri8</a>(name);
+    cName = <a class="func" href="#ffi_stri_to_cstri8">stri_to_cstri8</a>(name, &err_info);
     <span class="keywd">if</span> (cName == NULL) {
-      raise_error(MEMORY_ERROR);
+      raise_error(err_info);
     } <span class="keywd">else</span> {
       wurxResult = <a class="func" href="#ffi_doWurx1">doWurx1</a>(cName);
-      free_cstri(cName);
+      free_cstri8(cName, name);
       <span class="keywd">if</span> (wurxResult != 0) {
         raise_error(RANGE_ERROR);
       }
@@ -10379,22 +10380,25 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 <p>
   Seed7 strings are UTF-32 encoded and C strings are zero terminated
   byte sequences. To convert between the different representations,
-  <tt><span class="lib">"striutl.h"</span></tt> defines conversion functions like <tt><a class="func" href="#ffi_cp_to_cstri8">cp_to_cstri8</a></tt>,
-  <tt><a class="func" href="#ffi_stri_to_bstri">stri_to_bstri</a></tt>, <tt><a class="func" href="#ffi_stri_to_bstri8">stri_to_bstri8</a></tt>, <tt><a class="func" href="#ffi_cstri_to_stri">cstri_to_stri</a></tt>, <tt><a class="func" href="#ffi_cstri8_to_stri">cstri8_to_stri</a></tt>
-  and <tt><a class="func" href="#ffi_cstri8_or_cstri_to_stri">cstri8_or_cstri_to_stri</a></tt>. Operating systems disagree in their
-  Unicode encoding (UTF-8 or UTF-16). To cope with this, <tt><span class="lib">"striutl.h"</span></tt>
-  defines the type <tt><a class="type" href="#ffi_os_stritype">os_stritype</a></tt> and the functions <tt><a class="func" href="#ffi_conv_from_os_stri">conv_from_os_stri</a></tt>,
-  <tt><a class="func" href="#ffi_stri_to_os_stri">stri_to_os_stri</a></tt> and <tt><a class="func" href="#ffi_os_stri_to_stri">os_stri_to_stri</a></tt>. The different concepts to
-  represent a file path (path delimiter and drive letter) are handled
-  with <tt><a class="func" href="#ffi_cp_to_os_path">cp_to_os_path</a></tt> and <tt><a class="func" href="#ffi_cp_from_os_path">cp_from_os_path</a></tt>.
+  <tt><span class="lib">"striutl.h"</span></tt> defines conversion functions like <tt><a class="func" href="#ffi_stri_to_cstri">stri_to_cstri</a></tt>,
+  <tt><a class="func" href="#ffi_stri_to_cstri8">stri_to_cstri8</a></tt>, <tt><a class="func" href="#ffi_stri_to_bstri">stri_to_bstri</a></tt>, <tt><a class="func" href="#ffi_stri_to_bstri8">stri_to_bstri8</a></tt>, <tt><a class="func" href="#ffi_cstri_to_stri">cstri_to_stri</a></tt>,
+  <tt><a class="func" href="#ffi_cstri8_to_stri">cstri8_to_stri</a></tt> and <tt><a class="func" href="#ffi_cstri8_or_cstri_to_stri">cstri8_or_cstri_to_stri</a></tt>. Operating systems
+  disagree in their Unicode encoding (UTF-8 or UTF-16). To cope with
+  this, <tt><span class="lib">"striutl.h"</span></tt> defines the type <tt><a class="type" href="#ffi_os_stritype">os_stritype</a></tt> and the functions
+  <tt><a class="func" href="#ffi_conv_from_os_stri">conv_from_os_stri</a></tt>, <tt><a class="func" href="#ffi_stri_to_os_stri">stri_to_os_stri</a></tt> and <tt><a class="func" href="#ffi_os_stri_to_stri">os_stri_to_stri</a></tt>. The different
+  concepts to represent a file path (path delimiter and drive letter)
+  are handled with <tt><a class="func" href="#ffi_cp_to_os_path">cp_to_os_path</a></tt> and <tt><a class="func" href="#ffi_cp_from_os_path">cp_from_os_path</a></tt>.
 </p><div><table width="100%" border="1" cellspacing="0" cellpadding="3">
 <tr><td style="font-size: 22px; font-weight: bold; background-color: #C0C0FF" colspan="2">
   Function Summary</td></tr>
 
-    <tr><td align="right" valign="top"><a class="type" href="#ffi_cstritype">cstritype</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_cp_to_cstri8">cp_to_cstri8</a></b> (<a class="type" href="#ffi_stritype">const_stritype</a> stri)</td></tr>
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_cstritype">cstritype</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_stri_to_cstri">stri_to_cstri</a></b> (<a class="type" href="#ffi_stritype">const_stritype</a> stri, <span class="type">errinfotype</span> *err_info)</td></tr>
+      <tr><td width="30"></td><td>Create an ISO-8859-1 encoded C string from a Seed7 UTF-32 string.</td></tr></table></td></tr>
+
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_cstritype">cstritype</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_stri_to_cstri8">stri_to_cstri8</a></b> (<a class="type" href="#ffi_stritype">const_stritype</a> stri, <span class="type">errinfotype</span> *err_info)</td></tr>
       <tr><td width="30"></td><td>Create an UTF-8 encoded C string from a Seed7 UTF-32 string.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top"><a class="type" href="#ffi_bstritype">bstritype</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_stri_to_bstri">stri_to_bstri</a></b> (<a class="type" href="#ffi_stritype">const_stritype</a> stri)</td></tr>
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_bstritype">bstritype</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_stri_to_bstri">stri_to_bstri</a></b> (<a class="type" href="#ffi_stritype">const_stritype</a> stri, <span class="type">errinfotype</span> *err_info)</td></tr>
       <tr><td width="30"></td><td>Create an ISO-8859-1 encoded bstring from a Seed7 UTF-32 string.</td></tr></table></td></tr>
 
     <tr><td align="right" valign="top"><a class="type" href="#ffi_bstritype">bstritype</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_stri_to_bstri8">stri_to_bstri8</a></b> (<a class="type" href="#ffi_stritype">const_stritype</a> stri)</td></tr>
@@ -10427,45 +10431,74 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 <td style="font-size: 22px; font-weight: bold; background-color: #C0C0FF">
   Function Detail</td></tr></table></p>
 
-  <div><a name="ffi_cp_to_cstri8"><h3>cp_to_cstri8</h3></a>
+  <div><a name="ffi_stri_to_cstri"><h3>stri_to_cstri</h3></a>
 <p>
-    <a class="type" href="#ffi_cstritype">cstritype</a> <b>cp_to_cstri8</b> (<a class="type" href="#ffi_stritype">const_stritype</a> stri)</p><dl><dd>
+    <a class="type" href="#ffi_cstritype">cstritype</a> <b>stri_to_cstri</b> (<a class="type" href="#ffi_stritype">const_stritype</a> stri, <span class="type">errinfotype</span> *err_info)</p><dl><dd>
 <p>
-      Create an UTF-8 encoded C string from a Seed7 UTF-32 string.
+      Create an ISO-8859-1 encoded C string from a Seed7 UTF-32 string.
       The memory for the zero byte terminated C string is allocated.
       The C string result must be freed with the macro free_cstri().
-      This function is intended to create temporary strings, that
-      are used as parameters. To get good performance the allocated
-      memory for the C string is oversized. No special action is
-      done, when the UTF-32 string contains a null character.
 </p></dd>
       <dd><dl><dt><b>Parameters:</b></dt>
         <dd><tt>stri</tt> - Seed7 UTF-32 string to be converted.</dd>
+        <dd><tt>err_info</tt> - Unchanged when the function succeeds or
+                   <a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a> when the memory allocation failed or
+                   <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> when stri contains a null character
+                          or a character that is higher than the
+                          highest allowed ISO-8859-1 character (255).</dd>
 </dl></dd>
       <dd><dl><dt><b>Returns:</b></dt>
-        <dd>an UTF-8 encoded null terminated C string or NULL, when the memory allocation failed.</dd></dl></dd>
+        <dd>an ISO-8859-1 encoded null terminated C string or
+        NULL, when the memory allocation failed or when the
+        conversion failed (the error is indicated by err_info).</dd></dl></dd>
+</dl></div>
+<hr />
+  <div><a name="ffi_stri_to_cstri8"><h3>stri_to_cstri8</h3></a>
+<p>
+    <a class="type" href="#ffi_cstritype">cstritype</a> <b>stri_to_cstri8</b> (<a class="type" href="#ffi_stritype">const_stritype</a> stri, <span class="type">errinfotype</span> *err_info)</p><dl><dd>
+<p>
+      Create an UTF-8 encoded C string from a Seed7 UTF-32 string.
+      The memory for the zero byte terminated C string is allocated.
+      The C string result must be freed with the macro free_cstri8().
+      This function is intended to create temporary strings, that
+      are used as parameters. To get good performance the allocated
+      memory for the C string is oversized.
+</p></dd>
+      <dd><dl><dt><b>Parameters:</b></dt>
+        <dd><tt>stri</tt> - Seed7 UTF-32 string to be converted.</dd>
+        <dd><tt>err_info</tt> - Unchanged when the function succeeds or
+                   <a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a> when the memory allocation failed or
+                   <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> when stri contains a null character 
+                          or a character that is higher than the
+                          highest allowed Unicode character (U+10FFFF).</dd>
+</dl></dd>
+      <dd><dl><dt><b>Returns:</b></dt>
+        <dd>an UTF-8 encoded null terminated C string or
+        NULL, when the memory allocation failed or when the
+        conversion failed (the error is indicated by err_info).</dd></dl></dd>
 </dl></div>
 <hr />
   <div><a name="ffi_stri_to_bstri"><h3>stri_to_bstri</h3></a>
 <p>
-    <a class="type" href="#ffi_bstritype">bstritype</a> <b>stri_to_bstri</b> (<a class="type" href="#ffi_stritype">const_stritype</a> stri)</p><dl><dd>
+    <a class="type" href="#ffi_bstritype">bstritype</a> <b>stri_to_bstri</b> (<a class="type" href="#ffi_stritype">const_stritype</a> stri, <span class="type">errinfotype</span> *err_info)</p><dl><dd>
 <p>
       Create an ISO-8859-1 encoded bstring from a Seed7 UTF-32 string.
       The memory for the bstring is allocated. No zero byte is added
       to the end of the bstring. No special action is done, when the
-      UTF-32 string contains a null character. When the UTF-32 string
-      contains a character beyond ISO-8859-1 the bstring will end with
-      the last ISO-8859-1 character. When the first UTF-32 character
-      is beyond ISO-8859-1 an empty bstring is returned. The conversion
-      was successful, when the bstring has the same size as the UTF-32
-      string.
+      UTF-32 string contains a null character.
 </p></dd>
       <dd><dl><dt><b>Parameters:</b></dt>
         <dd><tt>stri</tt> - Seed7 UTF-32 string to be converted.</dd>
+        <dd><tt>err_info</tt> - Unchanged when the function succeeds or
+                   <a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a> when the memory allocation failed or
+                   <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> when stri contains a character
+ *                        that is higher than the highest
+ *                        allowed ISO-8859-1 character (255).</dd>
 </dl></dd>
       <dd><dl><dt><b>Returns:</b></dt>
         <dd>an ISO-8859-1 encoded bstring or
-        NULL, when the memory allocation failed.</dd></dl></dd>
+        NULL, when the memory allocation failed or when the
+        conversion failed (the error is indicated by err_info).</dd></dl></dd>
 </dl></div>
 <hr />
   <div><a name="ffi_stri_to_bstri8"><h3>stri_to_bstri8</h3></a>
@@ -10493,7 +10526,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
       The memory for the UTF-32 encoded Seed7 string is allocated.
 </p></dd>
       <dd><dl><dt><b>Parameters:</b></dt>
-        <dd><tt>cstri</tt> - null terminated ISO-8859-1 encoded C string.</dd>
+        <dd><tt>cstri</tt> - Null terminated ISO-8859-1 encoded C string.</dd>
 </dl></dd>
       <dd><dl><dt><b>Returns:</b></dt>
         <dd>an UTF-32 encoded Seed7 string or
@@ -10508,7 +10541,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
       The memory for the UTF-32 encoded Seed7 string is allocated.
 </p></dd>
       <dd><dl><dt><b>Parameters:</b></dt>
-        <dd><tt>cstri</tt> - null terminated UTF-8 encoded C string.</dd>
+        <dd><tt>cstri</tt> - Null terminated UTF-8 encoded C string.</dd>
 </dl></dd>
       <dd><dl><dt><b>Returns:</b></dt>
         <dd>an UTF-32 encoded Seed7 string or
@@ -10524,7 +10557,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
       The memory for the UTF-32 encoded Seed7 string is allocated.
 </p></dd>
       <dd><dl><dt><b>Parameters:</b></dt>
-        <dd><tt>cstri</tt> - null terminated UTF-8 or ISO-8859-1 encoded C string.</dd>
+        <dd><tt>cstri</tt> - Null terminated UTF-8 or ISO-8859-1 encoded C string.</dd>
 </dl></dd>
       <dd><dl><dt><b>Returns:</b></dt>
         <dd>an UTF-32 encoded Seed7 string or
@@ -10544,8 +10577,8 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
       The encoding can be Latin-1, UTF-8, UTF-16 or it can use a code page.
 </p></dd>
       <dd><dl><dt><b>Parameters:</b></dt>
-        <dd><tt>os_stri</tt> - possibly binary string (may contain null characters).</dd>
-        <dd><tt>length</tt> - length of os_stri.</dd>
+        <dd><tt>os_stri</tt> - Possibly binary string (may contain null characters).</dd>
+        <dd><tt>length</tt> - Length of os_stri.</dd>
 </dl></dd>
       <dd><dl><dt><b>Returns:</b></dt>
         <dd>a Seed7 UTF-32 string or
@@ -10568,7 +10601,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 </p></dd>
       <dd><dl><dt><b>Parameters:</b></dt>
         <dd><tt>stri</tt> - Seed7 UTF-32 string to be converted.</dd>
-        <dd><tt>err_info</tt> - unchanged when the function succeeds or
+        <dd><tt>err_info</tt> - Unchanged when the function succeeds or
                    <a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a> when the memory allocation failed or
                    <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> when the conversion failed.</dd>
 </dl></dd>
@@ -10589,8 +10622,8 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
       The encoding can be Latin-1, UTF-8, UTF-16 or it can use a code page.
 </p></dd>
       <dd><dl><dt><b>Parameters:</b></dt>
-        <dd><tt>os_stri</tt> - null terminated os_stritype string to be converted.</dd>
-        <dd><tt>err_info</tt> - unchanged when the function succeeds or
+        <dd><tt>os_stri</tt> - Null terminated os_stritype string to be converted.</dd>
+        <dd><tt>err_info</tt> - Unchanged when the function succeeds or
                    <a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a> when the memory allocation failed.</dd>
 </dl></dd>
       <dd><dl><dt><b>Returns:</b></dt>
@@ -10614,10 +10647,10 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 </p></dd>
     <dd><dl><dt><b>Parameters:</b></dt>
         <dd><tt>std_path</tt> - UTF-32 encoded Seed7 standard path to be converted.</dd>
-        <dd><tt>path_info</tt> - unchanged when the function succeeds or
+        <dd><tt>path_info</tt> - Unchanged when the function succeeds or
                     PATH_IS_EMULATED_ROOT when the path is "/".
                     PATH_NOT_MAPPED when the path cannot be mapped.</dd>
-        <dd><tt>err_info</tt> - unchanged when the function succeeds or
+        <dd><tt>err_info</tt> - Unchanged when the function succeeds or
                    <a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a> when the memory allocation failed or
                    <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> when the path is not a standard path.</dd>
 </dl></dd>
@@ -10640,8 +10673,8 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
       systems.
 </p></dd>
       <dd><dl><dt><b>Parameters:</b></dt>
-        <dd><tt>os_path</tt> - null terminated os_stritype path to be converted.</dd>
-        <dd><tt>err_info</tt> - unchanged when the function succeeds or
+        <dd><tt>os_path</tt> - Null terminated os_stritype path to be converted.</dd>
+        <dd><tt>err_info</tt> - Unchanged when the function succeeds or
                    <a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a> when the memory allocation failed.</dd>
 </dl></dd>
       <dd><dl><dt><b>Returns:</b></dt>

@@ -32,6 +32,26 @@ include "bstring.s7i";
 
 
 (**
+ *  Enumeration of signedness values.
+ *  Signedness defines if negative values can be represented.
+ *  Defines: UNSIGNED and SIGNED.
+ *)
+const type: signedness is new enum
+    UNSIGNED, SIGNED
+  end enum;
+
+
+(**
+ *  Enumeration of endianess values.
+ *  Endianess defines how the bytes of a data are ordered within memory.
+ *  Defines: LE and BE.
+ *)
+const type: endianess is new enum
+    LE, BE
+  end enum;
+
+
+(**
  *  Get a zero terminated string from ''stri'' starting from ''currPos''.
  *  CurrPos is advanced after the zero ('\0\') character.
  *  @return the zero terminated string without the zero ('\0\') character.
@@ -79,247 +99,237 @@ const func string: hex (in string: stri) is func
  *  Convert 16 lower bits of an integer into two little-endian chars.
  *  @return a string of length two with the little-endian representation.
  *)
-const func string: int16AsTwoBytesLe (in integer: number) is
-  return str(chr( number        mod 256)) &
-         str(chr((number >>  8) mod 256));
+const func string: int16AsTwoBytesLe (in integer: number) is func
+  result
+    var string: twoBytes is "\0\" mult 2;
+  begin
+    twoBytes @:= [1] chr( number        mod 256);
+    twoBytes @:= [2] chr((number >>  8) mod 256);
+  end func;
 
 
 (**
  *  Convert 32 lower bits of an integer into four little-endian chars.
  *  @return a string of length four with the little-endian representation.
  *)
-const func string: int32AsFourBytesLe (in integer: number) is
-  return str(chr( number        mod 256)) &
-         str(chr((number >>  8) mod 256)) &
-         str(chr((number >> 16) mod 256)) &
-         str(chr((number >> 24) mod 256));
+const func string: int32AsFourBytesLe (in integer: number) is func
+  result
+    var string: fourBytes is "\0\" mult 4;
+  begin
+    fourBytes @:= [1] chr( number        mod 256);
+    fourBytes @:= [2] chr((number >>  8) mod 256);
+    fourBytes @:= [3] chr((number >> 16) mod 256);
+    fourBytes @:= [4] chr((number >> 24) mod 256);
+  end func;
 
 
 (**
  *  Convert 64 lower bits of an integer into eight little-endian chars.
  *  @return a string of length eight with the little-endian representation.
  *)
-const func string: int64AsEightBytesLe (in integer: number) is
-  return str(chr( number        mod 256)) &
-         str(chr((number >>  8) mod 256)) &
-         str(chr((number >> 16) mod 256)) &
-         str(chr((number >> 24) mod 256)) &
-         str(chr((number >> 32) mod 256)) &
-         str(chr((number >> 40) mod 256)) &
-         str(chr((number >> 48) mod 256)) &
-         str(chr((number >> 56) mod 256));
+const func string: int64AsEightBytesLe (in integer: number) is func
+  result
+    var string: eightBytes is "\0\" mult 8;
+  begin
+    eightBytes @:= [1] chr( number        mod 256);
+    eightBytes @:= [2] chr((number >>  8) mod 256);
+    eightBytes @:= [3] chr((number >> 16) mod 256);
+    eightBytes @:= [4] chr((number >> 24) mod 256);
+    eightBytes @:= [5] chr((number >> 32) mod 256);
+    eightBytes @:= [6] chr((number >> 40) mod 256);
+    eightBytes @:= [7] chr((number >> 48) mod 256);
+    eightBytes @:= [8] chr((number >> 56) mod 256);
+  end func;
 
 
 (**
  *  Convert 16 lower bits of an integer into two big-endian chars.
  *  @return a string of length two with the big-endian representation.
  *)
-const func string: int16AsTwoBytesBe (in integer: number) is
-  return str(chr((number >>  8) mod 256)) &
-         str(chr( number        mod 256));
+const func string: int16AsTwoBytesBe (in integer: number) is func
+  result
+    var string: twoBytes is "\0\" mult 2;
+  begin
+    twoBytes @:= [1] chr((number >>  8) mod 256);
+    twoBytes @:= [2] chr( number        mod 256);
+  end func;
 
 
 (**
  *  Convert 32 lower bits of an integer into four big-endian chars.
  *  @return a string of length four with the big-endian representation.
  *)
-const func string: int32AsFourBytesBe (in integer: number) is
-  return str(chr((number >> 24) mod 256)) &
-         str(chr((number >> 16) mod 256)) &
-         str(chr((number >>  8) mod 256)) &
-         str(chr( number        mod 256));
+const func string: int32AsFourBytesBe (in integer: number) is func
+  result
+    var string: fourBytes is "\0\" mult 4;
+  begin
+    fourBytes @:= [1] chr((number >> 24) mod 256);
+    fourBytes @:= [2] chr((number >> 16) mod 256);
+    fourBytes @:= [3] chr((number >>  8) mod 256);
+    fourBytes @:= [4] chr( number        mod 256);
+  end func;
 
 
 (**
  *  Convert 64 lower bits of an integer into eight big-endian chars.
  *  @return a string of length eight with the big-endian representation.
  *)
-const func string: int64AsEightBytesBe (in integer: number) is
-  return str(chr((number >> 56) mod 256)) &
-         str(chr((number >> 48) mod 256)) &
-         str(chr((number >> 40) mod 256)) &
-         str(chr((number >> 32) mod 256)) &
-         str(chr((number >> 24) mod 256)) &
-         str(chr((number >> 16) mod 256)) &
-         str(chr((number >>  8) mod 256)) &
-         str(chr( number        mod 256));
-
-
-(**
- *  Convert a [[string]] of bytes (interpreted as little-endian) to an [[integer]].
- *  @return an integer created from the little-endian bytes.
- *  @exception RANGE_ERROR When characters beyond '\255\' are present.
- *)
-const func integer: bytesLe2Int (in string: byteStri) is func
+const func string: int64AsEightBytesBe (in integer: number) is func
   result
-    var integer: number is 0;
-  local
-    var char: ch is ' ';
-    var integer: shift is 0;
+    var string: eightBytes is "\0\" mult 8;
   begin
-    for ch range byteStri do
-      if ch > '\255\' then
-        raise RANGE_ERROR;
-      end if;
-      number +:= ord(ch) << shift;
-      shift +:= 8;
-    end for;
+    eightBytes @:= [1] chr((number >> 56) mod 256);
+    eightBytes @:= [2] chr((number >> 48) mod 256);
+    eightBytes @:= [3] chr((number >> 40) mod 256);
+    eightBytes @:= [4] chr((number >> 32) mod 256);
+    eightBytes @:= [5] chr((number >> 24) mod 256);
+    eightBytes @:= [6] chr((number >> 16) mod 256);
+    eightBytes @:= [7] chr((number >>  8) mod 256);
+    eightBytes @:= [8] chr( number        mod 256);
   end func;
 
 
-(**
- *  Convert a [[string]] of bytes (interpreted as big-endian) to an [[integer]].
- *  @return an integer created from the big-endian bytes.
- *  @exception RANGE_ERROR When characters beyond '\255\' are present.
- *)
-const func integer: bytesBe2Int (in string: byteStri) is func
-  result
-    var integer: number is 0;
-  local
-    var char: ch is ' ';
-  begin
-    for ch range byteStri do
-      if ch > '\255\' then
-        raise RANGE_ERROR;
-      end if;
-      number <<:= 8;
-      number +:= ord(ch);
-    end for;
-  end func;
-
-
-(**
- *  Convert an [[integer]] into a little-endian [[bstring]].
- *  The result uses a twos-complement representation with a base of 256.
- *  For a negative ''number'' the most significant byte of the result
- *  (the last byte) has an ordinal >= 128.
- *  @return a bstring with the little-endian representation.
- *)
-const func bstring: bStriLe (in integer: number)              is action "INT_TO_BSTRI_LE";
-
-
-(**
- *  Convert an [[integer]] into a little-endian [[string]].
- *  The result uses a twos-complement representation with a base of 256.
- *  The result contains chars (bytes) with an ordinal <= 255.
- *  For a negative ''number'' the most significant byte of the result
- *  (the last byte) has an ordinal >= 128.
- *  @return a string with the little-endian representation.
- *)
-const func string: bytesLe (in integer: number) is
+const func string: bytes (in integer: number, SIGNED, LE) is
   return str(bStriLe(number));
 
 
-(**
- *  Convert an [[integer]] into a big-endian [[bstring]].
- *  The result uses a twos-complement representation with a base of 256.
- *  For a negative ''number'' the most significant byte of the result
- *  (the first byte) has an ordinal >= 128.
- *  @return a bstring with the big-endian representation.
- *)
-const func bstring: bStriBe (in integer: number)              is action "INT_TO_BSTRI_BE";
-
-
-(**
- *  Convert an [[integer]] into a big-endian [[string]].
- *  The result uses a twos-complement representation with a base of 256.
- *  The result contains chars (bytes) with an ordinal <= 255.
- *  For a negative ''number'' the most significant byte of the result
- *  (the first byte) has an ordinal >= 128.
- *  @return a string with the big-endian representation.
- *)
-const func string: bytesBe (in integer: number) is
+const func string: bytes (in integer: number, SIGNED, BE) is
   return str(bStriBe(number));
 
 
 (**
- *  Convert a [[bstring]] (interpreted as little-endian) to a [[bigint|bigInteger]].
- *  The ''bstri'' is interpreted as twos-complement representation
- *  with a base of 256. The result is negative when the most significant
- *  byte (the last byte) has an ordinal >= 128.
- *  @param bstri Bstring that contains the data to be converted.
- *  @return a signed bigInteger created from the little-endian bytes.
- *)
-const func bigInteger: bStriLe2BigInt (in bstring: bstri)     is action "BIG_FROM_BSTRI_LE";
-
-
-(**
- *  Convert a [[string]] of bytes (interpreted as little-endian) to a [[bigint|bigInteger]].
- *  The ''byteStri'' is interpreted as twos-complement representation
- *  with a base of 256. The result is negative when the most significant
- *  byte (the last byte) has an ordinal >= 128.
- *  @return a signed bigInteger created from the little-endian bytes.
- *  @exception RANGE_ERROR When characters beyond '\255\' are present.
- *)
-const func bigInteger: bytesLe2BigInt (in string: byteStri) is
-  return bStriLe2BigInt(bstring parse byteStri);
-
-
-(**
- *  Convert a [[bstring]] (interpreted as big-endian) to a [[bigint|bigInteger]].
- *  The ''bstri'' is interpreted as twos-complement representation
- *  with a base of 256. The result is negative when the most significant
- *  byte (the first byte) has an ordinal >= 128.
- *  @param bstri Bstring that contains the data to be converted.
- *  @return a signed bigInteger created from the big-endian bytes.
- *)
-const func bigInteger: bStriBe2BigInt (in bstring: bstri)     is action "BIG_FROM_BSTRI_BE";
-
-
-(**
- *  Convert a [[string]] of bytes (interpreted as big-endian) to a [[bigint|bigInteger]].
- *  The ''byteStri'' is interpreted as twos-complement representation
- *  with a base of 256. The result is negative when the most significant
- *  byte (the first byte) has an ordinal >= 128.
- *  @return a signed bigInteger created from the big-endian bytes.
- *  @exception RANGE_ERROR When characters beyond '\255\' are present.
- *)
-const func bigInteger: bytesBe2BigInt (in string: byteStri) is
-  return bStriBe2BigInt(bstring parse byteStri);
-
-
-(**
- *  Convert a [[bigint|bigInteger]] into a little-endian [[bstring]].
- *  The result uses a twos-complement representation with a base of 256.
- *  For a negative ''number'' the most significant byte of the result
- *  (the last byte) has an ordinal >= 128.
- *  @return a bstring with the little-endian representation.
- *)
-const func bstring: bStriLe (in bigInteger: number)          is action "BIG_TO_BSTRI_LE";
-
-
-(**
- *  Convert a [[bigint|bigInteger]] into a little-endian [[string]].
- *  The result uses a twos-complement representation with a base of 256.
+ *  Convert an [[integer]] into a [[string]] of bytes.
+ *  The result uses binary representation with a base of 256.
  *  The result contains chars (bytes) with an ordinal <= 255.
- *  For a negative ''number'' the most significant byte of the result
- *  (the last byte) has an ordinal >= 128.
- *  @return a string with the little-endian representation.
+ *   bytes(1413829460, SIGNED, BE)  returns "TEST"
+ *   bytes(1497451343, SIGNED, LE)  returns "OKAY"
+ *  @param number Integer number to be converted.
+ *  @param sign Determines the [[#signedness|signedness]] of the result.
+ *         Possible values are UNSIGNED and SIGNED. When ''sign'' is SIGNED
+ *         the result is encoded with the twos-complement representation.
+ *         In this case a negative ''number'' is converted to a result
+ *         where the most significant byte has an ordinal >= 128.
+ *  @param endian Determines the [[#endianess|endianess]] of the result.
+ *         Possible values are LE for little-endian and BE for big-endian.
+ *  @return a string with the shortest binary representation of ''number''.
+ *  @exception RANGE_ERROR When ''sign'' is unsigned and ''number'' is negative.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
-const func string: bytesLe (in bigInteger: number) is
-  return str(bStriLe(number));
+const func string: bytes (in integer: number,
+    in signedness: sign, in endianess: endian) is DYNAMIC;
+
+
+const func string: bytes (in bigInteger: number, UNSIGNED, LE) is
+  return str(bStriLe(number, FALSE));
+
+
+const func string: bytes (in bigInteger: number, UNSIGNED, BE) is
+  return str(bStriBe(number, FALSE));
+
+
+const func string: bytes (in bigInteger: number, SIGNED, LE) is
+  return str(bStriLe(number, TRUE));
+
+
+const func string: bytes (in bigInteger: number, SIGNED, BE) is
+  return str(bStriBe(number, TRUE));
 
 
 (**
- *  Convert a [[bigint|bigInteger]] into a big-endian [[bstring]].
- *  The result uses a twos-complement representation with a base of 256.
- *  For a negative ''number'' the most significant byte of the result
- *  (the first byte) has an ordinal >= 128.
- *  @return a bstring with the big-endian representation.
- *)
-const func bstring: bStriBe (in bigInteger: number)          is action "BIG_TO_BSTRI_BE";
-
-
-(**
- *  Convert a [[bigint|bigInteger]] into a big-endian [[string]].
- *  The result uses a twos-complement representation with a base of 256.
+ *  Convert a [[bigint|bigInteger]] into a [[string]] of bytes.
+ *  The result uses binary representation with a base of 256.
  *  The result contains chars (bytes) with an ordinal <= 255.
- *  For a negative ''number'' the most significant byte of the result
- *  (the first byte) has an ordinal >= 128.
- *  @return a string with the big-endian representation.
+ *   bytes(1413829460_, SIGNED, BE)                        returns "TEST"
+ *   bytes(1497451343_, SIGNED, LE)                        returns "OKAY"
+ *   bytes(8316866959935304777_, UNSIGNED, LE)             returns "It works"
+ *   bytes(54818063270363344731475178867_, UNSIGNED, BE)   returns "± plus-minus"
+ *   bytes(54818063270363344731475178867_, SIGNED, BE)     returns "\0\± plus-minus"
+ *   bytes(-24410099243900992862068771469_, SIGNED, BE)    returns "± plus-minus"
+ *   bytes(-24410099243900992862068771469_, UNSIGNED, LE)  raises RANGE_ERROR
+ *  @param number BigInteger number to be converted.
+ *  @param sign Determines the [[#signedness|signedness]] of the result.
+ *         Possible values are UNSIGNED and SIGNED. When ''sign'' is SIGNED
+ *         the result is encoded with the twos-complement representation.
+ *         In this case a negative ''number'' is converted to a result
+ *         where the most significant byte has an ordinal >= 128.
+ *  @param endian Determines the [[#endianess|endianess]] of the result.
+ *         Possible values are LE for little-endian and BE for big-endian.
+ *  @return a string with the shortest binary representation of ''number''.
+ *  @exception RANGE_ERROR When ''sign'' is UNSIGNED and ''number'' is negative.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
-const func string: bytesBe (in bigInteger: number) is
-  return str(bStriBe(number));
+const func string: bytes (in bigInteger: number,
+    in signedness: sign, in endianess: endian) is DYNAMIC;
+
+
+const func integer: bytes2Int (in string: byteStri, UNSIGNED, LE)  is action "INT_BYTES_LE_2_UINT";
+
+
+const func integer: bytes2Int (in string: byteStri, UNSIGNED, BE)  is action "INT_BYTES_BE_2_UINT";
+
+
+(**
+ *  Convert a [[string]] of bytes to an [[integer]].
+ *   bytes2Int("I\150\\2\\210\", UNSIGNED, BE)  returns  1234567890
+ *   bytes2Int("\210\\2\\150\I", UNSIGNED, LE)  returns  1234567890
+ *   bytes2Int(":\222\h\177\", UNSIGNED, BE)    returns   987654321
+ *  @param byteStri String of bytes to be converted. The bytes are
+ *         interpreted as binary representation with a base of 256.
+ *  @param sign Determines the [[#signedness|signedness]] of ''byteStri''.
+ *         Possible values are UNSIGNED and SIGNED. When ''sign'' is SIGNED
+ *         ''bstri'' is interpreted as signed value in the twos-complement
+ *         representation. In this case the result is negative when
+ *         the most significant byte has an ordinal >= 128.
+ *  @param endian Determines the [[#endianess|endianess]] of ''byteStri''.
+ *         Possible values are LE for little-endian and BE for big-endian.
+ *  @return an integer created from ''byteStri''.
+ *  @exception RANGE_ERROR When characters beyond '\255\' are present or
+ *             when the result value cannot be represented with an integer.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func integer: bytes2Int (in string: byteStri,
+    in signedness: sign, in endianess: endian) is DYNAMIC;
+
+
+const func bigInteger: bytes2BigInt (in string: byteStri, UNSIGNED, LE) is
+  return bStriLe2BigInt(bstring parse byteStri, FALSE);
+
+
+const func bigInteger: bytes2BigInt (in string: byteStri, UNSIGNED, BE) is
+  return bStriBe2BigInt(bstring parse byteStri, FALSE);
+
+
+const func bigInteger: bytes2BigInt (in string: byteStri, SIGNED, LE) is
+  return bStriLe2BigInt(bstring parse byteStri, TRUE);
+
+
+const func bigInteger: bytes2BigInt (in string: byteStri, SIGNED, BE) is
+  return bStriBe2BigInt(bstring parse byteStri, TRUE);
+
+
+(**
+ *  Convert a [[string]] of bytes to a [[bigint|bigInteger]].
+ *   bytes2BigInt("I\150\\2\\210\", SIGNED, BE)        returns  1234567890_
+ *   bytes2BigInt("\210\\2\\150\I", UNSIGNED, LE)      returns  1234567890_
+ *   bytes2BigInt(":\222\h\177\", SIGNED, BE)          returns   987654321_
+ *   bytes2BigInt("\139\\208\\3\\152\", UNSIGNED, BE)  returns  2345665432_
+ *   bytes2BigInt("\139\\208\\3\\152\", SIGNED, BE)    returns -1949301864_
+ *   bytes2BigInt("\152\\3\\208\\139\", UNSIGNED, LE)  returns  2345665432_
+ *  @param byteStri String of bytes to be converted. The bytes are
+ *         interpreted as binary representation with a base of 256.
+ *  @param sign Determines the [[#signedness|signedness]] of ''byteStri''.
+ *         Possible values are UNSIGNED and SIGNED. When ''sign'' is SIGNED
+ *         ''bstri'' is interpreted as signed value in the twos-complement
+ *         representation. In this case the result is negative when
+ *         the most significant byte has an ordinal >= 128.
+ *  @param endian Determines the [[#endianess|endianess]] of ''byteStri''.
+ *         Possible values are LE for little-endian and BE for big-endian.
+ *  @return a bigInteger created from ''byteStri''.
+ *  @exception RANGE_ERROR When characters beyond '\255\' are present.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func bigInteger: bytes2BigInt (in string: byteStri,
+    in signedness: sign, in endianess: endian) is DYNAMIC;
 
 
 (**

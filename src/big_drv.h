@@ -59,8 +59,8 @@ void bigDestr (const biginttype old_bigint);
 biginttype bigDiv (const const_biginttype dividend, const const_biginttype divisor);
 booltype bigEq (const const_biginttype big1, const const_biginttype big2);
 booltype bigEqSignedDigit (const const_biginttype big1, inttype number);
-biginttype bigFromBStriBe (const const_bstritype bstri);
-biginttype bigFromBStriLe (const const_bstritype bstri);
+biginttype bigFromBStriBe (const const_bstritype bstri, const booltype isSigned);
+biginttype bigFromBStriLe (const const_bstritype bstri, const booltype isSigned);
 biginttype bigFromInt32 (int32type number);
 #ifdef INT64TYPE
   biginttype bigFromInt64 (int64type number);
@@ -107,8 +107,8 @@ void bigShrink (biginttype *const big_variable, const const_biginttype delta);
 stritype bigStr (const const_biginttype big1);
 biginttype bigSucc (const const_biginttype big1);
 biginttype bigSuccTemp (biginttype big1);
-bstritype bigToBStriBe (const const_biginttype big1);
-bstritype bigToBStriLe (const const_biginttype big1);
+bstritype bigToBStriBe (const const_biginttype big1, const booltype isSigned);
+bstritype bigToBStriLe (const const_biginttype big1, const booltype isSigned);
 int32type bigToInt32 (const const_biginttype big1);
 #ifdef INT64TYPE
   int64type bigToInt64 (const const_biginttype big1);

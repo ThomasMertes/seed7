@@ -254,30 +254,30 @@ static chartype read_utf8_key (void)
     chartype key;
 
   /* read_utf8_key */
-    if (key_buffer[0] <= 0x7F) {
+    if (key_buffer[0] <= 0xBF) {
+      /* key_buffer[0] range 0 to 191           */
+      /* ASCII chars + UTF-8 continuation bytes */
       key = key_buffer[0];
       if (key_buffer_size >= 2) {
         memmove(key_buffer, &key_buffer[1], key_buffer_size - 1);
       } /* if */
       key_buffer_size--;
       return key;
-    } else if ((key_buffer[0] & 0xE0) == 0xC0) {
+    } else if (key_buffer[0] <= 0xDF) {
+      /* key_buffer[0] range 192 to 223 (leading bits 110.....) */
       len = 2;
-    } else if ((key_buffer[0] & 0xF0) == 0xE0) {
+    } else if (key_buffer[0] <= 0xEF) {
+      /* key_buffer[0] range 224 to 239 (leading bits 1110....) */
       len = 3;
-    } else if ((key_buffer[0] & 0xF8) == 0xF0) {
+    } else if (key_buffer[0] <= 0xF7) {
+      /* key_buffer[0] range 240 to 247 (leading bits 11110...) */
       len = 4;
-    } else if ((key_buffer[0] & 0xFC) == 0xF8) {
+    } else if (key_buffer[0] <= 0xFB) {
+      /* key_buffer[0] range 248 to 251 (leading bits 111110..) */
       len = 5;
-    } else if ((key_buffer[0] & 0xFC) == 0xFC) {
+    } else { /* if (key_buffer[0] <= 0xFF) { */
+      /* key_buffer[0] range 252 to 255 (leading bits 111111..) */
       len = 6;
-    } else {
-      key = key_buffer[0];
-      if (key_buffer_size >= 2) {
-        memmove(key_buffer, &key_buffer[1], key_buffer_size - 1);
-      } /* if */
-      key_buffer_size--;
-      return key;
     } /* if */
     while (key_buffer_size < len) {
       if (read_char_if_present(&key_buffer[key_buffer_size])) {
@@ -286,6 +286,7 @@ static chartype read_utf8_key (void)
         key_buffer[key_buffer_size] = '\0';
       } /* if */
       if ((key_buffer[key_buffer_size] & 0xC0) != 0x80) {
+        /* key_buffer[key_buffer_size] not in range 128 to 191 (leading bits not 10......) */
         key = key_buffer[0];
         if (key_buffer_size >= 2) {
           memmove(key_buffer, &key_buffer[1], key_buffer_size - 1);
@@ -604,6 +605,7 @@ booltype kbdKeyPressed (void)
 
   {
     struct pollfd poll_fds[1];
+    int poll_result;
     booltype result;
 
   /* kbdKeyPressed */
@@ -618,7 +620,10 @@ booltype kbdKeyPressed (void)
       } /* if */
       poll_fds[0].fd = fileno(stdin);
       poll_fds[0].events = POLLIN | POLLPRI;
-      if (poll(poll_fds, 1, 0) == 1) {
+      do {
+        poll_result = poll(poll_fds, 1, 0);
+      } while (unlikely(poll_result == -1 && errno == EINTR));
+      if (poll_result == 1) {
         result = TRUE;
       } else {
         result = FALSE;

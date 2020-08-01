@@ -1177,6 +1177,7 @@ wintype drwOpen (inttype xPos, inttype yPos,
     Screen *x_screen;
     XSetWindowAttributes attributes;
     XWindowAttributes attribs;
+    errinfotype err_info = OKAY_NO_ERROR;
     x11_wintype result;
 
   /* drwOpen */
@@ -1196,9 +1197,9 @@ wintype drwOpen (inttype xPos, inttype yPos,
       if (mydisplay == NULL) {
         raise_error(FILE_ERROR);
       } else {
-        win_name = cp_to_cstri8(window_name);
+        win_name = stri_to_cstri8(window_name, &err_info);
         if (win_name == NULL) {
-          raise_error(MEMORY_ERROR);
+          raise_error(err_info);
         } else {
           if (ALLOC_RECORD(result, x11_winrecord, count.win)) {
             memset(result, 0, sizeof(struct x11_winstruct));
@@ -1274,7 +1275,7 @@ wintype drwOpen (inttype xPos, inttype yPos,
             XFlush(mydisplay);
             XSync(mydisplay, 0);
           } /* if */
-          free_cstri(win_name, window_name);
+          free_cstri8(win_name, window_name);
         } /* if */
       } /* if */
     } /* if */

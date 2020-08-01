@@ -38,6 +38,9 @@
 #include "conio.h"
 
 #include "common.h"
+#include "heaputl.h"
+#include "striutl.h"
+#include "rtl_err.h"
 #include "kbd_drv.h"
 
 #undef EXTERN
@@ -51,6 +54,7 @@
 
 #define SCRHEIGHT 25
 #define SCRWIDTH 80
+#define MAX_CSTRI_BUFFER_LEN 256
 
 #define black 0
 #define green 2
@@ -72,7 +76,6 @@ typedef struct {
 static booltype monochrom;
 static screentype *current_screen;
 static char currentattribute;
-static char outbuffer[SCRWIDTH];
 static booltype console_initialized = FALSE;
 static booltype cursor_on = FALSE;
 
@@ -333,120 +336,187 @@ void conCursor (booltype on)
 
 
 
+/**
+ *  Moves the system curser to the given place of the console.
+ *  When no system cursor exists this procedure can be replaced by
+ *  a dummy procedure.
+ */
 void conSetCursor (inttype lin, inttype col)
-
-  /* Moves the system curser to the given place of the console.     */
-  /* When no system cursor exists this procedure can be replaced by */
-  /* a dummy procedure.                                             */
 
   {
     union REGS r;
 
   /* conSetCursor */
-    r.h.ah = (unsigned char) 2; /* cursor addressing function */
-    r.h.dh = (unsigned char) (lin - 1);
-    r.h.dl = (unsigned char) (col - 1);
-    r.h.bh = (unsigned char) 0; /* video page */
-    int86(0x10, &r, &r);
+    if (line <= 0 || column <= 0) {
+      raise_error(RANGE_ERROR);
+    } else if (line <= UINT8TYPE_MAX && column <= UINT8TYPE_MAX) {
+      r.h.ah = (unsigned char) 2; /* cursor addressing function */
+      r.h.dh = (unsigned char) (lin - 1);
+      r.h.dl = (unsigned char) (col - 1);
+      r.h.bh = (unsigned char) 0; /* video page */
+      int86(0x10, &r, &r);
+    } /* if */
   } /* conSetCursor */
 
 
 
-void conText (inttype lin, inttype col, ustritype stri,
-memsizetype length)
+/**
+ *  Writes the string stri to the console at the current position.
+ *  The string stri is not allowed to go beyond the right border of
+ *  the console.
+ */
+void conWrite (const const_stritype stri)
 
-  /* This function writes the string stri to the console at the     */
-  /* position (lin, col). The position (lin, col) must be a legal   */
-  /* position of the console. The string stri is not allowed to go  */
-  /* beyond the right border of the console. All console output     */
-  /* must be done with this function.                               */
+  {
+    char buffer[MAX_CSTRI_BUFFER_LEN + 1];
+    cstritype cstri;
+    errinfotype err_info = OKAY_NO_ERROR;
 
-  { /* conText */
-    memcpy(outbuffer, stri, length);
-    outbuffer[length] = '\0';
-    conSetCursor(lin, col);
-    cputs(outbuffer);
-  } /* conText */
+  /* conWrite */
+    if (stri->size <= MAX_CSTRI_BUFFER_LEN) {
+      conv_to_cstri(buffer, stri, &err_info);
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        raise_error(err_info);
+      } else {
+        cputs(buffer);
+      } /* if */
+    } else {
+      cstri = stri_to_cstri(stri, &err_info);
+      if (unlikely(cstri == NULL)) {
+        raise_error(err_info);
+      } else {
+        cputs(cstri);
+        free_cstri(cstri, stri);
+      } /* if */
+    } /* if */
+  } /* conWrite */
 
 
 
+/**
+ *  Clears the area described by startlin, stoplin, startcol and stopcol.
+ */
 void conClear (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol)
-
-  /* Clears the area described by startlin, stoplin, startcol and   */
-  /* stopcol.                                                       */
 
   {
     union REGS r;
 
   /* conClear */
-    r.h.ah = (unsigned char) 6; /* scroll up code */
-    r.h.al = (unsigned char) 0; /* clear screen code */
-    r.h.ch = (unsigned char) (startlin - 1);
-    r.h.cl = (unsigned char) (startcol - 1);
-    r.h.dh = (unsigned char) (stoplin - 1);
-    r.h.dl = (unsigned char) (stopcol - 1);
-    r.h.bh = (unsigned char) currentattribute; /* blank line colour */
-    int86(0x10, &r, &r);
+    if (startlin <= 0 || startcol <= 0 ||
+        stoplin < startlin || stopcol < startcol) {
+      raise_error(RANGE_ERROR);
+    } else if (startlin <= UINT8TYPE_MAX && startcol <= UINT8TYPE_MAX) {
+      if (stoplin > UINT8TYPE_MAX) {
+        stoplin = UINT8TYPE_MAX;
+      } /* if */
+      if (stopcol > UINT8TYPE_MAX) {
+        stopcol = UINT8TYPE_MAX;
+      } /* if */
+      r.h.ah = (unsigned char) 6; /* scroll up code */
+      r.h.al = (unsigned char) 0; /* clear screen code */
+      r.h.ch = (unsigned char) (startlin - 1);
+      r.h.cl = (unsigned char) (startcol - 1);
+      r.h.dh = (unsigned char) (stoplin - 1);
+      r.h.dl = (unsigned char) (stopcol - 1);
+      r.h.bh = (unsigned char) currentattribute; /* blank line colour */
+      int86(0x10, &r, &r);
+    } /* if */
   } /* conClear */
 
 
 
+/**
+ *  Scrolls the area inside startlin, startcol, stoplin and
+ *  stopcol upward by count lines. The upper count lines of the
+ *  area are overwritten. At the lower end of the area blank lines
+ *  are inserted. Nothing is changed outside the area.
+ *  The calling function assures that count is greater or equal 1.
+ */
 void conUpScroll (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol, inttype count)
-
-  /* Scrolls the area inside startlin, startcol, stoplin and        */
-  /* stopcol upward by count lines. The upper count lines of the    */
-  /* area are overwritten. At the lower end of the area blank lines */
-  /* are inserted. Nothing is changed outside the area.             */
 
   {
     union REGS r;
 
   /* conUpScroll */
-    r.h.ah = (unsigned char) 6; /* scroll up code */
-    r.h.al = (unsigned char) count;
-    r.h.ch = (unsigned char) (startlin - 1);
-    r.h.cl = (unsigned char) (startcol - 1);
-    r.h.dh = (unsigned char) (stoplin - 1);
-    r.h.dl = (unsigned char) (stopcol - 1);
-    r.h.bh = (unsigned char) 7; /* blank line is black */
-    int86(0x10, &r, &r);
+    if (startlin <= 0 || startcol <= 0 ||
+        stoplin < startlin || stopcol < startcol) {
+      raise_error(RANGE_ERROR);
+    } else if (startlin <= UINT8TYPE_MAX && startcol <= UINT8TYPE_MAX) {
+      if (count > stoplin - startlin + 1) {
+        conClear(startlin, startcol, stoplin, stopcol);
+      } else {
+        if (stoplin > UINT8TYPE_MAX) {
+          stoplin = UINT8TYPE_MAX;
+        } /* if */
+        if (stopcol > UINT8TYPE_MAX) {
+          stopcol = UINT8TYPE_MAX;
+        } /* if */
+        r.h.ah = (unsigned char) 6; /* scroll up code */
+        r.h.al = (unsigned char) count;
+        r.h.ch = (unsigned char) (startlin - 1);
+        r.h.cl = (unsigned char) (startcol - 1);
+        r.h.dh = (unsigned char) (stoplin - 1);
+        r.h.dl = (unsigned char) (stopcol - 1);
+        r.h.bh = (unsigned char) 7; /* blank line is black */
+        int86(0x10, &r, &r);
+      } /* if */
+    } /* if */
   } /* conUpScroll */
 
 
 
+/**
+ *  Scrolls the area inside startlin, startcol, stoplin and
+ *  stopcol downward by count lines. The lower count lines of the
+ *  area are overwritten. At the upper end of the area blank lines
+ *  are inserted. Nothing is changed outside the area.
+ *  The calling function assures that count is greater or equal 1.
+ */
 void conDownScroll (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol, inttype count)
-
-  /* Scrolls the area inside startlin, startcol, stoplin and        */
-  /* stopcol downward by count lines. The lower count lines of the  */
-  /* area are overwritten. At the upper end of the area blank lines */
-  /* are inserted. Nothing is changed outside the area.             */
 
   {
     union REGS r;
 
   /* conDownScroll */
-    r.h.ah = (unsigned char) 7; /* scroll down code */
-    r.h.al = (unsigned char) count;
-    r.h.ch = (unsigned char) (startlin - 1);
-    r.h.cl = (unsigned char) (startcol - 1);
-    r.h.dh = (unsigned char) (stoplin - 1);
-    r.h.dl = (unsigned char) (stopcol - 1);
-    r.h.bh = (unsigned char) 7; /* blank line is black */
-    int86(0x10, &r, &r);
+    if (startlin <= 0 || startcol <= 0 ||
+        stoplin < startlin || stopcol < startcol) {
+      raise_error(RANGE_ERROR);
+    } else if (startlin <= UINT8TYPE_MAX && startcol <= UINT8TYPE_MAX) {
+      if (count > stoplin - startlin + 1) {
+        conClear(startlin, startcol, stoplin, stopcol);
+      } else {
+        if (stoplin > UINT8TYPE_MAX) {
+          stoplin = UINT8TYPE_MAX;
+        } /* if */
+        if (stopcol > UINT8TYPE_MAX) {
+          stopcol = UINT8TYPE_MAX;
+        } /* if */
+        r.h.ah = (unsigned char) 7; /* scroll down code */
+        r.h.al = (unsigned char) count;
+        r.h.ch = (unsigned char) (startlin - 1);
+        r.h.cl = (unsigned char) (startcol - 1);
+        r.h.dh = (unsigned char) (stoplin - 1);
+        r.h.dl = (unsigned char) (stopcol - 1);
+        r.h.bh = (unsigned char) 7; /* blank line is black */
+        int86(0x10, &r, &r);
+      } /* if */
+    } /* if */
   } /* conDownScroll */
 
 
 
+/**
+ *  Scrolls the area inside startlin, startcol, stoplin and
+ *  stopcol leftward by count columns. The left count columns of the
+ *  area are overwritten. At the right end of the area blank columns
+ *  are inserted. Nothing is changed outside the area.
+ *  The calling function assures that count is greater or equal 1.
+ */
 void conLeftScroll (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol, inttype count)
-
-  /* Scrolls the area inside startlin, startcol, stoplin and        */
-  /* stopcol leftward by count lines. The left count lines of the   */
-  /* area are overwritten. At the right end of the area blank lines */
-  /* are inserted. Nothing is changed outside the area.             */
 
   {
     int line;
@@ -455,7 +525,10 @@ void conLeftScroll (inttype startlin, inttype startcol,
     char *source;
 
   /* conLeftScroll */
-    if (count > 0) {
+    if (startlin <= 0 || startcol <= 0 ||
+        stoplin < startlin || stopcol < startcol) {
+      raise_error(RANGE_ERROR);
+    } else if (startlin <= SCRHEIGHT && startcol <= SCRWIDTH) {
       num_bytes = 2 * (stopcol - startcol - count + 1);
       source = (char *) &current_screen->
           screen[startlin - 1][startcol + count - 1];
@@ -471,13 +544,15 @@ void conLeftScroll (inttype startlin, inttype startcol,
 
 
 
+/**
+ *  Scrolls the area inside startlin, startcol, stoplin and
+ *  stopcol rightward by count columns. The right count columns of the
+ *  area are overwritten. At the left end of the area blank columns
+ *  are inserted. Nothing is changed outside the area.
+ *  The calling function assures that count is greater or equal 1.
+ */
 void conRightScroll (inttype startlin, inttype startcol,
     inttype stoplin, inttype stopcol, inttype count)
-
-  /* Scrolls the area inside startlin, startcol, stoplin and        */
-  /* stopcol rightward by count lines. The right count lines of the */
-  /* area are overwritten. At the left end of the area blank lines  */
-  /* are inserted. Nothing is changed outside the area.             */
 
   {
     int line;
@@ -486,7 +561,10 @@ void conRightScroll (inttype startlin, inttype startcol,
     char *source;
 
   /* conRightScroll */
-    if (count > 0) {
+    if (startlin <= 0 || startcol <= 0 ||
+        stoplin < startlin || stopcol < startcol) {
+      raise_error(RANGE_ERROR);
+    } else if (startlin <= SCRHEIGHT && startcol <= SCRWIDTH) {
       num_bytes = 2 * (stopcol - startcol - count + 1);
       source = (char *) &current_screen->
           screen[startlin - 1][startcol - 1];
@@ -516,9 +594,10 @@ void conShut (void)
 
 
 
+/**
+ *  Initializes and clears the console.
+ */
 int conOpen (void)
-
-  /* Initializes and clears the console.                            */
 
   {
     union REGS r;

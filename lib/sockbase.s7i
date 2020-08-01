@@ -69,7 +69,8 @@ const func string: service (in socketAddress: address)                      is a
  *  @return the internet socket address or socketAddress.value when
  *          the host cannot be found.
  *  @exception FILE_ERROR A system function returns an error.
- *  @exception RANGE_ERROR The port is not in the range 0 to 65535.
+ *  @exception RANGE_ERROR The port is not in the range 0 to 65535 or
+ *             hostName cannot be converted to the system string type.
  *  @exception MEMORY_ERROR Not enough memory to convert ''hostName''.
  *             to the system representation or not enough memory to
  *             represent the result.

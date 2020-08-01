@@ -168,10 +168,10 @@ const func rsaKey: getRsaKey (in string: stri) is func
     if dataElem.tagCategory = tagSequence then
       dataElem := getAsn1DataElement(stri, pos);
       if dataElem.tagCategory = tagInteger then
-        modulus := bytesBe2BigInt(getData(stri, pos, dataElem));
+        modulus := bytes2BigInt(getData(stri, pos, dataElem), UNSIGNED, BE);
         dataElem := getAsn1DataElement(stri, pos);
         if dataElem.tagCategory = tagInteger then
-          exponent := bytesBe2BigInt(getData(stri, pos, dataElem));
+          exponent := bytes2BigInt(getData(stri, pos, dataElem), UNSIGNED, BE);
           anRsaKey := rsaKey(modulus, exponent);
         end if;
       end if;
@@ -183,8 +183,8 @@ const func string: genX509RsaKey (in rsaKey: anRsaKey) is func
   result
     var string: stri is "";
   begin
-    stri := genAsn1Integer(bytesBe(anRsaKey.modulus));
-    stri &:= genAsn1Integer(bytesBe(anRsaKey.exponent));
+    stri := genAsn1Integer(bytes(anRsaKey.modulus, SIGNED, BE));
+    stri &:= genAsn1Integer(bytes(anRsaKey.exponent, SIGNED, BE));
     stri := genAsn1Sequence(stri);
   end func;
 
@@ -378,15 +378,15 @@ const func tbsCertificateType: getTbsCertificate (in string: stri, inout integer
       if dataElem.tagClass = contextSpecificTagClass and dataElem.constructed then
         dataElem := getAsn1DataElement(stri, pos);
         if dataElem.tagCategory = tagInteger then
-          tbsCertificate.version := bytesBe2Int(getData(stri, pos, dataElem));
+          tbsCertificate.version := bytes2Int(getData(stri, pos, dataElem), UNSIGNED, BE);
         end if;
         dataElem := getAsn1DataElement(stri, pos);
         if dataElem.tagCategory = tagInteger then
           tbsCertificate.serialNumber := getData(stri, pos, dataElem);
         end if;
       elsif dataElem.tagCategory = tagInteger then
-        # Some certificates don't have an explicit tag and a serial number.
-        tbsCertificate.version := bytesBe2Int(getData(stri, pos, dataElem));
+        # Some certificates don't have an explicit tag and a version number.
+        tbsCertificate.serialNumber := getData(stri, pos, dataElem);
       end if;
       tbsCertificate.signature := getAlgorithmIdentifier(stri, pos);
       tbsCertificate.issuer := getName(stri, pos);

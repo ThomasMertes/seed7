@@ -695,7 +695,7 @@ inttype do_ord (objecttype any_obj, errinfotype *err_info)
         prot_cstri("is temp ");
         trace1(any_obj);
       } */
-      temp_any_obj = TEMP_OBJECT(any_obj);
+      temp_any_obj = (categorytype) TEMP_OBJECT(any_obj);
       CLEAR_TEMP_FLAG(any_obj);
 
       call_result = exec_call(&call_object);
@@ -783,8 +783,8 @@ booltype do_in (objecttype elem_obj, objecttype set_obj,
         prot_cstri("is temp ");
         trace1(elem_obj);
       } */
-      temp_elem_obj = TEMP_OBJECT(elem_obj);
-      temp_set_obj = TEMP_OBJECT(set_obj);
+      temp_elem_obj = (categorytype) TEMP_OBJECT(elem_obj);
+      temp_set_obj = (categorytype) TEMP_OBJECT(set_obj);
       CLEAR_TEMP_FLAG(elem_obj);
       CLEAR_TEMP_FLAG(set_obj);
 
