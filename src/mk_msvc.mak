@@ -33,6 +33,10 @@ BIGINT_LIB = big_rtl
 # BIGINT_LIB_DEFINE = USE_BIG_GMP_LIBRARY
 # BIGINT_LIB = big_gmp
 
+!if exist(macros)
+!include macros
+!endif
+
 MOBJ = s7.obj
 POBJ = runerr.obj option.obj primitiv.obj
 LOBJ = actlib.obj arrlib.obj biglib.obj binlib.obj blnlib.obj bstlib.obj chrlib.obj cmdlib.obj conlib.obj dcllib.obj \
@@ -269,7 +273,3 @@ lint: $(SRC)
 
 lint2: $(SRC)
 	lint -Zn2048 $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) $(SYSTEM_DB_LIBS)
-
-!if exist(macros)
-!include macros
-!endif

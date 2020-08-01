@@ -1299,23 +1299,33 @@ const proc: process_const_flt_lshift (in reference: number, in integer: exponent
     inout expr_type: c_expr) is func
 
   local
-    var reference: evaluatedParam is NIL;
+    var float: powerOfTwo is 0.0;
   begin
     if exponent = 0 then
       incr(countOptimizations);
       process_expr(number, c_expr);
     else
-      c_expr.expr &:= "ldexp(";
-      process_expr(number, c_expr);
-      c_expr.expr &:= ", ";
-      if exponent > ccConf.INT_MAX then
-        c_expr.expr &:= integerLiteral(ccConf.INT_MAX);
-      elsif exponent < ccConf.INT_MIN then
-        c_expr.expr &:= integerLiteral(ccConf.INT_MIN);
+      powerOfTwo := 2.0 ** exponent;
+      if powerOfTwo > 1.0 and powerOfTwo < Infinity then
+        # The range (0.0 to 1.0] would also work,
+        # but extended precison computations makes tests fail.
+        c_expr.expr &:= "(";
+        process_expr(number, c_expr);
+        c_expr.expr &:= ") * ";
+        c_expr.expr &:= floatLiteral(powerOfTwo);
       else
-        c_expr.expr &:= integerLiteral(exponent);
+        c_expr.expr &:= "ldexp(";
+        process_expr(number, c_expr);
+        c_expr.expr &:= ", ";
+        if exponent > ccConf.INT_MAX then
+          c_expr.expr &:= integerLiteral(ccConf.INT_MAX);
+        elsif exponent < ccConf.INT_MIN then
+          c_expr.expr &:= integerLiteral(ccConf.INT_MIN);
+        else
+          c_expr.expr &:= integerLiteral(exponent);
+        end if;
+        c_expr.expr &:= ")";
       end if;
-      c_expr.expr &:= ")";
     end if;
   end func;
 
@@ -1851,22 +1861,36 @@ const proc: process_const_flt_rshift (in float: number, in reference: exponent,
 const proc: process_const_flt_rshift (in reference: number, in integer: exponent,
     inout expr_type: c_expr) is func
 
+  local
+    var float: powerOfTwo is Infinity;
   begin
     if exponent = 0 then
       incr(countOptimizations);
       process_expr(number, c_expr);
     else
-      c_expr.expr &:= "ldexp(";
-      process_expr(number, c_expr);
-      c_expr.expr &:= ", ";
-      if exponent > ccConf.INT_MAX then
-        c_expr.expr &:= integerLiteral(ccConf.INT_MIN);
-      elsif exponent <= ccConf.INT_MIN then
-        c_expr.expr &:= integerLiteral(ccConf.INT_MAX);
-      else
-        c_expr.expr &:= integerLiteral(-exponent);
+      if exponent <> integer.first then
+        powerOfTwo := 2.0 ** (-exponent);
       end if;
-      c_expr.expr &:= ")";
+      if powerOfTwo > 1.0 and powerOfTwo < Infinity then
+        # The range (0.0 to 1.0] would also work,
+        # but extended precison computations makes tests fail.
+        c_expr.expr &:= "(";
+        process_expr(number, c_expr);
+        c_expr.expr &:= ") * ";
+        c_expr.expr &:= floatLiteral(powerOfTwo);
+      else
+        c_expr.expr &:= "ldexp(";
+        process_expr(number, c_expr);
+        c_expr.expr &:= ", ";
+        if exponent > ccConf.INT_MAX then
+          c_expr.expr &:= integerLiteral(ccConf.INT_MIN);
+        elsif exponent <= ccConf.INT_MIN then
+          c_expr.expr &:= integerLiteral(ccConf.INT_MAX);
+        else
+          c_expr.expr &:= integerLiteral(-exponent);
+        end if;
+        c_expr.expr &:= ")";
+      end if;
     end if;
   end func;
 

@@ -40,9 +40,12 @@ struct dirent {
   };
 
 typedef struct {
+    /* FirstElement can only be 0 or 1. This way a DIR can never  */
+    /* start with UINT32TYPE_MAX, which is the magic value of a   */
+    /* volumeListType value.                                      */
+    int firstElement;
     HANDLE dirHandle;
     WIN32_FIND_DATAA findData;
-    int firstElement;
     struct dirent dirEntry;
   } DIR;
 
@@ -51,11 +54,25 @@ struct wdirent {
   };
 
 typedef struct {
+    /* FirstElement can only be 0 or 1. This way a WDIR can never */
+    /* start with UINT32TYPE_MAX, which is the magic value of a   */
+    /* volumeListType value.                                      */
+    int firstElement;
     HANDLE dirHandle;
     WIN32_FIND_DATAW findData;
-    int firstElement;
     struct wdirent dirEntry;
   } WDIR;
+
+#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+typedef struct {
+    /* A volumeListType always has a magic value of UINT32TYPE_MAX. */
+    uint32Type magicValue;
+    uint32Type driveBitmask;
+    int currentDrive;
+  } volumeListType;
+
+#define IS_VOLUME_LIST(ptr) (ptr != NULL && ((volumeListType *) (ptr))->magicValue == UINT32TYPE_MAX)
+#endif
 
 
 DIR *opendir (const char *name);
@@ -64,3 +81,6 @@ int closedir (DIR *curr_dir);
 WDIR *wopendir (const wchar_t *name);
 struct wdirent *wreaddir (WDIR *curr_dir);
 int wclosedir (WDIR *curr_dir);
+#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+volumeListType *openVolumeList (void);
+#endif

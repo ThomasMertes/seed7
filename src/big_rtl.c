@@ -3346,7 +3346,7 @@ bigIntType bigBinom (bigIntType n_number, bigIntType k_number)
 intType bigBitLength (const const_bigIntType big1)
 
   {
-    intType result;
+    intType bitLength;
 
   /* bigBitLength */
     logFunction(printf("bigBitLength(%s)\n", bigHexCStri(big1)););
@@ -3355,17 +3355,17 @@ intType bigBitLength (const const_bigIntType big1)
                       "Result does not fit into an integer.\n",
                       bigHexCStri(big1)););
       raise_error(RANGE_ERROR);
-      result = 0;
+      bitLength = 0;
     } else {
-      result = (intType) ((big1->size - 1) << BIGDIGIT_LOG2_SIZE);
+      bitLength = (intType) ((big1->size - 1) << BIGDIGIT_LOG2_SIZE);
       if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
-        result += digitMostSignificantBit(~big1->bigdigits[big1->size - 1]) + 1;
+        bitLength += digitMostSignificantBit(~big1->bigdigits[big1->size - 1]) + 1;
       } else {
-        result += digitMostSignificantBit(big1->bigdigits[big1->size - 1]) + 1;
+        bitLength += digitMostSignificantBit(big1->bigdigits[big1->size - 1]) + 1;
       } /* if */
     } /* if */
-    logFunction(printf("bigBitLength --> " FMT_D "\n", result););
-    return result;
+    logFunction(printf("bigBitLength --> " FMT_D "\n", bitLength););
+    return bitLength;
   } /* bigBitLength */
 
 
@@ -3811,6 +3811,17 @@ boolType bigEqSignedDigit (const const_bigIntType big1, intType number)
 
 
 
+/**
+ *  Convert a byte buffer (interpreted as big-endian) to a bigInteger.
+ *  @param size Size of the byte buffer to be converted (in bytes).
+ *  @param buffer Byte buffer to be converted. The bytes are interpreted
+ *         as binary big-endian representation with a base of 256.
+ *  @param isSigned Defines if 'buffer' is interpreted as signed value.
+ *         When 'isSigned' is TRUE the twos-complement representation
+ *         is used. In this case the result is negative when the most
+ *         significant byte (the first byte) has an ordinal >= 128.
+ *  @return a bigInteger created from the big-endian bytes.
+ */
 bigIntType bigFromByteBufferBe (const memSizeType size,
     const const_ustriType buffer, const boolType isSigned)
 
@@ -3893,6 +3904,17 @@ bigIntType bigFromByteBufferBe (const memSizeType size,
 
 
 
+/**
+ *  Convert a byte buffer (interpreted as little-endian) to a bigInteger.
+ *  @param size Size of the byte buffer to be converted (in bytes).
+ *  @param buffer Byte buffer to be converted. The bytes are interpreted
+ *         as binary little-endian representation with a base of 256.
+ *  @param isSigned Defines if 'buffer' is interpreted as signed value.
+ *         When 'isSigned' is TRUE the twos-complement representation
+ *         is used. In this case the result is negative when the most
+ *         significant byte (the last byte) has an ordinal >= 128.
+ *  @return a bigInteger created from the little-endian bytes.
+ */
 bigIntType bigFromByteBufferLe (const memSizeType size,
     const const_ustriType buffer, const boolType isSigned)
 

@@ -865,7 +865,7 @@ void strAppend (striType *const destination, const_striType extension)
           raise_error(MEMORY_ERROR);
           return;
         } else {
-          if (extension_origin != NULL) {
+          if (unlikely(extension_origin != NULL)) {
             /* It is possible that 'extension' is identical to    */
             /* 'stri_dest' or a slice of it. This can be checked  */
             /* with the origin. In this case 'extension_mem' must */
@@ -895,7 +895,7 @@ void strAppend (striType *const destination, const_striType extension)
       if (unlikely(new_stri == NULL)) {
         raise_error(MEMORY_ERROR);
       } else {
-        if (extension_origin != NULL) {
+        if (unlikely(extension_origin != NULL)) {
           /* It is possible that 'extension' is identical to    */
           /* 'stri_dest' or a slice of it. This can be checked  */
           /* with the origin. In this case 'extension_mem' must */
@@ -994,29 +994,33 @@ void strAppendN (striType *const destination,
           *destination = new_stri;
           dest = &new_stri->mem[new_stri->size];
           for (pos = 0; pos < arraySize; pos++) {
-            if (unlikely(SLICE_OVERLAPPING2(extensionArray[pos], old_dest_origin,
-                                            old_dest_beyond))) {
+            if (unlikely(stri_dest == extensionArray[pos])) {
               /* The extension (extensionArray[pos]) is identical   */
-              /* to the 'destination' or a slice of it (it refers   */
-              /* to the memory area of it). The resizing of the     */
-              /* 'destination' might have moved 'new_stri' to a     */
-              /* new memory area. Therefore 'extension_mem' must    */
-              /* be corrected after realloc() enlarged 'new_stri'.  */
-              if (stri_dest == extensionArray[pos]) {
-                /* For an identical extension the size is also      */
-                /* identical.                                       */
-                elem_size = new_stri->size;
-              } else {
-                /* For a slice the extension size is okay.          */
-                elem_size = extensionArray[pos]->size;
-              } /* if */
+              /* to the 'destination' (it refers to the memory area */
+              /* of it). The resizing of the 'destination' might    */
+              /* have moved 'new_stri' to a new memory area.        */
+              /* Therefore 'extension_mem' must be corrected after  */
+              /* realloc()  enlarged 'new_stri'.                    */
+              elem_size = new_stri->size;
+              extension_mem = new_stri->mem;
+              /* Correcting extensionArray[pos]->mem is not needed, */
+              /* since the slice will not be used afterwards.       */
+              /* Changing extensionArray[pos]->mem is dangerous,    */
+              /* since the memory could have been released.         */
+            } else if (unlikely(SLICE_OVERLAPPING2(extensionArray[pos],
+                                                   old_dest_origin,
+                                                   old_dest_beyond))) {
+              /* The extension (extensionArray[pos]) is a slice of  */
+              /* the 'destination' (it refers to the memory area of */
+              /* it). The resizing of the 'destination' might have  */
+              /* moved 'new_stri' to a new memory area. Therefore   */
+              /* 'extension_mem' must be corrected after realloc()  */
+              /* enlarged 'new_stri'.                               */
+              elem_size = extensionArray[pos]->size;
               extension_mem =
                   &new_stri->mem[extensionArray[pos]->mem - old_dest_origin];
               /* Correcting extensionArray[pos]->mem is not needed, */
-              /* since a slice will not be used afterwards. In case */
-              /* the extension is identical to 'new_stri' changing  */
-              /* extensionArray[pos]->mem is dangerous since the    */
-              /* memory could have been released.                   */
+              /* since the slice will not be used afterwards.       */
             } else {
               elem_size = extensionArray[pos]->size;
               extension_mem = extensionArray[pos]->mem;
@@ -1050,29 +1054,33 @@ void strAppendN (striType *const destination,
       dest = &new_stri->mem[new_stri->size];
       for (pos = 0; pos < arraySize; pos++) {
         elem_size = extensionArray[pos]->size;
-        if (unlikely(SLICE_OVERLAPPING2(extensionArray[pos], old_dest_origin,
-                                        old_dest_beyond))) {
+        if (unlikely(stri_dest == extensionArray[pos])) {
           /* The extension (extensionArray[pos]) is identical   */
-          /* to the 'destination' or a slice of it (it refers   */
-          /* to the memory area of it). The resizing of the     */
-          /* 'destination' might have moved 'new_stri' to a     */
-          /* new memory area. Therefore 'extension_mem' must    */
-          /* be corrected after realloc() enlarged 'new_stri'.  */
-          if (stri_dest == extensionArray[pos]) {
-            /* For an identical extension the size is also      */
-            /* identical.                                       */
-            elem_size = new_stri->size;
-          } else {
-            /* For a slice the extension size is okay.          */
-            elem_size = extensionArray[pos]->size;
-          } /* if */
+          /* to the 'destination' (it refers to the memory area */
+          /* of it). The resizing of the 'destination' might    */
+          /* have moved 'new_stri' to a new memory area.        */
+          /* Therefore 'extension_mem' must be corrected after  */
+          /* realloc()  enlarged 'new_stri'.                    */
+          elem_size = new_stri->size;
+          extension_mem = new_stri->mem;
+          /* Correcting extensionArray[pos]->mem is not needed, */
+          /* since then slice will not be used afterwards.      */
+          /* Changing extensionArray[pos]->mem is dangerous,    */
+          /* since the memory could have been released.         */
+        } else if (unlikely(SLICE_OVERLAPPING2(extensionArray[pos],
+                                               old_dest_origin,
+                                               old_dest_beyond))) {
+          /* The extension (extensionArray[pos]) is a slice of  */
+          /* the 'destination' (it refers to the memory area of */
+          /* it). The resizing of the 'destination' might have  */
+          /* moved 'new_stri' to a new memory area. Therefore   */
+          /* 'extension_mem' must be corrected after realloc()  */
+          /* enlarged 'new_stri'.                               */
+          elem_size = extensionArray[pos]->size;
           extension_mem =
               &new_stri->mem[extensionArray[pos]->mem - old_dest_origin];
-          /* Correcting extension->mem is not necessary, since  */
-          /* a slice will not be used afterwards. In case when  */
-          /* 'extension is identical to 'new_stri' changing     */
-          /* extension->mem is dangerous since 'extension'      */
-          /* could have been released.                          */
+          /* Correcting extensionArray[pos]->mem is not needed, */
+          /* since the slice will not be used afterwards.       */
         } else {
           elem_size = extensionArray[pos]->size;
           extension_mem = extensionArray[pos]->mem;
@@ -1119,7 +1127,7 @@ void strAppend (striType *const destination, const_striType extension)
           raise_error(MEMORY_ERROR);
           return;
         } else {
-          if (stri_dest == extension) {
+          if (unlikely(stri_dest == extension)) {
             /* It is possible that stri_dest == extension holds. */
             /* In this case 'extension' must be corrected        */
             /* after realloc() enlarged 'stri_dest'.             */
@@ -1138,7 +1146,7 @@ void strAppend (striType *const destination, const_striType extension)
       if (unlikely(new_stri == NULL)) {
         raise_error(MEMORY_ERROR);
       } else {
-        if (stri_dest == extension) {
+        if (unlikely(stri_dest == extension)) {
           /* It is possible that stri_dest == extension holds. */
           /* In this case 'extension' must be corrected        */
           /* after realloc() enlarged 'stri_dest'.             */
@@ -1210,7 +1218,7 @@ void strAppendN (striType *const destination,
         *destination = new_stri;
         dest = &new_stri->mem[new_stri->size];
         for (pos = 0; pos < arraySize; pos++) {
-          if (stri_dest == extensionArray[pos]) {
+          if (unlikely(stri_dest == extensionArray[pos])) {
             /* It is possible that stri_dest == extension holds. */
             /* In this case 'extension' must be corrected        */
             /* after realloc() enlarged 'stri_dest'.             */
@@ -1245,7 +1253,7 @@ void strAppendN (striType *const destination,
       *destination = new_stri;
       dest = &new_stri->mem[new_stri->size];
       for (pos = 0; pos < arraySize; pos++) {
-        if (stri_dest == extensionArray[pos]) {
+        if (unlikely(stri_dest == extensionArray[pos])) {
           /* It is possible that stri_dest == extension holds. */
           /* In this case 'extension' must be corrected        */
           /* after realloc() enlarged 'stri_dest'.             */

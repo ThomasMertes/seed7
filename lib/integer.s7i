@@ -330,7 +330,7 @@ const func integer: abs (in integer: number)                     is action "INT_
 
 
 (**
- *  Compute the integer square root of an integer number.
+ *  Compute the truncated square root of an integer number.
  *  @return the integer square root.
  *  @exception NUMERIC_ERROR When number is negative.
  *)

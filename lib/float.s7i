@@ -131,7 +131,7 @@ const func float: (in float: base) ** (in float: exponent)     is action "FLT_PO
  *  If the result underflows zero is returned.
  *  If the result overflows Infinity or -Infinity is returned,
  *  depending on the sign of ''number''.
- *  When the argument ''number'' is a NaN, Infinity or -Infinity the
+ *  When the argument ''number'' is a [[#NaN|NaN]], Infinity or -Infinity the
  *  unchanged argument is returned.
  *  @return number * 2.0 ** exponent
  *)
@@ -144,7 +144,7 @@ const func float: (in float: number) << (in integer: exponent) is action "FLT_LS
  *  If the result underflows zero is returned.
  *  If the result overflows Infinity or -Infinity is returned,
  *  depending on the sign of ''number''.
- *  When the argument ''number'' is a NaN, Infinity or -Infinity the
+ *  When the argument ''number'' is a [[#NaN|NaN]], Infinity or -Infinity the
  *  unchanged argument is returned.
  *  @return number / 2.0 ** exponent
  *)
@@ -266,8 +266,9 @@ const float: NaN is 0.0 / 0.0;
 (**
  *  Compare two float numbers.
  *  Because ''compare'' is used to sort float values, a unique
- *  sort sequence of all values is needed. Therefore ''compare''
- *  considers [[#NaN|NaN]] as equal to itself and greater than Infinity.
+ *  sort sequence of the values is needed. Therefore ''compare''
+ *  considers all [[#NaN|NaN]] values as greater than Infinity.
+ *  The NaN values are also considered to be equal to each other.
  *  Negative zero (-0.0) is considered by ''compare'' to be
  *  equal to positive zero (+0.0). This conforms to the behavior
  *  of all other float comparisons with zero.
@@ -436,7 +437,7 @@ const func float: abs (in float: number)                       is action "FLT_AB
  *   round(-0.48)  returns  0
  *   round(-0.5)   returns -1
  *  @return the rounded value.
- *  @exception RANGE_ERROR When the number is NaN, -Infinity, Infinity,
+ *  @exception RANGE_ERROR When the number is [[#NaN|NaN]], -Infinity, Infinity,
  *             or does not fit into an integer.
  *)
 const func integer: round (in float: number)                   is action "FLT_ROUND";
@@ -447,7 +448,7 @@ const func integer: round (in float: number)                   is action "FLT_RO
  *  The fractional part of a number is discarded.
  *  @return the nearest [[integer]] not larger in absolute value
  *          than the argument.
- *  @exception RANGE_ERROR When the number is NaN, -Infinity, Infinity,
+ *  @exception RANGE_ERROR When the number is [[#NaN|NaN]], -Infinity, Infinity,
  *             or does not fit into an integer.
  *)
 const func integer: trunc (in float: number)                   is action "FLT_TRUNC";
@@ -546,8 +547,8 @@ const type: floatElements is new struct
 
 (**
  *  Decompose float into normalized fraction and integral exponent for 2.
- *  If the argument (number) is 0.0, -0.0, Infinity, -Infinity or NaN the
- *  fraction is set to the argument and the exponent is set to 0.
+ *  If the argument (number) is 0.0, -0.0, Infinity, -Infinity or [[#NaN|NaN]]
+ *  the fraction is set to the argument and the exponent is set to 0.
  *  For all other arguments the fraction is set to an absolute value
  *  between 0.5(included) and 1.0(excluded). For all values of number holds:
  *   number = fraction * 2.0 ** exponent

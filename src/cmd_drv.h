@@ -29,17 +29,6 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
-typedef struct {
-    uint32Type magicValue;
-    uint32Type driveBitmask;
-    int currentDrive;
-  } volumeListType;
-
-#define IS_VOLUME_LIST(ptr) (ptr != NULL && ((volumeListType *) (ptr))->magicValue == UINT32TYPE_MAX)
-#endif
-
-
 #ifdef C_PLUS_PLUS
 #define C "C"
 #else
@@ -59,7 +48,4 @@ os_striType wgetenv (const const_os_striType name);
 #ifdef DEFINE_WSETENV
 int wsetenv (const const_os_striType name, const const_os_striType value,
     int overwrite);
-#endif
-#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
-volumeListType *openVolumeList (void);
 #endif

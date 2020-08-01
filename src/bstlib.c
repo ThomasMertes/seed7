@@ -52,6 +52,11 @@
 
 
 
+/**
+ *  Append the bstring extension/arg_3 to destination/arg_1.
+ *  @exception MEMORY_ERROR Not enough memory for the concatenated
+ *             bstring.
+ */
 objectType bst_append (listType arguments)
 
   {
@@ -99,6 +104,12 @@ objectType bst_append (listType arguments)
 
 
 
+/**
+ *  Concatenate two bstrings.
+ *  @return the result of the concatenation.
+ *  @exception MEMORY_ERROR Not enough memory for the concatenated
+ *             bstring.
+ */
 objectType bst_cat (listType arguments)
 
   {
@@ -192,6 +203,7 @@ objectType bst_cmp (listType arguments)
 /**
  *  Assign source/arg_3 to dest/arg_1.
  *  A copy function assumes that dest/arg_1 contains a legal value.
+ *  @exception MEMORY_ERROR Not enough memory to create dest.
  */
 objectType bst_cpy (listType arguments)
 
@@ -245,6 +257,7 @@ objectType bst_cpy (listType arguments)
  *  A create function assumes that the contents of dest/arg_1
  *  is undefined. Create functions can be used to initialize
  *  constants.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 objectType bst_create (listType arguments)
 

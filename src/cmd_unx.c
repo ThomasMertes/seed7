@@ -128,21 +128,3 @@ striType getExecutablePath (const const_striType arg_0)
                        striAsUnquotedCStri(result)););
     return result;
   } /* getExecutablePath */
-
-
-
-#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
-volumeListType *openVolumeList (void)
-
-  {
-    volumeListType *result;
-
-  /* openVolumeList */
-    if ((result = (volumeListType *) malloc(sizeof(volumeListType))) != NULL) {
-      result->magicValue = UINT32TYPE_MAX;
-      result->driveBitmask = 0x3FFFFFF;
-      result->currentDrive = 0;
-    } /* if */
-    return result;
-  } /* openVolumeList */
-#endif

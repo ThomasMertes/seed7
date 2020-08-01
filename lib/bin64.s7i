@@ -115,6 +115,15 @@ const func integer: hashCode (in bin64: number)                is action "INT_HA
 
 
 (**
+ *  Compute pseudo-random bin64 value.
+ *  The random values are uniform distributed.
+ *  @return a random bin64 value.
+ *)
+const func bin64: rand (attr bin64) is
+  return bin64(rand(integer.first, integer.last));
+
+
+(**
  *  Convert an ''bin64'' value to a [[string]].
  *  The values is converted to a string with decimal representation.
  *  @return the string result of the conversion.
@@ -351,7 +360,7 @@ const func bin64: float2MbfBits (in float: number, DOUBLE) is func
  *)
 const func float: mbfBits2Float (in bin64: bits) is func
   result
-    var float: result is 0.0;
+    var float: aFloat is 0.0;
   local
     const integer: mantissaBits is 55;
     const bin64: mantissaMask is bin64(pred(1 << mantissaBits));
@@ -362,12 +371,12 @@ const func float: mbfBits2Float (in bin64: bits) is func
     exponent := ord(bits >> succ(mantissaBits));
     if exponent <> 0 then
       # Ignore sign bit and set implicit leading one bit of mantissa instead.
-      result := flt(ord(mantissaSign | bits & mantissaMask));
+      aFloat := flt(ord(mantissaSign | bits & mantissaMask));
       # Check sign bit.
       if ord(bits & mantissaSign) <> 0 then
-        result := -result;
+        aFloat := -aFloat;
       end if;
-      result := result * 2.0 ** (exponent - exponentBias - mantissaBits);
+      aFloat := aFloat * 2.0 ** (exponent - exponentBias - mantissaBits);
     end if;
   end func;
 

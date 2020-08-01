@@ -1,3 +1,32 @@
+20161031:
+- The examples about multiple dispatch in the FAQ and in the manual
+  have been changed.
+- In dir_win.c the functions opendir and wopendir have been improved
+  to work correctly, when a volume is empty. FindFirstFile returns
+  INVALID_HANDLE_VALUE, when the path refers to an empty volume
+  (a directory that does not contain the . and .. directories).
+  After FindFirstFile fails GetFileAttributesEx is used to recognize
+  empty volumes.
+- In stat_win.c the function wstati64Ext has been improved to
+  recognize empty volumes correctly. Now GetFileAttributesEx is used
+  instead of FindFirstFile to get information about a file.
+- The function openVolumeList has been moved from cmd_win.c and
+  cmd_unx.c to dir_win.c.
+- The definition of volumeListType has been moved from cmd_drv.h to
+  dir_win.h.
+- In str_rtl.c the function strAppendN has been improved to work
+  correctly, when an appended string is identical to the destination
+  or a slice of it. There was already code to handle this case, but
+  this code could access freed memory in rare situations.
+- The makefiles mk_nmake.mak and mk_msvc.mak have been changed to
+  include the file 'macros' before the macro SYSTEM_DB_LIBS is used.
+- Rand functions have been added to bin32.s7i and bin64.s7i.
+- The compiler has been improved to optimize the float shift
+  operators << and >> .
+- Documentation comments have been improved in float.s7i,
+  integer.s7i, osfiles.s7i, big_gmp.c, big_rtl.c, bstlib.c and
+  bst_rtl.c.
+
 20161002:
 - Definitions of float shift operators << and >> have been added to
   float.s7i (A << B is equivalent to A * 2.0 ** B and A >> B is

@@ -34,8 +34,6 @@
 #include "stdio.h"
 #include "string.h"
 
-#include "dir_drv.h"
-
 #include "common.h"
 #include "data.h"
 #include "data_rtl.h"
@@ -47,6 +45,7 @@
 #include "arrutl.h"
 #include "objutl.h"
 #include "runerr.h"
+#include "dir_drv.h"
 #include "dir_rtl.h"
 #include "str_rtl.h"
 #include "cmd_rtl.h"

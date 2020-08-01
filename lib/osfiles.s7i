@@ -192,7 +192,7 @@ const func string: homeDir                                   is action "CMD_HOME
  *  The function does follow symbolic links. When the chain of
  *  symbolic links is too long the function returns ''FILE_SYMLINK''.
  *  When a symbolic link refers to a place where the permission
- *  is denied the function returns 'FILE_SYMLINK'.
+ *  is denied the function returns ''FILE_SYMLINK''.
  *  A return value of ''FILE_ABSENT'' does not imply that a file
  *  with this name can be created, since missing directories and
  *  illegal file names cause also ''FILE_ABSENT''.

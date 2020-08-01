@@ -61,8 +61,6 @@
 #include "unistd.h"
 #endif
 
-#include "dir_drv.h"
-
 #include "common.h"
 #include "data_rtl.h"
 #include "os_decls.h"
@@ -71,6 +69,7 @@
 #include "str_rtl.h"
 #include "chr_rtl.h"
 #include "fil_rtl.h"
+#include "dir_drv.h"
 #include "dir_rtl.h"
 #include "set_rtl.h"
 #include "tim_rtl.h"

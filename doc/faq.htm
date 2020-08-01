@@ -610,12 +610,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 200000 lines of Seed7. For version 2016-10-02 the number of lines is:
+than 200000 lines of Seed7. For version 2016-10-31 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right">130521</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right"> 10264</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">130701</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right"> 10272</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
   <tr><td align="right">136568</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right">134331</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right">134374</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -1149,7 +1149,7 @@ For example:
 </p><pre class="indent">
 $ <span class="keywd">syntax</span> <span class="type">expr</span>: .while.().do.().end.while <span class="keywd">is</span> -> 25;
 
-<span class="keywd">const</span> <span class="type">proc</span>: while (<span class="keywd">ref</span> <span class="type">func boolean</span>: condition) do
+<span class="keywd">const</span> <span class="type">proc</span>: while (<span class="keywd">ref</span> <span class="type">func</span> <span class="type">boolean</span>: condition) do
               (<span class="keywd">ref</span> <span class="type">proc</span>: statement)
             end while <span class="keywd">is func</span>
   <span class="keywd">begin</span>
@@ -1363,7 +1363,7 @@ some problems:
 Instead Seed7 has array aggregates and allows functions with arrays as parameters.
 So you could declare a function
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">proc</span>: print_list (<span class="keywd">in</span> <span class="type">array integer</span>: arr) <span class="keywd">is func</span>
+<span class="keywd">const</span> <span class="type">proc</span>: print_list (<span class="keywd">in</span> <span class="type">array</span> <span class="type">integer</span>: arr) <span class="keywd">is func</span>
   <span class="keywd">local</span>
     <span class="keywd">var</span> <span class="type">integer</span>: number <span class="keywd">is</span> 0;
   <span class="keywd">begin</span>
@@ -1389,16 +1389,16 @@ initializations of constants and variables:
 
 <span class="keywd">var</span> <span class="type">string</span>: s7Page <span class="keywd">is</span> <span class="func">getHttp</span>(<span class="stri">"seed7.sourceforge.net"</span>);
 
-<span class="keywd">const</span> <span class="type">func array string</span>: getWords (<span class="keywd">in</span> <span class="type">string</span>: fileName) <span class="keywd">is</span>
+<span class="keywd">const</span> <span class="type">func</span> <span class="type">array</span> <span class="type">string</span>: getWords (<span class="keywd">in</span> <span class="type">string</span>: fileName) <span class="keywd">is</span>
     <span class="keywd">return</span> split(<span class="func">lower</span>(<span class="func">getf</span>(fileName)), <span class="stri">"\n"</span>);
 
-<span class="keywd">var</span> <span class="type">array string</span>: dict <span class="keywd">is</span> getWords(<span class="stri">"unixdict.txt"</span>);
+<span class="keywd">var</span> <span class="type">array</span> <span class="type">string</span>: dict <span class="keywd">is</span> getWords(<span class="stri">"unixdict.txt"</span>);
 
-<span class="keywd">const</span> <span class="type">set of integer</span>: primes <span class="keywd">is</span> <span class="func">eratosthenes</span>(limit);
+<span class="keywd">const</span> <span class="type">set</span> <span class="type">of</span> <span class="type">integer</span>: primes <span class="keywd">is</span> <span class="func">eratosthenes</span>(limit);
 
 <span class="keywd">const</span> <span class="type">PRIMITIVE_WINDOW</span>: pic <span class="keywd">is</span> <span class="func">readBmp</span>(<span class="stri">"head3.bmp"</span>);
 
-<span class="keywd">const</span> <span class="type">array integer</span>: someData <span class="keywd">is</span> [](1, 1, 2, 3, 5, 8, 13, 21, 34, 55);
+<span class="keywd">const</span> <span class="type">array</span> <span class="type">integer</span>: someData <span class="keywd">is</span> [](1, 1, 2, 3, 5, 8, 13, 21, 34, 55);
 </pre><p>
 A nice example is the initialisation of the table <span class="var">stars</span> with
 the function <span class="func">genStarDescr</span> in the library <span class="lib">stars.s7i</span>.
@@ -1658,8 +1658,8 @@ the call-by-name expression is evaluated every time the formal call-by-name
 parameter is used. A <tt>'conditional'</tt> function (similar to the ?: operator from C)
 is defined with:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">func integer</span>: conditional (<span class="keywd">in</span> <span class="type">boolean</span>: condition,
-    <span class="keywd">ref</span> <span class="type">func integer</span>: trueValue, <span class="keywd">ref</span> <span class="type">func integer</span>: falseValue) <span class="keywd">is func</span>
+<span class="keywd">const</span> <span class="type">func</span> <span class="type">integer</span>: conditional (<span class="keywd">in</span> <span class="type">boolean</span>: condition,
+    <span class="keywd">ref</span> <span class="type">func</span> <span class="type">integer</span>: trueValue, <span class="keywd">ref</span> <span class="type">func</span> <span class="type">integer</span>: falseValue) <span class="keywd">is func</span>
   <span class="keywd">result</span>
     <span class="keywd">var</span> <span class="type">integer</span>: conditionalResult <span class="keywd">is</span> 0;
   <span class="keywd">begin</span>
@@ -1820,53 +1820,53 @@ In the following example the interface type <tt><span class="type">Number</span>
 </p><pre class="indent">
 <span class="keywd">const</span> <span class="type">type</span>: Number <span class="keywd">is sub</span> <span class="type">object</span> <span class="keywd">interface</span>;
 
-<span class="keywd">const</span> <span class="type">func Number</span>: (<span class="keywd">in</span> <span class="type">Number</span>: a) + (<span class="keywd">in</span> <span class="type">Number</span>: b) <span class="keywd">is DYNAMIC</span>;
+<span class="keywd">const</span> <span class="type">func</span> <span class="type">Number</span>: (<span class="keywd">in</span> <span class="type">Number</span>: a) + (<span class="keywd">in</span> <span class="type">Number</span>: b) <span class="keywd">is DYNAMIC</span>;
 </pre><p>
 The <tt><span class="keywd">DYNAMIC</span></tt> declaration creates an interface function for the <tt>'+'</tt> operator.
 The interface type <tt><span class="type">Number</span></tt> can represent an <tt><span class="type">Integer</span></tt> or a <tt><span class="type">Float</span></tt>:
 </p><pre class="indent">
 <span class="keywd">const</span> <span class="type">type</span>: Integer <span class="keywd">is new struct</span>
-    <span class="keywd">var</span> <span class="type">integer</span>: val <span class="keywd">is</span> 0;
+    <span class="keywd">var</span> <span class="type">integer</span>: data <span class="keywd">is</span> 0;
   <span class="keywd">end struct</span>;
 
 type_implements_interface(<span class="type">Integer</span>, <span class="type">Number</span>);
 
 <span class="keywd">const</span> <span class="type">type</span>: Float <span class="keywd">is new struct</span>
-    <span class="keywd">var</span> <span class="type">float</span>: val <span class="keywd">is</span> 0.0;
+    <span class="keywd">var</span> <span class="type">float</span>: data <span class="keywd">is</span> 0.0;
   <span class="keywd">end struct</span>;
 
 type_implements_interface(<span class="type">Float</span>, <span class="type">Number</span>);
 </pre><p>
 The declarations of the converting <tt>'+'</tt> operators are:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">func Float</span>: (<span class="keywd">in</span> <span class="type">Integer</span>: a) + (<span class="keywd">in</span> <span class="type">Float</span>: b) <span class="keywd">is func</span>
+<span class="keywd">const</span> <span class="type">func</span> <span class="type">Float</span>: (<span class="keywd">in</span> <span class="type">Integer</span>: a) + (<span class="keywd">in</span> <span class="type">Float</span>: b) <span class="keywd">is func</span>
   <span class="keywd">result</span>
     <span class="keywd">var</span> <span class="type">Float</span>: sum <span class="keywd">is</span> <span class="type">Float</span>.value;
   <span class="keywd">begin</span>
-    sum.val := flt(a.val) + b.val;
+    sum.data := <span class="func">flt</span>(a.data) + b.data;
   <span class="keywd">end func</span>;
 
-<span class="keywd">const</span> <span class="type">func Float</span>: (<span class="keywd">in</span> <span class="type">Float</span>: a) + (<span class="keywd">in</span> <span class="type">Integer</span>: b) <span class="keywd">is func</span>
+<span class="keywd">const</span> <span class="type">func</span> <span class="type">Float</span>: (<span class="keywd">in</span> <span class="type">Float</span>: a) + (<span class="keywd">in</span> <span class="type">Integer</span>: b) <span class="keywd">is func</span>
   <span class="keywd">result</span>
     <span class="keywd">var</span> <span class="type">Float</span>: sum <span class="keywd">is</span> <span class="type">Float</span>.value;
   <span class="keywd">begin</span>
-    sum.val := a.val + flt(b.val);
+    sum.data := a.data + <span class="func">flt</span>(b.data);
   <span class="keywd">end func</span>;
 </pre><p>
 The declarations of the normal <tt>'+'</tt> operators (which do not convert) are:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">func Integer</span>: (<span class="keywd">in</span> <span class="type">Integer</span>: a) + (<span class="keywd">in</span> <span class="type">Integer</span>: b) <span class="keywd">is func</span>
+<span class="keywd">const</span> <span class="type">func</span> <span class="type">Integer</span>: (<span class="keywd">in</span> <span class="type">Integer</span>: a) + (<span class="keywd">in</span> <span class="type">Integer</span>: b) <span class="keywd">is func</span>
   <span class="keywd">result</span>
     <span class="keywd">var</span> <span class="type">Integer</span>: sum <span class="keywd">is</span> <span class="type">Integer</span>.value;
   <span class="keywd">begin</span>
-    sum.val := a.val + b.val;
+    sum.data := a.data + b.data;
   <span class="keywd">end func</span>;
 
-<span class="keywd">const</span> <span class="type">func Float</span>: (<span class="keywd">in</span> <span class="type">Float</span>: a) + (<span class="keywd">in</span> <span class="type">Float</span>: b) <span class="keywd">is func</span>
+<span class="keywd">const</span> <span class="type">func</span> <span class="type">Float</span>: (<span class="keywd">in</span> <span class="type">Float</span>: a) + (<span class="keywd">in</span> <span class="type">Float</span>: b) <span class="keywd">is func</span>
   <span class="keywd">result</span>
     <span class="keywd">var</span> <span class="type">Float</span>: sum <span class="keywd">is</span> <span class="type">Float</span>.value;
   <span class="keywd">begin</span>
-    sum.val := a.val + b.val;
+    sum.data := a.data + b.data;
   <span class="keywd">end func</span>;
 </pre><p>
 The decision which <tt>'+'</tt> operator should be called at runtime is based on the
@@ -2044,11 +2044,11 @@ class. When this is not desired Seed7 uses a special parameter, the <tt>'attr'</
 named class methods) in a more general way. How a static method is declared is
 shown in the following example:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">func integer</span>: convert_to (<span class="keywd">attr</span> <span class="type">integer</span>, <span class="keywd">in</span> <span class="type">char</span>: ch) <span class="keywd">is func</span>
+<span class="keywd">const</span> <span class="type">func</span> <span class="type">integer</span>: convert_to (<span class="keywd">attr</span> <span class="type">integer</span>, <span class="keywd">in</span> <span class="type">char</span>: ch) <span class="keywd">is func</span>
   <span class="keywd">result</span>
     <span class="keywd">var</span> <span class="type">integer</span>: converted <span class="keywd">is</span> 0;
   <span class="keywd">begin</span>
-    converted := ord(ch);
+    converted := <span class="func">ord</span>(ch);
   <span class="keywd">end func</span>;
 </pre><p>
 The function <tt>'convert_to'</tt> can be called as

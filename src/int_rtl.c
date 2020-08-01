@@ -1136,14 +1136,14 @@ uintType uintBinomNoChk (uintType n_number, intType k_number)
 intType intBitLength (intType number)
 
   {
-    intType result;
+    intType bitLength;
 
   /* intBitLength */
     if (number < 0) {
       number = ~number;
     } /* if */
-    result = uintMostSignificantBit((uintType) number) + 1;
-    return result;
+    bitLength = uintMostSignificantBit((uintType) number) + 1;
+    return bitLength;
   } /* intBitLength */
 
 

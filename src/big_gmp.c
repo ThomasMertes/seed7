@@ -265,25 +265,25 @@ intType bigBitLength (const const_bigIntType big1)
   {
     int sign;
     mpz_t help;
-    intType result;
+    intType bitLength;
 
   /* bigBitLength */
     sign = mpz_sgn(big1);
     if (sign < 0) {
       if (mpz_cmp_si(big1, -1) == 0) {
-        result = 0;
+        bitLength = 0;
       } else {
         mpz_init(help);
         mpz_add_ui(help, big1, 1);
-        result = (intType) mpz_sizeinbase(help, 2);
+        bitLength = (intType) mpz_sizeinbase(help, 2);
         mpz_clear(help);
       } /* if */
     } else if (sign == 0) {
-      result = 0;
+      bitLength = 0;
     } else {
-      result = (intType) mpz_sizeinbase(big1, 2);
+      bitLength = (intType) mpz_sizeinbase(big1, 2);
     } /* if */
-    return result;
+    return bitLength;
   } /* bigBitLength */
 
 
@@ -524,6 +524,17 @@ boolType bigEqSignedDigit (const const_bigIntType big1, intType number)
 
 
 
+/**
+ *  Convert a byte buffer (interpreted as big-endian) to a bigInteger.
+ *  @param size Size of the byte buffer to be converted (in bytes).
+ *  @param buffer Byte buffer to be converted. The bytes are interpreted
+ *         as binary big-endian representation with a base of 256.
+ *  @param isSigned Defines if 'buffer' is interpreted as signed value.
+ *         When 'isSigned' is TRUE the twos-complement representation
+ *         is used. In this case the result is negative when the most
+ *         significant byte (the first byte) has an ordinal >= 128.
+ *  @return a bigInteger created from the big-endian bytes.
+ */
 bigIntType bigFromByteBufferBe (const memSizeType size,
     const const_ustriType buffer, const boolType isSigned)
 
@@ -559,6 +570,17 @@ bigIntType bigFromByteBufferBe (const memSizeType size,
 
 
 
+/**
+ *  Convert a byte buffer (interpreted as little-endian) to a bigInteger.
+ *  @param size Size of the byte buffer to be converted (in bytes).
+ *  @param buffer Byte buffer to be converted. The bytes are interpreted
+ *         as binary little-endian representation with a base of 256.
+ *  @param isSigned Defines if 'buffer' is interpreted as signed value.
+ *         When 'isSigned' is TRUE the twos-complement representation
+ *         is used. In this case the result is negative when the most
+ *         significant byte (the last byte) has an ordinal >= 128.
+ *  @return a bigInteger created from the little-endian bytes.
+ */
 bigIntType bigFromByteBufferLe (const memSizeType size,
     const const_ustriType buffer, const boolType isSigned)
 

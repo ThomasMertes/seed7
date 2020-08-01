@@ -45,8 +45,6 @@
 #include "wchar.h"
 #endif
 
-#include "dir_drv.h"
-
 #include "common.h"
 #include "data_rtl.h"
 #include "heaputl.h"
@@ -418,22 +416,4 @@ int wsetenv (const const_os_striType name, const const_os_striType value,
     result = !SetEnvironmentVariableW(name, value);
     return result;
   } /* wsetenv */
-#endif
-
-
-
-#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
-volumeListType *openVolumeList (void)
-
-  {
-    volumeListType *result;
-
-  /* openVolumeList */
-    if ((result = (volumeListType *) malloc(sizeof(volumeListType))) != NULL) {
-      result->magicValue = UINT32TYPE_MAX;
-      result->driveBitmask = GetLogicalDrives();
-      result->currentDrive = 0;
-    } /* if */
-    return result;
-  } /* openVolumeList */
 #endif

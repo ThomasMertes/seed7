@@ -42,6 +42,7 @@
 #include "stdio.h"
 #include "string.h"
 #include "wchar.h"
+#include "ctype.h"
 #include "errno.h"
 
 #include "common.h"
@@ -66,10 +67,11 @@ DIR *opendir (const char *dirName)
     memSizeType nameLen;
     char fileNameBuffer[260];
     char *fileNamePattern = fileNameBuffer;
+    WIN32_FILE_ATTRIBUTE_DATA fileInfo;
     DIR *directory;
 
   /* opendir */
-    logFunction(printf("opendir(\"%s\");\n", dirName););
+    logFunction(printf("opendir(\"%s\")\n", dirName););
     nameLen = strlen(dirName);
     if (nameLen == 0) {
       logError(printf("opendir(\"%s\"): Name empty.\n", dirName););
@@ -99,7 +101,7 @@ DIR *opendir (const char *dirName)
           } /* if */
           fileNamePattern[nameLen++] = '*';
           fileNamePattern[nameLen] = '\0';
-          logMessage(printf("wopendir; before FindFirstFileA(\"%s\", *)\n",
+          logMessage(printf("opendir: before FindFirstFileA(\"%s\", *)\n",
                             fileNamePattern););
           directory->dirHandle = FindFirstFileA(fileNamePattern, &directory->findData);
           if (directory->dirHandle != INVALID_HANDLE_VALUE) {
@@ -107,12 +109,52 @@ DIR *opendir (const char *dirName)
             printf(">%s<\n", directory->findData.cFileName); */
             directory->firstElement = 1;
           } else {
-            logError(printf("opendir(\"%s\"): FindFirstFileA(\"%s\", *) failed:\n"
-                            "GetLastError=" FMT_U32 "\n",
-                            fileNamePattern, (uint32Type) GetLastError()););
-            free(directory);
-            directory = NULL;
-            errno = ENOENT;
+            /* The file does not exist or it is not a directory. */
+            /* FindFirstFileA also returns INVALID_HANDLE_VALUE, */
+            /* when the path refers to an empty volume. All this */
+            /* cases are checked below.                          */
+            if (nameLen == PREFIX_LEN + 4 &&
+                fileNamePattern[PREFIX_LEN + 1] == ':' &&
+                isalpha(fileNamePattern[PREFIX_LEN])) {
+              /* A volume path needs a trailing backslash. */
+              fileNamePattern[nameLen - 1] = '\0';
+            } else {
+              /* A normal path is not allowed to have a trailing backslash. */
+              fileNamePattern[nameLen - 2] = '\0';
+            } /* if */
+            logMessage(printf("opendir: "
+                              "before GetFileAttributesExA(\"%s\", *)\n",
+                              fileNamePattern););
+            if (GetFileAttributesExA(fileNamePattern, GetFileExInfoStandard,
+                                     &fileInfo)) {
+              if (fileInfo.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+                /* This is an empty directory. Probably an empty    */
+                /* volume. For nonempty directories FindFirstFileA  */
+                /* would have succeeded, because normal directories */
+                /* contain at least the .. and . directories. In    */
+                /* this special case (no . and .. directories)      */
+                /* directory->dirHandle has the value               */
+                /* INVALID_HANDLE_VALUE.                            */
+                directory->firstElement = 0;
+              } else {
+                logError(printf("opendir(\"%s\"): "
+                                "GetFileAttributesExA(\"%s\", *) shows: "
+                                "The file is not a directory.\n",
+                                dirName, fileNamePattern););
+                free(directory);
+                directory = NULL;
+                errno = ENOTDIR;
+              } /* if */
+            } else {
+              logError(printf("opendir(\"%s\"): "
+                              "GetFileAttributesExA(\"%s\", *) failed:\n"
+                              "GetLastError=" FMT_U32 "\n",
+                              dirName, fileNamePattern, (uint32Type)
+                              GetLastError()););
+              free(directory);
+              directory = NULL;
+              errno = ENOENT;
+            } /* if */
           } /* if */
           if (unlikely(fileNamePattern != fileNameBuffer)) {
             free(fileNamePattern);
@@ -120,6 +162,16 @@ DIR *opendir (const char *dirName)
         } /* if */
       } /* if */
     } /* if */
+    logFunction(printf("opendir(\"%s\") --> " FMT_X_MEM,
+                       dirName, (memSizeType) directory);
+                if (directory != NULL) {
+                  printf(" {%d, " FMT_X_MEM ", ... }",
+                         directory->firstElement,
+                         (memSizeType) directory->dirHandle);
+                } else {
+                  printf(" (errno=%d, error=%s)", errno, strerror(errno));
+                }
+                printf("\n"););
     return directory;
   } /* opendir */
 
@@ -142,14 +194,16 @@ struct dirent *readdir (DIR *directory)
     struct dirent *dirEntry;
 
   /* readdir */
-    logFunction(printf("readdir\n"););
+    logFunction(printf("readdir(" FMT_X_MEM ")\n",
+                       (memSizeType) directory););
     if (directory->firstElement) {
       /* printf("first\n"); */
       directory->firstElement = 0;
       directory->dirEntry.d_name = (char *) directory->findData.cFileName;
       dirEntry = &directory->dirEntry;
       /* printf(">%s<\n", dirEntry->d_name); */
-    } else if (FindNextFileA(directory->dirHandle, &directory->findData) != 0) {
+    } else if (directory->dirHandle != INVALID_HANDLE_VALUE &&
+        FindNextFileA(directory->dirHandle, &directory->findData) != 0) {
       directory->dirEntry.d_name = (char *) directory->findData.cFileName;
       dirEntry = &directory->dirEntry;
       /* printf(">%s<\n", dirEntry->d_name); */
@@ -172,8 +226,11 @@ struct dirent *readdir (DIR *directory)
 int closedir (DIR *directory)
 
   { /* closedir */
-    logFunction(printf("closedir\n"););
-    FindClose(directory->dirHandle);
+    logFunction(printf("closedir(" FMT_X_MEM ")\n",
+                       (memSizeType) directory););
+    if (directory->dirHandle != INVALID_HANDLE_VALUE) {
+      FindClose(directory->dirHandle);
+    } /* if */
     free(directory);
     return 0;
   } /* closedir */
@@ -193,10 +250,11 @@ WDIR *wopendir (const wchar_t *dirName)
     memSizeType nameLen;
     wchar_t fileNameBuffer[260];
     wchar_t *fileNamePattern = fileNameBuffer;
+    WIN32_FILE_ATTRIBUTE_DATA fileInfo;
     WDIR *directory;
 
   /* wopendir */
-    logFunction(printf("wopendir(\"%ls\");\n", dirName););
+    logFunction(printf("wopendir(\"%ls\")\n", dirName););
     nameLen = wcslen(dirName);
     if (nameLen == 0) {
       logError(printf("wopendir(\"%ls\"): Name empty.\n", dirName););
@@ -226,20 +284,64 @@ WDIR *wopendir (const wchar_t *dirName)
           } /* if */
           fileNamePattern[nameLen++] = '*';
           fileNamePattern[nameLen] = '\0';
-          logMessage(printf("wopendir; before FindFirstFileW(\"%ls\", *)\n",
+          logMessage(printf("wopendir: before FindFirstFileW(\"%ls\", *)\n",
                             fileNamePattern););
-          directory->dirHandle = FindFirstFileW(fileNamePattern, &directory->findData);
+          directory->dirHandle = FindFirstFileW(fileNamePattern,
+                                                &directory->findData);
           if (directory->dirHandle != INVALID_HANDLE_VALUE) {
             /* printf("--> OK\n");
             printf(">%ls<\n", directory->findData.cFileName); */
             directory->firstElement = 1;
           } else {
-            logError(printf("wopendir(\"%ls\"): FindFirstFileW(\"%ls\", *) failed:\n"
-                            "GetLastError=" FMT_U32 "\n",
-                            fileNamePattern, (uint32Type) GetLastError()););
-            free(directory);
-            directory = NULL;
-            errno = ENOENT;
+            /* The file does not exist or it is not a directory. */
+            /* FindFirstFileW also returns INVALID_HANDLE_VALUE, */
+            /* when the path refers to an empty volume. All this */
+            /* cases are checked below.                          */
+            if (nameLen == PREFIX_LEN + 4 &&
+                fileNamePattern[PREFIX_LEN + 1] == ':' &&
+                ((fileNamePattern[PREFIX_LEN] >= 'a' &&
+                  fileNamePattern[PREFIX_LEN] <= 'z') ||
+                 (fileNamePattern[PREFIX_LEN] >= 'A' &&
+                  fileNamePattern[PREFIX_LEN] <= 'Z'))) {
+              /* A volume path needs a trailing backslash. */
+              fileNamePattern[nameLen - 1] = '\0';
+            } else {
+              /* A normal path is not allowed to have a trailing backslash. */
+              fileNamePattern[nameLen - 2] = '\0';
+            } /* if */
+            logMessage(printf("wopendir: "
+                              "before GetFileAttributesExW(\"%ls\", *)\n",
+                              fileNamePattern););
+            if (GetFileAttributesExW(fileNamePattern, GetFileExInfoStandard,
+                                     &fileInfo)) {
+              if (fileInfo.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+                /* This is an empty directory. Probably an empty    */
+                /* volume. For nonempty directories FindFirstFileW  */
+                /* would have succeeded, because normal directories */
+                /* contain at least the .. and . directories. In    */
+                /* this special case (no . and .. directories)      */
+                /* directory->dirHandle has the value               */
+                /* INVALID_HANDLE_VALUE.                            */
+                directory->firstElement = 0;
+              } else {
+                logError(printf("wopendir(\"%ls\"): "
+                                "GetFileAttributesExW(\"%ls\", *) shows: "
+                                "The file is not a directory.\n",
+                                dirName, fileNamePattern););
+                free(directory);
+                directory = NULL;
+                errno = ENOTDIR;
+              } /* if */
+            } else {
+              logError(printf("wopendir(\"%ls\"): "
+                              "GetFileAttributesExW(\"%ls\", *) failed:\n"
+                              "GetLastError=" FMT_U32 "\n",
+                              dirName, fileNamePattern, (uint32Type)
+                              GetLastError()););
+              free(directory);
+              directory = NULL;
+              errno = ENOENT;
+            } /* if */
           } /* if */
           if (unlikely(fileNamePattern != fileNameBuffer)) {
             free(fileNamePattern);
@@ -247,6 +349,16 @@ WDIR *wopendir (const wchar_t *dirName)
         } /* if */
       } /* if */
     } /* if */
+    logFunction(printf("wopendir(\"%ls\") --> " FMT_X_MEM,
+                       dirName, (memSizeType) directory);
+                if (directory != NULL) {
+                  printf(" {%d, " FMT_X_MEM ", ... }",
+                         directory->firstElement,
+                        (memSizeType) directory->dirHandle);
+                } else {
+                  printf(" (errno=%d, error=%s)", errno, strerror(errno));
+                }
+                printf("\n"););
     return directory;
   } /* wopendir */
 
@@ -269,14 +381,16 @@ struct wdirent *wreaddir (WDIR *directory)
     struct wdirent *dirEntry;
 
   /* wreaddir */
-    logFunction(printf("wreaddir\n"););
+    logFunction(printf("wreaddir(" FMT_X_MEM ")\n",
+                       (memSizeType) directory););
     if (directory->firstElement) {
       /* printf("first\n"); */
       directory->firstElement = 0;
       directory->dirEntry.d_name = (wchar_t *) directory->findData.cFileName;
       dirEntry = &directory->dirEntry;
       /* printf(">%ls<\n", dirEntry->d_name); */
-    } else if (FindNextFileW(directory->dirHandle, &directory->findData) != 0) {
+    } else if (directory->dirHandle != INVALID_HANDLE_VALUE &&
+        FindNextFileW(directory->dirHandle, &directory->findData) != 0) {
       directory->dirEntry.d_name = (wchar_t *) directory->findData.cFileName;
       dirEntry = &directory->dirEntry;
       /* printf(">%ls<\n", dirEntry->d_name); */
@@ -299,8 +413,32 @@ struct wdirent *wreaddir (WDIR *directory)
 int wclosedir (WDIR *directory)
 
   { /* wclosedir */
-    logFunction(printf("wclosedir\n"););
-    FindClose(directory->dirHandle);
+    logFunction(printf("wclosedir(" FMT_X_MEM ")\n",
+                       (memSizeType) directory););
+    if (directory->dirHandle != INVALID_HANDLE_VALUE) {
+      FindClose(directory->dirHandle);
+    } /* if */
     free(directory);
     return 0;
   } /* wclosedir */
+
+
+
+#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+volumeListType *openVolumeList (void)
+
+  {
+    volumeListType *volumeList;
+
+  /* openVolumeList */
+    logFunction(printf("openVolumeList()\n"););
+    if ((volumeList = (volumeListType *) malloc(sizeof(volumeListType))) != NULL) {
+      volumeList->magicValue = UINT32TYPE_MAX;
+      volumeList->driveBitmask = GetLogicalDrives();
+      volumeList->currentDrive = 0;
+    } /* if */
+    logFunction(printf("openVolumeList --> {0x" F_X32(04) ", %d}\n",
+                       volumeList->driveBitmask, volumeList->currentDrive););
+    return volumeList;
+  } /* openVolumeList */
+#endif

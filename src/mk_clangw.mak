@@ -187,8 +187,8 @@ version.h: chkccomp.h
 	echo #define os_stat wstati64Ext >> version.h
 	echo #define os_stat_orig _wstati64 >> version.h
 	echo #define os_stat_struct struct _stati64 >> version.h
-	echo #define os_fseek fseeki64 >> version.h
-	echo #define os_ftell ftelli64 >> version.h
+	echo #define os_fseek _fseeki64 >> version.h
+	echo #define os_ftell _ftelli64 >> version.h
 	echo #define os_off_t __int64 >> version.h
 	echo #define os_environ _wenviron >> version.h
 	echo #define os_putenv _wputenv >> version.h
@@ -224,7 +224,7 @@ version.h: chkccomp.h
 	$(CC) -o setpaths.exe setpaths.c
 	.\setpaths.exe "S7_LIB_DIR=$(S7_LIB_DIR)" "SEED7_LIBRARY=$(SEED7_LIBRARY)" >> version.h
 	del setpaths.exe
-	$(CC) -luser32 setwpath.c -o setwpath.exe
+	$(CC) -luser32 -ladvapi32 setwpath.c -o setwpath.exe
 	$(CC) wrdepend.c -o wrdepend.exe
 	$(CC) -lshell32 sudo.c -w -o sudo.exe
 
@@ -270,6 +270,13 @@ calc7: ..\bin\calc7.exe
 	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\calc7
 	copy ..\prg\calc7.exe ..\bin /Y
 	del ..\prg\calc7.exe
+
+find7: ..\bin\find7.exe
+
+..\bin\find7.exe: ..\prg\find7.sd7 ..\bin\s7c.exe
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\find7
+	copy ..\prg\find7.exe ..\bin /Y
+	del ..\prg\find7.exe
 
 tar7: ..\bin\tar7.exe
 

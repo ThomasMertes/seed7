@@ -649,8 +649,10 @@ typedef mpz_srcptr  const_bigIntType;
 
 #if VERBOSE_EXCEPTIONS_EVERYWHERE || (defined VERBOSE_EXCEPTIONS && VERBOSE_EXCEPTIONS)
 #define logError(logStatements) printf(" *** "); logStatements
+#define logErrorIsActive(logSupportStatements) logSupportStatements
 #else
 #define logError(logStatements)
+#define logErrorIsActive(logSupportStatements)
 #endif
 
 #define ANY_LOG_ACTIVE (LOG_FUNCTIONS || LOG_FUNCTIONS_EVERYWHERE || \

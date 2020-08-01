@@ -93,6 +93,8 @@ void bstAppend (bstriType *const destination, const_bstriType extension)
 /**
  *  Concatenate two bstrings.
  *  @return the result of the concatenation.
+ *  @exception MEMORY_ERROR Not enough memory for the concatenated
+ *             bstring.
  */
 bstriType bstCat (const const_bstriType bstri1, const const_bstriType bstri2)
 

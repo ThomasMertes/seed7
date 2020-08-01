@@ -38,8 +38,6 @@
 #include "stdio.h"
 #include "string.h"
 
-#include "dir_drv.h"
-
 #include "common.h"
 #include "data_rtl.h"
 #include "os_decls.h"
@@ -47,6 +45,7 @@
 #include "heaputl.h"
 #include "cmd_drv.h"
 #include "stat_drv.h"
+#include "dir_drv.h"
 #include "rtl_err.h"
 #include "errno.h"
 
@@ -135,7 +134,10 @@ static striType readVolumeName (volumeListType *volumeList)
 static void closeVolumeList (volumeListType *volumeList)
 
   { /* closeVolumeList */
+    logFunction(printf("closeVolumeList({0x" F_X32(04) ", %d})\n",
+                       volumeList->driveBitmask, volumeList->currentDrive););
     free(volumeList);
+    logFunction(printf("closeVolumeList -->\n"););
   } /* closeVolumeList */
 #endif
 

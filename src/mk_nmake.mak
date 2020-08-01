@@ -8,11 +8,13 @@
 # CFLAGS = -O2 -fomit-frame-pointer -funroll-loops -Wall
 # CFLAGS = -O2 -fomit-frame-pointer -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 CFLAGS = -O2 -g -ffunction-sections -fdata-sections $(INCLUDE_OPTIONS) -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
+# CFLAGS = -O2 -g -ffunction-sections -fdata-sections $(INCLUDE_OPTIONS) -Wall -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -g -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -funroll-loops -Wall -pg
 LDFLAGS = -Wl,--gc-sections,--stack,8388608
+# LDFLAGS = -Wl,--gc-sections,--stack,8388608,--subsystem,windows
 # LDFLAGS = -pg
 # LDFLAGS = -pg -lc_p
 SYSTEM_LIBS = -lm -lws2_32
@@ -33,6 +35,10 @@ BIGINT_LIB_DEFINE = USE_BIG_RTL_LIBRARY
 BIGINT_LIB = big_rtl
 # BIGINT_LIB_DEFINE = USE_BIG_GMP_LIBRARY
 # BIGINT_LIB = big_gmp
+
+!if exist(macros)
+!include macros
+!endif
 
 MOBJ = s7.o
 POBJ = runerr.o option.o primitiv.o
@@ -266,6 +272,13 @@ calc7: ..\bin\calc7.exe
 	copy ..\prg\calc7.exe ..\bin /Y
 	del ..\prg\calc7.exe
 
+find7: ..\bin\find7.exe
+
+..\bin\find7.exe: ..\prg\find7.sd7 ..\bin\s7c.exe
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\find7
+	copy ..\prg\find7.exe ..\bin /Y
+	del ..\prg\find7.exe
+
 tar7: ..\bin\tar7.exe
 
 ..\bin\tar7.exe: ..\prg\tar7.sd7 ..\bin\s7c.exe
@@ -309,8 +322,4 @@ lint2: $(SRC)
 
 !if exist(depend)
 !include depend
-!endif
-
-!if exist(macros)
-!include macros
 !endif

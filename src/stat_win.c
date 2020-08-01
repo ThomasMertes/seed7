@@ -120,41 +120,54 @@ static unsigned int fileattr_to_unixmode (DWORD attr, const wchar_t *path)
 int wstati64Ext (const wchar_t *path, os_stat_struct *stat_buf)
 
   {
-    HANDLE handle;
-    WIN32_FIND_DATAW fileData;
+    WIN32_FILE_ATTRIBUTE_DATA fileInfo;
     int result = 0;
 
   /* wstati64Ext */
     logFunction(printf("wstati64Ext(\"%ls\", *)", path);
                 fflush(stdout););
 #ifdef os_stat_orig
+    /* Os_stat_orig does not work with an extended length path. */
     if (os_stat_orig(&path[USE_EXTENDED_LENGTH_PATH * PREFIX_LEN], stat_buf) == 0) {
       /* printf("os_stat_orig(\"%ls\", *) succeeded.\n",
           &path[USE_EXTENDED_LENGTH_PATH * PREFIX_LEN]); */
+      if (wcslen(path) == PREFIX_LEN + 3 && path[PREFIX_LEN + 1] == ':' &&
+          (path[PREFIX_LEN + 2] == '/' || path[PREFIX_LEN + 2] == '\\') &&
+          ((path[PREFIX_LEN] >= 'a' && path[PREFIX_LEN] <= 'z') ||
+           (path[PREFIX_LEN] >= 'A' && path[PREFIX_LEN] <= 'Z')) &&
+          GetFileAttributesExW(path, GetFileExInfoStandard, &fileInfo)) {
+        /* For devices os_stat_orig sets all times to 1980-01-01 00:00:00. */
+        /* This is corrected by values from GetFileAttributesExW.          */
+        stat_buf->st_atime = filetime_to_unixtime(&fileInfo.ftLastAccessTime);
+        stat_buf->st_mtime = filetime_to_unixtime(&fileInfo.ftLastWriteTime);
+        stat_buf->st_ctime = filetime_to_unixtime(&fileInfo.ftCreationTime);
+      } /* if */
     } else
 #endif
     if (wcspbrk(&path[USE_EXTENDED_LENGTH_PATH * PREFIX_LEN], L"?*")) {
       logError(printf("wstati64Ext(\"%ls\", *): Wildcards in path.\n", path););
       errno = ENOENT;
       result = -1;
-    } else {
-      handle = FindFirstFileW(path, &fileData);
-      if (handle != INVALID_HANDLE_VALUE) {
-        FindClose(handle);
-        memset(stat_buf, 0, sizeof(os_stat_struct));
-        stat_buf->st_nlink = 1;
-        stat_buf->st_mode  = fileattr_to_unixmode(fileData.dwFileAttributes, path);
-        stat_buf->st_atime = filetime_to_unixtime(&fileData.ftLastAccessTime);
-        stat_buf->st_mtime = filetime_to_unixtime(&fileData.ftLastWriteTime);
-        stat_buf->st_ctime = filetime_to_unixtime(&fileData.ftCreationTime);
-        stat_buf->st_size = ((int64Type) fileData.nFileSizeHigh << 32) | fileData.nFileSizeLow;
-      } else {
-        logError(printf("wstati64Ext: FindFirstFileW(\"%ls\", *) failed:\n"
-                        "GetLastError=" FMT_U32 "\n",
-                        path, (uint32Type) GetLastError()););
-        errno = ENOENT;
-        result = -1;
+    } else if (GetFileAttributesExW(path, GetFileExInfoStandard, &fileInfo)) {
+      memset(stat_buf, 0, sizeof(os_stat_struct));
+      stat_buf->st_nlink = 1;
+      stat_buf->st_mode = fileattr_to_unixmode(fileInfo.dwFileAttributes, path);
+      stat_buf->st_atime = filetime_to_unixtime(&fileInfo.ftLastAccessTime);
+      stat_buf->st_mtime = filetime_to_unixtime(&fileInfo.ftLastWriteTime);
+      stat_buf->st_ctime = filetime_to_unixtime(&fileInfo.ftCreationTime);
+      stat_buf->st_size = ((int64Type) fileInfo.nFileSizeHigh << 32) | fileInfo.nFileSizeLow;
+      if (path[PREFIX_LEN] >= 'a' && path[PREFIX_LEN] <= 'z') {
+        stat_buf->st_dev = path[PREFIX_LEN] - 'a';
+      } else if (path[PREFIX_LEN] >= 'A' && path[PREFIX_LEN] <= 'Z') {
+        stat_buf->st_dev = path[PREFIX_LEN] - 'A';
       } /* if */
+      stat_buf->st_rdev = stat_buf->st_dev;
+    } else {
+      logError(printf("wstati64Ext: GetFileAttributesExW(\"%ls\", *) failed:\n"
+                      "GetLastError=" FMT_U32 "\n",
+                      path, (uint32Type) GetLastError()););
+      errno = ENOENT;
+      result = -1;
     } /* if */
     logFunctionResult(printf("%d\n", result););
     return result;
