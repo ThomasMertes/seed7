@@ -77,10 +77,10 @@ const func type: array (in type: baseType) is func
        *)
       const proc: (inout arrayType: arr) &:= (in baseType: element)           is action "ARR_PUSH";
 
-      const func arrayType: [] (in tupleType param)                           is action "ARR_ARRLIT";
-      const func arrayType: [] (in baseType param)                            is action "ARR_BASELIT";
-      const func arrayType: [ (in integer param) ] (in tupleType param)       is action "ARR_ARRLIT2";
-      const func arrayType: [ (in integer param) ] (in baseType param)        is action "ARR_BASELIT2";
+      const func arrayType: [] (in tupleType: aTuple)                         is action "ARR_ARRLIT";
+      const func arrayType: [] (in baseType: anElement)                       is action "ARR_BASELIT";
+      const func arrayType: [ (in integer: start) ] (in tupleType: aTuple)    is action "ARR_ARRLIT2";
+      const func arrayType: [ (in integer: start) ] (in baseType: anElement)  is action "ARR_BASELIT2";
 
       (**
        *  Concatenate two arrays.
@@ -92,7 +92,7 @@ const func type: array (in type: baseType) is func
        *  Access one element from the array ''arr''.
        *  @return the element with the specified ''index'' from ''arr''.
        *  @exception RANGE_ERROR When ''index'' is less than [[#minIdx(in_arrayType)|minIdx]](arr) or
-       *                         larger than [[#minIdx(in_arrayType)|maxIdx]](arr)
+       *                         greater than [[#minIdx(in_arrayType)|maxIdx]](arr)
        *)
       const func baseType: (in arrayType: arr) [ (in integer: index) ]        is action "ARR_IDX";
 
@@ -124,7 +124,7 @@ const func type: array (in type: baseType) is func
        *  Remove the element with ''index'' from ''arr'' and return the removed element.
        *  @return the removed element.
        *  @exception RANGE_ERROR When ''index'' is less than [[#minIdx(in_arrayType)|minIdx]](arr) or
-       *                         larger than [[#minIdx(in_arrayType)|maxIdx]](arr)
+       *                         greater than [[#minIdx(in_arrayType)|maxIdx]](arr)
        *)
       const func baseType: remove (inout arrayType: arr, in integer: index)   is action "ARR_REMOVE";
 
@@ -226,8 +226,8 @@ const func type: array (in type: baseType) is func
           end if;
         end func;
 
-      if getobj((in baseType param) = (in baseType param)) <> NIL and
-          getobj((in baseType param) <> (in baseType param)) <> NIL then
+      if getobj((in baseType: element1) = (in baseType: element2)) <> NIL and
+          getobj((in baseType: element1) <> (in baseType: element2)) <> NIL then
 
         const func boolean: (in arrayType: arr1) = (in arrayType: arr2) is func
           result
@@ -263,8 +263,8 @@ const func type: array (in type: baseType) is func
 
       end if;
 
-      if getobj((in baseType param) < (in baseType param)) <> NIL and
-          getobj((in baseType param) > (in baseType param)) <> NIL then
+      if getobj((in baseType: element1) < (in baseType: element2)) <> NIL and
+          getobj((in baseType: element1) > (in baseType: element2)) <> NIL then
 
         const proc: insert (inout arrayType: arr, in baseType: element) is func
           local
@@ -283,11 +283,11 @@ const func type: array (in type: baseType) is func
 
       end if;
 
-      if getobj(compare(in baseType param, in baseType param)) <> NIL then
+      if getobj(compare(in baseType: element1, in baseType: element2)) <> NIL then
 
-        const reference: (attr arrayType) . dataCompare  is getobj(compare(in baseType param, in baseType param));
+        const reference: (attr arrayType) . dataCompare  is getobj(compare(in baseType: element1, in baseType: element2));
 
-        const func arrayType: SORT (in arrayType param, in reference param) is   action "ARR_SORT";
+        const func arrayType: SORT (in arrayType: arr, in reference: dataCompare) is   action "ARR_SORT";
 
         const func arrayType: sort (in arrayType: arr_obj) is
           return SORT(arr_obj, arrayType.dataCompare);
@@ -305,9 +305,9 @@ const type: TEST_3 is array string;
 
 const proc: ENABLE_SORT (in type: arrayType) is func
   begin
-    const reference: (attr arrayType) . dataCompare  is getobj(compare(in base_type(arrayType) param, in base_type(arrayType) param));
+    const reference: (attr arrayType) . dataCompare  is getobj(compare(in base_type(arrayType): element1, in base_type(arrayType): element2));
 
-    const func arrayType: SORT (in arrayType param, in reference param) is   action "ARR_SORT";
+    const func arrayType: SORT (in arrayType: arr, in reference: dataCompare) is   action "ARR_SORT";
 
     const func arrayType: sort (in arrayType: arr_obj) is
       return SORT(arr_obj, arrayType.dataCompare);

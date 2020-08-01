@@ -1,3 +1,19 @@
+20120721:
+- Documentation comments were improved in the libraries idxarray.s7i,
+  array.s7i, dir.s7i, external_file.s7i, osfiles.s7i, duration.s7i
+  and time.s7i.
+- Parameter names were added to function definitions in the
+  libraries array.s7i, bigfile.s7i, hash.s7i and idxarray.s7i.
+- The compiler was improved to generate better inline code for set
+  membership (operator: in).
+- The functions 'cmdFileType' and 'cmdFileTypeSL' in "cmd_rtl.c" were
+  improved to return FILE_ABSENT, when the file name is too long
+  (stat() respectively lstat() return an error and errno has the
+  value ENAMETOOLONG) or when the file name is an empty string.
+- The new libraries subrange.s7i, ref_list.s7i and reference.s7i were
+  added. The contents of this libraries were extracted from the
+  seed7_05.s7i library.
+
 20120703:
 - The manual was improved to contain more links and to use more
   coloring.
@@ -384,7 +400,7 @@
 - The files "pollib.c", "pollib.h", "pol_sel.c", "pol_unx.c" and
   "pol_drv.h" were added to support the type 'pollData'.
 - The "ftpserv.sd7" example program was improved to work silently.
-- In "hsh_rtl.c" the function 'hshIdxWithDefault' was renamed to 
+- In "hsh_rtl.c" the function 'hshIdxWithDefault' was renamed to
   'hshIdxEnterDefault' and a new function 'hshIdxWithDefault' was
   introduced.
 - In "ref_data.c" the functions 'refCmpGeneric' and 'genericCreate'

@@ -343,7 +343,7 @@ WHAT TO DO WHEN ERRORS HAPPEN DURING THE COMPILATION?
  --- When using cl (msvc) an error like
 
     NMAKE : fatal error U1077: 'cl' : return code '0xc0000135'
-	
+
   indicates that you forgot to execute vcvars32 before executing
   'make depend' or 'make'. A message box, which complains that
   mspbd100.dll was not found, indicates also that vcvars32 was

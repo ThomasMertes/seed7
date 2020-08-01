@@ -43,9 +43,9 @@ const func type: hash [ (in type: keyType) ] (in type: baseType) is func
       global
       hashType := newtype;
       IN_PARAM_IS_REFERENCE(hashType);
-      const type: hash [ (attr keyType) ] (attr baseType) is                     hashType;
-      const type: key_type (attr hashType) is                                    keyType;
-      const type: base_type (attr hashType) is                                   baseType;
+      const type: hash [ (attr keyType) ] (attr baseType)                      is hashType;
+      const type: key_type (attr hashType)                                     is keyType;
+      const type: base_type (attr hashType)                                    is baseType;
 
       const reference: (attr hashType) . keyCreate   is getfunc((ref keyType param) ::= (in keyType param));
       const reference: (attr hashType) . keyDestroy  is getfunc(destroy(ref keyType param));
@@ -57,23 +57,23 @@ const func type: hash [ (in type: keyType) ] (in type: baseType) is func
 
       const proc: CREATE (ref hashType param, in hashType param,
                           in reference param, in reference param,
-                          in reference param, in reference param) is             action "HSH_CREATE";
+                          in reference param, in reference param)              is action "HSH_CREATE";
       const proc: DESTROY (ref hashType param, in reference param,
-                           in reference param) is                                action "HSH_DESTR";
-      const proc: COPY (inout hashType param, in hashType param,
-                        in reference param, in reference param,
-                        in reference param, in reference param) is               action "HSH_CPY";
-      const proc: FOR_DATA (inout baseType param, in hashType param,
-                            in proc param, in reference param) is                action "HSH_FOR";
-      const proc: FOR_KEY (inout keyType param, in hashType param,
-                           in proc param, in reference param) is                 action "HSH_FOR_KEY";
-      const proc: FOR_DATA_KEY (inout baseType param, inout keyType param,
-                                in hashType param, in proc param,
-                                in reference param, in reference param) is       action "HSH_FOR_DATA_KEY";
-      const func array keyType: KEYS (in hashType param, in reference param,
-                                      in reference param) is                     action "HSH_KEYS";
-      const func array baseType: VALUES (in hashType param, in reference param,
-                                         in reference param) is                  action "HSH_VALUES";
+                           in reference param)                                 is action "HSH_DESTR";
+      const proc: COPY (inout hashType: dest, in hashType: source,
+                        in reference: keyCreate, in reference: keyDestroy,
+                        in reference: dataCreate, in reference: dataDestroy)   is action "HSH_CPY";
+      const proc: FOR_DATA (inout baseType: forVar, in hashType: aHash,
+                            in proc: statements, in reference: dataCopy)       is action "HSH_FOR";
+      const proc: FOR_KEY (inout keyType: keyVar, in hashType: aHash,
+                           in proc: statements, in reference: keyCop)          is action "HSH_FOR_KEY";
+      const proc: FOR_DATA_KEY (inout baseType: forVar, inout keyType: keyVar,
+                                in hashType: aHash, in proc: statements,
+                                in reference: dataCopy, in reference: keyCopy) is action "HSH_FOR_DATA_KEY";
+      const func array keyType: KEYS (in hashType: aHash, in reference: keyCreate,
+                                      in reference: keyDestroy)                is action "HSH_KEYS";
+      const func array baseType: VALUES (in hashType: aHash, in reference: dataCreate,
+                                         in reference: dataDestroy)            is action "HSH_VALUES";
 
       const proc: (ref hashType: dest) ::= (in hashType: source) is func
         begin
@@ -96,46 +96,49 @@ const func type: hash [ (in type: keyType) ] (in type: baseType) is func
        *  Number of elements in the hash map ''aHash''.
        *  @return the number of elements in ''aHash''.
        *)
-      const func integer: length (in hashType: aHash)                         is action "HSH_LNG";
+      const func integer: length (in hashType: aHash)                          is action "HSH_LNG";
 
-      const func baseType: INDEX (in hashType param, in keyType param,
-                                  in integer param, in reference param) is       action "HSH_IDX";
-      const varfunc baseType: INDEX (inout hashType param, in keyType param,
-                                       in integer param, in reference param) is  action "HSH_IDX";
+      const func baseType: INDEX (in hashType: aHash, in keyType: aKey,
+                                  in integer: hashCode,
+                                  in reference: keyCompare)                    is action "HSH_IDX";
+      const varfunc baseType: INDEX (inout hashType: aHash, in keyType: aKey,
+                                     in integer: hashCode,
+                                     in reference: keyCompare)                 is action "HSH_IDX";
 
       const func baseType: INDEX2 (in hashType param, in keyType param,
                                    in baseType param, in integer param,
                                    in reference param, in reference param,
-                                   in reference param) is                        action "HSH_IDX2";
+                                   in reference param)                         is action "HSH_IDX2";
       const varfunc baseType: INDEX2 (inout hashType param, in keyType param,
                                       in baseType param, in integer param,
                                       in reference param, in reference param,
-                                      in reference param) is                     action "HSH_IDX2";
+                                      in reference param)                      is action "HSH_IDX2";
 
       const func ptr baseType: REFINDEX (in hashType param, in keyType param,
                                          in integer param, in reference param) is action "HSH_REFIDX";
-      const proc: INCL (inout hashType param, in keyType param,
-                        in baseType param, in integer param,
-                        in reference param, in reference param,
-                        in reference param, in reference param) is               action "HSH_INCL";
-      const proc: EXCL (inout hashType param, in keyType param,
-                        in integer param, in reference param,
-                        in reference param, in reference param) is               action "HSH_EXCL";
+      const proc: INCL (inout hashType: aHash, in keyType: aKey,
+                        in baseType: anElem, in integer: hashCode,
+                        in reference: keyCompare, in reference: keyCreate,
+                        in reference: dataCreate, in reference: dataCopy)      is action "HSH_INCL";
+      const proc: EXCL (inout hashType: aHash, in keyType: aKey,
+                        in integer: hashCode, in reference: keyCompare,
+                        in reference: keyDestroy, in reference: dataDestroy)   is action "HSH_EXCL";
 (*
-      const func ptr baseType: @ (in hashType param) [ (in string param) ] is    action "HSH_REFIDX";
+      const func ptr baseType: @ (in hashType param) [ (in string param) ]     is action "HSH_REFIDX";
       const func varptr baseType: @ (inout hashType param) [ (in string param) ] is action "HSH_REFIDX";
-      const varfunc baseType: table (inout hashType param, in baseType param) is action "HSH_NEW";
-      const func baseType: free (inout hashType param, in baseType param) is     action "HSH_FREE";
+      const varfunc baseType: table (inout hashType param, in baseType param)  is action "HSH_NEW";
+      const func baseType: free (inout hashType param, in baseType param)      is action "HSH_FREE";
 *)
-      const func boolean: CONTAINS (in hashType param, in keyType param,
-                                    in integer param, in reference param) is     action "HSH_CONTAINS";
+      const func boolean: CONTAINS (in hashType: aHash, in keyType: aKey,
+                                    in integer: hashCode,
+                                    in reference: keyCompare)                  is action "HSH_CONTAINS";
 (*
-      const func hashType: (attr hashType) conv (in hashType param) is           action "HSH_CONV";
-      const varfunc hashType: (attr hashType) conv (inout hashType param) is     action "TYP_VARCONV";
+      const func hashType: (attr hashType) conv (in hashType: aHash)           is action "HSH_CONV";
+      const varfunc hashType: (attr hashType) conv (inout hashType: aHash)     is action "TYP_VARCONV";
 *)
-      const func hashType: (attr hashType) . _GENERATE_EMPTY_HASH is             action "HSH_EMPTY";
-      const hashType: (attr hashType) . EMPTY_HASH is                            hashType._GENERATE_EMPTY_HASH;
-      const hashType: (attr hashType) . value is                                 hashType._GENERATE_EMPTY_HASH;
+      const func hashType: (attr hashType) . _GENERATE_EMPTY_HASH              is action "HSH_EMPTY";
+      const hashType: (attr hashType) . EMPTY_HASH                             is hashType._GENERATE_EMPTY_HASH;
+      const hashType: (attr hashType) . value                                  is hashType._GENERATE_EMPTY_HASH;
 
       (**
        *  Access one value from the hash table ''aHash''.

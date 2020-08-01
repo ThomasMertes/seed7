@@ -1,0 +1,117 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  reference.s7i   Reference to object support library             *)
+(*  Copyright (C) 1989 - 2012  Thomas Mertes                        *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+(**
+ *  The type ''reference'' describes a reference to any object.
+ *)
+const type: reference is subtype object;
+
+
+IN_PARAM_IS_VALUE(reference);
+
+const proc: (ref reference param) ::= (in reference param)             is action "REF_CREATE";
+const proc: destroy (ref reference param)                              is noop;
+const proc: (inout reference param) := (in reference param)            is action "REF_CPY";
+(* Deactivated since it allows 'reference' := anything which is aggainst type checking *)
+(* const proc: (inout reference param) := (in object param)            is action "REF_MKREF"; *)
+
+
+(**
+ *  Check if two references are equal.
+ *  @return TRUE if both references are equal,
+ *          FALSE otherwise.
+ *)
+const func boolean: (in reference: ref1) = (in reference: ref2)        is action "REF_EQ";
+
+
+(**
+ *  Check if two references are equal.
+ *  @return FALSE if both references are equal,
+ *          TRUE otherwise.
+ *)
+const func boolean: (in reference: ref1) <> (in reference: ref2)       is action "REF_NE";
+
+
+(**
+ *  Compare two references.
+ *  @return -1, 0 or 1 if the first argument is considered to be
+ *          respectively less than, equal to, or greater than the
+ *          second.
+ *)
+const func integer: compare (in reference: ref1, in reference: ref2)   is action "REF_CMP";
+
+
+(**
+ *  Compute the hash value of a ''reference''.
+ *  @return the hash value.
+ *)
+const func integer: hashCode (in reference: aReference)                is action "REF_HASHCODE";
+
+
+(**
+ *  Convert a ''reference'' to a [[string]].
+ *  @return the [[string]] result of the conversion.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func string: str (ref reference: aReference)                     is action "REF_STR";
+
+
+const func reference: _GENERATE_NIL                                    is action "REF_NIL";
+const reference: NIL                                                   is _GENERATE_NIL;
+const reference: (attr reference) . value                              is NIL;
+
+
+(**
+ *  Get the type of the referenced object.
+ *  @return the type of the object referenced by ''aReference''.
+ *)
+const func type: getType (in reference: aReference)                    is action "REF_TYPE";
+
+
+(**
+ *  Set the type of the referenced object to ''aType''.
+ *)
+const proc: setType (in reference: aReference, in type: aType)         is action "REF_SETTYPE";
+
+
+const func boolean: is_symb (in reference param)                       is action "REF_ISSYMB";
+const func f_param: symb (in reference param)                          is action "REF_SYMB";
+const func type: getValue (in reference param, attr type)              is action "TYP_VALUE";
+const func reference: getfunc (in expr param)                          is action "DCL_GETFUNC";
+const func reference: getobj (in expr param)                           is action "DCL_GETOBJ";
+
+const proc: TRACE_REF (in reference param) is  action "REF_TRACE";
+
+const func type: get_type (in reference: type_ref) is func
+  result
+    var type: result is void;
+  begin
+    if type_ref <> NIL and getType(type_ref) = type then
+      result := getValue(type_ref, type);
+    end if;
+  end func;

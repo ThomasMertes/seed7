@@ -200,97 +200,74 @@ const func duration: (attr duration) parse (in var string: stri) is func
 enable_io(duration);
 
 
-const func boolean: (in duration: dur1) = (in duration: dur2) is
+(**
+ *  Check if two ''duration'' values are equal.
+ *  @return TRUE if both durations are equal, FALSE otherwise.
+ *)
+const func boolean: (in duration: aDuration1) = (in duration: aDuration2) is
   return
-    dur1.year_365 = dur2.year_365 and
-    dur1.year_366 = dur2.year_366 and
-    dur1.month_28 = dur2.month_28 and
-    dur1.month_29 = dur2.month_29 and
-    dur1.month_30 = dur2.month_30 and
-    dur1.month_31 = dur2.month_31 and
-    dur1.day = dur2.day and
-    dur1.hour = dur2.hour and
-    dur1.minute = dur2.minute and
-    dur1.second = dur2.second and
-    dur1.micro_second = dur2.micro_second;
+    aDuration1.year_365 = aDuration2.year_365 and
+    aDuration1.year_366 = aDuration2.year_366 and
+    aDuration1.month_28 = aDuration2.month_28 and
+    aDuration1.month_29 = aDuration2.month_29 and
+    aDuration1.month_30 = aDuration2.month_30 and
+    aDuration1.month_31 = aDuration2.month_31 and
+    aDuration1.day = aDuration2.day and
+    aDuration1.hour = aDuration2.hour and
+    aDuration1.minute = aDuration2.minute and
+    aDuration1.second = aDuration2.second and
+    aDuration1.micro_second = aDuration2.micro_second;
 
 
-const func boolean: (in duration: dur1) <> (in duration: dur2) is
+(**
+ *  Check if two ''duration'' values are not equal.
+ *  @return FALSE if both durations are equal, TRUE otherwise.
+ *)
+const func boolean: (in duration: aDuration1) <> (in duration: aDuration2) is
   return
-    dur1.year_365 <> dur2.year_365 and
-    dur1.year_366 <> dur2.year_366 and
-    dur1.month_28 <> dur2.month_28 and
-    dur1.month_29 <> dur2.month_29 and
-    dur1.month_30 <> dur2.month_30 and
-    dur1.month_31 <> dur2.month_31 and
-    dur1.day <> dur2.day or
-    dur1.hour <> dur2.hour or
-    dur1.minute <> dur2.minute or
-    dur1.second <> dur2.second or
-    dur1.micro_second <> dur2.micro_second;
+    aDuration1.year_365 <> aDuration2.year_365 or
+    aDuration1.year_366 <> aDuration2.year_366 or
+    aDuration1.month_28 <> aDuration2.month_28 or
+    aDuration1.month_29 <> aDuration2.month_29 or
+    aDuration1.month_30 <> aDuration2.month_30 or
+    aDuration1.month_31 <> aDuration2.month_31 or
+    aDuration1.day <> aDuration2.day or
+    aDuration1.hour <> aDuration2.hour or
+    aDuration1.minute <> aDuration2.minute or
+    aDuration1.second <> aDuration2.second or
+    aDuration1.micro_second <> aDuration2.micro_second;
 
 
-const func boolean: (in duration: dur1) >= (in duration: dur2) is func
-  result
-    var boolean: isGreaterEqual is FALSE;
-  begin
-    if dur1.year_365 + dur1.year_366 > dur2.year_365 + dur2.year_366 then
-      isGreaterEqual := TRUE;
-    elsif dur1.year_365 + dur1.year_366 = dur2.year_365 + dur2.year_366 then
-      if dur1.month_28 + dur1.month_29 + dur1.month_30 + dur1.month_31 >
-          dur2.month_28 + dur2.month_29 + dur2.month_30 + dur2.month_31 then
-        isGreaterEqual := TRUE;
-      elsif dur1.month_28 + dur1.month_29 + dur1.month_30 + dur1.month_31 =
-          dur2.month_28 + dur2.month_29 + dur2.month_30 + dur2.month_31 then
-        if dur1.day > dur2.day then
-          isGreaterEqual := TRUE;
-        elsif dur1.day = dur2.day then
-          if dur1.hour > dur2.hour then
-            isGreaterEqual := TRUE;
-          elsif dur1.hour = dur2.hour then
-            if dur1.minute > dur2.minute then
-              isGreaterEqual := TRUE;
-            elsif dur1.minute = dur2.minute then
-              if dur1.second > dur2.second then
-                isGreaterEqual := TRUE;
-              elsif dur1.second = dur2.second then
-                if dur1.micro_second >= dur2.micro_second then
-                  isGreaterEqual := TRUE;
-                end if;
-              end if;
-            end if;
-          end if;
-        end if;
-      end if;
-    end if;
-  end func;
-
-
-const func boolean: (in duration: dur1) <= (in duration: dur2) is func
+(**
+ *  Check if ''aDuration1'' is less than or equal to ''aDuration2''.
+ *  @return TRUE if ''aDuration1'' is less than or equal to ''aDuration2'',
+ *          FALSE otherwise.
+ *)
+const func boolean: (in duration: aDuration1) <= (in duration: aDuration2) is func
   result
     var boolean: isLessEqual is FALSE;
   begin
-    if dur1.year_365 + dur1.year_366 < dur2.year_365 + dur2.year_366 then
+    if aDuration1.year_365 + aDuration1.year_366 < aDuration2.year_365 + aDuration2.year_366 then
       isLessEqual := TRUE;
-    elsif dur1.year_365 + dur1.year_366 = dur2.year_365 + dur2.year_366 then
-      if dur1.month_28 + dur1.month_29 + dur1.month_30 + dur1.month_31 <
-          dur2.month_28 + dur2.month_29 + dur2.month_30 + dur2.month_31 then
+    elsif aDuration1.year_365 + aDuration1.year_366 = aDuration2.year_365 + aDuration2.year_366 then
+      if aDuration1.month_28 + aDuration1.month_29 + aDuration1.month_30 + aDuration1.month_31 <
+          aDuration2.month_28 + aDuration2.month_29 + aDuration2.month_30 + aDuration2.month_31 then
         isLessEqual := TRUE;
-      elsif dur1.month_28 + dur1.month_29 + dur1.month_30 + dur1.month_31 =
-          dur2.month_28 + dur2.month_29 + dur2.month_30 + dur2.month_31 then
-        if dur1.day < dur2.day then
+      elsif aDuration1.month_28 + aDuration1.month_29 + aDuration1.month_30 + aDuration1.month_31 =
+          aDuration2.month_28 + aDuration2.month_29 + aDuration2.month_30 + aDuration2.month_31 then
+        if aDuration1.day < aDuration2.day then
           isLessEqual := TRUE;
-        elsif dur1.day = dur2.day then
-          if dur1.hour < dur2.hour then
+        elsif aDuration1.day = aDuration2.day then
+          if aDuration1.hour < aDuration2.hour then
             isLessEqual := TRUE;
-          elsif dur1.hour = dur2.hour then
-            if dur1.minute < dur2.minute then
+          elsif aDuration1.hour = aDuration2.hour then
+            if aDuration1.minute < aDuration2.minute then
               isLessEqual := TRUE;
-            elsif dur1.minute = dur2.minute then
-              if dur1.second < dur2.second then
+            elsif aDuration1.minute = aDuration2.minute then
+              if aDuration1.second < aDuration2.second then
                 isLessEqual := TRUE;
-              elsif dur1.second = dur2.second then
-                if dur1.micro_second <= dur2.micro_second then
+              elsif aDuration1.second = aDuration2.second then
+                if aDuration1.micro_second <= aDuration2.micro_second then
                   isLessEqual := TRUE;
                 end if;
               end if;
@@ -302,12 +279,63 @@ const func boolean: (in duration: dur1) <= (in duration: dur2) is func
   end func;
 
 
-const func boolean: (in duration: dur1) < (in duration: dur2) is
-  return not dur1 >= dur2;
+(**
+ *  Check if ''aDuration1'' is greater than or equal to ''aDuration2''.
+ *  @return TRUE if ''aDuration1'' is greater than or equal to ''aDuration2'',
+ *          FALSE otherwise.
+ *)
+const func boolean: (in duration: aDuration1) >= (in duration: aDuration2) is func
+  result
+    var boolean: isGreaterEqual is FALSE;
+  begin
+    if aDuration1.year_365 + aDuration1.year_366 > aDuration2.year_365 + aDuration2.year_366 then
+      isGreaterEqual := TRUE;
+    elsif aDuration1.year_365 + aDuration1.year_366 = aDuration2.year_365 + aDuration2.year_366 then
+      if aDuration1.month_28 + aDuration1.month_29 + aDuration1.month_30 + aDuration1.month_31 >
+          aDuration2.month_28 + aDuration2.month_29 + aDuration2.month_30 + aDuration2.month_31 then
+        isGreaterEqual := TRUE;
+      elsif aDuration1.month_28 + aDuration1.month_29 + aDuration1.month_30 + aDuration1.month_31 =
+          aDuration2.month_28 + aDuration2.month_29 + aDuration2.month_30 + aDuration2.month_31 then
+        if aDuration1.day > aDuration2.day then
+          isGreaterEqual := TRUE;
+        elsif aDuration1.day = aDuration2.day then
+          if aDuration1.hour > aDuration2.hour then
+            isGreaterEqual := TRUE;
+          elsif aDuration1.hour = aDuration2.hour then
+            if aDuration1.minute > aDuration2.minute then
+              isGreaterEqual := TRUE;
+            elsif aDuration1.minute = aDuration2.minute then
+              if aDuration1.second > aDuration2.second then
+                isGreaterEqual := TRUE;
+              elsif aDuration1.second = aDuration2.second then
+                if aDuration1.micro_second >= aDuration2.micro_second then
+                  isGreaterEqual := TRUE;
+                end if;
+              end if;
+            end if;
+          end if;
+        end if;
+      end if;
+    end if;
+  end func;
 
 
-const func boolean: (in duration: dur1) > (in duration: dur2) is
-  return not dur1 <= dur2;
+(**
+ *  Check if ''aDuration1'' is less than ''aDuration2''.
+ *  @return TRUE if ''aDuration1'' is less than ''aDuration2'',
+ *          FALSE otherwise.
+ *)
+const func boolean: (in duration: aDuration1) < (in duration: aDuration2) is
+  return not aDuration1 >= aDuration2;
+
+
+(**
+ *  Check if ''aDuration1'' is greater than ''aDuration2''.
+ *  @return TRUE if ''aDuration1'' is greater than ''aDuration2'',
+ *          FALSE otherwise.
+ *)
+const func boolean: (in duration: aDuration1) > (in duration: aDuration2) is
+  return not aDuration1 <= aDuration2;
 
 
 (**
@@ -315,39 +343,39 @@ const func boolean: (in duration: dur1) > (in duration: dur2) is
  *  @return -1, 0 or 1 if the first argument is considered to be
  *          respectively less than, equal to, or greater than the second.
  *)
-const func integer: compare (in duration: dur1, in duration: dur2) is func
+const func integer: compare (in duration: aDuration1, in duration: aDuration2) is func
   result
     var integer: result is 0;
   begin
-    if dur1.year_365 + dur1.year_366 < dur2.year_365 + dur2.year_366 then
+    if aDuration1.year_365 + aDuration1.year_366 < aDuration2.year_365 + aDuration2.year_366 then
       result := -1;
-    elsif dur1.year_365 + dur1.year_366 > dur2.year_365 + dur2.year_366 then
+    elsif aDuration1.year_365 + aDuration1.year_366 > aDuration2.year_365 + aDuration2.year_366 then
       result := 1;
-    elsif dur1.month_28 + dur1.month_29 + dur1.month_30 + dur1.month_31 <
-          dur2.month_28 + dur2.month_29 + dur2.month_30 + dur2.month_31 then
+    elsif aDuration1.month_28 + aDuration1.month_29 + aDuration1.month_30 + aDuration1.month_31 <
+          aDuration2.month_28 + aDuration2.month_29 + aDuration2.month_30 + aDuration2.month_31 then
       result := -1;
-    elsif dur1.month_28 + dur1.month_29 + dur1.month_30 + dur1.month_31 >
-          dur2.month_28 + dur2.month_29 + dur2.month_30 + dur2.month_31 then
+    elsif aDuration1.month_28 + aDuration1.month_29 + aDuration1.month_30 + aDuration1.month_31 >
+          aDuration2.month_28 + aDuration2.month_29 + aDuration2.month_30 + aDuration2.month_31 then
       result := 1;
-    elsif dur1.day < dur2.day then
+    elsif aDuration1.day < aDuration2.day then
       result := -1;
-    elsif dur1.day > dur2.day then
+    elsif aDuration1.day > aDuration2.day then
       result := 1;
-    elsif dur1.hour < dur2.hour then
+    elsif aDuration1.hour < aDuration2.hour then
       result := -1;
-    elsif dur1.hour > dur2.hour then
+    elsif aDuration1.hour > aDuration2.hour then
       result := 1;
-    elsif dur1.minute < dur2.minute then
+    elsif aDuration1.minute < aDuration2.minute then
       result := -1;
-    elsif dur1.minute > dur2.minute then
+    elsif aDuration1.minute > aDuration2.minute then
       result := 1;
-    elsif dur1.second < dur2.second then
+    elsif aDuration1.second < aDuration2.second then
       result := -1;
-    elsif dur1.second > dur2.second then
+    elsif aDuration1.second > aDuration2.second then
       result := 1;
-    elsif dur1.micro_second < dur2.micro_second then
+    elsif aDuration1.micro_second < aDuration2.micro_second then
       result := -1;
-    elsif dur1.micro_second > dur2.micro_second then
+    elsif aDuration1.micro_second > aDuration2.micro_second then
       result := 1;
     end if;
   end func;

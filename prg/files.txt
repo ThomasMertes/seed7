@@ -158,6 +158,8 @@ pixmapfont.s7i Defines pixmapFontType and the font cache
 poll.s7i     Support for pollData and the poll function
 progs.s7i    Program handling support library
 rational.s7i Rational number support library
+ref_list.s7i Reference list support library
+reference.s7i Reference to object support library
 reverse.s7i  Filter file which writes right to left on output
 scanfile.s7i File scanner functions
 scanstri.s7i String scanner functions
@@ -180,6 +182,7 @@ strifile.s7i Implementation type for files stored in a string
 string.s7i   String support library
 stritext.s7i string text library (uses an array string)
 struct.s7i   Struct support library
+subrange.s7i Subrange support library
 syntax.s7i   Syntax definition of the standard Seed7 library
 tar.s7i      Tar archive library
 tee.s7i      Filter file which emulates the tee functionality

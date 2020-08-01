@@ -13365,7 +13365,8 @@ const proc: process_const_set_elem (in reference: param1, in bitset: aBitset,
       c_expr.expr &:= "<=";
       c_expr.expr &:= integerLiteral(max(aBitset));
       c_expr.expr &:= ")";
-    elsif card(aBitset) in {2, 3} then
+    elsif card(aBitset) = 2 or
+        card(aBitset) = 3 and (min(aBitset) < 0 or max(aBitset) > 31) then
       incr(countOptimizations);
       c_expr.expr &:= "(";
       if isNormalVariable(param1) then

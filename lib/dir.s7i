@@ -56,8 +56,8 @@ const func dir_file: malloc (ref dir_file: aDirFile) is func
  *  @exception MEMORY_ERROR Not enough memory to convert the path
  *             to the system path type.
  *  @exception RANGE_ERROR 'path' does not use the standard path
- *             representation or 'path' is not representable in the
- *             system path type.
+ *             representation or it cannot be converted to the system
+ *             path type.
  *)
 const func file: openDir (in string: dir_name) is func
   result

@@ -39,9 +39,9 @@ const func bigInteger: bigTell (ref clib_file param)         is action "FIL_BIG_
 
 (* file *)
 
-const func bigInteger: bigLength (ref file param)       is DYNAMIC;
-const proc: seek (ref file param, ref bigInteger param) is DYNAMIC;
-const func bigInteger: bigTell (ref file param)         is DYNAMIC;
+const func bigInteger: bigLength (ref file: aFile)      is DYNAMIC;
+const proc: seek (ref file: aFile, ref bigInteger: pos) is DYNAMIC;
+const func bigInteger: bigTell (ref file: aFile)        is DYNAMIC;
 
 
 (* null_file *)

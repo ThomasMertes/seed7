@@ -230,7 +230,7 @@ const proc: dna (VIOLET) is func
                      splitPrior[left[dir]] +:= (food(dir) + 1) div 2;
                    end if;
                  end if;
-                 if view(right[dir]) = CLEAR then 
+                 if view(right[dir]) = CLEAR then
                    eatPrior[right[dir]] +:= (food(dir) + 1) div 2;
                    if splitPrior[right[dir]] > 0 then
                      splitPrior[right[dir]] +:= (food(dir) + 1) div 2;

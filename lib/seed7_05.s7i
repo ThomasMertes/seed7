@@ -456,95 +456,11 @@ const func string: literal (in char: ch) is func
 
 (* REFERENCE *)
 
-const type: reference is subtype object;
-IN_PARAM_IS_VALUE(reference);
-
-const proc: (ref reference param) ::= (in reference param) is           action "REF_CREATE";
-const proc: destroy (ref reference param) is                            noop;
-const proc: (inout reference param) := (in reference param) is          action "REF_CPY";
-(* Deactivated since it allows 'reference' := anything which is aggainst type checking *)
-(* const proc: (inout reference param) := (in object param) is           action "REF_MKREF"; *)
-const func boolean: (in reference param) = (in reference param) is      action "REF_EQ";
-const func boolean: (in reference param) <> (in reference param) is     action "REF_NE";
-const func integer: compare (in reference param, in reference param) is action "REF_CMP";
-const func integer: hashCode (in reference param) is                    action "REF_HASHCODE";
-const func string: str (ref reference param) is                         action "REF_STR";
-
-const func reference: _GENERATE_NIL is                                  action "REF_NIL";
-const reference: NIL is                                                 _GENERATE_NIL;
-const reference: (attr reference) . value is                            NIL;
-
-const func type: getType (in reference param) is                        action "REF_TYPE";
-const proc: setType (in reference param, in type param) is              action "REF_SETTYPE";
-const func boolean: is_symb (in reference param) is                     action "REF_ISSYMB";
-const func f_param: symb (in reference param) is                        action "REF_SYMB";
-const func type: getValue (in reference param, attr type) is            action "TYP_VALUE";
-const func reference: getfunc (in expr param) is                        action "DCL_GETFUNC";
-const func reference: getobj (in expr param) is                         action "DCL_GETOBJ";
-
-const proc: TRACE_REF (in reference param) is  action "REF_TRACE";
-
-const func type: get_type (in reference: type_ref) is func
-  result
-    var type: result is void;
-  begin
-    if type_ref <> NIL and getType(type_ref) = type then
-      result := getValue(type_ref, type);
-    end if;
-  end func;
-
+$ include "reference.s7i";
 
 (* REF_LIST *)
 
-const type: ref_list is subtype object;
-IN_PARAM_IS_REFERENCE(ref_list);
-
-const proc: (ref ref_list param) ::= (in ref_list param) is              action "RFL_CREATE";
-const proc: destroy (ref ref_list param) is                              action "RFL_DESTR";
-const proc: (inout ref_list param) := (in ref_list param) is             action "RFL_CPY";
-const proc: (inout ref_list param) &:= (in ref_list param) is            action "RFL_APPEND";
-const proc: (inout ref_list param) @:= [ (in integer param) ] (in reference param) is action "RFL_ELEMCPY";
-
-const func ref_list: _GENERATE_EMPTY_REFLIST is                          action "RFL_EMPTY";
-const ref_list: (attr ref_list) . EMPTY is                               _GENERATE_EMPTY_REFLIST;
-const ref_list: (attr ref_list) . value is                               ref_list.EMPTY;
-
-const func ref_list: make_list (in reference param) is                   action "RFL_MKLIST";
-
-const func boolean: (in ref_list param) = (in ref_list param) is         action "RFL_EQ";
-const func boolean: (in ref_list param) <> (in ref_list param) is        action "RFL_NE";
-
-const func reference: (in ref_list param) [ (in integer param) ] is      action "RFL_IDX";
-const func ref_list: (in ref_list param) [ (in integer param) .. ] is    action "RFL_TAIL";
-const func ref_list: (in ref_list param) [ .. (in integer param) ] is    action "RFL_HEAD";
-const func ref_list: (in ref_list param) [ (in integer param) ..
-                                           (in integer param) ] is       action "RFL_RANGE";
-const func ref_list: (in ref_list param) & (in ref_list param) is        action "RFL_CAT";
-
-const func boolean: (in reference param) in (in ref_list param) is       action "RFL_ELEM";
-const func boolean: (in reference param) not in (in ref_list param) is   action "RFL_NOT_ELEM";
-const func integer: pos (in ref_list param, in reference param) is       action "RFL_POS";
-const func integer: pos (in ref_list param, in reference param,
-                         in integer param) is                            action "RFL_IPOS";
-const proc: incl (in ref_list param, in reference param) is              action "RFL_INCL";
-const proc: excl (in ref_list param, in reference param) is              action "RFL_EXCL";
-const func integer: length (in ref_list param) is                        action "RFL_LNG";
-
-const proc: TRACE_LIST (in ref_list param) is                            action "RFL_TRACE";
-
-const proc: for (inout reference param) range (ref ref_list param) do
-              (ref proc param)
-            end for                                                   is action "RFL_FOR";
-const proc: for (inout reference param) range (ref ref_list param) until (in func boolean param) do
-              (ref proc param)
-            end for                                                   is action "RFL_FOR_UNTIL";
-const proc: for (inout reference param) range (ref ref_list param) until (in varfunc boolean param) do
-              (ref proc param)
-            end for                                                   is action "RFL_FOR_UNTIL";
-const proc: for (inout reference param) range (ref ref_list param) until (ref boolean param) do
-              (ref proc param)
-            end for                                                   is action "RFL_FOR_UNTIL";
-
+$ include "ref_list.s7i";
 
 (* POINTER *)
 
@@ -674,42 +590,7 @@ $ include "struct.s7i";
 
 (* SUBRANGE *)
 
-const proc: SUBRANGE_TYPES (in type: baseType) is func
-  begin
-
-    const func type: subrange (in baseType: first) .. (in baseType: last) is func
-      result
-        var type: subrangeType is void;
-      begin
-        global
-        subrangeType := subtype baseType;
-        IN_PARAM_IS_REFERENCE(subrangeType);
-
-        const subrangeType: (attr subrangeType) . first is first;
-        const subrangeType: (attr subrangeType) . last  is last;
-
-        if baseType.value >= first and baseType.value <= last then
-          const subrangeType: (attr subrangeType) . value is baseType.value;
-        else
-          const subrangeType: (attr subrangeType) . value is first;
-        end if;
-
-        if baseType <> integer then
-          const func subrangeType: (attr subrangeType) conv (in baseType: enum) is action "ENU_CONV";
-        end if;
-
-        const func subrangeType: (attr subrangeType) conv (in integer: number) is
-          return subrangeType conv baseType conv number;
-
-        end global;
-      end func;
-
-  end func;
-
-SUBRANGE_TYPES(integer);
-SUBRANGE_TYPES(char);
-SUBRANGE_TYPES(boolean);
-
+$ include "subrange.s7i";
 
 (* TUPLE *)
 
@@ -1142,8 +1023,11 @@ incl(INCLUDED_LIBRARY_LIST, "boolean.s7i");
 incl(INCLUDED_LIBRARY_LIST, "integer.s7i");
 incl(INCLUDED_LIBRARY_LIST, "char.s7i");
 incl(INCLUDED_LIBRARY_LIST, "string.s7i");
+incl(INCLUDED_LIBRARY_LIST, "reference.s7i");
+incl(INCLUDED_LIBRARY_LIST, "ref_list.s7i");
 incl(INCLUDED_LIBRARY_LIST, "forloop.s7i");
 incl(INCLUDED_LIBRARY_LIST, "struct.s7i");
+incl(INCLUDED_LIBRARY_LIST, "subrange.s7i");
 incl(INCLUDED_LIBRARY_LIST, "array.s7i");
 incl(INCLUDED_LIBRARY_LIST, "idxarray.s7i");
 incl(INCLUDED_LIBRARY_LIST, "hash.s7i");

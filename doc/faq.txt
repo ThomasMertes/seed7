@@ -195,12 +195,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 150000 lines of Seed7. For version 2012-06-17 the number of lines is:
+than 150000 lines of Seed7. For version 2012-07-21 the number of lines is:
 
-   101284  C source files (*.c)
+   101299  C source files (*.c)
     10093  C header files (*.h)
-   111648  Seed7 source files (*.sd7)
-    78144  Seed7 library/include files (*.s7i)
+   111649  Seed7 source files (*.sd7)
+    78541  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -785,7 +785,7 @@ Seed7 has a basic principle that would break if type
 inference would be used:
 
    For every expression (and sub expression) you know its type at <br />
-   compile time without knowing where this expression is used. 
+   compile time without knowing where this expression is used.
 
 It is exactly the violation of this principle that makes type
 inference possible. As long as this principle holds you need
@@ -840,7 +840,7 @@ the same parameter types and just differ in the result type. This type of overlo
 has a big advantage:
 
    For every expression (and sub expression) you know its type at <br />
-   compile time without knowing where this expression is used. 
+   compile time without knowing where this expression is used.
 
 Therefore it is not possible to overload something which has no parameters (like
 a variable or a literal). As a consequence it is sometimes necessary to cast a
@@ -848,7 +848,7 @@ literal to get an unambiguous expression. This concept parallels the approach
 used in mathematics where it is also required to specify measurement units.
 Obviously there is a difference between 5 seconds, 5 square meters and 5 apples.
 In school it is usually considered wrong to just write 5 and let the teacher
-guess the measurement unit. 
+guess the measurement unit.
 
 
 Can functions have variable parameter lists?
@@ -1231,7 +1231,7 @@ its own logic for the assignment where sometimes a value copy and sometimes
 a reference copy is the right thing to do. Exactly speaking there are many
 forms of assignment since every type can define its own assignment. If a
 value copy works like a deep or a shallow copy can also be defined depending
-on the type. 
+on the type.
 
 For example: For 'integer', 'char' and 'string' variables a value copy is what most
 people expect. For files you don't expect the whole file to be copied with

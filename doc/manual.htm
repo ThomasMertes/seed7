@@ -538,7 +538,7 @@ pre.indent {
     A Seed7 program consists of a sequence of declarations.
   With each declaration a <tt><a class="type" href="#types_type">type</a></tt> and a name is attached to the
   new object. In addition every new declared object gets an
-  initial value. 
+  initial value.
 </p><p>
   Here is an example of an object declaration:
 </p><pre>
@@ -731,7 +731,7 @@ pre.indent {
 </pre><p>
   The functions above use <tt>'<span class="keywd">in</span>'</tt> parameters named <tt>'num1'</tt>.
   An assignment to <tt>'num1'</tt> is not allowed. A formal <tt>'<span class="keywd">in</span>'</tt>
-  parameter like <tt>'num1'</tt> behaves like a constant. 
+  parameter like <tt>'num1'</tt> behaves like a constant.
   Trying to change a formal <tt>'<span class="keywd">in</span>'</tt> parameter:
 </p><pre>
     <span class="keywd">const</span> <span class="type">proc</span>: wrong (<span class="keywd">in</span> <span class="type">integer</span>: num2) <span class="keywd">is func</span>
@@ -827,7 +827,7 @@ pre.indent {
   types. Usually types with small amounts of data use <tt>'<span class="keywd">val</span>'</tt>
   as <tt>'<span class="keywd">in</span>'</tt> parameter while types with bigger data amounts use
   <tt>'<span class="keywd">ref</span>'</tt>. Most of the time it is not necessary to care if an
-  <tt>'<span class="keywd">in</span>'</tt> parameter is really a <tt>'<span class="keywd">val</span>'</tt> or <tt>'<span class="keywd">ref</span>'</tt> parameter. 
+  <tt>'<span class="keywd">in</span>'</tt> parameter is really a <tt>'<span class="keywd">val</span>'</tt> or <tt>'<span class="keywd">ref</span>'</tt> parameter.
 </p><p>
   In rare cases a <tt>'<span class="keywd">ref</span>'</tt> parameter would have undesired side
   effects with global variables or other <tt>'<span class="keywd">ref</span>'</tt> parameters.
@@ -903,7 +903,7 @@ pre.indent {
           <span class="keywd">end func</span>;
 
       <span class="keywd">end func</span>;
- 
+
     FOR_DECLS(<span class="type">char</span>);
     FOR_DECLS(<span class="type">boolean</span>);
 </pre><p>
@@ -2571,7 +2571,7 @@ pre.indent {
   escape sequences may be used.
 </p><pre>
     audible alert    BEL      \a    backslash    (\)   \\
-    backspace        BS       \b    apostrophe   (')   \'   
+    backspace        BS       \b    apostrophe   (')   \'
     escape           ESC      \e    double quote (")   \"
     formfeed         FF       \f
     newline          NL (LF)  \n    control-A          \A
@@ -3032,7 +3032,7 @@ pre.indent {
       <span class="type">setType</span>.EMPTY_SET  Empty set
       EMPTY_SET  Empty set of the type <a class="type" href="#types_set">bitset</a>
     Infix operators:
-      <span class="op">|</span>         Union 
+      <span class="op">|</span>         Union
       <span class="op">&amp;</span>         Intersection
       <span class="op">-</span>         Difference
       <span class="op">>&lt;</span>        Symmetric Difference
@@ -3146,7 +3146,7 @@ pre.indent {
       <span class="keywd">end struct</span>
                 Create new structure type as subtype of <tt>'<span class="type">metaType</span>'</tt>,
                 which is a structure type. The new structure type inherits all
-		elements of the structure type <tt>'<span class="type">metaType</span>'</tt>.
+                elements of the structure type <tt>'<span class="type">metaType</span>'</tt>.
 
       <span class="keywd">var</span> <span class="type">aType</span>: name <span class="keywd">is</span> value
                 Declare structure element 'name' with 'value'
@@ -3194,24 +3194,35 @@ pre.indent {
       <span class="func">str</span>(A)    Conversion to <a class="type" href="#types_string">string</a>
                   ( Type of result: <a class="type" href="#types_string">string</a>,
                     str(CHAROBJECT) => <span class="stri">"CHAROBJECT"</span> )
+    Statements:
+      <span class="keywd">for</span> A <span class="keywd">range</span> B <span class="keywd">to</span> C <span class="keywd">do</span>
+        D
+      <span class="keywd">end for</span>   Loop over all categories from B to C
+                  ( Type of argument D: <a class="type" href="#types_proc">proc</a> )
+      <span class="keywd">for</span> A <span class="keywd">range</span> B <span class="keywd">downto</span> C <span class="keywd">do</span>
+        D
+      <span class="keywd">end for</span>   Loop over all categories from B down to C
+                  ( Type of argument D: <a class="type" href="#types_proc">proc</a> )
 </pre><p></p>
 
 <a name="types_reference"><h3>5.15 reference</h3></a>
 <p>
-    The type <tt>'<a class="type" href="#types_reference">reference</a>'</tt> describes a reference to any
-  object.
+    The type <tt><!-- ' --><a class="type" href="#types_reference">reference</a><!-- ' --></tt> describes a reference to any
+  object. The <tt><!-- ' --><span class="type">reference</span><!-- ' --></tt> functions are defined in
+  the library <span class="stri">"<span class="lib">reference.s7i</span>"</span>.
+
 </p><pre>
     Constants:
       NIL       Reference to no element.
     Relations:
-      =, &lt;>
+      <span class="op">=</span>, <span class="op">&lt;></span>
     Functions:
       category(A) Get the category of the referenced object
                   ( Type of result: <a class="type" href="#types_category">category</a>,
                     category(NIL) => EXCEPTION RANGE_ERROR )
-      str(A)    Conversion to <a class="type" href="#types_string">string</a>
+      <span class="func">str</span>(A)    Conversion to <a class="type" href="#types_string">string</a>
                   ( Type of result: <a class="type" href="#types_string">string</a> )
-      getType(A) Get the type of the referenced object
+      <span class="func">getType</span>(A) Get the type of the referenced object
                   ( Type of result: <a class="type" href="#types_type">type</a>,
                     getType(NIL) => EXCEPTION RANGE_ERROR )
       obj_number(A) Delivers an unique number for each object
@@ -3312,9 +3323,9 @@ pre.indent {
                   ( Type of result: <a class="type" href="#types_type">type</a>,
                     getValue(NIL, <a class="type" href="#types_type">type</a>) => EXCEPTION RANGE_ERROR,
                     getValue(A, <a class="type" href="#types_type">type</a>) => EXCEPTION RANGE_ERROR for category(A) &lt;> TYPEOBJECT )
-      compare(A, B) Compare function
+      <span class="func">compare</span>(A, B) Compare function
                   ( Type of result: <a class="type" href="#types_integer">integer</a> )
-      hashCode(A) Hash function
+      <span class="func">hashCode</span>(A) Hash function
                   ( Type of result: <a class="type" href="#types_integer">integer</a> )
     Statements:
       setVar(A, B) Set var flag of referenced object A to B
@@ -3323,7 +3334,7 @@ pre.indent {
       setCategory(A, B) Set the category of the referenced object A to B
                   ( Type of argument B: <a class="type" href="#types_category">category</a>,
                     setCategory(NIL, B) => EXCEPTION RANGE_ERROR )
-      setType(A, B) Set the type of the referenced object A to B
+      <span class="func">setType</span>(A, B) Set the type of the referenced object A to B
                   ( Type of argument B: <a class="type" href="#types_type">type</a>,
                     setType(NIL, B) => EXCEPTION RANGE_ERROR )
       setValue(A, B) Set the value of the referenced object A to B
@@ -3334,16 +3345,18 @@ pre.indent {
 
 <a name="types_ref_list"><h3>5.16 ref_list</h3></a>
 <p>
-    The type <tt>'<a class="type" href="#types_ref_list">ref_list</a>'</tt> describes a list of <tt>'<a class="type" href="#types_reference">reference</a>'</tt> objects.
+    The type <tt><!-- ' --><a class="type" href="#types_ref_list">ref_list</a><!-- ' --></tt> describes a list of <tt>'<a class="type" href="#types_reference">reference</a>'</tt> objects.
+  The <tt><!-- ' --><span class="type">ref_list</span><!-- ' --></tt> functions are defined in
+  the library <span class="stri">"<span class="lib">ref_list.s7i</span>"</span>.
 </p><pre>
     Constants:
       <a class="type" href="#types_ref_list">ref_list</a>.EMPTY  Empty reference list.
     Infix operators:
-      &amp;         Ref_list list concatenation
-      A <font color=blue>in</font> B    Is element in ref_list
+      <span class="op">&amp;</span>         Ref_list list concatenation
+      A <span class="op">in</span> B    Is element in ref_list
                   ( Type of argument A: <a class="type" href="#types_reference">reference</a>,
                     Type of result: <a class="type" href="#types_boolean">boolean</a> )
-      A <font color=blue>not in</font> B  Is element not in ref_list
+      A <span class="op">not in</span> B  Is element not in ref_list
                   ( Type of argument A: <a class="type" href="#types_reference">reference</a>,
                     Type of result: <a class="type" href="#types_boolean">boolean</a> )
     Indices:
@@ -3361,17 +3374,17 @@ pre.indent {
       [ .. A ]  Access a sub list ending at position A
                   ( Type of argument A: <a class="type" href="#types_integer">integer</a> )
     Relations:
-      =, &lt;>
+      <span class="op">=</span>, <span class="op">&lt;></span>
     Functions:
-      length(A) Length of ref_list
+      <span class="func">length</span>(A) Length of ref_list
                   ( Type of result: <a class="type" href="#types_integer">integer</a>,
                     length(<a class="type" href="#types_ref_list">ref_list</a>.EMPTY) => 0 )
-      make_list(A) Create ref_list with element A
+      <span class="func">make_list</span>(A) Create ref_list with element A
                   ( Type of argument A: <a class="type" href="#types_reference">reference</a> )
-      pos(A,B)  First position of <a class="type" href="#types_reference">reference</a> B in <a class="type" href="#types_ref_list">ref_list</a> A
+      <span class="func">pos</span>(A,B)  First position of <a class="type" href="#types_reference">reference</a> B in <a class="type" href="#types_ref_list">ref_list</a> A
                   ( Type of argument B: <a class="type" href="#types_reference">reference</a>,
                     Type of result: <a class="type" href="#types_integer">integer</a> )
-      pos(A,B,C) First position of <a class="type" href="#types_reference">reference</a> B in <a class="type" href="#types_ref_list">ref_list</a> A
+      <span class="func">pos</span>(A,B,C) First position of <a class="type" href="#types_reference">reference</a> B in <a class="type" href="#types_ref_list">ref_list</a> A
                  The search starts at position C of <a class="type" href="#types_ref_list">ref_list</a> A
                   ( Type of argument B: <a class="type" href="#types_reference">reference</a>,
                     Type of argument C: <a class="type" href="#types_integer">integer</a>,
@@ -3381,18 +3394,18 @@ pre.indent {
       excl(A, B) Exclude element from list
                   ( Type of argument B: <a class="type" href="#types_reference">reference</a> )
     Statements:
-      A &amp;:= B   Append B to A
+      A <span class="op">&amp;:=</span> B   Append B to A
                   ( A &amp;:= B => A := A &amp; B )
-      A @:= [B] C  Assign C to element B of ref_list A
+      A <span class="op">@:=</span> [B] C  Assign C to element B of ref_list A
                   ( Type of argument B: <a class="type" href="#types_integer">integer</a>,
                     Type of argument C: <a class="type" href="#types_reference">reference</a>,
                     A @:= [B] C =>
                         A := A[..pred(B)] &amp; make_list(C) &amp; A[succ(B)..],
                     A @:= [0] C => EXCEPTION RANGE_ERROR,
                     A @:= [succ(length(A))] C => EXCEPTION RANGE_ERROR )
-      for A range B do
+      <span class="keywd">for</span> A <span class="keywd">range</span> B <span class="keywd">do</span>
         C
-      end for   Loop over all elements of a ref_list
+      <span class="keywd">end</span> <span class="keywd">for</span>   Loop over all elements of a ref_list
                   ( Type of argument A: <a class="type" href="#types_reference">reference</a>,
                     Type of argument C: <a class="type" href="#types_proc">proc</a> )
 </pre><p></p>
@@ -3532,7 +3545,7 @@ pre.indent {
     Relations:
       <span class="op">=</span>, <span class="op">&lt;></span>
     Functions:
-      <span class="func">color</span>(R,G,B) Creates a color from Red, Green and Blue 
+      <span class="func">color</span>(R,G,B) Creates a color from Red, Green and Blue
                   ( Type of argument R: <a class="type" href="#types_integer">integer</a>,
                     Type of argument G: <a class="type" href="#types_integer">integer</a>,
                     Type of argument B: <a class="type" href="#types_integer">integer</a> )
@@ -3566,18 +3579,12 @@ pre.indent {
       <span class="keywd">var</span> <a class="type" href="#types_integer">integer</a>: second <span class="keywd">is</span> 0;
       <span class="keywd">var</span> <a class="type" href="#types_integer">integer</a>: micro_second <span class="keywd">is</span> 0;
     Infix operators:
-      +         Add a duration to a time
-                  ( Type of right operand: <a class="type" href="#types_duration">duration</a> )
-      -         Subtract a duration from a time
-                  ( Type of right operand: <a class="type" href="#types_duration">duration</a> )
-      -         Subtract two times
-                  ( Type of result: <a class="type" href="#types_duration">duration</a> )
       <a class="type" href="#types_time">time</a> <span class="op">parse</span> A   Conversion of <a class="type" href="#types_string">string</a> to <a class="type" href="#types_time">time</a>
                   ( Type of argument A: <a class="type" href="#types_string">string</a>,
                     <a class="type" href="#types_time">time</a> <span class="op">parse</span> <span class="stri">"2005-02-28 12:00:01"</span> => 2005-02-28 12:00:01,
                     <a class="type" href="#types_time">time</a> <span class="op">parse</span> <span class="stri">"2005-02-29 12:00:01"</span> => EXCEPTION RANGE_ERROR )
     Relations:
-      =, &lt;>, &lt;, &lt;=, >, >=
+      <span class="op">=</span>, <span class="op">&lt;></span>, <span class="op">&lt;</span>, <span class="op">&lt;=</span>, <span class="op">></span>, <span class="op">>=</span>
     Functions:
       <span class="func">time</span>(NOW)  Gets the current time
       <span class="func">str</span>(A)    Conversion to <a class="type" href="#types_string">string</a>
@@ -3641,21 +3648,7 @@ pre.indent {
       <span class="func">hashCode</span>(A)  Hash function
                   ( Type of result: <a class="type" href="#types_integer">integer</a> )
     Statements:
-      A +:= B   Increment A by B
-                  ( Type of argument B: <a class="type" href="#types_duration">duration</a>,
-                    A +:= B => A := A + B )
-      A -:= B   Decrement A by B
-                  ( Type of argument B: <a class="type" href="#types_duration">duration</a>,
-                    A -:= B => A := A - B )
       <span class="func">await</span>(A)  Wait until the given time
-</pre><p>
-  For the operations <tt>'+'</tt> (add a <a class="type" href="#types_duration">duration</a> to a <a class="type" href="#types_time">time</a>) and
-  <tt>'-'</tt> (subtract two <a class="type" href="#types_time">time</a> values) holds:</p><pre>
-    tim2 + (tim1 - tim2) = tim1
-</pre><p>
-  For the operations <tt>'-'</tt> (subtract a <a class="type" href="#types_duration">duration</a> from a <a class="type" href="#types_time">time</a>) and
-  <tt>'-'</tt> (subtract two <a class="type" href="#types_time">time</a> values) holds:</p><pre>
-    tim1 - (tim1 - tim2) = tim2
 </pre><p></p>
 
 <a name="types_duration"><h3>5.22 duration</h3></a>
@@ -3674,12 +3667,21 @@ pre.indent {
                   ( Type of left operand: <a class="type" href="#types_integer">integer</a> )
       <span class="op">*</span>         Multiply a duration by an <a class="type" href="#types_integer">integer</a>
                   ( Type of right operand: <a class="type" href="#types_integer">integer</a> )
+      <span class="op">+</span>         Add a duration to a time
+                  ( Type of left operand: <a class="type" href="#types_time">time</a>,
+                    Type of result: <a class="type" href="#types_time">time</a> )
+      <span class="op">-</span>         Subtract a duration from a time
+                  ( Type of left operand: <a class="type" href="#types_time">time</a>,
+                    Type of result: <a class="type" href="#types_time">time</a> )
+      <span class="op">-</span>         Subtract two times
+                  ( Type of left operand: <a class="type" href="#types_time">time</a>,
+                    Type of right operand: <a class="type" href="#types_time">time</a> )
       <a class="type" href="#types_duration">duration</a> <span class="op">parse</span> A   Conversion of <a class="type" href="#types_string">string</a> to <a class="type" href="#types_duration">duration</a>
                   ( Type of argument A: <a class="type" href="#types_string">string</a>,
                     <a class="type" href="#types_duration">duration</a> <span class="op">parse</span> <span class="stri">"0-02-28 12:00:01"</span> => 0-02-28 12:00:01,
                     <a class="type" href="#types_duration">duration</a> <span class="op">parse</span> <span class="stri">"0-13-29 12:00:01"</span> => EXCEPTION RANGE_ERROR )
     Relations:
-      =, &lt;>, &lt;, &lt;=, >, >=
+      <span class="op">=</span>, <span class="op">&lt;></span>, <span class="op">&lt;</span>, <span class="op">&lt;=</span>, <span class="op">></span>, <span class="op">>=</span>
     Functions:
       <span class="func">getYears</span>(A)  Obtains the years of a <a class="type" href="#types_duration">duration</a>
                   ( Type of result: <a class="type" href="#types_integer">integer</a> )
@@ -3716,11 +3718,29 @@ pre.indent {
       <span class="func">hashCode</span>(A) Hash function
                   ( Type of result: <a class="type" href="#types_integer">integer</a> )
     Statements:
+      A <span class="op">+:=</span> B   Increment A by B
+                  ( A <span class="op">+:=</span> B => A := A <span class="op">+</span> B )
+      A <span class="op">-:=</span> B   Decrement A by B
+                  ( A <span class="op">-:=</span> B => A := A <span class="op">-</span> B )
+      A <span class="op">+:=</span> B   Increment <a class="type" href="#types_time">time</a> A by B
+                  ( Type of argument A: <a class="type" href="#types_time">time</a>,
+                    A <span class="op">+:=</span> B => A := A <span class="op">+</span> B )
+      A <span class="op">-:=</span> B   Decrement <a class="type" href="#types_time">time</a> A by B
+                  ( Type of argument A: <a class="type" href="#types_time">time</a>,
+                    A <span class="op">-:=</span> B => A := A <span class="op">-</span> B )
       wait(A)   Wait for given duration
 </pre><p>
-  For the operations <tt>'-'</tt> (negate a <a class="type" href="#types_duration">duration</a>) and
-  <tt>'-'</tt> (subtract two <a class="type" href="#types_time">time</a> values) holds:</p><pre>
-    (tim1 - tim2) = - (tim2 - tim1)
+  For the operations <tt><!-- ' --><span class="op">-</span><!-- ' --></tt> (negate a <a class="type" href="#types_duration">duration</a>) and
+  <tt><!-- ' --><span class="op">-</span><!-- ' --></tt> (subtract two <a class="type" href="#types_time">time</a> values) holds:</p><pre>
+    (tim1 <span class="op">-</span> tim2) <span class="op">=</span> <span class="op">-</span> (tim2 <span class="op">-</span> tim1)
+</pre><p>
+  For the operations <tt><!-- ' --><span class="op">+</span><!-- ' --></tt> (add a <a class="type" href="#types_duration">duration</a> to a <a class="type" href="#types_time">time</a>) and
+  <tt><!-- ' --><span class="op">-</span><!-- ' --></tt> (subtract two <a class="type" href="#types_time">time</a> values) holds:</p><pre>
+    tim2 <span class="op">+</span> (tim1 <span class="op">-</span> tim2) <span class="op">=</span> tim1
+</pre><p>
+  For the operations <tt><!-- ' --><span class="op">-</span><!-- ' --></tt> (subtract a <a class="type" href="#types_duration">duration</a> from a <a class="type" href="#types_time">time</a>) and
+  <tt><!-- ' --><span class="op">-</span><!-- ' --></tt> (subtract two <a class="type" href="#types_time">time</a> values) holds:</p><pre>
+    tim1 <span class="op">-</span> (tim1 <span class="op">-</span> tim2) <span class="op">=</span> tim2
 </pre><p></p>
 
 <a name="types_file"><h3>5.23 file</h3></a>
@@ -3982,7 +4002,7 @@ pre.indent {
 <p>
     The type <tt>'<a class="type" href="#types_varfunc">varfunc</a> <span class="type">baseType</span>'</tt> describes functions which return
   a <tt>'<span class="type">baseType</span>'</tt> variable. For example: A function which returns an
-  <tt><!-- ' --><a class="type" href="#types_integer">integer</a><!-- ' --></tt> variable is described with <tt>'<a class="type" href="#types_varfunc">varfunc</a> <a class="type" href="#types_integer">integer</a>'</tt>. A call 
+  <tt><!-- ' --><a class="type" href="#types_integer">integer</a><!-- ' --></tt> variable is described with <tt>'<a class="type" href="#types_varfunc">varfunc</a> <a class="type" href="#types_integer">integer</a>'</tt>. A call
   of a <tt>'<a class="type" href="#types_varfunc">varfunc</a>'</tt> can be used at the left side of an assignment.
   Generally a <tt>'<a class="type" href="#types_varfunc">varfunc</a>'</tt> can be used at places where an <tt>'<span class="keywd">inout</span>'</tt>
   parameter requests a variable.
@@ -4008,7 +4028,7 @@ pre.indent {
   parameters can be overloaded. At the right side of an assignment
   the <tt>'<a class="type" href="#types_func">func</a>'</tt> is called, while at the left side the <tt>'<a class="type" href="#types_varfunc">varfunc</a>'</tt>
   is called. That way the access functions of <a class="type" href="#types_array">array</a>s, <a class="type" href="#types_hash">hash</a>s
-  and <a class="type" href="#types_struct">struct</a>s can be used in the usual way. 
+  and <a class="type" href="#types_struct">struct</a>s can be used in the usual way.
 </p>
 
 <a name="types_void"><h3>5.27 void</h3></a>
@@ -4113,7 +4133,7 @@ pre.indent {
                     set type
                   ( base_type(<a class="type" href="#types_array">array</a> <a class="type" href="#types_char">char</a>) => <a class="type" href="#types_char">char</a>,
                     base_type(<a class="type" href="#types_ptr">ptr</a> <a class="type" href="#types_string">string</a>) => <a class="type" href="#types_string">string</a>,
-                    base_type(<a class="type" href="#types_set">set</a> <span class="type">of</span> <a class="type" href="#types_integer">integer</a>) => <a class="type" href="#types_integer">integer</a> )                    
+                    base_type(<a class="type" href="#types_set">set</a> <span class="type">of</span> <a class="type" href="#types_integer">integer</a>) => <a class="type" href="#types_integer">integer</a> )
       type_number(A)  Get an unique number for a type
                   ( Type of result: <a class="type" href="#types_integer">integer</a> )
       match_obj(A)  Get the match object of a type
@@ -4241,7 +4261,7 @@ pre.indent {
     <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: (<span class="keywd">ref</span> <a class="type" href="#types_void">void</a> <span class="keywd">param</span>) ; (<span class="keywd">ref</span> <a class="type" href="#types_void">void</a> <span class="keywd">param</span>) <span class="keywd">is</span> noop;
 </pre><p>
   In this definition and other definitions of primitive actions
-  <tt>'<span class="keywd">ref</span>'</tt> parameters are used. For normal functions usually 
+  <tt>'<span class="keywd">ref</span>'</tt> parameters are used. For normal functions usually
   <tt>'<span class="keywd">in</span>'</tt> parameters are used instead of <tt>'<span class="keywd">ref</span>'</tt> parameters:
 </p><pre>
     <span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_integer">integer</a>: total_length (<span class="keywd">in</span> <a class="type" href="#types_array">array</a> <a class="type" href="#types_string">string</a>: arr) <span class="keywd">is func</span>
@@ -4423,7 +4443,7 @@ pre.indent {
       <span class="keywd">end func</span>;
 </pre><p></p><dl><dt>
   Semantics:</dt><dd>
-    When calling a function a formal <tt>'<span class="keywd">inout</span>'</tt> parameter is set to 
+    When calling a function a formal <tt>'<span class="keywd">inout</span>'</tt> parameter is set to
     refer to the corresponding actual parameter. In the function
     it is possible to read and change a formal <tt>'<span class="keywd">inout</span>'</tt> parameter.
     Changing a formal <tt>'<span class="keywd">inout</span>'</tt> parameter changes the actual
@@ -4557,7 +4577,7 @@ pre.indent {
   For short: An interface defines which methods are supported
   while the implementation describes how this is done.
   Several types with different method implementations can
-  share the same interface. 
+  share the same interface.
 </p>
 
 <a name="objects_interface_and_implementation"><h3>7.1 Interface and implementation</h3></a>
@@ -4628,7 +4648,7 @@ pre.indent {
 </pre><p>
   In the method the receiving object is referred with <tt>'self'</tt> or
   <tt>'this'</tt>. The other parameters use the same mechanisms as in
-  procedural programming languages (value or reference parameter). 
+  procedural programming languages (value or reference parameter).
   Seed7 uses a different approach: Instead of an implicit defined
   <tt>'self'</tt> or <tt>'this'</tt> parameter, all formal parameters get a user
   defined name. To reflect this symmetric approach a Seed7 method
@@ -4701,7 +4721,7 @@ pre.indent {
         result.yLen := yLen;
       <span class="keywd">end func</span>;
 </pre><p>
-  In addition we define a normal (not DYNAMIC) function 
+  In addition we define a normal (not DYNAMIC) function
   which draws <tt><!-- ' --><span class="type">shape</span><!-- ' -->s</tt> to the <tt>'currWindow'</tt>:
 </p><pre>
     <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: draw (<span class="keywd">in</span> <span class="type">shape</span>: aShape) <span class="keywd">is func</span>
@@ -6019,7 +6039,7 @@ pre.indent {
 </pre><p>
   Any other input removes the question and the program continues
   to read input.
-</p><p>  
+</p><p>
   Another helpful file type is <tt><!-- ' --><span class="type">line_file</span><!-- ' --></tt>, which is defined in the
   library <span class="stri">"<span class="lib">line.s7i</span>"</span>. A <tt><!-- ' --><span class="type">line_file</span><!-- ' --></tt> allows to correct the input with
   BACKSPACE until a RETURN (represented with <tt><span class="stri">'\n'</span></tt>) is encountered.
@@ -7609,7 +7629,7 @@ pre.indent {
   used.
 </p><pre>
     audible alert    BEL      \a    backslash    (\)   \\
-    backspace        BS       \b    apostrophe   (')   \'   
+    backspace        BS       \b    apostrophe   (')   \'
     escape           ESC      \e    double quote (")   \"
     formfeed         FF       \f
     newline          NL (LF)  \n    control-A          \A
@@ -7806,7 +7826,7 @@ pre.indent {
   the drive <tt><span class="stri">"C:"</span></tt>. Reading the directory <tt><span class="stri">"/"</span></tt> under Windows
   returns a list of available drives. A path with a backslash
   or with a drive letter may raise the exception <tt>'RANGE_ERROR'</tt>,
-  when a function like <tt><!-- ' --><span class="func">open</span><!-- ' --></tt> is called.  
+  when a function like <tt><!-- ' --><span class="func">open</span><!-- ' --></tt> is called.
 </p><p>
   An absolute path specifies an unique location in the file
   system. Absolute paths always start with a slash. A relative
@@ -7829,34 +7849,35 @@ pre.indent {
   <div><dl><dt><p>Returns:</p></dt><dd><p>
     An array of strings containing the names of all
     files in the specified directory, except <tt><span class="stri">"."</span></tt> and <tt><span class="stri">".."</span></tt>
-    </p></dd></dl></div>
+</p></dd></dl></div>
   <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
     <dt>MEMORY_ERROR</dt>
         <dd>Not enough memory to convert <tt>'dirPath'</tt> to the system
         path type or not enough memory to represent the result
         <tt><!-- ' --><a class="type" href="#types_array">array</a> <a class="type" href="#types_string">string</a><!-- ' --></tt>.</dd>
     <dt>RANGE_ERROR</dt>
-        <dd><tt>'dirPath'</tt> is not representable in the system path type.</dd>
+        <dd><tt>'dirPath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
+        or it cannot be converted to the system path type.</dd>
     <dt>FILE_ERROR</dt>
         <dd>A system function returns an error.</dd>
-    </dl></dd></dl></div>
+</dl></dd></dl></div>
   <div><dl><dt><p>Examples:</p></dt><dd><p>
     After the declaration
-    </p><pre>
+</p><pre>
       <span class="keywd">var</span> <a class="type" href="#types_array">array</a> <a class="type" href="#types_string">string</a>: dir_array <span class="keywd">is</span> 0 <span class="op">times</span> <span class="stri">""</span>;
-    </pre><p>
+</pre><p>
     the statement
-    </p><pre>
+</p><pre>
       dir_array := readDir(<span class="stri">"."</span>);
-    </pre><p>
+</pre><p>
     reads the current working directory and stores it into the
     string-array <tt>'dir_array'</tt>. The components of the directory
     can now be accessed via indexing:
-    </p><pre>
+</p><pre>
       <span class="keywd">for</span> index <span class="keywd">range</span> 1 <span class="keywd">to</span> length(dir_array) <span class="keywd">do</span>
         writeln(dir_array[index]);
       <span class="keywd">end for</span>;
-    </pre><p></p></dd></dl></div><p></p>
+</pre><p></p></dd></dl></div><p></p>
 
 <a name="os_openDir"><h3>12.3 openDir</h3></a>
 <p>
@@ -7872,17 +7893,18 @@ pre.indent {
 </pre>
   <div><dl><dt><p>Returns:</p></dt><dd><p>
     The directory file of the specified directory.
-    </p></dd></dl></div>
+</p></dd></dl></div>
   <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
     <dt>MEMORY_ERROR</dt>
         <dd>Not enough memory to convert <tt>'dirPath'</tt> to the system
         path type or not enough memory to represent the result
         <tt><!-- ' --><a class="type" href="#types_array">array</a> <a class="type" href="#types_string">string</a><!-- ' --></tt>.</dd>
     <dt>RANGE_ERROR</dt>
-        <dd><tt>'dirPath'</tt> is not representable in the system path type.</dd>
+        <dd><tt>'dirPath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
+        or it cannot be converted to the system path type.</dd>
     <dt>FILE_ERROR</dt>
         <dd>A system function returns an error.</dd>
-    </dl></dd></dl></div>
+</dl></dd></dl></div>
   <div><dl><dt><p>Examples:</p></dt><dd><pre>
       ...
 
@@ -7899,7 +7921,7 @@ pre.indent {
         writeln(file_name);
         file_name := getln(dir_file);
       <span class="keywd">end while</span>;
-    </pre><p></p></dd></dl></div><p></p>
+</pre><p></p></dd></dl></div><p></p>
 
 <a name="os_getcwd"><h3>12.4 getcwd</h3></a>
 <p>
@@ -7910,21 +7932,21 @@ pre.indent {
 </pre>
   <div><dl><dt><p>Returns:</p></dt><dd><p>
     The absolute path of the current working directory.
-    </p></dd></dl></div>
+</p></dd></dl></div>
   <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
     <dt>MEMORY_ERROR</dt>
         <dd>Not enough memory to represent the result <tt><!-- ' --><a class="type" href="#types_string">string</a><!-- ' --></tt>.</dd>
     <dt>FILE_ERROR</dt>
         <dd>The system function returns an error.</dd>
-    </dl></dd></dl></div>
+</dl></dd></dl></div>
   <div><dl><dt><p>Examples:</p></dt><dd><p>
     The statement
-    </p><pre>
+</p><pre>
       my_dir := getcwd;
-    </pre><p>
+</pre><p>
     assigns the full path of the current working directory to
     the <tt><!-- ' --><a class="type" href="#types_string">string</a><!-- ' --></tt> variable <tt>'my_dir'</tt>.
-    </p></dd></dl></div><p></p>
+</p></dd></dl></div><p></p>
 
 <a name="os_chdir"><h3>12.5 chdir</h3></a>
 <p>
@@ -7937,17 +7959,18 @@ pre.indent {
     <dt>MEMORY_ERROR</dt>
         <dd>Not enough memory to convert <tt>'name'</tt> to the system path type.</dd>
     <dt>RANGE_ERROR</dt>
-        <dd><tt>'name'</tt> is not representable in the system path type.</dd>
+        <dd><tt>'name'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
+        or it cannot be converted to the system path type.</dd>
     <dt>FILE_ERROR</dt>
         <dd>A system function returns an error.</dd>
-    </dl></dd></dl></div>
+</dl></dd></dl></div>
   <div><dl><dt><p>Examples:</p></dt><dd><p>
     The statement
-    </p><pre>
+</p><pre>
       chdir(<span class="stri">"/usr/bin"</span>);
-    </pre><p>
+</pre><p>
     changes the current working directory to <tt><span class="stri">"/usr/bin"</span></tt>.
-    </p></dd></dl></div><p></p>
+</p></dd></dl></div><p></p>
 
 <a name="os_mkdir"><h3>12.6 mkdir</h3></a>
 <p>
@@ -7959,17 +7982,18 @@ pre.indent {
     <dt>MEMORY_ERROR</dt>
         <dd>Not enough memory to convert <tt>'name'</tt> to the system path type.</dd>
     <dt>RANGE_ERROR</dt>
-        <dd><tt>'name'</tt> is not representable in the system path type.</dd>
+        <dd><tt>'name'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
+        or it cannot be converted to the system path type.</dd>
     <dt>FILE_ERROR</dt>
         <dd>A system function returns an error.</dd>
-    </dl></dd></dl></div>
+</dl></dd></dl></div>
   <div><dl><dt><p>Examples:</p></dt><dd><p>
     The statement
-    </p><pre>
+</p><pre>
       mkdir(<span class="stri">"my_dir"</span>);
-    </pre><p>
+</pre><p>
     creates the directory <tt><span class="stri">"my_dir"</span></tt>.
-    </p></dd></dl></div><p></p>
+</p></dd></dl></div><p></p>
 
 <a name="os_fileType"><h3>12.7 fileType</h3></a>
 <p>
@@ -7979,12 +8003,14 @@ pre.indent {
     <span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_integer">integer</a>: fileType (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath) <span class="keywd">is</span> ...
     <span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_integer">integer</a>: fileTypeSL (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath) <span class="keywd">is</span> ...
 </pre><p>
-  The function <tt><!-- ' --><span class="func">fileType</span><!-- ' --></tt> does follow symbolic links.
-  Therefore <tt><!-- ' --><span class="func">fileType</span><!-- ' --></tt> never returns <tt>'FILE_SYMLINK'</tt>.
-  The function <tt><!-- ' --><span class="func">fileTypeSL</span><!-- ' --></tt> does not follow symbolic
-  links. Therefore <tt><!-- ' --><span class="func">fileTypeSL</span><!-- ' --></tt> can also return
-  <tt>'FILE_SYMLINK'</tt>. Most functions which use a file path
-  except <tt><!-- ' --><span class="func">fileTypeSL</span><!-- ' --></tt> and <tt><!-- ' --><span class="func">readlink</span><!-- ' --></tt> follow symbolic links. 
+  The function <tt><!-- ' --><span class="func">fileType</span><!-- ' --></tt> does follow symbolic links. Therefore
+  <tt><!-- ' --><span class="func">fileType</span><!-- ' --></tt> never returns <tt>'FILE_SYMLINK'</tt>. The function <tt><!-- ' --><span class="func">fileTypeSL</span><!-- ' --></tt>
+  can also return <tt>'FILE_SYMLINK'</tt>, because it does not follow symbolic
+  links. All functions which use a file path, except <tt><!-- ' --><span class="func">fileTypeSL</span><!-- ' --></tt>
+  and <tt><!-- ' --><span class="func">readlink</span><!-- ' --></tt> follow symbolic links.  A return value of
+  <tt>'FILE_ABSENT'</tt> does not imply that a file with this name can be
+  created, since missing directories and illegal file names cause
+  also <tt>'FILE_ABSENT'</tt>.
 </p>
   <div><dl><dt><p>Returns:</p></dt><dd><dl>
     <dt>FILE_ABSENT</dt>
@@ -8005,15 +8031,16 @@ pre.indent {
         <dd>The file is a symbolic link.</dd>
     <dt>FILE_SOCKET</dt>
         <dd>The file is a socket.</dd>
-    </dl></dd></dl></div>
+</dl></dd></dl></div>
   <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
     <dt>MEMORY_ERROR</dt>
         <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
     <dt>RANGE_ERROR</dt>
-        <dd><tt>'filePath'</tt> is not representable in the system path type.</dd>
+        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>.</dd>
     <dt>FILE_ERROR</dt>
-        <dd>The system function returns an error other than ENOENT or ENOTDIR.</dd>
-    </dl></dd></dl></div><p></p>
+        <dd>The system function returns an error other than ENOENT,
+        ENOTDIR or ENAMETOOLONG.</dd>
+</dl></dd></dl></div><p></p>
 
 <a name="os_fileMode"><h3>12.8 fileMode</h3></a>
 <p>
@@ -8023,7 +8050,7 @@ pre.indent {
 </pre>
   <div><dl><dt><p>Returns:</p></dt><dd><p>
     The <tt><!-- ' --><span class="type">fileMode</span><!-- ' --></tt> which is defined as <tt><!-- ' --><a class="type" href="#types_set">set</a> <span class="type">of</span> <span class="type">filePermission</span><!-- ' --></tt>.
-    </p></dd></dl></div>
+</p></dd></dl></div>
   <div><dl><dt><p>The literal values of <tt><!-- ' --><span class="type">filePermission</span><!-- ' --></tt> are:</p></dt><dd><dl>
     <dt>EXEC_OTHER</dt>
         <dd>others have execute permission</dd>
@@ -8043,15 +8070,16 @@ pre.indent {
         <dd>owner has write permission</dd>
     <dt>READ_USER</dt>
         <dd>owner has read permission</dd>
-    </dl></dd></dl></div>
+</dl></dd></dl></div>
   <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
     <dt>MEMORY_ERROR</dt>
         <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
     <dt>RANGE_ERROR</dt>
-        <dd><tt>'filePath'</tt> is not representable in the system path type.</dd>
+        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
+        or it cannot be converted to the system path type.</dd>
     <dt>FILE_ERROR</dt>
         <dd>A system function returns an error.</dd>
-    </dl></dd></dl></div><p></p>
+</dl></dd></dl></div><p></p>
 
 <a name="os_setFileMode"><h3>12.9 setFileMode</h3></a>
 <p>
@@ -8080,15 +8108,16 @@ pre.indent {
         <dd>owner has write permission</dd>
     <dt>READ_USER</dt>
         <dd>owner has read permission</dd>
-    </dl></dd></dl></div>
+</dl></dd></dl></div>
   <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
     <dt>MEMORY_ERROR</dt>
         <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
     <dt>RANGE_ERROR</dt>
-        <dd><tt>'filePath'</tt> is not representable in the system path type.</dd>
+        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
+        or it cannot be converted to the system path type.</dd>
     <dt>FILE_ERROR</dt>
         <dd>A system function returns an error.</dd>
-    </dl></dd></dl></div><p></p>
+</dl></dd></dl></div><p></p>
 
 <a name="os_fileSize"><h3>12.10 fileSize</h3></a>
 <p>
@@ -8102,19 +8131,20 @@ pre.indent {
     the operating system functions <tt>'stat()'</tt> and <tt>'seek()'</tt> are
     used to determine the size of a file. The functions <tt>'fileSize'</tt>
     and <tt>'bigFileSize'</tt> succeed when at least one strategy to determine
-    the file size succeeds. 
-    </p></dd></dl></div>
+    the file size succeeds.
+</p></dd></dl></div>
   <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
     <dt>MEMORY_ERROR</dt>
         <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
     <dt>RANGE_ERROR</dt>
-        <dd><tt>'filePath'</tt> is not representable in the system path type.</dd>
+        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
+        or it cannot be converted to the system path type.</dd>
     <dt>RANGE_ERROR</dt>
         <dd>The file size is not representable as <tt><!-- ' --><a class="type" href="#types_integer">integer</a><!-- ' --></tt>
         (this exception is not raised by <tt>'bigFileSize'</tt>).</dd>
     <dt>FILE_ERROR</dt>
         <dd>It was not possible to determine the file size.</dd>
-    </dl></dd></dl></div><p></p>
+</dl></dd></dl></div><p></p>
 
 <a name="os_getATime"><h3>12.11 getATime</h3></a>
 <p>
@@ -8126,10 +8156,11 @@ pre.indent {
     <dt>MEMORY_ERROR</dt>
         <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
     <dt>RANGE_ERROR</dt>
-        <dd><tt>'filePath'</tt> is not representable in the system path type.</dd>
+        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
+        or it cannot be converted to the system path type.</dd>
     <dt>FILE_ERROR</dt>
         <dd>A system function returns an error.</dd>
-    </dl></dd></dl></div><p></p>
+</dl></dd></dl></div><p></p>
 
 <a name="os_getCTime"><h3>12.12 getCTime</h3></a>
 <p>
@@ -8141,10 +8172,11 @@ pre.indent {
     <dt>MEMORY_ERROR</dt>
         <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
     <dt>RANGE_ERROR</dt>
-        <dd><tt>'filePath'</tt> is not representable in the system path type.</dd>
+        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
+        or it cannot be converted to the system path type.</dd>
     <dt>FILE_ERROR</dt>
         <dd>A system function returns an error.</dd>
-    </dl></dd></dl></div><p></p>
+</dl></dd></dl></div><p></p>
 
 <a name="os_getMTime"><h3>12.13 getMTime</h3></a>
 <p>
@@ -8156,10 +8188,11 @@ pre.indent {
     <dt>MEMORY_ERROR</dt>
         <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
     <dt>RANGE_ERROR</dt>
-        <dd><tt>'filePath'</tt> is not representable in the system path type.</dd>
+        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
+        or it cannot be converted to the system path type.</dd>
     <dt>FILE_ERROR</dt>
         <dd>A system function returns an error.</dd>
-    </dl></dd></dl></div><p></p>
+</dl></dd></dl></div><p></p>
 
 <a name="os_setATime"><h3>12.14 setATime</h3></a>
 <p>
@@ -8171,11 +8204,12 @@ pre.indent {
     <dt>MEMORY_ERROR</dt>
         <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
     <dt>RANGE_ERROR</dt>
-        <dd><tt>'filePath'</tt> is not representable in the system path type or
-        <tt>'aTime'</tt> is invalid or cannot be converted to the system file time.</dd>
+        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
+        or it cannot be converted to the system path type or <tt>'aTime'</tt>
+        is invalid or cannot be converted to the system file time.</dd>
     <dt>FILE_ERROR</dt>
         <dd>A system function returns an error.</dd>
-    </dl></dd></dl></div><p></p>
+</dl></dd></dl></div><p></p>
 
 <a name="os_setMTime"><h3>12.15 setMTime</h3></a>
 <p>
@@ -8187,11 +8221,12 @@ pre.indent {
     <dt>MEMORY_ERROR</dt>
         <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
     <dt>RANGE_ERROR</dt>
-        <dd><tt>'filePath'</tt> is not representable in the system path type or
-        <tt>'aTime'</tt> is invalid or cannot be converted to the system file time.</dd>
+        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
+        or it cannot be converted to the system path type or <tt>'aTime'</tt>
+        is invalid or cannot be converted to the system file time.</dd>
     <dt>FILE_ERROR</dt>
         <dd>A system function returns an error.</dd>
-    </dl></dd></dl></div><p></p>
+</dl></dd></dl></div><p></p>
 
 <a name="os_readlink"><h3>12.16 readlink</h3></a>
 <p>
@@ -8200,17 +8235,18 @@ pre.indent {
     <span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_string">string</a>: readlink (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath) <span class="keywd">is</span> ...
 </pre>
   <div><dl><dt><p>Returns:</p></dt><dd><p>
-    The symbolic link refered by <tt>'filePath'</tt>. 
-    </p></dd></dl></div>
+    The symbolic link refered by <tt>'filePath'</tt>.
+</p></dd></dl></div>
   <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
     <dt>MEMORY_ERROR</dt>
         <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type or not
         enough memory to represent the result <tt><!-- ' --><a class="type" href="#types_string">string</a><!-- ' --></tt>.</dd>
     <dt>RANGE_ERROR</dt>
-        <dd><tt>'filePath'</tt> is not representable in the system path type.</dd>
+        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
+        or it cannot be converted to the system path type.</dd>
     <dt>FILE_ERROR</dt>
         <dd>The file described with <tt>'filePath'</tt> does not exist or is not a symbolic link.</dd>
-    </dl></dd></dl></div><p></p>
+</dl></dd></dl></div><p></p>
 
 <a name="os_symlink"><h3>12.17 symlink</h3></a>
 <p>
@@ -8224,17 +8260,18 @@ pre.indent {
         <dd>String to be contained in the symbolic link.</dd>
     <dt>dest</dt>
         <dd>Name of the symbolic link to be created.</dd>
-    </dl></dd></dl></div>
+</dl></dd></dl></div>
   <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
     <dt>MEMORY_ERROR</dt>
         <dd>Not enough memory to convert <tt>'source'</tt> or <tt>'dest'</tt>
         to the system path type.</dd>
     <dt>RANGE_ERROR</dt>
-        <dd><tt>'source'</tt> or <tt>'dest'</tt> is not representable in the
+        <dd><tt>'source'</tt> or <tt>'dest'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path
+        representation</a> or one of them cannot be converted to the
         system path type.</dd>
     <dt>FILE_ERROR</dt>
         <dd>A system function returns an error.</dd>
-    </dl></dd></dl></div><p></p>
+</dl></dd></dl></div><p></p>
 
 <a name="os_removeFile"><h3>12.18 removeFile</h3></a>
 <p>
@@ -8247,10 +8284,11 @@ pre.indent {
     <dt>MEMORY_ERROR</dt>
         <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
     <dt>RANGE_ERROR</dt>
-        <dd><tt>'filePath'</tt> is not representable in the system path type.</dd>
+        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
+        or it cannot be converted to the system path type.</dd>
     <dt>FILE_ERROR</dt>
         <dd>The file does not exist or a system function returns an error.</dd>
-    </dl></dd></dl></div><p></p>
+</dl></dd></dl></div><p></p>
 
 <a name="os_removeAnyFile"><h3>12.19 removeAnyFile</h3></a>
 <p>
@@ -8263,10 +8301,11 @@ pre.indent {
     <dt>MEMORY_ERROR</dt>
         <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
     <dt>RANGE_ERROR</dt>
-        <dd><tt>'filePath'</tt> is not representable in the system path type.</dd>
+        <dd><tt>'filePath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path representation</a>
+        or it cannot be converted to the system path type.</dd>
     <dt>FILE_ERROR</dt>
         <dd>The file does not exist or a system function returns an error.</dd>
-    </dl></dd></dl></div>
+</dl></dd></dl></div>
 
 <a name="os_copyFile"><h3>12.20 copyFile</h3></a>
 <p>
@@ -8290,12 +8329,13 @@ pre.indent {
         <dd>Not enough memory to convert <tt>'sourcePath'</tt> or <tt>'destPath'</tt>
         to the system path type.</dd>
     <dt>RANGE_ERROR</dt>
-        <dd><tt>'sourcePath'</tt> or <tt>'destPath'</tt> is not representable in the
+        <dd><tt>'sourcePath'</tt> or <tt>'destPath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path
+        representation</a> or one of them cannot be converted to the
         system path type.</dd>
     <dt>FILE_ERROR</dt>
         <dd>Source file does not exist, destination file already exists or
         a system function returns an error.</dd>
-    </dl></dd></dl></div><p></p>
+</dl></dd></dl></div><p></p>
 
 <a name="os_cloneFile"><h3>12.21 cloneFile</h3></a>
 <p>
@@ -8314,12 +8354,13 @@ pre.indent {
         <dd>Not enough memory to convert <tt>'sourcePath'</tt> or <tt>'destPath'</tt>
         to the system path type.</dd>
     <dt>RANGE_ERROR</dt>
-        <dd><tt>'sourcePath'</tt> or <tt>'destPath'</tt> is not representable in the
+        <dd><tt>'sourcePath'</tt> or <tt>'destPath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path
+        representation</a> or one of them cannot be converted to the
         system path type.</dd>
     <dt>FILE_ERROR</dt>
         <dd>Source file does not exist, destination file already exists or
         a system function returns an error.</dd>
-    </dl></dd></dl></div><p></p>
+</dl></dd></dl></div><p></p>
 
 <a name="os_moveFile"><h3>12.22 moveFile</h3></a>
 <p>
@@ -8344,12 +8385,13 @@ pre.indent {
         <dd>Not enough memory to convert <tt>'sourcePath'</tt> or <tt>'destPath'</tt>
         to the system path type.</dd>
     <dt>RANGE_ERROR</dt>
-        <dd><tt>'sourcePath'</tt> or <tt>'destPath'</tt> is not representable in the
+        <dd><tt>'sourcePath'</tt> or <tt>'destPath'</tt> does not use the <a class="link" href="#os_Standard_path_representation">standard path
+        representation</a> or one of them cannot be converted to the
         system path type.</dd>
     <dt>FILE_ERROR</dt>
         <dd>Source file does not exist, destination file already exists or
         a system function returns an error.</dd>
-    </dl></dd></dl></div><p></p>
+</dl></dd></dl></div><p></p>
 
 <a name="os_argv_PROGRAM"><h3>12.23 argv(PROGRAM)</h3></a>
 <p>
@@ -8360,7 +8402,7 @@ pre.indent {
 </pre>
   <div><dl><dt><p>Returns:</p></dt><dd><p>
     An array of strings containing the argument vector.
-    </p></dd></dl></div><p></p>
+</p></dd></dl></div><p></p>
 
 <a name="os_path_PROGRAM"><h3>12.24 path(PROGRAM)</h3></a>
 <p>
@@ -8371,7 +8413,7 @@ pre.indent {
 </pre>
   <div><dl><dt><p>Returns:</p></dt><dd><p>
     The absolute path of the program.
-    </p></dd></dl></div><p></p>
+</p></dd></dl></div><p></p>
 
 <a name="os_dir_PROGRAM"><h3>12.25 dir(PROGRAM)</h3></a>
 <p>
@@ -8384,7 +8426,7 @@ pre.indent {
 </pre>
   <div><dl><dt><p>Returns:</p></dt><dd><p>
     The absolute path of the directory containing the program.
-    </p></dd></dl></div><p></p>
+</p></dd></dl></div><p></p>
 
 <a name="os_getenv"><h3>12.26 getenv</h3></a>
 <p>
@@ -8401,17 +8443,17 @@ pre.indent {
   <div><dl><dt><p>Returns:</p></dt><dd><p>
     The value of an environment variable or <span class="stri">""</span>
     when the requested environment variable does not exist.
-    </p></dd></dl></div>
+</p></dd></dl></div>
   <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
     <dt>MEMORY_ERROR</dt>
         <dd>Not enough memory to convert <tt>'name'</tt> to the system string type or not
         enough memory to represent the result <tt><!-- ' --><a class="type" href="#types_string">string</a><!-- ' --></tt>.</dd>
-    </dl></dd></dl></div><p></p>
+</dl></dd></dl></div><p></p>
 
 <a name="os_setenv"><h3>12.27 setenv</h3></a>
 <p>
     The function <tt>'setenv'</tt> adds or changes an environment
-  variable. 
+  variable.
 </p><pre>
     <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: setenv (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: name, <span class="keywd">in</span> <a class="type" href="#types_string">string</a>: value) <span class="keywd">is</span> ...
 </pre><p>
@@ -8428,7 +8470,7 @@ pre.indent {
         the system string type.</dd>
     <dt>RANGE_ERROR</dt>
         <dd>A system function returns an error.</dd>
-    </dl></dd></dl></div><p></p>
+</dl></dd></dl></div><p></p>
 
 <a name="actions_file_start"></a><p></p>
 <a name="actions_PRIMITIVE_ACTIONS"><h2>13. PRIMITIVE ACTIONS</h2></a>
@@ -9852,7 +9894,7 @@ pre.indent {
   write a backtrace when a crash occurs:
 </p><pre>
     (gdb) run
-    Starting program: /home/tm/seed7_5/prg/lander 
+    Starting program: /home/tm/seed7_5/prg/lander
 
     Program received signal SIGFPE, Arithmetic exception.
     0x08068518 in o_2541_init_display () at lander.sd7:840
@@ -9869,10 +9911,10 @@ pre.indent {
     ./hi comp -g-debug_c -e lander
     gdb ./lander
 </pre><p>
-  Now the debugger refers to the temporary file <tt><!-- " --><span class="stri">tmp_lander.c</span><!-- " --></tt>:  
+  Now the debugger refers to the temporary file <tt><!-- " --><span class="stri">tmp_lander.c</span><!-- " --></tt>:
 </p><pre>
     (gdb) run
-    Starting program: /home/tm/seed7_5/prg/lander 
+    Starting program: /home/tm/seed7_5/prg/lander
 
     Program received signal SIGFPE, Arithmetic exception.
     0x08068518 in o_2541_init_display () at tmp_lander.c:19727

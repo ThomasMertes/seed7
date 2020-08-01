@@ -221,7 +221,7 @@ CONTENTS
   defined in a way to be easy readable and understandable. This
   practical approach can be summarized as:
 
-    <font color="orange"> Programming should be fun 
+    <font color="orange"> Programming should be fun
 
   Seed7 programs can be interpreted or compiled. Therefore Seed7
   can be used for scripting and for "real" programs.
@@ -437,7 +437,7 @@ CONTENTS
     A Seed7 program consists of a sequence of declarations.
   With each declaration a type and a name is attached to the
   new object. In addition every new declared object gets an
-  initial value. 
+  initial value.
 
   Here is an example of an object declaration:
 
@@ -630,7 +630,7 @@ CONTENTS
 
   The functions above use 'in' parameters named 'num1'.
   An assignment to 'num1' is not allowed. A formal 'in'
-  parameter like 'num1' behaves like a constant. 
+  parameter like 'num1' behaves like a constant.
   Trying to change a formal 'in' parameter:
 
     const proc: wrong (in integer: num2) is func
@@ -726,7 +726,7 @@ CONTENTS
   types. Usually types with small amounts of data use 'val'
   as 'in' parameter while types with bigger data amounts use
   'ref'. Most of the time it is not necessary to care if an
-  'in' parameter is really a 'val' or 'ref' parameter. 
+  'in' parameter is really a 'val' or 'ref' parameter.
 
   In rare cases a 'ref' parameter would have undesired side
   effects with global variables or other 'ref' parameters.
@@ -802,7 +802,7 @@ CONTENTS
           end func;
 
       end func;
- 
+
     FOR_DECLS(char);
     FOR_DECLS(boolean);
 
@@ -2470,7 +2470,7 @@ CONTENTS
   escape sequences may be used.
 
     audible alert    BEL      \a    backslash    (\)   \\
-    backspace        BS       \b    apostrophe   (')   \'   
+    backspace        BS       \b    apostrophe   (')   \'
     escape           ESC      \e    double quote (")   \"
     formfeed         FF       \f
     newline          NL (LF)  \n    control-A          \A
@@ -2931,7 +2931,7 @@ CONTENTS
       setType.EMPTY_SET  Empty set
       EMPTY_SET  Empty set of the type bitset
     Infix operators:
-      |         Union 
+      |         Union
       &         Intersection
       -         Difference
       ><        Symmetric Difference
@@ -3045,7 +3045,7 @@ CONTENTS
       end struct
                 Create new structure type as subtype of 'metaType',
                 which is a structure type. The new structure type inherits all
-		elements of the structure type 'metaType'.
+                elements of the structure type 'metaType'.
 
       var aType: name is value
                 Declare structure element 'name' with 'value'
@@ -3093,12 +3093,23 @@ CONTENTS
       str(A)    Conversion to string
                   ( Type of result: string,
                     str(CHAROBJECT) => "CHAROBJECT" )
+    Statements:
+      for A range B to C do
+        D
+      end for   Loop over all categories from B to C
+                  ( Type of argument D: proc )
+      for A range B downto C do
+        D
+      end for   Loop over all categories from B down to C
+                  ( Type of argument D: proc )
 
 
 5.15 reference
 
     The type 'reference' describes a reference to any
-  object.
+  object. The 'reference' functions are defined in
+  the library "reference.s7i".
+
 
     Constants:
       NIL       Reference to no element.
@@ -3234,6 +3245,8 @@ CONTENTS
 5.16 ref_list
 
     The type 'ref_list' describes a list of 'reference' objects.
+  The 'ref_list' functions are defined in
+  the library "ref_list.s7i".
 
     Constants:
       ref_list.EMPTY  Empty reference list.
@@ -3431,7 +3444,7 @@ CONTENTS
     Relations:
       =, <>
     Functions:
-      color(R,G,B) Creates a color from Red, Green and Blue 
+      color(R,G,B) Creates a color from Red, Green and Blue
                   ( Type of argument R: integer,
                     Type of argument G: integer,
                     Type of argument B: integer )
@@ -3465,12 +3478,6 @@ CONTENTS
       var integer: second is 0;
       var integer: micro_second is 0;
     Infix operators:
-      +         Add a duration to a time
-                  ( Type of right operand: duration )
-      -         Subtract a duration from a time
-                  ( Type of right operand: duration )
-      -         Subtract two times
-                  ( Type of result: duration )
       time parse A   Conversion of string to time
                   ( Type of argument A: string,
                     time parse "2005-02-28 12:00:01" => 2005-02-28 12:00:01,
@@ -3540,21 +3547,7 @@ CONTENTS
       hashCode(A)  Hash function
                   ( Type of result: integer )
     Statements:
-      A +:= B   Increment A by B
-                  ( Type of argument B: duration,
-                    A +:= B => A := A + B )
-      A -:= B   Decrement A by B
-                  ( Type of argument B: duration,
-                    A -:= B => A := A - B )
       await(A)  Wait until the given time
-
-  For the operations '+' (add a duration to a time) and
-  '-' (subtract two time values) holds:
-    tim2 + (tim1 - tim2) = tim1
-
-  For the operations '-' (subtract a duration from a time) and
-  '-' (subtract two time values) holds:
-    tim1 - (tim1 - tim2) = tim2
 
 
 5.22 duration
@@ -3573,6 +3566,15 @@ CONTENTS
                   ( Type of left operand: integer )
       *         Multiply a duration by an integer
                   ( Type of right operand: integer )
+      +         Add a duration to a time
+                  ( Type of left operand: time,
+                    Type of result: time )
+      -         Subtract a duration from a time
+                  ( Type of left operand: time,
+                    Type of result: time )
+      -         Subtract two times
+                  ( Type of left operand: time,
+                    Type of right operand: time )
       duration parse A   Conversion of string to duration
                   ( Type of argument A: string,
                     duration parse "0-02-28 12:00:01" => 0-02-28 12:00:01,
@@ -3615,11 +3617,29 @@ CONTENTS
       hashCode(A) Hash function
                   ( Type of result: integer )
     Statements:
+      A +:= B   Increment A by B
+                  ( A +:= B => A := A + B )
+      A -:= B   Decrement A by B
+                  ( A -:= B => A := A - B )
+      A +:= B   Increment time A by B
+                  ( Type of argument A: time,
+                    A +:= B => A := A + B )
+      A -:= B   Decrement time A by B
+                  ( Type of argument A: time,
+                    A -:= B => A := A - B )
       wait(A)   Wait for given duration
 
   For the operations '-' (negate a duration) and
   '-' (subtract two time values) holds:
     (tim1 - tim2) = - (tim2 - tim1)
+
+  For the operations '+' (add a duration to a time) and
+  '-' (subtract two time values) holds:
+    tim2 + (tim1 - tim2) = tim1
+
+  For the operations '-' (subtract a duration from a time) and
+  '-' (subtract two time values) holds:
+    tim1 - (tim1 - tim2) = tim2
 
 
 5.23 file
@@ -3881,7 +3901,7 @@ CONTENTS
 
     The type 'varfunc baseType' describes functions which return
   a 'baseType' variable. For example: A function which returns an
-  'integer' variable is described with 'varfunc integer'. A call 
+  'integer' variable is described with 'varfunc integer'. A call
   of a 'varfunc' can be used at the left side of an assignment.
   Generally a 'varfunc' can be used at places where an 'inout'
   parameter requests a variable.
@@ -3907,7 +3927,7 @@ CONTENTS
   parameters can be overloaded. At the right side of an assignment
   the 'func' is called, while at the left side the 'varfunc'
   is called. That way the access functions of arrays, hashs
-  and structs can be used in the usual way. 
+  and structs can be used in the usual way.
 
 
 5.27 void
@@ -4012,7 +4032,7 @@ CONTENTS
                     set type
                   ( base_type(array char) => char,
                     base_type(ptr string) => string,
-                    base_type(set of integer) => integer )                    
+                    base_type(set of integer) => integer )
       type_number(A)  Get an unique number for a type
                   ( Type of result: integer )
       match_obj(A)  Get the match object of a type
@@ -4140,7 +4160,7 @@ CONTENTS
     const proc: (ref void param) ; (ref void param) is noop;
 
   In this definition and other definitions of primitive actions
-  'ref' parameters are used. For normal functions usually 
+  'ref' parameters are used. For normal functions usually
   'in' parameters are used instead of 'ref' parameters:
 
     const func integer: total_length (in array string: arr) is func
@@ -4322,7 +4342,7 @@ CONTENTS
       end func;
 
   Semantics:
-    When calling a function a formal 'inout' parameter is set to 
+    When calling a function a formal 'inout' parameter is set to
     refer to the corresponding actual parameter. In the function
     it is possible to read and change a formal 'inout' parameter.
     Changing a formal 'inout' parameter changes the actual
@@ -4456,7 +4476,7 @@ CONTENTS
   For short: An interface defines which methods are supported
   while the implementation describes how this is done.
   Several types with different method implementations can
-  share the same interface. 
+  share the same interface.
 
 
 7.1 Interface and implementation
@@ -4527,7 +4547,7 @@ CONTENTS
 
   In the method the receiving object is referred with 'self' or
   'this'. The other parameters use the same mechanisms as in
-  procedural programming languages (value or reference parameter). 
+  procedural programming languages (value or reference parameter).
   Seed7 uses a different approach: Instead of an implicit defined
   'self' or 'this' parameter, all formal parameters get a user
   defined name. To reflect this symmetric approach a Seed7 method
@@ -4600,7 +4620,7 @@ CONTENTS
         result.yLen := yLen;
       end func;
 
-  In addition we define a normal (not DYNAMIC) function 
+  In addition we define a normal (not DYNAMIC) function
   which draws 'shape's to the 'currWindow':
 
     const proc: draw (in shape: aShape) is func
@@ -5918,7 +5938,7 @@ CONTENTS
 
   Any other input removes the question and the program continues
   to read input.
-  
+
   Another helpful file type is 'line_file', which is defined in the
   library "line.s7i". A 'line_file' allows to correct the input with
   BACKSPACE until a RETURN (represented with '\n') is encountered.
@@ -7508,7 +7528,7 @@ CONTENTS
   used.
 
     audible alert    BEL      \a    backslash    (\)   \\
-    backspace        BS       \b    apostrophe   (')   \'   
+    backspace        BS       \b    apostrophe   (')   \'
     escape           ESC      \e    double quote (")   \"
     formfeed         FF       \f
     newline          NL (LF)  \n    control-A          \A
@@ -7705,7 +7725,7 @@ CONTENTS
   the drive "C:". Reading the directory "/" under Windows
   returns a list of available drives. A path with a backslash
   or with a drive letter may raise the exception 'RANGE_ERROR',
-  when a function like 'open' is called.  
+  when a function like 'open' is called.
 
   An absolute path specifies an unique location in the file
   system. Absolute paths always start with a slash. A relative
@@ -7728,34 +7748,35 @@ CONTENTS
   Returns:
     An array of strings containing the names of all
     files in the specified directory, except "." and ".."
-    
+
   Possible exceptions:
     MEMORY_ERROR
         Not enough memory to convert 'dirPath' to the system
         path type or not enough memory to represent the result
         'array string'.
     RANGE_ERROR
-        'dirPath' is not representable in the system path type.
+        'dirPath' does not use the standard path representation
+        or it cannot be converted to the system path type.
     FILE_ERROR
         A system function returns an error.
-    
+
   Examples:
     After the declaration
-    
+
       var array string: dir_array is 0 times "";
-    
+
     the statement
-    
+
       dir_array := readDir(".");
-    
+
     reads the current working directory and stores it into the
     string-array 'dir_array'. The components of the directory
     can now be accessed via indexing:
-    
+
       for index range 1 to length(dir_array) do
         writeln(dir_array[index]);
       end for;
-    
+
 
 12.3 openDir
 
@@ -7771,17 +7792,18 @@ CONTENTS
 
   Returns:
     The directory file of the specified directory.
-    
+
   Possible exceptions:
     MEMORY_ERROR
         Not enough memory to convert 'dirPath' to the system
         path type or not enough memory to represent the result
         'array string'.
     RANGE_ERROR
-        'dirPath' is not representable in the system path type.
+        'dirPath' does not use the standard path representation
+        or it cannot be converted to the system path type.
     FILE_ERROR
         A system function returns an error.
-    
+
   Examples:
       ...
 
@@ -7798,7 +7820,7 @@ CONTENTS
         writeln(file_name);
         file_name := getln(dir_file);
       end while;
-    
+
 
 12.4 getcwd
 
@@ -7809,21 +7831,21 @@ CONTENTS
 
   Returns:
     The absolute path of the current working directory.
-    
+
   Possible exceptions:
     MEMORY_ERROR
         Not enough memory to represent the result 'string'.
     FILE_ERROR
         The system function returns an error.
-    
+
   Examples:
     The statement
-    
+
       my_dir := getcwd;
-    
+
     assigns the full path of the current working directory to
     the 'string' variable 'my_dir'.
-    
+
 
 12.5 chdir
 
@@ -7836,17 +7858,18 @@ CONTENTS
     MEMORY_ERROR
         Not enough memory to convert 'name' to the system path type.
     RANGE_ERROR
-        'name' is not representable in the system path type.
+        'name' does not use the standard path representation
+        or it cannot be converted to the system path type.
     FILE_ERROR
         A system function returns an error.
-    
+
   Examples:
     The statement
-    
+
       chdir("/usr/bin");
-    
+
     changes the current working directory to "/usr/bin".
-    
+
 
 12.6 mkdir
 
@@ -7858,17 +7881,18 @@ CONTENTS
     MEMORY_ERROR
         Not enough memory to convert 'name' to the system path type.
     RANGE_ERROR
-        'name' is not representable in the system path type.
+        'name' does not use the standard path representation
+        or it cannot be converted to the system path type.
     FILE_ERROR
         A system function returns an error.
-    
+
   Examples:
     The statement
-    
+
       mkdir("my_dir");
-    
+
     creates the directory "my_dir".
-    
+
 
 12.7 fileType
 
@@ -7878,12 +7902,14 @@ CONTENTS
     const func integer: fileType (in string: filePath) is ...
     const func integer: fileTypeSL (in string: filePath) is ...
 
-  The function 'fileType' does follow symbolic links.
-  Therefore 'fileType' never returns 'FILE_SYMLINK'.
-  The function 'fileTypeSL' does not follow symbolic
-  links. Therefore 'fileTypeSL' can also return
-  'FILE_SYMLINK'. Most functions which use a file path
-  except 'fileTypeSL' and 'readlink' follow symbolic links. 
+  The function 'fileType' does follow symbolic links. Therefore
+  'fileType' never returns 'FILE_SYMLINK'. The function 'fileTypeSL'
+  can also return 'FILE_SYMLINK', because it does not follow symbolic
+  links. All functions which use a file path, except 'fileTypeSL'
+  and 'readlink' follow symbolic links.  A return value of
+  'FILE_ABSENT' does not imply that a file with this name can be
+  created, since missing directories and illegal file names cause
+  also 'FILE_ABSENT'.
 
   Returns:
     FILE_ABSENT
@@ -7904,15 +7930,16 @@ CONTENTS
         The file is a symbolic link.
     FILE_SOCKET
         The file is a socket.
-    
+
   Possible exceptions:
     MEMORY_ERROR
         Not enough memory to convert 'filePath' to the system path type.
     RANGE_ERROR
-        'filePath' is not representable in the system path type.
+        'filePath' does not use the standard path representation.
     FILE_ERROR
-        The system function returns an error other than ENOENT or ENOTDIR.
-    
+        The system function returns an error other than ENOENT,
+        ENOTDIR or ENAMETOOLONG.
+
 
 12.8 fileMode
 
@@ -7922,7 +7949,7 @@ CONTENTS
 
   Returns:
     The 'fileMode' which is defined as 'set of filePermission'.
-    
+
   The literal values of 'filePermission' are:
     EXEC_OTHER
         others have execute permission
@@ -7942,15 +7969,16 @@ CONTENTS
         owner has write permission
     READ_USER
         owner has read permission
-    
+
   Possible exceptions:
     MEMORY_ERROR
         Not enough memory to convert 'filePath' to the system path type.
     RANGE_ERROR
-        'filePath' is not representable in the system path type.
+        'filePath' does not use the standard path representation
+        or it cannot be converted to the system path type.
     FILE_ERROR
         A system function returns an error.
-    
+
 
 12.9 setFileMode
 
@@ -7979,15 +8007,16 @@ CONTENTS
         owner has write permission
     READ_USER
         owner has read permission
-    
+
   Possible exceptions:
     MEMORY_ERROR
         Not enough memory to convert 'filePath' to the system path type.
     RANGE_ERROR
-        'filePath' is not representable in the system path type.
+        'filePath' does not use the standard path representation
+        or it cannot be converted to the system path type.
     FILE_ERROR
         A system function returns an error.
-    
+
 
 12.10 fileSize
 
@@ -8001,19 +8030,20 @@ CONTENTS
     the operating system functions 'stat()' and 'seek()' are
     used to determine the size of a file. The functions 'fileSize'
     and 'bigFileSize' succeed when at least one strategy to determine
-    the file size succeeds. 
-    
+    the file size succeeds.
+
   Possible exceptions:
     MEMORY_ERROR
         Not enough memory to convert 'filePath' to the system path type.
     RANGE_ERROR
-        'filePath' is not representable in the system path type.
+        'filePath' does not use the standard path representation
+        or it cannot be converted to the system path type.
     RANGE_ERROR
         The file size is not representable as 'integer'
         (this exception is not raised by 'bigFileSize').
     FILE_ERROR
         It was not possible to determine the file size.
-    
+
 
 12.11 getATime
 
@@ -8025,10 +8055,11 @@ CONTENTS
     MEMORY_ERROR
         Not enough memory to convert 'filePath' to the system path type.
     RANGE_ERROR
-        'filePath' is not representable in the system path type.
+        'filePath' does not use the standard path representation
+        or it cannot be converted to the system path type.
     FILE_ERROR
         A system function returns an error.
-    
+
 
 12.12 getCTime
 
@@ -8040,10 +8071,11 @@ CONTENTS
     MEMORY_ERROR
         Not enough memory to convert 'filePath' to the system path type.
     RANGE_ERROR
-        'filePath' is not representable in the system path type.
+        'filePath' does not use the standard path representation
+        or it cannot be converted to the system path type.
     FILE_ERROR
         A system function returns an error.
-    
+
 
 12.13 getMTime
 
@@ -8055,10 +8087,11 @@ CONTENTS
     MEMORY_ERROR
         Not enough memory to convert 'filePath' to the system path type.
     RANGE_ERROR
-        'filePath' is not representable in the system path type.
+        'filePath' does not use the standard path representation
+        or it cannot be converted to the system path type.
     FILE_ERROR
         A system function returns an error.
-    
+
 
 12.14 setATime
 
@@ -8070,11 +8103,12 @@ CONTENTS
     MEMORY_ERROR
         Not enough memory to convert 'filePath' to the system path type.
     RANGE_ERROR
-        'filePath' is not representable in the system path type or
-        'aTime' is invalid or cannot be converted to the system file time.
+        'filePath' does not use the standard path representation
+        or it cannot be converted to the system path type or 'aTime'
+        is invalid or cannot be converted to the system file time.
     FILE_ERROR
         A system function returns an error.
-    
+
 
 12.15 setMTime
 
@@ -8086,11 +8120,12 @@ CONTENTS
     MEMORY_ERROR
         Not enough memory to convert 'filePath' to the system path type.
     RANGE_ERROR
-        'filePath' is not representable in the system path type or
-        'aTime' is invalid or cannot be converted to the system file time.
+        'filePath' does not use the standard path representation
+        or it cannot be converted to the system path type or 'aTime'
+        is invalid or cannot be converted to the system file time.
     FILE_ERROR
         A system function returns an error.
-    
+
 
 12.16 readlink
 
@@ -8099,17 +8134,18 @@ CONTENTS
     const func string: readlink (in string: filePath) is ...
 
   Returns:
-    The symbolic link refered by 'filePath'. 
-    
+    The symbolic link refered by 'filePath'.
+
   Possible exceptions:
     MEMORY_ERROR
         Not enough memory to convert 'filePath' to the system path type or not
         enough memory to represent the result 'string'.
     RANGE_ERROR
-        'filePath' is not representable in the system path type.
+        'filePath' does not use the standard path representation
+        or it cannot be converted to the system path type.
     FILE_ERROR
         The file described with 'filePath' does not exist or is not a symbolic link.
-    
+
 
 12.17 symlink
 
@@ -8123,17 +8159,18 @@ CONTENTS
         String to be contained in the symbolic link.
     dest
         Name of the symbolic link to be created.
-    
+
   Possible exceptions:
     MEMORY_ERROR
         Not enough memory to convert 'source' or 'dest'
         to the system path type.
     RANGE_ERROR
-        'source' or 'dest' is not representable in the
+        'source' or 'dest' does not use the standard path
+        representation or one of them cannot be converted to the
         system path type.
     FILE_ERROR
         A system function returns an error.
-    
+
 
 12.18 removeFile
 
@@ -8146,10 +8183,11 @@ CONTENTS
     MEMORY_ERROR
         Not enough memory to convert 'filePath' to the system path type.
     RANGE_ERROR
-        'filePath' is not representable in the system path type.
+        'filePath' does not use the standard path representation
+        or it cannot be converted to the system path type.
     FILE_ERROR
         The file does not exist or a system function returns an error.
-    
+
 
 12.19 removeAnyFile
 
@@ -8162,10 +8200,11 @@ CONTENTS
     MEMORY_ERROR
         Not enough memory to convert 'filePath' to the system path type.
     RANGE_ERROR
-        'filePath' is not representable in the system path type.
+        'filePath' does not use the standard path representation
+        or it cannot be converted to the system path type.
     FILE_ERROR
         The file does not exist or a system function returns an error.
-    
+
 
 12.20 copyFile
 
@@ -8189,12 +8228,13 @@ CONTENTS
         Not enough memory to convert 'sourcePath' or 'destPath'
         to the system path type.
     RANGE_ERROR
-        'sourcePath' or 'destPath' is not representable in the
+        'sourcePath' or 'destPath' does not use the standard path
+        representation or one of them cannot be converted to the
         system path type.
     FILE_ERROR
         Source file does not exist, destination file already exists or
         a system function returns an error.
-    
+
 
 12.21 cloneFile
 
@@ -8213,12 +8253,13 @@ CONTENTS
         Not enough memory to convert 'sourcePath' or 'destPath'
         to the system path type.
     RANGE_ERROR
-        'sourcePath' or 'destPath' is not representable in the
+        'sourcePath' or 'destPath' does not use the standard path
+        representation or one of them cannot be converted to the
         system path type.
     FILE_ERROR
         Source file does not exist, destination file already exists or
         a system function returns an error.
-    
+
 
 12.22 moveFile
 
@@ -8243,12 +8284,13 @@ CONTENTS
         Not enough memory to convert 'sourcePath' or 'destPath'
         to the system path type.
     RANGE_ERROR
-        'sourcePath' or 'destPath' is not representable in the
+        'sourcePath' or 'destPath' does not use the standard path
+        representation or one of them cannot be converted to the
         system path type.
     FILE_ERROR
         Source file does not exist, destination file already exists or
         a system function returns an error.
-    
+
 
 12.23 argv(PROGRAM)
 
@@ -8259,7 +8301,7 @@ CONTENTS
 
   Returns:
     An array of strings containing the argument vector.
-    
+
 
 12.24 path(PROGRAM)
 
@@ -8270,7 +8312,7 @@ CONTENTS
 
   Returns:
     The absolute path of the program.
-    
+
 
 12.25 dir(PROGRAM)
 
@@ -8283,7 +8325,7 @@ CONTENTS
 
   Returns:
     The absolute path of the directory containing the program.
-    
+
 
 12.26 getenv
 
@@ -8300,17 +8342,17 @@ CONTENTS
   Returns:
     The value of an environment variable or ""
     when the requested environment variable does not exist.
-    
+
   Possible exceptions:
     MEMORY_ERROR
         Not enough memory to convert 'name' to the system string type or not
         enough memory to represent the result 'string'.
-    
+
 
 12.27 setenv
 
     The function 'setenv' adds or changes an environment
-  variable. 
+  variable.
 
     const proc: setenv (in string: name, in string: value) is ...
 
@@ -8327,7 +8369,7 @@ CONTENTS
         the system string type.
     RANGE_ERROR
         A system function returns an error.
-    
+
 
 
 13. PRIMITIVE ACTIONS
@@ -8649,7 +8691,7 @@ CONTENTS
 
     Seed7 type       C type    C struct           Comment
     string           stritype  struct stristruct  UTF-32 encoded, can contain null chars
-    set              settype   struct setstruct    
+    set              settype   struct setstruct
     bstring          bstritype struct bstristruct Byte sequence, can contain null bytes
 
   Other Seed7 types also correspond to struct pointers, but the structs
@@ -8704,10 +8746,10 @@ CONTENTS
 13.1 Actions for the type ACTION
 
     Action name         actlib.c function   act_comp.c function
-    ACT_ILLEGAL         act_illegal          
+    ACT_ILLEGAL         act_illegal
     ACT_CPY             act_cpy             =
-    ACT_CREATE          act_create           
-    ACT_GEN             act_gen              
+    ACT_CREATE          act_create
+    ACT_GEN             act_gen
     ACT_STR             act_str             actStr
     ACT_VALUE           act_value           actValue
 
@@ -8724,7 +8766,7 @@ CONTENTS
     ARR_CPY             arr_cpy             cpy_ ...
     ARR_CREATE          arr_create          create_ ...
     ARR_DESTR           arr_destr           destr_ ...
-    ARR_EMPTY           arr_empty            
+    ARR_EMPTY           arr_empty
     ARR_EXTEND          arr_extend          arrExtend
     ARR_GEN             arr_gen             arrGen
     ARR_HEAD            arr_head            arrHead
@@ -8812,7 +8854,7 @@ CONTENTS
     BST_CPY             bst_cpy             bstCpy
     BST_CREATE          bst_create          bstCreate
     BST_DESTR           bst_destr           bstDestr
-    BST_EMPTY           bst_empty            
+    BST_EMPTY           bst_empty
     BST_EQ              bst_eq              a->size==b->size && memcmp(a,b,a->size*sizeof(unsigned char))==0
     BST_HASHCODE        bst_hashcode        bstHashCode
     BST_IDX             bst_idx             a->mem[b-1]
@@ -8935,7 +8977,7 @@ CONTENTS
     DRW_CPY             drw_cpy             drwCpy
     DRW_CREATE          drw_create          drwCreate
     DRW_DESTR           drw_destr           drwDestr
-    DRW_EMPTY           drw_empty            
+    DRW_EMPTY           drw_empty
     DRW_EQ              drw_eq              ==
     DRW_FARCCHORD       drw_farcchord       drwFArcChord
     DRW_FARCPIESLICE    drw_farcpieslice    drwFArcPieSlice
@@ -8983,12 +9025,12 @@ CONTENTS
 
 13.11 Actions for enumeration types
 
-    Action name         enulib.c function    
+    Action name         enulib.c function
     ENU_CONV            enu_conv            (noop)
     ENU_CPY             enu_cpy             =
-    ENU_CREATE          enu_create           
+    ENU_CREATE          enu_create
     ENU_EQ              enu_eq              ==
-    ENU_GENLIT          enu_genlit           
+    ENU_GENLIT          enu_genlit
     ENU_ICONV2          enu_iconv2          (noop)
     ENU_NE              enu_ne              !=
     ENU_ORD2            enu_ord2            (noop)
@@ -9003,7 +9045,7 @@ CONTENTS
     FIL_CLOSE           fil_close           fclose
     FIL_CPY             fil_cpy             fltCpy
     FIL_CREATE          fil_create          fltCreate
-    FIL_EMPTY           fil_empty            
+    FIL_EMPTY           fil_empty
     FIL_EOF             fil_eof             feof
     FIL_EQ              fil_eq              ==
     FIL_ERR             fil_err             stderr
@@ -9114,11 +9156,11 @@ CONTENTS
     HSH_FOR_DATA_KEY    hsh_for_data_key    for
     HSH_FOR_KEY         hsh_for_key         for
     HSH_IDX             hsh_idx             hshIdx, hshIdxAddr
-    HSH_IDX2            hsh_idx2             
+    HSH_IDX2            hsh_idx2
     HSH_INCL            hsh_incl            hshIncl
     HSH_KEYS            hsh_keys            hshKeys
     HSH_LNG             hsh_lng             a->size
-    HSH_REFIDX          hsh_refidx           
+    HSH_REFIDX          hsh_refidx
     HSH_VALUES          hsh_values          hshValues
 
 13.16 Actions for the type integer
@@ -9174,18 +9216,18 @@ CONTENTS
 
 13.17 Actions for interface types
 
-    Action name         itflib.c function    
+    Action name         itflib.c function
     ITF_CMP             itf_cmp             uintCmpGeneric
     ITF_CONV2           itf_conv2           (noop)
     ITF_CPY             itf_cpy             =
     ITF_CPY2            itf_cpy2            =
-    ITF_CREATE          itf_create           
-    ITF_CREATE2         itf_create2          
+    ITF_CREATE          itf_create
+    ITF_CREATE2         itf_create2
     ITF_EQ              itf_eq              ==
     ITF_HASHCODE        itf_hashcode        (inttype)(((memsizetype)a)>>6)
     ITF_NE              itf_ne              !=
-    ITF_TO_HEAP         itf_to_heap          
-    ITF_TO_INTERFACE    itf_to_interface     
+    ITF_TO_HEAP         itf_to_heap
+    ITF_TO_INTERFACE    itf_to_interface
 
 13.18 Actions to support the text (console) screen keyboard
 
@@ -9236,60 +9278,60 @@ CONTENTS
 
 13.21 Actions for proc operations and statements
 
-    Action name         prclib.c function    
-    PRC_ARGS            prc_args             
-    PRC_BEGIN           prc_begin            
-    PRC_BLOCK           prc_block            
-    PRC_BLOCK_DEF       prc_block_def        
+    Action name         prclib.c function
+    PRC_ARGS            prc_args
+    PRC_BEGIN           prc_begin
+    PRC_BLOCK           prc_block
+    PRC_BLOCK_DEF       prc_block_def
     PRC_CASE            prc_case            switch
     PRC_CASE_DEF        prc_case_def        switch
-    PRC_CPY             prc_cpy              
-    PRC_CREATE          prc_create           
-    PRC_DECLS           prc_decls            
-    PRC_DYNAMIC         prc_dynamic          
+    PRC_CPY             prc_cpy
+    PRC_CREATE          prc_create
+    PRC_DECLS           prc_decls
+    PRC_DYNAMIC         prc_dynamic
     PRC_EXIT            prc_exit            exit
     PRC_FOR_DOWNTO      prc_for_downto      for
     PRC_FOR_TO          prc_for_to          for
-    PRC_HEAPSTAT        prc_heapstat         
+    PRC_HEAPSTAT        prc_heapstat
     PRC_HSIZE           prc_hsize           heapsize
     PRC_IF              prc_if              if
     PRC_IF_ELSIF        prc_if_elsif        if
-    PRC_INCLUDE         prc_include          
-    PRC_LOCAL           prc_local            
+    PRC_INCLUDE         prc_include
+    PRC_LOCAL           prc_local
     PRC_NOOP            prc_noop            prcNoop
     PRC_RAISE           prc_raise           raise_error
     PRC_REPEAT          prc_repeat          do
-    PRC_RES_BEGIN       prc_res_begin        
-    PRC_RES_LOCAL       prc_res_local        
-    PRC_RETURN          prc_return           
-    PRC_RETURN2         prc_return2          
-    PRC_SETTRACE        prc_settrace         
-    PRC_TRACE           prc_trace            
-    PRC_VARFUNC         prc_varfunc          
-    PRC_VARFUNC2        prc_varfunc2         
+    PRC_RES_BEGIN       prc_res_begin
+    PRC_RES_LOCAL       prc_res_local
+    PRC_RETURN          prc_return
+    PRC_RETURN2         prc_return2
+    PRC_SETTRACE        prc_settrace
+    PRC_TRACE           prc_trace
+    PRC_VARFUNC         prc_varfunc
+    PRC_VARFUNC2        prc_varfunc2
     PRC_WHILE           prc_while           while
 
 13.22 Actions for the type program
 
     Action name         prglib.c function   prg_comp.c function
     PRG_CPY             prg_cpy             prgCpy
-    PRG_CREATE          prg_create           
+    PRG_CREATE          prg_create
     PRG_DECL_OBJECTS    prg_decl_objects    prgDeclObjects
-    PRG_DESTR           prg_destr            
-    PRG_EMPTY           prg_empty            
+    PRG_DESTR           prg_destr
+    PRG_EMPTY           prg_empty
     PRG_EQ              prg_eq              ==
     PRG_ERROR_COUNT     prg_error_count     prgErrorCount
     PRG_EVAL            prg_eval            prgEval
     PRG_EXEC            prg_exec            prgExec
     PRG_FIL_PARSE       prg_fil_parse       prgFilParse
-    PRG_FIND            prg_find             
+    PRG_FIND            prg_find
     PRG_INTERPRETER     prg_interpreter     interpreterPath
     PRG_MATCH           prg_match           prgMatch
     PRG_MATCH_EXPR      prg_match_expr      prgMatchExpr
     PRG_NAME            prg_name            arg_0
     PRG_NE              prg_ne              !=
     PRG_PATH            prg_path            programPath
-    PRG_PROG            prg_prog             
+    PRG_PROG            prg_prog
     PRG_STR_PARSE       prg_str_parse       prgStrParse
     PRG_SYOBJECT        prg_syobject        prgSyobject
     PRG_SYSVAR          prg_sysvar          prgSysvar
@@ -9304,46 +9346,46 @@ CONTENTS
     REF_ARRMINIDX       ref_arrminidx       refArrminidx
     REF_ARRTOLIST       ref_arrtolist       refArrtolist
     REF_BODY            ref_body            refBody
-    REF_BUILD           ref_build            
-    REF_CAST            ref_cast             
+    REF_BUILD           ref_build
+    REF_CAST            ref_cast
     REF_CATEGORY        ref_category        refCategory
     REF_CAT_PARSE       ref_cat_parse       refCatParse
     REF_CAT_STR         ref_cat_str         refCatStr
     REF_CMP             ref_cmp             refCmp
-    REF_CONTENT         ref_content          
+    REF_CONTENT         ref_content
     REF_CONV            ref_conv            (noop)
     REF_CPY             ref_cpy             refCpy
     REF_CREATE          ref_create          refCreate
-    REF_DEREF           ref_deref            
+    REF_DEREF           ref_deref
     REF_EQ              ref_eq              ==
     REF_FILE            ref_file            refFile
-    REF_FIND            ref_find             
+    REF_FIND            ref_find
     REF_HASHCODE        ref_hashcode        (inttype)(((memsizetype)a)>>6)
     REF_HSHDATATOLIST   ref_hshdatatolist   refHshDataToList
     REF_HSHKEYTOLIST    ref_hshkeytolist    refHshKeyToList
-    REF_ISSYMB          ref_issymb           
+    REF_ISSYMB          ref_issymb
     REF_ISVAR           ref_isvar           refIsvar
     REF_ITFTOSCT        ref_itftosct        refItftosct
     REF_LINE            ref_line            refLine
     REF_LOCAL_CONSTS    ref_local_consts    refLocalConsts
     REF_LOCAL_VARS      ref_local_vars      refLocalVars
-    REF_MKREF           ref_mkref            
-    REF_NAME            ref_name             
+    REF_MKREF           ref_mkref
+    REF_NAME            ref_name
     REF_NE              ref_ne              !=
-    REF_NIL             ref_nil              
+    REF_NIL             ref_nil
     REF_NUM             ref_num             refNum
     REF_PARAMS          ref_params          refParams
-    REF_PROG            ref_prog             
+    REF_PROG            ref_prog
     REF_RESINI          ref_resini          refResini
     REF_RESULT          ref_result          refResult
-    REF_SCAN            ref_scan             
+    REF_SCAN            ref_scan
     REF_SCTTOLIST       ref_scttolist       refScttolist
     REF_SELECT          ref_select          a->stru[b]
     REF_SETCATEGORY     ref_setcategory     refSetCategory
     REF_SETPARAMS       ref_setparams       refSetParams
     REF_SETTYPE         ref_settype         refSetType
     REF_STR             ref_str             refStr
-    REF_SYMB            ref_symb             
+    REF_SYMB            ref_symb
     REF_TRACE           ref_trace           printf
     REF_TYPE            ref_type            refType
     REF_VALUE           ref_value           refValue
@@ -9358,10 +9400,10 @@ CONTENTS
     RFL_DESTR           rfl_destr           rflDestr
     RFL_ELEM            rfl_elem            rflElem
     RFL_ELEMCPY         rfl_elemcpy         rflElemcpy
-    RFL_EMPTY           rfl_empty            
+    RFL_EMPTY           rfl_empty
     RFL_EQ              rfl_eq              rflEq
-    RFL_EXCL            rfl_excl             
-    RFL_EXPR            rfl_expr             
+    RFL_EXCL            rfl_excl
+    RFL_EXPR            rfl_expr
     RFL_FOR             rfl_for             for
     RFL_FOR_UNTIL       rfl_for_until       for
     RFL_HEAD            rfl_head            rflHead
@@ -9376,23 +9418,23 @@ CONTENTS
     RFL_RANGE           rfl_range           rflRange
     RFL_SETVALUE        rfl_setvalue        rflSetvalue
     RFL_TAIL            rfl_tail            rflTail
-    RFL_TRACE           rfl_trace            
+    RFL_TRACE           rfl_trace
     RFL_VALUE           rfl_value           rflValue
 
 13.25 Actions for struct types
 
-    Action name         sctlib.c function    
-    SCT_ALLOC           sct_alloc            
-    SCT_CAT             sct_cat              
-    SCT_CONV            sct_conv             
+    Action name         sctlib.c function
+    SCT_ALLOC           sct_alloc
+    SCT_CAT             sct_cat
+    SCT_CONV            sct_conv
     SCT_CPY             sct_cpy             cpy_ ...
     SCT_CREATE          sct_create          create_ ...
     SCT_DESTR           sct_destr           destr_ ...
-    SCT_ELEM            sct_elem             
-    SCT_EMPTY           sct_empty            
-    SCT_INCL            sct_incl             
-    SCT_LNG             sct_lng              
-    SCT_REFIDX          sct_refidx           
+    SCT_ELEM            sct_elem
+    SCT_EMPTY           sct_empty
+    SCT_INCL            sct_incl
+    SCT_LNG             sct_lng
+    SCT_REFIDX          sct_refidx
     SCT_SELECT          sct_select          a->stru[b]
 
 13.26 Actions for set types
@@ -9408,7 +9450,7 @@ CONTENTS
     SET_DESTR           set_destr           setDestr
     SET_DIFF            set_diff            setDiff
     SET_ELEM            set_elem            setElem
-    SET_EMPTY           set_empty            
+    SET_EMPTY           set_empty
     SET_EQ              set_eq              setEq
     SET_EXCL            set_excl            setExcl
     SET_GE              set_ge              setIsSubset(b, a)
@@ -9442,8 +9484,8 @@ CONTENTS
     SOC_CLOSE           soc_close           socClose
     SOC_CONNECT         soc_connect         socConnect
     SOC_CPY             soc_cpy             =
-    SOC_CREATE          soc_create           
-    SOC_EMPTY           soc_empty            
+    SOC_CREATE          soc_create
+    SOC_EMPTY           soc_empty
     SOC_EQ              soc_eq              ==
     SOC_GETC            soc_getc            socGetc
     SOC_GETS            soc_gets            socGets
@@ -9526,19 +9568,19 @@ CONTENTS
 13.30 Actions for the type type
 
     Action name         typlib.c function   typ_data.c function
-    TYP_ADDINTERFACE    typ_addinterface     
+    TYP_ADDINTERFACE    typ_addinterface
     TYP_CMP             typ_cmp             typCmp
     TYP_CPY             typ_cpy             typCpy
     TYP_CREATE          typ_create          typCreate
     TYP_DESTR           typ_destr           typDestr
     TYP_EQ              typ_eq              ==
     TYP_FUNC            typ_func            typFunc
-    TYP_GENSUB          typ_gensub           
-    TYP_GENTYPE         typ_gentype          
+    TYP_GENSUB          typ_gensub
+    TYP_GENTYPE         typ_gentype
     TYP_HASHCODE        typ_hashcode        (inttype)(((memsizetype)a)>>6)
-    TYP_ISDECLARED      typ_isdeclared       
+    TYP_ISDECLARED      typ_isdeclared
     TYP_ISDERIVED       typ_isderived       typIsDerived
-    TYP_ISFORWARD       typ_isforward        
+    TYP_ISFORWARD       typ_isforward
     TYP_ISFUNC          typ_isfunc          typIsFunc
     TYP_ISVARFUNC       typ_isvarfunc       typIsVarfunc
     TYP_MATCHOBJ        typ_matchobj        typMatchobj
@@ -9548,7 +9590,7 @@ CONTENTS
     TYP_RESULT          typ_result          typResult
     TYP_STR             typ_str             typStr
     TYP_VALUE           typ_value           typValue
-    TYP_VARCONV         typ_varconv          
+    TYP_VARCONV         typ_varconv
     TYP_VARFUNC         typ_varfunc         typVarfunc
 
 13.31 Actions for the type utf8_file
@@ -9751,7 +9793,7 @@ CONTENTS
   write a backtrace when a crash occurs:
 
     (gdb) run
-    Starting program: /home/tm/seed7_5/prg/lander 
+    Starting program: /home/tm/seed7_5/prg/lander
 
     Program received signal SIGFPE, Arithmetic exception.
     0x08068518 in o_2541_init_display () at lander.sd7:840
@@ -9768,10 +9810,10 @@ CONTENTS
     ./hi comp -g-debug_c -e lander
     gdb ./lander
 
-  Now the debugger refers to the temporary file "tmp_lander.c":  
+  Now the debugger refers to the temporary file "tmp_lander.c":
 
     (gdb) run
-    Starting program: /home/tm/seed7_5/prg/lander 
+    Starting program: /home/tm/seed7_5/prg/lander
 
     Program received signal SIGFPE, Arithmetic exception.
     0x08068518 in o_2541_init_display () at tmp_lander.c:19727

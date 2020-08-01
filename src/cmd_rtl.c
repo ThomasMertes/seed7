@@ -1427,15 +1427,17 @@ stritype file_name;
         } /* if */
       } else {
         result = 0;
-        if (unlikely(file_name->size != 0 && errno != ENOENT && errno != ENOTDIR)) {
+        if (unlikely(file_name->size != 0 && errno != ENOENT &&
+            errno != ENOTDIR && errno != ENAMETOOLONG)) {
           /* printf("errno=%d\n", errno);
-          printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  ENOTDIR=%d  EROFS=%d\n",
-              EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT, ENOTDIR, EROFS);
-          printf("EIO=%d  ELOOP=%d  ENAMETOOLONG=%d  EOVERFLOW=%d\n",
-              EIO, ELOOP, ENAMETOOLONG, EOVERFLOW);
-          printf("EBADF=%d  EFAULT=%d  ENOMEM=%d\n",
-              EBADF, EFAULT, ENOMEM); */
-          /* printf("strlen(file_name)=%d\n", os_stri_strlen(os_path)); */
+          printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d\n",
+              EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT);
+          printf("ENOTDIR=%d  EROFS=%d  EIO=%d  ELOOP=%d  ENAMETOOLONG=%d\n",
+              ENOTDIR, EROFS, EIO, ELOOP, ENAMETOOLONG);
+          printf("EOVERFLOW=%d  EBADF=%d  EFAULT=%d  ENOMEM=%d\n",
+              EOVERFLOW, EBADF, EFAULT, ENOMEM); */
+          /* printf("file_name->size=%lu\n", file_name->size); */
+          /* printf("strlen(os_path)=%d\n", os_stri_strlen(os_path)); */
           raise_error(FILE_ERROR);
         } /* if */
       } /* if */
@@ -1501,10 +1503,17 @@ stritype file_name;
         } /* if */
       } else {
         result = 0;
-        if (unlikely(file_name->size != 0 && errno != ENOENT && errno != ENOTDIR)) {
+        if (unlikely(file_name->size != 0 && errno != ENOENT &&
+            errno != ENOTDIR && errno != ENAMETOOLONG)) {
           /* printf("errno=%d\n", errno);
-          printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  ENOTDIR=%d  EROFS=%d\n",
-              EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT, ENOTDIR, EROFS); */
+          printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d\n",
+              EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT);
+          printf("ENOTDIR=%d  EROFS=%d  EIO=%d  ELOOP=%d  ENAMETOOLONG=%d\n",
+              ENOTDIR, EROFS, EIO, ELOOP, ENAMETOOLONG);
+          printf("EOVERFLOW=%d  EBADF=%d  EFAULT=%d  ENOMEM=%d\n",
+              EOVERFLOW, EBADF, EFAULT, ENOMEM); */
+          /* printf("file_name->size=%lu\n", file_name->size); */
+          /* printf("strlen(os_path)=%d\n", os_stri_strlen(os_path)); */
           raise_error(FILE_ERROR);
         } /* if */
       } /* if */

@@ -56,7 +56,7 @@ p
     margin:15px;
 }
 
-p.item_name 
+p.item_name
 {
     font-weight: bolder;
     margin:5px;
@@ -68,13 +68,13 @@ p.item_name
     font-size:           100%;
     color:               rgb(0,0,0);
     background-color:    rgb(255,255,255);
-    border-left-width:   0px; 
-    border-right-width:  0px; 
-    border-top-width:    0px; 
+    border-left-width:   0px;
+    border-right-width:  0px;
+    border-top-width:    0px;
     border-bottom-width: 0px;
-    border-left-style:   none; 
-    border-right-style:  none; 
-    border-top-style:    none; 
+    border-left-style:   none;
+    border-right-style:  none;
+    border-top-style:    none;
     border-bottom-style: none;
     padding:             40px 31px 14px 17px;
     border-color:        rgb(0,0,0);
@@ -99,9 +99,9 @@ a.menuitem
     text-transform:      none;
     font-weight:         normal;
     padding:             1px 8px 3px 1px;
-    margin-left:         5px; 
-    margin-right:        5px; 
-    margin-top:          5px; 
+    margin-left:         5px;
+    margin-right:        5px;
+    margin-top:          5px;
     margin-bottom:       5px;
     border-color:        rgb(159,126,57);
     text-align:          right;
@@ -131,13 +131,13 @@ a.menuitem
     font-variant:        normal;
     text-transform:      none;
     font-weight:         normal;
-    border-left-width:   0px; 
-    border-right-width:  0px; 
-    border-top-width:    0px; 
+    border-left-width:   0px;
+    border-right-width:  0px;
+    border-top-width:    0px;
     border-bottom-width: 0px;
-    border-left-style:   none; 
-    border-right-style:  none; 
-    border-top-style:    none; 
+    border-left-style:   none;
+    border-right-style:  none;
+    border-top-style:    none;
     border-bottom-style: none;
     padding: 12px 12px 12px 12px;
     border-color:        rgb(195,165,100);
@@ -229,11 +229,11 @@ h6
 /* layout */
 #navigation
 {
-    width:      22%; 
-    position:   relative; 
-    top:        0; 
-    right:      0; 
-    float:      right; 
+    width:      22%;
+    position:   relative;
+    top:        0;
+    right:      0;
+    float:      right;
     text-align: center;
 }
 

@@ -297,85 +297,64 @@ const func time: (attr time) parse (in var string: stri) is func
 enable_io(time);
 
 
-const func boolean: (in time: tim1) = (in time: tim2) is
+(**
+ *  Check if two ''time'' values are equal.
+ *  @return TRUE if both times are equal, FALSE otherwise.
+ *)
+const func boolean: (in time: aTime1) = (in time: aTime2) is
   return
-    tim1.year = tim2.year and
-    tim1.month = tim2.month and
-    tim1.day = tim2.day and
-    tim1.hour = tim2.hour and
-    tim1.minute = tim2.minute and
-    tim1.second = tim2.second and
-    tim1.micro_second = tim2.micro_second;
+    aTime1.year = aTime2.year and
+    aTime1.month = aTime2.month and
+    aTime1.day = aTime2.day and
+    aTime1.hour = aTime2.hour and
+    aTime1.minute = aTime2.minute and
+    aTime1.second = aTime2.second and
+    aTime1.micro_second = aTime2.micro_second;
 
 
-const func boolean: (in time: tim1) <> (in time: tim2) is
+(**
+ *  Check if two ''time'' values are not equal.
+ *  @return FALSE if both times are equal, TRUE otherwise.
+ *)
+const func boolean: (in time: aTime1) <> (in time: aTime2) is
   return
-    tim1.year <> tim2.year or
-    tim1.month <> tim2.month or
-    tim1.day <> tim2.day or
-    tim1.hour <> tim2.hour or
-    tim1.minute <> tim2.minute or
-    tim1.second <> tim2.second or
-    tim1.micro_second <> tim2.micro_second;
+    aTime1.year <> aTime2.year or
+    aTime1.month <> aTime2.month or
+    aTime1.day <> aTime2.day or
+    aTime1.hour <> aTime2.hour or
+    aTime1.minute <> aTime2.minute or
+    aTime1.second <> aTime2.second or
+    aTime1.micro_second <> aTime2.micro_second;
 
 
-const func boolean: (in time: tim1) >= (in time: tim2) is func
-  result
-    var boolean: isGreaterEqual is FALSE;
-  begin
-    if tim1.year > tim2.year then
-      isGreaterEqual := TRUE;
-    elsif tim1.year = tim2.year then
-      if tim1.month > tim2.month then
-        isGreaterEqual := TRUE;
-      elsif tim1.month = tim2.month then
-        if tim1.day > tim2.day then
-          isGreaterEqual := TRUE;
-        elsif tim1.day = tim2.day then
-          if tim1.hour > tim2.hour then
-            isGreaterEqual := TRUE;
-          elsif tim1.hour = tim2.hour then
-            if tim1.minute > tim2.minute then
-              isGreaterEqual := TRUE;
-            elsif tim1.minute = tim2.minute then
-              if tim1.second > tim2.second then
-                isGreaterEqual := TRUE;
-              elsif tim1.second = tim2.second then
-                if tim1.micro_second >= tim2.micro_second then
-                  isGreaterEqual := TRUE;
-                end if;
-              end if;
-            end if;
-          end if;
-        end if;
-      end if;
-    end if;
-  end func;
-
-
-const func boolean: (in time: tim1) <= (in time: tim2) is func
+(**
+ *  Check if ''aTime1'' is less than or equal to ''aTime2''.
+ *  @return TRUE if ''aTime1'' is less than or equal to ''aTime2'',
+ *          FALSE otherwise.
+ *)
+const func boolean: (in time: aTime1) <= (in time: aTime2) is func
   result
     var boolean: isLessEqual is FALSE;
   begin
-    if tim1.year < tim2.year then
+    if aTime1.year < aTime2.year then
       isLessEqual := TRUE;
-    elsif tim1.year = tim2.year then
-      if tim1.month < tim2.month then
+    elsif aTime1.year = aTime2.year then
+      if aTime1.month < aTime2.month then
         isLessEqual := TRUE;
-      elsif tim1.month = tim2.month then
-        if tim1.day < tim2.day then
+      elsif aTime1.month = aTime2.month then
+        if aTime1.day < aTime2.day then
           isLessEqual := TRUE;
-        elsif tim1.day = tim2.day then
-          if tim1.hour < tim2.hour then
+        elsif aTime1.day = aTime2.day then
+          if aTime1.hour < aTime2.hour then
             isLessEqual := TRUE;
-          elsif tim1.hour = tim2.hour then
-            if tim1.minute < tim2.minute then
+          elsif aTime1.hour = aTime2.hour then
+            if aTime1.minute < aTime2.minute then
               isLessEqual := TRUE;
-            elsif tim1.minute = tim2.minute then
-              if tim1.second < tim2.second then
+            elsif aTime1.minute = aTime2.minute then
+              if aTime1.second < aTime2.second then
                 isLessEqual := TRUE;
-              elsif tim1.second = tim2.second then
-                if tim1.micro_second <= tim2.micro_second then
+              elsif aTime1.second = aTime2.second then
+                if aTime1.micro_second <= aTime2.micro_second then
                   isLessEqual := TRUE;
                 end if;
               end if;
@@ -387,12 +366,61 @@ const func boolean: (in time: tim1) <= (in time: tim2) is func
   end func;
 
 
-const func boolean: (in time: tim1) < (in time: tim2) is
-  return not tim1 >= tim2;
+(**
+ *  Check if ''aTime1'' is greater than or equal to ''aTime2''.
+ *  @return TRUE if ''aTime1'' is greater than or equal to ''aTime2'',
+ *          FALSE otherwise.
+ *)
+const func boolean: (in time: aTime1) >= (in time: aTime2) is func
+  result
+    var boolean: isGreaterEqual is FALSE;
+  begin
+    if aTime1.year > aTime2.year then
+      isGreaterEqual := TRUE;
+    elsif aTime1.year = aTime2.year then
+      if aTime1.month > aTime2.month then
+        isGreaterEqual := TRUE;
+      elsif aTime1.month = aTime2.month then
+        if aTime1.day > aTime2.day then
+          isGreaterEqual := TRUE;
+        elsif aTime1.day = aTime2.day then
+          if aTime1.hour > aTime2.hour then
+            isGreaterEqual := TRUE;
+          elsif aTime1.hour = aTime2.hour then
+            if aTime1.minute > aTime2.minute then
+              isGreaterEqual := TRUE;
+            elsif aTime1.minute = aTime2.minute then
+              if aTime1.second > aTime2.second then
+                isGreaterEqual := TRUE;
+              elsif aTime1.second = aTime2.second then
+                if aTime1.micro_second >= aTime2.micro_second then
+                  isGreaterEqual := TRUE;
+                end if;
+              end if;
+            end if;
+          end if;
+        end if;
+      end if;
+    end if;
+  end func;
 
 
-const func boolean: (in time: tim1) > (in time: tim2) is
-  return not tim1 <= tim2;
+(**
+ *  Check if ''aTime1'' is less than ''aTime2''.
+ *  @return TRUE if ''aTime1'' is less than ''aTime2'',
+ *          FALSE otherwise.
+ *)
+const func boolean: (in time: aTime1) < (in time: aTime2) is
+  return not aTime1 >= aTime2;
+
+
+(**
+ *  Check if ''aTime1'' is greater than ''aTime2''.
+ *  @return TRUE if ''aTime1'' is greater than ''aTime2'',
+ *          FALSE otherwise.
+ *)
+const func boolean: (in time: aTime1) > (in time: aTime2) is
+  return not aTime1 <= aTime2;
 
 
 (**
@@ -401,37 +429,37 @@ const func boolean: (in time: tim1) > (in time: tim2) is
  *          respectively less than, equal to, or greater than the
  *          second.
  *)
-const func integer: compare (in time: tim1, in time: tim2) is func
+const func integer: compare (in time: aTime1, in time: aTime2) is func
   result
     var integer: result is 0;
   begin
-    if tim1.year < tim2.year then
+    if aTime1.year < aTime2.year then
       result := -1;
-    elsif tim1.year > tim2.year then
+    elsif aTime1.year > aTime2.year then
       result := 1;
-    elsif tim1.month < tim2.month then
+    elsif aTime1.month < aTime2.month then
       result := -1;
-    elsif tim1.month > tim2.month then
+    elsif aTime1.month > aTime2.month then
       result := 1;
-    elsif tim1.day < tim2.day then
+    elsif aTime1.day < aTime2.day then
       result := -1;
-    elsif tim1.day > tim2.day then
+    elsif aTime1.day > aTime2.day then
       result := 1;
-    elsif tim1.hour < tim2.hour then
+    elsif aTime1.hour < aTime2.hour then
       result := -1;
-    elsif tim1.hour > tim2.hour then
+    elsif aTime1.hour > aTime2.hour then
       result := 1;
-    elsif tim1.minute < tim2.minute then
+    elsif aTime1.minute < aTime2.minute then
       result := -1;
-    elsif tim1.minute > tim2.minute then
+    elsif aTime1.minute > aTime2.minute then
       result := 1;
-    elsif tim1.second < tim2.second then
+    elsif aTime1.second < aTime2.second then
       result := -1;
-    elsif tim1.second > tim2.second then
+    elsif aTime1.second > aTime2.second then
       result := 1;
-    elsif tim1.micro_second < tim2.micro_second then
+    elsif aTime1.micro_second < aTime2.micro_second then
       result := -1;
-    elsif tim1.micro_second > tim2.micro_second then
+    elsif aTime1.micro_second > aTime2.micro_second then
       result := 1;
     end if;
   end func;

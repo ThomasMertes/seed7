@@ -1546,6 +1546,12 @@ errinfotype *err_info;
     } else if (unlikely(stri_charpos(stri, '\\') != NULL)) {
       *err_info = RANGE_ERROR;
       result = NULL;
+    } else if (stri->size == 0) {
+      if (unlikely(!os_stri_alloc(result, 0))) {
+        *err_info = MEMORY_ERROR;
+      } else {
+        result[0] = '\0';
+      } /* if */
     } else {
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
       if (stri->size >= 1 && stri->mem[0] == '/') {
