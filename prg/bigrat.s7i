@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  bigrat.s7i    Big rational number support library               *)
-(*  Copyright (C) 2006  Thomas Mertes                               *)
+(*  Copyright (C) 2006, 2007  Thomas Mertes                         *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -143,7 +143,7 @@ const func bigRational: (in bigRational: rat1) - (in bigRational: rat2) is func
   end func;
 
 
-const func bigRational: (in var bigRational: rat1) * (in var bigRational: rat2) is func
+const func bigRational: (in bigRational: rat1) * (in bigRational: rat2) is func
   result
     var bigRational: rat_val is bigRational.value;
   local
@@ -312,7 +312,7 @@ const func string: str (in bigRational: rat1) is func
 
 const func bigRational: (attr bigRational) parse (in var string: stri) is func
   result
-    var bigRational: result is TRUE;
+    var bigRational: result is bigRational.value;
   begin
     result.numerator := bigInteger parse getint(stri);
     if stri[1] <> '/' then

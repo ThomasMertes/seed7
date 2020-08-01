@@ -4271,7 +4271,10 @@ const proc: chkMultiplication is func
       okay := FALSE;
     end if;
 
-    if  1078203909375_        * 17878103347812890625_ <>        19276240921822134027894287109375_ or
+    if                 65535_ *               196607_ <>                             12884639745_ or
+                      196607_ *                65535_ <>                             12884639745_ or
+               1078203909375_ * 17878103347812890625_ <>        19276240921822134027894287109375_ or
+        17878103347812890625_ *        1078203909375_ <>        19276240921822134027894287109375_ or
         17878103347812890625_ * 17878103347812890625_ <> 319626579315078487616775634918212890625_ then
       writeln("Multiplication of bigger bigInteger values does not work correct.");
       okay := FALSE;
@@ -4751,7 +4754,10 @@ const proc: chkMultCopy is func
       okay := FALSE;
     end if;
 
-    if  testMultCopy(       1078203909375_, 17878103347812890625_) <>        19276240921822134027894287109375_ or
+    if  testMultCopy(               65535_,               196607_) <>                             12884639745_ or
+        testMultCopy(              196607_,                65535_) <>                             12884639745_ or
+        testMultCopy(       1078203909375_, 17878103347812890625_) <>        19276240921822134027894287109375_ or
+        testMultCopy(17878103347812890625_,        1078203909375_) <>        19276240921822134027894287109375_ or
         testMultCopy(17878103347812890625_, 17878103347812890625_) <> 319626579315078487616775634918212890625_ then
       writeln("Multiplicating copy for bigger bigInteger values does not work correct.");
       okay := FALSE;

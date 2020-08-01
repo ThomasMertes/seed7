@@ -226,3 +226,12 @@
 - A bug in uBigAddTo which could cause an error in bigDiv, bigRem, bigMDiv, bigMod was fixed.
 - The chkbig.sd7 program was improved to check the log2 function for bigInteger.
 - The chkstr.sd7 program was improved to have more checks for the split function.
+
+20070419:
+- The compiler support for result variables, which are initialized with expressions, was improved.
+- The bas (basic interpreter) example program was improved.
+- The bigrat.s7i, rational.s7i librarys were improved.
+- Some multiplication testcases were added to the chkbig.sd7 example program.
+- The compiler was changed to mark its temporary *.c files with a temp_marker.
+- Several performance improvements for uBigMultSub, uBigAddTo, uBigDiv, uBigMult,
+  uBigMultIntoHelp, bigGrow, bigMult and bigShrink were done.

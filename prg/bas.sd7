@@ -29,11 +29,11 @@
 (*  GOTO OF, HEX$, IF, INKEY$, INPUT, INPUT#, INPUT$, INSTR, INT,   *)
 (*  LCASE$, LEFT$, LEN, LET, LINE INPUT, LINE INPUT#, LOCATE, LOG,  *)
 (*  LOOP, LOOP UNTIL, LOOP WHILE, MID$, NEXT, OCT$, **ON ERROR,     *)
-(*  ON GOSUB, ON GOTO, **ON KEY, OPEN, OPTION BASE, POS, PRINT,     *)
-(*  PRINT USING, RANDOMIZE, READ, REM, RESET, RESTORE, RETURN,      *)
-(*  RIGHT$, RND, SCREEN, SGN, SIN, **SOUND, SPACE$, SPC, SQR, STOP, *)
-(*  STR$, STRING$, SWAP, SYSTEM, TAB, TAN, TIME$, TIMER, UCASE$,    *)
-(*  VAL, WEND, WHILE, **WIDTH                                       *)
+(*  ON GOSUB, ON GOTO, **ON KEY, OPEN, OPTION BASE, **PLAY, POS,    *)
+(*  PRINT, PRINT USING, RANDOMIZE, READ, REM, RESET, RESTORE,       *)
+(*  RETURN, RIGHT$, RND, SCREEN, SGN, SIN, **SOUND, SPACE$, SPC,    *)
+(*  SQR, STOP, STR$, STRING$, SWAP, SYSTEM, TAB, TAN, TIME$, TIMER, *)
+(*  UCASE$, VAL, WEND, WHILE, **WIDTH                               *)
 (*                                                                  *)
 (********************************************************************)
 
@@ -105,6 +105,8 @@ var array integer: return_column is 0 times 0;
 
 var integer: currX is 0;
 var integer: currY is 0;
+var integer: foreground_color is 0;
+var integer: background_color is 0;
 
 
 const proc: list_prog () is func
@@ -1879,6 +1881,742 @@ const func string: find_loop (inout string: line) is func
   end func;
 
 
+const proc: exec_print_using (inout string: symbol, inout string: line) is func
+  local
+    var string: unused_name is "";
+    var string: param1 is "";
+    var string: param2 is "";
+    var float: num1 is 0.0;
+    var integer: index1 is 0;
+    var integer: index2 is 0;
+    var integer: index3 is 0;
+    var integer: index4 is 0;
+    var char: ch1 is ' ';
+    var char: ch2 is ' ';
+  begin
+    log << "USING ";
+    symbol := get_symbol(line);
+    if symbol[length(symbol)] = '$' or symbol[1] in defstr_any then
+      param1 := exec_str_expr(symbol, line, unused_name);
+      log << literal(param1);
+      log << NL;
+      expect(";", symbol, line);
+      repeat
+        index1 := 1;
+        while index1 <= length(param1) do
+          ch1 := param1[index1];
+          case ch1 of
+            when {'!', '\\', '&'}:
+              if symbol = ";" or symbol = "," then
+                symbol := get_symbol(line);
+              end if;
+              if symbol[length(symbol)] = '$' or symbol[1] in defstr_any then
+                param2 := exec_str_expr(symbol, line, unused_name);
+                if ch1 = '!' then
+                  win << param2[1 len 1] rpad 1;
+                  log << literal(param2);
+                elsif ch1 = '\\' then
+                  index2 := index1;
+                  repeat
+                    incr(index1);
+                    if index1 <= length(param1) then
+                      ch1 := param1[index1];
+                    else
+                      ch1 := '\0\';
+                    end if;
+                  until ch1 <> ' ';
+                  if ch1 = '\\' then
+                    win << param2[1 len succ(index2 - index1)] rpad succ(index2 - index1);
+                    log << literal(param2);
+                  else
+                    error_marker;
+                    err << "'\\' - FOUND ";
+                    err << literal(ch1);
+                    err << ".";
+                    err << NL;
+                  end if;
+                elsif ch1 = '&' then
+                  win << param2;
+                  log << literal(param2);
+                end if;
+              else
+                error_marker;
+                err << "STRING EXPECTED - FOUND ";
+                err << symbol;
+                err << ".";
+                err << NL;
+              end if;
+            when {'#', '+', '.'}:
+              if index1 < length(param1) then
+                ch2 := param1[succ(index1)];
+              else
+                ch2 := '\0\';
+              end if;
+              if ch1 = '#' or
+                  ch1 = '+' and ch2 in {'#', '.'} or
+                  ch1 = '.' and ch2 = '#' then
+                if symbol = ";" or symbol = "," then
+                  symbol := get_symbol(line);
+                end if;
+                num1 := exec_expr(symbol, line);
+                if ch1 = '+' then
+                  if num1 >= 0.0 then
+                    win << '+';
+                    log << '+';
+                  end if;
+                  ch1 := ch2;
+                  incr(index1);
+                end if;
+                index2 := index1;
+                index3 := 0;
+                index4 := 0;
+                while ch1 = '#' do
+                  incr(index2);
+                  incr(index3);
+                  if index2 <= length(param1) then
+                    ch1 := param1[index2];
+                  else
+                    ch1 := '\0\';
+                  end if;
+                  if index2 < length(param1) then
+                    ch2 := param1[succ(index2)];
+                  else
+                    ch2 := '\0\';
+                  end if;
+                  if ch1 = ',' and ch2 = '#' then
+                    ch1 := ch2;
+                    incr(index2);
+                  end if;
+                end while;
+                if ch1 = '.' then
+                  incr(index2);
+                  if index2 <= length(param1) then
+                    ch1 := param1[index2];
+                  else
+                    ch1 := '\0\';
+                  end if;
+                  while ch1 = '#' do
+                    incr(index2);
+                    incr(index4);
+                    if index2 <= length(param1) then
+                      ch1 := param1[index2];
+                    else
+                      ch1 := '\0\';
+                    end if;
+                    if index2 < length(param1) then
+                      ch2 := param1[succ(index2)];
+                    else
+                      ch2 := '\0\';
+                    end if;
+                    if ch1 = ',' and ch2 = '#' then
+                      ch1 := ch2;
+                      incr(index2);
+                    end if;
+                  end while;
+                end if;
+                if index4 = 0 then
+                  param2 := num1 digits 0 lpad index3;
+                else
+                  param2 := num1 digits index4 lpad index3 + index4 + 1;
+                end if;
+                log << num1;
+                log << " ";
+                log << "#" mult index3;
+                log << ".";
+                log << "#" mult index4;
+                log << " ";
+                log << literal(param2);
+                index3 := 1;
+                while index1 < index2 do
+                  if index1 <= length(param1) then
+                    ch1 := param1[index1];
+                  else
+                    ch1 := '\0\';
+                  end if;
+                  ch2 := param2[index3];
+                  if ch1 = ',' then
+                    if index3 >= 2 and param2[pred(index3)] in digit then
+                      param2 := param2[.. pred(index3)] & "," & param2[index3 ..];
+                    else
+                      param2 := param2[.. pred(index3)] & " " & param2[index3 ..];
+                    end if;
+                  end if;
+                  incr(index1);
+                  incr(index3);
+                end while;
+                win << param2;
+                log << " ";
+                log << literal(param2);
+                index1 := pred(index2);
+              else
+                win << ch1;
+                log << ch1;
+              end if;
+            when {'*'}:
+              noop;
+            when {'$'}:
+              noop;
+            otherwise:
+              win << ch1;
+              log << ch1;
+          end case;
+          incr(index1);
+        end while;
+        if symbol = ":" or symbol = "" or symbol = "REM" or symbol = "'" then
+          win << NL;
+        elsif symbol = ";" then
+          symbol := get_symbol(line);
+        elsif symbol = "," then
+          symbol := get_symbol(line);
+        else
+          (* This is the next thing to be printed *)
+          log << " (;) ";
+          log << symbol;
+        end if;
+      until symbol = ":" or symbol = "" or symbol = "REM" or symbol = "'";
+      log << NL;
+      flush(log);
+    end if;
+  end func;
+
+
+const proc: exec_print (inout string: symbol, inout string: line) is func
+  local
+    var string: unused_name is "";
+    var string: param1 is "";
+    var float: num1 is 0.0;
+  begin
+    if symbol = ":" or symbol = "" then
+      win << NL;
+      flush(win);
+      log << NL;
+      flush(log);
+    else
+      repeat
+        if symbol[length(symbol)] = '$' or symbol[1] in defstr_any then
+          param1 := exec_str_expr(symbol, line, unused_name);
+          win << param1;
+          log << literal(param1);
+        elsif symbol = "TAB" then
+          symbol := get_symbol(line);
+          expect("(", symbol, line);
+          num1 := exec_expr(symbol, line);
+          expect(")", symbol, line);
+          if column(win) < round(num1) then
+            win << "" rpad round(num1) - column(win);
+          end if;
+          log << "TAB(";
+          log << round(num1);
+          log << ")";
+        elsif symbol = "SPC" then
+          symbol := get_symbol(line);
+          expect("(", symbol, line);
+          num1 := exec_expr(symbol, line);
+          expect(")", symbol, line);
+          win << "" rpad round(num1);
+          log << "SPC(";
+          log << round(num1);
+          log << ")";
+        else
+          win << " ";
+          log << " ";
+          num1 := exec_expr(symbol, line);
+          param1 := str(num1);
+          if param1[length(param1) - 1 .. ] = ".0" then
+            param1 := param1[ .. length(param1) - 2];
+          end if;
+          win << param1;
+          log << num1;
+          if symbol <> ":" and symbol <> "" then
+            win << " ";
+            log << " ";
+          end if;
+        end if;
+        if symbol = ":" or symbol = "" or symbol = "REM" or symbol = "'" then
+          win << NL;
+        elsif symbol = ";" then
+          symbol := get_symbol(line);
+          log << "; ";
+        elsif symbol = "," then
+          symbol := get_symbol(line);
+          win << "  ";
+          log << ", ";
+        else
+          (* This is the next thing to be printed *)
+          log << " (;) ";
+          log << symbol;
+        end if;
+      until symbol = ":" or symbol = "" or symbol = "REM" or symbol = "'";
+    end if;
+    flush(win);
+    flush(log);
+    log << NL;
+  end func;
+
+
+const proc: exec_read (inout string: symbol, inout string: line) is func
+  local
+    var string: variable_name is "";
+    var string: param1 is "";
+    var float: num1 is 0.0;
+  begin
+    repeat
+      symbol := get_symbol(line);
+      if symbol[length(symbol)] = '$' or symbol[1] in defstr_var then
+        variable_name := get_name(symbol, line);
+        param1 := get_data_field();
+        string_var @:= [variable_name] param1;
+        line_marker;
+        log << "READ ";
+        log << variable_name;
+        log << " ";
+        log << param1;
+        log << NL;
+        flush(log);
+      else
+        variable_name := get_name(symbol, line);
+        param1 := get_data_field();
+        if param1 = "" then
+          (* Empty DATA fields can be read as 0.0 *)
+          numeric_var @:= [variable_name] 0.0;
+          line_marker;
+          log << "READ ";
+          log << variable_name;
+          log << " ";
+          log << 0.0;
+          log << NL;
+          flush(log);
+        else
+          block
+            num1 := float parse param1;
+            numeric_var @:= [variable_name] num1;
+            line_marker;
+            log << "READ ";
+            log << variable_name;
+            log << " ";
+            log << num1;
+            log << NL;
+            flush(log);
+          exception
+            catch RANGE_ERROR:
+              error_marker;
+              err << "NUMBER EXPECTED IN READ FOUND ";
+              err << literal(param1);
+              err << ".";
+              err << NL;
+          end block;
+        end if;
+      end if;
+    until symbol <> ",";
+  end func;
+
+
+const proc: exec_input_from_file (inout string: symbol, inout string: line) is func
+  local
+    var string: variable_name is "";
+    var string: param1 is "";
+    var float: num1 is 0.0;
+    var integer: index1 is 0;
+  begin
+    symbol := get_symbol(line);
+    index1 := round(exec_expr(symbol, line));
+    if file_value[index1] <> STD_NULL then
+      while symbol = "," do
+        symbol := get_symbol(line);
+        if symbol[length(symbol)] = '$' or symbol[1] in defstr_var then
+          variable_name := get_name(symbol, line);
+          file_value[index1] >> param1;
+          string_var @:= [variable_name] param1;
+          line_marker;
+          log << "INPUT #";
+          log << index1;
+          log << ", ";
+          log << variable_name;
+          log << " ";
+          log << param1;
+          log << NL;
+          flush(log);
+        else
+          variable_name := get_name(symbol, line);
+          file_value[index1] >> param1;
+          block
+            num1 := float parse param1;
+            numeric_var @:= [variable_name] num1;
+            line_marker;
+            log << "INPUT ";
+            log << variable_name;
+            log << " ";
+            log << num1;
+            log << NL;
+            flush(log);
+          exception
+            catch RANGE_ERROR:
+              error_marker;
+              err << "NUMBER EXPECTED IN INPUT FOUND ";
+              err << literal(param1);
+              err << ".";
+              err << NL;
+          end block;
+        end if;
+      end while;
+    else
+      error_marker;
+      err << "FILE #";
+      err << index1;
+      err << " NOT OPEN IN INPUT.";
+      err << NL;
+    end if;
+  end func;
+
+
+const proc: exec_input (inout string: symbol, inout string: line) is func
+  local
+    var string: variable_name is "";
+    var string: param1 is "";
+    var string: param2 is "";
+    var float: num1 is 0.0;
+  begin
+    if symbol = ";" then
+      symbol := get_symbol(line);
+    end if;
+    if symbol[length(symbol)] = '$' or symbol[1] in defstr_any then
+      param1 := exec_str_expr(symbol, line, variable_name);
+      if symbol = ";" or symbol = "," then
+        win << param1;
+        if symbol = ";" then
+          (* A comma is used to suppress the question mark *)
+          win << "? ";
+        end if;
+        flush(win);
+        symbol := get_symbol(line);
+        if symbol[length(symbol)] = '$' or symbol[1] in defstr_var then
+          variable_name := get_name(symbol, line);
+          readln(param2);
+          win << NL;
+          flush(win);
+          string_var @:= [variable_name] param2;
+          line_marker;
+          log << "INPUT \"";
+          log << param1;
+          log << "\"; ";
+          log << variable_name;
+          log << " ";
+          log << param2;
+          log << NL;
+        else
+          variable_name := get_name(symbol, line);
+          read(num1);
+          win << NL;
+          flush(win);
+          numeric_var @:= [variable_name] num1;
+          line_marker;
+          log << "INPUT \"";
+          log << param1;
+          log << "\"; ";
+          log << variable_name;
+          log << " ";
+          log << num1;
+          log << NL;
+        end if;
+      elsif variable_name <> "" then
+        win << "? ";
+        flush(win);
+        readln(param2);
+        win << NL;
+        flush(win);
+        string_var @:= [variable_name] param2;
+        line_marker;
+        log << "INPUT ";
+        log << variable_name;
+        log << " ";
+        log << param2;
+        log << NL;
+      else
+        error_expect2(";", ",", symbol);
+      end if;
+    else
+      variable_name := get_name(symbol, line);
+      win << "? ";
+      flush(win);
+      read(num1);
+      win << NL;
+      flush(win);
+      numeric_var @:= [variable_name] num1;
+      line_marker;
+      log << "INPUT ";
+      log << variable_name;
+      log << " ";
+      log << num1;
+      log << NL;
+    end if;
+  end func;
+
+
+const proc: exec_line_input_from_file (inout string: symbol, inout string: line) is func
+  local
+    var string: variable_name is "";
+    var string: param1 is "";
+    var integer: index1 is 0;
+  begin
+    symbol := get_symbol(line);
+    index1 := round(exec_expr(symbol, line));
+    if file_value[index1] <> STD_NULL then
+      expect(",", symbol, line);
+      if symbol[length(symbol)] = '$' or symbol[1] in defstr_var then
+        variable_name := get_name(symbol, line);
+        file_value[index1] >> param1;
+        string_var @:= [variable_name] param1;
+        line_marker;
+        log << "LINE INPUT #";
+        log << index1;
+        log << ", ";
+        log << variable_name;
+        log << " ";
+        log << param1;
+        log << NL;
+        flush(log);
+      else
+        error_marker;
+        err << "STRING VARIABLE EXPECTED IN LINE INPUT FOUND ";
+        err << literal(symbol);
+        err << ".";
+        err << NL;
+      end if;
+    else
+      error_marker;
+      err << "FILE #";
+      err << index1;
+      err << " NOT OPEN IN LINE INPUT.";
+      err << NL;
+    end if;
+  end func;
+
+
+const proc: exec_line_input (inout string: symbol, inout string: line) is func
+  local
+    var string: variable_name is "";
+    var string: param1 is "";
+    var string: param2 is "";
+  begin
+    if symbol = ";" then
+      symbol := get_symbol(line);
+    end if;
+    if symbol[length(symbol)] = '$' or symbol[1] in defstr_any then
+      param1 := exec_str_expr(symbol, line, variable_name);
+      if symbol = ";" or symbol = "," then
+        symbol := get_symbol(line);
+        win << param1;
+        flush(win);
+        log << param1;
+        flush(log);
+        if symbol[length(symbol)] = '$' or symbol[1] in defstr_var then
+          variable_name := get_name(symbol, line);
+          readln(param2);
+          win << NL;
+          flush(win);
+          string_var @:= [variable_name] param2;
+          line_marker;
+          log << "LINE INPUT \"";
+          log << param1;
+          log << "\"; ";
+          log << variable_name;
+          log << " ";
+          log << param2;
+          log << NL;
+        else
+          error_marker;
+          err << "STRING EXPECTED FOR LINE INPUT - FOUND ";
+          err << symbol;
+          err << ".";
+          err << NL;
+        end if;
+      elsif variable_name <> "" then
+        win << "? ";
+        flush(win);
+        log << "? ";
+        flush(log);
+        readln(param2);
+        win << NL;
+        flush(win);
+        string_var @:= [variable_name] param2;
+        line_marker;
+        log << "LINE INPUT ";
+        log << variable_name;
+        log << " ";
+        log << param2;
+        log << NL;
+      else
+        error_expect2(";", ",", symbol);
+      end if;
+    else
+      error_marker;
+      err << "STRING EXPECTED FOR LINE INPUT - FOUND ";
+      err << symbol;
+      err << ".";
+      err << NL;
+    end if;
+  end func;
+
+
+const proc: exec_line (inout string: symbol, inout string: line) is func
+  local
+    var string: param1 is "";
+    var integer: x1 is 0;
+    var integer: y1 is 0;
+    var integer: col is 0;
+  begin
+    if symbol = "STEP" then
+      symbol := get_symbol(line);
+      expect("(", symbol, line);
+      x1 := currX + round(exec_expr(symbol, line));
+      expect(",", symbol, line);
+      y1 := currY + round(exec_expr(symbol, line));
+      expect(")", symbol, line);
+    elsif symbol = "-" then
+      x1 := currX;
+      y1 := currY;
+    else
+      expect("(", symbol, line);
+      x1 := round(exec_expr(symbol, line));
+      expect(",", symbol, line);
+      y1 := round(exec_expr(symbol, line));
+      expect(")", symbol, line);
+    end if;
+    expect("-", symbol, line);
+    if symbol = "STEP" then
+      symbol := get_symbol(line);
+      expect("(", symbol, line);
+      currX := x1 + round(exec_expr(symbol, line));
+      expect(",", symbol, line);
+      currY := y1 + round(exec_expr(symbol, line));
+    else
+      expect("(", symbol, line);
+      currX := round(exec_expr(symbol, line));
+      expect(",", symbol, line);
+      currY := round(exec_expr(symbol, line));
+    end if;
+    expect(")", symbol, line);
+    col := foreground_color;
+    if symbol = "," then
+      symbol := get_symbol(line);
+      if symbol <> "," then
+        col := round(exec_expr(symbol, line));
+      end if;
+      if symbol = "," then
+        param1 := get_symbol(line);
+        symbol := get_symbol(line);
+      end if;
+    end if;
+    if param1 = "BF" then
+      rectTo(x1, y1, currX, currY, color_num(col));
+      DRAW_FLUSH;
+      line_marker;
+      log << "LINE (";
+      log << x1;
+      log << ", ";
+      log << y1;
+      log << ") - (";
+      log << currX;
+      log << ", ";
+      log << currY;
+      log << "), ";
+      log << col;
+      log << ", ";
+      log << param1;
+      log << " ";
+      log << line;
+      log << NL;
+      flush(log);
+    elsif param1 = "B" then
+      boxTo(x1, y1, currX, currY, color_num(col));
+      DRAW_FLUSH;
+      line_marker;
+      log << "LINE (";
+      log << x1;
+      log << ", ";
+      log << y1;
+      log << ") - (";
+      log << currX;
+      log << ", ";
+      log << currY;
+      log << "), ";
+      log << col;
+      log << ", ";
+      log << param1;
+      log << " ";
+      log << line;
+      log << NL;
+      flush(log);
+    else
+      lineTo(x1, y1, currX, currY, color_num(col));
+      DRAW_FLUSH;
+      line_marker;
+      log << "LINE (";
+      log << x1;
+      log << ", ";
+      log << y1;
+      log << ") - (";
+      log << currX;
+      log << ", ";
+      log << currY;
+      log << "), ";
+      log << col;
+      log << " ";
+      log << line;
+      log << NL;
+      flush(log);
+    end if;
+  end func;
+
+
+const proc: exec_circle (inout string: symbol, inout string: line) is func
+  local
+    var integer: x1 is 0;
+    var integer: y1 is 0;
+    var integer: radius is 0;
+    var integer: col is 0;
+  begin
+    symbol := get_symbol(line);
+    if symbol = "STEP" then
+      symbol := get_symbol(line);
+      expect("(", symbol, line);
+      currX +:= round(exec_expr(symbol, line));
+      expect(",", symbol, line);
+      currY +:= round(exec_expr(symbol, line));
+    else
+      expect("(", symbol, line);
+      currX := round(exec_expr(symbol, line));
+      expect(",", symbol, line);
+      currX := round(exec_expr(symbol, line));
+    end if;
+    expect(")", symbol, line);
+    expect(",", symbol, line);
+    radius := round(exec_expr(symbol, line));
+    col := foreground_color;
+    if symbol = "," then
+      symbol := get_symbol(line);
+      if symbol <> "," then
+        col := round(exec_expr(symbol, line));
+      end if;
+    end if;
+    circle(x1, y1, radius, color_num(col));
+    DRAW_FLUSH;
+    line_marker;
+    log << "CIRCLE (";
+    log << currX;
+    log << ", ";
+    log << currY;
+    log << "), ";
+    log << radius;
+    log << ", ";
+    log << col;
+    log << " ";
+    log << line;
+    log << NL;
+    flush(log);
+  end func;
+
+
 const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
   result
     var boolean: result is TRUE;
@@ -1892,15 +2630,11 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
     var float: num1 is 0.0;
     var float: num2 is 0.0;
     var float: num3 is 0.0;
-    var float: num4 is 0.0;
     var integer: index1 is 0;
     var integer: index2 is 0;
-    var integer: index3 is 0;
-    var integer: index4 is 0;
     var boolean: okay is FALSE;
     var boolean: process_next is FALSE;
     var char: ch1 is ' ';
-    var char: ch2 is ' ';
   begin
     # log << literal(symbol) <& '\n';
     repeat
@@ -2099,257 +2833,10 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
         line_marker;
         log << "PRINT ";
         symbol := get_symbol(line);
-        param1 := "";
         if symbol = "USING" then
-          log << "USING ";
-          symbol := get_symbol(line);
-          if symbol[length(symbol)] = '$' or symbol[1] in defstr_any then
-            param1 := exec_str_expr(symbol, line, unused_name);
-            log << literal(param1);
-            log << NL;
-            expect(";", symbol, line);
-            repeat
-              index1 := 1;
-              while index1 <= length(param1) do
-                ch1 := param1[index1];
-                case ch1 of
-                  when {'!', '\\', '&'}:
-                    if symbol = ";" or symbol = "," then
-                      symbol := get_symbol(line);
-                    end if;
-                    if symbol[length(symbol)] = '$' or symbol[1] in defstr_any then
-                      param2 := exec_str_expr(symbol, line, unused_name);
-                      if ch1 = '!' then
-                        win << param2[1 len 1] rpad 1;
-                        log << literal(param2);
-                      elsif ch1 = '\\' then
-                        index2 := index1;
-                        repeat
-                          incr(index1);
-                          if index1 <= length(param1) then
-                            ch1 := param1[index1];
-                          else
-                            ch1 := '\0\';
-                          end if;
-                        until ch1 <> ' ';
-                        if ch1 = '\\' then
-                          win << param2[1 len succ(index2 - index1)] rpad succ(index2 - index1);
-                          log << literal(param2);
-                        else
-                          error_marker;
-                          err << "'\\' - FOUND ";
-                          err << literal(ch1);
-                          err << ".";
-                          err << NL;
-                        end if;
-                      elsif ch1 = '&' then
-                        win << param2;
-                        log << literal(param2);
-                      end if;
-                    else
-                      error_marker;
-                      err << "STRING EXPECTED - FOUND ";
-                      err << symbol;
-                      err << ".";
-                      err << NL;
-                    end if;
-                  when {'#', '+', '.'}:
-                    if index1 < length(param1) then
-                      ch2 := param1[succ(index1)];
-                    else
-                      ch2 := '\0\';
-                    end if;
-                    if ch1 = '#' or
-                        ch1 = '+' and ch2 in {'#', '.'} or
-                        ch1 = '.' and ch2 = '#' then
-                      if symbol = ";" or symbol = "," then
-                        symbol := get_symbol(line);
-                      end if;
-                      num1 := exec_expr(symbol, line);
-                      if ch1 = '+' then
-                        if num1 >= 0.0 then
-                          win << '+';
-                          log << '+';
-                        end if;
-                        ch1 := ch2;
-                        incr(index1);
-                      end if;
-                      index2 := index1;
-                      index3 := 0;
-                      index4 := 0;
-                      while ch1 = '#' do
-                        incr(index2);
-                        incr(index3);
-                        if index2 <= length(param1) then
-                          ch1 := param1[index2];
-                        else
-                          ch1 := '\0\';
-                        end if;
-                        if index2 < length(param1) then
-                          ch2 := param1[succ(index2)];
-                        else
-                          ch2 := '\0\';
-                        end if;
-                        if ch1 = ',' and ch2 = '#' then
-                          ch1 := ch2;
-                          incr(index2);
-                        end if;
-                      end while;
-                      if ch1 = '.' then
-                        incr(index2);
-                        if index2 <= length(param1) then
-                          ch1 := param1[index2];
-                        else
-                          ch1 := '\0\';
-                        end if;
-                        while ch1 = '#' do
-                          incr(index2);
-                          incr(index4);
-                          if index2 <= length(param1) then
-                            ch1 := param1[index2];
-                          else
-                            ch1 := '\0\';
-                          end if;
-                          if index2 < length(param1) then
-                            ch2 := param1[succ(index2)];
-                          else
-                            ch2 := '\0\';
-                          end if;
-                          if ch1 = ',' and ch2 = '#' then
-                            ch1 := ch2;
-                            incr(index2);
-                          end if;
-                        end while;
-                      end if;
-                      if index4 = 0 then
-                        param2 := num1 digits 0 lpad index3;
-                      else
-                        param2 := num1 digits index4 lpad index3 + index4 + 1;
-                      end if;
-                      log << num1;
-                      log << " ";
-                      log << "#" mult index3;
-                      log << ".";
-                      log << "#" mult index4;
-                      log << " ";
-                      log << literal(param2);
-                      index3 := 1;
-                      while index1 < index2 do
-                        if index1 <= length(param1) then
-                          ch1 := param1[index1];
-                        else
-                          ch1 := '\0\';
-                        end if;
-                        ch2 := param2[index3];
-                        if ch1 = ',' then
-                          if index3 >= 2 and param2[pred(index3)] in digit then
-                            param2 := param2[.. pred(index3)] & "," & param2[index3 ..];
-                          else
-                            param2 := param2[.. pred(index3)] & " " & param2[index3 ..];
-                          end if;
-                        end if;
-                        incr(index1);
-                        incr(index3);
-                      end while;
-                      win << param2;
-                      log << " ";
-                      log << literal(param2);
-                      index1 := pred(index2);
-                    else
-                      win << ch1;
-                      log << ch1;
-                    end if;
-                  when {'*'}:
-                    noop;
-                  when {'$'}:
-                    noop;
-                  otherwise:
-                    win << ch1;
-                    log << ch1;
-                end case;
-                incr(index1);
-              end while;
-              if symbol = ":" or symbol = "" or symbol = "REM" or symbol = "'" then
-                win << NL;
-              elsif symbol = ";" then
-                symbol := get_symbol(line);
-              elsif symbol = "," then
-                symbol := get_symbol(line);
-              else
-                (* This is the next thing to be printed *)
-                log << " (;) ";
-                log << symbol;
-              end if;
-            until symbol = ":" or symbol = "" or symbol = "REM" or symbol = "'";
-            log << NL;
-            flush(log);
-          end if;
+          exec_print_using(symbol, line);
         else
-          if symbol = ":" or symbol = "" then
-            win << NL;
-            flush(win);
-            log << NL;
-            flush(log);
-          else
-            repeat
-              if symbol[length(symbol)] = '$' or symbol[1] in defstr_any then
-                param2 := exec_str_expr(symbol, line, unused_name);
-                win << param2;
-                log << literal(param2);
-              elsif symbol = "TAB" then
-                symbol := get_symbol(line);
-                expect("(", symbol, line);
-                num1 := exec_expr(symbol, line);
-                expect(")", symbol, line);
-                if column(win) < round(num1) then
-                  win << "" rpad round(num1) - column(win);
-                end if;
-                log << "TAB(";
-                log << round(num1);
-                log << ")";
-              elsif symbol = "SPC" then
-                symbol := get_symbol(line);
-                expect("(", symbol, line);
-                num1 := exec_expr(symbol, line);
-                expect(")", symbol, line);
-                win << "" rpad round(num1);
-                log << "SPC(";
-                log << round(num1);
-                log << ")";
-              else
-                win << " ";
-                log << " ";
-                num1 := exec_expr(symbol, line);
-                param2 := str(num1);
-                if param2[length(param2) - 1 .. ] = ".0" then
-                  param2 := param2[ .. length(param2) - 2];
-                end if;
-                win << param2;
-                log << num1;
-                if symbol <> ":" and symbol <> "" then
-                  win << " ";
-                  log << " ";
-                end if;
-              end if;
-              if symbol = ":" or symbol = "" or symbol = "REM" or symbol = "'" then
-                win << NL;
-              elsif symbol = ";" then
-                symbol := get_symbol(line);
-                log << "; ";
-              elsif symbol = "," then
-                symbol := get_symbol(line);
-                win << "  ";
-                log << ", ";
-              else
-                (* This is the next thing to be printed *)
-                log << " (;) ";
-                log << symbol;
-              end if;
-            until symbol = ":" or symbol = "" or symbol = "REM" or symbol = "'";
-          end if;
-          flush(win);
-          flush(log);
-          log << NL;
+          exec_print(symbol, line);
         end if;
       elsif symbol = "GOSUB" then
         symbol := get_symbol(line);
@@ -2489,54 +2976,7 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
           flush(log);
         end if;
       elsif symbol = "READ" then
-        repeat
-          symbol := get_symbol(line);
-          if symbol[length(symbol)] = '$' or symbol[1] in defstr_var then
-            variable_name := get_name(symbol, line);
-            param1 := get_data_field();
-            string_var @:= [variable_name] param1;
-            line_marker;
-            log << "READ ";
-            log << variable_name;
-            log << " ";
-            log << param1;
-            log << NL;
-            flush(log);
-          else
-            variable_name := get_name(symbol, line);
-            param1 := get_data_field();
-            if param1 = "" then
-              (* Empty DATA fields can be read as 0.0 *)
-              numeric_var @:= [variable_name] 0.0;
-              line_marker;
-              log << "READ ";
-              log << variable_name;
-              log << " ";
-              log << 0.0;
-              log << NL;
-              flush(log);
-            else
-              block
-                num1 := float parse param1;
-                numeric_var @:= [variable_name] num1;
-                line_marker;
-                log << "READ ";
-                log << variable_name;
-                log << " ";
-                log << num1;
-                log << NL;
-                flush(log);
-              exception
-                catch RANGE_ERROR:
-                  error_marker;
-                  err << "NUMBER EXPECTED IN READ FOUND ";
-                  err << literal(param1);
-                  err << ".";
-                  err << NL;
-              end block;
-            end if;
-          end if;
-        until symbol <> ",";
+        exec_read(symbol, line);
       elsif symbol = "INPUT" or symbol = "INPUT#" then
         if symbol = "INPUT#" then
           symbol := "#";
@@ -2544,128 +2984,9 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
           symbol := get_symbol(line);
         end if;
         if symbol = "#" then
-          symbol := get_symbol(line);
-          index1 := round(exec_expr(symbol, line));
-          if file_value[index1] <> STD_NULL then
-            while symbol = "," do
-              symbol := get_symbol(line);
-              if symbol[length(symbol)] = '$' or symbol[1] in defstr_var then
-                variable_name := get_name(symbol, line);
-                file_value[index1] >> param1;
-                string_var @:= [variable_name] param1;
-                line_marker;
-                log << "INPUT #";
-                log << index1;
-                log << ", ";
-                log << variable_name;
-                log << " ";
-                log << param1;
-                log << NL;
-                flush(log);
-              else
-                variable_name := get_name(symbol, line);
-                file_value[index1] >> param1;
-                block
-                  num1 := float parse param1;
-                  numeric_var @:= [variable_name] num1;
-                  line_marker;
-                  log << "INPUT ";
-                  log << variable_name;
-                  log << " ";
-                  log << num1;
-                  log << NL;
-                  flush(log);
-                exception
-                  catch RANGE_ERROR:
-                    error_marker;
-                    err << "NUMBER EXPECTED IN INPUT FOUND ";
-                    err << literal(param1);
-                    err << ".";
-                    err << NL;
-                end block;
-              end if;
-            end while;
-          else
-            error_marker;
-            err << "FILE #";
-            err << index1;
-            err << " NOT OPEN IN INPUT.";
-            err << NL;
-          end if;
+          exec_input_from_file(symbol, line);
         else
-          if symbol = ";" then
-            symbol := get_symbol(line);
-          end if;
-          if symbol[length(symbol)] = '$' or symbol[1] in defstr_any then
-            param1 := exec_str_expr(symbol, line, variable_name);
-            if symbol = ";" or symbol = "," then
-              win << param1;
-              if symbol = ";" then
-                (* A comma is used to suppress the question mark *)
-                win << "? ";
-              end if;
-              flush(win);
-              symbol := get_symbol(line);
-              if symbol[length(symbol)] = '$' or symbol[1] in defstr_var then
-                variable_name := get_name(symbol, line);
-                readln(param2);
-                win << NL;
-                flush(win);
-                string_var @:= [variable_name] param2;
-                line_marker;
-                log << "INPUT \"";
-                log << param1;
-                log << "\"; ";
-                log << variable_name;
-                log << " ";
-                log << param2;
-                log << NL;
-              else
-                variable_name := get_name(symbol, line);
-                read(num1);
-                win << NL;
-                flush(win);
-                numeric_var @:= [variable_name] num1;
-                line_marker;
-                log << "INPUT \"";
-                log << param1;
-                log << "\"; ";
-                log << variable_name;
-                log << " ";
-                log << num1;
-                log << NL;
-              end if;
-            elsif variable_name <> "" then
-              win << "? ";
-              flush(win);
-              readln(param2);
-              win << NL;
-              flush(win);
-              string_var @:= [variable_name] param2;
-              line_marker;
-              log << "INPUT ";
-              log << variable_name;
-              log << " ";
-              log << param2;
-              log << NL;
-            else
-              error_expect2(";", ",", symbol);
-            end if;
-          else
-            variable_name := get_name(symbol, line);
-            win << "? ";
-            flush(win);
-            read(num1);
-            win << NL;
-            flush(win);
-            numeric_var @:= [variable_name] num1;
-            line_marker;
-            log << "INPUT ";
-            log << variable_name;
-            log << " ";
-            log << num1;
-            log << NL;
-          end if;
+          exec_input(symbol, line);
         end if;
       elsif symbol = "LINE" then
         symbol := get_symbol(line);
@@ -2676,159 +2997,12 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
             symbol := get_symbol(line);
           end if;
           if symbol = "#" then
-            symbol := get_symbol(line);
-            index1 := round(exec_expr(symbol, line));
-            if file_value[index1] <> STD_NULL then
-              expect(",", symbol, line);
-              if symbol[length(symbol)] = '$' or symbol[1] in defstr_var then
-                variable_name := get_name(symbol, line);
-                file_value[index1] >> param1;
-                string_var @:= [variable_name] param1;
-                line_marker;
-                log << "LINE INPUT #";
-                log << index1;
-                log << ", ";
-                log << variable_name;
-                log << " ";
-                log << param1;
-                log << NL;
-                flush(log);
-              else
-                error_marker;
-                err << "STRING VARIABLE EXPECTED IN LINE INPUT FOUND ";
-                err << literal(symbol);
-                err << ".";
-                err << NL;
-              end if;
-            else
-              error_marker;
-              err << "FILE #";
-              err << index1;
-              err << " NOT OPEN IN LINE INPUT.";
-              err << NL;
-            end if;
+            exec_line_input_from_file(symbol, line);
           else
-            if symbol = ";" then
-              symbol := get_symbol(line);
-            end if;
-            if symbol[length(symbol)] = '$' or symbol[1] in defstr_any then
-              param1 := exec_str_expr(symbol, line, variable_name);
-              if symbol = ";" or symbol = "," then
-                symbol := get_symbol(line);
-                win << param1;
-                flush(win);
-                log << param1;
-                flush(log);
-                if symbol[length(symbol)] = '$' or symbol[1] in defstr_var then
-                  variable_name := get_name(symbol, line);
-                  readln(param2);
-                  win << NL;
-                  flush(win);
-                  string_var @:= [variable_name] param2;
-                  line_marker;
-                  log << "LINE INPUT \"";
-                  log << param1;
-                  log << "\"; ";
-                  log << variable_name;
-                  log << " ";
-                  log << param2;
-                  log << NL;
-                else
-                  error_marker;
-                  err << "STRING EXPECTED FOR LINE INPUT - FOUND ";
-                  err << symbol;
-                  err << ".";
-                  err << NL;
-                end if;
-              elsif variable_name <> "" then
-                win << "? ";
-                flush(win);
-                log << "? ";
-                flush(log);
-                readln(param2);
-                win << NL;
-                flush(win);
-                string_var @:= [variable_name] param2;
-                line_marker;
-                log << "LINE INPUT ";
-                log << variable_name;
-                log << " ";
-                log << param2;
-                log << NL;
-              else
-                error_expect2(";", ",", symbol);
-              end if;
-            else
-              error_marker;
-              err << "STRING EXPECTED FOR LINE INPUT - FOUND ";
-              err << symbol;
-              err << ".";
-              err << NL;
-            end if;
+            exec_line_input(symbol, line);
           end if;
-        elsif symbol = "(" or symbol = "-" then
-          if symbol = "-" then
-            symbol := get_symbol(line);
-            index1 := currX;
-            index2 := currY;
-          else
-            symbol := get_symbol(line);
-            index1 := round(exec_expr(symbol, line));
-            expect(",", symbol, line);
-            index2 := round(exec_expr(symbol, line));
-            expect(")", symbol, line);
-            expect("-", symbol, line);
-          end if;
-          expect("(", symbol, line);
-          currX := round(exec_expr(symbol, line));
-          expect(",", symbol, line);
-          currY := round(exec_expr(symbol, line));
-          expect(")", symbol, line);
-          if symbol = "," then
-            symbol := get_symbol(line);
-            index3 := round(exec_expr(symbol, line));
-            if symbol = "," then
-              param1 := get_symbol(line);
-              if param1 = "BF" then
-                rectTo(index1, index2, currX, currY, color_num(index3));
-              end if;
-              symbol := get_symbol(line);
-            else
-              param1 := "";
-              lineTo(index1, index2, currX, currY, color_num(index3));
-            end if;
-            line_marker;
-            log << "LINE (";
-            log << index1;
-            log << ", ";
-            log << index2;
-            log << ") - (";
-            log << currX;
-            log << ", ";
-            log << currY;
-            log << "), ";
-            log << index3;
-            log << ", ";
-            log << param1;
-            log << " ";
-            log << line;
-            log << NL;
-            flush(log);
-          else
-            line_marker;
-            log << " ***** LINE (";
-            log << index1;
-            log << ", ";
-            log << index2;
-            log << ") - (";
-            log << currX;
-            log << ", ";
-            log << currY;
-            log << ") ";
-            log << line;
-            log << NL;
-            flush(log);
-          end if;
+        elsif symbol = "(" or symbol = "-" or symbol = "STEP" then
+          exec_line(symbol, line);
         else
           expect("INPUT", symbol, line);
         end if;
@@ -3475,18 +3649,24 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
             flush(log);
           end if;
         end if;
+      elsif symbol = "CIRCLE" then
+        exec_circle(symbol, line);
       elsif symbol = "COLOR" then
         symbol := get_symbol(line);
-        num1 := exec_expr(symbol, line);
+        foreground_color := round(exec_expr(symbol, line));
         if symbol = "," then
           symbol := get_symbol(line);
-          num2 := exec_expr(symbol, line);
+          background_color := round(exec_expr(symbol, line));
+          if symbol = "," then
+            symbol := get_symbol(line);
+            index1 := round(exec_expr(symbol, line));
+          end if;
         end if;
         line_marker;
         log << "**COLOR ";
-        log << round(num1);
+        log << foreground_color;
         log << ",";
-        log << round(num2);
+        log << background_color;
         log << NL;
       elsif symbol = "DEF" then
         symbol := get_symbol(line);
@@ -3633,10 +3813,19 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
           num2 := exec_expr(symbol, line);
         end if;
         case round(num1) of
-          when {1}: screen(320, 200);
-          when {2}: screen(640, 200);
-          when {7}: screen(320, 200);
-          when {8}: screen(640, 200);
+          when  {1}: screen(320, 200);
+          when  {2}: screen(640, 200);
+          when  {7}: screen(320, 200);
+          when  {8}: screen(640, 200);
+          when  {9}: screen(640, 350);
+          when {10}: screen(640, 350);
+          when {12}: screen(640, 480);
+          when {13}: screen(320, 200);
+          otherwise:
+            error_marker;
+            err << "ILLEGAL SCREEN NUMBER: ";
+            err << num1;
+            err << NL;
         end case;
         if curr_win <> PRIMITIVE_WINDOW.value then
           clear(curr_win, white);
@@ -3815,6 +4004,16 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
         log << index1;
         log << NL;
         flush(log);
+      elsif symbol = "PLAY" then
+        symbol := get_symbol(line);
+        line_marker;
+        log << "**PLAY ";
+        log << line;
+        log << NL;
+        flush(log);
+        repeat
+          symbol := get_symbol(line);
+        until symbol = ":" or symbol = "";
       elsif symbol = "RESET" then
         symbol := get_symbol(line);
         for index1 range 1 to length(file_value) do
@@ -4068,20 +4267,20 @@ const proc: run_prog () is func
 
 const func boolean: is_statement (in string: symbol) is
   return 
-      symbol = "BEEP"    or symbol = "CLEAR"  or symbol = "CLOSE"     or
-      symbol = "CLS"     or symbol = "COLOR"  or symbol = "DATA"      or
-      symbol = "DEF"     or symbol = "DEFINT" or symbol = "DEFSTR"    or
-      symbol = "DIM"     or symbol = "DO"     or symbol = "END"       or
-      symbol = "FOR"     or symbol = "GOSUB"  or symbol = "GOTO"      or
-      symbol = "IF"      or symbol = "INPUT"  or symbol = "LET"       or
-      symbol = "LINE"    or symbol = "LOCATE" or symbol = "LOOP"      or
-      symbol = "NEXT"    or symbol = "ON"     or symbol = "OPEN"      or
-      symbol = "OPTION"  or symbol = "PRINT"  or symbol = "RANDOMIZE" or
-      symbol = "READ"    or symbol = "REM"    or symbol = "RESET"     or
-      symbol = "RESTORE" or symbol = "RETURN" or symbol = "SCREEN"    or
-      symbol = "SOUND"   or symbol = "STOP"   or symbol = "SYSTEM"    or
-      symbol = "WEND"    or symbol = "WHILE"  or symbol = "WIDTH"     or
-      symbol = "'";
+      symbol = "BEEP"      or symbol = "CIRCLE"    or symbol = "CLEAR"     or
+      symbol = "CLOSE"     or symbol = "CLS"       or symbol = "COLOR"     or
+      symbol = "DATA"      or symbol = "DEF"       or symbol = "DEFINT"    or
+      symbol = "DEFSTR"    or symbol = "DIM"       or symbol = "DO"        or
+      symbol = "END"       or symbol = "FOR"       or symbol = "GOSUB"     or
+      symbol = "GOTO"      or symbol = "IF"        or symbol = "INPUT"     or
+      symbol = "LET"       or symbol = "LINE"      or symbol = "LOCATE"    or
+      symbol = "LOOP"      or symbol = "NEXT"      or symbol = "ON"        or
+      symbol = "OPEN"      or symbol = "OPTION"    or symbol = "PLAY"      or
+      symbol = "PRINT"     or symbol = "RANDOMIZE" or symbol = "READ"      or
+      symbol = "REM"       or symbol = "RESET"     or symbol = "RESTORE"   or
+      symbol = "RETURN"    or symbol = "SCREEN"    or symbol = "SOUND"     or
+      symbol = "STOP"      or symbol = "SYSTEM"    or symbol = "WEND"      or
+      symbol = "WHILE"     or symbol = "WIDTH"     or symbol = "'";
 
 
 const func boolean: load_prog (in string: name) is func

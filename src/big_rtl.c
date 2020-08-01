@@ -641,6 +641,8 @@ biginttype big2;
  *  Multiplies big2 with multiplier and subtracts the result from
  *  big1 at the digit position pos1 of big1. Big1, big2 and
  *  multiplier are nonnegative big integer values.
+ *  The algorithm tries to save computations. Therefore
+ *  there are checks for mult_carry != 0 and sbtr_carry == 0.
  */
 #ifdef ANSI_C
 
@@ -664,19 +666,24 @@ memsizetype pos1;
     pos = 0;
     do {
       mult_carry += (doublebigdigittype) big2->bigdigits[pos] * multiplier;
-      sbtr_carry += big1->bigdigits[pos + pos1] + (~mult_carry & BIGDIGIT_MASK);
-      big1->bigdigits[pos + pos1] = (bigdigittype) (sbtr_carry & BIGDIGIT_MASK);
+      sbtr_carry += big1->bigdigits[pos1 + pos] + (~mult_carry & BIGDIGIT_MASK);
+      big1->bigdigits[pos1 + pos] = (bigdigittype) (sbtr_carry & BIGDIGIT_MASK);
       mult_carry >>= 8 * sizeof(bigdigittype);
       sbtr_carry >>= 8 * sizeof(bigdigittype);
       pos++;
     } while (pos < big2->size);
-    for (pos += pos1; pos < big1->size; pos++) {
+    for (pos += pos1; mult_carry != 0 && pos < big1->size; pos++) {
       sbtr_carry += big1->bigdigits[pos] + (~mult_carry & BIGDIGIT_MASK);
       big1->bigdigits[pos] = (bigdigittype) (sbtr_carry & BIGDIGIT_MASK);
       mult_carry >>= 8 * sizeof(bigdigittype);
       sbtr_carry >>= 8 * sizeof(bigdigittype);
     } /* for */
-    return((sbtr_carry + BIGDIGIT_MASK) & BIGDIGIT_MASK);
+    for (; sbtr_carry == 0 && pos < big1->size; pos++) {
+      sbtr_carry = big1->bigdigits[pos] + BIGDIGIT_MASK;
+      big1->bigdigits[pos] = (bigdigittype) (sbtr_carry & BIGDIGIT_MASK);
+      sbtr_carry >>= 8 * sizeof(bigdigittype);
+    } /* for */
+    return(sbtr_carry & BIGDIGIT_MASK);
   } /* uBigMultSub */
 
 
@@ -709,9 +716,9 @@ memsizetype pos1;
       carry >>= 8 * sizeof(bigdigittype);
       pos++;
     } while (pos < big2->size);
-    for (; pos1 + pos < big1->size; pos++) {
-      carry += big1->bigdigits[pos1 + pos];
-      big1->bigdigits[pos1 + pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
+    for (pos += pos1; pos < big1->size; pos++) {
+      carry += big1->bigdigits[pos];
+      big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
       carry >>= 8 * sizeof(bigdigittype);
     } /* for */
   } /* uBigAddTo */
@@ -748,7 +755,7 @@ biginttype result;
     doublebigdigittype twodigits;
     doublebigdigittype remainder;
     bigdigittype quotientdigit;
-    bigdigittype borrow;
+    bigdigittype sbtr_carry;
 
   /* uBigDiv */
     for (pos1 = big1->size - 1; pos1 >= big2->size; pos1--) {
@@ -768,8 +775,8 @@ biginttype result;
         remainder = twodigits - (doublebigdigittype) quotientdigit *
             big2->bigdigits[big2->size - 1];
       } /* while */
-      borrow = uBigMultSub(big1, big2, quotientdigit, pos1 - big2->size);
-      if (borrow != 0) {
+      sbtr_carry = uBigMultSub(big1, big2, quotientdigit, pos1 - big2->size);
+      if (sbtr_carry == 0) {
         uBigAddTo(big1, big2, pos1 - big2->size);
         quotientdigit--;
       } /* if */
@@ -1266,7 +1273,7 @@ biginttype big2;
     doublebigdigittype twodigits;
     doublebigdigittype remainder;
     bigdigittype quotientdigit;
-    bigdigittype borrow;
+    bigdigittype sbtr_carry;
 
   /* uBigRem */
     for (pos1 = big1->size - 1; pos1 >= big2->size; pos1--) {
@@ -1286,8 +1293,8 @@ biginttype big2;
         remainder = twodigits - (doublebigdigittype) quotientdigit *
             big2->bigdigits[big2->size - 1];
       } /* while */
-      borrow = uBigMultSub(big1, big2, quotientdigit, pos1 - big2->size);
-      if (borrow != 0) {
+      sbtr_carry = uBigMultSub(big1, big2, quotientdigit, pos1 - big2->size);
+      if (sbtr_carry == 0) {
         uBigAddTo(big1, big2, pos1 - big2->size);
         quotientdigit--;
       } /* if */
@@ -1378,35 +1385,153 @@ biginttype *big_help;
 
 
 
-/**
- *  Returns the product of big1 by big2 for nonnegative big integers.
- *  The result is written into big_help (which is a scratch variable
- *  and is assumed to contain enough memory). Before returning the
- *  result the variable big1 is assigned to big_help. This way it is
- *  possible to write number = uBigMult(number, base, &big_help).
- *  Note that the old number is in the scratch variable big_help
- *  afterwards.
- */
 #ifdef ANSI_C
 
-static biginttype uBigMult (biginttype big1, biginttype big2, biginttype *big_help)
+static void uBigMult (biginttype big1, biginttype big2, biginttype result)
 #else
 
-static biginttype uBigMult (big1, big2, big_help)
+static void uBigMult (big1, big2, result)
 biginttype big1;
 biginttype big2;
-biginttype *big_help;
+biginttype result;
+#endif
+
+  {
+    biginttype help_big;
+    memsizetype pos1;
+    memsizetype pos2;
+    doublebigdigittype carry;
+    doublebigdigittype carry2 = 0;
+    doublebigdigittype prod;
+
+  /* uBigMult */
+    if (big2->size > big1->size) {
+      help_big = big1;
+      big1 = big2;
+      big2 = help_big;
+    } /* if */
+    carry = (doublebigdigittype) big1->bigdigits[0] * big2->bigdigits[0];
+    result->bigdigits[0] = (bigdigittype) (carry & BIGDIGIT_MASK);
+    carry >>= 8 * sizeof(bigdigittype);
+    for (pos1 = 1; pos1 < big2->size; pos1++) {
+      pos2 = 0;
+      do {
+        prod = (doublebigdigittype) big1->bigdigits[pos2] * big2->bigdigits[pos1 - pos2];
+        carry2 += carry > ~prod ? 1 : 0;
+        carry += prod;
+        pos2++;
+      } while (pos2 <= pos1);
+      result->bigdigits[pos1] = (bigdigittype) (carry & BIGDIGIT_MASK);
+      carry >>= 8 * sizeof(bigdigittype);
+      carry |= (carry2 & BIGDIGIT_MASK) << 8 * sizeof(bigdigittype);
+      carry2 >>= 8 * sizeof(bigdigittype);
+    } /* for */
+    for (; pos1 < big1->size; pos1++) {
+      pos2 = pos1 - big2->size + 1;
+      do {
+        prod = (doublebigdigittype) big1->bigdigits[pos2] * big2->bigdigits[pos1 - pos2];
+        carry2 += carry > ~prod ? 1 : 0;
+        carry += prod;
+        pos2++;
+      } while (pos2 <= pos1);
+      result->bigdigits[pos1] = (bigdigittype) (carry & BIGDIGIT_MASK);
+      carry >>= 8 * sizeof(bigdigittype);
+      carry |= (carry2 & BIGDIGIT_MASK) << 8 * sizeof(bigdigittype);
+      carry2 >>= 8 * sizeof(bigdigittype);
+    } /* for */
+    for (; pos1 < big1->size + big2->size - 1; pos1++) {
+      pos2 = pos1 - big2->size + 1;
+      do {
+        prod = (doublebigdigittype) big1->bigdigits[pos2] * big2->bigdigits[pos1 - pos2];
+        carry2 += carry > ~prod ? 1 : 0;
+        carry += prod;
+        pos2++;
+      } while (pos2 < big1->size);
+      result->bigdigits[pos1] = (bigdigittype) (carry & BIGDIGIT_MASK);
+      carry >>= 8 * sizeof(bigdigittype);
+      carry |= (carry2 & BIGDIGIT_MASK) << 8 * sizeof(bigdigittype);
+      carry2 >>= 8 * sizeof(bigdigittype);
+    } /* for */
+    result->bigdigits[pos1] = (bigdigittype) (carry & BIGDIGIT_MASK);
+  } /* uBigMult */
+
+
+
+#ifdef OUT_OF_ORDER
+#ifdef ANSI_C
+
+static void uBigMult (biginttype big1, biginttype big2, biginttype result)
+#else
+
+static void uBigMult (big1, big2, result)
+biginttype big1;
+biginttype big2;
+biginttype result;
+#endif
+
+  {
+    memsizetype pos1;
+    memsizetype pos2;
+    doublebigdigittype carry;
+    doublebigdigittype carry2 = 0;
+    doublebigdigittype prod;
+
+  /* uBigMult */
+    carry = (doublebigdigittype) big1->bigdigits[0] * big2->bigdigits[0];
+    result->bigdigits[0] = (bigdigittype) (carry & BIGDIGIT_MASK);
+    carry >>= 8 * sizeof(bigdigittype);
+    for (pos1 = 1; pos1 < big1->size + big2->size - 1; pos1++) {
+      if (pos1 < big2->size) {
+        pos2 = 0;
+      } else {
+        pos2 = pos1 - big2->size + 1;
+      } /* if */
+      if (pos1 < big1->size) {
+        pos3 = pos1 + 1;
+      } else {
+        pos3 = big1->size;
+      } /* if */
+      do {
+        prod = (doublebigdigittype) big1->bigdigits[pos2] * big2->bigdigits[pos1 - pos2];
+        /* To avoid overflows of carry + prod it is necessary     */
+        /* to check if carry + prod > DOUBLEBIGDIGIT_MASK which   */
+        /* is equivalent to carry > DOUBLEBIGDIGIT_MASK - prod.   */
+        /* A subtraction can be replaced by adding the negated    */
+        /* value: carry > DOUBLEBIGDIGIT_MASK + ~prod + 1. This   */
+        /* can be simplified to carry > ~prod.                    */
+        carry2 += carry > ~prod ? 1 : 0;
+        carry += prod;
+        pos2++;
+      } while (pos2 < pos3);
+      result->bigdigits[pos1] = (bigdigittype) (carry & BIGDIGIT_MASK);
+      carry >>= 8 * sizeof(bigdigittype);
+      carry |= (carry2 & BIGDIGIT_MASK) << 8 * sizeof(bigdigittype);
+      carry2 >>= 8 * sizeof(bigdigittype);
+    } /* for */
+    result->bigdigits[pos1] = (bigdigittype) (carry & BIGDIGIT_MASK);
+  } /* uBigMult */
+#endif
+
+
+
+#ifdef OUT_OF_ORDER
+#ifdef ANSI_C
+
+static void uBigMult (biginttype big1, biginttype big2, biginttype result)
+#else
+
+static void uBigMult (big1, big2, result)
+biginttype big1;
+biginttype big2;
+biginttype result;
 #endif
 
   {
     memsizetype pos1;
     memsizetype pos2;
     doublebigdigittype carry = 0;
-    bigdigittype digit;
-    biginttype result;
 
   /* uBigMult */
-    result = *big_help;
     pos2 = 0;
     do {
       carry += (doublebigdigittype) big1->bigdigits[0] * big2->bigdigits[pos2];
@@ -1427,6 +1552,39 @@ biginttype *big_help;
       } while (pos2 < big2->size);
       result->bigdigits[pos1 + big2->size] = (bigdigittype) (carry & BIGDIGIT_MASK);
     } /* for */
+  } /* uBigMult */
+#endif
+
+
+
+/**
+ *  Returns the product of big1 by big2 for nonnegative big integers.
+ *  The result is written into big_help (which is a scratch variable
+ *  and is assumed to contain enough memory). Before returning the
+ *  result the variable big1 is assigned to big_help. This way it is
+ *  possible to write number = uBigMultIntoHelp(number, base, &big_help).
+ *  Note that the old number is in the scratch variable big_help
+ *  afterwards.
+ */
+#ifdef ANSI_C
+
+static biginttype uBigMultIntoHelp (biginttype big1, biginttype big2, biginttype *big_help)
+#else
+
+static biginttype uBigMultIntoHelp (big1, big2, big_help)
+biginttype big1;
+biginttype big2;
+biginttype *big_help;
+#endif
+
+  {
+    memsizetype pos1;
+    bigdigittype digit;
+    biginttype result;
+
+  /* uBigMultIntoHelp */
+    result = *big_help;
+    uBigMult(big1, big2, result);
     pos1 = big1->size + big2->size;
     pos1--;
     digit = result->bigdigits[pos1];
@@ -1443,7 +1601,7 @@ biginttype *big_help;
     result->size = pos1;
     *big_help = big1;
     return(result);
-  } /* uBigMult */
+  } /* uBigMultIntoHelp */
 
 
 
@@ -1912,7 +2070,7 @@ biginttype big2;
         result->bigdigits[result->size - 1] = 0;
         shift = most_significant_bit(big2_help->bigdigits[big2_help->size - 1]) + 1;
         if (shift == 0) {
-          /* The most significant digit is 0. Just ignore it */
+          /* The most significant digit of big2_help is 0. Just ignore it */
           big1_help->size--;
           big2_help->size--;
           uBigDiv(big1_help, big2_help, result);
@@ -1957,6 +2115,14 @@ biginttype big2;
 
 
 
+/**
+ *  Adds big2 to *big_variable. The operation is done in
+ *  place and *big_variable is only resized when necessary.
+ *  When the size of big2 is smaller than *big_variable the
+ *  algorithm tries to save computations. Therefore there are
+ *  checks for carry == 0 and carry != 0.
+ * 
+ */
 #ifdef ANSI_C
 
 void bigGrow (biginttype *big_variable, biginttype big2)
@@ -1985,13 +2151,22 @@ biginttype big2;
         carry >>= 8 * sizeof(bigdigittype);
         pos++;
       } while (pos < big2->size);
-      big2_sign = IS_NEGATIVE(big2->bigdigits[pos - 1]) ? BIGDIGIT_MASK : 0;
-      for (; pos < big1->size; pos++) {
-        carry += big1->bigdigits[pos] + big2_sign;
-        big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
-        carry >>= 8 * sizeof(bigdigittype);
-      } /* for */
-      carry += big1_sign + big2_sign;
+      if (IS_NEGATIVE(big2->bigdigits[pos - 1])) {
+        for (; carry == 0 && pos < big1->size; pos++) {
+          carry = big1->bigdigits[pos] + BIGDIGIT_MASK;
+          big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
+          carry >>= 8 * sizeof(bigdigittype);
+        } /* for */
+        carry += BIGDIGIT_MASK;
+      } else {
+        for (; carry != 0 && pos < big1->size; pos++) {
+          carry += big1->bigdigits[pos];
+          big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
+          carry >>= 8 * sizeof(bigdigittype);
+        } /* for */
+      } /* if */
+      pos = big1->size;
+      carry += big1_sign;
       carry &= BIGDIGIT_MASK;
       if ((carry != 0 || IS_NEGATIVE(big1->bigdigits[pos - 1])) &&
           (carry != BIGDIGIT_MASK || !IS_NEGATIVE(big1->bigdigits[pos - 1]))) {
@@ -2213,7 +2388,7 @@ inttype exponent;
             while (exponent != 0) {
               base = uBigSqare(base, &big_help);
               if (exponent & 1) {
-                result = uBigMult(result, base, &big_help);
+                result = uBigMultIntoHelp(result, base, &big_help);
               } /* if */
               exponent >>= 1;
             } /* while */
@@ -2510,12 +2685,10 @@ biginttype big2;
         result->bigdigits[result->size - 1] = 0;
         shift = most_significant_bit(big2_help->bigdigits[big2_help->size - 1]) + 1;
         if (shift == 0) {
-          /* The most significant digit is 0. Just ignore it */
+          /* The most significant digit of big2_help is 0. Just ignore it */
           big1_help->size--;
           big2_help->size--;
           uBigDiv(big1_help, big2_help, result);
-          big1_help->size++;
-          big2_help->size++;
         } else {
           shift = 8 * sizeof(bigdigittype) - shift;
           uBigLShift(big1_help, shift);
@@ -2668,7 +2841,7 @@ biginttype big2;
       } /* if */
       shift = most_significant_bit(big2_help->bigdigits[big2_help->size - 1]) + 1;
       if (shift == 0) {
-        /* The most significant digit is 0. Just ignore it */
+        /* The most significant digit of big2_help is 0. Just ignore it */
         result->size--;
         big2_help->size--;
         uBigRem(result, big2_help);
@@ -2721,9 +2894,6 @@ biginttype big2;
     booltype negative = FALSE;
     biginttype big1_help = NULL;
     biginttype big2_help = NULL;
-    memsizetype pos1;
-    memsizetype pos2;
-    doublebigdigittype carry = 0;
     biginttype result;
 
   /* bigMult */
@@ -2750,26 +2920,7 @@ biginttype big2;
       raise_error(MEMORY_ERROR);
     } else {
       COUNT_BIG(big1->size + big2->size);
-      pos2 = 0;
-      do {
-        carry += (doublebigdigittype) big1->bigdigits[0] * big2->bigdigits[pos2];
-        result->bigdigits[pos2] = (bigdigittype) (carry & BIGDIGIT_MASK);
-        carry >>= 8 * sizeof(bigdigittype);
-        pos2++;
-      } while (pos2 < big2->size);
-      result->bigdigits[big2->size] = (bigdigittype) (carry & BIGDIGIT_MASK);
-      for (pos1 = 1; pos1 < big1->size; pos1++) {
-        carry = 0;
-        pos2 = 0;
-        do {
-          carry += (doublebigdigittype) result->bigdigits[pos1 + pos2] +
-              (doublebigdigittype) big1->bigdigits[pos1] * big2->bigdigits[pos2];
-          result->bigdigits[pos1 + pos2] = (bigdigittype) (carry & BIGDIGIT_MASK);
-          carry >>= 8 * sizeof(bigdigittype);
-          pos2++;
-        } while (pos2 < big2->size);
-        result->bigdigits[pos1 + big2->size] = (bigdigittype) (carry & BIGDIGIT_MASK);
-      } /* for */
+      uBigMult(big1, big2, result);
       result->size = big1->size + big2->size;
       if (negative) {
         negate_positive_big(result);
@@ -3100,7 +3251,7 @@ biginttype big2;
       } /* if */
       shift = most_significant_bit(big2_help->bigdigits[big2_help->size - 1]) + 1;
       if (shift == 0) {
-        /* The most significant digit is 0. Just ignore it */
+        /* The most significant digit of big2_help is 0. Just ignore it */
         result->size--;
         big2_help->size--;
         uBigRem(result, big2_help);
@@ -3206,6 +3357,14 @@ biginttype big2;
 
 
 
+/**
+ *  Subtracts big2 from *big_variable. The operation is done in
+ *  place and *big_variable is only resized when necessary.
+ *  When the size of big2 is smaller than *big_variable the
+ *  algorithm tries to save computations. Therefore there are
+ *  checks for carry != 0 and carry == 0.
+ * 
+ */
 #ifdef ANSI_C
 
 void bigShrink (biginttype *big_variable, biginttype big2)
@@ -3235,13 +3394,22 @@ biginttype big2;
         carry >>= 8 * sizeof(bigdigittype);
         pos++;
       } while (pos < big2->size);
-      big2_sign = IS_NEGATIVE(big2->bigdigits[pos - 1]) ? 0 : BIGDIGIT_MASK;
-      for (; pos < big1->size; pos++) {
-        carry += big1->bigdigits[pos] + big2_sign;
-        big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
-        carry >>= 8 * sizeof(bigdigittype);
-      } /* for */
-      carry += big1_sign + big2_sign;
+      if (IS_NEGATIVE(big2->bigdigits[pos - 1])) {
+        for (; carry != 0 && pos < big1->size; pos++) {
+          carry += big1->bigdigits[pos];
+          big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
+          carry >>= 8 * sizeof(bigdigittype);
+        } /* for */
+      } else {
+        for (; carry == 0 && pos < big1->size; pos++) {
+          carry = big1->bigdigits[pos] + BIGDIGIT_MASK;
+          big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
+          carry >>= 8 * sizeof(bigdigittype);
+        } /* for */
+        carry += BIGDIGIT_MASK;
+      } /* if */
+      pos = big1->size;
+      carry += big1_sign;
       carry &= BIGDIGIT_MASK;
       if ((carry != 0 || IS_NEGATIVE(big1->bigdigits[pos - 1])) &&
           (carry != BIGDIGIT_MASK || !IS_NEGATIVE(big1->bigdigits[pos - 1]))) {

@@ -29,6 +29,8 @@ $ include "seed7_05.s7i";
   include "float.s7i";
   include "progs.s7i";
 
+const string: temp_marker is "/* Seed7 compiler temp file */";
+
 var boolean: array_range_check is TRUE;
 
 var program: prog is program.EMPTY;
@@ -5112,6 +5114,15 @@ const proc: process_prg_eq (in ref_list: params, inout expr_type: c_expr) is fun
   end func;
 
 
+const proc: process_prg_error_count (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "prg_error_count(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
 const proc: process_prg_eval (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -7551,6 +7562,8 @@ const proc: process_action (in reference: procedure, in ref_list: params,
         process_prg_decl_objects(params, c_expr);
       elsif action_name = "PRG_EQ" then
         process_prg_eq(params, c_expr);
+      elsif action_name = "PRG_ERROR_COUNT" then
+        process_prg_error_count(params, c_expr);
       elsif action_name = "PRG_EVAL" then
         process_prg_eval(params, c_expr);
       elsif action_name = "PRG_MATCH" then
@@ -8095,6 +8108,22 @@ const proc: process_local_declaration (in reference: current_object, in referenc
     elsif objclass = "ENUMLITERALOBJECT" then
       c_expr.temp_decls &:= "=o_";
       create_name(object_value, c_expr.temp_decls);
+    elsif objclass = "CALLOBJECT" then
+      param_name := "o_";
+      create_name(current_object, param_name);
+      c_value.temp_num := c_expr.temp_num;
+      get_create_call_arg(object_value, c_value);
+      c_expr.temp_num := c_value.temp_num;
+      c_expr.temp_decls &:= c_value.temp_decls;
+      c_expr.temp_assigns &:= c_value.temp_assigns;
+      c_expr.temp_frees &:= c_value.temp_frees;
+      c_expr.temp_assigns &:= param_name;
+      c_expr.temp_assigns &:= "=";
+      c_expr.temp_assigns &:= c_value.result_expr;
+      c_expr.temp_assigns &:= ";\n";
+      process_destr_declaration(getType(current_object), global_c_expr);
+      process_destr_call(getType(current_object),
+          param_name, c_expr.temp_frees);
     elsif objclass = "ACTOBJECT" then
       c_expr.temp_decls &:= "=NULL";
     else
@@ -10359,6 +10388,7 @@ const proc: process_object (in reference: current_object) is func
 const proc: write_file_head is func
 
   begin
+    c_prog << temp_marker & "\n";
     c_prog << "#include <stdlib.h>\n";
     c_prog << "#include <stdio.h>\n";
     c_prog << "#include <string.h>\n";
@@ -11315,23 +11345,42 @@ const proc: pass_2 (in string: source, in program: prog,
     if okay then
       main_object := sys_var(prog, "main");
       if main_object <> NIL then
-        writeln("Generating code ...");
-        c_prog := open(temp_name(source) & ".c", "w");
+(*      The temporary tmp_*.c file is marked with a temp_marker.
+        In the future there will be a check for the temp_marker,
+        before the file is overwritten.
+        c_prog := open(temp_name(source) & ".c", "r");
         if c_prog <> STD_NULL then
-          init_systypes(prog);
-          write_file_head();
-          declared_objects := declared_objects(prog);
-          for obj range declared_objects do
-            process_object(obj);
-          end for;
-          generate_main(prog);
+          if getln(c_prog) <> temp_marker then
+            write("*** The file ");
+            write(literal(temp_name(source) & ".c"));
+            writeln(" was not created by the compiler.");
+            write("*** Remove the file ");
+            write(literal(temp_name(source) & ".c"));
+            writeln(" manually and restart the compiler.");
+            okay := FALSE;
+          end if;
           close(c_prog);
-          writeln;
-        else
-          write("*** cannot open temp file ");
-          write(literal(temp_name(source) & ".c"));
-          writeln(".");
-          okay := FALSE;
+        end if;
+*)
+        if okay then
+          c_prog := open(temp_name(source) & ".c", "w");
+          if c_prog <> STD_NULL then
+            writeln("Generating code ...");
+            init_systypes(prog);
+            write_file_head();
+            declared_objects := declared_objects(prog);
+            for obj range declared_objects do
+              process_object(obj);
+            end for;
+            generate_main(prog);
+            close(c_prog);
+            writeln;
+          else
+            write("*** Cannot open temp file ");
+            write(literal(temp_name(source) & ".c"));
+            writeln(".");
+            okay := FALSE;
+          end if;
         end if;
       else
         writeln("*** main not found.");
