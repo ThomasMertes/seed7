@@ -40,7 +40,7 @@ DRAW_LIB = s7_draw.a
 COMP_DATA_LIB = s7_data.a
 COMPILER_LIB = s7_comp.a
 ALL_S7_LIBS = ../bin/$(COMPILER_LIB) ../bin/$(COMP_DATA_LIB) ../bin/$(DRAW_LIB) ../bin/$(CONSOLE_LIB) ../bin/$(SEED7_LIB)
-# CC = g++
+# CC = clang++
 CC = clang
 GET_CC_VERSION_INFO = $(CC) --version >
 

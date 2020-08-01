@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  setpaths   Write definitions for Seed7 specific paths.          */
+/*  setpaths.c    Write definitions for Seed7 specific paths.       */
 /*  Copyright (C) 2011  Thomas Mertes                               */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */

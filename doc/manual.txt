@@ -1774,9 +1774,9 @@ CONTENTS
 
     0   2147483647   1E6   2e+9   16#c0   16#FFFF   8#177777   2#1010101010
 
-  The result of an 'integer' operation is undefined when
-  it overflows. The 'integer' functions are defined in
-  the library "integer.s7i".
+  When an 'integer' operation overflows it raises the exception
+  OVERFLOW_ERROR. The 'integer' functions are defined
+  in the library "integer.s7i".
 
     Prefix operators:
       +         Identity
@@ -1806,12 +1806,14 @@ CONTENTS
                     A ** B => (-A) ** B for A <= 0 and B >= 0 and not odd(B),
                     A ** -1 => EXCEPTION NUMERIC_ERROR )
       A << B    Shift left
-                  ( A << B is okay for B >= 0 and B <= 31,
+                  ( A << B is okay for B >= 0 and B <= 63,
+                    A << B => EXCEPTION OVERFLOW_ERROR for B < 0 or B >= 64,
                     A << B => A * 2 ** B,
                     A << 0 => A )
       A >> B    Arithmetic shift right
-                  ( A >> B is okay for B >= 0 and B <= 31,
-                    A >> B => A mdiv 2 ** B  for B <= 30,
+                  ( A >> B is okay for B >= 0 and B <= 63,
+                    A >> B => EXCEPTION OVERFLOW_ERROR for B < 0 or B >= 64,
+                    A >> B => A mdiv 2 ** B  for B <= 62,
                     A >> 0 => A,
                     A >> B => C for A >= 0 holds: C >= 0,
                     A >> B => C for A < 0 holds: C < 0,
@@ -1819,7 +1821,7 @@ CONTENTS
                     A >> B => -1 for A < 0 and B > ord(log2(-A)),
                     0 >> B => 0 )
       !         Binomial coefficient
-                  ( A ! B => !A div (!B * !(A - B)) )
+                  ( n ! k => !n div (!k * !(n - k)) )
       A radix B  Convert the integer A to a string. The conversion
                  uses the numeral system with the base B.
                   ( Type of result: string,
@@ -2297,8 +2299,8 @@ CONTENTS
   represented with an 'integer' numerator and an 'integer'
   denominator. The values of the type 'rational' are
   finite and periodical decimal numbers. Rational literals
-  do not exist. The result of a 'rational' operation is
-  undefined when it overflows. In 'integer' computations an
+  do not exist. When a ' rational' operation overflows it raises
+  the exception OVERFLOW_ERROR. In 'integer' computations an
   overflow can only happen with very huge positive or negative
   numbers. In 'rational' computations an overflow can
   happen with small numbers. Because of widening big denominators
@@ -11079,7 +11081,7 @@ CONTENTS
 
     It may be raised from the following 'integer' operations:
         - (sign), +, -, *, **, div, rem, mdiv, mod, <<, >>, +:=, -:=,
-        *:=, <<:=, >>:=, abs, succ, pred, incr, decr.
+        *:=, <<:=, >>:=, !, abs, succ, pred, incr, decr.
 
   In detail the following conditions can cause an overflow:
 
@@ -11105,6 +11107,8 @@ CONTENTS
      - Left shift operations ('<<' and <<:=) can also trigger an
        overflow when the shift result would be less than 'integer.first'
        or greater than 'integer.last'.
+     - Binomial coefficient ('!') triggers an overflow when the result
+       would be less than 'integer.first' or greater than 'integer.last'.
      - Computing the absolute value with abs can overflow, when it is
        called with the most negative integer. E.g.: abs(integer.first)
        raises OVERFLOW_ERROR.
@@ -11214,6 +11218,16 @@ CONTENTS
     exception
       catch MEMORY_ERROR:  writeln("MEMORY_ERROR");
       catch NUMERIC_ERROR: writeln("NUMERIC_ERROR");
+    end block;
+
+  An 'otherwise' handler catches EXCEPTIONs, that are not catched
+  by the other handlers:
+
+    block
+      doSomething(someValue);
+    exception
+      catch RANGE_ERROR: writeln("RANGE_ERROR");
+      otherwise:         writeln("Any other exception");
     end block;
 
 

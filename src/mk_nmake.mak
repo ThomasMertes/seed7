@@ -7,7 +7,7 @@
 
 # CFLAGS = -O2 -fomit-frame-pointer -funroll-loops -Wall
 # CFLAGS = -O2 -fomit-frame-pointer -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
-CFLAGS = -O2 -g -ffunction-sections -fdata-sections -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
+CFLAGS = -O2 -g -ffunction-sections -fdata-sections $(INCLUDE_OPTIONS) -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -g -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
@@ -92,7 +92,7 @@ s7c: ..\bin\s7c.exe ..\prg\s7c.exe
 	@echo.
 
 ..\bin\s7.exe: $(OBJ) $(ALL_S7_LIBS)
-	$(CC) $(LDFLAGS) $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) -o ..\bin\s7
+	$(CC) $(LDFLAGS) $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) $(SYSTEM_DB_LIBS) -o ..\bin\s7
 
 ..\prg\s7.exe: ..\bin\s7.exe
 	copy ..\bin\s7.exe ..\prg /Y
@@ -113,9 +113,12 @@ clean:
 	del ..\prg\s7.exe
 	del ..\prg\s7c.exe
 	del depend
+	del macros
 	del chkccomp.h
 	del version.h
 	del setwpath.exe
+	del wrdepend.exe
+	del esc2qte.exe
 	del sudo.exe
 	@echo.
 	@echo Use 'make depend' (with your make command) to create the dependencies.
@@ -149,8 +152,11 @@ chkccomp.h:
 	echo #define WRITE_CC_VERSION_INFO system("$(GET_CC_VERSION_INFO) cc_vers.txt"); >> chkccomp.h
 	echo #define mkdir(path,mode) mkdir(path) >> chkccomp.h
 	echo #define LIST_DIRECTORY_CONTENTS "dir" >> chkccomp.h
+	echo #define MYSQL_DLL "libmariadb.dll", "libmysql.dll" >> chkccomp.h
 	echo #define MYSQL_USE_DLL >> chkccomp.h
+	echo #define SQLITE_DLL "sqlite3.dll" >> chkccomp.h
 	echo #define SQLITE_USE_DLL >> chkccomp.h
+	echo #define POSTGRESQL_DLL "libpq.dll" >> chkccomp.h
 	echo #define POSTGRESQL_USE_DLL >> chkccomp.h
 	echo #define ODBC_LIBS "-lodbc32" >> chkccomp.h
 	echo #define ODBC_DLL "odbc32.dll" >> chkccomp.h
@@ -165,6 +171,7 @@ version.h: chkccomp.h
 	echo #define OS_PATH_HAS_DRIVE_LETTERS >> version.h
 	echo #define CATCH_SIGNALS >> version.h
 	echo #define CTRL_C_SENDS_EOF >> version.h
+	echo #define WITH_SQL >> version.h
 	echo #define CONSOLE_WCHAR >> version.h
 	echo #define OS_STRI_WCHAR >> version.h
 	echo #define os_chdir _wchdir >> version.h
@@ -228,18 +235,22 @@ version.h: chkccomp.h
 	.\setpaths.exe "S7_LIB_DIR=$(S7_LIB_DIR)" "SEED7_LIBRARY=$(SEED7_LIBRARY)" >> version.h
 	del setpaths.exe
 	$(CC) setwpath.c -o setwpath
+	$(CC) wrdepend.c -o wrdepend
+	$(CC) esc2qte.c -o esc2qte
 	$(CC) sudo.c -w -o sudo
 
 .c.o:
 	$(CC) $(CFLAGS) -c $<
 
 depend: version.h
-	$(CC) $(CFLAGS) -M $(SRC) > depend
-	$(CC) $(CFLAGS) -M $(SEED7_LIB_SRC) >> depend
-	$(CC) $(CFLAGS) -M $(CONSOLE_LIB_SRC) >> depend
-	$(CC) $(CFLAGS) -M $(DRAW_LIB_SRC) >> depend
-	$(CC) $(CFLAGS) -M $(COMP_DATA_LIB_SRC) >> depend
-	$(CC) $(CFLAGS) -M $(COMPILER_LIB_SRC) >> depend
+	.\wrdepend.exe $(CFLAGS) -M $(SRC) "> depend2"
+	.\wrdepend.exe $(CFLAGS) -M $(SEED7_LIB_SRC) ">> depend2"
+	.\wrdepend.exe $(CFLAGS) -M $(CONSOLE_LIB_SRC) ">> depend2"
+	.\wrdepend.exe $(CFLAGS) -M $(DRAW_LIB_SRC) ">> depend2"
+	.\wrdepend.exe $(CFLAGS) -M $(COMP_DATA_LIB_SRC) ">> depend2"
+	.\wrdepend.exe $(CFLAGS) -M $(COMPILER_LIB_SRC) ">> depend2"
+	.\esc2qte.exe < depend2 > depend
+	del depend2
 	@echo.
 	@echo Use 'make' (with your make command) to create the interpreter.
 	@echo.
@@ -269,6 +280,34 @@ make7: ..\bin\make7.exe
 	copy ..\prg\make7.exe ..\bin /Y
 	del ..\prg\make7.exe
 
+calc7: ..\bin\calc7.exe
+
+..\bin\calc7.exe: ..\prg\calc7.sd7 ..\bin\s7c.exe
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\calc7
+	copy ..\prg\calc7.exe ..\bin /Y
+	del ..\prg\calc7.exe
+
+tar7: ..\bin\tar7.exe
+
+..\bin\tar7.exe: ..\prg\tar7.sd7 ..\bin\s7c.exe
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\tar7
+	copy ..\prg\tar7.exe ..\bin /Y
+	del ..\prg\tar7.exe
+
+ftp7: ..\bin\ftp7.exe
+
+..\bin\ftp7.exe: ..\prg\ftp7.sd7 ..\bin\s7c.exe
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\ftp7
+	copy ..\prg\ftp7.exe ..\bin /Y
+	del ..\prg\ftp7.exe
+
+ftpserv: ..\bin\ftpserv.exe
+
+..\bin\ftpserv.exe: ..\prg\ftpserv.sd7 ..\bin\s7c.exe
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\ftpserv
+	copy ..\prg\ftpserv.exe ..\bin /Y
+	del ..\prg\ftpserv.exe
+
 wc: $(SRC)
 	echo SRC:
 	wc $(SRC)
@@ -284,11 +323,15 @@ wc: $(SRC)
 	wc $(COMPILER_LIB_SRC)
 
 lint: $(SRC)
-	lint -p $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS)
+	lint -p $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) $(SYSTEM_DB_LIBS)
 
 lint2: $(SRC)
-	lint -Zn2048 $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS)
+	lint -Zn2048 $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) $(SYSTEM_DB_LIBS)
 
 !if exist(depend)
 !include depend
+!endif
+
+!if exist(macros)
+!include macros
 !endif

@@ -283,10 +283,31 @@ static boolType setupDll (const char *dllName)
     return dbDll != NULL;
   } /* setupDll */
 
+
+
+static boolType findDll (void)
+
+  {
+    const char *dllList[] = { ODBC_DLL };
+    unsigned int pos;
+    boolType found = FALSE;
+
+  /* findDll */
+    for (pos = 0; pos < sizeof(dllList) / sizeof(char *) && !found; pos ++) {
+      found = setupDll(dllList[pos]);
+    } /* for */
+    if (!found) {
+      logError(printf("findDll: Searched for:\n");
+               for (pos = 0; pos < sizeof(dllList) / sizeof(char *) && pos ++) {
+                 printf("%s\n", dllList[pos]);
+               });
+    } /* if */
+    return found;
+  } /* findDll */
+
 #else
 
-#define setupDll(dllName) TRUE
-#define ODBC_DLL ""
+#define findDll() TRUE
 
 #endif
 
@@ -3389,8 +3410,8 @@ databaseType sqlOpenOdbc (const const_striType dbName,
        printf(", ");
        prot_stri(password);
        printf(")\n"); */
-    if (!setupDll(ODBC_DLL)) {
-      logError(printf("sqlOpenOdbc: setupDll(\"%s\") failed\n", ODBC_DLL););
+    if (!findDll()) {
+      logError(printf("sqlOpenOdbc: findDll() failed\n"););
       err_info = FILE_ERROR;
       database = NULL;
     } else {
@@ -3437,9 +3458,9 @@ databaseType sqlOpenOdbc (const const_striType dbName,
               SQLFreeHandle(SQL_HANDLE_ENV, sql_environment);
               database = NULL;
             } else if (SQLConnectW(sql_connection,
-                                   dbNameW, (SQLSMALLINT) dbNameW_length,
-                                   userW, (SQLSMALLINT) userW_length,
-                                   passwordW, (SQLSMALLINT) passwordW_length) != SQL_SUCCESS) {
+                                   (SQLWCHAR *) dbNameW, (SQLSMALLINT) dbNameW_length,
+                                   (SQLWCHAR *) userW, (SQLSMALLINT) userW_length,
+                                   (SQLWCHAR *) passwordW, (SQLSMALLINT) passwordW_length) != SQL_SUCCESS) {
               logError(printf("sqlOpenOdbc: SQLConnect:\n");
                        printError(SQL_HANDLE_DBC, sql_connection);
                        listDrivers(sql_environment);

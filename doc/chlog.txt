@@ -1,3 +1,32 @@
+20141210:
+- The database drivers sql_lite.c, sql_my.c, sql_oci.c, sql_odbc.c
+  and sql_post.c have been improved to select a shared library / DLL
+  from a list of candidates.
+- The program chkccomp.c has been improved to configure database
+  drivers with a list of shared libraries / DLLs.
+- The makefiles mk_bcc32.mak, mk_bccv5.mak, mk_msvc.mak, mk_msys.mak,
+  mk_mingc.mak, mk_mingw.mak and mk_nmake.mak have been improved to
+  write definitions of the C macros MYSQL_DLL, SQLITE_DLL and
+  POSTGRESQL_DLL to the file chkccomp.h.
+- The chapters about integer, rational and exceptions in the manual
+  have been improved.
+- In bigint.s7i the performance of the binomial coefficient operator
+  (infix operator symbol: ! ) has been improved by 17% (measured with
+  gcc and valgrind).
+- The optimization of constant expessions in the compiler has been
+  improved.
+- The program esc2qte.c has been added. This program searches for
+  backslash escaped spaces and quotes the string instead. It is used
+  by mk_nmake.mak to process the file depend.
+- Documentation comments in integer.s7i have been improved.
+- The recognition of integer formats in chkccomp.c has been improved
+  (the test programs now include <string.h>).
+- The makefiles mk_msys.mak and mk_nmake.mak have been improved to
+  use wrdepend.exe to determine the dependencies.
+- The program wrdepend.c has been changed to include config.h (this
+  way the macro MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS is available).
+- A cast has been added to sudo.c.
+
 20141207:
 - The paragraph in src/read_me.txt, that desribes the compilation
   under Mac OS X, has been improved.

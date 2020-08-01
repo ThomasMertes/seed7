@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  wrdepend   Write the C header file dependencies.                */
+/*  wrdepend.c    Write the C header file dependencies.             */
 /*  Copyright (C) 2014  Thomas Mertes                               */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
@@ -39,6 +39,15 @@
 #include "stdlib.h"
 #include "string.h"
 #include "stdio.h"
+
+#include "config.h"
+
+/**
+ *  From config.h the following defines are used (for details see: read_me.txt):
+ *
+ *  MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+ *      Map absolute paths to operating system paths with drive letter.
+ */
 
 
 char c_compiler[1024];
@@ -94,6 +103,7 @@ int main (int argc, char **argv)
       strcat(command, " ");
       strcat(command, argv[idx]);
     } /* for */
+    /* printf("%s\n", command); */
     system(command);
     return 0;
   } /* main */

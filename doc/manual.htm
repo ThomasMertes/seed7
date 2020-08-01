@@ -1905,7 +1905,7 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
 
 <a name="types_integer"><h3>5.2 integer</h3></a>
 <p>
-    The type <tt><a class="type" href="#types_integer">integer</a></tt> consists of signed 64-bit integer
+    The type <tt><span class="type">integer</span></tt> consists of signed 64-bit integer
   numbers. An integer <a class="link" href="#tokens_Integer_literals">integer literal</a> is a sequence of digits
   which is taken to be decimal. The sequence of digits may be
   followed by the letter E or e an optional + sign and a
@@ -1916,13 +1916,13 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
   follows the # character. As base a number between 2 and 36
   is allowed. As extended digits the letters A or a can be
   used for 10, B or b can be used for 11 and so on to Z or z
-  which can be used as 35. Examples of <tt><a class="type" href="#types_integer">integer</a></tt> literals are:
+  which can be used as 35. Examples of <tt><span class="type">integer</span></tt> literals are:
 </p><pre class="box">
     0   2147483647   1E6   2e+9   16#c0   16#FFFF   8#177777   2#1010101010
 </pre><p>
-  The result of an <tt><a class="type" href="#types_integer">integer</a></tt> operation is undefined when
-  it overflows. The <tt><a class="type" href="#types_integer">integer</a></tt> functions are defined in
-  the library <span class="stri">"<span class="lib">integer.s7i</span>"</span>.
+  When an <tt><span class="type">integer</span></tt> operation <a class="link" href="#errors_OVERFLOW_ERROR">overflows</a> it raises the exception
+  <tt><a class="exception" href="#errors_OVERFLOW_ERROR">OVERFLOW_ERROR</a></tt>. The <tt><span class="type">integer</span></tt> functions are defined
+  in the library <span class="stri">"<span class="lib">integer.s7i</span>"</span>.
 </p><pre class="tt">
     Prefix operators:
       <span class="op">+</span>         Identity
@@ -1952,12 +1952,14 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
                     A ** B <b>&rArr;</b> (-A) ** B for A &lt;= 0 and B >= 0 and not odd(B),
                     A ** -1 <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_NUMERIC_ERROR">NUMERIC_ERROR</a> )
       A <span class="op">&lt;&lt;</span> B    Shift left
-                  ( A &lt;&lt; B is okay for B >= 0 and B &lt;= 31,
+                  ( A &lt;&lt; B is okay for B >= 0 and B &lt;= 63,
+                    A &lt;&lt; B <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_OVERFLOW_ERROR">OVERFLOW_ERROR</a> for B < 0 or B >= 64,
                     A &lt;&lt; B <b>&rArr;</b> A * 2 ** B,
                     A &lt;&lt; 0 <b>&rArr;</b> A )
       A <span class="op">>></span> B    Arithmetic shift right
-                  ( A >> B is okay for B >= 0 and B &lt;= 31,
-                    A >> B <b>&rArr;</b> A <span class="op">mdiv</span> 2 ** B  for B &lt;= 30,
+                  ( A >> B is okay for B >= 0 and B &lt;= 63,
+                    A >> B <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_OVERFLOW_ERROR">OVERFLOW_ERROR</a> for B < 0 or B >= 64,
+                    A >> B <b>&rArr;</b> A <span class="op">mdiv</span> 2 ** B  for B &lt;= 62,
                     A >> 0 <b>&rArr;</b> A,
                     A >> B <b>&rArr;</b> C for A >= 0 holds: C >= 0,
                     A >> B <b>&rArr;</b> C for A &lt; 0 holds: C &lt; 0,
@@ -1965,7 +1967,7 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
                     A >> B <b>&rArr;</b> -1 for A &lt; 0 and B > ord(log2(-A)),
                     0 >> B <b>&rArr;</b> 0 )
       <span class="op">!</span>         Binomial coefficient
-                  ( A ! B <b>&rArr;</b> !A <span class="op">div</span> (!B * !(A - B)) )
+                  ( n ! k <b>&rArr;</b> !n <span class="op">div</span> (!k * !(n - k)) )
       A <span class="op">radix</span> B  Convert the <a class="type" href="#types_integer">integer</a> A to a <a class="type" href="#types_string">string</a>. The conversion
                  uses the numeral system with the base B.
                   ( Type of result: <a class="type" href="#types_string">string</a>,
@@ -2443,8 +2445,8 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
   represented with an <tt><a class="type" href="#types_integer">integer</a></tt> numerator and an <tt><a class="type" href="#types_integer">integer</a></tt>
   denominator. The values of the type <tt><span class="type">rational</span></tt> are
   finite and periodical decimal numbers. Rational literals
-  do not exist. The result of a <tt><span class="type">rational</span></tt> operation is
-  undefined when it overflows. In <tt><a class="type" href="#types_integer">integer</a></tt> computations an
+  do not exist. When a <tt><span class="type"> rational</span></tt> operation <a class="link" href="#errors_OVERFLOW_ERROR">overflows</a> it raises
+  the exception <tt><a class="exception" href="#errors_OVERFLOW_ERROR">OVERFLOW_ERROR</a></tt>. In <tt><a class="type" href="#types_integer">integer</a></tt> computations an
   overflow can only happen with very huge positive or negative
   numbers. In <tt><span class="type">rational</span></tt> computations an overflow can
   happen with small numbers. Because of widening big denominators
@@ -11225,7 +11227,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 </p><dl><dt>
     It may be raised from the following <tt><a class="type" href="#types_integer">integer</a></tt> operations:</dt><dd>
         <span class="op">-</span> (sign), <span class="op">+</span>, <span class="op">-</span>, <span class="op">*</span>, <span class="op">**</span>, <span class="op">div</span>, <span class="op">rem</span>, <span class="op">mdiv</span>, <span class="op">mod</span>, <span class="op">&lt;&lt;</span>, <span class="op">&gt;&gt;</span>, <span class="op">+:=</span>, <span class="op">-:=</span>,
-        <span class="op">*:=</span>, <span class="op">&lt;&lt;:=</span>, <span class="op">&gt;&gt;:=</span>, <span class="func">abs</span>, <span class="func">succ</span>, <span class="func">pred</span>, <span class="func">incr</span>, <span class="func">decr</span>.</dd></dl>
+        <span class="op">*:=</span>, <span class="op">&lt;&lt;:=</span>, <span class="op">&gt;&gt;:=</span>, <span class="op">!</span>, <span class="func">abs</span>, <span class="func">succ</span>, <span class="func">pred</span>, <span class="func">incr</span>, <span class="func">decr</span>.</dd></dl>
 <p>
   In detail the following conditions can cause an overflow:
 </p><ul>
@@ -11251,6 +11253,8 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
     <li>Left shift operations (<tt><span class="op">&lt;&lt;</span></tt> and <span class="op">&lt;&lt;:=</span>) can also trigger an
        overflow when the shift result would be less than <tt><a class="type" href="#types_integer">integer</a>.<span class="var">first</span></tt>
        or greater than <tt><a class="type" href="#types_integer">integer</a>.<span class="var">last</span></tt>.</li>
+    <li>Binomial coefficient (<tt><span class="op">!</span></tt>) triggers an overflow when the result
+       would be less than <tt><a class="type" href="#types_integer">integer</a>.<span class="var">first</span></tt> or greater than <tt><a class="type" href="#types_integer">integer</a>.<span class="var">last</span></tt>.</li>
     <li>Computing the absolute value with <span class="func">abs</span> can overflow, when it is
        called with the <span class="link">most negative integer</span>. E.g.: <tt><span class="func">abs</span>(<a class="type" href="#types_integer">integer</a>.<span class="var">first</span>)</tt>
        raises <tt><span class="exception">OVERFLOW_ERROR</span></tt>.</li>
@@ -11335,10 +11339,10 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 
 <a name="errors_ILLEGAL_ACTION"><h4>15.2.6 ILLEGAL_ACTION</h4></a>
 <p>
-  The exception ILLEGAL_ACTION may be raised by the interpreter
+  The exception <tt><span class="exception">ILLEGAL_ACTION</span></tt> may be raised by the interpreter
   kernel, when a primitive action does not point to any legal action.
   This check is only done when the s7 interpreter is compiled with
-  <tt>'#define WITH_ACTION_CHECK'</tt>. The ILLEGAL_ACTION exception
+  <tt>'#define WITH_ACTION_CHECK'</tt>. The <tt><span class="exception">ILLEGAL_ACTION</span></tt> exception
   is also raised when the primitive action ACT_ILLEGAL is executed.
 </p>
 
@@ -11360,6 +11364,16 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 <span class="keywd">exception</span>
   <span class="keywd">catch</span> <a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a>:  writeln(<span class="stri">"MEMORY_ERROR"</span>);
   <span class="keywd">catch</span> <a class="exception" href="#errors_NUMERIC_ERROR">NUMERIC_ERROR</a>: writeln(<span class="stri">"NUMERIC_ERROR"</span>);
+<span class="keywd">end block</span>;
+</pre><p>
+  An <tt><span class="keywd">otherwise</span></tt> handler catches EXCEPTIONs, that are not catched
+  by the other handlers:
+</p><pre class="indent">
+<span class="keywd">block</span>
+  doSomething(someValue);
+<span class="keywd">exception</span>
+  <span class="keywd">catch</span> <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a>: writeln(<span class="stri">"RANGE_ERROR"</span>);
+  <span class="keywd">otherwise</span>:         writeln(<span class="stri">"Any other exception"</span>);
 <span class="keywd">end block</span>;
 </pre><p></p>
 

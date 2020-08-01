@@ -268,15 +268,32 @@ static boolType setupDll (const char *dllName)
     return dbDll != NULL;
   } /* setupDll */
 
+
+
+static boolType findDll (void)
+
+  {
+    const char *dllList[] = { POSTGRESQL_DLL };
+    unsigned int pos;
+    boolType found = FALSE;
+
+  /* findDll */
+    for (pos = 0; pos < sizeof(dllList) / sizeof(char *) && !found; pos ++) {
+      found = setupDll(dllList[pos]);
+    } /* for */
+    if (!found) {
+      logError(printf("findDll: Searched for:\n");
+               for (pos = 0; pos < sizeof(dllList) / sizeof(char *) && pos ++) {
+                 printf("%s\n", dllList[pos]);
+               });
+    } /* if */
+    return found;
+  } /* findDll */
+
 #else
 
-#define setupDll(dllName) TRUE
-#define POSTGRESQL_DLL ""
+#define findDll() TRUE
 
-#endif
-
-#ifndef POSTGRESQL_DLL_PATH
-#define POSTGRESQL_DLL_PATH ""
 #endif
 
 
@@ -2587,8 +2604,8 @@ databaseType sqlOpenPost (const const_striType dbName,
        printf(", ");
        prot_stri(password);
        printf(")\n"); */
-    if (!setupDll(POSTGRESQL_DLL_PATH) && !setupDll(POSTGRESQL_DLL)) {
-      logError(printf("sqlOpenPost: setupDll(\"%s\") failed\n", POSTGRESQL_DLL););
+    if (!findDll()) {
+      logError(printf("sqlOpenPost: findDll() failed\n"););
       err_info = FILE_ERROR;
       database = NULL;
     } else {

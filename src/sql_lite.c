@@ -66,7 +66,7 @@ typedef struct {
     uintType      usage_count;
     sqlFuncType   sqlFunc;
     sqlite3_stmt *ppStmt;
-    int           result_column_count;
+    unsigned int  result_column_count;
     boolType      executeSuccessful;
     boolType      useStoredFetchResult;
     boolType      storedFetchResult;
@@ -203,15 +203,32 @@ static boolType setupDll (const char *dllName)
     return dbDll != NULL;
   } /* setupDll */
 
+
+
+static boolType findDll (void)
+
+  {
+    const char *dllList[] = { SQLITE_DLL };
+    unsigned int pos;
+    boolType found = FALSE;
+
+  /* findDll */
+    for (pos = 0; pos < sizeof(dllList) / sizeof(char *) && !found; pos ++) {
+      found = setupDll(dllList[pos]);
+    } /* for */
+    if (!found) {
+      logError(printf("findDll: Searched for:\n");
+               for (pos = 0; pos < sizeof(dllList) / sizeof(char *) && pos ++) {
+                 printf("%s\n", dllList[pos]);
+               });
+    } /* if */
+    return found;
+  } /* findDll */
+
 #else
 
-#define setupDll(dllName) TRUE
-#define SQLITE_DLL ""
+#define findDll() TRUE
 
-#endif
-
-#ifndef SQLITE_DLL_PATH
-#define SQLITE_DLL_PATH ""
 #endif
 
 
@@ -898,7 +915,7 @@ static bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(!preparedStmt->fetchOkay || column < 1 ||
                  (uintType) column > preparedStmt->result_column_count)) {
-      logError(printf("sqlColumnBigInt: Fetch okay: %d, column: " FMT_D ", max column: %d.\n",
+      logError(printf("sqlColumnBigInt: Fetch okay: %d, column: " FMT_D ", max column: %u.\n",
                       preparedStmt->fetchOkay, column,
                       preparedStmt->result_column_count););
       raise_error(RANGE_ERROR);
@@ -953,7 +970,7 @@ static void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(!preparedStmt->fetchOkay || column < 1 ||
                  (uintType) column > preparedStmt->result_column_count)) {
-      logError(printf("sqlColumnBigRat: Fetch okay: %d, column: " FMT_D ", max column: %d.\n",
+      logError(printf("sqlColumnBigRat: Fetch okay: %d, column: " FMT_D ", max column: %u.\n",
                       preparedStmt->fetchOkay, column,
                       preparedStmt->result_column_count););
       raise_error(RANGE_ERROR);
@@ -1011,7 +1028,7 @@ static boolType sqlColumnBool (sqlStmtType sqlStatement, intType column)
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(!preparedStmt->fetchOkay || column < 1 ||
                  (uintType) column > preparedStmt->result_column_count)) {
-      logError(printf("sqlColumnBool: Fetch okay: %d, column: " FMT_D ", max column: %d.\n",
+      logError(printf("sqlColumnBool: Fetch okay: %d, column: " FMT_D ", max column: %u.\n",
                       preparedStmt->fetchOkay, column,
                       preparedStmt->result_column_count););
       raise_error(RANGE_ERROR);
@@ -1072,7 +1089,7 @@ static bstriType sqlColumnBStri (sqlStmtType sqlStatement, intType column)
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(!preparedStmt->fetchOkay || column < 1 ||
                  (uintType) column > preparedStmt->result_column_count)) {
-      logError(printf("sqlColumnBStri: Fetch okay: %d, column: " FMT_D ", max column: %d.\n",
+      logError(printf("sqlColumnBStri: Fetch okay: %d, column: " FMT_D ", max column: %u.\n",
                       preparedStmt->fetchOkay, column,
                       preparedStmt->result_column_count););
       raise_error(RANGE_ERROR);
@@ -1162,7 +1179,7 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(!preparedStmt->fetchOkay || column < 1 ||
                  (uintType) column > preparedStmt->result_column_count)) {
-      logError(printf("sqlColumnDuration: Fetch okay: %d, column: " FMT_D ", max column: %d.\n",
+      logError(printf("sqlColumnDuration: Fetch okay: %d, column: " FMT_D ", max column: %u.\n",
                       preparedStmt->fetchOkay, column,
                       preparedStmt->result_column_count););
       raise_error(RANGE_ERROR);
@@ -1244,7 +1261,7 @@ static floatType sqlColumnFloat (sqlStmtType sqlStatement, intType column)
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(!preparedStmt->fetchOkay || column < 1 ||
                  (uintType) column > preparedStmt->result_column_count)) {
-      logError(printf("sqlColumnFloat: Fetch okay: %d, column: " FMT_D ", max column: %d.\n",
+      logError(printf("sqlColumnFloat: Fetch okay: %d, column: " FMT_D ", max column: %u.\n",
                       preparedStmt->fetchOkay, column,
                       preparedStmt->result_column_count););
       raise_error(RANGE_ERROR);
@@ -1295,7 +1312,7 @@ static intType sqlColumnInt (sqlStmtType sqlStatement, intType column)
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(!preparedStmt->fetchOkay || column < 1 ||
                  (uintType) column > preparedStmt->result_column_count)) {
-      logError(printf("sqlColumnInt: Fetch okay: %d, column: " FMT_D ", max column: %d.\n",
+      logError(printf("sqlColumnInt: Fetch okay: %d, column: " FMT_D ", max column: %u.\n",
                       preparedStmt->fetchOkay, column,
                       preparedStmt->result_column_count););
       raise_error(RANGE_ERROR);
@@ -1347,7 +1364,7 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(!preparedStmt->fetchOkay || column < 1 ||
                  (uintType) column > preparedStmt->result_column_count)) {
-      logError(printf("sqlColumnStri: Fetch okay: %d, column: " FMT_D ", max column: %d.\n",
+      logError(printf("sqlColumnStri: Fetch okay: %d, column: " FMT_D ", max column: %u.\n",
                       preparedStmt->fetchOkay, column,
                       preparedStmt->result_column_count););
       raise_error(RANGE_ERROR);
@@ -1426,7 +1443,7 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(!preparedStmt->fetchOkay || column < 1 ||
                  (uintType) column > preparedStmt->result_column_count)) {
-      logError(printf("sqlColumnTime: Fetch okay: %d, column: " FMT_D ", max column: %d.\n",
+      logError(printf("sqlColumnTime: Fetch okay: %d, column: " FMT_D ", max column: %u.\n",
                       preparedStmt->fetchOkay, column,
                       preparedStmt->result_column_count););
       raise_error(RANGE_ERROR);
@@ -1598,7 +1615,7 @@ static boolType sqlIsNull (sqlStmtType sqlStatement, intType column)
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(!preparedStmt->fetchOkay || column < 1 ||
                  (uintType) column > preparedStmt->result_column_count)) {
-      logError(printf("sqlIsNull: Fetch okay: %d, column: " FMT_D ", max column: %d.\n",
+      logError(printf("sqlIsNull: Fetch okay: %d, column: " FMT_D ", max column: %u.\n",
                       preparedStmt->fetchOkay, column,
                       preparedStmt->result_column_count););
       raise_error(RANGE_ERROR);
@@ -1618,6 +1635,7 @@ static sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
     dbType db;
     cstriType query;
     int prepare_result;
+    int column_count;
     errInfoType err_info = OKAY_NO_ERROR;
     preparedStmtType preparedStmt;
 
@@ -1642,12 +1660,21 @@ static sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
           err_info = FILE_ERROR;
           preparedStmt = NULL;
         } else {
-          preparedStmt->usage_count = 1;
-          preparedStmt->sqlFunc = db->sqlFunc;
-          preparedStmt->executeSuccessful = FALSE;
-          preparedStmt->fetchOkay = FALSE;
-          preparedStmt->fetchFinished = TRUE;
-          preparedStmt->result_column_count = sqlite3_column_count(preparedStmt->ppStmt);
+          column_count = sqlite3_column_count(preparedStmt->ppStmt);
+          if (column_count < 0) {
+            logError(printf("sqlPrepare: sqlite3_column_count returns %d\n",
+                            column_count););
+            FREE_RECORD(preparedStmt, preparedStmtRecord, count.prepared_stmt);
+            err_info = FILE_ERROR;
+            preparedStmt = NULL;
+          } else {
+            preparedStmt->usage_count = 1;
+            preparedStmt->sqlFunc = db->sqlFunc;
+            preparedStmt->executeSuccessful = FALSE;
+            preparedStmt->fetchOkay = FALSE;
+            preparedStmt->fetchFinished = TRUE;
+            preparedStmt->result_column_count = (unsigned int) column_count;
+          } /* if */
         } /* if */
       } /* if */
       free_cstri8(query, sqlStatementStri);
@@ -1670,7 +1697,12 @@ static intType sqlStmtColumnCount (sqlStmtType sqlStatement)
   /* sqlStmtColumnCount */
     /* printf("sqlStmtColumnCount(%lx)\n", (unsigned long) sqlStatement); */
     preparedStmt = (preparedStmtType) sqlStatement;
-    columnCount = preparedStmt->result_column_count;
+    if (unlikely(preparedStmt->result_column_count > INTTYPE_MAX)) {
+      raise_error(RANGE_ERROR);
+      columnCount = 0;
+    } else {
+      columnCount = (intType) preparedStmt->result_column_count;
+    } /* if */
     /* printf("sqlStmtColumnCount --> %d\n", columnCount); */
     return columnCount;
   } /* sqlStmtColumnCount */
@@ -1690,7 +1722,7 @@ static striType sqlStmtColumnName (sqlStmtType sqlStatement, intType column)
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(column < 1 ||
                  (uintType) column > preparedStmt->result_column_count)) {
-      logError(printf("sqlStmtColumnName: column: " FMT_D ", max column: %d.\n",
+      logError(printf("sqlStmtColumnName: column: " FMT_D ", max column: %u.\n",
                       column, preparedStmt->result_column_count););
       raise_error(RANGE_ERROR);
       name = NULL;
@@ -1775,8 +1807,8 @@ databaseType sqlOpenLite (const const_striType dbName,
        printf(", ");
        prot_stri(password);
        printf(")\n"); */
-    if (!setupDll(SQLITE_DLL_PATH) && !setupDll(SQLITE_DLL)) {
-      logError(printf("sqlOpenLite: setupDll(\"%s\") failed\n", SQLITE_DLL););
+    if (!findDll()) {
+      logError(printf("sqlOpenLite: findDll() failed\n"););
       err_info = FILE_ERROR;
       database = NULL;
     } else {

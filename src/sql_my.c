@@ -219,15 +219,32 @@ static boolType setupDll (const char *dllName)
     return dbDll != NULL;
   } /* setupDll */
 
+
+
+static boolType findDll (void)
+
+  {
+    const char *dllList[] = { MYSQL_DLL };
+    unsigned int pos;
+    boolType found = FALSE;
+
+  /* findDll */
+    for (pos = 0; pos < sizeof(dllList) / sizeof(char *) && !found; pos ++) {
+      found = setupDll(dllList[pos]);
+    } /* for */
+    if (!found) {
+      logError(printf("findDll: Searched for:\n");
+               for (pos = 0; pos < sizeof(dllList) / sizeof(char *) && pos ++) {
+                 printf("%s\n", dllList[pos]);
+               });
+    } /* if */
+    return found;
+  } /* findDll */
+
 #else
 
-#define setupDll(dllName) TRUE
-#define MYSQL_DLL ""
+#define findDll() TRUE
 
-#endif
-
-#ifndef MYSQL_DLL_PATH
-#define MYSQL_DLL_PATH ""
 #endif
 
 
@@ -2115,8 +2132,8 @@ databaseType sqlOpenMy (const const_striType dbName,
        printf(", ");
        prot_stri(password);
        printf(")\n"); */
-    if (!setupDll(MYSQL_DLL_PATH) && !setupDll(MYSQL_DLL)) {
-      logError(printf("sqlOpenMy: setupDll(\"%s\") failed\n", MYSQL_DLL););
+    if (!findDll()) {
+      logError(printf("sqlOpenMy: findDll() failed\n"););
       err_info = FILE_ERROR;
       database = NULL;
     } else {

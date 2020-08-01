@@ -40,7 +40,7 @@
  *  PATH_DELIMITER:
  *      Path delimiter character used by the command shell of the operating system.
  *  QUOTE_WHOLE_SHELL_COMMAND:
- *      Defined when shell commands, starting with " need to be quoted a again.
+ *      Defined when shell commands, starting with " need to be quoted again.
  *  OBJECT_FILE_EXTENSION:
  *      The extension used by the C compiler for object files.
  *  EXECUTABLE_FILE_EXTENSION:
@@ -456,15 +456,18 @@ void numericSizes (FILE *versionFile)
                            "{long long n=12345678LL;printf(\"%d\\n\",sizeof(1LL));return 0;}\n") && doTest() == 8) {
         fputs("#define INT64TYPE_SUFFIX_LL\n", versionFile);
       } /* if */
-      if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])\n"
+      if (compileAndLinkOk("#include <stdio.h>\n#include <string.h>\n"
+                           "int main(int argc, char *argv[])\n"
                            "{char b[99]; sprintf(b, \"A%lldB\", (long long) 1 << 32);\n"
                            "printf(\"%d\\n\", strcmp(b,\"A4294967296B\")==0);return 0;}\n") && doTest() == 1) {
         fputs("#define INT64TYPE_FORMAT_LL\n", versionFile);
-      } else if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])\n"
+      } else if (compileAndLinkOk("#include <stdio.h>\n#include <string.h>\n"
+                                  "int main(int argc, char *argv[])\n"
                                   "{char b[99]; sprintf(b, \"A%LdB\", (long long) 1 << 32);\n"
                                   "printf(\"%d\\n\", strcmp(b,\"A4294967296B\")==0);return 0;}\n") && doTest() == 1) {
         fputs("#define INT64TYPE_FORMAT_CAPITAL_L\n", versionFile);
-      } else if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])\n"
+      } else if (compileAndLinkOk("#include <stdio.h>\n#include <string.h>\n"
+                                  "int main(int argc, char *argv[])\n"
                                   "{char b[99]; sprintf(b, \"A%I64dB\", (long long) 1 << 32);\n"
                                   "printf(\"%d\\n\", strcmp(b,\"A4294967296B\")==0);return 0;}\n") && doTest() == 1) {
         fputs("#define INT64TYPE_FORMAT_I64\n", versionFile);
@@ -480,15 +483,18 @@ void numericSizes (FILE *versionFile)
                            "{__int64 n=12345678LL;printf(\"%d\\n\",sizeof(1LL));return 0;}\n") && doTest() == 8) {
         fputs("#define INT64TYPE_SUFFIX_LL\n", versionFile);
       } /* if */
-      if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])\n"
+      if (compileAndLinkOk("#include <stdio.h>\n#include <string.h>\n"
+                           "int main(int argc, char *argv[])\n"
                            "{char b[99]; sprintf(b, \"A%lldB\", (__int64) 1 << 32);\n"
                            "printf(\"%d\\n\", strcmp(b,\"A4294967296B\")==0);return 0;}\n") && doTest() == 1) {
         fputs("#define INT64TYPE_FORMAT_LL\n", versionFile);
-      } else if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])\n"
+      } else if (compileAndLinkOk("#include <stdio.h>\n#include <string.h>\n"
+                                  "int main(int argc, char *argv[])\n"
                                   "{char b[99]; sprintf(b, \"A%LdB\", (__int64) 1 << 32);\n"
                                   "printf(\"%d\\n\", strcmp(b,\"A4294967296B\")==0);return 0;}\n") && doTest() == 1) {
         fputs("#define INT64TYPE_FORMAT_CAPITAL_L\n", versionFile);
-      } else if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])\n"
+      } else if (compileAndLinkOk("#include <stdio.h>\n#include <string.h>\n"
+                                  "int main(int argc, char *argv[])\n"
                                   "{char b[99]; sprintf(b, \"A%I64dB\", (__int64) 1 << 32);\n"
                                   "printf(\"%d\\n\", strcmp(b,\"A4294967296B\")==0);return 0;}\n") && doTest() == 1) {
         fputs("#define INT64TYPE_FORMAT_I64\n", versionFile);
@@ -989,11 +995,14 @@ void detemineMySqlDefines (FILE *versionFile,
     const char *dbHomeSys[] = {"MariaDB/MariaDB C Client Library",
                                "MariaDB/MariaDB C Client Library 64-bit",
                                "MySQL/MySQL Connector C 6.1"};
+#ifdef MYSQL_DLL
+    const char *dllNameList[] = { MYSQL_DLL };
+#else
     const char *dllNameList[] = {"libmariadb.dll", "libmysql.dll"};
+#endif
     const char *libNameList[] = {"mariadbclient.lib", "vs11/mysqlclient.lib"};
     const char *programFilesX86 = NULL;
     const char *programFiles = NULL;
-    const char *dllName = NULL;
     const char *libName = NULL;
     char dbHome[4096];
     char includeOption[4096];
@@ -1001,6 +1010,7 @@ void detemineMySqlDefines (FILE *versionFile,
     char buffer[4096];
     char linkerOptions[4096];
     int dbHomeExists = 0;
+    int writeDllList = 0;
     int idx;
 
   /* detemineMySqlDefines */
@@ -1065,23 +1075,25 @@ void detemineMySqlDefines (FILE *versionFile,
         } /* if */
       } /* for */
       if (libName != NULL) {
+        printf("MySql/MariaDb: %s found at: %s\n", libName, buffer);
         sprintf(buffer, "\"%s/lib/%s\"", dbHome, libName);
         appendOption(system_db_libs, buffer);
       } /* if */
 #else
-      for (idx = 0; dllName == NULL && idx < sizeof(dllNameList) / sizeof(char *); idx++) {
+      fprintf(versionFile, "#define MYSQL_DLL");
+      for (idx = 0; idx < sizeof(dllNameList) / sizeof(char *); idx++) {
         sprintf(buffer, "%s/lib/%s", dbHome, dllNameList[idx]);
         if (fileIsRegular(buffer)) {
-          dllName = dllNameList[idx];
+          printf("MySql/MariaDb: %s found at: %s\n", dllNameList[idx], buffer);
+          fprintf(versionFile, " \"");
+          escapeString(versionFile, buffer);
+          fprintf(versionFile, "\",");
         } /* if */
       } /* for */
-      if (dllName != NULL) {
-        printf("MySql/MariaDb: %s found at: %s\n", dllName, buffer);
-        fprintf(versionFile, "#define MYSQL_DLL_PATH \"");
-        escapeString(versionFile, buffer);
-        fprintf(versionFile, "\"\n");
-        fprintf(versionFile, "#define MYSQL_DLL \"%s\"\n", dllName);
-      } /* if */
+      for (idx = 0; idx < sizeof(dllNameList) / sizeof(char *); idx++) {
+        fprintf(versionFile, " \"%s\",", dllNameList[idx]);
+      } /* for */
+      fprintf(versionFile, "\n");
 #endif
     } else {
 #if defined MYSQL_USE_LIB && defined MYSQL_LIBS
@@ -1102,15 +1114,22 @@ void detemineMySqlDefines (FILE *versionFile,
 #ifdef MYSQL_LIBRARY_PATH
         appendOption(system_db_libs, MYSQL_LIBRARY_PATH);
 #endif
+        printf("MySql/MariaDb: Linker option: %s\n", MYSQL_LIBS);
         appendOption(system_db_libs, MYSQL_LIBS);
       } else {
-#ifdef MYSQL_DLL
-        fprintf(versionFile, "#define MYSQL_DLL \"%s\"\n", MYSQL_DLL);
-#endif
+        writeDllList = 1;
       } /* if */
-#elif defined MYSQL_DLL
-      fprintf(versionFile, "#define MYSQL_DLL \"%s\"\n", MYSQL_DLL);
+#else
+      writeDllList = 1;
 #endif
+      if (writeDllList) {
+        fprintf(versionFile, "#define MYSQL_DLL");
+        for (idx = 0; idx < sizeof(dllNameList) / sizeof(char *); idx++) {
+          printf("MySql/MariaDb: DLL / Shared library: %s\n", dllNameList[idx]);
+          fprintf(versionFile, " \"%s\",", dllNameList[idx]);
+        } /* for */
+        fprintf(versionFile, "\n");
+      } /* if */
     } /* if */
   } /* detemineMySqlDefines */
 
@@ -1121,7 +1140,11 @@ void detemineSqliteDefines (FILE *versionFile,
 
   {
     const char *dbHomeDirs[] = {"C:/sqlite", "D:/sqlite"};
+#ifdef SQLITE_DLL
+    const char *dllNameList[] = { SQLITE_DLL };
+#else
     const char *dllNameList[] = {"sqlite3.dll"};
+#endif
     const char *libNameList[] = {"sqlite3.lib"};
     const char *dllName = NULL;
     const char *libName = NULL;
@@ -1131,6 +1154,7 @@ void detemineSqliteDefines (FILE *versionFile,
     char buffer[4096];
     char linkerOptions[4096];
     int dbHomeExists = 0;
+    int writeDllList = 0;
     int idx;
 
   /* detemineSqliteDefines */
@@ -1182,23 +1206,25 @@ void detemineSqliteDefines (FILE *versionFile,
         } /* if */
       } /* for */
       if (libName != NULL) {
+        printf("SQLite: %s found at: %s\n", libName, buffer);
         sprintf(buffer, "\"%s/%s\"", dbHome, libName);
         appendOption(system_db_libs, buffer);
       } /* if */
 #else
-      for (idx = 0; dllName == NULL && idx < sizeof(dllNameList) / sizeof(char *); idx++) {
-        sprintf(buffer, "%s/%s", dbHome, dllNameList[idx]);
+      fprintf(versionFile, "#define SQLITE_DLL");
+      for (idx = 0; idx < sizeof(dllNameList) / sizeof(char *); idx++) {
+        sprintf(buffer, "%s/lib/%s", dbHome, dllNameList[idx]);
         if (fileIsRegular(buffer)) {
-          dllName = dllNameList[idx];
+          printf("SQLite: %s found at: %s\n", dllNameList[idx], buffer);
+          fprintf(versionFile, " \"");
+          escapeString(versionFile, buffer);
+          fprintf(versionFile, "\",");
         } /* if */
       } /* for */
-      if (dllName != NULL) {
-        printf("SQLite: %s found at: %s\n", dllName, buffer);
-        fprintf(versionFile, "#define SQLITE_DLL_PATH \"");
-        escapeString(versionFile, buffer);
-        fprintf(versionFile, "\"\n");
-        fprintf(versionFile, "#define SQLITE_DLL \"%s\"\n", dllName);
-      } /* if */
+      for (idx = 0; idx < sizeof(dllNameList) / sizeof(char *); idx++) {
+        fprintf(versionFile, " \"%s\",", dllNameList[idx]);
+      } /* for */
+      fprintf(versionFile, "\n");
 #endif
     } else {
 #if defined SQLITE_USE_LIB && defined SQLITE_LIBS
@@ -1217,15 +1243,22 @@ void detemineSqliteDefines (FILE *versionFile,
 #ifdef SQLITE_LIBRARY_PATH
         appendOption(system_db_libs, SQLITE_LIBRARY_PATH);
 #endif
+        printf("SQLite: Linker option: %s\n", SQLITE_LIBS);
         appendOption(system_db_libs, SQLITE_LIBS);
       } else {
-#ifdef SQLITE_DLL
-        fprintf(versionFile, "#define SQLITE_DLL \"%s\"\n", SQLITE_DLL);
-#endif
+        writeDllList = 1;
       } /* if */
-#elif defined SQLITE_DLL
-      fprintf(versionFile, "#define SQLITE_DLL \"%s\"\n", SQLITE_DLL);
+#else
+      writeDllList = 1;
 #endif
+      if (writeDllList) {
+        fprintf(versionFile, "#define SQLITE_DLL");
+        for (idx = 0; idx < sizeof(dllNameList) / sizeof(char *); idx++) {
+          printf("SQLite: DLL / Shared library: %s\n", dllNameList[idx]);
+          fprintf(versionFile, " \"%s\",", dllNameList[idx]);
+        } /* for */
+        fprintf(versionFile, "\n");
+      } /* if */
     } /* if */
   } /* detemineSqliteDefines */
 
@@ -1317,7 +1350,11 @@ void deteminePostgresDefines (FILE *versionFile,
     const char *dbHomeSys[] = {"PostgreSQL/9.4", "PostgreSQL/9.3", "PostgreSQL/9.2",
                                "PostgreSQL/9.1", "PostgreSQL/9.0", "PostgreSQL/8.4",
                                "PostgreSQL/8.3"};
+#ifdef POSTGRESQL_DLL
+    const char *dllNameList[] = { POSTGRESQL_DLL };
+#else
     const char *dllNameList[] = {"libpq.dll"};
+#endif
     const char *libNameList[] = {"libpq.lib"};
     const char *libIntlDllList[] = {"libintl.dll", "libintl-8.dll"};
     const char *serverIncludeOption = "-I/usr/include/postgresql/server";
@@ -1331,6 +1368,7 @@ void deteminePostgresDefines (FILE *versionFile,
     char buffer[4096];
     char linkerOptions[4096];
     int dbHomeExists = 0;
+    int writeDllList = 0;
     int idx;
 
   /* deteminePostgresDefines */
@@ -1417,23 +1455,25 @@ void deteminePostgresDefines (FILE *versionFile,
         } /* if */
       } /* for */
       if (libName != NULL) {
+        printf("PostgreSQL: %s found at: %s\n", libName, buffer);
         sprintf(buffer, "\"%s/lib/%s\"", dbHome, libName);
         appendOption(system_db_libs, buffer);
       } /* if */
 #else
-      for (idx = 0; dllName == NULL && idx < sizeof(dllNameList) / sizeof(char *); idx++) {
+      fprintf(versionFile, "#define POSTGRESQL_DLL");
+      for (idx = 0; idx < sizeof(dllNameList) / sizeof(char *); idx++) {
         sprintf(buffer, "%s/lib/%s", dbHome, dllNameList[idx]);
         if (fileIsRegular(buffer)) {
-          dllName = dllNameList[idx];
+          printf("PostgreSQL: %s found at: %s\n", dllNameList[idx], buffer);
+          fprintf(versionFile, " \"");
+          escapeString(versionFile, buffer);
+          fprintf(versionFile, "\",");
         } /* if */
       } /* for */
-      if (dllName != NULL) {
-        printf("PostgreSQL: %s found at: %s\n", dllName, buffer);
-        fprintf(versionFile, "#define POSTGRESQL_DLL_PATH \"");
-        escapeString(versionFile, buffer);
-        fprintf(versionFile, "\"\n");
-        fprintf(versionFile, "#define POSTGRESQL_DLL \"%s\"\n", dllName);
-      } /* if */
+      for (idx = 0; idx < sizeof(dllNameList) / sizeof(char *); idx++) {
+        fprintf(versionFile, " \"%s\",", dllNameList[idx]);
+      } /* for */
+      fprintf(versionFile, "\n");
       dllName = NULL;
       for (idx = 0; dllName == NULL && idx < sizeof(libIntlDllList) / sizeof(char *); idx++) {
         sprintf(buffer, "%s/bin/%s", dbHome, libIntlDllList[idx]);
@@ -1466,15 +1506,22 @@ void deteminePostgresDefines (FILE *versionFile,
 #ifdef POSTGRESQL_LIBRARY_PATH
         appendOption(system_db_libs, POSTGRESQL_LIBRARY_PATH);
 #endif
+        printf("PostgreSQL: Linker option: %s\n", POSTGRESQL_LIBS);
         appendOption(system_db_libs, POSTGRESQL_LIBS);
       } else {
-#ifdef POSTGRESQL_DLL
-        fprintf(versionFile, "#define POSTGRESQL_DLL \"%s\"\n", POSTGRESQL_DLL);
-#endif
+        writeDllList = 1;
       } /* if */
-#elif defined POSTGRESQL_DLL
-      fprintf(versionFile, "#define POSTGRESQL_DLL \"%s\"\n", POSTGRESQL_DLL);
+#else
+      writeDllList = 1;
 #endif
+      if (writeDllList) {
+        fprintf(versionFile, "#define POSTGRESQL_DLL");
+        for (idx = 0; idx < sizeof(dllNameList) / sizeof(char *); idx++) {
+          printf("PostgreSQL: DLL / Shared library: %s\n", dllNameList[idx]);
+          fprintf(versionFile, " \"%s\",", dllNameList[idx]);
+        } /* for */
+        fprintf(versionFile, "\n");
+      } /* if */
     } /* if */
   } /* deteminePostgresDefines */
 
@@ -1484,10 +1531,17 @@ void detemineOdbcDefines (FILE *versionFile,
     char *include_options, char *system_db_libs)
 
   {
+#ifdef ODBC_DLL
+    const char *dllNameList[] = { ODBC_DLL };
+#else
+    const char *dllNameList[] = {"odbc32.dll"};
+#endif
     char includeOption[4096];
     const char *odbcInclude = NULL;
     char buffer[4096];
     char linkerOptions[4096];
+    int writeDllList = 0;
+    int idx;
 
   /* detemineOdbcDefines */
 #ifdef ODBC_INCLUDE_OPTIONS
@@ -1534,15 +1588,22 @@ void detemineOdbcDefines (FILE *versionFile,
 #ifdef ODBC_LIBRARY_PATH
       appendOption(system_db_libs, ODBC_LIBRARY_PATH);
 #endif
+      printf("Odbc: Linker option: %s\n", ODBC_LIBS);
       appendOption(system_db_libs, ODBC_LIBS);
     } else {
-#ifdef ODBC_DLL
-      fprintf(versionFile, "#define ODBC_DLL \"%s\"\n", ODBC_DLL);
-#endif
+      writeDllList = 1;
     } /* if */
-#elif defined ODBC_DLL
-    fprintf(versionFile, "#define ODBC_DLL \"%s\"\n", ODBC_DLL);
+#else
+    writeDllList = 1;
 #endif
+    if (writeDllList) {
+      fprintf(versionFile, "#define ODBC_DLL");
+      for (idx = 0; idx < sizeof(dllNameList) / sizeof(char *); idx++) {
+        printf("Odbc: DLL / Shared library: %s\n", dllNameList[idx]);
+        fprintf(versionFile, " \"%s\",", dllNameList[idx]);
+      } /* for */
+      fprintf(versionFile, "\n");
+    } /* if */
   } /* detemineOdbcDefines */
 
 
@@ -1554,15 +1615,21 @@ void detemineOciDefines (FILE *versionFile,
     char *oracle_home;
     const char *oci_incl_dir[] = {"/rdbms/public", "/oci/include"};
     const char *oci_dll_dir[] = {"/lib", "/bin"};
+#ifdef OCI_DLL
+    const char *dllNameList[] = { OCI_DLL };
+#else
+    const char *dllNameList[] = {"oci.dll"};
+#endif
     char incl_path[4096];
     char dll_path[4096];
     char includeOption[4096];
     const char *ociInclude = NULL;
     char buffer[4096];
     char linkerOptions[4096];
-    int incl_idx;
-    int dll_idx;
-    int opt_idx;
+    int writeDllList = 0;
+    int incl_dir_idx;
+    int dll_dir_idx;
+    int idx;
     int found = 0;
 
   /* detemineOciDefines */
@@ -1574,17 +1641,17 @@ void detemineOciDefines (FILE *versionFile,
     oracle_home = getenv("ORACLE_HOME");
     if (oracle_home != NULL) {
       /* printf("ORACLE_HOME=%s\n", oracle_home); */
-      for (incl_idx = 0;
-           ociInclude == NULL && incl_idx < sizeof(oci_incl_dir) / sizeof(char *);
-           incl_idx++) {
-        sprintf(incl_path, "%s%s/oci.h", oracle_home, oci_incl_dir[incl_idx]);
+      for (incl_dir_idx = 0;
+           ociInclude == NULL && incl_dir_idx < sizeof(oci_incl_dir) / sizeof(char *);
+           incl_dir_idx++) {
+        sprintf(incl_path, "%s%s/oci.h", oracle_home, oci_incl_dir[incl_dir_idx]);
         if (fileIsRegular(incl_path)) {
-          sprintf(includeOption, "-I%s%s", oracle_home, oci_incl_dir[incl_idx]);
+          sprintf(includeOption, "-I%s%s", oracle_home, oci_incl_dir[incl_dir_idx]);
           if (compileAndLinkWithOptionsOk("#include \"oci.h\"\n"
                                           "int main(int argc,char *argv[]){return 0;}\n",
                                           includeOption, "")) {
             ociInclude = "oci.h";
-            printf("Oracle: %s found at: %s%s\n", ociInclude, oracle_home, oci_incl_dir[incl_idx]);
+            printf("Oracle: %s found at: %s%s\n", ociInclude, oracle_home, oci_incl_dir[incl_dir_idx]);
             appendOption(include_options, includeOption);
           } /* if */
         } /* if */
@@ -1614,16 +1681,22 @@ void detemineOciDefines (FILE *versionFile,
 #endif
       appendOption(system_db_libs, OCI_LIBS);
 #else
-      fprintf(versionFile, "#define OCI_DLL \"%s\"\n", OCI_DLL);
-      for (dll_idx = 0; !found && dll_idx < sizeof(oci_dll_dir) / sizeof(char *); dll_idx++) {
-        sprintf(dll_path, "%s%s", oracle_home, oci_dll_dir[dll_idx]);
+      fprintf(versionFile, "#define OCI_DLL");
+      for (idx = 0; idx < sizeof(dllNameList) / sizeof(char *); idx++) {
+        fprintf(versionFile, " \"%s\",", dllNameList[idx]);
+      } /* for */
+      fprintf(versionFile, "\n");
+      for (dll_dir_idx = 0; !found && dll_dir_idx < sizeof(oci_dll_dir) / sizeof(char *); dll_dir_idx++) {
+        sprintf(dll_path, "%s%s", oracle_home, oci_dll_dir[dll_dir_idx]);
         if (fileIsDir(dll_path)) {
-          sprintf(buffer, "%s%s/%s", oracle_home, oci_dll_dir[dll_idx], OCI_DLL);
-          if (fileIsRegular(buffer)) {
-            sprintf(buffer, "-Wl,-rpath=%s%s", oracle_home, oci_dll_dir[dll_idx]);
-            appendOption(system_db_libs, buffer);
-            found = 1;
-          } /* if */
+          for (idx = 0; idx < sizeof(dllNameList) / sizeof(char *); idx++) {
+            sprintf(buffer, "%s%s/%s", oracle_home, oci_dll_dir[dll_dir_idx], dllNameList[idx]);
+            if (fileIsRegular(buffer)) {
+              sprintf(buffer, "-Wl,-rpath=%s%s", oracle_home, oci_dll_dir[dll_dir_idx]);
+              appendOption(system_db_libs, buffer);
+              found = 1;
+            } /* if */
+          } /* for */
         } /* if */
       } /* for */
 #endif
@@ -1644,15 +1717,22 @@ void detemineOciDefines (FILE *versionFile,
 #ifdef OCI_LIBRARY_PATH
         appendOption(system_db_libs, OCI_LIBRARY_PATH);
 #endif
+        printf("Oracle: Linker option: %s\n", OCI_LIBS);
         appendOption(system_db_libs, OCI_LIBS);
       } else {
-#ifdef OCI_DLL
-        fprintf(versionFile, "#define OCI_DLL \"%s\"\n", OCI_DLL);
-#endif
+        writeDllList = 1;
       } /* if */
-#elif defined OCI_DLL
-      fprintf(versionFile, "#define OCI_DLL \"%s\"\n", OCI_DLL);
+#else
+      writeDllList = 1;
 #endif
+      if (writeDllList) {
+        fprintf(versionFile, "#define OCI_DLL");
+        for (idx = 0; idx < sizeof(dllNameList) / sizeof(char *); idx++) {
+          printf("Oracle: DLL / Shared library: %s\n", dllNameList[idx]);
+          fprintf(versionFile, " \"%s\",", dllNameList[idx]);
+        } /* for */
+        fprintf(versionFile, "\n");
+      } /* if */
     } /* if */
   } /* detemineOciDefines */
 #endif

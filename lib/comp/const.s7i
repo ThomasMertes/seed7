@@ -233,6 +233,8 @@ const func boolean: isConstantCall (in reference: current_expression) is func
           isConstantCall := FALSE;
         end if;
       end for;
+    elsif category(function) in constantExpressionCategories then
+      isConstantCall := TRUE;
     end if;
   end func;
 

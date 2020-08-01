@@ -8,7 +8,7 @@
 
 # CFLAGS = -O2 -fomit-frame-pointer -funroll-loops -Wall
 # CFLAGS = -O2 -fomit-frame-pointer -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
-CFLAGS = -O2 -g -ffunction-sections -fdata-sections -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
+CFLAGS = -O2 -g -ffunction-sections -fdata-sections $(INCLUDE_OPTIONS) -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -g -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
@@ -83,17 +83,17 @@ COMPILER_LIB_SRC = $(PSRC) $(LSRC) $(ESRC) $(ASRC) $(GSRC)
 
 s7: ../bin/s7.exe ../prg/s7.exe
 	../bin/s7.exe -l ../lib level
-	@echo.
+	@echo
 	@echo "  Use 'make s7c' (with your make command) to create the compiler."
-	@echo.
+	@echo
 
 s7c: ../bin/s7c.exe ../prg/s7c.exe
-	@echo.
+	@echo
 	@echo "  Use 'make test' (with your make command) to check Seed7."
-	@echo.
+	@echo
 
 ../bin/s7.exe: $(OBJ) $(ALL_S7_LIBS)
-	$(CC) $(LDFLAGS) $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) -o ../bin/s7
+	$(CC) $(LDFLAGS) $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) $(SYSTEM_DB_LIBS) -o ../bin/s7
 
 ../prg/s7.exe: ../bin/s7.exe
 	cp ../bin/s7.exe ../prg
@@ -107,21 +107,21 @@ s7c: ../bin/s7c.exe ../prg/s7c.exe
 clear: clean
 
 clean:
-	rm -f *.o ../bin/*.a ../bin/s7.exe ../bin/s7c.exe ../prg/s7.exe ../prg/s7c.exe depend chkccomp.h version.h setwpath.exe sudo.exe
-	@echo.
+	rm -f *.o ../bin/*.a ../bin/s7.exe ../bin/s7c.exe ../prg/s7.exe ../prg/s7c.exe depend macros chkccomp.h version.h setwpath.exe wrdepend.exe sudo.exe
+	@echo
 	@echo "  Use 'make depend' (with your make command) to create the dependencies."
-	@echo.
+	@echo
 
 distclean: clean
 	cp level_bk.h level.h
 
 test:
 	../bin/s7.exe -l ../lib ../prg/chk_all build
-	@echo.
+	@echo
 	@echo Use 'sudo make install' (with your make command) to install Seed7."
 	@echo Or open a console as administrator, go to the directory seed7/src
 	@echo and use 'make install' (with your make command) to install Seed7.
-	@echo.
+	@echo
 
 install: setwpath.exe
 	./setwpath.exe add ../bin
@@ -140,8 +140,11 @@ chkccomp.h:
 	echo "#define WRITE_CC_VERSION_INFO system(\"$(GET_CC_VERSION_INFO) cc_vers.txt\");" >> chkccomp.h
 	echo "#define mkdir(path,mode) mkdir(path)" >> chkccomp.h
 	echo "#define LIST_DIRECTORY_CONTENTS \"dir\"" >> chkccomp.h
+	echo "#define MYSQL_DLL \"libmariadb.dll\", \"libmysql.dll\"" >> chkccomp.h
 	echo "#define MYSQL_USE_DLL" >> chkccomp.h
+	echo "#define SQLITE_DLL \"sqlite3.dll\"" >> chkccomp.h
 	echo "#define SQLITE_USE_DLL" >> chkccomp.h
+	echo "#define POSTGRESQL_DLL \"libpq.dll\"" >> chkccomp.h
 	echo "#define POSTGRESQL_USE_DLL" >> chkccomp.h
 	echo "#define ODBC_LIBS \"-lodbc32\"" >> chkccomp.h
 	echo "#define ODBC_DLL \"odbc32.dll\"" >> chkccomp.h
@@ -156,6 +159,7 @@ version.h: chkccomp.h
 	echo "#define OS_PATH_HAS_DRIVE_LETTERS" >> version.h
 	echo "#define CATCH_SIGNALS" >> version.h
 	echo "#define CTRL_C_SENDS_EOF" >> version.h
+	echo "#define WITH_SQL" >> version.h
 	echo "#define CONSOLE_WCHAR" >> version.h
 	echo "#define OS_STRI_WCHAR" >> version.h
 	echo "#define os_chdir _wchdir" >> version.h
@@ -219,18 +223,19 @@ version.h: chkccomp.h
 	./setpaths.exe "S7_LIB_DIR=$(S7_LIB_DIR)" "SEED7_LIBRARY=$(SEED7_LIBRARY)" >> version.h
 	rm setpaths.exe
 	$(CC) setwpath.c -o setwpath
+	$(CC) wrdepend.c -o wrdepend
 	$(CC) sudo.c -w -o sudo
 
 depend: version.h
-	$(CC) $(CFLAGS) -M $(SRC) > depend
-	$(CC) $(CFLAGS) -M $(SEED7_LIB_SRC) >> depend
-	$(CC) $(CFLAGS) -M $(CONSOLE_LIB_SRC) >> depend
-	$(CC) $(CFLAGS) -M $(DRAW_LIB_SRC) >> depend
-	$(CC) $(CFLAGS) -M $(COMP_DATA_LIB_SRC) >> depend
-	$(CC) $(CFLAGS) -M $(COMPILER_LIB_SRC) >> depend
-	@echo.
+	./wrdepend.exe $(CFLAGS) -M $(SRC) "> depend"
+	./wrdepend.exe $(CFLAGS) -M $(SEED7_LIB_SRC) ">> depend"
+	./wrdepend.exe $(CFLAGS) -M $(CONSOLE_LIB_SRC) ">> depend"
+	./wrdepend.exe $(CFLAGS) -M $(DRAW_LIB_SRC) ">> depend"
+	./wrdepend.exe $(CFLAGS) -M $(COMP_DATA_LIB_SRC) ">> depend"
+	./wrdepend.exe $(CFLAGS) -M $(COMPILER_LIB_SRC) ">> depend"
+	@echo
 	@echo "  Use 'make' (with your make command) to create the interpreter."
-	@echo.
+	@echo
 
 level.h:
 	../bin/s7.exe -l ../lib level
@@ -256,6 +261,30 @@ make7: ../bin/make7.exe
 	../bin/s7c.exe -l ../lib -b ../bin -O2 ../prg/make7
 	mv ../prg/make7.exe ../bin
 
+calc7: ../bin/calc7.exe
+
+../bin/calc7.exe: ../prg/calc7.sd7 ../bin/s7c.exe
+	../bin/s7c.exe -l ../lib -b ../bin -O2 ../prg/calc7
+	mv ../prg/calc7.exe ../bin
+
+tar7: ../bin/tar7.exe
+
+../bin/tar7.exe: ../prg/tar7.sd7 ../bin/s7c.exe
+	../bin/s7c.exe -l ../lib -b ../bin -O2 ../prg/tar7
+	mv ../prg/tar7.exe ../bin
+
+ftp7: ../bin/ftp7.exe
+
+../bin/ftp7.exe: ../prg/ftp7.sd7 ../bin/s7c.exe
+	../bin/s7c.exe -l ../lib -b ../bin -O2 ../prg/ftp7
+	mv ../prg/ftp7.exe ../bin
+
+ftpserv: ../bin/ftpserv.exe
+
+../bin/ftpserv.exe: ../prg/ftpserv.sd7 ../bin/s7c.exe
+	../bin/s7c.exe -l ../lib -b ../bin -O2 ../prg/ftpserv
+	mv ../prg/ftpserv.exe ../bin
+
 wc: $(SRC)
 	echo SRC:
 	wc $(SRC)
@@ -271,11 +300,15 @@ wc: $(SRC)
 	wc $(COMPILER_LIB_SRC)
 
 lint: $(SRC)
-	lint -p $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS)
+	lint -p $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) $(SYSTEM_DB_LIBS)
 
 lint2: $(SRC)
-	lint -Zn2048 $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS)
+	lint -Zn2048 $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) $(SYSTEM_DB_LIBS)
 
 ifeq (depend,$(wildcard depend))
 include depend
+endif
+
+ifeq (macros,$(wildcard macros))
+include macros
 endif

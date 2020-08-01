@@ -9,6 +9,7 @@
 # CFLAGS = -O2 -fomit-frame-pointer -funroll-loops -Wall
 # CFLAGS = -O2 -fomit-frame-pointer -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 CFLAGS = -O2 -g -ffunction-sections -fdata-sections $(INCLUDE_OPTIONS) -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
+# CFLAGS = -O2 -g -ffunction-sections -fdata-sections $(INCLUDE_OPTIONS) -Wall -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -g -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
@@ -152,8 +153,11 @@ chkccomp.h:
 	echo #include "unistd.h" >> chkccomp.h
 	echo #define mkdir(path,mode) mkdir(path) >> chkccomp.h
 	echo #define LIST_DIRECTORY_CONTENTS "dir" >> chkccomp.h
+	echo #define MYSQL_DLL "libmariadb.dll", "libmysql.dll" >> chkccomp.h
 	echo #define MYSQL_USE_DLL >> chkccomp.h
+	echo #define SQLITE_DLL "sqlite3.dll" >> chkccomp.h
 	echo #define SQLITE_USE_DLL >> chkccomp.h
+	echo #define POSTGRESQL_DLL "libpq.dll" >> chkccomp.h
 	echo #define POSTGRESQL_USE_DLL >> chkccomp.h
 	echo #define ODBC_LIBS "-lodbc32" >> chkccomp.h
 	echo #define ODBC_DLL "odbc32.dll" >> chkccomp.h
@@ -271,6 +275,34 @@ make7: ..\bin\make7.exe
 	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\make7
 	copy ..\prg\make7.exe ..\bin /Y
 	del ..\prg\make7.exe
+
+calc7: ..\bin\calc7.exe
+
+..\bin\calc7.exe: ..\prg\calc7.sd7 ..\bin\s7c.exe
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\calc7
+	copy ..\prg\calc7.exe ..\bin /Y
+	del ..\prg\calc7.exe
+
+tar7: ..\bin\tar7.exe
+
+..\bin\tar7.exe: ..\prg\tar7.sd7 ..\bin\s7c.exe
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\tar7
+	copy ..\prg\tar7.exe ..\bin /Y
+	del ..\prg\tar7.exe
+
+ftp7: ..\bin\ftp7.exe
+
+..\bin\ftp7.exe: ..\prg\ftp7.sd7 ..\bin\s7c.exe
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\ftp7
+	copy ..\prg\ftp7.exe ..\bin /Y
+	del ..\prg\ftp7.exe
+
+ftpserv: ..\bin\ftpserv.exe
+
+..\bin\ftpserv.exe: ..\prg\ftpserv.sd7 ..\bin\s7c.exe
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\ftpserv
+	copy ..\prg\ftpserv.exe ..\bin /Y
+	del ..\prg\ftpserv.exe
 
 wc: $(SRC)
 	echo SRC:

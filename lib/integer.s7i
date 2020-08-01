@@ -174,7 +174,7 @@ const func integer: (in integer: base) ** (in integer: exponent)       is action
 
 (**
  *  Shift an integer number left by lshift bits.
- *  A << B is equivalent to A * 2_ ** B
+ *  A << B is equivalent to A * 2 ** B
  *  @return the left shifted number.
  *  @exception OVERFLOW_ERROR When the shift amount is
  *             negative or greater equal 64 or
@@ -185,7 +185,7 @@ const func integer: (in integer: number) << (in integer: lshift)    is action "I
 
 (**
  *  Shift an integer number right by rshift bits.
- *  A >> B is equivalent to A mdiv 2_ ** B
+ *  A >> B is equivalent to A mdiv 2 ** B
  *  @return the right shifted number.
  *  @exception OVERFLOW_ERROR When the shift amount is
  *             negative or greater equal 64.
@@ -233,7 +233,10 @@ const proc: (inout integer: number) >>:= (in integer: rshift)       is action "I
 
 (**
  *  Binomial coefficient
+ *   n ! k  returns  !n div (!k * !(n - k))
  *  @return n over k
+ *  @exception OVERFLOW_ERROR When the result would be less than
+ *             integer.first or greater than integer.last.
  *)
 const func integer: (in integer: n) ! (in integer: k)               is action "INT_BINOM";
 

@@ -402,10 +402,31 @@ static boolType setupDll (const char *dllName)
     return dbDll != NULL;
   } /* setupDll */
 
+
+
+static boolType findDll (void)
+
+  {
+    const char *dllList[] = { OCI_DLL };
+    unsigned int pos;
+    boolType found = FALSE;
+
+  /* findDll */
+    for (pos = 0; pos < sizeof(dllList) / sizeof(char *) && !found; pos ++) {
+      found = setupDll(dllList[pos]);
+    } /* for */
+    if (!found) {
+      logError(printf("findDll: Searched for:\n");
+               for (pos = 0; pos < sizeof(dllList) / sizeof(char *) && pos ++) {
+                 printf("%s\n", dllList[pos]);
+               });
+    } /* if */
+    return found;
+  } /* findDll */
+
 #else
 
-#define setupDll(dllName) TRUE
-#define OCI_DLL ""
+#define findDll() TRUE
 
 #endif
 
@@ -995,7 +1016,7 @@ static void dumpSqltNumber (memSizeType dataLen, const uint8Type *ociNumberData)
     memSizeType pos;
 
   /* dumpSqltNumber */
-    printf("dataLen: %lu, \"", dataLen);
+    printf("dataLen: " FMT_U_MEM ", \"", dataLen);
     for (pos = 0; pos < SIZEOF_SQLT_NUM; pos++) {
       printf("%02x", ociNumberData[pos]);
     } /* for */
@@ -4154,8 +4175,8 @@ databaseType sqlOpenOci (const const_striType dbName,
        printf(", ");
        prot_stri(password);
        printf(")\n"); */
-    if (!setupDll(OCI_DLL)) {
-      logError(printf("sqlOpenOci: setupDll(\"%s\") failed\n", OCI_DLL););
+    if (!findDll()) {
+      logError(printf("sqlOpenOci: findDll() failed\n"););
       err_info = FILE_ERROR;
       database = NULL;
     } else {

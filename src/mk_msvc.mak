@@ -5,10 +5,6 @@
 # If you use MinGW you should use mk_mingw.mak, mk_nmake.mak or mk_msys.mak instead.
 # If you use bcc32 you should use mk_bcc32.mak instead.
 
-!if exist(macros)
-!include macros
-!endif
-
 # CFLAGS = -AL -Ozax -Gr -Gs -Gm -G0 -W4
 CFLAGS = -O2 -W4 -Z7 $(INCLUDE_OPTIONS)
 # CFLAGS = -O2 -W4 -Tp
@@ -149,8 +145,11 @@ chkccomp.h:
 	echo #define mkdir(path,mode) _mkdir(path) >> chkccomp.h
 	echo #define rmdir _rmdir >> chkccomp.h
 	echo #define LIST_DIRECTORY_CONTENTS "dir" >> chkccomp.h
+	echo #define MYSQL_DLL "libmariadb.dll", "libmysql.dll" >> chkccomp.h
 	echo #define MYSQL_USE_DLL >> chkccomp.h
+	echo #define SQLITE_DLL "sqlite3.dll" >> chkccomp.h
 	echo #define SQLITE_USE_DLL >> chkccomp.h
+	echo #define POSTGRESQL_DLL "libpq.dll" >> chkccomp.h
 	echo #define POSTGRESQL_USE_DLL >> chkccomp.h
 	echo #define ODBC_LIBS "odbc32.lib" >> chkccomp.h
 	echo #define ODBC_DLL "odbc32.dll" >> chkccomp.h
@@ -289,3 +288,7 @@ lint: $(SRC)
 
 lint2: $(SRC)
 	lint -Zn2048 $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) $(SYSTEM_DB_LIBS)
+
+!if exist(macros)
+!include macros
+!endif

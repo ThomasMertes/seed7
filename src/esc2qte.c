@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  sudo.c        Execute command as administrator under Windows.   */
+/*  esc2qte.c     Find escaped spaces and quote instead.            */
 /*  Copyright (C) 2014  Thomas Mertes                               */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
@@ -18,56 +18,55 @@
 /*  Free Software Foundation, Inc., 51 Franklin Street,             */
 /*  Fifth Floor, Boston, MA  02110-1301, USA.                       */
 /*                                                                  */
-/*  Module: Sudo                                                    */
-/*  File: seed7/src/sudo.c                                          */
+/*  Module: Chkccomp                                                */
+/*  File: seed7/src/esc2qte.c                                       */
 /*  Changes: 2014  Thomas Mertes                                    */
-/*  Content: Execute command as administrator under Windows.        */
+/*  Content: Find escaped spaces and quote instead.                 */
 /*                                                                  */
 /********************************************************************/
 
-#include "stdlib.h"
 #include "stdio.h"
-#include "string.h"
-#include "windows.h"
-#include "shellapi.h"
+
+#define BUFFER_SIZE 65536
 
 
-int main (int argc, char *argv[])
+int main (int argc, char *argv)
 
   {
-    int length = 0;
-    char *parameters;
-    int idx;
-    int mainResult = 0;
+    char line[BUFFER_SIZE];
+    unsigned int pos;
+    unsigned int searchPos;
+    int escapeFound;
 
   /* main */
-    if (argc < 2) {
-      printf("usage: sudo command [parameters]\n");
-    } else {
-      for (idx = 2; idx < argc; idx++) {
-        length += strlen(argv[idx]) + 1;
-      } /* for */
-      if (length > 0) {
-        length--;
-      } /* if */
-      parameters = (char *) malloc(length + 1);
-      if (parameters == NULL) {
-        mainResult = -1;
-      } else {
-        parameters[0] = '\0';
-        if (argc > 2) {
-          strcat(parameters, argv[2]);
-          for (idx = 3; idx < argc; idx++) {
-            strcat(parameters, " ");
-            strcat(parameters, argv[idx]);
+    while (fgets(line, BUFFER_SIZE, stdin) != NULL) {
+      pos = 0;
+      while (line[pos] != '\0') {
+        for (; line[pos] == ' ' || line[pos] == '\t' ; pos++) {
+          fputc(line[pos], stdout);
+        } /* for */
+        escapeFound = 0;
+        for (searchPos = pos; line[searchPos] != ' ' && line[searchPos] != '\t' &&
+              line[searchPos] != '\0'; searchPos++) {
+          if (line[searchPos] == '\\' && line[searchPos + 1] == ' ') {
+            escapeFound = 1;
+          } /* if */
+        } /* for */
+        if (escapeFound) {
+          fputc('"', stdout);
+          for (; line[pos] != ' ' && line[pos] != '\t' && line[pos] != '\0'; pos++) {
+            if (line[pos] == '\\' && line[pos + 1] == ' ') {
+              pos++;
+            } /* if */
+            fputc(line[pos], stdout);        
+          } /* for */
+          fputc('"', stdout);
+        } else {
+          for (; line[pos] != ' ' && line[pos] != '\t' && line[pos] != '\0'; pos++) {
+            fputc(line[pos], stdout);        
           } /* for */
         } /* if */
-        printf("%s %s\n", argv[1], parameters);
-        if ((int) ShellExecute(NULL, "runas", argv[1], parameters, NULL, SW_HIDE) <= 32) {
-          mainResult = -1;
-        } /* if */
-        free(parameters);
-      } /* if */
-    } /* if */
-    return mainResult;
+      } /* while */
+    } /* while */
+    return 0;
   } /* main */
