@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  chkccomp.c    Check properties of C compiler and runtime.       */
-/*  Copyright (C) 2010 - 2018  Thomas Mertes                        */
+/*  Copyright (C) 2010 - 2019  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: Chkccomp                                                */
 /*  File: seed7/src/chkccomp.c                                      */
-/*  Changes: 2010 - 2018  Thomas Mertes                             */
+/*  Changes: 2010 - 2019  Thomas Mertes                             */
 /*  Content: Program to Check properties of C compiler and runtime. */
 /*                                                                  */
 /********************************************************************/
@@ -2700,49 +2700,49 @@ static void determineOsDirAccess (FILE *versionFile)
     int lib_number;
 
   /* determineOsDirAccess */
-    if (compileAndLinkOk("#include <stdio.h>\n#include <dirent.h>\n"
-                         "int main(int argc,char *argv[])\n"
-                         "{DIR *directory; struct dirent *dirEntry;\n"
-                         "printf(\"%d\\n\", (directory = opendir(\".\")) != NULL &&\n"
-                         "(dirEntry = readdir(directory)) != NULL &&\n"
-                         "closedir(directory) == 0);\n"
+    if (compileAndLinkOk("#include <stdio.h>\n#include <windows.h>\n"
+                         "int main (int argc, char *argv[]) {\n"
+                         "HANDLE dirHandle;\n"
+                         "WIN32_FIND_DATAW findData;\n"
+                         "dirHandle = FindFirstFileW(L\"./*\", &findData);\n"
+                         "if (dirHandle != INVALID_HANDLE_VALUE) {\n"
+                         "  FindNextFileW(dirHandle, &findData);\n"
+                         "  FindClose(dirHandle);\n"
+                         "} printf(\"%d\\n\", dirHandle != INVALID_HANDLE_VALUE);\n"
                          "return 0;}\n")) {
-      directory_lib = "DIRENT_DIRECTORY";
-      lib_number = 1;
-    } else if (compileAndLinkOk("#include <stdio.h>\n#include <direct.h>\n"
-                         "int main(int argc,char *argv[])\n"
-                         "{DIR *directory; struct dirent *dirEntry;\n"
-                         "printf(\"%d\\n\", (directory = opendir(\".\")) != NULL &&\n"
-                         "(dirEntry = readdir(directory)) != NULL &&\n"
-                         "closedir(directory) == 0);\n"
-                         "return 0;}\n")) {
-      directory_lib = "DIRECT_DIRECTORY";
-      lib_number = 2;
-    } else {
-#ifdef OS_STRI_WCHAR
+      /* This is checked first, because DIRWIN_DIRECTORY */
+      /* should be used, even if opendir() is available. */
       directory_lib = "DIRWIN_DIRECTORY";
       lib_number = 4;
-#else
-      fprintf(logFile, "\n *** Cannot define DIRENT_DIRECTORY or DIRWIN_DIRECTORY.\n");
-#endif
-    } /* if */
-    if (directory_lib != NULL) {
-#ifdef OS_STRI_WCHAR
-      if (lib_number != 4) {
-        fputs("#define RENAME_DIRECTORY_FUNCTIONS\n", versionFile);
-      } /* if */
-      fputs("#define DIRWIN_DIRECTORY 4\n", versionFile);
-      fputs("#define DIR_LIB DIRWIN_DIRECTORY\n", versionFile);
       fputs("#define os_DIR WDIR\n", versionFile);
       fputs("#define os_dirent_struct struct wdirent\n", versionFile);
       fputs("#define os_opendir wopendir\n", versionFile);
       fputs("#define os_readdir wreaddir\n", versionFile);
       fputs("#define os_closedir wclosedir\n", versionFile);
-#else
+    } else if (compileAndLinkOk("#include <stdio.h>\n#include <dirent.h>\n"
+                                "int main(int argc,char *argv[])\n"
+                                "{DIR *directory; struct dirent *dirEntry;\n"
+                                "printf(\"%d\\n\", (directory = opendir(\".\")) != NULL &&\n"
+                                "(dirEntry = readdir(directory)) != NULL &&\n"
+                                "closedir(directory) == 0);\n"
+                                "return 0;}\n")) {
+      directory_lib = "DIRENT_DIRECTORY";
+      lib_number = 1;
+    } else if (compileAndLinkOk("#include <stdio.h>\n#include <direct.h>\n"
+                                "int main(int argc,char *argv[])\n"
+                                "{DIR *directory; struct dirent *dirEntry;\n"
+                                "printf(\"%d\\n\", (directory = opendir(\".\")) != NULL &&\n"
+                                "(dirEntry = readdir(directory)) != NULL &&\n"
+                                "closedir(directory) == 0);\n"
+                                "return 0;}\n")) {
+      directory_lib = "DIRECT_DIRECTORY";
+      lib_number = 2;
+    } /* if */
+    if (directory_lib != NULL) {
       fprintf(versionFile, "#define %s %d\n", directory_lib, lib_number);
       fprintf(versionFile, "#define DIR_LIB %s\n", directory_lib);
-#endif
     } else {
+      fprintf(logFile, "\n *** Cannot define DIR_LIB.\n");
       fputs("#define NO_DIRECTORY -1\n", versionFile);
       fputs("#define DIR_LIB NO_DIRECTORY\n", versionFile);
     } /* if */
@@ -4785,6 +4785,99 @@ static void determineOciDefines (FILE *versionFile,
 
 
 
+static void determineFireDefines (FILE *versionFile,
+    char *include_options, char *additional_system_libs)
+
+  {
+#ifdef FIRE_DLL
+    const char *dllNameList[] = { FIRE_DLL };
+#else
+    const char *dllNameList[] = {"fbclient.dll"};
+#endif
+    char includeOption[BUFFER_SIZE];
+    const char *fireInclude = NULL;
+    char buffer[BUFFER_SIZE];
+    char linkerOptions[BUFFER_SIZE];
+    int writeDllList = 0;
+    int idx;
+
+  /* determineFireDefines */
+#ifdef FIRE_INCLUDE_OPTIONS
+    strcpy(includeOption, FIRE_INCLUDE_OPTIONS);
+#else
+    includeOption[0] = '\0';
+#endif
+    if (compileAndLinkWithOptionsOk("#include <ibase.h>\n"
+                                    "int main(int argc,char *argv[]){\n"
+                                    "isc_db_handle conn;\n"
+                                    "isc_stmt_handle stmt;\n"
+                                    "ISC_STATUS status_vector[20];\n"
+                                    "char name = isc_dpb_user_name;\n"
+                                    "char passwd = isc_dpb_password;\n"
+                                    "return 0;}\n",
+                                    includeOption, "")) {
+      fireInclude = "ibase.h";
+      fprintf(logFile, "\rFire: %s found in system include directory.\n",
+              fireInclude);
+    } else if (compileAndLinkWithOptionsOk("#include \"tst_vers.h\"\n"
+                                           "#include \"db_fire.h\"\n"
+                                           "int main(int argc,char *argv[]){\n"
+                                           "isc_db_handle conn;\n"
+                                           "isc_stmt_handle stmt;\n"
+                                           "ISC_STATUS status_vector[20];\n"
+                                           "char name = isc_dpb_user_name;\n"
+                                           "char passwd = isc_dpb_password;\n"
+                                           "return 0;}\n",
+                                           "", "")) {
+      fireInclude = "db_fire.h";
+      fprintf(logFile, "\rFire: %s found in Seed7 include directory.\n",
+              fireInclude);
+      includeOption[0] = '\0';
+    } /* if */
+    if (fireInclude != NULL) {
+      fprintf(versionFile, "#define FIRE_INCLUDE \"%s\"\n", fireInclude);
+      appendOption(include_options, includeOption);
+    } /* if */
+    /* Handle libraries: */
+#if defined FIRE_USE_LIB && defined FIRE_LIBS
+    sprintf(buffer, "#include \"tst_vers.h\"\n#include \"%s\"\n"
+                    "int main(int argc,char *argv[]){\n"
+                    "ISC_STATUS status_vector[20];\n"
+                    "isc_stmt_handle stmt_handle;\n"
+                    "XSQLDA *out_sqlda;\n"
+                    "out_sqlda = (XSQLDA *) malloc(XSQLDA_LENGTH(10));\n"
+                    "isc_dsql_describe(status_vector, &stmt_handle, 1, out_sqlda);\n"
+                    "return 0;\n}\n",
+                    fireInclude);
+    linkerOptions[0] = '\0';
+#ifdef FIRE_LIBRARY_PATH
+    appendOption(linkerOptions, FIRE_LIBRARY_PATH);
+#endif
+    appendOption(linkerOptions, FIRE_LIBS);
+    if (compileAndLinkWithOptionsOk(buffer, includeOption, linkerOptions)) {
+#ifdef FIRE_LIBRARY_PATH
+      appendOption(additional_system_libs, FIRE_LIBRARY_PATH);
+#endif
+      fprintf(logFile, "\rFire: Linker option: %s\n", FIRE_LIBS);
+      appendOption(additional_system_libs, FIRE_LIBS);
+    } else {
+      writeDllList = 1;
+    } /* if */
+#else
+    writeDllList = 1;
+#endif
+    if (writeDllList) {
+      fprintf(versionFile, "#define FIRE_DLL");
+      for (idx = 0; idx < sizeof(dllNameList) / sizeof(char *); idx++) {
+        fprintf(logFile, "\rFire: DLL / Shared library: %s\n", dllNameList[idx]);
+        fprintf(versionFile, " \"%s\",", dllNameList[idx]);
+      } /* for */
+      fprintf(versionFile, "\n");
+    } /* if */
+  } /* determineFireDefines */
+
+
+
 static void determineBigIntDefines (FILE *versionFile,
     char *include_options, char *additional_system_libs)
 
@@ -4842,6 +4935,7 @@ static void determineIncludesAndLibs (FILE *versionFile)
     determinePostgresDefines(versionFile, include_options, additional_system_libs);
     determineOdbcDefines(versionFile, include_options, additional_system_libs);
     determineOciDefines(versionFile, include_options, additional_system_libs);
+    determineFireDefines(versionFile, include_options, additional_system_libs);
     determineBigIntDefines(versionFile, include_options, additional_system_libs);
     sprintf(buffer, "INCLUDE_OPTIONS = %s", include_options);
     replaceNLBySpace(buffer);
@@ -5207,12 +5301,16 @@ int main (int argc, char **argv)
                          "       wmemcmp(str1, str2, 2) == 1 &&\n"
                          "       wmemcmp(str2, str1, 2) == -1);\n"
                          "return 0;}\n") && doTest() == 1);
-    fprintf(versionFile, "#define HAS_WMEMCHR %d\n",
-        compileAndLinkOk("#include <stdio.h>\n#include <wchar.h>\n"
+    fprintf(versionFile, "#define MEMSET_OF_ZERO_BYTES_DOES_NOTHING %d\n",
+        compileAndLinkOk("#include <stdio.h>\n#include <string.h>\n"
                          "int main(int argc, char *argv[]){\n"
-                         "wchar_t str1[] = {0x0201, 0x0102, 0};\n"
-                         "wchar_t ch1 = 0x0102;\n"
-                         "printf(\"%d\\n\", wmemchr(str1, ch1, 2) ==  &str1[1]);\n"
+                         "char stri1[17];\n"
+                         "int zero;\n"
+                         "strcpy(stri1, \"abcdefghijklmnop\");\n"
+                         "zero = strlen(stri1) - 16;\n"
+                         "memset(&stri1[8], 0, zero);\n"
+                         "printf(\"%d\\n\",\n"
+                         "       memcmp(stri1, \"abcdefghijklmnop\", 17) == 0);\n"
                          "return 0;}\n") && doTest() == 1);
     fprintf(versionFile, "#define HAS_WMEMSET %d\n",
         compileAndLinkOk("#include <stdio.h>\n#include <wchar.h>\n#include <string.h>\n"
@@ -5222,6 +5320,13 @@ int main (int argc, char **argv)
                          "wchar_t ch1 = 0x00;\n"
                          "wmemset(str1, ch1, 4);\n"
                          "printf(\"%d\\n\", memcmp(str1, str2, 4 * sizeof(wchar_t)) == 0);\n"
+                         "return 0;}\n") && doTest() == 1);
+    fprintf(versionFile, "#define HAS_WMEMCHR %d\n",
+        compileAndLinkOk("#include <stdio.h>\n#include <wchar.h>\n"
+                         "int main(int argc, char *argv[]){\n"
+                         "wchar_t str1[] = {0x0201, 0x0102, 0};\n"
+                         "wchar_t ch1 = 0x0102;\n"
+                         "printf(\"%d\\n\", wmemchr(str1, ch1, 2) ==  &str1[1]);\n"
                          "return 0;}\n") && doTest() == 1);
     fprintf(versionFile, "#define HAS_SETJMP %d\n",
         compileAndLinkOk("#include <stdio.h>\n#include <setjmp.h>\n"

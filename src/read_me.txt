@@ -792,12 +792,6 @@ RUNTIME LIBRARY
     numutl.c   Numeric utility functions.
     sigutl.c   Driver shutdown and signal handling.
     striutl.c  Procedures to work with wide char strings.
-    sql_base.c Basic database functions.
-    sql_lite.c Database access functions for SQLite.
-    sql_my.c   Database access functions for MariaDB and MySQL.
-    sql_oci.c  Database access functions for OCI.
-    sql_odbc.c Database access functions for the ODBC interface.
-    sql_post.c Database access functions for PostgreSQL.
 
   The runtime library is licensed under the LGPL.
 
@@ -844,7 +838,14 @@ DRIVERS
     pol_dos.c  Poll type and function using DOS capabilities.
     pol_sel.c  Poll type and function based on select function.
     pol_unx.c  Poll type and function using UNIX capabilities.
-    soc_dos.c  Dummy functions for the socket type.
+    soc_none.c Dummy functions for the socket type.
+    sql_base.c Basic database functions.
+    sql_fire.c Database access functions for Firebird/InterBase.
+    sql_lite.c Database access functions for SQLite.
+    sql_my.c   Database access functions for MariaDB and MySQL.
+    sql_oci.c  Database access functions for OCI.
+    sql_odbc.c Database access functions for the ODBC interface.
+    sql_post.c Database access functions for PostgreSQL.
     trm_cap.c  Driver for termcap screen access.
     trm_inf.c  Driver for terminfo screen access.
     tim_dos.c  Time functions which call the Dos API.

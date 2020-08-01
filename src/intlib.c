@@ -1454,9 +1454,9 @@ objectType int_sbtr_assign (listType arguments)
 
 
 /**
- *  Compute the integer square root of an integer number.
+ *  Compute the integer square root of an integer radicand.
  *  @return the integer square root.
- *  @exception NUMERIC_ERROR When number is negative.
+ *  @exception NUMERIC_ERROR When the radicand is negative.
  */
 objectType int_sqrt (listType arguments)
 

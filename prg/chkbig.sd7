@@ -19806,34 +19806,62 @@ const proc: chkLShift is func
       okay := FALSE;
     end if;
 
-    if             123456789_  <<         integer.first  <>         0_ or
-                   123456789_  << intExpr(integer.first) <>         0_ or
-        bigintExpr(123456789_) <<         integer.first  <>         0_ or
-        bigintExpr(123456789_) << intExpr(integer.first) <>         0_ or
+    if                    -1_  <<         integer.first  <>        -1_ or
+                          -1_  << intExpr(integer.first) <>        -1_ or
+        bigintExpr(       -1_) <<         integer.first  <>        -1_ or
+        bigintExpr(       -1_) << intExpr(integer.first) <>        -1_ or
                           -1_  <<                 -9876  <>        -1_ or
                           -1_  << intExpr(        -9876) <>        -1_ or
         bigintExpr(       -1_) <<                 -9876  <>        -1_ or
         bigintExpr(       -1_) << intExpr(        -9876) <>        -1_ or
+                          -1_  <<                     0  <>        -1_ or
+                          -1_  << intExpr(            0) <>        -1_ or
+        bigintExpr(       -1_) <<                     0  <>        -1_ or
+        bigintExpr(       -1_) << intExpr(            0) <>        -1_ or
                           -1_  <<                    25  <> -33554432_ or
                           -1_  << intExpr(           25) <> -33554432_ or
         bigintExpr(       -1_) <<                    25  <> -33554432_ or
         bigintExpr(       -1_) << intExpr(           25) <> -33554432_ or
+                           0_  <<         integer.first  <>         0_ or
+                           0_  << intExpr(integer.first) <>         0_ or
+        bigintExpr(        0_) <<         integer.first  <>         0_ or
+        bigintExpr(        0_) << intExpr(integer.first) <>         0_ or
                            0_  <<                 -9876  <>         0_ or
                            0_  << intExpr(        -9876) <>         0_ or
         bigintExpr(        0_) <<                 -9876  <>         0_ or
         bigintExpr(        0_) << intExpr(        -9876) <>         0_ or
+                           0_  <<                     0  <>         0_ or
+                           0_  << intExpr(            0) <>         0_ or
+        bigintExpr(        0_) <<                     0  <>         0_ or
+        bigintExpr(        0_) << intExpr(            0) <>         0_ or
                            0_  <<                 12345  <>         0_ or
                            0_  << intExpr(        12345) <>         0_ or
         bigintExpr(        0_) <<                 12345  <>         0_ or
         bigintExpr(        0_) << intExpr(        12345) <>         0_ or
+                           0_  <<          integer.last  <>         0_ or
+                           0_  << intExpr( integer.last) <>         0_ or
+        bigintExpr(        0_) <<          integer.last  <>         0_ or
+        bigintExpr(        0_) << intExpr( integer.last) <>         0_ or
+                           1_  <<         integer.first  <>         0_ or
+                           1_  << intExpr(integer.first) <>         0_ or
+        bigintExpr(        1_) <<         integer.first  <>         0_ or
+        bigintExpr(        1_) << intExpr(integer.first) <>         0_ or
                            1_  <<                 -9876  <>         0_ or
                            1_  << intExpr(        -9876) <>         0_ or
         bigintExpr(        1_) <<                 -9876  <>         0_ or
         bigintExpr(        1_) << intExpr(        -9876) <>         0_ or
+                           1_  <<                     0  <>         1_ or
+                           1_  << intExpr(            0) <>         1_ or
+        bigintExpr(        1_) <<                     0  <>         1_ or
+        bigintExpr(        1_) << intExpr(            0) <>         1_ or
                            1_  <<                    25  <>  33554432_ or
                            1_  << intExpr(           25) <>  33554432_ or
         bigintExpr(        1_) <<                    25  <>  33554432_ or
         bigintExpr(        1_) << intExpr(           25) <>  33554432_ or
+                   123456789_  <<         integer.first  <>         0_ or
+                   123456789_  << intExpr(integer.first) <>         0_ or
+        bigintExpr(123456789_) <<         integer.first  <>         0_ or
+        bigintExpr(123456789_) << intExpr(integer.first) <>         0_ or
                    123456789_  <<                     0  <> 123456789_ or
                    123456789_  << intExpr(            0) <> 123456789_ or
         bigintExpr(123456789_) <<                     0  <> 123456789_ or
@@ -20196,38 +20224,66 @@ const proc: chkRShift is func
       okay := FALSE;
     end if;
 
-    if                     0_  >>         integer.first  <>         0_ or
-                           0_  >> intExpr(integer.first) <>         0_ or
-        bigintExpr(        0_) >>         integer.first  <>         0_ or
-        bigintExpr(        0_) >> intExpr(integer.first) <>         0_ or
-                          -1_  >>                   -25  <> -33554432_ or
+    if                    -1_  >>                   -25  <> -33554432_ or
                           -1_  >> intExpr(          -25) <> -33554432_ or
         bigintExpr(       -1_) >>                   -25  <> -33554432_ or
         bigintExpr(       -1_) >> intExpr(          -25) <> -33554432_ or
+                          -1_  >>                     0  <>        -1_ or
+                          -1_  >> intExpr(            0) <>        -1_ or
+        bigintExpr(       -1_) >>                     0  <>        -1_ or
+        bigintExpr(       -1_) >> intExpr(            0) <>        -1_ or
                           -1_  >>                 12345  <>        -1_ or
                           -1_  >> intExpr(        12345) <>        -1_ or
         bigintExpr(       -1_) >>                 12345  <>        -1_ or
         bigintExpr(       -1_) >> intExpr(        12345) <>        -1_ or
+                          -1_  >>          integer.last  <>        -1_ or
+                          -1_  >> intExpr( integer.last) <>        -1_ or
+        bigintExpr(       -1_) >>          integer.last  <>        -1_ or
+        bigintExpr(       -1_) >> intExpr( integer.last) <>        -1_ or
+                           0_  >>         integer.first  <>         0_ or
+                           0_  >> intExpr(integer.first) <>         0_ or
+        bigintExpr(        0_) >>         integer.first  <>         0_ or
+        bigintExpr(        0_) >> intExpr(integer.first) <>         0_ or
                            0_  >>                 -9876  <>         0_ or
                            0_  >> intExpr(        -9876) <>         0_ or
         bigintExpr(        0_) >>                 -9876  <>         0_ or
         bigintExpr(        0_) >> intExpr(        -9876) <>         0_ or
+                           0_  >>                     0  <>         0_ or
+                           0_  >> intExpr(            0) <>         0_ or
+        bigintExpr(        0_) >>                     0  <>         0_ or
+        bigintExpr(        0_) >> intExpr(            0) <>         0_ or
                            0_  >>                 12345  <>         0_ or
                            0_  >> intExpr(        12345) <>         0_ or
         bigintExpr(        0_) >>                 12345  <>         0_ or
         bigintExpr(        0_) >> intExpr(        12345) <>         0_ or
+                           0_  >>          integer.last  <>         0_ or
+                           0_  >> intExpr( integer.last) <>         0_ or
+        bigintExpr(        0_) >>          integer.last  <>         0_ or
+        bigintExpr(        0_) >> intExpr( integer.last) <>         0_ or
                            1_  >>                   -25  <>  33554432_ or
                            1_  >> intExpr(          -25) <>  33554432_ or
         bigintExpr(        1_) >>                   -25  <>  33554432_ or
         bigintExpr(        1_) >> intExpr(          -25) <>  33554432_ or
+                           1_  >>                     0  <>         1_ or
+                           1_  >> intExpr(            0) <>         1_ or
+        bigintExpr(        1_) >>                     0  <>         1_ or
+        bigintExpr(        1_) >> intExpr(            0) <>         1_ or
                            1_  >>                 12345  <>         0_ or
                            1_  >> intExpr(        12345) <>         0_ or
         bigintExpr(        1_) >>                 12345  <>         0_ or
         bigintExpr(        1_) >> intExpr(        12345) <>         0_ or
+                           1_  >>          integer.last  <>         0_ or
+                           1_  >> intExpr( integer.last) <>         0_ or
+        bigintExpr(        1_) >>          integer.last  <>         0_ or
+        bigintExpr(        1_) >> intExpr( integer.last) <>         0_ or
                    123456789_  >>                     0  <> 123456789_ or
                    123456789_  >> intExpr(            0) <> 123456789_ or
         bigintExpr(123456789_) >>                     0  <> 123456789_ or
-        bigintExpr(123456789_) >> intExpr(            0) <> 123456789_ then
+        bigintExpr(123456789_) >> intExpr(            0) <> 123456789_ or
+                   123456789_  >>          integer.last  <>         0_ or
+                   123456789_  >> intExpr( integer.last) <>         0_ or
+        bigintExpr(123456789_) >>          integer.last  <>         0_ or
+        bigintExpr(123456789_) >> intExpr( integer.last) <>         0_ then
       writeln("The bigInteger >> does not work correct.");
       okay := FALSE;
     end if;

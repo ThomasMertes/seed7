@@ -233,6 +233,16 @@ const func string: str (in boolean: aBool) is forward;
 
 
 (**
+ *  Convert a boolean value to a boolean literal.
+ *  The boolean value is converted to the string "TRUE" or "FALSE.
+ *  @return "TRUE" when aBool is TRUE,
+ *          "FALSE" otherwise.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func string: literal (in boolean: aBool) is forward;
+
+
+(**
  *  Convert a [[string]] to a boolean value.
  *  @return the boolean result of the conversion.
  *  @exception RANGE_ERROR When the string is not equal to

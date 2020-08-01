@@ -2270,30 +2270,30 @@ intType intRand (intType low, intType high)
 
 
 /**
- *  Compute the integer square root of an integer number.
+ *  Compute the integer square root of an integer radicand.
  *  @return the integer square root.
- *  @exception NUMERIC_ERROR When number is negative.
+ *  @exception NUMERIC_ERROR When the radicand is negative.
  */
-intType intSqrt (intType number)
+intType intSqrt (intType radicand)
 
   {
     register uintType root;
     register uintType root2;
 
   /* intSqrt */
-    logFunction(printf("intSqrt(" FMT_D ")\n", number););
-    if (unlikely(number < 0)) {
-      logError(printf("intSqrt(" FMT_D "): Number is negative.\n",
-                      number););
+    logFunction(printf("intSqrt(" FMT_D ")\n", radicand););
+    if (unlikely(radicand < 0)) {
+      logError(printf("intSqrt(" FMT_D "): Radicand is negative.\n",
+                      radicand););
       raise_error(NUMERIC_ERROR);
       root = 0;
-    } else if (number == 0) {
+    } else if (radicand == 0) {
       root = 0;
     } else {
-      root2 = (uintType) number;
+      root2 = (uintType) radicand;
       do {
         root = root2;
-        root2 = (root + (uintType) number / root) >> 1;
+        root2 = (root + (uintType) radicand / root) >> 1;
       } while (root > root2);
     } /* if */
     logFunction(printf("intSqrt --> " FMT_U "\n", root););

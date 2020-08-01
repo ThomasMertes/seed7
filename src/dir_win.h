@@ -39,13 +39,28 @@
 #endif
 
 
-#ifdef RENAME_DIRECTORY_FUNCTIONS
-#define dirent my_dirent
-#define DIR MY_DIR
-#define opendir my_opendir
-#define readdir my_readdir
-#define closedir my_closedir
-#endif
+#ifdef OS_STRI_WCHAR
+
+struct wdirent {
+    wchar_t *d_name;
+  };
+
+typedef struct {
+    /* FirstElement can only be 0 or 1. This way a WDIR can never */
+    /* start with UINT32TYPE_MAX, which is the magic value of a   */
+    /* volumeListType value.                                      */
+    int firstElement;
+    HANDLE dirHandle;
+    WIN32_FIND_DATAW findData;
+    struct wdirent dirEntry;
+  } WDIR;
+
+WDIR *wopendir (const wchar_t *name);
+struct wdirent *wreaddir (WDIR *curr_dir);
+int wclosedir (WDIR *curr_dir);
+
+
+#else
 
 
 struct dirent {
@@ -62,24 +77,8 @@ typedef struct {
     struct dirent dirEntry;
   } DIR;
 
-struct wdirent {
-    wchar_t *d_name;
-  };
-
-typedef struct {
-    /* FirstElement can only be 0 or 1. This way a WDIR can never */
-    /* start with UINT32TYPE_MAX, which is the magic value of a   */
-    /* volumeListType value.                                      */
-    int firstElement;
-    HANDLE dirHandle;
-    WIN32_FIND_DATAW findData;
-    struct wdirent dirEntry;
-  } WDIR;
-
-
 DIR *opendir (const char *name);
 struct dirent *readdir (DIR *curr_dir);
 int closedir (DIR *curr_dir);
-WDIR *wopendir (const wchar_t *name);
-struct wdirent *wreaddir (WDIR *curr_dir);
-int wclosedir (WDIR *curr_dir);
+
+#endif

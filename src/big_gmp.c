@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  big_gmp.c     Functions for bigInteger using the gmp library.   */
-/*  Copyright (C) 1989 - 2014  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2019  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/big_gmp.c                                       */
-/*  Changes: 2008, 2009, 2010, 2013, 2014  Thomas Mertes            */
+/*  Changes: 2008, 2009, 2010, 2013 - 2019  Thomas Mertes           */
 /*  Content: Functions for bigInteger using the gmp library.        */
 /*                                                                  */
 /********************************************************************/
@@ -53,6 +53,19 @@
 #include "big_drv.h"
 
 
+/* The integers in the gmp library are limited in size.    */
+/* When the size of an integer gets too large the message: */
+/* gmp: overflow in mpz type                               */
+/* is written and the program is terminated with abort().  */
+/* The setting AVOID_OVERFLOW_IN_MPZ_TYPE activates code   */
+/* to avoid the gmp overflow error for shift operations.   */
+/* Instead the exception OVERFLOW_IN_MPZ_ERROR is raised.  */
+#define AVOID_OVERFLOW_IN_MPZ_TYPE 1
+#define GMP_MAX_LIMB_SIZE INT_MAX
+#define OVERFLOW_IN_MPZ_ERROR MEMORY_ERROR
+
+#define USE_CUSTOM_ALLOCATION 0
+
 #define HEAP_ALLOC_BIG     (bigIntType) malloc(sizeof(__mpz_struct))
 #define HEAP_FREE_BIG(var) free(var)
 
@@ -76,6 +89,59 @@ static unsigned int flist_allowed = 100;
 #define FREE_BIG(var)   HEAP_FREE_BIG(var)
 
 #endif
+
+
+
+#if USE_CUSTOM_ALLOCATION
+static void *alloc_func (size_t size)
+
+  {
+    void *memory;
+
+  /* alloc_func */
+    /* printf("alloc_func(" FMT_U_MEM ")\n", (memSizeType) size); */
+    memory = malloc(size);
+    if (unlikely(memory == NULL)) {
+      raise_error(MEMORY_ERROR);
+      printf(" ***** MEMORY_ERROR *****\n");
+      exit(0);
+    } /* if */
+    return memory;
+  } /* alloc_func */
+
+
+
+static void *realloc_func (void *ptr, size_t old_size, size_t new_size)
+
+  {
+    void *memory;
+
+  /* realloc_func */
+    /* printf("realloc_func(*, " FMT_U_MEM ", " FMT_U_MEM ")\n",
+       (memSizeType) old_size, (memSizeType) new_size); */
+    memory = realloc(ptr, new_size);
+    if (unlikely(memory == NULL)) {
+      raise_error(MEMORY_ERROR);
+      printf(" ***** MEMORY_ERROR *****\n");
+      exit(0);
+    } /* if */
+    return memory;
+  } /* realloc_func */
+#endif
+
+
+
+/**
+ *  Setup bigInteger computations.
+ *  This function must be called before doing any bigInteger computations.
+ */
+void setupBig (void)
+
+  { /* setupBig */
+#if USE_CUSTOM_ALLOCATION
+    mp_set_memory_functions(alloc_func, realloc_func, NULL);
+#endif
+  } /* setupBig */
 
 
 
@@ -866,6 +932,8 @@ bigIntType bigIPow (const const_bigIntType base, intType exponent)
     bigIntType power;
 
   /* bigIPow */
+    logFunction(printf("bigIPow(%s, " FMT_D ")\n",
+                       bigHexCStri(base), exponent););
     if (unlikely(exponent < 0)) {
       logError(printf("bigIPow(%s, " FMT_D "): "
                       "Exponent is negative.\n",
@@ -877,6 +945,7 @@ bigIntType bigIPow (const const_bigIntType base, intType exponent)
       mpz_init(power);
       mpz_pow_ui(power, base, (uintType) exponent);
     } /* if */
+    logFunction(printf("bigIPow --> %s\n", bigHexCStri(power)););
     return power;
   } /* bigIPow */
 
@@ -1092,10 +1161,19 @@ bigIntType bigLShift (const const_bigIntType big1, const intType lshift)
                        bigHexCStri(big1), lshift););
     ALLOC_BIG(result);
     mpz_init(result);
-    if (lshift < 0) {
+    if (lshift <= 0) {
       /* The unsigned value is negated to avoid a signed integer */
       /* overflow when the smallest signed integer is negated.   */
       mpz_fdiv_q_2exp(result, big1, -(uintType) lshift);
+#if AVOID_OVERFLOW_IN_MPZ_TYPE
+    } else if (unlikely((uintType) lshift / GMP_LIMB_BITS + 1 >
+                        GMP_MAX_LIMB_SIZE - mpz_size(big1) &&
+                        mpz_sgn(big1) != 0)) {
+      mpz_clear(result);
+      FREE_BIG(result);
+      raise_error(OVERFLOW_IN_MPZ_ERROR);
+      result = NULL;
+#endif
     } else {
       mpz_mul_2exp(result, big1, (uintType) lshift);
     } /* if */
@@ -1111,14 +1189,29 @@ bigIntType bigLShift (const const_bigIntType big1, const intType lshift)
  */
 void bigLShiftAssign (bigIntType *const big_variable, intType lshift)
 
-  { /* bigLShiftAssign */
+  {
+    bigIntType big1;
+
+  /* bigLShiftAssign */
+    big1 = *big_variable;
+    logFunction(printf("bigLShiftAssign(%s, " FMT_D ")\n",
+                       bigHexCStri(big1), lshift););
     if (lshift < 0) {
       /* The unsigned value is negated to avoid a signed integer */
       /* overflow when the smallest signed integer is negated.   */
-      mpz_fdiv_q_2exp(*big_variable, *big_variable, -(uintType) lshift);
-    } else if (lshift != 0) {
-      mpz_mul_2exp(*big_variable, *big_variable, (uintType) lshift);
+      mpz_fdiv_q_2exp(big1, big1, -(uintType) lshift);
+    } else if (lshift == 0) {
+      /* do nothing */
+#if AVOID_OVERFLOW_IN_MPZ_TYPE
+    } else if (unlikely((uintType) lshift / GMP_LIMB_BITS + 1 >
+                        GMP_MAX_LIMB_SIZE - mpz_size(big1) &&
+                        mpz_sgn(big1) != 0)) {
+      raise_error(OVERFLOW_IN_MPZ_ERROR);
+#endif
+    } else {
+      mpz_mul_2exp(big1, big1, (uintType) lshift);
     } /* if */
+    logFunction(printf("bigLShiftAssign --> %s\n", bigHexCStri(big1)););
   } /* bigLShiftAssign */
 
 
@@ -1141,6 +1234,13 @@ bigIntType bigLShiftOne (const intType lshift)
     ALLOC_BIG(result);
     if (lshift < 0) {
       mpz_init_set_ui(result, 0);
+#if AVOID_OVERFLOW_IN_MPZ_TYPE
+    } else if (unlikely((uintType) lshift / GMP_LIMB_BITS + 1 >
+                        GMP_MAX_LIMB_SIZE - 1)) {
+      FREE_BIG(result);
+      raise_error(OVERFLOW_IN_MPZ_ERROR);
+      result = NULL;
+#endif
     } else {
       mpz_init(result);
       mpz_init_set_ui(one, 1);
@@ -1538,6 +1638,8 @@ striType bigRadix (const const_bigIntType big1, intType base,
     striType result;
 
   /* bigRadix */
+    logFunction(printf("bigRadix(%s, " FMT_D ", %d)\n",
+                       bigHexCStri(big1), base, upperCase););
     if (unlikely(base < 2 || base > 36)) {
       logError(printf("bigRadix(%s, " FMT_D ", %d): "
                       "Base not in allowed range.\n",
@@ -1556,6 +1658,7 @@ striType bigRadix (const const_bigIntType big1, intType base,
         raise_error(MEMORY_ERROR);
       } /* if */
     } /* if */
+    logFunction(printf("bigRadix --> \"%s\"\n", striAsUnquotedCStri(result)););
     return result;
   } /* bigRadix */
 
@@ -1650,12 +1753,21 @@ bigIntType bigRShift (const const_bigIntType big1, const intType rshift)
                        bigHexCStri(big1), rshift););
     ALLOC_BIG(result);
     mpz_init(result);
-    if (rshift < 0) {
+    if (rshift >= 0) {
+      mpz_fdiv_q_2exp(result, big1, (uintType) rshift);
+#if AVOID_OVERFLOW_IN_MPZ_TYPE
+    } else if (unlikely((-(uintType) rshift) / GMP_LIMB_BITS + 1 >
+                        GMP_MAX_LIMB_SIZE - mpz_size(big1) &&
+                        mpz_sgn(big1) != 0)) {
+      mpz_clear(result);
+      FREE_BIG(result);
+      raise_error(OVERFLOW_IN_MPZ_ERROR);
+      result = NULL;
+#endif
+    } else {
       /* The unsigned value is negated to avoid a signed integer */
       /* overflow when the smallest signed integer is negated.   */
       mpz_mul_2exp(result, big1, -(uintType) rshift);
-    } else {
-      mpz_fdiv_q_2exp(result, big1, (uintType) rshift);
     } /* if */
     logFunction(printf("bigRShift --> %s\n", bigHexCStri(result)););
     return result;
@@ -1669,14 +1781,29 @@ bigIntType bigRShift (const const_bigIntType big1, const intType rshift)
  */
 void bigRShiftAssign (bigIntType *const big_variable, intType rshift)
 
-  { /* bigRShiftAssign */
-    if (rshift < 0) {
+  {
+    bigIntType big1;
+
+  /* bigRShiftAssign */
+    big1 = *big_variable;
+    logFunction(printf("bigRShiftAssign(%s, " FMT_D ")\n",
+                       bigHexCStri(big1), rshift););
+    if (rshift > 0) {
+      mpz_fdiv_q_2exp(big1, big1, (uintType) rshift);
+    } else if (rshift == 0) {
+      /* do nothing */
+#if AVOID_OVERFLOW_IN_MPZ_TYPE
+    } else if (unlikely((-(uintType) rshift) / GMP_LIMB_BITS + 1 >
+                        GMP_MAX_LIMB_SIZE - mpz_size(big1) &&
+                        mpz_sgn(big1) != 0)) {
+      raise_error(OVERFLOW_IN_MPZ_ERROR);
+#endif
+    } else {
       /* The unsigned value is negated to avoid a signed integer */
       /* overflow when the smallest signed integer is negated.   */
-      mpz_mul_2exp(*big_variable, *big_variable, -(uintType) rshift);
-    } else if (rshift != 0) {
-      mpz_fdiv_q_2exp(*big_variable, *big_variable, (uintType) rshift);
+      mpz_mul_2exp(big1, big1, -(uintType) rshift);
     } /* if */
+    logFunction(printf("bigRShiftAssign --> %s\n", bigHexCStri(big1)););
   } /* bigRShiftAssign */
 
 
@@ -1759,12 +1886,14 @@ striType bigStr (const const_bigIntType big1)
     striType result;
 
   /* bigStr */
+    logFunction(printf("bigStr(%s)\n", bigHexCStri(big1)););
     cstri = mpz_get_str(NULL, 10, big1);
     result = cstri_to_stri(cstri);
     free(cstri);
     if (unlikely(result == NULL)) {
       raise_error(MEMORY_ERROR);
     } /* if */
+    logFunction(printf("bigStr --> \"%s\"\n", striAsUnquotedCStri(result)););
     return result;
   } /* bigStr */
 
@@ -1990,10 +2119,12 @@ bstriType bigToBStriLe (const const_bigIntType big1, const boolType isSigned)
 /**
  *  Convert a 'bigInteger' to an 'int16Type' number.
  *  @return the int16Type result of the conversion.
- *  @exception RANGE_ERROR The number is too small or too big to fit
- *             into a int16Type value.
+ *  @param big1 BigInteger to be converted.
+ *  @param err_info Unchanged when the function succeeds or
+ *                  RANGE_ERROR The number is too small or too big
+ *                  to fit into a int16Type value.
  */
-int16Type bigToInt16 (const const_bigIntType big1)
+int16Type bigToInt16 (const const_bigIntType big1, errInfoType *err_info)
 
   {
     long int result;
@@ -2002,13 +2133,13 @@ int16Type bigToInt16 (const const_bigIntType big1)
     if (unlikely(!mpz_fits_slong_p(big1))) {
       logError(printf("bigToInt16(%s): mpz_fits_slong_p failed.\n",
                       bigHexCStri(big1)););
-      raise_error(RANGE_ERROR);
+      *err_info = RANGE_ERROR;
       return 0;
     } else {
       result = mpz_get_si(big1);
 #if LONG_SIZE > 16
       if (unlikely(result < INT16TYPE_MIN || result > INT16TYPE_MAX)) {
-        raise_error(RANGE_ERROR);
+        *err_info = RANGE_ERROR;
         return 0;
       } /* if */
 #endif
@@ -2021,10 +2152,15 @@ int16Type bigToInt16 (const const_bigIntType big1)
 /**
  *  Convert a 'bigInteger' to an 'int32Type' number.
  *  @return the int32Type result of the conversion.
- *  @exception RANGE_ERROR The number is too small or too big to fit
- *             into a int32Type value.
+ *  @param big1 BigInteger to be converted.
+ *  @param err_info Only used when err_info is not NULL.
+ *                  Unchanged when the function succeeds or
+ *                  RANGE_ERROR The number is too small or too big
+ *                  to fit into a int32Type value.
+ *  @exception RANGE_ERROR When err_info is NULL and the number is
+ *             too small or too big to fit into a int32Type value.
  */
-int32Type bigToInt32 (const const_bigIntType big1)
+int32Type bigToInt32 (const const_bigIntType big1, errInfoType *err_info)
 
   {
     long int result;
@@ -2034,13 +2170,21 @@ int32Type bigToInt32 (const const_bigIntType big1)
     if (unlikely(!mpz_fits_slong_p(big1))) {
       logError(printf("bigToInt32(%s): mpz_fits_slong_p failed.\n",
                       bigHexCStri(big1)););
-      raise_error(RANGE_ERROR);
+      if (err_info == NULL) {
+        raise_error(RANGE_ERROR);
+      } else {
+        *err_info = RANGE_ERROR;
+      } /* if */
       result = 0;
     } else {
       result = mpz_get_si(big1);
 #if LONG_SIZE > 32
       if (unlikely(result < INT32TYPE_MIN || result > INT32TYPE_MAX)) {
-        raise_error(RANGE_ERROR);
+        if (err_info == NULL) {
+          raise_error(RANGE_ERROR);
+        } else {
+          *err_info = RANGE_ERROR;
+        } /* if */
         result = 0;
       } /* if */
 #endif
@@ -2055,10 +2199,15 @@ int32Type bigToInt32 (const const_bigIntType big1)
 /**
  *  Convert a 'bigInteger' to an 'int64Type' number.
  *  @return the int64Type result of the conversion.
- *  @exception RANGE_ERROR The number is too small or too big to fit
- *             into a int64Type value.
+ *  @param big1 BigInteger to be converted.
+ *  @param err_info Only used when err_info is not NULL.
+ *                  Unchanged when the function succeeds or
+ *                  RANGE_ERROR The number is too small or too big
+ *                  to fit into a int64Type value.
+ *  @exception RANGE_ERROR When err_info is NULL and the number is
+ *             too small or too big to fit into a int64Type value.
  */
-int64Type bigToInt64 (const const_bigIntType big1)
+int64Type bigToInt64 (const const_bigIntType big1, errInfoType *err_info)
 
   {
     int64Type result;
@@ -2069,7 +2218,11 @@ int64Type bigToInt64 (const const_bigIntType big1)
     if (unlikely(!mpz_fits_slong_p(big1))) {
       logError(printf("bigToInt64(%s): mpz_fits_slong_p failed.\n",
                       bigHexCStri(big1)););
-      raise_error(RANGE_ERROR);
+      if (err_info == NULL) {
+        raise_error(RANGE_ERROR);
+      } else {
+        *err_info = RANGE_ERROR;
+      } /* if */
       result = 0;
     } else {
       result = mpz_get_si(big1);
@@ -2083,7 +2236,11 @@ int64Type bigToInt64 (const const_bigIntType big1)
       if (unlikely(!mpz_fits_slong_p(help))) {
         logError(printf("bigToInt64(%s): mpz_fits_slong_p failed.\n",
                         bigHexCStri(big1)););
-        raise_error(RANGE_ERROR);
+        if (err_info == NULL) {
+          raise_error(RANGE_ERROR);
+        } else {
+          *err_info = RANGE_ERROR;
+        } /* if */
         result = 0;
       } else {
         result = (int64Type) (mpz_get_si(help) & 0xFFFFFFFF) << 32 |

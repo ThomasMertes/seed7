@@ -43,10 +43,10 @@ AOBJ = act_comp.o prg_comp.o analyze.o syntax.o token.o parser.o name.o type.o \
 GOBJ = syvarutl.o traceutl.o actutl.o executl.o blockutl.o \
        entutl.o identutl.o chclsutl.o arrutl.o
 ROBJ = arr_rtl.o bln_rtl.o bst_rtl.o chr_rtl.o cmd_rtl.o con_rtl.o dir_rtl.o drw_rtl.o fil_rtl.o \
-       flt_rtl.o hsh_rtl.o int_rtl.o itf_rtl.o pcs_rtl.o set_rtl.o soc_dos.o sql_rtl.o str_rtl.o \
-       tim_rtl.o ut8_rtl.o heaputl.o numutl.o sigutl.o striutl.o \
-       sql_base.o sql_lite.o sql_my.o sql_oci.o sql_odbc.o sql_post.o
-DOBJ = big_rtl.o big_gmp.o cmd_unx.o dll_dos.o fil_dos.o pcs_dos.o pol_dos.o tim_dos.o
+       flt_rtl.o hsh_rtl.o int_rtl.o itf_rtl.o pcs_rtl.o set_rtl.o soc_rtl.o sql_rtl.o str_rtl.o \
+       tim_rtl.o ut8_rtl.o heaputl.o numutl.o sigutl.o striutl.o
+DOBJ = big_rtl.o big_gmp.o cmd_unx.o dir_win.o dll_dos.o fil_dos.o pcs_dos.o pol_dos.o soc_none.o \
+       sql_base.o sql_fire.o sql_lite.o sql_my.o sql_oci.o sql_odbc.o sql_post.o tim_dos.o
 OBJ = $(MOBJ)
 SEED7_LIB_OBJ = $(ROBJ) $(DOBJ)
 DRAW_LIB_OBJ = gkb_rtl.o drw_dos.o
@@ -67,10 +67,10 @@ ASRC = act_comp.c prg_comp.c analyze.c syntax.c token.c parser.c name.c type.c \
 GSRC = syvarutl.c traceutl.c actutl.c executl.c blockutl.c \
        entutl.c identutl.c chclsutl.c arrutl.c
 RSRC = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c con_rtl.c dir_rtl.c drw_rtl.c fil_rtl.c \
-       flt_rtl.c hsh_rtl.c int_rtl.c itf_rtl.c pcs_rtl.c set_rtl.c soc_dos.c sql_rtl.c str_rtl.c \
-       tim_rtl.c ut8_rtl.c heaputl.c numutl.c sigutl.c striutl.c \
-       sql_base.c sql_lite.c sql_my.c sql_oci.c sql_odbc.c sql_post.c
-DSRC = big_rtl.c big_gmp.c cmd_unx.c dll_unx.c fil_dos.c pcs_dos.c pol_dos.c tim_dos.c
+       flt_rtl.c hsh_rtl.c int_rtl.c itf_rtl.c pcs_rtl.c set_rtl.c soc_rtl.c sql_rtl.c str_rtl.c \
+       tim_rtl.c ut8_rtl.c heaputl.c numutl.c sigutl.c striutl.c
+DSRC = big_rtl.c big_gmp.c cmd_unx.c dir_win.c dll_unx.c fil_dos.c pcs_dos.c pol_dos.c soc_none.c \
+       sql_base.c sql_fire.c sql_lite.c sql_my.c sql_oci.c sql_odbc.c sql_post.c tim_dos.c
 SRC = $(MSRC)
 SEED7_LIB_SRC = $(RSRC) $(DSRC)
 DRAW_LIB_SRC = gkb_rtl.c drw_dos.c

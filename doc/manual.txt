@@ -202,6 +202,7 @@ CONTENTS
   14.2    String and path conversions
   14.3    Macros to access the action parameters
   14.4    Functions to create action results
+  14.5    Error handling
   15.   ERRORS
   15.1    Compile time errors
   15.2    Exceptions
@@ -10606,7 +10607,7 @@ CONTENTS
     cstriType stri_to_cstri8 (const_striType stri, errInfoType *err_info)
       Create an UTF-8 encoded C string from a Seed7 UTF-32 string.
 
-    cstriType stri_to_cstri8_buf (const_striType stri, memSizeType *length, errInfoType *err_info)
+    cstriType stri_to_cstri8_buf (const_striType stri, memSizeType *length)
       Create an UTF-8 encoded C string buffer from a Seed7 UTF-32 string.
 
     bstriType stri_to_bstri (const_striType stri, errInfoType *err_info)
@@ -10650,6 +10651,9 @@ CONTENTS
 
     void os_stri_free (os_striType var)
       Macro to free memory that has been allocated with os_stri_alloc.
+
+    void raise_error (errInfoType err_info)
+      Macro to raise an exception.
 
 
   Function Detail
@@ -10703,11 +10707,11 @@ CONTENTS
 
   stri_to_cstri8_buf
 
-    cstriType stri_to_cstri8_buf (const_striType stri, memSizeType *length,
-        errInfoType *err_info)
+    cstriType stri_to_cstri8_buf (const_striType stri, memSizeType *length)
 
       Create an UTF-8 encoded C string buffer from a Seed7 UTF-32 string.
       The memory for the zero byte terminated C string is allocated.
+      Zero bytes inside the string are copied to the C string.
       The C string result must be freed with the macro free_cstri8().
       This function is intended to create temporary strings, that
       are used as parameters. To get good performance the allocated
@@ -10716,13 +10720,10 @@ CONTENTS
       Parameters:
         stri - Seed7 UTF-32 string to be converted.
         length - Place to return the length of the result (without '\0').
-        err_info - Unchanged when the function succeeds or
-                   MEMORY_ERROR when the memory allocation failed.
 
       Returns:
         an UTF-8 encoded null terminated C string or
-        NULL, when the memory allocation failed
-        (the error is indicated by err_info).
+        NULL, when the memory allocation failed.
 
 
   stri_to_bstri
@@ -11010,6 +11011,19 @@ CONTENTS
         var - The string to be freed.
 
 
+  raise_error
+
+    void raise_error (errInfoType err_info)
+
+      Macro to raise an exception. This macro calls the function
+      raise_exception2 with the additional parameters __FILE__ and
+      __LINE__. The function raise_exception2 has different
+      implementations for interpreted and compiled programs.
+
+      Parameters:
+        err_info - The exception to be raised.
+
+
 
 14.3 Macros to access the action parameters
 
@@ -11191,6 +11205,43 @@ CONTENTS
 
     objectType bld_win_temp (winType temp_win)
       Create an object with a winType value.
+
+
+14.5 Error handling
+
+  The C programming language does not provide exceptions. Seed7 uses
+  several methods to provide error handling. Before an actual exception
+  is raised an error state can be handled in different ways:
+
+    - The integer type 'errInfoType' is used to descripe an
+      error state. Usually a variable or parameter named 'err_info' is
+      used to store the error state. The value 'OKAY_NO_ERROR' is used
+      to describe that no error occurred. Values like 'MEMORY_ERROR',
+      'NUMERIC_ERROR', 'OVERFLOW_ERROR', 'RANGE_ERROR', 'FILE_ERROR',
+      'DATABASE_ERROR' and 'ACTION_ERROR' describe errors that occurred.
+    - In some situations a function has only one possible error
+      situation (e.g. a 'MEMORY_ERROR'). This is handled with functions
+      that return NULL in case of a 'MEMORY_ERROR'.
+
+  Code can check the value of the 'err_info' variable, or check if a
+  function returns NULL. In case of error it is possible to do some
+  cleaning up. An error situation can be propergated this way over
+  several function levels. It is important to assure that an
+  existing error situation (e.g. 'err_info' has a value not equal to
+  'OKAY_NO_ERROR') is not reset to a situation that no error occurred.
+
+  An actual exception can be triggered with the macro 'raise_error'.
+  This macro takes an 'errInfoType' parameter to describe the actual
+  exception. This macro calls the function 'raise_exception2' with
+  the additional parameters __FILE__ and __LINE__. The function
+  'raise_exception2' has different implementations for interpreted
+  and compiled programs:
+
+    - In the interpreter 'raise_exception2' sets a fail flag
+      and the function is left normally.
+    - In compiled code 'raise_exception2' uses a 'longjmp'
+      to continue executing at the handler code of the exception.
+
 
 
 

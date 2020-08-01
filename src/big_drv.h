@@ -31,18 +31,19 @@
 
 #ifndef INT64TYPE
 #define bigFromUInt64(x) 0
-#define bigToInt64(x) 0
+#define bigToInt64(x,e) 0
 #endif
 
 #if   INTTYPE_SIZE == 64
-#define bigIConv bigFromInt64
-#define bigOrd   bigToInt64
+#define bigIConv    bigFromInt64
+#define bigOrd(x)   bigToInt64(x, NULL)
 #elif INTTYPE_SIZE == 32
-#define bigIConv bigFromInt32
-#define bigOrd   bigToInt32
+#define bigIConv    bigFromInt32
+#define bigOrd(x)   bigToInt32(x, NULL)
 #endif
 
 
+void setupBig (void);
 cstriType bigHexCStri (const const_bigIntType big1);
 bigIntType bigAbs (const const_bigIntType big1);
 bigIntType bigAbsTemp (bigIntType big1);
@@ -119,10 +120,10 @@ bigIntType bigSucc (const const_bigIntType big1);
 bigIntType bigSuccTemp (bigIntType big1);
 bstriType bigToBStriBe (const const_bigIntType big1, const boolType isSigned);
 bstriType bigToBStriLe (const const_bigIntType big1, const boolType isSigned);
-int16Type bigToInt16 (const const_bigIntType big1);
-int32Type bigToInt32 (const const_bigIntType big1);
+int16Type bigToInt16 (const const_bigIntType big1, errInfoType *err_info);
+int32Type bigToInt32 (const const_bigIntType big1, errInfoType *err_info);
 #ifdef INT64TYPE
-  int64Type bigToInt64 (const const_bigIntType big1);
+  int64Type bigToInt64 (const const_bigIntType big1, errInfoType *err_info);
   uint64Type bigToUInt64 (const const_bigIntType big1);
 #endif
 bigIntType bigXor (const_bigIntType big1, const_bigIntType big2);

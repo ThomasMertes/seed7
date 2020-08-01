@@ -1,6 +1,112 @@
+20190107:
+- A chapter about the handling of errors in interpreter and run-time
+  library has been added to the manual.
+- The new database driver sql_fire.c has been added. This driver
+  provides database access functions for Firebird/InterBase.
+- The database drivers sql_lite.c, sql_my.c, sql_odbc.c and sql_post.c
+  have been improved to check that all parameters of a prepared
+  statement are bound. This check takes place when a prepared statement
+  is executed.
+- The bind functions in sql_lite.c and sql_my.c have been improved to
+  check, that a parameter with the given index exists.
+- The bind functions of sql_my.c and sql_odbc.c have been improved to
+  allow that the same parameter can be bound again with a different
+  bind function (e.g. as integer instead of a bigInteger).
+- The database driver sql_lite.c has been improved:
+  - The function sqlBindBigRat has been improved to convert a
+    bigRational to a double via the decimal representation.
+  - The functions sqlColumnBigInt and sqlColumnInt have been improved
+    to accept blob values with a decimal content that ends with ".0".
+  - The function sqlColumnFloat has been improved to accept integer
+    values.
+  - The function sqlExecute has been improved to reset a prepared
+    statement, when necessary.
+- The database driver sql_my.c has been improved:
+  - Medium and large blobs are supported now.
+  - The function sqlColumnStri() has been improved to read BLOB data.
+  - The function processEscapesInStatement() has been introduced. This
+    function assures that string literals in prepared statements do not
+    allow backslash escape sequences (e.g. \n or \t). This way a
+    backslash in a SQL statement has no special meaning (like it is
+    common practice in all other SQL databases).
+  - The function sqlExecute() has been improved to call
+    mysql_stmt_store_result(). This way the complete result set is
+    buffered on the client. Doing so avoids the "Commands out of sync"
+    error (e.g. which is triggered (without mysql_stmt_store_result()),
+    when a new statement is prepared before all data of an old
+    statement is fetched).
+  - The function resizeBindArray() has been removed.
+- The database driver sql_odbc.c has been improved:
+  - The function SQLGetTypeInfo is used to determine if the driver
+    supports the type SQL_WCHAR.
+  - It is recognized when the function SQLDescribeParam() is missing
+    and reasonable default values are used instead.
+  - The function SQLFreeStmt() is used now without the precondition
+    fetchOkay or fetchFinished.
+  - The function setupParameterColumn has been introduced. This
+    function allocates memory for parameter buffers.
+  - One call of SQLDescribeCol() is used to determine the properties of
+    result columns instead of many calls of SQLColAttribute().
+  - Blob result data is now recognized by data type (SQL_LONGVARCHAR,
+    SQL_WLONGVARCHAR or SQL_LONGVARBINARY) instead of data length.
+  - The bind functions have been improved to use a switch depending
+    on the data type.
+  - Calls of SQLBindParameter() have been changed to use parameters
+    determined with SQLDescribeParam().
+  - At several places switch statements depending on the c_type are
+    used.
+  - The function sqlColumnDuration has been improved to accept a
+    duration in a VARCHAR field.
+  - Experimental code to search for an ODBC driver has been added (but
+    it is deactivated for now).
+- The database driver sql_post.c has been improved:
+  - The function setupParameterColumn() has been introduced. This
+    function allocates memory for parameter buffers. The buffers are
+    part of the bindDataRecord.
+  - The conversion of the internal NUMERIC representation to integer,
+    float, bigInteger and bigRational values has been improved. Now
+    sqlColumnInt() and sqlColumnFloat() can also read NUMERIC data.
+  - The functions getNumericAsCStri(), getNumericAsStri(),
+    getNumericAsInt(), getNumericAsBigInt(), getNumericAsBigRat()
+    and getNumericAsFloat() have been added.
+  - The function sqlColumnStri() has been improved to read BLOB data.
+  - The memory management has been improved to recogize out of memory
+    situations reliable.
+  - The handling of exceptions has been improved.
+- The function literal() has been added to bigint.s7i, bigrat.s7i,
+  boolean.s7i, bstring.s7i, duration.s7i and time.s7i.
+- The function integer (it converts a bigInteger to an integer) has
+  been added to bigint.s7i.
+- The function string (it converts a bstring to a string) has
+  been added to bstring.s7i.
+- The example program chkdb.sd7 has been improved to test the
+  functionality of a database with much more detail. Chkdb.sd7 now
+  supports parameters to specify the database to be checked.
+- The programs sql7.sd7 and db7.sd7 has been improved to support
+  Firebird/Interbase databases.
+- The tests of shift operators have been improved in chkbig.sd7.
+- The program chkccomp.c has been improved to determine the settings
+  for directory access and for the database driver sql_fire.c.
+- An #if instruction has been added to dir_win.c, soc_none.c and
+  soc_rtl.c, such that the object file can always be linked.
+- The function stri_to_cstri8_buf() has been changed to work without
+  err_info parameter.
+- Experimental code, to avoid the gmp error "overflow in mpz type" for
+  shift operations, has been added to big_gmp.c.
+- In big_rtl.c, big_gmp.c and big_drv.h the functions bigToInt16(),
+  bigToInt32() and bigToInt64() have been changed to have the
+  additional parameter err_info.
+- The function setupBig() has been added to big_rtl.c and big_gmp.c.
+  Additionally interpreter and compiler have been improved to call
+  setupBig().
+- Documentation comments have been improved in integer.s7i,
+  sql_base.s7i, big_gmp.c, big_rtl.c, sql_rtl.c, intlib.c, int_rtl.c
+  and striutl.c
+- The file soc_dos.c has been renamed to soc_none.c.
+
 20181125:
 - In sql_odbc.c the handling of blobs has been improved. Selects with
-  normal and blob fields work now independend from the order of fields.
+  normal and blob fields work now independent from the order of fields.
   The functions resizeBindArray() and getClob() have been removed. The
   functions setupParameters(), getBlob(), getData() and fetchBlobs()
   have been added and the function getWCLob() has been improved.
@@ -8,7 +114,7 @@
   support the sql type datetime2 and times with fractions of a second.
   The functions sqlBindTime() and sqlColumnTime() have been improved.
 - In sql_odbc.c the binding of bigRational and null values has been
-  improved. The functons sqlBindBigRat() and sqlBindNull() have been
+  improved. The functions sqlBindBigRat() and sqlBindNull() have been
   improved.
 - In the library duration.s7i the function str() and the operator
   'parse' have been improved to use P[nY][nM][nD][T[nH][nM][n[.n]S]] as
@@ -2837,7 +2943,7 @@
   BLN_EQ and BLN_NE.
 
 20140518:
-- Errors in con_wat.c and drw-dos.c have been fixed (thanks to
+- Errors in con_wat.c and drw_dos.c have been fixed (thanks to
   "Rugxulo" for the help to fix them).
 - The function str in duration.s7i has been improved to work for
   negative durations.
@@ -3472,7 +3578,7 @@
 - The function getHttp in gethttp.s7i has been improved to use
   a case-insensitive comparison for HTTP header field names.
 - In exec.c the functions eval_arg_list and dump_arg_list have been
-  improved to avoid reading from freed memory. This occured in very
+  improved to avoid reading from freed memory. This occurred in very
   rare cases.
 - The functions find_action (in actutl.c), fltParse (in flt_rtl.c),
   cmdConfigValue (in cmd_rtl.c) and find_sysvar (in syvarutl.c)

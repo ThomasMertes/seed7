@@ -476,9 +476,9 @@ void timFromBigTimestamp (const const_bigIntType timestamp,
 
   /* timFromBigTimestamp */
     if (sizeof(time_t) == 8) {
-      os_timestamp = (time_t) bigToInt64(timestamp);
+      os_timestamp = (time_t) bigToInt64(timestamp, NULL);
     } else {
-      os_timestamp = (time_t) bigToInt32(timestamp);
+      os_timestamp = (time_t) bigToInt32(timestamp, NULL);
     } /* if */
     timFromTimestamp(os_timestamp,
         year, month, day, hour, min, sec, micro_sec, time_zone, is_dst);

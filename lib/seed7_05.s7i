@@ -494,6 +494,9 @@ const func string: str (in boolean: aBool) is func
     end if;
   end func;
 
+const func string: literal (in boolean: aBool) is
+    return str(aBool);
+
 (* Procedure literal from char *)
 
 const func string: literal (in char: ch) is func

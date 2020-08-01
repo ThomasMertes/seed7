@@ -139,11 +139,11 @@ const proc: big_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "bigIntType  bigNegateTemp (bigIntType);");
     declareExtern(c_prog, "boolType    bigOdd (const const_bigIntType);");
     if ccConf.INTTYPE_SIZE = 64 then
-      declareExtern(c_prog, "intType     bigToInt64 (const const_bigIntType);");
-      writeln(c_prog, "#define     bigOrd bigToInt64");
+      declareExtern(c_prog, "intType     bigToInt64 (const const_bigIntType, errInfoType *);");
+      writeln(c_prog, "#define     bigOrd(x) bigToInt64(x, NULL)");
     elsif ccConf.INTTYPE_SIZE = 32 then
-      declareExtern(c_prog, "intType     bigToInt32 (const const_bigIntType);");
-      writeln(c_prog, "#define     bigOrd bigToInt32");
+      declareExtern(c_prog, "intType     bigToInt32 (const const_bigIntType, errInfoType *);");
+      writeln(c_prog, "#define     bigOrd(x) bigToInt32(x, NULL)");
     end if;
     declareExtern(c_prog, "bigIntType  bigOr (const_bigIntType, const_bigIntType);");
     declareExtern(c_prog, "bigIntType  bigParse (const const_striType);");

@@ -59,6 +59,7 @@ SQLITE_API int sqlite3_bind_double (sqlite3_stmt *pStmt, int index, double value
 SQLITE_API int sqlite3_bind_int (sqlite3_stmt *pStmt, int index, int value);
 SQLITE_API int sqlite3_bind_int64 (sqlite3_stmt *pStmt, int index, sqlite3_int64 value);
 SQLITE_API int sqlite3_bind_null (sqlite3_stmt *pStmt, int index);
+SQLITE_API int sqlite3_bind_parameter_count(sqlite3_stmt *pStmt);
 SQLITE_API int sqlite3_bind_text (sqlite3_stmt *pStmt,
                                   int index,
                                   const char *value,

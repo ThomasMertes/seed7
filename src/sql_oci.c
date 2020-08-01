@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  sql_oci.c     Database access functions for OCI.                */
-/*  Copyright (C) 1989 - 2014  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2018  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/sql_oci.c                                       */
-/*  Changes: 2013, 2014  Thomas Mertes                              */
+/*  Changes: 2013, 2014, 2015, 2017, 2018  Thomas Mertes            */
 /*  Content: Database access functions for OCI.                     */
 /*                                                                  */
 /********************************************************************/
@@ -3002,6 +3002,7 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos, striType stri)
   {
     preparedStmtType preparedStmt;
     cstriType stri8;
+    cstriType resized_stri8;
     memSizeType length;
     errInfoType err_info = OKAY_NO_ERROR;
 
@@ -3017,8 +3018,10 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos, striType stri)
       resizeBindArray(preparedStmt, (memSizeType) pos);
       if (preparedStmt->param_array != NULL) {
         if (preparedStmt->param_array[pos - 1].buffer == NULL) {
-          stri8 = stri_to_cstri8_buf(stri, &length, &err_info);
-          if (stri8 != NULL) {
+          stri8 = stri_to_cstri8_buf(stri, &length);
+          if (unlikely(stri8 == NULL)) {
+            err_info = MEMORY_ERROR;
+          } else {
             preparedStmt->param_array[pos - 1].buffer_type = SQLT_CHR;
           } /* if */
         } else if (preparedStmt->param_array[pos - 1].buffer_type != SQLT_CHR) {
@@ -3026,7 +3029,10 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos, striType stri)
           err_info = RANGE_ERROR;
         } else {
           free(preparedStmt->param_array[pos - 1].buffer);
-          stri8 = stri_to_cstri8_buf(stri, &length, &err_info);
+          stri8 = stri_to_cstri8_buf(stri, &length);
+          if (unlikely(stri8 == NULL)) {
+            err_info = MEMORY_ERROR;
+          } /* if */
         } /* if */
         if (unlikely(err_info != OKAY_NO_ERROR)) {
           raise_error(err_info);
@@ -3035,6 +3041,10 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos, striType stri)
           preparedStmt->param_array[pos - 1].buffer = NULL;
           raise_error(MEMORY_ERROR);
         } else {
+          resized_stri8 = REALLOC_CSTRI(stri8, length);
+          if (likely(resized_stri8 != NULL)) {
+            stri8 = resized_stri8;
+          } /* if */
           /* printf("stri8: \"%s\"\n", stri8); */
           preparedStmt->param_array[pos - 1].buffer = stri8;
           preparedStmt->param_array[pos - 1].buffer_length = length;
@@ -3472,7 +3482,7 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
       raise_error(RANGE_ERROR);
     } else {
       if (preparedStmt->result_array[column - 1].indicator == -1) {
-        /* printf("Column is NULL -> Use default value: 0-00-00 00:00:00\n"); */
+        /* printf("Column is NULL -> Use default value: P0D\n"); */
         *year         = 0;
         *month        = 0;
         *day          = 0;
@@ -4094,8 +4104,9 @@ static sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
     if (statementStri == NULL) {
       preparedStmt = NULL;
     } else {
-      query = stri_to_cstri8_buf(statementStri, &query_length, &err_info);
-      if (query == NULL) {
+      query = stri_to_cstri8_buf(statementStri, &query_length);
+      if (unlikely(query == NULL)) {
+        err_info = MEMORY_ERROR;
         preparedStmt = NULL;
       } else {
         /* printf("query: \"%s\"\n", query); */
@@ -4374,18 +4385,18 @@ databaseType sqlOpenOci (const const_striType dbName,
       err_info = FILE_ERROR;
       database = NULL;
     } else {
-      dbName8 = stri_to_cstri8_buf(dbName, &dbName8_length, &err_info);
-      if (dbName8 == NULL) {
+      dbName8 = stri_to_cstri8_buf(dbName, &dbName8_length);
+      if (unlikely(dbName8 == NULL)) {
         err_info = MEMORY_ERROR;
         database = NULL;
       } else {
-        user8 = stri_to_cstri8_buf(user, &user8_length, &err_info);
-        if (user8 == NULL) {
+        user8 = stri_to_cstri8_buf(user, &user8_length);
+        if (unlikely(user8 == NULL)) {
           err_info = MEMORY_ERROR;
           database = NULL;
         } else {
-          password8 = stri_to_cstri8_buf(password, &password8_length, &err_info);
-          if (password8 == NULL) {
+          password8 = stri_to_cstri8_buf(password, &password8_length);
+          if (unlikely(password8 == NULL)) {
             err_info = MEMORY_ERROR;
             database = NULL;
           } else {

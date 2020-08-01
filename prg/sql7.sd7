@@ -40,6 +40,7 @@ const proc: writeHelp is func
     writeln("  POSTGRESQL POST      PostgreSQL");
     writeln("  ORACLE     OCI       Oracle");
     writeln("  ODBC                 Odbc");
+    writeln("  FIREBIRD   FIRE      Firebird/Interbase");
     writeln;
     writeln("The database name (dbName) can be specified with or without host name:");
     writeln("  myDb");

@@ -335,11 +335,11 @@ const func integer: abs (in integer: number)                     is action "INT_
 
 
 (**
- *  Compute the truncated square root of an integer number.
+ *  Compute the integer square root of an integer radicand.
  *  @return the integer square root.
- *  @exception NUMERIC_ERROR When number is negative.
+ *  @exception NUMERIC_ERROR When the radicand is negative.
  *)
-const func integer: sqrt (in integer: number)                    is action "INT_SQRT";
+const func integer: sqrt (in integer: radicand)                  is action "INT_SQRT";
 
 
 (**

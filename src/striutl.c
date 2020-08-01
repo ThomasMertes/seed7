@@ -860,6 +860,15 @@ memSizeType utf8_bytes_missing (const const_ustriType ustri, const size_t len)
 
 
 
+/**
+ *  Convert an UTF-32 encoded string to an UTF-8 encoded string.
+ *  The source and destination stings are not '\0' terminated.
+ *  The memory for the destination out_stri is not allocated.
+ *  @param out_stri Destination of the UTF-8 encoded string.
+ *  @param strelem UTF-32 encoded string to be converted.
+ *  @param len Number of UTF-32 characters in strelem.
+ *  @return the length of the converted UTF-8 string.
+ */
 memSizeType stri_to_utf8 (const ustriType out_stri,
     const strElemType *strelem, memSizeType len)
 
@@ -1654,20 +1663,17 @@ cstriType stri_to_cstri8 (const const_striType stri, errInfoType *err_info)
 /**
  *  Create an UTF-8 encoded C string buffer from a Seed7 UTF-32 string.
  *  The memory for the zero byte terminated C string is allocated.
+ *  Zero bytes inside the string are copied to the C string.
  *  The C string result must be freed with the macro free_cstri8().
  *  This function is intended to create temporary strings, that
  *  are used as parameters. To get good performance the allocated
  *  memory for the C string is oversized.
  *  @param stri Seed7 UTF-32 string to be converted.
  *  @param length Place to return the length of the result (without '\0').
- *  @param err_info Unchanged when the function succeeds or
- *                  MEMORY_ERROR when the memory allocation failed.
  *  @return an UTF-8 encoded null terminated C string or
- *          NULL, when the memory allocation failed
- *          (the error is indicated by err_info).
+ *          NULL, when the memory allocation failed.
  */
-cstriType stri_to_cstri8_buf (const const_striType stri, memSizeType *length,
-    errInfoType *err_info)
+cstriType stri_to_cstri8_buf (const const_striType stri, memSizeType *length)
 
   {
     cstriType cstri;
@@ -1675,7 +1681,6 @@ cstriType stri_to_cstri8_buf (const const_striType stri, memSizeType *length,
   /* stri_to_cstri8_buf */
     if (unlikely(stri->size > MAX_CSTRI_LEN / MAX_UTF8_EXPANSION_FACTOR ||
                  !ALLOC_CSTRI(cstri, max_utf8_size(stri->size)))) {
-      *err_info = MEMORY_ERROR;
       cstri = NULL;
     } else {
       *length = stri_to_utf8((ustriType) cstri, stri->mem, stri->size);

@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  sql_post.c    Database access functions for PostgreSQL.         */
-/*  Copyright (C) 1989 - 2014  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2019  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/sql_post.c                                      */
-/*  Changes: 2014  Thomas Mertes                                    */
+/*  Changes: 2014, 2015, 2017 - 2019  Thomas Mertes                 */
 /*  Content: Database access functions for PostgreSQL.              */
 /*                                                                  */
 /********************************************************************/
@@ -58,6 +58,7 @@
 #include "striutl.h"
 #include "heaputl.h"
 #include "numutl.h"
+#include "int_rtl.h"
 #include "flt_rtl.h"
 #include "str_rtl.h"
 #include "tim_rtl.h"
@@ -99,6 +100,11 @@ typedef struct {
   } dbRecord, *dbType;
 
 typedef struct {
+    cstriType    buffer;
+    boolType     bound;
+  } bindDataRecord, *bindDataType;
+
+typedef struct {
     uintType       usage_count;
     sqlFuncType    sqlFunc;
     PGconn        *connection;
@@ -106,6 +112,7 @@ typedef struct {
     uintType       stmtNum;
     char           stmtName[30];
     memSizeType    param_array_size;
+    bindDataType   param_array;
     Oid           *paramTypes;
     cstriType     *paramValues;
     int           *paramLengths;
@@ -419,12 +426,19 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
 
   {
     preparedStmtType preparedStmt;
+    memSizeType pos;
     static PGresult *deallocate_result;
 
   /* freePreparedStmt */
     logFunction(printf("freePreparedStmt(" FMT_U_MEM ")\n",
                        (memSizeType) sqlStatement););
     preparedStmt = (preparedStmtType) sqlStatement;
+    if (preparedStmt->param_array != NULL) {
+      for (pos = 0; pos < preparedStmt->param_array_size; pos++) {
+        free(preparedStmt->param_array[pos].buffer);
+      } /* for */
+      FREE_TABLE(preparedStmt->param_array, bindDataRecord, preparedStmt->param_array_size);
+    } /* if */
     if (preparedStmt->paramTypes != NULL) {
       FREE_TABLE(preparedStmt->paramTypes, Oid, preparedStmt->param_array_size);
     } /* if */
@@ -459,6 +473,7 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
 
 
 
+#if LOG_FUNCTIONS_EVERYWHERE || LOG_FUNCTIONS || VERBOSE_EXCEPTIONS_EVERYWHERE || VERBOSE_EXCEPTIONS
 static const char *nameOfBufferType (Oid buffer_type)
 
   {
@@ -562,6 +577,7 @@ static const char *nameOfBufferType (Oid buffer_type)
     logFunction(printf("nameOfBufferType --> %s\n", typeName););
     return typeName;
   } /* nameOfBufferType */
+#endif
 
 
 
@@ -640,12 +656,95 @@ static striType processBindVarsInStatement (const const_striType sqlStatementStr
 
 
 
-static void setupParameters (PGresult *describe_result, preparedStmtType preparedStmt,
-    errInfoType *err_info)
+static errInfoType setupParameterColumn (preparedStmtType preparedStmt,
+    int param_index, bindDataType param)
+
+  {
+    memSizeType paramLength = 0;
+    errInfoType err_info = OKAY_NO_ERROR;
+
+  /* setupParameterColumn */
+    switch (preparedStmt->paramTypes[param_index]) {
+      case INT2OID:
+        paramLength = sizeof(int16Type);
+        break;
+      case INT4OID:
+        paramLength = sizeof(int32Type);
+        break;
+      case INT8OID:
+        paramLength = sizeof(int64Type);
+        break;
+      case FLOAT4OID:
+        paramLength = sizeof(float);
+        break;
+      case FLOAT8OID:
+        paramLength = sizeof(double);
+        break;
+      case DATEOID:
+        paramLength = sizeof(int32Type);
+        break;
+      case TIMEOID:
+        if (preparedStmt->integerDatetimes) {
+          paramLength = sizeof(int64Type);
+        } else {
+          paramLength = sizeof(double);
+        } /* if */
+        break;
+      case TIMETZOID:
+        if (preparedStmt->integerDatetimes) {
+          paramLength = sizeof(int64Type) + sizeof(int32Type);
+        } else {
+          paramLength = sizeof(double) + sizeof(int32Type);
+        } /* if */
+        break;
+      case TIMESTAMPOID:
+        if (preparedStmt->integerDatetimes) {
+          paramLength = sizeof(int64Type);
+        } else {
+          paramLength = sizeof(double);
+        } /* if */
+        break;
+      case TIMESTAMPTZOID:
+        if (preparedStmt->integerDatetimes) {
+          paramLength = sizeof(int64Type);
+        } else {
+          paramLength = sizeof(double);
+        } /* if */
+        break;
+      case INTERVALOID:
+        if (preparedStmt->integerDatetimes) {
+          paramLength = sizeof(int64Type) + 2 * sizeof(int32Type);
+        } else {
+          paramLength = sizeof(double) + 2 * sizeof(int32Type);
+        } /* if */
+        break;
+    } /* switch */
+    if (paramLength != 0) {
+      param->buffer = (cstriType) malloc(paramLength);
+      if (unlikely(param->buffer == NULL)) {
+        err_info = MEMORY_ERROR;
+      } else {
+        preparedStmt->paramValues[param_index] = NULL;
+        preparedStmt->paramLengths[param_index] = (int) paramLength;
+        preparedStmt->paramFormats[param_index] = 1;
+      } /* if */
+    } else {
+      param->buffer = NULL;
+      preparedStmt->paramValues[param_index] = NULL;
+      preparedStmt->paramLengths[param_index] = 0;
+      preparedStmt->paramFormats[param_index] = 0;
+    } /* if */
+    return err_info;
+  } /* setupParameterColumn */
+
+
+
+static errInfoType setupParameters (PGresult *describe_result, preparedStmtType preparedStmt)
 
   {
     int num_params;
-    int param_number;
+    int param_index;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* setupParameters */
     logFunction(printf("setupParameters\n"););
@@ -654,13 +753,17 @@ static void setupParameters (PGresult *describe_result, preparedStmtType prepare
       dbInconsistent("setupParameters", "PQnparams");
       logError(printf("setupParameters: PQnparams returns negative number: %d\n",
                       num_params););
-      *err_info = DATABASE_ERROR;
+      err_info = DATABASE_ERROR;
     } else {
       preparedStmt->param_array_size = (memSizeType) num_params;
-      if (!ALLOC_TABLE(preparedStmt->paramTypes, Oid, preparedStmt->param_array_size) ||
+      if (!ALLOC_TABLE(preparedStmt->param_array, bindDataRecord, preparedStmt->param_array_size) ||
+          !ALLOC_TABLE(preparedStmt->paramTypes, Oid, preparedStmt->param_array_size) ||
           !ALLOC_TABLE(preparedStmt->paramValues, cstriType, preparedStmt->param_array_size) ||
           !ALLOC_TABLE(preparedStmt->paramLengths, int, preparedStmt->param_array_size) ||
           !ALLOC_TABLE(preparedStmt->paramFormats, int, preparedStmt->param_array_size)) {
+        if (preparedStmt->param_array != NULL) {
+          FREE_TABLE(preparedStmt->param_array, bindDataRecord, preparedStmt->param_array_size);
+        } /* if */
         if (preparedStmt->paramTypes != NULL) {
           FREE_TABLE(preparedStmt->paramTypes, Oid, preparedStmt->param_array_size);
         } /* if */
@@ -674,33 +777,37 @@ static void setupParameters (PGresult *describe_result, preparedStmtType prepare
           FREE_TABLE(preparedStmt->paramFormats, int, preparedStmt->param_array_size);
         } /* if */
         preparedStmt->param_array_size = 0;
+        preparedStmt->param_array = NULL;
         preparedStmt->paramTypes = NULL;
         preparedStmt->paramValues = NULL;
         preparedStmt->paramLengths = NULL;
         preparedStmt->paramFormats = NULL;
-        *err_info = MEMORY_ERROR;
+        err_info = MEMORY_ERROR;
       } else {
-        for (param_number = 0; param_number < num_params; param_number++) {
-          preparedStmt->paramTypes[param_number] = PQparamtype(describe_result, param_number);
+        memset(preparedStmt->param_array, 0,
+               (memSizeType) num_params * sizeof(bindDataRecord));
+        for (param_index = 0; param_index < num_params &&
+             err_info == OKAY_NO_ERROR; param_index++) {
+          preparedStmt->paramTypes[param_index] = PQparamtype(describe_result, param_index);
           /* printf("paramType: %s\n",
-             nameOfBufferType(preparedStmt->paramTypes[param_number])); */
-          preparedStmt->paramValues[param_number] = NULL;
-          preparedStmt->paramLengths[param_number] = 0;
-          preparedStmt->paramFormats[param_number] = 0;
+             nameOfBufferType(preparedStmt->paramTypes[param_index])); */
+          err_info = setupParameterColumn(preparedStmt, param_index,
+              &preparedStmt->param_array[param_index]);
         } /* if */
       } /* if */
     } /* if */
-    logFunction(printf("setupParameters -->\n"););
+    logFunction(printf("setupParameters --> %d\n", err_info););
+    return err_info;
   } /* setupParameters */
 
 
 
-static void setupResult (PGresult *describe_result, preparedStmtType preparedStmt,
-    errInfoType *err_info)
+static errInfoType setupResult (PGresult *describe_result, preparedStmtType preparedStmt)
 
   {
     int num_columns;
     /* int column_index; */
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* setupResult */
     logFunction(printf("setupResult\n"););
@@ -709,49 +816,74 @@ static void setupResult (PGresult *describe_result, preparedStmtType preparedStm
       dbInconsistent("setupResult", "PQnfields");
       logError(printf("setupResult: PQnfields returns negative number: %d\n",
                       num_columns););
-      *err_info = DATABASE_ERROR;
+      err_info = DATABASE_ERROR;
     } else {
       preparedStmt->result_column_count = (memSizeType) num_columns;
       /* for (column_index = 0; column_index < num_columns &&
-           *err_info == OKAY_NO_ERROR; column_index++) {
+           err_info == OKAY_NO_ERROR; column_index++) {
         printf("Column %d name: %s\n", column_index + 1, PQfname(describe_result, column_index));
         printf("Column %d type: %d\n", column_index + 1, PQftype(describe_result, column_index));
       } */
     } /* if */
-    logFunction(printf("setupResult -->\n"););
+    logFunction(printf("setupResult --> %d\n", err_info););
+    return err_info;
   } /* setupResult */
 
 
 
-static void setupParametersAndResult (preparedStmtType preparedStmt,
-    errInfoType *err_info)
+static errInfoType setupParametersAndResult (preparedStmtType preparedStmt)
 
   {
     PGresult *describe_result;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* setupParametersAndResult */
     logFunction(printf("setupParametersAndResult\n"););
     describe_result = PQdescribePrepared(preparedStmt->connection, preparedStmt->stmtName);
     if (describe_result == NULL) {
-      *err_info = MEMORY_ERROR;
+      err_info = MEMORY_ERROR;
     } else {
       if (PQresultStatus(describe_result) != PGRES_COMMAND_OK) {
         setDbErrorMsg("setupParametersAndResult", "PQdescribePrepared", preparedStmt->connection);
         logError(printf("setupParametersAndResult: PQdescribePrepared returns a status of %s:\n%s",
                         PQresStatus(PQresultStatus(describe_result)),
                         dbError.message););
-        *err_info = DATABASE_ERROR;
+        err_info = DATABASE_ERROR;
       } else {
-        setupParameters(describe_result, preparedStmt, err_info);
-        setupResult(describe_result, preparedStmt, err_info);
+        err_info = setupParameters(describe_result, preparedStmt);
+        if (likely(err_info == OKAY_NO_ERROR)) {
+          err_info = setupResult(describe_result, preparedStmt);
+        } /* if */
       } /* if */
       PQclear(describe_result);
     } /* if */
-    logFunction(printf("setupParametersAndResult -->\n"););
+    logFunction(printf("setupParametersAndResult --> %d\n", err_info););
+    return err_info;
   } /* setupParametersAndResult */
 
 
 
+static boolType allParametersBound (preparedStmtType preparedStmt)
+
+  {
+    memSizeType column_index;
+    boolType okay = TRUE;
+
+  /* allParametersBound */
+    for (column_index = 0; column_index < preparedStmt->param_array_size;
+         column_index++) {
+      if (unlikely(!preparedStmt->param_array[column_index].bound)) {
+        logError(printf("sqlExecute: Unbound parameter " FMT_U_MEM ".\n",
+                        column_index + 1););
+        okay = FALSE;
+      } /* if */
+    } /* for */
+    return okay;
+  } /* allParametersBound */
+
+
+
+#if LOG_FUNCTIONS_EVERYWHERE || LOG_FUNCTIONS || VERBOSE_EXCEPTIONS_EVERYWHERE || VERBOSE_EXCEPTIONS
 static void dumpNumeric (const unsigned char *buffer)
 
   {
@@ -778,39 +910,88 @@ static void dumpNumeric (const unsigned char *buffer)
       printf("digit %d: %u\n", idx, 256 * buffer[8 + 2 * idx] + buffer[9 + 2 * idx]);
     }
   } /* dumpNumeric */
+#endif
 
 
 
-static bigIntType getNumericBigInt (const unsigned char *buffer)
+static cstriType getNumericAsCStri (numeric numStruct, const unsigned char *buffer)
 
   {
-    numeric numStruct;
-    striType stri;
+    unsigned int length;
     unsigned int idx;
     unsigned int fourDigits;
     unsigned int digitNum;
-    bigIntType powerOfTen;
-    bigIntType bigIntValue;
+    unsigned int scale;
+    cstriType cstri;
 
-  /* getNumericBigInt */
-    /* dumpNumeric(buffer); */
-    numStruct.ndigits = 256 * buffer[0] + buffer[1];
-    numStruct.weight  = (int16Type) (buffer[2] << 8 | buffer[3]);
-    numStruct.rscale  = 256 * (buffer[4] & 0x3f) + buffer[5];
-    numStruct.dscale  = 256 * (buffer[6] & 0x3f) + buffer[7];
-    numStruct.sign    = (buffer[4] & 0x40) != 0;
-    if (numStruct.ndigits == 0) {
-      bigIntValue = bigZero();
-    } else if (unlikely(numStruct.weight < numStruct.ndigits - 1 ||
-                        numStruct.rscale != 0 ||
-                        numStruct.dscale != 0)) {
-      logError(printf("getNumericBigInt: Number not integer\n"););
-      raise_error(RANGE_ERROR);
-      bigIntValue = NULL;
-    } else if (unlikely(!ALLOC_STRI_SIZE_OK(stri, 4 * (memSizeType) numStruct.ndigits + 1))) {
-      raise_error(MEMORY_ERROR);
-      bigIntValue = NULL;
+   /* getNumericAsCStri */
+    if (numStruct.weight < numStruct.ndigits - 1) {
+      scale = 4 * (unsigned int) (numStruct.ndigits - 1 - numStruct.weight);
+      /* printf("getNumericAsCStri: 1 scale: %d\n", scale); */
+      /* Provide space for sign, decimal point and a possible leading zero. */
+      if (likely(ALLOC_CSTRI(cstri, 4 * (memSizeType) numStruct.ndigits + 3 + scale))) {
+        length = 4 * (unsigned int) numStruct.ndigits + 1;
+        /* printf("length: %u\n", length); */
+        cstri[0] = numStruct.sign ? '-' : '+';
+        for (idx = 0; idx < numStruct.ndigits; idx++) {
+          fourDigits = 256 * (unsigned int) buffer[8 + 2 * idx] +
+                             (unsigned int) buffer[9 + 2 * idx];
+          for (digitNum = 4; digitNum >= 1; digitNum--) {
+            cstri[4 * idx + digitNum] = (char) (fourDigits % 10 + '0');
+            fourDigits /= 10;
+          } /* for */
+        } /* for */
+        if (scale >= length - 1) {
+          memmove(&cstri[scale - length + 4], &cstri[1], length - 1);
+          cstri[1] = '0';
+          cstri[2] = '.';
+          memset(&cstri[3], '0', scale - length + 1);
+          cstri[scale + 3] = '\0';
+        } else {
+          memmove(&cstri[length - scale + 1], &cstri[length - scale], scale);
+          cstri[length - scale] = '.';
+          cstri[length + 1] = '\0';
+        } /* if */
+      } /* if */
     } else {
+      scale = 4 * (unsigned int) (numStruct.weight - (numStruct.ndigits - 1));
+      /* printf("getNumericAsCStri: 2 scale: %d\n", scale); */
+      /* Provide space for sign, decimal point and a possible trailing zero. */
+      if (likely(ALLOC_CSTRI(cstri, 4 * (memSizeType) numStruct.ndigits + 3 + scale))) {
+        length = 4 * (unsigned int) numStruct.ndigits + 1;
+        /* printf("length: %u\n", length); */
+        cstri[0] = numStruct.sign ? '-' : '+';
+        for (idx = 0; idx < numStruct.ndigits; idx++) {
+          fourDigits = 256 * (unsigned int) buffer[8 + 2 * idx] +
+                             (unsigned int) buffer[9 + 2 * idx];
+          for (digitNum = 4; digitNum >= 1; digitNum--) {
+            cstri[4 * idx + digitNum] = (char) (fourDigits % 10 + '0');
+            fourDigits /= 10;
+          } /* for */
+        } /* for */
+        memset(&cstri[length], '0', scale);
+        cstri[length + scale] = '.';
+        cstri[length + scale + 1] = '0';
+        cstri[length + scale + 2] = '\0';
+      } /* if */
+    } /* if */
+    logFunction(printf("getNumericAsCStri --> %s\n", cstri));
+    return cstri;
+  } /* getNumericAsCStri */
+
+
+
+static striType getNumericAsStri (numeric numStruct, const unsigned char *buffer)
+
+  {
+    unsigned int idx;
+    unsigned int fourDigits;
+    unsigned int digitNum;
+    striType stri;
+
+   /* getNumericAsStri */
+    /* Provide space for sign. */
+    if (likely(ALLOC_STRI_SIZE_OK(stri, 4 * (memSizeType) numStruct.ndigits + 1))) {
       stri->size = 4 * (memSizeType) numStruct.ndigits + 1;
       stri->mem[0] = numStruct.sign ? '-' : '+';
       for (idx = 0; idx < numStruct.ndigits; idx++) {
@@ -821,6 +1002,112 @@ static bigIntType getNumericBigInt (const unsigned char *buffer)
           fourDigits /= 10;
         } /* for */
       } /* for */
+    } /* if */
+    logFunction(printf("getNumericAsStri --> %s\n",
+                       striAsUnquotedCStri(stri)));
+    return stri;
+  } /* getNumericAsStri */
+
+
+
+static intType getNumericAsInt (const unsigned char *buffer)
+
+  {
+    numeric numStruct;
+    striType stri;
+    intType factor;
+    intType intValue;
+
+  /* getNumericAsInt */
+    logFunction(printf("getNumericAsInt()\n");
+                /* dumpNumeric(buffer); */);
+    numStruct.ndigits = 256 * buffer[0] + buffer[1];
+    numStruct.weight  = (int16Type) (buffer[2] << 8 | buffer[3]);
+    numStruct.rscale  = 256 * (buffer[4] & 0x3f) + buffer[5];
+    numStruct.dscale  = 256 * (buffer[6] & 0x3f) + buffer[7];
+    numStruct.sign    = (buffer[4] & 0x40) != 0;
+    if (numStruct.ndigits == 0) {
+      intValue = 0;
+    } else if (unlikely(numStruct.weight < numStruct.ndigits - 1 ||
+                        numStruct.rscale != 0 ||
+                        numStruct.dscale != 0)) {
+      logError(printf("getNumericAsInt: Number not integer\n"););
+      raise_error(RANGE_ERROR);
+      intValue = 0;
+    } else if (unlikely((stri = getNumericAsStri(numStruct, buffer)) == NULL)) {
+      raise_error(MEMORY_ERROR);
+      intValue = 0;
+    } else {
+      intValue = intParse(stri);
+      strDestr(stri);
+      if (intValue != 0 && numStruct.weight != numStruct.ndigits - 1) {
+        switch (4 * (numStruct.weight - (numStruct.ndigits - 1))) {
+          case  0: factor =                 1; break;
+          case  4: factor =             10000; break;
+          case  8: factor =         100000000; break;
+          case 12: factor =     1000000000000; break;
+          case 16: factor = 10000000000000000; break;
+          default:
+            logError(printf("getNumericAsInt: Wrong decimal scale: %d\n",
+                            4 * (numStruct.weight - (numStruct.ndigits - 1))););
+            raise_error(RANGE_ERROR);
+            factor = 1;
+            break;
+        } /* switch */
+        if (intValue < 0) {
+          if (unlikely(intValue < INTTYPE_MIN / factor)) {
+            logError(printf("getNumericAsInt: Value (" FMT_D
+                            ") smaller than minimum (" FMT_D ").\n",
+                            intValue, INTTYPE_MIN / factor));
+            raise_error(RANGE_ERROR);
+            factor = 1;
+          } /* if */
+        } else {
+          if (unlikely(intValue > INTTYPE_MAX / factor)) {
+            logError(printf("getNumericAsInt: Value (" FMT_D
+                            ") larger than maximum (" FMT_D ").\n",
+                            intValue, INTTYPE_MAX / factor));
+            raise_error(RANGE_ERROR);
+            factor = 1;
+          } /* if */
+        } /* if */
+        intValue *= factor;
+      } /* if */
+    } /* if */
+    logFunction(printf("getNumericAsInt --> " FMT_D "\n", intValue););
+    return intValue;
+  } /* getNumericAsInt */
+
+
+
+static bigIntType getNumericAsBigInt (const unsigned char *buffer)
+
+  {
+    numeric numStruct;
+    striType stri;
+    bigIntType powerOfTen;
+    bigIntType bigIntValue;
+
+  /* getNumericAsBigInt */
+    logFunction(printf("getNumericAsBigInt()\n");
+                /* dumpNumeric(buffer); */);
+    numStruct.ndigits = 256 * buffer[0] + buffer[1];
+    numStruct.weight  = (int16Type) (buffer[2] << 8 | buffer[3]);
+    numStruct.rscale  = 256 * (buffer[4] & 0x3f) + buffer[5];
+    numStruct.dscale  = 256 * (buffer[6] & 0x3f) + buffer[7];
+    numStruct.sign    = (buffer[4] & 0x40) != 0;
+    if (numStruct.ndigits == 0) {
+      bigIntValue = bigZero();
+    } else if (unlikely(numStruct.weight < numStruct.ndigits - 1 ||
+                        numStruct.rscale != 0 ||
+                        numStruct.dscale != 0)) {
+      logError(printf("getNumericAsBigInt: Number not integer\n"););
+      raise_error(RANGE_ERROR);
+      bigIntValue = NULL;
+    } else if (unlikely((stri = getNumericAsStri(numStruct, buffer)) == NULL)) {
+      raise_error(MEMORY_ERROR);
+      bigIntValue = NULL;
+    } else {
       bigIntValue = bigParse(stri);
       strDestr(stri);
       if (bigIntValue != NULL && numStruct.weight != numStruct.ndigits - 1) {
@@ -832,27 +1119,25 @@ static bigIntType getNumericBigInt (const unsigned char *buffer)
         } /* if */
       } /* if */
     } /* if */
-    logFunction(printf("getNumericBigInt --> %s\n",
+    logFunction(printf("getNumericAsBigInt --> %s\n",
                        bigHexCStri(bigIntValue)););
     return bigIntValue;
-  } /* getNumericBigInt */
+  } /* getNumericAsBigInt */
 
 
 
-static bigIntType getNumericBigRat (const unsigned char *buffer,
+static bigIntType getNumericAsBigRat (const unsigned char *buffer,
     bigIntType *denominator)
 
   {
     numeric numStruct;
     striType stri;
-    unsigned int idx;
-    unsigned int fourDigits;
-    unsigned int digitNum;
     bigIntType powerOfTen;
     bigIntType numerator;
 
-  /* getNumericBigRat */
-    /* dumpNumeric(buffer); */
+  /* getNumericAsBigRat */
+    logFunction(printf("getNumericAsBigRat()\n");
+                /* dumpNumeric(buffer); */);
     numStruct.ndigits = 256 * buffer[0] + buffer[1];
     numStruct.weight  = (int16Type) (buffer[2] << 8 | buffer[3]);
     numStruct.rscale  = 256 * (buffer[4] & 0x3f) + buffer[5];
@@ -861,23 +1146,10 @@ static bigIntType getNumericBigRat (const unsigned char *buffer,
     if (numStruct.ndigits == 0) {
       numerator = bigZero();
       *denominator = bigFromInt32(1);
-    } else if (unlikely(!ALLOC_STRI_SIZE_OK(stri, 4 * (memSizeType) numStruct.ndigits + 1))) {
+    } else if (unlikely((stri = getNumericAsStri(numStruct, buffer)) == NULL)) {
       raise_error(MEMORY_ERROR);
       numerator = NULL;
     } else {
-      stri->size = 4 * (memSizeType) numStruct.ndigits + 1;
-      stri->mem[0] = numStruct.sign ? '-' : '+';
-      for (idx = 0; idx < numStruct.ndigits; idx++) {
-        fourDigits = 256 * (unsigned int) buffer[8 + 2 * idx] +
-                           (unsigned int) buffer[9 + 2 * idx];
-        for (digitNum = 4; digitNum >= 1; digitNum--) {
-          stri->mem[4 * idx + digitNum] = (strElemType) (fourDigits % 10 + '0');
-          fourDigits /= 10;
-        } /* for */
-      } /* for */
-      /* printf("stri: ");
-         prot_stri(stri);
-         printf("\n"); */
       numerator = bigParse(stri);
       strDestr(stri);
       if (numerator != NULL) {
@@ -897,8 +1169,42 @@ static bigIntType getNumericBigRat (const unsigned char *buffer,
         } /* if */
       } /* if */
     } /* if */
+    logFunction(printf("getNumericAsBigRat --> %s",
+                       striAsUnquotedCStri(bigStr(numerator)));
+                printf(" (denominator = %s)\n",
+                       striAsUnquotedCStri(bigStr(*denominator))););
     return numerator;
-  } /* getNumericBigRat */
+  } /* getNumericAsBigRat */
+
+
+
+static floatType getNumericAsFloat (const unsigned char *buffer)
+
+  {
+    numeric numStruct;
+    cstriType cstri;
+    floatType floatValue;
+
+  /* getNumericAsFloat */
+    logFunction(printf("getNumericAsFloat()\n");
+                /* dumpNumeric(buffer); */);
+    numStruct.ndigits = 256 * buffer[0] + buffer[1];
+    numStruct.weight  = (int16Type) (buffer[2] << 8 | buffer[3]);
+    numStruct.rscale  = 256 * (buffer[4] & 0x3f) + buffer[5];
+    numStruct.dscale  = 256 * (buffer[6] & 0x3f) + buffer[7];
+    numStruct.sign    = (buffer[4] & 0x40) != 0;
+    if (numStruct.ndigits == 0) {
+      floatValue = 0.0;
+    } else if (unlikely((cstri = getNumericAsCStri(numStruct, buffer)) == NULL)) {
+      raise_error(MEMORY_ERROR);
+      floatValue = 0.0;
+    } else {
+      floatValue = (floatType) strtod(cstri, NULL);
+      UNALLOC_CSTRI(cstri, strlen(cstri));
+    } /* if */
+    logFunction(printf("getNumericAsFloat --> " FMT_E "\n", floatValue););
+    return floatValue;
+  } /* getNumericAsFloat */
 
 
 
@@ -917,11 +1223,16 @@ static int64Type getTimestamp1970 (int64Type timestamp, intType *micro_second)
     } /* if */
     /* printf("timestamp2000: " FMT_U64 "\n", timestamp); */
     if (unlikely(timestamp > TIME_T_MAX - SECONDS_FROM_1970_TO_2000)) {
+      logError(printf("getTimestamp1970: "
+                      "Cannot compute timestamp1970 from timestamp2000 (" FMT_D64 ").\n",
+                      timestamp););
       raise_error(RANGE_ERROR);
     } else {
       timestamp += SECONDS_FROM_1970_TO_2000;
       /* printf("timestamp1970: " FMT_U64 "\n", timestamp); */
       if (unlikely(!inTimeTRange(timestamp))) {
+        logError(printf("getTimestamp1970: Timestamp " FMT_D64 " not in allowed range.\n",
+                        timestamp););
         raise_error(RANGE_ERROR);
       } /* if */
     } /* if */
@@ -952,68 +1263,60 @@ static void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
          nameOfBufferType(preparedStmt->paramTypes[pos - 1])); */
       switch (preparedStmt->paramTypes[pos - 1]) {
         case INT2OID:
-          free(preparedStmt->paramValues[pos - 1]);
-          preparedStmt->paramValues[pos - 1] = (cstriType) malloc(sizeof(int16Type));
+          preparedStmt->paramValues[pos - 1] = preparedStmt->param_array[pos - 1].buffer;
           *(int16Type *) preparedStmt->paramValues[pos - 1] =
-              (int16Type) htons((uint16Type) bigToInt16(value));
-          preparedStmt->paramLengths[pos - 1] = sizeof(int16Type);
-          preparedStmt->paramFormats[pos - 1] = 1;
+              (int16Type) htons((uint16Type) bigToInt16(value, &err_info));
           break;
         case INT4OID:
-          free(preparedStmt->paramValues[pos - 1]);
-          preparedStmt->paramValues[pos - 1] = (cstriType) malloc(sizeof(int32Type));
+          preparedStmt->paramValues[pos - 1] = preparedStmt->param_array[pos - 1].buffer;
           *(int32Type *) preparedStmt->paramValues[pos - 1] =
-              (int32Type) htonl((uint32Type) bigToInt32(value));
-          preparedStmt->paramLengths[pos - 1] = sizeof(int32Type);
-          preparedStmt->paramFormats[pos - 1] = 1;
+              (int32Type) htonl((uint32Type) bigToInt32(value, &err_info));
           break;
         case INT8OID:
-          free(preparedStmt->paramValues[pos - 1]);
-          preparedStmt->paramValues[pos - 1] = (cstriType) malloc(sizeof(int64Type));
+          preparedStmt->paramValues[pos - 1] = preparedStmt->param_array[pos - 1].buffer;
           *(int64Type *) preparedStmt->paramValues[pos - 1] =
-              (int64Type) htonll((uint64Type) bigToInt64(value));
-          preparedStmt->paramLengths[pos - 1] = sizeof(int64Type);
-          preparedStmt->paramFormats[pos - 1] = 1;
+              (int64Type) htonll((uint64Type) bigToInt64(value, &err_info));
           break;
         case FLOAT4OID:
-          free(preparedStmt->paramValues[pos - 1]);
-          preparedStmt->paramValues[pos - 1] = (cstriType) malloc(sizeof(float));
+          preparedStmt->paramValues[pos - 1] = preparedStmt->param_array[pos - 1].buffer;
           *(float *) preparedStmt->paramValues[pos - 1] =
               htonf((float) bigIntToDouble(value));
-          preparedStmt->paramLengths[pos - 1] = sizeof(float);
-          preparedStmt->paramFormats[pos - 1] = 1;
           break;
         case FLOAT8OID:
-          free(preparedStmt->paramValues[pos - 1]);
-          preparedStmt->paramValues[pos - 1] = (cstriType) malloc(sizeof(double));
+          preparedStmt->paramValues[pos - 1] = preparedStmt->param_array[pos - 1].buffer;
           *(double *) preparedStmt->paramValues[pos - 1] =
               htond(bigIntToDouble(value));
-          preparedStmt->paramLengths[pos - 1] = sizeof(double);
-          preparedStmt->paramFormats[pos - 1] = 1;
           break;
         case NUMERICOID:
         case BPCHAROID:
         case VARCHAROID:
           decimalNumber = (cstriType) bigIntToDecimal(value, &length, &err_info);
-          if (unlikely(decimalNumber == NULL)) {
-            raise_error(err_info);
-          } else if (unlikely(length > INT_MAX)) {
-            raise_error(MEMORY_ERROR);
-          } else {
-            free(preparedStmt->paramValues[pos - 1]);
-            preparedStmt->paramValues[pos - 1] = decimalNumber;
-            preparedStmt->paramLengths[pos - 1] = (int) length;
-            preparedStmt->paramFormats[pos - 1] = 0;
+          if (likely(decimalNumber != NULL)) {
+            if (unlikely(length > INT_MAX)) {
+              free(decimalNumber);
+              err_info = MEMORY_ERROR;
+            } else {
+              free(preparedStmt->param_array[pos - 1].buffer);
+              preparedStmt->param_array[pos - 1].buffer = decimalNumber;
+              preparedStmt->paramValues[pos - 1] = decimalNumber;
+              preparedStmt->paramLengths[pos - 1] = (int) length;
+              preparedStmt->paramFormats[pos - 1] = 0;
+            } /* if */
           } /* if */
           break;
         default:
           logError(printf("sqlBindBigInt: Parameter " FMT_D " has the unknown type %s.\n",
                           pos, nameOfBufferType(preparedStmt->paramTypes[pos - 1])););
-          raise_error(RANGE_ERROR);
+          err_info = RANGE_ERROR;
           break;
       } /* switch */
-      preparedStmt->executeSuccessful = FALSE;
-      preparedStmt->fetchOkay = FALSE;
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        raise_error(err_info);
+      } else {
+        preparedStmt->executeSuccessful = FALSE;
+        preparedStmt->fetchOkay = FALSE;
+        preparedStmt->param_array[pos - 1].bound = TRUE;
+      } /* if */
     } /* if */
   } /* sqlBindBigInt */
 
@@ -1042,43 +1345,44 @@ static void sqlBindBigRat (sqlStmtType sqlStatement, intType pos,
          nameOfBufferType(preparedStmt->paramTypes[pos - 1])); */
       switch (preparedStmt->paramTypes[pos - 1]) {
         case FLOAT4OID:
-          free(preparedStmt->paramValues[pos - 1]);
-          preparedStmt->paramValues[pos - 1] = (cstriType) malloc(sizeof(float));
+          preparedStmt->paramValues[pos - 1] = preparedStmt->param_array[pos - 1].buffer;
           *(float *) preparedStmt->paramValues[pos - 1] =
               htonf((float) bigRatToDouble(numerator, denominator));
-          preparedStmt->paramLengths[pos - 1] = sizeof(float);
-          preparedStmt->paramFormats[pos - 1] = 1;
           break;
         case FLOAT8OID:
-          free(preparedStmt->paramValues[pos - 1]);
-          preparedStmt->paramValues[pos - 1] = (cstriType) malloc(sizeof(double));
+          preparedStmt->paramValues[pos - 1] = preparedStmt->param_array[pos - 1].buffer;
           *(double *) preparedStmt->paramValues[pos - 1] =
               htond(bigRatToDouble(numerator, denominator));
-          preparedStmt->paramLengths[pos - 1] = sizeof(double);
-          preparedStmt->paramFormats[pos - 1] = 1;
           break;
         case NUMERICOID:
           decimalNumber = (cstriType) bigRatToDecimal(numerator, denominator,
               DEFAULT_DECIMAL_SCALE, &length, &err_info);
-          if (unlikely(decimalNumber == NULL)) {
-            raise_error(err_info);
-          } else if (unlikely(length > INT_MAX)) {
-            raise_error(MEMORY_ERROR);
-          } else {
-            free(preparedStmt->paramValues[pos - 1]);
-            preparedStmt->paramValues[pos - 1] = decimalNumber;
-            preparedStmt->paramLengths[pos - 1] = (int) length;
-            preparedStmt->paramFormats[pos - 1] = 0;
+          if (likely(decimalNumber != NULL)) {
+            if (unlikely(length > INT_MAX)) {
+              free(decimalNumber);
+              err_info = MEMORY_ERROR;
+            } else {
+              free(preparedStmt->param_array[pos - 1].buffer);
+              preparedStmt->param_array[pos - 1].buffer = decimalNumber;
+              preparedStmt->paramValues[pos - 1] = decimalNumber;
+              preparedStmt->paramLengths[pos - 1] = (int) length;
+              preparedStmt->paramFormats[pos - 1] = 0;
+            } /* if */
           } /* if */
           break;
         default:
           logError(printf("sqlBindBigRat: Parameter " FMT_D " has the unknown type %s.\n",
                           pos, nameOfBufferType(preparedStmt->paramTypes[pos - 1])););
-          raise_error(RANGE_ERROR);
+          err_info = RANGE_ERROR;
           break;
       } /* switch */
-      preparedStmt->executeSuccessful = FALSE;
-      preparedStmt->fetchOkay = FALSE;
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        raise_error(err_info);
+      } else {
+        preparedStmt->executeSuccessful = FALSE;
+        preparedStmt->fetchOkay = FALSE;
+        preparedStmt->param_array[pos - 1].bound = TRUE;
+      } /* if */
     } /* if */
   } /* sqlBindBigRat */
 
@@ -1088,6 +1392,7 @@ static void sqlBindBool (sqlStmtType sqlStatement, intType pos, boolType value)
 
   {
     preparedStmtType preparedStmt;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* sqlBindBool */
     logFunction(printf("sqlBindBool(" FMT_U_MEM ", " FMT_D ", %s)\n",
@@ -1102,47 +1407,48 @@ static void sqlBindBool (sqlStmtType sqlStatement, intType pos, boolType value)
          nameOfBufferType(preparedStmt->paramTypes[pos - 1])); */
       switch (preparedStmt->paramTypes[pos - 1]) {
         case INT2OID:
-          free(preparedStmt->paramValues[pos - 1]);
-          preparedStmt->paramValues[pos - 1] = (cstriType) malloc(sizeof(int16Type));
+          preparedStmt->paramValues[pos - 1] = preparedStmt->param_array[pos - 1].buffer;
           *(int16Type *) preparedStmt->paramValues[pos - 1] =
               (int16Type) htons((uint16Type) value);
-          preparedStmt->paramLengths[pos - 1] = sizeof(int16Type);
-          preparedStmt->paramFormats[pos - 1] = 1;
           break;
         case INT4OID:
-          free(preparedStmt->paramValues[pos - 1]);
-          preparedStmt->paramValues[pos - 1] = (cstriType) malloc(sizeof(int32Type));
+          preparedStmt->paramValues[pos - 1] = preparedStmt->param_array[pos - 1].buffer;
           *(int32Type *) preparedStmt->paramValues[pos - 1] =
               (int32Type) htonl((uint32Type) value);
-          preparedStmt->paramLengths[pos - 1] = sizeof(int32Type);
-          preparedStmt->paramFormats[pos - 1] = 1;
           break;
         case INT8OID:
-          free(preparedStmt->paramValues[pos - 1]);
-          preparedStmt->paramValues[pos - 1] = (cstriType) malloc(sizeof(int64Type));
+          preparedStmt->paramValues[pos - 1] = preparedStmt->param_array[pos - 1].buffer;
           *(int64Type *) preparedStmt->paramValues[pos - 1] =
               (int64Type) htonll((uint64Type) value);
-          preparedStmt->paramLengths[pos - 1] = sizeof(int64Type);
-          preparedStmt->paramFormats[pos - 1] = 1;
           break;
         case NUMERICOID:
         case BPCHAROID:
         case VARCHAROID:
-          free(preparedStmt->paramValues[pos - 1]);
-          preparedStmt->paramValues[pos - 1] = (cstriType) malloc(2);
-          ((char *) preparedStmt->paramValues[pos - 1])[0] = (char) ('0' + value);
-          ((char *) preparedStmt->paramValues[pos - 1])[1] = '\0';
-          preparedStmt->paramLengths[pos - 1] = 1;
-          preparedStmt->paramFormats[pos - 1] = 0;
+          free(preparedStmt->param_array[pos - 1].buffer);
+          if (unlikely((preparedStmt->param_array[pos - 1].buffer =
+                        (cstriType) malloc(2)) == NULL)) {
+            err_info = MEMORY_ERROR;
+          } else {
+            preparedStmt->paramValues[pos - 1] = preparedStmt->param_array[pos - 1].buffer;
+            ((char *) preparedStmt->paramValues[pos - 1])[0] = (char) ('0' + value);
+            ((char *) preparedStmt->paramValues[pos - 1])[1] = '\0';
+            preparedStmt->paramLengths[pos - 1] = 1;
+            preparedStmt->paramFormats[pos - 1] = 0;
+          } /* if */
           break;
         default:
           logError(printf("sqlBindBool: Parameter " FMT_D " has the unknown type %s.\n",
                           pos, nameOfBufferType(preparedStmt->paramTypes[pos - 1])););
-          raise_error(RANGE_ERROR);
+          err_info = RANGE_ERROR;
           break;
       } /* switch */
-      preparedStmt->executeSuccessful = FALSE;
-      preparedStmt->fetchOkay = FALSE;
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        raise_error(err_info);
+      } else {
+        preparedStmt->executeSuccessful = FALSE;
+        preparedStmt->fetchOkay = FALSE;
+        preparedStmt->param_array[pos - 1].bound = TRUE;
+      } /* if */
     } /* if */
   } /* sqlBindBool */
 
@@ -1152,6 +1458,7 @@ static void sqlBindBStri (sqlStmtType sqlStatement, intType pos, bstriType bstri
 
   {
     preparedStmtType preparedStmt;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* sqlBindBStri */
     logFunction(printf("sqlBindBStri(" FMT_U_MEM ", " FMT_D ", \"%s\")\n",
@@ -1169,13 +1476,14 @@ static void sqlBindBStri (sqlStmtType sqlStatement, intType pos, bstriType bstri
         case BPCHAROID:
         case VARCHAROID:
           if (unlikely(bstri->size > ULONG_MAX)) {
-            raise_error(MEMORY_ERROR);
+            err_info = MEMORY_ERROR;
           } else {
-            free(preparedStmt->paramValues[pos - 1]);
-            if (unlikely((preparedStmt->paramValues[pos - 1] =
+            free(preparedStmt->param_array[pos - 1].buffer);
+            if (unlikely((preparedStmt->param_array[pos - 1].buffer =
                           (cstriType) malloc(bstri->size + NULL_TERMINATION_LEN)) == NULL)) {
-              raise_error(MEMORY_ERROR);
+              err_info = MEMORY_ERROR;
             } else {
+              preparedStmt->paramValues[pos - 1] = preparedStmt->param_array[pos - 1].buffer;
               memcpy(preparedStmt->paramValues[pos - 1], bstri->mem, bstri->size);
               preparedStmt->paramValues[pos - 1][bstri->size] = '\0';
               preparedStmt->paramLengths[pos - 1] = (int) bstri->size;
@@ -1186,11 +1494,16 @@ static void sqlBindBStri (sqlStmtType sqlStatement, intType pos, bstriType bstri
         default:
           logError(printf("sqlBindBStri: Parameter " FMT_D " has the unknown type %s.\n",
                           pos, nameOfBufferType(preparedStmt->paramTypes[pos - 1])););
-          raise_error(RANGE_ERROR);
+          err_info = RANGE_ERROR;
           break;
       } /* switch */
-      preparedStmt->executeSuccessful = FALSE;
-      preparedStmt->fetchOkay = FALSE;
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        raise_error(err_info);
+      } else {
+        preparedStmt->executeSuccessful = FALSE;
+        preparedStmt->fetchOkay = FALSE;
+        preparedStmt->param_array[pos - 1].bound = TRUE;
+      } /* if */
     } /* if */
   } /* sqlBindBStri */
 
@@ -1203,6 +1516,7 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
   {
     preparedStmtType preparedStmt;
     int64Type microsecDuration;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* sqlBindDuration */
     logFunction(printf("sqlBindDuration(" FMT_U_MEM ", " FMT_D ", P"
@@ -1228,6 +1542,7 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
          nameOfBufferType(preparedStmt->paramTypes[pos - 1])); */
       switch (preparedStmt->paramTypes[pos - 1]) {
         case INTERVALOID:
+          preparedStmt->paramValues[pos - 1] = preparedStmt->param_array[pos - 1].buffer;
           microsecDuration = ((((int64Type) hour) * 60 +
                                 (int64Type) minute) * 60 +
                                 (int64Type) second) * 1000000 +
@@ -1238,19 +1553,11 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
           /* PQparameterStatus(connecton, "integer_datetimes") is   */
           /* used to determine if an int64Type or a double is used. */
           if (preparedStmt->integerDatetimes) {
-            free(preparedStmt->paramValues[pos - 1]);
-            preparedStmt->paramValues[pos - 1] = (cstriType) malloc(sizeof(int64Type) + 2 * sizeof(int32Type));
             *(int64Type *) preparedStmt->paramValues[pos - 1] =
                 (int64Type) htonll((uint64Type) microsecDuration);
-            preparedStmt->paramLengths[pos - 1] = sizeof(int64Type) + 2 * sizeof(int32Type);
-            preparedStmt->paramFormats[pos - 1] = 1;
           } else {
-            free(preparedStmt->paramValues[pos - 1]);
-            preparedStmt->paramValues[pos - 1] = (cstriType) malloc(sizeof(double) + 2 * sizeof(int32Type));
-            *(double *) preparedStmt->paramValues[pos - 1] =
+           *(double *) preparedStmt->paramValues[pos - 1] =
                 htond((double) microsecDuration / 1000000.0);
-            preparedStmt->paramLengths[pos - 1] = sizeof(double) + 2 * sizeof(int32Type);
-            preparedStmt->paramFormats[pos - 1] = 1;
           } /* if */
           *(int32Type *) &preparedStmt->paramValues[pos - 1][8] =
               (int32Type) htonl((uint32Type) day);
@@ -1260,11 +1567,16 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
         default:
           logError(printf("sqlBindDuration: Parameter " FMT_D " has the unknown type %s.\n",
                           pos, nameOfBufferType(preparedStmt->paramTypes[pos - 1])););
-          raise_error(RANGE_ERROR);
+          err_info = RANGE_ERROR;
           break;
       } /* switch */
-      preparedStmt->executeSuccessful = FALSE;
-      preparedStmt->fetchOkay = FALSE;
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        raise_error(err_info);
+      } else {
+        preparedStmt->executeSuccessful = FALSE;
+        preparedStmt->fetchOkay = FALSE;
+        preparedStmt->param_array[pos - 1].bound = TRUE;
+      } /* if */
     } /* if */
   } /* sqlBindDuration */
 
@@ -1274,6 +1586,7 @@ static void sqlBindFloat (sqlStmtType sqlStatement, intType pos, floatType value
 
   {
     preparedStmtType preparedStmt;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* sqlBindFloat */
     logFunction(printf("sqlBindFloat(" FMT_U_MEM ", " FMT_D ", " FMT_E ")\n",
@@ -1288,27 +1601,26 @@ static void sqlBindFloat (sqlStmtType sqlStatement, intType pos, floatType value
          nameOfBufferType(preparedStmt->paramTypes[pos - 1])); */
       switch (preparedStmt->paramTypes[pos - 1]) {
         case FLOAT4OID:
-          free(preparedStmt->paramValues[pos - 1]);
-          preparedStmt->paramValues[pos - 1] = (cstriType) malloc(sizeof(float));
+          preparedStmt->paramValues[pos - 1] = preparedStmt->param_array[pos - 1].buffer;
           *(float *) preparedStmt->paramValues[pos - 1] = htonf((float) value);
-          preparedStmt->paramLengths[pos - 1] = sizeof(float);
-          preparedStmt->paramFormats[pos - 1] = 1;
           break;
         case FLOAT8OID:
-          free(preparedStmt->paramValues[pos - 1]);
-          preparedStmt->paramValues[pos - 1] = (cstriType) malloc(sizeof(double));
+          preparedStmt->paramValues[pos - 1] = preparedStmt->param_array[pos - 1].buffer;
           *(double *) preparedStmt->paramValues[pos - 1] = htond(value);
-          preparedStmt->paramLengths[pos - 1] = sizeof(double);
-          preparedStmt->paramFormats[pos - 1] = 1;
           break;
         default:
           logError(printf("sqlBindFloat: Parameter " FMT_D " has the unknown type %s.\n",
                           pos, nameOfBufferType(preparedStmt->paramTypes[pos - 1])););
-          raise_error(RANGE_ERROR);
+          err_info = RANGE_ERROR;
           break;
       } /* switch */
-      preparedStmt->executeSuccessful = FALSE;
-      preparedStmt->fetchOkay = FALSE;
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        raise_error(err_info);
+      } else {
+        preparedStmt->executeSuccessful = FALSE;
+        preparedStmt->fetchOkay = FALSE;
+        preparedStmt->param_array[pos - 1].bound = TRUE;
+      } /* if */
     } /* if */
   } /* sqlBindFloat */
 
@@ -1318,6 +1630,7 @@ static void sqlBindInt (sqlStmtType sqlStatement, intType pos, intType value)
 
   {
     preparedStmtType preparedStmt;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* sqlBindInt */
     logFunction(printf("sqlBindInt(" FMT_U_MEM ", " FMT_D ", " FMT_D ")\n",
@@ -1333,68 +1646,68 @@ static void sqlBindInt (sqlStmtType sqlStatement, intType pos, intType value)
       switch (preparedStmt->paramTypes[pos - 1]) {
         case INT2OID:
           if (unlikely(value < INT16TYPE_MIN || value > INT16TYPE_MAX)) {
-            raise_error(RANGE_ERROR);
+            logError(printf("sqlBindInt: Parameter " FMT_D ": "
+                            FMT_D " does not fit into a 16-bit integer.\n",
+                            pos, value));
+            err_info = RANGE_ERROR;
           } else {
-            free(preparedStmt->paramValues[pos - 1]);
-            preparedStmt->paramValues[pos - 1] = (cstriType) malloc(sizeof(int16Type));
+            preparedStmt->paramValues[pos - 1] = preparedStmt->param_array[pos - 1].buffer;
             *(int16Type *) preparedStmt->paramValues[pos - 1] =
                 (int16Type) htons((uint16Type) value);
-            preparedStmt->paramLengths[pos - 1] = sizeof(int16Type);
-            preparedStmt->paramFormats[pos - 1] = 1;
           } /* if */
           break;
         case INT4OID:
           if (unlikely(value < INT32TYPE_MIN || value > INT32TYPE_MAX)) {
-            raise_error(RANGE_ERROR);
+            logError(printf("sqlBindInt: Parameter " FMT_D ": "
+                            FMT_D " does not fit into a 32-bit integer.\n",
+                            pos, value));
+            err_info = RANGE_ERROR;
           } else {
-            free(preparedStmt->paramValues[pos - 1]);
-            preparedStmt->paramValues[pos - 1] = (cstriType) malloc(sizeof(int32Type));
+            preparedStmt->paramValues[pos - 1] = preparedStmt->param_array[pos - 1].buffer;
             *(int32Type *) preparedStmt->paramValues[pos - 1] =
                 (int32Type) htonl((uint32Type) value);
-            preparedStmt->paramLengths[pos - 1] = sizeof(int32Type);
-            preparedStmt->paramFormats[pos - 1] = 1;
           } /* if */
           break;
         case INT8OID:
-          free(preparedStmt->paramValues[pos - 1]);
-          preparedStmt->paramValues[pos - 1] = (cstriType) malloc(sizeof(int64Type));
+          preparedStmt->paramValues[pos - 1] = preparedStmt->param_array[pos - 1].buffer;
           *(int64Type *) preparedStmt->paramValues[pos - 1] =
               (int64Type) htonll((uint64Type) value);
-          preparedStmt->paramLengths[pos - 1] = sizeof(int64Type);
-          preparedStmt->paramFormats[pos - 1] = 1;
           break;
         case FLOAT4OID:
-          free(preparedStmt->paramValues[pos - 1]);
-          preparedStmt->paramValues[pos - 1] = (cstriType) malloc(sizeof(float));
+          preparedStmt->paramValues[pos - 1] = preparedStmt->param_array[pos - 1].buffer;
           *(float *) preparedStmt->paramValues[pos - 1] = htonf((float) value);
-          preparedStmt->paramLengths[pos - 1] = sizeof(float);
-          preparedStmt->paramFormats[pos - 1] = 1;
           break;
         case FLOAT8OID:
-          free(preparedStmt->paramValues[pos - 1]);
-          preparedStmt->paramValues[pos - 1] = (cstriType) malloc(sizeof(double));
+          preparedStmt->paramValues[pos - 1] = preparedStmt->param_array[pos - 1].buffer;
           *(double *) preparedStmt->paramValues[pos - 1] = htond((double) value);
-          preparedStmt->paramLengths[pos - 1] = sizeof(double);
-          preparedStmt->paramFormats[pos - 1] = 1;
           break;
         case NUMERICOID:
         case BPCHAROID:
         case VARCHAROID:
-          free(preparedStmt->paramValues[pos - 1]);
-          preparedStmt->paramValues[pos - 1] =
-              (cstriType) malloc(INTTYPE_DECIMAL_SIZE + NULL_TERMINATION_LEN);
-          preparedStmt->paramLengths[pos - 1] =
-              (int) sprintf(preparedStmt->paramValues[pos - 1], FMT_D, value);
-          preparedStmt->paramFormats[pos - 1] = 0;
+          free(preparedStmt->param_array[pos - 1].buffer);
+          if (unlikely((preparedStmt->param_array[pos - 1].buffer =
+                        (cstriType) malloc(INTTYPE_DECIMAL_SIZE + NULL_TERMINATION_LEN)) == NULL)) {
+            err_info = MEMORY_ERROR;
+          } else {
+            preparedStmt->paramValues[pos - 1] = preparedStmt->param_array[pos - 1].buffer;
+            preparedStmt->paramLengths[pos - 1] =
+                (int) sprintf(preparedStmt->paramValues[pos - 1], FMT_D, value);
+            preparedStmt->paramFormats[pos - 1] = 0;
+          } /* if */
           break;
         default:
           logError(printf("sqlBindInt: Parameter " FMT_D " has the unknown type %s.\n",
                           pos, nameOfBufferType(preparedStmt->paramTypes[pos - 1])););
-          raise_error(RANGE_ERROR);
+          err_info = RANGE_ERROR;
           break;
       } /* switch */
-      preparedStmt->executeSuccessful = FALSE;
-      preparedStmt->fetchOkay = FALSE;
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        raise_error(err_info);
+      } else {
+        preparedStmt->executeSuccessful = FALSE;
+        preparedStmt->fetchOkay = FALSE;
+        preparedStmt->param_array[pos - 1].bound = TRUE;
+      } /* if */
     } /* if */
   } /* sqlBindInt */
 
@@ -1416,10 +1729,10 @@ static void sqlBindNull (sqlStmtType sqlStatement, intType pos)
     } else {
       /* printf("paramType: %s\n",
          nameOfBufferType(preparedStmt->paramTypes[pos - 1])); */
-      free(preparedStmt->paramValues[pos - 1]);
       preparedStmt->paramValues[pos - 1] = NULL;
       preparedStmt->executeSuccessful = FALSE;
       preparedStmt->fetchOkay = FALSE;
+      preparedStmt->param_array[pos - 1].bound = TRUE;
     } /* if */
   } /* sqlBindNull */
 
@@ -1430,6 +1743,7 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos, striType stri)
   {
     preparedStmtType preparedStmt;
     cstriType stri8;
+    cstriType resized_stri8;
     memSizeType length;
     errInfoType err_info = OKAY_NO_ERROR;
 
@@ -1447,28 +1761,39 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos, striType stri)
       switch (preparedStmt->paramTypes[pos - 1]) {
         case BPCHAROID:
         case VARCHAROID:
-          stri8 = stri_to_cstri8_buf(stri, &length, &err_info);
+          /* PostgreSQL doesn't support storing Null characters     */
+          /* ('\0;') in text fields. PQexecPrepared() returns a     */
+          /* status of PGRES_FATAL_ERROR, because 0x00 and 0xc080   */
+          /* (the overlong UTF-8 encoding for the Null character)   */
+          /* are seen as invalid byte sequence for encoding "UTF8". */
+          /* Therefore binding of strings with a Null character     */
+          /* ('\0;') inside will fail later with sqlExecute().      */
+          stri8 = stri_to_cstri8_buf(stri, &length);
           if (unlikely(stri8 == NULL)) {
-            raise_error(err_info);
-          } else if (unlikely(length > ULONG_MAX)) {
+            err_info = MEMORY_ERROR;
+          } else if (unlikely(length > INT_MAX)) {
             free(stri8);
-            raise_error(MEMORY_ERROR);
+            err_info = MEMORY_ERROR;
           } else {
-            free(preparedStmt->paramValues[pos - 1]);
+            resized_stri8 = REALLOC_CSTRI(stri8, length);
+            if (likely(resized_stri8 != NULL)) {
+              stri8 = resized_stri8;
+            } /* if */
+            free(preparedStmt->param_array[pos - 1].buffer);
+            preparedStmt->param_array[pos - 1].buffer = stri8;
             preparedStmt->paramValues[pos - 1] = stri8;
             preparedStmt->paramLengths[pos - 1] = (int) length;
             preparedStmt->paramFormats[pos - 1] = 1;
           } /* if */
           break;
         case BYTEAOID:
-          if (unlikely(stri->size > ULONG_MAX)) {
-            raise_error(MEMORY_ERROR);
+          if (unlikely(stri->size > INT_MAX)) {
+            err_info = MEMORY_ERROR;
           } else {
-            free(preparedStmt->paramValues[pos - 1]);
-            preparedStmt->paramValues[pos - 1] = stri_to_cstri(stri, &err_info);
-            if (unlikely(preparedStmt->paramValues[pos - 1] == NULL)) {
-              raise_error(err_info);
-            } else {
+            free(preparedStmt->param_array[pos - 1].buffer);
+            if (likely((preparedStmt->param_array[pos - 1].buffer =
+                          stri_to_cstri(stri, &err_info)) != NULL)) {
+              preparedStmt->paramValues[pos - 1] = preparedStmt->param_array[pos - 1].buffer;
               preparedStmt->paramLengths[pos - 1] = (int) stri->size;
               preparedStmt->paramFormats[pos - 1] = 1;
             } /* if */
@@ -1477,11 +1802,16 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos, striType stri)
         default:
           logError(printf("sqlBindStri: Parameter " FMT_D " has the unknown type %s.\n",
                           pos, nameOfBufferType(preparedStmt->paramTypes[pos - 1])););
-          raise_error(RANGE_ERROR);
+          err_info = RANGE_ERROR;
           break;
       } /* switch */
-      preparedStmt->executeSuccessful = FALSE;
-      preparedStmt->fetchOkay = FALSE;
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        raise_error(err_info);
+      } else {
+        preparedStmt->executeSuccessful = FALSE;
+        preparedStmt->fetchOkay = FALSE;
+        preparedStmt->param_array[pos - 1].bound = TRUE;
+      } /* if */
     } /* if */
   } /* sqlBindStri */
 
@@ -1496,6 +1826,7 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
     preparedStmtType preparedStmt;
     int64Type timestamp;
     int32Type zone;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* sqlBindTime */
     logFunction(printf("sqlBindTime(" FMT_U_MEM ", " FMT_D ", "
@@ -1522,17 +1853,15 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
          nameOfBufferType(preparedStmt->paramTypes[pos - 1])); */
       switch (preparedStmt->paramTypes[pos - 1]) {
         case DATEOID:
+          preparedStmt->paramValues[pos - 1] = preparedStmt->param_array[pos - 1].buffer;
           timestamp = timToTimestamp(year, month, day, 0, 0, 0, 0, 0);
           timestamp = (timestamp - SECONDS_FROM_1970_TO_2000) / (24 * 60 * 60);
           /* printf("DATEOID timestamp: " FMT_D64 "\n", timestamp); */
-          free(preparedStmt->paramValues[pos - 1]);
-          preparedStmt->paramValues[pos - 1] = (cstriType) malloc(sizeof(int32Type));
           *(int32Type *) preparedStmt->paramValues[pos - 1] =
               (int32Type) htonl((uint32Type) timestamp);
-          preparedStmt->paramLengths[pos - 1] = sizeof(int32Type);
-          preparedStmt->paramFormats[pos - 1] = 1;
           break;
         case TIMEOID:
+          preparedStmt->paramValues[pos - 1] = preparedStmt->param_array[pos - 1].buffer;
           timestamp = timToTimestamp(2000, 1, 1, hour, minute, second,
                                      micro_second, 0);
           /* printf("timestamp1970: " FMT_D64 "\n", timestamp); */
@@ -1544,22 +1873,15 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
           /* PQparameterStatus(connecton, "integer_datetimes") is   */
           /* used to determine if an int64Type or a double is used. */
           if (preparedStmt->integerDatetimes) {
-            free(preparedStmt->paramValues[pos - 1]);
-            preparedStmt->paramValues[pos - 1] = (cstriType) malloc(sizeof(int64Type));
             *(int64Type *) preparedStmt->paramValues[pos - 1] =
                 (int64Type) htonll((uint64Type) timestamp);
-            preparedStmt->paramLengths[pos - 1] = sizeof(int64Type);
-            preparedStmt->paramFormats[pos - 1] = 1;
           } else {
-            free(preparedStmt->paramValues[pos - 1]);
-            preparedStmt->paramValues[pos - 1] = (cstriType) malloc(sizeof(double));
             *(double *) preparedStmt->paramValues[pos - 1] =
                 htond((double) timestamp / 1000000.0);
-            preparedStmt->paramLengths[pos - 1] = sizeof(double);
-            preparedStmt->paramFormats[pos - 1] = 1;
           } /* if */
           break;
         case TIMETZOID:
+          preparedStmt->paramValues[pos - 1] = preparedStmt->param_array[pos - 1].buffer;
           timestamp = timToTimestamp(2000, 1, 1, hour, minute, second,
                                      micro_second, 0);
           /* printf("timestamp1970: " FMT_D64 "\n", timestamp); */
@@ -1571,27 +1893,18 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
           /* PQparameterStatus(connecton, "integer_datetimes") is   */
           /* used to determine if an int64Type or a double is used. */
           if (preparedStmt->integerDatetimes) {
-            free(preparedStmt->paramValues[pos - 1]);
-            preparedStmt->paramValues[pos - 1] = (cstriType) malloc(
-                sizeof(int64Type) + sizeof(int32Type));
             *(int64Type *) preparedStmt->paramValues[pos - 1] =
                 (int64Type) htonll((uint64Type) timestamp);
-            preparedStmt->paramLengths[pos - 1] = sizeof(int64Type) + sizeof(int32Type);
-            preparedStmt->paramFormats[pos - 1] = 1;
           } else {
-            free(preparedStmt->paramValues[pos - 1]);
-            preparedStmt->paramValues[pos - 1] = (cstriType) malloc(
-                sizeof(double) + sizeof(int32Type));
             *(double *) preparedStmt->paramValues[pos - 1] =
                 htond((double) timestamp / 1000000.0);
-            preparedStmt->paramLengths[pos - 1] = sizeof(double) + sizeof(int32Type);
-            preparedStmt->paramFormats[pos - 1] = 1;
           } /* if */
           /* printf("zone: " FMT_D32 "\n", (int32Type) (-time_zone * 60)); */
           zone = (int32Type) htonl((uint32Type) (-time_zone * 60));
           *(int64Type *) &preparedStmt->paramValues[pos - 1][8] = zone;
           break;
         case TIMESTAMPOID:
+          preparedStmt->paramValues[pos - 1] = preparedStmt->param_array[pos - 1].buffer;
           timestamp = timToTimestamp(year, month, day, hour, minute, second,
                                      micro_second, 0);
           /* printf("timestamp1970: " FMT_U64 "\n", timestamp); */
@@ -1603,22 +1916,15 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
           /* PQparameterStatus(connecton, "integer_datetimes") is   */
           /* used to determine if an int64Type or a double is used. */
           if (preparedStmt->integerDatetimes) {
-            free(preparedStmt->paramValues[pos - 1]);
-            preparedStmt->paramValues[pos - 1] = (cstriType) malloc(sizeof(int64Type));
             *(int64Type *) preparedStmt->paramValues[pos - 1] =
                 (int64Type) htonll((uint64Type) timestamp);
-            preparedStmt->paramLengths[pos - 1] = sizeof(int64Type);
-            preparedStmt->paramFormats[pos - 1] = 1;
           } else {
-            free(preparedStmt->paramValues[pos - 1]);
-            preparedStmt->paramValues[pos - 1] = (cstriType) malloc(sizeof(double));
             *(double *) preparedStmt->paramValues[pos - 1] =
                 htond((double) timestamp / 1000000.0);
-            preparedStmt->paramLengths[pos - 1] = sizeof(double);
-            preparedStmt->paramFormats[pos - 1] = 1;
           } /* if */
           break;
         case TIMESTAMPTZOID:
+          preparedStmt->paramValues[pos - 1] = preparedStmt->param_array[pos - 1].buffer;
           timestamp = timToTimestamp(year, month, day, hour, minute, second,
                                      micro_second, time_zone);
           /* printf("timestamp1970: " FMT_U64 "\n", timestamp); */
@@ -1630,29 +1936,26 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
           /* PQparameterStatus(connecton, "integer_datetimes") is   */
           /* used to determine if an int64Type or a double is used. */
           if (preparedStmt->integerDatetimes) {
-            free(preparedStmt->paramValues[pos - 1]);
-            preparedStmt->paramValues[pos - 1] = (cstriType) malloc(sizeof(int64Type));
             *(int64Type *) preparedStmt->paramValues[pos - 1] =
                 (int64Type) htonll((uint64Type) timestamp);
-            preparedStmt->paramLengths[pos - 1] = sizeof(int64Type);
-            preparedStmt->paramFormats[pos - 1] = 1;
           } else {
-            free(preparedStmt->paramValues[pos - 1]);
-            preparedStmt->paramValues[pos - 1] = (cstriType) malloc(sizeof(double));
             *(double *) preparedStmt->paramValues[pos - 1] =
                 htond((double) timestamp / 1000000.0);
-            preparedStmt->paramLengths[pos - 1] = sizeof(double);
-            preparedStmt->paramFormats[pos - 1] = 1;
           } /* if */
           break;
         default:
           logError(printf("sqlBindTime: Parameter " FMT_D " has the unknown type %s.\n",
                           pos, nameOfBufferType(preparedStmt->paramTypes[pos - 1])););
-          raise_error(RANGE_ERROR);
+          err_info = RANGE_ERROR;
           break;
       } /* switch */
-      preparedStmt->executeSuccessful = FALSE;
-      preparedStmt->fetchOkay = FALSE;
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        raise_error(err_info);
+      } else {
+        preparedStmt->executeSuccessful = FALSE;
+        preparedStmt->fetchOkay = FALSE;
+        preparedStmt->param_array[pos - 1].bound = TRUE;
+      } /* if */
     } /* if */
   } /* sqlBindTime */
 
@@ -1735,7 +2038,7 @@ static bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
               columnValue = bigFromInt64((int64Type) ntohll(*(uint64Type *) buffer));
               break;
             case NUMERICOID:
-              columnValue = getNumericBigInt((const_ustriType) buffer);
+              columnValue = getNumericAsBigInt((const_ustriType) buffer);
               break;
             default:
               logError(printf("sqlColumnBigInt: Column " FMT_D " has the unknown type %s.\n",
@@ -1819,7 +2122,7 @@ static void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
               *numerator = roundDoubleToBigRat(ntohd(*(double *) buffer), FALSE, denominator);
               break;
             case NUMERICOID:
-              *numerator = getNumericBigRat((const_ustriType) buffer, denominator);
+              *numerator = getNumericAsBigRat((const_ustriType) buffer, denominator);
               break;
             default:
               logError(printf("sqlColumnBigRat: Column " FMT_D " has the unknown type %s.\n",
@@ -1923,6 +2226,9 @@ static boolType sqlColumnBool (sqlStmtType sqlStatement, intType column)
               break;
           } /* switch */
           if (unlikely((uintType) columnValue >= 2)) {
+            logError(printf("sqlColumnBool: Column " FMT_D ": "
+                            FMT_D " is not an allowed boolean value.\n",
+                            column, columnValue););
             raise_error(RANGE_ERROR);
           } /* if */
         } /* if */
@@ -2097,7 +2403,7 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
                            preparedStmt->fetch_index,
                            (int) column - 1);
       if (isNull == 1) {
-        /* printf("Column is NULL -> Use default value: 0-00-00 00:00:00\n"); */
+        /* printf("Column is NULL -> Use default value: P0D\n"); */
         *year         = 0;
         *month        = 0;
         *day          = 0;
@@ -2247,6 +2553,9 @@ static floatType sqlColumnFloat (sqlStmtType sqlStatement, intType column)
             case FLOAT8OID:
               columnValue = ntohd(*(double *) buffer);
               break;
+            case NUMERICOID:
+              columnValue = getNumericAsFloat((const_ustriType) buffer);
+              break;
             default:
               logError(printf("sqlColumnFloat: Column " FMT_D " has the unknown type %s.\n",
                               column, nameOfBufferType(buffer_type)););
@@ -2321,6 +2630,9 @@ static intType sqlColumnInt (sqlStmtType sqlStatement, intType column)
               break;
             case INT8OID:
               columnValue = (int64Type) ntohll(*(uint64Type *) buffer);
+              break;
+            case NUMERICOID:
+              columnValue = getNumericAsInt((const_ustriType) buffer);
               break;
             case OIDOID:
               columnValue = ntohl(*(uint32Type *) buffer);
@@ -2433,6 +2745,25 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
                 if (unlikely(columnValue == NULL)) {
                   raise_error(err_info);
                 } /* if */
+              } /* if */
+              break;
+            case BYTEAOID:
+              length = PQgetlength(preparedStmt->execute_result,
+                                   preparedStmt->fetch_index,
+                                   (int) column - 1);
+              if (unlikely(length < 0)) {
+                dbInconsistent("sqlColumnStri", "PQgetlength");
+                logError(printf("sqlColumnStri: Column " FMT_D ": "
+                                "PQgetlength returns %d.\n",
+                                column, length););
+                raise_error(DATABASE_ERROR);
+                columnValue = NULL;
+              } else if (unlikely(!ALLOC_STRI_CHECK_SIZE(columnValue, (memSizeType) length))) {
+                raise_error(MEMORY_ERROR);
+              } else {
+                memcpy_to_strelem(columnValue->mem, (ustriType) buffer,
+                    (memSizeType) length);
+                columnValue->size = (memSizeType) length;
               } /* if */
               break;
             default:
@@ -2630,54 +2961,60 @@ static void sqlExecute (sqlStmtType sqlStatement)
     logFunction(printf("sqlExecute(" FMT_U_MEM ")\n",
                        (memSizeType) sqlStatement););
     preparedStmt = (preparedStmtType) sqlStatement;
-    preparedStmt->fetchOkay = FALSE;
-    if (preparedStmt->execute_result != NULL) {
-      PQclear(preparedStmt->execute_result);
-    } /* if */
-    preparedStmt->execute_result = PQexecPrepared(preparedStmt->connection,
-                                                  preparedStmt->stmtName,
-                                                  (int) preparedStmt->param_array_size,
-                                                  (const_cstriType *) preparedStmt->paramValues,
-                                                  preparedStmt->paramLengths,
-                                                  preparedStmt->paramFormats,
-                                                  1);
-    if (unlikely(preparedStmt->execute_result == NULL)) {
-      logError(printf("sqlExecute: PQexecPrepared returns NULL\n"););
-      preparedStmt->executeSuccessful = FALSE;
-      raise_error(MEMORY_ERROR);
+    if (unlikely(!allParametersBound(preparedStmt))) {
+      dbLibError("sqlExecute", "SQLExecute",
+                 "Unbound statement parameter(s).\n");
+      raise_error(DATABASE_ERROR);
     } else {
-      preparedStmt->execute_status = PQresultStatus(preparedStmt->execute_result);
-      if (preparedStmt->execute_status == PGRES_COMMAND_OK) {
-        preparedStmt->executeSuccessful = TRUE;
-      } else if (preparedStmt->execute_status == PGRES_TUPLES_OK) {
-        num_tuples = PQntuples(preparedStmt->execute_result);
-        if (unlikely(num_tuples < 0)) {
-          dbInconsistent("sqlExecute", "PQntuples");
-          logError(printf("sqlExecute: PQntuples returns negative number: %d\n",
-                          num_tuples););
+      preparedStmt->fetchOkay = FALSE;
+      if (preparedStmt->execute_result != NULL) {
+        PQclear(preparedStmt->execute_result);
+      } /* if */
+      preparedStmt->execute_result = PQexecPrepared(preparedStmt->connection,
+                                                    preparedStmt->stmtName,
+                                                    (int) preparedStmt->param_array_size,
+                                                    (const_cstriType *) preparedStmt->paramValues,
+                                                    preparedStmt->paramLengths,
+                                                    preparedStmt->paramFormats,
+                                                    1);
+      if (unlikely(preparedStmt->execute_result == NULL)) {
+        logError(printf("sqlExecute: PQexecPrepared returns NULL\n"););
+        preparedStmt->executeSuccessful = FALSE;
+        raise_error(MEMORY_ERROR);
+      } else {
+        preparedStmt->execute_status = PQresultStatus(preparedStmt->execute_result);
+        if (preparedStmt->execute_status == PGRES_COMMAND_OK) {
+          preparedStmt->executeSuccessful = TRUE;
+        } else if (preparedStmt->execute_status == PGRES_TUPLES_OK) {
+          num_tuples = PQntuples(preparedStmt->execute_result);
+          if (unlikely(num_tuples < 0)) {
+            dbInconsistent("sqlExecute", "PQntuples");
+            logError(printf("sqlExecute: PQntuples returns negative number: %d\n",
+                            num_tuples););
+            preparedStmt->executeSuccessful = FALSE;
+            raise_error(DATABASE_ERROR);
+          } else {
+            preparedStmt->num_tuples = num_tuples;
+            /* printf("Number of tubles: %d\n", preparedStmt->num_tuples);
+              printf("Number of columns: %d\n", PQnfields(preparedStmt->execute_result));
+              printf("Result_column_count: " FMT_U_MEM "\n", preparedStmt->result_column_count);
+              { int idx;
+                for (idx = 0; idx < PQnfields(preparedStmt->execute_result); idx++) {
+                  printf("Type of column %d: %d\n", idx, PQftype(preparedStmt->execute_result, idx));
+                }
+              } */
+            preparedStmt->executeSuccessful = TRUE;
+            preparedStmt->fetch_index = 0;
+            preparedStmt->increment_index = FALSE;
+          } /* if */
+        } else {
+          setDbErrorMsg("sqlExecute", "PQexecPrepared", preparedStmt->connection);
+          logError(printf("sqlExecute: PQexecPrepared returns a status of %s:\n%s",
+                          PQresStatus(preparedStmt->execute_status),
+                          dbError.message););
           preparedStmt->executeSuccessful = FALSE;
           raise_error(DATABASE_ERROR);
-        } else {
-          preparedStmt->num_tuples = num_tuples;
-          /* printf("Number of tubles: %d\n", preparedStmt->num_tuples);
-            printf("Number of columns: %d\n", PQnfields(preparedStmt->execute_result));
-            printf("Result_column_count: " FMT_U_MEM "\n", preparedStmt->result_column_count);
-            { int idx;
-              for (idx = 0; idx < PQnfields(preparedStmt->execute_result); idx++) {
-                printf("Type of column %d: %d\n", idx, PQftype(preparedStmt->execute_result, idx));
-              }
-            } */
-          preparedStmt->executeSuccessful = TRUE;
-          preparedStmt->fetch_index = 0;
-          preparedStmt->increment_index = FALSE;
         } /* if */
-      } else {
-        setDbErrorMsg("sqlExecute", "PQexecPrepared", preparedStmt->connection);
-        logError(printf("sqlExecute: PQexecPrepared returns a status of %s:\n%s",
-                        PQresStatus(preparedStmt->execute_status),
-                        dbError.message););
-        preparedStmt->executeSuccessful = FALSE;
-        raise_error(DATABASE_ERROR);
       } /* if */
     } /* if */
     logFunction(printf("sqlExecute -->\n"););
@@ -2774,7 +3111,7 @@ static sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
         preparedStmt = NULL;
       } else {
         query = stri_to_cstri8(statementStri, &err_info);
-        if (query == NULL) {
+        if (unlikely(query == NULL)) {
           preparedStmt = NULL;
         } else {
           if (!ALLOC_RECORD(preparedStmt, preparedStmtRecord, count.prepared_stmt)) {
@@ -2806,7 +3143,7 @@ static sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
                 preparedStmt->executeSuccessful = FALSE;
                 preparedStmt->execute_result = NULL;
                 preparedStmt->fetchOkay = FALSE;
-                setupParametersAndResult(preparedStmt, &err_info);
+                err_info = setupParametersAndResult(preparedStmt);
                 if (unlikely(err_info != OKAY_NO_ERROR)) {
                   freePreparedStmt((sqlStmtType) preparedStmt);
                   preparedStmt = NULL;

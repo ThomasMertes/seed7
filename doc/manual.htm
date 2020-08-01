@@ -347,7 +347,8 @@ pre.indent {
 <li><a class="link" href="#ffi_C_types_used_by_the_implementation"><b>C types used by the implementation</b></a></li>
 <li><a class="link" href="#ffi_String_and_path_conversions"><b>String and path conversions</b></a></li>
 <li><a class="link" href="#ffi_Macros_to_access_the_action_parameters"><b>Macros to access the action parameters</b></a></li>
-<li><a class="link" href="#ffi_Functions_to_create_action_results"><b>Functions to create action results</b></a></li></ol></li>
+<li><a class="link" href="#ffi_Functions_to_create_action_results"><b>Functions to create action results</b></a></li>
+<li><a class="link" href="#ffi_Error_handling"><b>Error handling</b></a></li></ol></li>
 <li><a class="link" href="#errors_file_start"><big><b>ERRORS</b></big></a><ol>
 <li><a class="link" href="#errors_Compile_time_errors"><b>Compile time errors</b></a></li>
 <li><a class="link" href="#errors_Exceptions"><b>Exceptions</b></a><ol>
@@ -10561,12 +10562,12 @@ void <a name="ffi_supDoWurx1">supDoWurx1</a> (const <a class="type" href="#ffi_s
 
     cName = <a class="func" href="#ffi_stri_to_cstri8">stri_to_cstri8</a>(name, &err_info);
     <span class="keywd">if</span> (cName == NULL) {
-      raise_error(err_info);
+      <a class="func" href="#ffi_raise_error">raise_error</a>(err_info);
     } <span class="keywd">else</span> {
       wurxResult = <a class="func" href="#ffi_doWurx1">doWurx1</a>(cName);
       free_cstri8(cName, name);
       <span class="keywd">if</span> (wurxResult != 0) {
-        raise_error(RANGE_ERROR);
+        <a class="func" href="#ffi_raise_error">raise_error</a>(<span class="exception">RANGE_ERROR</span>);
       }
     }
   }
@@ -10752,7 +10753,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
     <tr><td align="right" valign="top"><a class="type" href="#ffi_cstriType">cstriType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_stri_to_cstri8">stri_to_cstri8</a></b> (<a class="type" href="#ffi_striType">const_striType</a> stri, <span class="type">errInfoType</span> *err_info)</td></tr>
       <tr><td width="30"></td><td>Create an UTF-8 encoded C string from a Seed7 UTF-32 string.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top"><a class="type" href="#ffi_cstriType">cstriType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_stri_to_cstri8_buf">stri_to_cstri8_buf</a></b> (<a class="type" href="#ffi_striType">const_striType</a> stri, <a class="type" href="#ffi_memSizeType">memSizeType</a> *length, <span class="type">errInfoType</span> *err_info)</td></tr>
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_cstriType">cstriType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_stri_to_cstri8_buf">stri_to_cstri8_buf</a></b> (<a class="type" href="#ffi_striType">const_striType</a> stri, <a class="type" href="#ffi_memSizeType">memSizeType</a> *length)</td></tr>
       <tr><td width="30"></td><td>Create an UTF-8 encoded C string buffer from a Seed7 UTF-32 string.</td></tr></table></td></tr>
 
     <tr><td align="right" valign="top"><a class="type" href="#ffi_bstriType">bstriType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_stri_to_bstri">stri_to_bstri</a></b> (<a class="type" href="#ffi_striType">const_striType</a> stri, <span class="type">errInfoType</span> *err_info)</td></tr>
@@ -10796,6 +10797,9 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 
     <tr><td align="right" valign="top">void</td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_os_stri_free">os_stri_free</a></b> (<a class="type" href="#ffi_os_striType">os_striType</a> var)</td></tr>
       <tr><td width="30"></td><td>Macro to free memory that has been allocated with <a class="func" href="#ffi_os_stri_alloc">os_stri_alloc</a>.</td></tr></table></td></tr>
+
+    <tr><td align="right" valign="top">void</td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_raise_error">raise_error</a></b> (<span class="type">errInfoType</span> err_info)</td></tr>
+      <tr><td width="30"></td><td>Macro to raise an exception.</td></tr></table></td></tr>
 </table></div><br /><div><p><table width="100%" border="1" cellspacing="0" cellpadding="2"><tr>
 <td style="font-size: 22px; font-weight: bold; background-color: #C0C0FF">
   Function Detail</td></tr></table></p>
@@ -10849,11 +10853,11 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 <hr />
   <div><a name="ffi_stri_to_cstri8_buf"><h3>stri_to_cstri8_buf</h3></a>
 <p>
-    <a class="type" href="#ffi_cstriType">cstriType</a> <b>stri_to_cstri8_buf</b> (<a class="type" href="#ffi_striType">const_striType</a> stri, <a class="type" href="#ffi_memSizeType">memSizeType</a> *length,
-        <span class="type">errInfoType</span> *err_info)</p><dl><dd>
+    <a class="type" href="#ffi_cstriType">cstriType</a> <b>stri_to_cstri8_buf</b> (<a class="type" href="#ffi_striType">const_striType</a> stri, <a class="type" href="#ffi_memSizeType">memSizeType</a> *length)</p><dl><dd>
 <p>
       Create an UTF-8 encoded C string buffer from a Seed7 UTF-32 string.
       The memory for the zero byte terminated C string is allocated.
+      Zero bytes inside the string are copied to the C string.
       The C string result must be freed with the macro free_cstri8().
       This function is intended to create temporary strings, that
       are used as parameters. To get good performance the allocated
@@ -10862,13 +10866,10 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
       <dd><dl><dt><b>Parameters:</b></dt>
         <dd><tt>stri</tt> - Seed7 UTF-32 string to be converted.</dd>
         <dd><tt>length</tt> - Place to return the length of the result (without '\0').</dd>
-        <dd><tt>err_info</tt> - Unchanged when the function succeeds or
-                   <a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a> when the memory allocation failed.</dd>
 </dl></dd>
       <dd><dl><dt><b>Returns:</b></dt>
         <dd>an UTF-8 encoded null terminated C string or
-        NULL, when the memory allocation failed
-        (the error is indicated by err_info).</dd></dl></dd>
+        NULL, when the memory allocation failed.</dd></dl></dd>
 </dl></div>
 <hr />
   <div><a name="ffi_stri_to_bstri"><h3>stri_to_bstri</h3></a>
@@ -11155,6 +11156,19 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
       <dd><dl><dt><b>Parameters:</b></dt>
         <dd><tt>var</tt> - The string to be freed.</dd>
 </dl></div>
+<hr />
+  <div><a name="ffi_raise_error"><h3>raise_error</h3></a>
+<p>
+    void <b>raise_error</b> (<span class="type">errInfoType</span> err_info)</p><dl><dd>
+<p>
+      Macro to raise an exception. This macro calls the function
+      <span class="func">raise_exception2</span> with the additional parameters __FILE__ and
+      __LINE__. The function <span class="func">raise_exception2</span> has different
+      implementations for interpreted and compiled programs.
+</p></dd>
+      <dd><dl><dt><b>Parameters:</b></dt>
+        <dd><tt>err_info</tt> - The exception to be raised.</dd>
+</dl></div>
 </div>
 
 <a name="ffi_Macros_to_access_the_action_parameters"><h3>14.3 Macros to access the action parameters</h3></a>
@@ -11337,7 +11351,44 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 
     <tr><td align="right" valign="top"><a class="type" href="#ffi_objectType">objectType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a name="ffi_bld_win_temp">bld_win_temp</a></b> (<a class="type" href="#ffi_winType">winType</a> temp_win)</td></tr>
       <tr><td width="30"></td><td>Create an object with a <a class="type" href="#ffi_winType">winType</a> value.</td></tr></table></td></tr>
-</table></div><p></p>
+</table></div>
+
+<a name="ffi_Error_handling"><h3>14.5 Error handling</h3></a>
+<p>
+  The C programming language does not provide exceptions. Seed7 uses
+  several methods to provide error handling. Before an actual exception
+  is raised an error state can be handled in different ways:
+</p><ul>
+    <li>The integer type <tt><span class="type">errInfoType</span></tt> is used to descripe an
+      error state. Usually a variable or parameter named <tt><span class="var">err_info</span></tt> is
+      used to store the error state. The value <tt><span class="exception">OKAY_NO_ERROR</span></tt> is used
+      to describe that no error occurred. Values like <tt><span class="exception">MEMORY_ERROR</span></tt>,
+      <tt><span class="exception">NUMERIC_ERROR</span></tt>, <tt><span class="exception">OVERFLOW_ERROR</span></tt>, <tt><span class="exception">RANGE_ERROR</span></tt>, <tt><span class="exception">FILE_ERROR</span></tt>,
+      <tt><span class="exception">DATABASE_ERROR</span></tt> and <tt><span class="exception">ACTION_ERROR</span></tt> describe errors that occurred.</li>
+    <li>In some situations a function has only one possible error
+      situation (e.g. a <tt><span class="exception">MEMORY_ERROR</span></tt>). This is handled with functions
+      that return NULL in case of a <tt><span class="exception">MEMORY_ERROR</span></tt>.</li>
+</ul><p>
+  Code can check the value of the <tt><span class="var">err_info</span></tt> variable, or check if a
+  function returns NULL. In case of error it is possible to do some
+  cleaning up. An error situation can be propergated this way over
+  several function levels. It is important to assure that an
+  existing error situation (e.g. <tt><span class="var">err_info</span></tt> has a value not equal to
+  <tt><span class="exception">OKAY_NO_ERROR</span></tt>) is not reset to a situation that no error occurred.
+</p><p>
+  An actual exception can be triggered with the macro <tt><a class="func" href="#ffi_raise_error">raise_error</a></tt>.
+  This macro takes an <tt><span class="type">errInfoType</span></tt> parameter to describe the actual
+  exception. This macro calls the function <tt><span class="func">raise_exception2</span></tt> with
+  the additional parameters __FILE__ and __LINE__. The function
+  <tt><span class="func">raise_exception2</span></tt> has different implementations for interpreted
+  and compiled programs:
+</p><ul>
+    <li>In the interpreter <tt><span class="func">raise_exception2</span></tt> sets a fail flag
+      and the function is left normally.</li>
+    <li>In compiled code <tt><span class="func">raise_exception2</span></tt> uses a <tt><span class="func">longjmp</span></tt>
+      to continue executing at the handler code of the exception.</li>
+</ul><p>
+</p>
 
 <a name="errors_file_start"></a><p></p>
 <a name="errors_ERRORS"><h2>15. ERRORS</h2></a>

@@ -549,6 +549,14 @@ const func string: str (in bigRational: number) is func
 
 
 (**
+ *  Convert a ''bigRational'' number to a ''bigRational'' literal.
+ *  @return the ''bigRational'' literal.
+ *)
+const func string: literal (in bigRational: number) is
+    return "bigRational(" & literal(str(number)) & ")";
+
+
+(**
  *  Convert a ''bigRational'' number to a [[string]] in decimal fixed point notation.
  *  The number is rounded to the specified number of digits (''precision'').
  *  Halfway cases are rounded away from zero. Except for a ''precision'' of

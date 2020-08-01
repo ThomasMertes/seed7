@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
-/*  soc_dos.c     Dummy functions for the socket type.              */
-/*  Copyright (C) 1989 - 2011  Thomas Mertes                        */
+/*  soc_none.c    Dummy functions for the socket type.              */
+/*  Copyright (C) 1989 - 2018  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -23,25 +23,31 @@
 /*  Fifth Floor, Boston, MA  02110-1301, USA.                       */
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
-/*  File: seed7/src/soc_dos.c                                       */
-/*  Changes: 2011  Thomas Mertes                                    */
+/*  File: seed7/src/soc_none.c                                      */
+/*  Changes: 2011, 2018  Thomas Mertes                              */
 /*  Content: Dummy functions for the socket type.                   */
 /*                                                                  */
 /********************************************************************/
 
 #include "version.h"
 
+#if SOCKET_LIB == NO_SOCKETS
 #include "stdio.h"
 
 #include "common.h"
 #include "data_rtl.h"
 #include "rtl_err.h"
 
+#undef EXTERN
+#define EXTERN
+#include "soc_rtl.h"
 
 
-socketType socAccept (socketType sock, bstriType *address)
+
+socketType socAccept (socketType listenerSocket, bstriType *address)
 
   { /* socAccept */
+    raise_error(FILE_ERROR);
     return 0;
   } /* socAccept */
 
@@ -50,6 +56,7 @@ socketType socAccept (socketType sock, bstriType *address)
 intType socAddrFamily (const const_bstriType address)
 
   { /* socAddrFamily */
+    raise_error(FILE_ERROR);
     return 0;
   } /* socAddrFamily */
 
@@ -58,6 +65,7 @@ intType socAddrFamily (const const_bstriType address)
 striType socAddrNumeric (const const_bstriType address)
 
   { /* socAddrNumeric */
+    raise_error(FILE_ERROR);
     return NULL;
   } /* socAddrNumeric */
 
@@ -66,60 +74,58 @@ striType socAddrNumeric (const const_bstriType address)
 striType socAddrService (const const_bstriType address)
 
   { /* socAddrService */
+    raise_error(FILE_ERROR);
     return NULL;
   } /* socAddrService */
 
 
 
-void socBind (socketType sock, const_bstriType address)
+void socBind (socketType listenerSocket, const_bstriType address)
 
   { /* socBind */
+    raise_error(FILE_ERROR);
   } /* socBind */
 
 
 
-void socClose (socketType sock)
+void socClose (socketType aSocket)
 
   { /* socClose */
+    raise_error(FILE_ERROR);
   } /* socClose */
 
 
 
-void socConnect (socketType sock, const_bstriType address)
+void socConnect (socketType aSocket, const_bstriType address)
 
   { /* socConnect */
+    raise_error(FILE_ERROR);
   } /* socConnect */
 
 
 
-charType socGetc (socketType sock)
+charType socGetc (socketType inSocket, charType *const eofIndicator)
 
   { /* socGetc */
+    raise_error(FILE_ERROR);
     return (charType) EOF;
   } /* socGetc */
 
 
 
-striType socGets (socketType sock, intType length)
+striType socGets (socketType inSocket, intType length, charType *const eofIndicator)
 
   { /* socGets */
-    return NULL;
-  } /* socGets */
-
-
-
-bstriType socGetAddr (socketType sock)
-
-  { /* socGetAddr */
     raise_error(FILE_ERROR);
     return NULL;
-  } /* socGetAddr */
+  } /* socGets */
 
 
 
 striType socGetHostname (void)
 
   { /* socGetHostname */
+    raise_error(FILE_ERROR);
     return NULL;
   } /* socGetHostname */
 
@@ -128,6 +134,7 @@ striType socGetHostname (void)
 bstriType socGetLocalAddr (socketType sock)
 
   { /* socGetLocalAddr */
+    raise_error(FILE_ERROR);
     return NULL;
   } /* socGetLocalAddr */
 
@@ -136,14 +143,16 @@ bstriType socGetLocalAddr (socketType sock)
 bstriType socGetPeerAddr (socketType sock)
 
   { /* socGetPeerAddr */
+    raise_error(FILE_ERROR);
     return NULL;
   } /* socGetPeerAddr */
 
 
 
-boolType socHasNext (socketType sock)
+boolType socHasNext (socketType inSocket)
 
   { /* socHasNext */
+    raise_error(FILE_ERROR);
     return TRUE;
   } /* socHasNext */
 
@@ -179,22 +188,25 @@ bstriType socInetServAddr (intType port)
 boolType socInputReady (socketType sock, intType seconds, intType micro_seconds)
 
   { /* socInputReady */
+    raise_error(FILE_ERROR);
     return FALSE;
   } /* socInputReady */
 
 
 
-striType socLineRead (socketType sock, charType *terminationChar)
+striType socLineRead (socketType inSocket, charType *const terminationChar)
 
   { /* socLineRead */
+    raise_error(FILE_ERROR);
     return NULL;
   } /* socLineRead */
 
 
 
-void socListen (socketType sock, intType backlog)
+void socListen (socketType listenerSocket, intType backlog)
 
   { /* socListen */
+    raise_error(FILE_ERROR);
   } /* socListen */
 
 
@@ -202,6 +214,7 @@ void socListen (socketType sock, intType backlog)
 intType socRecv (socketType sock, striType *stri, intType length, intType flags)
 
   { /* socRecv */
+    raise_error(FILE_ERROR);
     return 0;
   } /* socRecv */
 
@@ -211,6 +224,7 @@ intType socRecvfrom (socketType sock, striType *stri, intType length, intType fl
     bstriType *address)
 
   { /* socRecvfrom */
+    raise_error(FILE_ERROR);
     return 0;
   } /* socRecvfrom */
 
@@ -219,6 +233,7 @@ intType socRecvfrom (socketType sock, striType *stri, intType length, intType fl
 intType socSend (socketType sock, const const_striType stri, intType flags)
 
   { /* socSend */
+    raise_error(FILE_ERROR);
     return 0;
   } /* socSend */
 
@@ -228,6 +243,7 @@ intType socSendto (socketType sock, const const_striType stri, intType flags,
     const_bstriType address)
 
   { /* socSendto */
+    raise_error(FILE_ERROR);
     return 0;
   } /* socSendto */
 
@@ -236,6 +252,7 @@ intType socSendto (socketType sock, const const_striType stri, intType flags,
 void socSetOptBool (socketType sock, intType optname, boolType optval)
 
   { /* socSetOptBool */
+    raise_error(FILE_ERROR);
   } /* socSetOptBool */
 
 
@@ -243,20 +260,25 @@ void socSetOptBool (socketType sock, intType optname, boolType optval)
 socketType socSocket (intType domain, intType type, intType protocol)
 
   { /* socSocket */
+    raise_error(FILE_ERROR);
     return 0;
   } /* socSocket */
 
 
 
-striType socWordRead (socketType sock, charType *terminationChar)
+striType socWordRead (socketType inSocket, charType *const terminationChar)
 
   { /* socWordRead */
+    raise_error(FILE_ERROR);
     return NULL;
   } /* socWordRead */
 
 
 
-void socWrite (socketType sock, const const_striType stri)
+void socWrite (socketType outSocket, const const_striType stri)
 
   { /* socWrite */
+    raise_error(FILE_ERROR);
   } /* socWrite */
+
+#endif

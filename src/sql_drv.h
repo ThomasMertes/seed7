@@ -96,3 +96,7 @@ databaseType sqlOpenOci (const const_striType dbName,
 databaseType sqlOpenOdbc (const const_striType dbName,
     const const_striType user, const const_striType password);
 #endif
+#ifdef FIRE_INCLUDE
+databaseType sqlOpenFire (const const_striType dbName,
+    const const_striType user, const const_striType password);
+#endif

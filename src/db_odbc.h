@@ -39,8 +39,16 @@ typedef UINT16TYPE SQLUSMALLINT;
 typedef INT32TYPE  SQLINTEGER;
 typedef UINT32TYPE SQLUINTEGER;
 
+typedef INT64TYPE  SQLBIGINT;
+typedef UINT64TYPE SQLUBIGINT;
+
+#if POINTER_SIZE == 32
+typedef INT32TYPE  SQLLEN;
+typedef UINT32TYPE SQLULEN;
+#elif POINTER_SIZE == 64
 typedef INT64TYPE  SQLLEN;
 typedef UINT64TYPE SQLULEN;
+#endif
 
 typedef SQLSMALLINT SQLRETURN;
 
@@ -119,6 +127,7 @@ typedef SQLHANDLE SQLHENV;
 typedef SQLHANDLE SQLHDBC;
 typedef SQLHANDLE SQLHSTMT;
 typedef SQLHANDLE SQLHDESC;
+typedef SQLHANDLE SQLHWND;
 
 #define SQL_NULL_HANDLE  0L
 #define SQL_HANDLE_ENV   1
@@ -233,6 +242,11 @@ typedef SQLHANDLE SQLHDESC;
 #define SQL_C_SLONG    (-16)
 #define SQL_C_SBIGINT  (-25)
 #define SQL_C_STINYINT (-26)
+#define SQL_C_UTINYINT (-28)
+
+#define SQL_ARD_TYPE (-99)
+
+#define SQL_API_SQLDESCRIBEPARAM    58
 
 #ifndef STDCALL
 #if defined(_WIN32)
@@ -242,13 +256,16 @@ typedef SQLHANDLE SQLHDESC;
 #endif
 #endif
 
-SQLRETURN STDCALL SQLAllocHandle (SQLSMALLINT HandleType,
-                                  SQLHANDLE InputHandle, SQLHANDLE *OutputHandle);
-SQLRETURN STDCALL SQLBindCol (SQLHSTMT StatementHandle,
-                              SQLUSMALLINT ColumnNumber, SQLSMALLINT TargetType,
-                              SQLPOINTER TargetValue, SQLLEN BufferLength,
-                              SQLLEN *StrLen_or_Ind);
-SQLRETURN STDCALL SQLBindParameter (SQLHSTMT hstmt,
+SQLRETURN STDCALL SQLAllocHandle (SQLSMALLINT handleType,
+                                  SQLHANDLE   inputHandle,
+                                  SQLHANDLE  *outputHandle);
+SQLRETURN STDCALL SQLBindCol (SQLHSTMT     statementHandle,
+                              SQLUSMALLINT columnNumber,
+                              SQLSMALLINT  targetType,
+                              SQLPOINTER   targetValue,
+                              SQLLEN       bufferLength,
+                              SQLLEN      *strLen_or_Ind);
+SQLRETURN STDCALL SQLBindParameter (SQLHSTMT     hstmt,
                                     SQLUSMALLINT ipar,
                                     SQLSMALLINT  fParamType,
                                     SQLSMALLINT  fCType,
@@ -258,71 +275,116 @@ SQLRETURN STDCALL SQLBindParameter (SQLHSTMT hstmt,
                                     SQLPOINTER   rgbValue,
                                     SQLLEN       cbValueMax,
                                     SQLLEN      *pcbValue);
-SQLRETURN STDCALL SQLColAttribute (SQLHSTMT StatementHandle,
-                                   SQLUSMALLINT ColumnNumber,
-                                   SQLUSMALLINT FieldIdentifier,
-                                   SQLPOINTER CharacterAttribute,
-                                   SQLSMALLINT BufferLength,
-                                   SQLSMALLINT *StringLength,
-                                   SQLLEN *NumericAttribute);
-SQLRETURN STDCALL SQLColAttributeW (SQLHSTMT hstmt,
+SQLRETURN STDCALL SQLBrowseConnectW (SQLHDBC      connectionHandle,
+                                     SQLWCHAR    *inConnectionString,
+                                     SQLSMALLINT  stringLength1,
+                                     SQLWCHAR    *outConnectionString,
+                                     SQLSMALLINT  bufferLength,
+                                     SQLSMALLINT *stringLength2Ptr);
+SQLRETURN STDCALL SQLColAttribute (SQLHSTMT     statementHandle,
+                                   SQLUSMALLINT columnNumber,
+                                   SQLUSMALLINT fieldIdentifier,
+                                   SQLPOINTER   characterAttribute,
+                                   SQLSMALLINT  bufferLength,
+                                   SQLSMALLINT *stringLength,
+                                   SQLLEN      *numericAttribute);
+SQLRETURN STDCALL SQLColAttributeW (SQLHSTMT     hstmt,
                                     SQLUSMALLINT iCol,
                                     SQLUSMALLINT iField,
-                                    SQLPOINTER  pCharAttr,
+                                    SQLPOINTER   pCharAttr,
                                     SQLSMALLINT  cbCharAttrMax,
                                     SQLSMALLINT *pcbCharAttr,
-                                    SQLLEN  *pNumAttr);
-SQLRETURN STDCALL SQLConnectW (SQLHDBC ConnectionHandle,
-                               SQLWCHAR *ServerName, SQLSMALLINT NameLength1,
-                               SQLWCHAR *UserName, SQLSMALLINT NameLength2,
-                               SQLWCHAR *Authentication, SQLSMALLINT NameLength3);
-SQLRETURN STDCALL SQLDataSources (SQLHENV EnvironmentHandle,
-                                  SQLUSMALLINT Direction, SQLCHAR *ServerName,
-                                  SQLSMALLINT BufferLength1, SQLSMALLINT *NameLength1,
-                                  SQLCHAR *Description, SQLSMALLINT BufferLength2,
-                                  SQLSMALLINT *NameLength2);
-SQLRETURN SQLDescribeParam(SQLHSTMT     StatementHandle,
-                           SQLUSMALLINT ParameterNumber,
-                           SQLSMALLINT *DataTypePtr,
-                           SQLULEN     *ParameterSizePtr,
-                           SQLSMALLINT *DecimalDigitsPtr,
-                           SQLSMALLINT *NullablePtr);
-SQLRETURN STDCALL SQLDisconnect (SQLHDBC ConnectionHandle);
-SQLRETURN STDCALL SQLDrivers (SQLHENV      henv,
-                              SQLUSMALLINT fDirection,
-                              SQLCHAR     *szDriverDesc,
-                              SQLSMALLINT  cbDriverDescMax,
-                              SQLSMALLINT *pcbDriverDesc,
-                              SQLCHAR     *szDriverAttributes,
-                              SQLSMALLINT  cbDrvrAttrMax,
-                              SQLSMALLINT *pcbDrvrAttr);
-SQLRETURN STDCALL SQLExecute (SQLHSTMT StatementHandle);
-SQLRETURN STDCALL SQLFetch (SQLHSTMT StatementHandle);
-SQLRETURN STDCALL SQLFreeHandle (SQLSMALLINT HandleType, SQLHANDLE Handle);
-SQLRETURN STDCALL SQLFreeStmt (SQLHSTMT StatementHandle, SQLUSMALLINT Option);
-SQLRETURN STDCALL SQLGetData (SQLHSTMT     StatementHandle,
-                              SQLUSMALLINT ColumnNumber,
-                              SQLSMALLINT  TargetType,
-                              SQLPOINTER   TargetValue,
-                              SQLLEN       BufferLength,
-                              SQLLEN      *StrLen_or_Ind);
-SQLRETURN STDCALL SQLGetDiagRec (SQLSMALLINT HandleType, SQLHANDLE Handle,
-                                 SQLSMALLINT RecNumber, SQLCHAR *Sqlstate,
-                                 SQLINTEGER *NativeError, SQLCHAR *MessageText,
-                                 SQLSMALLINT BufferLength, SQLSMALLINT *TextLength);
-SQLRETURN STDCALL SQLGetStmtAttr (SQLHSTMT StatementHandle,
-                                  SQLINTEGER Attribute, SQLPOINTER Value,
-                                  SQLINTEGER BufferLength, SQLINTEGER *StringLength);
-SQLRETURN STDCALL SQLNumParams(SQLHSTMT     StatementHandle,
-                               SQLSMALLINT *ParameterCountPtr);
-SQLRETURN STDCALL SQLNumResultCols (SQLHSTMT StatementHandle,
-                                    SQLSMALLINT *ColumnCount);
+                                    SQLLEN      *pNumAttr);
+SQLRETURN STDCALL SQLConnectW (SQLHDBC     connectionHandle,
+                               SQLWCHAR   *serverName,
+                               SQLSMALLINT nameLength1,
+                               SQLWCHAR   *userName,
+                               SQLSMALLINT nameLength2,
+                               SQLWCHAR   *authentication,
+                               SQLSMALLINT nameLength3);
+SQLRETURN STDCALL SQLDataSources (SQLHENV      environmentHandle,
+                                  SQLUSMALLINT direction,
+                                  SQLCHAR     *serverName,
+                                  SQLSMALLINT  bufferLength1,
+                                  SQLSMALLINT *nameLength1,
+                                  SQLCHAR     *description,
+                                  SQLSMALLINT  bufferLength2,
+                                  SQLSMALLINT *nameLength2);
+SQLRETURN STDCALL SQLDescribeCol (SQLHSTMT     statementHandle,
+                                  SQLUSMALLINT columnNumber,
+                                  SQLCHAR     *columnName,
+                                  SQLSMALLINT  bufferLength,
+                                  SQLSMALLINT *nameLengthPtr,
+                                  SQLSMALLINT *dataTypePtr,
+                                  SQLULEN     *columnSizePtr,
+                                  SQLSMALLINT *decimalDigitsPtr,
+                                  SQLSMALLINT *nullablePtr);
+SQLRETURN STDCALL SQLDescribeParam (SQLHSTMT     statementHandle,
+                                    SQLUSMALLINT parameterNumber,
+                                    SQLSMALLINT *dataTypePtr,
+                                    SQLULEN     *parameterSizePtr,
+                                    SQLSMALLINT *decimalDigitsPtr,
+                                    SQLSMALLINT *nullablePtr);
+SQLRETURN STDCALL SQLDisconnect (SQLHDBC connectionHandle);
+SQLRETURN STDCALL SQLDriverConnectW (SQLHDBC      connectionHandle,
+                                     SQLHWND      windowHandle,
+                                     SQLWCHAR    *inConnectionString,
+                                     SQLSMALLINT  stringLength1,
+                                     SQLWCHAR    *outConnectionString,
+                                     SQLSMALLINT  bufferLength,
+                                     SQLSMALLINT *stringLength2Ptr,
+                                     SQLUSMALLINT driverCompletion);
+SQLRETURN STDCALL SQLDriversW (SQLHENV      henv,
+                               SQLUSMALLINT fDirection,
+                               SQLWCHAR    *szDriverDesc,
+                               SQLSMALLINT  cbDriverDescMax,
+                               SQLSMALLINT *pcbDriverDesc,
+                               SQLWCHAR    *szDriverAttributes,
+                               SQLSMALLINT  cbDrvrAttrMax,
+                               SQLSMALLINT *pcbDrvrAttr);
+SQLRETURN STDCALL SQLExecute (SQLHSTMT statementHandle);
+SQLRETURN STDCALL SQLFetch (SQLHSTMT statementHandle);
+SQLRETURN STDCALL SQLFreeHandle (SQLSMALLINT handleType,
+                                 SQLHANDLE   handle);
+SQLRETURN STDCALL SQLFreeStmt (SQLHSTMT     statementHandle,
+                               SQLUSMALLINT option);
+SQLRETURN STDCALL SQLGetData (SQLHSTMT     statementHandle,
+                              SQLUSMALLINT columnNumber,
+                              SQLSMALLINT  targetType,
+                              SQLPOINTER   targetValue,
+                              SQLLEN       bufferLength,
+                              SQLLEN      *strLen_or_Ind);
+SQLRETURN STDCALL SQLGetDiagRec (SQLSMALLINT  handleType,
+                                 SQLHANDLE    handle,
+                                 SQLSMALLINT  recNumber,
+                                 SQLCHAR     *sqlstate,
+                                 SQLINTEGER  *nativeError,
+                                 SQLCHAR     *messageText,
+                                 SQLSMALLINT  bufferLength,
+                                 SQLSMALLINT *textLength);
+SQLRETURN STDCALL SQLGetFunctions (SQLHDBC       connectionHandle,
+                                   SQLUSMALLINT  functionId,
+                                   SQLUSMALLINT *supportedPtr);
+SQLRETURN STDCALL SQLGetStmtAttr (SQLHSTMT    statementHandle,
+                                  SQLINTEGER  attribute,
+                                  SQLPOINTER  value,
+                                  SQLINTEGER  bufferLength,
+                                  SQLINTEGER *stringLength);
+SQLRETURN STDCALL SQLGetTypeInfo (SQLHSTMT StatementHandle,
+                                  SQLSMALLINT DataType);
+SQLRETURN STDCALL SQLNumParams(SQLHSTMT     statementHandle,
+                               SQLSMALLINT *parameterCountPtr);
+SQLRETURN STDCALL SQLNumResultCols (SQLHSTMT     statementHandle,
+                                    SQLSMALLINT *columnCount);
 SQLRETURN STDCALL SQLPrepareW (SQLHSTMT   hstmt,
                                SQLWCHAR  *szSqlStr,
                                SQLINTEGER cbSqlStr);
-SQLRETURN STDCALL SQLSetDescField (SQLHDESC DescriptorHandle,
-                                   SQLSMALLINT RecNumber, SQLSMALLINT FieldIdentifier,
-                                   SQLPOINTER Value, SQLINTEGER BufferLength);
-SQLRETURN STDCALL SQLSetEnvAttr (SQLHENV EnvironmentHandle,
-                                 SQLINTEGER Attribute, SQLPOINTER Value,
-                                 SQLINTEGER StringLength);
+SQLRETURN STDCALL SQLSetDescField (SQLHDESC    descriptorHandle,
+                                   SQLSMALLINT recNumber,
+                                   SQLSMALLINT fieldIdentifier,
+                                   SQLPOINTER  value,
+                                   SQLINTEGER  bufferLength);
+SQLRETURN STDCALL SQLSetEnvAttr (SQLHENV    environmentHandle,
+                                 SQLINTEGER attribute,
+                                 SQLPOINTER value,
+                                 SQLINTEGER stringLength);

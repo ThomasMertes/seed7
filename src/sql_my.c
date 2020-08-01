@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  sql_my.c      Database access functions for MariaDB and MySQL.  */
-/*  Copyright (C) 1989 - 2014  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2019  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/sql_my.c                                        */
-/*  Changes: 2014  Thomas Mertes                                    */
+/*  Changes: 2014, 2015, 2017 - 2019  Thomas Mertes                 */
 /*  Content: Database access functions for MariaDB and MySQL.       */
 /*                                                                  */
 /********************************************************************/
@@ -66,6 +66,7 @@ typedef struct {
 
 typedef struct {
     memSizeType   buffer_capacity;
+    boolType      bound;
   } bindDataRecord, *bindDataType;
 
 typedef struct {
@@ -76,7 +77,6 @@ typedef struct {
     uintType       usage_count;
     sqlFuncType    sqlFunc;
     MYSQL_STMT    *ppStmt;
-    memSizeType    param_array_capacity;
     memSizeType    param_array_size;
     MYSQL_BIND    *param_array;
     bindDataType   param_data_array;
@@ -92,12 +92,17 @@ static sqlFuncType sqlFunc = NULL;
 
 #define MAX_DECIMAL_PRECISION 65
 #define MAX_DECIMAL_SCALE 30
-/* Maximum length needs additionally 1 digit for sign and 1 for decimal point. */
-#define MAX_DECIMAL_LENGTH (MAX_DECIMAL_PRECISION + 2)
+/* The maximum decimal length additionally needs place for a      */
+/* decimal point, a sign and a possible leading or trailing zero. */
+#define MAX_DECIMAL_LENGTH (MAX_DECIMAL_PRECISION + 3)
 #define MOST_POSITIVE_FLOAT   3.4028234663852885e+38
 #define MOST_NEGATIVE_FLOAT  -3.4028234663852885e+38
 #define MOST_POSITIVE_DOUBLE  1.7976931348623157e+308
 #define MOST_NEGATIVE_DOUBLE -1.7976931348623157e+308
+#define MAX_TINY_BLOB_LENGTH                        255  /* 2 **  8 - 1 chars */
+#define MAX_BLOB_LENGTH                           65535  /* 2 ** 16 - 1 chars */
+#define MAX_MEDIUM_BLOB_LENGTH                 16777215  /* 2 ** 24 - 1 chars */
+#define MAX_LONG_BLOB_LENGTH   UINT32_SUFFIX(4294967295) /* 2 ** 32 - 1 chars */
 
 
 #ifdef MYSQL_DLL
@@ -134,9 +139,14 @@ typedef unsigned int (STDCALL *tp_mysql_stmt_errno) (MYSQL_STMT *stmt);
 typedef const char *(STDCALL *tp_mysql_stmt_error) (MYSQL_STMT *stmt);
 typedef int (STDCALL *tp_mysql_stmt_execute) (MYSQL_STMT *stmt);
 typedef int (STDCALL *tp_mysql_stmt_fetch) (MYSQL_STMT *stmt);
+typedef int (STDCALL *tp_mysql_stmt_fetch_column) (MYSQL_STMT *stmt, MYSQL_BIND *bnd,
+                                                   unsigned int column,
+                                                   unsigned long offset);
 typedef MYSQL_STMT *(STDCALL *tp_mysql_stmt_init) (MYSQL *mysql);
+typedef unsigned long (STDCALL *tp_mysql_stmt_param_count) (MYSQL_STMT *stmt);
 typedef int (STDCALL *tp_mysql_stmt_prepare) (MYSQL_STMT *stmt, const char *query, unsigned long length);
 typedef MYSQL_RES *(STDCALL *tp_mysql_stmt_result_metadata) (MYSQL_STMT *stmt);
+typedef int *(STDCALL *tp_mysql_stmt_store_result) (MYSQL_STMT *stmt);
 
 static tp_mysql_close                ptr_mysql_close;
 static tp_mysql_commit               ptr_mysql_commit;
@@ -156,9 +166,12 @@ static tp_mysql_stmt_errno           ptr_mysql_stmt_errno;
 static tp_mysql_stmt_error           ptr_mysql_stmt_error;
 static tp_mysql_stmt_execute         ptr_mysql_stmt_execute;
 static tp_mysql_stmt_fetch           ptr_mysql_stmt_fetch;
+static tp_mysql_stmt_fetch_column    ptr_mysql_stmt_fetch_column;
 static tp_mysql_stmt_init            ptr_mysql_stmt_init;
+static tp_mysql_stmt_param_count     ptr_mysql_stmt_param_count;
 static tp_mysql_stmt_prepare         ptr_mysql_stmt_prepare;
 static tp_mysql_stmt_result_metadata ptr_mysql_stmt_result_metadata;
+static tp_mysql_stmt_store_result    ptr_mysql_stmt_store_result;
 
 #define mysql_close                ptr_mysql_close
 #define mysql_commit               ptr_mysql_commit
@@ -178,9 +191,12 @@ static tp_mysql_stmt_result_metadata ptr_mysql_stmt_result_metadata;
 #define mysql_stmt_error           ptr_mysql_stmt_error
 #define mysql_stmt_execute         ptr_mysql_stmt_execute
 #define mysql_stmt_fetch           ptr_mysql_stmt_fetch
+#define mysql_stmt_fetch_column    ptr_mysql_stmt_fetch_column
 #define mysql_stmt_init            ptr_mysql_stmt_init
+#define mysql_stmt_param_count     ptr_mysql_stmt_param_count
 #define mysql_stmt_prepare         ptr_mysql_stmt_prepare
 #define mysql_stmt_result_metadata ptr_mysql_stmt_result_metadata
+#define mysql_stmt_store_result    ptr_mysql_stmt_store_result
 
 
 
@@ -212,9 +228,12 @@ static boolType setupDll (const char *dllName)
             (mysql_stmt_error           = (tp_mysql_stmt_error)           dllFunc(dbDll, "mysql_stmt_error"))           == NULL ||
             (mysql_stmt_execute         = (tp_mysql_stmt_execute)         dllFunc(dbDll, "mysql_stmt_execute"))         == NULL ||
             (mysql_stmt_fetch           = (tp_mysql_stmt_fetch)           dllFunc(dbDll, "mysql_stmt_fetch"))           == NULL ||
+            (mysql_stmt_fetch_column    = (tp_mysql_stmt_fetch_column)    dllFunc(dbDll, "mysql_stmt_fetch_column"))    == NULL ||
             (mysql_stmt_init            = (tp_mysql_stmt_init)            dllFunc(dbDll, "mysql_stmt_init"))            == NULL ||
+            (mysql_stmt_param_count     = (tp_mysql_stmt_param_count)     dllFunc(dbDll, "mysql_stmt_param_count"))     == NULL ||
             (mysql_stmt_prepare         = (tp_mysql_stmt_prepare)         dllFunc(dbDll, "mysql_stmt_prepare"))         == NULL ||
-            (mysql_stmt_result_metadata = (tp_mysql_stmt_result_metadata) dllFunc(dbDll, "mysql_stmt_result_metadata")) == NULL) {
+            (mysql_stmt_result_metadata = (tp_mysql_stmt_result_metadata) dllFunc(dbDll, "mysql_stmt_result_metadata")) == NULL ||
+            (mysql_stmt_store_result    = (tp_mysql_stmt_store_result)    dllFunc(dbDll, "mysql_stmt_store_result"))    == NULL) {
           dbDll = NULL;
         } /* if */
       } /* if */
@@ -305,7 +324,8 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
       for (pos = 0; pos < preparedStmt->param_array_size; pos++) {
         free(preparedStmt->param_array[pos].buffer);
       } /* for */
-      FREE_TABLE(preparedStmt->param_array, MYSQL_BIND, preparedStmt->param_array_capacity);
+      FREE_TABLE(preparedStmt->param_array, MYSQL_BIND, preparedStmt->param_array_size);
+      FREE_TABLE(preparedStmt->param_data_array, bindDataRecord, preparedStmt->param_array_size);
     } /* if */
     if (preparedStmt->result_array != NULL) {
       for (pos = 0; pos < preparedStmt->result_array_size; pos++) {
@@ -323,6 +343,7 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
 
 
 
+#if LOG_FUNCTIONS_EVERYWHERE || LOG_FUNCTIONS || VERBOSE_EXCEPTIONS_EVERYWHERE || VERBOSE_EXCEPTIONS
 static const char *nameOfBufferType (int buffer_type)
 
   {
@@ -367,109 +388,211 @@ static const char *nameOfBufferType (int buffer_type)
     logFunction(printf("nameOfBufferType --> %s\n", typeName););
     return typeName;
   } /* nameOfBufferType */
+#endif
 
 
 
-static void setupResultColumn (preparedStmtType preparedStmt,
+/**
+ *  Replace backslashes (\) by double backslashes (\\) in strings.
+ *  The strings are delimited by single quotes (') or double quotes (").
+ *  This way a backslash in a SQL statement has no special meaning
+ *  (like it is common practice in all other SQL databases).
+ *  This processing does not prohibit any form of SQL injection.
+ *  It is strongly recommended that string literals in SQL statements
+ *  are constant and never be constructed with data from outside.
+ */
+static striType processEscapesInStatement (const const_striType sqlStatementStri)
+
+  {
+    memSizeType pos = 0;
+    strElemType ch;
+    strElemType delimiter;
+    memSizeType destPos = 0;
+    striType processed;
+
+  /* processEscapesInStatement */
+    if (unlikely(sqlStatementStri->size > MAX_STRI_LEN / 2 ||
+                 !ALLOC_STRI_SIZE_OK(processed, sqlStatementStri->size * 2))) {
+      processed = NULL;
+    } else {
+      while (pos < sqlStatementStri->size) {
+        ch = sqlStatementStri->mem[pos];
+        if (ch == '\'' || ch == '"') {
+          delimiter = ch;
+          processed->mem[destPos++] = delimiter;
+          pos++;
+          while (pos < sqlStatementStri->size &&
+              (ch = sqlStatementStri->mem[pos]) != delimiter) {
+            if (ch == '\\') {
+              processed->mem[destPos++] = ch;
+            } /* if */
+            processed->mem[destPos++] = ch;
+            pos++;
+          } /* while */
+          if (pos < sqlStatementStri->size) {
+            processed->mem[destPos++] = delimiter;
+            pos++;
+          } /* if */
+        } else {
+          processed->mem[destPos++] = ch;
+          pos++;
+        } /* if */
+      } /* while */
+      processed->size = destPos;
+    } /* if */
+    return processed;
+  } /* processEscapesInStatement */
+
+
+
+static errInfoType setupParameters (preparedStmtType preparedStmt)
+
+  {
+    unsigned long num_params;
+    errInfoType err_info = OKAY_NO_ERROR;
+
+  /* setupParameters */
+    logFunction(printf("setupParameters\n"););
+    num_params = mysql_stmt_param_count(preparedStmt->ppStmt);
+    if (unlikely(!ALLOC_TABLE(preparedStmt->param_array,
+                              MYSQL_BIND, (memSizeType) num_params))) {
+      err_info = MEMORY_ERROR;
+    } else if (unlikely(!ALLOC_TABLE(preparedStmt->param_data_array,
+                                     bindDataRecord, (memSizeType) num_params))) {
+      FREE_TABLE(preparedStmt->param_array, MYSQL_BIND, (memSizeType) num_params);
+      err_info = MEMORY_ERROR;
+    } else {
+      preparedStmt->param_array_size = (memSizeType) num_params;
+      memset(preparedStmt->param_array, 0,
+             (memSizeType) num_params * sizeof(MYSQL_BIND));
+      memset(preparedStmt->param_data_array, 0,
+             (memSizeType) num_params * sizeof(bindDataRecord));
+    } /* if */
+    logFunction(printf("setupParameters --> %d\n", err_info););
+    return err_info;
+  } /* setupParameters */
+
+
+
+static errInfoType setupResultColumn (preparedStmtType preparedStmt,
     unsigned int column_num, MYSQL_RES *result_metadata,
-    MYSQL_BIND *resultData, errInfoType *err_info)
+    MYSQL_BIND *resultData)
 
   {
     MYSQL_FIELD *column;
-    memSizeType column_size;
+    memSizeType buffer_length;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* setupResultColumn */
     column = mysql_fetch_field_direct(result_metadata, column_num - 1);
     /* printf("column[%u]->type: %s\n", column_num, nameOfBufferType(column->type)); */
     switch (column->type) {
       case MYSQL_TYPE_TINY:
-        column_size = 1;
+        buffer_length = 1;
         resultData->length = NULL;
         break;
       case MYSQL_TYPE_SHORT:
-        column_size = 2;
+        buffer_length = 2;
         resultData->length = NULL;
         break;
       case MYSQL_TYPE_INT24:
       case MYSQL_TYPE_LONG:
-        column_size = 4;
+        buffer_length = 4;
         resultData->length = NULL;
         break;
       case MYSQL_TYPE_LONGLONG:
         /* printf("MYSQL_LONGLONG: column->length = %lu\n", column->length);
         printf("MYSQL_LONGLONG: column->decimals = %d\n", column->decimals); */
-        column_size = 8;
+        buffer_length = 8;
         resultData->length = NULL;
         break;
       case MYSQL_TYPE_FLOAT:
         /* printf("MYSQL_TYPE_FLOAT: column->length = %lu\n", column->length);
         printf("MYSQL_TYPE_FLOAT: column->decimals = %d\n", column->decimals); */
-        column_size = 4;
+        buffer_length = 4;
         resultData->length = NULL;
         break;
       case MYSQL_TYPE_DOUBLE:
         /* printf("MYSQL_TYPE_DOUBLE: column->length = %lu\n", column->length);
         printf("MYSQL_TYPE_DOUBLE: column->decimals = %d\n", column->decimals); */
-        column_size = 8;
+        buffer_length = 8;
         resultData->length = NULL;
         break;
       case MYSQL_TYPE_DECIMAL:
       case MYSQL_TYPE_NEWDECIMAL:
         /* printf("MYSQL_TYPE_NEWDECIMAL: column->length = %lu\n", column->length);
         printf("MYSQL_TYPE_NEWDECIMAL: column->decimals = %d\n", column->decimals); */
-        column_size = column->length;
+        buffer_length = column->length;
         resultData->length = &resultData->length_value;
         break;
       case MYSQL_TYPE_TIME:
       case MYSQL_TYPE_DATE:
       case MYSQL_TYPE_DATETIME:
       case MYSQL_TYPE_TIMESTAMP:
-        column_size = sizeof(MYSQL_TIME);
+        buffer_length = sizeof(MYSQL_TIME);
         resultData->length = NULL;
         break;
       case MYSQL_TYPE_STRING:
       case MYSQL_TYPE_VAR_STRING:
-        column_size = column->length;
+        buffer_length = column->length;
         resultData->length = &resultData->length_value;
         break;
       case MYSQL_TYPE_TINY_BLOB:
       case MYSQL_TYPE_BLOB:
       case MYSQL_TYPE_MEDIUM_BLOB:
       case MYSQL_TYPE_LONG_BLOB:
-        column_size = column->length;
+        /* For BLOB types no buffer is provided (buffer == NULL).   */
+        /* This way mysql_stmt_fetch() will not fetch data. Instead */
+        /* mysql_stmt_fetch() returns MYSQL_DATA_TRUNCATED, which   */
+        /* is ignored by sqlFetch(). The actual BLOB data is        */
+        /* fetched with mysql_stmt_fetch_column().                  */
+        buffer_length = 0;
         resultData->length = &resultData->length_value;
         break;
       default:
         logError(printf("setupResultColumn: Column %s has the unknown type %s.\n",
                         column->name, nameOfBufferType(column->type)););
-        *err_info = RANGE_ERROR;
+        err_info = RANGE_ERROR;
         break;
     } /* switch */
-    /* printf("column_size: " FMT_U_MEM "\n", column_size); */
-    if (*err_info == OKAY_NO_ERROR) {
-      resultData->buffer = malloc(column_size);
-      if (resultData->buffer == NULL) {
-        *err_info = MEMORY_ERROR;
+    /* printf("buffer_length: " FMT_U_MEM "\n", buffer_length); */
+    if (err_info == OKAY_NO_ERROR) {
+      if (buffer_length != 0) {
+        resultData->buffer = malloc(buffer_length);
+        if (resultData->buffer == NULL) {
+          err_info = MEMORY_ERROR;
+        } else {
+          resultData->buffer_type   = column->type;
+          resultData->buffer_length = buffer_length;
+          resultData->is_unsigned   = 0;
+          resultData->is_null = &resultData->is_null_value;
+          resultData->is_null_value = 0;
+          preparedStmt->result_data_array[column_num - 1].name = column->name;
+        } /* if */
       } else {
+        /* This triggers that mysql_stmt_fetch() returns MYSQL_DATA_TRUNCATED. */
+        /* Only BLOBs will have a buffer of NULL. */
+        resultData->buffer = NULL;
         resultData->buffer_type   = column->type;
-        resultData->buffer_length = column_size;
+        resultData->buffer_length = 0;
         resultData->is_unsigned   = 0;
         resultData->is_null = &resultData->is_null_value;
         resultData->is_null_value = 0;
         preparedStmt->result_data_array[column_num - 1].name = column->name;
       } /* if */
     } /* if */
+    return err_info;
   } /* setupResultColumn */
 
 
 
-static void setupResult (preparedStmtType preparedStmt,
-    errInfoType *err_info)
+static errInfoType setupResult (preparedStmtType preparedStmt)
 
   {
     MYSQL_RES *result_metadata;
     unsigned int num_columns;
     unsigned int column_index;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* setupResult */
     logFunction(printf("setupResult\n"););
@@ -482,67 +605,46 @@ static void setupResult (preparedStmtType preparedStmt,
       num_columns = mysql_num_fields(result_metadata);
       /* printf("num_columns: %u\n", num_columns); */
       if (!ALLOC_TABLE(preparedStmt->result_array, MYSQL_BIND, num_columns)) {
-        *err_info = MEMORY_ERROR;
+        err_info = MEMORY_ERROR;
       } else if (!ALLOC_TABLE(preparedStmt->result_data_array, resultDataRecord, num_columns)) {
         FREE_TABLE(preparedStmt->result_array, MYSQL_BIND, num_columns);
-        *err_info = MEMORY_ERROR;
+        err_info = MEMORY_ERROR;
       } else {
         preparedStmt->result_array_size = num_columns;
         memset(preparedStmt->result_array, 0, num_columns * sizeof(MYSQL_BIND));
         memset(preparedStmt->result_data_array, 0, num_columns * sizeof(resultDataRecord));
         for (column_index = 0; column_index < num_columns &&
-             *err_info == OKAY_NO_ERROR; column_index++) {
-          setupResultColumn(preparedStmt, column_index + 1, result_metadata,
-                            &preparedStmt->result_array[column_index],
-                            err_info);
+             err_info == OKAY_NO_ERROR; column_index++) {
+          err_info = setupResultColumn(preparedStmt, column_index + 1,
+                                       result_metadata,
+                                       &preparedStmt->result_array[column_index]);
         } /* for */
       } /* if */
       mysql_free_result(result_metadata);
     } /* if */
-    logFunction(printf("setupResult -->\n"););
+    logFunction(printf("setupResult --> %d\n", err_info););
+    return err_info;
   } /* setupResult */
 
 
 
-static void resizeBindArray (preparedStmtType preparedStmt, memSizeType pos)
+static boolType allParametersBound (preparedStmtType preparedStmt)
 
   {
-    memSizeType new_size;
-    MYSQL_BIND *resized_param_array = NULL;
-    bindDataType resized_data_array = NULL;
+    memSizeType column_index;
+    boolType okay = TRUE;
 
-  /* resizeBindArray */
-    if (pos > preparedStmt->param_array_capacity) {
-      new_size = (((pos - 1) >> 3) + 1) << 3;  /* Round to next multiple of 8. */
-      resized_param_array = REALLOC_TABLE(preparedStmt->param_array, MYSQL_BIND, preparedStmt->param_array_capacity, new_size);
-      resized_data_array = REALLOC_TABLE(preparedStmt->param_data_array, bindDataRecord, preparedStmt->param_array_capacity, new_size);
-      if (unlikely(resized_param_array == NULL || resized_data_array == NULL)) {
-        if (resized_param_array != NULL) {
-          FREE_TABLE(preparedStmt->param_array, MYSQL_BIND, preparedStmt->param_array_capacity);
-        } /* if */
-        if (resized_data_array != NULL) {
-          FREE_TABLE(preparedStmt->param_data_array, bindDataRecord, preparedStmt->param_array_capacity);
-        } /* if */
-        preparedStmt->param_array_capacity = 0;
-        preparedStmt->param_array = NULL;
-        preparedStmt->param_data_array = NULL;
-        raise_error(MEMORY_ERROR);
-      } else {
-        preparedStmt->param_array = resized_param_array;
-        preparedStmt->param_data_array = resized_data_array;
-        COUNT3_TABLE(MYSQL_BIND, preparedStmt->param_array_capacity, new_size);
-        COUNT3_TABLE(bindDataRecord, preparedStmt->param_array_capacity, new_size);
-        memset(&preparedStmt->param_array[preparedStmt->param_array_capacity], 0,
-               (new_size - preparedStmt->param_array_capacity) * sizeof(MYSQL_BIND));
-        memset(&preparedStmt->param_data_array[preparedStmt->param_array_capacity], 0,
-               (new_size - preparedStmt->param_array_capacity) * sizeof(bindDataRecord));
-        preparedStmt->param_array_capacity = new_size;
+  /* allParametersBound */
+    for (column_index = 0; column_index < preparedStmt->param_array_size;
+         column_index++) {
+      if (unlikely(!preparedStmt->param_data_array[column_index].bound)) {
+        logError(printf("sqlExecute: Unbound parameter " FMT_U_MEM ".\n",
+                        column_index + 1););
+        okay = FALSE;
       } /* if */
-    } /* if */
-    if (pos > preparedStmt->param_array_size) {
-      preparedStmt->param_array_size = pos;
-    } /* if */
-  } /* resizeBindArray */
+    } /* for */
+    return okay;
+  } /* allParametersBound */
 
 
 
@@ -573,6 +675,9 @@ static unsigned int setBigInt (const void *buffer, const const_bigIntType bigInt
         destIndex++;
       } /* if */
       if (unlikely(stri->size - srcIndex > MAX_DECIMAL_PRECISION)) {
+        logError(printf("setBigInt: Number of digits (" FMT_U_MEM
+                        ") larger than the allowed maximum (%d)\n.",
+                        stri->size - srcIndex, MAX_DECIMAL_PRECISION););
         *err_info = RANGE_ERROR;
       } else {
         for (; srcIndex < stri->size; srcIndex++) {
@@ -649,6 +754,9 @@ static unsigned int setBigRat (const void *buffer, const const_bigIntType numera
             decimalSize = (stri->mem[0] == '-') + scale + 2;
           } /* if */
           if (unlikely(decimalSize > MAX_DECIMAL_LENGTH)) {
+            logError(printf("setBigRat: decimalSize (" FMT_U_MEM
+                            ") larger than maximum (%d).\n",
+                            decimalSize, MAX_DECIMAL_LENGTH););
             *err_info = RANGE_ERROR;
           } else {
             decimal = (unsigned char *) buffer;
@@ -713,37 +821,40 @@ static void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
     logFunction(printf("sqlBindBigInt(" FMT_U_MEM ", " FMT_D ", %s)\n",
                        (memSizeType) sqlStatement, pos, bigHexCStri(value)););
     preparedStmt = (preparedStmtType) sqlStatement;
-    if (unlikely(pos < 1 || (uintType) pos > MAX_MEM_INDEX)) {
+    if (unlikely(pos < 1 || (uintType) pos > preparedStmt->param_array_size)) {
       logError(printf("sqlBindBigInt: pos: " FMT_D ", max pos: " FMT_U_MEM ".\n",
-                      pos, (memSizeType) MAX_MEM_INDEX););
+                      pos, preparedStmt->param_array_size););
       raise_error(RANGE_ERROR);
     } else {
-      resizeBindArray(preparedStmt, (memSizeType) pos);
-      if (preparedStmt->param_array != NULL) {
-        if (preparedStmt->param_array[pos - 1].buffer == NULL) {
-          if ((preparedStmt->param_array[pos - 1].buffer = malloc(MAX_DECIMAL_LENGTH)) == NULL) {
-            err_info = MEMORY_ERROR;
-          } else {
-            preparedStmt->param_array[pos - 1].buffer_type = MYSQL_TYPE_NEWDECIMAL;
-            preparedStmt->param_array[pos - 1].is_unsigned = 0;
-            preparedStmt->param_array[pos - 1].is_null     = NULL;
-            preparedStmt->param_array[pos - 1].length      = NULL;
-          } /* if */
-        } else if (preparedStmt->param_array[pos - 1].buffer_type != MYSQL_TYPE_NEWDECIMAL) {
-          err_info = RANGE_ERROR;
+      if (preparedStmt->param_array[pos - 1].buffer != NULL &&
+          MAX_DECIMAL_LENGTH > preparedStmt->param_data_array[pos - 1].buffer_capacity) {
+        free(preparedStmt->param_array[pos - 1].buffer);
+        preparedStmt->param_array[pos - 1].buffer = NULL;
+      } /* if */
+      if (preparedStmt->param_array[pos - 1].buffer == NULL) {
+        if (unlikely((preparedStmt->param_array[pos - 1].buffer =
+                      malloc(MAX_DECIMAL_LENGTH)) == NULL)) {
+          err_info = MEMORY_ERROR;
+        } else {
+          preparedStmt->param_data_array[pos - 1].buffer_capacity = MAX_DECIMAL_LENGTH;
         } /* if */
+      } /* if */
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        raise_error(err_info);
+      } else {
+        length = setBigInt(preparedStmt->param_array[pos - 1].buffer,
+                           value, &err_info);
         if (unlikely(err_info != OKAY_NO_ERROR)) {
           raise_error(err_info);
         } else {
-          length = setBigInt(preparedStmt->param_array[pos - 1].buffer,
-                             value, &err_info);
-          if (unlikely(err_info != OKAY_NO_ERROR)) {
-            raise_error(err_info);
-          } else {
-            preparedStmt->param_array[pos - 1].buffer_length = length;
-            preparedStmt->executeSuccessful = FALSE;
-            preparedStmt->fetchOkay = FALSE;
-          } /* if */
+          preparedStmt->param_array[pos - 1].buffer_type = MYSQL_TYPE_NEWDECIMAL;
+          preparedStmt->param_array[pos - 1].is_unsigned = 0;
+          preparedStmt->param_array[pos - 1].is_null     = NULL;
+          preparedStmt->param_array[pos - 1].length      = NULL;
+          preparedStmt->param_array[pos - 1].buffer_length = length;
+          preparedStmt->executeSuccessful = FALSE;
+          preparedStmt->fetchOkay = FALSE;
+          preparedStmt->param_data_array[pos - 1].bound = TRUE;
         } /* if */
       } /* if */
     } /* if */
@@ -764,37 +875,40 @@ static void sqlBindBigRat (sqlStmtType sqlStatement, intType pos,
                        (memSizeType) sqlStatement, pos,
                        bigHexCStri(numerator), bigHexCStri(denominator)););
     preparedStmt = (preparedStmtType) sqlStatement;
-    if (unlikely(pos < 1 || (uintType) pos > MAX_MEM_INDEX)) {
+    if (unlikely(pos < 1 || (uintType) pos > preparedStmt->param_array_size)) {
       logError(printf("sqlBindBigRat: pos: " FMT_D ", max pos: " FMT_U_MEM ".\n",
-                      pos, (memSizeType) MAX_MEM_INDEX););
+                      pos, preparedStmt->param_array_size););
       raise_error(RANGE_ERROR);
     } else {
-      resizeBindArray(preparedStmt, (memSizeType) pos);
-      if (preparedStmt->param_array != NULL) {
-        if (preparedStmt->param_array[pos - 1].buffer == NULL) {
-          if ((preparedStmt->param_array[pos - 1].buffer = malloc(MAX_DECIMAL_LENGTH)) == NULL) {
-            err_info = MEMORY_ERROR;
-          } else {
-            preparedStmt->param_array[pos - 1].buffer_type = MYSQL_TYPE_NEWDECIMAL;
-            preparedStmt->param_array[pos - 1].is_unsigned = 0;
-            preparedStmt->param_array[pos - 1].is_null     = NULL;
-            preparedStmt->param_array[pos - 1].length      = NULL;
-          } /* if */
-        } else if (preparedStmt->param_array[pos - 1].buffer_type != MYSQL_TYPE_NEWDECIMAL) {
-          err_info = RANGE_ERROR;
+      if (preparedStmt->param_array[pos - 1].buffer != NULL &&
+          MAX_DECIMAL_LENGTH > preparedStmt->param_data_array[pos - 1].buffer_capacity) {
+        free(preparedStmt->param_array[pos - 1].buffer);
+        preparedStmt->param_array[pos - 1].buffer = NULL;
+      } /* if */
+      if (preparedStmt->param_array[pos - 1].buffer == NULL) {
+        if (unlikely((preparedStmt->param_array[pos - 1].buffer =
+                      malloc(MAX_DECIMAL_LENGTH)) == NULL)) {
+          err_info = MEMORY_ERROR;
+        } else {
+          preparedStmt->param_data_array[pos - 1].buffer_capacity = MAX_DECIMAL_LENGTH;
         } /* if */
+      } /* if */
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        raise_error(err_info);
+      } else {
+        length = setBigRat(preparedStmt->param_array[pos - 1].buffer,
+                           numerator, denominator, &err_info);
         if (unlikely(err_info != OKAY_NO_ERROR)) {
           raise_error(err_info);
         } else {
-          length = setBigRat(preparedStmt->param_array[pos - 1].buffer,
-                             numerator, denominator, &err_info);
-          if (unlikely(err_info != OKAY_NO_ERROR)) {
-            raise_error(err_info);
-          } else {
-            preparedStmt->param_array[pos - 1].buffer_length = length;
-            preparedStmt->executeSuccessful = FALSE;
-            preparedStmt->fetchOkay = FALSE;
-          } /* if */
+          preparedStmt->param_array[pos - 1].buffer_type = MYSQL_TYPE_NEWDECIMAL;
+          preparedStmt->param_array[pos - 1].is_unsigned = 0;
+          preparedStmt->param_array[pos - 1].is_null     = NULL;
+          preparedStmt->param_array[pos - 1].length      = NULL;
+          preparedStmt->param_array[pos - 1].buffer_length = length;
+          preparedStmt->executeSuccessful = FALSE;
+          preparedStmt->fetchOkay = FALSE;
+          preparedStmt->param_data_array[pos - 1].bound = TRUE;
         } /* if */
       } /* if */
     } /* if */
@@ -812,34 +926,36 @@ static void sqlBindBool (sqlStmtType sqlStatement, intType pos, boolType value)
     logFunction(printf("sqlBindBool(" FMT_U_MEM ", " FMT_D ", %s)\n",
                        (memSizeType) sqlStatement, pos, value ? "TRUE" : "FALSE"););
     preparedStmt = (preparedStmtType) sqlStatement;
-    if (unlikely(pos < 1 || (uintType) pos > MAX_MEM_INDEX)) {
+    if (unlikely(pos < 1 || (uintType) pos > preparedStmt->param_array_size)) {
       logError(printf("sqlBindBool: pos: " FMT_D ", max pos: " FMT_U_MEM ".\n",
-                      pos, (memSizeType) MAX_MEM_INDEX););
+                      pos, preparedStmt->param_array_size););
       raise_error(RANGE_ERROR);
     } else {
-      resizeBindArray(preparedStmt, (memSizeType) pos);
-      if (preparedStmt->param_array != NULL) {
-        if (preparedStmt->param_array[pos - 1].buffer == NULL) {
-          if ((preparedStmt->param_array[pos - 1].buffer = malloc(1)) == NULL) {
-            err_info = MEMORY_ERROR;
-          } else {
-            preparedStmt->param_array[pos - 1].buffer_type   = MYSQL_TYPE_STRING;
-            preparedStmt->param_array[pos - 1].buffer_length = 1;
-            preparedStmt->param_array[pos - 1].is_unsigned   = 0;
-            preparedStmt->param_array[pos - 1].is_null       = NULL;
-            preparedStmt->param_array[pos - 1].length        = NULL;
-          } /* if */
-        } else if (preparedStmt->param_array[pos - 1].buffer_type != MYSQL_TYPE_STRING ||
-                   preparedStmt->param_array[pos - 1].buffer_length != 1) {
-          err_info = RANGE_ERROR;
-        } /* if */
-        if (unlikely(err_info != OKAY_NO_ERROR)) {
-          raise_error(err_info);
+      if (preparedStmt->param_array[pos - 1].buffer != NULL &&
+          sizeof(char) > preparedStmt->param_data_array[pos - 1].buffer_capacity) {
+        free(preparedStmt->param_array[pos - 1].buffer);
+        preparedStmt->param_array[pos - 1].buffer = NULL;
+      } /* if */
+      if (preparedStmt->param_array[pos - 1].buffer == NULL) {
+        if (unlikely((preparedStmt->param_array[pos - 1].buffer =
+                      malloc(sizeof(char))) == NULL)) {
+          err_info = MEMORY_ERROR;
         } else {
-          ((char *) preparedStmt->param_array[pos - 1].buffer)[0] = (char) ('0' + value);
-          preparedStmt->executeSuccessful = FALSE;
-          preparedStmt->fetchOkay = FALSE;
+          preparedStmt->param_data_array[pos - 1].buffer_capacity = sizeof(char);
         } /* if */
+      } /* if */
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        raise_error(err_info);
+      } else {
+        preparedStmt->param_array[pos - 1].buffer_type   = MYSQL_TYPE_STRING;
+        preparedStmt->param_array[pos - 1].buffer_length = 1;
+        preparedStmt->param_array[pos - 1].is_unsigned   = 0;
+        preparedStmt->param_array[pos - 1].is_null       = NULL;
+        preparedStmt->param_array[pos - 1].length        = NULL;
+        ((char *) preparedStmt->param_array[pos - 1].buffer)[0] = (char) ('0' + value);
+        preparedStmt->executeSuccessful = FALSE;
+        preparedStmt->fetchOkay = FALSE;
+        preparedStmt->param_data_array[pos - 1].bound = TRUE;
       } /* if */
     } /* if */
   } /* sqlBindBool */
@@ -856,28 +972,22 @@ static void sqlBindBStri (sqlStmtType sqlStatement, intType pos, bstriType bstri
     logFunction(printf("sqlBindBStri(" FMT_U_MEM ", " FMT_D ", \"%s\")\n",
                        (memSizeType) sqlStatement, pos, bstriAsUnquotedCStri(bstri)););
     preparedStmt = (preparedStmtType) sqlStatement;
-    if (unlikely(pos < 1 || (uintType) pos > MAX_MEM_INDEX)) {
+    if (unlikely(pos < 1 || (uintType) pos > preparedStmt->param_array_size)) {
       logError(printf("sqlBindBStri: pos: " FMT_D ", max pos: " FMT_U_MEM ".\n",
-                      pos, (memSizeType) MAX_MEM_INDEX););
+                      pos, preparedStmt->param_array_size););
       raise_error(RANGE_ERROR);
     } else {
-      resizeBindArray(preparedStmt, (memSizeType) pos);
-      if (preparedStmt->param_array != NULL) {
-        if (preparedStmt->param_array[pos - 1].buffer == NULL) {
-          if ((preparedStmt->param_array[pos - 1].buffer = malloc(bstri->size)) == NULL) {
-            err_info = MEMORY_ERROR;
-          } else {
-            preparedStmt->param_array[pos - 1].buffer_type   = MYSQL_TYPE_BLOB;
-            preparedStmt->param_array[pos - 1].is_unsigned   = 0;
-            preparedStmt->param_array[pos - 1].is_null       = NULL;
-            preparedStmt->param_array[pos - 1].length        = NULL;
-            preparedStmt->param_data_array[pos - 1].buffer_capacity = bstri->size;
-          } /* if */
-        } else if (preparedStmt->param_array[pos - 1].buffer_type != MYSQL_TYPE_BLOB) {
-          err_info = RANGE_ERROR;
-        } else if (bstri->size > preparedStmt->param_data_array[pos - 1].buffer_capacity) {
+      if (unlikely(bstri->size > MAX_LONG_BLOB_LENGTH)) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        if (preparedStmt->param_array[pos - 1].buffer != NULL &&
+            bstri->size > preparedStmt->param_data_array[pos - 1].buffer_capacity) {
           free(preparedStmt->param_array[pos - 1].buffer);
-          if ((preparedStmt->param_array[pos - 1].buffer = malloc(bstri->size)) == NULL) {
+          preparedStmt->param_array[pos - 1].buffer = NULL;
+        } /* if */
+        if (preparedStmt->param_array[pos - 1].buffer == NULL) {
+          if (unlikely((preparedStmt->param_array[pos - 1].buffer =
+                        malloc(bstri->size)) == NULL)) {
             err_info = MEMORY_ERROR;
           } else {
             preparedStmt->param_data_array[pos - 1].buffer_capacity = bstri->size;
@@ -885,15 +995,26 @@ static void sqlBindBStri (sqlStmtType sqlStatement, intType pos, bstriType bstri
         } /* if */
         if (unlikely(err_info != OKAY_NO_ERROR)) {
           raise_error(err_info);
-        } else if (unlikely(bstri->size > ULONG_MAX)) {
-          free(preparedStmt->param_array[pos - 1].buffer);
-          preparedStmt->param_array[pos - 1].buffer = NULL;
-          raise_error(MEMORY_ERROR);
         } else {
+          if (bstri->size <= MAX_TINY_BLOB_LENGTH) {
+            preparedStmt->param_array[pos - 1].buffer_type = MYSQL_TYPE_TINY_BLOB;
+          } else if (bstri->size <= MAX_BLOB_LENGTH) {
+            preparedStmt->param_array[pos - 1].buffer_type = MYSQL_TYPE_BLOB;
+          } else if (bstri->size <= MAX_MEDIUM_BLOB_LENGTH) {
+            preparedStmt->param_array[pos - 1].buffer_type = MYSQL_TYPE_MEDIUM_BLOB;
+          } else {
+            preparedStmt->param_array[pos - 1].buffer_type = MYSQL_TYPE_LONG_BLOB;
+          } /* if */
+          /* printf("sqlBindBStri: buffer_type: %s\n",
+             nameOfBufferType(preparedStmt->param_array[pos - 1].buffer_type)); */
+          preparedStmt->param_array[pos - 1].is_unsigned   = 0;
+          preparedStmt->param_array[pos - 1].is_null       = NULL;
+          preparedStmt->param_array[pos - 1].length        = NULL;
           memcpy(preparedStmt->param_array[pos - 1].buffer, bstri->mem, bstri->size);
           preparedStmt->param_array[pos - 1].buffer_length = (unsigned long) bstri->size;
           preparedStmt->executeSuccessful = FALSE;
           preparedStmt->fetchOkay = FALSE;
+          preparedStmt->param_data_array[pos - 1].bound = TRUE;
         } /* if */
       } /* if */
     } /* if */
@@ -907,7 +1028,6 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
 
   {
     preparedStmtType preparedStmt;
-    enum enum_field_types buffer_type;
     int64Type monthDuration;
     int64Type microsecDuration;
     MYSQL_TIME *timeValue;
@@ -922,9 +1042,9 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
                        second < 0 || micro_second < 0 ? "-" : "",
                        intAbs(second), intAbs(micro_second)););
     preparedStmt = (preparedStmtType) sqlStatement;
-    if (unlikely(pos < 1 || (uintType) pos > MAX_MEM_INDEX)) {
+    if (unlikely(pos < 1 || (uintType) pos > preparedStmt->param_array_size)) {
       logError(printf("sqlBindDuration: pos: " FMT_D ", max pos: " FMT_U_MEM ".\n",
-                      pos, (memSizeType) MAX_MEM_INDEX););
+                      pos, preparedStmt->param_array_size););
       raise_error(RANGE_ERROR);
     } else if (unlikely(year < -INT_MAX || year > INT_MAX || month < -12 || month > 12 ||
                         day < -31 || day > 31 || hour <= -24 || hour >= 24 ||
@@ -933,80 +1053,82 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
       logError(printf("sqlBindDuration: Duration not in allowed range.\n"););
       raise_error(RANGE_ERROR);
     } else {
-      buffer_type = MYSQL_TYPE_DATETIME;
-      resizeBindArray(preparedStmt, (memSizeType) pos);
-      if (preparedStmt->param_array != NULL) {
+      monthDuration = (int64Type) year * 12 + (int64Type) month;
+      microsecDuration = (((((int64Type) day) * 24 +
+                             (int64Type) hour) * 60 +
+                             (int64Type) minute) * 60 +
+                             (int64Type) second) * 1000000 +
+                             (int64Type) micro_second;
+      /* printf("monthDuration: " FMT_D64 "\n", monthDuration);
+         printf("microsecDuration: " FMT_D64 "\n", microsecDuration); */
+      if (unlikely(!((monthDuration >= 0 && microsecDuration >= 0) ||
+                     (monthDuration <= 0 && microsecDuration <= 0)))) {
+        logError(printf("sqlBindDuration: Duration neither clearly positive nor negative.\n"););
+        raise_error(RANGE_ERROR);
+      } else {
+        if (monthDuration < 0) {
+          monthDuration = -monthDuration;
+          month = -(monthDuration % 12);
+          year = -(monthDuration / 12);
+        } else {
+          month = monthDuration % 12;
+          year = monthDuration / 12;
+        } /* if */
+        if (microsecDuration < 0) {
+          microsecDuration = -microsecDuration;
+          micro_second = -(microsecDuration % 1000000);
+          microsecDuration /= 1000000;
+          second = -(microsecDuration % 60);
+          microsecDuration /= 60;
+          minute = -(microsecDuration % 60);
+          microsecDuration /= 60;
+          hour = -(microsecDuration % 24);
+          day = -(microsecDuration / 24);
+        } else {
+          micro_second = microsecDuration % 1000000;
+          microsecDuration /= 1000000;
+          second = microsecDuration % 60;
+          microsecDuration /= 60;
+          minute = microsecDuration % 60;
+          microsecDuration /= 60;
+          hour = microsecDuration % 24;
+          day = microsecDuration / 24;
+        } /* if */
+        if (preparedStmt->param_array[pos - 1].buffer != NULL &&
+            sizeof(MYSQL_TIME) > preparedStmt->param_data_array[pos - 1].buffer_capacity) {
+          free(preparedStmt->param_array[pos - 1].buffer);
+          preparedStmt->param_array[pos - 1].buffer = NULL;
+        } /* if */
         if (preparedStmt->param_array[pos - 1].buffer == NULL) {
-          if ((preparedStmt->param_array[pos - 1].buffer = malloc(sizeof(MYSQL_TIME))) == NULL) {
+          if (unlikely((preparedStmt->param_array[pos - 1].buffer =
+                        malloc(sizeof(MYSQL_TIME))) == NULL)) {
             err_info = MEMORY_ERROR;
           } else {
-            preparedStmt->param_array[pos - 1].buffer_type = buffer_type;
-            preparedStmt->param_array[pos - 1].is_unsigned = 0;
-            preparedStmt->param_array[pos - 1].is_null     = NULL;
-            preparedStmt->param_array[pos - 1].length      = NULL;
+            preparedStmt->param_data_array[pos - 1].buffer_capacity = sizeof(MYSQL_TIME);
           } /* if */
-        } else if (preparedStmt->param_array[pos - 1].buffer_type != buffer_type) {
-          err_info = RANGE_ERROR;
         } /* if */
         if (unlikely(err_info != OKAY_NO_ERROR)) {
           raise_error(err_info);
         } else {
-          monthDuration = (int64Type) year * 12 + (int64Type) month;
-          microsecDuration = (((((int64Type) day) * 24 +
-                                 (int64Type) hour) * 60 +
-                                 (int64Type) minute) * 60 +
-                                 (int64Type) second) * 1000000 +
-                                 (int64Type) micro_second;
-          /* printf("monthDuration: " FMT_D64 "\n", monthDuration);
-             printf("microsecDuration: " FMT_D64 "\n", microsecDuration); */
-          if (unlikely(!((monthDuration >= 0 && microsecDuration >= 0) ||
-                         (monthDuration <= 0 && microsecDuration <= 0)))) {
-            logError(printf("sqlBindDuration: Duration neither clearly positive nor negative.\n"););
-            raise_error(RANGE_ERROR);
-          } else {
-            if (monthDuration < 0) {
-              monthDuration = -monthDuration;
-              month = -(monthDuration % 12);
-              year = -(monthDuration / 12);
-            } else {
-              month = monthDuration % 12;
-              year = monthDuration / 12;
-            } /* if */
-            if (microsecDuration < 0) {
-              microsecDuration = -microsecDuration;
-              micro_second = -(microsecDuration % 1000000);
-              microsecDuration /= 1000000;
-              second = -(microsecDuration % 60);
-              microsecDuration /= 60;
-              minute = -(microsecDuration % 60);
-              microsecDuration /= 60;
-              hour = -(microsecDuration % 24);
-              day = -(microsecDuration / 24);
-            } else {
-              micro_second = microsecDuration % 1000000;
-              microsecDuration /= 1000000;
-              second = microsecDuration % 60;
-              microsecDuration /= 60;
-              minute = microsecDuration % 60;
-              microsecDuration /= 60;
-              hour = microsecDuration % 24;
-              day = microsecDuration / 24;
-            } /* if */
-            timeValue = (MYSQL_TIME *) preparedStmt->param_array[pos - 1].buffer;
-            timeValue->year   = (unsigned int) abs((int) year);
-            timeValue->month  = (unsigned int) abs((int) month);
-            timeValue->day    = (unsigned int) abs((int) day);
-            timeValue->hour   = (unsigned int) abs((int) hour);
-            timeValue->minute = (unsigned int) abs((int) minute);
-            timeValue->second = (unsigned int) abs((int) second);
-            timeValue->neg    = year < 0 || month < 0 || day < 0 ||
-                hour < 0 || minute < 0 || second < 0 || micro_second < 0;
-            timeValue->second_part = (unsigned long) micro_second;
-            timeValue->time_type = MYSQL_TIMESTAMP_DATETIME;
-            preparedStmt->executeSuccessful = FALSE;
-            preparedStmt->fetchOkay = FALSE;
-            /* printf("timeValue->neg: %d\n", timeValue->neg); */
-          } /* if */
+          preparedStmt->param_array[pos - 1].buffer_type = MYSQL_TYPE_DATETIME;
+          preparedStmt->param_array[pos - 1].is_unsigned = 0;
+          preparedStmt->param_array[pos - 1].is_null     = NULL;
+          preparedStmt->param_array[pos - 1].length      = NULL;
+          timeValue = (MYSQL_TIME *) preparedStmt->param_array[pos - 1].buffer;
+          timeValue->year   = (unsigned int) abs((int) year);
+          timeValue->month  = (unsigned int) abs((int) month);
+          timeValue->day    = (unsigned int) abs((int) day);
+          timeValue->hour   = (unsigned int) abs((int) hour);
+          timeValue->minute = (unsigned int) abs((int) minute);
+          timeValue->second = (unsigned int) abs((int) second);
+          timeValue->neg    = year < 0 || month < 0 || day < 0 ||
+              hour < 0 || minute < 0 || second < 0 || micro_second < 0;
+          timeValue->second_part = (unsigned long) micro_second;
+          timeValue->time_type = MYSQL_TIMESTAMP_DATETIME;
+          preparedStmt->executeSuccessful = FALSE;
+          preparedStmt->fetchOkay = FALSE;
+          preparedStmt->param_data_array[pos - 1].bound = TRUE;
+          /* printf("timeValue->neg: %d\n", timeValue->neg); */
         } /* if */
       } /* if */
     } /* if */
@@ -1018,43 +1140,45 @@ static void sqlBindFloat (sqlStmtType sqlStatement, intType pos, floatType value
 
   {
     preparedStmtType preparedStmt;
-#if FLOATTYPE_SIZE == 32
-    const enum enum_field_types buffer_type = MYSQL_TYPE_FLOAT;
-#elif FLOATTYPE_SIZE == 64
-    const enum enum_field_types buffer_type = MYSQL_TYPE_DOUBLE;
-#endif
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* sqlBindFloat */
     logFunction(printf("sqlBindFloat(" FMT_U_MEM ", " FMT_D ", " FMT_E ")\n",
                        (memSizeType) sqlStatement, pos, value););
     preparedStmt = (preparedStmtType) sqlStatement;
-    if (unlikely(pos < 1 || (uintType) pos > MAX_MEM_INDEX)) {
+    if (unlikely(pos < 1 || (uintType) pos > preparedStmt->param_array_size)) {
       logError(printf("sqlBindFloat: pos: " FMT_D ", max pos: " FMT_U_MEM ".\n",
-                      pos, (memSizeType) MAX_MEM_INDEX););
+                      pos, preparedStmt->param_array_size););
       raise_error(RANGE_ERROR);
     } else {
-      resizeBindArray(preparedStmt, (memSizeType) pos);
-      if (preparedStmt->param_array != NULL) {
-        if (preparedStmt->param_array[pos - 1].buffer == NULL) {
-          if ((preparedStmt->param_array[pos - 1].buffer = malloc(sizeof(floatType))) == NULL) {
-            err_info = MEMORY_ERROR;
-          } else {
-            preparedStmt->param_array[pos - 1].buffer_type = buffer_type;
-            preparedStmt->param_array[pos - 1].is_unsigned = 0;
-            preparedStmt->param_array[pos - 1].is_null     = NULL;
-            preparedStmt->param_array[pos - 1].length      = NULL;
-          } /* if */
-        } else if (preparedStmt->param_array[pos - 1].buffer_type != buffer_type) {
-          err_info = RANGE_ERROR;
-        } /* if */
-        if (unlikely(err_info != OKAY_NO_ERROR)) {
-          raise_error(err_info);
+      if (preparedStmt->param_array[pos - 1].buffer != NULL &&
+          sizeof(floatType) > preparedStmt->param_data_array[pos - 1].buffer_capacity) {
+        free(preparedStmt->param_array[pos - 1].buffer);
+        preparedStmt->param_array[pos - 1].buffer = NULL;
+      } /* if */
+      if (preparedStmt->param_array[pos - 1].buffer == NULL) {
+        if (unlikely((preparedStmt->param_array[pos - 1].buffer =
+                      malloc(sizeof(floatType))) == NULL)) {
+          err_info = MEMORY_ERROR;
         } else {
-          *(floatType *) preparedStmt->param_array[pos - 1].buffer = value;
-          preparedStmt->executeSuccessful = FALSE;
-          preparedStmt->fetchOkay = FALSE;
+          preparedStmt->param_data_array[pos - 1].buffer_capacity = sizeof(floatType);
         } /* if */
+      } /* if */
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        raise_error(err_info);
+      } else {
+#if FLOATTYPE_SIZE == 32
+        preparedStmt->param_array[pos - 1].buffer_type = MYSQL_TYPE_FLOAT;
+#elif FLOATTYPE_SIZE == 64
+        preparedStmt->param_array[pos - 1].buffer_type = MYSQL_TYPE_DOUBLE;
+#endif
+        preparedStmt->param_array[pos - 1].is_unsigned = 0;
+        preparedStmt->param_array[pos - 1].is_null     = NULL;
+        preparedStmt->param_array[pos - 1].length      = NULL;
+        *(floatType *) preparedStmt->param_array[pos - 1].buffer = value;
+        preparedStmt->executeSuccessful = FALSE;
+        preparedStmt->fetchOkay = FALSE;
+        preparedStmt->param_data_array[pos - 1].bound = TRUE;
       } /* if */
     } /* if */
   } /* sqlBindFloat */
@@ -1065,43 +1189,45 @@ static void sqlBindInt (sqlStmtType sqlStatement, intType pos, intType value)
 
   {
     preparedStmtType preparedStmt;
-#if INTTYPE_SIZE == 32
-    const enum enum_field_types buffer_type = MYSQL_TYPE_LONG;
-#elif INTTYPE_SIZE == 64
-    const enum enum_field_types buffer_type = MYSQL_TYPE_LONGLONG;
-#endif
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* sqlBindInt */
     logFunction(printf("sqlBindInt(" FMT_U_MEM ", " FMT_D ", " FMT_D ")\n",
                        (memSizeType) sqlStatement, pos, value););
     preparedStmt = (preparedStmtType) sqlStatement;
-    if (unlikely(pos < 1 || (uintType) pos > MAX_MEM_INDEX)) {
+    if (unlikely(pos < 1 || (uintType) pos > preparedStmt->param_array_size)) {
       logError(printf("sqlBindInt: pos: " FMT_D ", max pos: " FMT_U_MEM ".\n",
-                      pos, (memSizeType) MAX_MEM_INDEX););
+                      pos, preparedStmt->param_array_size););
       raise_error(RANGE_ERROR);
     } else {
-      resizeBindArray(preparedStmt, (memSizeType) pos);
-      if (preparedStmt->param_array != NULL) {
-        if (preparedStmt->param_array[pos - 1].buffer == NULL) {
-          if ((preparedStmt->param_array[pos - 1].buffer = malloc(sizeof(intType))) == NULL) {
-            err_info = MEMORY_ERROR;
-          } else {
-            preparedStmt->param_array[pos - 1].buffer_type = buffer_type;
-            preparedStmt->param_array[pos - 1].is_unsigned = 0;
-            preparedStmt->param_array[pos - 1].is_null     = NULL;
-            preparedStmt->param_array[pos - 1].length      = NULL;
-          } /* if */
-        } else if (preparedStmt->param_array[pos - 1].buffer_type != buffer_type) {
-          err_info = RANGE_ERROR;
-        } /* if */
-        if (unlikely(err_info != OKAY_NO_ERROR)) {
-          raise_error(err_info);
+      if (preparedStmt->param_array[pos - 1].buffer != NULL &&
+          sizeof(intType) > preparedStmt->param_data_array[pos - 1].buffer_capacity) {
+        free(preparedStmt->param_array[pos - 1].buffer);
+        preparedStmt->param_array[pos - 1].buffer = NULL;
+      } /* if */
+      if (preparedStmt->param_array[pos - 1].buffer == NULL) {
+        if (unlikely((preparedStmt->param_array[pos - 1].buffer =
+                      malloc(sizeof(intType))) == NULL)) {
+          err_info = MEMORY_ERROR;
         } else {
-          *(intType *) preparedStmt->param_array[pos - 1].buffer = value;
-          preparedStmt->executeSuccessful = FALSE;
-          preparedStmt->fetchOkay = FALSE;
+          preparedStmt->param_data_array[pos - 1].buffer_capacity = sizeof(intType);
         } /* if */
+      } /* if */
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        raise_error(err_info);
+      } else {
+#if INTTYPE_SIZE == 32
+        preparedStmt->param_array[pos - 1].buffer_type = MYSQL_TYPE_LONG;
+#elif INTTYPE_SIZE == 64
+        preparedStmt->param_array[pos - 1].buffer_type = MYSQL_TYPE_LONGLONG;
+#endif
+        preparedStmt->param_array[pos - 1].is_unsigned = 0;
+        preparedStmt->param_array[pos - 1].is_null     = NULL;
+        preparedStmt->param_array[pos - 1].length      = NULL;
+        *(intType *) preparedStmt->param_array[pos - 1].buffer = value;
+        preparedStmt->executeSuccessful = FALSE;
+        preparedStmt->fetchOkay = FALSE;
+        preparedStmt->param_data_array[pos - 1].bound = TRUE;
       } /* if */
     } /* if */
   } /* sqlBindInt */
@@ -1117,19 +1243,17 @@ static void sqlBindNull (sqlStmtType sqlStatement, intType pos)
     logFunction(printf("sqlBindNull(" FMT_U_MEM ", " FMT_D ")\n",
                        (memSizeType) sqlStatement, pos););
     preparedStmt = (preparedStmtType) sqlStatement;
-    if (unlikely(pos < 1 || (uintType) pos > MAX_MEM_INDEX)) {
+    if (unlikely(pos < 1 || (uintType) pos > preparedStmt->param_array_size)) {
       logError(printf("sqlBindNull: pos: " FMT_D ", max pos: " FMT_U_MEM ".\n",
-                      pos, (memSizeType) MAX_MEM_INDEX););
+                      pos, preparedStmt->param_array_size););
       raise_error(RANGE_ERROR);
     } else {
-      resizeBindArray(preparedStmt, (memSizeType) pos);
-      if (preparedStmt->param_array != NULL) {
-        preparedStmt->param_array[pos - 1].is_null =
-            &preparedStmt->param_array[pos - 1].is_null_value;
-        preparedStmt->param_array[pos - 1].is_null_value = 1;
-        preparedStmt->executeSuccessful = FALSE;
-        preparedStmt->fetchOkay = FALSE;
-      } /* if */
+      preparedStmt->param_array[pos - 1].is_null =
+          &preparedStmt->param_array[pos - 1].is_null_value;
+      preparedStmt->param_array[pos - 1].is_null_value = 1;
+      preparedStmt->executeSuccessful = FALSE;
+      preparedStmt->fetchOkay = FALSE;
+      preparedStmt->param_data_array[pos - 1].bound = TRUE;
     } /* if */
   } /* sqlBindNull */
 
@@ -1140,45 +1264,40 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos, striType stri)
   {
     preparedStmtType preparedStmt;
     cstriType stri8;
+    cstriType resized_stri8;
     memSizeType length;
-    errInfoType err_info = OKAY_NO_ERROR;
 
   /* sqlBindStri */
     logFunction(printf("sqlBindStri(" FMT_U_MEM ", " FMT_D ", \"%s\")\n",
                        (memSizeType) sqlStatement, pos, striAsUnquotedCStri(stri)););
     preparedStmt = (preparedStmtType) sqlStatement;
-    if (unlikely(pos < 1 || (uintType) pos > MAX_MEM_INDEX)) {
+    if (unlikely(pos < 1 || (uintType) pos > preparedStmt->param_array_size)) {
       logError(printf("sqlBindStri: pos: " FMT_D ", max pos: " FMT_U_MEM ".\n",
-                      pos, (memSizeType) MAX_MEM_INDEX););
+                      pos, preparedStmt->param_array_size););
       raise_error(RANGE_ERROR);
     } else {
-      resizeBindArray(preparedStmt, (memSizeType) pos);
-      if (preparedStmt->param_array != NULL) {
-        if (preparedStmt->param_array[pos - 1].buffer == NULL) {
-          stri8 = stri_to_cstri8_buf(stri, &length, &err_info);
-          if (stri8 != NULL) {
-            preparedStmt->param_array[pos - 1].buffer_type   = MYSQL_TYPE_STRING;
-            preparedStmt->param_array[pos - 1].is_unsigned   = 0;
-            preparedStmt->param_array[pos - 1].is_null       = NULL;
-            preparedStmt->param_array[pos - 1].length        = NULL;
-          } /* if */
-        } else if (preparedStmt->param_array[pos - 1].buffer_type != MYSQL_TYPE_STRING) {
-          err_info = RANGE_ERROR;
-        } else {
-          stri8 = stri_to_cstri8_buf(stri, &length, &err_info);
+      stri8 = stri_to_cstri8_buf(stri, &length);
+      if (unlikely(stri8 == NULL)) {
+        raise_error(MEMORY_ERROR);
+      } else if (unlikely(length > ULONG_MAX)) {
+        free(stri8);
+        raise_error(MEMORY_ERROR);
+      } else {
+        resized_stri8 = REALLOC_CSTRI(stri8, length);
+        if (likely(resized_stri8 != NULL)) {
+          stri8 = resized_stri8;
         } /* if */
-        if (unlikely(err_info != OKAY_NO_ERROR)) {
-          raise_error(err_info);
-        } else if (unlikely(length > ULONG_MAX)) {
-          free(stri8);
-          raise_error(MEMORY_ERROR);
-        } else {
-          free(preparedStmt->param_array[pos - 1].buffer);
-          preparedStmt->param_array[pos - 1].buffer        = stri8;
-          preparedStmt->param_array[pos - 1].buffer_length = (unsigned long) length;
-          preparedStmt->executeSuccessful = FALSE;
-          preparedStmt->fetchOkay = FALSE;
-        } /* if */
+        free(preparedStmt->param_array[pos - 1].buffer);
+        preparedStmt->param_array[pos - 1].buffer_type   = MYSQL_TYPE_STRING;
+        preparedStmt->param_array[pos - 1].is_unsigned   = 0;
+        preparedStmt->param_array[pos - 1].is_null       = NULL;
+        preparedStmt->param_array[pos - 1].length        = NULL;
+        preparedStmt->param_array[pos - 1].buffer        = stri8;
+        preparedStmt->param_array[pos - 1].buffer_length = (unsigned long) length;
+        preparedStmt->param_data_array[pos - 1].buffer_capacity = length;
+        preparedStmt->executeSuccessful = FALSE;
+        preparedStmt->fetchOkay = FALSE;
+        preparedStmt->param_data_array[pos - 1].bound = TRUE;
       } /* if */
     } /* if */
   } /* sqlBindStri */
@@ -1192,7 +1311,6 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
 
   {
     preparedStmtType preparedStmt;
-    enum enum_field_types buffer_type;
     MYSQL_TIME *timeValue;
     errInfoType err_info = OKAY_NO_ERROR;
 
@@ -1206,9 +1324,9 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
                        hour, minute, second, micro_second,
                        time_zone););
     preparedStmt = (preparedStmtType) sqlStatement;
-    if (unlikely(pos < 1 || (uintType) pos > MAX_MEM_INDEX)) {
+    if (unlikely(pos < 1 || (uintType) pos > preparedStmt->param_array_size)) {
       logError(printf("sqlBindTime: pos: " FMT_D ", max pos: " FMT_U_MEM ".\n",
-                      pos, (memSizeType) MAX_MEM_INDEX););
+                      pos, preparedStmt->param_array_size););
       raise_error(RANGE_ERROR);
     } else if (unlikely(year < -INT_MAX || year > INT_MAX || month < 1 || month > 12 ||
                         day < 1 || day > 31 || hour < 0 || hour >= 24 ||
@@ -1217,41 +1335,43 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
       logError(printf("sqlBindTime: Time not in allowed range.\n"););
       raise_error(RANGE_ERROR);
     } else {
-      buffer_type = MYSQL_TYPE_DATETIME;
-      resizeBindArray(preparedStmt, (memSizeType) pos);
-      if (preparedStmt->param_array != NULL) {
-        if (preparedStmt->param_array[pos - 1].buffer == NULL) {
-          if ((preparedStmt->param_array[pos - 1].buffer = malloc(sizeof(MYSQL_TIME))) == NULL) {
-            err_info = MEMORY_ERROR;
-          } else {
-            preparedStmt->param_array[pos - 1].buffer_type = buffer_type;
-            preparedStmt->param_array[pos - 1].is_unsigned = 0;
-            preparedStmt->param_array[pos - 1].is_null     = NULL;
-            preparedStmt->param_array[pos - 1].length      = NULL;
-          } /* if */
-        } else if (preparedStmt->param_array[pos - 1].buffer_type != buffer_type) {
-          err_info = RANGE_ERROR;
-        } /* if */
-        if (unlikely(err_info != OKAY_NO_ERROR)) {
-          raise_error(err_info);
+      if (preparedStmt->param_array[pos - 1].buffer != NULL &&
+          sizeof(MYSQL_TIME) > preparedStmt->param_data_array[pos - 1].buffer_capacity) {
+        free(preparedStmt->param_array[pos - 1].buffer);
+        preparedStmt->param_array[pos - 1].buffer = NULL;
+      } /* if */
+      if (preparedStmt->param_array[pos - 1].buffer == NULL) {
+        if (unlikely((preparedStmt->param_array[pos - 1].buffer =
+                      malloc(sizeof(MYSQL_TIME))) == NULL)) {
+          err_info = MEMORY_ERROR;
         } else {
-          timeValue = (MYSQL_TIME *) preparedStmt->param_array[pos - 1].buffer;
-          if (year < 0) {
-            timeValue->year = (unsigned int) -year;
-          } else {
-            timeValue->year = (unsigned int) year;
-          } /* if */
-          timeValue->month  = (unsigned int) month;
-          timeValue->day    = (unsigned int) day;
-          timeValue->hour   = (unsigned int) hour;
-          timeValue->minute = (unsigned int) minute;
-          timeValue->second = (unsigned int) second;
-          timeValue->neg    = year < 0;
-          timeValue->second_part = (unsigned long) micro_second;
-          timeValue->time_type = MYSQL_TIMESTAMP_DATETIME;
-          preparedStmt->executeSuccessful = FALSE;
-          preparedStmt->fetchOkay = FALSE;
+          preparedStmt->param_data_array[pos - 1].buffer_capacity = sizeof(MYSQL_TIME);
         } /* if */
+      } /* if */
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        raise_error(err_info);
+      } else {
+        preparedStmt->param_array[pos - 1].buffer_type = MYSQL_TYPE_DATETIME;
+        preparedStmt->param_array[pos - 1].is_unsigned = 0;
+        preparedStmt->param_array[pos - 1].is_null     = NULL;
+        preparedStmt->param_array[pos - 1].length      = NULL;
+        timeValue = (MYSQL_TIME *) preparedStmt->param_array[pos - 1].buffer;
+        if (year < 0) {
+          timeValue->year = (unsigned int) -year;
+        } else {
+          timeValue->year = (unsigned int) year;
+        } /* if */
+        timeValue->month  = (unsigned int) month;
+        timeValue->day    = (unsigned int) day;
+        timeValue->hour   = (unsigned int) hour;
+        timeValue->minute = (unsigned int) minute;
+        timeValue->second = (unsigned int) second;
+        timeValue->neg    = year < 0;
+        timeValue->second_part = (unsigned long) micro_second;
+        timeValue->time_type = MYSQL_TIMESTAMP_DATETIME;
+        preparedStmt->executeSuccessful = FALSE;
+        preparedStmt->fetchOkay = FALSE;
+        preparedStmt->param_data_array[pos - 1].bound = TRUE;
       } /* if */
     } /* if */
   } /* sqlBindTime */
@@ -1496,6 +1616,9 @@ static boolType sqlColumnBool (sqlStmtType sqlStatement, intType column)
             break;
         } /* switch */
         if (unlikely((uint64Type) columnValue >= 2)) {
+          logError(printf("sqlColumnBool: Column " FMT_D ": "
+                          FMT_D " is not an allowed boolean value.\n",
+                          column, columnValue););
           raise_error(RANGE_ERROR);
         } /* if */
       } /* if */
@@ -1510,7 +1633,6 @@ static bstriType sqlColumnBStri (sqlStmtType sqlStatement, intType column)
 
   {
     preparedStmtType preparedStmt;
-    const_ustriType blob;
     memSizeType length;
     bstriType columnValue;
 
@@ -1542,20 +1664,45 @@ static bstriType sqlColumnBStri (sqlStmtType sqlStatement, intType column)
           case MYSQL_TYPE_BLOB:
           case MYSQL_TYPE_MEDIUM_BLOB:
           case MYSQL_TYPE_LONG_BLOB:
-            blob = (const_ustriType) preparedStmt->result_array[column - 1].buffer;
             length = preparedStmt->result_array[column - 1].length_value;
-            if (blob == NULL) {
+            /* printf("length: %lu\n", length); */
+            if (length > 0) {
+              if (unlikely(!ALLOC_BSTRI_CHECK_SIZE(columnValue, length))) {
+                raise_error(MEMORY_ERROR);
+                columnValue = NULL;
+              } else {
+                preparedStmt->result_array[column - 1].buffer = columnValue->mem;
+                preparedStmt->result_array[column - 1].buffer_length = length;
+                if (unlikely(mysql_stmt_fetch_column(preparedStmt->ppStmt,
+                                                     preparedStmt->result_array,
+                                                     (unsigned int) column - 1,
+                                                     0) != 0)) {
+                  setDbErrorMsg("sqlColumnBStri", "mysql_stmt_fetch_column",
+                                mysql_stmt_errno(preparedStmt->ppStmt),
+                                mysql_stmt_error(preparedStmt->ppStmt));
+                  logError(printf("sqlColumnBStri: mysql_stmt_fetch_column error: %s\n",
+                                  mysql_stmt_error(preparedStmt->ppStmt)););
+                  preparedStmt->result_array[column - 1].buffer = NULL;
+                  preparedStmt->result_array[column - 1].buffer_length = 0;
+                  FREE_BSTRI(columnValue, length);
+                  raise_error(DATABASE_ERROR);
+                  columnValue = NULL;
+                } else {
+                  columnValue->size = length;
+                  /* Restore the state that no buffer is provided.  */
+                  /* This way mysql_stmt_fetch() will not fetch     */
+                  /* data. Instead mysql_stmt_fetch() returns       */
+                  /* MYSQL_DATA_TRUNCATED, which is ignored by      */
+                  /* sqlFetch().                                    */
+                  preparedStmt->result_array[column - 1].buffer = NULL;
+                  preparedStmt->result_array[column - 1].buffer_length = 0;
+                } /* if */
+              } /* if */
+            } else {
               if (unlikely(!ALLOC_BSTRI_SIZE_OK(columnValue, 0))) {
                 raise_error(MEMORY_ERROR);
               } else {
                 columnValue->size = 0;
-              } /* if */
-            } else {
-              if (unlikely(!ALLOC_BSTRI_CHECK_SIZE(columnValue, length))) {
-                raise_error(MEMORY_ERROR);
-              } else {
-                columnValue->size = length;
-                memcpy(columnValue->mem, blob, length);
               } /* if */
             } /* if */
             break;
@@ -1596,7 +1743,7 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
       raise_error(RANGE_ERROR);
     } else {
       if (preparedStmt->result_array[column - 1].is_null_value != 0) {
-        /* printf("Column is NULL -> Use default value: 0-00-00 00:00:00\n"); */
+        /* printf("Column is NULL -> Use default value: P0D\n"); */
         *year         = 0;
         *month        = 0;
         *day          = 0;
@@ -1838,6 +1985,50 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
               } /* if */
             } /* if */
             break;
+          case MYSQL_TYPE_TINY_BLOB:
+          case MYSQL_TYPE_BLOB:
+          case MYSQL_TYPE_MEDIUM_BLOB:
+          case MYSQL_TYPE_LONG_BLOB:
+            length = preparedStmt->result_array[column - 1].length_value;
+            /* printf("length: %lu\n", length); */
+            if (length > 0) {
+              if (unlikely(!ALLOC_STRI_CHECK_SIZE(columnValue, length))) {
+                raise_error(MEMORY_ERROR);
+                columnValue = NULL;
+              } else {
+                preparedStmt->result_array[column - 1].buffer = columnValue->mem;
+                preparedStmt->result_array[column - 1].buffer_length = length;
+                if (unlikely(mysql_stmt_fetch_column(preparedStmt->ppStmt,
+                                                     preparedStmt->result_array,
+                                                     (unsigned int) column - 1,
+                                                     0) != 0)) {
+                  setDbErrorMsg("sqlColumnStri", "mysql_stmt_fetch_column",
+                                mysql_stmt_errno(preparedStmt->ppStmt),
+                                mysql_stmt_error(preparedStmt->ppStmt));
+                  logError(printf("sqlColumnStri: mysql_stmt_fetch_column error: %s\n",
+                                  mysql_stmt_error(preparedStmt->ppStmt)););
+                  preparedStmt->result_array[column - 1].buffer = NULL;
+                  preparedStmt->result_array[column - 1].buffer_length = 0;
+                  FREE_STRI(columnValue, length);
+                  raise_error(DATABASE_ERROR);
+                  columnValue = NULL;
+                } else {
+                  columnValue->size = length;
+                  memcpy_to_strelem(columnValue->mem,
+                      (ustriType) columnValue->mem, length);
+                  /* Restore the state that no buffer is provided.  */
+                  /* This way mysql_stmt_fetch() will not fetch     */
+                  /* data. Instead mysql_stmt_fetch() returns       */
+                  /* MYSQL_DATA_TRUNCATED, which is ignored by      */
+                  /* sqlFetch().                                    */
+                  preparedStmt->result_array[column - 1].buffer = NULL;
+                  preparedStmt->result_array[column - 1].buffer_length = 0;
+                } /* if */
+              } /* if */
+            } else {
+              columnValue = strEmpty();
+            } /* if */
+            break;
           default:
             logError(printf("sqlColumnStri: Column " FMT_D " has the unknown type %s.\n",
                             column, nameOfBufferType(
@@ -1968,54 +2159,56 @@ static void sqlExecute (sqlStmtType sqlStatement)
 
   {
     preparedStmtType preparedStmt;
-    int bind_param_result;
-    int bind_result_result;
-    int execute_result;
 
   /* sqlExecute */
     logFunction(printf("sqlExecute(" FMT_U_MEM ")\n",
                        (memSizeType) sqlStatement););
     preparedStmt = (preparedStmtType) sqlStatement;
-    /* printf("ppStmt: " FMT_U_MEM "\n", (memSizeType) preparedStmt->ppStmt); */
-    preparedStmt->fetchOkay = FALSE;
-    bind_param_result = mysql_stmt_bind_param(preparedStmt->ppStmt, preparedStmt->param_array);
-    if (unlikely(bind_param_result != 0)) {
-      setDbErrorMsg("sqlExecute", "mysql_stmt_bind_param",
-                    mysql_stmt_errno(preparedStmt->ppStmt),
-                    mysql_stmt_error(preparedStmt->ppStmt));
-      logError(printf("sqlExecute: mysql_stmt_bind_param error: %s\n",
-                      mysql_stmt_error(preparedStmt->ppStmt)););
-      preparedStmt->executeSuccessful = FALSE;
+    if (unlikely(!allParametersBound(preparedStmt))) {
+      dbLibError("sqlExecute", "SQLExecute",
+                 "Unbound statement parameter(s).\n");
       raise_error(DATABASE_ERROR);
     } else {
-      if (preparedStmt->result_array_size != 0) {
-        bind_result_result = mysql_stmt_bind_result(preparedStmt->ppStmt, preparedStmt->result_array);
-        if (unlikely(bind_result_result != 0)) {
-          setDbErrorMsg("sqlExecute", "mysql_stmt_bind_result",
-                        mysql_stmt_errno(preparedStmt->ppStmt),
-                        mysql_stmt_error(preparedStmt->ppStmt));
-          logError(printf("sqlExecute: mysql_stmt_bind_result error: %s\n",
-                          mysql_stmt_error(preparedStmt->ppStmt)););
-          preparedStmt->executeSuccessful = FALSE;
-          raise_error(DATABASE_ERROR);
-        } /* if */
+      /* printf("ppStmt: " FMT_U_MEM "\n", (memSizeType) preparedStmt->ppStmt); */
+      preparedStmt->fetchOkay = FALSE;
+      if (unlikely(mysql_stmt_bind_param(preparedStmt->ppStmt,
+                                         preparedStmt->param_array) != 0)) {
+        setDbErrorMsg("sqlExecute", "mysql_stmt_bind_param",
+                      mysql_stmt_errno(preparedStmt->ppStmt),
+                      mysql_stmt_error(preparedStmt->ppStmt));
+        logError(printf("sqlExecute: mysql_stmt_bind_param error: %s\n",
+                        mysql_stmt_error(preparedStmt->ppStmt)););
+        preparedStmt->executeSuccessful = FALSE;
+        raise_error(DATABASE_ERROR);
+      } else if (unlikely(mysql_stmt_execute(preparedStmt->ppStmt) != 0)) {
+        setDbErrorMsg("sqlExecute", "mysql_stmt_execute",
+                      mysql_stmt_errno(preparedStmt->ppStmt),
+                      mysql_stmt_error(preparedStmt->ppStmt));
+        logError(printf("sqlExecute: mysql_stmt_execute error: %s\n",
+                        mysql_stmt_error(preparedStmt->ppStmt)););
+        preparedStmt->executeSuccessful = FALSE;
+        raise_error(DATABASE_ERROR);
+      } else if (unlikely(preparedStmt->result_array_size != 0 &&
+                          mysql_stmt_bind_result(preparedStmt->ppStmt,
+                                                 preparedStmt->result_array) != 0)) {
+        setDbErrorMsg("sqlExecute", "mysql_stmt_bind_result",
+                      mysql_stmt_errno(preparedStmt->ppStmt),
+                      mysql_stmt_error(preparedStmt->ppStmt));
+        logError(printf("sqlExecute: mysql_stmt_bind_result error: %s\n",
+                        mysql_stmt_error(preparedStmt->ppStmt)););
+        preparedStmt->executeSuccessful = FALSE;
+        raise_error(DATABASE_ERROR);
+      } else if (unlikely(mysql_stmt_store_result(preparedStmt->ppStmt) != 0)) {
+        setDbErrorMsg("sqlExecute", "mysql_stmt_store_result",
+                      mysql_stmt_errno(preparedStmt->ppStmt),
+                      mysql_stmt_error(preparedStmt->ppStmt));
+        logError(printf("sqlExecute: mysql_stmt_store_result error: %s\n",
+                        mysql_stmt_error(preparedStmt->ppStmt)););
+        preparedStmt->executeSuccessful = FALSE;
+        raise_error(DATABASE_ERROR);
       } else {
-        bind_result_result = 0;
-      } /* if */
-      if (likely(bind_result_result == 0)) {
-        execute_result = mysql_stmt_execute(preparedStmt->ppStmt);
-        if (unlikely(execute_result != 0)) {
-          setDbErrorMsg("sqlExecute", "mysql_stmt_execute",
-                        mysql_stmt_errno(preparedStmt->ppStmt),
-                        mysql_stmt_error(preparedStmt->ppStmt));
-          logError(printf("sqlExecute: mysql_stmt_execute error: %s\n",
-                          mysql_stmt_error(preparedStmt->ppStmt)););
-          preparedStmt->executeSuccessful = FALSE;
-          raise_error(DATABASE_ERROR);
-        } else {
-          preparedStmt->executeSuccessful = TRUE;
-          preparedStmt->fetchFinished = FALSE;
-        } /* if */
+        preparedStmt->executeSuccessful = TRUE;
+        preparedStmt->fetchFinished = FALSE;
       } /* if */
     } /* if */
     logFunction(printf("sqlExecute -->\n"););
@@ -2046,6 +2239,11 @@ static boolType sqlFetch (sqlStmtType sqlStatement)
       fetch_result = mysql_stmt_fetch(preparedStmt->ppStmt);
       if (fetch_result == 0) {
         preparedStmt->fetchOkay = TRUE;
+      } else if (fetch_result == MYSQL_DATA_TRUNCATED) {
+        /* For BLOBs buffer == NULL and buffer_length == 0 holds.    */
+        /* Therefore BLOBs are truncated (MYSQL_DATA_TRUNCATED).     */
+        /* Instead BLOBs are fetched with mysql_stmt_fetch_column(). */
+        preparedStmt->fetchOkay = TRUE;
       } else if (fetch_result == MYSQL_NO_DATA) {
         preparedStmt->fetchOkay = FALSE;
         preparedStmt->fetchFinished = TRUE;
@@ -2053,8 +2251,8 @@ static boolType sqlFetch (sqlStmtType sqlStatement)
         setDbErrorMsg("sqlFetch", "mysql_stmt_fetch",
                       mysql_stmt_errno(preparedStmt->ppStmt),
                       mysql_stmt_error(preparedStmt->ppStmt));
-        logError(printf("sqlFetch: mysql_stmt_fetch error: %s\n",
-                        mysql_stmt_error(preparedStmt->ppStmt)););
+        logError(printf("sqlFetch: mysql_stmt_fetch returns %d: %s\n",
+                        fetch_result, dbError.message););
         preparedStmt->fetchOkay = FALSE;
         preparedStmt->fetchFinished = TRUE;
         raise_error(DATABASE_ERROR);
@@ -2097,6 +2295,7 @@ static sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
 
   {
     dbType db;
+    striType statementStri;
     cstriType query;
     memSizeType query_length;
     int prepare_result;
@@ -2113,51 +2312,64 @@ static sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
       err_info = RANGE_ERROR;
       preparedStmt = NULL;
     } else {
-      query = stri_to_cstri8_buf(sqlStatementStri, &query_length, &err_info);
-      if (query == NULL) {
+      statementStri = processEscapesInStatement(sqlStatementStri);
+      if (unlikely(statementStri == NULL)) {
+        err_info = MEMORY_ERROR;
         preparedStmt = NULL;
       } else {
-        if (!ALLOC_RECORD(preparedStmt, preparedStmtRecord, count.prepared_stmt)) {
+        query = stri_to_cstri8_buf(statementStri, &query_length);
+        if (unlikely(query == NULL)) {
           err_info = MEMORY_ERROR;
+          preparedStmt = NULL;
         } else {
-          memset(preparedStmt, 0, sizeof(preparedStmtRecord));
-          preparedStmt->ppStmt = mysql_stmt_init(db->connection);
-          if (preparedStmt->ppStmt == NULL) {
-            setDbErrorMsg("sqlPrepare", "mysql_stmt_init",
-                          mysql_errno(db->connection),
-                          mysql_error(db->connection));
-            logError(printf("sqlPrepare: mysql_stmt_init error: %s\n",
-                            mysql_error(db->connection)););
-            FREE_RECORD(preparedStmt, preparedStmtRecord, count.prepared_stmt);
-            err_info = DATABASE_ERROR;
-            preparedStmt = NULL;
+          if (!ALLOC_RECORD(preparedStmt, preparedStmtRecord, count.prepared_stmt)) {
+            err_info = MEMORY_ERROR;
           } else {
-            prepare_result = mysql_stmt_prepare(preparedStmt->ppStmt, query, query_length);
-            if (prepare_result != 0) {
-              setDbErrorMsg("sqlPrepare", "mysql_stmt_prepare",
-                            mysql_stmt_errno(preparedStmt->ppStmt),
-                            mysql_stmt_error(preparedStmt->ppStmt));
-              logError(printf("sqlPrepare: mysql_stmt_prepare error: %s\n",
-                              mysql_stmt_error(preparedStmt->ppStmt)););
-              mysql_stmt_close(preparedStmt->ppStmt);
+            memset(preparedStmt, 0, sizeof(preparedStmtRecord));
+            preparedStmt->ppStmt = mysql_stmt_init(db->connection);
+            if (preparedStmt->ppStmt == NULL) {
+              setDbErrorMsg("sqlPrepare", "mysql_stmt_init",
+                            mysql_errno(db->connection),
+                            mysql_error(db->connection));
+              logError(printf("sqlPrepare: mysql_stmt_init error: %s\n",
+                              mysql_error(db->connection)););
               FREE_RECORD(preparedStmt, preparedStmtRecord, count.prepared_stmt);
               err_info = DATABASE_ERROR;
               preparedStmt = NULL;
             } else {
-              preparedStmt->usage_count = 1;
-              preparedStmt->sqlFunc = db->sqlFunc;
-              preparedStmt->executeSuccessful = FALSE;
-              preparedStmt->fetchOkay = FALSE;
-              preparedStmt->fetchFinished = TRUE;
-              setupResult(preparedStmt, &err_info);
-              if (unlikely(err_info != OKAY_NO_ERROR)) {
-                freePreparedStmt((sqlStmtType) preparedStmt);
+              prepare_result = mysql_stmt_prepare(preparedStmt->ppStmt, query, query_length);
+              if (prepare_result != 0) {
+                setDbErrorMsg("sqlPrepare", "mysql_stmt_prepare",
+                              mysql_stmt_errno(preparedStmt->ppStmt),
+                              mysql_stmt_error(preparedStmt->ppStmt));
+                logError(printf("sqlPrepare: mysql_stmt_prepare error: %s\n",
+                                mysql_stmt_error(preparedStmt->ppStmt)););
+                mysql_stmt_close(preparedStmt->ppStmt);
+                FREE_RECORD(preparedStmt, preparedStmtRecord, count.prepared_stmt);
+                err_info = DATABASE_ERROR;
                 preparedStmt = NULL;
+              } else {
+                preparedStmt->usage_count = 1;
+                preparedStmt->sqlFunc = db->sqlFunc;
+                preparedStmt->executeSuccessful = FALSE;
+                preparedStmt->fetchOkay = FALSE;
+                preparedStmt->fetchFinished = TRUE;
+                err_info = setupParameters(preparedStmt);
+                if (unlikely(err_info != OKAY_NO_ERROR)) {
+                  preparedStmt->result_array = NULL;
+                } else {
+                  err_info = setupResult(preparedStmt);
+                } /* if */
+                if (unlikely(err_info != OKAY_NO_ERROR)) {
+                  freePreparedStmt((sqlStmtType) preparedStmt);
+                  preparedStmt = NULL;
+                } /* if */
               } /* if */
             } /* if */
           } /* if */
+          free_cstri8(query, statementStri);
         } /* if */
-        free_cstri8(query, sqlStatementStri);
+        FREE_STRI(statementStri, sqlStatementStri->size * 2);
       } /* if */
     } /* if */
     if (unlikely(err_info != OKAY_NO_ERROR)) {
@@ -2181,6 +2393,8 @@ static intType sqlStmtColumnCount (sqlStmtType sqlStatement)
                        (memSizeType) sqlStatement););
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(preparedStmt->result_array_size > INTTYPE_MAX)) {
+      logError(printf("sqlStmtColumnCount: "
+                      "Result_array_size does not fit into an integer.\n"););
       raise_error(RANGE_ERROR);
       columnCount = 0;
     } else {
@@ -2320,6 +2534,7 @@ databaseType sqlOpenMy (const const_striType dbName,
               database = NULL;
             } else {
               if (mysql_options(connection, MYSQL_SET_CHARSET_NAME, "utf8") != 0) {
+                logError(printf("sqlOpenMy: Unable to set charset to UTF-8.\n"););
                 err_info = RANGE_ERROR;
                 mysql_close(connection);
                 database = NULL;

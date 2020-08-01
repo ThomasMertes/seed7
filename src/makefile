@@ -82,9 +82,9 @@ GOBJ = syvarutl.o traceutl.o actutl.o executl.o blockutl.o \
        entutl.o identutl.o chclsutl.o arrutl.o
 ROBJ = arr_rtl.o bln_rtl.o bst_rtl.o chr_rtl.o cmd_rtl.o con_rtl.o dir_rtl.o drw_rtl.o fil_rtl.o \
        flt_rtl.o hsh_rtl.o int_rtl.o itf_rtl.o pcs_rtl.o set_rtl.o soc_rtl.o sql_rtl.o str_rtl.o \
-       tim_rtl.o ut8_rtl.o heaputl.o numutl.o sigutl.o striutl.o \
-       sql_base.o sql_lite.o sql_my.o sql_oci.o sql_odbc.o sql_post.o
-DOBJ = big_rtl.o big_gmp.o cmd_unx.o dll_unx.o fil_unx.o pcs_unx.o pol_unx.o tim_unx.o
+       tim_rtl.o ut8_rtl.o heaputl.o numutl.o sigutl.o striutl.o
+DOBJ = big_rtl.o big_gmp.o cmd_unx.o dir_win.o dll_unx.o fil_unx.o pcs_unx.o pol_unx.o soc_none.o \
+       sql_base.o sql_fire.o sql_lite.o sql_my.o sql_oci.o sql_odbc.o sql_post.o tim_unx.o
 OBJ = $(MOBJ)
 SEED7_LIB_OBJ = $(ROBJ) $(DOBJ)
 DRAW_LIB_OBJ = gkb_rtl.o drw_x11.o gkb_x11.o
@@ -105,9 +105,9 @@ GSRC = syvarutl.c traceutl.c actutl.c executl.c blockutl.c \
        entutl.c identutl.c chclsutl.c arrutl.c
 RSRC = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c con_rtl.c dir_rtl.c drw_rtl.c fil_rtl.c \
        flt_rtl.c hsh_rtl.c int_rtl.c itf_rtl.c pcs_rtl.c set_rtl.c soc_rtl.c sql_rtl.c str_rtl.c \
-       tim_rtl.c ut8_rtl.c heaputl.c numutl.c sigutl.c striutl.c \
-       sql_base.c sql_lite.c sql_my.c sql_oci.c sql_odbc.c sql_post.c
-DSRC = big_rtl.c big_gmp.c cmd_unx.c dll_unx.c fil_unx.c pcs_unx.c pol_unx.c tim_unx.c
+       tim_rtl.c ut8_rtl.c heaputl.c numutl.c sigutl.c striutl.c
+DSRC = big_rtl.c big_gmp.c cmd_unx.c dir_win.c dll_unx.c fil_unx.c pcs_unx.c pol_unx.c soc_none.c \
+       sql_base.c sql_fire.c sql_lite.c sql_my.c sql_oci.c sql_odbc.c sql_post.c tim_unx.c
 SRC = $(MSRC)
 SEED7_LIB_SRC = $(RSRC) $(DSRC)
 DRAW_LIB_SRC = gkb_rtl.c drw_x11.c gkb_x11.c
@@ -189,6 +189,9 @@ chkccomp.h:
 	echo "#define OCI_LIBS \"-lclntsh\"" >> chkccomp.h
 	echo "#define OCI_DLL \"libclntsh.so\"" >> chkccomp.h
 	echo "#define OCI_USE_DLL" >> chkccomp.h
+	echo "#define FIRE_LIBS \"-lfbclient\"" >> chkccomp.h
+	echo "#define FIRE_DLL \"libfbclient.so\"" >> chkccomp.h
+	echo "#define FIRE_USE_DLL" >> chkccomp.h
 
 version.h: chkccomp.h
 	echo "#define PATH_DELIMITER '/'" > version.h

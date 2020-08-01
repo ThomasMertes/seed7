@@ -373,6 +373,14 @@ const func integer: ord (in bigInteger: number)                          is acti
 
 
 (**
+ *  Convert a ''bigInteger'' number to [[integer]].
+ *  @return the [[integer]] result of the conversion.
+ *  @exception RANGE_ERROR The result does not fit into an [[integer]].
+ *)
+const func integer: integer (in bigInteger: number)                      is action "BIG_ORD";
+
+
+(**
  *  Compute the greatest common divisor of two ''bigInteger'' numbers.
  *  @return the greatest common divisor of the two numbers.
  *          The greatest common divisor is positive or zero.
@@ -404,6 +412,15 @@ const func bigInteger: (attr bigInteger) conv (in integer: number)       is acti
  *  @exception MEMORY_ERROR  Not enough memory to represent the result.
  *)
 const func string: str (in bigInteger: number)                           is action "BIG_STR";
+
+
+(**
+ *  Convert a ''bigInteger'' number to a ''bigInteger'' literal.
+ *  @return the ''bigInteger'' literal.
+ *  @exception MEMORY_ERROR  Not enough memory to represent the result.
+ *)
+const func string: literal (in bigInteger: number) is
+    return str(number) & "_";
 
 
 (**

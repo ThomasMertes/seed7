@@ -95,7 +95,7 @@ double bigIntToDouble (const const_bigIntType number)
         if (absNumber != NULL) {
           mantissa = bigRShift(absNumber, 1);
           if (mantissa != NULL) {
-            intMantissa = bigToInt64(mantissa);
+            intMantissa = bigToInt64(mantissa, NULL);
             bigDestr(mantissa);
             if (sign < 0) {
               intMantissa = -intMantissa;
@@ -180,7 +180,7 @@ double bigRatToDouble (const const_bigIntType numerator,
         if (absNumerator != NULL) {
           mantissa = bigDiv(absNumerator, shiftedDenominator);
           if (mantissa != NULL) {
-            intMantissa = bigToInt64(mantissa);
+            intMantissa = bigToInt64(mantissa, NULL);
             bigDestr(mantissa);
             if (bigCmpSignedDigit(numerator, 0) < 0) {
               intMantissa = -intMantissa;
@@ -519,7 +519,7 @@ floatType getDecimalFloat (const const_ustriType decimal, memSizeType length)
   {
     char localCharBuffer[MAX_DECIMAL_BUFFER_LENGTH + NULL_TERMINATION_LEN];
     char *charBuffer;
-    double doubleValue;
+    floatType floatValue;
 
   /* getDecimalFloat */
     logFunction(printf("getDecimalFloat(\"%.*s%s\", " FMT_U_MEM ")\n",
@@ -528,21 +528,21 @@ floatType getDecimalFloat (const const_ustriType decimal, memSizeType length)
       charBuffer = (char *) malloc(length + 1);
       if (unlikely(charBuffer == NULL)) {
         raise_error(MEMORY_ERROR);
-        doubleValue = 0.0;
+        floatValue = 0.0;
       } else {
         memcpy(charBuffer, decimal, length);
         charBuffer[length] = '\0';
-        sscanf(charBuffer, "%lf", &doubleValue);
+        floatValue = (floatType) strtod(charBuffer, NULL);
         free(charBuffer);
       } /* if */
     } else {
       memcpy(localCharBuffer, decimal, length);
       localCharBuffer[length] = '\0';
-      sscanf(localCharBuffer, "%lf", &doubleValue);
+      floatValue = (floatType) strtod(localCharBuffer, NULL);
     } /* if */
     logFunction(printf("getDecimalFloat --> " FMT_E "\n",
-                       doubleValue););
-    return (floatType) doubleValue;
+                       floatValue););
+    return floatValue;
   } /* getDecimalFloat */
 
 

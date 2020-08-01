@@ -131,7 +131,8 @@ typedef struct {
   enum enum_mysql_timestamp_type time_type;
 } MYSQL_TIME;
 
-#define MYSQL_NO_DATA  100
+#define MYSQL_NO_DATA        100
+#define MYSQL_DATA_TRUNCATED 101
 
 #ifndef STDCALL
 #if defined(_WIN32)
@@ -165,6 +166,11 @@ unsigned int STDCALL mysql_stmt_errno (MYSQL_STMT *stmt);
 const char *STDCALL mysql_stmt_error (MYSQL_STMT *stmt);
 int STDCALL mysql_stmt_execute (MYSQL_STMT *stmt);
 int STDCALL mysql_stmt_fetch (MYSQL_STMT *stmt);
+int STDCALL mysql_stmt_fetch_column (MYSQL_STMT *stmt, MYSQL_BIND *bnd,
+                                     unsigned int column,
+                                     unsigned long offset);
 MYSQL_STMT *STDCALL mysql_stmt_init (MYSQL *mysql);
+unsigned long STDCALL mysql_stmt_param_count (MYSQL_STMT *stmt);
 int STDCALL mysql_stmt_prepare (MYSQL_STMT *stmt, const char *query, unsigned long length);
 MYSQL_RES *STDCALL mysql_stmt_result_metadata (MYSQL_STMT *stmt);
+int STDCALL mysql_stmt_store_result (MYSQL_STMT *stmt);

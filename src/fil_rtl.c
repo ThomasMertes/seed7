@@ -905,9 +905,9 @@ void filBigSeek (fileType aFile, const const_bigIntType position)
     logFunction(printf("filBigSeek(%d, %s)\n", safe_fileno(aFile),
                        bigHexCStri(position)););
 #if OS_OFF_T_SIZE == 32
-    file_position = (os_off_t) bigToInt32(position);
+    file_position = (os_off_t) bigToInt32(position, NULL);
 #elif OS_OFF_T_SIZE == 64
-    file_position = (os_off_t) bigToInt64(position);
+    file_position = (os_off_t) bigToInt64(position, NULL);
 #else
 #error "sizeof(os_off_t) is neither 4 nor 8."
 #endif

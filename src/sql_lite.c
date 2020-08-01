@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  sql_lite.c    Database access functions for SQLite.             */
-/*  Copyright (C) 1989 - 2014  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2019  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/sql_lite.c                                      */
-/*  Changes: 2013, 2014  Thomas Mertes                              */
+/*  Changes: 2013, 2014, 2015, 2017 - 2019  Thomas Mertes           */
 /*  Content: Database access functions for SQLite.                  */
 /*                                                                  */
 /********************************************************************/
@@ -48,6 +48,7 @@
 #include "striutl.h"
 #include "heaputl.h"
 #include "numutl.h"
+#include "flt_rtl.h"
 #include "str_rtl.h"
 #include "tim_rtl.h"
 #include "cmd_rtl.h"
@@ -65,9 +66,15 @@ typedef struct {
   } dbRecord, *dbType;
 
 typedef struct {
+    boolType     bound;
+  } bindDataRecord, *bindDataType;
+
+typedef struct {
     uintType      usage_count;
     sqlFuncType   sqlFunc;
     sqlite3_stmt *ppStmt;
+    memSizeType   param_array_size;
+    bindDataType  param_array;
     unsigned int  result_column_count;
     boolType      executeSuccessful;
     boolType      useStoredFetchResult;
@@ -79,6 +86,7 @@ typedef struct {
 static sqlFuncType sqlFunc = NULL;
 
 #define DEFAULT_DECIMAL_SCALE 1000
+#define MAX_SIZE_ISO_DURATION 35
 
 
 #ifdef SQLITE_DLL
@@ -91,6 +99,7 @@ typedef int (*tp_sqlite3_bind_double) (sqlite3_stmt *pStmt, int index, double va
 typedef int (*tp_sqlite3_bind_int) (sqlite3_stmt *pStmt, int index, int value);
 typedef int (*tp_sqlite3_bind_int64) (sqlite3_stmt *pStmt, int index, sqlite3_int64 value);
 typedef int (*tp_sqlite3_bind_null) (sqlite3_stmt *pStmt, int index);
+typedef int (*tp_sqlite3_bind_parameter_count) (sqlite3_stmt *pStmt);
 typedef int (*tp_sqlite3_bind_text) (sqlite3_stmt *pStmt,
                                      int index,
                                      const char *value,
@@ -119,55 +128,57 @@ typedef int (*tp_sqlite3_prepare) (sqlite3 *db,
 typedef int (*tp_sqlite3_reset) (sqlite3_stmt *pStmt);
 typedef int (*tp_sqlite3_step) (sqlite3_stmt *pStmt);
 
-static tp_sqlite3_bind_blob     ptr_sqlite3_bind_blob;
-static tp_sqlite3_bind_double   ptr_sqlite3_bind_double;
-static tp_sqlite3_bind_int      ptr_sqlite3_bind_int;
-static tp_sqlite3_bind_int64    ptr_sqlite3_bind_int64;
-static tp_sqlite3_bind_null     ptr_sqlite3_bind_null;
-static tp_sqlite3_bind_text     ptr_sqlite3_bind_text;
-static tp_sqlite3_close         ptr_sqlite3_close;
-static tp_sqlite3_column_blob   ptr_sqlite3_column_blob;
-static tp_sqlite3_column_bytes  ptr_sqlite3_column_bytes;
-static tp_sqlite3_column_count  ptr_sqlite3_column_count;
-static tp_sqlite3_column_double ptr_sqlite3_column_double;
-static tp_sqlite3_column_int    ptr_sqlite3_column_int;
-static tp_sqlite3_column_int64  ptr_sqlite3_column_int64;
-static tp_sqlite3_column_name   ptr_sqlite3_column_name;
-static tp_sqlite3_column_text   ptr_sqlite3_column_text;
-static tp_sqlite3_column_type   ptr_sqlite3_column_type;
-static tp_sqlite3_db_handle     ptr_sqlite3_db_handle;
-static tp_sqlite3_errcode       ptr_sqlite3_errcode;
-static tp_sqlite3_errmsg        ptr_sqlite3_errmsg;
-static tp_sqlite3_finalize      ptr_sqlite3_finalize;
-static tp_sqlite3_open          ptr_sqlite3_open;
-static tp_sqlite3_prepare       ptr_sqlite3_prepare;
-static tp_sqlite3_reset         ptr_sqlite3_reset;
-static tp_sqlite3_step          ptr_sqlite3_step;
+static tp_sqlite3_bind_blob            ptr_sqlite3_bind_blob;
+static tp_sqlite3_bind_double          ptr_sqlite3_bind_double;
+static tp_sqlite3_bind_int             ptr_sqlite3_bind_int;
+static tp_sqlite3_bind_int64           ptr_sqlite3_bind_int64;
+static tp_sqlite3_bind_null            ptr_sqlite3_bind_null;
+static tp_sqlite3_bind_parameter_count ptr_sqlite3_bind_parameter_count;
+static tp_sqlite3_bind_text            ptr_sqlite3_bind_text;
+static tp_sqlite3_close                ptr_sqlite3_close;
+static tp_sqlite3_column_blob          ptr_sqlite3_column_blob;
+static tp_sqlite3_column_bytes         ptr_sqlite3_column_bytes;
+static tp_sqlite3_column_count         ptr_sqlite3_column_count;
+static tp_sqlite3_column_double        ptr_sqlite3_column_double;
+static tp_sqlite3_column_int           ptr_sqlite3_column_int;
+static tp_sqlite3_column_int64         ptr_sqlite3_column_int64;
+static tp_sqlite3_column_name          ptr_sqlite3_column_name;
+static tp_sqlite3_column_text          ptr_sqlite3_column_text;
+static tp_sqlite3_column_type          ptr_sqlite3_column_type;
+static tp_sqlite3_db_handle            ptr_sqlite3_db_handle;
+static tp_sqlite3_errcode              ptr_sqlite3_errcode;
+static tp_sqlite3_errmsg               ptr_sqlite3_errmsg;
+static tp_sqlite3_finalize             ptr_sqlite3_finalize;
+static tp_sqlite3_open                 ptr_sqlite3_open;
+static tp_sqlite3_prepare              ptr_sqlite3_prepare;
+static tp_sqlite3_reset                ptr_sqlite3_reset;
+static tp_sqlite3_step                 ptr_sqlite3_step;
 
-#define sqlite3_bind_blob     ptr_sqlite3_bind_blob
-#define sqlite3_bind_double   ptr_sqlite3_bind_double
-#define sqlite3_bind_int      ptr_sqlite3_bind_int
-#define sqlite3_bind_int64    ptr_sqlite3_bind_int64
-#define sqlite3_bind_null     ptr_sqlite3_bind_null
-#define sqlite3_bind_text     ptr_sqlite3_bind_text
-#define sqlite3_close         ptr_sqlite3_close
-#define sqlite3_column_blob   ptr_sqlite3_column_blob
-#define sqlite3_column_bytes  ptr_sqlite3_column_bytes
-#define sqlite3_column_count  ptr_sqlite3_column_count
-#define sqlite3_column_double ptr_sqlite3_column_double
-#define sqlite3_column_int    ptr_sqlite3_column_int
-#define sqlite3_column_int64  ptr_sqlite3_column_int64
-#define sqlite3_column_name   ptr_sqlite3_column_name
-#define sqlite3_column_text   ptr_sqlite3_column_text
-#define sqlite3_column_type   ptr_sqlite3_column_type
-#define sqlite3_db_handle     ptr_sqlite3_db_handle
-#define sqlite3_errcode       ptr_sqlite3_errcode
-#define sqlite3_errmsg        ptr_sqlite3_errmsg
-#define sqlite3_finalize      ptr_sqlite3_finalize
-#define sqlite3_open          ptr_sqlite3_open
-#define sqlite3_prepare       ptr_sqlite3_prepare
-#define sqlite3_reset         ptr_sqlite3_reset
-#define sqlite3_step          ptr_sqlite3_step
+#define sqlite3_bind_blob            ptr_sqlite3_bind_blob
+#define sqlite3_bind_double          ptr_sqlite3_bind_double
+#define sqlite3_bind_int             ptr_sqlite3_bind_int
+#define sqlite3_bind_int64           ptr_sqlite3_bind_int64
+#define sqlite3_bind_null            ptr_sqlite3_bind_null
+#define sqlite3_bind_parameter_count ptr_sqlite3_bind_parameter_count
+#define sqlite3_bind_text            ptr_sqlite3_bind_text
+#define sqlite3_close                ptr_sqlite3_close
+#define sqlite3_column_blob          ptr_sqlite3_column_blob
+#define sqlite3_column_bytes         ptr_sqlite3_column_bytes
+#define sqlite3_column_count         ptr_sqlite3_column_count
+#define sqlite3_column_double        ptr_sqlite3_column_double
+#define sqlite3_column_int           ptr_sqlite3_column_int
+#define sqlite3_column_int64         ptr_sqlite3_column_int64
+#define sqlite3_column_name          ptr_sqlite3_column_name
+#define sqlite3_column_text          ptr_sqlite3_column_text
+#define sqlite3_column_type          ptr_sqlite3_column_type
+#define sqlite3_db_handle            ptr_sqlite3_db_handle
+#define sqlite3_errcode              ptr_sqlite3_errcode
+#define sqlite3_errmsg               ptr_sqlite3_errmsg
+#define sqlite3_finalize             ptr_sqlite3_finalize
+#define sqlite3_open                 ptr_sqlite3_open
+#define sqlite3_prepare              ptr_sqlite3_prepare
+#define sqlite3_reset                ptr_sqlite3_reset
+#define sqlite3_step                 ptr_sqlite3_step
 
 
 
@@ -181,30 +192,31 @@ static boolType setupDll (const char *dllName)
     if (dbDll == NULL) {
       dbDll = dllOpen(dllName);
       if (dbDll != NULL) {
-        if ((sqlite3_bind_blob     = (tp_sqlite3_bind_blob)     dllFunc(dbDll, "sqlite3_bind_blob"))     == NULL ||
-            (sqlite3_bind_double   = (tp_sqlite3_bind_double)   dllFunc(dbDll, "sqlite3_bind_double"))   == NULL ||
-            (sqlite3_bind_int      = (tp_sqlite3_bind_int)      dllFunc(dbDll, "sqlite3_bind_int"))      == NULL ||
-            (sqlite3_bind_int64    = (tp_sqlite3_bind_int64)    dllFunc(dbDll, "sqlite3_bind_int64"))    == NULL ||
-            (sqlite3_bind_null     = (tp_sqlite3_bind_null)     dllFunc(dbDll, "sqlite3_bind_null"))     == NULL ||
-            (sqlite3_bind_text     = (tp_sqlite3_bind_text)     dllFunc(dbDll, "sqlite3_bind_text"))     == NULL ||
-            (sqlite3_close         = (tp_sqlite3_close)         dllFunc(dbDll, "sqlite3_close"))         == NULL ||
-            (sqlite3_column_blob   = (tp_sqlite3_column_blob)   dllFunc(dbDll, "sqlite3_column_blob"))   == NULL ||
-            (sqlite3_column_bytes  = (tp_sqlite3_column_bytes)  dllFunc(dbDll, "sqlite3_column_bytes"))  == NULL ||
-            (sqlite3_column_count  = (tp_sqlite3_column_count)  dllFunc(dbDll, "sqlite3_column_count"))  == NULL ||
-            (sqlite3_column_double = (tp_sqlite3_column_double) dllFunc(dbDll, "sqlite3_column_double")) == NULL ||
-            (sqlite3_column_int    = (tp_sqlite3_column_int)    dllFunc(dbDll, "sqlite3_column_int"))    == NULL ||
-            (sqlite3_column_int64  = (tp_sqlite3_column_int64)  dllFunc(dbDll, "sqlite3_column_int64"))  == NULL ||
-            (sqlite3_column_name   = (tp_sqlite3_column_name)   dllFunc(dbDll, "sqlite3_column_name"))   == NULL ||
-            (sqlite3_column_text   = (tp_sqlite3_column_text)   dllFunc(dbDll, "sqlite3_column_text"))   == NULL ||
-            (sqlite3_column_type   = (tp_sqlite3_column_type)   dllFunc(dbDll, "sqlite3_column_type"))   == NULL ||
-            (sqlite3_db_handle     = (tp_sqlite3_db_handle)     dllFunc(dbDll, "sqlite3_db_handle"))     == NULL ||
-            (sqlite3_errcode       = (tp_sqlite3_errcode)       dllFunc(dbDll, "sqlite3_errcode"))       == NULL ||
-            (sqlite3_errmsg        = (tp_sqlite3_errmsg)        dllFunc(dbDll, "sqlite3_errmsg"))        == NULL ||
-            (sqlite3_finalize      = (tp_sqlite3_finalize)      dllFunc(dbDll, "sqlite3_finalize"))      == NULL ||
-            (sqlite3_open          = (tp_sqlite3_open)          dllFunc(dbDll, "sqlite3_open"))          == NULL ||
-            (sqlite3_prepare       = (tp_sqlite3_prepare)       dllFunc(dbDll, "sqlite3_prepare"))       == NULL ||
-            (sqlite3_reset         = (tp_sqlite3_reset)         dllFunc(dbDll, "sqlite3_reset"))         == NULL ||
-            (sqlite3_step          = (tp_sqlite3_step)          dllFunc(dbDll, "sqlite3_step"))          == NULL) {
+        if ((sqlite3_bind_blob            = (tp_sqlite3_bind_blob)            dllFunc(dbDll, "sqlite3_bind_blob"))            == NULL ||
+            (sqlite3_bind_double          = (tp_sqlite3_bind_double)          dllFunc(dbDll, "sqlite3_bind_double"))          == NULL ||
+            (sqlite3_bind_int             = (tp_sqlite3_bind_int)             dllFunc(dbDll, "sqlite3_bind_int"))             == NULL ||
+            (sqlite3_bind_int64           = (tp_sqlite3_bind_int64)           dllFunc(dbDll, "sqlite3_bind_int64"))           == NULL ||
+            (sqlite3_bind_null            = (tp_sqlite3_bind_null)            dllFunc(dbDll, "sqlite3_bind_null"))            == NULL ||
+            (sqlite3_bind_parameter_count = (tp_sqlite3_bind_parameter_count) dllFunc(dbDll, "sqlite3_bind_parameter_count")) == NULL ||
+            (sqlite3_bind_text            = (tp_sqlite3_bind_text)            dllFunc(dbDll, "sqlite3_bind_text"))            == NULL ||
+            (sqlite3_close                = (tp_sqlite3_close)                dllFunc(dbDll, "sqlite3_close"))                == NULL ||
+            (sqlite3_column_blob          = (tp_sqlite3_column_blob)          dllFunc(dbDll, "sqlite3_column_blob"))          == NULL ||
+            (sqlite3_column_bytes         = (tp_sqlite3_column_bytes)         dllFunc(dbDll, "sqlite3_column_bytes"))         == NULL ||
+            (sqlite3_column_count         = (tp_sqlite3_column_count)         dllFunc(dbDll, "sqlite3_column_count"))         == NULL ||
+            (sqlite3_column_double        = (tp_sqlite3_column_double)        dllFunc(dbDll, "sqlite3_column_double"))        == NULL ||
+            (sqlite3_column_int           = (tp_sqlite3_column_int)           dllFunc(dbDll, "sqlite3_column_int"))           == NULL ||
+            (sqlite3_column_int64         = (tp_sqlite3_column_int64)         dllFunc(dbDll, "sqlite3_column_int64"))         == NULL ||
+            (sqlite3_column_name          = (tp_sqlite3_column_name)          dllFunc(dbDll, "sqlite3_column_name"))          == NULL ||
+            (sqlite3_column_text          = (tp_sqlite3_column_text)          dllFunc(dbDll, "sqlite3_column_text"))          == NULL ||
+            (sqlite3_column_type          = (tp_sqlite3_column_type)          dllFunc(dbDll, "sqlite3_column_type"))          == NULL ||
+            (sqlite3_db_handle            = (tp_sqlite3_db_handle)            dllFunc(dbDll, "sqlite3_db_handle"))            == NULL ||
+            (sqlite3_errcode              = (tp_sqlite3_errcode)              dllFunc(dbDll, "sqlite3_errcode"))              == NULL ||
+            (sqlite3_errmsg               = (tp_sqlite3_errmsg)               dllFunc(dbDll, "sqlite3_errmsg"))               == NULL ||
+            (sqlite3_finalize             = (tp_sqlite3_finalize)             dllFunc(dbDll, "sqlite3_finalize"))             == NULL ||
+            (sqlite3_open                 = (tp_sqlite3_open)                 dllFunc(dbDll, "sqlite3_open"))                 == NULL ||
+            (sqlite3_prepare              = (tp_sqlite3_prepare)              dllFunc(dbDll, "sqlite3_prepare"))              == NULL ||
+            (sqlite3_reset                = (tp_sqlite3_reset)                dllFunc(dbDll, "sqlite3_reset"))                == NULL ||
+            (sqlite3_step                 = (tp_sqlite3_step)                 dllFunc(dbDll, "sqlite3_step"))                 == NULL) {
           dbDll = NULL;
         } /* if */
       } /* if */
@@ -290,6 +302,9 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
     logFunction(printf("freePreparedStmt(" FMT_U_MEM ")\n",
                        (memSizeType) sqlStatement););
     preparedStmt = (preparedStmtType) sqlStatement;
+    if (preparedStmt->param_array != NULL) {
+      FREE_TABLE(preparedStmt->param_array, bindDataRecord, preparedStmt->param_array_size);
+    } /* if */
     sqlite3_finalize(preparedStmt->ppStmt);
     FREE_RECORD(preparedStmt, preparedStmtRecord, count.prepared_stmt);
     logFunction(printf("freePreparedStmt -->\n"););
@@ -297,6 +312,7 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
 
 
 
+#if LOG_FUNCTIONS_EVERYWHERE || LOG_FUNCTIONS || VERBOSE_EXCEPTIONS_EVERYWHERE || VERBOSE_EXCEPTIONS
 static const char *nameOfBufferType (int buffer_type)
 
   {
@@ -319,6 +335,55 @@ static const char *nameOfBufferType (int buffer_type)
     logFunction(printf("nameOfBufferType --> %s\n", typeName););
     return typeName;
   } /* nameOfBufferType */
+#endif
+
+
+
+static errInfoType setupParameters (preparedStmtType preparedStmt)
+
+  {
+    int param_count;
+    errInfoType err_info = OKAY_NO_ERROR;
+
+  /* setupParameters */
+    logFunction(printf("setupParameters\n"););
+    param_count = sqlite3_bind_parameter_count(preparedStmt->ppStmt);
+    if (unlikely(param_count < 0)) {
+      dbInconsistent("setupParameters", "sqlite3_bind_parameter_count");
+      logError(printf("setupParameters: Sqlite3_bind_parameter_count "
+                      "returns negative column count: %d\n", param_count););
+      err_info = DATABASE_ERROR;
+    } else if (unlikely(!ALLOC_TABLE(preparedStmt->param_array,
+                                     bindDataRecord, (memSizeType) param_count))) {
+      err_info = MEMORY_ERROR;
+    } else {
+      preparedStmt->param_array_size = (memSizeType) param_count;
+      memset(preparedStmt->param_array, 0,
+             (memSizeType) param_count * sizeof(bindDataRecord));
+    } /* if */
+    logFunction(printf("setupParameters --> %d\n", err_info););
+    return err_info;
+  } /* setupParameters */
+
+
+
+static boolType allParametersBound (preparedStmtType preparedStmt)
+
+  {
+    memSizeType column_index;
+    boolType okay = TRUE;
+
+  /* allParametersBound */
+    for (column_index = 0; column_index < preparedStmt->param_array_size;
+         column_index++) {
+      if (unlikely(!preparedStmt->param_array[column_index].bound)) {
+        logError(printf("sqlExecute: Unbound parameter " FMT_U_MEM ".\n",
+                        column_index + 1););
+        okay = FALSE;
+      } /* if */
+    } /* for */
+    return okay;
+  } /* allParametersBound */
 
 
 
@@ -383,15 +448,16 @@ static void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
     preparedStmtType preparedStmt;
     ustriType decimal;
     memSizeType length;
+    int64Type int64Value;
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* sqlBindBigInt */
     logFunction(printf("sqlBindBigInt(" FMT_U_MEM ", " FMT_D ", %s)\n",
                        (memSizeType) sqlStatement, pos, bigHexCStri(value)););
     preparedStmt = (preparedStmtType) sqlStatement;
-    if (unlikely(pos < 1 || pos > INT_MAX)) {
-      logError(printf("sqlBindBigInt: pos: " FMT_D ", max pos: %u.\n",
-                      pos, INT_MAX););
+    if (unlikely(pos < 1 || (uintType) pos > preparedStmt->param_array_size)) {
+      logError(printf("sqlBindBigInt: pos: " FMT_D ", max pos: " FMT_U_MEM ".\n",
+                      pos, preparedStmt->param_array_size););
       raise_error(RANGE_ERROR);
     } else {
       if (preparedStmt->executeSuccessful) {
@@ -400,37 +466,44 @@ static void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
                         sqlite3_db_handle(preparedStmt->ppStmt));
           logError(printf("sqlBindBigInt: sqlite3_reset error: %s\n",
                           sqlite3_errmsg(sqlite3_db_handle(preparedStmt->ppStmt))););
-          raise_error(DATABASE_ERROR);
+          err_info = DATABASE_ERROR;
         } else {
           preparedStmt->executeSuccessful = FALSE;
         } /* if */
       } /* if */
-      if (bigBitLength(value) >= 64) {
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        raise_error(err_info);
+      } else if (bigBitLength(value) >= 64) {
         decimal = bigIntToDecimal(value, &length, &err_info);
         if (unlikely(decimal == NULL)) {
           raise_error(err_info);
         } else if (unlikely(length > INT_MAX)) {
           free(decimal);
           raise_error(MEMORY_ERROR);
+        } else if (unlikely(sqlite3_bind_blob(preparedStmt->ppStmt,
+                                              (int) pos,
+                                              (const void *) decimal,
+                                              (int) length,
+                                              &freeText) != SQLITE_OK)) {
+          setDbErrorMsg("sqlBindBigInt", "sqlite3_bind_blob",
+                        sqlite3_db_handle(preparedStmt->ppStmt));
+          logError(printf("sqlBindBigInt: sqlite3_bind_blob error: %s\n",
+                          sqlite3_errmsg(sqlite3_db_handle(preparedStmt->ppStmt))););
+          /* The destructor (freeText) is called to dispose the */
+          /* BLOB even if sqlite3_bind_blob() fails. So a call  */
+          /* of free(decimal) here would corrupt the heap.      */
+          raise_error(DATABASE_ERROR);
         } else {
-          if (unlikely(sqlite3_bind_blob(preparedStmt->ppStmt,
-                                         (int) pos,
-                                         (const void *) decimal,
-                                         (int) length,
-                                         &freeText) != SQLITE_OK)) {
-            setDbErrorMsg("sqlBindBigInt", "sqlite3_bind_blob",
-                          sqlite3_db_handle(preparedStmt->ppStmt));
-            logError(printf("sqlBindBigInt: sqlite3_bind_blob error: %s\n",
-                            sqlite3_errmsg(sqlite3_db_handle(preparedStmt->ppStmt))););
-            raise_error(DATABASE_ERROR);
-          } else {
-            preparedStmt->fetchOkay = FALSE;
-          } /* if */
+          preparedStmt->fetchOkay = FALSE;
+          preparedStmt->param_array[pos - 1].bound = TRUE;
         } /* if */
       } else {
-        if (unlikely(sqlite3_bind_int64(preparedStmt->ppStmt,
-                                        (int) pos,
-                                        bigToInt64(value)) != SQLITE_OK)) {
+        int64Value = bigToInt64(value, &err_info);
+        if (unlikely(err_info != OKAY_NO_ERROR)) {
+          raise_error(err_info);
+        } else if (unlikely(sqlite3_bind_int64(preparedStmt->ppStmt,
+                                               (int) pos,
+                                               int64Value) != SQLITE_OK)) {
           setDbErrorMsg("sqlBindBigInt", "sqlite3_bind_int64",
                         sqlite3_db_handle(preparedStmt->ppStmt));
           logError(printf("sqlBindBigInt: sqlite3_bind_int64 error: %s\n",
@@ -438,6 +511,7 @@ static void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
           raise_error(DATABASE_ERROR);
         } else {
           preparedStmt->fetchOkay = FALSE;
+          preparedStmt->param_array[pos - 1].bound = TRUE;
         } /* if */
       } /* if */
     } /* if */
@@ -450,6 +524,7 @@ static void sqlBindBigRat (sqlStmtType sqlStatement, intType pos,
 
   {
     preparedStmtType preparedStmt;
+    double doubleValue;
     ustriType decimal;
     memSizeType length;
     memSizeType precision;
@@ -460,9 +535,9 @@ static void sqlBindBigRat (sqlStmtType sqlStatement, intType pos,
                        (memSizeType) sqlStatement, pos,
                        bigHexCStri(numerator), bigHexCStri(denominator)););
     preparedStmt = (preparedStmtType) sqlStatement;
-    if (unlikely(pos < 1 || pos > INT_MAX)) {
-      logError(printf("sqlBindBigRat: pos: " FMT_D ", max pos: %u.\n",
-                      pos, INT_MAX););
+    if (unlikely(pos < 1 || (uintType) pos > preparedStmt->param_array_size)) {
+      logError(printf("sqlBindBigRat: pos: " FMT_D ", max pos: " FMT_U_MEM ".\n",
+                      pos, preparedStmt->param_array_size););
       raise_error(RANGE_ERROR);
     } else {
       if (preparedStmt->executeSuccessful) {
@@ -471,49 +546,80 @@ static void sqlBindBigRat (sqlStmtType sqlStatement, intType pos,
                         sqlite3_db_handle(preparedStmt->ppStmt));
           logError(printf("sqlBindBigRat: sqlite3_reset error: %s\n",
                           sqlite3_errmsg(sqlite3_db_handle(preparedStmt->ppStmt))););
-          raise_error(DATABASE_ERROR);
+          err_info = DATABASE_ERROR;
         } else {
           preparedStmt->executeSuccessful = FALSE;
         } /* if */
       } /* if */
-      decimal = bigRatToDecimal(numerator, denominator, DEFAULT_DECIMAL_SCALE,
-                                &length, &err_info);
-      if (unlikely(decimal == NULL)) {
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
         raise_error(err_info);
+      } else if (bigEqSignedDigit(denominator, 0)) {
+        if (bigCmpSignedDigit(numerator, 0) > 0) {
+          doubleValue = POSITIVE_INFINITY;
+        } else if (bigEqSignedDigit(numerator, 0)) {
+          doubleValue = NOT_A_NUMBER;
+        } else {
+          doubleValue = NEGATIVE_INFINITY;
+        } /* if */
+        if (unlikely(sqlite3_bind_double(preparedStmt->ppStmt,
+                                         (int) pos,
+                                         doubleValue) != SQLITE_OK)) {
+          setDbErrorMsg("sqlBindBigRat", "sqlite3_bind_double",
+                        sqlite3_db_handle(preparedStmt->ppStmt));
+          logError(printf("sqlBindBigRat: sqlite3_bind_double error: %s\n",
+                          sqlite3_errmsg(sqlite3_db_handle(preparedStmt->ppStmt))););
+          raise_error(DATABASE_ERROR);
+        } else {
+          preparedStmt->fetchOkay = FALSE;
+          preparedStmt->param_array[pos - 1].bound = TRUE;
+        } /* if */
       } else {
-        /* printf("decimal: %s\n", decimal); */
-        precision = decimalPrecision(decimal, length);
-        /* printf("precision: " FMT_U_MEM "\n", precision); */
-        if (precision > DBL_DIG) {
-          if (unlikely(length > INT_MAX)) {
-            free(decimal);
-            raise_error(MEMORY_ERROR);
+        decimal = bigRatToDecimal(numerator, denominator, DEFAULT_DECIMAL_SCALE,
+                                  &length, &err_info);
+        if (unlikely(decimal == NULL)) {
+          raise_error(err_info);
+        } else {
+          /* printf("decimal: %s\n", decimal); */
+          precision = decimalPrecision(decimal, length);
+          /* printf("precision: " FMT_U_MEM "\n", precision); */
+          if (precision > DBL_DIG) {
+            if (unlikely(length > INT_MAX)) {
+              free(decimal);
+              raise_error(MEMORY_ERROR);
+            } else {
+              if (unlikely(sqlite3_bind_blob(preparedStmt->ppStmt,
+                                             (int) pos,
+                                             (const void *) decimal,
+                                             (int) length,
+                                             &freeText) != SQLITE_OK)) {
+                setDbErrorMsg("sqlBindBigRat", "sqlite3_bind_blob",
+                              sqlite3_db_handle(preparedStmt->ppStmt));
+                logError(printf("sqlBindBigRat: sqlite3_bind_blob error: %s\n",
+                                sqlite3_errmsg(sqlite3_db_handle(preparedStmt->ppStmt))););
+                /* The destructor (freeText) is called to dispose the */
+                /* BLOB even if sqlite3_bind_blob() fails. So a call  */
+                /* of free(decimal) here would corrupt the heap.      */
+                raise_error(DATABASE_ERROR);
+              } else {
+                preparedStmt->fetchOkay = FALSE;
+                preparedStmt->param_array[pos - 1].bound = TRUE;
+              } /* if */
+            } /* if */
           } else {
-            if (unlikely(sqlite3_bind_blob(preparedStmt->ppStmt,
-                                           (int) pos,
-                                           (const void *) decimal,
-                                           (int) length,
-                                           &freeText) != SQLITE_OK)) {
-              setDbErrorMsg("sqlBindBigRat", "sqlite3_bind_blob",
+            doubleValue = strtod((char *) decimal, NULL);
+            free(decimal);
+            if (unlikely(sqlite3_bind_double(preparedStmt->ppStmt,
+                                             (int) pos,
+                                             doubleValue) != SQLITE_OK)) {
+              setDbErrorMsg("sqlBindBigRat", "sqlite3_bind_double",
                             sqlite3_db_handle(preparedStmt->ppStmt));
-              logError(printf("sqlBindBigRat: sqlite3_bind_blob error: %s\n",
+              logError(printf("sqlBindBigRat: sqlite3_bind_double error: %s\n",
                               sqlite3_errmsg(sqlite3_db_handle(preparedStmt->ppStmt))););
               raise_error(DATABASE_ERROR);
             } else {
               preparedStmt->fetchOkay = FALSE;
+              preparedStmt->param_array[pos - 1].bound = TRUE;
             } /* if */
-          } /* if */
-        } else {
-          if (unlikely(sqlite3_bind_double(preparedStmt->ppStmt,
-                                           (int) pos,
-                                           bigRatToDouble(numerator, denominator)) != SQLITE_OK)) {
-            setDbErrorMsg("sqlBindBigRat", "sqlite3_bind_double",
-                          sqlite3_db_handle(preparedStmt->ppStmt));
-            logError(printf("sqlBindBigRat: sqlite3_bind_double error: %s\n",
-                            sqlite3_errmsg(sqlite3_db_handle(preparedStmt->ppStmt))););
-            raise_error(DATABASE_ERROR);
-          } else {
-            preparedStmt->fetchOkay = FALSE;
           } /* if */
         } /* if */
       } /* if */
@@ -526,14 +632,15 @@ static void sqlBindBool (sqlStmtType sqlStatement, intType pos, boolType value)
 
   {
     preparedStmtType preparedStmt;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* sqlBindBool */
     logFunction(printf("sqlBindBool(" FMT_U_MEM ", " FMT_D ", %s)\n",
                        (memSizeType) sqlStatement, pos, value ? "TRUE" : "FALSE"););
     preparedStmt = (preparedStmtType) sqlStatement;
-    if (unlikely(pos < 1 || pos > INT_MAX)) {
-      logError(printf("sqlBindBool: pos: " FMT_D ", max pos: %u.\n",
-                      pos, INT_MAX););
+    if (unlikely(pos < 1 || (uintType) pos > preparedStmt->param_array_size)) {
+      logError(printf("sqlBindBool: pos: " FMT_D ", max pos: " FMT_U_MEM ".\n",
+                      pos, preparedStmt->param_array_size););
       raise_error(RANGE_ERROR);
     } else {
       if (preparedStmt->executeSuccessful) {
@@ -542,14 +649,16 @@ static void sqlBindBool (sqlStmtType sqlStatement, intType pos, boolType value)
                         sqlite3_db_handle(preparedStmt->ppStmt));
           logError(printf("sqlBindBool: sqlite3_reset error: %s\n",
                           sqlite3_errmsg(sqlite3_db_handle(preparedStmt->ppStmt))););
-          raise_error(DATABASE_ERROR);
+          err_info = DATABASE_ERROR;
         } else {
           preparedStmt->executeSuccessful = FALSE;
         } /* if */
       } /* if */
-      if (unlikely(sqlite3_bind_int(preparedStmt->ppStmt,
-                                    (int) pos,
-                                    (int) value) != SQLITE_OK)) {
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        raise_error(err_info);
+      } else if (unlikely(sqlite3_bind_int(preparedStmt->ppStmt,
+                                           (int) pos,
+                                           (int) value) != SQLITE_OK)) {
         setDbErrorMsg("sqlBindBool", "sqlite3_bind_int",
                       sqlite3_db_handle(preparedStmt->ppStmt));
         logError(printf("sqlBindBool: sqlite3_bind_int error: %s\n",
@@ -557,6 +666,7 @@ static void sqlBindBool (sqlStmtType sqlStatement, intType pos, boolType value)
         raise_error(DATABASE_ERROR);
       } else {
         preparedStmt->fetchOkay = FALSE;
+        preparedStmt->param_array[pos - 1].bound = TRUE;
       } /* if */
     } /* if */
   } /* sqlBindBool */
@@ -568,14 +678,15 @@ static void sqlBindBStri (sqlStmtType sqlStatement, intType pos, bstriType bstri
   {
     preparedStmtType preparedStmt;
     cstriType blob;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* sqlBindBStri */
     logFunction(printf("sqlBindBStri(" FMT_U_MEM ", " FMT_D ", \"%s\")\n",
                        (memSizeType) sqlStatement, pos, bstriAsUnquotedCStri(bstri)););
     preparedStmt = (preparedStmtType) sqlStatement;
-    if (unlikely(pos < 1 || pos > INT_MAX)) {
-      logError(printf("sqlBindBStri: pos: " FMT_D ", max pos: %u.\n",
-                      pos, INT_MAX););
+    if (unlikely(pos < 1 || (uintType) pos > preparedStmt->param_array_size)) {
+      logError(printf("sqlBindBStri: pos: " FMT_D ", max pos: " FMT_U_MEM ".\n",
+                      pos, preparedStmt->param_array_size););
       raise_error(RANGE_ERROR);
     } else {
       if (preparedStmt->executeSuccessful) {
@@ -584,13 +695,15 @@ static void sqlBindBStri (sqlStmtType sqlStatement, intType pos, bstriType bstri
                         sqlite3_db_handle(preparedStmt->ppStmt));
           logError(printf("sqlBindBStri: sqlite3_reset error: %s\n",
                           sqlite3_errmsg(sqlite3_db_handle(preparedStmt->ppStmt))););
-          raise_error(DATABASE_ERROR);
+          err_info = DATABASE_ERROR;
         } else {
           preparedStmt->executeSuccessful = FALSE;
         } /* if */
       } /* if */
-      if (unlikely(bstri->size > INT_MAX ||
-                   !ALLOC_CSTRI(blob, bstri->size))) {
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        raise_error(err_info);
+      } else if (unlikely(bstri->size > INT_MAX ||
+                          !ALLOC_CSTRI(blob, bstri->size))) {
         raise_error(MEMORY_ERROR);
       } else {
         memcpy(blob, bstri->mem, bstri->size);
@@ -603,9 +716,13 @@ static void sqlBindBStri (sqlStmtType sqlStatement, intType pos, bstriType bstri
                         sqlite3_db_handle(preparedStmt->ppStmt));
           logError(printf("sqlBindBStri: sqlite3_bind_blob error: %s\n",
                           sqlite3_errmsg(sqlite3_db_handle(preparedStmt->ppStmt))););
+          /* The destructor (freeText) is called to dispose the */
+          /* BLOB even if sqlite3_bind_blob() fails. So a call  */
+          /* of free(blob) here would corrupt the heap.         */
           raise_error(DATABASE_ERROR);
         } else {
           preparedStmt->fetchOkay = FALSE;
+          preparedStmt->param_array[pos - 1].bound = TRUE;
         } /* if */
       } /* if */
     } /* if */
@@ -622,6 +739,7 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
     cstriType isoDuration;
     cstriType stri;
     int length;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* sqlBindDuration */
     logFunction(printf("sqlBindDuration(" FMT_U_MEM ", " FMT_D ", P"
@@ -632,9 +750,9 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
                        second < 0 || micro_second < 0 ? "-" : "",
                        intAbs(second), intAbs(micro_second)););
     preparedStmt = (preparedStmtType) sqlStatement;
-    if (unlikely(pos < 1 || pos > INT_MAX)) {
-      logError(printf("sqlBindDuration: pos: " FMT_D ", max pos: %u.\n",
-                      pos, INT_MAX););
+    if (unlikely(pos < 1 || (uintType) pos > preparedStmt->param_array_size)) {
+      logError(printf("sqlBindDuration: pos: " FMT_D ", max pos: " FMT_U_MEM ".\n",
+                      pos, preparedStmt->param_array_size););
       raise_error(RANGE_ERROR);
     } else if (unlikely(year < -9999 || year > 9999 || month < -12 || month > 12 ||
                         day < -31 || day > 31 || hour <= -24 || hour >= 24 ||
@@ -642,68 +760,76 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
                         micro_second <= -1000000 || micro_second >= 1000000)) {
       logError(printf("sqlBindDuration: Duration not in allowed range.\n"););
       raise_error(RANGE_ERROR);
-    } else if (unlikely(!ALLOC_CSTRI(isoDuration, 35))) {
-      raise_error(MEMORY_ERROR);
     } else {
-      /* Write the duration in the format: P[nY][nM][nD][T[nH][nM][n[.n]S]] */
-      stri = isoDuration;
-      *stri = 'P';
-      stri++;
-      if (year != 0) {
-        stri += sprintf(stri, FMT_D "Y", year);
-      } /* if */
-      if (month != 0) {
-        stri += sprintf(stri, FMT_D "M", month);
-      } /* if */
-      if (day != 0 || (year == 0 && month == 0 && hour == 0 &&
-          minute == 0 && second == 0 && micro_second == 0)) {
-        stri += sprintf(stri, FMT_D "D", day);
-      } /* if */
-      if (hour != 0 || minute != 0 || second != 0 || micro_second != 0) {
-        *stri = 'T';
-        stri++;
-        if (hour != 0) {
-          stri += sprintf(stri, FMT_D "H", hour);
-        } /* if */
-        if (minute != 0) {
-          stri += sprintf(stri, FMT_D "M", minute);
-        } /* if */
-        if (second != 0 || micro_second != 0) {
-          if (second == 0 && micro_second < 0) {
-            stri += sprintf(stri, "-0");
-          } else {
-            stri += sprintf(stri, FMT_D, second);
-          } /* if */
-          if (micro_second != 0) {
-            stri += sprintf(stri, ".%06lu", labs((long) micro_second));
-          } /* if */
-          sprintf(stri, "S");
-        } /* if */
-      } /* if */
-      length = (int) strlen(isoDuration);
       if (preparedStmt->executeSuccessful) {
         if (unlikely(sqlite3_reset(preparedStmt->ppStmt) != SQLITE_OK)) {
           setDbErrorMsg("sqlBindDuration", "sqlite3_reset",
                         sqlite3_db_handle(preparedStmt->ppStmt));
           logError(printf("sqlBindDuration: sqlite3_reset error: %s\n",
                           sqlite3_errmsg(sqlite3_db_handle(preparedStmt->ppStmt))););
-          raise_error(DATABASE_ERROR);
+          err_info = DATABASE_ERROR;
         } else {
           preparedStmt->executeSuccessful = FALSE;
         } /* if */
       } /* if */
-      if (unlikely(sqlite3_bind_text(preparedStmt->ppStmt,
-                                     (int) pos,
-                                     isoDuration,
-                                     length,
-                                     &freeText) != SQLITE_OK)) {
-        setDbErrorMsg("sqlBindDuration", "sqlite3_bind_text",
-                      sqlite3_db_handle(preparedStmt->ppStmt));
-        logError(printf("sqlBindDuration: sqlite3_bind_text error: %s\n",
-                        sqlite3_errmsg(sqlite3_db_handle(preparedStmt->ppStmt))););
-        raise_error(DATABASE_ERROR);
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        raise_error(err_info);
+      } else if (unlikely(!ALLOC_CSTRI(isoDuration, MAX_SIZE_ISO_DURATION))) {
+        raise_error(MEMORY_ERROR);
       } else {
-        preparedStmt->fetchOkay = FALSE;
+        /* Write the duration in the format: P[nY][nM][nD][T[nH][nM][n[.n]S]] */
+        stri = isoDuration;
+        *stri = 'P';
+        stri++;
+        if (year != 0) {
+          stri += sprintf(stri, FMT_D "Y", year);
+        } /* if */
+        if (month != 0) {
+          stri += sprintf(stri, FMT_D "M", month);
+        } /* if */
+        if (day != 0 || (year == 0 && month == 0 && hour == 0 &&
+            minute == 0 && second == 0 && micro_second == 0)) {
+          stri += sprintf(stri, FMT_D "D", day);
+        } /* if */
+        if (hour != 0 || minute != 0 || second != 0 || micro_second != 0) {
+          *stri = 'T';
+          stri++;
+          if (hour != 0) {
+            stri += sprintf(stri, FMT_D "H", hour);
+          } /* if */
+          if (minute != 0) {
+            stri += sprintf(stri, FMT_D "M", minute);
+          } /* if */
+          if (second != 0 || micro_second != 0) {
+            if (second == 0 && micro_second < 0) {
+              stri += sprintf(stri, "-0");
+            } else {
+              stri += sprintf(stri, FMT_D, second);
+            } /* if */
+            if (micro_second != 0) {
+              stri += sprintf(stri, ".%06lu", labs((long) micro_second));
+            } /* if */
+            sprintf(stri, "S");
+          } /* if */
+        } /* if */
+        length = (int) strlen(isoDuration);
+        if (unlikely(sqlite3_bind_text(preparedStmt->ppStmt,
+                                       (int) pos,
+                                       isoDuration,
+                                       length,
+                                       &freeText) != SQLITE_OK)) {
+          setDbErrorMsg("sqlBindDuration", "sqlite3_bind_text",
+                        sqlite3_db_handle(preparedStmt->ppStmt));
+          logError(printf("sqlBindDuration: sqlite3_bind_text error: %s\n",
+                          sqlite3_errmsg(sqlite3_db_handle(preparedStmt->ppStmt))););
+          /* The destructor (freeText) is called to dispose the  */
+          /* string even if sqlite3_bind_text() fails. So a call */
+          /* of free(isoDuration) here would corrupt the heap.   */
+          raise_error(DATABASE_ERROR);
+        } else {
+          preparedStmt->fetchOkay = FALSE;
+          preparedStmt->param_array[pos - 1].bound = TRUE;
+        } /* if */
       } /* if */
     } /* if */
   } /* sqlBindDuration */
@@ -714,14 +840,15 @@ static void sqlBindFloat (sqlStmtType sqlStatement, intType pos, floatType value
 
   {
     preparedStmtType preparedStmt;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* sqlBindFloat */
     logFunction(printf("sqlBindFloat(" FMT_U_MEM ", " FMT_D ", " FMT_E ")\n",
                        (memSizeType) sqlStatement, pos, value););
     preparedStmt = (preparedStmtType) sqlStatement;
-    if (unlikely(pos < 1 || pos > INT_MAX)) {
-      logError(printf("sqlBindFloat: pos: " FMT_D ", max pos: %u.\n",
-                      pos, INT_MAX););
+    if (unlikely(pos < 1 || (uintType) pos > preparedStmt->param_array_size)) {
+      logError(printf("sqlBindFloat: pos: " FMT_D ", max pos: " FMT_U_MEM ".\n",
+                      pos, preparedStmt->param_array_size););
       raise_error(RANGE_ERROR);
     } else {
       if (preparedStmt->executeSuccessful) {
@@ -730,14 +857,16 @@ static void sqlBindFloat (sqlStmtType sqlStatement, intType pos, floatType value
                         sqlite3_db_handle(preparedStmt->ppStmt));
           logError(printf("sqlBindFloat: sqlite3_reset error: %s\n",
                           sqlite3_errmsg(sqlite3_db_handle(preparedStmt->ppStmt))););
-          raise_error(DATABASE_ERROR);
+          err_info = DATABASE_ERROR;
         } else {
           preparedStmt->executeSuccessful = FALSE;
         } /* if */
       } /* if */
-      if (unlikely(sqlite3_bind_double(preparedStmt->ppStmt,
-                                       (int) pos,
-                                       (double) value) != SQLITE_OK)) {
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        raise_error(err_info);
+      } else if (unlikely(sqlite3_bind_double(preparedStmt->ppStmt,
+                                              (int) pos,
+                                              (double) value) != SQLITE_OK)) {
         setDbErrorMsg("sqlBindFloat", "sqlite3_bind_double",
                       sqlite3_db_handle(preparedStmt->ppStmt));
         logError(printf("sqlBindFloat: sqlite3_bind_double error: %s\n",
@@ -745,6 +874,7 @@ static void sqlBindFloat (sqlStmtType sqlStatement, intType pos, floatType value
         raise_error(DATABASE_ERROR);
       } else {
         preparedStmt->fetchOkay = FALSE;
+        preparedStmt->param_array[pos - 1].bound = TRUE;
       } /* if */
     } /* if */
   } /* sqlBindFloat */
@@ -756,14 +886,15 @@ static void sqlBindInt (sqlStmtType sqlStatement, intType pos, intType value)
   {
     preparedStmtType preparedStmt;
     int bind_result;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* sqlBindInt */
     logFunction(printf("sqlBindInt(" FMT_U_MEM ", " FMT_D ", " FMT_D ")\n",
                        (memSizeType) sqlStatement, pos, value););
     preparedStmt = (preparedStmtType) sqlStatement;
-    if (unlikely(pos < 1 || pos > INT_MAX)) {
-      logError(printf("sqlBindInt: pos: " FMT_D ", max pos: %u.\n",
-                      pos, INT_MAX););
+    if (unlikely(pos < 1 || (uintType) pos > preparedStmt->param_array_size)) {
+      logError(printf("sqlBindInt: pos: " FMT_D ", max pos: " FMT_U_MEM ".\n",
+                      pos, preparedStmt->param_array_size););
       raise_error(RANGE_ERROR);
     } else {
       if (preparedStmt->executeSuccessful) {
@@ -772,31 +903,36 @@ static void sqlBindInt (sqlStmtType sqlStatement, intType pos, intType value)
                         sqlite3_db_handle(preparedStmt->ppStmt));
           logError(printf("sqlBindInt: sqlite3_reset error: %s\n",
                           sqlite3_errmsg(sqlite3_db_handle(preparedStmt->ppStmt))););
-          raise_error(DATABASE_ERROR);
+          err_info = DATABASE_ERROR;
         } else {
           preparedStmt->executeSuccessful = FALSE;
         } /* if */
       } /* if */
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        raise_error(err_info);
+      } else {
 #if INTTYPE_SIZE == 32
-      bind_result = sqlite3_bind_int(preparedStmt->ppStmt,
-                                     (int) pos,
-                                     (int) value);
-#elif INTTYPE_SIZE == 64
-      bind_result = sqlite3_bind_int64(preparedStmt->ppStmt,
+        bind_result = sqlite3_bind_int(preparedStmt->ppStmt,
                                        (int) pos,
-                                       (sqlite3_int64) value);
+                                       (int) value);
+#elif INTTYPE_SIZE == 64
+        bind_result = sqlite3_bind_int64(preparedStmt->ppStmt,
+                                         (int) pos,
+                                         (sqlite3_int64) value);
 #else
 #error "INTTYPE_SIZE is neither 32 nor 64."
-      bind_result = SQLITE_ERROR;
+        bind_result = SQLITE_ERROR;
 #endif
-      if (unlikely(bind_result != SQLITE_OK)) {
-        setDbErrorMsg("sqlBindInt", "sqlite3_bind_int",
-                      sqlite3_db_handle(preparedStmt->ppStmt));
-        logError(printf("sqlBindInt: sqlite3_bind_int error: %s\n",
-                        sqlite3_errmsg(sqlite3_db_handle(preparedStmt->ppStmt))););
-        raise_error(DATABASE_ERROR);
-      } else {
-        preparedStmt->fetchOkay = FALSE;
+        if (unlikely(bind_result != SQLITE_OK)) {
+          setDbErrorMsg("sqlBindInt", "sqlite3_bind_int",
+                        sqlite3_db_handle(preparedStmt->ppStmt));
+          logError(printf("sqlBindInt: sqlite3_bind_int error: %s\n",
+                          sqlite3_errmsg(sqlite3_db_handle(preparedStmt->ppStmt))););
+          raise_error(DATABASE_ERROR);
+        } else {
+          preparedStmt->fetchOkay = FALSE;
+          preparedStmt->param_array[pos - 1].bound = TRUE;
+        } /* if */
       } /* if */
     } /* if */
   } /* sqlBindInt */
@@ -807,14 +943,15 @@ static void sqlBindNull (sqlStmtType sqlStatement, intType pos)
 
   {
     preparedStmtType preparedStmt;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* sqlBindNull */
     logFunction(printf("sqlBindNull(" FMT_U_MEM ", " FMT_D ")\n",
                        (memSizeType) sqlStatement, pos););
     preparedStmt = (preparedStmtType) sqlStatement;
-    if (unlikely(pos < 1 || pos > INT_MAX)) {
-      logError(printf("sqlBindNull: pos: " FMT_D ", max pos: %u.\n",
-                      pos, INT_MAX););
+    if (unlikely(pos < 1 || (uintType) pos > preparedStmt->param_array_size)) {
+      logError(printf("sqlBindNull: pos: " FMT_D ", max pos: " FMT_U_MEM ".\n",
+                      pos, preparedStmt->param_array_size););
       raise_error(RANGE_ERROR);
     } else {
       if (preparedStmt->executeSuccessful) {
@@ -823,13 +960,15 @@ static void sqlBindNull (sqlStmtType sqlStatement, intType pos)
                         sqlite3_db_handle(preparedStmt->ppStmt));
           logError(printf("sqlBindNull: sqlite3_reset error: %s\n",
                           sqlite3_errmsg(sqlite3_db_handle(preparedStmt->ppStmt))););
-          raise_error(DATABASE_ERROR);
+          err_info = DATABASE_ERROR;
         } else {
           preparedStmt->executeSuccessful = FALSE;
         } /* if */
       } /* if */
-      if (unlikely(sqlite3_bind_null(preparedStmt->ppStmt,
-                                     (int) pos) != SQLITE_OK)) {
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        raise_error(err_info);
+      } else if (unlikely(sqlite3_bind_null(preparedStmt->ppStmt,
+                                            (int) pos) != SQLITE_OK)) {
         setDbErrorMsg("sqlBindNull", "sqlite3_bind_null",
                       sqlite3_db_handle(preparedStmt->ppStmt));
         logError(printf("sqlBindNull: sqlite3_bind_null error: %s\n",
@@ -837,6 +976,7 @@ static void sqlBindNull (sqlStmtType sqlStatement, intType pos)
         raise_error(DATABASE_ERROR);
       } else {
         preparedStmt->fetchOkay = FALSE;
+        preparedStmt->param_array[pos - 1].bound = TRUE;
       } /* if */
     } /* if */
   } /* sqlBindNull */
@@ -848,6 +988,7 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos, striType stri)
   {
     preparedStmtType preparedStmt;
     cstriType stri8;
+    cstriType resized_stri8;
     memSizeType length;
     errInfoType err_info = OKAY_NO_ERROR;
 
@@ -855,28 +996,33 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos, striType stri)
     logFunction(printf("sqlBindStri(" FMT_U_MEM ", " FMT_D ", \"%s\")\n",
                        (memSizeType) sqlStatement, pos, striAsUnquotedCStri(stri)););
     preparedStmt = (preparedStmtType) sqlStatement;
-    if (unlikely(pos < 1 || pos > INT_MAX)) {
-      logError(printf("sqlBindStri: pos: " FMT_D ", max pos: %u.\n",
-                      pos, INT_MAX););
+    if (unlikely(pos < 1 || (uintType) pos > preparedStmt->param_array_size)) {
+      logError(printf("sqlBindStri: pos: " FMT_D ", max pos: " FMT_U_MEM ".\n",
+                      pos, preparedStmt->param_array_size););
       raise_error(RANGE_ERROR);
     } else {
-      stri8 = stri_to_cstri8_buf(stri, &length, &err_info);
-      if (unlikely(stri8 == NULL)) {
+      if (preparedStmt->executeSuccessful) {
+        if (unlikely(sqlite3_reset(preparedStmt->ppStmt) != SQLITE_OK)) {
+          setDbErrorMsg("sqlBindStri", "sqlite3_reset",
+                        sqlite3_db_handle(preparedStmt->ppStmt));
+          logError(printf("sqlBindStri: sqlite3_reset error: %s\n",
+                          sqlite3_errmsg(sqlite3_db_handle(preparedStmt->ppStmt))););
+          err_info = DATABASE_ERROR;
+        } else {
+          preparedStmt->executeSuccessful = FALSE;
+        } /* if */
+      } /* if */
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
         raise_error(err_info);
+      } else if (unlikely((stri8 = stri_to_cstri8_buf(stri, &length)) == NULL)) {
+        raise_error(MEMORY_ERROR);
       } else if (unlikely(length > INT_MAX)) {
         free_cstri8(stri8, stri);
         raise_error(MEMORY_ERROR);
       } else {
-        if (preparedStmt->executeSuccessful) {
-          if (unlikely(sqlite3_reset(preparedStmt->ppStmt) != SQLITE_OK)) {
-            setDbErrorMsg("sqlBindStri", "sqlite3_reset",
-                          sqlite3_db_handle(preparedStmt->ppStmt));
-            logError(printf("sqlBindStri: sqlite3_reset error: %s\n",
-                            sqlite3_errmsg(sqlite3_db_handle(preparedStmt->ppStmt))););
-            raise_error(DATABASE_ERROR);
-          } else {
-            preparedStmt->executeSuccessful = FALSE;
-          } /* if */
+        resized_stri8 = REALLOC_CSTRI(stri8, length);
+        if (likely(resized_stri8 != NULL)) {
+          stri8 = resized_stri8;
         } /* if */
         if (unlikely(sqlite3_bind_text(preparedStmt->ppStmt,
                                        (int) pos,
@@ -887,9 +1033,13 @@ static void sqlBindStri (sqlStmtType sqlStatement, intType pos, striType stri)
                         sqlite3_db_handle(preparedStmt->ppStmt));
           logError(printf("sqlBindStri: sqlite3_bind_text error: %s\n",
                           sqlite3_errmsg(sqlite3_db_handle(preparedStmt->ppStmt))););
+          /* The destructor (freeText) is called to dispose the     */
+          /* string even if sqlite3_bind_text() fails. So a call of */
+          /* free_cstri8(stri8, stri) here would corrupt the heap.  */
           raise_error(DATABASE_ERROR);
         } else {
           preparedStmt->fetchOkay = FALSE;
+          preparedStmt->param_array[pos - 1].bound = TRUE;
         } /* if */
       } /* if */
     } /* if */
@@ -906,6 +1056,7 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
     preparedStmtType preparedStmt;
     cstriType isoDate;
     int length;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* sqlBindTime */
     logFunction(printf("sqlBindTime(" FMT_U_MEM ", " FMT_D ", "
@@ -917,9 +1068,9 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
                        hour, minute, second, micro_second,
                        time_zone););
     preparedStmt = (preparedStmtType) sqlStatement;
-    if (unlikely(pos < 1 || pos > INT_MAX)) {
-      logError(printf("sqlBindTime: pos: " FMT_D ", max pos: %u.\n",
-                      pos, INT_MAX););
+    if (unlikely(pos < 1 || (uintType) pos > preparedStmt->param_array_size)) {
+      logError(printf("sqlBindTime: pos: " FMT_D ", max pos: " FMT_U_MEM ".\n",
+                      pos, preparedStmt->param_array_size););
       raise_error(RANGE_ERROR);
     } else if (unlikely(year < -999 || year > 9999 || month < 1 || month > 12 ||
                         day < 1 || day > 31 || hour < 0 || hour >= 24 ||
@@ -927,54 +1078,62 @@ static void sqlBindTime (sqlStmtType sqlStatement, intType pos,
                         micro_second < 0 || micro_second >= 1000000)) {
       logError(printf("sqlBindTime: Time not in allowed range.\n"););
       raise_error(RANGE_ERROR);
-    } else if (unlikely(!ALLOC_CSTRI(isoDate, 23))) {
-      raise_error(MEMORY_ERROR);
     } else {
-      if (hour == 0 && minute == 0 && second == 0 && micro_second == 0) {
-        sprintf(isoDate, "%04d-%02u-%02u",
-                (int) year, (unsigned int) month, (unsigned int) day);
-        length = 10;
-      } else if (year == 0 && month == 1 && day == 1 && micro_second == 0) {
-        sprintf(isoDate, "%02u:%02u:%02u",
-                (unsigned int) hour, (unsigned int) minute,
-                (unsigned int) second);
-        length = 8;
-      } else if (micro_second == 0) {
-        sprintf(isoDate, "%04d-%02u-%02u %02u:%02u:%02u",
-                (int) year, (unsigned int) month, (unsigned int) day,
-                (unsigned int) hour, (unsigned int) minute,
-                (unsigned int) second);
-        length = 19;
-      } else {
-        sprintf(isoDate, "%04d-%02u-%02u %02u:%02u:%02u.%03u",
-                (int) year, (unsigned int) month, (unsigned int) day,
-                (unsigned int) hour, (unsigned int) minute,
-                (unsigned int) second, (unsigned int) micro_second / 1000);
-        length = 23;
-      } /* if */
       if (preparedStmt->executeSuccessful) {
         if (unlikely(sqlite3_reset(preparedStmt->ppStmt) != SQLITE_OK)) {
           setDbErrorMsg("sqlBindTime", "sqlite3_reset",
                         sqlite3_db_handle(preparedStmt->ppStmt));
           logError(printf("sqlBindTime: sqlite3_reset error: %s\n",
                           sqlite3_errmsg(sqlite3_db_handle(preparedStmt->ppStmt))););
-          raise_error(DATABASE_ERROR);
+          err_info = DATABASE_ERROR;
         } else {
           preparedStmt->executeSuccessful = FALSE;
         } /* if */
       } /* if */
-      if (unlikely(sqlite3_bind_text(preparedStmt->ppStmt,
-                                     (int) pos,
-                                     isoDate,
-                                     length,
-                                     &freeText) != SQLITE_OK)) {
-        setDbErrorMsg("sqlBindTime", "sqlite3_bind_text",
-                      sqlite3_db_handle(preparedStmt->ppStmt));
-        logError(printf("sqlBindTime: sqlite3_bind_text error: %s\n",
-                        sqlite3_errmsg(sqlite3_db_handle(preparedStmt->ppStmt))););
-        raise_error(DATABASE_ERROR);
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        raise_error(err_info);
+      } else if (unlikely(!ALLOC_CSTRI(isoDate, 23))) {
+        raise_error(MEMORY_ERROR);
       } else {
-        preparedStmt->fetchOkay = FALSE;
+        if (hour == 0 && minute == 0 && second == 0 && micro_second == 0) {
+          sprintf(isoDate, "%04d-%02u-%02u",
+                  (int) year, (unsigned int) month, (unsigned int) day);
+          length = 10;
+        } else if (year == 0 && month == 1 && day == 1 && micro_second == 0) {
+          sprintf(isoDate, "%02u:%02u:%02u",
+                  (unsigned int) hour, (unsigned int) minute,
+                  (unsigned int) second);
+          length = 8;
+        } else if (micro_second == 0) {
+          sprintf(isoDate, "%04d-%02u-%02u %02u:%02u:%02u",
+                  (int) year, (unsigned int) month, (unsigned int) day,
+                  (unsigned int) hour, (unsigned int) minute,
+                  (unsigned int) second);
+          length = 19;
+        } else {
+          sprintf(isoDate, "%04d-%02u-%02u %02u:%02u:%02u.%03u",
+                  (int) year, (unsigned int) month, (unsigned int) day,
+                  (unsigned int) hour, (unsigned int) minute,
+                  (unsigned int) second, (unsigned int) micro_second / 1000);
+          length = 23;
+        } /* if */
+        if (unlikely(sqlite3_bind_text(preparedStmt->ppStmt,
+                                       (int) pos,
+                                       isoDate,
+                                       length,
+                                       &freeText) != SQLITE_OK)) {
+          setDbErrorMsg("sqlBindTime", "sqlite3_bind_text",
+                        sqlite3_db_handle(preparedStmt->ppStmt));
+          logError(printf("sqlBindTime: sqlite3_bind_text error: %s\n",
+                          sqlite3_errmsg(sqlite3_db_handle(preparedStmt->ppStmt))););
+          /* The destructor (freeText) is called to dispose the  */
+          /* string even if sqlite3_bind_text() fails. So a call */
+          /* of free(isoDate) here would corrupt the heap.       */
+          raise_error(DATABASE_ERROR);
+        } else {
+          preparedStmt->fetchOkay = FALSE;
+          preparedStmt->param_array[pos - 1].bound = TRUE;
+        } /* if */
       } /* if */
     } /* if */
   } /* sqlBindTime */
@@ -1034,8 +1193,14 @@ static bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
           blob = sqlite3_column_blob(preparedStmt->ppStmt, (int) column - 1);
           length = sqlite3_column_bytes(preparedStmt->ppStmt, (int) column - 1);
           if (unlikely(blob == NULL || length < 0)) {
-            raise_error(FILE_ERROR);
+            dbInconsistent("sqlColumnBigInt", "sqlite3_column_bytes");
+            logError(printf("sqlColumnBigInt: Column " FMT_D ": Blob " FMT_U_MEM
+                            " is NULL or has a negative length (%d).\n",
+                            column, (memSizeType) blob, length););
+            raise_error(DATABASE_ERROR);
             columnValue = NULL;
+          } else if (length >= 2 && memcmp(&((char *) blob)[length - 2], ".0", 2) == 0) {
+            columnValue = getDecimalBigInt((const_ustriType) blob, (memSizeType) length - 2);
           } else {
             columnValue = getDecimalBigInt((const_ustriType) blob, (memSizeType) length);
           } /* if */
@@ -1096,7 +1261,11 @@ static void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
           blob = sqlite3_column_blob(preparedStmt->ppStmt, (int) column - 1);
           length = sqlite3_column_bytes(preparedStmt->ppStmt, (int) column - 1);
           if (unlikely(blob == NULL || length < 0)) {
-            raise_error(FILE_ERROR);
+            dbInconsistent("sqlColumnBigRat", "sqlite3_column_bytes");
+            logError(printf("sqlColumnBigRat: Column " FMT_D ": Blob " FMT_U_MEM
+                            " is NULL or has a negative length (%d).\n",
+                            column, (memSizeType) blob, length););
+            raise_error(DATABASE_ERROR);
           } else {
             *numerator = getDecimalBigRational(
                 (const_ustriType) blob, (memSizeType) length, denominator);
@@ -1169,6 +1338,9 @@ static boolType sqlColumnBool (sqlStmtType sqlStatement, intType column)
           break;
       } /* switch */
       if (unlikely((uintType) columnValue >= 2)) {
+        logError(printf("sqlColumnBool: Column " FMT_D ": "
+                        FMT_D " is not an allowed boolean value.\n",
+                        column, columnValue););
         raise_error(RANGE_ERROR);
       } /* if */
     } /* if */
@@ -1213,19 +1385,25 @@ static bstriType sqlColumnBStri (sqlStmtType sqlStatement, intType column)
           break;
         case SQLITE_BLOB:
           blob = (const_ustriType) sqlite3_column_blob(preparedStmt->ppStmt, (int) column - 1);
-          length = sqlite3_column_bytes(preparedStmt->ppStmt, (int) column - 1);
-          if (unlikely(length < 0)) {
-            dbInconsistent("sqlColumnBStri", "sqlite3_column_bytes");
-            logError(printf("sqlColumnBStri: Column " FMT_D ": "
-                            "Sqlite3_column_bytes returns negative length: %d\n",
-                            column, length););
-            raise_error(DATABASE_ERROR);
-            columnValue = NULL;
-          } else if (unlikely(!ALLOC_BSTRI_CHECK_SIZE(columnValue, (memSizeType) length))) {
-            raise_error(MEMORY_ERROR);
+          if (blob == NULL) {
+            if (unlikely(!ALLOC_BSTRI_SIZE_OK(columnValue, 0))) {
+              raise_error(MEMORY_ERROR);
+            } else {
+              columnValue->size = 0;
+            } /* if */
           } else {
-            columnValue->size = (memSizeType) length;
-            if (blob != NULL) {
+            length = sqlite3_column_bytes(preparedStmt->ppStmt, (int) column - 1);
+            if (unlikely(length < 0)) {
+              dbInconsistent("sqlColumnBStri", "sqlite3_column_bytes");
+              logError(printf("sqlColumnBStri: Column " FMT_D ": "
+                              "Sqlite3_column_bytes returns negative length: %d\n",
+                              column, length););
+              raise_error(DATABASE_ERROR);
+              columnValue = NULL;
+            } else if (unlikely(!ALLOC_BSTRI_CHECK_SIZE(columnValue, (memSizeType) length))) {
+              raise_error(MEMORY_ERROR);
+            } else {
+              columnValue->size = (memSizeType) length;
               memcpy(columnValue->mem, blob, (memSizeType) length);
             } /* if */
           } /* if */
@@ -1394,8 +1572,9 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
           } /* while */
         } /* if */
         if (unlikely(!okay)) {
-          logError(printf("sqlColumnDuration: Wrong duration format: %s, column: " FMT_D ".\n",
-                          isoDuration, column););
+          logError(printf("sqlColumnDuration: Column " FMT_D ": "
+                          "Failed to recognize duration: %s\n",
+                          column, isoDuration););
           raise_error(RANGE_ERROR);
         } /* if */
       } /* if */
@@ -1437,6 +1616,9 @@ static floatType sqlColumnFloat (sqlStmtType sqlStatement, intType column)
         case SQLITE_NULL:
           columnValue = 0.0;
           break;
+        case SQLITE_INTEGER:
+          columnValue = (floatType) sqlite3_column_int64(preparedStmt->ppStmt, (int) column - 1);
+          break;
         case SQLITE_FLOAT:
           columnValue = sqlite3_column_double(preparedStmt->ppStmt, (int) column - 1);
           break;
@@ -1444,7 +1626,11 @@ static floatType sqlColumnFloat (sqlStmtType sqlStatement, intType column)
           blob = (const_ustriType) sqlite3_column_blob(preparedStmt->ppStmt, (int) column - 1);
           length = sqlite3_column_bytes(preparedStmt->ppStmt, (int) column - 1);
           if (unlikely(blob == NULL || length < 0)) {
-            raise_error(FILE_ERROR);
+            dbInconsistent("sqlColumnFloat", "sqlite3_column_bytes");
+            logError(printf("sqlColumnFloat: Column " FMT_D ": Blob " FMT_U_MEM
+                            " is NULL or has a negative length (%d).\n",
+                            column, (memSizeType) blob, length););
+            raise_error(DATABASE_ERROR);
             columnValue = 0.0;
           } else {
             columnValue = getDecimalFloat((const_ustriType) blob, (memSizeType) length);
@@ -1469,6 +1655,8 @@ static intType sqlColumnInt (sqlStmtType sqlStatement, intType column)
 
   {
     preparedStmtType preparedStmt;
+    const void *blob;
+    int length;
     intType columnValue;
 
   /* sqlColumnInt */
@@ -1498,6 +1686,22 @@ static intType sqlColumnInt (sqlStmtType sqlStatement, intType column)
 #error "INTTYPE_SIZE is neither 32 nor 64."
           raise_error(RANGE_ERROR);
 #endif
+          break;
+        case SQLITE_BLOB:
+          blob = sqlite3_column_blob(preparedStmt->ppStmt, (int) column - 1);
+          length = sqlite3_column_bytes(preparedStmt->ppStmt, (int) column - 1);
+          if (unlikely(blob == NULL || length < 0)) {
+            dbInconsistent("sqlColumnInt", "sqlite3_column_bytes");
+            logError(printf("sqlColumnInt: Column " FMT_D ": Blob " FMT_U_MEM
+                            " is NULL or has a negative length (%d).\n",
+                            column, (memSizeType) blob, length););
+            raise_error(DATABASE_ERROR);
+            columnValue = 0;
+          } else if (length >= 2 && memcmp(&((char *) blob)[length - 2], ".0", 2) == 0) {
+            columnValue = getDecimalInt((const_ustriType) blob, (memSizeType) length - 2);
+          } else {
+            columnValue = getDecimalInt((const_ustriType) blob, (memSizeType) length);
+          } /* if */
           break;
         default:
           logError(printf("sqlColumnInt: Column " FMT_D " has the unknown type %s.\n",
@@ -1693,6 +1897,9 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
             break;
         } /* switch */
         if (unlikely(!okay)) {
+          logError(printf("sqlColumnTime: Column " FMT_D ": "
+                          "Failed to recognize time: %s\n",
+                          column, isoDate););
           raise_error(RANGE_ERROR);
         } else {
           timSetLocalTZ(*year, *month, *day, *hour, *minute, *second,
@@ -1730,33 +1937,53 @@ static void sqlExecute (sqlStmtType sqlStatement)
   {
     preparedStmtType preparedStmt;
     int step_result;
+    errInfoType err_info = OKAY_NO_ERROR;
 
   /* sqlExecute */
     logFunction(printf("sqlExecute(" FMT_U_MEM ")\n",
                        (memSizeType) sqlStatement););
     preparedStmt = (preparedStmtType) sqlStatement;
-    /* printf("ppStmt: %lx\n", (unsigned long) preparedStmt->ppStmt); */
-    preparedStmt->fetchOkay = FALSE;
-    step_result = sqlite3_step(preparedStmt->ppStmt);
-    if (step_result == SQLITE_ROW) {
-      /* printf("set_result: SQLITE_ROW\n"); */
-      preparedStmt->executeSuccessful = TRUE;
-      preparedStmt->fetchFinished = FALSE;
-      preparedStmt->useStoredFetchResult = TRUE;
-      preparedStmt->storedFetchResult = TRUE;
-    } else if (step_result == SQLITE_DONE) {
-      /* printf("set_result: SQLITE_DONE\n"); */
-      preparedStmt->executeSuccessful = TRUE;
-      preparedStmt->fetchFinished = FALSE;
-      preparedStmt->useStoredFetchResult = TRUE;
-      preparedStmt->storedFetchResult = FALSE;
-    } else {
-      setDbErrorMsg("sqlExecute", "sqlite3_step",
-                    sqlite3_db_handle(preparedStmt->ppStmt));
-      logError(printf("sqlExecute: sqlite3_step error: %s\n",
-                      sqlite3_errmsg(sqlite3_db_handle(preparedStmt->ppStmt))););
-      preparedStmt->executeSuccessful = FALSE;
+    if (unlikely(!allParametersBound(preparedStmt))) {
+      dbLibError("sqlExecute", "SQLExecute",
+                 "Unbound statement parameter(s).\n");
       raise_error(DATABASE_ERROR);
+    } else {
+      /* printf("ppStmt: %lx\n", (unsigned long) preparedStmt->ppStmt); */
+      if (preparedStmt->executeSuccessful) {
+        if (unlikely(sqlite3_reset(preparedStmt->ppStmt) != SQLITE_OK)) {
+          setDbErrorMsg("sqlBindTime", "sqlite3_reset",
+                        sqlite3_db_handle(preparedStmt->ppStmt));
+          logError(printf("sqlBindTime: sqlite3_reset error: %s\n",
+                          sqlite3_errmsg(sqlite3_db_handle(preparedStmt->ppStmt))););
+          err_info = DATABASE_ERROR;
+        } /* if */
+      } /* if */
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        raise_error(err_info);
+      } else {
+        preparedStmt->fetchOkay = FALSE;
+        step_result = sqlite3_step(preparedStmt->ppStmt);
+        if (step_result == SQLITE_ROW) {
+          /* printf("set_result: SQLITE_ROW\n"); */
+          preparedStmt->executeSuccessful = TRUE;
+          preparedStmt->fetchFinished = FALSE;
+          preparedStmt->useStoredFetchResult = TRUE;
+          preparedStmt->storedFetchResult = TRUE;
+        } else if (step_result == SQLITE_DONE) {
+          /* printf("set_result: SQLITE_DONE\n"); */
+          preparedStmt->executeSuccessful = TRUE;
+          preparedStmt->fetchFinished = FALSE;
+          preparedStmt->useStoredFetchResult = TRUE;
+          preparedStmt->storedFetchResult = FALSE;
+        } else {
+          setDbErrorMsg("sqlExecute", "sqlite3_step",
+                        sqlite3_db_handle(preparedStmt->ppStmt));
+          logError(printf("sqlExecute: sqlite3_step error: %s\n",
+                          sqlite3_errmsg(sqlite3_db_handle(preparedStmt->ppStmt))););
+          preparedStmt->executeSuccessful = FALSE;
+          raise_error(DATABASE_ERROR);
+        } /* if */
+      } /* if */
     } /* if */
     logFunction(printf("sqlExecute -->\n"););
   } /* sqlExecute */
@@ -1837,6 +2064,7 @@ static sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
   {
     dbType db;
     cstriType query;
+    memSizeType query_length;
     int prepare_result;
     int column_count;
     errInfoType err_info = OKAY_NO_ERROR;
@@ -1852,16 +2080,26 @@ static sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
       err_info = RANGE_ERROR;
       preparedStmt = NULL;
     } else {
-      query = stri_to_cstri8(sqlStatementStri, &err_info);
-      if (query == NULL) {
+      query = stri_to_cstri8_buf(sqlStatementStri, &query_length);
+      if (unlikely(query == NULL)) {
+        err_info = MEMORY_ERROR;
+        preparedStmt = NULL;
+      } else if (unlikely(query_length > INT_MAX)) {
+        logError(printf("sqlPrepare: Statement string too long.\n"););
+        err_info = RANGE_ERROR;
         preparedStmt = NULL;
       } else {
-        if (!ALLOC_RECORD(preparedStmt, preparedStmtRecord, count.prepared_stmt)) {
+        if (unlikely(!ALLOC_RECORD(preparedStmt, preparedStmtRecord,
+                                   count.prepared_stmt))) {
           err_info = MEMORY_ERROR;
         } else {
           memset(preparedStmt, 0, sizeof(preparedStmtRecord));
-          prepare_result = sqlite3_prepare(db->connection, query, -1, &preparedStmt->ppStmt, NULL);
-          if (prepare_result != SQLITE_OK) {
+          prepare_result = sqlite3_prepare(db->connection,
+                                           query,
+                                           (int) query_length,
+                                           &preparedStmt->ppStmt,
+                                           NULL);
+          if (unlikely(prepare_result != SQLITE_OK)) {
             setDbErrorMsg("sqlPrepare", "sqlite3_prepare", db->connection);
             logError(printf("sqlPrepare: sqlite3_prepare error %d: %s\n",
                             prepare_result, sqlite3_errmsg(db->connection)););
@@ -1870,21 +2108,25 @@ static sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
             preparedStmt = NULL;
           } else {
             column_count = sqlite3_column_count(preparedStmt->ppStmt);
-            if (column_count < 0) {
+            if (unlikely(column_count < 0)) {
               dbInconsistent("sqlPrepare", "sqlite3_column_count");
-              logError(printf("sqlPrepare: "
-                              "Sqlite3_column_count returns negative column count: %d\n",
+              logError(printf("sqlPrepare: Sqlite3_column_count "
+                              "returns negative column count: %d\n",
                               column_count););
-              FREE_RECORD(preparedStmt, preparedStmtRecord, count.prepared_stmt);
               err_info = DATABASE_ERROR;
-              preparedStmt = NULL;
+              preparedStmt->param_array = NULL;
             } else {
               preparedStmt->usage_count = 1;
               preparedStmt->sqlFunc = db->sqlFunc;
+              preparedStmt->result_column_count = (unsigned int) column_count;
               preparedStmt->executeSuccessful = FALSE;
               preparedStmt->fetchOkay = FALSE;
               preparedStmt->fetchFinished = TRUE;
-              preparedStmt->result_column_count = (unsigned int) column_count;
+              err_info = setupParameters(preparedStmt);
+            } /* if */
+            if (unlikely(err_info != OKAY_NO_ERROR)) {
+              freePreparedStmt((sqlStmtType) preparedStmt);
+              preparedStmt = NULL;
             } /* if */
           } /* if */
         } /* if */
@@ -1912,6 +2154,8 @@ static intType sqlStmtColumnCount (sqlStmtType sqlStatement)
                        (memSizeType) sqlStatement););
     preparedStmt = (preparedStmtType) sqlStatement;
     if (unlikely(preparedStmt->result_column_count > INTTYPE_MAX)) {
+      logError(printf("sqlStmtColumnCount: "
+                      "Result_array_size does not fit into an integer.\n"););
       raise_error(RANGE_ERROR);
       columnCount = 0;
     } else {

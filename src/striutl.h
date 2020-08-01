@@ -199,8 +199,7 @@ memSizeType stri_to_utf16 (const wstriType out_wstri,
                            errInfoType *const err_info);
 cstriType stri_to_cstri (const const_striType stri, errInfoType *err_info);
 cstriType stri_to_cstri8 (const const_striType stri, errInfoType *err_info);
-cstriType stri_to_cstri8_buf (const const_striType stri, memSizeType *length,
-                              errInfoType *err_info);
+cstriType stri_to_cstri8_buf (const const_striType stri, memSizeType *length);
 bstriType stri_to_bstri (const const_striType stri, errInfoType *err_info);
 bstriType stri_to_bstri8 (const_striType stri);
 #ifdef CONSOLE_WCHAR

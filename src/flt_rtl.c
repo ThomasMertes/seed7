@@ -1351,20 +1351,20 @@ striType fltSci (floatType number, intType precision)
  *  Used when sqrt() does not return NaN for negative numbers.
  *  @return the square root of x.
  */
-floatType fltSqrt (floatType number)
+floatType fltSqrt (floatType radicand)
 
   {
     floatType squareRoot;
 
   /* fltSqrt */
-    logFunction(printf("fltSqrt(" FMT_E ")\n", number););
-    if (number < 0.0) {
+    logFunction(printf("fltSqrt(" FMT_E ")\n", radicand););
+    if (radicand < 0.0) {
       squareRoot = NOT_A_NUMBER;
     } else {
-      squareRoot = sqrt(number);
+      squareRoot = sqrt(radicand);
     } /* if */
     logFunction(printf("fltSqrt(" FMT_E ") --> " FMT_E "\n",
-                number, squareRoot););
+                radicand, squareRoot););
     return squareRoot;
   } /* fltSqrt */
 #endif

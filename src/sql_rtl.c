@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  sql_rtl.c     Database access functions.                        */
-/*  Copyright (C) 1989 - 2014  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2019  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/sql_rtl.c                                       */
-/*  Changes: 2014  Thomas Mertes                                    */
+/*  Changes: 2014, 2015, 2017 - 2019  Thomas Mertes                 */
 /*  Content: Database access functions.                             */
 /*                                                                  */
 /********************************************************************/
@@ -76,7 +76,7 @@ typedef struct preparedStmtStruct {
  *  @exception RANGE_ERROR When the statement was not prepared or
  *                         when 'pos' is negative or too big or
  *                         when 'value' cannot be converted.
- *  @exception FILE_ERROR When a database function fails.
+ *  @exception DATABASE_ERROR When a database function fails.
  */
 void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
     const const_bigIntType value)
@@ -107,7 +107,7 @@ void sqlBindBigInt (sqlStmtType sqlStatement, intType pos,
  *  @exception RANGE_ERROR When the statement was not prepared or
  *                         when 'pos' is negative or too big or
  *                         when the big rational cannot be converted.
- *  @exception FILE_ERROR When a database function fails.
+ *  @exception DATABASE_ERROR When a database function fails.
  */
 void sqlBindBigRat (sqlStmtType sqlStatement, intType pos,
     const const_bigIntType numerator, const const_bigIntType denominator)
@@ -152,7 +152,7 @@ void sqlBindBigRat (sqlStmtType sqlStatement, intType pos,
  *  @exception RANGE_ERROR When the statement was not prepared or
  *                         when 'pos' is negative or too big or
  *                         when 'value' cannot be converted.
- *  @exception FILE_ERROR When a database function fails.
+ *  @exception DATABASE_ERROR When a database function fails.
  */
 void sqlBindBool (sqlStmtType sqlStatement, intType pos, boolType value)
 
@@ -181,7 +181,7 @@ void sqlBindBool (sqlStmtType sqlStatement, intType pos, boolType value)
  *  @exception RANGE_ERROR When the statement was not prepared or
  *                         when 'pos' is negative or too big or
  *                         when 'bstri' cannot be converted.
- *  @exception FILE_ERROR When a database function fails.
+ *  @exception DATABASE_ERROR When a database function fails.
  */
 void sqlBindBStri (sqlStmtType sqlStatement, intType pos, bstriType bstri)
 
@@ -209,7 +209,7 @@ void sqlBindBStri (sqlStmtType sqlStatement, intType pos, bstriType bstri)
  *  @exception RANGE_ERROR When the statement was not prepared or
  *                         when 'pos' is negative or too big or
  *                         when the duration cannot be converted.
- *  @exception FILE_ERROR When a database function fails.
+ *  @exception DATABASE_ERROR When a database function fails.
  */
 void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
     intType year, intType month, intType day, intType hour,
@@ -249,7 +249,7 @@ void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
  *  @exception RANGE_ERROR When the statement was not prepared or
  *                         when 'pos' is negative or too big or
  *                         when 'value' cannot be converted.
- *  @exception FILE_ERROR When a database function fails.
+ *  @exception DATABASE_ERROR When a database function fails.
  */
 void sqlBindFloat (sqlStmtType sqlStatement, intType pos, floatType value)
 
@@ -286,7 +286,7 @@ void sqlBindFloat (sqlStmtType sqlStatement, intType pos, floatType value)
  *  @exception RANGE_ERROR When the statement was not prepared or
  *                         when 'pos' is negative or too big or
  *                         when 'value' cannot be converted.
- *  @exception FILE_ERROR When a database function fails.
+ *  @exception DATABASE_ERROR When a database function fails.
  */
 void sqlBindInt (sqlStmtType sqlStatement, intType pos, intType value)
 
@@ -313,7 +313,7 @@ void sqlBindInt (sqlStmtType sqlStatement, intType pos, intType value)
  *  @param pos Position of the bind variable (starting with 1).
  *  @exception RANGE_ERROR When the statement was not prepared or
  *                         when 'pos' is negative or too big.
- *  @exception FILE_ERROR When a database function fails.
+ *  @exception DATABASE_ERROR When a database function fails.
  */
 void sqlBindNull (sqlStmtType sqlStatement, intType pos)
 
@@ -342,7 +342,7 @@ void sqlBindNull (sqlStmtType sqlStatement, intType pos)
  *  @exception RANGE_ERROR When the statement was not prepared or
  *                         when 'pos' is negative or too big or
  *                         when 'stri' cannot be converted.
- *  @exception FILE_ERROR When a database function fails.
+ *  @exception DATABASE_ERROR When a database function fails.
  */
 void sqlBindStri (sqlStmtType sqlStatement, intType pos, striType stri)
 
@@ -370,7 +370,7 @@ void sqlBindStri (sqlStmtType sqlStatement, intType pos, striType stri)
  *  @exception RANGE_ERROR When the statement was not prepared or
  *                         when 'pos' is negative or too big or
  *                         when the time cannot be converted.
- *  @exception FILE_ERROR When a database function fails.
+ *  @exception DATABASE_ERROR When a database function fails.
  */
 void sqlBindTime (sqlStmtType sqlStatement, intType pos,
     intType year, intType month, intType day, intType hour,
@@ -442,7 +442,7 @@ void sqlClose (databaseType database)
  *                         when no data was successfully fetched or
  *                         when the specified column does not exist or
  *                         when the column cannot be converted.
- *  @exception FILE_ERROR When a database function fails.
+ *  @exception DATABASE_ERROR When a database function fails.
  */
 bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
 
@@ -484,7 +484,7 @@ bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
  *                         when no data was successfully fetched or
  *                         when the specified column does not exist or
  *                         when the column cannot be converted.
- *  @exception FILE_ERROR When a database function fails.
+ *  @exception DATABASE_ERROR When a database function fails.
  */
 void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
     bigIntType *numerator, bigIntType *denominator)
@@ -522,7 +522,7 @@ void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
  *                         when no data was successfully fetched or
  *                         when the specified column does not exist or
  *                         when the column cannot be converted.
- *  @exception FILE_ERROR When a database function fails.
+ *  @exception DATABASE_ERROR When a database function fails.
  */
 boolType sqlColumnBool (sqlStmtType sqlStatement, intType column)
 
@@ -562,7 +562,7 @@ boolType sqlColumnBool (sqlStmtType sqlStatement, intType column)
  *                         when no data was successfully fetched or
  *                         when the specified column does not exist or
  *                         when the column cannot be converted.
- *  @exception FILE_ERROR When a database function fails.
+ *  @exception DATABASE_ERROR When a database function fails.
  */
 bstriType sqlColumnBStri (sqlStmtType sqlStatement, intType column)
 
@@ -601,7 +601,7 @@ bstriType sqlColumnBStri (sqlStmtType sqlStatement, intType column)
  *                         when no data was successfully fetched or
  *                         when the specified column does not exist or
  *                         when the column cannot be converted.
- *  @exception FILE_ERROR When a database function fails.
+ *  @exception DATABASE_ERROR When a database function fails.
  */
 void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
     intType *year, intType *month, intType *day, intType *hour,
@@ -644,7 +644,7 @@ void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
  *                         when no data was successfully fetched or
  *                         when the specified column does not exist or
  *                         when the column cannot be converted.
- *  @exception FILE_ERROR When a database function fails.
+ *  @exception DATABASE_ERROR When a database function fails.
  */
 floatType sqlColumnFloat (sqlStmtType sqlStatement, intType column)
 
@@ -684,7 +684,7 @@ floatType sqlColumnFloat (sqlStmtType sqlStatement, intType column)
  *                         when no data was successfully fetched or
  *                         when the specified column does not exist or
  *                         when the column cannot be converted.
- *  @exception FILE_ERROR When a database function fails.
+ *  @exception DATABASE_ERROR When a database function fails.
  */
 intType sqlColumnInt (sqlStmtType sqlStatement, intType column)
 
@@ -724,7 +724,7 @@ intType sqlColumnInt (sqlStmtType sqlStatement, intType column)
  *                         when no data was successfully fetched or
  *                         when the specified column does not exist or
  *                         when the column cannot be converted.
- *  @exception FILE_ERROR When a database function fails.
+ *  @exception DATABASE_ERROR When a database function fails.
  */
 striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
 
@@ -762,7 +762,7 @@ striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
  *                         when no data was successfully fetched or
  *                         when the specified column does not exist or
  *                         when the column cannot be converted.
- *  @exception FILE_ERROR When a database function fails.
+ *  @exception DATABASE_ERROR When a database function fails.
  */
 void sqlColumnTime (sqlStmtType sqlStatement, intType column,
     intType *year, intType *month, intType *day, intType *hour,
@@ -1130,7 +1130,7 @@ striType sqlErrMessage (void)
  *  Bind variable can be assigned with bind functions before
  *  sqlExecute is called.
  *  @param sqlStatement Prepared statement, which should be executed.
- *  @exception FILE_ERROR When a database function fails.
+ *  @exception DATABASE_ERROR When a database function fails.
  */
 void sqlExecute (sqlStmtType sqlStatement)
 
@@ -1159,7 +1159,7 @@ void sqlExecute (sqlStmtType sqlStatement)
  *  @param sqlStatement Prepared statement, which has been executed.
  *  @return TRUE when a row of result data could be fetched successfully.
  *          FALSE when no more result data is available.
- *  @exception FILE_ERROR When a database function fails.
+ *  @exception DATABASE_ERROR When a database function fails.
  */
 boolType sqlFetch (sqlStmtType sqlStatement)
 
@@ -1267,6 +1267,11 @@ databaseType sqlOpen (intType driver, const const_striType dbName,
 #ifdef ODBC_INCLUDE
       case 5:
         database = sqlOpenOdbc(dbName, user, password);
+        break;
+#endif
+#ifdef FIRE_INCLUDE
+      case 6:
+        database = sqlOpenFire(dbName, user, password);
         break;
 #endif
       default:

@@ -42,15 +42,16 @@ include "bstring.s7i";
  *  * DB_POSTGRESQL PostgreSQL
  *  * DB_OCI Oracle
  *  * DB_ODBC Odbc
+ *  * DB_FIRE Firebird/Interbase
  *)
 const type: dbCategory is new enum
-    NO_DB, DB_MYSQL, DB_SQLITE, DB_POSTGRESQL, DB_OCI, DB_ODBC
+    NO_DB, DB_MYSQL, DB_SQLITE, DB_POSTGRESQL, DB_OCI, DB_ODBC, DB_FIRE
   end enum;
 
 
 const func string: str (in dbCategory: driver) is
-  return [] ("NO_DB", "DB_MYSQL", "DB_SQLITE",
-             "DB_POSTGRESQL", "DB_OCI", "DB_ODBC") [succ(ord(driver))];
+  return [] ("NO_DB", "DB_MYSQL", "DB_SQLITE", "DB_POSTGRESQL",
+             "DB_OCI", "DB_ODBC", "DB_FIRE") [succ(ord(driver))];
 
 
 const func dbCategory: (attr dbCategory) parse (in string: name) is func
@@ -71,11 +72,19 @@ const func dbCategory: (attr dbCategory) parse (in string: name) is func
       driver := DB_OCI;
     elsif upper(name) = "ODBC" then
       driver := DB_ODBC;
+    elsif upper(name) = "FIRE" or
+          upper(name) = "FIREBIRD" or
+          upper(name) = "INTERBASE" then
+      driver := DB_FIRE;
     end if;
   end func;
 
 
 enable_io(dbCategory);
+
+
+const func dbCategory: dbCategory(in string: name) is
+  return dbCategory parse name;
 
 
 (**
@@ -243,7 +252,7 @@ const func sqlStatement: prepare (in database: db, in string: sqlStatementStri) 
  *  @exception RANGE_ERROR When the statement was not prepared or
  *                         when ''pos'' is negative or too big or
  *                         when ''num'' cannot be converted.
- *  @exception FILE_ERROR When a database function fails.
+ *  @exception DATABASE_ERROR When a database function fails.
  *)
 const proc: bind (inout sqlStatement: statement, in integer: pos, in bigInteger: num)  is action "SQL_BIND_BIGINT";
 
@@ -256,7 +265,7 @@ const proc: bind (inout sqlStatement: statement, in integer: pos, in bigInteger:
  *  @exception RANGE_ERROR When the statement was not prepared or
  *                         when ''pos'' is negative or too big or
  *                         when ''bigRatData'' cannot be converted.
- *  @exception FILE_ERROR When a database function fails.
+ *  @exception DATABASE_ERROR When a database function fails.
  *)
 const proc: bind (inout sqlStatement: statement, in integer: pos, in bigRational: bigRatData) is func
   begin
@@ -273,7 +282,7 @@ const proc: bind (inout sqlStatement: statement, in integer: pos, in bigRational
  *  @exception RANGE_ERROR When the statement was not prepared or
  *                         when ''pos'' is negative or too big or
  *                         when ''flag'' cannot be converted.
- *  @exception FILE_ERROR When a database function fails.
+ *  @exception DATABASE_ERROR When a database function fails.
  *)
 const proc: bind (inout sqlStatement: statement, in integer: pos, in boolean: flag)    is action "SQL_BIND_BOOL";
 
@@ -286,7 +295,7 @@ const proc: bind (inout sqlStatement: statement, in integer: pos, in boolean: fl
  *  @exception RANGE_ERROR When the statement was not prepared or
  *                         when ''pos'' is negative or too big or
  *                         when ''bstri'' cannot be converted.
- *  @exception FILE_ERROR When a database function fails.
+ *  @exception DATABASE_ERROR When a database function fails.
  *)
 const proc: bind (inout sqlStatement: statement, in integer: pos, in bstring: bstri)   is action "SQL_BIND_BSTRI";
 
@@ -299,7 +308,7 @@ const proc: bind (inout sqlStatement: statement, in integer: pos, in bstring: bs
  *  @exception RANGE_ERROR When the statement was not prepared or
  *                         when ''pos'' is negative or too big or
  *                         when ''number'' cannot be converted.
- *  @exception FILE_ERROR When a database function fails.
+ *  @exception DATABASE_ERROR When a database function fails.
  *)
 const proc: bind (inout sqlStatement: statement, in integer: pos, in float: number)    is action "SQL_BIND_FLOAT";
 
@@ -312,7 +321,7 @@ const proc: bind (inout sqlStatement: statement, in integer: pos, in float: numb
  *  @exception RANGE_ERROR When the statement was not prepared or
  *                         when ''pos'' is negative or too big or
  *                         when ''number'' cannot be converted.
- *  @exception FILE_ERROR When a database function fails.
+ *  @exception DATABASE_ERROR When a database function fails.
  *)
 const proc: bind (inout sqlStatement: statement, in integer: pos, in integer: number)  is action "SQL_BIND_INT";
 
@@ -323,7 +332,7 @@ const proc: bind (inout sqlStatement: statement, in integer: pos, in integer: nu
  *  @param pos Position of the bind variable (starting with 1).
  *  @exception RANGE_ERROR When the statement was not prepared or
  *                         when ''pos'' is negative or too big.
- *  @exception FILE_ERROR When a database function fails.
+ *  @exception DATABASE_ERROR When a database function fails.
  *)
 const proc: bind (inout sqlStatement: statement, in integer: pos, NULL)                is action "SQL_BIND_NULL";
 
@@ -336,7 +345,7 @@ const proc: bind (inout sqlStatement: statement, in integer: pos, NULL)         
  *  @exception RANGE_ERROR When the statement was not prepared or
  *                         when ''pos'' is negative or too big or
  *                         when ''stri'' cannot be converted.
- *  @exception FILE_ERROR When a database function fails.
+ *  @exception DATABASE_ERROR When a database function fails.
  *)
 const proc: bind (inout sqlStatement: statement, in integer: pos, in string: stri)     is action "SQL_BIND_STRI";
 
@@ -349,7 +358,7 @@ const proc: bind (inout sqlStatement: statement, in integer: pos, in string: str
  *  @exception RANGE_ERROR When the statement was not prepared or
  *                         when ''pos'' is negative or too big or
  *                         when ''timeData'' cannot be converted.
- *  @exception FILE_ERROR When a database function fails.
+ *  @exception DATABASE_ERROR When a database function fails.
  *)
 const proc: bind (inout sqlStatement: statement, in integer: pos, in time: timeData) is func
   begin
@@ -368,7 +377,7 @@ const proc: bind (inout sqlStatement: statement, in integer: pos, in time: timeD
  *  @exception RANGE_ERROR When the statement was not prepared or
  *                         when ''pos'' is negative or too big or
  *                         when ''durationData'' cannot be converted.
- *  @exception FILE_ERROR When a database function fails.
+ *  @exception DATABASE_ERROR When a database function fails.
  *)
 const proc: bind (inout sqlStatement: statement, in integer: pos, in duration: durationData) is func
   begin
@@ -384,7 +393,7 @@ const proc: bind (inout sqlStatement: statement, in integer: pos, in duration: d
  *  Bind variable can be assigned with the function ''bind'' before
  *  ''execute'' is called.
  *  @param statement Prepared statement, which should be executed.
- *  @exception FILE_ERROR When a database function fails.
+ *  @exception DATABASE_ERROR When a database function fails.
  *)
 const proc: execute (inout sqlStatement: statement)                                    is action "SQL_EXECUTE";
 
@@ -398,7 +407,7 @@ const proc: execute (inout sqlStatement: statement)                             
  *  @param statement Prepared statement, which has been executed.
  *  @return TRUE when a row of result data could be fetched successfully.
  *          FALSE when no more result data is available.
- *  @exception FILE_ERROR When a database function fails.
+ *  @exception DATABASE_ERROR When a database function fails.
  *)
 const func boolean: fetch (in sqlStatement: statement)                                 is action "SQL_FETCH";
 
@@ -415,7 +424,7 @@ const func boolean: fetch (in sqlStatement: statement)                          
  *                         when no data was successfully fetched or
  *                         when the specified column does not exist or
  *                         when the column cannot be converted.
- *  @exception FILE_ERROR When a database function fails.
+ *  @exception DATABASE_ERROR When a database function fails.
  *)
 const func bigInteger: column (in sqlStatement: statement, in integer: column,
                                attr bigInteger)                                        is action "SQL_COLUMN_BIGINT";
@@ -433,7 +442,7 @@ const func bigInteger: column (in sqlStatement: statement, in integer: column,
  *                         when no data was successfully fetched or
  *                         when the specified column does not exist or
  *                         when the column cannot be converted.
- *  @exception FILE_ERROR When a database function fails.
+ *  @exception DATABASE_ERROR When a database function fails.
  *)
 const func bigRational: column (in sqlStatement: statement, in integer: column,
                                 attr bigRational) is func
@@ -458,7 +467,7 @@ const func bigRational: column (in sqlStatement: statement, in integer: column,
  *                         when no data was successfully fetched or
  *                         when the specified column does not exist or
  *                         when the column cannot be converted.
- *  @exception FILE_ERROR When a database function fails.
+ *  @exception DATABASE_ERROR When a database function fails.
  *)
 const func boolean:    column (in sqlStatement: statement, in integer: column,
                                attr boolean)                                           is action "SQL_COLUMN_BOOL";
@@ -476,7 +485,7 @@ const func boolean:    column (in sqlStatement: statement, in integer: column,
  *                         when no data was successfully fetched or
  *                         when the specified column does not exist or
  *                         when the column cannot be converted.
- *  @exception FILE_ERROR When a database function fails.
+ *  @exception DATABASE_ERROR When a database function fails.
  *)
 const func bstring:    column (in sqlStatement: statement, in integer: column,
                                attr bstring)                                           is action "SQL_COLUMN_BSTRI";
@@ -494,7 +503,7 @@ const func bstring:    column (in sqlStatement: statement, in integer: column,
  *                         when no data was successfully fetched or
  *                         when the specified column does not exist or
  *                         when the column cannot be converted.
- *  @exception FILE_ERROR When a database function fails.
+ *  @exception DATABASE_ERROR When a database function fails.
  *)
 const func duration: column (in sqlStatement: statement, in integer: column,
                          attr duration) is func
@@ -520,7 +529,7 @@ const func duration: column (in sqlStatement: statement, in integer: column,
  *                         when no data was successfully fetched or
  *                         when the specified column does not exist or
  *                         when the column cannot be converted.
- *  @exception FILE_ERROR When a database function fails.
+ *  @exception DATABASE_ERROR When a database function fails.
  *)
 const func float:      column (in sqlStatement: statement, in integer: column,
                                attr float)                                             is action "SQL_COLUMN_FLOAT";
@@ -538,7 +547,7 @@ const func float:      column (in sqlStatement: statement, in integer: column,
  *                         when no data was successfully fetched or
  *                         when the specified column does not exist or
  *                         when the column cannot be converted.
- *  @exception FILE_ERROR When a database function fails.
+ *  @exception DATABASE_ERROR When a database function fails.
  *)
 const func integer:    column (in sqlStatement: statement, in integer: column,
                                attr integer)                                           is action "SQL_COLUMN_INT";
@@ -556,7 +565,7 @@ const func integer:    column (in sqlStatement: statement, in integer: column,
  *                         when no data was successfully fetched or
  *                         when the specified column does not exist or
  *                         when the column cannot be converted.
- *  @exception FILE_ERROR When a database function fails.
+ *  @exception DATABASE_ERROR When a database function fails.
  *)
 const func string:     column (in sqlStatement: statement, in integer: column,
                                attr string)                                            is action "SQL_COLUMN_STRI";
@@ -574,7 +583,7 @@ const func string:     column (in sqlStatement: statement, in integer: column,
  *                         when no data was successfully fetched or
  *                         when the specified column does not exist or
  *                         when the column cannot be converted.
- *  @exception FILE_ERROR When a database function fails.
+ *  @exception DATABASE_ERROR When a database function fails.
  *)
 const func time: column (in sqlStatement: statement, in integer: column,
                          attr time) is func

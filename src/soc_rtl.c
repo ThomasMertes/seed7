@@ -34,6 +34,7 @@
 
 #include "version.h"
 
+#if SOCKET_LIB == UNIX_SOCKETS || SOCKET_LIB == WINSOCK_SOCKETS
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
@@ -2187,3 +2188,5 @@ void socWrite (socketType outSocket, const const_striType stri)
       raise_error(err_info);
     } /* if */
   } /* socWrite */
+
+#endif

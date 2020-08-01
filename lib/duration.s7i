@@ -165,6 +165,14 @@ const func string: str (in duration: aDuration) is func
 
 
 (**
+ *  Convert a duration to a duration literal.
+ *  @return the duration literal.
+ *)
+const func string: literal (in duration: aDuration) is
+  return "duration(" & literal(str(aDuration)) & ")";
+
+
+(**
  *  Convert a string to a ''duration''.
  *  @param stri A duration in the format P[nY][nM][nD][T[nH][nM][n[.n]S]]
  *  @return the ''duration'' result of the conversion.

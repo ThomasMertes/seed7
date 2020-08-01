@@ -36,6 +36,7 @@ $ include "seed7_05.s7i";
 # Postgresql: SELECT table_name FROM information_schema.tables
 # MySql:      SHOW TABLES
 # OCI:        select table_name from cat
+# Fire:       SELECT rdb$relation_name FROM rdb$relations WHERE rdb$view_blr IS NULL AND (rdb$system_flag IS NULL OR rdb$system_flag = 0)
 
 
 var submitButton: exit is submitButton(dialogColumn(image(createPixmap(exit_pic, 1, light_gray)) & label("Exit")));
@@ -279,7 +280,7 @@ const func database: doLogin (inout browserConnection: browser) is func
     var database: currDb is database.value;
   local
     var radioButton: driverRadioButton is
-        radioButton([] ("MySQL", "SQLite", "PostgreSQL", "Oracle", "ODBC"));
+        radioButton([] ("MySQL", "SQLite", "PostgreSQL", "Oracle", "ODBC", "Firebird"));
     var textField: dbName is textField("", 15);
     var textField: userName is textField("", 15);
     var passwordField: password is passwordField("", 15);

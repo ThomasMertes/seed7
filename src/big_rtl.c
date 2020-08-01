@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  big_rtl.c     Functions for the built-in bigInteger support.    */
-/*  Copyright (C) 1989 - 2017  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2019  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/big_rtl.c                                       */
-/*  Changes: 2005, 2006, 2008 - 2010, 2013 - 2015 Thomas Mertes     */
+/*  Changes: 2005, 2006, 2008 - 2010, 2013 - 2019 Thomas Mertes     */
 /*  Content: Functions for the built-in bigInteger support.         */
 /*                                                                  */
 /********************************************************************/
@@ -332,6 +332,17 @@ void bigRShiftAssign (bigIntType *const big_variable, intType rshift);
 bigIntType bigSbtr (const const_bigIntType minuend, const const_bigIntType subtrahend);
 void bigSbtrAssign (bigIntType *const big_variable, const const_bigIntType big2);
 striType bigStr (const const_bigIntType big1);
+
+
+
+/**
+ *  Setup bigInteger computations.
+ *  This function must be called before doing any bigInteger computations.
+ */
+void setupBig (void)
+
+  { /* setupBig */
+  } /* setupBig */
 
 
 
@@ -7676,10 +7687,11 @@ bstriType bigToBStriLe (const const_bigIntType big1, const boolType isSigned)
 /**
  *  Convert a 'bigInteger' to an 'int16Type' number.
  *  @return the int16Type result of the conversion.
- *  @exception RANGE_ERROR The number is too small or too big to fit
- *             into a int16Type value.
+ *  @param err_info Unchanged when the function succeeds or
+ *                  RANGE_ERROR The number is too small or too big
+ *                  to fit into a int16Type value.
  */
-int16Type bigToInt16 (const const_bigIntType big1)
+int16Type bigToInt16 (const const_bigIntType big1, errInfoType *err_info)
 
   {
     memSizeType pos;
@@ -7694,7 +7706,7 @@ int16Type bigToInt16 (const const_bigIntType big1)
 #endif
       logError(printf("bigToInt16(%s): Number too big or too small.\n",
                       bigHexCStri(big1)););
-      raise_error(RANGE_ERROR);
+      *err_info = RANGE_ERROR;
       result = 0;
     } else {
       pos = big1->size - 1;
@@ -7703,7 +7715,7 @@ int16Type bigToInt16 (const const_bigIntType big1)
       if (unlikely(result < INT16TYPE_MIN || result > INT16TYPE_MAX)) {
         logError(printf("bigToInt16(%s): Number too big or too small.\n",
                         bigHexCStri(big1)););
-        raise_error(RANGE_ERROR);
+        *err_info = RANGE_ERROR;
         result = 0;
       } /* if */
 #elif BIGDIGIT_SIZE < 16
@@ -7723,10 +7735,15 @@ int16Type bigToInt16 (const const_bigIntType big1)
 /**
  *  Convert a 'bigInteger' to an 'int32Type' number.
  *  @return the int32Type result of the conversion.
- *  @exception RANGE_ERROR The number is too small or too big to fit
- *             into a int32Type value.
+ *  @param big1 BigInteger to be converted.
+ *  @param err_info Only used when err_info is not NULL.
+ *                  Unchanged when the function succeeds or
+ *                  RANGE_ERROR The number is too small or too big
+ *                  to fit into a int32Type value.
+ *  @exception RANGE_ERROR When err_info is NULL and the number is
+ *             too small or too big to fit into a int32Type value.
  */
-int32Type bigToInt32 (const const_bigIntType big1)
+int32Type bigToInt32 (const const_bigIntType big1, errInfoType *err_info)
 
   {
     memSizeType pos;
@@ -7738,7 +7755,11 @@ int32Type bigToInt32 (const const_bigIntType big1)
     if (unlikely(big1->size > sizeof(int32Type) / (BIGDIGIT_SIZE >> 3))) {
       logError(printf("bigToInt32(%s): Number too big or too small.\n",
                       bigHexCStri(big1)););
-      raise_error(RANGE_ERROR);
+      if (err_info == NULL) {
+        raise_error(RANGE_ERROR);
+      } else {
+        *err_info = RANGE_ERROR;
+      } /* if */
       result = 0;
     } else {
       pos = big1->size - 1;
@@ -7761,10 +7782,15 @@ int32Type bigToInt32 (const const_bigIntType big1)
 /**
  *  Convert a 'bigInteger' to an 'int64Type' number.
  *  @return the int64Type result of the conversion.
- *  @exception RANGE_ERROR The number is too small or too big to fit
- *             into a int64Type value.
+ *  @param big1 BigInteger to be converted.
+ *  @param err_info Only used when err_info is not NULL.
+ *                  Unchanged when the function succeeds or
+ *                  RANGE_ERROR The number is too small or too big
+ *                  to fit into a int64Type value.
+ *  @exception RANGE_ERROR When err_info is NULL and the number is
+ *             too small or too big to fit into a int64Type value.
  */
-int64Type bigToInt64 (const const_bigIntType big1)
+int64Type bigToInt64 (const const_bigIntType big1, errInfoType *err_info)
 
   {
     memSizeType pos;
@@ -7776,7 +7802,11 @@ int64Type bigToInt64 (const const_bigIntType big1)
     if (unlikely(big1->size > sizeof(int64Type) / (BIGDIGIT_SIZE >> 3))) {
       logError(printf("bigToInt64(%s): Number too big or too small.\n",
                       bigHexCStri(big1)););
-      raise_error(RANGE_ERROR);
+      if (err_info == NULL) {
+        raise_error(RANGE_ERROR);
+      } else {
+        *err_info = RANGE_ERROR;
+      } /* if */
       result = 0;
     } else {
       pos = big1->size - 1;

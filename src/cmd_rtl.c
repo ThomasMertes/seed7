@@ -544,7 +544,7 @@ static void copy_any_file (const const_os_striType from_name,
                      (unsigned_os_off_t) from_stat.st_size > MAX_OS_STRI_LEN)) {
           *err_info = RANGE_ERROR;
         } else {
-          if (unlikely(!os_stri_alloc(link_destination, 
+          if (unlikely(!os_stri_alloc(link_destination,
                                       (memSizeType) from_stat.st_size))) {
             *err_info = MEMORY_ERROR;
           } else {

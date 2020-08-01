@@ -59,6 +59,7 @@
 #include "cmd_rtl.h"
 #include "con_drv.h"
 #include "fil_drv.h"
+#include "big_drv.h"
 
 #ifdef USE_WINMAIN
 typedef struct {
@@ -408,6 +409,7 @@ int main (int argc, char **argv)
         } else {
           setupRand();
           setupFloat();
+          setupBig();
           /* printf("sourceFileArgument: \"");
              prot_stri(option.sourceFileArgument);
              printf("\"\n");

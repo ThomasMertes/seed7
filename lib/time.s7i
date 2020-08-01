@@ -266,6 +266,14 @@ const func string: str (in time: aTime) is
 
 
 (**
+ *  Convert a time to a time literal.
+ *  @return the time literal.
+ *)
+const func string: literal (in time: aTime) is
+  return "time(" & literal(str(aTime)) & ")";
+
+
+(**
  *  Convert a string in the ISO 8601 date format to a time.
  *  The accepted ISO 8601 date formats are YYYY-MM, YYYY-MM-DD,
  *  YYYY-MM-DDTHH, YYYY-MM-DDTHH:MM, YYYY-MM-DDTHH:MM:SS

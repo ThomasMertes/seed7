@@ -43,9 +43,9 @@ GOBJ = syvarutl.obj traceutl.obj actutl.obj executl.obj blockutl.obj \
        entutl.obj identutl.obj chclsutl.obj arrutl.obj
 ROBJ = arr_rtl.obj bln_rtl.obj bst_rtl.obj chr_rtl.obj cmd_rtl.obj con_rtl.obj dir_rtl.obj drw_rtl.obj fil_rtl.obj \
        flt_rtl.obj hsh_rtl.obj int_rtl.obj itf_rtl.obj pcs_rtl.obj set_rtl.obj soc_rtl.obj sql_rtl.obj str_rtl.obj \
-       tim_rtl.obj ut8_rtl.obj heaputl.obj numutl.obj sigutl.obj striutl.obj \
-       sql_base.obj sql_lite.obj sql_my.obj sql_oci.obj sql_odbc.obj sql_post.obj
-DOBJ = big_rtl.obj big_gmp.obj cmd_win.obj dir_win.obj dll_win.obj fil_win.obj pcs_win.obj pol_sel.obj stat_win.obj tim_win.obj
+       tim_rtl.obj ut8_rtl.obj heaputl.obj numutl.obj sigutl.obj striutl.obj
+DOBJ = big_rtl.obj big_gmp.obj cmd_win.obj dir_win.obj dll_win.obj fil_win.obj pcs_win.obj pol_sel.obj soc_none.obj \
+       sql_base.obj sql_fire.obj sql_lite.obj sql_my.obj sql_oci.obj sql_odbc.obj sql_post.obj stat_win.obj tim_win.obj
 OBJ = $(MOBJ)
 SEED7_LIB_OBJ = $(ROBJ) $(DOBJ)
 DRAW_LIB_OBJ = gkb_rtl.obj drw_win.obj gkb_win.obj
@@ -67,9 +67,9 @@ GSRC = syvarutl.c traceutl.c actutl.c executl.c blockutl.c \
        entutl.c identutl.c chclsutl.c arrutl.c
 RSRC = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c con_rtl.c dir_rtl.c drw_rtl.c fil_rtl.c \
        flt_rtl.c hsh_rtl.c int_rtl.c itf_rtl.c pcs_rtl.c set_rtl.c soc_rtl.c sql_rtl.c str_rtl.c \
-       tim_rtl.c ut8_rtl.c heaputl.c numutl.c sigutl.c striutl.c \
-       sql_base.c sql_lite.c sql_my.c sql_oci.c sql_odbc.c sql_post.c
-DSRC = big_rtl.c big_gmp.c cmd_win.c dir_win.c dll_win.c fil_win.c pcs_win.c pol_sel.c stat_win.c tim_win.c
+       tim_rtl.c ut8_rtl.c heaputl.c numutl.c sigutl.c striutl.c
+DSRC = big_rtl.c big_gmp.c cmd_win.c dir_win.c dll_win.c fil_win.c pcs_win.c pol_sel.c soc_none.c \
+       sql_base.c sql_fire.c sql_lite.c sql_my.c sql_oci.c sql_odbc.c sql_post.c stat_win.c tim_win.c
 SRC = $(MSRC)
 SEED7_LIB_SRC = $(RSRC) $(DSRC)
 DRAW_LIB_SRC = gkb_rtl.c drw_win.c gkb_win.c
@@ -154,6 +154,9 @@ chkccomp.h:
 	echo ^#define ODBC_USE_LIB >> chkccomp.h
 	echo ^#define OCI_DLL "oci.dll" >> chkccomp.h
 	echo ^#define OCI_USE_DLL >> chkccomp.h
+	echo ^#define FIRE_LIBS "-lfbclient" >> chkccomp.h
+	echo ^#define FIRE_DLL "fbclient.dll", "gds32.dll" >> chkccomp.h
+	echo ^#define FIRE_USE_DLL >> chkccomp.h
 
 version.h: chkccomp.h
 	echo ^#define PATH_DELIMITER '\\' > version.h
