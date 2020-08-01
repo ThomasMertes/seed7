@@ -33,6 +33,12 @@
 #define bitset_shift byte_sft(sizeof(bitsettype))
 #define bitset_mask  ((1 << bitset_shift) - 1)
 
+#ifdef RSHIFT_DOES_SIGN_EXTEND
+#define bitset_pos(number) ((number)>>bitset_shift)
+#else
+#define bitset_pos(number) ((number)<0?~(~(number)>>bitset_shift):(number)>>bitset_shift)
+#endif
+
 
 #ifdef ANSI_C
 
@@ -49,6 +55,7 @@ void setExcl (settype *const set_to, const inttype number);
 booltype setGe (const const_settype set1, const const_settype set2);
 booltype setGt (const const_settype set1, const const_settype set2);
 inttype setHashCode (const const_settype set1);
+settype setIConv (inttype number);
 void setIncl (settype *const set_to, const inttype number);
 settype setIntersect (const const_settype set1, const const_settype set2);
 booltype setLe (const const_settype set1, const const_settype set2);
@@ -58,6 +65,7 @@ inttype setMin (const const_settype set1);
 booltype setNe (const const_settype set1, const const_settype set2);
 booltype setNotElem (const inttype number, const const_settype set1);
 inttype setRand (const const_settype set1);
+inttype setSConv (const const_settype set1);
 settype setSymdiff (const const_settype set1, const const_settype set2);
 inttype setToInt (const const_settype set1, const inttype lowestBitNum);
 settype setUnion (const const_settype set1, const const_settype set2);
@@ -77,6 +85,7 @@ void setExcl ();
 booltype setGe ();
 booltype setGt ();
 inttype setHashCode ();
+settype setIConv ();
 void setIncl ();
 settype setIntersect ();
 booltype setLe ();
@@ -86,6 +95,7 @@ inttype setMin ();
 booltype setNe ();
 booltype setNotElem ();
 inttype setRand ();
+inttype setSConv ();
 settype setSymdiff ();
 settype setUnion ();
 

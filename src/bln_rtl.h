@@ -31,8 +31,8 @@
 
 #ifdef ANSI_C
 
-void blnCpy (booltype *, booltype);
-booltype blnCreate (booltype);
+void blnCpy (booltype *dest, booltype source);
+booltype blnCreate (booltype source);
 
 #else
 

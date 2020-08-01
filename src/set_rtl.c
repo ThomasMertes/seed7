@@ -96,7 +96,7 @@ rtlArraytype arr1;
         memset(result->bitset, 0, sizeof(bitsettype));
       } else {
         number = arr1->arr[0].value.intvalue;
-        position = number >> bitset_shift;
+        position = bitset_pos(number);
         result->min_position = position;
         result->max_position = position;
         bit_index = ((unsigned int) number) & bitset_mask;
@@ -136,7 +136,7 @@ inttype number;
       raise_error(MEMORY_ERROR);
       return(NULL);
     } else {
-      position = number >> bitset_shift;
+      position = bitset_pos(number);
       result->min_position = position;
       result->max_position = position;
       bit_index = ((unsigned int) number) & bitset_mask;
@@ -415,7 +415,7 @@ settype set1;
     unsigned int bit_index;
 
   /* setElem */
-    position = number >> bitset_shift;
+    position = bitset_pos(number);
     if (position >= set1->min_position && position <= set1->max_position) {
       bitset_index = (memsizetype) (position - set1->min_position);
       bit_index = ((unsigned int) number) & bitset_mask;
@@ -513,7 +513,7 @@ inttype number;
 
   /* setExcl */
     set_dest = *set_to;
-    position = number >> bitset_shift;
+    position = bitset_pos(number);
     if (position >= set_dest->min_position && position <= set_dest->max_position) {
       bitset_index = (memsizetype) (position - set_dest->min_position);
       bit_index = ((unsigned int) number) & bitset_mask;
@@ -694,6 +694,37 @@ settype set1;
 
 #ifdef ANSI_C
 
+settype setIConv (inttype number)
+#else
+
+settype setIConv (number)
+inttype number;
+#endif
+
+  {
+    memsizetype pos;
+    memsizetype result_size;
+    settype result;
+
+  /* setIConv */
+    result_size = sizeof(inttype) / sizeof(bitsettype);
+    if (!ALLOC_SET(result, result_size)) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      result->min_position = 0;
+      result->max_position = result_size;
+      for (pos = 0; pos < result_size; pos++) {
+        result->bitset[pos] = (bitsettype) number;
+        number >>= 8 * sizeof(bitsettype);
+      } /* for */
+    } /* if */
+    return(result);
+  } /* setIConv */
+
+
+
+#ifdef ANSI_C
+
 void setIncl (settype *const set_to, const inttype number)
 #else
 
@@ -713,7 +744,7 @@ inttype number;
 
   /* setIncl */
     set_dest = *set_to;
-    position = number >> bitset_shift;
+    position = bitset_pos(number);
     if (position > set_dest->max_position) {
       old_size = set_dest->max_position - set_dest->min_position + 1;
       new_size = position - set_dest->min_position + 1;
@@ -1097,7 +1128,7 @@ settype set1;
     unsigned int bit_index;
 
   /* setNotElem */
-    position = number >> bitset_shift;
+    position = bitset_pos(number);
     if (position >= set1->min_position && position <= set1->max_position) {
       bitset_index = (memsizetype) (position - set1->min_position);
       bit_index = ((unsigned int) number) & bitset_mask;
@@ -1156,6 +1187,30 @@ settype set1;
     raise_error(RANGE_ERROR);
     return(0);
   } /* setRand */
+
+
+
+#ifdef ANSI_C
+
+inttype setSConv (const const_settype set1)
+#else
+
+inttype setSConv (set1)
+settype set1;
+#endif
+
+  {
+    inttype position;
+
+  /* setSConv */
+    position = 0;
+    if (set1->min_position == 0 && set1->max_position == 0) {
+      return((inttype) set1->bitset[0]);
+    } else {
+      raise_error(RANGE_ERROR);
+      return(0);
+    } /* if */
+  } /* setSConv */
 
 
 
@@ -1240,7 +1295,7 @@ inttype lowestBitNum;
     unsigned int bit_index;
 
   /* setToInt */
-    position = lowestBitNum >> bitset_shift;
+    position = bitset_pos(lowestBitNum);
     if (position >= set1->min_position && position <= set1->max_position) {
       bitset_index = (memsizetype) (position - set1->min_position);
       bit_index = ((unsigned int) lowestBitNum) & bitset_mask;
@@ -1248,14 +1303,14 @@ inttype lowestBitNum;
         return((inttype) set1->bitset[bitset_index]);
       } else if (position < set1->max_position) {
         return((inttype) (set1->bitset[bitset_index] >> bit_index |
-            set1->bitset[bitset_index + 1] << 8 * sizeof(bitsettype) - bit_index));
+            set1->bitset[bitset_index + 1] << (8 * sizeof(bitsettype) - bit_index)));
       } else {
         return((inttype) (set1->bitset[bitset_index] >> bit_index));
       } /* if */
     } else if (position == set1->min_position - 1) {
       bitset_index = (memsizetype) (position - set1->min_position);
       bit_index = ((unsigned int) lowestBitNum) & bitset_mask;
-      return((inttype) (set1->bitset[bitset_index + 1] << 8 * sizeof(bitsettype) - bit_index));
+      return((inttype) (set1->bitset[bitset_index + 1] << (8 * sizeof(bitsettype) - bit_index)));
     } else {
       return(0);
     } /* if */

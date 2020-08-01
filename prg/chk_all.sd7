@@ -64,7 +64,8 @@ const string: chkstr_output is "\n\
   \String functions work correct\n\
   \String append works correct\n\
   \split(string) works correct\n\
-  \join(string) works correct\n";
+  \join(string) works correct\n\
+  \@:= for strings works correct\n";
 
 
 const string: chkprc_output is "\n\

@@ -97,7 +97,7 @@ listtype arguments;
         memset(result->bitset, 0, sizeof(bitsettype));
       } else {
         number = take_int(&arr1->arr[0]);
-        position = number >> bitset_shift;
+        position = bitset_pos(number);
         result->min_position = position;
         result->max_position = position;
         bit_index = ((unsigned int) number) & bitset_mask;
@@ -137,7 +137,7 @@ listtype arguments;
     if (!ALLOC_SET(result, 1)) {
       return(raise_exception(SYS_MEM_EXCEPTION));
     } else {
-      position = number >> bitset_shift;
+      position = bitset_pos(number);
       result->min_position = position;
       result->max_position = position;
       bit_index = ((unsigned int) number) & bitset_mask;
@@ -412,7 +412,7 @@ listtype arguments;
     isit_set(arg_3(arguments));
     number = take_int(arg_1(arguments));
     set1 = take_set(arg_3(arguments));
-    position = number >> bitset_shift;
+    position = bitset_pos(number);
     if (position >= set1->min_position && position <= set1->max_position) {
       bitset_index = (memsizetype) (position - set1->min_position);
       bit_index = ((unsigned int) number) & bitset_mask;
@@ -498,7 +498,7 @@ listtype arguments;
     set_dest = take_set(set_to);
     isit_int(arg_2(arguments));
     number = take_int(arg_2(arguments));
-    position = number >> bitset_shift;
+    position = bitset_pos(number);
     if (position >= set_dest->min_position && position <= set_dest->max_position) {
       bitset_index = (memsizetype) (position - set_dest->min_position);
       bit_index = ((unsigned int) number) & bitset_mask;
@@ -604,6 +604,23 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype set_iconv (listtype arguments)
+#else
+
+objecttype set_iconv (arguments)
+listtype arguments;
+#endif
+
+  { /* set_iconv */
+    isit_int(arg_3(arguments));
+    return(bld_set_temp(
+        setIConv(take_int(arg_3(arguments)))));
+  } /* set_iconv */
+
+
+
+#ifdef ANSI_C
+
 objecttype set_idx (listtype arguments)
 #else
 
@@ -623,7 +640,7 @@ listtype arguments;
     isit_int(arg_3(arguments));
     set1 = take_set(arg_1(arguments));
     number = take_int(arg_3(arguments));
-    position = number >> bitset_shift;
+    position = bitset_pos(number);
     if (position >= set1->min_position && position <= set1->max_position) {
       bitset_index = (memsizetype) (position - set1->min_position);
       bit_index = ((unsigned int) number) & bitset_mask;
@@ -666,7 +683,7 @@ listtype arguments;
     set_dest = take_set(set_to);
     isit_int(arg_2(arguments));
     number = take_int(arg_2(arguments));
-    position = number >> bitset_shift;
+    position = bitset_pos(number);
     if (position > set_dest->max_position) {
       old_size = set_dest->max_position - set_dest->min_position + 1;
       new_size = position - set_dest->min_position + 1;
@@ -838,7 +855,7 @@ listtype arguments;
     isit_set(arg_4(arguments));
     number = take_int(arg_1(arguments));
     set1 = take_set(arg_4(arguments));
-    position = number >> bitset_shift;
+    position = bitset_pos(number);
     if (position >= set1->min_position && position <= set1->max_position) {
       bitset_index = (memsizetype) (position - set1->min_position);
       bit_index = ((unsigned int) number) & bitset_mask;
@@ -868,6 +885,23 @@ listtype arguments;
     return(bld_int_temp(
         setRand(take_set(arg_1(arguments)))));
   } /* set_rand */
+
+
+
+#ifdef ANSI_C
+
+objecttype set_sconv (listtype arguments)
+#else
+
+objecttype set_sconv (arguments)
+listtype arguments;
+#endif
+
+  { /* set_sconv */
+    isit_set(arg_3(arguments));
+    return(bld_int_temp(
+        setSConv(take_set(arg_3(arguments)))));
+  } /* set_sconv */
 
 
 

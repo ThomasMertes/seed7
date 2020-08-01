@@ -3877,6 +3877,78 @@ const proc: check_string_join is func
   end func;
 
 
+const proc: check_string_assign_at is func
+  local
+    var boolean: okay is TRUE;
+    var string: stri is "";
+  begin
+    okay := TRUE;
+    stri := "a";
+    stri @:= [1] 'X';
+    if stri <> "X" then
+      writeln(" ***** @:= for strings does not work correct");
+      okay := FALSE;
+    end if;
+    stri := "ab";
+    stri @:= [1] 'X';
+    if stri <> "Xb" then
+      writeln(" ***** @:= for strings does not work correct");
+      okay := FALSE;
+    end if;
+    stri := "ab";
+    stri @:= [2] 'X';
+    if stri <> "aX" then
+      writeln(" ***** @:= for strings does not work correct");
+      okay := FALSE;
+    end if;
+    stri := "abc";
+    stri @:= [1] 'X';
+    if stri <> "Xbc" then
+      writeln(" ***** @:= for strings does not work correct");
+      okay := FALSE;
+    end if;
+    stri := "abc";
+    stri @:= [2] 'X';
+    if stri <> "aXc" then
+      writeln(" ***** @:= for strings does not work correct");
+      okay := FALSE;
+    end if;
+    stri := "abc";
+    stri @:= [3] 'X';
+    if stri <> "abX" then
+      writeln(" ***** @:= for strings does not work correct");
+      okay := FALSE;
+    end if;
+    stri := "abcd";
+    stri @:= [1] 'X';
+    if stri <> "Xbcd" then
+      writeln(" ***** @:= for strings does not work correct");
+      okay := FALSE;
+    end if;
+    stri := "abcd";
+    stri @:= [2] 'X';
+    if stri <> "aXcd" then
+      writeln(" ***** @:= for strings does not work correct");
+      okay := FALSE;
+    end if;
+    stri := "abcd";
+    stri @:= [3] 'X';
+    if stri <> "abXd" then
+      writeln(" ***** @:= for strings does not work correct");
+      okay := FALSE;
+    end if;
+    stri := "abcd";
+    stri @:= [4] 'X';
+    if stri <> "abcX" then
+      writeln(" ***** @:= for strings does not work correct");
+      okay := FALSE;
+    end if;
+    if okay then
+      writeln("@:= for strings works correct");
+    end if;
+  end func;
+
+
 const proc: main is func
 
   local
@@ -3891,4 +3963,5 @@ const proc: main is func
     check_string_append();
     check_string_split();
     check_string_join();
+    check_string_assign_at();
   end func;

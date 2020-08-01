@@ -31,12 +31,12 @@
 
 #ifdef ANSI_C
 
-inttype chrCmp (chartype, chartype);
-void chrCpy (chartype *, chartype);
-chartype chrCreate (chartype);
-chartype chrLow (chartype);
-stritype chrStr (chartype);
-chartype chrUp (chartype);
+inttype chrCmp (chartype char1, chartype char2);
+void chrCpy (chartype *dest, chartype source);
+chartype chrCreate (chartype source);
+chartype chrLow (chartype ch);
+stritype chrStr (chartype ch);
+chartype chrUp (chartype ch);
 
 #else
 

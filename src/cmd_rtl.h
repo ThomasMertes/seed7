@@ -35,18 +35,18 @@
 
 #ifdef ANSI_C
 
-void cmdChdir (stritype);
-stritype cmdConfigValue (stritype);
-void cmdCopy (stritype, stritype);
-inttype cmdFileType (stritype);
+void cmdChdir (stritype dir_name);
+stritype cmdConfigValue (stritype name);
+void cmdCopy (stritype source_name, stritype dest_name);
+inttype cmdFileType (stritype file_name);
 stritype cmdGetcwd (void);
-inttype cmdLng (stritype);
-void cmdMkdir (stritype);
-void cmdMove (stritype, stritype);
-stritype cmdReadlink (stritype);
-void cmdRemove (stritype);
-void cmdSh (stritype);
-void cmdSymlink (stritype, stritype);
+inttype cmdLng (stritype file_name);
+void cmdMkdir (stritype dir_name);
+void cmdMove (stritype source_name, stritype dest_name);
+stritype cmdReadlink (stritype link_name);
+void cmdRemove (stritype file_name);
+void cmdSh (stritype command_stri);
+void cmdSymlink (stritype source_name, stritype dest_name);
 #ifdef FTELL_WRONG_FOR_PIPE
 long improved_ftell (FILE *stream);
 #endif

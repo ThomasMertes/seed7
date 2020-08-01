@@ -46,14 +46,14 @@ int _isnan( double x );
 
 #ifdef ANSI_C
 
-inttype fltCmp (floattype, floattype);
-void fltCpy (floattype *, floattype);
-generictype fltCreate (generictype);
-stritype fltDgts (floattype, inttype);
-floattype fltIPow (floattype, inttype);
-floattype fltParse (stritype);
-floattype fltRand (floattype, floattype);
-stritype fltStr (floattype);
+inttype fltCmp (floattype number1, floattype number2);
+void fltCpy (floattype *dest, floattype source);
+generictype fltCreate (generictype source);
+stritype fltDgts (floattype number, inttype digits_precision);
+floattype fltIPow (floattype base, inttype exponent);
+floattype fltParse (stritype stri);
+floattype fltRand (floattype lower_limit, floattype upper_limit);
+stritype fltStr (floattype number);
 
 #else
 

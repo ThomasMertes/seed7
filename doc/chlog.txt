@@ -1,3 +1,19 @@
+20080622:
+- A new example program (cellauto.sd7), which simulates cellular automata, was added.
+- Testcases for the @:= statement were added to the chkstr.sd7 program.
+- The compiler (comp.sd7) was improved such that the generated code raises MEMORY_ERROR
+  when the 'malloc' function fails.
+- Support for the actions SET_ICONV and SET_SCONV was added to the (hi) interpreter
+  and the compiler.
+- The compiler was improved to optionally generate code without range checks for the
+  STR_ELEMCPY action.
+- The handling of functions returning references to existing objects in the compiler
+  was improved.
+- Parameter names were added to the function prototypes of the header files bln_rtl.h,
+  chr_rtl.h, cmd_rtl.h, flt_rtl.h and ut8_rtl.h.
+- The compiletime flag RSHIFT_DOES_SIGN_EXTEND is now taken into account for the
+  right shift in the macro 'bitset_pos' defined in the file set_rtl.h.
+
 20080608:
 - The chapter about symbol scanning from a file in the manual, was improved.
 - A new include file (cgi.s7i) to support the Common Gateway Interface, was added.

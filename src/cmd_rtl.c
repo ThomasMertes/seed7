@@ -687,11 +687,11 @@ stritype dir_name;
 
 #ifdef ANSI_C
 
-stritype cmdConfigValue (stritype stri)
+stritype cmdConfigValue (stritype name)
 #else
 
-stritype cmdConfigValue (stri)
-stritype stri;
+stritype cmdConfigValue (name)
+stritype name;
 #endif
 
   {
@@ -700,10 +700,10 @@ stritype stri;
     stritype result;
 
   /* cmdConfigValue */
-    if (compr_size(stri) + 1 > 250) {
+    if (compr_size(name) + 1 > 250) {
       opt = "";
     } else {
-      stri_export(opt_name, stri);
+      stri_export(opt_name, name);
       if (strcmp(opt_name, "OBJECT_FILE_EXTENSION") == 0) {
         opt = OBJECT_FILE_EXTENSION;
       } else if (strcmp(opt_name, "EXECUTABLE_FILE_EXTENSION") == 0) {

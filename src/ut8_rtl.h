@@ -31,12 +31,12 @@
 
 #ifdef ANSI_C
 
-chartype ut8Getc (filetype);
-stritype ut8Gets (filetype, inttype);
-stritype ut8LineRead (filetype, chartype *);
-void ut8Seek (filetype, inttype);
-stritype ut8WordRead (filetype, chartype *);
-void ut8Write (filetype, stritype);
+chartype ut8Getc (filetype aFile);
+stritype ut8Gets (filetype aFile, inttype length);
+stritype ut8LineRead (filetype aFile, chartype *termination_char);
+void ut8Seek (filetype aFile, inttype file_position);
+stritype ut8WordRead (filetype aFile, chartype *termination_char);
+void ut8Write (filetype aFile, stritype stri);
 
 #else
 

@@ -1945,6 +1945,9 @@ const func integer: min (in bitset param) is                       action "SET_M
 const func integer: max (in bitset param) is                       action "SET_MAX";
 const func bitset: { (in integer param) } is                       action "SET_BASELIT";
 const func bitset: { (in tuple integer param) } is                 action "SET_ARRLIT";
+const func integer: (attr integer) conv (in bitset param)  is      action "SET_SCONV";
+const func bitset: (attr bitset) conv (in integer param) is        action "SET_ICONV";
+
 
 const func bitset: _GENERATE_EMPTY_SET is                          action "SET_EMPTY";
 const bitset: EMPTY_SET is                                         _GENERATE_EMPTY_SET;
