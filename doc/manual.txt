@@ -84,6 +84,7 @@ CONTENTS
   7.2     Dynamic dispatch
   7.3     Inheritance
   7.4     Multiple dispatch
+  7.5     Replacing pointers with interface types
   8.    THE FILE SYSTEM
   8.1     Conversion to strings and back
   8.2     Basic input and output operations
@@ -4438,6 +4439,103 @@ CONTENTS
   dynamic typed languages, but there are also good reasons
   to have destinct types for different purposes.
 
+
+7.5 Replacing pointers with interface types
+
+    Many languages have the concept of a pointer. It is possible
+  to implement data structures, such as lists and trees, with
+  pointers. Although Seed7 supports the concept of a pointer, they
+  are not well suited to describe such data structures. Instead of
+  pointers interface types can be used. This way list, trees and
+  other advanced data structures can be defined.
+
+  The following example shows how to do this:
+  The interface type 'element' will be used as "pointer":
+
+    const type: element is new interface;
+
+  An implementation type for the empty 'element' (emptyElement)
+  can be used as basic implementation type from which other
+  implementation types can inherit:
+
+    const type: emptyElement is new struct
+      end struct;
+
+  That the implementation type 'emptyElement' implements the
+  interface type 'element' is described with:
+
+    type_implements_interface(emptyElement, element);
+
+  Since every Seed7 expression has exactly one type, it is
+  necessary to define a special 'NIL' value (used with  'element.NIL')
+  for the type 'element':
+
+    const element: (attr element) . NIL is emptyElement.value;
+
+  Now the struct with two "pointers" and an 'integer' can be
+  declared:
+
+    const type: treeElement is sub emptyElement struct
+        var element: left is element.NIL;
+        var element: right is element.NIL;
+        var integer: item is 0;
+      end struct;
+
+  Finally the type 'treeElement' is defined as implementation
+  of the type 'element':
+
+    type_implements_interface(treeElement, element);
+
+  To allow the direct access to the structure elements 'left', 'right'
+  and 'item' for objects of type 'element' the following declarations
+  are necessary:
+
+    const func    element: (ref   element param).left  is DYNAMIC;
+    const varfunc element: (inout element param).left  is DYNAMIC;
+    const func    element: (ref   element param).right is DYNAMIC;
+    const varfunc element: (inout element param).right is DYNAMIC;
+    const func    integer: (ref   element param).item  is DYNAMIC;
+    const varfunc integer: (inout element param).item  is DYNAMIC;
+
+  When all this was declared the following code is possible:
+
+    const proc: addItem (inout element: anElem, in integer: item) is func
+      begin
+        if anElem = element.NIL then
+          anElem := xalloc(treeElement.value);
+          anElem.item := item;
+        elsif item < anElem.item then
+          addItem(anElem.left, item);
+        elsif item > anElem.item then
+          addItem(anElem.right, item);
+        end if;
+      end func;
+
+    const proc: listItems (in element: anElem) is func
+      begin
+        if anElem <> element.NIL then
+          listItems(anElem.left);
+          write(" " <& anElem.item);
+          listItems(anElem.right);
+        end if;
+      end func;
+
+    const func integer: sum (in element: anElem) is func
+      result
+        var integer: result is 0;
+      begin
+        if anElem <> element.NIL then
+          result := anElem.item + sum(anElem.left) + sum(anElem.right);
+        end if;
+      end func;
+
+  New elements can be created with the function 'xalloc'.
+  This way interface and implementation types help to provide the
+  pointer functionality.
+
+  Pointers and interface types are not always the best solution.
+  Abstract data types like dynamic arrays, hash tables, struct
+  types and set types can also be used to declare data structures.
 
 
 8. THE FILE SYSTEM

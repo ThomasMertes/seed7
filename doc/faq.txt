@@ -69,14 +69,16 @@ On which operating systems does Seed7 run?
 ==========================================
 
 Linux is supported out of the box (because the development is done using
-Linux). I used Seed7 also under various UNIX variants, so this is probably
-also easy. Windows is supported with MinGW, Cygwin and the stand alone
-compiler of MSVC (I have no possibility to check out MSVC regularly).
-For other operating systems it might be necessary to write driver modules
-for screen (=text console), graphics, time or other aspects of Seed7.
-The package contains various older driver modules which are not up to date,
-but can be used as base to write such driver modules. For more detailed
-information look at the 'seed7/read_me' and 'seed7/src/read_me.txt' files.
+Linux). I used Seed7 also under various UNIX variants, so it is probably
+easy to port Seed7 to a UNIX variant. Windows is supported with MinGW,
+Cygwin (it may be necessary to change some include or library paths),
+the stand alone compiler of MSVC (cl.exe) and the stand alone compiler of
+the BDS (bcc32.exe). For other operating systems it might be necessary to
+write driver modules for screen (=text console), graphics, time or other
+aspects of Seed7. The package contains various older driver modules
+which are not up to date, but can be used as base to write such driver
+modules. For more detailed information look at the files 'seed7/read_me'
+and 'seed7/src/read_me.txt'.
 
 
 How do I uncompress the *.tgz file from the release?

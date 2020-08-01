@@ -1,3 +1,20 @@
+20081116:
+- The support for compilation with the bcc32 C compiler from BDS was improved such that
+  the chk_all.sd7 check program succeeds.
+- The FAQ about the operating systems supported by Seed7, was improved.
+- A chapter describing how to replace pointers with interface types was added to the
+  manual.
+- The obsolete use of the operator >> and << for file input and output was removed
+  from the seed7_05.s7i library.
+- The general check program chk_all.sd7 was improved to check also for the successful
+  compilation of the compiler.
+- The compiler (comp.sd7) was improved to generate C programs which are acceptable for
+  the bcc32 C compiler.
+- The compiler was improved to check that a temporary tmp_*.c file is marked with a
+  temp_marker.
+- The documentation file src/read_me.txt was improved to explain the #define value
+  CHECK_INT_DIV_BY_ZERO.
+
 20081102:
 - A new gzip.s7i library, which contains a gzip uncompression function, was added.
 - The functions getXmlTagHeadOrContent, getSymbolInXmlTag, getHtmlAttributeValue and

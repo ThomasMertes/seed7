@@ -2990,16 +2990,6 @@ const func boolean: io_empty (in file: aFile) is
 const func boolean: io_filled (in file: aFile) is
   return not aFile.io_empty;
 
-const proc: (inout file: aFile) << NL is func
-  begin
-    writeln(aFile);
-  end func;
-
-const proc: (inout file: aFile) << BS is func
-  begin
-    backSpace(aFile);
-  end func;
-
 const proc: readln (inout file: aFile) is func
   local
     var string: stri is "";
@@ -3101,16 +3091,6 @@ const proc: seek (ref null_file param, in integer param) is noop;
 const integer: tell (ref null_file param) is 1;
 
 const proc: backSpace (ref null_file: aFile) is noop;
-
-const proc: (inout null_file: aFile) >> (inout string: stri) is func
-  begin
-    stri := getln(aFile);
-  end func;
-
-const proc: (inout null_file: aFile) >> (inout char: ch) is func
-  begin
-    ch := getc(aFile);
-  end func;
 
 const proc: close (ref null_file param) is noop;
 const proc: flush (ref null_file param) is noop;
@@ -3299,18 +3279,6 @@ const proc: readln (inout file: aFile, inout string: stri) is func
     aFile.io_ok := TRUE;
   end func;
 
-const proc: (inout file: aFile) >> (inout string: stri) is func
-  begin
-    stri := getwd(aFile);
-    aFile.io_empty := stri = "";
-    aFile.io_ok := TRUE;
-  end func;
-
-const proc: (inout file: aFile) << (in string: stri) is func
-  begin
-    write(aFile , stri);
-  end func;
-
 const proc: write (in string: stri) is func
   begin
     write(OUT, stri);
@@ -3337,21 +3305,6 @@ const proc: readln (inout string: stri) is func
 
 const proc: enable_input (in type: aType) is func
   begin
-    const proc: (inout file: aFile) >> (inout aType: aValue) is func
-      local
-        var string: stri is "";
-      begin
-        stri := getwd(aFile);
-        aFile.io_empty := stri = "";
-        block
-          aValue := aType parse stri;
-          aFile.io_ok := TRUE;
-        exception
-          catch RANGE_ERROR:
-            aFile.io_ok := FALSE;
-        end block;
-      end func;
-
     const proc: read (inout file: aFile, inout aType: aValue) is func
       local
         var string: stri is "";
@@ -3396,11 +3349,6 @@ const proc: enable_input (in type: aType) is func
 
 const proc: enable_output (in type: aType) is func
   begin
-    const proc: (inout file: aFile) << (in aType: aValue) is func
-      begin
-        write(aFile, str(aValue));
-      end func;
-
     const proc: write (inout file: aFile, in aType: aValue) is func
       begin
         write(aFile, str(aValue));

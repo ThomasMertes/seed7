@@ -27,6 +27,7 @@ $ include "seed7_05.s7i";
   include "bigint.s7i";
   include "progs.s7i";
 
+const string: EXECUTABLE_FILE_EXTENSION is configValue("EXECUTABLE_FILE_EXTENSION");
 
 const string: chkint_output is "\n\
   \Integer literals with exponent work correct.\n\
@@ -55,7 +56,6 @@ const string: chkint_output is "\n\
   \Integer parse does work correct\n\
   \Integer lpad0 does work correct\n";
 
-
 const string: chkstr_output is "\n\
   \String literals work correct.\n\
   \String comparisons work correct\n\
@@ -67,7 +67,6 @@ const string: chkstr_output is "\n\
   \join(string) works correct\n\
   \@:= for strings works correct\n";
 
-
 const string: chkprc_output is "\n\
   \If statements work correct.\n\
   \While statements work correct.\n\
@@ -76,7 +75,6 @@ const string: chkprc_output is "\n\
   \For downto statements work correct.\n\
   \Case integer statements work correct.\n\
   \Case char statements work correct.\n";
-
 
 const string: chkbig_output is "\n\
   \Decimal conversion of bigInteger works correct.\n\
@@ -104,7 +102,6 @@ const string: chkbig_output is "\n\
   \The bigInteger >> and >>:= works correct.\n\
   \The bigInteger constants work correct.\n";
 
-
 const string: chkbool_output is "\n\
   \Boolean not works correct.\n\
   \Boolean and works correct.\n\
@@ -118,7 +115,6 @@ const string: chkbool_output is "\n\
   \Boolean ord() works correct.\n\
   \Boolean str() works correct.\n";
 
-
 const string: chkset_output is "\n\
   \card(bitset) works correct.\n\
   \incl(bitset, integer) works correct.\n\
@@ -126,7 +122,6 @@ const string: chkset_output is "\n\
   \set intersection works correct.\n\
   \min(bitset) works correct.\n\
   \max(bitset) works correct.\n";
-
 
 const string: chkexc_output is "\n\
   \Integer exceptions work correct.\n\
@@ -171,15 +166,21 @@ const proc: check (in string: progName, in string: referenceOutput) is func
     var string: compilerOutput is "";
     var string: compiledOutput1 is "";
     var string: compiledOutput2 is "";
+    var boolean: checkWithCompiledCompiler is FALSE;
     var boolean: okay is TRUE;
   begin
     write(progName);
     flush(OUT);
     interpretedOutput := cmdOutput("./hi -q "   & progName);
+    remove("progName" & EXECUTABLE_FILE_EXTENSION);
     compilerOutput    := cmdOutput("./hi comp " & progName);
     compiledOutput1   := cmdOutput("./"         & progName);
-    compilerOutput    := cmdOutput("./comp "    & progName);
-    compiledOutput2   := cmdOutput("./"         & progName);
+    if fileExists("comp" & EXECUTABLE_FILE_EXTENSION) then
+      remove("progName" & EXECUTABLE_FILE_EXTENSION);
+      compilerOutput    := cmdOutput("./comp "    & progName);
+      compiledOutput2   := cmdOutput("./"         & progName);
+      checkWithCompiledCompiler := TRUE;
+    end if;
     if interpretedOutput <> referenceOutput then
       writeln;
       writeln(" *** The interpreted " <& progName <& " does not work okay:");
@@ -192,7 +193,7 @@ const proc: check (in string: progName, in string: referenceOutput) is func
       writeln(compiledOutput1);
       okay := FALSE;
     end if;
-    if compiledOutput2 <> referenceOutput then
+    if checkWithCompiledCompiler and compiledOutput2 <> referenceOutput then
       writeln;
       writeln(" *** The compiled " <& progName <& " with the compiled compiler does not work okay:");
       writeln(compiledOutput2);
@@ -205,9 +206,19 @@ const proc: check (in string: progName, in string: referenceOutput) is func
 
     
 const proc: main is func
+  local
+    var boolean: checkWithCompiledCompiler is TRUE;
   begin
-    writeln("compiling the compiler");
+    remove("comp" & EXECUTABLE_FILE_EXTENSION);
+    write("compiling the compiler");
+    flush(OUT);
     ignore(cmdOutput("./hi comp comp"));
+    if not fileExists("comp" & EXECUTABLE_FILE_EXTENSION) then
+      writeln(" *** Failed to compile the compiler");
+      checkWithCompiledCompiler := FALSE;
+    else
+      writeln(" - okay");
+    end if;
     check("chkint",  chkint_output);
     check("chkstr",  chkstr_output);
     check("chkprc",  chkprc_output);

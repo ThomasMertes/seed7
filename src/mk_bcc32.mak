@@ -157,6 +157,7 @@ version.h:
 	cmd /S /C "echo #define TURN_OFF_FP_EXCEPTIONS" >> version.h
 	cmd /S /C "echo #define DEFINE_MATHERR_FUNCTION" >> version.h
 	cmd /S /C "echo #define ISNAN_WITH_UNDERLINE" >> version.h
+	cmd /S /C "echo #define CHECK_INT_DIV_BY_ZERO" >> version.h
 	cmd /S /C "echo #define USE_MYUNISTD_H" >> version.h
 	cmd /S /C "echo #define HAS_INT64TYPE" >> version.h
 	cmd /S /C "echo #define INT64TYPE_IS_INT64" >> version.h

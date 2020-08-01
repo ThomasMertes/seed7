@@ -401,6 +401,14 @@ THE VERSION.H FILE
                            NaN this function must be defined and
                            it must return 1.
 
+  CHECK_INT_DIV_BY_ZERO: Instruct the Seed7 to C compiler to
+                         generate C code which checks all integer
+                         divisions (div, rem, mdiv and mod) for
+                         division by zero. The generated C code
+                         should, when executed, raise the
+                         exception MEMORY_ERROR instead of doing
+                         the illegal divide operation.
+
   OBJECT_FILE_EXTENSION: The extension used by the C compiler for
                          object files (Several object files and
                          libraries are linked together to an

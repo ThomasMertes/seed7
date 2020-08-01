@@ -14,7 +14,7 @@ const proc: main is func
     if level_file <> STD_NULL then
       word := getwd(level_file);
       word := getwd(level_file);
-      level_file >> level;
+      read(level_file, level);
       close(level_file);
     else
       level := 0;
@@ -24,9 +24,7 @@ const proc: main is func
     incr(level);
     level_file := open("level.h", "w");
     if level_file <> STD_NULL then
-      level_file << "#define LEVEL ";
-      level_file << level;
-      level_file << NL;
+      writeln(level_file, "#define LEVEL " <& level);
       close(level_file);
     else
       writeln("*** Cannot write to \"level.h\" !");

@@ -83,7 +83,8 @@
 <li><!--   7.1      --><a href="#interface_and_implementation"><b>Interface and implementation</b></a></li>
 <li><!--   7.2      --><a href="#dynamic_dispatch"><b>Dynamic dispatch</b></a></li>
 <li><!--   7.3      --><a href="#inheritance"><b>Inheritance</b></a></li>
-<li><!--   7.4      --><a href="#multiple_dispatch"><b>Multiple dispatch</b></a></li></ol></li>
+<li><!--   7.4      --><a href="#multiple_dispatch"><b>Multiple dispatch</b></a></li>
+<li><!--   7.5      --><a href="#replacing_pointers"><b>Replacing pointers with interface types</b></a></li></ol></li>
 <li><!--   8.     --><a href="#THE_FILE_SYSTEM"><big><b>THE FILE SYSTEM</b></big></a><ol>
 <li><!--   8.1      --><a href="#Conversion_to_strings_and_back"><b>Conversion to strings and back</b></a></li>
 <li><!--   8.2      --><a href="#Basic_input_and_output_operations"><b>Basic input and output operations</b></a></li>
@@ -4439,6 +4440,103 @@
   to have destinct types for different purposes.
 </p>
 
+<a name="replacing_pointers"><b>7.5 Replacing pointers with interface types</b></a>
+<p>
+    Many languages have the concept of a pointer. It is possible
+  to implement data structures, such as lists and trees, with
+  pointers. Although Seed7 supports the concept of a pointer, they
+  are not well suited to describe such data structures. Instead of
+  pointers interface types can be used. This way list, trees and
+  other advanced data structures can be defined.
+</p><p>
+  The following example shows how to do this:
+  The interface type <tt>'<font color=red>element</font>'</tt> will be used as "pointer":
+</p><pre>
+    <font color=blue>const</font> <font color=red>type</font>: element <font color=blue>is new interface</font>;
+</pre><p>
+  An implementation type for the empty <tt>'<font color=red>element</font>'</tt> (emptyElement)
+  can be used as basic implementation type from which other
+  implementation types can inherit:
+</p><pre>
+    <font color=blue>const</font> <font color=red>type</font>: emptyElement <font color=blue>is new struct
+      end struct</font>;
+</pre><p>
+  That the implementation type <tt>'<font color=red>emptyElement</font>'</tt> implements the
+  interface type <tt>'<font color=red>element</font>'</tt> is described with:
+</p><pre>
+    type_implements_interface(<font color=red>emptyElement</font>, <font color=red>element</font>);
+</pre><p>
+  Since every Seed7 expression has exactly one type, it is
+  necessary to define a special <tt>'NIL'</tt> value (used with  <tt>'<font color=red>element</font>.NIL'</tt>)
+  for the type <tt>'<font color=red>element</font>'</tt>:
+</p><pre>
+    <font color=blue>const</font> <font color=red>element</font>: (<font color=blue>attr</font> element) . NIL <font color=blue>is</font> <font color=red>emptyElement</font>.value;
+</pre><p>
+  Now the struct with two "pointers" and an <tt>'<font color=red>integer</font>'</tt> can be
+  declared:
+</p><pre>
+    <font color=blue>const</font> <font color=red>type</font>: treeElement <font color=blue>is sub</font> <font color=red>emptyElement</font> <font color=blue>struct</font>
+        <font color=blue>var</font> <font color=red>element</font>: left <font color=blue>is</font> <font color=red>element</font>.NIL;
+        <font color=blue>var</font> <font color=red>element</font>: right <font color=blue>is</font> <font color=red>element</font>.NIL;
+        <font color=blue>var</font> <font color=red>integer</font>: item <font color=blue>is</font> 0;
+      <font color=blue>end struct</font>;
+</pre><p>
+  Finally the type <tt>'<font color=red>treeElement</font>'</tt> is defined as implementation
+  of the type <tt>'<font color=red>element</font>'</tt>:
+</p><pre>
+    type_implements_interface(<font color=red>treeElement</font>, <font color=red>element</font>);
+</pre><p>
+  To allow the direct access to the structure elements <tt>'left'</tt>, <tt>'right'</tt>
+  and <tt>'item'</tt> for objects of type <tt>'<font color=red>element</font>'</tt> the following declarations
+  are necessary:
+</p><pre>
+    <font color=blue>const</font> <font color=red>func    element</font>: (<font color=blue>ref</font>   <font color=red>element</font> <font color=blue>param</font>).left  <font color=blue>is DYNAMIC</font>;
+    <font color=blue>const</font> <font color=red>varfunc element</font>: (<font color=blue>inout</font> <font color=red>element</font> <font color=blue>param</font>).left  <font color=blue>is DYNAMIC</font>;
+    <font color=blue>const</font> <font color=red>func    element</font>: (<font color=blue>ref</font>   <font color=red>element</font> <font color=blue>param</font>).right <font color=blue>is DYNAMIC</font>;
+    <font color=blue>const</font> <font color=red>varfunc element</font>: (<font color=blue>inout</font> <font color=red>element</font> <font color=blue>param</font>).right <font color=blue>is DYNAMIC</font>;
+    <font color=blue>const</font> <font color=red>func    integer</font>: (<font color=blue>ref</font>   <font color=red>element</font> <font color=blue>param</font>).item  <font color=blue>is DYNAMIC</font>;
+    <font color=blue>const</font> <font color=red>varfunc integer</font>: (<font color=blue>inout</font> <font color=red>element</font> <font color=blue>param</font>).item  <font color=blue>is DYNAMIC</font>;
+</pre><p>
+  When all this was declared the following code is possible:
+</p><pre>
+    <font color=blue>const</font> <font color=red>proc</font>: addItem (<font color=blue>inout</font> <font color=red>element</font>: anElem, <font color=blue>in</font> <font color=red>integer</font>: item) <font color=blue>is func</font>
+      <font color=blue>begin</font>
+        <font color=blue>if</font> anElem = <font color=red>element</font>.NIL <font color=blue>then</font>
+          anElem := xalloc(<font color=red>treeElement</font>.value);
+          anElem.item := item;
+        <font color=blue>elsif</font> item < anElem.item <font color=blue>then</font>
+          addItem(anElem.left, item);
+        <font color=blue>elsif</font> item > anElem.item <font color=blue>then</font>
+          addItem(anElem.right, item);
+        <font color=blue>end if</font>;
+      <font color=blue>end func</font>;
+
+    <font color=blue>const</font> <font color=red>proc</font>: listItems (<font color=blue>in</font> <font color=red>element</font>: anElem) <font color=blue>is func</font>
+      <font color=blue>begin</font>
+        <font color=blue>if</font> anElem <> <font color=red>element</font>.NIL <font color=blue>then</font>
+          listItems(anElem.left);
+          write(" " <& anElem.item);
+          listItems(anElem.right);
+        <font color=blue>end if</font>;
+      <font color=blue>end func</font>;
+
+    <font color=blue>const</font> <font color=red>func integer</font>: sum (<font color=blue>in</font> <font color=red>element</font>: anElem) <font color=blue>is func</font>
+      <font color=blue>result</font>
+        <font color=blue>var</font> <font color=red>integer</font>: result <font color=blue>is</font> 0;
+      <font color=blue>begin</font>
+        <font color=blue>if</font> anElem <> <font color=red>element</font>.NIL <font color=blue>then</font>
+          result := anElem.item + sum(anElem.left) + sum(anElem.right);
+        <font color=blue>end if</font>;
+      <font color=blue>end func</font>;
+</pre><p>
+  New elements can be created with the function 'xalloc'.
+  This way interface and implementation types help to provide the
+  pointer functionality.
+</p><p>
+  Pointers and interface types are not always the best solution.
+  Abstract data types like dynamic arrays, hash tables, struct
+  types and set types can also be used to declare data structures.
+</p>
 <p></p>
 <a name="THE_FILE_SYSTEM"><big><b>8. THE FILE SYSTEM</b></big></a>
 <!-- ================== -->
