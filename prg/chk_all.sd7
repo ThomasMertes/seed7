@@ -129,8 +129,8 @@ const string: chkflt_output is "\n\
   \Decompose works correct for selected values.\n";
 
 const string: chkbin_output is "\n\
-  \float2Bits works correct for bin32 and bin64 values.\n\
-  \bits2Float works correct for bin32 and bin64 values.\n\
+  \Converting float to bin32 and bin64 values works correct.\n\
+  \Converting bin32 and bin64 values to float works correct.\n\
   \float2MbfBits works correct for bin32 and bin64 values.\n\
   \mbfBits2Float works correct for bin32 and bin64 values.\n\
   \bin64(aBigInteger mod 2_**y) works correct.\n\
@@ -167,7 +167,10 @@ const string: chkprc_output is "\n\
   \For to statements work correct.\n\
   \For downto statements work correct.\n\
   \Case integer statements work correct.\n\
-  \Case char statements work correct.\n";
+  \Case char statements work correct.\n\
+  \Case string statements work correct.\n\
+  \Case bigInteger statements work correct.\n\
+  \Case float statements work correct.\n";
 
 const string: chkbig_output is "\n\
   \Based bigInteger literals work correct.\n\

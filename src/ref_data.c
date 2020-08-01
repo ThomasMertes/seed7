@@ -134,6 +134,26 @@ objectType refAllocStri (boolType isVar, typeType aType,
 
 
 
+objectType refAllocVar (typeType aType, const intType aCategory)
+
+  {
+    objectType created_object;
+
+  /* refAllocVar */
+    if (unlikely(!ALLOC_OBJECT(created_object))) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      created_object->type_of = aType;
+      created_object->descriptor.property = NULL;
+      INIT_CATEGORY_OF_OBJ(created_object, aCategory);
+      SET_VAR_FLAG(created_object);
+      created_object->value.intValue = 0;
+    } /* if */
+    return created_object;
+  } /* refAllocVar */
+
+
+
 intType refArrMaxIdx (const const_objectType aReference)
 
   { /* refArrMaxIdx */

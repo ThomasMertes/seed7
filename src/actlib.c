@@ -172,6 +172,10 @@ objectType act_iconv (listType arguments)
 
 
 
+/**
+ *  Raise the exception ILLEGAL_ACTION.
+ *  @return ILLEGAL_ACTION
+ */
 objectType act_illegal (listType arguments)
 
   { /* act_illegal */

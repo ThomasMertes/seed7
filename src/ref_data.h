@@ -30,6 +30,7 @@ objectType refAllocInt (boolType isVar, typeType aType,
                         const intType number);
 objectType refAllocStri (boolType isVar, typeType aType,
                          const const_striType stri);
+objectType refAllocVar (typeType aType, const intType aCategory);
 intType refArrMaxIdx (const const_objectType aReference);
 intType refArrMinIdx (const const_objectType aReference);
 listType refArrToList (const const_objectType aReference);

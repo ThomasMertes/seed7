@@ -694,7 +694,7 @@ CONTENTS
         var string: stri is "";
       begin
         if number >= 0 then
-          repeat;
+          repeat
             stri := str(number mod 8) & stri;
             number := number mdiv 8;
           until number = 0;

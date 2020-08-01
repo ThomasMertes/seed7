@@ -205,6 +205,7 @@ $ syntax expr: .if.().then.().().end.if                          is  -> 25;
 
 $ syntax expr: .case.().of.().end.case                           is  -> 25;
 $ syntax expr: .case.().of.().otherwise. : .().end.case          is  -> 25;
+$ syntax expr: .case.().of.otherwise. : .().end.case             is  -> 25;
 $ syntax expr: .case.().of.end.case                              is  -> 25;
 
 $ syntax expr: .block.().exception.().end.block                  is  -> 25;

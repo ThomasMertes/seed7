@@ -1071,7 +1071,7 @@ striType fltSci (floatType number, intType precision)
         /* prinf() will always work ok.                            */
         if (precision > PRINTF_FMT_E_MAXIMUM_FLOAT_PRECISION &&
             precision + FLT_SCI_LEN - (buffer[0] != '-') > len) {
-          memSizeType numZeros = precision +
+          memSizeType numZeros = (memSizeType) (uintType) precision +
               FLT_SCI_LEN - (buffer[0] != '-') - len;
           pos = (memSizeType) (strchr(buffer, 'e') - buffer);
           memmove(&buffer[pos + numZeros], &buffer[pos], len - pos + 1);
@@ -1143,6 +1143,11 @@ striType fltSci (floatType number, intType precision)
 
 
 #if !SQRT_FUNCTION_OKAY
+/**
+ *  Returns the non-negative square root of x.
+ *  Used when sqrt() does not return NaN for negative numbers.
+ *  @return the square root of x.
+ */
 floatType fltSqrt (floatType number)
 
   {

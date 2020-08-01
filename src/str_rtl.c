@@ -1436,7 +1436,7 @@ intType strChIPos (const const_striType mainStri, const charType searched,
       if ((uintType) fromIndex <= mainStri->size) {
         main_mem = mainStri->mem;
         found_pos = memchr_strelem(&main_mem[fromIndex - 1], searched,
-            mainStri->size - fromIndex + 1);
+            mainStri->size - (memSizeType) (uintType) fromIndex + 1);
         if (found_pos != NULL) {
           return ((intType) (found_pos - main_mem)) + 1;
         } /* if */

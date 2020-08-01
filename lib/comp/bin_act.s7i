@@ -105,7 +105,12 @@ const proc: optimizeAddSubElement (in addSubBigElementType: dividend,
         c_expr.expr &:= "(uint64Type)(";
         process_expr(aParam, c_expr);
         c_expr.expr &:= ")";
-      elsif isActionExpression(dividend.summand, "BIG_ICONV") then
+      elsif isActionExpression(dividend.summand, "BIG_ICONV1") then
+        aParam := getActionParameter(dividend.summand, 1);
+        c_expr.expr &:= "(uint64Type)(";
+        process_expr(aParam, c_expr);
+        c_expr.expr &:= ")";
+      elsif isActionExpression(dividend.summand, "BIG_ICONV3") then
         aParam := getActionParameter(dividend.summand, 3);
         c_expr.expr &:= "(uint64Type)(";
         process_expr(aParam, c_expr);

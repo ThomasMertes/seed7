@@ -358,4 +358,4 @@ const func array string: readDir (inout emptyFileSys: fileSystem,
  *  @return the size of the file.
  *)
 const func bigInteger: bigFileSize (inout emptyFileSys: fileSystem, in string: filePath) is
-  return bigInteger conv (fileSize(fileSystem, filePath));
+  return bigInteger(fileSize(fileSystem, filePath));

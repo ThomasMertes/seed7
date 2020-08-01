@@ -192,16 +192,34 @@ objectType bln_gt (listType arguments)
  *  @return TRUE when number is odd,
  *          FALSE otherwise.
  */
-objectType bln_iconv (listType arguments)
+objectType bln_iconv1 (listType arguments)
 
-  { /* bln_iconv */
+  { /* bln_iconv1 */
+    isit_int(arg_1(arguments));
+    if (take_int(arg_1(arguments)) & 1) {
+      return SYS_TRUE_OBJECT;
+    } else {
+      return SYS_FALSE_OBJECT;
+    } /* if */
+  } /* bln_iconv1 */
+
+
+
+/**
+ *  Convert an integer to a boolean value.
+ *  @return TRUE when number is odd,
+ *          FALSE otherwise.
+ */
+objectType bln_iconv3 (listType arguments)
+
+  { /* bln_iconv3 */
     isit_int(arg_3(arguments));
     if (take_int(arg_3(arguments)) & 1) {
       return SYS_TRUE_OBJECT;
     } else {
       return SYS_FALSE_OBJECT;
     } /* if */
-  } /* bln_iconv */
+  } /* bln_iconv3 */
 
 
 

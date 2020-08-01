@@ -1,3 +1,66 @@
+20180107
+- Interpreter and compiler have been improved to allow support
+  for case statements with hashsets in the when parts. This allows
+  e.g. case statements with string, bigInteger, type and other
+  expressions.
+- Several discrepancies between s7 and s7c have been fixed. Many
+  thanks go to "tipd bmp" who sent a example programs to show the
+  discrepancies. Thanks also for finding a bug in the manual. 
+- The following type conversion functions from integer have been
+  introduced: bigInteger(), bigRational(), bitset(), boolean(),
+  char(), float(), rational() and complex(). This fits to the
+  existing conversion functions bin32() and bin64().
+- The files bigrat.s7i, filesys.s7i, int_act.s7i, s7c.sd7, chkdb.sd7,
+  dnafight.sd7, printpi1.sd7, printpi2.sd7 and savehd7.sd7 have been
+  adjusted to use bigInteger() instead of the conv operator to
+  convert an integer to a bigInteger.
+- The function bigRational, which converts a string to a bigRational
+  number, has been added to bigrat.s7i.
+- The function rational, which converts a string to a rational
+  number, has been added to rational.s7i.
+- In rational.s7i the operator 'parse' has been improved to convert
+  a string with a decimal number to a rational number.
+- The functions float2Bits and bits2Float in bin32.s7i and bin64.s7i
+  are deprecated and will be removed in a future version. The
+  functions bin32(), bin64() and float() can be used instead to
+  convert between float and bits in IEEE 754 representation.
+- The programs bas7.sd7 and chkbin.sd7 have been changed to use the
+  functions bin32(), bin64() and float() instead of float2Bits and
+  bits2Float.
+- Definitions of the operators |:= and &:= have been added to
+  hashsetof.s7i.
+- The library seed7_05.s7i has been improved to support case
+  statements which consist just of an otherwise part.
+- The program chkprc.sd7 has been improved to check integer and char
+  case statements with otherwise part.
+- The program chkprc.sd7 has been improved to check string,
+  bigInteger and float case statements with and without otherwise
+  part.
+- The program chkbig.sd7 has been improved to check the bigInteger()
+  conversion function.
+- The program chkflt.sd7 has been improved to check the float()
+  conversion function.
+- Interpreter and compiler have been improved to support the actions
+  BIG_ICONV1, BIG_ICONV3, BLN_ICONV1, BLN_ICONV3, CHR_ICONV1,
+  CHR_ICONV3, FLT_ICONV1, FLT_ICONV3, SET_ICONV1, SET_ICONV3 and
+  REF_ALLOC_VAR.
+- The handling of CONSTENUMOBJECT and VARENUMOBJECT objects in
+  s7c.sd7 has been improved.
+- The functions initCaseLabelsOfWhen, initCaseLabelsOfCase and
+  initCaseLabels have been added to s7c.sd7.
+- In biglib.c the function big_div_rem has been improved to generate
+  quotient and remainder as variable elements.
+- The function getConstant has been added to comp/const.s7i.
+- The functions getGenericValueOfVariableObject and
+  getParameterAsVariable have been added to comp/expr_util.s7i.
+- The logError error messages in fil_rtl.c have been improved.
+- The function refAllocVar has been added to ref_data.c.
+- Documentation comments have been added or improved in bin32.s7i,
+  bin64.s7i, sql_base.s7i, propertyfile.s7i, bitset.s7i, browser.s7i,
+  bitsetof.s7i, actlib.c, arr_rtl.c, big_gmp.c, big_rtl.c, binlib.c,
+  cmdlib.c, drw_rtl.c, flt_rtl.c, set_rtl.c, sql_lite.c, sql_my.c,
+  sql_oci.c, sql_odbc.c, sql_post.c, sql_rtl.c
+
 20170915:
 - The example program klondike.sd7 has been added. Klondike is a
   solitaire game.

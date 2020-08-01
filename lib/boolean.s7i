@@ -172,7 +172,15 @@ const func integer: ord (in boolean: boolValue)                          is acti
  *  @return TRUE when number is odd,
  *          FALSE otherwise.
  *)
-const func boolean: (attr boolean) conv (in integer: number)             is action "BLN_ICONV";
+const func boolean: boolean (in integer: number)                         is action "BLN_ICONV1";
+
+
+(**
+ *  Convert an [[integer]] to a boolean value.
+ *  @return TRUE when number is odd,
+ *          FALSE otherwise.
+ *)
+const func boolean: (attr boolean) conv (in integer: number)             is action "BLN_ICONV3";
 
 
 const varfunc boolean: (attr boolean) varConv (inout integer: number)    is action "TYP_VARCONV";

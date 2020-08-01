@@ -44,8 +44,8 @@ const func bigRational: compute_pi_machin is func
     var integer: n is 0;
   begin
     for n range 0 to 713 do
-      sum +:= 16_ * (-1_) ** n / (bigInteger conv succ(2 * n) *   5_ ** succ(2 * n)) -
-               4_ * (-1_) ** n / (bigInteger conv succ(2 * n) * 239_ ** succ(2 * n));
+      sum +:= 16_ * (-1_) ** n / (bigInteger(succ(2 * n)) *   5_ ** succ(2 * n)) -
+               4_ * (-1_) ** n / (bigInteger(succ(2 * n)) * 239_ ** succ(2 * n));
     end for;
   end func;
 

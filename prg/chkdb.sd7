@@ -320,7 +320,7 @@ const proc: testBooleanField (in database: testDb, in dbCategory: driver) is fun
       row := 1;
       while fetch(statement) do
         bigIntColumn := column(statement, 1, bigInteger);
-        if bigIntColumn <> bigInteger conv ord(expect[row]) then
+        if bigIntColumn <> bigInteger(ord(expect[row])) then
           writeln(" *** testBooleanField: Row: " <& row <&
                   " Expected " <& expect[row] <& " found " <& bigIntColumn);
         end if;
@@ -330,7 +330,7 @@ const proc: testBooleanField (in database: testDb, in dbCategory: driver) is fun
       row := 1;
       while fetch(statement) do
         bigRatColumn := column(statement, 1, bigRational);
-        if bigRatColumn <> bigRational conv ord(expect[row]) then
+        if bigRatColumn <> bigRational(ord(expect[row])) then
           writeln(" *** testBooleanField: Row: " <& row <&
                   " Expected " <& expect[row] <& " found " <& bigRatColumn);
         end if;
@@ -398,7 +398,7 @@ const proc: testInt8Field (in database: testDb, in dbCategory: driver) is func
       row := 1;
       while fetch(statement) do
         bigIntColumn := column(statement, 1, bigInteger);
-        if bigIntColumn <> bigInteger conv (expect[row]) then
+        if bigIntColumn <> bigInteger(expect[row]) then
           writeln(" *** testInt8Field: Row: " <& row <&
                   " Expected " <& expect[row] <& " found " <& bigIntColumn);
         end if;
@@ -408,7 +408,7 @@ const proc: testInt8Field (in database: testDb, in dbCategory: driver) is func
       row := 1;
       while fetch(statement) do
         bigRatColumn := column(statement, 1, bigRational);
-        if bigRatColumn <> bigRational conv (expect[row]) then
+        if bigRatColumn <> bigRational(expect[row]) then
           writeln(" *** testInt8Field: Row: " <& row <&
                   " Expected " <& expect[row] <& " found " <& bigRatColumn);
         end if;
@@ -475,7 +475,7 @@ const proc: testInt16Field (in database: testDb, in dbCategory: driver) is func
       row := 1;
       while fetch(statement) do
         bigIntColumn := column(statement, 1, bigInteger);
-        if bigIntColumn <> bigInteger conv (expect[row]) then
+        if bigIntColumn <> bigInteger(expect[row]) then
           writeln(" *** testInt16Field: Row: " <& row <&
                   " Expected " <& expect[row] <& " found " <& bigIntColumn);
         end if;
@@ -485,7 +485,7 @@ const proc: testInt16Field (in database: testDb, in dbCategory: driver) is func
       row := 1;
       while fetch(statement) do
         bigRatColumn := column(statement, 1, bigRational);
-        if bigRatColumn <> bigRational conv (expect[row]) then
+        if bigRatColumn <> bigRational(expect[row]) then
           writeln(" *** testInt16Field: Row: " <& row <&
                   " Expected " <& expect[row] <& " found " <& bigRatColumn);
         end if;
@@ -552,7 +552,7 @@ const proc: testInt32Field (in database: testDb, in dbCategory: driver) is func
       row := 1;
       while fetch(statement) do
         bigIntColumn := column(statement, 1, bigInteger);
-        if bigIntColumn <> bigInteger conv (expect[row]) then
+        if bigIntColumn <> bigInteger(expect[row]) then
           writeln(" *** testInt32Field: Row: " <& row <&
                   " Expected " <& expect[row] <& " found " <& bigIntColumn);
         end if;
@@ -562,7 +562,7 @@ const proc: testInt32Field (in database: testDb, in dbCategory: driver) is func
       row := 1;
       while fetch(statement) do
         bigRatColumn := column(statement, 1, bigRational);
-        if bigRatColumn <> bigRational conv (expect[row]) then
+        if bigRatColumn <> bigRational(expect[row]) then
           writeln(" *** testInt32Field: Row: " <& row <&
                   " Expected " <& expect[row] <& " found " <& bigRatColumn);
         end if;
@@ -629,7 +629,7 @@ const proc: testInt64Field (in database: testDb, in dbCategory: driver) is func
       row := 1;
       while fetch(statement) do
         bigIntColumn := column(statement, 1, bigInteger);
-        if bigIntColumn <> bigInteger conv (expect[row]) then
+        if bigIntColumn <> bigInteger(expect[row]) then
           writeln(" *** testInt64Field: Row: " <& row <&
                   " Expected " <& expect[row] <& " found " <& bigIntColumn);
         end if;
@@ -639,7 +639,7 @@ const proc: testInt64Field (in database: testDb, in dbCategory: driver) is func
       row := 1;
       while fetch(statement) do
         bigRatColumn := column(statement, 1, bigRational);
-        if bigRatColumn <> bigRational conv (expect[row]) then
+        if bigRatColumn <> bigRational(expect[row]) then
           writeln(" *** testInt64Field: Row: " <& row <&
                   " Expected " <& expect[row] <& " found " <& bigRatColumn);
         end if;

@@ -340,11 +340,35 @@ const func bigRational: rat (in bigInteger: number) is func
 (**
  *  Return the conversion of an integer to a ''bigRational''.
  *)
+const func bigRational: bigRational (in integer: number) is func
+  result
+    var bigRational: aRational is bigRational.value;
+  begin
+    aRational.numerator := bigInteger(number);
+    aRational.denominator := 1_;
+  end func;
+
+
+(**
+ *  Return the conversion of an integer to a ''bigRational''.
+ *)
 const func bigRational: (attr bigRational) conv (in integer: number) is func
   result
     var bigRational: aRational is bigRational.value;
   begin
-    aRational.numerator := bigInteger conv number;
+    aRational.numerator := bigInteger(number);
+    aRational.denominator := 1_;
+  end func;
+
+
+(**
+ *  Return the conversion of a bigInteger to a ''bigRational''.
+ *)
+const func bigRational: bigRational (in bigInteger: number) is func
+  result
+    var bigRational: aRational is bigRational.value;
+  begin
+    aRational.numerator := number;
     aRational.denominator := 1_;
   end func;
 
@@ -742,6 +766,26 @@ const func bigRational: (attr bigRational) parse (in var string: stri) is func
       raise RANGE_ERROR;
     end if;
   end func;
+
+
+(**
+ *  Convert a [[string]] to a ''bigRational'' number.
+ *  The [[string]] must contain a fraction (e.g.: "3/5") or a decimal number
+ *  (e.g.: "1.25"). In a fraction numerator and denominator are separated
+ *  with a slash (/). A decimal number can have repeating decimals,
+ *  which are enclosed in parentheses ("e.g.: "0.(3)"). The repeating
+ *  decimals are not allowed to start before the decimal point.
+ *   bigRational parse "3/5"         returns   3_ /   5_
+ *   bigRational parse "1.25"        returns   5_ /   4_
+ *   bigRational parse "0.(3)"       returns   1_ /   3_
+ *   bigRational parse "1.23(45)"    returns 679_ / 550_
+ *   bigRational parse "3.(142857)"  returns  22_ /   7_
+ *   bigRational parse "0.(846153)"  returns  11_ /  13_
+ *  @return the ''bigRational'' result of the conversion.
+ *  @exception RANGE_ERROR When stri contains not a valid ''bigRational'' value.
+ *)
+const func bigRational: bigRational (in string: stri) is
+    return bigRational parse stri;
 
 
 enable_io(bigRational);

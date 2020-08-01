@@ -1433,6 +1433,11 @@ setType setSymdiff (const const_setType set1, const const_setType set2)
 
 
 
+/**
+ *  Get 64 bits from a bitset starting with lowestBitNum.
+ *  This function is used by the action BIN_GET_BINARY_FROM_SET.
+ *  @return a bit pattern with 64 bits from set1.
+ */
 uintType setToUInt (const const_setType set1, const intType lowestBitNum)
 
   {

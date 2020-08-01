@@ -247,6 +247,17 @@ objectType cmd_clone_file (listType arguments)
 
 
 
+/**
+ *  Get a built-in C compiler/runtime configuration value.
+ *  The makefile used to compile Seed7 and the program chkccomp.c
+ *  write the configuration values to version.h. The configuration
+ *  values are hard-coded in the Seed7 runtime library.
+ *  @param name/arg_1 Name of the configuration value to be retrieved.
+ *  @return the requested configuration value or "" when a value
+ *          with the name does not exist.
+ *  @exception MEMORY_ERROR Not enough memory to convert the
+ *             configuration value to a string.
+ */
 objectType cmd_config_value (listType arguments)
 
   { /* cmd_config_value */

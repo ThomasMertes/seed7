@@ -840,7 +840,7 @@ reset(8);
     <span class="keywd">var</span> <span class="type">string</span>: stri <span class="keywd">is</span> <span class="stri">""</span>;
   <span class="keywd">begin</span>
     <span class="keywd">if</span> number >= 0 <span class="keywd">then</span>
-      <span class="keywd">repeat</span>;
+      <span class="keywd">repeat</span>
         stri := str(number <span class="op">mod</span> 8) & stri;
         number := number <span class="op">mdiv</span> 8;
       <span class="keywd">until</span> number = 0;

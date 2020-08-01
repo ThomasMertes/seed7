@@ -599,8 +599,10 @@ static striType read_and_alloc_stri (fileType inFile, memSizeType chars_missing,
       /* printf("read_and_alloc_stri: bytes_in_buffer=" FMT_U_MEM "\n", bytes_in_buffer); */
       if (unlikely(bytes_in_buffer == 0 && result_size == 0 && ferror(inFile))) {
         logError(printf("read_and_alloc_stri: "
-                        "fread(*, 1, " FMT_U_MEM ", %d) failed.\n",
-                        (memSizeType) LIST_BUFFER_SIZE, safe_fileno(inFile)););
+                        "fread(*, 1, " FMT_U_MEM ", %d) failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        (memSizeType) LIST_BUFFER_SIZE, safe_fileno(inFile),
+                        errno, strerror(errno)););
         *err_info = FILE_ERROR;
         result = NULL;
       } else {
@@ -628,8 +630,10 @@ static striType read_and_alloc_stri (fileType inFile, memSizeType chars_missing,
       /* printf("read_and_alloc_stri: bytes_in_buffer=" FMT_U_MEM "\n", bytes_in_buffer); */
       if (unlikely(bytes_in_buffer == 0 && result_size == 0 && ferror(inFile))) {
         logError(printf("read_and_alloc_stri: "
-                        "fread(*, 1, " FMT_U_MEM ", %d) failed.\n",
-                        chars_missing - result_size, safe_fileno(inFile)););
+                        "fread(*, 1, " FMT_U_MEM ", %d) failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        chars_missing - result_size, safe_fileno(inFile),
+                        errno, strerror(errno)););
         *err_info = FILE_ERROR;
         result = NULL;
       } else {
@@ -1094,8 +1098,10 @@ striType filGets (fileType inFile, intType length)
             (size_t) allocated_size, inFile);
         /* printf("num_of_chars_read=" FMT_U_MEM "\n", num_of_chars_read); */
         if (num_of_chars_read == 0 && ferror(inFile)) {
-          logError(printf("filGets: fread(*, 1, " FMT_U_MEM ", %d) failed.\n",
-                          allocated_size, safe_fileno(inFile)););
+          logError(printf("filGets: fread(*, 1, " FMT_U_MEM ", %d) failed:\n"
+                          "errno=%d\nerror: %s\n",
+                          allocated_size, safe_fileno(inFile),
+                          errno, strerror(errno)););
           err_info = FILE_ERROR;
         } else {
           memcpy_to_strelem(result->mem, (ustriType) result->mem, num_of_chars_read);
@@ -1728,8 +1734,10 @@ void filSetbuf (fileType aFile, intType mode, intType size)
       raise_error(RANGE_ERROR);
     } else if (unlikely(setvbuf(aFile, NULL, (int) mode, (memSizeType) size) != 0)) {
       logError(printf("filSetbuf: "
-                      "setvbuf(%d, NULL, %d, " FMT_U_MEM ") failed.\n",
-                      safe_fileno(aFile), (int) mode, (memSizeType) size););
+                      "setvbuf(%d, NULL, %d, " FMT_U_MEM ") failed.:\n"
+                      "errno=%d\nerror: %s\n",
+                      safe_fileno(aFile), (int) mode, (memSizeType) size,
+                      errno, strerror(errno)););
       raise_error(FILE_ERROR);
     } /* if */
   } /* filSetbuf */

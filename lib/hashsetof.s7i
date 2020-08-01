@@ -257,6 +257,36 @@ const func type: hashset (in type: baseType) is func
         end func;
 
       (**
+       *  Assign the union of set2 and dest to dest.
+       *  @exception MEMORY_ERROR Not enough memory for the result.
+       *)
+      const proc: (inout setType: dest) |:= (in setType: set2) is func
+        local
+          var baseType: element is baseType.value;
+        begin
+          for element range set2 do
+            incl(dest, element);
+          end for;
+        end func;
+
+      (**
+       *  Assign the intersection of set2 and dest to dest.
+       *  @exception MEMORY_ERROR Not enough memory for the result.
+       *)
+      const proc: (inout setType: dest) &:= (in setType: set2) is func
+        local
+          var setType: intersection is setType.EMPTY_SET;
+          var baseType: element is baseType.value;
+        begin
+          for element range dest do
+            if element in set2 then
+              incl(intersection, element);
+            end if;
+          end for;
+          dest := intersection;
+        end func;
+
+      (**
        *  Check if two sets are equal.
        *  @return TRUE if the two sets are equal,
        *          FALSE otherwise.

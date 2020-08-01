@@ -1,7 +1,7 @@
 
 (********************************************************************)
 (*                                                                  *)
-(*  propertyfile.s7i  Read key value pairs from a property file     *)
+(*  propertyfile.s7i  Read key-value pairs from a property file     *)
 (*  Copyright (C) 2013  Thomas Mertes                               *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
@@ -29,6 +29,11 @@
 include "scanfile.s7i";
 
 const set of char: propertyWhiteSpace is {' ', '\t', '\f'};
+
+
+(**
+ *  Map to store key-value pairs ([[hash]] [ [[string]] ] [[string]]).
+ *)
 const type: propertyDataType is hash [string] string;
 
 

@@ -379,6 +379,18 @@ const func rational: rat (in integer: number) is func
 (**
  *  Return the conversion of an integer to a ''rational''.
  *)
+const func rational: rational (in integer: number) is func
+  result
+    var rational: aRational is rational.value;
+  begin
+    aRational.numerator := number;
+    aRational.denominator := 1;
+  end func;
+
+
+(**
+ *  Return the conversion of an integer to a ''rational''.
+ *)
 const func rational: (attr rational) conv (in integer: number) is func
   result
     var rational: aRational is rational.value;
@@ -699,23 +711,96 @@ const func string: (in rational: number) sci (in integer: precision) is func
 
 
 (**
- *  Convert a string to a rational number.
- *  The string must contain a fraction (e.g.: "3/5"), were numerator
- *  and denominator are separated with a slash (/).
- *  @return the rational result of the conversion.
- *  @exception RANGE_ERROR When stri contains not a valid rational value.
+ *  Convert a [[string]] to a ''rational'' number.
+ *  The [[string]] must contain a fraction (e.g.: "3/5") or a decimal number
+ *  (e.g.: "1.25"). In a fraction numerator and denominator are separated
+ *  with a slash (/). A decimal number can have repeating decimals,
+ *  which are enclosed in parentheses ("e.g.: "0.(3)"). The repeating
+ *  decimals are not allowed to start before the decimal point.
+ *   rational parse "3/5"         returns   3 /   5
+ *   rational parse "1.25"        returns   5 /   4
+ *   rational parse "0.(3)"       returns   1 /   3
+ *   rational parse "1.23(45)"    returns 679 / 550
+ *   rational parse "3.(142857)"  returns  22 /   7
+ *   rational parse "0.(846153)"  returns  11 /  13
+ *  @return the ''rational'' result of the conversion.
+ *  @exception RANGE_ERROR When stri contains not a valid ''rational'' value.
  *)
 const func rational: (attr rational) parse (in var string: stri) is func
   result
     var rational: aRational is rational.value;
+  local
+    var boolean: negative is FALSE;
+    var string: fraction is "";
+    var string: period is "";
   begin
-    aRational.numerator := integer parse getint(stri);
-    if stri[1] <> '/' then
+    if stri <> "" then
+      if stri[1] = '-' then
+        stri := stri[2 ..];
+        negative := TRUE;
+      elsif stri[1] = '+' then
+        stri := stri[2 ..];
+      end if;
+      aRational.numerator := integer parse getint(stri);
+      if stri[1] = '/' then
+        stri := stri[2 ..];
+        aRational.denominator := integer parse getint(stri);
+        reduce(aRational);
+      elsif stri[1] = '.' then
+        stri := stri[2 ..];
+        if startsWith(stri, "(") then
+          stri := stri[2 ..];
+          period := getint(stri);
+          aRational.denominator := 1;
+          aRational +:= integer parse period / pred(10 ** length(period));
+          if stri[1] = ')' then
+            stri := stri[2 ..];
+          end if;
+        else
+          fraction := getint(stri);
+          aRational.denominator := 10 ** length(fraction);
+          aRational.numerator *:= aRational.denominator;
+          aRational.numerator +:= integer parse fraction;
+          if startsWith(stri, "(") then
+            stri := stri[2 ..];
+            period := getint(stri);
+            aRational +:= integer parse period / (pred(10 ** length(period)) * aRational.denominator);
+            if stri[1] = ')' then
+              stri := stri[2 ..];
+            end if;
+          end if;
+        end if;
+        reduce(aRational);
+      end if;
+      if stri <> "" then
+        raise RANGE_ERROR;
+      elsif negative then
+        aRational.numerator := -aRational.numerator;
+      end if;
+    else
       raise RANGE_ERROR;
     end if;
-    stri := stri[2 ..];
-    aRational.denominator := integer parse getint(stri);
   end func;
+
+
+(**
+ *  Convert a [[string]] to a ''rational'' number.
+ *  The [[string]] must contain a fraction (e.g.: "3/5") or a decimal number
+ *  (e.g.: "1.25"). In a fraction numerator and denominator are separated
+ *  with a slash (/). A decimal number can have repeating decimals,
+ *  which are enclosed in parentheses ("e.g.: "0.(3)"). The repeating
+ *  decimals are not allowed to start before the decimal point.
+ *   rational parse "3/5"         returns   3 /   5
+ *   rational parse "1.25"        returns   5 /   4
+ *   rational parse "0.(3)"       returns   1 /   3
+ *   rational parse "1.23(45)"    returns 679 / 550
+ *   rational parse "3.(142857)"  returns  22 /   7
+ *   rational parse "0.(846153)"  returns  11 /  13
+ *  @return the ''rational'' result of the conversion.
+ *  @exception RANGE_ERROR When stri contains not a valid ''rational'' value.
+ *)
+const func rational: rational (in string: stri) is
+    return rational parse stri;
 
 
 enable_io(rational);

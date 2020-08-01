@@ -284,7 +284,7 @@ const func boolean: confirmSave (inout stateType: state) is func
               bytesProcessed := state.badBytesToProcess -
                   (state.badBytesInUnprocessedAreas +
                   (state.blockToProcess - state.badAreaToProcess) +
-                  bigInteger conv (state.blockSize));
+                  bigInteger(state.blockSize));
             else
               bytesProcessed := state.badBytesToProcess - state.badBytesInUnprocessedAreas;
             end if;
@@ -300,8 +300,8 @@ const func boolean: confirmSave (inout stateType: state) is func
           end if;
         elsif state.phase = EXAMINE then
           halveBadAreaSize :=  state.sizeOfBadAreaToProcess div
-              (bigInteger conv (state.blockSize)) div 2_ *
-              (bigInteger conv (state.blockSize));
+              bigInteger(state.blockSize) div 2_ *
+              bigInteger(state.blockSize);
           state.badBytesInUnprocessedAreas := countBadBytesInAreasForward(state,
               state.badAreaToProcess + state.sizeOfBadAreaToProcess) + halveBadAreaSize;
           if state.blockToProcess >= state.badAreaToProcess + halveBadAreaSize then
@@ -312,7 +312,7 @@ const func boolean: confirmSave (inout stateType: state) is func
             bytesProcessed := state.badBytesToProcess -
                 (state.badBytesInUnprocessedAreas +
                 (state.blockToProcess - state.badAreaToProcess) +
-                bigInteger conv (state.blockSize));
+                bigInteger(state.blockSize));
           end if;
           writeln("Examine - " <&
               bytesProcessed * 100_ / state.badBytesToProcess digits 4 <& "% done");
@@ -434,7 +434,7 @@ const proc: nextPhase (inout stateType: state) is func
 
 
 const func bigInteger: bigLength (in string: stri) is
-  return bigInteger conv length(stri);
+  return bigInteger(length(stri));
 
 
 const func bigInteger: afterMaximumBadArea (in stateType: state) is func
@@ -631,34 +631,34 @@ const proc: copyFile (inout stateType: state) is func
         end if;
         if length(chunkContent) <> state.chunkSize and
             currPosition + bigLength(chunkContent) <= state.inFileSize then
-          if currPosition + bigInteger conv (state.chunkSize) > state.inFileSize then
+          if currPosition + bigInteger(state.chunkSize) > state.inFileSize then
             missingBytes := succ(state.inFileSize) - currPosition - bigLength(chunkContent);
           else
-            missingBytes := bigInteger conv (state.chunkSize) - bigLength(chunkContent);
+            missingBytes := bigInteger(state.chunkSize) - bigLength(chunkContent);
           end if;
           seek(outFile, currPosition + bigLength(chunkContent));
           write(outFile, "\0;" mult ord(missingBytes));
           addBadArea(state, currPosition + bigLength(chunkContent), missingBytes);
           if state.skipSize > state.chunkSize then
-            if currPosition + bigInteger conv (state.skipSize) > state.inFileSize then
+            if currPosition + bigInteger(state.skipSize) > state.inFileSize then
               missingBytes := succ(state.inFileSize) - currPosition;
             else
-              missingBytes := bigInteger conv (state.skipSize);
+              missingBytes := bigInteger(state.skipSize);
             end if;
-            missingBytes -:= bigInteger conv (state.chunkSize);
+            missingBytes -:= bigInteger(state.chunkSize);
             if missingBytes > 0_ then
-              seek(outFile, currPosition + bigInteger conv (state.chunkSize));
+              seek(outFile, currPosition + bigInteger(state.chunkSize));
               write(outFile, "\0;" mult ord(missingBytes));
-              addBadArea(state, currPosition + bigInteger conv (state.chunkSize), missingBytes);
+              addBadArea(state, currPosition + bigInteger(state.chunkSize), missingBytes);
             end if;
-            currPosition +:= bigInteger conv (state.skipSize);
+            currPosition +:= bigInteger(state.skipSize);
           else
-            currPosition +:= bigInteger conv (state.chunkSize);
+            currPosition +:= bigInteger(state.chunkSize);
           end if;
           showProgress(state, state.inFileSize, pred(currPosition), pred(currPosition));
           saveState(state);
         else
-          currPosition +:= bigInteger conv (state.chunkSize);
+          currPosition +:= bigInteger(state.chunkSize);
           showProgress(state, state.inFileSize, pred(currPosition), pred(currPosition));
         end if;
       end while;
@@ -723,7 +723,7 @@ const proc: repairChunk (inout stateType: state, inout file: outFile,
       sourceBlock := sourceChunk[index len state.blockSize];
       destinationBlock := repairedChunk[index len state.blockSize];
       destinationBlock := repairBlock(state,
-          chunkPosition + bigInteger conv index - 1_,
+          chunkPosition + bigInteger(index) - 1_,
           sourceBlock, destinationBlock);
       repairedChunk := repairedChunk[.. pred(index)] &
           destinationBlock & repairedChunk[index + state.blockSize ..];
@@ -763,9 +763,9 @@ const proc: rereadFile (inout stateType: state) is func
         end if;
         if sourceChunk <> destinationChunk then
           repairChunk(state, outFile, currPosition, sourceChunk, destinationChunk);
-          currPosition +:= bigInteger conv (state.skipSize);
+          currPosition +:= bigInteger(state.skipSize);
         else
-          currPosition +:= bigInteger conv (state.chunkSize);
+          currPosition +:= bigInteger(state.chunkSize);
         end if;
         showProgress(state, state.inFileSize, pred(currPosition), state.inFileSize);
       end while;
@@ -821,7 +821,7 @@ const proc: processAreaBackward (inout stateType: state,
   begin
     showProgress(state, state.badBytesToProcess, state.badBytesToProcess -
         (state.badBytesInUnprocessedAreas + (state.blockToProcess - state.badAreaToProcess) +
-        bigInteger conv (state.blockSize)), state.inFileSize);
+        bigInteger(state.blockSize)), state.inFileSize);
     saveState(state);
     while state.blockToProcess >= state.badAreaToProcess and not keypressed(KEYBOARD) do
       # writeln(log, "process block " <& state.blockToProcess);
@@ -838,15 +838,15 @@ const proc: processAreaBackward (inout stateType: state,
         end if;
       end if;
       if length(sourceBlock) = state.blockSize or state.phase = FIX then
-        state.blockToProcess -:= bigInteger conv (state.blockSize);
+        state.blockToProcess -:= bigInteger(state.blockSize);
         # writeln(log, "succeed -> state.blockToProcess " <& state.blockToProcess);
       else
-        state.blockToProcess := state.badAreaToProcess - bigInteger conv (state.blockSize);
+        state.blockToProcess := state.badAreaToProcess - bigInteger(state.blockSize);
         # writeln(log, "fail -> state.blockToProcess " <& state.blockToProcess);
       end if;
       showProgress(state, state.badBytesToProcess, state.badBytesToProcess -
           (state.badBytesInUnprocessedAreas + (state.blockToProcess - state.badAreaToProcess) +
-          bigInteger conv (state.blockSize)), state.inFileSize);
+          bigInteger(state.blockSize)), state.inFileSize);
       saveState(state);
     end while;
   end func;
@@ -870,7 +870,7 @@ const proc: fixOrImproveFile (inout stateType: state) is func
           state.badBytesInUnprocessedAreas := countBadBytesInAreasForward(state,
               state.badAreaToProcess + state.sizeOfBadAreaToProcess);
           lastBlockPosition := state.badAreaToProcess + state.sizeOfBadAreaToProcess -
-              bigInteger conv (state.blockSize);
+              bigInteger(state.blockSize);
           if state.blockToProcess < state.badAreaToProcess or
               state.blockToProcess >= lastBlockPosition then
             state.blockToProcess := lastBlockPosition;
@@ -936,7 +936,7 @@ const proc: processAreaForward (inout stateType: state,
         end if;
       end if;
       if length(sourceBlock) = state.blockSize then
-        state.blockToProcess +:= bigInteger conv (state.blockSize);
+        state.blockToProcess +:= bigInteger(state.blockSize);
         # writeln(log, "succeed -> state.blockToProcess " <& state.blockToProcess);
       else
         state.blockToProcess := state.badAreaToProcess + state.sizeOfBadAreaToProcess;
@@ -969,8 +969,8 @@ const proc: examineFile (inout stateType: state) is func
         #     " with size " <& state.sizeOfBadAreaToProcess);
         if state.badAreaToProcess <= state.inFileSize then
           halveBadAreaSize :=  state.sizeOfBadAreaToProcess div
-              (bigInteger conv (state.blockSize)) div 2_ *
-              (bigInteger conv (state.blockSize));
+              bigInteger(state.blockSize) div 2_ *
+              bigInteger(state.blockSize);
           state.badBytesInUnprocessedAreas := countBadBytesInAreasForward(state,
               state.badAreaToProcess + state.sizeOfBadAreaToProcess) + halveBadAreaSize;
           middleBlockPosition := state.badAreaToProcess + halveBadAreaSize;
@@ -983,7 +983,7 @@ const proc: examineFile (inout stateType: state) is func
             processAreaForward(state, inFile, outFile);
             if state.blockToProcess >= state.badAreaToProcess + state.sizeOfBadAreaToProcess and
                 state.badAreas[state.badAreaToProcess] <> state.sizeOfBadAreaToProcess then
-              state.blockToProcess := middleBlockPosition - bigInteger conv (state.blockSize);
+              state.blockToProcess := middleBlockPosition - bigInteger(state.blockSize);
             end if;
           end if;
           if state.blockToProcess < middleBlockPosition then

@@ -79,6 +79,11 @@ objectType bin_and_assign (listType arguments)
 
 
 
+/**
+ *  Convert to bigInteger.
+ *  @return the unchanged value as integer.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 objectType bin_big (listType arguments)
 
   { /* bin_big */
@@ -88,6 +93,10 @@ objectType bin_big (listType arguments)
 
 
 
+/**
+ *  Convert to bin64.
+ *  @return the unchanged value as bin64.
+ */
 objectType bin_binary (listType arguments)
 
   { /* bin_binary */
@@ -141,6 +150,10 @@ objectType bin_cmp (listType arguments)
 
 
 
+/**
+ *  Get 64 bits from a bitset starting with lowestBitNum/arg_2.
+ *  @return a bit pattern with 64 bits from set1/arg_1.
+ */
 objectType bin_getBinaryFromSet (listType arguments)
 
   { /* bin_getBinaryFromSet */

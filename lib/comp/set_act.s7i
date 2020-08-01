@@ -37,7 +37,8 @@ const ACTION: SET_EXCL         is action "SET_EXCL";
 const ACTION: SET_GE           is action "SET_GE";
 const ACTION: SET_GT           is action "SET_GT";
 const ACTION: SET_HASHCODE     is action "SET_HASHCODE";
-const ACTION: SET_ICONV        is action "SET_ICONV";
+const ACTION: SET_ICONV1       is action "SET_ICONV1";
+const ACTION: SET_ICONV3       is action "SET_ICONV3";
 const ACTION: SET_INCL         is action "SET_INCL";
 const ACTION: SET_INTERSECT    is action "SET_INTERSECT";
 const ACTION: SET_LE           is action "SET_LE";
@@ -617,7 +618,17 @@ const proc: process (SET_HASHCODE, in reference: function,
   end func;
 
 
-const proc: process (SET_ICONV, in reference: function,
+const proc: process (SET_ICONV1, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "setIConv(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (SET_ICONV3, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin

@@ -79,6 +79,7 @@ const bin64: (attr bin64) . value   is bin64(0);
 (**
  *  Convert to bigInteger.
  *  @return the unchanged value as integer.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
 const func bigInteger: big (in bin64: binValue)                is action "BIN_BIG";
 
@@ -86,6 +87,8 @@ const func bigInteger: big (in bin64: binValue)                is action "BIN_BI
 (**
  *  Convert to bin64.
  *  @return the unchanged value as bin64.
+ *  @exception RANGE_ERROR The number is negative or too big to fit
+ *             into a bin64 value.
  *)
 const func bin64: bin64 (in bigInteger: number)                is action "BIN_BINARY";
 
@@ -99,8 +102,10 @@ const func bin64: bin64 (in char: ch) is
 
 
 (**
- *  Convert to bin64.
  *  Get bits in IEEE 754 double-precision representation from a float.
+ *  IEEE 754 is a standard for floating point arithmetic.
+ *  The double-precision format of IEEE 754 has a sign bit,
+ *  an 11 bit exponent, and a 52 bit mantissa.
  *  @param number Float value to be converted to bin64.
  *  @return 64 bits in IEEE 754 double-precision float representation.
  *)
@@ -108,8 +113,10 @@ const func bin64: bin64 (in float: number)                     is action "FLT_DO
 
 
 (**
- *  Convert to float.
  *  Get a float from bits in IEEE 754 double-precision representation.
+ *  IEEE 754 is a standard for floating point arithmetic.
+ *  The double-precision format of IEEE 754 has a sign bit,
+ *  an 11 bit exponent, and a 52 bit mantissa.
  *  @param bits Bits to be converted to a float.
  *  @return a float from bits in double-precision float representation.
  *)
@@ -300,25 +307,18 @@ const func bin64: rotRight (in bin64: x, in integer: shiftCount) is
 
 
 (**
- *  Get 64 bits from a bitset starting with lowestBitNum.
+ *  Get 64 bits from a bitset starting with ''lowestBitNum''.
+ *  @return a bit pattern with 64 bits from ''set1''.
  *)
 const func bin64: getBinary (in bitset: set1,
                              in integer: lowestBitNum) is action "BIN_GET_BINARY_FROM_SET";
 
 
-(**
- *  Get bits in IEEE 754 double-precision representation from a float.
- *  @param number Float value to be converted to bin64.
- *  @return 64 bits in IEEE 754 double-precision float representation.
- *)
+# The function float2Bits() is deprecated. Use bin64() instead.
 const func bin64: float2Bits (in float: number, DOUBLE)        is action "FLT_DOUBLE2BITS";
 
 
-(**
- *  Get a float from bits in IEEE 754 double-precision representation.
- *  @param bits Bits to be converted to a float.
- *  @return a float from bits in double-precision float representation.
- *)
+# The function bits2Float() is deprecated. Use float() instead.
 const func float: bits2Float (in bin64: bits)                  is action "FLT_BITS2DOUBLE";
 
 
@@ -355,7 +355,7 @@ const func bin64: float2MbfBits (in float: number, DOUBLE) is func
       raise RANGE_ERROR;
     elsif number <> 0.0 then
       ieeeElements := decompose(number);
-      fractionBits := float2Bits(ieeeElements.fraction, DOUBLE);
+      fractionBits := bin64(ieeeElements.fraction);
       mbfExponent := ieeeElements.exponent - 1 + mbfExponentBias;
       if mbfExponent > mbfMaxExponent then
         raise RANGE_ERROR;

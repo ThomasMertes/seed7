@@ -1064,9 +1064,9 @@ const proc: finalStatistics is func
     for col1 range FIRSTCOL to LASTCOL do
       if col1 in playerSet then
         incr(cardPlayerSet);
-        valueField[col1] := bigInteger conv (abs(statValues[col1][TRUE].totalno) + 1) *
-            bigInteger conv (abs(statValues[col1][TRUE].totalmass) + 1) *
-            bigInteger conv (abs(statValues[col1][TRUE].deathtime) + 1);
+        valueField[col1] := bigInteger(abs(statValues[col1][TRUE].totalno) + 1) *
+            bigInteger(abs(statValues[col1][TRUE].totalmass) + 1) *
+            bigInteger(abs(statValues[col1][TRUE].deathtime) + 1);
       end if;
       colField[col1] := col1;
     end for;

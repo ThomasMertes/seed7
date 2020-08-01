@@ -84,8 +84,10 @@ const func bin32: bin32 (in char: ch) is
 
 
 (**
- *  Convert to bin32.
  *  Get bits in IEEE 754 single-precision representation from a float.
+ *  IEEE 754 is a standard for floating point arithmetic.
+ *  The single-precision format of IEEE 754 has a sign bit, an 8 bit
+ *  exponent, and a 23 bit mantissa.
  *  @param number Float value to be converted to bin32.
  *  @return 32 bits in IEEE 754 single-precision float representation.
  *)
@@ -93,8 +95,10 @@ const func bin32: bin32 (in float: number)                     is action "FLT_SI
 
 
 (**
- *  Convert to float.
  *  Get a float from bits in IEEE 754 single-precision representation.
+ *  IEEE 754 is a standard for floating point arithmetic.
+ *  The single-precision format of IEEE 754 has a sign bit, an 8 bit
+ *  exponent, and a 23 bit mantissa.
  *  @param bits Bits to be converted to a float.
  *  @return a float from bits in single-precision float representation.
  *)
@@ -282,19 +286,11 @@ const func bin32: rotRight (in bin32: x, in integer: shiftCount) is
   return (x >> shiftCount | x << (32 - shiftCount)) & bin32(16#ffffffff);
 
 
-(**
- *  Get bits in IEEE 754 single-precision representation from a float.
- *  @param number Float value to be converted to bin32.
- *  @return 32 bits in IEEE 754 single-precision float representation.
- *)
+# The function float2Bits() is deprecated. Use bin32() instead.
 const func bin32: float2Bits (in float: number, SINGLE)      is action "FLT_SINGLE2BITS";
 
 
-(**
- *  Get a float from bits in IEEE 754 single-precision representation.
- *  @param bits Bits to be converted to a float.
- *  @return a float from bits in single-precision float representation.
- *)
+# The function bits2Float() is deprecated. Use float() instead.
 const func float: bits2Float (in bin32: bits)                is action "FLT_BITS2SINGLE";
 
 
@@ -329,8 +325,8 @@ const func bin32: float2MbfBits (in float: number, SINGLE) is func
       raise RANGE_ERROR;
     elsif number <> 0.0 then
       ieeeElements := decompose(number);
-      fractionBits := float2Bits(ieeeElements.fraction, SINGLE);
-      if abs(bits2Float(fractionBits)) = 1.0 then
+      fractionBits := bin32(ieeeElements.fraction);
+      if abs(float(fractionBits)) = 1.0 then
         # Because of the rounding to single the fraction could be 1.0.
         incr(ieeeElements.exponent);
         # Interpret the mantissa as 0.5.

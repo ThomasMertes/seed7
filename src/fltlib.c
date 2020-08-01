@@ -670,12 +670,12 @@ objectType flt_icast (listType arguments)
  *  Convert an integer to a float.
  *  @return the float result of the conversion.
  */
-objectType flt_iconv (listType arguments)
+objectType flt_iconv1 (listType arguments)
 
-  { /* flt_iconv */
-    isit_int(arg_3(arguments));
-    return bld_float_temp((double) take_int(arg_3(arguments)));
-  } /* flt_iconv */
+  { /* flt_iconv1 */
+    isit_int(arg_1(arguments));
+    return bld_float_temp((double) take_int(arg_1(arguments)));
+  } /* flt_iconv1 */
 
 
 
@@ -683,12 +683,12 @@ objectType flt_iconv (listType arguments)
  *  Convert an integer to a float.
  *  @return the float result of the conversion.
  */
-objectType flt_iflt (listType arguments)
+objectType flt_iconv3 (listType arguments)
 
-  { /* flt_iflt */
-    isit_int(arg_1(arguments));
-    return bld_float_temp((double) take_int(arg_1(arguments)));
-  } /* flt_iflt */
+  { /* flt_iconv3 */
+    isit_int(arg_3(arguments));
+    return bld_float_temp((double) take_int(arg_3(arguments)));
+  } /* flt_iconv3 */
 
 
 

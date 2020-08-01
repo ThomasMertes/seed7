@@ -49,38 +49,6 @@
 
 
 
-/**
- *  Convert an integer number to a character.
- *  For values between 0 and 1114111 a Unicode character is returned.
- *  For values between 1114112 and 1114368 a cursor or function key
- *  is returned. For -1 the value EOF is returned.
- *  @return a character which corresponds to the given integer.
- *  @exception RANGE_ERROR When the number does not fit into a 32-bit 'char'.
- */
-objectType chr_chr (listType arguments)
-
-  {
-    intType number;
-
-  /* chr_chr */
-    isit_int(arg_1(arguments));
-    number = take_int(arg_1(arguments));
-#if INTTYPE_SIZE > 32
-    if (unlikely(number < INT32TYPE_MIN || number > INT32TYPE_MAX)) {
-      logError(printf("chr_chr(" FMT_D "): "
-                      "Number does not fit into a 32-bit char.\n",
-                      number););
-      return raise_exception(SYS_RNG_EXCEPTION) ;
-    } else {
-      return bld_char_temp((charType) number);
-    } /* if */
-#else
-    return bld_char_temp((charType) number);
-#endif
-  } /* chr_chr */
-
-
-
 objectType chr_clit (listType arguments)
 
   { /* chr_clit */
@@ -269,17 +237,17 @@ objectType chr_hashcode (listType arguments)
  *  @return a character which corresponds to the given integer.
  *  @exception RANGE_ERROR When the number does not fit into a 32-bit 'char'.
  */
-objectType chr_iconv (listType arguments)
+objectType chr_iconv1 (listType arguments)
 
   {
     intType number;
 
-  /* chr_iconv */
-    isit_int(arg_3(arguments));
-    number = take_int(arg_3(arguments));
+  /* chr_iconv1 */
+    isit_int(arg_1(arguments));
+    number = take_int(arg_1(arguments));
 #if INTTYPE_SIZE > 32
     if (unlikely(number < INT32TYPE_MIN || number > INT32TYPE_MAX)) {
-      logError(printf("chr_iconv(" FMT_D "): "
+      logError(printf("chr_iconv1(" FMT_D "): "
                       "Number does not fit into a 32-bit char.\n",
                       number););
       return raise_exception(SYS_RNG_EXCEPTION) ;
@@ -289,7 +257,39 @@ objectType chr_iconv (listType arguments)
 #else
     return bld_char_temp((charType) number);
 #endif
-  } /* chr_iconv */
+  } /* chr_iconv1 */
+
+
+
+/**
+ *  Convert an integer number to a character.
+ *  For values between 0 and 1114111 a Unicode character is returned.
+ *  For values between 1114112 and 1114368 a cursor or function key
+ *  is returned. For -1 the value EOF is returned.
+ *  @return a character which corresponds to the given integer.
+ *  @exception RANGE_ERROR When the number does not fit into a 32-bit 'char'.
+ */
+objectType chr_iconv3 (listType arguments)
+
+  {
+    intType number;
+
+  /* chr_iconv3 */
+    isit_int(arg_3(arguments));
+    number = take_int(arg_3(arguments));
+#if INTTYPE_SIZE > 32
+    if (unlikely(number < INT32TYPE_MIN || number > INT32TYPE_MAX)) {
+      logError(printf("chr_iconv3(" FMT_D "): "
+                      "Number does not fit into a 32-bit char.\n",
+                      number););
+      return raise_exception(SYS_RNG_EXCEPTION) ;
+    } else {
+      return bld_char_temp((charType) number);
+    } /* if */
+#else
+    return bld_char_temp((charType) number);
+#endif
+  } /* chr_iconv3 */
 
 
 
@@ -428,7 +428,7 @@ objectType chr_ord (listType arguments)
 
 /**
  *  Predecessor of a character.
- *  @return chr_chr(chr_ord(ch) - 1)
+ *  @return chr(ord(ch) - 1)
  */
 objectType chr_pred (listType arguments)
 
@@ -463,7 +463,7 @@ objectType chr_str (listType arguments)
 
 /**
  *  Successor of a character.
- *  @return chr_chr(chr_ord(ch) + 1)
+ *  @return chr(ord(ch) + 1)
  */
 objectType chr_succ (listType arguments)
 

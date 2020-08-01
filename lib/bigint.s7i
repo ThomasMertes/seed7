@@ -385,7 +385,15 @@ const func bigInteger: gcd (in bigInteger: number1, in bigInteger: number2)  is 
  *  @return the bigInteger result of the conversion.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
-const func bigInteger: (attr bigInteger) conv (in integer: number)       is action "BIG_ICONV";
+const func bigInteger: bigInteger (in integer: number)                   is action "BIG_ICONV1";
+
+
+(**
+ *  Convert an [[integer]] number to ''bigInteger''.
+ *  @return the bigInteger result of the conversion.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func bigInteger: (attr bigInteger) conv (in integer: number)       is action "BIG_ICONV3";
 
 
 (**
@@ -533,6 +541,7 @@ const boolean: ord (in bigInteger: number, mayRaiseRangeError)           is TRUE
 
 enable_io(bigInteger);
 FOR_DECLS(bigInteger);
+CASE_DECLS(bigInteger);
 
 
 (**

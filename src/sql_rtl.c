@@ -427,9 +427,12 @@ void sqlClose (databaseType database)
 
 /**
  *  Get the specified column of fetched data as bigInteger.
+ *  If the column data is NULL it is interpreted as 0_.
+ *  The function sqlIsNull can distinguish NULL from 0_.
  *  @param sqlStatement Prepared statement for which data was fetched.
  *  @param column Number of the column (starting with 1).
- *  @return the column converted to a bigInteger.
+ *  @return the column data converted to a bigInteger or
+ *          0_, when the column data is NULL.
  *  @exception RANGE_ERROR When the statement was not prepared or
  *                         when no data was successfully fetched or
  *                         when the specified column does not exist or
@@ -464,10 +467,14 @@ bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
 
 /**
  *  Get the specified column of fetched data as bigRational.
+ *  If the column data is NULL it is interpreted as 0_/1_.
+ *  The function sqlIsNull can distinguish NULL from 0_/1_.
  *  @param sqlStatement Prepared statement for which data was fetched.
  *  @param column Number of the column (starting with 1).
- *  @param numerator Destination fo the numerator of the column value.
- *  @param denominator Destination fo the denominator of the column value.
+ *  @param numerator Numerator of the column data.
+ *                   Set to 0_, when the column data is NULL
+ *  @param denominator Denominator of the column data.
+ *                     Set to 1_, when the column data is NULL.
  *  @exception RANGE_ERROR When the statement was not prepared or
  *                         when no data was successfully fetched or
  *                         when the specified column does not exist or
@@ -500,9 +507,12 @@ void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
 
 /**
  *  Get the specified column of fetched data as boolean.
+ *  If the column data is NULL it is interpreted as FALSE.
+ *  The function sqlIsNull can distinguish NULL from FALSE.
  *  @param sqlStatement Prepared statement for which data was fetched.
  *  @param column Number of the column (starting with 1).
- *  @return the column converted to a boolean.
+ *  @return the column data converted to a boolean or
+ *          FALSE, when the column data is NULL.
  *  @exception RANGE_ERROR When the statement was not prepared or
  *                         when no data was successfully fetched or
  *                         when the specified column does not exist or
@@ -537,9 +547,12 @@ boolType sqlColumnBool (sqlStmtType sqlStatement, intType column)
 
 /**
  *  Get the specified column of fetched data as bstring.
+ *  If the column data is NULL it is interpreted as empty bstring.
+ *  The function sqlIsNull can distinguish NULL from an empty bstring.
  *  @param sqlStatement Prepared statement for which data was fetched.
  *  @param column Number of the column (starting with 1).
- *  @return the column converted to a bstring.
+ *  @return the column data converted to a bstring or
+ *          an empty bstring, when the column data is NULL.
  *  @exception RANGE_ERROR When the statement was not prepared or
  *                         when no data was successfully fetched or
  *                         when the specified column does not exist or
@@ -575,6 +588,8 @@ bstriType sqlColumnBStri (sqlStmtType sqlStatement, intType column)
 
 /**
  *  Get the specified column of fetched data as duration.
+ *  If the column data is NULL it is interpreted as empty duration.
+ *  The function sqlIsNull can distinguish NULL from an empty duration.
  *  @param sqlStatement Prepared statement for which data was fetched.
  *  @param column Number of the column (starting with 1).
  *  @exception RANGE_ERROR When the statement was not prepared or
@@ -614,9 +629,12 @@ void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
 
 /**
  *  Get the specified column of fetched data as float.
+ *  If the column data is NULL it is interpreted as 0.0.
+ *  The function sqlIsNull can distinguish NULL from 0.0.
  *  @param sqlStatement Prepared statement for which data was fetched.
  *  @param column Number of the column (starting with 1).
- *  @return the column converted to a float.
+ *  @return the column data converted to a float or
+ *          0.0, when the column data is NULL.
  *  @exception RANGE_ERROR When the statement was not prepared or
  *                         when no data was successfully fetched or
  *                         when the specified column does not exist or
@@ -651,9 +669,12 @@ floatType sqlColumnFloat (sqlStmtType sqlStatement, intType column)
 
 /**
  *  Get the specified column of fetched data as integer.
+ *  If the column data is NULL it is interpreted as 0.
+ *  The function sqlIsNull can distinguish NULL from 0.
  *  @param sqlStatement Prepared statement for which data was fetched.
  *  @param column Number of the column (starting with 1).
- *  @return the column converted to an integer.
+ *  @return the column data converted to an integer or
+ *          0, when the column data is NULL.
  *  @exception RANGE_ERROR When the statement was not prepared or
  *                         when no data was successfully fetched or
  *                         when the specified column does not exist or
@@ -688,9 +709,12 @@ intType sqlColumnInt (sqlStmtType sqlStatement, intType column)
 
 /**
  *  Get the specified column of fetched data as string.
+ *  If the column data is NULL it is interpreted as "".
+ *  The function sqlIsNull can distinguish NULL from "".
  *  @param sqlStatement Prepared statement for which data was fetched.
  *  @param column Number of the column (starting with 1).
- *  @return the column converted to a string.
+ *  @return the column data converted to a string or
+ *          "", when the column data is NULL.
  *  @exception RANGE_ERROR When the statement was not prepared or
  *                         when no data was successfully fetched or
  *                         when the specified column does not exist or
@@ -725,6 +749,8 @@ striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
 
 /**
  *  Get the specified column of fetched data as time.
+ *  If the column data is NULL it is interpreted as 0-01-01 00:00:00.
+ *  The function sqlIsNull can distinguish NULL from 0-01-01 00:00:00.
  *  @param sqlStatement Prepared statement for which data was fetched.
  *  @param column Number of the column (starting with 1).
  *  @exception RANGE_ERROR When the statement was not prepared or
@@ -960,9 +986,9 @@ genericType sqlCreateStmtGeneric (const genericType from_value)
 
 
 /**
- *  Free the memory referred by 'old_db'.
- *  After sqlDestrDb is left 'old_db' refers to not existing memory.
- *  The memory where 'old_db' is stored can be freed afterwards.
+ *  Maintain a usage count and free an unused database 'old_db'.
+ *  After a database is freed 'old_db' refers to not existing memory.
+ *  The memory where 'old_db' is stored can be freed after sqlDestrDb.
  */
 void sqlDestrDb (const databaseType old_db)
 
@@ -1001,9 +1027,9 @@ void sqlDestrDbGeneric (const genericType old_value)
 
 
 /**
- *  Free the memory referred by 'old_stmt'.
- *  After sqlDestrStmt is left 'old_stmt' refers to not existing memory.
- *  The memory where 'old_stmt' is stored can be freed afterwards.
+ *  Maintain a usage count and free an unused statement 'old_stmt'.
+ *  After a statement is freed 'old_stmt' refers to not existing memory.
+ *  The memory where 'old_stmt' is stored can be freed after sqlDestrStmt.
  */
 void sqlDestrStmt (const sqlStmtType old_stmt)
 
@@ -1154,10 +1180,10 @@ boolType sqlFetch (sqlStmtType sqlStatement)
 
 
 /**
- *  Determined if the specified column of fetched data is NULL.
+ *  Determine if the specified column of fetched data is NULL.
  *  @param sqlStatement Prepared statement for which data was fetched.
  *  @param column Number of the column (starting with 1).
- *  @return TRUE when the column is NULL,
+ *  @return TRUE when the column data is NULL,
  *          FALSE otherwise.
  *  @exception RANGE_ERROR When the statement was not prepared or
  *                         when no data was successfully fetched or

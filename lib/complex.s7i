@@ -84,6 +84,19 @@ const func complex: polar (in float: magnitude, in float: angle) is func
  *  Convert an [[integer]] to a complex.
  *  @return the result of the conversion.
  *)
+const func complex: complex (in integer: re) is func
+  result
+    var complex: aComplex is complex.value;
+  begin
+    aComplex.re := flt(re);
+    aComplex.im := 0.0;
+  end func;
+
+
+(**
+ *  Convert an [[integer]] to a complex.
+ *  @return the result of the conversion.
+ *)
 const func complex: (attr complex) conv (in integer: re) is func
   result
     var complex: aComplex is complex.value;

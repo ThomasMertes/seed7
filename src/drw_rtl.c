@@ -140,6 +140,11 @@ genericType drwCreateGeneric (const genericType from_value)
 
 
 
+/**
+ *  Maintain a usage count and free an unused window 'old_win'.
+ *  After a window is freed 'old_win' refers to not existing memory.
+ *  The memory where 'old_win' is stored can be freed after drwDestr.
+ */
 void drwDestr (const winType old_win)
 
   { /* drwDestr */

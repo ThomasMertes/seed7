@@ -51,8 +51,8 @@ const ACTION: FLT_GE              is action "FLT_GE";
 const ACTION: FLT_GT              is action "FLT_GT";
 const ACTION: FLT_HASHCODE        is action "FLT_HASHCODE";
 const ACTION: FLT_ICAST           is action "FLT_ICAST";
-const ACTION: FLT_ICONV           is action "FLT_ICONV";
-const ACTION: FLT_IFLT            is action "FLT_IFLT";
+const ACTION: FLT_ICONV1          is action "FLT_ICONV1";
+const ACTION: FLT_ICONV3          is action "FLT_ICONV3";
 const ACTION: FLT_IPOW            is action "FLT_IPOW";
 const ACTION: FLT_ISNAN           is action "FLT_ISNAN";
 const ACTION: FLT_ISNEGATIVEZERO  is action "FLT_ISNEGATIVEZERO";
@@ -829,22 +829,22 @@ const proc: process (FLT_ICAST, in reference: function,
   end func;
 
 
-const proc: process (FLT_ICONV, in reference: function,
-    in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    c_expr.expr &:= "(floatType)(";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= ")";
-  end func;
-
-
-const proc: process (FLT_IFLT, in reference: function,
+const proc: process (FLT_ICONV1, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
     c_expr.expr &:= "(floatType)(";
     process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (FLT_ICONV3, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(floatType)(";
+    process_expr(params[3], c_expr);
     c_expr.expr &:= ")";
   end func;
 

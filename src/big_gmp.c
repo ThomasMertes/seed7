@@ -1978,6 +1978,12 @@ bstriType bigToBStriLe (const const_bigIntType big1, const boolType isSigned)
 
 
 
+/**
+ *  Convert a 'bigInteger' to an 'int16Type' number.
+ *  @return the int16Type result of the conversion.
+ *  @exception RANGE_ERROR The number is too small or too big to fit
+ *             into a int16Type value.
+ */
 int16Type bigToInt16 (const const_bigIntType big1)
 
   {
@@ -2003,6 +2009,12 @@ int16Type bigToInt16 (const const_bigIntType big1)
 
 
 
+/**
+ *  Convert a 'bigInteger' to an 'int32Type' number.
+ *  @return the int32Type result of the conversion.
+ *  @exception RANGE_ERROR The number is too small or too big to fit
+ *             into a int32Type value.
+ */
 int32Type bigToInt32 (const const_bigIntType big1)
 
   {
@@ -2031,6 +2043,12 @@ int32Type bigToInt32 (const const_bigIntType big1)
 
 
 #ifdef INT64TYPE
+/**
+ *  Convert a 'bigInteger' to an 'int64Type' number.
+ *  @return the int64Type result of the conversion.
+ *  @exception RANGE_ERROR The number is too small or too big to fit
+ *             into a int64Type value.
+ */
 int64Type bigToInt64 (const const_bigIntType big1)
 
   {
@@ -2071,6 +2089,12 @@ int64Type bigToInt64 (const const_bigIntType big1)
 
 
 
+/**
+ *  Convert a 'bigInteger' to an 'uint64Type' number.
+ *  @return the uint64Type result of the conversion.
+ *  @exception RANGE_ERROR The number is negative or too big to fit
+ *             into a uint64Type value.
+ */
 uint64Type bigToUInt64 (const const_bigIntType big1)
 
   {

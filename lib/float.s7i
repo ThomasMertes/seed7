@@ -412,14 +412,21 @@ const func string: (in string: sciNumber) exp (in integer: expDigits) is func
  *  Convert an [[integer]] to a float.
  *  @return the float result of the conversion.
  *)
-const func float: flt (in integer: number)                     is action "FLT_IFLT";
+const func float: flt (in integer: number)                     is action "FLT_ICONV1";
 
 
 (**
  *  Convert an [[integer]] to a float.
  *  @return the float result of the conversion.
  *)
-const func float: (attr float) conv (in integer: number)       is action "FLT_ICONV";
+const func float: float (in integer: number)                   is action "FLT_ICONV1";
+
+
+(**
+ *  Convert an [[integer]] to a float.
+ *  @return the float result of the conversion.
+ *)
+const func float: (attr float) conv (in integer: number)       is action "FLT_ICONV3";
 
 
 (**

@@ -373,9 +373,12 @@ const func boolean: fetch (in sqlStatement: statement)                          
 
 (**
  *  Get the specified column of fetched data as [[bigint|bigInteger]].
+ *  If the column data is NULL it is interpreted as 0_.
+ *  The function [[#isNull(in_sqlStatement,in_integer)|isNull]] can distinguish NULL from 0_.
  *  @param statement Prepared statement for which data was fetched.
  *  @param column Number of the column (starting with 1).
- *  @return the column converted to a [[bigint|bigInteger]].
+ *  @return the column data converted to a [[bigint|bigInteger]] or
+ *          0_, when the column data is NULL.
  *  @exception RANGE_ERROR When the statement was not prepared or
  *                         when no data was successfully fetched or
  *                         when the specified column does not exist or
@@ -388,9 +391,12 @@ const func bigInteger: column (in sqlStatement: statement, in integer: column,
 
 (**
  *  Get the specified column of fetched data as [[bigrat|bigRational]].
+ *  If the column data is NULL it is interpreted as 0_/1_.
+ *  The function [[#isNull(in_sqlStatement,in_integer)|isNull]] can distinguish NULL from 0_/1_.
  *  @param statement Prepared statement for which data was fetched.
  *  @param column Number of the column (starting with 1).
- *  @return the column converted to a [[bigrat|bigRational]].
+ *  @return the column data converted to a [[bigrat|bigRational]] or
+ *          0_/1_, when the column data is NULL.
  *  @exception RANGE_ERROR When the statement was not prepared or
  *                         when no data was successfully fetched or
  *                         when the specified column does not exist or
@@ -410,9 +416,12 @@ const func bigRational: column (in sqlStatement: statement, in integer: column,
 
 (**
  *  Get the specified column of fetched data as [[boolean]].
+ *  If the column data is NULL it is interpreted as FALSE.
+ *  The function [[#isNull(in_sqlStatement,in_integer)|isNull]] can distinguish NULL from FALSE.
  *  @param statement Prepared statement for which data was fetched.
  *  @param column Number of the column (starting with 1).
- *  @return the column converted to a [[boolean]].
+ *  @return the column data converted to a [[boolean]] or
+ *          FALSE, when the column data is NULL.
  *  @exception RANGE_ERROR When the statement was not prepared or
  *                         when no data was successfully fetched or
  *                         when the specified column does not exist or
@@ -425,9 +434,12 @@ const func boolean:    column (in sqlStatement: statement, in integer: column,
 
 (**
  *  Get the specified column of fetched data as [[bstring]].
+ *  If the column data is NULL it is interpreted as empty bstring.
+ *  The function [[#isNull(in_sqlStatement,in_integer)|isNull]] can distinguish NULL from an empty bstring.
  *  @param statement Prepared statement for which data was fetched.
  *  @param column Number of the column (starting with 1).
- *  @return the column converted to a [[bstring]].
+ *  @return the column data converted to a [[bstring]] or
+ *          an empty bstring, when the column data is NULL.
  *  @exception RANGE_ERROR When the statement was not prepared or
  *                         when no data was successfully fetched or
  *                         when the specified column does not exist or
@@ -440,9 +452,12 @@ const func bstring:    column (in sqlStatement: statement, in integer: column,
 
 (**
  *  Get the specified column of fetched data as [[duration]].
+ *  If the column data is NULL it is interpreted as empty duration.
+ *  The function [[#isNull(in_sqlStatement,in_integer)|isNull]] can distinguish NULL from an empty duration.
  *  @param statement Prepared statement for which data was fetched.
  *  @param column Number of the column (starting with 1).
- *  @return the column converted to a [[duration]].
+ *  @return the column data converted to a [[duration]] or
+ *          an empty duration, when the column data is NULL.
  *  @exception RANGE_ERROR When the statement was not prepared or
  *                         when no data was successfully fetched or
  *                         when the specified column does not exist or
@@ -463,9 +478,12 @@ const func duration: column (in sqlStatement: statement, in integer: column,
 
 (**
  *  Get the specified column of fetched data as [[float]].
+ *  If the column data is NULL it is interpreted as 0.0.
+ *  The function [[#isNull(in_sqlStatement,in_integer)|isNull]] can distinguish NULL from 0.0.
  *  @param statement Prepared statement for which data was fetched.
  *  @param column Number of the column (starting with 1).
- *  @return the column converted to a [[float]].
+ *  @return the column data converted to a [[float]] or
+ *          0.0, when the column data is NULL.
  *  @exception RANGE_ERROR When the statement was not prepared or
  *                         when no data was successfully fetched or
  *                         when the specified column does not exist or
@@ -478,9 +496,12 @@ const func float:      column (in sqlStatement: statement, in integer: column,
 
 (**
  *  Get the specified column of fetched data as [[integer]].
+ *  If the column data is NULL it is interpreted as 0.
+ *  The function [[#isNull(in_sqlStatement,in_integer)|isNull]] can distinguish NULL from 0.
  *  @param statement Prepared statement for which data was fetched.
  *  @param column Number of the column (starting with 1).
- *  @return the column converted to an [[integer]].
+ *  @return the column data converted to an [[integer]] or
+ *          0, when the column data is NULL.
  *  @exception RANGE_ERROR When the statement was not prepared or
  *                         when no data was successfully fetched or
  *                         when the specified column does not exist or
@@ -493,9 +514,12 @@ const func integer:    column (in sqlStatement: statement, in integer: column,
 
 (**
  *  Get the specified column of fetched data as [[string]].
+ *  If the column data is NULL it is interpreted as "".
+ *  The function [[#isNull(in_sqlStatement,in_integer)|isNull]] can distinguish NULL from "".
  *  @param statement Prepared statement for which data was fetched.
  *  @param column Number of the column (starting with 1).
- *  @return the column converted to a [[string]].
+ *  @return the column data converted to a [[string]] or
+ *          "", when the column data is NULL.
  *  @exception RANGE_ERROR When the statement was not prepared or
  *                         when no data was successfully fetched or
  *                         when the specified column does not exist or
@@ -508,9 +532,12 @@ const func string:     column (in sqlStatement: statement, in integer: column,
 
 (**
  *  Get the specified column of fetched data as [[time]].
+ *  If the column data is NULL it is interpreted as 0-01-01 00:00:00.
+ *  The function [[#isNull(in_sqlStatement,in_integer)|isNull]] can distinguish NULL from 0-01-01 00:00:00.
  *  @param statement Prepared statement for which data was fetched.
  *  @param column Number of the column (starting with 1).
- *  @return the column converted to a [[time]].
+ *  @return the column data converted to a [[time]] or
+ *          0-01-01 00:00:00, when the column data is NULL.
  *  @exception RANGE_ERROR When the statement was not prepared or
  *                         when no data was successfully fetched or
  *                         when the specified column does not exist or
@@ -531,10 +558,10 @@ const func time: column (in sqlStatement: statement, in integer: column,
 
 
 (**
- *  Determined if the specified column of fetched data is NULL.
+ *  Determine if the specified column of fetched data is NULL.
  *  @param statement Prepared statement for which data was fetched.
  *  @param column Number of the column (starting with 1).
- *  @return TRUE when the column is NULL,
+ *  @return TRUE when the column data is NULL,
  *          FALSE otherwise.
  *  @exception RANGE_ERROR When the statement was not prepared or
  *                         when no data was successfully fetched or

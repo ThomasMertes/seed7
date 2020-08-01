@@ -228,7 +228,8 @@ const proc: display (inout browserConnection: browser, inout webPage: currWebPag
     end if;
   end func;
 
-  
+
+# The function display() with the browser as second argument is deprecated.
 const proc: display (inout webPage: currWebPage, inout browserConnection: browser) is func
   begin
     display(browser, currWebPage);

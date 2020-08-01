@@ -492,13 +492,28 @@ objectType set_hashcode (listType arguments)
  *  @return a bitset which corresponds to the given integer.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-objectType set_iconv (listType arguments)
+objectType set_iconv1 (listType arguments)
 
-  { /* set_iconv */
+  { /* set_iconv1 */
+    isit_int(arg_1(arguments));
+    return bld_set_temp(
+        setIConv(take_int(arg_1(arguments))));
+  } /* set_iconv1 */
+
+
+
+/**
+ *  Convert an integer number to a bitset.
+ *  @return a bitset which corresponds to the given integer.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
+objectType set_iconv3 (listType arguments)
+
+  { /* set_iconv3 */
     isit_int(arg_3(arguments));
     return bld_set_temp(
         setIConv(take_int(arg_3(arguments))));
-  } /* set_iconv */
+  } /* set_iconv3 */
 
 
 

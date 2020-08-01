@@ -41,7 +41,8 @@ const ACTION: BIG_GCD             is action "BIG_GCD";
 const ACTION: BIG_GE              is action "BIG_GE";
 const ACTION: BIG_GT              is action "BIG_GT";
 const ACTION: BIG_HASHCODE        is action "BIG_HASHCODE";
-const ACTION: BIG_ICONV           is action "BIG_ICONV";
+const ACTION: BIG_ICONV1          is action "BIG_ICONV1";
+const ACTION: BIG_ICONV3          is action "BIG_ICONV3";
 const ACTION: BIG_INCR            is action "BIG_INCR";
 const ACTION: BIG_IPOW            is action "BIG_IPOW";
 const ACTION: BIG_LE              is action "BIG_LE";
@@ -949,7 +950,18 @@ const proc: process (BIG_HASHCODE, in reference: function,
   end func;
 
 
-const proc: process (BIG_ICONV, in reference: function,
+const proc: process (BIG_ICONV1, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_bigint_result(c_expr);
+    c_expr.result_expr := "bigIConv(";
+    getStdParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (BIG_ICONV3, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin

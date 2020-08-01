@@ -27,6 +27,69 @@
 var boolean_obj_hash: function_pointer_declared is boolean_obj_hash.EMPTY_HASH;
 
 
+const proc: create_name (in reference: current_object, inout string: expr) is func
+
+  local
+    var string: raw_name is "";
+    var string: name is "";
+  begin
+    raw_name := str(current_object);
+    name := getName(raw_name);
+    expr &:= str(objNumber(current_object));
+    if name <> "" then
+      expr &:= "_";
+      expr &:= name;
+    end if;
+    if raw_name <> "" then
+      expr &:= "/*";
+      expr &:= striToUtf8(raw_name);
+      expr &:= "*/";
+    end if;
+  end func;
+
+
+const proc: create_name2 (in reference: current_object, inout string: expr) is func
+
+  local
+    var string: raw_name is "";
+    var string: name is "";
+  begin
+    raw_name := str(current_object);
+    name := getName(raw_name);
+    expr &:= str(objNumber(current_object));
+    if name <> "" then
+      expr &:= "_";
+      expr &:= name;
+    end if;
+    if raw_name <> "" then
+      expr &:= "/ ";
+      expr &:= striToUtf8(raw_name);
+    end if;
+  end func;
+
+
+const proc: create_name (in reference: current_object, in integer: object_number,
+    inout string: expr) is func
+
+  local
+    var string: raw_name is "";
+    var string: name is "";
+  begin
+    raw_name := str(current_object);
+    name := getName(raw_name);
+    expr &:= str(object_number);
+    if name <> "" then
+      expr &:= "_";
+      expr &:= name;
+    end if;
+    if raw_name <> "" then
+      expr &:= "/*";
+      expr &:= raw_name;
+      expr &:= "*/";
+    end if;
+  end func;
+
+
 const proc: process_expr (in reference: current_expression, inout expr_type: c_expr) is forward;
 
 
@@ -347,6 +410,38 @@ const proc: getGenericValue (in reference: current_expression,
   end func;
 
 
+const proc: getGenericValueOfVariableObject (in reference: variableObject,
+    inout expr_type: c_expr) is func
+
+  local
+    var type: result_type is void;
+    var string: temp_name is "";
+  begin
+    result_type := getType(variableObject);
+    if result_type in typeCategory and typeCategory[result_type] = FLOATOBJECT or
+        not ccConf.LITTLE_ENDIAN_INTTYPE then
+      incr(c_expr.temp_num);
+      temp_name := "tmp_" & str(c_expr.temp_num);
+      c_expr.temp_decls &:= "const_rtlValueUnion ";
+      c_expr.temp_decls &:= temp_name;
+      c_expr.temp_decls &:= ";\n";
+      c_expr.expr &:= "(";
+      c_expr.expr &:= temp_name;
+      c_expr.expr &:= ".";
+      c_expr.expr &:= raw_type_value(result_type);
+      c_expr.expr &:= "=o_";
+      create_name(variableObject, c_expr.expr);
+      c_expr.expr &:= ",";
+      c_expr.expr &:= temp_name;
+      c_expr.expr &:= ".genericValue)";
+    else
+      c_expr.expr &:= "(genericType)(o_";
+      create_name(variableObject, c_expr.expr);
+      c_expr.expr &:= ")";
+    end if;
+  end func;
+
+
 const proc: getGenericValueToResultExpr (in reference: current_expression,
     inout expr_type: c_expr) is func
 
@@ -574,6 +669,36 @@ const func string: getParameterAsVariable (in string: typeName, in string: nameP
   end func;
 
 
+const func reference: getParameterAsVariable (in reference: param1,
+    inout expr_type: c_expr) is func
+
+  result
+    var reference: variableObject is NIL;
+  local
+    var type: resultType is void;
+  begin
+    if isNormalVariable(param1) then
+      variableObject := param1;
+    else
+      resultType := getType(param1);
+      if isFunc(resultType) or isVarfunc(resultType) then
+        resultType := resultType(resultType);
+      end if;
+      variableObject := allocVar(resultType, typeCategory[resultType]);
+      incr(c_expr.temp_num);
+      c_expr.temp_decls &:= type_name(getType(variableObject));
+      c_expr.temp_decls &:= " o_";
+      create_name(variableObject, c_expr.temp_decls);
+      c_expr.temp_decls &:= ";\n";
+      c_expr.expr &:= " o_";
+      create_name(variableObject, c_expr.expr);
+      c_expr.expr &:= "=";
+      getAnyParamToExpr(param1, c_expr);
+      c_expr.expr &:= ";\n";
+    end if;
+  end func;
+
+
 const func string: getReference (in string: typeName, in string: namePrefix,
     in reference: param1, inout expr_type: c_expr) is func
 
@@ -740,69 +865,6 @@ const func boolean: useFunctype (in reference: current_object) is func
       exprCategory := category(curr_expr);
       okay := exprCategory = ACTOBJECT or
               exprCategory = BLOCKOBJECT;
-    end if;
-  end func;
-
-
-const proc: create_name (in reference: current_object, inout string: expr) is func
-
-  local
-    var string: raw_name is "";
-    var string: name is "";
-  begin
-    raw_name := str(current_object);
-    name := getName(raw_name);
-    expr &:= str(objNumber(current_object));
-    if name <> "" then
-      expr &:= "_";
-      expr &:= name;
-    end if;
-    if raw_name <> "" then
-      expr &:= "/*";
-      expr &:= striToUtf8(raw_name);
-      expr &:= "*/";
-    end if;
-  end func;
-
-
-const proc: create_name2 (in reference: current_object, inout string: expr) is func
-
-  local
-    var string: raw_name is "";
-    var string: name is "";
-  begin
-    raw_name := str(current_object);
-    name := getName(raw_name);
-    expr &:= str(objNumber(current_object));
-    if name <> "" then
-      expr &:= "_";
-      expr &:= name;
-    end if;
-    if raw_name <> "" then
-      expr &:= "/ ";
-      expr &:= striToUtf8(raw_name);
-    end if;
-  end func;
-
-
-const proc: create_name (in reference: current_object, in integer: object_number,
-    inout string: expr) is func
-
-  local
-    var string: raw_name is "";
-    var string: name is "";
-  begin
-    raw_name := str(current_object);
-    name := getName(raw_name);
-    expr &:= str(object_number);
-    if name <> "" then
-      expr &:= "_";
-      expr &:= name;
-    end if;
-    if raw_name <> "" then
-      expr &:= "/*";
-      expr &:= raw_name;
-      expr &:= "*/";
     end if;
   end func;
 

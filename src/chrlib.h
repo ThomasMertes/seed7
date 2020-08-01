@@ -25,7 +25,6 @@
 /*                                                                  */
 /********************************************************************/
 
-objectType chr_chr       (listType arguments);
 objectType chr_clit      (listType arguments);
 objectType chr_cmp       (listType arguments);
 objectType chr_conv      (listType arguments);
@@ -36,7 +35,8 @@ objectType chr_eq        (listType arguments);
 objectType chr_ge        (listType arguments);
 objectType chr_gt        (listType arguments);
 objectType chr_hashcode  (listType arguments);
-objectType chr_iconv     (listType arguments);
+objectType chr_iconv1    (listType arguments);
+objectType chr_iconv3    (listType arguments);
 objectType chr_incr      (listType arguments);
 objectType chr_is_letter (listType arguments);
 objectType chr_le        (listType arguments);

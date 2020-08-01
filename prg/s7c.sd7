@@ -2062,11 +2062,19 @@ const proc: process_expr (in var reference: current_expression, inout expr_type:
         c_expr.expr &:= "/*sqlStatement.value*/NULL";
       end if;
     elsif exprCategory = CONSTENUMOBJECT then
-      c_expr.expr &:= "o_";
-      create_name(current_expression, c_expr.expr);
+      if isVar(current_expression) then
+        c_expr.expr &:= "o_";
+        create_name(current_expression, c_expr.expr);
+      else
+        c_expr.expr &:= enum_value(getValue(current_expression, reference));
+      end if;
     elsif exprCategory = VARENUMOBJECT then
-      c_expr.expr &:= "o_";
-      create_name(current_expression, c_expr.expr);
+      if current_expression in funcparam_data then
+        c_expr.expr &:= funcparam_data[current_expression];
+      else
+        c_expr.expr &:= "o_";
+        create_name(current_expression, c_expr.expr);
+      end if;
     elsif exprCategory = ENUMLITERALOBJECT then
       if getType(current_expression) = voidtype then
         c_expr.expr &:= "/* empty */\n";
@@ -2964,13 +2972,11 @@ const proc: block_address (in reference: function, inout expr_type: c_expr) is f
   end func;
 
 
-const proc: object_address (in reference: current_object, inout expr_type: c_expr) is func
+const proc: object_address (in reference: curr_expr, inout expr_type: c_expr) is func
 
   local
-    var reference: curr_expr is NIL;
     var category: exprCategory is category.value;
   begin
-    curr_expr := getValue(current_object, reference);
     if curr_expr = NIL then
       c_expr.expr &:= "NULL";
     else
@@ -3019,7 +3025,7 @@ const proc: process_reference_declaration (in reference: current_object,
       else
         c_expr.expr &:= "(objRefType)(";
       end if;
-      object_address(current_object, c_expr);
+      object_address(getValue(current_object, reference), c_expr);
       c_expr.expr &:= ");\n\n";
       function_pointer_declared @:= [current_object] TRUE;
       count_declarations(c_expr);
@@ -3890,8 +3896,6 @@ const proc: process_hashcode (in reference: current_object, inout expr_type: c_e
     var ref_list: param_list is ref_list.EMPTY;
     var reference: expression is NIL;
   begin
-    c_expr := expr_type.value;
-    setVar(current_object, FALSE);
     param_list := make_list(current_object);
     param_list &:= make_list(syobject(prog, "hashCode"));
     expression := matchExpr(prog, param_list);
@@ -3912,6 +3916,7 @@ const func reference: keyCreateObj (in type: hash_type) is func
     param_list &:= make_list(syobject(prog, "."));
     param_list &:= make_list(syobject(prog, "keyCreate"));
     keyCreate := match(prog, param_list);
+    keyCreate := getValue(keyCreate, reference);
   end func;
 
 
@@ -3926,6 +3931,7 @@ const func reference: keyCompareObj (in type: hash_type) is func
     param_list &:= make_list(syobject(prog, "."));
     param_list &:= make_list(syobject(prog, "keyCompare"));
     keyCompare := match(prog, param_list);
+    keyCompare := getValue(keyCompare, reference);
   end func;
 
 
@@ -3940,6 +3946,7 @@ const func reference: dataCreateObj (in type: hash_type) is func
     param_list &:= make_list(syobject(prog, "."));
     param_list &:= make_list(syobject(prog, "dataCreate"));
     dataCreate := match(prog, param_list);
+    dataCreate := getValue(dataCreate, reference);
   end func;
 
 
@@ -3954,6 +3961,7 @@ const func reference: dataCopyObj (in type: hash_type) is func
     param_list &:= make_list(syobject(prog, "."));
     param_list &:= make_list(syobject(prog, "dataCopy"));
     dataCopy := match(prog, param_list);
+    dataCopy := getValue(dataCopy, reference);
   end func;
 
 
@@ -5169,6 +5177,7 @@ const proc: write_file_head is func
     writeln(c_prog, "structType             *sct;");
     writeln(c_prog, "hashType               *hsh;");
     writeln(c_prog, "interfaceType          *itf;");
+    writeln(c_prog, "hashType               *caseLabels;");
     writeln(c_prog, "rtlValueUnion           flt2int;");
     writeln(c_prog, "extern memSizeType hs;");
     writeln(c_prog);
@@ -5294,6 +5303,7 @@ const proc: write_prototypes is func
     kbd_prototypes(c_prog);
     pcs_prototypes(c_prog);
     pol_prototypes(c_prog);
+    prc_prototypes(c_prog);
     prg_prototypes(c_prog);
     ref_prototypes(c_prog);
     rfl_prototypes(c_prog);
@@ -5637,6 +5647,9 @@ const proc: init_const_value (in reference: current_object, inout expr_type: c_e
     elsif objectCategory = PROCESSOBJECT then
       c_expr.expr &:= ".value.processValue=";
       c_expr.expr &:= "NULL";
+    elsif objectCategory = TYPEOBJECT then
+      c_expr.expr &:= ".value.typeValue=";
+      c_expr.expr &:= typeLiteral(getValue(current_object, type));
     elsif objectCategory = CONSTENUMOBJECT then
       c_expr.expr &:= select_value_from_rtlObjectStruct(
           getType(getValue(current_object, reference)));
@@ -5999,9 +6012,9 @@ const proc: init_string_constants_no_slices (in stri_index_hash: stri_index,
           c_expr.expr &:= ",";
         end if;
       elsif ccConf.POINTER_SIZE = 64 then
-        c_expr.expr &:= int64AsTwoInt32(bigInteger conv length(stri));
+        c_expr.expr &:= int64AsTwoInt32(bigInteger(length(stri)));
         if ccConf.WITH_STRI_CAPACITY then
-          c_expr.expr &:= int64AsTwoInt32(bigInteger conv length(stri));
+          c_expr.expr &:= int64AsTwoInt32(bigInteger(length(stri)));
         end if;
       end if;
       for ch range stri do
@@ -6485,6 +6498,8 @@ const proc: init_hash_constants (in reference: const_object, inout expr_type: c_
         c_expr.expr &:= "hash_data";
         init_const_value(hash_data_list[elem_num], c_expr);
         c_expr.expr &:= ";\n";
+        hashcode_expr := expr_type.value;
+        setVar(key_element, FALSE);
         process_hashcode(key_element, hashcode_expr);
         if hashcode_expr.temp_decls <> "" then
           c_expr.expr &:= "{\n";
@@ -6562,6 +6577,83 @@ const proc: init_nan_constants (inout expr_type: c_expr) is func
       c_expr.expr &:= "{0}";
     end if;
     c_expr.expr &:= "};\n\n";
+  end func;
+
+
+const proc: initCaseLabelsOfWhen (in integer: numOfCaseStmt, in integer: numOfWhenPart,
+    in reference: whenLabels, inout expr_type: c_expr) is func
+
+  local
+    var ref_list: hash_key_list is ref_list.EMPTY;
+    var reference: key_element is NIL;
+    var expr_type: hashcode_expr is expr_type.value;
+  begin
+    hash_key_list := hashKeysToList(whenLabels);
+    if length(hash_key_list) <> 0 then
+      for key_element range hash_key_list do
+        c_expr.expr &:= "hash_key";
+        init_const_value(key_element, c_expr);
+        c_expr.expr &:= ";\n";
+        hashcode_expr := expr_type.value;
+        setVar(key_element, FALSE);
+        process_hashcode(key_element, hashcode_expr);
+        if hashcode_expr.temp_decls <> "" then
+          c_expr.expr &:= "{\n";
+          c_expr.expr &:= hashcode_expr.temp_decls;
+          c_expr.expr &:= hashcode_expr.temp_assigns;
+        end if;
+        c_expr.expr &:= "hshIncl(caseLabels[";
+        c_expr.expr &:= str(numOfCaseStmt);
+        c_expr.expr &:= "], hash_key.value.genericValue, ";
+        c_expr.expr &:= str(numOfWhenPart);
+        c_expr.expr &:= ", ";
+        c_expr.expr &:= hashcode_expr.expr;
+        c_expr.expr &:= ", (compareType)(";
+        object_address(keyCompareObj(getType(whenLabels)), c_expr);
+        c_expr.expr &:= "), (createFuncType)(";
+        object_address(keyCreateObj(getType(whenLabels)), c_expr);
+        c_expr.expr &:= "), (createFuncType)(&genericCreate), (copyFuncType)(&genericCpy));\n";
+        if hashcode_expr.temp_decls <> "" then
+          c_expr.expr &:= hashcode_expr.temp_frees;
+          c_expr.expr &:= "}\n";
+        end if;
+      end for;
+    end if;
+  end func;
+
+
+const proc: initCaseLabelsOfCase (in integer: numOfCaseStmt,
+    in array reference: caseWhens, inout expr_type: c_expr) is func
+
+  local
+    var integer: numOfWhenPart is 0;
+    var reference: whenLabels is NIL;
+  begin
+    c_expr.expr &:= "caseLabels[";
+    c_expr.expr &:= str(numOfCaseStmt);
+    c_expr.expr &:= "]=hshEmpty();\n";
+    for whenLabels key numOfWhenPart range caseWhens do
+      initCaseLabelsOfWhen(numOfCaseStmt, numOfWhenPart, whenLabels, c_expr);
+    end for;
+  end func;
+
+
+const proc: initCaseLabels (inout expr_type: c_expr) is func
+
+  local
+    var integer: numOfCaseStmt is 0;
+  begin
+    c_expr.expr &:= "void initCaseLabelsOfSwitch () {\n";
+    if length(case_table) <> 0 then
+      c_expr.expr &:= "rtlObjectType hash_key;\n";
+      c_expr.expr &:= "caseLabels = (hashType *)(malloc(";
+      c_expr.expr &:= str(length(case_table));
+      c_expr.expr &:= " * sizeof(hashType)));\n";
+      for key numOfCaseStmt range case_table do
+        initCaseLabelsOfCase(numOfCaseStmt, case_table[numOfCaseStmt], c_expr);
+      end for;
+    end if;
+    c_expr.expr &:= "}\n\n";
   end func;
 
 
@@ -6654,6 +6746,7 @@ const proc: init_values (inout expr_type: c_expr) is func
         c_expr.expr &:= "] */\n";
       end if;
     end for;
+    c_expr.expr &:= "initCaseLabelsOfSwitch();\n";
     c_expr.expr &:= "}\n\n";
     init_nan_constants(c_expr);
   end func;
@@ -6792,6 +6885,7 @@ const proc: process_global_declarations (in program: prog) is func
     process_dynamic_decisions(c_expr);
     declare_missing_create_declarations(c_expr);
     declare_missing_destr_declarations(c_expr);
+    initCaseLabels(c_expr);
     init_values(c_expr);
     init_globals(c_expr);
     write(c_prog, global_c_expr.expr);

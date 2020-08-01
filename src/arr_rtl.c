@@ -687,6 +687,12 @@ rtlArrayType arrCat (rtlArrayType arr1, const rtlArrayType arr2)
 
 
 
+/**
+ *  Concatenate an array and an element.
+ *  @return the result of the concatenation.
+ *  @exception MEMORY_ERROR Not enough memory for the concatenated
+ *             array.
+ */
 rtlArrayType arrExtend (rtlArrayType arr1, const genericType element)
 
   {
@@ -736,6 +742,12 @@ void arrFree (rtlArrayType oldArray)
 
 
 
+/**
+ *  Generate an array from the concatenation of two elements.
+ *  @return the result of the concatenation.
+ *  @exception MEMORY_ERROR Not enough memory for the concatenated
+ *             array.
+ */
 rtlArrayType arrGen (const genericType element1, const genericType element2)
 
   {

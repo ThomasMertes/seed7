@@ -112,7 +112,7 @@ static time_t fileTime2UnixTime (const FILETIME *fileTime)
  *  on some strange settings. This function corrects this Daylight
  *  Saving Timetime adjustments.
  */
-static time_t correctAdjustedUnixTime (time_t time)
+static time_t correctAdjustedUnixTime (time_t aTime)
 
   {
 #if defined USE_LOCALTIME_R || defined USE_LOCALTIME_S
@@ -125,15 +125,15 @@ static time_t correctAdjustedUnixTime (time_t time)
 
   /* correctAdjustedUnixTime */
 #if defined USE_LOCALTIME_R
-    localTime = localtime_r(&time, &tmResult);
+    localTime = localtime_r(&aTime, &tmResult);
 #elif defined USE_LOCALTIME_S
-    if (localtime_s(&tmResult, &time) != 0) {
+    if (localtime_s(&tmResult, &aTime) != 0) {
       localTime = NULL;
     } else {
       localTime = &tmResult;
     } /* if */
 #else
-    localTime = localtime(&time);
+    localTime = localtime(&aTime);
 #endif
     systemTime.wYear =      (WORD) (localTime->tm_year + 1900);
     systemTime.wMonth =     (WORD) (localTime->tm_mon + 1);

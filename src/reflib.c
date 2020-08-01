@@ -197,6 +197,18 @@ objectType ref_alloc_stri (listType arguments)
 
 
 
+objectType ref_alloc_var (listType arguments)
+
+  { /* ref_alloc_var */
+    isit_type(arg_1(arguments));
+    isit_int(arg_2(arguments));
+    return bld_reference_temp(
+        refAllocVar(take_type(arg_1(arguments)),
+                    take_int(arg_2(arguments))));
+  } /* ref_alloc_var */
+
+
+
 objectType ref_arrmaxidx (listType arguments)
 
   { /* ref_arrmaxidx */

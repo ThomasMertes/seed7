@@ -957,6 +957,12 @@ const proc: CASE_DECLS (in type: aType) is func
     WHEN_PROC := (func WHEN_RESULT);
     SELECTOR_TYPE := set of aType;
     const proc: case (ref aType: decisionValue) of end case                     is noop;
+    const proc: case (ref aType: decisionValue) of
+                    otherwise : (ref proc: statements)
+                  end case                                                      is func
+      begin
+        statements;
+      end func;
     if getobj(ord(ref aType: decisionValue)) <> NIL and
         getobj(ord(ref aType: decisionValue, mayRaiseRangeError)) = NIL then
       const proc: case (ref aType: decisionValue) of
@@ -986,7 +992,7 @@ const proc: CASE_DECLS (in type: aType) is func
 CASE_DECLS(integer);
 CASE_DECLS(char);
 CASE_DECLS(boolean);
-(* CASE_DECLS(string); *)
+CASE_DECLS(string);
 
 const func ref_list: expr_to_list (ref expr: elem_expr) is action "RFL_EXPR";
 const proc: TRACE (ref expr: traceobject)               is action "REF_TRACE";

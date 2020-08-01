@@ -71,16 +71,37 @@ const func string: diagnosticLine (in reference: current_object) is func
     var string: diagnosticLine is "";
   begin
     if source_debug_info and line(current_object) <> 0 then
-      diagnosticLine &:= "#line ";
+      diagnosticLine := "#line ";
       diagnosticLine &:= str(line(current_object));
       diagnosticLine &:= " ";
       diagnosticLine &:= sourceNameString(file(current_object));
       diagnosticLine &:= "\n";
     else
-      diagnosticLine &:= "/* line ";
+      diagnosticLine := "/* line ";
       diagnosticLine &:= str(line(current_object));
       diagnosticLine &:= " ";
       diagnosticLine &:= sourceNameString(file(current_object));
+      diagnosticLine &:= " */\n";
+    end if;
+  end func;
+
+
+const func string: diagnosticLine (inout expr_type: c_expr) is func
+
+  result
+    var string: diagnosticLine is "";
+  begin
+    if source_debug_info and c_expr.currentLine <> 0 then
+      diagnosticLine := "#line ";
+      diagnosticLine &:= str(c_expr.currentLine);
+      diagnosticLine &:= " ";
+      diagnosticLine &:= sourceNameString(c_expr.currentFile);
+      diagnosticLine &:= "\n";
+    else
+      diagnosticLine := "/* line ";
+      diagnosticLine &:= str(c_expr.currentLine);
+      diagnosticLine &:= " ";
+      diagnosticLine &:= sourceNameString(c_expr.currentFile);
       diagnosticLine &:= " */\n";
     end if;
   end func;

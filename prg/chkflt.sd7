@@ -2843,7 +2843,20 @@ const proc: check_conversion is func
         float conv    1000000  <>    1000000.0 or
         float conv   10000000  <>   10000000.0 or
         float conv  100000000  <>  100000000.0 or
-        float conv 1000000000  <> 1000000000.0 then
+        float conv 1000000000  <> 1000000000.0 or
+        float(        -2) <>         -2.0 or
+        float(        -1) <>         -1.0 or
+        float(         0) <>          0.0 or
+        float(         1) <>          1.0 or
+        float(        10) <>         10.0 or
+        float(       100) <>        100.0 or
+        float(      1000) <>       1000.0 or
+        float(     10000) <>      10000.0 or
+        float(    100000) <>     100000.0 or
+        float(   1000000) <>    1000000.0 or
+        float(  10000000) <>   10000000.0 or
+        float( 100000000) <>  100000000.0 or
+        float(1000000000) <> 1000000000.0 then
       writeln(" ***** Conversion from integer to float does not work correct.");
       okay := FALSE;
     end if;

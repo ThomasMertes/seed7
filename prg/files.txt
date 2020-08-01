@@ -206,7 +206,7 @@ pkcs1.s7i    RSA public-key cryptography standard #1 support.
 poll.s7i     Support for pollData and the poll function
 process.s7i  Support for creating processes
 progs.s7i    Program handling support library
-propertyfile.s7i Read key value pairs from a property file
+propertyfile.s7i Read key-value pairs from a property file
 rational.s7i Rational number support library
 ref_list.s7i Reference list support library
 reference.s7i Reference to object support library

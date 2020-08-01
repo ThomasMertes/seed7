@@ -379,6 +379,9 @@ static void setDbErrorMsg (const char *funcName, const char *dbFuncName,
 
 
 
+/**
+ *  Closes a database and frees the memory used by it.
+ */
 static void freeDatabase (databaseType database)
 
   {
@@ -395,6 +398,9 @@ static void freeDatabase (databaseType database)
 
 
 
+/**
+ *  Closes a prepared statement and frees the memory used by it.
+ */
 static void freePreparedStmt (sqlStmtType sqlStatement)
 
   {

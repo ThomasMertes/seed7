@@ -48,6 +48,13 @@ const ACTION: PRC_REPEAT           is action "PRC_REPEAT";
 const ACTION: PRC_WHILE            is action "PRC_WHILE";
 
 
+const proc: prc_prototypes (inout file: c_prog) is func
+
+  begin
+    declareExtern(c_prog, "genericType hshIdxWithDefault (const const_hashType, const genericType, const genericType, intType, compareType);");
+  end func;
+
+
 const proc: process_statements (in expr_type: statements, inout expr_type: c_expr) is func
 
   begin
@@ -632,21 +639,145 @@ const proc: process (PRC_CASE_DEF, in reference: function,
   end func;
 
 
+const type: caseTableType is array reference;
+const type: allCaseTablesType is array caseTableType;
+
+var allCaseTablesType: case_table is [0 .. -1] times 0 times NIL;
+
+
+const proc: process_hashcode (in reference: current_object, inout expr_type: c_expr) is forward;
+const proc: object_address (in reference: current_object, inout expr_type: c_expr) is forward;
+
+
+const func reference: compareObj (in reference: current_object) is func
+
+  result
+    var reference: keyCompare is NIL;
+  local
+    var ref_list: param_list is ref_list.EMPTY;
+  begin
+    param_list := make_list(current_object);
+    param_list &:= make_list(current_object);
+    param_list &:= make_list(syobject(prog, "compare"));
+    keyCompare := matchExpr(prog, param_list);
+    keyCompare := getValue(keyCompare, ref_list)[1];
+  end func;
+
+
+const proc: process_case_labels (in integer: numOfCaseStmt, in integer: numOfWhenPart,
+    in reference: current_expression, inout expr_type: c_expr) is func
+
+  local
+    var reference: case_labels is NIL;
+    var category: labelCategory is category.value;
+    var bitset: currentWhenValues is bitset.EMPTY_SET;
+  begin
+    case_labels := evaluate(prog, current_expression);
+    labelCategory := category(case_labels);
+    if labelCategory = HASHOBJECT then
+      case_table[numOfCaseStmt] &:= case_labels;
+      c_expr.expr &:= diagnosticLine(current_expression);
+      c_expr.expr &:= "case ";
+      c_expr.expr &:= str(numOfWhenPart);
+      c_expr.expr &:= ":\n";
+    else
+      c_expr.expr &:= "/* case ";
+      c_expr.expr &:= str(labelCategory);
+      c_expr.expr &:= " */";
+    end if;
+  end func;
+
+
+const proc: process_when (in integer: numOfCaseStmt, in integer: numOfWhenPart,
+    in reference: when_expr, inout expr_type: c_expr) is func
+
+  local
+    var ref_list: params is ref_list.EMPTY;
+    var reference: function is NIL;
+  begin
+    params := getValue(when_expr, ref_list);
+    function := params[1];
+    params := params[2 ..];
+    process_case_labels(numOfCaseStmt, numOfWhenPart, params[2], c_expr);
+    process_expr(params[4], c_expr);
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "break;\n";
+    if length(params) >= 5 then
+      process_when(numOfCaseStmt, succ(numOfWhenPart), params[5], c_expr);
+    end if;
+  end func;
+
+
 const proc: process (PRC_CASE_HASHSET, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var integer: numOfCaseStmt is 0;
+    var type: switchType is void;
+    var reference: switchValue is NIL;
+    var expr_type: statement is expr_type.value;
   begin
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= "#error PRC_CASE_HASHSET not supported\n";
+    case_table &:= 0 times NIL;
+    numOfCaseStmt := maxIdx(case_table);
+    switchType := getType(params[2]);
+    switchValue := getParameterAsVariable(params[2], statement);
+    statement.expr &:= diagnosticLine(c_expr);
+    statement.expr &:= "switch (hshIdxWithDefault(caseLabels[";
+    statement.expr &:= str(numOfCaseStmt);
+    statement.expr &:= "], ";
+    if isNormalVariable(params[2]) then
+      getGenericValue(switchValue, statement);
+    else
+      getGenericValueOfVariableObject(switchValue, statement);
+    end if;
+    statement.expr &:= ", 0, ";
+    process_hashcode(switchValue, statement);
+    statement.expr &:= ", ";
+    object_address(compareObj(params[2]), statement);
+    statement.expr &:= ")) {\n";
+    process_when(numOfCaseStmt, 1, params[4], statement);
+    setDiagnosticLine(statement);
+    statement.expr &:= "}\n";
+    doLocalDeclsOfStatement(statement, c_expr);
   end func;
 
 
 const proc: process (PRC_CASE_HASHSET_DEF, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var integer: numOfCaseStmt is 0;
+    var type: switchType is void;
+    var reference: switchValue is NIL;
+    var expr_type: statement is expr_type.value;
   begin
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= "#error PRC_CASE_HASHSET_DEF not supported\n";
+    case_table &:= 0 times NIL;
+    numOfCaseStmt := maxIdx(case_table);
+    switchType := getType(params[2]);
+    switchValue := getParameterAsVariable(params[2], statement);
+    statement.expr &:= diagnosticLine(c_expr);
+    statement.expr &:= "switch (hshIdxWithDefault(caseLabels[";
+    statement.expr &:= str(numOfCaseStmt);
+    statement.expr &:= "], ";
+    if isNormalVariable(params[2]) then
+      getGenericValue(switchValue, statement);
+    else
+      getGenericValueOfVariableObject(switchValue, statement);
+    end if;
+    statement.expr &:= ", 0, ";
+    process_hashcode(switchValue, statement);
+    statement.expr &:= ", ";
+    object_address(compareObj(params[2]), statement);
+    statement.expr &:= ")) {\n";
+    process_when(numOfCaseStmt, 1, params[4], statement);
+    statement.expr &:= diagnosticLine(params[7]);
+    statement.expr &:= "default:\n";
+    process_expr(params[7], statement);
+    setDiagnosticLine(statement);
+    statement.expr &:= "break;\n";
+    setDiagnosticLine(statement);
+    statement.expr &:= "}\n";
+    doLocalDeclsOfStatement(statement, c_expr);
   end func;
 
 

@@ -234,16 +234,16 @@ const proc: summarizeConstants (inout addSubIntListType: addSubParamList) is fun
             addSubParamList[succ(index)].summand = NIL then
           # Two consecutive constant integers are added or subtracted at compile time.
           if addSubParamList[index].doAdd then
-            bigSum := bigInteger conv paramValue;
+            bigSum := bigInteger(paramValue);
           else
-            bigSum := -bigInteger conv paramValue;
+            bigSum := -bigInteger(paramValue);
           end if;
           if addSubParamList[succ(index)].doAdd then
-            bigSum +:= bigInteger conv (addSubParamList[succ(index)].constSummand);
+            bigSum +:= bigInteger(addSubParamList[succ(index)].constSummand);
           else
-            bigSum -:= bigInteger conv (addSubParamList[succ(index)].constSummand);
+            bigSum -:= bigInteger(addSubParamList[succ(index)].constSummand);
           end if;
-          if bigSum > bigInteger conv (integer.first) and bigSum < 0_ then
+          if bigSum > bigInteger(integer.first) and bigSum < 0_ then
             incr(countOptimizations);
             if index > 1 then
               addSubParamList[index].doAdd := FALSE;
@@ -253,15 +253,15 @@ const proc: summarizeConstants (inout addSubIntListType: addSubParamList) is fun
               addSubParamList[index].constSummand := ord(bigSum);
             end if;
             ignore(remove(addSubParamList, succ(index)));
-          elsif bigSum > 0_ and bigSum <= bigInteger conv (integer.last) then
+          elsif bigSum > 0_ and bigSum <= bigInteger(integer.last) then
             incr(countOptimizations);
             addSubParamList[index].doAdd := TRUE;
             addSubParamList[index].constSummand := ord(bigSum);
             ignore(remove(addSubParamList, succ(index)));
           elsif bigSum = 0_ then
             incr(countOptimizations);
-            if index > 1 or index = pred(length(addSubParamList)) or
-                addSubParamList[index + 2].doAdd then
+            if index > 1 or length(addSubParamList) = 2 or
+                addSubParamList[3].doAdd then
               ignore(remove(addSubParamList, index));
               ignore(remove(addSubParamList, index));
             else
@@ -269,12 +269,12 @@ const proc: summarizeConstants (inout addSubIntListType: addSubParamList) is fun
               addSubParamList[index].constSummand := 0;
               ignore(remove(addSubParamList, succ(index)));
             end if;
-          elsif bigSum = bigInteger conv (integer.first) then
+          elsif bigSum = bigInteger(integer.first) then
             incr(countOptimizations);
             addSubParamList[index].doAdd := TRUE;
             addSubParamList[index].constSummand := integer.first;
             ignore(remove(addSubParamList, succ(index)));
-          elsif bigSum = -bigInteger conv (integer.first) then
+          elsif bigSum = -bigInteger(integer.first) then
             incr(countOptimizations);
             if index > 1 then
               addSubParamList[index].doAdd := FALSE;
@@ -2961,7 +2961,7 @@ const proc: process_const_int_pow (in integer: base, in reference: exponent,
       incr(countOptimizations);
       # The following computation is done with bigInteger,
       # because base could be integer.first.
-      log2_of_negated_base := ord(log2(-bigInteger conv base));
+      log2_of_negated_base := ord(log2(-bigInteger(base)));
       c_expr.expr &:= "(";
       exponent_name := getParameterAsVariable("intType", "tmp_", exponent, c_expr);
       c_expr.expr &:= "numChk(";
@@ -2974,7 +2974,7 @@ const proc: process_const_int_pow (in integer: base, in reference: exponent,
         c_expr.expr &:= "ovfChk(";
         c_expr.expr &:= exponent_name;
         c_expr.expr &:= ">";
-        max_exponent := ord(log2(-bigInteger conv (integer.first))) div log2_of_negated_base;
+        max_exponent := ord(log2(-bigInteger(integer.first))) div log2_of_negated_base;
         if not odd(max_exponent) then
           max_exponent := log2(integer.last) div log2_of_negated_base;
         end if;
@@ -3227,7 +3227,7 @@ const proc: process_const_int_rand (in integer: lowerBound, in integer: upperBou
         c_expr.expr &:= intRaiseError("RANGE_ERROR");
       end if;
     else
-      beyond := bigInteger conv upperBound - bigInteger conv lowerBound + 1_;
+      beyond := bigInteger(upperBound) - bigInteger(lowerBound) + 1_;
       if beyond = succ(UINTTYPE_MAX) then
         # lowerBound must be integer.first and upperBound must be integer.last.
         c_expr.expr &:= "(intType) uintRand()";

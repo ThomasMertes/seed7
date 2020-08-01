@@ -24,7 +24,6 @@
 (********************************************************************)
 
 
-const ACTION: CHR_CHR       is action "CHR_CHR";
 const ACTION: CHR_CLIT      is action "CHR_CLIT";
 const ACTION: CHR_CMP       is action "CHR_CMP";
 const ACTION: CHR_CONV      is action "CHR_CONV";
@@ -34,7 +33,8 @@ const ACTION: CHR_DECR      is action "CHR_DECR";
 const ACTION: CHR_GE        is action "CHR_GE";
 const ACTION: CHR_GT        is action "CHR_GT";
 const ACTION: CHR_HASHCODE  is action "CHR_HASHCODE";
-const ACTION: CHR_ICONV     is action "CHR_ICONV";
+const ACTION: CHR_ICONV1    is action "CHR_ICONV1";
+const ACTION: CHR_ICONV3    is action "CHR_ICONV3";
 const ACTION: CHR_INCR      is action "CHR_INCR";
 const ACTION: CHR_IS_LETTER is action "CHR_IS_LETTER";
 const ACTION: CHR_LE        is action "CHR_LE";
@@ -69,51 +69,6 @@ const proc: chr_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "charType    chrUp (charType);");
     declareExtern(c_prog, "charType    chrValue (const const_objRefType);");
     declareExtern(c_prog, "intType     chrWidth (charType);");
-  end func;
-
-
-const proc: process_const_chr_chr (in reference: function, in integer: number, inout expr_type: c_expr) is func
-
-  begin
-    incr(countOptimizations);
-    if number < pred(-2147483647) or number > 2147483647 then
-      c_expr.expr &:= intRaiseError("RANGE_ERROR");
-    else
-      c_expr.expr &:= "(charType) ";
-      c_expr.expr &:= str(number);
-    end if;
-  end func;
-
-
-const proc: process (CHR_CHR, in reference: function,
-    in ref_list: params, inout expr_type: c_expr) is func
-
-  local
-    var reference: evaluatedParam is NIL;
-    var string: number_name is "";
-  begin
-    if getConstant(params[1], INTOBJECT, evaluatedParam) then
-      process_const_chr_chr(function, getValue(evaluatedParam, integer), c_expr);
-    elsif conversion_range_check and ccConf.INTTYPE_SIZE > 32 then
-      incr(countRangeChecks);
-      c_expr.expr &:= "(";
-      number_name := getParameterAsVariable("intType", "tmp_", params[1], c_expr);
-      c_expr.expr &:= number_name;
-      c_expr.expr &:= "<INT32TYPE_MIN||";
-      c_expr.expr &:= number_name;
-      c_expr.expr &:= ">INT32TYPE_MAX?";
-      c_expr.expr &:= intRaiseError("RANGE_ERROR");
-      c_expr.expr &:= ":(charType)";
-      c_expr.expr &:= number_name;
-      c_expr.expr &:= ")";
-    else
-      if ccConf.INTTYPE_SIZE > 32 then
-        incr(countNoRangeChecks);
-      end if;
-      c_expr.expr &:= "(charType)(";
-      process_expr(params[1], c_expr);
-      c_expr.expr &:= ")";
-    end if;
   end func;
 
 
@@ -239,7 +194,52 @@ const proc: process (CHR_HASHCODE, in reference: function,
   end func;
 
 
-const proc: process (CHR_ICONV, in reference: function,
+const proc: process_const_chr_iconv (in reference: function, in integer: number, inout expr_type: c_expr) is func
+
+  begin
+    incr(countOptimizations);
+    if number < pred(-2147483647) or number > 2147483647 then
+      c_expr.expr &:= intRaiseError("RANGE_ERROR");
+    else
+      c_expr.expr &:= "(charType) ";
+      c_expr.expr &:= str(number);
+    end if;
+  end func;
+
+
+const proc: process (CHR_ICONV1, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedParam is NIL;
+    var string: number_name is "";
+  begin
+    if getConstant(params[1], INTOBJECT, evaluatedParam) then
+      process_const_chr_iconv(function, getValue(evaluatedParam, integer), c_expr);
+    elsif conversion_range_check and ccConf.INTTYPE_SIZE > 32 then
+      incr(countRangeChecks);
+      c_expr.expr &:= "(";
+      number_name := getParameterAsVariable("intType", "tmp_", params[1], c_expr);
+      c_expr.expr &:= number_name;
+      c_expr.expr &:= "<INT32TYPE_MIN||";
+      c_expr.expr &:= number_name;
+      c_expr.expr &:= ">INT32TYPE_MAX?";
+      c_expr.expr &:= intRaiseError("RANGE_ERROR");
+      c_expr.expr &:= ":(charType)";
+      c_expr.expr &:= number_name;
+      c_expr.expr &:= ")";
+    else
+      if ccConf.INTTYPE_SIZE > 32 then
+        incr(countNoRangeChecks);
+      end if;
+      c_expr.expr &:= "(charType)(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= ")";
+    end if;
+  end func;
+
+
+const proc: process (CHR_ICONV3, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   local
@@ -247,7 +247,7 @@ const proc: process (CHR_ICONV, in reference: function,
     var string: number_name is "";
   begin
     if getConstant(params[3], INTOBJECT, evaluatedParam) then
-      process_const_chr_chr(function, getValue(evaluatedParam, integer), c_expr);
+      process_const_chr_iconv(function, getValue(evaluatedParam, integer), c_expr);
     elsif conversion_range_check and ccConf.INTTYPE_SIZE > 32 then
       incr(countRangeChecks);
       c_expr.expr &:= "(";

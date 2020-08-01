@@ -2026,14 +2026,14 @@ const func string: exec_str_primary (
       expect("(", symbol, line);
       num1 := exec_expr(symbol, line);
       expect(")", symbol, line);
-      exprResult := bin32AsFourBytesLe(float2Bits(num1, SINGLE));
+      exprResult := bin32AsFourBytesLe(bin32(num1));
       writeln(log, "MKS$(" <& num1 <& ") -> " <& literal(exprResult));
     elsif symbol = "MKD$" then
       symbol := get_symbol(line);
       expect("(", symbol, line);
       num1 := exec_expr(symbol, line);
       expect(")", symbol, line);
-      exprResult := bin64AsEightBytesLe(float2Bits(num1, DOUBLE));
+      exprResult := bin64AsEightBytesLe(bin64(num1));
       writeln(log, "MKD$(" <& num1 <& ") -> " <& literal(exprResult));
     elsif symbol = "MKSMBF$" then
       symbol := get_symbol(line);
@@ -2620,7 +2620,7 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
       stri1 := exec_str_expr(symbol, line, unused_name);
       expect(")", symbol, line);
       if length(stri1) >= 4 then
-        exprResult := bits2Float(bin32(stri1[.. 4], LE));
+        exprResult := float(bin32(stri1[.. 4], LE));
         writeln(log, "CVS(" <& literal(stri1) <& ") -> " <& exprResult);
       else
         error_marker;
@@ -2633,7 +2633,7 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
       stri1 := exec_str_expr(symbol, line, unused_name);
       expect(")", symbol, line);
       if length(stri1) >= 8 then
-        exprResult := bits2Float(bin64(stri1[.. 8], LE));
+        exprResult := float(bin64(stri1[.. 8], LE));
         writeln(log, "CVD(" <& literal(stri1) <& ") -> " <& exprResult);
       else
         error_marker;
@@ -6740,11 +6740,11 @@ const func string: getBytesFromArray (in string: name_start,
       end if;
       if element >= -3.4028235e38 and element <= 3.4028235e38 or
           abs(element) = Infinity or isNaN(element) then
-        bytesFromFlt4 &:= bin32AsFourBytesLe(float2Bits(element, SINGLE));
+        bytesFromFlt4 &:= bin32AsFourBytesLe(bin32(element));
       else
         allFloat := FALSE;
       end if;
-      bytesFromDbl8 &:= bin64AsEightBytesLe(float2Bits(element, DOUBLE));
+      bytesFromDbl8 &:= bin64AsEightBytesLe(bin64(element));
     end for;
     if allInteger then
       bytes := bytesFromInt2;

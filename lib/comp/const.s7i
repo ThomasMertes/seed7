@@ -157,30 +157,32 @@ const func boolean: isPureFunction (in reference: function) is func
          "ARR_SUBARR", "ARR_TAIL", "ARR_TIMES",
          "BIG_ABS", "BIG_ADD", "BIG_BIT_LENGTH", "BIG_CMP", "BIG_CONV", "BIG_DIV",
          "BIG_EQ", "BIG_FROM_BSTRI_BE", "BIG_FROM_BSTRI_LE", "BIG_GCD", "BIG_GE",
-         "BIG_GT", "BIG_HASHCODE", "BIG_ICONV", "BIG_IPOW", "BIG_LE", "BIG_LOG10",
-         "BIG_LOG2", "BIG_LOWEST_SET_BIT", "BIG_LSHIFT", "BIG_LT", "BIG_MDIV",
-         "BIG_MOD", "BIG_MULT", "BIG_NE", "BIG_NEGATE", "BIG_ODD", "BIG_ORD",
-         "BIG_PARSE", "BIG_PARSE_BASED", "BIG_PLUS", "BIG_PRED", "BIG_radix",
-         "BIG_RADIX", "BIG_REM", "BIG_RSHIFT", "BIG_SBTR", "BIG_STR", "BIG_SUCC",
-         "BIG_TO_BSTRI_BE", "BIG_TO_BSTRI_LE", "BIG_VALUE",
+         "BIG_GT", "BIG_HASHCODE", "BIG_ICONV1", "BIG_ICONV3", "BIG_IPOW",
+         "BIG_LE", "BIG_LOG10", "BIG_LOG2", "BIG_LOWEST_SET_BIT", "BIG_LSHIFT",
+         "BIG_LT", "BIG_MDIV", "BIG_MOD", "BIG_MULT", "BIG_NE", "BIG_NEGATE",
+         "BIG_ODD", "BIG_ORD", "BIG_PARSE", "BIG_PARSE_BASED", "BIG_PLUS",
+         "BIG_PRED", "BIG_radix", "BIG_RADIX", "BIG_REM", "BIG_RSHIFT",
+         "BIG_SBTR", "BIG_STR", "BIG_SUCC", "BIG_TO_BSTRI_BE", "BIG_TO_BSTRI_LE",
+         "BIG_VALUE",
          "BIN_AND", "BIN_BIG", "BIN_BINARY", "BIN_CARD", "BIN_CMP", "BIN_LSHIFT",
          "BIN_OR", "BIN_ORD", "BIN_radix", "BIN_RADIX", "BIN_RSHIFT", "BIN_STR",
          "BIN_XOR",
-         "BLN_AND", "BLN_EQ", "BLN_GE", "BLN_GT", "BLN_ICONV", "BLN_LE", "BLN_LT",
-         "BLN_NE", "BLN_NOT", "BLN_OR", "BLN_ORD", "BLN_VALUE",
+         "BLN_AND", "BLN_EQ", "BLN_GE", "BLN_GT", "BLN_ICONV1", "BLN_ICONV3",
+         "BLN_LE", "BLN_LT", "BLN_NE", "BLN_NOT", "BLN_OR", "BLN_ORD",
+         "BLN_VALUE",
          "BST_CAT", "BST_CMP", "BST_EMPTY", "BST_EQ", "BST_HASHCODE", "BST_IDX",
          "BST_LNG", "BST_NE", "BST_PARSE", "BST_STR", "BST_VALUE",
-         "CHR_CHR", "CHR_CLIT", "CHR_CMP", "CHR_CONV", "CHR_EQ", "CHR_GE",
-         "CHR_GT", "CHR_HASHCODE", "CHR_ICONV", "CHR_LE", "CHR_LOW", "CHR_LT",
-         "CHR_NE", "CHR_ORD", "CHR_PRED", "CHR_STR", "CHR_SUCC", "CHR_UP",
-         "CHR_VALUE", "CMD_CONFIG_VALUE", "DRW_VALUE",
+         "CHR_CLIT", "CHR_CMP", "CHR_CONV", "CHR_EQ", "CHR_GE", "CHR_GT",
+         "CHR_HASHCODE", "CHR_ICONV1", "CHR_ICONV3", "CHR_LE", "CHR_LOW",
+         "CHR_LT", "CHR_NE", "CHR_ORD", "CHR_PRED", "CHR_STR", "CHR_SUCC",
+         "CHR_UP", "CHR_VALUE", "CMD_CONFIG_VALUE", "DRW_VALUE",
          "ENU_CONV", "ENU_EQ", "ENU_ICONV2", "ENU_NE", "ENU_ORD2", "ENU_VALUE",
          "FIL_EQ", "FIL_NE", "FIL_VALUE",
          "FLT_ABS", "FLT_ACOS", "FLT_ADD", "FLT_ASIN", "FLT_ATAN", "FLT_ATAN2",
          "FLT_BITS2DOUBLE", "FLT_BITS2SINGLE", "FLT_CEIL", "FLT_CMP", "FLT_COS",
          "FLT_COSH", "FLT_DGTS", "FLT_DIV", "FLT_DOUBLE2BITS", "FLT_EQ",
-         "FLT_EXP", "FLT_FLOOR", "FLT_GE", "FLT_GT", "FLT_HASHCODE", "FLT_ICONV",
-         "FLT_IFLT", "FLT_IPOW", "FLT_ISNAN", "FLT_ISNEGATIVEZERO", "FLT_LE",
+         "FLT_EXP", "FLT_FLOOR", "FLT_GE", "FLT_GT", "FLT_HASHCODE", "FLT_ICONV1",
+         "FLT_ICONV3", "FLT_IPOW", "FLT_ISNAN", "FLT_ISNEGATIVEZERO", "FLT_LE",
          "FLT_LOG", "FLT_LOG10", "FLT_LOG2", "FLT_LSHIFT", "FLT_LT", "FLT_MULT",
          "FLT_NE", "FLT_NEGATE", "FLT_PARSE", "FLT_PLUS", "FLT_POW", "FLT_ROUND",
          "FLT_RSHIFT", "FLT_SBTR", "FLT_SCI", "FLT_SIN", "FLT_SINGLE2BITS",
@@ -209,8 +211,8 @@ const func boolean: isPureFunction (in reference: function) is func
          "SCT_LNG", "SCT_SELECT",
          "SET_ARRLIT", "SET_BASELIT", "SET_CARD", "SET_CMP", "SET_CONV",
          "SET_DIFF", "SET_ELEM", "SET_EMPTY", "SET_EQ", "SET_GE", "SET_GT",
-         "SET_HASHCODE", "SET_ICONV", "SET_INTERSECT", "SET_LE", "SET_LT",
-         "SET_MAX", "SET_MIN", "SET_NE", "SET_NEXT", "SET_NOT_ELEM",
+         "SET_HASHCODE", "SET_ICONV1", "SET_ICONV3", "SET_INTERSECT", "SET_LE",
+         "SET_LT", "SET_MAX", "SET_MIN", "SET_NE", "SET_NEXT", "SET_NOT_ELEM",
          "SET_SCONV", "SET_SYMDIFF", "SET_UNION", "SET_VALUE",
          "SOC_EQ", "SOC_NE",
          "STR_CAT", "STR_CHIPOS", "STR_CHPOS", "STR_CHSPLIT", "STR_CLIT",
@@ -319,6 +321,35 @@ const func boolean: getConstant (in reference: currExpr, in category: exprCatego
         evaluatedExpr := evaluate(prog, currExpr);
         if evaluatedExpr <> NIL then
           if category(evaluatedExpr) = exprCategory then
+            incr(countEvaluations);
+            okay := TRUE;
+          end if;
+        end if;
+      exception
+        catch NUMERIC_ERROR:  noop;
+        catch OVERFLOW_ERROR: noop;
+        catch RANGE_ERROR:    noop;
+        catch FILE_ERROR:     noop;
+      end block;
+    end if;
+  end func;
+
+
+const func boolean: getConstant (in reference: currExpr,
+    inout reference: evaluatedExpr) is func
+  result
+    var boolean: okay is FALSE;
+  begin
+    if evaluate_const_expr >= 1 and category(currExpr) in constantExpressionCategories and
+        not isVar(currExpr) then
+      evaluatedExpr := currExpr;
+      incr(countEvaluations);
+      okay := TRUE;
+    elsif evaluate_const_expr >= 2 and isConstant(currExpr) then
+      block
+        evaluatedExpr := evaluate(prog, currExpr);
+        if evaluatedExpr <> NIL then
+          if category(evaluatedExpr) in constantExpressionCategories then
             incr(countEvaluations);
             okay := TRUE;
           end if;

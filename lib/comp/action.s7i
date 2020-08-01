@@ -203,8 +203,10 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(BIG_GT, function, params, c_expr);
       elsif action_name = "BIG_HASHCODE" then
         process(BIG_HASHCODE, function, params, c_expr);
-      elsif action_name = "BIG_ICONV" then
-        process(BIG_ICONV, function, params, c_expr);
+      elsif action_name = "BIG_ICONV1" then
+        process(BIG_ICONV1, function, params, c_expr);
+      elsif action_name = "BIG_ICONV3" then
+        process(BIG_ICONV3, function, params, c_expr);
       elsif action_name = "BIG_INCR" then
         process(BIG_INCR, function, params, c_expr);
       elsif action_name = "BIG_IPOW" then
@@ -327,8 +329,10 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(BLN_GE, function, params, c_expr);
       elsif action_name = "BLN_GT" then
         process(BLN_GT, function, params, c_expr);
-      elsif action_name = "BLN_ICONV" then
-        process(BLN_ICONV, function, params, c_expr);
+      elsif action_name = "BLN_ICONV1" then
+        process(BLN_ICONV1, function, params, c_expr);
+      elsif action_name = "BLN_ICONV3" then
+        process(BLN_ICONV3, function, params, c_expr);
       elsif action_name = "BLN_LE" then
         process(BLN_LE, function, params, c_expr);
       elsif action_name = "BLN_LT" then
@@ -373,9 +377,7 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_unknown_action(action_name, c_expr);
       end if;
     elsif action_prefix = "CHR" then
-      if action_name = "CHR_CHR" then
-        process(CHR_CHR, function, params, c_expr);
-      elsif action_name = "CHR_CLIT" then
+      if action_name = "CHR_CLIT" then
         process(CHR_CLIT, function, params, c_expr);
       elsif action_name = "CHR_CMP" then
         process(CHR_CMP, function, params, c_expr);
@@ -393,8 +395,10 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(CHR_GT, function, params, c_expr);
       elsif action_name = "CHR_HASHCODE" then
         process(CHR_HASHCODE, function, params, c_expr);
-      elsif action_name = "CHR_ICONV" then
-        process(CHR_ICONV, function, params, c_expr);
+      elsif action_name = "CHR_ICONV1" then
+        process(CHR_ICONV1, function, params, c_expr);
+      elsif action_name = "CHR_ICONV3" then
+        process(CHR_ICONV3, function, params, c_expr);
       elsif action_name = "CHR_INCR" then
         process(CHR_INCR, function, params, c_expr);
       elsif action_name = "CHR_IS_LETTER" then
@@ -789,10 +793,10 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(FLT_HASHCODE, function, params, c_expr);
       elsif action_name = "FLT_ICAST" then
         process(FLT_ICAST, function, params, c_expr);
-      elsif action_name = "FLT_ICONV" then
-        process(FLT_ICONV, function, params, c_expr);
-      elsif action_name = "FLT_IFLT" then
-        process(FLT_IFLT, function, params, c_expr);
+      elsif action_name = "FLT_ICONV1" then
+        process(FLT_ICONV1, function, params, c_expr);
+      elsif action_name = "FLT_ICONV3" then
+        process(FLT_ICONV3, function, params, c_expr);
       elsif action_name = "FLT_IPOW" then
         process(FLT_IPOW, function, params, c_expr);
       elsif action_name = "FLT_ISNAN" then
@@ -1239,6 +1243,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(REF_ALLOC_INT, function, params, c_expr);
       elsif action_name = "REF_ALLOC_STRI" then
         process(REF_ALLOC_STRI, function, params, c_expr);
+      elsif action_name = "REF_ALLOC_VAR" then
+        process(REF_ALLOC_VAR, function, params, c_expr);
       elsif action_name = "REF_ARRMAXIDX" then
         process(REF_ARRMAXIDX, function, params, c_expr);
       elsif action_name = "REF_ARRMINIDX" then
@@ -1397,8 +1403,10 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(SET_GT, function, params, c_expr);
       elsif action_name = "SET_HASHCODE" then
         process(SET_HASHCODE, function, params, c_expr);
-      elsif action_name = "SET_ICONV" then
-        process(SET_ICONV, function, params, c_expr);
+      elsif action_name = "SET_ICONV1" then
+        process(SET_ICONV1, function, params, c_expr);
+      elsif action_name = "SET_ICONV3" then
+        process(SET_ICONV3, function, params, c_expr);
       elsif action_name = "SET_INCL" then
         process(SET_INCL, function, params, c_expr);
       elsif action_name = "SET_INTERSECT" then

@@ -94,82 +94,82 @@ const proc: checkFloat2Bits is func
   local
     var boolean: okay is TRUE;
   begin
-    if  float2Bits( 0.0,                     SINGLE) <> bin32(16#00000000) or
-        float2Bits( 0.5,                     SINGLE) <> bin32(16#3f000000) or
-        float2Bits( 0.9999999403953552,      SINGLE) <> bin32(16#3f7fffff) or  # The largest number < 1
-        float2Bits( 0.9999999999999999,      SINGLE) <> bin32(16#3f800000) or  # Rounded to 1
-        float2Bits( 1.0,                     SINGLE) <> bin32(16#3f800000) or
-        float2Bits( 1.0000000000000002,      SINGLE) <> bin32(16#3f800000) or  # Rounded to 1
-        float2Bits( 1.0000001192092896,      SINGLE) <> bin32(16#3f800001) or  # The smallest number > 1
-        float2Bits( 1.0000002384185791,      SINGLE) <> bin32(16#3f800002) or
-        float2Bits( 2.0,                     SINGLE) <> bin32(16#40000000) or
-        float2Bits(-2.0,                     SINGLE) <> bin32(16#c0000000) or
-        float2Bits( 5.0e-324,                SINGLE) <> bin32(16#00000000) or  # Min subnormal positive double.
-        float2Bits( 2.2250738585072009e-308, SINGLE) <> bin32(16#00000000) or  # Max subnormal positive double
-        float2Bits( 2.2250738585072014e-308, SINGLE) <> bin32(16#00000000) or  # Min normalized positive double
-        float2Bits( 1.4012984643248171e-45,  SINGLE) <> bin32(16#00000001) or  # Min subnormal positive single.
-        float2Bits( 2.9387358770557188e-39,  SINGLE) <> bin32(16#00200000) or  # Min MBF positive single.
-        float2Bits( 1.1754942106924411e-38,  SINGLE) <> bin32(16#007fffff) or  # Max subnormal positive single
-        float2Bits( 1.1754943508222875e-38,  SINGLE) <> bin32(16#00800000) or  # Min normalized positive single.
-        float2Bits( 1.7014117331926443e+38,  SINGLE) <> bin32(16#7effffff) or  # Max MBF positive single.
-        float2Bits( 3.4028234663852886e+38,  SINGLE) <> bin32(16#7f7fffff) or  # Max finite positive single.
-        float2Bits( 1.7976931348623157e+308, SINGLE) <> bin32(16#7f800000) or  # Max finite positive double
-        float2Bits( Infinity,                SINGLE) <> bin32(16#7f800000) or
-        float2Bits(-Infinity,                SINGLE) <> bin32(16#ff800000) or
-        float2Bits( 0.3333333432674408,      SINGLE) <> bin32(16#3eaaaaab) or
-        float2Bits( 0.25,                    SINGLE) <> bin32(16#3e800000) or
-        float2Bits( 0.7071067690849304,      SINGLE) <> bin32(16#3f3504f3) or  # sqrt(0.5)
-        float2Bits( 1.4142135381698608,      SINGLE) <> bin32(16#3fb504f3) or  # sqrt(2.0)
-        float2Bits( 0.6931471824645996,      SINGLE) <> bin32(16#3f317218) or  # log(2.0)
-        float2Bits( 1.4426950216293335,      SINGLE) <> bin32(16#3fb8aa3b) or  # log2(E)
-        float2Bits( 1.5707963705062866,      SINGLE) <> bin32(16#3fc90fdb) or  # PI / 2.0
-        float2Bits( 3.1415927410125732,      SINGLE) <> bin32(16#40490fdb) or  # PI
-        float2Bits( 6.2831854820251465,      SINGLE) <> bin32(16#40c90fdb) or  # 2.0 * PI
-        float2Bits(-0.0,                     SINGLE) <> bin32(16#80000000) or
-        float2Bits( NaN,                     SINGLE) <> bin32(16#ffc00000) then
-      writeln(" ***** float2Bits for IEEE single precision does not work correct.");
+    if  bin32( 0.0)                     <> bin32(16#00000000) or
+        bin32( 0.5)                     <> bin32(16#3f000000) or
+        bin32( 0.9999999403953552)      <> bin32(16#3f7fffff) or  # The largest number < 1
+        bin32( 0.9999999999999999)      <> bin32(16#3f800000) or  # Rounded to 1
+        bin32( 1.0)                     <> bin32(16#3f800000) or
+        bin32( 1.0000000000000002)      <> bin32(16#3f800000) or  # Rounded to 1
+        bin32( 1.0000001192092896)      <> bin32(16#3f800001) or  # The smallest number > 1
+        bin32( 1.0000002384185791)      <> bin32(16#3f800002) or
+        bin32( 2.0)                     <> bin32(16#40000000) or
+        bin32(-2.0)                     <> bin32(16#c0000000) or
+        bin32( 5.0e-324)                <> bin32(16#00000000) or  # Min subnormal positive double.
+        bin32( 2.2250738585072009e-308) <> bin32(16#00000000) or  # Max subnormal positive double
+        bin32( 2.2250738585072014e-308) <> bin32(16#00000000) or  # Min normalized positive double
+        bin32( 1.4012984643248171e-45)  <> bin32(16#00000001) or  # Min subnormal positive single.
+        bin32( 2.9387358770557188e-39)  <> bin32(16#00200000) or  # Min MBF positive single.
+        bin32( 1.1754942106924411e-38)  <> bin32(16#007fffff) or  # Max subnormal positive single
+        bin32( 1.1754943508222875e-38)  <> bin32(16#00800000) or  # Min normalized positive single.
+        bin32( 1.7014117331926443e+38)  <> bin32(16#7effffff) or  # Max MBF positive single.
+        bin32( 3.4028234663852886e+38)  <> bin32(16#7f7fffff) or  # Max finite positive single.
+        bin32( 1.7976931348623157e+308) <> bin32(16#7f800000) or  # Max finite positive double
+        bin32( Infinity)                <> bin32(16#7f800000) or
+        bin32(-Infinity)                <> bin32(16#ff800000) or
+        bin32( 0.3333333432674408)      <> bin32(16#3eaaaaab) or
+        bin32( 0.25)                    <> bin32(16#3e800000) or
+        bin32( 0.7071067690849304)      <> bin32(16#3f3504f3) or  # sqrt(0.5)
+        bin32( 1.4142135381698608)      <> bin32(16#3fb504f3) or  # sqrt(2.0)
+        bin32( 0.6931471824645996)      <> bin32(16#3f317218) or  # log(2.0)
+        bin32( 1.4426950216293335)      <> bin32(16#3fb8aa3b) or  # log2(E)
+        bin32( 1.5707963705062866)      <> bin32(16#3fc90fdb) or  # PI / 2.0
+        bin32( 3.1415927410125732)      <> bin32(16#40490fdb) or  # PI
+        bin32( 6.2831854820251465)      <> bin32(16#40c90fdb) or  # 2.0 * PI
+        bin32(-0.0)                     <> bin32(16#80000000) or
+        bin32( NaN)                     <> bin32(16#ffc00000) then
+      writeln(" ***** Converting IEEE single precision float to bin32 does not work correct.");
       okay := FALSE;
     end if;
 
-    if  float2Bits( 0.0,                     DOUBLE) <> bin64(16#0000000000000000_) or
-        float2Bits( 0.5,                     DOUBLE) <> bin64(16#3fe0000000000000_) or
-        float2Bits( 0.9999999403953552,      DOUBLE) <> bin64(16#3fefffffe0000000_) or
-        float2Bits( 0.9999999999999999,      DOUBLE) <> bin64(16#3fefffffffffffff_) or  # The largest number < 1
-        float2Bits( 1.0,                     DOUBLE) <> bin64(16#3ff0000000000000_) or
-        float2Bits( 1.0000000000000002,      DOUBLE) <> bin64(16#3ff0000000000001_) or  # The smallest number > 1
-        float2Bits( 1.0000000000000004,      DOUBLE) <> bin64(16#3ff0000000000002_) or
-        float2Bits( 1.0000001192092896,      DOUBLE) <> bin64(16#3ff0000020000000_) or
-        float2Bits( 2.0,                     DOUBLE) <> bin64(16#4000000000000000_) or
-        float2Bits(-2.0,                     DOUBLE) <> bin64(16#c000000000000000_) or
-        float2Bits( 5.0e-324,                DOUBLE) <> bin64(16#0000000000000001_) or  # Min subnormal positive double.
-        float2Bits( 2.2250738585072009e-308, DOUBLE) <> bin64(16#000fffffffffffff_) or  # Max subnormal positive double
-        float2Bits( 2.2250738585072014e-308, DOUBLE) <> bin64(16#0010000000000000_) or  # Min normalized positive double
-        float2Bits( 1.4012984643248171e-45,  DOUBLE) <> bin64(16#36a0000000000000_) or  # Min subnormal positive single.
-        float2Bits( 2.9387358770557188e-39,  DOUBLE) <> bin64(16#37f0000000000000_) or  # Min MBF positive double.
-        float2Bits( 1.1754942106924411e-38,  DOUBLE) <> bin64(16#380fffffc0000000_) or  # Max subnormal positive single
-        float2Bits( 1.1754943508222875e-38,  DOUBLE) <> bin64(16#3810000000000000_) or  # Min normalized positive single.
-        float2Bits( 1.7014118346046923e+38,  DOUBLE) <> bin64(16#47e0000000000000_) or  # Max MBF positive double.
-        float2Bits( 3.4028234663852886e+38,  DOUBLE) <> bin64(16#47efffffe0000000_) or  # Max finite positive single.
-        float2Bits( 1.7976931348623157e+308, DOUBLE) <> bin64(16#7fefffffffffffff_) or  # Max finite positive double
-        float2Bits( Infinity,                DOUBLE) <> bin64(16#7ff0000000000000_) or
-        float2Bits(-Infinity,                DOUBLE) <> bin64(16#fff0000000000000_) or
-        float2Bits( 1.0 / 3.0,               DOUBLE) <> bin64(16#3fd5555555555555_) or
-        float2Bits( 0.25,                    DOUBLE) <> bin64(16#3fd0000000000000_) or
-        float2Bits( 0.7071067811865476,      DOUBLE) <> bin64(16#3fe6a09e667f3bcd_) or  # sqrt(0.5)
-        float2Bits( 1.4142135623730951,      DOUBLE) <> bin64(16#3ff6a09e667f3bcd_) or  # sqrt(2.0)
-        float2Bits( 0.6931471805599453,      DOUBLE) <> bin64(16#3fe62e42fefa39ef_) or  # log(2.0)
-        float2Bits( 1.4426950408889634,      DOUBLE) <> bin64(16#3ff71547652b82fe_) or  # log2(E)
-        float2Bits( 1.5707963267948966,      DOUBLE) <> bin64(16#3ff921fb54442d18_) or  # PI / 2.0
-        float2Bits( 3.1415926535897931,      DOUBLE) <> bin64(16#400921fb54442d18_) or  # PI
-        float2Bits( 6.2831853071795862,      DOUBLE) <> bin64(16#401921fb54442d18_) or  # 2.0 * PI
-        float2Bits(-0.0,                     DOUBLE) <> bin64(16#8000000000000000_) or
-        float2Bits( NaN,                     DOUBLE) <> bin64(16#fff8000000000000_) then
-      writeln(" ***** float2Bits for IEEE double precision does not work correct.");
+    if  bin64( 0.0)                     <> bin64(16#0000000000000000_) or
+        bin64( 0.5)                     <> bin64(16#3fe0000000000000_) or
+        bin64( 0.9999999403953552)      <> bin64(16#3fefffffe0000000_) or
+        bin64( 0.9999999999999999)      <> bin64(16#3fefffffffffffff_) or  # The largest number < 1
+        bin64( 1.0)                     <> bin64(16#3ff0000000000000_) or
+        bin64( 1.0000000000000002)      <> bin64(16#3ff0000000000001_) or  # The smallest number > 1
+        bin64( 1.0000000000000004)      <> bin64(16#3ff0000000000002_) or
+        bin64( 1.0000001192092896)      <> bin64(16#3ff0000020000000_) or
+        bin64( 2.0)                     <> bin64(16#4000000000000000_) or
+        bin64(-2.0)                     <> bin64(16#c000000000000000_) or
+        bin64( 5.0e-324)                <> bin64(16#0000000000000001_) or  # Min subnormal positive double.
+        bin64( 2.2250738585072009e-308) <> bin64(16#000fffffffffffff_) or  # Max subnormal positive double
+        bin64( 2.2250738585072014e-308) <> bin64(16#0010000000000000_) or  # Min normalized positive double
+        bin64( 1.4012984643248171e-45)  <> bin64(16#36a0000000000000_) or  # Min subnormal positive single.
+        bin64( 2.9387358770557188e-39)  <> bin64(16#37f0000000000000_) or  # Min MBF positive double.
+        bin64( 1.1754942106924411e-38)  <> bin64(16#380fffffc0000000_) or  # Max subnormal positive single
+        bin64( 1.1754943508222875e-38)  <> bin64(16#3810000000000000_) or  # Min normalized positive single.
+        bin64( 1.7014118346046923e+38)  <> bin64(16#47e0000000000000_) or  # Max MBF positive double.
+        bin64( 3.4028234663852886e+38)  <> bin64(16#47efffffe0000000_) or  # Max finite positive single.
+        bin64( 1.7976931348623157e+308) <> bin64(16#7fefffffffffffff_) or  # Max finite positive double
+        bin64( Infinity)                <> bin64(16#7ff0000000000000_) or
+        bin64(-Infinity)                <> bin64(16#fff0000000000000_) or
+        bin64( 1.0 / 3.0)               <> bin64(16#3fd5555555555555_) or
+        bin64( 0.25)                    <> bin64(16#3fd0000000000000_) or
+        bin64( 0.7071067811865476)      <> bin64(16#3fe6a09e667f3bcd_) or  # sqrt(0.5)
+        bin64( 1.4142135623730951)      <> bin64(16#3ff6a09e667f3bcd_) or  # sqrt(2.0)
+        bin64( 0.6931471805599453)      <> bin64(16#3fe62e42fefa39ef_) or  # log(2.0)
+        bin64( 1.4426950408889634)      <> bin64(16#3ff71547652b82fe_) or  # log2(E)
+        bin64( 1.5707963267948966)      <> bin64(16#3ff921fb54442d18_) or  # PI / 2.0
+        bin64( 3.1415926535897931)      <> bin64(16#400921fb54442d18_) or  # PI
+        bin64( 6.2831853071795862)      <> bin64(16#401921fb54442d18_) or  # 2.0 * PI
+        bin64(-0.0)                     <> bin64(16#8000000000000000_) or
+        bin64( NaN)                     <> bin64(16#fff8000000000000_) then
+      writeln(" ***** Converting IEEE double precision float to bin64 does not work correct.");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("float2Bits works correct for bin32 and bin64 values.");
+      writeln("Converting float to bin32 and bin64 values works correct.");
     end if;
   end func;
 
@@ -178,78 +178,78 @@ const proc: checkBits2Float is func
   local
     var boolean: okay is TRUE;
   begin
-    if  bits2Float(bin32(16#00000000)) <>  0.0 or
-        bits2Float(bin32(16#3f000000)) <>  0.5 or
-        bits2Float(bin32(16#3f7fffff)) <>  0.9999999403953552 or      # The largest number < 1
-        bits2Float(bin32(16#3f800000)) <>  1.0 or
-        bits2Float(bin32(16#3f800001)) <>  1.0000001192092896 or      # The smallest number > 1
-        bits2Float(bin32(16#3f800002)) <>  1.0000002384185791 or
-        bits2Float(bin32(16#40000000)) <>  2.0 or
-        bits2Float(bin32(16#c0000000)) <> -2.0 or
-        bits2Float(bin32(16#00000001)) <>  1.4012984643248171e-45 or  # Min subnormal positive single.
-        bits2Float(bin32(16#00200000)) <>  2.9387358770557188e-39 or  # Min MBF positive single.
-        bits2Float(bin32(16#007fffff)) <>  1.1754942106924411e-38 or  # Max subnormal positive single
-        bits2Float(bin32(16#00800000)) <>  1.1754943508222875e-38 or  # Min normalized positive single.
-        bits2Float(bin32(16#7effffff)) <>  1.7014117331926443e+38 or  # Max MBF positive single.
-        bits2Float(bin32(16#7f7fffff)) <>  3.4028234663852886e+38 or  # Max finite positive single.
-        bits2Float(bin32(16#7f800000)) <>  Infinity or
-        bits2Float(bin32(16#ff800000)) <> -Infinity or
-        bits2Float(bin32(16#3eaaaaab)) <>  0.3333333432674408 or
-        bits2Float(bin32(16#3e800000)) <>  0.25 or
-        bits2Float(bin32(16#3f3504f3)) <>  0.7071067690849304 or      # sqrt(0.5)
-        bits2Float(bin32(16#3fb504f3)) <>  1.4142135381698608 or      # sqrt(2.0)
-        bits2Float(bin32(16#3f317218)) <>  0.6931471824645996 or      # log(2.0)
-        bits2Float(bin32(16#3fb8aa3b)) <>  1.4426950216293335 or      # log2(E)
-        bits2Float(bin32(16#3fc90fdb)) <>  1.5707963705062866 or      # PI / 2.0
-        bits2Float(bin32(16#40490fdb)) <>  3.1415927410125732 or      # PI
-        bits2Float(bin32(16#40c90fdb)) <>  6.2831854820251465 or      # 2.0 * PI
-        not isNegativeZero(bits2Float(bin32(16#80000000))) or
-        not isNaN(         bits2Float(bin32(16#ffc00000))) or
-        not isNaN(         bits2Float(bin32(16#7fffffff))) then
-      writeln(" ***** bits2Float for bin32 values does not work correct.");
+    if  float(bin32(16#00000000)) <>  0.0 or
+        float(bin32(16#3f000000)) <>  0.5 or
+        float(bin32(16#3f7fffff)) <>  0.9999999403953552 or      # The largest number < 1
+        float(bin32(16#3f800000)) <>  1.0 or
+        float(bin32(16#3f800001)) <>  1.0000001192092896 or      # The smallest number > 1
+        float(bin32(16#3f800002)) <>  1.0000002384185791 or
+        float(bin32(16#40000000)) <>  2.0 or
+        float(bin32(16#c0000000)) <> -2.0 or
+        float(bin32(16#00000001)) <>  1.4012984643248171e-45 or  # Min subnormal positive single.
+        float(bin32(16#00200000)) <>  2.9387358770557188e-39 or  # Min MBF positive single.
+        float(bin32(16#007fffff)) <>  1.1754942106924411e-38 or  # Max subnormal positive single
+        float(bin32(16#00800000)) <>  1.1754943508222875e-38 or  # Min normalized positive single.
+        float(bin32(16#7effffff)) <>  1.7014117331926443e+38 or  # Max MBF positive single.
+        float(bin32(16#7f7fffff)) <>  3.4028234663852886e+38 or  # Max finite positive single.
+        float(bin32(16#7f800000)) <>  Infinity or
+        float(bin32(16#ff800000)) <> -Infinity or
+        float(bin32(16#3eaaaaab)) <>  0.3333333432674408 or
+        float(bin32(16#3e800000)) <>  0.25 or
+        float(bin32(16#3f3504f3)) <>  0.7071067690849304 or      # sqrt(0.5)
+        float(bin32(16#3fb504f3)) <>  1.4142135381698608 or      # sqrt(2.0)
+        float(bin32(16#3f317218)) <>  0.6931471824645996 or      # log(2.0)
+        float(bin32(16#3fb8aa3b)) <>  1.4426950216293335 or      # log2(E)
+        float(bin32(16#3fc90fdb)) <>  1.5707963705062866 or      # PI / 2.0
+        float(bin32(16#40490fdb)) <>  3.1415927410125732 or      # PI
+        float(bin32(16#40c90fdb)) <>  6.2831854820251465 or      # 2.0 * PI
+        not isNegativeZero(float(bin32(16#80000000))) or
+        not isNaN(         float(bin32(16#ffc00000))) or
+        not isNaN(         float(bin32(16#7fffffff))) then
+      writeln(" ***** Converting bin32 to IEEE single precision float does not work correct.");
       okay := FALSE;
     end if;
 
-    if  bits2Float(bin64(16#0000000000000000_)) <>  0.0 or
-        bits2Float(bin64(16#3fe0000000000000_)) <>  0.5 or
-        bits2Float(bin64(16#3fefffffe0000000_)) <>  0.9999999403953552 or
-        bits2Float(bin64(16#3fefffffffffffff_)) <>  0.9999999999999999 or       # The largest number < 1
-        bits2Float(bin64(16#3ff0000000000000_)) <>  1.0 or
-        bits2Float(bin64(16#3ff0000000000001_)) <>  1.0000000000000002 or       # The smallest number > 1
-        bits2Float(bin64(16#3ff0000000000002_)) <>  1.0000000000000004 or
-        bits2Float(bin64(16#3ff0000020000000_)) <>  1.0000001192092896 or
-        bits2Float(bin64(16#4000000000000000_)) <>  2.0 or
-        bits2Float(bin64(16#c000000000000000_)) <> -2.0 or
-        bits2Float(bin64(16#0000000000000001_)) <>  5.0e-324 or                 # Min subnormal positive double.
-        bits2Float(bin64(16#000fffffffffffff_)) <>  2.2250738585072009e-308 or  # Max subnormal positive double
-        bits2Float(bin64(16#0010000000000000_)) <>  2.2250738585072014e-308 or  # Min normalized positive double
-        bits2Float(bin64(16#36a0000000000000_)) <>  1.4012984643248171e-45 or   # Min subnormal positive single.
-        bits2Float(bin64(16#37f0000000000000_)) <>  2.9387358770557188e-39 or   # Min MBF positive double.
-        bits2Float(bin64(16#380fffffc0000000_)) <>  1.1754942106924411e-38 or   # Max subnormal positive single
-        bits2Float(bin64(16#3810000000000000_)) <>  1.1754943508222875e-38 or   # Min normalized positive single.
-        bits2Float(bin64(16#47e0000000000000_)) <>  1.7014118346046923e+38 or   # Max MBF positive double.
-        bits2Float(bin64(16#47efffffe0000000_)) <>  3.4028234663852886e+38 or   # Max finite positive single.
-        bits2Float(bin64(16#7fefffffffffffff_)) <>  1.7976931348623157e+308 or  # Max finite positive double
-        bits2Float(bin64(16#7ff0000000000000_)) <>  Infinity or
-        bits2Float(bin64(16#fff0000000000000_)) <> -Infinity or
-        bits2Float(bin64(16#3fd5555555555555_)) <>  1.0 / 3.0 or
-        bits2Float(bin64(16#3fd0000000000000_)) <>  0.25 or
-        bits2Float(bin64(16#3fe6a09e667f3bcd_)) <>  0.7071067811865476 or       # sqrt(0.5)
-        bits2Float(bin64(16#3ff6a09e667f3bcd_)) <>  1.4142135623730951 or       # sqrt(2.0)
-        bits2Float(bin64(16#3fe62e42fefa39ef_)) <>  0.6931471805599453 or       # log(2.0)
-        bits2Float(bin64(16#3ff71547652b82fe_)) <>  1.4426950408889634 or       # log2(E)
-        bits2Float(bin64(16#3ff921fb54442d18_)) <>  1.5707963267948966 or       # PI / 2.0
-        bits2Float(bin64(16#400921fb54442d18_)) <>  3.1415926535897931 or       # PI
-        bits2Float(bin64(16#401921fb54442d18_)) <>  6.2831853071795862 or       # 2.0 * PI
-        not isNegativeZero(bits2Float(bin64(16#8000000000000000_))) or
-        not isNaN(         bits2Float(bin64(16#fff8000000000000_))) or
-        not isNaN(         bits2Float(bin64(16#7fffffffffffffff_))) then
-      writeln(" ***** bits2Float for bin64 values does not work correct.");
+    if  float(bin64(16#0000000000000000_)) <>  0.0 or
+        float(bin64(16#3fe0000000000000_)) <>  0.5 or
+        float(bin64(16#3fefffffe0000000_)) <>  0.9999999403953552 or
+        float(bin64(16#3fefffffffffffff_)) <>  0.9999999999999999 or       # The largest number < 1
+        float(bin64(16#3ff0000000000000_)) <>  1.0 or
+        float(bin64(16#3ff0000000000001_)) <>  1.0000000000000002 or       # The smallest number > 1
+        float(bin64(16#3ff0000000000002_)) <>  1.0000000000000004 or
+        float(bin64(16#3ff0000020000000_)) <>  1.0000001192092896 or
+        float(bin64(16#4000000000000000_)) <>  2.0 or
+        float(bin64(16#c000000000000000_)) <> -2.0 or
+        float(bin64(16#0000000000000001_)) <>  5.0e-324 or                 # Min subnormal positive double.
+        float(bin64(16#000fffffffffffff_)) <>  2.2250738585072009e-308 or  # Max subnormal positive double
+        float(bin64(16#0010000000000000_)) <>  2.2250738585072014e-308 or  # Min normalized positive double
+        float(bin64(16#36a0000000000000_)) <>  1.4012984643248171e-45 or   # Min subnormal positive single.
+        float(bin64(16#37f0000000000000_)) <>  2.9387358770557188e-39 or   # Min MBF positive double.
+        float(bin64(16#380fffffc0000000_)) <>  1.1754942106924411e-38 or   # Max subnormal positive single
+        float(bin64(16#3810000000000000_)) <>  1.1754943508222875e-38 or   # Min normalized positive single.
+        float(bin64(16#47e0000000000000_)) <>  1.7014118346046923e+38 or   # Max MBF positive double.
+        float(bin64(16#47efffffe0000000_)) <>  3.4028234663852886e+38 or   # Max finite positive single.
+        float(bin64(16#7fefffffffffffff_)) <>  1.7976931348623157e+308 or  # Max finite positive double
+        float(bin64(16#7ff0000000000000_)) <>  Infinity or
+        float(bin64(16#fff0000000000000_)) <> -Infinity or
+        float(bin64(16#3fd5555555555555_)) <>  1.0 / 3.0 or
+        float(bin64(16#3fd0000000000000_)) <>  0.25 or
+        float(bin64(16#3fe6a09e667f3bcd_)) <>  0.7071067811865476 or       # sqrt(0.5)
+        float(bin64(16#3ff6a09e667f3bcd_)) <>  1.4142135623730951 or       # sqrt(2.0)
+        float(bin64(16#3fe62e42fefa39ef_)) <>  0.6931471805599453 or       # log(2.0)
+        float(bin64(16#3ff71547652b82fe_)) <>  1.4426950408889634 or       # log2(E)
+        float(bin64(16#3ff921fb54442d18_)) <>  1.5707963267948966 or       # PI / 2.0
+        float(bin64(16#400921fb54442d18_)) <>  3.1415926535897931 or       # PI
+        float(bin64(16#401921fb54442d18_)) <>  6.2831853071795862 or       # 2.0 * PI
+        not isNegativeZero(float(bin64(16#8000000000000000_))) or
+        not isNaN(         float(bin64(16#fff8000000000000_))) or
+        not isNaN(         float(bin64(16#7fffffffffffffff_))) then
+      writeln(" ***** Converting bin64 to IEEE double precision float does not work correct.");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("bits2Float works correct for bin32 and bin64 values.");
+      writeln("Converting bin32 and bin64 values to float works correct.");
     end if;
   end func;
 
@@ -442,6 +442,18 @@ const proc: checkBinBinaryWithBigMod is func
       okay := FALSE;
     end if;
 
+    if  bin64(bigInteger(        anInt1 ) mod powTwo64) <> aBin1 or
+        bin64(bigInteger(        anInt2 ) mod powTwo64) <> aBin2 or
+        bin64(bigInteger(        anInt3 ) mod powTwo64) <> aBin3 or
+        bin64(bigInteger(        anInt4 ) mod powTwo64) <> aBin4 or
+        bin64(bigInteger(intExpr(anInt1)) mod powTwo64) <> aBin1 or
+        bin64(bigInteger(intExpr(anInt2)) mod powTwo64) <> aBin2 or
+        bin64(bigInteger(intExpr(anInt3)) mod powTwo64) <> aBin3 or
+        bin64(bigInteger(intExpr(anInt4)) mod powTwo64) <> aBin4 then
+      writeln(" ***** bin64(bigInteger(number) mod 2_**64) does not work correct.");
+      okay := FALSE;
+    end if;
+
     if  bin64(bigInteger conv         anInt1  mod powTwo64) <> aBin1 or
         bin64(bigInteger conv         anInt2  mod powTwo64) <> aBin2 or
         bin64(bigInteger conv         anInt3  mod powTwo64) <> aBin3 or
@@ -475,6 +487,18 @@ const proc: checkBinBinaryWithBigMod is func
         bin64(big(bin64Expr(aBin3)) mod powTwo63) <> bin64(3745810425333604960_) or
         bin64(big(bin64Expr(aBin4)) mod powTwo63) <> bin64(2207119669289072373_) then
       writeln(" ***** bin64(big(aBin1) mod 2_**63) does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  bin64(bigInteger(        anInt1 ) mod powTwo63) <> bin64(3552952533233593397_) or
+        bin64(bigInteger(        anInt2 ) mod powTwo63) <> bin64(5074619335926251242_) or
+        bin64(bigInteger(        anInt3 ) mod powTwo63) <> bin64(3745810425333604960_) or
+        bin64(bigInteger(        anInt4 ) mod powTwo63) <> bin64(2207119669289072373_) or
+        bin64(bigInteger(intExpr(anInt1)) mod powTwo63) <> bin64(3552952533233593397_) or
+        bin64(bigInteger(intExpr(anInt2)) mod powTwo63) <> bin64(5074619335926251242_) or
+        bin64(bigInteger(intExpr(anInt3)) mod powTwo63) <> bin64(3745810425333604960_) or
+        bin64(bigInteger(intExpr(anInt4)) mod powTwo63) <> bin64(2207119669289072373_) then
+      writeln(" ***** bin64(bigInteger(number) mod 2_**63) does not work correct.");
       okay := FALSE;
     end if;
 
@@ -514,6 +538,18 @@ const proc: checkBinBinaryWithBigMod is func
       okay := FALSE;
     end if;
 
+    if  bin64(bigInteger(        anInt1 ) mod powTwo60) <> bin64(  94188019413052469_) or
+        bin64(bigInteger(        anInt2 ) mod powTwo60) <> bin64( 462933317498863338_) or
+        bin64(bigInteger(        anInt3 ) mod powTwo60) <> bin64( 287045911513064032_) or
+        bin64(bigInteger(        anInt4 ) mod powTwo60) <> bin64(1054198164682225397_) or
+        bin64(bigInteger(intExpr(anInt1)) mod powTwo60) <> bin64(  94188019413052469_) or
+        bin64(bigInteger(intExpr(anInt2)) mod powTwo60) <> bin64( 462933317498863338_) or
+        bin64(bigInteger(intExpr(anInt3)) mod powTwo60) <> bin64( 287045911513064032_) or
+        bin64(bigInteger(intExpr(anInt4)) mod powTwo60) <> bin64(1054198164682225397_) then
+      writeln(" ***** bin64(bigInteger(number) mod 2_**60) does not work correct.");
+      okay := FALSE;
+    end if;
+
     if  bin64(bigInteger conv         anInt1  mod powTwo60) <> bin64(  94188019413052469_) or
         bin64(bigInteger conv         anInt2  mod powTwo60) <> bin64( 462933317498863338_) or
         bin64(bigInteger conv         anInt3  mod powTwo60) <> bin64( 287045911513064032_) or
@@ -550,6 +586,42 @@ const proc: checkBinBinaryWithBigMod is func
       okay := FALSE;
     end if;
 
+    if  bin64((bigInteger(        anInt1 ) + bigInteger(        anInt2 )) mod powTwo64) <> bin64(8627571869159844639_) or
+        bin64((bigInteger(        anInt1 ) + bigInteger(intExpr(anInt2))) mod powTwo64) <> bin64(8627571869159844639_) or
+        bin64((bigInteger(intExpr(anInt1)) + bigInteger(        anInt2 )) mod powTwo64) <> bin64(8627571869159844639_) or
+        bin64((bigInteger(intExpr(anInt1)) + bigInteger(intExpr(anInt2))) mod powTwo64) <> bin64(8627571869159844639_) or
+        bin64((bigInteger(        anInt3 ) + bigInteger(        anInt4 )) mod powTwo64) <> bin64(5952930094622677333_) or
+        bin64((bigInteger(        anInt3 ) + bigInteger(intExpr(anInt4))) mod powTwo64) <> bin64(5952930094622677333_) or
+        bin64((bigInteger(intExpr(anInt3)) + bigInteger(        anInt4 )) mod powTwo64) <> bin64(5952930094622677333_) or
+        bin64((bigInteger(intExpr(anInt3)) + bigInteger(intExpr(anInt4))) mod powTwo64) <> bin64(5952930094622677333_) then
+      writeln(" ***** bin64((bigInteger(anInt1) + bigInteger(anInt2)) mod 2_**64) does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  bin64((bigInteger(        anInt1 ) + bigInteger conv         anInt2 ) mod powTwo64) <> bin64(8627571869159844639_) or
+        bin64((bigInteger(        anInt1 ) + bigInteger conv intExpr(anInt2)) mod powTwo64) <> bin64(8627571869159844639_) or
+        bin64((bigInteger(intExpr(anInt1)) + bigInteger conv         anInt2 ) mod powTwo64) <> bin64(8627571869159844639_) or
+        bin64((bigInteger(intExpr(anInt1)) + bigInteger conv intExpr(anInt2)) mod powTwo64) <> bin64(8627571869159844639_) or
+        bin64((bigInteger(        anInt3 ) + bigInteger conv         anInt4 ) mod powTwo64) <> bin64(5952930094622677333_) or
+        bin64((bigInteger(        anInt3 ) + bigInteger conv intExpr(anInt4)) mod powTwo64) <> bin64(5952930094622677333_) or
+        bin64((bigInteger(intExpr(anInt3)) + bigInteger conv         anInt4 ) mod powTwo64) <> bin64(5952930094622677333_) or
+        bin64((bigInteger(intExpr(anInt3)) + bigInteger conv intExpr(anInt4)) mod powTwo64) <> bin64(5952930094622677333_) then
+      writeln(" ***** bin64((bigInteger(anInt1) + bigInteger conv anInt2) mod 2_**64) does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  bin64((bigInteger conv         anInt1  + bigInteger(        anInt2 )) mod powTwo64) <> bin64(8627571869159844639_) or
+        bin64((bigInteger conv         anInt1  + bigInteger(intExpr(anInt2))) mod powTwo64) <> bin64(8627571869159844639_) or
+        bin64((bigInteger conv intExpr(anInt1) + bigInteger(        anInt2 )) mod powTwo64) <> bin64(8627571869159844639_) or
+        bin64((bigInteger conv intExpr(anInt1) + bigInteger(intExpr(anInt2))) mod powTwo64) <> bin64(8627571869159844639_) or
+        bin64((bigInteger conv         anInt3  + bigInteger(        anInt4 )) mod powTwo64) <> bin64(5952930094622677333_) or
+        bin64((bigInteger conv         anInt3  + bigInteger(intExpr(anInt4))) mod powTwo64) <> bin64(5952930094622677333_) or
+        bin64((bigInteger conv intExpr(anInt3) + bigInteger(        anInt4 )) mod powTwo64) <> bin64(5952930094622677333_) or
+        bin64((bigInteger conv intExpr(anInt3) + bigInteger(intExpr(anInt4))) mod powTwo64) <> bin64(5952930094622677333_) then
+      writeln(" ***** bin64((bigInteger conv anInt1 + bigInteger(anInt2)) mod 2_**64) does not work correct.");
+      okay := FALSE;
+    end if;
+
     if  bin64((bigInteger conv         anInt1  + bigInteger conv         anInt2 ) mod powTwo64) <> bin64(8627571869159844639_) or
         bin64((bigInteger conv         anInt1  + bigInteger conv intExpr(anInt2)) mod powTwo64) <> bin64(8627571869159844639_) or
         bin64((bigInteger conv intExpr(anInt1) + bigInteger conv         anInt2 ) mod powTwo64) <> bin64(8627571869159844639_) or
@@ -558,7 +630,7 @@ const proc: checkBinBinaryWithBigMod is func
         bin64((bigInteger conv         anInt3  + bigInteger conv intExpr(anInt4)) mod powTwo64) <> bin64(5952930094622677333_) or
         bin64((bigInteger conv intExpr(anInt3) + bigInteger conv         anInt4 ) mod powTwo64) <> bin64(5952930094622677333_) or
         bin64((bigInteger conv intExpr(anInt3) + bigInteger conv intExpr(anInt4)) mod powTwo64) <> bin64(5952930094622677333_) then
-      writeln(" ***** bin64((bigInteger conv (anInt1) + bigInteger conv (anInt2) mod 2_**64) does not work correct.");
+      writeln(" ***** bin64((bigInteger conv anInt1 + bigInteger conv anInt2) mod 2_**64) does not work correct.");
       okay := FALSE;
     end if;
 
@@ -586,6 +658,42 @@ const proc: checkBinBinaryWithBigMod is func
       okay := FALSE;
     end if;
 
+    if  bin64((bigInteger(        anInt1 ) + bigInteger(        anInt2 )) mod powTwo63) <> bin64(8627571869159844639_) or
+        bin64((bigInteger(        anInt1 ) + bigInteger(intExpr(anInt2))) mod powTwo63) <> bin64(8627571869159844639_) or
+        bin64((bigInteger(intExpr(anInt1)) + bigInteger(        anInt2 )) mod powTwo63) <> bin64(8627571869159844639_) or
+        bin64((bigInteger(intExpr(anInt1)) + bigInteger(intExpr(anInt2))) mod powTwo63) <> bin64(8627571869159844639_) or
+        bin64((bigInteger(        anInt3 ) + bigInteger(        anInt4 )) mod powTwo63) <> bin64(5952930094622677333_) or
+        bin64((bigInteger(        anInt3 ) + bigInteger(intExpr(anInt4))) mod powTwo63) <> bin64(5952930094622677333_) or
+        bin64((bigInteger(intExpr(anInt3)) + bigInteger(        anInt4 )) mod powTwo63) <> bin64(5952930094622677333_) or
+        bin64((bigInteger(intExpr(anInt3)) + bigInteger(intExpr(anInt4))) mod powTwo63) <> bin64(5952930094622677333_) then
+      writeln(" ***** bin64((bigInteger(anInt1) + bigInteger(anInt2) mod 2_**63) does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  bin64((bigInteger(        anInt1 ) + bigInteger conv         anInt2 ) mod powTwo63) <> bin64(8627571869159844639_) or
+        bin64((bigInteger(        anInt1 ) + bigInteger conv intExpr(anInt2)) mod powTwo63) <> bin64(8627571869159844639_) or
+        bin64((bigInteger(intExpr(anInt1)) + bigInteger conv         anInt2 ) mod powTwo63) <> bin64(8627571869159844639_) or
+        bin64((bigInteger(intExpr(anInt1)) + bigInteger conv intExpr(anInt2)) mod powTwo63) <> bin64(8627571869159844639_) or
+        bin64((bigInteger(        anInt3 ) + bigInteger conv         anInt4 ) mod powTwo63) <> bin64(5952930094622677333_) or
+        bin64((bigInteger(        anInt3 ) + bigInteger conv intExpr(anInt4)) mod powTwo63) <> bin64(5952930094622677333_) or
+        bin64((bigInteger(intExpr(anInt3)) + bigInteger conv         anInt4 ) mod powTwo63) <> bin64(5952930094622677333_) or
+        bin64((bigInteger(intExpr(anInt3)) + bigInteger conv intExpr(anInt4)) mod powTwo63) <> bin64(5952930094622677333_) then
+      writeln(" ***** bin64((bigInteger(anInt1) + bigInteger conv anInt2) mod 2_**63) does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  bin64((bigInteger conv         anInt1  + bigInteger(        anInt2 )) mod powTwo63) <> bin64(8627571869159844639_) or
+        bin64((bigInteger conv         anInt1  + bigInteger(intExpr(anInt2))) mod powTwo63) <> bin64(8627571869159844639_) or
+        bin64((bigInteger conv intExpr(anInt1) + bigInteger(        anInt2 )) mod powTwo63) <> bin64(8627571869159844639_) or
+        bin64((bigInteger conv intExpr(anInt1) + bigInteger(intExpr(anInt2))) mod powTwo63) <> bin64(8627571869159844639_) or
+        bin64((bigInteger conv         anInt3  + bigInteger(        anInt4 )) mod powTwo63) <> bin64(5952930094622677333_) or
+        bin64((bigInteger conv         anInt3  + bigInteger(intExpr(anInt4))) mod powTwo63) <> bin64(5952930094622677333_) or
+        bin64((bigInteger conv intExpr(anInt3) + bigInteger(        anInt4 )) mod powTwo63) <> bin64(5952930094622677333_) or
+        bin64((bigInteger conv intExpr(anInt3) + bigInteger(intExpr(anInt4))) mod powTwo63) <> bin64(5952930094622677333_) then
+      writeln(" ***** bin64((bigInteger conv anInt1 + bigInteger(anInt2)) mod 2_**63) does not work correct.");
+      okay := FALSE;
+    end if;
+
     if  bin64((bigInteger conv         anInt1  + bigInteger conv         anInt2 ) mod powTwo63) <> bin64(8627571869159844639_) or
         bin64((bigInteger conv         anInt1  + bigInteger conv intExpr(anInt2)) mod powTwo63) <> bin64(8627571869159844639_) or
         bin64((bigInteger conv intExpr(anInt1) + bigInteger conv         anInt2 ) mod powTwo63) <> bin64(8627571869159844639_) or
@@ -594,7 +702,7 @@ const proc: checkBinBinaryWithBigMod is func
         bin64((bigInteger conv         anInt3  + bigInteger conv intExpr(anInt4)) mod powTwo63) <> bin64(5952930094622677333_) or
         bin64((bigInteger conv intExpr(anInt3) + bigInteger conv         anInt4 ) mod powTwo63) <> bin64(5952930094622677333_) or
         bin64((bigInteger conv intExpr(anInt3) + bigInteger conv intExpr(anInt4)) mod powTwo63) <> bin64(5952930094622677333_) then
-      writeln(" ***** bin64((bigInteger conv (anInt1) + bigInteger conv (anInt2) mod 2_**63) does not work correct.");
+      writeln(" ***** bin64((bigInteger conv anInt1 + bigInteger conv anInt2) mod 2_**63) does not work correct.");
       okay := FALSE;
     end if;
 
@@ -622,6 +730,42 @@ const proc: checkBinBinaryWithBigMod is func
       okay := FALSE;
     end if;
 
+    if  bin64((bigInteger(        anInt1 ) + bigInteger(        anInt2 )) mod powTwo60) <> bin64(557121336911915807_) or
+        bin64((bigInteger(        anInt1 ) + bigInteger(intExpr(anInt2))) mod powTwo60) <> bin64(557121336911915807_) or
+        bin64((bigInteger(intExpr(anInt1)) + bigInteger(        anInt2 )) mod powTwo60) <> bin64(557121336911915807_) or
+        bin64((bigInteger(intExpr(anInt1)) + bigInteger(intExpr(anInt2))) mod powTwo60) <> bin64(557121336911915807_) or
+        bin64((bigInteger(        anInt3 ) + bigInteger(        anInt4 )) mod powTwo60) <> bin64(188322571588442453_) or
+        bin64((bigInteger(        anInt3 ) + bigInteger(intExpr(anInt4))) mod powTwo60) <> bin64(188322571588442453_) or
+        bin64((bigInteger(intExpr(anInt3)) + bigInteger(        anInt4 )) mod powTwo60) <> bin64(188322571588442453_) or
+        bin64((bigInteger(intExpr(anInt3)) + bigInteger(intExpr(anInt4))) mod powTwo60) <> bin64(188322571588442453_) then
+      writeln(" ***** bin64((bigInteger(anInt1) + bigInteger(anInt2)) mod 2_**60) does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  bin64((bigInteger(        anInt1 ) + bigInteger conv         anInt2 ) mod powTwo60) <> bin64(557121336911915807_) or
+        bin64((bigInteger(        anInt1 ) + bigInteger conv intExpr(anInt2)) mod powTwo60) <> bin64(557121336911915807_) or
+        bin64((bigInteger(intExpr(anInt1)) + bigInteger conv         anInt2 ) mod powTwo60) <> bin64(557121336911915807_) or
+        bin64((bigInteger(intExpr(anInt1)) + bigInteger conv intExpr(anInt2)) mod powTwo60) <> bin64(557121336911915807_) or
+        bin64((bigInteger(        anInt3 ) + bigInteger conv         anInt4 ) mod powTwo60) <> bin64(188322571588442453_) or
+        bin64((bigInteger(        anInt3 ) + bigInteger conv intExpr(anInt4)) mod powTwo60) <> bin64(188322571588442453_) or
+        bin64((bigInteger(intExpr(anInt3)) + bigInteger conv         anInt4 ) mod powTwo60) <> bin64(188322571588442453_) or
+        bin64((bigInteger(intExpr(anInt3)) + bigInteger conv intExpr(anInt4)) mod powTwo60) <> bin64(188322571588442453_) then
+      writeln(" ***** bin64((bigInteger(anInt1) + bigInteger conv anInt2) mod 2_**60) does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  bin64((bigInteger conv         anInt1  + bigInteger(        anInt2 )) mod powTwo60) <> bin64(557121336911915807_) or
+        bin64((bigInteger conv         anInt1  + bigInteger(intExpr(anInt2))) mod powTwo60) <> bin64(557121336911915807_) or
+        bin64((bigInteger conv intExpr(anInt1) + bigInteger(        anInt2 )) mod powTwo60) <> bin64(557121336911915807_) or
+        bin64((bigInteger conv intExpr(anInt1) + bigInteger(intExpr(anInt2))) mod powTwo60) <> bin64(557121336911915807_) or
+        bin64((bigInteger conv         anInt3  + bigInteger(        anInt4 )) mod powTwo60) <> bin64(188322571588442453_) or
+        bin64((bigInteger conv         anInt3  + bigInteger(intExpr(anInt4))) mod powTwo60) <> bin64(188322571588442453_) or
+        bin64((bigInteger conv intExpr(anInt3) + bigInteger(        anInt4 )) mod powTwo60) <> bin64(188322571588442453_) or
+        bin64((bigInteger conv intExpr(anInt3) + bigInteger(intExpr(anInt4))) mod powTwo60) <> bin64(188322571588442453_) then
+      writeln(" ***** bin64((bigInteger conv anInt1 + bigInteger(anInt2)) mod 2_**60) does not work correct.");
+      okay := FALSE;
+    end if;
+
     if  bin64((bigInteger conv         anInt1  + bigInteger conv         anInt2 ) mod powTwo60) <> bin64(557121336911915807_) or
         bin64((bigInteger conv         anInt1  + bigInteger conv intExpr(anInt2)) mod powTwo60) <> bin64(557121336911915807_) or
         bin64((bigInteger conv intExpr(anInt1) + bigInteger conv         anInt2 ) mod powTwo60) <> bin64(557121336911915807_) or
@@ -630,7 +774,7 @@ const proc: checkBinBinaryWithBigMod is func
         bin64((bigInteger conv         anInt3  + bigInteger conv intExpr(anInt4)) mod powTwo60) <> bin64(188322571588442453_) or
         bin64((bigInteger conv intExpr(anInt3) + bigInteger conv         anInt4 ) mod powTwo60) <> bin64(188322571588442453_) or
         bin64((bigInteger conv intExpr(anInt3) + bigInteger conv intExpr(anInt4)) mod powTwo60) <> bin64(188322571588442453_) then
-      writeln(" ***** bin64((bigInteger conv (anInt1) + bigInteger conv (anInt2) mod 2_**60) does not work correct.");
+      writeln(" ***** bin64((bigInteger conv anInt1 + bigInteger conv anInt2) mod 2_**60) does not work correct.");
       okay := FALSE;
     end if;
 

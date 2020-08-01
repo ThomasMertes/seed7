@@ -289,10 +289,10 @@ objectType big_div_rem (listType arguments)
           &quotRem->stru[1].value.bigIntValue);
       quotRem->stru[0].type_of = SYS_BIGINT_TYPE->value.typeValue;
       quotRem->stru[0].descriptor.property = take_struct(valueObj)->stru[0].descriptor.property;
-      INIT_CATEGORY_OF_OBJ(&quotRem->stru[0], BIGINTOBJECT);
+      INIT_CATEGORY_OF_VAR(&quotRem->stru[0], BIGINTOBJECT);
       quotRem->stru[1].type_of = SYS_BIGINT_TYPE->value.typeValue;
       quotRem->stru[1].descriptor.property = take_struct(valueObj)->stru[1].descriptor.property;
-      INIT_CATEGORY_OF_OBJ(&quotRem->stru[1], BIGINTOBJECT);
+      INIT_CATEGORY_OF_VAR(&quotRem->stru[1], BIGINTOBJECT);
       return bld_struct_temp(quotRem);
     } /* if */
   } /* big_div_rem */
@@ -437,13 +437,28 @@ objectType big_hashcode (listType arguments)
  *  @return the bigInteger result of the conversion.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
-objectType big_iconv (listType arguments)
+objectType big_iconv1 (listType arguments)
 
-  { /* big_iconv */
+  { /* big_iconv1 */
+    isit_int(arg_1(arguments));
+    return bld_bigint_temp(
+        bigIConv(take_int(arg_1(arguments))));
+  } /* big_iconv1 */
+
+
+
+/**
+ *  Convert an integer number to 'bigInteger'.
+ *  @return the bigInteger result of the conversion.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
+objectType big_iconv3 (listType arguments)
+
+  { /* big_iconv3 */
     isit_int(arg_3(arguments));
     return bld_bigint_temp(
         bigIConv(take_int(arg_3(arguments))));
-  } /* big_iconv */
+  } /* big_iconv3 */
 
 
 

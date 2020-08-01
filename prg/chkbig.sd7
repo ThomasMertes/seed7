@@ -2508,6 +2508,180 @@ const proc: chkConv is func
   local
     var boolean: okay is TRUE;
   begin
+    if  bigInteger(         0) <>          0_ or
+        bigInteger(         1) <>          1_ or
+        bigInteger(         2) <>          2_ or
+        bigInteger(         8) <>          8_ or
+        bigInteger(         9) <>          9_ or
+        bigInteger(        10) <>         10_ or
+        bigInteger(        11) <>         11_ or
+        bigInteger(        12) <>         12_ or
+        bigInteger(        98) <>         98_ or
+        bigInteger(        99) <>         99_ or
+        bigInteger(       100) <>        100_ or
+        bigInteger(       101) <>        101_ or
+        bigInteger(       102) <>        102_ or
+        bigInteger(       126) <>        126_ or
+        bigInteger(       127) <>        127_ or
+        bigInteger(       128) <>        128_ or
+        bigInteger(       129) <>        129_ or
+        bigInteger(       130) <>        130_ or
+        bigInteger(       254) <>        254_ or
+        bigInteger(       255) <>        255_ or
+        bigInteger(       256) <>        256_ or
+        bigInteger(       257) <>        257_ or
+        bigInteger(       258) <>        258_ or
+        bigInteger(       998) <>        998_ or
+        bigInteger(       999) <>        999_ or
+        bigInteger(      1000) <>       1000_ or
+        bigInteger(      1001) <>       1001_ or
+        bigInteger(      1002) <>       1002_ or
+        bigInteger(      9998) <>       9998_ or
+        bigInteger(      9999) <>       9999_ or
+        bigInteger(     10000) <>      10000_ or
+        bigInteger(     10001) <>      10001_ or
+        bigInteger(     10002) <>      10002_ or
+        bigInteger(     32766) <>      32766_ or
+        bigInteger(     32767) <>      32767_ or
+        bigInteger(     32768) <>      32768_ or
+        bigInteger(     32769) <>      32769_ or
+        bigInteger(     32770) <>      32770_ or
+        bigInteger(     65534) <>      65534_ or
+        bigInteger(     65535) <>      65535_ or
+        bigInteger(     65536) <>      65536_ or
+        bigInteger(     65537) <>      65537_ or
+        bigInteger(     65538) <>      65538_ or
+        bigInteger(     99998) <>      99998_ or
+        bigInteger(     99999) <>      99999_ or
+        bigInteger(    100000) <>     100000_ or
+        bigInteger(    100001) <>     100001_ or
+        bigInteger(    100002) <>     100002_ or
+        bigInteger(    999998) <>     999998_ or
+        bigInteger(    999999) <>     999999_ or
+        bigInteger(   1000000) <>    1000000_ or
+        bigInteger(   1000001) <>    1000001_ or
+        bigInteger(   1000002) <>    1000002_ or
+        bigInteger(   8388606) <>    8388606_ or
+        bigInteger(   8388607) <>    8388607_ or
+        bigInteger(   8388608) <>    8388608_ or
+        bigInteger(   8388609) <>    8388609_ or
+        bigInteger(   8388610) <>    8388610_ or
+        bigInteger(   9999998) <>    9999998_ or
+        bigInteger(   9999999) <>    9999999_ or
+        bigInteger(  10000000) <>   10000000_ or
+        bigInteger(  10000001) <>   10000001_ or
+        bigInteger(  10000002) <>   10000002_ or
+        bigInteger(  16777214) <>   16777214_ or
+        bigInteger(  16777215) <>   16777215_ or
+        bigInteger(  16777216) <>   16777216_ or
+        bigInteger(  16777217) <>   16777217_ or
+        bigInteger(  16777218) <>   16777218_ or
+        bigInteger(  99999998) <>   99999998_ or
+        bigInteger(  99999999) <>   99999999_ or
+        bigInteger( 100000000) <>  100000000_ or
+        bigInteger( 100000001) <>  100000001_ or
+        bigInteger( 100000002) <>  100000002_ or
+        bigInteger( 999999998) <>  999999998_ or
+        bigInteger( 999999999) <>  999999999_ or
+        bigInteger(1000000000) <> 1000000000_ or
+        bigInteger(1000000001) <> 1000000001_ or
+        bigInteger(1000000002) <> 1000000002_ or
+        bigInteger(2147483646) <> 2147483646_ or
+        bigInteger(2147483647) <> 2147483647_ or
+        bigInteger(1234567890123456) <> 1234567890123456_ or
+		bigInteger(9223372036854775806) <> 9223372036854775806_ or
+		bigInteger(9223372036854775807) <> 9223372036854775807_ then
+      writeln("Conversion of a positive integer to bigInteger does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  bigInteger(         -1) <>          -1_ or
+        bigInteger(         -2) <>          -2_ or
+        bigInteger(         -8) <>          -8_ or
+        bigInteger(         -9) <>          -9_ or
+        bigInteger(        -10) <>         -10_ or
+        bigInteger(        -11) <>         -11_ or
+        bigInteger(        -12) <>         -12_ or
+        bigInteger(        -98) <>         -98_ or
+        bigInteger(        -99) <>         -99_ or
+        bigInteger(       -100) <>        -100_ or
+        bigInteger(       -101) <>        -101_ or
+        bigInteger(       -102) <>        -102_ or
+        bigInteger(       -126) <>        -126_ or
+        bigInteger(       -127) <>        -127_ or
+        bigInteger(       -128) <>        -128_ or
+        bigInteger(       -129) <>        -129_ or
+        bigInteger(       -130) <>        -130_ or
+        bigInteger(       -254) <>        -254_ or
+        bigInteger(       -255) <>        -255_ or
+        bigInteger(       -256) <>        -256_ or
+        bigInteger(       -257) <>        -257_ or
+        bigInteger(       -258) <>        -258_ or
+        bigInteger(       -998) <>        -998_ or
+        bigInteger(       -999) <>        -999_ or
+        bigInteger(      -1000) <>       -1000_ or
+        bigInteger(      -1001) <>       -1001_ or
+        bigInteger(      -1002) <>       -1002_ or
+        bigInteger(      -9998) <>       -9998_ or
+        bigInteger(      -9999) <>       -9999_ or
+        bigInteger(     -10000) <>      -10000_ or
+        bigInteger(     -10001) <>      -10001_ or
+        bigInteger(     -10002) <>      -10002_ or
+        bigInteger(     -32766) <>      -32766_ or
+        bigInteger(     -32767) <>      -32767_ or
+        bigInteger(     -32768) <>      -32768_ or
+        bigInteger(     -32769) <>      -32769_ or
+        bigInteger(     -32770) <>      -32770_ or
+        bigInteger(     -65534) <>      -65534_ or
+        bigInteger(     -65535) <>      -65535_ or
+        bigInteger(     -65536) <>      -65536_ or
+        bigInteger(     -65537) <>      -65537_ or
+        bigInteger(     -65538) <>      -65538_ or
+        bigInteger(     -99998) <>      -99998_ or
+        bigInteger(     -99999) <>      -99999_ or
+        bigInteger(    -100000) <>     -100000_ or
+        bigInteger(    -100001) <>     -100001_ or
+        bigInteger(    -100002) <>     -100002_ or
+        bigInteger(    -999998) <>     -999998_ or
+        bigInteger(    -999999) <>     -999999_ or
+        bigInteger(   -1000000) <>    -1000000_ or
+        bigInteger(   -1000001) <>    -1000001_ or
+        bigInteger(   -1000002) <>    -1000002_ or
+        bigInteger(   -8388606) <>    -8388606_ or
+        bigInteger(   -8388607) <>    -8388607_ or
+        bigInteger(   -8388608) <>    -8388608_ or
+        bigInteger(   -8388609) <>    -8388609_ or
+        bigInteger(   -8388610) <>    -8388610_ or
+        bigInteger(   -9999998) <>    -9999998_ or
+        bigInteger(   -9999999) <>    -9999999_ or
+        bigInteger(  -10000000) <>   -10000000_ or
+        bigInteger(  -10000001) <>   -10000001_ or
+        bigInteger(  -10000002) <>   -10000002_ or
+        bigInteger(  -16777214) <>   -16777214_ or
+        bigInteger(  -16777215) <>   -16777215_ or
+        bigInteger(  -16777216) <>   -16777216_ or
+        bigInteger(  -16777217) <>   -16777217_ or
+        bigInteger(  -16777218) <>   -16777218_ or
+        bigInteger(  -99999998) <>   -99999998_ or
+        bigInteger(  -99999999) <>   -99999999_ or
+        bigInteger( -100000000) <>  -100000000_ or
+        bigInteger( -100000001) <>  -100000001_ or
+        bigInteger( -100000002) <>  -100000002_ or
+        bigInteger( -999999998) <>  -999999998_ or
+        bigInteger( -999999999) <>  -999999999_ or
+        bigInteger(-1000000000) <> -1000000000_ or
+        bigInteger(-1000000001) <> -1000000001_ or
+        bigInteger(-1000000002) <> -1000000002_ or
+        bigInteger(-2147483646) <> -2147483646_ or
+        bigInteger(-2147483647) <> -2147483647_ or
+        bigInteger(-2147483648) <> -2147483648_ or
+        bigInteger(-1234567890123456) <> -1234567890123456_ or
+		bigInteger(-9223372036854775807) <> -9223372036854775807_ or
+		bigInteger(pred(-9223372036854775807)) <> -9223372036854775808_ then
+      writeln("Conversion of a negative integer to bigInteger does not work correct.");
+      okay := FALSE;
+    end if;
+
     if  bigInteger conv          0 <>          0_ or
         bigInteger conv          1 <>          1_ or
         bigInteger conv          2 <>          2_ or
@@ -2588,7 +2762,9 @@ const proc: chkConv is func
         bigInteger conv 1000000002 <> 1000000002_ or
         bigInteger conv 2147483646 <> 2147483646_ or
         bigInteger conv 2147483647 <> 2147483647_ or
-        bigInteger conv 1234567890123456 <> 1234567890123456_ then
+        bigInteger conv 1234567890123456 <> 1234567890123456_ or
+        bigInteger conv 9223372036854775806 <> 9223372036854775806_ or
+        bigInteger conv 9223372036854775807 <> 9223372036854775807_ then
       writeln("Conversion of a positive integer to bigInteger does not work correct.");
       okay := FALSE;
     end if;
@@ -2672,8 +2848,10 @@ const proc: chkConv is func
         bigInteger conv (-1000000002) <> -1000000002_ or
         bigInteger conv (-2147483646) <> -2147483646_ or
         bigInteger conv (-2147483647) <> -2147483647_ or
-        bigInteger conv pred(-2147483647) <> -2147483648_ or
-        bigInteger conv (-1234567890123456) <> -1234567890123456_ then
+        bigInteger conv (-2147483648) <> -2147483648_ or
+        bigInteger conv (-1234567890123456) <> -1234567890123456_ or
+        bigInteger conv (-9223372036854775807) <> -9223372036854775807_ or
+        bigInteger conv pred(-9223372036854775807) <> -9223372036854775808_ then
       writeln("Conversion of a negative integer to bigInteger does not work correct.");
       okay := FALSE;
     end if;
