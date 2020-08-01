@@ -1377,11 +1377,9 @@ const proc: process_const_int_mdiv (in reference: dividend, in integer: divisor,
         c_expr.expr &:= dividend_name;
         c_expr.expr &:= "==";
         c_expr.expr &:= integerLiteral(integer.first);
-        c_expr.expr &:= "?(intType)((uintType)";
-        c_expr.expr &:= integerLiteral(integer.first);
-        c_expr.expr &:= " >> ";
-        c_expr.expr &:= integerLiteral(bitLength(divisor));
-        c_expr.expr &:= "):";
+        c_expr.expr &:= "?";
+        c_expr.expr &:= integerLiteral(-(integer.first >> 1) >> pred(bitLength(divisor)));
+        c_expr.expr &:= ":";
         if ccConf.RSHIFT_DOES_SIGN_EXTEND then
           c_expr.expr &:= "-";
           c_expr.expr &:= dividend_name;

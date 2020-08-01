@@ -52,12 +52,12 @@
 #include "data_rtl.h"
 #include "striutl.h"
 #include "heaputl.h"
+#include "numutl.h"
 #include "str_rtl.h"
 #include "bst_rtl.h"
 #include "int_rtl.h"
 #include "tim_rtl.h"
 #include "cmd_rtl.h"
-#include "sql_util.h"
 #include "big_drv.h"
 #include "rtl_err.h"
 #include "dll_drv.h"
@@ -426,6 +426,7 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
 
 
 
+#if LOG_FUNCTIONS_EVERYWHERE || LOG_FUNCTIONS || VERBOSE_EXCEPTIONS_EVERYWHERE || VERBOSE_EXCEPTIONS
 static const char *nameOfBufferType (int buffer_type)
 
   {
@@ -522,6 +523,7 @@ static const char *nameOfCType (int buffer_type)
     } /* switch */
     return typeName;
   } /* nameOfCType */
+#endif
 
 
 
@@ -1202,7 +1204,7 @@ static intType getInt (const void *buffer, memSizeType length)
 #ifdef DECODE_NUMERIC_STRUCT
     return getNumericInt(buffer);
 #else
-    return getDecimalInt(buffer, length);
+    return getDecimalInt((const_ustriType) buffer, length);
 #endif
   } /* getInt */
 
@@ -1214,7 +1216,7 @@ static bigIntType getBigInt (const void *buffer, memSizeType length)
 #ifdef DECODE_NUMERIC_STRUCT
     return getNumericBigInt(buffer);
 #else
-    return getDecimalBigInt(buffer, length);
+    return getDecimalBigInt((const_ustriType) buffer, length);
 #endif
   } /* getBigInt */
 
@@ -1227,7 +1229,7 @@ static bigIntType getBigRational (const void *buffer, memSizeType length,
 #ifdef DECODE_NUMERIC_STRUCT
     return getNumericBigRational(buffer, denominator);
 #else
-    return getDecimalBigRational(buffer, length, denominator);
+    return getDecimalBigRational((const_ustriType) buffer, length, denominator);
 #endif
   } /* getBigRational */
 
@@ -1239,7 +1241,7 @@ static floatType getFloat (const void *buffer, memSizeType length)
 #ifdef DECODE_NUMERIC_STRUCT
     return getNumericFloat(buffer);
 #else
-    return getDecimalFloat(buffer, length);
+    return getDecimalFloat((const_ustriType) buffer, length);
 #endif
   } /* getFloat */
 
@@ -2304,7 +2306,7 @@ static bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
             break;
           case SQL_DECIMAL:
             columnValue = getDecimalBigInt(
-                preparedStmt->result_array[column - 1].buffer,
+                (const_ustriType) preparedStmt->result_array[column - 1].buffer,
                 (memSizeType) preparedStmt->result_array[column - 1].length);
             break;
           case SQL_NUMERIC:
@@ -2394,7 +2396,7 @@ static void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
             break;
           case SQL_DECIMAL:
             *numerator = getDecimalBigRational(
-                preparedStmt->result_array[column - 1].buffer,
+                (const_ustriType) preparedStmt->result_array[column - 1].buffer,
                 (memSizeType) preparedStmt->result_array[column - 1].length,
                 denominator);
             break;
@@ -2477,7 +2479,7 @@ static boolType sqlColumnBool (sqlStmtType sqlStatement, intType column)
             break;
           case SQL_DECIMAL:
             columnValue = getDecimalInt(
-                preparedStmt->result_array[column - 1].buffer,
+                (const_ustriType) preparedStmt->result_array[column - 1].buffer,
                 (memSizeType) preparedStmt->result_array[column - 1].length);
             break;
           case SQL_NUMERIC:
@@ -2749,7 +2751,7 @@ static floatType sqlColumnFloat (sqlStmtType sqlStatement, intType column)
             break;
           case SQL_DECIMAL:
             columnValue = getDecimalFloat(
-                preparedStmt->result_array[column - 1].buffer,
+                (const_ustriType) preparedStmt->result_array[column - 1].buffer,
                 (memSizeType) preparedStmt->result_array[column - 1].length);
             break;
           case SQL_NUMERIC:
@@ -2817,7 +2819,7 @@ static intType sqlColumnInt (sqlStmtType sqlStatement, intType column)
             break;
           case SQL_DECIMAL:
             columnValue = getDecimalInt(
-                preparedStmt->result_array[column - 1].buffer,
+                (const_ustriType) preparedStmt->result_array[column - 1].buffer,
                 (memSizeType) preparedStmt->result_array[column - 1].length);
             break;
           case SQL_NUMERIC:

@@ -134,8 +134,9 @@ const func string: integerLiteral (in integer: number) is func
           expr &:= str(succ(integer.first));
           expr &:= "-1)";
         else
-          expr := "-(intType) ";
+          expr := "(-(intType) ";
           expr &:= str(-number);
+          expr &:= ")";
         end if;
       else
         expr := "(intType) ";

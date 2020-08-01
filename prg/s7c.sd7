@@ -30,6 +30,7 @@ $ include "seed7_05.s7i";
   include "unicode.s7i";
   include "bigint.s7i";
   include "float.s7i";
+  include "math.s7i";
   include "bytedata.s7i";
   include "bin64.s7i";
   include "keybd.s7i";

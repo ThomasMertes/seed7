@@ -46,11 +46,11 @@
 #include "data_rtl.h"
 #include "striutl.h"
 #include "heaputl.h"
+#include "numutl.h"
 #include "str_rtl.h"
 #include "int_rtl.h"
 #include "flt_rtl.h"
 #include "tim_rtl.h"
-#include "sql_util.h"
 #include "big_drv.h"
 #include "rtl_err.h"
 #include "dll_drv.h"
@@ -1239,8 +1239,9 @@ static bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
             break;
           case MYSQL_TYPE_DECIMAL:
           case MYSQL_TYPE_NEWDECIMAL:
-            columnValue = getDecimalBigInt(preparedStmt->result_array[column - 1].buffer,
-                                           preparedStmt->result_array[column - 1].length_value);
+            columnValue = getDecimalBigInt(
+                (const_ustriType) preparedStmt->result_array[column - 1].buffer,
+                preparedStmt->result_array[column - 1].length_value);
             break;
           default:
             logError(printf("sqlColumnBigInt: Column " FMT_D " has the unknown type %s.\n",
@@ -1331,9 +1332,10 @@ static void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
             break;
           case MYSQL_TYPE_DECIMAL:
           case MYSQL_TYPE_NEWDECIMAL:
-            *numerator = getDecimalBigRational(preparedStmt->result_array[column - 1].buffer,
-                                               preparedStmt->result_array[column - 1].length_value,
-                                               denominator);
+            *numerator = getDecimalBigRational(
+                (const_ustriType) preparedStmt->result_array[column - 1].buffer,
+                preparedStmt->result_array[column - 1].length_value,
+                denominator);
             break;
           default:
             logError(printf("sqlColumnBigRat: Column " FMT_D " has the unknown type %s.\n",
@@ -1607,8 +1609,9 @@ static floatType sqlColumnFloat (sqlStmtType sqlStatement, intType column)
             break;
           case MYSQL_TYPE_DECIMAL:
           case MYSQL_TYPE_NEWDECIMAL:
-            columnValue = getDecimalFloat(preparedStmt->result_array[column - 1].buffer,
-                                          preparedStmt->result_array[column - 1].length_value);
+            columnValue = getDecimalFloat(
+                (const_ustriType) preparedStmt->result_array[column - 1].buffer,
+                preparedStmt->result_array[column - 1].length_value);
             break;
           default:
             logError(printf("sqlColumnFloat: Column " FMT_D " has the unknown type %s.\n",
@@ -1665,8 +1668,9 @@ static intType sqlColumnInt (sqlStmtType sqlStatement, intType column)
             break;
           case MYSQL_TYPE_DECIMAL:
           case MYSQL_TYPE_NEWDECIMAL:
-            columnValue = getDecimalInt(preparedStmt->result_array[column - 1].buffer,
-                                        preparedStmt->result_array[column - 1].length_value);
+            columnValue = getDecimalInt(
+                (const_ustriType) preparedStmt->result_array[column - 1].buffer,
+                preparedStmt->result_array[column - 1].length_value);
             break;
           default:
             logError(printf("sqlColumnInt: Column " FMT_D " has the unknown type %s.\n",

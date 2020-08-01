@@ -132,14 +132,15 @@ COMPILING UNDER WINDOWS WITH CL FROM MSVC
   cl and nmake can be executed from a console window. Therefore
   the directory ..Visual Studio../VC/bin (fill in the actual
   absolute path of your MSVC installation) must be added to the
-  PATH variable. Afterwards you can start a new console and use
-  the command
-
-    vcvars32
-
-  to set up the environment for cl. In order to use cl in a new
-  console the command vcvars32 is always necessary. After the
-  setup you can go to the 'seed7\src' directory and type:
+  PATH variable. The build process of Seed7 uses the scripts
+  seed7/bin/call_cl.bat and seed7/bin/call_lib.bat to call
+  C compiler and LIB utility program. This scripts contain
+  calls to vcvars32. If your PATH variable does not contain
+  a path to vcvars32 you can use an absolute path in the
+  scripts. If you want to use the 64-bit compiler you must
+  replace the calls of vcvars32 with calls of vcvars64. After
+  checking and possibly changing the scripts you can go to the
+  'seed7\src' directory and type:
 
     copy mk_msvc.mak makefile
     nmake depend

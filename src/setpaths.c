@@ -284,6 +284,7 @@ int main (int argc, char **argv)
     char **curr_arg;
     int found;
     os_charType buffer[BUFFER_LEN];
+    char *s7_lib_dir = NULL;
 
   /* main */
 #ifdef OS_STRI_USES_CODE_PAGE
@@ -291,20 +292,38 @@ int main (int argc, char **argv)
     printf("#define DEFAULT_CODE_PAGE %d\n", code_page);
 #endif
     chdir("../bin");
-    printf("#define S7_LIB_DIR \"");
-    found = 0;
     for (curr_arg = argv; *curr_arg != NULL; curr_arg++) {
       if (memcmp(*curr_arg, "S7_LIB_DIR=", 11 * sizeof(char)) == 0 &&
           (*curr_arg)[11] != '\0') {
-        found = 1;
-        printf("%s", &(*curr_arg)[11]);
+        s7_lib_dir = &(*curr_arg)[11];
       } /* if */
     } /* for */
-    if (!found) {
+    if (s7_lib_dir != NULL) {
+#if !defined C_COMPILER && defined C_COMPILER_SCRIPT
+      printf("#define C_COMPILER \"%s/%s\"\n",
+             s7_lib_dir, C_COMPILER_SCRIPT);
+#endif
+#if !defined GET_CC_VERSION_INFO && defined GET_CC_VERSION_INFO_OPTIONS
+      printf("#define GET_CC_VERSION_INFO \"\\\"%s/%s %s\\\"",
+             s7_lib_dir, C_COMPILER_SCRIPT, GET_CC_VERSION_INFO_OPTIONS);
+#endif
+      printf("#define S7_LIB_DIR \"%s\"\n", s7_lib_dir);
+    } else {
       get_cwd_to_buffer(buffer);
+#if !defined C_COMPILER && defined C_COMPILER_SCRIPT
+      printf("#define C_COMPILER \"");
       write_as_utf8(buffer);
+      printf("/%s\"\n", C_COMPILER_SCRIPT);
+#endif
+#if !defined GET_CC_VERSION_INFO && defined GET_CC_VERSION_INFO_OPTIONS
+      printf("#define GET_CC_VERSION_INFO \"\\\"");
+      write_as_utf8(buffer);
+      printf("/%s %s\\\"\"\n", C_COMPILER_SCRIPT, GET_CC_VERSION_INFO_OPTIONS);
+#endif
+      printf("#define S7_LIB_DIR \"");
+      write_as_utf8(buffer);
+      printf("\"\n");
     } /* if */
-    printf("\"\n");
     chdir("../prg"); /* Use ../prg when ../lib does not exist */
     chdir("../lib");
     printf("#define SEED7_LIBRARY \"");

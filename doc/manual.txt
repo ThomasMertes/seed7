@@ -2560,17 +2560,27 @@ CONTENTS
                     A ** B is okay for A < 0.0 and B is integer,
                     A ** B => NaN for A < 0.0 and B is not integer,
                     A ** 0.0 => 1.0,
+                    NaN ** 0.0 => 1.0,
+                    NaN ** B => NaN for B <> 0.0,
                     0.0 ** B => 0.0 for B > 0.0,
                     0.0 ** 0.0 => 1.0,
-                    0.0 ** B => Infinity for B < 0.0 )
+                    0.0 ** B => Infinity for B < 0.0,
+                    (-0.0) ** B => -Infinity for B < 0.0 and odd(B),
+                    1.0 ** B => 1.0,
+                    1.0 ** NaN => 1.0,
+                    A ** NaN => NaN for A <> 1.0 )
       **        Power
                   ( Type of right operand: integer
                     A ** B is okay for A > 0.0,
                     A ** B is okay for A < 0.0,
                     A ** 0 => 1.0,
+                    NaN ** 0 => 1.0,
+                    NaN ** B => NaN for B <> 0,
                     0.0 ** B => 0.0 for B > 0,
                     0.0 ** 0 => 1.0,
-                    0.0 ** B => Infinity for B < 0 )
+                    0.0 ** B => Infinity for B < 0,
+                    (-0.0) ** B => -Infinity for B < 0 and odd(B),
+                    A ** B => 1.0 / A ** (-B) for B < 0 )
       float conv A   Conversion of integer to float
                   ( Type of argument A: integer,
                     float conv 1 => 1.0 )

@@ -208,6 +208,7 @@ static rtlArrayType copyArgv (const int argc, const os_striType *const argv)
         } /* for */
       } /* if */
     } /* if */
+    logFunction(printf("copyArgv -->\n"););
     return arg_v;
   } /* copyArgv */
 

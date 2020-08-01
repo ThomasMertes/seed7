@@ -35,6 +35,7 @@
 #include "stdio.h"
 #include "string.h"
 #include "limits.h"
+#include "wchar.h"
 
 #ifdef UNISTD_H_PRESENT
 #include "unistd.h"
@@ -155,17 +156,6 @@ static consoleType con;
 
 
 
-static inline void strelem_memset (strElemType *mem,
-    const strElemType ch, size_t number)
-
-  { /* strelem_memcmp */
-    for (; number > 0; number--, mem++) {
-      *mem = ch;
-    } /* for */
-  } /* strelem_memcmp */
-
-
-
 static void strelem_fwrite (const strElemType *stri, memSizeType length,
     fileType outFile)
 
@@ -228,9 +218,9 @@ static consoleType create_console (int height, int width)
           new_con->chars[line] = &new_con->char_data[line * width];
           new_con->attributes[line] = &new_con->attrib_data[line * width];
         } /* for */
-        strelem_memset(new_con->char_data, ' ', (unsigned int) (height * width));
+        memset_to_strelem(new_con->char_data, ' ', (unsigned int) (height * width));
         memset(new_con->attrib_data, ' ', (unsigned int) (height * width));
-        strelem_memset(new_con->space, ' ', (size_t) width);
+        memset_to_strelem(new_con->space, ' ', (size_t) width);
         new_con->line_capacity = height;
         new_con->column_capacity = width;
         new_con->height = height;
@@ -591,7 +581,7 @@ static void doClear (int startlin, int startcol,
         startcol == 1 && stopcol == con->width && clear_screen != NULL) {
       putctl(clear_screen); /* clear screen */
       for (line = 0; line < stoplin; line++) {
-        strelem_memset(con->chars[line], ' ',
+        memset_to_strelem(con->chars[line], ' ',
             (unsigned int) con->width);
         memset(con->attributes[line], curr_attr,
             (unsigned int) con->width);
@@ -607,7 +597,7 @@ static void doClear (int startlin, int startcol,
           if (curr_attr != TEXT_NORMAL) {
             setattr(TEXT_NORMAL);
           } /* if */
-          strelem_memset(&con->chars[line][startcol - 1], ' ',
+          memset_to_strelem(&con->chars[line][startcol - 1], ' ',
               (unsigned int) (stopcol - startcol + 1));
           memset(&con->attributes[line][startcol - 1], curr_attr,
               (unsigned int) (stopcol - startcol + 1));
@@ -634,7 +624,7 @@ static void doClear (int startlin, int startcol,
             if (curr_attr != TEXT_NORMAL) {
               setattr(TEXT_NORMAL);
             } /* if */
-            strelem_memset(&new_line[startcol - 1], ' ',
+            memset_to_strelem(&new_line[startcol - 1], ' ',
                 (unsigned int) (column - startcol + 1));
             memset(&new_attr[startcol - 1], curr_attr,
                 (unsigned int) (column - startcol + 1));
@@ -733,7 +723,7 @@ static void doUpScroll (int startlin, int startcol,
           column--;
         } /* while */
         if (column >= startcol) {
-          strelem_memset(&new_line[startcol - 1], ' ',
+          memset_to_strelem(&new_line[startcol - 1], ' ',
               (unsigned int) (column - startcol + 1));
           memset(&new_attr[startcol - 1], curr_attr,
               (unsigned int) (column - startcol + 1));
@@ -781,7 +771,7 @@ static void doUpScroll (int startlin, int startcol,
             (unsigned int) (stopcol - startcol + 1));
       } /* for */
       for (line = stoplin - count; line < stoplin; line++) {
-        strelem_memset(&con->chars[line][startcol - 1], ' ',
+        memset_to_strelem(&con->chars[line][startcol - 1], ' ',
             (unsigned int) (stopcol - startcol + 1));
         memset(&con->attributes[line][startcol - 1], curr_attr,
             (unsigned int) (stopcol - startcol + 1));
@@ -886,7 +876,7 @@ static void doDownScroll (int startlin, int startcol,
         if (column >= startcol) {
           putgoto(cursor_address, startcol - 1, line); /* cursor motion */
           strelem_fwrite(con->space, (unsigned int) (column - startcol + 1), stdout);
-          strelem_memset(&new_line[startcol - 1], ' ',
+          memset_to_strelem(&new_line[startcol - 1], ' ',
               (unsigned int) (column - startcol + 1));
           memset(&new_attr[startcol - 1], curr_attr,
               (unsigned int) (column - startcol + 1));
@@ -929,7 +919,7 @@ static void doDownScroll (int startlin, int startcol,
       } /* for */
 /*    for (line = startlin + count - 2; line >= startlin - 1; line--) { */
       for (line = startlin - 1; line < startlin + count - 1; line++) {
-        strelem_memset(&con->chars[line][startcol - 1], ' ',
+        memset_to_strelem(&con->chars[line][startcol - 1], ' ',
             (unsigned int) (stopcol - startcol + 1));
         memset(&con->attributes[line][startcol - 1], curr_attr,
             (unsigned int) (stopcol - startcol + 1));
@@ -1017,7 +1007,7 @@ static void doLeftScroll (int startlin, int startcol,
           for (number = 1; number <= count; number++) {
             putctl(insert_character); /* insert character */
           } /* for */
-          strelem_memset(&con->chars[line][stopcol - count], ' ', (unsigned int) count);
+          memset_to_strelem(&con->chars[line][stopcol - count], ' ', (unsigned int) count);
           if (line < stoplin - 1) {
             if (cursor_down != NULL) {
               putctl(cursor_down); /* cursor down */
@@ -1032,7 +1022,7 @@ static void doLeftScroll (int startlin, int startcol,
           for (line = startlin - 1; line < stoplin; line++) {
             putgoto(cursor_address, stopcol - count, line); /* cursor motion */
             strelem_fwrite(con->space, (unsigned int) count, stdout);
-            strelem_memset(&con->chars[line][stopcol - count], ' ', (unsigned int) count);
+            memset_to_strelem(&con->chars[line][stopcol - count], ' ', (unsigned int) count);
           } /* for */
           putctl(exit_insert_mode); /* end insert mode */
         } else {
@@ -1041,7 +1031,7 @@ static void doLeftScroll (int startlin, int startcol,
             putctl(enter_insert_mode); /* enter insert mode */
             strelem_fwrite(con->space, (unsigned int) count, stdout);
             putctl(exit_insert_mode); /* end insert mode */
-            strelem_memset(&con->chars[line][stopcol - count], ' ', (unsigned int) count);
+            memset_to_strelem(&con->chars[line][stopcol - count], ' ', (unsigned int) count);
           } /* for */
         } /* if */
       } /* if */
@@ -1073,7 +1063,7 @@ static void doLeftScroll (int startlin, int startcol,
         if (start_pos < count) {
           putgoto(cursor_address, stopcol - count + start_pos, line); /* cursor motion */
           strelem_fwrite(con->space, (unsigned int) (count - start_pos), stdout);
-          strelem_memset(&new_line[start_pos], ' ', (unsigned int) (count - start_pos));
+          memset_to_strelem(&new_line[start_pos], ' ', (unsigned int) (count - start_pos));
         } /* if */
       } /* for */
     } /* if */
@@ -1158,7 +1148,7 @@ static void doRightScroll (int startlin, int startcol,
           for (number = 1; number <= count; number++) {
             putctl(insert_character); /* insert character */
           } /* for */
-          strelem_memset(&con->chars[line][startcol - 1], ' ', (unsigned int) count);
+          memset_to_strelem(&con->chars[line][startcol - 1], ' ', (unsigned int) count);
           if (line < stoplin - 1) {
             if (cursor_down != NULL) {
               putctl(cursor_down); /* cursor down */
@@ -1172,7 +1162,7 @@ static void doRightScroll (int startlin, int startcol,
           putctl(enter_insert_mode); /* enter insert mode */
           for (line = startlin - 1; line < stoplin; line++) {
             strelem_fwrite(con->space, (unsigned int) count, stdout);
-            strelem_memset(&con->chars[line][startcol - 1], ' ', (unsigned int) count);
+            memset_to_strelem(&con->chars[line][startcol - 1], ' ', (unsigned int) count);
             if (line < stoplin - 1) {
               downleft(startcol - 1, line + 1);
             } /* if */
@@ -1183,7 +1173,7 @@ static void doRightScroll (int startlin, int startcol,
             putctl(enter_insert_mode); /* enter insert mode */
             strelem_fwrite(con->space, (unsigned int) count, stdout);
             putctl(exit_insert_mode); /* end insert mode */
-            strelem_memset(&con->chars[line][startcol - 1], ' ', (unsigned int) count);
+            memset_to_strelem(&con->chars[line][startcol - 1], ' ', (unsigned int) count);
             if (line < stoplin - 1) {
               downleft(startcol - 1, line + 1);
             } /* if */
@@ -1218,7 +1208,7 @@ static void doRightScroll (int startlin, int startcol,
         if (start_pos < count) {
           putgoto(cursor_address, startcol + start_pos - 1, line); /* cursor motion */
           strelem_fwrite(con->space, (unsigned int) (count - start_pos), stdout);
-          strelem_memset(&new_line[start_pos], ' ', (unsigned int) (count - start_pos));
+          memset_to_strelem(&new_line[start_pos], ' ', (unsigned int) (count - start_pos));
         } /* if */
       } /* for */
     } /* if */

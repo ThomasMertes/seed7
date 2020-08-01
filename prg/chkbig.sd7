@@ -1201,10 +1201,27 @@ const proc: chkStringConv is func
 
     if  not raisesRangeError(bigInteger parse "99999999a999999999") or
         not raisesRangeError(bigInteger parse "-9999999999a9999999") or
-        not raisesRangeError(bigInteger parse "") or
+        not raisesRangeError(bigInteger parse "@") or
         not raisesRangeError(bigInteger parse "+") or
+        not raisesRangeError(bigInteger parse "++") or
+        not raisesRangeError(bigInteger parse "+-") or
+        not raisesRangeError(bigInteger parse "++1") or
+        not raisesRangeError(bigInteger parse "+-1") or
         not raisesRangeError(bigInteger parse "-") or
-        not raisesRangeError(bigInteger("11111111111111112111111111111111111111111111111111111111111111", 2)) or
+        not raisesRangeError(bigInteger parse "--") or
+        not raisesRangeError(bigInteger parse "-+") or
+        not raisesRangeError(bigInteger parse "--1") or
+        not raisesRangeError(bigInteger parse "-+1") or
+        not raisesRangeError(bigInteger parse "") or
+        not raisesRangeError(bigInteger parse " 123") or
+        not raisesRangeError(bigInteger parse "123 ") or
+        not raisesRangeError(bigInteger parse "123@") or
+        not raisesRangeError(bigInteger parse "123@456") then
+      writeln(" ***** Conversion of illegal numeric literal does not raise RANGE_ERROR."); 
+      okay := FALSE;
+    end if;
+
+    if  not raisesRangeError(bigInteger("11111111111111112111111111111111111111111111111111111111111111", 2)) or
         not raisesRangeError(bigInteger("2222222222222223222222222222222222222222", 3)) or
         not raisesRangeError(bigInteger("333333333333334333333333333333", 4)) or
         not raisesRangeError(bigInteger("44444444444445444444444444", 5)) or
@@ -11271,20 +11288,20 @@ const proc: chkDivision is func
     end if;
 
     number := 123456789012345678901234567890_;
-    if number div                            -1_ <> -123456789012345678901234567890_ or
-       number div                            -2_ <>  -61728394506172839450617283945_ or
-       number div                            -3_ <>  -41152263004115226300411522630_ or
-       number div                            -4_ <>  -30864197253086419725308641972_ or
-       number div                         -1023_ <>    -120681123179223537537863702_ or
-       number div                         -1024_ <>    -120563270519868827051986882_ or
-       number div                      -1048576_ <>       -117737568867059401417955_ or
-       number div                   -1073741824_ <>          -114978094596737696697_ or
-       number div                   -2147483647_ <>           -57489047325139272132_ or
-       number div                   -4294967295_ <>           -28744523655877030118_ or
-       number div                -1099511627776_ <>             -112283295504626656_ or
-       number div          -1152921504606846976_ <>                   -107081695084_ or
-       number div    -1208925819614629174706176_ <>                         -102121_ or
-       number div -1237940039285380274899124224_ <>                             -99_ then
+    if  number div                            -1_ <> -123456789012345678901234567890_ or
+        number div                            -2_ <>  -61728394506172839450617283945_ or
+        number div                            -3_ <>  -41152263004115226300411522630_ or
+        number div                            -4_ <>  -30864197253086419725308641972_ or
+        number div                         -1023_ <>    -120681123179223537537863702_ or
+        number div                         -1024_ <>    -120563270519868827051986882_ or
+        number div                      -1048576_ <>       -117737568867059401417955_ or
+        number div                   -1073741824_ <>          -114978094596737696697_ or
+        number div                   -2147483647_ <>           -57489047325139272132_ or
+        number div                   -4294967295_ <>           -28744523655877030118_ or
+        number div                -1099511627776_ <>             -112283295504626656_ or
+        number div          -1152921504606846976_ <>                   -107081695084_ or
+        number div    -1208925819614629174706176_ <>                         -102121_ or
+        number div -1237940039285380274899124224_ <>                             -99_ then
       writeln("Division of bigInteger by negative number does not work correct.");
       okay := FALSE;
     end if;
@@ -12325,20 +12342,20 @@ const proc: chkModDivision is func
     end if;
 
     number := 123456789012345678901234567890_;
-    if number mdiv                            -1_ <> -123456789012345678901234567890_ or
-       number mdiv                            -2_ <>  -61728394506172839450617283945_ or
-       number mdiv                            -3_ <>  -41152263004115226300411522630_ or
-       number mdiv                            -4_ <>  -30864197253086419725308641973_ or
-       number mdiv                         -1023_ <>    -120681123179223537537863703_ or
-       number mdiv                         -1024_ <>    -120563270519868827051986883_ or
-       number mdiv                      -1048576_ <>       -117737568867059401417956_ or
-       number mdiv                   -1073741824_ <>          -114978094596737696698_ or
-       number mdiv                   -2147483647_ <>           -57489047325139272133_ or
-       number mdiv                   -4294967295_ <>           -28744523655877030119_ or
-       number mdiv                -1099511627776_ <>             -112283295504626657_ or
-       number mdiv          -1152921504606846976_ <>                   -107081695085_ or
-       number mdiv    -1208925819614629174706176_ <>                         -102122_ or
-       number mdiv -1237940039285380274899124224_ <>                            -100_ then
+    if  number mdiv                            -1_ <> -123456789012345678901234567890_ or
+        number mdiv                            -2_ <>  -61728394506172839450617283945_ or
+        number mdiv                            -3_ <>  -41152263004115226300411522630_ or
+        number mdiv                            -4_ <>  -30864197253086419725308641973_ or
+        number mdiv                         -1023_ <>    -120681123179223537537863703_ or
+        number mdiv                         -1024_ <>    -120563270519868827051986883_ or
+        number mdiv                      -1048576_ <>       -117737568867059401417956_ or
+        number mdiv                   -1073741824_ <>          -114978094596737696698_ or
+        number mdiv                   -2147483647_ <>           -57489047325139272133_ or
+        number mdiv                   -4294967295_ <>           -28744523655877030119_ or
+        number mdiv                -1099511627776_ <>             -112283295504626657_ or
+        number mdiv          -1152921504606846976_ <>                   -107081695085_ or
+        number mdiv    -1208925819614629174706176_ <>                         -102122_ or
+        number mdiv -1237940039285380274899124224_ <>                            -100_ then
       writeln("Modulo division of bigInteger by negative number does not work correct.");
       okay := FALSE;
     end if;

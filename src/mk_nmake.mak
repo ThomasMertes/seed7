@@ -48,7 +48,7 @@ GOBJ = syvarutl.o traceutl.o actutl.o executl.o blockutl.o \
        entutl.o identutl.o chclsutl.o sigutl.o arrutl.o
 ROBJ = arr_rtl.o bln_rtl.o bst_rtl.o chr_rtl.o cmd_rtl.o con_rtl.o dir_rtl.o drw_rtl.o fil_rtl.o \
        flt_rtl.o hsh_rtl.o int_rtl.o itf_rtl.o pcs_rtl.o set_rtl.o soc_rtl.o sql_rtl.o str_rtl.o \
-       tim_rtl.o ut8_rtl.o heaputl.o striutl.o sql_lite.o sql_my.o sql_oci.o sql_odbc.o sql_post.o sql_util.o
+       tim_rtl.o ut8_rtl.o heaputl.o numutl.o striutl.o sql_lite.o sql_my.o sql_oci.o sql_odbc.o sql_post.o
 DOBJ = $(BIGINT_LIB).o cmd_win.o dll_win.o fil_win.o pcs_win.o pol_sel.o tim_win.o
 OBJ = $(MOBJ)
 SEED7_LIB_OBJ = $(ROBJ) $(DOBJ)
@@ -71,7 +71,7 @@ GSRC = syvarutl.c traceutl.c actutl.c executl.c blockutl.c \
        entutl.c identutl.c chclsutl.c sigutl.c arrutl.c
 RSRC = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c con_rtl.c dir_rtl.c drw_rtl.c fil_rtl.c \
        flt_rtl.c hsh_rtl.c int_rtl.c itf_rtl.c pcs_rtl.c set_rtl.c soc_rtl.c sql_rtl.c str_rtl.c \
-       tim_rtl.c ut8_rtl.c heaputl.c striutl.c sql_lite.c sql_my.c sql_oci.c sql_odbc.c sql_post.c sql_util.c
+       tim_rtl.c ut8_rtl.c heaputl.c numutl.c striutl.c sql_lite.c sql_my.c sql_oci.c sql_odbc.c sql_post.c
 DSRC = $(BIGINT_LIB).c cmd_win.c dll_win.c fil_win.c pcs_win.c pol_sel.c tim_win.c
 SRC = $(MSRC)
 SEED7_LIB_SRC = $(RSRC) $(DSRC)

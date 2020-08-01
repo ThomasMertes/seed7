@@ -48,19 +48,19 @@ memSizeType doubleToCharBuffer (double doubleValue, double largeNumber,
                                 const char *format, char *buffer);
 intType fltCmp (floatType number1, floatType number2);
 striType fltDgts (floatType number, intType precision);
-#ifdef NAN_COMPARISON_WRONG
+#if !NAN_COMPARISON_OKAY
 boolType fltEq (floatType number1, floatType number2);
 boolType fltGe (floatType number1, floatType number2);
 boolType fltGt (floatType number1, floatType number2);
 #endif
 floatType fltIPow (floatType base, intType exponent);
 boolType fltIsNegativeZero (floatType number);
-#ifdef NAN_COMPARISON_WRONG
+#if !NAN_COMPARISON_OKAY
 boolType fltLe (floatType number1, floatType number2);
 boolType fltLt (floatType number1, floatType number2);
 #endif
 floatType fltParse (const const_striType stri);
-#ifdef POWER_OF_ZERO_WRONG
+#if !(POWER_OF_ZERO_OKAY && POWER_OF_ONE_OKAY && POWER_OF_NAN_OKAY)
 floatType fltPow (floatType base, floatType exponent);
 #endif
 floatType fltRand (floatType lower_limit, floatType upper_limit);

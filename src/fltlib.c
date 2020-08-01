@@ -197,10 +197,12 @@ objectType flt_ceil (listType arguments)
 
 /**
  *  Compare two float numbers.
- *  Because fltCmp is used to sort float values, a total
- *  order of all float values is needed. Therefore fltCmp
- *  considers NaN as equal to itself and greater than
- *  Infinity.
+ *  Because flt_cmp is used to sort float values, a unique
+ *  sort sequence of all values is needed. Therefore flt_cmp
+ *  considers NaN as equal to itself and greater than Infinity.
+ *  Negative zero (-0.0) is considered by flt_cmp to be equal to
+ *  positive zero (+0.0). This conforms to the behavior of all
+ *  other float comparisons with zero.
  *  @return -1, 0 or 1 if the first argument is considered to be
  *          respectively less than, equal to, or greater than the
  *          second.
@@ -379,12 +381,12 @@ objectType flt_eq (listType arguments)
   { /* flt_eq */
     isit_float(arg_1(arguments));
     isit_float(arg_3(arguments));
-#ifdef NAN_COMPARISON_WRONG
-    if (fltEq(take_float(arg_1(arguments)),
-              take_float(arg_3(arguments)))) {
-#else
+#if NAN_COMPARISON_OKAY
     if (take_float(arg_1(arguments)) ==
         take_float(arg_3(arguments))) {
+#else
+    if (fltEq(take_float(arg_1(arguments)),
+              take_float(arg_3(arguments)))) {
 #endif
       return SYS_TRUE_OBJECT;
     } else {
@@ -438,12 +440,12 @@ objectType flt_ge (listType arguments)
   { /* flt_ge */
     isit_float(arg_1(arguments));
     isit_float(arg_3(arguments));
-#ifdef NAN_COMPARISON_WRONG
-    if (fltGe(take_float(arg_1(arguments)),
-              take_float(arg_3(arguments)))) {
-#else
+#if NAN_COMPARISON_OKAY
     if (take_float(arg_1(arguments)) >=
         take_float(arg_3(arguments))) {
+#else
+    if (fltGe(take_float(arg_1(arguments)),
+              take_float(arg_3(arguments)))) {
 #endif
       return SYS_TRUE_OBJECT;
     } else {
@@ -467,12 +469,12 @@ objectType flt_gt (listType arguments)
   { /* flt_gt */
     isit_float(arg_1(arguments));
     isit_float(arg_3(arguments));
-#ifdef NAN_COMPARISON_WRONG
-    if (fltGt(take_float(arg_1(arguments)),
-              take_float(arg_3(arguments)))) {
-#else
+#if NAN_COMPARISON_OKAY
     if (take_float(arg_1(arguments)) >
         take_float(arg_3(arguments))) {
+#else
+    if (fltGt(take_float(arg_1(arguments)),
+              take_float(arg_3(arguments)))) {
 #endif
       return SYS_TRUE_OBJECT;
     } else {
@@ -534,6 +536,14 @@ objectType flt_iflt (listType arguments)
 
 /**
  *  Compute the exponentiation of a float 'base' with an integer 'exponent'.
+ *     A    ** 0  returns 1.0
+ *     NaN  ** 0  returns 1.0
+ *     NaN  ** B  returns NaN              for B <> 0
+ *     0.0  ** B  returns 0.0              for B > 0
+ *     0.0  ** 0  returns 1.0
+ *     0.0  ** B  returns Infinity         for B < 0
+ *   (-0.0) ** B  returns -Infinity        for B < 0 and odd(B)
+ *     A    ** B  returns 1.0 / A ** (-B)  for B < 0
  *  @return the result of the exponentation.
  */
 objectType flt_ipow (listType arguments)
@@ -603,12 +613,12 @@ objectType flt_le (listType arguments)
   { /* flt_le */
     isit_float(arg_1(arguments));
     isit_float(arg_3(arguments));
-#ifdef NAN_COMPARISON_WRONG
-    if (fltLe(take_float(arg_1(arguments)),
-              take_float(arg_3(arguments)))) {
-#else
+#if NAN_COMPARISON_OKAY
     if (take_float(arg_1(arguments)) <=
         take_float(arg_3(arguments))) {
+#else
+    if (fltLe(take_float(arg_1(arguments)),
+              take_float(arg_3(arguments)))) {
 #endif
       return SYS_TRUE_OBJECT;
     } else {
@@ -660,12 +670,12 @@ objectType flt_lt (listType arguments)
   { /* flt_lt */
     isit_float(arg_1(arguments));
     isit_float(arg_3(arguments));
-#ifdef NAN_COMPARISON_WRONG
-    if (fltLt(take_float(arg_1(arguments)),
-              take_float(arg_3(arguments)))) {
-#else
+#if NAN_COMPARISON_OKAY
     if (take_float(arg_1(arguments)) <
         take_float(arg_3(arguments))) {
+#else
+    if (fltLt(take_float(arg_1(arguments)),
+              take_float(arg_3(arguments)))) {
 #endif
       return SYS_TRUE_OBJECT;
     } else {
@@ -722,12 +732,12 @@ objectType flt_ne (listType arguments)
   { /* flt_ne */
     isit_float(arg_1(arguments));
     isit_float(arg_3(arguments));
-#ifdef NAN_COMPARISON_WRONG
-    if (!fltEq(take_float(arg_1(arguments)),
-               take_float(arg_3(arguments)))) {
-#else
+#if NAN_COMPARISON_OKAY
     if (take_float(arg_1(arguments)) !=
         take_float(arg_3(arguments))) {
+#else
+    if (!fltEq(take_float(arg_1(arguments)),
+               take_float(arg_3(arguments)))) {
 #endif
       return SYS_TRUE_OBJECT;
     } else {
@@ -781,20 +791,33 @@ objectType flt_plus (listType arguments)
 
 /**
  *  Compute the exponentiation of a float 'base' with a float 'exponent'.
+ *     A    ** B    returns NaN        for A < 0.0 and B is not integer
+ *     A    ** 0.0  returns 1.0
+ *     NaN  ** 0.0  returns 1.0
+ *     NaN  ** B    returns NaN        for B <> 0.0
+ *     0.0  ** B    returns 0.0        for B > 0.0
+ *     0.0  ** 0.0  returns 1.0
+ *     0.0  ** B    returns Infinity   for B < 0.0
+ *   (-0.0) ** B    returns -Infinity  for B < 0.0 and odd(B)
+ *     1.0  ** B    returns 1.0
+ *     1.0  ** NaN  returns 1.0
+ *     A    ** NaN  returns NaN        for A <> 1.0
  *  @return the result of the exponentation.
  */
 objectType flt_pow (listType arguments)
 
-  { /* flt_pow */
+  {
+    floatType power;
+
+  /* flt_pow */
     isit_float(arg_1(arguments));
     isit_float(arg_3(arguments));
-#ifdef POWER_OF_ZERO_WRONG
-    return bld_float_temp(
-        fltPow(take_float(arg_1(arguments)), take_float(arg_3(arguments))));
+#if POWER_OF_ZERO_OKAY && POWER_OF_ONE_OKAY && POWER_OF_NAN_OKAY
+    power = pow(take_float(arg_1(arguments)), take_float(arg_3(arguments)));
 #else
-    return bld_float_temp(
-        pow(take_float(arg_1(arguments)), take_float(arg_3(arguments))));
+    power = fltPow(take_float(arg_1(arguments)), take_float(arg_3(arguments)));
 #endif
+    return bld_float_temp(power);
   } /* flt_pow */
 
 

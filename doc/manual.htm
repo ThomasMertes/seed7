@@ -2706,17 +2706,27 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
                     A ** B is okay for A &lt; 0.0 and B is integer,
                     A ** B <b>&rArr;</b> NaN for A &lt; 0.0 and B is not integer,
                     A ** 0.0 <b>&rArr;</b> 1.0,
+                    NaN ** 0.0 <b>&rArr;</b> 1.0,
+                    NaN ** B <b>&rArr;</b> NaN for B &lt;> 0.0,
                     0.0 ** B <b>&rArr;</b> 0.0 for B > 0.0,
                     0.0 ** 0.0 <b>&rArr;</b> 1.0,
-                    0.0 ** B <b>&rArr;</b> Infinity for B &lt; 0.0 )
+                    0.0 ** B <b>&rArr;</b> Infinity for B &lt; 0.0,
+                    (-0.0) ** B <b>&rArr;</b> -Infinity for B &lt; 0.0 and odd(B),
+                    1.0 ** B <b>&rArr;</b> 1.0,
+                    1.0 ** NaN <b>&rArr;</b> 1.0,
+                    A ** NaN <b>&rArr;</b> NaN for A &lt;> 1.0 )
       <span class="op">**</span>        Power
                   ( Type of right operand: <a class="type" href="#types_integer">integer</a>
                     A ** B is okay for A > 0.0,
                     A ** B is okay for A &lt; 0.0,
                     A ** 0 <b>&rArr;</b> 1.0,
+                    NaN ** 0 <b>&rArr;</b> 1.0,
+                    NaN ** B <b>&rArr;</b> NaN for B &lt;> 0,
                     0.0 ** B <b>&rArr;</b> 0.0 for B > 0,
                     0.0 ** 0 <b>&rArr;</b> 1.0,
-                    0.0 ** B <b>&rArr;</b> Infinity for B &lt; 0 )
+                    0.0 ** B <b>&rArr;</b> Infinity for B &lt; 0,
+                    (-0.0) ** B <b>&rArr;</b> -Infinity for B &lt; 0 and odd(B),
+                    A ** B <b>&rArr;</b> 1.0 / A ** (-B) for B &lt; 0 )
       <a class="type" href="#types_float">float</a> <span class="op">conv</span> A   Conversion of <a class="type" href="#types_integer">integer</a> to <a class="type" href="#types_float">float</a>
                   ( Type of argument A: <a class="type" href="#types_integer">integer</a>,
                     <a class="type" href="#types_float">float</a> <span class="op">conv</span> 1 <b>&rArr;</b> 1.0 )

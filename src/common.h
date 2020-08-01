@@ -294,10 +294,16 @@ typedef uint64Type         bitSetType;
 #ifdef FLOATTYPE_DOUBLE
 typedef double             floatType;
 #define FLOATTYPE_SIZE DOUBLE_SIZE
+#define MAX_INTEGER_IN_FLOATTYPE MAX_INTEGER_IN_DOUBLE
+#define FLOATTYPE_TO_INT_CONVERSION_LIMIT DOUBLE_MANTISSA_FACTOR
+#define FLOATTYPE_MANTISSA_FACTOR DOUBLE_MANTISSA_FACTOR
 #define FMT_E DOUBLE_STR_FORMAT
 #else
 typedef float              floatType;
 #define FLOATTYPE_SIZE FLOAT_SIZE
+#define MAX_INTEGER_IN_FLOATTYPE MAX_INTEGER_IN_FLOAT
+#define FLOATTYPE_TO_INT_CONVERSION_LIMIT FLOAT_MANTISSA_FACTOR
+#define FLOATTYPE_MANTISSA_FACTOR FLOAT_MANTISSA_FACTOR
 #define FMT_E FLOAT_STR_FORMAT
 #endif
 
@@ -592,3 +598,8 @@ typedef mpz_srcptr  const_bigIntType;
 #else
 #define logError(logStatements)
 #endif
+
+/* Allow to activate selected logging functions by adding X. */
+
+#define logFunctionX(logStatements) logStatements
+#define logErrorX(logStatements) printf(" *** "); logStatements

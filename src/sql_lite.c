@@ -47,10 +47,10 @@
 #include "data_rtl.h"
 #include "striutl.h"
 #include "heaputl.h"
+#include "numutl.h"
 #include "str_rtl.h"
 #include "tim_rtl.h"
 #include "cmd_rtl.h"
-#include "sql_util.h"
 #include "big_drv.h"
 #include "rtl_err.h"
 #include "dll_drv.h"
@@ -941,7 +941,7 @@ static bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
             raise_error(FILE_ERROR);
             columnValue = NULL;
           } else {
-            columnValue = getDecimalBigInt(blob, (memSizeType) length);
+            columnValue = getDecimalBigInt((const_ustriType) blob, (memSizeType) length);
           } /* if */
           break;
         default:
@@ -1001,8 +1001,8 @@ static void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
           if (blob == NULL || length < 0) {
             raise_error(FILE_ERROR);
           } else {
-            *numerator = getDecimalBigRational(blob, (memSizeType) length,
-                                               denominator);
+            *numerator = getDecimalBigRational(
+                (const_ustriType) blob, (memSizeType) length, denominator);
           } /* if */
           break;
         default:
@@ -1286,7 +1286,7 @@ static floatType sqlColumnFloat (sqlStmtType sqlStatement, intType column)
             raise_error(FILE_ERROR);
             columnValue = 0.0;
           } else {
-            columnValue = getDecimalFloat(blob, (memSizeType) length);
+            columnValue = getDecimalFloat((const_ustriType) blob, (memSizeType) length);
           } /* if */
           break;
         default:

@@ -94,10 +94,14 @@ const func float: (in float: dividend) / (in float: divisor)   is action "FLT_DI
 
 (**
  *  Compute the exponentiation of a float ''base'' with an [[integer]] ''exponent''.
- *   A   ** 0  returns 1.0
- *   0.0 ** B  returns 0.0       for B > 0
- *   0.0 ** 0  returns 1.0
- *   0.0 ** B  returns Infinity  for B < 0
+ *     A    ** 0  returns 1.0
+ *     NaN  ** 0  returns 1.0
+ *     NaN  ** B  returns NaN              for B <> 0
+ *     0.0  ** B  returns 0.0              for B > 0
+ *     0.0  ** 0  returns 1.0
+ *     0.0  ** B  returns Infinity         for B < 0
+ *   (-0.0) ** B  returns -Infinity        for B < 0 and odd(B)
+ *     A    ** B  returns 1.0 / A ** (-B)  for B < 0
  *  @return the result of the exponentation.
  *)
 const func float: (in float: base) ** (in integer: exponent)   is action "FLT_IPOW";
@@ -105,11 +109,17 @@ const func float: (in float: base) ** (in integer: exponent)   is action "FLT_IP
 
 (**
  *  Compute the exponentiation of a float ''base'' with a float ''exponent''.
- *   A   ** B    returns NaN       for A < 0.0 and B is not integer
- *   A   ** 0.0  returns 1.0
- *   0.0 ** B    returns 0.0       for B > 0.0
- *   0.0 ** 0.0  returns 1.0
- *   0.0 ** B    returns Infinity  for B < 0.0
+ *     A    ** B    returns NaN        for A < 0.0 and B is not integer
+ *     A    ** 0.0  returns 1.0
+ *     NaN  ** 0.0  returns 1.0
+ *     NaN  ** B    returns NaN        for B <> 0.0
+ *     0.0  ** B    returns 0.0        for B > 0.0
+ *     0.0  ** 0.0  returns 1.0
+ *     0.0  ** B    returns Infinity   for B < 0.0
+ *   (-0.0) ** B    returns -Infinity  for B < 0.0 and odd(B)
+ *     1.0  ** B    returns 1.0
+ *     1.0  ** NaN  returns 1.0
+ *     A    ** NaN  returns NaN        for A <> 1.0
  *  @return the result of the exponentation.
  *)
 const func float: (in float: base) ** (in float: exponent)     is action "FLT_POW";
@@ -229,10 +239,12 @@ const float: NaN is 0.0 / 0.0;
 
 (**
  *  Compare two float numbers.
- *  Because ''compare'' is used to sort float values, a total
- *  order of all float values is needed. Therefore ''compare''
- *  considers [[#NaN|NaN]] as equal to itself and greater than
- *  ''Infinity''.
+ *  Because ''compare'' is used to sort float values, a unique
+ *  sort sequence of all values is needed. Therefore ''compare''
+ *  considers [[#NaN|NaN]] as equal to itself and greater than Infinity.
+ *  Negative zero (-0.0) is considered by ''compare'' to be
+ *  equal to positive zero (+0.0). This conforms to the behavior
+ *  of all other float comparisons with zero.
  *  @return -1, 0 or 1 if the first argument is considered to be
  *          respectively less than, equal to, or greater than the
  *          second.
@@ -426,6 +438,15 @@ const func boolean: isNaN (in float: number)                   is action "FLT_IS
  *          FALSE otherwise.
  *)
 const func boolean: isNegativeZero (in float: number)          is action "FLT_ISNEGATIVEZERO";
+
+
+(**
+ *  Determine if a number is +0.0.
+ *  @return TRUE if the number is +0.0,
+ *          FALSE otherwise.
+ *)
+const func boolean: isPositiveZero (in float: number) is
+  return number = 0.0 and not isNegativeZero(number);
 
 
 (**

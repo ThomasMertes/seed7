@@ -62,6 +62,7 @@
 #include "stdio.h"
 #include "stddef.h"
 #include "time.h"
+#include "ctype.h"
 #include "float.h"
 #include "math.h"
 #include "sys/types.h"
@@ -124,6 +125,19 @@ char c_compiler[1024];
 
 FILE *logFile;
 
+const char *int16TypeStri = NULL;
+const char *uint16TypeStri = NULL;
+const char *int32TypeStri = NULL;
+const char *uint32TypeStri = NULL;
+const char *int32TypeSuffix = "";
+const char *int32TypeFormat = NULL;
+const char *int64TypeStri = NULL;
+const char *uint64TypeStri = NULL;
+const char *int64TypeSuffix = "";
+const char *int64TypeFormat = NULL;
+const char *int128TypeStri = NULL;
+const char *uint128TypeStri = NULL;
+
 
 
 #ifdef DEFINE_MATHERR_FUNCTION
@@ -146,7 +160,11 @@ void prepareCompileCommand (void)
     int len;
 
   /* prepareCompileCommand */
+#ifdef TEST_C_COMPILER
+    strcpy(c_compiler, TEST_C_COMPILER);
+#else
     strcpy(c_compiler, C_COMPILER);
+#endif
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
     mapAbsolutePathToDriveLetters = 1;
 #else
@@ -553,15 +571,6 @@ void writeMacroDefs (FILE *versionFile)
     } else {
       strcat(macroDefs, "#define NORETURN\\n");
     } /* if */
-    if (compileAndLinkOk("#include<float.h>\n#include<math.h>\nint main(int argc,char *argv[])"
-                          "{float f=0.0; isnan(f); return 0;}\n")) {
-      fputs("#define os_isnan isnan\n", versionFile);
-      strcat(macroDefs, "#define os_isnan isnan\\n");
-    } else if (compileAndLinkOk("#include<float.h>\n#include<math.h>\nint main(int argc,char *argv[])"
-                         "{float f=0.0; _isnan(f); return 0;}\n")) {
-      fputs("#define os_isnan _isnan\n", versionFile);
-      strcat(macroDefs, "#define os_isnan _isnan\\n");
-    } /* if */
     fprintf(versionFile, "#define MACRO_DEFS \"%s\"\n", macroDefs);
   } /* writeMacroDefs */
 
@@ -762,16 +771,6 @@ void numericSizes (FILE *versionFile)
     int sizeof_int;
     int sizeof_long;
     int sizeof_long_long;
-    const char *int32TypeStri = NULL;
-    const char *uint32TypeStri;
-    const char *int32TypeSuffix = "";
-    const char *int32TypeFormat = NULL;
-    const char *int64TypeStri = NULL;
-    const char *uint64TypeStri;
-    const char *int64TypeSuffix = "";
-    const char *int64TypeFormat = NULL;
-    const char *int128TypeStri = NULL;
-    const char *uint128TypeStri = NULL;
 
   /* numericSizes */
     fprintf(logFile, "Numeric sizes:");
@@ -802,15 +801,17 @@ void numericSizes (FILE *versionFile)
       fputs("#define UINT8TYPE_STRI \"unsigned char\"\n", versionFile);
     } /* if */
     if (sizeof_short == 2) {
-      fputs("#define INT16TYPE short int\n", versionFile);
-      fputs("#define INT16TYPE_STRI \"short int\"\n", versionFile);
-      fputs("#define UINT16TYPE unsigned short int\n", versionFile);
-      fputs("#define UINT16TYPE_STRI \"unsigned short int\"\n", versionFile);
+      int16TypeStri = "short int";
+      uint16TypeStri = "unsigned short int";
     } else if (sizeof_int == 2) {
-      fputs("#define INT16TYPE int\n", versionFile);
-      fputs("#define INT16TYPE_STRI \"int\"\n", versionFile);
-      fputs("#define UINT16TYPE unsigned int\n", versionFile);
-      fputs("#define UINT16TYPE_STRI \"unsigned int\"\n", versionFile);
+      int16TypeStri = "int";
+      uint16TypeStri = "unsigned int";
+    } /* if */
+    if (int16TypeStri != NULL) {
+      fprintf(versionFile, "#define INT16TYPE %s\n", int16TypeStri);
+      fprintf(versionFile, "#define INT16TYPE_STRI \"%s\"\n", int16TypeStri);
+      fprintf(versionFile, "#define UINT16TYPE %s\n", uint16TypeStri);
+      fprintf(versionFile, "#define UINT16TYPE_STRI \"%s\"\n", uint16TypeStri);
     } /* if */
     if (sizeof_int == 4) {
       int32TypeStri = "int";
@@ -992,7 +993,6 @@ void checkIntDivisions (FILE *versionFile)
                           "signal(SIGILL,handleSigill);\n"
                           "printf(\"%d\\n\",0/zero==0);return 0;}\n") || doTest() != 2;
     if (!check_int_div_by_zero) {
-      fputs("#define INT_DIV_BY_ZERO_SIGNALS\n", versionFile);
 #ifndef DO_SIGFPE_WITH_DIV_BY_ZERO
       fputs("#define DO_SIGFPE_WITH_DIV_BY_ZERO\n", versionFile);
 #endif
@@ -1049,12 +1049,59 @@ void checkIntDivisions (FILE *versionFile)
 
 
 
+const char *determine_os_isnan_definition (const char *computeValues, const char *os_isnan_definition)
+
+  {
+    char buffer[4096];
+    const char *macro_definition = NULL;
+
+  /* determine_os_isnan_definition */
+    sprintf(buffer,
+            "#include<stdio.h>\n#include<float.h>\n#include<math.h>\n"
+            "%s\n"
+            "int main(int argc,char *argv[]){\n"
+            "%s"
+            "printf(\"%%d\\n\",\n"
+            "       os_isnan(floatNanValue1) &&\n"
+            "       os_isnan(floatNanValue2) &&\n"
+            "       os_isnan(doubleNanValue1) &&\n"
+            "       os_isnan(doubleNanValue2) &&\n"
+            "       !os_isnan(floatPlusInf) &&\n"
+            "       !os_isnan(floatMinusInf) &&\n"
+            "       !os_isnan(floatNegativeZero) &&\n"
+            "       !os_isnan(doublePlusInf) &&\n"
+            "       !os_isnan(doubleMinusInf) &&\n"
+            "       !os_isnan(doubleNegativeZero) &&\n"
+            "       !os_isnan(0.0) &&\n"
+            "       !os_isnan(10.0) &&\n"
+            "       !os_isnan(100.0) &&\n"
+            "       !os_isnan(1000.0) &&\n"
+            "       !os_isnan(10000.0) &&\n"
+            "       !os_isnan(100000.0) &&\n"
+            "       !os_isnan(1000000.0) &&\n"
+            "       !os_isnan(10000000.0) &&\n"
+            "       !os_isnan(100000000.0) &&\n"
+            "       !os_isnan(1000000000.0) &&\n"
+            "       !os_isnan(9007199254740992.0) &&\n"
+            "       !os_isnan(9007199254740993.0));\n"
+            "return 0;}\n",
+            os_isnan_definition, computeValues);
+    /* printf("%s\n", buffer); */
+    if (compileAndLinkOk(buffer) && doTest() == 1) {
+      macro_definition = os_isnan_definition;
+    } /* if */
+    return macro_definition;
+  } /* determine_os_isnan_definition */
+
+
+
 void numericProperties (FILE *versionFile)
 
   {
     int testResult;
     char buffer[4096];
     char computeValues[4096];
+    const char *os_isnan_definition = NULL;
 
   /* numericProperties */
     fprintf(logFile, "Numeric properties:");
@@ -1152,13 +1199,45 @@ void numericProperties (FILE *versionFile)
                           "printf(\"%d\\n\",1.0/0.0==0.0);return 0;}\n") || doTest() == 2) {
       fputs("#define FLOAT_ZERO_DIV_ERROR\n", versionFile);
     } /* if */
+	if (assertCompAndLnk("#include<stdio.h>\n#include<float.h>\n"
+                         "int main(int argc,char *argv[]){\n"
+                         "printf(\"%d\\n\",\n"
+                         "       1.0 == (double) 1 &&\n"
+                         "       10.0 == (double) 10 &&\n"
+                         "       100.0 == (double) 100 &&\n"
+                         "       1000.0 == (double) 1000 &&\n"
+                         "       10000.0 == (double) 10000 &&\n"
+                         "       100000.0 == (double) 100000 &&\n"
+                         "       1000000.0 == (double) 1000000 &&\n"
+                         "       10000000.0 == (double) 10000000 &&\n"
+                         "       100000000.0 == (double) 100000000 &&\n"
+                         "       1000000000.0 == (double) 1000000000);\n"
+                         "return 0;}\n")) {
+      fprintf(versionFile, "#define CAST_INT_TO_FLOAT_OKAY %d\n", doTest());
+    } /* if */
+    fprintf(versionFile, "#define HAS_EXP2 %d\n", 
+        compileAndLinkWithOptionsOk("#include<stdio.h>\n#include<float.h>\n#include<math.h>\n"
+                                    "int main(int argc,char *argv[]){\n"
+                                    "printf(\"%d\\n\", exp2(0.0) == 1.0); return 0;}\n",
+                                    "", SYSTEM_LIBS) && doTest() == 1);
+    fprintf(versionFile, "#define HAS_EXP10 %d\n", 
+        compileAndLinkWithOptionsOk("#include<stdio.h>\n#include<float.h>\n#include<math.h>\n"
+                                    "int main(int argc,char *argv[]){\n"
+                                    "printf(\"%d\\n\", exp10(0.0) == 1.0); return 0;}\n",
+                                    "", SYSTEM_LIBS) && doTest() == 1);
     strcpy(computeValues,
-           "float zero = 0.0;\n"
-           "float negativeZero;\n"
-           "float nanValue1;\n"
-           "float nanValue2;\n"
-           "float plusInf;\n"
-           "float minusInf;\n");
+           "float floatZero = 0.0;\n"
+           "float floatNegativeZero;\n"
+           "float floatNanValue1;\n"
+           "float floatNanValue2;\n"
+           "float floatPlusInf;\n"
+           "float floatMinusInf;\n"
+           "double doubleZero = 0.0;\n"
+           "double doubleNegativeZero;\n"
+           "double doubleNanValue1;\n"
+           "double doubleNanValue2;\n"
+           "double doublePlusInf;\n"
+           "double doubleMinusInf;\n");
     if (!compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<float.h>\n#include<signal.h>\n"
                           "void handleSig(int sig){puts(\"2\");exit(0);}\n"
                           "int main(int argc,char *argv[]){\n"
@@ -1170,86 +1249,173 @@ void numericProperties (FILE *versionFile)
                           "printf(\"%d\\n\",1.0/zero==0.0);return 0;}\n") || doTest() == 2) {
       fputs("#define CHECK_FLOAT_DIV_BY_ZERO 1\n", versionFile);
       fputs("#define USE_NEGATIVE_ZERO_BITPATTERN 1\n", versionFile);
-      if (getSizeof("float") == getSizeof("int")) {
-        strcat(computeValues,
-               "union {\n"
-               "  unsigned int i;\n"
-               "  float f;\n"
-               "} transfer;\n"
+      strcat(computeValues,
+             "union {\n"
+             "  ");
+      switch (getSizeof("float")) {
+        case 2: strcat(computeValues, uint16TypeStri); break;
+        case 4: strcat(computeValues, uint32TypeStri); break;
+        case 8: strcat(computeValues, uint64TypeStri); break;
+      } /* switch */
+      strcat(computeValues,
+             " i;\n"
+             "  float f;\n"
+             "} fltTransfer;\n");
+      strcat(computeValues,
+             "union {\n"
+             "  ");
+      switch (getSizeof("double")) {
+        case 2: strcat(computeValues, uint16TypeStri); break;
+        case 4: strcat(computeValues, uint32TypeStri); break;
+        case 8: strcat(computeValues, uint64TypeStri); break;
+      } /* switch */
+      strcat(computeValues,
+             " i;\n"
+             "  double f;\n"
+             "} dblTransfer;\n");
 #ifdef TURN_OFF_FP_EXCEPTIONS
-               "_control87(MCW_EM, MCW_EM);\n"
+      strcat(computeValues, 
+             "_control87(MCW_EM, MCW_EM);\n");
 #endif
-               "transfer.i = 0xffc00000;\n"
-               "nanValue1 = transfer.f;\n"
-               "transfer.i = 0x7f800000;\n"
-               "plusInf = transfer.f;\n"
-               "transfer.i = 0xff800000;\n"
-               "minusInf = transfer.f;\n"
-               "transfer.i = 0x80000000;\n"
-               "negativeZero = transfer.f;\n"
-               "nanValue2 = nanValue1;\n");
-      } else if (getSizeof("float") == getSizeof("long")) {
-        sprintf(computeValues,
-               "union {\n"
-               "  unsigned long i;\n"
-               "  float f;\n"
-               "} transfer;\n"
-#ifdef TURN_OFF_FP_EXCEPTIONS
-               "_control87(MCW_EM, MCW_EM);\n"
-#endif
-               "transfer.i = 0xffc00000;\n"
-               "nanValue1 = transfer.f;\n"
-               "transfer.i = 0x7f800000;\n"
-               "plusInf = transfer.f;\n"
-               "transfer.i = 0xff800000;\n"
-               "minusInf = transfer.f;\n"
-               "transfer.i = 0x80000000;\n"
-               "negativeZero = transfer.f;\n"
-               "nanValue2 = nanValue1;\n");
-      } /* if */
+      strcat(computeValues,
+             "fltTransfer.i = 0xffc00000;\n"
+             "floatNanValue1 = fltTransfer.f;\n"
+             "fltTransfer.i = 0x7f800000;\n"
+             "floatPlusInf = fltTransfer.f;\n"
+             "fltTransfer.i = 0xff800000;\n"
+             "floatMinusInf = fltTransfer.f;\n"
+             "fltTransfer.i = 0x80000000;\n"
+             "floatNegativeZero = fltTransfer.f;\n"
+             "floatNanValue2 = floatNanValue1;\n");
+      strcat(computeValues,
+             "dblTransfer.i = 0xfff8000000000000;\n"
+             "doubleNanValue1 = dblTransfer.f;\n"
+             "dblTransfer.i = 0x7ff0000000000000;\n"
+             "doublePlusInf = dblTransfer.f;\n"
+             "dblTransfer.i = 0xfff0000000000000;\n"
+             "doubleMinusInf = dblTransfer.f;\n"
+             "dblTransfer.i = 0x8000000000000000;\n"
+             "doubleNegativeZero = dblTransfer.f;\n"
+             "doubleNanValue2 = doubleNanValue1;\n");
     } else {
       strcat(computeValues,
 #ifdef TURN_OFF_FP_EXCEPTIONS
              "_control87(MCW_EM, MCW_EM);\n"
 #endif
-             "nanValue1 = 0.0 / zero;\n"
-             "nanValue2 = 0.0 / zero;\n"
-             "plusInf = 1.0 / zero;\n"
-             "minusInf = -plusInf;\n"
-             "negativeZero = -1.0 / plusInf;\n");
+             "floatNanValue1 = 0.0 / floatZero;\n"
+             "floatNanValue2 = 0.0 / floatZero;\n"
+             "floatPlusInf = 1.0 / floatZero;\n"
+             "floatMinusInf = -floatPlusInf;\n"
+             "floatNegativeZero = -1.0 / floatPlusInf;\n"
+             "doubleNanValue1 = 0.0 / doubleZero;\n"
+             "doubleNanValue2 = 0.0 / doubleZero;\n"
+             "doublePlusInf = 1.0 / doubleZero;\n"
+             "doubleMinusInf = -doublePlusInf;\n"
+             "doubleNegativeZero = -1.0 / doublePlusInf;\n");
       sprintf(buffer,
               "#include<stdio.h>\n#include<float.h>\n"
               "int main(int argc,char *argv[]){\n"
               "float minusZero;\n"
               "%s"
               "printf(\"#define CHECK_FLOAT_DIV_BY_ZERO %%d\\n\",\n"
-              "    plusInf == minusInf ||\n"
-              "    -1.0 / zero != minusInf || 1.0 / negativeZero != minusInf);\n"
-              "minusZero = -zero;\n"
+              "    floatPlusInf == floatMinusInf ||\n"
+              "    -1.0 / floatZero != floatMinusInf ||\n"
+              "     1.0 / floatNegativeZero != floatMinusInf);\n"
+              "minusZero = -floatZero;\n"
               "printf(\"#define USE_NEGATIVE_ZERO_BITPATTERN %%d\\n\",\n"
-              "    memcmp(&negativeZero, &minusZero, sizeof(float)) != 0);\n"
+              "    memcmp(&floatNegativeZero, &minusZero, sizeof(float)) != 0);\n"
               "return 0;}\n", computeValues);
       if (assertCompAndLnk(buffer)) {
         testOutputToVersionFile(versionFile);
       } /* if */
     } /* if */
+    os_isnan_definition = determine_os_isnan_definition(computeValues, "#define os_isnan isnan");
+    if (os_isnan_definition == NULL) {
+      os_isnan_definition = determine_os_isnan_definition(computeValues, "#define os_isnan _isnan");
+    } /* if */
+    if (os_isnan_definition != NULL) {
+      fprintf(versionFile, "%s\n", os_isnan_definition);
+      fprintf(versionFile, "#define OS_ISNAN_DEFINITION \"%s\\n\"\n", os_isnan_definition);
+    } /* if */
     sprintf(buffer,
             "#include<stdio.h>\n#include<float.h>\n#include<math.h>\n"
+            "%s\n"
+            "int doubleCompare (double num1, double num2){\n"
+            "return memcmp(&num1, &num2, sizeof(double));}\n"
             "int main(int argc,char *argv[]){\n"
+            "float floatOne = 1.0;\n"
+            "double doubleOne = 1.0;\n"
+            "double doubleTwo = 2.0;\n"
             "%s"
-            "if (0.0 * plusInf != nanValue1 || 0.0 * minusInf != nanValue1 ||\n"
-            "    plusInf * 0.0 != nanValue1 || minusInf * 0.0 != nanValue1) {\n"
-            "  puts(\"#define FLOAT_ZERO_TIMES_INFINITE_WRONG\");\n"
-            "}\n"
-            "if (nanValue1 == nanValue2 ||\n"
-            "    nanValue1 <  nanValue2 || nanValue1 >  nanValue2 ||\n"
-            "    nanValue1 <= nanValue2 || nanValue1 >= nanValue2) {\n"
-            "  puts(\"#define NAN_COMPARISON_WRONG\");\n"
-            "}\n"
-            "if (pow(zero, -2.0) != plusInf || pow(negativeZero, -1.0) != minusInf) {\n"
-            "  puts(\"#define POWER_OF_ZERO_WRONG\");\n"
-            "}\n"
-            "return 0;}\n", computeValues);
+            "printf(\"#define FLOAT_ZERO_TIMES_INFINITE_OKAY %%d\\n\",\n"
+            "    0.0 * floatPlusInf != floatNanValue1 ||\n"
+            "    0.0 * floatMinusInf != floatNanValue1 ||\n"
+            "    floatPlusInf * 0.0 != floatNanValue1 ||\n"
+            "    floatMinusInf * 0.0 != floatNanValue1 ||\n"
+            "    0.0 * doublePlusInf != doubleNanValue1 ||\n"
+            "    0.0 * doubleMinusInf != doubleNanValue1 ||\n"
+            "    doublePlusInf * 0.0 != doubleNanValue1 ||\n"
+            "    doubleMinusInf * 0.0 != doubleNanValue1);\n"
+            "printf(\"#define NAN_COMPARISON_OKAY %%d\\n\",\n"
+            "    !(floatNanValue1 == floatNanValue2 ||\n"
+            "      floatNanValue1 <  floatNanValue2 ||\n"
+            "      floatNanValue1 >  floatNanValue2 ||\n"
+            "      floatNanValue1 <= floatNanValue2 ||\n"
+            "      floatNanValue1 >= floatNanValue2 ||\n"
+            "      doubleNanValue1 == doubleNanValue2 ||\n"
+            "      doubleNanValue1 <  doubleNanValue2 ||\n"
+            "      doubleNanValue1 >  doubleNanValue2 ||\n"
+            "      doubleNanValue1 <= doubleNanValue2 ||\n"
+            "      doubleNanValue1 >= doubleNanValue2));\n"
+            "printf(\"#define NAN_MULTIPLICATION_OKAY %%d\\n\",\n"
+            "    os_isnan(floatNanValue1 * 1.0) &&\n"
+            "    os_isnan(floatNanValue1 * floatOne) &&\n"
+            "    os_isnan(1.0 * floatNanValue1) &&\n"
+            "    os_isnan(floatOne * floatNanValue1) &&\n"
+            "    os_isnan(floatNanValue1 * floatNanValue2) &&\n"
+            "    os_isnan(doubleNanValue1 * 1.0) &&\n"
+            "    os_isnan(doubleNanValue1 * doubleOne) &&\n"
+            "    os_isnan(1.0 * doubleNanValue1) &&\n"
+            "    os_isnan(doubleOne * doubleNanValue1) &&\n"
+            "    os_isnan(doubleNanValue1 * doubleNanValue2));\n"
+            "printf(\"#define NAN_DIVISION_OKAY %%d\\n\",\n"
+            "    os_isnan(floatNanValue1 / 1.0) &&\n"
+            "    os_isnan(floatNanValue1 / floatOne) &&\n"
+            "    os_isnan(1.0 / floatNanValue1) &&\n"
+            "    os_isnan(floatOne / floatNanValue1) &&\n"
+            "    os_isnan(floatNanValue1 / floatNanValue2) &&\n"
+            "    os_isnan(doubleNanValue1 / 1.0) &&\n"
+            "    os_isnan(doubleNanValue1 / doubleOne) &&\n"
+            "    os_isnan(1.0 / doubleNanValue1) &&\n"
+            "    os_isnan(doubleOne / doubleNanValue1) &&\n"
+            "    os_isnan(doubleNanValue1 / doubleNanValue2));\n"
+            "printf(\"#define POWER_OF_ZERO_OKAY %%d\\n\",\n"
+            "    pow(floatZero, -1.0) == floatPlusInf &&\n"
+            "    pow(floatZero, -2.0) == floatPlusInf &&\n"
+            "    pow(floatNegativeZero, -1.0) == floatMinusInf &&\n"
+            "    pow(floatNegativeZero, -2.0) == floatPlusInf &&\n"
+            "    pow(doubleZero, -1.0) == doublePlusInf &&\n"
+            "    pow(doubleZero, -2.0) == doublePlusInf &&\n"
+            "    pow(doubleNegativeZero, -1.0) == doubleMinusInf &&\n"
+            "    pow(doubleNegativeZero, -2.0) == doublePlusInf);\n"
+            "printf(\"#define POWER_OF_ONE_OKAY %%d\\n\",\n"
+            "    pow(1.0, floatNanValue1) == 1.0 &&\n"
+            "    pow(1.0, doubleNanValue1) == 1.0 &&\n"
+            "    pow(floatOne, floatNanValue1) == 1.0 &&\n"
+            "    pow(doubleOne, doubleNanValue1) == 1.0);\n"
+            "printf(\"#define POWER_OF_NAN_OKAY %%d\\n\",\n"
+            "    pow(floatNanValue1, 0.0) == 1.0 &&\n"
+            "    pow(floatNanValue1, floatZero) == 1.0 &&\n"
+            "    os_isnan(pow(floatNanValue1, 1.0)) &&\n"
+            "    pow(doubleNanValue1, 0.0) == 1.0 &&\n"
+            "    pow(doubleNanValue1, doubleZero) == 1.0 &&\n"
+            "    os_isnan(pow(doubleNanValue1, 1.0)));\n"
+            "printf(\"#define POWER_UNDERFLOW_WITH_SIGN %%d\\n\",\n"
+            "    doubleCompare(pow(-2.0, -2147483649.0), doubleNegativeZero) == 0 &&\n"
+            "    doubleCompare(pow(-doubleTwo, -2147483649.0), doubleNegativeZero) == 0);\n"
+            "{ char buffer[1024]; sprintf(buffer, \"%%1.1f\", floatNegativeZero);\n"
+            "printf(\"#define PRINTS_NEGATIVE_ZERO %%d\\n\", buffer[0] == '-'); }\n"
+            "return 0;}\n", os_isnan_definition, computeValues);
     if (assertCompAndLnkWithOptions(buffer, "", SYSTEM_LIBS)) {
       testOutputToVersionFile(versionFile);
     } /* if */
@@ -1265,7 +1431,7 @@ void numericProperties (FILE *versionFile)
                 "#include<stdio.h>\n#include<float.h>\n#include<math.h>\n"
                 "int main(int argc,char *argv[]){\n"
                 "%s"
-                "printf(\"%%d\\n\", fabs(plusInf) > DBL_MAX && fabs(minusInf) > DBL_MAX);\n"
+                "printf(\"%%d\\n\", fabs(floatPlusInf) > DBL_MAX && fabs(floatMinusInf) > DBL_MAX);\n"
                 "return 0;}\n", computeValues);
         if (assertCompAndLnk(buffer)) {
           if (doTest() == 1) {
@@ -1277,7 +1443,6 @@ void numericProperties (FILE *versionFile)
     if (compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<float.h>\n#include<signal.h>\n"
                          "void handleSig(int sig){puts(\"2\");exit(0);}\n"
                          "int main(int argc,char *argv[]){\n"
-                         "float zero=1.0E37;\n"
 #ifdef TURN_OFF_FP_EXCEPTIONS
                          "_control87(MCW_EM, MCW_EM);\n"
 #endif
@@ -1302,6 +1467,7 @@ void numericProperties (FILE *versionFile)
                          "return power;}\n"
                          "int main(int argc,char *argv[]){\n"
                          "int floatRadixFactor;\n"
+                         "double power;\n"
 #ifdef TURN_OFF_FP_EXCEPTIONS
                          "_control87(MCW_EM, MCW_EM);\n"
 #endif
@@ -1309,9 +1475,13 @@ void numericProperties (FILE *versionFile)
                          "else if (FLT_RADIX == 4) floatRadixFactor = 2;\n"
                          "else if (FLT_RADIX == 8) floatRadixFactor = 3;\n"
                          "else if (FLT_RADIX == 16) floatRadixFactor = 4;\n"
-                         "printf(\"#define FLOAT_MANTISSA_FACTOR %0.1f\\n\", dblPower((double) FLT_RADIX, FLT_MANT_DIG));\n"
+                         "power = dblPower((double) FLT_RADIX, FLT_MANT_DIG);\n"
+                         "printf(\"#define MAX_INTEGER_IN_FLOAT %0.0f\\n\", power);\n"
+                         "printf(\"#define FLOAT_MANTISSA_FACTOR %0.1f\\n\", power);\n"
                          "printf(\"#define FLOAT_MANTISSA_SHIFT %u\\n\", FLT_MANT_DIG * floatRadixFactor);\n"
-                         "printf(\"#define DOUBLE_MANTISSA_FACTOR %0.1f\\n\", dblPower((double) FLT_RADIX, DBL_MANT_DIG));\n"
+                         "power = dblPower((double) FLT_RADIX, DBL_MANT_DIG);\n"
+                         "printf(\"#define MAX_INTEGER_IN_DOUBLE %0.0f\\n\", power);\n"
+                         "printf(\"#define DOUBLE_MANTISSA_FACTOR %0.1f\\n\", power);\n"
                          "printf(\"#define DOUBLE_MANTISSA_SHIFT %u\\n\", DBL_MANT_DIG * floatRadixFactor);\n"
                          "return 0;}\n")) {
       testOutputToVersionFile(versionFile);
@@ -2550,6 +2720,46 @@ void detemineIncludesAndLibs (FILE *versionFile)
 
 
 
+void writeReadBufferEmptyMacro (FILE *versionFile)
+
+  {
+    const char *define_read_buffer_empty;
+    char buffer[4096];
+
+  /* writeReadBufferEmptyMacro */
+    if (compileAndLinkOk("#include<stdio.h>\nint main(int argc,char *argv[]){FILE*fp;fp->_IO_read_ptr>=fp->_IO_read_end;return 0;}\n")) {
+      define_read_buffer_empty = "#define read_buffer_empty(fp) ((fp)->_IO_read_ptr >= (fp)->_IO_read_end)";
+    } else if (compileAndLinkOk("#include<stdio.h>\nint main(int argc,char *argv[]){FILE*fp;fp->_cnt <= 0;return 0;}\n")) {
+      define_read_buffer_empty = "#define read_buffer_empty(fp) ((fp)->_cnt <= 0)";
+    } else if (compileAndLinkOk("#include<stdio.h>\nint main(int argc,char *argv[]){FILE*fp;fp->__cnt <= 0;return 0;}\n")) {
+      define_read_buffer_empty = "#define read_buffer_empty(fp) ((fp)->__cnt <= 0)";
+    } else if (compileAndLinkOk("#include<stdio.h>\nint main(int argc,char *argv[]){FILE*fp;fp->level <= 0;return 0;}\n")) {
+      define_read_buffer_empty = "#define read_buffer_empty(fp) ((fp)->level <= 0)";
+    } else if (compileAndLinkOk("#include<stdio.h>\nint main(int argc,char *argv[]){FILE*fp;fp->_r <= 0;return 0;}\n")) {
+      define_read_buffer_empty = "#define read_buffer_empty(fp) ((fp)->_r <= 0)";
+    } else if (compileAndLinkOk("#include<stdio.h>\nint main(int argc,char *argv[]){FILE*fp;fp->ptr >= fp->getend;return 0;}\n")) {
+      define_read_buffer_empty = "#define read_buffer_empty(fp) ((fp)->ptr >= (fp)->getend)";
+    } else {
+      define_read_buffer_empty = NULL;
+    } /* if */
+    if (define_read_buffer_empty != NULL) {
+      strcpy(buffer, "#include<stdio.h>\n");
+      strcat(buffer, define_read_buffer_empty);
+      strcat(buffer, "\nint main(int argc,char *argv[])\n"
+                     "{FILE*fp;fp=fopen(\"tst_vers.h\",\"r\");"
+                     "if(fp==NULL||!read_buffer_empty(fp))puts(0);else{"
+                     "getc(fp);printf(\"%d\\n\",read_buffer_empty(fp)?0:1);}return 0;}\n");
+      if (!compileAndLinkOk(buffer) || doTest() != 1) {
+        define_read_buffer_empty = NULL;
+      } /* if */
+    } /* if */
+    if (define_read_buffer_empty != NULL) {
+      fprintf(versionFile, "%s\n", define_read_buffer_empty);
+    } /* if */
+  } /* writeReadBufferEmptyMacro */
+
+
+
 static FILE *openVersionFile (const char *versionFileName)
 
   {
@@ -2615,9 +2825,7 @@ int main (int argc, char **argv)
     FILE *versionFile = NULL;
     int driveLetters;
     FILE *aFile;
-    char buffer[4096];
     int ch;
-    const char *define_read_buffer_empty;
 
   /* main */
     logFile = stdout;
@@ -2855,10 +3063,33 @@ int main (int argc, char **argv)
     versionFile = openVersionFile(versionFileName);
     determineEnvironDefines(versionFile);
     determineGetaddrlimit(versionFile);
+    fprintf(versionFile, "#define HAS_WMEMCMP %d\n",
+        compileAndLinkOk("#include <stdio.h>\n#include <wchar.h>\n"
+                         "int main(int argc, char *argv[]){\n"
+                         "wchar_t str1[] = {0x0201, 0x0102, 0};\n"
+                         "wchar_t str2[] = {0x0102, 0x0201, 0};\n"
+                         "printf(\"%d\\n\", wmemcmp(str1, str2, 2) > 0);\n"
+                         "return 0;}\n") && doTest() == 1);
+    fprintf(versionFile, "#define HAS_WMEMCHR %d\n",
+        compileAndLinkOk("#include <stdio.h>\n#include <wchar.h>\n"
+                         "int main(int argc, char *argv[]){\n"
+                         "wchar_t str1[] = {0x0201, 0x0102, 0};\n"
+                         "wchar_t ch1 = 0x0102;\n"
+                         "printf(\"%d\\n\", wmemchr(str1, ch1, 2) ==  &str1[1]);\n"
+                         "return 0;}\n") && doTest() == 1);
+    fprintf(versionFile, "#define HAS_WMEMSET %d\n",
+        compileAndLinkOk("#include <stdio.h>\n#include <wchar.h>\n"
+                         "int main(int argc, char *argv[]){\n"
+                         "wchar_t str1[4];\n"
+                         "wchar_t str2[] = {0, 0, 0, 0};\n"
+                         "wchar_t ch1 = 0x00;\n"
+                         "wmemset(str1, ch1, 4);\n"
+                         "printf(\"%d\\n\", memcmp(str1, str2, 4 * sizeof(wchar_t)) == 0);\n"
+                         "return 0;}\n") && doTest() == 1);
     fprintf(versionFile, "#define HAS_SETJMP %d\n",
         compileAndLinkOk("#include <stdio.h>\n#include <setjmp.h>\n"
                          "int main(int argc, char *argv[]){\n"
-                         "sigjmp_buf env; int ret_code; int count = 2;\n"
+                         "jmp_buf env; int ret_code; int count = 2;\n"
                          "if ((ret_code=setjmp(env)) == 0) {\n"
                          "count--; longjmp(env, count);\n"
                          "} else printf(\"%d\\n\", ret_code);\n"
@@ -2900,35 +3131,7 @@ int main (int argc, char **argv)
       fputs("#define HAS_POLL\n", versionFile);
     } /* if */
     detemineIncludesAndLibs(versionFile);
-    if (compileAndLinkOk("#include<stdio.h>\nint main(int argc,char *argv[]){FILE*fp;fp->_IO_read_ptr>=fp->_IO_read_end;return 0;}\n")) {
-      define_read_buffer_empty = "#define read_buffer_empty(fp) ((fp)->_IO_read_ptr >= (fp)->_IO_read_end)";
-    } else if (compileAndLinkOk("#include<stdio.h>\nint main(int argc,char *argv[]){FILE*fp;fp->_cnt <= 0;return 0;}\n")) {
-      define_read_buffer_empty = "#define read_buffer_empty(fp) ((fp)->_cnt <= 0)";
-    } else if (compileAndLinkOk("#include<stdio.h>\nint main(int argc,char *argv[]){FILE*fp;fp->__cnt <= 0;return 0;}\n")) {
-      define_read_buffer_empty = "#define read_buffer_empty(fp) ((fp)->__cnt <= 0)";
-    } else if (compileAndLinkOk("#include<stdio.h>\nint main(int argc,char *argv[]){FILE*fp;fp->level <= 0;return 0;}\n")) {
-      define_read_buffer_empty = "#define read_buffer_empty(fp) ((fp)->level <= 0)";
-    } else if (compileAndLinkOk("#include<stdio.h>\nint main(int argc,char *argv[]){FILE*fp;fp->_r <= 0;return 0;}\n")) {
-      define_read_buffer_empty = "#define read_buffer_empty(fp) ((fp)->_r <= 0)";
-    } else if (compileAndLinkOk("#include<stdio.h>\nint main(int argc,char *argv[]){FILE*fp;fp->ptr >= fp->getend;return 0;}\n")) {
-      define_read_buffer_empty = "#define read_buffer_empty(fp) ((fp)->ptr >= (fp)->getend)";
-    } else {
-      define_read_buffer_empty = NULL;
-    } /* if */
-    if (define_read_buffer_empty != NULL) {
-      strcpy(buffer, "#include<stdio.h>\n");
-      strcat(buffer, define_read_buffer_empty);
-      strcat(buffer, "\nint main(int argc,char *argv[])\n"
-                     "{FILE*fp;fp=fopen(\"tst_vers.h\",\"r\");"
-                     "if(fp==NULL||!read_buffer_empty(fp))puts(0);else{"
-                     "getc(fp);printf(\"%d\\n\",read_buffer_empty(fp)?0:1);}return 0;}\n");
-      if (!compileAndLinkOk(buffer) || doTest() != 1) {
-        define_read_buffer_empty = NULL;
-      } /* if */
-    } /* if */
-    if (define_read_buffer_empty != NULL) {
-      fprintf(versionFile, "%s\n", define_read_buffer_empty);
-    } /* if */
+    writeReadBufferEmptyMacro(versionFile);
     cleanUpCompilation();
     closeVersionFile(versionFile);
     if (fileIsRegular("tst_vers.h")) {

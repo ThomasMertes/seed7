@@ -1299,7 +1299,7 @@ striType cmdConfigValue (const const_striType name)
   {
     char opt_name[MAX_CSTRI_BUFFER_LEN + 1];
     const_cstriType opt;
-    char buffer[4];
+    char buffer[4096];
     errInfoType err_info = OKAY_NO_ERROR;
     striType result = NULL;
 
@@ -1407,8 +1407,12 @@ striType cmdConfigValue (const const_striType name)
       } else if (strcmp(opt_name, "INT_SIZE") == 0) {
         sprintf(buffer, "%d", INT_SIZE);
         opt = buffer;
+      } else if (strcmp(opt_name, "MAX_INTEGER_IN_FLOATTYPE") == 0) {
+        sprintf(buffer, FMT_D, MAX_INTEGER_IN_FLOATTYPE);
+        opt = buffer;
       } else if (strcmp(opt_name, "MACRO_DEFS") == 0) {
-        opt = MACRO_DEFS;
+        sprintf(buffer, "%s%s", MACRO_DEFS, OS_ISNAN_DEFINITION);
+        opt = buffer;
       } else if (strcmp(opt_name, "OVERFLOW_SIGNAL") == 0) {
         opt = OVERFLOW_SIGNAL;
       } else if (strcmp(opt_name, "FLOATTYPE_DOUBLE") == 0) {
@@ -1431,14 +1435,14 @@ striType cmdConfigValue (const const_striType name)
         opt = CHECK_INT_REM_BY_ZERO ? "TRUE" : "FALSE";
       } else if (strcmp(opt_name, "CHECK_INT_REM_ZERO_BY_ZERO") == 0) {
         opt = CHECK_INT_REM_ZERO_BY_ZERO ? "TRUE" : "FALSE";
+      } else if (strcmp(opt_name, "HAS_EXP2") == 0) {
+        opt = HAS_EXP2 ? "TRUE" : "FALSE";
+      } else if (strcmp(opt_name, "HAS_EXP10") == 0) {
+        opt = HAS_EXP10 ? "TRUE" : "FALSE";
       } else if (strcmp(opt_name, "CHECK_FLOAT_DIV_BY_ZERO") == 0) {
         opt = CHECK_FLOAT_DIV_BY_ZERO ? "TRUE" : "FALSE";
-      } else if (strcmp(opt_name, "NAN_COMPARISON_WRONG") == 0) {
-#ifdef NAN_COMPARISON_WRONG
-        opt = "TRUE";
-#else
-        opt = "FALSE";
-#endif
+      } else if (strcmp(opt_name, "NAN_COMPARISON_OKAY") == 0) {
+        opt = NAN_COMPARISON_OKAY ? "TRUE" : "FALSE";
       } else if (strcmp(opt_name, "WITH_STRI_CAPACITY") == 0) {
 #ifdef WITH_STRI_CAPACITY
         opt = "TRUE";
@@ -1475,12 +1479,8 @@ striType cmdConfigValue (const const_striType name)
 #else
         opt = "FALSE";
 #endif
-      } else if (strcmp(opt_name, "POWER_OF_ZERO_WRONG") == 0) {
-#ifdef POWER_OF_ZERO_WRONG
-        opt = "TRUE";
-#else
-        opt = "FALSE";
-#endif
+      } else if (strcmp(opt_name, "POW_FUNCTION_OKAY") == 0) {
+        opt = POWER_OF_ZERO_OKAY && POWER_OF_ONE_OKAY && POWER_OF_NAN_OKAY ? "TRUE" : "FALSE";
       } else if (strcmp(opt_name, "FLOAT_ZERO_DIV_ERROR") == 0) {
 #ifdef FLOAT_ZERO_DIV_ERROR
         opt = "TRUE";
@@ -2855,6 +2855,10 @@ void cmdSetATime (const const_striType filePath,
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* cmdSetATime */
+    logFunction(printf("cmdSetATime(\"%s\", " F_D(04) "-" F_D(02) "-" F_D(02) " "
+                       F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) " " FMT_D ")\n",
+                       striAsUnquotedCStri(filePath), year, month, day,
+                       hour, min, sec, micro_sec, time_zone););
     os_path = cp_to_os_path(filePath, &path_info, &err_info);
     if (likely(err_info == OKAY_NO_ERROR)) {
       if (os_stat(os_path, &stat_buf) == 0) {
@@ -2878,6 +2882,7 @@ void cmdSetATime (const const_striType filePath,
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);
     } /* if */
+    logFunction(printf("cmdSetATime -->\n"););
   } /* cmdSetATime */
 
 
@@ -2966,6 +2971,10 @@ void cmdSetMTime (const const_striType filePath,
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* cmdSetMTime */
+    logFunction(printf("cmdSetMTime(\"%s\", " F_D(04) "-" F_D(02) "-" F_D(02) " "
+                       F_D(02) ":" F_D(02) ":" F_D(02) "." F_D(06) " " FMT_D ")\n",
+                       striAsUnquotedCStri(filePath), year, month,
+                       day, hour, min, sec, micro_sec, time_zone););
     os_path = cp_to_os_path(filePath, &path_info, &err_info);
     if (likely(err_info == OKAY_NO_ERROR)) {
       if (os_stat(os_path, &stat_buf) == 0) {
@@ -2989,6 +2998,7 @@ void cmdSetMTime (const const_striType filePath,
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);
     } /* if */
+    logFunction(printf("cmdSetMTime -->\n"););
   } /* cmdSetMTime */
 
 

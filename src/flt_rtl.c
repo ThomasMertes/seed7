@@ -57,7 +57,7 @@
 
 #define USE_STRTOD
 #define MAX_CSTRI_BUFFER_LEN 25
-#define IPOW_EXPONENTIATION_BY_SQUARING
+#define IPOW_EXPONENTIATION_BY_SQUARING 1
 #define PRECISION_BUFFER_LEN 1000
 /* The 4 additional chars below are for: -1 . and \0. */
 #define FLT_DGTS_LEN DOUBLE_MAX_EXP10 + 4
@@ -228,10 +228,12 @@ memSizeType doubleToCharBuffer (double doubleValue, double largeNumber,
 
 /**
  *  Compare two float numbers.
- *  Because fltCmp is used to sort float values, a total
- *  order of all float values is needed. Therefore fltCmp
- *  considers NaN as equal to itself and greater than
- *  Infinity.
+ *  Because fltCmp is used to sort float values, a unique
+ *  sort sequence of all values is needed. Therefore fltCmp
+ *  considers NaN as equal to itself and greater than Infinity.
+ *  Negative zero (-0.0) is considered by fltCmp to be equal to
+ *  positive zero (+0.0). This conforms to the behavior of all
+ *  other float comparisons with zero.
  *  @return -1, 0 or 1 if the first argument is considered to be
  *          respectively less than, equal to, or greater than the
  *          second.
@@ -239,23 +241,7 @@ memSizeType doubleToCharBuffer (double doubleValue, double largeNumber,
 intType fltCmp (floatType number1, floatType number2)
 
   { /* fltCmp */
-#ifdef NAN_COMPARISON_WRONG
-    if (os_isnan(number1)) {
-      if (os_isnan(number2)) {
-        return 0;
-      } else {
-        return 1;
-      } /* if */
-    } else if (os_isnan(number2)) {
-      return -1;
-    } else if (number1 < number2) {
-      return -1;
-    } else if (number1 > number2) {
-      return 1;
-    } else {
-      return 0;
-    } /* if */
-#else
+#if NAN_COMPARISON_OKAY
     if (number1 < number2) {
       return -1;
     } else if (number1 > number2) {
@@ -268,6 +254,22 @@ intType fltCmp (floatType number1, floatType number2)
       } /* if */
     } else if (os_isnan(number2)) {
       return -1;
+    } else {
+      return 0;
+    } /* if */
+#else
+    if (os_isnan(number1)) {
+      if (os_isnan(number2)) {
+        return 0;
+      } else {
+        return 1;
+      } /* if */
+    } else if (os_isnan(number2)) {
+      return -1;
+    } else if (number1 < number2) {
+      return -1;
+    } else if (number1 > number2) {
+      return 1;
     } else {
       return 0;
     } /* if */
@@ -398,7 +400,7 @@ striType fltDgts (floatType number, intType precision)
 
 
 
-#ifdef NAN_COMPARISON_WRONG
+#if !NAN_COMPARISON_OKAY
 /**
  *  Check if two float numbers are equal.
  *  According to IEEE 754 a NaN is not equal to any float value.
@@ -408,18 +410,25 @@ striType fltDgts (floatType number, intType precision)
  */
 boolType fltEq (floatType number1, floatType number2)
 
-  { /* fltEq */
+  {
+    boolType isEqual;
+
+  /* fltEq */
+    logFunction(printf("fltEq(" FMT_E ", " FMT_E ")\n",
+                       number1, number2););
     if (os_isnan(number1) || os_isnan(number2)) {
-      return FALSE;
+      isEqual = FALSE;
     } else {
-      return number1 == number2;
+      isEqual = number1 == number2;
     } /* if */
+    logFunction(printf("fltEq --> %d\n", isEqual););
+    return isEqual;
   } /* fltEq */
 #endif
 
 
 
-#ifdef NAN_COMPARISON_WRONG
+#if !NAN_COMPARISON_OKAY
 /**
  *  Check if 'number1' is greater than or equal to 'number2'.
  *  According to IEEE 754 a NaN is neither less than,
@@ -431,18 +440,25 @@ boolType fltEq (floatType number1, floatType number2)
  */
 boolType fltGe (floatType number1, floatType number2)
 
-  { /* fltGe */
+  {
+    boolType isGreaterEqual;
+
+  /* fltGe */
+    logFunction(printf("fltGe(" FMT_E ", " FMT_E ")\n",
+                       number1, number2););
     if (os_isnan(number1) || os_isnan(number2)) {
-      return FALSE;
+      isGreaterEqual = FALSE;
     } else {
-      return number1 >= number2;
+      isGreaterEqual = number1 >= number2;
     } /* if */
+    logFunction(printf("fltGe --> %d\n", isGreaterEqual););
+    return isGreaterEqual;
   } /* fltGe */
 #endif
 
 
 
-#ifdef NAN_COMPARISON_WRONG
+#if !NAN_COMPARISON_OKAY
 /**
  *  Check if 'number1' is greater than 'number2'.
  *  According to IEEE 754 a NaN is neither less than,
@@ -454,12 +470,19 @@ boolType fltGe (floatType number1, floatType number2)
  */
 boolType fltGt (floatType number1, floatType number2)
 
-  { /* fltGt */
+  {
+    boolType isGreaterThan;
+
+  /* fltGt */
+    logFunction(printf("fltGt(" FMT_E ", " FMT_E ")\n",
+                       number1, number2););
     if (os_isnan(number1) || os_isnan(number2)) {
-      return FALSE;
+      isGreaterThan = FALSE;
     } else {
-      return number1 > number2;
+      isGreaterThan = number1 > number2;
     } /* if */
+    logFunction(printf("fltGt --> %d\n", isGreaterThan););
+    return isGreaterThan;
   } /* fltGt */
 #endif
 
@@ -467,31 +490,60 @@ boolType fltGt (floatType number1, floatType number2)
 
 /**
  *  Compute the exponentiation of a float 'base' with an integer 'exponent'.
+ *     A    ** 0  returns 1.0
+ *     NaN  ** 0  returns 1.0
+ *     NaN  ** B  returns NaN              for B <> 0
+ *     0.0  ** B  returns 0.0              for B > 0
+ *     0.0  ** 0  returns 1.0
+ *     0.0  ** B  returns Infinity         for B < 0
+ *   (-0.0) ** B  returns -Infinity        for B < 0 and odd(B)
+ *     A    ** B  returns 1.0 / A ** (-B)  for B < 0
  *  @return the result of the exponentation.
  */
 floatType fltIPow (floatType base, intType exponent)
 
   {
+#if IPOW_EXPONENTIATION_BY_SQUARING
     uintType unsignedExponent;
-    boolType neg_exp = FALSE;
+    boolType neg_exp;
+#endif
     floatType power;
 
   /* fltIPow */
     logFunction(printf("fltIPow(" FMT_E ", " FMT_D ")\n", base, exponent););
-#ifdef IPOW_EXPONENTIATION_BY_SQUARING
-    if (base == 0.0) {
+#if !NAN_COMPARISON_OKAY
+    /* This is checked first on purpose. NaN should not be equal  */
+    /* to any value. E.g.: NaN == x should always return FALSE.   */
+    /* Beyond that NaN should not be equal to itself also. Some   */
+    /* C compilers do not compute comparisons with NaN correctly. */
+    /* As a consequence the NaN check is done first.              */
+    if (unlikely(os_isnan(base))) {
+      if (unlikely(exponent == 0)) {
+        power = 1.0;
+      } else {
+        power = base;
+      } /* if */
+    } else
+#endif
+    if (unlikely(base == 0.0)) {
       if (exponent < 0) {
-        if (fltIsNegativeZero(base)) {
+        if (fltIsNegativeZero(base) && ((-(uintType) exponent) & 1)) {
           power = NEGATIVE_INFINITY;
         } else {
           power = POSITIVE_INFINITY;
         } /* if */
       } else if (exponent == 0) {
         power = 1.0;
-      } else {
-        power = 0.0;
+      } else { /* exponent > 0 */
+        if (exponent & 1) {
+          power = base; /* +0.0 respectively -0.0 are left as is. */
+        } else {
+          power = 0.0;
+        } /* if */
       } /* if */
-    } else {
+    } else
+#if IPOW_EXPONENTIATION_BY_SQUARING
+    {
       if (exponent < 0) {
         /* The unsigned value is negated to avoid a signed integer */
         /* overflow when the smallest signed integer is negated.   */
@@ -499,6 +551,7 @@ floatType fltIPow (floatType base, intType exponent)
         neg_exp = TRUE;
       } else {
         unsignedExponent = (uintType) exponent;
+        neg_exp = FALSE;
       } /* if */
       if (unsignedExponent & 1) {
         power = base;
@@ -528,25 +581,13 @@ floatType fltIPow (floatType base, intType exponent)
         power = 1.0 / power;
 #endif
       } /* if */
-    } /* if */
+    }
 #else
     if (base < 0.0) {
       if (exponent & 1) {
         power = -pow(-base, (floatType) exponent);
       } else {
         power = pow(-base, (floatType) exponent);
-      } /* if */
-    } else if (base == 0.0) {
-      if (exponent < 0) {
-        if (fltIsNegativeZero(base)) {
-          power = NEGATIVE_INFINITY;
-        } else {
-          power = POSITIVE_INFINITY;
-        } /* if */
-      } else if (exponent == 0) {
-        power = 1.0;
-      } else {
-        power = 0.0;
       } /* if */
     } else { /* base > 0.0 */
       power = pow(base, (floatType) exponent);
@@ -582,7 +623,7 @@ boolType fltIsNegativeZero (floatType number)
 
 
 
-#ifdef NAN_COMPARISON_WRONG
+#if !NAN_COMPARISON_OKAY
 /**
  *  Check if 'number1' is less than or equal to 'number2'.
  *  According to IEEE 754 a NaN is neither less than,
@@ -594,18 +635,25 @@ boolType fltIsNegativeZero (floatType number)
  */
 boolType fltLe (floatType number1, floatType number2)
 
-  { /* fltLe */
+  {
+    boolType isLessEqual;
+
+  /* fltLe */
+    logFunction(printf("fltLe(" FMT_E ", " FMT_E ")\n",
+                       number1, number2););
     if (os_isnan(number1) || os_isnan(number2)) {
-      return FALSE;
+      isLessEqual = FALSE;
     } else {
-      return number1 <= number2;
+      isLessEqual = number1 <= number2;
     } /* if */
+    logFunction(printf("fltLe --> %d\n", isLessEqual););
+    return isLessEqual;
   } /* fltLe */
 #endif
 
 
 
-#ifdef NAN_COMPARISON_WRONG
+#if !NAN_COMPARISON_OKAY
 /**
  *  Check if 'number1' is less than 'number2'.
  *  According to IEEE 754 a NaN is neither less than,
@@ -617,12 +665,19 @@ boolType fltLe (floatType number1, floatType number2)
  */
 boolType fltLt (floatType number1, floatType number2)
 
-  { /* fltLt */
+  {
+    boolType isLessThan;
+
+  /* fltLt */
+    logFunction(printf("fltLt(" FMT_E ", " FMT_E ")\n",
+                       number1, number2););
     if (os_isnan(number1) || os_isnan(number2)) {
-      return FALSE;
+      isLessThan = FALSE;
     } else {
-      return number1 < number2;
+      isLessThan = number1 < number2;
     } /* if */
+    logFunction(printf("fltLt --> %d\n", isLessThan););
+    return isLessThan;
   } /* fltLt */
 #endif
 
@@ -731,34 +786,78 @@ floatType fltParse (const const_striType stri)
 
 
 
-#ifdef POWER_OF_ZERO_WRONG
+#if !(POWER_OF_ZERO_OKAY && POWER_OF_ONE_OKAY && POWER_OF_NAN_OKAY)
 /**
  *  Compute the exponentiation of a float 'base' with a float 'exponent'.
- *  This function is also correct with a zero base and a negative exponent.
+ *  This function corrects errors of the C function pow().
+ *     A    ** B    returns NaN        for A < 0.0 and B is not integer
+ *     A    ** 0.0  returns 1.0
+ *     NaN  ** 0.0  returns 1.0
+ *     NaN  ** B    returns NaN        for B <> 0.0
+ *     0.0  ** B    returns 0.0        for B > 0.0
+ *     0.0  ** 0.0  returns 1.0
+ *     0.0  ** B    returns Infinity   for B < 0.0
+ *   (-0.0) ** B    returns -Infinity  for B < 0.0 and odd(B)
+ *     1.0  ** B    returns 1.0
+ *     1.0  ** NaN  returns 1.0
+ *     A    ** NaN  returns NaN        for A <> 1.0
  *  @return the result of the exponentation.
  */
 floatType fltPow (floatType base, floatType exponent)
 
-  { /* fltPow */
-    if (base == 0.0 && exponent < 0.0) {
-      if (memcmp(&base, &negativeZero, sizeof(floatType)) == 0) {
-        if (floor(exponent) - exponent == 0.0) {
-          /* integer exponent */
-          if (floor(exponent / 2.0) * 2.0 - exponent < -0.5) {
-            /* odd exponent */
-            return NEGATIVE_INFINITY;
-          } else {
-            return POSITIVE_INFINITY;
-          } /* if */
-        } else {
-          return POSITIVE_INFINITY;
-        } /* if */
+  {
+    floatType power;
+
+  /* fltPow */
+    logFunction(printf("fltPow(" FMT_E ", " FMT_E ")\n", base, exponent););
+#if !POWER_OF_NAN_OKAY
+    /* This is checked first on purpose. NaN should not be equal  */
+    /* to any value. E.g.: NaN == x should always return FALSE.   */
+    /* Beyond that NaN should not be equal to itself also. Some   */
+    /* C compilers do not compute comparisons with NaN correctly. */
+    /* As a consequence the NaN check is done first.              */
+    if (unlikely(os_isnan(base))) {
+      if (unlikely(exponent == 0.0)) {
+        power = 1.0;
       } else {
-        return POSITIVE_INFINITY;
+        power = base;
       } /* if */
-    } else {
-      return pow(base, exponent);
+    } else
+#endif
+#if !POWER_OF_ZERO_OKAY
+    if (unlikely(base == 0.0)) {
+      if (exponent < 0.0) {
+        if (unlikely(fltIsNegativeZero(base) &&
+                     exponent >= -FLOATTYPE_TO_INT_CONVERSION_LIMIT &&
+                     floor(exponent) == exponent &&      /* exponent is an integer */
+                     (((uint64Type) -exponent) & 1))) {  /* exponent is odd */
+          power = NEGATIVE_INFINITY;
+        } else {
+          power = POSITIVE_INFINITY;
+        } /* if */
+      } else if (exponent == 0.0) {
+        power = 1.0;
+      } else { /* exponent > 0.0 */
+        if (unlikely(exponent <= FLOATTYPE_TO_INT_CONVERSION_LIMIT &&
+                     floor(exponent) == exponent &&      /* exponent is an integer */
+                     (((uint64Type) exponent) & 1))) {   /* exponent is odd */
+          power = base; /* +0.0 respectively -0.0 are left as is. */
+        } else {
+          power = 0.0;
+        } /* if */
+      } /* if */
+    } else
+#endif
+#if !POWER_OF_ONE_OKAY
+    if (unlikely(base == 1.0)) {
+      power = 1.0;
+    } else
+#endif
+    {
+      power = pow(base, exponent);
     } /* if */
+    logFunction(printf("fltPow --> " FMT_E "\n", power););
+    return power;
   } /* fltPow */
 #endif
 

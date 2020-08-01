@@ -1,3 +1,66 @@
+20150614
+- The exponentiation operator for float values has been improved to
+  work correct, when the base is negative zero, one or NaN (not a
+  number).
+- The chapter describing float exponentiation in the manual has been
+  improved.
+- The parse operator for integers has been improved to recognize,
+  when there is no digit after the sign.
+- The makefile mk_msvc.mak has been improved to work without calling
+  vcvars32 before.
+- The function isPositiveZero has been added to float.s7i.
+- Checks for the exponentiation with integer and float exponent have
+  been added to chkflt.sd7.
+- Checks for the parse operator have been added to chkbig.sd7 and
+  chkint.sd7.
+- Checks for the operators div, rem, mdiv and mod have been added to
+  chkint.sd7.
+- Documentation comments have been added to float.s7i, cc_conf.s7i,
+  fltlib.c and flt_rtl.c.
+- The configuration values NAN_COMPARISON_OKAY, POW_FUNCTION_OKAY,
+  HAS_EXP2, HAS_EXP10, INT_MIN, INT_MAX and MAX_INTEGER_IN_FLOATTYPE
+  have been added to cc_conf.s7i
+- The function intParse in int_rtl.c has been improved to recognize
+  when there is no digit after the sign.
+- Calls of logFunction and logError have been added to analyze.c,
+  arr_rtl.c, cmd_rtl.c, flt_rtl.c infile.c, numlit.c, numutl.c
+- The function defineTempVariable has been added to
+  comp/expr_util.s7i.
+- The functions process_const_flt_ipow and process_const_flt_pow
+  have been added to comp/flt_act.s7i.
+- The function process_const_int_mdiv in comp/int_act.s7i has been
+  improved.
+- The function bigIntToDouble in numutl.c has been improved to use
+  a right shift instead of a division by two.
+- In numutl.c and numutl.h the prototypes of the functions
+  getDecimalInt, getDecimalBigInt, getDecimalBigRational and
+  getDecimalFloat have been changed to use ustriType instead of
+  void *.
+- The function getDecimalInt in numutl.c has been improved to do the
+  conversion without calling intParse.
+- The macros logFunctionX and logErrorX have been added to common.h.
+  This allows the activation of selected logging functions by adding
+  X.
+- In str_rtl.c macro definitions for strelem_memcmp and
+  search_strelem have been added. The macros are defined, when the
+  functions wmemcmp respectively wmemchr are available and when they
+  work with 32-bit data elements.
+- The macros 'likely' and 'unlikely' have been added to functions in
+  striutl.c.
+- The files sql_util.c and sql_util.h have been renamed to numutl.c
+  respectively numutl.h
+- The program chkccomp.c has been improved to write definitions of
+  CAST_INT_TO_FLOAT_OKAY, HAS_EXP2, HAS_EXP10, NAN_COMPARISON_OKAY,
+  FLOAT_ZERO_TIMES_INFINITE_OKAY, NAN_MULTIPLICATION_OKAY,
+  NAN_DIVISION_OKAY, POWER_UNDERFLOW_WITH_SIGN, POWER_OF_ZERO_OKAY,
+  POWER_OF_ONE_OKAY, POWER_OF_NAN_OKAY, PRINTS_NEGATIVE_ZERO,
+  MAX_INTEGER_IN_FLOAT, MAX_INTEGER_IN_DOUBLE, HAS_WMEMCMP,
+  HAS_WMEMCHR and HAS_WMEMSET.
+- Definitions of C_COMPILER_SCRIPT and GET_CC_VERSION_INFO_OPTIONS
+  have been added to mk_msvc.mak. This definitions are used by the
+  program setpaths.c to write definitions of the macros C_COMPILER
+  and GET_CC_VERSION_INFO to version.h
+
 20150601:
 - Interpreter and compiler have been improved to work correctly, when
   the function body (the part between 'begin' and 'end') consists of

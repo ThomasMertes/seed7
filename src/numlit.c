@@ -25,6 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -46,8 +49,6 @@
 #define EXTERN
 #include "numlit.h"
 
-#undef TRACE_LITERAL
-
 
 
 static void readDecimal (register sySizeType position)
@@ -56,9 +57,7 @@ static void readDecimal (register sySizeType position)
     register int character;
 
   /* readDecimal */
-#ifdef TRACE_LITERAL
-    printf("BEGIN readDecimal\n");
-#endif
+    logFunction(printf("readDecimal\n"););
     check_symb_length(position);
     symbol.name[position++] = (ucharType) in_file.character;
     while (char_class(character = next_character()) == DIGITCHAR) {
@@ -67,9 +66,7 @@ static void readDecimal (register sySizeType position)
     } /* while */
     symbol.name[position] = '\0';
     in_file.character = character;
-#ifdef TRACE_LITERAL
-    printf("END readDecimal\n");
-#endif
+    logFunction(printf("readDecimal -->\n"););
   } /* readDecimal */
 
 
@@ -83,6 +80,7 @@ static intType decimalValue (const const_ustriType digits)
     uintType uintValue = 0;
 
   /* decimalValue */
+    logFunction(printf("decimalValue(\"%s\")\n", digits););
     while (digits[position] != '\0') {
       digitval = ((uintType) digits[position]) - ((uintType) '0');
       if (unlikely(uintValue > MAX_DIV_10)) {
@@ -96,6 +94,8 @@ static intType decimalValue (const const_ustriType digits)
       err_string(CARD_DECIMAL_TOO_BIG, digits);
       uintValue = 0;
     } /* if */
+    logFunction(printf("decimalValue --> " FMT_D "\n",
+                       (intType) uintValue););
     return (intType) uintValue;
   } /* decimalValue */
 
@@ -112,6 +112,8 @@ static inline intType basedValue (const uintType base, const const_ustriType dig
     uintType uintValue = 0;
 
   /* basedValue */
+    logFunction(printf("basedValue(" FMT_U ", \"%s\")\n",
+                       base, digits););
     max_div_base = (uintType) INTTYPE_MAX / base;
     while (digits[position] != '\0') {
       digitval = (uintType) digit_value[(int) digits[position]];
@@ -133,6 +135,8 @@ static inline intType basedValue (const uintType base, const const_ustriType dig
       err_num_stri(CARD_BASED_TOO_BIG, 0, (int) base, digits);
       uintValue = 0;
     } /* if */
+    logFunction(printf("basedValue --> " FMT_D "\n",
+                       (intType) uintValue););
     return (intType) uintValue;
   } /* basedValue */
 
@@ -177,6 +181,7 @@ static inline bigIntType readBigBased (intType base)
     bigIntType result;
 
   /* readBigBased */
+    logFunction(printf("readBigBased(" FMT_D ")\n", base););
     in_file.character = next_character();
     pos = 0;
     do {
@@ -201,6 +206,7 @@ static inline bigIntType readBigBased (intType base)
     } else {
       result = bigZero();
     } /* if */
+    logFunction(printf("readBigBased -->\n"););
     return result;
   } /* readBigBased */
 
@@ -303,9 +309,7 @@ static inline floatType readFloat (void)
     floatType result;
 
   /* readFloat */
-#ifdef TRACE_LITERAL
-    printf("BEGIN readFloat\n");
-#endif
+    logFunction(printf("readFloat\n"););
     position = strlen((cstriType) symbol.name);
     check_symb_length(position);
     symbol.name[position++] = (ucharType) in_file.character;
@@ -372,9 +376,7 @@ static inline floatType readFloat (void)
         err_cchar(DIGITEXPECTED, in_file.character);
       } /* if */
     } /* if */
-#ifdef TRACE_LITERAL
-    printf("END readFloat\n");
-#endif
+    logFunction(printf("readFloat --> " FMT_E "\n", result););
     return result;
   } /* readFloat */
 
@@ -386,9 +388,7 @@ void lit_number (void)
     intType number;
 
   /* lit_number */
-#ifdef TRACE_LITERAL
-    printf("BEGIN lit_number\n");
-#endif
+    logFunction(printf("lit_number\n"););
     readDecimal(0);
     if (in_file.character == '.') {
 #ifdef WITH_FLOAT
@@ -416,7 +416,5 @@ void lit_number (void)
 #ifdef WITH_STATISTIC
     literal_count++;
 #endif
-#ifdef TRACE_LITERAL
-    printf("END lit_number\n");
-#endif
+    logFunction(printf("lit_number -->\n"););
   } /* lit_number */

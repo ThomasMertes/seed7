@@ -25,7 +25,7 @@ DRAW_LIB = s7_draw.lib
 COMP_DATA_LIB = s7_data.lib
 COMPILER_LIB = s7_comp.lib
 ALL_S7_LIBS = ..\bin\$(COMPILER_LIB) ..\bin\$(COMP_DATA_LIB) ..\bin\$(DRAW_LIB) ..\bin\$(CONSOLE_LIB) ..\bin\$(SEED7_LIB)
-CC = cl
+CC = ..\bin\call_cl
 GET_CC_VERSION_INFO = $(CC) 2>
 
 BIGINT_LIB_DEFINE = USE_BIG_RTL_LIBRARY
@@ -47,7 +47,7 @@ GOBJ = syvarutl.obj traceutl.obj actutl.obj executl.obj blockutl.obj \
        entutl.obj identutl.obj chclsutl.obj sigutl.obj arrutl.obj
 ROBJ = arr_rtl.obj bln_rtl.obj bst_rtl.obj chr_rtl.obj cmd_rtl.obj con_rtl.obj dir_rtl.obj drw_rtl.obj fil_rtl.obj \
        flt_rtl.obj hsh_rtl.obj int_rtl.obj itf_rtl.obj pcs_rtl.obj set_rtl.obj soc_rtl.obj sql_rtl.obj str_rtl.obj \
-       tim_rtl.obj ut8_rtl.obj heaputl.obj striutl.obj sql_lite.obj sql_my.obj sql_oci.obj sql_odbc.obj sql_post.obj sql_util.obj
+       tim_rtl.obj ut8_rtl.obj heaputl.obj numutl.obj striutl.obj sql_lite.obj sql_my.obj sql_oci.obj sql_odbc.obj sql_post.obj
 DOBJ = $(BIGINT_LIB).obj cmd_win.obj dir_win.obj dll_win.obj fil_win.obj pcs_win.obj pol_sel.obj tim_win.obj
 OBJ = $(MOBJ)
 SEED7_LIB_OBJ = $(ROBJ) $(DOBJ)
@@ -70,7 +70,7 @@ GSRC = syvarutl.c traceutl.c actutl.c executl.c blockutl.c \
        entutl.c identutl.c chclsutl.c sigutl.c arrutl.c
 RSRC = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c con_rtl.c dir_rtl.c drw_rtl.c fil_rtl.c \
        flt_rtl.c hsh_rtl.c int_rtl.c itf_rtl.c pcs_rtl.c set_rtl.c soc_rtl.c sql_rtl.c str_rtl.c \
-       tim_rtl.c ut8_rtl.c heaputl.c striutl.c sql_lite.c sql_my.c sql_oci.c sql_odbc.c sql_post.c sql_util.c
+       tim_rtl.c ut8_rtl.c heaputl.c numutl.c striutl.c sql_lite.c sql_my.c sql_oci.c sql_odbc.c sql_post.c
 DSRC = $(BIGINT_LIB).c cmd_win.c dir_win.c dll_win.c fil_win.c pcs_win.c pol_sel.c tim_win.c
 SRC = $(MSRC)
 SEED7_LIB_SRC = $(RSRC) $(DSRC)
@@ -144,6 +144,7 @@ chkccomp.h:
 	echo #include "direct.h" > chkccomp.h
 	echo #define mkdir(path,mode) _mkdir(path) >> chkccomp.h
 	echo #define rmdir _rmdir >> chkccomp.h
+	echo #define TEST_C_COMPILER "../bin/call_cl" >> chkccomp.h
 	echo #define LIST_DIRECTORY_CONTENTS "dir" >> chkccomp.h
 	echo #define MYSQL_DLL "libmariadb.dll", "libmysql.dll" >> chkccomp.h
 	echo #define MYSQL_USE_DLL >> chkccomp.h
@@ -206,8 +207,8 @@ version.h: chkccomp.h
 	echo #define OBJECT_FILE_EXTENSION ".obj" >> version.h
 	echo #define LIBRARY_FILE_EXTENSION ".lib" >> version.h
 	echo #define EXECUTABLE_FILE_EXTENSION ".exe" >> version.h
-	echo #define C_COMPILER "$(CC)" >> version.h
-	echo #define GET_CC_VERSION_INFO "$(GET_CC_VERSION_INFO)" >> version.h
+	echo #define C_COMPILER_SCRIPT "call_cl" >> version.h
+	echo #define GET_CC_VERSION_INFO_OPTIONS "2>" >> version.h
 	echo #define CC_OPT_DEBUG_INFO "-Z7" >> version.h
 	echo #define CC_OPT_NO_WARNINGS "-w" >> version.h
 	echo #define CC_FLAGS "-Zm800" >> version.h
@@ -248,19 +249,19 @@ level.h:
 	..\bin\s7 -l ..\lib level
 
 ..\bin\$(SEED7_LIB): $(SEED7_LIB_OBJ)
-	lib /out:..\bin\$(SEED7_LIB) $(SEED7_LIB_OBJ)
+	..\bin\call_lib /out:..\bin\$(SEED7_LIB) $(SEED7_LIB_OBJ)
 
 ..\bin\$(CONSOLE_LIB): $(CONSOLE_LIB_OBJ)
-	lib /out:..\bin\$(CONSOLE_LIB) $(CONSOLE_LIB_OBJ)
+	..\bin\call_lib /out:..\bin\$(CONSOLE_LIB) $(CONSOLE_LIB_OBJ)
 
 ..\bin\$(DRAW_LIB): $(DRAW_LIB_OBJ)
-	lib /out:..\bin\$(DRAW_LIB) $(DRAW_LIB_OBJ)
+	..\bin\call_lib /out:..\bin\$(DRAW_LIB) $(DRAW_LIB_OBJ)
 
 ..\bin\$(COMP_DATA_LIB): $(COMP_DATA_LIB_OBJ)
-	lib /out:..\bin\$(COMP_DATA_LIB) $(COMP_DATA_LIB_OBJ)
+	..\bin\call_lib /out:..\bin\$(COMP_DATA_LIB) $(COMP_DATA_LIB_OBJ)
 
 ..\bin\$(COMPILER_LIB): $(COMPILER_LIB_OBJ)
-	lib /out:..\bin\$(COMPILER_LIB) $(COMPILER_LIB_OBJ)
+	..\bin\call_lib /out:..\bin\$(COMPILER_LIB) $(COMPILER_LIB_OBJ)
 
 make7: ..\bin\make7.exe
 

@@ -80,13 +80,13 @@ const type: ccConfigType is new struct
      *  If it is TRUE fltEq(), fltGe(), fltGt(), fltLe() and fltLt()
      *  should be used to do comparisons of float values.
      *)
-    var boolean: NAN_COMPARISON_WRONG       is FALSE;
+    var boolean: NAN_COMPARISON_OKAY        is FALSE;
 
     (**
      *  TRUE, when pow() works wrong for a zero base and a negative exponent.
      *  If it is TRUE fltPow() should be used instead of pow().
      *)
-    var boolean: POWER_OF_ZERO_WRONG        is FALSE;
+    var boolean: POW_FUNCTION_OKAY          is FALSE;
 
     (**
      *  TRUE, when the functions sigsetjmp() and siglongjmp() are available.
@@ -143,6 +143,16 @@ const type: ccConfigType is new struct
     var boolean: CHECK_INT_REM_ZERO_BY_ZERO is FALSE;
 
     (**
+     *  TRUE, when the C function exp2() is present.
+     *)
+    var boolean: HAS_EXP2                   is FALSE;
+
+    (**
+     *  TRUE, when the C function exp10() is present.
+     *)
+    var boolean: HAS_EXP10                  is FALSE;
+
+    (**
      *  TRUE, when floating point divisions by zero don't conform to IEEE 754.
      *  According to IEEE 754 a floating point division by zero should
      *  return Infinity, -Infinity or NaN. In this case the compiler
@@ -184,20 +194,20 @@ const type: ccConfigType is new struct
     var boolean: USE_WINMAIN                is FALSE;
 
     (**
-     *  TRUE, when the type ''floattype'' is ''double''.
-     *  When it is FALSE ''floattype'' is ''float''.
+     *  TRUE, when the type ''floatType'' is ''double''.
+     *  When it is FALSE ''floatType'' is ''float''.
      *)
     var boolean: FLOATTYPE_DOUBLE           is FALSE;
 
     (**
-     *  Size of the type ''inttype'' in bits (either 32 or 64).
-     *  A typedef can define ''inttype'' as ''int32type'' respectively
-     *  ''int64type''.
+     *  Size of the type ''intType'' in bits (either 32 or 64).
+     *  A typedef can define ''intType'' as ''int32Type'' respectively
+     *  ''int64Type''.
      *)
     var integer: INTTYPE_SIZE               is 0;
 
     (**
-     *  Size of the type ''floattype'' in bits.
+     *  Size of the type ''floatType'' in bits.
      *)
     var integer: FLOATTYPE_SIZE             is 0;
 
@@ -208,8 +218,8 @@ const type: ccConfigType is new struct
 
     (**
      *  The maximum of INTTYPE_SIZE, FLOATTYPE_SIZE and POINTER_SIZE.
-     *  This is also the size in bits of the types ''rtlValueunion'',
-     *  ''rtlObjecttype'' and ''generictype'' (defined in data_rtl.h).
+     *  This is also the size in bits of the types ''rtlValueUnion'',
+     *  ''rtlObjectType'' and ''genericType'' (defined in data_rtl.h).
      *)
     var integer: GENERIC_SIZE               is 0;
 
@@ -219,44 +229,61 @@ const type: ccConfigType is new struct
     var integer: INT_SIZE                   is 0;
 
     (**
+     *  Minimum value of the type ''int''.
+     *)
+    var integer: INT_MIN                    is 0;
+
+    (**
+     *  Maximum value of the type ''int''.
+     *)
+    var integer: INT_MAX                    is 0;
+
+    (**
+     *  Maximum integer that can be converted to ''floatType'' and back.
+     *  All integers from 0 up to this value can be converted to
+     *  a ''floatType'' and back without loss. 
+     *)
+    var integer: MAX_INTEGER_IN_FLOATTYPE   is 0;
+
+    (**
      *  Name of a signed integer type that is 32 bits wide.
      *  The runtime library and the compiler use a typedef to define
-     *  the type ''int32type'' with INT32TYPE.
+     *  the type ''int32Type'' with INT32TYPE.
      *)
     var string: INT32TYPE                   is "";
 
     (**
      *  Name of an unsigned integer type that is 32 bits wide.
      *  The runtime library and the compiler use a typedef to define
-     *  the type ''uint32type'' with UINT32TYPE.
+     *  the type ''uint32Type'' with UINT32TYPE.
      *)
     var string: UINT32TYPE                  is "";
 
     (**
      *  Name of a signed integer type that is 64 bits wide.
      *  The runtime library and the compiler use a typedef to define
-     *  the type ''int64type'' with INT64TYPE.
+     *  the type ''int64Type'' with INT64TYPE.
      *)
     var string: INT64TYPE                   is "";
 
     (**
      *  Name of an unsigned integer type that is 64 bits wide.
      *  The runtime library and the compiler use a typedef to define
-     *  the type ''uint64type'' with UINT64TYPE.
+     *  the type ''uint64Type'' with UINT64TYPE.
      *)
     var string: UINT64TYPE                  is "";
 
     (**
      *  Name of a signed integer type that is 128 bits wide.
      *  The runtime library and the compiler use a typedef to define
-     *  the type ''int128type'' with INT128TYPE.
+     *  the type ''int128Type'' with INT128TYPE.
      *)
     var string: INT128TYPE                   is "";
 
     (**
      *  Name of an unsigned integer type that is 128 bits wide.
      *  The runtime library and the compiler use a typedef to define
-     *  the type ''uint128type'' with UINT128TYPE.
+     *  the type ''uint128Type'' with UINT128TYPE.
      *)
     var string: UINT128TYPE                  is "";
 
@@ -438,7 +465,7 @@ const type: ccConfigType is new struct
     var string: S7_LIB_DIR                  is "";
 
     (**
-     *  The suffix used by the literals of the type ''inttype''.
+     *  The suffix used by the literals of the type ''intType''.
      *)
     var string: INTTYPE_LITERAL_SUFFIX      is "";
   end struct;
@@ -461,14 +488,16 @@ const func ccConfigType: getBuiltInConfig is func
     conf.RSHIFT_DOES_SIGN_EXTEND    := boolean parse configValue("RSHIFT_DOES_SIGN_EXTEND");
     conf.TWOS_COMPLEMENT_INTTYPE    := boolean parse configValue("TWOS_COMPLEMENT_INTTYPE");
     conf.LITTLE_ENDIAN_INTTYPE      := boolean parse configValue("LITTLE_ENDIAN_INTTYPE");
-    conf.NAN_COMPARISON_WRONG       := boolean parse configValue("NAN_COMPARISON_WRONG");
-    conf.POWER_OF_ZERO_WRONG        := boolean parse configValue("POWER_OF_ZERO_WRONG");
+    conf.NAN_COMPARISON_OKAY        := boolean parse configValue("NAN_COMPARISON_OKAY");
+    conf.POW_FUNCTION_OKAY          := boolean parse configValue("POW_FUNCTION_OKAY");
     conf.HAS_SIGSETJMP              := boolean parse configValue("HAS_SIGSETJMP");
     conf.FLOAT_ZERO_DIV_ERROR       := boolean parse configValue("FLOAT_ZERO_DIV_ERROR");
     conf.DO_SIGFPE_WITH_DIV_BY_ZERO := boolean parse configValue("DO_SIGFPE_WITH_DIV_BY_ZERO");
     conf.CHECK_INT_DIV_BY_ZERO      := boolean parse configValue("CHECK_INT_DIV_BY_ZERO");
     conf.CHECK_INT_REM_BY_ZERO      := boolean parse configValue("CHECK_INT_REM_BY_ZERO");
     conf.CHECK_INT_REM_ZERO_BY_ZERO := boolean parse configValue("CHECK_INT_REM_ZERO_BY_ZERO");
+    conf.HAS_EXP2                   := boolean parse configValue("HAS_EXP2");
+    conf.HAS_EXP10                  := boolean parse configValue("HAS_EXP10");
     conf.CHECK_FLOAT_DIV_BY_ZERO    := boolean parse configValue("CHECK_FLOAT_DIV_BY_ZERO");
     conf.LIMITED_CSTRI_LITERAL_LEN  := boolean parse configValue("LIMITED_CSTRI_LITERAL_LEN");
     conf.CC_SOURCE_UTF8             := boolean parse configValue("CC_SOURCE_UTF8");
@@ -480,6 +509,7 @@ const func ccConfigType: getBuiltInConfig is func
     conf.POINTER_SIZE               := integer parse configValue("POINTER_SIZE");
     conf.GENERIC_SIZE               := max({conf.INTTYPE_SIZE, conf.FLOATTYPE_SIZE, conf.POINTER_SIZE});
     conf.INT_SIZE                   := integer parse configValue("INT_SIZE");
+    conf.MAX_INTEGER_IN_FLOATTYPE   := integer parse configValue("MAX_INTEGER_IN_FLOATTYPE");
     conf.INT32TYPE                  := configValue("INT32TYPE");
     conf.UINT32TYPE                 := configValue("UINT32TYPE");
     conf.INT64TYPE                  := configValue("INT64TYPE");
@@ -519,6 +549,28 @@ const func ccConfigType: getBuiltInConfig is func
       conf.INTTYPE_LITERAL_SUFFIX := conf.INT32TYPE_LITERAL_SUFFIX;
     else
       conf.INTTYPE_LITERAL_SUFFIX := conf.INT64TYPE_LITERAL_SUFFIX;
+    end if;
+    if conf.INT_SIZE = 16 then
+      if conf.TWOS_COMPLEMENT_INTTYPE then
+        conf.INT_MIN := -32768;
+      else
+        conf.INT_MIN := -32767;
+      end if;
+      conf.INT_MAX :=  32767;
+    elsif conf.INT_SIZE = 32 then
+      if conf.TWOS_COMPLEMENT_INTTYPE then
+        conf.INT_MIN := -2147483648;
+      else
+        conf.INT_MIN := -2147483647;
+      end if;
+      conf.INT_MAX :=  2147483647;
+    elsif conf.INT_SIZE = 64 then
+      if conf.TWOS_COMPLEMENT_INTTYPE then
+        conf.INT_MIN := -9223372036854775807 - 1;
+      else
+        conf.INT_MIN := -9223372036854775807;
+      end if;
+      conf.INT_MAX :=  9223372036854775807;
     end if;
   end func;
 

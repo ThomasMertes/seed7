@@ -1650,16 +1650,16 @@ striType intLpad0 (intType number, const intType pad_size)
 intType intParse (const const_striType stri)
 
   {
-    boolType okay = TRUE;
-    boolType negative = FALSE;
+    boolType okay;
+    boolType negative;
     memSizeType position = 0;
     uintType digitval;
-    uintType uint_value = 0;
-    intType int_value = 0;
+    uintType uintValue;
+    intType intResult;
 
   /* intParse */
     logFunction(printf("intParse(\"%s\")\n", striAsUnquotedCStri(stri)););
-    if (stri->size != 0) {
+    if (likely(stri->size != 0)) {
       if (stri->mem[0] == ((strElemType) '-')) {
         negative = TRUE;
         position++;
@@ -1667,50 +1667,65 @@ intType intParse (const const_striType stri)
         if (stri->mem[0] == ((strElemType) '+')) {
           position++;
         } /* if */
+        negative = FALSE;
       } /* if */
+    } /* if */
+    if (unlikely(position >= stri->size)) {
+      logError(printf("intParse(\"%s\"): "
+                      "Digit missing.\n",
+                      striAsUnquotedCStri(stri)););
+      raise_error(RANGE_ERROR);
+      intResult = 0;
+    } else {
+      uintValue = 0;
+      okay = TRUE;
       while (position < stri->size &&
           stri->mem[position] >= ((strElemType) '0') &&
           stri->mem[position] <= ((strElemType) '9')) {
         digitval = ((uintType) stri->mem[position]) - ((uintType) '0');
-        if (uint_value <= MAX_DIV_10) {
-          uint_value = ((uintType) 10) * uint_value + digitval;
-        } else {
-          logError(printf("intParse(\"%s\"): "
-                          "Absolute value of literal is too big.\n",
-                          striAsUnquotedCStri(stri)););
+        if (unlikely(uintValue > MAX_DIV_10)) {
           okay = FALSE;
+        } else {
+          uintValue = ((uintType) 10) * uintValue + digitval;
         } /* if */
         position++;
       } /* while */
-    } /* if */
-    if (position == 0 || position < stri->size) {
-      logError(printf("intParse(\"%s\"): "
-                      "Literal empty or contains an illegal character.\n",
-                      striAsUnquotedCStri(stri)););
-      okay = FALSE;
-    } /* if */
-    if (likely(okay)) {
-      if (negative) {
-        if (uint_value > (uintType) INTTYPE_MAX + 1) {
-          logError(printf("intParse(\"%s\"): Literal too small.\n",
-                          striAsUnquotedCStri(stri)););
-          okay = FALSE;
-        } else {
-          int_value = (intType) -uint_value;
-        } /* if */
-      } else if (uint_value > (uintType) INTTYPE_MAX) {
-        logError(printf("intParse(\"%s\"): Literal too big.\n",
+      if (unlikely(position < stri->size)) {
+        logError(printf("intParse(\"%s\"): "
+                        "Illegal digit.\n",
                         striAsUnquotedCStri(stri)););
-        okay = FALSE;
+        raise_error(RANGE_ERROR);
+        intResult = 0;
+      } else if (unlikely(!okay)) {
+        logError(printf("intParse(\"%s\"): "
+                        "Absolute value of literal is too big.\n",
+                        striAsUnquotedCStri(stri)););
+        raise_error(RANGE_ERROR);
+        intResult = 0;
       } else {
-        int_value = (intType) uint_value;
+        if (negative) {
+          if (uintValue > (uintType) INTTYPE_MAX + 1) {
+            logError(printf("intParse(\"%s\"): Literal too small.\n",
+                            striAsUnquotedCStri(stri)););
+            raise_error(RANGE_ERROR);
+            intResult = 0;
+          } else {
+            /* The unsigned value is negated to avoid an overflow */
+            /* when the most negative intType value is negated.   */
+            intResult = (intType) -uintValue;
+          } /* if */
+        } else if (uintValue > (uintType) INTTYPE_MAX) {
+          logError(printf("intParse(\"%s\"): Literal too big.\n",
+                          striAsUnquotedCStri(stri)););
+          raise_error(RANGE_ERROR);
+          intResult = 0;
+        } else {
+          intResult = (intType) uintValue;
+        } /* if */
       } /* if */
     } /* if */
-    if (unlikely(!okay)) {
-      raise_error(RANGE_ERROR);
-    } /* if */
-    logFunction(printf("intParse --> " FMT_D "\n", int_value););
-    return int_value;
+    logFunction(printf("intParse --> " FMT_D "\n", intResult););
+    return intResult;
   } /* intParse */
 
 

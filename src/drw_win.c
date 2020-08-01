@@ -1551,7 +1551,7 @@ void drwSetTransparentColor (winType pixmap, intType col)
 
   { /* drwSetTransparentColor */
     to_hasTransparentPixel(pixmap) = TRUE;
-    to_transparentPixel(pixmap) = col;
+    to_transparentPixel(pixmap) = (UINT) col;
   } /* drwSetTransparentColor */
 
 
@@ -1566,13 +1566,19 @@ void drwText (const_winType actual_window, intType x, intType y,
     memSizeType len;
 
   /* drwText */
-    stri_buffer = (wchar_t *) malloc(sizeof(wchar_t) * stri->size);
-    if (stri_buffer != NULL) {
+    if (!inIntRange(x) || !inIntRange(y) ||
+        stri->size >= (unsigned int) INT_MAX) {
+      raise_error(RANGE_ERROR);
+    } else if (unlikely(stri->size > MAX_WSTRI_LEN ||
+                        !ALLOC_WSTRI(stri_buffer, stri->size))) {
+      raise_error(MEMORY_ERROR);
+    } else {
       wstri = stri_buffer;
       strelem = stri->mem;
       len = stri->size;
       for (; len > 0; wstri++, strelem++, len--) {
         if (*strelem >= 65536) {
+          UNALLOC_WSTRI(stri_buffer, stri->size);
           raise_error(RANGE_ERROR);
           return;
         } /* if */
@@ -1582,14 +1588,14 @@ void drwText (const_winType actual_window, intType x, intType y,
       SetTextColor(to_hdc(actual_window), (COLORREF) col);
       SetBkColor(to_hdc(actual_window), (COLORREF) bkcol);
       SetTextAlign(to_hdc(actual_window), TA_BASELINE | TA_LEFT);
-      TextOutW(to_hdc(actual_window), castToInt(x), castToInt(y), stri_buffer, stri->size);
+      TextOutW(to_hdc(actual_window), (int) x, (int) y, stri_buffer, (int) stri->size);
       if (to_backup_hdc(actual_window) != 0) {
         SetTextColor(to_backup_hdc(actual_window), (COLORREF) col);
         SetBkColor(to_backup_hdc(actual_window), (COLORREF) bkcol);
         SetTextAlign(to_backup_hdc(actual_window), TA_BASELINE | TA_LEFT);
-        TextOutW(to_backup_hdc(actual_window), castToInt(x), castToInt(y), stri_buffer, stri->size);
+        TextOutW(to_backup_hdc(actual_window), (int) x, (int) y, stri_buffer, (int) stri->size);
       } /* if */
-      free(stri_buffer);
+      UNALLOC_WSTRI(stri_buffer, stri->size);
     } /* if */
   } /* drwText */
 

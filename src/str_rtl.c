@@ -37,6 +37,7 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
+#include "wchar.h"
 
 #include "common.h"
 #include "data_rtl.h"
@@ -57,6 +58,12 @@
 
 
 
+#if HAS_WMEMCMP && WCHAR_T_SIZE == 32
+#define strelem_memcmp(mem1, mem2, number) wmemcmp((const wchar_t *) mem1, (const wchar_t *) mem2, number)
+#else
+
+
+
 static inline int strelem_memcmp (const strElemType *mem1,
     const strElemType *mem2, size_t number)
 
@@ -68,6 +75,14 @@ static inline int strelem_memcmp (const strElemType *mem1,
     } /* for */
     return 0;
   } /* strelem_memcmp */
+
+#endif
+
+
+
+#if HAS_WMEMCHR && WCHAR_T_SIZE == 32
+#define search_strelem(mem, ch, beyond) (const strElemType *) wmemchr((const wchar_t *) mem, (wchar_t) ch, (size_t) (beyond - mem))
+#else
 
 
 
@@ -82,6 +97,8 @@ static inline const strElemType *search_strelem (const strElemType *mem,
     } /* for */
     return NULL;
   } /* search_strelem */
+
+#endif
 
 
 

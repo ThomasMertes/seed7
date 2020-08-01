@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
-/*  sql_util.c    Database utility functions.                       */
-/*  Copyright (C) 1989 - 2014  Thomas Mertes                        */
+/*  numutl.c      Numeric utility functions.                        */
+/*  Copyright (C) 1989 - 2015  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -23,11 +23,14 @@
 /*  Fifth Floor, Boston, MA  02110-1301, USA.                       */
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
-/*  File: seed7/src/sql_util.c                                      */
-/*  Changes: 2014  Thomas Mertes                                    */
-/*  Content: Database utility functions.                            */
+/*  File: seed7/src/numutl.c                                        */
+/*  Changes: 2014, 2015  Thomas Mertes                              */
+/*  Content: Numeric utility functions.                             */
 /*                                                                  */
 /********************************************************************/
+
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
 
 #include "version.h"
 
@@ -41,11 +44,15 @@
 #include "data_rtl.h"
 #include "heaputl.h"
 #include "striutl.h"
-#include "int_rtl.h"
 #include "flt_rtl.h"
 #include "str_rtl.h"
 #include "rtl_err.h"
 #include "big_drv.h"
+
+#undef EXTERN
+#define EXTERN
+#define DO_INIT
+#include "numutl.h"
 
 #define MAX_DECIMAL_BUFFER_LENGTH 128
 
@@ -55,20 +62,19 @@ double bigIntToDouble (const const_bigIntType number)
 
   {
     bigIntType absNumber;
-    bigIntType two;
     bigIntType mantissa;
     int64Type intMantissa;
+    int sign;
     int exponent;
     double doubleValue = 0.0;
 
   /* bigIntToDouble */
-    /* printf("bigIntToDouble(");
-       prot_stri_unquoted(bigStr(number));
-       printf(")\n"); */
-    if (!bigEqSignedDigit(number, 0)) {
+    logFunction(printf("bigIntToDouble(%s)\n",
+                       striAsUnquotedCStri(bigStr(number))););
+    sign = (int) bigCmpSignedDigit(number, 0);
+    if (sign != 0) {
       absNumber = bigAbs(number);
-      two = bigFromInt32(2);
-      if (absNumber != NULL && two != NULL) {
+      if (absNumber != NULL) {
         exponent = (int) bigBitLength(absNumber) - 1;
         if (DOUBLE_MANTISSA_SHIFT + 1 >= exponent) {
           bigLShiftAssign(&absNumber, DOUBLE_MANTISSA_SHIFT - exponent + 1);
@@ -77,11 +83,11 @@ double bigIntToDouble (const const_bigIntType number)
         } /* if */
         bigIncr(&absNumber);
         if (absNumber != NULL) {
-          mantissa = bigDiv(absNumber, two);
+          mantissa = bigRShift(absNumber, 1);
           if (mantissa != NULL) {
             intMantissa = bigToInt64(mantissa);
             bigDestr(mantissa);
-            if (bigCmpSignedDigit(number, 0) < 0) {
+            if (sign < 0) {
               intMantissa = -intMantissa;
             } /* if */
             doubleValue = setMantissaAndExponent(intMantissa, exponent - DOUBLE_MANTISSA_SHIFT);
@@ -89,9 +95,8 @@ double bigIntToDouble (const const_bigIntType number)
         } /* if */
       } /* if */
       bigDestr(absNumber);
-      bigDestr(two);
     } /* if */
-    /* printf("bigIntToDouble -> %f\n", doubleValue); */
+    logFunction(printf("bigIntToDouble --> " FMT_E "\n", doubleValue););
     return doubleValue;
   } /* bigIntToDouble */
 
@@ -135,11 +140,10 @@ double bigRatToDouble (const const_bigIntType numerator,
     double doubleValue = 0.0;
 
   /* bigRatToDouble */
-    /* printf("bigRatToDouble(");
-       prot_stri_unquoted(bigStr(numerator));
-       printf(", ");
-       prot_stri_unquoted(bigStr(denominator));
-       printf(")\n"); */
+    logFunction(printf("bigRatToDouble(%s, ",
+                       striAsUnquotedCStri(bigStr(numerator)));
+                printf("%s)\n",
+                       striAsUnquotedCStri(bigStr(denominator))););
     if (bigEqSignedDigit(denominator, 0)) {
       if (bigCmpSignedDigit(numerator, 0) > 0) {
         doubleValue = POSITIVE_INFINITY;
@@ -174,7 +178,7 @@ double bigRatToDouble (const const_bigIntType numerator,
       bigDestr(absNumerator);
       bigDestr(shiftedDenominator);
     } /* if */
-    /* printf("bigRatToDouble -> %f\n", doubleValue); */
+    logFunction(printf("bigRatToDouble --> " FMT_E "\n", doubleValue););
     return doubleValue;
   } /* bigRatToDouble */
 
@@ -188,7 +192,8 @@ bigIntType doubleToBigRat (const double doubleValue, bigIntType *denominator)
     bigIntType numerator;
 
   /* doubleToBigRat */
-    /* printf("doubleToBigRat(%f)\n", doubleValue); */
+    logFunction(printf("doubleToBigRat(" FMT_E ", *)\n",
+                       doubleValue););
     if (os_isnan(doubleValue)) {
       numerator = bigFromInt32(0);
       *denominator = bigFromInt32(0);
@@ -211,11 +216,10 @@ bigIntType doubleToBigRat (const double doubleValue, bigIntType *denominator)
         *denominator = bigLShiftOne(-exponent);
       } /* if */
     } /* if */
-    /* printf("doubleToBigRat -> ");
-       prot_stri_unquoted(bigStr(numerator));
-       printf(" / ");
-       prot_stri_unquoted(bigStr(*denominator));
-       printf("\n"); */
+    logFunction(printf("doubleToBigRat --> %s",
+                       striAsUnquotedCStri(bigStr(numerator)));
+                printf(" (denominator = %s)\n",
+                       striAsUnquotedCStri(bigStr(*denominator))););
     return numerator;
   } /* doubleToBigRat */
 
@@ -229,6 +233,8 @@ striType doubleToStri (const double doubleValue, boolType roundDouble)
     striType result;
 
   /* doubleToStri */
+    logFunction(printf("doubleToStri(" FMT_E ", %d)\n",
+                       doubleValue, roundDouble););
     if (roundDouble) {
       len = doubleToCharBuffer(doubleValue, DOUBLE_STR_LARGE_NUMBER,
                                DOUBLE_STR_FORMAT, buffer);
@@ -240,9 +246,8 @@ striType doubleToStri (const double doubleValue, boolType roundDouble)
     if (unlikely(result == NULL)) {
       raise_error(MEMORY_ERROR);
     } /* if */
-    /* printf("doubleToStri --> ");
-       prot_stri(result);
-       printf("\n"); */
+    logFunction(printf("doubleToStri --> \"%s\"\n",
+                       striAsUnquotedCStri(result)););
     return result;
   } /* doubleToStri */
 
@@ -259,7 +264,8 @@ bigIntType roundDoubleToBigRat (const double doubleValue, boolType roundDouble,
     bigIntType numerator;
 
   /* roundDoubleToBigRat */
-    /* printf("roundDoubleToBigRat(%f, %d)\n", doubleValue, roundDouble); */
+    logFunction(printf("roundDoubleToBigRat(" FMT_E ", %d, *)\n",
+                       doubleValue, roundDouble););
     if (os_isnan(doubleValue)) {
       numerator = bigFromInt32(0);
       *denominator = bigFromInt32(0);
@@ -297,53 +303,104 @@ bigIntType roundDoubleToBigRat (const double doubleValue, boolType roundDouble,
         FREE_STRI(stri, savedSize);
       } /* if */
     } /* if */
-    /* printf("roundDoubleToBigRat -> ");
-       prot_stri_unquoted(bigStr(numerator));
-       printf(" / ");
-       prot_stri_unquoted(bigStr(*denominator));
-       printf("\n"); */
+    logFunction(printf("roundDoubleToBigRat --> %s",
+                       striAsUnquotedCStri(bigStr(numerator)));
+                printf(" (denominator = %s)\n",
+                       striAsUnquotedCStri(bigStr(*denominator))););
     return numerator;
   } /* roundDoubleToBigRat */
 
 
 
-intType getDecimalInt (const void *buffer, memSizeType length)
+intType getDecimalInt (const const_ustriType decimal, memSizeType length)
 
   {
-    union {
-      struct striStruct striBuf;
-      char charBuf[SIZ_STRI(INTTYPE_DECIMAL_SIZE)];
-    } striBuffer;
-    intType intValue;
+    boolType okay;
+    boolType negative;
+    memSizeType position = 0;
+    uintType digitval;
+    uintType uintValue;
+    intType intResult;
 
   /* getDecimalInt */
-#ifdef ALLOW_STRITYPE_SLICES
-    striBuffer.striBuf.mem = striBuffer.striBuf.mem1;
-#endif
-    if (unlikely(length > INTTYPE_DECIMAL_SIZE)) {
-      raise_error(RANGE_ERROR);
-      intValue = 0;
-    } else {
-      striBuffer.striBuf.size = length;
-      memcpy_to_strelem(striBuffer.striBuf.mem, (const_ustriType) buffer, length);
-      /* printf("getDecimalInt: stri: ");
-         prot_stri(&striBuffer.striBuf);
-         printf("\n"); */
-      intValue = intParse(&striBuffer.striBuf);
+    logFunction(printf("getDecimalInt(\"%*s%s\", " FMT_U_MEM ")\n",
+                       (int) (length <= 128 ? length : 128), decimal,
+                       length > 128 ? "\\ *AND_SO_ON* " : "", length););
+    if (likely(length != 0)) {
+      if (decimal[0] == '-') {
+        negative = TRUE;
+        position++;
+      } else {
+        if (decimal[0] == '+') {
+          position++;
+        } /* if */
+        negative = FALSE;
+      } /* if */
     } /* if */
-    return intValue;
+    if (unlikely(position >= length)) {
+      logError(printf("getDecimalInt: Digit missing.\n"););
+      raise_error(RANGE_ERROR);
+      intResult = 0;
+    } else {
+      uintValue = 0;
+      okay = TRUE;
+      while (position < length &&
+          decimal[position] >= '0' &&
+          decimal[position] <= '9') {
+        digitval = ((uintType) decimal[position]) - ((uintType) '0');
+        if (unlikely(uintValue > MAX_DIV_10)) {
+          okay = FALSE;
+        } else {
+          uintValue = ((uintType) 10) * uintValue + digitval;
+        } /* if */
+        position++;
+      } /* while */
+      if (unlikely(position < length)) {
+        logError(printf("getDecimalInt: Illegal digit.\n"););
+        raise_error(RANGE_ERROR);
+        intResult = 0;
+      } else if (unlikely(!okay)) {
+        logError(printf("getDecimalInt: Absolute value of literal is too big.\n"););
+        raise_error(RANGE_ERROR);
+        intResult = 0;
+      } else {
+        if (negative) {
+          if (uintValue > (uintType) INTTYPE_MAX + 1) {
+            logError(printf("getDecimalInt: Literal too small.\n"););
+            raise_error(RANGE_ERROR);
+            intResult = 0;
+          } else {
+            /* The unsigned value is negated to avoid an overflow */
+            /* when the most negative intType value is negated.   */
+            intResult = (intType) -uintValue;
+          } /* if */
+        } else if (uintValue > (uintType) INTTYPE_MAX) {
+          logError(printf("getDecimalInt: Literal too big.\n"););
+          raise_error(RANGE_ERROR);
+          intResult = 0;
+        } else {
+          intResult = (intType) uintValue;
+        } /* if */
+      } /* if */
+    } /* if */
+    logFunction(printf("getDecimalInt --> " FMT_D "\n",
+                       intResult););
+    return intResult;
  } /* getDecimalInt */
 
 
 
-bigIntType getDecimalBigInt (const void *buffer, memSizeType length)
+bigIntType getDecimalBigInt (const const_ustriType decimal, memSizeType length)
 
   {
     striType stri;
     bigIntType bigIntValue;
 
   /* getDecimalBigInt */
-    stri = cstri_buf_to_stri((const_cstriType) buffer, length);
+    logFunction(printf("getDecimalBigInt(\"%*s%s\", " FMT_U_MEM ")\n",
+                       (int) (length <= 128 ? length : 128), decimal,
+                       length > 128 ? "\\ *AND_SO_ON* " : "", length););
+    stri = cstri_buf_to_stri((const_cstriType) decimal, length);
     /* printf("getDecimalBigInt: stri: ");
        prot_stri(stri);
        printf("\n"); */
@@ -354,24 +411,19 @@ bigIntType getDecimalBigInt (const void *buffer, memSizeType length)
       bigIntValue = bigParse(stri);
       strDestr(stri);
     } /* if */
-    /* printf("getDecimalBigInt --> ");
-       if (bigIntValue == NULL) {
-         printf("NULL");
-       } else {
-         prot_stri_unquoted(bigStr(bigIntValue));
-       }
-       printf("\n"); */
+    logFunction(printf("getDecimalBigInt --> %s\n",
+                       bigIntValue == NULL ? "NULL" :
+                       striAsUnquotedCStri(bigStr(bigIntValue))););
     return bigIntValue;
   } /* getDecimalBigInt */
 
 
 
-bigIntType getDecimalBigRational (const void *buffer, memSizeType length,
+bigIntType getDecimalBigRational (const const_ustriType decimal, memSizeType length,
     bigIntType *denominator)
 
   {
     striType stri;
-    unsigned char *decimal;
     boolType okay = TRUE;
     boolType hasDecimalPoint = FALSE;
     memSizeType decimalPointPos = 0;
@@ -381,12 +433,14 @@ bigIntType getDecimalBigRational (const void *buffer, memSizeType length,
     bigIntType numerator;
 
   /* getDecimalBigRational */
+    logFunction(printf("getDecimalBigRational(\"%*s%s\", " FMT_U_MEM ")\n",
+                       (int) (length <= 128 ? length : 128), decimal,
+                       length > 128 ? "\\ *AND_SO_ON* " : "", length););
     if (unlikely(!ALLOC_STRI_CHECK_SIZE(stri, length))) {
       *denominator = NULL;
       raise_error(MEMORY_ERROR);
       numerator = NULL;
     } else {
-      decimal = (unsigned char *) buffer;
       for (srcIndex = 0; srcIndex < length && okay; srcIndex++) {
         if ((decimal[srcIndex] >= '0' && decimal[srcIndex] <= '9') ||
             (decimal[srcIndex] == '-' && srcIndex == 0)) {
@@ -408,7 +462,8 @@ bigIntType getDecimalBigRational (const void *buffer, memSizeType length,
          printf("\n"); */
       if (unlikely(!okay)) {
         *denominator = NULL;
-        raise_error(FILE_ERROR);
+        logError(printf("getDecimalBigRational: Decimal literal illegal.\n"););
+        raise_error(RANGE_ERROR);
         numerator = NULL;
       } else {
         /* printf("decimalPointPos: " FMT_U_MEM "\n", decimalPointPos); */
@@ -423,6 +478,9 @@ bigIntType getDecimalBigRational (const void *buffer, memSizeType length,
           if (unlikely(scale > INTTYPE_MAX)) {
             *denominator = NULL;
             bigDestr(numerator);
+            logError(printf("getDecimalBigRational: scale > INTTYPE_MAX\n"
+                            "scale = " FMT_U_MEM ", INTTYPE_MAX = " FMT_D "\n",
+                            scale, INTTYPE_MAX););
             raise_error(RANGE_ERROR);
             numerator = NULL;
           } else {
@@ -431,12 +489,16 @@ bigIntType getDecimalBigRational (const void *buffer, memSizeType length,
         } /* if */
       } /* if */
     } /* if */
+    logFunction(printf("getDecimalBigRational --> %s",
+                       striAsUnquotedCStri(bigStr(numerator)));
+                printf(" (denominator = %s)\n",
+                       striAsUnquotedCStri(bigStr(*denominator))););
     return numerator;
   } /* getDecimalBigRational */
 
 
 
-floatType getDecimalFloat (const void *buffer, memSizeType length)
+floatType getDecimalFloat (const const_ustriType decimal, memSizeType length)
 
   {
     char localCharBuffer[MAX_DECIMAL_BUFFER_LENGTH + 1];
@@ -444,22 +506,27 @@ floatType getDecimalFloat (const void *buffer, memSizeType length)
     double doubleValue;
 
   /* getDecimalFloat */
+    logFunction(printf("getDecimalFloat(\"%*s%s\", " FMT_U_MEM ")\n",
+                       (int) (length <= 128 ? length : 128), decimal,
+                       length > 128 ? "\\ *AND_SO_ON* " : "", length););
     if (length > MAX_DECIMAL_BUFFER_LENGTH) {
       charBuffer = (char *) malloc(length + 1);
       if (unlikely(charBuffer == NULL)) {
         raise_error(MEMORY_ERROR);
         doubleValue = 0.0;
       } else {
-        memcpy(charBuffer, (char *) buffer, length);
+        memcpy(charBuffer, decimal, length);
         charBuffer[length] = '\0';
         sscanf(charBuffer, "%lf", &doubleValue);
         free(charBuffer);
       } /* if */
     } else {
-      memcpy(localCharBuffer, (char *) buffer, length);
+      memcpy(localCharBuffer, decimal, length);
       localCharBuffer[length] = '\0';
       sscanf(localCharBuffer, "%lf", &doubleValue);
     } /* if */
+    logFunction(printf("getDecimalFloat --> " FMT_E "\n",
+                       doubleValue););
     return (floatType) doubleValue;
   } /* getDecimalFloat */
 
@@ -474,9 +541,8 @@ ustriType bigIntToDecimal (const const_bigIntType bigIntValue,
     ustriType decimal;
 
   /* bigIntToDecimal */
-    /* printf("bigIntToDecimal(");
-       prot_stri(bigStr(bigIntValue));
-       printf(")\n"); */
+    logFunction(printf("bigIntToDecimal(%s, *, *)\n",
+                       striAsUnquotedCStri(bigStr(bigIntValue))););
     stri = bigStr(bigIntValue);
     if (stri == NULL) {
       *err_info = MEMORY_ERROR;
@@ -493,6 +559,9 @@ ustriType bigIntToDecimal (const const_bigIntType bigIntValue,
       *length = stri->size;
       FREE_STRI(stri, stri->size);
     } /* if */
+    logFunction(printf("bigIntToDecimal --> %s (length = " FMT_U_MEM ", err_info = %d)\n",
+                       decimal == NULL ? "NULL" : (char *) decimal,
+                       *length, *err_info););
     return decimal;
   } /* bigIntToDecimal */
 
@@ -513,11 +582,11 @@ ustriType bigRatToDecimal (const const_bigIntType numerator,
     ustriType decimal;
 
   /* bigRatToDecimal */
-    /* printf("bigRatToDecimal(");
-       prot_stri_unquoted(bigStr(numerator));
-       printf(", ");
-       prot_stri_unquoted(bigStr(denominator));
-       printf(", " FMT_U_MEM ")\n", scale); */
+    logFunction(printf("bigRatToDecimal(%s, ",
+                       striAsUnquotedCStri(bigStr(numerator)));
+                printf("%s, " FMT_U_MEM ", *, *)\n",
+                       striAsUnquotedCStri(bigStr(denominator)),
+                       scale););
     if (bigEqSignedDigit(denominator, 0)) {
       /* Decimal values do not support Infinity and NaN. */
       /* printf("Decimal values do not support Infinity and NaN.\n"); */
@@ -604,6 +673,8 @@ ustriType bigRatToDecimal (const const_bigIntType numerator,
         bigDestr(mantissaValue);
       } /* if */
     } /* if */
-    /* printf("bigRatToDecimal --> %s\n", decimal == NULL ? "NULL" : (char *) decimal); */
+    logFunction(printf("bigRatToDecimal --> %s (length = " FMT_U_MEM ", err_info = %d)\n",
+                       decimal == NULL ? "NULL" : (char *) decimal,
+                       *length, *err_info););
     return decimal;
   } /* bigRatToDecimal */

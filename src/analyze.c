@@ -25,6 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -72,7 +75,6 @@
 #define EXTERN
 #include "analyze.h"
 
-#undef TRACE_ANALYZE
 #undef TRACE_DECL_ANY
 
 
@@ -88,6 +90,7 @@ progRecord prog;
 static void init_analyze (void)
 
   { /* init_analyze */
+    logFunction(printf("init_analyze\n"););
     if (!analyze_initialized) {
       set_protfile_name(NULL);
       init_chclass();
@@ -96,6 +99,7 @@ static void init_analyze (void)
       memset(&prog, 0, sizeof(progRecord)); /* not used, saved in analyze and interpr */
       analyze_initialized = TRUE;
     } /* if */
+    logFunction(printf("init_analyze -->\n"););
   } /* init_analyze */
 
 
@@ -107,9 +111,7 @@ static inline void system_var (void)
     objectType sys_object;
 
   /* system_var */
-#ifdef TRACE_ANALYZE
-    printf("BEGIN system_var\n");
-#endif
+    logFunction(printf("system_var\n"););
     scan_symbol();
     if (symbol.sycategory == STRILITERAL) {
       index_found = find_sysvar(symbol.striValue);
@@ -138,9 +140,7 @@ static inline void system_var (void)
     } else {
       err_ident(EXPECTED_SYMBOL, prog.id_for.semicolon);
     } /* if */
-#ifdef TRACE_ANALYZE
-    printf("END system_var\n");
-#endif
+    logFunction(printf("system_var -->\n"););
   } /* system_var */
 
 
@@ -152,9 +152,7 @@ static inline void include_file (void)
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* include_file */
-#ifdef TRACE_ANALYZE
-    printf("BEGIN include_file\n");
-#endif
+    logFunction(printf("include_file\n"););
     scan_symbol();
     if (symbol.sycategory == STRILITERAL) {
       if (!ALLOC_STRI_SIZE_OK(include_file_name, symbol.striValue->size)) {
@@ -195,9 +193,7 @@ static inline void include_file (void)
         scan_symbol();
       } /* if */
     } /* if */
-#ifdef TRACE_ANALYZE
-    printf("END include_file\n");
-#endif
+    logFunction(printf("include_file -->\n"););
   } /* include_file */
 
 
@@ -208,9 +204,7 @@ static void process_pragma (void)
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* process_pragma */
-#ifdef TRACE_SCANNER
-    printf("BEGIN process_pragma\n");
-#endif
+    logFunction(printf("process_pragma\n"););
     if (symbol.sycategory != NAMESYMBOL) {
       err_warning(NAMEEXPECTED);
     } else {
@@ -294,9 +288,7 @@ static void process_pragma (void)
         err_warning(ILLEGALPRAGMA);
       } /* if */
     } /* if */
-#ifdef TRACE_SCANNER
-    printf("END process_pragma\n");
-#endif
+    logFunction(printf("process_pragma -->\n"););
   } /* process_pragma */
 
 
@@ -308,9 +300,7 @@ static inline void decl_any (nodeType objects)
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* decl_any */
-#ifdef TRACE_ANALYZE
-    printf("BEGIN decl_any\n");
-#endif
+    logFunction(printf("decl_any\n"););
     scan_symbol();
     while (symbol.sycategory != STOPSYMBOL) {
       if (current_ident == prog.id_for.dollar) {
@@ -365,9 +355,7 @@ static inline void decl_any (nodeType objects)
         } /* if */
       } /* if */
     } /* while */
-#ifdef TRACE_ANALYZE
-    printf("END decl_any\n");
-#endif
+    logFunction(printf("decl_any -->\n"););
   } /* decl_any */
 
 
@@ -380,6 +368,8 @@ static striType getProgramName (const const_striType source_file_name)
     striType program_name;
 
   /* getProgramName */
+    logFunction(printf("getProgramName(\"%s\")\n",
+                       striAsUnquotedCStri(source_file_name)););
     name_len = source_file_name->size;
     if (name_len > 4 &&
         source_file_name->mem[name_len - 4] == '.' &&
@@ -398,6 +388,8 @@ static striType getProgramName (const const_striType source_file_name)
       memcpy(program_name->mem, &source_file_name->mem[lastSlashPos],
           name_len * sizeof(strElemType));
     } /* if */
+    logFunction(printf("getProgramName --> \"%s\"\n",
+                       striAsUnquotedCStri(program_name)););
     return program_name;
   } /* getProgramName */
 
@@ -410,6 +402,8 @@ static striType getProgramPath (const const_striType source_file_name)
     striType program_path;
 
   /* getProgramPath */
+    logFunction(printf("getProgramPath(\"%s\")\n",
+                       striAsUnquotedCStri(source_file_name)););
     if (source_file_name->size >= 1 &&
         source_file_name->mem[0] == (charType) '/') {
       program_path = strCreate(source_file_name);
@@ -418,6 +412,8 @@ static striType getProgramPath (const const_striType source_file_name)
       program_path = concat_path(cwd, source_file_name);
       FREE_STRI(cwd, cwd->size);
     } /* if */
+    logFunction(printf("getProgramPath --> \"%s\"\n",
+                       striAsUnquotedCStri(program_path)););
     return program_path;
   } /* getProgramPath */
 
@@ -434,9 +430,12 @@ static progType analyze_prog (const const_striType source_file_argument,
     progType resultProg;
 
   /* analyze_prog */
-#ifdef TRACE_ANALYZE
-    printf("BEGIN analyze_prog\n");
-#endif
+    logFunction(printf("analyze_prog(\"%s\", ",
+                       striAsUnquotedCStri(source_file_argument));
+                printf("\"%s\", 0x" F_X(08) ", *, ",
+                       striAsUnquotedCStri(source_name), options);
+                printf("\"%s\", *)\n",
+                       striAsUnquotedCStri(prot_file_name)););
     if (!ALLOC_RECORD(resultProg, progRecord, count.prog)) {
       *err_info = MEMORY_ERROR;
     } else if (!ALLOC_STRI_SIZE_OK(source_file_argument_copy, source_file_argument->size)) {
@@ -546,9 +545,8 @@ static progType analyze_prog (const const_striType source_file_argument,
         resultProg = NULL;
       } /* if */
     } /* if */
-#ifdef TRACE_ANALYZE
-    printf("END analyze_prog --> %lx\n", (unsigned long) resultProg);
-#endif
+    logFunction(printf("analyze_prog --> " FMT_U_MEM "\n",
+                       (memSizeType) resultProg););
     return resultProg;
   } /* analyze_prog */
 
@@ -565,9 +563,10 @@ progType analyze_file (const const_striType source_file_argument, uintType optio
     progType resultProg;
 
   /* analyze_file */
-#ifdef TRACE_ANALYZE
-    printf("BEGIN analyze_file\n");
-#endif
+    logFunction(printf("analyze_file(\"%s\", 0x" F_X(08) ", *, ",
+                       striAsUnquotedCStri(source_file_argument), options);
+                printf("\"%s\", *)\n",
+                       striAsUnquotedCStri(prot_file_name)););
     interpreter_exception = TRUE;
     init_analyze();
     resultProg = NULL;
@@ -617,9 +616,8 @@ progType analyze_file (const const_striType source_file_argument, uintType optio
       FREE_STRI(source_name, name_len);
     } /* if */
     interpreter_exception = FALSE;
-#ifdef TRACE_ANALYZE
-    printf("END analyze_file\n");
-#endif
+    logFunction(printf("analyze_file --> " FMT_U_MEM "\n",
+                       (memSizeType) resultProg););
     return resultProg;
   } /* analyze_file */
 
@@ -633,9 +631,10 @@ progType analyze (const const_striType source_file_argument, uintType options,
     progType resultProg;
 
   /* analyze */
-#ifdef TRACE_ANALYZE
-    printf("BEGIN analyze\n");
-#endif
+    logFunction(printf("analyze(\"%s\", 0x" F_X(08) ", *, ",
+                       striAsUnquotedCStri(source_file_argument), options);
+                printf("\"%s\")\n",
+                       striAsUnquotedCStri(prot_file_name)););
     resultProg = analyze_file(source_file_argument, options,
                               libraryDirs, prot_file_name, &err_info);
     if (err_info == MEMORY_ERROR) {
@@ -643,9 +642,8 @@ progType analyze (const const_striType source_file_argument, uintType options,
     } else if (resultProg == NULL || err_info != OKAY_NO_ERROR) {
       err_message(NO_SOURCEFILE, source_file_argument);
     } /* if */
-#ifdef TRACE_ANALYZE
-    printf("END analyze\n");
-#endif
+    logFunction(printf("analyze --> " FMT_U_MEM "\n",
+                       (memSizeType) resultProg););
     return resultProg;
   } /* analyze */
 
@@ -661,9 +659,10 @@ progType analyze_string (const const_striType input_string, uintType options,
     progType resultProg;
 
   /* analyze_string */
-#ifdef TRACE_ANALYZE
-    printf("BEGIN analyze_string\n");
-#endif
+    logFunction(printf("analyze_string(\"%s\", 0x" F_X(08) ", *, ",
+                       striAsUnquotedCStri(input_string), options);
+                printf("\"%s\", *)\n",
+                       striAsUnquotedCStri(prot_file_name)););
     interpreter_exception = TRUE;
     init_analyze();
     resultProg = NULL;
@@ -687,8 +686,7 @@ progType analyze_string (const const_striType input_string, uintType options,
       FREE_STRI(source_file_argument, source_file_argument->size);
     } /* if */
     interpreter_exception = FALSE;
-#ifdef TRACE_ANALYZE
-    printf("END analyze_string\n");
-#endif
+    logFunction(printf("analyze_string --> " FMT_U_MEM "\n",
+                       (memSizeType) resultProg););
     return resultProg;
   } /* analyze_string */
