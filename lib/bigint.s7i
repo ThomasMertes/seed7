@@ -87,6 +87,8 @@ const bigInteger: (attr bigInteger) . value                             is bigIn
 const proc: incr (inout bigInteger param)                               is action "BIG_INCR";
 const proc: decr (inout bigInteger param)                               is action "BIG_DECR";
 
+const boolean: ord (in bigInteger param, mayRaiseRangeError)            is TRUE;
+
 enable_io(bigInteger);
 FOR_DECLS(bigInteger);
 

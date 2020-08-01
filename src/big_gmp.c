@@ -649,6 +649,7 @@ ustritype buffer;
 
   /* bigImport */
     result = malloc(sizeof(__mpz_struct));
+    mpz_init(result);
     count = buffer[0] << 24 | buffer[1] << 16 | buffer[2] << 8 | buffer[3];
     if (buffer[4] >= 128) {
       negated_buffer = malloc(count);
@@ -657,7 +658,7 @@ ustritype buffer;
       while (pos > 0) {
         pos--;
         carry += ~buffer[4 + pos] & 0xFF;
-        negated_buffer[pos] = carry & 0xFF;
+        negated_buffer[pos] = (uchartype) (carry & 0xFF);
         carry >>= 8;
       } /* for */
       mpz_import(result, count, 1, 1, 0, 0, negated_buffer);
@@ -960,7 +961,6 @@ biginttype big2;
 
 
 
-#ifdef OUT_OF_ORDER
 #ifdef ANSI_C
 
 biginttype bigMultSignedDigit (const_biginttype big1, inttype number)
@@ -980,23 +980,6 @@ inttype number;
     mpz_mul_si(result, big1, number);
     return(result);
   } /* bigMultSignedDigit */
-#endif
-
-
-
-#ifdef ANSI_C
-
-booltype bigNe (const const_biginttype big1, const const_biginttype big2)
-#else
-
-booltype bigNe (big1, big2)
-biginttype big1;
-biginttype big2;
-#endif
-
-  { /* bigNe */
-    return(mpz_cmp(big1, big2) != 0);
-  } /* bigNe */
 
 
 
@@ -1450,3 +1433,22 @@ biginttype big1;
     } /* if */
   } /* bigToInt64 */
 #endif
+
+
+
+#ifdef ANSI_C
+
+biginttype bigZero (void)
+#else
+
+biginttype bigZero ()
+#endif
+
+  {
+    biginttype result;
+
+  /* bigZero */
+    result = malloc(sizeof(__mpz_struct));
+    mpz_init_set_ui(result, 0);
+    return(result);
+  } /* bigZero */

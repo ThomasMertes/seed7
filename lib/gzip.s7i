@@ -29,7 +29,7 @@
 include "binary.s7i";
 
 
-const func integer: getBits (in string: stri,
+const func integer: getBitsLe (in string: stri,
     inout integer: bytePos, inout integer: bitPos, in var integer: bitsNeeded) is func
   result
     var integer: result is 0;
@@ -74,19 +74,19 @@ const func integer: decodeLiteralOrLengthValue (in string: stri,
   result
     var integer: resultValue is 0;
   begin
-    resultValue := getBits(stri, bytePos, bitPos, 7);
+    resultValue := getBitsLe(stri, bytePos, bitPos, 7);
     if resultValue <= 2#0010111 then
       resultValue +:= 256;
     else
       resultValue <<:= 1;
-      resultValue +:= getBits(stri, bytePos, bitPos, 1);
+      resultValue +:= getBitsLe(stri, bytePos, bitPos, 1);
       if resultValue <= 2#10111111 then
         resultValue -:= 2#00110000;
       elsif resultValue <= 2#11000111 then
         resultValue +:= 280 - 2#11000000;
       else
         resultValue <<:= 1;
-        resultValue +:= getBits(stri, bytePos, bitPos, 1);
+        resultValue +:= getBitsLe(stri, bytePos, bitPos, 1);
         resultValue -:= 2#110010000 - 144;
       end if;
     end if;
@@ -103,15 +103,15 @@ const func integer: decodeLengthValue (in string: stri,
     if code <= 264 then
       lengthValue := code - 254;
     elsif code <= 268 then
-      lengthValue := 11 + ((code - 265) << 1) + getBits(stri, bytePos, bitPos, 1);
+      lengthValue := 11 + ((code - 265) << 1) + getBitsLe(stri, bytePos, bitPos, 1);
     elsif code <= 272 then
-      lengthValue := 19 + ((code - 269) << 2) + getBits(stri, bytePos, bitPos, 2);
+      lengthValue := 19 + ((code - 269) << 2) + getBitsLe(stri, bytePos, bitPos, 2);
     elsif code <= 276 then
-      lengthValue := 35 + ((code - 273) << 3) + getBits(stri, bytePos, bitPos, 3);
+      lengthValue := 35 + ((code - 273) << 3) + getBitsLe(stri, bytePos, bitPos, 3);
     elsif code <= 280 then
-      lengthValue := 67 + ((code - 277) << 4) + getBits(stri, bytePos, bitPos, 4);
+      lengthValue := 67 + ((code - 277) << 4) + getBitsLe(stri, bytePos, bitPos, 4);
     elsif code <= 284 then
-      lengthValue := 131 + ((code - 281) << 5) + getBits(stri, bytePos, bitPos, 5);
+      lengthValue := 131 + ((code - 281) << 5) + getBitsLe(stri, bytePos, bitPos, 5);
     elsif code = 285 then
       lengthValue := 258;
     else
@@ -130,31 +130,31 @@ const func integer: decodeDistanceValue (in string: stri,
     if code <= 3 then
       distanceValue := succ(code);
     elsif code <= 5 then
-      distanceValue := 5 + ((code - 4) << 1) + getBits(stri, bytePos, bitPos, 1);
+      distanceValue := 5 + ((code - 4) << 1) + getBitsLe(stri, bytePos, bitPos, 1);
     elsif code <= 7 then
-      distanceValue := 9 + ((code - 6) << 2) + getBits(stri, bytePos, bitPos, 2);
+      distanceValue := 9 + ((code - 6) << 2) + getBitsLe(stri, bytePos, bitPos, 2);
     elsif code <= 9 then
-      distanceValue := 17 + ((code - 8) << 3) + getBits(stri, bytePos, bitPos, 3);
+      distanceValue := 17 + ((code - 8) << 3) + getBitsLe(stri, bytePos, bitPos, 3);
     elsif code <= 11 then
-      distanceValue := 33 + ((code - 10) << 4) + getBits(stri, bytePos, bitPos, 4);
+      distanceValue := 33 + ((code - 10) << 4) + getBitsLe(stri, bytePos, bitPos, 4);
     elsif code <= 13 then
-      distanceValue := 65 + ((code - 12) << 5) + getBits(stri, bytePos, bitPos, 5);
+      distanceValue := 65 + ((code - 12) << 5) + getBitsLe(stri, bytePos, bitPos, 5);
     elsif code <= 15 then
-      distanceValue := 129 + ((code - 14) << 6) + getBits(stri, bytePos, bitPos, 6);
+      distanceValue := 129 + ((code - 14) << 6) + getBitsLe(stri, bytePos, bitPos, 6);
     elsif code <= 17 then
-      distanceValue := 257 + ((code - 16) << 7) + getBits(stri, bytePos, bitPos, 7);
+      distanceValue := 257 + ((code - 16) << 7) + getBitsLe(stri, bytePos, bitPos, 7);
     elsif code <= 19 then
-      distanceValue := 513 + ((code - 18) << 8) + getBits(stri, bytePos, bitPos, 8);
+      distanceValue := 513 + ((code - 18) << 8) + getBitsLe(stri, bytePos, bitPos, 8);
     elsif code <= 21 then
-      distanceValue := 1025 + ((code - 20) << 9) + getBits(stri, bytePos, bitPos, 9);
+      distanceValue := 1025 + ((code - 20) << 9) + getBitsLe(stri, bytePos, bitPos, 9);
     elsif code <= 23 then
-      distanceValue := 2049 + ((code - 22) << 10) + getBits(stri, bytePos, bitPos, 10);
+      distanceValue := 2049 + ((code - 22) << 10) + getBitsLe(stri, bytePos, bitPos, 10);
     elsif code <= 25 then
-      distanceValue := 4097 + ((code - 24) << 11) + getBits(stri, bytePos, bitPos, 11);
+      distanceValue := 4097 + ((code - 24) << 11) + getBitsLe(stri, bytePos, bitPos, 11);
     elsif code <= 27 then
-      distanceValue := 8193 + ((code - 26) << 12) + getBits(stri, bytePos, bitPos, 12);
+      distanceValue := 8193 + ((code - 26) << 12) + getBitsLe(stri, bytePos, bitPos, 12);
     elsif code <= 29 then
-      distanceValue := 16385 + ((code - 28) << 13) + getBits(stri, bytePos, bitPos, 13);
+      distanceValue := 16385 + ((code - 28) << 13) + getBitsLe(stri, bytePos, bitPos, 13);
     else
       raise RANGE_ERROR;
     end if;
@@ -176,7 +176,7 @@ const proc: decodeFixedHuffmanCodes (in string: stri,
         result &:= str(chr(literalOrLength));
       else
         length := decodeLengthValue(stri, bytePos, bitPos, literalOrLength);
-        distance := getBits(stri, bytePos, bitPos, 5);
+        distance := getBitsLe(stri, bytePos, bitPos, 5);
         distance := decodeDistanceValue(stri, bytePos, bitPos, distance);
         if length > distance then
           nextPos := succ(length(result));
@@ -216,15 +216,15 @@ const func integer: getHuffmanValue (in string: stri,
     # writeln("--- " <& bytePos <& " " <& bitPos);
     while conversionTable[bitLength].limit = 0 do
       code <<:= 1;
-      code +:= getBits(stri, bytePos, bitPos, 1);
+      code +:= getBitsLe(stri, bytePos, bitPos, 1);
       incr(bitLength);
     end while;
     limit := conversionTable[bitLength].limit >> 1;
-    # code := getBits(stri, bytePos, bitPos, pred(bitLength));
+    # code := getBitsLe(stri, bytePos, bitPos, pred(bitLength));
     # writeln("code=" <& code <& " " <& str(code, 2) lpad0 pred(bitLength) <& " limit=" <& limit);
     while code >= limit do
       code <<:= 1;
-      code +:= getBits(stri, bytePos, bitPos, 1);
+      code +:= getBitsLe(stri, bytePos, bitPos, 1);
       incr(bitLength);
       if bitLength <= length(conversionTable) then
         limit := conversionTable[bitLength].limit >> 1;
@@ -355,15 +355,15 @@ const proc: decodeDynamicHuffmanCodes (in string: stri,
     var integer: distance is 0;
     var integer: nextPos is 0;
   begin
-    hlit := getBits(stri, bytePos, bitPos, 5);
-    hdist := getBits(stri, bytePos, bitPos, 5);
-    hclen := getBits(stri, bytePos, bitPos, 4);
+    hlit := getBitsLe(stri, bytePos, bitPos, 5);
+    hdist := getBitsLe(stri, bytePos, bitPos, 5);
+    hclen := getBitsLe(stri, bytePos, bitPos, 4);
     # writeln("hlit=" <& hlit);
     # writeln("hdist=" <& hdist);
     # writeln("hclen=" <& hclen);
     lengthCodeLengths := [0 .. 18] times 0;
     for number range 1 to hclen + 4 do
-      lengthCodeLengths[codeLengthAlphabet[number]] := getBits(stri, bytePos, bitPos, 3);
+      lengthCodeLengths[codeLengthAlphabet[number]] := getBitsLe(stri, bytePos, bitPos, 3);
       # write(" " <& lengthCodeLengths[codeLengthAlphabet[number]]);
     end for;
     # writeln;
@@ -376,16 +376,16 @@ const proc: decodeDynamicHuffmanCodes (in string: stri,
         combinedCodeLengths &:= [] (codeLength);
         incr(number);
       elsif codeLength = 16 then
-        factor := getBits(stri, bytePos, bitPos, 2) + 3;
+        factor := getBitsLe(stri, bytePos, bitPos, 2) + 3;
         combinedCodeLengths &:= factor times
             combinedCodeLengths[maxIdx(combinedCodeLengths)];
         number +:= factor;
       elsif codeLength = 17 then
-        factor := getBits(stri, bytePos, bitPos, 3) + 3;
+        factor := getBitsLe(stri, bytePos, bitPos, 3) + 3;
         combinedCodeLengths &:= factor times 0;
         number +:= factor;
       else # codeLength = 18
-        factor := getBits(stri, bytePos, bitPos, 7) + 11;
+        factor := getBitsLe(stri, bytePos, bitPos, 7) + 11;
         combinedCodeLengths &:= factor times 0;
         number +:= factor;
       end if;
@@ -434,8 +434,8 @@ const proc: processCompressedBlock (in string: stri,
     var integer: btype is 0;
     var integer: currValue is 0;
   begin
-    bfinal := odd(getBits(stri, bytePos, bitPos, 1));
-    btype := getBits(stri, bytePos, bitPos, 2);
+    bfinal := odd(getBitsLe(stri, bytePos, bitPos, 1));
+    btype := getBitsLe(stri, bytePos, bitPos, 2);
     # writeln("bfinal=" <& bfinal <& " btype=" <& btype);
     case btype of
       when {0}:

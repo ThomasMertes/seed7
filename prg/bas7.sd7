@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  bas7.sd7      Basic interpreter                                 *)
-(*  Copyright (C) 1994, 2001, 2004 - 2009  Thomas Mertes            *)
+(*  Copyright (C) 1994, 2001, 2004 - 2010  Thomas Mertes            *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
 (*  modify it under the terms of the GNU General Public License as  *)
@@ -2200,8 +2200,10 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
         symbol := get_symbol(line);
         num1 := exec_expr(symbol, line);
         expect(")", symbol, line);
-      end if;
-      if num1 <> 0.0 then
+        if num1 <> 0.0 then
+          lastRandomNumber := rand(0.0, 1.0);
+        end if;
+      else
         lastRandomNumber := rand(0.0, 1.0);
       end if;
       result := lastRandomNumber;
@@ -3052,23 +3054,27 @@ const func string: find_then (inout string: line) is func
  *  When an IF is found a recursive call searches for a possible
  *  inner ELSE which would belong to the inner IF. Such an inner ELSE
  *  is skipped.
+ *  @param symbol contains the current symbol. After the call it
+ *         contains "ELSE" when a corresponding ELSE was found and
+ *         "" otherwise.
  *  @param line contains the current line. After the call it contains
  *         the rest of the line after the ELSE or "" when no ELSE was
  *         found.
- *  @return "ELSE" when a corresponding ELSE was found, "" otherwise.
  *)
-const func string: find_else (inout string: line) is func
-  result
-    var string: symbol is "";
+const proc: find_else (inout string: symbol, inout string: line) is func
   begin
-    symbol := get_symbol(line);
     if startsWith(symbol, "ELSE") and not is_let_statement(line) then
       line := symbol[5 ..] & line;
       symbol := "ELSE";
     end if;
     while symbol <> "ELSE" and symbol <> "" do
+      if startsWith(symbol, "IF") and not is_let_statement(line) then
+        line := symbol[3 ..] & line;
+        symbol := "IF";
+      end if;
       if symbol = "IF" then
-        symbol := find_else(line);
+        symbol := get_symbol(line);
+        find_else(symbol, line);
       elsif ignoreRestOfLine(symbol) then
         line := "";
       end if;
@@ -3885,13 +3891,7 @@ const proc: exec_if (inout string: symbol, inout string: line,
         end if;
       else
         writeln(log, " THEN - SKIP STATEMENTS IN LINE UNTIL \"ELSE\"");
-        if startsWith(symbol, "ELSE") and not is_let_statement(line) then
-          line := symbol[5 ..] & line;
-          symbol := "ELSE";
-        end if;
-        if symbol <> "ELSE" then
-          symbol := find_else(line);
-        end if;
+        find_else(symbol, line);
         if symbol = "ELSE" then
           symbol := get_symbol(line);
           if label_or_linenum(symbol) then

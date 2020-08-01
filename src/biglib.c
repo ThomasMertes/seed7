@@ -643,11 +643,11 @@ listtype arguments;
   { /* big_ne */
     isit_bigint(arg_1(arguments));
     isit_bigint(arg_3(arguments));
-    if (bigNe(take_bigint(arg_1(arguments)),
+    if (bigEq(take_bigint(arg_1(arguments)),
         take_bigint(arg_3(arguments)))) {
-      return(SYS_TRUE_OBJECT);
-    } else {
       return(SYS_FALSE_OBJECT);
+    } else {
+      return(SYS_TRUE_OBJECT);
     } /* if */
   } /* big_ne */
 

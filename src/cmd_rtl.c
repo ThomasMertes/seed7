@@ -86,6 +86,10 @@
 #undef TRACE_CMD_RTL
 
 
+#ifndef LINKER_OPT_DEBUG_INFO
+#define LINKER_OPT_DEBUG_INFO ""
+#endif
+
 #ifndef PATH_MAX
 #define PATH_MAX 2048
 #endif
@@ -859,10 +863,14 @@ stritype name;
         opt = EXECUTABLE_FILE_EXTENSION;
       } else if (strcmp(opt_name, "C_COMPILER") == 0) {
         opt = C_COMPILER;
-      } else if (strcmp(opt_name, "INHIBIT_C_WARNINGS") == 0) {
-        opt = INHIBIT_C_WARNINGS;
+      } else if (strcmp(opt_name, "CC_OPT_NO_WARNINGS") == 0) {
+        opt = CC_OPT_NO_WARNINGS;
+      } else if (strcmp(opt_name, "CC_OPT_DEBUG_INFO") == 0) {
+        opt = CC_OPT_DEBUG_INFO;
       } else if (strcmp(opt_name, "REDIRECT_C_ERRORS") == 0) {
         opt = REDIRECT_C_ERRORS;
+      } else if (strcmp(opt_name, "LINKER_OPT_DEBUG_INFO") == 0) {
+        opt = LINKER_OPT_DEBUG_INFO;
       } else if (strcmp(opt_name, "LINKER_FLAGS") == 0) {
         opt = LINKER_FLAGS;
       } else if (strcmp(opt_name, "SYSTEM_LIBS") == 0) {

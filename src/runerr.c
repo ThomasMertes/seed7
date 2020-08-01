@@ -88,20 +88,20 @@ void continue_question ()
 
 #ifdef ANSI_C
 
-void write_call_stack (const_listtype stack_elem)
+static void write_call_stack_element (const_listtype stack_elem)
 #else
 
-void write_call_stack (stack_elem)
+static void write_call_stack_element (stack_elem)
 listtype stack_elem;
 #endif
 
   {
+    const_listtype position_stack_elem;
     objecttype func_object;
 
-  /* write_call_stack */
-    if (stack_elem != NULL) {
-      write_call_stack(stack_elem->next);
-      if (stack_elem->obj != NULL) {
+  /* write_call_stack_element */
+    if (stack_elem->obj != NULL) {
+      if (stack_elem->next != NULL) {
         if (CATEGORY_OF_OBJ(stack_elem->obj) == CALLOBJECT ||
             CATEGORY_OF_OBJ(stack_elem->obj) == MATCHOBJECT) {
           func_object = stack_elem->obj->value.listvalue->obj;
@@ -109,6 +109,7 @@ listtype stack_elem;
           func_object = stack_elem->obj;
         } /* if */
         if (HAS_ENTITY(func_object)) {
+          printf("in ");
           if (GET_ENTITY(func_object)->ident != NULL) {
             printf("%s ",
                 id_string(GET_ENTITY(func_object)->ident));
@@ -117,30 +118,49 @@ listtype stack_elem;
             printf(" ");
           } /* if */
         } /* if */
-        if (HAS_POSINFO(stack_elem->obj)) {
+        position_stack_elem = stack_elem->next;
+        if (HAS_POSINFO(position_stack_elem->obj)) {
           /*
           printf("\n");
-          trace1(stack_elem->obj);
+          trace1(position_stack_elem->obj);
           printf("\n");
           trace1(func_object);
           printf("\n");
           */
           printf("at %s(%u)\n",
-              file_name(GET_FILE_NUM(stack_elem->obj)),
-              GET_LINE_NUM(stack_elem->obj));
-        } else if (HAS_PROPERTY(stack_elem->obj) &&
-            stack_elem->obj->descriptor.property->line != 0) {
+              file_name(GET_FILE_NUM(position_stack_elem->obj)),
+              GET_LINE_NUM(position_stack_elem->obj));
+        } else if (HAS_PROPERTY(position_stack_elem->obj) &&
+            position_stack_elem->obj->descriptor.property->line != 0) {
           printf("at %s(%u)\n",
-              file_name(stack_elem->obj->descriptor.property->file_number),
-              stack_elem->obj->descriptor.property->line);
+              file_name(position_stack_elem->obj->descriptor.property->file_number),
+              position_stack_elem->obj->descriptor.property->line);
         } else {
           printf("no POSITION INFORMATION ");
-          /* trace1(stack_elem->obj); */
+          /* trace1(position_stack_elem->obj); */
           printf("\n");
         } /* if */
-      } else {
-        printf("NULL\n");
       } /* if */
+    } else {
+      printf("NULL\n");
+    } /* if */
+  } /* write_call_stack_element */
+
+
+
+#ifdef ANSI_C
+
+void write_call_stack (const_listtype stack_elem)
+#else
+
+void write_call_stack (stack_elem)
+listtype stack_elem;
+#endif
+
+  { /* write_call_stack */
+    if (stack_elem != NULL) {
+      write_call_stack(stack_elem->next);
+      write_call_stack_element(stack_elem);
     } /* if */
   } /* write_call_stack */
 

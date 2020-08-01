@@ -999,6 +999,38 @@ Are there exceptions?
 Yes, Seed7 has exceptions which are similar to the Ada and Java exceptions.
 
 
+What happens when an exception is not catched?
+==============================================
+
+When an EXCEPTION is not catched the program is terminated and the hi
+interpreter writes a stack trace:
+
+  *** Uncaught EXCEPTION NUMERIC_ERROR raised with
+  {integer: <SYMBOLOBJECT> *NULL_ENTITY_OBJECT* div fuel_max }
+
+  Stack:
+  in {(in integer param) div (in integer param) } at seed7_05.s7i(554)
+  in init_display at lander.sd7(839)
+  in setup at lander.sd7(908)
+  in main at lander.sd7(1543)
+
+This stack trace shows that a 'div' operation causes a 'NUMERIC_ERROR'
+(probably a division by zero) in line 839 of the file "lander.sd7".
+A short examination in "lander.sd7" shows that an assignment to
+'fuel_max' was commented out to show how stack traces work.
+
+  A compiled program creates a much shorter crash message:
+
+  *** Uncaught EXCEPTION NUMERIC_ERROR raised at tmp_lander.c(601)
+
+In this case the mentioned file name and line number refers to
+the temporary C file or the Seed7 runtime library. To get useful
+information there are two possibilities:
+
+ 1. Start the program in the interpreter instead.
+ 2. Compile the program with the option -g and start it from a debugger.
+
+
 What does action "XYZ_SOMETHING" mean?
 ======================================
 

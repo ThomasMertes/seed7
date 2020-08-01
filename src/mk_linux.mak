@@ -7,7 +7,10 @@
 # CFLAGS =
 # CFLAGS = -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -fomit-frame-pointer -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
+# CFLAGS = -O2 -fomit-frame-pointer -Wall -Wextra -Wswitch-default -Wswitch-enum -Wcast-qual -Waggregate-return -Wwrite-strings -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith -Wmissing-noreturn -Wno-multichar
+# CFLAGS = -O2 -fomit-frame-pointer -Wall -Wextra -Wswitch-default -Wcast-qual -Waggregate-return -Wwrite-strings -Winline -Wconversion -Wshadow -Wpointer-arith -Wmissing-noreturn -Wno-multichar
 CFLAGS = -O2 -g -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
+# CFLAGS = -O2 -g -Wall
 # CFLAGS = -O2 -g -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -fomit-frame-pointer -funroll-loops -Wall
 # CFLAGS = -O2 -funroll-loops -Wall -pg
@@ -16,8 +19,8 @@ LFLAGS =
 # LFLAGS = -pg -lc_p
 # LIBS = /usr/Xlib/libX11.so -lncurses -lm
 LIBS = -lX11 -lncurses -lm
-# LIBS = -lX11 -lncurses -lm_p -lc_p
 # LIBS = -lX11 -lncurses -lm -lgmp
+# LIBS = -lX11 -lncurses -lm_p -lc_p
 SEED7_LIB = seed7_05.a
 COMP_DATA_LIB = s7_data.a
 COMPILER_LIB = s7_comp.a
@@ -178,7 +181,8 @@ version.h:
 	echo "#define OBJECT_FILE_EXTENSION \".o\"" >> version.h
 	echo "#define EXECUTABLE_FILE_EXTENSION \"\"" >> version.h
 	echo "#define C_COMPILER \"$(CC)\"" >> version.h
-	echo "#define INHIBIT_C_WARNINGS \"-w\"" >> version.h
+	echo "#define CC_OPT_NO_WARNINGS \"-w\"" >> version.h
+	echo "#define CC_OPT_DEBUG_INFO \"-g\"" >> version.h
 	echo "#define REDIRECT_C_ERRORS \"2>\"" >> version.h
 	echo "#define LINKER_FLAGS \"$(LFLAGS)\"" >> version.h
 	echo "#define SYSTEM_LIBS \"$(LIBS)\"" >> version.h

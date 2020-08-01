@@ -210,7 +210,8 @@ version.h:
 	echo "#define OBJECT_FILE_EXTENSION \".o\"" >> version.h
 	echo "#define EXECUTABLE_FILE_EXTENSION \".exe\"" >> version.h
 	echo "#define C_COMPILER \"$(CC)\"" >> version.h
-	echo "#define INHIBIT_C_WARNINGS \"-w\"" >> version.h
+	echo "#define CC_OPT_NO_WARNINGS \"-w\"" >> version.h
+	echo "#define CC_OPT_DEBUG_INFO \"-g\"" >> version.h
 	echo "#define REDIRECT_C_ERRORS \"2>\"" >> version.h
 	echo "#define LINKER_FLAGS \"$(LFLAGS)\"" >> version.h
 	echo "#define SYSTEM_LIBS \"$(LIBS)\"" >> version.h

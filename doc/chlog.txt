@@ -1,3 +1,41 @@
+20100207:
+- The compiler (comp.sd7) was improved to support source level debugging with the
+  option '-g' (comp.sd7 generates C programs with '#line' directives and the C
+  compiler is called with a corresponding debugging option).
+- An explaination what happens when an exception is not catched, was added to the
+  FAQ.
+- The chapter in the manual, which explains a stack trace, was improved.
+- The flag 'mayRaiseRangeError' was added to the "bigint.s7i" library to describe
+  that 'ord(bigInteger)' may raise RANGE_ERROR.
+- The 'set of' type in "seed7_05.s7i" was improved to use 'HASHSET_OF' instead of
+  'BITSET_OF' when 'mayRaiseRangeError' is defined for 'ord'.
+- The function 'getBits' was renamed to 'getBitsLe' in "gzip.s7i" ('Le' describes
+  that the bits are read in little endian order).
+- A '=' operator was defined for 'HASHSET_OF' in "seed7_05.s7i".
+- The 'strifile' functions 'getwd' and 'getln' were added to "strifile.s7i".
+- The bas7.sd7 (basic interpreter) example program was improved.
+- The compiler was improved to create executables where the message about an
+  uncaught exception uses the file and line of the raise statement.
+- Several improvements in the compiler were done to call special case functions
+  for bigInteger operations.
+- The experimental compiler option -e was introduced to send a signal when an
+  exception occurs.
+- The compiler was improved to write a message when it cannot remove the old
+  executable.
+- Several makefiles and the function 'cmdConfigValue' in "cmd_rtl.c" were improved
+  to define CC_OPT_DEBUG_INFO and LINKER_OPT_DEBUG_INFO and to rename
+  INHIBIT_C_WARNINGS to CC_OPT_NO_WARNINGS.
+- The function 'bigZero', which initializes bigInteger variables with zero, was
+  added to "big_rtl.c" and "big_gmp.c".
+- The function 'bigNe' was removed from "big_rtl.c" and "big_gmp.c" (compiler
+  and interpreter were changed to use a negation of "bigEq" instead).
+- The function 'bigMultSignedDigit' was added to "big_rtl.c" and "big_gmp.c".
+- A call of 'mpz_init' was added to the function 'bigImport' in "big_gmp.c".
+- The 'normalize' function in "big_rtl.c" was improved to avoid resizing
+  bigInteger values.
+- The interpreter was improved such that the appearance of a stack trace is more
+  like the one produced by a debugger.
+
 20100117:
 - The seed7_05.s7i library was improved to support union (|), intersection (&),
   difference (-) and symmetric difference (><) for sets implemented with hashes

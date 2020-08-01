@@ -564,8 +564,11 @@ THE VERSION.H FILE
               compiler and linker (Most IDEs provide also a
               stand-alone compiler/linker).
 
-  INHIBIT_C_WARNINGS: Contains the C compiler switch to suppress
+  CC_OPT_NO_WARNINGS: Contains the C compiler option to suppress
                       all warnings.
+
+  CC_OPT_DEBUG_INFO: Contains the C compiler option to add source
+                     level debugging information to the object file.
 
   REDIRECT_C_ERRORS: The redirect command to redirect the errors
                      of the C compiler to a file. The MSVC
@@ -574,6 +577,12 @@ THE VERSION.H FILE
                      while the unix C compliers including MinGW and
                      cygwin write the error messages to the error
                      output (use "2>").
+
+  LINKER_OPT_DEBUG_INFO: Contains the linker option to add source
+                         level debugging information to the
+                         executable file. Many compiler/linker
+                         combinations don't need this option
+                         to do source level debugging.
 
   LINKER_FLAGS: Contains options for the stand-alone linker to link
                 a compiled Seed7 program.

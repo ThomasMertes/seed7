@@ -9121,18 +9121,55 @@ ont color=blue>is</font> <font color=maroon>""</font>;
 
 <a name="Stack_trace"><h3>14.4 Stack trace</h3></a>
 <p>
-  When an EXCEPTION is not catched at any level the program is
-  terminated and the hi interpreter generates a stack trace.
-  For example:
+  When an EXCEPTION is not catched the program is terminated and the hi
+  interpreter writes a stack trace:
 </p><pre>
     *** Uncaught EXCEPTION NUMERIC_ERROR raised with
-    {integer <80b2e64>: <SYMBOLOBJECT> 0 div integer <80b2e64>: <SYMBOLOBJECT> 0 }
+    {integer: <SYMBOLOBJECT> *NULL_ENTITY_OBJECT* div fuel_max }
 
-    {(in integer <80b2e64> param) div (in integer <80b2e64> param) } at lander.sd7(1028)
-    drawLogo {} at lander.sd7(1080)
-    advanced_lander {} at lander.sd7(873)
-    setup {} at lander.sd7(1441)
-    main {} no POSINFO
+    Stack:
+    in {(in integer param) div (in integer param) } at seed7_05.s7i(554)
+    in init_display at lander.sd7(839)
+    in setup at lander.sd7(908)
+    in main at lander.sd7(1543)
+</pre><p>
+  The stack trace shows that a <tt>'NUMERIC_ERROR'</tt> was raised by the <tt>'<font color=blue>div</font>'</tt> operation.
+  This operation is defined in line 554 of <tt><font color=maroon>"seed7_05.s7i"</font></tt>. More interesting is that
+  <tt>'<font color=blue>div</font>'</tt> was called from the function <tt><font color=maroon>"init_display"</font></tt> in
+  line 839 of <tt><font color=maroon>"lander.sd7"</font></tt>. A <tt>'NUMERIC_ERROR'</tt> with <tt>'<font color=blue>div</font>'</tt> is
+  probably caused by a zero division. A short examination in <tt><font color=maroon>"lander.sd7"</font></tt> shows that an assignment to
+  <tt>'fuel_max'</tt> was commented out to show how stack traces work.
+</p><p>
+  A compiled program creates a much shorter crash message:
+</p><pre>
+    *** Uncaught EXCEPTION NUMERIC_ERROR raised at tmp_lander.c(601)
+</pre><p>
+  To get more information there are two possibilities:
+</p><ul>
+    <li><!--  -  -->Start the program in the interpreter instead.</li>
+    <li><!--  -  -->Compile the program with the option <tt>-g</tt> and start it from a debugger.</li>
+</ul><p>
+  The option <tt>-g</tt> instructs the C compiler to include
+  debugging information. This way a debugger like gdb can
+  run the program and provide information.
+</p><pre>
+  ./hi comp -g lander
+  gdb lander
+</pre><p>
+  Then the debugger should be able to run the program and to
+  write a backtrace when a crash occours:
+</p><pre>
+    (gdb) run
+    Starting program: /home/tm/seed7_5/prg/lander 
+
+    Program received signal SIGFPE, Arithmetic exception.
+    0x0806b263 in o_2818_init_display () at lander.sd7:839
+    839	    fuel_gauge := 40 * rocket.fuel div fuel_max;
+    (gdb) bt
+    #0  0x0806b263 in o_2818_init_display () at lander.sd7:839
+    #1  0x0806b9b9 in o_2823_setup () at lander.sd7:908
+    #2  0x0806f069 in o_1261_main () at lander.sd7:1543
+    #3  0x0808a057 in main (argc=1, argv=0xbffff4c4) at <stdin>:6414
 </pre><p></p>
 
 <a name="Other_errors_and_warnings"><h3>14.5 Other errors and warnings</h3></a>

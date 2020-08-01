@@ -83,7 +83,6 @@ biginttype bigMinus (const const_biginttype big1);
 biginttype bigMod (const const_biginttype big1, const const_biginttype big2);
 biginttype bigMult (const_biginttype big1, const_biginttype big2);
 void bigMultAssign (biginttype *const big_variable, const_biginttype big2);
-booltype bigNe (const const_biginttype big1, const const_biginttype big2);
 booltype bigOdd (const const_biginttype big1);
 biginttype bigParse (const const_stritype stri);
 biginttype bigPred (const const_biginttype big1);
@@ -102,6 +101,7 @@ int32type bigToInt32 (const const_biginttype big1);
 #ifdef INT64TYPE
   int64type bigToInt64 (const const_biginttype big1);
 #endif
+biginttype bigZero (void);
 
 #else
 
@@ -143,7 +143,6 @@ biginttype bigMinus ();
 biginttype bigMod ();
 biginttype bigMult ();
 void bigMultAssign ();
-booltype bigNe ();
 booltype bigOdd ();
 biginttype bigParse ();
 biginttype bigPred ();
@@ -162,5 +161,6 @@ int32type bigToInt32 ();
 #ifdef INT64TYPE
   int64type bigToInt64 ();
 #endif
+biginttype bigZero ();
 
 #endif

@@ -9,7 +9,7 @@
 # CFLAGS = -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -fomit-frame-pointer -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2
-CFLAGS = -O2 -v
+CFLAGS = -O2 -y -v
 # CFLAGS = -O2 -v -w-
 # CFLAGS = -O2 -g -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -fomit-frame-pointer -funroll-loops -Wall
@@ -84,12 +84,12 @@ COMP_DATA_LIB_SRC = typ_data.c rfl_data.c ref_data.c listutl.c flistutl.c typeut
 COMPILER_LIB_SRC = $(PSRC1) $(LSRC1) $(LSRC2) $(LSRC3) $(ESRC1) $(ASRC1) $(ASRC2) $(ASRC3) $(GSRC1) $(GSRC2)
 
 hi: $(OBJ) $(COMPILER_LIB) $(COMP_DATA_LIB) $(SEED7_LIB)
-	$(CC) $(LFLAGS) -o hi.exe $(OBJ) $(COMPILER_LIB) $(COMP_DATA_LIB) $(SEED7_LIB) $(LIBS)
+	$(CC) $(LFLAGS) -ohi.exe $(OBJ) $(COMPILER_LIB) $(COMP_DATA_LIB) $(SEED7_LIB) $(LIBS)
 	copy hi.exe ..\prg /Y
 	.\hi level
 
 hi.gp: $(OBJ)
-	$(CC) $(LFLAGS) $(OBJ) $(LIBS) -o /usr/local/bin/hi.gp
+	$(CC) $(LFLAGS) $(OBJ) $(LIBS) -o/usr/local/bin/hi.gp
 	hi level
 
 scr_x11.obj: scr_x11.c version.h scr_drv.h trm_drv.h
@@ -233,8 +233,10 @@ version.h:
 	cmd /S /C "echo #define OBJECT_FILE_EXTENSION ".obj"" >> version.h
 	cmd /S /C "echo #define EXECUTABLE_FILE_EXTENSION ".exe"" >> version.h
 	cmd /S /C "echo #define C_COMPILER "$(CC)"" >> version.h
-	cmd /S /C "echo #define INHIBIT_C_WARNINGS "-w-"" >> version.h
+	cmd /S /C "echo #define CC_OPT_NO_WARNINGS "-w-"" >> version.h
+	cmd /S /C "echo #define CC_OPT_DEBUG_INFO "-y -v"" >> version.h
 	cmd /S /C "echo #define REDIRECT_C_ERRORS "\076"" >> version.h
+	cmd /S /C "echo #define LINKER_OPT_DEBUG_INFO "-v"" >> version.h
 	cmd /S /C "echo #define LINKER_FLAGS "$(LFLAGS)"" >> version.h
 	cmd /S /C "echo #define SYSTEM_LIBS "$(LIBS)"" >> version.h
 	cmd /S /C "echo #include "stdio.h"" > setpaths.c

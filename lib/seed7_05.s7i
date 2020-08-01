@@ -2380,6 +2380,24 @@ const func type: HASHSET_OF (in type: baseType) is func
           end for;
         end func;
 
+      const func boolean: (in setType: set1) = (in setType: set2) is func
+        result
+          var boolean: result is TRUE;
+        local
+          var baseType: element is baseType.value;
+        begin
+          for element range set1 do
+            if element not in set2 then
+              result := FALSE;
+            end if;
+          end for;
+          for element range set2 do
+            if element not in set1 then
+              result := FALSE;
+            end if;
+          end for;
+        end func;
+
       const func setType: { (in baseType: value) } is func
         result
           var setType: result is setType.EMPTY_SET;
@@ -2431,7 +2449,8 @@ const func type: set of (in type: baseType) is func
   begin
     setType := get_type(getfunc(set of (attr baseType)));
     if setType = void then
-      if getobj(ord(ref baseType param)) <> NIL then
+      if getobj(ord(ref baseType param)) <> NIL and
+          getobj(ord(ref baseType param, mayRaiseRangeError)) = NIL then
         setType := BITSET_OF(baseType);
       else
         setType := HASHSET_OF(baseType);

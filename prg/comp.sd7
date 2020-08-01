@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  comp.sd7      Compiler from Seed7 to C                          *)
-(*  Copyright (C) 1990 - 1994, 2004 - 2009  Thomas Mertes           *)
+(*  Copyright (C) 1990 - 1994, 2004 - 2010  Thomas Mertes           *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
 (*  modify it under the terms of the GNU General Public License as  *)
@@ -51,6 +51,8 @@ const type: option_hash is hash [string] string;
 var option_hash: compiler_option is option_hash.value;
 
 var boolean: array_range_check is TRUE;
+var boolean: source_debug_info is TRUE;
+var boolean: signal_exception is FALSE;
 
 var boolean: compilerLibraryUsed is FALSE;
 var boolean: compDataLibraryUsed is FALSE;
@@ -72,6 +74,8 @@ var type: wintype is void;
 var ref_list: declared_types is ref_list.EMPTY;
 
 const type: expr_type is new struct
+  var string: currentFile is "";
+  var integer: currentLine is 0;
   var integer: temp_num is 0;
   var string: temp_decls is "";
   var string: temp_assigns is "";
@@ -176,6 +180,54 @@ const proc: count_declarations is func
     write(OUT, heapsize(PROGRAM));
     write(OUT, "     \r");
     flush(OUT);
+  end func;
+
+
+const func string: noDiagnosticLine is func
+  result
+    var string: result is "";
+  begin
+    if source_debug_info then
+      result &:= "#line 1 \"no_file\"\n";
+    end if;
+  end func;
+
+
+const func string: diagnosticLine (in reference: current_object) is func
+  result
+    var string: result is "";
+  begin
+    if source_debug_info and line(current_object) <> 0 then
+      result &:= "#line ";
+      result &:= str(line(current_object));
+      result &:= " ";
+      result &:= c_literal(file(current_object));
+      result &:= "\n";
+    else
+      result &:= "/* line ";
+      result &:= str(line(current_object));
+      result &:= " ";
+      result &:= c_literal(file(current_object));
+      result &:= " */\n";
+    end if;
+  end func;
+
+
+const proc: setDiagnosticLine (inout expr_type: c_expr) is func
+  begin
+    if source_debug_info and c_expr.currentLine <> 0 then
+      c_expr.expr &:= "#line ";
+      c_expr.expr &:= str(c_expr.currentLine);
+      c_expr.expr &:= " ";
+      c_expr.expr &:= c_literal(c_expr.currentFile);
+      c_expr.expr &:= "\n";
+    else
+      c_expr.expr &:= "/* line ";
+      c_expr.expr &:= str(c_expr.currentLine);
+      c_expr.expr &:= " ";
+      c_expr.expr &:= c_literal(c_expr.currentFile);
+      c_expr.expr &:= " */\n";
+    end if;
   end func;
 
 
@@ -1245,6 +1297,20 @@ const proc: declare_func_pointer_if_necessary (in reference: current_object,
   end func;
 
 
+const proc: process_big_create_call (in bigInteger: number, inout string: expr) is func
+
+  begin
+    if number = 0_ then
+      incr(countOptimizations);
+      expr &:= "bigZero(); /* 0_ */\n";
+    else
+      expr &:= "bigCreate(";
+      expr &:= bigIntegerLiteral(number);
+      expr &:= ");\n";
+    end if;
+  end func;
+
+
 const proc: process_str_create_call (in string: stri, inout string: expr) is func
 
   begin
@@ -1769,7 +1835,9 @@ const proc: process_else (in reference: else_part, inout expr_type: c_expr) is f
         process_statements(c_param2, c_expr);
         c_expr.expr &:= "}\n";
       elsif functionCategory = ACTOBJECT then
-        c_expr.expr &:= "else ";
+        c_expr.expr &:= "else\n";
+        c_expr.currentLine := line(else_part);
+        c_expr.currentFile := file(else_part);
         process_action(function, params, c_expr);
       else
         c_expr.expr &:= "/*!!! ";
@@ -1801,6 +1869,7 @@ const proc: process_prc_if (in ref_list: params, inout expr_type: c_expr) is fun
       c_expr.expr &:= c_condition.temp_decls;
       c_expr.expr &:= c_condition.temp_assigns;
     end if;
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "if (";
     c_expr.expr &:= c_condition.expr;
     c_expr.expr &:= ") {\n";
@@ -1831,6 +1900,7 @@ const proc: process_prc_if_elsif (in ref_list: params, inout expr_type: c_expr) 
       c_expr.expr &:= c_condition.temp_assigns;
       c_expr.expr &:= c_else_part.temp_assigns;
     end if;
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "if (";
     c_expr.expr &:= c_condition.expr;
     c_expr.expr &:= ") {\n";
@@ -1859,6 +1929,7 @@ const proc: process_prc_while (in ref_list: params, inout expr_type: c_expr) is 
       c_expr.expr &:= c_condition.temp_decls;
       c_expr.expr &:= c_condition.temp_assigns;
     end if;
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "while (";
     c_expr.expr &:= c_condition.expr;
     c_expr.expr &:= ") {\n";
@@ -1895,6 +1966,7 @@ const proc: process_prc_repeat (in ref_list: params, inout expr_type: c_expr) is
       c_expr.expr &:= c_condition.temp_to_null;
     end if;
     process_statements(c_statement, c_expr);
+    c_expr.expr &:= diagnosticLine(params[4]);
     c_expr.expr &:= "} while (!(";
     c_expr.expr &:= c_condition.expr;
     c_expr.expr &:= "));\n";
@@ -1920,6 +1992,7 @@ const proc: process_prc_for_downto (in ref_list: params, inout expr_type: c_expr
     c_expr.expr &:= "=(";
     process_expr(params[6], c_expr);
     c_expr.expr &:= ");\n";
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "for (";
     process_expr(params[2], c_expr);
     c_expr.expr &:= "=(";
@@ -1951,6 +2024,7 @@ const proc: process_prc_for_to (in ref_list: params, inout expr_type: c_expr) is
     c_expr.expr &:= "=(";
     process_expr(params[6], c_expr);
     c_expr.expr &:= ");\n";
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "for (";
     process_expr(params[2], c_expr);
     c_expr.expr &:= "=(";
@@ -2128,8 +2202,6 @@ const proc: process_prc_semicol (in ref_list: params, inout expr_type: c_expr) i
 
   begin
     process_expr(params[1], c_expr);
-    # c_expr.expr &:= ";";
-    # c_expr.expr &:= "\n";
     process_expr(params[3], c_expr);
   end func;
 
@@ -2226,12 +2298,13 @@ const proc: process_prc_raise (in reference: function, in ref_list: params,
     inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "raise_error2(";
     getAnyParamToExpr(params[2], c_expr);
     c_expr.expr &:= "+1, ";
-    c_expr.expr &:= c_literal(file(function));
+    c_expr.expr &:= c_literal(c_expr.currentFile);
     c_expr.expr &:= ", ";
-    c_expr.expr &:= str(line(function));
+    c_expr.expr &:= str(c_expr.currentLine);
     c_expr.expr &:= ");\n";
   end func;
 
@@ -2252,6 +2325,7 @@ const proc: process_act_cpy (in ref_list: params, inout expr_type: c_expr) is fu
       c_expr.expr &:= c_param1.temp_assigns;
       c_expr.expr &:= c_param3.temp_assigns;
     end if;
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= c_param1.expr;
     c_expr.expr &:= "=(";
     if c_param3.result_expr <> "" then
@@ -2305,6 +2379,7 @@ const proc: process_arr_append (in ref_list: params, inout expr_type: c_expr) is
       c_expr.expr &:= c_param1.temp_assigns;
       c_expr.expr &:= c_param3.temp_assigns;
     end if;
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "arrAppend((arraytype *)(&(";
     c_expr.expr &:= c_param1.expr;
     c_expr.expr &:= ")), (arraytype)(";
@@ -2418,19 +2493,24 @@ const proc: process_arr_cpy (in ref_list: params, inout expr_type: c_expr) is fu
     end if;
     if c_param3.result_expr <> "" then
       c_expr.expr &:= "{\n";
+      setDiagnosticLine(c_expr);
       c_expr.expr &:= "arraytype *array_ptr=(arraytype *)(&(";
       c_expr.expr &:= c_param1.expr;
       c_expr.expr &:= "));\n";
+      setDiagnosticLine(c_expr);
       c_expr.expr &:= "arraytype old_array=*array_ptr;\n";
+      setDiagnosticLine(c_expr);
       c_expr.expr &:= "*array_ptr=(arraytype)(";
       c_expr.expr &:= c_param3.result_expr;
       c_expr.expr &:= ");\n";
       process_destr_declaration(getExprResultType(params[1]), global_c_expr);
+      setDiagnosticLine(c_expr);
       process_destr_call(getExprResultType(params[1]),
           "old_array", c_expr.expr);
       c_expr.expr &:= "}\n";
     else
       process_cpy_declaration(getExprResultType(params[1]), global_c_expr);
+      setDiagnosticLine(c_expr);
       process_cpy_call(getExprResultType(params[1]),
           c_param1.expr, c_param3.expr, c_expr.expr);
       c_expr.expr &:= ";\n";
@@ -3258,16 +3338,21 @@ const proc: process_big_cpy (in ref_list: params, inout expr_type: c_expr) is fu
     end if;
     if c_param3.result_expr <> "" then
       c_expr.expr &:= "{\n";
+      setDiagnosticLine(c_expr);
       c_expr.expr &:= "biginttype *big_ptr=&(";
       c_expr.expr &:= c_param1.expr;
       c_expr.expr &:= ");\n";
+      setDiagnosticLine(c_expr);
       c_expr.expr &:= "biginttype old_big=*big_ptr;\n";
+      setDiagnosticLine(c_expr);
       c_expr.expr &:= "*big_ptr=";
       c_expr.expr &:= c_param3.result_expr;
       c_expr.expr &:= ";\n";
+      setDiagnosticLine(c_expr);
       c_expr.expr &:= "bigDestr(old_big);\n";
       c_expr.expr &:= "}\n";
     else
+      setDiagnosticLine(c_expr);
       c_expr.expr &:= "bigCpy(&(";
       c_expr.expr &:= c_param1.expr;
       c_expr.expr &:= "), ";
@@ -3285,6 +3370,7 @@ const proc: process_big_cpy (in ref_list: params, inout expr_type: c_expr) is fu
 const proc: process_big_decr (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "bigDecr(&(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= "));\n";
@@ -3344,39 +3430,106 @@ const proc: process_big_ge (in ref_list: params, inout expr_type: c_expr) is fun
   end func;
 
 
+const proc: process_const_big_grow (in reference: param1, in bigInteger: number,
+    inout expr_type: c_expr) is func
+
+  local
+    var expr_type: c_param1 is expr_type.value;
+  begin
+    if number = -1_ then
+      incr(countOptimizations);
+      process_expr(param1, c_param1);
+      if has_temp_values(c_param1) then
+        c_expr.expr &:= "{\n";
+        c_expr.expr &:= c_param1.temp_decls;
+        c_expr.expr &:= c_param1.temp_assigns;
+      end if;
+      setDiagnosticLine(c_expr);
+      c_expr.expr &:= "bigDecr(&(";
+      c_expr.expr &:= c_param1.expr;
+      c_expr.expr &:= "));\n";
+      if has_temp_values(c_param1) then
+        c_expr.expr &:= c_param1.temp_frees;
+        c_expr.expr &:= "}\n";
+      end if;
+    elsif number = 0_ then
+      incr(countOptimizations);
+      c_expr.expr &:= "/* ignore bigInteger +:= 0_; */\n";
+    elsif number = 1_ then
+      incr(countOptimizations);
+      process_expr(param1, c_param1);
+      if has_temp_values(c_param1) then
+        c_expr.expr &:= "{\n";
+        c_expr.expr &:= c_param1.temp_decls;
+        c_expr.expr &:= c_param1.temp_assigns;
+      end if;
+      setDiagnosticLine(c_expr);
+      c_expr.expr &:= "bigIncr(&(";
+      c_expr.expr &:= c_param1.expr;
+      c_expr.expr &:= "));\n";
+      if has_temp_values(c_param1) then
+        c_expr.expr &:= c_param1.temp_frees;
+        c_expr.expr &:= "}\n";
+      end if;
+    else
+      process_expr(param1, c_param1);
+      if has_temp_values(c_param1) then
+        c_expr.expr &:= "{\n";
+        c_expr.expr &:= c_param1.temp_decls;
+        c_expr.expr &:= c_param1.temp_assigns;
+      end if;
+      setDiagnosticLine(c_expr);
+      c_expr.expr &:= "bigGrow(&(";
+      c_expr.expr &:= c_param1.expr;
+      c_expr.expr &:= "), ";
+      c_expr.expr &:= bigIntegerLiteral(number);
+      c_expr.expr &:= ");\n";
+      if has_temp_values(c_param1) then
+        c_expr.expr &:= c_param1.temp_frees;
+        c_expr.expr &:= "}\n";
+      end if;
+    end if;
+  end func;
+
+
 const proc: process_big_grow (in ref_list: params, inout expr_type: c_expr) is func
 
   local
     var expr_type: c_param1 is expr_type.value;
     var expr_type: c_param3 is expr_type.value;
   begin
-    process_expr(params[1], c_param1);
-    c_param3.temp_num := c_param1.temp_num;
-    process_expr(params[3], c_param3);
-    if has_temp_values(c_param3) or c_param3.result_expr <> "" then
-      c_expr.expr &:= "{\n";
-      c_expr.expr &:= c_param1.temp_decls;
-      c_expr.expr &:= c_param3.temp_decls;
-      c_expr.expr &:= c_param3.result_decl;
-      c_expr.expr &:= c_param1.temp_assigns;
-      c_expr.expr &:= c_param3.temp_assigns;
-    end if;
-    c_expr.expr &:= "bigGrow(&(";
-    c_expr.expr &:= c_param1.expr;
-    c_expr.expr &:= "), ";
-    if c_param3.result_expr <> "" then
-      c_expr.expr &:= c_param3.result_intro;
-      c_expr.expr &:= c_param3.result_expr;
-      c_expr.expr &:= c_param3.result_finish;
+    if category(params[3]) = BIGINTOBJECT and not isVar(params[3]) then
+      process_const_big_grow(params[1], getValue(params[3], bigInteger), c_expr);
     else
-      c_expr.expr &:= c_param3.expr;
-    end if;
-    c_expr.expr &:= ");\n";
-    if has_temp_values(c_param3) or c_param3.result_expr <> "" then
-      c_expr.expr &:= c_param1.temp_frees;
-      c_expr.expr &:= c_param3.temp_frees;
-      c_expr.expr &:= c_param3.result_free;
-      c_expr.expr &:= "}\n";
+      process_expr(params[1], c_param1);
+      c_param3.temp_num := c_param1.temp_num;
+      process_expr(params[3], c_param3);
+      if has_temp_values(c_param3) or c_param3.result_expr <> "" then
+        c_expr.expr &:= "{\n";
+        c_expr.expr &:= c_param1.temp_decls;
+        c_expr.expr &:= c_param3.temp_decls;
+        c_expr.expr &:= c_param3.result_decl;
+        c_expr.expr &:= c_param1.temp_assigns;
+        c_expr.expr &:= c_param3.temp_assigns;
+      end if;
+      setDiagnosticLine(c_expr);
+      c_expr.expr &:= "bigGrow(&(";
+      c_expr.expr &:= c_param1.expr;
+      c_expr.expr &:= "), ";
+      if c_param3.result_expr <> "" then
+        c_expr.expr &:= c_param3.result_intro;
+        c_expr.expr &:= c_param3.result_expr;
+        c_expr.expr &:= c_param3.result_finish;
+      else
+        c_expr.expr &:= c_param3.expr;
+      end if;
+      c_expr.expr &:= ");\n";
+      if has_temp_values(c_param3) or c_param3.result_expr <> "" then
+        c_expr.expr &:= c_param1.temp_frees;
+        c_expr.expr &:= c_param3.temp_frees;
+        c_expr.expr &:= c_param3.result_free;
+        c_expr.expr &:= "}\n";
+      end if;
     end if;
   end func;
 
@@ -3421,6 +3574,7 @@ const proc: process_big_iconv (in ref_list: params, inout expr_type: c_expr) is 
 const proc: process_big_incr (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "bigIncr(&(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= "));\n";
@@ -3648,6 +3802,7 @@ const proc: process_big_lshift_assign (in ref_list: params, inout expr_type: c_e
       c_expr.expr &:= c_param1.temp_assigns;
       c_expr.expr &:= c_param3.temp_assigns;
     end if;
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "bigLShiftAssign(&(";
     c_expr.expr &:= c_param1.expr;
     c_expr.expr &:= "), ";
@@ -3786,6 +3941,12 @@ const proc: process_const_big_mult (in reference: param1, in bigInteger: number,
       incr(countOptimizations);
       bigNumber := getValue(param1, bigInteger) * number;
       c_expr.expr &:= bigIntegerLiteral(bigNumber);
+    elsif number = -1_ then
+      incr(countOptimizations);
+      prepare_bigint_result(c_expr);
+      c_expr.result_expr := "bigMinus(";
+      getAnyParamToResultExpr(param1, c_expr);
+      c_expr.result_expr &:= ")";
     elsif number = 0_ then
       incr(countOptimizations);
       c_expr.expr &:= bigIntegerLiteral(0_);
@@ -3801,6 +3962,15 @@ const proc: process_const_big_mult (in reference: param1, in bigInteger: number,
       getAnyParamToResultExpr(param1, c_expr);
       c_expr.result_expr &:= ", ";
       c_expr.result_expr &:= str(log2base);
+      c_expr.result_expr &:= INTTYPE_LITERAL_SUFFIX;
+      c_expr.result_expr &:= ")";
+    elsif abs(number) <= 256_ then
+      incr(countOptimizations);
+      prepare_bigint_result(c_expr);
+      c_expr.result_expr := "bigMultSignedDigit(";
+      getAnyParamToResultExpr(param1, c_expr);
+      c_expr.result_expr &:= ", ";
+      c_expr.result_expr &:= str(number);
       c_expr.result_expr &:= INTTYPE_LITERAL_SUFFIX;
       c_expr.result_expr &:= ")";
     else
@@ -3832,39 +4002,114 @@ const proc: process_big_mult (in ref_list: params, inout expr_type: c_expr) is f
   end func;
 
 
+const proc: process_const_big_mult_assign (in reference: param1, in bigInteger: number,
+    inout expr_type: c_expr) is func
+
+  local
+    var expr_type: c_param1 is expr_type.value;
+    var integer: log2base is 0;
+  begin
+    if number = 0_ then
+      incr(countOptimizations);
+      process_expr(param1, c_param1);
+      if has_temp_values(c_param1) then
+        c_expr.expr &:= "{\n";
+        c_expr.expr &:= c_param1.temp_decls;
+        c_expr.expr &:= c_param1.temp_assigns;
+      end if;
+      setDiagnosticLine(c_expr);
+      c_expr.expr &:= "bigCpy(&(";
+      c_expr.expr &:= c_param1.expr;
+      c_expr.expr &:= "), ";
+      c_expr.expr &:= bigIntegerLiteral(0_);
+      c_expr.expr &:= ");\n";
+      if has_temp_values(c_param1) then
+        c_expr.expr &:= c_param1.temp_frees;
+        c_expr.expr &:= "}\n";
+      end if;
+    elsif number = 1_ then
+      incr(countOptimizations);
+      c_expr.expr &:= "/* ignore bigInteger *:= 1_; */\n";
+    elsif number > 1_ and log2(number) <= 2147483647_ and
+        2_ ** ord(log2(number)) = number then
+      incr(countOptimizations);
+      log2base := ord(log2(number));
+      process_expr(param1, c_param1);
+      if has_temp_values(c_param1) then
+        c_expr.expr &:= "{\n";
+        c_expr.expr &:= c_param1.temp_decls;
+        c_expr.expr &:= c_param1.temp_assigns;
+      end if;
+      setDiagnosticLine(c_expr);
+      c_expr.expr &:= "bigLShiftAssign(&(";
+      c_expr.expr &:= c_param1.expr;
+      c_expr.expr &:= "), ";
+      c_expr.expr &:= str(log2base);
+      c_expr.expr &:= INTTYPE_LITERAL_SUFFIX;
+      c_expr.expr &:= ");\n";
+      if has_temp_values(c_param1) then
+        c_expr.expr &:= c_param1.temp_frees;
+        c_expr.expr &:= "}\n";
+      end if;
+    else
+      process_expr(param1, c_param1);
+      if has_temp_values(c_param1) then
+        c_expr.expr &:= "{\n";
+        c_expr.expr &:= c_param1.temp_decls;
+        c_expr.expr &:= c_param1.temp_assigns;
+      end if;
+      setDiagnosticLine(c_expr);
+      c_expr.expr &:= "bigMultAssign(&(";
+      c_expr.expr &:= c_param1.expr;
+      c_expr.expr &:= "), ";
+      c_expr.expr &:= bigIntegerLiteral(number);
+      c_expr.expr &:= ");\n";
+      if has_temp_values(c_param1) then
+        c_expr.expr &:= c_param1.temp_frees;
+        c_expr.expr &:= "}\n";
+      end if;
+    end if;
+  end func;
+
+
 const proc: process_big_mult_assign (in ref_list: params, inout expr_type: c_expr) is func
 
   local
     var expr_type: c_param1 is expr_type.value;
     var expr_type: c_param3 is expr_type.value;
   begin
-    process_expr(params[1], c_param1);
-    c_param3.temp_num := c_param1.temp_num;
-    process_expr(params[3], c_param3);
-    if has_temp_values(c_param3) or c_param3.result_expr <> "" then
-      c_expr.expr &:= "{\n";
-      c_expr.expr &:= c_param1.temp_decls;
-      c_expr.expr &:= c_param3.temp_decls;
-      c_expr.expr &:= c_param3.result_decl;
-      c_expr.expr &:= c_param1.temp_assigns;
-      c_expr.expr &:= c_param3.temp_assigns;
-    end if;
-    c_expr.expr &:= "bigMultAssign(&(";
-    c_expr.expr &:= c_param1.expr;
-    c_expr.expr &:= "), ";
-    if c_param3.result_expr <> "" then
-      c_expr.expr &:= c_param3.result_intro;
-      c_expr.expr &:= c_param3.result_expr;
-      c_expr.expr &:= c_param3.result_finish;
+    if category(params[3]) = BIGINTOBJECT and not isVar(params[3]) then
+      process_const_big_mult_assign(params[1], getValue(params[3], bigInteger), c_expr);
     else
-      c_expr.expr &:= c_param3.expr;
-    end if;
-    c_expr.expr &:= ");\n";
-    if has_temp_values(c_param3) or c_param3.result_expr <> "" then
-      c_expr.expr &:= c_param1.temp_frees;
-      c_expr.expr &:= c_param3.temp_frees;
-      c_expr.expr &:= c_param3.result_free;
-      c_expr.expr &:= "}\n";
+      process_expr(params[1], c_param1);
+      c_param3.temp_num := c_param1.temp_num;
+      process_expr(params[3], c_param3);
+      if has_temp_values(c_param3) or c_param3.result_expr <> "" then
+        c_expr.expr &:= "{\n";
+        c_expr.expr &:= c_param1.temp_decls;
+        c_expr.expr &:= c_param3.temp_decls;
+        c_expr.expr &:= c_param3.result_decl;
+        c_expr.expr &:= c_param1.temp_assigns;
+        c_expr.expr &:= c_param3.temp_assigns;
+      end if;
+      setDiagnosticLine(c_expr);
+      c_expr.expr &:= "bigMultAssign(&(";
+      c_expr.expr &:= c_param1.expr;
+      c_expr.expr &:= "), ";
+      if c_param3.result_expr <> "" then
+        c_expr.expr &:= c_param3.result_intro;
+        c_expr.expr &:= c_param3.result_expr;
+        c_expr.expr &:= c_param3.result_finish;
+      else
+        c_expr.expr &:= c_param3.expr;
+      end if;
+      c_expr.expr &:= ");\n";
+      if has_temp_values(c_param3) or c_param3.result_expr <> "" then
+        c_expr.expr &:= c_param1.temp_frees;
+        c_expr.expr &:= c_param3.temp_frees;
+        c_expr.expr &:= c_param3.result_free;
+        c_expr.expr &:= "}\n";
+      end if;
     end if;
   end func;
 
@@ -3872,11 +4117,11 @@ const proc: process_big_mult_assign (in ref_list: params, inout expr_type: c_exp
 const proc: process_big_ne (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "bigNe(";
+    c_expr.expr &:= "(!bigEq(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
     getAnyParamToExpr(params[3], c_expr);
-    c_expr.expr &:= ")";
+    c_expr.expr &:= "))";
   end func;
 
 
@@ -3985,6 +4230,7 @@ const proc: process_big_rshift_assign (in ref_list: params, inout expr_type: c_e
       c_expr.expr &:= c_param1.temp_assigns;
       c_expr.expr &:= c_param3.temp_assigns;
     end if;
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "bigRShiftAssign(&(";
     c_expr.expr &:= c_param1.expr;
     c_expr.expr &:= "), ";
@@ -4033,39 +4279,106 @@ const proc: process_big_sbtr (in ref_list: params, inout expr_type: c_expr) is f
   end func;
 
 
+const proc: process_const_big_shrink (in reference: param1, in bigInteger: number,
+    inout expr_type: c_expr) is func
+
+  local
+    var expr_type: c_param1 is expr_type.value;
+  begin
+    if number = -1_ then
+      incr(countOptimizations);
+      process_expr(param1, c_param1);
+      if has_temp_values(c_param1) then
+        c_expr.expr &:= "{\n";
+        c_expr.expr &:= c_param1.temp_decls;
+        c_expr.expr &:= c_param1.temp_assigns;
+      end if;
+      setDiagnosticLine(c_expr);
+      c_expr.expr &:= "bigIncr(&(";
+      c_expr.expr &:= c_param1.expr;
+      c_expr.expr &:= "));\n";
+      if has_temp_values(c_param1) then
+        c_expr.expr &:= c_param1.temp_frees;
+        c_expr.expr &:= "}\n";
+      end if;
+    elsif number = 0_ then
+      incr(countOptimizations);
+      c_expr.expr &:= "/* ignore bigInteger -:= 0_; */\n";
+    elsif number = 1_ then
+      incr(countOptimizations);
+      process_expr(param1, c_param1);
+      if has_temp_values(c_param1) then
+        c_expr.expr &:= "{\n";
+        c_expr.expr &:= c_param1.temp_decls;
+        c_expr.expr &:= c_param1.temp_assigns;
+      end if;
+      setDiagnosticLine(c_expr);
+      c_expr.expr &:= "bigDecr(&(";
+      c_expr.expr &:= c_param1.expr;
+      c_expr.expr &:= "));\n";
+      if has_temp_values(c_param1) then
+        c_expr.expr &:= c_param1.temp_frees;
+        c_expr.expr &:= "}\n";
+      end if;
+    else
+      process_expr(param1, c_param1);
+      if has_temp_values(c_param1) then
+        c_expr.expr &:= "{\n";
+        c_expr.expr &:= c_param1.temp_decls;
+        c_expr.expr &:= c_param1.temp_assigns;
+      end if;
+      setDiagnosticLine(c_expr);
+      c_expr.expr &:= "bigShrink(&(";
+      c_expr.expr &:= c_param1.expr;
+      c_expr.expr &:= "), ";
+      c_expr.expr &:= bigIntegerLiteral(number);
+      c_expr.expr &:= ");\n";
+      if has_temp_values(c_param1) then
+        c_expr.expr &:= c_param1.temp_frees;
+        c_expr.expr &:= "}\n";
+      end if;
+    end if;
+  end func;
+
+
 const proc: process_big_shrink (in ref_list: params, inout expr_type: c_expr) is func
 
   local
     var expr_type: c_param1 is expr_type.value;
     var expr_type: c_param3 is expr_type.value;
   begin
-    process_expr(params[1], c_param1);
-    c_param3.temp_num := c_param1.temp_num;
-    process_expr(params[3], c_param3);
-    if has_temp_values(c_param3) or c_param3.result_expr <> "" then
-      c_expr.expr &:= "{\n";
-      c_expr.expr &:= c_param1.temp_decls;
-      c_expr.expr &:= c_param3.temp_decls;
-      c_expr.expr &:= c_param3.result_decl;
-      c_expr.expr &:= c_param1.temp_assigns;
-      c_expr.expr &:= c_param3.temp_assigns;
-    end if;
-    c_expr.expr &:= "bigShrink(&(";
-    c_expr.expr &:= c_param1.expr;
-    c_expr.expr &:= "), ";
-    if c_param3.result_expr <> "" then
-      c_expr.expr &:= c_param3.result_intro;
-      c_expr.expr &:= c_param3.result_expr;
-      c_expr.expr &:= c_param3.result_finish;
+    if category(params[3]) = BIGINTOBJECT and not isVar(params[3]) then
+      process_const_big_shrink(params[1], getValue(params[3], bigInteger), c_expr);
     else
-      c_expr.expr &:= c_param3.expr;
-    end if;
-    c_expr.expr &:= ");\n";
-    if has_temp_values(c_param3) or c_param3.result_expr <> "" then
-      c_expr.expr &:= c_param1.temp_frees;
-      c_expr.expr &:= c_param3.temp_frees;
-      c_expr.expr &:= c_param3.result_free;
-      c_expr.expr &:= "}\n";
+      process_expr(params[1], c_param1);
+      c_param3.temp_num := c_param1.temp_num;
+      process_expr(params[3], c_param3);
+      if has_temp_values(c_param3) or c_param3.result_expr <> "" then
+        c_expr.expr &:= "{\n";
+        c_expr.expr &:= c_param1.temp_decls;
+        c_expr.expr &:= c_param3.temp_decls;
+        c_expr.expr &:= c_param3.result_decl;
+        c_expr.expr &:= c_param1.temp_assigns;
+        c_expr.expr &:= c_param3.temp_assigns;
+      end if;
+      setDiagnosticLine(c_expr);
+      c_expr.expr &:= "bigShrink(&(";
+      c_expr.expr &:= c_param1.expr;
+      c_expr.expr &:= "), ";
+      if c_param3.result_expr <> "" then
+        c_expr.expr &:= c_param3.result_intro;
+        c_expr.expr &:= c_param3.result_expr;
+        c_expr.expr &:= c_param3.result_finish;
+      else
+        c_expr.expr &:= c_param3.expr;
+      end if;
+      c_expr.expr &:= ");\n";
+      if has_temp_values(c_param3) or c_param3.result_expr <> "" then
+        c_expr.expr &:= c_param1.temp_frees;
+        c_expr.expr &:= c_param3.temp_frees;
+        c_expr.expr &:= c_param3.result_free;
+        c_expr.expr &:= "}\n";
+      end if;
     end if;
   end func;
 
@@ -4140,6 +4453,7 @@ const proc: process_bln_cpy (in ref_list: params, inout expr_type: c_expr) is fu
       c_expr.expr &:= c_param1.temp_assigns;
       c_expr.expr &:= c_param3.temp_assigns;
     end if;
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= c_param1.expr;
     c_expr.expr &:= "=(";
     if c_param3.result_expr <> "" then
@@ -4283,16 +4597,21 @@ const proc: process_bst_cpy (in ref_list: params, inout expr_type: c_expr) is fu
     end if;
     if c_param3.result_expr <> "" then
       c_expr.expr &:= "{\n";
+      setDiagnosticLine(c_expr);
       c_expr.expr &:= "bstritype *bstri_ptr=&(";
       c_expr.expr &:= c_param1.expr;
       c_expr.expr &:= ");\n";
+      setDiagnosticLine(c_expr);
       c_expr.expr &:= "bstritype old_bstri=*bstri_ptr;\n";
+      setDiagnosticLine(c_expr);
       c_expr.expr &:= "*bstri_ptr=";
       c_expr.expr &:= c_param3.result_expr;
       c_expr.expr &:= ";\n";
+      setDiagnosticLine(c_expr);
       c_expr.expr &:= "bstDestr(old_bstri);\n";
       c_expr.expr &:= "}\n";
     else
+      setDiagnosticLine(c_expr);
       c_expr.expr &:= "bstCpy(&(";
       c_expr.expr &:= c_param1.expr;
       c_expr.expr &:= "), ";
@@ -4410,6 +4729,7 @@ const proc: process_chr_cpy (in ref_list: params, inout expr_type: c_expr) is fu
       c_expr.expr &:= c_param1.temp_assigns;
       c_expr.expr &:= c_param3.temp_assigns;
     end if;
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= c_param1.expr;
     c_expr.expr &:= "=(";
     if c_param3.result_expr <> "" then
@@ -4429,6 +4749,7 @@ const proc: process_chr_cpy (in ref_list: params, inout expr_type: c_expr) is fu
 const proc: process_chr_decr (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "--(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ");\n";
@@ -4473,6 +4794,7 @@ const proc: process_chr_grow (in ref_list: params, inout expr_type: c_expr) is f
       c_expr.expr &:= c_param1.temp_assigns;
       c_expr.expr &:= c_param3.temp_assigns;
     end if;
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= c_param1.expr;
     c_expr.expr &:= "+=(";
     c_expr.expr &:= c_param3.expr;
@@ -4517,6 +4839,7 @@ const proc: process_chr_iconv (in ref_list: params, inout expr_type: c_expr) is 
 const proc: process_chr_incr (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "++(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ");\n";
@@ -4599,6 +4922,7 @@ const proc: process_chr_shrink (in ref_list: params, inout expr_type: c_expr) is
       c_expr.expr &:= c_param1.temp_assigns;
       c_expr.expr &:= c_param3.temp_assigns;
     end if;
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= c_param1.expr;
     c_expr.expr &:= "-=(";
     c_expr.expr &:= c_param3.expr;
@@ -4661,6 +4985,7 @@ const proc: process_cmd_big_filesize (in ref_list: params, inout expr_type: c_ex
 const proc: process_cmd_chdir (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "cmdChdir(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ");\n";
@@ -4670,6 +4995,7 @@ const proc: process_cmd_chdir (in ref_list: params, inout expr_type: c_expr) is 
 const proc: process_cmd_clone_file (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "cmdCloneFile(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
@@ -4691,6 +5017,7 @@ const proc: process_cmd_config_value (in ref_list: params, inout expr_type: c_ex
 const proc: process_cmd_copy_file (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "cmdCopyFile(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
@@ -4748,6 +5075,7 @@ const proc: process_cmd_getcwd (in ref_list: params, inout expr_type: c_expr) is
 const proc: process_cmd_get_atime (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "cmdGetATime(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", &(";
@@ -4775,6 +5103,7 @@ const proc: process_cmd_get_atime (in ref_list: params, inout expr_type: c_expr)
 const proc: process_cmd_get_ctime (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "cmdGetCTime(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", &(";
@@ -4802,6 +5131,7 @@ const proc: process_cmd_get_ctime (in ref_list: params, inout expr_type: c_expr)
 const proc: process_cmd_get_mtime (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "cmdGetMTime(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", &(";
@@ -4839,6 +5169,7 @@ const proc: process_cmd_ls (in ref_list: params, inout expr_type: c_expr) is fun
 const proc: process_cmd_mkdir (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "cmdMkdir(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ");\n";
@@ -4848,6 +5179,7 @@ const proc: process_cmd_mkdir (in ref_list: params, inout expr_type: c_expr) is 
 const proc: process_cmd_move (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "cmdMove(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
@@ -4869,6 +5201,7 @@ const proc: process_cmd_readlink (in ref_list: params, inout expr_type: c_expr) 
 const proc: process_cmd_remove (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "cmdRemove(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ");\n";
@@ -4878,6 +5211,7 @@ const proc: process_cmd_remove (in ref_list: params, inout expr_type: c_expr) is
 const proc: process_cmd_remove_any_file (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "cmdRemoveAnyFile(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ");\n";
@@ -4887,6 +5221,7 @@ const proc: process_cmd_remove_any_file (in ref_list: params, inout expr_type: c
 const proc: process_cmd_set_atime (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "cmdSetATime(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
@@ -4912,6 +5247,7 @@ const proc: process_cmd_set_atime (in ref_list: params, inout expr_type: c_expr)
 const proc: process_cmd_set_filemode (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "cmdSetFileMode(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", (settype)(";
@@ -4923,6 +5259,7 @@ const proc: process_cmd_set_filemode (in ref_list: params, inout expr_type: c_ex
 const proc: process_cmd_set_mtime (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "cmdSetMTime(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
@@ -4948,6 +5285,7 @@ const proc: process_cmd_set_mtime (in ref_list: params, inout expr_type: c_expr)
 const proc: process_cmd_shell (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "cmdShell(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ");\n";
@@ -4957,6 +5295,7 @@ const proc: process_cmd_shell (in ref_list: params, inout expr_type: c_expr) is 
 const proc: process_cmd_symlink (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "cmdSymlink(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
@@ -4968,6 +5307,7 @@ const proc: process_cmd_symlink (in ref_list: params, inout expr_type: c_expr) i
 const proc: process_drw_arc (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "drwArc(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
@@ -4987,6 +5327,7 @@ const proc: process_drw_arc (in ref_list: params, inout expr_type: c_expr) is fu
 const proc: process_drw_arc2 (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "drwArc2(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
@@ -5006,6 +5347,7 @@ const proc: process_drw_arc2 (in ref_list: params, inout expr_type: c_expr) is f
 const proc: process_drw_background (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "drwBackground(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ");\n";
@@ -5015,6 +5357,7 @@ const proc: process_drw_background (in ref_list: params, inout expr_type: c_expr
 const proc: process_drw_circle (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "drwCircle(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
@@ -5030,6 +5373,7 @@ const proc: process_drw_circle (in ref_list: params, inout expr_type: c_expr) is
 const proc: process_drw_clear (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "drwClear(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
@@ -5041,6 +5385,7 @@ const proc: process_drw_clear (in ref_list: params, inout expr_type: c_expr) is 
 const proc: process_drw_color (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "drwColor(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ");\n";
@@ -5050,6 +5395,7 @@ const proc: process_drw_color (in ref_list: params, inout expr_type: c_expr) is 
 const proc: process_drw_copyarea (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "drwCopyArea(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
@@ -5088,16 +5434,21 @@ const proc: process_drw_cpy (in ref_list: params, inout expr_type: c_expr) is fu
     end if;
     if c_param3.result_expr <> "" then
       c_expr.expr &:= "{\n";
+      setDiagnosticLine(c_expr);
       c_expr.expr &:= "wintype *win_ptr=&(";
       c_expr.expr &:= c_param1.expr;
       c_expr.expr &:= ");\n";
+      setDiagnosticLine(c_expr);
       c_expr.expr &:= "wintype old_win=*win_ptr;\n";
+      setDiagnosticLine(c_expr);
       c_expr.expr &:= "*win_ptr=";
       c_expr.expr &:= c_param3.result_expr;
       c_expr.expr &:= ";\n";
+      setDiagnosticLine(c_expr);
       c_expr.expr &:= "drwDestr(old_win);\n";
       c_expr.expr &:= "}\n";
     else
+      setDiagnosticLine(c_expr);
       c_expr.expr &:= "drwCpy(&(";
       c_expr.expr &:= c_param1.expr;
       c_expr.expr &:= "), ";
@@ -5126,6 +5477,7 @@ const proc: process_drw_eq (in ref_list: params, inout expr_type: c_expr) is fun
 const proc: process_drw_farcchord (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "drwFArcChord(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
@@ -5145,6 +5497,7 @@ const proc: process_drw_farcchord (in ref_list: params, inout expr_type: c_expr)
 const proc: process_drw_farcpieslice(in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "drwFArcPieSlice(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
@@ -5164,6 +5517,7 @@ const proc: process_drw_farcpieslice(in ref_list: params, inout expr_type: c_exp
 const proc: process_drw_fcircle (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "drwFCircle(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
@@ -5179,6 +5533,7 @@ const proc: process_drw_fcircle (in ref_list: params, inout expr_type: c_expr) i
 const proc: process_drw_fellipse (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "drwFEllipse(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
@@ -5196,6 +5551,7 @@ const proc: process_drw_fellipse (in ref_list: params, inout expr_type: c_expr) 
 const proc: process_drw_flush (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "drwFlush();\n";
   end func;
 
@@ -5203,6 +5559,7 @@ const proc: process_drw_flush (in ref_list: params, inout expr_type: c_expr) is 
 const proc: process_drw_fpolyline (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "drwFPolyLine(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
@@ -5286,6 +5643,7 @@ const proc: process_drw_image (in ref_list: params, inout expr_type: c_expr) is 
 const proc: process_drw_line (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "drwLine(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
@@ -5364,6 +5722,7 @@ const proc: process_drw_open_sub_window (in ref_list: params, inout expr_type: c
 const proc: process_drw_parc (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "drwPArc(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
@@ -5385,6 +5744,7 @@ const proc: process_drw_parc (in ref_list: params, inout expr_type: c_expr) is f
 const proc: process_drw_pcircle (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "drwPCircle(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
@@ -5402,6 +5762,7 @@ const proc: process_drw_pcircle (in ref_list: params, inout expr_type: c_expr) i
 const proc: process_drw_pfarcchord (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "drwPFArcChord(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
@@ -5423,6 +5784,7 @@ const proc: process_drw_pfarcchord (in ref_list: params, inout expr_type: c_expr
 const proc: process_drw_pfarcpieslice (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "drwFArcPieSlice(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
@@ -5442,6 +5804,7 @@ const proc: process_drw_pfarcpieslice (in ref_list: params, inout expr_type: c_e
 const proc: process_drw_pfcircle (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "drwPFCircle(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
@@ -5459,6 +5822,7 @@ const proc: process_drw_pfcircle (in ref_list: params, inout expr_type: c_expr) 
 const proc: process_drw_pfellipse (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "drwPFEllipse(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
@@ -5478,6 +5842,7 @@ const proc: process_drw_pfellipse (in ref_list: params, inout expr_type: c_expr)
 const proc: process_drw_pline (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "drwPLine(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
@@ -5497,6 +5862,7 @@ const proc: process_drw_pline (in ref_list: params, inout expr_type: c_expr) is 
 const proc: process_drw_point (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "drwPoint(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
@@ -5528,6 +5894,7 @@ const proc: process_drw_pointer_ypos (in ref_list: params, inout expr_type: c_ex
 const proc: process_drw_polyline (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "drwPolyLine(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
@@ -5545,6 +5912,7 @@ const proc: process_drw_polyline (in ref_list: params, inout expr_type: c_expr) 
 const proc: process_drw_ppoint (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "drwPPoint(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
@@ -5560,6 +5928,7 @@ const proc: process_drw_ppoint (in ref_list: params, inout expr_type: c_expr) is
 const proc: process_drw_prect (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "drwPRect(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
@@ -5579,6 +5948,7 @@ const proc: process_drw_prect (in ref_list: params, inout expr_type: c_expr) is 
 const proc: process_drw_put (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "drwPut(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
@@ -5594,6 +5964,7 @@ const proc: process_drw_put (in ref_list: params, inout expr_type: c_expr) is fu
 const proc: process_drw_rect (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "drwRect(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
@@ -5624,6 +5995,7 @@ const proc: process_drw_rgbcol (in ref_list: params, inout expr_type: c_expr) is
 const proc: process_drw_setpos (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "drwSetPos(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
@@ -5637,6 +6009,7 @@ const proc: process_drw_setpos (in ref_list: params, inout expr_type: c_expr) is
 const proc: process_drw_setTransparentColor (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "drwSetTransparentColor(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
@@ -5648,6 +6021,7 @@ const proc: process_drw_setTransparentColor (in ref_list: params, inout expr_typ
 const proc: process_drw_text (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "drwText(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
@@ -5716,6 +6090,7 @@ const proc: process_enu_cpy (in ref_list: params, inout expr_type: c_expr) is fu
       c_expr.expr &:= c_param1.temp_assigns;
       c_expr.expr &:= c_param3.temp_assigns;
     end if;
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= c_param1.expr;
     c_expr.expr &:= "=(";
     if c_param3.result_expr <> "" then
@@ -5794,6 +6169,7 @@ const proc: process_fil_big_lng (in ref_list: params, inout expr_type: c_expr) i
 const proc: process_fil_big_seek (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "filBigSeek((filetype)(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= "), ";
@@ -5815,6 +6191,7 @@ const proc: process_fil_big_tell (in ref_list: params, inout expr_type: c_expr) 
 const proc: process_fil_close (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "fclose((filetype)(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= "));\n";
@@ -5837,6 +6214,7 @@ const proc: process_fil_cpy (in ref_list: params, inout expr_type: c_expr) is fu
       c_expr.expr &:= c_param1.temp_assigns;
       c_expr.expr &:= c_param3.temp_assigns;
     end if;
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= c_param1.expr;
     c_expr.expr &:= "=(";
     if c_param3.result_expr <> "" then
@@ -5883,6 +6261,7 @@ const proc: process_fil_err (in ref_list: params, inout expr_type: c_expr) is fu
 const proc: process_fil_flush (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "fflush((filetype)(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= "));\n";
@@ -6007,6 +6386,7 @@ const proc: process_fil_popen (in ref_list: params, inout expr_type: c_expr) is 
 const proc: process_fil_print (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "filPrint(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ");\n";
@@ -6016,6 +6396,7 @@ const proc: process_fil_print (in ref_list: params, inout expr_type: c_expr) is 
 const proc: process_fil_seek (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "filSeek((filetype)(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= "), ";
@@ -6027,6 +6408,7 @@ const proc: process_fil_seek (in ref_list: params, inout expr_type: c_expr) is f
 const proc: process_fil_setbuf (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "filSetbuf((filetype)(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= "), ";
@@ -6058,6 +6440,7 @@ const proc: process_fil_value (in ref_list: params, inout expr_type: c_expr) is 
 const proc: process_fil_write (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "filWrite((filetype)(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= "), ";
@@ -6210,6 +6593,7 @@ const proc: process_flt_cpy (in ref_list: params, inout expr_type: c_expr) is fu
       c_expr.expr &:= c_param1.temp_assigns;
       c_expr.expr &:= c_param3.temp_assigns;
     end if;
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= c_param1.expr;
     c_expr.expr &:= "=(";
     if c_param3.result_expr <> "" then
@@ -6325,6 +6709,7 @@ const proc: process_flt_div_assign (in ref_list: params, inout expr_type: c_expr
       c_expr.expr &:= c_param1.temp_assigns;
       c_expr.expr &:= c_param3.temp_assigns;
     end if;
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= c_param1.expr;
     c_expr.expr &:= "/=(";
     c_expr.expr &:= c_param3.expr;
@@ -6393,6 +6778,7 @@ const proc: process_flt_grow (in ref_list: params, inout expr_type: c_expr) is f
       c_expr.expr &:= c_param1.temp_assigns;
       c_expr.expr &:= c_param3.temp_assigns;
     end if;
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= c_param1.expr;
     c_expr.expr &:= "+=(";
     c_expr.expr &:= c_param3.expr;
@@ -6574,6 +6960,7 @@ const proc: process_flt_mult_assign (in ref_list: params, inout expr_type: c_exp
       c_expr.expr &:= c_param1.temp_assigns;
       c_expr.expr &:= c_param3.temp_assigns;
     end if;
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= c_param1.expr;
     c_expr.expr &:= "*=(";
     c_expr.expr &:= c_param3.expr;
@@ -6687,6 +7074,7 @@ const proc: process_flt_shrink (in ref_list: params, inout expr_type: c_expr) is
       c_expr.expr &:= c_param1.temp_assigns;
       c_expr.expr &:= c_param3.temp_assigns;
     end if;
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= c_param1.expr;
     c_expr.expr &:= "-=(";
     c_expr.expr &:= c_param3.expr;
@@ -6896,6 +7284,7 @@ const proc: process_hsh_cpy (in ref_list: params, inout expr_type: c_expr) is fu
       c_expr.expr &:= c_param2.temp_assigns;
     end if;
     if c_param2.result_expr <> "" then
+      setDiagnosticLine(c_expr);
       c_expr.expr &:= c_param1.expr;
       c_expr.expr &:= "=(";
       c_expr.expr &:= c_param2.result_expr;
@@ -6913,6 +7302,7 @@ const proc: process_hsh_cpy (in ref_list: params, inout expr_type: c_expr) is fu
       if param_type not in parametersOfHshCpy then
         parametersOfHshCpy @:= [param_type] c_param3_6.expr;
       end if;
+      setDiagnosticLine(c_expr);
       c_expr.expr &:= "hshCpy((hashtype *)(&(";
       c_expr.expr &:= c_param1.expr;
       c_expr.expr &:= ")), (hashtype)(";
@@ -7198,6 +7588,7 @@ const proc: process_hsh_incl (in ref_list: params, inout expr_type: c_expr) is f
     declare_func_pointer_if_necessary(params[6], global_c_expr);
     declare_func_pointer_if_necessary(params[7], global_c_expr);
     declare_func_pointer_if_necessary(params[8], global_c_expr);
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "hshIncl((hashtype)(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= "), (generictype)(";
@@ -7331,6 +7722,7 @@ const proc: process_int_cpy (in ref_list: params, inout expr_type: c_expr) is fu
       c_expr.expr &:= c_param1.temp_assigns;
       c_expr.expr &:= c_param3.temp_assigns;
     end if;
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= c_param1.expr;
     c_expr.expr &:= "=(";
     if c_param3.result_expr <> "" then
@@ -7350,6 +7742,7 @@ const proc: process_int_cpy (in ref_list: params, inout expr_type: c_expr) is fu
 const proc: process_int_decr (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "--(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ");\n";
@@ -7482,6 +7875,7 @@ const proc: process_int_grow (in ref_list: params, inout expr_type: c_expr) is f
       c_expr.expr &:= c_param1.temp_assigns;
       c_expr.expr &:= c_param3.temp_assigns;
     end if;
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= c_param1.expr;
     c_expr.expr &:= "+=(";
     c_expr.expr &:= c_param3.expr;
@@ -7517,6 +7911,7 @@ const proc: process_int_hashcode (in ref_list: params, inout expr_type: c_expr) 
 const proc: process_int_incr (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "++(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ");\n";
@@ -7614,6 +8009,7 @@ const proc: process_int_lshift_assign (in ref_list: params, inout expr_type: c_e
       c_expr.expr &:= c_param1.temp_assigns;
       c_expr.expr &:= c_param3.temp_assigns;
     end if;
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= c_param1.expr;
     c_expr.expr &:= "<<=(";
     if c_param3.result_expr <> "" then
@@ -8054,6 +8450,7 @@ const proc: process_int_mult_assign (in ref_list: params, inout expr_type: c_exp
       c_expr.expr &:= c_param1.temp_assigns;
       c_expr.expr &:= c_param3.temp_assigns;
     end if;
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= c_param1.expr;
     c_expr.expr &:= "*=(";
     c_expr.expr &:= c_param3.expr;
@@ -8434,6 +8831,7 @@ const proc: process_int_rshift_assign (in ref_list: params, inout expr_type: c_e
       c_expr.expr &:= c_param3.temp_assigns;
     end if;
     if RSHIFT_DOES_SIGN_EXTEND then
+      setDiagnosticLine(c_expr);
       c_expr.expr &:= c_param1.expr;
       c_expr.expr &:= ">>=(";
       if c_param3.result_expr <> "" then
@@ -8444,11 +8842,13 @@ const proc: process_int_rshift_assign (in ref_list: params, inout expr_type: c_e
       c_expr.expr &:= ");\n";
     else
       (* Formula used: if (a<0) a= ~(~a>>b); else a>>=b; *)
+      setDiagnosticLine(c_expr);
       c_expr.expr &:= "tmp_";
       c_expr.expr &:= str(temp_num);
       c_expr.expr &:= "=(";
       process_expr(params[1], c_expr);
       c_expr.expr &:= ");\n";
+      setDiagnosticLine(c_expr);
       c_expr.expr &:= "if (tmp_";
       c_expr.expr &:= str(temp_num);
       c_expr.expr &:= "<0) ";
@@ -8499,6 +8899,7 @@ const proc: process_int_shrink (in ref_list: params, inout expr_type: c_expr) is
       c_expr.expr &:= c_param1.temp_assigns;
       c_expr.expr &:= c_param3.temp_assigns;
     end if;
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= c_param1.expr;
     c_expr.expr &:= "-=(";
     c_expr.expr &:= c_param3.expr;
@@ -8616,6 +9017,7 @@ const proc: process_itf_cpy (in ref_list: params, inout expr_type: c_expr) is fu
       c_expr.expr &:= c_param1.temp_assigns;
       c_expr.expr &:= c_param3.temp_assigns;
     end if;
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= c_param1.expr;
     c_expr.expr &:= "=(";
     if c_param3.result_expr <> "" then
@@ -8648,6 +9050,7 @@ const proc: process_itf_cpy2 (in ref_list: params, inout expr_type: c_expr) is f
       c_expr.expr &:= c_param1.temp_assigns;
       c_expr.expr &:= c_param3.temp_assigns;
     end if;
+    setDiagnosticLine(c_expr);
     if c_param3.result_expr <> "" then
       c_expr.expr &:= c_param1.expr;
       c_expr.expr &:= "=";
@@ -8766,16 +9169,21 @@ const proc: process_prg_cpy (in ref_list: params, inout expr_type: c_expr) is fu
     end if;
     if c_param3.result_expr <> "" then
       c_expr.expr &:= "{\n";
+      setDiagnosticLine(c_expr);
       c_expr.expr &:= "progtype *prg_ptr=&(";
       c_expr.expr &:= c_param1.expr;
       c_expr.expr &:= ");\n";
+      setDiagnosticLine(c_expr);
       c_expr.expr &:= "progtype old_prog=*prg_ptr;\n";
+      setDiagnosticLine(c_expr);
       c_expr.expr &:= "*prg_ptr=";
       c_expr.expr &:= c_param3.result_expr;
       c_expr.expr &:= ";\n";
+      setDiagnosticLine(c_expr);
       c_expr.expr &:= "prgDestr(old_prog);\n";
       c_expr.expr &:= "}\n";
     else
+      setDiagnosticLine(c_expr);
       c_expr.expr &:= "prgCpy(&(";
       c_expr.expr &:= c_param1.expr;
       c_expr.expr &:= "), ";
@@ -9054,6 +9462,7 @@ const proc: process_ref_cpy (in ref_list: params, inout expr_type: c_expr) is fu
       c_expr.expr &:= c_param1.temp_assigns;
       c_expr.expr &:= c_param3.temp_assigns;
     end if;
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= c_param1.expr;
     c_expr.expr &:= "=(";
     if c_param3.result_expr <> "" then
@@ -9280,6 +9689,7 @@ const proc: process_ref_setcategory (in ref_list: params, inout expr_type: c_exp
 
   begin
     compDataLibraryUsed := TRUE;
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "refSetCategory(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ", ";
@@ -9292,6 +9702,7 @@ const proc: process_ref_setparams (in ref_list: params, inout expr_type: c_expr)
 
   begin
     compDataLibraryUsed := TRUE;
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "refSetParams(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ", ";
@@ -9304,6 +9715,7 @@ const proc: process_ref_settype (in ref_list: params, inout expr_type: c_expr) i
 
   begin
     compDataLibraryUsed := TRUE;
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "refSetType(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ", ";
@@ -9316,6 +9728,7 @@ const proc: process_ref_setvar (in ref_list: params, inout expr_type: c_expr) is
 
   begin
     compDataLibraryUsed := TRUE;
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "refSetVar(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ", ";
@@ -9446,7 +9859,7 @@ const proc: process_ref_trace (in ref_list: params, inout expr_type: c_expr) is 
     else
       c_expr.expr &:= "printf(\"< ?? >\")";
     end if;
-    c_expr.expr &:= ";";
+    c_expr.expr &:= ";\n";
   end func;
 
 
@@ -9487,6 +9900,7 @@ const proc: process_rfl_append (in ref_list: params, inout expr_type: c_expr) is
       c_expr.expr &:= c_param1.temp_assigns;
       c_expr.expr &:= c_param3.temp_assigns;
     end if;
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "rflAppend((listtype *)(&(";
     c_expr.expr &:= c_param1.expr;
     c_expr.expr &:= ")), ";
@@ -9532,16 +9946,21 @@ const proc: process_rfl_cpy (in ref_list: params, inout expr_type: c_expr) is fu
     end if;
     if c_param3.result_expr <> "" then
       c_expr.expr &:= "{\n";
+      setDiagnosticLine(c_expr);
       c_expr.expr &:= "listtype *rfl_ptr=(listtype *)(&(";
       c_expr.expr &:= c_param1.expr;
       c_expr.expr &:= "));\n";
+      setDiagnosticLine(c_expr);
       c_expr.expr &:= "listtype old_rfl=*rfl_ptr;\n";
+      setDiagnosticLine(c_expr);
       c_expr.expr &:= "*rfl_ptr=";
       c_expr.expr &:= c_param3.result_expr;
       c_expr.expr &:= ";\n";
+      setDiagnosticLine(c_expr);
       c_expr.expr &:= "rflDestr(old_rfl);\n";
       c_expr.expr &:= "}\n";
     else
+      setDiagnosticLine(c_expr);
       c_expr.expr &:= "rflCpy((listtype *)(&(";
       c_expr.expr &:= c_param1.expr;
       c_expr.expr &:= ")), (listtype)(";
@@ -9590,6 +10009,7 @@ const proc: process_rfl_elemcpy (in ref_list: params, inout expr_type: c_expr) i
       c_expr.expr &:= c_param4.temp_assigns;
       c_expr.expr &:= c_param6.temp_assigns;
     end if;
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "rflElemcpy((listtype)(";
     c_expr.expr &:= c_param1.expr;
     c_expr.expr &:= "), ";
@@ -9690,6 +10110,7 @@ const proc: process_rfl_incl (in ref_list: params, inout expr_type: c_expr) is f
       c_expr.expr &:= c_param1.temp_assigns;
       c_expr.expr &:= c_param2.temp_assigns;
     end if;
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "rflIncl((listtype *)(&(";
     c_expr.expr &:= c_param1.expr;
     c_expr.expr &:= ")), ";
@@ -9778,6 +10199,7 @@ const proc: process_rfl_setvalue (in ref_list: params, inout expr_type: c_expr) 
 
   begin
     compDataLibraryUsed := TRUE;
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "rflSetvalue(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ", (listtype)(";
@@ -9813,6 +10235,7 @@ const proc: process_rfl_value (in ref_list: params, inout expr_type: c_expr) is 
 const proc: process_scr_clear (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "scrClear(";
     process_expr(params[2], c_expr);
     c_expr.expr &:= ", ";
@@ -9828,6 +10251,7 @@ const proc: process_scr_clear (in ref_list: params, inout expr_type: c_expr) is 
 const proc: process_scr_cursor (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "scrCursor(";
     process_expr(params[2], c_expr);
     c_expr.expr &:= ");\n";
@@ -9837,6 +10261,7 @@ const proc: process_scr_cursor (in ref_list: params, inout expr_type: c_expr) is
 const proc: process_scr_flush (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "scrFlush();\n";
   end func;
 
@@ -9868,6 +10293,7 @@ const proc: process_scr_h_scl (in ref_list: params, inout expr_type: c_expr) is 
 const proc: process_scr_open (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "scrOpen();\n";
   end func;
 
@@ -9875,6 +10301,7 @@ const proc: process_scr_open (in ref_list: params, inout expr_type: c_expr) is f
 const proc: process_scr_setpos (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "scrSetpos(";
     process_expr(params[2], c_expr);
     c_expr.expr &:= ", ";
@@ -9886,6 +10313,7 @@ const proc: process_scr_setpos (in ref_list: params, inout expr_type: c_expr) is
 const proc: process_scr_v_scl (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "scrVScroll(";
     process_expr(params[2], c_expr);
     c_expr.expr &:= ", ";
@@ -9910,6 +10338,7 @@ const proc: process_scr_width (in ref_list: params, inout expr_type: c_expr) is 
 const proc: process_scr_write (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "scrWrite(";
     getAnyParamToExpr(params[2], c_expr);
     c_expr.expr &:= ");\n";
@@ -9952,20 +10381,25 @@ const proc: process_sct_cpy (in ref_list: params, inout expr_type: c_expr) is fu
     end if;
     if c_param3.result_expr <> "" then
       c_expr.expr &:= "{\n";
+      setDiagnosticLine(c_expr);
       c_expr.expr &:= "structtype *struct_ptr=&(";
       c_expr.expr &:= c_param1.expr;
       c_expr.expr &:= ");\n";
+      setDiagnosticLine(c_expr);
       c_expr.expr &:= "structtype old_struct=*struct_ptr;\n";
+      setDiagnosticLine(c_expr);
       c_expr.expr &:= "*struct_ptr=(structtype)(";
       c_expr.expr &:= c_param3.result_expr;
       c_expr.expr &:= ");\n";
       c_expr.expr &:= "(*struct_ptr)->type_num = old_struct->type_num;\n";
       process_destr_declaration(getExprResultType(params[1]), global_c_expr);
+      setDiagnosticLine(c_expr);
       process_destr_call(getExprResultType(params[1]),
           "old_struct", c_expr.expr);
       c_expr.expr &:= "}\n";
     else
       process_cpy_declaration(getExprResultType(params[1]), global_c_expr);
+      setDiagnosticLine(c_expr);
       process_cpy_call(getExprResultType(params[1]),
           c_param1.expr, c_param3.expr, c_expr.expr);
       c_expr.expr &:= ";\n";
@@ -10079,16 +10513,21 @@ const proc: process_set_cpy (in ref_list: params, inout expr_type: c_expr) is fu
     end if;
     if c_param3.result_expr <> "" then
       c_expr.expr &:= "{\n";
+      setDiagnosticLine(c_expr);
       c_expr.expr &:= "settype *set_ptr=(settype *)(&(";
       c_expr.expr &:= c_param1.expr;
       c_expr.expr &:= "));\n";
+      setDiagnosticLine(c_expr);
       c_expr.expr &:= "settype old_set=*set_ptr;\n";
+      setDiagnosticLine(c_expr);
       c_expr.expr &:= "*set_ptr=(settype)(";
       c_expr.expr &:= c_param3.result_expr;
       c_expr.expr &:= ");\n";
+      setDiagnosticLine(c_expr);
       c_expr.expr &:= "setDestr(old_set);\n";
       c_expr.expr &:= "}\n";
     else
+      setDiagnosticLine(c_expr);
       c_expr.expr &:= "setCpy((settype *)(&(";
       c_expr.expr &:= c_param1.expr;
       c_expr.expr &:= ")), (settype)(";
@@ -10214,6 +10653,7 @@ const proc: process_set_excl (in ref_list: params, inout expr_type: c_expr) is f
       c_expr.expr &:= c_param1.temp_assigns;
       c_expr.expr &:= c_param2.temp_assigns;
     end if;
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "setExcl((settype *)(&(";
     c_expr.expr &:= c_param1.expr;
     c_expr.expr &:= ")), ";
@@ -10283,6 +10723,7 @@ const proc: process_set_incl (in ref_list: params, inout expr_type: c_expr) is f
       c_expr.expr &:= c_param1.temp_assigns;
       c_expr.expr &:= c_param2.temp_assigns;
     end if;
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "setIncl((settype *)(&(";
     c_expr.expr &:= c_param1.expr;
     c_expr.expr &:= ")), ";
@@ -10498,6 +10939,7 @@ const proc: process_soc_accept (in ref_list: params, inout expr_type: c_expr) is
 const proc: process_soc_bind (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "socBind(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ", (bstritype)(";
@@ -10509,6 +10951,7 @@ const proc: process_soc_bind (in ref_list: params, inout expr_type: c_expr) is f
 const proc: process_soc_close (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "socClose(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ");\n";
@@ -10518,6 +10961,7 @@ const proc: process_soc_close (in ref_list: params, inout expr_type: c_expr) is 
 const proc: process_soc_connect (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "socConnect(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ", (bstritype)(";
@@ -10542,6 +10986,7 @@ const proc: process_soc_cpy (in ref_list: params, inout expr_type: c_expr) is fu
       c_expr.expr &:= c_param1.temp_assigns;
       c_expr.expr &:= c_param3.temp_assigns;
     end if;
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= c_param1.expr;
     c_expr.expr &:= "=(";
     if c_param3.result_expr <> "" then
@@ -10637,6 +11082,7 @@ const proc: process_soc_line_read (in ref_list: params, inout expr_type: c_expr)
 const proc: process_soc_listen (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "socListen(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ", ";
@@ -10712,6 +11158,7 @@ const proc: process_soc_word_read (in ref_list: params, inout expr_type: c_expr)
 const proc: process_soc_write (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "socWrite(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ", ";
@@ -10724,6 +11171,7 @@ const proc: process_const_str_append (in reference: param1, in string: stri,
     inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     if stri = "" then
       incr(countOptimizations);
       c_expr.expr &:= "/* append empty string */\n";
@@ -10763,6 +11211,7 @@ const proc: process_str_append (in ref_list: params, inout expr_type: c_expr) is
         c_expr.expr &:= c_param1.temp_assigns;
         c_expr.expr &:= c_param3.temp_assigns;
       end if;
+      setDiagnosticLine(c_expr);
       if c_param3.result_expr <> "" then
         c_expr.expr &:= "strAppendTemp(&(";
         c_expr.expr &:= c_param1.expr;
@@ -10928,21 +11377,22 @@ const proc: process_str_cpy (in ref_list: params, inout expr_type: c_expr) is fu
         c_expr.expr &:= c_param3.temp_assigns;
       end if;
       if c_param3.result_expr <> "" then
-        if not has_temp_values(c_param3) then
-          c_expr.expr &:= "{\n";
-        end if;
+        c_expr.expr &:= "{\n";
+        setDiagnosticLine(c_expr);
         c_expr.expr &:= "stritype *stri_ptr=&(";
         c_expr.expr &:= c_param1.expr;
         c_expr.expr &:= ");\n";
+        setDiagnosticLine(c_expr);
         c_expr.expr &:= "stritype old_stri=*stri_ptr;\n";
+        setDiagnosticLine(c_expr);
         c_expr.expr &:= "*stri_ptr=";
         c_expr.expr &:= c_param3.result_expr;
         c_expr.expr &:= ";\n";
+        setDiagnosticLine(c_expr);
         c_expr.expr &:= "strDestr(old_stri);\n";
-        if not has_temp_values(c_param3) then
-          c_expr.expr &:= "}\n";
-        end if;
+        c_expr.expr &:= "}\n";
       else
+        setDiagnosticLine(c_expr);
         c_expr.expr &:= "strCopy(&(";
         c_expr.expr &:= c_param1.expr;
         c_expr.expr &:= "), (stritype)(";
@@ -10994,6 +11444,7 @@ const proc: process_const_str_elemcpy (in reference: function, in reference: par
         process_raise_error("RANGE_ERROR", function, c_expr);
         c_expr.expr &:= ";\n";
         c_expr.expr &:= "} else {\n";
+        setDiagnosticLine(c_expr);
         c_expr.expr &:= "  str1->mem[";
         c_expr.expr &:= str(pred(index));
         c_expr.expr &:= "] = (strelemtype)(";
@@ -11001,6 +11452,7 @@ const proc: process_const_str_elemcpy (in reference: function, in reference: par
         c_expr.expr &:= ");\n";
         c_expr.expr &:= "}\n";
       else
+        setDiagnosticLine(c_expr);
         c_expr.expr &:= "((stritype)(";
         c_expr.expr &:= c_param1.expr;
         c_expr.expr &:= "))->mem[";
@@ -11066,11 +11518,13 @@ const proc: process_str_elemcpy (in reference: function, in ref_list: params, in
         process_raise_error("RANGE_ERROR", function, c_expr);
         c_expr.expr &:= ";\n";
         c_expr.expr &:= "} else {\n";
+        setDiagnosticLine(c_expr);
         c_expr.expr &:= "  str1->mem[pos] = (strelemtype)(";
         c_expr.expr &:= c_param6.expr;
         c_expr.expr &:= ");\n";
         c_expr.expr &:= "}\n";
       else
+        setDiagnosticLine(c_expr);
         c_expr.expr &:= "((stritype)(";
         c_expr.expr &:= c_param1.expr;
         c_expr.expr &:= "))->mem[(";
@@ -11722,6 +12176,7 @@ const proc: process_str_push (in ref_list: params, inout expr_type: c_expr) is f
       c_expr.expr &:= c_param1.temp_assigns;
       c_expr.expr &:= c_param3.temp_assigns;
     end if;
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "strPush(&(";
     c_expr.expr &:= c_param1.expr;
     c_expr.expr &:= "), ";
@@ -11934,6 +12389,7 @@ const proc: process_str_value (in ref_list: params, inout expr_type: c_expr) is 
 const proc: process_tim_await (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "timAwait(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ", ";
@@ -11957,6 +12413,7 @@ const proc: process_tim_await (in ref_list: params, inout expr_type: c_expr) is 
 const proc: process_tim_from_timestamp (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "timFromTimestamp(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ", &(";
@@ -11984,6 +12441,7 @@ const proc: process_tim_from_timestamp (in ref_list: params, inout expr_type: c_
 const proc: process_tim_now (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "timNow(&(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= "), &(";
@@ -12009,6 +12467,7 @@ const proc: process_tim_now (in ref_list: params, inout expr_type: c_expr) is fu
 const proc: process_tim_set_local_tz (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "timSetLocalTZ(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ", ";
@@ -12045,6 +12504,7 @@ const proc: process_typ_cpy (in ref_list: params, inout expr_type: c_expr) is fu
       c_expr.expr &:= c_param1.temp_assigns;
       c_expr.expr &:= c_param3.temp_assigns;
     end if;
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= c_param1.expr;
     c_expr.expr &:= "=(";
     if c_param3.result_expr <> "" then
@@ -12250,6 +12710,7 @@ const proc: process_ut8_word_read (in ref_list: params, inout expr_type: c_expr)
 const proc: process_ut8_write (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "ut8Write((filetype)(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= "), ";
@@ -13614,6 +14075,7 @@ const proc: process_local_declaration (in reference: current_object, in var refe
     var string: param_name is "";
     var string: param_value is "";
   begin
+    c_expr.temp_decls &:= diagnosticLine(current_object);
     objectType := getType(current_object);
     declare_type_if_necessary(objectType, global_c_expr);
     c_expr.temp_decls &:= type_name(objectType);
@@ -13635,6 +14097,7 @@ const proc: process_local_declaration (in reference: current_object, in var refe
         if object_value not in const_table then
           const_table @:= [object_value] length(const_table);
         end if;
+        c_expr.temp_assigns &:= diagnosticLine(current_object);
         c_expr.temp_assigns &:= "o_";
         create_name(current_object, c_expr.temp_assigns);
         c_expr.temp_assigns &:= "=itf[";
@@ -13647,11 +14110,11 @@ const proc: process_local_declaration (in reference: current_object, in var refe
       c_expr.temp_decls &:= "=";
       c_expr.temp_decls &:= str(getValue(object_value, integer));
     elsif valueCategory = BIGINTOBJECT then
+      c_expr.temp_assigns &:= diagnosticLine(current_object);
       c_expr.temp_assigns &:= "o_";
       create_name(current_object, c_expr.temp_assigns);
-      c_expr.temp_assigns &:= "=bigCreate(";
-      c_expr.temp_assigns &:= bigIntegerLiteral(getValue(object_value, bigInteger));
-      c_expr.temp_assigns &:= ");\n";
+      c_expr.temp_assigns &:= "=";
+      process_big_create_call(getValue(object_value, bigInteger), c_expr.temp_assigns);
       c_expr.temp_frees &:= "bigDestr(o_";
       create_name(current_object, c_expr.temp_frees);
       c_expr.temp_frees &:= ");\n";
@@ -13662,6 +14125,7 @@ const proc: process_local_declaration (in reference: current_object, in var refe
       c_expr.temp_decls &:= "=";
       c_expr.temp_decls &:= floatLiteral(getValue(object_value, float));
     elsif valueCategory = STRIOBJECT then
+      c_expr.temp_assigns &:= diagnosticLine(current_object);
       c_expr.temp_assigns &:= "o_";
       create_name(current_object, c_expr.temp_assigns);
       c_expr.temp_assigns &:= "=";
@@ -13670,6 +14134,7 @@ const proc: process_local_declaration (in reference: current_object, in var refe
       create_name(current_object, c_expr.temp_frees);
       c_expr.temp_frees &:= ");\n";
     elsif valueCategory = BSTRIOBJECT then
+      c_expr.temp_assigns &:= diagnosticLine(current_object);
       c_expr.temp_assigns &:= "o_";
       create_name(current_object, c_expr.temp_assigns);
       c_expr.temp_assigns &:= "=bstCreate(&empty_bst);\n";
@@ -13677,6 +14142,7 @@ const proc: process_local_declaration (in reference: current_object, in var refe
       create_name(current_object, c_expr.temp_frees);
       c_expr.temp_frees &:= ");\n";
     elsif valueCategory = SETOBJECT then
+      c_expr.temp_assigns &:= diagnosticLine(current_object);
       c_expr.temp_assigns &:= "o_";
       create_name(current_object, c_expr.temp_assigns);
       c_expr.temp_assigns &:= "=(";
@@ -13705,6 +14171,7 @@ const proc: process_local_declaration (in reference: current_object, in var refe
       end if;
       process_create_declaration(getType(current_object), global_c_expr);
       process_destr_declaration(getType(current_object), global_c_expr);
+      c_expr.temp_assigns &:= diagnosticLine(current_object);
       c_expr.temp_assigns &:= "o_";
       create_name(current_object, c_expr.temp_assigns);
       c_expr.temp_assigns &:= "=";
@@ -13726,6 +14193,7 @@ const proc: process_local_declaration (in reference: current_object, in var refe
       end if;
       process_create_declaration(getType(current_object), global_c_expr);
       process_destr_declaration(getType(current_object), global_c_expr);
+      c_expr.temp_assigns &:= diagnosticLine(current_object);
       c_expr.temp_assigns &:= "o_";
       create_name(current_object, c_expr.temp_assigns);
       c_expr.temp_assigns &:= "=";
@@ -13747,6 +14215,7 @@ const proc: process_local_declaration (in reference: current_object, in var refe
       end if;
       process_create_declaration(getType(current_object), global_c_expr);
       process_destr_declaration(getType(current_object), global_c_expr);
+      c_expr.temp_assigns &:= diagnosticLine(current_object);
       c_expr.temp_assigns &:= "o_";
       create_name(current_object, c_expr.temp_assigns);
       c_expr.temp_assigns &:= "=";
@@ -13766,6 +14235,7 @@ const proc: process_local_declaration (in reference: current_object, in var refe
       if object_value not in const_table then
         const_table @:= [object_value] length(const_table);
       end if;
+      c_expr.temp_assigns &:= diagnosticLine(current_object);
       c_expr.temp_assigns &:= "o_";
       create_name(current_object, c_expr.temp_assigns);
       c_expr.temp_assigns &:= "=itf[";
@@ -13797,6 +14267,7 @@ const proc: process_local_declaration (in reference: current_object, in var refe
       getTemporaryToResultExpr(object_value, c_value);
       c_expr.temp_num := c_value.temp_num;
       c_expr.temp_decls &:= c_value.temp_decls;
+      c_expr.temp_assigns &:= diagnosticLine(current_object);
       c_expr.temp_assigns &:= c_value.temp_assigns;
       c_expr.temp_frees &:= c_value.temp_frees;
       c_expr.temp_to_null &:= c_value.temp_to_null;
@@ -13879,6 +14350,7 @@ const proc: push_macro_param (in reference: formal_param,
         c_expr.expr &:= "*/\n";
 *)
       else
+        setDiagnosticLine(c_expr);
         c_expr.expr &:= type_name(param_type);
         if isPointerParam(formal_param) then
           c_expr.expr &:= " *o_";
@@ -14132,6 +14604,7 @@ const proc: process_function (in reference: function,
         c_expr.expr &:= c_params.temp_decls;
         c_expr.expr &:= c_params.temp_assigns;
       end if;
+      setDiagnosticLine(c_expr);
       if is_varfunc(function_type) then
         c_expr.expr &:= "*o_";
       else
@@ -14171,6 +14644,8 @@ const proc: process_call (in reference: current_expression, inout expr_type: c_e
     var reference: obj is NIL;
     var boolean: first_element is TRUE;
   begin
+    c_expr.currentLine := line(current_expression);
+    c_expr.currentFile := file(current_expression);
     # c_expr.expr &:= "/* ";
     # c_expr.expr &:= str(current_expression);
     # c_expr.expr &:= " */";
@@ -14608,6 +15083,7 @@ const proc: process_func_declaration (in reference: function,
       # decide if the function declaration should be written
       function_declared @:= [function] TRUE;
       process_local_consts(function, c_expr);
+      c_expr.expr &:= diagnosticLine(function);
       c_expr.expr &:= "static ";
       c_expr.expr &:= type_name(result_type);
       if is_varfunc(getType(function)) then
@@ -14635,12 +15111,14 @@ const proc: process_func_declaration (in reference: function,
           c_expr.expr &:= c_proc_body.temp_decls;
           c_expr.expr &:= c_param_list.temp_assigns;
           c_expr.expr &:= c_proc_body.temp_assigns;
+          c_expr.expr &:= diagnosticLine(body(function));
           c_expr.expr &:= "result=";
           process_return_value(function, result_type, c_proc_body, c_expr);
           c_expr.expr &:= c_param_list.temp_frees;
           c_expr.expr &:= c_proc_body.temp_frees;
           c_expr.expr &:= "return(result);\n";
         else
+          c_expr.expr &:= diagnosticLine(body(function));
           c_expr.expr &:= "return ";
           process_return_value(function, result_type, c_proc_body, c_expr);
         end if;
@@ -14663,7 +15141,9 @@ const proc: process_func_declaration (in reference: function,
         c_expr.expr &:= c_proc_body.temp_frees;
         process_return(result_object, c_expr);
       end if;
-      c_expr.expr &:= "}\n\n";
+      c_expr.expr &:= "}\n";
+      c_expr.expr &:= noDiagnosticLine;
+      c_expr.expr &:= "\n";
       if write_object_declaration then
         prototype_declared @:= [function] TRUE;
         count_declarations;
@@ -14776,11 +15256,11 @@ const proc: process_bigint_declaration (in reference: current_object,
       c_expr.expr &:= "biginttype o_";
       create_name(current_object, c_expr.expr);
       c_expr.expr &:= ";\n\n";
+      global_init.expr &:= diagnosticLine(current_object);
       global_init.expr &:= "o_";
       create_name(current_object, global_init.expr);
-      global_init.expr &:= "=bigCreate(";
-      global_init.expr &:= bigIntegerLiteral(getValue(current_object, bigInteger));
-      global_init.expr &:= ");\n";
+      global_init.expr &:= "=";
+      process_big_create_call(getValue(current_object, bigInteger), global_init.expr);
       count_declarations;
     end if;
   end func;
@@ -14809,6 +15289,7 @@ const proc: process_stri_declaration (in reference: current_object,
       c_expr.expr &:= "stritype o_";
       create_name(current_object, c_expr.expr);
       c_expr.expr &:= ";\n\n";
+      global_init.expr &:= diagnosticLine(current_object);
       global_init.expr &:= "o_";
       create_name(current_object, global_init.expr);
       global_init.expr &:= "=";
@@ -14826,6 +15307,7 @@ const proc: process_bstri_declaration (in reference: current_object,
       c_expr.expr &:= "bstritype o_";
       create_name(current_object, c_expr.expr);
       c_expr.expr &:= ";\n\n";
+      global_init.expr &:= diagnosticLine(current_object);
       global_init.expr &:= "o_";
       create_name(current_object, global_init.expr);
       global_init.expr &:= "=bstCreate(&empty_bst);\n";
@@ -15132,6 +15614,7 @@ const proc: process_array_declaration (in reference: current_object,
     if current_object not in const_table then
       const_table @:= [current_object] length(const_table);
     end if;
+    global_init.expr &:= diagnosticLine(current_object);
     global_init.expr &:= "o_";
     create_name(current_object, global_init.expr);
     global_init.expr &:= "=";
@@ -15165,6 +15648,7 @@ const proc: process_hash_declaration (in reference: current_object,
     if current_object not in const_table then
       const_table @:= [current_object] length(const_table);
     end if;
+    global_init.expr &:= diagnosticLine(current_object);
     global_init.expr &:= "o_";
     create_name(current_object, global_init.expr);
     global_init.expr &:= "=";
@@ -15194,6 +15678,7 @@ const proc: process_set_declaration (in reference: current_object,
       c_expr.expr &:= " o_";
       create_name(current_object, c_expr.expr);
       c_expr.expr &:= ";\n\n";
+      global_init.expr &:= diagnosticLine(current_object);
       global_init.expr &:= "o_";
       create_name(current_object, global_init.expr);
       global_init.expr &:= "=(";
@@ -15219,6 +15704,7 @@ const proc: process_struct_declaration (in reference: current_object,
     if current_object not in const_table then
       const_table @:= [current_object] length(const_table);
     end if;
+    global_init.expr &:= diagnosticLine(current_object);
     global_init.expr &:= "o_";
     create_name(current_object, global_init.expr);
     global_init.expr &:= "=";
@@ -15250,6 +15736,7 @@ const proc: process_interface_declaration (in reference: current_object,
     if current_object not in const_table then
       const_table @:= [current_object] length(const_table);
     end if;
+    global_init.expr &:= diagnosticLine(current_object);
     global_init.expr &:= "o_";
     create_name(current_object, global_init.expr);
     global_init.expr &:= "=(";
@@ -15496,6 +15983,7 @@ const proc: process_dynamic_call (in reference: current_object,
     var expr_type: resultExpr is expr_type.value;
   begin
     if matched_object <> NIL then
+      c_expr.expr &:= diagnosticLine(current_object);
       objectCategory := category(matched_object);
       if objectCategory = BLOCKOBJECT then
         if result_type(getType(current_object)) <> voidtype then
@@ -15505,7 +15993,7 @@ const proc: process_dynamic_call (in reference: current_object,
         create_name(matched_object, resultExpr.expr);
         resultExpr.expr &:= "(";
         process_dynamic_parameter_list(actual_params, matched_object, resultExpr);
-        resultExpr.expr &:= ")\n";
+        resultExpr.expr &:= ")";
         if matched_object in return_ref_to_value then
           c_expr.expr &:= "/* copy ref_to_value */ ";
           process_create_declaration(result_type(getType(current_object)), global_c_expr);
@@ -15722,6 +16210,7 @@ const proc: process_dynamic_decision (in reference: current_object,
     if is_func(object_type) or is_varfunc(object_type) then
       result_type := result_type(object_type);
       if result_type <> typetype then
+        c_expr.expr &:= diagnosticLine(current_object);
         c_expr.expr &:= "/* DYNAMIC */ static ";
         c_expr.expr &:= type_name(result_type);
         if is_varfunc(object_type) then
@@ -17075,7 +17564,7 @@ const proc: write_prototypes is func
     writeln(c_prog, "biginttype  bigMod (biginttype, biginttype);");
     writeln(c_prog, "biginttype  bigMult (biginttype, biginttype);");
     writeln(c_prog, "void        bigMultAssign (biginttype *, biginttype);");
-    writeln(c_prog, "booltype    bigNe (biginttype, biginttype);");
+    writeln(c_prog, "biginttype  bigMultSignedDigit (biginttype, inttype);");
     if INTTYPE_64BIT then
       writeln(c_prog, "inttype     bigToInt64 (biginttype);");
       writeln(c_prog, "#define     bigOrd bigToInt64");
@@ -17096,6 +17585,7 @@ const proc: write_prototypes is func
     writeln(c_prog, "stritype    bigStr (biginttype);");
     writeln(c_prog, "biginttype  bigSucc (biginttype);");
     writeln(c_prog, "biginttype  bigValue (objreftype);");
+    writeln(c_prog, "biginttype  bigZero (void);");
     writeln(c_prog, "void        blnCpy (booltype *, booltype);");
     writeln(c_prog, "booltype    blnCreate (booltype);");
     writeln(c_prog, "stritype    chrCLit (chartype);");
@@ -17553,6 +18043,7 @@ const proc: write_call_of_main (in program: prog, inout expr_type: c_expr) is fu
   begin
     main_obj := sys_var(prog, "main");
     if main_obj <> NIL then
+      c_expr.expr &:= diagnosticLine(main_obj);
       c_expr.expr &:= "o_";
       create_name(main_obj, c_expr.expr);
       c_expr.expr &:= "();\n";
@@ -17871,14 +18362,23 @@ const proc: generate_main (in program: prog) is func
       c_expr.expr &:= "{\n";
       c_expr.expr &:= "  error_file = file_name;\n";
       c_expr.expr &:= "  error_line = line_number;\n";
-#     c_expr.expr &:= "  printf(\"error: %s(%d)\\n\", file_name, line_number);\n";
+      if signal_exception then
+        c_expr.expr &:= "  printf(\"error: %s(%d)\\n\", file_name, line_number);\n";
+        c_expr.expr &:= "  signal(SIGFPE, SIG_DFL);\n";
+#       c_expr.expr &:= "  signal(SIGINT, SIG_DFL);\n";
+#       c_expr.expr &:= "  signal(SIGSEGV, SIG_DFL);\n";
+        c_expr.expr &:= "  flt2int.intvalue = a / (error_line - line_number);\n";
+#       c_expr.expr &:= "  raise(SIGTRAP);\n";
+#       c_expr.expr &:= "  raise(SIGFPE);\n";
+#       c_expr.expr &:= "  raise(SIGINT);\n";
+#       c_expr.expr &:= "  raise(SIGSEGV);\n";
+        c_expr.expr &:= "  activate_signal_handlers();\n";
+      end if;
       if USE_SIGSETJMP then
         c_expr.expr &:= "  siglongjmp(catch_stack[catch_stack_pos], a);\n";
       else
         c_expr.expr &:= "  longjmp(catch_stack[catch_stack_pos], a);\n";
       end if;
-#     c_expr.expr &:= "  raise(SIGINT);\n";
-#     c_expr.expr &:= "  raise(SIGSEGV);\n";
       c_expr.expr &:= "}\n";
       c_expr.expr &:= "\n";
     end if;
@@ -18160,6 +18660,12 @@ const proc: pass_1 (in string: source, inout program: prog,
       if "-r" in compiler_option then
         array_range_check := FALSE;
       end if;
+      if "-g" in compiler_option then
+        source_debug_info := compiler_option["-g"] <> "-debug_c";
+      end if;
+      if "-e" in compiler_option then
+        signal_exception := TRUE;
+      end if;
       prog := parseFile(source);
       if prog = program.EMPTY then
         okay := FALSE;
@@ -18241,8 +18747,10 @@ const proc: pass_3 (in string: source, in program: prog,
     const string: OBJECT_FILE_EXTENSION is     configValue("OBJECT_FILE_EXTENSION");
     const string: EXECUTABLE_FILE_EXTENSION is configValue("EXECUTABLE_FILE_EXTENSION");
     const string: C_COMPILER is                configValue("C_COMPILER");
-    const string: INHIBIT_C_WARNINGS is        configValue("INHIBIT_C_WARNINGS");
+    const string: CC_OPT_NO_WARNINGS is        configValue("CC_OPT_NO_WARNINGS");
+    const string: CC_OPT_DEBUG_INFO is         configValue("CC_OPT_DEBUG_INFO");
     const string: REDIRECT_C_ERRORS is         configValue("REDIRECT_C_ERRORS");
+    const string: LINKER_OPT_DEBUG_INFO is     configValue("LINKER_OPT_DEBUG_INFO");
     const string: LINKER_FLAGS is              configValue("LINKER_FLAGS");
     const string: SYSTEM_LIBS is               configValue("SYSTEM_LIBS");
     const string: SEED7_LIB is                 configValue("SEED7_LIB");
@@ -18257,12 +18765,15 @@ const proc: pass_3 (in string: source, in program: prog,
       if fileType(temp_name(source) & OBJECT_FILE_EXTENSION) = FILE_REGULAR then
         removeFile(temp_name(source) & OBJECT_FILE_EXTENSION);
       end if;
-      options := " " & INHIBIT_C_WARNINGS;
+      options := " " & CC_OPT_NO_WARNINGS;
       if "-O" in compiler_option then
         options &:= " -O" & compiler_option["-O"];
       end if;
       if "-g" in compiler_option then
-        options &:= " -g";
+        options &:= " " & CC_OPT_DEBUG_INFO;
+        if compiler_option["-g"] <> "" and compiler_option["-g"] <> "-debug_c" then
+          options &:= " " & compiler_option["-g"];
+        end if;
       end if;
       compile_cmd := C_COMPILER & options & " -c " &
           temp_name(source) & ".c " &
@@ -18287,44 +18798,55 @@ const proc: pass_3 (in string: source, in program: prog,
           removeFile(temp_name(source) & ".cerrs");
         end if;
         if fileType(source & EXECUTABLE_FILE_EXTENSION) = FILE_REGULAR then
-          removeFile(source & EXECUTABLE_FILE_EXTENSION);
+          block
+            removeFile(source & EXECUTABLE_FILE_EXTENSION);
+          exception
+            catch FILE_ERROR:
+              writeln("*** Cannot remove old executable: " <&
+                  literal(source & EXECUTABLE_FILE_EXTENSION));
+          end block;
         end if;
-        writeln("Calling the linker ...");
-        link_cmd := C_COMPILER;
-        if LINKER_FLAGS <> "" then
-          link_cmd &:= " " & LINKER_FLAGS;
-        end if;
-        link_cmd &:= " -o " & source & EXECUTABLE_FILE_EXTENSION;
-        link_cmd &:= " " & temp_name(source) & OBJECT_FILE_EXTENSION;
-        if compilerLibraryUsed then
-          link_cmd &:= " " & literal(COMPILER_LIB);
-        end if;
-        if compDataLibraryUsed then
-          link_cmd &:= " " & literal(COMP_DATA_LIB);
-        end if;
-        link_cmd &:= " " & literal(SEED7_LIB);
-        link_cmd &:= " " & SYSTEM_LIBS;
-        link_cmd &:= " " & REDIRECT_C_ERRORS &
-            temp_name(source) & ".lerrs";
-        writeln(link_cmd);
-        flush(OUT);
-        cmd_sh(link_cmd);
-        if fileType(source & EXECUTABLE_FILE_EXTENSION) <> FILE_REGULAR then
-          if fileType(temp_name(source) & ".lerrs") = FILE_REGULAR and
-              fileSize(temp_name(source) & ".lerrs") = 0 then
+        if fileType(source & EXECUTABLE_FILE_EXTENSION) = FILE_ABSENT then
+          writeln("Calling the linker ...");
+          link_cmd := C_COMPILER;
+          if "-g" in compiler_option and LINKER_OPT_DEBUG_INFO <> "" then
+            link_cmd &:= " " & LINKER_OPT_DEBUG_INFO;
+          end if;
+          if LINKER_FLAGS <> "" then
+            link_cmd &:= " " & LINKER_FLAGS;
+          end if;
+          link_cmd &:= " -o " & source & EXECUTABLE_FILE_EXTENSION;
+          link_cmd &:= " " & temp_name(source) & OBJECT_FILE_EXTENSION;
+          if compilerLibraryUsed then
+            link_cmd &:= " " & literal(COMPILER_LIB);
+          end if;
+          if compDataLibraryUsed then
+            link_cmd &:= " " & literal(COMP_DATA_LIB);
+          end if;
+          link_cmd &:= " " & literal(SEED7_LIB);
+          link_cmd &:= " " & SYSTEM_LIBS;
+          link_cmd &:= " " & REDIRECT_C_ERRORS &
+              temp_name(source) & ".lerrs";
+          writeln(link_cmd);
+          flush(OUT);
+          cmd_sh(link_cmd);
+          if fileType(source & EXECUTABLE_FILE_EXTENSION) <> FILE_REGULAR then
+            if fileType(temp_name(source) & ".lerrs") = FILE_REGULAR and
+                fileSize(temp_name(source) & ".lerrs") = 0 then
+              removeFile(temp_name(source) & ".lerrs");
+            end if;
+            if fileType(temp_name(source) & ".lerrs") = FILE_REGULAR then
+              writeln("*** Linker errors with " <&
+                  literal(temp_name(source) & OBJECT_FILE_EXTENSION) <&
+                  " - see " <& literal(temp_name(source) & ".lerrs"));
+            else
+              writeln("*** Linking terminated without error messages");
+            end if;
+          elsif fileType(temp_name(source) & ".lerrs") = FILE_REGULAR then
             removeFile(temp_name(source) & ".lerrs");
           end if;
-          if fileType(temp_name(source) & ".lerrs") = FILE_REGULAR then
-            writeln("*** Linker errors with " <&
-                literal(temp_name(source) & OBJECT_FILE_EXTENSION) <&
-                " - see " <& literal(temp_name(source) & ".lerrs"));
-          else
-            writeln("*** Linking terminated without error messages");
-          end if;
-        elsif fileType(temp_name(source) & ".lerrs") = FILE_REGULAR then
-          removeFile(temp_name(source) & ".lerrs");
+          removeFile(temp_name(source) & OBJECT_FILE_EXTENSION);
         end if;
-        removeFile(temp_name(source) & OBJECT_FILE_EXTENSION);
       end if;
     end if;
   end func;

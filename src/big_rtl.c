@@ -264,6 +264,7 @@ biginttype big1;
         } /* if */
       } /* if */
       pos++;
+#ifdef NORMALIZE_DOES_RESIZE
       if (big1->size != pos) {
         big1 = REALLOC_BIG(big1, big1->size, pos);
         if (big1 == NULL) {
@@ -273,6 +274,9 @@ biginttype big1;
           big1->size = pos;
         } /* if */
       } /* if */
+#else
+      big1->size = pos;
+#endif
     } /* if */
     return big1;
   } /* normalize */
@@ -1641,7 +1645,6 @@ bigdigittype *temp;
 
 
 
-#ifdef OUT_OF_ORDER
 #ifdef ANSI_C
 
 static void uBigMultPositiveWithDigit (const const_biginttype big1, bigdigittype bigDigit,
@@ -1669,42 +1672,6 @@ biginttype result;
     } /* for */
     result->bigdigits[pos] = (bigdigittype) (mult_carry & BIGDIGIT_MASK);
   } /* uBigMultPositiveWithDigit */
-
-
-
-#ifdef ANSI_C
-
-static void uBigMultPositiveWithNegatedDigit (const const_biginttype big1, bigdigittype bigDigit,
-    const biginttype result)
-#else
-
-static void uBigMultPositiveWithNegatedDigit (big1, bigDigit, result)
-biginttype big1;
-bigdigittype bigDigit;
-biginttype result;
-#endif
-
-  {
-    memsizetype pos;
-    doublebigdigittype mult_carry;
-    doublebigdigittype result_carry = 1;
-
-  /* uBigMultPositiveWithNegatedDigit */
-    mult_carry = (doublebigdigittype) big1->bigdigits[0] * bigDigit;
-    result_carry += ~(mult_carry & BIGDIGIT_MASK);
-    result->bigdigits[0] = (bigdigittype) (result_carry & BIGDIGIT_MASK);
-    mult_carry >>= 8 * sizeof(bigdigittype);
-    result_carry >>= 8 * sizeof(bigdigittype);
-    for (pos = 1; pos < big1->size; pos++) {
-      mult_carry += (doublebigdigittype) big1->bigdigits[pos] * bigDigit;
-      result_carry += ~(mult_carry & BIGDIGIT_MASK);
-      result->bigdigits[pos] = (bigdigittype) (result_carry & BIGDIGIT_MASK);
-      mult_carry >>= 8 * sizeof(bigdigittype);
-      result_carry >>= 8 * sizeof(bigdigittype);
-    } /* for */
-    result_carry += ~(mult_carry & BIGDIGIT_MASK);
-    result->bigdigits[pos] = (bigdigittype) (result_carry & BIGDIGIT_MASK);
-  } /* uBigMultPositiveWithNegatedDigit */
 
 
 
@@ -1751,6 +1718,42 @@ biginttype result;
 
 #ifdef ANSI_C
 
+static void uBigMultPositiveWithNegatedDigit (const const_biginttype big1, bigdigittype bigDigit,
+    const biginttype result)
+#else
+
+static void uBigMultPositiveWithNegatedDigit (big1, bigDigit, result)
+biginttype big1;
+bigdigittype bigDigit;
+biginttype result;
+#endif
+
+  {
+    memsizetype pos;
+    doublebigdigittype mult_carry;
+    doublebigdigittype result_carry = 1;
+
+  /* uBigMultPositiveWithNegatedDigit */
+    mult_carry = (doublebigdigittype) big1->bigdigits[0] * bigDigit;
+    result_carry += ~(mult_carry & BIGDIGIT_MASK);
+    result->bigdigits[0] = (bigdigittype) (result_carry & BIGDIGIT_MASK);
+    mult_carry >>= 8 * sizeof(bigdigittype);
+    result_carry >>= 8 * sizeof(bigdigittype);
+    for (pos = 1; pos < big1->size; pos++) {
+      mult_carry += (doublebigdigittype) big1->bigdigits[pos] * bigDigit;
+      result_carry += ~(mult_carry & BIGDIGIT_MASK);
+      result->bigdigits[pos] = (bigdigittype) (result_carry & BIGDIGIT_MASK);
+      mult_carry >>= 8 * sizeof(bigdigittype);
+      result_carry >>= 8 * sizeof(bigdigittype);
+    } /* for */
+    result_carry += ~(mult_carry & BIGDIGIT_MASK);
+    result->bigdigits[pos] = (bigdigittype) (result_carry & BIGDIGIT_MASK);
+  } /* uBigMultPositiveWithNegatedDigit */
+
+
+
+#ifdef ANSI_C
+
 static void uBigMultNegativeWithNegatedDigit (const const_biginttype big1, bigdigittype bigDigit,
     const biginttype result)
 #else
@@ -1781,7 +1784,6 @@ biginttype result;
     } /* for */
     result->bigdigits[pos] = (bigdigittype) (mult_carry & BIGDIGIT_MASK);
   } /* uBigMultNegativeWithNegatedDigit */
-#endif
 
 
 
@@ -2328,7 +2330,7 @@ inttype exponent;
         negative = FALSE;
       } /* if */
       bit_size = (unsigned int) (digitMostSignificantBit(base) + 1);
-      if (base == (1 << (bit_size - 1))) {
+      if (base == (bigdigittype) (1 << (bit_size - 1))) {
         result = bigLShiftOne((inttype) (bit_size - 1) * exponent);
         if (negative) {
           negate_positive_big(result);
@@ -3863,6 +3865,7 @@ inttype rshift;
       raise_error(NUMERIC_ERROR);
       result = NULL;
     } else {
+      /* result_size = (((uinttype) ((inttype) (bit_size - 1) * exponent) + 1) >> BIGDIGIT_LOG2_SIZE) + 1; */
       result_size = (((uinttype) lshift + 1) >> BIGDIGIT_LOG2_SIZE) + 1;
       if (!ALLOC_BIG(result, result_size)) {
         raise_error(MEMORY_ERROR);
@@ -4310,7 +4313,6 @@ biginttype big2;
 
 
 
-#ifdef OUT_OF_ORDER
 #ifdef ANSI_C
 
 biginttype bigMultSignedDigit (const_biginttype big1, inttype number)
@@ -4346,29 +4348,6 @@ inttype number;
     } /* if */
     return result;
   } /* bigMultSignedDigit */
-#endif
-
-
-
-#ifdef ANSI_C
-
-booltype bigNe (const const_biginttype big1, const const_biginttype big2)
-#else
-
-booltype bigNe (big1, big2)
-biginttype big1;
-biginttype big2;
-#endif
-
-  { /* bigNe */
-    if (big1->size != big2->size ||
-      memcmp(big1->bigdigits, big2->bigdigits,
-          (size_t) big1->size * sizeof(bigdigittype)) != 0) {
-      return TRUE;
-    } else {
-      return FALSE;
-    } /* if */
-  } /* bigNe */
 
 
 
@@ -5439,3 +5418,26 @@ biginttype big1;
     } /* if */
   } /* bigToInt64 */
 #endif
+
+
+
+#ifdef ANSI_C
+
+biginttype bigZero (void)
+#else
+
+biginttype bigZero ()
+#endif
+
+  {
+    biginttype result;
+
+  /* bigCreate */
+    if (!ALLOC_BIG(result, 1)) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      result->size = 1;
+      result->bigdigits[0] = 0;
+    } /* if */
+    return result;
+  } /* bigCreate */
