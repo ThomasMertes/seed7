@@ -2094,7 +2094,7 @@ inttype blue_val;
       } else {
 /*        printf("found [%ld, %ld, %ld] color = %08lx\n",
             red_val, green_val, blue_val, entry->pixel); */
-        return entry->pixel;
+        return (inttype) entry->pixel;
       } /* if */
     } /* while */
 
@@ -2169,7 +2169,7 @@ inttype blue_val;
             (unsigned long) red_val, (unsigned long) green_val, (unsigned long) blue_val,
             nearest_entry->red, nearest_entry->green, nearest_entry->blue,
             nearest_entry->pixel);
-        return nearest_entry->pixel;
+        return (inttype) nearest_entry->pixel;
       } else {
         printf("return black [%04lx, %04lx, %04lx] color = %x\n",
             (unsigned long) red_val, (unsigned long) green_val, (unsigned long) blue_val, 0);

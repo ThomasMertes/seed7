@@ -217,7 +217,7 @@ const func string: getUnixString (inout string: stri) is func
   end func;
 
 
-const func string: applyMacros (in string: stri) is func
+const func string: applyMacros (in string: stri, in boolean: leaveUndefMacros) is func
   result
     var string: result is "";
   local
@@ -229,12 +229,19 @@ const func string: applyMacros (in string: stri) is func
     dollarPos := pos(result, '$');
     while dollarPos <> 0 do
       if dollarPos < length(result) then
-        if result[succ(dollarPos)] = '(' then
-          closeParenPos := pos(result, ')', dollarPos + 2);
+        if result[succ(dollarPos)] in {'(', '{'} then
+          if result[succ(dollarPos)] = '(' then
+            closeParenPos := pos(result, ')', dollarPos + 2);
+          else
+            closeParenPos := pos(result, '}', dollarPos + 2);
+          end if;
           if closeParenPos <> 0 then
             name := result[dollarPos + 2 .. pred(closeParenPos)];
             if name in macros then
-              result := result[.. pred(dollarPos)] & macros[name] & result[succ(closeParenPos) ..];
+              result := result[.. pred(dollarPos)] &
+                  applyMacros(macros[name], leaveUndefMacros) & result[succ(closeParenPos) ..];
+            elsif not leaveUndefMacros then
+              result := result[.. pred(dollarPos)] & result[succ(closeParenPos) ..];
             end if;
           end if;
         elsif result[succ(dollarPos)] = '$' then
@@ -320,7 +327,7 @@ const proc: readRule (inout file: makefile, in string: name) is func
     while dependencies <> "" do
       dependency := getTargetName(dependencies);
       rule.dependencies &:= [] (dependency);
-      skipSpace(dependencies);
+      skipSpaceOrTab(dependencies);
       # write(" " <& dependency);
     end while;
     # writeln;
@@ -388,7 +395,7 @@ const proc: readMakefile (in string: fileName) is func
               # writeln(name <& " = " <& data);
               makefile.bufferChar := getc(makefile);
             else
-              name := applyMacros(name);
+              name := applyMacros(name, TRUE);
               alternateTargets := 0 times "";
               while makefile.bufferChar in target_name_char do
                 alternateTargets &:= getTargetName(makefile);
@@ -709,7 +716,14 @@ const proc: doMake (inout string: command, in boolean: doLog) is func
   begin
     skipWhiteSpace(command);
     if command <> "" then
-      parameter := getCommandParameter(command);
+      repeat
+        parameter := getCommandParameter(command);
+        parameter := applyMacros(parameter, FALSE);
+        if startsWith(parameter, "-") then
+          parameter := "";
+        end if;
+        skipWhiteSpace(command);
+      until parameter <> "";
       if doLog then
         writeln("make " <& parameter);
       end if;
@@ -832,7 +846,8 @@ const func integer: processCommand (in var string: command, in boolean: doLog) i
     var file: aFile is STD_NULL;
     var string: commandOutput is "";
   begin
-    fullCommand := command;
+    # writeln("process command: " <& command);
+    fullCommand := applyMacros(command, FALSE);
     if not doCommands(command, doLog) then
       gtPos := rpos(fullCommand, ">");
       if gtPos >= 2 then
@@ -942,7 +957,7 @@ const proc: processCommands (inout ruleType: rule) is func
         command := command[2 ..];
       end if;
       if printCommand and not silentMode then
-        writeln(command);
+        writeln(applyMacros(command, TRUE));
         flush(STD_OUT);
       end if;
       if executeCommands then
@@ -993,13 +1008,15 @@ const proc: processRule (inout ruleType: rule) is func
       else
         targetTime := getMTime(ruleFile);
         for dependency range rule.dependencies do
-          dependencyFile := convDosPath(dependency);
-          if not executeCommands then
-            commandsNecessary := TRUE;
-          elsif fileType(dependencyFile) = FILE_ABSENT then
-            writeln(" *** File " <& dependencyFile <& " missing");
-          elsif getMTime(dependencyFile) > targetTime then
-            commandsNecessary := TRUE;
+          dependencyFile := convDosPath(applyMacros(dependency, FALSE));
+          if dependencyFile <> "" then
+            if not executeCommands then
+              commandsNecessary := TRUE;
+            elsif fileType(dependencyFile) = FILE_ABSENT then
+              writeln(" *** File " <& dependencyFile <& " missing");
+            elsif getMTime(dependencyFile) > targetTime then
+              commandsNecessary := TRUE;
+            end if;
           end if;
         end for;
         if commandsNecessary then
@@ -1039,13 +1056,17 @@ const proc: processPatternRule (in string: targetName) is func
 
 const proc: processRule (in string: targetName) is func
   local
+    var string: ruleName is "";
     var ruleType: rule is ruleType.value;
   begin
-    # writeln("process rule: " <& targetName);
-    if targetName in rules then
-      processRule(rules[targetName]);
-    else
-      processPatternRule(targetName);
+    ruleName := applyMacros(targetName, FALSE);
+    if ruleName <> "" then
+      # writeln("process rule: " <& ruleName);
+      if ruleName in rules then
+        processRule(rules[ruleName]);
+      else
+        processPatternRule(ruleName);
+      end if;
     end if;
   end func;
 
@@ -1068,7 +1089,7 @@ const proc: make (in string: makefile, in string: target) is func
     elsif "%.o" not in patternRules then
       rule.name := "%.o";
       rule.dependencies := [] ("%.c");
-      rule.commands := [] (applyMacros("$(CC) -c $(CPPFLAGS) $(CFLAGS) $< -o $@"));
+      rule.commands := [] (applyMacros("$(CC) -c $(CPPFLAGS) $(CFLAGS) $< -o $@", TRUE));
       patternRules @:= [rule.name] rule;
     end if;
     if ".c.obj" in rules and "%.obj" not in patternRules then
@@ -1080,7 +1101,7 @@ const proc: make (in string: makefile, in string: target) is func
     elsif "%.obj" not in patternRules then
       rule.name := "%.obj";
       rule.dependencies := [] ("%.c");
-      rule.commands := [] (applyMacros("$(CC) -c $(CPPFLAGS) $(CFLAGS) $< -o $@"));
+      rule.commands := [] (applyMacros("$(CC) -c $(CPPFLAGS) $(CFLAGS) $< -o $@", TRUE));
       patternRules @:= [rule.name] rule;
     end if;
     if target = "" then

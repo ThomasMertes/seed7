@@ -645,10 +645,32 @@ const proc: skipSpace (inout string: stri) is func
     var integer: pos is 1;
   begin
     leng := length(stri);
-    if pos <= leng and stri[pos] = ' ' then
+    if leng >= 1 and stri[1] = ' ' then
       repeat
         incr(pos);
       until pos > leng or stri[pos] <> ' ';
+      stri := stri[pos ..];
+    end if;
+  end func;
+
+
+(**
+ *  Skips space and tab characters from a 'string'.
+ *  When the function is called it is assumed that 'stri' is empty or
+ *  stri[1] contains the first character to be handled. When the
+ *  function is left 'stri' is empty or stri[1] contains the character
+ *  after the sequence of space and tab characters.
+ *)
+const proc: skipSpaceOrTab (inout string: stri) is func
+  local
+    var integer: leng is 0;
+    var integer: pos is 1;
+  begin
+    leng := length(stri);
+    if leng >= 1 and (stri[1] = ' ' or stri[1] = '\t') then
+      repeat
+        incr(pos);
+      until pos > leng or (stri[pos] <> ' ' and stri[pos] <> '\t');
       stri := stri[pos ..];
     end if;
   end func;
@@ -1069,7 +1091,6 @@ const func string: getXmlTagHeadOrContent (inout string: stri) is func
       stri := stri[pos ..];
     end if;
   end func;
-
 
 (**
  *  Reads a symbol which can appear inside a XML/HTML tag from 'string'.

@@ -1511,9 +1511,9 @@ const proc: declare_func_pointer_if_necessary (in reference: current_object,
         if category(func_pointer) = REFOBJECT then
           if func_pointer not in function_pointer_declared then
             if useFunctype(func_pointer) then
-              c_expr.expr &:= "intfunctype o_";
+              c_expr.expr &:= "extern intfunctype o_";
             else
-              c_expr.expr &:= "objreftype o_";
+              c_expr.expr &:= "extern objreftype o_";
             end if;
             create_name(func_pointer, c_expr.expr);
             c_expr.expr &:= ";\n\n";
@@ -10442,7 +10442,7 @@ const proc: process_const_int_pow (in reference: param1, in integer: exponent,
 
   local
     var reference: evaluatedParam is NIL;
-    var integer: temp_num is 0;
+    var string: integer_name is "";
   begin
     if exponent < 0 then
       incr(countOptimizations);
@@ -10458,19 +10458,23 @@ const proc: process_const_int_pow (in reference: param1, in integer: exponent,
       process_expr(param1, c_expr);
     elsif exponent = 2 then
       incr(countOptimizations);
-      incr(c_expr.temp_num);
-      temp_num := c_expr.temp_num;
-      c_expr.temp_decls &:= "inttype tmp_";
-      c_expr.temp_decls &:= str(temp_num);
-      c_expr.temp_decls &:= ";\n";
-      c_expr.expr &:= "(tmp_";
-      c_expr.expr &:= str(temp_num);
-      c_expr.expr &:= "=";
-      process_expr(param1, c_expr);
-      c_expr.expr &:= ",tmp_";
-      c_expr.expr &:= str(temp_num);
-      c_expr.expr &:= "*tmp_";
-      c_expr.expr &:= str(temp_num);
+      c_expr.expr &:= "(";
+      if isNormalVariable(param1) then
+        integer_name := normalVariable(param1, c_expr);
+      else
+        incr(c_expr.temp_num);
+        integer_name := "tmp_" & str(c_expr.temp_num);
+        c_expr.temp_decls &:= "inttype ";
+        c_expr.temp_decls &:= integer_name;
+        c_expr.temp_decls &:= ";\n";
+        c_expr.expr &:= integer_name;
+        c_expr.expr &:= "=";
+        getAnyParamToExpr(param1, c_expr);
+        c_expr.expr &:= ",";
+      end if;
+      c_expr.expr &:= integer_name;
+      c_expr.expr &:= "*";
+      c_expr.expr &:= integer_name;
       c_expr.expr &:= ")";
     else
       c_expr.expr &:= "intPow(";
@@ -13377,7 +13381,12 @@ const proc: process_str_append (in ref_list: params, inout expr_type: c_expr) is
     else
       process_expr(params[1], c_param1);
       c_param3.temp_num := c_param1.temp_num;
-      process_expr(params[3], c_param3);
+      if isActionExpression(params[3], "CHR_STR") then
+        incr(countOptimizations);
+        process_expr(getActionParameter(params[3], 1), c_param3);
+      else
+        process_expr(params[3], c_param3);
+      end if;
       if has_temp_values(c_param3) then
         c_expr.expr &:= "{\n";
         AppendWithDiagnostic(c_param1.temp_decls, c_expr);
@@ -13386,7 +13395,12 @@ const proc: process_str_append (in ref_list: params, inout expr_type: c_expr) is
         AppendWithDiagnostic(c_param3.temp_assigns, c_expr);
       end if;
       setDiagnosticLine(c_expr);
-      if c_param3.result_expr <> "" then
+      if isActionExpression(params[3], "CHR_STR") then
+        c_expr.expr &:= "strPush(&(";
+        c_expr.expr &:= c_param1.expr;
+        c_expr.expr &:= "), ";
+        c_expr.expr &:= c_param3.expr;
+      elsif c_param3.result_expr <> "" then
         c_expr.expr &:= "strAppendTemp(&(";
         c_expr.expr &:= c_param1.expr;
         c_expr.expr &:= "), ";

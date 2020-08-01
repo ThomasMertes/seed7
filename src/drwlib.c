@@ -39,7 +39,7 @@
 #include "objutl.h"
 #include "runerr.h"
 #include "drw_rtl.h"
-#include "kbd_rtl.h"
+#include "gkb_rtl.h"
 #include "drw_drv.h"
 #include "kbd_drv.h"
 

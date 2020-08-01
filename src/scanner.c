@@ -327,7 +327,7 @@ void scan_symbol ()
           find_normal_ident(position);
         } else {
           symbol.name[1] = '\0';                                /*  0.10%  0.10% */
-          find_1_ch_ident((int) symbol.name[0]);                /*  0.49%  0.51% */
+          find_1_ch_ident(symbol.name[0]);                      /*  0.49%  0.51% */
         } /* if */
         in_file.character = character;                          /*  0.05%  0.05% */
         symbol.sycategory = SPECIALSYMBOL;                      /*  0.10%  0.10% */

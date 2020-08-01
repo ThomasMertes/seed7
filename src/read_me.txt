@@ -407,6 +407,7 @@ HOW TO VERIFY THAT THE INTERPRETER WORKS CORRECT?
 
     compiling the compiler - okay
     chkint - okay
+    chkflt - okay
     chkstr - okay
     chkprc - okay
     chkbig - okay

@@ -33,7 +33,7 @@
 EXTERN identtype current_ident;
 
 
-#define find_1_ch_ident(CH)  current_ident = prog.ident.table1[(CH)]
+#define find_1_ch_ident(ch)  current_ident = prog.ident.table1[(int) (ch)]
 #define find_literal_ident() current_ident = prog.ident.literal
 #define find_eof_ident()     current_ident = prog.ident.end_of_file
 

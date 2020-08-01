@@ -88,6 +88,7 @@ rtlArraytype arg_v;
     int position;
     stritype opt;
     cstritype cstri_opt;
+    int verbosity_level;
 
   /* processOptions */
 #ifdef TRACE_OPTION
@@ -177,10 +178,21 @@ rtlArraytype arg_v;
               } /* if */
               break;
             case 'v':
-              option.compilation_info = TRUE;
-              option.linecount_info = TRUE;
-              if (opt->size >= 3 && opt->mem[2] == '2') {
-                option.incr_message_line = 0;
+              if (opt->size >= 3 && opt->mem[2] >= '0' && opt->mem[2] <= '3') {
+                verbosity_level = (int) opt->mem[2] - '0';
+              } else {
+                verbosity_level = 2;
+              } /* if */
+              if (verbosity_level <= 1) {
+                option.version_info = verbosity_level != 0;
+                option.compilation_info = FALSE;
+                option.linecount_info = FALSE;
+              } else {
+                option.compilation_info = TRUE;
+                option.linecount_info = TRUE;
+                if (verbosity_level == 3) {
+                  option.incr_message_line = 0;
+                } /* if */
               } /* if */
               break;
             case 'x':

@@ -1,3 +1,20 @@
+20111014:
+- The FAQ answer, explaining the -v option of the interpreter, was
+  improved.
+- The function 'skipSpaceOrTab' was added to "scanstri.s7i".
+- Documentation comments were added to "utf8.s7i".
+- The compiler (comp.sd7) was improved to generate better code for
+  the actions "INT_POW" and "STR_APPEND".
+- The support for macros, in the "make7.sd7" utility, was improved.
+- The files "drw_x11.c", "findid.h" and "scanner.c" were changed to
+  reduce the number of warnings issured by clang.
+- Functions were moved from "kbd_rtl.c" to the new file "gkb_rtl.c"
+  and prototypes were moved from "kbd_rtl.h" to the new file
+  "gkb_rtl.h". This was done together with changes in the makefiles,
+  to avoid linker errors, when programs are compiled with -O2.
+- The function 'processOptions' in "hi.c" was improved to support
+  the new logic of the option -v.
+
 20111003:
 - A check for MEMORY_ERROR was removed from "chkexc.sd7" (thanks to
   Pietro Cerutti for pointing out problems under 64-bit FreeBSD).

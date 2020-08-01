@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  kbd_rtl.c     Generic keyboard support for console keyboard.    */
+/*  gkb_rtl.c     Generic keyboard support for graphics keyboard.   */
 /*  Copyright (C) 1989 - 2011  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
@@ -23,9 +23,9 @@
 /*  Fifth Floor, Boston, MA  02110-1301, USA.                       */
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
-/*  File: seed7/src/kbd_rtl.c                                       */
+/*  File: seed7/src/gkb_rtl.c                                       */
 /*  Changes: 1992, 1993, 1994  Thomas Mertes                        */
-/*  Content: Generic keyboard support for console keyboard.         */
+/*  Content: Generic keyboard support for graphics keyboard.        */
 /*                                                                  */
 /********************************************************************/
 
@@ -38,11 +38,12 @@
 #include "data_rtl.h"
 #include "heaputl.h"
 #include "rtl_err.h"
-#include "kbd_drv.h"
+#include "drw_drv.h"
+#include "con_drv.h"
 
 #undef EXTERN
 #define EXTERN
-#include "kbd_rtl.h"
+#include "gkb_rtl.h"
 
 
 #define READ_STRI_INIT_SIZE      256
@@ -52,10 +53,10 @@
 
 #ifdef ANSI_C
 
-stritype kbdGets (inttype length)
+stritype gkbGets (inttype length)
 #else
 
-stritype kbdGets (length)
+stritype gkbGets (length)
 inttype length;
 #endif
 
@@ -64,7 +65,7 @@ inttype length;
     memsizetype position;
     stritype result;
 
-  /* kbdGets */
+  /* gkbGets */
     if (length < 0) {
       raise_error(RANGE_ERROR);
       return NULL;
@@ -79,22 +80,22 @@ inttype length;
         return NULL;
       } else {
         for (position = 0; position < bytes_requested; position++) {
-          result->mem[position] = (strelemtype) kbdGetc();
+          result->mem[position] = (strelemtype) gkbGetc();
         } /* for */
         result->size = bytes_requested;
         return result;
       } /* if */
     } /* if */
-  } /* kbdGets */
+  } /* gkbGets */
 
 
 
 #ifdef ANSI_C
 
-stritype kbdLineRead (chartype *termination_char)
+stritype gkbLineRead (chartype *termination_char)
 #else
 
-stritype kbdLineRead (termination_char)
+stritype gkbLineRead (termination_char)
 chartype *termination_char;
 #endif
 
@@ -107,14 +108,14 @@ chartype *termination_char;
     stritype resized_result;
     stritype result;
 
-  /* kbdLineRead */
+  /* gkbLineRead */
     memlength = READ_STRI_INIT_SIZE;
     if (!ALLOC_STRI_SIZE_OK(result, memlength)) {
       raise_error(MEMORY_ERROR);
     } else {
       memory = result->mem;
       position = 0;
-      while ((ch = kbdGetc()) != '\n' && ch != (chartype) ((schartype) EOF)) {
+      while ((ch = gkbGetc()) != '\n' && ch != (chartype) ((schartype) EOF)) {
         if (position >= memlength) {
           newmemlength = memlength + READ_STRI_SIZE_DELTA;
           REALLOC_STRI_CHECK_SIZE(resized_result, result, memlength, newmemlength);
@@ -146,16 +147,16 @@ chartype *termination_char;
       } /* if */
     } /* if */
     return result;
-  } /* kbdLineRead */
+  } /* gkbLineRead */
 
 
 
 #ifdef ANSI_C
 
-stritype kbdWordRead (chartype *termination_char)
+stritype gkbWordRead (chartype *termination_char)
 #else
 
-stritype kbdWordRead (termination_char)
+stritype gkbWordRead (termination_char)
 chartype *termination_char;
 #endif
 
@@ -168,7 +169,7 @@ chartype *termination_char;
     stritype resized_result;
     stritype result;
 
-  /* kbdWordRead */
+  /* gkbWordRead */
     memlength = READ_STRI_INIT_SIZE;
     if (!ALLOC_STRI_SIZE_OK(result, memlength)) {
       raise_error(MEMORY_ERROR);
@@ -176,10 +177,10 @@ chartype *termination_char;
       memory = result->mem;
       position = 0;
       do {
-        ch = kbdGetc();
+        ch = gkbGetc();
       } while (ch == ' ' || ch == '\t');
       while (ch != ' ' && ch != '\t' &&
-             ch != '\n' && ch != (chartype) ((schartype) EOF)) {
+          ch != '\n' && ch != (chartype) ((schartype) EOF)) {
         if (position >= memlength) {
           newmemlength = memlength + READ_STRI_SIZE_DELTA;
           REALLOC_STRI_CHECK_SIZE(resized_result, result, memlength, newmemlength);
@@ -194,7 +195,7 @@ chartype *termination_char;
           memlength = newmemlength;
         } /* if */
         memory[position++] = (strelemtype) ch;
-        ch = kbdGetc();
+        ch = gkbGetc();
       } /* while */
       if (ch == '\n' && position != 0 && memory[position - 1] == '\r') {
         position--;
@@ -203,7 +204,7 @@ chartype *termination_char;
       if (resized_result == NULL) {
         FREE_STRI(result, memlength);
         raise_error(MEMORY_ERROR);
-        return NULL;
+        result = NULL;
       } else {
         result = resized_result;
         COUNT3_STRI(memlength, position);
@@ -212,4 +213,4 @@ chartype *termination_char;
       } /* if */
     } /* if */
     return result;
-  } /* kbdWordRead */
+  } /* gkbWordRead */

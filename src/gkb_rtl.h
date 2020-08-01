@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  kbd_rtl.h     Generic keyboard support for console keyboard.    */
+/*  gkb_rtl.h     Generic keyboard support for graphics keyboard.   */
 /*  Copyright (C) 1989 - 2011  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
@@ -23,22 +23,22 @@
 /*  Fifth Floor, Boston, MA  02110-1301, USA.                       */
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
-/*  File: seed7/src/kbd_rtl.h                                       */
+/*  File: seed7/src/gkb_rtl.h                                       */
 /*  Changes: 1992, 1993, 1994  Thomas Mertes                        */
-/*  Content: Generic keyboard support for console keyboard.         */
+/*  Content: Generic keyboard support for graphics keyboard.        */
 /*                                                                  */
 /********************************************************************/
 
 #ifdef ANSI_C
 
-stritype kbdGets (inttype);
-stritype kbdLineRead (chartype *);
-stritype kbdWordRead (chartype *);
+stritype gkbGets (inttype);
+stritype gkbLineRead (chartype *);
+stritype gkbWordRead (chartype *);
 
 #else
 
-stritype kbdGets ();
-stritype kbdLineRead ();
-stritype kbdWordRead ();
+stritype gkbGets ();
+stritype gkbLineRead ();
+stritype gkbWordRead ();
 
 #endif

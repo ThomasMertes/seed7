@@ -375,12 +375,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr><!-- ================================================ -->
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 150000 lines of Seed7. For version 2011-09-18 the number of lines is:
+than 150000 lines of Seed7. For version 2011-10-14 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right"> 96339</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right">  9839</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">105983</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right"> 63683</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right"> 96440</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right">  9877</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">106035</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right"> 63910</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -586,6 +586,7 @@ the interpreter):
 </p><pre>
   compiling the compiler - okay
   chkint - okay
+  chkflt - okay
   chkstr - okay
   chkprc - okay
   chkbig - okay
@@ -632,7 +633,13 @@ The following options are recognized by hi:
          <li><b>e</b> Trace exceptions and handlers</li>
          <li><b>h</b> Trace heap size (in combination with 'a')</li></ul></li>
   <li><b>-t</b>   Equivalent to <b>-ta</b></li>
-  <li><b>-v</b>   Compile verbose. Write line numbers while analyzing.</li>
+  <li><b>-vn</b>  Set verbosity level of analyse phase to n. Where n is one
+       of the following characters:<ul>
+         <li><b>0</b> Compile quiet (equivalent to <b>-q</b>)</li>
+         <li><b>1</b> Write just the header with version information (default)</li>
+         <li><b>2</b> Write a list of include libraries</li>
+         <li><b>3</b> Write line numbers, while analyzing</li></ul></li>
+  <li><b>-v</b>   Equivalent to <b>-v2</b></li>
   <li><b>-x</b>   Execute even when the program contains errors.</li>
 </ul><p>
   In the program the <tt>'parameters'</tt> can be accessed via <tt>'argv(PROGRAM)'</tt>.
