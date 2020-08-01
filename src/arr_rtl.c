@@ -200,19 +200,29 @@ stritype *exePath;
     rtlArraytype arg_v;
 
   /* getArgv */
-    *arg_0 = cp_from_os_path(argv[0], &err_info);
-    if (*arg_0 != NULL) {
-      *exePath = getExecutablePath(*arg_0);
-      if (*exePath == NULL) {
-        err_info = MEMORY_ERROR;
-      } /* if */
-    } /* if */
-    if (err_info == OKAY_NO_ERROR) {
-      arg_v = copyArgv(argc - 1, &argv[1]);
-    } else {
+#ifdef EMULATE_ROOT_CWD
+    initEmulatedCwd(&err_info);
+    if (err_info != OKAY_NO_ERROR) {
       raise_error(err_info);
       arg_v = NULL;
+    } else {
+#endif
+      *arg_0 = cp_from_os_path(argv[0], &err_info);
+      if (*arg_0 != NULL) {
+        *exePath = getExecutablePath(*arg_0);
+        if (*exePath == NULL) {
+          err_info = MEMORY_ERROR;
+        } /* if */
+      } /* if */
+      if (err_info == OKAY_NO_ERROR) {
+        arg_v = copyArgv(argc - 1, &argv[1]);
+      } else {
+        raise_error(err_info);
+        arg_v = NULL;
+      } /* if */
+#ifdef EMULATE_ROOT_CWD
     } /* if */
+#endif
     return arg_v;
   } /* getArgv */
 
@@ -242,13 +252,36 @@ stritype *exePath;
     rtlArraytype arg_v;
 
   /* getArgv */
-#ifdef OS_STRI_WCHAR
-    w_argv = getUtf16Argv(&w_argc);
-    if (w_argv == NULL) {
-      raise_error(MEMORY_ERROR);
+#ifdef EMULATE_ROOT_CWD
+    initEmulatedCwd(&err_info);
+    if (err_info != OKAY_NO_ERROR) {
+      raise_error(err_info);
       arg_v = NULL;
     } else {
-      *arg_0 = cp_from_os_path(w_argv[0], &err_info);
+#endif
+#ifdef OS_STRI_WCHAR
+      w_argv = getUtf16Argv(&w_argc);
+      if (w_argv == NULL) {
+        raise_error(MEMORY_ERROR);
+        arg_v = NULL;
+      } else {
+        *arg_0 = cp_from_os_path(w_argv[0], &err_info);
+        if (*arg_0 != NULL) {
+          *exePath = getExecutablePath(*arg_0);
+          if (*exePath == NULL) {
+            err_info = MEMORY_ERROR;
+          } /* if */
+        } /* if */
+        if (err_info == OKAY_NO_ERROR) {
+          arg_v = copyArgv(w_argc - 1, &w_argv[1]);
+        } else {
+          raise_error(err_info);
+          arg_v = NULL;
+        } /* if */
+        freeUtf16Argv(w_argv);
+      } /* if */
+#else
+      *arg_0 = cp_from_os_path(argv[0], &err_info);
       if (*arg_0 != NULL) {
         *exePath = getExecutablePath(*arg_0);
         if (*exePath == NULL) {
@@ -256,26 +289,13 @@ stritype *exePath;
         } /* if */
       } /* if */
       if (err_info == OKAY_NO_ERROR) {
-        arg_v = copyArgv(w_argc - 1, &w_argv[1]);
+        arg_v = copyArgv(argc - 1, &argv[1]);
       } else {
         raise_error(err_info);
         arg_v = NULL;
       } /* if */
-      freeUtf16Argv(w_argv);
-    } /* if */
-#else
-    *arg_0 = cp_from_os_path(argv[0], &err_info);
-    if (*arg_0 != NULL) {
-      *exePath = getExecutablePath(*arg_0);
-      if (*exePath == NULL) {
-        err_info = MEMORY_ERROR;
-      } /* if */
-    } /* if */
-    if (err_info == OKAY_NO_ERROR) {
-      arg_v = copyArgv(argc - 1, &argv[1]);
-    } else {
-      raise_error(err_info);
-      arg_v = NULL;
+#endif
+#ifdef EMULATE_ROOT_CWD
     } /* if */
 #endif
     return arg_v;

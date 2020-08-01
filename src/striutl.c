@@ -56,6 +56,14 @@ const_cstritype cstri_escape_sequence[] = {
     "\\031", "\\032", "\\033", "\\034", "\\035",
     "\\036", "\\037"};
 
+#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+#ifdef EMULATE_ROOT_CWD
+os_stritype current_emulated_cwd = NULL;
+#endif
+os_chartype emulated_root[] = {'/', '\0'};
+#endif
+
+
 
 #ifdef OS_STRI_WCHAR
 
@@ -1274,6 +1282,232 @@ errinfotype *err_info;
 
 
 
+#ifdef EMULATE_ROOT_CWD
+#ifdef ANSI_C
+
+void setEmulatedCwd (const os_stritype os_path)
+#else
+
+void setEmulatedCwd (os_path)
+os_stritype os_path;
+#endif
+
+  {
+    memsizetype position;
+
+  /* setEmulatedCwd */
+    /* printf("setEmulatedCwd(\"%ls\")\n", os_path); */
+    if (!IS_EMULATED_ROOT(os_path)) {
+      for (position = 0; os_path[position] != '\0'; position++) {
+        if (os_path[position] == '\\') {
+          os_path[position] = '/';
+        } /* if */
+      } /* for */
+      if (position >= 2 && os_path[position - 1] == '/') {
+        os_path[position - 1] = '\0';
+      } /* if */
+      if (((os_path[0] >= 'a' && os_path[0] <= 'z') ||
+           (os_path[0] >= 'A' && os_path[0] <= 'Z')) &&
+          os_path[1] == ':') {
+        os_path[1] = (os_chartype) tolower(os_path[0]);
+        os_path[0] = '/';
+      } /* if */
+    } /* if */
+    if (current_emulated_cwd != NULL &&
+        current_emulated_cwd != emulated_root) {
+      os_stri_free(current_emulated_cwd);
+    } /* if */
+    current_emulated_cwd = os_path;
+    /* printf("current_emulated_cwd=\"%ls\"\n", current_emulated_cwd); */
+  } /* setEmulatedCwd */
+
+
+
+#ifdef ANSI_C
+
+static os_stritype append_path (const const_os_stritype absolutePath,
+    const strelemtype *const relativePathChars,
+    memsizetype relativePathSize, errinfotype *err_info)
+#else
+
+static os_stritype append_path (absolutePath, relativePathChars,
+    relativePathSize, err_info)
+os_stritype absolutePath;
+strelemtype relativePathChars;
+memsizetype relativePathSize;
+errinfotype *err_info;
+#endif
+
+  {
+    memsizetype abs_path_length;
+    memsizetype result_len;
+    os_stritype abs_path_end;
+    const_os_stritype rel_path_start;
+    os_stritype result;
+
+  /* append_path */
+    /* printf("append_path(\"%s\", \"%s\")\n", absolutePath, relative_path); */
+    /* absolutePath[0] is always '/'. */
+    if (absolutePath[1] == '\0') {
+      abs_path_length = 0;
+    } else {
+      abs_path_length = os_stri_strlen(absolutePath);
+    } /* if */
+    result_len = abs_path_length + OS_STRI_SIZE(relativePathSize) + 3;
+    if (unlikely(!os_stri_alloc(result, result_len))) {
+      *err_info = MEMORY_ERROR;
+    } else {
+      memcpy(result, absolutePath, abs_path_length * sizeof(os_chartype));
+      result[abs_path_length] = '/';
+      conv_to_os_stri(&result[abs_path_length + 2], relativePathChars,
+          relativePathSize, err_info);
+      if (unlikely(*err_info != OKAY_NO_ERROR)) {
+        os_stri_free(result);
+        result = NULL;
+      } else {
+        abs_path_end = &result[abs_path_length];
+        rel_path_start = &result[abs_path_length + 2];
+        while (*rel_path_start != '\0' && abs_path_end >= result) {
+          while (rel_path_start[0] == '.' && rel_path_start[1] == '.' &&
+                 (rel_path_start[2] == '/' || rel_path_start[2] == '\0')) {
+            if (rel_path_start[2] == '/') {
+              rel_path_start += 3;
+            } else {
+              rel_path_start += 2;
+            } /* if */
+            do {
+              abs_path_end--;
+            } while (abs_path_end >= result &&
+                     *abs_path_end != '/' && *abs_path_end != '\\');
+          } /* while */
+          while (rel_path_start[0] == '.' &&
+                 (rel_path_start[1] == '/' || rel_path_start[1] == '\0')) {
+            if (rel_path_start[1] == '/') {
+              rel_path_start += 2;
+            } else {
+              rel_path_start++;
+            } /* if */
+          } /* while */
+          if (abs_path_end >= result) {
+            if (*rel_path_start != '/' && *rel_path_start != '\0') {
+              do {
+                abs_path_end++;
+                *abs_path_end = *rel_path_start;
+                rel_path_start++;
+              } while (*rel_path_start != '/' && *rel_path_start != '\0');
+              abs_path_end++;
+              *abs_path_end = '/';
+            } /* if */
+            if (*rel_path_start == '/') {
+              rel_path_start++;
+            } /* if */
+          } /* if */
+        } /* while */
+        if (abs_path_end < result) {
+          *err_info = FILE_ERROR;
+        } else if (abs_path_end == result) {
+          *err_info = RANGE_ERROR;
+          os_stri_free(result);
+          result = emulated_root;
+        } else {
+          *abs_path_end = '\0';
+          if (result[1] >= 'a' && result[1] <= 'z') {
+            if (result[2] == '\0') {
+              /* "/c"   is mapped to "c:\"  */
+              result[0] = result[1];
+              result[1] = ':';
+              result[2] = '\\';
+              result[3] = '\0';
+            } else if (unlikely(result[2] != '/')) {
+              /* "/cd"  cannot be mapped to a drive letter */
+              *err_info = RANGE_ERROR;
+              os_stri_free(result);
+              result = NULL;
+            } else {
+              /* "/c/d" is mapped to "c:\d" */
+              result[0] = result[1];
+              result[1] = ':';
+              result[2] = '\\';
+            } /* if */
+          } else {
+            /* "/C"  cannot be mapped to a drive letter */
+            *err_info = RANGE_ERROR;
+            os_stri_free(result);
+            result = NULL;
+          } /* if */
+        } /* if */
+      } /* if */
+    } /* if */
+    /* printf("append_path(\"%s\", \"%s\") --> \"%s\"\n",
+        absolutePath, relative_path, result); */
+    return result;
+  } /* append_path */
+#endif
+
+
+
+#ifndef EMULATE_ROOT_CWD
+#ifdef ANSI_C
+
+static os_stritype map_to_drive_letter (const strelemtype *const pathChars,
+    memsizetype pathSize, errinfotype *err_info)
+#else
+
+static os_stritype map_to_drive_letter (pathChars, pathSize, err_info)
+strelemtype pathChars;
+memsizetype pathSize;
+errinfotype *err_info;
+#endif
+
+  {
+    os_stritype result;
+
+  /* map_to_drive_letter */
+    if (unlikely(pathSize == 0)) {
+      /* "/"    cannot be mapped to a drive letter */
+      *err_info = RANGE_ERROR;
+      result = emulated_root;
+    } else if (pathChars[0] >= 'a' && pathChars[0] <= 'z') {
+      if (pathSize == 1) {
+        /* "/c"   is mapped to "c:\"  */
+        if (unlikely(!os_stri_alloc(result, 3))) {
+          *err_info = MEMORY_ERROR;
+        } else {
+          result[0] = (os_chartype) pathChars[0];
+          result[1] = ':';
+          result[2] = '\\';
+          result[3] = '\0';
+        } /* if */
+      } else if (unlikely(pathChars[1] != '/')) {
+        /* "/cd"  cannot be mapped to a drive letter */
+        *err_info = RANGE_ERROR;
+        result = NULL;
+      } else {
+        /* "/c/d" is mapped to "c:\d" */
+        if (unlikely(!os_stri_alloc(result, OS_STRI_SIZE(pathSize - 2) + 3))) {
+          *err_info = MEMORY_ERROR;
+        } else {
+          result[0] = (os_chartype) pathChars[0];
+          result[1] = ':';
+          result[2] = '\\';
+          conv_to_os_stri(&result[3], &pathChars[2], pathSize - 2, err_info);
+          if (unlikely(*err_info != OKAY_NO_ERROR)) {
+            os_stri_free(result);
+	    result = NULL;
+          } /* if */
+        } /* if */
+      } /* if */
+    } else {
+      /* "/C"  cannot be mapped to a drive letter */
+      *err_info = RANGE_ERROR;
+      result = NULL;
+    } /* if */
+    return result;
+  } /* map_to_drive_letter */
+#endif
+
+
+
 #ifdef ANSI_C
 
 os_stritype cp_to_os_path (const_stritype stri, errinfotype *err_info)
@@ -1311,55 +1545,37 @@ errinfotype *err_info;
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
       if (stri->size >= 1 && stri->mem[0] == '/') {
         /* Absolute path: Try to map the path to a drive letter */
-        if (unlikely(stri->size == 1)) {
-          /* "/"    cannot be mapped to a drive letter */
-          *err_info = RANGE_ERROR;
-          result = NULL;
-        } else if (stri->mem[1] >= 'a' && stri->mem[1] <= 'z') {
-          if (stri->size == 2) {
-            /* "/c"   is mapped to "c:\"  */
-            if (unlikely(!os_stri_alloc(result, 3))) {
-              *err_info = MEMORY_ERROR;
-            } else {
-              result[0] = (os_chartype) stri->mem[1];
-              result[1] = ':';
-              result[2] = '\\';
-              result[3] = '\0';
-            } /* if */
-          } else if (unlikely(stri->mem[2] != '/')) {
-            /* "/cd"  cannot be mapped to a drive letter */
-            *err_info = RANGE_ERROR;
-            result = NULL;
-          } else {
-            /* "/c/d" is mapped to "c:\d" */
-            if (unlikely(!os_stri_alloc(result, OS_STRI_SIZE(stri->size - 3) + 3))) {
-              *err_info = MEMORY_ERROR;
-            } else {
-              result[0] = (os_chartype) stri->mem[1];
-              result[1] = ':';
-              result[2] = '\\';
-              conv_to_os_stri(&result[3], &stri->mem[3], stri->size - 3, err_info);
-            } /* if */
-          } /* if */
-        } else {
-          /* "/C"  cannot be mapped to a drive letter */
-          *err_info = RANGE_ERROR;
-          result = NULL;
-        } /* if */
-      } else {
+#ifdef EMULATE_ROOT_CWD
+        result = append_path(emulated_root, &stri->mem[1], stri->size - 1, err_info);
+#else
+        result = map_to_drive_letter(&stri->mem[1], stri->size - 1, err_info);
 #endif
+      } else {
+#ifdef EMULATE_ROOT_CWD
+        result = append_path(current_emulated_cwd, stri->mem, stri->size, err_info);
+#else
         if (unlikely(!os_stri_alloc(result, OS_STRI_SIZE(stri->size)))) {
           *err_info = MEMORY_ERROR;
         } else {
           conv_to_os_stri(result, stri->mem, stri->size, err_info);
+          if (unlikely(*err_info != OKAY_NO_ERROR)) {
+            os_stri_free(result);
+            result = NULL;
+          } /* if */
         } /* if */
-#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+#endif
+      } /* if */
+#else
+      if (unlikely(!os_stri_alloc(result, OS_STRI_SIZE(stri->size)))) {
+        *err_info = MEMORY_ERROR;
+      } else {
+        conv_to_os_stri(result, stri->mem, stri->size, err_info);
+        if (unlikely(*err_info != OKAY_NO_ERROR)) {
+          os_stri_free(result);
+          result = NULL;
+        } /* if */
       } /* if */
 #endif
-      if (unlikely(*err_info != OKAY_NO_ERROR && result != NULL)) {
-        os_stri_free(result);
-        result = NULL;
-      } /* if */
     } /* if */
 #ifdef TRACE_STRIUTL
     printf("END cp_to_os_path(%lx, %d) ==> %lx\n", stri, *err_info, result);
@@ -1408,107 +1624,6 @@ errinfotype *err_info;
 
 
 
-#ifdef OUT_OF_ORDER
-/**
- *  Returns a command string suitable for the operating system shell.
- *  The string 'stri' is converted to os_stritype. The command part of
- *  'stri' (which extends from the beginning up to the first blank)
- *  is treated special: All occurances of slash ( / ) are replaced
- *  by PATH_DELIMITER (which is defined as the path delimiter used
- *  by the operating system shell). Note that some operating systems
- *  accept / in paths used by C system calls but insist on \ in paths
- *  used by the system shell. Additionally the command part is also
- *  searched for the sequence "\ " which is treated special (Note
- *  that Seed7 string literals need a double backslash to represend
- "  one backslash. E.g.: "usr/home/tm/My\\ Dir/myCommand"). The
- *  sequence "\ " is used to allow space characters in the command
- *  path. Depending on the operating system the sequence "\ " is left
- *  as is or forces the command path to be surrounded by double
- *  quotes (in that case "\ " is replaced by " ").
- */
-#ifdef ANSI_C
-
-os_stritype cp_to_command (const_stritype stri, errinfotype *err_info)
-#else
-
-os_stritype cp_to_command (stri, err_info)
-stritype stri;
-errinfotype *err_info;
-#endif
-
-  {
-    memsizetype inPos;
-    memsizetype outPos;
-    booltype quote_path;
-    os_stritype cmd;
-
-  /* cp_to_command */
-    cmd = stri_to_os_stri(stri, err_info);
-    if (*err_info == OKAY_NO_ERROR) {
-      quote_path = FALSE;
-      /* replace "/" by PATH_DELIMITER in cmd */
-      for (inPos = 0, outPos = 0; cmd[inPos] != ' ' && cmd[inPos] != '\0'; inPos++, outPos++) {
-        if (cmd[inPos] == '/') {
-#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
-          if (inPos == 0 && cmd[1] >= 'a' && cmd[1] <= 'z' && cmd[2] == '/') {
-            /* Absolute path: Try to map the path to a drive letter */
-            inPos++;
-            cmd[outPos] = cmd[inPos];
-            outPos++;
-            cmd[outPos] = ':';
-          } else {
-#endif
-            cmd[outPos] = PATH_DELIMITER;
-#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
-          } /* if */
-#endif
-        } else if (cmd[inPos] == '\\') {
-          inPos++;
-          if (cmd[inPos] == ' ') {
-#ifdef ESCAPE_SHELL_COMMANDS
-              cmd[outPos] = '\\';
-              outPos++;
-#else
-              quote_path = TRUE;
-#endif
-            cmd[outPos] = ' ';
-          } else {
-            cmd[outPos] = '\\';
-            if (cmd[inPos] != '\0') {
-              outPos++;
-              cmd[outPos] = cmd[inPos];
-            } /* if */
-          } /* if */
-        } else {
-          cmd[outPos] = cmd[inPos];
-        } /* if */
-      } /* for */
-      if (quote_path) {
-        memmove(&cmd[outPos + 2], &cmd[inPos], sizeof(os_chartype) * (os_stri_strlen(&cmd[inPos]) + 1));
-        memmove(&cmd[1], cmd, sizeof(os_chartype) * outPos);
-        cmd[0] = '"';
-        cmd[outPos + 1] = '"';
-        if (os_stri_strchr(&cmd[outPos + 2], '\"') != NULL) {
-          outPos = os_stri_strlen(cmd);
-          memmove(&cmd[1], cmd, sizeof(os_chartype) * outPos);
-          cmd[0] = '"';
-          cmd[outPos + 1] = '"';
-          cmd[outPos + 2] = '\0';
-        } /* if */
-      } /* if */
-#ifdef TRACE_CP_TO_COMMAND
-      for (inPos = 0; cmd[inPos] != '\0'; inPos++) {
-        printf("%c", cmd[inPos]);
-      } /* for */
-      printf("\n");
-#endif
-    } /* if */
-    return cmd;
-  } /* cp_to_command */
-#endif
-
-
-
 #ifdef ANSI_C
 
 static void escape_command (const const_os_stritype inBuffer, os_stritype outBuffer,
@@ -1533,8 +1648,10 @@ errinfotype *err_info;
 #ifdef ESCAPE_SHELL_COMMANDS
         case '\t': case ' ':  case '!':  case '\"': case '$':
         case '&':  case '\'': case '(':  case ')':  case '*':
-        case ';':  case '<':  case '>':  case '?':  case '\\':
-        case '`':  case '|':
+        case ',':  case ':':  case ';':  case '<':  case '=':
+        case '>':  case '?':  case '[':  case '\\': case ']':
+        case '^':  case '`':  case '{':  case '|':  case '}':
+        case '~':
           outBuffer[outPos] = '\\';
           outPos++;
           outBuffer[outPos] = inBuffer[inPos];
@@ -1543,10 +1660,35 @@ errinfotype *err_info;
           *err_info = RANGE_ERROR;
           break;
 #else
-        case ' ':  case '&':  case ',':  case ';':  case '=':
-        case '^':  case '~':  case 160:
+        case ' ':  case '~':  case 160:
           quote_path = TRUE;
           outBuffer[outPos] = inBuffer[inPos];
+          break;
+        case '&':  case '^':  case '(':  case ')':
+          quote_path = TRUE;
+          outBuffer[outPos] = '^';
+          outPos++;
+          outBuffer[outPos] = inBuffer[inPos];
+          break;
+        case '%':  case ',':  case ';':  case '=':
+          quote_path = TRUE;
+          outBuffer[outPos] = '\"';
+          outPos++;
+          outBuffer[outPos] = inBuffer[inPos];
+          outPos++;
+          outBuffer[outPos] = '\"';
+          break;
+        case ':':
+          if (inPos == 1 &&
+              inBuffer[0] >= 'a' && inBuffer[0] <= 'z') {
+            outBuffer[outPos] = inBuffer[inPos];
+          } else {
+            *err_info = RANGE_ERROR;
+          } /* if */
+          break;
+        case '\"': case '*':  case '<':  case '>':  case '?':
+        case '|':  case '\n': case '\r':
+          *err_info = RANGE_ERROR;
           break;
 #endif
 #if PATH_DELIMITER != '/'
@@ -1592,7 +1734,7 @@ errinfotype *err_info;
 
   /* cp_to_command */
     os_commandPath = cp_to_os_path(commandPath, err_info);
-    if (unlikely(os_commandPath == NULL)) {
+    if (unlikely(*err_info != OKAY_NO_ERROR)) {
       result = NULL;
     } else {
       os_parameters = stri_to_os_stri(parameters, err_info);
@@ -1601,11 +1743,11 @@ errinfotype *err_info;
       } else {
         param_len = os_stri_strlen(os_parameters);
         if (unlikely(MAX_OS_STRI_SIZE - 4 < param_len ||
-                     os_stri_strlen(os_commandPath) > (MAX_OS_STRI_SIZE - 4 - param_len) >> 1)) {
+                     os_stri_strlen(os_commandPath) > (MAX_OS_STRI_SIZE - 4 - param_len) / 3)) {
           *err_info = MEMORY_ERROR;
           result = NULL;
         } else {
-          result_len = 2 * os_stri_strlen(os_commandPath) +
+          result_len = 3 * os_stri_strlen(os_commandPath) +
                        os_stri_strlen(os_parameters) + 4;
           if (unlikely(!os_stri_alloc(result, result_len))) {
             *err_info = MEMORY_ERROR;
@@ -1643,6 +1785,7 @@ errinfotype *err_info;
       } /* if */
       os_stri_free(os_commandPath);
     } /* if */
+    /* printf("cp_to_command -> %ls\n", result); */
     return result;
   } /* cp_to_command */
 

@@ -132,12 +132,28 @@ const proc: cmd_sh (in string: cmdAndParams) is func
 
 
 (**
+ *  Convert a string, such that it can be used as shell parameter.
+ *  The function adds escape characters or quotations to a string.
+ *  @return a string which can be used as shell parameter.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'stri'.
+ *)
+const func string: shellEscape (in string: stri)   is action "CMD_SHELL_ESCAPE";
+
+
+(**
  *  Convert a standard path to the path of the operating system.
  *  This function can prepare paths for the ''parameters'' of the
  *  ''shell'' and ''cmd_sh'' function.
  *  @return a string containing an operating system path.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'path'.
+ *  @exception RANGE_ERROR 'path' is not representable as operating
+ *             system path.
  *)
 const func string: toOsPath (in string: path)   is action "CMD_TO_OS_PATH";
+
+
+const func string: toShellPath (in string: path) is
+  return shellEscape(toOsPath(path));
 
 
 const func PRIMITIVE_FILE: PRIMITIVE_FILE_POPEN
@@ -274,7 +290,7 @@ const proc: startProcess (in var string: cmdAndParams) is func
   begin
     command := getCommandLineWord(cmdAndParams);
     parameter := getCommandLineWord(cmdAndParams);
-	while parameter <> "" do
+    while parameter <> "" do
       parameters &:= parameter;
       parameter := getCommandLineWord(cmdAndParams);
     end while;

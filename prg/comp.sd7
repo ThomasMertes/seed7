@@ -6842,6 +6842,16 @@ const proc: process_cmd_shell (in ref_list: params, inout expr_type: c_expr) is 
   end func;
 
 
+const proc: process_cmd_shell_escape (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_stri_result(c_expr);
+    c_expr.result_expr := "cmdShellEscape(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
 const proc: process_cmd_start_process (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -16114,6 +16124,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_cmd_set_mtime(params, c_expr);
       elsif action_name = "CMD_SHELL" then
         process_cmd_shell(params, c_expr);
+      elsif action_name = "CMD_SHELL_ESCAPE" then
+        process_cmd_shell_escape(params, c_expr);
       elsif action_name = "CMD_START_PROCESS" then
         process_cmd_start_process(params, c_expr);
       elsif action_name = "CMD_SYMLINK" then
@@ -21786,6 +21798,7 @@ const proc: write_prototypes is func
     declareExtern("void        cmdSetFileMode (const const_stritype, const const_settype);");
     declareExtern("void        cmdSetMTime (const const_stritype, inttype, inttype, inttype, inttype, inttype, inttype, inttype, inttype);");
     declareExtern("inttype     cmdShell (const const_stritype, const const_stritype);");
+    declareExtern("stritype    cmdShellEscape (const const_stritype);");
     declareExtern("void        cmdStartProcess (const const_stritype, const const_arraytype);");
     declareExtern("void        cmdSymlink (const_stritype, const_stritype);");
     declareExtern("stritype    cmdToOsPath (const const_stritype);");
@@ -23635,9 +23648,9 @@ const proc: pass_3 (in string: source, in program: prog,
       if CC_FLAGS <> "" then
         compile_params &:= " " & CC_FLAGS;
       end if;
-      compile_params &:= " -c " & cSourceFile;
+      compile_params &:= " -c " & toShellPath(cSourceFile);
       if REDIRECT_C_ERRORS <> "" then
-        compile_params &:= " " & REDIRECT_C_ERRORS & cErrorFile;
+        compile_params &:= " " & REDIRECT_C_ERRORS & toShellPath(cErrorFile);
       end if;
       writeln(compile_cmd <& compile_params);
       flush(OUT);
@@ -23709,22 +23722,22 @@ const proc: pass_3 (in string: source, in program: prog,
             end if;
             if LINKER_OPT_OUTPUT_FILE <> "" then
               link_params &:= " " & LINKER_OPT_OUTPUT_FILE &
-                  executableFile;
+                  toShellPath(executableFile);
             end if;
-            link_params &:= " " & objectFile;
+            link_params &:= " " & toShellPath(objectFile);
             if compilerLibraryUsed then
-              link_params &:= " \"" & toOsPath(compiler_lib) & "\"";
+              link_params &:= " " & toShellPath(compiler_lib);
             end if;
             if compDataLibraryUsed then
-              link_params &:= " \"" & toOsPath(comp_data_lib) & "\"";
+              link_params &:= " " & toShellPath(comp_data_lib);
             end if;
             if consoleLibraryUsed then
-              link_params &:= " \"" & toOsPath(console_lib) & "\"";
+              link_params &:= " " & toShellPath(console_lib);
             end if;
             if drawLibraryUsed then
-              link_params &:= " \"" & toOsPath(draw_lib) & "\"";
+              link_params &:= " " & toShellPath(draw_lib);
             end if;
-            link_params &:= " \"" & toOsPath(seed7_lib) & "\"";
+            link_params &:= " " & toShellPath(seed7_lib);
             if consoleLibraryUsed then
               link_params &:= " " & SYSTEM_CONSOLE_LIBS;
             end if;
@@ -23733,7 +23746,7 @@ const proc: pass_3 (in string: source, in program: prog,
             end if;
             link_params &:= " " & SYSTEM_LIBS;
             if REDIRECT_C_ERRORS <> "" then
-              link_params &:= " " & REDIRECT_C_ERRORS & linkErrFile;
+              link_params &:= " " & REDIRECT_C_ERRORS & toShellPath(linkErrFile);
             end if;
             writeln(link_cmd <& link_params);
             flush(OUT);

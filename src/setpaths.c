@@ -77,7 +77,12 @@ void get_cwd_to_buffer (os_chartype *buffer)
         buffer[position] = '/';
       } /* if */
     } /* for */
-    if (buffer[1] == ':') {
+    if (position >= 2 && buffer[position - 1] == '/') {
+      buffer[position - 1] = '\0';
+    } /* if */
+    if (((buffer[0] >= 'a' && buffer[0] <= 'z') ||
+         (buffer[0] >= 'A' && buffer[0] <= 'Z')) &&
+        buffer[1] == ':') {
       buffer[1] = tolower(buffer[0]);
       buffer[0] = '/';
     } /* if */
@@ -89,13 +94,25 @@ void get_cwd_to_buffer (os_chartype *buffer)
 
 void write_as_utf8 (os_chartype *wstri)
 
-  { /* write_as_utf8 */
+  {
+    unsigned long utf32;
+
+  /* write_as_utf8 */
     for (; *wstri != '\0'; wstri++) {
       if (*wstri <= 0x7F) {
         putchar((unsigned char) *wstri);
       } else if (*wstri <= 0x7FF) {
         putchar((unsigned char) (0xC0 | (*wstri >>  6)));
         putchar((unsigned char) (0x80 |( *wstri        & 0x3F)));
+      } else if (*wstri >= 0xD800 && *wstri <= 0xDBFF &&
+		 wstri[1] >= 0xDC00 && wstri[1] <= 0xDFFF) {
+        utf32 = ((((unsigned long) *wstri   - 0xD800) << 10) +
+                  ((unsigned long) wstri[1] - 0xDC00) + 0x10000);
+        wstri++;
+        putchar((unsigned char) (0xF0 | (utf32 >> 18)));
+        putchar((unsigned char) (0x80 |((utf32 >> 12) & 0x3F)));
+        putchar((unsigned char) (0x80 |((utf32 >>  6) & 0x3F)));
+        putchar((unsigned char) (0x80 |( utf32        & 0x3F)));
       } else {
         putchar((unsigned char) (0xE0 | (*wstri >> 12)));
         putchar((unsigned char) (0x80 |((*wstri >>  6) & 0x3F)));

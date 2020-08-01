@@ -1,3 +1,22 @@
+20120115:
+- The functions shellEscape and toShellPath were added to the
+  "shell.s7i" library.
+- The compiler (comp.sd7) was improved to use 'toShellPath'. Now the
+  compiler works for source files, which contain spaces in their
+  name.
+- Compiler and interpreter were improved to support the action
+  "CMD_SHELL_ESCAPE" (this action implements the function
+  'shellEscape').
+- The "ftp7.sd7" example program was improved to support the 'dir'
+  command.
+- The "ftpserv.sd7" example program was improved to support the
+  commands FEAT, MLST, MLSD, DELE, MODE and STRU.
+- The functions listDir and bigFileSize were added to the "ftp.s7i"
+  library.
+- The configuration program "setpaths.c" was improved to support
+  the compilation of Seed7 in a directory with an Unicode name,
+  which contains characters outside of the Basic Multilingual Plane.
+
 20120101:
 - The type 'pollData' was moved from "socket.s7i" to "poll.s7i".
   The functions supported by 'pollData' are 'clear', 'addCheck',

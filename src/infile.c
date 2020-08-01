@@ -221,7 +221,7 @@ errinfotype *err_info;
     printf("BEGIN open_infile err_info=%u\n", *err_info);
 #endif
     os_path = cp_to_os_path(source_file_name, err_info);
-    if (os_path != NULL) {
+    if (likely(*err_info == OKAY_NO_ERROR)) {
       in_fil = os_fopen(os_path, os_mode_rb);
       /* printf("fopen(\"%s\") ==> %lu\n", os_path, in_fil); */
       os_stri_free(os_path);
@@ -759,7 +759,7 @@ errinfotype *err_info;
 #endif
 
       /* Add the hardcoded library of the interpreter to the lib_path. */
-      path = stri_to_standard_path(cstri8_or_cstri_to_stri(SEED7_LIBRARY));
+      path = cstri8_or_cstri_to_stri(SEED7_LIBRARY);
       if (path == NULL) {
         *err_info = MEMORY_ERROR;
       } else {

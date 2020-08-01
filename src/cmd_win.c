@@ -491,35 +491,38 @@ filetype *childStdout;
 
   /* cmdPipe2 */
     os_command_stri = cp_to_os_path(command, &err_info);
-    command_line = prepareCommandLine(os_command_stri, parameters, &err_info);
-    /* printf("cmdPipe2(%ls, %ls, %d, %d)\n", os_command_stri,
-       command_line, fileno(*childStdin), fileno(*childStdout)); */
-    memset(&startupInfo, 0, sizeof(startupInfo));
-    /* memset(&processInformation, 0, sizeof(processInformation)); */
-    startupInfo.cb = sizeof(startupInfo);
-    startupInfo.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
-    startupInfo.wShowWindow = 0;
-    startupInfo.hStdInput = *childStdin;
-    startupInfo.hStdOutput = *childStdout;
-    startupInfo.hStdError = stderr;
-    /* printf("before CreateProcessW\n"); */
-    if (err_info == OKAY_NO_ERROR &&
-        CreateProcessW(os_command_stri,
-                       command_line /* lpCommandLine */,
-                       NULL /* lpProcessAttributes */,
-                       NULL /* lpThreadAttributes */,
-                       0  /* bInheritHandles */,
-                       0 /* dwCreationFlags */,
-                       NULL /* lpEnvironment */,
-                       NULL /* lpCurrentDirectory */,
-                       &startupInfo,
-                       &processInformation) == 0) {
-      err_info = FILE_ERROR;
+    if (likely(err_info == OKAY_NO_ERROR)) {
+      command_line = prepareCommandLine(os_command_stri, parameters, &err_info);
+      if (likely(err_info == OKAY_NO_ERROR)) {
+        /* printf("cmdPipe2(%ls, %ls, %d, %d)\n", os_command_stri,
+           command_line, fileno(*childStdin), fileno(*childStdout)); */
+        memset(&startupInfo, 0, sizeof(startupInfo));
+        /* memset(&processInformation, 0, sizeof(processInformation)); */
+        startupInfo.cb = sizeof(startupInfo);
+        startupInfo.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
+        startupInfo.wShowWindow = 0;
+        startupInfo.hStdInput = *childStdin;
+        startupInfo.hStdOutput = *childStdout;
+        startupInfo.hStdError = stderr;
+        /* printf("before CreateProcessW\n"); */
+        if (CreateProcessW(os_command_stri,
+                           command_line /* lpCommandLine */,
+                           NULL /* lpProcessAttributes */,
+                           NULL /* lpThreadAttributes */,
+                           0  /* bInheritHandles */,
+                           0 /* dwCreationFlags */,
+                           NULL /* lpEnvironment */,
+                           NULL /* lpCurrentDirectory */,
+                           &startupInfo,
+                           &processInformation) == 0) {
+          err_info = FILE_ERROR;
+        } /* if */
+        /* printf("after CreateProcessW\n"); */
+        os_stri_free(command_line);
+      } /* if */
+      os_stri_free(os_command_stri);
     } /* if */
-    /* printf("after CreateProcessW\n"); */
-    os_stri_free(os_command_stri);
-    os_stri_free(command_line);
-    if (err_info != OKAY_NO_ERROR) {
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);
     } /* if */
   } /* cmdPipe2 */
@@ -545,33 +548,35 @@ rtlArraytype parameters;
 
   /* cmdStartProcess */
     os_command_stri = cp_to_os_path(command, &err_info);
-    command_line = prepareCommandLine(os_command_stri, parameters, &err_info);
-    memset(&startupInfo, 0, sizeof(startupInfo));
-    /* memset(&processInformation, 0, sizeof(processInformation)); */
-    startupInfo.cb = sizeof(startupInfo);
-    startupInfo.dwFlags = STARTF_USESHOWWINDOW;
-    startupInfo.wShowWindow = 0;
-    /* printf("err_info=%d\n", err_info); */
-    /* printf("before CreateProcessW(%ls, %ls, ...)\n", os_command_stri, command_line); */
-    if (err_info == OKAY_NO_ERROR &&
-        CreateProcessW(os_command_stri,
-                       command_line /* lpCommandLine */,
-                       NULL /* lpProcessAttributes */,
-                       NULL /* lpThreadAttributes */,
-                       1  /* bInheritHandles */,
-                       0 /* dwCreationFlags */,
-                       NULL /* lpEnvironment */,
-                       NULL /* lpCurrentDirectory */,
-                       &startupInfo,
-                       &processInformation) == 0) {
-      /* printf("GetLastError=%d\n", GetLastError());
-         printf("ERROR_FILE_NOT_FOUND=%d\n", ERROR_FILE_NOT_FOUND); */
-      err_info = FILE_ERROR;
+    if (likely(err_info == OKAY_NO_ERROR)) {
+      command_line = prepareCommandLine(os_command_stri, parameters, &err_info);
+      if (likely(err_info == OKAY_NO_ERROR)) {
+        memset(&startupInfo, 0, sizeof(startupInfo));
+        /* memset(&processInformation, 0, sizeof(processInformation)); */
+        startupInfo.cb = sizeof(startupInfo);
+        startupInfo.dwFlags = STARTF_USESHOWWINDOW;
+        startupInfo.wShowWindow = 0;
+        /* printf("before CreateProcessW(%ls, %ls, ...)\n", os_command_stri, command_line); */
+        if (CreateProcessW(os_command_stri,
+                           command_line /* lpCommandLine */,
+                           NULL /* lpProcessAttributes */,
+                           NULL /* lpThreadAttributes */,
+                           1  /* bInheritHandles */,
+                           0 /* dwCreationFlags */,
+                           NULL /* lpEnvironment */,
+                           NULL /* lpCurrentDirectory */,
+                           &startupInfo,
+                           &processInformation) == 0) {
+          /* printf("GetLastError=%d\n", GetLastError());
+             printf("ERROR_FILE_NOT_FOUND=%d\n", ERROR_FILE_NOT_FOUND); */
+          err_info = FILE_ERROR;
+        } /* if */
+        /* printf("after CreateProcessW\n"); */
+        os_stri_free(command_line);
+      } /* if */
+      os_stri_free(os_command_stri);
     } /* if */
-    /* printf("after CreateProcessW\n"); */
-    os_stri_free(os_command_stri);
-    os_stri_free(command_line);
-    if (err_info != OKAY_NO_ERROR) {
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);
     } /* if */
   } /* cmdStartProcess */

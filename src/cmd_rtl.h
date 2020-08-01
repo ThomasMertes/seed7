@@ -32,6 +32,9 @@
 #ifdef ANSI_C
 
 stritype getProgramPath (const const_stritype source_file_name);
+#ifdef EMULATE_ROOT_CWD
+void initEmulatedCwd (errinfotype *err_info);
+#endif
 biginttype cmdBigFileSize (const const_stritype file_name);
 void cmdChdir (const const_stritype dir_name);
 void cmdCloneFile (const const_stritype source_name, const const_stritype dest_name);
@@ -69,12 +72,16 @@ void cmdSetMTime (const const_stritype file_name,
     inttype year, inttype month, inttype day, inttype hour,
     inttype min, inttype sec, inttype micro_sec, inttype time_zone);
 inttype cmdShell (const const_stritype command, const const_stritype parameters);
+stritype cmdShellEscape (const const_stritype stri);
 void cmdSymlink (const const_stritype source_name, const const_stritype dest_name);
 stritype cmdToOsPath (const const_stritype standardPath);
 
 #else
 
 stritype getProgramPath ();
+#ifdef EMULATE_ROOT_CWD
+void initEmulatedCwd (void);
+#endif
 biginttype cmdBigFileSize ();
 void cmdChdir ();
 void cmdCloneFile ();
@@ -99,6 +106,7 @@ void cmdSetATime ();
 void cmdSetFileMode ();
 void cmdSetMTime ();
 inttype cmdShell ();
+stritype cmdShellEscape ();
 void cmdSymlink ();
 stritype cmdToOsPath ();
 

@@ -228,7 +228,7 @@ const proc: iterChecks (in pollData: pData, in integer: pollMode)           is a
 (**
  *  Reset the ''pollData'' iterator to process eventFindings.
  *  The following calls of ''hasNext'' and ''nextFile'' refer to
- *  the eventFindings of the given ''pollMode''.''PollMode''
+ *  the eventFindings of the given ''pollMode''. ''PollMode''
  *  can have one of the following values:
  *  * POLLNOTHING don't iterate (''hasNext'' returns FALSE).
  *  * POLLIN data can be read from the corresponding socket.

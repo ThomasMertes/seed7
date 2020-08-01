@@ -36,25 +36,6 @@
 #include "sys/types.h"
 #include "sys/stat.h"
 #include "dirent.h"
-
-#ifdef OUT_OF_ORDER
-#ifdef ANSI_C
-#ifdef C_PLUS_PLUS
-extern "C" int chdir (char *);
-extern "C" char* getcwd (char *, int);
-extern "C" int rmdir(char *);
-#else
-extern int chdir (char *);
-extern char* getcwd (char *, int);
-extern int rmdir(char *);
-#endif
-#else
-extern int chdir ();
-extern char* getcwd ();
-extern int rmdir();
-#endif
-#endif
-
 #endif
 
 #ifdef USE_DIRECT

@@ -756,6 +756,23 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype cmd_shell_escape (listtype arguments)
+#else
+
+objecttype cmd_shell_escape (arguments)
+listtype arguments;
+#endif
+
+  { /* cmd_shell_escape */
+    isit_stri(arg_1(arguments));
+    return bld_stri_temp(
+        cmdShellEscape(take_stri(arg_1(arguments))));
+  } /* cmd_shell_escape */
+
+
+
+#ifdef ANSI_C
+
 objecttype cmd_start_process (listtype arguments)
 #else
 

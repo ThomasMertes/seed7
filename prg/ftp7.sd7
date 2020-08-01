@@ -86,6 +86,29 @@ const proc: fileListing (inout ftpConnection: ftp, in string: directory) is func
   end func;
 
 
+const proc: directoryListing (inout ftpConnection: ftp, in string: directory) is func
+  local
+    var array string: dir is 0 times "";
+    var string: line is "";
+    var boolean: continue is TRUE;
+  begin
+    if directory = "" then
+      dir := listDir(ftp, ".");
+    else
+      dir := listDir(ftp, directory);
+    end if;
+    for line range dir do
+      if busy_getc(KEYBOARD) = KEY_CTL_C then
+        writeln(" ***** Terminated.");
+        continue := FALSE;
+      end if;
+      if continue then
+        writeln(line);
+      end if;
+    end for;
+  end func;
+
+
 const proc: execute (inout ftpConnection: ftp, in string: command) is func
   local
     var array string: dir is 0 times "";
@@ -96,7 +119,9 @@ const proc: execute (inout ftpConnection: ftp, in string: command) is func
     if startsWith(command, "ls -l") then
       longFileListing(ftp, trim(command[7 ..]));
     elsif startsWith(command, "ls") then
-      fileListing(ftp, trim(command[7 ..]));
+      fileListing(ftp, trim(command[4 ..]));
+    elsif startsWith(command, "dir") then
+      directoryListing(ftp, trim(command[5 ..]));
     elsif startsWith(command, "cd ") then
       chdir(ftp, trim(command[4 ..]));
     elsif startsWith(command, "mkdir ") then

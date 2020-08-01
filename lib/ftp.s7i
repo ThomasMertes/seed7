@@ -291,6 +291,66 @@ const func array string: readDir (inout ftpConnection: ftp, in string: dirPath) 
 
 
 (**
+ *  Determine the filenames in a directory, using a FTP connection.
+ *  @return an array with the file names.
+ *  @exception FILE_ERROR The remote host returns an error.
+ *)
+const func array string: listDir (inout ftpConnection: ftp, in string: dirPath) is func
+  result
+    var array string: result is 0 times "";
+  local
+    var string: line is "";
+  begin
+    openFtpData(ftp);
+    if ftp.openDataSucceeded then
+      if dirPath = "." then
+        ftpCommand(ftp, "LIST");
+      else
+        ftpCommand(ftp, "LIST " <& dirPath);
+      end if;
+      ftpResponse(ftp);
+      if startsWith(ftp.response, "150") then
+        prepareFtpDataCommunication(ftp);
+        line := getln(ftp.data);
+        while line <> "" do
+          # writeln(line);
+          result &:= [] (line);
+          line := getln(ftp.data);
+        end while;
+        closeFtpData(ftp);
+        ftpResponse(ftp);
+        if not startsWith(ftp.response, "226") then
+          raise FILE_ERROR;
+        end if;
+      elsif startsWith(ftp.response, "500") then
+        ftpCommand(ftp, "LIST");
+        ftpResponse(ftp);
+        if startsWith(ftp.response, "150") then
+          prepareFtpDataCommunication(ftp);
+          line := getln(ftp.data);
+          while line <> "" do
+            # writeln(line);
+            result &:= [] (line);
+            line := getln(ftp.data);
+          end while;
+          closeFtpData(ftp);
+          ftpResponse(ftp);
+          if not startsWith(ftp.response, "226") then
+            raise FILE_ERROR;
+          end if;
+        else
+          closeFtpData(ftp);
+          raise FILE_ERROR;
+        end if;
+      else
+        closeFtpData(ftp);
+        raise FILE_ERROR;
+      end if;
+    end if;
+  end func;
+
+
+(**
  *  Retrive a ''source'' file to a ''destPath'', using a FTP connection.
  *  If the file exists already, it is overwritten.
  *  @exception FILE_ERROR The remote host returns an error or
@@ -527,6 +587,23 @@ const func integer: fileSize (inout ftpConnection: ftp, in string: fileName) is 
     ftpResponse(ftp);
     if startsWith(ftp.response, "213") then
       result := integer parse trim(ftp.response[4 ..]);
+    end if;
+  end func;
+
+
+(**
+ *  Determine the file size of a file.
+ *  The file size is measured in bytes.
+ *  @return the size of the file.
+ *)
+const func bigInteger: bigFileSize (inout ftpConnection: ftp, in string: fileName) is func
+  result
+    var bigInteger: result is 0_;
+  begin
+    ftpCommand(ftp, "SIZE " <& fileName);
+    ftpResponse(ftp);
+    if startsWith(ftp.response, "213") then
+      result := bigInteger parse trim(ftp.response[4 ..]);
     end if;
   end func;
 

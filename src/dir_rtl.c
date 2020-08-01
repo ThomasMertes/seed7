@@ -163,15 +163,15 @@ stritype file_name;
 #endif
 
   {
-    os_stritype name;
+    os_stritype os_path;
     errinfotype err_info = OKAY_NO_ERROR;
     dirtype result;
 
   /* dirOpen */
-    name = cp_to_os_path(file_name, &err_info);
-    if (name == NULL) {
+    os_path = cp_to_os_path(file_name, &err_info);
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
-      if (file_name->size == 1 && file_name->mem[0] == '/') {
+      if (IS_EMULATED_ROOT(os_path)) {
         result = (dirtype) openVolumeList();
       } else {
 #endif
@@ -181,8 +181,8 @@ stritype file_name;
       } /* if */
 #endif
     } else {
-      result = os_opendir(name);
-      os_stri_free(name);
+      result = os_opendir(os_path);
+      os_stri_free(os_path);
     } /* if */
     return result;
   } /* dirOpen */

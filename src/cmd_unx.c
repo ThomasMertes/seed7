@@ -249,7 +249,7 @@ rtlArraytype parameters;
   /* cmdStartProcess */
     emptyStri.size = 0;
     os_command_stri = cp_to_os_path(command, &err_info);
-    if (os_command_stri == NULL) {
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);
     } else if (access(os_command_stri, X_OK) != 0) {
       os_stri_free(os_command_stri);

@@ -888,8 +888,7 @@ const func integer: processCommand (in var string: command, in boolean: doLog) i
           flush(STD_OUT);
         end if;
         command := getWord(fullCommand);
-        fullCommand := convDosPath(command) & fullCommand;
-        commandStatus := shell(fullCommand);
+        commandStatus := shell(convDosPath(command), fullCommand);
       end if;
     end if;
   end func;

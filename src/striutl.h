@@ -64,6 +64,15 @@ typedef const_cstritype  const_os_stritype;
 #define os_stri_free     free
 #endif
 
+#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+#ifdef EMULATE_ROOT_CWD
+extern os_stritype current_emulated_cwd;
+#endif
+extern os_chartype emulated_root[];
+
+#define IS_EMULATED_ROOT(os_path) (os_path == emulated_root)
+#endif
+
 
 #ifdef ANSI_C
 
@@ -92,6 +101,9 @@ os_stritype stri_to_os_stri (const_stritype stri, errinfotype *err_info);
 stritype os_stri_to_stri (const_os_stritype os_stri, errinfotype *err_info);
 stritype stri_to_standard_path (stritype stri);
 stritype cp_from_os_path (const_os_stritype os_stri, errinfotype *err_info);
+#ifdef EMULATE_ROOT_CWD
+void setEmulatedCwd (const os_stritype os_path);
+#endif
 os_stritype cp_to_os_path (const_stritype stri, errinfotype *err_info);
 os_stritype cp_to_command (const const_stritype commandPath,
     const const_stritype parameters, errinfotype *err_info);
@@ -124,6 +136,9 @@ stritype stri_to_standard_path ():
 os_stritype stri_to_os_stri ();
 stritype os_stri_to_stri ();
 stritype cp_from_os_path ();
+#ifdef EMULATE_ROOT_CWD
+void setEmulatedCwd ();
+#endif
 os_stritype cp_to_os_path ();
 os_stritype cp_to_command ();
 #ifdef PATHS_RELATIVE_TO_EXECUTABLE

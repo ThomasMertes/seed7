@@ -1191,9 +1191,9 @@ stritype mode;
       result = NULL;
     } else {
       os_path = cp_to_os_path(path, &err_info);
-      if (unlikely(os_path == NULL)) {
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
-        if (path->size != 1 || path->mem[0] != '/') {
+        if (!IS_EMULATED_ROOT(os_path)) {
 #endif
           raise_error(err_info);
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
