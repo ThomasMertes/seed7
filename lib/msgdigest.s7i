@@ -52,7 +52,7 @@ const func string: md4 (in var string: message) is func
     const array integer: idx is [] (
         1,  9,  5, 13,  3, 11,  7, 15,  2, 10,  6, 14,  4, 12,  8, 16);
     var integer: length is 0;
-    var integer: chunkIndex is 0;
+    var integer: wordIndex is 1;
     var integer: index is 0;
     var array bin32: m is 16 times bin32.value;
     var integer: a0 is 16#67452301;   # a
@@ -76,10 +76,11 @@ const func string: md4 (in var string: message) is func
     message &:= int64AsEightBytesLe(8 * length);
 
     # Process the message in successive 512-bit chunks:
-    for chunkIndex range 1 to length(message) step 64 do
+    while wordIndex <= length(message) do
       # Break chunk into sixteen 32-bit little-endian words.
       for index range 1 to 16 do
-        m[index] := bin32(bytes2Int(message[chunkIndex + 4 * pred(index) len 4], UNSIGNED, LE));
+        m[index] := bin32(bytes2Int(message[wordIndex len 4], UNSIGNED, LE));
+        wordIndex +:= 4;
       end for;
 
       a := bin32(a0 mod 16#100000000);
@@ -111,7 +112,7 @@ const func string: md4 (in var string: message) is func
       b0 +:= ord(b);
       c0 +:= ord(c);
       d0 +:= ord(d);
-    end for;
+    end while;
 
     # Produce the final hash value:
     digest := int32AsFourBytesLe(a0) &
@@ -153,7 +154,7 @@ const func string: md5 (in var string: message) is func
         6, 10, 15, 21,  6, 10, 15, 21,  6, 10, 15, 21,  6, 10, 15, 21);
     const array integer: k is createMd5Table;
     var integer: length is 0;
-    var integer: chunkIndex is 0;
+    var integer: wordIndex is 1;
     var integer: index is 0;
     var array bin32: m is 16 times bin32.value;
     var integer: a0 is 16#67452301;   # a
@@ -177,10 +178,11 @@ const func string: md5 (in var string: message) is func
     message &:= int64AsEightBytesLe(8 * length);
 
     # Process the message in successive 512-bit chunks:
-    for chunkIndex range 1 to length(message) step 64 do
+    while wordIndex <= length(message) do
       # Break chunk into sixteen 32-bit little-endian words.
       for index range 1 to 16 do
-        m[index] := bin32(bytes2Int(message[chunkIndex + 4 * pred(index) len 4], UNSIGNED, LE));
+        m[index] := bin32(bytes2Int(message[wordIndex len 4], UNSIGNED, LE));
+        wordIndex +:= 4;
       end for;
 
       a := bin32(a0 mod 16#100000000);
@@ -217,7 +219,7 @@ const func string: md5 (in var string: message) is func
       b0 +:= ord(b);
       c0 +:= ord(c);
       d0 +:= ord(d);
-    end for;
+    end while;
 
     # Produce the final hash value:
     digest := int32AsFourBytesLe(a0) &
@@ -237,7 +239,7 @@ const func string: sha1 (in var string: message) is func
     var string: digest is "";
   local
     var integer: length is 0;
-    var integer: chunkIndex is 0;
+    var integer: wordIndex is 1;
     var integer: index is 0;
     var array bin32: w is 80 times bin32.value;
     var integer: h0 is 16#67452301;
@@ -264,10 +266,11 @@ const func string: sha1 (in var string: message) is func
     message &:= int64AsEightBytesBe(8 * length);
 
     # Process the message in successive 512-bit chunks:
-    for chunkIndex range 1 to length(message) step 64 do
+    while wordIndex <= length(message) do
       # Break chunk into sixteen 32-bit big-endian words.
       for index range 1 to 16 do
-        w[index] := bin32(bytes2Int(message[chunkIndex + 4 * pred(index) len 4], UNSIGNED, BE));
+        w[index] := bin32(bytes2Int(message[wordIndex len 4], UNSIGNED, BE));
+        wordIndex +:= 4;
       end for;
 
       # Extend the sixteen 32-bit words into eighty 32-bit words.
@@ -312,7 +315,7 @@ const func string: sha1 (in var string: message) is func
       h2 +:= ord(c);
       h3 +:= ord(d);
       h4 +:= ord(e);
-    end for;
+    end while;
 
     # Produce the final hash value:
     digest := int32AsFourBytesBe(h0) &
@@ -344,7 +347,7 @@ const func string: sha224 (in var string: message) is func
         16#19a4c116, 16#1e376c08, 16#2748774c, 16#34b0bcb5, 16#391c0cb3, 16#4ed8aa4a, 16#5b9cca4f, 16#682e6ff3,
         16#748f82ee, 16#78a5636f, 16#84c87814, 16#8cc70208, 16#90befffa, 16#a4506ceb, 16#bef9a3f7, 16#c67178f2);
     var integer: length is 0;
-    var integer: chunkIndex is 0;
+    var integer: wordIndex is 1;
     var integer: index is 0;
     var array bin32: w is 64 times bin32.value;
     # Initialize hash values with the second 32 bits of
@@ -381,10 +384,11 @@ const func string: sha224 (in var string: message) is func
     message &:= int64AsEightBytesBe(8 * length);
 
     # Process the message in successive 512-bit chunks:
-    for chunkIndex range 1 to length(message) step 64 do
+    while wordIndex <= length(message) do
       # Break chunk into sixteen 32-bit big-endian words.
       for index range 1 to 16 do
-        w[index] := bin32(bytes2Int(message[chunkIndex + 4 * pred(index) len 4], UNSIGNED, BE));
+        w[index] := bin32(bytes2Int(message[wordIndex len 4], UNSIGNED, BE));
+        wordIndex +:= 4;
       end for;
 
       # Extend the first 16 words into the remaining 48 words of message schedule array:
@@ -434,7 +438,7 @@ const func string: sha224 (in var string: message) is func
       h5 +:= ord(f);
       h6 +:= ord(g);
       h7 +:= ord(h);
-    end for;
+    end while;
 
     # Produce the final hash value:
     digest := int32AsFourBytesBe(h0) &
@@ -468,7 +472,7 @@ const func string: sha256 (in var string: message) is func
         16#19a4c116, 16#1e376c08, 16#2748774c, 16#34b0bcb5, 16#391c0cb3, 16#4ed8aa4a, 16#5b9cca4f, 16#682e6ff3,
         16#748f82ee, 16#78a5636f, 16#84c87814, 16#8cc70208, 16#90befffa, 16#a4506ceb, 16#bef9a3f7, 16#c67178f2);
     var integer: length is 0;
-    var integer: chunkIndex is 0;
+    var integer: wordIndex is 1;
     var integer: index is 0;
     var array bin32: w is 64 times bin32.value;
     # Initialize hash values with the first 32 bits of
@@ -505,10 +509,11 @@ const func string: sha256 (in var string: message) is func
     message &:= int64AsEightBytesBe(8 * length);
 
     # Process the message in successive 512-bit chunks:
-    for chunkIndex range 1 to length(message) step 64 do
+    while wordIndex <= length(message) do
       # Break chunk into sixteen 32-bit big-endian words.
       for index range 1 to 16 do
-        w[index] := bin32(bytes2Int(message[chunkIndex + 4 * pred(index) len 4], UNSIGNED, BE));
+        w[index] := bin32(bytes2Int(message[wordIndex len 4], UNSIGNED, BE));
+        wordIndex +:= 4;
       end for;
 
       # Extend the first 16 words into the remaining 48 words of message schedule array:
@@ -558,7 +563,7 @@ const func string: sha256 (in var string: message) is func
       h5 +:= ord(f);
       h6 +:= ord(g);
       h7 +:= ord(h);
-    end for;
+    end while;
 
     # Produce the final hash value:
     digest := int32AsFourBytesBe(h0) &

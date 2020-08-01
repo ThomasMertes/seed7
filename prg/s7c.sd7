@@ -44,7 +44,7 @@ $ include "seed7_05.s7i";
   include "comp/destr.s7i";
   include "comp/create.s7i";
   include "comp/copy.s7i";
-  include "comp/expr_util.s7i";
+  include "comp/expr_utl.s7i";
   include "comp/stat.s7i";
   include "comp/inline.s7i";
   include "comp/const.s7i";
@@ -6749,7 +6749,12 @@ const proc: execProgramScript (in string: command, in array string: parameters,
         redirection &:= ccConf.REDIRECT_FILDES_2 & toShellPath(errorFile);
         redirection &:= ccConf.REDIRECT_FILDES_1 & ccConf.NULL_DEVICE;
     end case;
-    cmd_sh(command, shellParameters(parameters) <& " " <& join(redirection, " "));
+    if length(redirection) = 0 then
+      # An CC_ERROR_FILDES of zero means: Do not redirect.
+      cmd_sh(command, shellParameters(parameters));
+    else
+      cmd_sh(command, shellParameters(parameters) <& " " <& join(redirection, " "));
+    end if
   end func;
 
 

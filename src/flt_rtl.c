@@ -429,6 +429,12 @@ striType fltDgts (floatType number, intType precision)
         buffer_ptr = "-Infinity";
         len = STRLEN("-Infinity");
       } else {
+#ifdef LIMIT_FMT_F_MAXIMUM_FLOAT_PRECISION
+        if (unlikely(precision > PRINTF_FMT_F_MAXIMUM_FLOAT_PRECISION)) {
+          len = (memSizeType) sprintf(buffer, "%1."
+              LIMIT_FMT_F_MAXIMUM_FLOAT_PRECISION "f", number);
+        } else
+#endif
 #if PRINTF_SUPPORTS_VARIABLE_FORMATS
         if (unlikely(precision > INT_MAX)) {
           sprintf(form_buffer, "%%1." FMT_D "f", precision);
@@ -1075,6 +1081,12 @@ striType fltSci (floatType number, intType precision)
         buffer_ptr = "-Infinity";
         len = STRLEN("-Infinity");
       } else {
+#ifdef LIMIT_FMT_E_MAXIMUM_FLOAT_PRECISION
+        if (unlikely(precision > PRINTF_FMT_E_MAXIMUM_FLOAT_PRECISION)) {
+          len = (memSizeType) sprintf(buffer, "%1."
+              LIMIT_FMT_E_MAXIMUM_FLOAT_PRECISION "e", number);
+        } else
+#endif
 #if PRINTF_SUPPORTS_VARIABLE_FORMATS
         if (unlikely(precision > INT_MAX)) {
           sprintf(form_buffer, "%%1." FMT_D "e", precision);
@@ -1096,14 +1108,17 @@ striType fltSci (floatType number, intType precision)
         /* precision varies with each call of printf(). Up to a    */
         /* precision of PRINTF_FMT_E_MAXIMUM_FLOAT_PRECISION       */
         /* prinf() will always work ok.                            */
-        if (precision > PRINTF_FMT_E_MAXIMUM_FLOAT_PRECISION &&
-            precision + FLT_SCI_LEN - (buffer[0] != '-') > len) {
-          memSizeType numZeros = (memSizeType) (uintType) precision +
-              FLT_SCI_LEN - (buffer[0] != '-') - len;
+        if (precision > PRINTF_FMT_E_MAXIMUM_FLOAT_PRECISION) {
           pos = (memSizeType) (strchr(buffer, 'e') - buffer);
-          memmove(&buffer[pos + numZeros], &buffer[pos], len - pos + 1);
-          memset(&buffer[pos], '0', numZeros);
-          len += numZeros;
+          if ((memSizeType) precision > pos - STRLEN("1.") -
+              (buffer[0] == '-')){
+            memSizeType numZeros = (memSizeType) precision -
+                (pos - STRLEN("1.") - (buffer[0] == '-'));
+            memmove(&buffer[pos + numZeros], &buffer[pos],
+                len - pos + NULL_TERMINATION_LEN);
+            memset(&buffer[pos], '0', numZeros);
+            len += numZeros;
+          } /* if */
         } /* if */
 #endif
         startPos = 0;

@@ -151,6 +151,10 @@ const proc: COLUMN_DURATION (in sqlStatement: statement, in integer: column,
  *  @param user Database user name.
  *  @param password Database password.
  *  @return the database connection.
+ *  @exception FILE_ERROR When the DLL of the database could not be found.
+ *             RANGE_ERROR When dbName, user or password cannot be converted to
+ *                         the character set of the database.
+ *             DATABASE_ERROR The connection to the database failed.
  *)
 const func database: openDatabase (in dbCategory: driver, in string: dbName,
                                    in string: user, in string: password) is
@@ -173,6 +177,10 @@ const func database: openDatabase (in dbCategory: driver, in string: dbName,
  *         When no user is specified the user "guest" is used.
  *         When no password is specified the password "guest" is used.
  *  @return the database connection.
+ *  @exception FILE_ERROR When the DLL of the database could not be found.
+ *             RANGE_ERROR When dbName, user or password cannot be converted to
+ *                         the character set of the database.
+ *             DATABASE_ERROR The connection to the database failed.
  *)
 const func database: openDatabase (in dbCategory: driver,
                                    in string: connectStri) is func

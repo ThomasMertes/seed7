@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
-/*  dir_drv.h     Prototypes of OS specific directory functions.    */
-/*  Copyright (C) 1989 - 2007  Thomas Mertes                        */
+/*  dll_dos.c     Dynamic link library support (dummy).             */
+/*  Copyright (C) 1989 - 2018  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -23,39 +23,39 @@
 /*  Fifth Floor, Boston, MA  02110-1301, USA.                       */
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
-/*  File: seed7/src/dir_drv.h                                       */
-/*  Changes: 1993, 1994, 2007  Thomas Mertes                        */
-/*  Content: Prototypes of OS specific directory functions.         */
+/*  File: seed7/src/dll_dos.c                                       */
+/*  Changes: 2018  Thomas Mertes                                    */
+/*  Content: Dynamic link library support (dummy).                  */
 /*                                                                  */
 /********************************************************************/
 
-/* Note that DIR_LIB has as value one of DIRENT_DIRECTORY,          */
-/* DIRECT_DIRECTORY, DIRDOS_DIRECTORY or DIRWIN_DIRECTORY.          */
+#include "version.h"
 
-#if DIR_LIB == DIRENT_DIRECTORY
-#include "sys/types.h"
-#include "sys/stat.h"
-#include "dirent.h"
+#include "stdio.h"
 
-#if MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
-#include "vol_drv.h"
-#define DEFINE_OPEN_VOLUME_LIST
-#endif
+#include "common.h"
+#include "dll_drv.h"
 
-#elif DIR_LIB == DIRECT_DIRECTORY
-#include "sys/types.h"
-#include "sys/stat.h"
-#include "direct.h"
 
-#elif DIR_LIB == DIRDOS_DIRECTORY
-#include "sys/types.h"
-#include "sys/stat.h"
-#include "direct.h"
-#include "dir_dos.h"
 
-#elif DIR_LIB == DIRWIN_DIRECTORY
-#include "sys/types.h"
-#include "sys/stat.h"
-#include "direct.h"
-#include "dir_win.h"
-#endif
+/**
+ *  Open a DLL respectively shared library with the given 'dllName'.
+ *  @return a reference to the library, or NULL if it was not found.
+ */
+void *dllOpen (const char *dllName)
+
+  { /* dllOpen */
+    return NULL;
+  } /* dllOpen */
+
+
+
+/**
+ *  Get the function specified with 'symbol' from the library 'dll'.
+ *  @return a pointer to the function, or NULL if it was not found.
+ */
+funcPtrType dllFunc (void *dll, const char *symbol)
+
+  { /* dllFunc*/
+    return NULL;
+  } /* dllFunc */

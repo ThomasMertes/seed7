@@ -215,6 +215,26 @@ cstriType striAsUnquotedCStri (const const_striType stri)
 
 
 
+#if LOG_FUNCTIONS || LOG_FUNCTIONS_EVERYWHERE
+static cstriType striCharsAsUnquotedCStri (const strElemType *const striChars,
+    memSizeType striSize)
+
+  {
+    striRecord striSlice;
+
+  /* striCharsAsUnquotedCStri */
+#if ALLOW_STRITYPE_SLICES
+    striSlice.size = striSize;
+    striSlice.mem = (strElemType *) striChars;
+    return striAsUnquotedCStri(&striSlice);
+#else
+    return "\\ STRING_WITHOUT_DETAILS \\";
+#endif
+  } /* striCharsAsUnquotedCStri */
+#endif
+
+
+
 /**
  *  Write a Seed7 bstring to a static C string buffer.
  *  This function is intended to do debug/log output with printf().
@@ -1039,6 +1059,8 @@ static inline void conv_to_os_stri (register os_striType os_stri,
     register strElemType ch;
 
   /* conv_to_os_stri */
+    logFunction(printf("conv_to_os_stri(*, \"%s\")\n",
+                striCharsAsUnquotedCStri(strelem, len)););
     for (; len > 0; os_stri++, strelem++, len--) {
       ch = *strelem;
       if (likely(ch <= 0xFFFF)) {
@@ -1063,6 +1085,8 @@ static inline void conv_to_os_stri (register os_striType os_stri,
       } /* if */
     } /* for */
     *os_stri = '\0';
+    logFunction(printf("conv_to_os_stri --> (err_info=%d)\n",
+                       *err_info););
   } /* conv_to_os_stri */
 
 
@@ -1148,6 +1172,8 @@ static inline void conv_to_os_stri (os_striType os_stri,
     unsigned char ch;
 
   /* conv_to_os_stri */
+    logFunction(printf("conv_to_os_stri(*, \"%s\")\n",
+                striCharsAsUnquotedCStri(strelem, len)););
     if (code_page == 437) {
       for (; len > 0; os_stri++, strelem++, len--) {
         if (*strelem <= 127) {
@@ -1227,6 +1253,8 @@ static inline void conv_to_os_stri (os_striType os_stri,
       *err_info = RANGE_ERROR;
     } /* if */
     *os_stri = '\0';
+    logFunction(printf("conv_to_os_stri --> (err_info=%d)\n",
+                       *err_info););
   } /* conv_to_os_stri */
 
 #elif defined OS_STRI_UTF8
@@ -1238,7 +1266,11 @@ static inline void conv_to_os_stri (const os_striType os_stri,
     errInfoType *err_info)
 
   { /* conv_to_os_stri */
+    logFunction(printf("conv_to_os_stri(*, \"%s\")\n",
+                striCharsAsUnquotedCStri(strelem, len)););
     stri_to_os_utf8((ustriType) os_stri, strelem, len, err_info);
+    logFunction(printf("conv_to_os_stri --> (err_info=%d)\n",
+                       *err_info););
   } /* conv_to_os_stri */
 
 #else
@@ -1249,6 +1281,8 @@ static inline void conv_to_os_stri (const os_striType os_stri,
     const strElemType *const strelem, memSizeType len, errInfoType *err_info)
 
   { /* conv_to_os_stri */
+    logFunction(printf("conv_to_os_stri(*, \"%s\")\n",
+                striCharsAsUnquotedCStri(strelem, len)););
     while (len != 0) {
       len--;
       if (unlikely(strelem[len] == '\0' || strelem[len] >= 256)) {
@@ -1261,6 +1295,8 @@ static inline void conv_to_os_stri (const os_striType os_stri,
       os_stri[len] = (os_charType) strelem[len];
     } /* while */
     *os_stri = '\0';
+    logFunction(printf("conv_to_os_stri --> (err_info=%d)\n",
+                       *err_info););
   } /* conv_to_os_stri */
 
 #endif
@@ -2181,10 +2217,232 @@ striType cp_from_os_path (const_os_striType os_path, errInfoType *err_info)
 
 
 
+#ifdef MAP_LONG_FILE_NAMES_TO_SHORT
+static boolType isShortFileName (os_striType fileName)
+
+  {
+    os_charType ch;
+    int pos = 0;
+    int dotPos = -1;
+    boolType shortFileName = TRUE;
+
+  /* isShortFileName */
+    ch = fileName[0];
+    do {
+      switch (ch) {
+        case '!':  case '#':  case '$':  case '%':  case '&':
+        case '\'': case '(':  case ')':  case '-':
+        case '0':  case '1':  case '2':  case '3':  case '4':
+        case '5':  case '6':  case '7':  case '8':  case '9':
+        case '@':
+        case 'A':  case 'B':  case 'C':  case 'D':  case 'E':
+        case 'F':  case 'G':  case 'H':  case 'I':  case 'J':
+        case 'K':  case 'L':  case 'M':  case 'N':  case 'O':
+        case 'P':  case 'Q':  case 'R':  case 'S':  case 'T':
+        case 'U':  case 'V':  case 'W':  case 'X':  case 'Y':
+        case 'Z':
+        case '^':  case '_':  case '`':
+        case 'a':  case 'b':  case 'c':  case 'd':  case 'e':
+        case 'f':  case 'g':  case 'h':  case 'i':  case 'j':
+        case 'k':  case 'l':  case 'm':  case 'n':  case 'o':
+        case 'p':  case 'q':  case 'r':  case 's':  case 't':
+        case 'u':  case 'v':  case 'w':  case 'x':  case 'y':
+        case 'z':
+        case '{':  case '}':  case '~':
+          /* Characters allowed in 8.3 file names. */
+          break;
+        case '.':
+          if (dotPos == -1) {
+            dotPos = pos;
+          } else {
+            shortFileName = FALSE;
+          } /* if */
+          break;
+        default:
+          shortFileName = FALSE;
+          break;
+      } /* switch */
+      pos++;
+      ch = fileName[pos];
+    } while (ch != PATH_DELIMITER && ch != '\0');
+    if (dotPos == -1) {
+      if (pos >= 8) {
+        shortFileName = FALSE;
+      } /* if */
+    } else {
+      if (dotPos == 0 || dotPos > 8 || pos - dotPos > 4) {
+        shortFileName = FALSE;
+      } /* if */
+    } /* if */
+    return shortFileName;
+  } /* isShortFileName */
+
+
+
+static boolType findDot (os_striType name)
+
+  {
+    os_charType ch;
+    int pos = 0;
+    boolType found = FALSE;
+
+  /* findDot */
+    ch = name[0];
+    while (ch != PATH_DELIMITER && ch != '\0' && !found) {
+      if (ch == '.') {
+        found = TRUE;
+      } /* if */
+      pos++;
+      ch = name[pos];
+    } /* while */
+    return found;
+  } /* findDot */
+
+
+
+static os_striType toShortFileName (os_striType dest, os_striType *sourceAddr)
+
+  {
+    os_striType source;
+    os_charType ch;
+    int sourcePos = 0;
+    int destPos = 0;
+    int dotPos = -1;
+    boolType writeToDest = TRUE;
+
+  /* toShortFileName */
+    source = *sourceAddr;
+    ch = source[0];
+    while (ch != PATH_DELIMITER && ch != '\0') {
+      switch (ch) {
+        case '!':  case '#':  case '$':  case '%':  case '&':
+        case '\'': case '(':  case ')':  case '-':
+        case '0':  case '1':  case '2':  case '3':  case '4':
+        case '5':  case '6':  case '7':  case '8':  case '9':
+        case '@':
+        case 'A':  case 'B':  case 'C':  case 'D':  case 'E':
+        case 'F':  case 'G':  case 'H':  case 'I':  case 'J':
+        case 'K':  case 'L':  case 'M':  case 'N':  case 'O':
+        case 'P':  case 'Q':  case 'R':  case 'S':  case 'T':
+        case 'U':  case 'V':  case 'W':  case 'X':  case 'Y':
+        case 'Z':
+        case '^':  case '_':  case '`':
+        case '{':  case '}':  case '~':
+          if (writeToDest) {
+            dest[destPos] = ch;
+            destPos++;
+          } /* if */
+          break;
+        case 'a':  case 'b':  case 'c':  case 'd':  case 'e':
+        case 'f':  case 'g':  case 'h':  case 'i':  case 'j':
+        case 'k':  case 'l':  case 'm':  case 'n':  case 'o':
+        case 'p':  case 'q':  case 'r':  case 's':  case 't':
+        case 'u':  case 'v':  case 'w':  case 'x':  case 'y':
+        case 'z':
+          if (writeToDest) {
+            dest[destPos] = (os_charType) toupper((char) ch);
+            destPos++;
+          } /* if */
+          break;
+        case '+':  case ',':  case ';':  case '=':  case '[':
+        case ']':
+          if (writeToDest) {
+            dest[destPos] = '_';
+            destPos++;
+          } /* if */
+          break;
+        case '.':
+          if (!findDot(&source[sourcePos + 1])) {
+            if (!writeToDest) {
+              dest[destPos] = '~';
+              destPos++;
+              dest[destPos] = '1';
+              destPos++;
+              writeToDest = TRUE;
+            } /* if */
+            dotPos = destPos;
+            dest[destPos] = '.';
+            destPos++;
+          } /* if */
+          break;
+        default:
+          /* Ignore other characters */
+          break;
+      } /* switch */
+      if (dotPos == -1) {
+        if (destPos >= 6) {
+          writeToDest = FALSE;
+        } /* if */
+      } else {
+        if (destPos - dotPos >= 4) {
+          writeToDest = FALSE;
+        } /* if */
+      } /* if */
+      sourcePos++;
+      ch = source[sourcePos];
+    } /* while */
+    if (dotPos == -1) {
+      if (!writeToDest) {
+        dest[destPos] = '~';
+        destPos++;
+        dest[destPos] = '1';
+        destPos++;
+      } /* if */
+    } /* if */
+    *sourceAddr = &source[sourcePos];
+    return &dest[destPos];
+  } /* toShortFileName */
+
+
+
+static os_striType copyFileName (os_striType dest, os_striType *sourceAddr)
+
+  {
+    os_striType source;
+    os_charType ch;
+
+  /* copyFileName */
+    source = *sourceAddr;
+    ch = *source;
+    while (ch != PATH_DELIMITER && ch != '\0') {
+      *dest = ch;
+      dest++;
+      source++;
+      ch = *source;
+    } /* while */
+    *sourceAddr = source;
+    return dest;
+  } /* copyFileName */
+
+
+
+static void mapLongFileNamesToShort (os_striType path)
+
+  {
+    os_striType source;
+    os_striType dest;
+
+  /* mapLongFileNamesToShort */
+    /* Start after the the colon of the device letter ( e.g.: A: ) */
+    source = &path[PREFIX_LEN + 2];
+    dest = source;
+    while (*source == PATH_DELIMITER) {
+      source++;
+      *dest = PATH_DELIMITER;
+      dest++;
+      if (isShortFileName(source)) {
+        dest = copyFileName(dest, &source);
+      } else {
+        dest = toShortFileName(dest, &source);
+      } /* if */
+    } /* while */
+    *dest = '\0';
+  } /* mapLongFileNamesToShort */
+#endif
+
+
+
 #if OS_PATH_HAS_DRIVE_LETTERS
-
-
-
 #if EMULATE_ROOT_CWD
 void setEmulatedCwdToRoot (void)
 
@@ -2255,8 +2513,10 @@ static os_striType append_path (const const_os_striType absolutePath,
     os_striType result;
 
   /* append_path */
-    logFunction(printf("append_path(\"" FMT_S_OS "\")\n",
-                       absolutePath););
+    logFunction(printf("append_path(\"" FMT_S_OS "\", \"%s\")\n",
+                       absolutePath,
+                       striCharsAsUnquotedCStri(relativePathChars,
+                                                relativePathSize)););
     /* absolutePath[0] is always '/'. */
     if (absolutePath[1] == '\0') {
       abs_path_length = 0;
@@ -2278,6 +2538,8 @@ static os_striType append_path (const const_os_striType absolutePath,
       /* Leave one char free between absolute and relative path. */
       conv_to_os_stri(&result[abs_path_length + 2], relativePathChars,
           relativePathSize, err_info);
+      /* printf("relativePath: \"" FMT_S_OS "\"\n",
+          &result[abs_path_length + 2]); */
       if (unlikely(*err_info != OKAY_NO_ERROR)) {
         os_stri_free(result);
         result = NULL;
@@ -2517,6 +2779,9 @@ os_striType cp_to_os_path (const_striType std_path, int *path_info,
       } /* if */
 #endif
     } /* if */
+#ifdef MAP_LONG_FILE_NAMES_TO_SHORT
+    mapLongFileNamesToShort(result);
+#endif
     logFunction(printf("cp_to_os_path(\"%s\", %d) --> \"" FMT_S_OS "\"\n",
                        striAsUnquotedCStri(std_path), *err_info, result););
     return result;

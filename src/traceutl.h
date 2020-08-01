@@ -48,7 +48,7 @@ EXTERN traceRecord trace;
 
 void prot_flush (void);
 void prot_nl (void);
-void prot_cstri (const const_cstriType cstri);
+void prot_cstri (const_cstriType cstri);
 void prot_cstri8 (const const_cstriType cstri8);
 void prot_cchar (char ch);
 void prot_writeln (const_cstriType stri);

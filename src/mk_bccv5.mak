@@ -167,10 +167,6 @@ version.h: chkccomp.h
 	echo ^#define WITH_SQL >> version.h
 	echo ^#define CONSOLE_WCHAR >> version.h
 	echo ^#define OS_STRI_WCHAR >> version.h
-	echo ^#define os_fseek fseek >> version.h
-	echo ^#define os_ftell ftell >> version.h
-	echo ^#define OS_FSEEK_OFFSET_BITS 32 >> version.h
-	echo ^#define os_off_t __int64 >> version.h
 	echo ^#define os_getch getch >> version.h
 	echo ^#define OS_GETCH_READS_BYTES >> version.h
 	echo ^#define QUOTE_WHOLE_SHELL_COMMAND >> version.h

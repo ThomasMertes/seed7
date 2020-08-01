@@ -767,10 +767,9 @@ static void kbd_init (void)
     } /* if */
     file_no = fileno(stdin);
     if (tcgetattr(file_no, &term_descr) != 0) {
-      printf("kbd_init: tcgetattr(%d, ...) failed, errno=%d\n",
-          file_no, errno);
-      printf("EBADF=%d  EINTR=%d  EINVAL=%d  ENOTTY=%d  EIO=%d\n",
-          EBADF, EINTR, EINVAL, ENOTTY, EIO);
+      printf("kbd_init: tcgetattr(%d, ...) failed:\n"
+             "errno=%d\nerror: %s\n",
+             file_no, errno, strerror(errno));
     } else {
       /* show_term_descr(&term_descr); */
       memcpy(&term_bak, &term_descr, sizeof(struct termios));
@@ -790,10 +789,9 @@ static void kbd_init (void)
       term_descr.c_cc[VMIN] = 1;
       term_descr.c_cc[VTIME] = 0;
       if (!tcset_term_descr(file_no, &term_descr)) {
-        printf("kbd_init: tcsetattr(%d, VMIN=1) failed, errno=%d\n",
-            file_no, errno);
-        printf("EBADF=%d  EINTR=%d  EINVAL=%d  ENOTTY=%d  EIO=%d\n",
-            EBADF, EINTR, EINVAL, ENOTTY, EIO);
+        printf("kbd_init: tcsetattr(%d, VMIN=1) failed:\n"
+               "errno=%d\nerror: %s\n",
+               file_no, errno, strerror(errno));
         /* show_term_descr(&term_descr); */
       } else {
         keybd_initialized = TRUE;
@@ -828,10 +826,9 @@ boolType kbdKeyPressed (void)
       } /* if */
       file_no = fileno(stdin);
       if (!tcset_vmin_vtime(file_no, 0, 0)) {
-        printf("kbdKeyPressed: tcsetattr(%d, VMIN=0) failed, errno=%d\n",
-            file_no, errno);
-        printf("EBADF=%d  EINTR=%d  EINVAL=%d  ENOTTY=%d  EIO=%d\n",
-            EBADF, EINTR, EINVAL, ENOTTY, EIO);
+        printf("kbdKeyPressed: tcsetattr(%d, VMIN=0) failed:\n"
+               "errno=%d\nerror: %s\n",
+               file_no, errno, strerror(errno));
         result = FALSE;
       } else {
         if (read(file_no, &buffer, 1) == 1) {
@@ -842,10 +839,9 @@ boolType kbdKeyPressed (void)
           result = FALSE;
         } /* if */
         if (!tcset_vmin_vtime(file_no, 1, 0)) {
-          printf("kbdKeyPressed: tcsetattr(%d, VMIN=1) failed, errno=%d\n",
-              file_no, errno);
-          printf("EBADF=%d  EINTR=%d  EINVAL=%d  ENOTTY=%d  EIO=%d\n",
-              EBADF, EINTR, EINVAL, ENOTTY, EIO);
+          printf("kbdKeyPressed: tcsetattr(%d, VMIN=1) failed:\n"
+                 "errno=%d\nerror: %s\n",
+                 file_no, errno, strerror(errno));
         } /* if */
       } /* if */
     } /* if */

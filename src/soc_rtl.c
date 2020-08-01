@@ -819,11 +819,19 @@ striType socGets (socketType inSocket, intType length, charType *const eofIndica
   /* socGets */
     logFunction(printf("socGets(%d, " FMT_D ", '\\" FMT_U32 ";')\n",
                        inSocket, length, *eofIndicator););
-    if (unlikely(length < 0)) {
-      logError(printf("socGets(%d, " FMT_D ", *): Negative length.\n",
-                      inSocket, length););
-      raise_error(RANGE_ERROR);
-      result = NULL;
+    if (unlikely(length <= 0)) {
+      if (unlikely(length != 0)) {
+        logError(printf("socGets(%d, " FMT_D ", *): Negative length.\n",
+                        inSocket, length););
+        raise_error(RANGE_ERROR);
+        result = NULL;
+      } else {
+        if (unlikely(!ALLOC_STRI_SIZE_OK(result, 0))) {
+          raise_error(MEMORY_ERROR);
+        } else {
+          result->size = 0;
+        } /* if */
+      } /* if */
     } else {
       if ((uintType) length > MAX_MEMSIZETYPE) {
         chars_requested = MAX_MEMSIZETYPE;

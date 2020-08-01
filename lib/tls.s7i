@@ -193,6 +193,8 @@ const proc: showChangeCipherSpec (in string: stri) is func
 const proc: showAlert (in string: stri) is func
   begin
     writeln("alert");
+    writeln("Version: " <& ord(stri[2]) <& "." <& ord(stri[3]));
+    writeln("Length: " <& bytes2Int(stri[4 len 2], UNSIGNED, BE));
     writeln("level: " <& ord(stri[6]));
     write("description: " <& ord(stri[7]));
     case ord(stri[7]) of
@@ -1958,8 +1960,10 @@ const func string: gets (inout tlsFile: inFile, in integer: maxLength) is func
   result
     var string: striRead is "";
   begin
-    if maxLength < 0 then
-      raise RANGE_ERROR;
+    if maxLength <= 0 then
+      if maxLength <> 0 then
+        raise RANGE_ERROR;
+      end if;
     else
       # writeln("gets(, " <& maxLength <& ") actual length: " <& length(inFile.readBuffer));
       if inFile.readBuffer = "" and not eof(inFile.sock) then

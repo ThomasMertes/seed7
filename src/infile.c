@@ -42,6 +42,7 @@
 #include "striutl.h"
 #include "info.h"
 #include "stat.h"
+#include "errno.h"
 
 #if HAS_MMAP
 #include "sys/types.h"
@@ -199,9 +200,14 @@ void open_infile (const_striType sourceFileName, boolType write_library_names,
     os_path = cp_to_os_path(sourceFileName, &path_info, err_info);
     if (likely(os_path != NULL)) {
       in_fil = os_fopen(os_path, os_mode_rb);
-      /* printf("fopen(\"" FMT_S_OS "\") --> %lu\n", os_path, in_fil); */
+      /* printf("fopen(\"" FMT_S_OS "\") --> " FMT_U_MEM "\n",
+             os_path, (memSizeType) in_fil); */
       os_stri_free(os_path);
       if (in_fil == NULL) {
+        logError(printf("open_infile: "
+                        "fopen(\"" FMT_S_OS "\", \"" FMT_S_OS "\") failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        os_path, os_mode_rb, errno, strerror(errno)););
         *err_info = FILE_ERROR;
       } else {
         if (!ALLOC_FILE(new_file)) {
@@ -239,6 +245,8 @@ void open_infile (const_striType sourceFileName, boolType write_library_names,
               } else {
                 in_file.fil = NULL;
               } /* if */
+              logError(printf("open_infile: speedup() failed.\n"
+                              "os_path: \"" FMT_S_OS "\"\n", os_path););
               *err_info = FILE_ERROR;
             } else {
               COUNT_USTRI(name_length, count.fnam, count.fnam_bytes);

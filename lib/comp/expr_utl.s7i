@@ -1,7 +1,7 @@
 
 (********************************************************************)
 (*                                                                  *)
-(*  expr_util.s7i  Functions for the internal C expressions.        *)
+(*  expr_utl.s7i  Functions for the internal C expressions.         *)
 (*  Copyright (C) 1990 - 1994, 2004 - 2015  Thomas Mertes           *)
 (*                                                                  *)
 (*  This file is part of the Seed7 compiler.                        *)

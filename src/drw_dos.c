@@ -371,6 +371,14 @@ void drwPPoint (const_winType actual_window, intType x, intType y, intType col)
 
 
 
+rtlArrayType drwConvPointList (const const_bstriType pointList)
+
+  { /* drwConvPointList */
+    return NULL;
+  } /* drwConvPointList */
+
+
+
 bstriType drwGenPointList (const const_rtlArrayType xyArray)
 
   { /* drwGenPointList */

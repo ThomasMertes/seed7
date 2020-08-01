@@ -119,7 +119,7 @@ void prot_nl (void)
 
 
 
-void prot_cstri (const const_cstriType cstri)
+void prot_cstri (const_cstriType cstri)
 
   {
     traceRecord trace_backup;
@@ -137,10 +137,25 @@ void prot_cstri (const const_cstriType cstri)
         protfile = stdout;
       } /* if */
       if (cstri == NULL) {
-        fputs("*NULL*", protfile);
+        cstri = "*NULL*";
+      } /* if */
+#ifdef USE_CONSOLE_FOR_PROT_CSTRI
+      if (protfile == stdout) {
+        striType stri;
+
+        stri = cstri_to_stri(cstri);
+        if (stri != NULL) {
+          conWrite(stri);
+          FREE_STRI(stri, stri->size);
+        } else {
+          fputs(cstri, protfile);
+        } /* if */
       } else {
         fputs(cstri, protfile);
       } /* if */
+#else
+      fputs(cstri, protfile);
+#endif
     } /* if */
   } /* prot_cstri */
 

@@ -199,10 +199,6 @@ version.h: chkccomp.h
 	echo "#define SIGNAL_HANDLER_CAN_DO_IO" >> version.h
 	echo "#define CONSOLE_UTF8" >> version.h
 	echo "#define OS_STRI_UTF8" >> version.h
-	echo "#define _FILE_OFFSET_BITS 64" >> version.h
-	echo "#define os_fseek fseeko" >> version.h
-	echo "#define os_ftell ftello" >> version.h
-	echo "#define os_off_t off_t" >> version.h
 	echo "#define ESCAPE_SHELL_COMMANDS" >> version.h
 	echo "#define OBJECT_FILE_EXTENSION \".o\"" >> version.h
 	echo "#define LIBRARY_FILE_EXTENSION \".a\"" >> version.h

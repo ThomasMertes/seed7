@@ -32,6 +32,11 @@
 /*                                                                  */
 /********************************************************************/
 
+#if MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+#include "vol_drv.h"
+#endif
+
+
 #ifdef DIR_WIN_DOS
 
 #include "io.h"

@@ -926,6 +926,8 @@ objectType prc_include (listType arguments)
   /* prc_include */
     isit_stri(arg_1(arguments));
     include_file_name = take_stri(arg_1(arguments));
+    logFunction(printf("prc_include(\"%s\")\n",
+                       striAsUnquotedCStri(include_file_name)));
     if (strChPos(include_file_name, (charType) '\\') != 0) {
       err_stri(WRONG_PATH_DELIMITER, include_file_name);
     } else {
@@ -940,6 +942,7 @@ objectType prc_include (listType arguments)
         scan_symbol();
       } /* if */
     } /* if */
+    logFunction(printf("prc_include -->\n"););
     return SYS_EMPTY_OBJECT;
   } /* prc_include */
 

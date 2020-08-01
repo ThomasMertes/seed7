@@ -29,11 +29,92 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdio.h"
+#include "string.h"
+#include "signal.h"
+#include "setjmp.h"
+#include "errno.h"
 
 #include "common.h"
+#include "os_decls.h"
+#include "rtl_err.h"
+
+
+#if HAS_SIGACTION || HAS_SIGNAL
+static longjmpPosition sigintOccurred;
+#endif
+
+
+
+#if HAS_SIGACTION || HAS_SIGNAL
+static void handleIntSignal (int sig_num)
+
+  {
+#if SIGNAL_RESETS_HANDLER
+    signal(SIGINT, handleIntSignal);
+#endif
+    do_longjmp(sigintOccurred, 1);
+  }
+
+
+
+int readCharChkCtrlC (fileType inFile, boolType *sigintReceived)
+
+  {
+#if HAS_SIGACTION
+    struct sigaction sigAct;
+    struct sigaction oldSigAct;
+#elif HAS_SIGNAL
+    void (*oldSigHandler) (int);
+#endif
+    int ch = ' ';
+
+  /* readCharChkCtrlC */
+    logFunction(printf("readCharChkCtrlC(%d, %d)\n",
+                       safe_fileno(inFile), *sigintReceived););
+#if HAS_SIGACTION
+    sigAct.sa_handler = handleIntSignal;
+    sigemptyset(&sigAct.sa_mask);
+    sigAct.sa_flags = SA_RESTART;
+    if (unlikely(sigaction(SIGINT, &sigAct, &oldSigAct) != 0)) {
+#elif HAS_SIGNAL
+    oldSigHandler = signal(SIGINT, handleIntSignal);
+    if (unlikely(oldSigHandler == SIG_ERR)) {
+#endif
+      logError(printf("readCharChkCtrlC(%d, *): "
+                      "signal(SIGINT, handleIntSignal) failed:\n"
+                      "errno=%d\nerror: %s\n",
+                      safe_fileno(inFile), errno, strerror(errno)););
+      raise_error(FILE_ERROR);
+    } else {
+      if (do_setjmp(sigintOccurred) == 0) {
+        ch = getc(inFile);
+        *sigintReceived = FALSE;
+      } else {
+        *sigintReceived = TRUE;
+      } /* if */
+#if HAS_SIGACTION
+      if (unlikely(sigaction(SIGINT, &oldSigAct, NULL) != 0)) {
+#elif HAS_SIGNAL
+      if (unlikely(signal(SIGINT, oldSigHandler) == SIG_ERR)) {
+#endif
+        logError(printf("readCharChkCtrlC(%d, *): "
+                        "signal(SIGINT, oldSigHandler) failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        safe_fileno(inFile), errno, strerror(errno)););
+        raise_error(FILE_ERROR);
+      } /* if */
+    } /* if */
+    logFunction(printf("readCharChkCtrlC(%d, %d) --> %d\n",
+                       safe_fileno(inFile), *sigintReceived, ch););
+    return ch;
+  } /* readCharChkCtrlC */
+#endif
 
 
 
@@ -42,6 +123,16 @@ boolType filInputReady (fileType aFile)
   { /* filInputReady */
     return TRUE;
   } /* filInputReady */
+
+
+
+void filPipe (fileType *inFile, fileType *outFile)
+
+  { /* filPipe */
+    *inFile = NULL;
+    *outFile = NULL;
+    raise_error(FILE_ERROR);
+  } /* filPipe */
 
 
 

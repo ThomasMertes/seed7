@@ -38,7 +38,7 @@ const type: cipherAlgorithm is new enum
 (**
  *  Interface type for the internal state of a cipher.
  *  The cipherState interface is implemented with [[arc4]], [[des]],
- *  [[tdes]] and [[#noCipherState|noCipher]] (no encryption).
+ *  [[tdes]], [[aes]] and [[#noCipherState|noCipher]] (no encryption).
  *)
 const type: cipherState is sub object interface;
 

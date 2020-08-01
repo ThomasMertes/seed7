@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
-/*  dir_win.h     Directory access using the windows capabilitys.   */
-/*  Copyright (C) 1989 - 2007  Thomas Mertes                        */
+/*  vol_drv.h     Get list of available drive letter volumes.       */
+/*  Copyright (C) 1989 - 2018  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -23,63 +23,21 @@
 /*  Fifth Floor, Boston, MA  02110-1301, USA.                       */
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
-/*  File: seed7/src/dir_win.h                                       */
-/*  Changes: 1993, 1994, 2007  Thomas Mertes                        */
-/*  Content: Directory access using _findfirst and _findnext.       */
-/*                                                                  */
-/*  Implements opendir, readdir and closedir in the way it is       */
-/*  defined in Unix.                                                */
+/*  File: seed7/src/vol_drv.h                                       */
+/*  Changes: 2018  Thomas Mertes                                    */
+/*  Content: Get list of available drive letter volumes.            */
 /*                                                                  */
 /********************************************************************/
 
-#include "windows.h"
-
-#if MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
-#include "vol_drv.h"
-#endif
-
-
-#ifdef RENAME_DIRECTORY_FUNCTIONS
-#define dirent my_dirent
-#define DIR MY_DIR
-#define opendir my_opendir
-#define readdir my_readdir
-#define closedir my_closedir
-#endif
-
-
-struct dirent {
-    char *d_name;
-  };
 
 typedef struct {
-    /* FirstElement can only be 0 or 1. This way a DIR can never  */
-    /* start with UINT32TYPE_MAX, which is the magic value of a   */
-    /* volumeListType value.                                      */
-    int firstElement;
-    HANDLE dirHandle;
-    WIN32_FIND_DATAA findData;
-    struct dirent dirEntry;
-  } DIR;
+    /* A volumeListType always has a magic value of UINT32TYPE_MAX. */
+    uint32Type magicValue;
+    uint32Type driveBitmask;
+    int currentDrive;
+  } volumeListType;
 
-struct wdirent {
-    wchar_t *d_name;
-  };
-
-typedef struct {
-    /* FirstElement can only be 0 or 1. This way a WDIR can never */
-    /* start with UINT32TYPE_MAX, which is the magic value of a   */
-    /* volumeListType value.                                      */
-    int firstElement;
-    HANDLE dirHandle;
-    WIN32_FIND_DATAW findData;
-    struct wdirent dirEntry;
-  } WDIR;
+#define IS_VOLUME_LIST(ptr) (ptr != NULL && ((volumeListType *) (ptr))->magicValue == UINT32TYPE_MAX)
 
 
-DIR *opendir (const char *name);
-struct dirent *readdir (DIR *curr_dir);
-int closedir (DIR *curr_dir);
-WDIR *wopendir (const wchar_t *name);
-struct wdirent *wreaddir (WDIR *curr_dir);
-int wclosedir (WDIR *curr_dir);
+volumeListType *openVolumeList (void);

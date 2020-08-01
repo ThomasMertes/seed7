@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
-/*  con_wat.c     Driver for watcom console access.                 */
-/*  Copyright (C) 1989 - 2005  Thomas Mertes                        */
+/*  con_wat.c     Driver for watcom and djgpp console access.       */
+/*  Copyright (C) 1989 - 2018  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,8 +24,8 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/con_wat.c                                       */
-/*  Changes: 1994  Thomas Mertes                                    */
-/*  Content: Driver for watcom console access.                      */
+/*  Changes: 1994, 2018  Thomas Mertes                              */
+/*  Content: Driver for watcom and djgpp console access.            */
 /*                                                                  */
 /********************************************************************/
 
@@ -37,12 +37,18 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
+#include "sys/types.h"
+#include "sys/stat.h"
 #include "dos.h"
 #include "conio.h"
+#include "termios.h"
+#include "errno.h"
 
 #include "common.h"
+#include "os_decls.h"
 #include "heaputl.h"
 #include "striutl.h"
+#include "ut8_rtl.h"
 #include "rtl_err.h"
 #include "kbd_drv.h"
 
@@ -57,7 +63,6 @@
 
 #define SCRHEIGHT 25
 #define SCRWIDTH 80
-#define MAX_CSTRI_BUFFER_LEN 256
 
 #define black 0
 #define green 2
@@ -65,6 +70,10 @@
 #define darkgray 8
 #define yellow 14
 #define white 15
+
+static struct termios term_descr;
+static struct termios term_bak;
+static boolType keybd_initialized = FALSE;
 
 typedef struct {
   char character, attribute;
@@ -202,16 +211,117 @@ static charType map_key[] = {
 
 
 
+/**
+ *  Determine if two termios structs are equal.
+ *  Comparing with memcmp does not work correctly.
+ *  Struct termios has data at and after &c_cc[NCCS].
+ *  Therefore memcmp sees differences, even when the
+ *  official fields of struct termios are equal.
+ *  @return TRUE when the thow termios structs are equal,
+ *          FALSE otherwise.
+ */
+static boolType term_descr_equal (struct termios *term_descr1, struct termios *term_descr2)
+
+  {
+    int pos;
+    boolType equal;
+
+  /* term_descr_equal */
+    equal = term_descr1->c_iflag == term_descr2->c_iflag &&
+            term_descr1->c_oflag == term_descr2->c_oflag &&
+            term_descr1->c_cflag == term_descr2->c_cflag &&
+            term_descr1->c_lflag == term_descr2->c_lflag;
+    for (pos = 0; pos < NCCS; pos++) {
+      if (term_descr1->c_cc[pos] != term_descr2->c_cc[pos]) {
+        equal = FALSE;
+      } /* if */
+    } /* for */
+    return equal;
+  } /* term_descr_equal */
+
+
+
+/**
+ *  Change the terminal attributes to 'new_term_descr'.
+ *  The function tcsetattr() returns success if any of the
+ *  requested changes could be successfully carried out.
+ *  When doing multiple changes it is necessary to check
+ *  with tcgetattr(), that all changes have been performed
+ *  successfully.
+ *  @return TRUE when the change of the attributes was successful,
+ *          FALSE otherwise.
+ */
+static boolType tcset_term_descr (int file_no, struct termios *new_term_descr)
+
+  {
+    struct termios term_descr_check;
+    int trial = 0;
+    boolType succeeded = FALSE;
+
+  /* tcset_term_descr */
+    do {
+      trial++;
+      if (tcsetattr(file_no, TCSANOW, new_term_descr) == 0 &&
+          tcgetattr(file_no, &term_descr_check) == 0 &&
+          term_descr_equal(new_term_descr, &term_descr_check)) {
+        succeeded = TRUE;
+      } /* if */
+    } while (!succeeded && trial < 10);
+    /* show_term_descr(new_term_descr);
+       show_term_descr(&term_descr_check); */
+    /* printf("trial=%d\n", trial); */
+    return succeeded;
+  } /* tcset_term_descr */
+
+
+
 void kbdShut (void)
 
   { /* kbdShut */
+    if (keybd_initialized) {
+      tcset_term_descr(fileno(stdin), &term_bak);
+      keybd_initialized = FALSE;
+    } /* if */
   } /* kbdShut */
+
+
+
+static void kbd_init (void)
+
+  {
+    int file_no;
+
+  /* kbd_init */
+    file_no = fileno(stdin);
+    if (tcgetattr(0, &term_descr) != 0) {
+      printf("kbd_init: tcgetattr(%d, ...) failed:\n"
+             "errno=%d\nerror: %s\n",
+             file_no, errno, strerror(errno));
+    } else {
+      /* show_term_descr(&term_descr); */
+      memcpy(&term_bak, &term_descr, sizeof(struct termios));
+      term_descr.c_cc[VINTR] = (cc_t) -1;
+      if (!tcset_term_descr(file_no, &term_descr)) {
+        printf("kbd_init: tcsetattr(%d, VMIN=1) failed:\n"
+               "errno=%d\nerror: %s\n",
+               file_no, errno, strerror(errno));
+        /* show_term_descr(&term_descr); */
+      } else {
+        keybd_initialized = TRUE;
+        atexit(kbdShut);
+        fflush(stdout);
+      } /* if */
+    } /* if */
+  } /* kbd_init */
 
 
 
 boolType kbdKeyPressed (void)
 
   { /* kbdKeyPressed */
+    if (!keybd_initialized) {
+      kbd_init();
+    } /* if */
     return (char) bdos(0xB, 0, 0) & 1;
   } /* kbdKeyPressed */
 
@@ -225,6 +335,9 @@ charType kbdGetc (void)
 
   /* kbdGetc */
     logFunction(printf("kbdGetc\n"););
+    if (!keybd_initialized) {
+      kbd_init();
+    } /* if */
     r.h.ah = (unsigned char) 0;
     int86(0x16, &r, &r);
     key = (charType) r.h.al;
@@ -385,6 +498,42 @@ void conSetCursor (intType line, intType column)
 
 
 
+static void doCPuts (cstriType cstri)
+
+  {
+    char *nlPos;
+
+  /* doCPuts */
+    while ((nlPos = strchr(cstri, '\n')) != NULL) {
+      *nlPos = '\0';
+      cputs(cstri);
+      *nlPos = '\n';
+      cputs("\r\n");
+      cstri = &nlPos[1];
+    } /* while */
+    cputs(cstri);
+  } /* doCPuts */
+
+
+
+static void doWriteConsole (const const_striType stri)
+
+  {
+    os_striType os_stri;
+    errInfoType err_info = OKAY_NO_ERROR;
+
+  /* doWriteConsole */
+    os_stri = stri_to_os_stri(stri, &err_info);
+    if (unlikely(os_stri == NULL)) {
+      raise_error(err_info);
+    } else {
+      doCPuts((cstriType) os_stri);
+      os_stri_free(os_stri);
+    } /* if */
+  } /* doWriteConsole */
+
+
+
 /**
  *  Writes the string stri to the console at the current position.
  *  The string stri is not allowed to go beyond the right border of
@@ -393,25 +542,15 @@ void conSetCursor (intType line, intType column)
 void conWrite (const const_striType stri)
 
   {
-    char buffer[MAX_CSTRI_BUFFER_LEN + NULL_TERMINATION_LEN];
-    cstriType cstri;
-    errInfoType err_info = OKAY_NO_ERROR;
+    os_fstat_struct stat_buf;
 
   /* conWrite */
-    if (stri->size <= MAX_CSTRI_BUFFER_LEN) {
-      if (unlikely(conv_to_cstri(buffer, stri) == NULL)) {
-        raise_error(RANGE_ERROR);
-      } else {
-        cputs(buffer);
-      } /* if */
+    if (os_fstat(1, &stat_buf) == 0 && (int) stat_buf.st_dev < 0) {
+      /* stdout refers to a real console */
+      doWriteConsole(stri);
     } else {
-      cstri = stri_to_cstri(stri, &err_info);
-      if (unlikely(cstri == NULL)) {
-        raise_error(err_info);
-      } else {
-        cputs(cstri);
-        free_cstri(cstri, stri);
-      } /* if */
+      /* The output has been redirected */
+      ut8Write(stdout, stri);
     } /* if */
   } /* conWrite */
 

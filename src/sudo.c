@@ -67,7 +67,13 @@ int main (int argc, char *argv[])
         returnValue = (int) ShellExecuteA(NULL, "runas", argv[1], parameters, NULL, SW_HIDE);
         /* printf("returnValue: %d\n", returnValue); */
         if (returnValue <= 32) {
-          mainResult = -1;
+          /* The function ShellExecuteA() failed. */
+          /* Try to execute the program without administrator priviledges. */
+          returnValue = (int) ShellExecuteA(NULL, NULL, argv[1], parameters, NULL, SW_HIDE);
+          /* printf("returnValue: %d\n", returnValue); */
+          if (returnValue <= 32) {
+            mainResult = -1;
+          } /* if */
         } /* if */
         free(parameters);
       } /* if */

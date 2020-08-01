@@ -517,7 +517,7 @@ intType getFileLengthUsingSeek (fileType aFile)
 
   {
     os_off_t file_length;
-    intType result;
+    intType length;
 
   /* getFileLengthUsingSeek */
     file_length = seekFileLength(aFile);
@@ -526,17 +526,17 @@ intType getFileLengthUsingSeek (fileType aFile)
                       "errno=%d\nerror: %s\n",
                       safe_fileno(aFile), errno, strerror(errno)););
       raise_error(FILE_ERROR);
-      result = 0;
+      length = 0;
     } else if (unlikely(file_length > INTTYPE_MAX)) {
       logError(printf("getFileLengthUsingSeek(%d): "
                       "File length does not fit into an integer: " FMT_D_OFF ".\n",
                       safe_fileno(aFile), file_length););
       raise_error(RANGE_ERROR);
-      result = 0;
+      length = 0;
     } else {
-      result = (intType) file_length;
+      length = (intType) file_length;
     } /* if */
-    return result;
+    return length;
   } /* getFileLengthUsingSeek */
 
 
@@ -545,7 +545,7 @@ bigIntType getBigFileLengthUsingSeek (fileType aFile)
 
   {
     os_off_t file_length;
-    bigIntType result;
+    bigIntType length;
 
   /* getBigFileLengthUsingSeek */
     file_length = seekFileLength(aFile);
@@ -554,17 +554,17 @@ bigIntType getBigFileLengthUsingSeek (fileType aFile)
                       "errno=%d\nerror: %s\n",
                       safe_fileno(aFile), errno, strerror(errno)););
       raise_error(FILE_ERROR);
-      result = NULL;
+      length = NULL;
     } else {
 #if OS_OFF_T_SIZE == 32
-      result = bigFromUInt32((uint32Type) file_length);
+      length = bigFromUInt32((uint32Type) file_length);
 #elif OS_OFF_T_SIZE == 64
-      result = bigFromUInt64((uint64Type) file_length);
+      length = bigFromUInt64((uint64Type) file_length);
 #else
 #error "sizeof(os_off_t) is neither 4 nor 8."
 #endif
     } /* if */
-    return result;
+    return length;
   } /* getBigFileLengthUsingSeek */
 
 
@@ -737,11 +737,19 @@ static striType doGetsFromTerminal (fileType inFile, intType length)
     striType result;
 
   /* doGetsFromTerminal */
-    if (unlikely(length < 0)) {
-      logError(printf("doGetsFromTerminal(%d, " FMT_D "): Negative length.\n",
-                      safe_fileno(inFile), length););
-      raise_error(RANGE_ERROR);
-      result = NULL;
+    if (unlikely(length <= 0)) {
+      if (unlikely(length != 0)) {
+        logError(printf("doGetsFromTerminal(%d, " FMT_D "): Negative length.\n",
+                        safe_fileno(inFile), length););
+        raise_error(RANGE_ERROR);
+        result = NULL;
+      } else {
+        if (unlikely(!ALLOC_STRI_SIZE_OK(result, 0))) {
+          raise_error(MEMORY_ERROR);
+        } else {
+          result->size = 0;
+        } /* if */
+      } /* if */
     } else {
       ch = readCharFromTerminal(inFile, &sigintReceived);
       if (unlikely(sigintReceived)) {
@@ -831,9 +839,10 @@ bigIntType filBigLng (fileType aFile)
   {
     int file_no;
     os_fstat_struct stat_buf;
-    bigIntType result;
+    bigIntType length;
 
   /* filBigLng */
+    logFunction(printf("filBigLng(%d)\n", safe_fileno(aFile)););
     file_no = fileno(aFile);
     if (file_no != -1 && os_fstat(file_no, &stat_buf) == 0 &&
         S_ISREG(stat_buf.st_mode)) {
@@ -842,20 +851,21 @@ bigIntType filBigLng (fileType aFile)
                         "fstat() returns file size less than zero: " FMT_D64 ".\n",
                         safe_fileno(aFile), (int64Type) stat_buf.st_size););
         raise_error(FILE_ERROR);
-        result = NULL;
+        length = NULL;
       } else {
 #if OS_OFF_T_SIZE == 32
-        result = bigFromUInt32((uint32Type) stat_buf.st_size);
+        length = bigFromUInt32((uint32Type) stat_buf.st_size);
 #elif OS_OFF_T_SIZE == 64
-        result = bigFromUInt64((uint64Type) stat_buf.st_size);
+        length = bigFromUInt64((uint64Type) stat_buf.st_size);
 #else
 #error "sizeof(os_off_t) is neither 4 nor 8."
 #endif
       } /* if */
     } else {
-      result = getBigFileLengthUsingSeek(aFile);
+      length = getBigFileLengthUsingSeek(aFile);
     } /* if */
-    return result;
+    logFunction(printf("filBigLng --> %s\n", bigHexCStri(length)););
+    return length;
   } /* filBigLng */
 
 
@@ -875,6 +885,8 @@ void filBigSeek (fileType aFile, const const_bigIntType position)
     os_off_t file_position;
 
   /* filBigSeek */
+    logFunction(printf("filBigSeek(%d, %s)\n", safe_fileno(aFile),
+                       bigHexCStri(position)););
 #if OS_OFF_T_SIZE == 32
     file_position = (os_off_t) bigToInt32(position);
 #elif OS_OFF_T_SIZE == 64
@@ -910,9 +922,10 @@ bigIntType filBigTell (fileType aFile)
 
   {
     os_off_t current_file_position;
-    bigIntType result;
+    bigIntType position;
 
   /* filBigTell */
+    logFunction(printf("filBigTell(%d)\n", safe_fileno(aFile)););
     current_file_position = offsetTell(aFile);
     if (unlikely(current_file_position < (os_off_t) 0)) {
       logError(printf("filBigTell(%d): offsetTell(%d) "
@@ -920,17 +933,18 @@ bigIntType filBigTell (fileType aFile)
                       safe_fileno(aFile), safe_fileno(aFile),
                       (int64Type) current_file_position););
       raise_error(FILE_ERROR);
-      result = NULL;
+      position = NULL;
     } else {
 #if OS_OFF_T_SIZE == 32
-      result = bigFromUInt32((uint32Type) current_file_position + 1);
+      position = bigFromUInt32((uint32Type) current_file_position + 1);
 #elif OS_OFF_T_SIZE == 64
-      result = bigFromUInt64((uint64Type) current_file_position + 1);
+      position = bigFromUInt64((uint64Type) current_file_position + 1);
 #else
 #error "sizeof(os_off_t) is neither 4 nor 8."
 #endif
     } /* if */
-    return result;
+    logFunction(printf("filBigTell --> %s\n", bigHexCStri(position)););
+    return position;
   } /* filBigTell */
 
 
@@ -942,12 +956,14 @@ bigIntType filBigTell (fileType aFile)
 void filClose (fileType aFile)
 
   { /* filClose */
+    logFunction(printf("filClose(%d)\n", safe_fileno(aFile)););
     if (unlikely(fclose(aFile) != 0)) {
       logError(printf("filClose: fclose(%d) failed:\n"
                       "errno=%d\nerror: %s\n",
                       safe_fileno(aFile), errno, strerror(errno)););
       raise_error(FILE_ERROR);
     } /* if */
+    logFunction(printf("filClose -->\n"););
   } /* filClose */
 
 
@@ -1385,9 +1401,10 @@ intType filLng (fileType aFile)
   {
     int file_no;
     os_fstat_struct stat_buf;
-    intType result;
+    intType length;
 
   /* filLng */
+    logFunction(printf("filLng(%d)\n", safe_fileno(aFile)););
     file_no = fileno(aFile);
     if (file_no != -1 && os_fstat(file_no, &stat_buf) == 0 &&
         S_ISREG(stat_buf.st_mode)) {
@@ -1396,20 +1413,21 @@ intType filLng (fileType aFile)
                         "fstat() returns File size less than zero: " FMT_D64 ".\n",
                         safe_fileno(aFile), (int64Type) stat_buf.st_size););
         raise_error(FILE_ERROR);
-        result = 0;
+        length = 0;
       } else if (unlikely(stat_buf.st_size > INTTYPE_MAX)) {
         logError(printf("filLng(%d): "
                         "File length does not fit into an integer: " FMT_D_OFF ".\n",
                         safe_fileno(aFile), stat_buf.st_size););
         raise_error(RANGE_ERROR);
-        result = 0;
+        length = 0;
       } else {
-        result = (intType) stat_buf.st_size;
+        length = (intType) stat_buf.st_size;
       } /* if */
     } else {
-      result = getFileLengthUsingSeek(aFile);
+      length = getFileLengthUsingSeek(aFile);
     } /* if */
-    return result;
+    logFunction(printf("filLng --> " FMT_D "\n", length););
+    return length;
   } /* filLng */
 
 
@@ -1565,6 +1583,7 @@ fileType filOpenNullDevice (void)
 void filPclose (fileType aPipe)
 
   { /* filPclose */
+    logFunction(printf("filPclose(%d)\n", safe_fileno(aPipe)););
 #if HAS_POPEN
     if (unlikely(os_pclose(aPipe) == -1)) {
       logError(printf("filPclose: pclose(%d) failed:\n"
@@ -1573,6 +1592,7 @@ void filPclose (fileType aPipe)
       raise_error(FILE_ERROR);
     } /* if */
 #endif
+    logFunction(printf("filPclose -->\n"););
   } /* filPclose */
 
 
@@ -1655,6 +1675,12 @@ fileType filPopen (const const_striType command,
         logMessage(printf("os_popen(\"" FMT_S_OS "\", \"" FMT_S_OS "\")\n",
                           os_command, os_mode););
         result = os_popen(os_command, os_mode);
+        logErrorIfTrue(result == NULL,
+                       printf("filPopen: os_popen(\"" FMT_S_OS "\","
+                              " \"" FMT_S_OS "\") failed:\n"
+                              "errno=%d\nerror: %s\n",
+                              os_command, os_mode,
+                              errno, strerror(errno)););
       } /* if */
       FREE_OS_STRI(os_command);
     } /* if */
@@ -1761,9 +1787,10 @@ intType filTell (fileType aFile)
 
   {
     os_off_t current_file_position;
-    intType result;
+    intType position;
 
   /* filTell */
+    logFunction(printf("filTell(%d)\n", safe_fileno(aFile)););
     current_file_position = offsetTell(aFile);
     if (unlikely(current_file_position < (os_off_t) 0)) {
       logError(printf("filTell(%d): "
@@ -1771,17 +1798,18 @@ intType filTell (fileType aFile)
                       safe_fileno(aFile), safe_fileno(aFile),
                       (int64Type) current_file_position););
       raise_error(FILE_ERROR);
-      result = 0;
+      position = 0;
     } else if (unlikely(current_file_position >= INTTYPE_MAX)) {
       logError(printf("filTell(%d): "
                       "File position does not fit into an integer: " FMT_D_OFF ".\n",
                       safe_fileno(aFile), current_file_position););
       raise_error(RANGE_ERROR);
-      result = 0;
+      position = 0;
     } else {
-      result = (intType) (current_file_position + 1);
+      position = (intType) (current_file_position + 1);
     } /* if */
-    return result;
+    logFunction(printf("filTell --> " FMT_D "\n", position););
+    return position;
   } /* filTell */
 
 

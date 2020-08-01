@@ -1137,6 +1137,17 @@ static os_striType getOsCwd (const os_striType buffer, memSizeType buffer_size,
         *err_info = FILE_ERROR;
       } /* if */
     } /* if */
+#ifdef OS_GETCWD_RETURNS_SLASH
+    {
+      os_charType *ch;
+
+      for (ch = os_cwd; *ch != 0; ch++) {
+        if (*ch == '/') {
+          *ch = PATH_DELIMITER;
+        } /* if */
+      } /* for */
+    }
+#endif
     logFunctionResult(printf("\"" FMT_S_OS "\"\n", os_cwd););
     return os_cwd;
   } /* getOsCwd */

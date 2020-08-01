@@ -166,9 +166,6 @@ version.h: chkccomp.h
 	echo #define WITH_SQL >> version.h
 	echo #define CONSOLE_WCHAR >> version.h
 	echo #define OS_STRI_WCHAR >> version.h
-	echo #define os_fseek _fseeki64 >> version.h
-	echo #define os_ftell _ftelli64 >> version.h
-	echo #define os_off_t __int64 >> version.h
 	echo #define os_getch _getwch >> version.h
 	echo #define QUOTE_WHOLE_SHELL_COMMAND >> version.h
 	echo #define OBJECT_FILE_EXTENSION ".obj" >> version.h

@@ -1222,6 +1222,10 @@ boolType sqlIsNull (sqlStmtType sqlStatement, intType column)
  *  @param user Database user name.
  *  @param password Database password.
  *  @return the database connection.
+ *  @exception FILE_ERROR When the DLL of the database could not be found.
+ *             RANGE_ERROR When dbName, user or password cannot be converted to
+ *                         the character set of the database.
+ *             DATABASE_ERROR The connection to the database failed.
  */
 databaseType sqlOpen (intType driver, const const_striType dbName,
     const const_striType user, const const_striType password)

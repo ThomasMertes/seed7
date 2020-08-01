@@ -274,8 +274,26 @@ COMPILING UNDER DOS WITH DJGPP
   in the 'bin' directory and it is also copied to prg/s7.exe.
   If your get errors you can try mk_djgp2.mak instead.
 
-  Note that the DOS version of Seed7 currently supports neither
-  graphics nor sockets.
+  DOS usually supports only files with 8.3 file names (8 Ascii
+  character name + dot + 3 Ascii character extension). The C
+  source and header files of Seed7 all use this convention.
+  Seed7 library files use longer file names. The DOS version of
+  Seed7 maps long file names like reference.s7i to REFERE~1.S7I.
+  Dosbox uses the same mapping so it should just work. Dosemu
+  uses a different mapping, so the libraries are not found.
+  In that case I suggest to copy files with long names in the
+  'lib' directory:
+
+    copy reference.s7i REFERE~1.S7I
+    copy hashsetof.s7i HASHSE~1.S7I
+    copy environment.s7i ENVIRO~1.S7I
+    copy null_file.s7i NULL_F~1.S7I
+    copy external_file.s7i EXTERN~1.S7I
+    copy clib_file.s7i CLIB_F~1.S7I
+    copy enable_io.s7i ENABLE~1.S7i
+
+  Note that the DOS version of Seed7 currently does not support
+  graphics, sockets, processes and databases.
 
 
 COMPILING UNTER MAC OS X
@@ -713,6 +731,7 @@ PRIMITIVE ACTION FUNCTIONS
     sctlib.c   struct (SCT_*) actions
     setlib.c   set (SET_*) actions
     soclib.c   PRIMITIVE_SOCKET (SOC_*) actions
+    sqllib.c   database and sqlStatement (SQL_*) actions
     strlib.c   string (STR_*) actions
     timlib.c   time and duration (TIM_*) actions
     typlib.c   type (TYP_*) actions
@@ -737,7 +756,6 @@ GENERAL HELPER FUNCTIONS
     entutl.c   Procedures to maintain objects of type entitytype.
     identutl.c Procedures to maintain objects of type identtype.
     chclsutl.c Compute the type of a character very quickly.
-    sigutl.c   Driver shutdown and signal handling.
     arrutl.c   Maintain objects of type arraytype.
 
   The general helper functions are licensed under the GPL.
@@ -750,7 +768,6 @@ RUNTIME LIBRARY
   linked to every compiled Seed7 program).
 
     arr_rtl.c  Primitive actions for the array type.
-    big_rtl.c  Functions for the built-in bigInteger support.
     bln_rtl.c  Primitive actions for the boolean type.
     bst_rtl.c  Primitive actions for the byte string type.
     chr_rtl.c  Primitive actions for the integer type.
@@ -763,15 +780,23 @@ RUNTIME LIBRARY
     hsh_rtl.c  Primitive actions for the hash map type.
     int_rtl.c  Primitive actions for the integer type.
     itf_rtl.c  Primitive actions for the interface type.
-    kbd_rtl.c  Platform idependent console keyboard support.
     pcs_rtl.c  Platform idependent process handling functions.
     set_rtl.c  Primitive actions for the set type.
     soc_rtl.c  Primitive actions for the socket type.
+    sql_rtl.c  Database access functions.
     str_rtl.c  Primitive actions for the string type.
     tim_rtl.c  Time access using the C capabilities.
     ut8_rtl.c  Primitive actions for the UTF-8 file type.
     heaputl.c  Procedures for heap allocation and maintenance.
+    numutl.c   Numeric utility functions.
+    sigutl.c   Driver shutdown and signal handling.
     striutl.c  Procedures to work with wide char strings.
+    sql_base.c Basic database functions.
+    sql_lite.c Database access functions for SQLite.
+    sql_my.c   Database access functions for MariaDB and MySQL.
+    sql_oci.c  Database access functions for OCI.
+    sql_odbc.c Database access functions for the ODBC interface.
+    sql_post.c Database access functions for PostgreSQL.
 
   The runtime library is licensed under the LGPL.
 
@@ -783,6 +808,7 @@ DRIVERS
   decides, which driver is used.
 
     big_gmp.c  Alternate bigInteger library based on GMP.
+    big_rtl.c  Functions for the built-in bigInteger support.
     cmd_unx.c  Command functions which call the Unix API.
     cmd_win.c  Command functions which call the Windows API.
     con_cap.c  Driver for termcap console access.
@@ -796,6 +822,9 @@ DRIVERS
     con_x11.c  Driver for X11 text console access.
     dir_dos.c  Directory functions which call the Dos API.
     dir_win.c  Directory functions which call the Windows API.
+    dll_dos.c  Dynamic link library support (dummy).
+    dll_unx.c  Dynamic link library (*.so) support.
+    dll_win.c  Dynamic link library (*.dll) support.
     drw_dos.c  Graphic access using the dos capabilities.
     drw_win.c  Graphic access using the windows capabilities.
     drw_x11.c  Graphic access using the X11 capabilities.
@@ -807,6 +836,8 @@ DRIVERS
     gkb_x11.c  Keyboard and mouse access with X11 capabilities.
     kbd_inf.c  Driver for terminfo keyboard access.
     kbd_poll.c Driver for terminfo keyboard access using poll().
+    kbd_rtl.c  Platform idependent console keyboard support.
+    pcs_dos.c  Process functions using the dos capabilities.
     pcs_unx.c  Process functions which use the Unix API.
     pcs_win.c  Process functions which use the Windows API.
     pol_dos.c  Poll type and function using DOS capabilities.
@@ -849,6 +880,8 @@ PROGRAMS USED BY THE MAKEFILES
 
     chkccomp.c  Check properties of C compiler and runtime.
     setpaths.c  Write definitions for Seed7 specific paths.
+    setwpath.c  Set the search path (PATH variable) under Windows.
+    sudo.c      Execute command as administrator under Windows.
 
   The programs used by the makefiles are licensed under the GPL.
 
@@ -885,10 +918,6 @@ MACROS WRITTEN TO VERSION.H BY THE MAKEFILE
                          variable are separated with this
                          character. Linux/Unix/BSD use ':' and
                          Windows uses ';'.
-
-  USE_MMAP: Defined when the mmap() function should be used,
-            when a Seed7 source file is parsed or when a file
-            is copied.
 
   AWAIT_WITH_POLL: The function timAwait() uses the function
                    poll() to implement waiting for a time.
@@ -982,21 +1011,6 @@ MACROS WRITTEN TO VERSION.H BY THE MAKEFILE
                              quoted with double quotes (The
                              final command string starts with
                              two double quotes).
-
-  NO_BIG_LIBRARY: Defined as -1. The meaning is: No library to
-                  to implement the bigInteger functions.
-
-  BIG_RTL_LIBRARY: Defined as 1. The meaning is: The big_rtl
-                   library is used to implement the bigInteger
-                   functions.
-
-  BIG_GMP_LIBRARY: Defined as 2. The meaning is: The big_gmp
-                   library is used to implement the bigInteger
-                   functions.
-
-  BIGINT_LIB: Defines the bigInteger library used. The value is
-              one of NO_BIG_LIBRARY, BIG_RTL_LIBRARY and
-              BIG_GMP_LIBRARY.
 
   OBJECT_FILE_EXTENSION: The extension used by the C compiler for
                          object files (Several object files and
@@ -1241,6 +1255,10 @@ MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
   OS_GETCWD_MAX_BUFFER_SIZE: Defined when there is a maximum
                              buffer size supported by
                              os_getcwd().
+
+  OS_GETCWD_RETURNS_SLASH: Defined when os_getcwd() returns a
+                           path with slashes instead of
+                           PATH_DELIMITER.
 
   os_getcwd: Function to be used instead of getcwd() under the
              target operating system. If not defined getcwd()
@@ -1633,6 +1651,30 @@ MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
                            -Infinity or NaN instead of doing the
                            divide operation.
 
+  PRINTF_FMT_E_MAXIMUM_FLOAT_PRECISION: Precision up to which
+                                        writing a float with printf
+                                        (using format %e) will
+                                        always work ok.
+
+  LIMIT_FMT_E_MAXIMUM_FLOAT_PRECISION: Defined when a printf
+                                       (using format %e) with a
+                                       larger precision crashes.
+                                       In that case it is defined
+                                       with a low precision limit
+                                       as string.
+
+  PRINTF_FMT_F_MAXIMUM_FLOAT_PRECISION: Precision up to which
+                                        writing a float with printf
+                                        (using format %f) will
+                                        always work ok.
+
+  LIMIT_FMT_E_MAXIMUM_FLOAT_PRECISION: Defined when a printf
+                                       (using format %f) with a
+                                       larger precision crashes.
+                                       In that case it is defined
+                                       with a low precision limit
+                                       as string.
+
   ISNAN_WITH_UNDERLINE: Defined when the macro/function _isnan() is
                         defined in <float.h> respectively <math.h>
                         instead of isnan().
@@ -1679,6 +1721,21 @@ MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
                                literal is wrong.
                              >0, when at run-time the array
                                literal is correct up to a position.
+
+  NO_BIG_LIBRARY: Defined as -1. The meaning is: No library to
+                  to implement the bigInteger functions.
+
+  BIG_RTL_LIBRARY: Defined as 1. The meaning is: The big_rtl.c
+                   library is used to implement the bigInteger
+                   functions.
+
+  BIG_GMP_LIBRARY: Defined as 2. The meaning is: The big_gmp.c
+                   library is used to implement the bigInteger
+                   functions.
+
+  BIGINT_LIB: Defines the bigInteger library used. The value is
+              one of NO_BIG_LIBRARY, BIG_RTL_LIBRARY and
+              BIG_GMP_LIBRARY.
 
   C_COMPILER_VERSION: Contains a string describing the version of
                       the C compiler which compiled the Seed7

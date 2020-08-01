@@ -77,6 +77,27 @@ const char pathDelimiter[] = "/";
 
 
 #if MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+#ifdef DEFINE_OPEN_VOLUME_LIST
+volumeListType *openVolumeList (void)
+
+  {
+    volumeListType *volumeList;
+
+  /* openVolumeList */
+    logFunction(printf("openVolumeList()\n"););
+    if ((volumeList = (volumeListType *) malloc(sizeof(volumeListType))) != NULL) {
+      volumeList->magicValue = UINT32TYPE_MAX;
+      volumeList->driveBitmask = (1 << 26) - 1;
+      volumeList->currentDrive = 0;
+    } /* if */
+    logFunction(printf("openVolumeList --> {0x" F_X32(04) ", %d}\n",
+                       volumeList->driveBitmask, volumeList->currentDrive););
+    return volumeList;
+  } /* openVolumeList */
+#endif
+
+
+
 static striType readVolumeName (volumeListType *volumeList)
 
   {

@@ -1,3 +1,77 @@
+20180708:
+- The operating system DOS is supported (with DJGPP) again. The tests
+  have been done with Dosbox.
+- In the compiler (in comp/const.s7i) the actions BIN_AND and BIN_OR
+  have been added to the list of special actions. This way the
+  functions rotLeft and rotRight (from bin32.s7i and bin64.s7i) are
+  implemented as inline functions. This reduces the runtime of sha256
+  (from msgdigest.s7i) by 44% (measured with gcc and valgrind, when
+  reading data from 200 https connections). The cpu-time of the whole
+  test program was reduced by 17%.
+- In msgdigest.s7i the functions md4, md5, sha1, sha224 and sha256
+  have been improved to use an index for words instead of an index
+  for chunks. This simplifies the conversion to 32-bit words.
+- In comp/action.s7i the function process_action has been improved to
+  use a case-statement instead of multiple if-statements. This reduces
+  the runtime of process_action by 39% (measured with gcc and valgrind,
+  when the compiler compiles itself). The runtime of the compiler is
+  reduced by 2.5%.
+- The contents of the libraries enable_input.s7i and enable_output.s7i
+  have been moved to the library enable_io.s7i.
+- The library comp/expr_util.s7i has been renamed to comp/expr_utl.s7i.
+- The program chkccomp.c has been improved to search 64-bit functions
+  for fseek() and ftell(). The findings are stored in version.h with
+  the macros _FILE_OFFSET_BITS, OS_OFF_T_SIZE, os_off_t, os_fseek and
+  os_ftell.
+- In chkflt.sd7 the tests for float shift and logarithm of 0.0 have
+  been improved.
+- The file src/read_me.txt has been updated.
+- In chkccomp.c the functions isNullDevice, initializeNullDevice,
+  determineStatFunctions, determineOsFunctions and numericProperties
+  have been improved.
+- The program chkccomp.c has been improved to work for PostgreSQL
+  versions 9.6, 10 and 11.
+- In cmd_rtl.c the function getOsCwd has been improved to assure that
+  PATH_DELIMITER is used as path delimiter.
+- In flt_rtl.c the functions fltDigits and fltSci have been improved,
+  to work correct, when printf() with format %f and %e and a huge
+  precision crashes. Additionally fltSci() has been improved to work
+  correct, when the number of exponent digits written with format %f is
+  not fixed.
+- In con_wat.c the functions kbdShut and conWrite have been improved
+  and the functions term_descr_equal, tcset_term_descr, kbd_init,
+  doWriteConsole and doCPuts have been added.
+- The functions handleIntSignal, readCharChkCtrlC and filPipe have been
+  added to fil_dos.c.
+- The function drwConvPointList has been added to drw_dos.c.
+- The definitions of volumeListType, IS_VOLUME_LIST and
+  openVolumeList() have been moved from dir_win.h to the new file
+  vol_drv.h
+- In traceutl.c the function prot_cstri has been improved to optionally
+  write the string via conWrite.
+- The functions striCharsAsUnquotedCStri, isShortFileName, findDot,
+  toShortFileName, copyFileName and mapLongFileNamesToShort have been
+  added to striutl.c. The function mapLongFileNamesToShort can be used
+  to convert a path with long file names to a path with 8.3 file names.
+- The program setwpath.c has been improved to set the search path of
+  the current user, when setting the path for all users fails.
+- The program sudo.c has been improved to execute the command without
+  priviledges, when executing the command as administrator fails.
+- The functions gets (in tls.s7i), doGetsFromTerminal (in fil_rtl.c),
+  ut8Gets (in ut8_rtl.c) and socGets (in soc_rtl.c) have been improved
+  to return an empty string immediately, when the requested length is
+  zero.
+- Calls of logFunction have been added in fil_rtl.c, prclib.c and
+  striutl.c.
+- Calls of logError have been added in infile.c.
+- The files dll_dos.c, pcs_dos.c and vol_drv.h have been added.
+- Definitions of _FILE_OFFSET_BITS, os_off_t, os_fseek and os_ftell
+  have been removed from the makefiles.
+- The makefiles mk_djgpp.mak and mk_djgp2.mak have been improved, such
+  that DOS (with DJGPP) is supported again.
+- Documentation comments have been improved in sql_base.s7i, cipher.s7i
+  and sql_rtl.c.
+
 20180601:
 - The library tls.s7i has been improved to support the server_name
   extension and to process handshake messages, that extend over several

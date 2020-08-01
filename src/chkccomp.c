@@ -30,9 +30,6 @@
 /**
  *  From version.h the following defines are used (for details see: read_me.txt):
  *
- *  os_off_t
- *      Type used for os_fseek(), os_ftell(), offsetSeek(), offsetTell()
- *      and seekFileLength().
  *  TURN_OFF_FP_EXCEPTIONS
  *      Use the function _control87() to turn off floating point exceptions.
  *  DEFINE_MATHERR_FUNCTION
@@ -241,7 +238,7 @@ static void prepareCompileCommand (void)
 
 
 
-static int isNullDevice (char *fileName)
+static int isNullDevice (char *fileName, int eofChar)
 
   {
     FILE *aFile;
@@ -252,7 +249,7 @@ static int isNullDevice (char *fileName)
     aFile = fopen(fileName, "r");
     if (aFile != NULL) {
       /* The file exists. Now check if the file is empty. */
-      fileIsEmpty = getc(aFile) == EOF;
+      fileIsEmpty = getc(aFile) == eofChar;
       fclose(aFile);
       if (fileIsEmpty) {
         /* Reading from a null device returns always EOF. */
@@ -264,7 +261,7 @@ static int isNullDevice (char *fileName)
           aFile = fopen(fileName, "r");
           if (aFile != NULL) {
             /* Check if the file is still empty. */
-            fileIsEmpty = getc(aFile) == EOF;
+            fileIsEmpty = getc(aFile) == eofChar;
             fclose(aFile);
             if (fileIsEmpty) {
               /* Everything written to the null device is ignored. */
@@ -289,10 +286,16 @@ static int isNullDevice (char *fileName)
 static void initializeNullDevice (FILE *versionFile)
 
   { /* initializeNullDevice */
-    if (isNullDevice("/dev/null")) {
+    if (isNullDevice("/dev/null", EOF)) {
       nullDevice = "/dev/null";
-    } else if (isNullDevice("NUL:")) {
+    } else if (isNullDevice("NUL:", EOF)) {
       nullDevice = "NUL:";
+    } else if (isNullDevice("NUL", EOF)) {
+      nullDevice = "NUL";
+    } else if (isNullDevice("NUL:", 0)) {
+      nullDevice = "NUL:";
+    } else if (isNullDevice("NUL", 0)) {
+      nullDevice = "NUL";
     } /* if */
     if (nullDevice != NULL) {
       fprintf(versionFile, "#define NULL_DEVICE \"%s\"\n", nullDevice);
@@ -470,6 +473,7 @@ static int doCompileAndLink (const char *compilerOptions, const char *linkerOpti
             LINKER_OPT_OUTPUT_FILE, testNumber, EXECUTABLE_FILE_EXTENSION);
 #endif
 #ifdef CC_ERROR_FILDES
+    /* A missing CC_ERROR_FILDES or an CC_ERROR_FILDES of zero means: Do not redirect. */
     if (CC_ERROR_FILDES == 1) {
       sprintf(&command[strlen(command)], " %sctest%d.cerrs %s%s",
               REDIRECT_FILDES_1, testNumber, REDIRECT_FILDES_2, nullDevice);
@@ -1065,7 +1069,6 @@ static void numericSizes (FILE *versionFile)
     fprintf(versionFile, "#define FLOAT_SIZE %d\n",       char_bit * getSizeof("float"));
     fprintf(versionFile, "#define DOUBLE_SIZE %d\n",      char_bit * getSizeof("double"));
     fprintf(versionFile, "#define WCHAR_T_SIZE %d\n",     char_bit * getSizeof("wchar_t"));
-    fprintf(versionFile, "#define OS_OFF_T_SIZE %d\n",    char_bit * getSizeof("os_off_t"));
     fprintf(versionFile, "#define TIME_T_SIZE %d\n",      char_bit * getSizeof("time_t"));
     fprintf(versionFile, "#define TIME_T_SIGNED %d\n", isSignedType("time_t"));
     fprintf(versionFile, "#define SIZE_T_SIGNED %d\n", isSignedType("size_t"));
@@ -2028,6 +2031,11 @@ static void numericProperties (FILE *versionFile)
                          "printf(\"%lu\\n\", (unsigned long) (strchr(buffer, 'e') - buffer));\n"
                          "return 0;}\n")) {
       testResult = doTest();
+      if (testResult == -1) {
+        /* The test program crashed. Assume a low precision limit. */
+        testResult = 102;
+        fputs("#define LIMIT_FMT_E_MAXIMUM_FLOAT_PRECISION \"100\"\n", versionFile);
+      } /* if */
       if (testResult >= 2 && testResult < 100002) {
         testResult -= 2;
 #ifdef PRINTF_MAXIMUM_FLOAT_PRECISION
@@ -2044,6 +2052,11 @@ static void numericProperties (FILE *versionFile)
                          "printf(\"%lu\\n\", (unsigned long) strlen(buffer));\n"
                          "return 0;}\n")) {
       testResult = doTest();
+      if (testResult == -1) {
+        /* The test program crashed. Assume a low precision limit. */
+        testResult = 102;
+        fputs("#define LIMIT_FMT_F_MAXIMUM_FLOAT_PRECISION \"100\"\n", versionFile);
+      } /* if */
       if (testResult >= 2 && testResult < 100002) {
         testResult -= 2;
 #ifdef PRINTF_MAXIMUM_FLOAT_PRECISION
@@ -2516,7 +2529,7 @@ static void determineSocketLib (FILE *versionFile)
                          "#include <netinet/in.h>\n"
                          "int main(int argc,char *argv[])\n"
                          "{int sock = socket(AF_INET, SOCK_STREAM, 0);\n"
-                         "close(sock); return 0;}\n")) {
+                         "return 0;}\n")) {
       fputs("#define UNIX_SOCKETS 1\n", versionFile);
       fputs("#define SOCKET_LIB UNIX_SOCKETS\n", versionFile);
     } else if (compileAndLinkWithOptionsOk("#include <winsock2.h>\n"
@@ -2607,6 +2620,220 @@ static void determineOsDirAccess (FILE *versionFile)
       fputs("#define DIR_LIB NO_DIRECTORY\n", versionFile);
     } /* if */
   } /* determineOsDirAccess */
+
+
+
+static void determineFseekFunctions (FILE *versionFile)
+
+  {
+    int sizeof_off_t;
+    int sizeof_long;
+    int os_off_t_size;
+    const char *os_off_t_stri = NULL;
+    const char *os_fseek_stri = NULL;
+    const char *os_ftell_stri = NULL;
+    char buffer[BUFFER_SIZE];
+
+  /* determineFseekFunctions */
+#ifndef os_fseek
+    if (compileAndLinkOk("#include <stdio.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{FILE *aFile;\n"
+                         "int fseek_result = -1;\n"
+                         "aFile = fopen(\"version.h\", \"r\");\n"
+                         "if (aFile != NULL) {\n"
+                         "  fseek_result = fseeko(aFile, (off_t) 0, SEEK_END);\n"
+                         "  fclose(aFile);\n"
+                         "}\n"
+                         "printf(\"%d\\n\", fseek_result == 0);\n"
+                         "return 0;}\n")) {
+      if (compileAndLinkOk("#include <stdio.h>\n"
+                           "int main(int argc,char *argv[])\n"
+                           "{printf(\"%d\\n\", sizeof(off_t));\n"
+                           "return 0;}\n")) {
+        sizeof_off_t = doTest();
+        if (sizeof_off_t == 4) {
+          if (compileAndLinkOk("#define _FILE_OFFSET_BITS 64\n"
+                               "#include <stdio.h>\n"
+                               "int main(int argc,char *argv[])\n"
+                               "{printf(\"%d\\n\", sizeof(off_t));\n"
+                               "return 0;}\n")) {
+            sizeof_off_t = doTest();
+            if (sizeof_off_t == 8) {
+              fputs("#define _FILE_OFFSET_BITS 64\n", versionFile);
+            } else {
+              sizeof_off_t = 4;
+            } /* if */
+          } /* if */
+        } /* if */
+        if (sizeof_off_t == 8) {
+          os_off_t_size = 64;
+          os_off_t_stri = "off_t";
+          os_fseek_stri = "fseeko";
+          os_ftell_stri = "ftello";
+        } /* if */
+      } /* if */
+    } /* if */
+    if (os_fseek_stri == NULL &&
+        compileAndLinkOk("#include <stdio.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{FILE *aFile;\n"
+                         "int fseek_result = -1;\n"
+                         "aFile = fopen(\"version.h\", \"r\");\n"
+                         "if (aFile != NULL) {\n"
+                         "  fseek_result = fseeko64(aFile, (off64_t) 0, SEEK_END);\n"
+                         "  fclose(aFile);\n"
+                         "}\n"
+                         "printf(\"%d\\n\", fseek_result == 0);\n"
+                         "return 0;}\n")) {
+      os_off_t_size = 64;
+      os_off_t_stri = "off64_t";
+      os_fseek_stri = "fseeko64";
+      os_ftell_stri = "ftello64";
+    } /* if */
+    if (os_fseek_stri == NULL &&
+        compileAndLinkOk("#include <stdio.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{FILE *aFile;\n"
+                         "int fseek_result = -1;\n"
+                         "__int64 ftell_result = -1;\n"
+                         "aFile = fopen(\"version.h\", \"r\");\n"
+                         "if (aFile != NULL) {\n"
+                         "  fseek_result = _fseeki64(aFile, (__int64) 0, SEEK_END);\n"
+                         "  ftell_result = _ftelli64(aFile);\n"
+                         "  fclose(aFile);\n"
+                         "}\n"
+                         "printf(\"%d\\n\", fseek_result == 0 && ftell_result != -1);\n"
+                         "return 0;}\n")) {
+      os_off_t_size = 64;
+      os_off_t_stri = "__int64";
+      os_fseek_stri = "_fseeki64";
+      os_ftell_stri = "_ftelli64";
+    } /* if */
+    if (os_fseek_stri == NULL) {
+      sprintf(buffer,
+              "#include <stdio.h>\n"
+              "int main(int argc,char *argv[])\n"
+              "{FILE *aFile;\n"
+              "int fseek_result = -1;\n"
+              "%s ftell_result = -1;\n"
+              "aFile = fopen(\"version.h\", \"r\");\n"
+              "if (aFile != NULL) {\n"
+              "  fseek_result = _fseeki64(aFile, (%s) 0, SEEK_END);\n"
+              "  ftell_result = _ftelli64(aFile);\n"
+              "  fclose(aFile);\n"
+              "}\n"
+              "printf(\"%%d\\n\", fseek_result == 0 && ftell_result != -1);\n"
+              "return 0;}\n", int64TypeStri, int64TypeStri);
+      if (compileAndLinkOk(buffer)) {
+        os_off_t_size = 64;
+        os_off_t_stri = int64TypeStri;
+        os_fseek_stri = "_fseeki64";
+        os_ftell_stri = "_ftelli64";
+      } /* if */
+    } /* if */
+    if (os_fseek_stri == NULL &&
+        compileAndLinkOk("#include <stdio.h>\n"
+                         "extern int __cdecl _fseeki64(FILE *, __int64, int);\n"
+                         "extern __int64 __cdecl _ftelli64(FILE *);\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{FILE *aFile;\n"
+                         "int fseek_result = -1;\n"
+                         "__int64 ftell_result = -1;\n"
+                         "aFile = fopen(\"version.h\", \"r\");\n"
+                         "if (aFile != NULL) {\n"
+                         "  fseek_result = _fseeki64(aFile, (__int64) 0, SEEK_END);\n"
+                         "  ftell_result = _ftelli64(aFile);\n"
+                         "  fclose(aFile);\n"
+                         "}\n"
+                         "printf(\"%d\\n\", fseek_result == 0 && ftell_result != -1);\n"
+                         "return 0;}\n")) {
+      fputs("#define DEFINE_FSEEKI64_PROTOTYPE\n", versionFile);
+      fputs("#define DEFINE_FTELLI64_PROTOTYPE\n", versionFile);
+      os_off_t_size = 64;
+      os_off_t_stri = "__int64";
+      os_fseek_stri = "_fseeki64";
+      os_ftell_stri = "_ftelli64";
+    } /* if */
+    if (os_fseek_stri == NULL) {
+      sprintf(buffer,
+              "#include <stdio.h>\n"
+              "int main(int argc,char *argv[])\n"
+              "{FILE *aFile;\n"
+              "int fseek_result = -1;\n"
+              "aFile = fopen(\"version.h\", \"r\");\n"
+              "if (aFile != NULL) {\n"
+              "  fseek_result = _fseek64(aFile, (%s) 0, SEEK_END);\n"
+              "  fclose(aFile);\n"
+              "}\n"
+              "printf(\"%%d\\n\", fseek_result == 0);\n"
+              "return 0;}\n", int64TypeStri);
+      if (compileAndLinkOk(buffer)) {
+        os_off_t_size = 64;
+        os_off_t_stri = int64TypeStri;
+        os_fseek_stri = "_fseek64";
+        os_ftell_stri = "_ftell64";
+      } /* if */
+    } /* if */
+    if (os_fseek_stri == NULL &&
+        compileAndLinkOk("#include <stdio.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{FILE *aFile;\n"
+                         "int fseek_result = -1;\n"
+                         "aFile = fopen(\"version.h\", \"r\");\n"
+                         "if (aFile != NULL) {\n"
+                         "  fseek_result = fseek(aFile, (long) 0, SEEK_END);\n"
+                         "  fclose(aFile);\n"
+                         "}\n"
+                         "printf(\"%d\\n\", fseek_result == 0);\n"
+                         "return 0;}\n")) {
+      sizeof_long = getSizeof("long");
+      if (compileAndLinkOk("#include <stdio.h>\n"
+                           "int main (int argc, char *argv[])\n"
+                           "{printf(\"%d\\n\", sizeof(ftell(NULL)));\n"
+                           "return 0;}\n") &&
+          (sizeof_off_t = doTest()) >= 1) {
+        /* The classic fseek() and ftell() functions work for long, */
+        /* but some strange implementations use a different type. */
+        if (sizeof_off_t == sizeof_long) {
+          os_off_t_size = 8 * sizeof_long;
+          os_off_t_stri = "long";
+        } else if (sizeof_off_t == 2) {
+          os_off_t_size = 16;
+          os_off_t_stri = int16TypeStri;
+        } else if (sizeof_off_t == 4) {
+          os_off_t_size = 32;
+          os_off_t_stri = int32TypeStri;
+        } else if (sizeof_off_t == 8) {
+          os_off_t_size = 64;
+          os_off_t_stri = int64TypeStri;
+        } else if (sizeof_off_t == 16) {
+          os_off_t_size = 128;
+          os_off_t_stri = int128TypeStri;
+        } else {
+          fprintf(logFile, "\n *** sizeof(ftell(NULL)) is %d.\n", sizeof_off_t);
+        } /* if */
+      } else {
+        os_off_t_size = 8 * sizeof_long;
+        os_off_t_stri = "long";
+      } /* if */
+      if (os_off_t_stri != NULL) {
+        os_fseek_stri = "fseek";
+        os_ftell_stri = "ftell";
+      } /* if */
+    } /* if */
+    if (os_fseek_stri != NULL) {
+      fprintf(versionFile, "#define OS_OFF_T_SIZE %d\n", os_off_t_size);
+      fprintf(versionFile, "#define os_off_t %s\n", os_off_t_stri);
+      fprintf(versionFile, "#define os_fseek %s\n", os_fseek_stri);
+      fprintf(versionFile, "#define os_ftell %s\n", os_ftell_stri);
+    } else {
+      fprintf(logFile, "\n *** Cannot define os_fseek and os_ftell.\n");
+    } /* if */
+#else
+      fprintf(versionFile, "#define OS_OFF_T_SIZE %d\n", 8 * getSizeof("os_off_t"));
+#endif
+  } /* determineFseekFunctions */
 
 
 
@@ -2927,7 +3154,10 @@ static void determineStatFunctions (FILE *versionFile)
   {
     char buffer[BUFFER_SIZE];
     char *os_stat_struct = NULL;
+    char *os_fstat_func = NULL;
     char *os_fstat_struct = NULL;
+    char *os_fstat_orig = NULL;
+    char *os_fstat_struct_orig = NULL;
     int has_struct_stati64 = 0;
 
   /* determineStatFunctions */
@@ -2999,7 +3229,7 @@ static void determineStatFunctions (FILE *versionFile)
                       "return 0;}\n",
                       os_stat_struct);
       if (compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS)) {
-        fputs("#define os_fstat _fstati64\n", versionFile);
+        os_fstat_func ="_fstati64";
         os_fstat_struct = os_stat_struct;
       } else {
         sprintf(buffer, "#include <stdio.h>\n"
@@ -3011,7 +3241,7 @@ static void determineStatFunctions (FILE *versionFile)
                         "return 0;}\n",
                         os_stat_struct);
         if (compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS)) {
-          fputs("#define os_fstat fstati64\n", versionFile);
+          os_fstat_func ="fstati64";
           os_fstat_struct = os_stat_struct;
         } /* if */
       } /* if */
@@ -3025,11 +3255,10 @@ static void determineStatFunctions (FILE *versionFile)
                                       "printf(\"%d\\n\",\n"
                                       "    _fstat(0, &statData) == 0);\n"
                                       "return 0;}\n", "", SYSTEM_LIBS)) {
-        if (has_struct_stati64) {
-          fputs("#define os_fstat_orig _fstat\n", versionFile);
-          fputs("#define os_fstat_struct_orig struct _stat\n", versionFile);
-        } else {
-          fputs("#define os_fstat _fstat\n", versionFile);
+        os_fstat_orig = "_fstat";
+        os_fstat_struct_orig = "struct _stat";
+        if (!has_struct_stati64) {
+          os_fstat_func ="_fstat";
           os_fstat_struct = "struct _stat";
         } /* if */
       } else if (compileAndLinkWithOptionsOk("#include <stdio.h>\n"
@@ -3040,11 +3269,10 @@ static void determineStatFunctions (FILE *versionFile)
                                              "printf(\"%d\\n\",\n"
                                              "    _fstat(0, &statData) == 0);\n"
                                              "return 0;}\n", "", SYSTEM_LIBS)) {
-        if (has_struct_stati64) {
-          fputs("#define os_fstat_orig _fstat\n", versionFile);
-          fputs("#define os_fstat_struct_orig struct stat\n", versionFile);
-        } else {
-          fputs("#define os_fstat _fstat\n", versionFile);
+        os_fstat_orig = "_fstat";
+        os_fstat_struct_orig = "struct stat";
+        if (!has_struct_stati64) {
+          os_fstat_func ="_fstat";
           os_fstat_struct = "struct stat";
         } /* if */
       } else if (compileAndLinkWithOptionsOk("#include <stdio.h>\n"
@@ -3055,11 +3283,10 @@ static void determineStatFunctions (FILE *versionFile)
                                              "printf(\"%d\\n\",\n"
                                              "    fstat(0, &statData) == 0);\n"
                                              "return 0;}\n", "", SYSTEM_LIBS)) {
-        if (has_struct_stati64) {
-          fputs("#define os_fstat_orig fstat\n", versionFile);
-          fputs("#define os_fstat_struct_orig struct _stat\n", versionFile);
-        } else {
-          fputs("#define os_fstat fstat\n", versionFile);
+        os_fstat_orig = "fstat";
+        os_fstat_struct_orig = "struct _stat";
+        if (!has_struct_stati64) {
+          os_fstat_func ="fstat";
           os_fstat_struct = "struct _stat";
         } /* if */
       } else if (compileAndLinkWithOptionsOk("#include <stdio.h>\n"
@@ -3070,19 +3297,41 @@ static void determineStatFunctions (FILE *versionFile)
                                              "printf(\"%d\\n\",\n"
                                              "    fstat(0, &statData) == 0);\n"
                                              "return 0;}\n", "", SYSTEM_LIBS)) {
-        if (has_struct_stati64) {
-          fputs("#define os_fstat_orig fstat\n", versionFile);
-          fputs("#define os_fstat_struct_orig struct stat\n", versionFile);
-        } else {
-          fputs("#define os_fstat fstat\n", versionFile);
+        os_fstat_orig = "fstat";
+        os_fstat_struct_orig = "struct stat";
+        if (!has_struct_stati64) {
+          os_fstat_func ="fstat";
           os_fstat_struct = "struct stat";
         } /* if */
       } /* if */
     } /* if */
     if (os_fstat_struct == NULL) {
+      if (os_fstat_orig != NULL && os_fstat_struct_orig != NULL) {
+        fprintf(versionFile, "#define os_fstat_orig %s\n", os_fstat_orig);
+        fprintf(versionFile, "#define os_fstat_struct_orig %s\n", os_fstat_struct_orig);
+      } /* if */
       os_fstat_struct = os_stat_struct;
       fputs("#define DEFINE_FSTATI64_EXT\n", versionFile);
-      fputs("#define os_fstat fstati64Ext\n", versionFile);
+      os_fstat_func ="fstati64Ext";
+    } else if (os_fstat_orig != NULL && os_fstat_struct_orig != NULL) {
+      sprintf(buffer, "#include <stdio.h>\n"
+                      "#include <sys/types.h>\n#include <sys/stat.h>\n"
+                      "int main(int argc,char *argv[])\n"
+                      "{%s statData;\n"
+                      "printf(\"%%d\\n\", sizeof(statData.st_size));\n"
+                      "return 0;}\n",
+                      os_fstat_struct_orig);
+      if (compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS) ||
+          doTest() != 8) {
+        fprintf(versionFile, "#define os_fstat_orig %s\n", os_fstat_orig);
+        fprintf(versionFile, "#define os_fstat_struct_orig %s\n", os_fstat_struct_orig);
+        os_fstat_struct = os_stat_struct;
+        fputs("#define DEFINE_FSTATI64_EXT\n", versionFile);
+        os_fstat_func ="fstati64Ext";
+      } /* if */
+    } /* if */
+    if (os_fstat_func != NULL) {
+      fprintf(versionFile, "#define os_fstat %s\n", os_fstat_func);
     } /* if */
     if (os_stat_struct != NULL && os_fstat_struct != NULL &&
         strcmp(os_stat_struct, os_fstat_struct) != 0) {
@@ -3265,8 +3514,19 @@ static void determineOsFunctions (FILE *versionFile)
   /* determineOsFunctions */
     determineSocketLib(versionFile);
     determineOsDirAccess(versionFile);
-#ifdef OS_STRI_WCHAR
+    determineFseekFunctions(versionFile);
+#if defined OS_STRI_WCHAR
     determineOsWCharFunctions(versionFile);
+#elif PATH_DELIMITER == '\\'
+    if (compileAndLinkOk("#include <stdio.h>\n#include <direct.h>\n"
+                         "#include <string.h>\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{char buffer[1024];\n"
+                         "printf(\"%d\\n\", getcwd(buffer, 1024) != NULL &&\n"
+                         "    strchr(buffer, '\\\\') == NULL);\n"
+                         "return 0;}\n") && doTest() == 1) {
+      fprintf(versionFile, "#define OS_GETCWD_RETURNS_SLASH\n");
+    } /* if */
 #endif
     determineEnvironDefines(versionFile);
     if (!compileAndLinkOk("#include <stdio.h>\n"
@@ -3435,6 +3695,7 @@ static void determineMySqlDefines (FILE *versionFile,
   {
     const char *dbHomeSys[] = {"MariaDB/MariaDB C Client Library",
                                "MariaDB/MariaDB C Client Library 64-bit",
+                               "MariaDB 10.3"
                                "MySQL/MySQL Connector C 6.1"};
 #ifdef MYSQL_DLL
     const char *dllNameList[] = { MYSQL_DLL };
@@ -3878,9 +4139,8 @@ static void determinePostgresDefines (FILE *versionFile,
     char *include_options, char *additional_system_libs)
 
   {
-    const char *dbHomeSys[] = {"PostgreSQL/9.5", "PostgreSQL/9.4", "PostgreSQL/9.3",
-                               "PostgreSQL/9.2", "PostgreSQL/9.1", "PostgreSQL/9.0",
-                               "PostgreSQL/8.4", "PostgreSQL/8.3"};
+    const char *dbVersion[] = {"11", "10", "9.6", "9.5", "9.4", "9.3",
+                               "9.2", "9.1", "9.0", "8.4", "8.3"};
 #ifdef POSTGRESQL_DLL
     const char *dllNameList[] = { POSTGRESQL_DLL };
 #else
@@ -3918,8 +4178,8 @@ static void determinePostgresDefines (FILE *versionFile,
       if (sizeof(char *) == 4 && programFilesX86 != NULL) {
         programFiles = programFilesX86;
       } /* if */
-      for (idx = 0; !dbHomeExists && idx < sizeof(dbHomeSys) / sizeof(char *); idx++) {
-        sprintf(dbHome, "%s/%s", programFiles, dbHomeSys[idx]);
+      for (idx = 0; !dbHomeExists && idx < sizeof(dbVersion) / sizeof(char *); idx++) {
+        sprintf(dbHome, "%s/PostgreSQL/%s", programFiles, dbVersion[idx]);
         if (fileIsDir(dbHome)) {
           dbHomeExists = 1;
         } /* if */
@@ -4547,7 +4807,7 @@ int main (int argc, char **argv)
 
   /* main */
     logFile = stdout;
-    fprintf(logFile, "General settings: ");
+    fprintf(logFile, "Prepare compile command: ");
     fflush(logFile);
     if (argc >= 2) {
       versionFileName = argv[1];
@@ -4578,6 +4838,9 @@ int main (int argc, char **argv)
       fclose(aFile);
     } /* if */
     initializeNullDevice(versionFile);
+    fprintf(logFile, "done\n");
+    numericSizes(versionFile);
+    fprintf(logFile, "General settings: ");
     fprintf(versionFile, "#define UNISTD_H_PRESENT %d\n",
             compileAndLinkOk("#include <unistd.h>\n"
                              "int main(int argc,char *argv[]){return 0;}\n"));
@@ -4679,7 +4942,6 @@ int main (int argc, char **argv)
     fputs("#define RENAME_BEFORE_REMOVE\n", versionFile);
 #endif
     fprintf(logFile, " determined\n");
-    numericSizes(versionFile);
     numericProperties(versionFile);
     fprintf(logFile, "Advanced settings: ");
     fflush(logFile);
@@ -4762,7 +5024,7 @@ int main (int argc, char **argv)
                          "printf(\"%d\\n\", wmemchr(str1, ch1, 2) ==  &str1[1]);\n"
                          "return 0;}\n") && doTest() == 1);
     fprintf(versionFile, "#define HAS_WMEMSET %d\n",
-        compileAndLinkOk("#include <stdio.h>\n#include <wchar.h>\n"
+        compileAndLinkOk("#include <stdio.h>\n#include <wchar.h>\n#include <string.h>\n"
                          "int main(int argc, char *argv[]){\n"
                          "wchar_t str1[4];\n"
                          "wchar_t str2[] = {0, 0, 0, 0};\n"

@@ -97,1672 +97,1621 @@ const proc: process_action (in reference: function, in ref_list: params,
     current_action := getValue(function, ACTION);
     action_name := str(current_action);
     # c_expr.expr &:= "/* " <& action_name <& " */\n";
-    action_prefix := action_name[ .. 3];
-    if action_prefix = "ACT" then
-      if action_name = "ACT_CPY" then
+    case action_name of
+      when {"ACT_CPY"}:
         process(ACT_CPY, function, params, c_expr);
-      elsif action_name = "ACT_EQ" then
+      when {"ACT_EQ"}:
         process(ACT_EQ, function, params, c_expr);
-      elsif action_name = "ACT_GEN" then
+      when {"ACT_GEN"}:
         process(ACT_GEN, function, params, c_expr);
-      elsif action_name = "ACT_ICONV1" then
+      when {"ACT_ICONV1"}:
         process(ACT_ICONV1, function, params, c_expr);
-      elsif action_name = "ACT_ICONV3" then
+      when {"ACT_ICONV3"}:
         process(ACT_ICONV3, function, params, c_expr);
-      elsif action_name = "ACT_NE" then
+      when {"ACT_NE"}:
         process(ACT_NE, function, params, c_expr);
-      elsif action_name = "ACT_ORD" then
+      when {"ACT_ORD"}:
         process(ACT_ORD, function, params, c_expr);
-      elsif action_name = "ACT_STR" then
+      when {"ACT_STR"}:
         process(ACT_STR, function, params, c_expr);
-      elsif action_name = "ACT_VALUE" then
+      when {"ACT_VALUE"}:
         process(ACT_VALUE, function, params, c_expr);
-      else
-        process_unknown_action(action_name, c_expr);
-      end if;
-    elsif action_prefix = "ARR" then
-      if action_name = "ARR_APPEND" then
+      when {"ARR_APPEND"}:
         process(ARR_APPEND, function, params, c_expr);
-      elsif action_name = "ARR_ARRLIT" then
+      when {"ARR_ARRLIT"}:
         process(ARR_ARRLIT, function, params, c_expr);
-      elsif action_name = "ARR_ARRLIT2" then
+      when {"ARR_ARRLIT2"}:
         process(ARR_ARRLIT2, function, params, c_expr);
-      elsif action_name = "ARR_BASELIT" then
+      when {"ARR_BASELIT"}:
         process(ARR_BASELIT, function, params, c_expr);
-      elsif action_name = "ARR_BASELIT2" then
+      when {"ARR_BASELIT2"}:
         process(ARR_BASELIT2, function, params, c_expr);
-      elsif action_name = "ARR_CAT" then
+      when {"ARR_CAT"}:
         process(ARR_CAT, function, params, c_expr);
-      elsif action_name = "ARR_CONV" then
+      when {"ARR_CONV"}:
         process(ARR_CONV, function, params, c_expr);
-      elsif action_name = "ARR_CPY" then
+      when {"ARR_CPY"}:
         process(ARR_CPY, function, params, c_expr);
-      elsif action_name = "ARR_CREATE" then
+      when {"ARR_CREATE"}:
         process(ARR_CREATE, function, params, c_expr);
-      elsif action_name = "ARR_DESTR" then
+      when {"ARR_DESTR"}:
         process(ARR_DESTR, function, params, c_expr);
-      elsif action_name = "ARR_EXTEND" then
+      when {"ARR_EXTEND"}:
         process(ARR_EXTEND, function, params, c_expr);
-      elsif action_name = "ARR_GEN" then
+      when {"ARR_GEN"}:
         process(ARR_GEN, function, params, c_expr);
-      elsif action_name = "ARR_HEAD" then
+      when {"ARR_HEAD"}:
         process(ARR_HEAD, function, params, c_expr);
-      elsif action_name = "ARR_IDX" then
+      when {"ARR_IDX"}:
         process(ARR_IDX, function, params, c_expr);
-      elsif action_name = "ARR_LNG" then
+      when {"ARR_LNG"}:
         process(ARR_LNG, function, params, c_expr);
-      elsif action_name = "ARR_MAXIDX" then
+      when {"ARR_MAXIDX"}:
         process(ARR_MAXIDX, function, params, c_expr);
-      elsif action_name = "ARR_MINIDX" then
+      when {"ARR_MINIDX"}:
         process(ARR_MINIDX, function, params, c_expr);
-      elsif action_name = "ARR_PUSH" then
+      when {"ARR_PUSH"}:
         process(ARR_PUSH, function, params, c_expr);
-      elsif action_name = "ARR_RANGE" then
+      when {"ARR_RANGE"}:
         process(ARR_RANGE, function, params, c_expr);
-      elsif action_name = "ARR_REMOVE" then
+      when {"ARR_REMOVE"}:
         process(ARR_REMOVE, function, params, c_expr);
-      elsif action_name = "ARR_SORT" then
+      when {"ARR_SORT"}:
         process(ARR_SORT, function, params, c_expr);
-      elsif action_name = "ARR_SUBARR" then
+      when {"ARR_SUBARR"}:
         process(ARR_SUBARR, function, params, c_expr);
-      elsif action_name = "ARR_TIMES" then
+      when {"ARR_TIMES"}:
         process(ARR_TIMES, function, params, c_expr);
-      elsif action_name = "ARR_TAIL" then
+      when {"ARR_TAIL"}:
         process(ARR_TAIL, function, params, c_expr);
-      else
-        process_unknown_action(action_name, c_expr);
-      end if;
-    elsif action_prefix = "BIG" then
-      if action_name = "BIG_ABS" then
+      when {"BIG_ABS"}:
         process(BIG_ABS, function, params, c_expr);
-      elsif action_name = "BIG_ADD" then
+      when {"BIG_ADD"}:
         process(BIG_ADD, function, params, c_expr);
-      elsif action_name = "BIG_ADD_ASSIGN" then
+      when {"BIG_ADD_ASSIGN"}:
         process(BIG_ADD_ASSIGN, function, params, c_expr);
-      elsif action_name = "BIG_BIT_LENGTH" then
+      when {"BIG_BIT_LENGTH"}:
         process(BIG_BIT_LENGTH, function, params, c_expr);
-      elsif action_name = "BIG_CMP" then
+      when {"BIG_CMP"}:
         process(BIG_CMP, function, params, c_expr);
-      elsif action_name = "BIG_CONV" then
+      when {"BIG_CONV"}:
         process(BIG_CONV, function, params, c_expr);
-      elsif action_name = "BIG_CPY" then
+      when {"BIG_CPY"}:
         process(BIG_CPY, function, params, c_expr);
-      elsif action_name = "BIG_DECR" then
+      when {"BIG_DECR"}:
         process(BIG_DECR, function, params, c_expr);
-      elsif action_name = "BIG_DIV" then
+      when {"BIG_DIV"}:
         process(BIG_DIV, function, params, c_expr);
-      elsif action_name = "BIG_DIV_REM" then
+      when {"BIG_DIV_REM"}:
         process(BIG_DIV_REM, function, params, c_expr);
-      elsif action_name = "BIG_EQ" then
+      when {"BIG_EQ"}:
         process(BIG_EQ, function, params, c_expr);
-      elsif action_name = "BIG_FROM_BSTRI_BE" then
+      when {"BIG_FROM_BSTRI_BE"}:
         process(BIG_FROM_BSTRI_BE, function, params, c_expr);
-      elsif action_name = "BIG_FROM_BSTRI_LE" then
+      when {"BIG_FROM_BSTRI_LE"}:
         process(BIG_FROM_BSTRI_LE, function, params, c_expr);
-      elsif action_name = "BIG_GCD" then
+      when {"BIG_GCD"}:
         process(BIG_GCD, function, params, c_expr);
-      elsif action_name = "BIG_GE" then
+      when {"BIG_GE"}:
         process(BIG_GE, function, params, c_expr);
-      elsif action_name = "BIG_GT" then
+      when {"BIG_GT"}:
         process(BIG_GT, function, params, c_expr);
-      elsif action_name = "BIG_HASHCODE" then
+      when {"BIG_HASHCODE"}:
         process(BIG_HASHCODE, function, params, c_expr);
-      elsif action_name = "BIG_ICONV1" then
+      when {"BIG_ICONV1"}:
         process(BIG_ICONV1, function, params, c_expr);
-      elsif action_name = "BIG_ICONV3" then
+      when {"BIG_ICONV3"}:
         process(BIG_ICONV3, function, params, c_expr);
-      elsif action_name = "BIG_INCR" then
+      when {"BIG_INCR"}:
         process(BIG_INCR, function, params, c_expr);
-      elsif action_name = "BIG_IPOW" then
+      when {"BIG_IPOW"}:
         process(BIG_IPOW, function, params, c_expr);
-      elsif action_name = "BIG_LE" then
+      when {"BIG_LE"}:
         process(BIG_LE, function, params, c_expr);
-      elsif action_name = "BIG_LOG10" then
+      when {"BIG_LOG10"}:
         process(BIG_LOG10, function, params, c_expr);
-      elsif action_name = "BIG_LOG2" then
+      when {"BIG_LOG2"}:
         process(BIG_LOG2, function, params, c_expr);
-      elsif action_name = "BIG_LOWEST_SET_BIT" then
+      when {"BIG_LOWEST_SET_BIT"}:
         process(BIG_LOWEST_SET_BIT, function, params, c_expr);
-      elsif action_name = "BIG_LSHIFT" then
+      when {"BIG_LSHIFT"}:
         process(BIG_LSHIFT, function, params, c_expr);
-      elsif action_name = "BIG_LSHIFT_ASSIGN" then
+      when {"BIG_LSHIFT_ASSIGN"}:
         process(BIG_LSHIFT_ASSIGN, function, params, c_expr);
-      elsif action_name = "BIG_LT" then
+      when {"BIG_LT"}:
         process(BIG_LT, function, params, c_expr);
-      elsif action_name = "BIG_MDIV" then
+      when {"BIG_MDIV"}:
         process(BIG_MDIV, function, params, c_expr);
-      elsif action_name = "BIG_MOD" then
+      when {"BIG_MOD"}:
         process(BIG_MOD, function, params, c_expr);
-      elsif action_name = "BIG_MULT" then
+      when {"BIG_MULT"}:
         process(BIG_MULT, function, params, c_expr);
-      elsif action_name = "BIG_MULT_ASSIGN" then
+      when {"BIG_MULT_ASSIGN"}:
         process(BIG_MULT_ASSIGN, function, params, c_expr);
-      elsif action_name = "BIG_NE" then
+      when {"BIG_NE"}:
         process(BIG_NE, function, params, c_expr);
-      elsif action_name = "BIG_NEGATE" then
+      when {"BIG_NEGATE"}:
         process(BIG_NEGATE, function, params, c_expr);
-      elsif action_name = "BIG_ODD" then
+      when {"BIG_ODD"}:
         process(BIG_ODD, function, params, c_expr);
-      elsif action_name = "BIG_ORD" then
+      when {"BIG_ORD"}:
         process(BIG_ORD, function, params, c_expr);
-      elsif action_name = "BIG_PARSE" then
+      when {"BIG_PARSE"}:
         process(BIG_PARSE, function, params, c_expr);
-      elsif action_name = "BIG_PARSE_BASED" then
+      when {"BIG_PARSE_BASED"}:
         process(BIG_PARSE_BASED, function, params, c_expr);
-      elsif action_name = "BIG_PLUS" then
+      when {"BIG_PLUS"}:
         process(BIG_PLUS, function, params, c_expr);
-      elsif action_name = "BIG_PRED" then
+      when {"BIG_PRED"}:
         process(BIG_PRED, function, params, c_expr);
-      elsif action_name = "BIG_radix" then
+      when {"BIG_radix"}:
         process(BIG_radix, function, params, c_expr);
-      elsif action_name = "BIG_RADIX" then
+      when {"BIG_RADIX"}:
         process(BIG_RADIX, function, params, c_expr);
-      elsif action_name = "BIG_RAND" then
+      when {"BIG_RAND"}:
         process(BIG_RAND, function, params, c_expr);
-      elsif action_name = "BIG_REM" then
+      when {"BIG_REM"}:
         process(BIG_REM, function, params, c_expr);
-      elsif action_name = "BIG_RSHIFT" then
+      when {"BIG_RSHIFT"}:
         process(BIG_RSHIFT, function, params, c_expr);
-      elsif action_name = "BIG_RSHIFT_ASSIGN" then
+      when {"BIG_RSHIFT_ASSIGN"}:
         process(BIG_RSHIFT_ASSIGN, function, params, c_expr);
-      elsif action_name = "BIG_SBTR" then
+      when {"BIG_SBTR"}:
         process(BIG_SBTR, function, params, c_expr);
-      elsif action_name = "BIG_SBTR_ASSIGN" then
+      when {"BIG_SBTR_ASSIGN"}:
         process(BIG_SBTR_ASSIGN, function, params, c_expr);
-      elsif action_name = "BIG_STR" then
+      when {"BIG_STR"}:
         process(BIG_STR, function, params, c_expr);
-      elsif action_name = "BIG_SUCC" then
+      when {"BIG_SUCC"}:
         process(BIG_SUCC, function, params, c_expr);
-      elsif action_name = "BIG_TO_BSTRI_BE" then
+      when {"BIG_TO_BSTRI_BE"}:
         process(BIG_TO_BSTRI_BE, function, params, c_expr);
-      elsif action_name = "BIG_TO_BSTRI_LE" then
+      when {"BIG_TO_BSTRI_LE"}:
         process(BIG_TO_BSTRI_LE, function, params, c_expr);
-      elsif action_name = "BIG_VALUE" then
+      when {"BIG_VALUE"}:
         process(BIG_VALUE, function, params, c_expr);
-      else
-        process_unknown_action(action_name, c_expr);
-      end if;
-    elsif action_prefix = "BIN" then
-      if action_name = "BIN_AND" then
+      when {"BIN_AND"}:
         process(BIN_AND, function, params, c_expr);
-      elsif action_name = "BIN_AND_ASSIGN" then
+      when {"BIN_AND_ASSIGN"}:
         process(BIN_AND_ASSIGN, function, params, c_expr);
-      elsif action_name = "BIN_BIG" then
+      when {"BIN_BIG"}:
         process(BIN_BIG, function, params, c_expr);
-      elsif action_name = "BIN_BINARY" then
+      when {"BIN_BINARY"}:
         process(BIN_BINARY, function, params, c_expr);
-      elsif action_name = "BIN_CARD" then
+      when {"BIN_CARD"}:
         process(BIN_CARD, function, params, c_expr);
-      elsif action_name = "BIN_CMP" then
+      when {"BIN_CMP"}:
         process(BIN_CMP, function, params, c_expr);
-      elsif action_name = "BIN_GET_BINARY_FROM_SET" then
+      when {"BIN_GET_BINARY_FROM_SET"}:
         process(BIN_GET_BINARY_FROM_SET, function, params, c_expr);
-      elsif action_name = "BIN_LSHIFT" then
+      when {"BIN_LSHIFT"}:
         process(BIN_LSHIFT, function, params, c_expr);
-      elsif action_name = "BIN_LSHIFT_ASSIGN" then
+      when {"BIN_LSHIFT_ASSIGN"}:
         process(BIN_LSHIFT_ASSIGN, function, params, c_expr);
-      elsif action_name = "BIN_OR" then
+      when {"BIN_OR"}:
         process(BIN_OR, function, params, c_expr);
-      elsif action_name = "BIN_OR_ASSIGN" then
+      when {"BIN_OR_ASSIGN"}:
         process(BIN_OR_ASSIGN, function, params, c_expr);
-      elsif action_name = "BIN_radix" then
+      when {"BIN_radix"}:
         process(BIN_radix, function, params, c_expr);
-      elsif action_name = "BIN_RADIX" then
+      when {"BIN_RADIX"}:
         process(BIN_RADIX, function, params, c_expr);
-      elsif action_name = "BIN_RSHIFT" then
+      when {"BIN_RSHIFT"}:
         process(BIN_RSHIFT, function, params, c_expr);
-      elsif action_name = "BIN_RSHIFT_ASSIGN" then
+      when {"BIN_RSHIFT_ASSIGN"}:
         process(BIN_RSHIFT_ASSIGN, function, params, c_expr);
-      elsif action_name = "BIN_STR" then
+      when {"BIN_STR"}:
         process(BIN_STR, function, params, c_expr);
-      elsif action_name = "BIN_XOR" then
+      when {"BIN_XOR"}:
         process(BIN_XOR, function, params, c_expr);
-      elsif action_name = "BIN_XOR_ASSIGN" then
+      when {"BIN_XOR_ASSIGN"}:
         process(BIN_XOR_ASSIGN, function, params, c_expr);
-      else
-        process_unknown_action(action_name, c_expr);
-      end if;
-    elsif action_prefix = "BLN" then
-      if action_name = "BLN_AND" then
+      when {"BLN_AND"}:
         process(BLN_AND, function, params, c_expr);
-      elsif action_name = "BLN_CPY" then
+      when {"BLN_CPY"}:
         process(BLN_CPY, function, params, c_expr);
-      elsif action_name = "BLN_EQ" then
+      when {"BLN_EQ"}:
         process(BLN_EQ, function, params, c_expr);
-      elsif action_name = "BLN_GE" then
+      when {"BLN_GE"}:
         process(BLN_GE, function, params, c_expr);
-      elsif action_name = "BLN_GT" then
+      when {"BLN_GT"}:
         process(BLN_GT, function, params, c_expr);
-      elsif action_name = "BLN_ICONV1" then
+      when {"BLN_ICONV1"}:
         process(BLN_ICONV1, function, params, c_expr);
-      elsif action_name = "BLN_ICONV3" then
+      when {"BLN_ICONV3"}:
         process(BLN_ICONV3, function, params, c_expr);
-      elsif action_name = "BLN_LE" then
+      when {"BLN_LE"}:
         process(BLN_LE, function, params, c_expr);
-      elsif action_name = "BLN_LT" then
+      when {"BLN_LT"}:
         process(BLN_LT, function, params, c_expr);
-      elsif action_name = "BLN_NE" then
+      when {"BLN_NE"}:
         process(BLN_NE, function, params, c_expr);
-      elsif action_name = "BLN_NOT" then
+      when {"BLN_NOT"}:
         process(BLN_NOT, function, params, c_expr);
-      elsif action_name = "BLN_OR" then
+      when {"BLN_OR"}:
         process(BLN_OR, function, params, c_expr);
-      elsif action_name = "BLN_ORD" then
+      when {"BLN_ORD"}:
         process(BLN_ORD, function, params, c_expr);
-      elsif action_name = "BLN_VALUE" then
+      when {"BLN_VALUE"}:
         process(BLN_VALUE, function, params, c_expr);
-      else
-        process_unknown_action(action_name, c_expr);
-      end if;
-    elsif action_prefix = "BST" then
-      if action_name = "BST_APPEND" then
+      when {"BST_APPEND"}:
         process(BST_APPEND, function, params, c_expr);
-      elsif action_name = "BST_CMP" then
+      when {"BST_CMP"}:
         process(BST_CMP, function, params, c_expr);
-      elsif action_name = "BST_CPY" then
+      when {"BST_CPY"}:
         process(BST_CPY, function, params, c_expr);
-      elsif action_name = "BST_EQ" then
+      when {"BST_EQ"}:
         process(BST_EQ, function, params, c_expr);
-      elsif action_name = "BST_HASHCODE" then
+      when {"BST_HASHCODE"}:
         process(BST_HASHCODE, function, params, c_expr);
-      elsif action_name = "BST_IDX" then
+      when {"BST_IDX"}:
         process(BST_IDX, function, params, c_expr);
-      elsif action_name = "BST_LNG" then
+      when {"BST_LNG"}:
         process(BST_LNG, function, params, c_expr);
-      elsif action_name = "BST_NE" then
+      when {"BST_NE"}:
         process(BST_NE, function, params, c_expr);
-      elsif action_name = "BST_PARSE" then
+      when {"BST_PARSE"}:
         process(BST_PARSE, function, params, c_expr);
-      elsif action_name = "BST_STR" then
+      when {"BST_STR"}:
         process(BST_STR, function, params, c_expr);
-      elsif action_name = "BST_VALUE" then
+      when {"BST_VALUE"}:
         process(BST_VALUE, function, params, c_expr);
-      else
-        process_unknown_action(action_name, c_expr);
-      end if;
-    elsif action_prefix = "CHR" then
-      if action_name = "CHR_CLIT" then
+      when {"CHR_CLIT"}:
         process(CHR_CLIT, function, params, c_expr);
-      elsif action_name = "CHR_CMP" then
+      when {"CHR_CMP"}:
         process(CHR_CMP, function, params, c_expr);
-      elsif action_name = "CHR_CONV" then
+      when {"CHR_CONV"}:
         process(CHR_CONV, function, params, c_expr);
-      elsif action_name = "CHR_CPY" then
+      when {"CHR_CPY"}:
         process(CHR_CPY, function, params, c_expr);
-      elsif action_name = "CHR_EQ" then
+      when {"CHR_EQ"}:
         process(CHR_EQ, function, params, c_expr);
-      elsif action_name = "CHR_DECR" then
+      when {"CHR_DECR"}:
         process(CHR_DECR, function, params, c_expr);
-      elsif action_name = "CHR_GE" then
+      when {"CHR_GE"}:
         process(CHR_GE, function, params, c_expr);
-      elsif action_name = "CHR_GT" then
+      when {"CHR_GT"}:
         process(CHR_GT, function, params, c_expr);
-      elsif action_name = "CHR_HASHCODE" then
+      when {"CHR_HASHCODE"}:
         process(CHR_HASHCODE, function, params, c_expr);
-      elsif action_name = "CHR_ICONV1" then
+      when {"CHR_ICONV1"}:
         process(CHR_ICONV1, function, params, c_expr);
-      elsif action_name = "CHR_ICONV3" then
+      when {"CHR_ICONV3"}:
         process(CHR_ICONV3, function, params, c_expr);
-      elsif action_name = "CHR_INCR" then
+      when {"CHR_INCR"}:
         process(CHR_INCR, function, params, c_expr);
-      elsif action_name = "CHR_IS_LETTER" then
+      when {"CHR_IS_LETTER"}:
         process(CHR_IS_LETTER, function, params, c_expr);
-      elsif action_name = "CHR_LE" then
+      when {"CHR_LE"}:
         process(CHR_LE, function, params, c_expr);
-      elsif action_name = "CHR_LOW" then
+      when {"CHR_LOW"}:
         process(CHR_LOW, function, params, c_expr);
-      elsif action_name = "CHR_LT" then
+      when {"CHR_LT"}:
         process(CHR_LT, function, params, c_expr);
-      elsif action_name = "CHR_NE" then
+      when {"CHR_NE"}:
         process(CHR_NE, function, params, c_expr);
-      elsif action_name = "CHR_ORD" then
+      when {"CHR_ORD"}:
         process(CHR_ORD, function, params, c_expr);
-      elsif action_name = "CHR_PRED" then
+      when {"CHR_PRED"}:
         process(CHR_PRED, function, params, c_expr);
-      elsif action_name = "CHR_STR" then
+      when {"CHR_STR"}:
         process(CHR_STR, function, params, c_expr);
-      elsif action_name = "CHR_SUCC" then
+      when {"CHR_SUCC"}:
         process(CHR_SUCC, function, params, c_expr);
-      elsif action_name = "CHR_UP" then
+      when {"CHR_UP"}:
         process(CHR_UP, function, params, c_expr);
-      elsif action_name = "CHR_VALUE" then
+      when {"CHR_VALUE"}:
         process(CHR_VALUE, function, params, c_expr);
-      elsif action_name = "CHR_WIDTH" then
+      when {"CHR_WIDTH"}:
         process(CHR_WIDTH, function, params, c_expr);
-      else
-        process_unknown_action(action_name, c_expr);
-      end if;
-    elsif action_prefix = "CMD" then
-      if action_name = "CMD_BIG_FILESIZE" then
+      when {"CMD_BIG_FILESIZE"}:
         process(CMD_BIG_FILESIZE, function, params, c_expr);
-      elsif action_name = "CMD_CHDIR" then
+      when {"CMD_CHDIR"}:
         process(CMD_CHDIR, function, params, c_expr);
-      elsif action_name = "CMD_CLONE_FILE" then
+      when {"CMD_CLONE_FILE"}:
         process(CMD_CLONE_FILE, function, params, c_expr);
-      elsif action_name = "CMD_CONFIG_VALUE" then
+      when {"CMD_CONFIG_VALUE"}:
         process(CMD_CONFIG_VALUE, function, params, c_expr);
-      elsif action_name = "CMD_COPY_FILE" then
+      when {"CMD_COPY_FILE"}:
         process(CMD_COPY_FILE, function, params, c_expr);
-      elsif action_name = "CMD_ENVIRONMENT" then
+      when {"CMD_ENVIRONMENT"}:
         process(CMD_ENVIRONMENT, function, params, c_expr);
-      elsif action_name = "CMD_FILEMODE" then
+      when {"CMD_FILEMODE"}:
         process(CMD_FILEMODE, function, params, c_expr);
-      elsif action_name = "CMD_FILESIZE" then
+      when {"CMD_FILESIZE"}:
         process(CMD_FILESIZE, function, params, c_expr);
-      elsif action_name = "CMD_FILETYPE" then
+      when {"CMD_FILETYPE"}:
         process(CMD_FILETYPE, function, params, c_expr);
-      elsif action_name = "CMD_FILETYPE_SL" then
+      when {"CMD_FILETYPE_SL"}:
         process(CMD_FILETYPE_SL, function, params, c_expr);
-      elsif action_name = "CMD_GETCWD" then
+      when {"CMD_GETCWD"}:
         process(CMD_GETCWD, function, params, c_expr);
-      elsif action_name = "CMD_GETENV" then
+      when {"CMD_GETENV"}:
         process(CMD_GETENV, function, params, c_expr);
-      elsif action_name = "CMD_GET_ATIME" then
+      when {"CMD_GET_ATIME"}:
         process(CMD_GET_ATIME, function, params, c_expr);
-      elsif action_name = "CMD_GET_CTIME" then
+      when {"CMD_GET_CTIME"}:
         process(CMD_GET_CTIME, function, params, c_expr);
-      elsif action_name = "CMD_GET_MTIME" then
+      when {"CMD_GET_MTIME"}:
         process(CMD_GET_MTIME, function, params, c_expr);
-      elsif action_name = "CMD_GET_SEARCH_PATH" then
+      when {"CMD_GET_SEARCH_PATH"}:
         process(CMD_GET_SEARCH_PATH, function, params, c_expr);
-      elsif action_name = "CMD_HOME_DIR" then
+      when {"CMD_HOME_DIR"}:
         process(CMD_HOME_DIR, function, params, c_expr);
-      elsif action_name = "CMD_LS" then
+      when {"CMD_LS"}:
         process(CMD_LS, function, params, c_expr);
-      elsif action_name = "CMD_MKDIR" then
+      when {"CMD_MKDIR"}:
         process(CMD_MKDIR, function, params, c_expr);
-      elsif action_name = "CMD_MOVE" then
+      when {"CMD_MOVE"}:
         process(CMD_MOVE, function, params, c_expr);
-      elsif action_name = "CMD_READLINK" then
+      when {"CMD_READLINK"}:
         process(CMD_READLINK, function, params, c_expr);
-      elsif action_name = "CMD_REMOVE_FILE" then
+      when {"CMD_REMOVE_FILE"}:
         process(CMD_REMOVE_FILE, function, params, c_expr);
-      elsif action_name = "CMD_REMOVE_TREE" then
+      when {"CMD_REMOVE_TREE"}:
         process(CMD_REMOVE_TREE, function, params, c_expr);
-      elsif action_name = "CMD_SETENV" then
+      when {"CMD_SETENV"}:
         process(CMD_SETENV, function, params, c_expr);
-      elsif action_name = "CMD_SET_ATIME" then
+      when {"CMD_SET_ATIME"}:
         process(CMD_SET_ATIME, function, params, c_expr);
-      elsif action_name = "CMD_SET_FILEMODE" then
+      when {"CMD_SET_FILEMODE"}:
         process(CMD_SET_FILEMODE, function, params, c_expr);
-      elsif action_name = "CMD_SET_MTIME" then
+      when {"CMD_SET_MTIME"}:
         process(CMD_SET_MTIME, function, params, c_expr);
-      elsif action_name = "CMD_SET_SEARCH_PATH" then
+      when {"CMD_SET_SEARCH_PATH"}:
         process(CMD_SET_SEARCH_PATH, function, params, c_expr);
-      elsif action_name = "CMD_SHELL" then
+      when {"CMD_SHELL"}:
         process(CMD_SHELL, function, params, c_expr);
-      elsif action_name = "CMD_SHELL_ESCAPE" then
+      when {"CMD_SHELL_ESCAPE"}:
         process(CMD_SHELL_ESCAPE, function, params, c_expr);
-      elsif action_name = "CMD_SYMLINK" then
+      when {"CMD_SYMLINK"}:
         process(CMD_SYMLINK, function, params, c_expr);
-      elsif action_name = "CMD_TO_OS_PATH" then
+      when {"CMD_TO_OS_PATH"}:
         process(CMD_TO_OS_PATH, function, params, c_expr);
-      else
-        process_unknown_action(action_name, c_expr);
-      end if;
-    elsif action_prefix = "CON" then
-      consoleLibraryUsed := TRUE;
-      if action_name = "CON_CLEAR" then
+      when {"CON_CLEAR"}:
+        consoleLibraryUsed := TRUE;
         process(CON_CLEAR, function, params, c_expr);
-      elsif action_name = "CON_CURSOR" then
+      when {"CON_CURSOR"}:
+        consoleLibraryUsed := TRUE;
         process(CON_CURSOR, function, params, c_expr);
-      elsif action_name = "CON_FLUSH" then
+      when {"CON_FLUSH"}:
+        consoleLibraryUsed := TRUE;
         process(CON_FLUSH, function, params, c_expr);
-      elsif action_name = "CON_HEIGHT" then
+      when {"CON_HEIGHT"}:
+        consoleLibraryUsed := TRUE;
         process(CON_HEIGHT, function, params, c_expr);
-      elsif action_name = "CON_H_SCL" then
+      when {"CON_H_SCL"}:
+        consoleLibraryUsed := TRUE;
         process(CON_H_SCL, function, params, c_expr);
-      elsif action_name = "CON_OPEN" then
+      when {"CON_OPEN"}:
+        consoleLibraryUsed := TRUE;
         process(CON_OPEN, function, params, c_expr);
-      elsif action_name = "CON_SETPOS" then
+      when {"CON_SETPOS"}:
+        consoleLibraryUsed := TRUE;
         process(CON_SETPOS, function, params, c_expr);
-      elsif action_name = "CON_V_SCL" then
+      when {"CON_V_SCL"}:
+        consoleLibraryUsed := TRUE;
         process(CON_V_SCL, function, params, c_expr);
-      elsif action_name = "CON_WIDTH" then
+      when {"CON_WIDTH"}:
+        consoleLibraryUsed := TRUE;
         process(CON_WIDTH, function, params, c_expr);
-      elsif action_name = "CON_WRITE" then
+      when {"CON_WRITE"}:
+        consoleLibraryUsed := TRUE;
         process(CON_WRITE, function, params, c_expr);
-      else
-        process_unknown_action(action_name, c_expr);
-      end if;
-    elsif action_prefix = "DCL" then
-      if action_name = "DCL_CONST" then
+      when {"DCL_CONST"}:
         process(DCL_CONST, function, params, c_expr);
-      elsif action_name = "DCL_FWD" then
+      when {"DCL_FWD"}:
         process(DCL_FWD, function, params, c_expr);
-      elsif action_name = "DCL_GLOBAL" then
+      when {"DCL_GLOBAL"}:
         process(DCL_GLOBAL, function, params, c_expr);
-      elsif action_name = "DCL_VAR" then
+      when {"DCL_VAR"}:
         process(DCL_VAR, function, params, c_expr);
-      else
-        process_unknown_action(action_name, c_expr);
-      end if;
-    elsif action_prefix = "DRW" then
-      drawLibraryUsed := TRUE;
-      if action_name = "DRW_ARC" then
+      when {"DRW_ARC"}:
+        drawLibraryUsed := TRUE;
         process(DRW_ARC, function, params, c_expr);
-      elsif action_name = "DRW_ARC2" then
+      when {"DRW_ARC2"}:
+        drawLibraryUsed := TRUE;
         process(DRW_ARC2, function, params, c_expr);
-      elsif action_name = "DRW_BACKGROUND" then
+      when {"DRW_BACKGROUND"}:
+        drawLibraryUsed := TRUE;
         process(DRW_BACKGROUND, function, params, c_expr);
-      elsif action_name = "DRW_CIRCLE" then
+      when {"DRW_CIRCLE"}:
+        drawLibraryUsed := TRUE;
         process(DRW_CIRCLE, function, params, c_expr);
-      elsif action_name = "DRW_CLEAR" then
+      when {"DRW_CLEAR"}:
+        drawLibraryUsed := TRUE;
         process(DRW_CLEAR, function, params, c_expr);
-      elsif action_name = "DRW_CMP" then
+      when {"DRW_CMP"}:
+        drawLibraryUsed := TRUE;
         process(DRW_CMP, function, params, c_expr);
-      elsif action_name = "DRW_COLOR" then
+      when {"DRW_COLOR"}:
+        drawLibraryUsed := TRUE;
         process(DRW_COLOR, function, params, c_expr);
-      elsif action_name = "DRW_CONVPOINTLIST" then
+      when {"DRW_CONVPOINTLIST"}:
+        drawLibraryUsed := TRUE;
         process(DRW_CONVPOINTLIST, function, params, c_expr);
-      elsif action_name = "DRW_COPYAREA" then
+      when {"DRW_COPYAREA"}:
+        drawLibraryUsed := TRUE;
         process(DRW_COPYAREA, function, params, c_expr);
-      elsif action_name = "DRW_CPY" then
+      when {"DRW_CPY"}:
+        drawLibraryUsed := TRUE;
         process(DRW_CPY, function, params, c_expr);
-      elsif action_name = "DRW_EQ" then
+      when {"DRW_EQ"}:
+        drawLibraryUsed := TRUE;
         process(DRW_EQ, function, params, c_expr);
-      elsif action_name = "DRW_FARCCHORD" then
+      when {"DRW_FARCCHORD"}:
+        drawLibraryUsed := TRUE;
         process(DRW_FARCCHORD, function, params, c_expr);
-      elsif action_name = "DRW_FARCPIESLICE" then
+      when {"DRW_FARCPIESLICE"}:
+        drawLibraryUsed := TRUE;
         process(DRW_FARCPIESLICE, function, params, c_expr);
-      elsif action_name = "DRW_FCIRCLE" then
+      when {"DRW_FCIRCLE"}:
+        drawLibraryUsed := TRUE;
         process(DRW_FCIRCLE, function, params, c_expr);
-      elsif action_name = "DRW_FELLIPSE" then
+      when {"DRW_FELLIPSE"}:
+        drawLibraryUsed := TRUE;
         process(DRW_FELLIPSE, function, params, c_expr);
-      elsif action_name = "DRW_FLUSH" then
+      when {"DRW_FLUSH"}:
+        drawLibraryUsed := TRUE;
         process(DRW_FLUSH, function, params, c_expr);
-      elsif action_name = "DRW_FPOLYLINE" then
+      when {"DRW_FPOLYLINE"}:
+        drawLibraryUsed := TRUE;
         process(DRW_FPOLYLINE, function, params, c_expr);
-      elsif action_name = "DRW_GENPOINTLIST" then
+      when {"DRW_GENPOINTLIST"}:
+        drawLibraryUsed := TRUE;
         process(DRW_GENPOINTLIST, function, params, c_expr);
-      elsif action_name = "DRW_GET" then
+      when {"DRW_GET"}:
+        drawLibraryUsed := TRUE;
         process(DRW_GET, function, params, c_expr);
-      elsif action_name = "DRW_GETIMAGE" then
+      when {"DRW_GETIMAGE"}:
+        drawLibraryUsed := TRUE;
         process(DRW_GETIMAGE, function, params, c_expr);
-      elsif action_name = "DRW_GETIMAGEPIXEL" then
+      when {"DRW_GETIMAGEPIXEL"}:
+        drawLibraryUsed := TRUE;
         process(DRW_GETIMAGEPIXEL, function, params, c_expr);
-      elsif action_name = "DRW_GETPIXEL" then
+      when {"DRW_GETPIXEL"}:
+        drawLibraryUsed := TRUE;
         process(DRW_GETPIXEL, function, params, c_expr);
-      elsif action_name = "DRW_HASHCODE" then
+      when {"DRW_HASHCODE"}:
+        drawLibraryUsed := TRUE;
         process(DRW_HASHCODE, function, params, c_expr);
-      elsif action_name = "DRW_HEIGHT" then
+      when {"DRW_HEIGHT"}:
+        drawLibraryUsed := TRUE;
         process(DRW_HEIGHT, function, params, c_expr);
-      elsif action_name = "DRW_IMAGE" then
+      when {"DRW_IMAGE"}:
+        drawLibraryUsed := TRUE;
         process(DRW_IMAGE, function, params, c_expr);
-      elsif action_name = "DRW_LINE" then
+      when {"DRW_LINE"}:
+        drawLibraryUsed := TRUE;
         process(DRW_LINE, function, params, c_expr);
-      elsif action_name = "DRW_NE" then
+      when {"DRW_NE"}:
+        drawLibraryUsed := TRUE;
         process(DRW_NE, function, params, c_expr);
-      elsif action_name = "DRW_NEW_PIXMAP" then
+      when {"DRW_NEW_PIXMAP"}:
+        drawLibraryUsed := TRUE;
         process(DRW_NEW_PIXMAP, function, params, c_expr);
-      elsif action_name = "DRW_OPEN" then
+      when {"DRW_OPEN"}:
+        drawLibraryUsed := TRUE;
         process(DRW_OPEN, function, params, c_expr);
-      elsif action_name = "DRW_OPEN_SUB_WINDOW" then
+      when {"DRW_OPEN_SUB_WINDOW"}:
+        drawLibraryUsed := TRUE;
         process(DRW_OPEN_SUB_WINDOW, function, params, c_expr);
-      elsif action_name = "DRW_PARC" then
+      when {"DRW_PARC"}:
+        drawLibraryUsed := TRUE;
         process(DRW_PARC, function, params, c_expr);
-      elsif action_name = "DRW_PCIRCLE" then
+      when {"DRW_PCIRCLE"}:
+        drawLibraryUsed := TRUE;
         process(DRW_PCIRCLE, function, params, c_expr);
-      elsif action_name = "DRW_PFARCCHORD" then
+      when {"DRW_PFARCCHORD"}:
+        drawLibraryUsed := TRUE;
         process(DRW_PFARCCHORD, function, params, c_expr);
-      elsif action_name = "DRW_PFARCPIESLICE" then
+      when {"DRW_PFARCPIESLICE"}:
+        drawLibraryUsed := TRUE;
         process(DRW_PFARCPIESLICE, function, params, c_expr);
-      elsif action_name = "DRW_PFCIRCLE" then
+      when {"DRW_PFCIRCLE"}:
+        drawLibraryUsed := TRUE;
         process(DRW_PFCIRCLE, function, params, c_expr);
-      elsif action_name = "DRW_PFELLIPSE" then
+      when {"DRW_PFELLIPSE"}:
+        drawLibraryUsed := TRUE;
         process(DRW_PFELLIPSE, function, params, c_expr);
-      elsif action_name = "DRW_PIXELTORGB" then
+      when {"DRW_PIXELTORGB"}:
+        drawLibraryUsed := TRUE;
         process(DRW_PIXELTORGB, function, params, c_expr);
-      elsif action_name = "DRW_PLINE" then
+      when {"DRW_PLINE"}:
+        drawLibraryUsed := TRUE;
         process(DRW_PLINE, function, params, c_expr);
-      elsif action_name = "DRW_POINT" then
+      when {"DRW_POINT"}:
+        drawLibraryUsed := TRUE;
         process(DRW_POINT, function, params, c_expr);
-      elsif action_name = "DRW_POINTER_XPOS" then
+      when {"DRW_POINTER_XPOS"}:
+        drawLibraryUsed := TRUE;
         process(DRW_POINTER_XPOS, function, params, c_expr);
-      elsif action_name = "DRW_POINTER_YPOS" then
+      when {"DRW_POINTER_YPOS"}:
+        drawLibraryUsed := TRUE;
         process(DRW_POINTER_YPOS, function, params, c_expr);
-      elsif action_name = "DRW_POLYLINE" then
+      when {"DRW_POLYLINE"}:
+        drawLibraryUsed := TRUE;
         process(DRW_POLYLINE, function, params, c_expr);
-      elsif action_name = "DRW_PPOINT" then
+      when {"DRW_PPOINT"}:
+        drawLibraryUsed := TRUE;
         process(DRW_PPOINT, function, params, c_expr);
-      elsif action_name = "DRW_PRECT" then
+      when {"DRW_PRECT"}:
+        drawLibraryUsed := TRUE;
         process(DRW_PRECT, function, params, c_expr);
-      elsif action_name = "DRW_PUT" then
+      when {"DRW_PUT"}:
+        drawLibraryUsed := TRUE;
         process(DRW_PUT, function, params, c_expr);
-      elsif action_name = "DRW_RECT" then
+      when {"DRW_RECT"}:
+        drawLibraryUsed := TRUE;
         process(DRW_RECT, function, params, c_expr);
-      elsif action_name = "DRW_RGBCOL" then
+      when {"DRW_RGBCOL"}:
+        drawLibraryUsed := TRUE;
         process(DRW_RGBCOL, function, params, c_expr);
-      elsif action_name = "DRW_SETCONTENT" then
+      when {"DRW_SETCONTENT"}:
+        drawLibraryUsed := TRUE;
         process(DRW_SETCONTENT, function, params, c_expr);
-      elsif action_name = "DRW_SETPOS" then
+      when {"DRW_SETPOS"}:
+        drawLibraryUsed := TRUE;
         process(DRW_SETPOS, function, params, c_expr);
-      elsif action_name = "DRW_SETTRANSPARENTCOLOR" then
+      when {"DRW_SETTRANSPARENTCOLOR"}:
+        drawLibraryUsed := TRUE;
         process(DRW_SETTRANSPARENTCOLOR, function, params, c_expr);
-      elsif action_name = "DRW_TEXT" then
+      when {"DRW_TEXT"}:
+        drawLibraryUsed := TRUE;
         process(DRW_TEXT, function, params, c_expr);
-      elsif action_name = "DRW_TOBOTTOM" then
+      when {"DRW_TOBOTTOM"}:
+        drawLibraryUsed := TRUE;
         process(DRW_TOBOTTOM, function, params, c_expr);
-      elsif action_name = "DRW_TOTOP" then
+      when {"DRW_TOTOP"}:
+        drawLibraryUsed := TRUE;
         process(DRW_TOTOP, function, params, c_expr);
-      elsif action_name = "DRW_VALUE" then
+      when {"DRW_VALUE"}:
+        drawLibraryUsed := TRUE;
         process(DRW_VALUE, function, params, c_expr);
-      elsif action_name = "DRW_WIDTH" then
+      when {"DRW_WIDTH"}:
+        drawLibraryUsed := TRUE;
         process(DRW_WIDTH, function, params, c_expr);
-      elsif action_name = "DRW_XPOS" then
+      when {"DRW_XPOS"}:
+        drawLibraryUsed := TRUE;
         process(DRW_XPOS, function, params, c_expr);
-      elsif action_name = "DRW_YPOS" then
+      when {"DRW_YPOS"}:
+        drawLibraryUsed := TRUE;
         process(DRW_YPOS, function, params, c_expr);
-      else
-        process_unknown_action(action_name, c_expr);
-      end if;
-    elsif action_prefix = "ENU" then
-      if action_name = "ENU_CONV" then
+      when {"ENU_CONV"}:
         process(ENU_CONV, function, params, c_expr);
-      elsif action_name = "ENU_CPY" then
+      when {"ENU_CPY"}:
         process(ENU_CPY, function, params, c_expr);
-      elsif action_name = "ENU_EQ" then
+      when {"ENU_EQ"}:
         process(ENU_EQ, function, params, c_expr);
-      elsif action_name = "ENU_ICONV2" then
+      when {"ENU_ICONV2"}:
         process(ENU_ICONV2, function, params, c_expr);
-      elsif action_name = "ENU_NE" then
+      when {"ENU_NE"}:
         process(ENU_NE, function, params, c_expr);
-      elsif action_name = "ENU_ORD2" then
+      when {"ENU_ORD2"}:
         process(ENU_ORD2, function, params, c_expr);
-      elsif action_name = "ENU_VALUE" then
+      when {"ENU_VALUE"}:
         process(ENU_VALUE, function, params, c_expr);
-      else
-        process_unknown_action(action_name, c_expr);
-      end if;
-    elsif action_prefix = "FIL" then
-      if action_name = "FIL_BIG_LNG" then
+      when {"FIL_BIG_LNG"}:
         process(FIL_BIG_LNG, function, params, c_expr);
-      elsif action_name = "FIL_BIG_SEEK" then
+      when {"FIL_BIG_SEEK"}:
         process(FIL_BIG_SEEK, function, params, c_expr);
-      elsif action_name = "FIL_BIG_TELL" then
+      when {"FIL_BIG_TELL"}:
         process(FIL_BIG_TELL, function, params, c_expr);
-      elsif action_name = "FIL_CLOSE" then
+      when {"FIL_CLOSE"}:
         process(FIL_CLOSE, function, params, c_expr);
-      elsif action_name = "FIL_CPY" then
+      when {"FIL_CPY"}:
         process(FIL_CPY, function, params, c_expr);
-      elsif action_name = "FIL_EMPTY" then
+      when {"FIL_EMPTY"}:
         process(FIL_EMPTY, function, params, c_expr);
-      elsif action_name = "FIL_EOF" then
+      when {"FIL_EOF"}:
         process(FIL_EOF, function, params, c_expr);
-      elsif action_name = "FIL_EQ" then
+      when {"FIL_EQ"}:
         process(FIL_EQ, function, params, c_expr);
-      elsif action_name = "FIL_ERR" then
+      when {"FIL_ERR"}:
         process(FIL_ERR, function, params, c_expr);
-      elsif action_name = "FIL_FLUSH" then
+      when {"FIL_FLUSH"}:
         process(FIL_FLUSH, function, params, c_expr);
-      elsif action_name = "FIL_GETC" then
+      when {"FIL_GETC"}:
         process(FIL_GETC, function, params, c_expr);
-      elsif action_name = "FIL_GETS" then
+      when {"FIL_GETS"}:
         process(FIL_GETS, function, params, c_expr);
-      elsif action_name = "FIL_HAS_NEXT" then
+      when {"FIL_HAS_NEXT"}:
         process(FIL_HAS_NEXT, function, params, c_expr);
-      elsif action_name = "FIL_IN" then
+      when {"FIL_IN"}:
         process(FIL_IN, function, params, c_expr);
-      elsif action_name = "FIL_INPUT_READY" then
+      when {"FIL_INPUT_READY"}:
         process(FIL_INPUT_READY, function, params, c_expr);
-      elsif action_name = "FIL_LINE_READ" then
+      when {"FIL_LINE_READ"}:
         process(FIL_LINE_READ, function, params, c_expr);
-      elsif action_name = "FIL_LIT" then
+      when {"FIL_LIT"}:
         process(FIL_LIT, function, params, c_expr);
-      elsif action_name = "FIL_LNG" then
+      when {"FIL_LNG"}:
         process(FIL_LNG, function, params, c_expr);
-      elsif action_name = "FIL_NE" then
+      when {"FIL_NE"}:
         process(FIL_NE, function, params, c_expr);
-      elsif action_name = "FIL_OPEN" then
+      when {"FIL_OPEN"}:
         process(FIL_OPEN, function, params, c_expr);
-      elsif action_name = "FIL_OPEN_NULL_DEVICE" then
+      when {"FIL_OPEN_NULL_DEVICE"}:
         process(FIL_OPEN_NULL_DEVICE, function, params, c_expr);
-      elsif action_name = "FIL_OUT" then
+      when {"FIL_OUT"}:
         process(FIL_OUT, function, params, c_expr);
-      elsif action_name = "FIL_PCLOSE" then
+      when {"FIL_PCLOSE"}:
         process(FIL_PCLOSE, function, params, c_expr);
-      elsif action_name = "FIL_PIPE" then
+      when {"FIL_PIPE"}:
         process(FIL_PIPE, function, params, c_expr);
-      elsif action_name = "FIL_POPEN" then
+      when {"FIL_POPEN"}:
         process(FIL_POPEN, function, params, c_expr);
-      elsif action_name = "FIL_PRINT" then
+      when {"FIL_PRINT"}:
         process(FIL_PRINT, function, params, c_expr);
-      elsif action_name = "FIL_SEEK" then
+      when {"FIL_SEEK"}:
         process(FIL_SEEK, function, params, c_expr);
-      elsif action_name = "FIL_SETBUF" then
+      when {"FIL_SETBUF"}:
         process(FIL_SETBUF, function, params, c_expr);
-      elsif action_name = "FIL_TELL" then
+      when {"FIL_TELL"}:
         process(FIL_TELL, function, params, c_expr);
-      elsif action_name = "FIL_VALUE" then
+      when {"FIL_VALUE"}:
         process(FIL_VALUE, function, params, c_expr);
-      elsif action_name = "FIL_WRITE" then
+      when {"FIL_WRITE"}:
         process(FIL_WRITE, function, params, c_expr);
-      elsif action_name = "FIL_WORD_READ" then
+      when {"FIL_WORD_READ"}:
         process(FIL_WORD_READ, function, params, c_expr);
-      else
-        process_unknown_action(action_name, c_expr);
-      end if;
-    elsif action_prefix = "FLT" then
-      if action_name = "FLT_ABS" then
+      when {"FLT_ABS"}:
         process(FLT_ABS, function, params, c_expr);
-      elsif action_name = "FLT_ACOS" then
+      when {"FLT_ACOS"}:
         process(FLT_ACOS, function, params, c_expr);
-      elsif action_name = "FLT_ADD" then
+      when {"FLT_ADD"}:
         process(FLT_ADD, function, params, c_expr);
-      elsif action_name = "FLT_ADD_ASSIGN" then
+      when {"FLT_ADD_ASSIGN"}:
         process(FLT_ADD_ASSIGN, function, params, c_expr);
-      elsif action_name = "FLT_ASIN" then
+      when {"FLT_ASIN"}:
         process(FLT_ASIN, function, params, c_expr);
-      elsif action_name = "FLT_ATAN" then
+      when {"FLT_ATAN"}:
         process(FLT_ATAN, function, params, c_expr);
-      elsif action_name = "FLT_ATAN2" then
+      when {"FLT_ATAN2"}:
         process(FLT_ATAN2, function, params, c_expr);
-      elsif action_name = "FLT_BITS2DOUBLE" then
+      when {"FLT_BITS2DOUBLE"}:
         process(FLT_BITS2DOUBLE, function, params, c_expr);
-      elsif action_name = "FLT_BITS2SINGLE" then
+      when {"FLT_BITS2SINGLE"}:
         process(FLT_BITS2SINGLE, function, params, c_expr);
-      elsif action_name = "FLT_CAST" then
+      when {"FLT_CAST"}:
         process(FLT_CAST, function, params, c_expr);
-      elsif action_name = "FLT_CEIL" then
+      when {"FLT_CEIL"}:
         process(FLT_CEIL, function, params, c_expr);
-      elsif action_name = "FLT_CMP" then
+      when {"FLT_CMP"}:
         process(FLT_CMP, function, params, c_expr);
-      elsif action_name = "FLT_COS" then
+      when {"FLT_COS"}:
         process(FLT_COS, function, params, c_expr);
-      elsif action_name = "FLT_COSH" then
+      when {"FLT_COSH"}:
         process(FLT_COSH, function, params, c_expr);
-      elsif action_name = "FLT_CPY" then
+      when {"FLT_CPY"}:
         process(FLT_CPY, function, params, c_expr);
-      elsif action_name = "FLT_DECOMPOSE" then
+      when {"FLT_DECOMPOSE"}:
         process(FLT_DECOMPOSE, function, params, c_expr);
-      elsif action_name = "FLT_DGTS" then
+      when {"FLT_DGTS"}:
         process(FLT_DGTS, function, params, c_expr);
-      elsif action_name = "FLT_DIV" then
+      when {"FLT_DIV"}:
         process(FLT_DIV, function, params, c_expr);
-      elsif action_name = "FLT_DIV_ASSIGN" then
+      when {"FLT_DIV_ASSIGN"}:
         process(FLT_DIV_ASSIGN, function, params, c_expr);
-      elsif action_name = "FLT_DOUBLE2BITS" then
+      when {"FLT_DOUBLE2BITS"}:
         process(FLT_DOUBLE2BITS, function, params, c_expr);
-      elsif action_name = "FLT_EQ" then
+      when {"FLT_EQ"}:
         process(FLT_EQ, function, params, c_expr);
-      elsif action_name = "FLT_EXP" then
+      when {"FLT_EXP"}:
         process(FLT_EXP, function, params, c_expr);
-      elsif action_name = "FLT_FLOOR" then
+      when {"FLT_FLOOR"}:
         process(FLT_FLOOR, function, params, c_expr);
-      elsif action_name = "FLT_GE" then
+      when {"FLT_GE"}:
         process(FLT_GE, function, params, c_expr);
-      elsif action_name = "FLT_GT" then
+      when {"FLT_GT"}:
         process(FLT_GT, function, params, c_expr);
-      elsif action_name = "FLT_HASHCODE" then
+      when {"FLT_HASHCODE"}:
         process(FLT_HASHCODE, function, params, c_expr);
-      elsif action_name = "FLT_ICAST" then
+      when {"FLT_ICAST"}:
         process(FLT_ICAST, function, params, c_expr);
-      elsif action_name = "FLT_ICONV1" then
+      when {"FLT_ICONV1"}:
         process(FLT_ICONV1, function, params, c_expr);
-      elsif action_name = "FLT_ICONV3" then
+      when {"FLT_ICONV3"}:
         process(FLT_ICONV3, function, params, c_expr);
-      elsif action_name = "FLT_IPOW" then
+      when {"FLT_IPOW"}:
         process(FLT_IPOW, function, params, c_expr);
-      elsif action_name = "FLT_ISNAN" then
+      when {"FLT_ISNAN"}:
         process(FLT_ISNAN, function, params, c_expr);
-      elsif action_name = "FLT_ISNEGATIVEZERO" then
+      when {"FLT_ISNEGATIVEZERO"}:
         process(FLT_ISNEGATIVEZERO, function, params, c_expr);
-      elsif action_name = "FLT_LE" then
+      when {"FLT_LE"}:
         process(FLT_LE, function, params, c_expr);
-      elsif action_name = "FLT_LOG" then
+      when {"FLT_LOG"}:
         process(FLT_LOG, function, params, c_expr);
-      elsif action_name = "FLT_LOG10" then
+      when {"FLT_LOG10"}:
         process(FLT_LOG10, function, params, c_expr);
-      elsif action_name = "FLT_LOG2" then
+      when {"FLT_LOG2"}:
         process(FLT_LOG2, function, params, c_expr);
-      elsif action_name = "FLT_LSHIFT" then
+      when {"FLT_LSHIFT"}:
         process(FLT_LSHIFT, function, params, c_expr);
-      elsif action_name = "FLT_LT" then
+      when {"FLT_LT"}:
         process(FLT_LT, function, params, c_expr);
-      elsif action_name = "FLT_MULT" then
+      when {"FLT_MULT"}:
         process(FLT_MULT, function, params, c_expr);
-      elsif action_name = "FLT_MULT_ASSIGN" then
+      when {"FLT_MULT_ASSIGN"}:
         process(FLT_MULT_ASSIGN, function, params, c_expr);
-      elsif action_name = "FLT_NE" then
+      when {"FLT_NE"}:
         process(FLT_NE, function, params, c_expr);
-      elsif action_name = "FLT_NEGATE" then
+      when {"FLT_NEGATE"}:
         process(FLT_NEGATE, function, params, c_expr);
-      elsif action_name = "FLT_PARSE" then
+      when {"FLT_PARSE"}:
         process(FLT_PARSE, function, params, c_expr);
-      elsif action_name = "FLT_PLUS" then
+      when {"FLT_PLUS"}:
         process(FLT_PLUS, function, params, c_expr);
-      elsif action_name = "FLT_POW" then
+      when {"FLT_POW"}:
         process(FLT_POW, function, params, c_expr);
-      elsif action_name = "FLT_RAND" then
+      when {"FLT_RAND"}:
         process(FLT_RAND, function, params, c_expr);
-      elsif action_name = "FLT_ROUND" then
+      when {"FLT_ROUND"}:
         process(FLT_ROUND, function, params, c_expr);
-      elsif action_name = "FLT_RSHIFT" then
+      when {"FLT_RSHIFT"}:
         process(FLT_RSHIFT, function, params, c_expr);
-      elsif action_name = "FLT_SBTR" then
+      when {"FLT_SBTR"}:
         process(FLT_SBTR, function, params, c_expr);
-      elsif action_name = "FLT_SBTR_ASSIGN" then
+      when {"FLT_SBTR_ASSIGN"}:
         process(FLT_SBTR_ASSIGN, function, params, c_expr);
-      elsif action_name = "FLT_SCI" then
+      when {"FLT_SCI"}:
         process(FLT_SCI, function, params, c_expr);
-      elsif action_name = "FLT_SIN" then
+      when {"FLT_SIN"}:
         process(FLT_SIN, function, params, c_expr);
-      elsif action_name = "FLT_SINGLE2BITS" then
+      when {"FLT_SINGLE2BITS"}:
         process(FLT_SINGLE2BITS, function, params, c_expr);
-      elsif action_name = "FLT_SINH" then
+      when {"FLT_SINH"}:
         process(FLT_SINH, function, params, c_expr);
-      elsif action_name = "FLT_SQRT" then
+      when {"FLT_SQRT"}:
         process(FLT_SQRT, function, params, c_expr);
-      elsif action_name = "FLT_STR" then
+      when {"FLT_STR"}:
         process(FLT_STR, function, params, c_expr);
-      elsif action_name = "FLT_TAN" then
+      when {"FLT_TAN"}:
         process(FLT_TAN, function, params, c_expr);
-      elsif action_name = "FLT_TANH" then
+      when {"FLT_TANH"}:
         process(FLT_TANH, function, params, c_expr);
-      elsif action_name = "FLT_TRUNC" then
+      when {"FLT_TRUNC"}:
         process(FLT_TRUNC, function, params, c_expr);
-      elsif action_name = "FLT_VALUE" then
+      when {"FLT_VALUE"}:
         process(FLT_VALUE, function, params, c_expr);
-      else
-        process_unknown_action(action_name, c_expr);
-      end if;
-    elsif action_prefix = "GKB" then
-      drawLibraryUsed := TRUE;
-      if action_name = "GKB_BUSY_GETC" then
+      when {"GKB_BUSY_GETC"}:
+        drawLibraryUsed := TRUE;
         process(GKB_BUSY_GETC, function, params, c_expr);
-      elsif action_name = "GKB_GETC" then
+      when {"GKB_GETC"}:
+        drawLibraryUsed := TRUE;
         process(GKB_GETC, function, params, c_expr);
-      elsif action_name = "GKB_GETS" then
+      when {"GKB_GETS"}:
+        drawLibraryUsed := TRUE;
         process(GKB_GETS, function, params, c_expr);
-      elsif action_name = "GKB_KEYPRESSED" then
+      when {"GKB_KEYPRESSED"}:
+        drawLibraryUsed := TRUE;
         process(GKB_KEYPRESSED, function, params, c_expr);
-      elsif action_name = "GKB_LINE_READ" then
+      when {"GKB_LINE_READ"}:
+        drawLibraryUsed := TRUE;
         process(GKB_LINE_READ, function, params, c_expr);
-      elsif action_name = "GKB_RAW_GETC" then
+      when {"GKB_RAW_GETC"}:
+        drawLibraryUsed := TRUE;
         process(GKB_RAW_GETC, function, params, c_expr);
-      elsif action_name = "GKB_WINDOW" then
+      when {"GKB_WINDOW"}:
+        drawLibraryUsed := TRUE;
         process(GKB_WINDOW, function, params, c_expr);
-      elsif action_name = "GKB_WORD_READ" then
+      when {"GKB_WORD_READ"}:
+        drawLibraryUsed := TRUE;
         process(GKB_WORD_READ, function, params, c_expr);
-      elsif action_name = "GKB_BUTTON_PRESSED" then
+      when {"GKB_BUTTON_PRESSED"}:
+        drawLibraryUsed := TRUE;
         process(GKB_BUTTON_PRESSED, function, params, c_expr);
-      elsif action_name = "GKB_BUTTON_XPOS" then
+      when {"GKB_BUTTON_XPOS"}:
+        drawLibraryUsed := TRUE;
         process(GKB_BUTTON_XPOS, function, params, c_expr);
-      elsif action_name = "GKB_BUTTON_YPOS" then
+      when {"GKB_BUTTON_YPOS"}:
+        drawLibraryUsed := TRUE;
         process(GKB_BUTTON_YPOS, function, params, c_expr);
-      else
-        process_unknown_action(action_name, c_expr);
-      end if;
-    elsif action_prefix = "HSH" then
-      if action_name = "HSH_CONTAINS" then
+      when {"HSH_CONTAINS"}:
         process(HSH_CONTAINS, function, params, c_expr);
-      elsif action_name = "HSH_CPY" then
+      when {"HSH_CPY"}:
         process(HSH_CPY, function, params, c_expr);
-      elsif action_name = "HSH_CREATE" then
+      when {"HSH_CREATE"}:
         process(HSH_CREATE, function, params, c_expr);
-      elsif action_name = "HSH_DESTR" then
+      when {"HSH_DESTR"}:
         process(HSH_DESTR, function, params, c_expr);
-      elsif action_name = "HSH_EXCL" then
+      when {"HSH_EXCL"}:
         process(HSH_EXCL, function, params, c_expr);
-      elsif action_name = "HSH_FOR" then
+      when {"HSH_FOR"}:
         process(HSH_FOR, function, params, c_expr);
-      elsif action_name = "HSH_FOR_DATA_KEY" then
+      when {"HSH_FOR_DATA_KEY"}:
         process(HSH_FOR_DATA_KEY, function, params, c_expr);
-      elsif action_name = "HSH_FOR_KEY" then
+      when {"HSH_FOR_KEY"}:
         process(HSH_FOR_KEY, function, params, c_expr);
-      elsif action_name = "HSH_IDX" then
+      when {"HSH_IDX"}:
         process(HSH_IDX, function, params, c_expr);
-      elsif action_name = "HSH_IDX2" then
+      when {"HSH_IDX2"}:
         process(HSH_IDX2, function, params, c_expr);
-      elsif action_name = "HSH_INCL" then
+      when {"HSH_INCL"}:
         process(HSH_INCL, function, params, c_expr);
-      elsif action_name = "HSH_KEYS" then
+      when {"HSH_KEYS"}:
         process(HSH_KEYS, function, params, c_expr);
-      elsif action_name = "HSH_LNG" then
+      when {"HSH_LNG"}:
         process(HSH_LNG, function, params, c_expr);
-      elsif action_name = "HSH_RAND_KEY" then
+      when {"HSH_RAND_KEY"}:
         process(HSH_RAND_KEY, function, params, c_expr);
-      elsif action_name = "HSH_UPDATE" then
+      when {"HSH_UPDATE"}:
         process(HSH_UPDATE, function, params, c_expr);
-      elsif action_name = "HSH_VALUES" then
+      when {"HSH_VALUES"}:
         process(HSH_VALUES, function, params, c_expr);
-      else
-        process_unknown_action(action_name, c_expr);
-      end if;
-    elsif action_prefix = "INT" then
-      if action_name = "INT_ABS" then
+      when {"INT_ABS"}:
         process(INT_ABS, function, params, c_expr);
-      elsif action_name = "INT_ADD" then
+      when {"INT_ADD"}:
         process(INT_ADD, function, params, c_expr);
-      elsif action_name = "INT_ADD_ASSIGN" then
+      when {"INT_ADD_ASSIGN"}:
         process(INT_ADD_ASSIGN, function, params, c_expr);
-      elsif action_name = "INT_BINOM" then
+      when {"INT_BINOM"}:
         process(INT_BINOM, function, params, c_expr);
-      elsif action_name = "INT_BIT_LENGTH" then
+      when {"INT_BIT_LENGTH"}:
         process(INT_BIT_LENGTH, function, params, c_expr);
-      elsif action_name = "INT_BYTES_BE_2_INT" then
+      when {"INT_BYTES_BE_2_INT"}:
         process(INT_BYTES_BE_2_INT, function, params, c_expr);
-      elsif action_name = "INT_BYTES_BE_2_UINT" then
+      when {"INT_BYTES_BE_2_UINT"}:
         process(INT_BYTES_BE_2_UINT, function, params, c_expr);
-      elsif action_name = "INT_BYTES_BE_SIGNED" then
+      when {"INT_BYTES_BE_SIGNED"}:
         process(INT_BYTES_BE_SIGNED, function, params, c_expr);
-      elsif action_name = "INT_BYTES_BE_UNSIGNED" then
+      when {"INT_BYTES_BE_UNSIGNED"}:
         process(INT_BYTES_BE_UNSIGNED, function, params, c_expr);
-      elsif action_name = "INT_BYTES_LE_2_INT" then
+      when {"INT_BYTES_LE_2_INT"}:
         process(INT_BYTES_LE_2_INT, function, params, c_expr);
-      elsif action_name = "INT_BYTES_LE_2_UINT" then
+      when {"INT_BYTES_LE_2_UINT"}:
         process(INT_BYTES_LE_2_UINT, function, params, c_expr);
-      elsif action_name = "INT_BYTES_LE_SIGNED" then
+      when {"INT_BYTES_LE_SIGNED"}:
         process(INT_BYTES_LE_SIGNED, function, params, c_expr);
-      elsif action_name = "INT_BYTES_LE_UNSIGNED" then
+      when {"INT_BYTES_LE_UNSIGNED"}:
         process(INT_BYTES_LE_UNSIGNED, function, params, c_expr);
-      elsif action_name = "INT_CMP" then
+      when {"INT_CMP"}:
         process(INT_CMP, function, params, c_expr);
-      elsif action_name = "INT_CPY" then
+      when {"INT_CPY"}:
         process(INT_CPY, function, params, c_expr);
-      elsif action_name = "INT_DECR" then
+      when {"INT_DECR"}:
         process(INT_DECR, function, params, c_expr);
-      elsif action_name = "INT_DIV" then
+      when {"INT_DIV"}:
         process(INT_DIV, function, params, c_expr);
-      elsif action_name = "INT_EQ" then
+      when {"INT_EQ"}:
         process(INT_EQ, function, params, c_expr);
-      elsif action_name = "INT_FACT" then
+      when {"INT_FACT"}:
         process(INT_FACT, function, params, c_expr);
-      elsif action_name = "INT_GE" then
+      when {"INT_GE"}:
         process(INT_GE, function, params, c_expr);
-      elsif action_name = "INT_GT" then
+      when {"INT_GT"}:
         process(INT_GT, function, params, c_expr);
-      elsif action_name = "INT_HASHCODE" then
+      when {"INT_HASHCODE"}:
         process(INT_HASHCODE, function, params, c_expr);
-      elsif action_name = "INT_ICONV1" then
+      when {"INT_ICONV1"}:
         process(INT_ICONV1, function, params, c_expr);
-      elsif action_name = "INT_ICONV3" then
+      when {"INT_ICONV3"}:
         process(INT_ICONV3, function, params, c_expr);
-      elsif action_name = "INT_INCR" then
+      when {"INT_INCR"}:
         process(INT_INCR, function, params, c_expr);
-      elsif action_name = "INT_LE" then
+      when {"INT_LE"}:
         process(INT_LE, function, params, c_expr);
-      elsif action_name = "INT_LOG10" then
+      when {"INT_LOG10"}:
         process(INT_LOG10, function, params, c_expr);
-      elsif action_name = "INT_LOG2" then
+      when {"INT_LOG2"}:
         process(INT_LOG2, function, params, c_expr);
-      elsif action_name = "INT_LOWEST_SET_BIT" then
+      when {"INT_LOWEST_SET_BIT"}:
         process(INT_LOWEST_SET_BIT, function, params, c_expr);
-      elsif action_name = "INT_LPAD0" then
+      when {"INT_LPAD0"}:
         process(INT_LPAD0, function, params, c_expr);
-      elsif action_name = "INT_LSHIFT" then
+      when {"INT_LSHIFT"}:
         process(INT_LSHIFT, function, params, c_expr);
-      elsif action_name = "INT_LSHIFT_ASSIGN" then
+      when {"INT_LSHIFT_ASSIGN"}:
         process(INT_LSHIFT_ASSIGN, function, params, c_expr);
-      elsif action_name = "INT_LT" then
+      when {"INT_LT"}:
         process(INT_LT, function, params, c_expr);
-      elsif action_name = "INT_MDIV" then
+      when {"INT_MDIV"}:
         process(INT_MDIV, function, params, c_expr);
-      elsif action_name = "INT_MOD" then
+      when {"INT_MOD"}:
         process(INT_MOD, function, params, c_expr);
-      elsif action_name = "INT_MULT" then
+      when {"INT_MULT"}:
         process(INT_MULT, function, params, c_expr);
-      elsif action_name = "INT_MULT_ASSIGN" then
+      when {"INT_MULT_ASSIGN"}:
         process(INT_MULT_ASSIGN, function, params, c_expr);
-      elsif action_name = "INT_NE" then
+      when {"INT_NE"}:
         process(INT_NE, function, params, c_expr);
-      elsif action_name = "INT_NEGATE" then
+      when {"INT_NEGATE"}:
         process(INT_NEGATE, function, params, c_expr);
-      elsif action_name = "INT_ODD" then
+      when {"INT_ODD"}:
         process(INT_ODD, function, params, c_expr);
-      elsif action_name = "INT_PARSE" then
+      when {"INT_PARSE"}:
         process(INT_PARSE, function, params, c_expr);
-      elsif action_name = "INT_PLUS" then
+      when {"INT_PLUS"}:
         process(INT_PLUS, function, params, c_expr);
-      elsif action_name = "INT_POW" then
+      when {"INT_POW"}:
         process(INT_POW, function, params, c_expr);
-      elsif action_name = "INT_PRED" then
+      when {"INT_PRED"}:
         process(INT_PRED, function, params, c_expr);
-      elsif action_name = "INT_radix" then
+      when {"INT_radix"}:
         process(INT_radix, function, params, c_expr);
-      elsif action_name = "INT_RADIX" then
+      when {"INT_RADIX"}:
         process(INT_RADIX, function, params, c_expr);
-      elsif action_name = "INT_RAND" then
+      when {"INT_RAND"}:
         process(INT_RAND, function, params, c_expr);
-      elsif action_name = "INT_REM" then
+      when {"INT_REM"}:
         process(INT_REM, function, params, c_expr);
-      elsif action_name = "INT_RSHIFT" then
+      when {"INT_RSHIFT"}:
         process(INT_RSHIFT, function, params, c_expr);
-      elsif action_name = "INT_RSHIFT_ASSIGN" then
+      when {"INT_RSHIFT_ASSIGN"}:
         process(INT_RSHIFT_ASSIGN, function, params, c_expr);
-      elsif action_name = "INT_SBTR" then
+      when {"INT_SBTR"}:
         process(INT_SBTR, function, params, c_expr);
-      elsif action_name = "INT_SBTR_ASSIGN" then
+      when {"INT_SBTR_ASSIGN"}:
         process(INT_SBTR_ASSIGN, function, params, c_expr);
-      elsif action_name = "INT_SQRT" then
+      when {"INT_SQRT"}:
         process(INT_SQRT, function, params, c_expr);
-      elsif action_name = "INT_STR" then
+      when {"INT_STR"}:
         process(INT_STR, function, params, c_expr);
-      elsif action_name = "INT_SUCC" then
+      when {"INT_SUCC"}:
         process(INT_SUCC, function, params, c_expr);
-      elsif action_name = "INT_VALUE" then
+      when {"INT_VALUE"}:
         process(INT_VALUE, function, params, c_expr);
-      else
-        process_unknown_action(action_name, c_expr);
-      end if;
-    elsif action_prefix = "ITF" then
-      if action_name = "ITF_CMP" then
+      when {"ITF_CMP"}:
         process(ITF_CMP, function, params, c_expr);
-      elsif action_name = "ITF_CONV2" then
+      when {"ITF_CONV2"}:
         process(ITF_CONV2, function, params, c_expr);
-      elsif action_name = "ITF_CPY" then
+      when {"ITF_CPY"}:
         process(ITF_CPY, function, params, c_expr);
-      elsif action_name = "ITF_CPY2" then
+      when {"ITF_CPY2"}:
         process(ITF_CPY2, function, params, c_expr);
-      elsif action_name = "ITF_EQ" then
+      when {"ITF_EQ"}:
         process(ITF_EQ, function, params, c_expr);
-      elsif action_name = "ITF_HASHCODE" then
+      when {"ITF_HASHCODE"}:
         process(ITF_HASHCODE, function, params, c_expr);
-      elsif action_name = "ITF_NE" then
+      when {"ITF_NE"}:
         process(ITF_NE, function, params, c_expr);
-      elsif action_name = "ITF_TO_INTERFACE" then
+      when {"ITF_TO_INTERFACE"}:
         process(ITF_TO_INTERFACE, function, params, c_expr);
-      else
-        process_unknown_action(action_name, c_expr);
-      end if;
-    elsif action_prefix = "KBD" then
-      consoleLibraryUsed := TRUE;
-      if action_name = "KBD_BUSY_GETC" then
+      when {"KBD_BUSY_GETC"}:
+        consoleLibraryUsed := TRUE;
         process(KBD_BUSY_GETC, function, params, c_expr);
-      elsif action_name = "KBD_GETC" then
+      when {"KBD_GETC"}:
+        consoleLibraryUsed := TRUE;
         process(KBD_GETC, function, params, c_expr);
-      elsif action_name = "KBD_GETS" then
+      when {"KBD_GETS"}:
+        consoleLibraryUsed := TRUE;
         process(KBD_GETS, function, params, c_expr);
-      elsif action_name = "KBD_KEYPRESSED" then
+      when {"KBD_KEYPRESSED"}:
+        consoleLibraryUsed := TRUE;
         process(KBD_KEYPRESSED, function, params, c_expr);
-      elsif action_name = "KBD_LINE_READ" then
+      when {"KBD_LINE_READ"}:
+        consoleLibraryUsed := TRUE;
         process(KBD_LINE_READ, function, params, c_expr);
-      elsif action_name = "KBD_RAW_GETC" then
+      when {"KBD_RAW_GETC"}:
+        consoleLibraryUsed := TRUE;
         process(KBD_RAW_GETC, function, params, c_expr);
-      elsif action_name = "KBD_WORD_READ" then
+      when {"KBD_WORD_READ"}:
+        consoleLibraryUsed := TRUE;
         process(KBD_WORD_READ, function, params, c_expr);
-      else
-        process_unknown_action(action_name, c_expr);
-      end if;
-    elsif action_prefix = "PCS" then
-      if action_name = "PCS_CHILD_STDERR" then
+      when {"PCS_CHILD_STDERR"}:
         process(PCS_CHILD_STDERR, function, params, c_expr);
-      elsif action_name = "PCS_CHILD_STDIN" then
+      when {"PCS_CHILD_STDIN"}:
         process(PCS_CHILD_STDIN, function, params, c_expr);
-      elsif action_name = "PCS_CHILD_STDOUT" then
+      when {"PCS_CHILD_STDOUT"}:
         process(PCS_CHILD_STDOUT, function, params, c_expr);
-      elsif action_name = "PCS_CMP" then
+      when {"PCS_CMP"}:
         process(PCS_CMP, function, params, c_expr);
-      elsif action_name = "PCS_CPY" then
+      when {"PCS_CPY"}:
         process(PCS_CPY, function, params, c_expr);
-      elsif action_name = "PCS_EQ" then
+      when {"PCS_EQ"}:
         process(PCS_EQ, function, params, c_expr);
-      elsif action_name = "PCS_EXIT_VALUE" then
+      when {"PCS_EXIT_VALUE"}:
         process(PCS_EXIT_VALUE, function, params, c_expr);
-      elsif action_name = "PCS_HASHCODE" then
+      when {"PCS_HASHCODE"}:
         process(PCS_HASHCODE, function, params, c_expr);
-      elsif action_name = "PCS_IS_ALIVE" then
+      when {"PCS_IS_ALIVE"}:
         process(PCS_IS_ALIVE, function, params, c_expr);
-      elsif action_name = "PCS_KILL" then
+      when {"PCS_KILL"}:
         process(PCS_KILL, function, params, c_expr);
-      elsif action_name = "PCS_NE" then
+      when {"PCS_NE"}:
         process(PCS_NE, function, params, c_expr);
-      elsif action_name = "PCS_PIPE2" then
+      when {"PCS_PIPE2"}:
         process(PCS_PIPE2, function, params, c_expr);
-      elsif action_name = "PCS_PTY" then
+      when {"PCS_PTY"}:
         process(PCS_PTY, function, params, c_expr);
-      elsif action_name = "PCS_START" then
+      when {"PCS_START"}:
         process(PCS_START, function, params, c_expr);
-      elsif action_name = "PCS_STR" then
+      when {"PCS_STR"}:
         process(PCS_STR, function, params, c_expr);
-      elsif action_name = "PCS_VALUE" then
+      when {"PCS_VALUE"}:
         process(PCS_VALUE, function, params, c_expr);
-      elsif action_name = "PCS_WAIT_FOR" then
+      when {"PCS_WAIT_FOR"}:
         process(PCS_WAIT_FOR, function, params, c_expr);
-      else
-        process_unknown_action(action_name, c_expr);
-      end if;
-    elsif action_prefix = "POL" then
-      if action_name = "POL_ADD_CHECK" then
+      when {"POL_ADD_CHECK"}:
         process(POL_ADD_CHECK, function, params, c_expr);
-      elsif action_name = "POL_CLEAR" then
+      when {"POL_CLEAR"}:
         process(POL_CLEAR, function, params, c_expr);
-      elsif action_name = "POL_CPY" then
+      when {"POL_CPY"}:
         process(POL_CPY, function, params, c_expr);
-      elsif action_name = "POL_GET_CHECK" then
+      when {"POL_GET_CHECK"}:
         process(POL_GET_CHECK, function, params, c_expr);
-      elsif action_name = "POL_GET_FINDING" then
+      when {"POL_GET_FINDING"}:
         process(POL_GET_FINDING, function, params, c_expr);
-      elsif action_name = "POL_HAS_NEXT" then
+      when {"POL_HAS_NEXT"}:
         process(POL_HAS_NEXT, function, params, c_expr);
-      elsif action_name = "POL_ITER_CHECKS" then
+      when {"POL_ITER_CHECKS"}:
         process(POL_ITER_CHECKS, function, params, c_expr);
-      elsif action_name = "POL_ITER_FINDINGS" then
+      when {"POL_ITER_FINDINGS"}:
         process(POL_ITER_FINDINGS, function, params, c_expr);
-      elsif action_name = "POL_NEXT_FILE" then
+      when {"POL_NEXT_FILE"}:
         process(POL_NEXT_FILE, function, params, c_expr);
-      elsif action_name = "POL_POLL" then
+      when {"POL_POLL"}:
         process(POL_POLL, function, params, c_expr);
-      elsif action_name = "POL_REMOVE_CHECK" then
+      when {"POL_REMOVE_CHECK"}:
         process(POL_REMOVE_CHECK, function, params, c_expr);
-      elsif action_name = "POL_VALUE" then
+      when {"POL_VALUE"}:
         process(POL_VALUE, function, params, c_expr);
-      else
-        process_unknown_action(action_name, c_expr);
-      end if;
-    elsif action_prefix = "PRC" then
-      if action_name = "PRC_ARGS" then
+      when {"PRC_ARGS"}:
         process(PRC_ARGS, function, params, c_expr);
-      elsif action_name = "PRC_BLOCK" then
+      when {"PRC_BLOCK"}:
         process(PRC_BLOCK, function, params, c_expr);
-      elsif action_name = "PRC_BLOCK_CATCH_ALL" then
+      when {"PRC_BLOCK_CATCH_ALL"}:
         process(PRC_BLOCK_CATCH_ALL, function, params, c_expr);
-      elsif action_name = "PRC_BLOCK_OTHERWISE" then
+      when {"PRC_BLOCK_OTHERWISE"}:
         process(PRC_BLOCK_OTHERWISE, function, params, c_expr);
-      elsif action_name = "PRC_CASE" then
+      when {"PRC_CASE"}:
         process(PRC_CASE, function, params, c_expr);
-      elsif action_name = "PRC_CASE_DEF" then
+      when {"PRC_CASE_DEF"}:
         process(PRC_CASE_DEF, function, params, c_expr);
-      elsif action_name = "PRC_CASE_HASHSET" then
+      when {"PRC_CASE_HASHSET"}:
         process(PRC_CASE_HASHSET, function, params, c_expr);
-      elsif action_name = "PRC_CASE_HASHSET_DEF" then
+      when {"PRC_CASE_HASHSET_DEF"}:
         process(PRC_CASE_HASHSET_DEF, function, params, c_expr);
-      elsif action_name = "PRC_CPY" then
+      when {"PRC_CPY"}:
         process(PRC_CPY, function, params, c_expr);
-      elsif action_name = "PRC_DYNAMIC" then
+      when {"PRC_DYNAMIC"}:
         process(PRC_DYNAMIC, function, params, c_expr);
-      elsif action_name = "PRC_EXIT" then
+      when {"PRC_EXIT"}:
         process(PRC_EXIT, function, params, c_expr);
-      elsif action_name = "PRC_FOR_DOWNTO" then
+      when {"PRC_FOR_DOWNTO"}:
         process(PRC_FOR_DOWNTO, function, params, c_expr);
-      elsif action_name = "PRC_FOR_DOWNTO_STEP" then
+      when {"PRC_FOR_DOWNTO_STEP"}:
         process(PRC_FOR_DOWNTO_STEP, function, params, c_expr);
-      elsif action_name = "PRC_FOR_TO" then
+      when {"PRC_FOR_TO"}:
         process(PRC_FOR_TO, function, params, c_expr);
-      elsif action_name = "PRC_FOR_TO_STEP" then
+      when {"PRC_FOR_TO_STEP"}:
         process(PRC_FOR_TO_STEP, function, params, c_expr);
-      elsif action_name = "PRC_HSIZE" then
+      when {"PRC_HSIZE"}:
         process(PRC_HSIZE, function, params, c_expr);
-      elsif action_name = "PRC_IF" then
+      when {"PRC_IF"}:
         process(PRC_IF, function, params, c_expr);
-      elsif action_name = "PRC_IF_ELSIF" then
+      when {"PRC_IF_ELSIF"}:
         process(PRC_IF_ELSIF, function, params, c_expr);
-      elsif action_name = "PRC_IF_NOOP" then
+      when {"PRC_IF_NOOP"}:
         process(PRC_IF_NOOP, function, params, c_expr);
-      elsif action_name = "PRC_NOOP" then
+      when {"PRC_NOOP"}:
         process(PRC_NOOP, function, params, c_expr);
-      elsif action_name = "PRC_RAISE" then
+      when {"PRC_RAISE"}:
         process(PRC_RAISE, function, params, c_expr);
-      elsif action_name = "PRC_REPEAT" then
+      when {"PRC_REPEAT"}:
         process(PRC_REPEAT, function, params, c_expr);
-      elsif action_name = "PRC_WHILE" then
+      when {"PRC_WHILE"}:
         process(PRC_WHILE, function, params, c_expr);
-      else
-        process_unknown_action(action_name, c_expr);
-      end if;
-    elsif action_prefix = "PRG" then
-      if action_name = "PRG_CPY" then
+      when {"PRG_CPY"}:
         process(PRG_CPY, function, params, c_expr);
-      elsif action_name = "PRG_EQ" then
+      when {"PRG_EQ"}:
         process(PRG_EQ, function, params, c_expr);
-      elsif action_name = "PRG_ERROR_COUNT" then
+      when {"PRG_ERROR_COUNT"}:
         process(PRG_ERROR_COUNT, function, params, c_expr);
-      elsif action_name = "PRG_EVAL" then
+      when {"PRG_EVAL"}:
         process(PRG_EVAL, function, params, c_expr);
-      elsif action_name = "PRG_EXEC" then
+      when {"PRG_EXEC"}:
         process(PRG_EXEC, function, params, c_expr);
-      elsif action_name = "PRG_FIL_PARSE" then
+      when {"PRG_FIL_PARSE"}:
         process(PRG_FIL_PARSE, function, params, c_expr);
-      elsif action_name = "PRG_GLOBAL_OBJECTS" then
+      when {"PRG_GLOBAL_OBJECTS"}:
         process(PRG_GLOBAL_OBJECTS, function, params, c_expr);
-      elsif action_name = "PRG_MATCH" then
+      when {"PRG_MATCH"}:
         process(PRG_MATCH, function, params, c_expr);
-      elsif action_name = "PRG_MATCH_EXPR" then
+      when {"PRG_MATCH_EXPR"}:
         process(PRG_MATCH_EXPR, function, params, c_expr);
-      elsif action_name = "PRG_NAME" then
+      when {"PRG_NAME"}:
         process(PRG_NAME, function, params, c_expr);
-      elsif action_name = "PRG_NE" then
+      when {"PRG_NE"}:
         process(PRG_NE, function, params, c_expr);
-      elsif action_name = "PRG_OWN_NAME" then
+      when {"PRG_OWN_NAME"}:
         process(PRG_OWN_NAME, function, params, c_expr);
-      elsif action_name = "PRG_OWN_PATH" then
+      when {"PRG_OWN_PATH"}:
         process(PRG_OWN_PATH, function, params, c_expr);
-      elsif action_name = "PRG_PATH" then
+      when {"PRG_PATH"}:
         process(PRG_PATH, function, params, c_expr);
-      elsif action_name = "PRG_STR_PARSE" then
+      when {"PRG_STR_PARSE"}:
         process(PRG_STR_PARSE, function, params, c_expr);
-      elsif action_name = "PRG_SYOBJECT" then
+      when {"PRG_SYOBJECT"}:
         process(PRG_SYOBJECT, function, params, c_expr);
-      elsif action_name = "PRG_SYSVAR" then
+      when {"PRG_SYSVAR"}:
         process(PRG_SYSVAR, function, params, c_expr);
-      elsif action_name = "PRG_VALUE" then
+      when {"PRG_VALUE"}:
         process(PRG_VALUE, function, params, c_expr);
-      else
-        process_unknown_action(action_name, c_expr);
-      end if;
-    elsif action_prefix = "REF" then
-      if action_name = "REF_ADDR" then
+      when {"REF_ADDR"}:
         process(REF_ADDR, function, params, c_expr);
-      elsif action_name = "REF_ALLOC" then
+      when {"REF_ALLOC"}:
         process(REF_ALLOC, function, params, c_expr);
-      elsif action_name = "REF_ALLOC_INT" then
+      when {"REF_ALLOC_INT"}:
         process(REF_ALLOC_INT, function, params, c_expr);
-      elsif action_name = "REF_ALLOC_STRI" then
+      when {"REF_ALLOC_STRI"}:
         process(REF_ALLOC_STRI, function, params, c_expr);
-      elsif action_name = "REF_ALLOC_VAR" then
+      when {"REF_ALLOC_VAR"}:
         process(REF_ALLOC_VAR, function, params, c_expr);
-      elsif action_name = "REF_ARRMAXIDX" then
+      when {"REF_ARRMAXIDX"}:
         process(REF_ARRMAXIDX, function, params, c_expr);
-      elsif action_name = "REF_ARRMINIDX" then
+      when {"REF_ARRMINIDX"}:
         process(REF_ARRMINIDX, function, params, c_expr);
-      elsif action_name = "REF_ARRTOLIST" then
+      when {"REF_ARRTOLIST"}:
         process(REF_ARRTOLIST, function, params, c_expr);
-      elsif action_name = "REF_BODY" then
+      when {"REF_BODY"}:
         process(REF_BODY, function, params, c_expr);
-      elsif action_name = "REF_CATEGORY" then
+      when {"REF_CATEGORY"}:
         process(REF_CATEGORY, function, params, c_expr);
-      elsif action_name = "REF_CAT_PARSE" then
+      when {"REF_CAT_PARSE"}:
         process(REF_CAT_PARSE, function, params, c_expr);
-      elsif action_name = "REF_CAT_STR" then
+      when {"REF_CAT_STR"}:
         process(REF_CAT_STR, function, params, c_expr);
-      elsif action_name = "REF_CMP" then
+      when {"REF_CMP"}:
         process(REF_CMP, function, params, c_expr);
-      elsif action_name = "REF_CPY" then
+      when {"REF_CPY"}:
         process(REF_CPY, function, params, c_expr);
-      elsif action_name = "REF_DEREF" then
+      when {"REF_DEREF"}:
         process(REF_DEREF, function, params, c_expr);
-      elsif action_name = "REF_EQ" then
+      when {"REF_EQ"}:
         process(REF_EQ, function, params, c_expr);
-      elsif action_name = "REF_FILE" then
+      when {"REF_FILE"}:
         process(REF_FILE, function, params, c_expr);
-      elsif action_name = "REF_GETREF" then
+      when {"REF_GETREF"}:
         process(REF_GETREF, function, params, c_expr);
-      elsif action_name = "REF_HASHCODE" then
+      when {"REF_HASHCODE"}:
         process(REF_HASHCODE, function, params, c_expr);
-      elsif action_name = "REF_HSHDATATOLIST" then
+      when {"REF_HSHDATATOLIST"}:
         process(REF_HSHDATATOLIST, function, params, c_expr);
-      elsif action_name = "REF_HSHKEYSTOLIST" then
+      when {"REF_HSHKEYSTOLIST"}:
         process(REF_HSHKEYSTOLIST, function, params, c_expr);
-      elsif action_name = "REF_HSHLENGTH" then
+      when {"REF_HSHLENGTH"}:
         process(REF_HSHLENGTH, function, params, c_expr);
-      elsif action_name = "REF_ISVAR" then
+      when {"REF_ISVAR"}:
         process(REF_ISVAR, function, params, c_expr);
-      elsif action_name = "REF_ITFTOSCT" then
+      when {"REF_ITFTOSCT"}:
         process(REF_ITFTOSCT, function, params, c_expr);
-      elsif action_name = "REF_LINE" then
+      when {"REF_LINE"}:
         process(REF_LINE, function, params, c_expr);
-      elsif action_name = "REF_LOCAL_CONSTS" then
+      when {"REF_LOCAL_CONSTS"}:
         process(REF_LOCAL_CONSTS, function, params, c_expr);
-      elsif action_name = "REF_LOCAL_VARS" then
+      when {"REF_LOCAL_VARS"}:
         process(REF_LOCAL_VARS, function, params, c_expr);
-      elsif action_name = "REF_NE" then
+      when {"REF_NE"}:
         process(REF_NE, function, params, c_expr);
-      elsif action_name = "REF_NUM" then
+      when {"REF_NUM"}:
         process(REF_NUM, function, params, c_expr);
-      elsif action_name = "REF_PARAMS" then
+      when {"REF_PARAMS"}:
         process(REF_PARAMS, function, params, c_expr);
-      elsif action_name = "REF_RESINI" then
+      when {"REF_RESINI"}:
         process(REF_RESINI, function, params, c_expr);
-      elsif action_name = "REF_RESULT" then
+      when {"REF_RESULT"}:
         process(REF_RESULT, function, params, c_expr);
-      elsif action_name = "REF_SCTTOLIST" then
+      when {"REF_SCTTOLIST"}:
         process(REF_SCTTOLIST, function, params, c_expr);
-      elsif action_name = "REF_SELECT" then
+      when {"REF_SELECT"}:
         process(REF_SELECT, function, params, c_expr);
-      elsif action_name = "REF_SETCATEGORY" then
+      when {"REF_SETCATEGORY"}:
         process(REF_SETCATEGORY, function, params, c_expr);
-      elsif action_name = "REF_SETPARAMS" then
+      when {"REF_SETPARAMS"}:
         process(REF_SETPARAMS, function, params, c_expr);
-      elsif action_name = "REF_SETTYPE" then
+      when {"REF_SETTYPE"}:
         process(REF_SETTYPE, function, params, c_expr);
-      elsif action_name = "REF_SETVAR" then
+      when {"REF_SETVAR"}:
         process(REF_SETVAR, function, params, c_expr);
-      elsif action_name = "REF_STR" then
+      when {"REF_STR"}:
         process(REF_STR, function, params, c_expr);
-      elsif action_name = "REF_TRACE" then
+      when {"REF_TRACE"}:
         process(REF_TRACE, function, params, c_expr);
-      elsif action_name = "REF_TYPE" then
+      when {"REF_TYPE"}:
         process(REF_TYPE, function, params, c_expr);
-      elsif action_name = "REF_VALUE" then
+      when {"REF_VALUE"}:
         process(REF_VALUE, function, params, c_expr);
-      else
-        process_unknown_action(action_name, c_expr);
-      end if;
-    elsif action_prefix = "RFL" then
-      if action_name = "RFL_APPEND" then
+      when {"RFL_APPEND"}:
         process(RFL_APPEND, function, params, c_expr);
-      elsif action_name = "RFL_CAT" then
+      when {"RFL_CAT"}:
         process(RFL_CAT, function, params, c_expr);
-      elsif action_name = "RFL_CPY" then
+      when {"RFL_CPY"}:
         process(RFL_CPY, function, params, c_expr);
-      elsif action_name = "RFL_ELEM" then
+      when {"RFL_ELEM"}:
         process(RFL_ELEM, function, params, c_expr);
-      elsif action_name = "RFL_ELEMCPY" then
+      when {"RFL_ELEMCPY"}:
         process(RFL_ELEMCPY, function, params, c_expr);
-      elsif action_name = "RFL_EQ" then
+      when {"RFL_EQ"}:
         process(RFL_EQ, function, params, c_expr);
-      elsif action_name = "RFL_FOR" then
+      when {"RFL_FOR"}:
         process(RFL_FOR, function, params, c_expr);
-      elsif action_name = "RFL_FOR_UNTIL" then
+      when {"RFL_FOR_UNTIL"}:
         process(RFL_FOR_UNTIL, function, params, c_expr);
-      elsif action_name = "RFL_HEAD" then
+      when {"RFL_HEAD"}:
         process(RFL_HEAD, function, params, c_expr);
-      elsif action_name = "RFL_IDX" then
+      when {"RFL_IDX"}:
         process(RFL_IDX, function, params, c_expr);
-      elsif action_name = "RFL_INCL" then
+      when {"RFL_INCL"}:
         process(RFL_INCL, function, params, c_expr);
-      elsif action_name = "RFL_IPOS" then
+      when {"RFL_IPOS"}:
         process(RFL_IPOS, function, params, c_expr);
-      elsif action_name = "RFL_LNG" then
+      when {"RFL_LNG"}:
         process(RFL_LNG, function, params, c_expr);
-      elsif action_name = "RFL_MKLIST" then
+      when {"RFL_MKLIST"}:
         process(RFL_MKLIST, function, params, c_expr);
-      elsif action_name = "RFL_NE" then
+      when {"RFL_NE"}:
         process(RFL_NE, function, params, c_expr);
-      elsif action_name = "RFL_NOT_ELEM" then
+      when {"RFL_NOT_ELEM"}:
         process(RFL_NOT_ELEM, function, params, c_expr);
-      elsif action_name = "RFL_POS" then
+      when {"RFL_POS"}:
         process(RFL_POS, function, params, c_expr);
-      elsif action_name = "RFL_SET_VALUE" then
+      when {"RFL_SET_VALUE"}:
         process(RFL_SET_VALUE, function, params, c_expr);
-      elsif action_name = "RFL_TAIL" then
+      when {"RFL_TAIL"}:
         process(RFL_TAIL, function, params, c_expr);
-      elsif action_name = "RFL_VALUE" then
+      when {"RFL_VALUE"}:
         process(RFL_VALUE, function, params, c_expr);
-      else
-        process_unknown_action(action_name, c_expr);
-      end if;
-    elsif action_prefix = "SCT" then
-      if action_name = "SCT_ALLOC" then
+      when {"SCT_ALLOC"}:
         process(SCT_ALLOC, function, params, c_expr);
-      elsif action_name = "SCT_CONV" then
+      when {"SCT_CONV"}:
         process(SCT_CONV, function, params, c_expr);
-      elsif action_name = "SCT_CPY" then
+      when {"SCT_CPY"}:
         process(SCT_CPY, function, params, c_expr);
-      elsif action_name = "SCT_SELECT" then
+      when {"SCT_SELECT"}:
         process(SCT_SELECT, function, params, c_expr);
-      else
-        process_unknown_action(action_name, c_expr);
-      end if;
-    elsif action_prefix = "SET" then
-      if action_name = "SET_ARRLIT" then
+      when {"SET_ARRLIT"}:
         process(SET_ARRLIT, function, params, c_expr);
-      elsif action_name = "SET_BASELIT" then
+      when {"SET_BASELIT"}:
         process(SET_BASELIT, function, params, c_expr);
-      elsif action_name = "SET_CARD" then
+      when {"SET_CARD"}:
         process(SET_CARD, function, params, c_expr);
-      elsif action_name = "SET_CMP" then
+      when {"SET_CMP"}:
         process(SET_CMP, function, params, c_expr);
-      elsif action_name = "SET_CONV" then
+      when {"SET_CONV"}:
         process(SET_CONV, function, params, c_expr);
-      elsif action_name = "SET_CPY" then
+      when {"SET_CPY"}:
         process(SET_CPY, function, params, c_expr);
-      elsif action_name = "SET_DIFF" then
+      when {"SET_DIFF"}:
         process(SET_DIFF, function, params, c_expr);
-      elsif action_name = "SET_ELEM" then
+      when {"SET_ELEM"}:
         process(SET_ELEM, function, params, c_expr);
-      elsif action_name = "SET_EQ" then
+      when {"SET_EQ"}:
         process(SET_EQ, function, params, c_expr);
-      elsif action_name = "SET_EXCL" then
+      when {"SET_EXCL"}:
         process(SET_EXCL, function, params, c_expr);
-      elsif action_name = "SET_GE" then
+      when {"SET_GE"}:
         process(SET_GE, function, params, c_expr);
-      elsif action_name = "SET_GT" then
+      when {"SET_GT"}:
         process(SET_GT, function, params, c_expr);
-      elsif action_name = "SET_HASHCODE" then
+      when {"SET_HASHCODE"}:
         process(SET_HASHCODE, function, params, c_expr);
-      elsif action_name = "SET_ICONV1" then
+      when {"SET_ICONV1"}:
         process(SET_ICONV1, function, params, c_expr);
-      elsif action_name = "SET_ICONV3" then
+      when {"SET_ICONV3"}:
         process(SET_ICONV3, function, params, c_expr);
-      elsif action_name = "SET_INCL" then
+      when {"SET_INCL"}:
         process(SET_INCL, function, params, c_expr);
-      elsif action_name = "SET_INTERSECT" then
+      when {"SET_INTERSECT"}:
         process(SET_INTERSECT, function, params, c_expr);
-      elsif action_name = "SET_INTERSECT_ASSIGN" then
+      when {"SET_INTERSECT_ASSIGN"}:
         process(SET_INTERSECT_ASSIGN, function, params, c_expr);
-      elsif action_name = "SET_LE" then
+      when {"SET_LE"}:
         process(SET_LE, function, params, c_expr);
-      elsif action_name = "SET_LT" then
+      when {"SET_LT"}:
         process(SET_LT, function, params, c_expr);
-      elsif action_name = "SET_MAX" then
+      when {"SET_MAX"}:
         process(SET_MAX, function, params, c_expr);
-      elsif action_name = "SET_MIN" then
+      when {"SET_MIN"}:
         process(SET_MIN, function, params, c_expr);
-      elsif action_name = "SET_NE" then
+      when {"SET_NE"}:
         process(SET_NE, function, params, c_expr);
-      elsif action_name = "SET_NEXT" then
+      when {"SET_NEXT"}:
         process(SET_NEXT, function, params, c_expr);
-      elsif action_name = "SET_NOT_ELEM" then
+      when {"SET_NOT_ELEM"}:
         process(SET_NOT_ELEM, function, params, c_expr);
-      elsif action_name = "SET_RAND" then
+      when {"SET_RAND"}:
         process(SET_RAND, function, params, c_expr);
-      elsif action_name = "SET_RANGELIT" then
+      when {"SET_RANGELIT"}:
         process(SET_RANGELIT, function, params, c_expr);
-      elsif action_name = "SET_SCONV" then
+      when {"SET_SCONV"}:
         process(SET_SCONV, function, params, c_expr);
-      elsif action_name = "SET_SYMDIFF" then
+      when {"SET_SYMDIFF"}:
         process(SET_SYMDIFF, function, params, c_expr);
-      elsif action_name = "SET_UNION" then
+      when {"SET_UNION"}:
         process(SET_UNION, function, params, c_expr);
-      elsif action_name = "SET_UNION_ASSIGN" then
+      when {"SET_UNION_ASSIGN"}:
         process(SET_UNION_ASSIGN, function, params, c_expr);
-      elsif action_name = "SET_VALUE" then
+      when {"SET_VALUE"}:
         process(SET_VALUE, function, params, c_expr);
-      else
-        process_unknown_action(action_name, c_expr);
-      end if;
-    elsif action_prefix = "SOC" then
-      if action_name = "SOC_ACCEPT" then
+      when {"SOC_ACCEPT"}:
         process(SOC_ACCEPT, function, params, c_expr);
-      elsif action_name = "SOC_ADDR_FAMILY" then
+      when {"SOC_ADDR_FAMILY"}:
         process(SOC_ADDR_FAMILY, function, params, c_expr);
-      elsif action_name = "SOC_ADDR_NUMERIC" then
+      when {"SOC_ADDR_NUMERIC"}:
         process(SOC_ADDR_NUMERIC, function, params, c_expr);
-      elsif action_name = "SOC_ADDR_SERVICE" then
+      when {"SOC_ADDR_SERVICE"}:
         process(SOC_ADDR_SERVICE, function, params, c_expr);
-      elsif action_name = "SOC_BIND" then
+      when {"SOC_BIND"}:
         process(SOC_BIND, function, params, c_expr);
-      elsif action_name = "SOC_CLOSE" then
+      when {"SOC_CLOSE"}:
         process(SOC_CLOSE, function, params, c_expr);
-      elsif action_name = "SOC_CONNECT" then
+      when {"SOC_CONNECT"}:
         process(SOC_CONNECT, function, params, c_expr);
-      elsif action_name = "SOC_CPY" then
+      when {"SOC_CPY"}:
         process(SOC_CPY, function, params, c_expr);
-      elsif action_name = "SOC_EQ" then
+      when {"SOC_EQ"}:
         process(SOC_EQ, function, params, c_expr);
-      elsif action_name = "SOC_GETC" then
+      when {"SOC_GETC"}:
         process(SOC_GETC, function, params, c_expr);
-      elsif action_name = "SOC_GETS" then
+      when {"SOC_GETS"}:
         process(SOC_GETS, function, params, c_expr);
-      elsif action_name = "SOC_GET_HOSTNAME" then
+      when {"SOC_GET_HOSTNAME"}:
         process(SOC_GET_HOSTNAME, function, params, c_expr);
-      elsif action_name = "SOC_GET_LOCAL_ADDR" then
+      when {"SOC_GET_LOCAL_ADDR"}:
         process(SOC_GET_LOCAL_ADDR, function, params, c_expr);
-      elsif action_name = "SOC_GET_PEER_ADDR" then
+      when {"SOC_GET_PEER_ADDR"}:
         process(SOC_GET_PEER_ADDR, function, params, c_expr);
-      elsif action_name = "SOC_HAS_NEXT" then
+      when {"SOC_HAS_NEXT"}:
         process(SOC_HAS_NEXT, function, params, c_expr);
-      elsif action_name = "SOC_INET_ADDR" then
+      when {"SOC_INET_ADDR"}:
         process(SOC_INET_ADDR, function, params, c_expr);
-      elsif action_name = "SOC_INET_LOCAL_ADDR" then
+      when {"SOC_INET_LOCAL_ADDR"}:
         process(SOC_INET_LOCAL_ADDR, function, params, c_expr);
-      elsif action_name = "SOC_INET_SERV_ADDR" then
+      when {"SOC_INET_SERV_ADDR"}:
         process(SOC_INET_SERV_ADDR, function, params, c_expr);
-      elsif action_name = "SOC_INPUT_READY" then
+      when {"SOC_INPUT_READY"}:
         process(SOC_INPUT_READY, function, params, c_expr);
-      elsif action_name = "SOC_LINE_READ" then
+      when {"SOC_LINE_READ"}:
         process(SOC_LINE_READ, function, params, c_expr);
-      elsif action_name = "SOC_LISTEN" then
+      when {"SOC_LISTEN"}:
         process(SOC_LISTEN, function, params, c_expr);
-      elsif action_name = "SOC_NE" then
+      when {"SOC_NE"}:
         process(SOC_NE, function, params, c_expr);
-      elsif action_name = "SOC_ORD" then
+      when {"SOC_ORD"}:
         process(SOC_ORD, function, params, c_expr);
-      elsif action_name = "SOC_RECV" then
+      when {"SOC_RECV"}:
         process(SOC_RECV, function, params, c_expr);
-      elsif action_name = "SOC_SEND" then
+      when {"SOC_SEND"}:
         process(SOC_SEND, function, params, c_expr);
-      elsif action_name = "SOC_SET_OPT_BOOL" then
+      when {"SOC_SET_OPT_BOOL"}:
         process(SOC_SET_OPT_BOOL, function, params, c_expr);
-      elsif action_name = "SOC_SOCKET" then
+      when {"SOC_SOCKET"}:
         process(SOC_SOCKET, function, params, c_expr);
-      elsif action_name = "SOC_WORD_READ" then
+      when {"SOC_WORD_READ"}:
         process(SOC_WORD_READ, function, params, c_expr);
-      elsif action_name = "SOC_WRITE" then
+      when {"SOC_WRITE"}:
         process(SOC_WRITE, function, params, c_expr);
-      else
-        process_unknown_action(action_name, c_expr);
-      end if;
-    elsif action_prefix = "SQL" then
-      if action_name = "SQL_BIND_BIGINT" then
+      when {"SQL_BIND_BIGINT"}:
         process(SQL_BIND_BIGINT, function, params, c_expr);
-      elsif action_name = "SQL_BIND_BIGRAT" then
+      when {"SQL_BIND_BIGRAT"}:
         process(SQL_BIND_BIGRAT, function, params, c_expr);
-      elsif action_name = "SQL_BIND_BOOL" then
+      when {"SQL_BIND_BOOL"}:
         process(SQL_BIND_BOOL, function, params, c_expr);
-      elsif action_name = "SQL_BIND_BSTRI" then
+      when {"SQL_BIND_BSTRI"}:
         process(SQL_BIND_BSTRI, function, params, c_expr);
-      elsif action_name = "SQL_BIND_DURATION" then
+      when {"SQL_BIND_DURATION"}:
         process(SQL_BIND_DURATION, function, params, c_expr);
-      elsif action_name = "SQL_BIND_FLOAT" then
+      when {"SQL_BIND_FLOAT"}:
         process(SQL_BIND_FLOAT, function, params, c_expr);
-      elsif action_name = "SQL_BIND_INT" then
+      when {"SQL_BIND_INT"}:
         process(SQL_BIND_INT, function, params, c_expr);
-      elsif action_name = "SQL_BIND_NULL" then
+      when {"SQL_BIND_NULL"}:
         process(SQL_BIND_NULL, function, params, c_expr);
-      elsif action_name = "SQL_BIND_STRI" then
+      when {"SQL_BIND_STRI"}:
         process(SQL_BIND_STRI, function, params, c_expr);
-      elsif action_name = "SQL_BIND_TIME" then
+      when {"SQL_BIND_TIME"}:
         process(SQL_BIND_TIME, function, params, c_expr);
-      elsif action_name = "SQL_CLOSE" then
+      when {"SQL_CLOSE"}:
         process(SQL_CLOSE, function, params, c_expr);
-      elsif action_name = "SQL_CMP_DB" then
+      when {"SQL_CMP_DB"}:
         process(SQL_CMP_DB, function, params, c_expr);
-      elsif action_name = "SQL_CMP_STMT" then
+      when {"SQL_CMP_STMT"}:
         process(SQL_CMP_STMT, function, params, c_expr);
-      elsif action_name = "SQL_COLUMN_BIGINT" then
+      when {"SQL_COLUMN_BIGINT"}:
         process(SQL_COLUMN_BIGINT, function, params, c_expr);
-      elsif action_name = "SQL_COLUMN_BIGRAT" then
+      when {"SQL_COLUMN_BIGRAT"}:
         process(SQL_COLUMN_BIGRAT, function, params, c_expr);
-      elsif action_name = "SQL_COLUMN_BOOL" then
+      when {"SQL_COLUMN_BOOL"}:
         process(SQL_COLUMN_BOOL, function, params, c_expr);
-      elsif action_name = "SQL_COLUMN_BSTRI" then
+      when {"SQL_COLUMN_BSTRI"}:
         process(SQL_COLUMN_BSTRI, function, params, c_expr);
-      elsif action_name = "SQL_COLUMN_DURATION" then
+      when {"SQL_COLUMN_DURATION"}:
         process(SQL_COLUMN_DURATION, function, params, c_expr);
-      elsif action_name = "SQL_COLUMN_FLOAT" then
+      when {"SQL_COLUMN_FLOAT"}:
         process(SQL_COLUMN_FLOAT, function, params, c_expr);
-      elsif action_name = "SQL_COLUMN_INT" then
+      when {"SQL_COLUMN_INT"}:
         process(SQL_COLUMN_INT, function, params, c_expr);
-      elsif action_name = "SQL_COLUMN_STRI" then
+      when {"SQL_COLUMN_STRI"}:
         process(SQL_COLUMN_STRI, function, params, c_expr);
-      elsif action_name = "SQL_COLUMN_TIME" then
+      when {"SQL_COLUMN_TIME"}:
         process(SQL_COLUMN_TIME, function, params, c_expr);
-      elsif action_name = "SQL_COMMIT" then
+      when {"SQL_COMMIT"}:
         process(SQL_COMMIT, function, params, c_expr);
-      elsif action_name = "SQL_CPY_DB" then
+      when {"SQL_CPY_DB"}:
         process(SQL_CPY_DB, function, params, c_expr);
-      elsif action_name = "SQL_CPY_STMT" then
+      when {"SQL_CPY_STMT"}:
         process(SQL_CPY_STMT, function, params, c_expr);
-      elsif action_name = "SQL_EQ_DB" then
+      when {"SQL_EQ_DB"}:
         process(SQL_EQ_DB, function, params, c_expr);
-      elsif action_name = "SQL_EQ_STMT" then
+      when {"SQL_EQ_STMT"}:
         process(SQL_EQ_STMT, function, params, c_expr);
-      elsif action_name = "SQL_ERR_CODE" then
+      when {"SQL_ERR_CODE"}:
         process(SQL_ERR_CODE, function, params, c_expr);
-      elsif action_name = "SQL_ERR_DB_FUNC" then
+      when {"SQL_ERR_DB_FUNC"}:
         process(SQL_ERR_DB_FUNC, function, params, c_expr);
-      elsif action_name = "SQL_ERR_LIB_FUNC" then
+      when {"SQL_ERR_LIB_FUNC"}:
         process(SQL_ERR_LIB_FUNC, function, params, c_expr);
-      elsif action_name = "SQL_ERR_MESSAGE" then
+      when {"SQL_ERR_MESSAGE"}:
         process(SQL_ERR_MESSAGE, function, params, c_expr);
-      elsif action_name = "SQL_EXECUTE" then
+      when {"SQL_EXECUTE"}:
         process(SQL_EXECUTE, function, params, c_expr);
-      elsif action_name = "SQL_FETCH" then
+      when {"SQL_FETCH"}:
         process(SQL_FETCH, function, params, c_expr);
-      elsif action_name = "SQL_IS_NULL" then
+      when {"SQL_IS_NULL"}:
         process(SQL_IS_NULL, function, params, c_expr);
-      elsif action_name = "SQL_NE_DB" then
+      when {"SQL_NE_DB"}:
         process(SQL_NE_DB, function, params, c_expr);
-      elsif action_name = "SQL_NE_STMT" then
+      when {"SQL_NE_STMT"}:
         process(SQL_NE_STMT, function, params, c_expr);
-      elsif action_name = "SQL_OPEN" then
+      when {"SQL_OPEN"}:
         process(SQL_OPEN, function, params, c_expr);
-      elsif action_name = "SQL_PREPARE" then
+      when {"SQL_PREPARE"}:
         process(SQL_PREPARE, function, params, c_expr);
-      elsif action_name = "SQL_STMT_COLUMN_COUNT" then
+      when {"SQL_STMT_COLUMN_COUNT"}:
         process(SQL_STMT_COLUMN_COUNT, function, params, c_expr);
-      elsif action_name = "SQL_STMT_COLUMN_NAME" then
+      when {"SQL_STMT_COLUMN_NAME"}:
         process(SQL_STMT_COLUMN_NAME, function, params, c_expr);
-      else
-        process_unknown_action(action_name, c_expr);
-      end if;
-    elsif action_prefix = "STR" then
-      if action_name = "STR_APPEND" then
+      when {"STR_APPEND"}:
         process(STR_APPEND, function, params, c_expr);
-      elsif action_name = "STR_CAT" then
+      when {"STR_CAT"}:
         process(STR_CAT, function, params, c_expr);
-      elsif action_name = "STR_CHIPOS" then
+      when {"STR_CHIPOS"}:
         process(STR_CHIPOS, function, params, c_expr);
-      elsif action_name = "STR_CHPOS" then
+      when {"STR_CHPOS"}:
         process(STR_CHPOS, function, params, c_expr);
-      elsif action_name = "STR_CHSPLIT" then
+      when {"STR_CHSPLIT"}:
         process(STR_CHSPLIT, function, params, c_expr);
-      elsif action_name = "STR_CLIT" then
+      when {"STR_CLIT"}:
         process(STR_CLIT, function, params, c_expr);
-      elsif action_name = "STR_CMP" then
+      when {"STR_CMP"}:
         process(STR_CMP, function, params, c_expr);
-      elsif action_name = "STR_CPY" then
+      when {"STR_CPY"}:
         process(STR_CPY, function, params, c_expr);
-      elsif action_name = "STR_ELEMCPY" then
+      when {"STR_ELEMCPY"}:
         process(STR_ELEMCPY, function, params, c_expr);
-      elsif action_name = "STR_EQ" then
+      when {"STR_EQ"}:
         process(STR_EQ, function, params, c_expr);
-      elsif action_name = "STR_FOR" then
+      when {"STR_FOR"}:
         process(STR_FOR, function, params, c_expr);
-      elsif action_name = "STR_GE" then
+      when {"STR_GE"}:
         process(STR_GE, function, params, c_expr);
-      elsif action_name = "STR_GT" then
+      when {"STR_GT"}:
         process(STR_GT, function, params, c_expr);
-      elsif action_name = "STR_HASHCODE" then
+      when {"STR_HASHCODE"}:
         process(STR_HASHCODE, function, params, c_expr);
-      elsif action_name = "STR_HEAD" then
+      when {"STR_HEAD"}:
         process(STR_HEAD, function, params, c_expr);
-      elsif action_name = "STR_IDX" then
+      when {"STR_IDX"}:
         process(STR_IDX, function, params, c_expr);
-      elsif action_name = "STR_IPOS" then
+      when {"STR_IPOS"}:
         process(STR_IPOS, function, params, c_expr);
-      elsif action_name = "STR_LE" then
+      when {"STR_LE"}:
         process(STR_LE, function, params, c_expr);
-      elsif action_name = "STR_LIT" then
+      when {"STR_LIT"}:
         process(STR_LIT, function, params, c_expr);
-      elsif action_name = "STR_LNG" then
+      when {"STR_LNG"}:
         process(STR_LNG, function, params, c_expr);
-      elsif action_name = "STR_LOW" then
+      when {"STR_LOW"}:
         process(STR_LOW, function, params, c_expr);
-      elsif action_name = "STR_LPAD" then
+      when {"STR_LPAD"}:
         process(STR_LPAD, function, params, c_expr);
-      elsif action_name = "STR_LPAD0" then
+      when {"STR_LPAD0"}:
         process(STR_LPAD0, function, params, c_expr);
-      elsif action_name = "STR_LT" then
+      when {"STR_LT"}:
         process(STR_LT, function, params, c_expr);
-      elsif action_name = "STR_LTRIM" then
+      when {"STR_LTRIM"}:
         process(STR_LTRIM, function, params, c_expr);
-      elsif action_name = "STR_MULT" then
+      when {"STR_MULT"}:
         process(STR_MULT, function, params, c_expr);
-      elsif action_name = "STR_NE" then
+      when {"STR_NE"}:
         process(STR_NE, function, params, c_expr);
-      elsif action_name = "STR_POS" then
+      when {"STR_POS"}:
         process(STR_POS, function, params, c_expr);
-      elsif action_name = "STR_POSCPY" then
+      when {"STR_POSCPY"}:
         process(STR_POSCPY, function, params, c_expr);
-      elsif action_name = "STR_PUSH" then
+      when {"STR_PUSH"}:
         process(STR_PUSH, function, params, c_expr);
-      elsif action_name = "STR_RANGE" then
+      when {"STR_RANGE"}:
         process(STR_RANGE, function, params, c_expr);
-      elsif action_name = "STR_RCHIPOS" then
+      when {"STR_RCHIPOS"}:
         process(STR_RCHIPOS, function, params, c_expr);
-      elsif action_name = "STR_RCHPOS" then
+      when {"STR_RCHPOS"}:
         process(STR_RCHPOS, function, params, c_expr);
-      elsif action_name = "STR_REPL" then
+      when {"STR_REPL"}:
         process(STR_REPL, function, params, c_expr);
-      elsif action_name = "STR_RIPOS" then
+      when {"STR_RIPOS"}:
         process(STR_RIPOS, function, params, c_expr);
-      elsif action_name = "STR_RPAD" then
+      when {"STR_RPAD"}:
         process(STR_RPAD, function, params, c_expr);
-      elsif action_name = "STR_RPOS" then
+      when {"STR_RPOS"}:
         process(STR_RPOS, function, params, c_expr);
-      elsif action_name = "STR_RTRIM" then
+      when {"STR_RTRIM"}:
         process(STR_RTRIM, function, params, c_expr);
-      elsif action_name = "STR_SPLIT" then
+      when {"STR_SPLIT"}:
         process(STR_SPLIT, function, params, c_expr);
-      elsif action_name = "STR_STR" then
+      when {"STR_STR"}:
         process(STR_STR, function, params, c_expr);
-      elsif action_name = "STR_SUBSTR" then
+      when {"STR_SUBSTR"}:
         process(STR_SUBSTR, function, params, c_expr);
-      elsif action_name = "STR_TAIL" then
+      when {"STR_TAIL"}:
         process(STR_TAIL, function, params, c_expr);
-      elsif action_name = "STR_TOUTF8" then
+      when {"STR_TOUTF8"}:
         process(STR_TOUTF8, function, params, c_expr);
-      elsif action_name = "STR_TRIM" then
+      when {"STR_TRIM"}:
         process(STR_TRIM, function, params, c_expr);
-      elsif action_name = "STR_UP" then
+      when {"STR_UP"}:
         process(STR_UP, function, params, c_expr);
-      elsif action_name = "STR_UTF8TOSTRI" then
+      when {"STR_UTF8TOSTRI"}:
         process(STR_UTF8TOSTRI, function, params, c_expr);
-      elsif action_name = "STR_VALUE" then
+      when {"STR_VALUE"}:
         process(STR_VALUE, function, params, c_expr);
-      else
-        process_unknown_action(action_name, c_expr);
-      end if;
-    elsif action_prefix = "TIM" then
-      if action_name = "TIM_AWAIT" then
+      when {"TIM_AWAIT"}:
         process(TIM_AWAIT, function, params, c_expr);
-      elsif action_name = "TIM_FROM_TIMESTAMP" then
+      when {"TIM_FROM_TIMESTAMP"}:
         process(TIM_FROM_TIMESTAMP, function, params, c_expr);
-      elsif action_name = "TIM_NOW" then
+      when {"TIM_NOW"}:
         process(TIM_NOW, function, params, c_expr);
-      elsif action_name = "TIM_SET_LOCAL_TZ" then
+      when {"TIM_SET_LOCAL_TZ"}:
         process(TIM_SET_LOCAL_TZ, function, params, c_expr);
-      else
-        process_unknown_action(action_name, c_expr);
-      end if;
-    elsif action_prefix = "TYP" then
-      if action_name = "TYP_CMP" then
+      when {"TYP_CMP"}:
         process(TYP_CMP, function, params, c_expr);
-      elsif action_name = "TYP_CPY" then
+      when {"TYP_CPY"}:
         process(TYP_CPY, function, params, c_expr);
-      elsif action_name = "TYP_EQ" then
+      when {"TYP_EQ"}:
         process(TYP_EQ, function, params, c_expr);
-      elsif action_name = "TYP_FUNC" then
+      when {"TYP_FUNC"}:
         process(TYP_FUNC, function, params, c_expr);
-      elsif action_name = "TYP_HASHCODE" then
+      when {"TYP_HASHCODE"}:
         process(TYP_HASHCODE, function, params, c_expr);
-      elsif action_name = "TYP_ISDERIVED" then
+      when {"TYP_ISDERIVED"}:
         process(TYP_ISDERIVED, function, params, c_expr);
-      elsif action_name = "TYP_ISFUNC" then
+      when {"TYP_ISFUNC"}:
         process(TYP_ISFUNC, function, params, c_expr);
-      elsif action_name = "TYP_ISVARFUNC" then
+      when {"TYP_ISVARFUNC"}:
         process(TYP_ISVARFUNC, function, params, c_expr);
-      elsif action_name = "TYP_MATCHOBJ" then
+      when {"TYP_MATCHOBJ"}:
         process(TYP_MATCHOBJ, function, params, c_expr);
-      elsif action_name = "TYP_META" then
+      when {"TYP_META"}:
         process(TYP_META, function, params, c_expr);
-      elsif action_name = "TYP_NE" then
+      when {"TYP_NE"}:
         process(TYP_NE, function, params, c_expr);
-      elsif action_name = "TYP_NUM" then
+      when {"TYP_NUM"}:
         process(TYP_NUM, function, params, c_expr);
-      elsif action_name = "TYP_RESULT" then
+      when {"TYP_RESULT"}:
         process(TYP_RESULT, function, params, c_expr);
-      elsif action_name = "TYP_STR" then
+      when {"TYP_STR"}:
         process(TYP_STR, function, params, c_expr);
-      elsif action_name = "TYP_VALUE" then
+      when {"TYP_VALUE"}:
         process(TYP_VALUE, function, params, c_expr);
-      elsif action_name = "TYP_VARCONV" then
+      when {"TYP_VARCONV"}:
         process(TYP_VARCONV, function, params, c_expr);
-      elsif action_name = "TYP_VARFUNC" then
+      when {"TYP_VARFUNC"}:
         process(TYP_VARFUNC, function, params, c_expr);
-      else
-        process_unknown_action(action_name, c_expr);
-      end if;
-    elsif action_prefix = "UT8" then
-      if action_name = "UT8_GETC" then
+      when {"UT8_GETC"}:
         process(UT8_GETC, function, params, c_expr);
-      elsif action_name = "UT8_GETS" then
+      when {"UT8_GETS"}:
         process(UT8_GETS, function, params, c_expr);
-      elsif action_name = "UT8_LINE_READ" then
+      when {"UT8_LINE_READ"}:
         process(UT8_LINE_READ, function, params, c_expr);
-      elsif action_name = "UT8_SEEK" then
+      when {"UT8_SEEK"}:
         process(UT8_SEEK, function, params, c_expr);
-      elsif action_name = "UT8_WORD_READ" then
+      when {"UT8_WORD_READ"}:
         process(UT8_WORD_READ, function, params, c_expr);
-      elsif action_name = "UT8_WRITE" then
+      when {"UT8_WRITE"}:
         process(UT8_WRITE, function, params, c_expr);
-      else
+      otherwise:
         process_unknown_action(action_name, c_expr);
-      end if;
-    else
-      process_unknown_action(action_name, c_expr);
-    end if;
+    end case;
   end func;
