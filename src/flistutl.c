@@ -723,78 +723,6 @@ void reuse_free_lists ()
 
 
 
-#ifdef OUT_OF_ORDER
-#ifdef ANSI_C
-
-stritype alloc_s (memsizetype len)
-#else
-
-stritype alloc_s (len)
-memsizetype len;
-#endif
-
-  {
-    stritype result;
-
-  /* alloc_s */
-/*  printf("<+%ld>", len); */
-    if (len >= 256 || flist.stris[len] == NULL) {
-      HEAP_STRI(result, len);
-    } else {
-      POP_STRI(result, len);
-    } /* if */
-    return(result);
-  } /* alloc_s */
-
-
-
-#ifdef ANSI_C
-
-void free_stri (stritype stri, memsizetype len)
-#else
-
-void free_stri (stri, len)
-stritype stri;
-memsizetype len;
-#endif
-
-  { /* free_stri */
-/*  printf("<-%ld>", len); */
-    if (len < 256) {
-      stri->SIZE = (memsizetype) flist.stris[len];
-      flist.stris[len] = stri;
-    } else {
-      FREE_CHUNK(stri, len);
-    } /* if */
-  } /* free_stri */
-
-
-
-#ifdef ANSI_C
-
-stritype resize_s (stritype stri, memsizetype len1, memsizetype len2)
-#else
-
-stritype resize_s (stri, len1, len2)
-stritype stri;
-memsizetype len1;
-memsizetype len2;
-#endif
-
-  {
-    stritype result;
-
-  /* resize_s */
-    ALLOC_STRI_CHECK_SIZE(result, len2);
-/*  printf("X"); */
-    memcpy(result, stri, len2 > len1 ? SIZ_STRI(len1) : SIZ_STRI(len2));
-    free_stri(stri, len1);
-    return(result);
-  } /* resize_s */
-#endif
-
-
-
 #ifdef USE_CHUNK_ALLOCS
 #ifdef ANSI_C
 
@@ -865,7 +793,7 @@ size_t size;
 #ifdef DO_HEAP_CHECK
 #ifdef ANSI_C
 
-void check_heap (long sizediff, char *file_name, unsigned int line_num)
+void check_heap (long sizediff, const char *file_name, unsigned int line_num)
 #else
 
 void check_heap (sizediff)
@@ -874,6 +802,8 @@ long sizediff;
 
   {
     memsizetype bytes_used;
+    /* static long last_sizediff = 0;
+       static unsigned int last_line_num = 0; */
 
   /* check_heap */
 #ifdef TRACE_HEAPUTIL
@@ -917,6 +847,23 @@ long sizediff;
         count.fnam_bytes + ((memsizetype) count.fnam) +
         count.symb_bytes + ((memsizetype) count.symb) +
         count.byte;
+#ifdef WITH_STRI_FLIST
+#ifdef WITH_STRI_CAPACITY
+    {
+      int index;
+
+      for (index = 0; index < STRI_FREELIST_ARRAY_SIZE; index++) {
+        if (sflist_len[index] > STRI_FREELIST_LENGTH_LIMIT) {
+          printf("sflist_len[%d]=%u\n", index, sflist_len[index]);
+        } /* if */
+      } /* if */
+    }
+#else
+    if (sflist_len > STRI_FREELIST_LENGTH_LIMIT) {
+      printf("sflist_len=%u\n", sflist_len[index]);
+    } /* if */
+#endif
+#endif
     if (bytes_used != hs) {
       printf("*** %s(%u)\n%lu %lu %ld %ld \n",
           file_name, line_num, bytes_used, hs, bytes_used - hs, sizediff);
@@ -927,6 +874,8 @@ long sizediff;
 /*  } else {
       printf("\n%lu %ld %d \n", hs, sizediff, in_file.line); */
     } /* if */
+    /* last_sizediff = sizediff;
+       last_line_num = line_num; */
     /* if (sizediff > 0) {
       printf("\nalloc(%ld)\n", sizediff);
     } else {

@@ -56,7 +56,7 @@ inttype bigCmpSignedDigit (const const_biginttype big1, inttype number);
 void bigCpy (biginttype *const big_to, const const_biginttype big_from);
 biginttype bigCreate (const const_biginttype big_from);
 void bigDecr (biginttype *const big_variable);
-void bigDestr (const biginttype old_bigint);
+void bigDestr (const const_biginttype old_bigint);
 biginttype bigDiv (const const_biginttype big1, const const_biginttype big2);
 booltype bigEq (const const_biginttype big1, const const_biginttype big2);
 biginttype bigFromInt32 (int32type number);

@@ -71,7 +71,7 @@ COMPILING UNDER BSD AND UNIX
   I can include it in the release.
 
 
-COMPILING UNDER WINDOWS WITH GCC
+COMPILING UNDER WINDOWS WITH GCC FROM MINGW
 
     When gcc and mingw32-make from MinGW are installed use a
   console, go to the 'src' directory and type:

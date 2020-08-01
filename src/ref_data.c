@@ -308,7 +308,7 @@ rtlGenerictype source;
 
 #ifdef ANSI_C
 
-const_stritype refFile (objecttype obj_arg1)
+stritype refFile (objecttype obj_arg1)
 #else
 
 stritype refFile (obj_arg1)
@@ -317,7 +317,7 @@ objecttype obj_arg1;
 
   {
     filenumtype file_number;
-    const_stritype result;
+    stritype result;
 
   /* refFile */
     if (HAS_POSINFO(obj_arg1)) {

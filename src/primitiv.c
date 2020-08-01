@@ -702,6 +702,7 @@ static primactrecord prim_act_table[] = {
     { "SET_VALUE",           set_value,           },
 
     { "SOC_ACCEPT",          soc_accept,          },
+    { "SOC_ADDR_FAMILY",     soc_addr_family,     },
     { "SOC_BIND",            soc_bind,            },
     { "SOC_CLOSE",           soc_close,           },
     { "SOC_CONNECT",         soc_connect,         },

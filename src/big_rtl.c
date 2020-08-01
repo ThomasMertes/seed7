@@ -48,7 +48,7 @@
 
 
 #define WITH_BIGINT_FREELIST
-#define FREELIST_LENGTH_LIMIT 10
+#define BIG_FREELIST_LENGTH_LIMIT 10
 #define KARATSUBA_THRESHOLD 32
 
 
@@ -117,66 +117,67 @@ size_t sizeof_bigintrecord = sizeof(bigintrecord);
 #define MAX_BIG_LEN      ((MAX_MEMSIZETYPE - sizeof(bigintrecord) + sizeof(bigdigittype)) / sizeof(bigdigittype))
 
 #ifdef WITH_BIGINT_CAPACITY
-#define HEAP_BIG(var,len)                (ALLOC_HEAP(var, biginttype, SIZ_RTLBIG(len))?((var)->capacity = len, CNT1_BIG(len, SIZ_RTLBIG(len)), TRUE):FALSE)
-#define RELEASE_BIG(var,len)             (CNT2_BIG(len, SIZ_RTLBIG(len)) FREE_HEAP(var, SIZ_RTLBIG(len)))
-#define REALLOC_BIG_SIZE_OK(v1,v2,l1,l2) ((v1=REALLOC_HEAP(v2, biginttype, SIZ_RTLBIG(l2)))!=NULL?((v1)->capacity=l2,0):0)
+#define HEAP_ALLOC_BIG(var,len)       (ALLOC_HEAP(var, biginttype, SIZ_RTLBIG(len))?((var)->capacity = len, CNT1_BIG(len, SIZ_RTLBIG(len)), TRUE):FALSE)
+#define HEAP_FREE_BIG(var,len)        (CNT2_BIG(len, SIZ_RTLBIG(len)) FREE_HEAP(var, SIZ_RTLBIG(len)))
+#define HEAP_REALLOC_BIG(v1,v2,l1,l2) ((v1=REALLOC_HEAP(v2, biginttype, SIZ_RTLBIG(l2)))!=NULL?((v1)->capacity=l2,0):0)
 #else
-#define HEAP_BIG(var,len)                (ALLOC_HEAP(var, biginttype, SIZ_RTLBIG(len))?CNT1_BIG(len, SIZ_RTLBIG(len)), TRUE:FALSE)
-#define RELEASE_BIG(var,len)             (CNT2_BIG(len, SIZ_RTLBIG(len)) FREE_HEAP(var, SIZ_RTLBIG(len)))
-#define REALLOC_BIG_SIZE_OK(v1,v2,l1,l2) (v1=REALLOC_HEAP(v2, biginttype, SIZ_RTLBIG(l2)),0)
+#define HEAP_ALLOC_BIG(var,len)       (ALLOC_HEAP(var, biginttype, SIZ_RTLBIG(len))?CNT1_BIG(len, SIZ_RTLBIG(len)), TRUE:FALSE)
+#define HEAP_FREE_BIG(var,len)        (CNT2_BIG(len, SIZ_RTLBIG(len)) FREE_HEAP(var, SIZ_RTLBIG(len)))
+#define HEAP_REALLOC_BIG(v1,v2,l1,l2) (v1=REALLOC_HEAP(v2, biginttype, SIZ_RTLBIG(l2)),0)
 #endif
-#define COUNT3_BIG(len1,len2)    CNT3(CNT2_BIG(len1, SIZ_RTLBIG(len1)) CNT1_BIG(len2, SIZ_RTLBIG(len2)))
+#define COUNT3_BIG(len1,len2)         CNT3(CNT2_BIG(len1, SIZ_RTLBIG(len1)) CNT1_BIG(len2, SIZ_RTLBIG(len2)))
 
 #ifdef WITH_BIGINT_FREELIST
 #ifdef WITH_BIGINT_CAPACITY
 
-#define FREELIST_ARRAY_SIZE 32
+#define BIG_FREELIST_ARRAY_SIZE 32
 
-static biginttype flist[FREELIST_ARRAY_SIZE] = {
+static biginttype flist[BIG_FREELIST_ARRAY_SIZE] = {
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
-static unsigned int flist_len[FREELIST_ARRAY_SIZE] = {
+static unsigned int flist_len[BIG_FREELIST_ARRAY_SIZE] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-#define POP_OK(len)        (len) < FREELIST_ARRAY_SIZE && flist_len[len] != 0
-#define PUSH_OK(var)       (var)->capacity < FREELIST_ARRAY_SIZE && flist_len[(var)->capacity] < FREELIST_LENGTH_LIMIT
+#define POP_BIG_OK(len)    (len) < BIG_FREELIST_ARRAY_SIZE && flist_len[len] != 0
+#define PUSH_BIG_OK(var)   (var)->capacity < BIG_FREELIST_ARRAY_SIZE && flist_len[(var)->capacity] < BIG_FREELIST_LENGTH_LIMIT
 
 #define POP_BIG(var,len)   (var = flist[len], flist[len] = (biginttype) flist[len]->size, flist_len[len]--, TRUE)
-#define PUSH_BIG(var,len)  {(var)->size = (memsizetype) flist[len]; flist[len] = var; flist_len[len]++; }
+#define PUSH_BIG(var,len)  {((biginttype) var)->size = (memsizetype) flist[len]; flist[len] = (biginttype) var; flist_len[len]++; }
 
-#define ALLOC_BIG_SIZE_OK(var,len)    (POP_OK(len) ? POP_BIG(var, len) : HEAP_BIG(var, len))
-#define ALLOC_BIG_CHECK_SIZE(var,len) (POP_OK(len) ? POP_BIG(var, len) : ((len)<=MAX_BIG_LEN?HEAP_BIG(var, len):(var=NULL, FALSE)))
-#define FREE_BIG(var,len)             if (PUSH_OK(var)) PUSH_BIG(var, (var)->capacity) else RELEASE_BIG(var, (var)->capacity);
+#define ALLOC_BIG_SIZE_OK(var,len)    (POP_BIG_OK(len) ? POP_BIG(var, len) : HEAP_ALLOC_BIG(var, len))
+#define ALLOC_BIG_CHECK_SIZE(var,len) (POP_BIG_OK(len) ? POP_BIG(var, len) : ((len)<=MAX_BIG_LEN?HEAP_ALLOC_BIG(var, len):(var=NULL, FALSE)))
+#define FREE_BIG(var,len)  if (PUSH_BIG_OK(var)) PUSH_BIG(var, (var)->capacity) else HEAP_FREE_BIG(var, (var)->capacity);
 
 #else
 
 static biginttype flist = NULL;
 static unsigned int flist_len = 0;
 
-#define POP_OK(len)        (len) == 1 && flist_len != 0
-#define PUSH_OK(var)       (len) == 1 && flist_len < FREELIST_LENGTH_LIMIT
+#define POP_BIG_OK(len)    (len) == 1 && flist_len != 0
+#define PUSH_BIG_OK(var)   (len) == 1 && flist_len < BIG_FREELIST_LENGTH_LIMIT
 
 #define POP_BIG(var)       (var = flist, flist = (biginttype) flist->size, flist_len--, TRUE)
-#define PUSH_BIG(var)      {(var)->size = (memsizetype) flist; flist = var; flist_len++; }
+#define PUSH_BIG(var)      {((biginttype) var)->size = (memsizetype) flist; flist = (biginttype) var; flist_len++; }
 
-#define ALLOC_BIG_SIZE_OK(var,len)    (POP_OK(len) ? POP_BIG(var) : HEAP_BIG(var, len))
-#define ALLOC_BIG_CHECK_SIZE(var,len) (POP_OK(len) ? POP_BIG(var) : ((len) <= MAX_BIG_LEN?HEAP_BIG(var, len):(var=NULL, FALSE)))
-#define FREE_BIG(var,len)             if (PUSH_OK(var)) PUSH_BIG(var) else RELEASE_BIG(var, len);
+#define ALLOC_BIG_SIZE_OK(var,len)    (POP_BIG_OK(len) ? POP_BIG(var) : HEAP_ALLOC_BIG(var, len))
+#define ALLOC_BIG_CHECK_SIZE(var,len) (POP_BIG_OK(len) ? POP_BIG(var) : ((len) <= MAX_BIG_LEN?HEAP_ALLOC_BIG(var, len):(var=NULL, FALSE)))
+#define FREE_BIG(var,len)  if (PUSH_BIG_OK(var)) PUSH_BIG(var) else HEAP_FREE_BIG(var, len);
 
 #endif
 #else
 
-#define ALLOC_BIG_SIZE_OK(var,len)    HEAP_BIG(var, len)
-#define ALLOC_BIG_CHECK_SIZE(var,len) ((len) <= MAX_BIG_LEN?HEAP_BIG(var, len):(var=NULL, FALSE))
-#define FREE_BIG(var,len)             RELEASE_BIG(var, len)
+#define ALLOC_BIG_SIZE_OK(var,len)    HEAP_ALLOC_BIG(var, len)
+#define ALLOC_BIG_CHECK_SIZE(var,len) ((len) <= MAX_BIG_LEN?HEAP_ALLOC_BIG(var, len):(var=NULL, FALSE))
+#define FREE_BIG(var,len)             HEAP_FREE_BIG(var, len)
 
 #endif
 
 #define ALLOC_BIG(var,len)                  ALLOC_BIG_CHECK_SIZE(var, len)
-#define REALLOC_BIG_CHECK_SIZE(v1,v2,l1,l2) ((l2) <= MAX_BIG_LEN?REALLOC_BIG_SIZE_OK(v1,v2,l1,l2):(v1=NULL,0))
+#define REALLOC_BIG_SIZE_OK(v1,v2,l1,l2)    HEAP_REALLOC_BIG(v1,v2,l1,l2)
+#define REALLOC_BIG_CHECK_SIZE(v1,v2,l1,l2) ((l2) <= MAX_BIG_LEN?HEAP_REALLOC_BIG(v1,v2,l1,l2):(v1=NULL,0))
 
 
 #ifdef ANSI_C
@@ -3048,7 +3049,7 @@ biginttype *big_variable;
 
 #ifdef ANSI_C
 
-void bigDestr (const biginttype old_bigint)
+void bigDestr (const const_biginttype old_bigint)
 #else
 
 void bigDestr (old_bigint)

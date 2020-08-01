@@ -32,6 +32,7 @@
 #ifdef ANSI_C
 
 sockettype socAccept (sockettype sock, bstritype *address);
+inttype socAddrFamily (const const_bstritype address);
 void socBind (sockettype sock, const_bstritype address);
 void socClose (sockettype sock1);
 void socConnect (sockettype sock, const_bstritype address);
@@ -55,6 +56,7 @@ void socWrite (sockettype sock1, const const_stritype stri);
 #else
 
 sockettype socAccept ();
+inttype socAddrFamily ();
 void socBind ();
 void socClose ();
 void socConnect ();

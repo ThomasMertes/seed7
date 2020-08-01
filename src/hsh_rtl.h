@@ -34,21 +34,20 @@
 booltype hshContains (const const_rtlHashtype hash1,
                       const rtlGenerictype key, inttype hashcode,
                       comparetype cmp_func);
-void hshCpy (rtlHashtype *const hash_to,
-             const const_rtlHashtype hash_from,
-             createfunctype key_create_func, destrfunctype key_destr_func,
-             createfunctype data_create_func, destrfunctype data_destr_func);
+void hshCpy (rtlHashtype *const hash_to, const const_rtlHashtype hash_from,
+             const createfunctype key_create_func, const destrfunctype key_destr_func,
+             const createfunctype data_create_func, const destrfunctype data_destr_func);
 rtlHashtype hshCreate (const const_rtlHashtype hash_from,
-                       createfunctype key_create_func,
-                       destrfunctype key_destr_func,
-                       createfunctype data_create_func,
-                       destrfunctype data_destr_func);
-void hshDestr (const rtlHashtype old_hash,
-               destrfunctype key_destr_func, destrfunctype data_destr_func);
+                       const createfunctype key_create_func,
+                       const destrfunctype key_destr_func,
+                       const createfunctype data_create_func,
+                       const destrfunctype data_destr_func);
+void hshDestr (const const_rtlHashtype old_hash,
+               const destrfunctype key_destr_func, const destrfunctype data_destr_func);
 rtlHashtype hshEmpty (void);
 void hshExcl (const rtlHashtype hash1, const rtlGenerictype key,
               inttype hashcode, comparetype cmp_func,
-              destrfunctype key_destr_func, destrfunctype data_destr_func);
+              const destrfunctype key_destr_func, const destrfunctype data_destr_func);
 rtlGenerictype hshIdx (const const_rtlHashtype hash1,
                        const rtlGenerictype key, inttype hashcode,
                        comparetype cmp_func);
@@ -59,18 +58,19 @@ rtlGenerictype hshIdxWithDefault (const rtlHashtype hash1,
                                   const rtlGenerictype key,
                                   const rtlGenerictype data,
                                   inttype hashcode, comparetype cmp_func,
-                                  createfunctype key_create_func,
-                                  createfunctype data_create_func);
+                                  const createfunctype key_create_func,
+                                  const createfunctype data_create_func);
 void hshIncl (const rtlHashtype hash1, const rtlGenerictype key,
               const rtlGenerictype data, inttype hashcode,
-              comparetype cmp_func, createfunctype key_create_func,
-              createfunctype data_create_func, copyfunctype data_copy_func);
+              comparetype cmp_func, const createfunctype key_create_func,
+              const createfunctype data_create_func,
+              const copyfunctype data_copy_func);
 rtlArraytype hshKeys (const const_rtlHashtype hash1,
-                      createfunctype key_create_func,
-                      destrfunctype key_destr_func);
+                      const createfunctype key_create_func,
+                      const destrfunctype key_destr_func);
 rtlArraytype hshValues (const const_rtlHashtype hash1,
-                        createfunctype value_create_func,
-                        destrfunctype value_destr_func);
+                        const createfunctype value_create_func,
+                        const destrfunctype value_destr_func);
 
 #else
 

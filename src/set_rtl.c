@@ -417,7 +417,7 @@ rtlGenerictype from_value;
 
 #ifdef ANSI_C
 
-void setDestr (const settype old_set)
+void setDestr (const const_settype old_set)
 #else
 
 void setDestr (old_set)

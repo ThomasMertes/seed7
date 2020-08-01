@@ -64,7 +64,7 @@ void cmdSetenv (const const_stritype name, const const_stritype value);
 void cmdSetATime (const const_stritype file_name,
     inttype year, inttype month, inttype day, inttype hour,
     inttype min, inttype sec, inttype micro_sec, inttype time_zone);
-void cmdSetFileMode (const const_stritype file_name, settype mode);
+void cmdSetFileMode (const const_stritype file_name, const const_settype mode);
 void cmdSetMTime (const const_stritype file_name,
     inttype year, inttype month, inttype day, inttype hour,
     inttype min, inttype sec, inttype micro_sec, inttype time_zone);

@@ -30,50 +30,10 @@ typedef struct {
     listtype list_elems;
     nodetype nodes;
     infiltype infiles;
-#ifdef WITH_STRI_FLIST
-    stritype stris[256];
-    memsizetype siz;
-    stritype str;
-#endif
   } flisttype;
 
 #ifdef DO_INIT
-flisttype flist = {NULL, NULL, NULL, NULL,
-#ifdef WITH_STRI_FLIST
-   {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}
-#endif
-    };
+flisttype flist = {NULL, NULL, NULL, NULL};
 #else
 EXTERN flisttype flist;
 #endif
@@ -129,14 +89,14 @@ EXTERN flisttype flist;
 #define HEAP_L_E(L,T)   (!ALLOC_FLISTELEM(L, T) ? FALSE : (CNT(COUNT_FLISTELEM(T, count.list_elem)) TRUE))
 #define HEAP_NODE(N,T)  (!ALLOC_FLISTELEM(N, T) ? FALSE : (CNT(COUNT_FLISTELEM(T, count.node))      TRUE))
 #define HEAP_FILE(F,T)  (!ALLOC_FLISTELEM(F, T) ? FALSE : (CNT(COUNT_FLISTELEM(T, count.infil))     TRUE))
-#define HEAP_STRI(S,L)  ALLOC_HEAP(S, stritype, SIZ_STRI(L))
-#define CHUNK_STRI(S,L) ALLOC_CHUNK(S, stritype, SIZ_STRI(L))
+/* #define HEAP_STRI(S,L)  ALLOC_HEAP(S, stritype, SIZ_STRI(L))
+   #define CHUNK_STRI(S,L) ALLOC_CHUNK(S, stritype, SIZ_STRI(L)) */
 
 #define POP_OBJ(O)      (O = flist.objects,    flist.objects = flist.objects->value.objvalue, F_LOG1(O) TRUE)
 #define POP_L_E(L)      (L = flist.list_elems, flist.list_elems = flist.list_elems->next,     F_LOG1(L) TRUE)
 #define POP_NODE(N)     (N = flist.nodes,      flist.nodes = flist.nodes->next1,              F_LOG1(N) TRUE)
 #define POP_FILE(F)     (F = flist.infiles,    flist.infiles = flist.infiles->next,           F_LOG1(F) TRUE)
-#define POP_STRI(S,L)   (S = flist.stris[L],   flist.stris[L] = (stritype) flist.stris[L]->SIZE, TRUE)
+/* #define POP_STRI(S,L)   (S = flist.stris[L],   flist.stris[L] = (stritype) flist.stris[L]->size, TRUE) */
 
 #define ALLOC_OBJECT(O) (flist.objects != NULL ? POP_OBJ(O) : HEAP_OBJ(O, objectrecord))
 #define FREE_OBJECT(O)  (F_LOG2(O) (O)->value.objvalue = flist.objects, (O)->objcategory = 0, flist.objects = (O))
@@ -149,31 +109,6 @@ EXTERN flisttype flist;
 
 #define ALLOC_FILE(F)   (flist.infiles != NULL ? POP_FILE(F) : HEAP_FILE(F, infilrecord))
 #define FREE_FILE(F)    (F_LOG2(F) (F)->next = flist.infiles, flist.infiles = (F))
-
-#ifdef WITH_STRI_FLIST
-#define ALLOC_STRI(S,L) (/* printf("<+%ld>", L), */ L >= 256 ? HEAP_STRI(S, L) : (flist.stris[L] != NULL ? POP_STRI(S, L) : CHUNK_STRI(S, L)))
-#define FREE_STRI(S,L)  (/* printf("<-%ld>", L), */ L < 256 ? (flist.siz = (memsizetype) flist.stris[L], flist.stris[L] = (S), (S)->SIZE = flist.siz) : FREE_HEAP(S, L))
-#define RESIZE_STRI(S,L1,L2) (flist.siz = L2, ALLOC_STRI(flist.str, flist.siz), /* printf("X"), */ memcpy(flist.str, S, flist.siz > L1 ? SIZ_STRI(L1) : SIZ_STRI(flist.siz)), FREE_STRI(S, L1), S = flist.str)
-
-#ifdef OUT_OF_ORDER
-#define ALLOC_STRI(S,L)      (S = ALLOC_S(L))
-#define RESIZE_STRI(S,L1,L2) (S = RESIZE_S(S,L1,L2))
-
-#ifdef ANSI_C
-
-stritype ALLOC_S (memsizetype);
-void FREE_STRI (stritype, memsizetype);
-stritype RESIZE_S (stritype, memsizetype, memsizetype);
-
-#else
-
-stritype ALLOC_S ();
-void FREE_STRI ();
-stritype RESIZE_S ();
-
-#endif
-#endif
-#endif
 
 
 #ifdef ANSI_C

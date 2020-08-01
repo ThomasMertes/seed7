@@ -51,10 +51,27 @@ listtype arguments;
     isit_socket(arg_1(arguments));
     isit_bstri(arg_2(arguments));
     is_variable(arg_2(arguments));
-    return(bld_socket_temp(
+    return bld_socket_temp(
         socAccept(take_socket(arg_1(arguments)),
-                 &take_bstri(arg_2(arguments)))));
+                 &take_bstri(arg_2(arguments))));
   } /* soc_accept */
+
+
+
+#ifdef ANSI_C
+
+objecttype soc_addr_family (listtype arguments)
+#else
+
+objecttype soc_addr_family (arguments)
+listtype arguments;
+#endif
+
+  { /* soc_addr_family */
+    isit_bstri(arg_1(arguments));
+    return bld_int_temp(
+        socAddrFamily(take_bstri(arg_1(arguments))));
+  } /* soc_addr_family */
 
 
 
@@ -71,7 +88,7 @@ listtype arguments;
     isit_socket(arg_1(arguments));
     isit_bstri(arg_2(arguments));
     socBind(take_socket(arg_1(arguments)), take_bstri(arg_2(arguments)));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* soc_bind */
 
 
@@ -88,7 +105,7 @@ listtype arguments;
   { /* soc_close */
     isit_socket(arg_1(arguments));
     socClose(take_socket(arg_1(arguments)));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* soc_close */
 
 
@@ -106,7 +123,7 @@ listtype arguments;
     isit_socket(arg_1(arguments));
     isit_bstri(arg_2(arguments));
     socConnect(take_socket(arg_1(arguments)), take_bstri(arg_2(arguments)));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* soc_connect */
 
 
@@ -129,7 +146,7 @@ listtype arguments;
     is_variable(socket_variable);
     isit_socket(arg_3(arguments));
     socket_variable->value.socketvalue = take_socket(arg_3(arguments));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* soc_cpy */
 
 
@@ -147,7 +164,7 @@ listtype arguments;
     isit_socket(arg_3(arguments));
     SET_CATEGORY_OF_OBJ(arg_1(arguments), SOCKETOBJECT);
     arg_1(arguments)->value.socketvalue = take_socket(arg_3(arguments));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* soc_create */
 
 
@@ -162,7 +179,7 @@ listtype arguments;
 #endif
 
   { /* soc_empty */
-    return(bld_socket_temp((sockettype) -1));
+    return bld_socket_temp((sockettype) -1);
   } /* soc_empty */
 
 
@@ -181,9 +198,9 @@ listtype arguments;
     isit_socket(arg_3(arguments));
     if (take_socket(arg_1(arguments)) ==
         take_socket(arg_3(arguments))) {
-      return(SYS_TRUE_OBJECT);
+      return SYS_TRUE_OBJECT;
     } else {
-      return(SYS_FALSE_OBJECT);
+      return SYS_FALSE_OBJECT;
     } /* if */
   } /* soc_eq */
 
@@ -200,8 +217,8 @@ listtype arguments;
 
   { /* soc_getc */
     isit_socket(arg_1(arguments));
-    return(bld_char_temp((chartype)
-        socGetc(take_socket(arg_1(arguments)))));
+    return bld_char_temp((chartype)
+        socGetc(take_socket(arg_1(arguments))));
   } /* soc_getc */
 
 
@@ -218,8 +235,8 @@ listtype arguments;
   { /* soc_gets */
     isit_socket(arg_1(arguments));
     isit_int(arg_2(arguments));
-    return(bld_stri_temp(
-        socGets(take_socket(arg_1(arguments)), take_int(arg_2(arguments)))));
+    return bld_stri_temp(
+        socGets(take_socket(arg_1(arguments)), take_int(arg_2(arguments))));
   } /* soc_gets */
 
 
@@ -236,9 +253,9 @@ listtype arguments;
   { /* soc_inet_addr */
     isit_stri(arg_1(arguments));
     isit_int(arg_2(arguments));
-    return(bld_bstri_temp(
+    return bld_bstri_temp(
         socInetAddr(take_stri(arg_1(arguments)),
-                    take_int(arg_2(arguments)))));
+                    take_int(arg_2(arguments))));
   } /* soc_inet_addr */
 
 
@@ -254,8 +271,8 @@ listtype arguments;
 
   { /* soc_inet_local_addr */
     isit_int(arg_1(arguments));
-    return(bld_bstri_temp(
-        socInetLocalAddr(take_int(arg_1(arguments)))));
+    return bld_bstri_temp(
+        socInetLocalAddr(take_int(arg_1(arguments))));
   } /* soc_inet_local_addr */
 
 
@@ -271,8 +288,8 @@ listtype arguments;
 
   { /* soc_inet_serv_addr */
     isit_int(arg_1(arguments));
-    return(bld_bstri_temp(
-        socInetServAddr(take_int(arg_1(arguments)))));
+    return bld_bstri_temp(
+        socInetServAddr(take_int(arg_1(arguments))));
   } /* soc_inet_serv_addr */
 
 
@@ -294,8 +311,8 @@ listtype arguments;
     ch_variable = arg_2(arguments);
     isit_char(ch_variable);
     is_variable(ch_variable);
-    return(bld_stri_temp(
-        socLineRead(take_socket(arg_1(arguments)), &ch_variable->value.charvalue)));
+    return bld_stri_temp(
+        socLineRead(take_socket(arg_1(arguments)), &ch_variable->value.charvalue));
   } /* soc_line_read */
 
 
@@ -313,7 +330,7 @@ listtype arguments;
     isit_socket(arg_1(arguments));
     isit_int(arg_2(arguments));
     socListen(take_socket(arg_1(arguments)), take_int(arg_2(arguments)));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* soc_listen */
 
 
@@ -332,9 +349,9 @@ listtype arguments;
     isit_socket(arg_3(arguments));
     if (take_socket(arg_1(arguments)) !=
         take_socket(arg_3(arguments))) {
-      return(SYS_TRUE_OBJECT);
+      return SYS_TRUE_OBJECT;
     } else {
-      return(SYS_FALSE_OBJECT);
+      return SYS_FALSE_OBJECT;
     } /* if */
   } /* soc_ne */
 
@@ -355,11 +372,11 @@ listtype arguments;
     isit_int(arg_3(arguments));
     isit_int(arg_4(arguments));
     is_variable(arg_2(arguments));
-    return(bld_int_temp(
+    return bld_int_temp(
         socRecv(take_socket(arg_1(arguments)),
                &take_stri(arg_2(arguments)),
                 take_int(arg_3(arguments)),
-                take_int(arg_4(arguments)))));
+                take_int(arg_4(arguments))));
   } /* soc_recv */
 
 
@@ -381,12 +398,12 @@ listtype arguments;
     isit_bstri(arg_5(arguments));
     is_variable(arg_2(arguments));
     is_variable(arg_5(arguments));
-    return(bld_int_temp(
+    return bld_int_temp(
         socRecvfrom(take_socket(arg_1(arguments)),
                    &take_stri(arg_2(arguments)),
                     take_int(arg_3(arguments)),
                     take_int(arg_4(arguments)),
-                   &take_bstri(arg_5(arguments)))));
+                   &take_bstri(arg_5(arguments))));
   } /* soc_recvfrom */
 
 
@@ -404,10 +421,10 @@ listtype arguments;
     isit_socket(arg_1(arguments));
     isit_stri(arg_2(arguments));
     isit_int(arg_3(arguments));
-    return(bld_int_temp(
+    return bld_int_temp(
         socSend(take_socket(arg_1(arguments)),
                 take_stri(arg_2(arguments)),
-                take_int(arg_3(arguments)))));
+                take_int(arg_3(arguments))));
   } /* soc_send */
 
 
@@ -426,11 +443,11 @@ listtype arguments;
     isit_stri(arg_2(arguments));
     isit_int(arg_3(arguments));
     isit_bstri(arg_4(arguments));
-    return(bld_int_temp(
+    return bld_int_temp(
         socSendto(take_socket(arg_1(arguments)),
                   take_stri(arg_2(arguments)),
                   take_int(arg_3(arguments)),
-                  take_bstri(arg_4(arguments)))));
+                  take_bstri(arg_4(arguments))));
   } /* soc_sendto */
 
 
@@ -448,10 +465,10 @@ listtype arguments;
     isit_int(arg_1(arguments));
     isit_int(arg_2(arguments));
     isit_int(arg_3(arguments));
-    return(bld_socket_temp(
+    return bld_socket_temp(
         socSocket(take_int(arg_1(arguments)),
                   take_int(arg_2(arguments)),
-                  take_int(arg_3(arguments)))));
+                  take_int(arg_3(arguments))));
   } /* soc_socket */
 
 
@@ -473,8 +490,8 @@ listtype arguments;
     ch_variable = arg_2(arguments);
     isit_char(ch_variable);
     is_variable(ch_variable);
-    return(bld_stri_temp(
-        socWordRead(take_socket(arg_1(arguments)), &ch_variable->value.charvalue)));
+    return bld_stri_temp(
+        socWordRead(take_socket(arg_1(arguments)), &ch_variable->value.charvalue));
   } /* soc_word_read */
 
 
@@ -492,5 +509,5 @@ listtype arguments;
     isit_socket(arg_1(arguments));
     isit_stri(arg_2(arguments));
     socWrite(take_socket(arg_1(arguments)), take_stri(arg_2(arguments)));
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* soc_write */

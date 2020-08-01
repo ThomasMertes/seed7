@@ -28,6 +28,7 @@
 #ifdef ANSI_C
 
 objecttype soc_accept          (listtype arguments);
+objecttype soc_addr_family     (listtype arguments);
 objecttype soc_bind            (listtype arguments);
 objecttype soc_close           (listtype arguments);
 objecttype soc_connect         (listtype arguments);
@@ -54,6 +55,7 @@ objecttype soc_write           (listtype arguments);
 #else
 
 objecttype soc_accept ();
+objecttype soc_addr_family ();
 objecttype soc_bind ();
 objecttype soc_close ();
 objecttype soc_connect ();

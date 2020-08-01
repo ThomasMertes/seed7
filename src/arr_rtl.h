@@ -39,11 +39,11 @@ rtlArraytype getArgv (const int argc, const cstritype *const argv, stritype *arg
     stritype *exePath);
 #endif
 stritype examineSearchPath (const const_stritype fileName);
-void arrAppend (rtlArraytype *const arr_variable, const const_rtlArraytype arr_from);
+void arrAppend (rtlArraytype *const arr_variable, const rtlArraytype arr_from);
 rtlArraytype arrArrlit2 (inttype start_position, rtlArraytype arr1);
 rtlArraytype arrBaselit (const rtlGenerictype element);
 rtlArraytype arrBaselit2 (inttype start_position, const rtlGenerictype element);
-rtlArraytype arrCat (rtlArraytype arr1, const_rtlArraytype arr2);
+rtlArraytype arrCat (rtlArraytype arr1, const rtlArraytype arr2);
 rtlArraytype arrExtend (rtlArraytype arr1, const rtlGenerictype element);
 rtlArraytype arrGen (const rtlGenerictype element1, const rtlGenerictype element2);
 rtlArraytype arrHead (const const_rtlArraytype arr1, inttype stop);

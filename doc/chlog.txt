@@ -1,3 +1,30 @@
+20110220:
+- The handling of closure parameters in the compiler (comp.sd7) was improved.
+- A free string memory management for small strings was introduced in
+  "heaputl.h". This improves the performance of some programs with string
+  processing by up to 20 percent.
+- The "socket.s7i" library was improved to provide protocol independent
+  network access.
+- The function 'addrFamily' was added to the "socket.s7i" library.
+- Several changes were done to support compiling with a C++ compiler.
+- The compiler (comp.sd7) was improved to generate runtime library prototypes
+  with const qualifier.
+- The macros 'likely' and 'unlikely' were added to if-statements checking for
+  exception conditions in the files "cmd_rtl.c" and "soc_rtl.c".
+- The const qualifier was added to function prototypes in "hsh_rtl.c" and
+  "hsh_rtl.h".
+- The functions 'socInetAddr', 'socInetLocalAddr' and 'socInetServAddr' in
+  "soc_rtl.c" were improved to optionally use the function 'getaddrinfo'.
+  With 'getaddrinfo' it is possible to access computers with IPv4 and IPv6
+  addresses. For Linux this feature is activated.
+- Interpreter, compiler and runtime library were improved to support the
+  action SOC_ADDR_FAMILY.
+- The compiler (comp.sd7) was improved to generate better code when accessing
+  the element of an array that was the result of another computation.
+- The compiler (comp.sd7) was improved to generate code with fewer temporary
+  variables for the actions ARR_IDX, ARR_LNG, STR_EQ and STR_NE.
+- The initialisation of string constants in the compiler was improved.
+
 20110203:
 - Many thanks to Bogdan Lisovich for his help to investigate and fix a
   compilation problem under Mac OS.

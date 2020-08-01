@@ -456,7 +456,7 @@ biginttype *big_variable;
 
 #ifdef ANSI_C
 
-void bigDestr (const biginttype old_bigint)
+void bigDestr (const const_biginttype old_bigint)
 #else
 
 void bigDestr (old_bigint)

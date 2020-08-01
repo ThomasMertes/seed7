@@ -45,7 +45,7 @@ stritype strConcat (const const_stritype stri1, const const_stritype stri2);
 stritype strConcatTemp (stritype stri1, const const_stritype stri2);
 void strCopy (stritype *const stri_to, const const_stritype stri_from);
 stritype strCreate (const const_stritype stri_from);
-void strDestr (const stritype old_string);
+void strDestr (const const_stritype old_string);
 stritype strEmpty (void);
 booltype strGe (const const_stritype stri1, const const_stritype stri2);
 booltype strGt (const const_stritype stri1, const const_stritype stri2);

@@ -29,74 +29,73 @@
 const type: socketAddress is newtype;
 IN_PARAM_IS_REFERENCE(socketAddress);
 
-const proc: destroy (ref socketAddress param) is                               action "BST_DESTR";
-const proc: (ref socketAddress param) ::= (ref socketAddress param) is         action "BST_CREATE";
-const proc: (inout socketAddress param) := (ref socketAddress param) is        action "BST_CPY";
+const proc: destroy (ref socketAddress param)                               is action "BST_DESTR";
+const proc: (ref socketAddress param) ::= (ref socketAddress param)         is action "BST_CREATE";
+const proc: (inout socketAddress param) := (ref socketAddress param)        is action "BST_CPY";
 
-const func socketAddress: _GENERATE_EMPTY_SOCKET_ADDRESS is                    action "BST_EMPTY";
-const socketAddress: (attr socketAddress) . value is                           _GENERATE_EMPTY_SOCKET_ADDRESS;
-
+const func socketAddress: _GENERATE_EMPTY_SOCKET_ADDRESS                    is action "BST_EMPTY";
+const socketAddress: (attr socketAddress) . value                           is _GENERATE_EMPTY_SOCKET_ADDRESS;
+const func integer: addrFamily (in socketAddress param)                     is action "SOC_ADDR_FAMILY";
 
 (**
  *  Return an internet socket address of a port at a host.
  *)
 const func socketAddress: inetSocketAddress (in string param,
-                                             in integer param) is              action "SOC_INET_ADDR";
+                                             in integer param)              is action "SOC_INET_ADDR";
 
 
 (**
  *  Return an internet socket address of a port at localhost.
  *)
-const func socketAddress: inetSocketAddress (in integer param) is              action "SOC_INET_LOCAL_ADDR";
+const func socketAddress: inetSocketAddress (in integer param)              is action "SOC_INET_LOCAL_ADDR";
 
 
 (**
  *  Return an internet listener socket address of a port at localhost.
  *)
-const func socketAddress: inetListenerAddress (in integer param) is            action "SOC_INET_SERV_ADDR";
+const func socketAddress: inetListenerAddress (in integer param)            is action "SOC_INET_SERV_ADDR";
 
 
 const type: PRIMITIVE_SOCKET is newtype;
 IN_PARAM_IS_VALUE(PRIMITIVE_SOCKET);
 
-const proc: destroy (ref PRIMITIVE_SOCKET param) is                            noop;
-const proc: (ref PRIMITIVE_SOCKET param) ::= (ref PRIMITIVE_SOCKET param) is   action "SOC_CREATE";
-const proc: (inout PRIMITIVE_SOCKET param) := (ref PRIMITIVE_SOCKET param) is  action "SOC_CPY";
+const proc: destroy (ref PRIMITIVE_SOCKET param)                            is noop;
+const proc: (ref PRIMITIVE_SOCKET param) ::= (ref PRIMITIVE_SOCKET param)   is action "SOC_CREATE";
+const proc: (inout PRIMITIVE_SOCKET param) := (ref PRIMITIVE_SOCKET param)  is action "SOC_CPY";
 
-const func boolean: (in PRIMITIVE_SOCKET param) = (in PRIMITIVE_SOCKET param) is  action "SOC_EQ";
+const func boolean: (in PRIMITIVE_SOCKET param) = (in PRIMITIVE_SOCKET param)  is action "SOC_EQ";
 const func boolean: (in PRIMITIVE_SOCKET param) <> (in PRIMITIVE_SOCKET param) is action "SOC_NE";
 
-const func PRIMITIVE_SOCKET: _GENERATE_EMPTY_PRIMITIVE_SOCKET is               action "SOC_EMPTY";
-const PRIMITIVE_SOCKET: (attr PRIMITIVE_SOCKET) . value is                     _GENERATE_EMPTY_PRIMITIVE_SOCKET;
-const PRIMITIVE_SOCKET: PRIMITIVE_NULL_SOCKET is                               PRIMITIVE_SOCKET.value;
+const func PRIMITIVE_SOCKET: _GENERATE_EMPTY_PRIMITIVE_SOCKET               is action "SOC_EMPTY";
+const PRIMITIVE_SOCKET: (attr PRIMITIVE_SOCKET) . value                     is _GENERATE_EMPTY_PRIMITIVE_SOCKET;
+const PRIMITIVE_SOCKET: PRIMITIVE_NULL_SOCKET                               is PRIMITIVE_SOCKET.value;
 
-const proc: close (in PRIMITIVE_SOCKET param) is                               action "SOC_CLOSE";
-const func char: getc (in PRIMITIVE_SOCKET param) is                           action "SOC_GETC";
-const func string: gets (in PRIMITIVE_SOCKET param, in integer param) is       action "SOC_GETS";
-const func string: word_read (in PRIMITIVE_SOCKET param, inout char param) is  action "SOC_WORD_READ";
-const func string: line_read (in PRIMITIVE_SOCKET param, inout char param) is  action "SOC_LINE_READ";
-const proc: write (in PRIMITIVE_SOCKET param, in string param) is              action "SOC_WRITE";
+const proc: close (in PRIMITIVE_SOCKET param)                               is action "SOC_CLOSE";
+const func char: getc (in PRIMITIVE_SOCKET param)                           is action "SOC_GETC";
+const func string: gets (in PRIMITIVE_SOCKET param, in integer param)       is action "SOC_GETS";
+const func string: word_read (in PRIMITIVE_SOCKET param, inout char param)  is action "SOC_WORD_READ";
+const func string: line_read (in PRIMITIVE_SOCKET param, inout char param)  is action "SOC_LINE_READ";
+const proc: write (in PRIMITIVE_SOCKET param, in string param)              is action "SOC_WRITE";
 const func integer: recv (in PRIMITIVE_SOCKET param, inout string param,
-                          in integer param, in integer param) is               action "SOC_RECV";
+                          in integer param, in integer param)               is action "SOC_RECV";
 const func integer: recvfrom (in PRIMITIVE_SOCKET param, inout string param,
                           in integer param, in integer param,
-                          inout socketAddress param) is                        action "SOC_RECVFROM";
+                          inout socketAddress param)                        is action "SOC_RECVFROM";
 const func integer: send (in PRIMITIVE_SOCKET param, in string param,
-                          in integer param) is                                 action "SOC_SEND";
+                          in integer param)                                 is action "SOC_SEND";
 const func integer: sendto (in PRIMITIVE_SOCKET param, in string param,
-                          in integer param, in socketAddress param) is         action "SOC_SENDTO";
+                          in integer param, in socketAddress param)         is action "SOC_SENDTO";
 
 const func PRIMITIVE_SOCKET: PRIMITIVE_SOCKET (in integer param,
                                                in integer param,
-                                               in integer param) is            action "SOC_SOCKET";
+                                               in integer param)            is action "SOC_SOCKET";
 const func PRIMITIVE_SOCKET: accept (in PRIMITIVE_SOCKET param,
-                                     inout socketAddress param) is             action "SOC_ACCEPT";
-const proc: bind (in PRIMITIVE_SOCKET param, in socketAddress param) is        action "SOC_BIND";
-const proc: connect (in PRIMITIVE_SOCKET param, in socketAddress param) is     action "SOC_CONNECT";
-const proc: listen (in PRIMITIVE_SOCKET param, in integer param) is            action "SOC_LISTEN";
+                                     inout socketAddress param)             is action "SOC_ACCEPT";
+const proc: bind (in PRIMITIVE_SOCKET param, in socketAddress param)        is action "SOC_BIND";
+const proc: connect (in PRIMITIVE_SOCKET param, in socketAddress param)     is action "SOC_CONNECT";
+const proc: listen (in PRIMITIVE_SOCKET param, in integer param)            is action "SOC_LISTEN";
 
 
-const integer: PF_INET is 2;
 const integer: SOCK_STREAM is 1;
 const integer: SOCK_DGRAM is 2;
 
@@ -126,12 +125,14 @@ const func file: openInetSocket (in integer: portNumber) is func
   result
     var file: result is STD_NULL;
   local
+    var socketAddress: address is socketAddress.value;
     var PRIMITIVE_SOCKET: open_socket is PRIMITIVE_NULL_SOCKET;
     var socket: new_socket is socket.value;
   begin
-    open_socket := PRIMITIVE_SOCKET(PF_INET, SOCK_STREAM, 0);
+    address := inetSocketAddress(portNumber);
+    open_socket := PRIMITIVE_SOCKET(addrFamily(address), SOCK_STREAM, 0);
     if open_socket <> PRIMITIVE_NULL_SOCKET then
-      new_socket.addr := inetSocketAddress(portNumber);
+      new_socket.addr := address;
       connect(open_socket, new_socket.addr);
       new_socket.sock := open_socket;
       result := malloc(new_socket);
@@ -146,12 +147,14 @@ const func file: openInetSocket (in string: hostName, in integer: portNumber) is
   result
     var file: result is STD_NULL;
   local
+    var socketAddress: address is socketAddress.value;
     var PRIMITIVE_SOCKET: open_socket is PRIMITIVE_NULL_SOCKET;
     var socket: new_socket is socket.value;
   begin
-    open_socket := PRIMITIVE_SOCKET(PF_INET, SOCK_STREAM, 0);
+    address := inetSocketAddress(hostName, portNumber);
+    open_socket := PRIMITIVE_SOCKET(addrFamily(address), SOCK_STREAM, 0);
     if open_socket <> PRIMITIVE_NULL_SOCKET then
-      new_socket.addr := inetSocketAddress(hostName, portNumber);
+      new_socket.addr := address;
       connect(open_socket, new_socket.addr);
       new_socket.sock := open_socket;
       result := malloc(new_socket);
@@ -289,11 +292,13 @@ const func listener: openInetListener (in integer: portNumber) is func
   result
     var listener: result is listener.value;
   local
+    var socketAddress: address is socketAddress.value;
     var PRIMITIVE_SOCKET: open_socket is PRIMITIVE_NULL_SOCKET;
   begin
-    open_socket := PRIMITIVE_SOCKET(PF_INET, SOCK_STREAM, 0);
+    address := inetListenerAddress(portNumber);
+    open_socket := PRIMITIVE_SOCKET(addrFamily(address), SOCK_STREAM, 0);
     if open_socket <> PRIMITIVE_NULL_SOCKET then
-      result.addr := inetListenerAddress(portNumber);
+      result.addr := address;
       bind(open_socket, result.addr);
       result.sock := open_socket;
     end if;

@@ -66,8 +66,8 @@
 
 #ifdef ANSI_C
 
-static void free_helem (rtlHelemtype old_helem, destrfunctype key_destr_func,
-    destrfunctype data_destr_func)
+static void free_helem (const const_rtlHelemtype old_helem,
+    const destrfunctype key_destr_func, const destrfunctype data_destr_func)
 #else
 
 static void free_helem (old_helem, key_destr_func, data_destr_func)
@@ -94,8 +94,8 @@ destrfunctype data_destr_func;
 
 #ifdef ANSI_C
 
-static void free_hash (const rtlHashtype old_hash, destrfunctype key_destr_func,
-    destrfunctype data_destr_func)
+static void free_hash (const const_rtlHashtype old_hash,
+    const destrfunctype key_destr_func, const destrfunctype data_destr_func)
 #else
 
 static void free_hash (old_hash, key_destr_func, data_destr_func)
@@ -128,7 +128,8 @@ destrfunctype data_destr_func;
 #ifdef ANSI_C
 
 static rtlHelemtype new_helem (rtlGenerictype key, rtlGenerictype data,
-    createfunctype key_create_func, createfunctype data_create_func, errinfotype *err_info)
+    const createfunctype key_create_func, const createfunctype data_create_func,
+    errinfotype *err_info)
 #else
 
 static rtlHelemtype new_helem (key, data, key_create_func, data_create_func, err_info)
@@ -192,8 +193,9 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-static rtlHelemtype create_helem (const_rtlHelemtype source_helem, createfunctype key_create_func,
-    createfunctype data_create_func, errinfotype *err_info)
+static rtlHelemtype create_helem (const const_rtlHelemtype source_helem,
+    const createfunctype key_create_func, const createfunctype data_create_func,
+    errinfotype *err_info)
 #else
 
 static rtlHelemtype create_helem (source_helem, key_create_func, data_create_func, err_info)
@@ -233,7 +235,7 @@ errinfotype *err_info;
 #ifdef ANSI_C
 
 static rtlHashtype create_hash (const const_rtlHashtype source_hash,
-    createfunctype key_create_func, createfunctype data_create_func,
+    const createfunctype key_create_func, const createfunctype data_create_func,
     errinfotype *err_info)
 #else
 
@@ -287,8 +289,8 @@ errinfotype *err_info;
 #ifdef ANSI_C
 
 static void copy_hash (const rtlHashtype dest_hash, const const_rtlHashtype source_hash,
-    createfunctype key_create_func, createfunctype data_create_func,
-    destrfunctype key_destr_func, destrfunctype data_destr_func,
+    const createfunctype key_create_func, const createfunctype data_create_func,
+    const destrfunctype key_destr_func, const destrfunctype data_destr_func,
     errinfotype *err_info)
 #else
 
@@ -335,7 +337,8 @@ errinfotype *err_info;
 #ifdef ANSI_C
 
 static void keys_helem (rtlArraytype *key_array, memsizetype *arr_pos,
-    const_rtlHelemtype curr_helem, createfunctype key_create_func, errinfotype *err_info)
+    const_rtlHelemtype curr_helem, const createfunctype key_create_func,
+    errinfotype *err_info)
 #else
 
 static void keys_helem (key_array, arr_pos, curr_helem, key_create_func, err_info)
@@ -384,7 +387,7 @@ errinfotype *err_info;
 #ifdef ANSI_C
 
 static rtlArraytype keys_hash (const const_rtlHashtype curr_hash,
-    createfunctype key_create_func, destrfunctype key_destr_func,
+    const createfunctype key_create_func, const destrfunctype key_destr_func,
     errinfotype *err_info)
 #else
 
@@ -447,7 +450,8 @@ errinfotype *err_info;
 #ifdef ANSI_C
 
 static void values_helem (rtlArraytype *value_array, memsizetype *arr_pos,
-    const_rtlHelemtype curr_helem, createfunctype value_create_func, errinfotype *err_info)
+    const_rtlHelemtype curr_helem, const createfunctype value_create_func,
+    errinfotype *err_info)
 #else
 
 static void values_helem (value_array, arr_pos, curr_helem, value_create_func, err_info)
@@ -496,7 +500,7 @@ errinfotype *err_info;
 #ifdef ANSI_C
 
 static rtlArraytype values_hash (const const_rtlHashtype curr_hash,
-    createfunctype value_create_func, destrfunctype value_destr_func,
+    const createfunctype value_create_func, const destrfunctype value_destr_func,
     errinfotype *err_info)
 #else
 
@@ -613,8 +617,8 @@ printf("%lX\n", (long unsigned) key);
 #ifdef ANSI_C
 
 void hshCpy (rtlHashtype *const hash_to, const const_rtlHashtype hash_from,
-    createfunctype key_create_func, destrfunctype key_destr_func,
-    createfunctype data_create_func, destrfunctype data_destr_func)
+    const createfunctype key_create_func, const destrfunctype key_destr_func,
+    const createfunctype data_create_func, const destrfunctype data_destr_func)
 #else
 
 void hshCpy (hash_to, hash_from, key_create_func, key_destr_func,
@@ -652,8 +656,8 @@ destrfunctype data_destr_func;
 #ifdef ANSI_C
 
 rtlHashtype hshCreate (const const_rtlHashtype hash_from,
-    createfunctype key_create_func, destrfunctype key_destr_func,
-    createfunctype data_create_func, destrfunctype data_destr_func)
+    const createfunctype key_create_func, const destrfunctype key_destr_func,
+    const createfunctype data_create_func, const destrfunctype data_destr_func)
 #else
 
 rtlHashtype hshCreate (hash_from, key_create_func, key_destr_func,
@@ -684,8 +688,8 @@ destrfunctype data_destr_func;
 
 #ifdef ANSI_C
 
-void hshDestr (const rtlHashtype old_hash, destrfunctype key_destr_func,
-    destrfunctype data_destr_func)
+void hshDestr (const const_rtlHashtype old_hash, const destrfunctype key_destr_func,
+    const destrfunctype data_destr_func)
 #else
 
 void hshDestr (old_hash, key_destr_func, data_destr_func)
@@ -733,8 +737,8 @@ rtlHashtype hshEmpty ()
 #ifdef ANSI_C
 
 void hshExcl (const rtlHashtype hash1, const rtlGenerictype key,
-    inttype hashcode, comparetype cmp_func, destrfunctype key_destr_func,
-    destrfunctype data_destr_func)
+    inttype hashcode, comparetype cmp_func, const destrfunctype key_destr_func,
+    const destrfunctype data_destr_func)
 #else
 
 void hshExcl (hash1, key, hashcode, cmp_func, key_destr_func, data_destr_func)
@@ -915,7 +919,7 @@ comparetype cmp_func;
 
 rtlGenerictype hshIdxWithDefault (const rtlHashtype hash1, const rtlGenerictype key,
     const rtlGenerictype data, inttype hashcode, comparetype cmp_func,
-    createfunctype key_create_func, createfunctype data_create_func)
+    const createfunctype key_create_func, const createfunctype data_create_func)
 #else
 
 rtlGenerictype hshIdxWithDefault (hash1, key, data, hashcode, cmp_func,
@@ -991,8 +995,8 @@ createfunctype data_create_func;
 
 void hshIncl (const rtlHashtype hash1, const rtlGenerictype key,
     const rtlGenerictype data, inttype hashcode, comparetype cmp_func,
-    createfunctype key_create_func, createfunctype data_create_func,
-    copyfunctype data_copy_func)
+    const createfunctype key_create_func, const createfunctype data_create_func,
+    const copyfunctype data_copy_func)
 #else
 
 void hshIncl (hash1, key, data, hashcode, cmp_func,
@@ -1073,7 +1077,7 @@ copyfunctype data_copy_func;
 #ifdef ANSI_C
 
 rtlArraytype hshKeys (const const_rtlHashtype hash1,
-    createfunctype key_create_func, destrfunctype key_destr_func)
+    const createfunctype key_create_func, const destrfunctype key_destr_func)
 #else
 
 rtlArraytype hshKeys (hash1, key_create_func, key_destr_func)
@@ -1097,7 +1101,7 @@ destrfunctype key_destr_func;
 #ifdef ANSI_C
 
 rtlArraytype hshValues (const const_rtlHashtype hash1,
-    createfunctype value_create_func, destrfunctype value_destr_func)
+    const createfunctype value_create_func, const destrfunctype value_destr_func)
 #else
 
 rtlArraytype hshValues (hash1, value_create_func, value_destr_func)

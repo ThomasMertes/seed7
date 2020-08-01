@@ -1,12 +1,13 @@
 # Makefile for nmake from windows and cl from msvc. Commands executed by: cmd.exe
 # To compile use a windows console and call:
-#   nmake /f mk_msvc.mak depend
-#   nmake /f mk_msvc.mak
+#   nmake -f mk_msvc.mak depend
+#   nmake -f mk_msvc.mak
 # If you use MinGW you should use mk_mingw.mak, mk_nmake.mak or mk_msys.mak instead.
 # If you use bcc32 you should use mk_bcc32.mak instead.
 
 # CFLAGS = -AL -Ozax -Gr -Gs -Gm -G0 -W4
 CFLAGS = -O2 -W4
+# CFLAGS = -O2 -W4 -Tp
 # CFLAGS = -O2 -W4 /Zi /Yd
 # CFLAGS = -W4 /Zi /Yd /GZ
 # CFLAGS = -O2 -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
@@ -220,7 +221,7 @@ version.h:
 	del setpaths.exe
 
 .c.obj:
-	$(CC) $(CFLAGS) -c $<
+	$(CC) -c $(CFLAGS) $<
 
 depend: version.h
 	echo Working without dependency file

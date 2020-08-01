@@ -346,7 +346,7 @@ stritype fileName;
 
 #ifdef ANSI_C
 
-void arrAppend (rtlArraytype *const arr_variable, const const_rtlArraytype arr_from)
+void arrAppend (rtlArraytype *const arr_variable, const rtlArraytype arr_from)
 #else
 
 void arrAppend (arr_variable, arr_from)
@@ -465,7 +465,7 @@ rtlGenerictype element;
 
 #ifdef ANSI_C
 
-rtlArraytype arrCat (rtlArraytype arr1, const_rtlArraytype arr2)
+rtlArraytype arrCat (rtlArraytype arr1, const rtlArraytype arr2)
 #else
 
 rtlArraytype arrCat (arr1, arr2)

@@ -36,7 +36,9 @@
 #include "string.h"
 #ifdef USE_WINSOCK
 #include "winsock2.h"
-/* #include "Ws2tcpip.h" ** for getaddrinfo() */
+#ifdef USE_GETADDRINFO
+#include "ws2tcpip.h"
+#endif
 #else
 #include "netdb.h"
 #include "sys/types.h"
@@ -80,6 +82,142 @@ typedef socklen_t socklen_type;
 #define READ_STRI_INIT_SIZE      256
 #define READ_STRI_SIZE_DELTA    2048
 
+#ifdef USE_WINSOCK
+static booltype initialized = FALSE;
+#define check_initialization(err_result) if (unlikely(!initialized)) {if (init_winsock()) {return err_result;}}
+#else
+#define check_initialization(err_result)
+#endif
+
+
+
+#ifdef USE_WINSOCK
+#ifdef ANSI_C
+
+static int init_winsock (void)
+#else
+
+static int init_winsock ()
+#endif
+
+  {
+    WORD wVersionRequested;
+    WSADATA wsaData;
+    int err;
+    int result;
+
+  /* init_winsock */
+    wVersionRequested = MAKEWORD(2, 2);
+    err = WSAStartup(wVersionRequested, &wsaData);
+    if (err != 0) {
+      raise_error(FILE_ERROR);
+      result = -1;
+    } else {
+      if (LOBYTE(wsaData.wVersion) != 2 ||
+          HIBYTE(wsaData.wVersion) != 2) {
+        WSACleanup();
+        raise_error(FILE_ERROR);
+        result = -1;
+      } else {
+        initialized = TRUE;
+        result = 0;
+      } /* if */
+    } /* if */
+    return result;
+  } /* init_winsock */
+#endif
+
+
+
+#ifdef USE_GETADDRINFO
+#ifdef ANSI_C
+
+static struct addrinfo *select_addrinfo (struct addrinfo *addrinfo_list,
+    int addr_family1, int addr_family2)
+#else
+
+static struct addrinfo *select_addrinfo (addrinfo_list, addr_family1, addr_family2)
+struct addrinfo *addrinfo_list;
+int addr_family1;
+int addr_family2;
+#endif
+
+  {
+    struct addrinfo *result_addrinfo;
+
+  /* select_addrinfo */
+    result_addrinfo = addrinfo_list;
+    /* Look for addr_family1 address */
+    while (result_addrinfo != NULL && result_addrinfo->ai_addr->sa_family != addr_family1) {
+      result_addrinfo = result_addrinfo->ai_next;
+    } /* while */
+    if (result_addrinfo == NULL) {
+      /* No addr_family1 address present */
+      result_addrinfo = addrinfo_list;
+      /* Look for addr_family2 address */
+      while (result_addrinfo != NULL && result_addrinfo->ai_addr->sa_family != addr_family2) {
+        result_addrinfo = result_addrinfo->ai_next;
+      } /* while */
+      if (result_addrinfo == NULL) {
+        /* No addr_family1 and addr_family2 present: Take first address */
+        result_addrinfo = addrinfo_list;
+      } /* if */
+    } /* if */
+    return result_addrinfo;
+  } /* select_addrinfo */
+#endif
+
+
+
+#ifdef DUMP_ADDRINFO
+#ifdef ANSI_C
+
+static void dump_addrinfo (struct addrinfo *addrinfo_list)
+#else
+
+static void dump_addrinfo (addrinfo_list)
+struct addrinfo *addrinfo_list;
+#endif
+
+  {
+    struct addrinfo *addr;
+
+  /* dump_addrinfo */
+    addr = addrinfo_list;
+    do {
+      printf("ai_flags=%d\n",    addr->ai_flags);
+      printf("ai_family=%d  (AF_INET=%d, AF_INET6=%d)\n", addr->ai_family, AF_INET, AF_INET6);
+      printf("ai_socktype=%d\n", addr->ai_socktype);
+      printf("ai_protocol=%d\n", addr->ai_protocol);
+      printf("ai_addrlen=%d\n", addr->ai_addrlen);
+      printf("sa_family=%d  (AF_INET=%d, AF_INET6=%d)\n", addr->ai_addr->sa_family, AF_INET, AF_INET6);
+      if (addr->ai_addr->sa_family == AF_INET) {
+        struct sockaddr_in *inet_address = (struct sockaddr_in *) addr->ai_addr;
+        printf("sin_port=%d\n", ntohs(inet_address->sin_port));
+        printf("sin_addr.s_addr=%d.%d.%d.%d\n",
+            inet_address->sin_addr.s_addr        & 255,
+           (inet_address->sin_addr.s_addr >>  8) & 255,
+           (inet_address->sin_addr.s_addr >> 16) & 255,
+           (inet_address->sin_addr.s_addr >> 24) & 255);
+      } else if (addr->ai_addr->sa_family == AF_INET6) {
+        struct sockaddr_in6 *inet6_address = (struct sockaddr_in6 *) addr->ai_addr;
+        int pos;
+        printf("sin_port=%d\n", ntohs(inet6_address->sin6_port));
+        printf("sin_addr.s_addr=");
+        for (pos = 0; pos < 16; pos++) {
+          if (pos != 0 && (pos & 1) == 0) {
+            printf(":");
+          }
+          printf("%02x", inet6_address->sin6_addr.s6_addr[pos]);
+        }
+        printf("\n");
+      }
+      printf("ai_next=%x\n", (memsizetype) addr->ai_next);
+      addr = addr->ai_next;
+    } while (addr != NULL);
+  } /* dump_addrinfo */
+#endif
+
 
 
 #ifdef ANSI_C
@@ -102,7 +240,7 @@ bstritype *address;
     /* printf("begin socAccept(%u, *)\n", sock); */
     old_address_size = (*address)->size;
     REALLOC_BSTRI_SIZE_OK(resized_address, *address, old_address_size, MAX_ADDRESS_SIZE);
-    if (resized_address == NULL) {
+    if (unlikely(resized_address == NULL)) {
       raise_error(MEMORY_ERROR);
       result = -1;
     } else {
@@ -110,7 +248,7 @@ bstritype *address;
       COUNT3_BSTRI(old_address_size, MAX_ADDRESS_SIZE);
       addrlen = MAX_ADDRESS_SIZE;
       result = accept(sock, (struct sockaddr *) (*address)->mem, &addrlen);
-      if (result == -1 || addrlen < 0) {
+      if (unlikely(result == -1 || addrlen < 0)) {
         REALLOC_BSTRI_SIZE_OK(resized_address, *address, MAX_ADDRESS_SIZE, old_address_size);
         if (resized_address == NULL) {
           (*address)->size = MAX_ADDRESS_SIZE;
@@ -122,7 +260,7 @@ bstritype *address;
         raise_error(RANGE_ERROR);
       } else {
         REALLOC_BSTRI_SIZE_OK(resized_address, *address, MAX_ADDRESS_SIZE, (memsizetype) addrlen);
-        if (resized_address == NULL) {
+        if (unlikely(resized_address == NULL)) {
           (*address)->size = MAX_ADDRESS_SIZE;
           raise_error(MEMORY_ERROR);
           result = -1;
@@ -143,6 +281,28 @@ bstritype *address;
 
 #ifdef ANSI_C
 
+inttype socAddrFamily (const const_bstritype address)
+#else
+
+inttype socAddrFamily (address)
+bstritype address;
+#endif
+
+  {
+    const struct sockaddr *addr;
+    inttype result;
+
+  /* socAddrFamily */
+    addr = (const struct sockaddr *) address->mem;
+    result = addr->sa_family;
+    /* printf("socAddrFamily --> %d\n", result); */
+    return result;
+  } /* socAddrFamily */
+
+
+
+#ifdef ANSI_C
+
 void socBind (sockettype sock, const_bstritype address)
 #else
 
@@ -155,8 +315,8 @@ bstritype address;
     /* printf("socBind(%u, ", sock);
        prot_bstri(address);
        printf(")\n"); */
-    if (bind(sock, (const struct sockaddr *) address->mem,
-        (socklen_type) address->size) != 0) {
+    if (unlikely(bind(sock, (const struct sockaddr *) address->mem,
+        (socklen_type) address->size) != 0)) {
       /* printf("socBind errno=%d\n", errno); */
       raise_error(RANGE_ERROR);
     } /* if */
@@ -198,9 +358,9 @@ bstritype address;
     /* printf("socConnect(%u, ", sock);
        prot_bstri(address);
        printf(")\n"); */
-    if (connect(sock, (const struct sockaddr *) address->mem,
-        (socklen_type) address->size) != 0) {
-      /* printf("socConnect(%d) errno=%d\n", sock, errno); */
+    if (unlikely(connect(sock, (const struct sockaddr *) address->mem,
+        (socklen_type) address->size) != 0)) {
+      /* printf("socConnect(%d) errno=%d %s\n", sock, errno, strerror(errno)); */
       raise_error(RANGE_ERROR);
     } /* if */
   } /* socConnect */
@@ -249,7 +409,7 @@ inttype length;
 
   /* socGets */
     /* printf("socGets(%u, %d)\n", sock, length); */
-    if (length < 0) {
+    if (unlikely(length < 0)) {
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -258,7 +418,7 @@ inttype length;
       } else {
         bytes_requested = (memsizetype) length;
       } /* if */
-      if (!ALLOC_STRI_CHECK_SIZE(result, bytes_requested)) {
+      if (unlikely(!ALLOC_STRI_CHECK_SIZE(result, bytes_requested))) {
         raise_error(MEMORY_ERROR);
         return NULL;
       } /* if */
@@ -278,7 +438,7 @@ inttype length;
       result->size = result_size;
       if (result_size < bytes_requested) {
         REALLOC_STRI_SIZE_OK(resized_result, result, bytes_requested, result_size);
-        if (resized_result == NULL) {
+        if (unlikely(resized_result == NULL)) {
           FREE_STRI(result, bytes_requested);
           raise_error(MEMORY_ERROR);
           result = NULL;
@@ -305,66 +465,64 @@ inttype port;
 
   {
     cstritype name;
+#ifdef USE_GETADDRINFO
+    char servicename[10];
+    struct addrinfo *addrinfo_list;
+    struct addrinfo *result_addrinfo;
+    struct addrinfo hints;
+    int getaddrinfo_result;
+#else
     struct hostent *host_ent;
     struct sockaddr_in *inet_address;
+#endif
     bstritype result;
 
   /* socInetAddr */
-    if (port < 0 || port > 65535) {
-      result = NULL;
+    check_initialization(NULL);
+    if (unlikely(port < 0 || port > 65535)) {
       raise_error(RANGE_ERROR);
+      result = NULL;
     } else {
       name = cp_to_cstri(host_name);
-      if (name == NULL) {
-        result = NULL;
+      if (unlikely(name == NULL)) {
         raise_error(MEMORY_ERROR);
+        result = NULL;
       } else {
-#ifdef OUT_OF_ORDER
-        {
-          struct addrinfo *res;
-          int getaddrinfo_result;
-          char servname[10];
-          sprintf(servname, "%u", port);
-          getaddrinfo_result = getaddrinfo(name, servname, NULL, &res);
-          if (getaddrinfo_result == 0) {
-            /* do { */
-              printf("ai_flags=%d\n",    res->ai_flags);
-              printf("ai_family=%d  (AF_INET=%d, AF_INET6=%d)\n", res->ai_family, AF_INET, AF_INET6);
-              printf("ai_socktype=%d\n", res->ai_socktype);
-              printf("ai_protocol=%d\n", res->ai_protocol);
-              printf("ai_addrlen=%d\n", res->ai_addrlen);
-              printf("sa_family=%d  (AF_INET=%d, AF_INET6=%d)\n", res->ai_addr->sa_family, AF_INET, AF_INET6);
-              inet_address = (struct sockaddr_in *) res->ai_addr;
-              printf("sin_port=%d\n", ntohs(inet_address->sin_port));
-              printf("sin_addr.s_addr=%d.%d.%d.%d\n",
-                  inet_address->sin_addr.s_addr        & 255,
-                 (inet_address->sin_addr.s_addr >>  8) & 255,
-                 (inet_address->sin_addr.s_addr >> 16) & 255,
-                 (inet_address->sin_addr.s_addr >> 24) & 255);
-              printf("ai_next=%d\n", res->ai_next);
-            /* res = res->ai_next;
-            } while (res != NULL); */
-            if (!ALLOC_BSTRI_SIZE_OK(result, res->ai_addrlen)) {
-              raise_error(MEMORY_ERROR);
-            } else {
-              result->size = res->ai_addrlen;
-              memcpy(result->mem, res->ai_addr, res->ai_addrlen);
-            } /* if */
-            return result;
+#ifdef USE_GETADDRINFO
+        sprintf(servicename, "%u", port);
+        memset(&hints, 0, sizeof(struct addrinfo));
+        hints.ai_socktype = SOCK_STREAM;
+        getaddrinfo_result = getaddrinfo(name, servicename, &hints, &addrinfo_list);
+        if (unlikely(getaddrinfo_result != 0)) {
+          /*
+          printf("getaddrinfo(\"%s\") -> %d\n", name, getaddrinfo_result);
+          printf("EAI_AGAIN=%d  EAI_BADFLAGS=%d  EAI_FAIL=%d  EAI_FAMILY=%d  EAI_MEMORY=%d\n",
+              EAI_AGAIN, EAI_BADFLAGS, EAI_FAIL, EAI_FAMILY, EAI_MEMORY);
+          printf("EAI_NONAME=%d  EAI_SERVICE=%d  EAI_SOCKTYPE=%d\n",
+              EAI_NONAME, EAI_SERVICE, EAI_SOCKTYPE);
+          */
+          /* printf("EAI_SYSTEM=%d  EAI_OVERFLOW=%d\n",
+              EAI_SYSTEM, EAI_OVERFLOW); */
+          /* printf("EAI_ADDRFAMILY=%d  EAI_NODATA=%d\n",
+              EAI_ADDRFAMILY, EAI_NODATA); */
+          free_cstri(name, host_name);
+          raise_error(FILE_ERROR);
+          result = NULL;
+        } else {
+          /* dump_addrinfo(addrinfo_list); */
+          result_addrinfo = select_addrinfo(addrinfo_list, AF_INET, AF_INET6);
+          if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, result_addrinfo->ai_addrlen))) {
+            free_cstri(name, host_name);
+            freeaddrinfo(addrinfo_list);
+            raise_error(MEMORY_ERROR);
           } else {
-            printf("getaddrinfo(\"%s\") -> %d\n", name, getaddrinfo_result);
-            printf("EAI_AGAIN=%d  EAI_BADFLAGS=%d  EAI_FAIL=%d  EAI_FAMILY=%d  EAI_MEMORY=%d\n",
-                EAI_AGAIN, EAI_BADFLAGS, EAI_FAIL, EAI_FAMILY, EAI_MEMORY);
-            printf("EAI_NONAME=%d  EAI_SERVICE=%d  EAI_SOCKTYPE=%d\n",
-                EAI_NONAME, EAI_SERVICE, EAI_SOCKTYPE);
-            printf("EAI_SYSTEM=%d  EAI_OVERFLOW=%d\n",
-                EAI_SYSTEM, EAI_OVERFLOW);
-            /* printf("EAI_ADDRFAMILY=%d  EAI_NODATA=%d\n",
-                EAI_ADDRFAMILY, EAI_NODATA); */
-            raise_error(RANGE_ERROR);
-          }
-        }
-#endif
+            result->size = result_addrinfo->ai_addrlen;
+            memcpy(result->mem, result_addrinfo->ai_addr, result_addrinfo->ai_addrlen);
+            free_cstri(name, host_name);
+            freeaddrinfo(addrinfo_list);
+          } /* if */
+        } /* if */
+#else
         host_ent = gethostbyname(name);
         if (host_ent == NULL && h_errno == TRY_AGAIN) {
           /*
@@ -377,12 +535,13 @@ inttype port;
           */
           host_ent = gethostbyname(name);
         } /* if */
-        if (host_ent == NULL) {
+        if (unlikely(host_ent == NULL)) {
+          /* printf("***** gethostbyname(\"%s\"): h_errno=%d\n", name, h_errno);
+             printf("HOST_NOT_FOUND=%d  NO_DATA=%d  NO_RECOVERY=%d  TRY_AGAIN=%d\n",
+                 HOST_NOT_FOUND, NO_DATA, NO_RECOVERY, TRY_AGAIN); */
+          free_cstri(name, host_name);
+          raise_error(FILE_ERROR);
           result = NULL;
-/*        printf("***** gethostbyname(\"%s\"): h_errno=%d\n", name, h_errno);
-          printf("HOST_NOT_FOUND=%d  NO_DATA=%d  NO_RECOVERY=%d  TRY_AGAIN=%d\n",
-              HOST_NOT_FOUND, NO_DATA, NO_RECOVERY, TRY_AGAIN); */
-          raise_error(RANGE_ERROR);
         } else {
           /*
           printf("Host name:      %s\n", host_ent->h_name);
@@ -393,9 +552,10 @@ inttype port;
           printf("Address length: %d\n", sizeof(struct sockaddr_in));
           printf("IP Address:     %s\n", inet_ntoa(*((struct in_addr *)host_ent->h_addr)));
           */
+          free_cstri(name, host_name);
           if (host_ent->h_addrtype == AF_INET &&
               host_ent->h_length == sizeof(inet_address->sin_addr.s_addr)) {
-            if (!ALLOC_BSTRI_SIZE_OK(result, sizeof(struct sockaddr_in))) {
+            if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, sizeof(struct sockaddr_in)))) {
               raise_error(MEMORY_ERROR);
             } else {
               result->size = sizeof(struct sockaddr_in);
@@ -406,21 +566,13 @@ inttype port;
               memset(inet_address->sin_zero, '\0', sizeof(inet_address->sin_zero));
             } /* if */
           } else {
-            result = NULL;
             raise_error(FILE_ERROR);
+            result = NULL;
           } /* if */
         } /* if */
+#endif
       } /* if */
     } /* if */
-#if 0
-              struct hostent {
-                      char    *h_name;        /* official name of host */
-                      char    **h_aliases;    /* alias list */
-                      int     h_addrtype;     /* host address type */
-                      int     h_length;       /* length of address */
-                      char    **h_addr_list;  /* list of addresses */
-              }
-#endif
     /* printf("socInetAddr --> ");
        prot_bstri(result);
        printf("\n"); */
@@ -439,22 +591,55 @@ inttype port;
 #endif
 
   {
+#ifdef USE_GETADDRINFO
+    char servicename[10];
+    struct addrinfo *addrinfo_list;
+    struct addrinfo *result_addrinfo;
+    struct addrinfo hints;
+    int getaddrinfo_result;
+#else
     struct sockaddr_in *inet_address;
+#endif
     bstritype result;
 
   /* socInetLocalAddr */
-    if (port < 0 || port > 65535) {
-      result = NULL;
+    check_initialization(NULL);
+    if (unlikely(port < 0 || port > 65535)) {
       raise_error(RANGE_ERROR);
-    } else if (!ALLOC_BSTRI_SIZE_OK(result, sizeof(struct sockaddr_in))) {
-      raise_error(MEMORY_ERROR);
+      result = NULL;
     } else {
-      result->size = sizeof(struct sockaddr_in);
-      inet_address = (struct sockaddr_in *) result->mem;
-      inet_address->sin_family = AF_INET;
-      inet_address->sin_port = htons((uint16type) port);      /* short, network byte order */
-      inet_address->sin_addr.s_addr = htonl(INADDR_LOOPBACK); /* local host */
-      memset(inet_address->sin_zero, '\0', sizeof(inet_address->sin_zero));
+#ifdef USE_GETADDRINFO
+      sprintf(servicename, "%u", port);
+      memset(&hints, 0, sizeof(struct addrinfo));
+      hints.ai_socktype = SOCK_STREAM;
+      getaddrinfo_result = getaddrinfo(NULL, servicename, &hints, &addrinfo_list);
+      if (unlikely(getaddrinfo_result != 0)) {
+        raise_error(FILE_ERROR);
+        result = NULL;
+      } else {
+        /* dump_addrinfo(addrinfo_list); */
+        result_addrinfo = select_addrinfo(addrinfo_list, AF_INET, AF_INET6);
+        if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, result_addrinfo->ai_addrlen))) {
+          freeaddrinfo(addrinfo_list);
+          raise_error(MEMORY_ERROR);
+        } else {
+          result->size = result_addrinfo->ai_addrlen;
+          memcpy(result->mem, result_addrinfo->ai_addr, result_addrinfo->ai_addrlen);
+          freeaddrinfo(addrinfo_list);
+        } /* if */
+      } /* if */
+#else
+      if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, sizeof(struct sockaddr_in)))) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        result->size = sizeof(struct sockaddr_in);
+        inet_address = (struct sockaddr_in *) result->mem;
+        inet_address->sin_family = AF_INET;
+        inet_address->sin_port = htons((uint16type) port);      /* short, network byte order */
+        inet_address->sin_addr.s_addr = htonl(INADDR_LOOPBACK); /* local host */
+        memset(inet_address->sin_zero, '\0', sizeof(inet_address->sin_zero));
+      } /* if */
+#endif
     } /* if */
     /* printf("socInetLocalAddr --> ");
        prot_bstri(result);
@@ -474,22 +659,74 @@ inttype port;
 #endif
 
   {
+#ifdef USE_GETADDRINFO
+    char servicename[10];
+    struct addrinfo *addrinfo_list;
+    struct addrinfo *result_addrinfo;
+    struct addrinfo hints;
+    int getaddrinfo_result;
+#else
+#ifdef INET6_SERVER_ADDRESS
+    struct sockaddr_in6 *inet6_address;
+#else
     struct sockaddr_in *inet_address;
+#endif
+#endif
     bstritype result;
 
   /* socInetServAddr */
-    if (port < 0 || port > 65535) {
+    check_initialization(NULL);
+    if (unlikely(port < 0 || port > 65535)) {
       result = NULL;
       raise_error(RANGE_ERROR);
-    } else if (!ALLOC_BSTRI_SIZE_OK(result, sizeof(struct sockaddr_in))) {
-      raise_error(MEMORY_ERROR);
     } else {
-      result->size = sizeof(struct sockaddr_in);
-      inet_address = (struct sockaddr_in *) result->mem;
-      inet_address->sin_family = AF_INET;
-      inet_address->sin_port = htons((uint16type) port); /* short, network byte order */
-      inet_address->sin_addr.s_addr = INADDR_ANY;        /* auto-fill with local IP */
-      memset(inet_address->sin_zero, '\0', sizeof(inet_address->sin_zero));
+#ifdef USE_GETADDRINFO
+      sprintf(servicename, "%u", port);
+      memset(&hints, 0, sizeof(struct addrinfo));
+      hints.ai_socktype = SOCK_STREAM;
+      hints.ai_flags = AI_PASSIVE;
+      getaddrinfo_result = getaddrinfo(NULL, servicename, &hints, &addrinfo_list);
+      if (unlikely(getaddrinfo_result != 0)) {
+        raise_error(FILE_ERROR);
+        result = NULL;
+      } else {
+        /* dump_addrinfo(addrinfo_list); */
+        result_addrinfo = select_addrinfo(addrinfo_list, AF_INET, AF_INET6);
+        if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, result_addrinfo->ai_addrlen))) {
+          freeaddrinfo(addrinfo_list);
+          raise_error(MEMORY_ERROR);
+        } else {
+          result->size = result_addrinfo->ai_addrlen;
+          memcpy(result->mem, result_addrinfo->ai_addr, result_addrinfo->ai_addrlen);
+          freeaddrinfo(addrinfo_list);
+        } /* if */
+      } /* if */
+#else
+#ifdef INET6_SERVER_ADDRESS
+      if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, sizeof(struct sockaddr_in6)))) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        result->size = sizeof(struct sockaddr_in6);
+        inet6_address = (struct sockaddr_in6 *) result->mem;
+        inet6_address->sin6_family = AF_INET6;
+        inet6_address->sin6_port = htons((uint16type) port); /* short, network byte order */
+        inet6_address->sin6_flowinfo = 0;
+        memcpy(&inet6_address->sin6_addr, &in6addr_any, sizeof(struct in6_addr)); /* auto-fill with local IP */
+        inet6_address->sin6_scope_id = 0;
+      } /* if */
+#else
+      if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, sizeof(struct sockaddr_in)))) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        result->size = sizeof(struct sockaddr_in);
+        inet_address = (struct sockaddr_in *) result->mem;
+        inet_address->sin_family = AF_INET;
+        inet_address->sin_port = htons((uint16type) port); /* short, network byte order */
+        inet_address->sin_addr.s_addr = INADDR_ANY;        /* auto-fill with local IP */
+        memset(inet_address->sin_zero, '\0', sizeof(inet_address->sin_zero));
+      } /* if */
+#endif
+#endif
     } /* if */
     /* printf("socInetServAddr --> ");
        prot_bstri(result);
@@ -521,7 +758,7 @@ chartype *termination_char;
 
   /* socLineRead */
     memlength = READ_STRI_INIT_SIZE;
-    if (!ALLOC_STRI_SIZE_OK(result, memlength)) {
+    if (unlikely(!ALLOC_STRI_SIZE_OK(result, memlength))) {
       raise_error(MEMORY_ERROR);
     } else {
       memory = result->mem;
@@ -531,7 +768,7 @@ chartype *termination_char;
         if (position >= memlength) {
           newmemlength = memlength + READ_STRI_SIZE_DELTA;
           REALLOC_STRI_CHECK_SIZE(resized_result, result, memlength, newmemlength);
-          if (resized_result == NULL) {
+          if (unlikely(resized_result == NULL)) {
             FREE_STRI(result, memlength);
             raise_error(MEMORY_ERROR);
             return NULL;
@@ -549,7 +786,7 @@ chartype *termination_char;
         position--;
       } /* if */
       REALLOC_STRI_SIZE_OK(resized_result, result, memlength, position);
-      if (resized_result == NULL) {
+      if (unlikely(resized_result == NULL)) {
         FREE_STRI(result, memlength);
         raise_error(MEMORY_ERROR);
         result = NULL;
@@ -604,7 +841,7 @@ inttype flags;
     memsizetype new_stri_size;
 
   /* socRecv */
-    if (length < 0) {
+    if (unlikely(length < 0)) {
       raise_error(RANGE_ERROR);
       return 0;
     } else {
@@ -616,7 +853,7 @@ inttype flags;
       old_stri_size = (*stri)->size;
       if (old_stri_size < bytes_requested) {
         REALLOC_STRI_CHECK_SIZE(resized_stri, *stri, old_stri_size, bytes_requested);
-        if (resized_stri == NULL) {
+        if (unlikely(resized_stri == NULL)) {
           raise_error(MEMORY_ERROR);
           return 0;
         } /* if */
@@ -640,7 +877,7 @@ inttype flags;
       (*stri)->size = new_stri_size;
       if (new_stri_size < old_stri_size) {
         REALLOC_STRI_SIZE_OK(resized_stri, *stri, old_stri_size, new_stri_size);
-        if (resized_stri == NULL) {
+        if (unlikely(resized_stri == NULL)) {
           raise_error(MEMORY_ERROR);
           return 0;
         } /* if */
@@ -676,7 +913,7 @@ bstritype *address;
     memsizetype stri_size;
 
   /* socRecvfrom */
-    if (length < 0) {
+    if (unlikely(length < 0)) {
       raise_error(RANGE_ERROR);
       return 0;
     } else {
@@ -686,7 +923,7 @@ bstritype *address;
         bytes_requested = (memsizetype) length;
       } /* if */
       REALLOC_STRI_CHECK_SIZE(resized_stri, *stri, (*stri)->size, bytes_requested);
-      if (resized_stri == NULL) {
+      if (unlikely(resized_stri == NULL)) {
         raise_error(MEMORY_ERROR);
         return 0;
       } /* if */
@@ -694,7 +931,7 @@ bstritype *address;
       COUNT3_STRI((*stri)->size, bytes_requested);
       old_address_size = (*address)->size;
       REALLOC_BSTRI_SIZE_OK(resized_address, *address, old_address_size, MAX_ADDRESS_SIZE);
-      if (resized_address == NULL) {
+      if (unlikely(resized_address == NULL)) {
         stri_size = (*stri)->size;
         REALLOC_STRI_SIZE_OK(resized_stri, *stri, bytes_requested, stri_size);
         if (resized_stri == NULL) {
@@ -712,7 +949,7 @@ bstritype *address;
         stri_size = (memsizetype) recvfrom(sock, cast_send_recv_data((*stri)->mem),
             (size_t) bytes_requested, flags,
             (struct sockaddr *) (*address)->mem, &fromlen);
-        if (stri_size == (memsizetype) -1 || fromlen < 0) {
+        if (unlikely(stri_size == (memsizetype) -1 || fromlen < 0)) {
           REALLOC_BSTRI_SIZE_OK(resized_address, *address, MAX_ADDRESS_SIZE, old_address_size);
           if (resized_address == NULL) {
             (*address)->size = MAX_ADDRESS_SIZE;
@@ -724,7 +961,7 @@ bstritype *address;
           raise_error(RANGE_ERROR);
         } else {
           REALLOC_BSTRI_SIZE_OK(resized_address, *address, MAX_ADDRESS_SIZE, (memsizetype) fromlen);
-          if (resized_address == NULL) {
+          if (unlikely(resized_address == NULL)) {
             (*address)->size = MAX_ADDRESS_SIZE;
             raise_error(MEMORY_ERROR);
             return 0;
@@ -749,7 +986,7 @@ bstritype *address;
       (*stri)->size = stri_size;
       if (stri_size < bytes_requested) {
         REALLOC_STRI_SIZE_OK(resized_stri, *stri, bytes_requested, stri_size);
-        if (resized_stri == NULL) {
+        if (unlikely(resized_stri == NULL)) {
           raise_error(MEMORY_ERROR);
           return 0;
         } /* if */
@@ -779,10 +1016,10 @@ inttype flags;
 
   /* socSend */
     buf = stri_to_bstri(stri);
-    if (buf == NULL) {
+    if (unlikely(buf == NULL)) {
       raise_error(MEMORY_ERROR);
       result = 0;
-    } else if (buf->size != stri->size) {
+    } else if (unlikely(buf->size != stri->size)) {
       FREE_BSTRI(buf, buf->size);
       raise_error(RANGE_ERROR);
       result = 0;
@@ -814,10 +1051,10 @@ bstritype address;
 
   /* socSendto */
     buf = stri_to_bstri(stri);
-    if (buf == NULL) {
+    if (unlikely(buf == NULL)) {
       raise_error(MEMORY_ERROR);
       result = 0;
-    } else if (buf->size != stri->size) {
+    } else if (unlikely(buf->size != stri->size)) {
       FREE_BSTRI(buf, buf->size);
       raise_error(RANGE_ERROR);
       result = 0;
@@ -843,35 +1080,11 @@ inttype protocol;
 #endif
 
   {
-#ifdef USE_WINSOCK
-    static booltype initialized = FALSE;
-    WORD wVersionRequested;
-    WSADATA wsaData;
-    int err;
-#endif
     sockettype result;
 
   /* socSocket */
-    /* printf("socSocket\n"); */
-#ifdef USE_WINSOCK
-    if (!initialized) {
-      wVersionRequested = MAKEWORD(2, 2);
-
-      err = WSAStartup(wVersionRequested, &wsaData);
-      if (err != 0) {
-        raise_error(FILE_ERROR);
-        return -1;
-      } /* if */
-
-      if (LOBYTE(wsaData.wVersion) != 2 ||
-          HIBYTE(wsaData.wVersion) != 2) {
-        WSACleanup();
-        raise_error(FILE_ERROR);
-        return -1;
-      } /* if */
-      initialized = TRUE;
-    } /* if */
-#endif
+    /* printf("socSocket(%d, %d, %d)\n", domain, type, protocol); */
+    check_initialization(-1);
     result = socket(domain, type, protocol);
     return result;
   } /* socSocket */
@@ -900,7 +1113,7 @@ chartype *termination_char;
 
   /* socWordRead */
     memlength = READ_STRI_INIT_SIZE;
-    if (!ALLOC_STRI_SIZE_OK(result, memlength)) {
+    if (unlikely(!ALLOC_STRI_SIZE_OK(result, memlength))) {
       raise_error(MEMORY_ERROR);
     } else {
       memory = result->mem;
@@ -913,7 +1126,7 @@ chartype *termination_char;
         if (position >= memlength) {
           newmemlength = memlength + READ_STRI_SIZE_DELTA;
           REALLOC_STRI_CHECK_SIZE(resized_result, result, memlength, newmemlength);
-          if (resized_result == NULL) {
+          if (unlikely(resized_result == NULL)) {
             FREE_STRI(result, memlength);
             raise_error(MEMORY_ERROR);
             return NULL;
@@ -931,7 +1144,7 @@ chartype *termination_char;
         position--;
       } /* if */
       REALLOC_STRI_SIZE_OK(resized_result, result, memlength, position);
-      if (resized_result == NULL) {
+      if (unlikely(resized_result == NULL)) {
         FREE_STRI(result, memlength);
         raise_error(MEMORY_ERROR);
         result = NULL;
@@ -967,14 +1180,14 @@ stritype stri;
 
   /* socWrite */
     buf = stri_to_bstri(stri);
-    if (buf == NULL) {
+    if (unlikely(buf == NULL)) {
       raise_error(MEMORY_ERROR);
-    } else if (buf->size != stri->size) {
+    } else if (unlikely(buf->size != stri->size)) {
       FREE_BSTRI(buf, buf->size);
       raise_error(RANGE_ERROR);
     } else {
       bytes_sent = (memsizetype) send(sock, cast_send_recv_data(buf->mem), buf->size, 0);
-      if (bytes_sent != buf->size) {
+      if (unlikely(bytes_sent != buf->size)) {
         /*
         printf("WSAGetLastError=%d\n", WSAGetLastError());
         printf("WSAECONNABORTED=%d\n", WSAECONNABORTED);

@@ -54,9 +54,14 @@
 #include "fil_rtl.h"
 
 
-#if DEFINE_FSEEKI64_AND_FTELLI64
+#ifdef DEFINE_FSEEKI64_AND_FTELLI64
+#ifdef C_PLUS_PLUS
+extern "C" int __cdecl _fseeki64(FILE *, __int64, int);
+extern "C" __int64 __cdecl _ftelli64(FILE *);
+#else
 extern int __cdecl _fseeki64(FILE *, __int64, int);
 extern __int64 __cdecl _ftelli64(FILE *);
+#endif
 #endif
 
 

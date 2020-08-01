@@ -475,7 +475,7 @@ int next_line ()
 
 #ifdef ANSI_C
 
-const_stritype file_name (filenumtype file_num)
+stritype file_name (filenumtype file_num)
 #else
 
 stritype file_name (file_num)
@@ -483,9 +483,9 @@ filenumtype file_num;
 #endif
 
   {
-    static const_stritype question_mark = NULL;
+    static stritype question_mark = NULL;
     infiltype help_file;
-    const_stritype result;
+    stritype result;
 
   /* file_name */
 #ifdef TRACE_INFILE
