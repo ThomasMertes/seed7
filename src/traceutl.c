@@ -72,27 +72,28 @@ static cstritype class_name[] = {
     "MATCHOBJECT",       /* listvalue - Don't exec subroutine call: */
                          /*             First element is subroutine */
                          /*             Rest of list is parameters  */
-    "TYPEOBJECT",        /* typevalue -   Type                      */
+    "TYPEOBJECT",        /* typevalue -   type                      */
     "FORMPARAMOBJECT",   /* objvalue -    Reference to formal param */
-    "INTOBJECT",         /* intvalue -    Integer                   */
-    "CHAROBJECT",        /* charvalue -   Character                 */
-    "STRIOBJECT",        /* strivalue -   String                    */
-    "ARRAYOBJECT",       /* arrayvalue -  Array                     */
-    "HASHOBJECT",        /* hashvalue -   Hashtable                 */
-    "STRUCTOBJECT",      /* structvalue - Structure                 */
-    "CLASSOBJECT",       /* structvalue - Structure                 */
+    "INTOBJECT",         /* intvalue -    integer                   */
+    "BIGINTOBJECT",      /* bigintvalue - bigInteger                */
+    "CHAROBJECT",        /* charvalue -   char                      */
+    "STRIOBJECT",        /* strivalue -   string                    */
+    "ARRAYOBJECT",       /* arrayvalue -  array                     */
+    "HASHOBJECT",        /* hashvalue -   hash                      */
+    "STRUCTOBJECT",      /* structvalue - struct                    */
+    "CLASSOBJECT",       /* structvalue - struct                    */
     "INTERFACEOBJECT",   /* objvalue -    Dynamic Object            */
-    "SETOBJECT",         /* setvalue -    Set                       */
-    "FILEOBJECT",        /* filevalue -   File                      */
-    "LISTOBJECT",        /* listvalue -   List                      */
-    "FLOATOBJECT",       /* floatvalue -  Float                     */
+    "SETOBJECT",         /* setvalue -    set                       */
+    "FILEOBJECT",        /* filevalue -   file                      */
+    "LISTOBJECT",        /* listvalue -   list                      */
+    "FLOATOBJECT",       /* floatvalue -  float                     */
     "WINOBJECT",         /* winvalue -    Window                    */
     "ENUMLITERALOBJECT", /* objvalue -    Enumeration literal       */
     "CONSTENUMOBJECT",   /* objvalue -    Constant enumeration obj  */
     "VARENUMOBJECT",     /* objvalue -    Variable enumeration obj  */
-    "REFOBJECT",         /* objvalue -    Reference                 */
-    "REFLISTOBJECT",     /* listvalue -   Reference list            */
-    "EXPROBJECT",        /* listvalue -   Expression                */
+    "REFOBJECT",         /* objvalue -    reference                 */
+    "REFLISTOBJECT",     /* listvalue -   ref_list                  */
+    "EXPROBJECT",        /* listvalue -   expression                */
     "ACTOBJECT",         /* actvalue -    Action                    */
     "VALUEPARAMOBJECT",  /* objvalue -    Formal value parameter    */
     "REFPARAMOBJECT",    /* objvalue -    Formal ref parameter      */
@@ -1497,13 +1498,13 @@ listtype list;
 
 #ifdef ANSI_C
 
-void set_trace (cstritype trace_level, int len, cstritype file_name)
+void set_trace (cstritype trace_level, int len, cstritype prot_file_name)
 #else
 
-void set_trace (trace_level, len, file_name)
+void set_trace (trace_level, len, prot_file_name)
 cstritype trace_level;
 int len;
-cstritype file_name;
+cstritype prot_file_name;
 #endif
 
   {
@@ -1540,8 +1541,8 @@ cstritype file_name;
         } /* switch */
       } /* for */
     } /* if */
-    if (file_name != NULL) {
-      if ((protfile = fopen(file_name, "w")) == NULL) {
+    if (prot_file_name != NULL) {
+      if ((protfile = fopen(prot_file_name, "w")) == NULL) {
         protfile = stdout;
       } /* if */
     } else if (protfile == NULL) {

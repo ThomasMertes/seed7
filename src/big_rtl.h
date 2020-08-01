@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  bln_rtl.h     Primitive actions for the integer type.           */
+/*  big_rtl.h     Primitive actions for the bigInteger type.        */
 /*  Copyright (C) 1989 - 2006  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
@@ -23,20 +23,40 @@
 /*  Boston, MA 02111-1307 USA                                       */
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
-/*  File: seed7/src/bln_rtl.h                                       */
-/*  Changes: 1999, 2005  Thomas Mertes                              */
-/*  Content: Primitive actions for the boolean type.                */
+/*  File: seed7/src/big_rtl.h                                       */
+/*  Changes: 2005, 2006  Thomas Mertes                              */
+/*  Content: Primitive actions for the bigInteger type.             */
 /*                                                                  */
 /********************************************************************/
 
 #ifdef ANSI_C
 
-void blnCpy (booltype *, booltype);
-void blnCreate (booltype *, booltype);
+biginttype bigAbs (biginttype);
+biginttype bigAdd (biginttype, biginttype);
+inttype bigCmp (biginttype, biginttype);
+void bigCpy (biginttype *, biginttype);
+void bigDecr (biginttype *);
+booltype bigEq (biginttype, biginttype);
+void bigIncr (biginttype *);
+biginttype bigMinus (biginttype);
+biginttype bigMult (biginttype, biginttype);
+booltype bigNe (biginttype, biginttype);
+biginttype bigParse (stritype);
+biginttype bigSbtr (biginttype, biginttype);
 
 #else
 
-void blnCpy ();
-void blnCreate ();
+biginttype bigAbs ();
+biginttype bigAdd ();
+inttype bigCmp ();
+void bigCpy ();
+void bigDecr ();
+booltype bigEq ();
+void bigIncr ();
+biginttype bigMinus ();
+biginttype bigMult ();
+booltype bigNe ();
+biginttype bigParse ();
+biginttype bigSbtr ();
 
 #endif

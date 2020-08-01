@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  drw_x11.c     Graphic access using the X11 capabilitys.         */
-/*  Copyright (C) 1989 - 2005  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2006  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -31,6 +31,7 @@
 
 #include "stdlib.h"
 #include "stdio.h"
+#include "string.h"
 
 #include <X11/X.h>
 #include <X11/Xlib.h>

@@ -44,27 +44,28 @@ typedef enum {
     MATCHOBJECT,         /* listvalue - Don't exec subroutine call: */
                          /*             First element is subroutine */
                          /*             Rest of list is parameters  */
-    TYPEOBJECT,          /* typevalue -   Type                      */
+    TYPEOBJECT,          /* typevalue -   type                      */
     FORMPARAMOBJECT,     /* objvalue -    Reference to formal param */
-    INTOBJECT,           /* intvalue -    Integer                   */
-    CHAROBJECT,          /* charvalue -   Character                 */
-    STRIOBJECT,          /* strivalue -   String                    */
-    ARRAYOBJECT,         /* arrayvalue -  Array                     */
-    HASHOBJECT,          /* hashvalue -   Hashtable                 */
-    STRUCTOBJECT,        /* structvalue - Structure                 */
-    CLASSOBJECT,         /* structvalue - Structure                 */
+    INTOBJECT,           /* intvalue -    integer                   */
+    BIGINTOBJECT,        /* bigintvalue - bigInteger                */
+    CHAROBJECT,          /* charvalue -   char                      */
+    STRIOBJECT,          /* strivalue -   string                    */
+    ARRAYOBJECT,         /* arrayvalue -  array                     */
+    HASHOBJECT,          /* hashvalue -   hash                      */
+    STRUCTOBJECT,        /* structvalue - struct                    */
+    CLASSOBJECT,         /* structvalue - struct                    */
     INTERFACEOBJECT,     /* objvalue -    Dynamic Object            */
-    SETOBJECT,           /* setvalue -    Set                       */
-    FILEOBJECT,          /* filevalue -   File                      */
-    LISTOBJECT,          /* listvalue -   List                      */
-    FLOATOBJECT,         /* floatvalue -  Float                     */
+    SETOBJECT,           /* setvalue -    set                       */
+    FILEOBJECT,          /* filevalue -   file                      */
+    LISTOBJECT,          /* listvalue -   list                      */
+    FLOATOBJECT,         /* floatvalue -  float                     */
     WINOBJECT,           /* winvalue -    Window                    */
     ENUMLITERALOBJECT,   /* objvalue -    Enumeration literal       */
     CONSTENUMOBJECT,     /* objvalue -    Constant enumeration obj  */
     VARENUMOBJECT,       /* objvalue -    Variable enumeration obj  */
-    REFOBJECT,           /* objvalue -    Reference                 */
-    REFLISTOBJECT,       /* listvalue -   Reference list            */
-    EXPROBJECT,          /* listvalue -   Expression                */
+    REFOBJECT,           /* objvalue -    reference                 */
+    REFLISTOBJECT,       /* listvalue -   ref_list                  */
+    EXPROBJECT,          /* listvalue -   expression                */
     ACTOBJECT,           /* actvalue -    Action                    */
     VALUEPARAMOBJECT,    /* objvalue -    Formal value parameter    */
     REFPARAMOBJECT,      /* objvalue -    Formal ref parameter      */
@@ -170,6 +171,7 @@ typedef union {
     nodetype   nodevalue;    /* MDULEOBJECT */
     typetype   typevalue;    /* TYPEOBJECT */
     inttype    intvalue;     /* INTOBJECT */
+	biginttype bigintvalue;  /* BIGINTOBJECT */
     chartype   charvalue;    /* CHAROBJECT */
     stritype   strivalue;    /* STRIOBJECT */
     arraytype  arrayvalue;   /* ARRAYOBJECT */

@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  drw_drv.h     Prototypes for drawing functions.                 */
-/*  Copyright (C) 1989 - 2005  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2006  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -47,7 +47,7 @@ void drwCircle (wintype, inttype, inttype, inttype);
 void drwPCircle (wintype, inttype, inttype, inttype, inttype);
 void drwClear (wintype, inttype);
 void drwCopyArea (wintype, wintype, inttype, inttype, inttype, inttype,
-		  inttype, inttype);
+                  inttype, inttype);
 void drwCpy (wintype *, wintype);
 void drwFCircle (wintype, inttype, inttype, inttype);
 void drwPFCircle (wintype, inttype, inttype, inttype, inttype);

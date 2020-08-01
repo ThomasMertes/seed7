@@ -33,6 +33,7 @@
 #include "actutl.h"
 #include "actlib.h"
 #include "arrlib.h"
+#include "biglib.h"
 #include "blnlib.h"
 #include "chrlib.h"
 #include "clslib.h"
@@ -93,6 +94,18 @@ static primactrecord prim_act_table[] = {
     { "ARR_SORT",          arr_sort,          },
     { "ARR_TAIL",          arr_tail,          },
     { "ARR_TIMES",         arr_times,         },
+
+    { "BIG_ADD",           big_add,           },
+    { "BIG_CMP",           big_cmp,           },
+    { "BIG_CPY",           big_cpy,           },
+    { "BIG_DECR",          big_decr,          },
+    { "BIG_EQ",            big_eq,            },
+    { "BIG_INCR",          big_incr,          },
+    { "BIG_MINUS",         big_minus,         },
+    { "BIG_MULT",          big_mult,          },
+    { "BIG_NE",            big_ne,            },
+    { "BIG_PARSE",         big_parse,         },
+    { "BIG_SBTR",          big_sbtr,          },
 
     { "BLN_AND",           bln_and,           },
     { "BLN_CPY",           bln_cpy,           },

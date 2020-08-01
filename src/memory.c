@@ -177,6 +177,32 @@ arraytype temp_value;
 
 #ifdef ANSI_C
 
+objecttype bld_bigint_temp (biginttype temp_value)
+#else
+
+objecttype bld_bigint_temp (temp_value)
+biginttype temp_value;
+#endif
+
+  {
+    register objecttype result;
+
+  /* bld_bigint_temp */
+    if (ALLOC_OBJECT(result)) {
+      result->type_of = NULL;
+      result->descriptor.entity = NULL;
+      INIT_CLASS_OF_TEMP(result, BIGINTOBJECT);
+      result->value.bigintvalue = temp_value;
+      return(result);
+    } else {
+      return(raise_exception(SYS_MEM_EXCEPTION));
+    } /* if */
+  } /* bld_bigint_temp */
+
+
+
+#ifdef ANSI_C
+
 objecttype bld_block_temp (blocktype temp_value)
 #else
 

@@ -29,7 +29,7 @@
 
 void destroy_array (objecttype, memsizetype, objecttype);
 void create_array (objecttype, objecttype,
-	           memsizetype, objecttype, objecttype);
+                   memsizetype, objecttype, objecttype);
 void copy_array (objecttype, objecttype, memsizetype, objecttype);
 void qsort_array (objecttype, objecttype, objecttype);
 

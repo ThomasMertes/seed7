@@ -197,7 +197,7 @@ const proc: initInfo is func
 
 
 const proc: initialize is func
-  (* PROCEDURE INITIALIZES ARRAYS, GETS STARTING PARAMETERS, SETS UP SCREEN *)
+  (* Initialize arrays, get starting parameters, set up the screen *)
   local
     var integer: line is 0;
     var integer: column is 0;
@@ -207,11 +207,35 @@ const proc: initialize is func
     clear(info);
     setPos(info, 1, 1);
     writeln(info, "W A T O R");
-    setPos(info, 3, 1);
-    write(info, "nfish= ");
-    readln(nfish);
-    write(info, "nsharks= ");
-    readln(nsharks);
+	repeat
+      setPos(info, 3, 1);
+      write(info, "nfish= ");
+      readln(nfish);
+	  if nfish > MAX_LINE * MAX_COLUMN then
+        writeln(info, "*** Too many fish (" <& nfish <& ")");
+		write(info, "Maximum is " <& MAX_LINE * MAX_COLUMN);
+        setPos(info, 3, 1);
+	    write(info, " " mult 30);
+      else
+	    writeln(info, " " mult 30);
+	    write(info, " " mult 30);
+      end if;
+	until nfish <= MAX_LINE * MAX_COLUMN;
+	repeat
+      setPos(info, 4, 1);
+      write(info, "nsharks= ");
+      readln(nsharks);
+	  if nfish + nsharks > MAX_LINE * MAX_COLUMN then
+        writeln(info, "*** Too many sharks (" <& nsharks <& ")");
+		write(info, "Maximum is " <& MAX_LINE * MAX_COLUMN - nfish);
+        setPos(info, 4, 1);
+	    write(info, " " mult 30);
+      else
+	    writeln(info, " " mult 30);
+	    write(info, " " mult 30);
+      end if;
+	until nfish + nsharks <= MAX_LINE * MAX_COLUMN;
+    setPos(info, 5, 1);
     write(info, "fbreed= ");
     readln(fbreed);
     write(info, "sbreed= ");
@@ -255,7 +279,7 @@ const proc: initialize is func
 
 
 const proc: moveFish (inout cellType: source, inout cellType: dest) is func
-  (* MAKE MOVE, FISH BREEDS IF OLD ENOUGH TO REPRODUCE *)
+  (* Make move, fish breeds if old enough to reproduce *)
   begin
     dest.content := FISH;
     dest.processed := TRUE;
@@ -293,7 +317,7 @@ const proc: moveAllFish is func
         down_line := succ(line);
       end if;
       for column range 1 to MAX_COLUMN do
-        (* LOOK THROUGH ARRAY FOR FISH, CHECK IF ALREADY MOVED.  IF NOT, THEN *)
+        (* Look through array for fish and check if already processed *)
         if field[line][column].content = FISH and not field[line][column].processed then
           if column = 1 then
             left_column := MAX_COLUMN;
@@ -306,7 +330,7 @@ const proc: moveAllFish is func
             right_column := succ(column);
           end if;
           nmoves := 0;
-          (* LOOK AROUND TO SEE WHERE FISH CAN BE MOVED *)
+          (* Look around to see where fish can be moved *)
           if field[line][left_column].content = EMPTY then
             incr(nmoves);
             moveopts[nmoves] := 1;
@@ -324,14 +348,14 @@ const proc: moveAllFish is func
             moveopts[nmoves] := 4;
           end if;
           if nmoves = 0 then
-            (* IF NOWHERE TO GO THEY JUST GET OLDER *)
+            (* If nowhere to go they just get older *)
             if field[line][column].fish = fbreed then
               field[line][column].fish := 0
             else
               incr(field[line][column].fish);
             end if;
           else
-            (* OTHERWISE, PICK A MOVE TO MAKE *)
+            (* Pick a move to make *)
             case moveopts[rand(1, nmoves)] of
               when {1}:
                 moveFish(field[line][column], field[line][left_column]);
@@ -407,7 +431,7 @@ const proc: moveAllSharks is func
         down_line := succ(line);
       end if;
       for column range 1 to MAX_COLUMN do
-        (* LOOK THROUGH ARRAY FOR sharks, CHECK IF ALREADY MOVED.  IF NOT, THEN *)
+        (* Look through array for sharks and check if already processed *)
         if field[line][column].content = SHARK and not field[line][column].processed then
           if column = 1 then
             left_column := MAX_COLUMN;
@@ -420,7 +444,7 @@ const proc: moveAllSharks is func
             right_column := succ(column);
           end if;
           nmeals := 0;
-          (* LOOK AROUND TO SEE WHERE sharks CAN BE MOVED *)
+          (* Look around to see where sharks can be moved *)
           if field[line][left_column].content = FISH then
             incr(nmeals);
             moveopts[nmeals] := 1;
@@ -437,7 +461,7 @@ const proc: moveAllSharks is func
             incr(nmeals);
             moveopts[nmeals] := 4;
           end if;
-          (* IF THE SHARK FINDS A FISH TO EAT, THEN PICK ONE, EAT IT, BREED IF POSSIBLE *)
+          (* If the shark finds a fish to eat, pick one and eat it, breed if possible *)
           if nmeals > 0 then
             case moveopts[rand(1, nmeals)] of
               when {1}:
@@ -450,7 +474,7 @@ const proc: moveAllSharks is func
                 killFish(field[line][column], field[down_line][column]);
             end case;
           elsif field[line][column].starve < slife then
-            (* IF NO MEALS IN VICINITY, LOOK FOR AN EMPTY SQUARE TO MOVE TO *)
+            (* If no meals in vicinity, look for an empty sqare to move to *)
             nmoves := 0;
             if field[line][left_column].content = EMPTY then
               incr(nmoves);
@@ -469,7 +493,7 @@ const proc: moveAllSharks is func
               moveopts[nmoves] := 4;
             end if;
             if nmoves = 0 then
-              (* IF NOTHING TO EAT AND NO PLACE TO GO, SHARK GETS OLDER *)
+              (* If there is nothing to eat and no place to go the shark gets older *)
               if field[line][column].shark = sbreed then
                 field[line][column].shark := 0;
               else
@@ -477,7 +501,7 @@ const proc: moveAllSharks is func
               end if;
               incr(field[line][column].starve);
             else
-              (* IF THERE IS A MOVE TO MAKE, PICK ONE FROM AVAILABLE SQUARES *)
+              (* If there is a move to make pick one from the available sqares *)
               case moveopts[rand(1, nmoves)] of
                 when {1}:
                   moveShark(field[line][column], field[line][left_column])

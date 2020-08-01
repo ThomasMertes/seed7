@@ -34,7 +34,7 @@
 void timAwait (inttype, inttype, inttype, inttype,
                inttype, inttype, inttype, inttype);
 void timNow (inttype *, inttype *, inttype *, inttype *,
-	     inttype *, inttype *, inttype *, inttype *);
+             inttype *, inttype *, inttype *, inttype *);
 
 #else
 

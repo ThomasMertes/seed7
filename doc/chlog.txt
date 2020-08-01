@@ -75,3 +75,9 @@
 - The operators '<=', '>' and '<' were added for the type 'duration'.
 - The windows graphic driver was improved to use the SetPixel function.
 - The filOpen function was changed to open files in binary mode.
+
+20060826:
+- A description of the 'attr' parameter was added to the manual.
+- The first steps towards bigInteger support were done.
+- The graphic and keyborad drivers for windows have been improved.
+- A check for the maximum of fish and sharks was added to the wator example program.

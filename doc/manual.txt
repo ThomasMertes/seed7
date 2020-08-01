@@ -73,6 +73,7 @@ CONTENTS
   6.4     'in var' parameter
   6.5     'inout' parameter
   6.6     Symbol parameter
+  6.7     'attr' parameter
   7.    THE FILE SYSTEM
   7.1     Conversion to strings and back
   7.2     Basic input and output operations
@@ -2765,7 +2766,7 @@ CONTENTS
 
   The example above shows that functions with 'in' and 'inout'
   parameters can be overloaded. At the right side of an assignment
-  the 'func' is called, while at the right side the 'varfunc'
+  the 'func' is called, while at the left side the 'varfunc'
   is called. That way the access functions of arrays, hashs
   and structs can be used in the usual way. 
 
@@ -3130,8 +3131,8 @@ CONTENTS
 
   Syntax:
 
-   in_var_parameter ::=
-     'in var' type-expression ':' identifier_declaration .
+    in_var_parameter ::=
+      'in var' type-expression ':' identifier_declaration .
 
 
   Declaration:
@@ -3217,10 +3218,51 @@ CONTENTS
   formal parameter list must be written.
 
 
-   Syntax:
+  Syntax:
 
-   symbol_parameter ::=
+    symbol_parameter ::=
       name_identifier | special_identifier .
+
+
+6.7 'attr' parameter
+
+  This declaration associates a name to the type 'char':
+
+    const string: name (attr char) is "char";
+
+  This 'name' can be used as follows:
+
+    writeln(name(char));
+
+  It is possible to overload such declarations:
+
+    const string: name (attr boolean) is "boolean";
+    const string: name (attr float) is "float";
+
+  An 'attr' parameter can be used in a function also:
+
+    const func char: (attr char) parse (in string: stri) is func
+      result
+        var char: result is ' ';
+      begin
+        if length(stri) >= 1 then
+          result := stri[1];
+        else
+          raise RANGE_ERROR;
+        end if;
+      end func;
+
+  Semantics:
+  The actual parameter which corresponds to an 'attr' parameter
+  must be the type mentioned in the declaration of the 'attr' parameter.
+  An 'attr' parameter does not declare a formal parameter
+  variable which could be used inside a function.
+
+
+  Syntax:
+
+    attr_parameter ::=
+      'attr' type_expression .
 
 
 
@@ -4743,32 +4785,46 @@ CONTENTS
 
   Which means that for example all 'integer' actions start with
   INT_ and all assignment actions end with _CPY . For the
-  following types exist primitive actions:
+  following types exist primitive actions (which are grouped
+  together in the *lib.c files mentioned):
 
-    ACT_  ACTION operations
-    ARR_  array operations
-    BLN_  boolean operations
-    CHR_  char operations
-    CMD_  Various directory, file and other commands
-    DCL_  Declaration operations
-    DRW_  Drawing operations
-    ENU_  Enumeration operations
-    FIL_  File operations
-    FLT_  float operations
-    INT_  integer operations
-    KBD_  Keyboard operations
-    LST_  List operations
-    PRC_  proc operations and statements
-    PRG_  Program operations
-    REF_  reference operations
-    RFL_  ref_list operations
-    SCR_  Screen operations
-    SCT_  struct operations
-    SET_  set operations
-    STR_  string operations
-    TIM_  time and duration operations
-    TYP_  type operations
+    ACT_  actlib.c  ACTION operations
+    ARR_  arrlib.c  array operations
+    BLN_  blnlib.c  boolean operations
+    CHR_  chrlib.c  char operations
+    CMD_  cmdlib.c  Various directory, file and other commands
+    DCL_  dcllib.c  Declaration operations
+    DRW_  drwlib.c  Drawing operations
+    ENU_  enulib.c  Enumeration operations
+    FIL_  fillib.c  external_file operations
+    FLT_  fltlib.c  float operations
+    HSH_  hshlib.c  hash operations
+    INT_  intlib.c  integer operations
+    KBD_  kbdlib.c  Keyboard operations
+    LST_  lstlib.c  List operations
+    PRC_  prclib.c  proc operations and statements
+    PRG_  prglib.c  Program operations
+    REF_  reflib.c  reference operations
+    RFL_  rfllib.c  ref_list operations
+    SCR_  scrlib.c  Screen operations
+    SCT_  sctlib.c  struct operations
+    SET_  setlib.c  set operations
+    STR_  strlib.c  string operations
+    TIM_  timlib.c  time and duration operations
+    TYP_  typlib.c  type operations
+    UT8_  ut8lib.c  utf8_file operations
 
+  The C functions in the *lib.c files have lowercase names.
+  Therefore the 'PRC_WHILE' action is implemented
+  as the C function 'prc_while' in the file 'prclib.c'.
+  The prototype for all C primitiv action functions is identical.
+  The  'prc_while' function has the following prototype:
+
+    objecttype prc_while (listtype);
+
+  All the *lib.c files containing primitive actions are grouped
+  together in the Seed7 runtime library (Licensed under LGPL).
+  Every *lib.c file has a corresonding *lib.h file.
   The following list shows actions which are used with more than
   one type:
 

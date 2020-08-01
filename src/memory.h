@@ -48,6 +48,7 @@
 #define take_float(arg)     (arg)->value.floatvalue
 #define take_hash(arg)      (arg)->value.hashvalue
 #define take_int(arg)       (arg)->value.intvalue
+#define take_bigint(arg)    (arg)->value.bigintvalue
 #define take_list(arg)      (arg)->value.listvalue
 #define take_prog(arg)      (arg)->value.progvalue
 #define take_reference(arg) (arg)->value.objvalue
@@ -62,6 +63,7 @@
 #define isit_action(arg)    if (CLASS_OF_OBJ(arg) != ACTOBJECT)     run_error(ACTOBJECT, arg)
 #define isit_array(arg)     if (CLASS_OF_OBJ(arg) != ARRAYOBJECT)   run_error(ARRAYOBJECT, arg); \
                             if (take_array(arg) == NULL)            empty_value(arg)
+#define isit_bigint(arg)    if (CLASS_OF_OBJ(arg) != BIGINTOBJECT)  run_error(BIGINTOBJECT, arg)
 #define isit_block(arg)     if (CLASS_OF_OBJ(arg) != BLOCKOBJECT)   run_error(BLOCKOBJECT, arg)
 /*      isit_bool(arg)      */
 #define isit_call(arg)      if (CLASS_OF_OBJ(arg) != CALLOBJECT)    run_error(CALLOBJECT, arg)
@@ -145,6 +147,7 @@ void isit_list (objecttype);
 #endif
 objecttype bld_action_temp (acttype);
 objecttype bld_array_temp (arraytype);
+objecttype bld_bigint_temp (biginttype);
 objecttype bld_block_temp (blocktype);
 objecttype bld_char_temp (chartype);
 objecttype bld_class_temp (objecttype);
@@ -194,6 +197,7 @@ void isit_list ();
 #endif
 objecttype bld_action_temp ();
 objecttype bld_array_temp ();
+objecttype bld_bigint_temp ();
 objecttype bld_block_temp ();
 objecttype bld_char_temp ();
 objecttype bld_class_temp ();

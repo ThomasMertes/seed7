@@ -64,25 +64,26 @@ typedef int booltype;
 #undef  MMAP_ABLE_STRI
 
 
-typedef float             floattype;
-typedef long int          inttype;
-typedef unsigned long int chartype;
+typedef float              floattype;
+typedef long int           inttype;
+typedef unsigned long int  chartype;
 #ifdef WIDE_CHAR_STRINGS
-typedef unsigned long int strelemtype;
+typedef unsigned long int  strelemtype;
 #else
-typedef unsigned char     strelemtype;
+typedef unsigned char      strelemtype;
 #endif
-typedef unsigned long int uinttype;
-typedef uinttype          bitsettype;
-typedef long int          bigdigittype;
-typedef unsigned long int memsizetype;
-typedef signed char       smallpriortype;
-typedef int               prior_type;
+typedef unsigned long int  uinttype;
+typedef uinttype           bitsettype;
+typedef unsigned short int bigdigittype;
+typedef unsigned long int  doublebigdigittype;
+typedef unsigned long int  memsizetype;
+typedef signed char        smallpriortype;
+typedef int                prior_type;
 
-typedef unsigned char     uchartype;
-typedef char *            cstritype;
-typedef unsigned char *   ustritype;
-typedef FILE              *filetype;
+typedef unsigned char      uchartype;
+typedef char *             cstritype;
+typedef unsigned char *    ustritype;
+typedef FILE *             filetype;
 
 #define MAX_INTEGER 2147483647
 
@@ -163,6 +164,6 @@ typedef struct winstruct {
 
 typedef struct bigintstruct {
     memsizetype size;
-    bigdigittype sign;
+    /* bigdigittype sign; */
     bigdigittype bigdigits[1];
   } bigintrecord;

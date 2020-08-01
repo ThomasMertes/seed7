@@ -44,6 +44,8 @@ typedef struct {
     memsizetype set_elems;
     unsigned long stru;
     memsizetype sct_elems;
+    unsigned long big;
+    memsizetype big_elems;
     unsigned long ident;
     unsigned long idt;
     memsizetype idt_bytes;
@@ -146,6 +148,8 @@ EXTERN memsizetype hs;
 #define SET_SUB(len)           , count.set--,   count.set_elems -= (memsizetype) (len)
 #define SCT_ADD(len)           , count.stru++,  count.sct_elems += (memsizetype) (len)
 #define SCT_SUB(len)           , count.stru--,  count.sct_elems -= (memsizetype) (len)
+#define BIG_ADD(len)           , count.big++,   count.big_elems += (memsizetype) (len)
+#define BIG_SUB(len)           , count.big--,   count.big_elems -= (memsizetype) (len)
 #define REC_ADD(cnt)           , cnt++
 #define REC_SUB(cnt)           , cnt--
 #define BYT_ADD(size)          , count.byte += (memsizetype) (size)
@@ -165,6 +169,8 @@ EXTERN memsizetype hs;
 #define SET_SUB(len)
 #define SCT_ADD(len)
 #define SCT_SUB(len)
+#define BIG_ADD(len)
+#define BIG_SUB(len)
 #define REC_ADD(cnt)
 #define REC_SUB(cnt)
 #define BYT_ADD(size)
@@ -199,6 +205,7 @@ EXTERN memsizetype hs;
 #define SIZ_HSH(len)    (sizeof(hashrecord)   - sizeof(helemtype)    + (len) * sizeof(helemtype))
 #define SIZ_SET(len)    (sizeof(setrecord)    - sizeof(bitsettype)   + (len) * sizeof(bitsettype))
 #define SIZ_SCT(len)    (sizeof(structrecord) - sizeof(objectrecord) + (len) * sizeof(objectrecord))
+#define SIZ_BIG(len)    (sizeof(bigintrecord) - sizeof(bigdigittype) + (len) * sizeof(bigdigittype))
 #define SIZ_REC(rec)    (sizeof(rec))
 #define SIZ_TAB(tp, nr) (sizeof(tp) * (nr))
 
@@ -218,6 +225,8 @@ EXTERN memsizetype hs;
 #define CNT2_SET(len,size)   (HS_SUB(size) SET_SUB(len)     H_LOG2(size))
 #define CNT1_SCT(len,size)   (HS_ADD(size) SCT_ADD(len)     H_LOG1(size))
 #define CNT2_SCT(len,size)   (HS_SUB(size) SCT_SUB(len)     H_LOG2(size))
+#define CNT1_BIG(len,size)   (HS_ADD(size) BIG_ADD(len)     H_LOG1(size))
+#define CNT2_BIG(len,size)   (HS_SUB(size) BIG_SUB(len)     H_LOG2(size))
 #define CNT1_REC(size,cnt)   (HS_ADD(size) REC_ADD(cnt)     H_LOG1(size))
 #define CNT2_REC(size,cnt)   (HS_SUB(size) REC_SUB(cnt)     H_LOG2(size))
 #define CNT1_BYT(size)       (HS_ADD(size) BYT_ADD(size)    H_LOG1(size))
@@ -237,6 +246,8 @@ EXTERN memsizetype hs;
 #define CNT2_SET(len,size)   0
 #define CNT1_SCT(len,size)   0
 #define CNT2_SCT(len,size)   0
+#define CNT1_BIG(len,size)   0
+#define CNT2_BIG(len,size)   0
 #define CNT1_REC(size,cnt)   0
 #define CNT2_REC(size,cnt)   0
 #define CNT1_BYT(size)       0
@@ -315,6 +326,13 @@ EXTERN memsizetype hs;
 #define RESIZE_STRUCT(var,ln1,ln2) REALLOC_HEAP(var, structtype, SIZ_SCT(ln2))
 #define COUNT_STRUCT(len)          CNT1_SCT(len, SIZ_SCT(len))
 #define COUNT3_STRUCT(len1,len2)   (CNT2_SCT(len1, SIZ_SCT(len1)), CNT1_SCT(len2, SIZ_SCT(len2)))
+
+
+#define ALLOC_BIG(var,len)         ALLOC_HEAP(var, biginttype, SIZ_BIG(len))
+#define FREE_BIG(var,len)          (CNT2_BIG(len, SIZ_BIG(len)), FREE_HEAP(var, byt))
+#define RESIZE_BIG(var,ln1,ln2)    REALLOC_HEAP(var, biginttype, SIZ_BIG(ln2))
+#define COUNT_BIG(len)             CNT1_BIG(len, SIZ_BIG(len))
+#define COUNT3_BIG(len1,len2)      (CNT2_BIG(len1, SIZ_BIG(len1)), CNT1_BIG(len2, SIZ_BIG(len2)))
 
 
 #define ALLOC_RECORD(var,rec)      ALLOC_HEAP(var, rec *, SIZ_REC(rec))

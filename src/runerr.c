@@ -37,6 +37,8 @@
 #include "sigutl.h"
 #include "actutl.h"
 #include "traceutl.h"
+#include "identutl.h"
+#include "infile.h"
 #include "exec.h"
 
 #undef EXTERN
@@ -212,7 +214,7 @@ listtype stack_elem;
           trace1(func_object);
           printf("\n");
           */
-          printf("at %s(%ld)\n",
+          printf("at %s(%u)\n",
               file_name(GET_FILE_NUM(stack_elem->obj)),
               GET_LINE_NUM(stack_elem->obj));
         } else {
@@ -249,7 +251,7 @@ listtype list;
       printobject(exception);
       printf(" raised");
       if (curr_exec_object != NULL && HAS_POSINFO(curr_exec_object)) {
-        printf(" at %s(%ld)",
+        printf(" at %s(%u)",
             file_name(GET_FILE_NUM(curr_exec_object)),
             GET_LINE_NUM(curr_exec_object));
       } /* if */

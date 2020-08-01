@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  hi   Interpreter for Seed7 programs.                            */
-/*  Copyright (C) 1990 - 2000  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2006  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -18,41 +18,39 @@
 /*  Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,  */
 /*  MA 02111-1307 USA                                               */
 /*                                                                  */
-/*  Module: Analyzer                                                */
-/*  File: seed7/src/info.h                                          */
-/*  Changes: 1990, 1991, 1992, 1993, 1994  Thomas Mertes            */
-/*  Content: Procedures for compile time info.                      */
+/*  Module: Library                                                 */
+/*  File: seed7/src/biglib.h                                        */
+/*  Changes: 2005, 2006  Thomas Mertes                              */
+/*  Content: All primitive actions for the bigInteger type.         */
 /*                                                                  */
 /********************************************************************/
 
-#ifdef WITH_COMPILATION_INFO
-#define INCR_LINE_COUNT(LIN) if (LIN++ == in_file.next_msg_line) line_compilation_info()
-#else
-#define INCR_LINE_COUNT(LIN) (LIN++)
-#define display_compilation_info()
-#define open_compilation_info()
-#endif
-
-#define CR_LIN_INFO()      printf("%6u\r", in_file.line)
-#define NL_LIN_INFO()      printf("%6u\n", in_file.line)
-#define CR_FIL_LIN_INFO()  printf("%6u %s\r", in_file.line, in_file.name)
-#define NL_FIL_LIN_INFO()  printf("%6u %s\n", in_file.line, in_file.name)
-
-
-#ifdef WITH_COMPILATION_INFO
-
 #ifdef ANSI_C
 
-void display_compilation_info (void);
-void line_compilation_info (void);
-void open_compilation_info (void);
+objecttype big_add (listtype);
+objecttype big_cmp (listtype);
+objecttype big_cpy (listtype);
+objecttype big_decr (listtype);
+objecttype big_eq (listtype);
+objecttype big_incr (listtype);
+objecttype big_minus (listtype);
+objecttype big_mult (listtype);
+objecttype big_ne (listtype);
+objecttype big_parse (listtype);
+objecttype big_sbtr (listtype);
 
 #else
 
-void display_compilation_info ();
-void line_compilation_info ();
-void open_compilation_info ();
-
-#endif
+objecttype big_add ();
+objecttype big_cmp ();
+objecttype big_cpy ();
+objecttype big_decr ();
+objecttype big_eq ();
+objecttype big_incr ();
+objecttype big_minus ();
+objecttype big_mult ();
+objecttype big_ne ();
+objecttype big_parse ();
+objecttype big_sbtr ();
 
 #endif

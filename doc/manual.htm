@@ -72,7 +72,8 @@
 <li><!--   6.3      --><a href="#in_parameter"><b>'in' parameter</b></a></li>
 <li><!--   6.4      --><a href="#in_var_parameter"><b>'in var' parameter</b></a></li>
 <li><!--   6.5      --><a href="#inout_parameter"><b>'inout' parameter</b></a></li>
-<li><!--   6.6      --><a href="#Symbol_parameter"><b>Symbol parameter</b></a></li></ol>
+<li><!--   6.6      --><a href="#Symbol_parameter"><b>Symbol parameter</b></a></li>
+<li><!--   6.7      --><a href="#attr_parameter"><b>'attr' parameter</b></a></li></ol>
 <li><!--   7.     --><a href="#THE_FILE_SYSTEM"><big><b>THE FILE SYSTEM</b></big></a></li><ol>
 <li><!--   7.1      --><a href="#Conversion_to_strings_and_back"><b>Conversion to strings and back</b></a></li>
 <li><!--   7.2      --><a href="#Basic_input_and_output_operations"><b>Basic input and output operations</b></a></li>
@@ -2765,7 +2766,7 @@
 </pre><p>
   The example above shows that functions with <tt>'<font color=blue>in</font>'</tt> and <tt>'<font color=blue>inout</font>'</tt>
   parameters can be overloaded. At the right side of an assignment
-  the <tt>'<font color=red>func</font>'</tt> is called, while at the right side the <tt>'<font color=red>varfunc</font>'</tt>
+  the <tt>'<font color=red>func</font>'</tt> is called, while at the left side the <tt>'<font color=red>varfunc</font>'</tt>
   is called. That way the access functions of <font color=red>array</font>s, <font color=red>hash</font>s
   and <font color=red>struct</font>s can be used in the usual way. 
 </p>
@@ -3130,8 +3131,8 @@
 
   Syntax:
 </p><pre>
-   in_var_parameter ::=
-     '<font color=blue>in var</font>' type-expression ':' identifier_declaration .
+    in_var_parameter ::=
+      '<font color=blue>in var</font>' type-expression ':' identifier_declaration .
 </pre><p>
 
   Declaration:
@@ -3217,10 +3218,51 @@
   formal parameter list must be written.
 </dd></dl><p>
 
-   Syntax:
+  Syntax:
 </p><pre>
-   symbol_parameter ::=
+    symbol_parameter ::=
       name_identifier | special_identifier .
+</pre><p></p>
+
+<a name="attr_parameter"><b>6.7 'attr' parameter</b></a>
+<p>
+  This declaration associates a name to the type <tt>'<font color=red>char</font>'</tt>:
+</p><pre>
+    <font color=blue>const</font> <font color=red>string</font>: name (<font color=blue>attr</font> <font color=red>char</font>) <font color=blue>is</font> <font color=maroon>"char"</font>;
+</pre><p>
+  This <tt>'name'</tt> can be used as follows:
+</p><pre>
+    writeln(name(<font color=red>char</font>));
+</pre><p>
+  It is possible to overload such declarations:
+</p><pre>
+    <font color=blue>const</font> <font color=red>string</font>: name (<font color=blue>attr</font> <font color=red>boolean</font>) <font color=blue>is</font> <font color=maroon>"boolean"</font>;
+    <font color=blue>const</font> <font color=red>string</font>: name (<font color=blue>attr</font> <font color=red>float</font>) <font color=blue>is</font> <font color=maroon>"float"</font>;
+</pre><p>
+  An <tt>'<font color=blue>attr</font>'</tt> parameter can be used in a function also:
+</p><pre>
+    <font color=blue>const</font> <font color=red>func char</font>: (<font color=blue>attr</font> <font color=red>char</font>) parse (<font color=blue>in</font> string</font>: <font color=red>stri</font>) <font color=blue>is func</font>
+      <font color=blue>result</font>
+        <font color=blue>var</font> <font color=red>char</font>: result <font color=blue>is</font> <font color=maroon>' '</font>;
+      <font color=blue>begin</font>
+        <font color=blue>if</font> length(stri) >= 1 <font color=blue>then</font>
+          result := stri[1];
+        <font color=blue>else</font>
+          <font color=blue>raise</font> RANGE_ERROR;
+        <font color=blue>end if</font>;
+      <font color=blue>end func</font>;
+</pre><p></p><dl><dt>
+  Semantics:</dt><dd>
+  The actual parameter which corresponds to an <tt>'<font color=blue>attr</font>'</tt> parameter
+  must be the type mentioned in the declaration of the <tt>'<font color=blue>attr</font>'</tt> parameter.
+  An <tt>'<font color=blue>attr</font>'</tt> parameter does not declare a formal parameter
+  variable which could be used inside a function.
+</dd></dl><p>
+
+  Syntax:
+</p><pre>
+    attr_parameter ::=
+      '<font color=blue>attr</font>' type_expression .
 </pre><p></p><hr>
 
 <p></p>
@@ -4743,32 +4785,46 @@
 </pre><p>
   Which means that for example all <tt>'<font color=red>integer</font>'</tt> actions start with
   INT_ and all assignment actions end with _CPY . For the
-  following types exist primitive actions:
+  following types exist primitive actions (which are grouped
+  together in the *lib.c files mentioned):
 </p><pre>
-    ACT_  <font color=red>ACTION</font> operations
-    ARR_  <font color=red>array</font> operations
-    BLN_  <font color=red>boolean</font> operations
-    CHR_  <font color=red>char</font> operations
-    CMD_  Various directory, file and other commands
-    DCL_  Declaration operations
-    DRW_  Drawing operations
-    ENU_  Enumeration operations
-    FIL_  File operations
-    FLT_  <font color=red>float</font> operations
-    INT_  <font color=red>integer</font> operations
-    KBD_  Keyboard operations
-    LST_  List operations
-    PRC_  <font color=red>proc</font> operations and statements
-    PRG_  Program operations
-    REF_  <font color=red>reference</font> operations
-    RFL_  <font color=red>ref_list</font> operations
-    SCR_  Screen operations
-    SCT_  <font color=red>struct</font> operations
-    SET_  <font color=red>set</font> operations
-    STR_  <font color=red>string</font> operations
-    TIM_  <font color=red>time</font> and <font color=red>duration</font> operations
-    TYP_  <font color=red>type</font> operations
+    ACT_  actlib.c  <font color=red>ACTION</font> operations
+    ARR_  arrlib.c  <font color=red>array</font> operations
+    BLN_  blnlib.c  <font color=red>boolean</font> operations
+    CHR_  chrlib.c  <font color=red>char</font> operations
+    CMD_  cmdlib.c  Various directory, file and other commands
+    DCL_  dcllib.c  Declaration operations
+    DRW_  drwlib.c  Drawing operations
+    ENU_  enulib.c  Enumeration operations
+    FIL_  fillib.c  <font color=red>external_file</font> operations
+    FLT_  fltlib.c  <font color=red>float</font> operations
+    HSH_  hshlib.c  <font color=red>hash</font> operations
+    INT_  intlib.c  <font color=red>integer</font> operations
+    KBD_  kbdlib.c  Keyboard operations
+    LST_  lstlib.c  List operations
+    PRC_  prclib.c  <font color=red>proc</font> operations and statements
+    PRG_  prglib.c  Program operations
+    REF_  reflib.c  <font color=red>reference</font> operations
+    RFL_  rfllib.c  <font color=red>ref_list</font> operations
+    SCR_  scrlib.c  Screen operations
+    SCT_  sctlib.c  <font color=red>struct</font> operations
+    SET_  setlib.c  <font color=red>set</font> operations
+    STR_  strlib.c  <font color=red>string</font> operations
+    TIM_  timlib.c  <font color=red>time</font> and <font color=red>duration</font> operations
+    TYP_  typlib.c  <font color=red>type</font> operations
+    UT8_  ut8lib.c  <font color=red>utf8_file</font> operations
 </pre><p>
+  The C functions in the *lib.c files have lowercase names.
+  Therefore the <tt>'PRC_WHILE'</tt> action is implemented
+  as the C function <tt>'prc_while'</tt> in the file <tt>'prclib.c'</tt>.
+  The prototype for all C primitiv action functions is identical.
+  The  <tt>'prc_while'</tt> function has the following prototype:
+</p><pre>
+    objecttype prc_while (listtype);
+</pre><p>
+  All the *lib.c files containing primitive actions are grouped
+  together in the Seed7 runtime library (Licensed under LGPL).
+  Every *lib.c file has a corresonding *lib.h file.
   The following list shows actions which are used with more than
   one type:
 </p><pre>
