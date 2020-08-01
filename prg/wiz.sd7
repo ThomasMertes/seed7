@@ -148,7 +148,7 @@ const integer: ord (PALANTIR)  is 8;
 const integer: ord (SILMARIL)  is 9;
 const integer: ord (RUNESTAFF) is 10;
 const integer: ord (ORBOFZOT)  is 11;
-const func integer: ord (in objecttype param) is DYNAMIC;
+const func integer: ord (in objecttype: anObject) is DYNAMIC;
 const string: str (NOOBJECT)  is "nothing";
 const string: str (LAMP)      is "lamp";
 const string: str (RUBY)      is "ruby red";
@@ -161,7 +161,7 @@ const string: str (PALANTIR)  is "Palantir";
 const string: str (SILMARIL)  is "Silmaril";
 const string: str (RUNESTAFF) is "Runestaff";
 const string: str (ORBOFZOT)  is "*ORB OF ZOT*";
-const func string: str (in objecttype param) is DYNAMIC;
+const func string: str (in objecttype: anObject) is DYNAMIC;
 *)
 
 NOOBJECT->number  :=  0;
@@ -396,7 +396,7 @@ const proc: execute (HELP) is func
   end func; (* execute (HELP) *)
 
 
-const func string: str (in object param) is DYNAMIC;
+const func string: str (in object: obj) is DYNAMIC;
 
 
 const proc: write_a (in object: obj) is func

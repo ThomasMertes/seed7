@@ -61,7 +61,7 @@ const type: pacman_type is new object struct
 
 var pacman_type: PACMAN is pacman_type.value;
 
-const string: str (in pacman_type param) is "P";
+const string: str (in pacman_type: pacman) is "P";
 
 enable_output(pacman_type);
 
@@ -78,7 +78,7 @@ var ghost_struct: ghost_2 is ghost_struct.value;
 var ghost_struct: ghost_3 is ghost_struct.value;
 var ghost_struct: ghost_4 is ghost_struct.value;
 
-const string: str (in ghost_struct param) is "G";
+const string: str (in ghost_struct: ghost) is "G";
 
 enable_output(ghost_struct);
 
@@ -123,10 +123,10 @@ const array string: field is [](
     "#######################################");
 
 
-const proc: set_color (in integer param, in integer param) is noop;
+const proc: set_color (in integer: foreground, in integer: background) is noop;
 
 
-const proc: sound (in integer param, in float param) is noop;
+const proc: sound (in integer: frequency, in float: duration) is noop;
 
 
 const proc: show_lifes is func
@@ -303,7 +303,7 @@ const proc: someone_cought (inout ghost_type: ghost) is func
   end func; (* someone_cought *)
 
 
-const proc: EAT (in place_type param) is DYNAMIC;
+const proc: EAT (in place_type: aPlace) is DYNAMIC;
 
 
 const proc: EAT (FREE_PLACE) is noop;
@@ -420,7 +420,7 @@ const func direct_type: select_direction (
   end func; (* select_direction *)
 
 
-const proc: turn (in ghost_type param, in direct_type param) is DYNAMIC;
+const proc: turn (in ghost_type: ghost, in direct_type: direction) is DYNAMIC;
 
 
 const proc: turn (inout ghost_type: ghost, RIGHTWARD) is func

@@ -883,22 +883,15 @@ const func string: bitsetElemAsHex (in bitset: set1, in integer: start_num) is f
   result
     var string: hex_num is "";
   local
-    var integer: byte_num is 0;
+    var integer: hex_digit_num is 0;
     var integer: bit_num is 0;
     var integer: hex_digit is 0;
   begin
-    for byte_num range 0 to pred(INTTYPE_SIZE div 8) do
+    for hex_digit_num range 0 to pred(INTTYPE_SIZE div 4) do
       hex_digit := 0;
       for bit_num range 0 to 3 do
-        if start_num + byte_num * 8 + bit_num in set1 then
+        if start_num + hex_digit_num * 4 + bit_num in set1 then
           hex_digit +:= 2 ** bit_num;
-        end if;
-      end for;
-      hex_num := hex_digit radix 16 <& hex_num;
-      hex_digit := 0;
-      for bit_num range 4 to 7 do
-        if start_num + byte_num * 8 + bit_num in set1 then
-          hex_digit +:= 2 ** (bit_num - 4);
         end if;
       end for;
       hex_num := hex_digit radix 16 <& hex_num;
@@ -4910,6 +4903,26 @@ const proc: process_big_eq (in ref_list: params, inout expr_type: c_expr) is fun
   end func;
 
 
+const proc: process_big_from_bstri_be (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_bigint_result(c_expr);
+    c_expr.result_expr := "bigFromBStriBe(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process_big_from_bstri_le (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_bigint_result(c_expr);
+    c_expr.result_expr := "bigFromBStriLe(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
 const proc: process_big_gcd (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -5992,6 +6005,26 @@ const proc: process_big_succ (in ref_list: params, inout expr_type: c_expr) is f
       c_expr.result_expr := "bigSucc(";
       c_expr.result_expr &:= c_param1.expr;
     end if;
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process_big_to_bstri_be (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_bstri_result(c_expr);
+    c_expr.result_expr := "bigToBStriBe(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process_big_to_bstri_le (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_bstri_result(c_expr);
+    c_expr.result_expr := "bigToBStriLe(";
+    getAnyParamToResultExpr(params[1], c_expr);
     c_expr.result_expr &:= ")";
   end func;
 
@@ -17443,6 +17476,10 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_big_div(params, c_expr);
       elsif action_name = "BIG_EQ" then
         process_big_eq(params, c_expr);
+      elsif action_name = "BIG_FROM_BSTRI_BE" then
+        process_big_from_bstri_be(params, c_expr);
+      elsif action_name = "BIG_FROM_BSTRI_LE" then
+        process_big_from_bstri_le(params, c_expr);
       elsif action_name = "BIG_GCD" then
         process_big_gcd(params, c_expr);
       elsif action_name = "BIG_GE" then
@@ -17511,6 +17548,10 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_big_str(params, c_expr);
       elsif action_name = "BIG_SUCC" then
         process_big_succ(params, c_expr);
+      elsif action_name = "BIG_TO_BSTRI_BE" then
+        process_big_to_bstri_be(params, c_expr);
+      elsif action_name = "BIG_TO_BSTRI_LE" then
+        process_big_to_bstri_le(params, c_expr);
       elsif action_name = "BIG_VALUE" then
         process_big_value(params, c_expr);
       else
@@ -23418,6 +23459,8 @@ const proc: write_prototypes is func
       declareExtern("biginttype  bigFromInt32 (inttype);");
       writeln(c_prog, "#define     bigIConv bigFromInt32");
     end if;
+    declareExtern("biginttype  bigFromBStriBe (const const_bstritype);");
+    declareExtern("biginttype  bigFromBStriLe (const const_bstritype);");
     declareExtern("biginttype  bigGcd (const const_biginttype, const const_biginttype);");
     declareExtern("void        bigGrow (biginttype *const, const const_biginttype);");
     declareExtern("inttype     bigHashCode (const const_biginttype);");
@@ -23461,6 +23504,8 @@ const proc: write_prototypes is func
     declareExtern("stritype    bigStr (const const_biginttype);");
     declareExtern("biginttype  bigSucc (const const_biginttype);");
     declareExtern("biginttype  bigSuccTemp (biginttype);");
+    declareExtern("bstritype   bigToBStriBe (const const_biginttype);");
+    declareExtern("bstritype   bigToBStriLe (const const_biginttype);");
     declareExtern("biginttype  bigValue (objreftype);");
     declareExtern("biginttype  bigXor (const_biginttype, const_biginttype);");
     declareExtern("biginttype  bigZero (void);");
@@ -24249,7 +24294,7 @@ const proc: init_const_value (in reference: current_object, inout expr_type: c_e
       c_expr.expr &:= ".value.bigintvalue=";
       c_expr.expr &:= bigIntegerLiteral(getValue(current_object, bigInteger));
     elsif objectCategory = CHAROBJECT then
-      c_expr.expr &:= ".value.intvalue=";
+      c_expr.expr &:= ".value.charvalue=";
       c_expr.expr &:= c_literal(getValue(current_object, char));
     elsif objectCategory = STRIOBJECT then
       c_expr.expr &:= ".value.strivalue=";
@@ -24768,7 +24813,7 @@ const proc: init_set_constants (inout expr_type: c_expr) is func
     var integer: max_position is 0;
     var integer: number is 0;
     var integer: elem_num is 0;
-    var integer: column is 0;
+    var integer: columnsFree is 0;
   begin
     set_index := flip(set_const_table);
     for number range sort(keys(set_index)) do
@@ -24787,17 +24832,15 @@ const proc: init_set_constants (inout expr_type: c_expr) is func
         c_expr.expr &:= ",";
         c_expr.expr &:= str(max_position);
         c_expr.expr &:= ",";
-        if max_position - min_position > 4 then
-          c_expr.expr &:= "\n";
-        end if;
+        columnsFree := 4;
         for elem_num range min_position to max_position do
+          if columnsFree = 0 then
+            c_expr.expr &:= "\n";
+            columnsFree := 6;
+          end if;
           c_expr.expr &:= bitsetElemAsHex(set1, elem_num * INTTYPE_SIZE);
           c_expr.expr &:= ",";
-          incr(column);
-          if column = 8 then
-            c_expr.expr &:= "\n";
-            column := 0;
-          end if;
+          decr(columnsFree);
         end for;
       end if;
       c_expr.expr &:= "};\n";

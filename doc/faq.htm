@@ -524,12 +524,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 200000 lines of Seed7. For version 2013-08-20 the number of lines is:
+than 200000 lines of Seed7. For version 2013-09-08 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right"> 93347</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right">  8128</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">115204</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right"> 91250</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right"> 93757</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right">  8136</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">116313</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right"> 91340</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -1579,7 +1579,7 @@ In the following example the interface type <tt><span class="type">Number</span>
 </p><pre class="indent">
 <span class="keywd">const</span> <span class="type">type</span>: Number <span class="keywd">is sub</span> <span class="type">object</span> <span class="keywd">interface</span>;
 
-<span class="keywd">const</span> <span class="type">func Number</span>: (<span class="keywd">in</span> <span class="type">Number</span> <span class="keywd">param</span>) + (<span class="keywd">in</span> <span class="type">Number</span> <span class="keywd">param</span>) <span class="keywd">is DYNAMIC</span>;
+<span class="keywd">const</span> <span class="type">func Number</span>: (<span class="keywd">in</span> <span class="type">Number</span>: a) + (<span class="keywd">in</span> <span class="type">Number</span>: b) <span class="keywd">is DYNAMIC</span>;
 </pre><p>
 The <tt><span class="keywd">DYNAMIC</span></tt> declaration creates an interface function for the <tt>'+'</tt> operator.
 The interface type <tt><span class="type">Number</span></tt> can represent an <tt><span class="type">Integer</span></tt> or a <tt><span class="type">Float</span></tt>:

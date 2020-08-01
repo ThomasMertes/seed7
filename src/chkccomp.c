@@ -321,6 +321,10 @@ int main (int argc, char **argv)
     char buffer[4096];
     long number;
     int ch;
+    union {
+      char           charvalue;
+      unsigned long  genericvalue;
+    } testUnion;
     int zero_divide_triggers_signal = 0;
     float zero = 0.0;
     float negativeZero;
@@ -521,10 +525,19 @@ int main (int argc, char **argv)
     } /* if */
     if (~number == (long) 0) {
       puts("#define TWOS_COMPLEMENT_INTTYPE");
+    } else if (~number == (long) 1) {
+      puts("#define ONES_COMPLEMENT_INTTYPE");
     } /* if */
     number = 1;
     if (((char *) &number)[0] == 1) {
       puts("#define LITTLE_ENDIAN_INTTYPE");
+    } else {
+      puts("#define BIG_ENDIAN_INTTYPE");
+    } /* if */
+    memset(&testUnion, 0, sizeof(testUnion));
+    testUnion.charvalue = 'X';
+    if (testUnion.charvalue != (char) testUnion.genericvalue) {
+      puts("#define CASTING_DOES_NOT_GET_A_UNION_ELEMENT");
     } /* if */
 #ifdef TURN_OFF_FP_EXCEPTIONS
     _control87(MCW_EM, MCW_EM);

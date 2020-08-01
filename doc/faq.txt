@@ -199,12 +199,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 200000 lines of Seed7. For version 2013-08-20 the number of lines is:
+than 200000 lines of Seed7. For version 2013-09-08 the number of lines is:
 
-   93347  C source files (*.c)
-    8128  C header files (*.h)
-  115204  Seed7 source files (*.sd7)
-   91250  Seed7 library/include files (*.s7i)
+   93757  C source files (*.c)
+    8136  C header files (*.h)
+  116313  Seed7 source files (*.sd7)
+   91340  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -1254,7 +1254,7 @@ In the following example the interface type 'Number' uses multiple dispatch:
 
   const type: Number is sub object interface;
 
-  const func Number: (in Number param) + (in Number param) is DYNAMIC;
+  const func Number: (in Number: a) + (in Number: b) is DYNAMIC;
 
 The 'DYNAMIC' declaration creates an interface function for the '+' operator.
 The interface type 'Number' can represent an 'Integer' or a 'Float':

@@ -119,6 +119,8 @@ static primactrecord prim_act_table[] = {
     { "BIG_DESTR",               big_destr,               },
     { "BIG_DIV",                 big_div,                 },
     { "BIG_EQ",                  big_eq,                  },
+    { "BIG_FROM_BSTRI_BE",       big_fromBStriBe,         },
+    { "BIG_FROM_BSTRI_LE",       big_fromBStriLe,         },
     { "BIG_GCD",                 big_gcd,                 },
     { "BIG_GE",                  big_ge,                  },
     { "BIG_GROW",                big_grow,                },
@@ -153,6 +155,8 @@ static primactrecord prim_act_table[] = {
     { "BIG_SHRINK",              big_shrink,              },
     { "BIG_STR",                 big_str,                 },
     { "BIG_SUCC",                big_succ,                },
+    { "BIG_TO_BSTRI_BE",         big_toBStriBe,           },
+    { "BIG_TO_BSTRI_LE",         big_toBStriLe,           },
     { "BIG_VALUE",               big_value,               },
 
     { "BIN_AND",                 bin_and,                 },

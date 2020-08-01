@@ -494,6 +494,90 @@ booltype bigEqSignedDigit (const const_biginttype big1, inttype number)
 
 
 
+static INLINE biginttype bigFromBytesBe (const memsizetype size,
+    const const_ustritype buffer, const booltype withSign)
+
+  {
+    memsizetype pos;
+    ustritype negated_buffer;
+    unsigned int carry;
+    biginttype result;
+
+  /* bigFromBytesBe */
+    /* printf("bigFromBytesBe(%lu, *, %d)\n", size, withSign); */
+    ALLOC_BIG(result);
+    mpz_init(result);
+    if (withSign && size != 0 && buffer[0] >= 128) {
+      negated_buffer = malloc(size);
+      carry = 1;
+      pos = size;
+      while (pos > 0) {
+        pos--;
+        carry += ~buffer[pos] & 0xFF;
+        negated_buffer[pos] = (uchartype) (carry & 0xFF);
+        carry >>= 8;
+      } /* for */
+      mpz_import(result, (size_t) size, 1, 1, 0, 0, negated_buffer);
+      free(negated_buffer);
+      mpz_neg(result, result);
+    } else {
+      mpz_import(result, (size_t) size, 1, 1, 0, 0, buffer);
+    } /* if */
+    return result;
+  } /* bigFromBytesBe */
+
+
+
+static INLINE biginttype bigFromBytesLe (const memsizetype size,
+    const const_ustritype buffer, const booltype withSign)
+
+  {
+    memsizetype pos;
+    ustritype negated_buffer;
+    unsigned int carry;
+    biginttype result;
+
+  /* bigFromBytesLe */
+    /* printf("bigFromBytesLe(%lu, *, %d)\n", size, withSign); */
+    ALLOC_BIG(result);
+    mpz_init(result);
+    if (withSign && size != 0 && buffer[size - 1] >= 128) {
+      negated_buffer = malloc(size);
+      carry = 1;
+      pos = 0;
+      while (pos < size) {
+        carry += ~buffer[pos] & 0xFF;
+        negated_buffer[pos] = (uchartype) (carry & 0xFF);
+        carry >>= 8;
+        pos++;
+      } /* for */
+      mpz_import(result, (size_t) size, -1, 1, 0, 0, negated_buffer);
+      free(negated_buffer);
+      mpz_neg(result, result);
+    } else {
+      mpz_import(result, (size_t) size, -1, 1, 0, 0, buffer);
+    } /* if */
+    return result;
+  } /* bigFromBytesLe */
+
+
+
+biginttype bigFromBStriBe (const const_bstritype bstri)
+
+  { /* bigFromBStriBe */
+    return bigFromBytesBe(bstri->size, bstri->mem, TRUE);
+  } /* bigFromBStriBe */
+
+
+
+biginttype bigFromBStriLe (const const_bstritype bstri)
+
+  { /* bigFromBStriLe */
+    return bigFromBytesLe(bstri->size, bstri->mem, TRUE);
+  } /* bigFromBStriLe */
+
+
+
 biginttype bigFromInt32 (int32type number)
 
   {
@@ -622,36 +706,14 @@ inttype bigHashCode (const const_biginttype big1)
 biginttype bigImport (const const_ustritype buffer)
 
   {
-    size_t count;
-    size_t pos;
-    ustritype negated_buffer;
-    unsigned int carry;
-    biginttype result;
+    memsizetype byteDigitCount;
 
   /* bigImport */
-    ALLOC_BIG(result);
-    mpz_init(result);
-    count = (size_t) buffer[0] << 24 |
-            (size_t) buffer[1] << 16 |
-            (size_t) buffer[2] <<  8 |
-            (size_t) buffer[3];
-    if (buffer[4] >= 128) {
-      negated_buffer = malloc(count);
-      carry = 1;
-      pos = count;
-      while (pos > 0) {
-        pos--;
-        carry += ~buffer[4 + pos] & 0xFF;
-        negated_buffer[pos] = (uchartype) (carry & 0xFF);
-        carry >>= 8;
-      } /* for */
-      mpz_import(result, count, 1, 1, 0, 0, negated_buffer);
-      free(negated_buffer);
-      mpz_neg(result, result);
-    } else {
-      mpz_import(result, count, 1, 1, 0, 0, &buffer[4]);
-    } /* if */
-    return result;
+    byteDigitCount = ((memsizetype) buffer[0]) << 24 |
+                     ((memsizetype) buffer[1]) << 16 |
+                     ((memsizetype) buffer[2]) <<  8 |
+                     ((memsizetype) buffer[3]);
+    return bigFromBytesBe(byteDigitCount, &buffer[4], TRUE);
   } /* bigImport */
 
 
@@ -812,8 +874,7 @@ biginttype bigLog2BaseLShift (const inttype log2base, const inttype lshift)
     } else if (log2base <= 10 && lshift <= 214748364) {
       result = bigLShiftOne(log2base * lshift);
     } else {
-      uint2_mult((uinttype) 0L, (uinttype) log2base, (uinttype) 0L, (uinttype) lshift,
-          &high_shift, &low_shift);
+      uint_mult((uinttype) log2base, (uinttype) lshift, &high_shift, &low_shift);
       if (high_shift != 0 || (inttype) low_shift < 0) {
         raise_error(MEMORY_ERROR);
         result = NULL;
@@ -1321,8 +1382,7 @@ biginttype bigSuccTemp (biginttype big1)
 
 
 
-#ifdef OUT_OF_ORDER
-bstritype bigToBStri (const_biginttype big1)
+bstritype bigToBStriBe (const const_biginttype big1)
 
   {
     size_t count;
@@ -1335,7 +1395,7 @@ bstritype bigToBStri (const_biginttype big1)
     memsizetype result_size;
     bstritype result;
 
-  /* bigToBStri */
+  /* bigToBStriBe */
     count = (mpz_sizeinbase(big1, 2) + 7) / 8;
     buffer = malloc(count);
     if (buffer == NULL) {
@@ -1378,17 +1438,75 @@ bstritype bigToBStri (const_biginttype big1)
               charIndex++;
             } /* if */
           } /* for */
-          for (pos = 0; pos < export_count; pos++) {
-            result->mem[charIndex] = buffer[pos];
-            charIndex++;
+          memcpy(&result->mem[charIndex], buffer, export_count);
+        } /* if */
+      } /* if */
+      free(buffer);
+    } /* if */
+    return result;
+  } /* bigToBStriBe */
+
+
+
+bstritype bigToBStriLe (const const_biginttype big1)
+
+  {
+    size_t count;
+    size_t export_count;
+    size_t pos;
+    int sign;
+    unsigned int carry;
+    ustritype buffer;
+    memsizetype result_size;
+    bstritype result;
+
+  /* bigToBStriLe */
+    count = (mpz_sizeinbase(big1, 2) + 7) / 8;
+    buffer = malloc(count);
+    if (buffer == NULL) {
+      raise_error(MEMORY_ERROR);
+      result = NULL;
+    } else {
+      mpz_export(buffer, &export_count, -1, 1, 0, 0, big1);
+      sign = mpz_sgn(big1);
+      if (sign < 0) {
+        carry = 1;
+        pos = 0;
+        while (pos < export_count) {
+          carry += ~buffer[pos] & 0xFF;
+          buffer[pos] = (uchartype) (carry & 0xFF);
+          carry >>= 8;
+          pos++;
+        } /* while */
+      } /* if */
+      result_size = count;
+      if ((sign > 0 && buffer[export_count - 1] >= 128) ||
+          (sign < 0 && buffer[export_count - 1] <= 127)) {
+        result_size++;
+      } /* if */
+      if (!ALLOC_BSTRI_CHECK_SIZE(result, result_size)) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        result->size = result_size;
+        if (sign == 0) {
+          result->mem[0] = 0;
+        } else {
+          memcpy(result->mem, buffer, export_count);
+          if (sign < 0) {
+            if (buffer[export_count - 1] <= 127) {
+              result->mem[export_count] = 255;
+            } /* if */
+          } else {
+            if (buffer[export_count - 1] >= 128) {
+              result->mem[export_count] = 0;
+            } /* if */
           } /* for */
         } /* if */
       } /* if */
       free(buffer);
     } /* if */
     return result;
-  } /* bigToBStri */
-#endif
+  } /* bigToBStriLe */
 
 
 

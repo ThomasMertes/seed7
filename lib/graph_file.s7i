@@ -408,5 +408,5 @@ const proc: cursorOff (inout graph_file: aGraphFile, in char: cursorChar) is fun
   end func;
 
 
-const proc: box (ref graph_file param) is noop;
-const proc: clear_box (ref graph_file param) is noop;
+const proc: box (ref graph_file: aGraphFile) is noop;
+const proc: clear_box (ref graph_file: aGraphFile) is noop;

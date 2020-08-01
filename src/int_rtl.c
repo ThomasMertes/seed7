@@ -52,7 +52,7 @@
 #define UINT_HIGHEST_BIT(A)              ((A) >> (INTTYPE_SIZE - 1))
 #define UINT_LOWER_HALVE_BITS_SET        (UINTTYPE_MAX >> (INTTYPE_SIZE >> 1))
 #define LOWER_HALVE_OF_UINT(A)           ((A) & UINT_LOWER_HALVE_BITS_SET)
-#define UPPER_HALVE_OF_UINT(A)           (((A) >> (INTTYPE_SIZE >> 1)) & UINT_LOWER_HALVE_BITS_SET)
+#define UPPER_HALVE_OF_UINT(A)           ((A) >> (INTTYPE_SIZE >> 1))
 
 
 #if   INTTYPE_SIZE == 32
@@ -210,6 +210,7 @@ static INLINE void uint2_mult (uinttype a_high, uinttype a_low,
     uinttype c2;
     uinttype c3;
     uinttype c4;
+    uinttype c5;
 
   /* uint2_mult */
 #ifdef TRACE_RANDOM
@@ -221,14 +222,14 @@ static INLINE void uint2_mult (uinttype a_high, uinttype a_low,
     a_low2 = UPPER_HALVE_OF_UINT(a_low);
     b_low1 = LOWER_HALVE_OF_UINT(b_low);
     b_low2 = UPPER_HALVE_OF_UINT(b_low);
-    c1 = UPPER_HALVE_OF_UINT(a_low1 * b_low1);
+    c1 = a_low1 * b_low1;
     c2 = a_low1 * b_low2;
     c3 = a_low2 * b_low1;
-    c4 = UPPER_HALVE_OF_UINT(c1 + LOWER_HALVE_OF_UINT(c2) + LOWER_HALVE_OF_UINT(c3)) +
-        UPPER_HALVE_OF_UINT(c2) + UPPER_HALVE_OF_UINT(c3) +
+    c4 = UPPER_HALVE_OF_UINT(c1) + LOWER_HALVE_OF_UINT(c2) + LOWER_HALVE_OF_UINT(c3);
+    c5 = UPPER_HALVE_OF_UINT(c4) + UPPER_HALVE_OF_UINT(c2) + UPPER_HALVE_OF_UINT(c3) +
         a_low2 * b_low2;
     *c_low = UINT_BITS(a_low * b_low);
-    *c_high = UINT_BITS(a_low * b_high + a_high * b_low + c4);
+    *c_high = UINT_BITS(a_low * b_high + a_high * b_low + c5);
 #ifdef TRACE_RANDOM
     printf("END uint2_mult ==> %08x%08x\n",
         (unsigned int) *c_high, (unsigned int) *c_low);

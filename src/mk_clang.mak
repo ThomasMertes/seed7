@@ -10,7 +10,7 @@
 # CFLAGS = -O2 -g -Wall -Wextra -Wswitch-default -Wswitch-enum -Wcast-qual -Waggregate-return -Wwrite-strings -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith -Wmissing-noreturn -Wno-multichar -Wc++-compat
 # CFLAGS = -O2 -g -x c++ -Wall -Wextra -Wswitch-default -Wswitch-enum -Wcast-qual -Waggregate-return -Wwrite-strings -Winline -Wconversion -Wshadow -Wpointer-arith -Wmissing-noreturn -Wno-multichar
 # CFLAGS = -O2 -fomit-frame-pointer -Wall -Wextra -Wswitch-default -Wcast-qual -Waggregate-return -Wwrite-strings -Winline -Wconversion -Wshadow -Wpointer-arith -Wmissing-noreturn -Wno-multichar
-CFLAGS = -O2 -g -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith -ftrapv
+CFLAGS = -O2 -g -ffunction-sections -fdata-sections -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith -ftrapv
 # CFLAGS = -O2 -g -x c++ -Wall -Winline -Wconversion -Wshadow -Wpointer-arith -ftrapv
 # CFLAGS = -O2 -g -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -g -Wall -Winline -Wconversion -Wshadow -Wpointer-arith
@@ -18,7 +18,7 @@ CFLAGS = -O2 -g -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpoint
 # CFLAGS = -O2 -g -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -fomit-frame-pointer -funroll-loops -Wall
 # CFLAGS = -O2 -funroll-loops -Wall -pg
-LDFLAGS =
+LDFLAGS = -Wl,--gc-sections
 # LDFLAGS = -pg
 # LDFLAGS = -pg -lc_p
 SYSTEM_LIBS = -lm
@@ -125,7 +125,7 @@ s7c: ../bin/s7c ../prg/s7c
 	ln -s ../bin/s7 ../prg
 
 ../bin/s7c: ../prg/s7c
-	cp -a ../prg/s7c ../bin
+	cp -p ../prg/s7c ../bin
 
 ../prg/s7c: ../prg/s7c.sd7 $(ALL_S7_LIBS)
 	../bin/s7 -l ../lib ../prg/s7c -l ../lib -b ../bin -O2 ../prg/s7c
@@ -184,8 +184,9 @@ version.h: chkccomp.h
 	echo "#define CC_SOURCE_UTF8" >> version.h
 	echo "#define CC_OPT_DEBUG_INFO \"-g\"" >> version.h
 	echo "#define CC_OPT_NO_WARNINGS \"-w\"" >> version.h
-	echo "#define CC_FLAGS \"-ftrapv\"" >> version.h
+	echo "#define CC_FLAGS \"-ffunction-sections -fdata-sections -ftrapv\"" >> version.h
 	echo "#define REDIRECT_C_ERRORS \"2>\"" >> version.h
+	echo "#define LINKER_OPT_NO_DEBUG_INFO \"-Wl,--strip-debug\"" >> version.h
 	echo "#define LINKER_OPT_OUTPUT_FILE \"-o \"" >> version.h
 	echo "#define LINKER_FLAGS \"$(LDFLAGS)\"" >> version.h
 	$(GET_CC_VERSION_INFO) cc_vers.txt

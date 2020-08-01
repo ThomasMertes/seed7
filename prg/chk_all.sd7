@@ -110,6 +110,10 @@ const string: chkbig_output is "\n\
   \Decimal conversion of bigInteger works correct.\n\
   \Conversion of bigInteger to integer works correct.\n\
   \Conversion of integer to bigInteger works correct.\n\
+  \Conversion of bigInteger to big endian byte string works correct.\n\
+  \Conversion of bigInteger to little endian byte string works correct.\n\
+  \Conversion of big endian byte string to bigInteger works correct.\n\
+  \Conversion of little endian byte string to bigInteger works correct.\n\
   \The bigInteger negation works correct.\n\
   \The plus sign for bigInteger works correct.\n\
   \Successor of bigInteger works correct.\n\

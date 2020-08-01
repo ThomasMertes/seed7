@@ -53,7 +53,7 @@ const type: tetromino_type is new enum
     SQUARE_BLOCK, I_BAR, S_ZIGZAG, Z_ZIGZAG, GAMMA_KNEE, L_KNEE, T_BRANCH
   end enum;
 
-const func integer: score (ref tetromino_type param) is DYNAMIC;
+const func integer: score (ref tetromino_type: tetromino) is DYNAMIC;
 
 const integer: score (SQUARE_BLOCK) is 1;
 const integer: score (I_BAR) is        2;
@@ -68,7 +68,7 @@ var array tetromino_type: tetromino_list is [](SQUARE_BLOCK, I_BAR, S_ZIGZAG, Z_
 
 const type: stri_list is array string;
 
-const func stri_list: PATTERN (ref tetromino_type param, ref rot_position param) is DYNAMIC;
+const func stri_list: PATTERN (ref tetromino_type: tetromino, ref rot_position: rot_pos) is DYNAMIC;
 
 const stri_list: PATTERN (SQUARE_BLOCK, ROT_1) is [](
     "##  ",

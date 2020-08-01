@@ -85,7 +85,7 @@ const proc: destroy (ref proc param)                         is action "GEN_DEST
 const proc: noop                                             is action "PRC_NOOP";
 const proc: (ref void param) ; (ref void param)              is noop;
 
-const proc: PRINT (ref string param)                         is action "FIL_PRINT";
+const proc: PRINT (ref string: stri)                         is action "FIL_PRINT";
 
 const proc: IN_PARAM_IS_VALUE (ref type: aType) is func
   begin
@@ -334,16 +334,16 @@ $ include "boolean.s7i";
 (* type *)
 
 const type: (attr type) . value is void;
-const func boolean: (in type: aType1) = (in type: aType2)      is action "TYP_EQ";
-const func boolean: (in type: aType1) <> (in type: aType2)     is action "TYP_NE";
-const func integer: compare (in type: aType1, in type: aType2) is action "TYP_CMP";
-const func integer: hashCode (in type: aType)                  is action "TYP_HASHCODE";
-const func boolean: isFunc (in type: aType)                    is action "TYP_ISFUNC";
-const func boolean: isVarfunc (in type: aType)                 is action "TYP_ISVARFUNC";
-const func type: resultType (in type: funcType)                is action "TYP_RESULT";
-const func boolean: isDerived (in type: aType)                 is action "TYP_ISDERIVED";
-const func type: meta (in type param)                          is action "TYP_META";
-const proc: addInterface (in type param, in type param)        is action "TYP_ADDINTERFACE";
+const func boolean: (in type: aType1) = (in type: aType2)         is action "TYP_EQ";
+const func boolean: (in type: aType1) <> (in type: aType2)        is action "TYP_NE";
+const func integer: compare (in type: aType1, in type: aType2)    is action "TYP_CMP";
+const func integer: hashCode (in type: aType)                     is action "TYP_HASHCODE";
+const func boolean: isFunc (in type: aType)                       is action "TYP_ISFUNC";
+const func boolean: isVarfunc (in type: aType)                    is action "TYP_ISVARFUNC";
+const func type: resultType (in type: funcType)                   is action "TYP_RESULT";
+const func boolean: isDerived (in type: aType)                    is action "TYP_ISDERIVED";
+const func type: meta (in type: aType)                            is action "TYP_META";
+const proc: addInterface (in type: aType, in type: interfaceType) is action "TYP_ADDINTERFACE";
 
 (* IF *)
 
@@ -815,10 +815,10 @@ const proc: body (ref type: STRU) is (ref expr: DECLS) end body is func
 
 const proc: type_implements_interface (in type: aType, in type: interfaceType) is func
   begin
-    const proc: (ref interfaceType param) ::= (ref aType param)           is action "ITF_CREATE2";
-    const proc: (inout interfaceType: dest) := (ref aType: source)        is action "ITF_CPY2";
-    const func interfaceType: (attr interfaceType) conv (ref aType param) is action "ITF_CONV2";
-    const func interfaceType: toInterface (ref aType param)               is action "ITF_TO_INTERFACE";
+    const proc: (ref interfaceType param) ::= (ref aType param)             is action "ITF_CREATE2";
+    const proc: (inout interfaceType: dest) := (ref aType: source)          is action "ITF_CPY2";
+    const func interfaceType: (attr interfaceType) conv (ref aType: aValue) is action "ITF_CONV2";
+    const func interfaceType: toInterface (ref aType: aValue)               is action "ITF_TO_INTERFACE";
 
     const func aType: xalloc (in aType: newStuct) is func
       result
@@ -843,20 +843,20 @@ const proc: CASE_DECLS (in type: aType) is func
     WHEN_RESULT := newtype;
     WHEN_PROC := (func WHEN_RESULT);
     SELECTOR_TYPE := set of aType;
-    const proc: case (ref aType param) of end case                      is noop;
-    const proc: case (ref aType param) of
-                  (ref WHEN_PROC param)
-                end case                                                is action "PRC_CASE";
-    const proc: case (ref aType param) of
-                  (ref WHEN_PROC param)
-                  otherwise : (ref proc param)
-                end case                                                is action "PRC_CASE_DEF";
-    const proc: (ref WHEN_RESULT param) ::= enumlit                     is action "ENU_GENLIT";
+    const proc: case (ref aType: decisionValue) of end case                     is noop;
+    const proc: case (ref aType: decisionValue) of
+                  (ref WHEN_PROC: whenPart)
+                end case                                                        is action "PRC_CASE";
+    const proc: case (ref aType: decisionValue) of
+                  (ref WHEN_PROC: whenPart)
+                  otherwise : (ref proc: statements)
+                end case                                                        is action "PRC_CASE_DEF";
+    const proc: (ref WHEN_RESULT param) ::= enumlit                             is action "ENU_GENLIT";
     const WHEN_RESULT: WHEN_EMPTY (attr aType) is enumlit;
-    const proc: (ref WHEN_PROC param) ::= (ref WHEN_RESULT param)       is action "ENU_CREATE";
-    const WHEN_PROC: when (ref SELECTOR_TYPE param) : (ref proc param)  is WHEN_EMPTY(aType);
-    const WHEN_PROC: when (ref SELECTOR_TYPE param) : (ref proc param)
-                       (ref WHEN_PROC param)                            is WHEN_EMPTY(aType);
+    const proc: (ref WHEN_PROC param) ::= (ref WHEN_RESULT param)               is action "ENU_CREATE";
+    const WHEN_PROC: when (ref SELECTOR_TYPE: whenSet) : (ref proc: statement)  is WHEN_EMPTY(aType);
+    const WHEN_PROC: when (ref SELECTOR_TYPE: whenSet) : (ref proc: statement)
+                       (ref WHEN_PROC: whenPart)                                is WHEN_EMPTY(aType);
   end func;
 
 CASE_DECLS(integer);
@@ -967,18 +967,18 @@ const proc: BLOCK_DECLS (in type: unusedType) is func
 (*    PRINT("in BLOCK_DECLS\n"); *)
     CATCH_RESULT := new enum CATCH_EMPTY end enum;
     CATCH_PROC := (func CATCH_RESULT);
-    const proc: block (ref proc param) exception end block            is noop;
-    const proc: block (ref proc param) exception
-                  (ref CATCH_PROC param)
-                end block                                             is action "PRC_BLOCK";
-    (*const proc: block (ref proc param) exception
-                  (ref CATCH_PROC param)
-                  otherwise : (ref proc param)
-                end block                                             is action "PRC_BLOCK_DEF"; *)
-    const proc: (ref CATCH_PROC param) ::= (ref CATCH_RESULT param)   is action "ENU_CREATE";
-    const CATCH_PROC: catch (ref EXCEPTION param) : (ref proc param)  is CATCH_RESULT.value;
-    const CATCH_PROC: catch (ref EXCEPTION param) : (ref proc param)
-                       (ref CATCH_PROC param)                         is CATCH_RESULT.value;
+    const proc: block (ref proc: statements) exception end block                   is noop;
+    const proc: block (ref proc: statements) exception
+                  (ref CATCH_PROC: catchPart)
+                end block                                                          is action "PRC_BLOCK";
+    (*const proc: block (ref proc: statements) exception
+                  (ref CATCH_PROC: catchPart)
+                  otherwise : (ref proc: statements)
+                end block                                                          is action "PRC_BLOCK_DEF"; *)
+    const proc: (ref CATCH_PROC param) ::= (ref CATCH_RESULT param)                is action "ENU_CREATE";
+    const CATCH_PROC: catch (ref EXCEPTION: anException) : (ref proc: statements)  is CATCH_RESULT.value;
+    const CATCH_PROC: catch (ref EXCEPTION: anException) : (ref proc: statements)
+                       (ref CATCH_PROC: catchPart)                                 is CATCH_RESULT.value;
   end func;
 
 BLOCK_DECLS(void);

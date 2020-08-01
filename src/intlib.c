@@ -1021,6 +1021,32 @@ objecttype int_succ (listtype arguments)
 
 
 
+#ifdef OUT_OF_ORDER
+objecttype int_uadd (listtype arguments)
+
+  { /* int_uadd */
+    isit_int(arg_1(arguments));
+    isit_int(arg_3(arguments));
+    return bld_int_temp((inttype)
+	((uinttype) (take_int(arg_1(arguments))) +
+	 (uinttype) (take_int(arg_3(arguments)))));
+  } /* int_uadd */
+
+
+
+objecttype int_umult (listtype arguments)
+
+  { /* int_umult */
+    isit_int(arg_1(arguments));
+    isit_int(arg_3(arguments));
+    return bld_int_temp((inttype)
+	((uinttype) (take_int(arg_1(arguments))) *
+	 (uinttype) (take_int(arg_3(arguments)))));
+  } /* int_umult */
+#endif
+
+
+
 objecttype int_urshift (listtype arguments)
 
   { /* int_urshift */
@@ -1048,6 +1074,20 @@ objecttype int_urshift_assign (listtype arguments)
         take_int(arg_3(arguments)));
     return SYS_EMPTY_OBJECT;
   } /* int_urshift_assign */
+
+
+
+#ifdef OUT_OF_ORDER
+objecttype int_usbtr (listtype arguments)
+
+  { /* int_usbtr */
+    isit_int(arg_1(arguments));
+    isit_int(arg_3(arguments));
+    return bld_int_temp((inttype)
+	((uinttype) (take_int(arg_1(arguments))) -
+	 (uinttype) (take_int(arg_3(arguments)))));
+  } /* int_usbtr */
+#endif
 
 
 

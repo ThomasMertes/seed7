@@ -24,8 +24,8 @@ LDFLAGS = -Wl,--gc-sections
 # LDFLAGS = -pg
 # LDFLAGS = -pg -lc_p
 SYSTEM_LIBS = -lm
-# SYSTEM_LIBS = -lm -lsqlite3
 # SYSTEM_LIBS = -lm -lgmp
+# SYSTEM_LIBS = -lm -lsqlite3
 # SYSTEM_LIBS = -lm_p -lc_p
 SYSTEM_CONSOLE_LIBS = -lncurses
 SYSTEM_DRAW_LIBS = -lX11
@@ -128,7 +128,7 @@ s7c: ../bin/s7c ../prg/s7c
 	ln -s ../bin/s7 ../prg
 
 ../bin/s7c: ../prg/s7c
-	cp -a ../prg/s7c ../bin
+	cp -p ../prg/s7c ../bin
 
 ../prg/s7c: ../prg/s7c.sd7 $(ALL_S7_LIBS)
 	../bin/s7 -l ../lib ../prg/s7c -l ../lib -b ../bin -O2 ../prg/s7c

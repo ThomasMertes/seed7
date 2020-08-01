@@ -34,89 +34,89 @@ const proc: (ref PRIMITIVE_WINDOW param) ::= (in PRIMITIVE_WINDOW param)       i
 IN_PARAM_IS_REFERENCE(PRIMITIVE_WINDOW);
 const proc: destroy (ref PRIMITIVE_WINDOW param)                               is action "DRW_DESTR";
 const proc: (inout PRIMITIVE_WINDOW: dest) := (in PRIMITIVE_WINDOW: source)    is action "DRW_CPY";
-const func boolean: (in PRIMITIVE_WINDOW param) = (in PRIMITIVE_WINDOW param)  is action "DRW_EQ";
-const func boolean: (in PRIMITIVE_WINDOW param) <> (in PRIMITIVE_WINDOW param) is action "DRW_NE";
+const func boolean: (in PRIMITIVE_WINDOW: win1) = (in PRIMITIVE_WINDOW: win2)  is action "DRW_EQ";
+const func boolean: (in PRIMITIVE_WINDOW: win1) <> (in PRIMITIVE_WINDOW: win2) is action "DRW_NE";
 const func PRIMITIVE_WINDOW: _GENERATE_EMPTY_WINDOW                            is action "DRW_EMPTY";
 const PRIMITIVE_WINDOW: (attr PRIMITIVE_WINDOW) . value                        is _GENERATE_EMPTY_WINDOW;
 (*
-const func PRIMITIVE_WINDOW: (attr PRIMITIVE_WINDOW) conv (in char param)      is action "CHR_CONV";
-const func char: (attr char) conv (in PRIMITIVE_WINDOW param)                  is action "CHR_CONV";
+const func PRIMITIVE_WINDOW: (attr PRIMITIVE_WINDOW) conv (in char: ch)        is action "CHR_CONV";
+const func char: (attr char) conv (in PRIMITIVE_WINDOW: aWindow)               is action "CHR_CONV";
 *)
 
 const type: pixel is newtype;
-const proc: (ref pixel param) ::= (in pixel param)       is action "INT_CREATE";
+const proc: (ref pixel param) ::= (in pixel param)         is action "INT_CREATE";
 IN_PARAM_IS_VALUE(pixel);
-const proc: destroy (ref pixel param)                    is action "GEN_DESTR";
-const proc: (inout pixel: dest) := (in pixel: source)    is action "INT_CPY";
-const func boolean: (in pixel: pix1) = (in pixel: pix2)  is action "INT_EQ";
-const func boolean: (in pixel: pix1) <> (in pixel: pix2) is action "INT_NE";
-const func pixel: (attr pixel) conv (in integer param)   is action "INT_CONV";
-const func integer: (attr integer) conv (in pixel param) is action "INT_CONV";
-const func integer: ord (in pixel param)                 is action "INT_ORD";
-const pixel: (attr pixel) . value                        is pixel conv 0;
+const proc: destroy (ref pixel param)                      is action "GEN_DESTR";
+const proc: (inout pixel: dest) := (in pixel: source)      is action "INT_CPY";
+const func boolean: (in pixel: pix1) = (in pixel: pix2)    is action "INT_EQ";
+const func boolean: (in pixel: pix1) <> (in pixel: pix2)   is action "INT_NE";
+const func pixel: (attr pixel) conv (in integer: num)      is action "INT_CONV";
+const func integer: (attr integer) conv (in pixel: aPixel) is action "INT_CONV";
+const func integer: ord (in pixel: aPixel)                 is action "INT_ORD";
+const pixel: (attr pixel) . value                          is pixel conv 0;
 
 
-const proc: DRAW_POINT (inout PRIMITIVE_WINDOW param,
+const proc: DRAW_POINT (inout PRIMITIVE_WINDOW: aWindow,
     in integer: x, in integer: y)                   is action "DRW_POINT";
-const proc: DRAW_PPOINT (inout PRIMITIVE_WINDOW param,
+const proc: DRAW_PPOINT (inout PRIMITIVE_WINDOW: aWindow,
     in integer: x, in integer: y,
     in pixel: col)                                  is action "DRW_PPOINT";
-const proc: DRAW_LINE (inout PRIMITIVE_WINDOW param,
+const proc: DRAW_LINE (inout PRIMITIVE_WINDOW: aWindow,
     in integer: x1, in integer: y1,
     in integer: x2, in integer: y2)                 is action "DRW_LINE";
-const proc: DRAW_PLINE (inout PRIMITIVE_WINDOW param,
+const proc: DRAW_PLINE (inout PRIMITIVE_WINDOW: aWindow,
     in integer: x1, in integer: y1,
     in integer: x2, in integer: y2,
     in pixel: col)                                  is action "DRW_PLINE";
-const proc: DRAW_RECT (inout PRIMITIVE_WINDOW param,
+const proc: DRAW_RECT (inout PRIMITIVE_WINDOW: aWindow,
     in integer: x, in integer: y,
     in integer: width, in integer: height)          is action "DRW_RECT";
-const proc: DRAW_PRECT (inout PRIMITIVE_WINDOW param,
+const proc: DRAW_PRECT (inout PRIMITIVE_WINDOW: aWindow,
     in integer: x, in integer: y,
     in integer: width, in integer: height,
     in pixel: col)                                  is action "DRW_PRECT";
-const proc: DRAW_CIRCLE(inout PRIMITIVE_WINDOW param,
+const proc: DRAW_CIRCLE(inout PRIMITIVE_WINDOW: aWindow,
     in integer: x, in integer: y,
     in integer: radius)                             is action "DRW_CIRCLE";
-const proc: DRAW_CIRCLE(inout PRIMITIVE_WINDOW param,
+const proc: DRAW_CIRCLE(inout PRIMITIVE_WINDOW: aWindow,
     in integer: x, in integer: y,
     in integer: radius, in pixel: col)              is action "DRW_PCIRCLE";
-const proc: DRAW_CLEAR(inout PRIMITIVE_WINDOW param,
+const proc: DRAW_CLEAR(inout PRIMITIVE_WINDOW: aWindow,
     in pixel: col)                                  is action "DRW_CLEAR";
-const proc: FILL_CIRCLE(inout PRIMITIVE_WINDOW param,
+const proc: FILL_CIRCLE(inout PRIMITIVE_WINDOW: aWindow,
     in integer: x, in integer: y,
     in integer: radius)                             is action "DRW_FCIRCLE";
-const proc: FILL_CIRCLE(inout PRIMITIVE_WINDOW param,
+const proc: FILL_CIRCLE(inout PRIMITIVE_WINDOW: aWindow,
     in integer: x, in integer: y,
     in integer: radius, in pixel: col)              is action "DRW_PFCIRCLE";
-const proc: DRAW_ARC(inout PRIMITIVE_WINDOW param,
+const proc: DRAW_ARC(inout PRIMITIVE_WINDOW: aWindow,
     in integer: x, in integer: y, in integer: radius,
     in float: startAngle, in float: sweepAngle)     is action "DRW_ARC";
-const proc: DRAW_ARC(inout PRIMITIVE_WINDOW param,
+const proc: DRAW_ARC(inout PRIMITIVE_WINDOW: aWindow,
     in integer: x, in integer: y, in integer: radius,
     in float: startAngle, in float: sweepAngle,
     in pixel: col)                                  is action "DRW_PARC";
-const proc: FILL_ARCCHORD(inout PRIMITIVE_WINDOW param,
+const proc: FILL_ARCCHORD(inout PRIMITIVE_WINDOW: aWindow,
     in integer: x, in integer: y, in integer: radius,
     in float: startAngle, in float: sweepAngle)     is action "DRW_FARCCHORD";
-const proc: FILL_ARCCHORD(inout PRIMITIVE_WINDOW param,
+const proc: FILL_ARCCHORD(inout PRIMITIVE_WINDOW: aWindow,
     in integer: x, in integer: y, in integer: radius,
     in float: startAngle, in float: sweepAngle,
     in pixel: col)                                  is action "DRW_PFARCCHORD";
-const proc: FILL_ARCPIESLICE(inout PRIMITIVE_WINDOW param,
+const proc: FILL_ARCPIESLICE(inout PRIMITIVE_WINDOW: aWindow,
     in integer: x, in integer: y, in integer: radius,
     in float: startAngle, in float: sweepAngle)     is action "DRW_FARCPIESLICE";
-const proc: FILL_ARCPIESLICE(inout PRIMITIVE_WINDOW param,
+const proc: FILL_ARCPIESLICE(inout PRIMITIVE_WINDOW: aWindow,
     in integer: x, in integer: y, in integer: radius,
     in float: startAngle, in float: sweepAngle,
     in pixel: col)                                  is action "DRW_PFARCPIESLICE";
-const proc: DRAW_ARC2(inout PRIMITIVE_WINDOW param,
+const proc: DRAW_ARC2(inout PRIMITIVE_WINDOW: aWindow,
     in integer: x1, in integer: y1, in integer: x2,
     in integer: y2, in integer: radius)             is action "DRW_ARC2";
-const proc: FILL_ELLIPSE(inout PRIMITIVE_WINDOW param,
+const proc: FILL_ELLIPSE(inout PRIMITIVE_WINDOW: aWindow,
     in integer: x, in integer: y,
     in integer: width, in integer: height)          is action "DRW_FELLIPSE";
-const proc: FILL_ELLIPSE(inout PRIMITIVE_WINDOW param,
+const proc: FILL_ELLIPSE(inout PRIMITIVE_WINDOW: aWindow,
     in integer: x, in integer: y,
     in integer: width, in integer: height,
     in pixel: col)                                  is action "DRW_PFELLIPSE";
@@ -124,51 +124,51 @@ const proc: DRAW_FLUSH                              is action "DRW_FLUSH";
 const func PRIMITIVE_WINDOW: PRIMITIVE_GRAPHIC_OPEN (
     ref integer: xPos, ref integer: yPos,
     ref integer: width, ref integer: height,
-    ref string param)                               is action "DRW_OPEN";
+    ref string: window_name)                        is action "DRW_OPEN";
 const func PRIMITIVE_WINDOW: openSubWindow (
-    in PRIMITIVE_WINDOW param,
+    in PRIMITIVE_WINDOW: aWindow,
     ref integer: xPos, ref integer: yPos,
     ref integer: width, ref integer: height)        is action "DRW_OPEN_SUB_WINDOW";
 const func PRIMITIVE_WINDOW: DRAW_GET (
-    in PRIMITIVE_WINDOW param,
+    in PRIMITIVE_WINDOW: aWindow,
     ref integer: left, ref integer: upper,
     ref integer: width, ref integer: height)        is action "DRW_GET";
 const func pixel: getPixel (
-    in PRIMITIVE_WINDOW param,
+    in PRIMITIVE_WINDOW: aWindow,
     ref integer: x, ref integer: y)                 is action "DRW_GETPIXEL";
 const proc: DRAW_PUT (
-    inout PRIMITIVE_WINDOW param, in PRIMITIVE_WINDOW: pixmap,
+    inout PRIMITIVE_WINDOW: aWindow, in PRIMITIVE_WINDOW: pixmap,
     ref integer: x, ref integer: y)                 is action "DRW_PUT";
-const proc: copyArea(in PRIMITIVE_WINDOW param,
-    inout PRIMITIVE_WINDOW param,
-    ref integer param, ref integer param,
-    ref integer param, ref integer param,
-    ref integer param, ref integer param)           is action "DRW_COPYAREA";
-const proc: SET_TRANSPARENTCOLOR (in PRIMITIVE_WINDOW param,
-    ref pixel param)                                is action "DRW_SETTRANSPARENTCOLOR";
-const func integer: hashCode (in PRIMITIVE_WINDOW param)  is action "DRW_HASHCODE";
-const func integer: compare (in PRIMITIVE_WINDOW param,
-                             in PRIMITIVE_WINDOW param)   is action "DRW_CMP";
-const func integer: height (in PRIMITIVE_WINDOW param)    is action "DRW_HEIGHT";
-const func integer: width (in PRIMITIVE_WINDOW param)     is action "DRW_WIDTH";
-const func integer: xPos (in PRIMITIVE_WINDOW param)      is action "DRW_XPOS";
-const func integer: yPos (in PRIMITIVE_WINDOW param)      is action "DRW_YPOS";
-const proc: setContent (inout PRIMITIVE_WINDOW param,
-    in PRIMITIVE_WINDOW param)                            is action "DRW_SETCONTENT";
-const proc: setPos (in PRIMITIVE_WINDOW param,
-    in integer: xPos, in integer: yPos)                   is action "DRW_SETPOS";
+const proc: copyArea(in PRIMITIVE_WINDOW: destWindow,
+    inout PRIMITIVE_WINDOW: sourceWindow,
+    ref integer: src_x, ref integer: src_y,
+    ref integer: width, ref integer: height,
+    ref integer: dest_x, ref integer: dest_y)       is action "DRW_COPYAREA";
+const proc: SET_TRANSPARENTCOLOR (in PRIMITIVE_WINDOW: pixmap,
+    ref pixel: col)                                 is action "DRW_SETTRANSPARENTCOLOR";
+const func integer: hashCode (in PRIMITIVE_WINDOW: aWindow) is action "DRW_HASHCODE";
+const func integer: compare (in PRIMITIVE_WINDOW: window1,
+                             in PRIMITIVE_WINDOW: window2)  is action "DRW_CMP";
+const func integer: height (in PRIMITIVE_WINDOW: aWindow)   is action "DRW_HEIGHT";
+const func integer: width (in PRIMITIVE_WINDOW: aWindow)    is action "DRW_WIDTH";
+const func integer: xPos (in PRIMITIVE_WINDOW: aWindow)     is action "DRW_XPOS";
+const func integer: yPos (in PRIMITIVE_WINDOW: aWindow)     is action "DRW_YPOS";
+const proc: setContent (inout PRIMITIVE_WINDOW: aWindow,
+    in PRIMITIVE_WINDOW: pixmap)                            is action "DRW_SETCONTENT";
+const proc: setPos (in PRIMITIVE_WINDOW: aWindow,
+    in integer: xPos, in integer: yPos)                     is action "DRW_SETPOS";
 const func pixel: rgbPixel (ref integer: red,
     ref integer: green, ref integer: blue)          is action "DRW_RGBCOL";
 const proc: DRAW_PIXEL_TO_RGB (
     in pixel: col, inout integer: red,
     inout integer: green, inout integer: blue)      is action "DRW_PIXELTORGB";
-const proc: SET_COLOR (ref pixel param)             is action "DRW_COLOR";
-const proc: SET_BACKGROUND (ref pixel param)        is action "DRW_BACKGROUND";
-const proc: DRAW_TEXT (inout PRIMITIVE_WINDOW param,
+const proc: SET_COLOR (ref pixel: aWindow)          is action "DRW_COLOR";
+const proc: SET_BACKGROUND (ref pixel: aWindow)     is action "DRW_BACKGROUND";
+const proc: DRAW_TEXT (inout PRIMITIVE_WINDOW: aWindow,
     ref integer: x, ref integer: y, in string: stri,
     ref pixel: col, ref pixel: bkcol)               is action "DRW_TEXT";
-const proc: toBottom (in PRIMITIVE_WINDOW param)    is action "DRW_TOBOTTOM";
-const proc: toTop (in PRIMITIVE_WINDOW param)       is action "DRW_TOTOP";
+const proc: toBottom (in PRIMITIVE_WINDOW: aWindow) is action "DRW_TOBOTTOM";
+const proc: toTop (in PRIMITIVE_WINDOW: aWindow)    is action "DRW_TOTOP";
 
 (**
  *  Determine the actual X position of the mouse pointer.
@@ -203,9 +203,9 @@ const pointList: (attr pointList) . value                         is _GENERATE_E
  *)
 const func pointList: genPointList (ref array integer: coordinates) is action "DRW_GENPOINTLIST";
 
-const proc: DRAW_POLYLINE (inout PRIMITIVE_WINDOW param,
-    in integer param, in integer param, in pointList param,
-    ref pixel param)                                              is action "DRW_POLYLINE";
-const proc: FILL_POLYLINE (inout PRIMITIVE_WINDOW param,
-    in integer param, in integer param, in pointList param,
-    ref pixel param)                                              is action "DRW_FPOLYLINE";
+const proc: DRAW_POLYLINE (inout PRIMITIVE_WINDOW: aWindow,
+    in integer: x, in integer: y, in pointList: point_list,
+    ref pixel: col)                                               is action "DRW_POLYLINE";
+const proc: FILL_POLYLINE (inout PRIMITIVE_WINDOW: aWindow,
+    in integer: x, in integer: y, in pointList: point_list,
+    ref pixel: col)                                               is action "DRW_FPOLYLINE";

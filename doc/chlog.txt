@@ -1,3 +1,46 @@
+20130908:
+- The compiler has been improved to use charvalue instead of
+  intvalue, when characters are initialized. Thanks go to Brian
+  Callahan, for reporting the bug. Btw.: Brian Callahan created an
+  openBSD port for Seed7.
+- The makefile mk_freebsd.mk has been added to support compilation
+  under freeBSD. Thanks go to Pietro Cerutti, for providing it.
+- The makefiles mk_clang.mak and mk_freebsd.mk have been improved
+  to use the options -ffunction-sections, -fdata-sections and
+  -Wl,--strip-debug.
+- The functions bStriLe2BigInt, bytesLe2BigInt, bStriBe2BigInt,
+  bytesBe2BigInt, bStriLe, bytesLe, bStriBe and bytesBe have been
+  added to bytedata.s7i. This functions convert between sequences
+  of bytes and bigInteger numbers.
+- In bytedata.s7i the functions bytesLeAsInt and bytesBeAsInt have
+  been renamed to bytesLe2Int respectively bytesBe2Int.
+- Parameter names have been added to seed7_05.s7i, graph_file.s7i,
+  graph.s7i, reference.s7i, pac.sd7, tetg.sd7, tet.sd7 and wiz.sd7.
+- Checks for the Karatsuba multiplication and the functions bytesBe,
+  bytesLe, bytesBe2BigInt and bytesLe2BigInt have been added to
+  chkbig.sd7.
+- Checks for set membership in character sets have been added to
+  chkset.sd7.
+- The readability of the bitset initialisation in the compiler (s7c)
+  has been improved.
+- Interpreter and compiler have been improved to support the new
+  actions BIG_FROM_BSTRI_BE, BIG_FROM_BSTRI_LE, BIG_TO_BSTRI_BE and
+  BIG_TO_BSTRI_LE.
+- The functions bigFromBytesBe, bigFromBytesLe, bigFromBStriBe,
+  bigFromBStriLe, bigToBStriBe and bigToBStriLe have been added to
+  both, big_gmp.c and big_rtl.c.
+- In big_gmp.c and big_rtl.c the function bigImport has been
+  rewritten to use bigFromBytesBe.
+- The readability of the function uint2_mult in int_rtl.c has been
+  improved.
+- The program chkccomp.c has been improved to check for a ones
+  complement inttype and if casting can be used to get the element
+  of a union.
+- Several makefiles have been adjusted to use 'cp -p' instead of
+  'cp -a'. The cp command openBSD does not support -a.
+- The function bigRand in big_rtl.c has been improved to avoid that
+  a random number is outside the required range.
+
 20130820:
 - The library sha1.s7i has been renamed to msgdigest.s7i.
 - The message digest and secure hash functions md4, md5, sha224 and

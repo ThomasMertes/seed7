@@ -86,9 +86,6 @@ const type: stringReferenceHash   is hash [string] reference;
 const type: stringHashHash        is hash [string] stringBooleanHash;
 
 
-const proc: TRACE_OBJ (in booleanBooleanHash param) is     action "REF_TRACE";
-
-
 const proc: chkBooleanHash is func
   local
     var boolean: okay is TRUE;

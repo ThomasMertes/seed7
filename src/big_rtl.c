@@ -2903,6 +2903,184 @@ booltype bigEqSignedDigit (const const_biginttype big1, inttype number)
 
 
 
+static INLINE biginttype bigFromBytesBe (const memsizetype size,
+    const const_ustritype buffer, const booltype withSign)
+
+  {
+    memsizetype byteIndex;
+    memsizetype pos;
+    memsizetype num_bigdigits;
+    memsizetype result_size;
+    uchartype buffer2[BIGDIGIT_SIZE >> 3];
+    biginttype result;
+
+  /* bigFromBytesBe */
+    /* printf("bigFromBytesBe(%lu, *, %d)\n", size, withSign); */
+    if (size == 0) {
+      num_bigdigits = 0;
+      result_size = 1;
+    } else {
+      num_bigdigits = (size + (BIGDIGIT_SIZE >> 3) - 1) / (BIGDIGIT_SIZE >> 3);
+      result_size = num_bigdigits;
+      if (!withSign && size % (BIGDIGIT_SIZE >> 3) == 0 && buffer[0] >= 128) {
+        /* The number is unsigned, but highest bit is one: */
+        /* A leading zero bigdigit must be added.          */
+        result_size++;
+      } /* if */
+    } /* if */
+    if (unlikely(!ALLOC_BIG(result, result_size))) {
+      raise_error(MEMORY_ERROR);
+      return NULL;
+    } else {
+      result->size = result_size;
+      if (num_bigdigits == 0) {
+        result->bigdigits[0] = (bigdigittype) 0;
+      } else {
+        byteIndex = size;
+        for (pos = 0; pos < num_bigdigits - 1; pos++) {
+#if BIGDIGIT_SIZE == 8
+          result->bigdigits[pos] =  (bigdigittype) buffer[byteIndex - 1];
+          byteIndex--;
+#elif BIGDIGIT_SIZE == 16
+          result->bigdigits[pos] = ((bigdigittype) buffer[byteIndex - 2]) <<  8 |
+                                    (bigdigittype) buffer[byteIndex - 1];
+          byteIndex -= 2;
+#elif BIGDIGIT_SIZE == 32
+          result->bigdigits[pos] = ((bigdigittype) buffer[byteIndex - 4]) << 24 |
+                                   ((bigdigittype) buffer[byteIndex - 3]) << 16 |
+                                   ((bigdigittype) buffer[byteIndex - 2]) <<  8 |
+                                    (bigdigittype) buffer[byteIndex - 1];
+          byteIndex -= 4;
+#endif
+        } /* for */
+        memcpy(&buffer2[4 - byteIndex], buffer, byteIndex);
+        if (withSign && buffer[0] >= 128) {
+          memset(buffer2, 0xFF, 4 - byteIndex);
+        } else {
+          memset(buffer2, 0, 4 - byteIndex);
+        } /* if */
+#if BIGDIGIT_SIZE == 8
+        result->bigdigits[pos] =  (bigdigittype) buffer2[0];
+#elif BIGDIGIT_SIZE == 16
+        result->bigdigits[pos] = ((bigdigittype) buffer2[0]) <<  8 |
+                                  (bigdigittype) buffer2[1];
+#elif BIGDIGIT_SIZE == 32
+        result->bigdigits[pos] = ((bigdigittype) buffer2[0]) << 24 |
+                                 ((bigdigittype) buffer2[1]) << 16 |
+                                 ((bigdigittype) buffer2[2]) <<  8 |
+                                  (bigdigittype) buffer2[3];
+#endif
+        if (num_bigdigits != result_size) {
+          /* The number is unsigned, but highest bit is one: */
+          /* A leading zero bigdigit must be added.          */
+          result->bigdigits[num_bigdigits] = (bigdigittype) 0;
+        } /* if */
+      } /* if */
+    } /* if */
+    result = normalize(result);
+    /* printf("bigFromBytesBe()-> %s\n", bigHexCStri(result)); */
+    return result;
+  } /* bigFromBytesBe */
+
+
+
+static INLINE biginttype bigFromBytesLe (const memsizetype size,
+    const const_ustritype buffer, const booltype withSign)
+
+  {
+    memsizetype byteIndex;
+    memsizetype pos;
+    memsizetype num_bigdigits;
+    memsizetype result_size;
+    uchartype buffer2[BIGDIGIT_SIZE >> 3];
+    biginttype result;
+
+  /* bigFromBytesLe */
+    /* printf("bigFromBytesLe(%lu, *, %d)\n", size, withSign); */
+    if (size == 0) {
+      num_bigdigits = 0;
+      result_size = 1;
+    } else {
+      num_bigdigits = (size + (BIGDIGIT_SIZE >> 3) - 1) / (BIGDIGIT_SIZE >> 3);
+      result_size = num_bigdigits;
+      if (!withSign && size % (BIGDIGIT_SIZE >> 3) == 0 && buffer[0] >= 128) {
+        /* The number is unsigned, but highest bit is one: */
+        /* A leading zero bigdigit must be added.          */
+        result_size++;
+      } /* if */
+    } /* if */
+    if (unlikely(!ALLOC_BIG(result, result_size))) {
+      raise_error(MEMORY_ERROR);
+      return NULL;
+    } else {
+      result->size = result_size;
+      if (num_bigdigits == 0) {
+        result->bigdigits[0] = (bigdigittype) 0;
+      } else {
+        byteIndex = 0;
+        for (pos = 0; pos < num_bigdigits - 1; pos++) {
+#if BIGDIGIT_SIZE == 8
+          result->bigdigits[pos] =  (bigdigittype) buffer[byteIndex];
+          byteIndex++;
+#elif BIGDIGIT_SIZE == 16
+          result->bigdigits[pos] = ((bigdigittype) buffer[byteIndex + 1]) <<  8 |
+                                    (bigdigittype) buffer[byteIndex];
+          byteIndex += 2;
+#elif BIGDIGIT_SIZE == 32
+          result->bigdigits[pos] = ((bigdigittype) buffer[byteIndex + 3]) << 24 |
+                                   ((bigdigittype) buffer[byteIndex + 2]) << 16 |
+                                   ((bigdigittype) buffer[byteIndex + 1]) <<  8 |
+                                    (bigdigittype) buffer[byteIndex];
+          byteIndex += 4;
+#endif
+        } /* for */
+        memcpy(buffer2, &buffer[byteIndex], size - byteIndex);
+        if (withSign && buffer[size - 1] >= 128) {
+          memset(&buffer2[size - byteIndex], 0xFF, 4 - (size - byteIndex));
+        } else {
+          memset(&buffer2[size - byteIndex], 0, 4 - (size - byteIndex));
+        } /* if */
+#if BIGDIGIT_SIZE == 8
+        result->bigdigits[pos] =  (bigdigittype) buffer2[0];
+#elif BIGDIGIT_SIZE == 16
+        result->bigdigits[pos] = ((bigdigittype) buffer2[1]) <<  8 |
+                                  (bigdigittype) buffer2[0];
+#elif BIGDIGIT_SIZE == 32
+        result->bigdigits[pos] = ((bigdigittype) buffer2[3]) << 24 |
+                                 ((bigdigittype) buffer2[2]) << 16 |
+                                 ((bigdigittype) buffer2[1]) <<  8 |
+                                  (bigdigittype) buffer2[0];
+#endif
+        if (num_bigdigits != result_size) {
+          /* The number is unsigned, but highest bit is one: */
+          /* A leading zero bigdigit must be added.          */
+          result->bigdigits[num_bigdigits] = (bigdigittype) 0;
+        } /* if */
+      } /* if */
+    } /* if */
+    result = normalize(result);
+    /* printf("bigFromBytesLe()-> %s\n", bigHexCStri(result)); */
+    return result;
+  } /* bigFromBytesLe */
+
+
+
+biginttype bigFromBStriBe (const const_bstritype bstri)
+
+  { /* bigFromBStriBe */
+    return bigFromBytesBe(bstri->size, bstri->mem, TRUE);
+  } /* bigFromBStriBe */
+
+
+
+biginttype bigFromBStriLe (const const_bstritype bstri)
+
+  { /* bigFromBStriLe */
+    return bigFromBytesLe(bstri->size, bstri->mem, TRUE);
+  } /* bigFromBStriLe */
+
+
+
 biginttype bigFromInt32 (int32type number)
 
   {
@@ -3231,60 +3409,13 @@ biginttype bigImport (const const_ustritype buffer)
 
   {
     memsizetype byteDigitCount;
-    memsizetype byteIndex;
-    memsizetype pos;
-    memsizetype result_size;
-    uchartype buffer2[BIGDIGIT_SIZE >> 3];
-    biginttype result;
 
   /* bigImport */
     byteDigitCount = ((memsizetype) buffer[0]) << 24 |
                      ((memsizetype) buffer[1]) << 16 |
                      ((memsizetype) buffer[2]) <<  8 |
                      ((memsizetype) buffer[3]);
-    result_size = (byteDigitCount + (BIGDIGIT_SIZE >> 3) - 1) / (BIGDIGIT_SIZE >> 3);
-    if (unlikely(!ALLOC_BIG(result, result_size))) {
-      raise_error(MEMORY_ERROR);
-      return NULL;
-    } else {
-      result->size = result_size;
-      byteIndex = byteDigitCount;
-      for (pos = 0; pos < result_size - 1; pos++) {
-#if BIGDIGIT_SIZE == 8
-        result->bigdigits[pos] =  (bigdigittype) buffer[byteIndex + 3];
-        byteIndex--;
-#elif BIGDIGIT_SIZE == 16
-        result->bigdigits[pos] = ((bigdigittype) buffer[byteIndex + 2]) <<  8 |
-                                  (bigdigittype) buffer[byteIndex + 3];
-        byteIndex -= 2;
-#elif BIGDIGIT_SIZE == 32
-        result->bigdigits[pos] = ((bigdigittype) buffer[byteIndex])     << 24 |
-                                 ((bigdigittype) buffer[byteIndex + 1]) << 16 |
-                                 ((bigdigittype) buffer[byteIndex + 2]) <<  8 |
-                                  (bigdigittype) buffer[byteIndex + 3];
-        byteIndex -= 4;
-#endif
-      } /* for */
-      memcpy(&buffer2[4 - byteIndex], &buffer[4], byteIndex);
-      if (buffer[4] >= 128) {
-        memset(buffer2, 0xFF, 4 - byteIndex);
-      } else {
-        memset(buffer2, 0, 4 - byteIndex);
-      } /* if */
-#if BIGDIGIT_SIZE == 8
-        result->bigdigits[pos] =  (bigdigittype) buffer2[0];
-#elif BIGDIGIT_SIZE == 16
-        result->bigdigits[pos] = ((bigdigittype) buffer2[0]) <<  8 |
-                                  (bigdigittype) buffer2[1];
-#elif BIGDIGIT_SIZE == 32
-        result->bigdigits[pos] = ((bigdigittype) buffer2[0]) << 24 |
-                                 ((bigdigittype) buffer2[1]) << 16 |
-                                 ((bigdigittype) buffer2[2]) <<  8 |
-                                  (bigdigittype) buffer2[3];
-#endif
-    } /* if */
-    /* printf("bigImport()-> %s\n", bigHexCStri(result)); */
-    return result;
+    return bigFromBytesBe(byteDigitCount, &buffer[4], TRUE);
   } /* bigImport */
 
 
@@ -4667,6 +4798,7 @@ biginttype bigRand (const const_biginttype low,
 
   {
     biginttype scale_limit;
+    int usedBits;
     bigdigittype mask;
     memsizetype pos;
     doublebigdigittype random_number = 0;
@@ -4691,9 +4823,12 @@ biginttype bigRand (const const_biginttype low,
         memset(&result->bigdigits[scale_limit->size], 0,
             (size_t) (result_size - scale_limit->size) * sizeof(bigdigittype));
         result->size = scale_limit->size;
-        mask = ((bigdigittype) BIGDIGIT_MASK) >>
-            (BIGDIGIT_SIZE -
-            (memsizetype) (digitMostSignificantBit(scale_limit->bigdigits[scale_limit->size - 1]) + 1));
+        usedBits = digitMostSignificantBit(scale_limit->bigdigits[scale_limit->size - 1]) + 1;
+        if (usedBits == 0) {
+          mask = 0;
+        } else {
+          mask = ((bigdigittype) BIGDIGIT_MASK) >> (BIGDIGIT_SIZE - (memsizetype) (usedBits));
+        } /* if */
         do {
           pos = 0;
           do {
@@ -5488,8 +5623,7 @@ biginttype bigSuccTemp (biginttype big1)
 
 
 
-#ifdef OUT_OF_ORDER
-bstritype bigToBStri (const_biginttype big1)
+bstritype bigToBStriBe (const const_biginttype big1)
 
   {
     memsizetype pos;
@@ -5499,7 +5633,7 @@ bstritype bigToBStri (const_biginttype big1)
     memsizetype result_size;
     bstritype result;
 
-  /* bigToBStri */
+  /* bigToBStriBe */
     /* The expression computing result_size does not overflow           */
     /* because the number of bytes in a bigInteger fits in memsizetype. */
     result_size = big1->size * (BIGDIGIT_SIZE >> 3);
@@ -5512,7 +5646,7 @@ bstritype bigToBStri (const_biginttype big1)
       } /* while */
       if (byteNum < 3 && (digit >> byteNum * 8 & 0xFF) <= 127) {
         result_size++;
-        /* Not used afterwards: byteNum++; */
+        byteNum++;
       } /* if */
     } else {
       while (byteNum > 0 && (digit >> byteNum * 8 & 0xFF) == 0) {
@@ -5521,7 +5655,7 @@ bstritype bigToBStri (const_biginttype big1)
       } /* while */
       if (byteNum < 3 && (digit >> byteNum * 8 & 0xFF) >= 128) {
         result_size++;
-        /* Not used afterwards: byteNum++; */
+        byteNum++;
       } /* if */
     } /* if */
     if (unlikely(!ALLOC_BSTRI_CHECK_SIZE(result, result_size))) {
@@ -5529,21 +5663,81 @@ bstritype bigToBStri (const_biginttype big1)
     } else {
       result->size = result_size;
       charIndex = 0;
-      pos = big1->size;
+      pos = big1->size - 1;
+      for (; byteNum >= 0; byteNum--) {
+        result->mem[charIndex] = (uchartype) (digit >> byteNum * 8 & 0xFF);
+        charIndex++;
+      } /* for */
       while (pos > 0) {
         pos--;
         digit = big1->bigdigits[pos];
         for (byteNum = (BIGDIGIT_SIZE >> 3) - 1; byteNum >= 0; byteNum--) {
-          if (pos * (BIGDIGIT_SIZE >> 3) + (memsizetype) byteNum < result_size) {
-            result->mem[charIndex] = (uchartype) (digit >> byteNum * 8 & 0xFF);
-            charIndex++;
-          } /* if */
+          result->mem[charIndex] = (uchartype) (digit >> byteNum * 8 & 0xFF);
+          charIndex++;
         } /* for */
-      } /* for */
+      } /* while */
     } /* if */
     return result;
-  } /* bigToBStri */
-#endif
+  } /* bigToBStriBe */
+
+
+
+bstritype bigToBStriLe (const const_biginttype big1)
+
+  {
+    memsizetype pos;
+    int byteNum;
+    bigdigittype digit;
+    memsizetype charIndex;
+    memsizetype result_size;
+    bstritype result;
+
+  /* bigToBStriLe */
+    /* The expression computing result_size does not overflow           */
+    /* because the number of bytes in a bigInteger fits in memsizetype. */
+    result_size = big1->size * (BIGDIGIT_SIZE >> 3);
+    digit = big1->bigdigits[big1->size - 1];
+    byteNum = (BIGDIGIT_SIZE >> 3) - 1;
+    if (IS_NEGATIVE(digit)) {
+      while (byteNum > 0 && (digit >> byteNum * 8 & 0xFF) == 0xFF) {
+        result_size--;
+        byteNum--;
+      } /* while */
+      if (byteNum < 3 && (digit >> byteNum * 8 & 0xFF) <= 127) {
+        result_size++;
+        byteNum++;
+      } /* if */
+    } else {
+      while (byteNum > 0 && (digit >> byteNum * 8 & 0xFF) == 0) {
+        result_size--;
+        byteNum--;
+      } /* while */
+      if (byteNum < 3 && (digit >> byteNum * 8 & 0xFF) >= 128) {
+        result_size++;
+        byteNum++;
+      } /* if */
+    } /* if */
+    if (unlikely(!ALLOC_BSTRI_CHECK_SIZE(result, result_size))) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      result->size = result_size;
+      charIndex = result_size - 1;
+      pos = big1->size - 1;
+      for (; byteNum >= 0; byteNum--) {
+        result->mem[charIndex] = (uchartype) (digit >> byteNum * 8 & 0xFF);
+        charIndex--;
+      } /* for */
+      while (pos > 0) {
+        pos--;
+        digit = big1->bigdigits[pos];
+        for (byteNum = (BIGDIGIT_SIZE >> 3) - 1; byteNum >= 0; byteNum--) {
+          result->mem[charIndex] = (uchartype) (digit >> byteNum * 8 & 0xFF);
+          charIndex--;
+        } /* for */
+      } /* while */
+    } /* if */
+    return result;
+  } /* bigToBStriLe */
 
 
 

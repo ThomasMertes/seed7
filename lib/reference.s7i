@@ -106,13 +106,13 @@ const func type: getType (in reference: aReference)                    is action
 const proc: setType (in reference: aReference, in type: aType)         is action "REF_SETTYPE";
 
 
-const func boolean: is_symb (in reference param)                       is action "REF_ISSYMB";
-const func f_param: symb (in reference param)                          is action "REF_SYMB";
+const func boolean: is_symb (in reference: aReference)                 is action "REF_ISSYMB";
+const func f_param: symb (in reference: aReference)                    is action "REF_SYMB";
 const func type: getValue (in reference: aReference, attr type)        is action "TYP_VALUE";
 const func reference: getfunc (in expr param)                          is action "DCL_GETFUNC";
 const func reference: getobj (in expr param)                           is action "DCL_GETOBJ";
 
-const proc: TRACE_REF (in reference param) is  action "REF_TRACE";
+const proc: TRACE_REF (in reference: aReference) is  action "REF_TRACE";
 
 const func type: get_type (in reference: type_ref) is func
   result

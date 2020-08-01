@@ -1,7 +1,7 @@
-# Makefile for linux/bsd/unix and gcc. Commands executed by: bash
+# Makefile for the FreeBSD ports system using whatever compiler the user has set. Commands executed by: sh
 # To compile use a command shell and call:
-#   make -f mk_linux.mak depend
-#   make -f mk_linux.mak
+#   make -f mk_freebsd.mak depend
+#   make -f mk_freebsd.mak
 # If you are under windows you should use MinGW with mk_mingw.mak, mk_nmake.mak or mk_msys.mak instead.
 
 # CFLAGS =
@@ -10,22 +10,19 @@
 # CFLAGS = -O2 -g -Wall -Wextra -Wswitch-default -Wswitch-enum -Wcast-qual -Waggregate-return -Wwrite-strings -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith -Wmissing-noreturn -Wno-multichar -Wc++-compat
 # CFLAGS = -O2 -g -x c++ -Wall -Wextra -Wswitch-default -Wswitch-enum -Wcast-qual -Waggregate-return -Wwrite-strings -Winline -Wconversion -Wshadow -Wpointer-arith -Wmissing-noreturn -Wno-multichar
 # CFLAGS = -O2 -fomit-frame-pointer -Wall -Wextra -Wswitch-default -Wcast-qual -Waggregate-return -Wwrite-strings -Winline -Wconversion -Wshadow -Wpointer-arith -Wmissing-noreturn -Wno-multichar
-# CFLAGS = -O2 -g -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith -ftrapv
-# CFLAGS = -O2 -g -x c++ -Wall -Winline -Wconversion -Wshadow -Wpointer-arith
-CFLAGS = -O2 -g -ffunction-sections -fdata-sections -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
-# CFLAGS = -O2 -g -ffunction-sections -fdata-sections -Wall -Winline -Wconversion -Wshadow -Wpointer-arith
-# CFLAGS = -O2 -g -std=c99 -D_POSIX_SOURCE -ffunction-sections -fdata-sections -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
+CFLAGS = -ffunction-sections -fdata-sections -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith -ftrapv -I%%LOCALBASE%%/include
+# CFLAGS = -O2 -g -x c++ -Wall -Winline -Wconversion -Wshadow -Wpointer-arith -ftrapv
+# CFLAGS = -O2 -g -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -g -Wall -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -g -Wall
 # CFLAGS = -O2 -g -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -fomit-frame-pointer -funroll-loops -Wall
 # CFLAGS = -O2 -funroll-loops -Wall -pg
-LDFLAGS = -Wl,--gc-sections
+LDFLAGS = -Wl,--gc-sections -L%%LOCALBASE%%/lib
 # LDFLAGS = -pg
 # LDFLAGS = -pg -lc_p
 SYSTEM_LIBS = -lm
 # SYSTEM_LIBS = -lm -lgmp
-# SYSTEM_LIBS = -lm -lsqlite3
 # SYSTEM_LIBS = -lm_p -lc_p
 SYSTEM_CONSOLE_LIBS = -lncurses
 SYSTEM_DRAW_LIBS = -lX11
@@ -39,8 +36,6 @@ DRAW_LIB = s7_draw.a
 COMP_DATA_LIB = s7_data.a
 COMPILER_LIB = s7_comp.a
 ALL_S7_LIBS = ../bin/$(COMPILER_LIB) ../bin/$(COMP_DATA_LIB) ../bin/$(DRAW_LIB) ../bin/$(CONSOLE_LIB) ../bin/$(SEED7_LIB)
-# CC = g++
-CC = gcc
 GET_CC_VERSION_INFO = $(CC) --version >
 
 BIGINT_LIB_DEFINE = USE_BIG_RTL_LIBRARY
@@ -48,15 +43,15 @@ BIGINT_LIB = big_rtl
 # BIGINT_LIB_DEFINE = USE_BIG_GMP_LIBRARY
 # BIGINT_LIB = big_gmp
 
-# TERMINFO_OR_TERMCAP = USE_TERMINFO
-# CONSOLE_LIB_OBJ = kbd_rtl.o con_inf.o kbd_inf.o trm_inf.o
-# CONSOLE_LIB_SRC = kbd_rtl.c con_inf.c kbd_inf.c trm_inf.c
+TERMINFO_OR_TERMCAP = USE_TERMINFO
+CONSOLE_LIB_OBJ = kbd_rtl.o con_inf.o kbd_inf.o trm_inf.o
+CONSOLE_LIB_SRC = kbd_rtl.c con_inf.c kbd_inf.c trm_inf.c
 # TERMINFO_OR_TERMCAP = USE_TERMCAP
 # CONSOLE_LIB_OBJ = kbd_rtl.o con_inf.o kbd_inf.o trm_cap.o
 # CONSOLE_LIB_SRC = kbd_rtl.c con_inf.c kbd_inf.c trm_cap.c
-TERMINFO_OR_TERMCAP = USE_TERMINFO
-CONSOLE_LIB_OBJ = kbd_rtl.o con_inf.o kbd_poll.o trm_inf.o
-CONSOLE_LIB_SRC = kbd_rtl.c con_inf.c kbd_poll.c trm_inf.c
+# TERMINFO_OR_TERMCAP = USE_TERMINFO
+# CONSOLE_LIB_OBJ = kbd_rtl.o con_inf.o kbd_poll.o trm_inf.o
+# CONSOLE_LIB_SRC = kbd_rtl.c con_inf.c kbd_poll.c trm_inf.c
 # TERMINFO_OR_TERMCAP = USE_TERMCAP
 # CONSOLE_LIB_OBJ = kbd_rtl.o con_inf.o kbd_poll.o trm_cap.o
 # CONSOLE_LIB_SRC = kbd_rtl.c con_inf.c kbd_poll.c trm_cap.c
@@ -162,6 +157,7 @@ version.h: chkccomp.h
 	echo "#define USE_DIRENT" >> version.h
 	echo "#define SEARCH_PATH_DELIMITER ':'" >> version.h
 	echo "#define CATCH_SIGNALS" >> version.h
+	echo "#define SIGILL_ON_OVERFLOW" >> version.h
 	echo "#define HAS_SYMLINKS" >> version.h
 	echo "#define HAS_FIFO_FILES" >> version.h
 	echo "#define USE_MMAP" >> version.h
@@ -181,18 +177,18 @@ version.h: chkccomp.h
 	echo "#define OBJECT_FILE_EXTENSION \".o\"" >> version.h
 	echo "#define LIBRARY_FILE_EXTENSION \".a\"" >> version.h
 	echo "#define C_COMPILER \"$(CC)\"" >> version.h
-	echo "#define CPLUSPLUS_COMPILER \"g++\"" >> version.h
+	echo "#define CPLUSPLUS_COMPILER \"$(CC) -x c++\"" >> version.h
 	echo "#define GET_CC_VERSION_INFO \"$(GET_CC_VERSION_INFO)\"" >> version.h
 	echo "#define CC_SOURCE_UTF8" >> version.h
 	echo "#define CC_OPT_DEBUG_INFO \"-g\"" >> version.h
 	echo "#define CC_OPT_NO_WARNINGS \"-w\"" >> version.h
-	echo "#define CC_FLAGS \"-ffunction-sections -fdata-sections\"" >> version.h
+	echo "#define CC_FLAGS \"-ffunction-sections -fdata-sections -ftrapv\"" >> version.h
 	echo "#define REDIRECT_C_ERRORS \"2>\"" >> version.h
 	echo "#define LINKER_OPT_NO_DEBUG_INFO \"-Wl,--strip-debug\"" >> version.h
 	echo "#define LINKER_OPT_OUTPUT_FILE \"-o \"" >> version.h
 	echo "#define LINKER_FLAGS \"$(LDFLAGS)\"" >> version.h
 	$(GET_CC_VERSION_INFO) cc_vers.txt
-	$(CC) chkccomp.c -lm -o chkccomp
+	$(CC) -ftrapv chkccomp.c -lm -o chkccomp
 	./chkccomp >> version.h
 	rm chkccomp
 	rm cc_vers.txt
@@ -254,9 +250,6 @@ lint: $(SRC)
 lint2: $(SRC)
 	lint -Zn2048 $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS)
 
-cppcheck: $(SRC) $(SEED7_LIB_SRC) $(DRAW_LIB_SRC) $(COMP_DATA_LIB_SRC) $(COMPILER_LIB_SRC)
-	cppcheck --force --enable=all $(SRC) $(SEED7_LIB_SRC) $(DRAW_LIB_SRC) $(COMP_DATA_LIB_SRC) $(COMPILER_LIB_SRC)
-
-ifeq (depend,$(wildcard depend))
-include depend
-endif
+.if exists(depend)
+.include "depend"
+.endif

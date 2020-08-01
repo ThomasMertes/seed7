@@ -6030,6 +6030,7 @@ const proc: check_charset is func
               ch not in name_start_char  or
          not (ch     in name_char)       or
               ch not in name_char        then
+        writeln("character sets do not work for upper case characters.");
         okay := FALSE;
       end if;
     end for;
@@ -6051,6 +6052,7 @@ const proc: check_charset is func
               ch not in name_start_char  or
          not (ch     in name_char)       or
               ch not in name_char        then
+        writeln("character sets do not work for lower case characters.");
         okay := FALSE;
       end if;
     end for;
@@ -6072,6 +6074,7 @@ const proc: check_charset is func
          not (ch not in name_start_char) or
          not (ch     in name_char)       or
               ch not in name_char        then
+        writeln("character sets do not work for digits.");
         okay := FALSE;
       end if;
     end for;
@@ -6093,25 +6096,7 @@ const proc: check_charset is func
             ch not in name_start_char  or
        not (ch     in name_char)       or
             ch not in name_char        then
-      okay := FALSE;
-    end if;
-
-    if      '_'     in uc_letter_char   or
-       not ('_' not in uc_letter_char)  or
-            '_'     in lc_letter_char   or
-       not ('_' not in lc_letter_char)  or
-            '_'     in letter_char      or
-       not ('_' not in letter_char)     or
-            '_'     in digit_char       or
-       not ('_' not in digit_char)      or
-            '_'     in alphanum_char    or
-       not ('_' not in alphanum_char)   or
-            '_'     in special_char     or
-       not ('_' not in special_char)    or
-       not ('_'     in name_start_char) or
-            '_' not in name_start_char  or
-       not ('_'     in name_char)       or
-            '_' not in name_char        then
+      writeln("character sets do not work for the underline character.");
       okay := FALSE;
     end if;
 
@@ -6132,9 +6117,110 @@ const proc: check_charset is func
          not (ch not in name_start_char) or
               ch     in name_char        or
          not (ch not in name_char)       then
+        writeln("character sets do not work for special characters.");
         okay := FALSE;
       end if;
     end for;
+
+    if not ('X'     in uc_letter_char)  or
+            'X' not in uc_letter_char   or
+            'X'     in lc_letter_char   or
+       not ('X' not in lc_letter_char)  or
+       not ('X'     in letter_char)     or
+            'X' not in letter_char      or
+            'X'     in digit_char       or
+       not ('X' not in digit_char)      or
+       not ('X'     in alphanum_char)   or
+            'X' not in alphanum_char    or
+            'X'     in special_char     or
+       not ('X' not in special_char)    or
+       not ('X'     in name_start_char) or
+            'X' not in name_start_char  or
+       not ('X'     in name_char)       or
+            'X' not in name_char        then
+      writeln("character sets do not work for 'X'.");
+      okay := FALSE;
+    end if;
+
+    if      'i'     in uc_letter_char   or
+       not ('i' not in uc_letter_char)  or
+       not ('i'     in lc_letter_char)  or
+            'i' not in lc_letter_char   or
+       not ('i'     in letter_char)     or
+            'i' not in letter_char      or
+            'i'     in digit_char       or
+       not ('i' not in digit_char)      or
+       not ('i'     in alphanum_char)   or
+            'i' not in alphanum_char    or
+            'i'     in special_char     or
+       not ('i' not in special_char)    or
+       not ('i'     in name_start_char) or
+            'i' not in name_start_char  or
+       not ('i'     in name_char)       or
+            'i' not in name_char        then
+      writeln("character sets do not work for 'i'.");
+      okay := FALSE;
+    end if;
+
+    if      '7'     in uc_letter_char   or
+       not ('7' not in uc_letter_char)  or
+            '7'     in lc_letter_char   or
+       not ('7' not in lc_letter_char)  or
+            '7'     in letter_char      or
+       not ('7' not in letter_char)     or
+       not ('7'     in digit_char)      or
+            '7' not in digit_char       or
+       not ('7'     in alphanum_char)   or
+            '7' not in alphanum_char    or
+            '7'     in special_char     or
+       not ('7' not in special_char)    or
+            '7'     in name_start_char  or
+       not ('7' not in name_start_char) or
+       not ('7'     in name_char)       or
+            '7' not in name_char        then
+      writeln("character sets do not work for '7'.");
+      okay := FALSE;
+    end if;
+
+    if      '_'     in uc_letter_char   or
+       not ('_' not in uc_letter_char)  or
+            '_'     in lc_letter_char   or
+       not ('_' not in lc_letter_char)  or
+            '_'     in letter_char      or
+       not ('_' not in letter_char)     or
+            '_'     in digit_char       or
+       not ('_' not in digit_char)      or
+            '_'     in alphanum_char    or
+       not ('_' not in alphanum_char)   or
+            '_'     in special_char     or
+       not ('_' not in special_char)    or
+       not ('_'     in name_start_char) or
+            '_' not in name_start_char  or
+       not ('_'     in name_char)       or
+            '_' not in name_char        then
+      writeln("character sets do not work for '_'.");
+      okay := FALSE;
+    end if;
+
+    if      '@'     in uc_letter_char   or
+       not ('@' not in uc_letter_char)  or
+            '@'     in lc_letter_char   or
+       not ('@' not in lc_letter_char)  or
+            '@'     in letter_char      or
+       not ('@' not in letter_char)     or
+            '@'     in digit_char       or
+       not ('@' not in digit_char)      or
+            '@'     in alphanum_char    or
+       not ('@' not in alphanum_char)   or
+       not ('@'     in special_char)    or
+            '@' not in special_char     or
+            '@'     in name_start_char  or
+       not ('@' not in name_start_char) or
+            '@'     in name_char        or
+       not ('@' not in name_char)       then
+      writeln("character sets do not work for '@'.");
+      okay := FALSE;
+    end if;
 
     if okay then
       writeln("character sets work correct.");
