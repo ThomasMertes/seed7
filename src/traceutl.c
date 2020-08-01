@@ -249,7 +249,7 @@ void prot_bigint (const const_bigIntType bintvalue)
 
 
 
-#ifdef WITH_FLOAT
+#if WITH_FLOAT
 void prot_float (floatType floatValue)
 
   {
@@ -508,7 +508,7 @@ static void print_real_value (const_objectType anyobject)
         prot_cstri("socket ");
         prot_int((intType) anyobject->value.socketValue);
         break;
-#ifdef WITH_FLOAT
+#if WITH_FLOAT
       case FLOATOBJECT:
         prot_float(anyobject->value.floatValue);
         break;

@@ -5886,18 +5886,42 @@ const proc: check_power is func
       okay := FALSE;
     end if;
 
-    if  not isNaN( 2.0 ** NaN) or
-        not isNaN(10.0 ** NaN) or
-        not isNaN(   E ** NaN) or
-        not isNaN(floatExpr( 2.0) ** NaN) or
-        not isNaN(floatExpr(10.0) ** NaN) or
-        not isNaN(floatExpr(   E) ** NaN) or
-        not isNaN( 2.0 ** floatExpr(NaN)) or
-        not isNaN(10.0 ** floatExpr(NaN)) or
-        not isNaN(   E ** floatExpr(NaN)) or
-        not isNaN(floatExpr( 2.0) ** floatExpr(NaN)) or
-        not isNaN(floatExpr(10.0) ** floatExpr(NaN)) or
-        not isNaN(floatExpr(   E) ** floatExpr(NaN)) then
+    if  not isNaN((-Infinity) ** NaN) or
+        not isNaN(     (-2.0) ** NaN) or
+        not isNaN(     (-1.0) ** NaN) or
+        not isNaN(       0.0  ** NaN) or
+        not isNaN(       2.0  ** NaN) or
+        not isNaN(      10.0  ** NaN) or
+        not isNaN(         E  ** NaN) or
+        not isNaN(  Infinity  ** NaN) or
+        not isNaN(       NaN  ** NaN) or
+        not isNaN(floatExpr(-Infinity) ** NaN) or
+        not isNaN(floatExpr(     -2.0) ** NaN) or
+        not isNaN(floatExpr(     -1.0) ** NaN) or
+        not isNaN(floatExpr(      0.0) ** NaN) or
+        not isNaN(floatExpr(      2.0) ** NaN) or
+        not isNaN(floatExpr(     10.0) ** NaN) or
+        not isNaN(floatExpr(        E) ** NaN) or
+        not isNaN(floatExpr( Infinity) ** NaN) or
+        not isNaN(floatExpr(      NaN) ** NaN) or
+        not isNaN((-Infinity) ** floatExpr(NaN)) or
+        not isNaN(     (-2.0) ** floatExpr(NaN)) or
+        not isNaN(     (-1.0) ** floatExpr(NaN)) or
+        not isNaN(       0.0  ** floatExpr(NaN)) or
+        not isNaN(       2.0  ** floatExpr(NaN)) or
+        not isNaN(      10.0  ** floatExpr(NaN)) or
+        not isNaN(         E  ** floatExpr(NaN)) or
+        not isNaN(  Infinity  ** floatExpr(NaN)) or
+        not isNaN(       NaN  ** floatExpr(NaN)) or
+        not isNaN(floatExpr(-Infinity) ** floatExpr(NaN)) or
+        not isNaN(floatExpr(     -2.0) ** floatExpr(NaN)) or
+        not isNaN(floatExpr(     -1.0) ** floatExpr(NaN)) or
+        not isNaN(floatExpr(      0.0) ** floatExpr(NaN)) or
+        not isNaN(floatExpr(      2.0) ** floatExpr(NaN)) or
+        not isNaN(floatExpr(     10.0) ** floatExpr(NaN)) or
+        not isNaN(floatExpr(        E) ** floatExpr(NaN)) or
+        not isNaN(floatExpr( Infinity) ** floatExpr(NaN)) or
+        not isNaN(floatExpr(      NaN) ** floatExpr(NaN)) then
       writeln(" ***** A ** NaN for A <> 1.0 does not return NaN.");
       okay := FALSE;
     end if;

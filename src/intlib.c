@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2015  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2018  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: Library                                                 */
 /*  File: seed7/src/intlib.c                                        */
-/*  Changes: 1992 - 1994, 2000, 2005, 2013 - 2015  Thomas Mertes    */
+/*  Changes: 1992 - 1994, 2000, 2005, 2013 - 2018  Thomas Mertes    */
 /*  Content: All primitive actions for the integer type.            */
 /*                                                                  */
 /********************************************************************/
@@ -194,7 +194,7 @@ objectType int_add_assign (listType arguments)
 /**
  *  Binomial coefficient
  *   n ! k  returns  !n div (!k * !(n - k))
- *  @return n over k
+ *  @return the binomial coefficient n over k
  *  @exception OVERFLOW_ERROR When the result would be less than
  *             integer.first or greater than integer.last.
  */

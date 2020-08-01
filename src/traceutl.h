@@ -54,7 +54,7 @@ void prot_cchar (char ch);
 void prot_writeln (const_cstriType stri);
 void prot_int (intType ivalue);
 void prot_bigint (const const_bigIntType bintvalue);
-#ifdef WITH_FLOAT
+#if WITH_FLOAT
 void prot_float (floatType floatValue);
 #endif
 void prot_char (charType cvalue);

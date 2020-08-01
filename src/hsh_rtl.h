@@ -58,9 +58,7 @@ rtlObjectType *hshIdxAddr2 (const const_rtlHashType aHashMap,
 genericType hshIdxEnterDefault (const rtlHashType hash1,
                                 const genericType key,
                                 const genericType data,
-                                intType hashcode, compareType cmp_func,
-                                const createFuncType key_create_func,
-                                const createFuncType data_create_func);
+                                intType hashcode);
 genericType hshIdxWithDefault (const const_rtlHashType hash1,
                                const genericType key,
                                const genericType defaultData,

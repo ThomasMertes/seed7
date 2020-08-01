@@ -131,7 +131,6 @@ version.h: chkccomp.h
 	$(ECHO) "#define PATH_DELIMITER 92 /* backslash (ASCII) */" > version.h
 	$(ECHO) "#define SEARCH_PATH_DELIMITER ';'" >> version.h
 	$(ECHO) "#define AWAIT_WITH_SELECT" >> version.h
-	$(ECHO) "#define WITH_SQL" >> version.h
 	$(ECHO) "#define IMPLEMENT_PTY_WITH_PIPE2" >> version.h
 	$(ECHO) "#define OS_STRI_USES_CODE_PAGE" >> version.h
 	$(ECHO) "#define MAP_LONG_FILE_NAMES_TO_SHORT" >> version.h

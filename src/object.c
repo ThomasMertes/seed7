@@ -57,7 +57,7 @@ objectType new_empty_list_object (const_objectType typeof_object)
 
   /* new_empty_list_object */
     logFunction(printf("new_empty_list_object\n"););
-#ifdef WITH_STATISTIC
+#if WITH_STATISTIC
     list_count++;
 #endif
     if (!ALLOC_OBJECT(created_list)) {
@@ -86,7 +86,7 @@ objectType new_nonempty_expression_object (objectType first_element,
     logFunction(printf("new_nonempty_expression_object ");
                 trace1(first_element);
                 printf("\n"););
-#ifdef WITH_STATISTIC
+#if WITH_STATISTIC
     list_count++;
 #endif
     if (!ALLOC_OBJECT(created_list)) {
@@ -120,7 +120,7 @@ objectType new_type_of_expression_object (objectType first_element,
     logFunction(printf("new_type_of_expression_object ");
                 trace1(first_element);
                 printf("\n"););
-#ifdef WITH_STATISTIC
+#if WITH_STATISTIC
     list_count++;
 #endif
     if (!ALLOC_OBJECT(created_list)) {
@@ -151,7 +151,7 @@ objectType new_expression_object (listType *list)
 
   /* new_expression_object */
     logFunction(printf("new_expression_object\n"););
-#ifdef WITH_STATISTIC
+#if WITH_STATISTIC
     list_count++;
 #endif
     if (!ALLOC_OBJECT(created_list)) {

@@ -1805,7 +1805,7 @@ setType cmdFileMode (const const_striType filePath)
     int stat_result;
     int path_info = PATH_IS_NORMAL;
     errInfoType err_info = OKAY_NO_ERROR;
-    setType result;
+    setType file_mode;
 
   /* cmdFileMode */
     logFunction(printf("cmdFileMode(\"%s\")\n", striAsUnquotedCStri(filePath)););
@@ -1813,7 +1813,7 @@ setType cmdFileMode (const const_striType filePath)
     if (unlikely(os_path == NULL)) {
 #if MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
       if (likely(path_info == PATH_IS_EMULATED_ROOT)) {
-        result = setIConv(0444);
+        file_mode = setIConv(0444);
       } else
 #endif
       {
@@ -1821,7 +1821,7 @@ setType cmdFileMode (const const_striType filePath)
                         "path_info=%d, err_info=%d\n",
                         striAsUnquotedCStri(filePath), path_info, err_info););
         raise_error(err_info);
-        result = NULL;
+        file_mode = NULL;
       }
     } else {
       stat_result = os_stat(os_path, &stat_buf);
@@ -1831,15 +1831,15 @@ setType cmdFileMode (const const_striType filePath)
                         os_path, errno, strerror(errno)););
         os_stri_free(os_path);
         raise_error(FILE_ERROR);
-        result = NULL;
+        file_mode = NULL;
       } else {
         os_stri_free(os_path);
         /* printf("cmdFileMode: st_mode=0%o\n", stat_buf.st_mode); */
 #if MODE_BITS_NORMAL
-        result = setIConv(0777 & stat_buf.st_mode);
+        file_mode = setIConv(0777 & stat_buf.st_mode);
 #else
         /* Force the bits to the standard sequence */
-        result = setIConv(
+        file_mode = setIConv(
             (stat_buf.st_mode & S_IRUSR ? 0400 : 0) |
             (stat_buf.st_mode & S_IWUSR ? 0200 : 0) |
             (stat_buf.st_mode & S_IXUSR ? 0100 : 0) |
@@ -1852,7 +1852,7 @@ setType cmdFileMode (const const_striType filePath)
 #endif
       } /* if */
     } /* if */
-    return result;
+    return file_mode;
   } /* cmdFileMode */
 
 
@@ -2271,7 +2271,7 @@ striType cmdGetenv (const const_striType name)
     os_striType env_name;
     os_striType env_value;
     errInfoType err_info = OKAY_NO_ERROR;
-    striType result;
+    striType value;
 
   /* cmdGetenv */
     logFunction(printf("cmdGetenv(\"%s\")", striAsUnquotedCStri(name));
@@ -2282,26 +2282,26 @@ striType cmdGetenv (const const_striType name)
                       "err_info=%d\n",
                       striAsUnquotedCStri(name), err_info););
       raise_error(err_info);
-      result = NULL;
+      value = NULL;
     } else {
       env_value = os_getenv(env_name);
       os_stri_free(env_name);
       if (env_value == NULL) {
-        if (unlikely(!ALLOC_STRI_SIZE_OK(result, 0))) {
+        if (unlikely(!ALLOC_STRI_SIZE_OK(value, 0))) {
           err_info = MEMORY_ERROR;
         } else {
-          result->size = 0;
+          value->size = 0;
         } /* if */
       } else {
-        result = os_stri_to_stri(env_value, &err_info);
+        value = os_stri_to_stri(env_value, &err_info);
         os_getenv_string_free(env_value);
       } /* if */
-      if (unlikely(result == NULL)) {
+      if (unlikely(value == NULL)) {
         raise_error(err_info);
       } /* if */
     } /* if */
-    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(result)););
-    return result;
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(value)););
+    return value;
   } /* cmdGetenv */
 
 
@@ -2510,18 +2510,18 @@ rtlArrayType cmdGetSearchPath (void)
 
   {
     errInfoType err_info = OKAY_NO_ERROR;
-    rtlArrayType result;
+    rtlArrayType searchPath;
 
   /* cmdGetSearchPath */
     logFunction(printf("cmdGetSearchPath()\n"););
-    result = getSearchPath(&err_info);
-    if (unlikely(result == NULL)) {
+    searchPath = getSearchPath(&err_info);
+    if (unlikely(searchPath == NULL)) {
       logError(printf("cmdGetSearchPath: getSearchPath(*) failed:\n"
                       "err_info=%d\n",
                       err_info););
       raise_error(err_info);
     } /* if */
-    return result;
+    return searchPath;
   } /* cmdGetSearchPath */
 
 

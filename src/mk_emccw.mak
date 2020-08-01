@@ -165,7 +165,6 @@ version.h: chkccomp.h
 	echo #define SEARCH_PATH_DELIMITER ';' >> version.h
 	echo #define AWAIT_WITH_SELECT >> version.h
 	echo #define IMPLEMENT_PTY_WITH_PIPE2 >> version.h
-	echo #define WITH_SQL >> version.h
 	echo #define USE_EGL >> version.h
 	echo #define $(TERMINFO_OR_TERMCAP) >> version.h
 	echo #define CONSOLE_UTF8 >> version.h

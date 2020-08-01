@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2005  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2018  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: Library                                                 */
 /*  File: seed7/src/fillib.c                                        */
-/*  Changes: 1992, 1993, 1994  Thomas Mertes                        */
+/*  Changes: 1992, 1993, 1994, 2013 - 2016  Thomas Mertes           */
 /*  Content: All primitive actions for the primitive file type.     */
 /*                                                                  */
 /********************************************************************/

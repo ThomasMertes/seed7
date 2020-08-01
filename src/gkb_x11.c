@@ -935,10 +935,7 @@ void enter_window (winType curr_window, Window sys_window)
     (void) hshIdxEnterDefault(window_hash,
                               (genericType) (memSizeType) sys_window,
                               (genericType) (memSizeType) curr_window,
-                              (intType) ((memSizeType) sys_window) >> 6,
-                              (compareType) &genericCmp,
-                              (createFuncType) &genericCreate,
-                              (createFuncType) &genericCreate);
+                              (intType) ((memSizeType) sys_window) >> 6);
   } /* enter_window */
 
 

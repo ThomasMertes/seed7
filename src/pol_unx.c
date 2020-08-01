@@ -147,8 +147,7 @@ static void addCheck (const poll_based_pollType pollData, short eventsToCheck,
   /* addCheck */
     pos = (memSizeType) hshIdxEnterDefault(pollData->indexHash,
         (genericType) (usocketType) aSocket, (genericType) pollData->size,
-        (intType) aSocket, (compareType) &genericCmp,
-        (createFuncType) &genericCreate, (createFuncType) &genericCreate);
+        (intType) aSocket);
     if (pos == pollData->size) {
       if (pollData->size + NUM_OF_EXTRA_ELEMS >= pollData->capacity) {
         pollData->pollFds = REALLOC_TABLE(pollData->pollFds, struct pollfd,

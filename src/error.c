@@ -463,7 +463,7 @@ static void write_symbol (void)
       prot_cstri(" ");
       prot_stri(symbol.striValue);
       prot_nl();
-#ifdef WITH_FLOAT
+#if WITH_FLOAT
     } else if (symbol.sycategory == FLOATLITERAL) {
       prot_cstri(" \"");
       prot_float(symbol.floatValue);
@@ -947,7 +947,7 @@ void err_object (errorType err, const_objectType obj_found)
           case STRIOBJECT:
             prot_stri(obj_found->value.striValue);
             break;
-#ifdef WITH_FLOAT
+#if WITH_FLOAT
           case FLOATOBJECT:
             prot_cstri("\"");
             prot_float(obj_found->value.floatValue);

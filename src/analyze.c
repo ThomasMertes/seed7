@@ -226,7 +226,7 @@ static void processPragma (void)
       } else if (strcmp((cstriType) symbol.name, "message") == 0) {
         scan_symbol();
         if (symbol.sycategory == STRILITERAL) {
-#ifdef WITH_COMPILATION_INFO
+#if WITH_COMPILATION_INFO
           if (in_file.write_line_numbers) {
             NL_LIN_INFO();
           } /* if */
@@ -241,7 +241,7 @@ static void processPragma (void)
       } else if (strcmp((cstriType) symbol.name, "info") == 0) {
         scan_symbol();
         if (strcmp((cstriType) symbol.name, "on") == 0) {
-#ifdef WITH_COMPILATION_INFO
+#if WITH_COMPILATION_INFO
           if (!in_file.write_line_numbers) {
             in_file.write_line_numbers = TRUE;
             display_compilation_info();
@@ -249,7 +249,7 @@ static void processPragma (void)
           in_file.write_library_names = TRUE;
 #endif
         } else if (strcmp((cstriType) symbol.name, "off") == 0) {
-#ifdef WITH_COMPILATION_INFO
+#if WITH_COMPILATION_INFO
           if (in_file.write_line_numbers) {
             size_t number;
             for (number = 7 + strlen((const_cstriType) in_file.name_ustri);

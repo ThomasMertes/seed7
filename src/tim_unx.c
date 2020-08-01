@@ -423,9 +423,9 @@ void timAwait (intType year, intType month, intType day, intType hour,
 
 
 /**
- *  Return the current time in microseconds.
- *  This function is only used to initialize the random number
- *  generator, so overflows can be ignored.
+ *  Return the current time in microseconds since the epoch of the system.
+ *  This function is used to initialize the random number generator and
+ *  for the simple profiling.
  */
 intType timMicroSec (void)
 
@@ -435,7 +435,7 @@ intType timMicroSec (void)
 
   /* timMicroSec */
     gettimeofday(&time_val, NULL);
-    micro_sec = (intType) time_val.tv_usec;
+    micro_sec = 1000000 * (intType) time_val.tv_sec + (intType) time_val.tv_usec;
     logFunction(printf("timMicroSec() --> " FMT_U "\n", micro_sec););
     return micro_sec;
   } /* timMicroSec */

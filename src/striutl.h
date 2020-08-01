@@ -124,7 +124,7 @@ EXTERN stackAllocType   stack_alloc;
 #define PUSH_OS_STRI(var)      { stack_alloc->curr_free = (cstriType) (var); }
 #define os_stri_alloc(var,len) (POP_OS_STRI_OK(SIZ_OS_STRI(len)) ? \
                                POP_OS_STRI(var, SIZ_OS_STRI(len)) : \
-                               heapAllocOsStri(&(var), len))
+                               (var = heapAllocOsStri(len)) != NULL)
 #define os_stri_free(var)      if (PUSH_OS_STRI_OK(var)) PUSH_OS_STRI(var) \
                                else heapFreeOsStri(var);
 #else
@@ -173,7 +173,7 @@ const strElemType *memchr_strelem (register const strElemType *mem,
     const strElemType ch, memSizeType len);
 #endif
 #if STACK_LIKE_ALLOC_FOR_OS_STRI
-boolType heapAllocOsStri (os_striType *var, memSizeType len);
+os_striType heapAllocOsStri (memSizeType len);
 void heapFreeOsStri (const_os_striType var);
 #endif
 memSizeType utf8_to_stri (strElemType *const dest_stri, memSizeType *const dest_len,

@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  config.h      Configuration settings.                           */
-/*  Copyright (C) 1989 - 2012  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2018  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,17 +24,18 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/config.h                                        */
-/*  Changes: 2012  Thomas Mertes                                    */
+/*  Changes: 2012 - 2015, 2017, 2018  Thomas Mertes                 */
 /*  Content: Configuration settings.                                */
 /*                                                                  */
 /********************************************************************/
 
-#define WITH_FLOAT
-#define WITH_REFERENCE
-#define WITH_DRAW
-#undef  WITH_STATISTIC
-#define WITH_COMPILATION_INFO
-#define WITH_TYPE_CHECK
+#define WITH_FLOAT 1
+#define WITH_REFERENCE 1
+#define WITH_DRAW 1
+#define WITH_SQL 1
+#define WITH_STATISTIC 0
+#define WITH_COMPILATION_INFO 1
+#define WITH_TYPE_CHECK 1
 #define WITH_ACTION_CHECK 0
 #define WITH_PROTOCOL
 #define USE_ALTERNATE_NEXT_CHARACTER

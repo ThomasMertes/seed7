@@ -53,7 +53,7 @@
 #include "drw_drv.h"
 #include "pcs_drv.h"
 #include "pol_drv.h"
-#ifdef WITH_SQL
+#if WITH_SQL
 #include "sql_rtl.h"
 #endif
 
@@ -91,7 +91,7 @@ void isit_bool (objectType argument)
 
 
 
-#ifdef WITH_TYPE_CHECK
+#if WITH_TYPE_CHECK
 void isit_enum (objectType argument)
 
   { /* isit_enum */
@@ -788,7 +788,7 @@ void dump_temp_value (objectType object)
           do_destroy(object, &err_info);
         } /* if */
         break;
-#ifdef WITH_SQL
+#if WITH_SQL
       case DATABASEOBJECT:
         sqlDestrDb(object->value.databaseValue);
         SET_UNUSED_FLAG(object);

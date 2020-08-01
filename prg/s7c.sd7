@@ -83,6 +83,7 @@ const type: funcparam_data_hash is hash [reference] string;
 const type: element_repeat_count_hash is hash [reference] integer;
 const type: stringLengthHash is hash [integer] integer;
 const type: lengthToStriNumHash is hash [integer] array integer;
+const type: funcname_hash is hash [integer] string;
 
 var boolean_type_hash: generic_cpy_declared is boolean_type_hash.EMPTY_HASH;
 var boolean_type_hash: generic_create_declared is boolean_type_hash.EMPTY_HASH;
@@ -97,6 +98,7 @@ var params_added_hash: params_added is params_added_hash.EMPTY_HASH;
 var funcparam_data_hash: funcparam_data is funcparam_data_hash.EMPTY_HASH;
 var funcparam_data_hash: funcparam_reference is funcparam_data_hash.EMPTY_HASH;
 var element_repeat_count_hash: element_repeat_count is element_repeat_count_hash.EMPTY_HASH;
+var funcname_hash: function_name is funcname_hash.value;
 
 
 const proc: count_declarations (inout expr_type: c_expr) is func
@@ -1937,7 +1939,7 @@ const proc: process_const_func_declaration (in reference: function,
         end if;
         process_expr(body(function), c_func_body);
         if c_param_list.temp_decls <> "" or c_func_body.temp_decls <> "" or
-            trace_function then
+            trace_function or profile_function then
           c_expr.currentFile := file(body(function));
           c_expr.currentLine := line(body(function));
           setDiagnosticLine(c_expr);
@@ -1955,6 +1957,22 @@ const proc: process_const_func_declaration (in reference: function,
             c_expr.expr &:= "\\n\");\n";
             c_expr.expr &:= "fflush(stdout);\n";
           end if;
+          if profile_function then
+            function_name @:= [objNumber(function)] create_name(function);
+            c_expr.expr &:= "profile[";
+            c_expr.expr &:= str(objNumber(function));
+            c_expr.expr &:= "].count++;\n";
+            c_expr.expr &:= "if (profile[";
+            c_expr.expr &:= str(objNumber(function));
+            c_expr.expr &:= "].depth == 0) {\n";
+            c_expr.expr &:= "  profile[";
+            c_expr.expr &:= str(objNumber(function));
+            c_expr.expr &:= "].time -= timMicroSec();\n";
+            c_expr.expr &:= "}\n";
+            c_expr.expr &:= "profile[";
+            c_expr.expr &:= str(objNumber(function));
+            c_expr.expr &:= "].depth++;\n";
+          end if;
           appendWithDiagnostic(c_param_list.temp_assigns, c_expr);
           appendWithDiagnostic(c_func_body.temp_assigns, c_expr);
           setDiagnosticLine(c_expr);
@@ -1968,6 +1986,18 @@ const proc: process_const_func_declaration (in reference: function,
           c_expr.expr &:= ");\n";
           appendWithDiagnostic(c_param_list.temp_frees, c_expr);
           appendWithDiagnostic(c_func_body.temp_frees, c_expr);
+          if profile_function then
+            c_expr.expr &:= "profile[";
+            c_expr.expr &:= str(objNumber(function));
+            c_expr.expr &:= "].depth--;\n";
+            c_expr.expr &:= "if (profile[";
+            c_expr.expr &:= str(objNumber(function));
+            c_expr.expr &:= "].depth == 0) {\n";
+            c_expr.expr &:= "  profile[";
+            c_expr.expr &:= str(objNumber(function));
+            c_expr.expr &:= "].time += timMicroSec();\n";
+            c_expr.expr &:= "}\n";
+          end if;
           if trace_function then
             c_expr.expr &:= "printf(\"<- ";
             create_name(function, c_expr.expr);
@@ -2004,6 +2034,22 @@ const proc: process_const_func_declaration (in reference: function,
           c_expr.expr &:= "\\n\");\n";
           c_expr.expr &:= "fflush(stdout);\n";
         end if;
+        if profile_function then
+          function_name @:= [objNumber(function)] create_name(function);
+          c_expr.expr &:= "profile[";
+          c_expr.expr &:= str(objNumber(function));
+          c_expr.expr &:= "].count++;\n";
+          c_expr.expr &:= "if (profile[";
+          c_expr.expr &:= str(objNumber(function));
+          c_expr.expr &:= "].depth == 0) {\n";
+          c_expr.expr &:= "  profile[";
+          c_expr.expr &:= str(objNumber(function));
+          c_expr.expr &:= "].time -= timMicroSec();\n";
+          c_expr.expr &:= "}\n";
+          c_expr.expr &:= "profile[";
+          c_expr.expr &:= str(objNumber(function));
+          c_expr.expr &:= "].depth++;\n";
+        end if;
         appendWithDiagnostic(c_param_list.temp_assigns, c_expr);
         c_expr.expr &:= c_result.temp_assigns;
         c_expr.expr &:= c_local_vars.temp_assigns;
@@ -2012,6 +2058,18 @@ const proc: process_const_func_declaration (in reference: function,
         appendWithDiagnostic(c_param_list.temp_frees, c_expr);
         appendWithDiagnostic(c_local_vars.temp_frees, c_expr);
         appendWithDiagnostic(c_func_body.temp_frees, c_expr);
+        if profile_function then
+          c_expr.expr &:= "profile[";
+          c_expr.expr &:= str(objNumber(function));
+          c_expr.expr &:= "].depth--;\n";
+          c_expr.expr &:= "if (profile[";
+          c_expr.expr &:= str(objNumber(function));
+          c_expr.expr &:= "].depth == 0) {\n";
+          c_expr.expr &:= "  profile[";
+          c_expr.expr &:= str(objNumber(function));
+          c_expr.expr &:= "].time += timMicroSec();\n";
+          c_expr.expr &:= "}\n";
+        end if;
         if trace_function then
           c_expr.expr &:= "printf(\"<- ";
           create_name(function, c_expr.expr);
@@ -2095,6 +2153,22 @@ const proc: process_main_declaration (in reference: current_object,
       main_prolog &:= "printf(\"-> main\\n\");\n";
       main_prolog &:= "fflush(stdout);\n";
     end if;
+    if profile_function then
+      function_name @:= [objNumber(main_object)] create_name(main_object);
+      main_prolog &:= "profile[";
+      main_prolog &:= str(objNumber(main_object));
+      main_prolog &:= "].count++;\n";
+      main_prolog &:= "if (profile[";
+      main_prolog &:= str(objNumber(main_object));
+      main_prolog &:= "].depth == 0) {\n";
+      main_prolog &:= "  profile[";
+      main_prolog &:= str(objNumber(main_object));
+      main_prolog &:= "].time -= timMicroSec();\n";
+      main_prolog &:= "}\n";
+      main_prolog &:= "profile[";
+      main_prolog &:= str(objNumber(main_object));
+      main_prolog &:= "].depth++;\n";
+    end if;
     main_prolog &:= "catch_stack = (catch_type *)(malloc(max_catch_stack * sizeof(catch_type)));\n";
     main_prolog &:= "if ((fail_value = do_setjmp(catch_stack[catch_stack_pos])) == 0) {\n";
     if ccConf.USE_WINMAIN then
@@ -2131,6 +2205,36 @@ const proc: process_main_declaration (in reference: current_object,
     c_expr.expr &:= "}\n";
     c_expr.expr &:= global_init.temp_frees;
 
+    if profile_function then
+      main_epilog &:= "profile[";
+      main_epilog &:= str(objNumber(main_object));
+      main_epilog &:= "].depth--;\n";
+      main_epilog &:= "if (profile[";
+      main_epilog &:= str(objNumber(main_object));
+      main_epilog &:= "].depth == 0) {\n";
+      main_epilog &:= "  profile[";
+      main_epilog &:= str(objNumber(main_object));
+      main_epilog &:= "].time += timMicroSec();\n";
+      main_epilog &:= "}\n";
+      main_epilog &:= "{\n";
+      main_epilog &:= "  FILE *profile_file;\n";
+      main_epilog &:= "  int index;\n";
+      main_epilog &:= "  profile_file = fopen(\"profile_out\", \"w\");\n";
+      main_epilog &:= "  if (profile_file != NULL) {\n";
+      main_epilog &:= "    qsort(profile, profile_size, sizeof(struct profileElement),\n";
+      main_epilog &:= "          cmpProfileElement);\n";
+      main_epilog &:= "    fprintf(profile_file, \"msecs\\tcalls\\tname\\n\");\n";
+      main_epilog &:= "    for (index = 0; index < profile_size; index++) {\n";
+      main_epilog &:= "      if (profile[index].count != 0) {\n";
+      main_epilog &:= "        fprintf(profile_file, \"%ld\\t%ld\\t%s\\n\",\n";
+      main_epilog &:= "                (long) profile[index].time, (long) profile[index].count,\n";
+      main_epilog &:= "                profile[index].name);\n";
+      main_epilog &:= "      }\n";
+      main_epilog &:= "    }\n";
+      main_epilog &:= "    fclose(profile_file);\n";
+      main_epilog &:= "  }\n";
+      main_epilog &:= "}\n";
+    end if;
     if trace_function then
       main_epilog &:= "printf(\"<- main\\n\");\n";
       main_epilog &:= "fflush(stdout);\n";
@@ -3057,8 +3161,8 @@ const proc: print_parameter_list (in ref_list: formal_params,
   end func;
 
 
-const proc: process_dynamic_parameter_list (in ref_list: actual_params,
-    in reference: matched_object, inout expr_type: c_expr) is func
+const proc: process_dynamic_parameter_list (in reference: function,
+    in ref_list: actual_params, inout expr_type: c_expr) is func
 
   local
     var ref_list: formal_params is ref_list.EMPTY;
@@ -3069,7 +3173,7 @@ const proc: process_dynamic_parameter_list (in ref_list: actual_params,
     var boolean: first_element is TRUE;
     var integer: number is 0;
   begin
-    formal_params := formalParams(matched_object);
+    formal_params := formalParams(function);
     for number range 1 to length(formal_params) do
       formal_param := formal_params[number];
       actual_param := actual_params[number];
@@ -3109,19 +3213,47 @@ const proc: process_dynamic_parameter_list (in ref_list: actual_params,
   end func;
 
 
-const proc: process_dynamic_action_call (in ref_list: actual_params,
-    in reference: current_object, in reference: matched_object, inout expr_type: c_expr) is func
+const proc: process_dynamic_function_call (in reference: function,
+    in ref_list: actual_params, in reference: interface_object, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: resultExpr is expr_type.value;
+  begin
+    resultExpr.currentFile := file(interface_object);
+    resultExpr.currentLine := line(interface_object);
+    resultExpr.expr &:= "o_";
+    create_name(function, resultExpr.expr);
+    resultExpr.expr &:= "(";
+    process_dynamic_parameter_list(function, actual_params, resultExpr);
+    resultExpr.expr &:= ")";
+    if function in return_ref_to_value then
+      c_expr.expr &:= "/* copy ref_to_value */ ";
+      process_create_declaration(resultType(getType(interface_object)), global_c_expr);
+      process_create_call(resultType(getType(interface_object)),
+          resultExpr.expr, c_expr.expr);
+    else
+      c_expr.expr &:= resultExpr.expr;
+    end if;
+    c_expr.temp_decls &:= resultExpr.temp_decls;
+    c_expr.temp_assigns &:= resultExpr.temp_assigns;
+    c_expr.temp_frees &:= resultExpr.temp_frees;
+    c_expr.temp_to_null &:= resultExpr.temp_to_null;
+  end func;
+
+
+const proc: process_dynamic_action_call (in reference: function,
+    in ref_list: actual_params, in reference: interface_object, inout expr_type: c_expr) is func
 
   local
     var expr_type: c_action_expr is expr_type.value;
   begin
     # c_expr.expr &:= "/* ";
-    # c_expr.expr &:= str(getValue(matched_object, ACTION));
+    # c_expr.expr &:= str(getValue(function, ACTION));
     # c_expr.expr &:= " */ ";
-    c_action_expr.currentFile := file(current_object);
-    c_action_expr.currentLine := line(current_object);
+    c_action_expr.currentFile := file(interface_object);
+    c_action_expr.currentLine := line(interface_object);
     c_action_expr.temp_num := c_expr.temp_num;
-    process_action(matched_object, actual_params, c_action_expr);
+    process_action(function, actual_params, c_action_expr);
     c_expr.temp_num := c_action_expr.temp_num;
     c_expr.temp_decls &:= c_action_expr.temp_decls;
     c_expr.temp_assigns &:= c_action_expr.temp_assigns;
@@ -3130,62 +3262,50 @@ const proc: process_dynamic_action_call (in ref_list: actual_params,
     if c_action_expr.result_expr <> "" then
       c_expr.expr &:= c_action_expr.result_expr;
     else
-      if isVarfunc(getType(current_object)) or
-          getType(current_object) = proctype then
+      if isVarfunc(getType(interface_object)) or
+          getType(interface_object) = proctype then
         c_expr.expr &:= c_action_expr.expr;
       else
         c_expr.expr &:= "/* copy ref_to_value */ ";
-        process_create_declaration(resultType(getType(current_object)), global_c_expr);
-        process_create_call(resultType(getType(current_object)),
+        process_create_declaration(resultType(getType(interface_object)), global_c_expr);
+        process_create_call(resultType(getType(interface_object)),
             c_action_expr.expr, c_expr.expr);
       end if;
     end if;
   end func;
 
 
-const proc: process_dynamic_call (in reference: current_object,
-    in reference: matched_object, in ref_list: actual_params,
+const proc: process_dynamic_call (in reference: function,
+    in ref_list: actual_params, in reference: interface_object,
     inout expr_type: c_expr) is func
 
   local
     var category: objectCategory is category.value;
     var expr_type: resultExpr is expr_type.value;
   begin
-    if matched_object <> NIL then
-      c_expr.expr &:= diagnosticLine(current_object);
-      objectCategory := category(matched_object);
+    if function <> NIL then
+      c_expr.expr &:= diagnosticLine(interface_object);
+      objectCategory := category(function);
       if objectCategory = BLOCKOBJECT then
-        if resultType(getType(current_object)) <> voidtype then
+        if resultType(getType(interface_object)) <> voidtype then
           c_expr.expr &:= "return ";
         end if;
-        resultExpr.expr &:= "o_";
-        create_name(matched_object, resultExpr.expr);
-        resultExpr.expr &:= "(";
-        process_dynamic_parameter_list(actual_params, matched_object, resultExpr);
-        resultExpr.expr &:= ")";
-        if matched_object in return_ref_to_value then
-          c_expr.expr &:= "/* copy ref_to_value */ ";
-          process_create_declaration(resultType(getType(current_object)), global_c_expr);
-          process_create_call(resultType(getType(current_object)),
-              resultExpr.expr, c_expr.expr);
+        if function in function_declared or resultVar(function) <> NIL then
+          process_dynamic_function_call(function, actual_params, interface_object, c_expr);
         else
-          c_expr.expr &:= resultExpr.expr;
+          process_inline(function, actual_params, c_expr);
         end if;
-        c_expr.temp_decls &:= resultExpr.temp_decls;
-        c_expr.temp_assigns &:= resultExpr.temp_assigns;
-        c_expr.temp_frees &:= resultExpr.temp_frees;
-        c_expr.temp_to_null &:= resultExpr.temp_to_null;
         c_expr.expr &:= ";\n";
       elsif objectCategory = ACTOBJECT then
-        if resultType(getType(current_object)) <> voidtype then
+        if resultType(getType(interface_object)) <> voidtype then
           c_expr.expr &:= "return ";
-          if isVarfunc(getType(current_object)) then
+          if isVarfunc(getType(interface_object)) then
             c_expr.expr &:= "&(";
           end if;
         end if;
-        process_dynamic_action_call(actual_params, current_object, matched_object, c_expr);
-        if resultType(getType(current_object)) <> voidtype then
-          if isVarfunc(getType(current_object)) then
+        process_dynamic_action_call(function, actual_params, interface_object, c_expr);
+        if resultType(getType(interface_object)) <> voidtype then
+          if isVarfunc(getType(interface_object)) then
             c_expr.expr &:= ")";
           end if;
           c_expr.expr &:= ";\n";
@@ -3203,9 +3323,9 @@ const proc: process_dynamic_call (in reference: current_object,
           objectCategory = PROCESSOBJECT or
           objectCategory = CONSTENUMOBJECT then
         c_expr.expr &:= "return ";
-        getAnyParamToExpr(matched_object, resultExpr);
-        process_create_declaration(getType(matched_object), global_c_expr);
-        process_create_call(getType(matched_object),
+        getAnyParamToExpr(function, resultExpr);
+        process_create_declaration(getType(function), global_c_expr);
+        process_create_call(getType(function),
             resultExpr.expr, c_expr.expr);
         c_expr.expr &:= ";\n";
       else
@@ -3415,7 +3535,7 @@ const proc: process_dynamic_condition (in reference: current_object,
         end for;
       end if;
       *)
-      process_dynamic_call(current_object, matched_object, formal_params, c_expr);
+      process_dynamic_call(matched_object, formal_params, current_object, c_expr);
     end if;
   end func;
 
@@ -4889,6 +5009,38 @@ const proc: write_file_head is func
     writeln(c_prog, "size_t max_catch_stack;");
     writeln(c_prog, "const char *error_file = NULL;");
     writeln(c_prog, "int error_line = 0;");
+    if profile_function then
+      writeln(c_prog, "intType timMicroSec (void);");
+      writeln(c_prog, "static unsigned int profile_size;");
+      writeln(c_prog, "struct profileElement {");
+      writeln(c_prog, "  intType time;");
+      writeln(c_prog, "  intType count;");
+      writeln(c_prog, "  intType depth;");
+      writeln(c_prog, "  char *name;");
+      writeln(c_prog, "};");
+      writeln(c_prog, "static struct profileElement profile[];");
+      writeln(c_prog, "static int cmpProfileElement (const void *elem1, const void *elem2)");
+      writeln(c_prog, "{");
+      writeln(c_prog, "  int signumValue;");
+      writeln(c_prog, "  if (((struct profileElement *) elem1)->time <");
+      writeln(c_prog, "      ((struct profileElement *) elem2)->time) {");
+      writeln(c_prog, "    signumValue = 1;");
+      writeln(c_prog, "  } else if (((struct profileElement *) elem1)->time >");
+      writeln(c_prog, "             ((struct profileElement *) elem2)->time) {");
+      writeln(c_prog, "    signumValue = -1;");
+      writeln(c_prog, "  } else if (((struct profileElement *) elem1)->count <");
+      writeln(c_prog, "             ((struct profileElement *) elem2)->count) {");
+      writeln(c_prog, "    signumValue = 1;");
+      writeln(c_prog, "  } else if (((struct profileElement *) elem1)->count >");
+      writeln(c_prog, "             ((struct profileElement *) elem2)->count) {");
+      writeln(c_prog, "    signumValue = -1;");
+      writeln(c_prog, "  } else {");
+      writeln(c_prog, "    signumValue = -strcmp(((struct profileElement *) elem1)->name,");
+      writeln(c_prog, "                          ((struct profileElement *) elem2)->name);");
+      writeln(c_prog, "  }");
+      writeln(c_prog, "  return signumValue;");
+      writeln(c_prog, "}");
+    end if;
   end func;
 
 
@@ -6470,8 +6622,10 @@ const proc: init_globals (inout expr_type: c_expr) is func
 const proc: process_global_declarations (in program: prog) is func
 
   local
-
     var expr_type: c_expr is expr_type.value;
+    var type: int_type is void;
+    var integer: numObjects is 0;
+    var integer: index is 0;
   begin
     if not compDataLibraryUsed then
       declareExtern("intType heapsize (void) {return 0;}");
@@ -6494,6 +6648,24 @@ const proc: process_global_declarations (in program: prog) is func
     initCaseLabels(c_expr);
     init_values(c_expr);
     init_globals(c_expr);
+    if profile_function then
+      int_type := getValue(sysVar(prog, "integer"), type);
+      numObjects := objNumber(alloc(TRUE, int_type, 0));
+      writeln(c_prog, "static unsigned int profile_size = " <& numObjects <& ";");
+      writeln(c_prog, "static struct profileElement profile[" <& numObjects <& "] = {{0, 0, 0, \"\"},");
+      for index range 1 to numObjects do
+        write(c_prog, "  {0, 0, 0, ");
+        if index = objNumber(main_object) then
+          write(c_prog, "\"main\"");
+        elsif index in function_name then
+          write(c_prog, c_literal(function_name[index]));
+        else
+          write(c_prog, "\"\"");
+        end if;
+        writeln(c_prog, "},");
+      end for;
+      writeln(c_prog, "};");
+    end if;
     write(c_prog, global_c_expr.expr);
     write(c_prog, c_expr.expr);
     count_declarations(c_expr);
@@ -6586,6 +6758,9 @@ const proc: pass_1 (in string: source, inout program: prog,
         if pos(compiler_option["-t"], 's') <> 0 then
           trace_signal := TRUE;
         end if;
+      end if;
+      if "-p" in compiler_option then
+        profile_function := TRUE;
       end if;
       if "-e" in compiler_option then
         signal_exception := TRUE;
@@ -7049,6 +7224,7 @@ const proc: writeHelp is func
     writeln("         1 Use literals and named constants to simplify expressions (default).");
     writeln("         2 Evaluate constant parameter expressions to simplify expressions.");
     writeln("         3 Like -oc2 and additionally evaluate all constant expressions.");
+    writeln("  -p   Activate simple function profiling.");
     writeln("  -sx  Supress checks specified with x. E.g.: -sr or -sro");
     writeln("       The checks x are specified with letters from the following list:");
     writeln("         r Suppress the generation of range checks for strings and arrays.");
@@ -7094,7 +7270,7 @@ const proc: main is func
           elsif curr_arg in {"-l"} and index < length(argv(PROGRAM)) then
             incr(index);
             libraryDirs &:= convDosPath(argv(PROGRAM)[index]);
-          elsif curr_arg[.. 2] in {"-?", "-b", "-c", "-e", "-g", "-o", "-s", "-t", "-O"} then
+          elsif curr_arg[.. 2] in {"-?", "-b", "-c", "-e", "-g", "-o", "-p", "-s", "-t", "-O"} then
             if curr_arg[.. 2] in compiler_option then
               writeln("*** Option " <& curr_arg[.. 2] <&
                       " specified twice. Ignore option: " <& curr_arg);

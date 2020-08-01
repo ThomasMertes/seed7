@@ -25,7 +25,7 @@
 /*                                                                  */
 /********************************************************************/
 
-#ifdef WITH_COMPILATION_INFO
+#if WITH_COMPILATION_INFO
 #define INCR_LINE_COUNT(LIN) if (LIN++ == in_file.next_msg_line) line_compilation_info()
 #else
 #define INCR_LINE_COUNT(LIN) (LIN++)
@@ -39,7 +39,7 @@
 #define NL_FIL_LIN_INFO()  printf("%6u %s\n", in_file.line, in_file.name_ustri)
 
 
-#ifdef WITH_COMPILATION_INFO
+#if WITH_COMPILATION_INFO
 
 void display_compilation_info (void);
 void line_compilation_info (void);

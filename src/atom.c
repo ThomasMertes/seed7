@@ -220,7 +220,7 @@ objectType read_atom (void)
         atomic_object = gen_literal_object(SYS_STRI_TYPE, STRIOBJECT);
         atomic_object->value.striValue = new_string();
         break;
-#ifdef WITH_FLOAT
+#if WITH_FLOAT
       case FLOATLITERAL:
         atomic_object = gen_literal_object(SYS_FLT_TYPE, FLOATOBJECT);
         atomic_object->value.floatValue = symbol.floatValue;

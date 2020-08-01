@@ -79,7 +79,7 @@ inFileRecord in_file = {
     NULL,       /* curr_infile */
     NULL,       /* up_infile */
     NULL,       /* next */
-#ifdef WITH_COMPILATION_INFO
+#if WITH_COMPILATION_INFO
     FALSE,      /* write_library_names */
     FALSE,      /* write_line_numbers */
 #endif

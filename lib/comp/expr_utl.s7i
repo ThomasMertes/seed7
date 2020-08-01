@@ -27,6 +27,20 @@
 var boolean_obj_hash: function_pointer_declared is boolean_obj_hash.EMPTY_HASH;
 
 
+const func string: create_name (in reference: current_object) is func
+
+  result
+    var string: expr is "o_";
+  local
+    var string: raw_name is "";
+  begin
+    raw_name := str(current_object);
+    expr &:= str(objNumber(current_object));
+    expr &:= "_";
+    expr &:= striToUtf8(raw_name);
+  end func;
+
+
 const proc: create_name (in reference: current_object, inout string: expr) is func
 
   local

@@ -150,7 +150,6 @@ chkccomp.h:
 version.h: chkccomp.h
 	echo #define PATH_DELIMITER '\\' > version.h
 	echo #define SEARCH_PATH_DELIMITER ';' >> version.h
-	echo #define WITH_SQL >> version.h
 	echo #define CONSOLE_WCHAR >> version.h
 	echo #define OS_STRI_WCHAR >> version.h
 	echo #define os_getch _getwch >> version.h

@@ -130,7 +130,7 @@ typedef union {
 /*    blockType        blockValue;     ** BLOCKOBJECT */
 /*    actType          actValue;       ** ACTOBJECT */
 /*    progType         progValue;      ** PROGOBJECT */
-#ifdef WITH_FLOAT
+#if WITH_FLOAT
     floatType      floatValue;   /* FLOATOBJECT */
 #endif
   } rtlValueUnion;

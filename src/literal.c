@@ -84,7 +84,7 @@ static unsigned int escape_sequence (unsigned int position)
         SKIP_CR_SP(character);
         if (character == '#') {
           SKIP_TO_NL(character);
-#ifdef WITH_STATISTIC
+#if WITH_STATISTIC
           comment_count++;
 #endif
         } /* if */
@@ -101,7 +101,7 @@ static unsigned int escape_sequence (unsigned int position)
       SKIP_CR_SP(character);
       if (character == '#') {
         SKIP_TO_NL(character);
-#ifdef WITH_STATISTIC
+#if WITH_STATISTIC
         comment_count++;
 #endif
       } /* if */
@@ -109,7 +109,7 @@ static unsigned int escape_sequence (unsigned int position)
         SKIP_CR_SP(character);
         if (character == '#') {
           SKIP_TO_NL(character);
-#ifdef WITH_STATISTIC
+#if WITH_STATISTIC
           comment_count++;
 #endif
         } /* if */
@@ -461,7 +461,7 @@ void lit_char (void)
     find_literal_ident();
     symbol.sycategory = CHARLITERAL;
     symbol.syNumberInLine++;
-#ifdef WITH_STATISTIC
+#if WITH_STATISTIC
     literal_count++;
 #endif
     logFunction(printf("lit_char --> '\\" FMT_U32 ";'\n",
@@ -549,7 +549,7 @@ void lit_string (void)
     symbol.sycategory = STRILITERAL;                            /*  0.01% */
     symbol.syNumberInLine++;
     symbol.striValue->size = position;                          /*  0.01% */
-#ifdef WITH_STATISTIC
+#if WITH_STATISTIC
     literal_count++;
 #endif
     logFunction(printf("lit_string --> \"%s\"\n",
@@ -602,7 +602,7 @@ static void lit_text (void)
     find_literal_ident();
     symbol.sycategory = STRILITERAL;
     symbol.syNumberInLine++;
-#ifdef WITH_STATISTIC
+#if WITH_STATISTIC
     literal_count++;
 #endif
   } /* lit_text */

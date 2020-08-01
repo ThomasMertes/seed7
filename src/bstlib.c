@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2013  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2018  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: Library                                                 */
 /*  File: seed7/src/bstlib.c                                        */
-/*  Changes: 2007, 2010  Thomas Mertes                              */
+/*  Changes: 2007, 2010, 2013, 2015, 2016, 2018  Thomas Mertes      */
 /*  Content: All primitive actions for the byte string type.        */
 /*                                                                  */
 /********************************************************************/

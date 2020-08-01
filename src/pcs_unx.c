@@ -598,12 +598,18 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
       } else {
         pid = fork();
         if (pid == 0) {
-          dup2(stdinFileNo, 0);
-          dup2(stdoutFileNo, 1);
-          dup2(stderrFileNo, 2);
-          close(stdinFileNo);
-          close(stdoutFileNo);
-          close(stderrFileNo);
+          if (stdinFileNo != 0) {
+            dup2(stdinFileNo, 0);
+            close(stdinFileNo);
+          } /* if */
+          if (stdoutFileNo != 1) {
+            dup2(stdoutFileNo, 1);
+            close(stdoutFileNo);
+          } /* if */
+          if (stderrFileNo != 2) {
+            dup2(stderrFileNo, 2);
+            close(stderrFileNo);
+          } /* if */
           execv(argv[0], argv);
           logError(printf("pcsStart: execv(" FMT_S_OS ") failed:\n"
                           "errno=%d\nerror: %s\n",

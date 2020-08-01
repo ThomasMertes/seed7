@@ -98,7 +98,7 @@ static void scan_comment (void)
     } else {
       in_file.character = next_character();
     } /* if */
-#ifdef WITH_STATISTIC
+#if WITH_STATISTIC
     comment_count++;
 #endif
     logFunction(printf("scan_comment -->\n"););
@@ -115,7 +115,7 @@ static inline void scan_line_comment (void)
     logFunction(printf("scan_line_comment\n"););
     SKIP_TO_NL(character);
     in_file.character = character;
-#ifdef WITH_STATISTIC
+#if WITH_STATISTIC
     comment_count++;
 #endif
     logFunction(printf("scan_line_comment -->\n"););

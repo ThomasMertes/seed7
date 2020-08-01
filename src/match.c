@@ -318,7 +318,7 @@ objectType match_object (objectType object)
       case STRUCTOBJECT:
       case FILEOBJECT:
       case LISTOBJECT:
-#ifdef WITH_FLOAT
+#if WITH_FLOAT
       case FLOATOBJECT:
 #endif
       case WINOBJECT:
@@ -402,7 +402,7 @@ static objectType match_object2 (objectType object, const_objectType expr_object
       case STRUCTOBJECT:
       case FILEOBJECT:
       case LISTOBJECT:
-#ifdef WITH_FLOAT
+#if WITH_FLOAT
       case FLOATOBJECT:
 #endif
       case WINOBJECT:

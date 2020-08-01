@@ -615,8 +615,7 @@ intType refNum (const const_objectType aReference)
       } else {
         result = (intType) hshIdxEnterDefault(obj_table, (genericType) (memSizeType) aReference,
             (genericType) next_free_number,
-            (intType) (((memSizeType) aReference) >> 6), (compareType) &genericCmp,
-            (createFuncType) &genericCreate, (createFuncType) &genericCreate);
+            (intType) (((memSizeType) aReference) >> 6));
         if (result == next_free_number) {
           next_free_number++;
         } /* if */

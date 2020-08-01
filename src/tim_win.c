@@ -128,9 +128,9 @@ void timAwait (intType year, intType month, intType day, intType hour,
 
 
 /**
- *  Return the current time in microseconds.
- *  This function is only used to initialize the random number
- *  generator, so overflows can be ignored.
+ *  Return the current time in microseconds since the epoch of the system.
+ *  This function is used to initialize the random number generator and
+ *  for the simple profiling.
  */
 intType timMicroSec (void)
 
@@ -143,7 +143,7 @@ intType timMicroSec (void)
 
   /* timMicroSec */
     GetSystemTimeAsFileTime(&utc_time.filetime);
-    micro_sec = (intType) ((utc_time.nanosecs100 / 10) % 1000000);
+    micro_sec = (intType) (utc_time.nanosecs100 / 10);
     logFunction(printf("timMicroSec() --> " FMT_U "\n", micro_sec););
     return micro_sec;
   } /* timMicroSec */

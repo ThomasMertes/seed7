@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  flt_rtl.c     Primitive actions for the float type.             */
-/*  Copyright (C) 1989 - 2010  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2018  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/flt_rtl.c                                       */
-/*  Changes: 1993, 1994, 2005, 2010 - 2015  Thomas Mertes           */
+/*  Changes: 1993, 1994, 2005, 2010 - 2018  Thomas Mertes           */
 /*  Content: Primitive actions for the float type.                  */
 /*                                                                  */
 /********************************************************************/
@@ -1086,7 +1086,9 @@ floatType fltPow (floatType base, floatType exponent)
 #endif
 #if !POW_OF_ZERO_OKAY
     if (unlikely(base == 0.0)) {
-      if (exponent < 0.0) {
+      if (unlikely(os_isnan(exponent))) {
+        power = exponent;
+      } else if (exponent < 0.0) {
         if (unlikely(fltIsNegativeZero(base) &&
                      exponent >= -FLOATTYPE_TO_INT_CONVERSION_LIMIT &&
                      floor(exponent) == exponent &&      /* exponent is an integer */

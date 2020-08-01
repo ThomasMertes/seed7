@@ -172,7 +172,6 @@ version.h: chkccomp.h
 	echo #define SEARCH_PATH_DELIMITER ';' >> version.h
 	echo #define INT_DIV_BY_ZERO_POPUP >> version.h
 	echo #define FILENO_WORKS_FOR_NULL 0 >> version.h
-	echo #define WITH_SQL >> version.h
 	echo #define CONSOLE_WCHAR >> version.h
 	echo #define OS_STRI_WCHAR >> version.h
 	echo #define RENAMED_POSIX_FUNCTIONS >> version.h

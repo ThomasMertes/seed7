@@ -45,7 +45,7 @@
 
 
 
-#ifdef WITH_COMPILATION_INFO
+#if WITH_COMPILATION_INFO
 void display_compilation_info (void)
 
   { /* display_compilation_info */
@@ -60,7 +60,7 @@ void display_compilation_info (void)
 
 
 
-#ifdef WITH_COMPILATION_INFO
+#if WITH_COMPILATION_INFO
 void line_compilation_info (void)
 
   { /* line_compilation_info */
@@ -76,7 +76,7 @@ void line_compilation_info (void)
 
 
 
-#ifdef WITH_COMPILATION_INFO
+#if WITH_COMPILATION_INFO
 void open_compilation_info (boolType write_library_names, boolType write_line_numbers)
 
   {

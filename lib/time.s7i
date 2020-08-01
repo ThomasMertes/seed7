@@ -188,16 +188,16 @@ const func string: str_yy_mm_dd (in time: aTime, in string: delimiter) is
          aTime.day          lpad0 2;
 
 
-const func string: str_mm_dd_yy (in time: aTime, in string: delimiter) is
-  return aTime.month        lpad0 2 <& delimiter <&
-         aTime.day          lpad0 2 <& delimiter <&
-         aTime.year rem 100 lpad0 2;
-
-
 const func string: str_mm_dd_yyyy (in time: aTime, in string: delimiter) is
   return aTime.month lpad0 2 <& delimiter <&
          aTime.day   lpad0 2 <& delimiter <&
          aTime.year  lpad0 4;
+
+
+const func string: str_mm_dd_yy (in time: aTime, in string: delimiter) is
+  return aTime.month        lpad0 2 <& delimiter <&
+         aTime.day          lpad0 2 <& delimiter <&
+         aTime.year rem 100 lpad0 2;
 
 
 const func string: str_dd_mm_yyyy (in time: aTime, in string: delimiter) is
@@ -206,9 +206,9 @@ const func string: str_dd_mm_yyyy (in time: aTime, in string: delimiter) is
          aTime.year  lpad0 4;
 
 
-const func string: str_d_m_yy (in time: aTime, in string: delimiter) is
-  return str(aTime.day)   <& delimiter <&
-         str(aTime.month) <& delimiter <&
+const func string: str_dd_mm_yy (in time: aTime, in string: delimiter) is
+  return aTime.day   lpad0 2 <& delimiter <&
+         aTime.month lpad0 2 <& delimiter <&
          aTime.year  rem 100 lpad0 2;
 
 
@@ -216,6 +216,12 @@ const func string: str_d_m_yyyy (in time: aTime, in string: delimiter) is
   return str(aTime.day)   <& delimiter <&
          str(aTime.month) <& delimiter <&
          aTime.year  lpad0 4;
+
+
+const func string: str_d_m_yy (in time: aTime, in string: delimiter) is
+  return str(aTime.day)   <& delimiter <&
+         str(aTime.month) <& delimiter <&
+         aTime.year  rem 100 lpad0 2;
 
 
 const func string: str_hh_mm (in time: aTime, in string: delimiter) is

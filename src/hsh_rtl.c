@@ -825,14 +825,12 @@ rtlObjectType *hshIdxAddr2 (const const_rtlHashType aHashMap,
 
 
 
-genericType hshIdxEnterDefault (const rtlHashType aHashMap, const genericType aKey,
-    const genericType defaultData, intType hashcode, compareType cmp_func,
-    const createFuncType key_create_func, const createFuncType data_create_func)
+genericType hshIdxEnterDefault (const rtlHashType aHashMap,
+    const genericType aKey, const genericType defaultData, intType hashcode)
 
   {
     rtlHashElemType hashelem;
     rtlHashElemType result_hashelem;
-    intType cmp;
     errInfoType err_info = OKAY_NO_ERROR;
     genericType result;
 
@@ -843,30 +841,32 @@ genericType hshIdxEnterDefault (const rtlHashType aHashMap, const genericType aK
     hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
     if (hashelem == NULL) {
       result_hashelem = new_helem(aKey, defaultData,
-          key_create_func, data_create_func, &err_info);
+          (createFuncType) &genericCreate,
+          (createFuncType) &genericCreate, &err_info);
       aHashMap->table[(unsigned int) hashcode & aHashMap->mask] = result_hashelem;
       aHashMap->size++;
     } else {
       do {
         /* printf("key=%llX\n", hashelem->key.value.genericValue); */
-        cmp = cmp_func(hashelem->key.value.genericValue, aKey);
-        if (cmp < 0) {
+        if (hashelem->key.value.genericValue < aKey) {
           if (hashelem->next_less == NULL) {
             result_hashelem = new_helem(aKey, defaultData,
-                key_create_func, data_create_func, &err_info);
+                (createFuncType) &genericCreate,
+                (createFuncType) &genericCreate, &err_info);
             hashelem->next_less = result_hashelem;
             aHashMap->size++;
             hashelem = NULL;
           } else {
             hashelem = hashelem->next_less;
           } /* if */
-        } else if (unlikely(cmp == 0)) {
+        } else if (unlikely(hashelem->key.value.genericValue == aKey)) {
           result_hashelem = hashelem;
           hashelem = NULL;
         } else {
           if (hashelem->next_greater == NULL) {
             result_hashelem = new_helem(aKey, defaultData,
-                key_create_func, data_create_func, &err_info);
+                (createFuncType) &genericCreate,
+                (createFuncType) &genericCreate, &err_info);
             hashelem->next_greater = result_hashelem;
             aHashMap->size++;
             hashelem = NULL;

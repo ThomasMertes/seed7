@@ -185,7 +185,6 @@ version.h: chkccomp.h
 	echo "#define PATH_DELIMITER '/'" > version.h
 	echo "#define SEARCH_PATH_DELIMITER ':'" >> version.h
 	echo "#define AWAIT_WITH_SIGACTION" >> version.h
-	echo "#define WITH_SQL" >> version.h
 	echo "#define $(TERMINFO_OR_TERMCAP)" >> version.h
 	echo "#define INCL_NCURSES_TERM" >> version.h
 	echo "#define SIGNAL_HANDLER_CAN_DO_IO" >> version.h

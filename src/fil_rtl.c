@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  fil_rtl.c     Primitive actions for the C library file type.    */
-/*  Copyright (C) 1989 - 2017  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2018  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/fil_rtl.c                                       */
-/*  Changes: 1992, 1993, 1994, 2009, 2013 - 2015  Thomas Mertes     */
+/*  Changes: 1992 - 1994, 2009, 2013 - 2018  Thomas Mertes          */
 /*  Content: Primitive actions for the C library file type.         */
 /*                                                                  */
 /********************************************************************/

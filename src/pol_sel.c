@@ -390,8 +390,7 @@ static void addCheck (testType *test, const socketType aSocket,
 #endif
     pos = (memSizeType) hshIdxEnterDefault(test->indexHash,
         (genericType) (usocketType) aSocket, (genericType) test->size,
-        (intType) aSocket, (compareType) &genericCmp,
-        (createFuncType) &genericCreate, (createFuncType) &genericCreate);
+        (intType) aSocket);
     if (pos == test->size) {
       if (test->size >= test->capacity) {
         test->files = REALLOC_TABLE(test->files,

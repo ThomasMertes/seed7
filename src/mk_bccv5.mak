@@ -164,7 +164,6 @@ version.h: chkccomp.h
 	echo ^#define TURN_OFF_FP_EXCEPTIONS >> version.h
 	echo ^#define DEFINE__MATHERR_FUNCTION >> version.h
 	echo ^#define DO_SIGFPE_WITH_DIV_BY_ZERO 1 >> version.h
-	echo ^#define WITH_SQL >> version.h
 	echo ^#define CONSOLE_WCHAR >> version.h
 	echo ^#define OS_STRI_WCHAR >> version.h
 	echo ^#define os_getch getch >> version.h

@@ -1,3 +1,39 @@
+20181014:
+- Simple function profiling has been added to the compiler. Profiling
+  is enabled, when programs are compiled with the option -p. When
+  programs with profiling are executed they write profiling information
+  to the file profile_out, when they terminate.
+- An explanation of the compiler option -p (simple profiling) has been
+  added to the FAQ.
+- The function str_dd_mm_yy has been added to the library time.s7i.
+- In chkflt.sd7 the tests for the operator ** (with an exponent of NaN)
+  have been improved.
+- Documentation comments have been improved in integer.s7i, intlib.c,
+  int_rtl.c, tim_unx.c and tim_win.c.
+- In hsh_rtl.c the function hshIdxEnterDefault has been simplified to
+  use fewer parameters. Usages of hshIdxEnterDefault in gkb_win.c,
+  gkb_x11.c, pol_sel.c, pol_unx.c, ref_data.c and typ_data.c have been
+  adjusted to the reduced number of parameters.
+- In int_rtl.c the performance of the function intParse has been
+  improved (when two's complement integers are used).
+- In pcs_unx.c the function pcsStart has been improved to work correct
+  when stdin, stdout or stderr are not redirected.
+- In flt_rtl.c the function fltPow() has been improved to work correct,
+  when the base is zero and the exponent is NaN.
+- The program chkccomp.c has been improved to check the function pow()
+  with more test cases.
+- In striutl.c the function heapAllocOsStri() has been refactored to
+  return the allocated string instead of using a pointer to a string
+  variable. This opens the possibility to optimize usages of the macro
+  os_stri_alloc().
+- The definition of WITH_SQL has been removed from the makefiles and
+  added to the file config.h instead.
+- The file config.h has been changed to define the macros WITH_FLOAT,
+  WITH_REFERENCE, WITH_DRAW, WITH_STATISTIC, WITH_COMPILATION_INFO and
+  WITH_TYPE_CHECK always.
+- The function timMicroSec in tim_unx.c and tim_win.c has been changed
+  to be useable for the simple profiling.
+
 20180821:
 - In fil_dos.c in the function setupFiles the handling of ctrl-c has
   been improved such that ctrl-c is sent immediate (without the need to

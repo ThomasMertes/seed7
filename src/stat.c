@@ -49,14 +49,14 @@ static clock_t start_time;
 void show_statistic (void)
 
   {
-#ifdef WITH_COMPILATION_INFO
+#if WITH_COMPILATION_INFO
     clock_t stop_time;
     unsigned long c_per_msec;
     unsigned long msecs_total;
 #endif
 
   /* show_statistic */
-#ifdef WITH_COMPILATION_INFO
+#if WITH_COMPILATION_INFO
     printf("%6ld lines total\n", total_lines);
     stop_time = clock();
 /*  printf("%6d start clock\n", start_time);
@@ -76,7 +76,7 @@ void show_statistic (void)
           (total_lines * 1000) / msecs_total);
     } /* if */
 #endif
-#ifdef WITH_STATISTIC
+#if WITH_STATISTIC
     printf("%6d literals\n", literal_count);
     printf("%6d lists\n", list_count);
     printf("%6d comments\n", comment_count);
@@ -95,10 +95,10 @@ void show_statistic (void)
 void reset_statistic (void)
 
   { /* reset_statistic */
-#ifdef WITH_COMPILATION_INFO
+#if WITH_COMPILATION_INFO
     total_lines = 0;
 #endif
-#ifdef WITH_STATISTIC
+#if WITH_STATISTIC
     literal_count = 0;
     list_count = 0;
     comment_count = 0;

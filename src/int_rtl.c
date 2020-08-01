@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  int_rtl.c     Primitive actions for the integer type.           */
-/*  Copyright (C) 1989 - 2016  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2018  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/int_rtl.c                                       */
-/*  Changes: 1992 - 1994, 2000, 2005, 2009 - 2015  Thomas Mertes    */
+/*  Changes: 1992 - 1994, 2000, 2005, 2009 - 2018  Thomas Mertes    */
 /*  Content: Primitive actions for the integer type.                */
 /*                                                                  */
 /********************************************************************/
@@ -1012,7 +1012,7 @@ genericType ptrCreateGeneric (const genericType from_value)
  *  which have undefined behaviour (wrong results). In other
  *  words: Wrong results without overflow checking are only
  *  acceptable when overflow checking would raise OVERFLOW_ERROR.
- *  @return n over k
+ *  @return the binomial coefficient n over k
  *  @exception OVERFLOW_ERROR When the result would be less than
  *             integer.first or greater than integer.last.
  */
@@ -1022,11 +1022,11 @@ intType intBinom (intType n_number, intType k_number)
     uintType numerator;
     uintType denominator;
     boolType negative;
-    uintType unsigned_result;
+    uintType unsignedBinomialCoefficient;
     uintType gcd;
     uintType reducedNumerator;
     uintType reducedDenominator;
-    intType result;
+    intType binomialCoefficient;
 
   /* intBinom */
     logFunction(printf("intBinom(" FMT_D ", " FMT_D ")\n",
@@ -1036,17 +1036,17 @@ intType intBinom (intType n_number, intType k_number)
     } /* if */
     if (unlikely(k_number <= 1)) {
       if (k_number < 0) {
-        result = 0;
+        binomialCoefficient = 0;
       } else if (k_number == 0) {
-        result = 1;
+        binomialCoefficient = 1;
       } else {
-        result = n_number;
+        binomialCoefficient = n_number;
       } /* if */
     } else if (unlikely(n_number == -1)) {
       if (k_number & 1) {
-        result = -1;
+        binomialCoefficient = -1;
       } else {
-        result = 1;
+        binomialCoefficient = 1;
       } /* if */
     } else {
       if (n_number < 0) {
@@ -1059,7 +1059,7 @@ intType intBinom (intType n_number, intType k_number)
         negative = FALSE;
         numerator = (uintType) n_number;
       } /* if */
-      unsigned_result = numerator;
+      unsignedBinomialCoefficient = numerator;
       numerator--;
 #if   INTTYPE_SIZE == 32
       if (numerator <= 29) {
@@ -1067,32 +1067,32 @@ intType intBinom (intType n_number, intType k_number)
       if (numerator <= 61) {
 #endif
         for (denominator = 2; denominator <= (uintType) k_number; denominator++, numerator--) {
-          unsigned_result *= numerator;
-          unsigned_result /= denominator;
+          unsignedBinomialCoefficient *= numerator;
+          unsignedBinomialCoefficient /= denominator;
         } /* for */
       } else {
         for (denominator = 2; denominator <= (uintType) k_number; denominator++, numerator--) {
-          if (unsigned_result > UINTTYPE_MAX / numerator) {
+          if (unsignedBinomialCoefficient > UINTTYPE_MAX / numerator) {
             /* Possible overflow */
             gcd = uintGcd(numerator, denominator);
             reducedNumerator = numerator / gcd;
             reducedDenominator = denominator / gcd;
-            gcd = uintGcd(unsigned_result, reducedDenominator);
-            unsigned_result = unsigned_result / gcd;
+            gcd = uintGcd(unsignedBinomialCoefficient, reducedDenominator);
+            unsignedBinomialCoefficient = unsignedBinomialCoefficient / gcd;
             reducedDenominator = reducedDenominator / gcd;
-            if (unlikely(unsigned_result > UINTTYPE_MAX / reducedNumerator)) {
+            if (unlikely(unsignedBinomialCoefficient > UINTTYPE_MAX / reducedNumerator)) {
               /* Unavoidable overflow */
               logError(printf("intBinom(" FMT_D ", " FMT_D "): "
                        "Unavoidable overflow.\n", n_number, k_number););
               raise_error(OVERFLOW_ERROR);
               return 0;
             } else {
-              unsigned_result *= reducedNumerator;
-              unsigned_result /= reducedDenominator;
+              unsignedBinomialCoefficient *= reducedNumerator;
+              unsignedBinomialCoefficient /= reducedDenominator;
             } /* if */
           } else {
-            unsigned_result *= numerator;
-            unsigned_result /= denominator;
+            unsignedBinomialCoefficient *= numerator;
+            unsignedBinomialCoefficient /= denominator;
           } /* if */
         } /* for */
       } /* if */
@@ -1102,31 +1102,31 @@ intType intBinom (intType n_number, intType k_number)
         /* value should still be unsigned. But lcc-win32 thinks, that */
         /* negating an unsigned value results in a signed value.      */
         /* Therefore an explicit cast of the negated value is done.   */
-        if (unlikely(unsigned_result > (uintType) -(uintType) INTTYPE_MIN)) {
+        if (unlikely(unsignedBinomialCoefficient > (uintType) -(uintType) INTTYPE_MIN)) {
           logError(printf("intBinom(" FMT_D ", " FMT_D "): "
-                          "Negative result (-" FMT_U ") too small.\n",
-                          n_number, k_number, unsigned_result););
+                          "Negative binomial coefficient (-" FMT_U ") too small.\n",
+                          n_number, k_number, unsignedBinomialCoefficient););
           raise_error(OVERFLOW_ERROR);
-          result = 0;
+          binomialCoefficient = 0;
         } else {
-          result = (intType) -unsigned_result;
+          binomialCoefficient = (intType) -unsignedBinomialCoefficient;
         } /* if */
       } else {
         /* The cast below silences possible signed-unsigned comparison    */
         /* warnings and prevents that lcc-win32 does a signed comparison. */
-        if (unlikely(unsigned_result > (uintType) INTTYPE_MAX)) {
+        if (unlikely(unsignedBinomialCoefficient > (uintType) INTTYPE_MAX)) {
           logError(printf("intBinom(" FMT_D ", " FMT_D "): "
-                          "Positive result (" FMT_U ") too big.\n",
-                          n_number, k_number, unsigned_result););
+                          "Positive binomial coefficient (" FMT_U ") too big.\n",
+                          n_number, k_number, unsignedBinomialCoefficient););
           raise_error(OVERFLOW_ERROR);
-          result = 0;
+          binomialCoefficient = 0;
         } else {
-          result = (intType) unsigned_result;
+          binomialCoefficient = (intType) unsignedBinomialCoefficient;
         } /* if */
       } /* if */
     } /* if */
-    logFunction(printf("intBinom --> " FMT_D "\n", result););
-    return result;
+    logFunction(printf("intBinom --> " FMT_D "\n", binomialCoefficient););
+    return binomialCoefficient;
   } /* intBinom */
 
 
@@ -1138,13 +1138,13 @@ intType intBinom (intType n_number, intType k_number)
  *  result when n_number is less than a limit.
  *  For 32-bit integers the limit is 30 (n_number <= 30 must hold).
  *  For 64-bit integers the limit is 62 (n_number <= 62 must hold).
- *  @return n over k
+ *  @return the binomial coefficient n over k
  */
 uintType uintBinomNoChk (uintType n_number, intType k_number)
 
   {
     uintType denominator;
-    uintType result;
+    uintType binomialCoefficient;
 
   /* uintBinomNoChk */
     logFunction(printf("uintBinomNoChk(" FMT_D ", " FMT_U ")\n",
@@ -1154,22 +1154,22 @@ uintType uintBinomNoChk (uintType n_number, intType k_number)
     } /* if */
     if (unlikely(k_number <= 1)) {
       if (k_number < 0) {
-        result = 0;
+        binomialCoefficient = 0;
       } else if (k_number == 0) {
-        result = 1;
+        binomialCoefficient = 1;
       } else {
-        result = n_number;
+        binomialCoefficient = n_number;
       } /* if */
     } else {
-      result = n_number;
+      binomialCoefficient = n_number;
       n_number--;
       for (denominator = 2; denominator <= (uintType) k_number; denominator++, n_number--) {
-        result *= n_number;
-        result /= denominator;
+        binomialCoefficient *= n_number;
+        binomialCoefficient /= denominator;
       } /* for */
     } /* if */
-    logFunction(printf("uintBinomNoChk --> " FMT_U "\n", result););
-    return result;
+    logFunction(printf("uintBinomNoChk --> " FMT_U "\n", binomialCoefficient););
+    return binomialCoefficient;
   } /* uintBinomNoChk */
 
 
@@ -1927,10 +1927,15 @@ intType intParse (const const_striType stri)
     } else {
       uintValue = 0;
       okay = TRUE;
+#if TWOS_COMPLEMENT_INTTYPE
+      while (position < stri->size &&
+             (digitval = ((uintType) stri->mem[position]) - ((uintType) '0')) <= 9) {
+#else
       while (position < stri->size &&
           stri->mem[position] >= ((strElemType) '0') &&
           stri->mem[position] <= ((strElemType) '9')) {
         digitval = ((uintType) stri->mem[position]) - ((uintType) '0');
+#endif
         if (unlikely(uintValue > MAX_DIV_10)) {
           okay = FALSE;
         } else {
@@ -1952,6 +1957,7 @@ intType intParse (const const_striType stri)
         intResult = 0;
       } else {
         if (negative) {
+#if TWOS_COMPLEMENT_INTTYPE
           if (uintValue > (uintType) INTTYPE_MAX + 1) {
             logError(printf("intParse(\"%s\"): Literal too small.\n",
                             striAsUnquotedCStri(stri)););
@@ -1962,6 +1968,9 @@ intType intParse (const const_striType stri)
             /* when the most negative intType value is negated.   */
             intResult = (intType) -uintValue;
           } /* if */
+#else
+          intResult = (intType) -uintValue;
+#endif
         } else if (uintValue > (uintType) INTTYPE_MAX) {
           logError(printf("intParse(\"%s\"): Literal too big.\n",
                           striAsUnquotedCStri(stri)););

@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  chkccomp.c    Check properties of C compiler and runtime.       */
-/*  Copyright (C) 2010 - 2016  Thomas Mertes                        */
+/*  Copyright (C) 2010 - 2018  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: Chkccomp                                                */
 /*  File: seed7/src/chkccomp.c                                      */
-/*  Changes: 2010 - 2015  Thomas Mertes                             */
+/*  Changes: 2010 - 2018  Thomas Mertes                             */
 /*  Content: Program to Check properties of C compiler and runtime. */
 /*                                                                  */
 /********************************************************************/
@@ -1437,7 +1437,7 @@ static void numericProperties (FILE *versionFile)
 
   {
     int testResult;
-    char buffer[8192];
+    char buffer[10240];
     char computeValues[BUFFER_SIZE];
     int has_log2;
     const char *os_isnan_definition = NULL;
@@ -1847,6 +1847,8 @@ static void numericProperties (FILE *versionFile)
             "float floatTwo = 2.0;\n"
             "double doubleOne = 1.0;\n"
             "double doubleTwo = 2.0;\n"
+            "double doubleMinusOne = -1.0;\n"
+            "double doubleMinusTwo = 2.0;\n"
             "%s"
             "printf(\"#define FLOAT_ZERO_TIMES_INFINITE_OKAY %%d\\n\",\n"
             "    0.0 * floatPlusInf != floatNanValue1 ||\n"
@@ -1927,6 +1929,8 @@ static void numericProperties (FILE *versionFile)
             "    pow(floatNegativeZero, -getMaxOddFloat(FLT_MANT_DIG)) == floatMinusInf &&\n"
             "    pow(doubleZero, -1.0) == doublePlusInf &&\n"
             "    pow(doubleZero, -2.0) == doublePlusInf &&\n"
+            "    pow(doubleZero, doubleMinusOne) == doublePlusInf &&\n"
+            "    pow(doubleZero, doubleMinusTwo) == doublePlusInf &&\n"
             "    pow(doubleNegativeZero, -1.0) == doubleMinusInf &&\n"
             "    pow(doubleNegativeZero, -2.0) == doublePlusInf &&\n"
             "    pow(doubleNegativeZero, -getMaxOddFloat(DBL_MANT_DIG)) == doubleMinusInf);\n"
@@ -1941,9 +1945,14 @@ static void numericProperties (FILE *versionFile)
             "    pow(floatOne, floatNanValue1) == 1.0 &&\n"
             "    pow(doubleOne, doubleNanValue1) == 1.0);\n"
             "printf(\"#define POW_EXP_NAN_OKAY %%d\\n\",\n"
+            "    os_isnan(pow(doubleMinusInf, doubleNanValue1)) &&\n"
+            "    os_isnan(pow(-1.0, doubleNanValue1)) &&\n"
+            "    os_isnan(pow(0.0, doubleNanValue1)) &&\n"
+            "    os_isnan(pow(doubleZero, doubleNanValue1)) &&\n"
             "    os_isnan(pow(2.0, doubleNanValue1)) &&\n"
             "    os_isnan(pow(doubleTwo, doubleNanValue1)) &&\n"
-            "    os_isnan(pow(10.0, doubleNanValue1)));\n"
+            "    os_isnan(pow(10.0, doubleNanValue1)) &&\n"
+            "    os_isnan(pow(doublePlusInf, doubleNanValue1)));\n"
             "printf(\"#define POW_EXP_MINUS_INFINITY_OKAY %%d\\n\",\n"
             "    pow(2.0, floatMinusInf) == 0.0 &&\n"
             "    pow(floatTwo, floatMinusInf) == 0.0 &&\n"
@@ -3784,7 +3793,6 @@ static void determineX11Includes (FILE *versionFile, char *include_options)
 
 
 
-#ifdef WITH_SQL
 static void determineMySqlDefines (FILE *versionFile,
     char *include_options, char *additional_system_libs)
 
@@ -4709,7 +4717,6 @@ static void determineOciDefines (FILE *versionFile,
       } /* if */
     } /* if */
   } /* determineOciDefines */
-#endif
 
 
 
@@ -4765,13 +4772,11 @@ static void determineIncludesAndLibs (FILE *versionFile)
     include_options[0] = '\0';
     additional_system_libs[0] = '\0';
     determineX11Includes(versionFile, include_options);
-#ifdef WITH_SQL
     determineMySqlDefines(versionFile, include_options, additional_system_libs);
     determineSqliteDefines(versionFile, include_options, additional_system_libs);
     determinePostgresDefines(versionFile, include_options, additional_system_libs);
     determineOdbcDefines(versionFile, include_options, additional_system_libs);
     determineOciDefines(versionFile, include_options, additional_system_libs);
-#endif
     determineBigIntDefines(versionFile, include_options, additional_system_libs);
     sprintf(buffer, "INCLUDE_OPTIONS = %s", include_options);
     replaceNLBySpace(buffer);

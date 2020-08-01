@@ -169,8 +169,7 @@ intType typNum (typeType actual_type)
       } else {
         result = (intType) hshIdxEnterDefault(type_table, (genericType) (memSizeType) actual_type,
             (genericType) next_free_number,
-            (intType) (((memSizeType) actual_type) >> 6), (compareType) &genericCmp,
-            (createFuncType) &genericCreate, (createFuncType) &genericCreate);
+            (intType) (((memSizeType) actual_type) >> 6));
         if (result == next_free_number) {
           next_free_number++;
         } /* if */

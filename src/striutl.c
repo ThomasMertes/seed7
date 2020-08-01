@@ -612,15 +612,15 @@ const strElemType *memchr_strelem (register const strElemType *mem,
 
 
 #if STACK_LIKE_ALLOC_FOR_OS_STRI
-boolType heapAllocOsStri (os_striType *var, memSizeType len)
+os_striType heapAllocOsStri (memSizeType len)
 
   {
     memSizeType size;
     stackAllocType new_stack_alloc;
-    boolType success;
+    os_striType var;
 
   /* heapAllocOsStri */
-    logFunction(printf("heapAllocOsStri(*, " FMT_U_MEM ")\n", len););
+    logFunction(printf("heapAllocOsStri(" FMT_U_MEM ")\n", len););
     if (len < STACK_ALLOC_SIZE) {
       size = STACK_ALLOC_SIZE;
     } else {
@@ -628,8 +628,7 @@ boolType heapAllocOsStri (os_striType *var, memSizeType len)
     } /* if */
     if (unlikely(size > MAX_STACK_ALLOC ||
         !ALLOC_HEAP(new_stack_alloc, stackAllocType, SIZ_STACK_ALLOC(size)))) {
-      *var = NULL;
-      success = FALSE;
+      var = NULL;
     } else {
       /* printf("new_stack_alloc=%08lx\n", new_stack_alloc); */
       if (stack_alloc->curr_free == stack_alloc->start) {
@@ -643,12 +642,11 @@ boolType heapAllocOsStri (os_striType *var, memSizeType len)
       /* printf("beyond=%08lx\n", new_stack_alloc->beyond); */
       new_stack_alloc->curr_free = new_stack_alloc->start;
       stack_alloc = new_stack_alloc;
-      (void) POP_OS_STRI(*var, SIZ_OS_STRI(len));
-      success = TRUE;
+      (void) POP_OS_STRI(var, SIZ_OS_STRI(len));
     } /* if */
-    logFunction(printf("heapAllocOsStri(" FMT_X_MEM ", " FMT_U_MEM ") --> %s\n",
-                       (memSizeType) *var, len, success ? "TRUE" : "FALSE"););
-    return success;
+    logFunction(printf("heapAllocOsStri(" FMT_U_MEM ") --> " FMT_X_MEM "\n",
+                       len, (memSizeType) var););
+    return var;
   } /* heapAllocOsStri */
 
 

@@ -404,7 +404,7 @@ void lit_number (void)
     logFunction(printf("lit_number\n"););
     readDecimal(0);
     if (in_file.character == '.') {
-#ifdef WITH_FLOAT
+#if WITH_FLOAT
       symbol.floatValue = readFloat();
 #endif
       symbol.sycategory = FLOATLITERAL;
@@ -426,7 +426,7 @@ void lit_number (void)
     } /* if */
     find_literal_ident();
     symbol.syNumberInLine++;
-#ifdef WITH_STATISTIC
+#if WITH_STATISTIC
     literal_count++;
 #endif
     logFunction(printf("lit_number -->\n"););

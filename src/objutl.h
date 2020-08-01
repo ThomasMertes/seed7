@@ -69,7 +69,7 @@
 #define take_win(arg)       (arg)->value.winValue
 #define take_process(arg)   (arg)->value.processValue
 
-#ifdef WITH_TYPE_CHECK
+#if WITH_TYPE_CHECK
 #define run_exception(c,arg) { run_error(c, arg); return(NULL); }
 #define hasCategory(arg,cat)             if (unlikely(CATEGORY_OF_OBJ(arg) != (cat))) run_exception(cat, arg)
 #define hasCategory2(arg,cat1,cat2)      if (unlikely(CATEGORY_OF_OBJ(arg) != (cat1) && \
@@ -158,7 +158,7 @@
 #endif
 
 
-#ifdef WITH_TYPE_CHECK
+#if WITH_TYPE_CHECK
 /* void isit_action (objectType argument); */
 /* void isit_array (objectType argument); */
 /* void isit_block (objectType argument); */
@@ -169,7 +169,7 @@
 /* void isit_interface (objectType argument); */
 void isit_enum (objectType argument);
 /* void isit_file (objectType argument); */
-#ifdef WITH_FLOAT
+#if WITH_FLOAT
 /* void isit_float (objectType argument); */
 #endif
 /* void isit_hash (objectType argument); */

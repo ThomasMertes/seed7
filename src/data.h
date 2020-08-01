@@ -223,7 +223,7 @@ typedef union {
     databaseType databaseValue; /* DATABASEOBJECT */
     sqlStmtType  sqlStmtValue;  /* SQLSTMTOBJECT */
     progType     progValue;     /* PROGOBJECT */
-#ifdef WITH_FLOAT
+#if WITH_FLOAT
     floatType    floatValue;    /* FLOATOBJECT */
 #endif
   } valueUnion;
@@ -425,7 +425,7 @@ typedef struct inFileStruct {
     inFileType curr_infile;
     inFileType up_infile;
     inFileType next;
-#ifdef WITH_COMPILATION_INFO
+#if WITH_COMPILATION_INFO
     boolType write_library_names;
     boolType write_line_numbers;
 #endif

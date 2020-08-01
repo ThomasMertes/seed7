@@ -283,7 +283,7 @@ void close_infile (void)
   { /* close_infile */
     logFunction(printf("close_infile\n"););
     /* printf("\nclose(\"%s\");\n", in_file.name); */
-#ifdef WITH_COMPILATION_INFO
+#if WITH_COMPILATION_INFO
     if (in_file.write_line_numbers) {
       NL_LIN_INFO();
     } else {

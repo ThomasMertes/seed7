@@ -129,7 +129,7 @@ objectType exec_object (register objectType object)
       case STRUCTOBJECT:
       case FILEOBJECT:
       case LISTOBJECT:
-#ifdef WITH_FLOAT
+#if WITH_FLOAT
       case FLOATOBJECT:
 #endif
       case WINOBJECT:
@@ -804,7 +804,7 @@ objectType exec_call (objectType object)
       case SOCKETOBJECT:
       case POLLOBJECT:
       case LISTOBJECT:
-#ifdef WITH_FLOAT
+#if WITH_FLOAT
       case FLOATOBJECT:
 #endif
       case WINOBJECT:
@@ -905,7 +905,7 @@ objectType evaluate (objectType object)
       case BSTRIOBJECT:
       case ARRAYOBJECT:
       case STRUCTOBJECT:
-#ifdef WITH_FLOAT
+#if WITH_FLOAT
       case FLOATOBJECT:
 #endif
       case ENUMLITERALOBJECT:

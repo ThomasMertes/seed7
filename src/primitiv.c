@@ -60,9 +60,7 @@
 #include "sctlib.h"
 #include "setlib.h"
 #include "soclib.h"
-#ifdef WITH_SQL
 #include "sqllib.h"
-#endif
 #include "strlib.h"
 #include "timlib.h"
 #include "typlib.h"
@@ -310,7 +308,7 @@ static const actEntryRecord actEntryTable[] = {
     { "DCL_VAL2",                dcl_val2,                },
     { "DCL_VAR",                 dcl_var,                 },
 
-#ifdef WITH_DRAW
+#if WITH_DRAW
     { "DRW_ARC",                 drw_arc,                 },
     { "DRW_ARC2",                drw_arc2,                },
     { "DRW_BACKGROUND",          drw_background,          },
@@ -419,7 +417,7 @@ static const actEntryRecord actEntryTable[] = {
     { "FIL_WORD_READ",           fil_word_read,           },
     { "FIL_WRITE",               fil_write,               },
 
-#ifdef WITH_FLOAT
+#if WITH_FLOAT
     { "FLT_ABS",                 flt_abs,                 },
     { "FLT_ACOS",                flt_acos,                },
     { "FLT_ADD",                 flt_add,                 },
@@ -485,7 +483,7 @@ static const actEntryRecord actEntryTable[] = {
 
     { "GEN_DESTR",               gen_destr,               },
 
-#ifdef WITH_DRAW
+#if WITH_DRAW
     { "GKB_BUSY_GETC",           gkb_busy_getc,           },
     { "GKB_BUTTON_PRESSED",      gkb_button_pressed,      },
     { "GKB_BUTTON_XPOS",         gkb_button_xpos,         },
@@ -708,7 +706,7 @@ static const actEntryRecord actEntryTable[] = {
     { "PRG_SYSVAR",              prg_sysvar,              },
     { "PRG_VALUE",               prg_value,               },
 
-#ifdef WITH_REFERENCE
+#if WITH_REFERENCE
     { "REF_ADDR",                ref_addr,                },
     { "REF_ALLOC",               ref_alloc,               },
     { "REF_ALLOC_INT",           ref_alloc_int,           },
@@ -873,7 +871,7 @@ static const actEntryRecord actEntryTable[] = {
     { "SOC_WORD_READ",           soc_word_read,           },
     { "SOC_WRITE",               soc_write,               },
 
-#ifdef WITH_SQL
+#if WITH_SQL
     { "SQL_BIND_BIGINT",         sql_bind_bigint,         },
     { "SQL_BIND_BIGRAT",         sql_bind_bigrat,         },
     { "SQL_BIND_BOOL",           sql_bind_bool,           },
