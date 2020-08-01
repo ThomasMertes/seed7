@@ -46,7 +46,7 @@ typedef struct {
   } symbolType;
 
 #ifdef DO_INIT
-symbolType symbol = {STOPSYMBOL, 0, NULL, 0, "\0\0\0\0", 0,
+symbolType symbol = {STOPSYMBOL, 0, NULL, 0, {'\0', '\0', '\0', '\0'}, 0,
                      (intType) 0, (bigIntType) NULL, (charType) 0,
                      (striType) NULL, 0, (floatType) 0.0, FALSE};
 #else

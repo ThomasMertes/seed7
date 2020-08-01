@@ -46,9 +46,6 @@
 #include "typ_data.h"
 
 
-#define TYPE_TABLE_INCREMENT 127
-
-
 
 /**
  *  Compare two types.

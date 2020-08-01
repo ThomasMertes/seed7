@@ -97,7 +97,7 @@ const func string: allowUtf8 (in string: inStri) is func
 
 
 (**
- *  Open an FTP connection to the specified host, user and port.
+ *  Open a FTP connection to the specified host, user and port.
  *  @param hostName Either a host name ("e.g.: "www.example.org"),
  *                  or an IPv4 address in standard dot notation
  *                  (e.g.: "192.0.2.235"), or an IPv6 address in
@@ -137,7 +137,7 @@ const func ftpConnection: openFtp (in string: hostName, in string: user,
 
 
 (**
- *  Open an FTP connection to the specified host and user.
+ *  Open a FTP connection to the specified host and user.
  *  This function uses port 21.
  *  @param hostName Either a host name ("e.g.: "www.example.org"),
  *                  or an IPv4 address in standard dot notation
@@ -153,7 +153,7 @@ const func ftpConnection: openFtp (in string: hostName,
 
 
 (**
- *  Open an FTP connection to the specified ''connectStri'' and port.
+ *  Open a FTP connection to the specified ''connectStri'' and port.
  *  The ''connectStri'' should be in the form
  *   user:password@hostName
  *  to specify user and password. If no password is specified the
@@ -202,7 +202,7 @@ const func ftpConnection: openFtp (in string: connectStri, in integer: ftpContro
 
 
 (**
- *  Open an FTP connection to the specified ''connectStri''.
+ *  Open a FTP connection to the specified ''connectStri''.
  *  The ''connectStri'' should be in the form
  *   user:password@hostName
  *  to specify user and password. If no password is specified the
@@ -227,7 +227,7 @@ const func ftpConnection: openFtp (in string: connectStri) is
 
 
 (**
- *  Close an FTP connection.
+ *  Close a FTP connection.
  *)
 const proc: close (inout ftpConnection: ftp) is func
   begin

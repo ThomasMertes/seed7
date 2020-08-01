@@ -37,6 +37,7 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
+#include "limits.h"
 #include "gmp.h"
 
 #include "common.h"
@@ -93,7 +94,7 @@ cstriType bigHexCStri (const const_bigIntType big1)
 
   /* bigHexCStri */
     if (big1 != NULL) {
-      count = (mpz_sizeinbase(big1, 2) + 7) / 8;
+      count = (mpz_sizeinbase(big1, 2) + CHAR_BIT - 1) / CHAR_BIT;
       buffer = (ustriType) malloc(count);
       if (unlikely(buffer == NULL)) {
         raise_error(MEMORY_ERROR);
@@ -108,12 +109,12 @@ cstriType bigHexCStri (const const_bigIntType big1)
             pos--;
             carry += ~buffer[pos] & 0xFF;
             buffer[pos] = (ucharType) (carry & 0xFF);
-            carry >>= 8;
+            carry >>= CHAR_BIT;
           } /* while */
         } /* if */
         result_size = 3 + count * 2;
-        if ((sign > 0 && buffer[0] >= 128) ||
-            (sign < 0 && buffer[0] <= 127)) {
+        if ((sign > 0 && buffer[0] > BYTE_MAX) ||
+            (sign < 0 && buffer[0] <= BYTE_MAX)) {
           result_size += 2;
         } /* if */
         if (unlikely(!ALLOC_CSTRI(result, result_size))) {
@@ -125,12 +126,12 @@ cstriType bigHexCStri (const const_bigIntType big1)
             strcpy(result, "16#");
             charIndex = 3;
             if (sign < 0) {
-              if (buffer[0] <= 127) {
+              if (buffer[0] <= BYTE_MAX) {
                 strcpy(&result[charIndex], "ff");
                 charIndex += 2;
               } /* if */
             } else {
-              if (buffer[0] >= 128) {
+              if (buffer[0] > BYTE_MAX) {
                 strcpy(&result[charIndex], "00");
                 charIndex += 2;
               } /* if */
@@ -532,7 +533,7 @@ boolType bigEqSignedDigit (const const_bigIntType big1, intType number)
  *  @param isSigned Defines if 'buffer' is interpreted as signed value.
  *         When 'isSigned' is TRUE the twos-complement representation
  *         is used. In this case the result is negative when the most
- *         significant byte (the first byte) has an ordinal >= 128.
+ *         significant byte (the first byte) has an ordinal > BYTE_MAX (=127).
  *  @return a bigInteger created from the big-endian bytes.
  */
 bigIntType bigFromByteBufferBe (const memSizeType size,
@@ -549,7 +550,7 @@ bigIntType bigFromByteBufferBe (const memSizeType size,
                        (memSizeType) size, isSigned););
     ALLOC_BIG(result);
     mpz_init(result);
-    if (isSigned && size != 0 && buffer[0] >= 128) {
+    if (isSigned && size != 0 && buffer[0] > BYTE_MAX) {
       negated_buffer = (ustriType) malloc(size);
       carry = 1;
       pos = size;
@@ -557,7 +558,7 @@ bigIntType bigFromByteBufferBe (const memSizeType size,
         pos--;
         carry += ~buffer[pos] & 0xFF;
         negated_buffer[pos] = (ucharType) (carry & 0xFF);
-        carry >>= 8;
+        carry >>= CHAR_BIT;
       } /* for */
       mpz_import(result, (size_t) size, 1, 1, 0, 0, negated_buffer);
       free(negated_buffer);
@@ -578,7 +579,7 @@ bigIntType bigFromByteBufferBe (const memSizeType size,
  *  @param isSigned Defines if 'buffer' is interpreted as signed value.
  *         When 'isSigned' is TRUE the twos-complement representation
  *         is used. In this case the result is negative when the most
- *         significant byte (the last byte) has an ordinal >= 128.
+ *         significant byte (the last byte) has an ordinal > BYTE_MAX (=127).
  *  @return a bigInteger created from the little-endian bytes.
  */
 bigIntType bigFromByteBufferLe (const memSizeType size,
@@ -595,14 +596,14 @@ bigIntType bigFromByteBufferLe (const memSizeType size,
                        (memSizeType) size, isSigned););
     ALLOC_BIG(result);
     mpz_init(result);
-    if (isSigned && size != 0 && buffer[size - 1] >= 128) {
+    if (isSigned && size != 0 && buffer[size - 1] > BYTE_MAX) {
       negated_buffer = (ustriType) malloc(size);
       carry = 1;
       pos = 0;
       while (pos < size) {
         carry += ~buffer[pos] & 0xFF;
         negated_buffer[pos] = (ucharType) (carry & 0xFF);
-        carry >>= 8;
+        carry >>= CHAR_BIT;
         pos++;
       } /* for */
       mpz_import(result, (size_t) size, -1, 1, 0, 0, negated_buffer);
@@ -623,7 +624,7 @@ bigIntType bigFromByteBufferLe (const memSizeType size,
  *  @param isSigned Defines if 'bstri' is interpreted as signed value.
  *         When 'isSigned' is TRUE the twos-complement representation
  *         is used. In this case the result is negative when the most
- *         significant byte (the first byte) has an ordinal >= 128.
+ *         significant byte (the first byte) has an ordinal > BYTE_MAX (=127).
  *  @return a bigInteger created from the big-endian bytes.
  */
 bigIntType bigFromBStriBe (const const_bstriType bstri, const boolType isSigned)
@@ -641,7 +642,7 @@ bigIntType bigFromBStriBe (const const_bstriType bstri, const boolType isSigned)
  *  @param isSigned Defines if 'bstri' is interpreted as signed value.
  *         When 'isSigned' is TRUE the twos-complement representation
  *         is used. In this case the result is negative when the most
- *         significant byte (the last byte) has an ordinal >= 128.
+ *         significant byte (the last byte) has an ordinal > BYTE_MAX (=127).
  *  @return a bigInteger created from the little-endian bytes.
  */
 bigIntType bigFromBStriLe (const const_bstriType bstri, const boolType isSigned)
@@ -1297,6 +1298,11 @@ bigIntType bigParse (const const_striType stri)
                       striAsUnquotedCStri(stri), err_info););
       raise_error(err_info);
       result = NULL;
+    } else if (strpbrk(cstri, " \f\n\r\t\v") != NULL) {
+      logError(printf("bigParse(\"%s\"): String contains whitespace characters.\n",
+                      striAsUnquotedCStri(stri)););
+      raise_error(RANGE_ERROR);
+      result = NULL;
     } else {
       ALLOC_BIG(result);
       if (cstri[0] == '+' && cstri[1] != '-') {
@@ -1308,7 +1314,9 @@ bigIntType bigParse (const const_striType stri)
       if (unlikely(mpz_result != 0)) {
         mpz_clear(result);
         FREE_BIG(result);
-        logError(printf("bigParse: mpz_init_set_str(*, \"%s\", 10) failed.\n",
+        logError(printf("bigParse(\"%s\"): "
+                        "mpz_init_set_str(*, \"%s\", 10) failed.\n",
+                        striAsUnquotedCStri(stri),
                         cstri[0] == '+' && cstri[1] != '-' ? &cstri[1] : cstri););
         raise_error(RANGE_ERROR);
         result = NULL;
@@ -1353,7 +1361,16 @@ bigIntType bigParseBased (const const_striType stri, intType base)
     } else {
       cstri = stri_to_cstri(stri, &err_info);
       if (unlikely(cstri == NULL)) {
+        logError(printf("bigParseBased: stri_to_cstri(\"%s\", *) failed:\n"
+                        "err_info=%d\n",
+                        striAsUnquotedCStri(stri), err_info););
         raise_error(err_info);
+        result = NULL;
+      } else if (strpbrk(cstri, " \f\n\r\t\v") != NULL) {
+        logError(printf("bigParseBased(\"%s\", " FMT_D "): "
+                        "String contains whitespace characters.\n",
+                        striAsUnquotedCStri(stri), base););
+        raise_error(RANGE_ERROR);
         result = NULL;
       } else {
         ALLOC_BIG(result);
@@ -1366,8 +1383,9 @@ bigIntType bigParseBased (const const_striType stri, intType base)
         if (unlikely(mpz_result != 0)) {
           mpz_clear(result);
           FREE_BIG(result);
-          logError(printf("bigParseBased: "
+          logError(printf("bigParseBased(\"%s\", " FMT_D "): "
                           "mpz_init_set_str(*, \"%s\", " FMT_D ") failed.\n",
+                          striAsUnquotedCStri(stri), base,
                           cstri[0] == '+' && cstri[1] != '-' ? &cstri[1] : cstri,
                           base););
           raise_error(RANGE_ERROR);
@@ -1703,7 +1721,7 @@ bigIntType bigSuccTemp (bigIntType big1)
  *         When 'isSigned' is TRUE the result is encoded with the
  *         twos-complement representation. In this case a negative
  *         'big1' is converted to a result where the most significant
- *         byte (the first byte) has an ordinal >= 128.
+ *         byte (the first byte) has an ordinal > BYTE_MAX (=127).
  *  @return a bstring with the big-endian representation.
  *  @exception RANGE_ERROR When 'big1' is negative and 'isSigned' is FALSE.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
@@ -1722,7 +1740,7 @@ bstriType bigToBStriBe (const const_bigIntType big1, const boolType isSigned)
     bstriType result;
 
   /* bigToBStriBe */
-    count = (mpz_sizeinbase(big1, 2) + 7) / 8;
+    count = (mpz_sizeinbase(big1, 2) + CHAR_BIT - 1) / CHAR_BIT;
     buffer = (ustriType) malloc(count);
     if (unlikely(buffer == NULL)) {
       raise_error(MEMORY_ERROR);
@@ -1738,12 +1756,12 @@ bstriType bigToBStriBe (const const_bigIntType big1, const boolType isSigned)
             pos--;
             carry += ~buffer[pos] & 0xFF;
             buffer[pos] = (ucharType) (carry & 0xFF);
-            carry >>= 8;
+            carry >>= CHAR_BIT;
           } /* while */
         } /* if */
         result_size = count;
-        if ((sign > 0 && buffer[0] >= 128) ||
-            (sign < 0 && buffer[0] <= 127)) {
+        if ((sign > 0 && buffer[0] > BYTE_MAX) ||
+            (sign < 0 && buffer[0] <= BYTE_MAX)) {
           result_size++;
         } /* if */
       } else {
@@ -1768,12 +1786,12 @@ bstriType bigToBStriBe (const const_bigIntType big1, const boolType isSigned)
           charIndex = 0;
           if (isSigned) {
             if (sign < 0) {
-              if (buffer[0] <= 127) {
-                result->mem[charIndex] = 255;
+              if (buffer[0] <= BYTE_MAX) {
+                result->mem[charIndex] = UBYTE_MAX;
                 charIndex++;
               } /* if */
             } else {
-              if (buffer[0] >= 128) {
+              if (buffer[0] > BYTE_MAX) {
                 result->mem[charIndex] = 0;
                 charIndex++;
               } /* if */
@@ -1797,7 +1815,7 @@ bstriType bigToBStriBe (const const_bigIntType big1, const boolType isSigned)
  *         When 'isSigned' is TRUE the result is encoded with the
  *         twos-complement representation. In this case a negative
  *         'big1' is converted to a result where the most significant
- *         byte (the last byte) has an ordinal >= 128.
+ *         byte (the last byte) has an ordinal > BYTE_MAX (=127).
  *  @return a bstring with the little-endian representation.
  *  @exception RANGE_ERROR When 'big1' is negative and 'isSigned' is FALSE.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
@@ -1815,7 +1833,7 @@ bstriType bigToBStriLe (const const_bigIntType big1, const boolType isSigned)
     bstriType result;
 
   /* bigToBStriLe */
-    count = (mpz_sizeinbase(big1, 2) + 7) / 8;
+    count = (mpz_sizeinbase(big1, 2) + CHAR_BIT - 1) / CHAR_BIT;
     buffer = (ustriType) malloc(count);
     if (unlikely(buffer == NULL)) {
       raise_error(MEMORY_ERROR);
@@ -1830,13 +1848,13 @@ bstriType bigToBStriLe (const const_bigIntType big1, const boolType isSigned)
           while (pos < export_count) {
             carry += ~buffer[pos] & 0xFF;
             buffer[pos] = (ucharType) (carry & 0xFF);
-            carry >>= 8;
+            carry >>= CHAR_BIT;
             pos++;
           } /* while */
         } /* if */
         result_size = count;
-        if ((sign > 0 && buffer[export_count - 1] >= 128) ||
-            (sign < 0 && buffer[export_count - 1] <= 127)) {
+        if ((sign > 0 && buffer[export_count - 1] > BYTE_MAX) ||
+            (sign < 0 && buffer[export_count - 1] <= BYTE_MAX)) {
           result_size++;
         } /* if */
       } else {
@@ -1861,11 +1879,11 @@ bstriType bigToBStriLe (const const_bigIntType big1, const boolType isSigned)
           memcpy(result->mem, buffer, export_count);
           if (isSigned) {
             if (sign < 0) {
-              if (buffer[export_count - 1] <= 127) {
-                result->mem[export_count] = 255;
+              if (buffer[export_count - 1] <= BYTE_MAX) {
+                result->mem[export_count] = UBYTE_MAX;
               } /* if */
             } else {
-              if (buffer[export_count - 1] >= 128) {
+              if (buffer[export_count - 1] > BYTE_MAX) {
                 result->mem[export_count] = 0;
               } /* if */
             } /* if */
@@ -1886,6 +1904,8 @@ int16Type bigToInt16 (const const_bigIntType big1)
 
   /* bigToInt16 */
     if (unlikely(!mpz_fits_slong_p(big1))) {
+      logError(printf("bigToInt16(%s): mpz_fits_slong_p failed.\n",
+                      bigHexCStri(big1)););
       raise_error(RANGE_ERROR);
       return 0;
     } else {
@@ -1909,6 +1929,8 @@ int32Type bigToInt32 (const const_bigIntType big1)
 
   /* bigToInt32 */
     if (unlikely(!mpz_fits_slong_p(big1))) {
+      logError(printf("bigToInt32(%s): mpz_fits_slong_p failed.\n",
+                      bigHexCStri(big1)););
       raise_error(RANGE_ERROR);
       return 0;
     } else {
@@ -1934,6 +1956,8 @@ int64Type bigToInt64 (const const_bigIntType big1)
   /* bigToInt64 */
 #if LONG_SIZE == 64
     if (unlikely(!mpz_fits_slong_p(big1))) {
+      logError(printf("bigToInt64(%s): mpz_fits_slong_p failed.\n",
+                      bigHexCStri(big1)););
       raise_error(RANGE_ERROR);
       result = 0;
     } else {
@@ -1946,6 +1970,8 @@ int64Type bigToInt64 (const const_bigIntType big1)
       mpz_init_set(help, big1);
       mpz_fdiv_q_2exp(help, help, 32);
       if (unlikely(!mpz_fits_slong_p(help))) {
+        logError(printf("bigToInt64(%s): mpz_fits_slong_p failed.\n",
+                        bigHexCStri(big1)););
         raise_error(RANGE_ERROR);
         result = 0;
       } else {
@@ -1967,7 +1993,9 @@ uint64Type bigToUInt64 (const const_bigIntType big1)
 
   /* bigToUInt64 */
 #if LONG_SIZE == 64
-    if (unlikely(!mpz_fits_slong_p(big1))) {
+    if (unlikely(!mpz_fits_ulong_p(big1))) {
+      logError(printf("bigToUInt64(%s): mpz_fits_ulong_p failed.\n",
+                      bigHexCStri(big1)););
       raise_error(RANGE_ERROR);
       result = 0;
     } else {
@@ -1979,7 +2007,9 @@ uint64Type bigToUInt64 (const const_bigIntType big1)
 
       mpz_init_set(help, big1);
       mpz_fdiv_q_2exp(help, help, 32);
-      if (unlikely(!mpz_fits_slong_p(help))) {
+      if (unlikely(!mpz_fits_ulong_p(help))) {
+        logError(printf("bigToUInt64(%s): mpz_fits_ulong_p failed.\n",
+                        bigHexCStri(big1)););
         raise_error(RANGE_ERROR);
         result = 0;
       } else {

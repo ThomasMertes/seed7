@@ -81,10 +81,10 @@ objectType bin_and_assign (listType arguments)
 
 objectType bin_big (listType arguments)
 
-  { /* bin_binary */
+  { /* bin_big */
     isit_binary(arg_1(arguments));
     return bld_bigint_temp(bigFromUInt64(take_binary(arg_1(arguments))));
-  } /* bin_binary */
+  } /* bin_big */
 
 
 

@@ -335,6 +335,34 @@ const proc: for (inout integer: forVar) range (in bitset: aSet) until (ref boole
     end for;
   end func;
 
+(**
+ *  Obtain an array containing all the values in ''aSet''.
+ *  @return all the values from ''aSet''.
+ *)
+const func array integer: toArray (in bitset: aSet) is func
+  result
+    var array integer: values is 0 times 0;
+  local
+    var integer: aValue is 0;
+    var integer: upperBound is 0;
+    var integer: index is 1;
+    var boolean: leave is FALSE;
+  begin
+    if aSet <> EMPTY_SET then
+      values := card(aSet) times 0;
+      aValue := min(aSet);
+      upperBound := max(aSet);
+      repeat
+        values[index] := aValue;
+        if aValue = upperBound then
+          leave := TRUE;
+        else
+          aValue := next(aSet, aValue);
+          incr(index);
+        end if;
+      until leave;
+    end if;
+  end func;
 
 (**
  *  Convert a ''bitset'' to a [[string]].

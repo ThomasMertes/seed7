@@ -150,6 +150,8 @@
 #define INITAL_ARRAY_SIZE  256
 #define ARRAY_SIZE_DELTA   256
 
+#define CONFIG_VALUE_BUFFER_SIZE 4096
+
 #if DECLARE_OS_ENVIRON
 extern os_striType *os_environ;
 #endif
@@ -1415,7 +1417,7 @@ striType cmdConfigValue (const const_striType name)
   {
     char opt_name[MAX_CSTRI_BUFFER_LEN + NULL_TERMINATION_LEN];
     const_cstriType opt;
-    char buffer[4096];
+    char buffer[CONFIG_VALUE_BUFFER_SIZE];
     errInfoType err_info = OKAY_NO_ERROR;
     striType configValue = NULL;
 
@@ -1534,6 +1536,10 @@ striType cmdConfigValue (const const_striType name)
 #endif
       } else if (strcmp(opt_name, "HAS_SIGSETJMP") == 0) {
         opt = HAS_SIGSETJMP ? "TRUE" : "FALSE";
+      } else if (strcmp(opt_name, "HAS_SIGACTION") == 0) {
+        opt = HAS_SIGACTION ? "TRUE" : "FALSE";
+      } else if (strcmp(opt_name, "SIGNAL_RESETS_HANDLER") == 0) {
+        opt = SIGNAL_RESETS_HANDLER ? "TRUE" : "FALSE";
       } else if (strcmp(opt_name, "DO_SIGFPE_WITH_DIV_BY_ZERO") == 0) {
 #ifdef DO_SIGFPE_WITH_DIV_BY_ZERO
         opt = "TRUE";

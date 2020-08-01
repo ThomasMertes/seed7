@@ -55,9 +55,6 @@
 #include "typlib.h"
 
 
-#define TYPE_TABLE_INCREMENT 127
-
-
 
 objectType typ_addinterface (listType arguments)
 
@@ -76,6 +73,12 @@ objectType typ_addinterface (listType arguments)
 
 
 
+/**
+ *  Compare two types.
+ *  @return -1, 0 or 1 if the first argument is considered to be
+ *          respectively less than, equal to, or greater than the
+ *          second.
+ */
 objectType typ_cmp (listType arguments)
 
   {
@@ -162,6 +165,9 @@ objectType typ_create (listType arguments)
 
 
 
+/**
+ *  Mark the type 'old_type/arg_1' as unused.
+ */
 objectType typ_destr (listType arguments)
 
   {
@@ -179,6 +185,11 @@ objectType typ_destr (listType arguments)
 
 
 
+/**
+ *  Check if two types are equal.
+ *  @return TRUE if the two types are equal,
+ *          FALSE otherwise.
+ */
 objectType typ_eq (listType arguments)
 
   {
@@ -432,6 +443,11 @@ objectType typ_meta (listType arguments)
 
 
 
+/**
+ *  Check if two types are not equal.
+ *  @return TRUE if the two types are equal,
+ *          FALSE otherwise.
+ */
 objectType typ_ne (listType arguments)
 
   {
@@ -497,22 +513,28 @@ objectType typ_str (listType arguments)
 
 
 
+/**
+ *  Get 'type' value of the object referenced by 'aReference/arg_1'.
+ *  @return the 'type' value of the referenced object.
+ *  @exception RANGE_ERROR When 'aReference/arg_1' is NIL or
+ *             category(aReference) <> TYPEOBJECT holds.
+ */
 objectType typ_value (listType arguments)
 
   {
-    objectType obj_arg;
+    objectType aReference;
 
   /* typ_value */
     isit_reference(arg_1(arguments));
-    obj_arg = take_reference(arg_1(arguments));
-    if (unlikely(obj_arg == NULL ||
-                 CATEGORY_OF_OBJ(obj_arg) != TYPEOBJECT)) {
+    aReference = take_reference(arg_1(arguments));
+    if (unlikely(aReference == NULL ||
+                 CATEGORY_OF_OBJ(aReference) != TYPEOBJECT)) {
       logError(printf("typ_value(");
-               trace1(obj_arg);
+               trace1(aReference);
                printf("): Category is not TYPEOBJECT.\n"););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
-      return obj_arg;
+      return aReference;
     } /* if */
   } /* typ_value */
 

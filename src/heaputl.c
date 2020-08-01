@@ -60,6 +60,11 @@ STACK_SIZE_DEFINITION;
 
 
 
+/**
+ *  Set the stack size of the program.
+ *  On some operating systems the default stack size is too small.
+ *  On such systems 'setupStack' is used to request a bigger stack.
+ */
 void setupStack (void)
 
   {
@@ -90,6 +95,17 @@ void setupStack (void)
 
 
 #ifdef WITH_STRI_CAPACITY
+/**
+ *  Enlarge the capacity of a string.
+ *  This function is called from the macro GROW_STRI, when the
+ *  capacity of a string is not sufficient. GrowStri enlarges the
+ *  capacity such that at least 'len' characters fit into it.
+ *  It is assumed that 'stri' will grow further, therefore the
+ *  capacity is usually doubled.
+ *  @param stri String for which the capacity is enlarged.
+ *  @param len Length of the string that will be assigned.
+ *  @return the enlarged string, or NULL if the allocation failed.
+ */ 
 striType growStri (striType stri, memSizeType len)
 
   {
@@ -132,6 +148,15 @@ striType growStri (striType stri, memSizeType len)
 
 
 
+/**
+ *  Reduce the capacity of a string.
+ *  This function is called from the macro SHRINK_STRI, when the
+ *  capacity of a string is much too large. ShrinkStri reduces the
+ *  capacity, but it leaves room, such that it can grow aggain.
+ *  @param stri String for which the capacity is reduced.
+ *  @param len Length of the string that will be assigned.
+ *  @return the reduced string.
+ */
 striType shrinkStri (striType stri, memSizeType len)
 
   {

@@ -328,6 +328,35 @@ const func type: bitset (in type: baseType) is func
           end for;
         end func;
 
+      (**
+       *  Obtain an array containing all the values in ''aSet''.
+       *  @return all the values from ''aSet''.
+       *)
+      const func array baseType: toArray (in setType: aSet) is func
+        result
+          var array baseType: values is 0 times baseType.value;
+        local
+          var baseType: aValue is baseType.value;
+          var baseType: upperBound is baseType.value;
+          var integer: index is 1;
+          var boolean: leave is FALSE;
+        begin
+          if aSet <> setType.EMPTY_SET then
+            values := card(aSet) times baseType.value;
+            aValue := min(aSet);
+            upperBound := max(aSet);
+            repeat
+              values[index] := aValue;
+              if aValue = upperBound then
+                leave := TRUE;
+              else
+                aValue := next(aSet, aValue);
+                incr(index);
+              end if;
+            until leave;
+          end if;
+        end func;
+
       if getobj(str(ref baseType: setElement)) <> NIL then
         (**
          *  Convert a set to a [[string]].

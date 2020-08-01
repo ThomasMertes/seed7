@@ -1278,7 +1278,7 @@ static void handle_winch_signal (int sig_num)
 
   { /* handle_winch_signal */
     con->size_changed = TRUE;
-#if !HAS_SIGACTION && HAS_SIGNAL
+#if SIGNAL_RESETS_HANDLER
     signal(SIGWINCH, handle_winch_signal);
 #endif
   } /* handle_winch_signal */

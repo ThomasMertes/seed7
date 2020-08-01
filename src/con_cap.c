@@ -91,6 +91,7 @@ int tputs (char *, int, int (*) (char ch));
 
 #endif
 
+#define CAPBUF_SIZE 2048
 
 #define MAP_CHARS
 
@@ -231,7 +232,7 @@ static unsigned char *space;
 static void getcaps (void)
 
   {
-    static char capbuf[1024];
+    static char capbuf[CAPBUF_SIZE];
     char *area;
     char *terminal_name;
 

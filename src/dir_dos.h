@@ -41,9 +41,12 @@ struct dirent {
   };
 
 typedef struct {
+    /* FirstElement can only be 0 or 1. This way a DIR can never  */
+    /* start with UINT32TYPE_MAX, which is the magic value of a   */
+    /* volumeListType value.                                      */
+    int firstElement;
     long dirHandle;
     struct _finddata_t findData;
-    int firstElement;
     struct dirent dirEntry;
   } DIR;
 
@@ -56,8 +59,11 @@ struct dirent {
   };
 
 typedef struct {
-    struct find_t findData;
+    /* FirstElement can only be 0 or 1. This way a DIR can never  */
+    /* start with UINT32TYPE_MAX, which is the magic value of a   */
+    /* volumeListType value.                                      */
     int firstElement;
+    struct find_t findData;
     struct dirent dirEntry;
   } DIR;
 

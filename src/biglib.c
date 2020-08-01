@@ -288,7 +288,7 @@ objectType big_eq (listType arguments)
  *  @param isSigned/arg_2 Defines if 'bstri' is interpreted as signed value.
  *         When 'isSigned' is TRUE the twos-complement representation
  *         is used. In this case the result is negative when the most
- *         significant byte (the first byte) has an ordinal >= 128.
+ *         significant byte (the first byte) has an ordinal > BYTE_MAX (=127).
  *  @return a bigInteger created from the big-endian bytes.
  */
 objectType big_fromBStriBe (listType arguments)
@@ -310,7 +310,7 @@ objectType big_fromBStriBe (listType arguments)
  *  @param isSigned/arg_2 Defines if 'bstri' is interpreted as signed value.
  *         When 'isSigned' is TRUE the twos-complement representation
  *         is used. In this case the result is negative when the most
- *         significant byte (the last byte) has an ordinal >= 128.
+ *         significant byte (the last byte) has an ordinal > BYTE_MAX (=127).
  *  @return a bigInteger created from the little-endian bytes.
  */
 objectType big_fromBStriLe (listType arguments)
@@ -962,7 +962,7 @@ objectType big_succ (listType arguments)
  *         When 'isSigned' is TRUE the result is encoded with the
  *         twos-complement representation. In this case a negative
  *         'big1' is converted to a result where the most significant
- *         byte (the first byte) has an ordinal >= 128.
+ *         byte (the first byte) has an ordinal > BYTE_MAX (=127).
  *  @return a bstring with the big-endian representation.
  *  @exception RANGE_ERROR When 'isSigned' is FALSE and 'big1' is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
@@ -987,7 +987,7 @@ objectType big_toBStriBe (listType arguments)
  *         When 'isSigned' is TRUE the result is encoded with the
  *         twos-complement representation. In this case a negative
  *         'big1' is converted to a result where the most significant
- *         byte (the last byte) has an ordinal >= 128.
+ *         byte (the last byte) has an ordinal > BYTE_MAX (=127).
  *  @return a bstring with the little-endian representation.
  *  @exception RANGE_ERROR When 'isSigned' is FALSE and 'big1' is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.

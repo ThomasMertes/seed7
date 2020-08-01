@@ -78,6 +78,7 @@ char *tgetstr(char *, char **);
 char *tgoto (char *, int, int);
 int tputs (char *, int, int (*) (char ch));
 
+#define CAPBUF_SIZE 2048
 
 #define MAP_CHARS
 
@@ -219,7 +220,7 @@ static unsigned char *SPACE;
 static void getcaps (void)
 
   {
-    static char capbuf[1024];
+    static char capbuf[CAPBUF_SIZE];
     char *area;
 
   /* getcaps */

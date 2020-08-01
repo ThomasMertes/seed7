@@ -224,6 +224,10 @@ objectType fil_eq (listType arguments)
 
 
 
+/**
+ *  Get the standard error file.
+ *  @return stderr.
+ */
 objectType fil_err (listType arguments)
 
   { /* fil_err */
@@ -297,6 +301,10 @@ objectType fil_has_next (listType arguments)
 
 
 
+/**
+ *  Get the standard input file.
+ *  @return stdin.
+ */
 objectType fil_in (listType arguments)
 
   { /* fil_in */
@@ -398,20 +406,21 @@ objectType fil_ne (listType arguments)
 /**
  *  Opens a file with the specified 'path' and 'mode'.
  *  There are text modes and binary modes:
- *  *Binary modes:
- *  ** "r"   Open file for reading.
- *  ** "w"   Truncate to zero length or create file for writing.
- *  ** "a"   Append; open or create file for writing at end-of-file.
- *  ** "r+"  Open file for update (reading and writing).
- *  ** "w+"  Truncate to zero length or create file for update.
- *  ** "a+"  Append; open or create file for update, writing at end-of-file.
- *  *Text modes:
- *  ** "rt"  Open file for reading.
- *  ** "wt"  Truncate to zero length or create file for writing.
- *  ** "at"  Append; open or create file for writing at end-of-file.
- *  ** "rt+" Open file for update (reading and writing).
- *  ** "wt+" Truncate to zero length or create file for update.
- *  ** "at+" Append; open or create file for update, writing at end-of-file.
+ *  - Binary modes:
+ *   - "r"   Open file for reading.
+ *   - "w"   Truncate to zero length or create file for writing.
+ *   - "a"   Append; open or create file for writing at end-of-file.
+ *   - "r+"  Open file for update (reading and writing).
+ *   - "w+"  Truncate to zero length or create file for update.
+ *   - "a+"  Append; open or create file for update, writing at end-of-file.
+ *  - Text modes:
+ *   - "rt"  Open file for reading.
+ *   - "wt"  Truncate to zero length or create file for writing.
+ *   - "at"  Append; open or create file for writing at end-of-file.
+ *   - "rt+" Open file for update (reading and writing).
+ *   - "wt+" Truncate to zero length or create file for update.
+ *   - "at+" Append; open or create file for update, writing at end-of-file.
+ *
  *  Note that this modes differ from the ones used by the C function
  *  fopen().
  *  @param path/arg_1 Path of the file to be opened. The path must
@@ -437,6 +446,10 @@ objectType fil_open (listType arguments)
 
 
 
+/**
+ *  Open the null device of the operation system for reading and writing.
+ *  @return the null device opened, or NULL if it could not be opened.
+ */
 objectType fil_openNullDevice (listType arguments)
 
   { /* fil_openNullDevice */
@@ -445,6 +458,10 @@ objectType fil_openNullDevice (listType arguments)
 
 
 
+/**
+ *  Get the standard output file.
+ *  @return stdout.
+ */
 objectType fil_out (listType arguments)
 
   { /* fil_out */

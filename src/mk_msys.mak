@@ -138,7 +138,6 @@ strip:
 
 chkccomp.h:
 	echo "#include \"direct.h\"" > chkccomp.h
-	echo "#include \"unistd.h\"" >> chkccomp.h
 	echo "#define WRITE_CC_VERSION_INFO system(\"$(GET_CC_VERSION_INFO) cc_vers.txt\");" >> chkccomp.h
 	echo "#define LIST_DIRECTORY_CONTENTS \"dir\"" >> chkccomp.h
 	echo "#define MYSQL_DLL \"libmariadb.dll\", \"libmysql.dll\"" >> chkccomp.h

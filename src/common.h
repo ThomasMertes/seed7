@@ -224,6 +224,11 @@ typedef uint128Type               doubleUintType;
 #endif
 
 
+#define BYTE_MIN  INT8TYPE_MIN
+#define BYTE_MAX  INT8TYPE_MAX
+#define UBYTE_MAX UINT8TYPE_MAX
+
+
 #if TIME_T_SIZE == 32
 #define TIME_T_MAX INT32TYPE_MAX
 #if TIME_T_SIGNED

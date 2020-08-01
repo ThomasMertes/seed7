@@ -61,7 +61,6 @@
 
 
 #define MAX_CSTRI_BUFFER_LEN 40
-#define TABLE_INCREMENT 127
 
 
 

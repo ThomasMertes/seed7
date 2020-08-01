@@ -60,6 +60,7 @@
 #define LINE_SIZE_INCREMENT 256
 #define MAX_AREA_SIZE 256
 #define BUFFER_SIZE 1024
+#define TAB_POSITION 8
 
 
 
@@ -171,7 +172,7 @@ static memSizeType calculate_output_length (striType stri)
           output_length += width;
         } else if (ch < ' ') {
           if (ch == '\t') {
-            width = 8 - output_length % 8;
+            width = TAB_POSITION - output_length % TAB_POSITION;
             output_length += width;
           } else {
             output_length += strlen(stri_escape_sequence[ch]);
@@ -212,7 +213,7 @@ static void print_stri (striType stri)
           output_length += width;
         } else if (ch < ' ') {
           if (ch == '\t') {
-            width = 8 - output_length % 8;
+            width = TAB_POSITION - output_length % TAB_POSITION;
             memset(buffer, ' ', width);
             buffer[width] = '\0';
             prot_cstri(buffer);

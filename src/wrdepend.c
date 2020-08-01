@@ -50,7 +50,9 @@
  */
 
 
-static char c_compiler[1024];
+#define COMMAND_SIZE 16384
+
+static char c_compiler[COMMAND_SIZE];
 
 
 
@@ -133,7 +135,7 @@ int main (int argc, char **argv)
 
   {
     int idx;
-    char command[16384];
+    char command[COMMAND_SIZE];
 
   /* main */
     prepareCompileCommand();

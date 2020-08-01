@@ -50,6 +50,11 @@
 
 
 
+/**
+ *  Clear an area of the console with space characters.
+ *  The area is specified in (line, column) coordinates and is
+ *  between the (''upper'', ''left'') and (''lower'', ''right'').
+ */
 objectType con_clear (listType arguments)
 
   { /* con_clear */
@@ -85,6 +90,10 @@ objectType con_cursor (listType arguments)
 
 
 
+/**
+ *  Send all buffered data of the console to its destination.
+ *  This causes data to be sent to the text console/window of the OS.
+ */
 objectType con_flush (listType arguments)
 
   { /* con_flush */
@@ -94,6 +103,10 @@ objectType con_flush (listType arguments)
 
 
 
+/**
+ *  Get the height of the console.
+ *  @return the height of the console.
+ */
 objectType con_height (listType arguments)
 
   { /* con_height */
@@ -132,6 +145,9 @@ objectType con_h_scl (listType arguments)
 
 
 
+/**
+ *  Initializes the console/window.
+ */
 objectType con_open (listType arguments)
 
   { /* con_open */
@@ -141,6 +157,9 @@ objectType con_open (listType arguments)
 
 
 
+/**
+ *  Set the current position of the console to 'line' and 'column'.
+ */
 objectType con_setpos (listType arguments)
 
   { /* con_setpos */
@@ -182,6 +201,10 @@ objectType con_v_scl (listType arguments)
 
 
 
+/**
+ *  Get the width of the console.
+ *  @return the width of the console.
+ */
 objectType con_width (listType arguments)
 
   { /* con_width */
@@ -190,6 +213,13 @@ objectType con_width (listType arguments)
 
 
 
+/**
+ *  Write a string to the current position of the console.
+ *  Unicode characters are written with the encoding of the
+ *  operating system. When the standard output file of the
+ *  operating system has been redirected UTF-8 encoded
+ *  characters are written to the redirected file.
+ */
 objectType con_write (listType arguments)
 
   { /* con_write */

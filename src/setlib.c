@@ -274,6 +274,12 @@ objectType set_create (listType arguments)
 
 
 
+/**
+ *  Free the memory referred by 'old_set/arg_1'.
+ *  After set_destr is left 'old_set/arg_1' is NULL.
+ *  The memory where 'old_set/arg_1' is stored can be
+ *  freed afterwards.
+ */
 objectType set_destr (listType arguments)
 
   {
@@ -344,6 +350,11 @@ objectType set_elem (listType arguments)
 
 
 
+/**
+ *  Create an empty set.
+ *  @return an empty set.
+ *  @exception MEMORY_ERROR Not enough memory for the result.
+ */
 objectType set_empty (listType arguments)
 
   {

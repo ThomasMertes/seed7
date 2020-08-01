@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  zip.s7i       Zip compression support library                   *)
-(*  Copyright (C) 2009  Thomas Mertes                               *)
+(*  Copyright (C) 2009, 2016  Thomas Mertes                         *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -26,18 +26,22 @@
 (********************************************************************)
 
 
+include "stdio.s7i";
+include "osfiles.s7i";
 include "inflate.s7i";
 include "bytedata.s7i";
+include "time.s7i";
 
 
-const func integer: rpos (inout file: inFile, in string: stri) is func
+const func integer: rposOfMagic (inout file: inFile, in string: stri,
+    in integer: recLen) is func
   result
     var integer: posFound is 0;
   local
     var integer: pos is 0;
     var string: test is "";
   begin
-    pos := length(inFile) - length(stri) + 1;
+    pos := length(inFile) - recLen + 1;
     while pos > 0 and posFound = 0 do
       seek(inFile, pos);
       test := gets(inFile, length(stri));
@@ -89,21 +93,39 @@ const func local_file_header: get_local_header (inout file: inFile) is func
   end func;
 
 
+const proc: writeExtraField (in string: field) is func
+  local
+    var integer: pos is 1;
+    var integer: id is 0;
+    var integer: length is 0;
+    var string: value is "";
+  begin
+    while pos <= length(field) - 3 do
+      id := ord(field[pos]) * 256 + ord(field[succ(pos)]);
+      length := ord(field[pos + 2]) * 256 + ord(field[pos + 3]);
+      value := field[pos + 4 len length];
+      writeln("field: " <& id radix 16 lpad0 4 <& " " <& length <& " " <& literal(value));
+      pos +:= 4 + length;
+    end while;
+  end func;
+      
+  
 const proc: write (in local_file_header: header) is func
   begin
-    writeln("signature: "                  rpad 50 <& literal(header.signature) lpad 10);
-    writeln("version_needed_to_extract: "  rpad 50 <& header.version_needed_to_extract lpad 10);
-    writeln("general_purpose_bit_flag: "   rpad 50 <& header.general_purpose_bit_flag lpad 10);
-    writeln("compression_method: "         rpad 50 <& header.compression_method lpad 10);
-    writeln("last_mod_file_time: "         rpad 50 <& header.last_mod_file_time lpad 10);
-    writeln("last_mod_file_date: "         rpad 50 <& header.last_mod_file_date lpad 10);
-    writeln("crc_32: "                     rpad 50 <& header.crc_32 lpad 10);
-    writeln("compressed_size: "            rpad 50 <& header.compressed_size lpad 10);
-    writeln("uncompressed_size: "          rpad 50 <& header.uncompressed_size lpad 10);
-    writeln("file_name_length: "           rpad 50 <& header.file_name_length lpad 10);
-    writeln("extra_field_length: "         rpad 50 <& header.extra_field_length lpad 10);
-    writeln("file_name: "                  rpad 50 <& literal(header.file_name) lpad 10);
-    writeln("extra_field: "                rpad 50 <& literal(header.extra_field) lpad 10);
+    writeln("signature: "                 rpad 50 <& literal(header.signature) lpad 10);
+    writeln("version_needed_to_extract: " rpad 50 <& header.version_needed_to_extract lpad 10);
+    writeln("general_purpose_bit_flag: "  rpad 50 <& header.general_purpose_bit_flag lpad 10);
+    writeln("compression_method: "        rpad 50 <& header.compression_method lpad 10);
+    writeln("last_mod_file_time: "        rpad 50 <& header.last_mod_file_time lpad 10);
+    writeln("last_mod_file_date: "        rpad 50 <& header.last_mod_file_date lpad 10);
+    writeln("crc_32: "                    rpad 50 <& header.crc_32 lpad 10);
+    writeln("compressed_size: "           rpad 50 <& header.compressed_size lpad 10);
+    writeln("uncompressed_size: "         rpad 50 <& header.uncompressed_size lpad 10);
+    writeln("file_name_length: "          rpad 50 <& header.file_name_length lpad 10);
+    writeln("extra_field_length: "        rpad 50 <& header.extra_field_length lpad 10);
+    writeln("file_name: "                 rpad 50 <& literal(header.file_name) lpad 10);
+    writeln("extra_field: "               rpad 50 <& literal(header.extra_field) lpad 10);
+    writeExtraField(header.extra_field);
   end func;
 
 
@@ -156,9 +178,10 @@ const func end_of_central_directory: read_end_of_central_directory (inout file: 
   result
     var end_of_central_directory: endOfCentDir is end_of_central_directory.value;
   local
+    const integer: END_OF_CENTRAL_DIRECTORY_RECORD_LEN is 18;
     var integer: pos is 0;
   begin
-    pos := rpos(inFile, "PK\5;\6;");
+    pos := rposOfMagic(inFile, "PK\5;\6;", END_OF_CENTRAL_DIRECTORY_RECORD_LEN);
     if pos <> 0 then
       seek(inFile, pos);
       endOfCentDir := get_end_of_central_directory(inFile);
@@ -219,69 +242,460 @@ const func central_file_header: get_central_header (inout file: inFile) is func
   end func;
 
 
-const proc: list_zip_dir (inout file: inFile) is func
-  local
-    var end_of_central_directory: endOfCentDir is end_of_central_directory.value;
-    var central_file_header: centralHeader is central_file_header.value;
+const proc: write (in central_file_header: header) is func
   begin
-    endOfCentDir := read_end_of_central_directory(inFile);
-    # write(endOfCentDir);
-    seek(inFile, succ(endOfCentDir.offset_of_start_of_central_directory));
-    centralHeader := get_central_header(inFile);
-    while centralHeader.signature = "PK\1;\2;" do
-      writeln(centralHeader.file_name rpad 50 <& centralHeader.compressed_size lpad 8 <& centralHeader.uncompressed_size lpad 8 <&
-          centralHeader.extra_field_length lpad 6 <& centralHeader.general_purpose_bit_flag lpad 6);
-      centralHeader := get_central_header(inFile);
-    end while;
-    # writeln(literal(centralHeader.signature));
-(*
-    header := get_local_header(inFile);
-    while header.signature = "PK\3;\4;" do
-      writeln(header.file_name rpad 50 <& header.compressed_size lpad 8 <& header.uncompressed_size lpad 8 <&
-          header.extra_field_length lpad 6 <& header.general_purpose_bit_flag lpad 6);
-      writeln(length(header.extra_field) <& " " <& literal(header.extra_field));
-      if header.file_name = "Monitor/Registered Protocols/GAPReceiver.dat" then
-        writeln(literal(gets(inFile, 25)));
-      else
-        ignore(gets(inFile, header.compressed_size));
-      end if;
-      header := get_local_header(inFile);
-    end while;
-    writeln(literal(header.signature));
-*)
+    writeln("signature: "                       rpad 50 <& literal(header.signature) lpad 10);
+    writeln("version_made_by: "                 rpad 50 <& header.version_made_by lpad 10);
+    writeln("version_needed_to_extract: "       rpad 50 <& header.version_needed_to_extract lpad 10);
+    writeln("general_purpose_bit_flag: "        rpad 50 <& header.general_purpose_bit_flag lpad 10);
+    writeln("compression_method: "              rpad 50 <& header.compression_method lpad 10);
+    writeln("last_mod_file_time: "              rpad 50 <& header.last_mod_file_time lpad 10);
+    writeln("last_mod_file_date: "              rpad 50 <& header.last_mod_file_date lpad 10);
+    writeln("crc_32: "                          rpad 50 <& header.crc_32 lpad 10);
+    writeln("compressed_size: "                 rpad 50 <& header.compressed_size lpad 10);
+    writeln("uncompressed_size: "               rpad 50 <& header.uncompressed_size lpad 10);
+    writeln("file_name_length: "                rpad 50 <& header.file_name_length lpad 10);
+    writeln("extra_field_length: "              rpad 50 <& header.extra_field_length lpad 10);
+    writeln("file_comment_length: "             rpad 50 <& header.file_comment_length lpad 10);
+    writeln("disk_number_start: "               rpad 50 <& header.disk_number_start lpad 10);
+    writeln("internal_file_attributes: "        rpad 50 <& header.internal_file_attributes lpad 10);
+    writeln("external_file_attributes: "        rpad 50 <& header.external_file_attributes lpad 10);
+    writeln("relative_offset_of_local_header: " rpad 50 <& header.relative_offset_of_local_header lpad 10);
+    writeln("file_name: "                       rpad 50 <& literal(header.file_name) lpad 10);
+    writeln("extra_field: "                     rpad 50 <& literal(header.extra_field) lpad 10);
+    writeExtraField(header.extra_field);
+    writeln("file_comment: "                    rpad 50 <& literal(header.file_comment) lpad 10);
   end func;
 
 
-(**
- *  Determine the filenames in a zip archive.
- *  Note that the function returns only the filenames.
- *  Additional information must be obtained with other calls.
- *)
-const func array string: read_zip_dir (in string: zipFileName) is func
+const func string: get_central_header_file_name (inout file: inFile) is func
   result
-    var array string: filenames is 0 times "";
+    var string: file_name is "";
   local
-    var file: zipFile is STD_NULL;
-    var end_of_central_directory: endOfCentDir is end_of_central_directory.value;
-    var central_file_header: centralHeader is central_file_header.value;
+    var string: signature is "";
+    var integer: file_name_length is 0;
+    var integer: extra_field_length is 0;
+    var integer: file_comment_length is 0;
   begin
-    zipFile := open(zipFileName, "r");
-    if zipFile <> STD_NULL then
-      endOfCentDir := read_end_of_central_directory(zipFile);
-      # write(endOfCentDir);
-      seek(zipFile, succ(endOfCentDir.offset_of_start_of_central_directory));
-      centralHeader := get_central_header(zipFile);
-      while centralHeader.signature = "PK\1;\2;" do
-        filenames &:= [] (centralHeader.file_name);
-        centralHeader := get_central_header(zipFile);
-      end while;
-      # writeln(literal(centralHeader.signature));
-      close(zipFile);
+    signature := gets(inFile, 4);
+    if signature = "PK\1;\2;" then
+      seek(inFile, tell(inFile) + 24); # ignore(gets(inFile, 24));
+      file_name_length    := getUInt16Le(inFile);
+      extra_field_length  := getUInt16Le(inFile);
+      file_comment_length := getUInt16Le(inFile);
+      seek(inFile, tell(inFile) + 12); # ignore(gets(inFile, 12));
+      file_name := gets(inFile, file_name_length);
+      # seek(inFile, tell(inFile) + extra_field_length + file_comment_length);
+      ignore(gets(inFile, extra_field_length));
+      ignore(gets(inFile, file_comment_length));
+      if file_name <> "/" and endsWith(file_name, "/") then
+        file_name := file_name[.. pred(length(file_name))];
+      end if;
     end if;
   end func;
 
 
-const func string: getZipContent (inout file: inFile, in string: filePath) is func
+const type: zipRegisterType is hash [string] integer;
+const type: zipCatalogType is hash [string] central_file_header;
+
+
+(**
+ *  Describes a ZIP archive.
+ *)
+const type: zipArchive is new struct
+    var file: zipFile is STD_NULL;
+    var zipRegisterType: register is zipRegisterType.value;
+    var zipCatalogType: catalog is zipCatalogType.value;
+  end struct;
+
+
+(**
+ *  Open a ZIP archive with the given zipFile.
+ *  @param zipFile File that contains a ZIP archive.
+ *)
+const func zipArchive: openZip (inout file: zipFile) is func
+  result
+    var zipArchive: zip is zipArchive.value;
+  local
+    var end_of_central_directory: endOfCentDir is end_of_central_directory.value;
+    var string: fileName is "";
+    var integer: centralHeaderPos is 0;
+  begin
+    if zipFile <> STD_NULL then
+      endOfCentDir := read_end_of_central_directory(zipFile);
+      if endOfCentDir.signature = "PK\5;\6;" then
+        zip.zipFile := zipFile;
+        # write(endOfCentDir);
+        centralHeaderPos := succ(endOfCentDir.offset_of_start_of_central_directory);
+        seek(zip.zipFile, centralHeaderPos);
+        fileName := get_central_header_file_name(zip.zipFile);
+        while fileName <> "" do
+          # writeln(fileName <& " " <& centralHeaderPos);
+          zip.register @:= [fileName] centralHeaderPos;
+          centralHeaderPos := tell(zip.zipFile);
+          fileName := get_central_header_file_name(zip.zipFile);
+        end while;
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Open a ZIP archive with the given zipFile.
+ *  @param zipFileName Name of the ZIP archive to be opened.
+ *)
+const func zipArchive: openZip (in string: zipFileName) is func
+  result
+    var zipArchive: zip is zipArchive.value;
+  local
+    var file: zipFile is STD_NULL;
+  begin
+    zipFile := open(zipFileName, "r");
+    zip := openZip(zipFile);
+  end func;
+
+
+(**
+ *  Close a ZIP archive.
+ *)
+const proc: close (inout zipArchive: zip) is func
+  begin
+    close(zip.zipFile);
+    zip.zipFile := STD_NULL;
+  end func;
+
+
+const func boolean: implizitDir (inout zipArchive: zip, in var string: dirPath) is func
+  result
+    var boolean: implizitDir is FALSE;
+  local
+    var string: filePath is "";
+  begin
+    for key filePath range zip.register do
+      if startsWith(filePath, dirPath) then
+        implizitDir := TRUE;
+      end if;
+    end for;
+  end func;
+
+
+(**
+ *  Determine the file names in a directory inside a ZIP archive.
+ *  Note that the function returns only the file names.
+ *  Additional information must be obtained with other calls.
+ *  @param zip Open ZIP archive.
+ *  @param dirPath path of a directory in the ZIP archive.
+ *  @return an array with the file names.
+ *  @exception FILE_ERROR The file triggers an error.
+ *  @exception RANGE_ERROR DirPath ends with a slash.
+ *)
+const func array string: readDir (inout zipArchive: zip, in var string: dirPath) is func
+  result
+    var array string: fileNames is 0 times "";
+  local
+    var string: filePath is "";
+    var set of string: fileNameSet is (set of string).value;
+    var string: fileName is "";
+    var integer: slashPos is 0;
+  begin
+    if endsWith(dirPath, "/") then
+      raise RANGE_ERROR
+    elsif zip.zipFile <> STD_NULL then
+      if dirPath = "." then
+        dirPath := "";
+      end if;
+      for key filePath range zip.register do
+        if startsWith(filePath, dirPath) then
+          fileName := filePath[succ(length(dirPath)) ..];
+          if startsWith(fileName, "/") then
+            fileName := fileName[2 ..];
+          elsif dirPath <> "" then
+            fileName := "";  # A file name <> dirPath starts with dirPath.
+          end if;
+          slashPos := pos(fileName, '/');
+          if slashPos <> 0 then
+            fileName := fileName[.. pred(slashPos)];
+          end if;
+          if fileName <> "" and fileName not in fileNameSet then
+            incl(fileNameSet, fileName);
+          end if;
+        end if;
+      end for;
+      fileNames := sort(toArray(fileNameSet));
+    end if;
+  end func;
+
+
+(**
+ *  Determine the file names in the top directory of a ZIP archive.
+ *  Note that the function returns only the file names.
+ *  Additional information must be obtained with other calls.
+ *  @param zip Open ZIP archive.
+ *  @return an array with the file names.
+ *  @exception FILE_ERROR The file triggers an error.
+ *)
+const func array string: readDir (inout zipArchive: zip) is
+  return readDir(zip, "");
+
+
+(**
+ *  Determine the file paths in a ZIP archive.
+ *  Note that the function returns only the file paths.
+ *  Additional information must be obtained with other calls.
+ *  @param zip Open ZIP archive.
+ *  @return an array with the file paths.
+ *)
+const func array string: readDir (inout zipArchive: zip, RECURSIVE) is
+  return sort(keys(zip.register));
+
+
+(**
+ *  Determine the type of a file in a ZIP archive.
+ *  A return value of ''FILE_ABSENT'' does not imply that a file
+ *  with this name can be created, since missing directories and
+ *  illegal file names cause also ''FILE_ABSENT''.
+ *  @return the type of the file.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *)
+const func fileType: fileType (inout zipArchive: zip, in string: filePath) is func
+  result
+    var fileType: aFileType is FILE_UNKNOWN;
+  local
+    var central_file_header: header is central_file_header.value;
+    var char: typeflag is ' ';
+  begin
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR
+    else
+      if filePath in zip.catalog then
+        header := zip.catalog[filePath];
+      elsif filePath in zip.register then
+        seek(zip.zipFile, zip.register[filePath]);
+        header := get_central_header(zip.zipFile);
+        zip.catalog @:= [filePath] header;
+      elsif implizitDir(zip, filePath) then
+        header.file_name := filePath & "/";
+        zip.catalog @:= [filePath] header;
+      else
+        aFileType := FILE_ABSENT;
+      end if;
+      if aFileType = FILE_UNKNOWN then
+        if endsWith(header.file_name, "/") then
+          aFileType := FILE_DIR;
+        else
+          aFileType := FILE_REGULAR;
+        end if;
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Determine the type of a file in a ZIP archive.
+ *  A return value of ''FILE_ABSENT'' does not imply that a file
+ *  with this name can be created, since missing directories and
+ *  illegal file names cause also ''FILE_ABSENT''.
+ *  @return the type of the file.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *)
+const func fileType: fileTypeSL (inout zipArchive: zip, in string: filePath) is func
+  result
+    var fileType: aFileType is FILE_UNKNOWN;
+  local
+    var central_file_header: header is central_file_header.value;
+    var char: typeflag is ' ';
+  begin
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR
+    else
+      if filePath in zip.catalog then
+        header := zip.catalog[filePath];
+      elsif filePath in zip.register then
+        seek(zip.zipFile, zip.register[filePath]);
+        header := get_central_header(zip.zipFile);
+        zip.catalog @:= [filePath] header;
+      elsif implizitDir(zip, filePath) then
+        header.file_name := filePath & "/";
+        zip.catalog @:= [filePath] header;
+      else
+        aFileType := FILE_ABSENT;
+      end if;
+      if aFileType = FILE_UNKNOWN then
+        if endsWith(header.file_name, "/") then
+          aFileType := FILE_DIR;
+        else
+          aFileType := FILE_REGULAR;
+        end if;
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Determine the file mode (permissions) of a file in a ZIP archive.
+ *  @return the file mode.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation or it is not present in the ZIP archive.
+ *)
+const func fileMode: fileMode (inout zipArchive: zip, in string: filePath) is func
+  result
+    var fileMode: mode is fileMode.value;
+  local
+    var central_file_header: header is central_file_header.value;
+    var local_file_header: localHeader is local_file_header.value;
+  begin
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR
+    else
+      if filePath in zip.catalog then
+        header := zip.catalog[filePath];
+      elsif filePath in zip.register then
+        seek(zip.zipFile, zip.register[filePath]);
+        header := get_central_header(zip.zipFile);
+        zip.catalog @:= [filePath] header;
+      elsif implizitDir(zip, filePath) then
+        header.file_name := filePath & "/";
+        zip.catalog @:= [filePath] header;
+      else
+        raise RANGE_ERROR;
+      end if;
+      mode := {READ_USER, WRITE_USER};
+      (*
+      write(header);
+      seek(zip.zipFile, succ(header.relative_offset_of_local_header));
+      localHeader := get_local_header(zip.zipFile);
+      writeln("+++++++++");
+      write(localHeader);
+      *)
+    end if;
+  end func;
+
+
+(**
+ *  Determine the size of a file in a ZIP archive.
+ *  The file size is measured in bytes.
+ *  For directories a size of 0 is returned.
+ *  @return the size of the file.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation or it is not present in the ZIP archive.
+ *)
+const func integer: fileSize (inout zipArchive: zip, in string: filePath) is func
+  result
+    var integer: size is 0;
+  local
+    var central_file_header: header is central_file_header.value;
+  begin
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR
+    else
+      if filePath in zip.catalog then
+        size := zip.catalog[filePath].uncompressed_size;
+      elsif filePath in zip.register then
+        seek(zip.zipFile, zip.register[filePath]);
+        header := get_central_header(zip.zipFile);
+        size := header.uncompressed_size;
+        zip.catalog @:= [filePath] header;
+      elsif implizitDir(zip, filePath) then
+        header.file_name := filePath & "/";
+        zip.catalog @:= [filePath] header;
+      else
+        raise RANGE_ERROR;
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Determine the modification time of a file in a ZIP archive.
+ *  @return the modification time of the file.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation or it is not present in the ZIP archive.
+ *)
+const func time: getMTime (inout zipArchive: zip, in string: filePath) is func
+  result
+    var time: modificationTime is time.value;
+  local
+    var central_file_header: header is central_file_header.value;
+  begin
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR
+    else
+      if filePath in zip.catalog then
+        header := zip.catalog[filePath];
+      elsif filePath in zip.register then
+        seek(zip.zipFile, zip.register[filePath]);
+        header := get_central_header(zip.zipFile);
+        zip.catalog @:= [filePath] header;
+      elsif implizitDir(zip, filePath) then
+        header.file_name := filePath & "/";
+        zip.catalog @:= [filePath] header;
+      else
+        raise RANGE_ERROR;
+      end if;
+      modificationTime.year   := (header.last_mod_file_date >>  9) + 1980;
+      modificationTime.month  := (header.last_mod_file_date >>  5) mod 16;
+      modificationTime.day    :=  header.last_mod_file_date        mod 32;
+      modificationTime.hour   :=  header.last_mod_file_time >> 11;
+      modificationTime.minute := (header.last_mod_file_time >>  5) mod 64;
+      modificationTime.second := (header.last_mod_file_time        mod 32) * 2;
+    end if;
+  end func;
+
+
+(**
+ *  Determine the file names in a directory inside a ZIP archive.
+ *  Note that the function returns only the file names.
+ *  Additional information must be obtained with other calls.
+ *  @param zipFilePath Path of the ZIP archive
+ *  @param dirPath path of a directory in the ZIP archive.
+ *  @return an array with the file names.
+ *  @exception FILE_ERROR The file triggers an error.
+ *  @exception RANGE_ERROR DirPath ends with a slash.
+ *)
+const func array string: readZipDir (in string: zipFilePath, in string: dirPath) is func
+  result
+    var array string: fileNames is 0 times "";
+  local
+    var zipArchive: zip is zipArchive.value;
+  begin
+    zip := openZip(zipFilePath);
+    fileNames := readDir(zip, dirPath);
+    close(zip);
+  end func;
+
+
+(**
+ *  Determine the file names in the top directory of a ZIP archive.
+ *  Note that the function returns only the file names.
+ *  Additional information must be obtained with other calls.
+ *  @param zipFilePath Path of the ZIP archive
+ *  @return an array with the file names.
+ *  @exception FILE_ERROR The file triggers an error.
+ *)
+const func array string: readZipDir (in string: zipFilePath) is
+  return readZipDir(zipFilePath, "");
+
+
+(**
+ *  Determine the file paths in a ZIP archive.
+ *  Note that the function returns only the file paths.
+ *  Additional information must be obtained with other calls.
+ *)
+const func array string: readZipDir (in string: zipFilePath, RECURSIVE) is func
+  result
+    var array string: filePaths is 0 times "";
+  local
+    var zipArchive: zip is zipArchive.value;
+  begin
+    zip := openZip(zipFilePath);
+    filePaths := readDir(zip, RECURSIVE);
+    close(zip);
+  end func;
+
+
+const func string: getContent (inout zipArchive: zip, in string: filePath) is func
   result
     var string: content is "";
   local
@@ -291,20 +705,20 @@ const func string: getZipContent (inout file: inFile, in string: filePath) is fu
     var boolean: found is FALSE;
     var string: fileData is "";
   begin
-    endOfCentDir := read_end_of_central_directory(inFile);
-    seek(inFile, succ(endOfCentDir.offset_of_start_of_central_directory));
-    centralHeader := get_central_header(inFile);
+    endOfCentDir := read_end_of_central_directory(zip.zipFile);
+    seek(zip.zipFile, succ(endOfCentDir.offset_of_start_of_central_directory));
+    centralHeader := get_central_header(zip.zipFile);
     while centralHeader.signature = "PK\1;\2;" and not found do
-      centralHeader := get_central_header(inFile);
+      centralHeader := get_central_header(zip.zipFile);
       if centralHeader.file_name = filePath then
         found := TRUE;
       end if;
     end while;
     if found then
-      seek(inFile, succ(centralHeader.relative_offset_of_local_header));
-      header := get_local_header(inFile);
+      seek(zip.zipFile, succ(centralHeader.relative_offset_of_local_header));
+      header := get_local_header(zip.zipFile);
       # write(header);
-      fileData := gets(inFile, header.compressed_size);
+      fileData := gets(zip.zipFile, header.compressed_size);
       if header.compression_method = 0 then
         content := fileData;
       elsif header.compression_method = 8 then
@@ -316,15 +730,15 @@ const func string: getZipContent (inout file: inFile, in string: filePath) is fu
   end func;
 
 
-const func string: getZipContent (in string: zipFileName, in string: filePath) is func
+const func string: getZipContent (in string: zipFilePath, in string: filePath) is func
   result
     var string: content is "";
   local
-    var file: inFile is STD_NULL;
+    var zipArchive: zip is zipArchive.value;
   begin
-    inFile := open(zipFileName, "r");
-    if inFile <> STD_NULL then
-      content := getZipContent(inFile, filePath);
-      close(inFile);
+    zip := openZip(zipFilePath);
+    if zip.zipFile <> STD_NULL then
+      content := getContent(zip, filePath);
+      close(zip);
     end if;
   end func;

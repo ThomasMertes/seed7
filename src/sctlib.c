@@ -299,6 +299,13 @@ printf("create: pointer assignment\n");
 
 
 
+/**
+ *  Free the memory referred by 'old_struct/arg_1'.
+ *  This function maintains a usage count. When the usage count
+ *  reaches zero 'old_struct/arg_1' is freed and set to NULL.
+ *  The memory where 'old_struct/arg_1' is stored can be freed
+ *  after sct_destr.
+ */
 objectType sct_destr (listType arguments)
 
   {

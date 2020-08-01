@@ -65,6 +65,8 @@ const func type: hashset (in type: baseType) is func
                         in reference: dataCreate, in reference: dataDestroy)   is action "HSH_CPY";
       const proc: FOR_KEY (inout baseType: variable, in setType: aSet,
                            in proc: statements, in reference: keyCopy)         is action "HSH_FOR_KEY";
+      const func array baseType: KEYS (in setType: aSet, in reference: keyCreate,
+                                       in reference: keyDestroy)               is action "HSH_KEYS";
 
       const proc: (ref setType: dest) ::= (in setType: source) is func
         begin
@@ -171,6 +173,13 @@ const func type: hashset (in type: baseType) is func
         begin
           FOR_KEY(variable, aSet, statements, setType.keyCopy);
         end func;
+
+      (**
+       *  Obtain an array containing all the values in ''aSet''.
+       *  @return all the values from ''aSet''.
+       *)
+      const func array baseType: toArray (in setType: aSet) is
+        return KEYS(aSet, setType.keyCreate, setType.keyDestroy);
 
       (**
        *  Union of two sets.

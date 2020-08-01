@@ -61,9 +61,6 @@
 #include "reflib.h"
 
 
-#define TABLE_INCREMENT 127
-
-
 
 #ifdef OUT_OF_ORDER
 static void qsort_list (listType *begin_sorted, listType *end_sorted)

@@ -51,8 +51,8 @@ void initPollOperations (const createFuncType incrUsageCount,
 void polAddCheck (const pollType pollData, const socketType aSocket,
                   intType eventsToCheck, const genericType fileObj);
 void polClear (const pollType pollData);
-void polCpy (const pollType poll_to, const const_pollType pollDataFrom);
-pollType polCreate (const const_pollType pollDataFrom);
+void polCpy (const pollType dest, const const_pollType source);
+pollType polCreate (const const_pollType source);
 void polDestr (const pollType oldPollData);
 pollType polEmpty (void);
 intType polGetCheck (const const_pollType pollData, const socketType aSocket);

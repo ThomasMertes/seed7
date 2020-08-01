@@ -118,9 +118,10 @@ static void initPollOps (void)
 /**
  *  Add eventsToCheck/arg_3 for aSocket/arg_2 to pollData/arg_1.
  *  EventsToCheck/arg_3 can have one of the following values:
- *  * POLLIN check if data can be read from the corresponding socket.
- *  * POLLOUT check if data can be written to the corresponding socket.
- *  * POLLINOUT check if data can be read or written (POLLIN or POLLOUT).
+ *  - POLLIN check if data can be read from the corresponding socket.
+ *  - POLLOUT check if data can be written to the corresponding socket.
+ *  - POLLINOUT check if data can be read or written (POLLIN or POLLOUT).
+ *
  *  @param pollData/arg_1 Poll data to which the event checks are added.
  *  @param aSocket/arg_2 Socket for which the events should be checked.
  *  @param eventsToCheck/arg_3 Events to be added to the checkedEvents
@@ -222,6 +223,11 @@ objectType pol_create (listType arguments)
 
 
 
+/**
+ *  Free the memory referred by 'pollData/arg_1'.
+ *  After pol_destr is left 'pollData/arg_1' is NULL.
+ *  The memory where 'pollData/arg_1' is stored can be freed afterwards.
+ */
 objectType pol_destr (listType arguments)
 
   { /* pol_destr */
@@ -234,6 +240,11 @@ objectType pol_destr (listType arguments)
 
 
 
+/**
+ *  Create an empty poll data value.
+ *  @return an empty poll data value.
+ *  @exception MEMORY_ERROR Not enough memory for the result.
+ */
 objectType pol_empty (listType arguments)
 
   { /* pol_empty */
@@ -353,9 +364,10 @@ objectType pol_poll (listType arguments)
 /**
  *  Remove eventsToCheck/arg_3 for aSocket/arg_2 from pollData/arg_1.
  *  EventsToCheck/arg_3 can have one of the following values:
- *  * POLLIN check if data can be read from the corresponding socket.
- *  * POLLOUT check if data can be written to the corresponding socket.
- *  * POLLINOUT check if data can be read or written (POLLIN or POLLOUT).
+ *  - POLLIN check if data can be read from the corresponding socket.
+ *  - POLLOUT check if data can be written to the corresponding socket.
+ *  - POLLINOUT check if data can be read or written (POLLIN or POLLOUT).
+ *
  *  @param pollData/arg_1 Poll data from which the event checks are removed.
  *  @param aSocket/arg_2 Socket for which the events should not be checked.
  *  @param eventsToCheck/arg_3 Events to be removed from the checkedEvents

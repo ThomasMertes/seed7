@@ -1179,7 +1179,7 @@ intType intBitLength (intType number)
  *         When 'isSigned' is TRUE the result is encoded with the
  *         twos-complement representation. In this case a negative
  *         'number' is converted to a result where the most significant
- *         byte has an ordinal >= 128.
+ *         byte has an ordinal > BYTE_MAX (=12/).
  *  @return a string with the shortest binary representation of 'number'.
  *  @exception RANGE_ERROR When 'number' is negative and 'isSigned' is FALSE.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
@@ -1197,9 +1197,9 @@ striType intBytesBe (intType number, boolType isSigned)
       do {
         pos--;
         buffer[pos] = (strElemType) (number & 0xff);
-        number >>= 8;
+        number >>= CHAR_BIT;
       } while (number != 0);
-      if (isSigned && buffer[pos] >= 128) {
+      if (isSigned && buffer[pos] > BYTE_MAX) {
         pos--;
         buffer[pos] = 0;
       } /* if */
@@ -1208,14 +1208,14 @@ striType intBytesBe (intType number, boolType isSigned)
         pos--;
         buffer[pos] = (strElemType) (number & 0xff);
 #if RSHIFT_DOES_SIGN_EXTEND
-        number >>= 8;
+        number >>= CHAR_BIT;
 #else
-        number = ~(~number >> 8);
+        number = ~(~number >> CHAR_BIT);
 #endif
       } while (number != -1);
-      if (buffer[pos] <= 127) {
+      if (buffer[pos] <= BYTE_MAX) {
         pos--;
-        buffer[pos] = 255;
+        buffer[pos] = UBYTE_MAX;
       } /* if */
     } else {
       logError(printf("intBytesBe(" FMT_D ", %d): "
@@ -1245,7 +1245,7 @@ striType intBytesBe (intType number, boolType isSigned)
  *         representation.
  *  @return an integer created from 'byteStri'. The result is negative
  *          when the most significant byte (the first byte) of 'byteStri'
- *          has an ordinal >= 128.
+ *          has an ordinal > BYTE_MAX (=127).
  *  @exception RANGE_ERROR When characters beyond '\255;' are present or
  *             when the result value cannot be represented with an integer.
  */
@@ -1258,14 +1258,14 @@ intType intBytesBe2Int (const const_striType byteStri)
   /* intBytesBe2Int */
     logFunction(printf("intBytesBe2Int(\"%s\")\n",
                        striAsUnquotedCStri(byteStri)););
-    if (byteStri->size == 0 || byteStri->mem[0] <= 127) {
+    if (byteStri->size == 0 || byteStri->mem[0] <= BYTE_MAX) {
       if (byteStri->size >= sizeof(intType)) {
         while (pos < byteStri->size && byteStri->mem[pos] == 0) {
           pos++;
         } /* if */
         if (unlikely(byteStri->size - pos > sizeof(intType) ||
                      (byteStri->size - pos == sizeof(intType) &&
-                      byteStri->mem[pos] >= 128))) {
+                      byteStri->mem[pos] > BYTE_MAX))) {
           logError(printf("intBytesBe2Int(\"%s\"): "
                           "Number too big.\n",
                           striAsUnquotedCStri(byteStri)););
@@ -1274,14 +1274,14 @@ intType intBytesBe2Int (const const_striType byteStri)
         } /* if */
       } /* if */
       result = 0;
-    } else { /* byteStri->size != 0 && byteStri->mem[0] >= 128 */
+    } else { /* byteStri->size != 0 && byteStri->mem[0] > BYTE_MAX */
       if (byteStri->size >= sizeof(intType)) {
-        while (pos < byteStri->size && byteStri->mem[pos] == 255) {
+        while (pos < byteStri->size && byteStri->mem[pos] == UBYTE_MAX) {
           pos++;
         } /* if */
         if (unlikely(byteStri->size - pos > sizeof(intType) ||
                      (byteStri->size - pos == sizeof(intType) &&
-                      byteStri->mem[pos] <= 127))) {
+                      byteStri->mem[pos] <= BYTE_MAX))) {
           logError(printf("intBytesBe2Int(\"%s\"): "
                           "Number too small.\n",
                           striAsUnquotedCStri(byteStri)););
@@ -1292,7 +1292,7 @@ intType intBytesBe2Int (const const_striType byteStri)
       result = -1;
     } /* if */
     for (; pos < byteStri->size; pos++) {
-      if (unlikely(byteStri->mem[pos] >= 256)) {
+      if (unlikely(byteStri->mem[pos] > UBYTE_MAX)) {
         logError(printf("intBytesBe2Int(\"%s\"): "
                         "Character '\\%d;' is beyond '\\255;'.\n",
                         striAsUnquotedCStri(byteStri),
@@ -1300,7 +1300,7 @@ intType intBytesBe2Int (const const_striType byteStri)
         raise_error(RANGE_ERROR);
         return 0;
       } /* if */
-      result <<= 8;
+      result <<= CHAR_BIT;
       result += byteStri->mem[pos];
     } /* for */
     logFunction(printf("intBytesBe2Int --> " FMT_D "\n", result););
@@ -1334,7 +1334,7 @@ intType intBytesBe2UInt (const const_striType byteStri)
       } /* if */
       if (unlikely(byteStri->size - pos > sizeof(intType) ||
                    (byteStri->size - pos == sizeof(intType) &&
-                    byteStri->mem[pos] >= 128))) {
+                    byteStri->mem[pos] > BYTE_MAX))) {
         logError(printf("intBytesBe2UInt(\"%s\"): "
                         "Number too big.\n",
                         striAsUnquotedCStri(byteStri)););
@@ -1343,7 +1343,7 @@ intType intBytesBe2UInt (const const_striType byteStri)
       } /* if */
     } /* if */
     for (; pos < byteStri->size; pos++) {
-      if (unlikely(byteStri->mem[pos] >= 256)) {
+      if (unlikely(byteStri->mem[pos] > UBYTE_MAX)) {
         logError(printf("intBytesBe2UInt(\"%s\"): "
                         "Character '\\%d;' is beyond '\\255;'.\n",
                         striAsUnquotedCStri(byteStri),
@@ -1351,7 +1351,7 @@ intType intBytesBe2UInt (const const_striType byteStri)
         raise_error(RANGE_ERROR);
         return 0;
       } /* if */
-      result <<= 8;
+      result <<= CHAR_BIT;
       result += byteStri->mem[pos];
     } /* for */
     logFunction(printf("intBytesBe2UInt --> " FMT_D "\n", result););
@@ -1369,7 +1369,7 @@ intType intBytesBe2UInt (const const_striType byteStri)
  *         When 'isSigned' is TRUE the result is encoded with the
  *         twos-complement representation. In this case a negative
  *         'number' is converted to a result where the most significant
- *         byte has an ordinal >= 128.
+ *         byte has an ordinal > BYTE_MAX (=127).
  *  @return a string with the shortest binary representation of 'number'.
  *  @exception RANGE_ERROR When 'number' is negative and 'isSigned' is FALSE.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
@@ -1386,10 +1386,10 @@ striType intBytesLe (intType number, boolType isSigned)
     if (number >= 0) {
       do {
         buffer[pos] = (ucharType) (number & 0xff);
-        number >>= 8;
+        number >>= CHAR_BIT;
         pos++;
       } while (number != 0);
-      if (isSigned && buffer[pos - 1] >= 128) {
+      if (isSigned && buffer[pos - 1] > BYTE_MAX) {
         buffer[pos] = 0;
         pos++;
       } /* if */
@@ -1397,14 +1397,14 @@ striType intBytesLe (intType number, boolType isSigned)
       do {
         buffer[pos] = (ucharType) (number & 0xff);
 #if RSHIFT_DOES_SIGN_EXTEND
-        number >>= 8;
+        number >>= CHAR_BIT;
 #else
-        number = ~(~number >> 8);
+        number = ~(~number >> CHAR_BIT);
 #endif
         pos++;
       } while (number != -1);
-      if (buffer[pos - 1] <= 127) {
-        buffer[pos] = 255;
+      if (buffer[pos - 1] <= BYTE_MAX) {
+        buffer[pos] = UBYTE_MAX;
         pos++;
       } /* if */
     } else {
@@ -1436,7 +1436,7 @@ striType intBytesLe (intType number, boolType isSigned)
  *         representation.
  *  @return an integer created from 'byteStri'. The result is negative
  *          when the most significant byte (the last byte) of 'byteStri'
- *          has an ordinal >= 128.
+ *          has an ordinal > BYTE_MAX (=127).
  *  @exception RANGE_ERROR When characters beyond '\255;' are present or
  *             when the result value cannot be represented with an integer.
  */
@@ -1450,14 +1450,14 @@ intType intBytesLe2Int (const const_striType byteStri)
     logFunction(printf("intBytesLe2Int(\"%s\")\n",
                        striAsUnquotedCStri(byteStri)););
     pos = byteStri->size;
-    if (byteStri->size == 0 || byteStri->mem[pos - 1] <= 127) {
+    if (byteStri->size == 0 || byteStri->mem[pos - 1] <= BYTE_MAX) {
       if (unlikely(byteStri->size >= sizeof(intType))) {
         while (pos > 0 && byteStri->mem[pos - 1] == 0) {
           pos--;
         } /* if */
         if (unlikely(pos > sizeof(intType) ||
                      (pos == sizeof(intType) &&
-                      byteStri->mem[pos - 1] >= 128))) {
+                      byteStri->mem[pos - 1] > BYTE_MAX))) {
           logError(printf("intBytesLe2Int(\"%s\"): "
                           "Number too big.\n",
                           striAsUnquotedCStri(byteStri)););
@@ -1466,14 +1466,14 @@ intType intBytesLe2Int (const const_striType byteStri)
         } /* if */
       } /* if */
       result = 0;
-    } else { /* byteStri->size != 0 && byteStri->mem[pos - 1] >= 128 */
+    } else { /* byteStri->size != 0 && byteStri->mem[pos - 1] > BYTE_MAX */
       if (unlikely(byteStri->size >= sizeof(intType))) {
-        while (pos > 0 && byteStri->mem[pos - 1] == 255) {
+        while (pos > 0 && byteStri->mem[pos - 1] == UBYTE_MAX) {
           pos--;
         } /* if */
         if (unlikely(pos > sizeof(intType) ||
                      (pos == sizeof(intType) &&
-                      byteStri->mem[pos - 1] <= 127))) {
+                      byteStri->mem[pos - 1] <= BYTE_MAX))) {
           logError(printf("intBytesLe2Int(\"%s\"): "
                           "Number too small.\n",
                           striAsUnquotedCStri(byteStri)););
@@ -1484,7 +1484,7 @@ intType intBytesLe2Int (const const_striType byteStri)
       result = -1;
     } /* if */
     for (; pos > 0; pos--) {
-      if (unlikely(byteStri->mem[pos - 1] >= 256)) {
+      if (unlikely(byteStri->mem[pos - 1] > UBYTE_MAX)) {
         logError(printf("intBytesLe2Int(\"%s\"): "
                         "Character '\\%d;' is beyond '\\255;'.\n",
                         striAsUnquotedCStri(byteStri),
@@ -1492,7 +1492,7 @@ intType intBytesLe2Int (const const_striType byteStri)
         raise_error(RANGE_ERROR);
         return 0;
       } /* if */
-      result <<= 8;
+      result <<= CHAR_BIT;
       result += byteStri->mem[pos - 1];
     } /* for */
     logFunction(printf("intBytesLe2Int --> " FMT_D "\n", result););
@@ -1527,7 +1527,7 @@ intType intBytesLe2UInt (const const_striType byteStri)
       } /* if */
       if (unlikely(pos > sizeof(intType) ||
                    (pos == sizeof(intType) &&
-                    byteStri->mem[pos - 1] >= 128))) {
+                    byteStri->mem[pos - 1] > BYTE_MAX))) {
         logError(printf("intBytesLe2UInt(\"%s\"): "
                         "Number too big.\n",
                         striAsUnquotedCStri(byteStri)););
@@ -1536,7 +1536,7 @@ intType intBytesLe2UInt (const const_striType byteStri)
       } /* if */
     } /* if */
     for (; pos > 0; pos--) {
-      if (unlikely(byteStri->mem[pos - 1] >= 256)) {
+      if (unlikely(byteStri->mem[pos - 1] > UBYTE_MAX)) {
         logError(printf("intBytesLe2UInt(\"%s\"): "
                         "Character '\\%d;' is beyond '\\255;'.\n",
                         striAsUnquotedCStri(byteStri),
@@ -1544,7 +1544,7 @@ intType intBytesLe2UInt (const const_striType byteStri)
         raise_error(RANGE_ERROR);
         return 0;
       } /* if */
-      result <<= 8;
+      result <<= CHAR_BIT;
       result += byteStri->mem[pos - 1];
     } /* for */
     logFunction(printf("intBytesLe2UInt --> " FMT_D "\n", result););

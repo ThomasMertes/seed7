@@ -3819,7 +3819,7 @@ boolType bigEqSignedDigit (const const_bigIntType big1, intType number)
  *  @param isSigned Defines if 'buffer' is interpreted as signed value.
  *         When 'isSigned' is TRUE the twos-complement representation
  *         is used. In this case the result is negative when the most
- *         significant byte (the first byte) has an ordinal >= 128.
+ *         significant byte (the first byte) has an ordinal > BYTE_MAX (=127).
  *  @return a bigInteger created from the big-endian bytes.
  */
 bigIntType bigFromByteBufferBe (const memSizeType size,
@@ -3842,7 +3842,7 @@ bigIntType bigFromByteBufferBe (const memSizeType size,
     } else {
       num_bigdigits = (size + (BIGDIGIT_SIZE >> 3) - 1) / (BIGDIGIT_SIZE >> 3);
       result_size = num_bigdigits;
-      if (!isSigned && size % (BIGDIGIT_SIZE >> 3) == 0 && buffer[0] >= 128) {
+      if (!isSigned && size % (BIGDIGIT_SIZE >> 3) == 0 && buffer[0] > BYTE_MAX) {
         /* The number is unsigned, but highest bit is one: */
         /* A leading zero bigdigit must be added.          */
         result_size++;
@@ -3874,7 +3874,7 @@ bigIntType bigFromByteBufferBe (const memSizeType size,
 #endif
         } /* for */
         memcpy(&buffer2[(BIGDIGIT_SIZE >> 3) - byteIndex], buffer, byteIndex);
-        if (isSigned && buffer[0] >= 128) {
+        if (isSigned && buffer[0] > BYTE_MAX) {
           memset(buffer2, 0xFF, (BIGDIGIT_SIZE >> 3) - byteIndex);
         } else {
           memset(buffer2, 0, (BIGDIGIT_SIZE >> 3) - byteIndex);
@@ -3912,7 +3912,7 @@ bigIntType bigFromByteBufferBe (const memSizeType size,
  *  @param isSigned Defines if 'buffer' is interpreted as signed value.
  *         When 'isSigned' is TRUE the twos-complement representation
  *         is used. In this case the result is negative when the most
- *         significant byte (the last byte) has an ordinal >= 128.
+ *         significant byte (the last byte) has an ordinal > BYTE_MAX (=127).
  *  @return a bigInteger created from the little-endian bytes.
  */
 bigIntType bigFromByteBufferLe (const memSizeType size,
@@ -3935,7 +3935,7 @@ bigIntType bigFromByteBufferLe (const memSizeType size,
     } else {
       num_bigdigits = (size + (BIGDIGIT_SIZE >> 3) - 1) / (BIGDIGIT_SIZE >> 3);
       result_size = num_bigdigits;
-      if (!isSigned && buffer[size - 1] >= 128) {
+      if (!isSigned && buffer[size - 1] > BYTE_MAX) {
         /* The number is unsigned, but highest bit is one: */
         /* A leading zero bigdigit must be added.          */
         result_size++;
@@ -3967,7 +3967,7 @@ bigIntType bigFromByteBufferLe (const memSizeType size,
 #endif
         } /* for */
         memcpy(buffer2, &buffer[byteIndex], size - byteIndex);
-        if (isSigned && buffer[size - 1] >= 128) {
+        if (isSigned && buffer[size - 1] > BYTE_MAX) {
           memset(&buffer2[size - byteIndex], 0xFF, (BIGDIGIT_SIZE >> 3) - (size - byteIndex));
         } else {
           memset(&buffer2[size - byteIndex], 0, (BIGDIGIT_SIZE >> 3) - (size - byteIndex));
@@ -4004,7 +4004,7 @@ bigIntType bigFromByteBufferLe (const memSizeType size,
  *  @param isSigned Defines if 'bstri' is interpreted as signed value.
  *         When 'isSigned' is TRUE the twos-complement representation
  *         is used. In this case the result is negative when the most
- *         significant byte (the first byte) has an ordinal >= 128.
+ *         significant byte (the first byte) has an ordinal > BYTE_MAX (=127).
  *  @return a bigInteger created from the big-endian bytes.
  */
 bigIntType bigFromBStriBe (const const_bstriType bstri, const boolType isSigned)
@@ -4022,7 +4022,7 @@ bigIntType bigFromBStriBe (const const_bstriType bstri, const boolType isSigned)
  *  @param isSigned Defines if 'bstri' is interpreted as signed value.
  *         When 'isSigned' is TRUE the twos-complement representation
  *         is used. In this case the result is negative when the most
- *         significant byte (the last byte) has an ordinal >= 128.
+ *         significant byte (the last byte) has an ordinal > BYTE_MAX (=127).
  *  @return a bigInteger created from the little-endian bytes.
  */
 bigIntType bigFromBStriLe (const const_bstriType bstri, const boolType isSigned)
@@ -4909,6 +4909,7 @@ intType bigLowestSetBit (const const_bigIntType big1)
  *  A << B is equivalent to A * 2_ ** B when B >= 0 holds.
  *  A << B is equivalent to A mdiv 2_ ** -B when B < 0 holds.
  *  @return the left shifted number.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 bigIntType bigLShift (const const_bigIntType big1, const intType lshift)
 
@@ -5017,6 +5018,7 @@ bigIntType bigLShift (const const_bigIntType big1, const intType lshift)
 /**
  *  Shift a number left by lshift bits and assign the result back to number.
  *  When lshift is negative a right shift is done instead.
+ *  @exception MEMORY_ERROR Not enough memory to represent the new value.
  */
 void bigLShiftAssign (bigIntType *const big_variable, intType lshift)
 
@@ -6285,6 +6287,7 @@ bigIntType bigRem (const const_bigIntType dividend, const const_bigIntType divis
  *  A >> B is equivalent to A mdiv 2_ ** B when B >= 0 holds.
  *  A >> B is equivalent to A * 2_ ** -B when B < 0 holds.
  *  @return the right shifted number.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 bigIntType bigRShift (const const_bigIntType big1, const intType rshift)
 
@@ -6385,6 +6388,7 @@ bigIntType bigRShift (const const_bigIntType big1, const intType rshift)
 /**
  *  Shift a number right by rshift bits and assign the result back to number.
  *  When rshift is negative a left shift is done instead.
+ *  @exception MEMORY_ERROR Not enough memory to represent the new value.
  */
 void bigRShiftAssign (bigIntType *const big_variable, intType rshift)
 
@@ -7003,7 +7007,7 @@ bigIntType bigSuccTemp (bigIntType big1)
  *         When 'isSigned' is TRUE the result is encoded with the
  *         twos-complement representation. In this case a negative
  *         'big1' is converted to a result where the most significant
- *         byte (the first byte) has an ordinal >= 128.
+ *         byte (the first byte) has an ordinal > BYTE_MAX (=127).
  *  @return a bstring with the big-endian representation.
  *  @exception RANGE_ERROR When 'big1' is negative and 'isSigned' is FALSE.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
@@ -7028,11 +7032,11 @@ bstriType bigToBStriBe (const const_bigIntType big1, const boolType isSigned)
     byteNum = (BIGDIGIT_SIZE >> 3) - 1;
     if (isSigned) {
       if (IS_NEGATIVE(digit)) {
-        while (byteNum > 0 && (digit >> byteNum * CHAR_BIT & 0xFF) == 0xFF) {
+        while (byteNum > 0 && (digit >> byteNum * CHAR_BIT & 0xFF) == UBYTE_MAX) {
           result_size--;
           byteNum--;
         } /* while */
-        if (byteNum < 3 && (digit >> byteNum * CHAR_BIT & 0xFF) <= 127) {
+        if (byteNum < 3 && (digit >> byteNum * CHAR_BIT & 0xFF) <= BYTE_MAX) {
           result_size++;
           byteNum++;
         } /* if */
@@ -7041,7 +7045,7 @@ bstriType bigToBStriBe (const const_bigIntType big1, const boolType isSigned)
           result_size--;
           byteNum--;
         } /* while */
-        if (byteNum < 3 && (digit >> byteNum * CHAR_BIT & 0xFF) >= 128) {
+        if (byteNum < 3 && (digit >> byteNum * CHAR_BIT & 0xFF) > BYTE_MAX) {
           result_size++;
           byteNum++;
         } /* if */
@@ -7098,7 +7102,7 @@ bstriType bigToBStriBe (const const_bigIntType big1, const boolType isSigned)
  *         When 'isSigned' is TRUE the result is encoded with the
  *         twos-complement representation. In this case a negative
  *         'big1' is converted to a result where the most significant
- *         byte (the last byte) has an ordinal >= 128.
+ *         byte (the last byte) has an ordinal > BYTE_MAX (=127).
  *  @return a bstring with the little-endian representation.
  *  @exception RANGE_ERROR When 'big1' is negative and 'isSigned' is FALSE.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
@@ -7123,11 +7127,11 @@ bstriType bigToBStriLe (const const_bigIntType big1, const boolType isSigned)
     byteNum = (BIGDIGIT_SIZE >> 3) - 1;
     if (isSigned) {
       if (IS_NEGATIVE(digit)) {
-        while (byteNum > 0 && (digit >> byteNum * CHAR_BIT & 0xFF) == 0xFF) {
+        while (byteNum > 0 && (digit >> byteNum * CHAR_BIT & 0xFF) == UBYTE_MAX) {
           result_size--;
           byteNum--;
         } /* while */
-        if (byteNum < 3 && (digit >> byteNum * CHAR_BIT & 0xFF) <= 127) {
+        if (byteNum < 3 && (digit >> byteNum * CHAR_BIT & 0xFF) <= BYTE_MAX) {
           result_size++;
           byteNum++;
         } /* if */
@@ -7136,7 +7140,7 @@ bstriType bigToBStriLe (const const_bigIntType big1, const boolType isSigned)
           result_size--;
           byteNum--;
         } /* while */
-        if (byteNum < 3 && (digit >> byteNum * CHAR_BIT & 0xFF) >= 128) {
+        if (byteNum < 3 && (digit >> byteNum * CHAR_BIT & 0xFF) > BYTE_MAX) {
           result_size++;
           byteNum++;
         } /* if */

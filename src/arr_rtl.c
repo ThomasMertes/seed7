@@ -62,6 +62,9 @@
 #include "arr_rtl.h"
 
 
+#define QSORT_LIMIT 8
+
+
 
 #if ANY_LOG_ACTIVE
 #ifdef USE_WMAIN
@@ -95,6 +98,15 @@ static void printArgv (const int argc, const cstriType *const argv)
 
 
 
+/**
+ *  Sort an array of 'rtlObjectType' elements with the quicksort algorithm.
+ *  In contrast to qsort() this function uses a different compare function.
+ *  The compare function of qsort() has two void pointers as parameters.
+ *  @param begin_sort Pointer to first element to be sorted.
+ *  @param end_sort Pointer to the last element to be sorted.
+ *  @param cmp_func Pointer to a compare function that gets two values as
+ *         'genericType' and compares them.
+ */
 static void rtl_qsort_array (rtlObjectType *begin_sort, rtlObjectType *end_sort,
     compareType cmp_func)
 
@@ -107,7 +119,8 @@ static void rtl_qsort_array (rtlObjectType *begin_sort, rtlObjectType *end_sort,
     intType cmp;
 
   /* rtl_qsort_array */
-    if (end_sort - begin_sort < 8) {
+    if (end_sort - begin_sort < QSORT_LIMIT) {
+      /* Use insertion sort */
       for (middle_elem = begin_sort + 1; middle_elem <= end_sort; middle_elem++) {
         compare_elem = middle_elem->value.genericValue;
         less_elem = begin_sort - 1;

@@ -25,16 +25,22 @@
 /*                                                                  */
 /********************************************************************/
 
+/* The include below silences an Eclipse CDT error message. */
+#include "stdio.h"
+
+
 typedef enum {ILLEGALCHAR, EOFCHAR, LETTERCHAR, DIGITCHAR,
     UNDERLINECHAR, SHARPCHAR, QUOTATIONCHAR, APOSTROPHECHAR,
     LEFTPARENCHAR, PARENCHAR, SPECIALCHAR, SPACECHAR,
     NEWLINECHAR} charClass;
 
-EXTERN charClass ch_class[256 - EOF];
-EXTERN boolType ch_name[256 - EOF];
-EXTERN boolType ch_op[256 - EOF];
-EXTERN boolType ch_not_esc[256 - EOF];
-EXTERN boolType ch_std_comment[256 - EOF];
+#define NUMBER_OF_CHARS 256
+
+EXTERN charClass ch_class[NUMBER_OF_CHARS - EOF];
+EXTERN boolType ch_name[NUMBER_OF_CHARS - EOF];
+EXTERN boolType ch_op[NUMBER_OF_CHARS - EOF];
+EXTERN boolType ch_not_esc[NUMBER_OF_CHARS - EOF];
+EXTERN boolType ch_std_comment[NUMBER_OF_CHARS - EOF];
 EXTERN uintType digit_value[128];
 
 

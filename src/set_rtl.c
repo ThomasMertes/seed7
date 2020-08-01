@@ -461,6 +461,11 @@ genericType setCreateGeneric (const genericType from_value)
 
 
 
+/**
+ *  Free the memory referred by 'old_set'.
+ *  After setDestr is left 'old_set' refers to not existing memory.
+ *  The memory where 'old_set' is stored can be freed afterwards.
+ */
 void setDestr (const const_setType old_set)
 
   { /* setDestr */
@@ -573,6 +578,11 @@ boolType setElem (const intType number, const const_setType aSet)
 
 
 
+/**
+ *  Create an empty set.
+ *  @return an empty set.
+ *  @exception MEMORY_ERROR Not enough memory for the result.
+ */
 setType setEmpty (void)
 
   {

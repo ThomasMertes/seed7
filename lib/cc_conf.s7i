@@ -104,6 +104,24 @@ const type: ccConfigType is new struct
     var boolean: HAS_SIGSETJMP              is FALSE;
 
     (**
+     *  TRUE, when the C function sigaction() is present.
+     *  When it is FALSE the function signal() must be used instead.
+     *)
+    var boolean: HAS_SIGACTION              is FALSE;
+
+    (**
+     *  TRUE, when a signal resets the signal handling to SIG_DFL.
+     *  When it is FALSE the signal handler stays unchanged, when a
+     *  signal is raised. When a signal handler is set with signal() an
+     *  incoming signal might trigger a reset of the signal handling.
+     *  This depends on the C run-time. SIGNAL_RESETS_HANDLER is TRUE,
+     *  when the C run-time resets the signal handling. When a signal
+     *  handler is set with sigaction() an incoming signal always leaves
+     *  the signal handling unchanged (SIGNAL_RESETS_HANDLER is FALSE).
+     *)
+    var boolean: SIGNAL_RESETS_HANDLER      is FALSE;
+
+    (**
      *  TRUE, when floating point divisions by zero cause compilation errors.
      *  Some C compilers check if the dividend is 0.0 and classify a
      *  floating point division by zero as fatal error. The generated
@@ -551,6 +569,8 @@ const func ccConfigType: getBuiltInConfig is func
     conf.POW_FUNCTION_OKAY          := boolean parse configValue("POW_FUNCTION_OKAY");
     conf.FREXP_INFINITY_NAN_OKAY    := boolean parse configValue("FREXP_INFINITY_NAN_OKAY");
     conf.HAS_SIGSETJMP              := boolean parse configValue("HAS_SIGSETJMP");
+    conf.HAS_SIGACTION              := boolean parse configValue("HAS_SIGACTION");
+    conf.SIGNAL_RESETS_HANDLER      := boolean parse configValue("SIGNAL_RESETS_HANDLER");
     conf.FLOAT_ZERO_DIV_ERROR       := boolean parse configValue("FLOAT_ZERO_DIV_ERROR");
     conf.DO_SIGFPE_WITH_DIV_BY_ZERO := boolean parse configValue("DO_SIGFPE_WITH_DIV_BY_ZERO");
     conf.CHECK_INT_DIV_BY_ZERO      := boolean parse configValue("CHECK_INT_DIV_BY_ZERO");

@@ -542,6 +542,11 @@ void hshDestr (const const_rtlHashType old_hash, const destrFuncType key_destr_f
 
 
 
+/**
+ *  Create an empty hash table.
+ *  @return an empty hash table.
+ *  @exception MEMORY_ERROR Not enough memory for the result.
+ */
 rtlHashType hshEmpty (void)
 
   {

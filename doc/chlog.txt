@@ -1,3 +1,37 @@
+20161231:
+- The function toArray has been added to the libraries bitset.s7i,
+  bitsetof.s7i and hashsetof.s7i. This function creates an array
+  with all values from a given set.
+- Experimental functions to access TAR and ZIP archives as file system
+  have been added to tar.s7i and zip.s7i. This is work in progress, so
+  the API might change.
+- The compiler has been improved to work correctly with a C++ compiler
+  backend (Now it uses strRaiseError insead of intRaiseError) for the
+  code generated for BIN_RADIX and INT_RADIX.
+- The compiler has been improved to use sigaction(), when available
+  (HAS_SIGACTION is TRUE).
+- The compiler has been improved to reactivate the signal handler,
+  when necessary (SIGNAL_RESETS_HANDLER is TRUE).
+- Testcases for the parse function with whitespace and control
+  characters have been added to chkbig.sd7.
+- in big_gmp.c the functions bigParse and bigParseBased have been
+  improved, to raise RANGE_ERROR when whitespace characters are in the
+  string.
+- The configuration values HAS_SIGACTION and SIGNAL_RESETS_HANDLER
+  have been added to cc_conf.s7i.
+- The program chkccomp.c has been improved to define
+  SIGNAL_RESETS_HANDLER.
+- The function checkMoveDirectory has been removed from chkccomp.c.
+- In several files the literal 8 has been replaced by CHAR_BIT, when 8
+  refers to the number of bits is a char.
+- Several integer literals have been replaced by defined constants.
+- Documentation comments have been added or improved in bitset.s7i,
+  bitsetof.s7i, hashsetof.s7i, cc_conf.s7i, ftp.s7i, tar.s7i, zip.s7i,
+  arrlib.c, arr_rtl.c, big_rtl.c, conlib.c, dll_unx.c, dll_win.c,
+  fillib.c, fil_rtl.c, heaputl.c, hshlib.c, hsh_rtl.c, numlit.c,
+  numutl.c, pcs_unx.c, pcs_win.c, pol_dos.c, pollib.c, pol_sel.c,
+  pol_unx.c, sctlib.c, setlib.c, set_rtl.c, str_rtl.c and typlib.c.
+
 20161204:
 - A description, how compiler optimizations can reduce the potential
   of integer overflow, has been added to the manual.

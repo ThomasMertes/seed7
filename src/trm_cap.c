@@ -83,7 +83,9 @@ int tputs (char *, int, int (*) (char ch));
 #define tgetflag my_tgetflag
 #define tgetstr  my_tgetstr
 
-char capabilities[2049];
+#define CAPBUF_SIZE 2048
+
+char capabilities[CAPBUF_SIZE + NULL_TERMINATION_LEN];
 
 
 
@@ -96,7 +98,7 @@ int my_tgetent (char *capbuf, char *terminal_name)
 
   /* my_tgetent */
     if ((term_descr_file = fopen(terminal_name, "r")) != NULL) {
-      len = fread(capbuf, 1, 2048, term_descr_file);
+      len = fread(capbuf, 1, CAPBUF_SIZE, term_descr_file);
       capbuf[len] = '\0';
       fclose(term_descr_file);
       result = 0;
@@ -233,7 +235,7 @@ char *my_tgetstr(char *code, char **area)
 int getcaps (void)
 
   {
-    static char capbuf[2048];
+    static char capbuf[CAPBUF_SIZE + NULL_TERMINATION_LEN];
     int return_code;
     char *area;
     char *home_dir_path;

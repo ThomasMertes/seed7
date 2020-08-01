@@ -341,9 +341,10 @@ static genericType nextFinding (const poll_based_pollType pollData,
 /**
  *  Add 'eventsToCheck' for 'aSocket' to 'pollData'.
  *  'EventsToCheck' can have one of the following values:
- *  * POLLIN check if data can be read from the corresponding socket.
- *  * POLLOUT check if data can be written to the corresponding socket.
- *  * POLLINOUT check if data can be read or written (POLLIN or POLLOUT).
+ *  - POLLIN check if data can be read from the corresponding socket.
+ *  - POLLOUT check if data can be written to the corresponding socket.
+ *  - POLLINOUT check if data can be read or written (POLLIN or POLLOUT).
+ *
  *  @param pollData Poll data to which the event checks are added.
  *  @param aSocket Socket for which the events should be checked.
  *  @param eventsToCheck Events to be added to the checkedEvents
@@ -401,7 +402,12 @@ void polClear (const pollType pollData)
 
 
 
-void polCpy (const pollType poll_to, const const_pollType pollDataFrom)
+/**
+ *  Assign source to dest.
+ *  A copy function assumes that dest contains a legal value.
+ *  @exception MEMORY_ERROR Not enough memory to create dest.
+ */
+void polCpy (const pollType dest, const const_pollType source)
 
   {
     poll_based_pollType pollData;
@@ -415,18 +421,20 @@ void polCpy (const pollType poll_to, const const_pollType pollDataFrom)
     memSizeType pos;
 
   /* polCpy */
-    if (poll_to != pollDataFrom) {
-      newIndexHash = hshCreate(conv(pollDataFrom)->indexHash,
+    logFunction(printf("polCpy(" FMT_U_MEM ", " FMT_U_MEM ")\n",
+                       (memSizeType) dest, (memSizeType) source););
+    if (dest != source) {
+      newIndexHash = hshCreate(conv(source)->indexHash,
           (createFuncType) &genericCreate, (destrFuncType) &genericDestr,
           (createFuncType) &genericCreate, (destrFuncType) &genericDestr);
-      pollData = var_conv(poll_to);
+      pollData = var_conv(dest);
       hshDestr(pollData->indexHash, (destrFuncType) &genericDestr,
                (destrFuncType) &genericDestr);
       oldPollFiles = pollData->pollFiles;
       oldPollFilesSize = pollData->size;
       oldPollFilesCapacity = pollData->capacity;
-      if (conv(pollDataFrom)->size + NUM_OF_EXTRA_ELEMS > pollData->capacity) {
-        newPollFilesCapacity = conv(pollDataFrom)->capacity;
+      if (conv(source)->size + NUM_OF_EXTRA_ELEMS > pollData->capacity) {
+        newPollFilesCapacity = conv(source)->capacity;
       } else {
         newPollFilesCapacity = pollData->capacity;
       } /* if */
@@ -434,90 +442,104 @@ void polCpy (const pollType poll_to, const const_pollType pollDataFrom)
         raise_error(MEMORY_ERROR);
         return;
       } else {
-        if (conv(pollDataFrom)->size + NUM_OF_EXTRA_ELEMS > pollData->capacity) {
-          if (unlikely(!ALLOC_TABLE(newPollFds, struct pollfd, conv(pollDataFrom)->capacity))) {
+        if (conv(source)->size + NUM_OF_EXTRA_ELEMS > pollData->capacity) {
+          if (unlikely(!ALLOC_TABLE(newPollFds, struct pollfd, conv(source)->capacity))) {
             FREE_TABLE(newPollFiles, genericType, newPollFilesCapacity);
             raise_error(MEMORY_ERROR);
             return;
           } else {
             FREE_TABLE(pollData->pollFds, struct pollfd, pollData->capacity);
-            pollData->capacity = conv(pollDataFrom)->capacity;
+            pollData->capacity = conv(source)->capacity;
             pollData->pollFds = newPollFds;
           } /* if */
         } /* if */
       } /* if */
-      pollData->size = conv(pollDataFrom)->size;
-      pollData->iteratorMode = conv(pollDataFrom)->iteratorMode;
-      pollData->iterPos = conv(pollDataFrom)->iterPos;
-      pollData->iterEvents = conv(pollDataFrom)->iterEvents;
-      pollData->numOfEvents = conv(pollDataFrom)->numOfEvents;
+      pollData->size = conv(source)->size;
+      pollData->iteratorMode = conv(source)->iteratorMode;
+      pollData->iterPos = conv(source)->iterPos;
+      pollData->iterEvents = conv(source)->iterEvents;
+      pollData->numOfEvents = conv(source)->numOfEvents;
       pollData->pollFiles = newPollFiles;
-      memcpy(pollData->pollFds, conv(pollDataFrom)->pollFds,
+      memcpy(pollData->pollFds, conv(source)->pollFds,
              pollData->size * sizeof(struct pollfd));
       memset(&pollData->pollFds[pollData->size], 0, sizeof(struct pollfd));
       pollData->pollFds[pollData->size].revents = TERMINATING_REVENT;
       pollData->indexHash = newIndexHash;
       for (pos = 0; pos < pollData->size; pos++) {
-        newPollFiles[pos] = fileObjectOps.incrUsageCount(conv(pollDataFrom)->pollFiles[pos]);
+        newPollFiles[pos] = fileObjectOps.incrUsageCount(conv(source)->pollFiles[pos]);
       } /* for */
       for (pos = 0; pos < oldPollFilesSize; pos++) {
         fileObjectOps.decrUsageCount(oldPollFiles[pos]);
       } /* for */
       FREE_TABLE(oldPollFiles, genericType, oldPollFilesCapacity);
     } /* if */
-    /* printf("end polCpy:\n");
-       dumpPoll(poll_to); */
+    logFunction(printf("polCpy -->\n"););
+    /* dumpPoll(dest); */
   } /* polCpy */
 
 
 
-pollType polCreate (const const_pollType pollDataFrom)
+/**
+ *  Return a copy of source, that can be assigned to a new destination.
+ *  It is assumed that the destination of the assignment is undefined.
+ *  Create functions can be used to initialize Seed7 constants.
+ *  @return a copy of source.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
+pollType polCreate (const const_pollType source)
 
   {
     memSizeType pos;
     poll_based_pollType result;
 
   /* polCreate */
+    logFunction(printf("polCreate(" FMT_U_MEM ")\n",
+                       (memSizeType) source););
     if (unlikely(!ALLOC_RECORD(result, poll_based_pollRecord, count.polldata))) {
       raise_error(MEMORY_ERROR);
     } else {
-      if (unlikely(!ALLOC_TABLE(result->pollFds, struct pollfd, conv(pollDataFrom)->capacity))) {
+      if (unlikely(!ALLOC_TABLE(result->pollFds, struct pollfd, conv(source)->capacity))) {
         FREE_RECORD(result, poll_based_pollRecord, count.polldata);
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
-        if (unlikely(!ALLOC_TABLE(result->pollFiles, genericType, conv(pollDataFrom)->capacity))) {
-          FREE_TABLE(result->pollFds, struct pollfd, conv(pollDataFrom)->capacity);
+        if (unlikely(!ALLOC_TABLE(result->pollFiles, genericType, conv(source)->capacity))) {
+          FREE_TABLE(result->pollFds, struct pollfd, conv(source)->capacity);
           FREE_RECORD(result, poll_based_pollRecord, count.polldata);
           raise_error(MEMORY_ERROR);
           result = NULL;
         } else {
-          result->indexHash = hshCreate(conv(pollDataFrom)->indexHash,
+          result->indexHash = hshCreate(conv(source)->indexHash,
               (createFuncType) &genericCreate, (destrFuncType) &genericDestr,
               (createFuncType) &genericCreate, (destrFuncType) &genericDestr);
-          result->size = conv(pollDataFrom)->size;
-          result->capacity = conv(pollDataFrom)->capacity;
-          result->iteratorMode = conv(pollDataFrom)->iteratorMode;
-          result->iterPos = conv(pollDataFrom)->iterPos;
-          result->iterEvents = conv(pollDataFrom)->iterEvents;
-          result->numOfEvents = conv(pollDataFrom)->numOfEvents;
-          memcpy(result->pollFds, conv(pollDataFrom)->pollFds,
-                 conv(pollDataFrom)->size * sizeof(struct pollfd));
-          for (pos = 0; pos < conv(pollDataFrom)->size; pos++) {
-            result->pollFiles[pos] = fileObjectOps.incrUsageCount(conv(pollDataFrom)->pollFiles[pos]);
+          result->size = conv(source)->size;
+          result->capacity = conv(source)->capacity;
+          result->iteratorMode = conv(source)->iteratorMode;
+          result->iterPos = conv(source)->iterPos;
+          result->iterEvents = conv(source)->iterEvents;
+          result->numOfEvents = conv(source)->numOfEvents;
+          memcpy(result->pollFds, conv(source)->pollFds,
+                 conv(source)->size * sizeof(struct pollfd));
+          for (pos = 0; pos < conv(source)->size; pos++) {
+            result->pollFiles[pos] = fileObjectOps.incrUsageCount(conv(source)->pollFiles[pos]);
           } /* for */
           memset(&result->pollFds[result->size], 0, sizeof(struct pollfd));
           result->pollFds[result->size].revents = TERMINATING_REVENT;
         } /* if */
       } /* if */
     } /* if */
-    /* printf("end polCreate:\n");
-       dumpPoll((pollType) result); */
+    logFunction(printf("polCreate -->\n"););
+    /* dumpPoll((pollType) result); */
     return (pollType) result;
   } /* polCreate */
 
 
 
+/**
+ *  Free the memory referred by 'oldPollData'.
+ *  After polDestr is left 'oldPollData' refers to not existing memory.
+ *  The memory where 'oldPollData' is stored can be freed afterwards.
+ */
 void polDestr (const pollType oldPollData)
 
   {
@@ -538,6 +560,11 @@ void polDestr (const pollType oldPollData)
 
 
 
+/**
+ *  Create an empty poll data value.
+ *  @return an empty poll data value.
+ *  @exception MEMORY_ERROR Not enough memory for the result.
+ */
 pollType polEmpty (void)
 
   {
@@ -581,10 +608,11 @@ pollType polEmpty (void)
  *  Return the checkedEvents field from 'pollData' for 'aSocket'.
  *  The polPoll function uses the checkedEvents as input.
  *  The following checkedEvents can be returned:
- *  * POLLNOTHING no data can be read or written.
- *  * POLLIN data can be read from the corresponding [[socket]].
- *  * POLLOUT data can be written to the corresponding socket.
- *  * POLLINOUT data can be read and written (POLLIN and POLLOUT).
+ *  - POLLNOTHING no data can be read or written.
+ *  - POLLIN data can be read from the corresponding socket.
+ *  - POLLOUT data can be written to the corresponding socket.
+ *  - POLLINOUT data can be read and written (POLLIN and POLLOUT).
+ *
  *  @param pollData Poll data from which the checkedEvents are
  *         retrieved.
  *  @param aSocket Socket for which the checkedEvents are retrived.
@@ -624,6 +652,19 @@ intType polGetCheck (const const_pollType pollData, const socketType aSocket)
 
 
 
+/**
+ *  Return the eventFindings field from 'pollData' for 'aSocket'.
+ *  The polPoll function assigns the
+ *  eventFindings for 'aSocket' to 'pollData'. The following
+ *  eventFindings can be returned:
+ *  - POLLNOTHING no data can be read or written.
+ *  - POLLIN data can be read from the corresponding socket.
+ *  - POLLOUT data can be written to the corresponding socket.
+ *  - POLLINOUT data can be read and written (POLLIN and POLLOUT).
+ *
+ *  @return POLLNOTHING, POLLIN, POLLOUT or POLLINOUT, depending on
+ *          the findings of polPoll concerning 'aSocket'.
+ */
 intType polGetFinding (const const_pollType pollData, const socketType aSocket)
 
   {
@@ -656,6 +697,11 @@ intType polGetFinding (const const_pollType pollData, const socketType aSocket)
 
 
 
+/**
+ *  Determine if the 'pollData' iterator can deliver another file.
+ *  @return TRUE if 'nextFile' would return another file from the
+ *          'pollData' iterator, FALSE otherwise.
+ */
 boolType polHasNext (const pollType pollData)
 
   { /* polHasNext */
@@ -680,6 +726,18 @@ boolType polHasNext (const pollType pollData)
 
 
 
+/**
+ *  Reset the 'pollData' iterator to process checkedEvents.
+ *  The following calls of 'hasNext' and 'nextFile' refer to
+ *  the checkedEvents of the given 'pollMode'. 'PollMode'
+ *  can have one of the following values:
+ *  - POLLNOTHING don't iterate ('hasNext' returns FALSE).
+ *  - POLLIN data can be read from the corresponding socket.
+ *  - POLLOUT data can be written to the corresponding socket.
+ *  - POLLINOUT data can be read or written (POLLIN and POLLOUT).
+ *
+ *  @exception RANGE_ERROR Illegal value for 'pollMode'.
+ */
 void polIterChecks (const pollType pollData, intType pollMode)
 
   { /* polIterChecks */
@@ -705,6 +763,18 @@ void polIterChecks (const pollType pollData, intType pollMode)
 
 
 
+/**
+ *  Reset the 'pollData' iterator to process eventFindings.
+ *  The following calls of 'hasNext' and 'nextFile' refer to
+ *  the eventFindings of the given 'pollMode'. 'PollMode'
+ *  can have one of the following values:
+ *  - POLLNOTHING don't iterate ('hasNext' returns FALSE).
+ *  - POLLIN data can be read from the corresponding socket.
+ *  - POLLOUT data can be written to the corresponding socket.
+ *  - POLLINOUT data can be read or written (POLLIN and POLLOUT).
+ *
+ *  @exception RANGE_ERROR Illegal value for 'pollMode'.
+ */
 void polIterFindings (const pollType pollData, intType pollMode)
 
   { /* polIterFindings */
@@ -731,6 +801,15 @@ void polIterFindings (const pollType pollData, intType pollMode)
 
 
 
+/**
+ *  Get the next file from the 'pollData' iterator.
+ *  Successive calls of 'nextFile' return all files from the 'pollData'
+ *  iterator. The file returned by 'nextFile' is determined with the
+ *  function 'addCheck'. The files covered by the 'pollData' iterator
+ *  are determined with 'iterChecks' or 'iterFindings'.
+ *  @return the next file from the 'pollData' iterator, or STD_NULL,
+ *          when no file from the 'pollData' iterator is available.
+ */
 genericType polNextFile (const pollType pollData, const genericType nullFile)
 
   {
@@ -767,6 +846,18 @@ genericType polNextFile (const pollType pollData, const genericType nullFile)
 
 
 
+/**
+ *  Waits for one or more of the checkedEvents from 'pollData'.
+ *  polPoll waits until one of the checkedEvents for a
+ *  corresponding socket occurs. When a checkedEvents occurs
+ *  the eventFindings field is assigned a value. The following
+ *  eventFindings values are assigned:
+ *  - POLLIN data can be read from the corresponding socket.
+ *  - POLLOUT data can be written to the corresponding socket.
+ *  - POLLINOUT data can be read and written (POLLIN and POLLOUT).
+ *
+ *  @exception FILE_ERROR The system function returns an error.
+ */
 void polPoll (const pollType pollData)
 
   {
@@ -795,13 +886,14 @@ void polPoll (const pollType pollData)
 /**
  *  Remove 'eventsToCheck' for 'aSocket' from 'pollData'.
  *  'EventsToCheck' can have one of the following values:
- *  * POLLIN check if data can be read from the corresponding socket.
- *  * POLLOUT check if data can be written to the corresponding socket.
- *  * POLLINOUT check if data can be read or written (POLLIN or POLLOUT).
- *  @param pData Poll data from which the event checks are removed.
+ *  - POLLIN check if data can be read from the corresponding socket.
+ *  - POLLOUT check if data can be written to the corresponding socket.
+ *  - POLLINOUT check if data can be read or written (POLLIN or POLLOUT).
+ *
+ *  @param pollData Poll data from which the event checks are removed.
  *  @param aSocket Socket for which the events should not be checked.
  *  @param eventsToCheck Events to be removed from the checkedEvents
- *         field of 'pData'.
+ *         field of 'pollData'.
  *  @exception RANGE_ERROR Illegal value for 'eventsToCheck'.
  */
 void polRemoveCheck (const pollType pollData, const socketType aSocket,

@@ -671,7 +671,7 @@ static striType read_and_alloc_stri (fileType inFile, memSizeType chars_missing,
 static void handle_int_signal (int sig_num)
 
   {
-#if !HAS_SIGACTION && HAS_SIGNAL
+#if SIGNAL_RESETS_HANDLER
     signal(SIGINT, handle_int_signal);
 #endif
     do_longjmp(intr_jump_pos, 1);
@@ -1629,20 +1629,21 @@ intType filLng (fileType aFile)
 /**
  *  Opens a file with the specified 'path' and 'mode'.
  *  There are text modes and binary modes:
- *  *Binary modes:
- *  ** "r"   Open file for reading.
- *  ** "w"   Truncate to zero length or create file for writing.
- *  ** "a"   Append; open or create file for writing at end-of-file.
- *  ** "r+"  Open file for update (reading and writing).
- *  ** "w+"  Truncate to zero length or create file for update.
- *  ** "a+"  Append; open or create file for update, writing at end-of-file.
- *  *Text modes:
- *  ** "rt"  Open file for reading.
- *  ** "wt"  Truncate to zero length or create file for writing.
- *  ** "at"  Append; open or create file for writing at end-of-file.
- *  ** "rt+" Open file for update (reading and writing).
- *  ** "wt+" Truncate to zero length or create file for update.
- *  ** "at+" Append; open or create file for update, writing at end-of-file.
+ *  - Binary modes:
+ *   - "r"   Open file for reading.
+ *   - "w"   Truncate to zero length or create file for writing.
+ *   - "a"   Append; open or create file for writing at end-of-file.
+ *   - "r+"  Open file for update (reading and writing).
+ *   - "w+"  Truncate to zero length or create file for update.
+ *   - "a+"  Append; open or create file for update, writing at end-of-file.
+ *  - Text modes:
+ *   - "rt"  Open file for reading.
+ *   - "wt"  Truncate to zero length or create file for writing.
+ *   - "at"  Append; open or create file for writing at end-of-file.
+ *   - "rt+" Open file for update (reading and writing).
+ *   - "wt+" Truncate to zero length or create file for update.
+ *   - "at+" Append; open or create file for update, writing at end-of-file.
+ *
  *  Note that this modes differ from the ones used by the C function
  *  fopen(). Unicode characters in 'path' are converted to the
  *  representation used by the fopen() function of the operating
@@ -1747,6 +1748,10 @@ fileType filOpen (const const_striType path, const const_striType mode)
 
 
 
+/**
+ *  Open the null device of the operation system for reading and writing.
+ *  @return the null device opened, or NULL if it could not be opened.
+ */
 fileType filOpenNullDevice (void)
 
   {

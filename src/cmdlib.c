@@ -55,6 +55,9 @@
 #define EXTERN
 #include "cmdlib.h"
 
+#define INITAL_ARRAY_SIZE  256
+#define ARRAY_SIZE_DELTA   256
+
 
 
 #ifdef USE_CDECL
@@ -83,25 +86,25 @@ static arrayType read_dir (dirType directory)
     boolType okay;
 
   /* read_dir */
-    max_array_size = 256;
+    max_array_size = INITAL_ARRAY_SIZE;
     if (ALLOC_ARRAY(dir_array, max_array_size)) {
       used_array_size = 0;
       stri1 = dirRead(directory);
       okay = TRUE;
       while (okay && stri1 != NULL) {
         if ((memSizeType) used_array_size >= max_array_size) {
-          if (max_array_size >= MAX_MEM_INDEX - 256) {
+          if (max_array_size >= MAX_MEM_INDEX - ARRAY_SIZE_DELTA) {
             resized_dir_array = NULL;
           } else {
             resized_dir_array = REALLOC_ARRAY(dir_array,
-                max_array_size, max_array_size + 256);
+                max_array_size, max_array_size + ARRAY_SIZE_DELTA);
           } /* if */
           if (resized_dir_array == NULL) {
             okay = FALSE;
           } else {
             dir_array = resized_dir_array;
-            COUNT3_ARRAY(max_array_size, max_array_size + 256);
-            max_array_size += 256;
+            COUNT3_ARRAY(max_array_size, max_array_size + ARRAY_SIZE_DELTA);
+            max_array_size += ARRAY_SIZE_DELTA;
           } /* if */
         } /* if */
         if (okay) {

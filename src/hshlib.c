@@ -725,6 +725,11 @@ objectType hsh_destr (listType arguments)
 
 
 
+/**
+ *  Create an empty hash table.
+ *  @return an empty hash table.
+ *  @exception MEMORY_ERROR Not enough memory for the result.
+ */
 objectType hsh_empty (listType arguments)
 
   {

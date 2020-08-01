@@ -68,15 +68,15 @@
  *  CommandLineToArgvW reads arguments in two modes. Inside and
  *  outside quotation mode. The following rules apply when a
  *  backslash is encountered:
- *  * 2n backslashes followed by a quotation mark produce
+ *  - 2n backslashes followed by a quotation mark produce
  *    n backslashes and a switch from inside to outside quotation
  *    mode and vice versa. In this case the quotation mark is not
  *    added to the argument.
- *  * (2n) + 1 backslashes followed by a quotation mark produce
+ *  - (2n) + 1 backslashes followed by a quotation mark produce
  *    n backslashes followed by a quotation mark. In this case the
  *    quotation mark is added to the argument and the quotation mode
  +    is not changed.
- *  * n backslashes not followed by a quotation mark simply produce
+ *  - n backslashes not followed by a quotation mark simply produce
  *    n backslashes.
  */
 static void processBackslash (const_os_striType *sourcePos, os_striType *destPos)

@@ -50,7 +50,9 @@
 #include "str_rtl.h"
 
 
-#define CHAR_DELTA_BEYOND 128
+#define CHAR_DELTA_BEYOND  128
+#define INITIAL_ARRAY_SIZE 256
+#define ARRAY_SIZE_DELTA   256
 
 /* memset_to_strelem is not used because it is */
 /* only better for lengths greater than 7.     */
@@ -694,11 +696,11 @@ static rtlArrayType add_stri_to_array (const strElemType *const stri_elems,
       new_stri->size = length;
       memcpy(new_stri->mem, stri_elems, length * sizeof(strElemType));
       if (*used_max_position >= work_array->max_position) {
-        if (work_array->max_position >= MAX_MEM_INDEX - 256) {
+        if (work_array->max_position >= MAX_MEM_INDEX - ARRAY_SIZE_DELTA) {
           resized_work_array = NULL;
         } else {
           resized_work_array = REALLOC_RTL_ARRAY(work_array,
-              (uintType) work_array->max_position, (uintType) work_array->max_position + 256);
+              (uintType) work_array->max_position, (uintType) work_array->max_position + ARRAY_SIZE_DELTA);
         } /* if */
         if (resized_work_array == NULL) {
           FREE_STRI(new_stri, new_stri->size);
@@ -706,8 +708,8 @@ static rtlArrayType add_stri_to_array (const strElemType *const stri_elems,
         } else {
           work_array = resized_work_array;
           COUNT3_RTL_ARRAY((uintType) work_array->max_position,
-                           (uintType) work_array->max_position + 256);
-          work_array->max_position += 256;
+                           (uintType) work_array->max_position + ARRAY_SIZE_DELTA);
+          work_array->max_position += ARRAY_SIZE_DELTA;
         } /* if */
       } /* if */
     } /* if */
@@ -1371,9 +1373,9 @@ rtlArrayType strChEscSplit (const const_striType mainStri, const charType delimi
     if (unlikely(delimiter == escape)) {
       raise_error(RANGE_ERROR);
     } else {
-      if (ALLOC_RTL_ARRAY(result_array, 256)) {
+      if (ALLOC_RTL_ARRAY(result_array, INITIAL_ARRAY_SIZE)) {
         result_array->min_position = 1;
-        result_array->max_position = 256;
+        result_array->max_position = INITIAL_ARRAY_SIZE;
         used_max_position = 0;
         search_start = mainStri->mem;
         search_end = &mainStri->mem[mainStri->size];
@@ -1545,9 +1547,9 @@ rtlArrayType strChSplit (const const_striType mainStri, const charType delimiter
   /* strChSplit */
     logFunction(printf("strChSplit(\"%s\", '\\" FMT_U32 ";')\n",
                        striAsUnquotedCStri(mainStri), delimiter););
-    if (likely(ALLOC_RTL_ARRAY(result_array, 256))) {
+    if (likely(ALLOC_RTL_ARRAY(result_array, INITIAL_ARRAY_SIZE))) {
       result_array->min_position = 1;
-      result_array->max_position = 256;
+      result_array->max_position = INITIAL_ARRAY_SIZE;
       used_max_position = 0;
       search_start = mainStri->mem;
       search_end = &mainStri->mem[mainStri->size];
@@ -2040,6 +2042,14 @@ void strDestrGeneric (const genericType old_value)
 
 
 
+/**
+ *  Return an empty string, that can be assigned to a new destination.
+ *  This function is used as performance optimization by the compiler.
+ *  StrEmpty is used instead of strCreate, when it is known at
+ *  compile-time, that the source string is empty.
+ *  @return an empty string.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 striType strEmpty (void)
 
   {
@@ -3677,100 +3687,6 @@ striType strRtrim (const const_striType stri)
 
 
 
-#ifdef OUT_OF_ORDER
-arrayType strSplit (const const_striType mainStri, charType delimiter)
-
-  {
-    arrayType result_array;
-    intType used_max_position;
-    errInfoType err_info = OKAY_NO_ERROR;
-
-    memSizeType main_size;
-    const strElemType *main_mem;
-    const strElemType *search_start;
-    const strElemType *search_end;
-    const strElemType *found_pos;
-    striType dest;
-
-  /* strSplit */
-    if (unlikely(!ALLOC_ARRAY(result_array, 256))) {
-      raise_error(MEMORY_ERROR);
-      return NULL;
-    } else {
-      result_array->min_position = 1;
-      result_array->max_position = 256;
-      used_max_position = 0;
-      main_size = mainStri->size;
-      if (main_size >= 1) {
-        main_mem = mainStri->mem;
-        search_start = main_mem;
-        search_end = &main_mem[main_size];
-        while ((found_pos = search_strelem(search_start, delimiter, search_end)) != NULL) {
-          add_stri_to_array(search_start, found_pos - search_start,
-              result_array, &used_max_position, &err_info);
-          search_start = found_pos + 1
-        } /* while */
-        add_stri_to_array(search_start, search_end - search_start,
-            result_array, &used_max_position, &err_info);
-      } /* if */
-
-      return result_array;
-    } /* if */
-  } /* strSplit */
-
-
-
-arrayType strSplit (const const_striType stri, const const_striType delimiter)
-
-  {
-    memSizeType main_size;
-    memSizeType delimiter_size;
-    strElemType ch_1;
-    const strElemType *main_mem;
-    const strElemType *delimiter_mem;
-    const strElemType *search_start;
-    const strElemType *search_end;
-    const strElemType *found_pos;
-    errInfoType err_info = OKAY_NO_ERROR;
-
-  /* strSplit */
-    main_size = mainStri->size;
-    delimiter_size = delimiter->size;
-    if (delimiter->size == 1) {
-      if (delimiter_size <= main_size) {
-        delimiter_mem = delimiter->mem;
-        ch_1 = delimiter_mem[0];
-        main_mem = mainStri->mem;
-        search_start = main_mem;
-        search_end = &main_mem[main_size - delimiter_size + 1];
-        while ((found_pos = search_strelem(search_start, ch_1, search_end)) != NULL) {
-          memcpy(dest, search_start, (memSizeType) (found_pos - search_start));
-          search_start = found_pos + 1
-        } /* while */
-      } /* if */
-    } else {
-      if (delimiter_size != 0 && delimiter_size <= main_size) {
-        delimiter_mem = delimiter->mem;
-        ch_1 = delimiter_mem[0];
-        main_mem = mainStri->mem;
-        search_start = main_mem;
-        search_end = &main_mem[main_size - delimiter_size + 1];
-        while ((found_pos = search_strelem(search_start, ch_1, search_end)) != NULL) {
-          if (memcmp(search_start, delimiter_mem,
-              delimiter_size * sizeof(strElemType)) == 0) {
-
-            search_start = found_pos + delimiter_size;
-          } else {
-            search_start++;
-          } /* if */
-        } /* while */
-      } /* if */
-    } /* if */
-  } /* strSplit */
-#endif
-
-
-
 rtlArrayType strSplit (const const_striType mainStri,
     const const_striType delimiter)
 
@@ -3788,9 +3704,9 @@ rtlArrayType strSplit (const const_striType mainStri,
     rtlArrayType result_array;
 
   /* strSplit */
-    if (likely(ALLOC_RTL_ARRAY(result_array, 256))) {
+    if (likely(ALLOC_RTL_ARRAY(result_array, INITIAL_ARRAY_SIZE))) {
       result_array->min_position = 1;
-      result_array->max_position = 256;
+      result_array->max_position = INITIAL_ARRAY_SIZE;
       used_max_position = 0;
       delimiter_size = delimiter->size;
       delimiter_mem = delimiter->mem;

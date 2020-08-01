@@ -148,7 +148,6 @@ strip:
 chkccomp.h:
 	echo "#include \"sys/stat.h\"" > chkccomp.h
 	echo "#include \"sys/types.h\"" >> chkccomp.h
-	echo "#include \"unistd.h\"" >> chkccomp.h
 	echo "#define LIST_DIRECTORY_CONTENTS \"ls\"" >> chkccomp.h
 	echo "#define MYSQL_INCLUDE_OPTIONS \"-I%%LOCALBASE%%/include/mysql\"" >> chkccomp.h
 	echo "#define MYSQL_LIBRARY_PATH \"-L%%LOCALBASE%%/lib/mysql\"" >> chkccomp.h

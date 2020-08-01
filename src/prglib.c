@@ -61,9 +61,6 @@
 #include "prglib.h"
 
 
-#define TABLE_INCREMENT 127
-
-
 
 /**
  *  Assign source/arg_3 to dest/arg_1.

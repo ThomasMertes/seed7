@@ -5340,7 +5340,15 @@ const proc: write_signal_handlers is func
       writeln(c_prog, "    int ch;");
       writeln(c_prog);
       writeln(c_prog, "#ifdef SIGALRM");
-      writeln(c_prog, "    signal(SIGALRM, SIG_IGN);");
+      if ccConf.HAS_SIGACTION then
+        writeln(c_prog, "    struct sigaction sig_act;");
+        writeln(c_prog, "    sigemptyset(&sig_act.sa_mask);");
+        writeln(c_prog, "    sig_act.sa_flags = SA_RESTART;");
+        writeln(c_prog, "    sig_act.sa_handler = SIG_IGN;");
+        writeln(c_prog, "    sigaction(SIGALRM, &sig_act, NULL);");
+      else
+        writeln(c_prog, "    signal(SIGALRM, SIG_IGN);");
+      end if;
       writeln(c_prog, "#endif");
       writeln(c_prog, "    printf(\"\\n*** SIGNAL %s RAISED\\n\", signal_name(sig_num));");
       writeln(c_prog, "    printf(\"\\n*** (Type RETURN to continue or '*' to terminate)\\n\");");
@@ -5348,7 +5356,9 @@ const proc: write_signal_handlers is func
       writeln(c_prog, "    if (ch == '*') {");
       writeln(c_prog, "      exit(1);");
       writeln(c_prog, "    } /* if */");
-      writeln(c_prog, "    activate_signal_handlers();");
+      if ccConf.SIGNAL_RESETS_HANDLER then
+        writeln(c_prog, "    activate_signal_handlers();");
+      end if;
       writeln(c_prog, "  }");
       writeln(c_prog);
       writeln(c_prog);
@@ -5368,7 +5378,17 @@ const proc: write_signal_handlers is func
       writeln(c_prog, "  {");
       writeln(c_prog, "    printf(\"\\n*** SIGNAL SEGV RAISED\\n\");");
       writeln(c_prog, "    printf(\"\\n*** Program terminated\\n\");");
-      writeln(c_prog, "    signal(SIGABRT, SIG_DFL);");
+      if ccConf.HAS_SIGACTION then
+        writeln(c_prog, "    {");
+        writeln(c_prog, "      struct sigaction sig_act;");
+        writeln(c_prog, "      sigemptyset(&sig_act.sa_mask);");
+        writeln(c_prog, "      sig_act.sa_flags = SA_RESTART;");
+        writeln(c_prog, "      sig_act.sa_handler = SIG_DFL;");
+        writeln(c_prog, "      sigaction(SIGABRT, &sig_act, NULL);");
+        writeln(c_prog, "    }");
+      else
+        writeln(c_prog, "    signal(SIGABRT, SIG_DFL);");
+      end if;
       writeln(c_prog, "    abort();");
       writeln(c_prog, "  }");
       writeln(c_prog);
@@ -5377,7 +5397,7 @@ const proc: write_signal_handlers is func
     writeln(c_prog, "static void handle_numeric_error (int sig_num)");
     writeln(c_prog);
     writeln(c_prog, "  {");
-    if not ccConf.HAS_SIGSETJMP then
+    if ccConf.SIGNAL_RESETS_HANDLER then
       writeln(c_prog, "    signal(SIGFPE, handle_numeric_error);");
     end if;
     writeln(c_prog, "    raise_error(NUMERIC_ERROR);");
@@ -5388,7 +5408,7 @@ const proc: write_signal_handlers is func
       writeln(c_prog, "static void handle_overflow_error (int sig_num)");
       writeln(c_prog);
       writeln(c_prog, "  {");
-      if not ccConf.HAS_SIGSETJMP then
+      if ccConf.SIGNAL_RESETS_HANDLER then
         writeln(c_prog, "    signal(" <& ccConf.OVERFLOW_SIGNAL <& ", handle_overflow_error);");
       end if;
       writeln(c_prog, "    raise_error(OVERFLOW_ERROR);");
@@ -5399,25 +5419,55 @@ const proc: write_signal_handlers is func
     writeln(c_prog, "static void activate_signal_handlers (void)");
     writeln(c_prog);
     writeln(c_prog, "  {");
-    writeln(c_prog, "    signal(SIGFPE, handle_numeric_error);");
-    writeln(c_prog, "    signal(SIGTERM, handle_term_signal);");
-    if trace_signal then
-      writeln(c_prog, "    signal(SIGSEGV, handle_segv_signal);");
-    else
-      writeln(c_prog, "    signal(SIGSEGV, SIG_DFL);");
-    end if;
-    for signalName range normalSignals do
-      if signalName = ccConf.OVERFLOW_SIGNAL then
-        writeln(c_prog, "    signal(" <& signalName <& ", handle_overflow_error);");
-      elsif trace_signal then
-        writeln(c_prog, "    signal(" <& signalName <& ", handle_signals);");
+    if ccConf.HAS_SIGACTION then
+      writeln(c_prog, "    struct sigaction sig_act;");
+      writeln(c_prog, "    sigemptyset(&sig_act.sa_mask);");
+      writeln(c_prog, "    sig_act.sa_flags = SA_RESTART;");
+      writeln(c_prog, "    sig_act.sa_handler = handle_numeric_error;");
+      writeln(c_prog, "    sigaction(SIGFPE, &sig_act, NULL);");
+      writeln(c_prog, "    sig_act.sa_handler = handle_term_signal;");
+      writeln(c_prog, "    sigaction(SIGTERM, &sig_act, NULL);");
+      if trace_signal then
+        writeln(c_prog, "    sig_act.sa_handler = handle_segv_signal;");
       else
-        writeln(c_prog, "    signal(" <& signalName <& ", handle_term_signal);");
+        writeln(c_prog, "    sig_act.sa_handler = SIG_DFL;");
       end if;
-    end for;
-    writeln(c_prog, "#ifdef SIGPIPE");
-    writeln(c_prog, "    signal(SIGPIPE, SIG_IGN);");
-    writeln(c_prog, "#endif");
+      writeln(c_prog, "    sigaction(SIGSEGV, &sig_act, NULL);");
+      for signalName range normalSignals do
+        if signalName = ccConf.OVERFLOW_SIGNAL then
+          writeln(c_prog, "    sig_act.sa_handler = handle_overflow_error;");
+        elsif trace_signal then
+          writeln(c_prog, "    sig_act.sa_handler = handle_signals;");
+        else
+          writeln(c_prog, "    sig_act.sa_handler = handle_term_signal;");
+        end if;
+        writeln(c_prog, "    sigaction(" <& signalName <& ", &sig_act, NULL);");
+      end for;
+      writeln(c_prog, "#ifdef SIGPIPE");
+      writeln(c_prog, "    sig_act.sa_handler = SIG_IGN;");
+      writeln(c_prog, "    sigaction(SIGPIPE, &sig_act, NULL);");
+      writeln(c_prog, "#endif");
+    else
+      writeln(c_prog, "    signal(SIGFPE, handle_numeric_error);");
+      writeln(c_prog, "    signal(SIGTERM, handle_term_signal);");
+      if trace_signal then
+        writeln(c_prog, "    signal(SIGSEGV, handle_segv_signal);");
+      else
+        writeln(c_prog, "    signal(SIGSEGV, SIG_DFL);");
+      end if;
+      for signalName range normalSignals do
+        if signalName = ccConf.OVERFLOW_SIGNAL then
+          writeln(c_prog, "    signal(" <& signalName <& ", handle_overflow_error);");
+        elsif trace_signal then
+          writeln(c_prog, "    signal(" <& signalName <& ", handle_signals);");
+        else
+          writeln(c_prog, "    signal(" <& signalName <& ", handle_term_signal);");
+        end if;
+      end for;
+      writeln(c_prog, "#ifdef SIGPIPE");
+      writeln(c_prog, "    signal(SIGPIPE, SIG_IGN);");
+      writeln(c_prog, "#endif");
+    end if;
     writeln(c_prog, "  }");
     writeln(c_prog);
     writeln(c_prog);
@@ -6759,7 +6809,17 @@ const proc: declare_rtlRaiseError (inout expr_type: c_expr) is func
       c_expr.expr &:= "      printf(\"%d\", fail_value);\n";
       c_expr.expr &:= "    }\n";
       c_expr.expr &:= "    printf(\" raised at %s(%d)\\n\", file_name, line_number);\n";
-      c_expr.expr &:= "    signal(SIGFPE, SIG_DFL);\n";
+      if ccConf.HAS_SIGACTION then
+        c_expr.expr &:= "    {\n";
+        c_expr.expr &:= "      struct sigaction sig_act;\n";
+        c_expr.expr &:= "      sigemptyset(&sig_act.sa_mask);\n";
+        c_expr.expr &:= "      sig_act.sa_flags = SA_RESTART;\n";
+        c_expr.expr &:= "      sig_act.sa_handler = SIG_DFL;\n";
+        c_expr.expr &:= "      sigaction(SIGFPE, &sig_act, NULL);\n";
+        c_expr.expr &:= "    }\n";
+      else
+        c_expr.expr &:= "    signal(SIGFPE, SIG_DFL);\n";
+      end if;
       if ccConf.DO_SIGFPE_WITH_DIV_BY_ZERO then
         # Under Windows it is necessary to trigger SIGFPE this way
         # to assure that the debugger can catch it.
@@ -7002,10 +7062,11 @@ const proc: pass_2 (in string: source, in program: prog,
       main_object := sysVar(prog, "main");
       if main_object <> NIL then
         compileLibrary := category(main_object) = FORWARDOBJECT;
+        temporaryFileName := temp_name(source);
         if generate_c_plus_plus then
-          temporaryFileName := temp_name(source) & ".cpp";
+          temporaryFileName &:= ".cpp";
         else
-          temporaryFileName := temp_name(source) & ".c";
+          temporaryFileName &:= ".c";
         end if;
         # The temporary tmp_*.c file is marked with a temp_marker.
         # The temp_marker is checked, before the file is overwritten.
@@ -7172,10 +7233,11 @@ const proc: pass_3 (in string: sourcePath, in string: sourceExtension, in progra
         workDir := sourcePath[.. rpos(sourcePath, "/")];
         sourceFile := sourcePath[succ(rpos(sourcePath, "/")) ..];
       end if;
+      cSourceFile  := "tmp_" & sourceFile;
       if generate_c_plus_plus then
-        cSourceFile  := "tmp_" & sourceFile & ".cpp";
+        cSourceFile  &:= ".cpp";
       else
-        cSourceFile  := "tmp_" & sourceFile & ".c";
+        cSourceFile  &:= ".c";
       end if;
       cErrorFile     := "tmp_" & sourceFile & ".cerrs";
       objectFile     := "tmp_" & sourceFile & ccConf.OBJECT_FILE_EXTENSION;

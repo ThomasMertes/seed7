@@ -309,15 +309,20 @@ intType pcsExitValue (const const_processType process)
 
 
 
-void pcsFree (processType old_process)
+/**
+ *  Free the memory referred by 'oldProcess'.
+ *  After pcsFree is left 'oldProcess' refers to not existing memory.
+ *  The memory where 'oldProcess' is stored can be freed afterwards.
+ */
+void pcsFree (processType oldProcess)
 
   { /* pcsFree */
     logFunction(printf("pcsFree(" FMT_U32 ") (usage=" FMT_U ")\n",
-                       (uint32Type) (old_process != NULL ? to_pid(old_process) : 0),
-                       old_process != NULL ? old_process->usage_count : (uintType) 0););
-    CloseHandle(to_hProcess(old_process));
-    CloseHandle(to_hThread(old_process));
-    FREE_RECORD(old_process, win_processRecord, count.process);
+                       (uint32Type) (oldProcess != NULL ? to_pid(oldProcess) : 0),
+                       oldProcess != NULL ? oldProcess->usage_count : (uintType) 0););
+    CloseHandle(to_hProcess(oldProcess));
+    CloseHandle(to_hThread(oldProcess));
+    FREE_RECORD(oldProcess, win_processRecord, count.process);
   } /* pcsFree */
 
 

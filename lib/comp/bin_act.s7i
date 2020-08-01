@@ -302,7 +302,7 @@ const proc: process_const_bin_radix (in reference: param1, in integer: base,
     if base < 2 or base > 36 then
       incr(countOptimizations);
       warning(DOES_RAISE, "RANGE_ERROR", c_expr);
-      c_expr.expr &:= intRaiseError("RANGE_ERROR");
+      c_expr.expr &:= strRaiseError("RANGE_ERROR");
     elsif base = 10 then
       incr(countOptimizations);
       process_bin_str(param1, c_expr);

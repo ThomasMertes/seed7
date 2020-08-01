@@ -230,7 +230,7 @@ objectType int_bit_length (listType arguments)
  *         representation.
  *  @return an integer created from 'byteStri'. The result is negative
  *          when the most significant byte (the first byte) of byteStri/arg_1
- *          has an ordinal >= 128.
+ *          has an ordinal > BYTE_MAX (=127).
  *  @exception RANGE_ERROR When characters beyond '\255;' are present or
  *             when the result value cannot be represented with an integer.
  */
@@ -305,7 +305,7 @@ objectType int_bytesBeUnsigned (listType arguments)
  *         representation.
  *  @return an integer created from 'byteStri'. The result is negative
  *          when the most significant byte (the last byte) of byteStri/arg_1
- *          has an ordinal >= 128.
+ *          has an ordinal > BYTE_MAX (=127).
  *  @exception RANGE_ERROR When characters beyond '\255;' are present or
  *             when the result value cannot be represented with an integer.
  */

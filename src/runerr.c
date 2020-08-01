@@ -185,7 +185,7 @@ static void write_call_stack_element (const_listType stack_elem)
 static void sigsegv_handler (int sig_num)
 
   { /* sigsegv_handler */
-#if HAS_SIGNAL
+#if SIGNAL_RESETS_HANDLER
     signal(SIGSEGV, sigsegv_handler);
 #endif
     do_longjmp(sigsegv_occurred, 1);

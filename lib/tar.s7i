@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  tar.s7i       Tar archive library                               *)
-(*  Copyright (C) 1994, 2004, 2005, 2010, 2014  Thomas Mertes       *)
+(*  Copyright (C) 1994, 2004, 2005, 2010, 2014, 2016  Thomas Mertes *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -47,7 +47,7 @@ const char: FIFOTYPE     is '6';   # Named pipe
 const char: CONTTYPE     is '7';   # Contiguous file
 const char: LONGNAMETYPE is 'L';   # Long (untruncated) filename of the next file
 
-const type: header is new struct
+const type: tarHeader is new struct
     var string: name is "";
     var fileMode: mode is fileMode.value;
     var integer: uid is 0;
@@ -64,45 +64,30 @@ const type: header is new struct
     var integer: devmajor is 0;
     var integer: devminor is 0;
     var string: prefix is "";
+    var string: filePath is "";
+    var string: fileTypeMarker is "";
   end struct;
 
 
-const proc: check (ref file: outFile, ref header: head) is func
-  local
-    var string: stri is "";
+const proc: showHeader (inout file: outFile, in tarHeader: header) is func
   begin
-    write("name: ");
-    writeln(head.name);
-    write("mode: ");
-    writeln(head.mode);
-    write("uid: ");
-    writeln(head.uid);
-    write("gid: ");
-    writeln(head.gid);
-    write("size: ");
-    writeln(head.size);
-    write("mtime: ");
-    writeln(head.mtime);
-    write("chksum: ");
-    writeln(head.chksum);
-    write("typeflag: ");
-    writeln(literal(head.typeflag));
-    write("linkname: ");
-    writeln(head.linkname);
-    write("magic: ");
-    writeln(literal(head.magic));
-    write("version: ");
-    writeln(literal(head.version));
-    write("uname: ");
-    writeln(head.uname);
-    write("gname: ");
-    writeln(head.gname);
-    write("devmajor: ");
-    writeln(head.devmajor);
-    write("devminor: ");
-    writeln(head.devminor);
-    write("prefix: ");
-    writeln(head.prefix);
+    writeln(outFile, "name: " <& header.name);
+    writeln(outFile, "mode: " <& header.mode);
+    writeln(outFile, "uid: " <& header.uid);
+    writeln(outFile, "gid: " <& header.gid);
+    writeln(outFile, "size: " <& header.size);
+    writeln(outFile, "mtime: " <& header.mtime);
+    writeln(outFile, "chksum: " <& header.chksum);
+    writeln(outFile, "typeflag: " <& literal(header.typeflag));
+    writeln(outFile, "linkname: " <& header.linkname);
+    writeln(outFile, "magic: " <& literal(header.magic));
+    writeln(outFile, "version: " <& literal(header.version));
+    writeln(outFile, "uname: " <& header.uname);
+    writeln(outFile, "gname: " <& header.gname);
+    writeln(outFile, "devmajor: " <& header.devmajor);
+    writeln(outFile, "devminor: " <& header.devminor);
+    writeln(outFile, "prefix: " <& header.prefix);
+    writeln(outFile, "filePath: " <& header.filePath);
   end func;
 
 
@@ -195,69 +180,78 @@ const func integer: chksum (in string: stri) is func
   end func;
 
 
-const proc: readHeadBlock (inout file: inFile, inout header: head) is func
+const proc: readHeadBlock (inout file: inFile, inout tarHeader: header) is func
   local
     var string: stri is "";
   begin
-    head := header.value;
-    head.name :=                gets0(inFile,  100);
-    head.mode := fileMode conv getoct(inFile,    8);
-    head.uid :=                getoct(inFile,    8);
-    head.gid :=                getoct(inFile,    8);
-    head.size :=               getoct(inFile,   12);
-    head.mtime :=              getoct(inFile,   12);
-    head.chksum :=             getoct(inFile,    8);
-    head.typeflag :=             getc(inFile);
-    head.linkname :=            gets0(inFile,  100);
-    head.magic :=            gets0spc(inFile,    6);
-    head.version :=              gets(inFile,    2);
-    head.uname :=               gets0(inFile,   32);
-    head.gname :=               gets0(inFile,   32);
-    head.devmajor :=           getoct(inFile,    8);
-    head.devminor :=           getoct(inFile,    8);
-    head.prefix :=              gets0(inFile,  155);
-    stri :=                      gets(inFile,   12);
+    header := tarHeader.value;
+    header.name :=                gets0(inFile,  100);
+    header.mode := fileMode conv getoct(inFile,    8);
+    header.uid :=                getoct(inFile,    8);
+    header.gid :=                getoct(inFile,    8);
+    header.size :=               getoct(inFile,   12);
+    header.mtime :=              getoct(inFile,   12);
+    header.chksum :=             getoct(inFile,    8);
+    header.typeflag :=             getc(inFile);
+    header.linkname :=            gets0(inFile,  100);
+    header.magic :=            gets0spc(inFile,    6);
+    header.version :=              gets(inFile,    2);
+    header.uname :=               gets0(inFile,   32);
+    header.gname :=               gets0(inFile,   32);
+    header.devmajor :=           getoct(inFile,    8);
+    header.devminor :=           getoct(inFile,    8);
+    header.prefix :=              gets0(inFile,  155);
+    stri :=                        gets(inFile,   12);
   end func;
 
 
-const proc: readHead (inout file: inFile, inout header: head) is func
+const proc: readHead (inout file: inFile, inout tarHeader: header) is func
   local
-    var string: fileName is "";
+    var string: filePath is "";
   begin
-    readHeadBlock(inFile, head);
-    # check(STD_OUT, head);
-    if head.name <> "" and head.magic = TMAGIC and
-        head.typeflag = LONGNAMETYPE and head.size <> 0 then
-      fileName := gets0(inFile, head.size);
-      seek(inFile, tell(inFile) + 511 - pred(head.size) mod 512);
-      readHeadBlock(inFile, head);
-      # check(STD_OUT, head);
-      head.name := fileName;
+    readHeadBlock(inFile, header);
+    # showHeader(STD_OUT, header);
+    if header.name <> "" and header.magic = TMAGIC and
+        header.typeflag = LONGNAMETYPE and header.size <> 0 then
+      filePath := gets0(inFile, header.size);
+      seek(inFile, tell(inFile) + 511 - pred(header.size) mod 512);
+      readHeadBlock(inFile, header);
+      # showHeader(STD_OUT, header);
+      header.filePath := filePath;
+      header.prefix := "";
+    elsif header.prefix <> "" then
+      header.filePath := header.prefix & "/" & header.name;
+    else
+      header.filePath := header.name;
+    end if;
+    if endsWith(header.filePath, "/") then
+      header.filePath := header.filePath[.. pred(length(header.filePath))];
+      header.fileTypeMarker := "/";
     end if;
   end func;
 
 
-const proc: writeHeadBlock (inout file: outFile, ref header: head) is func
+const proc: writeHeadBlock (inout file: outFile, in tarHeader: header) is func
   local
     var string: out_stri is "";
     var string: chksum is "";
   begin
-    puts0  (out_stri, head.name,      100);
-    putoct (out_stri, integer conv (head.mode), 8);
-    putoct (out_stri, head.uid,         8);
-    putoct (out_stri, head.gid,         8);
-    putoct (out_stri, head.size,       12);
-    putoct (out_stri, head.mtime,      12);
+    puts0  (out_stri, header.name,      100);
+    putoct (out_stri, integer conv (header.mode), 8);
+    putoct (out_stri, header.uid,         8);
+    putoct (out_stri, header.gid,         8);
+    putoct (out_stri, header.size,       12);
+    putoct (out_stri, header.mtime,      12);
     putspc (out_stri, "",               8);
-    out_stri &:=      head.typeflag; (* 1*)
-    puts0  (out_stri, head.linkname,  100);
-    puts0  (out_stri, head.magic,       6);
-    putspc (out_stri, head.version,     2);
-    puts0  (out_stri, head.uname,      32);
-    puts0  (out_stri, head.gname,      32);
-    putoct (out_stri, head.devmajor,    8);
-    putoct (out_stri, head.devminor,    8);
-    puts0  (out_stri, head.prefix,    155);
+    out_stri &:=      header.typeflag; (* 1*)
+    puts0  (out_stri, header.linkname,  100);
+    puts0  (out_stri, header.magic,       6);
+    putspc (out_stri, header.version,     2);
+    puts0  (out_stri, header.uname,      32);
+    puts0  (out_stri, header.gname,      32);
+    putoct (out_stri, header.devmajor,    8);
+    putoct (out_stri, header.devminor,    8);
+    puts0  (out_stri, header.prefix,    155);
     puts0  (out_stri, "",              12);
     putoct (chksum,   chksum(out_stri), 8);
     out_stri := out_stri[ .. 148] & chksum & out_stri[157 .. ];
@@ -265,16 +259,16 @@ const proc: writeHeadBlock (inout file: outFile, ref header: head) is func
   end func;
 
 
-const proc: writeHead (inout file: outFile, ref header: head) is func
+const proc: writeHead (inout file: outFile, in tarHeader: header) is func
   local
-    var header: longNameHead is header.value;
+    var tarHeader: longNameHead is tarHeader.value;
   begin
-    if length(head.name) > 100 then
+    if length(header.filePath) > 100 then
       longNameHead.name     := "././@LongLink";
       longNameHead.mode     := fileMode.value;
       longNameHead.uid      := 0;
       longNameHead.gid      := 0;
-      longNameHead.size     := length(head.name);
+      longNameHead.size     := length(header.filePath);
       longNameHead.mtime    := 0;
       longNameHead.typeflag := LONGNAMETYPE;
       longNameHead.linkname := "";
@@ -286,117 +280,403 @@ const proc: writeHead (inout file: outFile, ref header: head) is func
       longNameHead.devminor := 0;
       longNameHead.prefix   := "";
       writeHeadBlock(outFile, longNameHead);
-      write(outFile, head.name);
+      write(outFile, header.filePath);
       write(outFile, "\0;" mult 511 - pred(longNameHead.size) mod 512);
     end if;
-    writeHeadBlock(outFile, head);
+    writeHeadBlock(outFile, header);
   end func;
 
 
 const proc: setUpHead (in string: basePath, in string: name,
-    in string: fileTypeMarker, inout header: head) is func
+    in string: fileTypeMarker, inout tarHeader: header) is func
   begin
-    head.name     := name & fileTypeMarker;
-    head.mode     := fileMode(basePath & name);
-    head.uid      := 100;
-    head.gid      := 100;
-    head.size     := 0;
-    head.mtime    := timestamp1970(getMTime(basePath & name));
-    head.chksum   := 0;  # Filled later
-    head.typeflag := REGTYPE;
-    head.linkname := "";
-    head.magic    := TMAGIC;
-    head.version  := "  ";
-    head.uname    := "";
-    head.gname    := "";
-    head.devmajor := 0;
-    head.devminor := 0;
-    head.prefix   := "";
+    header.name     := name & fileTypeMarker;
+    header.mode     := fileMode(basePath & name);
+    header.uid      := 100;
+    header.gid      := 100;
+    header.size     := 0;
+    header.mtime    := timestamp1970(getMTime(basePath & name));
+    header.chksum   := 0;  # Filled later
+    header.typeflag := REGTYPE;
+    header.linkname := "";
+    header.magic    := TMAGIC;
+    header.version  := "  ";
+    header.uname    := "";
+    header.gname    := "";
+    header.devmajor := 0;
+    header.devminor := 0;
+    header.prefix   := "";
+  end func;
+
+
+const type: tarRegisterType is hash [string] integer;
+const type: tarCatalogType is hash [string] tarHeader;
+
+
+(**
+ *  Describes a TAR archive.
+ *)
+const type: tarArchive is new struct
+    var file: tarFile is STD_NULL;
+    var tarRegisterType: register is tarRegisterType.value;
+    var tarCatalogType: catalog is tarCatalogType.value;
+  end struct;
+
+
+(**
+ *  Open a TAR archive with the given tarFile.
+ *  @param tarFile File that contains a TAR archive.
+ *)
+const func tarArchive: openTar (inout file: tarFile) is func
+  result
+    var tarArchive: tar is tarArchive.value;
+  local
+    var tarHeader: header is tarHeader.value;
+    var integer: headPos is 1;
+  begin
+    seek(tarFile, 1);
+    readHead(tarFile, header);
+    if header.filePath <> "" and (header.magic = TMAGIC or header.magic = NOMAGIC) then
+      tar.tarFile := tarFile;
+      repeat
+        # writeln(header.filePath <& " " <& headPos);
+        tar.register @:= [header.filePath] headPos;
+        if header.size <> 0 then
+          seek(tarFile, tell(tarFile) + succ(pred(header.size) mdiv 512) * 512);
+        end if;
+        headPos := tell(tarFile);
+        readHead(tarFile, header);
+      until header.filePath = "" or (header.magic <> TMAGIC and header.magic <> NOMAGIC);
+    end if;
   end func;
 
 
 (**
- *  Determine the filenames in a directory, using a TAR file.
- *  @return an array with the file names.
- *  @exception FILE_ERROR The remote host returns an error.
+ *  Open a TAR archive with the given tarFile.
+ *  @param tarFileName Name of the TAR archive to be opened.
  *)
-const func array string: readDir (inout file: inFile, in var string: dirPath) is func
+const func tarArchive: openTar (in string: tarFileName) is func
+  result
+    var tarArchive: tar is tarArchive.value;
+  local
+    var file: tarFile is STD_NULL;
+  begin
+    tarFile := open(tarFileName, "r");
+    tar := openTar(tarFile);
+  end func;
+
+
+(**
+ *  Close a TAR archive.
+ *)
+const proc: close (inout tarArchive: tar) is func
+  begin
+    close(tar.tarFile);
+    tar.tarFile := STD_NULL;
+  end func;
+
+
+(**
+ *  Determine the file names in a directory inside a TAR archive.
+ *  Note that the function returns only the file names.
+ *  Additional information must be obtained with other calls.
+ *  @param tar Open TAR archive.
+ *  @param dirPath path of a directory in the TAR archive.
+ *  @return an array with the file names.
+ *  @exception FILE_ERROR The file triggers an error.
+ *  @exception RANGE_ERROR DirPath ends with a slash.
+ *)
+const func array string: readDir (inout tarArchive: tar, in var string: dirPath) is func
   result
     var array string: fileNames is 0 times "";
   local
-    var header: head is header.value;
+    var string: filePath is "";
     var set of string: fileNameSet is (set of string).value;
     var string: fileName is "";
     var integer: slashPos is 0;
   begin
-    if dirPath = "." then
-      dirPath := "";
+    if dirPath <> "/" and endsWith(dirPath, "/") then
+      raise RANGE_ERROR
+    else
+      if dirPath = "." then
+        dirPath := "";
+      end if;
+      for key filePath range tar.register do
+        if startsWith(filePath, dirPath) then
+          fileName := filePath[succ(length(dirPath)) ..];
+          if startsWith(fileName, "/") then
+            fileName := fileName[2 ..];
+          elsif dirPath <> "" then
+            fileName := "";  # A file name <> dirPath starts with dirPath.
+          end if;
+          slashPos := pos(fileName, '/');
+          if slashPos <> 0 then
+            fileName := fileName[.. pred(slashPos)];
+          end if;
+          if fileName <> "" and fileName not in fileNameSet then
+            incl(fileNameSet, fileName);
+          end if;
+        end if;
+      end for;
+      fileNames := sort(toArray(fileNameSet));
     end if;
-    readHead(inFile, head);
-    while head.name <> "" and (head.magic = TMAGIC or head.magic = NOMAGIC) do
-      if startsWith(head.name, dirPath) then
-        fileName := head.name[succ(length(dirPath)) ..];
-        if startsWith(fileName, "/") then
-          fileName := fileName[2 ..];
-        end if;
-        slashPos := pos(fileName, '/');
-        if slashPos <> 0 then
-          fileName := fileName[.. pred(slashPos)];
-        end if;
-        if fileName <> "" and fileName not in fileNameSet then
-          incl(fileNameSet, fileName);
-          fileNames &:= fileName;
-        end if;
+  end func;
+
+
+(**
+ *  Determine the file names in the top directory of a TAR archive.
+ *  Note that the function returns only the file names.
+ *  Additional information must be obtained with other calls.
+ *  @param tar Open TAR archive.
+ *  @return an array with the file names.
+ *  @exception FILE_ERROR The file triggers an error.
+ *)
+const func array string: readDir (inout tarArchive: tar) is
+  return readDir(tar, "");
+
+
+(**
+ *  Determine the file paths in a TAR archive.
+ *  Note that the function returns only the file paths.
+ *  Additional information must be obtained with other calls.
+ *  @param tar Open TAR archive.
+ *  @return an array with the file paths.
+ *)
+const func array string: readDir (inout tarArchive: tar, RECURSIVE) is
+  return sort(keys(tar.register));
+
+
+(**
+ *  Determine the type of a file in a TAR archive.
+ *  The function does follow symbolic links. When the chain of
+ *  symbolic links is too long the function returns ''FILE_SYMLINK''.
+ *  When a symbolic link refers to a place where the permission
+ *  is denied the function returns ''FILE_SYMLINK''.
+ *  A return value of ''FILE_ABSENT'' does not imply that a file
+ *  with this name can be created, since missing directories and
+ *  illegal file names cause also ''FILE_ABSENT''.
+ *  @return the type of the file.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *)
+const func fileType: fileType (inout tarArchive: tar, in string: filePath) is func
+  result
+    var fileType: aFileType is FILE_UNKNOWN;
+  local
+    var tarHeader: header is tarHeader.value;
+    var char: typeflag is ' ';
+  begin
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR
+    else
+      if filePath in tar.catalog then
+        typeflag := tar.catalog[filePath].typeflag;
+      elsif filePath in tar.register then
+        seek(tar.tarFile, tar.register[filePath]);
+        readHead(tar.tarFile, header);
+        typeflag := header.typeflag;
+        tar.catalog @:= [filePath] header;
+      else
+        aFileType := FILE_ABSENT;
       end if;
-      if head.size <> 0 then
-        seek(inFile, tell(inFile) + succ(pred(head.size) mdiv 512) * 512);
+      if aFileType = FILE_UNKNOWN then
+        case typeflag of
+          when {REGTYPE}:  aFileType := FILE_REGULAR;
+          when {AREGTYPE}: aFileType := FILE_REGULAR;
+          when {CHRTYPE}:  aFileType := FILE_CHAR;
+          when {BLKTYPE}:  aFileType := FILE_BLOCK;
+          when {DIRTYPE}:  aFileType := FILE_DIR;
+          when {FIFOTYPE}: aFileType := FILE_FIFO;
+          when {CONTTYPE}: aFileType := FILE_UNKNOWN;
+          otherwise:
+            raise RANGE_ERROR;
+        end case;
       end if;
-      readHead(inFile, head);
-    end while;
+    end if;
+  end func;
+
+
+(**
+ *  Determine the type of a file in a TAR archive.
+ *  The function does not follow symbolic links. Therefore it may
+ *  return ''FILE_SYMLINK''. A return value of ''FILE_ABSENT'' does
+ *  not imply that a file with this name can be created, since missing
+ *  directories and illegal file names cause also ''FILE_ABSENT''.
+ *  @return the type of the file.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *)
+const func fileType: fileTypeSL (inout tarArchive: tar, in string: filePath) is func
+  result
+    var fileType: aFileType is FILE_UNKNOWN;
+  local
+    var tarHeader: header is tarHeader.value;
+    var char: typeflag is ' ';
+  begin
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR
+    else
+      if filePath in tar.catalog then
+        typeflag := tar.catalog[filePath].typeflag;
+      elsif filePath in tar.register then
+        seek(tar.tarFile, tar.register[filePath]);
+        readHead(tar.tarFile, header);
+        typeflag := header.typeflag;
+        tar.catalog @:= [filePath] header;
+      else
+        aFileType := FILE_ABSENT;
+      end if;
+      if aFileType = FILE_UNKNOWN then
+        case typeflag of
+          when {REGTYPE}:  aFileType := FILE_REGULAR;
+          when {AREGTYPE}: aFileType := FILE_REGULAR;
+          when {LNKTYPE}:  aFileType := FILE_SYMLINK;
+          when {SYMTYPE}:  aFileType := FILE_SYMLINK;
+          when {CHRTYPE}:  aFileType := FILE_CHAR;
+          when {BLKTYPE}:  aFileType := FILE_BLOCK;
+          when {DIRTYPE}:  aFileType := FILE_DIR;
+          when {FIFOTYPE}: aFileType := FILE_FIFO;
+          when {CONTTYPE}: aFileType := FILE_UNKNOWN;
+          otherwise:
+            raise RANGE_ERROR;
+        end case;
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Determine the file mode (permissions) of a file in a TAR archive.
+ *  @return the file mode.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation or it is not present in the TAR archive.
+ *)
+const func fileMode: fileMode (inout tarArchive: tar, in string: filePath) is func
+  result
+    var fileMode: mode is fileMode.value;
+  local
+    var tarHeader: header is tarHeader.value;
+  begin
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR
+    else
+      if filePath in tar.catalog then
+        mode := tar.catalog[filePath].mode;
+      elsif filePath in tar.register then
+        seek(tar.tarFile, tar.register[filePath]);
+        readHead(tar.tarFile, header);
+        mode := header.mode;
+        tar.catalog @:= [filePath] header;
+      else
+        raise RANGE_ERROR;
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Determine the size of a file in a TAR archive.
+ *  The file size is measured in bytes.
+ *  For directories a size of 0 is returned.
+ *  @return the size of the file.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation or it is not present in the TAR archive.
+ *)
+const func integer: fileSize (inout tarArchive: tar, in string: filePath) is func
+  result
+    var integer: size is 0;
+  local
+    var tarHeader: header is tarHeader.value;
+  begin
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR
+    else
+      if filePath in tar.catalog then
+        size := tar.catalog[filePath].size;
+      elsif filePath in tar.register then
+        seek(tar.tarFile, tar.register[filePath]);
+        readHead(tar.tarFile, header);
+        size := header.size;
+        tar.catalog @:= [filePath] header;
+      else
+        raise RANGE_ERROR;
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Determine the modification time of a file in a TAR archive.
+ *  @return the modification time of the file.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation or it is not present in the TAR archive.
+ *)
+const func time: getMTime (inout tarArchive: tar, in string: filePath) is func
+  result
+    var time: modificationTime is time.value;
+  local
+    var tarHeader: header is tarHeader.value;
+    var integer: mtime is 0;
+  begin
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR
+    else
+      if filePath in tar.catalog then
+        mtime := tar.catalog[filePath].mtime;
+      elsif filePath in tar.register then
+        seek(tar.tarFile, tar.register[filePath]);
+        readHead(tar.tarFile, header);
+        mtime := header.mtime;
+        tar.catalog @:= [filePath] header;
+      else
+        raise RANGE_ERROR;
+      end if;
+      modificationTime := timestamp1970ToTime(mtime);
+    end if;
   end func;
 
 
 const proc: tarTell (inout file: inFile, in array string: arg_list,
     in boolean: do_view) is func
   local
-    var header: head is header.value;
+    var tarHeader: header is tarHeader.value;
     var time: modTime is time.value;
   begin
-    readHead(inFile, head);
-    while head.name <> "" and (head.magic = TMAGIC or head.magic = NOMAGIC) do
+    readHead(inFile, header);
+    while header.filePath <> "" and (header.magic = TMAGIC or header.magic = NOMAGIC) do
       if do_view then
-        if head.typeflag = DIRTYPE then
+        if header.typeflag = DIRTYPE then
           write("d");
         else
           write("-");
         end if;
-        write(head.mode);
+        write(header.mode);
         write(" ");
-        if head.uname <> "" then
-          write(head.uname);
+        if header.uname <> "" then
+          write(header.uname);
         else
-          write(head.uid);
+          write(header.uid);
         end if;
         write("/");
-        if head.gname <> "" then
-          write(head.gname);
+        if header.gname <> "" then
+          write(header.gname);
         else
-          write(head.gid);
+          write(header.gid);
         end if;
-        write(head.size lpad 14);
+        write(header.size lpad 14);
         write(" ");
-        modTime := timestamp1970ToTime(head.mtime);
+        modTime := timestamp1970ToTime(header.mtime);
         write(strDate(modTime));
         write(" ");
         write(str_hh_mm(modTime, ":"));
         write(" ");
         # write(strTimeZone(modTime) rpad 12);
       end if;
-      writeln(head.name);
-      if head.size <> 0 then
-        seek(inFile, tell(inFile) + succ(pred(head.size) mdiv 512) * 512);
+      writeln(header.filePath <& header.fileTypeMarker);
+      if header.size <> 0 then
+        seek(inFile, tell(inFile) + succ(pred(header.size) mdiv 512) * 512);
       end if;
-      readHead(inFile, head);
+      readHead(inFile, header);
     end while;
   end func;
 
@@ -433,54 +713,51 @@ const proc: tarXtract (inout file: inFile, in array string: arg_list,
     in boolean: do_view) is func
   local
     var string: stri is "";
-    var header: head is header.value;
+    var tarHeader: header is tarHeader.value;
     var time: modTime is time.value;
-    var array header: dirHeaderList is 0 times header.value;
+    var array tarHeader: dirHeaderList is 0 times tarHeader.value;
     var integer: index is 0;
     var boolean: okay is TRUE;
   begin
-    readHead(inFile, head);
-    while head.name <> "" and (head.magic = TMAGIC or head.magic = NOMAGIC) and okay do
+    readHead(inFile, header);
+    while header.filePath <> "" and (header.magic = TMAGIC or header.magic = NOMAGIC) and okay do
       if do_view then
         write("x ");
-        writeln(head.name);
+        writeln(header.filePath <& header.fileTypeMarker);
       end if;
-      if endsWith(head.name, "/") then
-        head.name := head.name[.. pred(length(head.name))];
-      end if;
-      if head.typeflag = DIRTYPE then
-        if fileType(head.name) = FILE_DIR then
-          dirHeaderList &:= [] (head);
-        elsif fileType(head.name) = FILE_ABSENT then
-          mkdir(head.name);
-          dirHeaderList &:= [] (head);
+      if header.typeflag = DIRTYPE then
+        if fileType(header.filePath) = FILE_DIR then
+          dirHeaderList &:= [] (header);
+        elsif fileType(header.filePath) = FILE_ABSENT then
+          mkdir(header.filePath);
+          dirHeaderList &:= [] (header);
         else
-          writeln("*** The file " <& literal(head.name) <& " exists, but is not a directory");
+          writeln("*** The file " <& literal(header.filePath) <& " exists, but is not a directory");
           okay := FALSE;
         end if;
-      elsif head.typeflag = REGTYPE or head.typeflag = AREGTYPE then
-        if head.size <> 0 then
-          stri := gets(inFile, succ(pred(head.size) mdiv 512) * 512);
-          if fileType(head.name) = FILE_REGULAR then
-            removeFile(head.name);
+      elsif header.typeflag = REGTYPE or header.typeflag = AREGTYPE then
+        if header.size <> 0 then
+          stri := gets(inFile, succ(pred(header.size) mdiv 512) * 512);
+          if fileType(header.filePath) = FILE_REGULAR then
+            removeFile(header.filePath);
           end if;
-          if fileType(head.name) = FILE_ABSENT then
-            putf(head.name, stri[ .. head.size]);
-            setFileMode(head.name, head.mode);
-            modTime := timestamp1970ToTime(head.mtime);
-            setMTime(head.name, modTime);
+          if fileType(header.filePath) = FILE_ABSENT then
+            putf(header.filePath, stri[ .. header.size]);
+            setFileMode(header.filePath, header.mode);
+            modTime := timestamp1970ToTime(header.mtime);
+            setMTime(header.filePath, modTime);
           else
-            writeln("*** The file " <& literal(head.name) <& " exists, but is not a regular file");
+            writeln("*** The file " <& literal(header.filePath) <& " exists, but is not a regular file");
             okay := FALSE;
           end if;
         end if;
       end if;
-      readHead(inFile, head);
+      readHead(inFile, header);
     end while;
     for index range length(dirHeaderList) downto 1 do
-      setFileMode(dirHeaderList[index].name, dirHeaderList[index].mode);
+      setFileMode(dirHeaderList[index].filePath, dirHeaderList[index].mode);
       modTime := timestamp1970ToTime(dirHeaderList[index].mtime);
-      setMTime(dirHeaderList[index].name, modTime);
+      setMTime(dirHeaderList[index].filePath, modTime);
     end for;
   end func;
 
@@ -531,7 +808,7 @@ const proc: tarCreate (inout file: outFile, in string: basePath, in string: path
     var string: name is "";
     var array string: dir_content is 0 times "";
     var string: stri is "";
-    var header: head is header.value;
+    var tarHeader: header is tarHeader.value;
   begin
     for name range arg_list do
       name := pathFromBase & name;
@@ -541,17 +818,17 @@ const proc: tarCreate (inout file: outFile, in string: basePath, in string: path
       end if;
       if fileType(basePath & name) = FILE_DIR then
         dir_content := readDir(basePath & name);
-        setUpHead(basePath, name, "/", head);
-        head.typeflag := DIRTYPE;
-        writeHead(outFile, head);
+        setUpHead(basePath, name, "/", header);
+        header.typeflag := DIRTYPE;
+        writeHead(outFile, header);
         tarCreate(outFile, basePath, name & "/", dir_content, do_view);
       else
         stri := getf(basePath & name);
-        setUpHead(basePath, name, "", head);
-        head.size := length(stri);
-        writeHead(outFile, head);
+        setUpHead(basePath, name, "", header);
+        header.size := length(stri);
+        writeHead(outFile, header);
         write(outFile, stri);
-        write(outFile, "\0;" mult 511 - pred(head.size) mod 512);
+        write(outFile, "\0;" mult 511 - pred(header.size) mod 512);
       end if;
     end for;
   end func;

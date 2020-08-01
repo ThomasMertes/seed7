@@ -39,6 +39,10 @@
 
 
 
+/**
+ *  Open a DLL respectively shared library with the given 'dllName'.
+ *  @return a reference to the library, or NULL if it was not found.
+ */
 void *dllOpen (const char *dllName)
 
   { /* dllOpen */
@@ -47,6 +51,10 @@ void *dllOpen (const char *dllName)
 
 
 
+/**
+ *  Get the function specified with 'symbol' from the library 'dll'.
+ *  @return a pointer to the function, or NULL if it was not found.
+ */
 funcPtrType dllFunc (void *dll, const char *symbol)
 
   { /* dllFunc*/

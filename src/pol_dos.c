@@ -65,6 +65,11 @@ void polAddCheck (const pollType pollData, const socketType aSocket,
 
 
 
+/**
+ *  Clears 'pollData'.
+ *  All sockets and all events are removed from 'pollData' and
+ *  the iterator is reset, such that polHasNext() returns FALSE.
+ */
 void polClear (const pollType pollData)
 
   { /* polClear */
@@ -72,14 +77,26 @@ void polClear (const pollType pollData)
 
 
 
-void polCpy (const pollType poll_to, const const_pollType pollDataFrom)
+/**
+ *  Assign source to dest.
+ *  A copy function assumes that dest contains a legal value.
+ *  @exception MEMORY_ERROR Not enough memory to create dest.
+ */
+void polCpy (const pollType dest, const const_pollType source)
 
   {  /* polCpy */
   }  /* polCpy */
 
 
 
-pollType polCreate (const const_pollType pollDataFrom)
+/**
+ *  Return a copy of source, that can be assigned to a new destination.
+ *  It is assumed that the destination of the assignment is undefined.
+ *  Create functions can be used to initialize Seed7 constants.
+ *  @return a copy of source.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
+pollType polCreate (const const_pollType source)
 
   { /* polCreate */
     return NULL;
@@ -87,6 +104,11 @@ pollType polCreate (const const_pollType pollDataFrom)
 
 
 
+/**
+ *  Free the memory referred by 'oldPollData'.
+ *  After polDestr is left 'oldPollData' refers to not existing memory.
+ *  The memory where 'oldPollData' is stored can be freed afterwards.
+ */
 void polDestr (const pollType oldPollData)
 
   { /* polDestr */
@@ -94,6 +116,11 @@ void polDestr (const pollType oldPollData)
 
 
 
+/**
+ *  Create an empty poll data value.
+ *  @return an empty poll data value.
+ *  @exception MEMORY_ERROR Not enough memory for the result.
+ */
 pollType polEmpty (void)
 
   { /* polEmpty */
@@ -102,6 +129,22 @@ pollType polEmpty (void)
 
 
 
+/**
+ *  Return the checkedEvents field from 'pollData' for 'aSocket'.
+ *  The polPoll function uses the checkedEvents as input.
+ *  The following checkedEvents can be returned:
+ *  - POLLNOTHING no data can be read or written.
+ *  - POLLIN data can be read from the corresponding socket.
+ *  - POLLOUT data can be written to the corresponding socket.
+ *  - POLLINOUT data can be read and written (POLLIN and POLLOUT).
+ *
+ *  @param pollData Poll data from which the checkedEvents are
+ *         retrieved.
+ *  @param aSocket Socket for which the checkedEvents are retrived.
+ *  @return POLLNOTHING, POLLIN, POLLOUT or POLLINOUT, depending on
+ *          the events added and removed for 'aSocket' with
+ *          'addCheck' and 'removeCheck'.
+ */
 intType polGetCheck (const const_pollType pollData, const socketType aSocket)
 
   { /* polGetCheck */
@@ -110,6 +153,19 @@ intType polGetCheck (const const_pollType pollData, const socketType aSocket)
 
 
 
+/**
+ *  Return the eventFindings field from 'pollData' for 'aSocket'.
+ *  The polPoll function assigns the
+ *  eventFindings for 'aSocket' to 'pollData'. The following
+ *  eventFindings can be returned:
+ *  - POLLNOTHING no data can be read or written.
+ *  - POLLIN data can be read from the corresponding socket.
+ *  - POLLOUT data can be written to the corresponding socket.
+ *  - POLLINOUT data can be read and written (POLLIN and POLLOUT).
+ *
+ *  @return POLLNOTHING, POLLIN, POLLOUT or POLLINOUT, depending on
+ *          the findings of polPoll concerning 'aSocket'.
+ */
 intType polGetFinding (const const_pollType pollData, const socketType aSocket)
 
   { /* polGetFinding */
@@ -117,6 +173,11 @@ intType polGetFinding (const const_pollType pollData, const socketType aSocket)
   } /* polGetFinding */
 
 
+/**
+ *  Determine if the 'pollData' iterator can deliver another file.
+ *  @return TRUE if 'nextFile' would return another file from the
+ *          'pollData' iterator, FALSE otherwise.
+ */
 boolType polHasNext (const pollType pollData)
 
   { /* polHasNext */
@@ -125,6 +186,18 @@ boolType polHasNext (const pollType pollData)
 
 
 
+/**
+ *  Reset the 'pollData' iterator to process checkedEvents.
+ *  The following calls of 'hasNext' and 'nextFile' refer to
+ *  the checkedEvents of the given 'pollMode'. 'PollMode'
+ *  can have one of the following values:
+ *  - POLLNOTHING don't iterate ('hasNext' returns FALSE).
+ *  - POLLIN data can be read from the corresponding socket.
+ *  - POLLOUT data can be written to the corresponding socket.
+ *  - POLLINOUT data can be read or written (POLLIN and POLLOUT).
+ *
+ *  @exception RANGE_ERROR Illegal value for 'pollMode'.
+ */
 void polIterChecks (const pollType pollData, intType pollMode)
 
   { /* polIterChecks */
@@ -132,6 +205,18 @@ void polIterChecks (const pollType pollData, intType pollMode)
 
 
 
+/**
+ *  Reset the 'pollData' iterator to process eventFindings.
+ *  The following calls of 'hasNext' and 'nextFile' refer to
+ *  the eventFindings of the given 'pollMode'. 'PollMode'
+ *  can have one of the following values:
+ *  - POLLNOTHING don't iterate ('hasNext' returns FALSE).
+ *  - POLLIN data can be read from the corresponding socket.
+ *  - POLLOUT data can be written to the corresponding socket.
+ *  - POLLINOUT data can be read or written (POLLIN and POLLOUT).
+ *
+ *  @exception RANGE_ERROR Illegal value for 'pollMode'.
+ */
 void polIterFindings (const pollType pollData, intType pollMode)
 
   { /* polIterFindings */
@@ -139,6 +224,15 @@ void polIterFindings (const pollType pollData, intType pollMode)
 
 
 
+/**
+ *  Get the next file from the 'pollData' iterator.
+ *  Successive calls of 'nextFile' return all files from the 'pollData'
+ *  iterator. The file returned by 'nextFile' is determined with the
+ *  function 'addCheck'. The files covered by the 'pollData' iterator
+ *  are determined with 'iterChecks' or 'iterFindings'.
+ *  @return the next file from the 'pollData' iterator, or STD_NULL,
+ *          when no file from the 'pollData' iterator is available.
+ */
 genericType polNextFile (const pollType pollData, const genericType nullFile)
 
   { /* polNextFile */
@@ -147,6 +241,18 @@ genericType polNextFile (const pollType pollData, const genericType nullFile)
 
 
 
+/**
+ *  Waits for one or more of the checkedEvents from 'pollData'.
+ *  polPoll waits until one of the checkedEvents for a
+ *  corresponding socket occurs. When a checkedEvents occurs
+ *  the eventFindings field is assigned a value. The following
+ *  eventFindings values are assigned:
+ *  - POLLIN data can be read from the corresponding socket.
+ *  - POLLOUT data can be written to the corresponding socket.
+ *  - POLLINOUT data can be read and written (POLLIN and POLLOUT).
+ *
+ *  @exception FILE_ERROR The system function returns an error.
+ */
 void polPoll (const pollType pollData)
 
   { /* polPoll */
@@ -155,6 +261,19 @@ void polPoll (const pollType pollData)
 
 
 
+/**
+ *  Remove 'eventsToCheck' for 'aSocket' from 'pollData'.
+ *  'EventsToCheck' can have one of the following values:
+ *  - POLLIN check if data can be read from the corresponding socket.
+ *  - POLLOUT check if data can be written to the corresponding socket.
+ *  - POLLINOUT check if data can be read or written (POLLIN or POLLOUT).
+ *
+ *  @param pollData Poll data from which the event checks are removed.
+ *  @param aSocket Socket for which the events should not be checked.
+ *  @param eventsToCheck Events to be removed from the checkedEvents
+ *         field of 'pollData'.
+ *  @exception RANGE_ERROR Illegal value for 'eventsToCheck'.
+ */
 void polRemoveCheck (const pollType pollData, const socketType aSocket,
     intType eventsToCheck)
 

@@ -35,6 +35,7 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
+#include "limits.h"
 
 #include "common.h"
 #include "data.h"
@@ -144,7 +145,7 @@ void scan_byte_order_mark (void)
         } /* while */
       } /* if */
     } else if (in_file.character == 0xFE || in_file.character == 0xFF) {
-      unicode_char = (charType) in_file.character << 8;
+      unicode_char = (charType) in_file.character << CHAR_BIT;
       in_file.character = next_character();
       unicode_char |= (charType) in_file.character;
       if (unicode_char == 0xFEFF || unicode_char == 0xFFFE) {
@@ -153,7 +154,7 @@ void scan_byte_order_mark (void)
           in_file.character = next_character();
         } /* while */
       } else {
-        err_char(CHAR_ILLEGAL, unicode_char >> 8);
+        err_char(CHAR_ILLEGAL, unicode_char >> CHAR_BIT);
         while (char_class(in_file.character) == ILLEGALCHAR) {
           in_file.character = next_character();
         } /* while */

@@ -49,7 +49,18 @@
 #include "arrlib.h"
 
 
+#define QSORT_LIMIT 8
 
+
+
+/**
+ *  Sort an array of 'objectRecord' elements with the quicksort algorithm.
+ *  In contrast to qsort() this function uses a different compare function.
+ *  The compare function of qsort() has two void pointers as parameters.
+ *  @param begin_sort Pointer to first element to be sorted.
+ *  @param end_sort Pointer to the last element to be sorted.
+ *  @param cmp_func Object describing the compare function to be used.
+ */
 static void qsort_array (objectType begin_sort, objectType end_sort,
     objectType cmp_func)
 
@@ -63,7 +74,8 @@ static void qsort_array (objectType begin_sort, objectType end_sort,
     intType cmp;
 
   /* qsort_array */
-    if (end_sort - begin_sort < 8) {
+    if (end_sort - begin_sort < QSORT_LIMIT) {
+      /* Use insertion sort */
       for (middle_elem = begin_sort + 1; middle_elem <= end_sort; middle_elem++) {
         memcpy(&compare_elem, middle_elem, sizeof(objectRecord));
         less_elem = begin_sort - 1;

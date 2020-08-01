@@ -382,6 +382,19 @@ static inline floatType readFloat (void)
 
 
 
+/**
+ *  Read a numeric literal.
+ *  The function assumes that the next character in in_file
+ *  is the first character of the numeric literal.
+ *  A numeric literal can be:
+ *  - Decimal integer, e.g.: 12345
+ *  - Decimal bigInteger, e.g.: 12345_
+ *  - Based integer, e.g.: 16#fedcba
+ *  - Based bigInteger, e.g.: 16#fedcba_
+ *  - Decimal integer with exponent, e.g.: 123e3
+ *  - Simple float, e.g.: 123.456
+ *  - Float with exponent, e.g.: 12.3e-12
+ */
 void lit_number (void)
 
   {

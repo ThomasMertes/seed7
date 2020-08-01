@@ -137,7 +137,7 @@ static void handle_signals (int sig_num)
     interrupt_flag = TRUE;
     signal_number = sig_num;
 #endif
-#if !HAS_SIGACTION && HAS_SIGNAL
+#if SIGNAL_RESETS_HANDLER
     activate_signal_handlers();
 #endif
   } /* handle_signals */

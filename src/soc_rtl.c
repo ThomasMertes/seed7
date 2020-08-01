@@ -99,6 +99,9 @@ typedef socklen_t sockLenType;
 #define MAX_HOSTNAME_LENGTH        1024
 #define ERROR_MESSAGE_BUFFER_SIZE  1024
 
+#define MAX_SOCK_ADDRESS_LEN \
+    STRLEN("[01:23:45:67:89:ab:cd:ef]:65535") + NULL_TERMINATION_LEN
+
 #ifdef USE_WINSOCK
 static boolType initialized = FALSE;
 #define check_initialization(err_result) \
@@ -114,7 +117,7 @@ static const_cstriType socAddressCStri (const const_bstriType address)
 
   {
     const struct sockaddr *addr;
-    static char buffer[64];
+    static char buffer[MAX_SOCK_ADDRESS_LEN];
     cstriType result;
 
   /* socAddressCStri */
@@ -340,13 +343,14 @@ static void dump_addrinfo (struct addrinfo *addrinfo_list)
       }
       printf("ai_canonname=%s\n", addr->ai_canonname);
       printf("ai_next=%lx\n", (memSizeType) addr->ai_next);
-      /* {
-        char name[1024];
-        char serv[1024];
-        getnameinfo(addr->ai_addr, 100, name, 1024, serv, 1024, 0);
-        printf("name=%s\n", name);
-        printf("serv=%s\n", serv);
-      } */
+      logMessage({
+                   char name[MAX_HOSTNAME_LENGTH];
+                   char serv[MAX_ADDRESS_SIZE];
+                   getnameinfo(addr->ai_addr, 100, name, MAX_HOSTNAME_LENGTH,
+                               serv, MAX_ADDRESS_SIZE, 0);
+                   printf("name=%s\n", name);
+                   printf("serv=%s\n", serv);
+                 });
       addr = addr->ai_next;
     } while (addr != NULL);
   } /* dump_addrinfo */

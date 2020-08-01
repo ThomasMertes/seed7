@@ -52,6 +52,10 @@
 #include "strlib.h"
 
 
+#define INITIAL_ARRAY_SIZE 256
+#define ARRAY_SIZE_DELTA   256
+
+
 
 static inline int strelem_memcmp (const strElemType *mem1,
     const strElemType *mem2, size_t number)
@@ -95,12 +99,12 @@ static arrayType add_stri_to_array (const strElemType *stri_elems,
       memcpy(new_stri->mem, stri_elems,
              length * sizeof(strElemType));
       if (*used_max_position >= work_array->max_position) {
-        if (work_array->max_position >= MAX_MEM_INDEX - 256) {
+        if (work_array->max_position >= MAX_MEM_INDEX - ARRAY_SIZE_DELTA) {
           resized_work_array = NULL;
         } else {
           resized_work_array = REALLOC_ARRAY(work_array,
               (uintType) work_array->max_position,
-              (uintType) work_array->max_position + 256);
+              (uintType) work_array->max_position + ARRAY_SIZE_DELTA);
         } /* if */
         if (resized_work_array == NULL) {
           FREE_STRI(new_stri, new_stri->size);
@@ -108,8 +112,8 @@ static arrayType add_stri_to_array (const strElemType *stri_elems,
         } else {
           work_array = resized_work_array;
           COUNT3_ARRAY((uintType) work_array->max_position,
-                       (uintType) work_array->max_position + 256);
-          work_array->max_position += 256;
+                       (uintType) work_array->max_position + ARRAY_SIZE_DELTA);
+          work_array->max_position += ARRAY_SIZE_DELTA;
         } /* if */
       } /* if */
     } /* if */
@@ -145,9 +149,9 @@ static arrayType strChSplit (const const_striType main_stri,
     arrayType result_array;
 
   /* strChSplit */
-    if (ALLOC_ARRAY(result_array, 256)) {
+    if (ALLOC_ARRAY(result_array, INITIAL_ARRAY_SIZE)) {
       result_array->min_position = 1;
-      result_array->max_position = 256;
+      result_array->max_position = INITIAL_ARRAY_SIZE;
       used_max_position = 0;
       search_start = main_stri->mem;
       search_end = &main_stri->mem[main_stri->size];
@@ -208,9 +212,9 @@ static arrayType strSplit (const const_striType main_stri,
     arrayType result_array;
 
   /* strSplit */
-    if (ALLOC_ARRAY(result_array, 256)) {
+    if (ALLOC_ARRAY(result_array, INITIAL_ARRAY_SIZE)) {
       result_array->min_position = 1;
-      result_array->max_position = 256;
+      result_array->max_position = INITIAL_ARRAY_SIZE;
       used_max_position = 0;
       delimiter_size = delimiter->size;
       delimiter_mem = delimiter->mem;

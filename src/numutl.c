@@ -64,6 +64,10 @@
 
 
 
+/**
+ *  Convert a bigInteger number to a double.
+ *  @return the bigInteger as double
+ */
 double bigIntToDouble (const const_bigIntType number)
 
   {
@@ -134,6 +138,10 @@ static int binaryExponent (const const_bigIntType absNumerator,
 
 
 
+/**
+ *  Convert a bigRational number to a double.
+ *  @return the bigRational as double
+ */
 double bigRatToDouble (const const_bigIntType numerator,
     const const_bigIntType denominator)
 
@@ -190,6 +198,11 @@ double bigRatToDouble (const const_bigIntType numerator,
 
 
 
+/**
+ *  Convert a double to a bigRational number with numerator and denomonator.
+ *  @param denominator The address of a variable that receives the denominator.
+ *  @return the nominator of the converted double.
+ */
 bigIntType doubleToBigRat (const double doubleValue, bigIntType *denominator)
 
   {
