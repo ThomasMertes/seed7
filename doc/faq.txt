@@ -86,6 +86,8 @@ are defined to avoid the need to use shell (and cmd.exe) commands.
    obtained and changed with portable functions.
  - A forward slash is used as path delimiter on all operating systems
    and an attempt to use a backslash as path delimiter is an error.
+ - Drive letters are prohibited. Instead of a path starting with
+   "C:" a standard path starting with "/c" must be used.
  - Differences between Unix sockets and winsockets are hidden and
    Seed7 sockets are files (as in Unix).
  - Reading keys and key combinations such as ctrl-F1 from a text
@@ -1167,6 +1169,129 @@ exception is not related to floating point operations.
 
 Chapter 14.4 (Stack trace) of the manual contains a detailed
 description how to debug compiled Seed7 programs.
+
+
+Where does the interpreter look for include libraries?
+======================================================
+
+Include libraries with absolut path (an absolute path starts with
+a forward slash) are only searched at the specified place. All
+other include libraries are searched in several directories. This
+is done according to a list of library directories (a library
+search path). The directories of the list are checked one after
+another for the requested include file. As soon as the include file
+is found the search is stopped and the file is included. The
+following directories are in the list of library directories:
+
+ 1. The directory of the interpreted program. E.g.: When the
+    program "/home/abc/test/pairs.sd7" is interpreted the directory
+    "/home/abc/test" is in the list of library directories.
+ 2. The directory containing the predefined Seed7 include libraries.
+    This directory is hardcoded in the interpreter (an absolute
+    path like "/directory_where_Seed7_was_installed/seed7/lib").
+    The hardcoded library directory is determined when the
+    interpreter is compiled. So it only exists when the interpreter
+    was compiled from source. The interpreter from the binary
+    release uses the relative path "../lib" instead. This works only
+    when the current working directory is the "prg" directory of the
+    Seed7 package. E.g.: When the current working directory is
+    "seed7/prg" and the program "hello.sd7" is interpreted the
+    include files are searched in "seed7/lib".
+ 3. The directory specified with the SEED7_LIBRARY environment
+    variable.
+ 4. Directories specified in the source file with the library
+    pragma. E.g.: The line: $ library "/home/tm/seed7/lib"
+    adds the directory "/home/tm/seed7/lib" to the list of library
+    directories.
+
+Seed7 interpreter and compiler (comp.s7i) use the same list of
+library directories (the same library search path). When Seed7 is
+compiled from source code both (interpreter and compiler) will find
+the Seed7 include files automatically. Interpreter and compiler from
+the binary release will only find library include files when the
+current working directory is "seed7/prg". To interpret programs from
+other current working directories with the binary interpreter it is
+necessary to set the environment variable SEED7_LIBRARY to the
+absolute path "/directory_where_Seed7_was_installed/seed7/lib".
+
+
+How is the directory of the predefined include libraries determined?
+====================================================================
+
+The directory of the predefined include libraries is hardcoded in the
+interpreter. This information is determined when the Seed7 interpreter
+is compiled. The command 'make depend' writes a line, which defines the
+C preprocessor variable SEED7_LIBRARY, to the file "seed7/src/version.h".
+E.g.: The file "version.h" contains the line:
+
+  #define SEED7_LIBRARY "/home/abc/seed7_5/lib"
+
+The preprocessor macro SEED7_LIBRARY is used by the function
+init_lib_path() which is defined in "seed7/src/infile.c".
+The statements handling the predefined include library directory
+start after the line
+
+  #ifdef SEED7_LIBRARY
+
+The C string from SEED7_LIBRARY is converted to a Seed7 string with
+cstri_to_stri(). The function stri_to_path() converts the string to
+the standard path representation of Seed7. Finally the path is
+appended to the library search list (lib_path) with:
+
+  append_to_lib_path(path, err_info)
+
+Interpreter and compiler use the same strategy to determine
+the directory with predefined include libraries.
+
+
+How does the Seed7 compiler get information about C compiler and runtime?
+=========================================================================
+
+The Seed7 compiler needs detailed information about the C compiler
+and its runtime library. This information is created when the Seed7
+interpreter is compiled. The command 'make depend' writes C preprocessor
+macros to "seed7/src/version.h". E.g.:
+
+  #define SEED7_LIB "/home/abc/seed7_5/bin/seed7_05.a"
+  #define COMP_DATA_LIB "/home/abc/seed7_5/bin/s7_data.a"
+  #define COMPILER_LIB "/home/abc/seed7_5/bin/s7_comp.a"
+
+The command 'make depend' compiles and executes the program
+"chkccomp.c", which also writes preprocessor macros to "version.h".
+E.g.:
+
+  #define RSHIFT_DOES_SIGN_EXTEND
+  #define TWOS_COMPLEMENT_INTTYPE
+  #define LITTLE_ENDIAN_INTTYPE
+
+The preprocessor macros used by "version.h" are described in
+"seed7/src/read_me.txt". The function 'cmdConfigValue()', which is
+defined in "cmd_rtl.c", allows access to several values from
+"version.h". A Seed7 program, like the Seed7 compiler, can obtain
+this information with the function 'configValue'. The Seed7
+function 'configValue' calls the C function 'cmdConfigValue()',
+which returns the requested config value. Configuration values
+are returned as strings. E.g.: configValue("SEED7_LIB") returns
+"/home/abc/seed7_5/bin/seed7_05.a". For macros which are either
+defined or undefined 'configValue' returns "TRUE" or "FALSE"
+respectively. E.g.: configValue("TWOS_COMPLEMENT_INTTYPE") returns
+"TRUE".
+
+The Seed7 compiler uses SEED7_LIB, COMP_DATA_LIB and COMPILER_LIB
+when it links object files to an executable. Config values
+like RSHIFT_DOES_SIGN_EXTEND, TWOS_COMPLEMENT_INTTYPE and
+LITTLE_ENDIAN_INTTYPE are used to control the kind of C code
+produced by the Seed7 compiler. The function 'configValue'
+can also obtain config values that do not come from "version.h",
+but are defined in "seed7/src/common.h". E.g.:
+
+  #define WITH_STRI_CAPACITY
+  #define ALLOW_STRITYPE_SLICES
+
+This configuration values describe data structures and
+implementation strategies used by the Seed7 runtime library.
+They do not depend on the C compiler and its runtime library,
+but they may change between releases of Seed7.
 
 
 Does the interpreter use bytecode?

@@ -1,3 +1,15 @@
+20110320:
+- An explaination where the interpreter looks for include files, was added to
+  the FAQ.
+- An explanation how the directory of the predefined include libraries
+  is determined, was added to the FAQ.
+- An explanation how the Seed7 compiler gets information about C compiler and
+  runtime, was added to the FAQ.
+- A description of several C preprocessor macros used in "version.h" was
+  added to the file "src/read_me.txt".
+- Missing functions were added to the file "drw_dos.c".
+- The function 'bstTail' was added to the file "bst_rtl.c".
+
 20110306:
 - The support for CGI programs in the comanche.sd7 webserver was improved.
 - The first steps towards evaluating pure functions in the compiler (when they

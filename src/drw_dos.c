@@ -73,6 +73,21 @@ booltype gkbKeyPressed ()
 
 #ifdef ANSI_C
 
+booltype gkbButtonPressed (chartype button)
+#else
+
+booltype gkbButtonPressed (button)
+chartype button;
+#endif
+
+  { /* gkbButtonPressed */
+    return(FALSE);
+  } /* gkbButtonPressed */
+
+
+
+#ifdef ANSI_C
+
 chartype gkbRawGetc (void)
 #else
 
@@ -152,6 +167,36 @@ inttype gkbYpos ()
   { /* gkbYpos */
     return(0);
   } /* gkbYpos */
+
+
+
+#ifdef ANSI_C
+
+inttype drwPointerXpos (const_wintype actual_window)
+#else
+
+inttype drwPointerXpos (actual_window)
+wintype actual_window;
+#endif
+
+  { /* drwPointerXpos */
+    return(0);
+  } /* drwPointerXpos */
+
+
+
+#ifdef ANSI_C
+
+inttype drwPointerYpos (const_wintype actual_window)
+#else
+
+inttype drwPointerYpos (actual_window)
+wintype actual_window;
+#endif
+
+  { /* drwPointerYpos */
+    return(0);
+  } /* drwPointerYpos */
 
 
 
@@ -567,6 +612,26 @@ stritype window_name;
 
 #ifdef ANSI_C
 
+wintype drwOpenSubWindow (const_wintype parent_window, inttype xPos, inttype yPos,
+    inttype width, inttype height)
+#else
+
+  wintype drwOpenSubWindow (parent_window, xPos, yPos, width, height)
+wintype parent_window;
+inttype xPos;
+inttype yPos;
+inttype width;
+inttype height;
+#endif
+
+  { /* drwOpenSubWindow */
+    return(NULL);
+  } /* drwOpenSubWindow */
+
+
+
+#ifdef ANSI_C
+
 void drwPoint (const_wintype actual_window, inttype x, inttype y)
 #else
 
@@ -606,6 +671,7 @@ rtlArraytype xyArray;
 #endif
 
   { /* drwGenPointList */
+    return(NULL);
   } /* drwGenPointList */
 
 
@@ -744,6 +810,51 @@ inttype col;
 
 #ifdef ANSI_C
 
+void drwSetContent (const_wintype actual_window, const_wintype pixmap)
+#else
+
+void drwSetContent (actual_window, pixmap)
+wintype actual_window;
+wintype pixmap;
+#endif
+
+  { /* drwSetContent */
+  } /* drwSetContent */
+
+
+
+#ifdef ANSI_C
+
+void drwSetPos (const_wintype actual_window, inttype xPos, inttype yPos)
+#else
+
+void drwSetPos (actual_window, xPos, yPos)
+wintype actual_window;
+inttype xPos, yPos;
+#endif
+
+  { /* drwSetPos */
+  } /* drwSetPos */
+
+
+
+#ifdef ANSI_C
+
+void drwSetTransparentColor (wintype pixmap, inttype col)
+#else
+
+void drwSetTransparentColor (pixmap, col)
+wintype pixmap;
+inttype col;
+#endif
+
+  { /* drwSetTransparentColor */
+  } /* drwSetTransparentColor */
+
+
+
+#ifdef ANSI_C
+
 void drwText (const_wintype actual_window, inttype x, inttype y,
     const const_stritype stri, inttype col, inttype bkcol)
 #else
@@ -763,6 +874,34 @@ inttype bkcol;
 
 #ifdef ANSI_C
 
+void drwToBottom (const_wintype actual_window)
+#else
+
+void drwToBottom (actual_window)
+wintype actual_window;
+#endif
+
+  { /* drwToBottom */
+  } /* drwToBottom */
+
+
+
+#ifdef ANSI_C
+
+void drwToTop (const_wintype actual_window)
+#else
+
+void drwToTop (actual_window)
+wintype actual_window;
+#endif
+
+  { /* drwToTop */
+  } /* drwToTop */
+
+
+
+#ifdef ANSI_C
+
 inttype drwWidth (const_wintype actual_window)
 #else
 
@@ -773,3 +912,33 @@ wintype actual_window;
   { /* drwWidth */
     return(0);
   } /* drwWidth */
+
+
+
+#ifdef ANSI_C
+
+inttype drwXPos (const_wintype actual_window)
+#else
+
+inttype drwXPos (actual_window)
+wintype actual_window;
+#endif
+
+  { /* drwXPos */
+    return(0);
+  } /* drwXPos */
+
+
+
+#ifdef ANSI_C
+
+inttype drwYPos (const_wintype actual_window)
+#else
+
+inttype drwYPos (actual_window)
+wintype actual_window;
+#endif
+
+  { /* drwYPos */
+    return(0);
+  } /* drwYPos */

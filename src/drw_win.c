@@ -62,22 +62,23 @@ static HWND button_window = 0;
 
 
 typedef struct win_winstruct {
-  uinttype usage_count;
-  HWND hWnd;
-  HDC hdc;
-  HBITMAP backup;
-  HDC backup_hdc;
-  HBITMAP hBitmap;
-  HBITMAP oldBitmap;
-  booltype hasTransparentPixel;
-  UINT transparentPixel;
-  booltype is_pixmap;
-  unsigned int width;
-  unsigned int height;
-  unsigned int brutto_width_delta;
-  unsigned int brutto_height_delta;
-  struct win_winstruct *next;
-} win_winrecord, *win_wintype;
+    uinttype usage_count;
+    /* Up to here the structure is identical to struct winstruct */
+    HWND hWnd;
+    HDC hdc;
+    HBITMAP backup;
+    HDC backup_hdc;
+    HBITMAP hBitmap;
+    HBITMAP oldBitmap;
+    booltype hasTransparentPixel;
+    UINT transparentPixel;
+    booltype is_pixmap;
+    unsigned int width;
+    unsigned int height;
+    unsigned int brutto_width_delta;
+    unsigned int brutto_height_delta;
+    struct win_winstruct *next;
+  } win_winrecord, *win_wintype;
 
 static win_wintype window_list = NULL;
 

@@ -21153,6 +21153,7 @@ const proc: init_type_constants (inout expr_type: c_expr) is func
 const proc: init_array_constants (in reference: const_object, inout expr_type: c_expr) is func
 
   local
+    # var type: object_type is void;
     var ref_list: array_list is ref_list.EMPTY;
     var integer: number is 0;
     var integer: elem_num is 0;
@@ -21175,6 +21176,8 @@ const proc: init_array_constants (in reference: const_object, inout expr_type: c
     c_expr.expr &:= "]->max_position=";
     c_expr.expr &:= str(pred(array_min_index(const_object) + length(array_list)));
     c_expr.expr &:= ";\n";
+    # object_type := getType(const_object);
+    # if array_element[const_object] then
     elem_num := 1;
     for element range array_list do
       c_expr.expr &:= "arr[";

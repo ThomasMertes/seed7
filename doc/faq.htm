@@ -140,6 +140,15 @@ What happens when an exception is not catched?
 </ul></li><li><h2>
 Implementation
 </h2><ul>
+<li><a href="#lib_path"><b>
+Where does the interpreter look for include libraries?
+</b></a></li>
+<li><a href="#predefined_include_libraries"><b>
+How is the directory of the predefined include libraries determined?
+</b></a></li>
+<li><a href="#cmd_config_value"><b>
+How does the Seed7 compiler get information about C compiler and runtime?
+</b></a></li>
 <li><a href="#bytecode"><b>
 Does the interpreter use bytecode?
 </b></a></li>
@@ -244,6 +253,8 @@ are defined to avoid the need to use shell (and cmd.exe) commands.
    obtained and changed with portable functions.</li>
 <li><!--  -  -->A forward slash is used as path delimiter on all operating systems
    and an attempt to use a backslash as path delimiter is an error.</li>
+<li><!--  -  -->Drive letters are prohibited. Instead of a path starting with
+   <tt><font color=maroon>"C:"</font></tt> a standard path starting with <tt><font color=maroon>"/c"</font></tt> must be used.</li>
 <li><!--  -  -->Differences between Unix sockets and winsockets are hidden and
    Seed7 sockets are files (as in Unix).</li>
 <li><!--  -  -->Reading keys and key combinations such as ctrl-F1 from a text
@@ -1288,7 +1299,7 @@ description of the Seed7 exceptions.
 <p>
 When an EXCEPTION is not catched the program is terminated and the hi
 interpreter writes a stack trace:
-<p><pre>
+</p><pre>
   *** Uncaught EXCEPTION NUMERIC_ERROR raised with
   {integer: <SYMBOLOBJECT> *NULL_ENTITY_OBJECT* div fuel_max }
 
@@ -1325,6 +1336,129 @@ exception is not related to floating point operations.
 </p><p>
 <a href="manual/errors.htm#Stack_trace">Chapter 14.4 (Stack trace)</a> of the manual contains a detailed
 description how to debug compiled Seed7 programs.
+</p></p>
+
+<p><br><a name="lib_path"><h3>Where does the interpreter look for include libraries?
+</h3></a><hr><!-- ====================================================== -->
+<p>
+Include libraries with absolut path (an absolute path starts with
+a forward slash) are only searched at the specified place. All
+other include libraries are searched in several directories. This
+is done according to a list of library directories (a library
+search path). The directories of the list are checked one after
+another for the requested include file. As soon as the include file
+is found the search is stopped and the file is included. The
+following directories are in the list of library directories:
+</p><ol>
+<li><!--  1.  -->The directory of the interpreted program. E.g.: When the
+    program <tt><font color=maroon>"/home/abc/test/pairs.sd7"</font></tt> is interpreted the directory
+    <tt><font color=maroon>"/home/abc/test"</font></tt> is in the list of library directories.</li>
+<li><!--  2.  -->The directory containing the predefined Seed7 include libraries.
+    This directory is hardcoded in the interpreter (an absolute
+    path like <tt><font color=maroon>"/<i>directory_where_Seed7_was_installed</i>/seed7/lib"</font></tt>).
+    The hardcoded library directory is determined when the
+    interpreter is compiled. So it only exists when the interpreter
+    was compiled from source. The interpreter from the binary
+    release uses the relative path <tt><font color=maroon>"../lib"</font></tt> instead. This works only
+    when the current working directory is the <tt><font color=maroon>"prg"</font></tt> directory of the
+    Seed7 package. E.g.: When the current working directory is
+    <tt><font color=maroon>"seed7/prg"</font></tt> and the program <tt><font color=maroon>"hello.sd7"</font></tt> is interpreted the
+    include files are searched in <tt><font color=maroon>"seed7/lib"</font></tt>.</li>
+<li><!--  3.  -->The directory specified with the <tt>SEED7_LIBRARY</tt> environment
+    variable.</li>
+<li><!--  4.  -->Directories specified in the source file with the <tt>library</tt>
+    pragma. E.g.: The line: <tt>$ library <font color=maroon>"/home/tm/seed7/lib"</font></tt>
+    adds the directory <tt><font color=maroon>"/home/tm/seed7/lib"</font></tt> to the list of library
+    directories.</li>
+</ol><p>
+Seed7 interpreter and compiler (comp.s7i) use the same list of
+library directories (the same library search path). When Seed7 is
+compiled from source code both (interpreter and compiler) will find
+the Seed7 include files automatically. Interpreter and compiler from
+the binary release will only find library include files when the
+current working directory is <tt><font color=maroon>"seed7/prg"</font></tt>. To interpret programs from
+other current working directories with the binary interpreter it is
+necessary to set the environment variable <tt>SEED7_LIBRARY</tt> to the
+absolute path <tt><font color=maroon>"/<i>directory_where_Seed7_was_installed</i>/seed7/lib"</font></tt>.
+</p></p>
+
+<p><br><a name="predefined_include_libraries"><h3>How is the directory of the predefined include libraries determined?
+</h3></a><hr><!-- ==================================================================== -->
+<p>
+The directory of the predefined include libraries is hardcoded in the
+interpreter. This information is determined when the Seed7 interpreter
+is compiled. The command <tt>'make depend'</tt> writes a line, which defines the
+C preprocessor variable SEED7_LIBRARY, to the file <tt><font color=maroon>"seed7/src/version.h"</font></tt>.
+E.g.: The file <tt><font color=maroon>"version.h"</font></tt> contains the line:
+</p><pre>
+  #define SEED7_LIBRARY <font color=maroon>"/home/abc/seed7_5/lib"</font>
+</pre><p>
+The preprocessor macro SEED7_LIBRARY is used by the function
+init_lib_path() which is defined in <tt><font color=maroon>"seed7/src/infile.c"</font></tt>.
+The statements handling the predefined include library directory
+start after the line
+</p><pre>
+  #ifdef SEED7_LIBRARY
+</pre><p>
+The C string from SEED7_LIBRARY is converted to a Seed7 string with
+<tt>cstri_to_stri()</tt>. The function <tt>stri_to_path()</tt> converts the string to
+the standard path representation of Seed7. Finally the path is
+appended to the library search list (lib_path) with:
+</p><pre>
+  append_to_lib_path(path, err_info)
+</pre><p>
+Interpreter and compiler use the same strategy to determine
+the directory with predefined include libraries.
+</p></p>
+
+<p><br><a name="cmd_config_value"><h3>How does the Seed7 compiler get information about C compiler and runtime?
+</h3></a><hr><!-- ========================================================================= -->
+<p>
+The Seed7 compiler needs detailed information about the C compiler
+and its runtime library. This information is created when the Seed7
+interpreter is compiled. The command <tt>'make depend'</tt> writes C preprocessor
+macros to <tt><font color=maroon>"seed7/src/version.h"</font></tt>. E.g.:
+</p><pre>
+  #define SEED7_LIB <font color=maroon>"/home/abc/seed7_5/bin/seed7_05.a"</font>
+  #define COMP_DATA_LIB <font color=maroon>"/home/abc/seed7_5/bin/s7_data.a"</font>
+  #define COMPILER_LIB <font color=maroon>"/home/abc/seed7_5/bin/s7_comp.a"</font>
+</pre><p>
+The command <tt>'make depend'</tt> compiles and executes the program
+<tt><font color=maroon>"chkccomp.c"</font></tt>, which also writes preprocessor macros to <tt><font color=maroon>"version.h"</font></tt>.
+E.g.:
+</p><pre>
+  #define RSHIFT_DOES_SIGN_EXTEND
+  #define TWOS_COMPLEMENT_INTTYPE
+  #define LITTLE_ENDIAN_INTTYPE
+</pre><p>
+The preprocessor macros used by <tt><font color=maroon>"version.h"</font></tt> are described in
+<tt><font color=maroon>"seed7/src/read_me.txt"</font></tt>. The function <tt>'cmdConfigValue()'</tt>, which is
+defined in <tt><font color=maroon>"cmd_rtl.c"</font></tt>, allows access to several values from
+<tt><font color=maroon>"version.h"</font></tt>. A Seed7 program, like the Seed7 compiler, can obtain
+this information with the function <tt>'configValue'</tt>. The Seed7
+function <tt>'configValue'</tt> calls the C function <tt>'cmdConfigValue()'</tt>,
+which returns the requested config value. Configuration values
+are returned as strings. E.g.: <tt>configValue(<font color=maroon>"SEED7_LIB"</font>)</tt> returns
+<tt><font color=maroon>"/home/abc/seed7_5/bin/seed7_05.a"</font></tt>. For macros which are either
+defined or undefined <tt>'configValue'</tt> returns <tt><font color=maroon>"TRUE"</font></tt> or <tt><font color=maroon>"FALSE"</font></tt>
+respectively. E.g.: <tt>configValue(<font color=maroon>"TWOS_COMPLEMENT_INTTYPE"</font>)</tt> returns
+<tt><font color=maroon>"TRUE"</font></tt>.
+</p><p>
+The Seed7 compiler uses SEED7_LIB, COMP_DATA_LIB and COMPILER_LIB
+when it links object files to an executable. Config values
+like RSHIFT_DOES_SIGN_EXTEND, TWOS_COMPLEMENT_INTTYPE and
+LITTLE_ENDIAN_INTTYPE are used to control the kind of C code
+produced by the Seed7 compiler. The function <tt>'configValue'</tt>
+can also obtain config values that do not come from <tt><font color=maroon>"version.h"</font></tt>,
+but are defined in <tt><font color=maroon>"seed7/src/common.h"</font></tt>. E.g.:
+</p><pre>
+  #define WITH_STRI_CAPACITY
+  #define ALLOW_STRITYPE_SLICES
+</pre><p>
+This configuration values describe data structures and
+implementation strategies used by the Seed7 runtime library.
+They do not depend on the C compiler and its runtime library,
+but they may change between releases of Seed7.
 </p></p>
 
 <p><br><a name="bytecode"><h3>Does the interpreter use bytecode?

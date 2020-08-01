@@ -85,15 +85,16 @@ static inttype button_y = 0;
 static Window button_window = 0;
 
 typedef struct x11_winstruct {
-  uinttype usage_count;
-  Window window;
-  Pixmap backup;
-  Pixmap clip_mask;
-  booltype is_pixmap;
-  unsigned int width;
-  unsigned int height;
-  struct x11_winstruct *next;
-} x11_winrecord, *x11_wintype;
+    uinttype usage_count;
+    /* Up to here the structure is identical to struct winstruct */
+    Window window;
+    Pixmap backup;
+    Pixmap clip_mask;
+    booltype is_pixmap;
+    unsigned int width;
+    unsigned int height;
+    struct x11_winstruct *next;
+  } x11_winrecord, *x11_wintype;
 
 typedef const struct x11_winstruct *const_x11_wintype;
 
@@ -123,17 +124,17 @@ int lshift_blue;
 int rshift_blue;
 
 typedef struct color_entry {
-  unsigned short red;
-  unsigned short green;
-  unsigned short blue;
-  unsigned long pixel;
-  struct color_entry *red_less;
-  struct color_entry *red_greater;
-  struct color_entry *green_less;
-  struct color_entry *green_greater;
-  struct color_entry *blue_less;
-  struct color_entry *blue_greater;
-} *color_entry_type;
+    unsigned short red;
+    unsigned short green;
+    unsigned short blue;
+    unsigned long pixel;
+    struct color_entry *red_less;
+    struct color_entry *red_greater;
+    struct color_entry *green_less;
+    struct color_entry *green_greater;
+    struct color_entry *blue_less;
+    struct color_entry *blue_greater;
+  } *color_entry_type;
 
 static const int highest_bit[16] = {
   0, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4
@@ -1210,36 +1211,6 @@ inttype gkbButtonYpos ()
 
 #ifdef ANSI_C
 
-int get_highest_bit (unsigned long number)
-#else
-
-int get_highest_bit (number)
-unsigned long number;
-#endif
-
-  {
-    int result = 0;
-
-  /* get_highest_bit */
-    if (number & 0xffff0000) {
-        number >>= 16;
-        result += 16;
-    } /* if */
-    if (number & 0xff00) {
-        number >>= 8;
-        result += 8;
-    } /* if */
-    if (number & 0xf0) {
-        number >>= 4;
-        result += 4;
-    } /* if */
-    return(result + highest_bit[number]);
-  } /* get_highest_bit */
-
-
-
-#ifdef ANSI_C
-
 inttype drwPointerXpos (const_wintype actual_window)
 #else
 
@@ -2140,6 +2111,36 @@ inttype height;
     } /* if */
     return((wintype) result);
   } /* drwNewBitmap */
+
+
+
+#ifdef ANSI_C
+
+static int get_highest_bit (unsigned long number)
+#else
+
+static int get_highest_bit (number)
+unsigned long number;
+#endif
+
+  {
+    int result = 0;
+
+  /* get_highest_bit */
+    if (number & 0xffff0000) {
+        number >>= 16;
+        result += 16;
+    } /* if */
+    if (number & 0xff00) {
+        number >>= 8;
+        result += 8;
+    } /* if */
+    if (number & 0xf0) {
+        number >>= 4;
+        result += 4;
+    } /* if */
+    return(result + highest_bit[number]);
+  } /* get_highest_bit */
 
 
 

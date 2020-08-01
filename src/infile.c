@@ -723,7 +723,7 @@ errinfotype *err_info;
       lib_path->min_position = 1;
       lib_path->max_position = 0;
 
-      /* Add directory of source file to the lib_path */
+      /* Add directory of the source file to the lib_path */
       dir_path_size = 0;
       for (position = 0; position < source_file_name->size; position++) {
         if (source_file_name->mem[position] == '/') {

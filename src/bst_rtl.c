@@ -372,3 +372,49 @@ bstritype bstri;
     } /* if */
     return result;
   } /* bstStr */
+
+
+
+#ifdef ANSI_C
+
+bstritype bstTail (const const_bstritype stri, inttype start)
+#else
+
+bstritype bstTail (stri, start)
+bstritype stri;
+inttype start;
+#endif
+
+  {
+    memsizetype length;
+    memsizetype result_size;
+    bstritype result;
+
+  /* bstTail */
+    length = stri->size;
+    if (start < 1) {
+      start = 1;
+    } /* if */
+    if ((uinttype) start <= length && length >= 1) {
+      result_size = length - (memsizetype) start + 1;
+      if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, result_size))) {
+        raise_error(MEMORY_ERROR);
+        return NULL;
+      } /* if */
+      /* Reversing the order of the following two statements    */
+      /* causes an "Internal Compiler Error" with MSC 6.0       */
+      /* when using the -Ozacegilt optimisation option in the   */
+      /* large memory model (-AL). Note that the order of the   */
+      /* two statements make no difference to the logic of the  */
+      /* program.                                               */
+      memcpy(result->mem, &stri->mem[start - 1], result_size);
+      result->size = result_size;
+    } else {
+      if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, (memsizetype) 0))) {
+        raise_error(MEMORY_ERROR);
+        return NULL;
+      } /* if */
+      result->size = 0;
+    } /* if */
+    return result;
+  } /* bstTail */

@@ -22,6 +22,7 @@ LDFLAGS =
 # LDFLAGS = -pg -lc_p
 # LIBS = /usr/Xlib/libX11.so -lncurses -lm
 # LIBS = -lX11 -lXext -lncurses -lm
+# LIBS = -lGL -lGLEW -lglut -lncurses -lm
 LIBS = -lX11 -lncurses -lm
 # LIBS = -lX11 -lncurses -lm -lgmp
 # LIBS = -lX11 -lncurses -lm_p -lc_p

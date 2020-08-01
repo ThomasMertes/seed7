@@ -869,11 +869,31 @@ THE VERSION.H FILE
               compiler and linker (Most IDEs provide also a
               stand-alone compiler/linker).
 
+  C_COMPILER_VERSION: Contains a string describing the version of
+                      the C compiler which compiled the Seed7
+                      runtime libraries. This string can be used
+                      together with GET_CC_VERSION_INFO to compare
+                      the C compiler used to compile the Seed7
+                      runtime libraries with the actual version of
+                      the C compiler.
+
+  GET_CC_VERSION_INFO: Contains a shell command that causes the
+                       C compiler to write its version information
+                       into a given file. In Seed7 it is used with
+                       cmd_sh(GET_CC_VERSION_INFO & fileName);
+                       Afterwards the file fileName contains the
+                       version information of the C compiler.
+                       Reading the first line of the file should
+                       give the same string as C_COMPILER_VERSION.
+
   CC_OPT_DEBUG_INFO: Contains the C compiler option to add source
                      level debugging information to the object file.
 
   CC_OPT_NO_WARNINGS: Contains the C compiler option to suppress
                       all warnings.
+
+  CC_FLAGS: Contains C compiler flags which should be used when
+            C programs are compiled.
 
   REDIRECT_C_ERRORS: The redirect command to redirect the errors
                      of the C compiler to a file. The MSVC
@@ -908,3 +928,11 @@ THE VERSION.H FILE
 
   SEED7_LIBRARY: Contains the path where the Seed7 include files
                  are available.
+
+  INT32TYPE: A signed integer type that is 32 bits wide.
+
+  UINT32TYPE: An unsigned integer type that is 32 bits wide.
+
+  INT64TYPE: A signed integer type that is 64 bits wide.
+
+  UINT64TYPE: An unsigned integer type that is 64 bits wide.
