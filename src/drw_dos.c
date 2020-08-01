@@ -36,6 +36,7 @@
 
 #include "common.h"
 #include "data_rtl.h"
+#include "rtl_err.h"
 
 #undef EXTERN
 #define EXTERN
@@ -577,6 +578,7 @@ stritype window_name;
 #endif
 
   { /* drwOpen */
+    raise_error(FILE_ERROR);
     return(NULL);
   } /* drwOpen */
 
@@ -597,6 +599,7 @@ inttype height;
 #endif
 
   { /* drwOpenSubWindow */
+    raise_error(FILE_ERROR);
     return(NULL);
   } /* drwOpenSubWindow */
 

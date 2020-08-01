@@ -38,9 +38,11 @@
 #include "conio.h"
 
 #include "common.h"
-#include "scr_drv.h"
 #include "kbd_drv.h"
 
+#undef EXTERN
+#define EXTERN
+#include "scr_drv.h"
 
 /* #define atexit(x) */
 
@@ -107,6 +109,35 @@ static char MAP[] = {
 /* 240 */ 'Î',   '§',   'ï',   '¢',   'ì',   '?',   'î',   'ˆ',   '?',   'ó',
 /* 250 */ '£',   'ñ',   'Å',   '?',   '?',   'ò'};
 #endif
+
+
+static chartype map_from_437[] = {
+/*   0 */    0,    1,    2,    3,    4,    5,    6,    7,    8,    9,
+/*  10 */   10,   11,   12,   13,   14,   15,   16,   17,   18,   19,
+/*  20 */   20,   21,   22,   23,   24,   25,   26,   27,   28,   29,
+/*  30 */   30,   31,  ' ',  '!',  '"',  '#',  '$',  '%',  '&', '\'',
+/*  40 */  '(',  ')',  '*',  '+',  ',',  '-',  '.',  '/',  '0',  '1',
+/*  50 */  '2',  '3',  '4',  '5',  '6',  '7',  '8',  '9',  ':',  ';',
+/*  60 */  '<',  '=',  '>',  '?',  '@',  'A',  'B',  'C',  'D',  'E',
+/*  70 */  'F',  'G',  'H',  'I',  'J',  'K',  'L',  'M',  'N',  'O',
+/*  80 */  'P',  'Q',  'R',  'S',  'T',  'U',  'V',  'W',  'X',  'Y',
+/*  90 */  'Z',  '[', '\\',  ']',  '^',  '_',  '`',  'a',  'b',  'c',
+/* 100 */  'd',  'e',  'f',  'g',  'h',  'i',  'j',  'k',  'l',  'm',
+/* 110 */  'n',  'o',  'p',  'q',  'r',  's',  't',  'u',  'v',  'w',
+/* 120 */  'x',  'y',  'z',  '{',  '|',  '}',  '~',  127,  199,  252,
+/* 130 */  233,  226,  228,  224,  229,  231,  234,  235,  232,  239,
+/* 140 */  238,  236,  196,  197,  201,  230,  198,  244,  246,  242,
+/* 150 */  251,  249,  255,  214,  220,  162,  163,  165, 8359,  402,
+/* 160 */  225,  237,  243,  250,  241,  209,  170,  186,  191, 8976,
+/* 170 */  172,  189,  188,  161,  171,  187, 9617, 9618, 9619, 9474,
+/* 180 */ 9508, 9569, 9570, 9558, 9557, 9571, 9553, 9559, 9565, 9564,
+/* 190 */ 9563, 9488, 9492, 9524, 9516, 9500, 9472, 9532, 9566, 9567,
+/* 200 */ 9562, 9556, 9577, 9574, 9568, 9552, 9580, 9575, 9576, 9572,
+/* 210 */ 9573, 9561, 9560, 9554, 9555, 9579, 9578, 9496, 9484, 9608,
+/* 220 */ 9604, 9612, 9616, 9600,  945,  223,  915,  960,  931,  963,
+/* 230 */  181,  964,  934,  920,  937,  948, 8734,  966,  949, 8745,
+/* 240 */ 8801,  177, 8805, 8804, 8992, 8993,  247, 8776,  176, 8729,
+/* 250 */  183, 8730, 8319,  178, 9632,  160};
 
 
 static int map_key[] = {
@@ -190,6 +221,8 @@ chartype kbdGetc ()
     key = (chartype) r.h.al;
     if (key == 0) {
       key = map_key[r.h.ah];
+    } else {
+      key = map_from_437[key & 0xFF];
     } /* if */
     if (key == 13) {
       key = 10;
@@ -215,73 +248,73 @@ chartype kbdRawGetc ()
 
 #ifdef ANSI_C
 
-static void wat_beep (void)
+void snd_beep (void)
 #else
 
-static void wat_beep ()
+void snd_beep ()
 #endif
 
-  { /* wat_beep */
+  { /* snd_beep */
     fputc('\007', stderr);
-  } /* wat_beep */
+  } /* snd_beep */
 
 
 
 #ifdef ANSI_C
 
-static void wat_setcolor (inttype foreground, inttype background)
+void setcolour (inttype foreground, inttype background)
 #else
 
-static void wat_setcolor (foreground, background)
+void setcolour (foreground, background)
 inttype foreground;
 inttype background;
 #endif
 
-  { /* wat_setcolor */
+  { /* setcolour */
     currentattribute = (char) (foreground + 16 * (background % 8));
-  } /* wat_setcolor */
+  } /* setcolour */
 
 
 
 #ifdef ANSI_C
 
-static void wat_standardcolour (void)
+void standardcolour (void)
 #else
 
-static void wat_standardcolour ()
+void standardcolour ()
 #endif
 
-  { /* wat_standardcolour */
-    wat_setcolor(lightgray, black);
-  } /* wat_standardcolour */
+  { /* standardcolour */
+    setcolour(lightgray, black);
+  } /* standardcolour */
 
 
 
 #ifdef ANSI_C
 
-static void wat_normalcolour (void)
+void normalcolour (void)
 #else
 
-static void wat_normalcolour ()
+void normalcolour ()
 #endif
 
-  { /* wat_normalcolour */
-    wat_setcolor(lightgray, black);
-  } /* wat_normalcolour */
+  { /* normalcolour */
+    setcolour(lightgray, black);
+  } /* normalcolour */
 
 
 
 #ifdef ANSI_C
 
-static void wat_setfont (char *fontname)
+void setfont (char *fontname)
 #else
 
-static void wat_setfont (fontname)
+void setfont (fontname)
 char *fontname;
 #endif
 
-  { /* wat_setfont */
-  } /* wat_setfont */
+  { /* setfont */
+  } /* setfont */
 
 
 
@@ -658,7 +691,7 @@ void scrShut ()
 
   { /* scrShut */
     if (screen_initialized) {
-      wat_standardcolour();
+      standardcolour();
       scrCursor(TRUE);
       scrClear(1, 1, 25, 80);
       scrSetCursor(1, 24);
@@ -682,7 +715,7 @@ int scrOpen ()
     union REGS r;
 
   /* scrOpen */
-    wat_normalcolour();
+    normalcolour();
     scrClear(1, 1, 25, 80);
 
     /* Lowlevel request to find out the video state */

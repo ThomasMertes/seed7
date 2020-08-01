@@ -143,7 +143,12 @@ const proc: main is func
     IN := open_line(IN);
     if length(argv(PROGRAM)) >= 1 then
       if length(argv(PROGRAM)) >= 2 and isDigitString(argv(PROGRAM)[2]) then
-        ftpControlPort := integer parse (argv(PROGRAM)[2]);
+        block
+          ftpControlPort := integer parse (argv(PROGRAM)[2]);
+        exception
+          catch RANGE_ERROR: writeln(" ***** Port number too big. Port " <&
+              defaultFtpControlPort <& " used instead.");
+        end block;
       end if;
       ftp := openFtp(argv(PROGRAM)[1], ftpControlPort);
       # ftp.active := TRUE;

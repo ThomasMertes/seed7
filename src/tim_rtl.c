@@ -209,7 +209,7 @@ booltype *is_dst;
       *sec       = local_time->tm_sec;
       *micro_sec = 0;
       *time_zone = (unchecked_mkutc(local_time) - timestamp) / 60;
-      *is_dst    = local_time->tm_isdst;
+      *is_dst    = local_time->tm_isdst > 0;
     } /* if */
 #ifdef TRACE_TIM_RTL
     printf("END timFromTimestamp(%ld, %04ld-%02ld-%02ld %02ld:%02ld:%02ld.%06ld %ld %d)\n",
@@ -247,7 +247,7 @@ booltype *is_dst;
 #if TIME_T_SIZE < INTTYPE_SIZE
 #if TIME_T_SIZE == 32
     if (unlikely(timestamp < INT32TYPE_MIN || timestamp > INT32TYPE_MAX)) {
-#elsif TIME_T_SIZE == 64
+#elif TIME_T_SIZE == 64
     if (unlikely(timestamp < INT64TYPE_MIN || timestamp > INT64TYPE_MAX)) {
 #else
     if (TRUE) {
@@ -269,7 +269,7 @@ booltype *is_dst;
 #if TIME_T_SIZE < INTTYPE_SIZE
 #if TIME_T_SIZE == 32
       if (unlikely(timestamp > UINT32TYPE_MAX)) {
-#elsif TIME_T_SIZE == 64
+#elif TIME_T_SIZE == 64
       if (unlikely(timestamp > UINT64TYPE_MAX)) {
 #else
       if (TRUE) {
@@ -395,7 +395,7 @@ booltype *is_dst;
           raise_error(RANGE_ERROR);
         } else {
           *time_zone = (unchecked_mkutc(local_time) - timestamp) / 60;
-          *is_dst    = local_time->tm_isdst;
+          *is_dst    = local_time->tm_isdst > 0;
         } /* if */
       } /* if */
     } /* if */

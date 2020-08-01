@@ -134,11 +134,13 @@ stritype stri;
 #ifdef UTF32_STRINGS
     if (stri->size <= 256) {
       memsizetype size;
+#ifdef SCREEN_UTF8
       uchartype stri_buffer[MAX_UTF8_EXPANSION_FACTOR * 256];
 
-#ifdef SCREEN_UTF8
       size = stri_to_utf8(stri_buffer, stri->mem, stri->size);
 #else
+      uchartype stri_buffer[256];
+
       stri_compress(stri_buffer, stri->mem, stri->size);
       size = stri->size;
 #endif

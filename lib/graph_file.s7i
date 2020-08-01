@@ -379,3 +379,7 @@ const proc: cursor_off (inout graph_file: aGraphFile) is func
   begin
     write(aGraphFile, " ");
   end func;
+
+
+const proc: box (ref graph_file param) is noop;
+const proc: clear_box (ref graph_file param) is noop;

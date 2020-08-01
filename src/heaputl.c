@@ -42,6 +42,14 @@
 #define DO_INIT
 #include "heaputl.h"
 
+/* Some compilers/linkers only support determining the stack size   */
+/* by defining a global variable. This variable must be set to the  */
+/* desired stack size. In this case the makefile defines the macro  */
+/* STACK_SIZE_DEFINITION which contains this variable definition.   */
+#ifdef STACK_SIZE_DEFINITION
+STACK_SIZE_DEFINITION;
+#endif
+
 
 
 #ifdef WITH_STRI_CAPACITY

@@ -54,6 +54,52 @@ const_cstritype cstri_escape_sequence[] = {
     "\\036", "\\037"};
 
 
+#ifdef OS_PATH_WCHAR
+
+#define MAX_OS_STRI_SIZE (((MAX_MEMSIZETYPE / sizeof(os_chartype)) - 1) / 2)
+#define OS_STRI_SIZE(size) ((size) * 2)
+
+#elif defined OS_PATH_USES_CODEPAGE
+
+#define MAX_OS_STRI_SIZE ((MAX_MEMSIZETYPE / sizeof(os_chartype)) - 1)
+#define OS_STRI_SIZE(size) (size)
+int codepage = DEFAULT_CODEPAGE;
+
+#elif defined OS_PATH_UTF8
+
+#define MAX_OS_STRI_SIZE (MAX_CSTRI_LEN / MAX_UTF8_EXPANSION_FACTOR)
+#define OS_STRI_SIZE(size) max_utf8_size(size)
+
+#endif
+
+
+
+#ifdef ANSI_C
+
+const strelemtype *stri_charpos (const_stritype stri, strelemtype ch)
+#else
+
+strelemtype *stri_charpos (stri, ch)
+stritype stri;
+strelemtype ch;
+#endif
+
+  {
+    const strelemtype *mem;
+    size_t number;
+
+  /* stri_charpos */
+    mem = stri->mem;
+    number = stri->size;
+    for (; number > 0; mem++, number--) {
+      if (*mem == ch) {
+        return mem;
+      } /* if */
+    } /* for */
+    return NULL;
+  } /* stri_charpos */
+
+
 
 #ifdef ANSI_C
 
@@ -347,146 +393,387 @@ stritype in_stri;
 #ifdef OS_PATH_WCHAR
 #ifdef ANSI_C
 
-static void wstri_expand (strelemtype *stri, const_wstritype wstri, size_t len)
+static INLINE void conv_to_os_stri (os_stritype os_stri, const strelemtype *strelem,
+    memsizetype len, errinfotype *err_info)
 #else
 
-static void wstri_expand (stri, wstri, len)
-strelemtype *stri;
-wstritype wstri;
-size_t len;
+static INLINE void conv_to_os_stri (os_stri, strelem, len, err_info)
+os_stritype os_stri;
+strelemtype *strelem;
+memsizetype len;
+errinfotype *err_info;
 #endif
 
-  { /* wstri_expand */
+  { /* conv_to_os_stri */
+    for (; len > 0; os_stri++, strelem++, len--) {
+      if (likely(*strelem <= 0xFFFF)) {
+        *os_stri = (os_chartype) *strelem;
+      } else if (*strelem <= 0x10FFFF) {
+        strelemtype currChar = *strelem - 0x10000;
+        *os_stri = (os_chartype) (0xD800 | (currChar >> 10));
+        os_stri++;
+        *os_stri = (os_chartype) (0xDC00 | (currChar & 0x3FF));
+      } else {
+        *err_info = RANGE_ERROR;
+        len = 1;
+      } /* if */
+    } /* for */
+    *os_stri = 0;
+  } /* conv_to_os_stri */
+
+
+
+#elif defined OS_PATH_USES_CODEPAGE
+
+static unsigned char map_to_437_160[] = {
+/*  160 */  255,  173,  155,  156,  '?',  157,  '?',  '?',  '?',  '?',
+/*  170 */  166,  174,  170,  '?',  '?',  '?',  248,  241,  253,  '?',
+/*  180 */  '?',  230,  '?',  250,  '?',  '?',  167,  175,  172,  171,
+/*  190 */  '?',  168,  '?',  '?',  '?',  '?',  142,  143,  146,  128,
+/*  200 */  '?',  144,  '?',  '?',  '?',  '?',  '?',  '?',  '?',  165,
+/*  210 */  '?',  '?',  '?',  '?',  153,  '?',  '?',  '?',  '?',  '?',
+/*  220 */  154,  '?',  '?',  225,  133,  160,  131,  '?',  132,  134,
+/*  230 */  145,  135,  138,  130,  136,  137,  141,  161,  140,  139,
+/*  240 */  '?',  164,  149,  162,  147,  '?',  148,  246,  '?',  151,
+/*  250 */  163,  150,  129,  '?',  '?',  152};
+
+static unsigned char map_to_437_915[] = {
+/*  910 */                                226,  '?',  '?',  '?',  '?',
+/*  920 */  233,  '?',  '?',  '?',  '?',  '?',  '?',  '?',  '?',  '?',
+/*  930 */  '?',  228,  '?',  '?',  232,  '?',  '?',  234,  '?',  '?',
+/*  940 */  '?',  '?',  '?',  '?',  '?',  224,  '?',  '?',  235,  238,
+/*  950 */  '?',  '?',  '?',  '?',  '?',  '?',  '?',  '?',  '?',  '?',
+/*  960 */  227,  '?',  '?',  229,  231,  '?',  237};
+
+static unsigned char map_to_437_9472[] = {
+/* 9470 */              196,  '?',  179,  '?',  '?',  '?',  '?',  '?',
+/* 9480 */  '?',  '?',  '?',  '?',  218,  '?',  '?',  '?',  191,  '?',
+/* 9490 */  '?',  '?',  192,  '?',  '?',  '?',  217,  '?',  '?',  '?',
+/* 9500 */  195,  '?',  '?',  '?',  '?',  '?',  '?',  '?',  180,  '?',
+/* 9510 */  '?',  '?',  '?',  '?',  '?',  '?',  194,  '?',  '?',  '?',
+/* 9520 */  '?',  '?',  '?',  '?',  193,  '?',  '?',  '?',  '?',  '?',
+/* 9530 */  '?',  '?',  197,  '?',  '?',  '?',  '?',  '?',  '?',  '?',
+/* 9540 */  '?',  '?',  '?',  '?',  '?',  '?',  '?',  '?',  '?',  '?',
+/* 9550 */  '?',  '?',  205,  186,  213,  214,  201,  184,  183,  187,
+/* 9560 */  212,  211,  200,  190,  189,  188,  198,  199,  204,  181,
+/* 9570 */  182,  185,  209,  210,  203,  207,  208,  202,  216,  215,
+/* 9580 */  206,  '?',  '?',  '?',  '?',  '?',  '?',  '?',  '?',  '?',
+/* 9590 */  '?',  '?',  '?',  '?',  '?',  '?',  '?',  '?',  '?',  '?',
+/* 9600 */  223,  '?',  '?',  '?',  220,  '?',  '?',  '?',  219,  '?',
+/* 9610 */  '?',  '?',  221,  '?',  '?',  '?',  222,  176,  177,  178,
+/* 9620 */  '?',  '?',  '?',  '?',  '?',  '?',  '?',  '?',  '?',  '?',
+/* 9630 */  '?',  '?',  254};
+
+static unsigned char map_to_850_160[] = {
+/*  160 */  255,  173,  189,  156,  207,  190,  221,  245,  249,  184,
+/*  170 */  166,  174,  170,  240,  169,  238,  248,  241,  253,  252,
+/*  180 */  239,  230,  244,  250,  247,  251,  167,  175,  172,  171,
+/*  190 */  243,  168,  183,  181,  182,  199,  142,  143,  146,  128,
+/*  200 */  212,  144,  210,  211,  222,  214,  215,  216,  209,  165,
+/*  210 */  227,  224,  226,  229,  153,  158,  157,  235,  233,  234,
+/*  220 */  154,  237,  232,  225,  133,  160,  131,  198,  132,  134,
+/*  230 */  145,  135,  138,  130,  136,  137,  141,  161,  140,  139,
+/*  240 */  208,  164,  149,  162,  147,  228,  148,  246,  155,  151,
+/*  250 */  163,  150,  129,  236,  231,  152};
+
+static unsigned char map_to_850_9472[] = {
+/* 9470 */              196,  '?',  179,  '?',  '?',  '?',  '?',  '?',
+/* 9480 */  '?',  '?',  '?',  '?',  218,  '?',  '?',  '?',  191,  '?',
+/* 9490 */  '?',  '?',  192,  '?',  '?',  '?',  217,  '?',  '?',  '?',
+/* 9500 */  195,  '?',  '?',  '?',  '?',  '?',  '?',  '?',  180,  '?',
+/* 9510 */  '?',  '?',  '?',  '?',  '?',  '?',  194,  '?',  '?',  '?',
+/* 9520 */  '?',  '?',  '?',  '?',  193,  '?',  '?',  '?',  '?',  '?',
+/* 9530 */  '?',  '?',  197,  '?',  '?',  '?',  '?',  '?',  '?',  '?',
+/* 9540 */  '?',  '?',  '?',  '?',  '?',  '?',  '?',  '?',  '?',  '?',
+/* 9550 */  '?',  '?',  205,  186,  '?',  '?',  201,  '?',  '?',  187,
+/* 9560 */  '?',  '?',  200,  '?',  '?',  188,  '?',  '?',  204,  '?',
+/* 9570 */  '?',  185,  '?',  '?',  203,  '?',  '?',  202,  '?',  '?',
+/* 9580 */  206,  '?',  '?',  '?',  '?',  '?',  '?',  '?',  '?',  '?',
+/* 9590 */  '?',  '?',  '?',  '?',  '?',  '?',  '?',  '?',  '?',  '?',
+/* 9600 */  223,  '?',  '?',  '?',  220,  '?',  '?',  '?',  219,  '?',
+/* 9610 */  '?',  '?',  '?',  '?',  '?',  '?',  '?',  176,  177,  178,
+/* 9620 */  '?',  '?',  '?',  '?',  '?',  '?',  '?',  '?',  '?',  '?',
+/* 9630 */  '?',  '?',  254};
+
+
+
+#ifdef ANSI_C
+
+static INLINE void conv_to_os_stri (os_stritype os_stri, const strelemtype *strelem,
+    memsizetype len, errinfotype *err_info)
+#else
+
+static INLINE void conv_to_os_stri (os_stri, strelem, len, err_info)
+os_stritype os_stri;
+strelemtype *strelem;
+memsizetype len;
+errinfotype *err_info;
+#endif
+
+  {
+    unsigned char ch;
+
+  /* conv_to_os_stri */
+    if (codepage == 437) {
+      for (; len > 0; os_stri++, strelem++, len--) {
+        if (*strelem <= 127) {
+          *os_stri = (os_chartype) *strelem;
+        } else {
+          if (*strelem >= 160 && *strelem <= 255) {
+            ch = map_to_437_160[*strelem - 160];
+          } else if (*strelem >= 915 && *strelem <= 966) {
+            ch = map_to_437_915[*strelem - 915];
+          } else if (*strelem >= 9472 && *strelem <= 9632) {
+            ch = map_to_437_9472[*strelem - 9472];
+          } else {
+            switch (*strelem) {
+  	      case  402: ch = 159; break;
+              case 8319: ch = 252; break;
+              case 8359: ch = 158; break;
+              case 8729: ch = 249; break;
+              case 8730: ch = 251; break;
+              case 8734: ch = 236; break;
+              case 8745: ch = 239; break;
+              case 8776: ch = 247; break;
+              case 8801: ch = 240; break;
+              case 8804: ch = 243; break;
+              case 8805: ch = 242; break;
+              case 8976: ch = 169; break;
+              case 8992: ch = 244; break;
+              case 8993: ch = 245; break;
+  	      default:   ch = '?'; break;
+            } /* switch */
+          } /* if */
+          *os_stri = (os_chartype) ch;
+          if (ch == '?') {
+            *err_info = RANGE_ERROR;
+            /* The conversion continues. The caller  */
+            /* can decide to use the question marks. */
+          } /* if */
+        } /* if */
+      } /* for */
+    } else if (codepage == 850) {
+      for (; len > 0; os_stri++, strelem++, len--) {
+        if (*strelem <= 127) {
+          *os_stri = (os_chartype) *strelem;
+        } else {
+          if (*strelem >= 160 && *strelem <= 255) {
+            ch = map_to_850_160[*strelem - 160];
+          } else if (*strelem >= 9472 && *strelem <= 9632) {
+            ch = map_to_850_9472[*strelem - 9472];
+          } else {
+            switch (*strelem) {
+              case 8215: ch = 242; break;
+              case 305:  ch = 213; break;
+              case 402:  ch = 159; break;
+  	      default:   ch = '?'; break;
+            } /* switch */
+          } /* if */
+          *os_stri = (os_chartype) ch;
+          if (ch == '?') {
+            *err_info = RANGE_ERROR;
+            /* The conversion continues. The caller  */
+            /* can decide to use the question marks. */
+          } /* if */
+        } /* if */
+      } /* for */
+    } else {
+      *err_info = RANGE_ERROR;
+    } /* if */
+    *os_stri = (os_chartype) 0;
+  } /* conv_to_os_stri */
+
+#elif defined OS_PATH_UTF8
+
+
+
+#ifdef ANSI_C
+
+static INLINE void conv_to_os_stri (os_stritype os_stri, const strelemtype *strelem,
+    memsizetype len, errinfotype *err_info)
+#else
+
+static INLINE void conv_to_os_stri (os_stri, strelem, len, err_info)
+os_stritype os_stri;
+strelemtype *strelem;
+memsizetype len;
+errinfotype *err_info;
+#endif
+
+  {
+    memsizetype length;
+
+  /* conv_to_os_stri */
+    length = stri_to_utf8((ustritype) os_stri, strelem, len);
+    os_stri[length] = '\0';
+  } /* conv_to_os_stri */
+
+#endif
+
+
+
+#if defined OS_PATH_WCHAR
+#ifdef ANSI_C
+
+static memsizetype wstri_expand (strelemtype *dest_stri, const_wstritype wstri, memsizetype len)
+#else
+
+static memsizetype wstri_expand dest_(stri, wstri, len)
+strelemtype *dest_stri;
+wstritype wstri;
+memsizetype len;
+errinfotype *err_info;
+#endif
+
+  {
+    strelemtype *stri;
+    os_chartype ch1;
+    os_chartype ch2;
+
+  /* wstri_expand */
+    stri = dest_stri;
     for (; len > 0; stri++, wstri++, len--) {
-      *stri = (strelemtype) *wstri;
-    } /* while */
+      ch1 = *wstri;
+      if (unlikely(ch1 >= 0xD800 && ch1 <= 0xDBFF)) {
+        ch2 = wstri[1];
+        if (likely(ch2 >= 0xDC00 && ch2 <= 0xDFFF)) {
+          *stri = ((((strelemtype) ch1 - 0xD800) << 10) +
+	            ((strelemtype) ch2 - 0xDC00) + 0x10000);
+          wstri++;
+          len--;
+        } else {
+          *stri = (strelemtype) ch1;
+        } /* if */
+      } else {
+        *stri = (strelemtype) ch1;
+      } /* if */
+    } /* for */
+    return (memsizetype) (stri - dest_stri);
   } /* wstri_expand */
 
 
 
 #ifdef ANSI_C
 
-static stritype wstri_to_stri (const_wstritype wstri)
+static stritype conv_from_os_stri (const const_os_stritype os_stri)
 #else
 
-static stritype wstri_to_stri (wstri)
-wstritype wstri;
+static stritype conv_from_os_stri (os_stri)
+os_stritype os_stri;
 #endif
 
   {
     memsizetype length;
     stritype stri;
 
-  /* wstri_to_stri */
+  /* conv_from_os_stri */
     length = 0;
-    while (wstri[length] != 0) {
+    while (os_stri[length] != 0) {
+      length++;
+    } /* while */
+    if (ALLOC_STRI_CHECK_SIZE(stri, length)) {
+      stri->size = wstri_expand(stri->mem, os_stri, length);
+    } /* if */
+    return stri;
+  } /* conv_from_os_stri */
+
+
+
+#elif defined OS_PATH_USES_CODEPAGE
+
+static strelemtype map_from_437[] = {
+/*   0 */    0,    1,    2,    3,    4,    5,    6,    7,    8,    9,
+/*  10 */   10,   11,   12,   13,   14,   15,   16,   17,   18,   19,
+/*  20 */   20,   21,   22,   23,   24,   25,   26,   27,   28,   29,
+/*  30 */   30,   31,  ' ',  '!',  '"',  '#',  '$',  '%',  '&', '\'',
+/*  40 */  '(',  ')',  '*',  '+',  ',',  '-',  '.',  '/',  '0',  '1',
+/*  50 */  '2',  '3',  '4',  '5',  '6',  '7',  '8',  '9',  ':',  ';',
+/*  60 */  '<',  '=',  '>',  '?',  '@',  'A',  'B',  'C',  'D',  'E',
+/*  70 */  'F',  'G',  'H',  'I',  'J',  'K',  'L',  'M',  'N',  'O',
+/*  80 */  'P',  'Q',  'R',  'S',  'T',  'U',  'V',  'W',  'X',  'Y',
+/*  90 */  'Z',  '[', '\\',  ']',  '^',  '_',  '`',  'a',  'b',  'c',
+/* 100 */  'd',  'e',  'f',  'g',  'h',  'i',  'j',  'k',  'l',  'm',
+/* 110 */  'n',  'o',  'p',  'q',  'r',  's',  't',  'u',  'v',  'w',
+/* 120 */  'x',  'y',  'z',  '{',  '|',  '}',  '~',  127,  199,  252,
+/* 130 */  233,  226,  228,  224,  229,  231,  234,  235,  232,  239,
+/* 140 */  238,  236,  196,  197,  201,  230,  198,  244,  246,  242,
+/* 150 */  251,  249,  255,  214,  220,  162,  163,  165, 8359,  402,
+/* 160 */  225,  237,  243,  250,  241,  209,  170,  186,  191, 8976,
+/* 170 */  172,  189,  188,  161,  171,  187, 9617, 9618, 9619, 9474,
+/* 180 */ 9508, 9569, 9570, 9558, 9557, 9571, 9553, 9559, 9565, 9564,
+/* 190 */ 9563, 9488, 9492, 9524, 9516, 9500, 9472, 9532, 9566, 9567,
+/* 200 */ 9562, 9556, 9577, 9574, 9568, 9552, 9580, 9575, 9576, 9572,
+/* 210 */ 9573, 9561, 9560, 9554, 9555, 9579, 9578, 9496, 9484, 9608,
+/* 220 */ 9604, 9612, 9616, 9600,  945,  223,  915,  960,  931,  963,
+/* 230 */  181,  964,  934,  920,  937,  948, 8734,  966,  949, 8745,
+/* 240 */ 8801,  177, 8805, 8804, 8992, 8993,  247, 8776,  176, 8729,
+/* 250 */  183, 8730, 8319,  178, 9632,  160};
+
+static strelemtype map_from_850[] = {
+/*   0 */    0,    1,    2,    3,    4,    5,    6,    7,    8,    9,
+/*  10 */   10,   11,   12,   13,   14,   15,   16,   17,   18,   19,
+/*  20 */   20,   21,   22,   23,   24,   25,   26,   27,   28,   29,
+/*  30 */   30,   31,  ' ',  '!',  '"',  '#',  '$',  '%',  '&', '\'',
+/*  40 */  '(',  ')',  '*',  '+',  ',',  '-',  '.',  '/',  '0',  '1',
+/*  50 */  '2',  '3',  '4',  '5',  '6',  '7',  '8',  '9',  ':',  ';',
+/*  60 */  '<',  '=',  '>',  '?',  '@',  'A',  'B',  'C',  'D',  'E',
+/*  70 */  'F',  'G',  'H',  'I',  'J',  'K',  'L',  'M',  'N',  'O',
+/*  80 */  'P',  'Q',  'R',  'S',  'T',  'U',  'V',  'W',  'X',  'Y',
+/*  90 */  'Z',  '[', '\\',  ']',  '^',  '_',  '`',  'a',  'b',  'c',
+/* 100 */  'd',  'e',  'f',  'g',  'h',  'i',  'j',  'k',  'l',  'm',
+/* 110 */  'n',  'o',  'p',  'q',  'r',  's',  't',  'u',  'v',  'w',
+/* 120 */  'x',  'y',  'z',  '{',  '|',  '}',  '~',  127,  199,  252,
+/* 130 */  233,  226,  228,  224,  229,  231,  234,  235,  232,  239,
+/* 140 */  238,  236,  196,  197,  201,  230,  198,  244,  246,  242,
+/* 150 */  251,  249,  255,  214,  220,  248,  163,  216,  215,  402,
+/* 160 */  225,  237,  243,  250,  241,  209,  170,  186,  191,  174,
+/* 170 */  172,  189,  188,  161,  171,  187, 9617, 9618, 9619, 9474,
+/* 180 */ 9508,  193,  194,  192,  169, 9571, 9553, 9559, 9565,  162,
+/* 190 */  165, 9488, 9492, 9524, 9516, 9500, 9472, 9532,  227,  195,
+/* 200 */ 9562, 9556, 9577, 9574, 9568, 9552, 9580,  164,  240,  208,
+/* 210 */  202,  203,  200,  305,  205,  206,  207, 9496, 9484, 9608,
+/* 220 */ 9604,  166,  204, 9600,  211,  223,  212,  210,  245,  213,
+/* 230 */  181,  254,  222,  218,  219,  217,  253,  221,  175,  180,
+/* 240 */  173,  177, 8215,  190,  182,  167,  247,  184,  176,  168,
+/* 250 */  183,  185,  179,  178, 9632,  160};
+
+
+#ifdef ANSI_C
+
+static stritype conv_from_os_stri (const const_os_stritype os_stri)
+#else
+
+static stritype conv_from_os_stri (os_stri)
+os_stritype os_stri;
+#endif
+
+  {
+    memsizetype length;
+    memsizetype pos;
+    stritype stri;
+
+  /* conv_from_os_stri */
+    length = 0;
+    while (os_stri[length] != 0) {
       length++;
     } /* while */
     if (ALLOC_STRI_CHECK_SIZE(stri, length)) {
       stri->size = length;
-      wstri_expand(stri->mem, wstri, (size_t) length);
+      if (codepage == 437) {
+        for (pos = 0; pos < length; pos++) {
+          stri->mem[pos] = map_from_437[(unsigned char) os_stri[pos]];
+        } /* for */
+      } else if (codepage == 850) {
+        for (pos = 0; pos < length; pos++) {
+          stri->mem[pos] = map_from_850[(unsigned char) os_stri[pos]];
+        } /* for */
+      } else {
+        FREE_STRI(stri, length);
+        stri = NULL;
+      } /* if */
     } /* if */
     return stri;
-  } /* wstri_to_stri */
-
-
-
-#ifdef ANSI_C
-
-static void stri_to_wstri (wstritype wstri, const_stritype stri,
-    errinfotype *err_info)
-#else
-
-static void stri_to_wstri (wstri, stri, err_info)
-wstritype wstri;
-stritype stri;
-errinfotype *err_info;
-#endif
-
-  {
-    const strelemtype *strelem;
-    memsizetype len;
-
-  /* stri_to_wstri */
-    strelem = stri->mem;
-    len = stri->size;
-    for (; len > 0; wstri++, strelem++, len--) {
-      if (likely(*strelem <= 0xFFFF)) {
-        *wstri = (uint16type) *strelem;
-      } else if (*strelem <= 0x10FFFF) {
-        strelemtype currChar = *strelem - 0x10000;
-        *wstri = (uint16type) (0xD800 | (currChar >> 10));
-        wstri++;
-        *wstri = (uint16type) (0xDC00 | (currChar & 0x3FF));
-      } else {
-        *err_info = RANGE_ERROR;
-        len = 1;
-      } /* if */
-    } /* for */
-    *wstri = 0;
-  } /* stri_to_wstri */
-
-
-
-#ifdef ANSI_C
-
-os_stritype stri_to_os_stri (const_stritype stri, errinfotype *err_info)
-#else
-
-os_stritype stri_to_os_stri (stri, err_info)
-const_stritype stri;
-errinfotype *err_info;
-#endif
-
-  {
-    os_stritype result;
-
-  /* stri_to_os_stri */
-    if (unlikely(stri->size > ((MAX_MEMSIZETYPE / sizeof(os_chartype)) - 1) / 2)) {
-      *err_info = MEMORY_ERROR;
-      result = NULL;
-    } else {
-      result = (os_stritype) malloc(sizeof(os_chartype) * (stri->size * 2 + 1));
-      if (unlikely(result == NULL)) {
-        *err_info = MEMORY_ERROR;
-      } else {
-        stri_to_wstri(result, stri, err_info);
-        if (unlikely(*err_info != OKAY_NO_ERROR)) {
-          os_stri_free(result);
-          result = NULL;
-        } /* if */
-      } /* if */
-    } /* if */
-    return result;
-  } /* stri_to_os_stri */
-
-#else
-
-
-
-#ifdef ANSI_C
-
-os_stritype stri_to_os_stri (const_stritype stri, errinfotype *err_info)
-#else
-
-os_stritype stri_to_os_stri (stri, err_info)
-const_stritype stri;
-errinfotype *err_info;
-#endif
-
-  {
-    os_stritype result;
-
-  /* stri_to_os_stri */
-    if (unlikely(stri->size > MAX_CSTRI_LEN / MAX_UTF8_EXPANSION_FACTOR ||
-                 !ALLOC_CSTRI(result, max_utf8_size(stri)))) {
-      *err_info = MEMORY_ERROR;
-      result = NULL;
-    } else {
-      stri_export((ustritype) result, stri);
-    } /* if */
-    return result;
-  } /* stri_to_os_stri */
+  } /* conv_from_os_stri */
 
 #endif
 
@@ -507,7 +794,7 @@ stritype stri;
   /* cp_to_cstri */
     if (stri->size > MAX_CSTRI_LEN / MAX_UTF8_EXPANSION_FACTOR) {
       cstri = NULL;
-    } else if (ALLOC_CSTRI(cstri, max_utf8_size(stri))) {
+    } else if (ALLOC_CSTRI(cstri, max_utf8_size(stri->size))) {
       stri_export((ustritype) cstri, stri);
     } /* if */
     return cstri;
@@ -576,20 +863,20 @@ stritype stri;
   /* stri_to_bstri8 */
     if (stri->size > MAX_BSTRI_LEN / MAX_UTF8_EXPANSION_FACTOR) {
       bstri = NULL;
-    } else if (ALLOC_BSTRI_SIZE_OK(bstri, max_utf8_size(stri))) {
+    } else if (ALLOC_BSTRI_SIZE_OK(bstri, max_utf8_size(stri->size))) {
 #ifdef UTF32_STRINGS
       bstri->size = stri_to_utf8(bstri->mem, stri->mem, stri->size);
 #else
       memcpy(bstri->mem, stri->mem, stri->size);
       bstri->size = stri->size;
 #endif
-      REALLOC_BSTRI_SIZE_OK(resized_bstri, bstri, max_utf8_size(stri), bstri->size);
+      REALLOC_BSTRI_SIZE_OK(resized_bstri, bstri, max_utf8_size(stri->size), bstri->size);
       if (resized_bstri == NULL) {
-        FREE_BSTRI(bstri, max_utf8_size(stri));
+        FREE_BSTRI(bstri, max_utf8_size(stri->size));
         bstri = NULL;
       } else {
         bstri = resized_bstri;
-        COUNT3_BSTRI(max_utf8_size(stri), bstri->size);
+        COUNT3_BSTRI(max_utf8_size(stri->size), bstri->size);
       } /* if */
     } /* if */
     return bstri;
@@ -713,28 +1000,100 @@ cstritype cstri;
 
 
 
+#if defined OS_PATH_WCHAR || defined OS_PATH_USES_CODEPAGE
+
+
+
 #ifdef ANSI_C
 
-stritype os_stri_to_stri (const_os_stritype os_stri)
+os_stritype stri_to_os_stri (const_stritype stri, errinfotype *err_info)
 #else
 
-stritype os_stri_to_stri (os_stri)
+os_stritype stri_to_os_stri (stri, err_info)
+const_stritype stri;
+errinfotype *err_info;
+#endif
+
+  {
+    os_stritype result;
+
+  /* stri_to_os_stri */
+    if (unlikely(stri->size > MAX_OS_STRI_SIZE)) {
+      *err_info = MEMORY_ERROR;
+      result = NULL;
+    } else {
+      if (unlikely(!os_stri_alloc(result, OS_STRI_SIZE(stri->size)))) {
+        *err_info = MEMORY_ERROR;
+      } else {
+        conv_to_os_stri(result, stri->mem, stri->size, err_info);
+        if (unlikely(*err_info != OKAY_NO_ERROR)) {
+          os_stri_free(result);
+          result = NULL;
+        } /* if */
+      } /* if */
+    } /* if */
+    return result;
+  } /* stri_to_os_stri */
+
+#else
+
+
+
+#ifdef ANSI_C
+
+os_stritype stri_to_os_stri (const_stritype stri, errinfotype *err_info)
+#else
+
+os_stritype stri_to_os_stri (stri, err_info)
+const_stritype stri;
+errinfotype *err_info;
+#endif
+
+  {
+    os_stritype result;
+
+  /* stri_to_os_stri */
+    if (unlikely(stri->size > MAX_OS_STRI_SIZE)) {
+      *err_info = MEMORY_ERROR;
+      result = NULL;
+    } else {
+      if (unlikely(!os_stri_alloc(result, OS_STRI_SIZE(stri->size)))) {
+        *err_info = MEMORY_ERROR;
+      } else {
+        stri_export((ustritype) result, stri);
+      } /* if */
+    } /* if */
+    return result;
+  } /* stri_to_os_stri */
+
+#endif
+
+
+
+#ifdef ANSI_C
+
+stritype os_stri_to_stri (const_os_stritype os_stri, errinfotype *err_info)
+#else
+
+stritype os_stri_to_stri (os_stri, err_info)
 os_stritype os_stri;
+errinfotype *err_info;
 #endif
 
   {
     stritype stri;
 
   /* os_stri_to_stri */
-#ifdef OS_PATH_WCHAR
-    stri = wstri_to_stri(os_stri);
-#else
-#ifdef OS_PATH_UTF8
+#if defined OS_PATH_WCHAR || defined OS_PATH_USES_CODEPAGE
+    stri = conv_from_os_stri(os_stri);
+#elif defined OS_PATH_UTF8
     stri = cstri8_or_cstri_to_stri(os_stri);
 #else
     stri = cstri_to_stri(os_stri);
 #endif
-#endif
+    if (unlikely(stri == NULL)) {
+      *err_info = MEMORY_ERROR;
+    } /* if */
     return stri;
   } /* os_stri_to_stri */
 
@@ -787,58 +1146,31 @@ stritype stri;
 
 #ifdef ANSI_C
 
-stritype cp_from_os_path (const_os_stritype os_stri)
+stritype cp_from_os_path (const_os_stritype os_stri, errinfotype *err_info)
 #else
 
-stritype cp_from_os_path (os_stri)
+stritype cp_from_os_path (os_stri, err_info)
 os_stritype os_stri;
+errinfotype *err_info;
 #endif
 
   {
     stritype result;
 
   /* cp_from_os_path */
-    result = stri_to_standard_path(os_stri_to_stri(os_stri));
+    result = os_stri_to_stri(os_stri, err_info);
+    if (likely(result != NULL)) {
+      result = stri_to_standard_path(result);
+      if (unlikely(result == NULL)) {
+        *err_info = MEMORY_ERROR;
+      } /* if */
+    } /* if */
     return result;
   } /* cp_from_os_path */
 
 
 
-#ifdef OS_PATH_WCHAR
-#ifdef ANSI_C
-
-static void path_to_wstri (wstritype wstri, const strelemtype *strelem,
-    memsizetype len, errinfotype *err_info)
-#else
-
-static void path_to_wstri (wstri, strelem, len, err_info)
-wstritype wstri;
-strelemtype *strelem;
-memsizetype len;
-errinfotype *err_info;
-#endif
-
-  { /* path_to_wstri */
-    for (; len > 0; wstri++, strelem++, len--) {
-      if (likely(*strelem <= 0xFFFF)) {
-        if (unlikely(*strelem == (strelemtype) '\\')) {
-          *err_info = RANGE_ERROR;
-          len = 1;
-        } else {
-          *wstri = (os_chartype) *strelem;
-        } /* if */
-      } else if (*strelem <= 0x10FFFF) {
-        strelemtype currChar = *strelem - 0x10000;
-        *wstri = (os_chartype) (0xD800 | (currChar >> 10));
-        wstri++;
-        *wstri = (os_chartype) (0xDC00 | (currChar & 0x3FF));
-      } else {
-        *err_info = RANGE_ERROR;
-        len = 1;
-      } /* if */
-    } /* for */
-    *wstri = 0;
-  } /* path_to_wstri */
+#if defined OS_PATH_WCHAR || defined OS_PATH_USES_CODEPAGE
 
 
 
@@ -872,6 +1204,9 @@ errinfotype *err_info;
 #endif
       *err_info = RANGE_ERROR;
       result = NULL;
+    } else if (unlikely(stri_charpos(stri, '\\') != NULL)) {
+      *err_info = RANGE_ERROR;
+      result = NULL;
     } else {
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
       if (stri->size >= 1 && stri->mem[0] == '/') {
@@ -883,8 +1218,7 @@ errinfotype *err_info;
         } else if (stri->mem[1] >= 'a' && stri->mem[1] <= 'z') {
           if (stri->size == 2) {
             /* "/c"   is mapped to "c:\"  */
-            result = (os_stritype) malloc(sizeof(os_chartype) * 4);
-            if (unlikely(result == NULL)) {
+            if (unlikely(!os_stri_alloc(result, 3))) {
               *err_info = MEMORY_ERROR;
             } else {
               result[0] = (os_chartype) stri->mem[1];
@@ -898,14 +1232,13 @@ errinfotype *err_info;
             result = NULL;
           } else {
             /* "/c/d" is mapped to "c:\d" */
-            result = (os_stritype) malloc(sizeof(os_chartype) * ((stri->size - 3) * 2 + 4));
-            if (unlikely(result == NULL)) {
+            if (unlikely(!os_stri_alloc(result, OS_STRI_SIZE(stri->size - 3) + 3))) {
               *err_info = MEMORY_ERROR;
             } else {
               result[0] = (os_chartype) stri->mem[1];
               result[1] = ':';
               result[2] = '\\';
-              path_to_wstri(&result[3], &stri->mem[3], stri->size - 3, err_info);
+              conv_to_os_stri(&result[3], &stri->mem[3], stri->size - 3, err_info);
             } /* if */
           } /* if */
         } else {
@@ -915,16 +1248,15 @@ errinfotype *err_info;
         } /* if */
       } else {
 #endif
-        result = (os_stritype) malloc(sizeof(os_chartype) * (stri->size * 2 + 1));
-        if (unlikely(result == NULL)) {
+        if (unlikely(!os_stri_alloc(result, OS_STRI_SIZE(stri->size)))) {
           *err_info = MEMORY_ERROR;
         } else {
-          path_to_wstri(result, stri->mem, stri->size, err_info);
+          conv_to_os_stri(result, stri->mem, stri->size, err_info);
         } /* if */
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
       } /* if */
 #endif
-      if (result != NULL && *err_info != OKAY_NO_ERROR) {
+      if (unlikely(*err_info != OKAY_NO_ERROR && result != NULL)) {
         os_stri_free(result);
         result = NULL;
       } /* if */
@@ -959,8 +1291,8 @@ errinfotype *err_info;
     if (unlikely(stri->size >= 2 && stri->mem[stri->size - 1] == '/')) {
       *err_info = RANGE_ERROR;
       result = NULL;
-    } else if (unlikely(stri->size > MAX_CSTRI_LEN / MAX_UTF8_EXPANSION_FACTOR ||
-                        !ALLOC_CSTRI(result, max_utf8_size(stri)))) {
+    } else if (unlikely(stri->size > MAX_OS_STRI_SIZE ||
+                        !os_stri_alloc(result, OS_STRI_SIZE(stri->size)))) {
       *err_info = MEMORY_ERROR;
       result = NULL;
     } else {
@@ -973,33 +1305,6 @@ errinfotype *err_info;
   } /* cp_to_os_path */
 
 #endif
-
-
-
-#ifdef ANSI_C
-
-const strelemtype *stri_charpos (const_stritype stri, strelemtype ch)
-#else
-
-strelemtype *stri_charpos (stri, ch)
-stritype stri;
-strelemtype ch;
-#endif
-
-  {
-    const strelemtype *mem;
-    size_t number;
-
-  /* stri_charpos */
-    mem = stri->mem;
-    number = stri->size;
-    for (; number > 0; mem++, number--) {
-      if (*mem == ch) {
-        return mem;
-      } /* if */
-    } /* for */
-    return NULL;
-  } /* stri_charpos */
 
 
 
@@ -1104,13 +1409,12 @@ errinfotype *err_info;
 #ifdef ANSI_C
 
 stritype relativeToProgramPath (const const_stritype basePath,
-    const const_cstritype dir, const const_cstritype library_name)
+    const const_cstritype dir)
 #else
 
-stritype relativeToProgramPath (basePath, dir, library_name)
+stritype relativeToProgramPath (basePath, dir)
 stritype basePath;
 cstritype dir;
-cstritype library_name;
 #endif
 
   {
@@ -1133,14 +1437,13 @@ cstritype library_name;
         basePath->mem[dir_path_size - 3] == 'p' &&
         basePath->mem[dir_path_size - 2] == 'r' &&
         basePath->mem[dir_path_size - 1] == 'g'))) {
-      if (likely(ALLOC_STRI_SIZE_OK(result, dir_path_size - 3 + strlen(dir) + strlen(library_name)))) {
-        result->size = dir_path_size - 3 + strlen(dir) + strlen(library_name);
+      if (likely(ALLOC_STRI_SIZE_OK(result, dir_path_size - 3 + strlen(dir)))) {
+        result->size = dir_path_size - 3 + strlen(dir);
         memcpy(result->mem, basePath->mem, (dir_path_size - 3) * sizeof(strelemtype));
         cstri_expand(&result->mem[dir_path_size - 3], dir, strlen(dir));
-        cstri_expand(&result->mem[dir_path_size - 3 + strlen(dir)], library_name, strlen(library_name));
       } /* if */
     } else {
-      result = cstri_to_stri(library_name);
+      result = cstri_to_stri("");
     } /* if */
     return result;
   } /* relativeToProgramPath */

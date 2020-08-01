@@ -28,9 +28,9 @@ $ include "seed7_05.s7i";
   include "shell.s7i";
   include "getf.s7i";
 
-const integer: port is 1080;
 var string: htdocs is "../htdocs";
 var string: cgi_bin is "../prg";
+var integer: port is 1080;
 
 
 const proc: sendHttpResponse (inout file: sock, in string: buffer,
@@ -283,6 +283,7 @@ const proc: processHttpRequest (inout file: sock) is func
 
 const proc: main is func
   local
+    var boolean: okay is TRUE;
     var listener: inetListener is listener.value;
     var file: sock is socket.value;
   begin
@@ -296,37 +297,58 @@ const proc: main is func
       htdocs := argv(PROGRAM)[1];
       if length(argv(PROGRAM)) >= 2 then
         cgi_bin := argv(PROGRAM)[2];
+        if length(argv(PROGRAM)) >= 3 and isDigitString(argv(PROGRAM)[3]) then
+          block
+            port := integer parse (argv(PROGRAM)[3]);
+          exception
+            catch RANGE_ERROR: writeln(" ***** Port number too big. Port " <&
+                port <& " used instead.");
+          end block;
+        end if;
       end if;
     end if;
-    if fileType(htdocs) <> FILE_DIR then
-      writeln(" *** Directory " <& literal(htdocs) <& " not found.");
-      writeln("     You need to specify a directory which contains");
-      writeln("     at least \"index.htm\" and possibly other HTML files.");
-    end if;
-    if fileType(cgi_bin) <> FILE_DIR then
-      writeln(" *** Directory " <& literal(cgi_bin) <& " not found.");
-      writeln("     You need to specify a directory which contains");
-      writeln("     executable CGI scripts.");
-    end if;
-    if fileType(htdocs) = FILE_DIR and fileType(cgi_bin) = FILE_DIR then
-      writeln("HTML directory: " <& htdocs);
-      writeln("CGI directory: " <& cgi_bin);
-      writeln("Port: " <& port);
-      writeln("To test comanche make sure that " <&
-              literal(htdocs & "/index.htm") <&
-              " exists and");
-      writeln("open http://localhost:" <& port <& "/ in your browser.");
-      inetListener := openInetListener(port);
-      listen(inetListener, 10);
-      while TRUE do
-        sock := accept(inetListener);
-        block
-          processHttpRequest(sock);
-        exception
-          catch FILE_ERROR:
-            noop;
-        end block;
-        close(sock);
-      end while;
+    if htdocs in {"-h", "-?"} then
+      writeln;
+      writeln("usage: comanche [html-directory [cgi-directory [port]]]");
+      writeln;
+      writeln("The html-directory specifies the root directory for HTML files.");
+      writeln("The default html-directory is \"../htdocs\".");
+      writeln("The cgi-directory specifies the root directory for CGI scripts.");
+      writeln("The default cgi-directory is \"../prg\".");
+      writeln("The default port is 1080.");
+    else
+      if fileType(htdocs) <> FILE_DIR then
+        writeln(" *** Directory " <& literal(htdocs) <& " not found.");
+        writeln("     You need to specify a directory which contains");
+        writeln("     at least \"index.htm\" and possibly other HTML files.");
+        okay := FALSE;
+      end if;
+      if fileType(cgi_bin) <> FILE_DIR then
+        writeln(" *** Directory " <& literal(cgi_bin) <& " not found.");
+        writeln("     You need to specify a directory which contains");
+        writeln("     executable CGI scripts.");
+        okay := FALSE;
+      end if;
+      if okay then
+        writeln("HTML directory: " <& htdocs);
+        writeln("CGI directory: " <& cgi_bin);
+        writeln("Port: " <& port);
+        inetListener := openInetListener(port);
+        listen(inetListener, 10);
+        writeln("To test comanche make sure that " <&
+                literal(htdocs & "/index.htm") <& " exists and");
+        writeln("open http://localhost:" <& port <& "/ in your browser. \
+                \To stop comanche press CTRL-C.");
+        while TRUE do
+          sock := accept(inetListener);
+          block
+            processHttpRequest(sock);
+          exception
+            catch FILE_ERROR:
+              noop;
+          end block;
+          close(sock);
+        end while;
+      end if;
     end if;
   end func;

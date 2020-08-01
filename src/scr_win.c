@@ -53,7 +53,7 @@ static booltype cursor_on = FALSE;
 
 
 #ifdef OUT_OF_ORDER
-static char MAP_CHAR[] = {
+static char map_char[] = {
 /*   0 */ '\000','\001','\002','\003','\004','\005','\006','\007','\010','\011',
 /*  10 */ '\012','\013','\014','\015','\016','\017','\020','\021','\022','\023',
 /*  20 */ '\024','\025','\026','\027','\030','\031','\032','\033','\034','\035',
@@ -83,7 +83,7 @@ static char MAP_CHAR[] = {
 #endif
 
 
-static chartype MAP_CHAR[] = {
+static chartype map_char[] = {
 /*   0 */ 0000, 0001, 0002, 0003, 0004, 0005, 0006, 0007, 0010, 0011,
 /*  10 */ 0012, 0013, 0014, 0015, 0016, 0017, 0020, 0021, 0022, 0023,
 /*  20 */ 0024, 0025, 0026, 0027, 0030, 0031, 0032, 0033, 0034, 0035,
@@ -112,7 +112,7 @@ static chartype MAP_CHAR[] = {
 /* 250 */ 0267, 0271, 0263, 0262, '?',  0240};
 
 
-static chartype MAP_KEY[] = {
+static chartype map_key[] = {
 /*   0 */ K_UNDEF,  K_UNDEF,   K_UNDEF,  K_NULCHAR,  K_UNDEF, K_UNDEF, K_UNDEF, K_UNDEF,
 /*   8 */ K_UNDEF,  K_UNDEF,   K_UNDEF,  K_UNDEF,    K_UNDEF, K_UNDEF, K_UNDEF, K_BACKTAB,
 /*  16 */ K_ALT_Q,  K_ALT_W,   K_ALT_E,  K_ALT_R,    K_ALT_T, K_ALT_Y, K_ALT_U, K_ALT_I,
@@ -191,14 +191,14 @@ chartype kbdGetc ()
     key = getch();
     if (key == 0) {
       key = getch();
-      result = MAP_KEY[key];
+      result = map_key[key];
     } else if (key == 224) {
       key = getch();
-      result = MAP_KEY[key];
+      result = map_key[key];
     } else if (key >= 0 && key <= 255) {
-      result = MAP_CHAR[key];
+      result = map_char[key];
     } else {
-      result = MAP_CHAR[key & 0xFF];
+      result = map_char[key & 0xFF];
     } /* if */
     if (result == 13) {
       result = 10;

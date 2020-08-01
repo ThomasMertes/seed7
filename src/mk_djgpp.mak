@@ -1,10 +1,8 @@
-# Makefile for mingw32-make and gcc from MinGW. Commands executed by: cmd.exe
-# To compile use a Windows console and call:
-#   mingw32-make -f mk_mingw.mak depend
-#   mingw32-make -f mk_mingw.mak
-# When your make utility uses Unix commands, you should use mk_msys.mak instead.
-# When the nmake utility from Windows is available, you can use mk_nmake.mak instead.
-# When you are using the MSYS console from MinGW you should use mk_msys.mak instead.
+# Makefile for gmake and gcc from MinGW. Commands executed by: cmd.exe
+# To compile use a windows console and call:
+#   make -f mk_djgpp.mak depend
+#   make -f mk_djgpp.mak
+# If your version of gmake does not support dos commands use MSYS with mk_msys.mak or mk_nmake.mak.
 
 # CFLAGS = -O2 -fomit-frame-pointer -funroll-loops -Wall
 # CFLAGS = -O2 -fomit-frame-pointer -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
@@ -13,12 +11,14 @@ CFLAGS = -O2 -g -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpoint
 # CFLAGS = -O2 -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -funroll-loops -Wall -pg
-LDFLAGS = -Wl,--stack,4194304
+# Since there is no linker option to determine the stack size
+# it is determined with STACK_SIZE_DEFINITION (see below).
+LDFLAGS =
 # LDFLAGS = -pg
 # LDFLAGS = -pg -lc_p
-SYSTEM_LIBS = -lm -lws2_32
-# SYSTEM_LIBS = -lm -lws2_32 -lgmp
-SYSTEM_DRAW_LIBS = -lgdi32
+SYSTEM_LIBS = -lm
+# SYSTEM_LIBS = -lm -lgmp
+SYSTEM_DRAW_LIBS =
 SEED7_LIB = seed7_05.a
 DRAW_LIB = s7_draw.a
 COMP_DATA_LIB = s7_data.a
@@ -53,8 +53,8 @@ BIGINT_LIB = big_rtl
 # SCREEN_SRC = scr_tcp.c
 # SCREEN_OBJ = scr_x11.o
 # SCREEN_SRC = scr_x11.c
-SCREEN_OBJ = scr_win.o
-SCREEN_SRC = scr_win.c
+SCREEN_OBJ = scr_wat.o
+SCREEN_SRC = scr_wat.c
 
 MOBJ1 = hi.o
 POBJ1 = runerr.o option.o primitiv.o
@@ -68,12 +68,12 @@ AOBJ3 = error.o infile.o symbol.o info.o stat.o fatal.o match.o
 GOBJ1 = syvarutl.o traceutl.o actutl.o executl.o blockutl.o
 GOBJ2 = entutl.o identutl.o chclsutl.o sigutl.o
 ROBJ1 = arr_rtl.o bln_rtl.o bst_rtl.o chr_rtl.o cmd_rtl.o dir_rtl.o drw_rtl.o fil_rtl.o flt_rtl.o
-ROBJ2 = hsh_rtl.o int_rtl.o kbd_rtl.o scr_rtl.o set_rtl.o soc_rtl.o str_rtl.o tim_rtl.o ut8_rtl.o
+ROBJ2 = hsh_rtl.o int_rtl.o kbd_rtl.o scr_rtl.o set_rtl.o soc_dos.o str_rtl.o tim_rtl.o ut8_rtl.o
 ROBJ3 = heaputl.o striutl.o
-DOBJ1 = $(BIGINT_LIB).o $(SCREEN_OBJ) tim_win.o cmd_win.o
+DOBJ1 = $(BIGINT_LIB).o $(SCREEN_OBJ) tim_dos.o cmd_unx.o
 OBJ = $(MOBJ1)
 SEED7_LIB_OBJ = $(ROBJ1) $(ROBJ2) $(ROBJ3) $(DOBJ1)
-DRAW_LIB_OBJ = drw_win.o
+DRAW_LIB_OBJ = drw_dos.o
 COMP_DATA_LIB_OBJ = typ_data.o rfl_data.o ref_data.o listutl.o flistutl.o typeutl.o datautl.o
 COMPILER_LIB_OBJ = $(POBJ1) $(LOBJ1) $(LOBJ2) $(LOBJ3) $(EOBJ1) $(AOBJ1) $(AOBJ2) $(AOBJ3) $(GOBJ1) $(GOBJ2)
 
@@ -89,18 +89,18 @@ ASRC3 = error.c infile.c symbol.c info.c stat.c fatal.c match.c
 GSRC1 = syvarutl.c traceutl.c actutl.c executl.c blockutl.c
 GSRC2 = entutl.c identutl.c chclsutl.c sigutl.c
 RSRC1 = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c dir_rtl.c drw_rtl.c fil_rtl.c flt_rtl.c
-RSRC2 = hsh_rtl.c int_rtl.c kbd_rtl.c scr_rtl.c set_rtl.c soc_rtl.c str_rtl.c tim_rtl.c ut8_rtl.c
+RSRC2 = hsh_rtl.c int_rtl.c kbd_rtl.c scr_rtl.c set_rtl.c soc_dos.c str_rtl.c tim_rtl.c ut8_rtl.c
 RSRC3 = heaputl.c striutl.c
-DSRC1 = $(BIGINT_LIB).c $(SCREEN_SRC) tim_win.c cmd_win.c
+DSRC1 = $(BIGINT_LIB).c $(SCREEN_SRC) tim_dos.c cmd_unx.c
 SRC = $(MSRC1)
 SEED7_LIB_SRC = $(RSRC1) $(RSRC2) $(RSRC3) $(DSRC1)
-DRAW_LIB_SRC = drw_win.c
+DRAW_LIB_SRC = drw_dos.c
 COMP_DATA_LIB_SRC = typ_data.c rfl_data.c ref_data.c listutl.c flistutl.c typeutl.c datautl.c
 COMPILER_LIB_SRC = $(PSRC1) $(LSRC1) $(LSRC2) $(LSRC3) $(ESRC1) $(ASRC1) $(ASRC2) $(ASRC3) $(GSRC1) $(GSRC2)
 
 ..\bin\hi.exe: $(OBJ) $(ALL_S7_LIBS)
 	$(CC) $(LDFLAGS) $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_LIBS) -o ..\bin\hi
-	copy ..\bin\hi.exe ..\prg /Y
+	copy ..\bin\hi.exe ..\prg
 	..\bin\hi level
 
 hi: ..\bin\hi.exe
@@ -109,13 +109,9 @@ clear: clean
 
 clean:
 	del version.h
-	del depend
-	del a_depend
-	del b_depend
-	del c_depend
-	del d_depend
 	del *.o
 	del ..\bin\*.a
+	del depend
 
 dep: depend
 
@@ -125,41 +121,15 @@ strip:
 version.h:
 	echo #define ANSI_C > version.h
 	echo #define USE_DIRENT >> version.h
-	echo #define PATH_DELIMITER '\\' >> version.h
+	echo #define PATH_DELIMITER 92 /* backslash (ASCII) */ >> version.h
+	echo #define SEARCH_PATH_DELIMITER ';' >> version.h
 	echo #define MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS >> version.h
 	echo #define CATCH_SIGNALS >> version.h
-	echo #define USE_ALTERNATE_UTIME >> version.h
-	echo #define OS_PATH_WCHAR >> version.h
-	echo #define os_chdir _wchdir >> version.h
-	echo #define os_getcwd _wgetcwd >> version.h
-	echo #define os_mkdir(path,mode) _wmkdir(path) >> version.h
-	echo #define os_rmdir _wrmdir >> version.h
-	echo #define os_opendir _wopendir >> version.h
-	echo #define os_readdir _wreaddir >> version.h
-	echo #define os_closedir _wclosedir >> version.h
-	echo #define os_DIR _WDIR >> version.h
-	echo #define os_dirent_struct struct _wdirent >> version.h
-	echo #define os_fstat _fstati64 >> version.h
-	echo #define os_lstat _wstati64 >> version.h
-	echo #define os_stat _wstati64 >> version.h
-	echo #define os_stat_struct struct _stati64 >> version.h
-	echo #define os_chown(name,uid,gid) >> version.h
-	echo #define os_chmod _wchmod >> version.h
-	echo #define os_utime_orig _wutime >> version.h
-	echo #define os_utime alternate_utime >> version.h
-	echo #define os_utimbuf_struct struct _utimbuf >> version.h
-	echo #define os_remove _wremove >> version.h
-	echo #define os_rename _wrename >> version.h
-	echo #define os_system _wsystem >> version.h
-	echo #define os_pclose _pclose >> version.h
-	echo #define os_popen _wpopen >> version.h
-	echo #define wide_fopen _wfopen >> version.h
-	echo #define os_fseek fseeko64 >> version.h
-	echo #define os_ftell ftello64 >> version.h
-	echo #define os_off_t off64_t >> version.h
-	echo #define os_getenv _wgetenv >> version.h
-	echo #define os_putenv _wputenv >> version.h
-	echo #define USE_WINSOCK >> version.h
+	echo #define AWAIT_WITH_SELECT >> version.h
+	echo #define OS_PATH_USES_CODEPAGE >> version.h
+	echo #define os_lstat stat >> version.h
+	echo #define os_off_t off_t >> version.h
+	echo #define os_putenv putenv >> version.h
 	echo #define $(BIGINT_LIB_DEFINE) >> version.h
 	echo #define likely(x)   __builtin_expect((x),1) >> version.h
 	echo #define unlikely(x) __builtin_expect((x),0) >> version.h
@@ -181,7 +151,6 @@ version.h:
 	echo #define GET_CC_VERSION_INFO "$(GET_CC_VERSION_INFO)" >> version.h
 	echo #define CC_OPT_DEBUG_INFO "-g" >> version.h
 	echo #define CC_OPT_NO_WARNINGS "-w" >> version.h
-	echo #define REDIRECT_C_ERRORS "2>" >> version.h
 	echo #define LINKER_OPT_OUTPUT_FILE "-o " >> version.h
 	echo #define LINKER_FLAGS "$(LDFLAGS)" >> version.h
 	echo #define SYSTEM_LIBS "$(SYSTEM_LIBS)" >> version.h
@@ -190,24 +159,13 @@ version.h:
 	echo #define DRAW_LIB "$(DRAW_LIB)" >> version.h
 	echo #define COMP_DATA_LIB "$(COMP_DATA_LIB)" >> version.h
 	echo #define COMPILER_LIB "$(COMPILER_LIB)" >> version.h
+	echo #define STACK_SIZE_DEFINITION unsigned _stklen = 4194304 >> version.h
 	$(CC) -o setpaths setpaths.c
 	.\setpaths.exe >> version.h
 	del setpaths.exe
 
-depend: a_depend b_depend c_depend d_depend version.h
-	$(CC) $(CFLAGS) -M $(SRC) > depend
-
-a_depend: version.h
-	$(CC) $(CFLAGS) -M $(SEED7_LIB_SRC) > a_depend
-
-b_depend: version.h
-	$(CC) $(CFLAGS) -M $(DRAW_LIB_SRC) > b_depend
-
-c_depend: version.h
-	$(CC) $(CFLAGS) -M $(COMP_DATA_LIB_SRC) > c_depend
-
-d_depend: version.h
-	$(CC) $(CFLAGS) -M $(COMPILER_LIB_SRC) > d_depend
+depend: version.h
+	echo Working without C header dependency checks.
 
 level.h:
 	..\bin\hi level
@@ -241,11 +199,3 @@ lint: $(SRC)
 
 lint2: $(SRC)
 	lint -Zn2048 $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_LIBS)
-
-ifeq (depend,$(wildcard depend))
-include depend
-include a_depend
-include b_depend
-include c_depend
-include d_depend
-endif

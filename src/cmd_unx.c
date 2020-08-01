@@ -70,18 +70,41 @@ stritype arg_0;
 #endif
 
   {
+#ifdef HAS_SYMLINKS
     os_chartype buffer[PATH_MAX];
     ssize_t readlink_result;
+    errinfotype err_info = OKAY_NO_ERROR;
+    stritype helpPath;
+#endif
     stritype cwd;
     stritype result;
 
   /* getExecutablePath */
+#ifdef HAS_SYMLINKS
     readlink_result = readlink("/proc/self/exe", buffer, sizeof(buffer) - 1);
-    if (readlink_result == -1) {
+    if (readlink_result != -1) {
+      buffer[readlink_result] = '\0';
+      result = cp_from_os_path(buffer, &err_info);
+      if (err_info != OKAY_NO_ERROR) {
+        raise_error(err_info);
+      } /* if */
+    } else {
+#endif
       if (strChPos(arg_0, (chartype) '/') == 0) {
         result = examineSearchPath(arg_0);
         if (result == NULL) {
           raise_error(MEMORY_ERROR);
+        } else {
+#ifdef HAS_SYMLINKS
+          if (cmdFileTypeSL(result) == 7) {
+            /* printf("symbolic link: ");
+               prot_stri(result);
+               printf("\n"); */
+            helpPath = result;
+            result = cmdReadlink(helpPath);
+            FREE_STRI(helpPath, helpPath->size);
+          } /* if */
+#endif
         } /* if */
       } else if (arg_0->size >= 1 && arg_0->mem[0] == (chartype) '/') {
         result = strCreate(arg_0);
@@ -90,15 +113,38 @@ stritype arg_0;
         result = concat_path(cwd, arg_0);
         FREE_STRI(cwd, cwd->size);
       } /* if */
-    } else {
-      buffer[readlink_result] = '\0';
-      result = cp_from_os_path(buffer);
-      if (result == NULL) {
-        raise_error(MEMORY_ERROR);
-      } /* if */
+#ifdef HAS_SYMLINKS
     } /* if */
+#endif
+    /* printf("getExecutablePath --> ");
+       prot_stri(result);
+       printf("\n"); */
     return result;
   } /* getExecutablePath */
+
+
+
+#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+#ifdef ANSI_C
+
+volumeListType *openVolumeList (void)
+#else
+
+volumeListType *openVolumeList ()
+#endif
+
+  {
+    volumeListType *result;
+
+  /* openVolumeList */
+    if ((result = (volumeListType *) malloc(sizeof(volumeListType))) != NULL) {
+      result->magicValue = UINT32TYPE_MAX;
+      result->driveBitmask = 0x3FFFFFF;
+      result->currentDrive = 0;
+    } /* if */
+    return result;
+  } /* openVolumeList */
+#endif
 
 
 

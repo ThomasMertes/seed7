@@ -56,6 +56,7 @@ var rule_hash: patternRules is rule_hash.value;
 var string: nameOfFirstRule is "";
 var boolean: executeCommands is TRUE;
 var boolean: silentMode is FALSE;
+var boolean: ignoreErrors is FALSE;
 
 
 const func string: getCommandParameter (inout string: stri) is func
@@ -946,7 +947,7 @@ const proc: processCommands (inout ruleType: rule) is func
       end if;
       if executeCommands then
         commandStatus := processCommand(command, FALSE);
-        if commandStatus <> 0 then
+        if commandStatus <> 0 and not ignoreErrors then
           writeln(" *** [" <& rule.name <& "] Error " <& commandStatus);
           exit(PROGRAM);
         end if;
@@ -1126,6 +1127,8 @@ const proc: main is func
       writeln("Options:");
       writeln("  -f file");
       writeln("     Use file as a makefile.");
+      writeln("  -i");
+      writeln("     Ignore all errors in commands executed.");
       writeln("  -n");
       writeln("     Print the commands that would be executed, but do not execute them.");
       writeln("  -s");
@@ -1146,6 +1149,9 @@ const proc: main is func
           writeln(" *** No makefile found.");
         end if;
         writeln("Use  make7 -?  to get information about make7.");
+      end if;
+      if "-i" in make_option then
+        ignoreErrors := TRUE;
       end if;
       if "-n" in make_option then
         executeCommands := FALSE;

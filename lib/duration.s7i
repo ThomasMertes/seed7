@@ -716,6 +716,7 @@ const func time: (in time: tim) + (in duration: aDuration) is func
     result.second := tim.second + aDuration.second;
     result.micro_second := tim.micro_second + aDuration.micro_second;
     result.timeZone := tim.timeZone;
+    result.daylightSavingTime := tim.daylightSavingTime;
     NORMALIZE(result);
   end func;
 
@@ -736,6 +737,7 @@ const func time: (in time: tim) - (in duration: aDuration) is func
     result.second := tim.second - aDuration.second;
     result.micro_second := tim.micro_second - aDuration.micro_second;
     result.timeZone := tim.timeZone;
+    result.daylightSavingTime := tim.daylightSavingTime;
     NORMALIZE(result);
   end func;
 

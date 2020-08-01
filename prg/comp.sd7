@@ -71,6 +71,7 @@ var boolean: evaluate_const_expr   is FALSE;
 var boolean: declare_with_extern_c is FALSE;
 var boolean: generate_c_plus_plus  is FALSE;
 
+var boolean: drawLibraryUsed     is FALSE;
 var boolean: compilerLibraryUsed is FALSE;
 var boolean: compDataLibraryUsed is FALSE;
 
@@ -12585,7 +12586,9 @@ const proc: process_soc_getc (in ref_list: params, inout expr_type: c_expr) is f
   begin
     c_expr.expr &:= "socGetc(";
     process_expr(params[1], c_expr);
-    c_expr.expr &:= ")";
+    c_expr.expr &:= ", &(";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= "))";
   end func;
 
 
@@ -12597,7 +12600,9 @@ const proc: process_soc_gets (in ref_list: params, inout expr_type: c_expr) is f
     getStdParamToResultExpr(params[1], c_expr);
     c_expr.result_expr &:= ", ";
     getStdParamToResultExpr(params[2], c_expr);
-    c_expr.result_expr &:= ")";
+    c_expr.result_expr &:= ", &(";
+    getStdParamToResultExpr(params[3], c_expr);
+    c_expr.result_expr &:= "))";
   end func;
 
 
@@ -12606,6 +12611,15 @@ const proc: process_soc_get_hostname (in ref_list: params, inout expr_type: c_ex
   begin
     prepare_stri_result(c_expr);
     c_expr.result_expr := "socGetHostname()";
+  end func;
+
+
+const proc: process_soc_has_next (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "socHasNext(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
   end func;
 
 
@@ -12688,6 +12702,17 @@ const proc: process_soc_recv (in ref_list: params, inout expr_type: c_expr) is f
     c_expr.expr &:= ", ";
     process_expr(params[4], c_expr);
     c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process_soc_select_input (in reference: function, in ref_list: params,
+    inout expr_type: c_expr) is func
+
+  begin
+    prepare_set_result(result_type(getType(function)), c_expr);
+    c_expr.result_expr := "socSelectInput(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 
@@ -14898,6 +14923,7 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_unknown_action(action_name, c_expr);
       end if;
     elsif action_prefix = "DRW" then
+      drawLibraryUsed := TRUE;
       if action_name = "DRW_ARC" then
         process_drw_arc(params, c_expr);
       elsif action_name = "DRW_ARC2" then
@@ -15188,6 +15214,7 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_unknown_action(action_name, c_expr);
       end if;
     elsif action_prefix = "GKB" then
+      drawLibraryUsed := TRUE;
       if action_name = "GKB_BUSY_GETC" then
         process_gkb_busy_getc(params, c_expr);
       elsif action_name = "GKB_GETC" then
@@ -15688,6 +15715,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_soc_gets(params, c_expr);
       elsif action_name = "SOC_GET_HOSTNAME" then
         process_soc_get_hostname(params, c_expr);
+      elsif action_name = "SOC_HAS_NEXT" then
+        process_soc_has_next(params, c_expr);
       elsif action_name = "SOC_INET_ADDR" then
         process_soc_inet_addr(params, c_expr);
       elsif action_name = "SOC_INET_LOCAL_ADDR" then
@@ -15702,6 +15731,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_soc_ne(params, c_expr);
       elsif action_name = "SOC_RECV" then
         process_soc_recv(params, c_expr);
+      elsif action_name = "SOC_SELECT_INPUT" then
+        process_soc_select_input(function, params, c_expr);
       elsif action_name = "SOC_SEND" then
         process_soc_send(params, c_expr);
       elsif action_name = "SOC_SOCKET" then
@@ -20545,9 +20576,10 @@ const proc: write_prototypes is func
     declareExtern("void        socBind (sockettype, const_bstritype);");
     declareExtern("void        socClose (sockettype);");
     declareExtern("void        socConnect (sockettype, const_bstritype);");
-    declareExtern("chartype    socGetc (sockettype);");
-    declareExtern("stritype    socGets (sockettype, inttype);");
+    declareExtern("chartype    socGetc (sockettype, chartype *);");
+    declareExtern("stritype    socGets (sockettype, inttype, chartype *);");
     declareExtern("stritype    socGetHostname(void);");
+    declareExtern("booltype    socHasNext (sockettype);");
     declareExtern("bstritype   socInetAddr (const const_stritype, inttype);");
     declareExtern("bstritype   socInetLocalAddr (inttype);");
     declareExtern("bstritype   socInetServAddr (inttype);");
@@ -20555,6 +20587,7 @@ const proc: write_prototypes is func
     declareExtern("void        socListen (sockettype, inttype);");
     declareExtern("inttype     socRecv (sockettype, stritype *, inttype, inttype);");
     declareExtern("inttype     socRecvfrom (sockettype, stritype *, inttype, inttype, bstritype *);");
+    declareExtern("settype     socSelectInput (const_arraytype);");
     declareExtern("inttype     socSend (sockettype, const_stritype, inttype);");
     declareExtern("inttype     socSendto (sockettype, const_stritype, inttype, bstritype);");
     declareExtern("sockettype  socSocket (inttype, inttype, inttype);");
@@ -21804,8 +21837,8 @@ const proc: process_global_declarations (in program: prog) is func
       writeln(c_prog);
     end if;
     if compDataLibraryUsed and not compilerLibraryUsed then
-      declareExtern("stritype file_name (unsigned int a) {return " <& stringLiteral("") <& ";}");
-      declareExtern("const unsigned char *file_name_ustri (unsigned int a) {return (unsigned char *) \"?\";}");
+      declareExtern("stritype get_file_name (unsigned int a) {return " <& stringLiteral("") <& ";}");
+      declareExtern("const unsigned char *get_file_name_ustri (unsigned int a) {return (unsigned char *) \"?\";}");
       declareExtern("void *get_param_list (const_listtype a, int *b) {printf(\"get_param_list\\n\"); return NULL;}");
       declareExtern("void *create_parameter_list (listtype a, int *b) {printf(\"create_parameter_list\\n\"); return NULL;}");
       writeln(c_prog);
@@ -22009,35 +22042,43 @@ const proc: pass_3 (in string: source, in program: prog,
     inout boolean: okay) is func
 
   local
-    const string: OBJECT_FILE_EXTENSION is     configValue("OBJECT_FILE_EXTENSION");
+    const string: OBJECT_FILE_EXTENSION     is configValue("OBJECT_FILE_EXTENSION");
     const string: EXECUTABLE_FILE_EXTENSION is configValue("EXECUTABLE_FILE_EXTENSION");
-    const string: C_COMPILER is                configValue("C_COMPILER");
-    const string: CPLUSPLUS_COMPILER is        configValue("CPLUSPLUS_COMPILER");
-    const string: CC_OPT_DEBUG_INFO is         configValue("CC_OPT_DEBUG_INFO");
-    const string: CC_OPT_NO_WARNINGS is        configValue("CC_OPT_NO_WARNINGS");
-    const string: CC_FLAGS is                  configValue("CC_FLAGS");
-    const string: REDIRECT_C_ERRORS is         configValue("REDIRECT_C_ERRORS");
-    const string: LINKER_OPT_DEBUG_INFO is     configValue("LINKER_OPT_DEBUG_INFO");
-    const string: LINKER_OPT_OUTPUT_FILE is    configValue("LINKER_OPT_OUTPUT_FILE");
-    const string: LINKER_FLAGS is              configValue("LINKER_FLAGS");
-    const string: SYSTEM_LIBS is               configValue("SYSTEM_LIBS");
-    const string: SEED7_LIB is                 configValue("SEED7_LIB");
-    const string: COMP_DATA_LIB is             configValue("COMP_DATA_LIB");
-    const string: COMPILER_LIB is              configValue("COMPILER_LIB");
-    var string: cwd is "";
-    var string: sourceFile is "";
-    var string: cSourceFile is "";
-    var string: cErrorFile is "";
-    var string: objectFile is "";
-    var string: linkErrFile is "";
-    var string: tempExeFile is "";
+    const string: C_COMPILER                is configValue("C_COMPILER");
+    const string: CPLUSPLUS_COMPILER        is configValue("CPLUSPLUS_COMPILER");
+    const string: CC_OPT_DEBUG_INFO         is configValue("CC_OPT_DEBUG_INFO");
+    const string: CC_OPT_NO_WARNINGS        is configValue("CC_OPT_NO_WARNINGS");
+    const string: CC_FLAGS                  is configValue("CC_FLAGS");
+    const string: REDIRECT_C_ERRORS         is configValue("REDIRECT_C_ERRORS");
+    const string: LINKER_OPT_DEBUG_INFO     is configValue("LINKER_OPT_DEBUG_INFO");
+    const string: LINKER_OPT_OUTPUT_FILE    is configValue("LINKER_OPT_OUTPUT_FILE");
+    const string: LINKER_FLAGS              is configValue("LINKER_FLAGS");
+    const string: SYSTEM_LIBS               is configValue("SYSTEM_LIBS");
+    const string: SYSTEM_DRAW_LIBS          is configValue("SYSTEM_DRAW_LIBS");
+    var string: s7_lib_dir     is "";
+    var string: seed7_lib      is "";
+    var string: draw_lib       is "";
+    var string: comp_data_lib  is "";
+    var string: compiler_lib   is "";
+    var string: cwd            is "";
+    var string: sourceFile     is "";
+    var string: cSourceFile    is "";
+    var string: cErrorFile     is "";
+    var string: objectFile     is "";
+    var string: linkErrFile    is "";
+    var string: tempExeFile    is "";
     var string: executableFile is "";
-    var string: options is "";
-    var string: compile_cmd is "";
-    var string: link_cmd is "";
+    var string: options        is "";
+    var string: compile_cmd    is "";
+    var string: link_cmd       is "";
   begin
     if okay then
       writeln("Calling the C compiler ...");
+      s7_lib_dir    := configValue("S7_LIB_DIR");
+      seed7_lib     := s7_lib_dir & "/" & configValue("SEED7_LIB");
+      draw_lib      := s7_lib_dir & "/" & configValue("DRAW_LIB");
+      comp_data_lib := s7_lib_dir & "/" & configValue("COMP_DATA_LIB");
+      compiler_lib  := s7_lib_dir & "/" & configValue("COMPILER_LIB");
       cwd := getcwd();
       if rpos(source, "/") = 0 then
         sourceFile := source;
@@ -22080,10 +22121,10 @@ const proc: pass_3 (in string: source, in program: prog,
       else
         compile_cmd := C_COMPILER;
       end if;
-      compile_cmd &:= options & " -c " &
-          cSourceFile & " " &
-          REDIRECT_C_ERRORS &
-          cErrorFile;
+      compile_cmd &:= options & " -c " & cSourceFile;
+      if REDIRECT_C_ERRORS <> "" then
+        compile_cmd &:= " " & REDIRECT_C_ERRORS & cErrorFile;
+      end if;
       writeln(compile_cmd);
       flush(OUT);
       cmd_sh(compile_cmd);
@@ -22095,6 +22136,8 @@ const proc: pass_3 (in string: source, in program: prog,
         if fileType(cErrorFile) = FILE_REGULAR then
           writeln("*** Errors in " <& literal(cSourceFile) <&
               " - see " <& literal(cErrorFile));
+        elsif REDIRECT_C_ERRORS = "" then
+          writeln("*** Compilation terminated");
         else
           writeln("*** Compilation terminated without error messages");
         end if;
@@ -22103,16 +22146,23 @@ const proc: pass_3 (in string: source, in program: prog,
         removeFile(cErrorFile);
       end if;
       if okay then
-        if fileType(SEED7_LIB) <> FILE_REGULAR then
-          writeln("*** Seed7 library " <& literal(SEED7_LIB) <& " missing");
+        if compilerLibraryUsed then
+          drawLibraryUsed := TRUE;
+        end if;
+        if fileType(seed7_lib) <> FILE_REGULAR then
+          writeln("*** Seed7 library " <& literal(seed7_lib) <& " missing");
           okay := FALSE;
         end if;
-        if compilerLibraryUsed and fileType(COMPILER_LIB) <> FILE_REGULAR then
-          writeln("*** Compiler library " <& literal(COMPILER_LIB) <& " missing");
+        if drawLibraryUsed and fileType(draw_lib) <> FILE_REGULAR then
+          writeln("*** Draw library " <& literal(draw_lib) <& " missing");
           okay := FALSE;
         end if;
-        if compDataLibraryUsed and fileType(COMP_DATA_LIB) <> FILE_REGULAR then
-          writeln("*** Compiler data library " <& literal(COMP_DATA_LIB) <& " missing");
+        if compilerLibraryUsed and fileType(compiler_lib) <> FILE_REGULAR then
+          writeln("*** Compiler library " <& literal(compiler_lib) <& " missing");
+          okay := FALSE;
+        end if;
+        if compDataLibraryUsed and fileType(comp_data_lib) <> FILE_REGULAR then
+          writeln("*** Compiler data library " <& literal(comp_data_lib) <& " missing");
           okay := FALSE;
         end if;
         if okay then
@@ -22144,14 +22194,22 @@ const proc: pass_3 (in string: source, in program: prog,
             end if;
             link_cmd &:= " " & objectFile;
             if compilerLibraryUsed then
-              link_cmd &:= " \"" & toOsPath(COMPILER_LIB) & "\"";
+              link_cmd &:= " \"" & toOsPath(compiler_lib) & "\"";
             end if;
             if compDataLibraryUsed then
-              link_cmd &:= " \"" & toOsPath(COMP_DATA_LIB) & "\"";
+              link_cmd &:= " \"" & toOsPath(comp_data_lib) & "\"";
             end if;
-            link_cmd &:= " \"" & toOsPath(SEED7_LIB) & "\"";
+            if drawLibraryUsed then
+              link_cmd &:= " \"" & toOsPath(draw_lib) & "\"";
+            end if;
+            link_cmd &:= " \"" & toOsPath(seed7_lib) & "\"";
+            if drawLibraryUsed then
+              link_cmd &:= " " & SYSTEM_DRAW_LIBS;
+            end if;
             link_cmd &:= " " & SYSTEM_LIBS;
-            link_cmd &:= " " & REDIRECT_C_ERRORS & linkErrFile;
+            if REDIRECT_C_ERRORS <> "" then
+              link_cmd &:= " " & REDIRECT_C_ERRORS & linkErrFile;
+            end if;
             writeln(link_cmd);
             flush(OUT);
             cmd_sh(link_cmd);
@@ -22168,6 +22226,8 @@ const proc: pass_3 (in string: source, in program: prog,
                 writeln("*** Linker errors with " <&
                     literal(objectFile) <&
                     " - see " <& literal(linkErrFile));
+              elsif REDIRECT_C_ERRORS = "" then
+                writeln("*** Linking terminated");
               else
                 writeln("*** Linking terminated without error messages");
               end if;

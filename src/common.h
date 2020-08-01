@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  common.h      Basic type definitions and settings.              */
-/*  Copyright (C) 1989 - 2005  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2011  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/common.h                                        */
-/*  Changes: 1992, 1993, 1994, 2005  Thomas Mertes                  */
+/*  Changes: 1992, 1993, 1994, 2005, 2011  Thomas Mertes            */
 /*  Content: Basic type definitions and settings.                   */
 /*                                                                  */
 /********************************************************************/
@@ -270,89 +270,6 @@ typedef int errinfotype;
 #define DESTROY_ERROR 7
 #define COPY_ERROR    8
 #define IN_ERROR      9
-
-
-#ifndef os_chdir
-#define os_chdir chdir
-#endif
-#ifndef os_getcwd
-#define os_getcwd getcwd
-#endif
-#ifndef os_mkdir
-#define os_mkdir mkdir
-#endif
-#ifndef os_rmdir
-#define os_rmdir rmdir
-#endif
-#ifndef os_opendir
-#define os_opendir  opendir
-#endif
-#ifndef os_readdir
-#define os_readdir  readdir
-#endif
-#ifndef os_closedir
-#define os_closedir closedir
-#endif
-#ifndef os_DIR
-#define os_DIR DIR
-#endif
-#ifndef os_dirent_struct
-#define os_dirent_struct struct dirent
-#endif
-#ifndef os_fseek
-#define os_fseek fseek
-#endif
-#ifndef os_ftell
-#define os_ftell ftell
-#endif
-#ifndef os_fstat
-#define os_fstat fstat
-#endif
-#ifndef os_lstat
-#define os_lstat lstat
-#endif
-#ifndef os_stat
-#define os_stat stat
-#endif
-#ifndef os_stat_struct
-#define os_stat_struct struct stat
-#endif
-#ifndef os_fstat_struct
-#define os_fstat_struct os_stat_struct
-#endif
-#ifndef os_chown
-#define os_chown chown
-#endif
-#ifndef os_chmod
-#define os_chmod chmod
-#endif
-#ifndef os_utime
-#define os_utime utime
-#endif
-#ifndef os_utimbuf_struct
-#define os_utimbuf_struct struct utimbuf
-#endif
-#ifndef os_remove
-#define os_remove remove
-#endif
-#ifndef os_rename
-#define os_rename rename
-#endif
-#ifndef os_system
-#define os_system system
-#endif
-#ifndef os_pclose
-#define os_pclose pclose
-#endif
-#ifndef os_popen
-#define os_popen popen
-#endif
-#ifndef os_getenv
-#define os_getenv getenv
-#endif
-#ifndef os_setenv
-#define os_setenv setenv
-#endif
 
 
 #ifndef likely

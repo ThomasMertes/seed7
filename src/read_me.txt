@@ -19,12 +19,13 @@ THE MAKEFILES
   -------------+-----------------+--------------+------------+--------
   mk_linux.mak | Linux/Unix/BSD  | (g)make      | gcc        | sh
   mk_cygw.mak  | Windows (Cygwin)| (g)make      | gcc        | sh
-  mk_msys.mak  | Windows (MSYS)  | (g)make      | gcc        | sh
+  mk_msys.mak  | Windows (MSYS)  | mingw32-make | gcc        | sh
   mk_mingw.mak | Windows (MinGW) | mingw32-make | gcc        | cmd.exe
   mk_nmake.mak | Windows (MinGW) | nmake        | gcc        | cmd.exe
   mk_msvc.mak  | Windows (MSVC)  | nmake        | cl         | cmd.exe
   mk_bcc32.mak | Windows (bcc32) | make         | bcc32      | cmd.exe
   mk_bccv5.mak | Windows (bcc32) | make         | bcc32 V5.5 | cmd.exe
+  mk_djgpp.mak | DOS             | (g)make      | gcc        | cmd.exe
   mk_osx.mak   | Mac OS X (Xcode)| (g)make      | gcc        | sh
 
   In the optimal case you just copy one of this files to
@@ -56,10 +57,14 @@ COMPILING UNTER LINUX
     make depend
     make
 
+  After the compilation the interpreter executable can be found
+  in the 'bin' directory and the 'prg' directory will contain a
+  link to the executable.
+
   In some distributions the X11 library directory is not in
-  $PATH. In this case the value of the LIBS variable in the
-  makefile must be changed. Replace the -lX11 by the path and
-  the name of your libXll (e.g. /usr/X11/lib/libX11.so or
+  $PATH. In this case the value of the SYSTEM_DRAW_LIBS variable
+  in the makefile must be changed. Replace the -lX11 by the path
+  and the name of your libXll (e.g. /usr/X11/lib/libX11.so or
   /usr/X11R6/lib/libX11.a).
 
 
@@ -84,8 +89,8 @@ COMPILING UNDER WINDOWS WITH GCC FROM MINGW
   tools) go to the 'src' directory and type:
 
     cp mk_msys.mak makefile
-    gmake depend
-    gmake
+    mingw32-make depend
+    mingw32-make
 
   When gmake uses Unix shell commands even when started from
   a Windows console, you can use gmake totether with
@@ -98,7 +103,8 @@ COMPILING UNDER WINDOWS WITH GCC FROM MINGW
     nmake depend
     nmake
 
-  After the compilation the interpreter is copied to prg/hi.exe.
+  After the compilation the interpreter executable can be found
+  in the 'bin' directory and is also copied to prg/hi.exe.
 
 
 COMPILING UNDER WINDOWS WITH CL FROM MSVC
@@ -111,7 +117,8 @@ COMPILING UNDER WINDOWS WITH CL FROM MSVC
     nmake depend
     nmake
 
-  After the compilation the interpreter is copied to prg/hi.exe.
+  After the compilation the interpreter executable can be found
+  in the 'bin' directory and is also copied to prg/hi.exe.
 
 
 COMPILING UNDER WINDOWS WITH BCC32
@@ -124,7 +131,8 @@ COMPILING UNDER WINDOWS WITH BCC32
     make depend
     make
 
-  After the compilation the interpreter is copied to prg/hi.exe.
+  After the compilation the interpreter executable can be found
+  in the 'bin' directory and is also copied to prg/hi.exe.
   For the older version of bcc32 (Version 5.5, which is available
   in the internet) use:
 
@@ -135,19 +143,21 @@ COMPILING UNDER WINDOWS WITH BCC32
 
 COMPILING UNDER WINDOWS WITH CYGWIN
 
-    To compile Seed7 with cygwin several cygwin packages need to
+    To compile Seed7 with Cygwin several Cygwin packages need to
   be installed. From the category Devel the following packages are
-  needed: binutils, gcc4, gcc4-core, libncurses-devel and make.
-  From category X11 the package libX11-devel is needed. To test
-  the installation start a cygwin window and do:
+  needed: binutils, gcc-core, libncurses-devel and make. From
+  category X11 the package libX11-devel is needed. To use graphic
+  programs it is necessary to install Cygwin/X. Instructions to
+  install Cygwin/X can be found in the internet. To test the
+  installation start a Cygwin window and do:
 
     make --version
-    gcc-4 --version
+    gcc --version
 
-  If the cygwin gcc does not have the name gcc-4 it is necessary
-  to edit the file mk_cygw.mak . The line containing
+  If the Cygwin gcc does not have the name gcc it is necessary
+  to edit the file 'mk_cygw.mak'. The line containing
 
-    CC = gcc-4
+    CC = gcc
 
   must be changed to define the name of your gcc. When gcc and
   make work well change to the seed7/src directory and do:
@@ -155,12 +165,16 @@ COMPILING UNDER WINDOWS WITH CYGWIN
     make -f mk_cygw.mak depend
     make -f mk_cygw.mak
 
+  After the compilation the interpreter executable can be found
+  in the 'bin' directory and the 'prg' directory will contain a
+  link to the executable.
+
   Cygwin sometimes has problems with symlinks. This is indicated
   by an error message which ends with:
 
     bin/as.exe: cannot execute binary file
 
-  The presence of a cygwin symlink problem can be checked in
+  The presence of a Cygwin symlink problem can be checked in
   the directory /usr/i686-pc-cygwin/bin (or the corresponding
   directory mentioned in the error message). When the file
   /usr/i686-pc-cygwin/bin/as.exe is a small file with less than
@@ -168,11 +182,28 @@ COMPILING UNDER WINDOWS WITH CYGWIN
 
     !<symlink>
 
-  it is some cygwin symlink. To fix this error just copy the
+  it is some Cygwin symlink. To fix this error just copy the
   symlink destination over the file as.exe (after making a
   backup of the original symlink file as.exe). Additionally
   it might also be necessary to do the same for ld.exe (and
   maybe for some other symlinks as well).
+
+
+COMPILING UNDER DOS WITH DJGPP
+
+    You need gcc and make from DJGPP. Make sure that the search
+  PATH leads to gcc and make from DJGPP. Use the command line,
+  go to the 'src' directory and type:
+
+    copy mk_djgpp.mak makefile
+    make depend
+    make
+
+  After the compilation the interpreter executable can be found
+  in the 'bin' directory and is also copied to prg/hi.exe.
+
+  Note that the DOS version of Seed7 currently supports neither
+  graphics nor sockets.
 
 
 COMPILING UNTER MAC OS X
@@ -185,6 +216,10 @@ COMPILING UNTER MAC OS X
     cp mk_osx.mak makefile
     make depend
     make
+
+  After the compilation the interpreter executable can be found
+  in the 'bin' directory and the 'prg' directory will contain a
+  link to the executable.
 
   Under Mac OS X the X11 library is usually found in
   '/usr/X11R6/lib'. For unknown reasons the Xcode (Mac OS X)
@@ -395,21 +430,21 @@ HOW TO USE THE GMP LIBRARY?
   You need the GMP library (one of gmp.lib/gmp.dll/gmp.a/gmp.so)
   and the gmp.h include file.
 
-  Every makefile contains a line which defines the C 'LIBS' to
-  be used when the 'hi' interpreter is linked. E.g.:
+  Every makefile contains a line which defines the 'SYSTEM_LIBS'
+  to be used when the 'hi' interpreter is linked. E.g.:
 
-    LIBS = -lX11 -lncurses -lm
+    SYSTEM_LIBS = -lncurses -lm
 
   The next line starts with # (which means it is commented out)
   and additionally contains the command to add the gmp library:
 
-    # LIBS = -lX11 -lncurses -lm -lgmp
+    # SYSTEM_LIBS = -lncurses -lm -lgmp
 
-  The old 'LIBS' line needs to be commented out and the line
-  which links also 'gmp' needs to be activated:
+  The old 'SYSTEM_LIBS' line needs to be commented out and the
+  line which links also 'gmp' needs to be activated:
 
-    # LIBS = -lX11 -lncurses -lm
-    LIBS = -lX11 -lncurses -lm -lgmp
+    # SYSTEM_LIBS = -lncurses -lm
+    SYSTEM_LIBS = -lncurses -lm -lgmp
 
   There are also four lines which define which files contain
   the interface functions for bigInteger:
@@ -707,11 +742,20 @@ THE VERSION.H FILE
   OS_PATH_UTF8: Defined when the system calls (os_...) use
                 UTF-8 characters (type char) for the parameters
                 describing a path. In this case functions like
-                getcwd(), readdir() and stat() together  with
+                getcwd(), readdir() and stat() together with
                 types like 'DIR', 'dirent' and 'struct stat'
                 must be used. When this functions and types do
                 not use the POSIX/SUS names it is necessary to
                 define the os_... macros accordingly.
+
+  OS_PATH_USES_CODEPAGE: Defined when the system calls (os_...)
+                         use characters (type char) encoded
+                         with a codepage (only the codepages
+                         437 and 850 are supported). In this
+                         case functions like getcwd(),
+                         readdir() and stat() together with
+                         types like 'DIR', 'dirent' and
+                         'struct stat' must be used.
 
   os_chdir: Function to be used instead of chdir() under the
             target operating system. If not defined chdir()
@@ -884,7 +928,7 @@ THE VERSION.H FILE
                          libraries are linked together to an
                          executable). Under Linux/Unix/BSD this
                          is usually ".o" Under Windows this is
-                         ".o" for MinGW and cygwin, but ".obj"
+                         ".o" for MinGW and Cygwin, but ".obj"
                          for MSVC and bcc32.
 
   EXECUTABLE_FILE_EXTENSION: The extension which is used by the
@@ -929,7 +973,7 @@ THE VERSION.H FILE
                      stand-alone C compiler (CL) writes the error
                      messages to standard output (use: "2>NUL: >"),
                      while the Unix C compliers including MinGW and
-                     cygwin write the error messages to the error
+                     Cygwin write the error messages to the error
                      output (use "2>").
 
   LINKER_OPT_DEBUG_INFO: Contains the linker option to add source
@@ -949,14 +993,28 @@ THE VERSION.H FILE
   SYSTEM_LIBS: Contains system libraries for the stand-alone linker
                to link a compiled Seed7 program.
 
-  SEED7_LIB: Contains the path and the name of the Seed7 runtime
-             library.
+  SYSTEM_DRAW_LIBS: Contains system drawing / graphic libraries for
+                    the stand-alone linker to link a compiled Seed7
+                    program, when it needs to draw.
 
-  COMP_DATA_LIB, COMPILER_LIB: Contain path and name of other Seed7
-                               runtime libraries.
+  SEED7_LIB: Contains the name of the Seed7 runtime library.
 
-  SEED7_LIBRARY: Contains the path where the Seed7 include files
-                 are available.
+  DRAW_LIB, COMP_DATA_LIB, COMPILER_LIB: Contain names of other
+            Seed7 runtime libraries.
+
+  S7_LIB_DIR: Directory containing the Seed7 runtime libraries.
+              This path uses the standard path representation
+              (a slash is used as path separator and instead of
+              a drive letter like "C:" the path "/c" is used).
+
+  SEED7_LIBRARY: Directory containing the Seed7 include files.
+                 This path uses the standard path representation
+                 (a slash is used as path separator and instead of
+                 a drive letter like "C:" the path "/c" is used).
+
+  PATHS_RELATIVE_TO_EXECUTABLE: Defined when S7_LIB_DIR and
+                                SEED7_LIBRARY cannot be determined
+                                at compile time.
 
   INT32TYPE: A signed integer type that is 32 bits wide.
 

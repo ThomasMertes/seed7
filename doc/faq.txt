@@ -158,7 +158,7 @@ Seed7 can be used in various application areas:
    purpose language and programs can be compiled to an executable).
  - Scripts that deal with files and directories (The Seed7 Homepage
    and the Seed7 release are created with Seed7 scripts).
- - Tools for networking (There is support for sockets, HTTP and
+ - Tools for networking (There is support for sockets, HTTP, FTP and
    HTML parsing).
  - Programs that deal with XML (There is support for XML parsing and
    the possibility to read XML into a DOM data structure).
@@ -187,12 +187,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 150000 lines of Seed7. For version 2011-06-05 the number of lines is:
+than 150000 lines of Seed7. For version 2011-07-03 the number of lines is:
 
-  92535  C source files (*.c)
-   9649  C header files (*.h)
-  99316  Seed7 source files (*.sd7)
-  61879  Seed7 library/include files (*.s7i)
+   94616  C source files (*.c)
+    9712  C header files (*.h)
+  100005  Seed7 source files (*.sd7)
+   62960  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -219,9 +219,10 @@ Seed7 runs on the following operating systems:
  - BSD (there is a FreeBSD port)
  - Windows is supported with several compilers:
     - MinGW GCC (the binary Windows release of Seed7 uses MinGW)
-    - Cygwin GCC (the X11 graphics is untested)
+    - Cygwin GCC (the X11 graphics needs Cygwin/X)
     - MSVC cl.exe (cl.exe is the stand-alone compiler of MSVC)
     - BDS bcc32.exe (bcc32.exe is the stand-alone compiler of the BDS)
+ - DOS (uses DJGPP, sockets and graphics are currently not supported)
  - Mac OS X
 
 For other operating systems it might be necessary to
@@ -280,12 +281,13 @@ and shell:
   -------------+-----------------+--------------+------------+--------
   mk_linux.mak | Linux/Unix/BSD  | (g)make      | gcc        | sh
   mk_cygw.mak  | Windows (Cygwin)| (g)make      | gcc        | sh
-  mk_msys.mak  | Windows (MSYS)  | (g)make      | gcc        | sh
+  mk_msys.mak  | Windows (MSYS)  | mingw32-make | gcc        | sh
   mk_mingw.mak | Windows (MinGW) | mingw32-make | gcc        | cmd.exe
   mk_nmake.mak | Windows (MinGW) | nmake        | gcc        | cmd.exe
   mk_msvc.mak  | Windows (MSVC)  | nmake        | cl         | cmd.exe
   mk_bcc32.mak | Windows (bcc32) | make         | bcc32      | cmd.exe
   mk_bccv5.mak | Windows (bcc32) | make         | bcc32 V5.5 | cmd.exe
+  mk_djgpp.mak | DOS             | (g)make      | gcc        | cmd.exe
   mk_osx.mak   | Mac OS X (Xcode)| (g)make      | gcc        | sh
 
 In the optimal case you just copy one of this files to 'makefile'

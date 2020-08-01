@@ -669,7 +669,7 @@ objecttype obj_found;
     /* place_of_error(err); */
     prog.error_count++;
     if (HAS_POSINFO(obj_found)){
-      printf("*** %s(%1u):%d: ", file_name_ustri(GET_FILE_NUM(obj_found)),
+      printf("*** %s(%1u):%d: ", get_file_name_ustri(GET_FILE_NUM(obj_found)),
           GET_LINE_NUM(obj_found), ((int) err) + 1);
     } else if (in_file.name_ustri != NULL) {
       printf("*** %s(%1u):%d: ", in_file.name_ustri, in_file.line, ((int) err) + 1);
@@ -812,7 +812,7 @@ objecttype obj_found;
     /* place_of_error(err); */
     prog.error_count++;
     if (HAS_POSINFO(expr_object)){
-      printf("*** %s(%1u):%d: ", file_name_ustri(GET_FILE_NUM(expr_object)),
+      printf("*** %s(%1u):%d: ", get_file_name_ustri(GET_FILE_NUM(expr_object)),
           GET_LINE_NUM(expr_object), ((int) err) + 1);
     } else if (in_file.name_ustri != NULL) {
       printf("*** %s(%1u):%d: ", in_file.name_ustri, in_file.line, ((int) err) + 1);
@@ -887,7 +887,7 @@ objecttype obj_found;
       /* place_of_error(err); */
       prog.error_count++;
       if (HAS_POSINFO(obj_found)){
-        printf("*** %s(%1u):%d: ", file_name_ustri(GET_FILE_NUM(obj_found)),
+        printf("*** %s(%1u):%d: ", get_file_name_ustri(GET_FILE_NUM(obj_found)),
             GET_LINE_NUM(obj_found), ((int) err) + 1);
       } else if (in_file.name_ustri != NULL) {
         printf("*** %s(%1u):%d: ", in_file.name_ustri, in_file.line, ((int) err) + 1);
@@ -1140,7 +1140,7 @@ ustritype stri;
 
   { /* err_undeclared */
     prog.error_count++;
-    printf("*** %s(%1u):%d: ", file_name_ustri(file_num),
+    printf("*** %s(%1u):%d: ", get_file_name_ustri(file_num),
         line, ((int) err) + 1);
     switch (err) {
       case OBJUNDECLARED:

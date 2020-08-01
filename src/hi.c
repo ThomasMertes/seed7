@@ -111,6 +111,7 @@ rtlArraytype arg_v;
                 if (ALLOC_CSTRI(cstri_opt, opt->size - 2)) {
                   stri_compress((ustritype) cstri_opt,
                       &opt->mem[2], opt->size - 2);
+                  cstri_opt[opt->size - 2] = '\0';
                   option.comp_trace_level = cstri_opt;
                 } else {
                   option.comp_trace_level = "";
@@ -133,6 +134,7 @@ rtlArraytype arg_v;
                 if (ALLOC_CSTRI(cstri_opt, opt->size - 2)) {
                   stri_compress((ustritype) cstri_opt,
                       &opt->mem[2], opt->size - 2);
+                  cstri_opt[opt->size - 2] = '\0';
                   option.prot_file_name = cstri_opt;
                 } else {
                   option.prot_file_name = "";
@@ -144,6 +146,7 @@ rtlArraytype arg_v;
                   if (ALLOC_CSTRI(cstri_opt, opt->size)) {
                     stri_compress((ustritype) cstri_opt,
                         opt->mem, opt->size);
+                    cstri_opt[opt->size] = '\0';
                     option.prot_file_name = cstri_opt;
                   } else {
                     option.prot_file_name = "";
@@ -164,6 +167,7 @@ rtlArraytype arg_v;
                 if (ALLOC_CSTRI(cstri_opt, opt->size - 2)) {
                   stri_compress((ustritype) cstri_opt,
                       &opt->mem[2], opt->size - 2);
+                  cstri_opt[opt->size - 2] = '\0';
                   option.exec_trace_level = cstri_opt;
                 } else {
                   option.exec_trace_level = "";

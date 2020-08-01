@@ -114,6 +114,30 @@ inttype time_zone;
 
 
 
+/**
+ *  Return the current clock time.
+ *  This function is only used to initialize the random number
+ *  generator, so overflows can be ignored.
+ */
+#ifdef ANSI_C
+
+inttype timMicroSec (void)
+#else
+
+inttype timMicroSec ()
+#endif
+
+  {
+    inttype micro_sec;
+
+  /* timMicroSec */
+    micro_sec = clock();
+    /* printf("timMicroSec() ==> %lu\n", micro_sec); */
+    return micro_sec;
+  } /* timMicroSec */
+
+
+
 #ifdef ANSI_C
 
 void timNow (inttype *year, inttype *month, inttype *day, inttype *hour,
@@ -168,7 +192,7 @@ booltype *is_dst;
       *is_dst    = tstruct.dstflag;
 #else
       *time_zone = (mkutc(local_time) - tstruct.time) / 60;
-      *is_dst    = local_time->tm_isdst;
+      *is_dst    = local_time->tm_isdst > 0;
 #endif
     } /* if */
 #ifdef TRACE_TIM_DOS

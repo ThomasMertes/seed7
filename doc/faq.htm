@@ -343,11 +343,11 @@ Seed7 can be used in various application areas:
    purpose language and programs can be <a href="#compile">compiled</a> to an executable).</li>
 <li><!--  -  -->Scripts that deal with <a href="manual/os.htm">files and directories</a> (The Seed7 Homepage
    and the Seed7 release are created with Seed7 scripts).</li>
-<li><!--  -  -->Tools for networking (There is support for <a href="manual/file.htm#Sockets">sockets</a>, HTTP and
+<li><!--  -  -->Tools for networking (There is support for <a href="manual/file.htm#Sockets">sockets</a>, <a href="libraries/gethttp.htm">HTTP</a>, <a href="libraries/ftp.htm">FTP</a> and
    HTML parsing).</li>
 <li><!--  -  -->Programs that deal with XML (There is support for XML parsing and
-   the possibility to read XML into a DOM data structure).</li>
-<li><!--  -  -->CGI scripts (A CGI support library is available and the <a href="scrshots/comanche.htm">Comanche</a> web server
+   the possibility to <a href="libraries/xmldom.htm">read XML</a> into a DOM data structure).</li>
+<li><!--  -  -->CGI scripts (A <a href="libraries/cgi.htm">CGI support library</a> is available and the <a href="scrshots/comanche.htm">Comanche</a> web server
    can be used to test CGI scripts).</li>
 <li><!--  -  -->As language to describe <a href="algorith/index.htm">algorithms</a>.</li>
 <li><!--  -  -->Command line utilities. E.g.:<ul>
@@ -372,12 +372,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr><!-- ================================================ -->
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 150000 lines of Seed7. For version 2011-06-05 the number of lines is:
+than 150000 lines of Seed7. For version 2011-07-03 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right">92535</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right"> 9649</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">99316</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right">61879</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right"> 94616</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right">  9712</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">100005</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right"> 62960</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -404,9 +404,10 @@ Seed7 runs on the following operating systems:
 <li><!--  -  -->BSD (there is a <a href="http://www.freebsd.org/cgi/cvsweb.cgi/ports/lang/seed7">FreeBSD port</a>)</li>
 <li><!--  -  -->Windows is supported with several compilers:<ul>
 <li><!--     -  -->MinGW GCC (the binary Windows release of Seed7 uses MinGW)</li>
-<li><!--     -  -->Cygwin GCC (the X11 graphics is untested)</li>
+<li><!--     -  -->Cygwin GCC (the X11 graphics needs Cygwin/X)</li>
 <li><!--     -  -->MSVC cl.exe (cl.exe is the stand-alone compiler of MSVC)</li>
 <li><!--     -  -->BDS bcc32.exe (bcc32.exe is the stand-alone compiler of the BDS)</li></ul></li>
+<li><!--  -  -->DOS (uses DJGPP, sockets and graphics are currently not supported)</li>
 <li><!--  -  -->Mac OS X</li>
 </ul><p>
 For other operating systems it might be necessary to
@@ -465,12 +466,13 @@ and shell:
   <!-- -------------+-----------------+--------------+------------+-------- -->
   <tr><td>mk_linux.mak </td><!-- | --><td> Linux/Unix/BSD  </td><!-- | --><td> (g)make      </td><!-- | --><td> gcc        </td><!-- | --><td> sh</td></tr>
   <tr><td>mk_cygw.mak  </td><!-- | --><td> Windows (Cygwin)</td><!-- | --><td> (g)make      </td><!-- | --><td> gcc        </td><!-- | --><td> sh</td></tr>
-  <tr><td>mk_msys.mak  </td><!-- | --><td> Windows (MSYS)  </td><!-- | --><td> (g)make      </td><!-- | --><td> gcc        </td><!-- | --><td> sh</td></tr>
+  <tr><td>mk_msys.mak  </td><!-- | --><td> Windows (MSYS)  </td><!-- | --><td> mingw32-make </td><!-- | --><td> gcc        </td><!-- | --><td> sh</td></tr>
   <tr><td>mk_mingw.mak </td><!-- | --><td> Windows (MinGW) </td><!-- | --><td> mingw32-make </td><!-- | --><td> gcc        </td><!-- | --><td> cmd.exe</td></tr>
   <tr><td>mk_nmake.mak </td><!-- | --><td> Windows (MinGW) </td><!-- | --><td> nmake        </td><!-- | --><td> gcc        </td><!-- | --><td> cmd.exe</td></tr>
   <tr><td>mk_msvc.mak  </td><!-- | --><td> Windows (MSVC)  </td><!-- | --><td> nmake        </td><!-- | --><td> cl         </td><!-- | --><td> cmd.exe</td></tr>
   <tr><td>mk_bcc32.mak </td><!-- | --><td> Windows (bcc32) </td><!-- | --><td> make         </td><!-- | --><td> bcc32      </td><!-- | --><td> cmd.exe</td></tr>
   <tr><td>mk_bccv5.mak </td><!-- | --><td> Windows (bcc32) </td><!-- | --><td> make         </td><!-- | --><td> bcc32 V5.5 </td><!-- | --><td> cmd.exe</td></tr>
+  <tr><td>mk_djgpp.mak </td><!-- | --><td> DOS             </td><!-- | --><td> (g)make      </td><!-- | --><td> gcc        </td><!-- | --><td> cmd.exe</td></tr>
   <tr><td>mk_osx.mak   </td><!-- | --><td> Mac OS X (Xcode)</td><!-- | --><td> (g)make      </td><!-- | --><td> gcc        </td><!-- | --><td> sh</td></tr>
 </table></dd></dl><p>
 In the optimal case you just copy one of this files to 'makefile'

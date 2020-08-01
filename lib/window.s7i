@@ -138,19 +138,15 @@ const proc: box (ref window_file: window_fil) is func
     outf := window_fil.out_file;
     start_col := window_fil.left_border;
     start_line := window_fil.upper_border;
-    stri := "";
     if window_fil.left_border > 1 then
       decr(start_col);
-      stri := "+";
       for line range start_line to
           start_line + window_fil.height - 1 do
         setPos(outf, line, start_col);
         write(outf, "|");
       end for;
     end if;
-    stri &:= "-" mult window_fil.width;
     if window_fil.left_border + window_fil.width - 1 < width(window_fil.out_file) then
-      stri &:= "+";
       for line range start_line to
           start_line + window_fil.height - 1 do
         setPos(outf,
@@ -158,6 +154,7 @@ const proc: box (ref window_file: window_fil) is func
         write(outf, "|");
       end for;
     end if;
+    stri := "+" & "-" mult window_fil.width & "+";
     if start_line > 1 then
       setPos(outf, start_line - 1, start_col);
       write(outf, stri);
@@ -238,6 +235,8 @@ const proc: clear (inout window_file: window_fil) is func
         window_fil.left_border,
         pred(window_fil.upper_border + window_fil.height),
         pred(window_fil.left_border + window_fil.width));
+    window_fil.curr_line := 1;
+    window_fil.curr_column := 1;
   end func;
 
 

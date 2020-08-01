@@ -45,6 +45,7 @@
 #include "errno.h"
 
 #include "common.h"
+#include "os_decls.h"
 #include "tim_rtl.h"
 #include "fil_rtl.h"
 #include "rtl_err.h"
@@ -220,7 +221,7 @@ booltype *is_dst;
       *sec       = local_time->tm_sec;
       *micro_sec = (utc_time.nanosecs100 / 10) % 1000000;
       *time_zone = (unchecked_mkutc(local_time) - utc_seconds) / 60;
-      *is_dst    = local_time->tm_isdst;
+      *is_dst    = local_time->tm_isdst > 0;
     } /* if */
 #ifdef TRACE_TIM_WIN
     printf("END timNow(%04ld-%02ld-%02ld %02ld:%02ld:%02ld.%06ld %ld %d)\n",

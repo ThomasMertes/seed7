@@ -404,3 +404,24 @@ const func string: encodeHtmlEntities (in string: stri) is func
     end for;
     result &:= stri[old_pos ..];
   end func;
+
+
+const func string: quoteHtmlAttrValue (in string: stri) is func
+  result
+    var string: result is "\"";
+  local
+    var integer: old_pos is 1;
+    var integer: index is 0;
+    var char: ch is ' ';
+  begin
+    for index range 1 to length(stri) do
+      ch := stri[index];
+      if ch = '\"' or ch = '&' or ch = '<' or ch = '>' then
+        result &:= stri[old_pos .. pred(index)];
+        result &:= "&" & htmlCharNameHash[ch] & ";";
+        old_pos := succ(index);
+      end if;
+    end for;
+    result &:= stri[old_pos ..];
+    result &:= "\"";
+  end func;

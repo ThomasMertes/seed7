@@ -33,6 +33,7 @@
 
 #include "common.h"
 #include "data.h"
+#include "os_decls.h"
 #include "heaputl.h"
 #include "flistutl.h"
 #include "striutl.h"
@@ -475,10 +476,10 @@ int next_line ()
 
 #ifdef ANSI_C
 
-stritype file_name (filenumtype file_num)
+stritype get_file_name (filenumtype file_num)
 #else
 
-stritype file_name (file_num)
+stritype get_file_name (file_num)
 filenumtype file_num;
 #endif
 
@@ -487,9 +488,9 @@ filenumtype file_num;
     infiltype help_file;
     stritype result;
 
-  /* file_name */
+  /* get_file_name */
 #ifdef TRACE_INFILE
-    printf("BEGIN file_name\n");
+    printf("BEGIN get_file_name\n");
 #endif
     result = NULL;
     help_file = file_pointer;
@@ -506,19 +507,19 @@ filenumtype file_num;
       result = question_mark;
     } /* if */
 #ifdef TRACE_INFILE
-    printf("END file_name\n");
+    printf("END get_file_name\n");
 #endif
     return(result);
-  } /* file_name */
+  } /* get_file_name */
 
 
 
 #ifdef ANSI_C
 
-const_ustritype file_name_ustri (filenumtype file_num)
+const_ustritype get_file_name_ustri (filenumtype file_num)
 #else
 
-ustritype file_name_ustri (file_num)
+ustritype get_file_name_ustri (file_num)
 filenumtype file_num;
 #endif
 
@@ -526,9 +527,9 @@ filenumtype file_num;
     infiltype help_file;
     const_ustritype result;
 
-  /* file_name_ustri */
+  /* get_file_name_ustri */
 #ifdef TRACE_INFILE
-    printf("BEGIN file_name\n");
+    printf("BEGIN get_file_name\n");
 #endif
     result = (const_ustritype) "?";
     help_file = file_pointer;
@@ -539,10 +540,10 @@ filenumtype file_num;
       help_file = help_file->next;
     } /* while */
 #ifdef TRACE_INFILE
-    printf("END file_name\n");
+    printf("END get_file_name\n");
 #endif
     return(result);
-  } /* file_name_ustri */
+  } /* get_file_name_ustri */
 
 
 
@@ -713,7 +714,9 @@ errinfotype *err_info;
     stritype path;
     memsizetype position;
     memsizetype dir_path_size;
-    cstritype library_environment_variable;
+    static const os_chartype seed7_library[] =
+        {'S', 'E', 'E', 'D', '7', '_', 'L', 'I', 'B', 'R', 'A', 'R', 'Y', 0};
+    os_stritype library_environment_variable;
 
   /* init_lib_path */
 #ifdef TRACE_INFILE
@@ -748,7 +751,7 @@ errinfotype *err_info;
       /* prot_cstri("programPath: ");
          prot_stri(programPath);
          prot_nl(); */
-      path = relativeToProgramPath(programPath, "lib", "");
+      path = relativeToProgramPath(programPath, "lib");
       if (unlikely(path == NULL)) {
         *err_info = MEMORY_ERROR;
       } else {
@@ -767,12 +770,13 @@ errinfotype *err_info;
       } /* if */
 
       /* Add the SEED7_LIBRARY environment variable to the lib_path */
-      library_environment_variable = getenv("SEED7_LIBRARY");
+      library_environment_variable = os_getenv(seed7_library);
       if (library_environment_variable != NULL) {
-        path = stri_to_standard_path(cstri_to_stri(library_environment_variable));
-        if (path == NULL) {
-          *err_info = MEMORY_ERROR;
-        } else {
+        path = cp_from_os_path(library_environment_variable, err_info);
+#ifdef USE_WGETENV_WSTRI
+        os_stri_free(library_environment_variable);
+#endif
+        if (path != NULL) {
           append_to_lib_path(path, err_info);
           FREE_STRI(path, path->size);
         } /* if */

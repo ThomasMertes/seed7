@@ -220,6 +220,59 @@ chartype cvalue;
 
 #ifdef ANSI_C
 
+void prot_os_stri (const const_os_stritype os_stri)
+#else
+
+void prot_os_stri (os_stri)
+const const_os_stritype os_stri;
+#endif
+
+  {
+    const_os_stritype stri;
+
+  /* prot_os_stri */
+    if (os_stri != NULL) {
+      stri = os_stri;
+      prot_cstri("\"");
+      {
+        char buffer[51];
+
+        for (; *stri != 0 && stri - os_stri <= 128; stri++) {
+          if (*stri <= (os_chartype) 31) {
+            sprintf(buffer, "\\%3lo", (unsigned long) (os_uchartype) *stri);
+          } else if (*stri == (os_chartype) '\\') {
+            sprintf(buffer, "\\\\");
+          } else if (*stri == (os_chartype) '\"') {
+            sprintf(buffer, "\\\"");
+          } else if (*stri <= (os_chartype) 127) {
+            sprintf(buffer, "%c", (int) *stri);
+          } else if (*stri == (os_chartype) -1) {
+            sprintf(buffer, "\\EOF\\");
+          } else if (*stri <= (os_chartype) 255) {
+            sprintf(buffer, "\\%3lo", (unsigned long) (os_uchartype) *stri);
+          } else {
+            sprintf(buffer, "\\u%4lx\\", (unsigned long) (os_uchartype) *stri);
+          } /* if */
+          prot_cstri(buffer);
+          /* putc((int) *stri, protfile); */
+        } /* for */
+      }
+      if (stri - os_stri > 128) {
+        prot_cstri("\\ *AND_SO_ON* SIZE=");
+        for (; *stri != 0; stri++) {
+        } /* for */
+        prot_int((inttype) (stri - os_stri));
+      } /* if */
+      prot_cstri("\"");
+    } else {
+      prot_cstri(" *NULL_OS_STRING* ");
+    } /* if */
+  } /* prot_os_stri */
+
+
+
+#ifdef ANSI_C
+
 void prot_stri (const const_stritype stri)
 #else
 
@@ -962,7 +1015,7 @@ listtype list;
               printcategory(CATEGORY_OF_OBJ(list->obj));
               prot_cstri("> ");
               if (HAS_POSINFO(list->obj)) {
-                prot_cstri((const_cstritype) file_name_ustri(GET_FILE_NUM(list->obj)));
+                prot_cstri((const_cstritype) get_file_name_ustri(GET_FILE_NUM(list->obj)));
                 prot_cstri("(");
                 prot_int((inttype) GET_LINE_NUM(list->obj));
                 prot_cstri(")");
@@ -1434,7 +1487,7 @@ objecttype traceobject;
       } /* if */
       prot_cstri(": ");
       if (HAS_POSINFO(traceobject)) {
-        prot_cstri((const_cstritype) file_name_ustri(GET_FILE_NUM(traceobject)));
+        prot_cstri((const_cstritype) get_file_name_ustri(GET_FILE_NUM(traceobject)));
         prot_cstri("(");
         prot_int((inttype) GET_LINE_NUM(traceobject));
         prot_cstri(")");

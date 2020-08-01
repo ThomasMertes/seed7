@@ -1,0 +1,367 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  ftpserv.sd7   FTP (file transfer protocol) server               *)
+(*  Copyright (C) 2011  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+  include "socket.s7i";
+  include "osfiles.s7i";
+  include "time.s7i";
+  include "getf.s7i";
+
+var string: ownIpAddress is "";
+var string: startDirectory is "";
+var integer: ftpControlPort is 2021;
+
+const type: ftpServerConnection is new struct
+    var file: control is STD_NULL;
+    var file: data is STD_NULL;
+    var string: currentDirectory is "";
+  end struct;
+
+const type: ftpConnectionHash is hash [file] ftpServerConnection;
+
+var ftpConnectionHash: ftpSessions is ftpConnectionHash.value;
+
+
+const proc: ftpResponse (inout file: control, in string: response) is func
+  begin
+    writeln("<- " <& response);
+    writeln(control, response);
+  end func;
+
+
+const func file: openActiveData (in string: parameter) is func
+  result
+    var file: data is STD_NULL;
+  local
+    var array string: addrAndPort is 0 times "";
+    var integer: dataPort is 0;
+  begin
+    addrAndPort := split(parameter, ",");
+    if length(addrAndPort) = 6 then
+      dataPort := integer parse (addrAndPort[5]) * 256 + integer parse (addrAndPort[6]);
+      # writeln(dataPort);
+      data := openInetSocket(join(addrAndPort[ .. 4], "."), dataPort);
+      # writeln(data <> STD_NULL);
+    end if;
+  end func;
+
+
+const func file: openPassiveData (inout file: control) is func
+  result
+    var file: data is STD_NULL;
+  local
+    var integer: dataPort is 0;
+    var listener: dataPortListener is listener.value;
+  begin
+    dataPort := rand(1024, 65535);
+    dataPortListener := openInetListener(dataPort);
+    listen(dataPortListener, 1);
+    ftpResponse(control, "227 Entering Passive Mode (" <&
+                     replace(ownIpAddress, ".", ",") <& "," <&
+                     dataPort mdiv 256 <& "," <& dataPort mod 256 <& ")");
+    data := accept(dataPortListener);
+    # writeln("++++++++");
+    close(dataPortListener);
+    # writeln("--------");
+  end func;
+
+
+const proc: listFiles (inout file: data, in string: dirName) is func
+  local
+    var array string: dirContent is 0 times "";
+    var string: fileName is "";
+  begin
+    dirContent := read_dir(dirName);
+    for fileName range dirContent do
+      writeln(data, striToUtf8(fileName) <& "\r");
+    end for;
+  end func;
+
+
+const proc: nameListFiles (inout file: data, in string: dirName) is func
+  local
+    var array string: dirContent is 0 times "";
+    var string: fileName is "";
+  begin
+    dirContent := read_dir(dirName);
+    for fileName range dirContent do
+      writeln(data, striToUtf8(fileName) <& "\r");
+    end for;
+  end func;
+
+
+const func string: getFile (inout ftpServerConnection: ftp) is func
+  result
+    var string: result is "";
+  local
+    var string: buffer is "";
+  begin
+    buffer := gets(ftp.data, 1000000);
+    while buffer <> "" do
+      # writeln(literal(buffer));
+      # writeln(length(buffer));
+      result &:= buffer;
+      buffer := gets(ftp.data, 1000000);
+    end while;
+    # writeln("finished");
+  end func;
+
+
+const proc: openFtpSession (inout file: control) is func
+  local
+    var ftpServerConnection: ftp is ftpServerConnection.value;
+  begin
+    ftp.control := control;
+    ftp.currentDirectory := startDirectory;
+    ftpSessions @:= [ftp.control] ftp;
+    ftpResponse(ftp.control, "220 Welcome to ftpserv");
+  end func;
+
+
+const proc: closeFtpSession (inout ftpServerConnection: ftp) is func
+  begin
+    close(ftp.control);
+    excl(ftpSessions, ftp.control);
+  end func;
+
+
+const proc: processFtpRequest (inout ftpServerConnection: ftp, in string: request) is func
+  local
+    var time: modificationTime is time.value;
+  begin
+    if startsWith(request, "USER ") then
+      ftpResponse(ftp.control, "331 Please specify the password.");
+    elsif startsWith(request, "PASS ") then
+      ftpResponse(ftp.control, "230 Welcome to the FTP server of Seed7.");
+    elsif startsWith(request, "SYST") then
+      ftpResponse(ftp.control, "215 UNIX Type: L8");
+    elsif startsWith(request, "PASV") then
+      ftp.data := openPassiveData(ftp.control);
+    elsif startsWith(request, "PORT ") then
+      ftp.data := openActiveData(request[6 ..]);
+      if ftp.data <> STD_NULL then
+        ftpResponse(ftp.control, "200 PORT command successful. Consider using PASV.");
+      else
+        ftpResponse(ftp.control, "500 Illegal PORT command.");
+      end if;
+    elsif startsWith(request, "LIST") then
+      if ftp.data = STD_NULL then
+        ftpResponse(ftp.control, "425 Use PORT or PASV first.");
+      else
+        chdir(ftp.currentDirectory);
+        ftpResponse(ftp.control, "150 Here comes the directory listing.");
+        if trim(request[6 ..]) <> "" then
+          listFiles(ftp.data, trim(request[6 ..]));
+        else
+          listFiles(ftp.data, ".");
+        end if;
+        ftpResponse(ftp.control, "226 Directory send OK.");
+        close(ftp.data);
+      end if;
+    elsif startsWith(request, "NLST") then
+      if ftp.data = STD_NULL then
+        ftpResponse(ftp.control, "425 Use PORT or PASV first.");
+      else
+        chdir(ftp.currentDirectory);
+        ftpResponse(ftp.control, "150 Here comes the directory listing.");
+        if trim(request[6 ..]) <> "" then
+          nameListFiles(ftp.data, trim(request[6 ..]));
+        else
+          nameListFiles(ftp.data, ".");
+        end if;
+        ftpResponse(ftp.control, "226 Directory send OK.");
+        close(ftp.data);
+      end if;
+    elsif startsWith(request, "RETR ") then
+      if ftp.data = STD_NULL then
+        ftpResponse(ftp.control, "425 Use PORT or PASV first.");
+      else
+        chdir(ftp.currentDirectory);
+        if fileType(request[6 ..]) = FILE_REGULAR then
+          ftpResponse(ftp.control, "150 Opening BINARY mode data connection for " <&
+              request[6 ..] <& " (" <& fileSize(request[6 ..]) <& " bytes).");
+          write(ftp.data, getf(request[6 ..]));
+          ftpResponse(ftp.control, "226 Transfer complete.");
+        else
+          ftpResponse(ftp.control, "550 Failed to open file.");
+        end if;
+        close(ftp.data);
+      end if;
+    elsif startsWith(request, "STOR ") then
+      if ftp.data = STD_NULL then
+        ftpResponse(ftp.control, "425 Use PORT or PASV first.");
+      else
+        chdir(ftp.currentDirectory);
+        ftpResponse(ftp.control, "150 Opening BINARY mode data connection for " <&
+            request[6 ..]);
+        putf(request[6 ..], getFile(ftp));
+        ftpResponse(ftp.control, "226 Transfer complete.");
+        close(ftp.data);
+      end if;
+    elsif startsWith(request, "SIZE ") then
+      chdir(ftp.currentDirectory);
+      if fileType(request[6 ..]) = FILE_REGULAR then
+        ftpResponse(ftp.control, "213 " <& fileSize(request[6 ..]));
+      else
+        ftpResponse(ftp.control, "550 Could not get file size.");
+      end if;
+    elsif startsWith(request, "MDTM ") then
+      chdir(ftp.currentDirectory);
+      if fileType(request[6 ..]) = FILE_REGULAR then
+        modificationTime := toUTC(getMTime(request[6 ..]));
+        ftpResponse(ftp.control, "213 " <& modificationTime.year   lpad0 4 <&
+                                   modificationTime.month  lpad0 2 <&
+                                   modificationTime.day    lpad0 2 <&
+                                   modificationTime.hour   lpad0 2 <&
+                                   modificationTime.minute lpad0 2 <&
+                                   modificationTime.second lpad0 2);
+      else
+        ftpResponse(ftp.control, "550 Could not get file modification time.");
+      end if;
+    elsif startsWith(request, "CWD ") then
+      chdir(ftp.currentDirectory);
+      if fileType(request[5 ..]) = FILE_DIR then
+        chdir(request[5 ..]);
+        ftp.currentDirectory := getcwd;
+        ftpResponse(ftp.control, "250 Directory successfully changed.");
+      else
+        ftpResponse(ftp.control, "550 Failed to change directory.");
+      end if;
+    elsif startsWith(request, "CDUP") then
+      chdir(ftp.currentDirectory & "/..");
+      ftp.currentDirectory := getcwd;
+      ftpResponse(ftp.control, "250 Directory successfully changed.");
+    elsif startsWith(request, "PWD") then
+      ftpResponse(ftp.control, "257 " <& literal(ftp.currentDirectory));
+    elsif startsWith(request, "MKD ") then
+      chdir(ftp.currentDirectory);
+      block
+        mkdir(request[5 ..]);
+        ftpResponse(ftp.control, "257 " <& literal(request[5 ..]) <&
+            " - Directory successfully created.");
+      exception
+        catch FILE_ERROR: ftpResponse(ftp.control, "550 Permission denied.");
+      end block;
+    elsif startsWith(request, "RMD ") then
+      chdir(ftp.currentDirectory);
+      block
+        removeFile(request[5 ..]);
+        ftpResponse(ftp.control, "257 Rmdir command successful.");
+      exception
+        catch FILE_ERROR: ftpResponse(ftp.control, "550 Permission denied.");
+      end block;
+    elsif startsWith(request, "TYPE ") then
+      if request[6 len 1] = "A" then
+        ftpResponse(ftp.control, "200 Switching to ASCII mode.");
+      elsif request[6 len 1] = "I" then
+        ftpResponse(ftp.control, "200 Switching to Binary mode.");
+      else
+        ftpResponse(ftp.control, "500 Unrecognised TYPE command.");
+      end if;
+    elsif startsWith(request, "QUIT") then
+      ftpResponse(ftp.control, "221 Goodbye.");
+      closeFtpSession(ftp);
+    else
+      ftpResponse(ftp.control, "500 Unknown command.");
+    end if;
+  end func;
+
+
+const proc: processFtpRequest (inout ftpServerConnection: ftp) is func
+  local
+    var string: request is "";
+  begin
+    request := getln(ftp.control);
+    writeln("-> " <& request);
+    if eof(ftp.control) then
+      closeFtpSession(ftp);
+    else
+      processFtpRequest(ftp, request);
+    end if;
+  end func;
+
+
+const proc: processFtpRequest (inout file: control) is func
+  begin
+    if control in ftpSessions then
+      block
+        processFtpRequest(ftpSessions[control]);
+      exception
+        catch FILE_ERROR:
+          noop;
+      end block;
+    else
+      writeln(" ***** Unknown session");
+    end if;
+  end func;
+
+
+const proc: main is func
+  local
+    var listener: aListener is listener.value;
+    var file: existingConnection is STD_NULL;
+    var file: newConnection is STD_NULL;
+  begin
+    writeln("Ftpserv Version 1.0 - FTP (file transfer protocol) server");
+    writeln("Copyright (C) 2011 Thomas Mertes");
+    writeln("This is free software; see the source for copying conditions.  There is NO");
+    writeln("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.");
+    writeln("Ftpserv is written in the Seed7 programming language");
+    writeln("Homepage: http://seed7.sourceforge.net");
+    if length(argv(PROGRAM)) >= 1 then
+      startDirectory := argv(PROGRAM)[1];
+      if length(argv(PROGRAM)) >= 2 and isDigitString(argv(PROGRAM)[2]) then
+        block
+          ftpControlPort := integer parse (argv(PROGRAM)[2]);
+        exception
+          catch RANGE_ERROR: writeln(" ***** Port number too big. Port " <&
+              ftpControlPort <& " used instead.");
+        end block;
+      end if;
+    else
+      startDirectory := getcwd;
+    end if;
+    if startDirectory in {"-h", "-?"} then
+      writeln;
+      writeln("usage: ftpserv [ftp-directory [port]]");
+    else
+      writeln("FTP directory: " <& startDirectory);
+      writeln("Port: " <& ftpControlPort);
+      ownIpAddress := numericAddress(inetSocketAddress(getHostname, 1024));
+      aListener := openInetListener(ftpControlPort);
+      listen(aListener, 10);
+      writeln("To test ftpserv you can call the ftp7 FTP client with:");
+      writeln("  ./hi ftp7 localhost " <& ftpControlPort);
+      writeln("To stop ftpserv press CTRL-C.");
+      while TRUE do
+        waitForRequest(aListener, existingConnection, newConnection);
+        if existingConnection <> STD_NULL then
+          processFtpRequest(existingConnection);
+        end if;
+        if newConnection <> STD_NULL then
+          openFtpSession(newConnection);
+        end if;
+      end while;
+    end if;
+  end func;

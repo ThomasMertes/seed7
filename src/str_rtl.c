@@ -2873,7 +2873,7 @@ stritype stri;
 
   /* strToUtf8 */
     if (unlikely(stri->size > MAX_STRI_LEN / MAX_UTF8_EXPANSION_FACTOR ||
-                 !ALLOC_STRI_SIZE_OK(result, max_utf8_size(stri)))) {
+                 !ALLOC_STRI_SIZE_OK(result, max_utf8_size(stri->size)))) {
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
@@ -2911,14 +2911,14 @@ stritype stri;
         } /* if */
       } /* for */
       result_size = (memsizetype) (dest - result->mem);
-      REALLOC_STRI_SIZE_OK(resized_result, result, max_utf8_size(stri), result_size);
+      REALLOC_STRI_SIZE_OK(resized_result, result, max_utf8_size(stri->size), result_size);
       if (unlikely(resized_result == NULL)) {
-        FREE_STRI(result, max_utf8_size(stri));
+        FREE_STRI(result, max_utf8_size(stri->size));
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
         result = resized_result;
-        COUNT3_STRI(max_utf8_size(stri), result_size);
+        COUNT3_STRI(max_utf8_size(stri->size), result_size);
         result->size = result_size;
       } /* if */
     } /* if */

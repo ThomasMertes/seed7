@@ -1,3 +1,70 @@
+20110703:
+- A new example program (ftpserv.sd7), a FTP (file transfer protocol) server,
+  was added.
+- The type listener (defined in "socket.s7i") was improved. Now a listener
+  manages its accepted sockets.
+- The new function 'waitForRequest' was added to "socket.s7i". It allows to
+  wait until a request can be read or an incoming connection is accepted.
+  With 'waitForRequest' a server is able to handle interleaved requests from
+  multiple clients.
+- The functions 'eof' and 'hasNext' in "socket.s7i" were improved to work
+  like the corresponding functions of other files.
+- The type socketAddress (defined in "socket.s7i") was improved to support
+  comparisons with '=' and '<>'.
+- The compiler (comp.sd7) and the makefiles were improved, such that
+  executables only link graphic libraries (X11 or gdi), when necessary.
+- The makefile mk_djgpp.mak was introduced. It allows compilation under DOS
+  with DJGPP.
+- Support for Cygwin was improved to allow graphics with Cygwin/X.
+- The functions 'compare' and 'hashCode' were added to the "file.s7i"
+  library. This allows files as keys of hash tables.
+- Documentation comments were added or improved in the files "complex.s7i",
+  "file.s7i", "font.s7i" and "socket.s7i".
+- The "ftp.s7i" library was improved to accept multiple line responses.
+- The function 'quoteHtmlAttrValue' was added to "html_ent.s7i".
+- The functions 'clear' in "screen.s7i" and "windows.s7i" were improved to
+  position the cursor in the top left edge.
+- The "comanche.sd7" webserver was improved to allow the specification of a
+  port and to write help information, when it is called with -h or -? .
+- The "make7.sd7" utility was improved to support the option -i .
+- The meaning of the configuration macros SEED7_LIB, COMP_DATA_LIB and
+  COMPILER_LIB was changed to contain library names without path.
+- Compiler, runtime libraries and makefiles were improved to support the
+  configuration macros DRAW_LIB (name of the Seed7 graphic library),
+  SYSTEM_DRAW_LIBS (link option for the graphic library of the OS) and
+  S7_LIB_DIR (absolute path of the Seed7 runtime libraries).
+- The new file "os_decls.h", which defines macros for OS calls and structs,
+  was added. The definitions in "os_decls.h" were moved from "common.h".
+- The file "setpaths.c" was improved to work under DOS and to be able to
+  handle the codepages 437 and 850.
+- Functions in "striutl.h" were improved to decode operating system strings
+  with UTF-16 surrogate pairs to the UTF-32 strings of Seed7. Decoding and
+  encoding between codepages (437 and 850 are supported) and the UTF-32
+  strings of Seed7 was also added.
+- The function 'socSelectInput' (defined as 'selectInput' with the action
+  "SOC_SELECT_INPUT" in "socket.s7i") was added to "soc_rtl.c".
+- The function 'socInetAddr' in "soc_rtl.c" (defined as 'inetSocketAddress'
+  with the action "SOC_INET_ADDR" in "socket.s7i") was improved to return
+  an empty socket address when the host could not be found.
+- The function 'openInetSocket' in "socket.s7i" was improved to return
+  STD_NULL when the socked could not be opened.
+- The compiler was improved to support the actions "SOC_HAS_NEXT" and
+  "SOC_SELECT_INPUT".
+- The functions 'readVolumeName' and 'closeVolumeList' were moved from
+  "cmd_win.c" to "dir_rtl.c".
+- The function 'openVolumeList' was added to "cmd_unx.c".
+- The functions 'drwOpen' and 'drwOpenSubWindow' were changed to raise
+  FILE_ERROR when it is not possible to open a window.
+- Calls of 'getenv' in 'examineSearchPath' ("arr_rtl.c") and
+  'init_lib_path' ("infile.c") were replaced with 'os_getenv'.
+- Several explanations were added to the file "src/read_me.txt".
+- The file "soc_dos.c" was added and the files "scr_dos.c" and "scr_wat.c"
+  were improved.
+- The function 'prot_os_stri' was added to "traceutl.c".
+- The handling of the element 'tm_isdst' from 'struct tm' (filled when
+  localtime() is called) was changed. Now the the flag 'is_dst' is only
+  set when tm_isdst > 0 holds.
+
 20110619:
 - A new example program (ftp7.sd7), an FTP internet file transfer program,
   was added.
@@ -14,11 +81,11 @@
 - The functions 'select_addrinfo' and 'dump_addrinfo' in "soc_rtl.c" were
   improved.
 - The functions 'soc_addr_numeric', 'soc_addr_service', 'soc_get_addr',
-  'soc_get_hostname', 'soc_input_ready' and 'soc_select' were addet to
+  'soc_get_hostname', 'soc_input_ready' and 'soc_select' were added to
   "soclib.c" (some were commented out).
 - The file "soc_rtl.c" was improved to reduce the number of compiler warnings.
 - Documentation comments were improved in the file "socket.s7i".
-- Compiler, runtime libraries and makefiles were improved to support
+- Compiler, runtime libraries and makefiles were improved to support the
   configuration macro CPLUSPLUS_COMPILER.
 
 20110605:

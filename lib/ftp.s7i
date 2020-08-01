@@ -1,7 +1,7 @@
 
 (********************************************************************)
 (*                                                                  *)
-(*  ftp.s7i       Support for the FTP protocol                      *)
+(*  ftp.s7i       Support for FTP (file transfer protocol)          *)
 (*  Copyright (C) 2011  Thomas Mertes                               *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
@@ -55,8 +55,17 @@ const proc: ftpCommand (inout ftpConnection: ftp, in string: command) is func
 
 
 const proc: ftpResponse (inout ftpConnection: ftp) is func
+  local
+    var string: responseCode is "";
   begin
     ftp.response := getln(ftp.control);
+    if ftp.response[4 len 1] = "-" then
+      responseCode := ftp.response[.. 3] & " ";
+      repeat
+        # writeln("<- " <& ftp.response);
+        ftp.response := getln(ftp.control);
+      until startsWith(ftp.response, responseCode);
+    end if;
     # writeln("<- " <& ftp.response);
   end func;
 
@@ -74,25 +83,22 @@ const func ftpConnection: openFtp (in string: hostName, in string: user,
   result
     var ftpConnection: ftp is ftpConnection.value;
   begin
-    ftp.control := openInetSocket(hostName, ftpControlPort);
-    if ftp.control <> STD_NULL then
-      ftp.ownIpAddress := numericAddress(inetSocketAddress(getHostname, 1024));
-      ftpResponse(ftp);
-      if startsWith(ftp.response, "220") then
-        ftpCommand(ftp, "USER " <& user);
+    if ftpControlPort >= 0 and ftpControlPort <= 65535 then
+      ftp.control := openInetSocket(hostName, ftpControlPort);
+      if ftp.control <> STD_NULL then
+        ftp.ownIpAddress := numericAddress(inetSocketAddress(getHostname, 1024));
         ftpResponse(ftp);
-        if startsWith(ftp.response, "331") then
-          ftpCommand(ftp, "PASS " <& passwd);
+        if startsWith(ftp.response, "220") then
+          ftpCommand(ftp, "USER " <& user);
           ftpResponse(ftp);
-        end if;
-        if startsWith(ftp.response, "230") then
-          ftpCommand(ftp, "SYST");
-          repeat
+          if startsWith(ftp.response, "331") then
+            ftpCommand(ftp, "PASS " <& passwd);
             ftpResponse(ftp);
-          until startsWith(ftp.response, "215");
-        elsif startsWith(ftp.response, "530") then
-          close(ftp.control);
-          ftp.control := STD_NULL;
+          end if;
+          if not startsWith(ftp.response, "230") then
+            close(ftp.control);
+            ftp.control := STD_NULL;
+          end if;
         end if;
       end if;
     end if;
@@ -161,7 +167,6 @@ const proc: openActiveFtpData (inout ftpConnection: ftp) is func
     ftp.dataPortListener := openInetListener(dataPort);
     listen(ftp.dataPortListener, 1);
     # writeln(dataPort);
-    # writeln(service(ftp.dataPortListener.addr));
     ftpCommand(ftp, "PORT " <& replace(ftp.ownIpAddress, ".", ",") <& "," <&
                          dataPort mdiv 256 <& "," <& dataPort mod 256);
     ftpResponse(ftp);
@@ -217,7 +222,7 @@ const proc: prepareFtpDataCommunication (inout ftpConnection: ftp) is func
 const proc: closeFtpData (inout ftpConnection: ftp) is func
   begin
     if ftp.active then
-      close(ftp.dataPortListener.sock);
+      close(ftp.dataPortListener);
     end if;
     close(ftp.data);
     ftp.data := STD_NULL;

@@ -307,7 +307,7 @@ const func complex: (in complex: base) ** (in integer: exponent) is func
 
 
 (**
- *  Compares two complex numbers in lexicographic order.
+ *  Compare two complex numbers in lexicographic order.
  *  @return -1, 0 or 1 if the first argument is considered to be
  *          respectively less than, equal to, or greater than the
  *          second.

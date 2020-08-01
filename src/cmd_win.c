@@ -102,6 +102,7 @@ stritype arg_0;
 
   {
     os_chartype buffer[PATH_MAX];
+    errinfotype err_info = OKAY_NO_ERROR;
     stritype result;
 
   /* getExecutablePath */
@@ -109,9 +110,9 @@ stritype arg_0;
       raise_error(FILE_ERROR);
       result = NULL;
     } else {
-      result = cp_from_os_path(buffer);
-      if (result == NULL) {
-        raise_error(MEMORY_ERROR);
+      result = cp_from_os_path(buffer, &err_info);
+      if (err_info != OKAY_NO_ERROR) {
+        raise_error(err_info);
       } /* if */
     } /* if */
     return result;
@@ -138,9 +139,7 @@ os_stritype name;
     if (result_size == 0) {
       result = NULL;
     } else {
-      if (!ALLOC_WSTRI(result, result_size - 1)) {
-        result = NULL;
-      } else {
+      if (ALLOC_WSTRI(result, result_size - 1)) {
         if (GetEnvironmentVariableW(name, result, result_size) != result_size - 1) {
           os_stri_free(result);
           result = NULL;
@@ -197,72 +196,6 @@ volumeListType *openVolumeList ()
     } /* if */
     return result;
   } /* openVolumeList */
-
-
-
-#ifdef ANSI_C
-
-stritype readVolumeName (volumeListType *volumeList)
-#else
-
-stritype readVolumeName (volumeList)
-volumeListType *volumeList;
-#endif
-
-  {
-    os_chartype os_path[4];
-    os_stat_struct stat_buf;
-    int stat_result;
-    os_DIR *directory;
-    char buffer[2];
-    stritype result;
-
-  /* readVolumeName */
-    os_path[1] = (os_chartype) ':';
-    os_path[2] = (os_chartype) '\\';
-    os_path[3] = (os_chartype) '\0';
-    result = NULL;
-    do {
-      while (volumeList->currentDrive < 26 &&
-             (volumeList->driveBitmask & (uint32type) 1 << volumeList->currentDrive) == 0) {
-        volumeList->currentDrive++;
-      } /* while */
-      if (volumeList->currentDrive < 26) {
-        /* printf("%c:\\\n", (char) ((int) 'a' + volumeList->currentDrive)); */
-        os_path[0] = (os_chartype) ((int) 'a' + volumeList->currentDrive);
-        stat_result = os_stat(os_path, &stat_buf);
-        if (stat_result == 0) {
-          /* printf("%c:\\ st_mode=%u\n",
-              (char) ((int) 'a' + volumeList->currentDrive),
-              S_ISDIR(stat_buf.st_mode)); */
-          directory = os_opendir(os_path);
-          if (directory != NULL) {
-            os_closedir(directory);
-            buffer[0] = (char) ((int) 'a' + volumeList->currentDrive);
-            buffer[1] = '\0';
-            result = cstri_to_stri(buffer);
-          } /* if */
-        } /* if */
-        volumeList->currentDrive++;
-      } /* if */
-    } while (result == NULL && volumeList->currentDrive < 26);
-    return result;
-  } /* readVolumeName */
-
-
-
-#ifdef ANSI_C
-
-void closeVolumeList (volumeListType *volumeList)
-#else
-
-void closeVolumeList (volumeList)
-volumeListType *volumeList;
-#endif
-
-  { /* closeVolumeList */
-    free(volumeList);
-  } /* closeVolumeList */
 #endif
 
 

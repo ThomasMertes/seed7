@@ -2163,65 +2163,67 @@ static void dra_init ()
     /* deadlocked. Be careful to avoid this situation.             */
     mydisplay = XOpenDisplay("");
     /* printf("mydisplay = %lu\n", (long unsigned) mydisplay); */
-    myscreen = DefaultScreen(mydisplay);
-    /* printf("myscreen = %lu\n", (long unsigned) myscreen); */
+    if (mydisplay != NULL) {
+      myscreen = DefaultScreen(mydisplay);
+      /* printf("myscreen = %lu\n", (long unsigned) myscreen); */
 
-    default_visual = XDefaultVisual(mydisplay, myscreen);
-    if (default_visual->c_class == PseudoColor) {
-      class_text = "PseudoColor";
-    } else if (default_visual->c_class == DirectColor) {
-      class_text = "DirectColor";
-    } else if (default_visual->c_class == GrayScale) {
-      class_text = "GrayScale";
-    } else if (default_visual->c_class == StaticColor) {
-      class_text = "StaticColor";
-    } else if (default_visual->c_class == TrueColor) {
-      class_text = "TrueColor";
-    } else if (default_visual->c_class == StaticGray) {
-      class_text = "StaticGray";
-    } else {
-      class_text = "unknown";
+      default_visual = XDefaultVisual(mydisplay, myscreen);
+      if (default_visual->c_class == PseudoColor) {
+        class_text = "PseudoColor";
+      } else if (default_visual->c_class == DirectColor) {
+        class_text = "DirectColor";
+      } else if (default_visual->c_class == GrayScale) {
+        class_text = "GrayScale";
+      } else if (default_visual->c_class == StaticColor) {
+        class_text = "StaticColor";
+      } else if (default_visual->c_class == TrueColor) {
+        class_text = "TrueColor";
+      } else if (default_visual->c_class == StaticGray) {
+        class_text = "StaticGray";
+      } else {
+        class_text = "unknown";
+      } /* if */
+#ifdef OUT_OF_ORDER
+      printf("visualid:     %lX\n", (unsigned long) default_visual->visualid);
+      printf("class:        %s\n",  class_text);
+      printf("red_mask:     %08lx\n", default_visual->red_mask);
+      printf("green_mask:   %08lx\n", default_visual->green_mask);
+      printf("blue_mask:    %08lx\n", default_visual->blue_mask);
+      printf("bits_per_rgb: %d\n",  default_visual->bits_per_rgb);
+      printf("map_entries:  %d\n",  default_visual->map_entries);
+
+      /* printf("extension:     %lX\n", (unsigned long) default_visual->extension); */
+
+      printf("highest red bit:   %d\n", get_highest_bit(default_visual->red_mask));
+      printf("highest green bit: %d\n", get_highest_bit(default_visual->green_mask));
+      printf("highest blue bit:  %d\n", get_highest_bit(default_visual->blue_mask));
+#endif
+      lshift_red   = get_highest_bit(default_visual->red_mask) - 16;
+      rshift_red   = -lshift_red;
+      lshift_green = get_highest_bit(default_visual->green_mask) - 16;
+      rshift_green = -lshift_green;
+      lshift_blue  = get_highest_bit(default_visual->blue_mask) - 16;
+      rshift_blue  = -lshift_blue;
+
+      lshift_red   = lshift_red   < 0 ? 0 : lshift_red;
+      rshift_red   = rshift_red   < 0 ? 0 : rshift_red;
+      lshift_green = lshift_green < 0 ? 0 : lshift_green;
+      rshift_green = rshift_green < 0 ? 0 : rshift_green;
+      lshift_blue  = lshift_blue  < 0 ? 0 : lshift_blue;
+      rshift_blue  = rshift_blue  < 0 ? 0 : rshift_blue;
+#ifdef OUT_OF_ORDER
+      printf("lshift_red:   %d\n", lshift_red);
+      printf("rshift_red:   %d\n", rshift_red);
+      printf("lshift_green: %d\n", lshift_green);
+      printf("rshift_green: %d\n", rshift_green);
+      printf("lshift_blue:  %d\n", lshift_blue);
+      printf("rshift_blue:  %d\n", rshift_blue);
+#endif
+      memset(window_hash, 0, 1024 * sizeof(x11_wintype));
+
+      mybackground = WhitePixel(mydisplay, myscreen);
+      myforeground = BlackPixel(mydisplay, myscreen);
     } /* if */
-#ifdef OUT_OF_ORDER
-    printf("visualid:     %lX\n", (unsigned long) default_visual->visualid);
-    printf("class:        %s\n",  class_text);
-    printf("red_mask:     %08lx\n", default_visual->red_mask);
-    printf("green_mask:   %08lx\n", default_visual->green_mask);
-    printf("blue_mask:    %08lx\n", default_visual->blue_mask);
-    printf("bits_per_rgb: %d\n",  default_visual->bits_per_rgb);
-    printf("map_entries:  %d\n",  default_visual->map_entries);
-
-    /* printf("extension:     %lX\n", (unsigned long) default_visual->extension); */
-
-    printf("highest red bit:   %d\n", get_highest_bit(default_visual->red_mask));
-    printf("highest green bit: %d\n", get_highest_bit(default_visual->green_mask));
-    printf("highest blue bit:  %d\n", get_highest_bit(default_visual->blue_mask));
-#endif
-    lshift_red   = get_highest_bit(default_visual->red_mask) - 16;
-    rshift_red   = -lshift_red;
-    lshift_green = get_highest_bit(default_visual->green_mask) - 16;
-    rshift_green = -lshift_green;
-    lshift_blue  = get_highest_bit(default_visual->blue_mask) - 16;
-    rshift_blue  = -lshift_blue;
-
-    lshift_red   = lshift_red   < 0 ? 0 : lshift_red;
-    rshift_red   = rshift_red   < 0 ? 0 : rshift_red;
-    lshift_green = lshift_green < 0 ? 0 : lshift_green;
-    rshift_green = rshift_green < 0 ? 0 : rshift_green;
-    lshift_blue  = lshift_blue  < 0 ? 0 : lshift_blue;
-    rshift_blue  = rshift_blue  < 0 ? 0 : rshift_blue;
-#ifdef OUT_OF_ORDER
-    printf("lshift_red:   %d\n", lshift_red);
-    printf("rshift_red:   %d\n", rshift_red);
-    printf("lshift_green: %d\n", lshift_green);
-    printf("rshift_green: %d\n", rshift_green);
-    printf("lshift_blue:  %d\n", lshift_blue);
-    printf("rshift_blue:  %d\n", rshift_blue);
-#endif
-    memset(window_hash, 0, 1024 * sizeof(x11_wintype));
-
-    mybackground = WhitePixel(mydisplay, myscreen);
-    myforeground = BlackPixel(mydisplay, myscreen);
 #ifdef TRACE_X11
     printf("END dra_init\n");
 #endif
@@ -2265,7 +2267,9 @@ stritype window_name;
       if (mydisplay == NULL) {
         dra_init();
       } /* if */
-      if (mydisplay != NULL) {
+      if (mydisplay == NULL) {
+        raise_error(FILE_ERROR);
+      } else {
         win_name = cp_to_cstri(window_name);
         if (win_name == NULL) {
           raise_error(MEMORY_ERROR);
@@ -2394,7 +2398,9 @@ inttype height;
       if (mydisplay == NULL) {
         dra_init();
       } /* if */
-      if (mydisplay != NULL) {
+      if (mydisplay == NULL) {
+        raise_error(FILE_ERROR);
+      } else {
         if (ALLOC_RECORD(result, x11_winrecord, count.win)) {
           memset(result, 0, sizeof(struct x11_winstruct));
           result->usage_count = 1;

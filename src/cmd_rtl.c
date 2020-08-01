@@ -64,6 +64,7 @@
 
 #include "common.h"
 #include "data_rtl.h"
+#include "os_decls.h"
 #include "heaputl.h"
 #include "striutl.h"
 #include "str_rtl.h"
@@ -95,6 +96,9 @@
 #endif
 #ifndef CC_FLAGS
 #define CC_FLAGS ""
+#endif
+#ifndef REDIRECT_C_ERRORS
+#define REDIRECT_C_ERRORS ""
 #endif
 #ifndef LINKER_OPT_DEBUG_INFO
 #define LINKER_OPT_DEBUG_INFO ""
@@ -935,6 +939,8 @@ stritype name;
       stri_export((ustritype) opt_name, name);
       if (strcmp(opt_name, "OBJECT_FILE_EXTENSION") == 0) {
         opt = OBJECT_FILE_EXTENSION;
+      } else if (strcmp(opt_name, "LIBRARY_FILE_EXTENSION") == 0) {
+        opt = LIBRARY_FILE_EXTENSION;
       } else if (strcmp(opt_name, "EXECUTABLE_FILE_EXTENSION") == 0) {
         opt = EXECUTABLE_FILE_EXTENSION;
       } else if (strcmp(opt_name, "C_COMPILER") == 0) {
@@ -961,26 +967,22 @@ stritype name;
         opt = LINKER_FLAGS;
       } else if (strcmp(opt_name, "SYSTEM_LIBS") == 0) {
         opt = SYSTEM_LIBS;
+      } else if (strcmp(opt_name, "SYSTEM_DRAW_LIBS") == 0) {
+        opt = SYSTEM_DRAW_LIBS;
       } else if (strcmp(opt_name, "SEED7_LIB") == 0) {
-#ifdef PATHS_RELATIVE_TO_EXECUTABLE
-        result = relativeToProgramPath(programPath, "bin/", SEED7_LIB);
-        opt = NULL;
-#else
         opt = SEED7_LIB;
-#endif
+      } else if (strcmp(opt_name, "DRAW_LIB") == 0) {
+        opt = DRAW_LIB;
       } else if (strcmp(opt_name, "COMP_DATA_LIB") == 0) {
-#ifdef PATHS_RELATIVE_TO_EXECUTABLE
-        result = relativeToProgramPath(programPath, "bin/", COMP_DATA_LIB);
-        opt = NULL;
-#else
         opt = COMP_DATA_LIB;
-#endif
       } else if (strcmp(opt_name, "COMPILER_LIB") == 0) {
+        opt = COMPILER_LIB;
+      } else if (strcmp(opt_name, "S7_LIB_DIR") == 0) {
 #ifdef PATHS_RELATIVE_TO_EXECUTABLE
-        result = relativeToProgramPath(programPath, "bin/", COMPILER_LIB);
+        result = relativeToProgramPath(programPath, "bin");
         opt = NULL;
 #else
-        opt = COMPILER_LIB;
+        opt = S7_LIB_DIR;
 #endif
       } else if (strcmp(opt_name, "INT32TYPE") == 0) {
         opt = INT32TYPE_STRI;
@@ -1394,6 +1396,7 @@ stritype cmdGetcwd ()
   {
     os_chartype buffer[PATH_MAX + 1];
     os_stritype cwd;
+    errinfotype err_info = OKAY_NO_ERROR;
     stritype result;
 
   /* cmdGetcwd */
@@ -1401,9 +1404,9 @@ stritype cmdGetcwd ()
       raise_error(FILE_ERROR);
       result = NULL;
     } else {
-      result = cp_from_os_path(cwd);
-      if (unlikely(result == NULL)) {
-        raise_error(MEMORY_ERROR);
+      result = cp_from_os_path(cwd, &err_info);
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        raise_error(err_info);
       } /* if */
     } /* if */
     return result;
@@ -1424,7 +1427,6 @@ stritype name;
     os_stritype env_name;
     os_stritype env_value;
     errinfotype err_info = OKAY_NO_ERROR;
-    static os_chartype null_char = (os_chartype) '\0';
     stritype result;
 
   /* cmdGetenv */
@@ -1436,15 +1438,18 @@ stritype name;
       env_value = os_getenv(env_name);
       os_stri_free(env_name);
       if (env_value == NULL) {
-        result = os_stri_to_stri(&null_char);
+        result = cstri_to_stri("");
+        if (unlikely(result == NULL)) {
+          err_info = MEMORY_ERROR;
+        } /* if */
       } else {
-        result = os_stri_to_stri(env_value);
+        result = os_stri_to_stri(env_value, &err_info);
 #ifdef USE_WGETENV_WSTRI
         os_stri_free(env_value);
 #endif
       } /* if */
-      if (unlikely(result == NULL)) {
-        raise_error(MEMORY_ERROR);
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
+        raise_error(err_info);
       } /* if */
     } /* if */
     return result;
@@ -1671,6 +1676,9 @@ stritype dir_name;
     if (unlikely(os_path == NULL)) {
       raise_error(err_info);
     } else {
+      /* printf("mkdir(");
+         prot_os_stri(os_path);
+         printf(")\n"); */
       mkdir_result = os_mkdir(os_path, 0777);
       os_stri_free(os_path);
       if (unlikely(mkdir_result != 0)) {
@@ -1750,10 +1758,7 @@ stritype link_name;
                                        (size_t) link_stat.st_size);
             if (readlink_result != -1) {
               link_destination[readlink_result] = '\0';
-              result = cp_from_os_path(link_destination);
-              if (result == NULL) {
-                err_info = MEMORY_ERROR;
-              } /* if */
+              result = cp_from_os_path(link_destination, &err_info);
             } else {
               err_info = FILE_ERROR;
             } /* if */
@@ -1814,6 +1819,9 @@ stritype file_name;
         } /* if */
       } /* if */
 #else
+      /* printf("os_remove(");
+         prot_os_stri(os_file_name);
+         printf(")\n"); */
       if (os_remove(os_file_name) != 0) {
         err_info = FILE_ERROR;
       } /* if */
@@ -2144,7 +2152,14 @@ stritype command_stri;
       raise_error(err_info);
       result = 0;
     } else {
+      /* printf("os_command_stri: \"%s\"\n", os_command_stri); */
       result = (inttype) os_system(os_command_stri);
+      /* if (result != 0) {
+        printf("errno=%d\n", errno);
+        printf("E2BIG=%d  ENOENT=%d  ENOEXEC=%d  ENOMEM=%d\n",
+            E2BIG, ENOENT, ENOEXEC, ENOMEM);
+        printf("result=%d\n", result);
+      } */
       os_stri_free(os_command_stri);
     } /* if */
     return result;
@@ -2237,7 +2252,7 @@ stritype stri;
               err_info = MEMORY_ERROR;
             } else {
               result->size = 3;
-              result->mem[0] = (os_chartype) standardPath->mem[1];
+              result->mem[0] = standardPath->mem[1];
               result->mem[1] = ':';
               result->mem[2] = '\\';
             } /* if */
@@ -2250,7 +2265,7 @@ stritype stri;
               err_info = MEMORY_ERROR;
             } else {
               result->size = standardPath->size;
-              result->mem[0] = (os_chartype) standardPath->mem[1];
+              result->mem[0] = standardPath->mem[1];
               result->mem[1] = ':';
               result->mem[2] = '\\';
               memcpy(&result->mem[3], &standardPath->mem[3], (standardPath->size - 3) * sizeof(strelemtype));

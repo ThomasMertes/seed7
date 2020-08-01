@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
-/*  cmd_drv.h     Driver functions for commands.                    */
-/*  Copyright (C) 1989 - 2010  Thomas Mertes                        */
+/*  os_decls.h    Define macros for OS calls and structs.           */
+/*  Copyright (C) 1989 - 2011  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -23,51 +23,90 @@
 /*  Fifth Floor, Boston, MA  02110-1301, USA.                       */
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
-/*  File: seed7/src/cmd_drv.h                                       */
-/*  Changes: 2010  Thomas Mertes                                    */
-/*  Content: Driver functions for commands.                         */
+/*  File: seed7/src/os_decls.h                                      */
+/*  Changes: 2011  Thomas Mertes                                    */
+/*  Content: Define macros for OS calls and structs.                */
 /*                                                                  */
 /********************************************************************/
 
-#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
-typedef struct {
-    uint32type magicValue;
-    uint32type driveBitmask;
-    int currentDrive;
-  } volumeListType;
-
-#define IS_VOLUME_LIST(ptr) (ptr != NULL && ((volumeListType *) (ptr))->magicValue == UINT32TYPE_MAX)
+#ifndef os_chdir
+#define os_chdir chdir
 #endif
-
-
-#ifdef ANSI_C
-
-os_stritype *getUtf16Argv (int *w_argc);
-void freeUtf16Argv (os_stritype *w_argv);
-stritype getExecutablePath (const const_stritype arg_0);
-#ifdef USE_WGETENV_WSTRI
-os_stritype wgetenv_wstri (os_stritype name);
+#ifndef os_getcwd
+#define os_getcwd getcwd
 #endif
-#ifdef DEFINE_WSETENV
-int wsetenv (os_stritype name, os_stritype value, int overwrite);
+#ifndef os_mkdir
+#define os_mkdir mkdir
 #endif
-#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
-volumeListType *openVolumeList (void);
+#ifndef os_rmdir
+#define os_rmdir rmdir
 #endif
-
-#else
-
-os_stritype *getUtf16Argv ();
-void freeUtf16Argv ();
-stritype getExecutablePath ();
-#ifdef USE_WGETENV_WSTRI
-os_stritype wgetenv_wstri ();
+#ifndef os_opendir
+#define os_opendir  opendir
 #endif
-#ifdef DEFINE_WSETENV
-int wsetenv ();
+#ifndef os_readdir
+#define os_readdir  readdir
 #endif
-#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
-volumeListType *openVolumeList ();
+#ifndef os_closedir
+#define os_closedir closedir
 #endif
-
+#ifndef os_DIR
+#define os_DIR DIR
+#endif
+#ifndef os_dirent_struct
+#define os_dirent_struct struct dirent
+#endif
+#ifndef os_fseek
+#define os_fseek fseek
+#endif
+#ifndef os_ftell
+#define os_ftell ftell
+#endif
+#ifndef os_fstat
+#define os_fstat fstat
+#endif
+#ifndef os_lstat
+#define os_lstat lstat
+#endif
+#ifndef os_stat
+#define os_stat stat
+#endif
+#ifndef os_stat_struct
+#define os_stat_struct struct stat
+#endif
+#ifndef os_fstat_struct
+#define os_fstat_struct os_stat_struct
+#endif
+#ifndef os_chown
+#define os_chown chown
+#endif
+#ifndef os_chmod
+#define os_chmod chmod
+#endif
+#ifndef os_utime
+#define os_utime utime
+#endif
+#ifndef os_utimbuf_struct
+#define os_utimbuf_struct struct utimbuf
+#endif
+#ifndef os_remove
+#define os_remove remove
+#endif
+#ifndef os_rename
+#define os_rename rename
+#endif
+#ifndef os_system
+#define os_system system
+#endif
+#ifndef os_pclose
+#define os_pclose pclose
+#endif
+#ifndef os_popen
+#define os_popen popen
+#endif
+#ifndef os_getenv
+#define os_getenv getenv
+#endif
+#ifndef os_setenv
+#define os_setenv setenv
 #endif

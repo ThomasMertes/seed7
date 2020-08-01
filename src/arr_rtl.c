@@ -46,6 +46,7 @@
 
 #include "common.h"
 #include "data_rtl.h"
+#include "os_decls.h"
 #include "heaputl.h"
 #include "striutl.h"
 #include "str_rtl.h"
@@ -56,6 +57,10 @@
 #undef EXTERN
 #define EXTERN
 #include "arr_rtl.h"
+
+#ifndef SEARCH_PATH_DELIMITER
+#define SEARCH_PATH_DELIMITER ':'
+#endif
 
 
 rtlArraytype strChSplit (const const_stritype main_stri, const chartype delimiter);
@@ -138,6 +143,7 @@ os_stritype *argv;
     memsizetype arg_c;
     rtlArraytype arg_v;
     memsizetype number;
+    errinfotype err_info = OKAY_NO_ERROR;
     stritype stri;
 
   /* copyArgv */
@@ -152,8 +158,8 @@ os_stritype *argv;
         arg_v->min_position = 1;
         arg_v->max_position = (inttype) (arg_c);
         for (number = 0; number < arg_c; number++) {
-          stri = os_stri_to_stri(argv[number]);
-          if (stri != NULL) {
+          stri = os_stri_to_stri(argv[number], &err_info);
+          if (likely(err_info == OKAY_NO_ERROR)) {
             arg_v->arr[number].value.strivalue = stri;
           } else {
             while (number >= 1) {
@@ -162,7 +168,7 @@ os_stritype *argv;
               FREE_STRI(stri, stri->size);
             } /* while */
             FREE_RTL_ARRAY(arg_v, arg_c);
-            raise_error(MEMORY_ERROR);
+            raise_error(err_info);
             arg_v = NULL;
             number = arg_c; /* leave for-loop */
           } /* if */
@@ -194,10 +200,8 @@ stritype *exePath;
     rtlArraytype arg_v;
 
   /* getArgv */
-    *arg_0 = cp_from_os_path(argv[0]);
-    if (*arg_0 == NULL) {
-      err_info = MEMORY_ERROR;
-    } else {
+    *arg_0 = cp_from_os_path(argv[0], &err_info);
+    if (*arg_0 != NULL) {
       *exePath = getExecutablePath(*arg_0);
       if (*exePath == NULL) {
         err_info = MEMORY_ERROR;
@@ -244,10 +248,8 @@ stritype *exePath;
       raise_error(MEMORY_ERROR);
       arg_v = NULL;
     } else {
-      *arg_0 = cp_from_os_path(w_argv[0]);
-      if (*arg_0 == NULL) {
-        err_info = MEMORY_ERROR;
-      } else {
+      *arg_0 = cp_from_os_path(w_argv[0], &err_info);
+      if (*arg_0 != NULL) {
         *exePath = getExecutablePath(*arg_0);
         if (*exePath == NULL) {
           err_info = MEMORY_ERROR;
@@ -262,10 +264,8 @@ stritype *exePath;
       freeUtf16Argv(w_argv);
     } /* if */
 #else
-    *arg_0 = cp_from_os_path(argv[0]);
-    if (*arg_0 == NULL) {
-      err_info = MEMORY_ERROR;
-    } else {
+    *arg_0 = cp_from_os_path(argv[0], &err_info);
+    if (*arg_0 != NULL) {
       *exePath = getExecutablePath(*arg_0);
       if (*exePath == NULL) {
         err_info = MEMORY_ERROR;
@@ -296,40 +296,55 @@ stritype fileName;
 #endif
 
   {
-    os_stritype env_value;
-    stritype pathStri;
+    static const os_chartype path[] = {'P', 'A', 'T', 'H', 0};
+    os_stritype path_environment_variable;
+    stritype searchPathStri;
     rtlArraytype searchPath;
     memsizetype arraySize;
     memsizetype pos;
-    stritype path;
+    stritype aPath;
+    errinfotype err_info = OKAY_NO_ERROR;
     stritype result;
 
   /* examineSearchPath */
     result = NULL;
-    env_value = getenv("PATH");
-    if (env_value != NULL) {
-      pathStri = os_stri_to_stri(env_value);
-      searchPath = strChSplit(pathStri, (chartype) ':');
-      if (searchPath != NULL) {
-        arraySize = (uinttype) (searchPath->max_position - searchPath->min_position + 1);
-        for (pos = 0; result == NULL && pos < arraySize; pos++) {
-          path = searchPath->arr[pos].value.strivalue;
-          while (path->size > 1 && path->mem[path->size - 1] == (chartype) '/') {
-            path->size--;
-          } /* while */
-          if (path->size != 0 && path->mem[path->size - 1] != (chartype) '/') {
-            strPush(&path, (chartype) '/');
-          } /* if */
-          strAppend(&path, fileName);
-          if (cmdFileType(path) == 2) {
-            result = path;
-          } else {
-            FREE_STRI(path, path->size);
-          } /* if */
-        } /* for */
-        FREE_RTL_ARRAY(searchPath, arraySize);
+    path_environment_variable = os_getenv(path);
+    if (path_environment_variable != NULL) {
+      searchPathStri = os_stri_to_stri(path_environment_variable, &err_info);
+#ifdef USE_WGETENV_WSTRI
+      os_stri_free(path_environment_variable);
+#endif
+      if (likely(err_info == OKAY_NO_ERROR)) {
+        searchPath = strChSplit(searchPathStri, (chartype) SEARCH_PATH_DELIMITER);
+        FREE_STRI(searchPathStri, searchPathStri->size);
+        if (searchPath != NULL) {
+          arraySize = (uinttype) (searchPath->max_position - searchPath->min_position + 1);
+          for (pos = 0; result == NULL && pos < arraySize; pos++) {
+            aPath = stri_to_standard_path(searchPath->arr[pos].value.strivalue);
+            while (aPath->size > 1 && aPath->mem[aPath->size - 1] == (chartype) '/') {
+              aPath->size--;
+            } /* while */
+            if (aPath->size != 0 && aPath->mem[aPath->size - 1] != (chartype) '/') {
+              strPush(&aPath, (chartype) '/');
+            } /* if */
+            strAppend(&aPath, fileName);
+            if (cmdFileType(aPath) == 2) {
+              result = aPath;
+            } else {
+              FREE_STRI(aPath, aPath->size);
+            } /* if */
+          } /* for */
+          for (; pos < arraySize; pos++) {
+            aPath = searchPath->arr[pos].value.strivalue;
+            FREE_STRI(aPath, aPath->size);
+          } /* for */
+          FREE_RTL_ARRAY(searchPath, arraySize);
+        } /* if */
       } /* if */
     } /* if */
+    /* printf("examineSearchPath --> ");
+       prot_stri(result);
+       printf("\n"); */
     return result;
   } /* examineSearchPath */
 #endif

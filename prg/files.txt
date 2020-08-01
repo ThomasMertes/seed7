@@ -37,6 +37,7 @@ fannkuch.sd7 Fannkuch-redux benchmark program
 fib.sd7      Compute fibonacci numbers
 fractree.sd7 Draw a fractal tree
 ftp7.sd7     FTP internet file transfer program
+ftpserv.sd7  FTP (file transfer protocol) server
 gcd.sd7      Compute the greatest common divisor
 gkbd.sd7     Keyboard test program for graphic keyboard
 gtksvtst.sd7 Gtk-server connection test program
@@ -112,7 +113,7 @@ field.s7i    Filter file which reads the input fieldwise
 file.s7i     Interface type describing sequential files
 float.s7i    Floating point support library
 font.s7i     Defines the font interface
-ftp.s7i      Support for the FTP protocol
+ftp.s7i      Support for FTP (file transfer protocol)
 getf.s7i     Read and write whole files into and from strings
 gethttp.s7i  Support to get data with the HTTP protocol
 graph.s7i    Basic graphic library

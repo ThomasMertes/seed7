@@ -128,12 +128,12 @@ listtype stack_elem;
           printf("\n");
           */
           printf("at %s(%u)\n",
-              file_name_ustri(GET_FILE_NUM(position_stack_elem->obj)),
+              get_file_name_ustri(GET_FILE_NUM(position_stack_elem->obj)),
               GET_LINE_NUM(position_stack_elem->obj));
         } else if (HAS_PROPERTY(position_stack_elem->obj) &&
             position_stack_elem->obj->descriptor.property->line != 0) {
           printf("at %s(%u)\n",
-              file_name_ustri(position_stack_elem->obj->descriptor.property->file_number),
+              get_file_name_ustri(position_stack_elem->obj->descriptor.property->file_number),
               position_stack_elem->obj->descriptor.property->line);
         } else {
           printf("no POSITION INFORMATION ");
@@ -196,12 +196,12 @@ listtype list;
         if (curr_action_object != NULL) {
           if (HAS_POSINFO(curr_action_object)) {
             printf(" at %s(%u)",
-                file_name_ustri(GET_FILE_NUM(curr_action_object)),
+                get_file_name_ustri(GET_FILE_NUM(curr_action_object)),
                 GET_LINE_NUM(curr_action_object));
           } else if (HAS_PROPERTY(curr_action_object) &&
               curr_action_object->descriptor.property->line != 0) {
             printf(" at %s(%u)",
-                file_name_ustri(curr_action_object->descriptor.property->file_number),
+                get_file_name_ustri(curr_action_object->descriptor.property->file_number),
                 curr_action_object->descriptor.property->line);
           } /* if */
         } /* if */
@@ -210,12 +210,12 @@ listtype list;
         if (curr_exec_object != NULL) {
           if (HAS_POSINFO(curr_exec_object)) {
             printf(" at %s(%u)",
-                file_name_ustri(GET_FILE_NUM(curr_exec_object)),
+                get_file_name_ustri(GET_FILE_NUM(curr_exec_object)),
                 GET_LINE_NUM(curr_exec_object));
           } else if (HAS_PROPERTY(curr_exec_object) &&
               curr_exec_object->descriptor.property->line != 0) {
             printf(" at %s(%u)",
-                file_name_ustri(curr_exec_object->descriptor.property->file_number),
+                get_file_name_ustri(curr_exec_object->descriptor.property->file_number),
                 curr_exec_object->descriptor.property->line);
           } /* if */
         } /* if */

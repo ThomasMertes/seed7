@@ -18,7 +18,7 @@
 /*  Free Software Foundation, Inc., 51 Franklin Street,             */
 /*  Fifth Floor, Boston, MA  02110-1301, USA.                       */
 /*                                                                  */
-/*  Module: Chkcomp                                                 */
+/*  Module: Chkccomp                                                */
 /*  File: seed7/src/chkccomp.c                                      */
 /*  Changes: 2010  Thomas Mertes                                    */
 /*  Content: Program to Check properties of C compiler and runtime. */
@@ -61,8 +61,8 @@
  *      Defined when long long literals are suffixed with ll.
  *      E.g.: #define __int64_SUFFIX_LL
  *  WRITE_CC_VERSION_INFO
- *      Write the version of the C compiler to the file cc_version.
- *      E.g.: #define WRITE_CC_VERSION_INFO system("$(GET_CC_VERSION_INFO) cc_version");
+ *      Write the version of the C compiler to the file "cc_vers.txt".
+ *      E.g.: #define WRITE_CC_VERSION_INFO system("$(GET_CC_VERSION_INFO) cc_vers.txt");
  *  LIST_DIRECTORY_CONTENTS
  *      Either "ls" or "dir".
  *      E.g.: #define LIST_DIRECTORY_CONTENTS "ls"
@@ -92,7 +92,7 @@ int main (int argc, char **argv)
 #ifdef WRITE_CC_VERSION_INFO
     WRITE_CC_VERSION_INFO
 #endif
-    aFile = fopen("cc_version","r");
+    aFile = fopen("cc_vers.txt","r");
     printf("#define C_COMPILER_VERSION \"");
     for (ch=getc(aFile); ch!=EOF && ch!=10 && ch!=13; ch=getc(aFile)) {
       if (ch>=' ' && ch<='~') {

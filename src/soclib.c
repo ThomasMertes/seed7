@@ -27,10 +27,13 @@
 
 #include "version.h"
 
+#include "stdlib.h"
 #include "stdio.h"
 
 #include "common.h"
 #include "data.h"
+#include "data_rtl.h"
+#include "heaputl.h"
 #include "syvarutl.h"
 #include "objutl.h"
 #include "runerr.h"
@@ -249,10 +252,17 @@ objecttype soc_getc (arguments)
 listtype arguments;
 #endif
 
-  { /* soc_getc */
+  {
+    objecttype ch_variable;
+
+  /* soc_getc */
     isit_socket(arg_1(arguments));
+    ch_variable = arg_2(arguments);
+    isit_char(ch_variable);
+    is_variable(ch_variable);
     return bld_char_temp((chartype)
-        socGetc(take_socket(arg_1(arguments))));
+        socGetc(take_socket(arg_1(arguments)),
+                &ch_variable->value.charvalue));
   } /* soc_getc */
 
 
@@ -266,11 +276,19 @@ objecttype soc_gets (arguments)
 listtype arguments;
 #endif
 
-  { /* soc_gets */
+  {
+    objecttype ch_variable;
+
+  /* soc_gets */
     isit_socket(arg_1(arguments));
     isit_int(arg_2(arguments));
+    ch_variable = arg_3(arguments);
+    isit_char(ch_variable);
+    is_variable(ch_variable);
     return bld_stri_temp(
-        socGets(take_socket(arg_1(arguments)), take_int(arg_2(arguments))));
+        socGets(take_socket(arg_1(arguments)),
+                take_int(arg_2(arguments)),
+                &ch_variable->value.charvalue));
   } /* soc_gets */
 
 
@@ -304,6 +322,26 @@ listtype arguments;
   { /* soc_get_hostname */
     return bld_stri_temp(socGetHostname());
   } /* soc_get_hostname */
+
+
+
+#ifdef ANSI_C
+
+objecttype soc_has_next (listtype arguments)
+#else
+
+objecttype soc_has_next (arguments)
+listtype arguments;
+#endif
+
+  { /* soc_has_next */
+    isit_socket(arg_1(arguments));
+    if (socHasNext(take_socket(arg_1(arguments)))) {
+      return(SYS_TRUE_OBJECT);
+    } else {
+      return(SYS_FALSE_OBJECT);
+    } /* if */
+  } /* soc_has_next */
 
 
 
@@ -498,7 +536,96 @@ listtype arguments;
 
 
 
+#ifdef ANSI_C
+
+objecttype soc_select_input (listtype arguments)
+#else
+
+objecttype soc_select_input (arguments)
+listtype arguments;
+#endif
+
+  {
+    arraytype sockArray;
+    rtlArraytype sockRtlArray;
+    memsizetype array_size;
+    memsizetype pos;
+    settype result;
+
+  /* soc_select_input */
+    isit_array(arg_1(arguments));
+    sockArray = take_array(arg_1(arguments));
+    array_size = (uinttype) (sockArray->max_position - sockArray->min_position + 1);
+    if (!ALLOC_RTL_ARRAY(sockRtlArray, array_size)) {
+      return raise_exception(SYS_MEM_EXCEPTION);
+    } else {
+      sockRtlArray->min_position = sockArray->min_position;
+      sockRtlArray->max_position = sockArray->max_position;
+      for (pos = 0; pos < array_size; pos++) {
+        sockRtlArray->arr[pos].value.socketvalue = sockArray->arr[pos].value.socketvalue;
+      } /* for */
+      result = socSelectInput(sockRtlArray);
+      FREE_RTL_ARRAY(sockRtlArray, array_size);
+      return bld_set_temp(result);
+    } /* if */
+  } /* soc_select_input */
+
+
+
 #ifdef OUT_OF_ORDER
+#ifdef ANSI_C
+
+objecttype soc_select_input (listtype arguments)
+#else
+
+objecttype soc_select_input (arguments)
+listtype arguments;
+#endif
+
+  {
+    arraytype sockArray;
+    memsizetype array_size;
+    memsizetype pos;
+    int nfds = 0;
+    fd_set readfds;
+    struct timeval timeout;
+    int select_result;
+    intttype number;
+    arraytype result;
+
+  /* soc_select_input */
+    isit_array(arg_1(arguments));
+    sockArray = take_array(arg_1(arguments));
+    FD_ZERO(&readfds);
+    if (sockArray->max_position >= sockArray->min_position) {
+      array_size = (uinttype) (sockArray->max_position - sockArray->min_position) + 1;
+      for (pos = 0; pos < array_size; pos++) {
+        FD_SET(sockArray->arr[pos].value.socketvalue, &readfds);
+        if (sockArray->arr[pos].value.socketvalue >= nfds) {
+          nfds = sockArray->arr[pos].value.socketvalue + 1;
+        } /* if */
+      } /* for */
+    } /* if */
+    select_result = select(nfds, &readfds, NULL, NULL, &timeout);
+    if (unlikely(select_result < 0)) {
+      raise_error(FILE_ERROR);
+      return NULL;
+    } else {
+      result = setEmpty();
+      if (likely(result != NULL)) {
+        for (number = sockArray->min_position; number <= sockArray->max_position; number++) {
+          pos = (memsizetype) (number - sockArray->min_position);
+          if (FD_ISSET(sockArray->arr[pos].value.socketvalue, &readfds)) {
+            setIncl(&result, number);
+          } /* if */
+        } /* for */
+      } /* if */
+      return bld_set_temp(result);
+    } /* if */
+  } /* soc_select_input */
+
+
+
 #ifdef ANSI_C
 
 objecttype soc_select (listtype arguments)

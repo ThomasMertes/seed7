@@ -520,6 +520,31 @@ settype set1;
 
 #ifdef ANSI_C
 
+settype setEmpty (void)
+#else
+
+settype setEmpty ()
+#endif
+
+  {
+    settype result;
+
+  /* setEmpty */
+    if (!ALLOC_SET(result, 1)) {
+      raise_error(MEMORY_ERROR);
+      return NULL;
+    } else {
+      result->min_position = 0;
+      result->max_position = 0;
+      memset(result->bitset, 0, sizeof(bitsettype));
+      return result;
+    } /* if */
+  } /* setEmpty */
+
+
+
+#ifdef ANSI_C
+
 booltype setEq (const const_settype set1, const const_settype set2)
 #else
 

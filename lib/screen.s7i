@@ -83,7 +83,16 @@ const func integer: height (ref screen_file: aScreenFile)        is action "SCR_
 const func integer: width (ref screen_file: aScreenFile)         is action "SCR_WIDTH";
 
 
+(**
+ *  Set the current position of 'aScreenFile' to 'line' and 'column'.
+ *)
+const proc: setPos (ref screen_file: aScreenFile,
+    ref integer: line, ref integer: column)                      is action "SCR_SETPOS";
+
+
 const proc: cursor (ref screen_file param, ref boolean param)    is action "SCR_CURSOR";
+const proc: clearArea (in screen_file: aScreenFile, in integer: upper,
+    in integer: left, in integer: lower, in integer: right)      is action "SCR_CLEAR";
 
 
 (**
@@ -92,7 +101,11 @@ const proc: cursor (ref screen_file param, ref boolean param)    is action "SCR_
  *  between the (''upper'', ''left'') and (''lower'', ''right'').
  *)
 const proc: clear (in screen_file: aScreenFile, in integer: upper,
-    in integer: left, in integer: lower, in integer: right)      is action "SCR_CLEAR";
+    in integer: left, in integer: lower, in integer: right) is func
+  begin
+    clearArea(aScreenFile, upper, left, lower, right);
+    setPos(aScreenFile, 1, 1);
+  end func;
 
 
 (**
@@ -110,13 +123,6 @@ const proc: v_scroll (inout screen_file param,
 const proc: h_scroll (ref screen_file param,
     in integer param, in integer param, in integer param,
     in integer param, in integer param)                          is action "SCR_H_SCL";
-
-
-(**
- *  Set the current position of 'aScreenFile' to 'line' and 'column'.
- *)
-const proc: setPos (ref screen_file: aScreenFile,
-    ref integer: line, ref integer: column)                      is action "SCR_SETPOS";
 
 
 const proc: color (ref screen_file param, ref color param) is noop;
@@ -154,13 +160,17 @@ const proc: backSpace (ref screen_file: aScreenFile) is func
 *)
 
 
-const proc: cursor_on (ref screen_file: aScreenFile) is func
+const proc: cursor_on (inout screen_file: aScreenFile) is func
   begin
     write(aScreenFile, "_");
   end func;
 
 
-const proc: cursor_off (ref screen_file: aScreenFile) is func
+const proc: cursor_off (inout screen_file: aScreenFile) is func
   begin
     write(aScreenFile, " ");
   end func;
+
+
+const proc: box (ref screen_file param) is noop;
+const proc: clear_box (ref screen_file param) is noop;
