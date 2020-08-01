@@ -135,11 +135,11 @@ errinfotype *err_info;
       *err_info = MEMORY_ERROR;
     } else {
       helem->key.descriptor.entity = key->descriptor.entity;
-      INIT_CLASS_OF_VAR(&helem->key, DECLAREDOBJECT);
+      INIT_CATEGORY_OF_VAR(&helem->key, DECLAREDOBJECT);
       helem->key.type_of = key->type_of;
       param3_call(key_create_func, &helem->key, SYS_CREA_OBJECT, key);
       helem->data.descriptor.entity = data->descriptor.entity;
-      INIT_CLASS_OF_VAR(&helem->data, DECLAREDOBJECT);
+      INIT_CATEGORY_OF_VAR(&helem->data, DECLAREDOBJECT);
       helem->data.type_of = data->type_of;
       param3_call(data_create_func, &helem->data, SYS_CREA_OBJECT, data);
       helem->next_less = NULL;
@@ -200,11 +200,11 @@ errinfotype *err_info;
         *err_info = MEMORY_ERROR;
       } else {
         dest_helem->key.descriptor.entity = source_helem->key.descriptor.entity;
-        INIT_CLASS_OF_VAR(&dest_helem->key, DECLAREDOBJECT);
+        INIT_CATEGORY_OF_VAR(&dest_helem->key, DECLAREDOBJECT);
         dest_helem->key.type_of = source_helem->key.type_of;
         param3_call(key_create_func, &dest_helem->key, SYS_CREA_OBJECT, &source_helem->key);
         dest_helem->data.descriptor.entity = source_helem->data.descriptor.entity;
-        INIT_CLASS_OF_VAR(&dest_helem->data, DECLAREDOBJECT);
+        INIT_CATEGORY_OF_VAR(&dest_helem->data, DECLAREDOBJECT);
         dest_helem->data.type_of = source_helem->data.type_of;
         param3_call(data_create_func, &dest_helem->data, SYS_CREA_OBJECT, &source_helem->data);
         dest_helem->next_less = copy_helem(source_helem->next_less,
@@ -295,7 +295,7 @@ errinfotype *err_info;
     } /* if */
     dest_obj = &(*key_array)->arr[*arr_pos];
     dest_obj->descriptor.entity = curr_helem->key.descriptor.entity;
-    INIT_CLASS_OF_VAR(dest_obj, DECLAREDOBJECT);
+    INIT_CATEGORY_OF_VAR(dest_obj, DECLAREDOBJECT);
     dest_obj->type_of = curr_helem->key.type_of;
     param3_call(key_create_func, dest_obj, SYS_CREA_OBJECT, &curr_helem->key);
     (*arr_pos)++;
@@ -400,7 +400,7 @@ errinfotype *err_info;
     } /* if */
     dest_obj = &(*value_array)->arr[*arr_pos];
     dest_obj->descriptor.entity = curr_helem->data.descriptor.entity;
-    INIT_CLASS_OF_VAR(dest_obj, DECLAREDOBJECT);
+    INIT_CATEGORY_OF_VAR(dest_obj, DECLAREDOBJECT);
     dest_obj->type_of = curr_helem->data.type_of;
     param3_call(value_create_func, dest_obj, SYS_CREA_OBJECT, &curr_helem->data);
     (*arr_pos)++;
@@ -878,7 +878,7 @@ listtype arguments;
     key_destr_func   = take_reference(arg_4(arguments));
     data_create_func = take_reference(arg_5(arguments));
     data_destr_func  = take_reference(arg_6(arguments));
-    SET_CLASS_OF_OBJ(hsh_to, HASHOBJECT);
+    SET_CATEGORY_OF_OBJ(hsh_to, HASHOBJECT);
     if (TEMP2_OBJECT(hsh_from)) {
       hsh_to->value.hashvalue = hsh_source;
       hsh_from->value.hashvalue = NULL;

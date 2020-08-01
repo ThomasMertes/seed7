@@ -277,3 +277,13 @@
 - The wator.sd7 example program was improved.
 - The heap management and the heap statistic was improved.
 - Several function prototypes were changed to use 'const' types.
+
+20070710:
+- The compiler (comp.sd7) support for different C compilers was improved.
+- A support for socket send and recv was added to the compiler.
+- A description of openInetSocket was added to the documentation.
+- A pos function and the 'not in' operator was added for the type ref_list.
+- The var_conv operator was renamed to varConv.
+- Some setters (setCategory, setValue, setParams) were added to the reflection.
+- The classtype of the interpreter was renamed to categorytype since it has
+  nothing to do with classes.

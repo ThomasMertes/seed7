@@ -463,7 +463,7 @@ listtype arguments;
     arr_from = arg_3(arguments);
     isit_array(arr_from);
     arr_source = take_array(arr_from);
-    SET_CLASS_OF_OBJ(arr_to, ARRAYOBJECT);
+    SET_CATEGORY_OF_OBJ(arr_to, ARRAYOBJECT);
     if (TEMP_OBJECT(arr_from)) {
       arr_to->value.arrayvalue = arr_source;
       arr_from->value.arrayvalue = NULL;

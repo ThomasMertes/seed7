@@ -111,9 +111,9 @@ listtype arguments;
     isit_bool(arg_3(arguments));
     bool_from = take_bool(arg_3(arguments));
     if (VAR_OBJECT(bool_to)) {
-      SET_CLASS_OF_OBJ(bool_to, VARENUMOBJECT);
+      SET_CATEGORY_OF_OBJ(bool_to, VARENUMOBJECT);
     } else {
-      SET_CLASS_OF_OBJ(bool_to, CONSTENUMOBJECT);
+      SET_CATEGORY_OF_OBJ(bool_to, CONSTENUMOBJECT);
     } /* if */
     bool_to->value.objvalue = bool_from;
     return(SYS_EMPTY_OBJECT);

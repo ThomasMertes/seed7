@@ -54,7 +54,7 @@
 FILE *protfile = NULL; /* was: stdout; */
 booltype internal_protocol = FALSE;
 
-static cstritype class_name[] = {
+static cstritype category_name[] = {
     "SYMBOLOBJECT",      /* pos (file, line) - Symbol object        */
                          /*                    created by read_atom */
                          /*                    and read_name        */
@@ -463,55 +463,78 @@ void prot_heapsize ()
 
 #ifdef ANSI_C
 
-cstritype class_stri (objectclass class)
+cstritype category_stri (objectcategory category)
 #else
 
-cstritype class_stri (class)
-objectclass class;
+cstritype category_stri (category)
+objectcategory category;
 #endif
 
   {
     cstritype result;
 
-  /* class_stri */
+  /* category_stri */
 #ifdef TRACE_TRACE
-    printf("BEGIN class_stri\n");
+    printf("BEGIN category_stri\n");
 #endif
-    if (class >= SYMBOLOBJECT && class <= PROGOBJECT) {
-      result = class_name[(int) class];
+    if (category >= SYMBOLOBJECT && category <= PROGOBJECT) {
+      result = category_name[(int) category];
     } else {
       result = "*UNKNOWN*";
     } /* if */
 #ifdef TRACE_TRACE
-    printf("END class_stri\n");
+    printf("END category_stri\n");
 #endif
     return(result);
-  } /* class_stri */
+  } /* category_stri */
 
 
 
 #ifdef ANSI_C
 
-void printclass (objectclass class)
+objectcategory category_value (cstritype stri)
 #else
 
-void printclass (class)
-objectclass class;
+objectcategory category_value (stri)
+cstritype stri;
 #endif
 
-  { /* printclass */
-#ifdef TRACE_TRACE
-    printf("BEGIN printclass\n");
+  {
+    objectcategory result;
+
+  /* category_value */
+    for (result = SYMBOLOBJECT; result <= PROGOBJECT; result++) {
+      if (strcmp(stri, category_name[(int) result]) == 0) {
+        return(result);
+      } /* if */
+    } /* for */
+    return((objectcategory) -1);
+  } /* category_value */
+
+
+
+#ifdef ANSI_C
+
+void printcategory (objectcategory category)
+#else
+
+void printcategory (category)
+objectcategory category;
 #endif
-    if (class >= SYMBOLOBJECT && class <= PROGOBJECT) {
-      prot_cstri(class_name[(int) class]);
+
+  { /* printcategory */
+#ifdef TRACE_TRACE
+    printf("BEGIN printcategory\n");
+#endif
+    if (category >= SYMBOLOBJECT && category <= PROGOBJECT) {
+      prot_cstri(category_name[(int) category]);
     } else {
-      prot_int((inttype) class);
+      prot_int((inttype) category);
     } /* if */
 #ifdef TRACE_TRACE
-    printf("END printclass\n");
+    printf("END printcategory\n");
 #endif
-  } /* printclass */
+  } /* printcategory */
 
 
 
@@ -593,7 +616,7 @@ objecttype anyobject;
 #ifdef TRACE_TRACE
     printf("BEGIN print_real_value\n");
 #endif
-    switch (CLASS_OF_OBJ(anyobject)) {
+    switch (CATEGORY_OF_OBJ(anyobject)) {
       case INTOBJECT:
         prot_int(anyobject->value.intvalue);
         break;
@@ -737,7 +760,7 @@ objecttype anyobject;
       if (TEMP2_OBJECT(anyobject)) {
         prot_cstri("[TEMP2] ");
       } /* if */
-      switch (CLASS_OF_OBJ(anyobject)) {
+      switch (CATEGORY_OF_OBJ(anyobject)) {
         case VARENUMOBJECT:
           if (HAS_DESCRIPTOR_ENTITY(anyobject)) {
             prot_cstri(id_string(anyobject->descriptor.entity->ident));
@@ -751,7 +774,7 @@ objecttype anyobject;
         case FORMPARAMOBJECT:
           prot_cstri("param ");
           if (anyobject->value.objvalue != NULL &&
-              CLASS_OF_OBJ(anyobject->value.objvalue) == TYPEOBJECT) {
+              CATEGORY_OF_OBJ(anyobject->value.objvalue) == TYPEOBJECT) {
             prot_cstri("attr ");
           } /* if */
           printobject(anyobject->value.objvalue);
@@ -816,13 +839,13 @@ objecttype anyobject;
           if (HAS_DESCRIPTOR_ENTITY(anyobject)) {
             prot_cstri(id_string(anyobject->descriptor.entity->ident));
           } else {
-            printclass(CLASS_OF_OBJ(anyobject));
+            printcategory(CATEGORY_OF_OBJ(anyobject));
             prot_cstri(" *NULL_ENTITY_OBJECT*");
           } /* if */
           break;
       } /* switch */
 /*    prot_cstri(" <");
-      printclass(CLASS_OF_OBJ(anyobject));
+      printcategory(CATEGORY_OF_OBJ(anyobject));
       prot_cstri(">"); */
     } /* if */
 #ifdef TRACE_TRACE
@@ -854,22 +877,22 @@ listtype list;
       if (list->obj == NULL) {
         prot_cstri("*NULL_OBJECT*");
       } else {
-        /* printclass(CLASS_OF_OBJ(list->obj)); fflush(stdout); */
-        switch (CLASS_OF_OBJ(list->obj)) {
+        /* printcategory(CATEGORY_OF_OBJ(list->obj)); fflush(stdout); */
+        switch (CATEGORY_OF_OBJ(list->obj)) {
           case LISTOBJECT:
           case EXPROBJECT:
             prot_list(list->obj->value.listvalue);
             break;
           case CALLOBJECT:
           case MATCHOBJECT:
-            if (CLASS_OF_OBJ(list->obj->value.listvalue->obj) == ACTOBJECT) {
+            if (CATEGORY_OF_OBJ(list->obj->value.listvalue->obj) == ACTOBJECT) {
               prot_cstri(get_primact(list->obj->value.listvalue->obj->value.actvalue)->name);
             } else if (list->obj->value.listvalue->obj->descriptor.entity->ident != NULL) {
               prot_cstri(id_string(list->obj->value.listvalue->obj->descriptor.entity->ident));
             } else {
               printtype(list->obj->value.listvalue->obj->type_of);
               prot_cstri(": <");
-              printclass(CLASS_OF_OBJ(list->obj->value.listvalue->obj));
+              printcategory(CATEGORY_OF_OBJ(list->obj->value.listvalue->obj));
               prot_cstri("> ");
             } /* if */
             prot_cstri("(");
@@ -887,7 +910,7 @@ listtype list;
           case FORMPARAMOBJECT:
             if (list->obj->value.objvalue != NULL) {
               prot_cstri("(");
-              switch (CLASS_OF_OBJ(list->obj->value.objvalue)) {
+              switch (CATEGORY_OF_OBJ(list->obj->value.objvalue)) {
                 case VALUEPARAMOBJECT:
                   prot_cstri("in ");
                   printtype(list->obj->value.objvalue->type_of);
@@ -946,7 +969,7 @@ listtype list;
                 prot_cstri(id_string(list->obj->value.objvalue->descriptor.entity->ident));
               } else {
                 prot_cstri("<");
-                printclass(CLASS_OF_OBJ(list->obj->value.objvalue));
+                printcategory(CATEGORY_OF_OBJ(list->obj->value.objvalue));
                 prot_cstri(">");
               } /* if */
             } else {
@@ -958,7 +981,7 @@ listtype list;
             break;
 #ifdef OUT_OF_ORDER
           case SYMBOLOBJECT:
-            printclass(CLASS_OF_OBJ(list->obj));
+            printcategory(CATEGORY_OF_OBJ(list->obj));
             prot_cstri(" ");
             prot_int((inttype) list->obj);
             prot_cstri(" ");
@@ -980,7 +1003,7 @@ listtype list;
             } else {
               printtype(list->obj->type_of);
               prot_cstri(": <");
-              printclass(CLASS_OF_OBJ(list->obj));
+              printcategory(CATEGORY_OF_OBJ(list->obj));
               prot_cstri("> ");
               prot_int((inttype) list->obj->descriptor.entity);
             } /* if */
@@ -1186,7 +1209,7 @@ char *buffer;
       if (anynode->usage_count > 0) {
         buf_len = strlen(buffer);
         if (anynode->match_obj != NULL) {
-          if (CLASS_OF_OBJ(anynode->match_obj) == TYPEOBJECT) {
+          if (CATEGORY_OF_OBJ(anynode->match_obj) == TYPEOBJECT) {
             if (anynode->match_obj->value.typevalue != NULL) {
               if (anynode->match_obj->value.typevalue->name != NULL) {
                 strcat(buffer, id_string(anynode->match_obj->value.typevalue->name));
@@ -1338,7 +1361,7 @@ nodetype anynode;
         prot_cstri(" USAGE=0: ");
       } /* if */
       if (anynode->match_obj != NULL) {
-        if (CLASS_OF_OBJ(anynode->match_obj) == TYPEOBJECT) {
+        if (CATEGORY_OF_OBJ(anynode->match_obj) == TYPEOBJECT) {
           printtype(anynode->match_obj->value.typevalue);
         } else {
           if (HAS_DESCRIPTOR_ENTITY(anynode->match_obj)) {
@@ -1407,9 +1430,9 @@ objecttype traceobject;
         } /* if */
       } /* if */
       prot_cstri(" is <");
-      printclass(CLASS_OF_OBJ(traceobject));
+      printcategory(CATEGORY_OF_OBJ(traceobject));
       prot_cstri("> ");
-      switch (CLASS_OF_OBJ(traceobject)) {
+      switch (CATEGORY_OF_OBJ(traceobject)) {
         case REFOBJECT:
         case CLASSOBJECT:
         case ENUMLITERALOBJECT:
@@ -1426,7 +1449,7 @@ objecttype traceobject;
         case FORMPARAMOBJECT:
           if (traceobject->value.objvalue != NULL) {
             prot_cstri("(");
-            switch (CLASS_OF_OBJ(traceobject->value.objvalue)) {
+            switch (CATEGORY_OF_OBJ(traceobject->value.objvalue)) {
               case VALUEPARAMOBJECT:
                 prot_cstri("in ");
                 printtype(traceobject->value.objvalue->type_of);
@@ -1516,9 +1539,9 @@ objecttype traceobject;
             prot_cstri(" *NULL_CALLOBJECT* ");
           } else {
             prot_cstri("<");
-            printclass(CLASS_OF_OBJ(traceobject->value.listvalue->obj));
+            printcategory(CATEGORY_OF_OBJ(traceobject->value.listvalue->obj));
             prot_cstri("> ");
-            if (CLASS_OF_OBJ(traceobject->value.listvalue->obj) == ACTOBJECT) {
+            if (CATEGORY_OF_OBJ(traceobject->value.listvalue->obj) == ACTOBJECT) {
               prot_cstri(get_primact(traceobject->value.listvalue->obj->value.actvalue)->name);
             } else if (HAS_DESCRIPTOR_ENTITY(traceobject->value.listvalue->obj) &&
                 traceobject->value.listvalue->obj->descriptor.entity->ident != NULL) {
@@ -1526,7 +1549,7 @@ objecttype traceobject;
             } else {
               printtype(traceobject->value.listvalue->obj->type_of);
               prot_cstri(": <");
-              printclass(CLASS_OF_OBJ(traceobject->value.listvalue->obj));
+              printcategory(CATEGORY_OF_OBJ(traceobject->value.listvalue->obj));
               prot_cstri("> ");
             } /* if */
             prot_cstri("(");

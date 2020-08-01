@@ -83,9 +83,9 @@ listtype arguments;
     enum_to = arg_1(arguments);
     enum_from = take_enum(arg_3(arguments));
     if (VAR_OBJECT(enum_to)) {
-      SET_CLASS_OF_OBJ(enum_to, VARENUMOBJECT);
+      SET_CATEGORY_OF_OBJ(enum_to, VARENUMOBJECT);
     } else {
-      SET_CLASS_OF_OBJ(enum_to, CONSTENUMOBJECT);
+      SET_CATEGORY_OF_OBJ(enum_to, CONSTENUMOBJECT);
     } /* if */
     enum_to->value.objvalue = enum_from;
     return(SYS_EMPTY_OBJECT);
@@ -134,7 +134,7 @@ listtype arguments;
 
   /* enu_genlit */
     enum_to = arg_1(arguments);
-    SET_CLASS_OF_OBJ(enum_to, ENUMLITERALOBJECT);
+    SET_CATEGORY_OF_OBJ(enum_to, ENUMLITERALOBJECT);
     enum_to->value.nodevalue = (nodetype) NULL;
     return(SYS_EMPTY_OBJECT);
   } /* enu_genlit */

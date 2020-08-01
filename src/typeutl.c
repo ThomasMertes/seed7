@@ -66,7 +66,7 @@ typetype result_type;
         match_obj->type_of = NULL;
         match_obj->descriptor.entity = NULL;
         match_obj->value.typevalue = created_type;
-        INIT_CLASS_OF_OBJ(match_obj, TYPEOBJECT);
+        INIT_CATEGORY_OF_OBJ(match_obj, TYPEOBJECT);
         created_type->match_obj = match_obj;
         created_type->meta = meta_type;
         created_type->func_type = NULL;

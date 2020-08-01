@@ -614,7 +614,8 @@ inttype flags;
 
 #ifdef ANSI_C
 
-inttype socSendto (sockettype sock, stritype stri, inttype flags, bstritype address)
+inttype socSendto (sockettype sock, stritype stri, inttype flags,
+    const_bstritype address)
 #else
 
 inttype socSendto (sock, stri, flags, address)

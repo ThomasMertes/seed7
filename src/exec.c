@@ -74,7 +74,7 @@ register objecttype object;
     trace1(object);
     printf("\n");
 #endif
-    switch (CLASS_OF_OBJ(object)) {
+    switch (CATEGORY_OF_OBJ(object)) {
       case CALLOBJECT:
         result = exec_call(object);
 #ifdef OUT_OF_ORDER
@@ -214,7 +214,7 @@ listtype *evaluated_act_params;
       param_list_elem = *evaluated_act_params;
       while (form_param != NULL && err_info == OKAY_NO_ERROR) {
         param_value = param_list_elem->obj;
-        switch (CLASS_OF_OBJ(form_param->local.object)) {
+        switch (CATEGORY_OF_OBJ(form_param->local.object)) {
           case VALUEPARAMOBJECT:
 /*            printf("value param formal ");
             trace1(form_param->local.object);
@@ -298,7 +298,7 @@ listtype evaluated_act_params;
       if (trace.actions) {
         prot_cstri("par_restore ");
         if (evaluated_act_params->obj != NULL) {
-          printclass(CLASS_OF_OBJ(evaluated_act_params->obj));
+          printcategory(CATEGORY_OF_OBJ(evaluated_act_params->obj));
           prot_cstri(" ");
           prot_int((inttype) evaluated_act_params->obj);
           prot_cstri(" ");
@@ -309,7 +309,7 @@ listtype evaluated_act_params;
         prot_nl();
       } /* if */
 #endif
-      switch (CLASS_OF_OBJ(form_param->local.object)) {
+      switch (CATEGORY_OF_OBJ(form_param->local.object)) {
         case VALUEPARAMOBJECT:
           destroy_local_object(&form_param->local, &err_info);
           FREE_OBJECT(form_param->local.object->value.objvalue);
@@ -470,7 +470,7 @@ objecttype *result;
       } /* if */
       block_result->object->value.objvalue = backup_block_result;
     } else if (*result != NULL && !TEMP_OBJECT(*result) &&
-        CLASS_OF_OBJ(*result) != ENUMLITERALOBJECT) {
+        CATEGORY_OF_OBJ(*result) != ENUMLITERALOBJECT) {
 #ifdef OUT_OF_ORDER
       printf("return non temp ");
       trace1(*result);
@@ -505,7 +505,7 @@ listtype act_param_list;
 #ifdef WITH_PROTOCOL
         if (trace.actions) {
           prot_cstri("show_arg_list ");
-          printclass(CLASS_OF_OBJ(act_param_list->obj));
+          printcategory(CATEGORY_OF_OBJ(act_param_list->obj));
           prot_cstri(" ");
           prot_int((inttype) act_param_list->obj);
           prot_cstri(" ");
@@ -807,7 +807,7 @@ objecttype object;
 #endif
     subroutine_object = object->value.listvalue->obj;
     actual_parameters = object->value.listvalue->next;
-/*  if (CLASS_OF_OBJ(subroutine_object) == REFPARAMOBJECT) {
+/*  if (CATEGORY_OF_OBJ(subroutine_object) == REFPARAMOBJECT) {
       printf("refparamobject ");
       trace1(subroutine_object);
       printf(" value ");
@@ -818,7 +818,7 @@ objecttype object;
       printf("\n");
       subroutine_object = subroutine_object->value.objvalue;
     }  if */
-    switch (CLASS_OF_OBJ(subroutine_object)) {
+    switch (CATEGORY_OF_OBJ(subroutine_object)) {
       case ACTOBJECT:
         result = exec_action(subroutine_object,
             actual_parameters, object);
@@ -885,7 +885,7 @@ objecttype object;
         /* result = exec_object(subroutine_object->value.objvalue); */
         break;
       default:
-        printf("class_of_obj: ");
+        printf("category_of_obj: ");
         trace1(object);
         printf("\nsubroutine_object: ");
         trace1(subroutine_object);
@@ -928,7 +928,7 @@ objecttype object;
       printf("\n");
     } /* if */
 #endif
-    switch (CLASS_OF_OBJ(object)) {
+    switch (CATEGORY_OF_OBJ(object)) {
       case MATCHOBJECT:
         result = exec_call(object);
         break;
@@ -989,7 +989,7 @@ objecttype object;
         printf("eval expression match succeeded ");
         trace1(matched_object);
         printf("\n"); */
-        if (CLASS_OF_OBJ(matched_object) == CALLOBJECT) {
+        if (CATEGORY_OF_OBJ(matched_object) == CALLOBJECT) {
           result = exec_call(matched_object);
         } else {
           printf("eval_expression: match result not callobject ");
@@ -1056,14 +1056,14 @@ listtype expr_list;
       match_expr->descriptor.entity = entity.literal;
       match_expr->value.listvalue = NULL;
       list_insert_place = &match_expr->value.listvalue;
-      INIT_CLASS_OF_OBJ(match_expr, EXPROBJECT);
+      INIT_CATEGORY_OF_OBJ(match_expr, EXPROBJECT);
       value_dereferenced = FALSE;
       actual_element = expr_list;
       while (actual_element != NULL) {
 /* printf("actual_element->obj ");
 trace1(actual_element->obj);
 printf("\n"); */
-        switch (CLASS_OF_OBJ(actual_element->obj)) {
+        switch (CATEGORY_OF_OBJ(actual_element->obj)) {
           case VALUEPARAMOBJECT:
           case REFPARAMOBJECT:
           case RESULTOBJECT:

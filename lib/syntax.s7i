@@ -64,7 +64,7 @@ $ system "writeln" is writeln;
 $ syntax expr: . { .(). } is                   ->  1;
 $ syntax expr: . { .(). .. .(). } is           ->  1;
 $ syntax expr: .().conv.() is                  ->  1;
-$ syntax expr: .().var_conv.() is              ->  1;
+$ syntax expr: .().varConv.() is              ->  1;
 $ syntax expr: .().value.() is                 ->  1;
 $ syntax expr: .().parse.() is                 ->  1;
 $ syntax expr: .getfunc.(expr) is             <-   1;

@@ -154,7 +154,7 @@ memsizetype *used_max_position;
       work_array->arr[*used_max_position].type_of = take_type(SYS_STRI_TYPE);
       work_array->arr[*used_max_position].descriptor.entity = NULL;
       work_array->arr[*used_max_position].value.strivalue = new_stri;
-      INIT_CLASS_OF_VAR(&work_array->arr[*used_max_position], STRIOBJECT);
+      INIT_CATEGORY_OF_VAR(&work_array->arr[*used_max_position], STRIOBJECT);
       (*used_max_position)++;
     } else {
       for (position = 0; position < *used_max_position; position++) {
@@ -639,7 +639,7 @@ listtype arguments;
     str_to = arg_1(arguments);
     str_from = arg_3(arguments);
     isit_stri(str_from);
-    SET_CLASS_OF_OBJ(str_to, STRIOBJECT);
+    SET_CATEGORY_OF_OBJ(str_to, STRIOBJECT);
     if (TEMP_OBJECT(str_from)) {
       str_to->value.strivalue = take_stri(str_from);
       str_from->value.strivalue = NULL;

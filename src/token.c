@@ -88,7 +88,7 @@ identtype identifier;
     } /* if */
     created_token->next = NULL;
     created_token->alternative = NULL;
-    created_token->token_class = SY_TOKEN;
+    created_token->token_category = SY_TOKEN;
     created_token->token_value.ident = identifier;
 #ifdef TRACE_TOKEN
     printf("END new_sy_token\n");
@@ -120,7 +120,7 @@ typetype type_of;
     } /* if */
     created_token->next = NULL;
     created_token->alternative = NULL;
-    created_token->token_class = EXPR_TOKEN;
+    created_token->token_category = EXPR_TOKEN;
     created_token->token_value.expr_par.priority = pri;
     created_token->token_value.expr_par.type_of = type_of;
 #ifdef TRACE_TOKEN
@@ -151,7 +151,7 @@ static tokentype new_syntax_description ()
     } /* if */
     created_token->next = NULL;
     created_token->alternative = NULL;
-    created_token->token_class = UNDEF_SYNTAX;
+    created_token->token_category = UNDEF_SYNTAX;
     created_token->token_value.type_of = NULL;
 #ifdef TRACE_TOKEN
     printf("END new_syntax_description\n");
@@ -186,7 +186,7 @@ identtype identifier;
       token_found = *tokens;
       searching = TRUE;
       do {
-        if (token_found->token_class == SY_TOKEN) {
+        if (token_found->token_category == SY_TOKEN) {
           if (identifier == token_found->token_value.ident) {
             searching = FALSE;
           } else {
@@ -236,12 +236,12 @@ typetype type_of;
     } else {
       token_found = *tokens;
       previous_token = NULL;
-      while (token_found->token_class == SY_TOKEN  &&
+      while (token_found->token_category == SY_TOKEN  &&
           token_found->alternative != NULL) {
         previous_token = token_found;
         token_found = token_found->alternative;
       } /* while */
-      switch (token_found->token_class) {
+      switch (token_found->token_category) {
         case SY_TOKEN:
           token_found->alternative = new_expr_token(pri, type_of);
           token_found = token_found->alternative;
@@ -294,8 +294,8 @@ tokentype *tokens;
       while (token_found->alternative != NULL) {
         token_found = token_found->alternative;
       } /* while */
-      if (token_found->token_class != LIST_WITH_TYPEOF_SYNTAX ||
-          token_found->token_class != SELECT_ELEMENT_FROM_LIST_SYNTAX) {
+      if (token_found->token_category != LIST_WITH_TYPEOF_SYNTAX ||
+          token_found->token_category != SELECT_ELEMENT_FROM_LIST_SYNTAX) {
         token_found->alternative = new_syntax_description();
         token_found = token_found->alternative;
       } /* if */

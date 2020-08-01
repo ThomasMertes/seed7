@@ -128,8 +128,10 @@ version.h:
 	echo "#undef  CHMOD_MISSING" >> version.h
 	echo "#define USE_FSEEKO64" >> version.h
 	echo "#define USE_WINSOCK" >> version.h
-	echo "#define OBJECT_FILE_EXTENSION \"o\"" >> version.h
+	echo "#define OBJECT_FILE_EXTENSION \".o\"" >> version.h
+	echo "#define EXECUTABLE_FILE_EXTENSION \".exe\"" >> version.h
 	echo "#define C_COMPILER \"$(CC)\"" >> version.h
+	echo "#define REDIRECT_C_ERRORS \"2>\"" >> version.h
 	echo "#define LINKER_LIBS \"\\\"`pwd -W`/$(SEED7_OBJ_LIB)\\\" $(LIBS)\"" >> version.h
 	cd ../lib; echo "#define SEED7_LIBRARY" \"`pwd -W`\" >> ../src/version.h; cd ../src
 

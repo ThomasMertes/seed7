@@ -164,7 +164,7 @@ listtype arguments;
   /* lst_create */
     list_to = arg_1(arguments);
     list_from = arg_3(arguments);
-    SET_CLASS_OF_OBJ(list_to, LISTOBJECT);
+    SET_CATEGORY_OF_OBJ(list_to, LISTOBJECT);
     isit_list(list_from);
     if (TEMP_OBJECT(list_from)) {
       list_to->value.listvalue = take_list(list_from);
@@ -242,8 +242,8 @@ listtype arguments;
 #ifdef OUT_OF_ORDER
     isit_list(arg_3(arguments));
     searched_object = arg_1(arguments);
-    if (CLASS_OF_OBJ(searched_object) == VARENUMOBJECT ||
-        CLASS_OF_OBJ(searched_object) == CONSTENUMOBJECT) {
+    if (CATEGORY_OF_OBJ(searched_object) == VARENUMOBJECT ||
+        CATEGORY_OF_OBJ(searched_object) == CONSTENUMOBJECT) {
       searched_object = take_reference(searched_object);
     } /* if */
     list_element = take_list(arg_3(arguments));
@@ -408,8 +408,8 @@ listtype arguments;
   /* lst_incl */
     isit_list(arg_1(arguments));
     obj_arg = arg_2(arguments);
-    if (CLASS_OF_OBJ(obj_arg) == VARENUMOBJECT ||
-        CLASS_OF_OBJ(obj_arg) == CONSTENUMOBJECT) {
+    if (CATEGORY_OF_OBJ(obj_arg) == VARENUMOBJECT ||
+        CATEGORY_OF_OBJ(obj_arg) == CONSTENUMOBJECT) {
       obj_arg = take_reference(obj_arg);
     } /* if */
     incl_list(&arg_1(arguments)->value.listvalue, obj_arg, &err_info);

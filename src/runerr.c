@@ -87,95 +87,6 @@ void continue_question ()
 
 #ifdef ANSI_C
 
-void run_error (objectclass required, objecttype argument)
-#else
-
-void run_error (required, argument)
-objectclass required;
-objecttype argument;
-#endif
-
-  { /* run_error */
-    if (curr_exec_object != NULL) {
-      curr_action_object = curr_exec_object->value.listvalue->obj;
-    } /* if */
-    printf("\n*** ACTION $");
-    if (curr_action_object->value.actvalue != NULL) {
-      printf("%s", get_primact(curr_action_object->value.actvalue)->name);
-    } else {
-      printf("NULL");
-    } /* if */
-    printf(" REQUIRES ");
-    printclass(required);
-    printf(" NOT ");
-    printclass(CLASS_OF_OBJ(argument));
-    printf("\n");
-    trace1(argument);
-    printf("\n");
-    prot_list(curr_argument_list);
-    continue_question();
-  } /* run_error */
-
-
-
-#ifdef ANSI_C
-
-void empty_value (objecttype argument)
-#else
-
-void empty_value (argument)
-objecttype argument;
-#endif
-
-  { /* empty_value */
-    if (curr_exec_object != NULL) {
-      curr_action_object = curr_exec_object->value.listvalue->obj;
-    } /* if */
-    printf("\n*** ACTION $");
-    if (curr_action_object->value.actvalue != NULL) {
-      printf("%s", get_primact(curr_action_object->value.actvalue)->name);
-    } else {
-      printf("NULL");
-    } /* if */
-    printf(" WITH EMPTY VALUE\n");
-    trace1(argument);
-    printf("\nobject_ptr=%ld\n", (unsigned long) argument);
-    prot_list(curr_argument_list);
-    continue_question();
-  } /* empty_value */
-
-
-
-#ifdef ANSI_C
-
-void var_required (objecttype argument)
-#else
-
-void var_required (argument)
-objecttype argument;
-#endif
-
-  { /* var_required */
-    if (curr_exec_object != NULL) {
-      curr_action_object = curr_exec_object->value.listvalue->obj;
-    } /* if */
-    printf("\n*** ACTION $");
-    if (curr_action_object->value.actvalue != NULL) {
-      printf("%s", get_primact(curr_action_object->value.actvalue)->name);
-    } else {
-      printf("NULL");
-    } /* if */
-    printf(" REQUIRES VARIABLE ");
-    printclass(CLASS_OF_OBJ(argument));
-    printf(" NOT CONSTANT\n");
-    trace1(argument);
-    printf("\nobject_ptr=%ld\n", (unsigned long) argument);
-    prot_list(curr_argument_list);
-    continue_question();
-  } /* var_required */
-
-
-
 #ifdef ANSI_C
 
 void write_call_stack (const_listtype stack_elem)
@@ -192,8 +103,8 @@ listtype stack_elem;
     if (stack_elem != NULL) {
       write_call_stack(stack_elem->next);
       if (stack_elem->obj != NULL) {
-        if (CLASS_OF_OBJ(stack_elem->obj) == CALLOBJECT ||
-            CLASS_OF_OBJ(stack_elem->obj) == MATCHOBJECT) {
+        if (CATEGORY_OF_OBJ(stack_elem->obj) == CALLOBJECT ||
+            CATEGORY_OF_OBJ(stack_elem->obj) == MATCHOBJECT) {
           func_object = stack_elem->obj->value.listvalue->obj;
         } else {
           func_object = stack_elem->obj;
@@ -282,7 +193,7 @@ listtype list;
       ALLOC_OBJECT(exception);
       exception->type_of = NULL;
       exception->descriptor.entity = NULL;
-      INIT_CLASS_OF_TEMP(exception, SYMBOLOBJECT);
+      INIT_CATEGORY_OF_TEMP(exception, SYMBOLOBJECT);
       exception->value.intvalue = 0;
     } /* if */
     incl_list(&fail_stack, curr_exec_object, &err_info);
@@ -323,3 +234,95 @@ int exception_num;
   { /* raise_error */
     raise_exception(prog.sys_var[exception_num]);
   } /* raise_error */
+
+
+
+void run_error (objectcategory required, objecttype argument)
+#else
+
+void run_error (required, argument)
+objectcategory required;
+objecttype argument;
+#endif
+
+  { /* run_error */
+    if (curr_exec_object != NULL) {
+      curr_action_object = curr_exec_object->value.listvalue->obj;
+    } /* if */
+    printf("\n*** ACTION $");
+    if (curr_action_object->value.actvalue != NULL) {
+      printf("%s", get_primact(curr_action_object->value.actvalue)->name);
+    } else {
+      printf("NULL");
+    } /* if */
+    printf(" REQUIRES ");
+    printcategory(required);
+    printf(" NOT ");
+    printcategory(CATEGORY_OF_OBJ(argument));
+    printf("\n");
+    trace1(argument);
+    printf("\n");
+    prot_list(curr_argument_list);
+    continue_question();
+    raise_error(RANGE_ERROR);
+  } /* run_error */
+
+
+
+#ifdef ANSI_C
+
+void empty_value (objecttype argument)
+#else
+
+void empty_value (argument)
+objecttype argument;
+#endif
+
+  { /* empty_value */
+    if (curr_exec_object != NULL) {
+      curr_action_object = curr_exec_object->value.listvalue->obj;
+    } /* if */
+    printf("\n*** ACTION $");
+    if (curr_action_object->value.actvalue != NULL) {
+      printf("%s", get_primact(curr_action_object->value.actvalue)->name);
+    } else {
+      printf("NULL");
+    } /* if */
+    printf(" WITH EMPTY VALUE\n");
+    trace1(argument);
+    printf("\nobject_ptr=%ld\n", (unsigned long) argument);
+    prot_list(curr_argument_list);
+    continue_question();
+    raise_error(RANGE_ERROR);
+  } /* empty_value */
+
+
+
+#ifdef ANSI_C
+
+void var_required (objecttype argument)
+#else
+
+void var_required (argument)
+objecttype argument;
+#endif
+
+  { /* var_required */
+    if (curr_exec_object != NULL) {
+      curr_action_object = curr_exec_object->value.listvalue->obj;
+    } /* if */
+    printf("\n*** ACTION $");
+    if (curr_action_object->value.actvalue != NULL) {
+      printf("%s", get_primact(curr_action_object->value.actvalue)->name);
+    } else {
+      printf("NULL");
+    } /* if */
+    printf(" REQUIRES VARIABLE ");
+    printcategory(CATEGORY_OF_OBJ(argument));
+    printf(" NOT CONSTANT\n");
+    trace1(argument);
+    printf("\nobject_ptr=%ld\n", (unsigned long) argument);
+    prot_list(curr_argument_list);
+    continue_question();
+    raise_error(RANGE_ERROR);
+  } /* var_required */

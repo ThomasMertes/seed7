@@ -252,7 +252,7 @@ listtype arguments;
 
   { /* flt_create */
     isit_float(arg_3(arguments));
-    SET_CLASS_OF_OBJ(arg_1(arguments), FLOATOBJECT);
+    SET_CATEGORY_OF_OBJ(arg_1(arguments), FLOATOBJECT);
     arg_1(arguments)->value.floatvalue = take_float(arg_3(arguments));
     return(SYS_EMPTY_OBJECT);
   } /* flt_create */

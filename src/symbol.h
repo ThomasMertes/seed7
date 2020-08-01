@@ -27,10 +27,10 @@
 
 typedef enum {STOPSYMBOL, NAMESYMBOL, SPECIALSYMBOL,
     PARENSYMBOL, INTLITERAL, BIGINTLITERAL, CHARLITERAL, STRILITERAL,
-    FLOATLITERAL} symbolclass;
+    FLOATLITERAL} symbolcategory;
 
 typedef struct {
-    symbolclass syclass;
+    symbolcategory sycategory;
     ustritype name;
     unsigned int name_length;
     inttype intvalue;

@@ -88,7 +88,7 @@ static objecttype gen_object ()
         atomic_object->type_of = NULL;
         atomic_object->descriptor.entity = atomic_entity;
         INIT_POS(atomic_object, in_file.line, in_file.file_number);
-        INIT_CLASS_OF_OBJ(atomic_object, SYMBOLOBJECT);
+        INIT_CATEGORY_OF_OBJ(atomic_object, SYMBOLOBJECT);
       } /* if */
     } /* if */
 #ifdef TRACE_OBJECT
@@ -105,12 +105,12 @@ static objecttype gen_object ()
 #ifdef ANSI_C
 
 static objecttype gen_literal_object (const_objecttype typeof_object,
-    objectclass class)
+    objectcategory category)
 #else
 
-static objecttype gen_literal_object (typeof_object, class)
+static objecttype gen_literal_object (typeof_object, category)
 objecttype typeof_object;
-objectclass class;
+objectcategory category;
 #endif
 
   {
@@ -130,7 +130,7 @@ objectclass class;
         literal_object->type_of = take_type(typeof_object);
       } /* if */
       literal_object->descriptor.entity = entity.literal;
-      INIT_CLASS_OF_OBJ(literal_object, class);
+      INIT_CATEGORY_OF_OBJ(literal_object, category);
     } /* if */
 #ifdef TRACE_OBJECT
     printf("END gen_literal_object ");
@@ -203,7 +203,7 @@ objecttype read_atom ()
 #ifdef TRACE_ATOM
     printf("BEGIN read_atom %s\n", symbol.NAME);
 #endif
-    switch (symbol.syclass) {
+    switch (symbol.sycategory) {
       case NAMESYMBOL:
       case SPECIALSYMBOL:
       case PARENSYMBOL:

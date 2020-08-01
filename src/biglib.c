@@ -196,7 +196,7 @@ listtype arguments;
     big_to = arg_1(arguments);
     big_from = arg_3(arguments);
     isit_bigint(big_from);
-    SET_CLASS_OF_OBJ(big_to, BIGINTOBJECT);
+    SET_CATEGORY_OF_OBJ(big_to, BIGINTOBJECT);
     if (TEMP_OBJECT(big_from)) {
       big_to->value.bigintvalue = take_bigint(big_from);
       big_from->value.bigintvalue = NULL;

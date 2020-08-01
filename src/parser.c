@@ -87,7 +87,7 @@ errinfotype *err_info;
     if ((generated_type = new_type(meta_type, NULL)) == NULL) {
       *err_info = MEMORY_ERROR;
     } else {
-      SET_CLASS_OF_OBJ(declared_object, TYPEOBJECT);
+      SET_CATEGORY_OF_OBJ(declared_object, TYPEOBJECT);
       declared_object->value.typevalue = generated_type;
       if (generated_type->name == NULL &&
           HAS_DESCRIPTOR_ENTITY(declared_object) &&
@@ -135,7 +135,7 @@ errinfotype *err_info;
     } else if (current_ident == prog.id_for.subtype) {
       scan_symbol();
       meta_type = pars_infix_expression(SCOL_PRIORITY, TRUE);
-      if (CLASS_OF_OBJ(meta_type) == TYPEOBJECT) {
+      if (CATEGORY_OF_OBJ(meta_type) == TYPEOBJECT) {
         init_dollar_type(declared_object, take_type(meta_type), err_info);
       } else {
         err_object(TYPE_EXPECTED, meta_type);
@@ -143,12 +143,12 @@ errinfotype *err_info;
     } else if (current_ident == prog.id_for.func) {
       scan_symbol();
       basic_type = pars_infix_expression(SCOL_PRIORITY, TRUE);
-      if (CLASS_OF_OBJ(basic_type) == TYPEOBJECT) {
+      if (CATEGORY_OF_OBJ(basic_type) == TYPEOBJECT) {
         if ((generated_type = get_func_type(NULL,
             take_type(basic_type))) == NULL) {
           *err_info = MEMORY_ERROR;
         } else {
-          SET_CLASS_OF_OBJ(declared_object, TYPEOBJECT);
+          SET_CATEGORY_OF_OBJ(declared_object, TYPEOBJECT);
           declared_object->value.typevalue = generated_type;
           if (generated_type->name == NULL &&
               HAS_DESCRIPTOR_ENTITY(declared_object) &&
@@ -164,12 +164,12 @@ errinfotype *err_info;
       } /* if */
     } else if (current_ident == prog.id_for.enumlit) {
       scan_symbol();
-      SET_CLASS_OF_OBJ(declared_object, ENUMLITERALOBJECT);
+      SET_CATEGORY_OF_OBJ(declared_object, ENUMLITERALOBJECT);
       declared_object->value.nodevalue = NULL;
     } else if (current_ident == prog.id_for.action) {
       scan_symbol();
-      if (symbol.syclass == STRILITERAL) {
-        SET_CLASS_OF_OBJ(declared_object, ACTOBJECT);
+      if (symbol.sycategory == STRILITERAL) {
+        SET_CATEGORY_OF_OBJ(declared_object, ACTOBJECT);
         if (!find_action(symbol.strivalue, &declared_object->value.actvalue)) {
           err_stri(WRONGACTION, symbol.strivalue);
         } /* if */
@@ -236,7 +236,7 @@ errinfotype *err_info;
         } /* if */
 #endif
         if (typeof_object != NULL) {
-          if (CLASS_OF_OBJ(typeof_object) == TYPEOBJECT) {
+          if (CATEGORY_OF_OBJ(typeof_object) == TYPEOBJECT) {
             declared_object->type_of = take_type(typeof_object);
             /* printf("X declared_object->type_of: <%lx> ", declared_object->type_of);
             trace1(declared_object->type_of);
@@ -255,7 +255,7 @@ errinfotype *err_info;
       } else {
         init_expression = pars_infix_expression(SCOL_PRIORITY, TRUE);
         if (typeof_object != NULL) {
-          if (CLASS_OF_OBJ(typeof_object) == TYPEOBJECT) {
+          if (CATEGORY_OF_OBJ(typeof_object) == TYPEOBJECT) {
             declared_object->type_of = take_type(typeof_object);
             do_create(declared_object, init_expression, err_info);
             if (*err_info == CREATE_ERROR) {
@@ -298,7 +298,7 @@ errinfotype *err_info;
       do {
         scan_symbol();
       } while (current_ident != prog.id_for.semicolon &&
-          symbol.syclass != STOPSYMBOL);
+          symbol.sycategory != STOPSYMBOL);
       if (current_ident == prog.id_for.semicolon) {
         scan_symbol();
       } /* if */
@@ -332,7 +332,7 @@ errinfotype *err_info;
       scan_symbol();
       object_name = pars_infix_expression(COM_PRIORITY, FALSE);
 #ifdef OUT_OF_ORDER
-if (CLASS_OF_OBJ(object_name) == EXPROBJECT) {
+if (CATEGORY_OF_OBJ(object_name) == EXPROBJECT) {
   printf("$ object_name/list ");
   prot_list(object_name->value.listvalue);
 } else {
@@ -344,7 +344,7 @@ if (CLASS_OF_OBJ(object_name) == EXPROBJECT) {
     } else {
       object_name = pars_infix_expression(COM_PRIORITY, FALSE);
 #ifdef OUT_OF_ORDER
-if (CLASS_OF_OBJ(object_name) == EXPROBJECT) {
+if (CATEGORY_OF_OBJ(object_name) == EXPROBJECT) {
   printf("n object_name/list ");
   prot_list(object_name->value.listvalue);
 } else {
@@ -354,7 +354,7 @@ if (CLASS_OF_OBJ(object_name) == EXPROBJECT) {
 #endif
       defined_object = entername(node_level, object_name, err_info);
     } /* if */
-    if (CLASS_OF_OBJ(object_name) == EXPROBJECT) {
+    if (CATEGORY_OF_OBJ(object_name) == EXPROBJECT) {
       object_name->value.listvalue = NULL;
       FREE_OBJECT(object_name);
     } /* if */

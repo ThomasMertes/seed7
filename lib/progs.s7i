@@ -48,9 +48,11 @@ const func reference: sys_var (ref program param, in string param) is      actio
 const func integer: error_count (ref program param) is                     action "PRG_ERROR_COUNT";
 const func ref_list: declared_objects (ref program param) is               action "PRG_DECL_OBJECTS";
 const func boolean: is_var (ref reference param) is                        action "REF_ISVAR";
-const func string: obj_class (ref reference param) is                      action "REF_OBJCLASS";
+const func string: category (ref reference param) is                       action "REF_CATEGORY";
+const proc: setCategory (ref reference param, ref string param) is         action "REF_SETCATEGORY";
 (* const func reference: meta (ref reference param) is                     action "REF_META"; *)
 const func ref_list: params (ref reference param) is                       action "REF_PARAMS";
+const proc: setParams (ref reference param, ref ref_list param) is         action "REF_SETPARAMS";
 const func reference: func_result (ref reference param) is                 action "REF_RESULT";
 const func reference: func_res_init (ref reference param) is               action "REF_RESINI";
 const func ref_list: local_consts (ref reference param) is                 action "REF_LOCAL_CONSTS";
@@ -60,6 +62,7 @@ const func ref_list: array_to_list (ref reference param) is                actio
 const func integer: array_min_position (ref reference param) is            action "REF_ARRMINPOS";
 const func ref_list: struct_to_list (ref reference param) is               action "REF_SCTTOLIST";
 const func reference: interface_to_struct (ref reference param) is         action "REF_ITFTOSCT";
+const func reference: alloc (in reference param) is                        action "REF_NEW";
 const func integer: obj_number (ref reference param) is                    action "REF_NUM";
 const func integer: type_number (ref type param) is                        action "TYP_NUM";
 const func reference: match_obj (ref type param) is                        action "TYP_MATCHOBJ";
@@ -71,6 +74,58 @@ const func bitset: (attr bitset) value (ref reference param) is            actio
 const func program: (attr program) value (ref reference param) is          action "PRG_VALUE";
 const func ACTION: (attr ACTION) value (ref reference param) is            action "ACT_VALUE";
 const func PRIMITIVE_FILE: (attr PRIMITIVE_FILE) value (ref reference param) is action "FIL_VALUE";
+
+const func integer: getValue (ref reference: aRef, attr integer) is
+  return integer value aRef;
+const func char: getValue (ref reference: aRef, attr char) is
+  return char value aRef;
+const func string: getValue (ref reference: aRef, attr string) is
+  return string value aRef;
+const func bitset: getValue (ref reference: aRef, attr bitset) is
+  return bitset value aRef;
+const func program: getValue (ref reference: aRef, attr program) is
+  return program value aRef;
+const func ACTION: getValue (ref reference: aRef, attr ACTION) is
+  return ACTION value aRef;
+const func PRIMITIVE_FILE: getValue (ref reference: aRef, attr PRIMITIVE_FILE) is
+  return PRIMITIVE_FILE value aRef;
+const func ref_list: getValue (ref reference: aRef, attr ref_list) is
+  return ref_list value aRef;
+const func bigInteger: getValue (ref reference: aRef, attr bigInteger) is
+  return bigInteger value aRef;
+const func float: getValue (ref reference: aRef, attr float) is
+  return float value aRef;
+const func reference: getValue (ref reference: aRef, attr reference) is
+  return reference value aRef;
+const func type: getValue (ref reference: aRef, attr type) is
+  return type value aRef;
+
+const func integer: integer (ref reference: aRef) is
+  return integer value aRef;
+const func char: char (ref reference: aRef) is
+  return char value aRef;
+const func string: string (ref reference: aRef) is
+  return string value aRef;
+const func bitset: bitset (ref reference: aRef) is
+  return bitset value aRef;
+const func program: program (ref reference: aRef) is
+  return program value aRef;
+const func ACTION: ACTION (ref reference: aRef) is
+  return ACTION value aRef;
+const func PRIMITIVE_FILE: PRIMITIVE_FILE (ref reference: aRef) is
+  return PRIMITIVE_FILE value aRef;
+const func ref_list: ref_list (ref reference: aRef) is
+  return ref_list value aRef;
+const func bigInteger: bigInteger (ref reference: aRef) is
+  return bigInteger value aRef;
+const func float: float (ref reference: aRef) is
+  return float value aRef;
+const func reference: reference (ref reference: aRef) is
+  return reference value aRef;
+const func type: type (ref reference: aRef) is
+  return type value aRef;
+
+const proc: setValue(inout reference param, in ref_list param) is          action "RFL_SETVALUE";
 
 const func reference: match (ref program param, ref ref_list param) is     action "PRG_MATCH";
 

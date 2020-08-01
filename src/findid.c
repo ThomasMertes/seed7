@@ -191,7 +191,7 @@ listtype elem_list;
 #endif
     while (elem_list != NULL) {
       if (elem_list->obj->descriptor.entity == entity.literal) {
-        if (CLASS_OF_OBJ(elem_list->obj) != EXPROBJECT) {
+        if (CATEGORY_OF_OBJ(elem_list->obj) != EXPROBJECT) {
           err_object(IDENT_EXPECTED, elem_list->obj);
         } /* if */
       } /* if */
@@ -288,7 +288,7 @@ identtype actual_ident;
       printf("%s ", id_string(actual_ident));
       if (actual_ident->entity != NULL &&
           actual_ident->entity->syobject != NULL) {
-        if (CLASS_OF_OBJ(actual_ident->entity->syobject) == SYMBOLOBJECT) {
+        if (CATEGORY_OF_OBJ(actual_ident->entity->syobject) == SYMBOLOBJECT) {
           printf(" %ld", actual_ident->entity->syobject->value.pos);
         } /* if */
       } /* if */
@@ -329,7 +329,7 @@ void write_idents ()
         printf("%s ", id_string(prog.ident.table1[character]));
         if (prog.ident.table1[character]->entity != NULL &&
             prog.ident.table1[character]->entity->syobject != NULL) {
-          if (CLASS_OF_OBJ(prog.ident.table1[character]->entity->syobject) == SYMBOLOBJECT) {
+          if (CATEGORY_OF_OBJ(prog.ident.table1[character]->entity->syobject) == SYMBOLOBJECT) {
             printf(" %ld", prog.ident.table1[character]->entity->syobject->value.pos);
           } /* if */
         } /* if */

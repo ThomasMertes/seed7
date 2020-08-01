@@ -173,7 +173,7 @@ static INLINE void scan_eof ()
 #ifdef TRACE_SCANNER
     printf("BEGIN scan_eof\n");
 #endif
-    if (symbol.syclass == STOPSYMBOL) {
+    if (symbol.sycategory == STOPSYMBOL) {
       err_warning(EOF_ENCOUNTERED);
     } else {
       next_file();
@@ -181,7 +181,7 @@ static INLINE void scan_eof ()
         strcpy((cstritype) symbol.name, "END OF FILE");
         in_file.character = EOF;
         find_eof_ident();
-        symbol.syclass = STOPSYMBOL;
+        symbol.sycategory = STOPSYMBOL;
       } else {
         scan_symbol();
       } /* if */
@@ -253,7 +253,7 @@ void scan_symbol ()
         symbol.name[position] = '\0';                           /*  0.36%  0.37% */
         find_normal_ident(position);                            /*  0.24%  0.25% */
         in_file.character = character;                          /*  0.12%  0.12% */
-        symbol.syclass = NAMESYMBOL;                            /*  0.24%  0.25% */
+        symbol.sycategory = NAMESYMBOL;                         /*  0.24%  0.25% */
         break;                                                  /*  0.12%  0.12% */
       case ' ':  case '\t':  case '\r':
         /* SPACECHAR */
@@ -285,7 +285,7 @@ void scan_symbol ()
           find_1_ch_ident((int) symbol.name[0]);                /*  0.49%  0.51% */
         } /* if */
         in_file.character = character;                          /*  0.05%  0.05% */
-        symbol.syclass = SPECIALSYMBOL;                         /*  0.10%  0.10% */
+        symbol.sycategory = SPECIALSYMBOL;                      /*  0.10%  0.10% */
         break;                                                  /*  0.05%  0.10% */
       case '(':
         /* LEFTPARENCHAR */
@@ -296,7 +296,7 @@ void scan_symbol ()
           symbol.name[0] = '(';                                 /*  0.04%  0.04% */
 /*        symbol.name[1] = '\0';                                    0.03%  0.03% */
           find_1_ch_ident('(');                                 /*  0.04%  0.09% */
-          symbol.syclass = PARENSYMBOL;                         /*  0.03%  0.03% */
+          symbol.sycategory = PARENSYMBOL;                      /*  0.03%  0.03% */
         } /* if */
         break;                                                  /*         0.01% */
       case ')':
@@ -307,7 +307,7 @@ void scan_symbol ()
 /*      symbol.name[1] = '\0';                                      0.05%  0.05% */
         find_1_ch_ident(character);                             /*  0.08%  0.11% */
         in_file.character = next_character();                   /*  0.32%  0.34% */
-        symbol.syclass = PARENSYMBOL;                           /*  0.03%  0.03% */
+        symbol.sycategory = PARENSYMBOL;                        /*  0.03%  0.03% */
         break;                                                  /*         0.02% */
       case '0':  case '1':  case '2':  case '3':  case '4':
       case '5':  case '6':  case '7':  case '8':  case '9':

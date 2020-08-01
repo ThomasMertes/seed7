@@ -140,7 +140,7 @@ listtype arguments;
 
   { /* chr_create */
     isit_char(arg_3(arguments));
-    SET_CLASS_OF_OBJ(arg_1(arguments), CHAROBJECT);
+    SET_CATEGORY_OF_OBJ(arg_1(arguments), CHAROBJECT);
     arg_1(arguments)->value.charvalue = take_char(arg_3(arguments));
     return(SYS_EMPTY_OBJECT);
   } /* chr_create */

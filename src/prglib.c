@@ -145,7 +145,7 @@ listtype arguments;
   /* prg_create */
     prog_from = arg_3(arguments);
     isit_prog(prog_from);
-    SET_CLASS_OF_OBJ(arg_1(arguments), PROGOBJECT);
+    SET_CATEGORY_OF_OBJ(arg_1(arguments), PROGOBJECT);
     prog_value = take_prog(prog_from);
     arg_1(arguments)->value.progvalue = prog_value;
     if (TEMP_OBJECT(prog_from)) {
@@ -337,7 +337,7 @@ listtype arguments;
     module_object = take_reference(arg_1(arguments));
 /*  trace2(module_object); */
 #ifdef OUT_OF_ORDER
-    if (CLASS_OF_OBJ(module_object) == MODULEOBJECT) {
+    if (CATEGORY_OF_OBJ(module_object) == MODULEOBJECT) {
 /*    printf(" is module\n"); */
       result = FIND_OBJECT(module_object->value.DECLVALUE,
           take_reference(arg_3(arguments)));
@@ -427,12 +427,12 @@ listtype arguments;
     expr_object.type_of = NULL;
     expr_object.descriptor.entity = NULL;
     expr_object.value.listvalue = take_reflist(arg_2(arguments));
-    INIT_CLASS_OF_OBJ(&expr_object, EXPROBJECT);
+    INIT_CATEGORY_OF_OBJ(&expr_object, EXPROBJECT);
 
     result = match_prog_expression(currentProg->declaration_root, &expr_object);
     if (result != NULL) {
-      if (CLASS_OF_OBJ(result) == MATCHOBJECT ||
-          CLASS_OF_OBJ(result) == CALLOBJECT) {
+      if (CATEGORY_OF_OBJ(result) == MATCHOBJECT ||
+          CATEGORY_OF_OBJ(result) == CALLOBJECT) {
         take_reflist(arg_2(arguments)) = expr_object.value.listvalue->next;
         result = expr_object.value.listvalue->obj;
         expr_object.value.listvalue->next = NULL;

@@ -81,7 +81,7 @@ listtype arguments;
 
   { /* act_create */
     isit_action(arg_3(arguments));
-    SET_CLASS_OF_OBJ(arg_1(arguments), ACTOBJECT);
+    SET_CATEGORY_OF_OBJ(arg_1(arguments), ACTOBJECT);
     arg_1(arguments)->value.actvalue = take_action(arg_3(arguments));
     return(SYS_EMPTY_OBJECT);
   } /* act_create */

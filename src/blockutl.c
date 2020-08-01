@@ -63,15 +63,15 @@ locobjtype locobj;
     trace1(locobj->object);
     prot_nl(); */
     if (locobj->object != NULL) {
-      if (CLASS_OF_OBJ(locobj->object) == VALUEPARAMOBJECT ||
-          CLASS_OF_OBJ(locobj->object) == REFPARAMOBJECT ||
-          CLASS_OF_OBJ(locobj->object) == RESULTOBJECT ||
-          CLASS_OF_OBJ(locobj->object) == LOCALVOBJECT) {
-        if (CLASS_OF_OBJ(locobj->object) != RESULTOBJECT &&
+      if (CATEGORY_OF_OBJ(locobj->object) == VALUEPARAMOBJECT ||
+          CATEGORY_OF_OBJ(locobj->object) == REFPARAMOBJECT ||
+          CATEGORY_OF_OBJ(locobj->object) == RESULTOBJECT ||
+          CATEGORY_OF_OBJ(locobj->object) == LOCALVOBJECT) {
+        if (CATEGORY_OF_OBJ(locobj->object) != RESULTOBJECT &&
             locobj->init_value != NULL) {
-          if (CLASS_OF_OBJ(locobj->init_value) != ARRAYOBJECT &&
-              CLASS_OF_OBJ(locobj->init_value) != STRUCTOBJECT &&
-              CLASS_OF_OBJ(locobj->init_value) != TYPEOBJECT) {
+          if (CATEGORY_OF_OBJ(locobj->init_value) != ARRAYOBJECT &&
+              CATEGORY_OF_OBJ(locobj->init_value) != STRUCTOBJECT &&
+              CATEGORY_OF_OBJ(locobj->init_value) != TYPEOBJECT) {
             /* prot_heapsize();
             prot_cstri(" free_locobj value ");
             prot_int((inttype) locobj->init_value);
@@ -238,11 +238,11 @@ errinfotype *err_info;
 #ifdef TRACE_BLOCK
     printf("BEGIN get_result_var\n");
 #endif
-    if (CLASS_OF_OBJ(result_init) == MATCHOBJECT) {
-      SET_CLASS_OF_OBJ(result_init, CALLOBJECT);
+    if (CATEGORY_OF_OBJ(result_init) == MATCHOBJECT) {
+      SET_CATEGORY_OF_OBJ(result_init, CALLOBJECT);
     } /* if */
     result_var->object->type_of = result_type;
-    INIT_CLASS_OF_VAR(result_var->object, RESULTOBJECT);
+    INIT_CATEGORY_OF_VAR(result_var->object, RESULTOBJECT);
     result_var->object->value.objvalue = NULL;
     result_var->init_value = result_init;
     result_var->create_call_obj = get_create_call_obj(result_var->object, err_info);
@@ -275,7 +275,7 @@ errinfotype *err_info;
 #endif
     return_object.type_of = return_type;
     return_object.descriptor.entity = NULL;
-    INIT_CLASS_OF_VAR(&return_object, RESULTOBJECT);
+    INIT_CATEGORY_OF_VAR(&return_object, RESULTOBJECT);
     return_object.value.objvalue = NULL;
     return_var->object = NULL;
     return_var->init_value = NULL;
@@ -314,7 +314,7 @@ errinfotype *err_info;
     params_insert_place = &params;
     param_element = param_object_list;
     while (param_element != NULL) {
-      if (CLASS_OF_OBJ(param_element->obj) == VALUEPARAMOBJECT) {
+      if (CATEGORY_OF_OBJ(param_element->obj) == VALUEPARAMOBJECT) {
         create_call_obj = get_create_call_obj(param_element->obj, err_info);
         destroy_call_obj = get_destroy_call_obj(param_element->obj, err_info);
       } else {
@@ -367,10 +367,10 @@ errinfotype *err_info;
           init_value->type_of =     local_var->type_of;
           init_value->descriptor.entity = NULL;
           init_value->value =       local_var->value;
-          init_value->objclass =    local_var->objclass;
+          init_value->objcategory = local_var->objcategory;
           create_call_obj = get_create_call_obj(local_var, err_info);
           destroy_call_obj = get_destroy_call_obj(local_var, err_info);
-          SET_CLASS_OF_OBJ(local_var, LOCALVOBJECT);
+          SET_CATEGORY_OF_OBJ(local_var, LOCALVOBJECT);
           local_var->value.objvalue = init_value; /* was NULL; changed for comp.sd7 */
           append_to_loclist(&local_vars_insert_place,
               local_var, init_value, create_call_obj, destroy_call_obj, err_info);

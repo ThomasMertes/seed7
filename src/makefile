@@ -7,6 +7,7 @@
 # CFLAGS =
 #CFLAGS = -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 CFLAGS = -O2 -fomit-frame-pointer -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
+#CFLAGS = -O2 -g -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 #CFLAGS = -O2 -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -fomit-frame-pointer -funroll-loops -Wall
 # CFLAGS = -O2 -funroll-loops -Wall -pg
@@ -131,8 +132,10 @@ version.h:
 	echo "#undef  CHOWN_MISSING" >> version.h
 	echo "#undef  CHMOD_MISSING" >> version.h
 	echo "#define _FILE_OFFSET_BITS 64" >> version.h
-	echo "#define OBJECT_FILE_EXTENSION \"o\"" >> version.h
+	echo "#define OBJECT_FILE_EXTENSION \".o\"" >> version.h
+	echo "#define EXECUTABLE_FILE_EXTENSION \"\"" >> version.h
 	echo "#define C_COMPILER \"$(CC)\"" >> version.h
+	echo "#define REDIRECT_C_ERRORS \"2>\"" >> version.h
 	echo "#define LINKER_LIBS \"\\\"`pwd`/$(SEED7_OBJ_LIB)\\\" $(LIBS)\"" >> version.h
 	cd ../lib; echo "#define SEED7_LIBRARY" \"`pwd`\" >> ../src/version.h; cd ../src
 
@@ -154,7 +157,7 @@ $(SEED7_OBJ_LIB): $(A_OBJ)
 wc: $(SRC)
 	wc $(GSRC1) $(GSRC2)
 	wc $(ASRC1) $(ASRC2) $(ASRC3)
-	wc $(RSRC1) $(RSRC2)
+	wc $(RSRC1) $(RSRC2) $(RSRC3)
 	wc $(ESRC1)
 	wc $(LSRC1) $(LSRC2) $(LSRC3)
 	wc $(DSRC1)

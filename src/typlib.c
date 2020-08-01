@@ -157,7 +157,7 @@ listtype arguments;
     trace1(type_from->match_obj);
     printf("\n");
 #endif
-    SET_CLASS_OF_OBJ(type_to, TYPEOBJECT);
+    SET_CATEGORY_OF_OBJ(type_to, TYPEOBJECT);
     type_to->value.typevalue = type_from;
     if (!VAR_OBJECT(type_to)) {
       if (type_from->name == NULL &&
@@ -403,7 +403,7 @@ listtype arguments;
     objecttype result;
 
   /* typ_isdeclared */
-    if (CLASS_OF_OBJ(arg_1(arguments)) == DECLAREDOBJECT) {
+    if (CATEGORY_OF_OBJ(arg_1(arguments)) == DECLAREDOBJECT) {
       result = SYS_TRUE_OBJECT;
     } else {
       result = SYS_FALSE_OBJECT;
@@ -452,7 +452,7 @@ listtype arguments;
     objecttype result;
 
   /* typ_isforward */
-    if (CLASS_OF_OBJ(arg_1(arguments)) == FORWARDOBJECT) {
+    if (CATEGORY_OF_OBJ(arg_1(arguments)) == FORWARDOBJECT) {
       result = SYS_TRUE_OBJECT;
     } else {
       result = SYS_FALSE_OBJECT;
@@ -626,7 +626,7 @@ listtype arguments;
         } else {
           if (RESIZE_TABLE(type_table, typetype,
               table_size, table_used + TYPE_TABLE_INCREMENT)) {
-            COUNT3_TABLE(objecttype, table_size, table_used + TYPE_TABLE_INCREMENT);
+            COUNT3_TABLE(typetype, table_size, table_used + TYPE_TABLE_INCREMENT);
           } /* if */
         } /* if */
         if (type_table == NULL) {

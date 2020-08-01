@@ -87,7 +87,7 @@ objecttype destr_func;
     position = 0;
     while (position < new_size && !fail_flag) {
       elem_to[position].descriptor.entity = elem_from->descriptor.entity;
-      INIT_CLASS_OF_VAR(&elem_to[position], DECLAREDOBJECT);
+      INIT_CATEGORY_OF_VAR(&elem_to[position], DECLAREDOBJECT);
       elem_to[position].type_of = elem_from->type_of;
       param3_call(create_func, &elem_to[position], SYS_CREA_OBJECT, elem_from);
       if (fail_flag) {
@@ -158,7 +158,7 @@ objecttype cmp_func;
         do {
           less_elem++;
           cmp_obj = param3_call(cmp_func, less_elem, &compare_elem, cmp_func);
-          isit_int(cmp_obj);
+          isit_int2(cmp_obj);
           cmp = take_int(cmp_obj);
           FREE_OBJECT(cmp_obj);
         } while (cmp < 0);
@@ -176,14 +176,14 @@ objecttype cmp_func;
         do {
           less_elem++;
           cmp_obj = param3_call(cmp_func, less_elem, &compare_elem, cmp_func);
-          isit_int(cmp_obj);
+          isit_int2(cmp_obj);
           cmp = take_int(cmp_obj);
           FREE_OBJECT(cmp_obj);
         } while (cmp < 0);
         do {
           greater_elem--;
           cmp_obj = param3_call(cmp_func, greater_elem, &compare_elem, cmp_func);
-          isit_int(cmp_obj);
+          isit_int2(cmp_obj);
           cmp = take_int(cmp_obj);
           FREE_OBJECT(cmp_obj);
         } while (cmp > 0 && greater_elem != begin_sort);

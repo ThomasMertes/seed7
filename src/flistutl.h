@@ -139,7 +139,7 @@ EXTERN flisttype flist;
 #define POP_STRI(S,L)   (S = flist.stris[L],   flist.stris[L] = (stritype) flist.stris[L]->SIZE, TRUE)
 
 #define ALLOC_OBJECT(O) (flist.objects != NULL ? POP_OBJ(O) : HEAP_OBJ(O, objectrecord))
-#define FREE_OBJECT(O)  (F_LOG2(O) (O)->value.objvalue = flist.objects, (O)->objclass = 0, flist.objects = (O))
+#define FREE_OBJECT(O)  (F_LOG2(O) (O)->value.objvalue = flist.objects, (O)->objcategory = 0, flist.objects = (O))
 
 #define ALLOC_L_ELEM(L) (flist.list_elems != NULL ? POP_L_E(L) : HEAP_L_E(L, listrecord))
 #define FREE_L_ELEM(L)  (F_LOG2(L) (L)->next = flist.list_elems, flist.list_elems = (L))

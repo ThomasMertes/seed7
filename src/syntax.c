@@ -71,9 +71,9 @@ tokentype tokens;
 #endif
     printf("(");
     while (tokens != NULL) {
-      if (tokens->token_class == SY_TOKEN) {
+      if (tokens->token_category == SY_TOKEN) {
         printf(" %s", tokens->token_value.ident->name);
-      } else if (tokens->token_class == EXPR_TOKEN) {
+      } else if (tokens->token_category == EXPR_TOKEN) {
         printf(" [%d]", tokens->token_value.priority);
       } else {
         printf(" ##");
@@ -120,11 +120,11 @@ ustritype *name_of_last_sy_token;
 #ifdef TRACE_SYNTAX
     printf("BEGIN def_single_token\n");
 #endif
-    if (CLASS_OF_OBJ(statement_token) == EXPROBJECT) {
+    if (CATEGORY_OF_OBJ(statement_token) == EXPROBJECT) {
 /*  printf("  >[]<\n"); */
       if (statement_token->value.listvalue != NULL) {
         type_object = statement_token->value.listvalue->obj;
-        if (CLASS_OF_OBJ(type_object) == TYPEOBJECT) {
+        if (CATEGORY_OF_OBJ(type_object) == TYPEOBJECT) {
           typeof_token = take_type(type_object);
         } else {
           err_object(TYPE_EXPECTED, type_object);
@@ -196,7 +196,7 @@ listtype statement_tokens;
     number_of_inner_tokens = 0;
     token_number = 1;
     while (statement_tokens != NULL) {
-      if (CLASS_OF_OBJ(statement_tokens->obj) != EXPROBJECT) {
+      if (CATEGORY_OF_OBJ(statement_tokens->obj) != EXPROBJECT) {
         number_of_inner_tokens = token_number;
       } /* if */
       statement_tokens = statement_tokens->next;
@@ -330,7 +330,7 @@ assoctype statement_associativity;
 #ifdef TRACE_SYNTAX
     printf("BEGIN def_infix_syntax\n");
 #endif
-    if (CLASS_OF_OBJ(statement_syntax->obj) != EXPROBJECT) {
+    if (CATEGORY_OF_OBJ(statement_syntax->obj) != EXPROBJECT) {
       identifier = statement_syntax->obj->descriptor.entity->ident;
       if (identifier->infix_priority == 0) {
         identifier->infix_priority = statement_priority;
@@ -447,15 +447,15 @@ assoctype statement_associativity;
     trace1(syntax_expression);
     printf(")\n");
 #endif
-    /* printclass(CLASS_OF_OBJ(syntax_expression)); */
-    if (CLASS_OF_OBJ(syntax_expression) == LISTOBJECT) {
+    /* printcategory(CATEGORY_OF_OBJ(syntax_expression)); */
+    if (CATEGORY_OF_OBJ(syntax_expression) == LISTOBJECT) {
       /* printf("SYNTAX: ");
       prot_list(syntax_expression->value.listvalue);
       printf("\n"); */
       statement_syntax = syntax_expression->value.listvalue;
       if (statement_syntax != NULL) {
         check_list_of_syntax_elements(statement_syntax);
-        if (CLASS_OF_OBJ(statement_syntax->obj) == EXPROBJECT) {
+        if (CATEGORY_OF_OBJ(statement_syntax->obj) == EXPROBJECT) {
           if (statement_syntax->next != NULL) {
             token_list_end = def_infix_syntax(statement_syntax->next,
                 statement_priority, statement_associativity);
@@ -471,7 +471,7 @@ assoctype statement_associativity;
         err_warning(EMPTY_SYNTAX);
         token_list_end = NULL;
       } /* if */
-    } else if (CLASS_OF_OBJ(syntax_expression) == EXPROBJECT) {
+    } else if (CATEGORY_OF_OBJ(syntax_expression) == EXPROBJECT) {
       err_warning(DOT_EXPR_REQUESTED);
       token_list_end = NULL;
     } else {
@@ -523,7 +523,7 @@ void decl_syntax ()
       scan_symbol();
     } else {
       type_object = pars_infix_expression(WEAKEST_PRIORITY, TRUE);
-      if (CLASS_OF_OBJ(type_object) == TYPEOBJECT) {
+      if (CATEGORY_OF_OBJ(type_object) == TYPEOBJECT) {
         typeof_object = take_type(type_object);
       } else {
         err_object(TYPE_EXPECTED, type_object);
@@ -554,7 +554,7 @@ void decl_syntax ()
       assoc = YFX;
     } /* if */
     scan_symbol();
-    if (symbol.syclass != INTLITERAL) {
+    if (symbol.sycategory != INTLITERAL) {
       err_string(CARD_EXPECTED, symbol.name);
       scan_symbol();
     } else {
@@ -568,10 +568,10 @@ void decl_syntax ()
         if (token_list_end != NULL) {
           if (current_ident == prog.id_for.lbrack) {
             scan_symbol();
-            if (symbol.syclass != INTLITERAL) {
+            if (symbol.sycategory != INTLITERAL) {
               err_string(CARD_EXPECTED, symbol.name);
             } else {
-              token_list_end->token_class = SELECT_ELEMENT_FROM_LIST_SYNTAX;
+              token_list_end->token_category = SELECT_ELEMENT_FROM_LIST_SYNTAX;
               token_list_end->token_value.select = symbol.intvalue;
             } /* if */
             scan_symbol();
@@ -581,7 +581,7 @@ void decl_syntax ()
               err_ident(EXPECTED_SYMBOL, prog.id_for.rbrack);
             } /* if */
           } else {
-            token_list_end->token_class = LIST_WITH_TYPEOF_SYNTAX;
+            token_list_end->token_category = LIST_WITH_TYPEOF_SYNTAX;
             token_list_end->token_value.type_of = typeof_object;
           } /* if */
         } /* if */
@@ -592,9 +592,9 @@ void decl_syntax ()
     } else {
       err_ident(EXPECTED_SYMBOL, prog.id_for.semicolon);
     } /* if */
-/*  printclass(CLASS_OF_OBJ(expression)); */
+/*  printcategory(CATEGORY_OF_OBJ(expression)); */
 /* Loeschen der expression wenn EXPROBJECT: */
-  if (CLASS_OF_OBJ(expression) == EXPROBJECT) {
+  if (CATEGORY_OF_OBJ(expression) == EXPROBJECT) {
     emptylist(expression->value.listvalue);
     FREE_OBJECT(expression);
 /*  FREE_RECORD(expression, objectrecord, count.object); */

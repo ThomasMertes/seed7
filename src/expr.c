@@ -195,7 +195,7 @@ booltype  do_match_expr;
             pars_infix_expression(COM_PRIORITY, FALSE), &helplist,
             SYS_EXPR_TYPE);
 #ifdef OUT_OF_ORDER
-        expression->objclass = LISTOBJECT;
+        expression->objcategory = LISTOBJECT;
         while (current_ident == prog.id_for.comma) {
           scan_symbol();
           helplist = add_element_to_list(helplist,
@@ -246,7 +246,7 @@ booltype do_match_expr;
       if (current_ident == prog.id_for.dot) {
         expression = new_nonempty_expression_object(expression, &helplist,
             SYS_EXPR_TYPE);
-        expression->objclass = LISTOBJECT;
+        expression->objcategory = LISTOBJECT;
         do {
           scan_symbol();
           sub_expr = read_dot_subexpression(do_match_expr);
@@ -300,7 +300,7 @@ listtype actual_parameter;
 #endif
     okay = FALSE;
     while (formal_token != NULL) {
-      switch (formal_token->token_class) {
+      switch (formal_token->token_category) {
         case SY_TOKEN:
 /* printf("!SY_TOKEN  >%s< \n", formal_token->token_value.ident->name); */
           if (current_ident == formal_token->token_value.ident) {
@@ -328,7 +328,7 @@ listtype actual_parameter;
             } else {
               actual_param = pars_infix_expression(
                   formal_token->token_value.expr_par.priority, FALSE);
-              if (CLASS_OF_OBJ(actual_param) != EXPROBJECT) {
+              if (CATEGORY_OF_OBJ(actual_param) != EXPROBJECT) {
                 actual_param = new_type_of_expression_object(
                     actual_param, &helplist,
                     formal_token->token_value.expr_par.type_of);
@@ -414,7 +414,7 @@ booltype do_match_expr;
       } /* if */
     } /* if */
     if (do_match_expr) {
-      if (CLASS_OF_OBJ(expression) == EXPROBJECT) {
+      if (CATEGORY_OF_OBJ(expression) == EXPROBJECT) {
         if (match_expression(expression) == NULL) {
           err_object(NO_MATCH, expression);
         } /* if */
@@ -430,7 +430,7 @@ booltype do_match_expr;
       expression = pars_token(expression,
           formal_token, helplist);
       if (do_match_expr) {
-        if (CLASS_OF_OBJ(expression) == EXPROBJECT) {
+        if (CATEGORY_OF_OBJ(expression) == EXPROBJECT) {
           if (match_expression(expression) == NULL) {
             err_object(NO_MATCH, expression);
           } /* if */

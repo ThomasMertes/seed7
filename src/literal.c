@@ -125,7 +125,7 @@ unsigned int position;
     } else if (char_class(character) == DIGITCHAR) {
       in_file.character = character;
       lit_number();
-      if (symbol.syclass != INTLITERAL) {
+      if (symbol.sycategory != INTLITERAL) {
         err_string(CARD_EXPECTED, symbol.name);
         symbol.charvalue = ' ';
       } else {
@@ -500,7 +500,7 @@ void lit_char ()
       } /* if */
     } /* if */
     find_literal_ident();
-    symbol.syclass = CHARLITERAL;
+    symbol.sycategory = CHARLITERAL;
 #ifdef WITH_STATISTIC
     literal_count++;
 #endif
@@ -584,7 +584,7 @@ void lit_string ()
     } while (reading_string);                                   /*  0.02% */
     find_literal_ident();                                       /*  0.01% */
     in_file.character = character;                              /*  0.01% */
-    symbol.syclass = STRILITERAL;                               /*  0.01% */
+    symbol.sycategory = STRILITERAL;                            /*  0.01% */
     symbol.strivalue->size = position;                          /*  0.01% */
 #ifdef WITH_STATISTIC
     literal_count++;
@@ -644,7 +644,7 @@ static void lit_text ()
     symbol.name[position] = '\0';
     in_file.character = character;
     find_literal_ident();
-    symbol.syclass = STRILITERAL;
+    symbol.sycategory = STRILITERAL;
 #ifdef WITH_STATISTIC
     literal_count++;
 #endif

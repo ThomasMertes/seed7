@@ -80,7 +80,8 @@ linenumtype err_line;
 
   /* print_line */
     /* printf("err_line=%lu in_file.line=%lu\n", err_line, in_file.line); */
-    if (in_file.name != NULL && (current_position = IN_FILE_TELL()) >= 0L) {
+    if (in_file.name != NULL && in_file.curr_infile != NULL &&
+        (current_position = IN_FILE_TELL()) >= 0L) {
       /* printf("current_position=%lu in_file.character=%d\n",
          current_position, in_file.character); */
       table_size = in_file.line - err_line + 1;
@@ -161,7 +162,8 @@ static void print_error_line ()
     int ch;
 
   /* print_error_line */
-    if (in_file.name != NULL && (current_position = IN_FILE_TELL()) >= 0L) {
+    if (in_file.name != NULL && in_file.curr_infile != NULL &&
+        (current_position = IN_FILE_TELL()) >= 0L) {
       if (current_position >= 512) {
         buffer_start_position = current_position - 512;
         start_index = 511;
@@ -254,24 +256,24 @@ static void write_symbol ()
 #endif
 
   { /* write_symbol */
-    if (symbol.syclass == PARENSYMBOL) {
+    if (symbol.sycategory == PARENSYMBOL) {
       printf(" \"%c\"\n", symbol.name[0]);
-    } else if (symbol.syclass == INTLITERAL) {
+    } else if (symbol.sycategory == INTLITERAL) {
       printf(" \"%ld\"\n", symbol.intvalue);
-    } else if (symbol.syclass == BIGINTLITERAL) {
+    } else if (symbol.sycategory == BIGINTLITERAL) {
       printf(" \"%s_\"\n", symbol.name);
-    } else if (symbol.syclass == CHARLITERAL) {
+    } else if (symbol.sycategory == CHARLITERAL) {
       if (symbol.charvalue >= ' ' && symbol.charvalue <= '~') {
         printf(" \"'%c'\"\n", (char) symbol.charvalue);
       } else {
         printf(" \"'\\%lu\\'\"\n", symbol.charvalue);
       } /* if */
-    } else if (symbol.syclass == STRILITERAL) {
+    } else if (symbol.sycategory == STRILITERAL) {
       printf(" ");
       prot_stri(symbol.strivalue);
       printf("\n");
 #ifdef WITH_FLOAT
-    } else if (symbol.syclass == FLOATLITERAL) {
+    } else if (symbol.sycategory == FLOATLITERAL) {
       printf(" \"%f\"\n", symbol.floatvalue);
 #endif
     } else {
@@ -322,7 +324,7 @@ listtype params;
 
   /* write_name_list */
     while (params != NULL) {
-      if (CLASS_OF_OBJ(params->obj) == FORMPARAMOBJECT) {
+      if (CATEGORY_OF_OBJ(params->obj) == FORMPARAMOBJECT) {
         if (in_formal_param_list) {
           printf(", ");
         } else {
@@ -330,7 +332,7 @@ listtype params;
           in_formal_param_list = 1;
         } /* if */
         formal_param = params->obj->value.objvalue;
-        switch (CLASS_OF_OBJ(formal_param)) {
+        switch (CATEGORY_OF_OBJ(formal_param)) {
           case VALUEPARAMOBJECT:
             printf("in ");
             if (VAR_OBJECT(formal_param)) {
@@ -376,7 +378,7 @@ listtype params;
         } else {
           printf(" ");
         } /* if */
-        switch (CLASS_OF_OBJ(params->obj)) {
+        switch (CATEGORY_OF_OBJ(params->obj)) {
           case SYMBOLOBJECT:
             printf("%s", params->obj->descriptor.entity->ident->name);
             break;
@@ -408,7 +410,7 @@ objecttype anyobject;
     if (anyobject == NULL) {
       printf("(NULL)");
     } else {
-      switch (CLASS_OF_OBJ(anyobject)) {
+      switch (CATEGORY_OF_OBJ(anyobject)) {
         case TYPEOBJECT:
           printf("type ");
           write_type(anyobject->value.typevalue);
@@ -475,7 +477,7 @@ objecttype anyobject;
           if (HAS_DESCRIPTOR_ENTITY(anyobject)) {
             printf(id_string(anyobject->descriptor.entity->ident));
           } else {
-            printf("%d ", CLASS_OF_OBJ(anyobject));
+            printf("%d ", CATEGORY_OF_OBJ(anyobject));
             printf(" *NULL_ENTITY_OBJECT*");
           } /* if */
           break;
@@ -708,7 +710,7 @@ objecttype obj_found;
         break;
       case IDENT_EXPECTED:
         printf("Identifier expected found ");
-        switch (CLASS_OF_OBJ(obj_found)) {
+        switch (CATEGORY_OF_OBJ(obj_found)) {
           case INTOBJECT:
             printf("\"%ld\"", obj_found->value.intvalue);
             break;
@@ -728,7 +730,7 @@ objecttype obj_found;
             break;
 #endif
           default:
-            printclass(CLASS_OF_OBJ(obj_found));
+            printcategory(CATEGORY_OF_OBJ(obj_found));
             printf(" ");
             trace1(obj_found);
             break;

@@ -437,15 +437,15 @@ void lit_number ()
       symbol.floatvalue = readfloat();
 #endif
       find_literal_ident();
-      symbol.syclass = FLOATLITERAL;
+      symbol.sycategory = FLOATLITERAL;
     } else if (in_file.character == '_') {
       symbol.bigintvalue = readbiginteger();
       find_literal_ident();
-      symbol.syclass = BIGINTLITERAL;
+      symbol.sycategory = BIGINTLITERAL;
     } else {
       symbol.intvalue = readinteger();
       find_literal_ident();
-      symbol.syclass = INTLITERAL;
+      symbol.sycategory = INTLITERAL;
 #ifdef WITH_STATISTIC
       literal_count++;
 #endif

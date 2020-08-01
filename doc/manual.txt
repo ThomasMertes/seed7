@@ -2611,6 +2611,17 @@ CONTENTS
                     Type of result: file,
                     Returns STD_NULL if popen was not
                     possible )
+      openInetSocket(port) Open local internet client socket
+                  ( Type of argument port: integer,
+                    Type of result: file,
+                    Returns STD_NULL if open was not
+                    possible )
+      openInetSocket(addr, port) Open internet client socket
+                  ( Type of argument addr: string,
+                    Type of argument port: integer,
+                    Type of result: file,
+                    Returns STD_NULL if open was not
+                    possible )
       length(A) Length of file A
                   ( Type of result: integer )
       tell(A)   Return the actual file position

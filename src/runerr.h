@@ -37,10 +37,10 @@ EXTERN listtype fail_stack;
 #ifdef ANSI_C
 
 void continue_question(void);
-void run_error (objectclass, objecttype);
+void run_error (objectcategory, objecttype);
 void empty_value (objecttype);
 void var_required (objecttype);
-objecttype undef_objectclass (objecttype, listtype);
+objecttype undef_objectcategory (objecttype, listtype);
 void write_call_stack (const_listtype);
 objecttype raise_with_arguments (objecttype, listtype);
 objecttype raise_exception (objecttype);
@@ -52,7 +52,7 @@ void continue_question();
 void run_error ();
 void empty_value ();
 void var_required ();
-objecttype undef_objectclass ();
+objecttype undef_objectcategory ();
 void write_call_stack ();
 objecttype raise_with_arguments ();
 objecttype raise_exception ();

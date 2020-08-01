@@ -41,10 +41,10 @@
 #define take_action(arg)    (arg)->value.actvalue
 #define take_array(arg)     (arg)->value.arrayvalue
 #define take_block(arg)     (arg)->value.blockvalue
-#define take_bool(arg)      (CLASS_OF_OBJ(arg) == CONSTENUMOBJECT || CLASS_OF_OBJ(arg) == VARENUMOBJECT ? (arg)->value.objvalue : (arg))
+#define take_bool(arg)      (CATEGORY_OF_OBJ(arg) == CONSTENUMOBJECT || CATEGORY_OF_OBJ(arg) == VARENUMOBJECT ? (arg)->value.objvalue : (arg))
 #define take_bstri(arg)     (arg)->value.bstrivalue
 #define take_char(arg)      (arg)->value.charvalue
-#define take_enum(arg)      (CLASS_OF_OBJ(arg) == CONSTENUMOBJECT || CLASS_OF_OBJ(arg) == VARENUMOBJECT ? (arg)->value.objvalue : (arg))
+#define take_enum(arg)      (CATEGORY_OF_OBJ(arg) == CONSTENUMOBJECT || CATEGORY_OF_OBJ(arg) == VARENUMOBJECT ? (arg)->value.objvalue : (arg))
 #define take_file(arg)      (arg)->value.filevalue
 #define take_float(arg)     (arg)->value.floatvalue
 #define take_hash(arg)      (arg)->value.hashvalue
@@ -62,40 +62,44 @@
 #define take_win(arg)       (arg)->value.winvalue
 
 #ifdef WITH_TYPE_CHECK
-#define isit_action(arg)    if (CLASS_OF_OBJ(arg) != ACTOBJECT)     run_error(ACTOBJECT, arg)
-#define isit_array(arg)     if (CLASS_OF_OBJ(arg) != ARRAYOBJECT)   run_error(ARRAYOBJECT, arg); \
-                            if (take_array(arg) == NULL)            empty_value(arg)
-#define isit_bigint(arg)    if (CLASS_OF_OBJ(arg) != BIGINTOBJECT)  run_error(BIGINTOBJECT, arg)
-#define isit_block(arg)     if (CLASS_OF_OBJ(arg) != BLOCKOBJECT)   run_error(BLOCKOBJECT, arg)
+#define run_exception(c,arg) { run_error(c, arg); return(NULL); }
+#define isit_action(arg)    if (CATEGORY_OF_OBJ(arg) != ACTOBJECT)     run_exception(ACTOBJECT, arg)
+#define isit_array(arg)     if (CATEGORY_OF_OBJ(arg) != ARRAYOBJECT)   run_exception(ARRAYOBJECT, arg); \
+                            if (take_array(arg) == NULL)               { empty_value(arg); return(NULL); }
+#define isit_bigint(arg)    if (CATEGORY_OF_OBJ(arg) != BIGINTOBJECT)  run_exception(BIGINTOBJECT, arg)
+#define isit_block(arg)     if (CATEGORY_OF_OBJ(arg) != BLOCKOBJECT)   run_exception(BLOCKOBJECT, arg)
 /*      isit_bool(arg)      */
-#define isit_bstri(arg)     if (CLASS_OF_OBJ(arg) != BSTRIOBJECT)   run_error(BSTRIOBJECT, arg); \
-                            if (take_bstri(arg) == NULL)            empty_value(arg)
-#define isit_call(arg)      if (CLASS_OF_OBJ(arg) != CALLOBJECT)    run_error(CALLOBJECT, arg)
-#define isit_char(arg)      if (CLASS_OF_OBJ(arg) != CHAROBJECT)    run_error(CHAROBJECT, arg)
-#define isit_class(arg)     if (CLASS_OF_OBJ(arg) != CLASSOBJECT)   run_error(CLASSOBJECT, arg); \
-                            if (take_reference(arg) == NULL)        empty_value(arg)
+#define isit_bstri(arg)     if (CATEGORY_OF_OBJ(arg) != BSTRIOBJECT)   run_exception(BSTRIOBJECT, arg); \
+                            if (take_bstri(arg) == NULL)               { empty_value(arg); return(NULL); }
+#define isit_call(arg)      if (CATEGORY_OF_OBJ(arg) != CALLOBJECT)    run_exception(CALLOBJECT, arg)
+#define isit_char(arg)      if (CATEGORY_OF_OBJ(arg) != CHAROBJECT)    run_exception(CHAROBJECT, arg)
+#define isit_class(arg)     if (CATEGORY_OF_OBJ(arg) != CLASSOBJECT)   run_exception(CLASSOBJECT, arg); \
+                            if (take_reference(arg) == NULL)           { empty_value(arg); return(NULL); }
 /*      isit_enum(arg)      */
-#define isit_file(arg)      if (CLASS_OF_OBJ(arg) != FILEOBJECT)    run_error(FILEOBJECT, arg)
-#define isit_float(arg)     if (CLASS_OF_OBJ(arg) != FLOATOBJECT)   run_error(FLOATOBJECT, arg)
-#define isit_hash(arg)      if (CLASS_OF_OBJ(arg) != HASHOBJECT)    run_error(HASHOBJECT, arg); \
-                            if (take_hash(arg) == NULL)             empty_value(arg)
-#define isit_int(arg)       if (CLASS_OF_OBJ(arg) != INTOBJECT)     run_error(INTOBJECT, arg)
+#define isit_file(arg)      if (CATEGORY_OF_OBJ(arg) != FILEOBJECT)    run_exception(FILEOBJECT, arg)
+#define isit_float(arg)     if (CATEGORY_OF_OBJ(arg) != FLOATOBJECT)   run_exception(FLOATOBJECT, arg)
+#define isit_hash(arg)      if (CATEGORY_OF_OBJ(arg) != HASHOBJECT)    run_exception(HASHOBJECT, arg); \
+                            if (take_hash(arg) == NULL)                { empty_value(arg); return(NULL); }
+#define isit_int(arg)       if (CATEGORY_OF_OBJ(arg) != INTOBJECT)     run_exception(INTOBJECT, arg)
 /*      isit_list(arg)      */
-#define isit_proc(arg)      if (CLASS_OF_OBJ(arg) != BLOCKOBJECT && \
-                                CLASS_OF_OBJ(arg) != ACTOBJECT)     run_error(BLOCKOBJECT, arg)
-#define isit_prog(arg)      if (CLASS_OF_OBJ(arg) != PROGOBJECT)    run_error(PROGOBJECT, arg)
-#define isit_reference(arg) if (CLASS_OF_OBJ(arg) != REFOBJECT)     run_error(REFOBJECT, arg)
-#define isit_reflist(arg)   if (CLASS_OF_OBJ(arg) != REFLISTOBJECT) run_error(REFLISTOBJECT, arg)
-#define isit_set(arg)       if (CLASS_OF_OBJ(arg) != SETOBJECT)     run_error(SETOBJECT, arg); \
-                            if (take_set(arg) == NULL)              empty_value(arg)
-#define isit_socket(arg)    if (CLASS_OF_OBJ(arg) != SOCKETOBJECT)  run_error(SOCKETOBJECT, arg)
-#define isit_stri(arg)      if (CLASS_OF_OBJ(arg) != STRIOBJECT)    run_error(STRIOBJECT, arg); \
-                            if (take_stri(arg) == NULL)             empty_value(arg)
-#define isit_struct(arg)    if (CLASS_OF_OBJ(arg) != STRUCTOBJECT)  run_error(STRUCTOBJECT, arg); \
-                            if (take_struct(arg) == NULL)           empty_value(arg)
-#define isit_type(arg)      if (CLASS_OF_OBJ(arg) != TYPEOBJECT)    run_error(TYPEOBJECT, arg)
-#define isit_win(arg)       if (CLASS_OF_OBJ(arg) != WINOBJECT)     run_error(WINOBJECT, arg)
-#define is_variable(arg)    if (!VAR_OBJECT(arg)) var_required(arg);
+#define isit_proc(arg)      if (CATEGORY_OF_OBJ(arg) != BLOCKOBJECT && \
+                                CATEGORY_OF_OBJ(arg) != ACTOBJECT)     run_exception(BLOCKOBJECT, arg)
+#define isit_prog(arg)      if (CATEGORY_OF_OBJ(arg) != PROGOBJECT)    run_exception(PROGOBJECT, arg)
+#define isit_reference(arg) if (CATEGORY_OF_OBJ(arg) != REFOBJECT)     run_exception(REFOBJECT, arg)
+#define isit_reflist(arg)   if (CATEGORY_OF_OBJ(arg) != REFLISTOBJECT && \
+                                CATEGORY_OF_OBJ(arg) != MATCHOBJECT && \
+                                CATEGORY_OF_OBJ(arg) != CALLOBJECT)    run_exception(REFLISTOBJECT, arg)
+#define isit_set(arg)       if (CATEGORY_OF_OBJ(arg) != SETOBJECT)     run_exception(SETOBJECT, arg); \
+                            if (take_set(arg) == NULL)                 { empty_value(arg); return(NULL); }
+#define isit_socket(arg)    if (CATEGORY_OF_OBJ(arg) != SOCKETOBJECT)  run_exception(SOCKETOBJECT, arg)
+#define isit_stri(arg)      if (CATEGORY_OF_OBJ(arg) != STRIOBJECT)    run_exception(STRIOBJECT, arg); \
+                            if (take_stri(arg) == NULL)                { empty_value(arg); return(NULL); }
+#define isit_struct(arg)    if (CATEGORY_OF_OBJ(arg) != STRUCTOBJECT)  run_exception(STRUCTOBJECT, arg); \
+                            if (take_struct(arg) == NULL)              { empty_value(arg); return(NULL); }
+#define isit_type(arg)      if (CATEGORY_OF_OBJ(arg) != TYPEOBJECT)    run_exception(TYPEOBJECT, arg)
+#define isit_win(arg)       if (CATEGORY_OF_OBJ(arg) != WINOBJECT)     run_exception(WINOBJECT, arg)
+#define is_variable(arg)    if (!VAR_OBJECT(arg)) { var_required(arg); return(NULL); }
+#define isit_int2(arg)      if (CATEGORY_OF_OBJ(arg) != INTOBJECT)     run_error(INTOBJECT, arg)
 #else
 #define isit_action(arg)
 #define isit_array(arg)
@@ -122,6 +126,7 @@
 #define isit_type(arg)
 #define isit_win(arg)
 #define is_variable(arg)
+#define isit_int2(arg)
 #endif
 
 

@@ -162,7 +162,7 @@ listtype arguments;
 
   { /* fil_create */
     isit_file(arg_3(arguments));
-    SET_CLASS_OF_OBJ(arg_1(arguments), FILEOBJECT);
+    SET_CATEGORY_OF_OBJ(arg_1(arguments), FILEOBJECT);
     arg_1(arguments)->value.filevalue = take_file(arg_3(arguments));
     return(SYS_EMPTY_OBJECT);
   } /* fil_create */

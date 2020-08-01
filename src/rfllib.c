@@ -212,7 +212,7 @@ listtype arguments;
   /* rfl_create */
     list_to = arg_1(arguments);
     list_from = arg_3(arguments);
-    SET_CLASS_OF_OBJ(list_to, REFLISTOBJECT);
+    SET_CATEGORY_OF_OBJ(list_to, REFLISTOBJECT);
     isit_reflist(list_from);
     if (TEMP_OBJECT(list_from)) {
       list_to->value.listvalue = take_reflist(list_from);
@@ -433,7 +433,7 @@ listtype arguments;
           operator = arg_2(list1);
           arg3_object = arg_3(list1);
           incl_list(&result, arg3_object, &err_info);
-          if (CLASS_OF_OBJ(arg1_object) == EXPROBJECT) {
+          if (CATEGORY_OF_OBJ(arg1_object) == EXPROBJECT) {
             list1 = take_list(arg1_object);
           } else {
             incl_list(&result, arg1_object, &err_info);
@@ -712,6 +712,39 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype rfl_pos (listtype arguments)
+#else
+
+objecttype rfl_pos (arguments)
+listtype arguments;
+#endif
+
+  {
+    listtype list_element;
+    objecttype searched_object;
+    inttype result;
+
+  /* rfl_pos */
+    isit_reflist(arg_1(arguments));
+    isit_reference(arg_2(arguments));
+    list_element = take_reflist(arg_1(arguments));
+    searched_object = take_reference(arg_2(arguments));
+    result = 1;
+    while (list_element != NULL && list_element->obj != searched_object) {
+      list_element = list_element->next;
+      result++;
+    } /* while */
+    if (list_element != NULL) {
+      return(bld_int_temp(result));
+    } else {
+      return(bld_int_temp(0));
+    } /* if */
+  } /* rfl_pos */
+
+
+
+#ifdef ANSI_C
+
 objecttype rfl_range (listtype arguments)
 #else
 
@@ -774,6 +807,53 @@ listtype arguments;
       return(bld_reflist_temp(result));
     } /* if */
   } /* rfl_range */
+
+
+
+#ifdef ANSI_C
+
+objecttype rfl_setvalue (listtype arguments)
+#else
+
+objecttype rfl_setvalue (arguments)
+listtype arguments;
+#endif
+
+  {
+    objecttype list_to;
+    objecttype list_from;
+    listtype help_list;
+    errinfotype err_info = OKAY_NO_ERROR;
+
+  /* rfl_setvalue */
+    isit_reference(arg_1(arguments));
+    is_variable(arg_1(arguments));
+    list_to = take_reference(arg_1(arguments));
+    list_from = arg_2(arguments);
+    isit_reflist(list_from);
+    if (CATEGORY_OF_OBJ(list_to) == MATCHOBJECT ||
+        CATEGORY_OF_OBJ(list_to) == CALLOBJECT ||
+        CATEGORY_OF_OBJ(list_to) == REFLISTOBJECT) {
+      if (list_from != list_to) {
+        if (TEMP_OBJECT(list_from)) {
+          emptylist(take_reflist(list_to));
+          list_to->value.listvalue = take_reflist(list_from);
+          list_from->value.listvalue = NULL;
+        } else {
+          copy_list(take_reflist(list_from), &help_list, &err_info);
+          if (err_info != OKAY_NO_ERROR) {
+            return(raise_exception(SYS_MEM_EXCEPTION));
+          } else {
+            emptylist(take_reflist(list_to));
+            list_to->value.listvalue = help_list;
+          } /* if */
+        } /* if */
+      } /* if */
+    } else {
+      run_error(REFLISTOBJECT, list_to);
+    } /* if */
+    return(SYS_EMPTY_OBJECT);
+  } /* rfl_setvalue */
 
 
 
@@ -867,9 +947,9 @@ listtype arguments;
   /* rfl_value */
     isit_reference(arg_3(arguments));
     obj_arg = take_reference(arg_3(arguments));
-    if (CLASS_OF_OBJ(obj_arg) == MATCHOBJECT ||
-        CLASS_OF_OBJ(obj_arg) == CALLOBJECT ||
-        CLASS_OF_OBJ(obj_arg) == REFLISTOBJECT) {
+    if (CATEGORY_OF_OBJ(obj_arg) == MATCHOBJECT ||
+        CATEGORY_OF_OBJ(obj_arg) == CALLOBJECT ||
+        CATEGORY_OF_OBJ(obj_arg) == REFLISTOBJECT) {
       copy_list(take_reflist(obj_arg), &result, &err_info);
     } else {
       run_error(REFLISTOBJECT, obj_arg);

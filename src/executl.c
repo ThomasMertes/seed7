@@ -82,7 +82,7 @@ errinfotype *err_info;
     expr_object.type_of = take_type(SYS_EXPR_TYPE);
     expr_object.descriptor.entity = NULL;
     expr_object.value.listvalue = expr_list;
-    INIT_CLASS_OF_OBJ(&expr_object, EXPROBJECT);
+    INIT_CATEGORY_OF_OBJ(&expr_object, EXPROBJECT);
 
     expr_list[0].next = &expr_list[1];
     expr_list[1].next = &expr_list[2];
@@ -133,7 +133,7 @@ errinfotype *err_info;
     expr_object.type_of = take_type(SYS_EXPR_TYPE);
     expr_object.descriptor.entity = NULL;
     expr_object.value.listvalue = expr_list;
-    INIT_CLASS_OF_OBJ(&expr_object, EXPROBJECT);
+    INIT_CATEGORY_OF_OBJ(&expr_object, EXPROBJECT);
 
     expr_list[0].next = &expr_list[1];
     expr_list[1].next = NULL;
@@ -184,7 +184,7 @@ errinfotype *err_info;
     expr_object.type_of = take_type(SYS_EXPR_TYPE);
     expr_object.descriptor.entity = NULL;
     expr_object.value.listvalue = expr_list;
-    INIT_CLASS_OF_OBJ(&expr_object, EXPROBJECT);
+    INIT_CATEGORY_OF_OBJ(&expr_object, EXPROBJECT);
 
     expr_list[0].next = &expr_list[1];
     expr_list[1].next = &expr_list[2];
@@ -236,7 +236,7 @@ errinfotype *err_info;
     expr_object.type_of = take_type(SYS_EXPR_TYPE);
     expr_object.descriptor.entity = NULL;
     expr_object.value.listvalue = expr_list;
-    INIT_CLASS_OF_OBJ(&expr_object, EXPROBJECT);
+    INIT_CATEGORY_OF_OBJ(&expr_object, EXPROBJECT);
 
     expr_list[0].next = &expr_list[1];
     expr_list[1].next = &expr_list[2];
@@ -284,7 +284,7 @@ errinfotype *err_info;
     expr_object.type_of = take_type(SYS_EXPR_TYPE);
     expr_object.descriptor.entity = NULL;
     expr_object.value.listvalue = expr_list;
-    INIT_CLASS_OF_OBJ(&expr_object, EXPROBJECT);
+    INIT_CATEGORY_OF_OBJ(&expr_object, EXPROBJECT);
 
     expr_list[0].next = &expr_list[1];
     expr_list[1].next = NULL;
@@ -334,7 +334,7 @@ errinfotype *err_info;
     expr_object.type_of = take_type(SYS_EXPR_TYPE);
     expr_object.descriptor.entity = NULL;
     expr_object.value.listvalue = expr_list;
-    INIT_CLASS_OF_OBJ(&expr_object, EXPROBJECT);
+    INIT_CATEGORY_OF_OBJ(&expr_object, EXPROBJECT);
 
     expr_list[0].next = &expr_list[1];
     expr_list[1].next = &expr_list[2];
@@ -455,7 +455,7 @@ errinfotype *err_info;
         call_object.type_of = NULL;
         call_object.descriptor.entity = NULL;
         call_object.value.listvalue = call_list;
-        INIT_CLASS_OF_OBJ(&call_object, CALLOBJECT);
+        INIT_CATEGORY_OF_OBJ(&call_object, CALLOBJECT);
 
         call_list[0].next = &call_list[1];
         call_list[1].next = &call_list[2];
@@ -518,7 +518,7 @@ errinfotype *err_info;
       call_object.type_of = NULL;
       call_object.descriptor.entity = NULL;
       call_object.value.listvalue = call_list;
-      INIT_CLASS_OF_OBJ(&call_object, CALLOBJECT);
+      INIT_CATEGORY_OF_OBJ(&call_object, CALLOBJECT);
 
       /* prot_cstri("old_obj=[");
       prot_int((inttype) old_obj);
@@ -666,7 +666,7 @@ errinfotype *err_info;
         call_object.type_of = NULL;
         call_object.descriptor.entity = NULL;
         call_object.value.listvalue = call_list;
-        INIT_CLASS_OF_OBJ(&call_object, CALLOBJECT);
+        INIT_CATEGORY_OF_OBJ(&call_object, CALLOBJECT);
 
         call_list[0].next = &call_list[1];
         call_list[1].next = &call_list[2];
@@ -710,7 +710,7 @@ errinfotype *err_info;
 #endif
 
   {
-    classtype temp_any_obj;
+    categorytype temp_any_obj;
     objectrecord call_object;
     listrecord call_list[3];
     objecttype call_result;
@@ -730,7 +730,7 @@ errinfotype *err_info;
       call_object.type_of = NULL;
       call_object.descriptor.entity = NULL;
       call_object.value.listvalue = call_list;
-      INIT_CLASS_OF_OBJ(&call_object, CALLOBJECT);
+      INIT_CATEGORY_OF_OBJ(&call_object, CALLOBJECT);
 
       /* prot_cstri("any_obj=[");
       prot_int((inttype) any_obj);
@@ -804,8 +804,8 @@ errinfotype *err_info;
 #endif
 
   {
-    classtype temp_elem_obj;
-    classtype temp_set_obj;
+    categorytype temp_elem_obj;
+    categorytype temp_set_obj;
     objectrecord call_object;
     listrecord call_list[4];
     objecttype call_result;
@@ -825,7 +825,7 @@ errinfotype *err_info;
       call_object.type_of = NULL;
       call_object.descriptor.entity = NULL;
       call_object.value.listvalue = call_list;
-      INIT_CLASS_OF_OBJ(&call_object, CALLOBJECT);
+      INIT_CATEGORY_OF_OBJ(&call_object, CALLOBJECT);
 
       /* prot_cstri("elem_obj=[");
       prot_int((inttype) elem_obj);
@@ -910,7 +910,7 @@ objecttype param1;
     call_object.type_of = NULL;
     call_object.descriptor.entity = NULL;
     call_object.value.listvalue = call_list;
-    INIT_CLASS_OF_OBJ(&call_object, CALLOBJECT);
+    INIT_CATEGORY_OF_OBJ(&call_object, CALLOBJECT);
 
     call_list[0].next = &call_list[1];
     call_list[1].next = NULL;
@@ -944,7 +944,7 @@ objecttype param2;
     call_object.type_of = NULL;
     call_object.descriptor.entity = NULL;
     call_object.value.listvalue = call_list;
-    INIT_CLASS_OF_OBJ(&call_object, CALLOBJECT);
+    INIT_CATEGORY_OF_OBJ(&call_object, CALLOBJECT);
 
     call_list[0].next = &call_list[1];
     call_list[1].next = &call_list[2];
@@ -981,7 +981,7 @@ objecttype param3;
     call_object.type_of = NULL;
     call_object.descriptor.entity = NULL;
     call_object.value.listvalue = call_list;
-    INIT_CLASS_OF_OBJ(&call_object, CALLOBJECT);
+    INIT_CATEGORY_OF_OBJ(&call_object, CALLOBJECT);
 
     call_list[0].next = &call_list[1];
     call_list[1].next = &call_list[2];
@@ -1021,15 +1021,15 @@ errinfotype *err_info;
       new_object->type_of = init_value->type_of;
       new_object->descriptor.entity = NULL;
       if (VAR_OBJECT(init_value)) {
-        INIT_CLASS_OF_VAR(new_object, DECLAREDOBJECT);
+        INIT_CATEGORY_OF_VAR(new_object, DECLAREDOBJECT);
       } else {
-        INIT_CLASS_OF_OBJ(new_object, DECLAREDOBJECT);
+        INIT_CATEGORY_OF_OBJ(new_object, DECLAREDOBJECT);
       } /* if */
 
       call_object.type_of = NULL;
       call_object.descriptor.entity = NULL;
       call_object.value.listvalue = call_list;
-      INIT_CLASS_OF_OBJ(&call_object, CALLOBJECT);
+      INIT_CATEGORY_OF_OBJ(&call_object, CALLOBJECT);
 
       call_list[0].next = &call_list[1];
       call_list[1].next = &call_list[2];
@@ -1081,15 +1081,15 @@ errinfotype *err_info;
       new_object->type_of = local->object->type_of;
       new_object->descriptor.entity = NULL;
       if (VAR_OBJECT(local->object)) {
-        INIT_CLASS_OF_VAR(new_object, DECLAREDOBJECT);
+        INIT_CATEGORY_OF_VAR(new_object, DECLAREDOBJECT);
       } else {
-        INIT_CLASS_OF_OBJ(new_object, DECLAREDOBJECT);
+        INIT_CATEGORY_OF_OBJ(new_object, DECLAREDOBJECT);
       } /* if */
 
       call_object.type_of = NULL;
       call_object.descriptor.entity = NULL;
       call_object.value.listvalue = call_list;
-      INIT_CLASS_OF_OBJ(&call_object, CALLOBJECT);
+      INIT_CATEGORY_OF_OBJ(&call_object, CALLOBJECT);
 
       call_list[0].next = &call_list[1];
       call_list[1].next = &call_list[2];
@@ -1135,7 +1135,7 @@ errinfotype *err_info;
     objecttype call_result;
 
   /* destroy_local_object */
-    switch (CLASS_OF_OBJ(local->object->value.objvalue)) {
+    switch (CATEGORY_OF_OBJ(local->object->value.objvalue)) {
       case INTOBJECT:
       case CHAROBJECT:
       case FILEOBJECT:
@@ -1150,7 +1150,7 @@ errinfotype *err_info;
         call_object.type_of = NULL;
         call_object.descriptor.entity = NULL;
         call_object.value.listvalue = call_list;
-        INIT_CLASS_OF_OBJ(&call_object, CALLOBJECT);
+        INIT_CATEGORY_OF_OBJ(&call_object, CALLOBJECT);
 
         call_list[0].next = &call_list[1];
         call_list[1].next = &call_list[2];
@@ -1196,9 +1196,9 @@ listtype obj_list;
       /* prot_cstri("destroy_object ");
       trace1(obj_list->obj);
       prot_nl(); */
-      if (CLASS_OF_OBJ(obj_list->obj) != ARRAYOBJECT &&
-          CLASS_OF_OBJ(obj_list->obj) != STRUCTOBJECT &&
-          CLASS_OF_OBJ(obj_list->obj) != TYPEOBJECT) {
+      if (CATEGORY_OF_OBJ(obj_list->obj) != ARRAYOBJECT &&
+          CATEGORY_OF_OBJ(obj_list->obj) != STRUCTOBJECT &&
+          CATEGORY_OF_OBJ(obj_list->obj) != TYPEOBJECT) {
         dump_any_temp(obj_list->obj);
       } /* if */
       obj_list = obj_list->next;
@@ -1222,7 +1222,7 @@ objecttype obj_from;
 
   /* any_var_initialisation */
     obj_to->descriptor.entity = obj_from->descriptor.entity;
-    INIT_CLASS_OF_VAR(obj_to, DECLAREDOBJECT);
+    INIT_CATEGORY_OF_VAR(obj_to, DECLAREDOBJECT);
     obj_to->type_of = obj_from->type_of;
     do_create(obj_to, obj_from, &err_info);
     return(err_info == OKAY_NO_ERROR);
@@ -1246,7 +1246,7 @@ memsizetype old_size;
 
   /* destr_struct */
     for (position = old_size; position > 0; position--) {
-      switch (CLASS_OF_OBJ(old_elem)) {
+      switch (CATEGORY_OF_OBJ(old_elem)) {
         case INTOBJECT:
         case CHAROBJECT:
         case FILEOBJECT:

@@ -113,7 +113,7 @@ errinfotype *err_info;
     objecttype object_to_elem;
 
   /* copy_expression */
-    if (CLASS_OF_OBJ(object_from) == EXPROBJECT) {
+    if (CATEGORY_OF_OBJ(object_from) == EXPROBJECT) {
       if (!ALLOC_OBJECT(*object_to)) {
         *err_info = MEMORY_ERROR;
       } else {
@@ -121,7 +121,7 @@ errinfotype *err_info;
         (*object_to)->descriptor.entity = object_from->descriptor.entity;
         (*object_to)->value.listvalue = NULL;
         list_insert_place = &(*object_to)->value.listvalue;
-        INIT_CLASS_OF_OBJ((*object_to), CLASS_OF_OBJ(object_from));
+        INIT_CATEGORY_OF_OBJ((*object_to), CATEGORY_OF_OBJ(object_from));
         SET_ANY_FLAG((*object_to), HAS_POSINFO(object_from));
         list_from_elem = object_from->value.listvalue;
         while (list_from_elem != NULL && *err_info == OKAY_NO_ERROR) {

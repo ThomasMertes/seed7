@@ -222,7 +222,7 @@ listtype arguments;
   /* sct_create */
     stru_to = arg_1(arguments);
     stru_from = arg_3(arguments);
-    SET_CLASS_OF_OBJ(stru_to, STRUCTOBJECT);
+    SET_CATEGORY_OF_OBJ(stru_to, STRUCTOBJECT);
     isit_struct(stru_from);
     if (TEMP_OBJECT(stru_from)) {
 /*
@@ -312,7 +312,7 @@ listtype arguments;
     grow_stack(&err_info);
     grow_stack(&err_info);
     if (err_info == OKAY_NO_ERROR) {
-      if (CLASS_OF_OBJ(value_expr) == EXPROBJECT &&
+      if (CATEGORY_OF_OBJ(value_expr) == EXPROBJECT &&
           value_expr->value.listvalue != NULL &&
           value_expr->value.listvalue->next == NULL) {
         value_expr = value_expr->value.listvalue->obj;
@@ -334,7 +334,7 @@ listtype arguments;
         trace1(current_object);
         printf("\n");
 #endif
-        if (CLASS_OF_OBJ(value) == EXPROBJECT) {
+        if (CATEGORY_OF_OBJ(value) == EXPROBJECT) {
           if (match_expression(value) != NULL) {
             do_create(current_object, value, &err_info);
             if (err_info != OKAY_NO_ERROR) {
@@ -480,7 +480,7 @@ listtype arguments;
           } /* if */
           result->type_of = stru_from->type_of;
           result->descriptor.entity = stru_from->descriptor.entity;
-          INIT_CLASS_OF_OBJ(result, stru_from->objclass);
+          INIT_CATEGORY_OF_OBJ(result, stru_from->objcategory);
           result->value.structvalue = new_stru;
         } else {
           FREE_OBJECT(result);

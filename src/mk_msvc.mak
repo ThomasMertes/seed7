@@ -12,7 +12,7 @@ CFLAGS = -O2 -W4
 # CFLAGS = -O2 -funroll-loops -Wall -pg
 LFLAGS = -O2
 # LFLAGS = -O2 -pg
-LIBS = user32.lib gdi32.lib
+LIBS = user32.lib gdi32.lib ws2_32.lib
 SEED7_OBJ_LIB = seed7_05.lib
 CC = cl
 
@@ -136,8 +136,10 @@ version.h:
 	echo #undef  USE_FSEEKO64 >> version.h
 	echo #define USE_WINSOCK >> version.h
 	echo #define popen _popen >> version.h
-	echo #define OBJECT_FILE_EXTENSION "obj" >> version.h
+	echo #define OBJECT_FILE_EXTENSION ".obj" >> version.h
+	echo #define EXECUTABLE_FILE_EXTENSION ".exe" >> version.h
 	echo #define C_COMPILER "$(CC)" >> version.h
+	echo #define REDIRECT_C_ERRORS "2>NUL: >" >> version.h
 	echo #include "stdio.h" > linklibs.c
 	echo #include "stddef.h" >> linklibs.c
 	echo char *getcwd(char *buf, size_t size); >> linklibs.c

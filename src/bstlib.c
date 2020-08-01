@@ -113,7 +113,7 @@ listtype arguments;
     bstri_to = arg_1(arguments);
     bstri_from = arg_3(arguments);
     isit_bstri(bstri_from);
-    SET_CLASS_OF_OBJ(bstri_to, BSTRIOBJECT);
+    SET_CATEGORY_OF_OBJ(bstri_to, BSTRIOBJECT);
     if (TEMP_OBJECT(bstri_from)) {
       bstri_to->value.bstrivalue = take_bstri(bstri_from);
       bstri_from->value.bstrivalue = NULL;

@@ -311,7 +311,7 @@ listtype arguments;
     set_from = arg_3(arguments);
     isit_set(set_from);
     set_source = take_set(set_from);
-    SET_CLASS_OF_OBJ(set_to, SETOBJECT);
+    SET_CATEGORY_OF_OBJ(set_to, SETOBJECT);
     if (TEMP_OBJECT(set_from)) {
       set_to->value.setvalue = set_source;
       set_from->value.setvalue = NULL;

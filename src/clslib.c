@@ -119,7 +119,7 @@ listtype arguments;
   /* cls_cpy2 */
     modu_to = arg_1(arguments);
     modu_from = arg_3(arguments);
-    if (CLASS_OF_OBJ(modu_from) == CLASSOBJECT) {
+    if (CATEGORY_OF_OBJ(modu_from) == CLASSOBJECT) {
       modu_to->value.objvalue = take_reference(modu_from);
     } else {
       modu_to->value.objvalue = modu_from;
@@ -146,7 +146,7 @@ listtype arguments;
   /* cls_create */
     modu_to = arg_1(arguments);
     modu_from = arg_3(arguments);
-    SET_CLASS_OF_OBJ(modu_to, CLASSOBJECT);
+    SET_CATEGORY_OF_OBJ(modu_to, CLASSOBJECT);
     isit_class(modu_from);
     modu_to->value.objvalue = take_reference(modu_from);
     return(SYS_EMPTY_OBJECT);
@@ -170,8 +170,8 @@ listtype arguments;
   /* cls_create2 */
     modu_to = arg_1(arguments);
     modu_from = arg_3(arguments);
-    SET_CLASS_OF_OBJ(modu_to, CLASSOBJECT);
-    if (CLASS_OF_OBJ(modu_from) == CLASSOBJECT) {
+    SET_CATEGORY_OF_OBJ(modu_to, CLASSOBJECT);
+    if (CATEGORY_OF_OBJ(modu_from) == CLASSOBJECT) {
       modu_to->value.objvalue = take_reference(modu_from);
     } else {
       modu_to->value.objvalue = modu_from;

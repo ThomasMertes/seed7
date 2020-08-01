@@ -109,7 +109,7 @@ listtype arguments;
 #endif
     grow_stack(&err_info);
     if (err_info == OKAY_NO_ERROR) {
-      if (CLASS_OF_OBJ(value_expr) == EXPROBJECT &&
+      if (CATEGORY_OF_OBJ(value_expr) == EXPROBJECT &&
           value_expr->value.listvalue != NULL &&
           value_expr->value.listvalue->next == NULL) {
         value_expr = value_expr->value.listvalue->obj;
@@ -129,7 +129,7 @@ listtype arguments;
         trace1(current_object);
         printf("\n");
 #endif
-        if (CLASS_OF_OBJ(value) == EXPROBJECT) {
+        if (CATEGORY_OF_OBJ(value) == EXPROBJECT) {
           update_owner(value);
           if (match_expression(value) != NULL &&
               (matched_value = match_object(value)) != NULL) {
@@ -169,7 +169,7 @@ listtype arguments;
 #endif
           } /* if */
         } /* if */
-        if (CLASS_OF_OBJ(current_object) == BLOCKOBJECT) {
+        if (CATEGORY_OF_OBJ(current_object) == BLOCKOBJECT) {
           /*FIXME not ok since parameter names are important here !!! */
           current_object->value.blockvalue->params =
               get_param_list(current_object->descriptor.entity->owner->params, &err_info);
@@ -266,7 +266,7 @@ listtype arguments;
       current_object = entername(prog.declaration_root, name_expr, &err_info);
       if (err_info == OKAY_NO_ERROR) {
         current_object->type_of = object_type;
-        INIT_CLASS_OF_OBJ(current_object, FORWARDOBJECT);
+        INIT_CATEGORY_OF_OBJ(current_object, FORWARDOBJECT);
       } /* if */
       shrink_stack();
     } /* if */
@@ -429,7 +429,7 @@ listtype arguments;
     if (ALLOC_OBJECT(created_object)) {
       created_object->type_of = object_type;
       created_object->descriptor.entity = NULL;
-      INIT_CLASS_OF_VAR(created_object, VALUEPARAMOBJECT);
+      INIT_CATEGORY_OF_VAR(created_object, VALUEPARAMOBJECT);
       created_object->value.objvalue = NULL;
       return(bld_param_temp(created_object));
     } else {
@@ -468,7 +468,7 @@ listtype arguments;
       created_object = entername(prog.declaration_root, name_expr, &err_info);
       if (err_info == OKAY_NO_ERROR) {
         created_object->type_of = object_type;
-        INIT_CLASS_OF_VAR(created_object, VALUEPARAMOBJECT);
+        INIT_CATEGORY_OF_VAR(created_object, VALUEPARAMOBJECT);
 /*        printf("decl in2var --> ");
         trace1(created_object);
         printf(";\n"); */
@@ -506,7 +506,7 @@ listtype arguments;
     if (ALLOC_OBJECT(created_object)) {
       created_object->type_of = object_type;
       created_object->descriptor.entity = NULL;
-      INIT_CLASS_OF_VAR(created_object, REFPARAMOBJECT);
+      INIT_CATEGORY_OF_VAR(created_object, REFPARAMOBJECT);
       created_object->value.objvalue = NULL;
       return(bld_param_temp(created_object));
     } else {
@@ -545,7 +545,7 @@ listtype arguments;
       created_object = entername(prog.declaration_root, name_expr, &err_info);
       if (err_info == OKAY_NO_ERROR) {
         created_object->type_of = object_type;
-        INIT_CLASS_OF_VAR(created_object, REFPARAMOBJECT);
+        INIT_CATEGORY_OF_VAR(created_object, REFPARAMOBJECT);
 /*        printf("decl inout2 --> ");
         trace1(created_object);
         printf(";\n"); */
@@ -583,7 +583,7 @@ listtype arguments;
     if (ALLOC_OBJECT(created_object)) {
       created_object->type_of = object_type;
       created_object->descriptor.entity = NULL;
-      INIT_CLASS_OF_OBJ(created_object, REFPARAMOBJECT);
+      INIT_CATEGORY_OF_OBJ(created_object, REFPARAMOBJECT);
       created_object->value.objvalue = NULL;
       return(bld_param_temp(created_object));
     } else {
@@ -622,7 +622,7 @@ listtype arguments;
       created_object = entername(prog.declaration_root, name_expr, &err_info);
       if (err_info == OKAY_NO_ERROR) {
         created_object->type_of = object_type;
-        INIT_CLASS_OF_OBJ(created_object, REFPARAMOBJECT);
+        INIT_CATEGORY_OF_OBJ(created_object, REFPARAMOBJECT);
 /*        printf("decl ref2 --> ");
         trace1(created_object);
         printf(";\n"); */
@@ -689,7 +689,7 @@ listtype arguments;
     if (ALLOC_OBJECT(created_object)) {
       created_object->type_of = object_type;
       created_object->descriptor.entity = NULL;
-      INIT_CLASS_OF_OBJ(created_object, VALUEPARAMOBJECT);
+      INIT_CATEGORY_OF_OBJ(created_object, VALUEPARAMOBJECT);
       created_object->value.objvalue = NULL;
       return(bld_param_temp(created_object));
     } else {
@@ -728,7 +728,7 @@ listtype arguments;
       created_object = entername(prog.declaration_root, name_expr, &err_info);
       if (err_info == OKAY_NO_ERROR) {
         created_object->type_of = object_type;
-        INIT_CLASS_OF_OBJ(created_object, VALUEPARAMOBJECT);
+        INIT_CATEGORY_OF_OBJ(created_object, VALUEPARAMOBJECT);
 /*        printf("decl val2 --> ");
         trace1(created_object);
         printf(";\n"); */
@@ -778,7 +778,7 @@ listtype arguments;
 #endif
     grow_stack(&err_info);
     if (err_info == OKAY_NO_ERROR) {
-      if (CLASS_OF_OBJ(value_expr) == EXPROBJECT &&
+      if (CATEGORY_OF_OBJ(value_expr) == EXPROBJECT &&
           value_expr->value.listvalue != NULL &&
           value_expr->value.listvalue->next == NULL) {
         value_expr = value_expr->value.listvalue->obj;
@@ -798,7 +798,7 @@ listtype arguments;
         trace1(current_object);
         printf("\n");
 #endif
-        if (CLASS_OF_OBJ(value) == EXPROBJECT) {
+        if (CATEGORY_OF_OBJ(value) == EXPROBJECT) {
           update_owner(value);
           if (match_expression(value) != NULL &&
               (matched_value = match_object(value)) != NULL) {

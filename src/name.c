@@ -121,15 +121,15 @@ errinfotype *err_info;
         ent->owner->decl_level == prog.stack_current) {
       defined_object = ent->owner->obj;
       ent->owner->params = params;
-      if (CLASS_OF_OBJ(defined_object) != FORWARDOBJECT) {
+      if (CATEGORY_OF_OBJ(defined_object) != FORWARDOBJECT) {
         err_object(OBJTWICEDECLARED, ent->owner->obj);
-        SET_CLASS_OF_OBJ(defined_object, DECLAREDOBJECT);
+        SET_CATEGORY_OF_OBJ(defined_object, DECLAREDOBJECT);
       } else {
-        SET_CLASS_OF_OBJ(defined_object, DECLAREDOBJECT);
+        SET_CATEGORY_OF_OBJ(defined_object, DECLAREDOBJECT);
         if (ALLOC_OBJECT(forward_reference)) {
           forward_reference->type_of = NULL;
           forward_reference->descriptor.entity = NULL;
-          INIT_CLASS_OF_OBJ(forward_reference, FWDREFOBJECT);
+          INIT_CATEGORY_OF_OBJ(forward_reference, FWDREFOBJECT);
           forward_reference->value.objvalue = defined_object;
           replace_list_elem(prog.stack_current->local_object_list,
               defined_object, forward_reference);
@@ -143,7 +143,7 @@ errinfotype *err_info;
       if (ALLOC_OBJECT(defined_object)) {
         defined_object->type_of = NULL;
         defined_object->descriptor.entity = ent;
-        INIT_CLASS_OF_OBJ(defined_object, DECLAREDOBJECT);
+        INIT_CATEGORY_OF_OBJ(defined_object, DECLAREDOBJECT);
         defined_object->value.objvalue = NULL;
         push_owner(&ent->owner, defined_object, params, err_info);
         prog.stack_current->object_list_insert_place = append_element_to_list(
@@ -189,19 +189,19 @@ errinfotype *err_info;
     parameter_list = NULL;
     list_insert_place = &parameter_list;
     while (name_elem != NULL) {
-      if (CLASS_OF_OBJ(name_elem->obj) == FORMPARAMOBJECT) {
+      if (CATEGORY_OF_OBJ(name_elem->obj) == FORMPARAMOBJECT) {
 /* printf("create paramobject ");
 trace1(name_elem->obj);
 printf(" %lu\n", (long unsigned) name_elem->obj); */
         param_obj = name_elem->obj->value.objvalue;
-        if (CLASS_OF_OBJ(param_obj) == VALUEPARAMOBJECT ||
-            CLASS_OF_OBJ(param_obj) == REFPARAMOBJECT) {
+        if (CATEGORY_OF_OBJ(param_obj) == VALUEPARAMOBJECT ||
+            CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT) {
 /* printf("create in or ref param ");
 trace1(param_obj);
 printf(" %lu\n", (long unsigned) param_obj); */
           list_insert_place = append_element_to_list(list_insert_place,
               param_obj, err_info);
-        } else if (CLASS_OF_OBJ(param_obj) == TYPEOBJECT) {
+        } else if (CATEGORY_OF_OBJ(param_obj) == TYPEOBJECT) {
 /* printf("create attr param ");
 trace1(param_obj);
 printf(" %lu\n", (long unsigned) param_obj); */
@@ -568,7 +568,7 @@ listtype raw_name_list;
 #endif
     name_elem = raw_name_list;
     while (name_elem != NULL) {
-      if (CLASS_OF_OBJ(name_elem->obj) == EXPROBJECT) {
+      if (CATEGORY_OF_OBJ(name_elem->obj) == EXPROBJECT) {
         if (match_expression(name_elem->obj) == NULL) {
           err_match(NO_MATCH, name_elem->obj);
         } /* if */
@@ -606,7 +606,7 @@ errinfotype *err_info;
     name_list = NULL;
     list_insert_place = &name_list;
     while (name_elem != NULL) {
-      if (CLASS_OF_OBJ(name_elem->obj) == MATCHOBJECT) {
+      if (CATEGORY_OF_OBJ(name_elem->obj) == MATCHOBJECT) {
         if ((parameter = evaluate(name_elem->obj)) != NULL) {
           list_insert_place = append_element_to_list(list_insert_place,
               parameter, err_info);
@@ -743,11 +743,11 @@ errinfotype *err_info;
     trace1(name_list->obj);
     printf("\n");
     fflush(stdout); */
-    if (CLASS_OF_OBJ(name_list->obj) == FORMPARAMOBJECT) {
+    if (CATEGORY_OF_OBJ(name_list->obj) == FORMPARAMOBJECT) {
       param_obj = name_list->obj->value.objvalue;
-      if (CLASS_OF_OBJ(param_obj) == VALUEPARAMOBJECT ||
-          CLASS_OF_OBJ(param_obj) == REFPARAMOBJECT ||
-          CLASS_OF_OBJ(param_obj) == TYPEOBJECT) {
+      if (CATEGORY_OF_OBJ(param_obj) == VALUEPARAMOBJECT ||
+          CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT ||
+          CATEGORY_OF_OBJ(param_obj) == TYPEOBJECT) {
         err_object(IDENT_EXPECTED, object_name);
       } else {
         /* printf("param_obj ");
@@ -789,11 +789,11 @@ errinfotype *err_info;
     trace1(object_name);
     printf(")\n");
 #endif
-    if (CLASS_OF_OBJ(object_name) == EXPROBJECT) {
+    if (CATEGORY_OF_OBJ(object_name) == EXPROBJECT) {
       if (object_name->value.listvalue->next != NULL) {
         defined_object = inst_list(declaration_base, object_name, err_info);
-      } else if (CLASS_OF_OBJ(object_name->value.listvalue->obj) == EXPROBJECT ||
-          CLASS_OF_OBJ(object_name->value.listvalue->obj) == MATCHOBJECT) {
+      } else if (CATEGORY_OF_OBJ(object_name->value.listvalue->obj) == EXPROBJECT ||
+          CATEGORY_OF_OBJ(object_name->value.listvalue->obj) == MATCHOBJECT) {
         defined_object = inst_object_expr(declaration_base, object_name, err_info);
       } else {
         /* printf("listvalue->obj ");
@@ -845,7 +845,7 @@ errinfotype *err_info;
     trace1(object_name);
     printf(")\n");
 #endif
-    if (CLASS_OF_OBJ(object_name) == EXPROBJECT) {
+    if (CATEGORY_OF_OBJ(object_name) == EXPROBJECT) {
       if (object_name->value.listvalue->next != NULL) {
         match_name_list(object_name->value.listvalue);
         push_stack();
@@ -853,17 +853,17 @@ errinfotype *err_info;
         down_stack();
         ent = find_entity(declaration_base, name_list);
         emptylist(name_list);
-      } else if (CLASS_OF_OBJ(object_name->value.listvalue->obj) == EXPROBJECT ||
-          CLASS_OF_OBJ(object_name->value.listvalue->obj) == MATCHOBJECT) {
+      } else if (CATEGORY_OF_OBJ(object_name->value.listvalue->obj) == EXPROBJECT ||
+          CATEGORY_OF_OBJ(object_name->value.listvalue->obj) == MATCHOBJECT) {
         match_name_list(object_name->value.listvalue);
         push_stack();
         name_list = eval_name_list(object_name->value.listvalue, err_info);
         down_stack();
-        if (CLASS_OF_OBJ(name_list->obj) == FORMPARAMOBJECT) {
+        if (CATEGORY_OF_OBJ(name_list->obj) == FORMPARAMOBJECT) {
           param_obj = name_list->obj->value.objvalue;
-          if (CLASS_OF_OBJ(param_obj) == VALUEPARAMOBJECT ||
-              CLASS_OF_OBJ(param_obj) == REFPARAMOBJECT ||
-              CLASS_OF_OBJ(param_obj) == TYPEOBJECT) {
+          if (CATEGORY_OF_OBJ(param_obj) == VALUEPARAMOBJECT ||
+              CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT ||
+              CATEGORY_OF_OBJ(param_obj) == TYPEOBJECT) {
             ent = NULL;
           } else {
             ent = param_obj->descriptor.entity;
@@ -924,7 +924,7 @@ errinfotype *err_info;
     trace1(object_name);
     printf(")\n");
 #endif
-    if (CLASS_OF_OBJ(object_name) == EXPROBJECT) {
+    if (CATEGORY_OF_OBJ(object_name) == EXPROBJECT) {
       if (object_name->value.listvalue->next != NULL) {
         match_name_list(object_name->value.listvalue);
         push_stack();
@@ -932,17 +932,17 @@ errinfotype *err_info;
         down_stack();
         ent = search_entity(declaration_base, name_list);
         emptylist(name_list);
-      } else if (CLASS_OF_OBJ(object_name->value.listvalue->obj) == EXPROBJECT ||
-          CLASS_OF_OBJ(object_name->value.listvalue->obj) == MATCHOBJECT) {
+      } else if (CATEGORY_OF_OBJ(object_name->value.listvalue->obj) == EXPROBJECT ||
+          CATEGORY_OF_OBJ(object_name->value.listvalue->obj) == MATCHOBJECT) {
         match_name_list(object_name->value.listvalue);
         push_stack();
         name_list = eval_name_list(object_name->value.listvalue, err_info);
         down_stack();
-        if (CLASS_OF_OBJ(name_list->obj) == FORMPARAMOBJECT) {
+        if (CATEGORY_OF_OBJ(name_list->obj) == FORMPARAMOBJECT) {
           param_obj = name_list->obj->value.objvalue;
-          if (CLASS_OF_OBJ(param_obj) == VALUEPARAMOBJECT ||
-              CLASS_OF_OBJ(param_obj) == REFPARAMOBJECT ||
-              CLASS_OF_OBJ(param_obj) == TYPEOBJECT) {
+          if (CATEGORY_OF_OBJ(param_obj) == VALUEPARAMOBJECT ||
+              CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT ||
+              CATEGORY_OF_OBJ(param_obj) == TYPEOBJECT) {
             ent = NULL;
           } else {
             ent = param_obj->descriptor.entity;
@@ -1004,7 +1004,7 @@ objecttype param_object;
         /* printf("### ref param\n"); */
         if (param_descr->next != NULL) {
           type_of_parameter = param_descr->next->obj;
-          if (CLASS_OF_OBJ(type_of_parameter) == EXPROBJECT) {
+          if (CATEGORY_OF_OBJ(type_of_parameter) == EXPROBJECT) {
             param_descr->next->obj = eval_expression(type_of_parameter);
           } /* if */
           if (param_descr->next->next != NULL) {
@@ -1055,7 +1055,7 @@ errinfotype *err_info;
 #endif
     name_elem = object_name->value.listvalue;
     while (name_elem != NULL) {
-      if (CLASS_OF_OBJ(name_elem->obj) == EXPROBJECT) {
+      if (CATEGORY_OF_OBJ(name_elem->obj) == EXPROBJECT) {
         name_elem->obj = dollar_parameter(name_elem->obj);
       } /* if */
       name_elem = name_elem->next;
@@ -1091,7 +1091,7 @@ errinfotype *err_info;
     trace1(object_name);
     printf(")\n");
 #endif
-    if (CLASS_OF_OBJ(object_name) == EXPROBJECT) {
+    if (CATEGORY_OF_OBJ(object_name) == EXPROBJECT) {
       defined_object = dollar_inst_list(declaration_base, object_name, err_info);
     } else {
       defined_object = inst_object(declaration_base, object_name, err_info);

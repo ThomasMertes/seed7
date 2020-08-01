@@ -131,8 +131,10 @@ version.h:
 	echo #undef  CHMOD_MISSING >> version.h
 	echo #define USE_FSEEKO64 >> version.h
 	echo #define USE_WINSOCK >> version.h
-	echo #define OBJECT_FILE_EXTENSION "o" >> version.h
+	echo #define OBJECT_FILE_EXTENSION ".o" >> version.h
+	echo #define EXECUTABLE_FILE_EXTENSION ".exe" >> version.h
 	echo #define C_COMPILER "$(CC)" >> version.h
+	echo #define REDIRECT_C_ERRORS "2>" >> version.h
 	echo #include "stdio.h" > linklibs.c
 	echo #include "stddef.h" >> linklibs.c
 	echo char *getcwd(char *buf, size_t size); >> linklibs.c

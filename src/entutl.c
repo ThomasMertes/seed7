@@ -460,21 +460,21 @@ listtype name_list;
     name_elem = name_list;
     curr_node = declaration_base;
     while (name_elem != NULL && curr_node != NULL) {
-      if (CLASS_OF_OBJ(name_elem->obj) == FORMPARAMOBJECT) {
+      if (CATEGORY_OF_OBJ(name_elem->obj) == FORMPARAMOBJECT) {
 /* printf("paramobject x\n"); */
         param_obj = name_elem->obj->value.objvalue;
-        if (CLASS_OF_OBJ(param_obj) == REFPARAMOBJECT && VAR_OBJECT(param_obj)) {
+        if (CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT && VAR_OBJECT(param_obj)) {
 /* printf("inout param ");
 trace1(param_obj);
 printf("\n"); */
           curr_node = get_node(&curr_node->inout_param, param_obj->type_of->match_obj);
-        } else if (CLASS_OF_OBJ(param_obj) == VALUEPARAMOBJECT ||
-            CLASS_OF_OBJ(param_obj) == REFPARAMOBJECT) {
+        } else if (CATEGORY_OF_OBJ(param_obj) == VALUEPARAMOBJECT ||
+            CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT) {
 /* printf("value or ref param ");
 trace1(param_obj);
 printf("\n"); */
           curr_node = get_node(&curr_node->other_param, param_obj->type_of->match_obj);
-        } else if (CLASS_OF_OBJ(param_obj) == TYPEOBJECT) {
+        } else if (CATEGORY_OF_OBJ(param_obj) == TYPEOBJECT) {
 /* printf("attr param ");
 trace1(param_obj);
 printf("\n"); */
@@ -539,21 +539,21 @@ listtype name_list;
     name_elem = name_list;
     curr_node = declaration_base;
     while (name_elem != NULL && curr_node != NULL) {
-      if (CLASS_OF_OBJ(name_elem->obj) == FORMPARAMOBJECT) {
+      if (CATEGORY_OF_OBJ(name_elem->obj) == FORMPARAMOBJECT) {
 /* printf("paramobject x\n"); */
         param_obj = name_elem->obj->value.objvalue;
-        if (CLASS_OF_OBJ(param_obj) == REFPARAMOBJECT && VAR_OBJECT(param_obj)) {
+        if (CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT && VAR_OBJECT(param_obj)) {
 /* printf("inout param ");
 trace1(param_obj);
 printf("\n"); */
           curr_node = find_node(curr_node->inout_param, param_obj->type_of->match_obj);
-        } else if (CLASS_OF_OBJ(param_obj) == VALUEPARAMOBJECT ||
-            CLASS_OF_OBJ(param_obj) == REFPARAMOBJECT) {
+        } else if (CATEGORY_OF_OBJ(param_obj) == VALUEPARAMOBJECT ||
+            CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT) {
 /* printf("value or ref param ");
 trace1(param_obj);
 printf("\n"); */
           curr_node = find_node(curr_node->other_param, param_obj->type_of->match_obj);
-        } else if (CLASS_OF_OBJ(param_obj) == TYPEOBJECT) {
+        } else if (CATEGORY_OF_OBJ(param_obj) == TYPEOBJECT) {
 /* printf("attr param ");
 trace1(param_obj);
 printf("\n"); */
@@ -617,10 +617,10 @@ listtype name_list;
     } else {
       entity_found = NULL;
       if (start_node != NULL) {
-        if (CLASS_OF_OBJ(name_list->obj) == FORMPARAMOBJECT) {
+        if (CATEGORY_OF_OBJ(name_list->obj) == FORMPARAMOBJECT) {
 /* printf("paramobject x\n"); */
           param_obj = name_list->obj->value.objvalue;
-          if (CLASS_OF_OBJ(param_obj) == REFPARAMOBJECT && VAR_OBJECT(param_obj)) {
+          if (CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT && VAR_OBJECT(param_obj)) {
 /* printf("inout param ");
 trace1(param_obj);
 printf("\n"); */
@@ -632,8 +632,8 @@ printf("\n"); */
               } /* if */
               object_type = object_type->meta;
             } while (object_type != NULL && entity_found == NULL);
-          } else if (CLASS_OF_OBJ(param_obj) == VALUEPARAMOBJECT ||
-              CLASS_OF_OBJ(param_obj) == REFPARAMOBJECT) {
+          } else if (CATEGORY_OF_OBJ(param_obj) == VALUEPARAMOBJECT ||
+              CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT) {
 /* printf("value or ref param ");
 trace1(param_obj);
 printf("\n"); */
@@ -645,7 +645,7 @@ printf("\n"); */
               } /* if */
               object_type = object_type->meta;
             } while (object_type != NULL && entity_found == NULL);
-          } else if (CLASS_OF_OBJ(param_obj) == TYPEOBJECT) {
+          } else if (CATEGORY_OF_OBJ(param_obj) == TYPEOBJECT) {
 /* printf("attr param ");
 trace1(param_obj);
 printf("\n"); */
@@ -709,14 +709,14 @@ entitytype ent;
     if (name_elem != NULL) {
       curr_node = declaration_base;
       while (name_elem != NULL && curr_node != NULL) {
-        if (CLASS_OF_OBJ(name_elem->obj) == FORMPARAMOBJECT) {
+        if (CATEGORY_OF_OBJ(name_elem->obj) == FORMPARAMOBJECT) {
           param_obj = name_elem->obj->value.objvalue;
-          if (CLASS_OF_OBJ(param_obj) == REFPARAMOBJECT && VAR_OBJECT(param_obj)) {
+          if (CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT && VAR_OBJECT(param_obj)) {
             curr_node = pop_node(curr_node->inout_param, param_obj->type_of->match_obj);
-          } else if (CLASS_OF_OBJ(param_obj) == VALUEPARAMOBJECT ||
-              CLASS_OF_OBJ(param_obj) == REFPARAMOBJECT) {
+          } else if (CATEGORY_OF_OBJ(param_obj) == VALUEPARAMOBJECT ||
+              CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT) {
             curr_node = pop_node(curr_node->other_param, param_obj->type_of->match_obj);
-          } else if (CLASS_OF_OBJ(param_obj) == TYPEOBJECT) {
+          } else if (CATEGORY_OF_OBJ(param_obj) == TYPEOBJECT) {
             curr_node = pop_node(curr_node->attr, param_obj->value.typevalue->match_obj);
           } /* if */
         } else {

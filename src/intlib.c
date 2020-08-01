@@ -192,7 +192,7 @@ listtype arguments;
 
   { /* int_create */
     isit_int(arg_3(arguments));
-    SET_CLASS_OF_OBJ(arg_1(arguments), INTOBJECT);
+    SET_CATEGORY_OF_OBJ(arg_1(arguments), INTOBJECT);
     arg_1(arguments)->value.intvalue = take_int(arg_3(arguments));
     return(SYS_EMPTY_OBJECT);
   } /* int_create */

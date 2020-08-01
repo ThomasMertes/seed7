@@ -78,8 +78,8 @@ objecttype object;
 #ifdef TRACE_MATCH
     printf("BEGIN variable_obj\n");
 #endif
-    if (CLASS_OF_OBJ(object) == CALLOBJECT ||
-        CLASS_OF_OBJ(object) == MATCHOBJECT) {
+    if (CATEGORY_OF_OBJ(object) == CALLOBJECT ||
+        CATEGORY_OF_OBJ(object) == MATCHOBJECT) {
       result = (object->type_of != NULL &&
           object->type_of->is_varfunc_type);
     } else {
@@ -107,14 +107,14 @@ objecttype actual_param;
 #endif
 
   { /* check_parameter */
-    if (CLASS_OF_OBJ(actual_param) == CALLOBJECT) {
+    if (CATEGORY_OF_OBJ(actual_param) == CALLOBJECT) {
       if (actual_param->type_of != NULL &&
           !actual_param->type_of->is_varfunc_type) {
         err_expr_obj(WRONGACCESSRIGHT, expr_object, actual_param);
       } /* if */
     } else {
       if (!VAR_OBJECT(actual_param)) {
-        /* printf("class: %s\n", class_stri(CLASS_OF_OBJ(actual_param))); */
+        /* printf("category: %s\n", category_stri(CATEGORY_OF_OBJ(actual_param))); */
         err_expr_obj(WRONGACCESSRIGHT, expr_object, actual_param);
       } /* if */
     } /* if */
@@ -152,20 +152,20 @@ objecttype object;
           name_elem = object->value.listvalue->obj->descriptor.entity->name_list;
           expr_list = object->value.listvalue->next;
           while (name_elem != NULL && expr_list != NULL) {
-            if (CLASS_OF_OBJ(name_elem->obj) == FORMPARAMOBJECT) {
+            if (CATEGORY_OF_OBJ(name_elem->obj) == FORMPARAMOBJECT) {
               /* printf("param_obj/param ");
               trace1(name_elem->obj->value.objvalue);
               printf("\n"); */
-              if (CLASS_OF_OBJ(name_elem->obj->value.objvalue) == REFPARAMOBJECT &&
+              if (CATEGORY_OF_OBJ(name_elem->obj->value.objvalue) == REFPARAMOBJECT &&
                   VAR_OBJECT(name_elem->obj->value.objvalue)) {
-                if (CLASS_OF_OBJ(expr_list->obj) == CALLOBJECT) {
+                if (CATEGORY_OF_OBJ(expr_list->obj) == CALLOBJECT) {
                   if (expr_list->obj->type_of != NULL &&
                       !expr_list->obj->type_of->is_varfunc_type) {
                     err_expr_obj(WRONGACCESSRIGHT, object, expr_list->obj);
                   } /* if */
                 } else {
                   if (!VAR_OBJECT(expr_list->obj)) {
-                    /* printf("class: %s\n", class_stri(CLASS_OF_OBJ(expr_list->obj))); */
+                    /* printf("category: %s\n", category_stri(CATEGORY_OF_OBJ(expr_list->obj))); */
                     err_expr_obj(WRONGACCESSRIGHT, object, expr_list->obj);
                   } /* if */
                 } /* if */
@@ -216,17 +216,17 @@ objecttype expr_object;
         expr_list->obj = current_element->descriptor.entity->owner->obj;
         current_element = expr_list->obj;
       } /* if */
-      if (CLASS_OF_OBJ(current_element) == EXPROBJECT) {
+      if (CATEGORY_OF_OBJ(current_element) == EXPROBJECT) {
         update_owner(current_element);
-      } else if (CLASS_OF_OBJ(current_element) == VALUEPARAMOBJECT ||
-          CLASS_OF_OBJ(current_element) == REFPARAMOBJECT) {
+      } else if (CATEGORY_OF_OBJ(current_element) == VALUEPARAMOBJECT ||
+          CATEGORY_OF_OBJ(current_element) == REFPARAMOBJECT) {
         if (current_element->value.objvalue != NULL) {
           /* printf("Parameter already has value: ");
           trace1(current_element);
           printf("\n"); */
           expr_list->obj = current_element->value.objvalue;
-          if (CLASS_OF_OBJ(expr_list->obj) == VALUEPARAMOBJECT ||
-              CLASS_OF_OBJ(expr_list->obj) == REFPARAMOBJECT) {
+          if (CATEGORY_OF_OBJ(expr_list->obj) == VALUEPARAMOBJECT ||
+              CATEGORY_OF_OBJ(expr_list->obj) == REFPARAMOBJECT) {
             if (expr_list->obj->value.objvalue != NULL) {
               printf("Parameter aggain has value: ");
               trace1(expr_list->obj);
@@ -266,7 +266,7 @@ objecttype object;
       trace1(object);
       printf("\n");
     } /* if */
-    switch (CLASS_OF_OBJ(object)) {
+    switch (CATEGORY_OF_OBJ(object)) {
       case BLOCKOBJECT:
       case TYPEOBJECT:
       case INTOBJECT:
@@ -294,12 +294,12 @@ objecttype object;
           result->type_of = object->type_of;
           result->descriptor.entity = entity.literal;
           result->value.listvalue = NULL;
-          INIT_CLASS_OF_OBJ(result, CALLOBJECT);
+          INIT_CATEGORY_OF_OBJ(result, CALLOBJECT);
           incl_list(&result->value.listvalue, object, &err_info);
         } /* if */
         break;
       case MATCHOBJECT:
-        SET_CLASS_OF_OBJ(object, CALLOBJECT);
+        SET_CATEGORY_OF_OBJ(object, CALLOBJECT);
         result = object;
         break;
       case CALLOBJECT:
@@ -349,7 +349,7 @@ objecttype expr_object;
       trace1(object);
       printf("\n");
     } /* if */
-    switch (CLASS_OF_OBJ(object)) {
+    switch (CATEGORY_OF_OBJ(object)) {
       case BLOCKOBJECT:
       case TYPEOBJECT:
       case INTOBJECT:
@@ -377,17 +377,17 @@ objecttype expr_object;
           result->type_of = object->type_of;
           if (HAS_POSINFO(expr_object)) {
             result->descriptor.posinfo = expr_object->descriptor.posinfo;
-            INIT_CLASS_OF_POSINFO(result, CALLOBJECT);
+            INIT_CATEGORY_OF_POSINFO(result, CALLOBJECT);
           } else {
             result->descriptor.entity = entity.literal;
-            INIT_CLASS_OF_OBJ(result, CALLOBJECT);
+            INIT_CATEGORY_OF_OBJ(result, CALLOBJECT);
           } /* if */
           result->value.listvalue = NULL;
           incl_list(&result->value.listvalue, object, &err_info);
         } /* if */
         break;
       case MATCHOBJECT:
-        SET_CLASS_OF_OBJ(object, CALLOBJECT);
+        SET_CATEGORY_OF_OBJ(object, CALLOBJECT);
         result = object;
         break;
       case CALLOBJECT:
@@ -562,14 +562,14 @@ booltype look_for_interfaces;
           interface_list = interface_list->next;
         } /* while */
         if (matched_object != NULL &&
-            (CLASS_OF_OBJ(matched_object) == MATCHOBJECT ||
-            CLASS_OF_OBJ(matched_object) == CALLOBJECT) &&
+            (CATEGORY_OF_OBJ(matched_object) == MATCHOBJECT ||
+            CATEGORY_OF_OBJ(matched_object) == CALLOBJECT) &&
             matched_object->value.listvalue != NULL &&
             matched_object->value.listvalue->obj != NULL) {
-          if (CLASS_OF_OBJ(matched_object->value.listvalue->obj) != ACTOBJECT ||
+          if (CATEGORY_OF_OBJ(matched_object->value.listvalue->obj) != ACTOBJECT ||
               matched_object->value.listvalue->obj->value.actvalue != prc_dynamic) {
             pop_list(&matched_object->value.listvalue);
-            SET_CLASS_OF_OBJ(expr_object, EXPROBJECT);
+            SET_CATEGORY_OF_OBJ(expr_object, EXPROBJECT);
             matched_object = NULL;
           } /* if */
         } /* if */
@@ -592,14 +592,14 @@ booltype look_for_interfaces;
           interface_list = interface_list->next;
         } /* while */
         if (matched_object != NULL &&
-            (CLASS_OF_OBJ(matched_object) == MATCHOBJECT ||
-            CLASS_OF_OBJ(matched_object) == CALLOBJECT) &&
+            (CATEGORY_OF_OBJ(matched_object) == MATCHOBJECT ||
+            CATEGORY_OF_OBJ(matched_object) == CALLOBJECT) &&
             matched_object->value.listvalue != NULL &&
             matched_object->value.listvalue->obj != NULL) {
-          if (CLASS_OF_OBJ(matched_object->value.listvalue->obj) != ACTOBJECT ||
+          if (CATEGORY_OF_OBJ(matched_object->value.listvalue->obj) != ACTOBJECT ||
               matched_object->value.listvalue->obj->value.actvalue != prc_dynamic) {
             pop_list(&matched_object->value.listvalue);
-            SET_CLASS_OF_OBJ(expr_object, EXPROBJECT);
+            SET_CATEGORY_OF_OBJ(expr_object, EXPROBJECT);
             matched_object = NULL;
           } /* if */
         } /* if */
@@ -726,15 +726,15 @@ booltype look_for_interfaces;
         current_element = start_node->entity->owner->obj;
         if (trace.match) {
           printf("//ST2//");
-          printclass(CLASS_OF_OBJ(current_element));
+          printcategory(CATEGORY_OF_OBJ(current_element));
           fflush(stdout);
         } /* if */
         incl_list(&expr_object->value.listvalue, current_element, &err_info);
         if (current_element->type_of != NULL &&
             current_element->type_of->result_type != NULL) {
-          SET_CLASS_OF_OBJ(expr_object, MATCHOBJECT);
+          SET_CATEGORY_OF_OBJ(expr_object, MATCHOBJECT);
         } else {
-          SET_CLASS_OF_OBJ(expr_object, CALLOBJECT);
+          SET_CATEGORY_OF_OBJ(expr_object, CALLOBJECT);
         } /* if */
         expr_object->type_of = current_element->type_of;
         matched_object = expr_object;
@@ -770,16 +770,16 @@ booltype look_for_interfaces;
         } /* if */
       } /* if */
       if (matched_object == NULL) {
-        if ((CLASS_OF_OBJ(current_element) == VALUEPARAMOBJECT ||
-            CLASS_OF_OBJ(current_element) == REFPARAMOBJECT ||
-            CLASS_OF_OBJ(current_element) == RESULTOBJECT ||
-            CLASS_OF_OBJ(current_element) == LOCALVOBJECT) &&
+        if ((CATEGORY_OF_OBJ(current_element) == VALUEPARAMOBJECT ||
+            CATEGORY_OF_OBJ(current_element) == REFPARAMOBJECT ||
+            CATEGORY_OF_OBJ(current_element) == RESULTOBJECT ||
+            CATEGORY_OF_OBJ(current_element) == LOCALVOBJECT) &&
             current_element->value.objvalue != NULL) {
           attribute_object = current_element->value.objvalue;
         } else {
           attribute_object = current_element;
         } /* if */
-        if (CLASS_OF_OBJ(attribute_object) == TYPEOBJECT) {
+        if (CATEGORY_OF_OBJ(attribute_object) == TYPEOBJECT) {
           object_type = take_type(attribute_object);
           /* Attribute */
           matched_object = match_subexpr_attr(expr_object, start_node,
@@ -809,13 +809,13 @@ booltype look_for_interfaces;
               rest_of_expression, check_access_right, look_for_interfaces);
 #ifdef OUT_OF_ORDER
           if (matched_object != NULL) {
-            if (CLASS_OF_OBJ(current_element) == DECLAREDOBJECT) {
+            if (CATEGORY_OF_OBJ(current_element) == DECLAREDOBJECT) {
               matched_object = NULL;
             } /* if */
           } else {
 #endif
           if (matched_object == NULL) {
-            if (CLASS_OF_OBJ(match_expr->obj) == EXPROBJECT) {
+            if (CATEGORY_OF_OBJ(match_expr->obj) == EXPROBJECT) {
               if ((match_expression(match_expr->obj)) != NULL) {
                 object_type = match_expr->obj->type_of;
                 if (trace.match) {
@@ -833,8 +833,8 @@ booltype look_for_interfaces;
               } /* if */
             } /* if */
             if (matched_object == NULL) {
-              if (CLASS_OF_OBJ(current_element) == CALLOBJECT) {
-                if (CLASS_OF_OBJ(current_element->value.listvalue->obj) == TYPEOBJECT) {
+              if (CATEGORY_OF_OBJ(current_element) == CALLOBJECT) {
+                if (CATEGORY_OF_OBJ(current_element->value.listvalue->obj) == TYPEOBJECT) {
                   object_type = take_type(current_element->value.listvalue->obj);
                   /* Attribute */
                   matched_object = match_subexpr_attr(expr_object, start_node,

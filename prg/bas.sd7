@@ -3796,6 +3796,26 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
         repeat
           symbol := get_symbol(line);
         until symbol = ":" or symbol = "";
+      elsif symbol = "DECLARE" then
+        symbol := get_symbol(line);
+		if symbol = "SUB" then
+          symbol := get_symbol(line);
+          line_marker;
+          log << "DECLARE SUB ";
+          log << symbol;
+          log << " ";
+          log << line;
+          log << NL;
+          flush(log);
+          repeat
+            symbol := get_symbol(line);
+          until symbol = ":" or symbol = "";
+        else
+          error_marker;
+          err << "ILLEGAL DECLARE ";
+          err << symbol;
+          err << NL;
+        end if;
       elsif symbol = "OPTION" then
         line_marker;
         log << "OPTION ";
@@ -4271,16 +4291,17 @@ const func boolean: is_statement (in string: symbol) is
       symbol = "CLOSE"     or symbol = "CLS"       or symbol = "COLOR"     or
       symbol = "DATA"      or symbol = "DEF"       or symbol = "DEFINT"    or
       symbol = "DEFSTR"    or symbol = "DIM"       or symbol = "DO"        or
-      symbol = "END"       or symbol = "FOR"       or symbol = "GOSUB"     or
-      symbol = "GOTO"      or symbol = "IF"        or symbol = "INPUT"     or
-      symbol = "LET"       or symbol = "LINE"      or symbol = "LOCATE"    or
-      symbol = "LOOP"      or symbol = "NEXT"      or symbol = "ON"        or
-      symbol = "OPEN"      or symbol = "OPTION"    or symbol = "PLAY"      or
-      symbol = "PRINT"     or symbol = "RANDOMIZE" or symbol = "READ"      or
-      symbol = "REM"       or symbol = "RESET"     or symbol = "RESTORE"   or
-      symbol = "RETURN"    or symbol = "SCREEN"    or symbol = "SOUND"     or
-      symbol = "STOP"      or symbol = "SYSTEM"    or symbol = "WEND"      or
-      symbol = "WHILE"     or symbol = "WIDTH"     or symbol = "'";
+      symbol = "ELSEIF"    or symbol = "END"       or symbol = "FOR"       or
+      symbol = "GOSUB"     or symbol = "GOTO"      or symbol = "IF"        or
+      symbol = "INPUT"     or symbol = "LET"       or symbol = "LINE"      or
+      symbol = "LOCATE"    or symbol = "LOOP"      or symbol = "NEXT"      or
+      symbol = "ON"        or symbol = "OPEN"      or symbol = "OPTION"    or
+      symbol = "PLAY"      or symbol = "PRINT"     or symbol = "RANDOMIZE" or
+      symbol = "READ"      or symbol = "REM"       or symbol = "RESET"     or
+      symbol = "RESTORE"   or symbol = "RETURN"    or symbol = "SCREEN"    or
+      symbol = "SOUND"     or symbol = "STOP"      or symbol = "SYSTEM"    or
+      symbol = "WEND"      or symbol = "WHILE"     or symbol = "WIDTH"     or
+      symbol = "'";
 
 
 const func boolean: load_prog (in string: name) is func

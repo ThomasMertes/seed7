@@ -84,7 +84,7 @@ static INLINE void system_var ()
     printf("BEGIN system_var\n");
 #endif
     scan_symbol();
-    if (symbol.syclass == STRILITERAL) {
+    if (symbol.sycategory == STRILITERAL) {
       index_found = find_sysvar(symbol.strivalue);
       if (index_found == -1) {
         err_warning(WRONGSYSTEM);
@@ -132,7 +132,7 @@ static INLINE void include_file ()
     printf("BEGIN include_file\n");
 #endif
     scan_symbol();
-    if (symbol.syclass == STRILITERAL) {
+    if (symbol.sycategory == STRILITERAL) {
       if (!ALLOC_STRI(include_file_name, symbol.strivalue->size)) {
         err_warning(OUT_OF_HEAP_SPACE);
       } else {
@@ -192,12 +192,12 @@ static void process_pragma ()
 #ifdef TRACE_SCANNER
     printf("BEGIN process_pragma\n");
 #endif
-    if (symbol.syclass != NAMESYMBOL) {
+    if (symbol.sycategory != NAMESYMBOL) {
       err_warning(NAMEEXPECTED);
     } else {
       if (strcmp((cstritype) symbol.name, "library") == 0) {
         scan_symbol();
-        if (symbol.syclass == STRILITERAL) {
+        if (symbol.sycategory == STRILITERAL) {
           if (stri_charpos(symbol.strivalue, '\\') != NULL) {
             err_warning(WRONG_PATH_DELIMITER);
             scan_symbol();
@@ -212,7 +212,7 @@ static void process_pragma ()
         } /* if */
       } else if (strcmp((cstritype) symbol.name, "message") == 0) {
         scan_symbol();
-        if (symbol.syclass == STRILITERAL) {
+        if (symbol.sycategory == STRILITERAL) {
 #ifdef WITH_COMPILATION_INFO
           if (option.compilation_info) {
             NL_LIN_INFO();
@@ -257,7 +257,7 @@ static void process_pragma ()
         } /* if */
       } else if (strcmp((cstritype) symbol.name, "trace") == 0) {
         scan_symbol();
-        if (symbol.syclass == STRILITERAL) {
+        if (symbol.sycategory == STRILITERAL) {
           set_trace2(symbol.strivalue);
         } else {
           err_warning(STRI_EXPECTED);
@@ -295,7 +295,7 @@ nodetype objects;
     printf("BEGIN decl_any\n");
 #endif
     scan_symbol();
-    while (symbol.syclass != STOPSYMBOL) {
+    while (symbol.sycategory != STOPSYMBOL) {
       if (current_ident == prog.id_for.dollar) {
         err_info = OKAY_NO_ERROR;
         scan_symbol();
@@ -329,7 +329,7 @@ nodetype objects;
         trace1(decl_expression);
         printf("<<<\n");
 #endif
-        if (CLASS_OF_OBJ(decl_expression) == EXPROBJECT) {
+        if (CATEGORY_OF_OBJ(decl_expression) == EXPROBJECT) {
           decl_matched = match_expression(decl_expression);
         } else {
           decl_matched = decl_expression;
@@ -398,7 +398,7 @@ errinfotype *err_info;
         decl_any(prog.declaration_root);
         if (SYS_MAIN_OBJECT == NULL) {
           printf("*** System declaration for main missing\n");
-        } else if (CLASS_OF_OBJ(SYS_MAIN_OBJECT) == FORWARDOBJECT) {
+        } else if (CATEGORY_OF_OBJ(SYS_MAIN_OBJECT) == FORWARDOBJECT) {
           printf("*** Declaration for main missing\n");
         } else {
 /*          printf("main defined as: ");

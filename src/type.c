@@ -83,7 +83,7 @@ errinfotype *err_info
         if (current_ident == prog.id_for.func) {
           scan_symbol();
           basic_type = pars_infix_expression(WEAKEST_PRIORITY, TRUE);
-          if (CLASS_OF_OBJ(basic_type) == TYPEOBJECT) {
+          if (CATEGORY_OF_OBJ(basic_type) == TYPEOBJECT) {
             if ((func_type = get_func_type(NULL, take_type(basic_type))) != NULL) {
               typeof_object = bld_type_temp(func_type);
             } else {
@@ -109,10 +109,10 @@ errinfotype *err_info
         /* printf("typeof_object=%lu ", (long unsigned) typeof_object);
         trace1(typeof_object);
         printf("\n"); */
-        if (CLASS_OF_OBJ(typeof_object) != TYPEOBJECT) {
+        if (CATEGORY_OF_OBJ(typeof_object) != TYPEOBJECT) {
           /* printf("before evaluate\n"); */
           if ((evaluated_type = evaluate(typeof_object)) != NULL &&
-              CLASS_OF_OBJ(evaluated_type) == TYPEOBJECT) {
+              CATEGORY_OF_OBJ(evaluated_type) == TYPEOBJECT) {
             /* printf("evaluated_type ");
             trace1(evaluated_type);
             printf("\n"); */

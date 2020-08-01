@@ -437,7 +437,7 @@ listtype arguments;
   /* drw_create */
     win_from = arg_3(arguments);
     isit_win(win_from);
-    SET_CLASS_OF_OBJ(arg_1(arguments), WINOBJECT);
+    SET_CATEGORY_OF_OBJ(arg_1(arguments), WINOBJECT);
     win_value = take_win(win_from);
     arg_1(arguments)->value.winvalue = win_value;
     if (TEMP_OBJECT(win_from)) {

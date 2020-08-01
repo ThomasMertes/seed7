@@ -123,7 +123,7 @@ char *dir_name;
               dir_array->arr[(int) used_array_size].type_of = take_type(SYS_STRI_TYPE);
               dir_array->arr[(int) used_array_size].descriptor.entity = NULL;
               dir_array->arr[(int) used_array_size].value.strivalue = str1;
-              INIT_CLASS_OF_VAR(&dir_array->arr[(int) used_array_size],
+              INIT_CATEGORY_OF_VAR(&dir_array->arr[(int) used_array_size],
                   STRIOBJECT);
               used_array_size++;
               do {

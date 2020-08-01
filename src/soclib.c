@@ -145,7 +145,7 @@ listtype arguments;
 
   { /* soc_create */
     isit_socket(arg_3(arguments));
-    SET_CLASS_OF_OBJ(arg_1(arguments), SOCKETOBJECT);
+    SET_CATEGORY_OF_OBJ(arg_1(arguments), SOCKETOBJECT);
     arg_1(arguments)->value.socketvalue = take_socket(arg_3(arguments));
     return(SYS_EMPTY_OBJECT);
   } /* soc_create */

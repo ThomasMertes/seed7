@@ -71,7 +71,7 @@ objecttype typeof_object;
     } /* if */
     created_list->type_of = take_type(typeof_object);
     created_list->descriptor.posinfo = CREATE_POSINFO(in_file.line, in_file.file_number);
-    INIT_CLASS_OF_POSINFO(created_list, EXPROBJECT);
+    INIT_CATEGORY_OF_POSINFO(created_list, EXPROBJECT);
     created_list->value.listvalue = NULL;
 #ifdef TRACE_OBJECT
     printf("END new_empty_list_object ");
@@ -113,7 +113,7 @@ objecttype typeof_object;
     } /* if */
     created_list->type_of = take_type(typeof_object);
     created_list->descriptor.posinfo = CREATE_POSINFO(in_file.line, in_file.file_number);
-    INIT_CLASS_OF_POSINFO(created_list, EXPROBJECT);
+    INIT_CATEGORY_OF_POSINFO(created_list, EXPROBJECT);
     if (!ALLOC_L_ELEM(*list)) {
       fatal_memory_error(SOURCE_POSITION(2033));
     } /* if */
@@ -160,7 +160,7 @@ typetype type_of;
     } /* if */
     created_list->type_of = type_of;
     created_list->descriptor.posinfo = CREATE_POSINFO(in_file.line, in_file.file_number);
-    INIT_CLASS_OF_POSINFO(created_list, EXPROBJECT);
+    INIT_CATEGORY_OF_POSINFO(created_list, EXPROBJECT);
     if (!ALLOC_L_ELEM(*list)) {
       fatal_memory_error(SOURCE_POSITION(2035));
     } /* if */

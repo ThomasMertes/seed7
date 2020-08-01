@@ -868,6 +868,7 @@ const func ref_list: (in ref_list param) [ (in integer param) ..
 const func ref_list: (in ref_list param) & (in ref_list param) is        action "RFL_CAT";
 
 const func boolean: (in reference param) in (in ref_list param) is       action "RFL_ELEM";
+const func integer: pos (in ref_list param, in reference param) is       action "RFL_POS";
 const proc: incl (in ref_list param, in reference param) is              action "RFL_INCL";
 const proc: excl (in ref_list param, in reference param) is              action "RFL_EXCL";
 const func integer: length (in ref_list param) is                        action "RFL_LNG";
@@ -875,6 +876,9 @@ const func integer: length (in ref_list param) is                        action 
 const proc: TRACE_LIST (in ref_list param) is                            action "RFL_TRACE";
 
 const proc: for (inout reference param) range (ref ref_list param) do (ref proc param) end for is action "RFL_FOR";
+
+const func boolean: (in reference: aRef) not in (in ref_list: aRefList) is
+  return not aRef in aRefList;
 
 
 (* POINTER *)
@@ -1795,7 +1799,7 @@ const func type: BITSET_OF (in type: baseType) is func
       const func integer: hashCode (in setType param) is                    action "SET_HASHCODE";
       const func integer: card (in setType param) is                        action "SET_CARD";
       const func bitset: (attr bitset) conv (in setType param) is           action "SET_CONV";
-      const varfunc bitset: (attr bitset) var_conv (inout setType param) is action "TYP_VARCONV";
+      const varfunc bitset: (attr bitset) varConv (inout setType param) is  action "TYP_VARCONV";
       const func setType: (attr setType) conv (in bitset param) is          action "SET_CONV";
       const setType: (attr setType) . EMPTY_SET is                          setType conv EMPTY_SET;
 
@@ -1807,12 +1811,12 @@ const func type: BITSET_OF (in type: baseType) is func
 
       const proc: incl (inout setType: aSet, in baseType: aValue) is func
         begin
-          incl(bitset var_conv aSet, ord(aValue));
+          incl(bitset varConv aSet, ord(aValue));
         end func;
 
       const proc: excl (inout setType: aSet, in baseType: aValue) is func
         begin
-          excl(bitset var_conv aSet, ord(aValue));
+          excl(bitset varConv aSet, ord(aValue));
         end func;
 
       const func baseType: rand (in setType: aSet) is

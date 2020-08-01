@@ -105,7 +105,7 @@ char **arg_v;
             arg_array->arr[(int) used_array_size].type_of = take_type(SYS_STRI_TYPE);
             arg_array->arr[(int) used_array_size].descriptor.entity = NULL;
             arg_array->arr[(int) used_array_size].value.strivalue = str1;
-            INIT_CLASS_OF_VAR(&arg_array->arr[(int) used_array_size],
+            INIT_CATEGORY_OF_VAR(&arg_array->arr[(int) used_array_size],
                 STRIOBJECT);
             used_array_size++;
             arg_idx++;
@@ -173,13 +173,13 @@ listtype arguments;
 
   /* prc_begin */
     block_body = arg_3(arguments);
-    if (CLASS_OF_OBJ(block_body) == EXPROBJECT &&
+    if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT &&
         block_body->value.listvalue != NULL &&
         block_body->value.listvalue->next == NULL) {
       block_body = block_body->value.listvalue->obj;
     } /* if */
     push_stack();
-    if (CLASS_OF_OBJ(block_body) == EXPROBJECT) {
+    if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT) {
       update_owner(block_body);
       block_body = match_expression(block_body);
     } /* if */
@@ -222,7 +222,7 @@ listtype arguments;
       searching = TRUE;
       current_catch = arg_4(arguments);
       while (current_catch != NULL && searching &&
-          CLASS_OF_OBJ(current_catch) == MATCHOBJECT &&
+          CATEGORY_OF_OBJ(current_catch) == MATCHOBJECT &&
           current_catch->value.listvalue->next->next->next->next != NULL) {
         catch_value = arg_3(current_catch->value.listvalue);
         if (catch_value == fail_value) {
@@ -271,7 +271,7 @@ listtype arguments;
       searching = TRUE;
       current_catch = arg_4(arguments);
       while (current_catch != NULL && searching &&
-          CLASS_OF_OBJ(current_catch) == MATCHOBJECT &&
+          CATEGORY_OF_OBJ(current_catch) == MATCHOBJECT &&
           current_catch->value.listvalue->next->next->next->next != NULL) {
         catch_value = arg_3(current_catch->value.listvalue);
         if (catch_value == fail_value) {
@@ -328,17 +328,17 @@ listtype arguments;
     current_when = when_objects;
     switch_value = do_ord(switch_object, &err_info);
     while (searching && current_when != NULL &&
-        CLASS_OF_OBJ(current_when) == MATCHOBJECT &&
+        CATEGORY_OF_OBJ(current_when) == MATCHOBJECT &&
         current_when->value.listvalue->next->next->next->next != NULL) {
       when_values = arg_3(current_when->value.listvalue);
-      if (CLASS_OF_OBJ(when_values) != SETOBJECT) {
+      if (CATEGORY_OF_OBJ(when_values) != SETOBJECT) {
         when_set = exec_object(when_values);
         isit_set(when_set);
         set_value = take_set(when_set);
         if (TEMP_OBJECT(when_set)) {
           when_values->type_of = NULL;
           when_values->descriptor.entity = NULL;
-          SET_CLASS_OF_OBJ(when_values, SETOBJECT);
+          SET_CATEGORY_OF_OBJ(when_values, SETOBJECT);
           when_values->value.setvalue = set_value;
         } /* if */
       } else {
@@ -390,17 +390,17 @@ listtype arguments;
     current_when = when_objects;
     switch_value = do_ord(switch_object, &err_info);
     while (searching && current_when != NULL &&
-        CLASS_OF_OBJ(current_when) == MATCHOBJECT &&
+        CATEGORY_OF_OBJ(current_when) == MATCHOBJECT &&
         current_when->value.listvalue->next->next->next->next != NULL) {
       when_values = arg_3(current_when->value.listvalue);
-      if (CLASS_OF_OBJ(when_values) != SETOBJECT) {
+      if (CATEGORY_OF_OBJ(when_values) != SETOBJECT) {
         when_set = exec_object(when_values);
         isit_set(when_set);
         set_value = take_set(when_set);
         if (TEMP_OBJECT(when_set)) {
           when_values->type_of = NULL;
           when_values->descriptor.entity = NULL;
-          SET_CLASS_OF_OBJ(when_values, SETOBJECT);
+          SET_CATEGORY_OF_OBJ(when_values, SETOBJECT);
           when_values->value.setvalue = set_value;
         } /* if */
       } else {
@@ -444,7 +444,7 @@ listtype arguments;
     isit_proc(proc_variable);
     is_variable(proc_variable);
     isit_proc(arg_3(arguments));
-    SET_CLASS_OF_OBJ(proc_variable, CLASS_OF_OBJ(arg_3(arguments)));
+    SET_CATEGORY_OF_OBJ(proc_variable, CATEGORY_OF_OBJ(arg_3(arguments)));
     proc_variable->value = arg_3(arguments)->value;
     return(SYS_EMPTY_OBJECT);
   } /* prc_cpy */
@@ -468,7 +468,7 @@ listtype arguments;
     proc_to = arg_1(arguments);
     proc_from = arg_3(arguments);
     isit_proc(proc_from);
-    SET_CLASS_OF_OBJ(proc_to, CLASS_OF_OBJ(proc_from));
+    SET_CATEGORY_OF_OBJ(proc_to, CATEGORY_OF_OBJ(proc_from));
     proc_to->value = proc_from->value;
     if (TEMP_OBJECT(proc_from)) {
       proc_from->value.blockvalue = NULL;
@@ -777,7 +777,7 @@ listtype arguments;
   /* prc_local */
     local_decls = arg_3(arguments);
     block_body = arg_5(arguments);
-    if (CLASS_OF_OBJ(block_body) == EXPROBJECT &&
+    if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT &&
         block_body->value.listvalue != NULL &&
         block_body->value.listvalue->next == NULL) {
       block_body = block_body->value.listvalue->obj;
@@ -795,7 +795,7 @@ listtype arguments;
     } /* if */
     local_vars = get_local_var_list(*local_object_insert_place, &err_info);
     local_consts = get_local_const_list(*local_object_insert_place, &err_info);
-    if (CLASS_OF_OBJ(block_body) == EXPROBJECT) {
+    if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT) {
       update_owner(block_body);
       block_body = match_expression(block_body);
     } /* if */
@@ -854,8 +854,12 @@ listtype arguments;
       stri_export(opt_name, stri);
       if (strcmp(opt_name, "OBJECT_FILE_EXTENSION") == 0) {
         opt = OBJECT_FILE_EXTENSION;
+      } else if (strcmp(opt_name, "EXECUTABLE_FILE_EXTENSION") == 0) {
+        opt = EXECUTABLE_FILE_EXTENSION;
       } else if (strcmp(opt_name, "C_COMPILER") == 0) {
         opt = C_COMPILER;
+      } else if (strcmp(opt_name, "REDIRECT_C_ERRORS") == 0) {
+        opt = REDIRECT_C_ERRORS;
       } else if (strcmp(opt_name, "LIBS") == 0) {
         opt = LINKER_LIBS;
       } else {
@@ -977,7 +981,7 @@ listtype arguments;
     result_var_name = arg_6(arguments);
     result_init = arg_8(arguments);
     block_body = arg_10(arguments);
-    if (CLASS_OF_OBJ(block_body) == EXPROBJECT &&
+    if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT &&
         block_body->value.listvalue != NULL &&
         block_body->value.listvalue->next == NULL) {
       block_body = block_body->value.listvalue->obj;
@@ -1005,7 +1009,7 @@ listtype arguments;
       printf("result_var.init_value ");
       trace1(result_var.init_value);
       printf("\n"); */
-      if (CLASS_OF_OBJ(block_body) == EXPROBJECT) {
+      if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT) {
         update_owner(block_body);
         block_body = match_expression(block_body);
       } /* if */
@@ -1057,7 +1061,7 @@ listtype arguments;
     result_init = arg_8(arguments);
     local_decls = arg_10(arguments);
     block_body = arg_12(arguments);
-    if (CLASS_OF_OBJ(block_body) == EXPROBJECT &&
+    if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT &&
         block_body->value.listvalue != NULL &&
         block_body->value.listvalue->next == NULL) {
       block_body = block_body->value.listvalue->obj;
@@ -1082,7 +1086,7 @@ listtype arguments;
       } /* if */
       local_vars = get_local_var_list(*local_object_insert_place, &err_info);
       local_consts = get_local_const_list(*local_object_insert_place, &err_info);
-      if (CLASS_OF_OBJ(block_body) == EXPROBJECT) {
+      if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT) {
         update_owner(block_body);
         block_body = match_expression(block_body);
       } /* if */
@@ -1122,13 +1126,13 @@ listtype arguments;
 
   /* prc_return */
     block_body = arg_2(arguments);
-    if (CLASS_OF_OBJ(block_body) == EXPROBJECT &&
+    if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT &&
         block_body->value.listvalue != NULL &&
         block_body->value.listvalue->next == NULL) {
       block_body = block_body->value.listvalue->obj;
     } /* if */
     push_stack();
-    if (CLASS_OF_OBJ(block_body) == EXPROBJECT) {
+    if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT) {
       update_owner(block_body);
       block_body = match_expression(block_body);
     } /* if */
@@ -1178,13 +1182,13 @@ listtype arguments;
 
   /* prc_return2 */
     block_body = arg_3(arguments);
-    if (CLASS_OF_OBJ(block_body) == EXPROBJECT &&
+    if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT &&
         block_body->value.listvalue != NULL &&
         block_body->value.listvalue->next == NULL) {
       block_body = block_body->value.listvalue->obj;
     } /* if */
     push_stack();
-    if (CLASS_OF_OBJ(block_body) == EXPROBJECT) {
+    if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT) {
       update_owner(block_body);
       block_body = match_expression(block_body);
     } /* if */
@@ -1268,13 +1272,13 @@ listtype arguments;
 
   /* prc_varfunc */
     block_body = arg_3(arguments);
-    if (CLASS_OF_OBJ(block_body) == EXPROBJECT &&
+    if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT &&
         block_body->value.listvalue != NULL &&
         block_body->value.listvalue->next == NULL) {
       block_body = block_body->value.listvalue->obj;
     } /* if */
     push_stack();
-    if (CLASS_OF_OBJ(block_body) == EXPROBJECT) {
+    if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT) {
       update_owner(block_body);
       block_body = match_expression(block_body);
     } /* if */
@@ -1306,13 +1310,13 @@ listtype arguments;
 
   /* prc_varfunc2 */
     block_body = arg_4(arguments);
-    if (CLASS_OF_OBJ(block_body) == EXPROBJECT &&
+    if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT &&
         block_body->value.listvalue != NULL &&
         block_body->value.listvalue->next == NULL) {
       block_body = block_body->value.listvalue->obj;
     } /* if */
     push_stack();
-    if (CLASS_OF_OBJ(block_body) == EXPROBJECT) {
+    if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT) {
       update_owner(block_body);
       block_body = match_expression(block_body);
     } /* if */

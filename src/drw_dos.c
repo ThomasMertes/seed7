@@ -44,257 +44,639 @@
 
 #ifdef ANSI_C
 
-void dra_arc (wintype actual_window, inttype x, inttype y,
-    inttype radius, floattype ang1, floattype ang2)
+chartype gkbGetc (void)
 #else
 
-void dra_arc (actual_window, x, y, radius, ang1, ang2)
-wintype actual_window;
-inttype x, y, radius;
-floattype ang1, ang2;
+chartype gkbGetc ()
 #endif
 
-  { /* dra_arc */
-  } /* dra_arc */
+  { /* gkbGetc */
+    return((chartype) EOF);
+  } /* gkbGetc */
 
 
 
 #ifdef ANSI_C
 
-void dra_arcchord (wintype actual_window, inttype x, inttype y,
-    inttype radius, floattype ang1, floattype ang2)
+booltype gkbKeyPressed (void)
 #else
 
-void dra_arcchord (actual_window, x, y, radius, ang1, ang2)
-wintype actual_window;
-inttype x, y, radius;
-floattype ang1, ang2;
+booltype gkbKeyPressed ()
 #endif
 
-  { /* dra_arcchord */
-  } /* dra_arcchord */
+  { /* gkbKeyPressed */
+    return(FALSE);
+  } /* gkbKeyPressed */
 
 
 
 #ifdef ANSI_C
 
-void dra_arcpieslice (wintype actual_window, inttype x, inttype y,
-    inttype radius, floattype ang1, floattype ang2)
+chartype gkbRawGetc (void)
 #else
 
-void dra_arcpieslice (actual_window, x, y, radius, ang1, ang2)
-wintype actual_window;
-inttype x, y, radius;
-floattype ang1, ang2;
+chartype gkbRawGetc ()
 #endif
 
-  { /* dra_arcpieslice */
-  } /* dra_arcpieslice */
+  { /* gkbRawGetc */
+    return(gkbGetc());
+  } /* gkbRawGetc */
 
 
 
 #ifdef ANSI_C
 
-void dra_arc2 (wintype actual_window,
+inttype gkbXpos (void)
+#else
+
+inttype gkbXpos ()
+#endif
+
+  { /* gkbXpos */
+    return(0);
+  } /* gkbXpos */
+
+
+
+#ifdef ANSI_C
+
+inttype gkbYpos (void)
+#else
+
+inttype gkbYpos ()
+#endif
+
+  { /* gkbYpos */
+    return(0);
+  } /* gkbYpos */
+
+
+
+#ifdef ANSI_C
+
+void drwArc (const_wintype actual_window, inttype x, inttype y,
+    inttype radius, floattype ang1, floattype ang2)
+#else
+
+void drwArc (actual_window, x, y, radius, ang1, ang2)
+wintype actual_window;
+inttype x, y, radius;
+floattype ang1, ang2;
+#endif
+
+  { /* drwArc */
+  } /* drwArc */
+
+
+
+#ifdef ANSI_C
+
+void drwPArc (const_wintype actual_window, inttype x, inttype y,
+    inttype radius, floattype ang1, floattype ang2, inttype col)
+#else
+
+void drwPArc (actual_window, x, y, radius, ang1, ang2, col)
+wintype actual_window;
+inttype x, y, radius;
+floattype ang1, ang2;
+inttype col;
+#endif
+
+  { /* drwPArc */
+  } /* drwPArc */
+
+
+
+#ifdef ANSI_C
+
+void drwFArcChord (const_wintype actual_window, inttype x, inttype y,
+    inttype radius, floattype ang1, floattype ang2)
+#else
+
+void drwFArcChord (actual_window, x, y, radius, ang1, ang2)
+wintype actual_window;
+inttype x, y, radius;
+floattype ang1, ang2;
+#endif
+
+  { /* drwFArcChord */
+  } /* drwFArcChord */
+
+
+
+#ifdef ANSI_C
+
+void drwPFArcChord (const_wintype actual_window, inttype x, inttype y,
+    inttype radius, floattype ang1, floattype ang2, inttype col)
+#else
+
+void drwPFArcChord (actual_window, x, y, radius, ang1, ang2, col)
+wintype actual_window;
+inttype x, y, radius;
+floattype ang1, ang2;
+inttype col;
+#endif
+
+  { /* drwPFArcChord */
+  } /* drwPFArcChord */
+
+
+
+#ifdef ANSI_C
+
+void drwFArcPieSlice (const_wintype actual_window, inttype x, inttype y,
+    inttype radius, floattype ang1, floattype ang2)
+#else
+
+void drwFArcPieSlice (actual_window, x, y, radius, ang1, ang2)
+wintype actual_window;
+inttype x, y, radius;
+floattype ang1, ang2;
+#endif
+
+  { /* drwFArcPieSlice */
+  } /* drwFArcPieSlice */
+
+
+
+#ifdef ANSI_C
+
+void drwPFArcPieSlice (const_wintype actual_window, inttype x, inttype y,
+    inttype radius, floattype ang1, floattype ang2, inttype col)
+#else
+
+void drwPFArcPieSlice (actual_window, x, y, radius, ang1, ang2, col)
+wintype actual_window;
+inttype x, y, radius;
+floattype ang1, ang2;
+inttype col;
+#endif
+
+  { /* drwPFArcPieSlice */
+  } /* drwPFArcPieSlice */
+
+
+
+#ifdef ANSI_C
+
+void drwArc2 (const_wintype actual_window,
     inttype x1, inttype y1, inttype x2, inttype y2, inttype radius)
 #else
 
-void dra_arc2 (actual_window, x1, y1, x2, y2, radius)
+void drwArc2 (actual_window, x1, y1, x2, y2, radius)
 wintype actual_window;
 inttype x1, y1, x2, y2, radius;
 #endif
 
-  { /* dra_arc2 */
-  } /* dra_arc2 */
+  { /* drwArc2 */
+  } /* drwArc2 */
 
 
 
 #ifdef ANSI_C
 
-void dra_circle (wintype actual_window,
+void drwCircle (const_wintype actual_window,
     inttype x, inttype y, inttype radius)
 #else
 
-void dra_circle (actual_window, x, y, radius)
+void drwCircle (actual_window, x, y, radius)
 wintype actual_window;
 inttype x, y, radius;
 #endif
 
-  { /* dra_circle */
-  } /* dra_circle */
+  { /* drwCircle */
+  } /* drwCircle */
 
 
 
 #ifdef ANSI_C
 
-void dra_fcircle (wintype actual_window,
+void drwPCircle (const_wintype actual_window,
+    inttype x, inttype y, inttype radius, inttype col)
+#else
+
+void drwPCircle (actual_window, x, y, col)
+wintype actual_window;
+inttype x, y, radius;
+inttype col;
+#endif
+
+  { /* drwPCircle */
+  } /* drwPCircle */
+
+
+
+#ifdef ANSI_C
+
+void drwClear (const_wintype actual_window, inttype col)
+#else
+
+void drwClear (actual_window, col)
+wintype actual_window;
+inttype col;
+#endif
+
+  { /* drwClear */
+  } /* drwClear */
+
+
+
+#ifdef ANSI_C
+
+void drwCopyArea (const_wintype src_window, const_wintype dest_window,
+    inttype src_x, inttype src_y, inttype width, inttype height,
+    inttype dest_x, inttype dest_y)
+#else
+
+void drwCopyArea (src_window, dest_window, src_x, src_y, width, height,
+    dest_x, dest_y)
+wintype src_window;
+wintype dest_window;
+inttype src_x;
+inttype src_y;
+inttype width;
+inttype height;
+inttype dest_x;
+inttype dest_y;
+#endif
+
+  { /* drwCopyArea */
+  } /* drwCopyArea */
+
+
+
+#ifdef ANSI_C
+
+void drwFCircle (const_wintype actual_window,
     inttype x, inttype y, inttype radius)
 #else
 
-void dra_fcircle (actual_window, x, y, radius)
+void drwFCircle (actual_window, x, y, radius)
 wintype actual_window;
 inttype x, y, radius;
 #endif
 
-  { /* dra_fcircle */
-  } /* dra_fcircle */
+  { /* drwFCircle */
+  } /* drwFCircle */
 
 
 
 #ifdef ANSI_C
 
-void dra_fellipse (wintype actual_window,
+void drwPFCircle (const_wintype actual_window,
+    inttype x, inttype y, inttype radius, inttype col)
+#else
+
+void drwPFCircle (actual_window, x, y, radius, col)
+wintype actual_window;
+inttype x, y, radius;
+inttype col;
+#endif
+
+  { /* drwPFCircle */
+  } /* drwPFCircle */
+
+
+
+#ifdef ANSI_C
+
+void drwFEllipse (const_wintype actual_window,
     inttype x, inttype y, inttype width, inttype height)
 #else
 
-void dra_fellipse (actual_window, x, y, width, height)
+void drwFEllipse (actual_window, x, y, width, height)
 wintype actual_window;
 inttype x, y, width, height;
 #endif
 
-  { /* dra_fellipse */
-  } /* dra_fellipse */
+  { /* drwFEllipse */
+  } /* drwFEllipse */
 
 
 
 #ifdef ANSI_C
 
-int dra_height (wintype actual_window)
+void drwPFEllipse (const_wintype actual_window,
+    inttype x, inttype y, inttype width, inttype height, inttype col)
 #else
 
-int dra_height (actual_window)
+void drwPFEllipse (actual_window, x, y, width, height, col)
+wintype actual_window;
+inttype x, y, width, height;
+inttype col;
+#endif
+
+  { /* drwPFEllipse */
+  } /* drwPFEllipse */
+
+
+
+#ifdef ANSI_C
+
+void drwFlush (void)
+#else
+
+void drwFlush ()
+#endif
+
+  { /* drwFlush */
+  } /* drwFlush */
+
+
+
+#ifdef ANSI_C
+
+void drwFree (wintype old_window)
+#else
+
+void drwFree (old_window)
+wintype old_window;
+#endif
+
+  { /* drwFree */
+  } /* drwFree */
+
+
+
+#ifdef ANSI_C
+
+wintype drwGet (const_wintype actual_window, inttype left, inttype upper,
+    inttype width, inttype height)
+#else
+
+wintype drwGet (actual_window, left, upper, width, height)
+wintype actual_window;
+inttype left;
+inttype upper;
+inttype width;
+inttype height;
+#endif
+
+  { /* drwGet */
+    return(NULL);
+  } /* drwGet */
+
+
+
+#ifdef ANSI_C
+
+inttype drwHeight (const_wintype actual_window)
+#else
+
+inttype drwHeight (actual_window)
 wintype actual_window;
 #endif
 
-  { /* dra_height */
+  { /* drwHeight */
     return(0);
-  } /* dra_height */
+  } /* drwHeight */
 
 
 
 #ifdef ANSI_C
 
-void dra_line (wintype actual_window,
+wintype drwImage (const_wintype actual_window, inttype *image_data,
+    inttype width, inttype height)
+#else
+
+wintype drwImage (actual_window, image_data, width, height)
+wintype actual_window;
+inttype *image_data;
+inttype width;
+inttype height;
+#endif
+
+  { /* drwImage */
+    return(NULL);
+  } /* drwImage */
+
+
+
+#ifdef ANSI_C
+
+void drwLine (const_wintype actual_window,
     inttype x1, inttype y1, inttype x2, inttype y2)
 #else
 
-void dra_line (actual_window, x1, y1, x2, y2)
+void drwLine (actual_window, x1, y1, x2, y2)
 wintype actual_window;
 inttype x1, y1, x2, y2;
 #endif
 
-  { /* dra_line */
-  } /* dra_line */
+  { /* drwLine */
+  } /* drwLine */
 
 
 
 #ifdef ANSI_C
 
-wintype dra_open (inttype xPos, inttype yPos,
-    inttype width, inttype height, char *window_name)
+void drwPLine (const_wintype actual_window,
+    inttype x1, inttype y1, inttype x2, inttype y2, inttype col)
 #else
 
-wintype dra_open (xPos, yPos, width, height, window_name)
+void drwPLine (actual_window, x1, y1, x2, y2, col)
+wintype actual_window;
+inttype x1, y1, x2, y2;
+inttype col;
+#endif
+
+  { /* drwPLine */
+  } /* drwPLine */
+
+
+
+#ifdef ANSI_C
+
+wintype drwNewPixmap (const_wintype actual_window, inttype width, inttype height)
+#else
+
+wintype drwNewPixmap (actual_window, width, height)
+wintype actual_window;
+inttype width;
+inttype height;
+#endif
+
+  { /* drwNewPixmap */
+    return(NULL);
+  } /* drwNewPixmap */
+
+
+
+#ifdef ANSI_C
+
+wintype drwOpen (inttype xPos, inttype yPos,
+    inttype width, inttype height, stritype window_name)
+#else
+
+wintype drwOpen (xPos, yPos, width, height, window_name)
 inttype xPos;
 inttype yPos;
 inttype width;
 inttype height;
-char *window_name;
+stritype window_name;
 #endif
 
-  {
-  /* dra_open */
-    return(0);
-  } /* dra_open */
+  { /* drwOpen */
+    return(NULL);
+  } /* drwOpen */
 
 
 
 #ifdef ANSI_C
 
-void dra_rect (wintype actual_window,
+void drwPoint (const_wintype actual_window, inttype x, inttype y)
+#else
+
+void drwPoint (actual_window, x, y)
+wintype actual_window;
+inttype x, y;
+#endif
+
+  { /* drwPoint */
+  } /* drwPoint */
+
+
+
+#ifdef ANSI_C
+
+void drwPPoint (const_wintype actual_window, inttype x, inttype y, inttype col)
+#else
+
+void drwPPoint (actual_window, x, y, col)
+wintype actual_window;
+inttype x, y;
+inttype col;
+#endif
+
+  { /* drwPPoint */
+  } /* drwPPoint */
+
+
+
+#ifdef ANSI_C
+
+void drwPut (const_wintype actual_window, const_wintype pixmap,
+    inttype x1, inttype y1)
+#else
+
+void drwPut (actual_window, pixmap, x1, y1)
+wintype actual_window;
+wintype pixmap;
+inttype x1;
+inttype y1;
+#endif
+
+  { /* drwPut */
+  } /* drwPut */
+
+
+
+#ifdef ANSI_C
+
+void drwRect (const_wintype actual_window,
     inttype x1, inttype y1, inttype length_x, inttype length_y)
 #else
 
-void dra_rect (actual_window, x1, y1, length_x, length_y)
+void drwRect (actual_window, x1, y1, length_x, length_y)
 wintype actual_window;
 inttype x1, y1, length_x, length_y;
 #endif
 
-  { /* dra_rect */
-  } /* dra_rect */
+  { /* drwRect */
+  } /* drwRect */
 
 
 
 #ifdef ANSI_C
 
-inttype dra_rgb_color (inttype red_val, inttype green_val, inttype blue_val)
+void drwPRect (const_wintype actual_window,
+    inttype x1, inttype y1, inttype length_x, inttype length_y, inttype col)
 #else
 
-inttype dra_rgb_color (red_val, green_val, blue_val)
+void drwPRect (actual_window, x1, y1, length_x, length_y, col)
+wintype actual_window;
+inttype x1, y1, length_x, length_y;
+inttype col;
+#endif
+
+  { /* drwPRect */
+  } /* drwPRect */
+
+
+
+#ifdef ANSI_C
+
+inttype drwRgbColor (inttype red_val, inttype green_val, inttype blue_val)
+#else
+
+inttype drwRgbColor (red_val, green_val, blue_val)
 inttype red_val;
 inttype green_val;
 inttype blue_val;
 #endif
 
-  { /* dra_rgb_color */
+  { /* drwRgbColor */
     return(0);
-  } /* dra_rgb_color */
+  } /* drwRgbColor */
 
 
 
 #ifdef ANSI_C
 
-void dra_background (inttype col)
+void drwBackground (inttype col)
 #else
 
-void dra_background (col)
+void drwBackground (col)
 inttype col;
 #endif
 
-  { /* dra_background */
-  } /* dra_background */
+  { /* drwBackground */
+  } /* drwBackground */
 
 
 
 #ifdef ANSI_C
 
-void dra_color (inttype col)
+void drwColor (inttype col)
 #else
 
-void dra_color (col)
+void drwColor (col)
 inttype col;
 #endif
 
-  { /* dra_color */
-  } /* dra_color */
+  { /* drwColor */
+  } /* drwColor */
 
 
 
 #ifdef ANSI_C
 
-void dra_text (wintype actual_window, stritype stri, inttype x1, inttype y1)
+void drwText (const_wintype actual_window, inttype x, inttype y, stritype stri,
+    inttype col, inttype bkcol)
 #else
 
-void dra_text (actual_window, stri, x1, y1)
+void drwText (actual_window, x, y, stri, col, bkcol)
 wintype actual_window;
+inttype x, y;
 stritype stri;
-inttype x1, y1;
+inttype col;
+inttype bkcol;
 #endif
 
-  { /* dra_text */
-  } /* dra_text */
+  { /* drwText */
+  } /* drwText */
 
 
 
 #ifdef ANSI_C
 
-int dra_width (wintype actual_window)
+inttype drwWidth (const_wintype actual_window)
 #else
 
-int dra_width (actual_window)
+inttype drwWidth (actual_window)
 wintype actual_window;
 #endif
 
-  { /* dra_width */
+  { /* drwWidth */
     return(0);
-  } /* dra_width */
+  } /* drwWidth */
