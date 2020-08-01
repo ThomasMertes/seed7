@@ -240,12 +240,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 200000 lines of Seed7. For version 2015-07-20 the number of lines is:
+than 200000 lines of Seed7. For version 2015-08-02 the number of lines is:
 
-  125861  C source files (*.c)
+  125465  C source files (*.c)
    10089  C header files (*.h)
-  127640  Seed7 source files (*.sd7)
-  129650  Seed7 library/include files (*.s7i)
+  130482  Seed7 source files (*.sd7)
+  129947  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -614,6 +614,29 @@ Possible options are
        of the following characters:
          e Trace exceptions and handlers
          s Trace signals
+
+
+Can I debug Seed7 programs with Eclipse?
+========================================
+
+Yes, Eclipse can be easily configured to work with Seed7:
+
+  Eclipse needs the C/C++ Development Tools (CDT) plugin.
+  In Window => Preferences => C/C++ => FileTypes add *.sd7 as 'C Source File'
+       end *.s7i as 'C Header File'.
+  In Window => Preferences => General => Editors => File Associations add *.sd7
+       and *.s7i and make the C/C++ Editor default for them.
+  Create a C project (New => Project => C/C++ => C Project).
+  Right click on the project in the Project Explorer and select Properties => C/C++ General => File Types.
+       Add *.sd7 as 'C Source File' end *.s7i as 'C Header File'.
+  In a console window: Compile your Seed7 program with the option -g.
+  In Eclipse: Create a Debug Configuration with: Run => Debug Configurations...
+       Right click on C/C++ Application and select New.
+  In the Main tab of the new Debug Configuration: Press the Browse... button
+       to select the executable you want to debug.
+  Select the C project you created.
+  In the Arguments tab you can set program arguments and current working directory.
+  Press the Debug button to start the program.
 
 
 What are the reserved words of Seed7?

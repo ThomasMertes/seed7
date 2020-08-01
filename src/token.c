@@ -25,6 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -40,24 +43,18 @@
 #define EXTERN
 #include "token.h"
 
-#undef TRACE_TOKEN
-
 
 
 void free_tokens (tokenType token)
 
   { /* free_tokens */
-#ifdef TRACE_TOKEN
-    printf("BEGIN free_tokens\n");
-#endif
+    logFunction(printf("free_tokens\n"););
     if (token != NULL) {
       free_tokens(token->next);
       free_tokens(token->alternative);
       FREE_RECORD(token, tokenRecord, count.token);
     } /* if */
-#ifdef TRACE_TOKEN
-    printf("END free_tokens\n");
-#endif
+    logFunction(printf("free_tokens -->\n"););
   } /* free_tokens */
 
 
@@ -68,9 +65,7 @@ static tokenType new_sy_token (identType identifier)
     register tokenType created_token;
 
   /* new_sy_token */
-#ifdef TRACE_TOKEN
-    printf("BEGIN new_sy_token\n");
-#endif
+    logFunction(printf("new_sy_token\n"););
     if (!ALLOC_RECORD(created_token, tokenRecord, count.token)) {
       fatal_memory_error(SOURCE_POSITION(2101));
     } /* if */
@@ -78,9 +73,7 @@ static tokenType new_sy_token (identType identifier)
     created_token->alternative = NULL;
     created_token->token_category = SY_TOKEN;
     created_token->token_value.ident = identifier;
-#ifdef TRACE_TOKEN
-    printf("END new_sy_token\n");
-#endif
+    logFunction(printf("new_sy_token -->\n"););
     return created_token;
   } /* new_sy_token */
 
@@ -92,9 +85,7 @@ static tokenType new_expr_token (priorityType priority, typeType type_of)
     tokenType created_token;
 
   /* new_expr_token */
-#ifdef TRACE_TOKEN
-    printf("BEGIN new_expr_token\n");
-#endif
+    logFunction(printf("new_expr_token\n"););
     if (!ALLOC_RECORD(created_token, tokenRecord, count.token)) {
       fatal_memory_error(SOURCE_POSITION(2102));
     } /* if */
@@ -103,9 +94,7 @@ static tokenType new_expr_token (priorityType priority, typeType type_of)
     created_token->token_category = EXPR_TOKEN;
     created_token->token_value.expr_par.priority = priority;
     created_token->token_value.expr_par.type_of = type_of;
-#ifdef TRACE_TOKEN
-    printf("END new_expr_token\n");
-#endif
+    logFunction(printf("new_expr_token -->\n"););
     return created_token;
   } /* new_expr_token */
 
@@ -117,9 +106,7 @@ static tokenType new_syntax_description (void)
     tokenType created_token;
 
   /* new_syntax_description */
-#ifdef TRACE_TOKEN
-    printf("BEGIN new_syntax_description\n");
-#endif
+    logFunction(printf("new_syntax_description\n"););
     if (!ALLOC_RECORD(created_token, tokenRecord, count.token)) {
       fatal_memory_error(SOURCE_POSITION(2103));
     } /* if */
@@ -127,9 +114,7 @@ static tokenType new_syntax_description (void)
     created_token->alternative = NULL;
     created_token->token_category = UNDEF_SYNTAX;
     created_token->token_value.type_of = NULL;
-#ifdef TRACE_TOKEN
-    printf("END new_syntax_description\n");
-#endif
+    logFunction(printf("new_syntax_description -->\n"););
     return created_token;
   } /* new_syntax_description */
 
@@ -142,9 +127,7 @@ tokenType get_sy_token (tokenType *tokens, identType identifier)
     boolType searching;
 
   /* get_sy_token */
-#ifdef TRACE_TOKEN
-    printf("BEGIN get_sy_token\n");
-#endif
+    logFunction(printf("get_sy_token\n"););
     if (*tokens == NULL) {
       token_found = new_sy_token(identifier);
       *tokens = token_found;
@@ -168,9 +151,7 @@ tokenType get_sy_token (tokenType *tokens, identType identifier)
         *tokens = token_found;
       } /* if */
     } /* if */
-#ifdef TRACE_TOKEN
-    printf("END get_sy_token\n");
-#endif
+    logFunction(printf("get_sy_token -->\n"););
     return token_found;
   } /* get_sy_token */
 
@@ -184,9 +165,7 @@ tokenType get_expr_token (tokenType *tokens, priorityType priority,
     tokenType previous_token;
 
   /* get_expr_token */
-#ifdef TRACE_TOKEN
-    printf("BEGIN get_expr_token\n");
-#endif
+    logFunction(printf("get_expr_token\n"););
     if (*tokens == NULL) {
       token_found = new_expr_token(priority, type_of);
       *tokens = token_found;
@@ -220,9 +199,7 @@ tokenType get_expr_token (tokenType *tokens, priorityType priority,
           break;
       } /* switch */
     } /* if */
-#ifdef TRACE_TOKEN
-    printf("END get_expr_token\n");
-#endif
+    logFunction(printf("get_expr_token -->\n"););
     return token_found;
   } /* get_expr_token */
 
@@ -234,9 +211,7 @@ tokenType get_syntax_description (tokenType *tokens)
     tokenType token_found;
 
   /* get_syntax_description */
-#ifdef TRACE_TOKEN
-    printf("BEGIN get_syntax_description\n");
-#endif
+    logFunction(printf("get_syntax_description\n"););
     if (*tokens == NULL) {
       token_found = new_syntax_description();
       *tokens = token_found;
@@ -251,8 +226,6 @@ tokenType get_syntax_description (tokenType *tokens)
         token_found = token_found->alternative;
       } /* if */
     } /* if */
-#ifdef TRACE_TOKEN
-    printf("END get_syntax_description\n");
-#endif
+    logFunction(printf("get_syntax_description -->\n"););
     return token_found;
   } /* get_syntax_description */

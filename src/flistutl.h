@@ -93,7 +93,7 @@ EXTERN freeListRootType flist;
 #define POP_FILE(F)     (F = flist.infiles,    flist.infiles = flist.infiles->next,           F_LOG1(F) TRUE)
 
 
-#ifdef WITH_OBJECT_FREELIST
+#if WITH_OBJECT_FREELIST
 #define ALLOC_OBJECT(O) (flist.objects != NULL ? POP_OBJ(O) : HEAP_OBJ(O, objectRecord))
 #define FREE_OBJECT(O)  (F_LOG2(O) (O)->value.objValue = flist.objects, (O)->objcategory = 0, flist.objects = (O))
 /* #define FREE_OBJECT(O)  (printf("FREE_OBJECT(%lu)\n", O), F_LOG2(O) (O)->value.objValue = flist.objects, (O)->objcategory = 0, flist.objects = (O)) */

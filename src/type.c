@@ -25,6 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -51,9 +54,6 @@
 #include "type.h"
 
 
-#undef TRACE_TYPE
-
-
 
 objectType decl_type (int *is_dollar_type, errInfoType *err_info)
 
@@ -64,9 +64,7 @@ objectType decl_type (int *is_dollar_type, errInfoType *err_info)
     typeType func_type;
 
   /* decl_type */
-#ifdef TRACE_TYPE
-    printf("BEGIN decl_type\n");
-#endif
+    logFunction(printf("decl_type\n"););
     *is_dollar_type = 0;
     scan_symbol();
     if (current_ident == prog.id_for.colon) {
@@ -132,10 +130,8 @@ objectType decl_type (int *is_dollar_type, errInfoType *err_info)
         err_ident(EXPECTED_SYMBOL, prog.id_for.colon);
       } /* if */
     } /* if */
-#ifdef TRACE_TYPE
-    printf("END decl_type --> ");
-    trace1(type_of_object);
-    printf("\n");
-#endif
+    logFunction(printf("decl_type --> ");
+                trace1(type_of_object);
+                printf("\n"););
     return type_of_object;
   } /* decl_type */

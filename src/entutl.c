@@ -25,6 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -41,8 +44,6 @@
 #undef EXTERN
 #define EXTERN
 #include "entutl.h"
-
-#undef TRACE_ENTITY
 
 
   /* The macro PTR_LESS is used to generate a less than comparison  */
@@ -71,11 +72,9 @@
 static void free_nodes (nodeType node)
 
   { /* free_nodes */
-#ifdef TRACE_ENTITY
-    printf("BEGIN free_nodes(");
-    printnodes(node);
-    printf(")\n");
-#endif
+    logFunction(printf("free_nodes(");
+                printnodes(node);
+                printf(")\n"););
     if (node != NULL) {
       /* node->entity is not removed here */
       free_nodes(node->next1);
@@ -86,9 +85,7 @@ static void free_nodes (nodeType node)
       free_nodes(node->attr);
       FREE_NODE(node);
     } /* if */
-#ifdef TRACE_ENTITY
-    printf("END free_nodes\n");
-#endif
+    logFunction(printf("free_nodes -->\n"););
   } /* free_nodes */
 
 
@@ -99,11 +96,9 @@ static nodeType new_node (objectType obj)
     nodeType created_node;
 
   /* new_node */
-#ifdef TRACE_ENTITY
-    printf("BEGIN new_node(");
-    trace1(obj);
-    printf(")\n");
-#endif
+    logFunction(printf("new_node(");
+                trace1(obj);
+                printf(")\n"););
     if (ALLOC_NODE(created_node)) {
       created_node->usage_count = 1;
       created_node->match_obj = obj;
@@ -115,11 +110,9 @@ static nodeType new_node (objectType obj)
       created_node->other_param = NULL;
       created_node->attr = NULL;
     } /* if */
-#ifdef TRACE_ENTITY
-    printf("END new_node --> ");
-    trace_node(created_node);
-    printf("\n");
-#endif
+    logFunction(printf("new_node --> ");
+                trace_node(created_node);
+                printf("\n"););
     return created_node;
   } /* new_node */
 
@@ -142,13 +135,11 @@ static nodeType get_node (nodeType *node_tree,
     nodeType node_found;
 
   /* get_node */
-#ifdef TRACE_ENTITY
-    printf("BEGIN get_node({ ");
-    printnodes(*node_tree);
-    printf("}, ");
-    trace1(object_searched);
-    printf(")\n");
-#endif
+    logFunction(printf("get_node({ ");
+                printnodes(*node_tree);
+                printf("}, ");
+                trace1(object_searched);
+                printf(")\n"););
     if ((search_node = *node_tree) == NULL) {
       node_found = new_node(object_searched);
       *node_tree = node_found;
@@ -179,12 +170,10 @@ static nodeType get_node (nodeType *node_tree,
         } /* if */
       } while (searching);
     } /* if */
-/* printf("get_node >%s<\n", object_searched->entity->ident->name); */
-#ifdef TRACE_ENTITY
-    printf("END get_node --> ");
-    trace_node(node_found);
-    printf("\n");
-#endif
+    /* printf("get_node >%s<\n", object_searched->entity->ident->name); */
+    logFunction(printf("get_node --> ");
+                trace_node(node_found);
+                printf("\n"););
     return node_found;
   } /* get_node */
 
@@ -201,15 +190,12 @@ nodeType find_node (register nodeType node_tree,
     nodeType node_found;
 
   /* find_node */
-#ifdef TRACE_ENTITY
-    printf("BEGIN find_node({ ");
-    printnodes(node_tree);
-    printf("}, ");
-    trace1(object_searched);
-    prot_cstri("=");
-    prot_int((intType) object_searched);
-    printf(")\n");
-#endif
+    logFunction(printf("find_node({ ");
+                printnodes(node_tree);
+                printf("}, ");
+                trace1(object_searched);
+                printf("=" FMT_U_MEM ")\n",
+                       (memSizeType) object_searched););
     node_found = NULL;
     while (node_tree != NULL) {
       if (PTR_LESS(object_searched, node_tree->match_obj)) {
@@ -223,16 +209,14 @@ nodeType find_node (register nodeType node_tree,
         node_tree = node_tree->next2;
       } /* if */
     } /* while */
-/*  printf("%s\n", (node_found != NULL ? "found" : "not found")); */
-#ifdef TRACE_ENTITY
-    printf("END find_node --> ");
-    if (node_found != NULL) {
-      trace1(node_found->match_obj);
-      printf("\n");
-    } else {
-      printf("*NULL_NODE*\n");
-    } /* if */
-#endif
+    /* printf("%s\n", (node_found != NULL ? "found" : "not found")); */
+    logFunction(printf("find_node --> ");
+                if (node_found != NULL) {
+                  trace1(node_found->match_obj);
+                  printf("\n");
+                } else {
+                  printf("*NULL_NODE*\n");
+                });
     return node_found;
   } /* find_node */
 
@@ -256,15 +240,12 @@ static nodeType pop_node (register nodeType node_tree,
     nodeType node_found;
 
   /* pop_node */
-#ifdef TRACE_ENTITY
-    printf("BEGIN pop_node({ ");
-    printnodes(node_tree);
-    printf("}, ");
-    trace1(object_searched);
-    prot_cstri("=");
-    prot_int((intType) object_searched);
-    printf(")\n");
-#endif
+    logFunction(printf("pop_node({ ");
+                printnodes(node_tree);
+                printf("}, ");
+                trace1(object_searched);
+                printf("=" FMT_U_MEM ")\n",
+                       (memSizeType) object_searched););
     node_found = NULL;
     while (node_tree != NULL) {
       if (PTR_LESS(object_searched, node_tree->match_obj)) {
@@ -291,16 +272,14 @@ static nodeType pop_node (register nodeType node_tree,
         node_tree = node_tree->next2;
       } /* if */
     } /* while */
-/*  printf("%s\n", (node_found != NULL ? "found" : "not found")); */
-#ifdef TRACE_ENTITY
-    printf("END pop_node --> ");
-    if (node_found != NULL) {
-      trace1(node_found->match_obj);
-      printf("\n");
-    } else {
-      printf("*NULL_NODE*\n");
-    } /* if */
-#endif
+    /* printf("%s\n", (node_found != NULL ? "found" : "not found")); */
+    logFunction(printf("pop_node --> ");
+                if (node_found != NULL) {
+                  trace1(node_found->match_obj);
+                  printf("\n");
+                } else {
+                  printf("*NULL_NODE*\n");
+                });
     return node_found;
   } /* pop_node */
 
@@ -309,13 +288,9 @@ static nodeType pop_node (register nodeType node_tree,
 void init_declaration_root (progType currentProg, errInfoType *err_info)
 
   { /* init_declaration_root */
-#ifdef TRACE_ENTITY
-    printf("BEGIN init_declaration_root\n");
-#endif
+    logFunction(printf("init_declaration_root\n"););
     currentProg->declaration_root = new_node(NULL);
-#ifdef TRACE_ENTITY
-    printf("END init_declaration_root\n");
-#endif
+    logFunction(printf("init_declaration_root -->\n"););
   } /* init_declaration_root */
 
 
@@ -323,14 +298,10 @@ void init_declaration_root (progType currentProg, errInfoType *err_info)
 void close_declaration_root (progType currentProg)
 
   { /* close_declaration_root */
-#ifdef TRACE_ENTITY
-    printf("BEGIN close_declaration_root\n");
-#endif
+    logFunction(printf("close_declaration_root\n"););
     free_nodes(currentProg->declaration_root);
     currentProg->declaration_root = NULL;
-#ifdef TRACE_ENTITY
-    printf("END close_declaration_root\n");
-#endif
+    logFunction(printf("close_declaration_root -->\n"););
   } /* close_declaration_root */
 
 
@@ -342,9 +313,7 @@ void free_entity (const_progType currentProg, entityType old_entity)
     objectType param_obj;
 
   /* free_entity */
-#ifdef TRACE_ENTITY
-    printf("BEGIN free_entity\n");
-#endif
+    logFunction(printf("free_entity\n"););
     if (old_entity != NULL) {
       if (old_entity->syobject != NULL) {
         if (HAS_PROPERTY(old_entity->syobject) && old_entity->syobject->descriptor.property != currentProg->property.literal) {
@@ -371,9 +340,7 @@ void free_entity (const_progType currentProg, entityType old_entity)
       } /* if */
       FREE_RECORD(old_entity, entityRecord, count.entity);
     } /* if */
-#ifdef TRACE_ENTITY
-    printf("END free_entity\n");
-#endif
+    logFunction(printf("free_entity -->\n"););
   } /* free_entity */
 
 
@@ -384,20 +351,16 @@ static entityType new_entity (identType id)
     entityType created_entity;
 
   /* new_entity */
-#ifdef TRACE_ENTITY
-    printf("BEGIN new_entity\n");
-#endif
+    logFunction(printf("new_entity\n"););
     if (ALLOC_RECORD(created_entity, entityRecord, count.entity)) {
       created_entity->ident = id;
       created_entity->syobject = NULL;
       created_entity->fparam_list = NULL;
       created_entity->data.owner = NULL;
     } /* if */
-#ifdef TRACE_ENTITY
-    printf("END new_entity --> ");
-    prot_cstri8(id_string(created_entity->ident));
-    printf("\n");
-#endif
+    logFunction(printf("new_entity --> ");
+                prot_cstri8(id_string(created_entity->ident));
+                printf("\n"););
     return created_entity;
   } /* new_entity */
 
@@ -411,6 +374,7 @@ static listType copy_params (listType name_list)
     objectType copied_param;
 
   /* copy_params */
+    logFunction(printf("copy_params\n"););
     name_elem = name_list;
     while (name_elem != NULL) {
       if (CATEGORY_OF_OBJ(name_elem->obj) == FORMPARAMOBJECT) {
@@ -435,6 +399,7 @@ static listType copy_params (listType name_list)
       } /* if */
       name_elem = name_elem->next;
     } /* while */
+    logFunction(printf("copy_params -->\n"););
     return name_list;
   } /* copy_params */
 
@@ -457,11 +422,9 @@ entityType get_entity (nodeType declaration_base, listType name_list)
     entityType entity_found;
 
   /* get_entity */
-#ifdef TRACE_ENTITY
-    printf("BEGIN get_entity(");
-    prot_list(name_list);
-    printf(")\n");
-#endif
+    logFunction(printf("get_entity(");
+                prot_list(name_list);
+                printf(")\n"););
     name_elem = name_list;
     curr_node = declaration_base;
     while (name_elem != NULL && curr_node != NULL) {
@@ -521,10 +484,8 @@ printf("\n"); */
         entity_found = curr_node->entity;
       } /* if */
     } /* if */
-#ifdef TRACE_ENTITY
-    printf("END get_entity -->\n");
-    trace_entity(entity_found);
-#endif
+    logFunction(printf("get_entity -->\n");
+                trace_entity(entity_found););
     return entity_found;
   } /* get_entity */
 
@@ -543,11 +504,9 @@ entityType find_entity (nodeType declaration_base, listType name_list)
     entityType entity_found;
 
   /* find_entity */
-#ifdef TRACE_ENTITY
-    printf("BEGIN find_entity(");
-    prot_list(name_list);
-    printf(")\n");
-#endif
+    logFunction(printf("find_entity(");
+                prot_list(name_list);
+                printf(")\n"););
     name_elem = name_list;
     curr_node = declaration_base;
     while (name_elem != NULL && curr_node != NULL) {
@@ -595,10 +554,8 @@ printf("\n"); */
     } else {
       entity_found = NULL;
     } /* if */
-#ifdef TRACE_ENTITY
-    printf("END find_entity -->\n");
-    trace_entity(entity_found);
-#endif
+    logFunction(printf("find_entity -->\n");
+                trace_entity(entity_found););
     return entity_found;
   } /* find_entity */
 
@@ -613,11 +570,9 @@ entityType search_entity (const_nodeType start_node, const_listType name_list)
     entityType entity_found;
 
   /* search_entity */
-#ifdef TRACE_ENTITY
-    printf("BEGIN search_entity(");
-    prot_list(name_list);
-    printf(")\n");
-#endif
+    logFunction(printf("search_entity(");
+                prot_list(name_list);
+                printf(")\n"););
     if (name_list == NULL) {
       if (start_node != NULL) {
         entity_found = start_node->entity;
@@ -688,9 +643,7 @@ printf("\n"); */
         } /* if */
       } /* if */
     } /* if */
-#ifdef TRACE_ENTITY
-    printf("END search_entity\n");
-#endif
+    logFunction(printf("search_entity ->\n"););
     return entity_found;
   } /* search_entity */
 
@@ -704,9 +657,7 @@ void pop_entity (nodeType declaration_base, const_entityType entity)
     nodeType curr_node;
 
   /* pop_entity */
-#ifdef TRACE_ENTITY
-    printf("BEGIN pop_entity\n");
-#endif
+    logFunction(printf("pop_entity\n"););
     /* trace_entity(entity); */
     name_elem = entity->fparam_list;
     if (name_elem != NULL) {
@@ -728,9 +679,7 @@ void pop_entity (nodeType declaration_base, const_entityType entity)
         name_elem = name_elem->next;
       } /* while */
     } /* if */
-#ifdef TRACE_ENTITY
-    printf("END pop_entity\n");
-#endif
+    logFunction(printf("pop_entity -->\n"););
   } /* pop_entity */
 
 
@@ -742,6 +691,7 @@ void close_entity (progType currentProg)
     entityType old_entity;
 
   /* close_entity */
+    logFunction(printf("close_entity\n"););
     entity = currentProg->entity.inactive_list;
     while (entity != NULL) {
       old_entity = entity;
@@ -749,6 +699,7 @@ void close_entity (progType currentProg)
       free_entity(currentProg, old_entity);
     } /* while */
     currentProg->entity.inactive_list = NULL;
+    logFunction(printf("close_entity -->\n"););
   } /* close_entity */
 
 
@@ -756,9 +707,7 @@ void close_entity (progType currentProg)
 void init_entity (errInfoType *err_info)
 
   { /* init_entity */
-#ifdef TRACE_ENTITY
-    printf("BEGIN init_entity\n");
-#endif
+    logFunction(printf("init_entity\n"););
     prog.entity.inactive_list = NULL;
     if ((prog.entity.literal = new_entity(prog.ident.literal)) == NULL) {
       *err_info = MEMORY_ERROR;
@@ -771,7 +720,5 @@ void init_entity (errInfoType *err_info)
     prog.property.literal->file_number = 0;
     prog.property.literal->line = 0;
     prog.property.literal->syNumberInLine = 0;
-#ifdef TRACE_ENTITY
-    printf("END init_entity\n");
-#endif
+    logFunction(printf("init_entity -->\n"););
   } /* init_entity */

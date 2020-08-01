@@ -220,7 +220,7 @@ size_t sizeof_bigIntRecord = sizeof(bigIntRecord);
 #define SIZ_RTLBIG(len)  ((sizeof(bigIntRecord) - sizeof(bigDigitType)) + (len) * sizeof(bigDigitType))
 #define MAX_BIG_LEN      ((MAX_MEMSIZETYPE - sizeof(bigIntRecord) + sizeof(bigDigitType)) / sizeof(bigDigitType))
 
-#ifdef WITH_BIGINT_CAPACITY
+#if WITH_BIGINT_CAPACITY
 #define HEAP_ALLOC_BIG(var,len)       (ALLOC_HEAP(var, bigIntType, SIZ_RTLBIG(len))?((var)->capacity = len, CNT(CNT1_BIG(len, SIZ_RTLBIG(len))) TRUE):FALSE)
 #define HEAP_FREE_BIG(var,len)        (CNT(CNT2_BIG(len, SIZ_RTLBIG(len))) FREE_HEAP(var, SIZ_RTLBIG(len)))
 #define HEAP_REALLOC_BIG(v1,v2,l1,l2) if((v1=REALLOC_HEAP(v2, bigIntType, SIZ_RTLBIG(l2)))!=NULL)(v1)->capacity=l2;
@@ -231,8 +231,8 @@ size_t sizeof_bigIntRecord = sizeof(bigIntRecord);
 #endif
 #define COUNT3_BIG(len1,len2)         CNT3(CNT2_BIG(len1, SIZ_RTLBIG(len1)), CNT1_BIG(len2, SIZ_RTLBIG(len2)))
 
-#ifdef WITH_BIGINT_FREELIST
-#ifdef WITH_BIGINT_CAPACITY
+#if WITH_BIGINT_FREELIST
+#if WITH_BIGINT_CAPACITY
 
 #define BIG_FREELIST_ARRAY_SIZE 32
 
@@ -4856,7 +4856,14 @@ bigIntType bigLShift (const const_bigIntType big1, const intType lshift)
 
   /* bigLShift */
     if (unlikely(lshift < 0)) {
-      result = bigRShift(big1, -lshift);
+      if (unlikely(TWOS_COMPLEMENT_INTTYPE && lshift == INTTYPE_MIN)) {
+        result = bigRShift(big1, INTTYPE_MAX);
+        if (result != NULL) {
+          bigRShiftAssign(&result, 1);
+        } /* if */
+      } else {
+        result = bigRShift(big1, -lshift);
+      } /* if */
     } else if (unlikely(big1->size == 1 && big1->bigdigits[0] == 0)) {
       if (unlikely(!ALLOC_BIG_SIZE_OK(result, 1))) {
         raise_error(MEMORY_ERROR);
@@ -4955,7 +4962,12 @@ void bigLShiftAssign (bigIntType *const big_variable, intType lshift)
 
   /* bigLShiftAssign */
     if (unlikely(lshift < 0)) {
-      bigRShiftAssign(big_variable, -lshift);
+      if (unlikely(TWOS_COMPLEMENT_INTTYPE && lshift == INTTYPE_MIN)) {
+        bigRShiftAssign(big_variable, INTTYPE_MAX);
+        bigRShiftAssign(big_variable, 1);
+      } else {
+        bigRShiftAssign(big_variable, -lshift);
+      } /* if */
     } else if (likely(lshift != 0)) {
       big1 = *big_variable;
       if (big1->size == 1 && big1->bigdigits[0] == 0) {
@@ -6187,7 +6199,14 @@ bigIntType bigRShift (const const_bigIntType big1, const intType rshift)
 
   /* bigRShift */
     if (unlikely(rshift < 0)) {
-      result = bigLShift(big1, -rshift);
+      if (unlikely(TWOS_COMPLEMENT_INTTYPE && rshift == INTTYPE_MIN)) {
+        result = bigLShift(big1, INTTYPE_MAX);
+        if (result != NULL) {
+          bigLShiftAssign(&result, 1);
+        } /* if */
+      } else {
+        result = bigLShift(big1, -rshift);
+      } /* if */
     } else if (big1->size <= (uintType) rshift >> BIGDIGIT_LOG2_SIZE) {
       if (unlikely(!ALLOC_BIG_SIZE_OK(result, 1))) {
         raise_error(MEMORY_ERROR);
@@ -6277,7 +6296,12 @@ void bigRShiftAssign (bigIntType *const big_variable, intType rshift)
 
   /* bigRShiftAssign */
     if (unlikely(rshift < 0)) {
-      bigLShiftAssign(big_variable, -rshift);
+      if (unlikely(TWOS_COMPLEMENT_INTTYPE && rshift == INTTYPE_MIN)) {
+        bigLShiftAssign(big_variable, INTTYPE_MAX);
+        bigLShiftAssign(big_variable, 1);
+      } else {
+        bigLShiftAssign(big_variable, -rshift);
+      } /* if */
     } else {
       big1 = *big_variable;
       if (big1->size <= (uintType) rshift >> BIGDIGIT_LOG2_SIZE) {

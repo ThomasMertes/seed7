@@ -16631,6 +16631,8 @@ const proc: chkLShift is func
   local
     var boolean: okay is TRUE;
     var integer: lshift is 0;
+    var boolean: ok is TRUE;
+    var bigInteger: num is 0_;
   begin
     for lshift range 0 to 70 do
       chkLShift(lshift, okay);
@@ -16850,6 +16852,48 @@ const proc: chkLShift is func
       okay := FALSE;
     end if;
 
+    if             123456789_  <<         integer.first  <>         0_ or
+                   123456789_  << intExpr(integer.first) <>         0_ or
+        bigintExpr(123456789_) <<         integer.first  <>         0_ or
+        bigintExpr(123456789_) << intExpr(integer.first) <>         0_ or
+                          -1_  <<                 -9876  <>        -1_ or
+                          -1_  << intExpr(        -9876) <>        -1_ or
+        bigintExpr(       -1_) <<                 -9876  <>        -1_ or
+        bigintExpr(       -1_) << intExpr(        -9876) <>        -1_ or
+                          -1_  <<                    25  <> -33554432_ or
+                          -1_  << intExpr(           25) <> -33554432_ or
+        bigintExpr(       -1_) <<                    25  <> -33554432_ or
+        bigintExpr(       -1_) << intExpr(           25) <> -33554432_ or
+                           0_  <<                 -9876  <>         0_ or
+                           0_  << intExpr(        -9876) <>         0_ or
+        bigintExpr(        0_) <<                 -9876  <>         0_ or
+        bigintExpr(        0_) << intExpr(        -9876) <>         0_ or
+                           0_  <<                 12345  <>         0_ or
+                           0_  << intExpr(        12345) <>         0_ or
+        bigintExpr(        0_) <<                 12345  <>         0_ or
+        bigintExpr(        0_) << intExpr(        12345) <>         0_ or
+                           1_  <<                 -9876  <>         0_ or
+                           1_  << intExpr(        -9876) <>         0_ or
+        bigintExpr(        1_) <<                 -9876  <>         0_ or
+        bigintExpr(        1_) << intExpr(        -9876) <>         0_ or
+                           1_  <<                    25  <>  33554432_ or
+                           1_  << intExpr(           25) <>  33554432_ or
+        bigintExpr(        1_) <<                    25  <>  33554432_ or
+        bigintExpr(        1_) << intExpr(           25) <>  33554432_ or
+                   123456789_  <<                     0  <> 123456789_ or
+                   123456789_  << intExpr(            0) <> 123456789_ or
+        bigintExpr(123456789_) <<                     0  <> 123456789_ or
+        bigintExpr(123456789_) << intExpr(            0) <> 123456789_ then
+      writeln("The bigInteger << does not work correct.");
+      okay := FALSE;
+    end if;
+
+    num := 123456789_; num <<:= 0; ok := ok and num = 123456789_;
+    if not ok then
+      writeln("The bigInteger <<:= does not work correct.");
+      okay := FALSE;
+    end if;
+
     if okay then
       writeln("The bigInteger << and <<:= works correct.");
     else
@@ -16977,6 +17021,8 @@ const proc: chkRShift is func
   local
     var boolean: okay is TRUE;
     var integer: rshift is 0;
+    var boolean: ok is TRUE;
+    var bigInteger: num is 0_;
   begin
     for rshift range 0 to 70 do
       chkRShift(rshift, okay);
@@ -17193,6 +17239,48 @@ const proc: chkRShift is func
         chkRShift(-1690200800304305868662270940502_, 101,                               -1_) or
         chkRShift(-1690200800304305868662270940502_, 102,                               -1_) then
       writeln("The bigInteger >> or >>:= does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if                     0_  >>         integer.first  <>         0_ or
+                           0_  >> intExpr(integer.first) <>         0_ or
+        bigintExpr(        0_) >>         integer.first  <>         0_ or
+        bigintExpr(        0_) >> intExpr(integer.first) <>         0_ or
+                          -1_  >>                   -25  <> -33554432_ or
+                          -1_  >> intExpr(          -25) <> -33554432_ or
+        bigintExpr(       -1_) >>                   -25  <> -33554432_ or
+        bigintExpr(       -1_) >> intExpr(          -25) <> -33554432_ or
+                          -1_  >>                 12345  <>        -1_ or
+                          -1_  >> intExpr(        12345) <>        -1_ or
+        bigintExpr(       -1_) >>                 12345  <>        -1_ or
+        bigintExpr(       -1_) >> intExpr(        12345) <>        -1_ or
+                           0_  >>                 -9876  <>         0_ or
+                           0_  >> intExpr(        -9876) <>         0_ or
+        bigintExpr(        0_) >>                 -9876  <>         0_ or
+        bigintExpr(        0_) >> intExpr(        -9876) <>         0_ or
+                           0_  >>                 12345  <>         0_ or
+                           0_  >> intExpr(        12345) <>         0_ or
+        bigintExpr(        0_) >>                 12345  <>         0_ or
+        bigintExpr(        0_) >> intExpr(        12345) <>         0_ or
+                           1_  >>                   -25  <>  33554432_ or
+                           1_  >> intExpr(          -25) <>  33554432_ or
+        bigintExpr(        1_) >>                   -25  <>  33554432_ or
+        bigintExpr(        1_) >> intExpr(          -25) <>  33554432_ or
+                           1_  >>                 12345  <>         0_ or
+                           1_  >> intExpr(        12345) <>         0_ or
+        bigintExpr(        1_) >>                 12345  <>         0_ or
+        bigintExpr(        1_) >> intExpr(        12345) <>         0_ or
+                   123456789_  >>                     0  <> 123456789_ or
+                   123456789_  >> intExpr(            0) <> 123456789_ or
+        bigintExpr(123456789_) >>                     0  <> 123456789_ or
+        bigintExpr(123456789_) >> intExpr(            0) <> 123456789_ then
+      writeln("The bigInteger >> does not work correct.");
+      okay := FALSE;
+    end if;
+
+    num := 123456789_; num >>:= 0; ok := ok and num = 123456789_;
+    if not ok then
+      writeln("The bigInteger >>:= does not work correct.");
       okay := FALSE;
     end if;
 

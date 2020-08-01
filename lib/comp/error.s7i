@@ -57,6 +57,17 @@ const func string: bigRaiseError (in string: exceptionName) is func
   end func;
 
 
+const func string: strRaiseError (in string: exceptionName) is func
+
+  result
+    var string: expr is "";
+  begin
+    expr &:= "strRaiseError(";
+    expr &:= exceptionName;
+    expr &:= ")";
+  end func;
+
+
 const proc: warning (DOES_RAISE, in string: exceptionName, in expr_type: c_expr) is func
   begin
     noop;

@@ -1,3 +1,30 @@
+20150802:
+- An explanation, how Seed7 programs can be debugged with Eclipse,
+  has been added to the FAQ.
+- Checks for the operators << and >> have been added to chkbig.sd7.
+- Checks for string comparisons  ( < <= > >= ) and the operator
+  'mult' have been added to chkstr.sd7.
+- The functions bigLShift, bigLShiftAssign, bigRShift and
+  bigRShiftAssign in big_gmp.c and big_rtl.c have been improved to
+  avoid a signed integer overflow, when the shift count is the most
+  negative integer.
+- The compiler has been improved to optimize code for bigInteger
+  shifts and compares.
+- The compiler has been improved to create inline code for some
+  string comparisons ( < <= > >= ) and the operator 'mult'.
+- In int_rtl.c the function intLpad0 has been improved to avoid a
+  signed integer overflow when the number is the most negative
+  integer.
+- In numlit.c the functions decimalValue, basedValue, readBigBased,
+  basedInteger, intExponent and lit_number have been changed to
+  work with unsigned integers.
+- Calls of logFunction have been added to atom.c, doany.c,
+  entutl.c, exec.c, executl.c, expr.c, findid.c, libpath.c, name.c,
+  object.c, parser.c, syntax.c, token.c and type.c.
+- The type of digit_value elements has been changed to uintType.
+- The function drwImage in drw_win.c has been improved to avoid
+  a multiplication in the inner loop.
+
 20150720:
 - The chapter about errors in the manual has been improved.
 - In seed7_05.s7i parameter declarations without parameter name
@@ -10,8 +37,8 @@
 - Checks for the compare function have been added to chkint.sd7.
 - Checks for hash tables with bigInteger, rational and bigRational
   keys have been added to chkhsh.sd7.
-- Calls of logError have been added to pcs_unx.c, pcs_win.c,
-  ref_data.c, 
+- Calls of logError have been added to pcs_unx.c, pcs_win.c and
+  ref_data.c.
 - Calls of logFunction have been added to big_rtl.c, blockutl.c,
   drw_win.c, flistutl.c, gkb_win.c, gkb_x11.c, heaputl.c, hshlib.c,
   identutl.c, infile.c, listutl.c, pcs_unx.c, pcs_win.c, ref_data.c,

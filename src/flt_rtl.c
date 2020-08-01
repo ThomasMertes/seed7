@@ -55,7 +55,7 @@
 #include "flt_rtl.h"
 
 
-#define USE_STRTOD
+#define USE_STRTOD 1
 #define MAX_CSTRI_BUFFER_LEN 25
 #define IPOW_EXPONENTIATION_BY_SQUARING 1
 #define PRECISION_BUFFER_LEN 1000
@@ -687,7 +687,7 @@ boolType fltLt (floatType number1, floatType number2)
 floatType fltParse (const const_striType stri)
 
   {
-#ifdef USE_STRTOD
+#if USE_STRTOD
     char buffer[MAX_CSTRI_BUFFER_LEN + 1];
     const_cstriType buffer_ptr;
     const_cstriType cstri;
@@ -701,7 +701,7 @@ floatType fltParse (const const_striType stri)
 
   /* fltParse */
     logFunction(printf("fltParse(\"%s\")\n", striAsUnquotedCStri(stri)););
-#ifdef USE_STRTOD
+#if USE_STRTOD
     if (likely(stri->size <= MAX_CSTRI_BUFFER_LEN)) {
       cstri = NULL;
       conv_to_cstri(buffer, stri, &err_info);

@@ -5229,6 +5229,7 @@ const proc: write_prototypes is func
     writeln(c_prog, "#define raise_error(num) rtlRaiseError(num, __FILE__, __LINE__)\n");
     writeln(c_prog, "#define intRaiseError(num) (rtlRaiseError(num, __FILE__, __LINE__), 0)\n");
     writeln(c_prog, "#define bigRaiseError(num) (bigIntType)(rtlRaiseError(num, __FILE__, __LINE__), NULL)\n");
+    writeln(c_prog, "#define strRaiseError(num) (striType)(rtlRaiseError(num, __FILE__, __LINE__), NULL)\n");
 (*
     declareExtern("intType     enuValue (objRefType a)                         {printf(\"enuValue\\n\");}");
     declareExtern("intType     enuValue (objRefType);");

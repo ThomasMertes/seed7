@@ -131,15 +131,15 @@ void init_chclass (void)
     std_comment_char(EOF) = FALSE;
 
     for (character = '0'; character <= '9'; character++) {
-      digit_value[character] = (intType) character - (intType) '0';
+      digit_value[character] = (uintType) character - (uintType) '0';
     } /* for */
     for (character = 'A'; character <= 'Z'; character++) {
-      digit_value[character] = (intType) 10 +
-          (intType) character - (intType) 'A';
+      digit_value[character] = (uintType) 10 +
+          (uintType) character - (uintType) 'A';
     } /* for */
     for (character = 'a'; character <= 'z'; character++) {
-      digit_value[character] = (intType) 10 +
-          (intType) character - (intType) 'a';
+      digit_value[character] = (uintType) 10 +
+          (uintType) character - (uintType) 'a';
     } /* for */
 #ifdef TRACE_OPTION
     printf("END init_chclass\n");

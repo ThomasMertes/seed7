@@ -25,6 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -36,6 +39,7 @@
 #include "flistutl.h"
 #include "listutl.h"
 #include "syvarutl.h"
+#include "datautl.h"
 #include "traceutl.h"
 #include "infile.h"
 #include "scanner.h"
@@ -64,9 +68,7 @@ static objectType select_element (objectType expression,
     objectType result;
 
   /* select_element */
-#ifdef TRACE_SELECT
-    printf("BEGIN select_element\n");
-#endif
+    logFunction(printf("select_element\n"););
     list_element = expression->value.listValue;
     if (position >= 1) {
       number = 1;
@@ -84,9 +86,7 @@ static objectType select_element (objectType expression,
     } /* if */
     free_list(expression->value.listValue);
     FREE_OBJECT(expression);
-#ifdef TRACE_SELECT
-    printf("END select_element\n");
-#endif
+    logFunction(printf("select_element -->\n"););
     return result;
   } /* select_element */
 
@@ -102,10 +102,8 @@ static objectType read_call_expression (boolType do_match_expr)
     objectType procnameobject;
 
   /* read_call_expression */
-#ifdef TRACE_EXPR
-    printf("BEGIN read_call_expression(%d) %s\n",
-        do_match_expr, id_string(current_ident));
-#endif
+    logFunction(printf("read_call_expression(%d) %s\n",
+                       do_match_expr, id_string(current_ident)););
     if (current_ident == prog.id_for.lparen) {
       scan_symbol();
       if (current_ident == prog.id_for.rparen) {
@@ -149,12 +147,10 @@ static objectType read_call_expression (boolType do_match_expr)
         } /* if */
       } /* if */
     } /* if */
-#ifdef TRACE_EXPR
-    printf("END read_call_expression ");
-    printf("%lu ", (unsigned long) expression);
-    trace1(expression);
-    printf("\n");
-#endif
+    logFunction(printf("read_call_expression --> " FMT_U_MEM ", ",
+                       (memSizeType) expression);
+                trace1(expression);
+                printf("\n"););
     return expression;
   } /* read_call_expression */
 
@@ -167,9 +163,7 @@ static objectType read_dot_subexpression (boolType do_match_expr)
     listType helplist;
 
   /* read_dot_subexpression */
-#ifdef TRACE_EXPR
-    printf("BEGIN read_dot_subexpression(%d)\n", do_match_expr);
-#endif
+    logFunction(printf("read_dot_subexpression(%d)\n", do_match_expr););
     if (current_ident == prog.id_for.lparen) {
       scan_symbol();
       if (current_ident == prog.id_for.rparen) {
@@ -196,12 +190,10 @@ static objectType read_dot_subexpression (boolType do_match_expr)
     } else {
       expression = read_call_expression(do_match_expr);
     } /* if */
-#ifdef TRACE_EXPR
-    printf("END read_dot_subexpression ");
-    printf("%lu ", (unsigned long) expression);
-    trace1(expression);
-    printf("\n");
-#endif
+    logFunction(printf("read_dot_subexpression --> " FMT_U_MEM ", ",
+		       (memSizeType) expression);
+                trace1(expression);
+                printf("\n"););
     return expression;
   } /* read_dot_subexpression */
 
@@ -215,10 +207,8 @@ static objectType read_dot_expression (boolType do_match_expr)
     listType helplist;
 
   /* read_dot_expression */
-#ifdef TRACE_EXPR
-    printf("BEGIN read_dot_expression(%d) %s\n",
-        do_match_expr, id_string(current_ident));
-#endif
+    logFunction(printf("read_dot_expression(%d) %s\n",
+                       do_match_expr, id_string(current_ident)););
     if (current_ident == prog.id_for.dot) {
       scan_symbol();
       expression = read_dot_subexpression(do_match_expr);
@@ -245,11 +235,10 @@ static objectType read_dot_expression (boolType do_match_expr)
     } else {
       expression = read_call_expression(do_match_expr);
     } /* if */
-#ifdef TRACE_EXPR
-    printf("END read_dot_expression ");
-    trace1(expression);
-    printf("\n");
-#endif
+    logFunction(printf("read_dot_expression --> " FMT_U_MEM ", ",
+		       (memSizeType) expression);
+                trace1(expression);
+                printf("\n"););
     return expression;
   } /* read_dot_expression */
 
@@ -265,9 +254,7 @@ static objectType pars_token (objectType expression,
     posType posinfo;
 
   /* pars_token */
-#ifdef TRACE_EXPR
-    printf("BEGIN pars_token\n");
-#endif
+    logFunction(printf("pars_token\n"););
     okay = FALSE;
     while (formal_token != NULL) {
       switch (formal_token->token_category) {
@@ -330,11 +317,10 @@ static objectType pars_token (objectType expression,
     if (!okay) {
       err_warning(EXPR_EXPECTED);
     } /* if */
-#ifdef TRACE_EXPR
-    printf("END pars_token ");
-    trace1(expression);
-    printf("\n");
-#endif
+    logFunction(printf("pars_token --> " FMT_U_MEM ", ",
+		       (memSizeType) expression);
+                trace1(expression);
+                printf("\n"););
     return expression;
   } /* pars_token */
 
@@ -350,10 +336,8 @@ objectType pars_infix_expression (priorityType priority,
     listType helplist;
 
   /* pars_infix_expression */
-#ifdef TRACE_EXPR
-    printf("BEGIN pars_infix_expression %d \"%s\"\n",
-        priority, id_string(current_ident));
-#endif
+    logFunction(printf("pars_infix_expression %d \"%s\"\n",
+                       priority, id_string(current_ident)););
     expr_prior = current_ident->prefix_priority;
     if (expr_prior == STRONGEST_PRIORITY) {
       expression = read_dot_expression(do_match_expr);
@@ -402,10 +386,9 @@ objectType pars_infix_expression (priorityType priority,
         } /* if */
       } /* if */
     } /* while */
-#ifdef TRACE_EXPR
-    printf("END pars_infix_expression ");
-    trace1(expression);
-    printf("\n");
-#endif
+    logFunction(printf("pars_infix_expression --> " FMT_U_MEM ", ",
+		       (memSizeType) expression);
+                trace1(expression);
+                printf("\n"););
     return expression;
   } /* pars_infix_expression */

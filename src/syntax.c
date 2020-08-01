@@ -25,6 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -59,9 +62,7 @@ typedef enum {XFX, XFY, YFX, YFY} assocType;
 static void print_tokens (tokenType tokens)
 
   { /* print_tokens */
-#ifdef TRACE_SYNTAX
-    printf("BEGIN print_tokens\n");
-#endif
+    logFunction(printf("print_tokens\n"););
     printf("(");
     while (tokens != NULL) {
       if (tokens->token_category == SY_TOKEN) {
@@ -78,9 +79,7 @@ static void print_tokens (tokenType tokens)
       tokens = tokens->next;
     } /* while */
     printf(" )");
-#ifdef TRACE_SYNTAX
-    printf("END print_tokens\n");
-#endif
+    logFunction(printf("print_tokens -->\n"););
   } /* print_tokens */
 #endif
 
@@ -97,9 +96,7 @@ static tokenType def_single_token (const_objectType statement_token,
     identType identifier;
 
   /* def_single_token */
-#ifdef TRACE_SYNTAX
-    printf("BEGIN def_single_token\n");
-#endif
+    logFunction(printf("def_single_token\n"););
     if (CATEGORY_OF_OBJ(statement_token) == EXPROBJECT) {
 /*  printf("  >[]<\n"); */
       if (statement_token->value.listValue != NULL) {
@@ -148,9 +145,7 @@ static tokenType def_single_token (const_objectType statement_token,
       } /* if */
       *after_expr_token = FALSE;
     } /* if */
-#ifdef TRACE_SYNTAX
-    printf("END def_single_token\n");
-#endif
+    logFunction(printf("def_single_token -->\n"););
     return new_token;
   } /* def_single_token */
 
@@ -163,9 +158,7 @@ static inline int count_inner_tokens (const_listType statement_tokens)
     int token_number;
 
   /* count_inner_tokens */
-#ifdef TRACE_SYNTAX
-    printf("BEGIN count_inner_tokens\n");
-#endif
+    logFunction(printf("count_inner_tokens\n"););
     number_of_inner_tokens = 0;
     token_number = 1;
     while (statement_tokens != NULL) {
@@ -175,9 +168,7 @@ static inline int count_inner_tokens (const_listType statement_tokens)
       statement_tokens = statement_tokens->next;
       token_number++;
     } /* while */
-#ifdef TRACE_SYNTAX
-    printf("END count_inner_tokens\n");
-#endif
+    logFunction(printf("count_inner_tokens -->\n"););
     return number_of_inner_tokens;
   } /* count_inner_tokens */
 
@@ -195,9 +186,7 @@ static tokenType def_token_list (const_listType statement_tokens,
     tokenType token_list_end;
 
   /* def_token_list */
-#ifdef TRACE_SYNTAX
-    printf("BEGIN def_token_list\n");
-#endif
+    logFunction(printf("def_token_list\n"););
 /*  printf(" DEF_PAR_LIST:  ");
     prot_list(statement_tokens);
     printf("\n"); */
@@ -262,9 +251,7 @@ static tokenType def_token_list (const_listType statement_tokens,
     } else {
       token_list_end = get_syntax_description(formal_tokens);
     } /* if */
-#ifdef TRACE_SYNTAX
-    printf("END def_token_list\n");
-#endif
+    logFunction(printf("def_token_list -->\n"););
     return token_list_end;
   } /* def_token_list */
 
@@ -278,9 +265,7 @@ static inline tokenType def_infix_syntax (const_listType statement_syntax,
     tokenType token_list_end;
 
   /* def_infix_syntax */
-#ifdef TRACE_SYNTAX
-    printf("BEGIN def_infix_syntax\n");
-#endif
+    logFunction(printf("def_infix_syntax\n"););
     if (CATEGORY_OF_OBJ(statement_syntax->obj) != EXPROBJECT) {
       identifier = GET_ENTITY(statement_syntax->obj)->ident;
       if (identifier->infix_priority == 0) {
@@ -315,9 +300,7 @@ static inline tokenType def_infix_syntax (const_listType statement_syntax,
       err_warning(TWO_PARAMETER_SYNTAX);
       token_list_end = NULL;
     } /* if */
-#ifdef TRACE_SYNTAX
-    printf("END def_infix_syntax\n");
-#endif
+    logFunction(printf("def_infix_syntax\n"););
     return token_list_end;
   } /* def_infix_syntax */
 
@@ -331,9 +314,7 @@ static inline tokenType def_prefix_syntax (const_listType statement_syntax,
     tokenType token_list_end;
 
   /* def_prefix_syntax */
-#ifdef TRACE_SYNTAX
-    printf("BEGIN def_prefix_syntax\n");
-#endif
+    logFunction(printf("def_prefix_syntax\n"););
     identifier = GET_ENTITY(statement_syntax->obj)->ident;
     if (identifier->prefix_priority == 0) {
       identifier->prefix_priority = statement_priority;
@@ -356,9 +337,7 @@ static inline tokenType def_prefix_syntax (const_listType statement_syntax,
 /*  printf("%s ", identifier->name);
     print_tokens(identifier->prefix_token);
     printf("\n"); */
-#ifdef TRACE_SYNTAX
-    printf("END def_prefix_syntax\n");
-#endif
+    logFunction(printf("def_prefix_syntax -->\n"););
     return token_list_end;
   } /* def_prefix_syntax */
 
@@ -373,11 +352,9 @@ static inline tokenType def_statement_syntax (objectType syntax_expression,
     tokenType token_list_end;
 
   /* def_statement_syntax */
-#ifdef TRACE_SYNTAX
-    printf("BEGIN def_statement_syntax(");
-    trace1(syntax_expression);
-    printf(")\n");
-#endif
+    logFunction(printf("def_statement_syntax(");
+                trace1(syntax_expression);
+                printf(")\n"););
     /* printcategory(CATEGORY_OF_OBJ(syntax_expression)); */
     if (CATEGORY_OF_OBJ(syntax_expression) == LISTOBJECT) {
       /* printf("SYNTAX: ");
@@ -421,9 +398,7 @@ static inline tokenType def_statement_syntax (objectType syntax_expression,
       token_list_end = get_syntax_description(&identifier->prefix_token);
 /*  printf("%s\n", identifier->name); */
     } /* if */
-#ifdef TRACE_SYNTAX
-    printf("END def_statement_syntax\n");
-#endif
+    logFunction(printf("def_statement_syntax -->\n"););
     return token_list_end;
   } /* def_statement_syntax */
 
@@ -439,9 +414,7 @@ void decl_syntax (void)
     tokenType token_list_end;
 
   /* decl_syntax */
-#ifdef TRACE_SYNTAX
-    printf("BEGIN decl_syntax\n");
-#endif
+    logFunction(printf("decl_syntax\n"););
     scan_symbol();
     if (current_ident == prog.id_for.colon) {
       typeof_object = NULL;
@@ -519,7 +492,5 @@ void decl_syntax (void)
     } /* if */
 /*  printcategory(CATEGORY_OF_OBJ(expression)); */
     free_expression(expression);
-#ifdef TRACE_SYNTAX
-    printf("END decl_syntax\n");
-#endif
+    logFunction(printf("decl_syntax\n"););
   } /* decl_syntax */

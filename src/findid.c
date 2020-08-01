@@ -25,6 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -60,15 +63,11 @@ static inline identType id_generation (ustriType name, sySizeType length)
     register identType created_ident;
 
   /* id_generation */
-#ifdef TRACE_FINDID
-    printf("BEGIN id_generation\n");
-#endif
+    logFunction(printf("id_generation\n"););
     if ((created_ident = new_ident(name, length)) == NULL) {
       fatal_memory_error(SOURCE_POSITION(2041));
     } /* if */
-#ifdef TRACE_FINDID
-    printf("END id_generation\n");
-#endif
+    logFunction(printf("id_generation -->\n"););
     return created_ident;
   } /* id_generation */
 
@@ -81,9 +80,7 @@ void find_normal_ident (sySizeType length)
     register int comparison;
 
   /* find_normal_ident */
-#ifdef TRACE_FINDID
-    printf("BEGIN find_normal_ident\n");
-#endif
+    logFunction(printf("find_normal_ident\n"););
     if ((search_ident = IDENT_TABLE(&prog, symbol.name, length)) != NULL) { /*  1.49% */
       if ((comparison = strcmp((cstriType) symbol.name,
           (cstriType) search_ident->name)) != 0) {              /*  0.73% */
@@ -128,9 +125,7 @@ void find_normal_ident (sySizeType length)
       current_ident = id_generation(symbol.name, length);       /*  0.01% */
       IDENT_TABLE(&prog, symbol.name, length) = current_ident;  /*  0.02% */
     } /* if */
-#ifdef TRACE_FINDID
-    printf("END find_normal_ident\n");
-#endif
+    logFunction(printf("find_normal_ident -->\n"););
   } /* find_normal_ident */                                     /*  0.62% */
 
 
@@ -141,15 +136,11 @@ static identType put_ident (const_cstriType stri, errInfoType *err_info)
     register identType ident_found;
 
   /* put_ident */
-#ifdef TRACE_FINDID
-    printf("BEGIN put_ident\n");
-#endif
+    logFunction(printf("put_ident\n"););
     if ((ident_found = get_ident(&prog, (const_ustriType) stri)) == NULL) {
       *err_info = MEMORY_ERROR;
     } /* if */
-#ifdef TRACE_FINDID
-    printf("END put_ident\n");
-#endif
+    logFunction(printf("put_ident -->\n"););
     return ident_found;
   } /* put_ident */
 
@@ -158,9 +149,7 @@ static identType put_ident (const_cstriType stri, errInfoType *err_info)
 void check_list_of_syntax_elements (const_listType elem_list)
 
   { /* check_list_of_syntax_elements */
-#ifdef TRACE_FINDID
-    printf("BEGIN check_list_of_syntax_elements\n");
-#endif
+    logFunction(printf("check_list_of_syntax_elements\n"););
     while (elem_list != NULL) {
       if (!HAS_ENTITY(elem_list->obj)) {
         if (CATEGORY_OF_OBJ(elem_list->obj) != EXPROBJECT) {
@@ -176,9 +165,7 @@ void check_list_of_syntax_elements (const_listType elem_list)
 #endif
       elem_list = elem_list->next;
     } /* while */
-#ifdef TRACE_FINDID
-    printf("END check_list_of_syntax_elements\n");
-#endif
+    logFunction(printf("check_list_of_syntax_elements -->\n"););
   } /* check_list_of_syntax_elements */
 
 
@@ -186,9 +173,7 @@ void check_list_of_syntax_elements (const_listType elem_list)
 static void clean_ident_tree (identType actual_ident)
 
   { /* clean_ident_tree */
-#ifdef TRACE_FINDID
-    printf("BEGIN clean_ident_tree\n");
-#endif
+    logFunction(printf("clean_ident_tree\n"););
     if (actual_ident != NULL) {
       clean_ident_tree(actual_ident->next1);
       free_tokens(actual_ident->prefix_token);
@@ -197,9 +182,7 @@ static void clean_ident_tree (identType actual_ident)
       actual_ident->infix_token = NULL;
       clean_ident_tree(actual_ident->next2);
     } /* if */
-#ifdef TRACE_FINDID
-    printf("END clean_ident_tree\n");
-#endif
+    logFunction(printf("clean_ident_tree -->\n"););
   } /* clean_ident_tree */
 
 
@@ -212,9 +195,7 @@ void clean_idents (void)
     identType actual_ident;
 
   /* clean_idents */
-#ifdef TRACE_FINDID
-    printf("BEGIN clean_idents\n");
-#endif
+    logFunction(printf("clean_idents\n"););
     for (position = 0; position < ID_TABLE_SIZE; position++) {
       clean_ident_tree(prog.ident.table[position]);
     } /* for */
@@ -229,9 +210,7 @@ void clean_idents (void)
         actual_ident->infix_token = NULL;
       } /* if */
     } /* for */
-#ifdef TRACE_FINDID
-    printf("END clean_idents\n");
-#endif
+    logFunction(printf("clean_idents -->\n"););
   } /* clean_idents */
 
 
@@ -239,9 +218,7 @@ void clean_idents (void)
 static void wri_binary_ident_tree (const_identType actual_ident)
 
   { /* wri_binary_ident_tree */
-#ifdef TRACE_FINDID
-    printf("BEGIN wri_binary_ident_tree\n");
-#endif
+    logFunction(printf("wri_binary_ident_tree\n"););
     if (actual_ident != NULL) {
       wri_binary_ident_tree(actual_ident->next1);
       prot_cstri8(id_string(actual_ident));
@@ -259,9 +236,7 @@ static void wri_binary_ident_tree (const_identType actual_ident)
       prot_nl();
       wri_binary_ident_tree(actual_ident->next2);
     } /* if */
-#ifdef TRACE_FINDID
-    printf("END wri_binary_ident_tree\n");
-#endif
+    logFunction(printf("wri_binary_ident_tree -->\n"););
   } /* wri_binary_ident_tree */
 
 
@@ -273,9 +248,7 @@ void write_idents (void)
     int character;
 
   /* write_idents */
-#ifdef TRACE_FINDID
-    printf("BEGIN write_idents\n");
-#endif
+    logFunction(printf("write_idents\n"););
     for (position = 0; position < ID_TABLE_SIZE; position++) {
       prot_cstri(" ====== ");
       prot_int((intType) position);
@@ -301,9 +274,7 @@ void write_idents (void)
         prot_nl();
       } /* if */
     } /* for */
-#ifdef TRACE_FINDID
-    printf("END write_idents\n");
-#endif
+    logFunction(printf("write_idents -->\n"););
   } /* write_idents */
 
 
@@ -311,9 +282,7 @@ void write_idents (void)
 void init_findid (errInfoType *err_info)
 
   { /* init_findid */
-#ifdef TRACE_FINDID
-    printf("BEGIN init_findid\n");
-#endif
+    logFunction(printf("init_findid\n"););
     prog.id_for.lparen =    put_ident("(",       err_info);
     prog.id_for.lbrack =    put_ident("[",       err_info);
     prog.id_for.lbrace =    put_ident("{",       err_info);
@@ -342,7 +311,5 @@ void init_findid (errInfoType *err_info)
     prog.id_for.subtype =   put_ident("subtype", err_info);
     prog.id_for.newtype =   put_ident("newtype", err_info);
     prog.id_for.action =    put_ident("action",  err_info);
-#ifdef TRACE_FINDID
-    printf("END init_findid\n");
-#endif
+    logFunction(printf("init_findid -->\n"););
   } /* init_findid */

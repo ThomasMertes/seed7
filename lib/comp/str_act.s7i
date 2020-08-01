@@ -873,27 +873,119 @@ const proc: process (STR_EQ, in reference: function,
   end func;
 
 
+const proc: process_const_str_le (in string: stri1, in reference: stri2,
+    inout expr_type: c_expr) is forward;
+
+
+const proc: process_const_str_ge (in string: stri1, in reference: stri2,
+    inout expr_type: c_expr) is func
+
+  local
+    var string: stri2_name is "";
+  begin
+    if stri1 = "" then
+      c_expr.expr &:= "(";
+      getAnyParamToExpr(stri2, c_expr);
+      c_expr.expr &:= ")->size==0";
+    elsif length(stri1) = 1 then
+      c_expr.expr &:= "(";
+      stri2_name := getParameterAsVariable("const_striType", "stri2_", stri2, c_expr);
+      c_expr.expr &:= stri2_name;
+      c_expr.expr &:= "->size==0||";
+      c_expr.expr &:= stri2_name;
+      c_expr.expr &:= "->size==1&&";
+      c_expr.expr &:= stri2_name;
+      c_expr.expr &:= "->mem[0]<=(strElemType)(";
+      c_expr.expr &:= c_literal(stri1[1]);
+      c_expr.expr &:= ") /* ";
+      c_expr.expr &:= literal(stri1);
+      c_expr.expr &:= " */||";
+      c_expr.expr &:= stri2_name;
+      c_expr.expr &:= "->mem[0]<(strElemType)(";
+      c_expr.expr &:= c_literal(stri1[1]);
+      c_expr.expr &:= ") /* ";
+      c_expr.expr &:= literal(stri1);
+      c_expr.expr &:= " */)";
+    else
+      c_expr.expr &:= "strGe(";
+      c_expr.expr &:= stringLiteral(stri1);
+      c_expr.expr &:= ", ";
+      getAnyParamToExpr(stri2, c_expr);
+      c_expr.expr &:= ")";
+    end if;
+  end func;
+
+
 const proc: process (STR_GE, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var reference: evaluatedParam is NIL;
   begin
-    c_expr.expr &:= "strGe(";
-    getAnyParamToExpr(params[1], c_expr);
-    c_expr.expr &:= ", ";
-    getAnyParamToExpr(params[3], c_expr);
-    c_expr.expr &:= ")";
+    if getConstant(params[1], STRIOBJECT, evaluatedParam) then
+      process_const_str_ge(getValue(evaluatedParam, string), params[3], c_expr);
+    elsif getConstant(params[3], STRIOBJECT, evaluatedParam) then
+      process_const_str_le(getValue(evaluatedParam, string), params[1], c_expr);
+    else
+      c_expr.expr &:= "strGe(";
+      getAnyParamToExpr(params[1], c_expr);
+      c_expr.expr &:= ", ";
+      getAnyParamToExpr(params[3], c_expr);
+      c_expr.expr &:= ")";
+    end if;
+  end func;
+
+
+const proc: process_const_str_lt (in string: stri1, in reference: stri2,
+    inout expr_type: c_expr) is forward;
+
+
+const proc: process_const_str_gt (in string: stri1, in reference: stri2,
+    inout expr_type: c_expr) is func
+
+  local
+    var string: stri2_name is "";
+  begin
+    if stri1 = "" then
+      c_expr.expr &:= "0";
+    elsif length(stri1) = 1 then
+      c_expr.expr &:= "(";
+      stri2_name := getParameterAsVariable("const_striType", "stri2_", stri2, c_expr);
+      c_expr.expr &:= stri2_name;
+      c_expr.expr &:= "->size==0||";
+      c_expr.expr &:= stri2_name;
+      c_expr.expr &:= "->mem[0]<(strElemType)(";
+      c_expr.expr &:= c_literal(stri1[1]);
+      c_expr.expr &:= ") /* ";
+      c_expr.expr &:= literal(stri1);
+      c_expr.expr &:= " */)";
+    else
+      c_expr.expr &:= "strGt(";
+      c_expr.expr &:= stringLiteral(stri1);
+      c_expr.expr &:= ", ";
+      getAnyParamToExpr(stri2, c_expr);
+      c_expr.expr &:= ")";
+    end if;
   end func;
 
 
 const proc: process (STR_GT, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var reference: evaluatedParam is NIL;
   begin
-    c_expr.expr &:= "strGt(";
-    getAnyParamToExpr(params[1], c_expr);
-    c_expr.expr &:= ", ";
-    getAnyParamToExpr(params[3], c_expr);
-    c_expr.expr &:= ")";
+    if getConstant(params[1], STRIOBJECT, evaluatedParam) then
+      process_const_str_gt(getValue(evaluatedParam, string), params[3], c_expr);
+    elsif getConstant(params[3], STRIOBJECT, evaluatedParam) then
+      process_const_str_lt(getValue(evaluatedParam, string), params[1], c_expr);
+    else
+      c_expr.expr &:= "strGt(";
+      getAnyParamToExpr(params[1], c_expr);
+      c_expr.expr &:= ", ";
+      getAnyParamToExpr(params[3], c_expr);
+      c_expr.expr &:= ")";
+    end if;
   end func;
 
 
@@ -1283,15 +1375,52 @@ const proc: process (STR_IPOS, in reference: function,
   end func;
 
 
+const proc: process_const_str_le (in string: stri1, in reference: stri2,
+    inout expr_type: c_expr) is func
+
+  local
+    var string: stri2_name is "";
+  begin
+    if stri1 = "" then
+      c_expr.expr &:= "1";
+    elsif length(stri1) = 1 then
+      c_expr.expr &:= "(";
+      stri2_name := getParameterAsVariable("const_striType", "stri2_", stri2, c_expr);
+      c_expr.expr &:= stri2_name;
+      c_expr.expr &:= "->size>=1&&";
+      c_expr.expr &:= stri2_name;
+      c_expr.expr &:= "->mem[0]>=(strElemType)(";
+      c_expr.expr &:= c_literal(stri1[1]);
+      c_expr.expr &:= ") /* ";
+      c_expr.expr &:= literal(stri1);
+      c_expr.expr &:= " */)";
+    else
+      c_expr.expr &:= "strLe(";
+      c_expr.expr &:= stringLiteral(stri1);
+      c_expr.expr &:= ", ";
+      getAnyParamToExpr(stri2, c_expr);
+      c_expr.expr &:= ")";
+    end if;
+  end func;
+
+
 const proc: process (STR_LE, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var reference: evaluatedParam is NIL;
   begin
-    c_expr.expr &:= "strLe(";
-    getAnyParamToExpr(params[1], c_expr);
-    c_expr.expr &:= ", ";
-    getAnyParamToExpr(params[3], c_expr);
-    c_expr.expr &:= ")";
+    if getConstant(params[1], STRIOBJECT, evaluatedParam) then
+      process_const_str_le(getValue(evaluatedParam, string), params[3], c_expr);
+    elsif getConstant(params[3], STRIOBJECT, evaluatedParam) then
+      process_const_str_ge(getValue(evaluatedParam, string), params[1], c_expr);
+    else
+      c_expr.expr &:= "strLe(";
+      getAnyParamToExpr(params[1], c_expr);
+      c_expr.expr &:= ", ";
+      getAnyParamToExpr(params[3], c_expr);
+      c_expr.expr &:= ")";
+    end if;
   end func;
 
 
@@ -1410,15 +1539,62 @@ const proc: process (STR_LPAD0, in reference: function,
   end func;
 
 
+const proc: process_const_str_lt (in string: stri1, in reference: stri2,
+    inout expr_type: c_expr) is func
+
+  local
+    var string: stri2_name is "";
+  begin
+    if stri1 = "" then
+      c_expr.expr &:= "(";
+      getAnyParamToExpr(stri2, c_expr);
+      c_expr.expr &:= ")->size!=0";
+    elsif length(stri1) = 1 then
+      c_expr.expr &:= "(";
+      stri2_name := getParameterAsVariable("const_striType", "stri2_", stri2, c_expr);
+      c_expr.expr &:= stri2_name;
+      c_expr.expr &:= "->size>1&&";
+      c_expr.expr &:= stri2_name;
+      c_expr.expr &:= "->mem[0]>=(strElemType)(";
+      c_expr.expr &:= c_literal(stri1[1]);
+      c_expr.expr &:= ") /* ";
+      c_expr.expr &:= literal(stri1);
+      c_expr.expr &:= " */)||";
+      c_expr.expr &:= stri2_name;
+      c_expr.expr &:= "->size==1&&";
+      c_expr.expr &:= stri2_name;
+      c_expr.expr &:= "->mem[0]>(strElemType)(";
+      c_expr.expr &:= c_literal(stri1[1]);
+      c_expr.expr &:= ") /* ";
+      c_expr.expr &:= literal(stri1);
+      c_expr.expr &:= " */";
+    else
+      c_expr.expr &:= "strLt(";
+      c_expr.expr &:= stringLiteral(stri1);
+      c_expr.expr &:= ", ";
+      getAnyParamToExpr(stri2, c_expr);
+      c_expr.expr &:= ")";
+    end if;
+  end func;
+
+
 const proc: process (STR_LT, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var reference: evaluatedParam is NIL;
   begin
-    c_expr.expr &:= "strLt(";
-    getAnyParamToExpr(params[1], c_expr);
-    c_expr.expr &:= ", ";
-    getAnyParamToExpr(params[3], c_expr);
-    c_expr.expr &:= ")";
+    if getConstant(params[1], STRIOBJECT, evaluatedParam) then
+      process_const_str_lt(getValue(evaluatedParam, string), params[3], c_expr);
+    elsif getConstant(params[3], STRIOBJECT, evaluatedParam) then
+      process_const_str_gt(getValue(evaluatedParam, string), params[1], c_expr);
+    else
+      c_expr.expr &:= "strLt(";
+      getAnyParamToExpr(params[1], c_expr);
+      c_expr.expr &:= ", ";
+      getAnyParamToExpr(params[3], c_expr);
+      c_expr.expr &:= ")";
+    end if;
   end func;
 
 
@@ -1439,23 +1615,61 @@ const proc: process_const_str_mult (in string: stri, in reference: factor,
   local
     var char: ch is ' ';
   begin
-    if length(stri) = 1 then
+    if stri = "" then
       incr(countOptimizations);
-      ch := stri[1];
-      if ch = '\0;' then
-        c_expr.result_expr := "strZero(";
+      c_expr.expr &:= "((";
+      process_expr(factor, c_expr);
+      c_expr.expr &:= ")<0?";
+      c_expr.expr &:= strRaiseError("OVERFLOW_ERROR");
+      c_expr.expr &:= ":";
+      c_expr.expr &:= stringLiteral("");
+      c_expr.expr &:= ")";
+    else
+      prepare_stri_result(c_expr);
+      if length(stri) = 1 then
+        incr(countOptimizations);
+        ch := stri[1];
+        if ch = '\0;' then
+          c_expr.result_expr := "strZero(";
+        else
+          c_expr.result_expr := "strChMult(";
+          c_expr.result_expr &:= charLiteral(ch);
+          c_expr.result_expr &:= ", ";
+        end if;
       else
-        c_expr.result_expr := "strChMult(";
-        c_expr.result_expr &:= charLiteral(ch);
+        c_expr.result_expr := "strMult(";
+        c_expr.result_expr &:= stringLiteral(stri);
         c_expr.result_expr &:= ", ";
       end if;
-    else
-      c_expr.result_expr := "strMult(";
-      c_expr.result_expr &:= stringLiteral(stri);
-      c_expr.result_expr &:= ", ";
+      getStdParamToResultExpr(factor, c_expr);
+      c_expr.result_expr &:= ")";
     end if;
-    getStdParamToResultExpr(factor, c_expr);
-    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process_const_str_mult (in reference: stri, in integer: factor,
+    inout expr_type: c_expr) is func
+
+  local
+    var expr_type: c_stri is expr_type.value;
+  begin
+    if factor < 0 then
+      incr(countOptimizations);
+      c_expr.expr &:= strRaiseError("OVERFLOW_ERROR");
+    elsif factor = 0 then
+      incr(countOptimizations);
+      c_expr.expr &:= stringLiteral("");
+    elsif factor = 1 then
+      incr(countOptimizations);
+      process_expr(stri, c_expr);
+    else
+      prepare_stri_result(c_expr);
+      c_expr.result_expr := "strMult(";
+      getAnyParamToResultExpr(stri, c_expr);
+      c_expr.result_expr &:= ", ";
+      c_expr.result_expr &:= integerLiteral(factor);
+      c_expr.result_expr &:= ")";
+    end if;
   end func;
 
 
@@ -1465,17 +1679,20 @@ const proc: process (STR_MULT, in reference: function,
   local
     var reference: evaluatedParam is NIL;
   begin
-    prepare_stri_result(c_expr);
     if getConstant(params[1], STRIOBJECT, evaluatedParam) then
       process_const_str_mult(getValue(evaluatedParam, string), params[3], c_expr);
+    elsif getConstant(params[3], INTOBJECT, evaluatedParam) then
+      process_const_str_mult(params[1], getValue(evaluatedParam, integer), c_expr);
     elsif isActionExpression(params[1], "CHR_STR") then
       incr(countOptimizations);
+      prepare_stri_result(c_expr);
       c_expr.result_expr := "strChMult(";
       getAnyParamToResultExpr(getActionParameter(params[1], 1), c_expr);
       c_expr.result_expr &:= ", ";
       getStdParamToResultExpr(params[3], c_expr);
       c_expr.result_expr &:= ")";
     else
+      prepare_stri_result(c_expr);
       c_expr.result_expr := "strMult(";
       getAnyParamToResultExpr(params[1], c_expr);
       c_expr.result_expr &:= ", ";

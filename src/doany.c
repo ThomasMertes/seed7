@@ -31,6 +31,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdio.h"
@@ -55,9 +58,6 @@
 #include "doany.h"
 
 
-#undef TRACE_DOANY
-
-
 static listRecord flush_expr[2];
 static listRecord wrnl_expr[2];
 static listRecord wrstri_expr[3];
@@ -72,9 +72,7 @@ objectType exec1 (listType list)
     objectType result;
 
   /* exec1 */
-#ifdef TRACE_EXEC
-    printf("BEGIN exec1\n");
-#endif
+    logFunction(printf("exec1\n"););
 #ifdef DEBUG_EXEC
     printf("before matching\n");
     trace1(list->obj);
@@ -124,9 +122,7 @@ objectType exec1 (listType list)
     trace1(list->next->next->obj);
     printf("\n");
 #endif
-#ifdef TRACE_EXEC
-    printf("END exec1\n");
-#endif
+    logFunction(printf("exec1 -->\n"););
     return result;
   } /* exec1 */
 
@@ -140,9 +136,7 @@ boolType do_flush (objectType outfile)
     boolType result;
 
   /* do_flush */
-#ifdef TRACE_DOANY
-    printf("BEGIN do_flush\n");
-#endif
+    logFunction(printf("do_flush\n"););
     outfileProg = outfile->type_of->owningProg;
     memcpy(&prog_backup, &prog, sizeof(progRecord));
     memcpy(&prog, outfileProg, sizeof(progRecord));
@@ -151,9 +145,7 @@ boolType do_flush (objectType outfile)
     result = (boolType) (exec1(flush_expr) == SYS_EMPTY_OBJECT);
     set_fail_flag(FALSE);
     memcpy(&prog, &prog_backup, sizeof(progRecord));
-#ifdef TRACE_DOANY
-    printf("END do_flush\n");
-#endif
+    logFunction(printf("do_flush -->\n"););
     return result;
   } /* do_flush */
 
@@ -167,9 +159,7 @@ boolType do_wrnl (objectType outfile)
     boolType result;
 
   /* do_wrnl */
-#ifdef TRACE_DOANY
-    printf("BEGIN do_wrnl\n");
-#endif
+    logFunction(printf("do_wrnl\n"););
     outfileProg = outfile->type_of->owningProg;
     memcpy(&prog_backup, &prog, sizeof(progRecord));
     memcpy(&prog, outfileProg, sizeof(progRecord));
@@ -178,9 +168,7 @@ boolType do_wrnl (objectType outfile)
     result = (boolType) (exec1(wrnl_expr) == SYS_EMPTY_OBJECT);
     set_fail_flag(FALSE);
     memcpy(&prog, &prog_backup, sizeof(progRecord));
-#ifdef TRACE_DOANY
-    printf("END do_wrnl\n");
-#endif
+    logFunction(printf("do_wrnl -->\n"););
     return result;
   } /* do_wrnl */
 
@@ -195,9 +183,7 @@ boolType do_wrstri (objectType outfile, striType stri)
     boolType result;
 
   /* do_wrstri */
-#ifdef TRACE_DOANY
-    printf("BEGIN do_wrstri\n");
-#endif
+    logFunction(printf("do_wrstri\n"););
     outfileProg = outfile->type_of->owningProg;
     memcpy(&prog_backup, &prog, sizeof(progRecord));
     memcpy(&prog, outfileProg, sizeof(progRecord));
@@ -212,9 +198,7 @@ boolType do_wrstri (objectType outfile, striType stri)
     } /* if */
     set_fail_flag(FALSE);
     memcpy(&prog, &prog_backup, sizeof(progRecord));
-#ifdef TRACE_DOANY
-    printf("END do_wrstri\n");
-#endif
+    logFunction(printf("do_wrstri -->\n"););
     return result;
   } /* do_wrstri */
 
@@ -227,18 +211,14 @@ boolType do_wrcstri (objectType outfile, const_cstriType stri)
     boolType result;
 
   /* do_wrcstri */
-#ifdef TRACE_DOANY
-    printf("BEGIN do_wrcstri\n");
-#endif
+    logFunction(printf("do_wrcstri\n"););
     result = FALSE;
     out_stri = cstri_to_stri(stri);
     if (out_stri != NULL) {
       result = do_wrstri(outfile, out_stri);
       FREE_STRI(out_stri, out_stri->size);
     } /* if */
-#ifdef TRACE_DOANY
-    printf("END do_wrcstri\n");
-#endif
+    logFunction(printf("do_wrcstri -->\n"););
     return result;
   } /* do_wrcstri */
 
@@ -247,9 +227,7 @@ boolType do_wrcstri (objectType outfile, const_cstriType stri)
 void init_do_any (void)
 
   { /* init_do_any */
-#ifdef TRACE_DOANY
-    printf("BEGIN init_do_any\n");
-#endif
+    logFunction(printf("init_do_any\n"););
     flush_expr[0].next = &flush_expr[1];
     flush_expr[1].next = NULL;
     wrnl_expr[0].next = &wrnl_expr[1];
@@ -257,7 +235,5 @@ void init_do_any (void)
     wrstri_expr[0].next = &wrstri_expr[1];
     wrstri_expr[1].next = &wrstri_expr[2];
     wrstri_expr[2].next = NULL;
-#ifdef TRACE_DOANY
-    printf("END init_do_any\n");
-#endif
+    logFunction(printf("init_do_any -->\n"););
   } /* init_do_any */

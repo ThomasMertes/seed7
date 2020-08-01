@@ -549,7 +549,7 @@ typedef struct bufferStruct {
 /*                                     */
 /***************************************/
 
-#define WITH_BIGINT_CAPACITY
+#define WITH_BIGINT_CAPACITY 1
 
 #ifdef INT64TYPE
 #define BIGDIGIT_SIZE 32
@@ -567,7 +567,7 @@ typedef struct bufferStruct {
 
 typedef struct {
     memSizeType size;
-#ifdef WITH_BIGINT_CAPACITY
+#if WITH_BIGINT_CAPACITY
     memSizeType capacity;
 #endif
     bigDigitType bigdigits[1];

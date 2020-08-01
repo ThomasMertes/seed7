@@ -25,6 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -60,8 +63,6 @@
 #define EXTERN
 #include "parser.h"
 
-#undef TRACE_PARSER
-
 
 
 static void init_dollar_type (objectType declared_object,
@@ -71,9 +72,7 @@ static void init_dollar_type (objectType declared_object,
     typeType generated_type;
 
   /* init_dollar_type */
-#ifdef TRACE_PARSER
-    printf("BEGIN init_dollar_type\n");
-#endif
+    logFunction(printf("init_dollar_type\n"););
     if ((generated_type = new_type(prog.owningProg, meta_type, NULL)) == NULL) {
       *err_info = MEMORY_ERROR;
     } else {
@@ -89,9 +88,7 @@ static void init_dollar_type (objectType declared_object,
         printf("\n"); */
       } /* if */
     } /* if */
-#ifdef TRACE_PARSER
-    printf("END init_dollar_type\n");
-#endif
+    logFunction(printf("init_dollar_type -->\n"););
   } /* init_dollar_type */
 
 
@@ -105,9 +102,7 @@ static inline void init_dollar (objectType declared_object,
     typeType generated_type;
 
   /* init_dollar */
-#ifdef TRACE_PARSER
-    printf("BEGIN init_dollar\n");
-#endif
+    logFunction(printf("init_dollar\n"););
     scan_symbol();
     if (current_ident == prog.id_for.newtype) {
       scan_symbol();
@@ -166,12 +161,10 @@ static inline void init_dollar (objectType declared_object,
         scan_symbol();
       } /* if */
     } /* if */
-#ifdef TRACE_PARSER
-    printf("END init_dollar ");
-    printf("%lu ", (unsigned long) declared_object);
-    trace1(declared_object);
-    printf("\n");
-#endif
+    logFunction(printf("init_dollar --> " FMT_U_MEM ", ",
+                       (memSizeType) declared_object);
+                trace1(declared_object);
+                printf("\n"););
   } /* init_dollar */
 
 
@@ -183,9 +176,7 @@ static void decl_value (objectType typeof_object, objectType declared_object,
     objectType init_expression;
 
   /* decl_value */
-#ifdef TRACE_PARSER
-    printf("BEGIN decl_value\n");
-#endif
+    logFunction(printf("decl_value\n"););
     if (current_ident == prog.id_for.is) {
       scan_symbol();
       if (current_ident == prog.id_for.dollar) {
@@ -276,9 +267,7 @@ static void decl_value (objectType typeof_object, objectType declared_object,
         scan_symbol();
       } /* if */
     } /* if */
-#ifdef TRACE_PARSER
-    printf("END decl_value\n");
-#endif
+    logFunction(printf("decl_value -->\n"););
   } /* decl_value */
 
 
@@ -290,9 +279,7 @@ static objectType decl_name (nodeType node_level, errInfoType *err_info)
     objectType defined_object;
 
   /* decl_name */
-#ifdef TRACE_PARSER
-    printf("BEGIN decl_name\n");
-#endif
+    logFunction(printf("decl_name\n"););
     if (current_ident == prog.id_for.dollar) {
       scan_symbol();
       object_name = pars_infix_expression(COM_PRIORITY, FALSE);
@@ -323,9 +310,7 @@ if (CATEGORY_OF_OBJ(object_name) == EXPROBJECT) {
       object_name->value.listValue = NULL;
       FREE_OBJECT(object_name);
     } /* if */
-#ifdef TRACE_PARSER
-    printf("END decl_name\n");
-#endif
+    logFunction(printf("decl_name -->\n"););
     return defined_object;
   } /* decl_name */
 
@@ -339,9 +324,7 @@ void decl_const (nodeType node_level, errInfoType *err_info)
     objectType declared_object;
 
   /* decl_const */
-#ifdef TRACE_PARSER
-    printf("BEGIN decl_const\n");
-#endif
+    logFunction(printf("decl_const\n"););
 /*    printf("decl_const\n"); */
     grow_stack(err_info);
     if (*err_info == OKAY_NO_ERROR) {
@@ -388,7 +371,5 @@ void decl_const (nodeType node_level, errInfoType *err_info)
       } /* if */
       shrink_stack();
     } /* if */
-#ifdef TRACE_PARSER
-    printf("END decl_const\n");
-#endif
+    logFunction(printf("decl_const\n"););
   } /* decl_const */

@@ -847,6 +847,7 @@ winType drwImage (int32Type *image_data, memSizeType width, memSizeType height)
   {
     intType xPos;
     intType yPos;
+    intType yStart;
     winType result;
 
   /* drwImage */
@@ -861,9 +862,9 @@ winType drwImage (int32Type *image_data, memSizeType width, memSizeType height)
       } /* if */
       result = drwNewPixmap((intType) width, (intType) height);
       if (result != NULL) {
-        for (yPos = 0; yPos < height; yPos++) {
+        for (yPos = 0, yStart = 0; yPos < height; yPos++, yStart += width) {
           for (xPos = 0; xPos < width; xPos++) {
-            drwPPoint(result, xPos, yPos, image_data[yPos * width + xPos]);
+            drwPPoint(result, xPos, yPos, image_data[yStart + xPos]);
           } /* for */
         } /* for */
       } /* if */

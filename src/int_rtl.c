@@ -1594,7 +1594,9 @@ striType intLpad0 (intType number, const intType pad_size)
                        number, pad_size););
     negative = (number < 0);
     if (negative) {
-      unsigned_number = (uintType) -number;
+      /* The unsigned value is negated to avoid a signed integer */
+      /* overflow when the smallest signed integer is negated.   */
+      unsigned_number = -(uintType) number;
     } else {
       unsigned_number = (uintType) number;
     } /* if */

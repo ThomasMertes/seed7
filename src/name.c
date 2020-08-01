@@ -25,6 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -52,8 +55,6 @@
 #define EXTERN
 #include "name.h"
 
-#undef TRACE_NAME
-
 
 static int data_depth = 0;
 static int depth = 0;
@@ -67,12 +68,10 @@ static void push_owner (ownerType *owner, objectType obj_to_push,
     ownerType created_owner;
 
   /* push_owner */
-#ifdef TRACE_NAME
-    printf("BEGIN push_owner ");
-    printf("%lu ", (unsigned long) obj_to_push);
-    trace1(obj_to_push);
-    printf("\n");
-#endif
+    logFunction(printf("push_owner " FMT_U_MEM ", ",
+                       (memSizeType) obj_to_push);
+                trace1(obj_to_push);
+                printf("\n"););
     if (ALLOC_RECORD(created_owner, ownerRecord, count.owner)) {
       created_owner->obj = obj_to_push;
       created_owner->decl_level = prog.stack_current;
@@ -81,12 +80,10 @@ static void push_owner (ownerType *owner, objectType obj_to_push,
     } else {
       *err_info = MEMORY_ERROR;
     } /* if */
-#ifdef TRACE_NAME
-    printf("END push_owner ");
-    printf("%lu ", (unsigned long) obj_to_push);
-    trace1(obj_to_push);
-    printf("\n");
-#endif
+    logFunction(printf("push_owner --> " FMT_U_MEM ", ",
+                       (memSizeType) obj_to_push);
+                trace1(obj_to_push);
+                printf("\n"););
   } /* push_owner */
 
 
@@ -98,9 +95,7 @@ static void free_params (listType params)
     objectType param;
 
   /* free_params */
-#ifdef TRACE_NAME
-    printf("BEGIN free_params\n");
-#endif
+    logFunction(printf("free_params\n"););
     param_elem = params;
     while (param_elem != NULL) {
       param = param_elem->obj;
@@ -117,9 +112,7 @@ static void free_params (listType params)
       param_elem = param_elem->next;
     } /* while */
     free_list(params);
-#ifdef TRACE_NAME
-    printf("END free_params\n");
-#endif
+    logFunction(printf("free_params -->\n"););
   } /* free_params */
 
 
@@ -133,9 +126,7 @@ static objectType get_object (entityType entity, listType params,
     propertyType defined_property;
 
   /* get_object */
-#ifdef TRACE_NAME
-    printf("BEGIN get_object\n");
-#endif
+    logFunction(printf("get_object\n"););
     if (entity->data.owner != NULL &&
         entity->data.owner->decl_level == prog.stack_current) {
       defined_object = entity->data.owner->obj;
@@ -186,12 +177,10 @@ static objectType get_object (entityType entity, listType params,
         *err_info = MEMORY_ERROR;
       } /* if */
     } /* if */
-#ifdef TRACE_NAME
-    printf("END get_object ");
-    printf("%lu ", (unsigned long) defined_object);
-    trace1(defined_object);
-    printf("\n");
-#endif
+    logFunction(printf("get_object " FMT_U_MEM ", ",
+                       (memSizeType) defined_object);
+                trace1(defined_object);
+                printf("\n"););
     return defined_object;
   } /* get_object */
 
@@ -206,11 +195,9 @@ listType create_parameter_list (listType name_list, errInfoType *err_info)
     listType *list_insert_place;
 
   /* create_parameter_list */
-#ifdef TRACE_NAME
-    printf("BEGIN create_parameter_list(");
-    prot_list(name_list);
-    printf(")\n");
-#endif
+    logFunction(printf("create_parameter_list(");
+                prot_list(name_list);
+                printf(")\n"););
     name_elem = name_list;
     parameter_list = NULL;
     list_insert_place = &parameter_list;
@@ -249,9 +236,7 @@ printf(" %lu\n", (long unsigned) name_elem->obj); */
       } /* if */
       name_elem = name_elem->next;
     } /* while */
-#ifdef TRACE_NAME
-    printf("END create_parameter_list\n");
-#endif
+    logFunction(printf("create_parameter_list\n"););
     return parameter_list;
   } /* create_parameter_list */
 
@@ -264,9 +249,7 @@ static void free_name_list (listType name_list, boolType freeParamObject)
     objectType param_obj;
 
   /* free_name_list */
-#ifdef TRACE_NAME
-    printf("BEGIN free_name_list\n");
-#endif
+    logFunction(printf("free_name_list\n"););
     name_elem = name_list;
     while (name_elem != NULL) {
       if (CATEGORY_OF_OBJ(name_elem->obj) == FORMPARAMOBJECT) {
@@ -295,9 +278,7 @@ static void free_name_list (listType name_list, boolType freeParamObject)
       name_elem = name_elem->next;
     } /* while */
     free_list(name_list);
-#ifdef TRACE_NAME
-    printf("END free_name_list\n");
-#endif
+    logFunction(printf("free_name_list -->\n"););
   } /* free_name_list */
 
 
@@ -312,11 +293,10 @@ static objectType push_name (nodeType declaration_base,
     objectType defined_object;
 
   /* push_name */
-#ifdef TRACE_NAME
-    printf("BEGIN push_name(%ld, ", (long) declaration_base);
-    prot_list(name_list);
-    printf(")\n");
-#endif
+    logFunction(printf("push_name(" FMT_U_MEM ", ",
+                       (memSizeType) declaration_base);
+                prot_list(name_list);
+                printf(")\n"););
     params = create_parameter_list(name_list, err_info);
     entity = get_entity(declaration_base, name_list);
     if (entity == NULL) {
@@ -330,12 +310,9 @@ static objectType push_name (nodeType declaration_base,
         free_name_list(name_list, FALSE);
       } /* if */
     } /* if */
-#ifdef TRACE_NAME
-    printf("END push_name(");
-    printf("%lu ", (unsigned long) defined_object);
     /* prot_list(GET_ENTITY(defined_object)->params); */
-    printf(")\n");
-#endif
+    logFunction(printf("push_name --> " FMT_U_MEM "\n",
+                       (memSizeType) defined_object););
     return defined_object;
   } /* push_name */
 
@@ -348,12 +325,10 @@ static void pop_object (progType currentProg, const_objectType obj_to_pop)
     ownerType owner;
 
   /* pop_object */
-#ifdef TRACE_NAME
-    printf("BEGIN pop_object(");
-    trace1(obj_to_pop);
-    printf(")\n");
-    fflush(stdout);
-#endif
+    logFunction(printf("pop_object(");
+                trace1(obj_to_pop);
+                printf(")\n");
+                fflush(stdout););
     if (HAS_ENTITY(obj_to_pop)) {
       entity = GET_ENTITY(obj_to_pop);
       owner = entity->data.owner;
@@ -367,9 +342,7 @@ static void pop_object (progType currentProg, const_objectType obj_to_pop)
         } /* if */
       } /* if */
     } /* if */
-#ifdef TRACE_NAME
-    printf("END pop_object\n");
-#endif
+    logFunction(printf("pop_object -->\n"););
   } /* pop_object */
 
 
@@ -384,9 +357,7 @@ static void disconnect_entity (const objectType anObject)
     listType old_elem;
 
   /* disconnect_entity */
-#ifdef TRACE_NAME
-    printf("BEGIN disconnect_entity\n");
-#endif
+    logFunction(printf("disconnect_entity\n"););
     entity = GET_ENTITY(anObject);
     if (entity->data.owner != NULL && entity->data.owner->obj == anObject) {
       /* printf("disconnect_entity ");
@@ -413,9 +384,7 @@ static void disconnect_entity (const objectType anObject)
       FREE_RECORD(anObject->descriptor.property, propertyRecord, count.property);
       anObject->descriptor.property = NULL;
     } /* if */
-#ifdef TRACE_NAME
-    printf("END disconnect_entity\n");
-#endif
+    logFunction(printf("disconnect_entity -->\n"););
   } /* disconnect_entity */
 
 
@@ -427,11 +396,9 @@ void disconnect_param_entities (const const_objectType objWithParams)
     objectType param_obj;
 
   /* disconnect_param_entities */
-#ifdef TRACE_NAME
-    printf("BEGIN disconnect_param_entities(");
-    trace1(objWithParams);
-    printf(")\n");
-#endif
+    logFunction(printf("disconnect_param_entities(");
+                trace1(objWithParams);
+                printf(")\n"););
     if (FALSE && HAS_PROPERTY(objWithParams)) {
       param_elem = objWithParams->descriptor.property->params;
       while (param_elem != NULL) {
@@ -445,9 +412,7 @@ void disconnect_param_entities (const const_objectType objWithParams)
         param_elem = param_elem->next;
       } /* while */
     } /* if */
-#ifdef TRACE_NAME
-    printf("END disconnect_param_entities\n");
-#endif
+    logFunction(printf("disconnect_param_entities -->\n"););
   } /* disconnect_param_entities */
 
 
@@ -458,9 +423,7 @@ void init_stack (progType currentProg, errInfoType *err_info)
     stackType created_stack_element;
 
   /* init_stack */
-#ifdef TRACE_NAME
-    printf("BEGIN init_stack\n");
-#endif
+    logFunction(printf("init_stack\n"););
     if (ALLOC_RECORD(created_stack_element, stackRecord, count.stack)) {
       created_stack_element->upward = NULL;
       created_stack_element->downward = NULL;
@@ -475,9 +438,7 @@ void init_stack (progType currentProg, errInfoType *err_info)
     } else {
       *err_info = MEMORY_ERROR;
     } /* if */
-#ifdef TRACE_NAME
-    printf("END init_stack\n");
-#endif
+    logFunction(printf("init_stack -->\n"););
   } /* init_stack */
 
 
@@ -490,9 +451,7 @@ void close_stack (progType currentProg)
     listType list_element;
 
   /* close_stack */
-#ifdef TRACE_NAME
-    printf("BEGIN close_stack %d\n", data_depth);
-#endif
+    logFunction(printf("close_stack %d\n", data_depth););
     /* The list of objects is reversed to free the objects in    */
     /* the opposite way of their definition.                     */
     list_element = currentProg->stack_data->local_object_list;
@@ -534,9 +493,7 @@ void close_stack (progType currentProg)
     } /* while */
     free_list(reversed_list);
     currentProg->stack_current->local_object_list = NULL;
-#ifdef TRACE_NAME
-    printf("END close_stack %d\n", data_depth);
-#endif
+    logFunction(printf("close_stack %d -->\n", data_depth););
   } /* close_stack */
 
 
@@ -547,9 +504,7 @@ void grow_stack (errInfoType *err_info)
     stackType created_stack_element;
 
   /* grow_stack */
-#ifdef TRACE_NAME
-    printf("BEGIN grow_stack %d\n", data_depth);
-#endif
+    logFunction(printf("grow_stack %d\n", data_depth););
     if (ALLOC_RECORD(created_stack_element, stackRecord, count.stack)) {
       /* printf("%lx grow_stack %d\n", created_stack_element, data_depth + 1); */
       created_stack_element->upward = NULL;
@@ -563,9 +518,7 @@ void grow_stack (errInfoType *err_info)
     } else {
       *err_info = MEMORY_ERROR;
     } /* if */
-#ifdef TRACE_NAME
-    printf("END grow_stack %d\n", data_depth);
-#endif
+    logFunction(printf("grow_stack %d -->\n", data_depth););
   } /* grow_stack */
 
 
@@ -577,9 +530,7 @@ void shrink_stack (void)
     stackType old_stack_element;
 
   /* shrink_stack */
-#ifdef TRACE_NAME
-    printf("BEGIN shrink_stack %d\n", data_depth);
-#endif
+    logFunction(printf("shrink_stack %d\n", data_depth););
     /* printf("%lx shrink_stack %d\n", prog.stack_data, data_depth); */
     list_element = prog.stack_data->local_object_list;
     while (list_element != NULL) {
@@ -592,9 +543,7 @@ void shrink_stack (void)
     prog.stack_data->upward = NULL;
     FREE_RECORD(old_stack_element, stackRecord, count.stack);
     data_depth--;
-#ifdef TRACE_NAME
-    printf("END shrink_stack %d\n", data_depth);
-#endif
+    logFunction(printf("shrink_stack %d\n", data_depth););
   } /* shrink_stack */
 
 
@@ -602,9 +551,7 @@ void shrink_stack (void)
 void push_stack (void)
 
   { /* push_stack */
-#ifdef TRACE_NAME
-    printf("BEGIN push_stack %d\n", depth);
-#endif
+    logFunction(printf("push_stack %d\n", depth););
     if (prog.stack_current->upward != NULL) {
       /* printf("%lx push_stack %d\n", prog.stack_current->upward, depth + 1); */
       prog.stack_current = prog.stack_current->upward;
@@ -612,9 +559,7 @@ void push_stack (void)
     } else {
       /* printf("cannot go up\n"); */
     } /* if */
-#ifdef TRACE_NAME
-    printf("END push_stack %d\n", depth);
-#endif
+    logFunction(printf("push_stack %d -->\n", depth););
   } /* push_stack */
 
 
@@ -625,9 +570,7 @@ void pop_stack (void)
     listType list_element;
 
   /* pop_stack */
-#ifdef TRACE_NAME
-    printf("BEGIN pop_stack %d\n", depth);
-#endif
+    logFunction(printf("pop_stack %d\n", depth););
     if (prog.stack_current->downward != NULL) {
       /* printf("%lx pop_stack %d\n", prog.stack_current, depth); */
       list_element = prog.stack_current->local_object_list;
@@ -644,9 +587,7 @@ void pop_stack (void)
     } else {
       /* printf("cannot go down\n"); */
     } /* if */
-#ifdef TRACE_NAME
-    printf("END pop_stack %d\n", depth);
-#endif
+    logFunction(printf("pop_stack %d -->\n", depth););
   } /* pop_stack */
 
 
@@ -654,9 +595,7 @@ void pop_stack (void)
 static void down_stack (void)
 
   { /* down_stack */
-#ifdef TRACE_NAME
-    printf("BEGIN down_stack %d\n", depth);
-#endif
+    logFunction(printf("down_stack %d\n", depth););
     if (prog.stack_current->downward != NULL) {
       /* printf("%lx down_stack %d\n", prog.stack_current, depth); */
       prog.stack_current = prog.stack_current->downward;
@@ -664,9 +603,7 @@ static void down_stack (void)
     } else {
       printf("cannot go down");
     } /* if */
-#ifdef TRACE_NAME
-    printf("END down_stack %d\n", depth);
-#endif
+    logFunction(printf("down_stack %d -->\n", depth););
   } /* down_stack */
 
 
@@ -685,9 +622,7 @@ static void match_name_list (listType raw_name_list)
     listType name_elem;
 
   /* match_name_list */
-#ifdef TRACE_NAME
-    printf("BEGIN match_name_list\n");
-#endif
+    logFunction(printf("match_name_list\n"););
     name_elem = raw_name_list;
     while (name_elem != NULL) {
       if (CATEGORY_OF_OBJ(name_elem->obj) == EXPROBJECT) {
@@ -697,9 +632,7 @@ static void match_name_list (listType raw_name_list)
       } /* if */
       name_elem = name_elem->next;
     } /* while */
-#ifdef TRACE_NAME
-    printf("END match_name_list\n");
-#endif
+    logFunction(printf("match_name_list -->\n"););
   } /* match_name_list */
 
 
@@ -713,9 +646,7 @@ static listType eval_name_list (listType raw_name_list, errInfoType *err_info)
     objectType parameter;
 
   /* eval_name_list */
-#ifdef TRACE_NAME
-    printf("BEGIN eval_name_list\n");
-#endif
+    logFunction(printf("eval_name_list\n"););
     name_elem = raw_name_list;
     name_list = NULL;
     list_insert_place = &name_list;
@@ -741,9 +672,7 @@ static listType eval_name_list (listType raw_name_list, errInfoType *err_info)
       } /* if */
       name_elem = name_elem->next;
     } /* while */
-#ifdef TRACE_NAME
-    printf("END eval_name_list\n");
-#endif
+    logFunction(printf("eval_name_list -->\n"););
     return name_list;
   } /* eval_name_list */
 
@@ -757,22 +686,19 @@ static objectType inst_list (nodeType declaration_base, const_objectType object_
     objectType defined_object;
 
   /* inst_list */
-#ifdef TRACE_NAME
-    printf("BEGIN inst_list(%ld, ", (long) declaration_base);
-    trace1(object_name);
-    printf(")\n");
-#endif
+    logFunction(printf("inst_list(" FMT_U_MEM ", ",
+                       (memSizeType) declaration_base);
+                trace1(object_name);
+                printf(")\n"););
     match_name_list(object_name->value.listValue);
     push_stack();
     name_list = eval_name_list(object_name->value.listValue, err_info);
     down_stack();
     defined_object = push_name(declaration_base, name_list,
         GET_FILE_NUM(object_name), GET_LINE_NUM(object_name), err_info);
-#ifdef TRACE_NAME
-    printf("END inst_list --> ");
-    trace1(defined_object);
-    printf("\n");
-#endif
+    logFunction(printf("inst_list --> ");
+                trace1(defined_object);
+                printf("\n"););
     return defined_object;
   } /* inst_list */
 
@@ -785,21 +711,17 @@ static objectType inst_object (const_nodeType declaration_base, objectType name_
     objectType defined_object;
 
   /* inst_object */
-#ifdef TRACE_NAME
-    printf("BEGIN inst_object(");
-    trace1(name_object);
-    printf(")\n");
-#endif
+    logFunction(printf("inst_object(");
+                trace1(name_object);
+                printf(")\n"););
     if (name_object->descriptor.property == prog.property.literal) {
       err_object(IDENT_EXPECTED, name_object);
     } /* if */
     defined_object = get_object(GET_ENTITY(name_object), NULL,
         file_number, line, err_info);
-#ifdef TRACE_NAME
-    printf("END inst_object --> ");
-    trace1(defined_object);
-    printf("\n");
-#endif
+    logFunction(printf("inst_object --> ");
+                trace1(defined_object);
+                printf("\n"););
     return defined_object;
   } /* inst_object */
 
@@ -814,11 +736,10 @@ static objectType inst_object_expr (const_nodeType declaration_base,
     objectType defined_object;
 
   /* inst_object_expr */
-#ifdef TRACE_NAME
-    printf("BEGIN inst_object_expr(%ld, ", (long) declaration_base);
-    trace1(object_name);
-    printf(")\n");
-#endif
+    logFunction(printf("inst_object_expr(" FMT_U_MEM ", ",
+                       (memSizeType) declaration_base);
+                trace1(object_name);
+                printf(")\n"););
     defined_object = NULL;
     match_name_list(object_name->value.listValue);
     push_stack();
@@ -848,11 +769,9 @@ static objectType inst_object_expr (const_nodeType declaration_base,
       err_object(IDENT_EXPECTED, object_name);
     } /* if */
     free_name_list(name_list, FALSE);
-#ifdef TRACE_NAME
-    printf("END inst_object_expr --> ");
-    trace1(defined_object);
-    printf("\n");
-#endif
+    logFunction(printf("inst_object_expr --> ");
+                trace1(defined_object);
+                printf("\n"););
     return defined_object;
   } /* inst_object_expr */
 
@@ -865,11 +784,10 @@ objectType entername (nodeType declaration_base, objectType object_name,
     objectType defined_object;
 
   /* entername */
-#ifdef TRACE_NAME
-    printf("BEGIN entername(%ld, ", (long) declaration_base);
-    trace1(object_name);
-    printf(")\n");
-#endif
+    logFunction(printf("entername(" FMT_U_MEM ", ",
+                       (memSizeType) declaration_base);
+                trace1(object_name);
+                printf(")\n"););
     if (CATEGORY_OF_OBJ(object_name) == EXPROBJECT) {
       if (object_name->value.listValue->next != NULL) {
         defined_object = inst_list(declaration_base, object_name, err_info);
@@ -890,14 +808,12 @@ objectType entername (nodeType declaration_base, objectType object_name,
    printf("o%d_%s declared \n", defined_object->NUMBER,
        defined_object->IDENT->NAME); */
     } /* if */
-#ifdef TRACE_NAME
-    trace_nodes();
-    printf("END entername(");
-    trace1(object_name);
-    printf(") --> ");
-    trace1(defined_object);
-    printf("\n");
-#endif
+    /* trace_nodes(); */
+    logFunction(printf("entername(");
+                trace1(object_name);
+                printf(") --> ");
+                trace1(defined_object);
+                printf("\n"););
     return defined_object;
   } /* entername */
 
@@ -913,11 +829,10 @@ objectType find_name (nodeType declaration_base, const_objectType object_name,
     objectType defined_object;
 
   /* find_name */
-#ifdef TRACE_NAME
-    printf("BEGIN find_name(%ld, ", (long) declaration_base);
-    trace1(object_name);
-    printf(")\n");
-#endif
+    logFunction(printf("find_name(" FMT_U_MEM ", ",
+                       (memSizeType) declaration_base);
+                trace1(object_name);
+                printf(")\n"););
     grow_stack(err_info);
     if (*err_info == OKAY_NO_ERROR) {
       if (CATEGORY_OF_OBJ(object_name) == EXPROBJECT) {
@@ -965,19 +880,15 @@ objectType find_name (nodeType declaration_base, const_objectType object_name,
     } else {
       defined_object = NULL;
     } /* if */
-
 /* printf(" %s\n", defined_object->IDENT->NAME);
    printf("o%d_%s declared \n", defined_object->NUMBER,
        defined_object->IDENT->NAME); */
-
-#ifdef TRACE_NAME
-    trace_nodes();
-    printf("END find_name(");
-    trace1(object_name);
-    printf(") --> ");
-    trace1(defined_object);
-    printf("\n");
-#endif
+    /* trace_nodes(); */
+    logFunction(printf("find_name(");
+                trace1(object_name);
+                printf(") --> ");
+                trace1(defined_object);
+                printf("\n"););
     return defined_object;
   } /* find_name */
 
@@ -993,11 +904,10 @@ objectType search_name (const_nodeType declaration_base,
     objectType defined_object;
 
   /* search_name */
-#ifdef TRACE_NAME
-    printf("BEGIN search_name(%ld, ", (long) declaration_base);
-    trace1(object_name);
-    printf(")\n");
-#endif
+    logFunction(printf("search_name(" FMT_U_MEM ", ",
+                       (memSizeType) declaration_base);
+                trace1(object_name);
+                printf(")\n"););
     if (CATEGORY_OF_OBJ(object_name) == EXPROBJECT) {
       if (object_name->value.listValue->next != NULL) {
         match_name_list(object_name->value.listValue);
@@ -1038,19 +948,15 @@ objectType search_name (const_nodeType declaration_base,
     } else {
       defined_object = NULL;
     } /* if */
-
 /* printf(" %s\n", defined_object->IDENT->NAME);
    printf("o%d_%s declared \n", defined_object->NUMBER,
        defined_object->IDENT->NAME); */
-
-#ifdef TRACE_NAME
-    trace_nodes();
-    printf("END search_name(");
-    trace1(object_name);
-    printf(") --> ");
-    trace1(defined_object);
-    printf("\n");
-#endif
+    /* trace_nodes(); */
+    logFunction(printf("search_name(");
+                trace1(object_name);
+                printf(") --> ");
+                trace1(defined_object);
+                printf("\n"););
     return defined_object;
   } /* search_name */
 
@@ -1063,11 +969,9 @@ static objectType dollar_parameter (objectType param_object)
     objectType type_of_parameter;
 
   /* dollar_parameter */
-#ifdef TRACE_NAME
-    printf("BEGIN dollar_parameter(");
-    trace1(param_object);
-    printf(")\n");
-#endif
+    logFunction(printf("dollar_parameter(");
+                trace1(param_object);
+                printf(")\n"););
     param_descr = param_object->value.listValue;
     if (param_descr != NULL) {
       if (GET_ENTITY(param_descr->obj)->ident == prog.id_for.ref) {
@@ -1091,11 +995,9 @@ static objectType dollar_parameter (objectType param_object)
         err_ident(PARAM_SPECIFIER_EXPECTED, GET_ENTITY(param_descr->obj)->ident);
       } /* if */
     } /* if */
-#ifdef TRACE_NAME
-    printf("END dollar_parameter --> ");
-    trace1(param_object);
-    printf("\n");
-#endif
+    logFunction(printf("dollar_parameter --> ");
+                trace1(param_object);
+                printf("\n"););
     return param_object;
   } /* dollar_parameter */
 
@@ -1109,11 +1011,10 @@ static objectType dollar_inst_list (nodeType declaration_base,
     objectType defined_object;
 
   /* dollar_inst_list */
-#ifdef TRACE_NAME
-    printf("BEGIN dollar_inst_list(%ld, ", (long) declaration_base);
-    trace1(object_name);
-    printf(")\n");
-#endif
+    logFunction(printf("dollar_inst_list(" FMT_U_MEM ", ",
+                       (memSizeType) declaration_base);
+                trace1(object_name);
+                printf(")\n"););
     name_elem = object_name->value.listValue;
     while (name_elem != NULL) {
       if (CATEGORY_OF_OBJ(name_elem->obj) == EXPROBJECT) {
@@ -1124,9 +1025,7 @@ static objectType dollar_inst_list (nodeType declaration_base,
     defined_object = push_name(declaration_base,
         object_name->value.listValue,
         GET_FILE_NUM(object_name), GET_LINE_NUM(object_name), err_info);
-#ifdef TRACE_NAME
-    printf("END dollar_inst_list\n");
-#endif
+    logFunction(printf("dollar_inst_list -->\n"););
     return defined_object;
   } /* dollar_inst_list */
 
@@ -1139,11 +1038,10 @@ objectType dollar_entername (nodeType declaration_base, objectType object_name,
     objectType defined_object;
 
   /* dollar_entername */
-#ifdef TRACE_NAME
-    printf("BEGIN dollar_entername(%ld, ", (long) declaration_base);
-    trace1(object_name);
-    printf(")\n");
-#endif
+    logFunction(printf("dollar_entername(" FMT_U_MEM ", ",
+                       (memSizeType) declaration_base);
+                trace1(object_name);
+                printf(")\n"););
     if (CATEGORY_OF_OBJ(object_name) == EXPROBJECT) {
       defined_object = dollar_inst_list(declaration_base, object_name, err_info);
     } else {
@@ -1152,13 +1050,11 @@ objectType dollar_entername (nodeType declaration_base, objectType object_name,
    printf("o%d_%s declared \n", defined_object->NUMBER,
        defined_object->IDENT->NAME); */
     } /* if */
-#ifdef TRACE_NAME
-    trace_nodes();
-    printf("END dollar_entername(");
-    trace1(object_name);
-    printf(") --> ");
-    trace1(defined_object);
-    printf("\n");
-#endif
+    /* trace_nodes(); */
+    logFunction(printf("dollar_entername(");
+                trace1(object_name);
+                printf(") --> ");
+                trace1(defined_object);
+                printf("\n"););
     return defined_object;
   } /* dollar_entername */

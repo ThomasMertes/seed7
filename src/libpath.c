@@ -25,6 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -64,9 +67,8 @@ void find_include_file (const_striType include_file_name, errInfoType *err_info)
     striType stri;
 
   /* find_include_file */
-#ifdef TRACE_INFILE
-    printf("BEGIN find_include_file\n");
-#endif
+    logFunction(printf("find_include_file(\"%s\"\n",
+                       striAsUnquotedCStri(include_file_name)););
     if (*err_info == OKAY_NO_ERROR) {
       if (include_file_name->size >= 1 && include_file_name->mem[0] == '/') {
         open_infile(include_file_name, in_file.write_library_names, in_file.write_line_numbers, err_info);
@@ -106,9 +108,7 @@ void find_include_file (const_striType include_file_name, errInfoType *err_info)
         } /* if */
       } /* if */
     } /* if */
-#ifdef TRACE_INFILE
-    printf("END find_include_file\n");
-#endif
+    logFunction(printf("find_include_file --> (err_info=%d)\n", *err_info););
   } /* find_include_file */
 
 
@@ -142,11 +142,8 @@ void append_to_lib_path (const_striType path, errInfoType *err_info)
     memSizeType position;
 
   /* append_to_lib_path */
-#ifdef TRACE_INFILE
-    printf("BEGIN append_to_lib_path(");
-    prot_stri(path);
-    printf(")\n");
-#endif
+    logFunction(printf("append_to_lib_path(\"%s\")\n",
+                       striAsUnquotedCStri(path)););
     stri_len = path->size;
     if (stri_len >= 1 && path->mem[stri_len - 1] != '/') {
       stri_len++;
@@ -179,9 +176,7 @@ void append_to_lib_path (const_striType path, errInfoType *err_info)
         lib_path->max_position++;
       } /* if */
     } /* if */
-#ifdef TRACE_INFILE
-    printf("END append_to_lib_path\n");
-#endif
+    logFunction(printf("append_to_lib_path --> (err_info=%d)\n", *err_info););
   } /* append_to_lib_path */
 
 
@@ -199,9 +194,7 @@ void init_lib_path (const_striType source_file_name,
     intType idx;
 
   /* init_lib_path */
-#ifdef TRACE_INFILE
-    printf("BEGIN init_lib_path\n");
-#endif
+    logFunction(printf("init_lib_path\n"););
     if (!ALLOC_RTL_ARRAY(lib_path, 0)) {
       *err_info = MEMORY_ERROR;
     } else {
@@ -269,9 +262,7 @@ void init_lib_path (const_striType source_file_name,
 
       /* print_lib_path(); */
     } /* if */
-#ifdef TRACE_INFILE
-    printf("END init_lib_path\n");
-#endif
+    logFunction(printf("init_lib_path\n"););
   } /* init_lib_path */
 
 
@@ -284,6 +275,7 @@ void free_lib_path (void)
     striType stri;
 
   /* free_lib_path */
+    logFunction(printf("free_lib_path\n"););
     length = arraySize(lib_path);
     for (position = 0; position < length; position++) {
       stri = lib_path->arr[position].value.striValue;
@@ -291,4 +283,5 @@ void free_lib_path (void)
     } /* for */
     FREE_RTL_ARRAY(lib_path, length);
     lib_path = NULL;
+    logFunction(printf("free_lib_path -->\n"););
   } /* free_lib_path */

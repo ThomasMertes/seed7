@@ -346,7 +346,7 @@ EXTERN memSizeType hs;
 #define COUNT3_STRI(len1,len2)         CNT3(CNT2_STRI(len1, SIZ_STRI(len1)), CNT1_STRI(len2, SIZ_STRI(len2)))
 
 
-#ifdef WITH_STRI_FREELIST
+#if WITH_STRI_FREELIST
 #ifdef WITH_STRI_CAPACITY
 
 #define STRI_FREELIST_ARRAY_SIZE 20

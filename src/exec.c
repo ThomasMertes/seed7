@@ -25,6 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -52,7 +55,6 @@
 #define EXTERN
 #include "exec.h"
 
-#undef TRACE_EXEC
 
 #ifdef CHECK_STACK
 extern char *stack_base;
@@ -69,11 +71,9 @@ objectType exec_object (register objectType object)
     register objectType result;
 
   /* exec_object */
-#ifdef TRACE_EXEC
-    printf("BEGIN exec_object ");
-    trace1(object);
-    printf("\n");
-#endif
+    logFunction(printf("exec_object ");
+                trace1(object);
+                printf("\n"););
     switch (CATEGORY_OF_OBJ(object)) {
       case CALLOBJECT:
         result = exec_call(object);
@@ -137,11 +137,9 @@ objectType exec_object (register objectType object)
         result = object;
         break;
     } /* switch */
-#ifdef TRACE_EXEC
-    printf("END exec_object ");
-    trace1(result);
-    printf("\n");
-#endif
+    logFunction(printf("exec_object --> ");
+                trace1(result);
+                printf("\n"););
     return result;
   } /* exec_object */
 
@@ -178,9 +176,7 @@ static inline void par_init (locListType form_param_list,
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* par_init */
-#ifdef TRACE_EXEC
-    printf("BEGIN par_init\n");
-#endif
+    logFunction(printf("par_init\n"););
     form_param = form_param_list;
     *backup_form_params = NULL;
     backup_insert_place = backup_form_params;
@@ -256,9 +252,7 @@ static inline void par_init (locListType form_param_list,
         param_list_elem = param_list_elem->next;
       } /* while */
     } /* if */
-#ifdef TRACE_EXEC
-    printf("END par_init\n");
-#endif
+    logFunction(printf("par_init -->\n"););
   } /* par_init */
 
 
@@ -272,9 +266,7 @@ static inline void par_restore (const_locListType form_param,
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* par_restore */
-#ifdef TRACE_EXEC
-    printf("BEGIN par_restore\n");
-#endif
+    logFunction(printf("par_restore\n"););
     save_interrupt_flag = interrupt_flag;
     save_fail_flag = fail_flag;
     set_fail_flag(FALSE);
@@ -315,9 +307,7 @@ static inline void par_restore (const_locListType form_param,
     } /* while */
     interrupt_flag = save_interrupt_flag;
     fail_flag = save_fail_flag;
-#ifdef TRACE_EXEC
-    printf("END par_restore\n");
-#endif
+    logFunction(printf("par_restore -->\n"););
   } /* par_restore */
 
 
@@ -330,9 +320,7 @@ static void loc_init (const_locListType loc_var, listType *backup_loc_var,
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* loc_init */
-#ifdef TRACE_EXEC
-    printf("BEGIN loc_init\n");
-#endif
+    logFunction(printf("loc_init\n"););
     *backup_loc_var = NULL;
     list_insert_place = backup_loc_var;
     while (loc_var != NULL && !fail_flag) {
@@ -341,9 +329,7 @@ static void loc_init (const_locListType loc_var, listType *backup_loc_var,
       create_local_object(&loc_var->local, loc_var->local.init_value, &err_info);
       loc_var = loc_var->next;
     } /* while */
-#ifdef TRACE_EXEC
-    printf("END loc_init\n");
-#endif
+    logFunction(printf("loc_init -->\n"););
   } /* loc_init */
 
 
@@ -356,9 +342,7 @@ static void loc_restore (const_locListType loc_var, const_listType backup_loc_va
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* loc_restore */
-#ifdef TRACE_EXEC
-    printf("BEGIN loc_restore\n");
-#endif
+    logFunction(printf("loc_restore\n"););
     save_interrupt_flag = interrupt_flag;
     save_fail_flag = fail_flag;
     set_fail_flag(FALSE);
@@ -377,9 +361,7 @@ static void loc_restore (const_locListType loc_var, const_listType backup_loc_va
     } /* while */
     interrupt_flag = save_interrupt_flag;
     fail_flag = save_fail_flag;
-#ifdef TRACE_EXEC
-    printf("END loc_restore\n");
-#endif
+    logFunction(printf("loc_restore -->\n"););
   } /* loc_restore */
 
 
@@ -391,9 +373,7 @@ static inline boolType res_init (const_locObjType block_result,
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* res_init */
-#ifdef TRACE_EXEC
-    printf("BEGIN res_init\n");
-#endif
+    logFunction(printf("res_init\n"););
     /* printf("block_result ");
     trace1(block_result->object);
     printf("\n");
@@ -409,10 +389,9 @@ static inline boolType res_init (const_locObjType block_result,
       *backup_block_result = block_result->object->value.objValue;
       create_local_object(block_result, block_result->init_value, &err_info);
     } /* if */
-#ifdef TRACE_EXEC
-    printf("END res_init(%ld)\n",
-        block_result->object ? ((intType) block_result->object->value.objValue) : 0);
-#endif
+    logFunction(printf("res_init(" FMT_U_MEM ") -->\n",
+                       block_result->object ?
+                           ((memSizeType) block_result->object->value.objValue) : 0););
     return err_info == OKAY_NO_ERROR;
   } /* res_init */
 
@@ -425,9 +404,7 @@ static inline void res_restore (const_locObjType block_result,
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* res_restore */
-#ifdef TRACE_EXEC
-    printf("BEGIN res_restore\n");
-#endif
+    logFunction(printf("res_restore\n"););
     if (block_result->object != NULL) {
       if (!fail_flag) {
         *result = block_result->object->value.objValue;
@@ -452,10 +429,8 @@ static inline void res_restore (const_locObjType block_result,
         SET_TEMP_FLAG(*result);
       } /* if */
     } /* if */
-#ifdef TRACE_EXEC
-    printf("END res_restore(%ld)\n",
-        *result ? ((intType) *result) : 0);
-#endif
+    logFunction(printf("res_restore(" FMT_U_MEM ") -->\n",
+                       (memSizeType) *result););
   } /* res_restore */
 
 
@@ -503,9 +478,7 @@ static objectType exec_lambda (const_blockType block,
     listType backup_loc_var;
 
   /* exec_lambda */
-#ifdef TRACE_EXEC
-    printf("BEGIN exec_lambda\n");
-#endif
+    logFunction(printf("exec_lambda\n"););
     par_init(block->params, &backup_form_params, actual_parameters,
         &evaluated_act_params);
     if (fail_flag) {
@@ -555,9 +528,7 @@ static objectType exec_lambda (const_blockType block,
       free_list(backup_form_params);
       free_list(evaluated_act_params);
     } /* if */
-#ifdef TRACE_EXEC
-    printf("END exec_lambda\n");
-#endif
+    logFunction(printf("exec_lambda -->\n"););
     return result;
   } /* exec_lambda */
 
@@ -624,10 +595,8 @@ static objectType exec_action (const_objectType act_object,
     objectType result;
 
   /* exec_action */
-#ifdef TRACE_EXEC
-    printf("BEGIN exec_action(%s)\n",
-        get_primact(act_object->value.actValue)->name);
-#endif
+    logFunction(printf("exec_action(%s)\n",
+                       get_primact(act_object->value.actValue)->name););
 #ifdef CHECK_STACK
 #ifdef STACK_GROWS_UPWARD
     if ((char *) &evaluated_act_params - stack_base > max_stack_size) {
@@ -661,9 +630,7 @@ static objectType exec_action (const_objectType act_object,
       if (fail_flag) {
         free_list(evaluated_act_params);
         result = fail_value;
-#ifdef TRACE_EXEC
-        printf("END exec_action fail_flag=%d\n", fail_flag);
-#endif
+        logFunction(printf("exec_action fail_flag=%d -->\n", fail_flag););
         return result;
       } /* if */
     } /* if */
@@ -743,9 +710,7 @@ static objectType exec_action (const_objectType act_object,
     } /* if */
 #endif
     dump_arg_list(evaluated_act_params, temp_bits);
-#ifdef TRACE_EXEC
-    printf("END exec_action fail_flag=%d\n", fail_flag);
-#endif
+    logFunction(printf("exec_action fail_flag=%d -->\n", fail_flag););
     return result;
   } /* exec_action */
 
@@ -754,16 +719,12 @@ static objectType exec_action (const_objectType act_object,
 static void exec_all_parameters (const_listType act_param_list)
 
   { /* exec_all_parameters */
-#ifdef TRACE_EXEC
-    printf("BEGIN exec_all_parameters\n");
-#endif
+    logFunction(printf("exec_all_parameters\n"););
     while (act_param_list != NULL && !fail_flag) {
       exec_object(act_param_list->obj);
       act_param_list = act_param_list->next;
     } /* while */
-#ifdef TRACE_EXEC
-    printf("END exec_all_parameters\n");
-#endif
+    logFunction(printf("exec_all_parameters -->\n"););
   } /* exec_all_parameters */
 
 
@@ -776,15 +737,13 @@ objectType exec_call (objectType object)
     objectType result;
 
   /* exec_call */
-#ifdef TRACE_EXEC
-    printf("BEGIN exec_call ");
-    trace1(object);
-    printf(" <-> ");
-    trace1(object->value.listValue->obj);
-    printf(" (");
-    prot_list(object->value.listValue->next);
-    printf(")\n");
-#endif
+    logFunction(printf("exec_call ");
+                trace1(object);
+                printf(" <-> ");
+                trace1(object->value.listValue->obj);
+                printf(" (");
+                prot_list(object->value.listValue->next);
+                printf(")\n"););
     subroutine_object = object->value.listValue->obj;
     actual_parameters = object->value.listValue->next;
 /*  if (CATEGORY_OF_OBJ(subroutine_object) == REFPARAMOBJECT) {
@@ -895,11 +854,9 @@ objectType exec_call (objectType object)
         result = NULL;
         break;
     } /* switch */
-#ifdef TRACE_EXEC
-    printf("END exec_call ");
-    trace1(result);
-    printf("\n");
-#endif
+    logFunction(printf("exec_call ");
+                trace1(result);
+                printf("\n"););
     return result;
   } /* exec_call */
 
@@ -911,9 +868,7 @@ objectType evaluate (objectType object)
     objectType result;
 
   /* evaluate */
-#ifdef TRACE_EXEC
-    printf("BEGIN evaluate\n");
-#endif
+    logFunction(printf("evaluate\n"););
 #ifdef OUT_OF_ORDER
     if (fail_flag) {
       printf("evaluate fail_flag for ");
@@ -958,11 +913,9 @@ objectType evaluate (objectType object)
         result = object;
         break;
     } /* switch */
-#ifdef TRACE_EXEC
-    printf("END evaluate ");
-    trace1(result);
-    printf("\n");
-#endif
+    logFunction(printf("evaluate --> ");
+                trace1(result);
+                printf("\n"););
     return result;
   } /* evaluate */
 
@@ -976,9 +929,7 @@ objectType eval_expression (objectType object)
     objectType matched_object;
 
   /* eval_expression */
-#ifdef TRACE_EXEC
-    printf("BEGIN eval_expression\n");
-#endif
+    logFunction(printf("eval_expression\n"););
     if ((matched_expression = match_expression(object)) != NULL) {
       if ((matched_object = match_object(matched_expression)) != NULL) {
 /*
@@ -1005,9 +956,7 @@ objectType eval_expression (objectType object)
       printf("\n");
       result = NULL;
     } /* if */
-#ifdef TRACE_EXEC
-    printf("END eval_expression\n");
-#endif
+    logFunction(printf("eval_expression -->\n"););
     return result;
   } /* eval_expression */
 
@@ -1026,9 +975,7 @@ objectType exec_dynamic (listType expr_list)
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* exec_dynamic */
-#ifdef TRACE_EXEC
-    printf("BEGIN exec_dynamic\n");
-#endif
+    logFunction(printf("exec_dynamic\n"););
 #ifdef WITH_PROTOCOL
     if (trace.dynamic) {
       if (trace.heapsize) {
@@ -1069,7 +1016,7 @@ printf("\n"); */
 /* printf("element_value ");
 trace1(element_value);
 printf("\n"); */
-#ifndef WITH_OBJECT_FREELIST
+#if !WITH_OBJECT_FREELIST
         /* When a freelist is used exec_action examines the     */
         /* object on the freelist and will not free it, because */
         /* the TEMP flag is not set for free list objects.      */
@@ -1143,9 +1090,7 @@ printf("\n"); */
     } else {
       return raise_with_arguments(SYS_MEM_EXCEPTION, expr_list);
     } /* if */
-#ifdef TRACE_EXEC
-    printf("END exec_dynamic\n");
-#endif
+    logFunction(printf("exec_dynamic -->\n"););
     return result;
   } /* exec_dynamic */
 
@@ -1159,9 +1104,7 @@ objectType exec_expr (const_progType currentProg, objectType object,
     objectType result;
 
   /* exec_expr */
-#ifdef TRACE_EXEC
-    printf("BEGIN exec_expr\n");
-#endif
+    logFunction(printf("exec_expr\n"););
     if (currentProg != NULL) {
       set_fail_flag(FALSE);
       fail_value = (objectType) NULL;
@@ -1203,10 +1146,8 @@ objectType exec_expr (const_progType currentProg, objectType object,
     } else {
       result = NULL;
     } /* if */
-#ifdef TRACE_EXEC
-    printf("END exec_expr --> ");
-    trace1(result);
-    printf("\n");
-#endif
+    logFunction(printf("exec_expr --> ");
+                trace1(result);
+                printf("\n"););
     return result;
   } /* exec_expr */

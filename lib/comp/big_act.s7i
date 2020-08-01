@@ -169,6 +169,86 @@ const proc: big_prototypes (inout file: c_prog) is func
   end func;
 
 
+const proc: process_const_big_rshift (in reference: param1, in integer: rshift,
+    inout expr_type: c_expr) is forward;
+
+
+const proc: process_const_big_lshift (in reference: param1, in integer: lshift,
+    inout expr_type: c_expr) is func
+
+  local
+    var string: bigint_name is "";
+    var expr_type: c_param1 is expr_type.value;
+  begin
+    if lshift = 0 then
+      incr(countOptimizations);
+      process_expr(param1, c_expr);
+    elsif lshift < 0 and lshift <> integer.first then
+      process_const_big_rshift(param1, -lshift, c_expr);
+    else
+      prepare_bigint_result(c_expr);
+      prepareAnyParamTemporarys(param1, c_param1, c_expr);
+      if c_param1.result_expr <> "" then
+        bigint_name := defineTempVariable("bigIntType", "tmp_", c_expr);
+        c_expr.result_expr &:= "(bigLShiftAssign((";
+        c_expr.result_expr &:= bigint_name;
+        c_expr.result_expr &:= "=";
+        c_expr.result_expr &:= c_param1.result_expr;
+        c_expr.result_expr &:= ", &";
+        c_expr.result_expr &:= bigint_name;
+        c_expr.result_expr &:= "), ";
+        c_expr.result_expr &:= integerLiteral(lshift);
+        c_expr.result_expr &:= "), ";
+        c_expr.result_expr &:= bigint_name;
+      else
+        c_expr.result_expr := "bigLShift(";
+        c_expr.result_expr &:= c_param1.expr;
+        c_expr.result_expr &:= ", ";
+        c_expr.result_expr &:= integerLiteral(lshift);
+      end if;
+      c_expr.result_expr &:= ")";
+    end if;
+  end func;
+
+
+const proc: process_const_big_rshift (in reference: param1, in integer: rshift,
+    inout expr_type: c_expr) is func
+
+  local
+    var string: bigint_name is "";
+    var expr_type: c_param1 is expr_type.value;
+  begin
+    if rshift = 0 then
+      incr(countOptimizations);
+      process_expr(param1, c_expr);
+    elsif rshift < 0 and rshift <> integer.first then
+      process_const_big_lshift(param1, -rshift, c_expr);
+    else
+      prepare_bigint_result(c_expr);
+      prepareAnyParamTemporarys(param1, c_param1, c_expr);
+      if c_param1.result_expr <> "" then
+        bigint_name := defineTempVariable("bigIntType", "tmp_", c_expr);
+        c_expr.result_expr := "(bigRShiftAssign((";
+        c_expr.result_expr &:= bigint_name;
+        c_expr.result_expr &:= "=";
+        c_expr.result_expr &:= c_param1.result_expr;
+        c_expr.result_expr &:= ", &";
+        c_expr.result_expr &:= bigint_name;
+        c_expr.result_expr &:= "), ";
+        c_expr.result_expr &:= integerLiteral(rshift);
+        c_expr.result_expr &:= "), ";
+        c_expr.result_expr &:= bigint_name;
+      else
+        c_expr.result_expr := "bigRShift(";
+        c_expr.result_expr &:= c_param1.expr;
+        c_expr.result_expr &:= ", ";
+        c_expr.result_expr &:= integerLiteral(rshift);
+      end if;
+      c_expr.result_expr &:= ")";
+    end if;
+  end func;
+
+
 const proc: process (BIG_ABS, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
@@ -673,16 +753,17 @@ const proc: process (BIG_GE, in reference: function,
   begin
     if getConstant(params[3], BIGINTOBJECT, evaluatedParam) then
       process_const_big_cmp(params[1], getValue(evaluatedParam, bigInteger), c_expr);
+      c_expr.expr &:= " >= 0";
     elsif getConstant(params[1], BIGINTOBJECT, evaluatedParam) then
-      process_const_big_cmp(getValue(evaluatedParam, bigInteger), params[3], c_expr);
+      process_const_big_cmp(params[3], getValue(evaluatedParam, bigInteger), c_expr);
+      c_expr.expr &:= " <= 0";
     else
       c_expr.expr &:= "bigCmp(";
       getAnyParamToExpr(params[1], c_expr);
       c_expr.expr &:= ", ";
       getAnyParamToExpr(params[3], c_expr);
-      c_expr.expr &:= ")";
+      c_expr.expr &:= ") >= 0";
     end if;
-    c_expr.expr &:= " >= 0";
   end func;
 
 
@@ -694,16 +775,17 @@ const proc: process (BIG_GT, in reference: function,
   begin
     if getConstant(params[3], BIGINTOBJECT, evaluatedParam) then
       process_const_big_cmp(params[1], getValue(evaluatedParam, bigInteger), c_expr);
+      c_expr.expr &:= " > 0";
     elsif getConstant(params[1], BIGINTOBJECT, evaluatedParam) then
-      process_const_big_cmp(getValue(evaluatedParam, bigInteger), params[3], c_expr);
+      process_const_big_cmp(params[3], getValue(evaluatedParam, bigInteger), c_expr);
+      c_expr.expr &:= " < 0";
     else
       c_expr.expr &:= "bigCmp(";
       getAnyParamToExpr(params[1], c_expr);
       c_expr.expr &:= ", ";
       getAnyParamToExpr(params[3], c_expr);
-      c_expr.expr &:= ")";
+      c_expr.expr &:= ") > 0";
     end if;
-    c_expr.expr &:= " > 0";
   end func;
 
 
@@ -879,16 +961,17 @@ const proc: process (BIG_LE, in reference: function,
   begin
     if getConstant(params[3], BIGINTOBJECT, evaluatedParam) then
       process_const_big_cmp(params[1], getValue(evaluatedParam, bigInteger), c_expr);
+      c_expr.expr &:= " <= 0";
     elsif getConstant(params[1], BIGINTOBJECT, evaluatedParam) then
-      process_const_big_cmp(getValue(evaluatedParam, bigInteger), params[3], c_expr);
+      process_const_big_cmp(params[3], getValue(evaluatedParam, bigInteger), c_expr);
+      c_expr.expr &:= " >= 0";
     else
       c_expr.expr &:= "bigCmp(";
       getAnyParamToExpr(params[1], c_expr);
       c_expr.expr &:= ", ";
       getAnyParamToExpr(params[3], c_expr);
-      c_expr.expr &:= ")";
+      c_expr.expr &:= ") <= 0";
     end if;
-    c_expr.expr &:= " <= 0";
   end func;
 
 
@@ -955,37 +1038,6 @@ const proc: process_const_big_lshift (in bigInteger: number, in reference: param
   end func;
 
 
-const proc: process_const_big_lshift (in reference: param1, in integer: lshift,
-    inout expr_type: c_expr) is func
-
-  local
-    var string: bigint_name is "";
-    var expr_type: c_param1 is expr_type.value;
-  begin
-    prepare_bigint_result(c_expr);
-    prepareAnyParamTemporarys(param1, c_param1, c_expr);
-    if c_param1.result_expr <> "" then
-      bigint_name := defineTempVariable("bigIntType", "tmp_", c_expr);
-      c_expr.result_expr &:= "(bigLShiftAssign((";
-      c_expr.result_expr &:= bigint_name;
-      c_expr.result_expr &:= "=";
-      c_expr.result_expr &:= c_param1.result_expr;
-      c_expr.result_expr &:= ", &";
-      c_expr.result_expr &:= bigint_name;
-      c_expr.result_expr &:= "), ";
-      c_expr.result_expr &:= integerLiteral(lshift);
-      c_expr.result_expr &:= "), ";
-      c_expr.result_expr &:= bigint_name;
-    else
-      c_expr.result_expr := "bigLShift(";
-      c_expr.result_expr &:= c_param1.expr;
-      c_expr.result_expr &:= ", ";
-      c_expr.result_expr &:= integerLiteral(lshift);
-    end if;
-    c_expr.result_expr &:= ")";
-  end func;
-
-
 const proc: process (BIG_LSHIFT, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
@@ -996,6 +1048,8 @@ const proc: process (BIG_LSHIFT, in reference: function,
   begin
     if getConstant(params[1], BIGINTOBJECT, evaluatedParam) then
       process_const_big_lshift(getValue(evaluatedParam, bigInteger), params[3], c_expr);
+    elsif getConstant(params[3], INTOBJECT, evaluatedParam) then
+      process_const_big_lshift(params[1], getValue(evaluatedParam, integer), c_expr);
     else
       prepare_bigint_result(c_expr);
       prepareAnyParamTemporarys(params[1], c_param1, c_expr);
@@ -1026,14 +1080,21 @@ const proc: process (BIG_LSHIFT_ASSIGN, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   local
+    var reference: evaluatedParam is NIL;
     var expr_type: statement is expr_type.value;
   begin
-    statement.expr := "bigLShiftAssign(&(";
-    process_expr(params[1], statement);
-    statement.expr &:= "), ";
-    getAnyParamToExpr(params[3], statement);
-    statement.expr &:= ");\n";
-    doLocalDeclsOfStatement(statement, c_expr);
+    if getConstant(params[3], INTOBJECT, evaluatedParam) and
+        getValue(evaluatedParam, integer) = 0 then
+      incr(countOptimizations);
+      c_expr.expr &:= "/* ignore bigInteger <<:= 0; */\n";
+    else
+      statement.expr := "bigLShiftAssign(&(";
+      process_expr(params[1], statement);
+      statement.expr &:= "), ";
+      getAnyParamToExpr(params[3], statement);
+      statement.expr &:= ");\n";
+      doLocalDeclsOfStatement(statement, c_expr);
+    end if;
   end func;
 
 
@@ -1045,47 +1106,17 @@ const proc: process (BIG_LT, in reference: function,
   begin
     if getConstant(params[3], BIGINTOBJECT, evaluatedParam) then
       process_const_big_cmp(params[1], getValue(evaluatedParam, bigInteger), c_expr);
+      c_expr.expr &:= " < 0";
     elsif getConstant(params[1], BIGINTOBJECT, evaluatedParam) then
-      process_const_big_cmp(getValue(evaluatedParam, bigInteger), params[3], c_expr);
+      process_const_big_cmp(params[3], getValue(evaluatedParam, bigInteger), c_expr);
+      c_expr.expr &:= " > 0";
     else
       c_expr.expr &:= "bigCmp(";
       getAnyParamToExpr(params[1], c_expr);
       c_expr.expr &:= ", ";
       getAnyParamToExpr(params[3], c_expr);
-      c_expr.expr &:= ")";
+      c_expr.expr &:= ") < 0";
     end if;
-    c_expr.expr &:= " < 0";
-  end func;
-
-
-const proc: process_const_big_rshift (in reference: param1, in integer: rshift,
-    inout expr_type: c_expr) is func
-
-  local
-    var string: bigint_name is "";
-    var expr_type: c_param1 is expr_type.value;
-  begin
-    prepare_bigint_result(c_expr);
-    prepareAnyParamTemporarys(param1, c_param1, c_expr);
-    if c_param1.result_expr <> "" then
-      bigint_name := defineTempVariable("bigIntType", "tmp_", c_expr);
-      c_expr.result_expr := "(bigRShiftAssign((";
-      c_expr.result_expr &:= bigint_name;
-      c_expr.result_expr &:= "=";
-      c_expr.result_expr &:= c_param1.result_expr;
-      c_expr.result_expr &:= ", &";
-      c_expr.result_expr &:= bigint_name;
-      c_expr.result_expr &:= "), ";
-      c_expr.result_expr &:= integerLiteral(rshift);
-      c_expr.result_expr &:= "), ";
-      c_expr.result_expr &:= bigint_name;
-    else
-      c_expr.result_expr := "bigRShift(";
-      c_expr.result_expr &:= c_param1.expr;
-      c_expr.result_expr &:= ", ";
-      c_expr.result_expr &:= integerLiteral(rshift);
-    end if;
-    c_expr.result_expr &:= ")";
   end func;
 
 
@@ -1602,34 +1633,65 @@ const proc: process (BIG_REM, in reference: function,
   end func;
 
 
+const proc: process_const_big_rshift (in bigInteger: number, in reference: param3,
+    inout expr_type: c_expr) is func
+
+  local
+    var bigInteger: bigNumber is 0_;
+  begin
+    if category(param3) = INTOBJECT and not isVar(param3) then
+      incr(countOptimizations);
+      bigNumber := number >> getValue(param3, integer);
+      c_expr.expr &:= bigIntegerLiteral(bigNumber);
+    elsif number = 0_ then
+      incr(countOptimizations);
+      c_expr.expr &:= bigIntegerLiteral(0_);
+    else
+      prepare_bigint_result(c_expr);
+      c_expr.result_expr := "bigRShift(";
+      c_expr.result_expr &:= bigIntegerLiteral(number);
+      c_expr.result_expr &:= ", ";
+      getStdParamToResultExpr(param3, c_expr);
+      c_expr.result_expr &:= ")";
+    end if;
+  end func;
+
+
 const proc: process (BIG_RSHIFT, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   local
+    var reference: evaluatedParam is NIL;
     var string: bigint_name is "";
     var expr_type: c_param1 is expr_type.value;
   begin
-    prepare_bigint_result(c_expr);
-    prepareAnyParamTemporarys(params[1], c_param1, c_expr);
-    if c_param1.result_expr <> "" then
-      bigint_name := defineTempVariable("bigIntType", "tmp_", c_expr);
-      c_expr.result_expr := "(bigRShiftAssign((";
-      c_expr.result_expr &:= bigint_name;
-      c_expr.result_expr &:= "=";
-      c_expr.result_expr &:= c_param1.result_expr;
-      c_expr.result_expr &:= ", &";
-      c_expr.result_expr &:= bigint_name;
-      c_expr.result_expr &:= "), ";
-      getStdParamToResultExpr(params[3], c_expr);
-      c_expr.result_expr &:= "), ";
-      c_expr.result_expr &:= bigint_name;
+    if getConstant(params[1], BIGINTOBJECT, evaluatedParam) then
+      process_const_big_rshift(getValue(evaluatedParam, bigInteger), params[3], c_expr);
+    elsif getConstant(params[3], INTOBJECT, evaluatedParam) then
+      process_const_big_rshift(params[1], getValue(evaluatedParam, integer), c_expr);
     else
-      c_expr.result_expr := "bigRShift(";
-      c_expr.result_expr &:= c_param1.expr;
-      c_expr.result_expr &:= ", ";
-      getStdParamToResultExpr(params[3], c_expr);
+      prepare_bigint_result(c_expr);
+      prepareAnyParamTemporarys(params[1], c_param1, c_expr);
+      if c_param1.result_expr <> "" then
+        bigint_name := defineTempVariable("bigIntType", "tmp_", c_expr);
+        c_expr.result_expr := "(bigRShiftAssign((";
+        c_expr.result_expr &:= bigint_name;
+        c_expr.result_expr &:= "=";
+        c_expr.result_expr &:= c_param1.result_expr;
+        c_expr.result_expr &:= ", &";
+        c_expr.result_expr &:= bigint_name;
+        c_expr.result_expr &:= "), ";
+        getStdParamToResultExpr(params[3], c_expr);
+        c_expr.result_expr &:= "), ";
+        c_expr.result_expr &:= bigint_name;
+      else
+        c_expr.result_expr := "bigRShift(";
+        c_expr.result_expr &:= c_param1.expr;
+        c_expr.result_expr &:= ", ";
+        getStdParamToResultExpr(params[3], c_expr);
+      end if;
+      c_expr.result_expr &:= ")";
     end if;
-    c_expr.result_expr &:= ")";
   end func;
 
 
@@ -1637,14 +1699,21 @@ const proc: process (BIG_RSHIFT_ASSIGN, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   local
+    var reference: evaluatedParam is NIL;
     var expr_type: statement is expr_type.value;
   begin
-    statement.expr := "bigRShiftAssign(&(";
-    process_expr(params[1], statement);
-    statement.expr &:= "), ";
-    getAnyParamToExpr(params[3], statement);
-    statement.expr &:= ");\n";
-    doLocalDeclsOfStatement(statement, c_expr);
+    if getConstant(params[3], INTOBJECT, evaluatedParam) and
+        getValue(evaluatedParam, integer) = 0 then
+      incr(countOptimizations);
+      c_expr.expr &:= "/* ignore bigInteger >>:= 0; */\n";
+    else
+      statement.expr := "bigRShiftAssign(&(";
+      process_expr(params[1], statement);
+      statement.expr &:= "), ";
+      getAnyParamToExpr(params[3], statement);
+      statement.expr &:= ");\n";
+      doLocalDeclsOfStatement(statement, c_expr);
+    end if;
   end func;
 
 

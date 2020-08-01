@@ -54,7 +54,7 @@
 #define HEAP_ALLOC_BIG     (bigIntType) malloc(sizeof(__mpz_struct))
 #define HEAP_FREE_BIG(var) free(var)
 
-#ifdef WITH_BIGINT_FREELIST
+#if WITH_BIGINT_FREELIST
 
 static freeListElemType flist = NULL;
 static unsigned int flist_allowed = 100;
@@ -948,7 +948,9 @@ bigIntType bigLShift (const const_bigIntType big1, const intType lshift)
     ALLOC_BIG(result);
     mpz_init(result);
     if (lshift < 0) {
-      mpz_fdiv_q_2exp(result, big1, (uintType) -lshift);
+      /* The unsigned value is negated to avoid a signed integer */
+      /* overflow when the smallest signed integer is negated.   */
+      mpz_fdiv_q_2exp(result, big1, -(uintType) lshift);
     } else {
       mpz_mul_2exp(result, big1, (uintType) lshift);
     } /* if */
@@ -965,7 +967,9 @@ void bigLShiftAssign (bigIntType *const big_variable, intType lshift)
 
   { /* bigLShiftAssign */
     if (lshift < 0) {
-      mpz_fdiv_q_2exp(*big_variable, *big_variable, (uintType) -lshift);
+      /* The unsigned value is negated to avoid a signed integer */
+      /* overflow when the smallest signed integer is negated.   */
+      mpz_fdiv_q_2exp(*big_variable, *big_variable, -(uintType) lshift);
     } else if (lshift != 0) {
       mpz_mul_2exp(*big_variable, *big_variable, (uintType) lshift);
     } /* if */
@@ -1471,7 +1475,9 @@ bigIntType bigRShift (const const_bigIntType big1, const intType rshift)
     ALLOC_BIG(result);
     mpz_init(result);
     if (rshift < 0) {
-      mpz_mul_2exp(result, big1, (uintType) -rshift);
+      /* The unsigned value is negated to avoid a signed integer */
+      /* overflow when the smallest signed integer is negated.   */
+      mpz_mul_2exp(result, big1, -(uintType) rshift);
     } else {
       mpz_fdiv_q_2exp(result, big1, (uintType) rshift);
     } /* if */
@@ -1488,7 +1494,9 @@ void bigRShiftAssign (bigIntType *const big_variable, intType rshift)
 
   { /* bigRShiftAssign */
     if (rshift < 0) {
-      mpz_mul_2exp(*big_variable, *big_variable, (uintType) -rshift);
+      /* The unsigned value is negated to avoid a signed integer */
+      /* overflow when the smallest signed integer is negated.   */
+      mpz_mul_2exp(*big_variable, *big_variable, -(uintType) rshift);
     } else if (rshift != 0) {
       mpz_fdiv_q_2exp(*big_variable, *big_variable, (uintType) rshift);
     } /* if */

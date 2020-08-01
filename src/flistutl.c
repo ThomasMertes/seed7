@@ -173,14 +173,14 @@ static unsigned long infile_flist_count (void)
 static unsigned long stri_flist_count (unsigned long *stri_chars)
 
   {
-#ifdef WITH_STRI_FREELIST
+#if WITH_STRI_FREELIST
     register freeListElemType help_elem;
     register unsigned long num_elems;
 #endif
     register unsigned long num_stris = 0;
 
   /* stri_flist_count */
-#ifdef WITH_STRI_FREELIST
+#if WITH_STRI_FREELIST
 #ifdef WITH_STRI_CAPACITY
     {
       unsigned int index;

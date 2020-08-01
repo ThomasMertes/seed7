@@ -25,6 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -46,9 +49,6 @@
 #include "object.h"
 
 
-#undef TRACE_OBJECT
-
-
 
 objectType new_empty_list_object (const_objectType typeof_object)
 
@@ -56,9 +56,7 @@ objectType new_empty_list_object (const_objectType typeof_object)
     register objectType created_list;
 
   /* new_empty_list_object */
-#ifdef TRACE_OBJECT
-    printf("BEGIN new_empty_list_object\n");
-#endif
+    logFunction(printf("new_empty_list_object\n"););
 #ifdef WITH_STATISTIC
     list_count++;
 #endif
@@ -69,12 +67,10 @@ objectType new_empty_list_object (const_objectType typeof_object)
     created_list->descriptor.posinfo = CREATE_POSINFO(in_file.line, in_file.file_number);
     INIT_CATEGORY_OF_POSINFO(created_list, EXPROBJECT);
     created_list->value.listValue = NULL;
-#ifdef TRACE_OBJECT
-    printf("END new_empty_list_object ");
-    printf("%lu ", (unsigned long) created_list);
-    trace1(created_list);
-    printf("\n");
-#endif
+    logFunction(printf("new_empty_list_object --> " FMT_U_MEM ", ",
+                       (memSizeType) created_list);
+                trace1(created_list);
+                printf("\n"););
     return created_list;
   } /* new_empty_list_object */
 
@@ -87,11 +83,9 @@ objectType new_nonempty_expression_object (objectType first_element,
     register objectType created_list;
 
   /* new_nonempty_expression_object */
-#ifdef TRACE_OBJECT
-    printf("BEGIN new_nonempty_expression_object ");
-    trace1(first_element);
-    printf("\n");
-#endif
+    logFunction(printf("new_nonempty_expression_object ");
+                trace1(first_element);
+                printf("\n"););
 #ifdef WITH_STATISTIC
     list_count++;
 #endif
@@ -107,12 +101,10 @@ objectType new_nonempty_expression_object (objectType first_element,
     (*list)->next = NULL;
     (*list)->obj = first_element;
     created_list->value.listValue = *list;
-#ifdef TRACE_OBJECT
-    printf("END new_nonempty_expression_object ");
-    printf("%lu ", (unsigned long) created_list);
-    trace1(created_list);
-    printf("\n");
-#endif
+    logFunction(printf("new_nonempty_expression_object --> " FMT_U_MEM ", ",
+                       (memSizeType) created_list);
+                trace1(created_list);
+                printf("\n"););
     return created_list;
   } /* new_nonempty_expression_object */
 
@@ -125,11 +117,9 @@ objectType new_type_of_expression_object (objectType first_element,
     register objectType created_list;
 
   /* new_type_of_expression_object */
-#ifdef TRACE_OBJECT
-    printf("BEGIN new_type_of_expression_object ");
-    trace1(first_element);
-    printf("\n");
-#endif
+    logFunction(printf("new_type_of_expression_object ");
+                trace1(first_element);
+                printf("\n"););
 #ifdef WITH_STATISTIC
     list_count++;
 #endif
@@ -145,12 +135,10 @@ objectType new_type_of_expression_object (objectType first_element,
     (*list)->next = NULL;
     (*list)->obj = first_element;
     created_list->value.listValue = *list;
-#ifdef TRACE_OBJECT
-    printf("END new_type_of_expression_object ");
-    printf("%lu ", (unsigned long) created_list);
-    trace1(created_list);
-    printf("\n");
-#endif
+    logFunction(printf("new_type_of_expression_object --> " FMT_U_MEM ", ",
+                       (memSizeType) created_list);
+                trace1(created_list);
+                printf("\n"););
     return created_list;
   } /* new_type_of_expression_object */
 
@@ -162,9 +150,7 @@ objectType new_expression_object (listType *list)
     register objectType created_list;
 
   /* new_expression_object */
-#ifdef TRACE_OBJECT
-    printf("BEGIN new_expression_object\n");
-#endif
+    logFunction(printf("new_expression_object\n"););
 #ifdef WITH_STATISTIC
     list_count++;
 #endif
@@ -180,12 +166,10 @@ objectType new_expression_object (listType *list)
     (*list)->next = NULL;
     (*list)->obj = NULL;
     created_list->value.listValue = *list;
-#ifdef TRACE_OBJECT
-    printf("END new_expression_object ");
-    printf("%lu ", (unsigned long) created_list);
-    trace1(created_list);
-    printf("\n");
-#endif
+    logFunction(printf("new_expression_object --> " FMT_U_MEM ", ",
+                       (memSizeType) created_list);
+                trace1(created_list);
+                printf("\n"););
     return created_list;
   } /* new_expression_object */
 
@@ -197,12 +181,10 @@ listType add_element_to_list (listType list, objectType object)
     register listType help_element;
 
   /* add_element_to_list */
-#ifdef TRACE_OBJECT
-    printf("BEGIN add_element_to_list ");
-    printf("%lu ", (unsigned long) object);
-    trace1(object);
-    printf("\n");
-#endif
+    logFunction(printf("add_element_to_list " FMT_U_MEM ", ",
+                       (memSizeType) object);
+                trace1(object);
+                printf("\n"););
     if (ALLOC_L_ELEM(help_element)) {
       help_element->next = NULL;
       help_element->obj = object;
@@ -212,9 +194,7 @@ listType add_element_to_list (listType list, objectType object)
       fatal_memory_error(SOURCE_POSITION(2036));
       return NULL;
     } /* if */
-#ifdef TRACE_OBJECT
-    printf("END add_element_to_list ");
-    prot_list(*list);
-    printf("\n");
-#endif
+    logFunction(printf("add_element_to_list --> ");
+                prot_list(*list);
+                printf("\n"););
   } /* add_element_to_list */

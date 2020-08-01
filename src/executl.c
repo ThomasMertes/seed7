@@ -25,6 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -49,8 +52,6 @@
 #undef EXTERN
 #define EXTERN
 #include "executl.h"
-
-#undef TRACE_EXECUTL
 
 
 
@@ -330,13 +331,11 @@ static void old_do_create (objectType destination, objectType source,
     listRecord crea_expr[3];
 
   /* old_do_create */
-#ifdef TRACE_EXECUTL
-    printf("BEGIN old_do_create ");
-    trace1(destination);
-    printf("\nas ");
-    trace1(source);
-    printf("\n");
-#endif
+    logFunction(printf("old_do_create ");
+                trace1(destination);
+                printf("\nas ");
+                trace1(source);
+                printf("\n"););
 #ifdef WITH_PROTOCOL
     if (trace.executil) {
       prot_cstri("match - old_do_create: destination= ");
@@ -363,13 +362,11 @@ static void old_do_create (objectType destination, objectType source,
     /* The function match_expression, called from exec1, may */
     /* allocate CALLOBJECT objects which can be freed now.   */
     free_expression(crea_expr[0].obj);
-#ifdef TRACE_EXECUTL
-    printf("END old_do_create ");
-    trace1(crea_expr[0].obj);
-    printf("\nas ");
-    trace1(crea_expr[2].obj);
-    printf("\n");
-#endif
+    logFunction(printf("old_do_create -> ");
+                trace1(crea_expr[0].obj);
+                printf("\nas ");
+                trace1(crea_expr[2].obj);
+                printf("\n"););
   } /* old_do_create */
 
 
@@ -383,13 +380,11 @@ void do_create (objectType destination, objectType source,
     objectType call_result;
 
   /* do_create */
-#ifdef TRACE_EXECUTL
-    printf("BEGIN do_create ");
-    trace1(destination);
-    printf("\nas ");
-    trace1(source);
-    printf("\n");
-#endif
+    logFunction(printf("do_create ");
+                trace1(destination);
+                printf("\nas ");
+                trace1(source);
+                printf("\n"););
     if (destination->type_of == source->type_of) {
       if (destination->type_of->destroy_call_obj == NULL) {
         /* prot_cstri("do_create search for destroy(");
@@ -441,9 +436,7 @@ void do_create (objectType destination, objectType source,
     } else {
       old_do_create(destination, source, err_info);
     } /* if */
-#ifdef TRACE_EXECUTL
-    printf("END do_create\n");
-#endif
+    logFunction(printf("do_create -->\n"););
   } /* do_create */
 
 
@@ -531,9 +524,7 @@ void old_do_copy (objectType destination, objectType source,
     listRecord copy_expr[3];
 
   /* old_do_copy */
-#ifdef TRACE_EXECUTL
-    printf("BEGIN do_copy\n");
-#endif
+    logFunction(printf("do_copy\n"););
 /*
 printobject(destination);
 printf(" := ");
@@ -560,9 +551,7 @@ printf("\n");
       set_fail_flag(FALSE);
       *err_info = CREATE_ERROR;
     } /* if */
-#ifdef TRACE_EXECUTL
-    printf("END do_copy\n");
-#endif
+    logFunction(printf("do_copy\n"););
   } /* old_do_copy */
 
 
@@ -576,13 +565,11 @@ static void do_copy (objectType destination, objectType source,
     objectType call_result;
 
   /* do_copy */
-#ifdef TRACE_EXECUTL
-    printf("BEGIN do_copy ");
-    trace1(destination);
-    printf("\nfrom ");
-    trace1(source);
-    printf("\n");
-#endif
+    logFunction(printf("do_copy ");
+                trace1(destination);
+                printf("\nfrom ");
+                trace1(source);
+                printf("\n"););
     if (destination->type_of == source->type_of) {
       if (destination->type_of->copy_call_obj == NULL) {
         /* prot_cstri("do_copy ");
@@ -626,9 +613,7 @@ static void do_copy (objectType destination, objectType source,
     } else {
       old_do_copy(destination, source, err_info);
     } /* if */
-#ifdef TRACE_EXECUTL
-    printf("END do_copy\n");
-#endif
+    logFunction(printf("do_copy\n"););
   } /* do_copy */
 
 

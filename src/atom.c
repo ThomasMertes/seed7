@@ -25,6 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -52,9 +55,6 @@
 #define EXTERN
 #include "atom.h"
 
-#undef TRACE_OBJECT
-#undef TRACE_ATOM
-
 
 
 static objectType gen_object (void)
@@ -65,9 +65,7 @@ static objectType gen_object (void)
     register objectType atomic_object;
 
   /* gen_object */
-#ifdef TRACE_OBJECT
-    printf("BEGIN gen_object\n");
-#endif
+    logFunction(printf("gen_object\n"););
     if (!ALLOC_OBJECT(atomic_object)) {
       fatal_memory_error(SOURCE_POSITION(2051));
     } else {
@@ -99,12 +97,10 @@ static objectType gen_object (void)
         } /* if */
       } /* if */
     } /* if */
-#ifdef TRACE_OBJECT
-    printf("END gen_object ");
-    printf("%lu ", (unsigned long) atomic_object);
-    trace1(atomic_object);
-    printf("\n");
-#endif
+    logFunction(printf("gen_object --> " FMT_U_MEM ", ",
+                       (memSizeType) atomic_object);
+                trace1(atomic_object);
+                printf("\n"););
     return atomic_object;
   } /* gen_object */
 
@@ -118,9 +114,7 @@ static objectType gen_literal_object (const_objectType typeof_object,
     register listType list_elem;
 
   /* gen_literal_object */
-#ifdef TRACE_OBJECT
-    printf("BEGIN gen_literal_object\n");
-#endif
+    logFunction(printf("gen_literal_object\n"););
     if (!ALLOC_OBJECT(literal_object)) {
       fatal_memory_error(SOURCE_POSITION(2054));
     } else {
@@ -142,12 +136,8 @@ static objectType gen_literal_object (const_objectType typeof_object,
         prog.literals = list_elem;
       } /* if */
     } /* if */
-#ifdef TRACE_OBJECT
-    printf("END gen_literal_object ");
-    printf("%lu ", (unsigned long) literal_object);
-    trace1(literal_object);
-    printf("\n");
-#endif
+    logFunction(printf("gen_literal_object --> " FMT_U_MEM "\n",
+                       (memSizeType) literal_object););
     return literal_object;
   } /* gen_literal_object */
 
@@ -164,9 +154,7 @@ static inline striType new_string (void)
     striType stri_created;
 
   /* new_string */
-#ifdef TRACE_ATOM
-    printf("BEGIN new_string\n");
-#endif
+    logFunction(printf("new_string\n"););
 #ifdef ALTERNATE_STRI_LITERALS
     {
       memSizeType stri_created_size = symbol.striValue->size;
@@ -189,9 +177,8 @@ static inline striType new_string (void)
     memcpy(stri_created->mem, symbol.striValue->mem,
         (size_t) symbol.striValue->size * sizeof(strElemType));
 #endif
-#ifdef TRACE_ATOM
-    printf("END new_string\n");
-#endif
+    logFunction(printf("new_string --> \"%s\"\n",
+                       striAsUnquotedCStri(stri_created)););
     return stri_created;
   } /* new_string */
 
@@ -203,9 +190,7 @@ objectType read_atom (void)
     register objectType atomic_object;
 
   /* read_atom */
-#ifdef TRACE_ATOM
-    printf("BEGIN read_atom %s\n", symbol.NAME);
-#endif
+    logFunction(printf("read_atom %s\n", symbol.name););
     switch (symbol.sycategory) {
       case NAMESYMBOL:
       case SPECIALSYMBOL:
@@ -257,11 +242,10 @@ objectType read_atom (void)
         break;
     } /* switch */
     scan_symbol();
-#ifdef TRACE_ATOM
-    printf("END read_atom ");
-    trace1(atomic_object);
-    printf("\n");
-#endif
+    logFunction(printf("read_atom --> " FMT_U_MEM ", ",
+                       (memSizeType) atomic_object);
+                trace1(atomic_object);
+                printf("\n"););
     return atomic_object;
   } /* read_atom */
 
@@ -273,9 +257,7 @@ objectType read_name (void)
     register objectType atomic_object;
 
   /* read_name */
-#ifdef TRACE_ATOM
-    printf("BEGIN read_name\n");
-#endif
+    logFunction(printf("read_name\n"););
     if (current_ident->entity == NULL) {
       atomic_object = gen_object();
     } else if (current_ident->entity->data.owner != NULL) {
@@ -285,8 +267,6 @@ objectType read_name (void)
       /* printf("read_name b: %s  %lu  %lu  %lu\n", id_string(current_ident), (unsigned long) current_ident->entity, (unsigned long) GET_ENTITY(atomic_object), (unsigned long) atomic_object); */
     } /* if */
     scan_symbol();
-#ifdef TRACE_ATOM
-    printf("END read_name\n");
-#endif
+    logFunction(printf("read_name -->\n"););
     return atomic_object;
   } /* read_name */

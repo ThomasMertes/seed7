@@ -200,6 +200,9 @@ How can I use the Seed7 interpreter?
 <li><a class="link" href="#faq_compile"><b>
 Is it possible to compile Seed7 programs?
 </b></a></li>
+<li><a class="link" href="#faq_debug_with_eclipse"><b>
+Can I debug Seed7 programs with Eclipse?
+</b></a></li>
 </ul><h2>
 Language
 </h2><ul>
@@ -607,12 +610,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 200000 lines of Seed7. For version 2015-07-20 the number of lines is:
+than 200000 lines of Seed7. For version 2015-08-02 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right">125861</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right">125465</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
   <tr><td align="right"> 10089</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">127640</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right">129650</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right">130482</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right">129947</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -981,6 +984,29 @@ Possible options are
        of the following characters:<ul>
          <li><b>e</b> Trace exceptions and handlers</li>
          <li><b>s</b> Trace signals</li></ul></li>
+</ul></div>
+
+<div><br /><a name="faq_debug_with_eclipse"><h3>Can I debug Seed7 programs with Eclipse?
+</h3></a><hr />
+<p>
+Yes, Eclipse can be easily configured to work with Seed7:
+</p><ul>
+  <li>Eclipse needs the C/C++ Development Tools (CDT) plugin.</li>
+  <li>In Window <b>&rArr;</b> Preferences <b>&rArr;</b> C/C++ <b>&rArr;</b> FileTypes add *.sd7 as <tt>C&nbsp;Source&nbsp;File</tt>
+       end *.s7i as <tt>C&nbsp;Header&nbsp;File</tt>.</li>
+  <li>In Window <b>&rArr;</b> Preferences <b>&rArr;</b> General <b>&rArr;</b> Editors <b>&rArr;</b> File&nbsp;Associations add *.sd7
+       and *.s7i and make the C/C++ Editor default for them.</li>
+  <li>Create a C project (New <b>&rArr;</b> Project <b>&rArr;</b> C/C++ <b>&rArr;</b> C&nbsp;Project).</li>
+  <li>Right click on the project in the Project Explorer and select Properties <b>&rArr;</b> C/C++&nbsp;General <b>&rArr;</b> File&nbsp;Types.
+       Add *.sd7 as <tt>C&nbsp;Source&nbsp;File</tt> end *.s7i as <tt>C&nbsp;Header&nbsp;File</tt>.</li>
+  <li>In a console window: Compile your Seed7 program with the option <a class="link" href="#faq_compiler_option-g"><tt><b>-g</b></tt></a>.</li>
+  <li>In Eclipse: Create a Debug Configuration with: Run <b>&rArr;</b> Debug&nbsp;Configurations...
+       Right click on C/C++&nbsp;Application and select New.</li>
+  <li>In the Main tab of the new Debug Configuration: Press the Browse... button
+       to select the executable you want to debug.</li>
+  <li>Select the C project you created.</li>
+  <li>In the Arguments tab you can set program arguments and current working directory.</li>
+  <li>Press the Debug button to start the program.</li>
 </ul></div>
 
 <div><br /><a name="faq_reserved_words"><h3>What are the reserved words of Seed7?
