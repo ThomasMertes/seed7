@@ -832,44 +832,6 @@ const func string: getXmlTagOrContent (inout file: inFile) is func
 
 
 (**
- *  Reads a XML/HTML tag head or a XML/HTML content from a 'file'.
- *  A XML/HTML tag head starts with < and ends before a > or a /
- *  or a whitespace character or EOF. The content text starts with
- *  everything else and ends just before a < or with EOF. When the
- *  function is called it is assumed that inFile.bufferChar
- *  contains the introducing < of a XML/HTML tag or the first
- *  charater of the content text. When the function is left the
- *  character after the XML/HTML tag head or the content text is in
- *  inFile.bufferChar.
- *  @return the XML/HTML tag head, XML/HTML content text or "" when
- *          EOF was reached.
- *)
-const func string: getXmlTagHeadOrContent (inout file: inFile) is func
-  result
-    var string: symbol is "";
-  begin
-    if inFile.bufferChar = '<' then
-      symbol &:= str(inFile.bufferChar);
-      inFile.bufferChar := getc(inFile);
-      if inFile.bufferChar not in white_space_char and
-          inFile.bufferChar <> '>' and inFile.bufferChar <> EOF then
-        repeat
-          symbol &:= str(inFile.bufferChar);
-          inFile.bufferChar := getc(inFile);
-        until inFile.bufferChar in white_space_char or
-            inFile.bufferChar = '>' or inFile.bufferChar = '/' or
-            inFile.bufferChar = EOF;
-      end if;
-    elsif inFile.bufferChar <> EOF then
-      repeat
-        symbol &:= str(inFile.bufferChar);
-        inFile.bufferChar := getc(inFile);
-      until inFile.bufferChar = '<' or inFile.bufferChar = EOF;
-    end if;
-  end func;
-
-
-(**
  *  Reads a predefined XML entity from a 'file'.
  *  @return the predefined XML entity or "" when EOF was reached.
  *)
@@ -915,6 +877,44 @@ const func string: getXmlCharacterReference (inout file: inFile) is func
     end if;
     if inFile.bufferChar = ';' then
       inFile.bufferChar := getc(inFile);
+    end if;
+  end func;
+
+
+(**
+ *  Reads a XML/HTML tag head or a XML/HTML content from a 'file'.
+ *  A XML/HTML tag head starts with < and ends before a > or a /
+ *  or a whitespace character or EOF. The content text starts with
+ *  everything else and ends just before a < or with EOF. When the
+ *  function is called it is assumed that inFile.bufferChar
+ *  contains the introducing < of a XML/HTML tag or the first
+ *  charater of the content text. When the function is left the
+ *  character after the XML/HTML tag head or the content text is in
+ *  inFile.bufferChar.
+ *  @return the XML/HTML tag head, XML/HTML content text or "" when
+ *          EOF was reached.
+ *)
+const func string: getXmlTagHeadOrContent (inout file: inFile) is func
+  result
+    var string: symbol is "";
+  begin
+    if inFile.bufferChar = '<' then
+      symbol &:= str(inFile.bufferChar);
+      inFile.bufferChar := getc(inFile);
+      if inFile.bufferChar not in white_space_char and
+          inFile.bufferChar <> '>' and inFile.bufferChar <> EOF then
+        repeat
+          symbol &:= str(inFile.bufferChar);
+          inFile.bufferChar := getc(inFile);
+        until inFile.bufferChar in white_space_char or
+            inFile.bufferChar = '>' or inFile.bufferChar = '/' or
+            inFile.bufferChar = EOF;
+      end if;
+    elsif inFile.bufferChar <> EOF then
+      repeat
+        symbol &:= str(inFile.bufferChar);
+        inFile.bufferChar := getc(inFile);
+      until inFile.bufferChar = '<' or inFile.bufferChar = EOF;
     end if;
   end func;
 
@@ -1042,6 +1042,41 @@ const proc: getNextXmlAttribute (inout file: inFile,
     else
       if getSymbolInXmlTag(inFile) = "=" then
         attributeValue := getSymbolInXmlTag(inFile);
+        if attributeValue = "/" or attributeValue = ">" then
+          attributeValue := "";
+        end if;
+      else
+        attributeValue := "";
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Reads name and value of an attribute inside a HTML tag from a 'file'.
+ *  The variable 'attributeName' is set to "" when no more attributes
+ *  are present in the HTML tag. When the HTML tag ends with / the
+ *  function assigns "/" to 'attributeValue' when 'attributeName' is
+ *  set to "". When the HTML tag does not end with / 'attributeValue'
+ *  and 'attributeName' are set to "" when no more attributes are
+ *  present.
+ *)
+const proc: getNextHtmlAttribute (inout file: inFile,
+    inout string: attributeName, inout string: attributeValue) is func
+  begin
+    attributeName := getSymbolInXmlTag(inFile);
+    if attributeName = "/" then
+      repeat
+        attributeName := getSymbolInXmlTag(inFile);
+      until attributeName = ">" or attributeName = "";
+      attributeName := "";
+      attributeValue := "/";
+    elsif attributeName = ">" then
+      attributeName := "";
+      attributeValue := "";
+    else
+      if getSymbolInXmlTag(inFile) = "=" then
+        attributeValue := getHtmlAttributeValue(inFile);
         if attributeValue = "/" or attributeValue = ">" then
           attributeValue := "";
         end if;

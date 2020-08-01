@@ -712,6 +712,7 @@ stritype file_mode;
     filetype result;
 
   /* filOpen */
+    /* printf("BEGIN filOpen(%lX, %lX)\n", file_name, file_mode); */
     get_mode(mode, file_mode);
     if (mode[0] == '\0') {
       raise_error(RANGE_ERROR);
@@ -734,6 +735,7 @@ stritype file_mode;
         os_path_free(os_path);
       } /* if */
     } /* if */
+    /* printf("END filOpen(%lX, %lX) => %lX\n", file_name, file_mode, result); */
     return(result);
   } /* filOpen */
 

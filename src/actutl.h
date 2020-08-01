@@ -46,10 +46,10 @@ EXTERN acttabletype act_table;
 
 #ifdef ANSI_C
 
-booltype find_action (stritype, acttype *);
-primacttype get_primact (acttype);
+booltype find_action (stritype action_name, acttype *action_found);
+primacttype get_primact (acttype action_searched);
 #ifdef WITH_ACTION_CHECK
-booltype act_okay (acttype);
+booltype act_okay (acttype action_searched);
 #endif
 
 #else

@@ -466,6 +466,20 @@ const proc: processCompressedBlock (in string: stri,
   end func;
 
 
+const func string: inflate (in string: stri) is func
+  result
+    var string: result is "";
+  local
+    var integer: bytePos is 1;
+    var integer: bitPos is 0;
+    var boolean: bfinal is FALSE;
+  begin
+    repeat
+      processCompressedBlock(stri, bytePos, bitPos, result, bfinal);
+    until bfinal;
+  end func;
+
+
 const func string: gunzip (in string: stri) is func
   result
     var string: result is "";

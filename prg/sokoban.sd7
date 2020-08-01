@@ -1,0 +1,805 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  sokoban.sd7   Sokoban puzzle game                               *)
+(*  Copyright (C) 2008  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+  include "float.s7i";
+  include "draw.s7i";
+  include "keybd.s7i";
+  include "window.s7i";
+  include "echo.s7i";
+  include "line.s7i";
+  include "sokoban1.s7i";
+
+
+const integer: TILE_SIZE is 32;
+
+var integer: numberOfMoves is 0;
+var integer: numberOfPushes is 0;
+var integer: levelNumber is 1;
+var integer: numberOfPackets is 0;
+var integer: savedPackets is 0;
+var integer: xPos is -1;
+var integer: yPos is -1;
+
+const type: categoryType is new enum
+    WALL, GROUND, PLAYER, PACKET, OUTSIDE
+  end enum;
+
+const type: fieldType is new struct
+    var categoryType: fieldCategory is GROUND;
+    var boolean: isGoalField is FALSE;
+    var boolean: dirty is TRUE;
+  end struct;
+
+var array array fieldType: levelMap is 0 times 0 times fieldType.value;
+
+var char: keyChar is ' ';
+
+var text: screen is STD_NULL;
+var text: win is STD_NULL;
+
+
+var PRIMITIVE_WINDOW: player_pixmap is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: goal_pixmap is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: wall_pixmap is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: packet_pixmap is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: player_at_goal_pixmap is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: packet_at_goal_pixmap is PRIMITIVE_WINDOW.value;
+
+
+const type: moveMode is new enum
+    MOVE, PUSH
+  end enum;
+
+const type: moveDirection is new enum
+    UP, DOWN, LEFT, RIGHT
+  end enum;
+
+const type: moveType is new struct
+    var moveMode:      mode      is MOVE;
+    var moveDirection: direction is UP;
+  end struct;
+
+var array moveType: playerMoves is 0 times moveType.value;
+var integer: moveNumber is 0;
+
+
+const array string: player_pic is [](
+  "bbbbbbbbbbbbbbYYYYYbbbbbbbbbbbbb",
+  "bbbbbbbbbbbbbYYYYYYYbbbbbbbbbbbb",
+  "bbbbbbbbbbbbYYXXXXXYYbbbbbbbbbbb",
+  "bbbbbbbbbbbbYYXBXBXYYbbbbbbbbbbb",
+  "bbbbbbbbbbbbYYXXXXXYYbbbbbbbbbbb",
+  "bbbbbbbbbbbbYYXOXOXYYbbbbbbbbbbb",
+  "bbbbbbbbbbbbbbXXOXXbbbbbbbbbbbbb",
+  "bbbbbbbbbbbbbbbXXXbbbbbbbbbbbbbb",
+  "bbbbbbbbbbbbOOOXXXOOObbbbbbbbbbb",
+  "bbbbbbbbbbbOOOOOOOOOOObbbbbbbbbb",
+  "bbbbbbbbbbOOOOOOOOOOOOObbbbbbbbb",
+  "bbbbbbbbbOOOMOOMOMOOMOOObbbbbbbb",
+  "bbbbbbbbXXObbMMOOOMMbbOXXbbbbbbb",
+  "bbbbbbXXXXbbbbOOOOObbbbXXXXbbbbb",
+  "bbbbbXXXXbbbbbOOOOObbbbbXXXXbbbb",
+  "bbbbbXXXbbbbbOOOOOOObbbbbXXXbbbb",
+  "bbbbbbbbbbbb         bbbbbbbbbbb",
+  "bbbbbbbbbbbbBBBBBBBBBbbbbbbbbbbb",
+  "bbbbbbbbbbbbBBBBBBBBBbbbbbbbbbbb",
+  "bbbbbbbbbbbbBBBBBBBBBbbbbbbbbbbb",
+  "bbbbbbbbbbbbbBBBbBBBbbbbbbbbbbbb",
+  "bbbbbbbbbbbbbBBBbBBBbbbbbbbbbbbb",
+  "bbbbbbbbbbbbbBBBbBBBbbbbbbbbbbbb",
+  "bbbbbbbbbbbbbBBBbBBBbbbbbbbbbbbb",
+  "bbbbbbbbbbbbbbBBbBBbbbbbbbbbbbbb",
+  "bbbbbbbbbbbbbbBBbBBbbbbbbbbbbbbb",
+  "bbbbbbbbbbbbbbBBbBBbbbbbbbbbbbbb",
+  "bbbbbbbbbbbbbbBBbBBbbbbbbbbbbbbb",
+  "bbbbbbbbbbbbbbBBbBBbbbbbbbbbbbbb",
+  "bbbbbbbbbbbbbbBBbBBbbbbbbbbbbbbb",
+  "bbbbbbbbbbbbbbBBbBBbbbbbbbbbbbbb",
+  "bbbbbbbbbbbbbXXXbXXXbbbbbbbbbbbb");
+
+
+const array string: goal_pic is [](
+  "                                ",
+  "  MMMMM MMMMM MMMMM MMMMM MMMMM ",
+  " M MMM M MMM M MMM M MMM M MMM  ",
+  " MM M MMM M MMM M MMM M MMM M M ",
+  " MMM MMMMM MMMMM MMMMM MMMMM MM ",
+  " MM M MMM M MMM M MMM M MMM M M ",
+  " M MMM M MMM M MMM M MMM M MMM  ",
+  "  MMMMM MMMMM MMMMM MMMMM MMMMM ",
+  " M MMM M MMM M MMM M MMM M MMM  ",
+  " MM M MMM M MMM M MMM M MMM M M ",
+  " MMM MMMMM MMMMM MMMMM MMMMM MM ",
+  " MM M MMM M MMM M MMM M MMM M M ",
+  " M MMM M MMM M MMM M MMM M MMM  ",
+  "  MMMMM MMMMM MMMMM MMMMM MMMMM ",
+  " M MMM M MMM M MMM M MMM M MMM  ",
+  " MM M MMM M MMM M MMM M MMM M M ",
+  " MMM MMMMM MMMMM MMMMM MMMMM MM ",
+  " MM M MMM M MMM M MMM M MMM M M ",
+  " M MMM M MMM M MMM M MMM M MMM  ",
+  "  MMMMM MMMMM MMMMM MMMMM MMMMM ",
+  " M MMM M MMM M MMM M MMM M MMM  ",
+  " MM M MMM M MMM M MMM M MMM M M ",
+  " MMM MMMMM MMMMM MMMMM MMMMM MM ",
+  " MM M MMM M MMM M MMM M MMM M M ",
+  " M MMM M MMM M MMM M MMM M MMM  ",
+  "  MMMMM MMMMM MMMMM MMMMM MMMMM ",
+  " M MMM M MMM M MMM M MMM M MMM  ",
+  " MM M MMM M MMM M MMM M MMM M M ",
+  " MMM MMMMM MMMMM MMMMM MMMMM MM ",
+  " MM M MMM M MMM M MMM M MMM M M ",
+  " M MMM M MMM M MMM M MMM M MMM  ",
+  "                                ");
+
+
+const array string: wall_pic is [](
+  "xxxxXxxxxxxxXxxxxxxxxxXxxxxxxxxx",
+  "xxxxXxxxxxxxXxxxxxxxxxXxxxxxxxxx",
+  "xxxxXXXXXXXXXXXXXXXXXXXxxxxxxxxx",
+  "xxxxXxxxxxxxxxxxXxxxxxXxxxxxxxxx",
+  "XXXXXxxxxxxxxxxxXxxxxxXXXXXXXXXX",
+  "xxxxXxxxxxxxxxxxXxxxxxXxxxxxxxxx",
+  "xxxxXxxxxxxxxxxxXxxxxxXxxxxxxxxx",
+  "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+  "xxxxxxxxxXxxxxxxxxxXxxxxxxxXxxxx",
+  "xxxxxxxxxXxxxxxxxxxXxxxxxxxXxxxx",
+  "xxxxxxxxxXxxxxxxxxxXxxxxxxxXxxxx",
+  "XXXXXXXXXXxxxxxxxxxXXXXXXXXXXXXX",
+  "xxxXxxxxxXXXXXXXXXXXxxxxxxxxxxxx",
+  "xxxXxxxxxXxxxxxxxxxXxxxxxxxxxxxx",
+  "xxxXxxxxxXxxxxxxxxxXxxxxxxxxxxxx",
+  "xxxXxxxxxXxxxxxxxxxXxxxxxxxxxxxx",
+  "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+  "xxxxxXxxxxxxxxXxxxxxxxxxxxXxxxxx",
+  "xxxxxXxxxxxxxxXxxxxxxxxxxxXxxxxx",
+  "xxxxxXxxxxxxxxXxxxxxxxxxxxXxxxxx",
+  "xxxxxXXXXXXXXXXXXXXXXXXXXXXxxxxx",
+  "xxxxxXxxxxxxxxxxxXxxxxxxxxXxxxxx",
+  "xxxxxXxxxxxxxxxxxXxxxxxxxxXxxxxx",
+  "xxxxxXxxxxxxxxxxxXxxxxxxxxXxxxxx",
+  "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+  "xxxxxxxxxxxxXxxxxxxxxxXxxxxxXxxx",
+  "xxxxxxxxxxxxXxxxxxxxxxXxxxxxXxxx",
+  "xxxxxxxxxxxxXxxxxxxxxxXxxxxxXxxx",
+  "xxxxxxxxxxxxXXXXXXXXXXXxxxxxXxxx",
+  "XXXXXXXXXXXXXxxxxxxxxxXXXXXXXXXX",
+  "xxxxXxxxxxxxXxxxxxxxxxXxxxxxxxxx",
+  "xxxxXxxxxxxxXxxxxxxxxxXxxxxxxxxx");
+
+
+const array string: packet_pic is [](
+  "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "bbbbbbbbbbbb         bbbbbbbbbbb",
+  "bbbbbbbbbb   XXXXXXX   bbbbbbbbb",
+  "bbbbbbbb   XXXXXXXXXXX   bbbbbbb",
+  "bbbbbbb  XXXXRRRRRRRXXXX  bbbbbb",
+  "bbbbbb  XXXRRRRRRRRRRRXXX  bbbbb",
+  "bbbbb  XXRRRRRRYYYYRRRRRXX  bbbb",
+  "bbbbb XXRRRRRRRRRYYYYRRRRXX bbbb",
+  "bbbb  XXRRRRRRRRRRRYYYRRRXX  bbb",
+  "bbbb XXRRRRRRRRRRRRRYYYRRRXX bbb",
+  "bbbb XXRRRRRRRRRRRRRRYYYRRXX bbb",
+  "bbb XXRRRRRRRRRRRRRRRRYYRRRXX bb",
+  "bbb XXRRRRRRRRRRRRRRRRRYRRRXX bb",
+  "bbb XXRRRRRRRRRRRRRRRRRYRRRXX bb",
+  "bbb XXRRRRRRRRRRRRRRRRRRRRRXX bb",
+  "bbb XXRRRBRRRRRRRRRRRRRRRRRXX bb",
+  "bbb XXRRRBRRRRRRRRRRRRRRRRRXX bb",
+  "bbb XXRRRBBRRRRRRRRRRRRRRRRXX bb",
+  "bbb  XXRRBBBRRRRRRRRRRRRRRXX  bb",
+  "bbbb XXRRRBBBRRRRRRRRRRRRRXX bbb",
+  "bbbb  XXRRRBBBRRRRRRRRRRRXX  bbb",
+  "bbbbb XXRRRRBBBBRRRRRRRRRXX bbbb",
+  "bbbbb  XXRRRRRBBBBRRRRRRXX  bbbb",
+  "bbbbbb  XXXRRRRRRRRRRRXXX  bbbbb",
+  "bbbbbbb  XXXXRRRRRRRXXXX  bbbbbb",
+  "bbbbbbbb   XXXXXXXXXXX   bbbbbbb",
+  "bbbbbbbbbb   XXXXXXX   bbbbbbbbb",
+  "bbbbbbbbbbbb         bbbbbbbbbbb",
+  "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
+
+
+const array string: player_at_goal_pic is [](
+  "              YYYYY             ",
+  "  MMMMM MMMMMYYYYYYYMMMMM MMMMM ",
+  " M MMM M MMMYYXXXXXYYMMM M MMM  ",
+  " MM M MMM M YYXBXBXYY M MMM M M ",
+  " MMM MMMMM MYYXXXXXYYM MMMMM MM ",
+  " MM M MMM M YYXOXOXYY M MMM M M ",
+  " M MMM M MMM MXXOXXM MMM M MMM  ",
+  "  MMMMM MMMMM MXXXM MMMMM MMMMM ",
+  " M MMM M MMMOOOXXXOOOMMM M MMM  ",
+  " MM M MMM MOOOOOOOOOOOM MMM M M ",
+  " MMM MMMMMOOOOOOOOOOOOOMMMMM MM ",
+  " MM M MMMOOOMOOMOMOOMOOOMMM M M ",
+  " M MMM MXXOM MMOOOMM MOXXM MMM  ",
+  "  MMMMXXXXMMM OOOOO MMMXXXXMMMM ",
+  " M MMXXXXMMM MOOOOOM MMMXXXXMM  ",
+  " MM MXXXM M MOOOOOOOM M MXXXM M ",
+  " MMM MMMMM M         M MMMMM MM ",
+  " MM M MMM M BBBBBBBBB M MMM M M ",
+  " M MMM M MMMBBBBBBBBBMMM M MMM  ",
+  "  MMMMM MMMMBBBBBBBBBMMMM MMMMM ",
+  " M MMM M MMM BBBMBBB MMM M MMM  ",
+  " MM M MMM M MBBBMBBBM M MMM M M ",
+  " MMM MMMMM MMBBB BBBMM MMMMM MM ",
+  " MM M MMM M MBBBMBBBM M MMM M M ",
+  " M MMM M MMM MBBMBBM MMM M MMM  ",
+  "  MMMMM MMMMM BBMBB MMMMM MMMMM ",
+  " M MMM M MMM MBBMBBM MMM M MMM  ",
+  " MM M MMM M MMBBMBBMM M MMM M M ",
+  " MMM MMMMM MMMBB BBMMM MMMMM MM ",
+  " MM M MMM M MMBBMBBMM M MMM M M ",
+  " M MMM M MMMSMBBMBBM MMM M MMM  ",
+  "             XXX XXX            ");
+
+
+const array string: packet_at_goal_pic is [](
+  "                                ",
+  "  MMMMM MMMMM MMMMM MMMMM MMMMM ",
+  " M MMM M MMM M MMM M MMM M MMM  ",
+  " MM M MMM M MXXXXXXXM M MMM M M ",
+  " MMM MMMMMXXXXXXXXXXXXXMMMMM MM ",
+  " MM M MMMXXXXBBB    XXXXMMM M M ",
+  " M MMM MXXXBBBBBB   BBBXXM MMM  ",
+  "  MMMMMXX  BBBBBYYYY BBBXXMMMMM ",
+  " M MMMXXB   BBB   YYYYBBBXXMMM  ",
+  " MM MXXXBB   B   BBBYYYB XXXM M ",
+  " MMM XXBBBB     BBBBBYYY  XX MM ",
+  " MM MXXBBBBB   BBBBBBBYY BXXM M ",
+  " M MXXBBBBB     BBBBB  Y  BXXM  ",
+  "  MMXX BBB   B   BBB   Y   XXMM ",
+  " M MXX  B   BBB   B   BBB  XXM  ",
+  " MM XX     BBBBB     BBBBB XX M ",
+  " MMMXXB  OBBBBBBB   BBBBBBBXXMM ",
+  " MM XX   O BBBBB     BBBBB XX M ",
+  " M MXX  BOO BBB   B   BBB  XXM  ",
+  "  MMMXXBBOOO B   BBB   B  XXMMM ",
+  " M MMXXBBBOOO   BBBBB     XXMM  ",
+  " MM MXXXBBBOOO BBBBBBB   XXXM M ",
+  " MMM MXXBBB OOOOBBBBB   BXXM MM ",
+  " MM M MXXB   BOOOOBB   BXXM M M ",
+  " M MMM MXXXXBBB   B   XXXM MMM  ",
+  "  MMMMM MXXXXBBB    XXXXM MMMMM ",
+  " M MMM M MMXXXXXXXXXXXMM M MMM  ",
+  " MM M MMM M MXXXXXXXM M MMM M M ",
+  " MMM MMMMM MMMMM MMMMM MMMMM MM ",
+  " MM M MMM M MMM M MMM M MMM M M ",
+  " M MMM M MMM M MMM M MMM M MMM  ",
+  "                                ");
+
+
+const func PRIMITIVE_WINDOW: create_pixmap (in array string: pattern,
+    in integer: scale) is func
+  result
+    var PRIMITIVE_WINDOW: result is PRIMITIVE_WINDOW.value;
+  local
+    var integer: height is 0;
+    var integer: width is 0;
+    var integer: line is 0;
+    var integer: column is 0;
+    var color: col is black;
+  begin
+    height := length(pattern);
+    width := length(pattern[1]);
+    result := newPixmap(width * scale, height * scale);
+    clear(result, black);
+    for line range 1 to height do
+      for column range 1 to width do
+        case pattern[line][column] of
+          when {' '}: col := black;
+          when {'R'}: col := light_red;
+          when {'G'}: col := light_green;
+          when {'B'}: col := light_blue;
+          when {'Y'}: col := yellow;
+          when {'M'}: col := light_magenta;
+          when {'O'}: col := orange;
+          when {'r'}: col := dark_red;
+          when {'g'}: col := dark_green;
+          when {'c'}: col := light_cyan;
+          when {'P'}: col := dark_magenta;
+          when {'X'}: col := white;
+          when {'x'}: col := light_gray;
+          when {'d'}: col := dark_gray;
+          when {'b'}: col := brown;
+          otherwise:  col := black;
+        end case;
+        rect(result,
+            pred(column) * scale,
+            pred(line) * scale,
+            scale, scale, col);
+      end for;
+    end for;
+  end func;
+
+
+const proc: introduction is func
+  begin
+    setPos(win, 1, 1);
+    writeln(win, "S O K O B A N");
+    writeln(win);
+    writeln(win, "Copyright (C) 2008  Thomas Mertes");
+    writeln(win);
+    writeln(win, "This program is free software under the");
+    writeln(win, "terms of the GNU General Public License");
+    writeln(win);
+    writeln(win, "Sokoban is written in the Seed7 programming language");
+    writeln(win, "  Homepage: http://seed7.sourceforge.net");
+    writeln(win);
+  end func;
+
+
+const proc: loadPixmaps is func
+  begin
+    player_pixmap := create_pixmap(player_pic, 1);
+    goal_pixmap := create_pixmap(goal_pic, 1);
+    wall_pixmap := create_pixmap(wall_pic, 1);
+    packet_pixmap := create_pixmap(packet_pic, 1);
+    player_at_goal_pixmap := create_pixmap(player_at_goal_pic, 1);
+    packet_at_goal_pixmap := create_pixmap(packet_at_goal_pic, 1);
+  end func;
+
+
+const proc: readLevel is func
+  begin
+    repeat
+      writeln(win);
+      write(win, " Indicate which level to play (1-" <& length(levels) <& ") ");
+      read(levelNumber);
+    until levelNumber >= 1 and levelNumber <= length(levels);
+  end func;
+
+
+const proc: recognizeFieldsOutside (in integer: line, in integer: column) is func
+  begin
+    if levelMap[line][column].fieldCategory = GROUND then
+      levelMap[line][column].fieldCategory := OUTSIDE;
+      if line > 1 then
+        recognizeFieldsOutside(pred(line), column);
+      end if;
+      if line < length(levelMap) then
+        recognizeFieldsOutside(succ(line), column);
+      end if;
+      if column > 1 then
+        recognizeFieldsOutside(line, pred(column));
+      end if;
+      if column < length(levelMap[line]) then
+        recognizeFieldsOutside(line, succ(column));
+      end if;
+    end if;
+  end func;
+
+
+const proc: recognizeFieldsOutside is func
+  local
+    var integer: line is 0;
+    var integer: column is 0;
+  begin
+    if length(levelMap) >= 1 then
+      for column range 1 to length(levelMap[1]) do
+        recognizeFieldsOutside(1, column);
+        recognizeFieldsOutside(length(levelMap), column);
+      end for;
+    end if;
+    for line range 1 to length(levelMap) do
+      if length(levelMap[line]) >= 1 then
+        recognizeFieldsOutside(line, 1);
+        recognizeFieldsOutside(line, length(levelMap[line]));
+      end if;
+    end for;
+  end func;
+
+
+const proc: generateLevelMap (in array string: levelData) is func
+  local
+    var integer: line is 0;
+    var integer: column is 0;
+    var fieldType: currField is fieldType.value;
+    var categoryType: fieldCategory is GROUND;
+  begin
+    numberOfMoves := 0;
+    numberOfPushes := 0;
+    levelMap := length(levelData) times length(levelData[1]) times fieldType.value;
+    numberOfPackets := 0;
+    savedPackets := 0;
+    xPos := -1;
+    yPos := -1;
+    for line range 1 to length(levelData) do
+      for column range 1 to length(levelData[line]) do
+        currField := fieldType.value;
+        case levelData[line][column] of
+          when {'#'}:
+            currField.fieldCategory := WALL;
+          when {' '}:
+            currField.fieldCategory := GROUND;
+          when {'.'}:
+            currField.fieldCategory := GROUND;
+            currField.isGoalField := TRUE;
+          when {'@'}:
+            currField.fieldCategory := PLAYER;
+            yPos := line;
+            xPos := column;
+          when {'+'}:
+            currField.fieldCategory := PLAYER;
+            currField.isGoalField := TRUE;
+            yPos := line;
+            xPos := column;
+          when {'$'}:
+            currField.fieldCategory := PACKET;
+            incr(numberOfPackets);
+          when {'*'}:
+            currField.fieldCategory := PACKET;
+            currField.isGoalField := TRUE;
+            incr(savedPackets);
+            incr(numberOfPackets);
+        end case;
+        levelMap[line][column] := currField;
+      end for;
+    end for;
+    recognizeFieldsOutside;
+  end func;
+
+
+const proc: readLevelMap (in integer: levelNumber) is func
+  begin
+    generateLevelMap(levels[levelNumber]);
+  end func;
+
+
+const proc: writeStatus is func
+  begin
+    introduction;
+    # setPos(win, 3, 1);
+    # write(win, "moveNumber = " <& moveNumber <& " ");
+    # setPos(win, 4, 1);
+    # write(win, "length(playerMoves) = " <& length(playerMoves) <& " ");
+    setPos(win, 11, 1);
+    writeln(win, "Level = " <& levelNumber);
+    writeln(win, "Packets = " <& numberOfPackets);
+    writeln(win, "Saved Packets = " <& savedPackets <& " ");
+    writeln(win, "Movements = " <& numberOfMoves <& " ");
+    writeln(win, "Pushes = " <& numberOfPushes <& " ");
+    writeln(win);
+    writeln(win, "The following commands are accepted:");
+    writeln(win, "  cursor keys to move");
+    writeln(win, "  u to undo a move");
+    writeln(win, "  r to redo a move which was undone");
+    writeln(win, "  q to quit the game");
+    writeln(win, "  n for next level");
+    writeln(win, "  p for previous level");
+    writeln(win, "  s to restart current level");
+    writeln(win, "  l to select other level");
+  end func;
+
+
+const proc: drawMap is func
+  local
+    var integer: line is 0;
+    var integer: column is 0;
+    var PRIMITIVE_WINDOW: sprite is PRIMITIVE_WINDOW.value;
+  begin
+    for line range 1 to length(levelMap) do
+      for column range 1 to length(levelMap[line]) do
+        if levelMap[line][column].dirty then
+          case levelMap[line][column].fieldCategory of
+            when {WALL}:
+              sprite := wall_pixmap;
+            when {GROUND}:
+              if levelMap[line][column].isGoalField then
+                sprite := goal_pixmap;
+              else
+                rect(pred(column) * TILE_SIZE, pred(line) * TILE_SIZE,
+                    TILE_SIZE, TILE_SIZE, brown);
+                sprite := PRIMITIVE_WINDOW.value;
+              end if;
+            when {PLAYER}:
+              if levelMap[line][column].isGoalField then
+                sprite := player_at_goal_pixmap;
+              else
+                sprite := player_pixmap;
+              end if;
+            when {PACKET}:
+              if levelMap[line][column].isGoalField then
+                sprite := packet_at_goal_pixmap;
+              else
+                sprite := packet_pixmap;
+              end if;
+            otherwise:
+              rect(pred(column) * TILE_SIZE, pred(line) * TILE_SIZE,
+                  TILE_SIZE, TILE_SIZE, black);
+              sprite := PRIMITIVE_WINDOW.value;
+          end case;
+          if sprite <> PRIMITIVE_WINDOW.value then
+            put(curr_win, pred(column) * TILE_SIZE,
+                pred(line) * TILE_SIZE, sprite, PSET);
+          end if;
+          levelMap[line][column].dirty := FALSE;
+        end if;
+      end for;
+    end for;
+  end func;
+
+
+const proc: assignDxDy (in moveType: move,
+    inout integer: dx, inout integer: dy) is func
+  begin
+    dx := 0;
+    dy := 0;
+    case move.direction of
+      when {UP}:
+        dy := -1;
+      when {DOWN}:
+        dy :=  1;
+      when {LEFT}:
+        dx := -1;
+      when {RIGHT}:
+        dx :=  1;
+    end case;
+  end func;
+
+
+const proc: moveDxDy (in integer: dx, in integer: dy,
+    inout fieldType: currField, inout fieldType: nextField) is func
+  begin
+    currField.fieldCategory := GROUND;
+    nextField.fieldCategory := PLAYER;
+    currField.dirty := TRUE;
+    nextField.dirty := TRUE;
+    xPos +:= dx;
+    yPos +:= dy;
+  end func;
+
+
+const proc: pushDxDy (in integer: dx, in integer: dy,
+    inout fieldType: currField, inout fieldType: nextField,
+    inout fieldType: destField) is func
+  begin
+    currField.fieldCategory := GROUND;
+    nextField.fieldCategory := PLAYER;
+    destField.fieldCategory := PACKET;
+    currField.dirty := TRUE;
+    nextField.dirty := TRUE;
+    destField.dirty := TRUE;
+    xPos +:= dx;
+    yPos +:= dy;
+    if nextField.isGoalField then
+      if not destField.isGoalField then
+        decr(savedPackets);
+      end if;
+    else
+      if destField.isGoalField then
+        incr(savedPackets);
+      end if;
+    end if;
+    incr(numberOfPushes);
+  end func;
+
+
+const proc: pullDxDy (in integer: dx, in integer: dy,
+    inout fieldType: currField, inout fieldType: nextField,
+    inout fieldType: packetField) is func
+  begin
+    currField.fieldCategory := PACKET;
+    nextField.fieldCategory := PLAYER;
+    packetField.fieldCategory := GROUND;
+    currField.dirty := TRUE;
+    nextField.dirty := TRUE;
+    packetField.dirty := TRUE;
+    xPos +:= dx;
+    yPos +:= dy;
+    if packetField.isGoalField then
+      if not currField.isGoalField then
+        decr(savedPackets);
+      end if;
+    else
+      if currField.isGoalField then
+        incr(savedPackets);
+      end if;
+    end if;
+    decr(numberOfPushes);
+  end func;
+
+
+const proc: undoMove is func
+  local
+    var integer: dx is 0;
+    var integer: dy is 0;
+    var moveType: move is moveType.value;
+  begin
+    if moveNumber >= 1 then
+      move := playerMoves[moveNumber];
+      assignDxDy(move, dx, dy);
+      if move.mode = MOVE then
+        moveDxDy(-dx, -dy,
+            levelMap[yPos][xPos],
+            levelMap[yPos - dy][xPos - dx]);
+        decr(numberOfMoves);
+      else
+        pullDxDy(-dx, -dy,
+            levelMap[yPos][xPos],
+            levelMap[yPos - dy][xPos - dx],
+            levelMap[yPos + dy][xPos + dx]);
+      end if;
+      decr(moveNumber);
+    end if;
+  end func;
+
+
+const proc: redoMove is func
+  local
+    var integer: dx is 0;
+    var integer: dy is 0;
+    var moveType: move is moveType.value;
+  begin
+    if moveNumber < length(playerMoves) then
+      incr(moveNumber);
+      move := playerMoves[moveNumber];
+      assignDxDy(move, dx, dy);
+      if move.mode = MOVE then
+        moveDxDy(dx, dy,
+            levelMap[yPos][xPos],
+            levelMap[yPos + dy][xPos + dx]);
+        incr(numberOfMoves);
+      else
+        pushDxDy(dx, dy,
+            levelMap[yPos][xPos],
+            levelMap[yPos + dy][xPos + dx],
+            levelMap[yPos + 2 * dy][xPos + 2 * dx]);
+      end if;
+    end if;
+  end func;
+
+
+const proc: playLevel is func
+  local
+    var integer: dx is 0;
+    var integer: dy is 0;
+    var integer: line is 0;
+    var integer: column is 0;
+    var boolean: levelFinished is FALSE;
+    var moveType: move is moveType.value;
+  begin
+    playerMoves := 0 times  moveType.value;
+    moveNumber := 0;
+    clear;
+    writeStatus;
+    drawMap;
+    repeat
+      dx := 0;
+      dy := 0;
+      keyChar := getc(KEYBOARD);
+      case keyChar of
+        when {KEY_UP}:
+          move.direction := UP;
+          dy := -1;
+        when {KEY_DOWN}:
+          move.direction := DOWN;
+          dy :=  1;
+        when {KEY_LEFT}:
+          move.direction := LEFT;
+          dx := -1;
+        when {KEY_RIGHT}:
+          move.direction := RIGHT;
+          dx :=  1;
+      end case;
+      case levelMap[yPos + dy][xPos + dx].fieldCategory of
+        when {GROUND}:
+          moveDxDy(dx, dy,
+              levelMap[yPos][xPos],
+              levelMap[yPos + dy][xPos + dx]);
+          incr(numberOfMoves);
+          move.mode := MOVE;
+          if length(playerMoves) > moveNumber then
+            playerMoves := playerMoves[.. moveNumber];
+          end if;
+          playerMoves &:= [] (move);
+          incr(moveNumber);
+        when {PACKET}:
+          if levelMap[yPos + 2 * dy][xPos + 2 * dx].fieldCategory = GROUND then
+            pushDxDy(dx, dy,
+                levelMap[yPos][xPos],
+                levelMap[yPos + dy][xPos + dx],
+                levelMap[yPos + 2 * dy][xPos + 2 * dx]);
+            move.mode := PUSH;
+            if length(playerMoves) > moveNumber then
+              playerMoves := playerMoves[.. moveNumber];
+            end if;
+            playerMoves &:= [] (move);
+            incr(moveNumber);
+          end if;
+      end case;
+      writeStatus;
+      drawMap;
+      if keyChar = 'q' then
+        levelFinished := TRUE;
+      elsif keyChar = 'u' then
+        if savedPackets = numberOfPackets then
+          setPos(win, 26, 1);
+          writeln(win);
+          writeln(win);
+          writeln(win, "                           ");
+          writeln(win);
+          writeln(win, "                       ");
+          writeln(win);
+          writeln(win);
+          write(win,   "                           ");
+        end if;
+        undoMove;
+        writeStatus;
+        drawMap;
+      elsif keyChar = 'r' then
+        redoMove;
+        writeStatus;
+        drawMap;
+      elsif keyChar = 's' then
+        levelFinished := TRUE;
+      elsif keyChar = 'l' then
+        readLevel;
+        levelFinished := TRUE;
+      elsif keyChar = 'n' then
+        if levelNumber < length(levels) then
+          incr(levelNumber);
+          levelFinished := TRUE;
+        end if;
+      elsif keyChar = 'p' then
+        if levelNumber > 1 then
+          decr(levelNumber);
+          levelFinished := TRUE;
+        end if;
+      end if;
+      if savedPackets = numberOfPackets then
+        setPos(win, 26, 1);
+        writeln(win);
+        writeln(win);
+        writeln(win, "C O N G R A T U L A T I O N");
+        writeln(win);
+        writeln(win, "    The level is solved");
+        writeln(win);
+        writeln(win);
+        write(win,   "Press n for the next level ");
+      end if;
+    until levelFinished;
+  end func;
+
+
+const proc: main is func
+  begin
+    screen(1024, 768);
+    KEYBOARD := GRAPH_KEYBOARD;
+    screen := open(curr_win, 16);
+    win := open_window(screen, 1, 109, 50, 80);
+    IN := open_echo(KEYBOARD, win);
+    IN := open_line(IN);
+    loadPixmaps;
+    clear;
+    repeat
+      readLevelMap(levelNumber);
+      playLevel;
+    until keyChar = 'q';
+  end func;

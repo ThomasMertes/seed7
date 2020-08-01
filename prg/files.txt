@@ -62,6 +62,7 @@ self.sd7     A program that writes itself (except this header)
 shisen.sd7   Shisen game                                       
 sl.sd7       Game of Life                                      
 snake.sd7    Snake eats apple game                             
+sokoban.sd7  Sokoban puzzle game                               
 startrek.sd7 Classical startrek game                           
 sudoku7.sd7  Sudoku program                                    
 tak.sd7      Little benchmark computing tak(18, 12, 6)         
@@ -119,6 +120,7 @@ screen.s7i   General text screen with random access
 seed7_05.s7i Standard Seed7 library                            
 shell.s7i    Support for shell commands                        
 socket.s7i   Socket library                                    
+sokoban1.s7i Classic sokoban levels 1 to 90.                   
 stars.s7i    List of stars with name, RA, DEC and magnitude V  
 strifile.s7i string file library (uses a string)               
 stritext.s7i string text library (uses an array string)        

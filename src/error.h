@@ -85,22 +85,25 @@ typedef enum {OUT_OF_HEAP_SPACE,
 
 #ifdef ANSI_C
 
-void place_of_error (errortype);
-void err_warning (errortype);
-void err_num_stri (errortype, int, int, ustritype);
-void err_ident (errortype, const_identtype);
-void err_object (errortype, objecttype);
-void err_type (errortype, const_typetype);
-void err_expr_obj (errortype, const_objecttype, objecttype);
-void err_match (errortype, objecttype);
-void err_string (errortype, ustritype);
-void err_stri (errortype, stritype);
-void err_integer (errortype, inttype);
-void err_cchar (errortype, int);
-void err_char (errortype, chartype);
-void err_at_line (errortype, linenumtype);
-void err_undeclared (errortype, filenumtype, linenumtype, ustritype);
-void err_message (errortype, stritype);
+void place_of_error (errortype err);
+void err_warning (errortype err);
+void err_num_stri (errortype err, int num_found, int num_expected,
+		   ustritype stri);
+void err_ident (errortype err, const_identtype ident);
+void err_object (errortype err, objecttype obj_found);
+void err_type (errortype err, const_typetype type_found);
+void err_expr_obj (errortype err, const_objecttype expr_object,
+		   objecttype obj_found);
+void err_match (errortype err, objecttype obj_found);
+void err_string (errortype err, ustritype stri);
+void err_stri (errortype err, stritype stri);
+void err_integer (errortype err, inttype number);
+void err_cchar (errortype err, int character);
+void err_char (errortype err, chartype character);
+void err_at_line (errortype err, linenumtype line);
+void err_undeclared (errortype err, filenumtype file_num,
+		     linenumtype line, ustritype stri);
+void err_message (errortype err, stritype stri);
 
 #else
 

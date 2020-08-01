@@ -187,11 +187,11 @@ acttype *action_found;
 
 #ifdef ANSI_C
 
-booltype find_action (stritype stri, acttype *action_found)
+booltype find_action (stritype action_name, acttype *action_found)
 #else
 
-booltype find_action (stri, action_found)
-stritype stri;
+booltype find_action (action_name, action_found)
+stritype action_name;
 acttype *action_found;
 #endif
 
@@ -203,7 +203,7 @@ acttype *action_found;
 #ifdef TRACE_ACTUTIL
     printf("BEGIN find_action\n");
 #endif
-    if (compr_size(stri) + 1 > 250) {
+    if (compr_size(action_name) + 1 > 250) {
       if (act_table.primitive != NULL) {
         *action_found = act_table.primitive[0].action;
       } else {
@@ -211,7 +211,7 @@ acttype *action_found;
       } /* if */
       result = FALSE;
     } else {
-      stri_export(act_name, stri);
+      stri_export(act_name, action_name);
       result = search_action(act_name, action_found);
     } /* if */
 #ifdef TRACE_ACTUTIL

@@ -1,3 +1,15 @@
+20090426:
+- The function 'inflate' was added to the gzip.s7i library.
+- The function getNextHtmlAttribute was added to the scanfile.s7i library.
+- The functions getNextXmlAttribute and getNextHtmlAttribute were added to the
+  scanstri.s7i library.
+- A sokoban puzzle game example program (sokoban.sd7) was added.
+- A new library sokoban1.s7i, which contains the 90 classic sokoban levels, was added.
+- Parameter names were added to the function prototypes of the header files actutl.h,
+  analyze.h, error.h and findid.h .
+- The function cp_to_wpath was changed to raise RANGE_ERROR when a path contains a
+  backslash.
+
 20090413:
 - A description of data struct elements was added to the chapters rational, bigRational,
   complex, color and time in the manual.
@@ -5,7 +17,7 @@
   setMTime and removeAnyFile was added to the chapter 'OS access' in the manual.
 - The compiler (comp.sd7) was improved to correctly handle hashtables as elements of
   structs.
-- The compiler (comp.sd7) was improved to to generate dispatcher functions which copy a
+- The compiler (comp.sd7) was improved to generate dispatcher functions which copy a
   reference to a value when the interface needs the value itself (the value is used and
   possibly freed afterwards by the caller).
 - The functions getXmlTagHeadOrContent in the scanfile.s7i and scanstri.s7i libraries were

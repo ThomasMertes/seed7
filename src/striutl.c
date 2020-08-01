@@ -442,22 +442,30 @@ errinfotype *err_info;
 #endif
 
   {
-    wchar_t *stri_buffer;
     wchar_t *wstri;
     const strelemtype *strelem;
     memsizetype len;
+    wchar_t *result;
 
   /* cp_to_wpath */
-    stri_buffer = (wchar_t *) malloc(sizeof(wchar_t) * (stri->size * 2 + 1));
-    if (stri_buffer == NULL) {
+#ifdef TRACE_STRIUTL
+    printf("BEGIN cp_to_wpath(%lx, %d)\n", stri, *err_info);
+#endif
+    result = (wchar_t *) malloc(sizeof(wchar_t) * (stri->size * 2 + 1));
+    if (result == NULL) {
       *err_info = MEMORY_ERROR;
     } else {
-      wstri = stri_buffer;
+      wstri = result;
       strelem = stri->mem;
       len = stri->size;
       for (; len > 0; wstri++, strelem++, len--) {
         if (*strelem <= 0xFFFF) {
-          *wstri = *strelem;
+          if (*strelem == (strelemtype) '\\') {
+            *err_info = RANGE_ERROR;
+            len = 1;
+          } else {
+            *wstri = *strelem;
+          } /* if */
         } else if (*strelem <= 0x10FFFF) {
           strelemtype currChar = *strelem - 0x10000;
           *wstri = (wchar_t) (0xD800 | (currChar >> 10));
@@ -465,14 +473,20 @@ errinfotype *err_info;
           *wstri = (wchar_t) (0xDC00 | (currChar & 0x3FF));
         } else {
           *err_info = RANGE_ERROR;
-          os_path_free(stri_buffer);
-          stri_buffer = NULL;
-          len = 0;
+          len = 1;
         } /* if */
-      } /* while */
-      *wstri = 0;
+      } /* for */
+      if (*err_info != OKAY_NO_ERROR) {
+        os_path_free(result);
+        result = NULL;
+      } else {
+        *wstri = 0;
+      } /* if */
     } /* if */
-    return(stri_buffer);
+#ifdef TRACE_STRIUTL
+    printf("END cp_to_wpath(%lx, %d) ==> %lx\n", stri, *err_info, result);
+#endif
+    return(result);
   } /* cp_to_wpath */
 
 
@@ -490,15 +504,24 @@ errinfotype *err_info;
 #endif
 
   {
-    cstritype cstri;
+    cstritype result;
 
   /* cp_to_cpath */
-    if (!ALLOC_CSTRI(cstri, compr_size(stri))) {
+#ifdef TRACE_STRIUTL
+    printf("BEGIN cp_to_cpath(%lx, %d)\n", stri, *err_info);
+#endif
+    if (stri->size >= 2 && stri->mem[stri->size - 1] == '/') {
+      *err_info = RANGE_ERROR;
+      result = NULL;
+    } else if (!ALLOC_CSTRI(result, compr_size(stri))) {
       *err_info = MEMORY_ERROR;
     } else {
-      stri_export((ustritype) cstri, stri);
+      stri_export((ustritype) result, stri);
     } /* if */
-    return(cstri);
+#ifdef TRACE_STRIUTL
+    printf("END cp_to_cpath(%lx, %d) ==> %lx\n", stri, *err_info, result);
+#endif
+    return(result);
   } /* cp_to_cpath */
 #endif
 
