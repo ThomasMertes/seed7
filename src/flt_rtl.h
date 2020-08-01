@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  flt_rtl.h     Primitive actions for the float type.             */
-/*  Copyright (C) 1989 - 2005  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2010  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,19 +24,10 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/flt_rtl.h                                       */
-/*  Changes: 1993, 1994, 2005  Thomas Mertes                        */
+/*  Changes: 1993, 1994, 2005, 2010  Thomas Mertes                  */
 /*  Content: Primitive actions for the float type.                  */
 /*                                                                  */
 /********************************************************************/
-
-/* The function fltCreate is used from hashtables where the keys    */
-/* and the data is stored in integer data elements. On some         */
-/* architectures (linux with gcc) functions with float results seem */
-/* to be returned in a different way (may be another register).     */
-/* Therefore fltCreate uses generictype instead of floattype.       */
-/* Here is the place to decide if fltCreate should use floattype    */
-/* or inttype.                                                      */
-typedef inttype generictype;
 
 #ifdef ISNAN_WITH_UNDERLINE
 #define isnan _isnan
@@ -48,7 +39,6 @@ typedef inttype generictype;
 void setupFloat (void);
 inttype fltCmp (floattype number1, floattype number2);
 void fltCpy (floattype *dest, floattype source);
-generictype fltCreate (generictype source);
 stritype fltDgts (floattype number, inttype digits_precision);
 floattype fltIPow (floattype base, inttype exponent);
 floattype fltParse (stritype stri);
@@ -60,7 +50,6 @@ stritype fltStr (floattype number);
 void setupFloat ();
 inttype fltCmp ();
 void fltCpy ();
-generictype fltCreate ();
 stritype fltDgts ();
 floattype fltIPow ();
 floattype fltParse ();

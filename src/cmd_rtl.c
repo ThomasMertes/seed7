@@ -131,9 +131,9 @@ char *strg2;
 #endif
 
   { /* cmp_mem */
-    return(strCompare(
+    return strCompare(
         ((const_rtlObjecttype *) strg1)->value.strivalue,
-        ((const_rtlObjecttype *) strg2)->value.strivalue));
+        ((const_rtlObjecttype *) strg2)->value.strivalue);
   } /* cmp_mem */
 
 
@@ -714,7 +714,7 @@ errinfotype *err_info;
       dir_array = NULL;
       *err_info = FILE_ERROR;
     } /* if */
-    return(dir_array);
+    return dir_array;
   } /* read_dir */
 
 
@@ -769,7 +769,7 @@ stritype file_name;
     if (err_info != OKAY_NO_ERROR) {
       raise_error(err_info);
     } /* if */
-    return(result);
+    return result;
   } /* cmdBigFileSize */
 
 
@@ -899,6 +899,12 @@ stritype name;
         opt = INT32TYPE_LITERAL_SUFFIX;
       } else if (strcmp(opt_name, "INT64TYPE_LITERAL_SUFFIX") == 0) {
         opt = INT64TYPE_LITERAL_SUFFIX;
+      } else if (strcmp(opt_name, "INTTYPE_SIZE") == 0) {
+        sprintf(buffer, "%d", INTTYPE_SIZE);
+        opt = buffer;
+      } else if (strcmp(opt_name, "FLOATTYPE_SIZE") == 0) {
+        sprintf(buffer, "%d", FLOATTYPE_SIZE);
+        opt = buffer;
       } else if (strcmp(opt_name, "POINTER_SIZE") == 0) {
         sprintf(buffer, "%d", POINTER_SIZE);
         opt = buffer;
@@ -944,14 +950,14 @@ stritype name;
 #else
         opt = "FALSE";
 #endif
-      } else if (strcmp(opt_name, "FLOAT_ZERO_DIV_ERROR") == 0) {
-#ifdef FLOAT_ZERO_DIV_ERROR
+      } else if (strcmp(opt_name, "LITTLE_ENDIAN") == 0) {
+#ifdef LITTLE_ENDIAN
         opt = "TRUE";
 #else
         opt = "FALSE";
 #endif
-      } else if (strcmp(opt_name, "INTTYPE_64BIT") == 0) {
-#ifdef INTTYPE_64BIT
+      } else if (strcmp(opt_name, "FLOAT_ZERO_DIV_ERROR") == 0) {
+#ifdef FLOAT_ZERO_DIV_ERROR
         opt = "TRUE";
 #else
         opt = "FALSE";
@@ -964,7 +970,7 @@ stritype name;
     if (result == NULL) {
       raise_error(MEMORY_ERROR);
     } /* if */
-    return(result);
+    return result;
   } /* cmdConfigValue */
 
 
@@ -1059,7 +1065,7 @@ stritype file_name;
         result = NULL;
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* cmdFileMode */
 
 
@@ -1115,7 +1121,7 @@ stritype file_name;
     if (err_info != OKAY_NO_ERROR) {
       raise_error(err_info);
     } /* if */
-    return(result);
+    return result;
   } /* cmdFileSize */
 
 
@@ -1173,7 +1179,7 @@ stritype file_name;
         } /* if */
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* cmdFileType */
 
 
@@ -1230,7 +1236,7 @@ stritype file_name;
         } /* if */
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* cmdFileTypeSL */
 
 
@@ -1268,7 +1274,7 @@ stritype cmdGetcwd ()
 #endif
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* cmdGetcwd */
 
 
@@ -1468,7 +1474,7 @@ stritype dir_name;
           (size_t) (result->max_position - result->min_position + 1),
           sizeof(rtlObjecttype), &cmp_mem);
     } /* if */
-    return(result);
+    return result;
   } /* cmdLs */
 
 
@@ -1600,7 +1606,7 @@ stritype link_name;
     if (err_info != OKAY_NO_ERROR) {
       raise_error(err_info);
     } /* if */
-    return(result);
+    return result;
   } /* cmdReadlink */
 
 
@@ -1870,7 +1876,7 @@ stritype command_stri;
       result = (inttype) os_system(os_command_stri);
       os_stri_free(os_command_stri);
     } /* if */
-    return(result);
+    return result;
   } /* cmdShell */
 
 
@@ -1942,6 +1948,6 @@ FILE *stream;
     } else {
       result = -1;
     } /* if */
-    return(result);
+    return result;
   } /* improved_ftell */
 #endif

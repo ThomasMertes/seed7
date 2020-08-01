@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  hi   Interpreter for Seed7 programs.                            */
-/*  Copyright (C) 1990 - 2008  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2010  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: Compiler data reflection                                */
 /*  File: seed7/src/ref_data.c                                      */
-/*  Changes: 1991-1994, 2004, 2007, 2008  Thomas Mertes             */
+/*  Changes: 1991-1994, 2004, 2007, 2008, 2010  Thomas Mertes       */
 /*  Content: Primitive actions for the reference type.              */
 /*                                                                  */
 /********************************************************************/
@@ -79,7 +79,7 @@ objecttype obj_arg;
     } else {
       raise_error(MEMORY_ERROR);
     } /* if */
-    return(created_object);
+    return created_object;
   } /* refAlloc */
 
 
@@ -96,9 +96,9 @@ objecttype obj_arg;
   { /* refArrmaxidx */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != ARRAYOBJECT) {
       raise_error(RANGE_ERROR);
-      return(0);
+      return 0;
     } else {
-      return(take_array(obj_arg)->max_position);
+      return take_array(obj_arg)->max_position;
     } /* if */
   } /* refArrmaxidx */
 
@@ -116,9 +116,9 @@ objecttype obj_arg;
   { /* refArrminidx */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != ARRAYOBJECT) {
       raise_error(RANGE_ERROR);
-      return(0);
+      return 0;
     } else {
-      return(take_array(obj_arg)->min_position);
+      return take_array(obj_arg)->min_position;
     } /* if */
   } /* refArrminidx */
 
@@ -148,7 +148,7 @@ objecttype obj_arg;
         result = NULL;
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* refArrtolist */
 
 
@@ -172,7 +172,7 @@ objecttype obj_arg;
     } else {
       result = obj_arg->value.blockvalue->body;
     } /* if */
-    return(result);
+    return result;
   } /* refBody */
 
 
@@ -196,7 +196,7 @@ objecttype obj_arg;
     } else {
       result = CATEGORY_OF_OBJ(obj_arg);
     } /* if */
-    return(result);
+    return result;
   } /* refCategory */
 
 
@@ -226,7 +226,7 @@ stritype category_name;
         raise_error(RANGE_ERROR);
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* refCatParse */
 
 
@@ -248,37 +248,30 @@ inttype aCategory;
     if (result == NULL) {
       raise_error(MEMORY_ERROR);
     } /* if */
-    return(result);
+    return result;
   } /* refCatStr */
 
 
 
 #ifdef ANSI_C
 
-inttype refCmp (rtlGenerictype obj_arg1, rtlGenerictype obj_arg2)
+inttype refCmpGeneric (rtlGenerictype ref1, rtlGenerictype ref2)
 #else
 
-inttype refCmp (obj_arg1, obj_arg2)
-rtlGenerictype obj_arg1;
-rtlGenerictype obj_arg2;
+inttype refCmpGeneric (ref1, ref2)
+rtlGenerictype ref1;
+rtlGenerictype ref2;
 #endif
 
-  {
-    uinttype ref1;
-    uinttype ref2;
-
-  /* refCmp */
-    ref1 = (uinttype) obj_arg1;
-    ref2 = (uinttype) obj_arg2;
-    /* printf("refCmp(%lx (%llx), %lx (%llx))\n", obj_arg1, ref1, obj_arg2, ref2); */
+  { /* refCmpGeneric */
     if (ref1 < ref2) {
-      return(-1);
+      return -1;
     } else if (ref1 > ref2) {
-      return(1);
+      return 1;
     } else {
-      return(0);
+      return 0;
     } /* if */
-  } /* refCmp */
+  } /* refCmpGeneric */
 
 
 
@@ -300,16 +293,16 @@ objecttype source;
 
 #ifdef ANSI_C
 
-rtlGenerictype refCreate (rtlGenerictype source)
+rtlGenerictype genericCreate (rtlGenerictype source)
 #else
 
-rtlGenerictype refCreate (source)
+rtlGenerictype genericCreate (source)
 rtlGenerictype source;
 #endif
 
-  { /* intCreate */
-    return(source);
-  } /* intCreate */
+  { /* genericCreate */
+    return source;
+  } /* genericCreate */
 
 
 
@@ -345,7 +338,7 @@ objecttype obj_arg1;
     if (result == NULL) {
       raise_error(MEMORY_ERROR);
     } /* if */
-    return(result);
+    return result;
   } /* refFile */
 
 
@@ -374,7 +367,7 @@ objecttype obj_arg;
         result = NULL;
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* refHshDataToList */
 
 
@@ -403,7 +396,7 @@ objecttype obj_arg;
         result = NULL;
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* refHshKeyToList */
 
 
@@ -421,9 +414,9 @@ objecttype obj_arg;
     /* printf("refIsvar(%lu)\n", obj_arg); */
     if (obj_arg == NULL) {
       raise_error(RANGE_ERROR);
-      return(FALSE);
+      return FALSE;
     } else {
-      return(VAR_OBJECT(obj_arg) ? TRUE : FALSE);
+      return VAR_OBJECT(obj_arg) ? TRUE : FALSE;
     } /* if */
   } /* refIsVar */
 
@@ -449,7 +442,7 @@ objecttype obj_arg;
     } else {
       result = take_reference(obj_arg);
     } /* if */
-    return(result);
+    return result;
   } /* refItftosct */
 
 
@@ -472,8 +465,8 @@ objecttype obj_arg;
       result = (inttype) GET_LINE_NUM(obj_arg);
     } else if (HAS_PROPERTY(obj_arg)) {
       /* trace1(obj_arg);
-      printf(" %u %u %u\n",
-          obj_arg->descriptor.property->file_number,
+      printf(" %s %u %u\n",
+          file_name(obj_arg->descriptor.property->file_number),
           obj_arg->descriptor.property->line,
           obj_arg->descriptor.property->syNumberInLine); */
       /* Cast to inttype: The line is probably in the range 0 to 2147483647 */
@@ -481,7 +474,7 @@ objecttype obj_arg;
     } else {
       result = 0;
     } /* if */
-    return(result);
+    return result;
   } /* refLine */
 
 
@@ -519,7 +512,7 @@ objecttype obj_arg;
         raise_error(MEMORY_ERROR);
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* refLocalConsts */
 
 
@@ -557,7 +550,7 @@ objecttype obj_arg;
         raise_error(MEMORY_ERROR);
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* refLocalVars */
 
 
@@ -590,15 +583,15 @@ objecttype obj_arg;
       } else {
         result = (inttype) hshIdxWithDefault(obj_table, (rtlGenerictype) obj_arg,
             (rtlGenerictype) next_free_number,
-            ((inttype) obj_arg) >> 6, (comparetype) &refCmp,
-            (createfunctype) &refCreate, (createfunctype) &intCreate);
+            ((inttype) obj_arg) >> 6, (comparetype) &refCmpGeneric,
+            (createfunctype) &genericCreate, (createfunctype) &genericCreate);
         if (result == next_free_number) {
           next_free_number++;
         } /* if */
       } /* if */
     } /* if */
     /* printf("refNum => %ld\n", result); */
-    return(result);
+    return result;
   } /* refNum */
 
 
@@ -637,7 +630,7 @@ objecttype obj_arg;
       result = NULL;
       raise_error(MEMORY_ERROR);
     } /* if */
-    return(result);
+    return result;
   } /* refParams */
 
 
@@ -660,7 +653,7 @@ objecttype obj_arg;
     } else {
       result = NULL;
     } /* if */
-    return(result);
+    return result;
   } /* refResini */
 
 
@@ -683,7 +676,7 @@ objecttype obj_arg;
     } else {
       result = NULL;
     } /* if */
-    return(result);
+    return result;
   } /* refResult */
 
 
@@ -712,7 +705,7 @@ objecttype obj_arg;
         result = NULL;
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* refScttolist */
 
 
@@ -834,7 +827,7 @@ objecttype obj_arg;
       buffer_len = (memsizetype) strlen(stri) + 32;
       if (!ALLOC_CSTRI(buffer, buffer_len)) {
         raise_error(MEMORY_ERROR);
-        return(NULL);
+        return NULL;
       } else {
         sprintf(buffer, "%s(%u)", stri, GET_LINE_NUM(obj_arg));
         stri = buffer;
@@ -870,7 +863,7 @@ objecttype obj_arg;
     if (result == NULL) {
       raise_error(MEMORY_ERROR);
     } /* if */
-    return(result);
+    return result;
   } /* refStr */
 
 
@@ -897,7 +890,7 @@ objecttype obj_arg;
     } else {
       result = obj_arg->type_of;
     } /* if */
-    return(result);
+    return result;
   } /* refType */
 
 
@@ -914,9 +907,9 @@ objecttype obj_arg;
   { /* actValue */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != ACTOBJECT) {
       raise_error(RANGE_ERROR);
-      return(NULL);
+      return NULL;
     } else {
-      return(take_action(obj_arg));
+      return take_action(obj_arg);
     } /* if */
   } /* actValue */
 
@@ -934,9 +927,9 @@ objecttype obj_arg;
   { /* bigValue */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != BIGINTOBJECT) {
       raise_error(RANGE_ERROR);
-      return(NULL);
+      return NULL;
     } else {
-      return(bigCreate(take_bigint(obj_arg)));
+      return bigCreate(take_bigint(obj_arg));
     } /* if */
   } /* bigValue */
 
@@ -970,7 +963,7 @@ objecttype obj_arg;
             (size_t) (result->size * sizeof(uchartype)));
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* bstValue */
 
 
@@ -987,9 +980,9 @@ objecttype obj_arg;
   { /* chrValue */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != CHAROBJECT) {
       raise_error(RANGE_ERROR);
-      return('\0');
+      return '\0';
     } else {
-      return(take_char(obj_arg));
+      return take_char(obj_arg);
     } /* if */
   } /* chrValue */
 
@@ -1007,9 +1000,9 @@ objecttype obj_arg;
   { /* filValue */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != FILEOBJECT) {
       raise_error(RANGE_ERROR);
-      return(NULL);
+      return NULL;
     } else {
-      return(take_file(obj_arg));
+      return take_file(obj_arg);
     } /* if */
   } /* filValue */
 
@@ -1027,9 +1020,9 @@ objecttype obj_arg;
   { /* fltValue */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != FLOATOBJECT) {
       raise_error(RANGE_ERROR);
-      return(0.0);
+      return 0.0;
     } else {
-      return(take_float(obj_arg));
+      return take_float(obj_arg);
     } /* if */
   } /* fltValue */
 
@@ -1047,9 +1040,9 @@ objecttype obj_arg;
   { /* intValue */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != INTOBJECT) {
       raise_error(RANGE_ERROR);
-      return(0);
+      return 0;
     } else {
-      return(take_int(obj_arg));
+      return take_int(obj_arg);
     } /* if */
   } /* intValue */
 
@@ -1067,9 +1060,9 @@ objecttype obj_arg;
   { /* prgValue */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != PROGOBJECT) {
       raise_error(RANGE_ERROR);
-      return(NULL);
+      return NULL;
     } else {
-      return(take_prog(obj_arg));
+      return take_prog(obj_arg);
     } /* if */
   } /* prgValue */
 
@@ -1094,10 +1087,10 @@ objecttype obj_arg;
          CATEGORY_OF_OBJ(obj_arg) == ENUMLITERALOBJECT ||
          CATEGORY_OF_OBJ(obj_arg) == CONSTENUMOBJECT ||
          CATEGORY_OF_OBJ(obj_arg) == VARENUMOBJECT)) {
-      return(take_reference(obj_arg));
+      return take_reference(obj_arg);
     } else {
       raise_error(RANGE_ERROR);
-      return(NULL);
+      return NULL;
     } /* if */
   } /* refValue */
 
@@ -1130,7 +1123,7 @@ objecttype obj_arg;
       raise_error(RANGE_ERROR);
       result = NULL;
     } /* if */
-    return(result);
+    return result;
   } /* rflValue */
 
 
@@ -1197,7 +1190,7 @@ objecttype obj_arg;
         memcpy(result->bitset, set1->bitset, set_size * sizeof(bitsettype));
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* setValue */
 
 
@@ -1230,7 +1223,7 @@ objecttype obj_arg;
             (size_t) (result->size * sizeof(strelemtype)));
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* strValue */
 
 
@@ -1247,8 +1240,8 @@ objecttype obj_arg;
   { /* typValue */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != TYPEOBJECT) {
       raise_error(RANGE_ERROR);
-      return(NULL);
+      return NULL;
     } else {
-      return(take_type(obj_arg));
+      return take_type(obj_arg);
     } /* if */
   } /* typValue */

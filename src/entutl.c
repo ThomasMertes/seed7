@@ -765,6 +765,9 @@ errinfotype *err_info;
       *err_info = MEMORY_ERROR;
     } /* if */
     property.literal->entity = entity.literal;
+    property.literal->file_number = 0;
+    property.literal->line = 0;
+    property.literal->syNumberInLine = 0;
 #ifdef TRACE_ENTITY
     printf("END init_entity\n");
 #endif

@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  hi   Interpreter for Seed7 programs.                            */
-/*  Copyright (C) 1990 - 2007  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2010  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: Library                                                 */
 /*  File: seed7/src/bstlib.h                                        */
-/*  Changes: 2007  Thomas Mertes                                    */
+/*  Changes: 2007, 2010  Thomas Mertes                              */
 /*  Content: All primitive actions for the byte string type.        */
 /*                                                                  */
 /********************************************************************/
@@ -33,7 +33,10 @@ objecttype bst_cpy (listtype);
 objecttype bst_create (listtype);
 objecttype bst_destr (listtype);
 objecttype bst_empty (listtype);
+objecttype bst_eq (listtype);
 objecttype bst_lng (listtype);
+objecttype bst_ne (listtype);
+objecttype bst_parse (listtype);
 objecttype bst_value (listtype);
 
 #else
@@ -44,7 +47,10 @@ objecttype bst_cpy ();
 objecttype bst_create ();
 objecttype bst_destr ();
 objecttype bst_empty ();
+objecttype bst_eq ();
 objecttype bst_lng ();
+objecttype bst_ne ();
+objecttype bst_parse ();
 objecttype bst_value ();
 
 #endif

@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  str_rtl.c     Primitive actions for the string type.            */
-/*  Copyright (C) 1989 - 2008  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2010  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/str_rtl.c                                       */
-/*  Changes: 1991, 1992, 1993, 1994, 2005  Thomas Mertes            */
+/*  Changes: 1991, 1992, 1993, 1994, 2005, 2010  Thomas Mertes      */
 /*  Content: Primitive actions for the string type.                 */
 /*                                                                  */
 /********************************************************************/
@@ -73,10 +73,10 @@ size_t number;
   { /* strelem_memcmp */
     for (; number > 0; mem1++, mem2++, number--) {
       if (*mem1 != *mem2) {
-        return(*mem1 < *mem2 ? -1 : 1);
+        return *mem1 < *mem2 ? -1 : 1;
       } /* if */
     } /* for */
-    return(0);
+    return 0;
   } /* strelem_memcmp */
 
 
@@ -99,10 +99,10 @@ size_t number;
   /* search_strelem */
     for (byond = &mem[number]; mem != byond; mem++) {
       if (*mem == ch) {
-        return(mem);
+        return mem;
       } /* if */
     } /* for */
-    return(NULL);
+    return NULL;
   } /* search_strelem */
 
 
@@ -131,10 +131,10 @@ size_t number;
   { /* rsearch_strelem */
     for (; number > 0; mem--, number--) {
       if (*mem == ch) {
-        return(mem);
+        return mem;
       } /* if */
     } /* for */
-    return(NULL);
+    return NULL;
   } /* rsearch_strelem */
 
 
@@ -191,7 +191,7 @@ inttype *used_max_position;
       FREE_RTL_ARRAY(work_array, (uinttype) work_array->max_position);
       work_array = NULL;
     } /* if */
-    return(work_array);
+    return work_array;
   } /* add_stri_to_array */
 
 
@@ -220,7 +220,7 @@ os_stritype *argv;
         arg_v->arr[number - 1].value.strivalue = os_stri_to_stri(argv[number]);
       } /* for */
     } /* if */
-    return(arg_v);
+    return arg_v;
   } /* copyArgv */
 
 
@@ -251,7 +251,7 @@ char **argv;
 #else
     arg_v = copyArgv(argc, argv);
 #endif
-    return(arg_v);
+    return arg_v;
   } /* getArgv */
 
 
@@ -519,7 +519,7 @@ chartype escape;
     if (result_array == NULL) {
       raise_error(MEMORY_ERROR);
     } /* if */
-    return(result_array);
+    return result_array;
   } /* strChEscSplit */
 #endif
 
@@ -550,11 +550,11 @@ inttype from_index;
         found_pos = search_strelem(&main_mem[from_index - 1], searched,
             main_stri->size - (uinttype) from_index + 1);
         if (found_pos != NULL) {
-          return(((inttype) (found_pos - main_mem)) + 1);
+          return ((inttype) (found_pos - main_mem)) + 1;
         } /* if */
       } /* if */
     } /* if */
-    return(0);
+    return 0;
   } /* strChIpos */
 
 
@@ -579,10 +579,10 @@ chartype searched;
       found_pos = search_strelem(main_mem, searched,
           main_stri->size);
       if (found_pos != NULL) {
-        return(((inttype) (found_pos - main_mem)) + 1);
+        return ((inttype) (found_pos - main_mem)) + 1;
       } /* if */
     } /* if */
-    return(0);
+    return 0;
   } /* strChPos */
 
 
@@ -646,7 +646,7 @@ chartype delimiter;
     if (result_array == NULL) {
       raise_error(MEMORY_ERROR);
     } /* if */
-    return(result_array);
+    return result_array;
   } /* strChSplit */
 
 
@@ -674,7 +674,7 @@ stritype stri;
     length = stri->size;
     if (!ALLOC_STRI(result, (memsizetype) (4 * length + 2))) {
       raise_error(MEMORY_ERROR);
-      return(NULL);
+      return NULL;
     } /* if */
     result->mem[0] = (strelemtype) '"';
     pos = 1;
@@ -703,7 +703,7 @@ stritype stri;
       } else {
         FREE_STRI(result, (memsizetype) (4 * length + 2));
         raise_error(RANGE_ERROR);
-        return(NULL);
+        return NULL;
       } /* if */
     } /* for */
     result->mem[pos] = (strelemtype) '"';
@@ -713,11 +713,11 @@ stritype stri;
     if (resized_result == NULL) {
       FREE_STRI(result, (memsizetype) (4 * length + 2));
       raise_error(MEMORY_ERROR);
-      return(NULL);
+      return NULL;
     } else {
       result = resized_result;
       COUNT3_STRI(4 * length + 2, pos + 1);
-      return(result);
+      return result;
     } /* if */
   } /* strCLit */
 
@@ -725,10 +725,10 @@ stritype stri;
 
 #ifdef ANSI_C
 
-inttype strCompare (const const_stritype stri1, const const_stritype stri2)
+INLINE inttype strCompare (const const_stritype stri1, const const_stritype stri2)
 #else
 
-inttype strCompare (stri1, stri2)
+INLINE inttype strCompare (stri1, stri2)
 stritype stri1;
 stritype stri2;
 #endif
@@ -757,8 +757,30 @@ stritype stri2;
         result = -1;
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* strCompare */
+
+
+
+/**
+ *  Reinterpret the generic parameters as stritype and call strCompare.
+ *  Function pointers in C programs generated by the Seed7 compiler
+ *  may point to this function. This assures correct behaviour even
+ *  when sizeof(rtlGenerictype) != sizeof(stritype).
+ */
+#ifdef ANSI_C
+
+inttype strCmpGeneric (const rtlGenerictype value1, const rtlGenerictype value2)
+#else
+
+inttype strCmpGeneric (value1, value2)
+rtlGenerictype value1;
+rtlGenerictype value2;
+#endif
+
+  { /* strCmpGeneric */
+    return strCompare((const_stritype) value1, (const_stritype) value2);
+  } /* strCmpGeneric */
 
 
 
@@ -788,7 +810,7 @@ stritype stri2;
       memcpy(&result->mem[stri1->size], stri2->mem,
           stri2->size * sizeof(strelemtype));
     } /* if */
-    return(result);
+    return result;
   } /* strConcat */
 
 
@@ -827,7 +849,7 @@ stritype stri2;
           stri2->size * sizeof(strelemtype));
       stri1->size = result_size;
     } /* if */
-    return(stri1);
+    return stri1;
   } /* strConcatTemp */
 
 
@@ -890,10 +912,10 @@ stritype stri_from;
 
 #ifdef ANSI_C
 
-stritype strCreate (const const_stritype stri_from)
+INLINE stritype strCreate (const const_stritype stri_from)
 #else
 
-stritype strCreate (stri_from)
+INLINE stritype strCreate (stri_from)
 stritype stri_from;
 #endif
 
@@ -912,8 +934,29 @@ stritype stri_from;
             new_size * sizeof(strelemtype));
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* strCreate */
+
+
+
+/**
+ *  Generic Create function to be used via function pointers.
+ *  Function pointers in C programs generated by the Seed7 compiler
+ *  may point to this function. This assures correct behaviour even
+ *  when sizeof(rtlGenerictype) != sizeof(stritype).
+ */
+#ifdef ANSI_C
+
+rtlGenerictype strCreateGeneric (const rtlGenerictype from_value)
+#else
+
+rtlGenerictype strCreateGeneric (from_value)
+rtlGenerictype from_value;
+#endif
+
+  { /* strCreateGeneric */
+    return (rtlGenerictype) strCreate((const_stritype) from_value);
+  } /* strCreateGeneric */
 
 
 
@@ -952,7 +995,7 @@ stritype strEmpty ()
     } else {
       result->size = 0;
     } /* if */
-    return(result);
+    return result;
   } /* strEmpty */
 
 
@@ -970,15 +1013,15 @@ stritype stri2;
   { /* strGe */
     if (stri1->size >= stri2->size) {
       if (strelem_memcmp(stri1->mem, stri2->mem, stri2->size) >= 0) {
-        return(TRUE);
+        return TRUE;
       } else {
-        return(FALSE);
+        return FALSE;
       } /* if */
     } else {
       if (strelem_memcmp(stri1->mem, stri2->mem, stri1->size) > 0) {
-        return(TRUE);
+        return TRUE;
       } else {
-        return(FALSE);
+        return FALSE;
       } /* if */
     } /* if */
   } /* strGe */
@@ -1012,7 +1055,7 @@ stritype stri;
     if (result == NULL) {
       raise_error(MEMORY_ERROR);
     } /* if */
-    return(result);
+    return result;
   } /* strGetenv */
 
 
@@ -1030,15 +1073,15 @@ stritype stri2;
   { /* strGt */
     if (stri1->size > stri2->size) {
       if (strelem_memcmp(stri1->mem, stri2->mem, stri2->size) >= 0) {
-        return(TRUE);
+        return TRUE;
       } else {
-        return(FALSE);
+        return FALSE;
       } /* if */
     } else {
       if (strelem_memcmp(stri1->mem, stri2->mem, stri1->size) > 0) {
-        return(TRUE);
+        return TRUE;
       } else {
-        return(FALSE);
+        return FALSE;
       } /* if */
     } /* if */
   } /* strGt */
@@ -1063,7 +1106,7 @@ stritype stri;
     } else {
       result = (inttype) (stri->mem[0] << 5 ^ stri->size << 3 ^ stri->mem[stri->size - 1]);
     } /* if */
-    return(result);
+    return result;
   } /* strHashCode */
 
 
@@ -1105,7 +1148,7 @@ inttype stop;
         result->size = 0;
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* strHead */
 
 
@@ -1129,7 +1172,7 @@ inttype stop;
     length = stri->size;
     if (stop >= 1 && length >= 1) {
       if (length <= (uinttype) stop) {
-        return(stri);
+        return stri;
       } else {
         result_size = (uinttype) stop;
       } /* if */
@@ -1144,7 +1187,7 @@ inttype stop;
       COUNT3_STRI(length, result_size);
       result->size = result_size;
     } /* if */
-    return(result);
+    return result;
   } /* strHeadTemp */
 
 
@@ -1188,14 +1231,14 @@ inttype from_index;
             ch_1, (memsizetype) (search_end - search_start))) != NULL) {
           if (memcmp(search_start, searched_mem,
               searched_size * sizeof(strelemtype)) == 0) {
-            return(((inttype) (search_start - main_mem)) + from_index);
+            return ((inttype) (search_start - main_mem)) + from_index;
           } else {
             search_start++;
           } /* if */
         } /* if */
       } /* if */
     } /* if */
-    return(0);
+    return 0;
   } /* strIpos */
 
 
@@ -1213,15 +1256,15 @@ stritype stri2;
   { /* strLe */
     if (stri1->size <= stri2->size) {
       if (strelem_memcmp(stri1->mem, stri2->mem, stri1->size) <= 0) {
-        return(TRUE);
+        return TRUE;
       } else {
-        return(FALSE);
+        return FALSE;
       } /* if */
     } else {
       if (strelem_memcmp(stri1->mem, stri2->mem, stri2->size) < 0) {
-        return(TRUE);
+        return TRUE;
       } else {
-        return(FALSE);
+        return FALSE;
       } /* if */
     } /* if */
   } /* strLe */
@@ -1289,7 +1332,7 @@ stritype stri;
         COUNT3_STRI(5 * length + 2, pos + 1);
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* strLit */
 
 
@@ -1312,7 +1355,7 @@ stritype stri;
     length = stri->size;
     if (!ALLOC_STRI(result, length)) {
       raise_error(MEMORY_ERROR);
-      return(NULL);
+      return NULL;
     } else {
       result->size = length;
       for (pos = 0; pos < length; pos++) {
@@ -1326,7 +1369,7 @@ stritype stri;
         result->mem[pos] = (strelemtype) tolower((int) stri->mem[pos]);
 #endif
       } /* for */
-      return(result);
+      return result;
     } /* if */
   } /* strLow */
 
@@ -1354,7 +1397,7 @@ stritype stri;
       stri->mem[pos] = (strelemtype) tolower((int) stri->mem[pos]);
 #endif
     } /* for */
-    return(stri);
+    return stri;
   } /* strLowTemp */
 
 
@@ -1406,7 +1449,7 @@ inttype pad_size;
             length * sizeof(strelemtype));
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* strLpad */
 
 
@@ -1458,7 +1501,7 @@ inttype pad_size;
             length * sizeof(strelemtype));
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* strLpad0 */
 
 
@@ -1505,7 +1548,7 @@ inttype pad_size;
     } else {
       result = stri;
     } /* if */
-    return(result);
+    return result;
   } /* strLpad0Temp */
 
 
@@ -1523,15 +1566,15 @@ stritype stri2;
   { /* strLt */
     if (stri1->size < stri2->size) {
       if (strelem_memcmp(stri1->mem, stri2->mem, stri1->size) <= 0) {
-        return(TRUE);
+        return TRUE;
       } else {
-        return(FALSE);
+        return FALSE;
       } /* if */
     } else {
       if (strelem_memcmp(stri1->mem, stri2->mem, stri2->size) < 0) {
-        return(TRUE);
+        return TRUE;
       } else {
-        return(FALSE);
+        return FALSE;
       } /* if */
     } /* if */
   } /* strLt */
@@ -1563,12 +1606,12 @@ stritype stri;
     } /* if */
     if (!ALLOC_STRI(result, length)) {
       raise_error(MEMORY_ERROR);
-      return(NULL);
+      return NULL;
     } else {
       result->size = length;
       memcpy(result->mem, &stri->mem[start],
           length * sizeof(strelemtype));
-      return(result);
+      return result;
     } /* if */
   } /* strLtrim */
 
@@ -1595,13 +1638,13 @@ inttype factor;
   /* strMult */
     if (factor < 0) {
       raise_error(RANGE_ERROR);
-      return(NULL);
+      return NULL;
     } else {
       len = stri->size;
       result_size = (uinttype) factor * len;
       if (!ALLOC_STRI(result, result_size)) {
         raise_error(MEMORY_ERROR);
-        return(NULL);
+        return NULL;
       } else {
         result->size = result_size;
         if (len == 1) {
@@ -1622,7 +1665,7 @@ inttype factor;
             result_pointer += len;
           } /* for */
         } /* if */
-        return(result);
+        return result;
       } /* if */
     } /* if */
   } /* strMult */
@@ -1661,13 +1704,13 @@ stritype searched;
           ch_1, (memsizetype) (search_end - search_start))) != NULL) {
         if (memcmp(search_start, searched_mem,
             searched_size * sizeof(strelemtype)) == 0) {
-          return(((inttype) (search_start - main_mem)) + 1);
+          return ((inttype) (search_start - main_mem)) + 1;
         } else {
           search_start++;
         } /* if */
       } /* if */
     } /* if */
-    return(0);
+    return 0;
   } /* strPos */
 
 
@@ -1690,7 +1733,7 @@ chartype char_from;
 #ifndef UTF32_STRINGS
     if (char_from > (chartype) 255) {
       raise_error(RANGE_ERROR);
-      return(NULL);
+      return NULL;
     } else {
 #endif
       stri_dest = *stri_to;
@@ -1740,7 +1783,7 @@ inttype stop;
       result_size = (uinttype) (stop - start + 1);
       if (!ALLOC_STRI(result, result_size)) {
         raise_error(MEMORY_ERROR);
-        return(NULL);
+        return NULL;
       } /* if */
       /* Reversing the order of the following two statements    */
       /* causes an "Internal Compiler Error" with MSC 6.0       */
@@ -1754,11 +1797,11 @@ inttype stop;
     } else {
       if (!ALLOC_STRI(result, (memsizetype) 0)) {
         raise_error(MEMORY_ERROR);
-        return(NULL);
+        return NULL;
       } /* if */
       result->size = 0;
     } /* if */
-    return(result);
+    return result;
   } /* strRange */
 
 
@@ -1783,10 +1826,10 @@ chartype searched;
       found_pos = rsearch_strelem(&main_mem[main_stri->size - 1], searched,
           main_stri->size);
       if (found_pos != NULL) {
-        return(((inttype) (found_pos - main_mem)) + 1);
+        return ((inttype) (found_pos - main_mem)) + 1;
       } /* if */
     } /* if */
-    return(0);
+    return 0;
   } /* strRChPos */
 
 
@@ -1874,7 +1917,7 @@ stritype replace;
         result->size = result_size;
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* strRepl */
 
 
@@ -1920,13 +1963,13 @@ inttype pad_size;
     } else {
       if (!ALLOC_STRI(result, length)) {
         raise_error(MEMORY_ERROR);
-        return(NULL);
+        return NULL;
       } /* if */
       result->size = length;
       memcpy(result->mem, stri->mem,
           length * sizeof(strelemtype));
     } /* if */
-    return(result);
+    return result;
   } /* strRpad */
 
 
@@ -1963,13 +2006,13 @@ stritype searched;
           ch_1, (memsizetype) (search_start - search_end))) != NULL) {
         if (memcmp(search_start, searched_mem,
             searched_size * sizeof(strelemtype)) == 0) {
-          return(((inttype) (search_start - main_mem)) + 1);
+          return ((inttype) (search_start - main_mem)) + 1;
         } else {
           search_start--;
         } /* if */
       } /* if */
     } /* if */
-    return(0);
+    return 0;
   } /* strRpos */
 
 
@@ -1994,12 +2037,12 @@ stritype stri;
     } /* while */
     if (!ALLOC_STRI(result, length)) {
       raise_error(MEMORY_ERROR);
-      return(NULL);
+      return NULL;
     } else {
       result->size = length;
       memcpy(result->mem, stri->mem,
           length * sizeof(strelemtype));
-      return(result);
+      return result;
     } /* if */
   } /* strRtrim */
 
@@ -2049,10 +2092,10 @@ chartype delimiter;
             result_array, &used_max_position, &err_info);
       } /* if */
 
-      return(result_array);
+      return result_array;
     } else {
       raise_error(MEMORY_ERROR);
-      return(NULL);
+      return NULL;
     } /* if */
   } /* strSplit */
 
@@ -2195,7 +2238,7 @@ stritype delimiter;
     if (result_array == NULL) {
       raise_error(MEMORY_ERROR);
     } /* if */
-    return(result_array);
+    return result_array;
   } /* strSplit */
 
 
@@ -2231,7 +2274,7 @@ inttype len;
       } /* if */
       if (!ALLOC_STRI(result, result_size)) {
         raise_error(MEMORY_ERROR);
-        return(NULL);
+        return NULL;
       } /* if */
       memcpy(result->mem, &stri->mem[start - 1],
           result_size * sizeof(strelemtype));
@@ -2239,11 +2282,11 @@ inttype len;
     } else {
       if (!ALLOC_STRI(result, (memsizetype) 0)) {
         raise_error(MEMORY_ERROR);
-        return(NULL);
+        return NULL;
       } /* if */
       result->size = 0;
     } /* if */
-    return(result);
+    return result;
   } /* strSubstr */
 
 
@@ -2272,7 +2315,7 @@ inttype start;
       result_size = length - (uinttype) start + 1;
       if (!ALLOC_STRI(result, result_size)) {
         raise_error(MEMORY_ERROR);
-        return(NULL);
+        return NULL;
       } /* if */
       /* Reversing the order of the following two statements    */
       /* causes an "Internal Compiler Error" with MSC 6.0       */
@@ -2286,11 +2329,11 @@ inttype start;
     } else {
       if (!ALLOC_STRI(result, (memsizetype) 0)) {
         raise_error(MEMORY_ERROR);
-        return(NULL);
+        return NULL;
       } /* if */
       result->size = 0;
     } /* if */
-    return(result);
+    return result;
   } /* strTail */
 
 
@@ -2361,7 +2404,7 @@ stritype stri;
         result->size = result_size;
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* strToUtf8 */
 
 
@@ -2394,12 +2437,12 @@ stritype stri;
     } /* if */
     if (!ALLOC_STRI(result, length)) {
       raise_error(MEMORY_ERROR);
-      return(NULL);
+      return NULL;
     } else {
       result->size = length;
       memcpy(result->mem, &stri->mem[start],
           length * sizeof(strelemtype));
-      return(result);
+      return result;
     } /* if */
   } /* strTrim */
 
@@ -2423,7 +2466,7 @@ stritype stri;
     length = stri->size;
     if (!ALLOC_STRI(result, length)) {
       raise_error(MEMORY_ERROR);
-      return(NULL);
+      return NULL;
     } else {
       result->size = length;
       for (pos = 0; pos < length; pos++) {
@@ -2437,7 +2480,7 @@ stritype stri;
         result->mem[pos] = (strelemtype) toupper((int) stri->mem[pos]);
 #endif
       } /* for */
-      return(result);
+      return result;
     } /* if */
   } /* strUp */
 
@@ -2465,7 +2508,7 @@ stritype stri;
       stri->mem[pos] = (strelemtype) toupper((int) stri->mem[pos]);
 #endif
     } /* for */
-    return(stri);
+    return stri;
   } /* strUpTemp */
 
 
@@ -2570,5 +2613,5 @@ stritype stri8;
         result = NULL;
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* strUtf8ToStri */

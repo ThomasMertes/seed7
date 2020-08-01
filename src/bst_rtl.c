@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  bst_rtl.c     Primitive actions for the byte string type.       */
-/*  Copyright (C) 1989 - 2007  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2010  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/bst_rtl.c                                       */
-/*  Changes: 2007  Thomas Mertes                                    */
+/*  Changes: 2007, 2010  Thomas Mertes                              */
 /*  Content: Primitive actions for the byte string type.            */
 /*                                                                  */
 /********************************************************************/
@@ -47,7 +47,7 @@
 
 #ifdef ANSI_C
 
-void bstAppend (bstritype *const bstri_to, const const_bstritype bstri_from)
+void bstAppend (bstritype *const bstri_to, const_bstritype bstri_from)
 #else
 
 void bstAppend (bstri_to, bstri_from)
@@ -58,21 +58,26 @@ bstritype bstri_from;
   {
     memsizetype new_size;
     bstritype bstri_dest;
+    bstritype new_bstri;
 
   /* bstAppend */
-    if (bstri_from->size != 0) {
-      bstri_dest = *bstri_to;
-      new_size = bstri_dest->size + bstri_from->size;
-      REALLOC_BSTRI(bstri_dest, bstri_dest, bstri_dest->size, new_size);
-      if (bstri_dest == NULL) {
-        raise_error(MEMORY_ERROR);
-        return;
+    bstri_dest = *bstri_to;
+    new_size = bstri_dest->size + bstri_from->size;
+    REALLOC_BSTRI(new_bstri, bstri_dest, bstri_dest->size, new_size);
+    if (new_bstri == NULL) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      /* It is possible that bstri_dest == bstri_from holds. */
+      /* In this case 'bstri_from' must be corrected         */
+      /* after realloc() enlarged 'bstri_dest'.              */
+      if (bstri_dest == bstri_from) {
+        bstri_from = new_bstri;
       } /* if */
-      COUNT3_BSTRI(bstri_dest->size, new_size);
-      memcpy(&bstri_dest->mem[bstri_dest->size], bstri_from->mem,
+      COUNT3_BSTRI(new_bstri->size, new_size);
+      memcpy(&new_bstri->mem[new_bstri->size], bstri_from->mem,
           (size_t) bstri_from->size * sizeof(uchartype));
-      bstri_dest->size = new_size;
-      *bstri_to = bstri_dest;
+      new_bstri->size = new_size;
+      *bstri_to = new_bstri     ;
     } /* if */
   } /* bstAppend */
 
@@ -136,8 +141,12 @@ bstritype bstri_from;
         *bstri_to = bstri_dest;
       } /* if */
     } /* if */
-    memcpy(bstri_dest->mem, bstri_from->mem,
-        (size_t) new_size * sizeof(uchartype));
+    /* It is possible that *bstri_to == bstri_from holds. The */
+    /* behavior of memcpy() is undefined when source and      */
+    /* destination areas overlap (or are identical).          */
+    /* Therefore memmove() is used instead of memcpy().       */
+    memmove(bstri_dest->mem, bstri_from->mem,
+        new_size * sizeof(uchartype));
   } /* bstCpy */
 
 
@@ -183,3 +192,41 @@ bstritype old_bstring;
       FREE_BSTRI(old_bstring, old_bstring->size);
     } /* if */
   } /* bstDestr */
+
+
+
+#ifdef ANSI_C
+
+bstritype bstParse (const const_stritype stri)
+#else
+
+bstritype bstParse (stri)
+stritype stri;
+#endif
+
+  {
+    memsizetype len;
+    const strelemtype *strelem;
+    uchartype *bstrelem;
+    bstritype result;
+
+  /* bstParse */
+    len = stri->size;
+    if (!ALLOC_BSTRI(result, len)) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      result->size = len;
+      for (bstrelem = result->mem, strelem = stri->mem;
+           len > 0; bstrelem++, strelem++, len--) {
+        if (*strelem >= 256) {
+          FREE_BSTRI(result, result->size);
+          result = NULL;
+          raise_error(RANGE_ERROR);
+          len = 0;
+        } else {
+          *bstrelem = (uchartype) *strelem;
+        } /* if */
+      } /* for */
+    } /* if */
+    return(result);
+  } /* bstParse */

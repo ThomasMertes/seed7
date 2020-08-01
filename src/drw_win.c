@@ -2341,7 +2341,7 @@ inttype bkcol;
             return;
           } /* if */
           *wstri = (wchar_t) *strelem;
-        } /* while */
+        } /* for */
 
         SetTextColor(to_hdc(actual_window), (COLORREF) col);
         SetBkColor(to_hdc(actual_window), (COLORREF) bkcol);

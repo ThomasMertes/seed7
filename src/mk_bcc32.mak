@@ -169,6 +169,7 @@ version.h:
 	cmd /S /C "echo #define wide_fopen _wfopen" >> version.h
 	cmd /S /C "echo #define USE_WINSOCK" >> version.h
 	cmd /S /C "echo #define $(BIGINT_LIB_DEFINE)" >> version.h
+	cmd /S /C "echo bcc32.exe %*" > bcc32.bat
 	cmd /S /C "echo #include "stdio.h"" > chkftell.c
 	cmd /S /C "echo int main (int argc, char **argv)" >> chkftell.c
 	cmd /S /C "echo {" >> chkftell.c
@@ -189,11 +190,12 @@ version.h:
 	cmd /S /C "echo int main (int argc, char **argv)" >> chkccomp.c
 	cmd /S /C "echo {" >> chkccomp.c
 	cmd /S /C "echo long number;" >> chkccomp.c
-	cmd /S /C "echo if (sizeof(char *) == 4) { >> chkccomp.c
-	cmd /S /C "echo puts("\043define POINTER_SIZE 32");" >> chkccomp.c
-	cmd /S /C "echo } else if (sizeof(char *) == 8) {" >> chkccomp.c
-	cmd /S /C "echo puts("\043define POINTER_SIZE 64");" >> chkccomp.c
-	cmd /S /C "echo } >> chkccomp.c
+	cmd /S /C "echo printf("\043define POINTER_SIZE %d", 8 * sizeof(char *));" >> chkccomp.c
+	cmd /S /C "echo puts("");" >> chkccomp.c
+	cmd /S /C "echo printf("\043define FLOAT_SIZE %d", 8 * sizeof(float));" >> chkccomp.c
+	cmd /S /C "echo puts("");" >> chkccomp.c
+	cmd /S /C "echo printf("\043define DOUBLE_SIZE %d", 8 * sizeof(double));" >> chkccomp.c
+	cmd /S /C "echo puts("");" >> chkccomp.c
 	cmd /S /C "echo if (sizeof(int) == 4) { >> chkccomp.c
 	cmd /S /C "echo puts("\043define INT32TYPE int");" >> chkccomp.c
 	cmd /S /C "echo puts("\043define INT32TYPE_STRI \"int\"");" >> chkccomp.c
@@ -228,6 +230,10 @@ version.h:
 	cmd /S /C "echo }" >> chkccomp.c
 	cmd /S /C "echo if (~number == (long) 0) {" >> chkccomp.c
 	cmd /S /C "echo puts("\043define TWOS_COMPLEMENT_INTTYPE");" >> chkccomp.c
+	cmd /S /C "echo }" >> chkccomp.c
+	cmd /S /C "echo number = 1;" >> chkccomp.c
+	cmd /S /C "echo if (((char *) ^&number)[0] == 1) {" >> chkccomp.c
+	cmd /S /C "echo puts("\043define LITTLE_ENDIAN");" >> chkccomp.c
 	cmd /S /C "echo }" >> chkccomp.c
 	cmd /S /C "echo return 0;" >> chkccomp.c
 	cmd /S /C "echo }" >> chkccomp.c

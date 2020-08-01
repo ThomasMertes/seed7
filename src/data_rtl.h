@@ -32,8 +32,26 @@
 /* Since a function cannot return structs by value and */
 /* cannot have struct value parameters rtlGenerictype  */
 /* is used in these cases instead of rtlObjecttype.    */
+/* To work reliably it must be assured that            */
+/* sizeof(rtlGenerictype) == sizeof(rtlObjecttype)     */
 
-typedef inttype rtlGenerictype;
+#if INTTYPE_SIZE >= POINTER_SIZE
+#if INTTYPE_SIZE >= FLOATTYPE_SIZE
+#define GENERIC_SIZE INTTYPE_SIZE
+#else
+#define GENERIC_SIZE FLOATTYPE_SIZE
+#endif
+#elif POINTER_SIZE >= FLOATTYPE_SIZE
+#define GENERIC_SIZE POINTER_SIZE
+#else
+#define GENERIC_SIZE FLOATTYPE_SIZE
+#endif
+
+#if   GENERIC_SIZE == 64
+typedef uint64type rtlGenerictype;
+#elif GENERIC_SIZE == 32
+typedef uint32type rtlGenerictype;
+#endif
 
 typedef struct rtlListstruct   *rtlListtype;
 typedef struct rtlArraystruct  *rtlArraytype;

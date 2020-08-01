@@ -176,18 +176,18 @@ rtlArraytype arr1;
     result_size = (uinttype) (arr1->max_position - arr1->min_position + 1);
     arr1->min_position = start_position;
     arr1->max_position = (inttype) ((memsizetype) start_position + result_size - 1);
-    return(arr1);
+    return arr1;
   } /* arrArrlit2 */
 
 
 
 #ifdef ANSI_C
 
-rtlArraytype arrBaselit (rtlObjecttype element)
+rtlArraytype arrBaselit (const rtlGenerictype element)
 #else
 
 rtlArraytype arrBaselit (element)
-rtlObjecttype element;
+rtlGenerictype element;
 #endif
 
   {
@@ -201,21 +201,21 @@ rtlObjecttype element;
     } else {
       result->min_position = 1;
       result->max_position = 1;
-      result->arr[0] = element;
+      result->arr[0].value.genericvalue = element;
     } /* if */
-    return(result);
+    return result;
   } /* arrBaselit */
 
 
 
 #ifdef ANSI_C
 
-rtlArraytype arrBaselit2 (inttype start_position, rtlObjecttype element)
+rtlArraytype arrBaselit2 (inttype start_position, const rtlGenerictype element)
 #else
 
 rtlArraytype arrBaselit2 (start_position, element)
 inttype start_position;
-rtlObjecttype element;
+rtlGenerictype element;
 #endif
 
   {
@@ -229,9 +229,9 @@ rtlObjecttype element;
     } else {
       result->min_position = start_position;
       result->max_position = start_position;
-      result->arr[0] = element;
+      result->arr[0].value.genericvalue = element;
     } /* if */
-    return(result);
+    return result;
   } /* arrBaselit2 */
 
 
@@ -270,19 +270,19 @@ rtlArraytype arr2;
         FREE_RTL_ARRAY(arr2, arr2_size);
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* arrCat */
 
 
 
 #ifdef ANSI_C
 
-rtlArraytype arrExtend (rtlArraytype arr1, rtlObjecttype element)
+rtlArraytype arrExtend (rtlArraytype arr1, const rtlGenerictype element)
 #else
 
 rtlArraytype arrExtend (arr1, element)
 rtlArraytype arr1;
-rtlObjecttype element;
+rtlGenerictype element;
 #endif
 
   {
@@ -303,22 +303,22 @@ rtlObjecttype element;
       } else {
         COUNT3_RTL_ARRAY(arr1_size, result_size);
         result->max_position++;
-        result->arr[arr1_size] = element;
+        result->arr[arr1_size].value.genericvalue = element;
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* arrExtend */
 
 
 
 #ifdef ANSI_C
 
-rtlArraytype arrGen (rtlObjecttype element1, rtlObjecttype element2)
+rtlArraytype arrGen (const rtlGenerictype element1, const rtlGenerictype element2)
 #else
 
 rtlArraytype arrGen (element1, element2)
-rtlObjecttype element1;
-rtlObjecttype element2;
+rtlGenerictype element1;
+rtlGenerictype element2;
 #endif
 
   {
@@ -332,10 +332,10 @@ rtlObjecttype element2;
     } else {
       result->min_position = 1;
       result->max_position = 2;
-      result->arr[0] = element1;
-      result->arr[1] = element2;
+      result->arr[0].value.genericvalue = element1;
+      result->arr[1].value.genericvalue = element2;
     } /* if */
-    return(result);
+    return result;
   } /* arrGen */
 
 
@@ -378,7 +378,7 @@ inttype stop;
         result->max_position = arr1->min_position - 1;
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* arrHead */
 
 
@@ -434,7 +434,7 @@ inttype stop;
         result->max_position = arr1->min_position - 1;
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* arrHeadTemp */
 
 
@@ -480,7 +480,7 @@ inttype pos;
       raise_error(RANGE_ERROR);
       result = 0;
     } /* if */
-    return(result);
+    return result;
   } /* arrIdxTemp */
 
 
@@ -530,7 +530,7 @@ inttype stop;
         result->max_position = arr1->min_position - 1;
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* arrRange */
 
 
@@ -599,7 +599,7 @@ inttype stop;
         result->max_position = arr1->min_position - 1;
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* arrRangeTemp */
 
 
@@ -644,7 +644,7 @@ inttype position;
       raise_error(RANGE_ERROR);
       result = 0;
     } /* if */
-    return(result);
+    return result;
   } /* arrRemove */
 
 
@@ -662,7 +662,7 @@ inttype cmp_func (rtlGenerictype, rtlGenerictype);
   { /* arrSort */
     /* printf("arrSort(%lX, %ld, %ld)\n", arr1, arr1->min_position, arr1->max_position); */
     rtl_qsort_array(arr1->arr, &arr1->arr[arr1->max_position - arr1->min_position], cmp_func);
-    return(arr1);
+    return arr1;
   } /* arrSort */
 
 
@@ -707,7 +707,7 @@ inttype start;
         result->max_position = arr1->min_position - 1;
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* arrTail */
 
 
@@ -765,5 +765,5 @@ inttype start;
         result->max_position = arr1->min_position - 1;
       } /* if */
     } /* if */
-    return(result);
+    return result;
   } /* arrTailTemp */

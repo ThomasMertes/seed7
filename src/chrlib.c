@@ -61,7 +61,7 @@ listtype arguments;
   /* chr_chr */
     isit_int(arg_1(arguments));
     number = take_int(arg_1(arguments));
-#ifdef INTTYPE_64BIT
+#if INTTYPE_SIZE == 64
     if (number < INT32TYPE_MIN || number > INT32TYPE_MAX) {
       return(raise_exception(SYS_RNG_EXCEPTION));
     } else {
@@ -279,7 +279,7 @@ listtype arguments;
 
   { /* chr_hashcode */
     isit_char(arg_1(arguments));
-    return(bld_int_temp((inttype) take_char(arg_1(arguments))));
+    return(bld_int_temp((inttype) ((schartype) take_char(arg_1(arguments)))));
   } /* chr_hashcode */
 
 

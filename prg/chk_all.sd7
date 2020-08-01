@@ -129,7 +129,8 @@ const string: chkset_output is "\n\
   \set membership test works correct.\n\
   \min(bitset) works correct.\n\
   \max(bitset) works correct.\n\
-  \set assignment works correct.\n";
+  \set assignment works correct.\n\
+  \character sets work correct.\n";
 
 const string: chkexc_output is "\n\
   \Integer exceptions work correct.\n\
@@ -155,6 +156,37 @@ const string: chkexc_output is "\n\
   \1 div 0 in repeat raises NUMERIC_ERROR\n";
 
 
+const func boolean: equalFiles (in string: file1Name, in string: file2Name) is func
+  result
+    var boolean: equal is FALSE;
+  local
+    var file: file1 is STD_NULL;
+    var file: file2 is STD_NULL;
+    var string: stri1 is "";
+    var string: stri2 is "";
+  begin
+    file1 := open(file1Name, "r");
+    if file1 <> STD_NULL then
+      file2 := open (file2Name, "r");
+      if file2 <> STD_NULL then
+        equal := TRUE;
+        while equal and not (eof(file1) or eof(file2)) do
+          stri1 := gets(file1, 4096);
+          stri2 := gets(file2, 4096);
+          if stri1 <> stri2 then
+            equal := FALSE;
+          end if;
+        end while;
+        if not (eof(file1) and eof(file2)) then
+          equal := FALSE;
+        end if;
+        close(file2);
+      end if;
+      close(file1);
+    end if;
+  end func;
+
+
 const func string: cmdOutput (in string: command) is func
   result
     var string: result is "";
@@ -172,26 +204,34 @@ const proc: check (in string: progName, in string: referenceOutput) is func
   local
     var string: interpretedOutput is "";
     var string: compilerOutput is "";
-    var string: compiledOutput1 is "";
-    var string: compiledOutput2 is "";
+    var string: compiledOutput is "";
     var boolean: checkWithCompiledCompiler is FALSE;
     var boolean: okay is TRUE;
   begin
     write(progName);
     flush(OUT);
     interpretedOutput := cmdOutput("./hi -q "   & progName);
-    if fileType("progName" & EXECUTABLE_FILE_EXTENSION) = FILE_REGULAR then
-      removeFile("progName" & EXECUTABLE_FILE_EXTENSION);
-    end if;
     compilerOutput    := cmdOutput("./hi comp " & progName);
-    compiledOutput1   := cmdOutput("./"         & progName);
-    if fileExists("comp" & EXECUTABLE_FILE_EXTENSION) then
-      if fileType("progName" & EXECUTABLE_FILE_EXTENSION) = FILE_REGULAR then
-        removeFile("progName" & EXECUTABLE_FILE_EXTENSION);
+    compiledOutput    := cmdOutput("./"         & progName);
+    if fileType("comp" & EXECUTABLE_FILE_EXTENSION) = FILE_REGULAR then
+      if fileType("tmp_" & progName & ".c") = FILE_REGULAR then
+        if fileType("tmp1_" & progName & ".c") = FILE_REGULAR then
+          removeFile("tmp1_" & progName & ".c");
+        end if;
+        moveFile("tmp_" & progName & ".c", "tmp1_" & progName & ".c");
+        compilerOutput := cmdOutput("./comp " & progName);
+        if not equalFiles("tmp_" & progName & ".c", "tmp1_" & progName & ".c") then
+          writeln;
+          writeln(" *** The interpreted compiler and the compiled compiler do not produce the same output");
+          okay := FALSE;
+        else
+          removeFile("tmp1_" & progName & ".c");
+        end if;
+      else
+        writeln;
+        writeln(" *** File tmp_" & progName & ".c missing.");
+        okay := FALSE;
       end if;
-      compilerOutput    := cmdOutput("./comp "    & progName);
-      compiledOutput2   := cmdOutput("./"         & progName);
-      checkWithCompiledCompiler := TRUE;
     end if;
     if interpretedOutput <> referenceOutput then
       writeln;
@@ -199,16 +239,10 @@ const proc: check (in string: progName, in string: referenceOutput) is func
       writeln(interpretedOutput);
       okay := FALSE;
     end if;
-    if compiledOutput1 <> referenceOutput then
+    if compiledOutput <> referenceOutput then
       writeln;
-      writeln(" *** The compiled " <& progName <& " with the interpreted compiler does not work okay:");
-      writeln(compiledOutput1);
-      okay := FALSE;
-    end if;
-    if checkWithCompiledCompiler and compiledOutput2 <> referenceOutput then
-      writeln;
-      writeln(" *** The compiled " <& progName <& " with the compiled compiler does not work okay:");
-      writeln(compiledOutput2);
+      writeln(" *** The compiled " <& progName <& " does not work okay:");
+      writeln(compiledOutput);
       okay := FALSE;
     end if;
     if okay then
@@ -227,7 +261,7 @@ const proc: main is func
     write("compiling the compiler");
     flush(OUT);
     ignore(cmdOutput("./hi comp comp"));
-    if not fileExists("comp" & EXECUTABLE_FILE_EXTENSION) then
+    if not fileType("comp" & EXECUTABLE_FILE_EXTENSION) = FILE_REGULAR then
       writeln(" *** Failed to compile the compiler");
       checkWithCompiledCompiler := FALSE;
     else

@@ -55,18 +55,3 @@ booltype source;
   { /* blnCpy */
     *dest = source;
   } /* blnCpy */
-
-
-
-#ifdef ANSI_C
-
-booltype blnCreate (booltype source)
-#else
-
-booltype blnCreate (source)
-booltype source;
-#endif
-
-  { /* blnCreate */
-    return(source);
-  } /* blnCreate */

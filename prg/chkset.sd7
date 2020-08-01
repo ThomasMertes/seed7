@@ -24,6 +24,18 @@
 
 $ include "seed7_05.s7i";
 
+const set of char: uc_letter_char is {'A' .. 'Z'};
+const set of char: lc_letter_char is {'a' .. 'z'};
+const set of char: letter_char is {'A' .. 'Z'} | {'a' .. 'z'};
+const set of char: digit_char is {'0' .. '9'};
+const set of char: alphanum_char is letter_char | digit_char;
+const set of char: special_char is
+    {'!', '$', '%', '&', '*', '+', ',', '-', '.', '/',
+     ':', ';', '<', '=', '>', '?', '@', '\\','^', '`',
+     '|', '~'};
+const set of char: name_start_char is letter_char | {'_'};
+const set of char: name_char is letter_char | digit_char | {'_'};
+
 const type: bool_arr is array boolean;
 
 
@@ -3397,6 +3409,147 @@ const proc: check_assign is func
   end func;
 
 
+const proc: check_charset is func
+  local
+    const array char: special_char_list is [] (
+      '!', '$', '%', '&', '*', '+', ',', '-', '.', '/',
+      ':', ';', '<', '=', '>', '?', '@', '\\','^', '`',
+      '|', '~');
+    var boolean: okay is TRUE;
+    var char: ch is ' ';
+  begin
+    for ch range 'A' to 'Z' do
+      if not (ch     in uc_letter_char)  or
+              ch not in uc_letter_char   or
+              ch     in lc_letter_char   or
+         not (ch not in lc_letter_char)  or
+         not (ch     in letter_char)     or
+              ch not in letter_char      or
+              ch     in digit_char       or
+         not (ch not in digit_char)      or
+         not (ch     in alphanum_char)   or
+              ch not in alphanum_char    or
+              ch     in special_char     or
+         not (ch not in special_char)    or
+         not (ch     in name_start_char) or
+              ch not in name_start_char  or
+         not (ch     in name_char)       or
+              ch not in name_char        then
+        okay := FALSE;
+      end if;
+    end for;
+
+    for ch range 'a' to 'z' do
+      if      ch     in uc_letter_char   or
+         not (ch not in uc_letter_char)  or
+         not (ch     in lc_letter_char)  or
+              ch not in lc_letter_char   or
+         not (ch     in letter_char)     or
+              ch not in letter_char      or
+              ch     in digit_char       or
+         not (ch not in digit_char)      or
+         not (ch     in alphanum_char)   or
+              ch not in alphanum_char    or
+              ch     in special_char     or
+         not (ch not in special_char)    or
+         not (ch     in name_start_char) or
+              ch not in name_start_char  or
+         not (ch     in name_char)       or
+              ch not in name_char        then
+        okay := FALSE;
+      end if;
+    end for;
+
+    for ch range '0' to '9' do
+      if      ch     in uc_letter_char   or
+         not (ch not in uc_letter_char)  or
+              ch     in lc_letter_char   or
+         not (ch not in lc_letter_char)  or
+              ch     in letter_char      or
+         not (ch not in letter_char)     or
+         not (ch     in digit_char)      or
+              ch not in digit_char       or
+         not (ch     in alphanum_char)   or
+              ch not in alphanum_char    or
+              ch     in special_char     or
+         not (ch not in special_char)    or
+              ch     in name_start_char  or
+         not (ch not in name_start_char) or
+         not (ch     in name_char)       or
+              ch not in name_char        then
+        okay := FALSE;
+      end if;
+    end for;
+
+    ch := '_';
+    if      ch     in uc_letter_char   or
+       not (ch not in uc_letter_char)  or
+            ch     in lc_letter_char   or
+       not (ch not in lc_letter_char)  or
+            ch     in letter_char      or
+       not (ch not in letter_char)     or
+            ch     in digit_char       or
+       not (ch not in digit_char)      or
+            ch     in alphanum_char    or
+       not (ch not in alphanum_char)   or
+            ch     in special_char     or
+       not (ch not in special_char)    or
+       not (ch     in name_start_char) or
+            ch not in name_start_char  or
+       not (ch     in name_char)       or
+            ch not in name_char        then
+      okay := FALSE;
+    end if;
+
+    if      '_'     in uc_letter_char   or
+       not ('_' not in uc_letter_char)  or
+            '_'     in lc_letter_char   or
+       not ('_' not in lc_letter_char)  or
+            '_'     in letter_char      or
+       not ('_' not in letter_char)     or
+            '_'     in digit_char       or
+       not ('_' not in digit_char)      or
+            '_'     in alphanum_char    or
+       not ('_' not in alphanum_char)   or
+            '_'     in special_char     or
+       not ('_' not in special_char)    or
+       not ('_'     in name_start_char) or
+            '_' not in name_start_char  or
+       not ('_'     in name_char)       or
+            '_' not in name_char        then
+      okay := FALSE;
+    end if;
+
+    for ch range special_char_list do
+      if      ch     in uc_letter_char   or
+         not (ch not in uc_letter_char)  or
+              ch     in lc_letter_char   or
+         not (ch not in lc_letter_char)  or
+              ch     in letter_char      or
+         not (ch not in letter_char)     or
+              ch     in digit_char       or
+         not (ch not in digit_char)      or
+              ch     in alphanum_char    or
+         not (ch not in alphanum_char)   or
+         not (ch     in special_char)    or
+              ch not in special_char     or
+              ch     in name_start_char  or
+         not (ch not in name_start_char) or
+              ch     in name_char        or
+         not (ch not in name_char)       then
+        okay := FALSE;
+      end if;
+    end for;
+
+    if okay then
+      writeln("character sets work correct.");
+    else
+      writeln(" ***** character sets do not work correct");
+      writeln;
+    end if;
+  end func;
+
+
 const proc: main is func
 
   begin
@@ -3414,4 +3567,5 @@ const proc: main is func
     check_min;
     check_max;
     check_assign;
+    check_charset;
   end func;

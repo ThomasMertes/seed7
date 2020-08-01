@@ -168,11 +168,12 @@ version.h:
 	echo "int main (int argc, char **argv)" >> chkccomp.c
 	echo "{" >> chkccomp.c
 	echo "long number;" >> chkccomp.c
-	echo "if (sizeof(char *) == 4) {" >> chkccomp.c
-	echo "puts(\"\043define POINTER_SIZE 32\");" >> chkccomp.c
-	echo "} else if (sizeof(char *) == 8) {" >> chkccomp.c
-	echo "puts(\"\043define POINTER_SIZE 64\");" >> chkccomp.c
-	echo "}" >> chkccomp.c
+	echo "printf(\"\043define POINTER_SIZE %d\", 8 * sizeof(char *));" >> chkccomp.c
+	echo "puts(\"\");" >> chkccomp.c
+	echo "printf(\"\043define FLOAT_SIZE %d\", 8 * sizeof(float));" >> chkccomp.c
+	echo "puts(\"\");" >> chkccomp.c
+	echo "printf(\"\043define DOUBLE_SIZE %d\", 8 * sizeof(double));" >> chkccomp.c
+	echo "puts(\"\");" >> chkccomp.c
 	echo "if (sizeof(int) == 4) {" >> chkccomp.c
 	echo "puts(\"\043define INT32TYPE int\");" >> chkccomp.c
 	echo "puts(\"\043define INT32TYPE_STRI \\\"int\\\"\");" >> chkccomp.c
@@ -207,6 +208,10 @@ version.h:
 	echo "}" >> chkccomp.c
 	echo "if (~number == (long) 0) {" >> chkccomp.c
 	echo "puts(\"\043define TWOS_COMPLEMENT_INTTYPE\");" >> chkccomp.c
+	echo "}" >> chkccomp.c
+	echo "number = 1;" >> chkccomp.c
+	echo "if (((char *) &number)[0] == 1) {" >> chkccomp.c
+	echo "puts(\"\043define LITTLE_ENDIAN\");" >> chkccomp.c
 	echo "}" >> chkccomp.c
 	echo "return 0;" >> chkccomp.c
 	echo "}" >> chkccomp.c

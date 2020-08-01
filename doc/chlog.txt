@@ -1,8 +1,44 @@
+20100404:
+- Many thanks to "Mensanator" for his help to investigate 64-bit and Mac OS X
+  problems.
+- The chk_all.sd7 check program was improved to check that the interpreted
+  compiler and the compiled compiler generate the same C programs.
+- Checks for 'set of char' were added to the "chkset.sd7" program.
+- The compiler (comp.sd7) and the interpreter (hi) were improved to support the
+  actions BST_EQ, BST_NE and BST_PARSE.
+- The compiler (comp.sd7) was improved to support the actions BST_APPEND and
+  CHR_CMP.
+- The compiler (comp.sd7) was improved to make sure that the same types are used
+  in generated C programs and in the runtime library.
+- The generation of string constants in the compiler was improved to work
+  correctly when the string size is stored as 64-bit unsigned value.
+- The generation of set constants in the compiler was improved to work correctly
+  when bitsettype elements have a size of 64-bit.
+- The compiler was improved to use the union type 'valueunion' instead of
+  'float2int'.
+- The functions arrBaselit, arrBaselit2, arrExtend and arrGen in "arr_rtl.c"
+  were changed to use parameters of type rtlGenerictype instead of rtlObjecttype.
+- The functions bigCmpGeneric, chrCmpGeneric, fltCmpGeneric, intCmpGeneric,
+  refCmpGeneric, setCmpGeneric, strCmpGeneric and typCmpGeneric were introduced
+  as compare functions with parameters of type rtlGenerictype.
+- The functions bst_append, bst_cpy, bstAppend and bstCpy (defined in "bstlib.c"
+  and "bst_rtl.c") were improved to work correctly when source and destination
+  are identical.
+- The function cmdConfigValue in "cmd_rtl.c" was improved to support the config
+  values INTTYPE_SIZE, FLOATTYPE_SIZE and LITTLE_ENDIAN.
+- Several makefiles were changed to define FLOAT_SIZE, DOUBLE_SIZE and
+  LITTLE_ENDIAN.
+- The functions bigCreateGeneric, intCreateGeneric, drwCreateGeneric,
+  setCreateGeneric and strCreateGeneric were introduced as create functions with
+  a parameter and a result of type rtlGenerictype.
+- The function intDestrGeneric was introduced as destroy function with a
+  parameter of type rtlGenerictype.
+
 20100321:
 - Many thanks to "Mensanator" for his help to investigate the problems Seed7
-  had on his 64 Bit Mac OS computer. Many of the improvements towards support
-  of 64 Bit systems and Mac OS X result from his help (see below). Note that this
-  release does not support 64 Bit systems out of the box, but it certainly is a
+  had on his 64-bit Mac OS computer. Many of the improvements towards support
+  of 64-bit systems and Mac OS X result from his help (see below). Note that this
+  release does not support 64-bit systems out of the box, but it certainly is a
   milestone to reach this goal.
 - The FAQ, how to compile the interpreter, was improved.
 - The file "read_me" was improved to explain compilation under Linux and to

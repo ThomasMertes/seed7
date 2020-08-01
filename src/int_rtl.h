@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  int_rtl.h     Primitive actions for the integer type.           */
-/*  Copyright (C) 1989 - 2006  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2010  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/int_rtl.h                                       */
-/*  Changes: 1992, 1993, 1994, 2000, 2005  Thomas Mertes            */
+/*  Changes: 1992, 1993, 1994, 2000, 2005, 2010  Thomas Mertes      */
 /*  Content: Primitive actions for the integer type.                */
 /*                                                                  */
 /********************************************************************/
@@ -58,7 +58,6 @@ inttype intBinom (inttype n_number, inttype k_number);
 inttype intBitLength (inttype number);
 inttype intCmp (inttype number1, inttype number2);
 void intCpy (inttype *dest, inttype source);
-inttype intCreate (inttype source);
 inttype intLog2 (inttype number);
 inttype intLowestSetBit (inttype number);
 stritype intLpad0 (inttype number, const inttype pad_size);
@@ -89,7 +88,6 @@ inttype intBinom ();
 inttype intBitLength ();
 inttype intCmp ();
 void intCpy ();
-inttype intCreate ();
 inttype intLog2 ();
 inttype intLowestSetBit ();
 stritype intLpad0 ();

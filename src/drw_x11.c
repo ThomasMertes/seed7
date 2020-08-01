@@ -2953,8 +2953,8 @@ inttype col;
 
 #ifdef ANSI_C
 
-void drwText (const_wintype actual_window, inttype x, inttype y, stritype stri,
-    inttype col, inttype bkcol)
+void drwText (const_wintype actual_window, inttype x, inttype y,
+    stritype stri, inttype col, inttype bkcol)
 #else
 
 void drwText (actual_window, x, y, stri, col, bkcol)
@@ -2973,7 +2973,7 @@ inttype bkcol;
     {
       XChar2b *stri_buffer;
       XChar2b *wstri;
-      strelemtype *strelem;
+      const strelemtype *strelem;
       memsizetype len;
 
       stri_buffer = (XChar2b *) malloc(sizeof(XChar2b) * stri->size);
@@ -2988,7 +2988,7 @@ inttype bkcol;
           } /* if */
           wstri->byte1 = (*strelem >> 8) & 0xFF;
           wstri->byte2 = *strelem & 0xFF;
-        } /* while */
+        } /* for */
 
         XSetForeground(mydisplay, mygc, (unsigned) col);
         XSetBackground(mydisplay, mygc, (unsigned) bkcol);

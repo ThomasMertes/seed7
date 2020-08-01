@@ -365,7 +365,7 @@ errinfotype *err_info;
       } /* if */
     } /* if */
     (*key_array)->arr[*arr_pos].value.genericvalue =
-            key_create_func(curr_helem->key.value.genericvalue);
+        key_create_func(curr_helem->key.value.genericvalue);
     (*arr_pos)++;
     if (curr_helem->next_less != NULL) {
       keys_helem(key_array, arr_pos, curr_helem->next_less, key_create_func, err_info);

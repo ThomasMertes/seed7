@@ -35,14 +35,17 @@ const string: temp_marker is "/* Seed7 compiler temp file */";
 
 const boolean: WITH_STRI_CAPACITY       is boolean parse configValue("WITH_STRI_CAPACITY");
 const boolean: RSHIFT_DOES_SIGN_EXTEND  is boolean parse configValue("RSHIFT_DOES_SIGN_EXTEND");
-const boolean: USE_SIGSETJMP            is boolean parse configValue("USE_SIGSETJMP");
 const boolean: TWOS_COMPLEMENT_INTTYPE  is boolean parse configValue("TWOS_COMPLEMENT_INTTYPE");
+const boolean: LITTLE_ENDIAN            is boolean parse configValue("LITTLE_ENDIAN");
+const boolean: USE_SIGSETJMP            is boolean parse configValue("USE_SIGSETJMP");
 const boolean: FLOAT_ZERO_DIV_ERROR     is boolean parse configValue("FLOAT_ZERO_DIV_ERROR");
-const boolean: INTTYPE_64BIT            is boolean parse configValue("INTTYPE_64BIT");
 const boolean: ISNAN_WITH_UNDERLINE     is boolean parse configValue("ISNAN_WITH_UNDERLINE");
 const boolean: CHECK_INT_DIV_BY_ZERO    is boolean parse configValue("CHECK_INT_DIV_BY_ZERO");
 const boolean: FLOATTYPE_DOUBLE         is boolean parse configValue("FLOATTYPE_DOUBLE");
+const integer: INTTYPE_SIZE             is integer parse configValue("INTTYPE_SIZE");
+const integer: FLOATTYPE_SIZE           is integer parse configValue("FLOATTYPE_SIZE");
 const integer: POINTER_SIZE             is integer parse configValue("POINTER_SIZE");
+const integer: GENERIC_SIZE             is max({INTTYPE_SIZE, FLOATTYPE_SIZE, POINTER_SIZE});
 const string:  INT32TYPE_LITERAL_SUFFIX is configValue("INT32TYPE_LITERAL_SUFFIX");
 const string:  INT64TYPE_LITERAL_SUFFIX is configValue("INT64TYPE_LITERAL_SUFFIX");
 
@@ -482,9 +485,14 @@ const func string: integerLiteral (in integer: number) is func
   result
     var string: expr is "";
   begin
-    if INTTYPE_64BIT and INTTYPE_LITERAL_SUFFIX = "" then
-      expr := "(inttype) ";
-      expr &:= str(number);
+    if INTTYPE_SIZE = 64 and INTTYPE_LITERAL_SUFFIX = "" then
+      if number < 0 then
+        expr := "-(inttype) ";
+        expr &:= str(-number);
+      else
+        expr := "(inttype) ";
+        expr &:= str(number);
+      end if;
     else
       expr := str(number);
       expr &:= INTTYPE_LITERAL_SUFFIX;
@@ -1650,7 +1658,7 @@ const proc: process_cast_from_float_expr (in reference: current_expression,
     if getExprResultType(current_expression) = floattype then
       incr(c_expr.temp_num);
       temp_num := c_expr.temp_num;
-      c_expr.temp_decls &:= "float2int tmp_";
+      c_expr.temp_decls &:= "valueunion tmp_";
       c_expr.temp_decls &:= str(temp_num);
       c_expr.temp_decls &:= ";\n";
       c_expr.expr &:= "(tmp_";
@@ -1659,7 +1667,7 @@ const proc: process_cast_from_float_expr (in reference: current_expression,
       process_expr(current_expression, c_expr);
       c_expr.expr &:= "),tmp_";
       c_expr.expr &:= str(temp_num);
-      c_expr.expr &:= ".intvalue)";
+      c_expr.expr &:= ".genericvalue)";
     else
       process_expr(current_expression, c_expr);
     end if;
@@ -3080,12 +3088,12 @@ const proc: process_arr_remove (in reference: function, in ref_list: params,
     if result_type = floattype then
       incr(c_expr.temp_num);
       temp_num := c_expr.temp_num;
-      c_expr.temp_decls &:= "float2int tmp_";
+      c_expr.temp_decls &:= "valueunion tmp_";
       c_expr.temp_decls &:= str(temp_num);
       c_expr.temp_decls &:= ";\n";
       c_expr.result_expr := "(tmp_";
       c_expr.result_expr &:= str(temp_num);
-      c_expr.result_expr &:= ".intvalue=(";
+      c_expr.result_expr &:= ".genericvalue=(";
     else
       c_expr.result_expr := "";
     end if;
@@ -4634,6 +4642,36 @@ const proc: process_bln_ord (in ref_list: params, inout expr_type: c_expr) is fu
   end func;
 
 
+const proc: process_bst_append (in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: c_param1 is expr_type.value;
+    var expr_type: c_param3 is expr_type.value;
+  begin
+    process_expr(params[1], c_param1);
+    c_param3.temp_num := c_param1.temp_num;
+    getAnyParamToExpr(params[3], c_param3);
+    if has_temp_values(c_param3) then
+      c_expr.expr &:= "{\n";
+      c_expr.expr &:= c_param1.temp_decls;
+      c_expr.expr &:= c_param3.temp_decls;
+      c_expr.expr &:= c_param1.temp_assigns;
+      c_expr.expr &:= c_param3.temp_assigns;
+    end if;
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "bstAppend(&(";
+    c_expr.expr &:= c_param1.expr;
+    c_expr.expr &:= "), (bstritype)(";
+    c_expr.expr &:= c_param3.expr;
+    c_expr.expr &:= "));\n";
+    if has_temp_values(c_param3) then
+      c_expr.expr &:= c_param1.temp_frees;
+      c_expr.expr &:= c_param3.temp_frees;
+      c_expr.expr &:= "}\n";
+    end if;
+  end func;
+
+
 const proc: process_bst_cpy (in ref_list: params, inout expr_type: c_expr) is func
 
   local
@@ -4681,12 +4719,96 @@ const proc: process_bst_cpy (in ref_list: params, inout expr_type: c_expr) is fu
   end func;
 
 
+const proc: process_bst_eq (in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var integer: temp_num is 0;
+  begin
+    incr(c_expr.temp_num);
+    temp_num := c_expr.temp_num;
+    c_expr.temp_decls &:= "bstritype tmp_a_";
+    c_expr.temp_decls &:= str(temp_num);
+    c_expr.temp_decls &:= ";\n";
+    c_expr.temp_decls &:= "bstritype tmp_b_";
+    c_expr.temp_decls &:= str(temp_num);
+    c_expr.temp_decls &:= ";\n";
+    (* Formula used: (a->size==b->size&&memcmp(a->mem,b->mem,
+                     a->size*sizeof(unsigned char))==0) *)
+    c_expr.expr &:= "(tmp_a_";
+    c_expr.expr &:= str(temp_num);
+    c_expr.expr &:= "=(bstritype)(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= "),tmp_b_";
+    c_expr.expr &:= str(temp_num);
+    c_expr.expr &:= "=(bstritype)(";
+    getAnyParamToExpr(params[3], c_expr);
+    c_expr.expr &:= "),tmp_a_";
+    c_expr.expr &:= str(temp_num);
+    c_expr.expr &:= "->size==tmp_b_";
+    c_expr.expr &:= str(temp_num);
+    c_expr.expr &:= "->size&&memcmp(tmp_a_";
+    c_expr.expr &:= str(temp_num);
+    c_expr.expr &:= "->mem,tmp_b_";
+    c_expr.expr &:= str(temp_num);
+    c_expr.expr &:= "->mem,tmp_a_";
+    c_expr.expr &:= str(temp_num);
+    c_expr.expr &:= "->size*sizeof(unsigned char))==0)";
+  end func;
+
+
 const proc: process_bst_lng (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
     c_expr.expr &:= "(inttype)((bstritype)(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= "))->size";
+  end func;
+
+
+const proc: process_bst_ne (in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var integer: temp_num is 0;
+  begin
+    incr(c_expr.temp_num);
+    temp_num := c_expr.temp_num;
+    c_expr.temp_decls &:= "bstritype tmp_a_";
+    c_expr.temp_decls &:= str(temp_num);
+    c_expr.temp_decls &:= ";\n";
+    c_expr.temp_decls &:= "bstritype tmp_b_";
+    c_expr.temp_decls &:= str(temp_num);
+    c_expr.temp_decls &:= ";\n";
+    (* Formula used: (a->size!=b->size||memcmp(a->mem,b->mem,
+                     a->size*sizeof(unsigned char))!=0) *)
+    c_expr.expr &:= "(tmp_a_";
+    c_expr.expr &:= str(temp_num);
+    c_expr.expr &:= "=(bstritype)(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= "),tmp_b_";
+    c_expr.expr &:= str(temp_num);
+    c_expr.expr &:= "=(bstritype)(";
+    getAnyParamToExpr(params[3], c_expr);
+    c_expr.expr &:= "),tmp_a_";
+    c_expr.expr &:= str(temp_num);
+    c_expr.expr &:= "->size!=tmp_b_";
+    c_expr.expr &:= str(temp_num);
+    c_expr.expr &:= "->size||memcmp(tmp_a_";
+    c_expr.expr &:= str(temp_num);
+    c_expr.expr &:= "->mem,tmp_b_";
+    c_expr.expr &:= str(temp_num);
+    c_expr.expr &:= "->mem,tmp_a_";
+    c_expr.expr &:= str(temp_num);
+    c_expr.expr &:= "->size*sizeof(unsigned char))!=0)";
+  end func;
+
+
+const proc: process_bst_parse (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_stri_result(c_expr);
+    c_expr.result_expr := "bstParse(";
+    getAnyParamToResultExpr(params[3], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 
@@ -4722,7 +4844,7 @@ const proc: process_chr_chr (in reference: function, in ref_list: params, inout 
   begin
     if category(params[1]) = INTOBJECT and not isVar(params[1]) then
       process_const_chr_chr(function, getValue(params[1], integer), c_expr);
-    elsif INTTYPE_64BIT then
+    elsif INTTYPE_SIZE = 64 then
       incr(c_expr.temp_num);
       temp_num := c_expr.temp_num;
       c_expr.temp_decls &:= "inttype tmp_";
@@ -4756,6 +4878,17 @@ const proc: process_chr_clit (in ref_list: params, inout expr_type: c_expr) is f
     c_expr.result_expr := "chrCLit(";
     getStdParamToResultExpr(params[1], c_expr);
     c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process_chr_cmp (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "chrCmp(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    getAnyParamToExpr(params[2], c_expr);
+    c_expr.expr &:= ")";
   end func;
 
 
@@ -4876,9 +5009,9 @@ const proc: process_chr_gt (in ref_list: params, inout expr_type: c_expr) is fun
 const proc: process_chr_hashcode (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "(inttype)(";
+    c_expr.expr &:= "(inttype)((schartype)(";
     process_expr(params[1], c_expr);
-    c_expr.expr &:= ")";
+    c_expr.expr &:= "))";
   end func;
 
 
@@ -6581,7 +6714,7 @@ const proc: process_flt_cast (in ref_list: params, inout expr_type: c_expr) is f
   begin
     incr(c_expr.temp_num);
     temp_num := c_expr.temp_num;
-    c_expr.temp_decls &:= "float2int tmp_";
+    c_expr.temp_decls &:= "valueunion tmp_";
     c_expr.temp_decls &:= str(temp_num);
     c_expr.temp_decls &:= ";\n";
     c_expr.expr &:= "(tmp_";
@@ -6864,7 +6997,7 @@ const proc: process_flt_hashcode (in ref_list: params, inout expr_type: c_expr) 
   begin
     incr(c_expr.temp_num);
     temp_num := c_expr.temp_num;
-    c_expr.temp_decls &:= "float2int tmp_";
+    c_expr.temp_decls &:= "valueunion tmp_";
     c_expr.temp_decls &:= str(temp_num);
     c_expr.temp_decls &:= ";\n";
     c_expr.expr &:= "(tmp_";
@@ -6884,7 +7017,7 @@ const proc: process_flt_icast (in ref_list: params, inout expr_type: c_expr) is 
   begin
     incr(c_expr.temp_num);
     temp_num := c_expr.temp_num;
-    c_expr.temp_decls &:= "float2int tmp_";
+    c_expr.temp_decls &:= "valueunion tmp_";
     c_expr.temp_decls &:= str(temp_num);
     c_expr.temp_decls &:= ";\n";
     c_expr.expr &:= "(tmp_";
@@ -7486,99 +7619,122 @@ const proc: process_hsh_for_generic (in reference: forDataVariable,
     incr(c_expr.temp_num);
     stack_temp_num := c_expr.temp_num;
     c_expr.expr &:= "/* hsh_for */ {\n";
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "hashtype hash_";
     c_expr.expr &:= str(hash_temp_num);
     c_expr.expr &:= "=(hashtype)(";
     process_expr(hashTable, c_expr);
     c_expr.expr &:= ");\n";
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "memsizetype counter_";
     c_expr.expr &:= str(counter_temp_num);
     c_expr.expr &:= "=hash_";
     c_expr.expr &:= str(hash_temp_num);
     c_expr.expr &:= "->table_size;\n";
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "helemtype *table_elem_";
     c_expr.expr &:= str(table_elem_temp_num);
     c_expr.expr &:= "=&hash_";
     c_expr.expr &:= str(hash_temp_num);
     c_expr.expr &:= "->table[0];\n";
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "helemtype helem_";
     c_expr.expr &:= str(helem_temp_num);
     c_expr.expr &:= ";\n";
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "helemlisttype stack_";
     c_expr.expr &:= str(stack_temp_num);
     c_expr.expr &:= "=NULL;\n";
 
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "while (counter_";
     c_expr.expr &:= str(counter_temp_num);
     c_expr.expr &:= " > 0) {\n";
 
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "helem_";
     c_expr.expr &:= str(helem_temp_num);
     c_expr.expr &:= "=*table_elem_";
     c_expr.expr &:= str(table_elem_temp_num);
     c_expr.expr &:= ";\n";
 
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "while (helem_";
     c_expr.expr &:= str(helem_temp_num);
     c_expr.expr &:= " != NULL) {\n";
 
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "if (helem_";
     c_expr.expr &:= str(helem_temp_num);
     c_expr.expr &:= "->next_greater != NULL) {\n";
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "push_stack(stack_";
     c_expr.expr &:= str(stack_temp_num);
     c_expr.expr &:= ", helem_";
     c_expr.expr &:= str(helem_temp_num);
     c_expr.expr &:= "->next_greater);\n";
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "} /* if */\n";
 
     if forDataVariable <> NIL then
+      setDiagnosticLine(c_expr);
       c_expr.expr &:= "((copyfunctype)";
       process_expr(dataCopyFunc, c_expr);
-      c_expr.expr &:= ")(&(";
+      c_expr.expr &:= ")((generictype *)(&(";
       process_expr(forDataVariable, c_expr);
-      c_expr.expr &:= "), helem_";
+      c_expr.expr &:= ")), helem_";
       c_expr.expr &:= str(helem_temp_num);
       c_expr.expr &:= "->data.value.genericvalue);\n";
     end if;
 
     if forKeyVariable <> NIL then
+      setDiagnosticLine(c_expr);
       c_expr.expr &:= "((copyfunctype)";
       process_expr(keyCopyFunc, c_expr);
-      c_expr.expr &:= ")(&(";
+      c_expr.expr &:= ")((generictype *)(&(";
       process_expr(forKeyVariable, c_expr);
-      c_expr.expr &:= "), helem_";
+      c_expr.expr &:= ")), helem_";
       c_expr.expr &:= str(helem_temp_num);
       c_expr.expr &:= "->key.value.genericvalue);\n";
     end if;
 
     process_expr(statement, c_expr);
 
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "if (helem_";
     c_expr.expr &:= str(helem_temp_num);
-    c_expr.expr &:= "->next_less != NULL) {";
+    c_expr.expr &:= "->next_less != NULL) {\n";
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "helem_";
     c_expr.expr &:= str(helem_temp_num);
     c_expr.expr &:= "=helem_";
     c_expr.expr &:= str(helem_temp_num);
     c_expr.expr &:= "->next_less;\n";
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "} else {\n";
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "pop_stack(stack_";
     c_expr.expr &:= str(stack_temp_num);
     c_expr.expr &:= ", helem_";
     c_expr.expr &:= str(helem_temp_num);
     c_expr.expr &:= ");\n";
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "} /* if */\n";
 
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "} /* while */\n";
 
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "counter_";
     c_expr.expr &:= str(counter_temp_num);
     c_expr.expr &:= "--;\n";
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "table_elem_";
     c_expr.expr &:= str(table_elem_temp_num);
     c_expr.expr &:= "++;\n";
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "} /* while */\n";
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "} /* hsh_for */\n";
   end func;
 
@@ -10505,7 +10661,7 @@ const proc: process_set_arrlit (in reference: function, in ref_list: params,
 
   begin
     prepare_set_result(result_type(getType(function)), c_expr);
-    c_expr.result_expr := "setArrlit((inttype)(";
+    c_expr.result_expr := "setArrlit((arraytype)(";
     getAnyParamToResultExpr(params[2], c_expr);
     c_expr.result_expr &:= "))";
   end func;
@@ -12972,10 +13128,18 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_unknown_action(action_name, c_expr);
       end if;
     elsif action_prefix = "BST" then
-      if action_name = "BST_CPY" then
+      if action_name = "BST_APPEND" then
+        process_bst_append(params, c_expr);
+      elsif action_name = "BST_CPY" then
         process_bst_cpy(params, c_expr);
+      elsif action_name = "BST_EQ" then
+        process_bst_eq(params, c_expr);
       elsif action_name = "BST_LNG" then
         process_bst_lng(params, c_expr);
+      elsif action_name = "BST_NE" then
+        process_bst_ne(params, c_expr);
+      elsif action_name = "BST_PARSE" then
+        process_bst_parse(params, c_expr);
       elsif action_name = "BST_VALUE" then
         process_bst_value(params, c_expr);
       else
@@ -12986,6 +13150,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_chr_chr(function, params, c_expr);
       elsif action_name = "CHR_CLIT" then
         process_chr_clit(params, c_expr);
+      elsif action_name = "CHR_CMP" then
+        process_chr_cmp(params, c_expr);
       elsif action_name = "CHR_CONV" then
         process_chr_conv(params, c_expr);
       elsif action_name = "CHR_CPY" then
@@ -14429,9 +14595,11 @@ const proc: push_macro_param (in reference: formal_param,
             c_expr.temp_decls &:= ";\n";
             c_expr.expr &:= "(tmp_";
             c_expr.expr &:= str(temp_num);
-            c_expr.expr &:= "=";
+            c_expr.expr &:= "=(";
+            c_expr.expr &:= type_name(getExprResultType(actual_param));
+            c_expr.expr &:= ")(";
             getAnyParamToExpr(actual_param, c_expr);
-            c_expr.expr &:= ", &tmp_";
+            c_expr.expr &:= "), &tmp_";
             c_expr.expr &:= str(temp_num);
             c_expr.expr &:= ");\n";
           end if;
@@ -14597,9 +14765,11 @@ const proc: call_params (in ref_list: formal_params,
               c_expr.temp_decls &:= ";\n";
               c_expr.expr &:= "(tmp_";
               c_expr.expr &:= str(temp_num);
-              c_expr.expr &:= "=";
+              c_expr.expr &:= "=(";
+              c_expr.expr &:= type_name(getExprResultType(actual_param));
+              c_expr.expr &:= ")(";
               getAnyParamToExpr(actual_param, c_expr);
-              c_expr.expr &:= ", &tmp_";
+              c_expr.expr &:= "), &tmp_";
               c_expr.expr &:= str(temp_num);
               c_expr.expr &:= ")";
             end if;
@@ -15424,55 +15594,57 @@ const proc: action_address (in reference: function, inout expr_type: c_expr) is 
       c_expr.expr &:= "&cpy_";
       c_expr.expr &:= str(type_number(object_type));
     elsif action_name = "BIG_CMP" then
-      c_expr.expr &:= "&bigCmp";
+      c_expr.expr &:= "&bigCmpGeneric";
     elsif action_name = "BIG_CPY" then
       c_expr.expr &:= "&bigCpy";
     elsif action_name = "BIG_CREATE" then
-      c_expr.expr &:= "&bigCreate";
+      c_expr.expr &:= "&bigCreateGeneric";
     elsif action_name = "BIG_DESTR" then
       c_expr.expr &:= "&bigDestr";
     elsif action_name = "BLN_CPY" then
       c_expr.expr &:= "&blnCpy";
     elsif action_name = "BLN_CREATE" then
-      c_expr.expr &:= "&blnCreate";
+      c_expr.expr &:= "&intCreateGeneric";
     elsif action_name = "CHR_CMP" then
-      c_expr.expr &:= "&chrCmp";
+      c_expr.expr &:= "&chrCmpGeneric";
     elsif action_name = "CHR_CPY" then
       c_expr.expr &:= "&chrCpy";
     elsif action_name = "CHR_CREATE" then
-      c_expr.expr &:= "&chrCreate";
-    elsif action_name = "DRW_CMP" then
-      c_expr.expr &:= "&drwCmp";
+      c_expr.expr &:= "&intCreateGeneric";
     elsif action_name = "DRW_CPY" then
       c_expr.expr &:= "&drwCpy";
     elsif action_name = "DRW_CREATE" then
-      c_expr.expr &:= "&drwCreate";
+      c_expr.expr &:= "&drwCreateGeneric";
     elsif action_name = "DRW_DESTR" then
       c_expr.expr &:= "&drwDestr";
     elsif action_name = "FLT_CMP" then
-      c_expr.expr &:= "&fltCmp";
+      c_expr.expr &:= "&fltCmpGeneric";
     elsif action_name = "FLT_CPY" then
       c_expr.expr &:= "&fltCpy";
     elsif action_name = "FLT_CREATE" then
-      c_expr.expr &:= "&fltCreate";
+      c_expr.expr &:= "&intCreateGeneric";
     elsif action_name = "INT_CMP" then
-      c_expr.expr &:= "&intCmp";
+      c_expr.expr &:= "&intCmpGeneric";
     elsif action_name = "INT_CPY" then
       c_expr.expr &:= "&intCpy";
     elsif action_name = "INT_CREATE" then
-      c_expr.expr &:= "&intCreate";
+      c_expr.expr &:= "&intCreateGeneric";
     elsif action_name = "ITF_CPY" then
       c_expr.expr &:= "&intCpy";
     elsif action_name = "ITF_CREATE" then
-      c_expr.expr &:= "&intCreate";
+      c_expr.expr &:= "&intCreateGeneric";
     elsif action_name = "PRC_NOOP" then
-      c_expr.expr &:= "&prcNoop";
+      if length(params(function)) = 2 then
+        c_expr.expr &:= "&intDestrGeneric";
+      else
+        c_expr.expr &:= "&prcNoop";
+      end if;
     elsif action_name = "REF_CREATE" then
-      c_expr.expr &:= "&refCreate";
+      c_expr.expr &:= "&intCreateGeneric";
     elsif action_name = "REF_CPY" then
       c_expr.expr &:= "&refCpy";
     elsif action_name = "REF_CMP" then
-      c_expr.expr &:= "&refCmp";
+      c_expr.expr &:= "&refCmpGeneric";
     elsif action_name = "SCT_CREATE" then
       object_type := getType(params(function)[1]);
       process_create_declaration(object_type, global_c_expr);
@@ -15489,27 +15661,27 @@ const proc: action_address (in reference: function, inout expr_type: c_expr) is 
       c_expr.expr &:= "&cpy_";
       c_expr.expr &:= str(type_number(object_type));
     elsif action_name = "SET_CMP" then
-      c_expr.expr &:= "&setCmp";
+      c_expr.expr &:= "&setCmpGeneric";
     elsif action_name = "SET_CPY" then
       c_expr.expr &:= "&setCpy";
     elsif action_name = "SET_CREATE" then
-      c_expr.expr &:= "&setCreate";
+      c_expr.expr &:= "&setCreateGeneric";
     elsif action_name = "SET_DESTR" then
       c_expr.expr &:= "&setDestr";
     elsif action_name = "STR_CMP" then
-      c_expr.expr &:= "&strCompare";
+      c_expr.expr &:= "&strCmpGeneric";
     elsif action_name = "STR_CPY" then
       c_expr.expr &:= "&strCopy";
     elsif action_name = "STR_CREATE" then
-      c_expr.expr &:= "&strCreate";
+      c_expr.expr &:= "&strCreateGeneric";
     elsif action_name = "STR_DESTR" then
       c_expr.expr &:= "&strDestr";
     elsif action_name = "TYP_CMP" then
-      c_expr.expr &:= "&typCmp";
+      c_expr.expr &:= "&typCmpGeneric";
     elsif action_name = "TYP_CPY" then
       c_expr.expr &:= "&typCpy";
     elsif action_name = "TYP_CREATE" then
-      c_expr.expr &:= "&typCreate";
+      c_expr.expr &:= "&intCreateGeneric";
     elsif action_name = "TYP_DESTR" then
       c_expr.expr &:= "&typDestr";
     else
@@ -17387,6 +17559,7 @@ const proc: process_object (in reference: current_object) is func
       write(c_prog, "#endif\n");
 *)
     end if;
+    flush(c_prog);
     global_c_expr := expr_type.value;
   end func;
 
@@ -17422,25 +17595,25 @@ const proc: write_file_head is func
     end if;
     writeln(c_prog, "#define INT32TYPE_MAX               2147483647" <&
         INT32TYPE_LITERAL_SUFFIX);
-    if INTTYPE_64BIT then
+    if INTTYPE_SIZE = 64 then
       writeln(c_prog, "typedef int64type inttype;");
       writeln(c_prog, "typedef uint64type uinttype;");
-    else
+    elsif INTTYPE_SIZE = 32 then
       writeln(c_prog, "typedef int32type inttype;");
       writeln(c_prog, "typedef uint32type uinttype;");
     end if;
     writeln(c_prog, "typedef int booltype;");
-    writeln(c_prog, "typedef long typetype;");
+    writeln(c_prog, "typedef uint" <& POINTER_SIZE <& "type typetype;");
     if FLOATTYPE_DOUBLE then
       writeln(c_prog, "typedef double floattype;");
     else
       writeln(c_prog, "typedef float floattype;");
     end if;
-    writeln(c_prog, "typedef unsigned long int chartype;");
-    writeln(c_prog, "typedef long int schartype;");
-    writeln(c_prog, "typedef unsigned long int strelemtype;");
+    writeln(c_prog, "typedef uint32type chartype;");
+    writeln(c_prog, "typedef int32type schartype;");
+    writeln(c_prog, "typedef uint32type strelemtype;");
     writeln(c_prog, "typedef uinttype bitsettype;");
-    writeln(c_prog, "typedef unsigned long int memsizetype;");
+    writeln(c_prog, "typedef uint" <& POINTER_SIZE <& "type memsizetype;");
     writeln(c_prog, "typedef unsigned char *ustritype;");
 #!    writeln(c_prog, "#include \"../src/heaputl.h\""); #!
     writeln(c_prog, "typedef struct stri {");
@@ -17454,9 +17627,9 @@ const proc: write_file_head is func
     writeln(c_prog, "  int dummy;");
     writeln(c_prog, "} *biginttype;");
     writeln(c_prog, "typedef struct winstruct {");
-    writeln(c_prog, "  unsigned long usage_count;");
+    writeln(c_prog, "  uinttype usage_count;");
     writeln(c_prog, "} *wintype;");
-    writeln(c_prog, "typedef inttype generictype;");
+    writeln(c_prog, "typedef uint" <& GENERIC_SIZE <& "type generictype;");
     writeln(c_prog, "typedef union {");
     writeln(c_prog, "  generictype genericvalue;");
     writeln(c_prog, "  inttype     intvalue;");
@@ -17472,7 +17645,7 @@ const proc: write_file_head is func
     writeln(c_prog, "typedef FILE *filetype;");
     writeln(c_prog, "typedef int sockettype;");
     writeln(c_prog, "typedef inttype (*intfunctype)();");
-    writeln(c_prog, "typedef int" <& POINTER_SIZE <& "type objreftype;");
+    writeln(c_prog, "typedef uint" <& POINTER_SIZE <& "type objreftype;");
     writeln(c_prog, "typedef struct list {");
     writeln(c_prog, "  struct list *next;");
     writeln(c_prog, "  objreftype obj;");
@@ -17496,9 +17669,9 @@ const proc: write_file_head is func
     writeln(c_prog, "  rtlObjecttype data;");
     writeln(c_prog, "};");
     writeln(c_prog, "typedef struct hashstruct {");
-    writeln(c_prog, "  int bits;");
-    writeln(c_prog, "  int mask;");
-    writeln(c_prog, "  int table_size;");
+    writeln(c_prog, "  unsigned int bits;");
+    writeln(c_prog, "  unsigned int mask;");
+    writeln(c_prog, "  unsigned int table_size;");
     writeln(c_prog, "  memsizetype size;");
     writeln(c_prog, "  helemtype table[1];");
     writeln(c_prog, "} *hashtype;");
@@ -17516,15 +17689,11 @@ const proc: write_file_head is func
     writeln(c_prog, "  bitsettype bitset[1];");
     writeln(c_prog, "} *settype;");
     writeln(c_prog, "typedef struct structstruct {");
-    writeln(c_prog, "  unsigned long int type_num;");
+    writeln(c_prog, "  uint32type type_num;");
     writeln(c_prog, "  rtlObjecttype stru[1];");
     writeln(c_prog, "} *structtype;");
     writeln(c_prog, "typedef structtype interfacetype;");
     writeln(c_prog, "typedef void *progtype;");
-    writeln(c_prog, "typedef union {");
-    writeln(c_prog, "  inttype intvalue;");
-    writeln(c_prog, "  floattype floatvalue;");
-    writeln(c_prog, "} float2int;");
     writeln(c_prog, "stritype       arg_0;");
     writeln(c_prog, "arraytype      arg_v;");
     writeln(c_prog, "biginttype    *big;");
@@ -17534,15 +17703,15 @@ const proc: write_file_head is func
     writeln(c_prog, "structtype    *sct;");
     writeln(c_prog, "hashtype      *hsh;");
     writeln(c_prog, "interfacetype *itf;");
-    writeln(c_prog, "float2int      flt2int;");
-    writeln(c_prog, "unsigned long int hs;");
+    writeln(c_prog, "valueunion      flt2int;");
+    writeln(c_prog, "memsizetype hs;");
     writeln(c_prog);
     writeln(c_prog, "static struct bstri empty_bst = {0, 0};");
     writeln(c_prog, "static inttype fact[] = {");
     writeln(c_prog, "    1, 1, 2, 6, 24, 120, 720, 5040, 40320,");
     writeln(c_prog, "    362880, 3628800, 39916800, 479001600");
     writeln(c_prog, "  };");
-    writeln(c_prog, "extern float2int f_const[];");
+    writeln(c_prog, "extern valueunion f_const[];");
     writeln(c_prog, "#define OKAY_NO_ERROR 0");
     writeln(c_prog, "#define MEMORY_ERROR  1");
     writeln(c_prog, "#define NUMERIC_ERROR 2");
@@ -17602,15 +17771,16 @@ const proc: write_prototypes is func
     writeln(c_prog, "generictype actValue (objreftype);");
     writeln(c_prog, "void        arrAppend (arraytype *, arraytype);");
     writeln(c_prog, "arraytype   arrArrlit2 (inttype, arraytype);");
-    writeln(c_prog, "arraytype   arrBaselit (long);");
-    writeln(c_prog, "arraytype   arrBaselit2 (inttype, long);");
+    writeln(c_prog, "arraytype   arrBaselit (generictype);");
+    writeln(c_prog, "arraytype   arrBaselit2 (inttype, generictype);");
     writeln(c_prog, "arraytype   arrCat (arraytype, arraytype);");
-    writeln(c_prog, "arraytype   arrExtend (arraytype, inttype);");
-    writeln(c_prog, "arraytype   arrGen (inttype, inttype);");
+    writeln(c_prog, "arraytype   arrExtend (arraytype, generictype);");
+    writeln(c_prog, "arraytype   arrGen (generictype, generictype);");
     writeln(c_prog, "arraytype   arrHead (arraytype, inttype);");
     writeln(c_prog, "arraytype   arrHeadTemp (arraytype *, inttype);");
     writeln(c_prog, "generictype arrIdxTemp (arraytype *, inttype);");
     writeln(c_prog, "arraytype   arrRange (arraytype, inttype, inttype);");
+    writeln(c_prog, "arraytype   arrRangeTemp (arraytype *, inttype, inttype);");
     writeln(c_prog, "generictype arrRemove (arraytype, inttype);");
     writeln(c_prog, "arraytype   arrSort (arraytype, comparetype);");
     writeln(c_prog, "arraytype   arrTail (arraytype, inttype);");
@@ -17621,17 +17791,19 @@ const proc: write_prototypes is func
     writeln(c_prog, "inttype     bigBitLength (biginttype);");
     writeln(c_prog, "stritype    bigCLit (biginttype);");
     writeln(c_prog, "inttype     bigCmp (biginttype, biginttype);");
+    writeln(c_prog, "inttype     bigCmpGeneric (generictype, generictype);");
     writeln(c_prog, "inttype     bigCmpSignedDigit (biginttype, inttype);");
     writeln(c_prog, "void        bigCpy (biginttype *, biginttype);");
     writeln(c_prog, "biginttype  bigCreate (biginttype);");
+    writeln(c_prog, "generictype bigCreateGeneric (generictype);");
     writeln(c_prog, "void        bigDecr (biginttype *);");
     writeln(c_prog, "void        bigDestr (biginttype);");
     writeln(c_prog, "biginttype  bigDiv (biginttype, biginttype);");
     writeln(c_prog, "booltype    bigEq (biginttype, biginttype);");
-    if INTTYPE_64BIT then
+    if INTTYPE_SIZE = 64 then
       writeln(c_prog, "biginttype  bigFromInt64 (inttype);");
       writeln(c_prog, "#define     bigIConv bigFromInt64");
-    else
+    elsif INTTYPE_SIZE = 32 then
       writeln(c_prog, "biginttype  bigFromInt32 (inttype);");
       writeln(c_prog, "#define     bigIConv bigFromInt32");
     end if;
@@ -17651,10 +17823,10 @@ const proc: write_prototypes is func
     writeln(c_prog, "biginttype  bigMult (biginttype, biginttype);");
     writeln(c_prog, "void        bigMultAssign (biginttype *, biginttype);");
     writeln(c_prog, "biginttype  bigMultSignedDigit (biginttype, inttype);");
-    if INTTYPE_64BIT then
+    if INTTYPE_SIZE = 64 then
       writeln(c_prog, "inttype     bigToInt64 (biginttype);");
       writeln(c_prog, "#define     bigOrd bigToInt64");
-    else
+    elsif INTTYPE_SIZE = 32 then
       writeln(c_prog, "inttype     bigToInt32 (biginttype);");
       writeln(c_prog, "#define     bigOrd bigToInt32");
     end if;
@@ -17673,11 +17845,16 @@ const proc: write_prototypes is func
     writeln(c_prog, "biginttype  bigValue (objreftype);");
     writeln(c_prog, "biginttype  bigZero (void);");
     writeln(c_prog, "void        blnCpy (booltype *, booltype);");
-    writeln(c_prog, "booltype    blnCreate (booltype);");
+    writeln(c_prog, "void        bstAppend (bstritype *, bstritype);");
+    writeln(c_prog, "bstritype   bstCat (bstritype, bstritype);");
+    writeln(c_prog, "void        bstCpy (bstritype *, bstritype);");
+    writeln(c_prog, "bstritype   bstCreate (bstritype);");
+    writeln(c_prog, "void        bstDestr (bstritype);");
+    writeln(c_prog, "bstritype   bstParse (stritype);");
     writeln(c_prog, "stritype    chrCLit (chartype);");
     writeln(c_prog, "inttype     chrCmp (chartype, chartype);");
+    writeln(c_prog, "inttype     chrCmpGeneric (generictype, generictype);");
     writeln(c_prog, "void        chrCpy (chartype *, chartype);");
-    writeln(c_prog, "chartype    chrCreate (chartype);");
     writeln(c_prog, "chartype    chrLow (chartype);");
     writeln(c_prog, "stritype    chrStr (chartype);");
     writeln(c_prog, "chartype    chrUp (chartype);");
@@ -17713,6 +17890,7 @@ const proc: write_prototypes is func
     writeln(c_prog, "void        drwCopyArea (wintype, wintype, inttype, inttype, inttype, inttype, inttype, inttype);");
     writeln(c_prog, "void        drwCpy (wintype *, wintype);");
     writeln(c_prog, "wintype     drwCreate (wintype);");
+    writeln(c_prog, "generictype drwCreateGeneric (generictype);");
     writeln(c_prog, "void        drwDestr (wintype);");
     writeln(c_prog, "void        drwFArcChord (wintype, inttype, inttype, inttype, floattype, floattype);");
     writeln(c_prog, "void        drwFArcPieSlice (wintype, inttype, inttype, inttype, floattype, floattype);");
@@ -17762,8 +17940,8 @@ const proc: write_prototypes is func
     writeln(c_prog, "void        filWrite (filetype, stritype);");
     writeln(c_prog, "filetype    filValue (objreftype);");
     writeln(c_prog, "inttype     fltCmp (floattype, floattype);");
+    writeln(c_prog, "inttype     fltCmpGeneric (generictype, generictype);");
     writeln(c_prog, "void        fltCpy (floattype *, floattype);");
-    writeln(c_prog, "floattype   fltCreate (floattype);");
     writeln(c_prog, "stritype    fltDgts (floattype, inttype);");
     writeln(c_prog, "floattype   fltIPow (floattype, inttype);");
     writeln(c_prog, "floattype   fltParse (stritype);");
@@ -17795,8 +17973,10 @@ const proc: write_prototypes is func
     writeln(c_prog, "inttype     intBinom (inttype, inttype);");
     writeln(c_prog, "inttype     intBitLength (inttype);");
     writeln(c_prog, "inttype     intCmp (inttype, inttype);");
+    writeln(c_prog, "inttype     intCmpGeneric (generictype, generictype);");
     writeln(c_prog, "void        intCpy (inttype *, inttype);");
-    writeln(c_prog, "inttype     intCreate (inttype);");
+    writeln(c_prog, "generictype intCreateGeneric (generictype);");
+    writeln(c_prog, "void        intDestrGeneric (generictype);");
     writeln(c_prog, "inttype     intLog2 (inttype);");
     writeln(c_prog, "inttype     intLowestSetBit (inttype);");
     writeln(c_prog, "stritype    intLpad0 (inttype, inttype);");
@@ -17834,9 +18014,8 @@ const proc: write_prototypes is func
     writeln(c_prog, "objreftype  refBody (objreftype);");
     writeln(c_prog, "inttype     refCategory (objreftype);");
     writeln(c_prog, "stritype    refCatStr (inttype);");
-    writeln(c_prog, "inttype     refCmp (objreftype, objreftype);");
+    writeln(c_prog, "inttype     refCmpGeneric (generictype, generictype);");
     writeln(c_prog, "void        refCpy (objreftype *, objreftype);");
-    writeln(c_prog, "objreftype  refCreate (objreftype);");
     writeln(c_prog, "floattype * refFSselect (void *a, inttype b)              {printf(\"refFSelect\\n\");}");
     writeln(c_prog, "stritype    refFile (objreftype);");
     writeln(c_prog, "listtype    refHshDataToList (objreftype);");
@@ -17891,12 +18070,14 @@ const proc: write_prototypes is func
     writeln(c_prog, "void        sctCreate (structtype a, structtype b)        {printf(\"sctCreate\\n\");}");
     writeln(c_prog, "long *      sctSelect (void *a, inttype b)                {printf(\"sctSelect\\n\");}");
     writeln(c_prog, "floattype * sctFSelect (void *a, inttype b)               {printf(\"sctFSelect\\n\");}");
-    writeln(c_prog, "settype     setArrlit (inttype);");
+    writeln(c_prog, "settype     setArrlit (arraytype);");
     writeln(c_prog, "settype     setBaselit (inttype);");
     writeln(c_prog, "inttype     setCard (settype);");
     writeln(c_prog, "inttype     setCmp (settype, settype);");
+    writeln(c_prog, "inttype     setCmpGeneric (generictype, generictype);");
     writeln(c_prog, "void        setCpy (settype *, settype);");
     writeln(c_prog, "settype     setCreate (settype);");
+    writeln(c_prog, "generictype setCreateGeneric (generictype);");
     writeln(c_prog, "void        setDestr (settype);");
     writeln(c_prog, "settype     setDiff (settype, settype);");
     writeln(c_prog, "booltype    setElem (inttype, settype);");
@@ -17937,12 +18118,14 @@ const proc: write_prototypes is func
     writeln(c_prog, "inttype     strChIpos (stritype, chartype, inttype);");
     writeln(c_prog, "inttype     strChPos (stritype, chartype);");
     writeln(c_prog, "arraytype   strChSplit (stritype, chartype);");
+    writeln(c_prog, "inttype     strCmpGeneric (generictype, generictype);");
     writeln(c_prog, "inttype     strCompare (stritype, stritype);");
     writeln(c_prog, "stritype    strConcat (stritype, stritype);");
     writeln(c_prog, "stritype    strConcatTemp (stritype, stritype);");
     writeln(c_prog, "stritype    strCLit (stritype);");
     writeln(c_prog, "void        strCopy (stritype *, stritype);");
     writeln(c_prog, "stritype    strCreate (stritype);");
+    writeln(c_prog, "generictype strCreateGeneric (generictype);");
     writeln(c_prog, "void        strDestr (stritype);");
     writeln(c_prog, "stritype    strEmpty(void);");
     writeln(c_prog, "booltype    strGe (stritype, stritype);");
@@ -17979,7 +18162,7 @@ const proc: write_prototypes is func
     writeln(c_prog, "void        timFromTimestamp (inttype, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, booltype *);");
     writeln(c_prog, "void        timNow (inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, booltype *);");
     writeln(c_prog, "void        timSetLocalTZ (inttype, inttype, inttype, inttype, inttype, inttype, inttype *, booltype *);");
-    writeln(c_prog, "inttype     typCmp (typetype, typetype);");
+    writeln(c_prog, "inttype     typCmpGeneric (generictype, generictype);");
     writeln(c_prog, "void        typCpy (typetype *, typetype);");
     writeln(c_prog, "typetype    typCreate (typetype);");
     writeln(c_prog, "void        typDestr (typetype);");
@@ -18322,6 +18505,24 @@ const proc: assign_bigint_constants (inout expr_type: c_expr) is func
   end func;
 
 
+const func string: int64AsTwoInt32 (in bigInteger: number) is func
+  result
+    var string: result is "";
+  begin
+    if LITTLE_ENDIAN then
+      result  := str( number        mod 4294967295_);
+      result &:= ",";
+      result &:= str((number >> 32) mod 4294967295_);
+      result &:= ",";
+    else
+      result  := str((number >> 32) mod 4294967295_);
+      result &:= ",";
+      result &:= str( number        mod 4294967295_);
+      result &:= ",";
+    end if;
+  end func;
+
+
 const proc: init_string_constants (inout expr_type: c_expr) is func
   local
     var stri_index_hash: stri_index is stri_index_hash.EMPTY_HASH;
@@ -18337,11 +18538,18 @@ const proc: init_string_constants (inout expr_type: c_expr) is func
       c_expr.expr &:= "] */ static strelemtype stri_";
       c_expr.expr &:= str(number);
       c_expr.expr &:= "[]={";
-      c_expr.expr &:= str(length(stri));
-      c_expr.expr &:= ",";
-      if WITH_STRI_CAPACITY then
+      if POINTER_SIZE = 32 then
         c_expr.expr &:= str(length(stri));
         c_expr.expr &:= ",";
+        if WITH_STRI_CAPACITY then
+          c_expr.expr &:= str(length(stri));
+          c_expr.expr &:= ",";
+        end if;
+      elsif POINTER_SIZE = 64 then
+        c_expr.expr &:= int64AsTwoInt32(bigInteger conv length(stri));
+        if WITH_STRI_CAPACITY then
+          c_expr.expr &:= int64AsTwoInt32(bigInteger conv length(stri));
+        end if;
       end if;
       for ch range stri do
         c_expr.expr &:= c_literal(ch);
@@ -18385,25 +18593,25 @@ const proc: init_set_constants (inout expr_type: c_expr) is func
       if set1 = EMPTY_SET then
         c_expr.expr &:= "0,0,0,";
       else
-        min_position := min(set1) mdiv 32;
-        max_position := max(set1) mdiv 32;
+        min_position := min(set1) mdiv INTTYPE_SIZE;
+        max_position := max(set1) mdiv INTTYPE_SIZE;
         c_expr.expr &:= str(min_position);
         c_expr.expr &:= ",";
         c_expr.expr &:= str(max_position);
         c_expr.expr &:= ",";
         for elem_num range min_position to max_position do
           hex_num := "";
-          for byte_num range 0 to 3 do
+          for byte_num range 0 to pred(INTTYPE_SIZE div 8) do
             hex_digit := 0;
             for bit_num range 0 to 3 do
-              if elem_num * 32 + byte_num * 8 + bit_num in set1 then
+              if elem_num * INTTYPE_SIZE + byte_num * 8 + bit_num in set1 then
                 hex_digit +:= 2 ** bit_num;
               end if;
             end for;
             hex_num  := "0123456789ABCDEF"[succ(hex_digit) len 1] & hex_num;
             hex_digit := 0;
             for bit_num range 4 to 7 do
-              if elem_num * 32 + byte_num * 8 + bit_num in set1 then
+              if elem_num * INTTYPE_SIZE + byte_num * 8 + bit_num in set1 then
                 hex_digit +:= 2 ** (bit_num - 4);
               end if;
             end for;
@@ -18723,9 +18931,9 @@ const proc: init_systypes (in program: prog) is func
     if ref_to_empty <> NIL then
       voidtype := getType(ref_to_empty);
     end if;
-    if INTTYPE_64BIT then
+    if INTTYPE_SIZE = 64 then
       INTTYPE_LITERAL_SUFFIX := INT64TYPE_LITERAL_SUFFIX;
-    else
+    elsif INTTYPE_SIZE = 32 then
       INTTYPE_LITERAL_SUFFIX := INT32TYPE_LITERAL_SUFFIX;
     end if;
   end func;

@@ -33,11 +33,11 @@
 
 void arrAppend (rtlArraytype *arr_variable, rtlArraytype arr_from);
 rtlArraytype arrArrlit2 (inttype start_position, rtlArraytype arr1);
-rtlArraytype arrBaselit (rtlObjecttype element);
-rtlArraytype arrBaselit2 (inttype start_position, rtlObjecttype element);
+rtlArraytype arrBaselit (const rtlGenerictype element);
+rtlArraytype arrBaselit2 (inttype start_position, const rtlGenerictype element);
 rtlArraytype arrCat (rtlArraytype arr1, rtlArraytype arr2);
-rtlArraytype arrExtend (rtlArraytype arr1, rtlObjecttype element);
-rtlArraytype arrGen (rtlObjecttype element1, rtlObjecttype element2);
+rtlArraytype arrExtend (rtlArraytype arr1, const rtlGenerictype element);
+rtlArraytype arrGen (const rtlGenerictype element1, const rtlGenerictype element2);
 rtlArraytype arrHead (rtlArraytype arr1, inttype stop);
 rtlArraytype arrHeadTemp (rtlArraytype *arr_temp, inttype stop);
 rtlGenerictype arrIdxTemp (rtlArraytype *arr_temp, inttype pos);

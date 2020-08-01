@@ -34,10 +34,10 @@
 #define bigToInt64(x) 0
 #endif
 
-#ifdef INTTYPE_64BIT
+#if   INTTYPE_SIZE == 64
 #define bigIConv bigFromInt64
 #define bigOrd   bigToInt64
-#else
+#elif INTTYPE_SIZE == 32
 #define bigIConv bigFromInt32
 #define bigOrd   bigToInt32
 #endif

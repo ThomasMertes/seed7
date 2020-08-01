@@ -59,6 +59,8 @@ static booltype scroll_allowed = FALSE;
 static booltype screen_initialized = FALSE;
 static booltype cursor_on = FALSE;
 
+static booltype keybd_initialized = FALSE;
+
 
 #ifdef MAP_CHARS
 #ifdef MAP_TO_ISO
@@ -147,6 +149,73 @@ void kbdShut ()
 
 #ifdef ANSI_C
 
+static void kbd_init (void)
+#else
+
+static void kbd_init ()
+#endif
+
+  {
+    int position;
+
+  /* kbd_init */
+    for (position = 0; position <= 255; position++) {
+      map_key[position] = K_UNDEF;
+    } /* for */
+    map_key[KEY_BREAK - KEY_BREAK] =     K_UNDEF;
+    map_key[KEY_DOWN - KEY_BREAK] =      K_DOWN;
+    map_key[KEY_UP - KEY_BREAK] =        K_UP;
+    map_key[KEY_LEFT - KEY_BREAK] =      K_LEFT;
+    map_key[KEY_RIGHT - KEY_BREAK] =     K_RIGHT;
+    map_key[KEY_HOME - KEY_BREAK] =      K_HOME;
+    map_key[KEY_BACKSPACE - KEY_BREAK] = K_BS;
+    map_key[KEY_F(1) - KEY_BREAK] =      K_F1;
+    map_key[KEY_F(2) - KEY_BREAK] =      K_F2;
+    map_key[KEY_F(3) - KEY_BREAK] =      K_F3;
+    map_key[KEY_F(4) - KEY_BREAK] =      K_F4;
+    map_key[KEY_F(5) - KEY_BREAK] =      K_F5;
+    map_key[KEY_F(6) - KEY_BREAK] =      K_F6;
+    map_key[KEY_F(7) - KEY_BREAK] =      K_F7;
+    map_key[KEY_F(8) - KEY_BREAK] =      K_F8;
+    map_key[KEY_F(9) - KEY_BREAK] =      K_F9;
+    map_key[KEY_F(10) - KEY_BREAK] =     K_F10;
+    map_key[KEY_DL - KEY_BREAK] =        K_DELLN;
+    map_key[KEY_IL - KEY_BREAK] =        K_INSLN;
+    map_key[KEY_DC - KEY_BREAK] =        K_DEL;
+    map_key[KEY_IC - KEY_BREAK] =        K_INS;
+    map_key[KEY_EIC - KEY_BREAK] =       K_UNDEF;
+    map_key[KEY_CLEAR - KEY_BREAK] =     K_UNDEF;
+    map_key[KEY_EOS - KEY_BREAK] =       K_ERASE;
+    map_key[KEY_EOL - KEY_BREAK] =       K_ERASE;
+    map_key[KEY_SF - KEY_BREAK] =        K_SCRLUP;
+    map_key[KEY_SR - KEY_BREAK] =        K_SCRLDN;
+    map_key[KEY_NPAGE - KEY_BREAK] =     K_PGDN;
+    map_key[KEY_PPAGE - KEY_BREAK] =     K_PGUP;
+    map_key[KEY_STAB - KEY_BREAK] =      K_UNDEF;
+    map_key[KEY_CTAB - KEY_BREAK] =      K_UNDEF;
+    map_key[KEY_CATAB - KEY_BREAK] =     K_UNDEF;
+    map_key[KEY_ENTER - KEY_BREAK] =     K_NL;
+    map_key[KEY_SRESET - KEY_BREAK] =    K_UNDEF;
+    map_key[KEY_RESET - KEY_BREAK] =     K_UNDEF;
+    map_key[KEY_PRINT - KEY_BREAK] =     K_UNDEF;
+    map_key[KEY_LL - KEY_BREAK] =        K_UNDEF;
+    map_key[KEY_A1 - KEY_BREAK] =        K_HOME;
+    map_key[KEY_A3 - KEY_BREAK] =        K_PGUP;
+    map_key[KEY_B2 - KEY_BREAK] =        K_UNDEF;
+    map_key[KEY_C1 - KEY_BREAK] =        K_END;
+    map_key[KEY_C3 - KEY_BREAK] =        K_PGDN;
+    nonl();
+    raw();
+    noecho();
+    cbreak();
+    keypad(stdscr, TRUE);
+    keybd_initialized = TRUE;
+  } /* kbd_init */
+
+
+
+#ifdef ANSI_C
+
 booltype kbdKeyPressed (void)
 #else
 
@@ -157,6 +226,9 @@ booltype kbdKeyPressed ()
     booltype result;
 
   /* kbdKeyPressed */
+    if (!keybd_initialized) {
+      kbd_init();
+    } /* if */
     if (key_buffer_filled) {
       result = TRUE;
     } else {
@@ -189,6 +261,9 @@ chartype kbdGetc ()
     chartype result;
 
   /* kbdGetc */
+    if (!keybd_initialized) {
+      kbd_init();
+    } /* if */
     if (key_buffer_filled) {
       key_buffer_filled = FALSE;
       result = last_key;
@@ -233,6 +308,9 @@ chartype kbdRawGetc ()
 #endif
 
   { /* kbdRawGetc */
+    if (!keybd_initialized) {
+      kbd_init();
+    } /* if */
     return(kbdGetc());
   } /* kbdRawGetc */
 
@@ -729,67 +807,6 @@ inttype count;
 
 #ifdef ANSI_C
 
-static void init_map_key (void)
-#else
-
-static void init_map_key ()
-#endif
-
-  {
-    int index;
-
-  /* init_map_key */
-    for (position = 0; position <= 255; position++) {
-      map_key[position] = K_UNDEF;
-    } /* for */
-    map_key[KEY_BREAK - KEY_BREAK] =     K_UNDEF;
-    map_key[KEY_DOWN - KEY_BREAK] =      K_DOWN;
-    map_key[KEY_UP - KEY_BREAK] =        K_UP;
-    map_key[KEY_LEFT - KEY_BREAK] =      K_LEFT;
-    map_key[KEY_RIGHT - KEY_BREAK] =     K_RIGHT;
-    map_key[KEY_HOME - KEY_BREAK] =      K_HOME;
-    map_key[KEY_BACKSPACE - KEY_BREAK] = K_BS;
-    map_key[KEY_F(1) - KEY_BREAK] =      K_F1;
-    map_key[KEY_F(2) - KEY_BREAK] =      K_F2;
-    map_key[KEY_F(3) - KEY_BREAK] =      K_F3;
-    map_key[KEY_F(4) - KEY_BREAK] =      K_F4;
-    map_key[KEY_F(5) - KEY_BREAK] =      K_F5;
-    map_key[KEY_F(6) - KEY_BREAK] =      K_F6;
-    map_key[KEY_F(7) - KEY_BREAK] =      K_F7;
-    map_key[KEY_F(8) - KEY_BREAK] =      K_F8;
-    map_key[KEY_F(9) - KEY_BREAK] =      K_F9;
-    map_key[KEY_F(10) - KEY_BREAK] =     K_F10;
-    map_key[KEY_DL - KEY_BREAK] =        K_DELLN;
-    map_key[KEY_IL - KEY_BREAK] =        K_INSLN;
-    map_key[KEY_DC - KEY_BREAK] =        K_DEL;
-    map_key[KEY_IC - KEY_BREAK] =        K_INS;
-    map_key[KEY_EIC - KEY_BREAK] =       K_UNDEF;
-    map_key[KEY_CLEAR - KEY_BREAK] =     K_UNDEF;
-    map_key[KEY_EOS - KEY_BREAK] =       K_ERASE;
-    map_key[KEY_EOL - KEY_BREAK] =       K_ERASE;
-    map_key[KEY_SF - KEY_BREAK] =        K_SCRLUP;
-    map_key[KEY_SR - KEY_BREAK] =        K_SCRLDN;
-    map_key[KEY_NPAGE - KEY_BREAK] =     K_PGDN;
-    map_key[KEY_PPAGE - KEY_BREAK] =     K_PGUP;
-    map_key[KEY_STAB - KEY_BREAK] =      K_UNDEF;
-    map_key[KEY_CTAB - KEY_BREAK] =      K_UNDEF;
-    map_key[KEY_CATAB - KEY_BREAK] =     K_UNDEF;
-    map_key[KEY_ENTER - KEY_BREAK] =     K_NL;
-    map_key[KEY_SRESET - KEY_BREAK] =    K_UNDEF;
-    map_key[KEY_RESET - KEY_BREAK] =     K_UNDEF;
-    map_key[KEY_PRINT - KEY_BREAK] =     K_UNDEF;
-    map_key[KEY_LL - KEY_BREAK] =        K_UNDEF;
-    map_key[KEY_A1 - KEY_BREAK] =        K_HOME;
-    map_key[KEY_A3 - KEY_BREAK] =        K_PGUP;
-    map_key[KEY_B2 - KEY_BREAK] =        K_UNDEF;
-    map_key[KEY_C1 - KEY_BREAK] =        K_END;
-    map_key[KEY_C3 - KEY_BREAK] =        K_PGDN;
-  } /* init_map_key */
-
-
-
-#ifdef ANSI_C
-
 void scrShut (void)
 #else
 
@@ -822,7 +839,9 @@ int scrOpen ()
     int result = 0;
 
   /* scrOpen */
-    init_map_key();
+    if (!keybd_initialized) {
+      kbd_init();
+    } /* if */
     if (initscr() != (WINDOW *) ERR) {
       nonl();
       raw();

@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  hi   Interpreter for Seed7 programs.                            */
-/*  Copyright (C) 1990 - 2008  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2010  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,18 +20,16 @@
 /*                                                                  */
 /*  Module: Compiler data reflection                                */
 /*  File: seed7/src/typ_data.h                                      */
-/*  Changes: 1993, 1994, 1999, 2000, 2008  Thomas Mertes            */
+/*  Changes: 1993, 1994, 1999, 2000, 2008, 2010  Thomas Mertes      */
 /*  Content: Primitive actions for the type type.                   */
 /*                                                                  */
 /********************************************************************/
 
-typedef inttype genericdatatype;
-
 #ifdef ANSI_C
 
-inttype typCmp (genericdatatype type1, genericdatatype type2);
-void typCpy (genericdatatype *dest, genericdatatype source);
-genericdatatype typCreate (genericdatatype type_from);
+inttype typCmpGeneric (rtlGenerictype type1, rtlGenerictype type2);
+void typCpy (typetype *dest, typetype source);
+typetype typCreate (typetype type_from);
 void typDestr (typetype old_type);
 typetype typFunc (typetype basic_type);
 booltype typIsDerived (typetype any_type);
@@ -46,9 +44,9 @@ typetype typVarfunc (typetype basic_type);
 
 #else
 
-inttype typCmp ();
+inttype typCmpGeneric ();
 void typCpy ();
-genericdatatype typCreate ();
+typetype typCreate ();
 void typDestr ();
 typetype typFunc ();
 booltype typIsDerived ();

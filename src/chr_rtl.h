@@ -34,7 +34,6 @@
 stritype chrCLit (chartype character);
 inttype chrCmp (chartype char1, chartype char2);
 void chrCpy (chartype *dest, chartype source);
-chartype chrCreate (chartype source);
 chartype chrLow (chartype ch);
 stritype chrStr (chartype ch);
 chartype chrUp (chartype ch);
@@ -44,7 +43,6 @@ chartype chrUp (chartype ch);
 stritype chrCLit ();
 inttype chrCmp ();
 void chrCpy ();
-chartype chrCreate ();
 chartype chrLow ();
 stritype chrStr ();
 chartype chrUp ();

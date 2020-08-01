@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  hi   Interpreter for Seed7 programs.                            */
-/*  Copyright (C) 1990 - 2007  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2010  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: Library                                                 */
 /*  File: seed7/src/bstlib.c                                        */
-/*  Changes: 2007  Thomas Mertes                                    */
+/*  Changes: 2007, 2010  Thomas Mertes                              */
 /*  Content: All primitive actions for the byte string type.        */
 /*                                                                  */
 /********************************************************************/
@@ -41,7 +41,7 @@
 #include "striutl.h"
 #include "runerr.h"
 #include "memory.h"
-#include "str_rtl.h"
+#include "bst_rtl.h"
 
 #undef EXTERN
 #define EXTERN
@@ -62,7 +62,9 @@ listtype arguments;
     objecttype bstr_variable;
     bstritype bstr_to;
     bstritype bstr_from;
+    bstritype new_bstr;
     memsizetype new_size;
+    memsizetype bstr_to_size;
 
   /* bst_append */
     bstr_variable = arg_1(arguments);
@@ -71,33 +73,25 @@ listtype arguments;
     bstr_to = take_bstri(bstr_variable);
     isit_bstri(arg_3(arguments));
     bstr_from = take_bstri(arg_3(arguments));
-/*
-    printf("bstr_to (%lx) %d = ", bstr_to, bstr_to->size);
-    prot_stri(bstr_to);
-    printf("\n");
-    printf("bstr_from (%lx) %d = ", bstr_from, bstr_from->size);
-    prot_stri(bstr_from);
-    printf("\n");
-*/
     if (bstr_from->size != 0) {
-      new_size = bstr_to->size + bstr_from->size;
-      REALLOC_BSTRI(bstr_to, bstr_to, bstr_to->size, new_size);
-      if (bstr_to == NULL) {
+      bstr_to_size = bstr_to->size;
+      new_size = bstr_to_size + bstr_from->size;
+      REALLOC_BSTRI(new_bstr, bstr_to, bstr_to_size, new_size);
+      if (new_bstr == NULL) {
         return(raise_exception(SYS_MEM_EXCEPTION));
+      } else {
+        /* It is possible that bstr_to == bstr_from holds. */
+        /* In this case 'bstr_from' must be corrected      */
+        /* after realloc() enlarged 'bstr_to'.             */
+        if (bstr_to == bstr_from) {
+          bstr_from = new_bstr;
+        } /* if */
+        COUNT3_BSTRI(bstr_to_size, new_size);
+        memcpy(&new_bstr->mem[bstr_to_size], bstr_from->mem,
+            bstr_from->size * sizeof(uchartype));
+        new_bstr->size = new_size;
+        bstr_variable->value.bstrivalue = new_bstr;
       } /* if */
-      COUNT3_BSTRI(bstr_to->size, new_size);
-      bstr_variable->value.bstrivalue = bstr_to;
-      memcpy(&bstr_to->mem[bstr_to->size], bstr_from->mem,
-          (size_t) bstr_from->size * sizeof(uchartype));
-      bstr_to->size = new_size;
-/*
-      printf("new bstr_to (%lx) %d = ", bstr_to, bstr_to->size);
-      prot_stri(bstr_to);
-      printf("\n");
-      printf("new bstr_variable (%lx): ", take_stri(bstr_variable));
-      trace1(bstr_variable);
-      printf("\n");
-*/
     } /* if */
     return(SYS_EMPTY_OBJECT);
   } /* bst_append */
@@ -167,7 +161,7 @@ listtype arguments;
     objecttype bstri_to;
     objecttype bstri_from;
     memsizetype new_size;
-    bstritype new_bstri;
+    bstritype bstri_dest;
 
   /* bst_cpy */
     bstri_to = arg_1(arguments);
@@ -175,24 +169,33 @@ listtype arguments;
     isit_bstri(bstri_to);
     isit_bstri(bstri_from);
     is_variable(bstri_to);
-    new_bstri = take_bstri(bstri_to);
+    bstri_dest = take_bstri(bstri_to);
     if (TEMP_OBJECT(bstri_from)) {
-      FREE_BSTRI(new_bstri, new_bstri->size);
+      FREE_BSTRI(bstri_dest, bstri_dest->size);
       bstri_to->value.bstrivalue = take_bstri(bstri_from);
       bstri_from->value.bstrivalue = NULL;
     } else {
       new_size = take_bstri(bstri_from)->size;
-      if (new_bstri->size != new_size) {
-        if (!ALLOC_BSTRI(new_bstri, new_size)) {
+      if (bstri_dest->size == new_size) {
+        /* It is possible that bstr_to == bstr_from holds. The */
+        /* behavior of memcpy() is undefined when source and   */
+        /* destination areas overlap (or are identical).       */
+        /* Therefore a check for this case is necessary.       */
+        if (bstri_dest != take_stri(bstri_from)) {
+          memcpy(bstri_dest->mem, take_stri(bstri_from)->mem,
+              new_size * sizeof(uchartype));
+        } /* if */
+      } else {
+        if (!ALLOC_BSTRI(bstri_dest, new_size)) {
           return(raise_exception(SYS_MEM_EXCEPTION));
         } else {
           FREE_BSTRI(take_bstri(bstri_to), take_bstri(bstri_to)->size);
-          bstri_to->value.bstrivalue = new_bstri;
-          new_bstri->size = new_size;
+          bstri_to->value.bstrivalue = bstri_dest;
+          bstri_dest->size = new_size;
         } /* if */
+        memcpy(bstri_dest->mem, take_bstri(bstri_from)->mem,
+            (size_t) new_size * sizeof(uchartype));
       } /* if */
-      memcpy(new_bstri->mem, take_bstri(bstri_from)->mem,
-          (size_t) new_size * sizeof(uchartype));
     } /* if */
     return(SYS_EMPTY_OBJECT);
   } /* bst_cpy */
@@ -288,6 +291,34 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype bst_eq (listtype arguments)
+#else
+
+objecttype bst_eq (arguments)
+listtype arguments;
+#endif
+
+  {
+    bstritype str1;
+    bstritype str2;
+
+  /* bst_eq */
+    isit_bstri(arg_1(arguments));
+    isit_bstri(arg_3(arguments));
+    str1 = take_bstri(arg_1(arguments));
+    str2 = take_bstri(arg_3(arguments));
+    if (str1->size == str2->size && memcmp(str1->mem, str2->mem,
+        str1->size * sizeof(uchartype)) == 0) {
+      return(SYS_TRUE_OBJECT);
+    } else {
+      return(SYS_FALSE_OBJECT);
+    } /* if */
+  } /* bst_eq */
+
+
+
+#ifdef ANSI_C
+
 objecttype bst_lng (listtype arguments)
 #else
 
@@ -299,6 +330,51 @@ listtype arguments;
     isit_bstri(arg_1(arguments));
     return(bld_int_temp((inttype) take_bstri(arg_1(arguments))->size));
   } /* bst_lng */
+
+
+
+#ifdef ANSI_C
+
+objecttype bst_ne (listtype arguments)
+#else
+
+objecttype bst_ne (arguments)
+listtype arguments;
+#endif
+
+  {
+    bstritype str1;
+    bstritype str2;
+
+  /* bst_ne */
+    isit_bstri(arg_1(arguments));
+    isit_bstri(arg_3(arguments));
+    str1 = take_bstri(arg_1(arguments));
+    str2 = take_bstri(arg_3(arguments));
+    if (str1->size != str2->size || memcmp(str1->mem, str2->mem,
+        str1->size * sizeof(uchartype)) != 0) {
+      return(SYS_TRUE_OBJECT);
+    } else {
+      return(SYS_FALSE_OBJECT);
+    } /* if */
+  } /* bst_ne */
+
+
+
+#ifdef ANSI_C
+
+objecttype bst_parse (listtype arguments)
+#else
+
+objecttype bst_parse (arguments)
+listtype arguments;
+#endif
+
+  { /* bst_parse */
+    isit_stri(arg_3(arguments));
+    return(bld_bstri_temp(bstParse(
+        take_stri(arg_3(arguments)))));
+  } /* bst_parse */
 
 
 

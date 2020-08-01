@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  hi   Interpreter for Seed7 programs.                            */
-/*  Copyright (C) 1990 - 2008  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2010  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: Compiler data reflection                                */
 /*  File: seed7/src/typ_data.c                                      */
-/*  Changes: 1993, 1994, 1999, 2000, 2008  Thomas Mertes            */
+/*  Changes: 1993, 1994, 1999, 2000, 2008, 2010  Thomas Mertes      */
 /*  Content: Primitive actions for the type type.                   */
 /*                                                                  */
 /********************************************************************/
@@ -33,6 +33,7 @@
 
 #include "common.h"
 #include "data.h"
+#include "data_rtl.h"
 #include "heaputl.h"
 #include "datautl.h"
 #include "typeutl.h"
@@ -82,7 +83,7 @@ typetype type1;
 #endif
 
   { /* typHashCode */
-    return((inttype) type1);
+    return (inttype) type1;
   } /* typHashCode */
 
 
@@ -98,7 +99,7 @@ listtype arguments;
 
   { /* typHashcode */
     isit_type(arg_1(arguments));
-    return(bld_int_temp((inttype) take_type(arg_1(arguments))));
+    return bld_int_temp((inttype) take_type(arg_1(arguments)));
   } /* typHashcode */
 #endif
 
@@ -106,40 +107,34 @@ listtype arguments;
 
 #ifdef ANSI_C
 
-inttype typCmp (genericdatatype type1, genericdatatype type2)
+inttype typCmpGeneric (rtlGenerictype type1, rtlGenerictype type2)
 #else
 
-inttype typCmp (type1, type2)
-genericdatatype type1;
-genericdatatype type2;
+inttype typCmpGeneric (type1, type2)
+rtlGenerictype type1;
+rtlGenerictype type2;
 #endif
 
-  {
-    uinttype typ1;
-    uinttype typ2;
-
-  /* typCmp */
-    typ1 = (uinttype) type1;
-    typ2 = (uinttype) type2;
-    if (typ1 < typ2) {
-      return(-1);
-    } else if (typ1 > typ2) {
-      return(1);
+  { /* typCmpGeneric */
+    if (type1 < type2) {
+      return -1;
+    } else if (type1 > type2) {
+      return 1;
     } else {
-      return(0);
+      return 0;
     } /* if */
-  } /* typCmp */
+  } /* typCmpGeneric */
 
 
 
 #ifdef ANSI_C
 
-void typCpy (genericdatatype *dest, genericdatatype source)
+void typCpy (typetype *dest, typetype source)
 #else
 
 void typCpy (dest, source)
-genericdatatype *dest;
-genericdatatype source;
+typetype *dest;
+typetype source;
 #endif
 
   { /* typCpy */
@@ -150,15 +145,15 @@ genericdatatype source;
 
 #ifdef ANSI_C
 
-genericdatatype typCreate (genericdatatype type_from)
+typetype typCreate (typetype type_from)
 #else
 
-genericdatatype typCreate (type_from)
-genericdatatype type_from;
+typetype typCreate (type_from)
+typetype type_from;
 #endif
 
   { /* typCreate */
-    return(type_from);
+    return type_from;
   } /* typCreate */
 
 
@@ -192,9 +187,9 @@ typetype basic_type;
   /* typFunc */
     if ((result = get_func_type(NULL, basic_type)) == NULL) {
       raise_error(MEMORY_ERROR);
-      return(NULL);
+      return NULL;
     } else {
-      return(result);
+      return result;
     } /* if */
   } /* typFunc */
 
@@ -210,7 +205,7 @@ typetype any_type;
 #endif
 
   { /* typIsDerived */
-    return(any_type->meta != NULL);
+    return any_type->meta != NULL;
   } /* typIsDerived */
 
 
@@ -225,7 +220,7 @@ typetype any_type;
 #endif
 
   { /* typIsFunc */
-    return(any_type->result_type != NULL && !any_type->is_varfunc_type);
+    return any_type->result_type != NULL && !any_type->is_varfunc_type;
   } /* typIsFunc */
 
 
@@ -240,7 +235,7 @@ typetype any_type;
 #endif
 
   { /* typIsVarfunc */
-    return(any_type->result_type != NULL && any_type->is_varfunc_type);
+    return any_type->result_type != NULL && any_type->is_varfunc_type;
   } /* typIsVarfunc */
 
 
@@ -255,7 +250,7 @@ typetype actual_type;
 #endif
 
   { /* typMatchobj */
-    return(actual_type->match_obj);
+    return actual_type->match_obj;
   } /* typMatchobj */
 
 
@@ -272,9 +267,9 @@ typetype any_type;
   { /* typMeta */
     if (any_type->meta == NULL) {
       raise_error(RANGE_ERROR);
-      return(NULL);
+      return NULL;
     } else {
-      return(any_type->meta);
+      return any_type->meta;
     } /* if */
   } /* typMeta */
 
@@ -315,7 +310,7 @@ typetype actual_type;
           table_size = 0;
           table_used = 0;
           raise_error(MEMORY_ERROR);
-          return(0);
+          return 0;
         } /* if */
         table_size = table_used + TYPE_TABLE_INCREMENT;
       } /* if */
@@ -331,7 +326,7 @@ typetype actual_type;
       result++;
     } /* if */
     /* printf("typ_num: %lx %lx %lu\n", arg_1(arguments), actual_type, result); */
-    return((inttype) result);
+    return (inttype) result;
   } /* typNum */
 
 
@@ -348,9 +343,9 @@ typetype any_type;
   { /* typResult */
     if (any_type->result_type == NULL) {
       raise_error(RANGE_ERROR);
-      return(NULL);
+      return NULL;
     } else {
-      return(any_type->result_type);
+      return any_type->result_type;
     } /* if */
   } /* typResult */
 
@@ -382,7 +377,7 @@ typetype type_arg;
     if (result == NULL) {
       raise_error(MEMORY_ERROR);
     } /* if */
-    return(result);
+    return result;
   } /* typStr */
 
 
@@ -402,8 +397,8 @@ typetype basic_type;
   /* typVarfunc */
     if ((result = get_varfunc_type(NULL, basic_type)) == NULL) {
       raise_error(MEMORY_ERROR);
-      return(NULL);
+      return NULL;
     } else {
-      return(result);
+      return result;
     } /* if */
   } /* typVarfunc */

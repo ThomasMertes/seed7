@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  bst_rtl.h     Primitive actions for the byte string type.       */
-/*  Copyright (C) 1989 - 2007  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2010  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,18 +24,19 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/bst_rtl.h                                       */
-/*  Changes: 2007  Thomas Mertes                                    */
+/*  Changes: 2007, 2010  Thomas Mertes                              */
 /*  Content: Primitive actions for the byte string type.            */
 /*                                                                  */
 /********************************************************************/
 
 #ifdef ANSI_C
 
-void bstAppend (bstritype *const, const const_bstritype);
-bstritype bstCat (const const_bstritype, const const_bstritype);
-void bstCpy (bstritype *const, const const_bstritype);
-bstritype bstCreate (const const_bstritype);
-void bstDestr (const bstritype);
+void bstAppend (bstritype *const bstri_to, const_bstritype bstri_from);
+bstritype bstCat (const const_bstritype bstri1, const const_bstritype bstri2);
+void bstCpy (bstritype *const bstri_to, const const_bstritype bstri_from);
+bstritype bstCreate (const const_bstritype bstri_from);
+void bstDestr (const bstritype old_bstring);
+bstritype bstParse (const const_stritype stri);
 
 #else
 
@@ -44,5 +45,6 @@ bstritype bstCat ();
 void bstCpy ();
 bstritype bstCreate ();
 void bstDestr ();
+bstritype bstParse ();
 
 #endif

@@ -32,11 +32,9 @@
 #ifdef ANSI_C
 
 void blnCpy (booltype *dest, booltype source);
-booltype blnCreate (booltype source);
 
 #else
 
 void blnCpy ();
-booltype blnCreate ();
 
 #endif

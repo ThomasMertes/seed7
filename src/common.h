@@ -83,7 +83,7 @@ typedef int booltype;
 #undef  DO_HEAP_CHECK
 #define UTF32_STRINGS
 #define WITH_STRI_CAPACITY
-#undef  INTTYPE_64BIT
+#define INTTYPE_SIZE 32
 #undef  FLOATTYPE_DOUBLE
 
 
@@ -151,7 +151,7 @@ typedef UINT64TYPE         uint64type;
 #endif
 
 
-#ifdef INTTYPE_64BIT
+#if   INTTYPE_SIZE == 64
 typedef int64type               inttype;
 typedef uint64type              uinttype;
 #define INTTYPE_LITERAL_SUFFIX  INT64TYPE_LITERAL_SUFFIX
@@ -159,7 +159,7 @@ typedef uint64type              uinttype;
 #define INTTYPE_FORMAT          INT64TYPE_FORMAT
 #define uintMostSignificantBit  uint64MostSignificantBit
 #define uintLeastSignificantBit uint64LeastSignificantBit
-#else
+#elif INTTYPE_SIZE == 32
 typedef int32type               inttype;
 typedef uint32type              uinttype;
 #define INTTYPE_LITERAL_SUFFIX  INT32TYPE_LITERAL_SUFFIX
@@ -170,18 +170,14 @@ typedef uint32type              uinttype;
 #endif
 
 
-#ifdef INT64TYPE
-#define BIGDIGIT_SIZE 32
-#else
-#define BIGDIGIT_SIZE 16
-#endif
-
-
 #ifdef FLOATTYPE_DOUBLE
 typedef double             floattype;
+#define FLOATTYPE_SIZE DOUBLE_SIZE
 #else
 typedef float              floattype;
+#define FLOATTYPE_SIZE FLOAT_SIZE
 #endif
+
 
 typedef uint32type         chartype;
 typedef int32type          schartype;
@@ -356,6 +352,12 @@ typedef struct winstruct {
 
 typedef       struct bigintstruct  *      biginttype;
 typedef const struct bigintstruct  *const_biginttype;
+
+#ifdef INT64TYPE
+#define BIGDIGIT_SIZE 32
+#else
+#define BIGDIGIT_SIZE 16
+#endif
 
 #if BIGDIGIT_SIZE == 8
   typedef uint8type         bigdigittype;
