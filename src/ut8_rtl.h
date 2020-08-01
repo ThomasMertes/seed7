@@ -33,6 +33,7 @@
 
 chartype ut8Getc (filetype);
 stritype ut8LineRead (filetype, chartype *);
+void ut8Seek (filetype, inttype);
 stritype ut8StriRead (filetype, inttype);
 stritype ut8WordRead (filetype, chartype *);
 void ut8Write (filetype, stritype);
@@ -41,6 +42,7 @@ void ut8Write (filetype, stritype);
 
 chartype ut8Getc ();
 stritype ut8LineRead ();
+void ut8Seek ();
 stritype ut8StriRead ();
 stritype ut8WordRead ();
 void ut8Write ();

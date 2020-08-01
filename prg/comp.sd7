@@ -4820,6 +4820,68 @@ const proc: process_unx_sleep (in ref_list: params, inout expr_type: c_expr) is 
   end func;
 
 
+const proc: process_ut8_getc (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "ut8Getc(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process_ut8_l_rd (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "ut8LineRead(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process_ut8_seek (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "ut8Seek(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process_ut8_stri_read (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "ut8StriRead(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process_ut8_word_read (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "ut8WordRead(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process_ut8_write (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "ut8Write(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
 const proc: process_action (in reference: procedure, in ref_list: params,
     inout expr_type: c_expr) is func
 
@@ -5429,6 +5491,18 @@ const proc: process_action (in reference: procedure, in ref_list: params,
       process_unx_pwd(params, c_expr);
     elsif action_name = "UNX_SLEEP" then
       process_unx_sleep(params, c_expr);
+    elsif action_name = "UT8_GETC" then
+      process_ut8_getc(params, c_expr);
+    elsif action_name = "UT8_L_RD" then
+      process_ut8_l_rd(params, c_expr);
+    elsif action_name = "UT8_SEEK" then
+      process_ut8_seek(params, c_expr);
+    elsif action_name = "UT8_STRI_READ" then
+      process_ut8_stri_read(params, c_expr);
+    elsif action_name = "UT8_WORD_READ" then
+      process_ut8_word_read(params, c_expr);
+    elsif action_name = "UT8_WRITE" then
+      process_ut8_write(params, c_expr);
     else
       c_expr.expr &:= "/* ACTOBJECT { ";
       c_expr.expr &:= action_name;

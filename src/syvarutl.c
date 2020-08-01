@@ -63,7 +63,7 @@ static cstritype sys_name[NUMBER_OF_SYSVARS] = {
     "prot_outfile",
     "flush",
     "write",
-    "nl",
+    "writeln",
     "main",
   };
 

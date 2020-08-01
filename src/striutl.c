@@ -99,16 +99,22 @@ stritype in_stri;
 
 #ifdef ANSI_C
 
-memsizetype utf8_to_stri (strelemtype *stri, ustritype ustri, SIZE_TYPE len)
+memsizetype utf8_to_stri (strelemtype *dest_stri, memsizetype *dest_len,
+    ustritype ustri, SIZE_TYPE len)
 #else
 
-memsizetype utf8_to_stri (stri, ustri, len)
-strelemtype *stri;
+memsizetype utf8_to_stri (dest_stri, dest_len, ustri, len)
+strelemtype *dest_stri;
+memsizetype *dest_len;
 ustritype ustri;
 SIZE_TYPE len;
 #endif
 
-  { /* utf8_to_stri */
+  {
+    strelemtype *stri;
+
+  /* utf8_to_stri */
+    stri = dest_stri;
     for (; len > 0; len--) {
       if (*ustri <= 0x7F) {
         *stri++ = (strelemtype) *ustri++;
@@ -162,9 +168,97 @@ SIZE_TYPE len;
                   (ustri[5] & 0x3F);
         ustri += 6;
         len -= 5;
+      } else {
+        *dest_len = stri - dest_stri;
+        return(len);
       } /* if */
     } /* while */
+    *dest_len = stri - dest_stri;
+    return(0);
   } /* utf8_to_stri */
+
+
+
+#ifdef ANSI_C
+
+memsizetype utf8_bytes_missing (ustritype ustri, SIZE_TYPE len)
+#else
+
+memsizetype utf8_bytes_missing (ustri, len)
+ustritype ustri;
+SIZE_TYPE len;
+#endif
+
+  {
+    memsizetype result;
+
+  /* utf8_bytes_missing */
+    result = 0;
+    if (len >= 1 && *ustri > 0x7F) {
+      if ((ustri[0] & 0xE0) == 0xC0) {
+        if (len == 1) {
+          result = 1;
+        } /* if */
+      } else if ((ustri[0] & 0xF0) == 0xE0) {
+        if (len == 1) {
+          result = 2;
+        } else if ((ustri[1] & 0xC0) == 0x80) {
+          if (len == 2) {
+            result = 1;
+          } /* if */
+        } /* if */
+      } else if ((ustri[0] & 0xF8) == 0xF0) {
+        if (len == 1) {
+          result = 3;
+        } else if ((ustri[1] & 0xC0) == 0x80) {
+          if (len == 2) {
+            result = 2;
+          } else if ((ustri[2] & 0xC0) == 0x80) {
+            if (len == 3) {
+              result = 1;
+            } /* if */
+          } /* if */
+        } /* if */
+      } else if ((ustri[0] & 0xFC) == 0xF8) {
+        if (len == 1) {
+          result = 4;
+        } else if ((ustri[1] & 0xC0) == 0x80) {
+          if (len == 2) {
+            result = 3;
+          } else if ((ustri[2] & 0xC0) == 0x80) {
+            if (len == 3) {
+              result = 2;
+            } else if ((ustri[3] & 0xC0) == 0x80) {
+              if (len == 4) {
+                result = 1;
+              } /* if */
+            } /* if */
+          } /* if */
+        } /* if */
+      } else if ((ustri[0] & 0xFC) == 0xFC) {
+        if (len == 1) {
+          result = 5;
+        } else if ((ustri[1] & 0xC0) == 0x80) {
+          if (len == 2) {
+            result = 4;
+          } else if ((ustri[2] & 0xC0) == 0x80) {
+            if (len == 3) {
+              result = 3;
+            } else if ((ustri[3] & 0xC0) == 0x80) {
+              if (len == 4) {
+                result = 2;
+              } else if ((ustri[4] & 0xC0) == 0x80) {
+                if (len == 5) {
+                  result = 1;
+                } /* if */
+              } /* if */
+            } /* if */
+          } /* if */
+        } /* if */
+      } /* if */
+    } /* if */
+    return(result);
+  } /* utf8_bytes_missing */
 
 
 

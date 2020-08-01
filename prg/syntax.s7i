@@ -56,8 +56,8 @@ $ system "ord" is ord;
 $ system "in" is in;
 $ system "prot_outfile" is PROT_OUTFILE;
 $ system "flush" is flush;
-$ system "write" is << ;
-$ system "nl" is NL;
+$ system "write" is write;
+$ system "writeln" is writeln;
 (* $ system "main" is main; *)
 
 (* OPERATORS *)

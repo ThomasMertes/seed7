@@ -113,10 +113,21 @@ The C statements have some weaknesses which are avoided with the Seed7 statement
         case 4:
           result = 8;
           break;
+        default:
+          result = 0;
       }
 
     Forgetting break statements in a switch is another possible source of errors which
-    is avoided in Seed7.
+    is avoided in Seed7:
+
+      switch number of
+        when {1, 2}:
+          result = 5;
+        when {3, 4}:
+          result = 8;
+        otherwise:
+          result = 0;
+      end case;
 
 
 Can I use something and declare it later?
@@ -340,7 +351,7 @@ forms of assignment since every type can define its own assignment. If a
 value copy works like a deep or a shallow copy can also be defined depending
 on the type. 
 
-For example: For integer, char, string variables a value copy is what most
+For example: For 'integer', 'char', 'string' variables a value copy is what most
 people expect. For files you don't expect the whole file to be copied with
 an assignment, therefore a reference copy seems appropriate.
 

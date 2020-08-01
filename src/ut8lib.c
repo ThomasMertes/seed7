@@ -84,6 +84,24 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype ut8_seek (listtype arguments)
+#else
+
+objecttype ut8_seek (arguments)
+listtype arguments;
+#endif
+
+  { /* ut8_seek */
+    isit_file(arg_1(arguments));
+    isit_int(arg_2(arguments));
+    ut8Seek(take_file(arg_1(arguments)), take_int(arg_2(arguments)));
+    return(SYS_EMPTY_OBJECT);
+  } /* ut8_seek */
+
+
+
+#ifdef ANSI_C
+
 objecttype ut8_stri_read (listtype arguments)
 #else
 

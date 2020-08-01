@@ -29,6 +29,7 @@
 
 objecttype ut8_getc (listtype arguments);
 objecttype ut8_l_rd (listtype arguments);
+objecttype ut8_seek (listtype arguments);
 objecttype ut8_stri_read (listtype arguments);
 objecttype ut8_word_read (listtype arguments);
 objecttype ut8_write (listtype arguments);
@@ -37,6 +38,7 @@ objecttype ut8_write (listtype arguments);
 
 objecttype ut8_getc ();
 objecttype ut8_l_rd ();
+objecttype ut8_seek ();
 objecttype ut8_stri_read ();
 objecttype ut8_word_read ();
 objecttype ut8_write ();

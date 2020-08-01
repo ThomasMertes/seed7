@@ -574,6 +574,7 @@ static primactrecord prim_act_table[] = {
 
     { "UT8_GETC",          ut8_getc,          },
     { "UT8_L_RD",          ut8_l_rd,          },
+    { "UT8_SEEK",          ut8_seek,          },
     { "UT8_STRI_READ",     ut8_stri_read,     },
     { "UT8_WORD_READ",     ut8_word_read,     },
     { "UT8_WRITE",         ut8_write,         }

@@ -64,14 +64,14 @@ const func string: getln (inout SCREEN_KEYBD_FILE: keybd) is func
   result
     var string: stri is "";
   begin
-    stri := lin_rd(keybd, keybd.TERMINATION_CHAR);
+    stri := lin_rd(keybd, keybd.bufferChar);
   end func;
 
 const func string: getwd (inout SCREEN_KEYBD_FILE: keybd) is func
   result
     var string: stri is "";
   begin
-    stri := wrd_rd(keybd, keybd.TERMINATION_CHAR);
+    stri := wrd_rd(keybd, keybd.bufferChar);
   end func;
 
 
@@ -105,14 +105,14 @@ const func string: getln (inout GRAPH_KEYBD_FILE: keybd) is func
   result
     var string: stri is "";
   begin
-    stri := lin_rd(keybd, keybd.TERMINATION_CHAR);
+    stri := lin_rd(keybd, keybd.bufferChar);
   end func;
 
 const func string: getwd (inout GRAPH_KEYBD_FILE: keybd) is func
   result
     var string: stri is "";
   begin
-    stri := wrd_rd(keybd, keybd.TERMINATION_CHAR);
+    stri := wrd_rd(keybd, keybd.bufferChar);
   end func;
 
 

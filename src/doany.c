@@ -56,7 +56,7 @@
 
 
 static listrecord flush_expr[2];
-static listrecord wrnl_expr[3];
+static listrecord wrnl_expr[2];
 static listrecord wrstri_expr[3];
 
 
@@ -170,8 +170,7 @@ objecttype outfile;
     printf("BEGIN do_wrnl\n");
 #endif
     wrnl_expr[0].obj = outfile;
-    wrnl_expr[1].obj = SYS_WRI_OBJECT;
-    wrnl_expr[2].obj = SYS_NL_OBJECT;
+    wrnl_expr[1].obj = SYS_WRLN_OBJECT;
     result = (booltype) (exec1(wrnl_expr) == SYS_EMPTY_OBJECT);
     fail_flag = FALSE;
 #ifdef TRACE_DOANY
@@ -203,8 +202,8 @@ stritype stri;
     result = FALSE;
     if ((out_stri = bld_stri_temp(stri)) != SYS_MEM_EXCEPTION) {
       wrstri_expr[0].obj = outfile;
-      wrstri_expr[1].obj = SYS_WRI_OBJECT;
-      wrstri_expr[2].obj = out_stri;
+      wrstri_expr[1].obj = out_stri;
+      wrstri_expr[2].obj = SYS_WRITE_OBJECT;
       result = (booltype) (exec1(wrstri_expr) == SYS_EMPTY_OBJECT);
       fail_flag = FALSE;
       FREE_OBJECT(out_stri);
@@ -269,8 +268,7 @@ void init_do_any ()
     flush_expr[0].next = &flush_expr[1];
     flush_expr[1].next = NULL;
     wrnl_expr[0].next = &wrnl_expr[1];
-    wrnl_expr[1].next = &wrnl_expr[2];
-    wrnl_expr[2].next = NULL;
+    wrnl_expr[1].next = NULL;
     wrstri_expr[0].next = &wrstri_expr[1];
     wrstri_expr[1].next = &wrstri_expr[2];
     wrstri_expr[2].next = NULL;

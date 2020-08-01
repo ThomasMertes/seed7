@@ -174,13 +174,13 @@ The C statements have some weaknesses which are avoided with the Seed7 statement
 </p><p>
 <!--  1.  -->The c if-statement
 </p><pre>
-      if (condition)
+      <font color=blue>if</font> (condition)
         statement;
 </pre><p>
     allows just one statement after the condition. By using the compound statement
     it is possible to have several statements after the condition
 </p><pre>
-      if (condition) {
+      <font color=blue>if</font> (condition) {
         statement1;
         statement2;
       }
@@ -192,25 +192,36 @@ The C statements have some weaknesses which are avoided with the Seed7 statement
     Since both forms are legal and adding a statement to the first form can lead to
     errors Seed7 closes this possible source of errors with its if-statement:
 </p><pre>
-      if condition then
+      <font color=blue>if</font> condition <font color=blue>then</font>
         statement
-      end if;
+      <font color=blue>end if</font>;
 </pre><p>
 <!--  2.  -->The following switch statement is formally correct but probably wrong
 </p><pre>
-      switch (number) {
-        case 1:
-        case 2:
+      <font color=blue>switch</font> (number) {
+        <font color=blue>case</font> 1:
+        <font color=blue>case</font> 2:
           result = 5;
-        case 3:
-        case 4:
+        <font color=blue>case</font> 3:
+        <font color=blue>case</font> 4:
           result = 8;
-          break;
+          <font color=blue>break</font>;
+        <font color=blue>default</font>:
+          result = 0;
       }
 </pre><p>
     Forgetting break statements in a switch is another possible source of errors which
-    is avoided in Seed7.
-</p>
+    is avoided in Seed7:
+</p><pre>
+      <font color=blue>switch</font> number <font color=blue>of</font>
+        <font color=blue>when</font> {1, 2}:
+          result = 5;
+        <font color=blue>when</font> {3, 4}:
+          result = 8;
+        <font color=blue>otherwise</font>:
+          result = 0;
+      <font color=blue>end case</font>;
+</pre><p></p>
 
 <a name="declare_later"><b>Can I use something and declare it later?
 </b></a><hr><!-- ========================================= -->
@@ -266,14 +277,14 @@ some problems:
 Instead Seed7 has array aggregates and allows functions with arrays as parameters.
 So you could declare a function
 </p><pre>
-  const proc: print_list (in array integer: arr) is func
-    local
-      var integer: number is 0;
-    begin
-      for number range arr do
+  <font color=blue>const</font> <font color=red>proc</font>: print_list (<font color=blue>in</font> <font color=red>array integer</font>: arr) <font color=blue>is func</font>
+    <font color=blue>local</font>
+      <font color=blue>var</font> <font color=red>integer</font>: number <font color=blue>is</font> 0;
+    <font color=blue>begin</font>
+      <font color=blue>for</font> number <font color=blue>range</font> arr <font color=blue>do</font>
         writeln(number);
-      end for;
-    end func;
+      <font color=blue>end for</font>;
+    <font color=blue>end func</font>;
 </pre><p>
 and call it with
 </p><pre>
@@ -309,12 +320,12 @@ automatically without the help of a garbage collector.
 Yes, but object orientation is organized different compared to other object
 oriented languages.
 </p><p>
-An example of an object oriented type is 'file'. A 'file' describes references to
-values with some other type. A value of a 'file' can have one of the following types:
-null_file, external_file, echo_file, line_file, etc. Each of this 'file' value types
+An example of an object oriented type is <tt>'<font color=red>file</font>'</tt>. A <tt>'<font color=red>file</font>'</tt> describes references to
+values with some other type. A value of a <tt>'<font color=red>file</font>'</tt> can have one of the following types:
+null_file, external_file, echo_file, line_file, etc. Each of this <tt>'<font color=red>file</font>'</tt> value types
 acts differently to the same requests.
 </p><p>
-For the type 'file' two kinds of functions are defined:
+For the type <tt>'<font color=red>file</font>'</tt> two kinds of functions are defined:
 <ol>
 <li><!--  1.  -->Functions which work for all files the same way.</li>
 <li><!--  2.  -->Dynamic functions which are just an interface. At run time the corresponding
@@ -328,9 +339,9 @@ type of the file value can be seen as the class implementing the interface.
 </b></a><hr><!-- ==================================== -->
 <p>
 There can be several base types, each with their own hierarchy. In many object
-oriented languages the class 'object' is used as element of all container classes.
+oriented languages the class <tt>'<font color=red>object</font>'</tt> is used as element of all container classes.
 Abstract data types provide a better and type save solution for containers and
-other uses of the root class 'object'. Therefore a single rooted hierarchy is not
+other uses of the root class <tt>'<font color=red>object</font>'</tt>. Therefore a single rooted hierarchy is not
 needed.
 </p>
 
@@ -341,16 +352,16 @@ Abstract data types are used to replace container classes. When using an
 abstract data type as container you have to specify the type of the element
 in the type declaration. Therefore abstract data types are always typesafe.
 Typeless container classes with object elements do not exist. The only thing
-which comes near to this is the 'ref_list' which ist used in the reflection.
-A 'ref_list' should not be misused as container class. Examples of abstract
+which comes near to this is the <tt>'<font color=red>ref_list</font>'</tt> which ist used in the reflection.
+A <tt>'<font color=red>ref_list</font>'</tt> should not be misused as container class. Examples of abstract
 data types are:
 </p><pre>
-  array string
-  array [boolean] string
-  set of char
-  set of integer
-  hash [string] boolean
-  hash [string] array array string
+  <font color=red>array string</font>
+  <font color=red>array [boolean] string</font>
+  <font color=red>set of char</font>
+  <font color=red>set of integer</font>
+  <font color=red>hash [string] boolean</font>
+  <font color=red>hash [string] array array string</font>
 </pre><p></p>
 
 <a name="primitive_types"><b>Are there primitive types?
@@ -382,7 +393,7 @@ contain the value itself. This means that after
 both variables are still distinct and changing one variable has no effect on
 the other.
 </p><p>
-If 'a' and 'b' are declared to have type 'aType' which contains the integer
+If 'a' and 'b' are declared to have type <tt>'<font color=red>aType</font>'</tt> which contains the integer
 field 'property' you can do the following:
 </p><pre>
   b.property := 1;
@@ -391,9 +402,9 @@ field 'property' you can do the following:
 </pre><p>
 Everything boils down to the question: What value does a.property have now.
 </p><ul>
-<li><!--  -  -->When 'aType' is an object type a.property has the value 2 because 'a' and 'b'
+<li><!--  -  -->When <tt>'<font color=red>aType</font>'</tt> is an object type a.property has the value 2 because 'a' and 'b'
    both refer to the same object.</li>
-<li><!--  -  -->When 'aType' is a primitive type a.property has still the value 1 because 'a'
+<li><!--  -  -->When <tt>'<font color=red>aType</font>'</tt> is a primitive type a.property has still the value 1 because 'a'
    and 'b' are distinct objects.</li>
 </ul>
 
@@ -433,7 +444,7 @@ forms of assignment since every type can define its own assignment. If a
 value copy works like a deep or a shallow copy can also be defined depending
 on the type. 
 </p><p>
-For example: For integer, char, string variables a value copy is what most
+For example: For <tt>'<font color=red>integer</font>'</tt>, <tt>'<font color=red>char</font>'</tt>, <tt>'<font color=red>string</font>'</tt> variables a value copy is what most
 people expect. For files you don't expect the whole file to be copied with
 an assignment, therefore a reference copy seems appropriate.
 </p><p>
@@ -460,11 +471,11 @@ variable. The combination of this features allows four types of parameters:
     | inout     | reference | var          |
     +-----------+-----------+--------------+
 </pre><p>
-Additionally every type defines an 'in' parameter which is either a 'val' or a
-'ref' parameter. Types with little memory requirements like 'integer', 'char'
-or 'boolean' use a 'val' parameter as 'in'. Other types like 'string', arrays
-and structs use a 'ref' parameter as 'in'. Usually it is not necessary to
-care if an 'in' parameter is by value or by reference.
+Additionally every type defines an <tt>'<font color=blue>in</font>'</tt> parameter which is either a <tt>'<font color=blue>val</font>'</tt> or a
+<tt>'<font color=blue>ref</font>'</tt> parameter. Types with little memory requirements like <tt>'<font color=red>integer</font>'</tt>, <tt>'<font color=red>char</font>'</tt>
+or <tt>'<font color=red>boolean</font>'</tt> use a <tt>'<font color=blue>val</font>'</tt> parameter as <tt>'<font color=blue>in</font>'</tt>. Other types like <tt>'<font color=red>string</font>'</tt>, arrays
+and structs use a <tt>'<font color=blue>ref</font>'</tt> parameter as <tt>'<font color=blue>in</font>'</tt>. Usually it is not necessary to
+care if an <tt>'<font color=blue>in</font>'</tt> parameter is by value or by reference.
 </p>
 
 <a name="constructors"><b>Where are the constructors?
@@ -510,23 +521,23 @@ parameter, to archive the functionality of static methods (elsewhere named class
 methods) in a more general way. How a static method is declared is shown in the
 following example:
 </p><pre>
-  const func integer: convert_to (attr integer, in char: ch) is func
-    result
-      var integer: result is 0;
-    begin
+  <font color=blue>const</font> <font color=red>func integer</font>: convert_to (<font color=blue>attr</font> <font color=red>integer</font>, <font color=blue>in</font> <font color=red>char</font>: ch) <font color=blue>is func</font>
+    <font color=blue>result</font>
+      <font color=blue>var</font> <font color=red>integer</font>: result <font color=blue>is</font> 0;
+    <font color=blue>begin</font>
       result := ord(ch);
-    end func;
+    <font color=blue>end func</font>;
 </pre><p>
 The function convert_to can be called as
 </p><pre>
-  number := convert_to(integer, 'a');
+  number := convert_to(<font color=red>integer</font>, 'a');
 </pre><p>
 Since the result of a function is not used to determine an overloaded function, this
 is sometimes the only way to use the same function name for different purposes as in:
 </p><pre>
-  ch   := convert_to(char,    1);
-  stri := convert_to(string,  1);
-  ok   := convert_to(boolean, 1);
+  ch   := convert_to(<font color=red>char</font>,    1);
+  stri := convert_to(<font color=red>string</font>,  1);
+  ok   := convert_to(<font color=red>boolean</font>, 1);
   num  := convert_to(typeof(num), 1);
 </pre><p>
 Attribute parameters allow a function to be attached to a certain type. But this concept
@@ -579,10 +590,10 @@ instead of the configuratable one. This mechanism is used to boot the Seed7 lang
 At the beginning of the seed7_05.s7i file nothing is declared. This means that
 no statements, no functions, no operators, no types and no variables are predeclared.
 To boot the Seed7 language the file syntax.s7i is included. The file syntax.s7i
-contains only $ commands. First the type 'type' is declared. Declarations of other
+contains only $ commands. First the type <tt>'<font color=red>type</font>'</tt> is declared. Declarations of other
 types, system variables and syntax descriptions of operators and statements follow.
 After finishing the include of syntax.s7i the file seed7_05.s7i contains some $
-declarations until the 'const' declaration statement is established. From that point
+declarations until the <tt>'<font color=blue>const</font>'</tt> declaration statement is established. From that point
 onward almost no $ statements are needed.
 </p>
 

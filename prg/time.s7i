@@ -578,6 +578,50 @@ const func boolean: (in duration: dur1) >= (in duration: dur2) is func
   end func;
 
 
+const func integer: compare (in duration: dur1, in duration: dur2) is func
+  result
+    var integer: result is 0;
+  begin
+    if dur1.year_365 + dur1.year_366 < dur2.year_365 + dur2.year_366 then
+      result := -1;
+    elsif dur1.year_365 + dur1.year_366 > dur2.year_365 + dur2.year_366 then
+      result := 1;
+    elsif dur1.month_28 + dur1.month_29 + dur1.month_30 + dur1.month_31 <
+          dur2.month_28 + dur2.month_29 + dur2.month_30 + dur2.month_31 then
+      result := -1;
+    elsif dur1.month_28 + dur1.month_29 + dur1.month_30 + dur1.month_31 >
+          dur2.month_28 + dur2.month_29 + dur2.month_30 + dur2.month_31 then
+      result := 1;
+    elsif dur1.day < dur2.day then
+      result := -1;
+    elsif dur1.day > dur2.day then
+      result := 1;
+    elsif dur1.hour < dur2.hour then
+      result := -1;
+    elsif dur1.hour > dur2.hour then
+      result := 1;
+    elsif dur1.minute < dur2.minute then
+      result := -1;
+    elsif dur1.minute > dur2.minute then
+      result := 1;
+    elsif dur1.second < dur2.second then
+      result := -1;
+    elsif dur1.second > dur2.second then
+      result := 1;
+    elsif dur1.mycro_second < dur2.mycro_second then
+      result := -1;
+    elsif dur1.mycro_second > dur2.mycro_second then
+      result := 1;
+    end if;
+  end func;
+
+
+const func integer: hashCode (in duration: dur) is
+  return dur.year_365 + dur.year_366 +
+      dur.month_28 + dur.month_29 + dur.month_30 + dur.month_31 + dur.day +
+      dur.hour + dur.minute + dur.second + dur.mycro_second;
+
+
 const func duration: (in integer: YRS) . YEARS is func
   result
     var duration: dur_val is duration.value;

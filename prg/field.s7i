@@ -111,7 +111,7 @@ const func string: getwd (inout field_file: field_fil) is func
     while length(result) >= 1 and result[length(result)] = ' ' do
       result := result[.. pred(length(result))];
     end while;
-    field_fil.TERMINATION_CHAR := ch;
+    field_fil.bufferChar := ch;
   end func;
 
 
@@ -165,7 +165,7 @@ const func string: getln (inout field_file: field_fil) is func
       end case;
     until ch in {KEY_NL, KEY_TAB, KEY_BACKTAB, KEY_UP, KEY_DOWN, KEY_ESC};
     result := field_fil.field;
-    field_fil.TERMINATION_CHAR := ch;
+    field_fil.bufferChar := ch;
   end func;
 
 

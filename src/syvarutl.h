@@ -47,8 +47,8 @@
 #define SYS_IN_OBJECT                 prog.sys_var[19]
 #define SYS_PROT_OUTFILE_OBJECT       prog.sys_var[20]
 #define SYS_FLUSH_OBJECT              prog.sys_var[21]
-#define SYS_WRI_OBJECT                prog.sys_var[22]
-#define SYS_NL_OBJECT                 prog.sys_var[23]
+#define SYS_WRITE_OBJECT              prog.sys_var[22]
+#define SYS_WRLN_OBJECT               prog.sys_var[23]
 #define SYS_MAIN_OBJECT               prog.sys_var[24]
 
 

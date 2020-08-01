@@ -2,7 +2,7 @@
 (*                                                                  *)
 (*  manual.txt                                                      *)
 (*                                                                  *)
-(*  Copyright (C) 1989 - 1994  Thomas Mertes                        *)
+(*  Copyright (C) 1989 - 2005  Thomas Mertes                        *)
 (*  All rights reserved.                                            *)
 (*                                                                  *)
 (*  Documentation: Manual for the Seed7 programming language        *)
@@ -24,10 +24,12 @@ CONTENTS
   1.3     Features of Seed7
   1.4     How to read the manual
   2.    TUTORIAL
-  2.1     Getting started
+  2.1     Hello world
   2.2     Local declarations and expressions
   2.3     For loop and float expressions
   2.4     Parameters
+  2.5     Declare a statement
+  2.6     Template declaring a statement
   3.    SYNTAX
   4.    PREDEFINED STATEMENTS
   4.1     Assignment
@@ -51,14 +53,15 @@ CONTENTS
   5.11    ref_list
   5.12    ptr
   5.13    ENUMERATION
-  5.14    time
-  5.15    duration
-  5.16    file
-  5.17    text
-  5.18    type
-  5.19    struct
-  5.20    object
-  5.21    expr
+  5.14    color
+  5.15    time
+  5.16    duration
+  5.17    file
+  5.18    text
+  5.19    type
+  5.20    struct
+  5.21    object
+  5.22    expr
   6.    PARAMETERS
   6.1     'val' parameter
   6.2     'ref' parameter
@@ -116,7 +119,7 @@ CONTENTS
 
     Seed7 is a general-purpose programming language. It is a
   higher level language compared to Ada, C++ and Java. In Seed7
-  new statements and operators can be defined easily. Functions
+  new statements and operators can be declared easily. Functions
   with type results and type parameters are more elegant than
   the usual template or generics concept. Object orientation is
   used when it brings advantages and not in places when other
@@ -248,8 +251,7 @@ CONTENTS
 
     - Comments start with (* and end with *) and may be nested.
 
-    - Comments start with # and are terminated with the end of
-      the line.
+    - Comments start with # and are terminated with the end of the line.
 
   There are several concepts which are new
 
@@ -336,7 +338,7 @@ CONTENTS
   reference can be learned easier.
 
 
-2.1 Getting started
+2.1 Hello world
 
     A Seed7 program consists of a sequence of declarations.
   With each declaration a type and a name is attached to the
@@ -357,13 +359,13 @@ CONTENTS
     func ... end func
 
   construct as value. The 'func' construct is similar to
-  begin end in PASCAL and { } in C. Inside the 'func' is a
+  begin ... end in PASCAL and { ... } in C. Inside the 'func' is a
   'writeln' statement with the "hello world" string. The
   'writeln' statement is used to write a string followed by a
   newline character. To use this declaration as the standard
   hello world example program, we have to add a few things:
 
-    $ include "seed7_05.s7i"
+    $ include "seed7_05.s7i";
 
     const proc: main is func
       begin
@@ -412,7 +414,7 @@ CONTENTS
     (* Print a Fahrenheit-Celsius table
        for Fahrenheit values between 0 and 300 *)
 
-    $ include "seed7_05.s7i"
+    $ include "seed7_05.s7i";
 
     const proc: main is func
       local
@@ -469,8 +471,8 @@ CONTENTS
     An improved version of the program to write the Fahrenheit
   to Celsius conversion table is:
 
-    $ include "seed7_05.s7i"
-    include "float.s7i"
+    $ include "seed7_05.s7i";
+      include "float.s7i";
 
     const proc: main is func
       local
@@ -636,26 +638,103 @@ CONTENTS
   over an explicit 'val' and 'ref' parameter.
 
 
+2.5 Declare a statement
+
+    This example program writes it's arguments
+
+    $ include "seed7_05.s7i";       # Standard Seed7 library
+
+    const proc: main is func
+      local
+        var string: stri is "";
+      begin
+        for stri range argv(PROGRAM) do
+          write(stri <& " ");
+        end for;
+        writeln;
+      end func;
+
+    $ system "main" is main;
+
+  The 'for' statement iterates over 'argv(PROGRAM)'.
+  The 'argv(PROGRAM)' function returns an 'array string'
+  (=array of string elements). The 'for' statement is overloaded
+  for various collection types. In the standard Seed7 library
+  "seed7_05.s7i" the 'for' statement for arrays is declared as
+  follows:
+
+    const proc: for (inout baseType: variable) range (in arrayType: arr_obj) do
+                  (in proc: statements)
+                end for is func
+      local
+        var integer: number is 0;
+      begin
+        for number range 1 to length(arr_obj) do
+          variable := arr_obj[number];
+          statements;
+        end for;
+      end func;
+
+  The syntax of this 'for' statement is declared as:
+
+    $ syntax expr: .for.().range.().to.().do.().end.for is              -> 25;
+
+  Additionally everybody can overload the 'for' statement also.
+  Because of this powerful features Seed7 does not need Iterators.
+
+
+2.6 Template declaring a statement
+
+  Templates are just normal functions with types as parameters.
+  The following template function declares 'for' statements:
+
+    const proc: FOR_DECLS (in type: aType) is func
+      begin
+
+        const proc: for (inout aType: variable) range (in aType: lower_limit) to (in aType: upper_limit) do
+            (in proc: statements) end for is func
+          begin
+            variable := lower_limit;
+            if variable <= upper_limit then
+              statements;
+              while variable < upper_limit do
+                incr(variable);
+                statements;
+              end while;
+            end if;
+          end func;
+
+      end func;
+ 
+    FOR_DECLS(char);
+    FOR_DECLS(boolean);
+
+  The body of the 'FOR_DECLS' function contains a declaration of
+  the 'for' statement for the type aType. Calling 'FOR_DECLS' with
+  char and boolean as parameter creates corresponding declarations
+  of 'for' statements. The example above is a simplified part of
+  the standard Seed7 library "seed7_05.s7i".
+
 
 3. SYNTAX
 =========
 
     A syntax declaration defines the way a usage of a statement
   or operator must be written. For example a call of the
-  not-operator looks like:
+  'not' operator looks like:
 
     not okay
 
-  To describe the syntax of the not-operator we write:
+  To describe the syntax of the 'not' operator we write:
 
     $ syntax expr: .not.() is <- 13;
 
-  This means that a not-expression is constructed with the
+  This means that a 'not' expression is constructed with the
   symbol 'not' followed by a parameter. The place of the
   parameter is marked with the () sign. The syntax description
   contains no information about the types of the parameters. At
   the syntax level a parameter may be anything. With '<-' the
-  associativity of the not-operator is specified as right
+  associativity of the 'not' operator is specified as right
   associative. This means that the right operand is allowed to
   have the same priority as the operator symbol. So the
   expression
@@ -666,14 +745,14 @@ CONTENTS
 
     not (not okay)
 
-  When the associativity of the not-operator is specified with
-  '->' instead of '<-' the not-not-expression above is not legal.
-  With 13 the priority of the whole not-operator is determined.
+  When the associativity of the 'not' operator is specified with
+  '->' instead of '<-' the 'not not' expression above is not legal.
+  With 13 the priority of the whole 'not' operator is determined.
   As convention priorities from 1 to 20 are used by operators
   and priority 25 is used by statements. Arithmetic operators
   have priorities from 1 to 11 and comparisons have priority 12.
 
-  To define the not-operator completely there must be also
+  To define the 'not' operator completely there must be also
   a semantic definition which is as follows:
 
     const func boolean: not (in boolean: aBool) is func
@@ -687,24 +766,24 @@ CONTENTS
         end if;
       end func;
 
-  In the declaration the not-operator is written exactly
+  In the declaration the 'not' operator is written exactly
   in the same way it is written when it is called. The syntax
   definition is used at both places: declaration and call.
   The syntax and semantic declarations define precisely how
-  the not-operator works.
+  the 'not' operator works.
 
-    As next example we try an infix operator like the and-operator.
-  A call of the and-operator may look like:
+    As next example we try an infix operator like the 'and' operator.
+  A call of the 'and' operator may look like:
 
     okay and not error
 
-  To describe the syntax of the and-operator we write:
+  To describe the syntax of the 'and' operator we write:
 
     $ syntax expr: ().and.() is     -> 14;
 
-  This means that a and-expression is constructed with the
-  symbol 'and' surrounded by a parameters. The '->' defines the
-  and-operator as left associative. This means that an expression
+  This means that an 'and' expression is constructed with the
+  symbol 'and' surrounded by parameters. The '->' defines the
+  'and' operator as left associative. This means that an expression
   like
 
     A and B and C
@@ -713,8 +792,8 @@ CONTENTS
 
     (A and B) and C
 
-  With 14 the priority of the whole and-operator is determined.
-  Since priority 14 is weaker than the priority of the not-operator
+  With 14 the priority of the whole 'and' operator is determined.
+  Since priority 14 is weaker than the priority of the 'not' operator
   which is 13 the example expression is evaluated as:
 
     okay and (not error)
@@ -723,7 +802,7 @@ CONTENTS
 
     okay and not error
 
-  makes no sense when the and-operator has priority 12 instead of 14.
+  makes no sense when the 'and' operator has priority 12 instead of 14.
 
     As next let's try the syntax declaration of a statement.
   For example a call of the while-statement looks like:
@@ -851,8 +930,7 @@ CONTENTS
 
     The library contains several predefined statements:
   assignment, while-statement, repeat-statement, for-statement,
-  if-statement, case-statement, BEGIN-statement
-  and procedure call.
+  if-statement, case-statement and procedure call.
 
 
   Syntax:
@@ -1267,24 +1345,24 @@ CONTENTS
         characterClass := SPECIAL;
       when {'(', ')', '[', ']', '{', '}'}:
         characterClass := PAREN;
-      when {'"'}:
+      when {'"'}:  # Also possible '\"'
         characterClass := APPOSTROPHE;
-      when {'"'}:
+      when {'''}:  # Also possible '\''
         characterClass := QUOTE;
       otherwise:
         characterClass := ILLEGAL;
     end case;
 
   Semantics:
-    The expression between 'case' and 'of' is evaluated.
-    This value is compared with the values after the 'when's.
-    When the values are equal the statements behind the colon
-    are executed and the case-statement is finished.
-    If in all comparisons the values are not equal and an
-    otherwise-part is present the statements behind the otherwise
-    are executed and the case-statement is finished.
-    If in all comparisons the values are not equal and no
-    otherwise-part is present the case-statement is finished.
+    The expression between 'case' and 'of' is evaluated. When the
+    resulting value is element of a set behind a 'when' the
+    statements behind the corresponding colon are executed and
+    the case-statement is finished. If the value is not element of
+    a set behind a 'when' and an 'otherwise' part is present the
+    statements behind the colon of the 'otherwise' are executed
+    and the case-statement is finished. If the value is not element
+    of a set behind a 'when' and no 'otherwise' part is present
+    the case-statement is finished.
 
 
   Syntax:
@@ -1770,13 +1848,13 @@ CONTENTS
   printable characters the following escape sequences may be
   used.
 
-    audible alert    BEL      \a         backslash     \\
-    backspace        BS       \b         apostrophe    \'
-    escape           ESC      \e         double quote  \"
+    audible alert    BEL      \a    backslash    (\)   \\
+    backspace        BS       \b    apostrophe   (')   \'   
+    escape           ESC      \e    double quote (")   \"
     formfeed         FF       \f
-    newline          NL (LF)  \n         control-A     \A
-    carriage return  CR       \r           ...
-    horizontal tab   HT       \t         control-Z     \Z
+    newline          NL (LF)  \n    control-A          \A
+    carriage return  CR       \r      ...
+    horizontal tab   HT       \t    control-Z          \Z
     vertical tab     VT       \v
 
 
@@ -1842,7 +1920,8 @@ CONTENTS
     Infix operators:
       &         String concatenation
                   ( "All " & "OK" => "All OK" )
-      <&         String concatenation with weak priority
+      <&        String concatenation with weak priority
+                Overloaded for various types with 'enable_io'
                   ( write("i=" <& i digits 2 len 6 <& " $"); )
       mult      String multiplication
                   ( Type of right operand: integer,
@@ -1891,6 +1970,13 @@ CONTENTS
                     pos("ABCDE ABCDE","BC")=>2,
                     pos("XYZXYZ","ZYX")=>0,
                     pos("123456789","")=>0 )
+      pos(A,B,C) First position of string B in string A
+                 The search starts at position C of string A
+                  ( Type of argument C: integer,
+                    Type of result: integer,
+                    pos("ABCDE ABCDE" color=maroon>"BC", 3)=>8,
+                    pos("XYZXYZ" color=maroon>"ZXY", 4)=>0,
+                    pos("123456789" color=maroon>"", 2)=>0 )
       rpos(A,B) Last position of string B in string A
                   ( Type of result: integer,
                     rpos("ABCDE ABCDE","BC")=>8,
@@ -1980,9 +2066,9 @@ CONTENTS
   elements of 'baseType' which can be accessed using an index of
   'keyType'.
   For example: 'hash [string] integer' describes hash table of
-  integer elements with a string key.
+  integer elements with a 'string' key.
 
-    Constant:
+    Constants:
       hashType.EMPTY_HASH  Empty hashtable
     Infix operators:
       in        Element
@@ -2015,7 +2101,7 @@ CONTENTS
     The type 'set of baseType' describes a set of elements of a
   'baseType'. (including the empty set).
 
-    Constant:
+    Constants:
       setType.EMPTY_SET  Empty set
     Infix operators:
       |         Union 
@@ -2038,14 +2124,14 @@ CONTENTS
                   ( Type of result: baseType,
                     Delivers the element from the set for
                     which the following condition holds:
-                       Element < X
+                       Element <= X
                     for all X which are in the set.
                     min(setType.EMPTY_SET) => ERROR )
       max       Maximum element
                   ( Type of result: baseType,
                     Delivers the element from the set for
                     which the following condition holds:
-                       Element > X
+                       Element >= X
                     for all X which are in the set.
                     min(setType.EMPTY_SET) => ERROR )
     Statements:
@@ -2074,7 +2160,7 @@ CONTENTS
                   ( Type of result: ref_list )
       integer value A    Dereference as integer
                   ( Type of result: integer )
-      float value A      Dereference float
+      float value A      Dereference as float
                   ( Type of result: float )
       char value A       Dereference as char
                   ( Type of result: char )
@@ -2115,7 +2201,7 @@ CONTENTS
 
 5.11 ref_list
 
-    The type 'ref_list' describes a list of reference objects.
+    The type 'ref_list' describes a list of 'reference' objects.
 
     Constants:
       ref_list.EMPTY  Empty reference list.
@@ -2220,7 +2306,42 @@ CONTENTS
                   ( decr(A) => A:=pred(A) )
 
 
-5.14 time
+5.14 color
+
+    The type 'color' describes colors.
+
+    Constants:
+      black         is color(0, 0, 0);
+      dark_red      is color(32768, 0, 0);
+      dark_green    is color(0, 32768, 0);
+      brown         is color(32768, 16384, 0);
+      dark_blue     is color(0, 0, 32768);
+      dark_magenta  is color(32768, 0, 32768);
+      dark_cyan     is color(0, 65535, 65535);
+      light_gray    is color(49152, 49152, 49152);
+      dark_gray     is color(16384, 16384, 16384);
+      light_red     is color(65535, 0, 0);
+      light_green   is color(0, 65535, 0);
+      yellow        is color(65535, 65535, 0);
+      light_blue    is color(0, 0, 65535);
+      light_magenta is color(65535, 0, 65535);
+      light_cyan    is color(32768, 65535, 65535);
+      white         is color(65535, 65535, 65535);
+      orange        is color(65535, 32768, 0);
+      amber         is color(49152, 32768, 16384);
+      pink          is color(65535, 32768, 32768);
+    Infix operators:
+      +         Add two colors in an additive color system
+    Relations:
+      =, <>
+    Functions:
+      color(R,G,B) Creates a color from Red, Green and Blue 
+                  ( Type of argument R: integer,
+                    Type of argument G: integer,
+                    Type of argument B: integer )
+
+
+5.15 time
 
     The type 'time' describes times and dates.
 
@@ -2259,7 +2380,7 @@ CONTENTS
       await(A)  Wait until the given time
 
 
-5.15 duration
+5.16 duration
 
     The type 'duration' describes time and date durations.
 
@@ -2278,11 +2399,15 @@ CONTENTS
     Functions:
       str(A)    Conversion to string
                   ( Type of result: string )
+      compare(A, B) Compare function
+                  ( Type of result: integer )
+      hashCode(A) Hash function
+                  ( Type of result: integer )
     Statements:
       wait(A)   Wait for given duration
 
 
-5.16 file
+5.17 file
 
     The type 'file' describes sequential files.
 
@@ -2357,7 +2482,7 @@ CONTENTS
                     seek(A, -1) => EXCEPTION RANGE_ERROR )
 
 
-5.17 text
+5.18 text
 
     The type 'text' describes two dimensional files.
 
@@ -2414,7 +2539,7 @@ CONTENTS
       cursor_off(A) Make the cursor invisible
 
 
-5.18 type
+5.19 type
 
     The type 'type' describes all types.
 
@@ -2454,39 +2579,40 @@ CONTENTS
                   ( Type of result: reference )
 
     Statements:
-      const type: name is value
+      const aType: name is value
                 Declare constant 'name' with 'value'
-      var type: name is value
+      var aType: name is value
                 Declare variable 'name' with 'value'
 
 
-5.19 struct
+5.20 struct
 
     The type 'struct' describes all structured types.
 
     Prefix operators:
       new struct
-        elem type: name is value;
+        var aType: name is value;
         ...
       end struct
                 Create new structure type
 
-      new METATYPE struct
-        elem type: name is value;
+      new metaType struct
+        var aType: name is value;
         ...
       end struct
-                Create new structure type as subtype of METATYPE,
+                Create new structure type as subtype of 'metaType',
                 which is not a structure
 
-      sub METATYPE struct
-        elem type: name is value;
+      sub metaType struct
+        var aType: name is value;
         ...
       end struct
-                Create new structure type as subtype of METATYPE.
-                which is a structure type
+                Create new structure type as subtype of 'metaType',
+                which is a structure type. The new stucture type inherits all
+		elements of the structure type 'metaType'.
 
-      elem type: name is value
-                Declace structure element 'name' with 'value'
+      var aType: name is value
+                Declare structure element 'name' with 'value'
 
     Infixoperators:
       .         Access Element of STRUCT
@@ -2502,7 +2628,7 @@ CONTENTS
                   ( Type of argument B: reference )
 
 
-5.20 object
+5.21 object
 
     The type 'object' is used as meta type for various types.
   This allows to define common operations for all this types.
@@ -2515,7 +2641,7 @@ CONTENTS
       TRACE_OBJ(A)  Write internal information
 
 
-5.21 expr
+5.22 expr
 
     The type 'expr' is used to describe unmatched expressions.
   This are expressions where the recognizing of the functions
@@ -2565,7 +2691,7 @@ CONTENTS
   the 'ref' parameter stri. Changes to the 'ref' parameter would
   also change the global variable. Such unwanted side effects can
   also take place between parameters (when at least one parameter
-  is an inout parameter).
+  is an 'inout' parameter).
 
   In most cases such unwanted side effects are impossible or can
   be avoided easily. When possible 'in' parameters should be
@@ -2809,12 +2935,12 @@ CONTENTS
 6.6 Symbol parameter
 
   Some functions need symbols at fixed places in the parameter
-  list. The following IF-statements requests the keywords 'THEN',
+  list. The following IF-statement requests the keywords 'THEN',
   'END' and 'IF' at specific places:
 
     IF condition THEN
       statement
-    END IF
+    END IF;
 
   After defining the syntax of this IF-statement with
 
@@ -2824,11 +2950,13 @@ CONTENTS
 
     const proc: IF (in boolean: condition) THEN
                   (in proc: statement)
-                END IF is
+                END IF is func
 
-                  case condition of
-                    when {TRUE}: statement;
-                  end case;
+                  begin
+                    case condition of
+                      when {TRUE}: statement;
+                    end case;
+                  end func;
 
   The symbol parameters are just written outside the parentheses.
   A call of this statement could be:
@@ -3034,7 +3162,7 @@ CONTENTS
   for a type it is possible to define just 'str' (or 'parse')
   and activate just enable_output (or enable_input).
 
-  There is also a formatting operator called lpad which is based
+  There is also a formatting operator called 'lpad' which is based
   on the 'str' function. The statements
 
     write(12 lpad 6);
@@ -3049,8 +3177,8 @@ CONTENTS
         12     3    45
        678 98765  4321
 
-  As we see the lpad operator can be used to produce right
-  justified output. There is also a rpad operator to produce
+  As we see the 'lpad' operator can be used to produce right
+  justified output. There is also a 'rpad' operator to produce
   left justified output. The basic definitions of the 'lpad'
   and 'rpad' operators work on strings and are as follows:
 
@@ -3059,7 +3187,7 @@ CONTENTS
         var string: result is "";
       begin
         if leng > length(stri) then
-          result := leng - length(stri) mult " " & stri;
+          result := " " mult leng - length(stri) & stri;
         else
           result := stri;
         end if;
@@ -3070,7 +3198,7 @@ CONTENTS
         var string: result is "";
       begin
         if leng > length(stri) then
-          result := stri & leng - length(stri) mult " ";
+          result := stri & " " mult leng - length(stri);
         else
           result := stri;
         end if;
@@ -3094,7 +3222,7 @@ CONTENTS
       end func;
 
   For 'float' values exists an additional way to convert them to
-  strings. The digits operator allows the specification of a
+  strings. The 'digits' operator allows the specification of a
   precision. For example the statements
 
     writeln(3.1415 digits 2);
@@ -3105,7 +3233,7 @@ CONTENTS
     3.14
     4.00
 
-  A combination with the lpad operator as in
+  A combination with the 'lpad' operator as in
 
     writeln(3.1415 digits 2 lpad 6);
     writeln(99.9 digits 2 lpad 6);
@@ -3134,7 +3262,7 @@ CONTENTS
 
   The two basic i/o methods defined for the NULL_FILE are
 
-    const proc: (ref NULL_FILE param) << (in string param) is    noop;
+    const proc: write (ref NULL_FILE param, in string param) is noop;
     const string: gets (ref NULL_FILE param, ref integer param) is "";
 
   This means that writing any string to the NULL_FILE has
@@ -3173,7 +3301,7 @@ CONTENTS
           stri &:= buffer;
           buffer := gets(file conv aFile, 1);
         end while;
-        aFile.TERMINATION_CHAR := buffer[1];
+        aFile.bufferChar := buffer[1];
       end func;
 
     const func string: getln (inout NULL_FILE: aFile) is func
@@ -3187,7 +3315,7 @@ CONTENTS
           stri &:= buffer;
           buffer := gets(file conv aFile, 1);
         end while;
-        aFile.TERMINATION_CHAR := buffer[1];
+        aFile.bufferChar := buffer[1];
       end func;
 
   Note that 'getwd' skips leading spaces and tabs while 'getc' and
@@ -3197,7 +3325,7 @@ CONTENTS
   This declarations are based on the method 'gets' which must be
   defined for every new user defined file-type.
 
-  Note that there is an assignment to the variable TERMINATION_CHAR.
+  Note that there is an assignment to the variable 'bufferChar'.
   This variable is a component of NULL_FILE and therefore also
   a component of all derived file types. This allows an
   eoln-function to test if the last 'getwd' or 'getln' reach the end
@@ -3207,25 +3335,30 @@ CONTENTS
       result
         var boolean: result is TRUE;
       begin
-        result := aFile.TERMINATION_CHAR = '\n';
+        result := aFile.bufferChar = '\n';
       end func;
 
+  The next declarations allows various i/o operations for strings:
 
-7.3 Input and output with conversion
-
-    Normally we need a combination of an i/o operation with
-  a conversion operation. There are several functions which are
-  based on the 'str' and 'parse' conversions and on the basic
-  i/o-functions. The following declaration allows the << operator
-  to be used for all types which define 'enable_io':
-
-    const proc: (in file: aFile) << (in aType: aValue) is func
+    const proc: writeln (in file: aFile, in string: stri) is func
       begin
-        aFile << str(aValue);
+        write(aFile, stri);
+        writeln(aFile);
       end func;
 
-  The next declaration allow the use the >> operator for
-  strings:
+    const proc: read (inout file: aFile, inout string: stri) is func
+      begin
+        stri := getwd(aFile);
+        aFile.io_empty := stri = "";
+        aFile.io_ok := TRUE;
+      end func;
+
+    const proc: readln (inout file: aFile, inout string: stri) is func
+      begin
+        stri := getln(aFile);
+        aFile.io_empty := stri = "";
+        aFile.io_ok := TRUE;
+      end func;
 
     const proc: (inout file: aFile) >> (inout string: stri) is func
       begin
@@ -3234,7 +3367,31 @@ CONTENTS
         aFile.io_ok := TRUE;
       end func;
 
-  For types which define 'enable_io' the >> operator is declared as:
+    const proc: (in file: aFile) <&lt (in string: stri) is func
+      begin
+        write(aFile , stri);
+      end func;
+
+
+7.3 Input and output with conversion
+
+    Normally we need a combination of an i/o operation with
+  a conversion operation. There are several functions which are
+  based on the 'str' and 'parse' conversions and on the basic
+  i/o-functions. The following declarations allow the '<<' operator
+  and the 'write' function to be used for all types which define 'enable_io':
+
+    const proc: (in file: aFile) << (in aType: aValue) is func
+      begin
+        write(aFile, str(aValue));
+      end func;
+
+    const proc: write (in file: aFile, in aType: aValue) is func
+      begin
+        write(aFile, str(aValue));
+      end func;
+
+  For types which define 'enable_io' the '>>' operator is declared as:
 
     const proc: (inout file: aFile) >> (inout aType: aValue) is func
       local
@@ -3284,16 +3441,16 @@ CONTENTS
         end block;
       end func;
 
-  The next two declarations define the output of NL and BS:
+  The next two declarations define 'writeln' and 'backSpace':
 
-    const proc: (ref external_file: aFile) << NL is func
+    const proc: writeln (ref external_file: aFile) is func
       begin
-        aFile << "\n";
+        write(aFile, "\n");
       end func;
 
-    const proc: (ref external_file: aFile) << BS is func
+    const proc: backSpace (ref external_file: aFile) is func
       begin
-        aFile << "\b \b";
+        write(aFile, "\b \b");
       end func;
 
 
@@ -3322,13 +3479,13 @@ CONTENTS
 
     const proc: write (in aType: aValue) is func
       begin
-        OUT << aValue;
+        write(OUT, aValue);
       end func;
 
     const proc: writeln (in aType: aValue) is func
       begin
-        OUT << aValue;
-        OUT << NL;
+        write(OUT, aValue);
+        writeln(OUT);
       end func;
 
   Additional procedures defined outside of 'enable_io' are:
@@ -3349,12 +3506,12 @@ CONTENTS
 
     const proc: writeln is func
       begin
-        OUT << NL;
+        writeln(OUT);
       end func;
 
     const proc: write (NL) is func
       begin
-        OUT << NL;
+        writeln(OUT);
       end func;
 
   As an example when you call
@@ -3435,8 +3592,8 @@ CONTENTS
   files as values while objects of type 'file' can also have
   other files as values. To allow the implementation of the
   type 'external_file' several operations for the type
-  PRIMITIVE_FILE are defined. But outside 'external_file' the
-  type PRIMITIVE_FILE and its operations should not be used.
+  'PRIMITIVE_FILE' are defined. But outside 'external_file' the
+  type 'PRIMITIVE_FILE' and its operations should not be used.
 
   There are three predefined external files STD_IN, STD_OUT
   and STD_ERR which have the following declarations:
@@ -3579,7 +3736,7 @@ CONTENTS
 
     const proc: gets (inout NEW_FILE: new_fil, in integer: leng) is func
       result
-        var string: STRI is "";
+        var string: stri is "";
       begin
         ...
         (* Statements that do the input *)
@@ -3615,7 +3772,7 @@ CONTENTS
   system declaration
 
     - The types of literals and simple expressions for example:
-        'string' for Strings and 'integer' for integers
+        'string' for strings and 'integer' for integers
 
     - Which objects should be used as result values for
       primitive actions for example:
@@ -3631,40 +3788,33 @@ CONTENTS
 
   The following system declarations exist
 
+    $ system "type" is type;
+    $ system "expr" is expr;
     $ system "integer" is integer;
     $ system "char" is char;
     $ system "string" is string;
-    $ system "primitive_file" is PRIMITIVE_FILE;
     $ system "proc" is proc;
-    $ system "reference" is reference;
     $ system "float" is float;
-
-    $ system "call" is EXPR;
-    $ system "dot" is EXPR;
-    $ system "list" is LIST;
-    $ system "expr" is EXPR;
 
     $ system "true" is TRUE;
     $ system "false" is FALSE;
     $ system "empty" is empty;
 
-    $ system "fail" is FAIL;
     $ system "memory_error" is MEMORY_ERROR;
     $ system "numeric_error" is NUMERIC_ERROR;
     $ system "range_error" is RANGE_ERROR;
+    $ system "io_error" is IO_ERROR;
     $ system "illegal_action" is ILLEGAL_ACTION;
-    $ system "empty_expr_error" is EMPTY_EXPR_ERROR;
-    $ system "eval_lambda_error" is EVAL_LAMBDA_ERROR;
-    $ system "var_required" is VAR_REQUIRED;
 
     $ system "assign" is := ;
     $ system "create" is ::= ;
     $ system "destroy" is destroy;
-    $ system "semicol" is ; ;
+    $ system "ord" is ord;
+    $ system "in" is in;
     $ system "prot_outfile" is PROT_OUTFILE;
     $ system "flush" is flush;
-    $ system "write" is << ;
-    $ system "nl" is NL;
+    $ system "write" is write;
+    $ system "writeln" is writeln;
     $ system "main" is main;
 
 
@@ -3893,7 +4043,8 @@ CONTENTS
 9.1.3 Line comments
 
     Line comments are introduced with the character # and are
-  terminated with the end of the line. For example:
+  terminated with the end of the line.<br>
+  For example:
 
     # This is a comment
 
@@ -4056,19 +4207,19 @@ CONTENTS
     A string literal is a sequence of characters surrounded by
   double quotes. For example:
 
-    ""   " "   "\""   "'"   "\'"   "String"   "CAN\"T !"   "\n\n"
+    ""   " "   "\""   "'"   "\'"   "String"   "ch=\" "   "\n\n"
 
   In order to represent nonprintable characters and certain
   printable characters the following escape sequences may be
   used.
 
-    audible alert    BEL      \a         backslash     \\
-    backspace        BS       \b         apostrophe    \'
-    escape           ESC      \e         double quote  \"
+    audible alert    BEL      \a    backslash    (\)   \\
+    backspace        BS       \b    apostrophe   (')   \'   
+    escape           ESC      \e    double quote (")   \"
     formfeed         FF       \f
-    newline          NL (LF)  \n         control-A     \A
-    carriage return  CR       \r           ...
-    horizontal tab   HT       \t         control-Z     \Z
+    newline          NL (LF)  \n    control-A          \A
+    carriage return  CR       \r      ...
+    horizontal tab   HT       \t    control-Z          \Z
     vertical tab     VT       \v
 
   Additionally there are the following possibilities:
@@ -4262,7 +4413,7 @@ CONTENTS
 
     ...
 
-    $ include "dir.s7i"
+    include "dir.s7i";
 
     var file: dir_file is STD_NULL;
     var string: file_name is "";
@@ -4343,29 +4494,28 @@ CONTENTS
   INT_ and all assignment actions end with _CPY . For the
   following types exist primitive actions:
 
-    ACT_  Action operations
-    ARR_  Array operations
-    BLN_  Boolean operations
-    BSY_  Busy read from keyboard
-    CHR_  Character operations
+    ACT_  ACTION operations
+    ARR_  array operations
+    BLN_  boolean operations
+    CHR_  char operations
     DCL_  Declaration operations
     DRW_  Drawing operations
     ENU_  Enumeration operations
     FIL_  File operations
-    FLT_  Float operations
-    INT_  Integer operations
+    FLT_  float operations
+    INT_  integer operations
     KBD_  Keyboard operations
     LST_  List operations
-    PRC_  Proc operations and statements
+    PRC_  proc operations and statements
     PRG_  Program operations
-    REF_  Reference operations
-    RFL_  Reference list operations
+    REF_  reference operations
+    RFL_  ref_list operations
     SCR_  Screen operations
-    SCT_  Struct operations
-    SET_  Set operations
-    STR_  String operations
-    TIM_  Time operations
-    TYP_  Type operations
+    SCT_  struct operations
+    SET_  set operations
+    STR_  string operations
+    TIM_  time and duration operations
+    TYP_  type operations
     UNX_  Portable operating system access
 
   The following list shows actions which are used with more than
@@ -4382,8 +4532,8 @@ CONTENTS
     _EQ      Equal
     _GE      Greater equal
     _GT      Greater than
-    _HEAD    Head of List, Array, String
-    _IDX     Index (Element) of List, Array, String
+    _HEAD    Head of ref_list, array, string
+    _IDX     Index (Element) of ref_list, array, string
     _INCR    Increment
     _LE      Less equal
     _LNG     Length
@@ -4396,13 +4546,13 @@ CONTENTS
     _POW     Power
     _PRED    Predecessor
     _RAND    Random value
-    _RANGE   Range of List, Array, String
+    _RANGE   Range of ref_list, array, string
     _SBTR    Subtract
-    _SCAN    Convert from string to type
+    _SCAN    Convert from string to another type
     _SQRT    Square root
     _STR     Convert to string
     _SUCC    Successor
-    _TAIL    Tail of List, Array, String
+    _TAIL    Tail of ref_list, array, string
     _UPPER   Convert to upper case
 
   If you are interested in the primitive actions just look into
@@ -4531,12 +4681,9 @@ CONTENTS
 
   System declaration for main missing
     Each program must contain a system declaration that describes
-    which procedure to start as first one. Normally this is done
-    in the include file "syntax.s7i" which is included from
-    "seed7_05.s7i" so it is not necessary to do anything.
+    which procedure to start as first one.
 
-  EXCEPTION %s raised at level %d with
-  HANDLER %s for exception %s at level %d with
+  EXCEPTION %s raised with
     If your trace level specifies exception tracing exceptions
     and handlers are displayed with this messages and the user
     must type the ENTER-key to accept.

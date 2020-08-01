@@ -469,6 +469,7 @@ const func boolean: is_func (in type param) is              action "TYP_ISFUNC";
 const func boolean: is_varfunc (in type param) is           action "TYP_ISVARFUNC";
 const func type: result_type (in type param) is             action "TYP_RESULT";
 
+
 (* IF *)
 
 const type: ELSIF_RESULT is newtype;
@@ -504,6 +505,7 @@ const ELSIF_PROC: elsif FALSE then (in proc param) is                         EL
 const ELSIF_PROC: elsif FALSE then (in proc param) (in ELSIF_RESULT param) is ELSIF_EMPTY;
 *)
 
+
 (* WHILE + REPEAT *)
 
 const proc: while (in func boolean param) do (in proc param) end while is     action "PRC_WHILE";
@@ -515,6 +517,7 @@ const proc: repeat (in proc param) until (in varfunc boolean param) is        ac
 const proc: repeat (in proc param) until (ref boolean param) is               action "PRC_REPEAT";
 
 const proc: global (in proc param) end global is                              action "DCL_GLOBAL";
+
 
 (* integer *)
 
@@ -564,6 +567,7 @@ const func integer: (attr integer) parse (in string param) is       action "INT_
 const func boolean: rand (in boolean: low, in boolean: high) is
   return odd(rand(ord(low), ord(high)));
 
+
 (* char *)
 
 const char: (attr char) . value is ' ';
@@ -597,6 +601,7 @@ const func char: rand (in char: low, in char: high) is
 (* Procedures literal and c_literal defined after string *)
 
 (* Procedure read defined after operations for IN and OUT *)
+
 
 (* string *)
 
@@ -762,6 +767,18 @@ const func string: c_literal (in char: ch) is func
           str(ord(ch) mod 8) & "'";
 *)
     end if;
+  end func;
+
+const func string: str (in var integer: number, in integer: base) is func
+  result
+    var string: result is "";
+  local
+    const string: digit is "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  begin
+    while number <> 0 do
+      result := str(digit[succ(number rem base)]) & result;
+      number := number div base;
+    end while;
   end func;
 
 
@@ -2322,8 +2339,8 @@ const func boolean: eof (ref file param) is DYNAMIC;
 const func integer: length (ref file param) is DYNAMIC;
 const proc: seek (ref file param, ref integer param) is DYNAMIC;
 const func integer: tell (ref file param) is DYNAMIC;
-const func char: (ref file param).TERMINATION_CHAR is DYNAMIC;
-const varfunc char: (inout file param).TERMINATION_CHAR is DYNAMIC;
+const func char: (ref file param).bufferChar is DYNAMIC;
+const varfunc char: (inout file param).bufferChar is DYNAMIC;
 const func boolean: (ref file param).io_empty is DYNAMIC;
 const varfunc boolean: (inout file param).io_empty is DYNAMIC;
 const func boolean: (ref file param).io_ok is DYNAMIC;
@@ -2364,7 +2381,7 @@ const proc: readln (inout file: aFile) is func
 (* NULL_FILE *)
 
 const type: NULL_FILE is new struct
-    var char: TERMINATION_CHAR is '\n';
+    var char: bufferChar is '\n';
     var boolean: io_empty is FALSE;
     var boolean: io_ok is TRUE;
   end struct;
@@ -2397,7 +2414,7 @@ const func string: getwd (inout NULL_FILE: aFile) is func
       stri &:= buffer;
       buffer := gets(file conv aFile, 1);
     end while;
-    aFile.TERMINATION_CHAR := buffer[1];
+    aFile.bufferChar := buffer[1];
   end func;
 
 const func string: getln (inout NULL_FILE: aFile) is func
@@ -2411,13 +2428,13 @@ const func string: getln (inout NULL_FILE: aFile) is func
       stri &:= buffer;
       buffer := gets(file conv aFile, 1);
     end while;
-    aFile.TERMINATION_CHAR := buffer[1];
+    aFile.bufferChar := buffer[1];
   end func;
 
 const boolean: eof (ref NULL_FILE param) is TRUE;
 
 const func boolean: eoln (ref NULL_FILE: aFile) is
-  return aFile.TERMINATION_CHAR = '\n';
+  return aFile.bufferChar = '\n';
 
 const integer: length (ref NULL_FILE param) is 0;
 
@@ -2524,10 +2541,10 @@ const func string: gets (ref external_file: aFile, in integer: leng) is
   return gets(aFile.ext_file, leng);
 
 const func string: getwd (inout external_file: aFile) is
-  return wrd_rd(aFile.ext_file, aFile.TERMINATION_CHAR);
+  return wrd_rd(aFile.ext_file, aFile.bufferChar);
 
 const func string: getln (inout external_file: aFile) is
-  return lin_rd(aFile.ext_file, aFile.TERMINATION_CHAR);
+  return lin_rd(aFile.ext_file, aFile.bufferChar);
 
 const func boolean: eof (ref external_file: aFile) is
   return eof(aFile.ext_file);
@@ -2591,33 +2608,10 @@ const proc: read (NL) is func
 
 (* io definitions for string *)
 
-const proc: (inout file: aFile) >> (inout string: stri) is func
-  begin
-    stri := getwd(aFile);
-    aFile.io_empty := stri = "";
-    aFile.io_ok := TRUE;
-  end func;
-
-const proc: (in file: aFile) << (in string: stri) is func
-  begin
-    write(aFile , stri);
-  end func;
-
 const proc: writeln (in file: aFile, in string: stri) is func
   begin
     write(aFile, stri);
     writeln(aFile);
-  end func;
-
-const proc: write (in string: stri) is func
-  begin
-    write(OUT, stri);
-  end func;
-
-const proc: writeln (in string: stri) is func
-  begin
-    write(OUT, stri);
-    writeln(OUT);
   end func;
 
 const proc: read (inout file: aFile, inout string: stri) is func
@@ -2632,6 +2626,29 @@ const proc: readln (inout file: aFile, inout string: stri) is func
     stri := getln(aFile);
     aFile.io_empty := stri = "";
     aFile.io_ok := TRUE;
+  end func;
+
+const proc: (inout file: aFile) >> (inout string: stri) is func
+  begin
+    stri := getwd(aFile);
+    aFile.io_empty := stri = "";
+    aFile.io_ok := TRUE;
+  end func;
+
+const proc: (in file: aFile) << (in string: stri) is func
+  begin
+    write(aFile , stri);
+  end func;
+
+const proc: write (in string: stri) is func
+  begin
+    write(OUT, stri);
+  end func;
+
+const proc: writeln (in string: stri) is func
+  begin
+    write(OUT, stri);
+    writeln(OUT);
   end func;
 
 const proc: read (inout string: stri) is func
