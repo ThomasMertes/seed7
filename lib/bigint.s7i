@@ -422,13 +422,41 @@ const func bigInteger: ! (in bigInteger: number) is func
   result
     var bigInteger: factorial is 1_;
   local
-    var integer: num is 0;
+    var bigInteger: num is 0_;
   begin
     if number < 0_ then
       raise NUMERIC_ERROR;
     else
-      for num range 2 to ord(number) do
-        factorial *:= bigInteger conv num;
+      for num range 2_ to number do
+        factorial *:= num;
+      end for;
+    end if;
+  end func;
+
+
+(**
+ *  Compute the binomial coefficient
+ *   n ! k  is equivalent to  !n div (!k * !(n - k))
+ *  @return n over k
+ *)
+const func bigInteger: (in bigInteger: n) ! (in var bigInteger: k) is func
+  result
+    var bigInteger: binom is 0_;
+  local
+    var bigInteger: number is 0_;
+  begin
+    if n > 0_ and 2_ * k > n then
+      k := n - k;
+    end if;
+    if k < 0_ then
+      binom := 0_;
+    elsif k = 0_ then
+      binom := 1_;
+    else
+      binom := n;
+      for number range 2_ to k do
+        binom *:= succ(n - number);
+        binom := binom div number;
       end for;
     end if;
   end func;
@@ -604,5 +632,29 @@ const func bigInteger: modInverse (in var bigInteger: a,
       end if;
     else
       raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+(**
+ *  Compute the modular exponentiation of base ** exponent.
+ *  @return base ** exponent mod modulus
+ *  @exception RANGE_ERROR If exponent or modulus are negative.
+ *)
+const func bigInteger: modPow (in var bigInteger: base,
+    in var bigInteger: exponent, in bigInteger: modulus) is func
+  result
+    var bigInteger: power is 1_;
+  begin
+    if exponent < 0_ or modulus < 0_ then
+      raise RANGE_ERROR;
+    else
+      while exponent > 0_ do
+        if odd(exponent) then
+          power := (power * base) mod modulus;
+        end if;
+        exponent >>:= 1;
+        base := base ** 2 mod modulus;
+      end while;
     end if;
   end func;

@@ -56,7 +56,7 @@ arraytype anArray;
     rtlArraytype rtlArray;
 
   /* gen_rtl_array */
-    arraySize = (uinttype) (anArray->max_position - anArray->min_position + 1);
+    arraySize = arraySize(anArray);
     if (ALLOC_RTL_ARRAY(rtlArray, arraySize)) {
       rtlArray->min_position = anArray->min_position;
       rtlArray->max_position = anArray->max_position;

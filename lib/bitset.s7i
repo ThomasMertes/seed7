@@ -258,6 +258,7 @@ const func bitset: _GENERATE_EMPTY_SET                          is action "SET_E
 const bitset: EMPTY_SET                                         is _GENERATE_EMPTY_SET;
 const bitset: (attr bitset) . EMPTY_SET                         is EMPTY_SET;
 const bitset: (attr bitset) . value                             is EMPTY_SET;
+const bitset: { }                                               is EMPTY_SET;
 
 
 (**

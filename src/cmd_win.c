@@ -421,7 +421,7 @@ static os_stritype prepareCommandLine (const const_os_stritype os_command_stri,
     os_stritype command_line;
 
   /* prepareCommandLine */
-    arraySize = (uinttype) (parameters->max_position - parameters->min_position + 1);
+    arraySize = arraySize(parameters);
     if (unlikely(!os_stri_alloc(command_line, MAXIMUM_COMMAND_LINE_LENGTH - 1))) {
       *err_info = MEMORY_ERROR;
     } else {

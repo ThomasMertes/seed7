@@ -61,6 +61,7 @@ $ system "writeln" is writeln;
 (* $ system "main" is main; *)
 
 (* OPERATORS *)
+$ syntax expr: . { . } is                         ->  1;
 $ syntax expr: . { .(). } is                      ->  1;
 $ syntax expr: . { .(). .. .(). } is              ->  1;
 $ syntax expr: .().conv.() is                    <-   1;

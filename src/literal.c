@@ -182,8 +182,10 @@ register int character;
         /* character range 0x80 to 0xBF (128 to 191) */
         result |= character & 0x3F;
         if (result <= 0x7F) {
+          /* Overlong encodings are illegal */
           err_char(CHAR_ILLEGAL, result);
         } /* if */
+        /* result is in range 0x80 to 0x07FF (128 to 2047) */
         in_file.character = next_character();
       } else {
         result = 0xC0 | result >> 6; /* Restore 8 bit char */
@@ -201,8 +203,10 @@ register int character;
         if ((character & 0xC0) == 0x80) {
           result |= character & 0x3F;
           if (result <= 0x7FF || (result >= 0xD800 && result <= 0xDFFF)) {
+            /* Overlong encodings and UTF-16 surrogate characters are illegal */
             err_char(CHAR_ILLEGAL, result);
           } /* if */
+          /* result is in range 0x800 to 0xFFFF (2048 to 65535) */
           in_file.character = next_character();
         } else {
           err_cchar(CHAR_ILLEGAL, character);
@@ -228,8 +232,10 @@ register int character;
           if ((character & 0xC0) == 0x80) {
             result |= character & 0x3F;
             if (result <= 0xFFFF) {
+              /* Overlong encodings are illegal */
               err_char(CHAR_ILLEGAL, result);
             } /* if */
+            /* result is in range 0x10000 to 0x1FFFFF (65536 to 2097151) */
             in_file.character = next_character();
           } else {
             err_cchar(CHAR_ILLEGAL, character);
@@ -263,8 +269,10 @@ register int character;
             if ((character & 0xC0) == 0x80) {
               result |= character & 0x3F;
               if (result <= 0x1FFFFF) {
+                /* Overlong encodings are illegal */
                 err_char(CHAR_ILLEGAL, result);
               } /* if */
+              /* result is in range 0x200000 to 0x3FFFFFF (2097152 to 67108863) */
               in_file.character = next_character();
             } else {
               err_cchar(CHAR_ILLEGAL, character);
@@ -306,8 +314,10 @@ register int character;
               if ((character & 0xC0) == 0x80) {
                 result |= character & 0x3F;
                 if (result <= 0x3FFFFFF) {
+                  /* Overlong encodings are illegal */
                   err_char(CHAR_ILLEGAL, result);
                 } /* if */
+                /* result is in range 0x4000000 to 0xFFFFFFFF (67108864 to 4294967295) */
                 in_file.character = next_character();
               } else {
                 err_cchar(CHAR_ILLEGAL, character);

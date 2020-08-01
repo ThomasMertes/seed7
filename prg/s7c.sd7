@@ -924,11 +924,7 @@ const proc: process_arr_create_declaration (in type: object_type,
     c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "a=(";
     c_expr.expr &:= type_name(object_type);
-    c_expr.expr &:= ")(arrMalloc(size));\n";
-    c_expr.expr &:= diagnosticLine;
-    c_expr.expr &:= "a->min_position = b->min_position;\n";
-    c_expr.expr &:= diagnosticLine;
-    c_expr.expr &:= "a->max_position = b->max_position;\n";
+    c_expr.expr &:= ")(arrMalloc(b->min_position, b->max_position));\n";
     c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "for (i = 0; i < size; i++) {\n";
     c_expr.expr &:= diagnosticLine;
@@ -2479,7 +2475,7 @@ const func boolean: isPureFunction (in reference: function) is func
         {"ARR_ARRLIT", "ARR_ARRLIT2", "ARR_BASELIT", "ARR_BASELIT2", "ARR_CAT",
          "ARR_CONV", "ARR_EMPTY", "ARR_EXTEND", "ARR_GEN", "ARR_HEAD", "ARR_IDX",
          "ARR_LNG", "ARR_MAXIDX", "ARR_MINIDX", "ARR_RANGE", "ARR_SORT",
-         "ARR_TAIL", "ARR_TIMES",
+         "ARR_SUBARR", "ARR_TAIL", "ARR_TIMES",
          "BIG_ABS", "BIG_ADD", "BIG_BIT_LENGTH", "BIG_CLIT", "BIG_CMP", "BIG_DIV",
          "BIG_EQ", "BIG_GCD", "BIG_GE", "BIG_GT", "BIG_HASHCODE", "BIG_ICONV",
          "BIG_IPOW", "BIG_LE", "BIG_LOG2", "BIG_LOWEST_SET_BIT", "BIG_LSHIFT",
@@ -4273,6 +4269,69 @@ const proc: process_arr_sort (in ref_list: params, inout expr_type: c_expr) is f
     c_expr.result_expr &:= ", (comparetype)(";
     getStdParamToResultExpr(params[2], c_expr);
     c_expr.result_expr &:= "))";
+  end func;
+
+
+const proc: process_arr_subarr (in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var type: param_type is void;
+    var expr_type: c_param is expr_type.value;
+    var string: array_name is "";
+  begin
+    param_type := getExprResultType(params[1]);
+    prepare_typed_result(param_type, c_expr);
+    prepareAnyParamTemporarys(params[1], c_param, c_expr);
+    if c_param.result_expr <> "" then
+      c_expr.temp_decls &:= c_param.result_decl;
+      c_expr.temp_frees &:= c_param.result_free;
+      c_expr.temp_to_null &:= c_param.result_to_null;
+      c_expr.result_expr := "(";
+      c_expr.result_expr &:= c_param.result_intro;
+      c_expr.result_expr &:= c_param.result_expr;
+      c_expr.result_expr &:= c_param.result_finish;
+      c_expr.result_expr &:= ", arrSubarrTemp(&(";
+      c_expr.result_expr &:= c_param.result_temp;
+      c_expr.result_expr &:= "), ";
+      getStdParamToResultExpr(params[3], c_expr);
+      c_expr.result_expr &:= ", ";
+      getStdParamToResultExpr(params[5], c_expr);
+      c_expr.result_expr &:= "))";
+    elsif valueIsAtHeap(array_element[param_type]) then
+      incr(c_expr.temp_num);
+      array_name := "tmp_" & str(c_expr.temp_num);
+      c_expr.temp_decls &:= "arraytype ";
+      c_expr.temp_decls &:= array_name;
+      c_expr.temp_decls &:= "=NULL;\n";
+      c_expr.temp_frees &:= "if (";
+      c_expr.temp_frees &:= array_name;
+      c_expr.temp_frees &:= " != NULL) {arrFree(";
+      c_expr.temp_frees &:= array_name;
+      c_expr.temp_frees &:= ");}\n";
+      c_expr.temp_to_null &:= array_name;
+      c_expr.temp_to_null &:= "=NULL;\n";
+      c_expr.result_expr := "(";
+      c_expr.result_expr &:= array_name;
+      c_expr.result_expr &:= "=arrSubarr(";
+      c_expr.result_expr &:= c_param.expr;
+      c_expr.result_expr &:= ", ";
+      getStdParamToResultExpr(params[3], c_expr);
+      c_expr.result_expr &:= ", ";
+      getStdParamToResultExpr(params[5], c_expr);
+      c_expr.result_expr &:= "), ";
+      typeCategory @:= [param_type] ARRAYOBJECT;
+      process_create_declaration(param_type, global_c_expr);
+      process_create_call(param_type, array_name, c_expr.result_expr);
+      c_expr.result_expr &:= ")";
+    else
+      c_expr.result_expr := "arrSubarr(";
+      c_expr.result_expr &:= c_param.expr;
+      c_expr.result_expr &:= ", ";
+      getStdParamToResultExpr(params[3], c_expr);
+      c_expr.result_expr &:= ", ";
+      getStdParamToResultExpr(params[5], c_expr);
+      c_expr.result_expr &:= ")";
+    end if;
   end func;
 
 
@@ -16885,6 +16944,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_arr_remove(function, params, c_expr);
       elsif action_name = "ARR_SORT" then
         process_arr_sort(params, c_expr);
+      elsif action_name = "ARR_SUBARR" then
+        process_arr_subarr(params, c_expr);
       elsif action_name = "ARR_TIMES" then
         process_arr_times(function, params, c_expr);
       elsif action_name = "ARR_TAIL" then
@@ -20218,13 +20279,13 @@ const proc: process_main_declaration (in reference: current_object,
 
     main_epilog := "return 0;\n";
     main_epilog &:= "} else {\n";
+    main_epilog &:= "  printf(\"\\n*** Uncaught EXCEPTION \");\n";
     main_epilog &:= "  if (fail_value >= 0 && fail_value < sizeof(exception_name) / sizeof(char *)) {\n";
-    main_epilog &:= "    printf(\"\\n*** Uncaught EXCEPTION %s raised\",\n";
-    main_epilog &:= "        exception_name[fail_value]);\n";
+    main_epilog &:= "    printf(\"%s\", exception_name[fail_value]);\n";
     main_epilog &:= "  } else {\n";
-    main_epilog &:= "    printf(\"\\n*** Uncaught EXCEPTION %d raised\",\n";
-    main_epilog &:= "        fail_value);\n";
+    main_epilog &:= "    printf(\"%d\", fail_value);\n";
     main_epilog &:= "  }\n";
+    main_epilog &:= "  printf(\" raised\");\n";
     main_epilog &:= "  if (error_file != NULL) {\n";
     main_epilog &:= "    printf(\" at %s(%d)\", error_file, error_line);\n";
     main_epilog &:= "  }\n";
@@ -20768,8 +20829,8 @@ const proc: process_array_declaration (in reference: current_object,
   local
     var string: param_value is "";
   begin
+    typeCategory @:= [getType(current_object)] ARRAYOBJECT;
     if isVar(current_object) then
-      typeCategory @:= [getType(current_object)] ARRAYOBJECT;
       c_expr.expr &:= type_name(getType(current_object));
       c_expr.expr &:= " o_";
       create_name(current_object, c_expr.expr);
@@ -21748,11 +21809,7 @@ const proc: process_arr_times_declaration (in reference: current_object,
     c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "} else {\n";
     c_expr.expr &:= diagnosticLine;
-    c_expr.expr &:= "a=arrMalloc((memsizetype)(n));\n";
-    c_expr.expr &:= diagnosticLine;
-    c_expr.expr &:= "a->min_position = 1;\n";
-    c_expr.expr &:= diagnosticLine;
-    c_expr.expr &:= "a->max_position = n;\n";
+    c_expr.expr &:= "a=arrMalloc(1, n);\n";
     c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "for (i = 0; i < (memsizetype)(n); i++) {\n";
     c_expr.expr &:= diagnosticLine;
@@ -22763,13 +22820,15 @@ const proc: write_prototypes is func
     declareExtern("arraytype   arrHead (const const_arraytype, inttype);");
     declareExtern("arraytype   arrHeadTemp (arraytype *, inttype);");
     declareExtern("generictype arrIdxTemp (arraytype *, inttype);");
-    declareExtern("arraytype   arrMalloc (memsizetype);");
+    declareExtern("arraytype   arrMalloc (inttype, inttype);");
     declareExtern("void        arrPush (arraytype *const, const generictype);");
     declareExtern("arraytype   arrRange (const const_arraytype, inttype, inttype);");
     declareExtern("arraytype   arrRangeTemp (arraytype *, inttype, inttype);");
     declareExtern("arraytype   arrRealloc (arraytype, memsizetype, memsizetype);");
     declareExtern("generictype arrRemove (arraytype *, inttype);");
     declareExtern("arraytype   arrSort (arraytype, comparetype);");
+    declareExtern("arraytype   arrSubarr (const const_arraytype, inttype, inttype);");
+    declareExtern("arraytype   arrSubarrTemp (arraytype *, inttype, inttype);");
     declareExtern("arraytype   arrTail (const const_arraytype, inttype);");
     declareExtern("arraytype   arrTailTemp (arraytype *, inttype);");
     declareExtern("biginttype  bigAbs (const const_biginttype);");
@@ -24235,18 +24294,10 @@ const proc: init_array_constants (in reference: const_object, inout expr_type: c
     c_expr.expr &:= "arr[";
     c_expr.expr &:= str(number);
     c_expr.expr &:= "]=arrMalloc(";
-    c_expr.expr &:= str(length(array_list));
-    c_expr.expr &:= ");\n";
-    c_expr.expr &:= "arr[";
-    c_expr.expr &:= str(number);
-    c_expr.expr &:= "]->min_position=";
     c_expr.expr &:= str(arrayMinIdx(const_object));
-    c_expr.expr &:= ";\n";
-    c_expr.expr &:= "arr[";
-    c_expr.expr &:= str(number);
-    c_expr.expr &:= "]->max_position=";
+    c_expr.expr &:= ", ";
     c_expr.expr &:= str(pred(arrayMinIdx(const_object) + length(array_list)));
-    c_expr.expr &:= ";\n";
+    c_expr.expr &:= ");\n";
     elem_num := 0;
     elem_after_repeat_block := 0;
     for element range array_list do
@@ -24546,14 +24597,13 @@ const proc: declare_raise_error2 (inout expr_type: c_expr) is func
     c_expr.expr &:= "  error_line = line_number;\n";
     if signal_exception then
       c_expr.expr &:= "  if (catch_stack_pos == 0) {\n";
+      c_expr.expr &:= "    printf(\"\\n*** Uncaught EXCEPTION \");\n";
       c_expr.expr &:= "    if (fail_value >= 0 && fail_value < sizeof(exception_name) / sizeof(char *)) {\n";
-      c_expr.expr &:= "      printf(\"\\n*** Uncaught EXCEPTION %s raised\",\n";
-      c_expr.expr &:= "          exception_name[fail_value]);\n";
+      c_expr.expr &:= "      printf(\"%s\", exception_name[fail_value]);\n";
       c_expr.expr &:= "    } else {\n";
-      c_expr.expr &:= "      printf(\"\\n*** Uncaught EXCEPTION %d raised\",\n";
-      c_expr.expr &:= "          fail_value);\n";
+      c_expr.expr &:= "      printf(\"%d\", fail_value);\n";
       c_expr.expr &:= "    }\n";
-      c_expr.expr &:= "    printf(\" at %s(%d)\\n\", file_name, line_number);\n";
+      c_expr.expr &:= "    printf(\" raised at %s(%d)\\n\", file_name, line_number);\n";
       c_expr.expr &:= "    signal(SIGFPE, SIG_DFL);\n";
 #     c_expr.expr &:= "    signal(SIGINT, SIG_DFL);\n";
 #     c_expr.expr &:= "    signal(SIGSEGV, SIG_DFL);\n";

@@ -103,6 +103,7 @@ static primactrecord prim_act_table[] = {
     { "ARR_RANGE",               arr_range,               },
     { "ARR_REMOVE",              arr_remove,              },
     { "ARR_SORT",                arr_sort,                },
+    { "ARR_SUBARR",              arr_subarr,              },
     { "ARR_TAIL",                arr_tail,                },
     { "ARR_TIMES",               arr_times,               },
 

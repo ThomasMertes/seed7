@@ -47,6 +47,7 @@ const type: pixmapFontFile is sub null_file struct
     var integer: column is 0;
     var integer: min_x is 0;
     var integer: min_y is 0;
+    var integer: lineStartX is 0;
     var integer: currLeftX is 0;
     var integer: currTopY is 0;
     var integer: currBaseY is 0;
@@ -90,6 +91,7 @@ const func text: openPixmapFontFile (in PRIMITIVE_WINDOW: win,
     new_file.font.baseFont := fontProperties.value;
     new_file.min_x := min_x;
     new_file.min_y := min_y;
+    new_file.lineStartX := min_x;
     new_file.currLeftX := min_x;
     new_file.currTopY := min_y;
     newFile := toInterface(new_file);
@@ -121,6 +123,7 @@ const proc: clear (inout pixmapFontFile: fontFile,
         fontFile.min_x + pred(column_delta(fontFile.font) * right),
         fontFile.min_y + pred(line_delta(fontFile.font) * lower),
         background(fontFile.font));
+    fontFile.lineStartX := fontFile.min_x;
     fontFile.currTopY := fontFile.min_y + line_delta(fontFile.font) * pred(upper);
     fontFile.currLeftX := fontFile.min_x + column_delta(fontFile.font) * pred(left);
     fontFile.useBaseY := FALSE;
@@ -138,6 +141,7 @@ const proc: clear (inout pixmapFontFile: fontFile) is func
         pred(width(fontFile.win)),
         pred(height(fontFile.win)),
         background(fontFile.font));
+    fontFile.lineStartX := fontFile.min_x;
     fontFile.currTopY := fontFile.min_y;
     fontFile.currLeftX := fontFile.min_x;
     fontFile.useBaseY := FALSE;
@@ -150,6 +154,7 @@ const proc: clear (inout pixmapFontFile: fontFile) is func
 const proc: setPos (inout pixmapFontFile: fontFile,
     in integer: line, in integer: column) is func
   begin
+    fontFile.lineStartX := fontFile.min_x;
     fontFile.currTopY := fontFile.min_y + line_delta(fontFile.font) * pred(line);
     fontFile.currLeftX := fontFile.min_x + column_delta(fontFile.font) * pred(column);
     fontFile.useBaseY := FALSE;
@@ -162,6 +167,7 @@ const proc: setPos (inout pixmapFontFile: fontFile,
  *)
 const proc: setPosXY (inout pixmapFontFile: fontFile, in integer: xPos, in integer: yPos) is func
   begin
+    fontFile.lineStartX := fontFile.min_x + xPos;
     fontFile.currLeftX := fontFile.min_x + xPos;
     fontFile.currBaseY := fontFile.min_y + yPos;
     fontFile.useBaseY := TRUE;
@@ -244,7 +250,7 @@ const proc: writeln (inout pixmapFontFile: fontFile) is func
   begin
     incr(fontFile.line);
     fontFile.column := 1;
-    fontFile.currLeftX := fontFile.min_x;
+    fontFile.currLeftX := fontFile.lineStartX;
     if fontFile.useBaseY then
       fontFile.currTopY := fontFile.currBaseY - baseLineDelta(fontFile.font) + line_delta(fontFile.font);
       fontFile.useBaseY := FALSE;

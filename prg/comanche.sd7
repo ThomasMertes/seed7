@@ -101,7 +101,7 @@ const proc: sendClientError (inout file: sock, in string: message,
 
 
 const func string: callCgi (in string: filePath, in string: queryParams,
-    in string: postParams, inout array string: header) is func
+    in string: postParams, in string: cookies, inout array string: header) is func
   result
     var string: response is "";
   local
@@ -115,6 +115,7 @@ const func string: callCgi (in string: filePath, in string: queryParams,
     # writeln(postParams);
     cgiPath := toStdPath(cgi_bin & filePath[9 ..]);
     setenv("QUERY_STRING", queryParams);
+    setenv("HTTP_COOKIE", cookies);
     tempName := "cgiInput_" & str(rand(0, 99999));
     cgiInput := open(tempName, "w");
     writeln(cgiInput, postParams);
@@ -168,6 +169,7 @@ const proc: processHttpRequest (inout file: sock) is func
     var integer: questionMarkPos is 0;
     var string: queryParams is "";
     var string: postParams is "";
+    var string: cookies is "";
     var array string: cgiHeader is 0 times "";
     var string: buffer is "";
     var string: contentType is "";
@@ -196,6 +198,8 @@ const proc: processHttpRequest (inout file: sock) is func
           catch RANGE_ERROR:
             contentLength := -1;
         end block;
+      elsif startsWith(line, "Cookie") then
+        cookies := trim(line[succ(pos(line, ":")) ..]);
       end if;
       line := getln(sock);
     end while;
@@ -208,7 +212,7 @@ const proc: processHttpRequest (inout file: sock) is func
       end if;
       filePath := replace(requestPath, "\\", "/");
       if startsWith(filePath, "/cgi-bin/") then
-        buffer := callCgi(filePath, queryParams, "", cgiHeader);
+        buffer := callCgi(filePath, queryParams, "", cookies, cgiHeader);
         if buffer <> "" then
           sendHttpResponse(sock, buffer, "", cgiHeader);
         end if;
@@ -274,7 +278,7 @@ const proc: processHttpRequest (inout file: sock) is func
       # writeln(postParams);
       filePath := replace(requestPath, "\\", "/");
       if startsWith(filePath, "/cgi-bin/") then
-        buffer := callCgi(filePath, queryParams, postParams, cgiHeader);
+        buffer := callCgi(filePath, queryParams, postParams, cookies, cgiHeader);
       end if;
       if buffer <> "" then
         sendHttpResponse(sock, buffer, "", cgiHeader);

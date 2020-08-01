@@ -511,8 +511,8 @@ listtype arguments;
 
   {
     objecttype for_variable;
-    inttype lower_limit;
     inttype upper_limit;
+    inttype lower_limit;
     objecttype statement;
 
   /* prc_for_downto */

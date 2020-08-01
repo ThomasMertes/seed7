@@ -244,6 +244,8 @@ pre.indent {
 <li><a class="link" href="#tokens_Parentheses"><b><i>Parentheses</i></b></a></li></ol></li>
 <li><a class="link" href="#tokens_Literals"><b>Literals</b></a><ol>
 <li><a class="link" href="#tokens_Integer_literals"><b><i>Integer literals</i></b></a></li>
+<li><a class="link" href="#tokens_BigInteger_literals"><b><i>BigInteger literals</i></b></a></li>
+<li><a class="link" href="#tokens_Float_literals"><b><i>Float literals</i></b></a></li>
 <li><a class="link" href="#tokens_String_literals"><b><i>String literals</i></b></a></li>
 <li><a class="link" href="#tokens_Character_literals"><b><i>Character literals</i></b></a></li></ol></li></ol></li>
 <li><a class="link" href="#expr_file_start"><big><b>EXPRESSIONS</b></big></a><ol>
@@ -336,7 +338,7 @@ pre.indent {
 <p>
     Seed7 is a general-purpose programming language. It is a
   higher level language compared to Ada, C++ and Java. In Seed7
-  new statements and operators can be declared easily. Functions
+  new statements and operators can be defined easily. Functions
   with type results and type parameters are more elegant than
   the usual template or generics concept. Object orientation is
   used when it brings advantages and not in places when other
@@ -381,18 +383,16 @@ pre.indent {
 </p><pre class="indent">
 v1: = v2 <span class="op">cross</span> v3;   write(v1 * v2);
 </pre><p>
-  Programs searching some data can become more understandable
-  by using a search statement instead of a search procedure. A
-  call of a new declared search statement could be:
+  Programs which search for some data in a database can become
+  more understandable by using a for statement to loop over the
+  tables. A usage of such a for statement could be:
 </p><pre class="indent">
-<span class="keywd">search</span> person1.age = person2.age <span class="op">and</span>
-   person1.mother = person2.mother <span class="op">and</span>
-   person1 &lt;> person2
-<span class="keywd">when found</span>
-   write(<span class="stri">"Twins: "</span> &lt;&amp; person1.name &lt;&amp; <span class="stri">" and "</span> &lt;&amp; person2.name);
-<span class="keywd">else</span>
-   write(<span class="stri">"No twins found."</span>);
-<span class="keywd">end search</span>;
+<span class="keywd">for</span> person1, person2
+<span class="keywd">where</span> person1.age = person2.age <span class="op">and</span>
+     person1.mother = person2.mother <span class="op">and</span>
+     person1 &lt;> person2 <span class="keywd">do</span>
+   writeln(<span class="stri">"Twins: "</span> &lt;&amp; person1.name &lt;&amp; <span class="stri">" and "</span> &lt;&amp; person2.name);
+<span class="keywd">end for</span>;
 </pre><p>
   Such extensions make understanding, changing and debugging of
   a program easier.
@@ -408,19 +408,19 @@ v1: = v2 <span class="op">cross</span> v3;   write(v1 * v2);
       generics can be defined easily without special syntax.</li>
 
     <li>Predefined constructs like arrays or for-loops are
-      declared in the language itself.</li>
+      defined in the language itself.</li>
 
-    <li>Object orientation is based on interfaces, supports
+    <li><a class="link" href="#objects_file_start">Object orientation</a> is based on interfaces, supports
       multiple dispatch and allows to connect methods to objects.</li>
 
-    <li>Static type checking and no automatic casts.</li>
+    <li><span class="link">Static type checking</span> and no <span class="link">automatic casts</span>.</li>
 
-    <li>exception handling</li>
+    <li><a class="link" href="#errors_Exceptions">exception handling</a></li>
 
     <li>overloading of procedures/functions/operators/statements</li>
 
-    <li>Various predefined types like resizable arrays, hashes,
-      bitsets, structs, etc.</li>
+    <li>Various predefined types like resizable <a class="type" href="#types_array">arrays</a>, <a class="type" href="#types_hash">hashes</a>,
+      <a class="type" href="#types_set">bitsets</a>, <a class="type" href="#types_struct">structs</a>, etc.</li>
 </ul><p>
   But a new programming language differs not only from existing
   ones by new features. The real advantage comes from omitting
@@ -433,14 +433,14 @@ v1: = v2 <span class="op">cross</span> v3;   write(v1 * v2);
       also omitted.</li>
 
     <li>There is no return statement. Instead a result variable
-      can be declared to which the result of a function can
+      can be defined to which the result of a function can
       be assigned.</li>
 
-    <li>There are no automatic type conversions.
+    <li>There are no <span class="link">automatic type conversions</span>.
       When a subprogram should be used for different types
       it must be overloaded.</li>
 
-    <li>There are no variable length parameter lists.
+    <li>There are no <span class="link">variable length parameter lists</span>.
       Instead it is possible to use arrays as parameters.</li>
 
     <li>There are no default parameters.
@@ -448,14 +448,14 @@ v1: = v2 <span class="op">cross</span> v3;   write(v1 * v2);
       one without an additional parameter.</li>
 
     <li>There is no special "parameter" called "self" or "this".
-      In a procedure the receiving object is declared as
+      In a procedure the receiving object is defined as
       formal parameter with a user-defined name.</li>
 
     <li>There is no macro feature since this mechanism is too
       similar to the subprogram feature. Instead subprograms
       can be used in a more flexible way than in other languages.</li>
 
-    <li>There are no reserved words.</li>
+    <li>There are no <span class="link">reserved words</span>.</li>
 
     <li>There is no conceptual distinction between functions,
       operators, procedures and statements.</li>
@@ -469,14 +469,14 @@ v1: = v2 <span class="op">cross</span> v3;   write(v1 * v2);
 </ul><p>
   There are several concepts which are also used by other languages:
 </p><ul>
-    <li>Comments start with <span class="comment">(* and end with *)</span> and may be nested.</li>
+    <li>Block comments start with <span class="comment">(* and end with *)</span> and may be nested.</li>
 
-    <li>Comments start with <span class="comment"># and are terminated with the end of the line.</span></li>
+    <li>Line comments start with <span class="comment"># and are terminated with the end of the line.</span></li>
 </ul><p>
   There are several concepts which are new
 </p><ul>
     <li>Variables and constants must be initialized when they are
-      declared.</li>
+      defined.</li>
 
     <li>Every expression has exactly one type.
       That means that overloaded functions are resolved with
@@ -1379,7 +1379,7 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
   Syntax:
 </dt><dd><tt><dl>
     <dt><a name="stats_ebnf_for_statement">for_statement</a> ::=</dt><dd>
-      '<span class="keywd">for</span>' identifier '<span class="keywd">range</span>' <a class="ebnf" href="#expr_ebnf_expression">expression</a> [ '<span class="keywd">to</span>' | '<span class="keywd">downto</span>' ] <a class="ebnf" href="#expr_ebnf_expression">expression</a> '<span class="keywd">do</span>'<br />
+      '<span class="keywd">for</span>' <a class="ebnf" href="#tokens_ebnf_identifier">identifier</a> '<span class="keywd">range</span>' <a class="ebnf" href="#expr_ebnf_expression">expression</a> [ '<span class="keywd">to</span>' | '<span class="keywd">downto</span>' ] <a class="ebnf" href="#expr_ebnf_expression">expression</a> '<span class="keywd">do</span>'<br />
       &nbsp;&nbsp;<a class="ebnf" href="#stats_ebnf_statement">statement</a><br />
       '<span class="keywd">end</span>' '<span class="keywd">for</span>' .</dd>
 </dl></tt></dd></dl><p>
@@ -1392,13 +1392,13 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: FOR_DECLS (<span class="keywd">in</span> <a class="type" href="#types_type">type</a>: aType) <span class="keywd">is func</span>
   <span class="keywd">begin</span>
     <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: for (<span class="keywd">inout</span> <span class="type">aType</span>: variable) range
-        (<span class="keywd">in</span> <span class="type">aType</span>: lower_limit) to (<span class="keywd">in</span> <span class="type">aType</span>: upper_limit) do
+        (<span class="keywd">in</span> <span class="type">aType</span>: lowerLimit) to (<span class="keywd">in</span> <span class="type">aType</span>: upperLimit) do
         (<span class="keywd">in</span> <a class="type" href="#types_proc">proc</a>: statements) end for <span class="keywd">is func</span>
       <span class="keywd">begin</span>
-        variable := lower_limit;
-        <span class="keywd">if</span> variable &lt;= upper_limit <span class="keywd">then</span>
+        variable := lowerLimit;
+        <span class="keywd">if</span> variable &lt;= upperLimit <span class="keywd">then</span>
           statements;
-          <span class="keywd">while</span> variable &lt; upper_limit <span class="keywd">do</span>
+          <span class="keywd">while</span> variable &lt; upperLimit <span class="keywd">do</span>
             incr(variable);
             statements;
           <span class="keywd">end while</span>;
@@ -1406,13 +1406,13 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
       <span class="keywd">end func</span>;
 
     <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: for (<span class="keywd">inout</span> <span class="type">aType</span>: variable) range
-        (<span class="keywd">in</span> <span class="type">aType</span>: upper_limit) downto (<span class="keywd">in</span> <span class="type">aType</span>: lower_limit) do
+        (<span class="keywd">in</span> <span class="type">aType</span>: upperLimit) downto (<span class="keywd">in</span> <span class="type">aType</span>: lowerLimit) do
         (<span class="keywd">in</span> <a class="type" href="#types_proc">proc</a>: statements) end for <span class="keywd">is func</span>
       <span class="keywd">begin</span>
-        variable := upper_limit;
-        <span class="keywd">if</span> variable >= lower_limit <span class="keywd">then</span>
+        variable := upperLimit;
+        <span class="keywd">if</span> variable >= lowerLimit <span class="keywd">then</span>
           statements;
-          <span class="keywd">while</span> variable > lower_limit <span class="keywd">do</span>
+          <span class="keywd">while</span> variable > lowerLimit <span class="keywd">do</span>
             decr(variable);
             statements;
           <span class="keywd">end while</span>;
@@ -1461,7 +1461,7 @@ FOR_DECLS(<a class="type" href="#types_boolean">boolean</a>);
   Syntax:
 </dt><dd><tt><dl>
     <dt><a name="stats_ebnf_for_step_statement">for_step_statement</a> ::=</dt><dd>
-      '<span class="keywd">for</span>' identifier '<span class="keywd">range</span>' <a class="ebnf" href="#expr_ebnf_expression">expression</a> [ '<span class="keywd">to</span>' | '<span class="keywd">downto</span>' ] <a class="ebnf" href="#expr_ebnf_expression">expression</a> '<span class="keywd">step</span>' <a class="ebnf" href="#expr_ebnf_expression">expression</a> '<span class="keywd">do</span>'<br />
+      '<span class="keywd">for</span>' <a class="ebnf" href="#tokens_ebnf_identifier">identifier</a> '<span class="keywd">range</span>' <a class="ebnf" href="#expr_ebnf_expression">expression</a> [ '<span class="keywd">to</span>' | '<span class="keywd">downto</span>' ] <a class="ebnf" href="#expr_ebnf_expression">expression</a> '<span class="keywd">step</span>' <a class="ebnf" href="#expr_ebnf_expression">expression</a> '<span class="keywd">do</span>'<br />
       &nbsp;&nbsp;<a class="ebnf" href="#stats_ebnf_statement">statement</a><br />
       '<span class="keywd">end</span>' '<span class="keywd">for</span>' .</dd>
 </dl></tt></dd></dl><p>
@@ -1475,12 +1475,12 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
   <span class="keywd">begin</span>
     <span class="keywd">if</span> getobj((<span class="keywd">inout</span> <span class="type">aType</span> param) +:= (<span class="keywd">in</span> <a class="type" href="#types_integer">integer</a> param)) <> NIL <span class="keywd">then</span>
 
-      <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: for (<span class="keywd">inout</span> <span class="type">aType</span>: variable) range (<span class="keywd">in</span> <span class="type">aType</span>: lower_limit) to (<span class="keywd">in</span> <span class="type">aType</span>: upper_limit)
+      <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: for (<span class="keywd">inout</span> <span class="type">aType</span>: variable) range (<span class="keywd">in</span> <span class="type">aType</span>: lowerLimit) to (<span class="keywd">in</span> <span class="type">aType</span>: upperLimit)
           step (<span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: incr_step) do
           (<span class="keywd">in</span> <a class="type" href="#types_proc">proc</a>: statements) end for <span class="keywd">is func</span>
         <span class="keywd">begin</span>
-          variable := lower_limit;
-          <span class="keywd">while</span> variable <= upper_limit <span class="keywd">do</span>
+          variable := lowerLimit;
+          <span class="keywd">while</span> variable <= upperLimit <span class="keywd">do</span>
             statements;
             variable +:= incr_step;
           <span class="keywd">end while</span>;
@@ -1489,12 +1489,12 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
     <span class="keywd">end if</span>;
     <span class="keywd">if</span> getobj((<span class="keywd">inout</span> <span class="type">aType</span> param) -:= (<span class="keywd">in</span> <a class="type" href="#types_integer">integer</a> param)) <> NIL <span class="keywd">then</span>
 
-      <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: for (<span class="keywd">inout</span> <span class="type">aType</span>: variable) range (<span class="keywd">in</span> <span class="type">aType</span>: upper_limit) downto (<span class="keywd">in</span> <span class="type">aType</span>: lower_limit)
+      <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: for (<span class="keywd">inout</span> <span class="type">aType</span>: variable) range (<span class="keywd">in</span> <span class="type">aType</span>: upperLimit) downto (<span class="keywd">in</span> <span class="type">aType</span>: lowerLimit)
           step (<span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: decr_step) do
           (<span class="keywd">in</span> <a class="type" href="#types_proc">proc</a>: statements) end for <span class="keywd">is func</span>
         <span class="keywd">begin</span>
-          variable := upper_limit;
-          <span class="keywd">while</span> variable >= lower_limit <span class="keywd">do</span>
+          variable := upperLimit;
+          <span class="keywd">while</span> variable >= lowerLimit <span class="keywd">do</span>
             statements;
             variable -:= decr_step;
           <span class="keywd">end while</span>;
@@ -1529,7 +1529,7 @@ FOR_STEP_DECLS(<a class="type" href="#types_integer">integer</a>);
   Syntax:
 </dt><dd><tt><dl>
     <dt><a name="stats_ebnf_for_each_statement">for_each_statement</a> ::=</dt><dd>
-      '<span class="keywd">for</span>' identifier '<span class="keywd">range</span>' <a class="ebnf" href="#expr_ebnf_expression">expression</a> '<span class="keywd">do</span>'<br />
+      '<span class="keywd">for</span>' <a class="ebnf" href="#tokens_ebnf_identifier">identifier</a> '<span class="keywd">range</span>' <a class="ebnf" href="#expr_ebnf_expression">expression</a> '<span class="keywd">do</span>'<br />
       &nbsp;&nbsp;<a class="ebnf" href="#stats_ebnf_statement">statement</a><br />
       '<span class="keywd">end</span>' '<span class="keywd">for</span>' .</dd>
 </dl></tt></dd></dl><p>
@@ -1689,11 +1689,14 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
 </dt><dd><tt><dl>
     <dt><a name="stats_ebnf_case_statement">case_statement</a> ::=</dt><dd>
       '<span class="keywd">case</span>' <a class="ebnf" href="#expr_ebnf_expression">expression</a> '<span class="keywd">of</span>'<br />
-      &nbsp;&nbsp;{ '<span class="keywd">when</span>' set_expression ':'<br />
+      &nbsp;&nbsp;{ '<span class="keywd">when</span>' <a class="ebnf" href="#stats_ebnf_set_expression">set_expression</a> ':'<br />
       &nbsp;&nbsp;&nbsp;&nbsp;<a class="ebnf" href="#stats_ebnf_statement">statement</a> }<br />
       &nbsp;&nbsp;[ '<span class="keywd">otherwise</span>' ':'<br />
       &nbsp;&nbsp;&nbsp;&nbsp;<a class="ebnf" href="#stats_ebnf_statement">statement</a> ]<br />
       '<span class="keywd">end</span>' '<span class="keywd">case</span>' .</dd>
+<dt><br /></dt>
+    <dt><a name="stats_ebnf_set_expression">set_expression</a> ::=</dt><dd>
+      <a class="ebnf" href="#expr_ebnf_expression">expression</a> .</dd>
 </dl></tt></dd></dl><p>
 
   Declaration:
@@ -1872,7 +1875,7 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
 <a name="types_integer"><h3>5.2 integer</h3></a>
 <p>
     The type <tt><a class="type" href="#types_integer">integer</a></tt> consists of signed integer numbers
-  which are at least 32 bits wide. An <tt><a class="type" href="#types_integer">integer</a></tt> literal is
+  which are at least 32 bits wide. An <a class="link" href="#tokens_Integer_literals">integer literal</a> is
   a sequence of digits which is taken to be decimal. The
   sequence of digits may be followed by the letter E or e
   an optional + sign and a decimal exponent. Based numbers
@@ -2125,9 +2128,9 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
 <a name="types_bigInteger"><h3>5.3 bigInteger</h3></a>
 <p>
     The type <tt><span class="type">bigInteger</span></tt> describes signed integer numbers of
-  unlimited size. The literals of the type <tt><span class="type">bigInteger</span></tt> are sequences
-  of digits followed by an underscore character (for example 1_ ).
-  Based numbers can be specified when the sequence of digits is
+  unlimited size. A <a class="link" href="#tokens_BigInteger_literals">bigInteger literal</a> is a sequence of digits
+  followed by an underscore character (for example 1_ ). Based
+  numbers can be specified when the sequence of digits is
   followed by the # character and a sequence of extended digits.
   The decimal number in front of the # character specifies the
   base of the number which follows the # character. As base a
@@ -2532,7 +2535,7 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
 <a name="types_float"><h3>5.6 float</h3></a>
 <p>
     The type <tt><span class="type">float</span></tt> consists of single precision floating point
-  numbers. Float literals are base 10 and contain a decimal point.
+  numbers. <a class="link" href="#tokens_Float_literals">Float literals</a> use base 10 and contain a decimal point.
   There must be at least one digit before and after the decimal point.
   An exponent part, which is introduced with E or e, is optional.
   The exponent can be signed, but the mantissa is not. A literal does
@@ -2778,7 +2781,7 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
 <a name="types_char"><h3>5.8 char</h3></a>
 <p>
     The type <tt><span class="type">char</span></tt> describes Unicode characters encoded
-  with UTF-32. In the source file a character literal is
+  with UTF-32. In the source file a <a class="link" href="#tokens_Character_literals">character literal</a> is
   written as UTF-8 encoded Unicode character enclosed in
   single quotes. In order to represent non-printable
   characters and certain printable characters the following
@@ -2872,8 +2875,8 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
   and therefore can also contain binary data. Although <tt><a class="type" href="#types_string">string</a></tt>s
   are allowed to grow very big, it can happen that there is not
   enough memory to represent a <tt><a class="type" href="#types_string">string</a></tt> value. In this case the
-  exception <tt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></tt> is raised. In the source file a string
-  literal is a sequence of UTF-8 encoded Unicode characters
+  exception <tt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></tt> is raised. In the source file a <a class="link" href="#tokens_String_literals">string
+  literal</a> is a sequence of UTF-8 encoded Unicode characters
   surrounded by double quotes.
 </p><p>
   To represent control characters and certain other characters
@@ -3278,9 +3281,13 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
       EMPTY_SET  Empty set of the type <a class="type" href="#types_set">bitset</a>
     Infix operators:
       <span class="op">|</span>         Union
+                  ( {1, 3} | {2, 3} <b>&rArr;</b> {1, 2, 3} )
       <span class="op">&amp;</span>         Intersection
+                  ( {1, 3} & {2, 3} <b>&rArr;</b> {3} )
       <span class="op">-</span>         Difference
+                  ( {1, 3} - {2, 3} <b>&rArr;</b> {1} )
       <span class="op">>&lt;</span>        Symmetric Difference
+                  ( {1, 3} >&lt; {2, 3} <b>&rArr;</b> {1, 2} )
       <span class="op">in</span>        Element
                   ( Left argument: <span class="type">baseType</span>,
                     Type of result: <a class="type" href="#types_boolean">boolean</a> )
@@ -5716,14 +5723,21 @@ writeln(0.375 <span class="keywd">sci</span> 1 <span class="keywd">exp</span> 2)
   this behavior, care has to be taken when mixing scanner and
   file functions.
 </p><p>
-  The next declarations allows various I/O operations for strings:
+  The type <tt><span class="type">null_file</span></tt> provides default functions to write end-of-line:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">proc</span>: writeln (<span class="keywd">inout</span> <span class="type">file</span>: aFile, <span class="keywd">in</span> <span class="type">string</span>: stri) <span class="keywd">is func</span>
+<span class="keywd">const</span> <span class="type">proc</span>: writeln (<span class="keywd">inout</span> <span class="type">null_file</span>: outFile) <span class="keywd">is func</span>
   <span class="keywd">begin</span>
-    write(aFile, stri);
-    writeln(aFile);
+    write(outFile, <span class="stri">"\n"</span>);
   <span class="keywd">end func</span>;
 
+<span class="keywd">const</span> <span class="type">proc</span>: writeln (<span class="keywd">inout</span> <span class="type">null_file</span>: outFile, <span class="keywd">in</span> <span class="type">string</span>: stri) <span class="keywd">is func</span>
+  <span class="keywd">begin</span>
+    write(outFile, stri);
+    writeln(outFile);
+  <span class="keywd">end func</span>;
+</pre><p>
+  The next declarations allow various I/O operations for strings:
+</p><pre class="indent">
 <span class="keywd">const</span> <span class="type">proc</span>: read (<span class="keywd">inout</span> <span class="type">file</span>: aFile, <span class="keywd">inout</span> <span class="type">string</span>: stri) <span class="keywd">is func</span>
   <span class="keywd">begin</span>
     stri := getwd(aFile);
@@ -5787,13 +5801,8 @@ writeln(0.375 <span class="keywd">sci</span> 1 <span class="keywd">exp</span> 2)
     <span class="keywd">end block</span>;
   <span class="keywd">end func</span>;
 </pre><p>
-  The next two declarations define <tt>'writeln'</tt> and <tt>'backSpace'</tt>:
+  The next declaration defines <tt>'backSpace'</tt>:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">proc</span>: writeln (<span class="keywd">ref</span> <span class="type">external_file</span>: aFile) <span class="keywd">is func</span>
-  <span class="keywd">begin</span>
-    write(aFile, <span class="stri">"\n"</span>);
-  <span class="keywd">end func</span>;
-
 <span class="keywd">const</span> <span class="type">proc</span>: backSpace (<span class="keywd">ref</span> <span class="type">external_file</span>: aFile) <span class="keywd">is func</span>
   <span class="keywd">begin</span>
     write(aFile, <span class="stri">"\b \b"</span>);
@@ -5830,8 +5839,7 @@ read(amount);
 
 <span class="keywd">const</span> <span class="type">proc</span>: writeln (<span class="keywd">in</span> <span class="type">aType</span>: aValue) <span class="keywd">is func</span>
   <span class="keywd">begin</span>
-    write(OUT, aValue);
-    writeln(OUT);
+    writeln(OUT, aValue);
   <span class="keywd">end func</span>;
 </pre><p>
   Additional procedures defined outside of <tt><span class="func">enable_io</span></tt> are:
@@ -5845,17 +5853,7 @@ read(amount);
     IN.io_ok := TRUE;
   <span class="keywd">end func</span>;
 
-<span class="keywd">const</span> <span class="type">proc</span>: read (NL) <span class="keywd">is func</span>
-  <span class="keywd">begin</span>
-    readln;
-  <span class="keywd">end func</span>;
-
 <span class="keywd">const</span> <span class="type">proc</span>: writeln <span class="keywd">is func</span>
-  <span class="keywd">begin</span>
-    writeln(OUT);
-  <span class="keywd">end func</span>;
-
-<span class="keywd">const</span> <span class="type">proc</span>: write (NL) <span class="keywd">is func</span>
   <span class="keywd">begin</span>
     writeln(OUT);
   <span class="keywd">end func</span>;
@@ -6891,11 +6889,12 @@ currSymbol := getSymbol(inFile);
   optional parts without the use of recursion. EBNF has the
   following elements:
 </p><ul>
-    <li>Nonterminal symbols consist of lower case letters and
-      underline characters.</li>
+    <li>Nonterminal symbols are described with identifiers. An
+      identifier consist of lower case letters and underline
+      characters.</li>
 
     <li>Terminal symbols are quoted strings or names in upper case
-      characters which describe unprintable characters (control
+      characters, which describe unprintable characters (control
       characters).</li>
 
     <li>The concatenation of nonterminal and/or terminal symbols is
@@ -6916,20 +6915,21 @@ currSymbol := getSymbol(inFile);
   extended Backus-Naur form:
 </p><dl><dd><tt><dl>
     <dt>syntax_description ::=</dt><dd>
-      { statement } .</dd>
+      { <a class="ebnf" href="#syntax_ebnf_ebnf_statement">ebnf_statement</a> } .</dd>
 <dt><br /></dt>
-    <dt>statement ::=</dt><dd>
-      identifier '::=' expression '.' .</dd>
+    <dt><a name="syntax_ebnf_ebnf_statement">ebnf_statement</a> ::=</dt><dd>
+      identifier '::=' <a class="ebnf" href="#syntax_ebnf_ebnf_expression">ebnf_expression</a> '.' .</dd>
 <dt><br /></dt>
-    <dt>expression ::=</dt><dd>
-      term { '|' term } .</dd>
+    <dt><a name="syntax_ebnf_ebnf_expression">ebnf_expression</a> ::=</dt><dd>
+      <a class="ebnf" href="#syntax_ebnf_ebnf_term">term</a> { '|' <a class="ebnf" href="#syntax_ebnf_ebnf_term">term</a> } .</dd>
 <dt><br /></dt>
-    <dt>term ::=</dt><dd>
-      factor { factor } .</dd>
+    <dt><a name="syntax_ebnf_ebnf_term">term</a> ::=</dt><dd>
+      <a class="ebnf" href="#syntax_ebnf_ebnf_factor">factor</a> { <a class="ebnf" href="#syntax_ebnf_ebnf_factor">factor</a> } .</dd>
 <dt><br /></dt>
-    <dt>factor ::=</dt><dd>
-      identifier | string | '(' expression ')' |<br />
-      '[' expression ']' | '{' expression '}' .</dd>
+    <dt><a name="syntax_ebnf_ebnf_factor">factor</a> ::=</dt><dd>
+      identifier | string | control_character_description |<br />
+      '(' <a class="ebnf" href="#syntax_ebnf_ebnf_expression">ebnf_expression</a> ')' | '[' <a class="ebnf" href="#syntax_ebnf_ebnf_expression">ebnf_expression</a> ']' |<br />
+      '{' <a class="ebnf" href="#syntax_ebnf_ebnf_expression">ebnf_expression</a> '}' .</dd>
 </dl></tt></dd></dl><p></p>
 
 <a name="syntax_The_syntax_of_a_statement"><h3>9.2 The syntax of a statement</h3></a>
@@ -6985,19 +6985,19 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
   With EBNF the <a class="link" href="#syntax_The_syntax_of_a_statement">loop-statement</a> can be described as:
 </p><dl><dd><tt><dl>
     <dt>loop_statement ::=</dt><dd>
-      'loop'<br />
-      &nbsp;&nbsp;statement<br />
-      'until' expression 'do'<br />
-      &nbsp;&nbsp;statement<br />
-      'end' 'loop' .</dd>
+      '<span class="keywd">loop</span>'<br />
+      &nbsp;&nbsp;<a class="ebnf" href="#stats_ebnf_statement">statement</a><br />
+      '<span class="keywd">until</span>' <a class="ebnf" href="#expr_ebnf_expression">expression</a> '<span class="keywd">do</span>'<br />
+      &nbsp;&nbsp;<a class="ebnf" href="#stats_ebnf_statement">statement</a><br />
+      '<span class="keywd">end</span>' '<span class="keywd">loop</span>' .</dd>
 </dl></tt></dd></dl><p>
   An EBNF description may use many nonterminal symbols such as
-  <tt>'statement'</tt> or <tt>'expression'</tt>. S7SSD does not distinguish
+  <tt>'<a class="ebnf" href="#stats_ebnf_statement">statement</a>'</tt> or <tt>'<a class="ebnf" href="#expr_ebnf_expression">expression</a>'</tt>. S7SSD does not distinguish
   between different nonterminal symbols. Instead S7SSD only
   knows one nonterminal symbol: <tt>()</tt>
 </p><p>
-  Therefore S7SSD cannot distinguish between <tt>'statement'</tt>,
-  <tt>'expression'</tt> or something else. At the syntax level any kind of
+  Therefore S7SSD cannot distinguish between <tt>'<a class="ebnf" href="#stats_ebnf_statement">statement</a>'</tt>,
+  <tt>'<a class="ebnf" href="#expr_ebnf_expression">expression</a>'</tt> or something else. At the syntax level any kind of
   expression can by substituted for a S7SSD nonterminal symbol <tt>()</tt>.
   With EBNF it is possible to describe constraints such as the type
   of an expression. S7SSD relies on semantic checks to verify
@@ -7485,13 +7485,13 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
   The EBNF of the <a class="link" href="#stats_if-statement">if-statement</a> with <tt>'<span class="keywd">elsif</span>'</tt> parts is:
 </p><dl><dd><tt><dl>
     <dt>if_statement ::=</dt><dd>
-      'if' expression 'then'<br />
-      &nbsp;&nbsp;statement<br />
-      { 'elsif' expression 'then'<br />
-      &nbsp;&nbsp;statement }<br />
-      [ 'else'<br />
-      &nbsp;&nbsp;statement ]<br />
-      'end' 'if' .</dd>
+      '<span class="keywd">if</span>' <a class="ebnf" href="#expr_ebnf_expression">expression</a> '<span class="keywd">then</span>'<br />
+      &nbsp;&nbsp;<a class="ebnf" href="#stats_ebnf_statement">statement</a><br />
+      { '<span class="keywd">elsif</span>' <a class="ebnf" href="#expr_ebnf_expression">expression</a> '<span class="keywd">then</span>'<br />
+      &nbsp;&nbsp;<a class="ebnf" href="#stats_ebnf_statement">statement</a> }<br />
+      [ '<span class="keywd">else</span>'<br />
+      &nbsp;&nbsp;<a class="ebnf" href="#stats_ebnf_statement">statement</a> ]<br />
+      '<span class="keywd">end</span>' '<span class="keywd">if</span>' .</dd>
 </dl></tt></dd></dl><p>
   The S7SSD of this <a class="link" href="#stats_if-statement">if-statement</a> is:
 </p><pre class="indent">
@@ -7512,28 +7512,28 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a> 
   corresponds to the following EBNF description:
 </p><dl><dd><tt><dl>
     <dt>if_statement ::=</dt><dd>
-      'if' expression 'then'<br />
-      &nbsp;&nbsp;statement<br />
-      'end' 'if' .</dd>
+      '<span class="keywd">if</span>' <a class="ebnf" href="#expr_ebnf_expression">expression</a> '<span class="keywd">then</span>'<br />
+      &nbsp;&nbsp;<a class="ebnf" href="#stats_ebnf_statement">statement</a><br />
+      '<span class="keywd">end</span>' '<span class="keywd">if</span>' .</dd>
 <dt><br /></dt>
     <dt>if_statement ::=</dt><dd>
-      'if' expression 'then'<br />
-      &nbsp;&nbsp;statement<br />
+      '<span class="keywd">if</span>' <a class="ebnf" href="#expr_ebnf_expression">expression</a> '<span class="keywd">then</span>'<br />
+      &nbsp;&nbsp;<a class="ebnf" href="#stats_ebnf_statement">statement</a><br />
       &nbsp;&nbsp;elseif_or_else_part<br />
-      'end' 'if' .</dd>
+      '<span class="keywd">end</span>' '<span class="keywd">if</span>' .</dd>
 <dt><br /></dt>
     <dt>elseif_or_else_part ::=</dt><dd>
-      'elsif' expression 'then'<br />
-      &nbsp;&nbsp;statement .</dd>
+      '<span class="keywd">elsif</span>' <a class="ebnf" href="#expr_ebnf_expression">expression</a> '<span class="keywd">then</span>'<br />
+      &nbsp;&nbsp;<a class="ebnf" href="#stats_ebnf_statement">statement</a> .</dd>
 <dt><br /></dt>
     <dt>elseif_or_else_part ::=</dt><dd>
-      'elsif' expression 'then'<br />
-      &nbsp;&nbsp;statement<br />
+      '<span class="keywd">elsif</span>' <a class="ebnf" href="#expr_ebnf_expression">expression</a> '<span class="keywd">then</span>'<br />
+      &nbsp;&nbsp;<a class="ebnf" href="#stats_ebnf_statement">statement</a><br />
       &nbsp;&nbsp;elseif_or_else_part .</dd>
 <dt><br /></dt>
     <dt>elseif_or_else_part ::=</dt><dd>
-      'else'<br />
-      &nbsp;&nbsp;statement .</dd>
+      '<span class="keywd">else</span>'<br />
+      &nbsp;&nbsp;<a class="ebnf" href="#stats_ebnf_statement">statement</a> .</dd>
 </dl></tt></dd></dl><p>
   Since S7SSD uses only one nonterminal symbol <tt>'()'</tt> it is the job
   of the semantic level to make sure that only the right nonterminal
@@ -7623,11 +7623,11 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
   be:
 </p><dl><dd><tt><dl>
     <dt>expression_25 ::=</dt><dd>
-      'loop'<br />
+      '<span class="keywd">loop</span>'<br />
       &nbsp;&nbsp;expression_127<br />
-      'until' expression_127 'do'<br />
+      '<span class="keywd">until</span>' expression_127 '<span class="keywd">do</span>'<br />
       &nbsp;&nbsp;expression_127<br />
-      'end' 'loop' .</dd>
+      '<span class="keywd">end</span>' '<span class="keywd">loop</span>' .</dd>
 </dl></tt></dd></dl><p>
   We must keep in mind that alternative rules for expression_25 are
   also possible and that for every priority level a rule like
@@ -7659,10 +7659,10 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
   exist, as it is the case in Seed7.
 </p><p>
   There are some things which are out of the scope of S7SSD.
-  The syntax of tokens (whitespace, comments, identifiers and
-  literals) and expressions (parentheses, function calls and dot
-  expressions) is hard coded. The hard coded constructs are described
-  in <a class="link" href="#tokens_file_start">chapter 10 (Tokens)</a> and <a class="link" href="#expr_file_start">chapter 11 (Expressions)</a>.
+  The syntax of <a class="link" href="#tokens_Comments">comments</a>, tokens (<a class="link" href="#tokens_Identifiers">identifiers</a> and <a class="link" href="#tokens_Literals">literals</a>) and
+  expressions (parentheses, function calls and dot expressions)
+  is hard coded. The hard coded constructs are described in
+  <a class="link" href="#tokens_file_start">chapter 10 (Tokens)</a> and <a class="link" href="#expr_file_start">chapter 11 (Expressions)</a>.
 </p><p>
   For the reasons mentioned above it is not possible to transform
   every EBNF syntax description into S7SSD. Transforming S7SSD
@@ -7701,12 +7701,13 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
     <dd><a class="ebnf" href="#tokens_ebnf_comment">comment</a>s</dd>
     <dd><a class="ebnf" href="#tokens_ebnf_line_comment">line comment</a>s</dd>
 </dl><p>
-  White space always terminates a preceding token. Some white
-  space is required to separate otherwise adjacent tokens.
+  White space always terminates a preceding <a class="link" href="#tokens_Identifiers">identifier</a>, <a class="link" href="#tokens_Integer_literals">integer</a>,
+  <a class="link" href="#tokens_BigInteger_literals">bigInteger</a> or <a class="link" href="#tokens_Float_literals">float</a> literal. Some white space is required to
+  separate otherwise adjacent tokens.
 </p><dl><dt>
   Syntax:
 </dt><dd><tt><dl>
-    <dt><a name="tokens_white_space">white_space</a> ::=</dt><dd>
+    <dt><a name="tokens_ebnf_white_space">white_space</a> ::=</dt><dd>
       ( <a class="ebnf" href="#tokens_ebnf_space">space</a> | <a class="ebnf" href="#tokens_ebnf_comment">comment</a> | <a class="ebnf" href="#tokens_ebnf_line_comment">line_comment</a> )<br />
       { <a class="ebnf" href="#tokens_ebnf_space">space</a> | <a class="ebnf" href="#tokens_ebnf_comment">comment</a> | <a class="ebnf" href="#tokens_ebnf_line_comment">line_comment</a> } .</dd>
 </dl></tt></dd></dl><p></p>
@@ -7733,12 +7734,23 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
 </pre><p>
   Comment nesting is allowed so it is possible to comment out
   larger sections of the program which can also include comments.
-  Comments cannot occur within string or character literals.
+  Comments cannot occur within <a class="link" href="#tokens_String_literals">string</a> or <a class="link" href="#tokens_Character_literals">character literals</a>.
 </p><dl><dt>
   Syntax:
 </dt><dd><tt><dl>
     <dt><a name="tokens_ebnf_comment">comment</a> ::=</dt><dd>
-      '(*' { any_character } '*)' .</dd>
+      '(*' { <a class="ebnf" href="#tokens_ebnf_any_character">any_character</a> } '*)' .</dd>
+<dt><br /></dt>
+    <dt><a name="tokens_ebnf_any_character">any_character</a> ::=</dt><dd>
+      <a class="ebnf" href="#tokens_ebnf_simple_literal_character">simple_literal_character</a> | <a class="ebnf" href="#tokens_ebnf_apostrophe">apostrophe</a> | '"' | '\' |<br />
+      <a class="ebnf" href="#tokens_ebnf_control_character">control_character</a>  .</dd>
+<dt><br /></dt>
+    <dt><a name="tokens_ebnf_control_character">control_character</a> ::=</dt><dd>
+      NUL | SOH | STX | ETX | EOT | ENQ | ACK | BEL |<br />
+      BS&nbsp; | TAB | LF&nbsp; | VT&nbsp; | FF&nbsp; | CR&nbsp; | SO&nbsp; | SI&nbsp; |<br />
+      DLE | DC1 | DC2 | DC3 | DC4 | NAK | SYN | ETB |<br />
+      CAN | EM&nbsp; | SUB | ESC | FS&nbsp; | GS&nbsp; | RS&nbsp; | US&nbsp; |<br />
+      DEL .</dd>
 </dl></tt></dd></dl><p></p>
 
 <a name="tokens_Line_comments"><h4>10.1.3 Line comments</h4></a>
@@ -7754,8 +7766,8 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
 </p><dl><dt>
   Syntax:
 </dt><dd><tt><dl>
-    <dt><a name="tokens_ebnf_comment">line_comment</a> ::=</dt><dd>
-      '#' { any_character } NL .</dd>
+    <dt><a name="tokens_ebnf_line_comment">line_comment</a> ::=</dt><dd>
+      '#' { <a class="ebnf" href="#tokens_ebnf_any_character">any_character</a> } NL .</dd>
 </dl></tt></dd></dl><p></p>
 
 <a name="tokens_Identifiers"><h3>10.2 Identifiers</h3></a>
@@ -7860,16 +7872,19 @@ NUMBER  integer  const  if  UPPER_LIMIT  LowerLimit  x5  _end
 
 <a name="tokens_Literals"><h3>10.3 Literals</h3></a>
 <p>
-    There are three types of literals
+    There are several types of literals
 </p><dl>
     <dd><a class="ebnf" href="#tokens_ebnf_integer_literal">integer literal</a>s</dd>
+    <dd><a class="ebnf" href="#tokens_ebnf_biginteger_literal">biginteger literal</a>s</dd>
+    <dd><a class="ebnf" href="#tokens_ebnf_float_literal">float literal</a>s</dd>
     <dd><a class="ebnf" href="#tokens_ebnf_character_literal">character literal</a>s</dd>
     <dd><a class="ebnf" href="#tokens_ebnf_string_literal">string literal</a>s</dd>
 </dl><dl><dt>
   Syntax:
 </dt><dd><tt><dl>
     <dt><a name="tokens_ebnf_literal">literal</a> ::=</dt><dd>
-      <a class="ebnf" href="#tokens_ebnf_integer_literal">integer_literal</a> | <a class="ebnf" href="#tokens_ebnf_character_literal">character_literal</a> | <a class="ebnf" href="#tokens_ebnf_string_literal">string_literal</a> .</dd>
+      <a class="ebnf" href="#tokens_ebnf_integer_literal">integer_literal</a> | <a class="ebnf" href="#tokens_ebnf_biginteger_literal">biginteger_literal</a> | <a class="ebnf" href="#tokens_ebnf_float_literal">float_literal</a> |<br />
+      <a class="ebnf" href="#tokens_ebnf_character_literal">character_literal</a> | <a class="ebnf" href="#tokens_ebnf_string_literal">string_literal</a> .</dd>
 </dl></tt></dd></dl><p></p>
 
 <a name="tokens_Integer_literals"><h4>10.3.1 Integer literals</h4></a>
@@ -7903,7 +7918,41 @@ NUMBER  integer  const  if  UPPER_LIMIT  LowerLimit  x5  _end
       <a class="ebnf" href="#tokens_ebnf_letter">letter</a> | <a class="ebnf" href="#tokens_ebnf_digit">digit</a> .</dd>
 </dl></tt></dd></dl><p></p>
 
-<a name="tokens_String_literals"><h4>10.3.2 String literals</h4></a>
+<a name="tokens_BigInteger_literals"><h4>10.3.2 BigInteger literals</h4></a>
+<p>
+    A bigInteger literal is a sequence of digits followed by the
+  underline character. The sequence of digits is taken to be
+  decimal. Based numbers can be specified when a sequence of
+  digits is followed by the # character, a sequence of extended
+  digits and the underline character. The decimal number in front
+  of the # character specifies the base of the number which follows
+  the # character. As base a number between 2 and 36 is allowed.
+  As extended digits the letters A or a can be used for 10, B or b
+  can be used for 11 and so on to Z or z which can be used as 35.
+</p><dl><dt>
+  Syntax:
+</dt><dd><tt><dl>
+    <dt><a name="tokens_ebnf_biginteger_literal">biginteger_literal</a> ::=</dt><dd>
+      <a class="ebnf" href="#tokens_ebnf_decimal_integer">decimal_integer</a> [ <a class="ebnf" href="#tokens_ebnf_based_integer">based_integer</a> ] '_' .</dd>
+</dl></tt></dd></dl><p></p>
+
+<a name="tokens_Float_literals"><h4>10.3.3 Float literals</h4></a>
+<p>
+    A float literal consists of two decimal integer literals
+  seperated by a decimal point. The basic float literal may be
+  followed by the letter E or e an optional + or - sign and a
+  decimal exponent.
+</p><dl><dt>
+  Syntax:
+</dt><dd><tt><dl>
+    <dt><a name="tokens_ebnf_float_literal">float_literal</a> ::=</dt><dd>
+      <a class="ebnf" href="#tokens_ebnf_decimal_integer">decimal_integer</a> '.' <a class="ebnf" href="#tokens_ebnf_decimal_integer">decimal_integer</a> [ <a class="ebnf" href="#tokens_ebnf_float_exponent">float_exponent</a> ] .</dd>
+<dt><br /></dt>
+    <dt><a name="tokens_ebnf_float_exponent">float_exponent</a> ::=</dt><dd>
+      ( 'E' | 'e' ) [ '+' | '-' ] <a class="ebnf" href="#tokens_ebnf_decimal_integer">decimal_integer</a> .</dd>
+</dl></tt></dd></dl><p></p>
+
+<a name="tokens_String_literals"><h4>10.3.4 String literals</h4></a>
 <p>
     A string literal is a sequence of UTF-8 encoded Unicode
   characters surrounded by double quotes. For example:
@@ -7953,11 +8002,11 @@ NUMBER  integer  const  if  UPPER_LIMIT  LowerLimit  x5  _end
       '"' { <a class="ebnf" href="#tokens_ebnf_string_literal_element">string_literal_element</a> } '"' .</dd>
 <dt><br /></dt>
     <dt><a name="tokens_ebnf_string_literal_element">string_literal_element</a> ::=</dt><dd>
-      <a class="ebnf" href="#tokens_ebnf_printable_character">printable_character</a> | <a class="ebnf" href="#tokens_ebnf_escape_sequence">escape_sequence</a> | <a class="ebnf" href="#tokens_ebnf_apostrophe">apostrophe</a> .</dd>
+      <a class="ebnf" href="#tokens_ebnf_simple_literal_character">simple_literal_character</a> | <a class="ebnf" href="#tokens_ebnf_escape_sequence">escape_sequence</a> | <a class="ebnf" href="#tokens_ebnf_apostrophe">apostrophe</a> .</dd>
 <dt><br /></dt>
-    <dt><a name="tokens_ebnf_printable_character">printable_character</a> ::=</dt><dd>
+    <dt><a name="tokens_ebnf_simple_literal_character">simple_literal_character</a> ::=</dt><dd>
       <a class="ebnf" href="#tokens_ebnf_letter">letter</a> | <a class="ebnf" href="#tokens_ebnf_digit">digit</a> | <a class="ebnf" href="#tokens_ebnf_parenthesis">parenthesis</a> | <a class="ebnf" href="#tokens_ebnf_special_literal_character">special_literal_character</a> |<br />
-      other_printable_character .</dd>
+      utf8_encoded_character .</dd>
 <dt><br /></dt>
     <dt><a name="tokens_ebnf_special_literal_character">special_literal_character</a> ::=</dt><dd>
       '&nbsp;' | '!' | '#' | '$' | '%' | '&amp;' | '*' | '+' | ',' | '-' |<br />
@@ -7973,7 +8022,7 @@ NUMBER  integer  const  if  UPPER_LIMIT  LowerLimit  x5  _end
       ''' .</dd>
 </dl></tt></dd></dl><p></p>
 
-<a name="tokens_Character_literals"><h4>10.3.3 Character literals</h4></a>
+<a name="tokens_Character_literals"><h4>10.3.5 Character literals</h4></a>
 <p>
     A character literal is an UTF-8 encoded Unicode character
   enclosed in apostrophes. For example:
@@ -7981,8 +8030,8 @@ NUMBER  integer  const  if  UPPER_LIMIT  LowerLimit  x5  _end
 <span class="stri">'a'</span>   <span class="stri">' '</span>   <span class="stri">'\n'</span>   <span class="stri">'!'</span>   <span class="stri">'\\'</span>   <span class="stri">'2'</span>   <span class="stri">'"' </span>  <span class="stri">'\"'</span>   <span class="stri">'\''</span>
 </pre><p>
   To represent control characters and certain other characters in
-  character literals the same escape sequences as for string
-  literals may be used.
+  character literals the same escape sequences as for <a class="link" href="#tokens_String_literals">string
+  literals</a> may be used.
 </p><dl><dt>
   Syntax:
 </dt><dd><tt><dl>
@@ -7990,7 +8039,7 @@ NUMBER  integer  const  if  UPPER_LIMIT  LowerLimit  x5  _end
       <a class="ebnf" href="#tokens_ebnf_apostrophe">apostrophe</a> <a class="ebnf" href="#tokens_ebnf_char_literal_element">char_literal_element</a> <a class="ebnf" href="#tokens_ebnf_apostrophe">apostrophe</a> .</dd>
 <dt><br /></dt>
     <dt><a name="tokens_ebnf_char_literal_element">char_literal_element</a> ::=</dt><dd>
-      <a class="ebnf" href="#tokens_ebnf_printable_character">printable_character</a> | <a class="ebnf" href="#tokens_ebnf_escape_sequence">escape_sequence</a> | <a class="ebnf" href="#tokens_ebnf_apostrophe">apostrophe</a> | '"' .</dd>
+      <a class="ebnf" href="#tokens_ebnf_simple_literal_character">simple_literal_character</a> | <a class="ebnf" href="#tokens_ebnf_escape_sequence">escape_sequence</a> | <a class="ebnf" href="#tokens_ebnf_apostrophe">apostrophe</a> | '"' .</dd>
 </dl></tt></dd></dl><p></p>
 
 <a name="expr_file_start"></a><p></p>

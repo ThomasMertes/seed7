@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  forloop.s7i   For-loop and templates to define for-loop         *)
-(*  Copyright (C) 1989 - 2011  Thomas Mertes                        *)
+(*  Copyright (C) 1989 - 2013  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -27,29 +27,29 @@
 
 
 (**
- *  [[integer|Integer]] for-loop, looping from ''startValue'' upward to ''endValue''.
- *  The variable ''aVar'' is initialized with ''startValue''. The
+ *  [[integer|Integer]] for-loop, looping from ''lowerLimit'' upward to ''upperLimit''.
+ *  The variable ''aVar'' is initialized with ''lowerLimit''. The
  *  ''statements'' are executed repeatedly. After each repetition the
  *  variable ''aVar'' is incremented. After the ''statements'' were
- *  executed with ''endValue'' the for-loop is terminated. When
- *  ''startValue'' is greater than ''endValue'' the ''statements'' are
+ *  executed with ''upperLimit'' the for-loop is terminated. When
+ *  ''lowerLimit'' is greater than ''upperLimit'' the ''statements'' are
  *  not executed at all.
  *)
-const proc: for (inout integer: aVar) range (in integer: startValue) to (in integer: endValue) do
+const proc: for (inout integer: aVar) range (in integer: lowerLimit) to (in integer: upperLimit) do
               (in proc: statements)
             end for is                                                      action "PRC_FOR_TO";
 
 
 (**
- *  [[integer|Integer]] for-loop, looping from ''startValue'' downward to ''endValue''.
- *  The variable ''aVar'' is initialized with ''startValue''. The
+ *  [[integer|Integer]] for-loop, looping from ''upperLimit'' downward to ''lowerLimit''.
+ *  The variable ''aVar'' is initialized with ''upperLimit''. The
  *  ''statements'' are executed repeatedly. After each repetition the
  *  variable ''aVar'' is decremented. After the ''statements'' were
- *  executed with ''endValue'' the for-loop is terminated. When
- *  ''startValue'' is less than ''endValue'' the ''statements'' are
+ *  executed with ''lowerLimit'' the for-loop is terminated. When
+ *  ''upperLimit'' is less than ''lowerLimit'' the ''statements'' are
  *  not executed at all.
  *)
-const proc: for (inout integer: aVar) range (in integer: startValue) downto (in integer: endValue) do
+const proc: for (inout integer: aVar) range (in integer: upperLimit) downto (in integer: lowerLimit) do
               (in proc: statements)
             end for is                                                      action "PRC_FOR_DOWNTO";
 
@@ -65,12 +65,12 @@ const proc: FOR_STEP_DECLS (in type: aType) is func
   begin
     if getobj((inout aType param) +:= (in integer param)) <> NIL then
 
-      const proc: for (inout aType: variable) range (in aType: lower_limit) to (in aType: upper_limit)
+      const proc: for (inout aType: variable) range (in aType: lowerLimit) to (in aType: upperLimit)
           step (in integer: incr_step) do
           (in proc: statements) end for is func
         begin
-          variable := lower_limit;
-          while variable <= upper_limit do
+          variable := lowerLimit;
+          while variable <= upperLimit do
             statements;
             variable +:= incr_step;
           end while;
@@ -79,12 +79,12 @@ const proc: FOR_STEP_DECLS (in type: aType) is func
     end if;
     if getobj((inout aType param) -:= (in integer param)) <> NIL then
 
-      const proc: for (inout aType: variable) range (in aType: upper_limit) downto (in aType: lower_limit)
+      const proc: for (inout aType: variable) range (in aType: upperLimit) downto (in aType: lowerLimit)
           step (in integer: decr_step) do
           (in proc: statements) end for is func
         begin
-          variable := upper_limit;
-          while variable >= lower_limit do
+          variable := upperLimit;
+          while variable >= lowerLimit do
             statements;
             variable -:= decr_step;
           end while;
@@ -104,26 +104,26 @@ const proc: FOR_STEP_DECLS (in type: aType) is func
 const proc: FOR_DECLS (in type: aType) is func
   begin
 
-    const proc: for (inout aType: variable) range (in aType: lower_limit) to (in aType: upper_limit) do
+    const proc: for (inout aType: variable) range (in aType: lowerLimit) to (in aType: upperLimit) do
         (in proc: statements) end for is func
       begin
-        variable := lower_limit;
-        if variable <= upper_limit then
+        variable := lowerLimit;
+        if variable <= upperLimit then
           statements;
-          while variable < upper_limit do
+          while variable < upperLimit do
             incr(variable);
             statements;
           end while;
         end if;
       end func;
 
-    const proc: for (inout aType: variable) range (in aType: upper_limit) downto (in aType: lower_limit) do
+    const proc: for (inout aType: variable) range (in aType: upperLimit) downto (in aType: lowerLimit) do
         (in proc: statements) end for is func
       begin
-        variable := upper_limit;
-        if variable >= lower_limit then
+        variable := upperLimit;
+        if variable >= lowerLimit then
           statements;
-          while variable > lower_limit do
+          while variable > lowerLimit do
             decr(variable);
             statements;
           end while;

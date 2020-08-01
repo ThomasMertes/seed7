@@ -191,7 +191,7 @@ filetype *childStdout;
       pid = fork();
       if (pid == 0) {
         os_stritype *argv;
-        memsizetype arraySize = (uinttype) (parameters->max_position - parameters->min_position + 1);
+        memsizetype arraySize = arraySize(parameters);
         memsizetype pos;
         argv = (os_stritype *) malloc(sizeof(os_stritype) * (arraySize + 2));
         argv[0] = os_command_stri;
@@ -304,7 +304,7 @@ filetype *childStdout;
           pid = fork();
           if (pid == 0) {
             os_stritype *argv;
-            memsizetype arraySize = (uinttype) (parameters->max_position - parameters->min_position + 1);
+            memsizetype arraySize = arraySize(parameters);
             memsizetype pos;
             argv = (os_stritype *) malloc(sizeof(os_stritype) * (arraySize + 2));
             argv[0] = os_command_stri;
@@ -369,7 +369,7 @@ rtlArraytype parameters;
       pid = fork();
       if (pid == 0) {
         os_stritype *argv;
-        memsizetype arraySize = (uinttype) (parameters->max_position - parameters->min_position + 1);
+        memsizetype arraySize = arraySize(parameters);
         memsizetype pos;
         argv = (os_stritype *) malloc(sizeof(os_stritype) * (arraySize + 2));
         argv[0] = os_command_stri;

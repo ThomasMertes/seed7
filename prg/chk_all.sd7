@@ -123,6 +123,8 @@ const string: chkbig_output is "\n\
   \Modulo division of bigInteger works correct.\n\
   \Modulo of bigInteger division works correct.\n\
   \Power of bigInteger works correct.\n\
+  \Factorial of bigInteger works correct.\n\
+  \Binomial coefficient of bigInteger works correct.\n\
   \The bigInteger compare works correct.\n\
   \The bigInteger log2 function works correct.\n\
   \The bigInteger bitLength function works correct.\n\

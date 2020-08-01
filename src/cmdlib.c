@@ -173,7 +173,7 @@ rtlArraytype anRtlArray;
       /* Assume that an exception was already raised */
       result = NULL;
     } else {
-      arraySize = (uinttype) (anRtlArray->max_position - anRtlArray->min_position + 1);
+      arraySize = arraySize(anRtlArray);
       if (!ALLOC_ARRAY(anArray, arraySize)) {
         for (pos = 0; pos < arraySize; pos++) {
           strDestr(anRtlArray->arr[pos].value.strivalue);
@@ -582,8 +582,7 @@ listtype arguments;
       if (result == NULL) {
         return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
       } else {
-        qsort((void *) result->arr,
-            (size_t) (result->max_position - result->min_position + 1),
+        qsort((void *) result->arr, (size_t) arraySize(result),
             sizeof(objectrecord), &cmp_mem);
         return bld_array_temp(result);
       } /* if */

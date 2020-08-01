@@ -111,16 +111,31 @@ typedef UINT64TYPE         uint64type;
 #if   defined INT64TYPE_SUFFIX_LL
 #define INT64_SUFFIX(num) num ## LL
 #define INT64TYPE_LITERAL_SUFFIX "LL"
+#ifdef TWOS_COMPLEMENT_INTTYPE
+#define INT64TYPE_MIN   ((int64type) -9223372036854775808LL)
+#else
+#define INT64TYPE_MIN               (-9223372036854775807LL)
+#endif
 #define INT64TYPE_MAX                 9223372036854775807LL
 #define UINT64TYPE_MAX ((uint64type) 18446744073709551615LL)
 #elif defined INT64TYPE_SUFFIX_L
 #define INT64_SUFFIX(num) num ## L
 #define INT64TYPE_LITERAL_SUFFIX "L"
+#ifdef TWOS_COMPLEMENT_INTTYPE
+#define INT64TYPE_MIN   ((int64type) -9223372036854775808L)
+#else
+#define INT64TYPE_MIN               (-9223372036854775807L)
+#endif
 #define INT64TYPE_MAX                 9223372036854775807L
 #define UINT64TYPE_MAX ((uint64type) 18446744073709551615L)
 #else
 #define INT64_SUFFIX(num) num
 #define INT64TYPE_LITERAL_SUFFIX ""
+#ifdef TWOS_COMPLEMENT_INTTYPE
+#define INT64TYPE_MIN   ((int64type) -9223372036854775808)
+#else
+#define INT64TYPE_MIN               (-9223372036854775807)
+#endif
 #define INT64TYPE_MAX                 9223372036854775807
 #define UINT64TYPE_MAX ((uint64type) 18446744073709551615)
 #endif
@@ -148,6 +163,7 @@ typedef uint32type              uinttype;
 #define INT_SUFFIX(num)         num
 #endif
 #define INTTYPE_LITERAL_SUFFIX  INT32TYPE_LITERAL_SUFFIX
+#define INTTYPE_MIN             INT32TYPE_MIN
 #define INTTYPE_MAX             INT32TYPE_MAX
 #define UINTTYPE_MAX            UINT32TYPE_MAX
 #define INTTYPE_FORMAT          INT32TYPE_FORMAT
@@ -162,6 +178,7 @@ typedef uint64type              uinttype;
 #define INT_SUFFIX(num)         num
 #endif
 #define INTTYPE_LITERAL_SUFFIX  INT64TYPE_LITERAL_SUFFIX
+#define INTTYPE_MIN             INT64TYPE_MIN
 #define INTTYPE_MAX             INT64TYPE_MAX
 #define UINTTYPE_MAX            UINT64TYPE_MAX
 #define INTTYPE_FORMAT          INT64TYPE_FORMAT
@@ -193,10 +210,12 @@ typedef uint32type         strelemtype;
 #if POINTER_SIZE == 32
 typedef uint32type         memsizetype;
 #define MAX_MEMSIZETYPE    0xFFFFFFFF
+#define MIN_MEM_INDEX      INT32TYPE_MIN
 #define MAX_MEM_INDEX      INT32TYPE_MAX
 #elif POINTER_SIZE == 64
 typedef uint64type         memsizetype;
 #define MAX_MEMSIZETYPE    0xFFFFFFFFFFFFFFFF
+#define MIN_MEM_INDEX      INTTYPE_MIN
 #define MAX_MEM_INDEX      INTTYPE_MAX
 #endif
 
@@ -256,6 +275,18 @@ typedef int errinfotype;
 #ifndef unlikely
 #define unlikely(x) (x)
 #endif
+
+
+/* The macros below compute the array size as uinttype       */
+/* value. The computation avoids a signed integer overflow.  */
+/* The computation fails when max_position is the maximum    */
+/* positive value of inttype and min_position is the maximum */
+/* negative value of inttype. All calls of the macros must   */
+/* assure that they are never called with this values. Since */
+/* the calls either use data from an existing array or use   */
+/* 1 as min_position this condition is fulfilled.            */
+#define arraySize(arr) ((uinttype) (arr)->max_position - (uinttype) (arr)->min_position + 1)
+#define arraySize2(min_position,max_position) ((uinttype) (max_position) - (uinttype) (min_position) + 1)
 
 
 typedef struct setstruct      *settype;

@@ -101,6 +101,12 @@ const func type: array [ (in type: indexType) ] (in type: baseType) is func
       const func arrayType: [ (attr indexType) ] (in baseType: base_elem) is
         return arrayType conv ([ord(indexType.value)] base_elem);
 
+      const func arrayType: [ (in indexType: startIndex) ] (in tupleType: arr_tuple) is
+        return arrayType conv ([ord(startIndex)] arr_tuple);
+
+      const func arrayType: [ (in indexType: startIndex) ] (in baseType: base_elem) is
+        return arrayType conv ([ord(startIndex)] base_elem);
+
       (**
        *  Access one element from the array ''an_array''.
        *  @return the element with the specified ''index'' from ''an_array''.
@@ -136,6 +142,14 @@ const func type: array [ (in type: indexType) ] (in type: baseType) is func
        *)
       const func arrayType: (in arrayType: an_array) [ (in indexType: start) .. (in indexType: stop) ] is
         return arrayType conv (stdArrayType conv an_array[ord(start) .. ord(stop)]);
+
+      (**
+       *  Get a sub array from the position ''start'' with maximum length ''len''.
+       *  @return the substring from position start with maximum length len.
+       *  @exception MEMORY_ERROR Not enough memory to represent the result.
+       *)
+      const func arrayType: (in arrayType: an_array) [ (in indexType: start) len (in indexType: stop) ] is
+        return arrayType conv (stdArrayType conv an_array[ord(start) len ord(stop)]);
 
       (**
        *  Minimal index of array ''arr''.

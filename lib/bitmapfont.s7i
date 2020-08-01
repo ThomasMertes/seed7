@@ -37,8 +37,8 @@ const type: fontPicType is hash [char] array string;
 (**
  *  [[font|Font]] implementation type for bitmap fonts.
  *  The following bitmap fonts are available:
- *  stdfont10.s7i, stdfont12.s7i, stdfont14.s7i, stdfont16.s7i,
- *  stdfont18.s7i, stdfont20.s7i, stdfont24.s7i
+ *  stdfont9.s7i, stdfont10.s7i, stdfont12.s7i, stdfont14.s7i,
+ *  stdfont16.s7i, stdfont18.s7i, stdfont20.s7i, stdfont24.s7i
  *)
 const type: bitmapFont is sub fontProperties struct
     var fontPicType: fontPictures is fontPicType.value;
@@ -65,6 +65,7 @@ const func integer: width (in bitmapFont: bmpFont, in string: stri) is func
         width +:= length(bmpFont.fontPictures[' '][1]);
       end if;
     end for;
+    width +:= characterSpacing(bmpFont) * length(stri);
   end func;
 
 
@@ -92,6 +93,7 @@ const func integer: numOfCharsInWidth (in bitmapFont: bmpFont,
       else
         totalWidth +:= length(bmpFont.fontPictures[' '][1]);
       end if;
+      totalWidth +:= characterSpacing(bmpFont);
       if totalWidth <= allowedWidth then
         incr(index);
       end if;

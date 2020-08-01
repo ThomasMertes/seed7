@@ -8836,6 +8836,72 @@ const proc: chkPower is func
   end func;
 
 
+const proc: chkFactorial is func
+  local
+    var boolean: okay is TRUE;
+    var bigInteger: number is 0_;
+    var bigInteger: fact is 0_;
+  begin
+    okay := TRUE;
+    if !0 <> 1 then
+      okay := FALSE;
+    else
+      fact := 1_;
+      for number range 1_ to 100_ do
+        fact *:= number;
+        if !number <> fact then
+          write(" ***** !");
+          write(number);
+          writeln(" is not correct computed.");
+          okay := FALSE;
+        end if;
+      end for;
+    end if;
+    if okay then
+      writeln("Factorial of bigInteger works correct.");
+    end if;
+  end func;
+
+
+const proc: chkBinom is func
+  local
+    var boolean: okay is TRUE;
+    var bigInteger: n is 0_;
+    var bigInteger: k is 0_;
+  begin
+    okay := TRUE;
+    for n range 0_ to 100_ do
+      for k range 0_ to n do
+        if n ! k <> !n div (!(n - k) * !k) then
+          write(" ***** ");
+          write(n);
+          write(" ! ");
+          write(k);
+          writeln(" is not correct computed.");
+          okay := FALSE;
+        end if;
+      end for;
+      for k range succ(n) to 100_ do
+        if n ! k <> 0_ then
+          write(" ***** ");
+          write(n);
+          write(" ! ");
+          write(k);
+          writeln(" is not correct computed.");
+          okay := FALSE;
+        end if;
+      end for;
+    end for;
+
+    if okay then
+      writeln("Binomial coefficient of bigInteger works correct.");
+    else
+      writeln(" ***** Binomial coefficient of bigInteger does not work correct.");
+      writeln;
+    end if;
+  end func;
+
+
 const proc: chkCompare is func
   local
     var boolean: okay is TRUE;
@@ -11836,6 +11902,8 @@ const proc: main is func
     chkModDivision;
     chkModulo;
     chkPower;
+    chkFactorial;
+    chkBinom;
     chkCompare;
     chkLog2;
     chkBitLength;

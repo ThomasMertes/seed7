@@ -426,4 +426,28 @@ const func string: literal (in float: number)                  is action "FLT_ST
 const func float: rand (in float: low, in float: high)         is action "FLT_RAND";
 
 
+const func float: min (in float: value1, in float: value2) is func
+  result
+    var float: minimum is 0.0;
+  begin
+    if value1 < value2 then
+      minimum := value1;
+    else
+      minimum := value2;
+    end if;
+  end func;
+
+
+const func float: max (in float: value1, in float: value2) is func
+  result
+    var float: maximum is 0.0;
+  begin
+    if value1 < value2 then
+      maximum := value1;
+    else
+      maximum := value2;
+    end if;
+  end func;
+
+
 enable_io(float);

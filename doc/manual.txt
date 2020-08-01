@@ -122,8 +122,10 @@ CONTENTS
   10.2.3    Parentheses
   10.3    Literals
   10.3.1    Integer literals
-  10.3.2    String literals
-  10.3.3    Character literals
+  10.3.2    BigInteger literals
+  10.3.3    Float literals
+  10.3.4    String literals
+  10.3.5    Character literals
   11.   EXPRESSIONS
   11.1    Parentheses
   11.2    Call expressions
@@ -214,7 +216,7 @@ CONTENTS
 
     Seed7 is a general-purpose programming language. It is a
   higher level language compared to Ada, C++ and Java. In Seed7
-  new statements and operators can be declared easily. Functions
+  new statements and operators can be defined easily. Functions
   with type results and type parameters are more elegant than
   the usual template or generics concept. Object orientation is
   used when it brings advantages and not in places when other
@@ -259,18 +261,16 @@ CONTENTS
 
     v1: = v2 cross v3;   write(v1 * v2);
 
-  Programs searching some data can become more understandable
-  by using a search statement instead of a search procedure. A
-  call of a new declared search statement could be:
+  Programs which search for some data in a database can become
+  more understandable by using a for statement to loop over the
+  tables. A usage of such a for statement could be:
 
-    search person1.age = person2.age and
-       person1.mother = person2.mother and
-       person1 <> person2
-    when found
-       write("Twins: " <& person1.name <& " and " <& person2.name);
-    else
-       write("No twins found.");
-    end search;
+    for person1, person2
+    where person1.age = person2.age and
+         person1.mother = person2.mother and
+         person1 <> person2 do
+       writeln("Twins: " <& person1.name <& " and " <& person2.name);
+    end for;
 
   Such extensions make understanding, changing and debugging of
   a program easier.
@@ -286,7 +286,7 @@ CONTENTS
       generics can be defined easily without special syntax.
 
     - Predefined constructs like arrays or for-loops are
-      declared in the language itself.
+      defined in the language itself.
 
     - Object orientation is based on interfaces, supports
       multiple dispatch and allows to connect methods to objects.
@@ -311,7 +311,7 @@ CONTENTS
       also omitted.
 
     - There is no return statement. Instead a result variable
-      can be declared to which the result of a function can
+      can be defined to which the result of a function can
       be assigned.
 
     - There are no automatic type conversions.
@@ -326,7 +326,7 @@ CONTENTS
       one without an additional parameter.
 
     - There is no special "parameter" called "self" or "this".
-      In a procedure the receiving object is declared as
+      In a procedure the receiving object is defined as
       formal parameter with a user-defined name.
 
     - There is no macro feature since this mechanism is too
@@ -347,14 +347,14 @@ CONTENTS
 
   There are several concepts which are also used by other languages:
 
-    - Comments start with (* and end with *) and may be nested.
+    - Block comments start with (* and end with *) and may be nested.
 
-    - Comments start with # and are terminated with the end of the line.
+    - Line comments start with # and are terminated with the end of the line.
 
   There are several concepts which are new
 
     - Variables and constants must be initialized when they are
-      declared.
+      defined.
 
     - Every expression has exactly one type.
       That means that overloaded functions are resolved with
@@ -1270,13 +1270,13 @@ CONTENTS
     const proc: FOR_DECLS (in type: aType) is func
       begin
         const proc: for (inout aType: variable) range
-            (in aType: lower_limit) to (in aType: upper_limit) do
+            (in aType: lowerLimit) to (in aType: upperLimit) do
             (in proc: statements) end for is func
           begin
-            variable := lower_limit;
-            if variable <= upper_limit then
+            variable := lowerLimit;
+            if variable <= upperLimit then
               statements;
-              while variable < upper_limit do
+              while variable < upperLimit do
                 incr(variable);
                 statements;
               end while;
@@ -1284,13 +1284,13 @@ CONTENTS
           end func;
 
         const proc: for (inout aType: variable) range
-            (in aType: upper_limit) downto (in aType: lower_limit) do
+            (in aType: upperLimit) downto (in aType: lowerLimit) do
             (in proc: statements) end for is func
           begin
-            variable := upper_limit;
-            if variable >= lower_limit then
+            variable := upperLimit;
+            if variable >= lowerLimit then
               statements;
-              while variable > lower_limit do
+              while variable > lowerLimit do
                 decr(variable);
                 statements;
               end while;
@@ -1353,12 +1353,12 @@ CONTENTS
       begin
         if getobj((inout aType param) +:= (in integer param)) <> NIL then
 
-          const proc: for (inout aType: variable) range (in aType: lower_limit) to (in aType: upper_limit)
+          const proc: for (inout aType: variable) range (in aType: lowerLimit) to (in aType: upperLimit)
               step (in integer: incr_step) do
               (in proc: statements) end for is func
             begin
-              variable := lower_limit;
-              while variable <= upper_limit do
+              variable := lowerLimit;
+              while variable <= upperLimit do
                 statements;
                 variable +:= incr_step;
               end while;
@@ -1367,12 +1367,12 @@ CONTENTS
         end if;
         if getobj((inout aType param) -:= (in integer param)) <> NIL then
 
-          const proc: for (inout aType: variable) range (in aType: upper_limit) downto (in aType: lower_limit)
+          const proc: for (inout aType: variable) range (in aType: upperLimit) downto (in aType: lowerLimit)
               step (in integer: decr_step) do
               (in proc: statements) end for is func
             begin
-              variable := upper_limit;
-              while variable >= lower_limit do
+              variable := upperLimit;
+              while variable >= lowerLimit do
                 statements;
                 variable -:= decr_step;
               end while;
@@ -1573,6 +1573,9 @@ CONTENTS
           statement ]
       'end' 'case' .
 
+    set_expression ::=
+      expression .
+
 
   Declaration:
 
@@ -1750,7 +1753,7 @@ CONTENTS
 5.2 integer
 
     The type 'integer' consists of signed integer numbers
-  which are at least 32 bits wide. An 'integer' literal is
+  which are at least 32 bits wide. An integer literal is
   a sequence of digits which is taken to be decimal. The
   sequence of digits may be followed by the letter E or e
   an optional + sign and a decimal exponent. Based numbers
@@ -2003,9 +2006,9 @@ CONTENTS
 5.3 bigInteger
 
     The type 'bigInteger' describes signed integer numbers of
-  unlimited size. The literals of the type 'bigInteger' are sequences
-  of digits followed by an underscore character (for example 1_ ).
-  Based numbers can be specified when the sequence of digits is
+  unlimited size. A bigInteger literal is a sequence of digits
+  followed by an underscore character (for example 1_ ). Based
+  numbers can be specified when the sequence of digits is
   followed by the # character and a sequence of extended digits.
   The decimal number in front of the # character specifies the
   base of the number which follows the # character. As base a
@@ -2410,7 +2413,7 @@ CONTENTS
 5.6 float
 
     The type 'float' consists of single precision floating point
-  numbers. Float literals are base 10 and contain a decimal point.
+  numbers. Float literals use base 10 and contain a decimal point.
   There must be at least one digit before and after the decimal point.
   An exponent part, which is introduced with E or e, is optional.
   The exponent can be signed, but the mantissa is not. A literal does
@@ -3156,9 +3159,13 @@ CONTENTS
       EMPTY_SET  Empty set of the type bitset
     Infix operators:
       |         Union
+                  ( {1, 3} | {2, 3} => {1, 2, 3} )
       &         Intersection
+                  ( {1, 3} & {2, 3} => {3} )
       -         Difference
+                  ( {1, 3} - {2, 3} => {1} )
       ><        Symmetric Difference
+                  ( {1, 3} >< {2, 3} => {1, 2} )
       in        Element
                   ( Left argument: baseType,
                     Type of result: boolean )
@@ -5594,13 +5601,20 @@ CONTENTS
   this behavior, care has to be taken when mixing scanner and
   file functions.
 
-  The next declarations allows various I/O operations for strings:
+  The type 'null_file' provides default functions to write end-of-line:
 
-    const proc: writeln (inout file: aFile, in string: stri) is func
+    const proc: writeln (inout null_file: outFile) is func
       begin
-        write(aFile, stri);
-        writeln(aFile);
+        write(outFile, "\n");
       end func;
+
+    const proc: writeln (inout null_file: outFile, in string: stri) is func
+      begin
+        write(outFile, stri);
+        writeln(outFile);
+      end func;
+
+  The next declarations allow various I/O operations for strings:
 
     const proc: read (inout file: aFile, inout string: stri) is func
       begin
@@ -5665,12 +5679,7 @@ CONTENTS
         end block;
       end func;
 
-  The next two declarations define 'writeln' and 'backSpace':
-
-    const proc: writeln (ref external_file: aFile) is func
-      begin
-        write(aFile, "\n");
-      end func;
+  The next declaration defines 'backSpace':
 
     const proc: backSpace (ref external_file: aFile) is func
       begin
@@ -5708,8 +5717,7 @@ CONTENTS
 
     const proc: writeln (in aType: aValue) is func
       begin
-        write(OUT, aValue);
-        writeln(OUT);
+        writeln(OUT, aValue);
       end func;
 
   Additional procedures defined outside of 'enable_io' are:
@@ -5723,17 +5731,7 @@ CONTENTS
         IN.io_ok := TRUE;
       end func;
 
-    const proc: read (NL) is func
-      begin
-        readln;
-      end func;
-
     const proc: writeln is func
-      begin
-        writeln(OUT);
-      end func;
-
-    const proc: write (NL) is func
       begin
         writeln(OUT);
       end func;
@@ -6769,11 +6767,12 @@ CONTENTS
   optional parts without the use of recursion. EBNF has the
   following elements:
 
-    - Nonterminal symbols consist of lower case letters and
-      underline characters.
+    - Nonterminal symbols are described with identifiers. An
+      identifier consist of lower case letters and underline
+      characters.
 
     - Terminal symbols are quoted strings or names in upper case
-      characters which describe unprintable characters (control
+      characters, which describe unprintable characters (control
       characters).
 
     - The concatenation of nonterminal and/or terminal symbols is
@@ -6794,20 +6793,21 @@ CONTENTS
   extended Backus-Naur form:
 
     syntax_description ::=
-      { statement } .
+      { ebnf_statement } .
 
-    statement ::=
-      identifier '::=' expression '.' .
+    ebnf_statement ::=
+      identifier '::=' ebnf_expression '.' .
 
-    expression ::=
+    ebnf_expression ::=
       term { '|' term } .
 
     term ::=
       factor { factor } .
 
     factor ::=
-      identifier | string | '(' expression ')' |
-      '[' expression ']' | '{' expression '}' .
+      identifier | string | control_character_description |
+      '(' ebnf_expression ')' | '[' ebnf_expression ']' |
+      '{' ebnf_expression '}' .
 
 
 9.2 The syntax of a statement
@@ -7537,10 +7537,10 @@ CONTENTS
   exist, as it is the case in Seed7.
 
   There are some things which are out of the scope of S7SSD.
-  The syntax of tokens (whitespace, comments, identifiers and
-  literals) and expressions (parentheses, function calls and dot
-  expressions) is hard coded. The hard coded constructs are described
-  in chapter 10 (Tokens) and chapter 11 (Expressions).
+  The syntax of comments, tokens (identifiers and literals) and
+  expressions (parentheses, function calls and dot expressions)
+  is hard coded. The hard coded constructs are described in
+  chapter 10 (Tokens) and chapter 11 (Expressions).
 
   For the reasons mentioned above it is not possible to transform
   every EBNF syntax description into S7SSD. Transforming S7SSD
@@ -7579,8 +7579,9 @@ CONTENTS
     comments
     line comments
 
-  White space always terminates a preceding token. Some white
-  space is required to separate otherwise adjacent tokens.
+  White space always terminates a preceding identifier, integer,
+  bigInteger or float literal. Some white space is required to
+  separate otherwise adjacent tokens.
 
   Syntax:
 
@@ -7617,6 +7618,17 @@ CONTENTS
 
     comment ::=
       '(*' { any_character } '*)' .
+
+    any_character ::=
+      simple_literal_character | apostrophe | '"' | '\' |
+      control_character  .
+
+    control_character ::=
+      NUL | SOH | STX | ETX | EOT | ENQ | ACK | BEL |
+      BS  | TAB | LF  | VT  | FF  | CR  | SO  | SI  |
+      DLE | DC1 | DC2 | DC3 | DC4 | NAK | SYN | ETB |
+      CAN | EM  | SUB | ESC | FS  | GS  | RS  | US  |
+      DEL .
 
 
 10.1.3 Line comments
@@ -7738,16 +7750,19 @@ CONTENTS
 
 10.3 Literals
 
-    There are three types of literals
+    There are several types of literals
 
     integer literals
+    biginteger literals
+    float literals
     character literals
     string literals
 
   Syntax:
 
     literal ::=
-      integer_literal | character_literal | string_literal .
+      integer_literal | biginteger_literal | float_literal |
+      character_literal | string_literal .
 
 
 10.3.1 Integer literals
@@ -7781,7 +7796,41 @@ CONTENTS
       letter | digit .
 
 
-10.3.2 String literals
+10.3.2 BigInteger literals
+
+    A bigInteger literal is a sequence of digits followed by the
+  underline character. The sequence of digits is taken to be
+  decimal. Based numbers can be specified when a sequence of
+  digits is followed by the # character, a sequence of extended
+  digits and the underline character. The decimal number in front
+  of the # character specifies the base of the number which follows
+  the # character. As base a number between 2 and 36 is allowed.
+  As extended digits the letters A or a can be used for 10, B or b
+  can be used for 11 and so on to Z or z which can be used as 35.
+
+  Syntax:
+
+    biginteger_literal ::=
+      decimal_integer [ based_integer ] '_' .
+
+
+10.3.3 Float literals
+
+    A float literal consists of two decimal integer literals
+  seperated by a decimal point. The basic float literal may be
+  followed by the letter E or e an optional + or - sign and a
+  decimal exponent.
+
+  Syntax:
+
+    float_literal ::=
+      decimal_integer '.' decimal_integer [ float_exponent ] .
+
+    float_exponent ::=
+      ( 'E' | 'e' ) [ '+' | '-' ] decimal_integer .
+
+
+10.3.4 String literals
 
     A string literal is a sequence of UTF-8 encoded Unicode
   characters surrounded by double quotes. For example:
@@ -7831,11 +7880,11 @@ CONTENTS
       '"' { string_literal_element } '"' .
 
     string_literal_element ::=
-      printable_character | escape_sequence | apostrophe .
+      simple_literal_character | escape_sequence | apostrophe .
 
-    printable_character ::=
+    simple_literal_character ::=
       letter | digit | parenthesis | special_literal_character |
-      other_printable_character .
+      utf8_encoded_character .
 
     special_literal_character ::=
       ' ' | '!' | '#' | '$' | '%' | '&' | '*' | '+' | ',' | '-' |
@@ -7851,7 +7900,7 @@ CONTENTS
       ''' .
 
 
-10.3.3 Character literals
+10.3.5 Character literals
 
     A character literal is an UTF-8 encoded Unicode character
   enclosed in apostrophes. For example:
@@ -7868,7 +7917,7 @@ CONTENTS
       apostrophe char_literal_element apostrophe .
 
     char_literal_element ::=
-      printable_character | escape_sequence | apostrophe | '"' .
+      simple_literal_character | escape_sequence | apostrophe | '"' .
 
 
 

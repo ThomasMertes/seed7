@@ -1,3 +1,42 @@
+20130421:
+- The FAQ explanation concerning garbage collection has been
+  improved.
+- The manual chapters describing the introduction, EBNF, literals
+  (for integer, bigInteger, float, char and string), set operations
+  and file I/O have been improved.
+- Operations, to get an array slice with a specified length, have
+  been added to the libraries array.s7i and idxarray.s7i.
+- Array aggregates for arrays with a given start index have been
+  added to idxarray.s7i.
+- Functions for binomial coefficient and modular exponentiation have
+  been added to the library bigint.s7i.
+- A definition of an empty set with the name {} has been added to
+  bitset.s7i.
+- Functions to compute the minimum and maximum have been added to the
+  libraries integer.s7i and float.s7i.
+- Documentations comments in keybd.s7i have been improved.
+- In pixmap_file.s7i the logic of a writeln after a setPosXY has been
+  changed. Now the writeln moves one line downward relative to the
+  position given with setPosXY.
+- A pound symbol has been added to several bitmap fonts.
+- A standard bitmap font, with capital height of 9, has been defined
+  in the new library stdfont9.s7i.
+- Checks for the factorial function and the binomial coefficient have
+  been added to chkbig.sd7.
+- The comanche webserver has been improved to accept cookies.
+- The compiler has been improved to generate better code for the
+  allocation of array memory.
+- The function arrMalloc in arr_rtl.c has been improved to avoid an
+  overflow, when the size of the memory is computed.
+- The functions arrSubarr and arrSubarrTemp have been added to
+  arr_rtl.c.
+- Support for the action ARR_SUBARR has been added to the compiler.
+- The macros arraySize and arraySize2 have been defined in common.h
+  and used in arrlib.c, arr_rtl.c, arrutl.c, cmdlib.c, cmd_unx.c and
+  cmd_win.c.
+- Definitions of INT64TYPE_MIN, INTTYPE_MIN and MIN_MEM_INDEX have
+  been added to common.h.
+
 20130401:
 - The FAQ explanations concerning, 'in' parameters and different
   behavior of val and ref parameters, have been improved.

@@ -131,6 +131,10 @@ const func boolean: keypressed (in console_keybd_file: keybd)                  i
 (**
  *  Keyboard file describing the console keyboard.
  *  The console keyboard belongs to a text/console window.
+ *  Characters typed at the keyboard are queued (first in first out)
+ *  and can be read directly, without the need to press ENTER or
+ *  RETURN. There is also no possibility to correct a key, once it
+ *  is pressed. Additionally KEYBOARD does not echo the characters.
  *)
 var console_keybd_file: CONSOLE_KEYBOARD is console_keybd_file.value;
 
@@ -255,6 +259,10 @@ const func boolean: keypressed (in graph_keybd_file: keybd)                    i
 (**
  *  Keyboard file describing the graphic keyboard.
  *  The graphic keyboard belongs to a graphic window.
+ *  Characters typed at the keyboard are queued (first in first out)
+ *  and can be read directly, without the need to press ENTER or
+ *  RETURN. There is also no possibility to correct a key, once it
+ *  is pressed. Additionally KEYBOARD does not echo the characters.
  *)
 var graph_keybd_file: GRAPH_KEYBOARD is graph_keybd_file.value;
 
@@ -307,6 +315,10 @@ const func string: getln (inout graph_keybd_file: keybd) is func
 
 (**
  *  Variable describing the keyboard.
+ *  Characters typed at the keyboard are queued (first in first out)
+ *  and can be read directly, without the need to press ENTER or
+ *  RETURN. There is also no possibility to correct a key, once it
+ *  is pressed. Additionally KEYBOARD does not echo the characters.
  *  This variable is initialized with CONSOLE_KEYBOARD.
  *  When a program wants to work with the graphic keyboard,
  *  the following assignment is necessary:

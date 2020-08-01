@@ -49,6 +49,7 @@ objecttype arr_push     (listtype arguments);
 objecttype arr_range    (listtype arguments);
 objecttype arr_remove   (listtype arguments);
 objecttype arr_sort     (listtype arguments);
+objecttype arr_subarr   (listtype arguments);
 objecttype arr_tail     (listtype arguments);
 objecttype arr_times    (listtype arguments);
 
@@ -76,6 +77,7 @@ objecttype arr_push ();
 objecttype arr_range ();
 objecttype arr_remove ();
 objecttype arr_sort ();
+objecttype arr_subarr ();
 objecttype arr_tail ();
 objecttype arr_times ();
 

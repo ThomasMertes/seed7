@@ -121,6 +121,14 @@ const func type: array (in type: baseType) is func
                                                   (in integer: stop) ]        is action "ARR_RANGE";
 
       (**
+       *  Get a sub array from the position ''start'' with maximum length ''len''.
+       *  @return the substring from position start with maximum length len.
+       *  @exception MEMORY_ERROR Not enough memory to represent the result.
+       *)
+      const func arrayType: (in arrayType: arr) [ (in integer: start) len
+                                                  (in integer: length) ]      is action "ARR_SUBARR";
+
+      (**
        *  Remove the element with ''index'' from ''arr'' and return the removed element.
        *  @return the removed element.
        *  @exception RANGE_ERROR When ''index'' is less than [[#minIdx(in_arrayType)|minIdx]](arr) or
