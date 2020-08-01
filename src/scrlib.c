@@ -297,7 +297,7 @@ listtype arguments;
     scrText(current_line, current_column,
         stri->mem, stri->size);
 #endif
-    current_column = current_column + stri->size;
+    current_column += stri->size;
     scrSetCursor(current_line, current_column);
     return(SYS_EMPTY_OBJECT);
   } /* scr_write */

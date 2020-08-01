@@ -42,8 +42,18 @@
 #ifdef ANSI_C
 
 uinttype rand_32 (void);
-inttype most_significant_bit (uinttype number);
-inttype least_significant_bit (uinttype number);
+int uint8MostSignificantBit (uint8type number);
+int uint16MostSignificantBit (uint16type number);
+int uint32MostSignificantBit (uint32type number);
+#ifdef INT64TYPE
+int uint64MostSignificantBit (uint64type number);
+#endif
+int uint8LeastSignificantBit (uint8type number);
+int uint16LeastSignificantBit (uint16type number);
+int uint32LeastSignificantBit (uint32type number);
+#ifdef INT64TYPE
+int uint64LeastSignificantBit (uint64type number);
+#endif
 inttype intBinom (inttype n_number, inttype k_number);
 inttype intBitLength (inttype number);
 inttype intCmp (inttype number1, inttype number2);
@@ -63,8 +73,18 @@ stritype intStrHex (inttype number);
 #else
 
 uinttype rand_32 ();
-inttype most_significant_bit ();
-inttype least_significant_bit ();
+int uint8MostSignificantBit ();
+int uint16MostSignificantBit ();
+int uint32MostSignificantBit ();
+#ifdef INT64TYPE
+int uint64MostSignificantBit ();
+#endif
+int uint8LeastSignificantBit ();
+int uint16LeastSignificantBit ();
+int uint32LeastSignificantBit ();
+#ifdef INT64TYPE
+int uint64LeastSignificantBit ();
+#endif
 inttype intBinom ();
 inttype intBitLength ();
 inttype intCmp ();

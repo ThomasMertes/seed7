@@ -109,7 +109,7 @@ size_t number;
 #ifdef ANSI_C
 
 static arraytype add_stri_to_array (strelemtype *stri_elems, memsizetype length,
-    arraytype work_array, memsizetype *used_max_position)
+    arraytype work_array, inttype *used_max_position)
 #else
 
 static arraytype add_stri_to_array (stri_elems, length,
@@ -117,7 +117,7 @@ static arraytype add_stri_to_array (stri_elems, length,
 strelemtype *stri_elems;
 memsizetype length;
 arraytype work_array;
-memsizetype *used_max_position;
+inttype *used_max_position;
 #endif
 
   {
@@ -131,14 +131,18 @@ memsizetype *used_max_position;
       memcpy(new_stri->mem, stri_elems,
           (size_t) length * sizeof(strelemtype));
       if (*used_max_position >= work_array->max_position) {
-        resized_work_array = REALLOC_ARRAY(work_array,
-            work_array->max_position, work_array->max_position + 256);
+        if (work_array->max_position >= MAX_MEM_INDEX - 256) {
+          resized_work_array = NULL;
+        } else {
+          resized_work_array = REALLOC_ARRAY(work_array,
+              (uinttype) work_array->max_position, (uinttype) work_array->max_position + 256);
+        } /* if */
         if (resized_work_array == NULL) {
           FREE_STRI(new_stri, new_stri->size);
           new_stri = NULL;
         } else {
           work_array = resized_work_array;
-          COUNT3_ARRAY(work_array->max_position, work_array->max_position + 256);
+          COUNT3_ARRAY((uinttype) work_array->max_position, (uinttype) work_array->max_position + 256);
           work_array->max_position += 256;
         } /* if */
       } /* if */
@@ -150,11 +154,11 @@ memsizetype *used_max_position;
       INIT_CATEGORY_OF_VAR(&work_array->arr[*used_max_position], STRIOBJECT);
       (*used_max_position)++;
     } else {
-      for (position = 0; position < *used_max_position; position++) {
+      for (position = 0; position < (uinttype) *used_max_position; position++) {
         FREE_STRI(work_array->arr[position].value.strivalue,
             work_array->arr[position].value.strivalue->size);
       } /* for */
-      FREE_ARRAY(work_array, work_array->max_position);
+      FREE_ARRAY(work_array, (uinttype) work_array->max_position);
       work_array = NULL;
     } /* if */
     return(work_array);
@@ -173,7 +177,7 @@ chartype delimiter;
 #endif
 
   {
-    memsizetype used_max_position;
+    inttype used_max_position;
     strelemtype *search_start;
     strelemtype *search_end;
     strelemtype *found_pos;
@@ -202,17 +206,17 @@ chartype delimiter;
             &used_max_position);
         if (result_array != NULL) {
           resized_result_array = REALLOC_ARRAY(result_array,
-              result_array->max_position, used_max_position);
+              (uinttype) result_array->max_position, (uinttype) used_max_position);
           if (resized_result_array == NULL) {
-            for (pos = 0; pos < used_max_position; pos++) {
+            for (pos = 0; pos < (uinttype) used_max_position; pos++) {
               FREE_STRI(result_array->arr[pos].value.strivalue,
                   result_array->arr[pos].value.strivalue->size);
             } /* for */
-            FREE_ARRAY(result_array, result_array->max_position);
+            FREE_ARRAY(result_array, (uinttype) result_array->max_position);
             result_array = NULL;
           } else {
             result_array = resized_result_array;
-            COUNT3_ARRAY(result_array->max_position, used_max_position);
+            COUNT3_ARRAY((uinttype) result_array->max_position, (uinttype) used_max_position);
             result_array->max_position = used_max_position;
           } /* if */
         } /* if */
@@ -240,7 +244,7 @@ stritype delimiter;
     memsizetype delimiter_size;
     strelemtype *delimiter_mem;
     strelemtype ch_1;
-    memsizetype used_max_position;
+    inttype used_max_position;
     strelemtype *search_start;
     strelemtype *segment_start;
     strelemtype *search_end;
@@ -282,17 +286,17 @@ stritype delimiter;
             &used_max_position);
         if (result_array != NULL) {
           resized_result_array = REALLOC_ARRAY(result_array,
-              result_array->max_position, used_max_position);
+              (uinttype) result_array->max_position, (uinttype) used_max_position);
           if (resized_result_array == NULL) {
-            for (pos = 0; pos < used_max_position; pos++) {
+            for (pos = 0; pos < (uinttype) used_max_position; pos++) {
               FREE_STRI(result_array->arr[pos].value.strivalue,
                   result_array->arr[pos].value.strivalue->size);
             } /* for */
-            FREE_ARRAY(result_array, result_array->max_position);
+            FREE_ARRAY(result_array, (uinttype) result_array->max_position);
             result_array = NULL;
           } else {
             result_array = resized_result_array;
-            COUNT3_ARRAY(result_array->max_position, used_max_position);
+            COUNT3_ARRAY((uinttype) result_array->max_position, (uinttype) used_max_position);
             result_array->max_position = used_max_position;
           } /* if */
         } /* if */
@@ -677,7 +681,7 @@ listtype arguments;
 
   {
     stritype str1;
-    memsizetype position;
+    inttype position;
 
   /* str_elemcpy */
     isit_stri(arg_1(arguments));
@@ -685,8 +689,8 @@ listtype arguments;
     isit_char(arg_6(arguments));
     is_variable(arg_1(arguments));
     str1 = take_stri(arg_1(arguments));
-    position = (memsizetype) take_int(arg_4(arguments));
-    if (position >= 1 && position <= str1->size) {
+    position = take_int(arg_4(arguments));
+    if (position >= 1 && (uinttype) position <= str1->size) {
       str1->mem[position - 1] = (strelemtype) take_char(arg_6(arguments));
     } else {
       return(raise_exception(SYS_RNG_EXCEPTION));
@@ -838,7 +842,7 @@ listtype arguments;
     if (str1->size == 0) {
       result = 0;
     } else {
-      result = str1->mem[0] << 5 ^ str1->size << 3 ^ str1->mem[str1->size - 1];
+      result = (inttype) (str1->mem[0] << 5 ^ str1->size << 3 ^ str1->mem[str1->size - 1]);
     } /* if */
     return(bld_int_temp(result));
   } /* str_hashcode */
@@ -868,10 +872,10 @@ listtype arguments;
     stop = take_int(arg_4(arguments));
     length = stri->size;
     if (stop >= 1 && length >= 1) {
-      if (length <= (memsizetype) stop) {
+      if (length <= (uinttype) stop) {
         result_size = length;
       } else {
-        result_size = (memsizetype) stop;
+        result_size = (uinttype) stop;
       } /* if */
       if (TEMP_OBJECT(arg_1(arguments))) {
         SHRINK_STRI(result, stri, length, result_size);
@@ -911,14 +915,14 @@ listtype arguments;
 
   {
     stritype stri;
-    memsizetype position;
+    inttype position;
 
   /* str_idx */
     isit_stri(arg_1(arguments));
     isit_int(arg_3(arguments));
     stri = take_stri(arg_1(arguments));
-    position = (memsizetype) take_int(arg_3(arguments));
-    if (position >= 1 && position <= stri->size) {
+    position = take_int(arg_3(arguments));
+    if (position >= 1 && (uinttype) position <= stri->size) {
       return(bld_char_temp((chartype) stri->mem[position - 1]));
     } else {
       return(raise_exception(SYS_RNG_EXCEPTION));
@@ -1080,8 +1084,8 @@ listtype arguments;
     stri = take_stri(arg_1(arguments));
     pad_size = take_int(arg_3(arguments));
     length = stri->size;
-    if (pad_size > (inttype) length) {
-      f_size = (memsizetype) pad_size;
+    if (pad_size > 0 && (uinttype) pad_size > length) {
+      f_size = (uinttype) pad_size;
       if (!ALLOC_STRI(result, f_size)) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
@@ -1140,8 +1144,8 @@ listtype arguments;
     stri = take_stri(arg_1(arguments));
     pad_size = take_int(arg_3(arguments));
     length = stri->size;
-    if (pad_size > (inttype) length) {
-      f_size = (memsizetype) pad_size;
+    if (pad_size > 0 && (uinttype) pad_size > length) {
+      f_size = (uinttype) pad_size;
       if (!ALLOC_STRI(result, f_size)) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
@@ -1344,15 +1348,15 @@ listtype arguments;
     start = take_int(arg_3(arguments));
     stop = take_int(arg_5(arguments));
     length = stri->size;
-    if (stop >= 1 && stop >= start && start <= ((inttype) length) &&
+    if (start < 1) {
+      start = 1;
+    } /* if */
+    if (stop >= 1 && stop >= start && (uinttype) start <= length &&
         length >= 1) {
-      if (start < 1) {
-        start = 1;
-      } /* if */
-      if (stop > (inttype) length) {
+      if ((uinttype) stop > length) {
         stop = (inttype) length;
       } /* if */
-      result_size = (memsizetype) (stop - start + 1);
+      result_size = (uinttype) (stop - start + 1);
       if (!ALLOC_STRI(result, result_size)) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
@@ -1438,7 +1442,7 @@ listtype arguments;
     pad_size = take_int(arg_3(arguments));
     length = stri->size;
     if (pad_size > (inttype) length) {
-      f_size = (memsizetype) pad_size;
+      f_size = (uinttype) pad_size;
       if (!ALLOC_STRI(result, f_size)) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
@@ -1604,16 +1608,16 @@ listtype arguments;
     start = take_int(arg_3(arguments));
     len = take_int(arg_5(arguments));
     length = stri->size;
-    if (len >= 1 && start + len > 1 && start <= ((inttype) length) &&
+    if (len >= 1 && start > 1 - len && (start < 1 || (uinttype) start <= length) &&
         length >= 1) {
       if (start < 1) {
         len += start - 1;
         start = 1;
       } /* if */
-      if (start + len - 1 > (inttype) length) {
-        result_size = (memsizetype) (length - start + 1);
+      if ((uinttype) start + (uinttype) len - 1 > length) {
+        result_size = length - (uinttype) start + 1;
       } else {
-        result_size = (memsizetype) len;
+        result_size = (uinttype) len;
       } /* if */
       if (!ALLOC_STRI(result, result_size)) {
         return(raise_exception(SYS_MEM_EXCEPTION));
@@ -1654,11 +1658,11 @@ listtype arguments;
     stri = take_stri(arg_1(arguments));
     start = take_int(arg_3(arguments));
     length = stri->size;
-    if (start <= (inttype) length && length >= 1) {
-      if (start < 1) {
-        start = 1;
-      } /* if */
-      result_size = length - ((memsizetype) start) + 1;
+    if (start < 1) {
+      start = 1;
+    } /* if */
+    if ((uinttype) start <= length && length >= 1) {
+      result_size = length - (uinttype) start + 1;
       if (!ALLOC_STRI(result, result_size)) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */

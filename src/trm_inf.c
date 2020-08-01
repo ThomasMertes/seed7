@@ -112,7 +112,7 @@ int *term_char;
     } while (ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r');
     while (ch != ':' && ch != ',' &&
         ch != '=' && ch != '#' && ch != '|' && ch != EOF) {
-      *cap_name++ = ch;
+      *cap_name++ = (char) ch;
       ch = fgetc(fix_file);
     } /* while */
     *cap_name = '\0';
@@ -185,22 +185,26 @@ int *term_char;
           *to++ = ' ';
         } else if (from == '0') {
           *to++ = '\200';
+        } else if (from == EOF) {
+          *to++ = '\\';
         } else {
-          *to++ = from;
+          *to++ = (char) from;
         } /* if */
         from = fgetc(fix_file);
       } else if (from == '^') {
         from = fgetc(fix_file);
         if (from >= 'a' && from <= 'z') {
-          *to++ = from - 'a' + 1;
+          *to++ = (char) (from - 'a' + 1);
         } else if (from >= 'A' && from <= 'Z') {
-          *to++ = from - 'A' + 1;
+          *to++ = (char) (from - 'A' + 1);
+        } else if (from == EOF) {
+          *to++ = '^';
         } else {
-          *to++ = from;
+          *to++ = (char) from;
         } /* if */
         from = fgetc(fix_file);
       } else {
-        *to++ = from;
+        *to++ = (char) from;
         from = fgetc(fix_file);
       } /* if */
     } /* while */
@@ -264,7 +268,7 @@ static void fix_capability ()
     char cap_name[256];
     char *cap_value;
     int term_char;
-    int len;
+    size_t len;
 
   /* fix_capability */
 #ifdef TRACE_CAPS

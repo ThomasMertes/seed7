@@ -52,7 +52,8 @@ const string: chkint_output is "\n\
   \The integer >> and >>:= works correct.\n\
   \Integer str does work correct\n\
   \Integer parse does work correct\n\
-  \Integer lpad0 does work correct\n";
+  \Integer lpad0 does work correct\n\
+  \Integer bitLength does work correct\n";
 
 const string: chkstr_output is "\n\
   \String literals work correct.\n\

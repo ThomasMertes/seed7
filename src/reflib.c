@@ -346,6 +346,7 @@ listtype arguments;
   {
     uinttype ref1;
     uinttype ref2;
+    inttype result;
 
   /* ref_cmp */
     isit_reference(arg_1(arguments));
@@ -353,12 +354,13 @@ listtype arguments;
     ref1 = (uinttype) take_reference(arg_1(arguments));
     ref2 = (uinttype) take_reference(arg_2(arguments));
     if (ref1 < ref2) {
-      return(bld_int_temp(-1));
+      result = -1;
     } else if (ref1 > ref2) {
-      return(bld_int_temp(1));
+      result = 1;
     } else {
-      return(bld_int_temp(0));
+      result = 0;
     } /* if */
+    return(bld_int_temp(result));
   } /* ref_cmp */
 
 
@@ -1045,7 +1047,7 @@ listtype arguments;
     structtype stru1;
     objecttype selector;
     objecttype selector_syobject;
-    inttype position;
+    memsizetype position;
     objecttype struct_pointer;
     objecttype result;
 
@@ -1096,7 +1098,7 @@ printf("\n");
                 destr_struct(stru1->stru,
                     (memsizetype) (struct_pointer - stru1->stru));
                 destr_struct(&struct_pointer[1],
-                    (memsizetype) (stru1->size - (struct_pointer - stru1->stru) - 1));
+                    (stru1->size - (memsizetype) (struct_pointer - stru1->stru) - 1));
                 FREE_STRUCT(stru1, stru1->size);
                 arg_1(arguments)->value.structvalue = NULL;
               } /* if */

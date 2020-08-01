@@ -1263,11 +1263,15 @@ inttype x, y, width, height;
 #ifdef TRACE_X11
     printf("fellipse(%lu, %ld, %ld, %ld, %ld)\n", actual_window, x, y, width, height);
 #endif
-    XFillArc(mydisplay, to_window(actual_window), mygc,
-        x, y, width, height, 0, 23040);
-    if (to_backup(actual_window) != 0) {
-      XFillArc(mydisplay, to_backup(actual_window), mygc,
-          x, y, width, height, 0, 23040);
+    if (width < 1 || height < 1) {
+      raise_error(RANGE_ERROR);
+    } else {
+      XFillArc(mydisplay, to_window(actual_window), mygc,
+          x, y, (unsigned int) width, (unsigned int) height, 0, 23040);
+      if (to_backup(actual_window) != 0) {
+        XFillArc(mydisplay, to_backup(actual_window), mygc,
+            x, y, (unsigned int) width, (unsigned int) height, 0, 23040);
+      } /* if */
     } /* if */
   } /* drwFEllipse */
 
@@ -1289,12 +1293,16 @@ inttype col;
 #ifdef TRACE_X11
     printf("fellipse(%lu, %ld, %ld, %ld, %ld)\n", actual_window, x, y, width, height);
 #endif
-    XSetForeground(mydisplay, mygc, (unsigned) col);
-    XFillArc(mydisplay, to_window(actual_window), mygc,
-        x, y, width, height, 0, 23040);
-    if (to_backup(actual_window) != 0) {
-      XFillArc(mydisplay, to_backup(actual_window), mygc,
-          x, y, width, height, 0, 23040);
+    if (width < 1 || height < 1) {
+      raise_error(RANGE_ERROR);
+    } else {
+      XSetForeground(mydisplay, mygc, (unsigned) col);
+      XFillArc(mydisplay, to_window(actual_window), mygc,
+          x, y, (unsigned int) width, (unsigned int) height, 0, 23040);
+      if (to_backup(actual_window) != 0) {
+        XFillArc(mydisplay, to_backup(actual_window), mygc,
+            x, y, (unsigned int) width, (unsigned int) height, 0, 23040);
+      } /* if */
     } /* if */
   } /* drwPFEllipse */
 
@@ -1481,7 +1489,7 @@ inttype height;
     } else {
       image = XCreateImage(mydisplay, default_visual,
           DefaultDepth(mydisplay, myscreen), ZPixmap, 0, (char *) image_data,
-          width, height, 32, 0);
+          (unsigned int) width, (unsigned int) height, 32, 0);
       if (image == NULL) {
         result = NULL;
       } else {
@@ -1497,7 +1505,8 @@ inttype height;
           result->width = width;
           result->height = height;
           result->next = NULL;
-          XPutImage(mydisplay, result->window, mygc, image, 0, 0, 0, 0, width, height);
+          XPutImage(mydisplay, result->window, mygc, image, 0, 0, 0, 0,
+              (unsigned int) width, (unsigned int) height);
         } /* if */
         XFree(image);
       } /* if */
@@ -1823,7 +1832,7 @@ stritype window_name;
                 ButtonPressMask | KeyPressMask | ExposureMask);
 
             XMapRaised(mydisplay, result->window);
-            drwClear((wintype) result, myforeground);
+            drwClear((wintype) result, (inttype) myforeground);
           } /* if */
           free_cstri(win_name, window_name);
         } /* if */
@@ -1916,12 +1925,12 @@ inttype *xy;
 
 #ifdef ANSI_C
 
-bstritype drwGenPointList (inttype *xy, inttype length)
+bstritype drwGenPointList (inttype *xy, memsizetype length)
 #else
 
 bstritype drwGenPointList (xy, length)
 inttype *xy;
-inttype length;
+memsizetype length;
 #endif
 
   {

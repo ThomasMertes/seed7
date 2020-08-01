@@ -757,8 +757,8 @@ objecttype object;
       case SETOBJECT:
         if (object->value.setvalue != NULL) {
           FREE_SET(object->value.setvalue,
-              object->value.setvalue->max_position -
-              object->value.setvalue->min_position + 1);
+              (memsizetype) (object->value.setvalue->max_position -
+              object->value.setvalue->min_position + 1));
         } /* if */
         FREE_OBJECT(object);
         break;

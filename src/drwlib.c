@@ -714,16 +714,16 @@ listtype arguments;
 
   {
     arraytype points_array;
-    inttype len;
+    memsizetype len;
     inttype *xy;
     objecttype curr_number;
-    inttype pos;
+    memsizetype pos;
     bstritype result;
 
   /* drw_genPointList */
     isit_array(arg_1(arguments));
     points_array = take_array(arg_1(arguments));
-    len = points_array->max_position - points_array->min_position + 1;
+    len = (uinttype) (points_array->max_position - points_array->min_position + 1);
     if (len == 0 || len & 1) {
       return(raise_exception(SYS_RNG_EXCEPTION));
     } else {
@@ -831,7 +831,7 @@ listtype arguments;
       if (width > 0) {
         curr_column = &arr_line->arr[0];
         isit_int(curr_column);
-        image_data = malloc(height * width * sizeof(inttype));
+        image_data = malloc((uinttype) height * (uinttype) width * sizeof(inttype));
         pixel_elem = image_data;
         for (line = height; line > 0; line--, curr_line++) {
           arr_line = take_array(curr_line);

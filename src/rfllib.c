@@ -653,11 +653,10 @@ listtype arguments;
       list_element = list_element->next;
       result++;
     } /* while */
-    if (list_element != NULL) {
-      return(bld_int_temp(result));
-    } else {
-      return(bld_int_temp(0));
+    if (list_element == NULL) {
+      result = 0;
     } /* if */
+    return(bld_int_temp(result));
   } /* rfl_ipos */
 
 
@@ -801,11 +800,10 @@ listtype arguments;
       list_element = list_element->next;
       result++;
     } /* while */
-    if (list_element != NULL) {
-      return(bld_int_temp(result));
-    } else {
-      return(bld_int_temp(0));
+    if (list_element == NULL) {
+      result = 0;
     } /* if */
+    return(bld_int_temp(result));
   } /* rfl_pos */
 
 

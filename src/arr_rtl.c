@@ -136,9 +136,9 @@ rtlArraytype arr_from;
 
   /* arrAppend */
     arr_to = *arr_variable;
-    arr_from_size = arr_from->max_position - arr_from->min_position + 1;
+    arr_from_size = (uinttype) (arr_from->max_position - arr_from->min_position + 1);
     if (arr_from_size != 0) {
-      arr_to_size = arr_to->max_position - arr_to->min_position + 1;
+      arr_to_size = (uinttype) (arr_to->max_position - arr_to->min_position + 1);
       new_size = arr_to_size + arr_from_size;
       arr_to = REALLOC_RTL_ARRAY(arr_to, arr_to_size, new_size);
       if (arr_to == NULL) {
@@ -185,7 +185,7 @@ rtlArraytype arr1;
     memsizetype result_size;
 
   /* arrArrlit2 */
-    result_size = arr1->max_position - arr1->min_position + 1;
+    result_size = (uinttype) (arr1->max_position - arr1->min_position + 1);
     arr1->min_position = start_position;
     arr1->max_position = start_position + result_size - 1;
     return(arr1);
@@ -265,8 +265,8 @@ rtlArraytype arr2;
     rtlArraytype result;
 
   /* arrCat */
-    arr1_size = arr1->max_position - arr1->min_position + 1;
-    arr2_size = arr2->max_position - arr2->min_position + 1;
+    arr1_size = (uinttype) (arr1->max_position - arr1->min_position + 1);
+    arr2_size = (uinttype) (arr2->max_position - arr2->min_position + 1);
     result_size = arr1_size + arr2_size;
     if (!ALLOC_RTL_ARRAY(result, result_size)) {
       raise_error(MEMORY_ERROR);
@@ -299,7 +299,7 @@ rtlObjecttype element;
     rtlArraytype result;
 
   /* arrExtend */
-    arr1_size = arr1->max_position - arr1->min_position + 1;
+    arr1_size = (uinttype) (arr1->max_position - arr1->min_position + 1);
     result_size = arr1_size + 1;
     result = arr1;
     result = REALLOC_RTL_ARRAY(result, arr1_size, result_size);
@@ -362,12 +362,12 @@ inttype stop;
     rtlArraytype result;
 
   /* arrHead */
-    length = arr1->max_position - arr1->min_position + 1;
+    length = (uinttype) (arr1->max_position - arr1->min_position + 1);
     if (stop >= arr1->min_position && length >= 1) {
       if (stop > arr1->max_position) {
         stop = arr1->max_position;
       } /* if */
-      result_size = (memsizetype) (stop - arr1->min_position + 1);
+      result_size = (uinttype) (stop - arr1->min_position + 1);
       if (!ALLOC_RTL_ARRAY(result, result_size)) {
         raise_error(MEMORY_ERROR);
         return(NULL);
@@ -420,7 +420,7 @@ inttype stop;
     rtlArraytype result;
 
   /* arrRange */
-    length = arr1->max_position - arr1->min_position + 1;
+    length = (uinttype) (arr1->max_position - arr1->min_position + 1);
     if (stop >= start && start <= arr1->max_position &&
         stop >= arr1->min_position && length >= 1) {
       if (start < arr1->min_position) {
@@ -429,7 +429,7 @@ inttype stop;
       if (stop > arr1->max_position) {
         stop = arr1->max_position;
       } /* if */
-      result_size = (memsizetype) (stop - start + 1);
+      result_size = (uinttype) (stop - start + 1);
       if (!ALLOC_RTL_ARRAY(result, result_size)) {
         raise_error(MEMORY_ERROR);
         return(NULL);
@@ -489,7 +489,7 @@ inttype position;
           &array_pointer[position - arr1->min_position + 1],
           (arr1->max_position - position) * sizeof(rtlObjecttype));
       arr1->max_position--;
-      arr1_size = arr1->max_position - arr1->min_position + 1;
+      arr1_size = (uinttype) (arr1->max_position - arr1->min_position + 1);
       resized_arr1 = REALLOC_RTL_ARRAY(arr1, arr1_size + 1, arr1_size);
       if (resized_arr1 == NULL) {
         raise_error(MEMORY_ERROR);
@@ -544,12 +544,12 @@ inttype start;
     rtlArraytype result;
 
   /* arrTail */
-    length = arr1->max_position - arr1->min_position + 1;
+    length = (uinttype) (arr1->max_position - arr1->min_position + 1);
     if (start <= arr1->max_position && length >= 1) {
       if (start < arr1->min_position) {
         start = arr1->min_position;
       } /* if */
-      result_size = (memsizetype) (arr1->max_position - start + 1);
+      result_size = (uinttype) (arr1->max_position - start + 1);
       if (!ALLOC_RTL_ARRAY(result, result_size)) {
         raise_error(MEMORY_ERROR);
         return(NULL);

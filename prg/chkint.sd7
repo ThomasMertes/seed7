@@ -3849,11 +3849,23 @@ const proc: check_binom is func
     var boolean: okay is TRUE;
     var integer: n is 0;
     var integer: k is 0;
+    var integer: j is 0;
+    var integer: binom_result is 0;
   begin
     okay := TRUE;
     for n range 0 to 12 do
       for k range 0 to n do
         if n ! k <> !n div (!(n - k) * !k) then
+          write(" ***** ");
+          write(n);
+          write(" ! ");
+          write(k);
+          writeln(" is not correct computed");
+          okay := FALSE;
+        end if;
+      end for;
+      for k range succ(n) to 20 do
+        if n ! k <> 0 then
           write(" ***** ");
           write(n);
           write(" ! ");
@@ -3876,6 +3888,36 @@ const proc: check_binom is func
           write(pred(n) ! k);
           write(" ");
           write(pred(n) ! pred(k) + pred(n) ! k);
+          write(" ");
+          writeln(n ! k);
+          okay := FALSE;
+        end if;
+      end for;
+      for k range succ(n) to 40 do
+        if n ! k <> 0 then
+          write(" ***** ");
+          write(n);
+          write(" ! ");
+          write(k);
+          writeln(" is not correct computed");
+          okay := FALSE;
+        end if;
+      end for;
+    end for;
+    for n range -1 downto -30 do
+      for k range 0 to 40 do
+        binom_result := 1;
+        for j range 1 to k do
+          binom_result *:= (n + 1 - j);
+          binom_result := binom_result div j;
+        end for;
+        if n ! k <> binom_result then
+          write(" ***** ");
+          write(n);
+          write(" ! ");
+          write(k);
+          writeln(" is not correct computed");
+          write(binom_result);
           write(" ");
           writeln(n ! k);
           okay := FALSE;
@@ -4551,6 +4593,147 @@ const proc: check_lpad0 is func
   end func;
 
 
+const proc: check_bitLength is func
+  local
+    var boolean: okay is TRUE;
+    var integer: n is 0;
+    var integer: k is 0;
+  begin
+    okay := TRUE;
+    if  bitLength(pred(-2147483647)) <> 31 or
+        bitLength(-2147483647) <> 31 or
+        bitLength(-1073741825) <> 31 or
+        bitLength(-1073741824) <> 30 or
+        bitLength( -536870913) <> 30 or
+        bitLength( -536870912) <> 29 or
+        bitLength( -268435457) <> 29 or
+        bitLength( -268435456) <> 28 or
+        bitLength( -134217729) <> 28 or
+        bitLength( -134217728) <> 27 or
+        bitLength(  -67108865) <> 27 or
+        bitLength(  -67108864) <> 26 or
+        bitLength(  -33554433) <> 26 or
+        bitLength(  -33554432) <> 25 or
+        bitLength(  -16777217) <> 25 or
+        bitLength(  -16777216) <> 24 or
+        bitLength(   -8388609) <> 24 or
+        bitLength(   -8388608) <> 23 or
+        bitLength(   -4194305) <> 23 or
+        bitLength(   -4194304) <> 22 or
+        bitLength(   -2097153) <> 22 or
+        bitLength(   -2097152) <> 21 or
+        bitLength(   -1048577) <> 21 or
+        bitLength(   -1048576) <> 20 or
+        bitLength(    -524289) <> 20 or
+        bitLength(    -524288) <> 19 or
+        bitLength(    -262145) <> 19 or
+        bitLength(    -262144) <> 18 or
+        bitLength(    -131073) <> 18 or
+        bitLength(    -131072) <> 17 or
+        bitLength(     -65537) <> 17 or
+        bitLength(     -65536) <> 16 or
+        bitLength(     -32769) <> 16 or
+        bitLength(     -32768) <> 15 or
+        bitLength(     -16385) <> 15 or
+        bitLength(     -16384) <> 14 or
+        bitLength(      -8193) <> 14 or
+        bitLength(      -8192) <> 13 or
+        bitLength(      -4097) <> 13 or
+        bitLength(      -4096) <> 12 or
+        bitLength(      -2049) <> 12 or
+        bitLength(      -2048) <> 11 or
+        bitLength(      -1025) <> 11 or
+        bitLength(      -1024) <> 10 or
+        bitLength(       -513) <> 10 or
+        bitLength(       -512) <>  9 or
+        bitLength(       -257) <>  9 or
+        bitLength(       -256) <>  8 or
+        bitLength(       -129) <>  8 or
+        bitLength(       -128) <>  7 or
+        bitLength(        -65) <>  7 or
+        bitLength(        -64) <>  6 or
+        bitLength(        -33) <>  6 or
+        bitLength(        -32) <>  5 or
+        bitLength(        -17) <>  5 or
+        bitLength(        -16) <>  4 or
+        bitLength(         -9) <>  4 or
+        bitLength(         -8) <>  3 or
+        bitLength(         -5) <>  3 or
+        bitLength(         -4) <>  2 or
+        bitLength(         -3) <>  2 or
+        bitLength(         -2) <>  1 or
+        bitLength(         -1) <>  0 or
+        bitLength(          0) <>  0 or
+        bitLength(          1) <>  1 or
+        bitLength(          2) <>  2 or
+        bitLength(          3) <>  2 or
+        bitLength(          4) <>  3 or
+        bitLength(          7) <>  3 or
+        bitLength(          8) <>  4 or
+        bitLength(         15) <>  4 or
+        bitLength(         16) <>  5 or
+        bitLength(         31) <>  5 or
+        bitLength(         32) <>  6 or
+        bitLength(         63) <>  6 or
+        bitLength(         64) <>  7 or
+        bitLength(        127) <>  7 or
+        bitLength(        128) <>  8 or
+        bitLength(        255) <>  8 or
+        bitLength(        256) <>  9 or
+        bitLength(        511) <>  9 or
+        bitLength(        512) <> 10 or
+        bitLength(       1023) <> 10 or
+        bitLength(       1024) <> 11 or
+        bitLength(       2047) <> 11 or
+        bitLength(       2048) <> 12 or
+        bitLength(       4095) <> 12 or
+        bitLength(       4096) <> 13 or
+        bitLength(       8191) <> 13 or
+        bitLength(       8192) <> 14 or
+        bitLength(      16383) <> 14 or
+        bitLength(      16384) <> 15 or
+        bitLength(      32767) <> 15 or
+        bitLength(      32768) <> 16 or
+        bitLength(      65535) <> 16 or
+        bitLength(      65536) <> 17 or
+        bitLength(     131071) <> 17 or
+        bitLength(     131072) <> 18 or
+        bitLength(     262143) <> 18 or
+        bitLength(     262144) <> 19 or
+        bitLength(     524287) <> 19 or
+        bitLength(     524288) <> 20 or
+        bitLength(    1048575) <> 20 or
+        bitLength(    1048576) <> 21 or
+        bitLength(    2097151) <> 21 or
+        bitLength(    2097152) <> 22 or
+        bitLength(    4194303) <> 22 or
+        bitLength(    4194304) <> 23 or
+        bitLength(    8388607) <> 23 or
+        bitLength(    8388608) <> 24 or
+        bitLength(   16777215) <> 24 or
+        bitLength(   16777216) <> 25 or
+        bitLength(   33554431) <> 25 or
+        bitLength(   33554432) <> 26 or
+        bitLength(   67108863) <> 26 or
+        bitLength(   67108864) <> 27 or
+        bitLength(  134217727) <> 27 or
+        bitLength(  134217728) <> 28 or
+        bitLength(  268435455) <> 28 or
+        bitLength(  268435456) <> 29 or
+        bitLength(  536870911) <> 29 or
+        bitLength(  536870912) <> 30 or
+        bitLength( 1073741823) <> 30 or
+        bitLength( 1073741824) <> 31 or
+        bitLength( 2147483647) <> 31 then
+      writeln(" ***** Integer bitLength is not correct computed");
+      okay := FALSE;
+    end if;
+    if okay then
+      writeln("Integer bitLength does work correct");
+    end if;
+  end func;
+
+
 const proc: main is func
 
   begin
@@ -4575,4 +4758,5 @@ const proc: main is func
     check_str;
     check_parse;
     check_lpad0;
+    check_bitLength;
   end func;

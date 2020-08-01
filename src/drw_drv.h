@@ -66,7 +66,7 @@ wintype drwOpen (inttype, inttype, inttype, inttype, stritype);
 void drwPoint (const_wintype, inttype, inttype);
 void drwPPoint (const_wintype, inttype, inttype, inttype);
 void drwConvPointList (bstritype, inttype *);
-bstritype drwGenPointList (inttype *, inttype);
+bstritype drwGenPointList (inttype *, memsizetype);
 inttype drwLngPointList (bstritype);
 void drwPolyLine (const_wintype, inttype, inttype, const_bstritype, inttype);
 void drwFPolyLine (const_wintype, inttype, inttype, const_bstritype, inttype);

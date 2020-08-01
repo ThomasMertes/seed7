@@ -131,9 +131,9 @@ acttype *action_found;
 #ifdef USE_BSEARCH
     primacttype found;
 #else
-    int lower;
-    int upper;
-    int middle;
+    unsigned int lower;
+    unsigned int upper;
+    unsigned int middle;
     int comparison;
 #endif
     int action_number;
@@ -155,9 +155,9 @@ acttype *action_found;
     action_number = 0;
     lower = 0;
     upper = act_table.size;
-    while (lower < upper - 1) {
+    while (lower + 1 < upper) {
       middle = (lower + upper) >> 1;
-      /* printf("%d %d %d >%s< >%s<\n", lower, middle, upper,
+      /* printf("%u %u %u >%s< >%s<\n", lower, middle, upper,
          act_table.primitive[middle].name, stri); */
       if ((comparison = strcmp(act_table.primitive[middle].name,
           (cstritype) stri)) < 0) {
@@ -264,8 +264,8 @@ register acttype action_searched;
     result = &act_table.primitive[0];
     if (action_searched != act_table.primitive[0].action) {
       lower = -1;
-      upper = act_table.size;
-      while (lower < upper - 1) {
+      upper = (int) act_table.size;
+      while (lower + 1 < upper) {
         middle = (lower + upper) >> 1;
         /* printf("%d %d %d >%lu< >%lu<\n", lower, middle, upper,
            action_ptr_table[middle]->action, action_searched); */

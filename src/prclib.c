@@ -97,7 +97,7 @@ char **arg_v;
     arraytype arg_array;
     arraytype resized_arg_array;
     memsizetype max_array_size;
-    memsizetype used_array_size;
+    inttype used_array_size;
     memsizetype position;
     stritype str1;
     booltype okay;
@@ -110,15 +110,19 @@ char **arg_v;
       okay = TRUE;
       arg_idx = 0;
       while (okay && arg_idx < arg_c) {
-        if (used_array_size >= max_array_size) {
-          resized_arg_array = REALLOC_ARRAY(arg_array,
-              max_array_size, max_array_size + 256);
+        if ((memsizetype) used_array_size >= max_array_size) {
+          if (max_array_size >= MAX_MEM_INDEX - 256) {
+            resized_arg_array = NULL;
+          } else {
+            resized_arg_array = REALLOC_ARRAY(arg_array,
+                max_array_size, max_array_size + 256);
+          } /* if */
           if (resized_arg_array == NULL) {
             okay = FALSE;
           } else {
             arg_array = resized_arg_array;
             COUNT3_ARRAY(max_array_size, max_array_size + 256);
-            max_array_size = max_array_size + 256;
+            max_array_size += 256;
           } /* if */
         } /* if */
         if (okay) {
@@ -126,10 +130,10 @@ char **arg_v;
           if (str1 == NULL) {
             okay = FALSE;
           } else {
-            arg_array->arr[(int) used_array_size].type_of = take_type(SYS_STRI_TYPE);
-            arg_array->arr[(int) used_array_size].descriptor.property = NULL;
-            arg_array->arr[(int) used_array_size].value.strivalue = str1;
-            INIT_CATEGORY_OF_VAR(&arg_array->arr[(int) used_array_size],
+            arg_array->arr[used_array_size].type_of = take_type(SYS_STRI_TYPE);
+            arg_array->arr[used_array_size].descriptor.property = NULL;
+            arg_array->arr[used_array_size].value.strivalue = str1;
+            INIT_CATEGORY_OF_VAR(&arg_array->arr[used_array_size],
                 STRIOBJECT);
             used_array_size++;
             arg_idx++;
@@ -138,18 +142,18 @@ char **arg_v;
       } /* while */
       if (okay) {
         resized_arg_array = REALLOC_ARRAY(arg_array,
-            max_array_size, used_array_size);
+            max_array_size, (memsizetype) used_array_size);
         if (resized_arg_array == NULL) {
           okay = FALSE;
         } else {
           arg_array = resized_arg_array;
-          COUNT3_ARRAY(max_array_size, used_array_size);
+          COUNT3_ARRAY(max_array_size, (memsizetype) used_array_size);
           arg_array->min_position = 1;
           arg_array->max_position = used_array_size;
         } /* if */
       } /* if */
       if (!okay) {
-        for (position = 0; position < used_array_size; position++) {
+        for (position = 0; position < (memsizetype) used_array_size; position++) {
           FREE_STRI(arg_array->arr[(int) position].value.strivalue,
               arg_array->arr[(int) position].value.strivalue->size);
         } /* for */

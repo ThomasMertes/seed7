@@ -151,7 +151,7 @@ size_t number;
 #ifdef ANSI_C
 
 static rtlArraytype add_stri_to_array (const strelemtype *stri_elems,
-    memsizetype length, rtlArraytype work_array, memsizetype *used_max_position)
+    memsizetype length, rtlArraytype work_array, inttype *used_max_position)
 #else
 
 static rtlArraytype add_stri_to_array (stri_elems, length,
@@ -159,7 +159,7 @@ static rtlArraytype add_stri_to_array (stri_elems, length,
 strelemtype *stri_elems;
 memsizetype length;
 rtlArraytype work_array;
-memsizetype *used_max_position;
+inttype *used_max_position;
 #endif
 
   {
@@ -173,14 +173,18 @@ memsizetype *used_max_position;
       memcpy(new_stri->mem, stri_elems,
           (size_t) length * sizeof(strelemtype));
       if (*used_max_position >= work_array->max_position) {
-        resized_work_array = REALLOC_RTL_ARRAY(work_array,
-            work_array->max_position, work_array->max_position + 256);
+        if (work_array->max_position >= MAX_MEM_INDEX - 256) {
+          resized_work_array = NULL;
+        } else {
+          resized_work_array = REALLOC_RTL_ARRAY(work_array,
+              (uinttype) work_array->max_position, (uinttype) work_array->max_position + 256);
+        } /* if */
         if (resized_work_array == NULL) {
           FREE_STRI(new_stri, new_stri->size);
           new_stri = NULL;
         } else {
           work_array = resized_work_array;
-          COUNT3_RTL_ARRAY(work_array->max_position, work_array->max_position + 256);
+          COUNT3_RTL_ARRAY((uinttype) work_array->max_position, (uinttype) work_array->max_position + 256);
           work_array->max_position += 256;
         } /* if */
       } /* if */
@@ -189,11 +193,11 @@ memsizetype *used_max_position;
       work_array->arr[*used_max_position].value.strivalue = new_stri;
       (*used_max_position)++;
     } else {
-      for (position = 0; position < *used_max_position; position++) {
+      for (position = 0; position < (uinttype) *used_max_position; position++) {
         FREE_STRI(work_array->arr[position].value.strivalue,
             work_array->arr[position].value.strivalue->size);
       } /* for */
-      FREE_RTL_ARRAY(work_array, work_array->max_position);
+      FREE_RTL_ARRAY(work_array, (uinttype) work_array->max_position);
       work_array = NULL;
     } /* if */
     return(work_array);
@@ -246,7 +250,7 @@ chartype escape;
 #endif
 
   {
-    memsizetype used_max_position;
+    inttype used_max_position;
     const strelemtype *search_start;
     const strelemtype *search_end;
     const strelemtype *curr_pos;
@@ -295,17 +299,17 @@ chartype escape;
             &used_max_position);
         if (result_array != NULL) {
           resized_result_array = REALLOC_RTL_ARRAY(result_array,
-              result_array->max_position, used_max_position);
+              (uinttype) result_array->max_position, (uinttype) used_max_position);
           if (resized_result_array == NULL) {
-            for (pos = 0; pos < used_max_position; pos++) {
+            for (pos = 0; pos < (uinttype) used_max_position; pos++) {
               FREE_STRI(result_array->arr[pos].value.strivalue,
                   result_array->arr[pos].value.strivalue->size);
             } /* for */
-            FREE_RTL_ARRAY(result_array, result_array->max_position);
+            FREE_RTL_ARRAY(result_array, (uinttype) result_array->max_position);
             result_array = NULL;
           } else {
             result_array = resized_result_array;
-            COUNT3_RTL_ARRAY(result_array->max_position, used_max_position);
+            COUNT3_RTL_ARRAY((uinttype) result_array->max_position, (uinttype) used_max_position);
             result_array->max_position = used_max_position;
           } /* if */
         } /* if */
@@ -340,7 +344,7 @@ inttype from_index;
     if (from_index <= 0) {
       raise_error(RANGE_ERROR);
     } else {
-      if ((memsizetype) from_index <= main_stri->size) {
+      if ((uinttype) from_index <= main_stri->size) {
         main_mem = main_stri->mem;
         found_pos = search_strelem(&main_mem[from_index - 1], searched,
             (size_t) (main_stri->size - from_index + 1));
@@ -393,7 +397,7 @@ chartype delimiter;
 #endif
 
   {
-    memsizetype used_max_position;
+    inttype used_max_position;
     const strelemtype *search_start;
     const strelemtype *search_end;
     const strelemtype *found_pos;
@@ -422,17 +426,17 @@ chartype delimiter;
             &used_max_position);
         if (result_array != NULL) {
           resized_result_array = REALLOC_RTL_ARRAY(result_array,
-              result_array->max_position, used_max_position);
+              (uinttype) result_array->max_position, (uinttype) used_max_position);
           if (resized_result_array == NULL) {
-            for (pos = 0; pos < used_max_position; pos++) {
+            for (pos = 0; pos < (uinttype) used_max_position; pos++) {
               FREE_STRI(result_array->arr[pos].value.strivalue,
                   result_array->arr[pos].value.strivalue->size);
             } /* for */
-            FREE_RTL_ARRAY(result_array, result_array->max_position);
+            FREE_RTL_ARRAY(result_array, (uinttype) result_array->max_position);
             result_array = NULL;
           } else {
             result_array = resized_result_array;
-            COUNT3_RTL_ARRAY(result_array->max_position, used_max_position);
+            COUNT3_RTL_ARRAY((uinttype) result_array->max_position, (uinttype) used_max_position);
             result_array->max_position = used_max_position;
           } /* if */
         } /* if */
@@ -474,7 +478,7 @@ stritype str1;
     result->mem[0] = (strelemtype) '"';
     pos = 1;
     for (position = 0; position < length; position++) {
-      character = (int) str1->mem[position];
+      character = str1->mem[position];
       /* The following comparison uses 255 instead of '\377',       */
       /* because chars might be signed and this can produce wrong   */
       /* code when '\377' is sign extended.                         */
@@ -842,7 +846,7 @@ stritype stri;
     if (stri->size == 0) {
       result = 0;
     } else {
-      result = stri->mem[0] << 5 ^ stri->size << 3 ^ stri->mem[stri->size - 1];
+      result = (inttype) (stri->mem[0] << 5 ^ stri->size << 3 ^ stri->mem[stri->size - 1]);
     } /* if */
     return(result);
   } /* strHashCode */
@@ -867,10 +871,10 @@ inttype stop;
   /* strHead */
     length = stri->size;
     if (stop >= 1 && length >= 1) {
-      if (length <= (memsizetype) stop) {
+      if (length <= (uinttype) stop) {
         result_size = length;
       } else {
-        result_size = (memsizetype) stop;
+        result_size = (uinttype) stop;
       } /* if */
       if (!ALLOC_STRI(result, result_size)) {
         raise_error(MEMORY_ERROR);
@@ -918,11 +922,12 @@ inttype from_index;
     } else {
       main_size = main_stri->size;
       searched_size = searched->size;
-      if (searched_size != 0 && from_index + searched_size - 1 <= main_size) {
+      if (searched_size != 0 && main_size >= searched_size &&
+          (uinttype) from_index - 1 <= main_size - searched_size) {
         searched_mem = searched->mem;
         ch_1 = searched_mem[0];
         main_mem = &main_stri->mem[from_index - 1];
-        main_size -= from_index - 1;
+        main_size -= (uinttype) from_index - 1;
         search_start = main_mem;
         search_end = &main_mem[main_size - searched_size + 1];
         while ((search_start = search_strelem(search_start,
@@ -1119,8 +1124,8 @@ inttype pad_size;
 
   /* strLpad */
     length = stri->size;
-    if (pad_size > (inttype) length) {
-      f_size = (memsizetype) pad_size;
+    if (pad_size > 0 && (uinttype) pad_size > length) {
+      f_size = (uinttype) pad_size;
       if (!ALLOC_STRI(result, f_size)) {
         raise_error(MEMORY_ERROR);
       } else {
@@ -1171,8 +1176,8 @@ inttype pad_size;
 
   /* strLpad0 */
     length = stri->size;
-    if (pad_size > (inttype) length) {
-      f_size = (memsizetype) pad_size;
+    if (pad_size > 0 && (uinttype) pad_size > length) {
+      f_size = (uinttype) pad_size;
       if (!ALLOC_STRI(result, f_size)) {
         raise_error(MEMORY_ERROR);
       } else {
@@ -1223,8 +1228,8 @@ inttype pad_size;
 
   /* strLpad0Temp */
     length = stri->size;
-    if (pad_size > (inttype) length) {
-      f_size = (memsizetype) pad_size;
+    if (pad_size > 0 && (uinttype) pad_size > length) {
+      f_size = (uinttype) pad_size;
       if (!ALLOC_STRI(result, f_size)) {
         raise_error(MEMORY_ERROR);
       } else {
@@ -1343,7 +1348,7 @@ inttype factor;
       return(NULL);
     } else {
       len = stri->size;
-      result_size = ((memsizetype) factor) * len;
+      result_size = (uinttype) factor * len;
       if (!ALLOC_STRI(result, result_size)) {
         raise_error(MEMORY_ERROR);
         return(NULL);
@@ -1474,15 +1479,15 @@ inttype stop;
 
   /* strRange */
     length = stri->size;
-    if (stop >= 1 && stop >= start && start <= ((inttype) length) &&
+    if (start < 1) {
+      start = 1;
+    } /* if */
+    if (stop >= 1 && stop >= start && (uinttype) start <= length &&
         length >= 1) {
-      if (start < 1) {
-        start = 1;
-      } /* if */
-      if (stop > (inttype) length) {
+      if ((uinttype) stop > length) {
         stop = (inttype) length;
       } /* if */
-      result_size = (memsizetype) (stop - start + 1);
+      result_size = (uinttype) (stop - start + 1);
       if (!ALLOC_STRI(result, result_size)) {
         raise_error(MEMORY_ERROR);
         return(NULL);
@@ -1604,7 +1609,7 @@ stritype replace;
       memcpy(result_end, copy_start,
           (size_t) (&main_stri->mem[main_size] - copy_start) * sizeof(strelemtype));
       result_end += &main_stri->mem[main_size] - copy_start;
-      result->size = result_end - result->mem;
+      result->size = (memsizetype) (result_end - result->mem);
       /* printf("result=%lu, guessed_result_size=%ld, result->size=%ld\n",
          result, guessed_result_size, result->size); */
       REALLOC_STRI(resized_result, result, guessed_result_size, result->size);
@@ -1639,8 +1644,8 @@ inttype pad_size;
 
   /* strRpad */
     length = stri->size;
-    if (pad_size > (inttype) length) {
-      f_size = (memsizetype) pad_size;
+    if (pad_size > 0 && (uinttype) pad_size > length) {
+      f_size = (uinttype) pad_size;
       if (!ALLOC_STRI(result, f_size)) {
         raise_error(MEMORY_ERROR);
         return(NULL);
@@ -1762,7 +1767,7 @@ chartype delimiter;
 
   {
     arraytype result_array;
-    memsizetype used_max_position;
+    inttype used_max_position;
     errinfotype err_info = OKAY_NO_ERROR;
 
     memsizetype main_size;
@@ -1878,7 +1883,7 @@ stritype delimiter;
     memsizetype delimiter_size;
     const strelemtype *delimiter_mem;
     strelemtype ch_1;
-    memsizetype used_max_position;
+    inttype used_max_position;
     const strelemtype *search_start;
     const strelemtype *segment_start;
     const strelemtype *search_end;
@@ -1920,17 +1925,17 @@ stritype delimiter;
             &used_max_position);
         if (result_array != NULL) {
           resized_result_array = REALLOC_RTL_ARRAY(result_array,
-              result_array->max_position, used_max_position);
+              (uinttype) result_array->max_position, (uinttype) used_max_position);
           if (resized_result_array == NULL) {
-            for (pos = 0; pos < used_max_position; pos++) {
+            for (pos = 0; pos < (uinttype) used_max_position; pos++) {
               FREE_STRI(result_array->arr[pos].value.strivalue,
                   result_array->arr[pos].value.strivalue->size);
             } /* for */
-            FREE_RTL_ARRAY(result_array, result_array->max_position);
+            FREE_RTL_ARRAY(result_array, (uinttype) result_array->max_position);
             result_array = NULL;
           } else {
             result_array = resized_result_array;
-            COUNT3_RTL_ARRAY(result_array->max_position, used_max_position);
+            COUNT3_RTL_ARRAY((uinttype) result_array->max_position, (uinttype) used_max_position);
             result_array->max_position = used_max_position;
           } /* if */
         } /* if */
@@ -1962,16 +1967,16 @@ inttype len;
 
   /* strSubstr */
     length = stri->size;
-    if (len >= 1 && start + len > 1 && start <= ((inttype) length) &&
+    if (len >= 1 && start > 1 - len && (start < 1 || (uinttype) start <= length) &&
         length >= 1) {
       if (start < 1) {
         len += start - 1;
         start = 1;
       } /* if */
-      if (start + len - 1 > (inttype) length) {
-        result_size = (memsizetype) (length - start + 1);
+      if ((uinttype) start + (uinttype) len - 1 > length) {
+        result_size = length - (uinttype) start + 1;
       } else {
-        result_size = (memsizetype) len;
+        result_size = (uinttype) len;
       } /* if */
       if (!ALLOC_STRI(result, result_size)) {
         raise_error(MEMORY_ERROR);
@@ -2009,11 +2014,11 @@ inttype start;
 
   /* strTail */
     length = stri->size;
-    if (start <= (inttype) length && length >= 1) {
-      if (start < 1) {
-        start = 1;
-      } /* if */
-      result_size = length - ((memsizetype) start) + 1;
+    if (start < 1) {
+      start = 1;
+    } /* if */
+    if ((uinttype) start <= length && length >= 1) {
+      result_size = length - (uinttype) start + 1;
       if (!ALLOC_STRI(result, result_size)) {
         raise_error(MEMORY_ERROR);
         return(NULL);
@@ -2092,7 +2097,7 @@ stritype stri;
           *dest++ = 0x80 | ( *source        & 0x3F);
         } /* if */
       } /* for */
-      result->size = dest - result->mem;
+      result->size = (memsizetype) (dest - result->mem);
       REALLOC_STRI(resized_result, result, compr_size(stri), result->size);
       if (resized_result == NULL) {
         FREE_BSTRI(result, compr_size(stri));

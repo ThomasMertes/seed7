@@ -142,7 +142,7 @@ unsigned int position;
       check_stri_length(position);
       symbol.strivalue->mem[position++] = (strelemtype) symbol.charvalue;
     } else if (character != EOF) {
-      if (character >= '\"' && character <= 'v') {
+      if (character >= (int) '\"' && character <= (int) 'v') {
         symbol.charvalue = (chartype) esc_tab[character - '\"'];
         if (symbol.charvalue == ' ') {
           err_cchar(STRINGESCAPE, character);
@@ -175,7 +175,7 @@ register int character;
 
   /* utf8_char */
     if ((character & 0xE0) == 0xC0) {
-      result = (character & 0x1F) << 6;
+      result = (chartype) (character & 0x1F) << 6;
       character = next_character();
       if ((character & 0xC0) == 0x80) {
         result |= character & 0x3F;
@@ -189,10 +189,10 @@ register int character;
         in_file.character = character;
       } /* if */
     } else if ((character & 0xF0) == 0xE0) {
-      result = (character & 0x0F) << 12;
+      result = (chartype) (character & 0x0F) << 12;
       character = next_character();
       if ((character & 0xC0) == 0x80) {
-        result |= (character & 0x3F) << 6;
+        result |= (chartype) (character & 0x3F) << 6;
         character = next_character();
         if ((character & 0xC0) == 0x80) {
           result |= character & 0x3F;
@@ -211,13 +211,13 @@ register int character;
         in_file.character = character;
       } /* if */
     } else if ((character & 0xF8) == 0xF0) {
-      result = (character & 0x07) << 18;
+      result = (chartype) (character & 0x07) << 18;
       character = next_character();
       if ((character & 0xC0) == 0x80) {
-        result |= (character & 0x3F) << 12;
+        result |= (chartype) (character & 0x3F) << 12;
         character = next_character();
         if ((character & 0xC0) == 0x80) {
-          result |= (character & 0x3F) << 6;
+          result |= (chartype) (character & 0x3F) << 6;
           character = next_character();
           if ((character & 0xC0) == 0x80) {
             result |= character & 0x3F;
@@ -241,16 +241,16 @@ register int character;
         in_file.character = character;
       } /* if */
     } else if ((character & 0xFC) == 0xF8) {
-      result = (character & 0x03) << 24;
+      result = (chartype) (character & 0x03) << 24;
       character = next_character();
       if ((character & 0xC0) == 0x80) {
-        result |= (character & 0x3F) << 18;
+        result |= (chartype) (character & 0x3F) << 18;
         character = next_character();
         if ((character & 0xC0) == 0x80) {
-          result |= (character & 0x3F) << 12;
+          result |= (chartype) (character & 0x3F) << 12;
           character = next_character();
           if ((character & 0xC0) == 0x80) {
-            result |= (character & 0x3F) << 6;
+            result |= (chartype) (character & 0x3F) << 6;
             character = next_character();
             if ((character & 0xC0) == 0x80) {
               result |= character & 0x3F;
@@ -279,19 +279,19 @@ register int character;
         in_file.character = character;
       } /* if */
     } else if ((character & 0xFC) == 0xFC) {
-      result = (character & 0x03) << 30;
+      result = (chartype) (character & 0x03) << 30;
       character = next_character();
       if ((character & 0xC0) == 0x80) {
-        result |= (character & 0x3F) << 24;
+        result |= (chartype) (character & 0x3F) << 24;
         character = next_character();
         if ((character & 0xC0) == 0x80) {
-          result |= (character & 0x3F) << 18;
+          result |= (chartype) (character & 0x3F) << 18;
           character = next_character();
           if ((character & 0xC0) == 0x80) {
-            result |= (character & 0x3F) << 12;
+            result |= (chartype) (character & 0x3F) << 12;
             character = next_character();
             if ((character & 0xC0) == 0x80) {
-              result |= (character & 0x3F) << 6;
+              result |= (chartype) (character & 0x3F) << 6;
               character = next_character();
               if ((character & 0xC0) == 0x80) {
                 result |= character & 0x3F;
@@ -470,7 +470,7 @@ void lit_char ()
         position = 0;
       } /* if */
       if (position == 0) {
-        if (in_file.character >= ' ' && in_file.character <= '~') {
+        if (in_file.character >= (int) ' ' && in_file.character <= (int) '~') {
           symbol.charvalue = (chartype) in_file.character;
           in_file.character = next_character();
         } else if ((in_file.character & 0xC0) == 0xC0) {

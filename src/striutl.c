@@ -68,30 +68,30 @@ stritype in_stri;
       if (*stri <= 0x7F) {
         *ustri++ = (uchartype) *stri;
       } else if (*stri <= 0x7FF) {
-        *ustri++ = 0xC0 | (*stri >> 6);
-        *ustri++ = 0x80 | (*stri & 0x3F);
+        *ustri++ = 0xC0 | (uchartype) (*stri >> 6);
+        *ustri++ = 0x80 | (uchartype) (*stri & 0x3F);
       } else if (*stri <= 0xFFFF) {
-        *ustri++ = 0xE0 | (*stri >> 12);
-        *ustri++ = 0x80 | ((*stri >> 6) & 0x3F);
-        *ustri++ = 0x80 | (*stri & 0x3F);
+        *ustri++ = 0xE0 | (uchartype) (*stri >> 12);
+        *ustri++ = 0x80 | (uchartype) ((*stri >> 6) & 0x3F);
+        *ustri++ = 0x80 | (uchartype) (*stri & 0x3F);
       } else if (*stri <= 0x1FFFFF) {
-        *ustri++ = 0xF0 | (*stri >> 18);
-        *ustri++ = 0x80 | ((*stri >> 12) & 0x3F);
-        *ustri++ = 0x80 | ((*stri >> 6) & 0x3F);
-        *ustri++ = 0x80 | (*stri & 0x3F);
+        *ustri++ = 0xF0 | (uchartype) (*stri >> 18);
+        *ustri++ = 0x80 | (uchartype) ((*stri >> 12) & 0x3F);
+        *ustri++ = 0x80 | (uchartype) ((*stri >> 6) & 0x3F);
+        *ustri++ = 0x80 | (uchartype) (*stri & 0x3F);
       } else if (*stri <= 0x3FFFFFF) {
-        *ustri++ = 0xF8 | (*stri >> 24);
-        *ustri++ = 0x80 | ((*stri >> 18) & 0x3F);
-        *ustri++ = 0x80 | ((*stri >> 12) & 0x3F);
-        *ustri++ = 0x80 | ((*stri >> 6) & 0x3F);
-        *ustri++ = 0x80 | (*stri & 0x3F);
+        *ustri++ = 0xF8 | (uchartype) (*stri >> 24);
+        *ustri++ = 0x80 | (uchartype) ((*stri >> 18) & 0x3F);
+        *ustri++ = 0x80 | (uchartype) ((*stri >> 12) & 0x3F);
+        *ustri++ = 0x80 | (uchartype) ((*stri >> 6) & 0x3F);
+        *ustri++ = 0x80 | (uchartype) (*stri & 0x3F);
       } else {
-        *ustri++ = 0xFC | (*stri >> 30);
-        *ustri++ = 0x80 | ((*stri >> 24) & 0x3F);
-        *ustri++ = 0x80 | ((*stri >> 18) & 0x3F);
-        *ustri++ = 0x80 | ((*stri >> 12) & 0x3F);
-        *ustri++ = 0x80 | ((*stri >> 6) & 0x3F);
-        *ustri++ = 0x80 | (*stri & 0x3F);
+        *ustri++ = 0xFC | (uchartype) (*stri >> 30);
+        *ustri++ = 0x80 | (uchartype) ((*stri >> 24) & 0x3F);
+        *ustri++ = 0x80 | (uchartype) ((*stri >> 18) & 0x3F);
+        *ustri++ = 0x80 | (uchartype) ((*stri >> 12) & 0x3F);
+        *ustri++ = 0x80 | (uchartype) ((*stri >> 6) & 0x3F);
+        *ustri++ = 0x80 | (uchartype) (*stri & 0x3F);
       } /* if */
     } /* for */
     return(ustri - out_stri);
@@ -122,26 +122,26 @@ size_t len;
         *stri++ = (strelemtype) *ustri++;
       } else if ((ustri[0] & 0xE0) == 0xC0 && len > 1 &&
                  (ustri[1] & 0xC0) == 0x80) {
-        *stri++ = (ustri[0] & 0x1F) << 6 |
-                  (ustri[1] & 0x3F);
+        *stri++ = (strelemtype) (ustri[0] & 0x1F) << 6 |
+                  (strelemtype) (ustri[1] & 0x3F);
         ustri += 2;
         len--;
       } else if ((ustri[0] & 0xF0) == 0xE0 && len > 2 &&
                  (ustri[1] & 0xC0) == 0x80 &&
                  (ustri[2] & 0xC0) == 0x80) {
-        *stri++ = (ustri[0] & 0x0F) << 12 |
-                  (ustri[1] & 0x3F) <<  6 |
-                  (ustri[2] & 0x3F);
+        *stri++ = (strelemtype) (ustri[0] & 0x0F) << 12 |
+                  (strelemtype) (ustri[1] & 0x3F) <<  6 |
+                  (strelemtype) (ustri[2] & 0x3F);
         ustri += 3;
         len -= 2;
       } else if ((ustri[0] & 0xF8) == 0xF0 && len > 3 &&
                  (ustri[1] & 0xC0) == 0x80 &&
                  (ustri[2] & 0xC0) == 0x80 &&
                  (ustri[3] & 0xC0) == 0x80) {
-        *stri++ = (ustri[0] & 0x07) << 18 |
-                  (ustri[1] & 0x3F) << 12 |
-                  (ustri[2] & 0x3F) <<  6 |
-                  (ustri[3] & 0x3F);
+        *stri++ = (strelemtype) (ustri[0] & 0x07) << 18 |
+                  (strelemtype) (ustri[1] & 0x3F) << 12 |
+                  (strelemtype) (ustri[2] & 0x3F) <<  6 |
+                  (strelemtype) (ustri[3] & 0x3F);
         ustri += 4;
         len -= 3;
       } else if ((ustri[0] & 0xFC) == 0xF8 && len > 4 &&
@@ -149,11 +149,11 @@ size_t len;
                  (ustri[2] & 0xC0) == 0x80 &&
                  (ustri[3] & 0xC0) == 0x80 &&
                  (ustri[4] & 0xC0) == 0x80) {
-        *stri++ = (ustri[0] & 0x03) << 24 |
-                  (ustri[1] & 0x3F) << 18 |
-                  (ustri[2] & 0x3F) << 12 |
-                  (ustri[3] & 0x3F) <<  6 |
-                  (ustri[4] & 0x3F);
+        *stri++ = (strelemtype) (ustri[0] & 0x03) << 24 |
+                  (strelemtype) (ustri[1] & 0x3F) << 18 |
+                  (strelemtype) (ustri[2] & 0x3F) << 12 |
+                  (strelemtype) (ustri[3] & 0x3F) <<  6 |
+                  (strelemtype) (ustri[4] & 0x3F);
         ustri += 5;
         len -= 4;
       } else if ((ustri[0] & 0xFC) == 0xFC && len > 5 &&
@@ -162,12 +162,12 @@ size_t len;
                  (ustri[3] & 0xC0) == 0x80 &&
                  (ustri[4] & 0xC0) == 0x80 &&
                  (ustri[5] & 0xC0) == 0x80) {
-        *stri++ = (ustri[0] & 0x03) << 30 |
-                  (ustri[1] & 0x3F) << 24 |
-                  (ustri[2] & 0x3F) << 18 |
-                  (ustri[3] & 0x3F) << 12 |
-                  (ustri[4] & 0x3F) <<  6 |
-                  (ustri[5] & 0x3F);
+        *stri++ = (strelemtype) (ustri[0] & 0x03) << 30 |
+                  (strelemtype) (ustri[1] & 0x3F) << 24 |
+                  (strelemtype) (ustri[2] & 0x3F) << 18 |
+                  (strelemtype) (ustri[3] & 0x3F) << 12 |
+                  (strelemtype) (ustri[4] & 0x3F) <<  6 |
+                  (strelemtype) (ustri[5] & 0x3F);
         ustri += 6;
         len -= 5;
       } else {
@@ -464,13 +464,13 @@ errinfotype *err_info;
             *err_info = RANGE_ERROR;
             len = 1;
           } else {
-            *wstri = *strelem;
+            *wstri = (os_path_char) *strelem;
           } /* if */
         } else if (*strelem <= 0x10FFFF) {
           strelemtype currChar = *strelem - 0x10000;
-          *wstri = (os_path_char) (0xD800 | (currChar >> 10));
+          *wstri = 0xD800 | (os_path_char) (currChar >> 10);
           wstri++;
-          *wstri = (os_path_char) (0xDC00 | (currChar & 0x3FF));
+          *wstri = 0xDC00 | (os_path_char) (currChar & 0x3FF);
         } else {
           *err_info = RANGE_ERROR;
           len = 1;

@@ -277,7 +277,7 @@ filetype aFile;
     character = getc(aFile);
     if (character != EOF && character > 0x7F) {
       if ((character & 0xE0) == 0xC0) {
-        result = (character & 0x1F) << 6;
+        result = (chartype) (character & 0x1F) << 6;
         character = getc(aFile);
         if ((character & 0xC0) == 0x80) {
           result |= character & 0x3F;
@@ -290,10 +290,10 @@ filetype aFile;
           return(0);
         } /* if */
       } else if ((character & 0xF0) == 0xE0) {
-        result = (character & 0x0F) << 12;
+        result = (chartype) (character & 0x0F) << 12;
         character = getc(aFile);
         if ((character & 0xC0) == 0x80) {
-          result |= (character & 0x3F) << 6;
+          result |= (chartype) (character & 0x3F) << 6;
           character = getc(aFile);
           if ((character & 0xC0) == 0x80) {
             result |= character & 0x3F;
@@ -310,13 +310,13 @@ filetype aFile;
           return(0);
         } /* if */
       } else if ((character & 0xF8) == 0xF0) {
-        result = (character & 0x07) << 18;
+        result = (chartype) (character & 0x07) << 18;
         character = getc(aFile);
         if ((character & 0xC0) == 0x80) {
-          result |= (character & 0x3F) << 12;
+          result |= (chartype) (character & 0x3F) << 12;
           character = getc(aFile);
           if ((character & 0xC0) == 0x80) {
-            result |= (character & 0x3F) << 6;
+            result |= (chartype) (character & 0x3F) << 6;
             character = getc(aFile);
             if ((character & 0xC0) == 0x80) {
               result |= character & 0x3F;
@@ -337,16 +337,16 @@ filetype aFile;
           return(0);
         } /* if */
       } else if ((character & 0xFC) == 0xF8) {
-        result = (character & 0x03) << 24;
+        result = (chartype) (character & 0x03) << 24;
         character = getc(aFile);
         if ((character & 0xC0) == 0x80) {
-          result |= (character & 0x3F) << 18;
+          result |= (chartype) (character & 0x3F) << 18;
           character = getc(aFile);
           if ((character & 0xC0) == 0x80) {
-            result |= (character & 0x3F) << 12;
+            result |= (chartype) (character & 0x3F) << 12;
             character = getc(aFile);
             if ((character & 0xC0) == 0x80) {
-              result |= (character & 0x3F) << 6;
+              result |= (chartype) (character & 0x3F) << 6;
               character = getc(aFile);
               if ((character & 0xC0) == 0x80) {
                 result |= character & 0x3F;
@@ -371,19 +371,19 @@ filetype aFile;
           return(0);
         } /* if */
       } else { /* (character & 0xFC) == 0xFC */
-        result = (character & 0x03) << 30;
+        result = (chartype) (character & 0x03) << 30;
         character = getc(aFile);
         if ((character & 0xC0) == 0x80) {
-          result |= (character & 0x3F) << 24;
+          result |= (chartype) (character & 0x3F) << 24;
           character = getc(aFile);
           if ((character & 0xC0) == 0x80) {
-            result |= (character & 0x3F) << 18;
+            result |= (chartype) (character & 0x3F) << 18;
             character = getc(aFile);
             if ((character & 0xC0) == 0x80) {
-              result |= (character & 0x3F) << 12;
+              result |= (chartype) (character & 0x3F) << 12;
               character = getc(aFile);
               if ((character & 0xC0) == 0x80) {
-                result |= (character & 0x3F) <<  6;
+                result |= (chartype) (character & 0x3F) <<  6;
                 character = getc(aFile);
                 if ((character & 0xC0) == 0x80) {
                   result |= character & 0x3F;
@@ -532,7 +532,7 @@ chartype *termination_char;
           memory = buffer->mem;
           memlength = newmemlength;
         } /* if */
-        memory[position++] = (strelemtype) ch;
+        memory[position++] = (uchartype) ch;
       } /* while */
       if (ch == (int) '\n' && position != 0 && memory[position - 1] == '\r') {
         position--;
@@ -643,7 +643,7 @@ chartype *termination_char;
           memory = buffer->mem;
           memlength = newmemlength;
         } /* if */
-        memory[position++] = (strelemtype) ch;
+        memory[position++] = (uchartype) ch;
         ch = getc(aFile);
       } /* while */
       if (ch == (int) '\n' && position != 0 && memory[position - 1] == '\r') {

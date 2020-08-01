@@ -278,7 +278,7 @@ listtype arguments;
     structtype stru1;
     objecttype selector;
     objecttype selector_syobject;
-    inttype position;
+    memsizetype position;
     objecttype struct_pointer;
 
   /* itf_select */

@@ -90,6 +90,7 @@ listtype arguments;
   {
     uinttype typ1;
     uinttype typ2;
+    inttype result;
 
   /* typ_cmp */
     isit_type(arg_1(arguments));
@@ -97,12 +98,13 @@ listtype arguments;
     typ1 = (uinttype) take_type(arg_1(arguments));
     typ2 = (uinttype) take_type(arg_2(arguments));
     if (typ1 < typ2) {
-      return(bld_int_temp(-1));
+      result = -1;
     } else if (typ1 > typ2) {
-      return(bld_int_temp(1));
+      result = 1;
     } else {
-      return(bld_int_temp(0));
+      result = 0;
     } /* if */
+    return(bld_int_temp(result));
   } /* typ_cmp */
 
 

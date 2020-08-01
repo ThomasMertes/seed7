@@ -118,7 +118,7 @@ stritype file_mode;
            w ... Truncate to zero length or create file for writing. 
            a ... Append; open or create file for writing at end-of-file. 
         */
-        mode[0] = file_mode->mem[0];
+        mode[0] = (char) file_mode->mem[0];
         mode[1] = 'b';
         mode[2] = '\0';
       } else if (file_mode->size == 2) {
@@ -128,7 +128,7 @@ stritype file_mode;
              w+ ... Truncate to zero length or create file for update. 
              a+ ... Append; open or create file for update, writing at end-of-file. 
           */
-          mode[0] = file_mode->mem[0];
+          mode[0] = (char) file_mode->mem[0];
           mode[1] = 'b';
           mode[2] = '+';
           mode[3] = '\0';
@@ -138,7 +138,7 @@ stritype file_mode;
              wt ... Truncate to zero length or create file for writing. 
              at ... Append; open or create file for writing at end-of-file. 
           */
-          mode[0] = file_mode->mem[0];
+          mode[0] = (char) file_mode->mem[0];
           mode[1] = '\0';
         } /* if */
       } else if (file_mode->size == 3) {
@@ -149,7 +149,7 @@ stritype file_mode;
              wt+ ... Truncate to zero length or create file for update. 
              at+ ... Append; open or create file for update, writing at end-of-file. 
           */
-          mode[0] = file_mode->mem[0];
+          mode[0] = (char) file_mode->mem[0];
           mode[1] = '+';
           mode[2] = '\0';
         } /* if */
@@ -787,7 +787,7 @@ stritype file_mode;
       if (file_mode->size == 1 &&
           (file_mode->mem[0] == 'r' ||
            file_mode->mem[0] == 'w')) {
-        mode[0] = file_mode->mem[0];
+        mode[0] = (char) file_mode->mem[0];
         mode[1] = '\0';
       } /* if */
       /* The mode "rb" is not allowed under unix/linux */

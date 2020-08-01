@@ -104,7 +104,7 @@ static char **key_table[SIZE_KEY_TABLE] = {
     &key_sr,        &key_stab,      &key_up,        &key_end,       &escape};
 #endif
 
-static int key_code[SIZE_KEY_TABLE] = {
+static chartype key_code[SIZE_KEY_TABLE] = {
     K_BS,          0,             0,             0,             K_DEL,
     K_DELLN,       K_DOWN,        K_INS,         0,             0,
     K_HOME,        K_F1,          K_F2,          K_F3,          K_F4,
@@ -230,11 +230,11 @@ chartype actual_char;
     char in_buffer[101];
     static char last_partial_match[101];
     static time_t last_partial_time = 0;
-    int pos;
+    size_t pos;
     int exact_match;
     int partial_match;
     int number;
-    int len;
+    size_t len;
     int key_number;
     chartype result;
 
@@ -272,7 +272,7 @@ chartype actual_char;
             len = strlen(key_table[number]);
             if (pos <= len) {
               if (strncmp(key_table[number], last_partial_match,
-                  (size_t) pos) == 0) {
+                  pos) == 0) {
                 if (pos == len) {
                   exact_match++;
                   key_number = number;
@@ -309,7 +309,7 @@ chartype actual_char;
           len = strlen(key_table[number]);
           if (pos <= len) {
             if (strncmp(key_table[number], in_buffer,
-                (size_t) pos) == 0) {
+                pos) == 0) {
               if (pos == len) {
                 exact_match++;
                 key_number = number;

@@ -607,7 +607,7 @@ errinfotype *err_info;
     rtlArraytype dir_array;
     rtlArraytype resized_dir_array;
     memsizetype max_array_size;
-    memsizetype used_array_size;
+    inttype used_array_size;
     memsizetype position;
     dirtype directory;
     stritype stri1;
@@ -623,9 +623,13 @@ errinfotype *err_info;
         used_array_size = 0;
         stri1 = dirRead(directory);
         while (*err_info == OKAY_NO_ERROR && stri1 != NULL) {
-          if (used_array_size >= max_array_size) {
-            resized_dir_array = REALLOC_RTL_ARRAY(dir_array,
-                max_array_size, max_array_size + 256);
+          if ((memsizetype) used_array_size >= max_array_size) {
+            if (max_array_size >= MAX_MEM_INDEX - 256) {
+              resized_dir_array = NULL;
+            } else {
+              resized_dir_array = REALLOC_RTL_ARRAY(dir_array,
+                  max_array_size, max_array_size + 256);
+            } /* if */
             if (resized_dir_array == NULL) {
               *err_info = MEMORY_ERROR;
             } else {
@@ -635,27 +639,27 @@ errinfotype *err_info;
             } /* if */
           } /* if */
           if (*err_info == OKAY_NO_ERROR) {
-            dir_array->arr[(int) used_array_size].value.strivalue = stri1;
+            dir_array->arr[used_array_size].value.strivalue = stri1;
             used_array_size++;
             stri1 = dirRead(directory);
           } /* if */
         } /* while */
         if (*err_info == OKAY_NO_ERROR) {
           resized_dir_array = REALLOC_RTL_ARRAY(dir_array,
-              max_array_size, used_array_size);
+              max_array_size, (memsizetype) used_array_size);
           if (resized_dir_array == NULL) {
             *err_info = MEMORY_ERROR;
           } else {
             dir_array = resized_dir_array;
-            COUNT3_RTL_ARRAY(max_array_size, used_array_size);
+            COUNT3_RTL_ARRAY(max_array_size, (memsizetype) used_array_size);
             dir_array->min_position = 1;
             dir_array->max_position = used_array_size;
           } /* if */
         } /* if */
         if (*err_info != OKAY_NO_ERROR) {
-          for (position = 0; position < used_array_size; position++) {
-            FREE_STRI(dir_array->arr[(int) position].value.strivalue,
-                dir_array->arr[(int) position].value.strivalue->size);
+          for (position = 0; position < (memsizetype) used_array_size; position++) {
+            FREE_STRI(dir_array->arr[position].value.strivalue,
+                dir_array->arr[position].value.strivalue->size);
           } /* for */
           FREE_RTL_ARRAY(dir_array, max_array_size);
           dir_array = NULL;
@@ -830,6 +834,12 @@ stritype name;
         opt = COMPILER_LIB;
       } else if (strcmp(opt_name, "INTTYPE_LITERAL_SUFFIX") == 0) {
         opt = INTTYPE_LITERAL_SUFFIX;
+      } else if (strcmp(opt_name, "FLOATTYPE_DOUBLE") == 0) {
+#ifdef FLOATTYPE_DOUBLE
+        opt = "TRUE";
+#else
+        opt = "FALSE";
+#endif
       } else if (strcmp(opt_name, "USE_SIGSETJMP") == 0) {
 #ifdef USE_SIGSETJMP
         opt = "TRUE";

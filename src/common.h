@@ -63,6 +63,7 @@ typedef int booltype;
 #define UTF32_STRINGS
 #define WITH_STRI_CAPACITY
 #undef  INTTYPE_64BIT
+#undef  FLOATTYPE_DOUBLE
 
 
 typedef signed char        int8type;
@@ -83,21 +84,31 @@ typedef UINT64TYPE         uint64type;
 #ifdef INT64TYPE
 typedef int64type          inttype;
 typedef uint64type         uinttype;
-#define MAX_INTEGER 9223372036854775807
 #ifdef INT64TYPE_SUFFIX_LL
 #define INTTYPE_LITERAL_SUFFIX "LL"
+#define MAX_INTEGER 9223372036854775807LL
 #else
 #define INTTYPE_LITERAL_SUFFIX ""
+#define MAX_INTEGER 9223372036854775807
 #endif
+#define uintMostSignificantBit  uint64MostSignificantBit
+#define uintLeastSignificantBit uint64LeastSignificantBit
 #endif
 #else
 typedef int32type          inttype;
 typedef uint32type         uinttype;
-#define MAX_INTEGER 2147483647
 #define INTTYPE_LITERAL_SUFFIX "L"
+#define MAX_INTEGER 2147483647
+#define uintMostSignificantBit  uint32MostSignificantBit
+#define uintLeastSignificantBit uint32LeastSignificantBit
 #endif
 
+#ifdef FLOATTYPE_DOUBLE
+typedef double             floattype;
+#else
 typedef float              floattype;
+#endif
+
 typedef uint32type         chartype;
 typedef int32type          schartype;
 typedef uinttype           bitsettype;
@@ -109,6 +120,8 @@ typedef unsigned char      strelemtype;
 #endif
 
 typedef uint32type         memsizetype;
+#define MAX_MEM_INDEX 2147483647
+
 typedef int8type           smallpriortype;
 typedef int                prior_type;
 

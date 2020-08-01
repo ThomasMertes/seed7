@@ -219,24 +219,61 @@ uinttype rand_32 ()
 
 #ifdef ANSI_C
 
-inttype most_significant_bit (uinttype number)
+int uint8MostSignificantBit (uint8type number)
 #else
 
-inttype most_significant_bit (number)
-uinttype number;
+int uint8MostSignificantBit (number)
+uint8type number;
 #endif
 
   {
     int result;
 
-  /* most_significant_bit */
-    result = 0;
-#ifdef INTTYPE_64BIT
-    if (number & 0xffffffff00000000) {
-      number >>= 32;
-      result = 32;
-    } /* if */
+  /* uint8MostSignificantBit */
+    result = most_significant[number];
+    return(result);
+  } /* uint8MostSignificantBit */
+
+
+
+#ifdef ANSI_C
+
+int uint16MostSignificantBit (uint16type number)
+#else
+
+int uint16MostSignificantBit (number)
+uint16type number;
 #endif
+
+  {
+    int result;
+
+  /* uint16MostSignificantBit */
+    result = 0;
+    if (number & 0xff00) {
+      number >>= 8;
+      result += 8;
+    } /* if */
+    result += most_significant[number];
+    return(result);
+  } /* uint16MostSignificantBit */
+
+
+
+#ifdef ANSI_C
+
+int uint32MostSignificantBit (uint32type number)
+#else
+
+int uint32MostSignificantBit (number)
+uint32type number;
+#endif
+
+  {
+    int result;
+
+  /* uint32MostSignificantBit */
+    result = 0;
     if (number & 0xffff0000) {
       number >>= 16;
       result += 16;
@@ -246,31 +283,106 @@ uinttype number;
       result += 8;
     } /* if */
     result += most_significant[number];
-    return((inttype) result);
-  } /* most_significant_bit */
+    return(result);
+  } /* uint32MostSignificantBit */
 
 
 
+#ifdef INT64TYPE
 #ifdef ANSI_C
 
-inttype least_significant_bit (uinttype number)
+int uint64MostSignificantBit (uint64type number)
 #else
 
-inttype least_significant_bit (number)
-uinttype number;
+int uint64MostSignificantBit (number)
+uint64type number;
 #endif
 
   {
     int result;
 
-  /* least_significant_bit */
+  /* uint64MostSignificantBit */
     result = 0;
-#ifdef INTTYPE_64BIT
-    if ((number & 0xffffffff) == 0) {
+#ifdef INT64TYPE_SUFFIX_LL
+    if (number & 0xffffffff00000000LL) {
+#else
+    if (number & 0xffffffff00000000) {
+#endif
       number >>= 32;
       result = 32;
     } /* if */
+    if (number & 0xffff0000) {
+      number >>= 16;
+      result += 16;
+    } /* if */
+    if (number & 0xff00) {
+      number >>= 8;
+      result += 8;
+    } /* if */
+    result += most_significant[number];
+    return(result);
+  } /* uint64MostSignificantBit */
 #endif
+
+
+
+#ifdef ANSI_C
+
+int uint8LeastSignificantBit (uint8type number)
+#else
+
+int uint8LeastSignificantBit (number)
+uint8type number;
+#endif
+
+  {
+    int result;
+
+  /* uint8LeastSignificantBit */
+    result = least_significant[number & 0xff];
+    return(result);
+  } /* uint8LeastSignificantBit */
+
+
+
+#ifdef ANSI_C
+
+int uint16LeastSignificantBit (uint16type number)
+#else
+
+int uint16LeastSignificantBit (number)
+uint16type number;
+#endif
+
+  {
+    int result;
+
+  /* uint16LeastSignificantBit */
+    result = 0;
+    if ((number & 0xff) == 0) {
+      number >>= 8;
+      result += 8;
+    } /* if */
+    result += least_significant[number & 0xff];
+    return(result);
+  } /* uint16LeastSignificantBit */
+
+
+
+#ifdef ANSI_C
+
+int uint32LeastSignificantBit (uint32type number)
+#else
+
+int uint32LeastSignificantBit (number)
+uint32type number;
+#endif
+
+  {
+    int result;
+
+  /* uint32LeastSignificantBit */
+    result = 0;
     if ((number & 0xffff) == 0) {
       number >>= 16;
       result += 16;
@@ -280,8 +392,42 @@ uinttype number;
       result += 8;
     } /* if */
     result += least_significant[number & 0xff];
-    return((inttype) result);
-  } /* least_significant_bit */
+    return(result);
+  } /* uint32LeastSignificantBit */
+
+
+
+#ifdef INT64TYPE
+#ifdef ANSI_C
+
+int uint64LeastSignificantBit (uint64type number)
+#else
+
+int uint64LeastSignificantBit (number)
+uint64type number;
+#endif
+
+  {
+    int result;
+
+  /* uint64LeastSignificantBit */
+    result = 0;
+    if ((number & 0xffffffff) == 0) {
+      number >>= 32;
+      result = 32;
+    } /* if */
+    if ((number & 0xffff) == 0) {
+      number >>= 16;
+      result += 16;
+    } /* if */
+    if ((number & 0xff) == 0) {
+      number >>= 8;
+      result += 8;
+    } /* if */
+    result += least_significant[number & 0xff];
+    return(result);
+  } /* uint64LeastSignificantBit */
+#endif
 
 
 
@@ -297,11 +443,12 @@ inttype k_number;
 
   {
     inttype number;
-    uinttype result;
+    uinttype unsigned_result;
+    inttype result;
 
   /* intBinom */
     /* printf("(%ld ! %ld) ", k_number, n_number); */
-    if (2 * k_number > n_number) {
+    if (n_number > 0 && 2 * k_number > n_number) {
       k_number = n_number - k_number;
     } /* if */
     if (k_number < 0) {
@@ -309,11 +456,20 @@ inttype k_number;
     } else if (k_number == 0) {
       result = 1;
     } else /* if (n_number <= 30 || k_number <= 7)  */{
-      result = n_number;
-      for (number = 2; number <= k_number; number++) {
-        result *= (n_number - number + 1);
-        result /= number;
-      } /* for */
+      if (n_number < 0) {
+        result = n_number;
+        for (number = 2; number <= k_number; number++) {
+          result *= (n_number - number + 1);
+          result /= number;
+        } /* for */
+      } else {
+        unsigned_result = (uinttype) n_number;
+        for (number = 2; number <= k_number; number++) {
+          unsigned_result *= (n_number - number + 1);
+          unsigned_result /= number;
+        } /* for */
+        result = (inttype) unsigned_result;
+      } /* if */
 /*
     } else {
       result = binom(n_number - 1, k_number - 1) +
@@ -321,7 +477,7 @@ inttype k_number;
 */
     } /* if */
     /* printf("--> %ld\n", result); */
-    return((inttype) result);
+    return(result);
   } /* intBinom */
 
 
@@ -342,16 +498,7 @@ inttype number;
     if (number < 0) {
       number = ~number;
     } /* if */
-    result = 1;
-    if (number & 0xffff0000) {
-      number >>= 16;
-      result += 16;
-    } /* if */
-    if (number & 0xff00) {
-      number >>= 8;
-      result += 8;
-    } /* if */
-    result += most_significant[number];
+    result = uintMostSignificantBit((uinttype) number) + 1;
     return(result);
   } /* intBitLength */
 
@@ -431,20 +578,11 @@ inttype number;
   /* intLog2 */
     if (number < 0) {
       raise_error(NUMERIC_ERROR);
-      return(0);
-    } else {
       result = 0;
-      if (number & 0xffff0000) {
-        number >>= 16;
-        result = 16;
-      } /* if */
-      if (number & 0xff00) {
-        number >>= 8;
-        result += 8;
-      } /* if */
-      result += most_significant[number];
-      return(result);
+    } else {
+      result = uintMostSignificantBit((uinttype) number);
     } /* if */
+    return(result);
   } /* intLog2 */
 
 
@@ -499,15 +637,15 @@ inttype pad_size;
   /* intLpad0 */
     negative = (number < 0);
     if (negative) {
-      unsigned_number = -number;
+      unsigned_number = (uinttype) -number;
     } else {
-      unsigned_number = number;
+      unsigned_number = (uinttype) number;
     } /* if */
     buffer = &buffer_1[50];
     do {
       *(--buffer) = (strelemtype) (unsigned_number % 10 + '0');
     } while ((unsigned_number /= 10) != 0);
-    length = &buffer_1[50] - buffer;
+    length = (memsizetype) (&buffer_1[50] - buffer);
     if (pad_size > (inttype) length) {
       result_size = (memsizetype) pad_size;
     } else {
@@ -672,7 +810,7 @@ inttype upper_limit;
       raise_error(RANGE_ERROR);
       return(0);
     } else {
-      scale_limit = upper_limit - lower_limit;
+      scale_limit = (uinttype) (upper_limit - lower_limit);
       if (scale_limit <= ULONG_MAX - 2) {
         high_factor = 0L;
       } else {
@@ -739,15 +877,15 @@ inttype number;
     booltype negative;
     strelemtype buffer_1[50];
     strelemtype *buffer;
-    memsizetype len;
+    memsizetype length;
     stritype result;
 
   /* intStr */
     negative = (number < 0);
     if (negative) {
-      unsigned_number = -number;
+      unsigned_number = (uinttype) -number;
     } else {
-      unsigned_number = number;
+      unsigned_number = (uinttype) number;
     } /* if */
     buffer = &buffer_1[50];
     do {
@@ -756,13 +894,13 @@ inttype number;
     if (negative) {
       *(--buffer) = (strelemtype) '-';
     } /* if */
-    len = &buffer_1[50] - buffer;
-    if (!ALLOC_STRI(result, len)) {
+    length = (memsizetype) (&buffer_1[50] - buffer);
+    if (!ALLOC_STRI(result, length)) {
       raise_error(MEMORY_ERROR);
       return(NULL);
     } else {
-      result->size = len;
-      memcpy(result->mem, buffer, (size_t) (len * sizeof(strelemtype)));
+      result->size = length;
+      memcpy(result->mem, buffer, (size_t) (length * sizeof(strelemtype)));
       return(result);
     } /* if */
   } /* intStr */
@@ -784,7 +922,7 @@ inttype base;
     booltype negative;
     strelemtype buffer_1[75];
     strelemtype *buffer;
-    memsizetype len;
+    memsizetype length;
     stritype result;
 
   /* intStrBased */
@@ -794,9 +932,9 @@ inttype base;
     } else {
       negative = (number < 0);
       if (negative) {
-        unsigned_number = -number;
+        unsigned_number = (uinttype) -number;
       } else {
-        unsigned_number = number;
+        unsigned_number = (uinttype) number;
       } /* if */
       buffer = &buffer_1[75];
       do {
@@ -805,12 +943,12 @@ inttype base;
       if (negative) {
         *(--buffer) = (strelemtype) '-';
       } /* if */
-      len = &buffer_1[75] - buffer;
-      if (!ALLOC_STRI(result, len)) {
+      length = (memsizetype) (&buffer_1[75] - buffer);
+      if (!ALLOC_STRI(result, length)) {
         raise_error(MEMORY_ERROR);
       } else {
-        result->size = len;
-        memcpy(result->mem, buffer, (size_t) (len * sizeof(strelemtype)));
+        result->size = length;
+        memcpy(result->mem, buffer, (size_t) (length * sizeof(strelemtype)));
       } /* if */
     } /* if */
     return(result);
@@ -832,15 +970,15 @@ inttype number;
     booltype negative;
     strelemtype buffer_1[50];
     strelemtype *buffer;
-    memsizetype len;
+    memsizetype length;
     stritype result;
 
   /* intStrHex */
     negative = (number < 0);
     if (negative) {
-      unsigned_number = -number;
+      unsigned_number = (uinttype) -number;
     } else {
-      unsigned_number = number;
+      unsigned_number = (uinttype) number;
     } /* if */
     buffer = &buffer_1[50];
     do {
@@ -849,13 +987,13 @@ inttype number;
     if (negative) {
       *(--buffer) = (strelemtype) '-';
     } /* if */
-    len = &buffer_1[50] - buffer;
-    if (!ALLOC_STRI(result, len)) {
+    length = (memsizetype) (&buffer_1[50] - buffer);
+    if (!ALLOC_STRI(result, length)) {
       raise_error(MEMORY_ERROR);
       return(NULL);
     } else {
-      result->size = len;
-      memcpy(result->mem, buffer, (size_t) (len * sizeof(strelemtype)));
+      result->size = length;
+      memcpy(result->mem, buffer, (size_t) (length * sizeof(strelemtype)));
       return(result);
     } /* if */
   } /* intStrHex */

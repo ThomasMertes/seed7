@@ -41,6 +41,7 @@ const boolean: FLOAT_ZERO_DIV_ERROR    is boolean parse configValue("FLOAT_ZERO_
 const boolean: INTTYPE_64BIT           is boolean parse configValue("INTTYPE_64BIT");
 const boolean: ISNAN_WITH_UNDERLINE    is boolean parse configValue("ISNAN_WITH_UNDERLINE");
 const boolean: CHECK_INT_DIV_BY_ZERO   is boolean parse configValue("CHECK_INT_DIV_BY_ZERO");
+const boolean: FLOATTYPE_DOUBLE        is boolean parse configValue("FLOATTYPE_DOUBLE");
 const string:  INTTYPE_LITERAL_SUFFIX  is configValue("INTTYPE_LITERAL_SUFFIX");
 
 const type: option_hash is hash [string] string;
@@ -950,12 +951,12 @@ const proc: process_cpy_call (in type: object_type,
       expr &:= "bstCpy(&(" & param_a & "), " & param_b & ")";
     elsif object_type = floattype then
       # expr &:= param_a & "=(" & param_b & ")";
-      # expr &:= "*((float *) &(" & param_a & "))=(" & param_b & ")";
+      # expr &:= "*((floattype *) &(" & param_a & "))=(" & param_b & ")";
       expr &:= "memcpy(&(";
       expr &:= param_a;
       expr &:= "), &(";
       expr &:= param_b;
-      expr &:= "), sizeof(float))"; # Assuming that sizeof(float) == sizeof(long)
+      expr &:= "), sizeof(floattype))"; # Assuming that sizeof(floattype) == sizeof(long)
     elsif object_type = wintype then
       expr &:= "drwCpy(&(" & param_a & "), " & param_b & ")";
     elsif object_type in int_types then
@@ -4689,11 +4690,11 @@ const proc: process_drw_genpointlist (in ref_list: params, inout expr_type: c_ex
     c_expr.result_expr &:= "), drwGenPointList(";
     c_expr.result_expr &:= "tmp_";
     c_expr.result_expr &:= str(temp_num);
-    c_expr.result_expr &:= "->arr, tmp_";
+    c_expr.result_expr &:= "->arr, (uinttype) (tmp_";
     c_expr.result_expr &:= str(temp_num);
     c_expr.result_expr &:= "->max_position - tmp_";
     c_expr.result_expr &:= str(temp_num);
-    c_expr.result_expr &:= "->min_position + 1))";
+    c_expr.result_expr &:= "->min_position + 1)))";
   end func;
 
 
@@ -5605,7 +5606,7 @@ const proc: process_flt_cpy (in ref_list: params, inout expr_type: c_expr) is fu
     end if;
     c_expr.expr &:= ");\n";
 (*
-    c_expr.expr &:= "*((float * ) &(" & c_param1.expr;
+    c_expr.expr &:= "*((floattype * ) &(" & c_param1.expr;
     c_expr.expr &:= "))=(";
     c_expr.expr &:= c_param3.expr;
     c_expr.expr &:= ");\n";
@@ -5614,7 +5615,7 @@ const proc: process_flt_cpy (in ref_list: params, inout expr_type: c_expr) is fu
     c_expr.expr &:= c_param1.expr;
     c_expr.expr &:= "), &(";
     c_expr.expr &:= c_param3.expr;
-    c_expr.expr &:= "), sizeof(float));\n";  # Assuming that sizeof(float) == sizeof(long)
+    c_expr.expr &:= "), sizeof(floattype));\n";  # Assuming that sizeof(floattype) == sizeof(long)
 *)
     if c_param3.temp_num <> 0 then
       c_expr.expr &:= c_param1.temp_frees;
@@ -5845,7 +5846,7 @@ const proc: process_flt_icast (in ref_list: params, inout expr_type: c_expr) is 
 const proc: process_flt_iconv (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "(float)(";
+    c_expr.expr &:= "(floattype)(";
     process_expr(params[3], c_expr);
     c_expr.expr &:= ")";
   end func;
@@ -5854,7 +5855,7 @@ const proc: process_flt_iconv (in ref_list: params, inout expr_type: c_expr) is 
 const proc: process_flt_iflt (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "(float)(";
+    c_expr.expr &:= "(floattype)(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
   end func;
@@ -16036,7 +16037,11 @@ const proc: write_file_head is func
       writeln(c_prog, "typedef long int inttype;");
       writeln(c_prog, "typedef unsigned long int uinttype;");
     end if;
-    writeln(c_prog, "typedef float floattype;");
+    if FLOATTYPE_DOUBLE then
+      writeln(c_prog, "typedef double floattype;");
+    else
+      writeln(c_prog, "typedef float floattype;");
+    end if;
     writeln(c_prog, "typedef unsigned long int chartype;");
     writeln(c_prog, "typedef long int schartype;");
     writeln(c_prog, "typedef unsigned long int strelemtype;");
@@ -16378,7 +16383,7 @@ const proc: write_prototypes is func
     writeln(c_prog, "void *      refItftosct (objreftype);");
     writeln(c_prog, "long *      refSelect (void *a, inttype b)                {printf(\"refSelect\\n\");}");
     writeln(c_prog, "inttype     refLine (objreftype);");
-    writeln(c_prog, "float *     refFSselect (void *a, inttype b)              {printf(\"refFSelect\\n\");}");
+    writeln(c_prog, "floattype * refFSselect (void *a, inttype b)              {printf(\"refFSelect\\n\");}");
     writeln(c_prog, "stritype    refStr (objreftype);");
     writeln(c_prog, "inttype     refType (objreftype);");
     writeln(c_prog, "void        rflAppend (listtype *, listtype);");
@@ -16404,7 +16409,7 @@ const proc: write_prototypes is func
     writeln(c_prog, "void        scrWrite (stritype stri);");
     writeln(c_prog, "void        sctCreate (structtype a, structtype b)        {printf(\"sctCreate\\n\");}");
     writeln(c_prog, "long *      sctSelect (void *a, inttype b)                {printf(\"sctSelect\\n\");}");
-    writeln(c_prog, "float *     sctFSelect (void *a, inttype b)               {printf(\"sctFSelect\\n\");}");
+    writeln(c_prog, "floattype * sctFSelect (void *a, inttype b)               {printf(\"sctFSelect\\n\");}");
     writeln(c_prog, "settype     setArrlit (inttype);");
     writeln(c_prog, "settype     setBaselit (inttype);");
     writeln(c_prog, "inttype     setCard (settype);");
@@ -16532,7 +16537,7 @@ const proc: write_prototypes is func
     writeln(c_prog, "booltype    refIsvar (void * );");
     writeln(c_prog, "void *      refItftosct (void *a)                         {printf(\"refItftosct\\n\");}");
     writeln(c_prog, "long *      refSelect (void *, inttype);");
-    writeln(c_prog, "float *     refFSelect (void *, inttype);");
+    writeln(c_prog, "floattype * refFSelect (void *, inttype);");
     writeln(c_prog, "stritype    refStr (void *a)                              {printf(\"ref_str\\n\");}");
     writeln(c_prog, "void        rflAppend (listtype *a, listtype b)           {printf(\"rflAppend\\n\");}");
     writeln(c_prog, "void        rflCpy (listtype *a, listtype b)              {printf(\"rflCpy\\n\");}");
@@ -16542,7 +16547,7 @@ const proc: write_prototypes is func
     writeln(c_prog, "void        sct_cpy (structtype a, structtype b)          {printf(\"sct_cpy\\n\");}");
     writeln(c_prog, "void        sct_cpy (structtype, structtype);");
     writeln(c_prog, "long *      sctSelect (void *, inttype);");
-    writeln(c_prog, "float *     sctFSelect (void *, inttype);");
+    writeln(c_prog, "floattype * sctFSelect (void *, inttype);");
     writeln(c_prog, "stritype    strCLit (stritype);");
     writeln(c_prog, "char *      str_to_cstri (stritype);");
     writeln(c_prog, "stritype    typStr (int a)                                {printf(\"typStr\\n\");}");

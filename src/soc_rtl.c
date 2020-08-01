@@ -327,7 +327,7 @@ inttype port;
               result->size = sizeof(struct sockaddr_in);
               inet_address = (struct sockaddr_in *) result->mem;
               inet_address->sin_family = host_ent->h_addrtype;
-              inet_address->sin_port = htons(port);                    /* short, network byte order */
+              inet_address->sin_port = htons((uint16type) port);       /* short, network byte order */
               memcpy(&inet_address->sin_addr.s_addr, host_ent->h_addr, (size_t) host_ent->h_length);
               memset(inet_address->sin_zero, '\0', sizeof(inet_address->sin_zero));
             } /* if */
@@ -372,7 +372,7 @@ inttype port;
       result->size = sizeof(struct sockaddr_in);
       inet_address = (struct sockaddr_in *) result->mem;
       inet_address->sin_family = AF_INET;
-      inet_address->sin_port = htons(port);                   /* short, network byte order */
+      inet_address->sin_port = htons((uint16type) port);      /* short, network byte order */
       inet_address->sin_addr.s_addr = htonl(INADDR_LOOPBACK); /* local host */
       memset(inet_address->sin_zero, '\0', sizeof(inet_address->sin_zero));
     } /* if */
@@ -404,8 +404,8 @@ inttype port;
       result->size = sizeof(struct sockaddr_in);
       inet_address = (struct sockaddr_in *) result->mem;
       inet_address->sin_family = AF_INET;
-      inet_address->sin_port = htons(port);       /* short, network byte order */
-      inet_address->sin_addr.s_addr = INADDR_ANY; /* auto-fill with local IP */
+      inet_address->sin_port = htons((uint16type) port); /* short, network byte order */
+      inet_address->sin_addr.s_addr = INADDR_ANY;        /* auto-fill with local IP */
       memset(inet_address->sin_zero, '\0', sizeof(inet_address->sin_zero));
     } /* if */
     return(result);

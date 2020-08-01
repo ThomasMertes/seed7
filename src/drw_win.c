@@ -1620,12 +1620,12 @@ inttype *xy;
 
 #ifdef ANSI_C
 
-bstritype drwGenPointList (inttype *xy, inttype length)
+bstritype drwGenPointList (inttype *xy, memsizetype length)
 #else
 
 bstritype drwGenPointList (xy, length)
 inttype *xy;
-inttype length;
+memsizetype length;
 #endif
 
   {

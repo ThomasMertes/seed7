@@ -88,7 +88,7 @@ listtype arguments;
   /* set_arrlit */
     isit_array(arg_2(arguments));
     arr1 = take_array(arg_2(arguments));
-    length = arr1->max_position - arr1->min_position + 1;
+    length = (uinttype) (arr1->max_position - arr1->min_position + 1);
     if (!ALLOC_SET(result, 1)) {
       return(raise_exception(SYS_MEM_EXCEPTION));
     } else {
@@ -106,7 +106,7 @@ listtype arguments;
         for (array_index = 1; array_index < length; array_index++) {
           setIncl(&result, take_int(&arr1->arr[array_index]));
           if (fail_flag) {
-            FREE_SET(result, result->max_position - result->min_position + 1);
+            FREE_SET(result, (uinttype) (result->max_position - result->min_position + 1));
             return(fail_value);
           } /* if */
         } /* for */
@@ -170,7 +170,7 @@ listtype arguments;
     set1 = take_set(arg_1(arguments));
     result = 0;
     for (bitset_index = 0;
-        bitset_index <= (memsizetype) (set1->max_position - set1->min_position);
+        bitset_index <= (uinttype) (set1->max_position - set1->min_position);
         bitset_index++) {
       byte = (unsigned char *) &set1->bitset[bitset_index];
       for (idx = 0; idx < sizeof(bitsettype); idx++) {
@@ -265,15 +265,15 @@ listtype arguments;
     set_dest = take_set(set_to);
     set_source = take_set(set_from);
     if (TEMP_OBJECT(set_from)) {
-      set_dest_size = set_dest->max_position - set_dest->min_position + 1;
+      set_dest_size = (uinttype) (set_dest->max_position - set_dest->min_position + 1);
       FREE_SET(set_dest, set_dest_size);
       set_to->value.setvalue = set_source;
       set_from->value.setvalue = NULL;
     } else {
-      set_source_size = set_source->max_position - set_source->min_position + 1;
+      set_source_size = (uinttype) (set_source->max_position - set_source->min_position + 1);
       if (set_dest->min_position != set_source->min_position ||
           set_dest->max_position != set_source->max_position) {
-        set_dest_size = set_dest->max_position - set_dest->min_position + 1;
+        set_dest_size = (uinttype) (set_dest->max_position - set_dest->min_position + 1);
         if (set_dest_size != set_source_size) {
           if (!ALLOC_SET(set_dest, set_source_size)) {
             return(raise_exception(SYS_MEM_EXCEPTION));
@@ -319,7 +319,7 @@ listtype arguments;
       set_to->value.setvalue = set_source;
       set_from->value.setvalue = NULL;
     } else {
-      new_size = set_source->max_position - set_source->min_position + 1;
+      new_size = (uinttype) (set_source->max_position - set_source->min_position + 1);
       if (!ALLOC_SET(new_set, new_size)) {
         set_to->value.setvalue = NULL;
         return(raise_exception(SYS_MEM_EXCEPTION));
@@ -352,7 +352,7 @@ listtype arguments;
     isit_set(arg_1(arguments));
     old_set = take_set(arg_1(arguments));
     if (old_set != NULL) {
-      FREE_SET(old_set, old_set->max_position - old_set->min_position + 1);
+      FREE_SET(old_set, (uinttype) (old_set->max_position - old_set->min_position + 1));
       arg_1(arguments)->value.setvalue = NULL;
     } /* if */
     return(SYS_EMPTY_OBJECT);
@@ -401,7 +401,7 @@ listtype arguments;
     set1 = take_set(arg_3(arguments));
     position = bitset_pos(number);
     if (position >= set1->min_position && position <= set1->max_position) {
-      bitset_index = (memsizetype) (position - set1->min_position);
+      bitset_index = (uinttype) (position - set1->min_position);
       bit_index = ((unsigned int) number) & bitset_mask;
       if (set1->bitset[bitset_index] & (((bitsettype) 1) << bit_index)) {
         return(SYS_TRUE_OBJECT);
@@ -487,7 +487,7 @@ listtype arguments;
     number = take_int(arg_2(arguments));
     position = bitset_pos(number);
     if (position >= set_dest->min_position && position <= set_dest->max_position) {
-      bitset_index = (memsizetype) (position - set_dest->min_position);
+      bitset_index = (uinttype) (position - set_dest->min_position);
       bit_index = ((unsigned int) number) & bitset_mask;
       set_dest->bitset[bitset_index] &= ~(((bitsettype) 1) << bit_index);
 #ifdef OUT_OF_ORDER
@@ -600,7 +600,7 @@ listtype arguments;
     number = take_int(arg_3(arguments));
     position = bitset_pos(number);
     if (position >= set1->min_position && position <= set1->max_position) {
-      bitset_index = (memsizetype) (position - set1->min_position);
+      bitset_index = (uinttype) (position - set1->min_position);
       bit_index = ((unsigned int) number) & bitset_mask;
       if (set1->bitset[bitset_index] & (((bitsettype) 1) << bit_index)) {
         return(SYS_TRUE_OBJECT);
@@ -643,8 +643,8 @@ listtype arguments;
     number = take_int(arg_2(arguments));
     position = bitset_pos(number);
     if (position > set_dest->max_position) {
-      old_size = set_dest->max_position - set_dest->min_position + 1;
-      new_size = position - set_dest->min_position + 1;
+      old_size = (uinttype) (set_dest->max_position - set_dest->min_position + 1);
+      new_size = (uinttype) (position - set_dest->min_position + 1);
       set_dest = REALLOC_SET(set_dest, old_size, new_size);
       if (set_dest == NULL) {
         return(raise_exception(SYS_MEM_EXCEPTION));
@@ -655,8 +655,8 @@ listtype arguments;
         memset(&set_dest->bitset[old_size], 0, (new_size - old_size) * sizeof(bitsettype));
       } /* if */
     } else if (position < set_dest->min_position) {
-      old_size = set_dest->max_position - set_dest->min_position + 1;
-      new_size = set_dest->max_position - position + 1;
+      old_size = (uinttype) (set_dest->max_position - set_dest->min_position + 1);
+      new_size = (uinttype) (set_dest->max_position - position + 1);
       old_set = set_dest;
       if (!ALLOC_SET(set_dest, new_size)) {
         return(raise_exception(SYS_MEM_EXCEPTION));
@@ -669,7 +669,7 @@ listtype arguments;
         FREE_SET(old_set, old_size);
       } /* if */
     } /* if */
-    bitset_index = (memsizetype) (position - set_dest->min_position);
+    bitset_index = (uinttype) (position - set_dest->min_position);
     bit_index = ((unsigned int) number) & bitset_mask;
     set_dest->bitset[bitset_index] |= (((bitsettype) 1) << bit_index);
     return(SYS_EMPTY_OBJECT);
@@ -815,7 +815,7 @@ listtype arguments;
     set1 = take_set(arg_4(arguments));
     position = bitset_pos(number);
     if (position >= set1->min_position && position <= set1->max_position) {
-      bitset_index = (memsizetype) (position - set1->min_position);
+      bitset_index = (uinttype) (position - set1->min_position);
       bit_index = ((unsigned int) number) & bitset_mask;
       if (set1->bitset[bitset_index] & (((bitsettype) 1) << bit_index)) {
         return(SYS_FALSE_OBJECT);
@@ -922,7 +922,7 @@ listtype arguments;
       return(raise_exception(SYS_RNG_EXCEPTION));
     } else {
       set1 = take_set(obj_arg);
-      set_size = set1->max_position - set1->min_position + 1;
+      set_size = (uinttype) (set1->max_position - set1->min_position + 1);
       if (!ALLOC_SET(result, set_size)) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } else {

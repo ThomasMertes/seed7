@@ -141,6 +141,7 @@ listtype arguments;
   {
     inttype number1;
     inttype number2;
+    inttype result;
 
   /* int_cmp */
     isit_int(arg_1(arguments));
@@ -148,12 +149,13 @@ listtype arguments;
     number1 = take_int(arg_1(arguments));
     number2 = take_int(arg_2(arguments));
     if (number1 < number2) {
-      return(bld_int_temp(-1));
+      result = -1;
     } else if (number1 > number2) {
-      return(bld_int_temp(1));
+      result = 1;
     } else {
-      return(bld_int_temp(0));
+      result = 0;
     } /* if */
+    return(bld_int_temp(result));
   } /* int_cmp */
 
 

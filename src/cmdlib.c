@@ -86,7 +86,7 @@ dirtype directory;
     arraytype dir_array;
     arraytype resized_dir_array;
     memsizetype max_array_size;
-    memsizetype used_array_size;
+    inttype used_array_size;
     memsizetype position;
     stritype stri1;
     booltype okay;
@@ -98,9 +98,13 @@ dirtype directory;
       stri1 = dirRead(directory);
       okay = TRUE;
       while (okay && stri1 != NULL) {
-        if (used_array_size >= max_array_size) {
-          resized_dir_array = REALLOC_ARRAY(dir_array,
-              max_array_size, max_array_size + 256);
+        if ((memsizetype) used_array_size >= max_array_size) {
+          if (max_array_size >= MAX_MEM_INDEX - 256) {
+            resized_dir_array = NULL;
+          } else {
+            resized_dir_array = REALLOC_ARRAY(dir_array,
+                max_array_size, max_array_size + 256);
+          } /* if */
           if (resized_dir_array == NULL) {
             okay = FALSE;
           } else {
@@ -110,10 +114,10 @@ dirtype directory;
           } /* if */
         } /* if */
         if (okay) {
-          dir_array->arr[(int) used_array_size].type_of = take_type(SYS_STRI_TYPE);
-          dir_array->arr[(int) used_array_size].descriptor.property = NULL;
-          dir_array->arr[(int) used_array_size].value.strivalue = stri1;
-          INIT_CATEGORY_OF_VAR(&dir_array->arr[(int) used_array_size],
+          dir_array->arr[used_array_size].type_of = take_type(SYS_STRI_TYPE);
+          dir_array->arr[used_array_size].descriptor.property = NULL;
+          dir_array->arr[used_array_size].value.strivalue = stri1;
+          INIT_CATEGORY_OF_VAR(&dir_array->arr[used_array_size],
               STRIOBJECT);
           used_array_size++;
           stri1 = dirRead(directory);
@@ -121,20 +125,20 @@ dirtype directory;
       } /* while */
       if (okay) {
         resized_dir_array = REALLOC_ARRAY(dir_array,
-            max_array_size, used_array_size);
+            max_array_size, (memsizetype) used_array_size);
         if (resized_dir_array == NULL) {
           okay = FALSE;
         } else {
           dir_array = resized_dir_array;
-          COUNT3_ARRAY(max_array_size, used_array_size);
+          COUNT3_ARRAY(max_array_size, (memsizetype) used_array_size);
           dir_array->min_position = 1;
           dir_array->max_position = used_array_size;
         } /* if */
       } /* if */
       if (!okay) {
-        for (position = 0; position < used_array_size; position++) {
-          FREE_STRI(dir_array->arr[(int) position].value.strivalue,
-              dir_array->arr[(int) position].value.strivalue->size);
+        for (position = 0; position < (memsizetype) used_array_size; position++) {
+          FREE_STRI(dir_array->arr[position].value.strivalue,
+              dir_array->arr[position].value.strivalue->size);
         } /* for */
         FREE_ARRAY(dir_array, max_array_size);
         dir_array = NULL;

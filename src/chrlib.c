@@ -85,6 +85,7 @@ listtype arguments;
   {
     chartype char1;
     chartype char2;
+    inttype result;
 
   /* chr_cmp */
     isit_char(arg_1(arguments));
@@ -92,12 +93,13 @@ listtype arguments;
     char1 = take_char(arg_1(arguments));
     char2 = take_char(arg_2(arguments));
     if (char1 < char2) {
-      return(bld_int_temp(-1));
+      result = -1;
     } else if (char1 > char2) {
-      return(bld_int_temp(1));
+      result = 1;
     } else {
-      return(bld_int_temp(0));
+      result = 0;
     } /* if */
+    return(bld_int_temp(result));
   } /* chr_cmp */
 
 
