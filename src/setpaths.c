@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  setpaths.c    Write definitions for Seed7 specific paths.       */
-/*  Copyright (C) 2011  Thomas Mertes                               */
+/*  Copyright (C) 2011, 2015  Thomas Mertes                         */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: Setpaths                                                */
 /*  File: seed7/src/setpaths.c                                      */
-/*  Changes: 2011  Thomas Mertes                                    */
+/*  Changes: 2011, 2015  Thomas Mertes                              */
 /*  Content: Program to write definitions for Seed7 specific paths. */
 /*                                                                  */
 /********************************************************************/
@@ -282,9 +282,9 @@ int main (int argc, char **argv)
 
   {
     char **curr_arg;
-    int found;
     os_charType buffer[BUFFER_LEN];
     char *s7_lib_dir = NULL;
+    char *seed7_library = NULL;
 
   /* main */
 #ifdef OS_STRI_USES_CODE_PAGE
@@ -296,6 +296,9 @@ int main (int argc, char **argv)
       if (memcmp(*curr_arg, "S7_LIB_DIR=", 11 * sizeof(char)) == 0 &&
           (*curr_arg)[11] != '\0') {
         s7_lib_dir = &(*curr_arg)[11];
+      } else if (memcmp(*curr_arg, "SEED7_LIBRARY=", 14 * sizeof(char)) == 0 &&
+                 (*curr_arg)[14] != '\0') {
+        seed7_library = &(*curr_arg)[14];
       } /* if */
     } /* for */
     if (s7_lib_dir != NULL) {
@@ -327,15 +330,9 @@ int main (int argc, char **argv)
     chdir("../prg"); /* Use ../prg when ../lib does not exist */
     chdir("../lib");
     printf("#define SEED7_LIBRARY \"");
-    found = 0;
-    for (curr_arg = argv; *curr_arg != NULL; curr_arg++) {
-      if (memcmp(*curr_arg, "SEED7_LIBRARY=", 14 * sizeof(char)) == 0 &&
-          (*curr_arg)[14] != '\0') {
-        found = 1;
-        printf("%s", &(*curr_arg)[14]);
-      } /* if */
-    } /* for */
-    if (!found) {
+    if (seed7_library != NULL) {
+      printf("%s", seed7_library);
+    } else {
       get_cwd_to_buffer(buffer);
       write_as_utf8(buffer);
     } /* if */

@@ -1,3 +1,41 @@
+20151011:
+- Errors in the bigInteger operators +:= and -:= have been fixed.
+  This errors were triggered with expressions like A +:= A; when the
+  value of A has a value in a specific range. Thanks go to Fausto C.
+  for reporting this problem.
+- The example program ide7.sd7 has been improved to start programs
+  as process and to allow their termination.
+- The chapter about errors in the manual has been improved.
+- The picture terminate_pic has been added to pic16.s7i and
+  pic32.s7i.
+- Checks for +:=, -:= and *:= have been added to chkbig.sd7.
+- Documentation comments have been added to aes.s7i, arc4.s7i,
+  bin32.s7i, bin64.s7i, complex.s7i, des.s7i and tdes.s7i.
+- Errors in the functions bigAddAssign and bigSbtrAssign have been
+  fixed. Now the check for a negative delta is done before the
+  variable is changed. This fixes the errors with A +:= A; and
+  A -:= A; .
+- The makefile mk_mingc.mak has been improved such that it can be
+  called without the parameters S7_LIB_DIR and SEED7_LIBRARY.
+- The program chkccomp.c has been improved to check if pow() works
+  correct when the exponent is the maximum odd value that fits in
+  a float respectively double.
+- A buffer in a test program used by chkccomp.c has been enlarged
+  to avoid a possible buffer overflow.
+- Calls of logFunction have been added to big_gmp.c, big_rtl.c and
+  traceutl.c.
+- The definition of CATCH_SIGNALS has been removed from the
+  makefiles. Now signal handlers are used when one of the functions
+  sigaction() and signal() is available.
+- The function socAddressCStri() has been added to soc_rtl.c. Now
+  this function is used instead of bstriAsUnquotedCStri(), to write
+  addresses in log functions.
+- The function printParameters() has been added to pcs_unx.c and
+  pcs_win.c. In log functions this function is now used to print
+  parameter lists.
+- The unused functions bin_add and bin_add_assign have been removed
+  from bin64.s7i, binlib.c, binlib.h and primitiv.c.
+
 20150927:
 - The library cgidialog.s7i, which provides dialogs that are shown
   with a web browser, has been added.

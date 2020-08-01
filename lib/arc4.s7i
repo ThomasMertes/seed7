@@ -54,7 +54,8 @@ const func integer: blockSize (RC4) is 0;
 
 (**
  *  Set the key for the ARC4 (Alleged RC4) stream cipher.
- *  @return the ARC4 cipher state.
+ *  @param arc4Key The key to be used for RC4.
+ *  @return the RC4 (ARC4) cipher state.
  *)
 const func arc4State: setArc4Key (in string: arc4Key) is func
   result
@@ -81,6 +82,12 @@ const func arc4State: setArc4Key (in string: arc4Key) is func
   end func;
 
 
+(**
+ *  Set key and initialization vector for the ARC4 (Alleged RC4) stream cipher.
+ *  @param cipherKey The key to be used for RC4.
+ *  @param initializationVector Unused for RC4.
+ *  @return the initial ''cipherState'' of a RC4 (ARC4) cipher.
+ *)
 const func cipherState: setCipherKey (RC4, in string: cipherKey,
     in string: initializationVector) is
   return toInterface(setArc4Key(cipherKey));

@@ -49,28 +49,6 @@
 #include "set_rtl.h"
 
 
-#ifdef OUT_OF_ORDER
-static const int card_byte[] = {
-    0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4,
-    1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
-    1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
-    2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
-    1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
-    2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
-    2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
-    3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
-    1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
-    2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
-    2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
-    3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
-    2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
-    3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
-    3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
-    4, 5, 5, 6, 5, 6, 6, 7, 5, 6, 6, 7, 6, 7, 7, 8
-  };
-#endif
-
-
 
 /**
  *  Determine the number of one bits in a bitset.
@@ -252,41 +230,6 @@ intType setCard (const const_setType aSet)
     logFunction(printf("setCard --> " FMT_D "\n", cardinality););
     return cardinality;
   } /* setCard */
-
-
-
-#ifdef OUT_OF_ORDER
-/**
- *  Compute the cardinality of a set.
- *  The function uses table lookups to count the bits set in
- *  a bitset element.
- *  @return the number of elements in 'aSet'.
- */
-intType setCard (const const_setType aSet)
-
-  {
-    const unsigned char *byte;
-    memSizeType byteCount;
-    uintType card = 0;
-    intType cardinality;
-
-  /* setCard */
-    byte = (const unsigned char *) aSet->bitset;
-    for (byteCount = sizeof(bitSetType) * bitsetSize(aSet);
-        byteCount != 0; byteCount--, byte++) {
-      card += (uintType) card_byte[(int) *byte];
-    } /* for */
-    if (unlikely(card > INTTYPE_MAX)) {
-      logError(printf("setCard(): Result does not fit into an integer.\n"););
-      raise_error(RANGE_ERROR);
-      cardinality = 0;
-    } else {
-      cardinality = (intType) card;
-    } /* if */
-    logFunction(printf("setCard --> " FMT_D "\n", cardinality););
-    return cardinality;
-  } /* setCard */
-#endif
 
 
 

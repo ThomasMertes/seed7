@@ -333,6 +333,7 @@ const func integer: hashCode (in complex: num) is
  *  part (e.g.: "1.5-2.8i"). Real and imaginary part are separated
  *  with a + or - sign.
  *  @return the string result of the conversion.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
 const func string: str (in complex: number) is func
   result
@@ -384,6 +385,8 @@ const func complex: (attr complex) parse (in string: stri) is func
  *  When the ''precision'' is zero the decimal point is omitted.
  *   complex(3.1415) digits 2   returns "3.14+0.00i"
  *  @return the string result of the conversion.
+ *  @exception RANGE_ERROR When the ''precision'' is negative.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
 const func string: (in complex: number) digits (in integer: precision) is func
   result
@@ -407,6 +410,8 @@ const func string: (in complex: number) digits (in integer: precision) is func
  *  When the ''precision'' is zero the decimal point is omitted.
  *   complex(31415.9, 27182.8) sci 4   returns "3.1416e+4+2.7183e+4i"
  *  @return the string result of the conversion.
+ *  @exception RANGE_ERROR When the ''precision'' is negative.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
 const func string: (in complex: number) sci (in integer: precision) is func
   result

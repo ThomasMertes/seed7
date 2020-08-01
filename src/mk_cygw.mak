@@ -190,7 +190,6 @@ version.h: chkccomp.h
 	echo "#define PATH_DELIMITER '/'" > version.h
 	echo "#define USE_DIRENT" >> version.h
 	echo "#define SEARCH_PATH_DELIMITER ':'" >> version.h
-	echo "#define CATCH_SIGNALS" >> version.h
 	echo "#define USE_MMAP" >> version.h
 	echo "#define AWAIT_WITH_SIGACTION" >> version.h
 	echo "#define WITH_SQL" >> version.h

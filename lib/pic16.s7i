@@ -922,6 +922,25 @@ const array string: take_pic is [](
   "  RRR           ");
 
 
+const array string: terminate_pic is [](
+  "                ",
+  "                ",
+  "   RRRRRRRRRR   ",
+  "  RppppppppppR  ",
+  "  RpRRRRRRRRpR  ",
+  "  RpRRRRRRRRpR  ",
+  "  RpRRRRRRRRpR  ",
+  "  RpRRRRRRRRpR  ",
+  "  RpRRRRRRRRpR  ",
+  "  RpRRRRRRRRpR  ",
+  "  RpRRRRRRRRpR  ",
+  "  RpRRRRRRRRpR  ",
+  "  RppppppppppR  ",
+  "   RRRRRRRRRR   ",
+  "                ",
+  "                ");
+
+
 const array string: tree_pic is [](
   "       GG       ",
   "     GgGGgG     ",

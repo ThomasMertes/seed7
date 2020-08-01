@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  ide7.sd7      Cgi dialog demo program.                          *)
-(*  Copyright (C) 2013  Thomas Mertes                               *)
+(*  Copyright (C) 2013, 2015  Thomas Mertes                         *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
 (*  modify it under the terms of the GNU General Public License as  *)
@@ -35,15 +35,16 @@ $ include "seed7_05.s7i";
 
 var label: progName is label("");
 var textArea: prog is textArea(30, 100);
-var submitButton: load    is submitButton(dialogColumn(image(createPixmap(load_pic,      1, light_gray)) & label("Load")));
-var submitButton: save    is submitButton(dialogColumn(image(createPixmap(save_pic,      1, light_gray)) & label("Save")));
-var submitButton: saveAs  is submitButton(dialogColumn(image(createPixmap(save_as_pic,   1, light_gray)) & label("Save as")));
-var submitButton: clear   is submitButton(dialogColumn(image(createPixmap(clear_pic,     1, light_gray)) & label("Clear")));
-var resetButton:  reset   is resetButton(dialogColumn(image(createPixmap(reset_pic,      1, light_gray)) & label("Reset")));
-var submitButton: execute is submitButton(dialogColumn(image(createPixmap(execute_pic,   1, light_gray)) & label("Execute")));
-var submitButton: exit    is submitButton(dialogColumn(image(createPixmap(exit_pic,      1, light_gray)) & label("Exit")));
-var submitButton: cancel  is submitButton(dialogColumn(image(createPixmap(cancel_pic,    1, light_gray)) & label("Cancel")));
-var submitButton: okay    is submitButton(dialogColumn(image(createPixmap(checkmark_pic, 1, light_gray)) & label("Okay")));
+var submitButton: load      is submitButton(dialogColumn(image(createPixmap(load_pic,      1, light_gray)) & label("Load")));
+var submitButton: save      is submitButton(dialogColumn(image(createPixmap(save_pic,      1, light_gray)) & label("Save")));
+var submitButton: saveAs    is submitButton(dialogColumn(image(createPixmap(save_as_pic,   1, light_gray)) & label("Save as")));
+var submitButton: clear     is submitButton(dialogColumn(image(createPixmap(clear_pic,     1, light_gray)) & label("Clear")));
+var resetButton:  reset     is resetButton(dialogColumn(image(createPixmap(reset_pic,      1, light_gray)) & label("Reset")));
+var submitButton: execute   is submitButton(dialogColumn(image(createPixmap(execute_pic,   1, light_gray)) & label("Execute")));
+var submitButton: terminate is submitButton(dialogColumn(image(createPixmap(terminate_pic, 1, light_gray)) & label("Terminate")));
+var submitButton: exit      is submitButton(dialogColumn(image(createPixmap(exit_pic,      1, light_gray)) & label("Exit")));
+var submitButton: cancel    is submitButton(dialogColumn(image(createPixmap(cancel_pic,    1, light_gray)) & label("Cancel")));
+var submitButton: okay      is submitButton(dialogColumn(image(createPixmap(checkmark_pic, 1, light_gray)) & label("Okay")));
 var selection: fileList is selection.value;
 var textField: fileName is textField("", 0);
 
@@ -55,7 +56,7 @@ var dialogElement: formElement is
     dialogRow(label("Seed7 program:") & space(1) & progName) &
     prog &
     vspace(20) &
-    dialogSequence(load & save & saveAs & clear & reset & execute & exit)
+    dialogSequence(load & save & saveAs & clear & reset & execute & terminate & exit)
   );
 
 var webPage: mainWebPage is webForm("IDE7", formElement);
@@ -121,6 +122,7 @@ const proc: main is func
     var webPage: loadSelectionPage is webPage.value;
     var file: childStdin is STD_NULL;
     var file: childStdout is STD_NULL;
+    var process: currentProgram is process.value;
   begin
     browser := openBrowser;
     repeat
@@ -164,13 +166,13 @@ const proc: main is func
           if pos(prog.content, "GRAPH" & "_KEYBOARD") = 0 then
             display(messagePage, browser);
           else
-            # cmd_sh("./s7", workDir & "/" & progName.name);
-            pipe2(commandPath("s7"), [] (workDir & "/" & progName.name), childStdin, childStdout);
-            while not eof(childStdout) do
-              # writeln(getln(childStdout));
-              ignore(getln(childStdout));
-            end while;
+            currentProgram := startProcess(commandPath("s7"), [] ("-q", workDir & "/" & progName.name));
           end if;
+        end if;
+      elsif terminate.activated then
+        if currentProgram <> process.value then
+          kill(currentProgram);
+          currentProgram := process.value;
         end if;
       end if;
     until exit.activated;

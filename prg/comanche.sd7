@@ -78,7 +78,7 @@ const proc: sendHttpResponse (inout file: sock, in string: content,
     response &:= content;
     block
       write(sock, response);
-	exception
+    exception
       catch FILE_ERROR: close(sock);
     end block;
   end func;

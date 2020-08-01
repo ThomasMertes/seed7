@@ -40,7 +40,7 @@
 #include "sigutl.h"
 
 
-#ifdef CATCH_SIGNALS
+#if HAS_SIGACTION || HAS_SIGNAL
 volatile boolType trace_signals = FALSE;
 
 static void activate_signal_handlers (void);
@@ -94,7 +94,7 @@ const_cstriType signal_name (int sig_num)
 
 
 
-#ifdef CATCH_SIGNALS
+#if HAS_SIGACTION || HAS_SIGNAL
 static void handle_signals (int sig_num)
 
   {
@@ -223,7 +223,7 @@ static void activate_signal_handlers (void)
 void setup_signal_handlers (boolType do_handle_signals, boolType do_trace_signals)
 
   { /* setup_signal_handlers */
-#ifdef CATCH_SIGNALS
+#if HAS_SIGACTION || HAS_SIGNAL
     trace_signals = do_trace_signals;
     if (do_handle_signals) {
       activate_signal_handlers();

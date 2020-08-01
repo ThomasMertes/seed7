@@ -166,8 +166,6 @@ static const primActRecord prim_act_table[] = {
     { "BIG_VALUE",               big_value,               },
     { "BIG_radix",               big_radix,               },
 
-    { "BIN_ADD",                 bin_add,                 },
-    { "BIN_ADD_ASSIGN",          bin_add_assign,          },
     { "BIN_AND",                 bin_and,                 },
     { "BIN_AND_ASSIGN",          bin_and_assign,          },
     { "BIN_BIG",                 bin_big,                 },

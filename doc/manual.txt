@@ -11308,6 +11308,8 @@ CONTENTS
         parse, digits, sci.
     It may be raised from the following 'float' operations:
         parse, digits, sci, rand, round, trunc.
+    It may be raised from the following 'complex' operations:
+        parse, digits, sci.
     It may be raised from the following 'char' operations:
         chr, rand.
     It may be raised from the following 'string' operations:

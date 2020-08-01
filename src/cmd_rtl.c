@@ -1473,8 +1473,7 @@ striType cmdConfigValue (const const_striType name)
       } else if (strcmp(opt_name, "LITTLE_ENDIAN_INTTYPE") == 0) {
         opt = LITTLE_ENDIAN_INTTYPE ? "TRUE" : "FALSE";
       } else if (strcmp(opt_name, "POW_FUNCTION_OKAY") == 0) {
-        opt = POW_OF_NAN_OKAY && POW_OF_ZERO_OKAY && POW_OF_ONE_OKAY &&
-              POW_EXP_NAN_OKAY && POW_EXP_MINUS_INFINITY_OKAY ? "TRUE" : "FALSE";
+        opt = POW_FUNCTION_OKAY ? "TRUE" : "FALSE";
       } else if (strcmp(opt_name, "FLOAT_ZERO_DIV_ERROR") == 0) {
 #ifdef FLOAT_ZERO_DIV_ERROR
         opt = "TRUE";

@@ -136,7 +136,9 @@ const func array bin32: reverseKeyScheduleOrder (in array bin32: subKey) is func
 
 
 (**
- *  Set the key for the DES (Data Encryption Standard) block cipher.
+ *  Set key and initialization vector for the DES (Data Encryption Standard) block cipher.
+ *  @param desKey The key to be used for DES.
+ *  @param initializationVector The initialisation vector (IV) for DES.
  *  @return the DES cipher state.
  *)
 const func desState: setDesKey (in string: desKey, in string: initializationVector) is func
@@ -149,6 +151,12 @@ const func desState: setDesKey (in string: desKey, in string: initializationVect
   end func;
 
 
+(**
+ *  Set key and initialization vector for the DES (Data Encryption Standard) block cipher.
+ *  @param cipherKey The key to be used for DES.
+ *  @param initializationVector The initialisation vector (IV) for DES.
+ *  @return the initial ''cipherState'' of a DES cipher.
+ *)
 const func cipherState: setCipherKey (DES, in string: cipherKey,
     in string: initializationVector) is
   return toInterface(setDesKey(cipherKey, initializationVector));

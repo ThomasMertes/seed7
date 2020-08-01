@@ -138,6 +138,7 @@ chkccomp.h:
 	echo #include "direct.h" > chkccomp.h
 	echo #include "unistd.h" >> chkccomp.h
 	echo #define mkdir(path,mode) mkdir(path) >> chkccomp.h
+	echo #define TEST_C_COMPILER "../bin/call_gcc" >> chkccomp.h
 	echo #define LIST_DIRECTORY_CONTENTS "dir" >> chkccomp.h
 	echo #define MYSQL_DLL "libmariadb.dll", "libmysql.dll" >> chkccomp.h
 	echo #define MYSQL_USE_DLL >> chkccomp.h
@@ -196,8 +197,8 @@ version.h: chkccomp.h
 	echo #define OBJECT_FILE_EXTENSION ".o" >> version.h
 	echo #define LIBRARY_FILE_EXTENSION ".a" >> version.h
 	echo #define EXECUTABLE_FILE_EXTENSION ".exe" >> version.h
-	echo #define C_COMPILER "$(S7_LIB_DIR)/call_gcc" >> version.h
-	echo #define GET_CC_VERSION_INFO "\\\"$(S7_LIB_DIR)/call_gcc\\\" --version >" >> version.h
+	echo #define C_COMPILER_SCRIPT "call_gcc" >> version.h
+	echo #define GET_CC_VERSION_INFO_OPTIONS "--version >" >> version.h
 	echo #define CC_OPT_DEBUG_INFO "-g" >> version.h
 	echo #define CC_OPT_NO_WARNINGS "-w" >> version.h
 	echo #define CC_FLAGS "-ffunction-sections -fdata-sections" >> version.h

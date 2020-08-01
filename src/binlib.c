@@ -46,42 +46,6 @@
 
 
 /**
- *  Add two unsigned integer numbers.
- *  @return the sum of the two numbers.
- */
-objectType bin_add (listType arguments)
-
-  { /* bin_add */
-    isit_binary(arg_1(arguments));
-    isit_binary(arg_3(arguments));
-    return bld_binary_temp(
-        take_binary(arg_1(arguments)) + take_binary(arg_3(arguments)));
-  } /* bin_add */
-
-
-
-/**
- *  Increment an unsigned integer variable by an unsigned delta.
- */
-objectType bin_add_assign (listType arguments)
-
-  {
-    objectType int_variable;
-    uintType delta;
-
-  /* bin_add_assign */
-    int_variable = arg_1(arguments);
-    isit_binary(int_variable);
-    is_variable(int_variable);
-    isit_binary(arg_3(arguments));
-    delta = take_binary(arg_3(arguments));
-    int_variable->value.binaryValue += delta;
-    return SYS_EMPTY_OBJECT;
-  } /* bin_add_assign */
-
-
-
-/**
  *  Compute a bitwise 'and' of two binary values.
  *  @return the bitwise 'and' of the two values.
  */

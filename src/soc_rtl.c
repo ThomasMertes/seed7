@@ -106,6 +106,77 @@ static boolType initialized = FALSE;
 
 
 
+#if LOG_FUNCTIONS || LOG_FUNCTIONS_EVERYWHERE || VERBOSE_EXCEPTIONS || VERBOSE_EXCEPTIONS_EVERYWHERE
+static const_cstriType socAddressCStri (const const_bstriType address)
+
+  {
+    const struct sockaddr *addr;
+    static char buffer[64];
+    cstriType result;
+
+  /* socAddressCStri */
+    if (unlikely(address == NULL)) {
+      result = " *NULL_ADDRESS* ";
+    } else if (unlikely(address->size == 0)) {
+      result = " *EMPTY_ADDRESS* ";
+    } else if (unlikely(address->size < sizeof(struct sockaddr))) {
+      result = " ** Size of address too small ** ";
+    } else {
+      addr = (const struct sockaddr *) address->mem;
+      switch (addr->sa_family) {
+        case AF_INET:
+          if (unlikely(address->size != sizeof(struct sockaddr_in))) {
+            result = " ** Size of address wrong for AF_INET ** ";
+          } else {
+            const struct sockaddr_in *inet_address = (const struct sockaddr_in *) address->mem;
+            uint32Type ip4_address = ntohl(inet_address->sin_addr.s_addr);
+            int port;
+            port = ntohs(inet_address->sin_port);       /* short, network byte order */
+
+            sprintf(buffer, "%d.%d.%d.%d:%d",
+                (ip4_address >> 24) & 255,
+                (ip4_address >> 16) & 255,
+                (ip4_address >>  8) & 255,
+                 ip4_address        & 255, port);
+            result = buffer;
+          } /* if */
+          break;
+#if defined USE_GETADDRINFO || defined INET6_SERVER_ADDRESS
+        case AF_INET6:
+          if (unlikely(address->size != sizeof(struct sockaddr_in6))) {
+            result = " ** Size of address wrong for AF_INET6 ** ";
+          } else {
+            const struct sockaddr_in6 *inet6_address = (const struct sockaddr_in6 *) address->mem;
+            unsigned int digitGroup[8];
+            int pos;
+            int port;
+
+            for (pos = 0; pos <= 7; pos++) {
+              digitGroup[pos] =
+                  (unsigned int) (inet6_address->sin6_addr.s6_addr[pos << 1]) << 8 |
+                  (unsigned int) (inet6_address->sin6_addr.s6_addr[(pos << 1) + 1]);
+            } /* for */
+            port = ntohs(inet6_address->sin6_port);     /* short, network byte order */
+            result = intStr(port);
+
+            sprintf(buffer, "[%x:%x:%x:%x:%x:%x:%x:%x]:%d",
+                digitGroup[0], digitGroup[1], digitGroup[2], digitGroup[3],
+                digitGroup[4], digitGroup[5], digitGroup[6], digitGroup[7], port);
+            result = buffer;
+          } /* if */
+          break;
+#endif
+        default:
+          result = " ** Address neither AF_INET nor AF_INET6 ** ";
+          break;
+      } /* switch */
+    } /* if */
+    return result;
+  } /* socAddressCStri */
+#endif
+
+
+
 #ifdef USE_WINSOCK
 static int init_winsock (void)
 
@@ -404,7 +475,7 @@ socketType socAccept (socketType listenerSocket, bstriType *address)
 
   /* socAccept */
     logFunction(printf("socAccept(%d, \"%s\")\n",
-                       listenerSocket, bstriAsUnquotedCStri(*address)););
+                       listenerSocket, socAddressCStri(*address)););
     old_address_size = (*address)->size;
     REALLOC_BSTRI_SIZE_OK(resized_address, *address, old_address_size, MAX_ADDRESS_SIZE);
     if (unlikely(resized_address == NULL)) {
@@ -427,7 +498,7 @@ socketType socAccept (socketType listenerSocket, bstriType *address)
         } /* if */
         logError(printf("socAccept: accept(%d, \"%s\") failed:\n"
                         "%s=%d\nerror: %s\n",
-                        listenerSocket, bstriAsUnquotedCStri(*address),
+                        listenerSocket, socAddressCStri(*address),
                         ERROR_INFORMATION););
         raise_error(FILE_ERROR);
       } else {
@@ -444,7 +515,7 @@ socketType socAccept (socketType listenerSocket, bstriType *address)
       } /* if */
     } /* if */
     logFunction(printf("socAccept(%d, \"%s\") --> %d\n",
-                       listenerSocket, bstriAsUnquotedCStri(*address), result););
+                       listenerSocket, socAddressCStri(*address), result););
     return (socketType) result;
   } /* socAccept */
 
@@ -457,10 +528,10 @@ intType socAddrFamily (const const_bstriType address)
     intType result;
 
   /* socAddrFamily */
-    logFunction(printf("socAddrFamily(\"%s\")\n", bstriAsUnquotedCStri(address)););
+    logFunction(printf("socAddrFamily(\"%s\")\n", socAddressCStri(address)););
     if (unlikely(address->size < sizeof(struct sockaddr))) {
       logError(printf("socAddrFamily(\"%s\"): Size of address too small.\n",
-                      bstriAsUnquotedCStri(address)););
+                      socAddressCStri(address)););
       raise_error(RANGE_ERROR);
       result = 0;
     } else {
@@ -469,7 +540,7 @@ intType socAddrFamily (const const_bstriType address)
       /* printf("socAddrFamily --> %d\n", result); */
     } /* if */
     logFunction(printf("socAddrFamily(\"%s\") --> " FMT_D "\n",
-                       bstriAsUnquotedCStri(address), result););
+                       socAddressCStri(address), result););
     return result;
   } /* socAddrFamily */
 
@@ -490,10 +561,10 @@ striType socAddrNumeric (const const_bstriType address)
     striType result;
 
   /* socAddrNumeric */
-    logFunction(printf("socAddrNumeric(\"%s\")\n", bstriAsUnquotedCStri(address)););
+    logFunction(printf("socAddrNumeric(\"%s\")\n", socAddressCStri(address)););
     if (unlikely(address->size < sizeof(struct sockaddr))) {
       logError(printf("socAddrNumeric(\"%s\"): Size of address too small.\n",
-                      bstriAsUnquotedCStri(address)););
+                      socAddressCStri(address)););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -502,7 +573,7 @@ striType socAddrNumeric (const const_bstriType address)
         case AF_INET:
           if (unlikely(address->size != sizeof(struct sockaddr_in))) {
             logError(printf("socAddrNumeric(\"%s\"): Size of address wrong for AF_INET.\n",
-                            bstriAsUnquotedCStri(address)););
+                            socAddressCStri(address)););
             raise_error(RANGE_ERROR);
             result = NULL;
           } else {
@@ -521,7 +592,7 @@ striType socAddrNumeric (const const_bstriType address)
         case AF_INET6:
           if (unlikely(address->size != sizeof(struct sockaddr_in6))) {
             logError(printf("socAddrNumeric(\"%s\"): Size of address wrong for AF_INET6.\n",
-                            bstriAsUnquotedCStri(address)););
+                            socAddressCStri(address)););
             raise_error(RANGE_ERROR);
             result = NULL;
           } else {
@@ -543,14 +614,14 @@ striType socAddrNumeric (const const_bstriType address)
 #endif
         default:
           logError(printf("socAddrNumeric(\"%s\"): Address neither AF_INET nor AF_INET6.\n",
-                          bstriAsUnquotedCStri(address)););
+                          socAddressCStri(address)););
           raise_error(RANGE_ERROR);
           result = NULL;
           break;
       } /* switch */
     } /* if */
     logFunction(printf("socAddrNumeric(\"%s\") --> \"%s\"\n",
-                       bstriAsUnquotedCStri(address), striAsUnquotedCStri(result)););
+                       socAddressCStri(address), striAsUnquotedCStri(result)););
     return result;
   } /* socAddrNumeric */
 
@@ -563,10 +634,10 @@ striType socAddrService (const const_bstriType address)
     striType result;
 
   /* socAddrService */
-    logFunction(printf("socAddrService(\"%s\")\n", bstriAsUnquotedCStri(address)););
+    logFunction(printf("socAddrService(\"%s\")\n", socAddressCStri(address)););
     if (unlikely(address->size < sizeof(struct sockaddr))) {
       logError(printf("socAddrService(\"%s\"): Size of address too small.\n",
-                      bstriAsUnquotedCStri(address)););
+                      socAddressCStri(address)););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -575,7 +646,7 @@ striType socAddrService (const const_bstriType address)
         case AF_INET:
           if (unlikely(address->size != sizeof(struct sockaddr_in))) {
             logError(printf("socAddrService(\"%s\"): Size of address wrong for AF_INET.\n",
-                            bstriAsUnquotedCStri(address)););
+                            socAddressCStri(address)););
             raise_error(RANGE_ERROR);
             result = NULL;
           } else {
@@ -590,7 +661,7 @@ striType socAddrService (const const_bstriType address)
         case AF_INET6:
           if (unlikely(address->size != sizeof(struct sockaddr_in6))) {
             logError(printf("socAddrService(\"%s\"): Size of address wrong for AF_INET6.\n",
-                            bstriAsUnquotedCStri(address)););
+                            socAddressCStri(address)););
             raise_error(RANGE_ERROR);
             result = NULL;
           } else {
@@ -604,14 +675,14 @@ striType socAddrService (const const_bstriType address)
 #endif
         default:
           logError(printf("socAddrService(\"%s\"): Address neither AF_INET nor AF_INET6.\n",
-                          bstriAsUnquotedCStri(address)););
+                          socAddressCStri(address)););
           raise_error(RANGE_ERROR);
           result = NULL;
           break;
       } /* switch */
     } /* if */
     logFunction(printf("socAddrService(\"%s\") --> \"%s\"\n",
-                       bstriAsUnquotedCStri(address), striAsUnquotedCStri(result)););
+                       socAddressCStri(address), striAsUnquotedCStri(result)););
     return result;
   } /* socAddrService */
 
@@ -626,13 +697,13 @@ void socBind (socketType listenerSocket, const_bstriType address)
 
   { /* socBind */
     logFunction(printf("socBind(%d, \"%s\")\n",
-                       listenerSocket, bstriAsUnquotedCStri(address)););
+                       listenerSocket, socAddressCStri(address)););
     if (unlikely(bind((os_socketType) listenerSocket,
                       (const struct sockaddr *) address->mem,
                       (sockLenType) address->size) != 0)) {
       logError(printf("socBind: bind(%d, \"%s\") failed:\n"
                       "%s=%d\nerror: %s\n",
-                      listenerSocket, bstriAsUnquotedCStri(address),
+                      listenerSocket, socAddressCStri(address),
                       ERROR_INFORMATION););
       raise_error(FILE_ERROR);
     } /* if */
@@ -674,13 +745,13 @@ void socConnect (socketType aSocket, const_bstriType address)
 
   { /* socConnect */
     logFunction(printf("socConnect(%d, \"%s\")\n",
-                       aSocket, bstriAsUnquotedCStri(address)););
+                       aSocket, socAddressCStri(address)););
     if (unlikely(connect((os_socketType) aSocket,
                          (const struct sockaddr *) address->mem,
                          (sockLenType) address->size) != 0)) {
       logError(printf("socConnect: connect(%d, \"%s\") failed:\n"
                       "%s=%d\nerror: %s\n",
-                      aSocket, bstriAsUnquotedCStri(address),
+                      aSocket, socAddressCStri(address),
                       ERROR_INFORMATION););
       raise_error(FILE_ERROR);
     } /* if */
@@ -882,7 +953,7 @@ bstriType socGetLocalAddr (socketType sock)
       } /* if */
     } /* if */
     logFunction(printf("socGetLocalAddr(%d) --> \"%s\"\n",
-                       sock, bstriAsUnquotedCStri(address)););
+                       sock, socAddressCStri(address)););
     return address;
   } /* socGetLocalAddr */
 
@@ -931,7 +1002,7 @@ bstriType socGetPeerAddr (socketType sock)
       } /* if */
     } /* if */
     logFunction(printf("socGetPeerAddr(%d) --> \"%s\"\n",
-                       sock, bstriAsUnquotedCStri(address)););
+                       sock, socAddressCStri(address)););
     return address;
   } /* socGetPeerAddr */
 
@@ -1138,7 +1209,7 @@ bstriType socInetAddr (const const_striType hostName, intType port)
     } /* if */
     logFunction(printf("socInetAddr(\"%s\", " FMT_D ") --> \"%s\"\n",
                        striAsUnquotedCStri(hostName), port,
-                       bstriAsUnquotedCStri(result)););
+                       socAddressCStri(result)););
     return result;
   } /* socInetAddr */
 
@@ -1217,7 +1288,7 @@ bstriType socInetLocalAddr (intType port)
 #endif
     } /* if */
     logFunction(printf("socInetLocalAddr(" FMT_D ") --> \"%s\"\n",
-                       port, bstriAsUnquotedCStri(result)););
+                       port, socAddressCStri(result)););
     return result;
   } /* socInetLocalAddr */
 
@@ -1315,7 +1386,7 @@ bstriType socInetServAddr (intType port)
 #endif
     } /* if */
     logFunction(printf("socInetServAddr(" FMT_D ") --> \"%s\"\n",
-                       port, bstriAsUnquotedCStri(result)););
+                       port, socAddressCStri(result)););
     return result;
   } /* socInetServAddr */
 
@@ -1593,72 +1664,6 @@ striType socLineRead (socketType inSocket, charType *const terminationChar)
 
 
 
-#ifdef OUT_OF_ORDER
-striType socLineRead (socketType inSocket, charType *const terminationChar)
-
-  {
-    unsigned char ch;
-    register memSizeType position;
-    register memSizeType bytes_received;
-    strElemType *memory;
-    memSizeType memlength;
-    memSizeType newmemlength;
-    striType resized_result;
-    striType result;
-
-  /* socLineRead */
-    memlength = READ_STRI_INIT_SIZE;
-    if (unlikely(!ALLOC_STRI_SIZE_OK(result, memlength))) {
-      raise_error(MEMORY_ERROR);
-    } else {
-      memory = result->mem;
-      position = 0;
-      bytes_received = (memSizeType) recv((os_socketType) inSocket,
-                                          cast_send_recv_data(&ch), 1, 0);
-      while (bytes_received == 1 && ch != '\n') {
-        if (position >= memlength) {
-          newmemlength = memlength + READ_STRI_SIZE_DELTA;
-          REALLOC_STRI_CHECK_SIZE(resized_result, result, memlength, newmemlength);
-          if (unlikely(resized_result == NULL)) {
-            FREE_STRI(result, memlength);
-            raise_error(MEMORY_ERROR);
-            return NULL;
-          } /* if */
-          result = resized_result;
-          COUNT3_STRI(memlength, newmemlength);
-          memory = result->mem;
-          memlength = newmemlength;
-        } /* if */
-        memory[position++] = (strElemType) ch;
-        bytes_received = (memSizeType) recv((os_socketType) inSocket,
-                                            cast_send_recv_data(&ch), 1, 0);
-      } /* while */
-      if (bytes_received == 1 && ch == '\n' &&
-          position != 0 && memory[position - 1] == '\r') {
-        position--;
-      } /* if */
-      REALLOC_STRI_SIZE_OK(resized_result, result, memlength, position);
-      if (unlikely(resized_result == NULL)) {
-        FREE_STRI(result, memlength);
-        raise_error(MEMORY_ERROR);
-        result = NULL;
-      } else {
-        result = resized_result;
-        COUNT3_STRI(memlength, position);
-        result->size = position;
-        if (bytes_received != 1) {
-          *terminationChar = (charType) EOF;
-        } else {
-          *terminationChar = (charType) ch;
-        } /* if */
-      } /* if */
-    } /* if */
-    return result;
-  } /* socLineRead */
-#endif
-
-
-
 /**
  *  Listen for socket connections and limit the incoming queue.
  *  The 'backlog' argument defines the maximum length to which
@@ -1884,7 +1889,7 @@ intType socSendto (socketType sock, const const_striType stri, intType flags,
       logError(printf("socSendto(%d, \"%s\", 0x" FMT_X ", \"%s\"): "
                       "flags not in allowed range.\n",
                       sock, striAsUnquotedCStri(stri), flags,
-                      bstriAsUnquotedCStri(address)););
+                      socAddressCStri(address)););
       raise_error(RANGE_ERROR);
       result = 0;
     } else {

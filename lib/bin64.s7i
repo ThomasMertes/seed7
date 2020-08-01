@@ -176,14 +176,8 @@ const func bin64: ~ (in bin64: aBinary) is
 
 
 (**
- *  Add two bin64 values.
- *  @return the sum of the two values.
- *)
-const func bin64: (in bin64: summand1) + (in bin64: summand2)  is action "BIN_ADD";
-
-
-(**
  *  Shift a bin64 value left by lshift bits.
+ *  Bits shifted beyond the highest bit position are lost.
  *  @return the left shifted value.
  *  @exception OVERFLOW_ERROR When the shift amount is
  *             negative or greater equal 64.
@@ -193,6 +187,7 @@ const func bin64: (in bin64: binValue) << (in integer: lshift) is action "BIN_LS
 
 (**
  *  Shift a bin64 value right by rshift bits.
+ *  Bits shifted beyond the lowest bit position are lost.
  *  @return the right shifted value.
  *  @exception OVERFLOW_ERROR When the shift amount is
  *             negative or greater equal 64.
@@ -202,6 +197,7 @@ const func bin64: (in bin64: binValue) >> (in integer: lshift) is action "BIN_RS
 
 (**
  *  Shift a bin64 value left by lshift bits and assign the result back to ''binValue''.
+ *  Bits shifted beyond the highest bit position are lost.
  *  @exception OVERFLOW_ERROR When the shift amount is
  *             negative or greater equal 64.
  *)
@@ -210,6 +206,7 @@ const proc: (inout bin64: binValue) <<:= (in integer: lshift)  is action "BIN_LS
 
 (**
  *  Shift a bin64 value right by rshift bits and assign the result back to ''binValue''.
+ *  Bits shifted beyond the lowest bit position are lost.
  *  @exception OVERFLOW_ERROR When the shift amount is
  *             negative or greater equal 64.
  *)
@@ -232,12 +229,6 @@ const proc: (inout bin64: binary1) |:= (in bin64: binary2)     is action "BIN_OR
  *  Compute a bitwise exclusive or (''xor'') and assign the result back to ''binary1''.
  *)
 const proc: (inout bin64: binary1) ><:= (in bin64: binary2)    is action "BIN_XOR_ASSIGN";
-
-
-(**
- *  Increment an bin64 variable by a delta.
- *)
-const proc: (inout bin64: binary1) +:= (in bin64: delta)       is action "BIN_ADD_ASSIGN";
 
 
 (**

@@ -191,7 +191,7 @@ static objectType read_dot_subexpression (boolType do_match_expr)
       expression = read_call_expression(do_match_expr);
     } /* if */
     logFunction(printf("read_dot_subexpression --> " FMT_U_MEM ", ",
-		       (memSizeType) expression);
+                       (memSizeType) expression);
                 trace1(expression);
                 printf("\n"););
     return expression;
@@ -236,7 +236,7 @@ static objectType read_dot_expression (boolType do_match_expr)
       expression = read_call_expression(do_match_expr);
     } /* if */
     logFunction(printf("read_dot_expression --> " FMT_U_MEM ", ",
-		       (memSizeType) expression);
+                       (memSizeType) expression);
                 trace1(expression);
                 printf("\n"););
     return expression;
@@ -318,7 +318,7 @@ static objectType pars_token (objectType expression,
       err_warning(EXPR_EXPECTED);
     } /* if */
     logFunction(printf("pars_token --> " FMT_U_MEM ", ",
-		       (memSizeType) expression);
+                       (memSizeType) expression);
                 trace1(expression);
                 printf("\n"););
     return expression;
@@ -387,7 +387,7 @@ objectType pars_infix_expression (priorityType priority,
       } /* if */
     } /* while */
     logFunction(printf("pars_infix_expression --> " FMT_U_MEM ", ",
-		       (memSizeType) expression);
+                       (memSizeType) expression);
                 trace1(expression);
                 printf("\n"););
     return expression;

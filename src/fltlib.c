@@ -836,7 +836,7 @@ objectType flt_pow (listType arguments)
   /* flt_pow */
     isit_float(arg_1(arguments));
     isit_float(arg_3(arguments));
-#if POW_OF_NAN_OKAY && POW_OF_ZERO_OKAY && POW_OF_ONE_OKAY && POW_EXP_NAN_OKAY && POW_EXP_MINUS_INFINITY_OKAY
+#if POW_FUNCTION_OKAY
     power = pow(take_float(arg_1(arguments)), take_float(arg_3(arguments)));
 #else
     power = fltPow(take_float(arg_1(arguments)), take_float(arg_3(arguments)));

@@ -58,7 +58,9 @@ const func integer: blockSize (TDES) is 8;
 
 
 (**
- *  Set the key for the TDES (Triple DES) block cipher.
+ *  Set key and initialization vector for the TDES (Triple DES) block cipher.
+ *  @param desKey The key to be used for TDES.
+ *  @param initializationVector The initialisation vector (IV) for TDES.
  *  @return the TDES (Triple DES) cipher state.
  *)
 const func tdesState: setTdesKey (in string: desKey, in string: initializationVector) is func
@@ -75,6 +77,12 @@ const func tdesState: setTdesKey (in string: desKey, in string: initializationVe
   end func;
 
 
+(**
+ *  Set key and initialization vector for the TDES (Triple DES) block cipher.
+ *  @param cipherKey The key to be used for TDES.
+ *  @param initializationVector The initialisation vector (IV) for TDES.
+ *  @return the initial ''cipherState'' of a TDES cipher.
+ *)
 const func cipherState: setCipherKey (TDES, in string: cipherKey,
     in string: initializationVector) is
   return toInterface(setTdesKey(cipherKey, initializationVector));

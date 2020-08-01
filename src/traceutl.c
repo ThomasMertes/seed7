@@ -25,6 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -393,17 +396,13 @@ void prot_heapsize (void)
 void printcategory (objectCategory category)
 
   { /* printcategory */
-#ifdef TRACE_TRACE
-    printf("BEGIN printcategory\n");
-#endif
+    logFunction(printf("printcategory\n"););
     if (category >= SYMBOLOBJECT && category <= PROGOBJECT) {
       prot_cstri(category_cstri(category));
     } else {
       prot_int((intType) category);
     } /* if */
-#ifdef TRACE_TRACE
-    printf("END printcategory\n");
-#endif
+    logFunction(printf("printcategory -->\n"););
   } /* printcategory */
 
 
@@ -414,13 +413,9 @@ static char *obj_ptr (objectType anyobject)
     static char out_buf[50];
 
   /* obj_ptr */
-#ifdef TRACE_TRACE
-    printf("BEGIN obj_ptr\n");
-#endif
+    logFunction(printf("obj_ptr\n"););
     sprintf(out_buf, FMT_X_MEM, (memSizeType) anyobject);
-#ifdef TRACE_TRACE
-    printf("END obj_ptr\n");
-#endif
+    logFunction(printf("obj_ptr -->\n"););
   return out_buf;
   } /* obj_ptr */
 
@@ -429,9 +424,7 @@ static char *obj_ptr (objectType anyobject)
 void printtype (const_typeType anytype)
 
   { /* printtype */
-#ifdef TRACE_TRACE
-    printf("BEGIN printtype\n");
-#endif
+    logFunction(printf("printtype\n"););
     if (anytype != NULL) {
       if (anytype->name != NULL) {
         prot_cstri8(id_string(anytype->name));
@@ -451,9 +444,7 @@ void printtype (const_typeType anytype)
     } else {
       prot_cstri(" *NULL_TYPE* ");
     } /* if */
-#ifdef TRACE_TRACE
-    printf("END printtype\n");
-#endif
+    logFunction(printf("printtype -->\n"););
   } /* printtype */
 
 
@@ -465,9 +456,7 @@ static void print_real_value (const_objectType anyobject)
     striType stri;
 
   /* print_real_value */
-#ifdef TRACE_TRACE
-    printf("BEGIN print_real_value\n");
-#endif
+    logFunction(printf("print_real_value\n"););
     switch (CATEGORY_OF_OBJ(anyobject)) {
       case INTOBJECT:
         prot_int(anyobject->value.intValue);
@@ -623,9 +612,7 @@ static void print_real_value (const_objectType anyobject)
       default:
         break;
     } /* switch */
-#ifdef TRACE_TRACE
-    printf("END print_real_value\n");
-#endif
+    logFunction(printf("print_real_value -->\n"););
   } /* print_real_value */
 
 
@@ -633,9 +620,7 @@ static void print_real_value (const_objectType anyobject)
 void printvalue (const_objectType anyobject)
 
   { /* printvalue */
-#ifdef TRACE_TRACE
-    printf("BEGIN printvalue\n");
-#endif
+    logFunction(printf("printvalue\n"););
     if (HAS_ENTITY(anyobject) &&
         GET_ENTITY(anyobject) != prog.entity.literal &&
         GET_ENTITY(anyobject)->ident != NULL) {
@@ -643,9 +628,7 @@ void printvalue (const_objectType anyobject)
     } else {
       print_real_value(anyobject);
     } /* if */
-#ifdef TRACE_TRACE
-    printf("END printvalue\n");
-#endif
+    logFunction(printf("printvalue -->\n"););
   } /* printvalue */
 
 
@@ -653,9 +636,7 @@ void printvalue (const_objectType anyobject)
 void printobject (const_objectType anyobject)
 
   { /* printobject */
-#ifdef TRACE_TRACE
-    printf("BEGIN printobject\n");
-#endif
+    logFunction(printf("printobject\n"););
     if (anyobject == NULL) {
       prot_cstri("(NULL)");
     } else {
@@ -758,9 +739,7 @@ void printobject (const_objectType anyobject)
       printcategory(CATEGORY_OF_OBJ(anyobject));
       prot_cstri(">"); */
     } /* if */
-#ifdef TRACE_TRACE
-    printf("END printobject\n");
-#endif
+    logFunction(printf("printobject -->\n"););
   } /* printobject */
 
 
@@ -768,9 +747,7 @@ void printobject (const_objectType anyobject)
 static void printformparam (const_objectType aParam)
 
   { /* printformparam */
-#ifdef TRACE_TRACE
-    printf("BEGIN printformparam\n");
-#endif
+    logFunction(printf("printformparam\n"););
     if (aParam != NULL) {
       switch (CATEGORY_OF_OBJ(aParam)) {
         case VALUEPARAMOBJECT:
@@ -813,9 +790,7 @@ static void printformparam (const_objectType aParam)
     } else {
       prot_cstri(" *NULL_PARAMETER* ");
     } /* if */
-#ifdef TRACE_TRACE
-    printf("END printformparam\n");
-#endif
+    logFunction(printf("printformparam -->\n"););
   } /* printformparam */
 
 
@@ -823,15 +798,11 @@ static void printformparam (const_objectType aParam)
 static void printparam (const_objectType aParam)
 
   { /* printparam */
-#ifdef TRACE_TRACE
-    printf("BEGIN printparam\n");
-#endif
+    logFunction(printf("printparam\n"););
     prot_cstri("(");
     printformparam(aParam->value.objValue);
     prot_cstri(")");
-#ifdef TRACE_TRACE
-    printf("END printparam\n");
-#endif
+    logFunction(printf("printparam -->\n"););
   } /* printparam */
 
 
@@ -842,9 +813,7 @@ void prot_list (const_listType list)
     int number;
 
   /* prot_list */
-#ifdef TRACE_TRACE
-    printf("BEGIN prot_list\n");
-#endif
+    logFunction(printf("prot_list\n"););
     prot_cstri("{");
     number = 0;
     while (list != NULL && number <= 50) {
@@ -977,32 +946,8 @@ void prot_list (const_listType list)
       prot_cstri("*AND_SO_ON*");
     } /* if */
     prot_cstri("}");
-#ifdef TRACE_TRACE
-    printf("END prot_list\n");
-#endif
+    logFunction(printf("prot_list -->\n"););
   } /* prot_list */
-
-
-
-#ifdef OUT_OF_ORDER
-void prot_list (listType list)
-
-  { /* prot_list */
-#ifdef TRACE_TRACE
-    printf("BEGIN prot_list\n");
-#endif
-    while (list != (listType) NULL) {
-      printobject(list->obj);
-      list = list->next;
-      if (list != (listType) NULL) {
-        prot_cstri(".");
-      } /* if */
-    } /* while */
-#ifdef TRACE_TRACE
-    printf("END prot_list\n");
-#endif
-  } /* prot_list */
-#endif
 
 
 
@@ -1124,9 +1069,7 @@ void prot_name (const_listType list)
 static void prot_owner (const_ownerType owner)
 
   { /* prot_owner */
-#ifdef TRACE_TRACE
-    printf("BEGIN prot_owner\n");
-#endif
+    logFunction(printf("prot_owner\n"););
     while (owner != NULL) {
       printobject(owner->obj);
       owner = owner->next;
@@ -1134,9 +1077,7 @@ static void prot_owner (const_ownerType owner)
         prot_cstri(".");
       } /* if */
     } /* while */
-#ifdef TRACE_TRACE
-    printf("END prot_owner\n");
-#endif
+    logFunction(printf("prot_owner -->\n"););
   } /* prot_owner */
 
 
@@ -1144,9 +1085,7 @@ static void prot_owner (const_ownerType owner)
 static void list_ident_names (const_identType anyident)
 
   { /* list_ident_names */
-#ifdef TRACE_TRACE
-    printf("BEGIN list_ident_names\n");
-#endif
+    logFunction(printf("list_ident_names\n"););
     if (anyident != NULL) {
       list_ident_names(anyident->next1);
       if (anyident->entity != NULL) {
@@ -1159,9 +1098,7 @@ static void list_ident_names (const_identType anyident)
       } /* if */
       list_ident_names(anyident->next2);
     } /* if */
-#ifdef TRACE_TRACE
-    printf("END list_ident_names\n");
-#endif
+    logFunction(printf("list_ident_names -->\n"););
   } /* list_ident_names */
 
 
@@ -1169,9 +1106,7 @@ static void list_ident_names (const_identType anyident)
 void trace_node (const_nodeType anynode)
 
   { /* trace_node */
-#ifdef TRACE_TRACE
-    printf("BEGIN trace_node\n");
-#endif
+    logFunction(printf("trace_node\n"););
     if (anynode == NULL) {
       prot_cstri(" *NULL_NODE* ");
     } else {
@@ -1195,9 +1130,7 @@ void trace_node (const_nodeType anynode)
         prot_cstri(" *NULL_ENTITY* ");
       } /* if */
     } /* if */
-#ifdef TRACE_TRACE
-    printf("END trace_node\n");
-#endif
+    logFunction(printf("trace_node -->\n"););
   } /* trace_node */
 
 
@@ -1205,9 +1138,7 @@ void trace_node (const_nodeType anynode)
 static void list_match_object (const_objectType anyobject, char *buffer)
 
   { /* list_match_object */
-#ifdef TRACE_TRACE
-    printf("BEGIN list_node_names\n");
-#endif
+    logFunction(printf("list_match_object\n"););
     if (anyobject != NULL) {
       if (HAS_ENTITY(anyobject)) {
         strcat(buffer, id_string(GET_ENTITY(anyobject)->ident));
@@ -1217,9 +1148,7 @@ static void list_match_object (const_objectType anyobject, char *buffer)
     } else {
       strcat(buffer, " *NULL_MATCH_OBJ* ");
     } /* if */
-#ifdef TRACE_TRACE
-    printf("END list_match_object\n");
-#endif
+    logFunction(printf("list_match_object -->\n"););
   } /* list_match_object */
 
 
@@ -1231,9 +1160,7 @@ static void list_node_names (const_nodeType anynode, char *buffer)
     size_t buf_len2;
 
   /* list_node_names */
-#ifdef TRACE_TRACE
-    printf("BEGIN list_node_names\n");
-#endif
+    logFunction(printf("list_node_names\n"););
     if (anynode != NULL) {
       if (anynode->usage_count > 0) {
         buf_len = strlen(buffer);
@@ -1303,9 +1230,7 @@ static void list_node_names (const_nodeType anynode, char *buffer)
         list_node_names(anynode->next2, buffer);
       } /* if */
     } /* if */
-#ifdef TRACE_TRACE
-    printf("END list_node_names\n");
-#endif
+    logFunction(printf("list_node_names -->\n"););
   } /* list_node_names */
 
 
@@ -1318,9 +1243,7 @@ void trace_nodes (void)
     char buffer[4096];
 
   /* trace_nodes */
-#ifdef TRACE_TRACE
-    printf("BEGIN trace_nodes\n");
-#endif
+    logFunction(printf("trace_nodes\n"););
     prot_cstri("Names declared:");
     prot_nl();
     for (position = 0; position < ID_TABLE_SIZE; position++) {
@@ -1358,9 +1281,7 @@ void trace_nodes (void)
     } /* if */
     prot_cstri("----------");
     prot_nl();
-#ifdef TRACE_TRACE
-    printf("END trace_nodes\n");
-#endif
+    logFunction(printf("trace_nodes -->\n"););
   } /* trace_nodes */
 
 
@@ -1368,9 +1289,7 @@ void trace_nodes (void)
 void printnodes (const_nodeType anynode)
 
   { /* printnodes */
-#ifdef TRACE_TRACE
-    printf("BEGIN printnodes\n");
-#endif
+    logFunction(printf("printnodes\n"););
     if (anynode != NULL) {
       printnodes(anynode->next1);
       if (anynode->usage_count == 0) {
@@ -1394,9 +1313,7 @@ void printnodes (const_nodeType anynode)
       prot_cstri(" ");
       printnodes(anynode->next2);
     } /* if */
-#ifdef TRACE_TRACE
-    printf("END printnodes\n");
-#endif
+    logFunction(printf("printnodes -->\n"););
   } /* printnodes */
 
 
@@ -1404,9 +1321,7 @@ void printnodes (const_nodeType anynode)
 void trace1 (const_objectType traceobject)
 
   { /* trace1 */
-#ifdef TRACE_TRACE
-    printf("BEGIN trace1\n");
-#endif
+    logFunction(printf("trace1\n"););
     if (traceobject == NULL) {
       prot_cstri("*NULL_OBJECT*");
     } else {
@@ -1558,9 +1473,7 @@ void trace1 (const_objectType traceobject)
           break;
       } /* switch */
     } /* if */
-#ifdef TRACE_TRACE
-    printf("END trace1\n");
-#endif
+    logFunction(printf("trace1 -->\n"););
   } /* trace1 */
 
 
@@ -1609,9 +1522,7 @@ void set_protfile_name (const const_striType protfile_name)
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* set_protfile_name */
-#ifdef TRACE_TRACE
-    printf("BEGIN set_protfile_name\n");
-#endif
+    logFunction(printf("set_protfile_name\n"););
     if (protfile_name != NULL && protfile_name->size != 0) {
       os_protfile_name = cp_to_os_path(protfile_name, &path_info, &err_info);
       if (unlikely(os_protfile_name != NULL)) {
@@ -1627,14 +1538,12 @@ void set_protfile_name (const const_striType protfile_name)
     } else if (protfile == NULL) {
       protfile = stdout;
     } /* if */
-#ifdef TRACE_TRACE
-    printf("END set_protfile_name\n");
-#endif
+    logFunction(printf("set_protfile_name -->\n"););
   } /* set_protfile_name */
 
 
 
-#ifdef TRACE_TRACE
+#if LOG_FUNCTIONS || LOG_FUNCTIONS_EVERYWHERE
 void printTraceOptions (uintType options)
 
   { /* printTraceOptions */
@@ -1654,10 +1563,8 @@ void printTraceOptions (uintType options)
 void set_trace (uintType options)
 
   { /* set_trace */
-#ifdef TRACE_TRACE
-    printf("BEGIN set_trace:\n");
-    printTraceOptions(options);
-#endif
+    logFunction(printf("set_trace:\n");
+                printTraceOptions(options););
     trace.actions       = (options & TRACE_ACTIONS        ) != 0;
     trace.check_actions = (options & TRACE_DO_ACTION_CHECK) != 0;
     trace.dynamic       = (options & TRACE_DYNAMIC_CALLS  ) != 0;
@@ -1666,9 +1573,7 @@ void set_trace (uintType options)
     trace.match         = (options & TRACE_MATCH          ) != 0;
     trace.executil      = (options & TRACE_EXECUTIL       ) != 0;
     trace.signals       = (options & TRACE_SIGNALS        ) != 0;
-#ifdef TRACE_TRACE
-    printf("END set_trace\n");
-#endif
+    logFunction(printf("set_trace -->\n"););
   } /* set_trace */
 
 
@@ -1684,9 +1589,7 @@ void mapTraceFlags (const_striType trace_level, uintType *options)
     uintType flag = (uintType) -1;
 
   /* mapTraceFlags */
-#ifdef TRACE_TRACE
-    printf("BEGIN mapTraceFlags\n");
-#endif
+    logFunction(printf("mapTraceFlags\n"););
     if (trace_level != NULL) {
       for (position = 0; position < trace_level->size; position++) {
         /* printf("option: %c\n", trace_level->mem[position]);
@@ -1711,10 +1614,8 @@ void mapTraceFlags (const_striType trace_level, uintType *options)
         } /* switch */
       } /* for */
     } /* if */
-#ifdef TRACE_TRACE
-    printf("END mapTraceFlags:\n");
-    printTraceOptions(*options);
-#endif
+    logFunction(printf("mapTraceFlags --> :\n");
+                printTraceOptions(*options););
   } /* mapTraceFlags */
 
 
@@ -1725,9 +1626,7 @@ void mapTraceFlags2 (const_cstriType ctrace_level, uintType *options)
     striType trace_level;
 
   /* mapTraceFlags2 */
-#ifdef TRACE_TRACE
-    printf("BEGIN mapTraceFlags2\n");
-#endif
+    logFunction(printf("mapTraceFlags2\n"););
     if (ctrace_level != NULL) {
       trace_level = cstri8_or_cstri_to_stri(ctrace_level);
       if (trace_level != NULL) {
@@ -1735,7 +1634,5 @@ void mapTraceFlags2 (const_cstriType ctrace_level, uintType *options)
         FREE_STRI(trace_level, trace_level->size);
       } /* if */
     } /* if */
-#ifdef TRACE_TRACE
-    printf("END mapTraceFlags2\n");
-#endif
+    logFunction(printf("mapTraceFlags2 -->\n"););
   } /* mapTraceFlags2 */

@@ -2539,7 +2539,7 @@ os_striType cp_to_command (const const_striType commandPath,
   /* cp_to_command */
     logFunction(printf("cp_to_command(\"%s\", ",
                        striAsUnquotedCStri(commandPath));
-                printf("\"%s\", *)\n", 
+                printf("\"%s\", *)\n",
                        striAsUnquotedCStri(parameters)););
 #ifdef EMULATE_ROOT_CWD
     if (stri_charpos(commandPath, '/') != NULL) {

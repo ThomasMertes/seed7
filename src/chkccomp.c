@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  chkccomp.c    Check properties of C compiler and runtime.       */
-/*  Copyright (C) 2010 - 2014  Thomas Mertes                        */
+/*  Copyright (C) 2010 - 2015  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: Chkccomp                                                */
 /*  File: seed7/src/chkccomp.c                                      */
-/*  Changes: 2010 - 2014  Thomas Mertes                             */
+/*  Changes: 2010 - 2015  Thomas Mertes                             */
 /*  Content: Program to Check properties of C compiler and runtime. */
 /*                                                                  */
 /********************************************************************/
@@ -483,7 +483,7 @@ void checkSignal (FILE *versionFile)
 
   /* checkSignal */
     if (compileAndLinkOk("#include <stdio.h>\n#include <signal.h>\n"
-                         "int res=4;\n"
+                         "volatile int res=4;\n"
                          "void handleSig1(int sig){res = 1;}\n"
                          "void handleSig2(int sig){res = 2;}\n"
                          "int main (int argc, char *argv[]){\n"
@@ -497,7 +497,7 @@ void checkSignal (FILE *versionFile)
     } /* if */
     fprintf(versionFile, "#define HAS_SIGNAL %d\n", has_signal);
     if (compileAndLinkOk("#include <stdio.h>\n#include <signal.h>\n"
-                         "int res=4;\n"
+                         "volatile int res=4;\n"
                          "void handleSig(int sig){res=1;}\n"
                          "int main(int argc, char *argv[]){\n"
                          "struct sigaction sig_act;\n"
@@ -1469,6 +1469,12 @@ void numericProperties (FILE *versionFile)
             "%s\n"
             "int doubleCompare (double num1, double num2){\n"
             "return memcmp(&num1, &num2, sizeof(double));}\n"
+            "double getMaxOddFloat(int exponent){\n"
+            "double base = (double) FLT_RADIX;\n"
+            "double power;\n"
+            "for (power=1.0; exponent>0; exponent--) power*=base;\n"
+            "if ((FLT_RADIX & 1) == 0) power = floor(power-1.0);\n"
+            "return power;}\n"
             "int main(int argc,char *argv[]){\n"
             "float floatOne = 1.0;\n"
             "float floatTwo = 2.0;\n"
@@ -1517,6 +1523,8 @@ void numericProperties (FILE *versionFile)
             "    os_isnan(1.0 / doubleNanValue1) &&\n"
             "    os_isnan(doubleOne / doubleNanValue1) &&\n"
             "    os_isnan(doubleNanValue1 / doubleNanValue2));\n"
+            "printf(\"#define MAX_ODD_FLOAT %%0.1f\\n\", getMaxOddFloat(FLT_MANT_DIG));\n"
+            "printf(\"#define MAX_ODD_DOUBLE %%0.1f\\n\", getMaxOddFloat(DBL_MANT_DIG));\n"
             "printf(\"#define POW_OF_NAN_OKAY %%d\\n\",\n"
             "    pow(floatNanValue1, 0.0) == 1.0 &&\n"
             "    pow(floatNanValue1, floatZero) == 1.0 &&\n"
@@ -1529,10 +1537,12 @@ void numericProperties (FILE *versionFile)
             "    pow(floatZero, -2.0) == floatPlusInf &&\n"
             "    pow(floatNegativeZero, -1.0) == floatMinusInf &&\n"
             "    pow(floatNegativeZero, -2.0) == floatPlusInf &&\n"
+            "    pow(floatNegativeZero, -getMaxOddFloat(FLT_MANT_DIG)) == floatMinusInf &&\n"
             "    pow(doubleZero, -1.0) == doublePlusInf &&\n"
             "    pow(doubleZero, -2.0) == doublePlusInf &&\n"
             "    pow(doubleNegativeZero, -1.0) == doubleMinusInf &&\n"
-            "    pow(doubleNegativeZero, -2.0) == doublePlusInf);\n"
+            "    pow(doubleNegativeZero, -2.0) == doublePlusInf &&\n"
+            "    pow(doubleNegativeZero, -getMaxOddFloat(DBL_MANT_DIG)) == doubleMinusInf);\n"
             "printf(\"#define POW_OF_ONE_OKAY %%d\\n\",\n"
             "    pow(1.0, floatNanValue1) == 1.0 &&\n"
             "    pow(1.0, doubleNanValue1) == 1.0 &&\n"
@@ -1627,7 +1637,7 @@ void numericProperties (FILE *versionFile)
     } /* if */
     if (assertCompAndLnk("#include<stdio.h>\n#include<string.h>\n"
                          "int main(int argc,char *argv[]){\n"
-                         "char buffer[100003];\n"
+                         "char buffer[100010];\n"
                          "sprintf(buffer, \"%1.100000e\", 1.0);\n"
                          "printf(\"%lu\\n\", (unsigned long) (strchr(buffer, 'e') - buffer));\n"
                          "return 0;}\n")) {
@@ -1638,7 +1648,7 @@ void numericProperties (FILE *versionFile)
     } /* if */
     if (assertCompAndLnk("#include<stdio.h>\n#include<string.h>\n"
                          "int main(int argc,char *argv[]){\n"
-                         "char buffer[100003];\n"
+                         "char buffer[100010];\n"
                          "sprintf(buffer, \"%1.100000f\", 1.0);\n"
                          "printf(\"%lu\\n\", (unsigned long) strlen(buffer));\n"
                          "return 0;}\n")) {

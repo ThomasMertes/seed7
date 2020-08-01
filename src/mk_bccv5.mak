@@ -165,7 +165,6 @@ version.h: chkccomp.h
 	echo ^#define PATH_DELIMITER '\\' > version.h
 	echo ^#define USE_DIRENT >> version.h
 	echo ^#define SEARCH_PATH_DELIMITER ';' >> version.h
-	echo ^#define CATCH_SIGNALS >> version.h
 	echo ^#define INT64TYPE_NO_SUFFIX_BUT_CAST >> version.h
 	echo ^#define USE_ALTERNATE_LOCALTIME_R >> version.h
 	echo ^#define UTIME_ORIG_BUGGY_FOR_FAT_FILES >> version.h

@@ -3525,7 +3525,7 @@ databaseType sqlOpenOdbc (const const_striType dbName,
       raise_error(err_info);
     } /* if */
     logFunction(printf("sqlOpenOdbc --> " FMT_U_MEM "\n",
-                       (memSizeType) database););    
+                       (memSizeType) database););
     return (databaseType) database;
   } /* sqlOpenOdbc */
 

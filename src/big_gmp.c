@@ -297,16 +297,16 @@ intType bigBitLength (const const_bigIntType big1)
 intType bigCmp (const const_bigIntType big1, const const_bigIntType big2)
 
   {
-    intType result;
+    intType signumValue;
 
   /* bigCmp */
-    result = mpz_cmp(big1, big2);
-    if (result < 0) {
-      result = -1;
-    } else if (result > 0) {
-      result = 1;
+    signumValue = mpz_cmp(big1, big2);
+    if (signumValue < 0) {
+      signumValue = -1;
+    } else if (signumValue > 0) {
+      signumValue = 1;
     } /* if */
-    return result;
+    return signumValue;
   } /* bigCmp */
 
 
@@ -339,16 +339,16 @@ intType bigCmpGeneric (const genericType value1, const genericType value2)
 intType bigCmpSignedDigit (const const_bigIntType big1, intType number)
 
   {
-    intType result;
+    intType signumValue;
 
   /* bigCmpSignedDigit */
-    result = mpz_cmp_si(big1, number);
-    if (result < 0) {
-      result = -1;
-    } else if (result > 0) {
-      result = 1;
+    signumValue = mpz_cmp_si(big1, number);
+    if (signumValue < 0) {
+      signumValue = -1;
+    } else if (signumValue > 0) {
+      signumValue = 1;
     } /* if */
-    return result;
+    return signumValue;
   } /* bigCmpSignedDigit */
 
 
@@ -452,6 +452,8 @@ bigIntType bigDiv (const const_bigIntType dividend, const const_bigIntType divis
     bigIntType quotient;
 
   /* bigDiv */
+    logFunction(printf("bigDiv(%s,", bigHexCStri(dividend));
+                printf("%s)\n", bigHexCStri(divisor)););
     if (unlikely(mpz_sgn(divisor) == 0)) {
       logError(printf("bigDiv(%s, %s): Division by zero.\n",
                       bigHexCStri(dividend), bigHexCStri(divisor)););
@@ -462,6 +464,7 @@ bigIntType bigDiv (const const_bigIntType dividend, const const_bigIntType divis
       mpz_init(quotient);
       mpz_tdiv_q(quotient, dividend, divisor);
     } /* if */
+    logFunction(printf("bigDiv --> %s\n", bigHexCStri(quotient)););
     return quotient;
   } /* bigDiv */
 
@@ -948,6 +951,8 @@ bigIntType bigLShift (const const_bigIntType big1, const intType lshift)
     bigIntType result;
 
   /* bigLShift */
+    logFunction(printf("bigLShift(%s, " FMT_D ")\n",
+                       bigHexCStri(big1), lshift););
     ALLOC_BIG(result);
     mpz_init(result);
     if (lshift < 0) {
@@ -957,6 +962,7 @@ bigIntType bigLShift (const const_bigIntType big1, const intType lshift)
     } else {
       mpz_mul_2exp(result, big1, (uintType) lshift);
     } /* if */
+    logFunction(printf("bigLShift --> %s\n", bigHexCStri(result)););
     return result;
   } /* bigLShift */
 
@@ -1019,7 +1025,7 @@ bigIntType bigLog2BaseIPow (const intType log2base, const intType exponent)
   {
     uintType high_shift;
     uintType low_shift;
-    bigIntType result;
+    bigIntType power;
 
   /* bigLog2BaseIPow */
     if (unlikely(log2base < 0 || exponent < 0)) {
@@ -1027,21 +1033,21 @@ bigIntType bigLog2BaseIPow (const intType log2base, const intType exponent)
                       "Log2base or exponent is negative.\n",
                       log2base, exponent););
       raise_error(NUMERIC_ERROR);
-      result = NULL;
+      power = NULL;
     } else if (likely(log2base == 1)) {
-      result = bigLShiftOne(exponent);
+      power = bigLShiftOne(exponent);
     } else if (log2base <= 10 && exponent <= MAX_DIV_10) {
-      result = bigLShiftOne(log2base * exponent);
+      power = bigLShiftOne(log2base * exponent);
     } else {
       low_shift = uint_mult((uintType) log2base, (uintType) exponent, &high_shift);
       if (unlikely(high_shift != 0 || (intType) low_shift < 0)) {
         raise_error(MEMORY_ERROR);
-        result = NULL;
+        power = NULL;
       } else {
-        result = bigLShiftOne((intType) low_shift);
+        power = bigLShiftOne((intType) low_shift);
       } /* if */
     } /* if */
-    return result;
+    return power;
   } /* bigLog2BaseIPow */
 
 
@@ -1059,6 +1065,8 @@ bigIntType bigMDiv (const const_bigIntType dividend, const const_bigIntType divi
     bigIntType quotient;
 
   /* bigMDiv */
+    logFunction(printf("bigMDiv(%s,", bigHexCStri(dividend));
+                printf("%s)\n", bigHexCStri(divisor)););
     if (unlikely(mpz_sgn(divisor) == 0)) {
       logError(printf("bigMDiv(%s, %s): Division by zero.\n",
                       bigHexCStri(dividend), bigHexCStri(divisor)););
@@ -1069,6 +1077,7 @@ bigIntType bigMDiv (const const_bigIntType dividend, const const_bigIntType divi
       mpz_init(quotient);
       mpz_fdiv_q(quotient, dividend, divisor);
     } /* if */
+    logFunction(printf("bigMDiv --> %s\n", bigHexCStri(quotient)););
     return quotient;
   } /* bigMDiv */
 
@@ -1086,6 +1095,8 @@ bigIntType bigMod (const const_bigIntType dividend, const const_bigIntType divis
     bigIntType modulo;
 
   /* bigMod */
+    logFunction(printf("bigMod(%s,", bigHexCStri(dividend));
+                printf("%s)\n", bigHexCStri(divisor)););
     if (unlikely(mpz_sgn(divisor) == 0)) {
       logError(printf("bigMod(%s, %s): Division by zero.\n",
                       bigHexCStri(dividend), bigHexCStri(divisor)););
@@ -1096,6 +1107,7 @@ bigIntType bigMod (const const_bigIntType dividend, const const_bigIntType divis
       mpz_init(modulo);
       mpz_fdiv_r(modulo, dividend, divisor);
     } /* if */
+    logFunction(printf("bigMod --> %s\n", bigHexCStri(modulo)););
     return modulo;
   } /* bigMod */
 
@@ -1447,6 +1459,8 @@ bigIntType bigRem (const const_bigIntType dividend, const const_bigIntType divis
     bigIntType remainder;
 
   /* bigRem */
+    logFunction(printf("bigRem(%s,", bigHexCStri(dividend));
+                printf("%s)\n", bigHexCStri(divisor)););
     if (unlikely(mpz_sgn(divisor) == 0)) {
       logError(printf("bigRem(%s, %s): Division by zero.\n",
                       bigHexCStri(dividend), bigHexCStri(divisor)););
@@ -1457,6 +1471,7 @@ bigIntType bigRem (const const_bigIntType dividend, const const_bigIntType divis
       mpz_init(remainder);
       mpz_tdiv_r(remainder, dividend, divisor);
     } /* if */
+    logFunction(printf("bigRem --> %s\n", bigHexCStri(remainder)););
     return remainder;
   } /* bigRem */
 
@@ -1475,6 +1490,8 @@ bigIntType bigRShift (const const_bigIntType big1, const intType rshift)
     bigIntType result;
 
   /* bigRShift */
+    logFunction(printf("bigRShift(%s, " FMT_D ")\n",
+                       bigHexCStri(big1), rshift););
     ALLOC_BIG(result);
     mpz_init(result);
     if (rshift < 0) {
@@ -1484,6 +1501,7 @@ bigIntType bigRShift (const const_bigIntType big1, const intType rshift)
     } else {
       mpz_fdiv_q_2exp(result, big1, (uintType) rshift);
     } /* if */
+    logFunction(printf("bigRShift --> %s\n", bigHexCStri(result)););
     return result;
   } /* bigRShift */
 

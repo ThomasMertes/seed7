@@ -784,7 +784,9 @@ const func array bin32: genAesDecryptKey (in array bin32: encryptKey, in integer
 
 
 (**
- *  Set the key for the AES (Advanced Encryption Standard) block cipher.
+ *  Set key and initialization vector for the AES (Advanced Encryption Standard) block cipher.
+ *  @param aesKey The key to be used for AES.
+ *  @param initializationVector The initialisation vector (IV) for AES.
  *  @return the AES (Advanced Encryption Standard) cipher state.
  *)
 const func aesState: setAesKey (in string: aesKey, in string: initializationVector) is func
@@ -798,6 +800,12 @@ const func aesState: setAesKey (in string: aesKey, in string: initializationVect
   end func;
 
 
+(**
+ *  Set key and initialization vector for the AES (Advanced Encryption Standard) block cipher.
+ *  @param cipherKey The key to be used for AES.
+ *  @param initializationVector The initialisation vector (IV) for AES.
+ *  @return the initial ''cipherState'' of a AES cipher.
+ *)
 const func cipherState: setCipherKey (AES, in string: cipherKey,
     in string: initializationVector) is
   return toInterface(setAesKey(cipherKey, initializationVector));

@@ -789,7 +789,7 @@ floatType fltParse (const const_striType stri)
 
 
 
-#if !(POW_OF_NAN_OKAY && POW_OF_ZERO_OKAY && POW_OF_ONE_OKAY && POW_EXP_NAN_OKAY && POW_EXP_MINUS_INFINITY_OKAY)
+#if !POW_FUNCTION_OKAY
 /**
  *  Compute the exponentiation of a float 'base' with a float 'exponent'.
  *  This function corrects errors of the C function pow().

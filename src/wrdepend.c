@@ -18,7 +18,7 @@
 /*  Free Software Foundation, Inc., 51 Franklin Street,             */
 /*  Fifth Floor, Boston, MA  02110-1301, USA.                       */
 /*                                                                  */
-/*  Module: Chkccomp                                                */
+/*  Module: Wrdepend                                                */
 /*  File: seed7/src/wrdepend.c                                      */
 /*  Changes: 2014  Thomas Mertes                                    */
 /*  Content: Write the C header file dependencies.                  */

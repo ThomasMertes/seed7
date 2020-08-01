@@ -1473,46 +1473,6 @@ objectType int_succ (listType arguments)
 
 
 
-#ifdef OUT_OF_ORDER
-objectType int_uadd (listType arguments)
-
-  { /* int_uadd */
-    isit_int(arg_1(arguments));
-    isit_int(arg_3(arguments));
-    return bld_int_temp((intType) (
-        (uintType) (take_int(arg_1(arguments))) +
-        (uintType) (take_int(arg_3(arguments)))));
-  } /* int_uadd */
-
-
-
-objectType int_umult (listType arguments)
-
-  { /* int_umult */
-    isit_int(arg_1(arguments));
-    isit_int(arg_3(arguments));
-    return bld_int_temp((intType) (
-        (uintType) (take_int(arg_1(arguments))) *
-        (uintType) (take_int(arg_3(arguments)))));
-  } /* int_umult */
-#endif
-
-
-
-#ifdef OUT_OF_ORDER
-objectType int_usbtr (listType arguments)
-
-  { /* int_usbtr */
-    isit_int(arg_1(arguments));
-    isit_int(arg_3(arguments));
-    return bld_int_temp((intType) (
-        (uintType) (take_int(arg_1(arguments))) -
-        (uintType) (take_int(arg_3(arguments)))));
-  } /* int_usbtr */
-#endif
-
-
-
 objectType int_value (listType arguments)
 
   {

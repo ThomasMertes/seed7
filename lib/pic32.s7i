@@ -1674,6 +1674,41 @@ const array string: take_pic is [](
   "     RRRRR                      ");
 
 
+const array string: terminate_pic is [](
+  "                                ",
+  "                                ",
+  "                                ",
+  "                                ",
+  "      RRRRRRRRRRRRRRRRRRRR      ",
+  "     RRRRRRRRRRRRRRRRRRRRRR     ",
+  "    RRppppppppppppppppppppRR    ",
+  "    RRppppppppppppppppppppRR    ",
+  "    RRppRRRRRRRRRRRRRRRRppRR    ",
+  "    RRppRRRRRRRRRRRRRRRRppRR    ",
+  "    RRppRRRRRRRRRRRRRRRRppRR    ",
+  "    RRppRRRRRRRRRRRRRRRRppRR    ",
+  "    RRppRRRRRRRRRRRRRRRRppRR    ",
+  "    RRppRRRRRRRRRRRRRRRRppRR    ",
+  "    RRppRRRRRRRRRRRRRRRRppRR    ",
+  "    RRppRRRRRRRRRRRRRRRRppRR    ",
+  "    RRppRRRRRRRRRRRRRRRRppRR    ",
+  "    RRppRRRRRRRRRRRRRRRRppRR    ",
+  "    RRppRRRRRRRRRRRRRRRRppRR    ",
+  "    RRppRRRRRRRRRRRRRRRRppRR    ",
+  "    RRppRRRRRRRRRRRRRRRRppRR    ",
+  "    RRppRRRRRRRRRRRRRRRRppRR    ",
+  "    RRppRRRRRRRRRRRRRRRRppRR    ",
+  "    RRppRRRRRRRRRRRRRRRRppRR    ",
+  "    RRppppppppppppppppppppRR    ",
+  "    RRppppppppppppppppppppRR    ",
+  "     RRRRRRRRRRRRRRRRRRRRRR     ",
+  "      RRRRRRRRRRRRRRRRRRRR      ",
+  "                                ",
+  "                                ",
+  "                                ",
+  "                                ");
+
+
 const array string: tree_pic is [](
   "               GG               ",
   "              GGgG              ",

@@ -315,6 +315,8 @@ typedef float              floatType;
 #define FMT_E FLOAT_STR_FORMAT
 #endif
 
+#define POW_FUNCTION_OKAY (POW_OF_NAN_OKAY && POW_OF_ZERO_OKAY && POW_OF_ONE_OKAY && POW_EXP_NAN_OKAY && POW_EXP_MINUS_INFINITY_OKAY)
+
 
 typedef uint32Type         charType;
 typedef int32Type          scharType;

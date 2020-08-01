@@ -1201,62 +1201,6 @@ static void uBigLShift (const bigIntType big1, const unsigned int lshift)
 
 
 
-#ifdef OUT_OF_ORDER
-/**
- *  Shifts the big integer big1 to the left by lshift bits.
- *  Bits which are shifted out at the left of big1 are lost.
- *  At the right of big1 zero bits are shifted in. The function
- *  is called for 0 < lshift < BIGDIGIT_SIZE.
- */
-static void uBigLShift (const bigIntType big1, const unsigned int lshift)
-
-  {
-    unsigned int rshift = BIGDIGIT_SIZE - lshift;
-    bigDigitType low_digit;
-    bigDigitType high_digit;
-    memSizeType pos;
-
-  /* uBigLShift */
-    low_digit = big1->bigdigits[0];
-    big1->bigdigits[0] = (bigDigitType) ((low_digit << lshift) & BIGDIGIT_MASK);
-    for (pos = 1; pos < big1->size; pos++) {
-      high_digit = big1->bigdigits[pos];
-      big1->bigdigits[pos] = (bigDigitType)
-          (((low_digit >> rshift) | (high_digit << lshift)) & BIGDIGIT_MASK);
-      low_digit = high_digit;
-    } /* for */
-  } /* uBigLShift */
-#endif
-
-
-
-#ifdef OUT_OF_ORDER
-/**
- *  Shifts the big integer big1 to the right by rshift bits.
- *  Bits which are shifted out at the right of big1 are lost.
- *  At the left of big1 zero bits are shifted in. The function
- *  is called for 0 < rshift < BIGDIGIT_SIZE.
- */
-static void uBigRShift (const bigIntType big1, const unsigned int rshift)
-
-  {
-    unsigned int lshift = BIGDIGIT_SIZE - rshift;
-    doubleBigDigitType carry = 0;
-    memSizeType pos;
-
-  /* uBigRShift */
-    pos = big1->size;
-    do {
-      carry <<= BIGDIGIT_SIZE;
-      carry |= ((doubleBigDigitType) big1->bigdigits[pos]) << lshift;
-      big1->bigdigits[pos] = (bigDigitType) (carry & BIGDIGIT_MASK);
-      pos--;
-    } while (pos > 0);
-  } /* uBigRShift */
-#endif
-
-
-
 /**
  *  Shifts the big integer big1 to the right by rshift bits.
  *  Bits which are shifted out at the right of big1 are lost.
@@ -2194,7 +2138,7 @@ static void uBigKaratsubaMult (const bigDigitType *const factor1,
 
 
 static void uBigDigitSquare (const bigDigitType *const big1,
-    const memSizeType size, bigDigitType *const result)
+    const memSizeType size, bigDigitType *const square)
 
   {
     memSizeType pos1;
@@ -2206,38 +2150,38 @@ static void uBigDigitSquare (const bigDigitType *const big1,
   /* uBigDigitSquare */
     digit = big1[0];
     carry = (doubleBigDigitType) digit * digit;
-    result[0] = (bigDigitType) (carry & BIGDIGIT_MASK);
+    square[0] = (bigDigitType) (carry & BIGDIGIT_MASK);
     carry >>= BIGDIGIT_SIZE;
     if (size == 1) {
-      result[1] = (bigDigitType) (carry);
+      square[1] = (bigDigitType) (carry);
     } else {
       for (pos2 = 1; pos2 < size; pos2++) {
         product = (doubleBigDigitType) digit * big1[pos2];
         carry += (product << 1) & BIGDIGIT_MASK;
-        result[pos2] = (bigDigitType) (carry & BIGDIGIT_MASK);
+        square[pos2] = (bigDigitType) (carry & BIGDIGIT_MASK);
         carry >>= BIGDIGIT_SIZE;
         carry += product >> (BIGDIGIT_SIZE - 1);
       } /* for */
-      result[pos2] = (bigDigitType) (carry & BIGDIGIT_MASK);
-      result[pos2 + 1] = (bigDigitType) (carry >> BIGDIGIT_SIZE);
+      square[pos2] = (bigDigitType) (carry & BIGDIGIT_MASK);
+      square[pos2 + 1] = (bigDigitType) (carry >> BIGDIGIT_SIZE);
       for (pos1 = 1; pos1 < size; pos1++) {
         digit = big1[pos1];
-        carry = (doubleBigDigitType) result[pos1 << 1] +
+        carry = (doubleBigDigitType) square[pos1 << 1] +
             (doubleBigDigitType) digit * digit;
-        result[pos1 << 1] = (bigDigitType) (carry & BIGDIGIT_MASK);
+        square[pos1 << 1] = (bigDigitType) (carry & BIGDIGIT_MASK);
         carry >>= BIGDIGIT_SIZE;
         for (pos2 = pos1 + 1; pos2 < size; pos2++) {
           product = (doubleBigDigitType) digit * big1[pos2];
-          carry += (doubleBigDigitType) result[pos1 + pos2] +
+          carry += (doubleBigDigitType) square[pos1 + pos2] +
               ((product << 1) & BIGDIGIT_MASK);
-          result[pos1 + pos2] = (bigDigitType) (carry & BIGDIGIT_MASK);
+          square[pos1 + pos2] = (bigDigitType) (carry & BIGDIGIT_MASK);
           carry >>= BIGDIGIT_SIZE;
           carry += product >> (BIGDIGIT_SIZE - 1);
         } /* for */
-        carry += (doubleBigDigitType) result[pos1 + pos2];
-        result[pos1 + pos2] = (bigDigitType) (carry & BIGDIGIT_MASK);
+        carry += (doubleBigDigitType) square[pos1 + pos2];
+        square[pos1 + pos2] = (bigDigitType) (carry & BIGDIGIT_MASK);
         if (pos1 < size - 1) {
-          result[pos1 + pos2 + 1] = (bigDigitType) (carry >> BIGDIGIT_SIZE);
+          square[pos1 + pos2 + 1] = (bigDigitType) (carry >> BIGDIGIT_SIZE);
         } /* if */
       } /* for */
     } /* if */
@@ -2246,7 +2190,7 @@ static void uBigDigitSquare (const bigDigitType *const big1,
 
 
 static void uBigKaratsubaSquare (const bigDigitType *const big1,
-    const memSizeType size, bigDigitType *const result, bigDigitType *const temp)
+    const memSizeType size, bigDigitType *const square, bigDigitType *const temp)
 
   {
     memSizeType sizeLo;
@@ -2255,17 +2199,17 @@ static void uBigKaratsubaSquare (const bigDigitType *const big1,
   /* uBigKaratsubaSquare */
     logFunction(printf("uBigKaratsubaSquare: size=" FMT_U_MEM "\n", size););
     if (size < KARATSUBA_SQUARE_THRESHOLD) {
-      uBigDigitSquare(big1, size, result);
+      uBigDigitSquare(big1, size, square);
     } else {
       sizeHi = size >> 1;
       sizeLo = size - sizeHi;
-      uBigDigitAdd(big1, sizeLo, &big1[sizeLo], sizeHi, result);
-      uBigKaratsubaSquare(result, sizeLo + 1, temp, &temp[(sizeLo + 1) << 1]);
-      uBigKaratsubaSquare(big1, sizeLo, result, &temp[(sizeLo + 1) << 1]);
-      uBigKaratsubaSquare(&big1[sizeLo], sizeHi, &result[sizeLo << 1], &temp[(sizeLo + 1) << 1]);
-      uBigDigitSbtrFrom(temp, (sizeLo + 1) << 1, result, sizeLo << 1);
-      uBigDigitSbtrFrom(temp, (sizeLo + 1) << 1, &result[sizeLo << 1], sizeHi << 1);
-      uBigDigitAddTo(&result[sizeLo], sizeLo + (sizeHi << 1), temp, (sizeLo + 1) << 1);
+      uBigDigitAdd(big1, sizeLo, &big1[sizeLo], sizeHi, square);
+      uBigKaratsubaSquare(square, sizeLo + 1, temp, &temp[(sizeLo + 1) << 1]);
+      uBigKaratsubaSquare(big1, sizeLo, square, &temp[(sizeLo + 1) << 1]);
+      uBigKaratsubaSquare(&big1[sizeLo], sizeHi, &square[sizeLo << 1], &temp[(sizeLo + 1) << 1]);
+      uBigDigitSbtrFrom(temp, (sizeLo + 1) << 1, square, sizeLo << 1);
+      uBigDigitSbtrFrom(temp, (sizeLo + 1) << 1, &square[sizeLo << 1], sizeHi << 1);
+      uBigDigitAddTo(&square[sizeLo], sizeLo + (sizeHi << 1), temp, (sizeLo + 1) << 1);
     } /* if */
   } /* uBigKaratsubaSquare */
 
@@ -2685,33 +2629,33 @@ static bigIntType uBigSquareK (const_bigIntType big1)
 
   {
     bigIntType temp;
-    bigIntType result;
+    bigIntType square;
 
   /* uBigSquareK */
     if (big1->size >= KARATSUBA_SQUARE_THRESHOLD) {
-      if (unlikely(!ALLOC_BIG(result, big1->size << 1))) {
+      if (unlikely(!ALLOC_BIG(square, big1->size << 1))) {
         raise_error(MEMORY_ERROR);
       } else {
         if (unlikely(!ALLOC_BIG(temp, big1->size << 2))) {
           raise_error(MEMORY_ERROR);
         } else {
           uBigKaratsubaSquare(big1->bigdigits, big1->size,
-              result->bigdigits, temp->bigdigits);
-          result->size = big1->size << 1;
-          result = normalize(result);
+              square->bigdigits, temp->bigdigits);
+          square->size = big1->size << 1;
+          square = normalize(square);
           FREE_BIG(temp, big1->size << 2);
         } /* if */
       } /* if */
     } else {
-      if (unlikely(!ALLOC_BIG(result, big1->size + big1->size))) {
+      if (unlikely(!ALLOC_BIG(square, big1->size + big1->size))) {
         raise_error(MEMORY_ERROR);
       } else {
-        result->size = big1->size + big1->size;
-        uBigDigitSquare(big1->bigdigits, big1->size, result->bigdigits);
-        result = normalize(result);
+        square->size = big1->size + big1->size;
+        uBigDigitSquare(big1->bigdigits, big1->size, square->bigdigits);
+        square = normalize(square);
       } /* if */
     } /* if */
-    return result;
+    return square;
   } /* uBigSquareK */
 
 
@@ -2763,9 +2707,9 @@ static bigIntType uBigMultIntoHelp (const bigIntType factor1,
 
 
 /**
- *  Returns the square of the nonnegative big integer big1. The result
+ *  Returns the square of the nonnegative big integer big1. The square
  *  is written into big_help (which is a scratch variable and is
- *  assumed to contain enough memory). Before returning the result
+ *  assumed to contain enough memory). Before returning the square
  *  the variable big1 is assigned to big_help. This way it is possible
  *  to square a given base with base = uBigSquare(base, &big_help).
  *  Note that the old base is in the scratch variable big_help
@@ -2784,57 +2728,57 @@ static bigIntType uBigSquare (const bigIntType big1, bigIntType *big_help)
     doubleBigDigitType carry;
     doubleBigDigitType product;
     bigDigitType digit;
-    bigIntType result;
+    bigIntType square;
 
   /* uBigSquare */
     logFunction(printf("uBigSquare(big1->size=" FMT_U_MEM ")\n", big1->size););
-    result = *big_help;
+    square = *big_help;
     digit = big1->bigdigits[0];
     carry = (doubleBigDigitType) digit * digit;
-    result->bigdigits[0] = (bigDigitType) (carry & BIGDIGIT_MASK);
+    square->bigdigits[0] = (bigDigitType) (carry & BIGDIGIT_MASK);
     carry >>= BIGDIGIT_SIZE;
     for (pos2 = 1; pos2 < big1->size; pos2++) {
       product = (doubleBigDigitType) digit * big1->bigdigits[pos2];
       carry += (product << 1) & BIGDIGIT_MASK;
-      result->bigdigits[pos2] = (bigDigitType) (carry & BIGDIGIT_MASK);
+      square->bigdigits[pos2] = (bigDigitType) (carry & BIGDIGIT_MASK);
       carry >>= BIGDIGIT_SIZE;
       carry += product >> (BIGDIGIT_SIZE - 1);
     } /* for */
-    result->bigdigits[pos2] = (bigDigitType) (carry & BIGDIGIT_MASK);
+    square->bigdigits[pos2] = (bigDigitType) (carry & BIGDIGIT_MASK);
     for (pos1 = 1; pos1 < big1->size; pos1++) {
       digit = big1->bigdigits[pos1];
-      carry = (doubleBigDigitType) result->bigdigits[pos1 + pos1] +
+      carry = (doubleBigDigitType) square->bigdigits[pos1 + pos1] +
           (doubleBigDigitType) digit * digit;
-      result->bigdigits[pos1 + pos1] = (bigDigitType) (carry & BIGDIGIT_MASK);
+      square->bigdigits[pos1 + pos1] = (bigDigitType) (carry & BIGDIGIT_MASK);
       carry >>= BIGDIGIT_SIZE;
       for (pos2 = pos1 + 1; pos2 < big1->size; pos2++) {
         product = (doubleBigDigitType) digit * big1->bigdigits[pos2];
-        carry += (doubleBigDigitType) result->bigdigits[pos1 + pos2] +
+        carry += (doubleBigDigitType) square->bigdigits[pos1 + pos2] +
             ((product << 1) & BIGDIGIT_MASK);
-        result->bigdigits[pos1 + pos2] = (bigDigitType) (carry & BIGDIGIT_MASK);
+        square->bigdigits[pos1 + pos2] = (bigDigitType) (carry & BIGDIGIT_MASK);
         carry >>= BIGDIGIT_SIZE;
         carry += product >> (BIGDIGIT_SIZE - 1);
       } /* for */
-      result->bigdigits[pos1 + pos2] = (bigDigitType) (carry & BIGDIGIT_MASK);
+      square->bigdigits[pos1 + pos2] = (bigDigitType) (carry & BIGDIGIT_MASK);
     } /* for */
     pos1 = big1->size + big1->size;
     pos1--;
-    digit = result->bigdigits[pos1];
+    digit = square->bigdigits[pos1];
     if (digit == 0) {
       do {
         pos1--;
-        digit = result->bigdigits[pos1];
+        digit = square->bigdigits[pos1];
       } while (pos1 > 0 && digit == 0);
       if (IS_NEGATIVE(digit)) {
         pos1++;
       } /* if */
     } /* if */
     pos1++;
-    result->size = pos1;
+    square->size = pos1;
     *big_help = big1;
-    logFunction(printf("uBigSquare(big1->size=" FMT_U_MEM ") --> result->size=" FMT_U_MEM "\n",
-                       big1->size, result->size););
-    return result;
+    logFunction(printf("uBigSquare(big1->size=" FMT_U_MEM ") --> square->size=" FMT_U_MEM "\n",
+                       big1->size, square->size););
+    return square;
   } /* uBigSquare */
 
 
@@ -2906,7 +2850,7 @@ static bigIntType bigIPowN (const bigDigitType base, intType exponent, unsigned 
         FREE_BIG(big_help, help_size);
       } /* if */
     } /* if */
-    logFunction(printf("bigIPowN() --> power->size=" FMT_U_MEM "\n",
+    logFunction(printf("bigIPowN --> power->size=" FMT_U_MEM "\n",
                        power != NULL ? power->size : 0););
     return power;
   } /* bigIPowN */
@@ -3005,9 +2949,9 @@ bigIntType bigAbs (const const_bigIntType big1)
     bigIntType result;
 
   /* bigAbs */
+    logFunction(printf("bigAbs(%s)\n", bigHexCStri(big1)););
     if (unlikely(!ALLOC_BIG_SIZE_OK(result, big1->size))) {
       raise_error(MEMORY_ERROR);
-      return NULL;
     } else {
       result->size = big1->size;
       if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
@@ -3024,7 +2968,7 @@ bigIntType bigAbs (const const_bigIntType big1)
           if (unlikely(resized_result == NULL)) {
             FREE_BIG(result, big1->size);
             raise_error(MEMORY_ERROR);
-            return NULL;
+            result = NULL;
           } else {
             result = resized_result;
             COUNT3_BIG(big1->size, result->size);
@@ -3037,6 +2981,7 @@ bigIntType bigAbs (const const_bigIntType big1)
             (size_t) big1->size * sizeof(bigDigitType));
       } /* if */
     } /* if */
+    logFunction(printf("bigAbs --> %s\n", bigHexCStri(result)););
     return result;
   } /* bigAbs */
 
@@ -3058,6 +3003,8 @@ bigIntType bigAdd (const_bigIntType summand1, const_bigIntType summand2)
     bigIntType sum;
 
   /* bigAdd */
+    logFunction(printf("bigAdd(%s,", bigHexCStri(summand1));
+                printf("%s)\n", bigHexCStri(summand2)););
     if (summand2->size > summand1->size) {
       help_big = summand1;
       summand1 = summand2;
@@ -3065,7 +3012,6 @@ bigIntType bigAdd (const_bigIntType summand1, const_bigIntType summand2)
     } /* if */
     if (unlikely(!ALLOC_BIG_CHECK_SIZE(sum, summand1->size + 1))) {
       raise_error(MEMORY_ERROR);
-      return NULL;
     } else {
       pos = 0;
       do {
@@ -3086,8 +3032,9 @@ bigIntType bigAdd (const_bigIntType summand1, const_bigIntType summand2)
       sum->bigdigits[pos] = (bigDigitType) ((carry + summand2_sign) & BIGDIGIT_MASK);
       sum->size = pos + 1;
       sum = normalize(sum);
-      return sum;
     } /* if */
+    logFunction(printf("bigAdd --> %s\n", bigHexCStri(sum)););
+    return sum;
   } /* bigAdd */
 
 
@@ -3110,15 +3057,22 @@ void bigAddAssign (bigIntType *const big_variable, const const_bigIntType delta)
     bigIntType big1;
     memSizeType pos;
     memSizeType big1_size;
+    boolType delta_negative;
     doubleBigDigitType carry = 0;
     doubleBigDigitType big1_sign;
     doubleBigDigitType delta_sign;
     bigIntType resized_big1;
 
   /* bigAddAssign */
+    logFunction(printf("bigAddAssign(%s,", bigHexCStri(*big_variable));
+                printf("%s)\n", bigHexCStri(delta)););
     big1 = *big_variable;
     if (big1->size >= delta->size) {
-      big1_sign = IS_NEGATIVE(big1->bigdigits[big1->size - 1]) ? BIGDIGIT_MASK : 0;
+      big1_size = big1->size;
+      big1_sign = IS_NEGATIVE(big1->bigdigits[big1_size - 1]) ? BIGDIGIT_MASK : 0;
+      /* It is possible that big1 == delta holds. Therefore the check */
+      /* for negative delta must be done before big1 is changed.      */
+      delta_negative = IS_NEGATIVE(delta->bigdigits[delta->size - 1]);
       pos = 0;
       do {
         carry += (doubleBigDigitType) big1->bigdigits[pos] + delta->bigdigits[pos];
@@ -3126,23 +3080,23 @@ void bigAddAssign (bigIntType *const big_variable, const const_bigIntType delta)
         carry >>= BIGDIGIT_SIZE;
         pos++;
       } while (pos < delta->size);
-      if (IS_NEGATIVE(delta->bigdigits[pos - 1])) {
-        for (; carry == 0 && pos < big1->size; pos++) {
+      if (delta_negative) {
+        for (; carry == 0 && pos < big1_size; pos++) {
           carry = (doubleBigDigitType) big1->bigdigits[pos] + BIGDIGIT_MASK;
           big1->bigdigits[pos] = (bigDigitType) (carry & BIGDIGIT_MASK);
           carry >>= BIGDIGIT_SIZE;
         } /* for */
         carry += BIGDIGIT_MASK;
       } else {
-        for (; carry != 0 && pos < big1->size; pos++) {
+        for (; carry != 0 && pos < big1_size; pos++) {
           carry += big1->bigdigits[pos];
           big1->bigdigits[pos] = (bigDigitType) (carry & BIGDIGIT_MASK);
           carry >>= BIGDIGIT_SIZE;
         } /* for */
       } /* if */
-      big1_size = big1->size;
       carry += big1_sign;
       carry &= BIGDIGIT_MASK;
+      /* Now the only possible values for carry are 0 and BIGDIGIT_MASK. */
       if ((carry != 0 || IS_NEGATIVE(big1->bigdigits[big1_size - 1])) &&
           (carry != BIGDIGIT_MASK || !IS_NEGATIVE(big1->bigdigits[big1_size - 1]))) {
         REALLOC_BIG_CHECK_SIZE(resized_big1, big1, big1_size, big1_size + 1);
@@ -3157,7 +3111,7 @@ void bigAddAssign (bigIntType *const big_variable, const const_bigIntType delta)
           big1 = resized_big1;
           COUNT3_BIG(big1_size, big1_size + 1);
           big1->size++;
-          big1->bigdigits[big1_size] = (bigDigitType) (carry & BIGDIGIT_MASK);
+          big1->bigdigits[big1_size] = (bigDigitType) (carry);
           *big_variable = big1;
         } /* if */
       } else {
@@ -3192,6 +3146,7 @@ void bigAddAssign (bigIntType *const big_variable, const const_bigIntType delta)
         *big_variable = normalize(big1);
       } /* if */
     } /* if */
+    logFunction(printf("bigAddAssign --> %s\n", bigHexCStri(*big_variable)););
   } /* bigAddAssign */
 
 
@@ -3258,7 +3213,7 @@ void bigAddAssignSignedDigit (bigIntType *const big_variable, const intType delt
     } else {
       *big_variable = normalize(big1);
     } /* if */
-    logFunction(printf("bigAddAssignSignedDigit: variable=%s\n",
+    logFunction(printf("bigAddAssignSignedDigit --> %s\n",
                        bigHexCStri(*big_variable)););
   } /* bigAddAssignSignedDigit */
 
@@ -3287,6 +3242,8 @@ bigIntType bigAnd (const_bigIntType big1, const_bigIntType big2)
     bigIntType result;
 
   /* bigAnd */
+    logFunction(printf("bigAnd(%s,", bigHexCStri(big1));
+                printf("%s)\n", bigHexCStri(big2)););
     if (big2->size > big1->size) {
       help_big = big1;
       big1 = big2;
@@ -3294,7 +3251,6 @@ bigIntType bigAnd (const_bigIntType big1, const_bigIntType big2)
     } /* if */
     if (unlikely(!ALLOC_BIG_CHECK_SIZE(result, big1->size))) {
       raise_error(MEMORY_ERROR);
-      return NULL;
     } else {
       pos = 0;
       do {
@@ -3307,8 +3263,9 @@ bigIntType bigAnd (const_bigIntType big1, const_bigIntType big2)
       } /* for */
       result->size = pos;
       result = normalize(result);
-      return result;
     } /* if */
+    logFunction(printf("bigAnd --> %s\n", bigHexCStri(result)););
+    return result;
   } /* bigAnd */
 
 
@@ -3437,39 +3394,39 @@ intType bigCmpGeneric (const genericType value1, const genericType value2)
 intType bigCmpSignedDigit (const const_bigIntType big1, intType number)
 
   {
-    intType result;
+    intType signumValue;
 
   /* bigCmpSignedDigit */
     if (number < 0) {
       if (!IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
-        result = 1;
+        signumValue = 1;
       } else if (big1->size != 1) {
-        result = -1;
+        signumValue = -1;
       } else if (big1->bigdigits[0] != (bigDigitType) number) {
         if (big1->bigdigits[0] < (bigDigitType) number) {
-          result = -1;
+          signumValue = -1;
         } else {
-          result = 1;
+          signumValue = 1;
         } /* if */
       } else {
-        result = 0;
+        signumValue = 0;
       } /* if */
     } else {
       if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
-        result = -1;
+        signumValue = -1;
       } else if (big1->size != 1) {
-        result = 1;
+        signumValue = 1;
       } else if (big1->bigdigits[0] != (bigDigitType) number) {
         if (big1->bigdigits[0] < (bigDigitType) number) {
-          result = -1;
+          signumValue = -1;
         } else {
-          result = 1;
+          signumValue = 1;
         } /* if */
       } else {
-        result = 0;
+        signumValue = 0;
       } /* if */
     } /* if */
-    return result;
+    return signumValue;
   } /* bigCmpSignedDigit */
 
 
@@ -3569,6 +3526,7 @@ void bigDecr (bigIntType *const big_variable)
     bigIntType resized_big1;
 
   /* bigDecr */
+    logFunction(printf("bigDecr(%s)\n", bigHexCStri(*big_variable)););
     big1 = *big_variable;
     negative = IS_NEGATIVE(big1->bigdigits[big1->size - 1]);
     pos = 0;
@@ -3626,6 +3584,7 @@ void bigDecr (bigIntType *const big_variable)
         big1->size--;
       } /* if */
     } /* if */
+    logFunction(printf("bigDecr --> %s\n", bigHexCStri(*big_variable)););
   } /* bigDecr */
 
 
@@ -3680,12 +3639,12 @@ bigIntType bigDiv (const const_bigIntType dividend, const const_bigIntType divis
     bigIntType quotient;
 
   /* bigDiv */
+    logFunction(printf("bigDiv(%s,", bigHexCStri(dividend));
+                printf("%s)\n", bigHexCStri(divisor)););
     if (divisor->size == 1) {
       quotient = bigDiv1(dividend, divisor->bigdigits[0]);
-      return quotient;
     } else if (dividend->size < divisor->size) {
       quotient = bigDivSizeLess(dividend, divisor);
-      return quotient;
     } else {
       if (unlikely(!ALLOC_BIG_CHECK_SIZE(dividend_help, dividend->size + 2))) {
         raise_error(MEMORY_ERROR);
@@ -3744,8 +3703,9 @@ bigIntType bigDiv (const const_bigIntType dividend, const const_bigIntType divis
       } /* if */
       FREE_BIG(dividend_help, dividend->size + 2);
       FREE_BIG(divisor_help, divisor->size + 1);
-      return quotient;
     } /* if */
+    logFunction(printf("bigDiv --> %s\n", bigHexCStri(quotient)););
+    return quotient;
   } /* bigDiv */
 
 
@@ -3862,7 +3822,7 @@ bigIntType bigFromByteBufferBe (const memSizeType size,
       } /* if */
     } /* if */
     result = normalize(result);
-    logFunction(printf("bigFromByteBufferBe() -> %s\n", bigHexCStri(result)););
+    logFunction(printf("bigFromByteBufferBe --> %s\n", bigHexCStri(result)););
     return result;
   } /* bigFromByteBufferBe */
 
@@ -3944,7 +3904,7 @@ bigIntType bigFromByteBufferLe (const memSizeType size,
       } /* if */
     } /* if */
     result = normalize(result);
-    logFunction(printf("bigFromByteBufferLe() -> %s\n", bigHexCStri(result)););
+    logFunction(printf("bigFromByteBufferLe --> %s\n", bigHexCStri(result)););
     return result;
   } /* bigFromByteBufferLe */
 
@@ -3998,6 +3958,7 @@ bigIntType bigFromInt32 (int32Type number)
     bigIntType result;
 
   /* bigFromInt32 */
+    logFunction(printf("bigFromInt32(" FMT_D32 ")\n", number););
 #if BIGDIGIT_SIZE < 32
     result_size = sizeof(int32Type) / (BIGDIGIT_SIZE >> 3);
 #else
@@ -4030,6 +3991,7 @@ bigIntType bigFromInt32 (int32Type number)
       result = normalize(result);
 #endif
     } /* if */
+    logFunction(printf("bigFromInt32 --> %s\n", bigHexCStri(result)););
     return result;
   } /* bigFromInt32 */
 
@@ -4049,10 +4011,10 @@ bigIntType bigFromInt64 (int64Type number)
     bigIntType result;
 
   /* bigFromInt64 */
+    logFunction(printf("bigFromInt64(" FMT_D64 ")\n", number););
     result_size = sizeof(int64Type) / (BIGDIGIT_SIZE >> 3);
     if (unlikely(!ALLOC_BIG_SIZE_OK(result, result_size))) {
       raise_error(MEMORY_ERROR);
-      return NULL;
     } else {
       result->size = result_size;
       for (pos = 0; pos < result_size; pos++) {
@@ -4060,8 +4022,9 @@ bigIntType bigFromInt64 (int64Type number)
         number >>= BIGDIGIT_SIZE;
       } /* for */
       result = normalize(result);
-      return result;
     } /* if */
+    logFunction(printf("bigFromInt64 --> %s\n", bigHexCStri(result)););
+    return result;
   } /* bigFromInt64 */
 #endif
 
@@ -4079,6 +4042,7 @@ bigIntType bigFromUInt32 (uint32Type number)
     bigIntType result;
 
   /* bigFromUInt32 */
+    logFunction(printf("bigFromUInt32(" FMT_U32 ")\n", number););
 #if BIGDIGIT_SIZE <= 32
     result_size = sizeof(uint32Type) / (BIGDIGIT_SIZE >> 3) + 1;
 #else
@@ -4102,6 +4066,7 @@ bigIntType bigFromUInt32 (uint32Type number)
       result->bigdigits[result_size - 1] = (bigDigitType) 0;
       result = normalize(result);
     } /* if */
+    logFunction(printf("bigFromUInt32 --> %s\n", bigHexCStri(result)););
     return result;
   } /* bigFromUInt32 */
 
@@ -4121,10 +4086,10 @@ bigIntType bigFromUInt64 (uint64Type number)
     bigIntType result;
 
   /* bigFromUInt64 */
+    logFunction(printf("bigFromUInt64(" FMT_U64 ")\n", number););
     result_size = sizeof(uint64Type) / (BIGDIGIT_SIZE >> 3) + 1;
     if (unlikely(!ALLOC_BIG_SIZE_OK(result, result_size))) {
       raise_error(MEMORY_ERROR);
-      return NULL;
     } else {
       result->size = result_size;
       for (pos = 0; pos < result_size - 1; pos++) {
@@ -4133,8 +4098,9 @@ bigIntType bigFromUInt64 (uint64Type number)
       } /* for */
       result->bigdigits[result_size - 1] = (bigDigitType) 0;
       result = normalize(result);
-      return result;
     } /* if */
+    logFunction(printf("bigFromUInt64 --> %s\n", bigHexCStri(result)););
+    return result;
   } /* bigFromUInt64 */
 #endif
 
@@ -4154,20 +4120,22 @@ bigIntType bigGcd (const const_bigIntType big1,
     intType lowestSetBitA;
     intType shift;
     bigIntType help_big;
-    bigIntType result;
+    bigIntType gcd;
 
   /* bigGcd */
+    logFunction(printf("bigGcd(%s,", bigHexCStri(big1));
+                printf("%s)\n", bigHexCStri(big2)););
     if (big1->size == 1 && big1->bigdigits[0] == 0) {
-      result = bigAbs(big2);
+      gcd = bigAbs(big2);
     } else if (big2->size == 1 && big2->bigdigits[0] == 0) {
-      result = bigAbs(big1);
+      gcd = bigAbs(big1);
     } else if (unlikely((big1_help = bigAbs(big1)) == NULL)) {
       /* An exception was raised in bigAbs(). */
-      result = NULL;
+      gcd = NULL;
     } else if (unlikely((big2_help = bigAbs(big2)) == NULL)) {
       /* An exception was raised in bigAbs(). */
       bigDestr(big1_help);
-      result = NULL;
+      gcd = NULL;
     } else {
       if ((big1_help->size > big2_help->size &&
           big1_help->size - big2_help->size > 10) ||
@@ -4179,7 +4147,7 @@ bigIntType bigGcd (const const_bigIntType big1,
           big2_help = big1_help;
           big1_help = help_big;
         } /* while */
-        result = big2_help;
+        gcd = big2_help;
         bigDestr(big1_help);
       } else {
         lowestSetBitA = bigLowestSetBit(big1_help);
@@ -4200,11 +4168,12 @@ bigIntType bigGcd (const const_bigIntType big1,
           } /* if */
         } while (big2_help->size != 1 || big2_help->bigdigits[0] != 0);
         bigLShiftAssign(&big1_help, shift);
-        result = big1_help;
+        gcd = big1_help;
         bigDestr(big2_help);
       } /* if */
     } /* if */
-    return result;
+    logFunction(printf("bigGcd -->%s\n", bigHexCStri(gcd)););
+    return gcd;
   } /* bigGcd */
 
 
@@ -4242,6 +4211,7 @@ void bigIncr (bigIntType *const big_variable)
     bigIntType resized_big1;
 
   /* bigIncr */
+    logFunction(printf("bigIncr(%s)\n", bigHexCStri(*big_variable)););
     big1 = *big_variable;
     negative = IS_NEGATIVE(big1->bigdigits[big1->size - 1]);
     pos = 0;
@@ -4299,6 +4269,7 @@ void bigIncr (bigIntType *const big_variable)
         big1->size--;
       } /* if */
     } /* if */
+    logFunction(printf("bigIncr --> %s\n", bigHexCStri(*big_variable)););
   } /* bigIncr */
 
 
@@ -4417,6 +4388,8 @@ bigIntType bigIPowSignedDigit (intType base, intType exponent)
     bigIntType power;
 
   /* bigIPowSignedDigit */
+    logFunction(printf("bigIPowSignedDigit(" FMT_D ", " FMT_D ")\n",
+                       base, exponent););
     if (exponent <= 1) {
       if (unlikely(exponent < 0)) {
         logError(printf("bigIPowSignedDigit(" FMT_D ", " FMT_D "): "
@@ -4435,6 +4408,8 @@ bigIntType bigIPowSignedDigit (intType base, intType exponent)
     } else {
       power = bigIPow1((bigDigitType) base, exponent);
     } /* if */
+    logFunction(printf("bigIPowSignedDigit --> %s (size=" FMT_U_MEM ")\n",
+                       bigHexCStri(power), power != NULL ? power->size : 0););
     return power;
   } /* bigIPowSignedDigit */
 
@@ -4457,6 +4432,7 @@ bigIntType bigLog10 (const const_bigIntType big1)
     bigIntType logarithm;
 
   /* bigLog10 */
+    logFunction(printf("bigLog10(%s)\n", bigHexCStri(big1)););
     if (unlikely(IS_NEGATIVE(big1->bigdigits[big1->size - 1]))) {
       logError(printf("bigLog10(%s): Number is negative.\n",
                       bigHexCStri(big1)););
@@ -4539,6 +4515,7 @@ bigIntType bigLog10 (const const_bigIntType big1)
         } /* if */
       } /* if */
     } /* if */
+    logFunction(printf("bigLog10 --> %s\n", bigHexCStri(logarithm)););
     return logarithm;
   } /* bigLog10 */
 
@@ -4560,6 +4537,7 @@ bigIntType bigLog2 (const const_bigIntType big1)
     bigIntType logarithm;
 
   /* bigLog2 */
+    logFunction(printf("bigLog2(%s)\n", bigHexCStri(big1)););
     if (unlikely(IS_NEGATIVE(big1->bigdigits[big1->size - 1]))) {
       logError(printf("bigLog2(%s): Number is negative.\n",
                       bigHexCStri(big1)););
@@ -4596,6 +4574,7 @@ bigIntType bigLog2 (const const_bigIntType big1)
         logarithm = normalize(logarithm);
       } /* if */
     } /* if */
+    logFunction(printf("bigLog2 --> %s\n", bigHexCStri(logarithm)););
     return logarithm;
   } /* bigLog2 */
 
@@ -4717,7 +4696,7 @@ bigIntType bigLowerBitsTemp (const bigIntType big1, const intType bits)
     bigIntType result;
 
   /* bigLowerBitsTemp */
-    logFunction(printf("bigLowerBits(%s, " FMT_D ")",
+    logFunction(printf("bigLowerBitsTemp(%s, " FMT_D ")\n",
                        bigHexCStri(big1), bits););
     big1_size = big1->size;
     if (unlikely(bits <= 0)) {
@@ -4789,7 +4768,7 @@ bigIntType bigLowerBitsTemp (const bigIntType big1, const intType bits)
       } /* if */
     } /* if */
     result = normalize(result);
-    logFunction(printf(" --> %s (size=" FMT_U_MEM ")\n",
+    logFunction(printf("bigLowerBitsTemp --> %s (size=" FMT_U_MEM ")\n",
                        bigHexCStri(result), result->size););
     return result;
   } /* bigLowerBitsTemp */
@@ -4859,6 +4838,8 @@ bigIntType bigLShift (const const_bigIntType big1, const intType lshift)
     bigIntType result;
 
   /* bigLShift */
+    logFunction(printf("bigLShift(%s, " FMT_D ")\n",
+                       bigHexCStri(big1), lshift););
     if (unlikely(lshift < 0)) {
       if (unlikely(TWOS_COMPLEMENT_INTTYPE && lshift == INTTYPE_MIN)) {
         result = bigRShift(big1, INTTYPE_MAX);
@@ -4939,6 +4920,7 @@ bigIntType bigLShift (const const_bigIntType big1, const intType lshift)
         } /* if */
       } /* if */
     } /* if */
+    logFunction(printf("bigLShift --> %s\n", bigHexCStri(result)););
     return result;
   } /* bigLShift */
 
@@ -4965,6 +4947,8 @@ void bigLShiftAssign (bigIntType *const big_variable, intType lshift)
     bigIntType result;
 
   /* bigLShiftAssign */
+    logFunction(printf("bigLShiftAssign(%s, " FMT_D ")\n",
+                       bigHexCStri(*big_variable), lshift););
     if (unlikely(lshift < 0)) {
       if (unlikely(TWOS_COMPLEMENT_INTTYPE && lshift == INTTYPE_MIN)) {
         bigRShiftAssign(big_variable, INTTYPE_MAX);
@@ -5057,6 +5041,7 @@ void bigLShiftAssign (bigIntType *const big_variable, intType lshift)
         } /* if */
       } /* if */
     } /* if */
+    logFunction(printf("bigLShiftAssign --> %s\n", bigHexCStri(*big_variable)););
   } /* bigLShiftAssign */
 
 
@@ -5077,6 +5062,7 @@ bigIntType bigLShiftOne (const intType lshift)
     bigIntType result;
 
   /* bigLShiftOne */
+    logFunction(printf("bigLShiftOne(" FMT_D ")\n", lshift););
     if (unlikely(lshift < 0)) {
       if (unlikely(!ALLOC_BIG_SIZE_OK(result, 1))) {
         raise_error(MEMORY_ERROR);
@@ -5104,6 +5090,7 @@ bigIntType bigLShiftOne (const intType lshift)
         } /* if */
       } /* if */
     } /* if */
+    logFunction(printf("bigLShiftOne --> %s\n", bigHexCStri(result)););
     return result;
   } /* bigLShiftOne */
 
@@ -5119,29 +5106,32 @@ bigIntType bigLog2BaseIPow (const intType log2base, const intType exponent)
   {
     uintType high_shift;
     uintType low_shift;
-    bigIntType result;
+    bigIntType power;
 
   /* bigLog2BaseIPow */
+    logFunction(printf("bigLog2BaseIPow(" FMT_D ", " FMT_D ")\n",
+                       log2base, exponent););
     if (unlikely(log2base < 0 || exponent < 0)) {
       logError(printf("bigLog2BaseIPow(" FMT_D ", " FMT_D "): "
                       "Log2base or exponent is negative.\n",
                       log2base, exponent););
       raise_error(NUMERIC_ERROR);
-      result = NULL;
+      power = NULL;
     } else if (likely(log2base == 1)) {
-      result = bigLShiftOne(exponent);
+      power = bigLShiftOne(exponent);
     } else if (log2base <= 10 && exponent <= MAX_DIV_10) {
-      result = bigLShiftOne(log2base * exponent);
+      power = bigLShiftOne(log2base * exponent);
     } else {
       low_shift = uint_mult((uintType) log2base, (uintType) exponent, &high_shift);
       if (unlikely(high_shift != 0 || (intType) low_shift < 0)) {
         raise_error(MEMORY_ERROR);
-        result = NULL;
+        power = NULL;
       } else {
-        result = bigLShiftOne((intType) low_shift);
+        power = bigLShiftOne((intType) low_shift);
       } /* if */
     } /* if */
-    return result;
+    logFunction(printf("bigLog2BaseIPow --> %s\n", bigHexCStri(power)););
+    return power;
   } /* bigLog2BaseIPow */
 
 
@@ -5173,12 +5163,12 @@ bigIntType bigMDiv (const const_bigIntType dividend, const const_bigIntType divi
     bigIntType quotient;
 
   /* bigMDiv */
+    logFunction(printf("bigMDiv(%s,", bigHexCStri(dividend));
+                printf("%s)\n", bigHexCStri(divisor)););
     if (divisor->size == 1) {
       quotient = bigMDiv1(dividend, divisor->bigdigits[0]);
-      return quotient;
     } else if (dividend->size < divisor->size) {
       quotient = bigMDivSizeLess(dividend, divisor);
-      return quotient;
     } else {
       if (unlikely(!ALLOC_BIG_CHECK_SIZE(dividend_help, dividend->size + 2))) {
         raise_error(MEMORY_ERROR);
@@ -5241,8 +5231,9 @@ bigIntType bigMDiv (const const_bigIntType dividend, const const_bigIntType divi
       } /* if */
       FREE_BIG(dividend_help, dividend->size + 2);
       FREE_BIG(divisor_help, divisor->size + 1);
-      return quotient;
     } /* if */
+    logFunction(printf("bigMDiv --> %s\n", bigHexCStri(quotient)););
+    return quotient;
   } /* bigMDiv */
 
 
@@ -5276,12 +5267,12 @@ bigIntType bigMod (const const_bigIntType dividend, const const_bigIntType divis
     bigIntType modulo;
 
   /* bigMod */
+    logFunction(printf("bigMod(%s,", bigHexCStri(dividend));
+                printf("%s)\n", bigHexCStri(divisor)););
     if (divisor->size == 1) {
       modulo = bigMod1(dividend, divisor->bigdigits[0]);
-      return modulo;
     } else if (dividend->size < divisor->size) {
       modulo = bigModSizeLess(dividend, divisor);
-      return modulo;
     } else {
       if (unlikely(!ALLOC_BIG_CHECK_SIZE(modulo, dividend->size + 2))) {
         raise_error(MEMORY_ERROR);
@@ -5353,8 +5344,9 @@ bigIntType bigMod (const const_bigIntType dividend, const const_bigIntType divis
       } /* if */
       modulo = normalize(modulo);
       FREE_BIG(divisor_help, divisor->size + 1);
-      return modulo;
     } /* if */
+    logFunction(printf("bigMod --> %s\n", bigHexCStri(modulo)););
+    return modulo;
   } /* bigMod */
 
 
@@ -5372,6 +5364,8 @@ bigIntType bigMult (const_bigIntType factor1, const_bigIntType factor2)
     bigIntType product;
 
   /* bigMult */
+    logFunction(printf("bigMult(%s,", bigHexCStri(factor1));
+                printf("%s)\n", bigHexCStri(factor2)););
     if (IS_NEGATIVE(factor1->bigdigits[factor1->size - 1])) {
       negative = TRUE;
       factor1_help = alloc_positive_copy_of_negative_big(factor1);
@@ -5414,6 +5408,7 @@ bigIntType bigMult (const_bigIntType factor1, const_bigIntType factor2)
     if (factor2_help != NULL) {
       FREE_BIG(factor2_help, factor2_help->size);
     } /* if */
+    logFunction(printf("bigMult --> %s\n", bigHexCStri(product)););
     return product;
   } /* bigMult */
 
@@ -5435,6 +5430,8 @@ void bigMultAssign (bigIntType *const big_variable, const_bigIntType factor)
     bigIntType product;
 
   /* bigMultAssign */
+    logFunction(printf("bigMultAssign(%s,", bigHexCStri(*big_variable));
+                printf("%s)\n", bigHexCStri(factor)););
     if (factor->size == 1) {
       bigMultAssign1(big_variable, factor->bigdigits[0]);
     } else {
@@ -5498,6 +5495,7 @@ void bigMultAssign (bigIntType *const big_variable, const_bigIntType factor)
         FREE_BIG(factor_help, factor_help->size);
       } /* if */
     } /* if */
+    logFunction(printf("bigMultAssign --> %s\n", bigHexCStri(*big_variable)););
   } /* bigMultAssign */
 
 
@@ -5556,9 +5554,9 @@ bigIntType bigNegate (const const_bigIntType big1)
     bigIntType result;
 
   /* bigNegate */
+    logFunction(printf("bigNegate(%s)\n", bigHexCStri(big1)););
     if (unlikely(!ALLOC_BIG_SIZE_OK(result, big1->size))) {
       raise_error(MEMORY_ERROR);
-      return NULL;
     } else {
       result->size = big1->size;
       pos = 0;
@@ -5574,7 +5572,7 @@ bigIntType bigNegate (const const_bigIntType big1)
           if (unlikely(resized_result == NULL)) {
             FREE_BIG(result, pos);
             raise_error(MEMORY_ERROR);
-            return NULL;
+            result = NULL;
           } else {
             result = resized_result;
             COUNT3_BIG(pos, pos + 1);
@@ -5593,8 +5591,9 @@ bigIntType bigNegate (const const_bigIntType big1)
           result->size--;
         } /* if */
       } /* if */
-      return result;
     } /* if */
+    logFunction(printf("bigNegate --> %s\n", bigHexCStri(result)););
+    return result;
   } /* bigNegate */
 
 
@@ -5613,6 +5612,7 @@ bigIntType bigNegateTemp (bigIntType big1)
     bigIntType resized_big1;
 
   /* bigNegateTemp */
+    logFunction(printf("bigNegateTemp(%s)\n", bigHexCStri(big1)););
     negative = IS_NEGATIVE(big1->bigdigits[big1->size - 1]);
     pos = 0;
     do {
@@ -5627,7 +5627,7 @@ bigIntType bigNegateTemp (bigIntType big1)
         if (unlikely(resized_big1 == NULL)) {
           FREE_BIG(big1, pos);
           raise_error(MEMORY_ERROR);
-          return NULL;
+          big1 = NULL;
         } else {
           big1 = resized_big1;
           COUNT3_BIG(pos, pos + 1);
@@ -5646,6 +5646,7 @@ bigIntType bigNegateTemp (bigIntType big1)
         big1->size--;
       } /* if */
     } /* if */
+    logFunction(printf("bigNegateTemp --> %s\n", bigHexCStri(big1)););
     return big1;
   } /* bigNegateTemp */
 
@@ -5673,6 +5674,8 @@ bigIntType bigOr (const_bigIntType big1, const_bigIntType big2)
     bigIntType result;
 
   /* bigOr */
+    logFunction(printf("bigOr(%s,", bigHexCStri(big1));
+                printf("%s)\n", bigHexCStri(big2)););
     if (big2->size > big1->size) {
       help_big = big1;
       big1 = big2;
@@ -5680,7 +5683,6 @@ bigIntType bigOr (const_bigIntType big1, const_bigIntType big2)
     } /* if */
     if (unlikely(!ALLOC_BIG_CHECK_SIZE(result, big1->size))) {
       raise_error(MEMORY_ERROR);
-      return NULL;
     } else {
       pos = 0;
       do {
@@ -5693,8 +5695,9 @@ bigIntType bigOr (const_bigIntType big1, const_bigIntType big2)
       } /* for */
       result->size = pos;
       result = normalize(result);
-      return result;
     } /* if */
+    logFunction(printf("bigOr --> %s\n", bigHexCStri(result)););
+    return result;
   } /* bigOr */
 
 
@@ -5850,9 +5853,9 @@ bigIntType bigPred (const const_bigIntType big1)
     bigIntType result;
 
   /* bigPred */
+    logFunction(printf("bigPred(%s)\n", bigHexCStri(big1)););
     if (unlikely(!ALLOC_BIG_SIZE_OK(result, big1->size))) {
       raise_error(MEMORY_ERROR);
-      return NULL;
     } else {
       result->size = big1->size;
       pos = 0;
@@ -5885,7 +5888,7 @@ bigIntType bigPred (const const_bigIntType big1)
           if (unlikely(resized_result == NULL)) {
             FREE_BIG(result, pos);
             raise_error(MEMORY_ERROR);
-            return NULL;
+            result = NULL;
           } else {
             result = resized_result;
             COUNT3_BIG(pos, pos + 1);
@@ -5904,8 +5907,9 @@ bigIntType bigPred (const const_bigIntType big1)
           result->size--;
         } /* if */
       } /* if */
-      return result;
     } /* if */
+    logFunction(printf("bigPred --> %s\n", bigHexCStri(result)););
+    return result;
   } /* bigPred */
 
 
@@ -5922,6 +5926,7 @@ bigIntType bigPredTemp (bigIntType big1)
     bigIntType resized_big1;
 
   /* bigPredTemp */
+    logFunction(printf("bigPredTemp(%s)\n", bigHexCStri(big1)););
     negative = IS_NEGATIVE(big1->bigdigits[big1->size - 1]);
     pos = 0;
     if (big1->bigdigits[pos] == 0) {
@@ -5965,6 +5970,7 @@ bigIntType bigPredTemp (bigIntType big1)
         big1->size--;
       } /* if */
     } /* if */
+    logFunction(printf("bigPredTemp --> %s\n", bigHexCStri(big1)););
     return big1;
   } /* bigPredTemp */
 
@@ -6110,12 +6116,12 @@ bigIntType bigRem (const const_bigIntType dividend, const const_bigIntType divis
     bigIntType remainder;
 
   /* bigRem */
+    logFunction(printf("bigRem(%s,", bigHexCStri(dividend));
+                printf("%s)\n", bigHexCStri(divisor)););
     if (divisor->size == 1) {
       remainder = bigRem1(dividend, divisor->bigdigits[0]);
-      return remainder;
     } else if (dividend->size < divisor->size) {
       remainder = bigRemSizeLess(dividend, divisor);
-      return remainder;
     } else {
       if (unlikely(!ALLOC_BIG_CHECK_SIZE(remainder, dividend->size + 2))) {
         raise_error(MEMORY_ERROR);
@@ -6173,8 +6179,9 @@ bigIntType bigRem (const const_bigIntType dividend, const const_bigIntType divis
       } /* if */
       remainder = normalize(remainder);
       FREE_BIG(divisor_help, divisor->size + 1);
-      return remainder;
     } /* if */
+    logFunction(printf("bigRem --> %s\n", bigHexCStri(remainder)););
+    return remainder;
   } /* bigRem */
 
 
@@ -6202,6 +6209,8 @@ bigIntType bigRShift (const const_bigIntType big1, const intType rshift)
     bigIntType result;
 
   /* bigRShift */
+    logFunction(printf("bigRShift(%s, " FMT_D ")\n",
+                       bigHexCStri(big1), rshift););
     if (unlikely(rshift < 0)) {
       if (unlikely(TWOS_COMPLEMENT_INTTYPE && rshift == INTTYPE_MIN)) {
         result = bigLShift(big1, INTTYPE_MAX);
@@ -6274,6 +6283,7 @@ bigIntType bigRShift (const const_bigIntType big1, const intType rshift)
         } /* if */
       } /* if */
     } /* if */
+    logFunction(printf("bigRShift --> %s\n", bigHexCStri(result)););
     return result;
   } /* bigRShift */
 
@@ -6299,6 +6309,8 @@ void bigRShiftAssign (bigIntType *const big_variable, intType rshift)
     memSizeType big1_size;
 
   /* bigRShiftAssign */
+    logFunction(printf("bigRShiftAssign(%s, " FMT_D ")\n",
+                       bigHexCStri(*big_variable), rshift););
     if (unlikely(rshift < 0)) {
       if (unlikely(TWOS_COMPLEMENT_INTTYPE && rshift == INTTYPE_MIN)) {
         bigLShiftAssign(big_variable, INTTYPE_MAX);
@@ -6409,6 +6421,7 @@ void bigRShiftAssign (bigIntType *const big_variable, intType rshift)
         } /* if */
       } /* if */
     } /* if */
+    logFunction(printf("bigRShiftAssign --> %s\n", bigHexCStri(*big_variable)););
   } /* bigRShiftAssign */
 
 
@@ -6427,6 +6440,8 @@ bigIntType bigSbtr (const const_bigIntType minuend, const const_bigIntType subtr
     bigIntType difference;
 
   /* bigSbtr */
+    logFunction(printf("bigSbtr(%s,", bigHexCStri(minuend));
+                printf("%s)\n", bigHexCStri(subtrahend)););
     if (minuend->size >= subtrahend->size) {
       if (unlikely(!ALLOC_BIG_CHECK_SIZE(difference, minuend->size + 1))) {
         raise_error(MEMORY_ERROR);
@@ -6452,7 +6467,6 @@ bigIntType bigSbtr (const const_bigIntType minuend, const const_bigIntType subtr
         difference->bigdigits[pos] = (bigDigitType) ((carry + subtrahend_sign) & BIGDIGIT_MASK);
         difference->size = pos + 1;
         difference = normalize(difference);
-        return difference;
       } /* if */
     } else {
       if (unlikely(!ALLOC_BIG_CHECK_SIZE(difference, subtrahend->size + 1))) {
@@ -6480,9 +6494,10 @@ bigIntType bigSbtr (const const_bigIntType minuend, const const_bigIntType subtr
         difference->bigdigits[pos] = (bigDigitType) ((carry + subtrahend_sign) & BIGDIGIT_MASK);
         difference->size = pos + 1;
         difference = normalize(difference);
-        return difference;
       } /* if */
     } /* if */
+    logFunction(printf("bigSbtr --> %s\n", bigHexCStri(difference)););
+    return difference;
   } /* bigSbtr */
 
 
@@ -6505,15 +6520,22 @@ void bigSbtrAssign (bigIntType *const big_variable, const const_bigIntType delta
     bigIntType big1;
     memSizeType pos;
     memSizeType big1_size;
+    boolType delta_negative;
     doubleBigDigitType carry = 1;
     doubleBigDigitType big1_sign;
     doubleBigDigitType delta_sign;
     bigIntType resized_big1;
 
   /* bigSbtrAssign */
+    logFunction(printf("bigSbtrAssign(%s,", bigHexCStri(*big_variable));
+                printf("%s)\n", bigHexCStri(delta)););
     big1 = *big_variable;
     if (big1->size >= delta->size) {
-      big1_sign = IS_NEGATIVE(big1->bigdigits[big1->size - 1]) ? BIGDIGIT_MASK : 0;
+      big1_size = big1->size;
+      big1_sign = IS_NEGATIVE(big1->bigdigits[big1_size - 1]) ? BIGDIGIT_MASK : 0;
+      /* It is possible that big1 == delta holds. Therefore the check */
+      /* for negative delta must be done before big1 is changed.      */
+      delta_negative = IS_NEGATIVE(delta->bigdigits[delta->size - 1]);
       pos = 0;
       do {
         carry += (doubleBigDigitType) big1->bigdigits[pos] +
@@ -6522,23 +6544,23 @@ void bigSbtrAssign (bigIntType *const big_variable, const const_bigIntType delta
         carry >>= BIGDIGIT_SIZE;
         pos++;
       } while (pos < delta->size);
-      if (IS_NEGATIVE(delta->bigdigits[pos - 1])) {
-        for (; carry != 0 && pos < big1->size; pos++) {
+      if (delta_negative) {
+        for (; carry != 0 && pos < big1_size; pos++) {
           carry += big1->bigdigits[pos];
           big1->bigdigits[pos] = (bigDigitType) (carry & BIGDIGIT_MASK);
           carry >>= BIGDIGIT_SIZE;
         } /* for */
       } else {
-        for (; carry == 0 && pos < big1->size; pos++) {
+        for (; carry == 0 && pos < big1_size; pos++) {
           carry = (doubleBigDigitType) big1->bigdigits[pos] + BIGDIGIT_MASK;
           big1->bigdigits[pos] = (bigDigitType) (carry & BIGDIGIT_MASK);
           carry >>= BIGDIGIT_SIZE;
         } /* for */
         carry += BIGDIGIT_MASK;
       } /* if */
-      big1_size = big1->size;
       carry += big1_sign;
       carry &= BIGDIGIT_MASK;
+      /* Now the only possible values for carry are 0 and BIGDIGIT_MASK. */
       if ((carry != 0 || IS_NEGATIVE(big1->bigdigits[big1_size - 1])) &&
           (carry != BIGDIGIT_MASK || !IS_NEGATIVE(big1->bigdigits[big1_size - 1]))) {
         REALLOC_BIG_CHECK_SIZE(resized_big1, big1, big1_size, big1_size + 1);
@@ -6553,7 +6575,7 @@ void bigSbtrAssign (bigIntType *const big_variable, const const_bigIntType delta
           big1 = resized_big1;
           COUNT3_BIG(big1_size, big1_size + 1);
           big1->size++;
-          big1->bigdigits[big1_size] = (bigDigitType) (carry & BIGDIGIT_MASK);
+          big1->bigdigits[big1_size] = (bigDigitType) (carry);
           *big_variable = big1;
         } /* if */
       } else {
@@ -6589,6 +6611,7 @@ void bigSbtrAssign (bigIntType *const big_variable, const const_bigIntType delta
         *big_variable = normalize(big1);
       } /* if */
     } /* if */
+    logFunction(printf("bigSbtrAssign --> %s\n", bigHexCStri(*big_variable)););
   } /* bigSbtrAssign */
 
 
@@ -6617,9 +6640,10 @@ bigIntType bigSquare (const_bigIntType big1)
 
   {
     bigIntType big1_help = NULL;
-    bigIntType result;
+    bigIntType square;
 
   /* bigSquare */
+    logFunction(printf("bigSquare(%s)\n", bigHexCStri(big1)););
     if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
       big1_help = alloc_positive_copy_of_negative_big(big1);
       big1 = big1_help;
@@ -6629,11 +6653,12 @@ bigIntType bigSquare (const_bigIntType big1)
       } /* if */
     } /* if */
     /* printf("bigSquare(" FMT_U_MEM ")\n", big1->size); */
-    result = uBigSquareK(big1);
+    square = uBigSquareK(big1);
     if (big1_help != NULL) {
       FREE_BIG(big1_help, big1_help->size);
     } /* if */
-    return result;
+    logFunction(printf("bigSquare --> %s\n", bigHexCStri(square)););
+    return square;
   } /* bigSquare */
 
 
@@ -6753,9 +6778,9 @@ bigIntType bigSucc (const const_bigIntType big1)
     bigIntType result;
 
   /* bigSucc */
+    logFunction(printf("bigSucc(%s)\n", bigHexCStri(big1)););
     if (unlikely(!ALLOC_BIG_SIZE_OK(result, big1->size))) {
       raise_error(MEMORY_ERROR);
-      return NULL;
     } else {
       result->size = big1->size;
       pos = 0;
@@ -6788,7 +6813,7 @@ bigIntType bigSucc (const const_bigIntType big1)
           if (unlikely(resized_result == NULL)) {
             FREE_BIG(result, pos);
             raise_error(MEMORY_ERROR);
-            return NULL;
+            result = NULL;
           } else {
             result = resized_result;
             COUNT3_BIG(pos, pos + 1);
@@ -6807,8 +6832,9 @@ bigIntType bigSucc (const const_bigIntType big1)
           result->size--;
         } /* if */
       } /* if */
-      return result;
     } /* if */
+    logFunction(printf("bigSucc --> %s\n", bigHexCStri(result)););
+    return result;
   } /* bigSucc */
 
 
@@ -6826,6 +6852,7 @@ bigIntType bigSuccTemp (bigIntType big1)
     bigIntType resized_big1;
 
   /* bigSuccTemp */
+    logFunction(printf("bigSuccTemp(%s)\n", bigHexCStri(big1)););
     negative = IS_NEGATIVE(big1->bigdigits[big1->size - 1]);
     pos = 0;
     if (big1->bigdigits[pos] == BIGDIGIT_MASK) {
@@ -6869,6 +6896,7 @@ bigIntType bigSuccTemp (bigIntType big1)
         big1->size--;
       } /* if */
     } /* if */
+    logFunction(printf("bigSuccTemp --> %s\n", bigHexCStri(big1)););
     return big1;
   } /* bigSuccTemp */
 
@@ -7220,6 +7248,8 @@ bigIntType bigXor (const_bigIntType big1, const_bigIntType big2)
     bigIntType result;
 
   /* bigXor */
+    logFunction(printf("bigXor(%s,", bigHexCStri(big1));
+                printf("%s)\n", bigHexCStri(big2)););
     if (big2->size > big1->size) {
       help_big = big1;
       big1 = big2;
@@ -7227,7 +7257,6 @@ bigIntType bigXor (const_bigIntType big1, const_bigIntType big2)
     } /* if */
     if (unlikely(!ALLOC_BIG_CHECK_SIZE(result, big1->size))) {
       raise_error(MEMORY_ERROR);
-      return NULL;
     } else {
       pos = 0;
       do {
@@ -7240,8 +7269,9 @@ bigIntType bigXor (const_bigIntType big1, const_bigIntType big2)
       } /* for */
       result->size = pos;
       result = normalize(result);
-      return result;
     } /* if */
+    logFunction(printf("bigXor --> %s\n", bigHexCStri(result)););
+    return result;
   } /* bigXor */
 
 

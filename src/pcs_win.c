@@ -90,6 +90,24 @@ typedef int64Type intPtrType;
 
 
 
+#if LOG_FUNCTIONS || LOG_FUNCTIONS_EVERYWHERE || VERBOSE_EXCEPTIONS || VERBOSE_EXCEPTIONS_EVERYWHERE
+static void printParameters (const const_rtlArrayType parameters)
+
+  {
+    memSizeType paramSize;
+    memSizeType pos;
+
+  /* printParameters */
+    paramSize = arraySize(parameters);
+    for (pos = 0; pos < paramSize; pos++) {
+      printf(", \"%s\"",
+             striAsUnquotedCStri(parameters->arr[pos].value.striValue));
+    } /* for */
+  } /* printParameters */
+#endif
+
+
+
 /**
  *  Create a command line string that can be used by CreateProcessW().
  *  The command line string must be freed with os_stri_free().
@@ -278,10 +296,9 @@ intType pcsExitValue (const const_processType process)
 void pcsFree (processType old_process)
 
   { /* pcsFree */
-    logFunction(printf("pcsFree(" FMT_U_MEM ") (usage=" FMT_U ")\n",
-                       (memSizeType) old_process,
-                       old_process != NULL ? old_process->usage_count : (uintType) 0);
-                printf("PID=%lu\n", (long unsigned) to_pid(old_process)););
+    logFunction(printf("pcsFree(" FMT_U32 ") (usage=" FMT_U ")\n",
+                       old_process != NULL ? to_pid(old_process) : (uint32Type) 0,
+                       old_process != NULL ? old_process->usage_count : (uintType) 0););
     CloseHandle(to_hProcess(old_process));
     CloseHandle(to_hThread(old_process));
     FREE_RECORD(old_process, win_processRecord, count.process);
@@ -321,8 +338,8 @@ boolType pcsIsAlive (const processType process)
     boolType isAlive;
 
   /* pcsIsAlive */
-    logFunction(printf("pcsIsAlive(" FMT_U_MEM ") (hProcess=" FMT_U_MEM ")\n",
-                       (memSizeType) process,
+    logFunction(printf("pcsIsAlive(" FMT_U32 ") (hProcess=" FMT_U_MEM ")\n",
+                       process != NULL ? to_pid(process) : (uint32Type) 0,
                        process != NULL ? (memSizeType) to_hProcess(process) : (memSizeType) 0););
     if (to_isTerminated(process)) {
       isAlive = FALSE;
@@ -342,7 +359,7 @@ boolType pcsIsAlive (const processType process)
       } else {
         logError(printf("pcsIsAlive: GetExitCodeProcess(" FMT_U_MEM ", 0) failed:\nGetLastError=%d\n",
                         (memSizeType) to_hProcess(process), GetLastError());
-                 printf("PID=%lu\n", (long unsigned) to_pid(process)););
+                 printf("PID=" FMT_U32 "\n", to_pid(process)););
         raise_error(FILE_ERROR);
         isAlive = TRUE;
       } /* if */
@@ -359,8 +376,8 @@ boolType pcsIsAlive (const processType process)
 void pcsKill (const processType process)
 
   { /* pcsKill */
-    logFunction(printf("pcsKill(" FMT_U_MEM ") (hProcess=" FMT_U_MEM ")\n",
-                       (memSizeType) process,
+    logFunction(printf("pcsKill(" FMT_U32 ") (hProcess=" FMT_U_MEM ")\n",
+                       process != NULL ? to_pid(process) : (uint32Type) 0,
                        process != NULL ? (memSizeType) to_hProcess(process) : (memSizeType) 0););
     if (unlikely(process == NULL)) {
       logError(printf("pcsKill: process == NULL\n"););
@@ -368,7 +385,7 @@ void pcsKill (const processType process)
     } else if (unlikely(TerminateProcess(to_hProcess(process), 0) == 0)) {
       logError(printf("pcsKill: TerminateProcess(" FMT_U_MEM ", 0) failed:\nGetLastError=%d\n",
                       (memSizeType) to_hProcess(process), GetLastError());
-               printf("PID=%lu\n", (long unsigned) to_pid(process)););
+               printf("PID=" FMT_U32 "\n", to_pid(process)););
       raise_error(FILE_ERROR);
     } /* if */
   } /* pcsKill */
@@ -395,8 +412,9 @@ void pcsPipe2 (const const_striType command, const const_rtlArrayType parameters
     errInfoType err_info = OKAY_NO_ERROR;
 
   /* pcsPipe2 */
-    logFunction(printf("pcsPipe2(\"%s\", *)\n",
-                       striAsUnquotedCStri(command)););
+    logFunction(printf("pcsPipe2(\"%s\"", striAsUnquotedCStri(command));
+                printParameters(parameters);
+                printf(")\n"););
     os_command_stri = cp_to_os_path(command, &path_info, &err_info);
     if (likely(os_command_stri != NULL)) {
       command_line = prepareCommandLine(os_command_stri, parameters, &err_info);
@@ -489,8 +507,9 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
     win_processType process = NULL;
 
   /* pcsStart */
-    logFunction(printf("pcsStart(\"%s\", *)\n",
-                       striAsUnquotedCStri(command)););
+    logFunction(printf("pcsStart(\"%s\"", striAsUnquotedCStri(command));
+                printParameters(parameters);
+                printf(")\n"););
     os_command_stri = cp_to_os_path(command, &path_info, &err_info);
     if (likely(os_command_stri != NULL)) {
       command_line = prepareCommandLine(os_command_stri, parameters, &err_info);
@@ -515,7 +534,7 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
                              &startupInfo,
                              &processInformation) != 0) {
             /* printf("pcsStart: pProcess=" FMT_U_MEM "\n", (memSizeType) (processInformation.hProcess)); */
-            /* printf("pcsStart: PID=%lu\n", (long unsigned) processInformation.dwProcessId); */
+            /* printf("pcsStart: PID=" FMT_U32 "\n", processInformation.dwProcessId); */
             memset(process, 0, sizeof(win_processRecord));
             process->usage_count = 1;
             process->hProcess = processInformation.hProcess;
@@ -540,8 +559,8 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);
     } /* if */
-    logFunction(printf("pcsStart -> " FMT_U_MEM "\n",
-                       (memSizeType) process););
+    logFunction(printf("pcsStart -> " FMT_U32 "\n",
+                       process != NULL ? process->pid : (uint32Type) 0););
     return (processType) process;
   } /* pcsStart */
 
@@ -569,8 +588,9 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
     win_processType process = NULL;
 
   /* pcsStartPipe */
-    logFunction(printf("pcsStartPipe(\"%s\", *)\n",
-                       striAsUnquotedCStri(command)););
+    logFunction(printf("pcsStartPipe(\"%s\"", striAsUnquotedCStri(command));
+                printParameters(parameters);
+                printf(")\n"););
     os_command_stri = cp_to_os_path(command, &path_info, &err_info);
     if (likely(os_command_stri != NULL)) {
       command_line = prepareCommandLine(os_command_stri, parameters, &err_info);
@@ -653,8 +673,8 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);
     } /* if */
-    logFunction(printf("pcsStartPipe -> " FMT_U_MEM "\n",
-                       (memSizeType) process););
+    logFunction(printf("pcsStartPipe -> " FMT_U32 "\n",
+                       process != NULL ? process->pid : (uint32Type) 0););
     return (processType) process;
   } /* pcsStartPipe */
 
@@ -696,8 +716,8 @@ void pcsWaitFor (const processType process)
     DWORD exitCode = 0;
 
   /* pcsWaitFor */
-    logFunction(printf("pcsWaitFor(" FMT_U_MEM ") (hProcess=" FMT_U_MEM ")\n",
-                       (memSizeType) process,
+    logFunction(printf("pcsWaitFor(" FMT_U32 ") (hProcess=" FMT_U_MEM ")\n",
+                       process != NULL ? to_pid(process) : (uint32Type) 0,
                        process != NULL ? (memSizeType) to_hProcess(process) : (memSizeType) 0););
     if (!to_isTerminated(process)) {
       if (WaitForSingleObject(to_hProcess(process), INFINITE) == WAIT_OBJECT_0) {
@@ -707,7 +727,7 @@ void pcsWaitFor (const processType process)
         } else {
           logError(printf("pcsWaitFor: GetExitCodeProcess(" FMT_U_MEM ", 0) failed:\nGetLastError=%d\n",
                           (memSizeType) to_hProcess(process), GetLastError());
-                   printf("PID=%lu\n", (long unsigned) to_pid(process)););
+                   printf("PID=" FMT_U32 "\n", to_pid(process)););
         } /* if */
       } else {
         raise_error(FILE_ERROR);

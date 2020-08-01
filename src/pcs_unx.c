@@ -83,6 +83,24 @@ size_t sizeof_processRecord = sizeof(unx_processRecord);
 
 
 
+#if LOG_FUNCTIONS || LOG_FUNCTIONS_EVERYWHERE || VERBOSE_EXCEPTIONS || VERBOSE_EXCEPTIONS_EVERYWHERE
+static void printParameters (const const_rtlArrayType parameters)
+
+  {
+    memSizeType paramSize;
+    memSizeType pos;
+
+  /* printParameters */
+    paramSize = arraySize(parameters);
+    for (pos = 0; pos < paramSize; pos++) {
+      printf(", \"%s\"",
+             striAsUnquotedCStri(parameters->arr[pos].value.striValue));
+    } /* for */
+  } /* printParameters */
+#endif
+
+
+
 /**
  *  Free an argument vector that was created by genArgVector().
  *  The individual arguments are freed in the reverse order
@@ -247,7 +265,7 @@ void pcsFree (processType old_process)
 
   { /* pcsFree */
     logFunction(printf("pcsFree(" FMT_U_MEM ") (usage=" FMT_U ")\n",
-                       (memSizeType) old_process,
+                       old_process != NULL ? (memSizeType) to_pid(old_process) : (memSizeType) 0,
                        old_process != NULL ? old_process->usage_count : (uintType) 0););
     FREE_RECORD(old_process, unx_processRecord, count.process);
   } /* pcsFree */
@@ -287,9 +305,8 @@ boolType pcsIsAlive (const processType process)
     boolType isAlive;
 
   /* pcsIsAlive */
-    logFunction(printf("pcsIsAlive(" FMT_U_MEM ") (pid=%ld)\n",
-                       (memSizeType) process,
-                       process != NULL ? (long int) to_pid(process) : 0););
+    logFunction(printf("pcsIsAlive(" FMT_U_MEM ")\n",
+                       process != NULL ? (memSizeType) to_pid(process) : (memSizeType) 0););
     if (to_isTerminated(process)) {
       isAlive = FALSE;
     } else {
@@ -334,9 +351,8 @@ boolType pcsIsAlive (const processType process)
 void pcsKill (const processType process)
 
   { /* pcsKill */
-    logFunction(printf("pcsKill(" FMT_U_MEM ") (pid=%ld)\n",
-                       (memSizeType) process,
-                       process != NULL ? (long int) to_pid(process) : 0););
+    logFunction(printf("pcsKill(" FMT_U_MEM ")\n",
+                       process != NULL ? (memSizeType) to_pid(process) : (memSizeType) 0););
     if (unlikely(process == NULL)) {
       logError(printf("pcsKill: process == NULL\n"););
       raise_error(FILE_ERROR);
@@ -363,8 +379,9 @@ void pcsPipe2 (const const_striType command, const const_rtlArrayType parameters
     pid_t pid;
 
   /* pcsPipe2 */
-    logFunction(printf("pcsPipe2(\"%s\", *)\n",
-                       striAsUnquotedCStri(command)););
+    logFunction(printf("pcsPipe2(\"%s\"", striAsUnquotedCStri(command));
+                printParameters(parameters);
+                printf(")\n"););
     argv = genArgVector(command, parameters, &err_info);
     if (unlikely(argv == NULL)) {
       raise_error(err_info);
@@ -458,8 +475,9 @@ void pcsPty (const const_striType command, const const_rtlArrayType parameters,
     pid_t pid;
 
   /* pcsPty */
-    logFunction(printf("pcsPty(\"%s\", *)\n",
-                       striAsUnquotedCStri(command)););
+    logFunction(printf("pcsPty(\"%s\"", striAsUnquotedCStri(command));
+                printParameters(parameters);
+                printf(")\n"););
     argv = genArgVector(command, parameters, &err_info);
     if (unlikely(argv == NULL)) {
       raise_error(err_info);
@@ -535,8 +553,9 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
     unx_processType process;
 
   /* pcsStart */
-    logFunction(printf("pcsStart(\"%s\", *)\n",
-                       striAsUnquotedCStri(command)););
+    logFunction(printf("pcsStart(\"%s\"", striAsUnquotedCStri(command));
+                printParameters(parameters);
+                printf(")\n"););
     argv = genArgVector(command, parameters, &err_info);
     if (unlikely(argv == NULL)) {
       raise_error(err_info);
@@ -575,7 +594,7 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
       } /* if */
     } /* if */
     logFunction(printf("pcsStart -> " FMT_U_MEM "\n",
-                       (memSizeType) process););
+                       process != NULL ? (memSizeType) process->pid : (memSizeType) 0););
     return (processType) process;
   } /* pcsStart */
 
@@ -596,8 +615,9 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
     unx_processType process;
 
   /* pcsStartPipe */
-    logFunction(printf("pcsStartPipe(\"%s\", *)\n",
-                       striAsUnquotedCStri(command)););
+    logFunction(printf("pcsStartPipe(\"%s\"", striAsUnquotedCStri(command));
+                printParameters(parameters);
+                printf(")\n"););
     argv = genArgVector(command, parameters, &err_info);
     if (unlikely(argv == NULL)) {
       raise_error(err_info);
@@ -705,7 +725,7 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
       } /* if */
     } /* if */
     logFunction(printf("pcsStartPipe -> " FMT_U_MEM "\n",
-                       (memSizeType) process););
+                       process != NULL ? (memSizeType) process->pid : (memSizeType) 0););
     return (processType) process;
   } /* pcsStartPipe */
 
@@ -748,9 +768,8 @@ void pcsWaitFor (const processType process)
     int status;
 
   /* pcsWaitFor */
-    logFunction(printf("pcsWaitFor(" FMT_U_MEM ") (pid=%ld)\n",
-                       (memSizeType) process,
-                       process != NULL ? (long int) to_pid(process) : 0););
+    logFunction(printf("pcsWaitFor(" FMT_U_MEM ")\n",
+                       process != NULL ? (memSizeType) to_pid(process) : (memSizeType) 0););
     if (!to_isTerminated(process)) {
       status = 0;
       waitpid_result = waitpid(to_pid(process), &status, 0);

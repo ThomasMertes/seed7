@@ -25,8 +25,6 @@
 /*                                                                  */
 /********************************************************************/
 
-objectType bin_add              (listType arguments);
-objectType bin_add_assign       (listType arguments);
 objectType bin_and              (listType arguments);
 objectType bin_and_assign       (listType arguments);
 objectType bin_big              (listType arguments);
