@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2008  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2013  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: Seed7 compiler library                                  */
 /*  File: seed7/src/prg_comp.c                                      */
-/*  Changes: 1991, 1992, 1993, 1994, 2008  Thomas Mertes            */
+/*  Changes: 1991 - 1994, 2008, 2013  Thomas Mertes                 */
 /*  Content: Primitive actions for the program type.                */
 /*                                                                  */
 /********************************************************************/
@@ -33,21 +33,161 @@
 
 #include "common.h"
 #include "data.h"
+#include "data_rtl.h"
 #include "heaputl.h"
 #include "flistutl.h"
 #include "striutl.h"
 #include "listutl.h"
 #include "syvarutl.h"
 #include "identutl.h"
+#include "traceutl.h"
 #include "analyze.h"
 #include "exec.h"
 #include "match.h"
+#include "objutl.h"
 #include "runerr.h"
+#include "set_rtl.h"
 #include "rtl_err.h"
 
 #undef EXTERN
 #define EXTERN
 #include "prg_comp.h"
+
+
+
+#ifdef ANSI_C
+
+static objecttype copy_args (const const_rtlArraytype argv, const memsizetype start)
+#else
+
+static objecttype copy_args (argv, start)
+rtlArraytype argv;
+memsizetype start;
+#endif
+
+  {
+    memsizetype argc;
+    arraytype arg_array;
+    memsizetype arg_idx;
+    objecttype result;
+
+  /* copy_args */
+    /* printf("start = %d\n", start); */
+    if (argv == NULL || argv->max_position < 0) {
+      argc = 0;
+    } else {
+      argc = (memsizetype) argv->max_position - start;
+    } /* if */
+    /* printf("argc = %d\n", argc); */
+    if (ALLOC_ARRAY(arg_array, argc)) {
+      arg_idx = 0;
+      while (arg_idx < argc) {
+        /* printf("arg_idx = %d\n", arg_idx);
+           printf("argv[%d] = ", start + arg_idx);
+           prot_stri(argv->arr[start + arg_idx].value.strivalue);
+           printf("\n"); */
+        arg_array->arr[arg_idx].type_of = take_type(SYS_STRI_TYPE);
+        arg_array->arr[arg_idx].descriptor.property = NULL;
+        arg_array->arr[arg_idx].value.strivalue =
+            argv->arr[start + arg_idx].value.strivalue;
+        INIT_CATEGORY_OF_OBJ(&arg_array->arr[arg_idx], STRIOBJECT);
+        arg_idx++;
+      } /* while */
+      arg_array->min_position = 1;
+      arg_array->max_position = (inttype) arg_idx;
+    } /* if */
+    if (arg_array != NULL) {
+      if (ALLOC_OBJECT(result)) {
+        result->type_of = NULL;
+        result->descriptor.property = NULL;
+        INIT_CATEGORY_OF_OBJ(result, ARRAYOBJECT);
+        result->value.arrayvalue = arg_array;
+      } else {
+        FREE_ARRAY(arg_array, argc);
+      } /* if */
+    } else {
+      result = NULL;
+    } /* if */
+    return result;
+  } /* copy_args */
+
+
+
+#ifdef ANSI_C
+
+void interpret (const const_progtype currentProg, const const_rtlArraytype argv,
+                memsizetype argv_start, uinttype options, const const_stritype prot_file_name)
+#else
+
+void interpret (currentProg, argv, argv_start, options, prot_file_name)
+progtype currentProg;
+rtlArraytype argv;
+memsizetype argv_start;
+uinttype options;
+stritype prot_file_name;
+#endif
+
+  {
+    progrecord prog_backup;
+
+  /* interpret */
+#ifdef TRACE_PRG_COMP
+    printf("BEGIN interpret\n");
+#endif
+    if (currentProg != NULL) {
+      fail_flag = FALSE;
+      fail_value = (objecttype) NULL;
+      fail_expression = (listtype) NULL;
+      fail_stack = NULL;
+      if (currentProg->main_object != NULL) {
+        memcpy(&prog_backup, &prog, sizeof(progrecord));
+        memcpy(&prog, currentProg, sizeof(progrecord));
+        prog.option_flags = options;
+        set_trace(prog.option_flags);
+        set_protfile_name(prot_file_name);
+        prog.arg_v = copy_args(argv, argv_start);
+/*        printf("main defined as: ");
+        trace1(prog.main_object);
+        printf("\n"); */
+#ifdef WITH_PROTOCOL
+        if (trace.actions) {
+          if (trace.heapsize) {
+            prot_heapsize();
+            prot_cstri(" ");
+          } /* if */
+          prot_cstri("begin main");
+          prot_nl();
+        } /* if */
+#endif
+        exec_call(prog.main_object);
+#ifdef WITH_PROTOCOL
+        if (trace.actions) {
+          if (trace.heapsize) {
+            prot_heapsize();
+            prot_cstri(" ");
+          } /* if */
+          prot_cstri("end main");
+          prot_nl();
+        } /* if */
+#endif
+#ifdef OUT_OF_ORDER
+        shut_drivers();
+        if (fail_flag) {
+          printf("\n*** Uncaught EXCEPTION ");
+          printobject(fail_value);
+          printf(" raised with\n");
+          prot_list(fail_expression);
+          printf("\n");
+          write_call_stack(fail_stack);
+        } /* if */
+#endif
+        memcpy(&prog, &prog_backup, sizeof(progrecord));
+      } /* if */
+    } /* if */
+#ifdef TRACE_PRG_COMP
+    printf("END interpr\n");
+#endif
+  } /* interpret */
 
 
 
@@ -179,15 +319,23 @@ objecttype object;
 
 #ifdef ANSI_C
 
-void prgExec (progtype currentProg)
+void prgExec (const const_progtype currentProg, const const_rtlArraytype argv,
+    const const_settype options, const const_stritype prot_file_name)
 #else
 
-void prgExec (currentProg)
+void prgExec (currentProg, argv, options, prot_file_name)
 progtype currentProg;
+rtlArraytype argv;
+settype options;
+stritype prot_file_name;
 #endif
 
-  { /* prgExec */
-    interpr(currentProg);
+  {
+    uinttype int_options;
+
+  /* prgExec */
+    int_options = (uinttype) setSConv(options);
+    interpret(currentProg, argv, 0, int_options, prot_file_name);
     fail_flag = FALSE;
     fail_value = (objecttype) NULL;
     fail_expression = (listtype) NULL;
@@ -197,19 +345,29 @@ progtype currentProg;
 
 #ifdef ANSI_C
 
-progtype prgFilParse (const const_stritype stri)
+progtype prgFilParse (const const_stritype fileName, const const_settype options,
+    const const_rtlArraytype libraryDirs, const const_stritype prot_file_name)
 #else
 
-progtype prgFilParse (stri)
-stritype stri;
+progtype prgFilParse (fileName, options, libraryDirs, prot_file_name)
+stritype fileName;
+settype options;
+rtlArraytype libraryDirs;
+stritype prot_file_name;
 #endif
 
   {
+    uinttype int_options;
     errinfotype err_info = OKAY_NO_ERROR;
     progtype result;
 
   /* prgFilParse */
-    result = analyze_file(stri, &err_info);
+    /* printf("prgFilParse(");
+       prot_stri(fileName);
+       printf(")\n"); */
+    int_options = (uinttype) setSConv(options);
+    /* printf("options: %03x\n", int_options); */
+    result = analyze_file(fileName, int_options, libraryDirs, prot_file_name, &err_info);
     if (err_info != OKAY_NO_ERROR) {
       raise_error(err_info);
     } /* if */
@@ -308,7 +466,8 @@ listtype curr_expr;
 
 #ifdef ANSI_C
 
-progtype prgStrParse (const const_stritype stri)
+progtype prgStrParse (const const_stritype stri, const const_settype options,
+    const const_rtlArraytype libraryDirs, const const_stritype prot_file_name)
 #else
 
 progtype prgStrParse (stri)
@@ -316,11 +475,13 @@ stritype stri;
 #endif
 
   {
+    uinttype int_options;
     errinfotype err_info = OKAY_NO_ERROR;
     progtype result;
 
   /* prgStrParse */
-    result = analyze_string(stri, &err_info);
+    int_options = (uinttype) setSConv(options);
+    result = analyze_string(stri, int_options, libraryDirs, prot_file_name, &err_info);
     if (err_info != OKAY_NO_ERROR) {
       raise_error(err_info);
     } /* if */

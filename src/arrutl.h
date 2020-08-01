@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2000  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2013  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -18,28 +18,22 @@
 /*  Free Software Foundation, Inc., 51 Franklin Street,             */
 /*  Fifth Floor, Boston, MA  02110-1301, USA.                       */
 /*                                                                  */
-/*  Module: Analyzer - Main                                         */
-/*  File: seed7/src/analyze.h                                       */
-/*  Changes: 1991, 1992, 1993, 1994  Thomas Mertes                  */
-/*  Content: Main procedure of the analyzing phase.                 */
+/*  Module: General                                                 */
+/*  File: seed7/src/arrutl.h                                        */
+/*  Changes: 2013  Thomas Mertes                                    */
+/*  Content: Procedures to maintain objects of type arraytype.      */
 /*                                                                  */
 /********************************************************************/
 
+#define ARRAY_LENGTH(anArray) (uinttype) ((anArray)->max_position - (anArray)->min_position + 1)
+
+
 #ifdef ANSI_C
 
-progtype analyze_file (const const_stritype source_file_argument, uinttype options,
-    const const_rtlArraytype seed7_libraries, const const_stritype prot_file_name,
-    errinfotype *err_info);
-progtype analyze (const const_stritype source_file_argument, uinttype options,
-    const const_rtlArraytype libraryDirs, const const_stritype prot_file_name);
-progtype analyze_string (const const_stritype input_string, uinttype options,
-    const const_rtlArraytype seed7_libraries, const const_stritype prot_file_name,
-    errinfotype *err_info);
+rtlArraytype gen_rtl_array (arraytype anArray);
 
 #else
 
-progtype analyze_file ();
-progtype analyze ();
-progtype analyze_string ();
+rtlArraytype gen_rtl_array ();
 
 #endif

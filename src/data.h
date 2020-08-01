@@ -373,6 +373,8 @@ typedef struct progstruct {
     const_stritype arg0;
     const_stritype program_name;
     const_stritype program_path;
+    objecttype arg_v;
+    uinttype option_flags;
     unsigned int error_count;
     idroottype ident;
     findidtype id_for;
@@ -401,7 +403,12 @@ typedef struct infilstruct {
     infiltype curr_infile;
     infiltype up_infile;
     infiltype next;
+#ifdef WITH_COMPILATION_INFO
+    booltype write_library_names;
+    booltype write_line_numbers;
+#endif
     linenumtype line;
+    linenumtype incr_message_line;
     linenumtype next_msg_line;
     filenumtype file_number;
     booltype end_of_file;

@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2008  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2013  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,28 +20,34 @@
 /*                                                                  */
 /*  Module: Seed7 compiler library                                  */
 /*  File: seed7/src/prg_comp.h                                      */
-/*  Changes: 1991, 1992, 1993, 1994, 2008  Thomas Mertes            */
+/*  Changes: 1991 - 1994, 2008, 2013  Thomas Mertes                 */
 /*  Content: Primitive actions for the program type.                */
 /*                                                                  */
 /********************************************************************/
 
 #ifdef ANSI_C
 
+void interpret (const const_progtype currentProg, const const_rtlArraytype argv,
+                memsizetype argv_start, uinttype options, const const_stritype prot_file_name);
 void prgCpy (progtype *const dest, const progtype source);
 listtype prgDeclObjects (const const_progtype aProg);
 void prgDestr (progtype old_prog);
 inttype prgErrorCount (const const_progtype aProg);
 objecttype prgEval (progtype currentProg, objecttype object);
-void prgExec (progtype currentProg);
-progtype prgFilParse (const const_stritype stri);
+void prgExec (const const_progtype currentProg, const const_rtlArraytype argv,
+              const const_settype options, const const_stritype prot_file_name);
+progtype prgFilParse (const const_stritype fileName, const const_settype options,
+                      const const_rtlArraytype libraryDirs, const const_stritype prot_file_name);
 objecttype prgMatch (const const_progtype aProg, listtype curr_expr);
 objecttype prgMatchExpr (const const_progtype aProg, listtype curr_expr);
-progtype prgStrParse (const const_stritype stri);
+progtype prgStrParse (const const_stritype stri, const const_settype options,
+                      const const_rtlArraytype libraryDirs, const const_stritype prot_file_name);
 objecttype prgSyobject (const progtype aProg, const const_stritype syobjectName);
 objecttype prgSysvar (const const_progtype aProg, const const_stritype sysvarName);
 
 #else
 
+void interpret ();
 void prgCpy ();
 listtype prgDeclObjects ();
 void prgDestr ();

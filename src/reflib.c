@@ -45,7 +45,6 @@
 #include "objutl.h"
 #include "findid.h"
 #include "traceutl.h"
-#include "analyze.h"
 #include "exec.h"
 #include "runerr.h"
 #include "name.h"

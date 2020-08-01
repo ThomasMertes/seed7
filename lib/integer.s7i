@@ -294,6 +294,7 @@ const func integer: sqrt (in integer: number)                    is action "INT_
 
 (**
  *  Compute the truncated base 2 logarithm of an integer number.
+ *  The definition of ''log2'' is extended by defining log2(0) = -1.
  *  @return the truncated base 2 logarithm.
  *  @exception NUMERIC_ERROR The number is negative.
  *)
@@ -323,7 +324,7 @@ const func integer: (attr integer) conv (in integer: number)     is action "INT_
 
 
 (**
- *  Convert an integer number to a [[string]].
+ *  Convert an ''integer'' number to a [[string]].
  *  The number is converted to a string with decimal representation.
  *  @return the string result of the conversion.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
@@ -332,7 +333,7 @@ const func string: str (in integer: number)                      is action "INT_
 
 
 (**
- *  Convert an integer number to a [[string]].
+ *  Convert an ''integer'' number to a [[string]].
  *  The number is converted to a string with decimal representation.
  *  @return the string result of the conversion.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
@@ -341,10 +342,10 @@ const func string: literal (in integer: number)                  is action "INT_
 
 
 (**
- *  Convert an integer number to a [[string]].
- *  The conversion uses the numeral system with the given base.
- *  Digit values from 10 upward are encoded with upper case letters.
- *  E.g.: 10 is encoded with A, 11 with B, etc.
+ *  Convert an ''integer'' number to a [[string]].
+ *  The conversion uses the numeral system with the given ''base''.
+ *  Digit values from 10 upward are encoded with lower case letters.
+ *  E.g.: 10 is encoded with a, 11 with b, etc.
  *  @return the string result of the conversion.
  *  @exception RANGE_ERROR When base < 2 or base > 36 holds.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.

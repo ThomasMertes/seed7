@@ -34,7 +34,6 @@ objecttype eval_expression (objecttype object);
 objecttype exec_dynamic (listtype expr_list);
 objecttype exec_expr (const_progtype currentProg, objecttype object,
                       errinfotype *err_info);
-void interpr (const_progtype currentProg);
 
 #else
 
@@ -44,6 +43,5 @@ objecttype evaluate ();
 objecttype exec_dynamic ();
 objecttype eval_expression ();
 objecttype exec_expr ();
-void interpr ();
 
 #endif

@@ -127,11 +127,11 @@ inttype cmp_func (rtlGenerictype, rtlGenerictype);
 
 #ifdef ANSI_C
 
-static stritype getProgramName (const const_stritype exePath)
+static stritype getProgramName (const const_stritype arg_0)
 #else
 
-static stritype getProgramName (exePath)
-stritype exePath;
+static stritype getProgramName (arg_0)
+stritype arg_0;
 #endif
 
   {
@@ -143,21 +143,21 @@ stritype exePath;
     stritype program_name;
 
   /* getProgramName */
-    name_len = exePath->size;
+    name_len = arg_0->size;
 #ifdef EXECUTABLE_FILE_EXTENSION
     exeExtension = cstri8_or_cstri_to_stri(EXECUTABLE_FILE_EXTENSION);
     if (name_len > exeExtension->size &&
-        memcmp(&exePath->mem[exePath->size - exeExtension->size],
+        memcmp(&arg_0->mem[arg_0->size - exeExtension->size],
                exeExtension->mem, exeExtension->size * sizeof(strelemtype)) == 0) {
       name_len -= exeExtension->size;
     } /* if */
     FREE_STRI(exeExtension, exeExtension->size);
 #endif
-    lastSlashPos = strRChPos(exePath, (chartype) '/');
+    lastSlashPos = strRChPos(arg_0, (chartype) '/');
     name_len -= (memsizetype) lastSlashPos;
     if (ALLOC_STRI_SIZE_OK(program_name, name_len)) {
       program_name->size = name_len;
-      memcpy(program_name->mem, &exePath->mem[lastSlashPos],
+      memcpy(program_name->mem, &arg_0->mem[lastSlashPos],
           name_len * sizeof(strelemtype));
     } /* if */
     return program_name;
@@ -244,15 +244,24 @@ stritype *exePath;
       arg_v = NULL;
     } else {
 #endif
-      *arg_0 = cp_from_os_path(argv[0], &err_info);
-      if (*arg_0 != NULL) {
-        *exePath = getExecutablePath(*arg_0);
-        if (*exePath == NULL) {
-          err_info = MEMORY_ERROR;
+      arg_0_temp = cp_from_os_path(argv[0], &err_info);
+      if (arg_0_temp != NULL) {
+        if (exePath != NULL) {
+          *exePath = getExecutablePath(arg_0_temp);
+          if (*exePath == NULL) {
+            err_info = MEMORY_ERROR;
+          } /* if */
         } /* if */
-        *programName = getProgramName(*arg_0);
-        if (*programName == NULL) {
-          err_info = MEMORY_ERROR;
+        if (programName != NULL) {
+          *programName = getProgramName(arg_0_temp);
+          if (*programName == NULL) {
+            err_info = MEMORY_ERROR;
+          } /* if */
+        } /* if */
+        if (arg_0 != NULL) {
+          *arg_0 = arg_0_temp;
+        } else {
+          FREE_STRI(arg_0_temp, arg_0_temp->size);
         } /* if */
       } /* if */
       if (err_info == OKAY_NO_ERROR) {
@@ -291,6 +300,7 @@ stritype *exePath;
     os_stritype *w_argv;
 #endif
     errinfotype err_info = OKAY_NO_ERROR;
+    stritype arg_0_temp;
     rtlArraytype arg_v;
 
   /* getArgv */
@@ -307,15 +317,24 @@ stritype *exePath;
         raise_error(MEMORY_ERROR);
         arg_v = NULL;
       } else {
-        *arg_0 = cp_from_os_path(w_argv[0], &err_info);
-        if (*arg_0 != NULL) {
-          *exePath = getExecutablePath(*arg_0);
-          if (*exePath == NULL) {
-            err_info = MEMORY_ERROR;
+        arg_0_temp = cp_from_os_path(w_argv[0], &err_info);
+        if (arg_0_temp != NULL) {
+          if (exePath != NULL) {
+            *exePath = getExecutablePath(arg_0_temp);
+            if (*exePath == NULL) {
+              err_info = MEMORY_ERROR;
+            } /* if */
           } /* if */
-          *programName = getProgramName(*arg_0);
-          if (*programName == NULL) {
-            err_info = MEMORY_ERROR;
+          if (programName != NULL) {
+            *programName = getProgramName(arg_0_temp);
+            if (*programName == NULL) {
+              err_info = MEMORY_ERROR;
+            } /* if */
+          } /* if */
+          if (arg_0 != NULL) {
+            *arg_0 = arg_0_temp;
+          } else {
+            FREE_STRI(arg_0_temp, arg_0_temp->size);
           } /* if */
         } /* if */
         if (err_info == OKAY_NO_ERROR) {
@@ -327,15 +346,24 @@ stritype *exePath;
         freeUtf16Argv(w_argv);
       } /* if */
 #else
-      *arg_0 = cp_from_os_path(argv[0], &err_info);
-      if (*arg_0 != NULL) {
-        *exePath = getExecutablePath(*arg_0);
-        if (*exePath == NULL) {
-          err_info = MEMORY_ERROR;
+      arg_0_temp = cp_from_os_path(argv[0], &err_info);
+      if (arg_0_temp != NULL) {
+        if (exePath != NULL) {
+          *exePath = getExecutablePath(arg_0_temp);
+          if (*exePath == NULL) {
+            err_info = MEMORY_ERROR;
+          } /* if */
         } /* if */
-        *programName = getProgramName(*arg_0);
-        if (*programName == NULL) {
-          err_info = MEMORY_ERROR;
+        if (programName != NULL) {
+          *programName = getProgramName(arg_0_temp);
+          if (*programName == NULL) {
+            err_info = MEMORY_ERROR;
+          } /* if */
+        } /* if */
+        if (arg_0 != NULL) {
+          *arg_0 = arg_0_temp;
+        } else {
+          FREE_STRI(arg_0_temp, arg_0_temp->size);
         } /* if */
       } /* if */
       if (err_info == OKAY_NO_ERROR) {
@@ -775,7 +803,7 @@ inttype pos;
 
 #ifdef ANSI_C
 
-void arrPush (rtlArraytype *arr_variable, const rtlGenerictype element)
+void arrPush (rtlArraytype *const arr_variable, const rtlGenerictype element)
 #else
 
 void arrPush (arr_variable, element)

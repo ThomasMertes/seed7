@@ -534,9 +534,9 @@ const array string: nine is [](
 
 const func cardType: genCard (in array string: pattern) is func
   result
-    var cardType: result is cardType.value;
+    var cardType: aCard is cardType.value;
   begin
-    result.picture := pattern;
+    aCard.picture := pattern;
   end func;
 
 
@@ -596,7 +596,7 @@ const func color: charColor (in char: ch) is func
 const func PRIMITIVE_WINDOW: create_pixmap (in array string: pattern,
     in integer: scale) is func
   result
-    var PRIMITIVE_WINDOW: result is PRIMITIVE_WINDOW.value;
+    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
   local
     var integer: height is 0;
     var integer: width is 0;
@@ -605,11 +605,11 @@ const func PRIMITIVE_WINDOW: create_pixmap (in array string: pattern,
   begin
     height := length(pattern);
     width := length(pattern[1]);
-    result := newPixmap(width * scale, height * scale);
-    clear(result, black);
+    pixmap := newPixmap(width * scale, height * scale);
+    clear(pixmap, black);
     for line range 1 to height do
       for column range 1 to width do
-        rect(result, pred(column) * scale, pred(line) * scale,
+        rect(pixmap, pred(column) * scale, pred(line) * scale,
             scale, scale, charColor(pattern[line][column]));
       end for;
     end for;

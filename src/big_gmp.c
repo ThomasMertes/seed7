@@ -92,7 +92,8 @@ biginttype big1;
     size_t export_count;
     size_t pos;
     int sign;
-    unsigned short carry;
+    unsigned int carry;
+    const_cstritype stri_ptr;
     ustritype buffer;
     memsizetype charIndex;
     size_t result_size;
@@ -114,7 +115,7 @@ biginttype big1;
           while (pos > 0) {
             pos--;
             carry += ~buffer[pos] & 0xFF;
-            buffer[pos] = carry & 0xFF;
+            buffer[pos] = (uchartype) (carry & 0xFF);
             carry >>= 8;
           } /* while */
         } /* if */
@@ -151,12 +152,12 @@ biginttype big1;
         free(buffer);
       } /* if */
     } else {
-      buffer = " *NULL_BIGINT* ";
-      if (!ALLOC_CSTRI(result, strlen(buffer))) {
+      stri_ptr = " *NULL_BIGINT* ";
+      if (!ALLOC_CSTRI(result, strlen(stri_ptr))) {
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
-        strcpy(result, buffer);
+        strcpy(result, stri_ptr);
       } /* if */
     } /* if */
     return result;
@@ -244,10 +245,25 @@ biginttype big1;
 #endif
 
   {
+    int sign;
+    mpz_t help;
     inttype result;
 
   /* bigBitLength */
-    result = mpz_sizeinbase(big1, 2);
+    sign = mpz_sgn(big1);
+    if (sign < 0) {
+      if (mpz_cmp_si(big1, -1) == 0) {
+        result = 0;
+      } else {
+        mpz_init(help);
+        mpz_add_ui(help, big1, 1);
+        result = (inttype) mpz_sizeinbase(help, 2);
+      } /* if */
+    } else if (sign == 0) {
+      result = 0;
+    } else {
+      result = (inttype) mpz_sizeinbase(big1, 2);
+    } /* if */
     return result;
   } /* bigBitLength */
 
@@ -268,7 +284,7 @@ biginttype big1;
     size_t pos;
     char byteBuffer[22];
     int sign;
-    unsigned short carry;
+    unsigned int carry;
     ustritype buffer;
     memsizetype charIndex;
     memsizetype result_size;
@@ -289,7 +305,7 @@ biginttype big1;
         while (pos > 0) {
           pos--;
           carry += ~buffer[pos] & 0xFF;
-          buffer[pos] = carry & 0xFF;
+          buffer[pos] = (uchartype) (carry & 0xFF);
           carry >>= 8;
         } /* while */
       } /* if */
@@ -736,13 +752,16 @@ ustritype buffer;
     size_t count;
     size_t pos;
     ustritype negated_buffer;
-    unsigned short carry;
+    unsigned int carry;
     biginttype result;
 
   /* bigImport */
     ALLOC_BIG(result);
     mpz_init(result);
-    count = buffer[0] << 24 | buffer[1] << 16 | buffer[2] << 8 | buffer[3];
+    count = (size_t) buffer[0] << 24 |
+            (size_t) buffer[1] << 16 |
+            (size_t) buffer[2] <<  8 |
+            (size_t) buffer[3];
     if (buffer[4] >= 128) {
       negated_buffer = malloc(count);
       carry = 1;
@@ -868,12 +887,11 @@ inttype lshift;
     biginttype result;
 
   /* bigLShift */
+    ALLOC_BIG(result);
+    mpz_init(result);
     if (lshift < 0) {
-      raise_error(NUMERIC_ERROR);
-      result = NULL;
+      mpz_fdiv_q_2exp(result, big1, (uinttype) -lshift);
     } else {
-      ALLOC_BIG(result);
-      mpz_init(result);
       mpz_mul_2exp(result, big1, (uinttype) lshift);
     } /* if */
     return result;
@@ -893,7 +911,7 @@ inttype lshift;
 
   { /* bigLShiftAssign */
     if (lshift < 0) {
-      raise_error(NUMERIC_ERROR);
+      mpz_fdiv_q_2exp(*big_variable, *big_variable, (uinttype) -lshift);
     } else if (lshift != 0) {
       mpz_mul_2exp(*big_variable, *big_variable, (uinttype) lshift);
     } /* if */
@@ -915,11 +933,10 @@ inttype lshift;
     biginttype result;
 
   /* bigLShiftOne */
+    ALLOC_BIG(result);
     if (lshift < 0) {
-      raise_error(NUMERIC_ERROR);
-      result = NULL;
+      mpz_init_set_ui(result, 0);
     } else {
-      ALLOC_BIG(result);
       mpz_init(result);
       mpz_init_set_ui(one, 1);
       mpz_mul_2exp(result, one, (uinttype) lshift);
@@ -1139,6 +1156,7 @@ stritype stri;
 
   {
     cstritype cstri;
+    int mpz_result;
     biginttype result;
 
   /* bigParse */
@@ -1148,7 +1166,12 @@ stritype stri;
       result = NULL;
     } else {
       ALLOC_BIG(result);
-      if (mpz_init_set_str(result, cstri, 10) != 0) {
+      if (cstri[0] == '+' && cstri[1] != '-') {
+        mpz_result = mpz_init_set_str(result, &cstri[1], 10);
+      } else {
+        mpz_result = mpz_init_set_str(result, cstri, 10);
+      } /* if */
+      if (mpz_result != 0) {
         free_cstri(cstri, stri);
         mpz_clear(result);
         FREE_BIG(result);
@@ -1160,6 +1183,48 @@ stritype stri;
     } /* if */
     return result;
   } /* bigParse */
+
+
+
+#ifdef ANSI_C
+
+biginttype bigParseBased (const const_stritype stri, inttype base)
+#else
+
+biginttype bigParseBased (stri, base)
+stritype stri;
+inttype base;
+#endif
+
+  {
+    cstritype cstri;
+    int mpz_result;
+    biginttype result;
+
+  /* bigParseBased */
+    cstri = cp_to_cstri8(stri);
+    if (cstri == NULL) {
+      raise_error(MEMORY_ERROR);
+      result = NULL;
+    } else {
+      ALLOC_BIG(result);
+      if (cstri[0] == '+' && cstri[1] != '-') {
+        mpz_result = mpz_init_set_str(result, &cstri[1], base);
+      } else {
+        mpz_result = mpz_init_set_str(result, cstri, base);
+      } /* if */
+      if (mpz_result != 0) {
+        free_cstri(cstri, stri);
+        mpz_clear(result);
+        FREE_BIG(result);
+        raise_error(RANGE_ERROR);
+        result = NULL;
+      } else {
+        free_cstri(cstri, stri);
+      } /* if */
+    } /* if */
+    return result;
+  } /* bigParseBased */
 
 
 
@@ -1312,12 +1377,11 @@ inttype rshift;
     biginttype result;
 
   /* bigRShift */
+    ALLOC_BIG(result);
+    mpz_init(result);
     if (rshift < 0) {
-      raise_error(NUMERIC_ERROR);
-      result = NULL;
+      mpz_mul_2exp(result, big1, (uinttype) -rshift);
     } else {
-      ALLOC_BIG(result);
-      mpz_init(result);
       mpz_fdiv_q_2exp(result, big1, (uinttype) rshift);
     } /* if */
     return result;
@@ -1337,8 +1401,8 @@ inttype rshift;
 
   { /* bigRShiftAssign */
     if (rshift < 0) {
-      raise_error(NUMERIC_ERROR);
-    } else {
+      mpz_mul_2exp(*big_variable, *big_variable, (uinttype) -rshift);
+    } else if (rshift != 0) {
       mpz_fdiv_q_2exp(*big_variable, *big_variable, (uinttype) rshift);
     } /* if */
   } /* bigRShiftAssign */
@@ -1487,7 +1551,7 @@ biginttype big1;
     size_t export_count;
     size_t pos;
     int sign;
-    unsigned short carry;
+    unsigned int carry;
     ustritype buffer;
     memsizetype charIndex;
     memsizetype result_size;
@@ -1508,7 +1572,7 @@ biginttype big1;
         while (pos > 0) {
           pos--;
           carry += ~buffer[pos] & 0xFF;
-          buffer[pos] = carry & 0xFF;
+          buffer[pos] = (uchartype) (carry & 0xFF);
           carry >>= 8;
         } /* while */
       } /* if */
@@ -1559,12 +1623,22 @@ int32type bigToInt32 (big1)
 biginttype big1;
 #endif
 
-  { /* bigToInt32 */
+  {
+    long int result;
+
+  /* bigToInt32 */
     if (!mpz_fits_slong_p(big1)) {
       raise_error(RANGE_ERROR);
       return 0;
     } else {
-      return mpz_get_si(big1);
+      result = mpz_get_si(big1);
+#if LONG_SIZE > 32
+      if (result < INT32TYPE_MIN || result > INT32TYPE_MAX) {
+        raise_error(RANGE_ERROR);
+        return 0;
+      } /* if */
+#endif
+      return (int32type) result;
     } /* if */
   } /* bigToInt32 */
 

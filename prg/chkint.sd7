@@ -5258,29 +5258,29 @@ const proc: check_str is func
         str(1000000, 11) <> "623351" or
         str(1000000, 12) <> "402854" or
         str(1000000, 13) <> "290221" or
-        str(1000000, 14) <> "1C0608" or
-        str(1000000, 15) <> "14B46A" or
-        str(1000000, 16) <> "F4240" or
-        str(1000000, 17) <> "BG939" or
-        str(1000000, 18) <> "9987A" or
-        str(1000000, 19) <> "7CF1B" or
+        str(1000000, 14) <> "1c0608" or
+        str(1000000, 15) <> "14b46a" or
+        str(1000000, 16) <> "f4240" or
+        str(1000000, 17) <> "bg939" or
+        str(1000000, 18) <> "9987a" or
+        str(1000000, 19) <> "7cf1b" or
         str(1000000, 20) <> "65000" or
-        str(1000000, 21) <> "52KC1" or
-        str(1000000, 22) <> "45K2C" or
-        str(1000000, 23) <> "3D486" or
-        str(1000000, 24) <> "3082G" or
-        str(1000000, 25) <> "2E000" or
-        str(1000000, 26) <> "24N7E" or
-        str(1000000, 27) <> "1NLK1" or
-        str(1000000, 28) <> "1HFE8" or
-        str(1000000, 29) <> "1C01M" or
-        str(1000000, 30) <> "1713A" or
-        str(1000000, 31) <> "12HI2" or
-        str(1000000, 32) <> "UGI0" or
-        str(1000000, 33) <> "RR91" or
-        str(1000000, 34) <> "PF1Q" or
-        str(1000000, 35) <> "NBBF" or
-        str(1000000, 36) <> "LFLS" then
+        str(1000000, 21) <> "52kc1" or
+        str(1000000, 22) <> "45k2c" or
+        str(1000000, 23) <> "3d486" or
+        str(1000000, 24) <> "3082g" or
+        str(1000000, 25) <> "2e000" or
+        str(1000000, 26) <> "24n7e" or
+        str(1000000, 27) <> "1nlk1" or
+        str(1000000, 28) <> "1hfe8" or
+        str(1000000, 29) <> "1c01m" or
+        str(1000000, 30) <> "1713a" or
+        str(1000000, 31) <> "12hi2" or
+        str(1000000, 32) <> "ugi0" or
+        str(1000000, 33) <> "rr91" or
+        str(1000000, 34) <> "pf1q" or
+        str(1000000, 35) <> "nbbf" or
+        str(1000000, 36) <> "lfls" then
       writeln(" ***** Integer str with base does not work correct.");
       okay := FALSE;
     end if;
@@ -5296,29 +5296,29 @@ const proc: check_str is func
         str(intExpr(1000000), 11) <> "623351" or
         str(intExpr(1000000), 12) <> "402854" or
         str(intExpr(1000000), 13) <> "290221" or
-        str(intExpr(1000000), 14) <> "1C0608" or
-        str(intExpr(1000000), 15) <> "14B46A" or
-        str(intExpr(1000000), 16) <> "F4240" or
-        str(intExpr(1000000), 17) <> "BG939" or
-        str(intExpr(1000000), 18) <> "9987A" or
-        str(intExpr(1000000), 19) <> "7CF1B" or
+        str(intExpr(1000000), 14) <> "1c0608" or
+        str(intExpr(1000000), 15) <> "14b46a" or
+        str(intExpr(1000000), 16) <> "f4240" or
+        str(intExpr(1000000), 17) <> "bg939" or
+        str(intExpr(1000000), 18) <> "9987a" or
+        str(intExpr(1000000), 19) <> "7cf1b" or
         str(intExpr(1000000), 20) <> "65000" or
-        str(intExpr(1000000), 21) <> "52KC1" or
-        str(intExpr(1000000), 22) <> "45K2C" or
-        str(intExpr(1000000), 23) <> "3D486" or
-        str(intExpr(1000000), 24) <> "3082G" or
-        str(intExpr(1000000), 25) <> "2E000" or
-        str(intExpr(1000000), 26) <> "24N7E" or
-        str(intExpr(1000000), 27) <> "1NLK1" or
-        str(intExpr(1000000), 28) <> "1HFE8" or
-        str(intExpr(1000000), 29) <> "1C01M" or
-        str(intExpr(1000000), 30) <> "1713A" or
-        str(intExpr(1000000), 31) <> "12HI2" or
-        str(intExpr(1000000), 32) <> "UGI0" or
-        str(intExpr(1000000), 33) <> "RR91" or
-        str(intExpr(1000000), 34) <> "PF1Q" or
-        str(intExpr(1000000), 35) <> "NBBF" or
-        str(intExpr(1000000), 36) <> "LFLS" then
+        str(intExpr(1000000), 21) <> "52kc1" or
+        str(intExpr(1000000), 22) <> "45k2c" or
+        str(intExpr(1000000), 23) <> "3d486" or
+        str(intExpr(1000000), 24) <> "3082g" or
+        str(intExpr(1000000), 25) <> "2e000" or
+        str(intExpr(1000000), 26) <> "24n7e" or
+        str(intExpr(1000000), 27) <> "1nlk1" or
+        str(intExpr(1000000), 28) <> "1hfe8" or
+        str(intExpr(1000000), 29) <> "1c01m" or
+        str(intExpr(1000000), 30) <> "1713a" or
+        str(intExpr(1000000), 31) <> "12hi2" or
+        str(intExpr(1000000), 32) <> "ugi0" or
+        str(intExpr(1000000), 33) <> "rr91" or
+        str(intExpr(1000000), 34) <> "pf1q" or
+        str(intExpr(1000000), 35) <> "nbbf" or
+        str(intExpr(1000000), 36) <> "lfls" then
       writeln(" ***** Integer str with base does not work correct.");
       okay := FALSE;
     end if;
@@ -5334,29 +5334,29 @@ const proc: check_str is func
         str(1000000, intExpr(11)) <> "623351" or
         str(1000000, intExpr(12)) <> "402854" or
         str(1000000, intExpr(13)) <> "290221" or
-        str(1000000, intExpr(14)) <> "1C0608" or
-        str(1000000, intExpr(15)) <> "14B46A" or
-        str(1000000, intExpr(16)) <> "F4240" or
-        str(1000000, intExpr(17)) <> "BG939" or
-        str(1000000, intExpr(18)) <> "9987A" or
-        str(1000000, intExpr(19)) <> "7CF1B" or
+        str(1000000, intExpr(14)) <> "1c0608" or
+        str(1000000, intExpr(15)) <> "14b46a" or
+        str(1000000, intExpr(16)) <> "f4240" or
+        str(1000000, intExpr(17)) <> "bg939" or
+        str(1000000, intExpr(18)) <> "9987a" or
+        str(1000000, intExpr(19)) <> "7cf1b" or
         str(1000000, intExpr(20)) <> "65000" or
-        str(1000000, intExpr(21)) <> "52KC1" or
-        str(1000000, intExpr(22)) <> "45K2C" or
-        str(1000000, intExpr(23)) <> "3D486" or
-        str(1000000, intExpr(24)) <> "3082G" or
-        str(1000000, intExpr(25)) <> "2E000" or
-        str(1000000, intExpr(26)) <> "24N7E" or
-        str(1000000, intExpr(27)) <> "1NLK1" or
-        str(1000000, intExpr(28)) <> "1HFE8" or
-        str(1000000, intExpr(29)) <> "1C01M" or
-        str(1000000, intExpr(30)) <> "1713A" or
-        str(1000000, intExpr(31)) <> "12HI2" or
-        str(1000000, intExpr(32)) <> "UGI0" or
-        str(1000000, intExpr(33)) <> "RR91" or
-        str(1000000, intExpr(34)) <> "PF1Q" or
-        str(1000000, intExpr(35)) <> "NBBF" or
-        str(1000000, intExpr(36)) <> "LFLS" then
+        str(1000000, intExpr(21)) <> "52kc1" or
+        str(1000000, intExpr(22)) <> "45k2c" or
+        str(1000000, intExpr(23)) <> "3d486" or
+        str(1000000, intExpr(24)) <> "3082g" or
+        str(1000000, intExpr(25)) <> "2e000" or
+        str(1000000, intExpr(26)) <> "24n7e" or
+        str(1000000, intExpr(27)) <> "1nlk1" or
+        str(1000000, intExpr(28)) <> "1hfe8" or
+        str(1000000, intExpr(29)) <> "1c01m" or
+        str(1000000, intExpr(30)) <> "1713a" or
+        str(1000000, intExpr(31)) <> "12hi2" or
+        str(1000000, intExpr(32)) <> "ugi0" or
+        str(1000000, intExpr(33)) <> "rr91" or
+        str(1000000, intExpr(34)) <> "pf1q" or
+        str(1000000, intExpr(35)) <> "nbbf" or
+        str(1000000, intExpr(36)) <> "lfls" then
       writeln(" ***** Integer str with base does not work correct.");
       okay := FALSE;
     end if;
@@ -5372,29 +5372,29 @@ const proc: check_str is func
         str(intExpr(1000000), intExpr(11)) <> "623351" or
         str(intExpr(1000000), intExpr(12)) <> "402854" or
         str(intExpr(1000000), intExpr(13)) <> "290221" or
-        str(intExpr(1000000), intExpr(14)) <> "1C0608" or
-        str(intExpr(1000000), intExpr(15)) <> "14B46A" or
-        str(intExpr(1000000), intExpr(16)) <> "F4240" or
-        str(intExpr(1000000), intExpr(17)) <> "BG939" or
-        str(intExpr(1000000), intExpr(18)) <> "9987A" or
-        str(intExpr(1000000), intExpr(19)) <> "7CF1B" or
+        str(intExpr(1000000), intExpr(14)) <> "1c0608" or
+        str(intExpr(1000000), intExpr(15)) <> "14b46a" or
+        str(intExpr(1000000), intExpr(16)) <> "f4240" or
+        str(intExpr(1000000), intExpr(17)) <> "bg939" or
+        str(intExpr(1000000), intExpr(18)) <> "9987a" or
+        str(intExpr(1000000), intExpr(19)) <> "7cf1b" or
         str(intExpr(1000000), intExpr(20)) <> "65000" or
-        str(intExpr(1000000), intExpr(21)) <> "52KC1" or
-        str(intExpr(1000000), intExpr(22)) <> "45K2C" or
-        str(intExpr(1000000), intExpr(23)) <> "3D486" or
-        str(intExpr(1000000), intExpr(24)) <> "3082G" or
-        str(intExpr(1000000), intExpr(25)) <> "2E000" or
-        str(intExpr(1000000), intExpr(26)) <> "24N7E" or
-        str(intExpr(1000000), intExpr(27)) <> "1NLK1" or
-        str(intExpr(1000000), intExpr(28)) <> "1HFE8" or
-        str(intExpr(1000000), intExpr(29)) <> "1C01M" or
-        str(intExpr(1000000), intExpr(30)) <> "1713A" or
-        str(intExpr(1000000), intExpr(31)) <> "12HI2" or
-        str(intExpr(1000000), intExpr(32)) <> "UGI0" or
-        str(intExpr(1000000), intExpr(33)) <> "RR91" or
-        str(intExpr(1000000), intExpr(34)) <> "PF1Q" or
-        str(intExpr(1000000), intExpr(35)) <> "NBBF" or
-        str(intExpr(1000000), intExpr(36)) <> "LFLS" then
+        str(intExpr(1000000), intExpr(21)) <> "52kc1" or
+        str(intExpr(1000000), intExpr(22)) <> "45k2c" or
+        str(intExpr(1000000), intExpr(23)) <> "3d486" or
+        str(intExpr(1000000), intExpr(24)) <> "3082g" or
+        str(intExpr(1000000), intExpr(25)) <> "2e000" or
+        str(intExpr(1000000), intExpr(26)) <> "24n7e" or
+        str(intExpr(1000000), intExpr(27)) <> "1nlk1" or
+        str(intExpr(1000000), intExpr(28)) <> "1hfe8" or
+        str(intExpr(1000000), intExpr(29)) <> "1c01m" or
+        str(intExpr(1000000), intExpr(30)) <> "1713a" or
+        str(intExpr(1000000), intExpr(31)) <> "12hi2" or
+        str(intExpr(1000000), intExpr(32)) <> "ugi0" or
+        str(intExpr(1000000), intExpr(33)) <> "rr91" or
+        str(intExpr(1000000), intExpr(34)) <> "pf1q" or
+        str(intExpr(1000000), intExpr(35)) <> "nbbf" or
+        str(intExpr(1000000), intExpr(36)) <> "lfls" then
       writeln(" ***** Integer str with base does not work correct.");
       okay := FALSE;
     end if;
@@ -5534,6 +5534,39 @@ const proc: check_parse is func
         integer parse striExpr( "1073741824") <>  1073741824 or
         integer parse striExpr( "2147483647") <>  2147483647 then
       writeln(" ***** Integer parse with expressions does not work correct.");
+      okay := FALSE;
+    end if;
+    if  integer parse          "+0" <>           0 or
+        integer parse          "+1" <>           1 or
+        integer parse          "+2" <>           2 or
+        integer parse          "+9" <>           9 or
+        integer parse         "+10" <>          10 or
+        integer parse         "+11" <>          11 or
+        integer parse         "+20" <>          20 or
+        integer parse         "+99" <>          99 or
+        integer parse        "+100" <>         100 or
+        integer parse        "+101" <>         101 or
+        integer parse        "+200" <>         200 or
+        integer parse        "+999" <>         999 or
+        integer parse       "+1000" <>        1000 or
+        integer parse       "+1001" <>        1001 or
+        integer parse       "+2000" <>        2000 or
+        integer parse       "+9999" <>        9999 or
+        integer parse      "+10000" <>       10000 or
+        integer parse      "+10001" <>       10001 or
+        integer parse      "+32768" <>       32768 or
+        integer parse      "+32769" <>       32769 or
+        integer parse      "+65536" <>       65536 or
+        integer parse      "+65537" <>       65537 or
+        integer parse     "+100000" <>      100000 or
+        integer parse    "+1000000" <>     1000000 or
+        integer parse   "+10000000" <>    10000000 or
+        integer parse  "+100000000" <>   100000000 or
+        integer parse "+1000000000" <>  1000000000 or
+        integer parse "+1073741823" <>  1073741823 or
+        integer parse "+1073741824" <>  1073741824 or
+        integer parse "+2147483647" <>  2147483647 then
+      writeln(" ***** Integer parse with plus sign does not work correct.");
       okay := FALSE;
     end if;
     if  integer parse          "0123"  <> 123 or

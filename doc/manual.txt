@@ -1801,11 +1801,12 @@ CONTENTS
       A >> B    Arithmetic shift right
                   ( A >> B is okay for B >= 0 and B <= 31,
                     A >> B => A mdiv 2 ** B  for B <= 30,
-                    A >> B => C for A >= 0 holds: C >= 0
-                    A >> B => C for A < 0 holds: C < 0
+                    A >> 0 => A,
+                    A >> B => C for A >= 0 holds: C >= 0,
+                    A >> B => C for A < 0 holds: C < 0,
                     A >> B => 0 for A >= 0 and B > ord(log2(A)),
                     A >> B => -1 for A < 0 and B > ord(log2(-A)),
-                    A >> 0 => A )
+                    0 >> B => 0 )
       !         Binomial coefficient
                   ( A ! B => !A div (!B * !(A - B)) )
       lpad      Left padding with spaces
@@ -1857,7 +1858,12 @@ CONTENTS
       odd(A)    Odd value
                   ( Type of result: boolean )
       str(A)    Conversion to string
-                  ( Type of result: string )
+                  ( Type of result: string,
+                    str(12345) => "12345" )
+      str(A, B) Convert the integer A to a string. The conversion
+                uses the numeral system with the base B.
+                  ( Type of result: string,
+                    str(48879, 16) => "beef" )
       literal(A) Conversion to a literal
                   ( Type of result: string,
                     literal(A) => str(A) )
@@ -1869,14 +1875,16 @@ CONTENTS
                   ( log2(A) returns the position of the
                     highest bit set. It is defined for A >= 0
                     log2(2 ** A) = A for A >= 0,
-                    log2(0) => -1,
-                    log2(1) => 0,
                     log2(2) => 1,
+                    log2(1) => 0,
+                    log2(0) => -1,
                     log2(-1) => EXCEPTION NUMERIC_ERROR )
       bitLength(A) Number of bits in the minimal two's-complement
                    representation, excluding the sign bit.
                   ( bitLength(A) => succ(log2(A)) for A >= 0,
-                    bitLength(A) => succ(log2(pred(-A))) for A < 0 )
+                    bitLength(A) => bitLength(pred(-A)) for A < 0,
+                    bitLength(0) => 0,
+                    bitLength(-1) => 0 )
       lowestSetBit(A) Index of the lowest-order one bit
                       For A <> 0 this is equal to the number of
                       lowest-order zero bits.
@@ -1986,6 +1994,18 @@ CONTENTS
     The type 'bigInteger' describes signed integer numbers of
   unlimited size. The literals of the type 'bigInteger' are sequences
   of digits followed by an underscore character (for example 1_ ).
+  Based numbers can be specified when the sequence of digits is
+  followed by the # character and a sequence of extended digits.
+  The decimal number in front of the # character specifies the
+  base of the number which follows the # character. As base a
+  number between 2 and 36 is allowed. As extended digits the
+  letters A or a can be used for 10, B or b can be used for 11
+  and so on to Z or z which can be used as 35. Like decimal
+  'bigInteger' literals the extended digits must be followed by
+  an underscore character. Examples of 'bigInteger' literals are:
+
+    0_   18446744073709551616_ 16#deadbeefcafe_
+
   Although 'bigInteger' operations cannot overflow, it can happen
   that there is not enough memory to represent a 'bigInteger' value.
   In this case the exception MEMORY_ERROR is raised. The 'bigInteger'
@@ -2021,20 +2041,20 @@ CONTENTS
                     A ** -1 => EXCEPTION NUMERIC_ERROR )
       A << B    Shift left
                   ( Type of argument B: integer,
-                    A << B is okay for B >= 0,
-                    A << B => A * 2_ ** B,
+                    A << B => A * 2_ ** B  for B >= 0,
+                    A << B => A >> -B for B < 0,
                     A << 0 => A,
-                    A << -1 => EXCEPTION NUMERIC_ERROR )
+                    0_ << B => 0_ for every B )
       A >> B    Arithmetic shift right
                   ( Type of argument B: integer,
-                    A >> B is okay for B >= 0,
-                    A >> B => A mdiv 2_ ** B,
-                    A >> B => C for A >= 0_ holds: C >= 0_
-                    A >> B => C for A < 0_ holds: C < 0_
+                    A >> B => A mdiv 2_ ** B for B >= 0,
+                    A >> B => A << -B for B < 0,
+                    A >> 0 => A,
+                    A >> B => C for A >= 0_ holds: C >= 0_,
+                    A >> B => C for A < 0_ holds: C < 0_,
                     A >> B => 0_ for A >= 0_ and B > ord(log2(A)),
                     A >> B => -1_ for A < 0_ and B > ord(log2(-A)),
-                    A >> 0 => A,
-                    A >> -1 => EXCEPTION NUMERIC_ERROR )
+                    0_ >> B => 0_ for every B )
       bigInteger conv A   Conversion of integer to bigInteger
                   ( Type of argument A: integer,
                     bigInteger conv 1 => 1_ )
@@ -2060,7 +2080,12 @@ CONTENTS
       odd(A)    Odd value
                   ( Type of result: boolean )
       str(A)    Conversion to string
-                  ( Type of result: string )
+                  ( Type of result: string,
+                    str(9876543210_) => "9876543210" )
+      str(A, B) Convert the bigInteger A to a string. The conversion
+                uses the numeral system with the base B.
+                  ( Type of result: string,
+                    str(3735928559_, 16) => "deadbeef" )
       sqrt(A)   Integer square root
                   ( sqrt(A) is okay for A >= 0_
                     sqrt(A) => trunc(sqrt(flt(A))),
@@ -2070,10 +2095,10 @@ CONTENTS
                   ( log2(A) returns the position of the
                     highest bit set. It is defined for A >= 0
                     log2(2_ ** A) = A for A >= 0,
-                    log2(0_) => -1_,
-                    log2(1_) => 0_,
                     log2(2_) => 1_,
-                    log2(-1) => EXCEPTION NUMERIC_ERROR )
+                    log2(1_) => 0_,
+                    log2(0_) => -1_,
+                    log2(-1_) => EXCEPTION NUMERIC_ERROR )
       gcd(A, B) Greatest common divisor of A and B.
                   ( gcd(A, B) = gcd(B, A),
                     gcd(A, B) = gcd(-A, B),
@@ -2082,7 +2107,9 @@ CONTENTS
                    representation, excluding the sign bit.
                   ( Type of result: integer,
                     bitLength(A) => ord(succ(log2(A))) for A >= 0_,
-                    bitLength(A) => ord(succ(log2(pred(-A)))) for A < 0_ )
+                    bitLength(A) => bitLength(pred(-A)) for A < 0_,
+                    bitLength(0_) => 0,
+                    bitLength(-1_) => 0 )
       lowestSetBit(A) Index of the lowest-order one bit
                       For A <> 0_ this is equal to the number of
                       lowest-order zero bits.
@@ -9582,7 +9609,6 @@ CONTENTS
     PRG_EXEC            prg_exec            prgExec
     PRG_FIL_PARSE       prg_fil_parse       prgFilParse
     PRG_FIND            prg_find
-    PRG_INTERPRETER     prg_interpreter     interpreterPath
     PRG_MATCH           prg_match           prgMatch
     PRG_MATCH_EXPR      prg_match_expr      prgMatchExpr
     PRG_NAME            prg_name            arg_0

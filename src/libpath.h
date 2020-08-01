@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2000  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2013  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -18,28 +18,26 @@
 /*  Free Software Foundation, Inc., 51 Franklin Street,             */
 /*  Fifth Floor, Boston, MA  02110-1301, USA.                       */
 /*                                                                  */
-/*  Module: Analyzer - Main                                         */
-/*  File: seed7/src/analyze.h                                       */
-/*  Changes: 1991, 1992, 1993, 1994  Thomas Mertes                  */
-/*  Content: Main procedure of the analyzing phase.                 */
+/*  Module: Analyzer - Libraries                                    */
+/*  File: seed7/src/libpath.h                                       */
+/*  Changes: 1990 - 1994, 2013  Thomas Mertes                       */
+/*  Content: Procedures to manage the include library search path.  */
 /*                                                                  */
 /********************************************************************/
 
 #ifdef ANSI_C
 
-progtype analyze_file (const const_stritype source_file_argument, uinttype options,
-    const const_rtlArraytype seed7_libraries, const const_stritype prot_file_name,
-    errinfotype *err_info);
-progtype analyze (const const_stritype source_file_argument, uinttype options,
-    const const_rtlArraytype libraryDirs, const const_stritype prot_file_name);
-progtype analyze_string (const const_stritype input_string, uinttype options,
-    const const_rtlArraytype seed7_libraries, const const_stritype prot_file_name,
-    errinfotype *err_info);
+void find_include_file (const_stritype include_file_name, errinfotype *err_info);
+void append_to_lib_path (const_stritype path, errinfotype *err_info);
+void init_lib_path (const_stritype source_file_name,
+    const const_rtlArraytype seed7_libraries, errinfotype *err_info);
+void free_lib_path (void);
 
 #else
 
-progtype analyze_file ();
-progtype analyze ();
-progtype analyze_string ();
+void find_include_file ();
+void append_to_lib_path ();
+void init_lib_path ();
+void free_lib_path ();
 
 #endif

@@ -44,6 +44,7 @@
 #include "findid.h"
 #include "symbol.h"
 #include "analyze.h"
+#include "prg_comp.h"
 #include "traceutl.h"
 #include "exec.h"
 #include "option.h"
@@ -52,6 +53,7 @@
 #include "flt_rtl.h"
 #include "arr_rtl.h"
 #include "cmd_rtl.h"
+#include "fil_rtl.h"
 #include "con_drv.h"
 
 #ifdef USE_WINMAIN
@@ -62,6 +64,8 @@ typedef HINSTANCE__* HINSTANCE;
 #endif
 
 stritype programPath;
+
+#define VERSION_INFO "SEED7 INTERPRETER Version 5.0.%d  Copyright (c) 1990-2013 Thomas Mertes\n"
 
 
 
@@ -103,8 +107,7 @@ static void writeHelp ()
     printf("         h Trace heap size (in combination with 'a')\n");
     printf("  -d   Equivalent to -da\n");
     printf("  -i   Show the identifier table after the analyzing phase.\n");
-    printf("  -m   Use less memory during the analyzing phase.\n");
-    printf("       If there is a \"No more memory\" error you can try this option.\n");
+    printf("  -l   Add a directory to the include library search path (e.g.: -l ../lib).\n");
     printf("  -q   Compile quiet. Line and file information and compilation\n");
     printf("       statistics are suppressed.\n");
     printf("  -tx  Set runtime trace level to x. Where x is a string consisting of:\n");
@@ -138,7 +141,11 @@ rtlArraytype arg_v;
     int position;
     stritype opt;
     cstritype cstri_opt;
-    int verbosity_level;
+    const_cstritype comp_trace_level = NULL;
+    const_cstritype exec_trace_level = NULL;
+    int verbosity_level = 1;
+    rtlArraytype seed7_libraries;
+    booltype error = FALSE;
 
   /* processOptions */
 #ifdef TRACE_OPTION
@@ -146,134 +153,176 @@ rtlArraytype arg_v;
 #endif
     option.source_file_argument = NULL;
     option.analyze_only = FALSE;
-    option.show_ident_table = FALSE;
+    if (ALLOC_RTL_ARRAY(seed7_libraries, 0)) {
+      seed7_libraries->min_position = 1;
+      seed7_libraries->max_position = 0;
+    } /* if */
     for (position = 0; position < arg_v->max_position; position++) {
       if (option.source_file_argument == NULL) {
         opt = arg_v->arr[position].value.strivalue;
         /* prot_stri(opt);
            printf("\n"); */
-        if (opt->size >= 2 && opt->mem[0] == '-') {
+        if (opt->size == 2 && opt->mem[0] == '-') {
           switch (opt->mem[1]) {
             case 'a':
               option.analyze_only = TRUE;
               break;
             case 'd':
-              if (opt->size >= 3) {
-                if (ALLOC_CSTRI(cstri_opt, opt->size - 2)) {
-                  stri_compress((ustritype) cstri_opt,
-                      &opt->mem[2], opt->size - 2);
-                  cstri_opt[opt->size - 2] = '\0';
-                  option.comp_trace_level = cstri_opt;
-                } else {
-                  option.comp_trace_level = "";
-                } /* if */
-              } else {
-                option.comp_trace_level = "a";
-              } /* if */
+              comp_trace_level = "a";
               break;
             case 'h':
             case '?':
               option.write_help = TRUE;
               break;
             case 'i':
-              option.show_ident_table = TRUE;
-              break;
-            case 'm':
-              option.get_infile_buffer = FALSE;
+              option.parser_options |= SHOW_IDENT_TABLE;
               break;
             case 'p':
-              if (opt->size >= 3) {
-                if (ALLOC_CSTRI(cstri_opt, opt->size - 2)) {
-                  stri_compress((ustritype) cstri_opt,
-                      &opt->mem[2], opt->size - 2);
-                  cstri_opt[opt->size - 2] = '\0';
-                  option.prot_file_name = cstri_opt;
-                } else {
-                  option.prot_file_name = "";
-                } /* if */
-              } else {
-                if (position < arg_v->max_position - 1) {
-                  position++;
-                  opt = arg_v->arr[position].value.strivalue;
-                  if (ALLOC_CSTRI(cstri_opt, opt->size)) {
-                    stri_compress((ustritype) cstri_opt,
-                        opt->mem, opt->size);
-                    cstri_opt[opt->size] = '\0';
-                    option.prot_file_name = cstri_opt;
-                  } else {
-                    option.prot_file_name = "";
-                  } /* if */
-                } /* if */
+              if (position < arg_v->max_position - 1) {
+                arg_v->arr[position].value.strivalue = NULL;
+                FREE_STRI(opt, opt->size);
+                position++;
+                option.prot_file_name = stri_to_standard_path(arg_v->arr[position].value.strivalue);
+                arg_v->arr[position].value.strivalue = NULL;
+                opt = NULL;
               } /* if */
               break;
             case 'q':
-              option.version_info = FALSE;
-              option.compilation_info = FALSE;
-              option.linecount_info = FALSE;
+              verbosity_level = 0;
               break;
             case 's':
               option.catch_signals = FALSE;
               break;
             case 't':
-              if (opt->size >= 3) {
-                if (ALLOC_CSTRI(cstri_opt, opt->size - 2)) {
-                  stri_compress((ustritype) cstri_opt,
-                      &opt->mem[2], opt->size - 2);
-                  cstri_opt[opt->size - 2] = '\0';
-                  option.exec_trace_level = cstri_opt;
-                } else {
-                  option.exec_trace_level = "";
-                } /* if */
-              } else {
-                option.exec_trace_level = "a";
-              } /* if */
+              exec_trace_level = "a";
               break;
             case 'v':
-              if (opt->size >= 3 && opt->mem[2] >= '0' && opt->mem[2] <= '3') {
-                verbosity_level = (int) opt->mem[2] - '0';
-              } else {
-                verbosity_level = 2;
-              } /* if */
-              if (verbosity_level <= 1) {
-                option.version_info = verbosity_level != 0;
-                option.compilation_info = FALSE;
-                option.linecount_info = FALSE;
-              } else {
-                option.compilation_info = TRUE;
-                option.linecount_info = TRUE;
-                if (verbosity_level == 3) {
-                  option.incr_message_line = 0;
-                } /* if */
-              } /* if */
+              verbosity_level = 2;
               break;
             case 'x':
               option.execute_always = TRUE;
               break;
+            case 'l':
+              if (position < arg_v->max_position - 1) {
+                arg_v->arr[position].value.strivalue = NULL;
+                FREE_STRI(opt, opt->size);
+                position++;
+                opt = stri_to_standard_path(arg_v->arr[position].value.strivalue);
+                if (seed7_libraries != NULL) {
+                  arrPush(&seed7_libraries, (rtlGenerictype) opt);
+                } /* if */
+                arg_v->arr[position].value.strivalue = NULL;
+                opt = NULL;
+              } /* if */
+              break;
             default:
-              printf("*** Unknown option ");
-              prot_stri(opt);
-              printf("\n");
+              if (!error) {
+                printf(VERSION_INFO, LEVEL);
+                error = TRUE;
+              } /* if */
+              printf("*** Ignore unsupported option: ");
+              filPrint(opt);
+              break;
+          } /* switch */
+        } else if (opt->size >= 3 && opt->mem[0] == '-') {
+          switch (opt->mem[1]) {
+            case 'd':
+              if (ALLOC_CSTRI(cstri_opt, opt->size - 2)) {
+                stri_compress((ustritype) cstri_opt,
+                    &opt->mem[2], opt->size - 2);
+                cstri_opt[opt->size - 2] = '\0';
+                comp_trace_level = cstri_opt;
+              } else {
+                comp_trace_level = "";
+              } /* if */
+              break;
+            case 't':
+              if (ALLOC_CSTRI(cstri_opt, opt->size - 2)) {
+                stri_compress((ustritype) cstri_opt,
+                    &opt->mem[2], opt->size - 2);
+                cstri_opt[opt->size - 2] = '\0';
+                exec_trace_level = cstri_opt;
+              } else {
+                exec_trace_level = "";
+              } /* if */
+              break;
+            case 'v':
+              if (opt->mem[2] >= '0' && opt->mem[2] <= '3') {
+                verbosity_level = (int) opt->mem[2] - '0';
+              } else {
+                verbosity_level = 2;
+              } /* if */
+              break;
+            default:
+              if (!error) {
+                printf(VERSION_INFO, LEVEL);
+                error = TRUE;
+              } /* if */
+              printf("*** Ignore unsupported option: ");
+              filPrint(opt);
               break;
           } /* switch */
         } else {
           option.source_file_argument = stri_to_standard_path(opt);
+          arg_v->arr[position].value.strivalue = NULL;
+          opt = NULL;
+        } /* if */
+        if (opt != NULL) {
+          arg_v->arr[position].value.strivalue = NULL;
+          FREE_STRI(opt, opt->size);
         } /* if */
       } else {
         if (option.argv == NULL) {
-          option.argv = (void *) arg_v;
+          option.argv = arg_v;
           option.argv_start = (memsizetype) position;
           /* printf("argv_start = %d\n", position); */
         } /* if */
       } /* if */
     } /* for */
-    /* printf("%d %d %d\n",
-        option.version_info,
-        option.compilation_info,
-        option.linecount_info); */
+    mapTraceFlags2(comp_trace_level, &option.parser_options);
+    mapTraceFlags2(exec_trace_level, &option.exec_options);
+    option.seed7_libraries = seed7_libraries;
+    if (verbosity_level >= 1) {
+      if (verbosity_level >= 2) {
+        option.parser_options |= WRITE_LIBRARY_NAMES;
+        option.parser_options |= SHOW_STATISTICS;
+        if (verbosity_level >= 3) {
+          option.parser_options |= WRITE_LINE_NUMBERS;
+        } /* if */
+      } /* if */
+      if (!error) {
+        printf(VERSION_INFO, LEVEL);
+      } /* if */
+    } /* if */
 #ifdef TRACE_OPTION
     printf("END processOptions\n");
 #endif
   } /* processOptions */
+
+
+
+#ifdef OUT_OF_ORDER
+#ifdef ANSI_C
+
+static void printOptions (void)
+#else
+
+static void printOptions ()
+#endif
+
+  { /* printOptions */
+    printf("source_file_argument: "); prot_stri( option.source_file_argument);    printf("\n");
+    printf("prot_file_name:       "); prot_stri( option.prot_file_name);          printf("\n");
+    printf("write_help:           "); prot_int(  option.write_help);              printf("\n");
+    printf("analyze_only:         "); prot_int(  option.analyze_only);            printf("\n");
+    printf("execute_always:       "); prot_int(  option.execute_always);          printf("\n");
+    printf("parser_options:       "); prot_int(  option.parser_options);          printf("\n");
+    printf("catch_signals:        "); prot_int(  option.catch_signals);           printf("\n");
+    printf("seed7_libraries:      "); prot_int((inttype) option.seed7_libraries); printf("\n");
+    printf("argv:                 "); prot_int((inttype) option.argv);            printf("\n");
+    printf("argv_start:           "); prot_int( option.argv_start);               printf("\n");
+  } /* printOptions */
+#endif
 
 
 
@@ -307,29 +356,24 @@ char **argv;
 
   {
     rtlArraytype arg_v;
-    stritype arg_0;
-    stritype programName;
     progtype currentProg;
 
   /* main */
 #ifdef TRACE_S7
     printf("BEGIN S7\n");
 #endif
-    set_trace(NULL, -1, NULL);
+    set_protfile_name(NULL);
 #ifdef USE_WINMAIN
-    arg_v = getArgv(0, NULL, &arg_0, &programName, &programPath);
+    arg_v = getArgv(0, NULL, NULL, NULL, &programPath);
 #else
-    arg_v = getArgv(argc, argv, &arg_0, &programName, &programPath);
+    arg_v = getArgv(argc, argv, NULL, NULL, &programPath);
 #endif
     if (arg_v == NULL) {
+      printf(VERSION_INFO, LEVEL);
       printf("\n*** No more memory. Program terminated.\n");
     } else {
-      FREE_STRI(programName, programName->size);
-      FREE_STRI(arg_0, arg_0->size);
       processOptions(arg_v);
-      if (option.version_info) {
-        printf("SEED7 INTERPRETER Version 5.0.%d  Copyright (c) 1990-2013 Thomas Mertes\n", LEVEL);
-      } /* if */
+      /* printOptions(); */
 #ifdef CATCH_SIGNALS
       if (option.catch_signals) {
         activate_signal_handlers();
@@ -352,14 +396,16 @@ char **argv;
         if (option.source_file_argument == NULL) {
           printf("*** Sourcefile missing\n");
         } else {
-          currentProg = analyze(option.source_file_argument);
+          currentProg = analyze(option.source_file_argument, option.parser_options,
+                                option.seed7_libraries, option.prot_file_name);
           if (!option.analyze_only && currentProg != NULL &&
               (currentProg->error_count == 0 || option.execute_always)) {
             /* PRIME_OBJECTS(); */
             /* printf("%d%d\n",
                trace.actions,
                trace.check_actions); */
-            interpr(currentProg);
+            interpret(currentProg, option.argv, option.argv_start,
+                      option.exec_options, option.prot_file_name);
           } /* if */
         } /* if */
       } /* if */

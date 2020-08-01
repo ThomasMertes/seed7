@@ -49,7 +49,7 @@ rtlArraytype arrGen (const rtlGenerictype element1, const rtlGenerictype element
 rtlArraytype arrHead (const const_rtlArraytype arr1, inttype stop);
 rtlArraytype arrHeadTemp (rtlArraytype *arr_temp, inttype stop);
 rtlGenerictype arrIdxTemp (rtlArraytype *arr_temp, inttype pos);
-void arrPush (rtlArraytype *arr_variable, const rtlGenerictype element);
+void arrPush (rtlArraytype *const arr_variable, const rtlGenerictype element);
 rtlArraytype arrRange (const const_rtlArraytype arr1, inttype start, inttype stop);
 rtlArraytype arrRangeTemp (rtlArraytype *arr_temp, inttype start, inttype stop);
 rtlGenerictype arrRemove (rtlArraytype *arr_to, inttype position);

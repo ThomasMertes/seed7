@@ -154,7 +154,7 @@ static const int least_significant[] = {
     4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0
   };
 
-static const char digits[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+static const char digits[] = "0123456789abcdefghijklmnopqrstuvwxyz";
 
 
 

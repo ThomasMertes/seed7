@@ -1123,9 +1123,9 @@ const array string: nine is [](
 
 const func cardType: genCard (in array string: pattern) is func
   result
-    var cardType: result is cardType.value;
+    var cardType: aCard is cardType.value;
   begin
-    result.picture := pattern;
+    aCard.picture := pattern;
   end func;
 
 
@@ -1236,7 +1236,7 @@ const func color: charColor (in char: ch) is func
 const func PRIMITIVE_WINDOW: create_pixmap (in array string: pattern,
     in integer: scale) is func
   result
-    var PRIMITIVE_WINDOW: result is PRIMITIVE_WINDOW.value;
+    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
   local
     var integer: height is 0;
     var integer: width is 0;
@@ -1245,11 +1245,11 @@ const func PRIMITIVE_WINDOW: create_pixmap (in array string: pattern,
   begin
     height := length(pattern);
     width := length(pattern[1]);
-    result := newPixmap(width * scale, height * scale);
-    clear(result, black);
+    pixmap := newPixmap(width * scale, height * scale);
+    clear(pixmap, black);
     for line range 1 to height do
       for column range 1 to width do
-        rect(result, pred(column) * scale, pred(line) * scale,
+        rect(pixmap, pred(column) * scale, pred(line) * scale,
             scale, scale, charColor(pattern[line][column]));
       end for;
     end for;
@@ -1431,7 +1431,7 @@ const proc: showHit (in integer: cardNumber, in var integer: yPos, in var intege
 
 const func integer: countCardBacks is func
   result
-    var integer: result is 0;
+    var integer: count is 0;
   local
     var integer: line is 0;
     var integer: column is 0;
@@ -1439,7 +1439,7 @@ const func integer: countCardBacks is func
     for line range 1 to length(field) do
       for column range 1 to length(field[line]) do
         if field[line][column].visible = backSide then
-          incr(result);
+          incr(count);
         end if;
       end for;
     end for;

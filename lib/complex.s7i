@@ -46,10 +46,10 @@ const type: complex is new object struct
  *)
 const func complex: complex (in float: re, in float: im) is func
   result
-    var complex: result is complex.value;
+    var complex: aComplex is complex.value;
   begin
-    result.re := re;
-    result.im := im;
+    aComplex.re := re;
+    aComplex.im := im;
   end func;
 
 
@@ -59,10 +59,10 @@ const func complex: complex (in float: re, in float: im) is func
  *)
 const func complex: complex (in float: re) is func
   result
-    var complex: result is complex.value;
+    var complex: aComplex is complex.value;
   begin
-    result.re := re;
-    result.im := 0.0;
+    aComplex.re := re;
+    aComplex.im := 0.0;
   end func;
 
 
@@ -72,10 +72,10 @@ const func complex: complex (in float: re) is func
  *)
 const func complex: polar (in float: magnitude, in float: angle) is func
   result
-    var complex: result is complex.value;
+    var complex: aComplex is complex.value;
   begin
-    result.re := magnitude * cos(angle);
-    result.im := magnitude * sin(angle);
+    aComplex.re := magnitude * cos(angle);
+    aComplex.im := magnitude * sin(angle);
   end func;
 
 
@@ -85,10 +85,10 @@ const func complex: polar (in float: magnitude, in float: angle) is func
  *)
 const func complex: (attr complex) conv (in integer: re) is func
   result
-    var complex: result is complex.value;
+    var complex: aComplex is complex.value;
   begin
-    result.re := flt(re);
-    result.im := 0.0;
+    aComplex.re := flt(re);
+    aComplex.im := 0.0;
   end func;
 
 
@@ -98,10 +98,10 @@ const func complex: (attr complex) conv (in integer: re) is func
  *)
 const func complex: (attr complex) conv (in float: re) is func
   result
-    var complex: result is complex.value;
+    var complex: aComplex is complex.value;
   begin
-    result.re := re;
-    result.im := 0.0;
+    aComplex.re := re;
+    aComplex.im := 0.0;
   end func;
 
 
@@ -355,7 +355,7 @@ const func string: str (in complex: number) is func
  *)
 const func complex: (attr complex) parse (in string: stri) is func
   result
-    var complex: result is complex.value;
+    var complex: aComplex is complex.value;
   local
     var integer: pos is 0;
     var integer: pos2 is 0;
@@ -366,8 +366,8 @@ const func complex: (attr complex) parse (in string: stri) is func
       pos := pos2;
     end if;
     if pos <> 0 and stri[length(stri)] = 'i' then
-      result.re := float parse (stri[.. pred(pos)]);
-      result.im := float parse (stri[pos .. pred(length(stri))]);
+      aComplex.re := float parse (stri[.. pred(pos)]);
+      aComplex.im := float parse (stri[pos .. pred(length(stri))]);
     else
       raise RANGE_ERROR;
     end if;

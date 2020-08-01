@@ -97,9 +97,6 @@ const func string: file (PROGRAM) is func
   end func;
 
 
-const func string: interpreterPath                     is action "PRG_INTERPRETER";
-
-
 (**
  *  Determine the value of an environment variable.
  *  The function getenv searches the environment for an environment variable

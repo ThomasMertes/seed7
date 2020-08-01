@@ -56,12 +56,8 @@ const proc: f4 (in integer: number) is func
   end func;
 
 
-const func integer: test_func (in integer: number) is func
-  result
-    var integer: result is 0;
-  begin
-    result := number;
-  end func;
+const func integer: test_func (in integer: number) is
+  return number;
 
 
 const func integer: intExpr (in integer: number) is

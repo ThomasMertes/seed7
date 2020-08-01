@@ -25,24 +25,30 @@
 /*                                                                  */
 /********************************************************************/
 
+#define TRACE_ACTIONS            1
+#define TRACE_DO_ACTION_CHECK    2
+#define TRACE_DYNAMIC_CALLS      4
+#define TRACE_EXCEPTIONS         8
+#define TRACE_HEAP_SIZE         16
+#define TRACE_MATCH             32
+#define TRACE_EXECUTIL          64
+#define WRITE_LIBRARY_NAMES    128
+#define WRITE_LINE_NUMBERS     256
+#define SHOW_IDENT_TABLE       512
+#define SHOW_STATISTICS       1024
+
 typedef struct {
     stritype          source_file_argument;
-    const_cstritype   prot_file_name;
+    const_stritype    prot_file_name;
     booltype          write_help;
     booltype          analyze_only;
     booltype          execute_always;
-    booltype          show_ident_table;
-    booltype          get_infile_buffer;
-    booltype          version_info;
-    booltype          compilation_info;
-    booltype          linecount_info;
+    uinttype          parser_options;
+    uinttype          exec_options;
     booltype          catch_signals;
-    unsigned int      incr_message_line;
-    const_cstritype   comp_trace_level;
-    const_cstritype   exec_trace_level;
-    void             *argv;
+    rtlArraytype      seed7_libraries;
+    rtlArraytype      argv;
     memsizetype       argv_start;
-    objecttype        arg_v;
   } opttype;
 
 #ifdef DO_INIT
@@ -52,18 +58,12 @@ opttype option = {
     FALSE, /* write_help        */
     FALSE, /* analyze_only      */
     FALSE, /* execute_always    */
-    FALSE, /* show_ident_table  */
-    TRUE,  /* get_infile_buffer */
-    TRUE,  /* version_info      */
-    FALSE, /* compilation_info  */
-    FALSE, /* linecount_info    */
+    0,     /* parser_options    */
+    0,     /* exec_options      */
     TRUE,  /* catch_signals     */
-    16383, /* incr_message_line */
-    NULL,  /* comp_trace_level  */
-    NULL,  /* exec_trace_level  */
+    NULL,  /* seed7_libraries   */
     NULL,  /* argv              */
     0,     /* argv_start        */
-    NULL,  /* arg_v             */
   };
 #else
 EXTERN opttype option;

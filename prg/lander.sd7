@@ -130,23 +130,23 @@ var text: panel is STD_NULL;
 
 const func integer: frequency (in integer: frequencyNumber) is func
   result
-    var integer: result is 0;
+    var integer: frequency is 0;
   begin (* frequency *)
     if frequencyNumber in {0 .. 6} then
-      # result := 0;
-      result := 32767;
+      # frequency := 0;
+      frequency := 32767;
     else
-      result := trunc(36.8 * (2.0 ** (1.0 / 12.0)) ** (flt(frequencyNumber) - 6.0));
+      frequency := trunc(36.8 * (2.0 ** (1.0 / 12.0)) ** (flt(frequencyNumber) - 6.0));
     end if;
   end func;
 
 
 const func tonetype: tone (in integer: frequencyNumber, in integer: leng) is func
   result
-    var tonetype: result is tonetype.value;
+    var tonetype: tone is tonetype.value;
   begin
-    result.freq := frequency(frequencyNumber);
-    result.leng := leng;
+    tone.freq := frequency(frequencyNumber);
+    tone.leng := leng;
   end func;
 
 

@@ -35,12 +35,13 @@
 
 #include "common.h"
 #include "data.h"
-#include "data_rtl.h" /*!!##*/
+#include "data_rtl.h"
 #include "os_decls.h"
 #include "heaputl.h"
 #include "flistutl.h"
 #include "syvarutl.h"
 #include "striutl.h"
+#include "arrutl.h"
 #include "objutl.h"
 #include "runerr.h"
 #include "dir_rtl.h"
@@ -640,32 +641,23 @@ listtype arguments;
   {
     objecttype childStdin_variable;
     objecttype childStdout_variable;
-    arraytype parameters;
-    memsizetype arraySize;
-    rtlArraytype rtlParameters;
-    memsizetype pos;
+    rtlArraytype parameters;
 
   /* cmd_pipe2 */
     isit_stri(arg_1(arguments));
     isit_array(arg_2(arguments));
-    parameters = take_array(arg_2(arguments));
     childStdin_variable = arg_3(arguments);
     isit_file(childStdin_variable);
     childStdout_variable = arg_4(arguments);
     isit_file(childStdout_variable);
-    arraySize = (uinttype) (parameters->max_position - parameters->min_position + 1);
-    if (!ALLOC_RTL_ARRAY(rtlParameters, arraySize)) {
+    parameters = gen_rtl_array(take_array(arg_2(arguments)));
+    if (parameters == NULL) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
-      rtlParameters->min_position = parameters->min_position;
-      rtlParameters->max_position = parameters->max_position;
-      for (pos = 0; pos < arraySize; pos++) {
-        rtlParameters->arr[pos].value.strivalue = parameters->arr[pos].value.strivalue;
-      } /* for */
-      cmdPipe2(take_stri(arg_1(arguments)), rtlParameters,
+      cmdPipe2(take_stri(arg_1(arguments)), parameters,
                &childStdin_variable->value.filevalue,
                &childStdout_variable->value.filevalue);
-      FREE_RTL_ARRAY(rtlParameters, arraySize);
+      FREE_RTL_ARRAY(parameters, ARRAY_LENGTH(parameters));
     } /* if */
     return SYS_EMPTY_OBJECT;
   } /* cmd_pipe2 */
@@ -684,32 +676,23 @@ listtype arguments;
   {
     objecttype childStdin_variable;
     objecttype childStdout_variable;
-    arraytype parameters;
-    memsizetype arraySize;
-    rtlArraytype rtlParameters;
-    memsizetype pos;
+    rtlArraytype parameters;
 
   /* cmd_pty */
     isit_stri(arg_1(arguments));
     isit_array(arg_2(arguments));
-    parameters = take_array(arg_2(arguments));
     childStdin_variable = arg_3(arguments);
     isit_file(childStdin_variable);
     childStdout_variable = arg_4(arguments);
     isit_file(childStdout_variable);
-    arraySize = (uinttype) (parameters->max_position - parameters->min_position + 1);
-    if (!ALLOC_RTL_ARRAY(rtlParameters, arraySize)) {
+    parameters = gen_rtl_array(take_array(arg_2(arguments)));
+    if (parameters == NULL) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
-      rtlParameters->min_position = parameters->min_position;
-      rtlParameters->max_position = parameters->max_position;
-      for (pos = 0; pos < arraySize; pos++) {
-        rtlParameters->arr[pos].value.strivalue = parameters->arr[pos].value.strivalue;
-      } /* for */
-      cmdPty(take_stri(arg_1(arguments)), rtlParameters,
+      cmdPty(take_stri(arg_1(arguments)), parameters,
                &childStdin_variable->value.filevalue,
                &childStdout_variable->value.filevalue);
-      FREE_RTL_ARRAY(rtlParameters, arraySize);
+      FREE_RTL_ARRAY(parameters, ARRAY_LENGTH(parameters));
     } /* if */
     return SYS_EMPTY_OBJECT;
   } /* cmd_pty */
@@ -915,26 +898,17 @@ listtype arguments;
 #endif
 
   {
-    arraytype parameters;
-    memsizetype arraySize;
-    rtlArraytype rtlParameters;
-    memsizetype pos;
+    rtlArraytype parameters;
 
   /* cmd_start_process */
     isit_stri(arg_1(arguments));
     isit_array(arg_2(arguments));
-    parameters = take_array(arg_2(arguments));
-    arraySize = (uinttype) (parameters->max_position - parameters->min_position + 1);
-    if (!ALLOC_RTL_ARRAY(rtlParameters, arraySize)) {
+    parameters = gen_rtl_array(take_array(arg_2(arguments)));
+    if (parameters == NULL) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
-      rtlParameters->min_position = parameters->min_position;
-      rtlParameters->max_position = parameters->max_position;
-      for (pos = 0; pos < arraySize; pos++) {
-        rtlParameters->arr[pos].value.strivalue = parameters->arr[pos].value.strivalue;
-      } /* for */
-      cmdStartProcess(take_stri(arg_1(arguments)), rtlParameters);
-      FREE_RTL_ARRAY(rtlParameters, arraySize);
+      cmdStartProcess(take_stri(arg_1(arguments)), parameters);
+      FREE_RTL_ARRAY(parameters, ARRAY_LENGTH(parameters));
     } /* if */
     return SYS_EMPTY_OBJECT;
   } /* cmd_start_process */

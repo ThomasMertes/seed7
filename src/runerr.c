@@ -77,7 +77,8 @@ void continue_question ()
     } /* while */
     buffer[position] = '\0';
     if (position > 0) {
-      set_trace(buffer, position, NULL);
+      mapTraceFlags2(buffer, &prog.option_flags);
+      set_trace(prog.option_flags);
     } /* if */
     while (ch != EOF && ch != (int) '\n') {
       ch = fgetc(stdin);

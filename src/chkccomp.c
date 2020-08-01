@@ -110,10 +110,6 @@
 #define xstr(s) str(s)
 #define str(s) #s
 
-#ifndef popen
-#define popen popen
-#endif
-
 char c_compiler[1024];
 
 
@@ -198,6 +194,7 @@ int compilationOkay (char *content)
     int len;
     struct stat stat_buf;
     char fileName[1024];
+    int returncode;
     int result = 0;
 
   /* compilationOkay */
@@ -229,13 +226,21 @@ int compilationOkay (char *content)
         command[len + 2] = '\0';
       } /* if */
 #endif
-      /* printf("/\* %s *\/\n", command); */
-      system(command);
+      returncode = system(command);
       sprintf(fileName, "ctest%s", EXECUTABLE_FILE_EXTENSION);
       if (stat(fileName, &stat_buf) == 0 && S_ISREG(stat_buf.st_mode)) {
-        /* printf("/\* TRUE *\/\n"); */
-        result = 1;
+        if (returncode == 0) {
+          result = 1;
+        } else {
+          puts("#define CC_FAILS_BUT_CREATES_EXECUTABLE");
+        } /* if */
       } /* if */
+#ifdef DEBUG_CHKCCOMP
+      printf("/* command: %s */\n", command);
+      printf("/* content: %s */\n", content);
+      printf("/* returncode: %d */\n", returncode);
+      printf("/* result: %d */\n", result);
+#endif
     } /* if */
     return result;
   } /* compilationOkay */
@@ -293,7 +298,7 @@ void determineEnvironDefines (void)
 #else
     strcat(buffer, "int main(int argc,char *argv[])");
 #endif
-    strcat(buffer, "{printf(\"%d\\n\",os_environ==NULL);return 0;}\n");
+    strcat(buffer, "{printf(\"%d\\n\",os_environ==(os_stritype)0);return 0;}\n");
     if (!compilationOkay(buffer) || doTest() == 1) {
       printf("#define INITIALIZE_OS_ENVIRON\n");
     } /* if */
@@ -313,6 +318,7 @@ int main (int argc, char **argv)
     char buffer[4096];
     long number;
     int ch;
+    int zero_divide_triggers_signal = 0;
     float zero = 0.0;
     float negativeZero;
     float minusZero;
@@ -332,12 +338,12 @@ int main (int argc, char **argv)
       printf("#define C_COMPILER_VERSION \"");
       for (ch=getc(aFile); ch!=EOF && ch!=10 && ch!=13; ch=getc(aFile)) {
         if (ch>=' ' && ch<='~') {
-          if (ch==34 || ch==39 || ch==92) {
-            putchar(92);
+          if (ch=='\"' || ch=='\'' || ch=='\\') {
+            putchar('\\');
           } /* if */
           putchar(ch);
         } else {
-          putchar(92);
+          putchar('\\');
           printf("%3o", ch);
         } /* if */
       } /* for */
@@ -347,7 +353,8 @@ int main (int argc, char **argv)
     if (compilationOkay("#include <unistd.h>\nint main(int argc,char *argv[]){return 0;}\n")) {
       puts("#define UNISTD_H_PRESENT");
     } /* if */
-    if (compilationOkay("int main(int argc,char *argv[]){if(__builtin_expect(1,1))return 1;else return 0;}\n")) {
+    if (compilationOkay("#include <stdio.h>\nint main(int argc,char *argv[])\n"
+                        "{if(__builtin_expect(1,1))puts(\"1\");else puts(\"0\");return 0;}\n")) {
       puts("#define likely(x)   __builtin_expect((x),1)");
       puts("#define unlikely(x) __builtin_expect((x),0)");
     } /* if */
@@ -416,11 +423,13 @@ int main (int argc, char **argv)
       puts("#define FOPEN_OPENS_DIRECTORIES");
       fclose(aFile);
     } /* if */
-    printf("#define POINTER_SIZE %lu\n", (long unsigned)(8 * sizeof(char *)));
-    printf("#define FLOAT_SIZE %lu\n", (long unsigned)(8 * sizeof(float)));
-    printf("#define DOUBLE_SIZE %lu\n", (long unsigned)(8 * sizeof(double)));
-    printf("#define OS_OFF_T_SIZE %lu\n", (long unsigned)(8 * sizeof(os_off_t)));
-    printf("#define TIME_T_SIZE %lu\n", (long unsigned)(8 * sizeof(time_t)));
+    printf("#define INT_SIZE %lu\n",      (long unsigned) (8 * sizeof(int)));
+    printf("#define LONG_SIZE %lu\n",     (long unsigned) (8 * sizeof(long)));
+    printf("#define POINTER_SIZE %lu\n",  (long unsigned) (8 * sizeof(char *)));
+    printf("#define FLOAT_SIZE %lu\n",    (long unsigned) (8 * sizeof(float)));
+    printf("#define DOUBLE_SIZE %lu\n",   (long unsigned) (8 * sizeof(double)));
+    printf("#define OS_OFF_T_SIZE %lu\n", (long unsigned) (8 * sizeof(os_off_t)));
+    printf("#define TIME_T_SIZE %lu\n",   (long unsigned) (8 * sizeof(time_t)));
     timestamp = -2147483648;
     local_time = localtime(&timestamp);
     if (local_time != NULL && local_time->tm_year == 1) {
@@ -539,6 +548,7 @@ int main (int argc, char **argv)
                          "signal(SIGFPE,handleSig);\nsignal(SIGILL,handleSig);\nsignal(SIGINT,handleSig);\n"
                          "printf(\"%d\\n\",1.0/zero==0);return 0;}\n") || doTest() == 2) {
       puts("#define CHECK_FLOAT_DIV_BY_ZERO");
+      zero_divide_triggers_signal = 1;
       if (sizeof(float) == sizeof(int)) {
         union {
           unsigned int i;
@@ -583,7 +593,8 @@ int main (int argc, char **argv)
         nanValue1 <= nanValue2 || nanValue1 <= nanValue2) {
       puts("#define NAN_COMPARISON_WRONG");
     } /* if */
-    if (memcmp(&negativeZero, &minusZero, sizeof(float)) != 0) {
+    if (zero_divide_triggers_signal ||
+        memcmp(&negativeZero, &minusZero, sizeof(float)) != 0) {
       puts("#define USE_NEGATIVE_ZERO_BITPATTERN");
     } /* if */
     if (pow(zero, -2.0) != plusInf || pow(negativeZero, -1.0) != minusInf) {

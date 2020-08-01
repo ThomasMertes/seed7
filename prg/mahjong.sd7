@@ -499,9 +499,9 @@ const func char: getCommand is func
 
 const func tileType: genTile (in array string: pattern) is func
   result
-    var tileType: result is tileType.value;
+    var tileType: aTile is tileType.value;
   begin
-    result.pattern := pattern;
+    aTile.pattern := pattern;
   end func;
 
 

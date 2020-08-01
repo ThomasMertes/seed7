@@ -1,3 +1,77 @@
+20130120:
+- Interpreter and compiler have been improved to support the option
+  -l. This option allows adding a directory to the include library
+  search path (e.g.: -l ../lib).
+- The compiler (s7c) has been improved to support the option -b.
+  With -b the directory of the Seed7 runtime libraries can be
+  specified (e.g.: -b ../bin).
+- The target s7c in the makefiles has been changed to take advantage
+  of the options -l and -b. Now packages can compile the Seed7
+  compiler without a post install step.
+- Additional function variants of parseFile, parseStri and execute
+  have been added to the library progs.s7i. The new functions allow
+  a detailed specification of parse and execution options.
+- The library gzip.s7c has been improved to decode also blocks with
+  fixed Huffman codes. This type of block is almost never used since
+  dynamic Huffman codes compress better.
+- The parsing of bigInteger literals has been improved to support
+  literals with bases other than 10 (e.g.: 16#FEDCBA98765434210_).
+- The integer and bigInteger functions str (conversion to string)
+  have been changed to use lower case characters for digits larger
+  than 9. Now str(48879, 16) returns "beef" instead of "BEEF".
+- The program make7.sd7 and the library make.s7i have been improved
+  to support multiple targets and the option -C.
+- The Seed7 compiler has been improved to generate special inline
+  code for the case that the C floating point division by zero does
+  not result in Infinity, -Infinity or NaN (not a number).
+- The functions chkLiteral and chkBitLength as well as checks for
+  shifts with negative shift count have been added to the program
+  chkbig.sd7.
+- The function check_division as well as has checks for the operator
+  /:= (in check_nan) have been added to the program chkflt.sd7.
+- The function check_str in chkint.sd7 has been improved to check
+  the new behaviour of the function str with a give base.
+- The makefile mk_clang.mak has been added to support compilation
+  with the clang C compiler.
+- The explanations of possible compilation errors in src/read_me.txt
+  have been improved.
+- The functions interpreterPath and callOwnProgram have been removed
+  from the libraries environment.s7i respectively shell.s7i. This
+  functions were not used in any example program.
+- The support for the interpreter option -m (use less memory during
+  the analyzing phase) has been removed. On many systems it was a
+  noop anyway.
+- Result variables have been renamed in various libraries and example
+  programs.
+- The functions find_include_file, print_lib_path, append_to_lib_path
+  and init_lib_path have been moved from infile.c to the new file
+  libpath.c.
+- The function gen_rtl_array has been defined in the new file
+  arrutl.c. The function is used in the files cmdlib.c (functions
+  cmd_pipe2, cmd_pty, cmd_start_process) and prglib.c (functions
+  prg_exec, prg_fil_parse, prg_str_parse).
+- The interpreter/compiler improvements (option -l) and the new
+  function variants in progs.s7i have been realized with changes in
+  prg_comp.c, analyze.c, data.h, infile.c, infile.h, info.c, option.h
+  and s7.c.
+- The functions prgExec, prgFilParse and prgStrParse in prg_comp.c
+  have been improved to support additional parse and execution
+  options.
+- The function interpr has been renamed to interpret and moved from
+  exec.c to prg_comp.c.
+- The function copy_args has been moved from prclib.c to prg_comp.c.
+- In traceutl.c the function set_trace has been changed and the
+  function set_trace2 has been removed. The functions mapTraceFlags,
+  mapTraceFlags2 and set_protfile_name have been added.
+- The functions uBigMultiplyAndAdd and bigParseBased have been added
+  to big_rtl.c:
+- In big_gmp.c the functions bigBitLength, bigLShift, bigRShift,
+  bigLShiftAssign, bigRShiftAssign, bigParse, and bigToInt32 have
+  been improved and bigParseBased has been added.
+- To support bigInteger literals with base the file numlit.c has been
+  changed. The function readBigBased has been added and readinteger
+  has been removed. Several functions in numlit.c have been renamed.
+
 20130105:
 - The Seed7 interpreter was renamed. The new name of the Seed7
   interpreter is s7.

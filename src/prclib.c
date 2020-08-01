@@ -51,11 +51,11 @@
 #include "exec.h"
 #include "runerr.h"
 #include "blockutl.h"
-#include "option.h"
 #include "scanner.h"
-#include "infile.h"
+#include "libpath.h"
 #include "error.h"
 #include "set_rtl.h"
+#include "rtl_err.h"
 
 #undef EXTERN
 #define EXTERN
@@ -86,64 +86,6 @@ objecttype block_body_list;
 
 #ifdef ANSI_C
 
-static objecttype copy_args (rtlArraytype argv, memsizetype start)
-#else
-
-static objecttype copy_args (argv, start)
-rtlArraytype argv;
-memsizetype start;
-#endif
-
-  {
-    memsizetype argc;
-    arraytype arg_array;
-    memsizetype arg_idx;
-    objecttype result;
-
-  /* copy_args */
-    /* printf("start = %d\n", start); */
-    if (argv == NULL || argv->max_position < 0) {
-      argc = 0;
-    } else {
-      argc = (memsizetype) argv->max_position - start;
-    } /* if */
-    /* printf("argc = %d\n", argc); */
-    if (ALLOC_ARRAY(arg_array, argc)) {
-      arg_idx = 0;
-      while (arg_idx < argc) {
-        /* printf("arg_idx = %d\n", arg_idx);
-           printf("argv[%d] = ", start + arg_idx);
-           prot_stri(argv->arr[start + arg_idx].value.strivalue);
-           printf("\n"); */
-        arg_array->arr[arg_idx].type_of = take_type(SYS_STRI_TYPE);
-        arg_array->arr[arg_idx].descriptor.property = NULL;
-        arg_array->arr[arg_idx].value.strivalue =
-            argv->arr[start + arg_idx].value.strivalue;
-        INIT_CATEGORY_OF_OBJ(&arg_array->arr[arg_idx], STRIOBJECT);
-        arg_idx++;
-      } /* while */
-      arg_array->min_position = 1;
-      arg_array->max_position = (inttype) arg_idx;
-    } /* if */
-    if (arg_array != NULL) {
-      if (ALLOC_OBJECT(result)) {
-        result->type_of = NULL;
-        result->descriptor.property = NULL;
-        INIT_CATEGORY_OF_OBJ(result, ARRAYOBJECT);
-        result->value.arrayvalue = arg_array;
-      } else {
-        FREE_ARRAY(arg_array, argc);
-      } /* if */
-    } else {
-      result = NULL;
-    } /* if */
-    return result;
-  } /* copy_args */
-
-
-
-#ifdef ANSI_C
-
 objecttype prc_args (listtype arguments)
 #else
 
@@ -152,14 +94,7 @@ listtype arguments;
 #endif
 
   { /* prc_args */
-    if (option.arg_v == NULL) {
-      option.arg_v = copy_args((rtlArraytype) option.argv, option.argv_start);
-    } /* if */
-    if (option.arg_v == NULL) {
-      return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
-    } else {
-      return option.arg_v;
-    } /* if */
+    return prog.arg_v;
   } /* prc_args */
 
 
@@ -1170,7 +1105,8 @@ listtype arguments;
 
   { /* prc_settrace */
     isit_stri(arg_1(arguments));
-    set_trace2(take_stri(arg_1(arguments)));
+    mapTraceFlags(take_stri(arg_1(arguments)), &prog.option_flags);
+    set_trace(prog.option_flags);
     return SYS_EMPTY_OBJECT;
   } /* prc_settrace */
 

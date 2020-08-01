@@ -64,6 +64,23 @@ const func boolean: (ref program: prog1) = (ref program: prog2)         is actio
 const func boolean: (ref program: prog1) <> (ref program: prog2)        is action "PRG_NE";
 
 
+const type: singleParseOption is new enum
+    TRACE_ACTIONS,         # Trace primitive actions
+    TRACE_DO_ACTION_CHECK, # Do action check
+    TRACE_DYNAMIC_CALLS,   # Trace dynamic calls
+    TRACE_EXCEPTIONS,      # Trace exceptions and handlers
+    TRACE_HEAP_SIZE,       # Trace heap size
+    TRACE_MATCH,           # Trace matching expressions
+    TRACE_EXECUTIL,        # Trace exec utility functions
+    WRITE_LIBRARY_NAMES,   # Write a list of include libraries
+    WRITE_LINE_NUMBERS,    # Write line numbers, while analyzing
+    SHOW_IDENT_TABLE,      # Show the identifier table after the analyzing phase
+    SHOW_STATISTICS        # Show compilation statistics
+  end enum;
+
+const type: parseOptions is set of singleParseOption;
+
+
 (**
  *  Parse the file with the name ''fileName''.
  *  @return the parsed program.
@@ -72,7 +89,22 @@ const func boolean: (ref program: prog1) <> (ref program: prog2)        is actio
  *             the system path type.
  *  @exception MEMORY_ERROR An out of memory situation occurred.
  *)
-const func program: parseFile (in string: fileName)                     is action "PRG_FIL_PARSE";
+const func program: parseFile (in string: fileName, in parseOptions: options,
+                               in array string: libraryDirs,
+                               in string: prot_file_name)               is action "PRG_FIL_PARSE";
+
+
+const func program: parseFile (in string: fileName, in parseOptions: options,
+                               in array string: libraryDirs) is
+  return parseFile(fileName, options, libraryDirs, "");
+
+
+const func program: parseFile (in string: fileName, in parseOptions: options) is
+  return parseFile(fileName, options, 0 times "", "");
+
+
+const func program: parseFile (in string: fileName) is
+  return parseFile(fileName, parseOptions.value, 0 times "", "");
 
 
 (**
@@ -80,7 +112,22 @@ const func program: parseFile (in string: fileName)                     is actio
  *  @return the parsed program.
  *  @exception MEMORY_ERROR An out of memory situation occurred.
  *)
-const func program: parseStri (in string: stri)                         is action "PRG_STR_PARSE";
+const func program: parseStri (in string: stri, in parseOptions: options,
+                               in array string: libraryDirs,
+                               in string: prot_file_name)               is action "PRG_STR_PARSE";
+
+
+const func program: parseStri (in string: stri, in parseOptions: options,
+                               in array string: libraryDirs) is
+  return parseStri(stri, options, libraryDirs, "");
+
+
+const func program: parseStri (in string: stri, in parseOptions: options) is
+  return parseStri(stri, options, 0 times "", "");
+
+
+const func program: parseStri (in string: stri) is
+  return parseStri(stri, parseOptions.value, 0 times "", "");
 
 
 (**
@@ -94,7 +141,28 @@ const func reference: evaluate (ref program: aProgram,
 (**
  *  Execute the program referred by ''aProgram''.
  *)
-const proc: execute (ref program: aProgram)                             is action "PRG_EXEC";
+const proc: execute (ref program: aProgram, in array string: parameters,
+                     in parseOptions: options,
+                     in string: prot_file_name)                         is action "PRG_EXEC";
+
+
+const proc: execute (ref program: aProgram, in array string: parameters,
+                     in parseOptions: options) is func
+  begin
+    execute(aProgram, parameters, options, "");
+  end func;
+
+
+const proc: execute (ref program: aProgram, in array string: parameters) is func
+  begin
+    execute(aProgram, parameters, parseOptions.value, "");
+  end func;
+
+
+const proc: execute (ref program: aProgram) is func
+  begin
+    execute(aProgram, 0 times "", parseOptions.value, "");
+  end func;
 
 
 (**

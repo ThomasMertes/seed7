@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2000  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2013  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: Analyzer - Infile                                       */
 /*  File: seed7/src/infile.c                                        */
-/*  Changes: 1990, 1991, 1992, 1993, 1994  Thomas Mertes            */
+/*  Changes: 1990 - 1994, 2013  Thomas Mertes                       */
 /*  Content: Procedures to open, close and read the source file.    */
 /*                                                                  */
 /********************************************************************/
@@ -33,15 +33,12 @@
 
 #include "common.h"
 #include "data.h"
-#include "data_rtl.h" /*!!##*/
 #include "os_decls.h"
 #include "heaputl.h"
 #include "flistutl.h"
 #include "striutl.h"
 #include "info.h"
 #include "stat.h"
-#include "option.h"
-#include "cmd_drv.h"
 
 #ifdef USE_MMAP
 #include "sys/types.h"
@@ -55,10 +52,10 @@
 #include "infile.h"
 
 
+#define GET_INFILE_BUFFER TRUE
 #define SIZE_IN_BUFFER 32768
 
 
-extern stritype programPath; /* defined in s7.c or in the executable of a program */
 static infiltype file_pointer = NULL;
 static filenumtype file_counter = 0;
 
@@ -161,7 +158,7 @@ static INLINE booltype speedup ()
       okay = FALSE;
     } /* if */
 #else
-    if (option.get_infile_buffer) {
+    if (GET_INFILE_BUFFER) {
       in_file.buffer_size = SIZE_IN_BUFFER;
     } else {
       in_file.buffer_size = 512;
@@ -181,7 +178,7 @@ static INLINE booltype speedup ()
 #endif
 #else
 #ifdef USE_INFILE_BUFFER
-    if (option.get_infile_buffer) {
+    if (GET_INFILE_BUFFER) {
       if (ALLOC_UBYTES(in_file.buffer, SIZE_IN_BUFFER)) {
         setvbuf(in_file.fil, in_file.buffer, _IOFBF,
             (size_t) SIZE_IN_BUFFER);
@@ -201,11 +198,14 @@ static INLINE booltype speedup ()
 
 #ifdef ANSI_C
 
-void open_infile (const_stritype source_file_name, errinfotype *err_info)
+void open_infile (const_stritype source_file_name, booltype write_library_names,
+    booltype write_line_numbers, errinfotype *err_info)
 #else
 
-void open_infile (source_file_name, err_info)
+void open_infile (source_file_name, write_library_names, write_line_numbers, err_info)
 stritype source_file_name;
+booltype write_library_names;
+booltype write_line_numbers;
 errinfotype *err_info;
 #endif
 
@@ -263,10 +263,9 @@ errinfotype *err_info;
               in_file.name = in_name;
               in_file.character = next_character();
               in_file.line = 1;
-              in_file.next_msg_line = 1 + option.incr_message_line;
               file_counter++;
               in_file.file_number = file_counter;
-              open_compilation_info();
+              open_compilation_info(write_library_names, write_line_numbers);
               in_file.end_of_file = FALSE;
               in_file.up_infile = in_file.curr_infile;
               in_file.curr_infile = new_file;
@@ -299,10 +298,10 @@ void close_infile ()
 #endif
 /*  printf("\nclose(\"%s\");\n", in_file.name); */
 #ifdef WITH_COMPILATION_INFO
-    if (option.compilation_info) {
+    if (in_file.write_line_numbers) {
       NL_LIN_INFO();
     } else {
-      if (option.linecount_info) {
+      if (in_file.write_library_names) {
         NL_FIL_LIN_INFO();
       } /* if */
     } /* if */
@@ -343,7 +342,7 @@ void close_infile ()
     } else {
       in_file.curr_infile = NULL;
     } /* if */
-    in_file.next_msg_line = in_file.line + option.incr_message_line;
+    in_file.next_msg_line = in_file.line + in_file.incr_message_line;
 #ifdef TRACE_INFILE
     printf("END close_infile\n");
 #endif
@@ -353,11 +352,14 @@ void close_infile ()
 
 #ifdef ANSI_C
 
-void open_string (bstritype input_string, errinfotype *err_info)
+void open_string (bstritype input_string, booltype write_library_names,
+    booltype write_line_numbers, errinfotype *err_info)
 #else
 
-void open_string (input_string, err_info)
+void open_string (input_string, write_library_names, write_line_numbers, err_info)
 bstritype input_string;
+booltype write_library_names;
+booltype write_line_numbers;
 errinfotype *err_info;
 #endif
 
@@ -400,10 +402,9 @@ errinfotype *err_info;
           in_file.buffer_size = 0;
           in_file.character = next_character();
           in_file.line = 1;
-          in_file.next_msg_line = 1 + option.incr_message_line;
           file_counter++;
           in_file.file_number = file_counter;
-          open_compilation_info();
+          open_compilation_info(write_library_names, write_line_numbers);
           in_file.end_of_file = FALSE;
           in_file.up_infile = in_file.curr_infile;
           in_file.curr_infile = new_file;
@@ -543,270 +544,3 @@ filenumtype file_num;
 #endif
     return result;
   } /* get_file_name_ustri */
-
-
-
-#ifdef ANSI_C
-
-void find_include_file (const_stritype include_file_name, errinfotype *err_info)
-#else
-
-void find_include_file (include_file_name, err_info)
-stritype include_file_name;
-errinfotype *err_info;
-#endif
-
-  {
-    booltype found;
-    memsizetype position;
-    stritype curr_path;
-    memsizetype length;
-    stritype stri;
-
-  /* find_include_file */
-#ifdef TRACE_INFILE
-    printf("BEGIN find_include_file\n");
-#endif
-    if (*err_info == OKAY_NO_ERROR) {
-      if (include_file_name->size >= 1 && include_file_name->mem[0] == '/') {
-        open_infile(include_file_name, err_info);
-      } else {
-        found = FALSE;
-        for (position = 0; !found && *err_info == OKAY_NO_ERROR &&
-            position <= (memsizetype) (lib_path->max_position - lib_path->min_position);
-            position++) {
-          curr_path = lib_path->arr[position].value.strivalue;
-          if (curr_path->size == 0) {
-            open_infile(include_file_name, err_info);
-          } else {
-            if (curr_path->size > MAX_STRI_LEN - include_file_name->size) {
-              *err_info = MEMORY_ERROR;
-            } else {
-              length = curr_path->size + include_file_name->size;
-              if (!ALLOC_STRI_SIZE_OK(stri, length)) {
-                *err_info = MEMORY_ERROR;
-              } else {
-                stri->size = length;
-                memcpy(stri->mem, curr_path->mem,
-                    (size_t) curr_path->size * sizeof(strelemtype));
-                memcpy(&stri->mem[curr_path->size], include_file_name->mem,
-                    (size_t) include_file_name->size * sizeof(strelemtype));
-                open_infile(stri, err_info);
-                FREE_STRI(stri, length);
-              } /* if */
-            } /* if */
-          } /* if */
-          if (*err_info == OKAY_NO_ERROR) {
-            found = TRUE;
-          } else if (*err_info == FILE_ERROR) {
-            *err_info = OKAY_NO_ERROR;
-          } /* if */
-        } /* for */
-        if (!found && *err_info == OKAY_NO_ERROR) {
-          *err_info = FILE_ERROR;
-        } /* if */
-      } /* if */
-    } /* if */
-#ifdef TRACE_INFILE
-    printf("END find_include_file\n");
-#endif
-  } /* find_include_file */
-
-
-
-#ifdef OUT_OF_ORDER
-#ifdef ANSI_C
-
-static void print_lib_path (void)
-#else
-
-static void print_lib_path ()
-#endif
-
-  {
-    memsizetype length;
-    memsizetype position;
-    stritype stri;
-
-  /* print_lib_path */
-    length = (memsizetype) (lib_path->max_position - lib_path->min_position + 1);
-    for (position = 0; position < length; position++) {
-      stri = lib_path->arr[position].value.strivalue;
-      prot_stri(stri);
-      prot_nl();
-    } /* for */
-  } /* print_lib_path */
-#endif
-
-
-
-#ifdef ANSI_C
-
-void append_to_lib_path (const_stritype path, errinfotype *err_info)
-#else
-
-void append_to_lib_path (path, err_info)
-stritype path;
-errinfotype *err_info;
-#endif
-
-  {
-    memsizetype stri_len;
-    stritype stri;
-    arraytype resized_lib_path;
-    memsizetype position;
-
-  /* append_to_lib_path */
-#ifdef TRACE_INFILE
-    printf("BEGIN append_to_lib_path(");
-    prot_stri(path);
-    printf(")\n");
-#endif
-    stri_len = path->size;
-    if (stri_len >= 1 && path->mem[stri_len - 1] != '/') {
-      stri_len++;
-    } /* if */
-    if (!ALLOC_STRI_CHECK_SIZE(stri, stri_len)) {
-      *err_info = MEMORY_ERROR;
-    } else {
-      resized_lib_path = REALLOC_ARRAY(lib_path,
-          (memsizetype) lib_path->max_position, (memsizetype) (lib_path->max_position + 1));
-      if (resized_lib_path == NULL) {
-        FREE_STRI(stri, stri_len);
-        *err_info = MEMORY_ERROR;
-      } else {
-        lib_path = resized_lib_path;
-        COUNT3_ARRAY((memsizetype) lib_path->max_position, (memsizetype) (lib_path->max_position + 1));
-        stri->size = stri_len;
-        for (position = 0; position < path->size; position++) {
-          if (path->mem[position] == '\\') {
-            stri->mem[position] = '/';
-          } else {
-            stri->mem[position] = path->mem[position];
-          } /* if */
-        } /* for */
-        if (stri_len != path->size) {
-          stri->mem[stri_len - 1] = '/';
-        } /* if */
-        lib_path->arr[lib_path->max_position].value.strivalue = stri;
-        lib_path->max_position++;
-      } /* if */
-    } /* if */
-#ifdef TRACE_INFILE
-    printf("END append_to_lib_path\n");
-#endif
-  } /* append_to_lib_path */
-
-
-
-#ifdef ANSI_C
-
-void init_lib_path (const_stritype source_file_name, errinfotype *err_info)
-#else
-
-void init_lib_path (source_file_name, err_info)
-stritype source_file_name;
-errinfotype *err_info;
-#endif
-
-  {
-    stritype path;
-    memsizetype position;
-    memsizetype dir_path_size;
-    static const os_chartype seed7_library[] =
-        {'S', 'E', 'E', 'D', '7', '_', 'L', 'I', 'B', 'R', 'A', 'R', 'Y', 0};
-    os_stritype library_environment_variable;
-
-  /* init_lib_path */
-#ifdef TRACE_INFILE
-    printf("BEGIN init_lib_path\n");
-#endif
-    if (!ALLOC_ARRAY(lib_path, 0)) {
-      *err_info = MEMORY_ERROR;
-    } else {
-      lib_path->min_position = 1;
-      lib_path->max_position = 0;
-
-      /* Add directory of the source file to the lib_path. */
-      dir_path_size = 0;
-      for (position = 0; position < source_file_name->size; position++) {
-        if (source_file_name->mem[position] == '/') {
-          dir_path_size = position + 1;
-        } /* if */
-      } /* for */
-      if (!ALLOC_STRI_SIZE_OK(path, dir_path_size)) {
-        *err_info = MEMORY_ERROR;
-      } else {
-        path->size = dir_path_size;
-        memcpy(path->mem, source_file_name->mem, dir_path_size * sizeof(strelemtype));
-        append_to_lib_path(path, err_info);
-        FREE_STRI(path, path->size);
-      } /* if */
-
-#ifdef PATHS_RELATIVE_TO_EXECUTABLE
-      /* When the path to the interpreter or to the current        */
-      /* executable ends with "bin" or "prg": Replace "bin"        */
-      /* respectively "prg" with "lib" and add it to the lib_path. */
-      /* prot_cstri("programPath: ");
-         prot_stri(programPath);
-         prot_nl(); */
-      path = relativeToProgramPath(programPath, "lib");
-      if (unlikely(path == NULL)) {
-        *err_info = MEMORY_ERROR;
-      } else {
-        append_to_lib_path(path, err_info);
-        FREE_STRI(path, path->size);
-      } /* if */
-#endif
-
-      /* Add the hardcoded library of the interpreter to the lib_path. */
-      path = cstri8_or_cstri_to_stri(SEED7_LIBRARY);
-      if (path == NULL) {
-        *err_info = MEMORY_ERROR;
-      } else {
-        append_to_lib_path(path, err_info);
-        FREE_STRI(path, path->size);
-      } /* if */
-
-      /* Add the SEED7_LIBRARY environment variable to the lib_path */
-      library_environment_variable = os_getenv(seed7_library);
-      if (library_environment_variable != NULL) {
-        path = cp_from_os_path(library_environment_variable, err_info);
-        os_getenv_string_free(library_environment_variable);
-        if (path != NULL) {
-          append_to_lib_path(path, err_info);
-          FREE_STRI(path, path->size);
-        } /* if */
-      } /* if */
-
-      /* print_lib_path(); */
-    } /* if */
-#ifdef TRACE_INFILE
-    printf("END init_lib_path\n");
-#endif
-  } /* init_lib_path */
-
-
-
-#ifdef ANSI_C
-
-void free_lib_path (void)
-#else
-
-void free_lib_path ()
-#endif
-
-  {
-    memsizetype length;
-    memsizetype position;
-    stritype stri;
-
-  /* free_lib_path */
-    length = (memsizetype) (lib_path->max_position - lib_path->min_position + 1);
-    for (position = 0; position < length; position++) {
-      stri = lib_path->arr[position].value.strivalue;
-      FREE_STRI(stri, stri->size);
-    } /* for */
-    FREE_ARRAY(lib_path, length);
-    lib_path = NULL;
-  } /* free_lib_path */

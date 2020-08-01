@@ -31,6 +31,7 @@
 
 #include "common.h"
 #include "data.h"
+#include "data_rtl.h"
 
 #undef EXTERN
 #define EXTERN

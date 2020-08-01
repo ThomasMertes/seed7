@@ -38,9 +38,7 @@ THE SEED7 INTERPRETER
          h Trace heap size (in combination with 'a')
   -d   Equivalent to -da
   -i   Show the identifier table after the analyzing phase.
-  -m   Use less memory during the analyzing phase.
-       If there is a "No more memory" error you can try this
-       option.
+  -l   Add a directory to the include library search path (e.g.: -l ../lib).
   -q   Compile quiet. Line and file information and compilation
        statistics are suppressed.
   -tx  Set runtime trace level to x. Where x is a string consisting

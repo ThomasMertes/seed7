@@ -1110,13 +1110,13 @@ const proc: initMonsterData is func
 
 const func itemType: (attr itemType) conv (in char: ch) is func
   result
-    var itemType: result is NO_ITEM;
+    var itemType: item_ident is NO_ITEM;
   local
     var integer: number is 0;
   begin
     number := succ(ord(ch) - ord('a'));
     if number >= ord(MIN_ITEM) and number <= ord(MAX_ITEM) then
-      result := itemType conv number;
+      item_ident := itemType conv number;
     end if;
   end func;
 
@@ -2541,28 +2541,28 @@ const proc: endOfGame is func
 
 const func char: getField (in integer: xPos, in integer: yPos) is func
   result
-    var char: result is ' ';
+    var char: field is ' ';
   local
     var integer: line is 0;
     var integer: column is 0;
   begin
     line := succ(yPos div PIXMAP_SIZE);
     column := succ(xPos div PIXMAP_SIZE);
-    result := room[player.room].data[line][column];
-    if result = ' ' then
+    field := room[player.room].data[line][column];
+    if field = ' ' then
       if xPos rem PIXMAP_SIZE <> 0 then
-        result := room[player.room].data[line][succ(column)];
-        if result = ' ' then
+        field := room[player.room].data[line][succ(column)];
+        if field = ' ' then
           if yPos rem PIXMAP_SIZE <> 0 then
-            result := room[player.room].data[succ(line)][column];
-            if result = ' ' then
-              result := room[player.room].data[succ(line)][succ(column)];
+            field := room[player.room].data[succ(line)][column];
+            if field = ' ' then
+              field := room[player.room].data[succ(line)][succ(column)];
             end if;
           end if;
         end if;
       else
         if yPos rem PIXMAP_SIZE <> 0 then
-          result := room[player.room].data[succ(line)][column];
+          field := room[player.room].data[succ(line)][column];
         end if;
       end if;
     end if;
@@ -2608,10 +2608,10 @@ const proc: checkField (inout char: field) is func
 
 const func char: hitWall (in integer: xPos, in integer: yPos) is func
   result
-    var char: result is ' ';
+    var char: field is ' ';
   begin
-    result := getField(xPos, yPos);
-    checkField(result);
+    field := getField(xPos, yPos);
+    checkField(field);
   end func;
 
 

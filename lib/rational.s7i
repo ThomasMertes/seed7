@@ -111,12 +111,12 @@ const func integer: gcd2 (in integer: numerator, in integer: denominator) is fun
  *)
 const func rational: (in integer: numerator) / (in integer: denominator) is func
   result
-    var rational: result is rational.value;
+    var rational: aRational is rational.value;
   begin
-    result.numerator := numerator;
-    result.denominator := denominator;
-    normalize(result);
-    reduce(result);
+    aRational.numerator := numerator;
+    aRational.denominator := denominator;
+    normalize(aRational);
+    reduce(aRational);
   end func;
 
 
@@ -372,10 +372,10 @@ const func integer: hashCode (in rational: number) is
  *)
 const func rational: rat (in integer: number) is func
   result
-    var rational: result is rational.value;
+    var rational: aRational is rational.value;
   begin
-    result.numerator := number;
-    result.denominator := 1;
+    aRational.numerator := number;
+    aRational.denominator := 1;
   end func;
 
 
@@ -384,10 +384,10 @@ const func rational: rat (in integer: number) is func
  *)
 const func rational: (attr rational) conv (in integer: number) is func
   result
-    var rational: result is rational.value;
+    var rational: aRational is rational.value;
   begin
-    result.numerator := number;
-    result.denominator := 1;
+    aRational.numerator := number;
+    aRational.denominator := 1;
   end func;
 
 
@@ -447,14 +447,14 @@ const func string: (in rational: number) digits (in integer: precision) is func
  *)
 const func rational: (attr rational) parse (in var string: stri) is func
   result
-    var rational: result is rational.value;
+    var rational: aRational is rational.value;
   begin
-    result.numerator := integer parse getint(stri);
+    aRational.numerator := integer parse getint(stri);
     if stri[1] <> '/' then
       raise RANGE_ERROR;
     end if;
     stri := stri[2 ..];
-    result.denominator := integer parse getint(stri);
+    aRational.denominator := integer parse getint(stri);
   end func;
 
 

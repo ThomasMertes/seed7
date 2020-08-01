@@ -70,12 +70,12 @@ const proc: reduce (inout bigRational: number) is func
  *)
 const func bigRational: (in bigInteger: numerator) / (in bigInteger: denominator) is func
   result
-    var bigRational: result is bigRational.value;
+    var bigRational: aRational is bigRational.value;
   begin
-    result.numerator := numerator;
-    result.denominator := denominator;
-    normalize(result);
-    reduce(result);
+    aRational.numerator := numerator;
+    aRational.denominator := denominator;
+    normalize(aRational);
+    reduce(aRational);
   end func;
 
 
@@ -336,10 +336,10 @@ const func integer: hashCode (in bigRational: number) is
  *)
 const func bigRational: rat (in bigInteger: number) is func
   result
-    var bigRational: result is bigRational.value;
+    var bigRational: aRational is bigRational.value;
   begin
-    result.numerator := number;
-    result.denominator := 1_;
+    aRational.numerator := number;
+    aRational.denominator := 1_;
   end func;
 
 
@@ -348,10 +348,10 @@ const func bigRational: rat (in bigInteger: number) is func
  *)
 const func bigRational: (attr bigRational) conv (in integer: number) is func
   result
-    var bigRational: result is bigRational.value;
+    var bigRational: aRational is bigRational.value;
   begin
-    result.numerator := bigInteger conv number;
-    result.denominator := 1_;
+    aRational.numerator := bigInteger conv number;
+    aRational.denominator := 1_;
   end func;
 
 
@@ -360,10 +360,10 @@ const func bigRational: (attr bigRational) conv (in integer: number) is func
  *)
 const func bigRational: (attr bigRational) conv (in bigInteger: number) is func
   result
-    var bigRational: result is bigRational.value;
+    var bigRational: aRational is bigRational.value;
   begin
-    result.numerator := number;
-    result.denominator := 1_;
+    aRational.numerator := number;
+    aRational.denominator := 1_;
   end func;
 
 
@@ -423,14 +423,14 @@ const func string: (in bigRational: number) digits (in integer: precision) is fu
  *)
 const func bigRational: (attr bigRational) parse (in var string: stri) is func
   result
-    var bigRational: result is bigRational.value;
+    var bigRational: aRational is bigRational.value;
   begin
-    result.numerator := bigInteger parse getint(stri);
+    aRational.numerator := bigInteger parse getint(stri);
     if stri[1] <> '/' then
       raise RANGE_ERROR;
     end if;
     stri := stri[2 ..];
-    result.denominator := bigInteger parse getint(stri);
+    aRational.denominator := bigInteger parse getint(stri);
   end func;
 
 

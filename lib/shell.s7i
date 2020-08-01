@@ -173,16 +173,6 @@ const func integer: shell (in string: command, in array string: paramList) is fu
   end func;
 
 
-const proc: callOwnProgram (in array string: parameters) is func
-  begin
-    if endsWith(path(PROGRAM), ".sd7") then
-      ignore(shell(interpreterPath, [] (path(PROGRAM)) & parameters));
-    else
-      ignore(shell(path(PROGRAM), parameters));
-    end if;
-  end func;
-
-
 const func clib_file: popenClibFile (in string: command,
     in string: parameters, in string: mode)       is action "FIL_POPEN";
 const proc: pclose (in clib_file: fileToClose)    is action "FIL_PCLOSE";

@@ -33,6 +33,8 @@
 
 #include "common.h"
 #include "data.h"
+#include "data_rtl.h"
+#include "os_decls.h"
 #include "heaputl.h"
 #include "flistutl.h"
 #include "datautl.h"
@@ -44,6 +46,7 @@
 #include "infile.h"
 #include "findid.h"
 #include "doany.h"
+#include "option.h"
 #include "set_rtl.h"
 #include "big_drv.h"
 
@@ -75,7 +78,7 @@ void prot_flush ()
     if (internal_protocol) {
       if (SYS_PROT_OUTFILE_OBJECT != NULL) {
         memcpy(&trace_backup, &trace, sizeof(tracerecord));
-        set_trace("", 0, NULL);
+        memset(&trace, 0, sizeof(tracerecord));
         do_flush(SYS_PROT_OUTFILE_OBJECT);
         memcpy(&trace, &trace_backup, sizeof(tracerecord));
       } /* if */
@@ -101,7 +104,7 @@ void prot_nl ()
     if (internal_protocol) {
       if (SYS_PROT_OUTFILE_OBJECT != NULL) {
         memcpy(&trace_backup, &trace, sizeof(tracerecord));
-        set_trace("", 0, NULL);
+        memset(&trace, 0, sizeof(tracerecord));
         do_wrnl(SYS_PROT_OUTFILE_OBJECT);
         memcpy(&trace, &trace_backup, sizeof(tracerecord));
       } /* if */
@@ -128,10 +131,12 @@ cstritype stri;
     if (internal_protocol) {
       if (SYS_PROT_OUTFILE_OBJECT != NULL) {
         memcpy(&trace_backup, &trace, sizeof(tracerecord));
-        set_trace("", 0, NULL);
+        memset(&trace, 0, sizeof(tracerecord));
         do_wrcstri(SYS_PROT_OUTFILE_OBJECT, stri);
         memcpy(&trace, &trace_backup, sizeof(tracerecord));
       } /* if */
+    } else if (stri == NULL) {
+      fputs("*NULL*", protfile);
     } else {
       fputs(stri, protfile);
     } /* if */
@@ -1678,61 +1683,65 @@ listtype list;
 
 #ifdef ANSI_C
 
-void set_trace (const_cstritype trace_level, int len, const_cstritype prot_file_name)
+void set_protfile_name (const const_stritype protfile_name)
 #else
 
-void set_trace (trace_level, len, prot_file_name)
-cstritype trace_level;
-int len;
-cstritype prot_file_name;
+void set_protfile_name (protfile_name)
+stritype protfile_name;
 #endif
 
   {
-    int position;
-    booltype flag_value;
+    os_stritype os_protfile_name;
+    static const os_chartype os_mode[] = {'w', 0};
+    int path_info = PATH_IS_NORMAL;
+    errinfotype err_info = OKAY_NO_ERROR;
 
-  /* set_trace */
+  /* set_protfile_name */
 #ifdef TRACE_TRACE
-    printf("BEGIN set_trace\n");
+    printf("BEGIN set_protfile_name\n");
 #endif
-    if (trace_level != NULL) {
-      if (len == -1) {
-        len = strlen(trace_level);
-      } /* if */
-      flag_value = TRUE;
-      for (position = 0; position < len; position++) {
-        switch (trace_level[position]) {
-          case '+': flag_value = TRUE;                break;
-          case '-': flag_value = FALSE;               break;
-          case 'a': trace.actions = flag_value;       break;
-          case 'c': trace.check_actions = flag_value; break;
-          case 'd': trace.dynamic = flag_value;       break;
-          case 'e': trace.exceptions = flag_value;    break;
-          case 'h': trace.heapsize = flag_value;      break;
-          case 'm': trace.match = flag_value;         break;
-          case 'u': trace.executil = flag_value;      break;
-          case '*':
-            trace.actions = flag_value;
-            trace.check_actions = flag_value;
-            trace.dynamic = flag_value;
-            trace.exceptions = flag_value;
-            trace.heapsize = flag_value;
-            trace.match = flag_value;
-            trace.executil = flag_value;
-            break;
-        } /* switch */
-      } /* for */
-    } /* if */
-    if (prot_file_name != NULL) {
-      if (protfile != NULL) {
-        fclose(protfile);
-      } /* if */
-      if ((protfile = fopen(prot_file_name, "w")) == NULL) {
-        protfile = stdout;
+    if (protfile_name != NULL && protfile_name->size != 0) {
+      os_protfile_name = cp_to_os_path(protfile_name, &path_info, &err_info);
+      if (err_info == OKAY_NO_ERROR) {
+        if (protfile != NULL) {
+          fclose(protfile);
+        } /* if */
+        protfile = os_fopen(os_protfile_name, os_mode);
+        os_stri_free(os_protfile_name);
+        if (protfile == NULL) {
+          protfile = stdout;
+        } /* if */
       } /* if */
     } else if (protfile == NULL) {
       protfile = stdout;
     } /* if */
+#ifdef TRACE_TRACE
+    printf("END set_protfile_name\n");
+#endif
+  } /* set_protfile_name */
+
+
+
+#ifdef ANSI_C
+
+void set_trace (uinttype options)
+#else
+
+void set_trace (options)
+uinttype options;
+#endif
+
+  { /* set_trace */
+#ifdef TRACE_TRACE
+    printf("BEGIN set_trace\n");
+#endif
+    trace.actions       = options & TRACE_ACTIONS;
+    trace.check_actions = options & TRACE_DO_ACTION_CHECK;
+    trace.dynamic       = options & TRACE_DYNAMIC_CALLS;
+    trace.exceptions    = options & TRACE_EXCEPTIONS;
+    trace.heapsize      = options & TRACE_HEAP_SIZE;
+    trace.match         = options & TRACE_MATCH;
+    trace.executil      = options & TRACE_EXECUTIL;
 #ifdef TRACE_TRACE
     printf("END set_trace\n");
 #endif
@@ -1740,28 +1749,79 @@ cstritype prot_file_name;
 
 
 
+#define DO_FLAG(bits) value |= (bits) & flag;  mask |= (bits);
+
+
+
 #ifdef ANSI_C
 
-void set_trace2 (const_stritype trace_level)
+void mapTraceFlags (const_stritype trace_level, uinttype *options)
 #else
 
-void set_trace2 (trace_level)
+void mapTraceFlags (trace_level, options)
 stritype trace_level;
+uinttype *options;
 #endif
 
   {
-    cstritype ctrace_level;
+    memsizetype position;
+    uinttype flag = (uinttype) -1;
+    uinttype value = 0;
+    uinttype mask = 0;
 
-  /* set_trace2 */
-#ifdef TRACE_TRACE
-    printf("BEGIN set_trace2\n");
+  /* mapTraceFlags */
+    if (trace_level != NULL) {
+      for (position = 0; position < trace_level->size; position++) {
+        switch (trace_level->mem[position]) {
+          case '+': flag = (uinttype) -1;  break;
+          case '-': flag =  0;             break;
+          case 'a': DO_FLAG(TRACE_ACTIONS);          break;
+          case 'c': DO_FLAG(TRACE_DO_ACTION_CHECK);  break;
+          case 'd': DO_FLAG(TRACE_DYNAMIC_CALLS);    break;
+          case 'e': DO_FLAG(TRACE_EXCEPTIONS);       break;
+          case 'h': DO_FLAG(TRACE_HEAP_SIZE);        break;
+          case 'm': DO_FLAG(TRACE_MATCH);            break;
+          case 'u': DO_FLAG(TRACE_EXECUTIL);         break;
+          case '*': DO_FLAG(TRACE_ACTIONS       | TRACE_DO_ACTION_CHECK |
+                            TRACE_DYNAMIC_CALLS | TRACE_EXCEPTIONS      |
+                            TRACE_HEAP_SIZE     | TRACE_MATCH           |
+                            TRACE_EXECUTIL);
+            break;
+        } /* switch */
+      } /* for */
+      /* printf("options before %x\n", *options); */
+      *options = (*options & !mask) | value;
+      /* printf("options after %x\n", *options); */
+    } /* if */
+  } /* mapTraceFlags */
+
+
+
+#ifdef ANSI_C
+
+void mapTraceFlags2 (const_cstritype ctrace_level, uinttype *options)
+#else
+
+void mapTraceFlags2 (ctrace_level, options)
+cstritype ctrace_level;
+uinttype *options;
 #endif
-    ctrace_level = cp_to_cstri8(trace_level);
+
+  {
+    stritype trace_level;
+
+  /* mapTraceFlags2 */
+#ifdef TRACE_TRACE
+    printf("BEGIN mapTraceFlags2\n");
+#endif
     if (ctrace_level != NULL) {
-      set_trace(ctrace_level, (int) trace_level->size, NULL);
-      free_cstri(ctrace_level, trace_level);
+      trace_level = cstri8_or_cstri_to_stri(ctrace_level);
+      if (trace_level != NULL) {
+        mapTraceFlags(trace_level, options);
+        FREE_STRI(trace_level, trace_level->size);
+      } /* if */
     } /* if */
 #ifdef TRACE_TRACE
-    printf("END set_trace2\n");
+    printf("END mapTraceFlags2\n");
 #endif
-  } /* set_trace2 */
+  } /* mapTraceFlags2 */

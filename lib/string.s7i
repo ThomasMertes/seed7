@@ -499,9 +499,5 @@ const func string: gets (inout string: stri, in integer: leng) is func
  *  Convert to a string.
  *  @return its parameter unchanged.
  *)
-const func string: (attr string) parse (in string: stri) is func
-  result
-    var string: result is "";
-  begin
-    result := stri;
-  end func;
+const func string: (attr string) parse (in string: stri) is
+  return stri;

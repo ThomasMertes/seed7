@@ -34,7 +34,6 @@
 #include "common.h"
 #include "data.h"
 #include "infile.h"
-#include "option.h"
 
 #undef EXTERN
 #define EXTERN
@@ -56,7 +55,7 @@ void display_compilation_info ()
 #ifdef TRACE_INFILE
     printf("BEGIN display_compilation_info\n");
 #endif
-    if (option.compilation_info) {
+    if (in_file.write_line_numbers) {
       CR_FIL_LIN_INFO();
       fflush(stdout);
     } /* if */
@@ -81,10 +80,10 @@ void line_compilation_info ()
 #ifdef TRACE_INFILE
     printf("BEGIN line_compilation_info\n");
 #endif
-    if (option.compilation_info) {
+    if (in_file.write_line_numbers) {
       CR_LIN_INFO();
       fflush(stdout);
-      in_file.next_msg_line = in_file.line + option.incr_message_line;
+      in_file.next_msg_line = in_file.line + in_file.incr_message_line;
     } /* if */
 #ifdef TRACE_INFILE
     printf("END line_compilation_info\n");
@@ -97,10 +96,12 @@ void line_compilation_info ()
 #ifdef WITH_COMPILATION_INFO
 #ifdef ANSI_C
 
-void open_compilation_info (void)
+void open_compilation_info (booltype write_library_names, booltype write_line_numbers)
 #else
 
-void open_compilation_info ()
+void open_compilation_info (write_library_names, write_line_numbers)
+booltype write_library_names;
+booltype write_line_numbers;
 #endif
 
   {
@@ -112,7 +113,15 @@ void open_compilation_info ()
 #ifdef TRACE_INFILE
     printf("BEGIN open_compilation_info\n");
 #endif
-    if (option.compilation_info) {
+    in_file.write_library_names = write_library_names;
+    in_file.write_line_numbers = write_line_numbers;
+    if (write_line_numbers) {
+      in_file.incr_message_line = 0;
+    } else {
+      in_file.incr_message_line = LARGE_INCR;
+    } /* if */
+    in_file.next_msg_line = 1 + in_file.incr_message_line;
+    if (write_line_numbers) {
       printf("     1 %s", in_file.name_ustri);
       if (in_file.curr_infile != NULL) {
         new_name_length = strlen((const_cstritype) in_file.name_ustri);

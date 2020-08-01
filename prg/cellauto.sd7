@@ -34,17 +34,17 @@ const type: generationType is array boolean;
 const func generationType: nextGeneration (in bitset: rule,
     in generationType: currGeneration) is func
   result
-    var generationType: result is 0 times FALSE;
+    var generationType: nextGeneration is 0 times FALSE;
   local
     var integer: index is 0;
     var integer: pattern is 0;
   begin
-    result := length(currGeneration) times FALSE;
+    nextGeneration := length(currGeneration) times FALSE;
     for index range 2 to pred(length(currGeneration)) do
       pattern := ord(currGeneration[pred(index)]) * 4 +
                  ord(currGeneration[index])       * 2 +
                  ord(currGeneration[succ(index)]);
-      result[index] := pattern in rule;
+      nextGeneration[index] := pattern in rule;
     end for;
   end func;
 

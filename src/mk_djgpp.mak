@@ -44,9 +44,9 @@ LOBJ3 = prglib.o reflib.o rfllib.o sctlib.o setlib.o soclib.o strlib.o timlib.o 
 EOBJ1 = exec.o doany.o objutl.o
 AOBJ1 = act_comp.o prg_comp.o analyze.o syntax.o token.o parser.o name.o type.o
 AOBJ2 = expr.o atom.o object.o scanner.o literal.o numlit.o findid.o
-AOBJ3 = error.o infile.o symbol.o info.o stat.o fatal.o match.o
+AOBJ3 = error.o infile.o libpath.o symbol.o info.o stat.o fatal.o match.o
 GOBJ1 = syvarutl.o traceutl.o actutl.o executl.o blockutl.o
-GOBJ2 = entutl.o identutl.o chclsutl.o sigutl.o
+GOBJ2 = entutl.o identutl.o chclsutl.o sigutl.o arrutl.o
 ROBJ1 = arr_rtl.o bln_rtl.o bst_rtl.o chr_rtl.o cmd_rtl.o con_rtl.o dir_rtl.o drw_rtl.o fil_rtl.o
 ROBJ2 = flt_rtl.o hsh_rtl.o int_rtl.o itf_rtl.o set_rtl.o soc_dos.o str_rtl.o tim_rtl.o ut8_rtl.o
 ROBJ3 = heaputl.o striutl.o
@@ -66,9 +66,9 @@ LSRC3 = prglib.c reflib.c rfllib.c sctlib.c setlib.c soclib.c strlib.c timlib.c 
 ESRC1 = exec.c doany.c objutl.c
 ASRC1 = act_comp.c prg_comp.c analyze.c syntax.c token.c parser.c name.c type.c
 ASRC2 = expr.c atom.c object.c scanner.c literal.c numlit.c findid.c
-ASRC3 = error.c infile.c symbol.c info.c stat.c fatal.c match.c
+ASRC3 = error.c infile.c libpath.c symbol.c info.c stat.c fatal.c match.c
 GSRC1 = syvarutl.c traceutl.c actutl.c executl.c blockutl.c
-GSRC2 = entutl.c identutl.c chclsutl.c sigutl.c
+GSRC2 = entutl.c identutl.c chclsutl.c sigutl.c arrutl.c
 RSRC1 = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c con_rtl.c dir_rtl.c drw_rtl.c fil_rtl.c
 RSRC2 = flt_rtl.c hsh_rtl.c int_rtl.c itf_rtl.c set_rtl.c soc_dos.c str_rtl.c tim_rtl.c ut8_rtl.c
 RSRC3 = heaputl.c striutl.c
@@ -94,8 +94,8 @@ s7c: ..\bin\s7c.exe ..\prg\s7c.exe
 ..\bin\s7c.exe: ..\prg\s7c.exe
 	copy ..\prg\s7c.exe ..\bin /Y
 
-..\prg\s7c.exe: ..\prg\s7c.sd7
-	..\bin\s7 ..\prg\s7c -O2 ..\prg\s7c
+..\prg\s7c.exe: ..\prg\s7c.sd7 $(ALL_S7_LIBS)
+	..\bin\s7 -l ..\lib ..\prg\s7c -l ..\lib -b ..\bin -O2 ..\prg\s7c
 
 clear: clean
 

@@ -1899,6 +1899,31 @@ const proc: check_add is func
   end func;
 
 
+const proc: check_division is func
+  begin
+    if             0.0  /             1.0  =  0.0  and
+                   0.0  /            12.0  =  0.0  and
+                   1.0  /             2.0  =  0.5  and
+                   1.0  /             4.0  =  0.25 and
+        floatExpr( 0.0) /             1.0  =  0.0  and
+        floatExpr( 0.0) /            12.0  =  0.0  and
+        floatExpr( 1.0) /             2.0  =  0.5  and
+        floatExpr( 1.0) /             4.0  =  0.25 and
+                   0.0  / floatExpr(  1.0) =  0.0  and
+                   0.0  / floatExpr( 12.0) =  0.0  and
+                   1.0  / floatExpr(  2.0) =  0.5  and
+                   1.0  / floatExpr(  4.0) =  0.25 and
+        floatExpr( 0.0) / floatExpr(  1.0) =  0.0  and
+        floatExpr( 0.0) / floatExpr( 12.0) =  0.0  and
+        floatExpr( 1.0) / floatExpr(  2.0) =  0.5  and
+        floatExpr( 1.0) / floatExpr(  4.0) =  0.25 then
+      writeln("Division works correct for selected values.");
+    else
+      writeln(" ***** Division does not work correct");
+    end if;
+  end func;
+
+
 const proc: check_power is func
   begin
     if       (-2.0) ** (-2.0) =  0.25 and
@@ -2893,6 +2918,7 @@ const proc: check_nan is func
     const float: minusBig is -1.0E37;
     var float: nanVar1 is NaN;
     var float: nanVar2 is NaN;
+    var float: floatVar is 0.0;
     var boolean: okay is TRUE;
   begin
     if  not isNaN(               -0.0  /                -0.0)  or
@@ -3504,6 +3530,106 @@ const proc: check_nan is func
       okay := FALSE;
     end if;
 
+    if  not isNaN(checkDivAssign(floatVar,           NaN , floatVar /:=           -Infinity))  or
+        not isNaN(checkDivAssign(floatVar,           NaN , floatVar /:=            minusInf))  or
+        not isNaN(checkDivAssign(floatVar,           NaN , floatVar /:=             -1.0E37))  or
+        not isNaN(checkDivAssign(floatVar,           NaN , floatVar /:=            minusBig))  or
+        not isNaN(checkDivAssign(floatVar,           NaN , floatVar /:=             -1000.0))  or
+        not isNaN(checkDivAssign(floatVar,           NaN , floatVar /:=                -0.0))  or
+        not isNaN(checkDivAssign(floatVar,           NaN , floatVar /:=           minusZero))  or
+        not isNaN(checkDivAssign(floatVar,           NaN , floatVar /:=                 0.0))  or
+        not isNaN(checkDivAssign(floatVar,           NaN , floatVar /:=              1000.0))  or
+        not isNaN(checkDivAssign(floatVar,           NaN , floatVar /:=              1.0E37))  or
+        not isNaN(checkDivAssign(floatVar,           NaN , floatVar /:=            Infinity))  or
+        not isNaN(checkDivAssign(floatVar,           NaN , floatVar /:=                 NaN))  or
+        not isNaN(checkDivAssign(floatVar, floatExpr(NaN), floatVar /:=           -Infinity))  or
+        not isNaN(checkDivAssign(floatVar, floatExpr(NaN), floatVar /:=            minusInf))  or
+        not isNaN(checkDivAssign(floatVar, floatExpr(NaN), floatVar /:=             -1.0E37))  or
+        not isNaN(checkDivAssign(floatVar, floatExpr(NaN), floatVar /:=            minusBig))  or
+        not isNaN(checkDivAssign(floatVar, floatExpr(NaN), floatVar /:=             -1000.0))  or
+        not isNaN(checkDivAssign(floatVar, floatExpr(NaN), floatVar /:=                -0.0))  or
+        not isNaN(checkDivAssign(floatVar, floatExpr(NaN), floatVar /:=           minusZero))  or
+        not isNaN(checkDivAssign(floatVar, floatExpr(NaN), floatVar /:=                 0.0))  or
+        not isNaN(checkDivAssign(floatVar, floatExpr(NaN), floatVar /:=              1000.0))  or
+        not isNaN(checkDivAssign(floatVar, floatExpr(NaN), floatVar /:=              1.0E37))  or
+        not isNaN(checkDivAssign(floatVar, floatExpr(NaN), floatVar /:=            Infinity))  or
+        not isNaN(checkDivAssign(floatVar, floatExpr(NaN), floatVar /:=                 NaN))  or
+        not isNaN(checkDivAssign(floatVar,           NaN , floatVar /:= floatExpr(-Infinity))) or
+        not isNaN(checkDivAssign(floatVar,           NaN , floatVar /:= floatExpr( minusInf))) or
+        not isNaN(checkDivAssign(floatVar,           NaN , floatVar /:= floatExpr(  -1.0E37))) or
+        not isNaN(checkDivAssign(floatVar,           NaN , floatVar /:= floatExpr( minusBig))) or
+        not isNaN(checkDivAssign(floatVar,           NaN , floatVar /:= floatExpr(  -1000.0))) or
+        not isNaN(checkDivAssign(floatVar,           NaN , floatVar /:= floatExpr(     -0.0))) or
+        not isNaN(checkDivAssign(floatVar,           NaN , floatVar /:= floatExpr(minusZero))) or
+        not isNaN(checkDivAssign(floatVar,           NaN , floatVar /:= floatExpr(      0.0))) or
+        not isNaN(checkDivAssign(floatVar,           NaN , floatVar /:= floatExpr(   1000.0))) or
+        not isNaN(checkDivAssign(floatVar,           NaN , floatVar /:= floatExpr(   1.0E37))) or
+        not isNaN(checkDivAssign(floatVar,           NaN , floatVar /:= floatExpr( Infinity))) or
+        not isNaN(checkDivAssign(floatVar,           NaN , floatVar /:= floatExpr(      NaN))) or
+        not isNaN(checkDivAssign(floatVar, floatExpr(NaN), floatVar /:= floatExpr(-Infinity))) or
+        not isNaN(checkDivAssign(floatVar, floatExpr(NaN), floatVar /:= floatExpr( minusInf))) or
+        not isNaN(checkDivAssign(floatVar, floatExpr(NaN), floatVar /:= floatExpr(  -1.0E37))) or
+        not isNaN(checkDivAssign(floatVar, floatExpr(NaN), floatVar /:= floatExpr( minusBig))) or
+        not isNaN(checkDivAssign(floatVar, floatExpr(NaN), floatVar /:= floatExpr(  -1000.0))) or
+        not isNaN(checkDivAssign(floatVar, floatExpr(NaN), floatVar /:= floatExpr(     -0.0))) or
+        not isNaN(checkDivAssign(floatVar, floatExpr(NaN), floatVar /:= floatExpr(minusZero))) or
+        not isNaN(checkDivAssign(floatVar, floatExpr(NaN), floatVar /:= floatExpr(      0.0))) or
+        not isNaN(checkDivAssign(floatVar, floatExpr(NaN), floatVar /:= floatExpr(   1000.0))) or
+        not isNaN(checkDivAssign(floatVar, floatExpr(NaN), floatVar /:= floatExpr(   1.0E37))) or
+        not isNaN(checkDivAssign(floatVar, floatExpr(NaN), floatVar /:= floatExpr( Infinity))) or
+        not isNaN(checkDivAssign(floatVar, floatExpr(NaN), floatVar /:= floatExpr(      NaN))) or
+        not isNaN(checkDivAssign(floatVar,           -Infinity , floatVar /:=           NaN))  or
+        not isNaN(checkDivAssign(floatVar,            minusInf , floatVar /:=           NaN))  or
+        not isNaN(checkDivAssign(floatVar,             -1.0E37 , floatVar /:=           NaN))  or
+        not isNaN(checkDivAssign(floatVar,            minusBig , floatVar /:=           NaN))  or
+        not isNaN(checkDivAssign(floatVar,             -1000.0 , floatVar /:=           NaN))  or
+        not isNaN(checkDivAssign(floatVar,                -0.0 , floatVar /:=           NaN))  or
+        not isNaN(checkDivAssign(floatVar,           minusZero , floatVar /:=           NaN))  or
+        not isNaN(checkDivAssign(floatVar,                 0.0 , floatVar /:=           NaN))  or
+        not isNaN(checkDivAssign(floatVar,              1000.0 , floatVar /:=           NaN))  or
+        not isNaN(checkDivAssign(floatVar,              1.0E37 , floatVar /:=           NaN))  or
+        not isNaN(checkDivAssign(floatVar,            Infinity , floatVar /:=           NaN))  or
+        not isNaN(checkDivAssign(floatVar,                 NaN , floatVar /:=           NaN))  or
+        not isNaN(checkDivAssign(floatVar,           -Infinity , floatVar /:= floatExpr(NaN))) or
+        not isNaN(checkDivAssign(floatVar,            minusInf , floatVar /:= floatExpr(NaN))) or
+        not isNaN(checkDivAssign(floatVar,             -1.0E37 , floatVar /:= floatExpr(NaN))) or
+        not isNaN(checkDivAssign(floatVar,            minusBig , floatVar /:= floatExpr(NaN))) or
+        not isNaN(checkDivAssign(floatVar,             -1000.0 , floatVar /:= floatExpr(NaN))) or
+        not isNaN(checkDivAssign(floatVar,                -0.0 , floatVar /:= floatExpr(NaN))) or
+        not isNaN(checkDivAssign(floatVar,           minusZero , floatVar /:= floatExpr(NaN))) or
+        not isNaN(checkDivAssign(floatVar,                 0.0 , floatVar /:= floatExpr(NaN))) or
+        not isNaN(checkDivAssign(floatVar,              1000.0 , floatVar /:= floatExpr(NaN))) or
+        not isNaN(checkDivAssign(floatVar,              1.0E37 , floatVar /:= floatExpr(NaN))) or
+        not isNaN(checkDivAssign(floatVar,            Infinity , floatVar /:= floatExpr(NaN))) or
+        not isNaN(checkDivAssign(floatVar,                 NaN , floatVar /:= floatExpr(NaN))) or
+        not isNaN(checkDivAssign(floatVar, floatExpr(-Infinity), floatVar /:=           NaN))  or
+        not isNaN(checkDivAssign(floatVar, floatExpr( minusInf), floatVar /:=           NaN))  or
+        not isNaN(checkDivAssign(floatVar, floatExpr(  -1.0E37), floatVar /:=           NaN))  or
+        not isNaN(checkDivAssign(floatVar, floatExpr( minusBig), floatVar /:=           NaN))  or
+        not isNaN(checkDivAssign(floatVar, floatExpr(  -1000.0), floatVar /:=           NaN))  or
+        not isNaN(checkDivAssign(floatVar, floatExpr(     -0.0), floatVar /:=           NaN))  or
+        not isNaN(checkDivAssign(floatVar, floatExpr(minusZero), floatVar /:=           NaN))  or
+        not isNaN(checkDivAssign(floatVar, floatExpr(      0.0), floatVar /:=           NaN))  or
+        not isNaN(checkDivAssign(floatVar, floatExpr(   1000.0), floatVar /:=           NaN))  or
+        not isNaN(checkDivAssign(floatVar, floatExpr(   1.0E37), floatVar /:=           NaN))  or
+        not isNaN(checkDivAssign(floatVar, floatExpr( Infinity), floatVar /:=           NaN))  or
+        not isNaN(checkDivAssign(floatVar, floatExpr(      NaN), floatVar /:=           NaN))  or
+        not isNaN(checkDivAssign(floatVar, floatExpr(-Infinity), floatVar /:= floatExpr(NaN))) or
+        not isNaN(checkDivAssign(floatVar, floatExpr( minusInf), floatVar /:= floatExpr(NaN))) or
+        not isNaN(checkDivAssign(floatVar, floatExpr(  -1.0E37), floatVar /:= floatExpr(NaN))) or
+        not isNaN(checkDivAssign(floatVar, floatExpr( minusBig), floatVar /:= floatExpr(NaN))) or
+        not isNaN(checkDivAssign(floatVar, floatExpr(  -1000.0), floatVar /:= floatExpr(NaN))) or
+        not isNaN(checkDivAssign(floatVar, floatExpr(     -0.0), floatVar /:= floatExpr(NaN))) or
+        not isNaN(checkDivAssign(floatVar, floatExpr(minusZero), floatVar /:= floatExpr(NaN))) or
+        not isNaN(checkDivAssign(floatVar, floatExpr(      0.0), floatVar /:= floatExpr(NaN))) or
+        not isNaN(checkDivAssign(floatVar, floatExpr(   1000.0), floatVar /:= floatExpr(NaN))) or
+        not isNaN(checkDivAssign(floatVar, floatExpr(   1.0E37), floatVar /:= floatExpr(NaN))) or
+        not isNaN(checkDivAssign(floatVar, floatExpr( Infinity), floatVar /:= floatExpr(NaN))) or
+        not isNaN(checkDivAssign(floatVar, floatExpr(      NaN), floatVar /:= floatExpr(NaN))) then
+      writeln(" ***** Assignment dividing NaN or dividing by NaN does not return NaN");
+      okay := FALSE;
+    end if;
+
     if                  NaN  =                 NaN  or
                         NaN  =           -Infinity  or
                         NaN  =                -1.0  or
@@ -4026,6 +4152,7 @@ const proc: main is func
     check_conversion;
     check_trunc;
     check_add;
+    check_division;
     check_power;
     check_ipower;
     check_negative_zero;

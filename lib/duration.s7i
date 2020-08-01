@@ -155,43 +155,43 @@ const func string: str (in duration: aDuration) is func
  *)
 const func duration: (attr duration) parse (in var string: stri) is func
   result
-    var duration: result is duration.value;
+    var duration: aDuration is duration.value;
   begin
-    result.year_365 := integer parse getint(stri);
+    aDuration.year_365 := integer parse getint(stri);
     if stri[1] <> '-' then
       raise RANGE_ERROR;
     end if;
     stri := stri[2 ..];
-    result.month_30 := integer parse getint(stri);
+    aDuration.month_30 := integer parse getint(stri);
     if stri[1] <> '-' then
       raise RANGE_ERROR;
     end if;
     stri := stri[2 ..];
-    result.day := integer parse getint(stri);
+    aDuration.day := integer parse getint(stri);
     if stri[1] <> ' ' then
       raise RANGE_ERROR;
     end if;
     stri := stri[2 ..];
-    result.hour := integer parse getint(stri);
+    aDuration.hour := integer parse getint(stri);
     if stri[1] <> ':' then
       raise RANGE_ERROR;
     end if;
     stri := stri[2 ..];
-    result.minute := integer parse getint(stri);
+    aDuration.minute := integer parse getint(stri);
     if stri[1] <> ':' then
       raise RANGE_ERROR;
     end if;
     stri := stri[2 ..];
-    result.second := integer parse getint(stri);
+    aDuration.second := integer parse getint(stri);
     if stri <> "" then
       raise RANGE_ERROR;
     end if;
-    result.micro_second := 0;
-    if result.month_30 < 1 or result.month_30 > 12 or
-        result.day < 1 or result.day > daysInMonth(result.year_365, result.month_30) or
-        result.hour < 0 or result.hour > 23 or
-        result.minute < 0 or result.minute > 59 or
-        result.second < 0 or result.second > 59 then
+    aDuration.micro_second := 0;
+    if aDuration.month_30 < 1 or aDuration.month_30 > 12 or
+        aDuration.day < 1 or aDuration.day > daysInMonth(aDuration.year_365, aDuration.month_30) or
+        aDuration.hour < 0 or aDuration.hour > 23 or
+        aDuration.minute < 0 or aDuration.minute > 59 or
+        aDuration.second < 0 or aDuration.second > 59 then
       raise RANGE_ERROR;
     end if;
   end func;
@@ -769,18 +769,18 @@ const proc: (inout time: tim) -:= (in duration: aDuration) is func
  *)
 const func time: (in time: tim) + (in duration: aDuration) is func
   result
-    var time: result is time.value;
+    var time: laterTime is time.value;
   begin
-    result.year := tim.year + sumOfYearFields(aDuration);
-    result.month := tim.month + sumOfMonthFields(aDuration);
-    result.day := tim.day + aDuration.day;
-    result.hour := tim.hour + aDuration.hour;
-    result.minute := tim.minute + aDuration.minute;
-    result.second := tim.second + aDuration.second;
-    result.micro_second := tim.micro_second + aDuration.micro_second;
-    result.timeZone := tim.timeZone;
-    result.daylightSavingTime := tim.daylightSavingTime;
-    NORMALIZE(result);
+    laterTime.year := tim.year + sumOfYearFields(aDuration);
+    laterTime.month := tim.month + sumOfMonthFields(aDuration);
+    laterTime.day := tim.day + aDuration.day;
+    laterTime.hour := tim.hour + aDuration.hour;
+    laterTime.minute := tim.minute + aDuration.minute;
+    laterTime.second := tim.second + aDuration.second;
+    laterTime.micro_second := tim.micro_second + aDuration.micro_second;
+    laterTime.timeZone := tim.timeZone;
+    laterTime.daylightSavingTime := tim.daylightSavingTime;
+    NORMALIZE(laterTime);
   end func;
 
 
@@ -790,18 +790,18 @@ const func time: (in time: tim) + (in duration: aDuration) is func
  *)
 const func time: (in time: tim) - (in duration: aDuration) is func
   result
-    var time: result is time.value;
+    var time: formerTimer is time.value;
   begin
-    result.year := tim.year - sumOfYearFields(aDuration);
-    result.month := tim.month - sumOfMonthFields(aDuration);
-    result.day := tim.day - aDuration.day;
-    result.hour := tim.hour - aDuration.hour;
-    result.minute := tim.minute - aDuration.minute;
-    result.second := tim.second - aDuration.second;
-    result.micro_second := tim.micro_second - aDuration.micro_second;
-    result.timeZone := tim.timeZone;
-    result.daylightSavingTime := tim.daylightSavingTime;
-    NORMALIZE(result);
+    formerTimer.year := tim.year - sumOfYearFields(aDuration);
+    formerTimer.month := tim.month - sumOfMonthFields(aDuration);
+    formerTimer.day := tim.day - aDuration.day;
+    formerTimer.hour := tim.hour - aDuration.hour;
+    formerTimer.minute := tim.minute - aDuration.minute;
+    formerTimer.second := tim.second - aDuration.second;
+    formerTimer.micro_second := tim.micro_second - aDuration.micro_second;
+    formerTimer.timeZone := tim.timeZone;
+    formerTimer.daylightSavingTime := tim.daylightSavingTime;
+    NORMALIZE(formerTimer);
   end func;
 
 

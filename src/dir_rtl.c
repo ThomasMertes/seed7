@@ -38,7 +38,7 @@
 #include "dir_drv.h"
 
 #include "common.h"
-#include "data_rtl.h" /*!!##*/
+#include "data_rtl.h"
 #include "os_decls.h"
 #include "striutl.h"
 #include "heaputl.h"

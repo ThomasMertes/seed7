@@ -108,13 +108,13 @@ const func fileMode: (attr fileMode) conv (in integer: int_mode) is
 
 const func string: str (in fileMode: aFileMode) is func
   result
-    var string: result is "rwxrwxrwx";
+    var string: permissions is "rwxrwxrwx";
   local
     var filePermission: aPermission is READ_USER;
   begin
     for aPermission range READ_USER downto EXEC_OTHER do
       if aPermission not in aFileMode then
-        result @:= [9 - ord(aPermission)] '-';
+        permissions @:= [9 - ord(aPermission)] '-';
       end if;
     end for;
   end func;

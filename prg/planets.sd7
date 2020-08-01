@@ -184,53 +184,53 @@ const func integer: seconds (in float: time) is
 
 const func string: angleAsDegrees (in float: angle) is func
   result
-    var string: result is "";
+    var string: degreesMinutesSeconds is "";
   begin
     if displayDegreesInDecimal then
-      result &:= angle digits 4 lpad 9;
-      result &:= "° ";
+      degreesMinutesSeconds &:= angle digits 4 lpad 9;
+      degreesMinutesSeconds &:= "° ";
     else
       if angle < 0.0 then
-        result := "-";
+        degreesMinutesSeconds := "-";
       else
-        result := " ";
+        degreesMinutesSeconds := " ";
       end if;
-      result &:= abs(trunc(angle)) lpad 3;
-      result &:= "° ";
-      result &:= minutes(angle) lpad 2;
-      result &:= "' ";
-      result &:= seconds(angle) lpad 2;
-      result &:= "\"";
+      degreesMinutesSeconds &:= abs(trunc(angle)) lpad 3;
+      degreesMinutesSeconds &:= "° ";
+      degreesMinutesSeconds &:= minutes(angle) lpad 2;
+      degreesMinutesSeconds &:= "' ";
+      degreesMinutesSeconds &:= seconds(angle) lpad 2;
+      degreesMinutesSeconds &:= "\"";
     end if;
   end func;
 
 
 const func string: angleAsHours (in float: angle) is func
   result
-    var string: result is "";
+    var string: hoursMinutesSeconds is "";
   begin
     if displayDegreesInDecimal then
-      result &:= angle / 15.0 digits 4 lpad 8;
-      result &:= "h";
+      hoursMinutesSeconds &:= angle / 15.0 digits 4 lpad 8;
+      hoursMinutesSeconds &:= "h";
     else
       if angle < 0.0 then
-        result := "-";
+        hoursMinutesSeconds := "-";
       else
-        result := " ";
+        hoursMinutesSeconds := " ";
       end if;
-      result &:= abs(trunc(angle / 15.0)) lpad 3;
-      result &:= "h ";
-      result &:= minutes(angle / 15.0) lpad 2;
-      result &:= "m ";
-      result &:= seconds(angle / 15.0) lpad 2;
-      result &:= "s";
+      hoursMinutesSeconds &:= abs(trunc(angle / 15.0)) lpad 3;
+      hoursMinutesSeconds &:= "h ";
+      hoursMinutesSeconds &:= minutes(angle / 15.0) lpad 2;
+      hoursMinutesSeconds &:= "m ";
+      hoursMinutesSeconds &:= seconds(angle / 15.0) lpad 2;
+      hoursMinutesSeconds &:= "s";
     end if;
   end func;
 
 
 const func float: anomaly (in float: m, in float: eccentricity) is func
   result
-    var float: result is 0.0;
+    var float: anomaly is 0.0;
   local
     var float: d is 0.0;
     var float: e is 0.0;
@@ -241,13 +241,13 @@ const func float: anomaly (in float: m, in float: eccentricity) is func
       e := e - d / (1.0 - eccentricity * cos(e));
       d := e - eccentricity * sin(e) - m;
     end while;
-    result := 2.0 * atan(sqrt((1.0 + eccentricity) / (1.0 - eccentricity)) * tan(e / 2.0))
+    anomaly := 2.0 * atan(sqrt((1.0 + eccentricity) / (1.0 - eccentricity)) * tan(e / 2.0))
   end func; (* anomaly *)
 
 
 const func float: anomaly2 (in float: m, in float: eccentricity) is func
   result
-    var float: result is 0.0;
+    var float: anomaly is 0.0;
   local
     var float: e is 0.0;
     var float: deltaM is 0.0;
@@ -259,7 +259,7 @@ const func float: anomaly2 (in float: m, in float: eccentricity) is func
       deltaE := deltaM / (1.0 - eccentricity * cos(e));
       e +:= deltaE;
     until abs(deltaE) < 0.000001;
-    result := e;
+    anomaly := e;
   end func; (* anomaly2 *)
 
 

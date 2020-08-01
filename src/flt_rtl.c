@@ -440,6 +440,8 @@ floattype number;
 #endif
 
   { /* fltIsNegativeZero */
+    /* printf("fltIsNegativeZero %f %08x %08x\n",
+        number, *(int32type *) &number, *(int32type *) &negativeZero); */
     return memcmp(&number, &negativeZero, sizeof(floattype)) == 0;
   } /* fltIsNegativeZero */
 

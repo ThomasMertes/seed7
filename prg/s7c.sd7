@@ -67,6 +67,7 @@ const integer: MAX_SHOWN_STRI_LITERAL_LENGTH is 256;
 const type: option_hash is hash [string] string;
 
 var option_hash: compiler_option is option_hash.value;
+var array string: libraryDirs is 0 times "";
 
 var boolean: array_range_check     is TRUE;
 var boolean: source_debug_info     is TRUE;
@@ -8613,7 +8614,7 @@ const proc: process_const_flt_div (in reference: param1, in float: divisor,
   local
     var reference: evaluatedParam is NIL;
     var float: dividend is 0.0;
-    var integer: temp_num is 0;
+    var string: dividendTmp is "";
   begin
     incr(countOptimizations);
     if divisor = 0.0 and (FLOAT_ZERO_DIV_ERROR or CHECK_FLOAT_DIV_BY_ZERO) then
@@ -8628,29 +8629,24 @@ const proc: process_const_flt_div (in reference: param1, in float: divisor,
         end if;
       else
         incr(c_expr.temp_num);
-        temp_num := c_expr.temp_num;
-        c_expr.temp_decls &:= "floattype tmp_";
-        c_expr.temp_decls &:= str(temp_num);
+        dividendTmp := "tmp_" & str(c_expr.temp_num);
+        c_expr.temp_decls &:= "floattype ";
+        c_expr.temp_decls &:= dividendTmp;
         c_expr.temp_decls &:= ";\n";
-        c_expr.expr &:= "(tmp_";
-        c_expr.expr &:= str(temp_num);
+        c_expr.expr &:= "(";
+        c_expr.expr &:= dividendTmp;
         c_expr.expr &:= "=";
         process_expr(param1, c_expr);
-        c_expr.expr &:= ",";
-        if ISNAN_WITH_UNDERLINE then
-          c_expr.expr &:= "_isnan(tmp_";
-        else
-          c_expr.expr &:= "isnan(tmp_";
-        end if;
-        c_expr.expr &:= str(temp_num);
-        c_expr.expr &:= ") || tmp_";
-        c_expr.expr &:= str(temp_num);
-        c_expr.expr &:= " == 0.0 ? NOT_A_NUMBER : (tmp_";
-        c_expr.expr &:= str(temp_num);
+        c_expr.expr &:= ", isnan(";
+        c_expr.expr &:= dividendTmp;
+        c_expr.expr &:= ") || ";
+        c_expr.expr &:= dividendTmp;
+        c_expr.expr &:= "==0.0 ? NOT_A_NUMBER : (";
+        c_expr.expr &:= dividendTmp;
         if isNegativeZero(divisor) then
-          c_expr.expr &:= " < 0.0 ? POSITIVE_INFINITY : NEGATIVE_INFINITY))";
+          c_expr.expr &:= "<0.0 ? POSITIVE_INFINITY : NEGATIVE_INFINITY))";
         else
-          c_expr.expr &:= " < 0.0 ? NEGATIVE_INFINITY : POSITIVE_INFINITY))";
+          c_expr.expr &:= "<0.0 ? NEGATIVE_INFINITY : POSITIVE_INFINITY))";
         end if;
       end if;
     else
@@ -8682,7 +8678,7 @@ const proc: process_flt_div (in ref_list: params, inout expr_type: c_expr) is fu
       else
         incr(c_expr.temp_num);
         dividend := "tmp_" & str(c_expr.temp_num);
-        c_expr.temp_decls &:= "inttype ";
+        c_expr.temp_decls &:= "floattype ";
         c_expr.temp_decls &:= dividend;
         c_expr.temp_decls &:= ";\n";
         c_expr.expr &:= dividend;
@@ -8695,7 +8691,7 @@ const proc: process_flt_div (in ref_list: params, inout expr_type: c_expr) is fu
       else
         incr(c_expr.temp_num);
         divisor := "tmp_" & str(c_expr.temp_num);
-        c_expr.temp_decls &:= "inttype ";
+        c_expr.temp_decls &:= "floattype ";
         c_expr.temp_decls &:= divisor;
         c_expr.temp_decls &:= ";\n";
         c_expr.expr &:= divisor;
@@ -8704,7 +8700,9 @@ const proc: process_flt_div (in ref_list: params, inout expr_type: c_expr) is fu
         c_expr.expr &:= ",";
       end if;
       c_expr.expr &:= divisor;
-      c_expr.expr &:= "==0.0 ? (";
+      c_expr.expr &:= "==0.0 ? (isnan(";
+      c_expr.expr &:= dividend;
+      c_expr.expr &:= ") || ";
       c_expr.expr &:= dividend;
       c_expr.expr &:= "==0.0 ? NOT_A_NUMBER : ((";
       c_expr.expr &:= dividend;
@@ -8725,31 +8723,156 @@ const proc: process_flt_div (in ref_list: params, inout expr_type: c_expr) is fu
   end func;
 
 
-const proc: process_flt_div_assign (in ref_list: params, inout expr_type: c_expr) is func
+const proc: process_const_flt_div_assign (in reference: param1, in float: divisor,
+    inout expr_type: c_expr) is func
 
   local
     var expr_type: c_param1 is expr_type.value;
-    var expr_type: c_param3 is expr_type.value;
+    var integer: temp_num is 0;
+    var string: dividend is "";
   begin
-    process_expr(params[1], c_param1);
-    c_param3.temp_num := c_param1.temp_num;
-    process_expr(params[3], c_param3);
-    if c_param3.temp_num <> 0 then
+    incr(countOptimizations);
+    process_expr(param1, c_param1);
+    temp_num := c_param1.temp_num;
+    if temp_num <> 0 then
+      c_expr.expr &:= "{\n";
+      AppendWithDiagnostic(c_param1.temp_decls, c_expr);
+      AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
+    end if;
+    if divisor = 0.0 and (FLOAT_ZERO_DIV_ERROR or CHECK_FLOAT_DIV_BY_ZERO) then
+      if isNormalVariable(param1) then
+        dividend := "(" & c_param1.expr & ")";
+      else
+        if temp_num = 0 then
+          c_expr.expr &:= "{\n";
+        end if;
+        incr(temp_num);
+        dividend := "*tmp_" & str(temp_num);
+        setDiagnosticLine(c_expr);
+        c_expr.expr &:= "floattype ";
+        c_expr.expr &:= dividend;
+        c_expr.expr &:= "=&(";
+        c_expr.expr &:= c_param1.expr;
+        c_expr.expr &:= ");\n";
+      end if;
+      setDiagnosticLine(c_expr);
+      c_expr.expr &:= dividend;
+      c_expr.expr &:= "=(isnan(";
+      c_expr.expr &:= dividend;
+      c_expr.expr &:= ") || ";
+      c_expr.expr &:= dividend;
+      c_expr.expr &:= "==0.0 ? NOT_A_NUMBER : (";
+      c_expr.expr &:= dividend;
+      if isNegativeZero(divisor) then
+        c_expr.expr &:= "<0.0 ? POSITIVE_INFINITY : NEGATIVE_INFINITY));\n";
+      else
+        c_expr.expr &:= "<0.0 ? NEGATIVE_INFINITY : POSITIVE_INFINITY));\n";
+      end if;
+    else
+      setDiagnosticLine(c_expr);
+      process_expr(param1, c_expr);
+      c_expr.expr &:= "/=";
+      c_expr.expr &:= floatLiteral(divisor);
+      c_expr.expr &:= ";\n";
+    end if;
+    if temp_num <> 0 then
+      AppendWithDiagnostic(c_param1.temp_frees, c_expr);
+      c_expr.expr &:= "}\n";
+    end if;
+  end func;
+
+
+const proc: process_flt_div_assign (in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedParam is NIL;
+    var expr_type: c_param1 is expr_type.value;
+    var expr_type: c_param3 is expr_type.value;
+    var integer: temp_num is 0;
+    var string: dividend is "";
+    var string: divisor is "";
+  begin
+    if getConstant(params[3], FLOATOBJECT, evaluatedParam) then
+      process_const_flt_div_assign(params[1], getValue(evaluatedParam, float), c_expr);
+    elsif FLOAT_ZERO_DIV_ERROR and isActionExpression(params[3], "FLT_MINUS") and
+        category(getActionParameter(params[3], 2)) = FLOATOBJECT and
+        not isVar(getActionParameter(params[3], 2)) then
+      process_const_flt_div_assign(params[1], getValue(evaluate(prog, params[3]), float), c_expr);
+    elsif CHECK_FLOAT_DIV_BY_ZERO then
+      process_expr(params[1], c_param1);
+      c_param3.temp_num := c_param1.temp_num;
+      process_expr(params[3], c_param3);
+      temp_num := c_param3.temp_num;
       c_expr.expr &:= "{\n";
       AppendWithDiagnostic(c_param1.temp_decls, c_expr);
       AppendWithDiagnostic(c_param3.temp_decls, c_expr);
       AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
       AppendWithDiagnostic(c_param3.temp_assigns, c_expr);
-    end if;
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= c_param1.expr;
-    c_expr.expr &:= "/=";
-    c_expr.expr &:= c_param3.expr;
-    c_expr.expr &:= ";\n";
-    if c_param3.temp_num <> 0 then
+      if isNormalVariable(params[1]) then
+        dividend := "(" & c_param1.expr & ")";
+      else
+        incr(temp_num);
+        dividend := "*tmp_" & str(temp_num);
+        setDiagnosticLine(c_expr);
+        c_expr.expr &:= "floattype ";
+        c_expr.expr &:= dividend;
+        c_expr.expr &:= "=&(";
+        c_expr.expr &:= c_param1.expr;
+        c_expr.expr &:= ");\n";
+      end if;
+      if isNormalVariable(params[3]) then
+        divisor := "(" & c_param3.expr & ")";
+      else
+        incr(temp_num);
+        divisor := "tmp_" & str(temp_num);
+        setDiagnosticLine(c_expr);
+        c_expr.expr &:= "floattype ";
+        c_expr.expr &:= divisor;
+        c_expr.expr &:= "=";
+        c_expr.expr &:= c_param3.expr;
+        c_expr.expr &:= ";\n";
+      end if;
+      setDiagnosticLine(c_expr);
+      c_expr.expr &:= dividend;
+      c_expr.expr &:= "=(";
+      c_expr.expr &:= divisor;
+      c_expr.expr &:= "==0.0 ? (isnan(";
+      c_expr.expr &:= dividend;
+      c_expr.expr &:= ") || ";
+      c_expr.expr &:= dividend;
+      c_expr.expr &:= "==0.0 ? NOT_A_NUMBER : ((";
+      c_expr.expr &:= dividend;
+      c_expr.expr &:= "<0.0)==fltIsNegativeZero(";
+      c_expr.expr &:= divisor;
+      c_expr.expr &:= ") ? POSITIVE_INFINITY : NEGATIVE_INFINITY)) : ";
+      c_expr.expr &:= dividend;
+      c_expr.expr &:= " / ";
+      c_expr.expr &:= divisor;
+      c_expr.expr &:= ");\n";
       AppendWithDiagnostic(c_param1.temp_frees, c_expr);
       AppendWithDiagnostic(c_param3.temp_frees, c_expr);
       c_expr.expr &:= "}\n";
+    else
+      process_expr(params[1], c_param1);
+      c_param3.temp_num := c_param1.temp_num;
+      process_expr(params[3], c_param3);
+      if c_param3.temp_num <> 0 then
+        c_expr.expr &:= "{\n";
+        AppendWithDiagnostic(c_param1.temp_decls, c_expr);
+        AppendWithDiagnostic(c_param3.temp_decls, c_expr);
+        AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
+        AppendWithDiagnostic(c_param3.temp_assigns, c_expr);
+      end if;
+      setDiagnosticLine(c_expr);
+      c_expr.expr &:= c_param1.expr;
+      c_expr.expr &:= "/=";
+      c_expr.expr &:= c_param3.expr;
+      c_expr.expr &:= ";\n";
+      if c_param3.temp_num <> 0 then
+        AppendWithDiagnostic(c_param1.temp_frees, c_expr);
+        AppendWithDiagnostic(c_param3.temp_frees, c_expr);
+        c_expr.expr &:= "}\n";
+      end if;
     end if;
   end func;
 
@@ -9041,11 +9164,7 @@ const proc: process_flt_ipow (in ref_list: params, inout expr_type: c_expr) is f
 const proc: process_flt_isnan (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    if ISNAN_WITH_UNDERLINE then
-      c_expr.expr &:= "_isnan(";
-    else
-      c_expr.expr &:= "isnan(";
-    end if;
+    c_expr.expr &:= "isnan(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
   end func;
@@ -12092,7 +12211,13 @@ const proc: process_prg_exec (in ref_list: params, inout expr_type: c_expr) is f
   begin
     compilerLibraryUsed := TRUE;
     c_expr.expr &:= "prgExec(";
-    process_expr(params[1], c_expr);
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    getAnyParamToExpr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    getAnyParamToExpr(params[3], c_expr);
+    c_expr.expr &:= ", ";
+    getAnyParamToExpr(params[4], c_expr);
     c_expr.expr &:= ");\n";
   end func;
 
@@ -12103,14 +12228,13 @@ const proc: process_prg_fil_parse (in ref_list: params, inout expr_type: c_expr)
     compilerLibraryUsed := TRUE;
     c_expr.expr &:= "prgFilParse(";
     getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    getAnyParamToExpr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    getAnyParamToExpr(params[3], c_expr);
+    c_expr.expr &:= ", ";
+    getAnyParamToExpr(params[4], c_expr);
     c_expr.expr &:= ")";
-  end func;
-
-
-const proc: process_prg_interpreter (in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    c_expr.expr &:= stringLiteral(interpreterPath);
   end func;
 
 
@@ -12169,6 +12293,12 @@ const proc: process_prg_str_parse (in ref_list: params, inout expr_type: c_expr)
     compilerLibraryUsed := TRUE;
     c_expr.expr &:= "prgStrParse(";
     getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    getAnyParamToExpr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    getAnyParamToExpr(params[3], c_expr);
+    c_expr.expr &:= ", ";
+    getAnyParamToExpr(params[4], c_expr);
     c_expr.expr &:= ")";
   end func;
 
@@ -17536,8 +17666,6 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_prg_exec(params, c_expr);
       elsif action_name = "PRG_FIL_PARSE" then
         process_prg_fil_parse(params, c_expr);
-      elsif action_name = "PRG_INTERPRETER" then
-        process_prg_interpreter(params, c_expr);
       elsif action_name = "PRG_MATCH" then
         process_prg_match(params, c_expr);
       elsif action_name = "PRG_MATCH_EXPR" then
@@ -22433,6 +22561,9 @@ const proc: write_file_head is func
       writeln(c_prog, "#define POSITIVE_INFINITY ( 1.0 / 0.0)");
       writeln(c_prog, "#define NEGATIVE_INFINITY (-1.0 / 0.0)");
     end if;
+    if ISNAN_WITH_UNDERLINE then
+      writeln(c_prog, "#define isnan(number) _isnan(number)");
+    end if;
     writeln(c_prog, "extern const floattype negativeZero;");
     writeln(c_prog, "#define OKAY_NO_ERROR 0");
     writeln(c_prog, "#define MEMORY_ERROR  1");
@@ -22519,7 +22650,7 @@ const proc: write_prototypes is func
     declareExtern("arraytype   arrHead (const const_arraytype, inttype);");
     declareExtern("arraytype   arrHeadTemp (arraytype *, inttype);");
     declareExtern("generictype arrIdxTemp (arraytype *, inttype);");
-    declareExtern("void        arrPush (arraytype *, const generictype);");
+    declareExtern("void        arrPush (arraytype *const, const generictype);");
     declareExtern("arraytype   arrRange (const const_arraytype, inttype, inttype);");
     declareExtern("arraytype   arrRangeTemp (arraytype *, inttype, inttype);");
     declareExtern("generictype arrRemove (arraytype *, inttype);");
@@ -22748,6 +22879,7 @@ const proc: write_prototypes is func
     end if;
     declareExtern("floattype   fltIPow (floattype, inttype);");
     declareExtern("booltype    fltIsNegativeZero (floattype);");
+    writeln(c_prog, "#define     fltIsNegativeZeroMacro(number) (memcmp(&(number), &negativeZero, sizeof(floattype)) == 0)");
     if NAN_COMPARISON_WRONG then
       declareExtern("booltype    fltLe (floattype, floattype);");
       declareExtern("booltype    fltLt (floattype, floattype);");
@@ -22828,9 +22960,9 @@ const proc: write_prototypes is func
     declareExtern("void        prgDestr (progtype);");
     declareExtern("inttype     prgErrorCount (const const_progtype);");
     declareExtern("objreftype  prgEval (progtype, objreftype);");
-    declareExtern("void        prgExec (progtype);");
-    declareExtern("progtype    prgFilParse (const const_stritype);");
-    declareExtern("progtype    prgStrParse (const const_stritype);");
+    declareExtern("void        prgExec (const const_progtype, const const_arraytype, const_settype, const_stritype);");
+    declareExtern("progtype    prgFilParse (const const_stritype, const_settype, const const_arraytype, const_stritype);");
+    declareExtern("progtype    prgStrParse (const const_stritype, const_settype, const const_arraytype, const_stritype);");
     declareExtern("objreftype  prgMatch (const const_progtype, listtype);");
     declareExtern("objreftype  prgMatchExpr (const const_progtype, listtype);");
     declareExtern("objreftype  prgSyobject (const progtype, const const_stritype);");
@@ -23422,7 +23554,7 @@ const proc: init_const_value (in reference: current_object, inout expr_type: c_e
   end func;
 
 
-const func string: int32AsFourInt8Chars (in integer: number) is func
+const func string: int32AsFourBytes (in integer: number) is func
   result
     var string: stri is "";
   begin
@@ -23440,7 +23572,7 @@ const func string: int32AsFourInt8Chars (in integer: number) is func
   end func;
 
 
-const func string: int64AsEightInt8Chars (in integer: number) is func
+const func string: int64AsEightBytes (in integer: number) is func
   result
     var string: stri is "";
   begin
@@ -23565,13 +23697,13 @@ const proc: init_win_constants (inout expr_type: c_expr) is func
       if INTTYPE_SIZE = 32 then
         for line range 0 to pred(height(win1)) do
           for column range 0 to pred(width(win1)) do
-            image &:= int32AsFourInt8Chars(ord(getPixel(win1, column, line)));
+            image &:= int32AsFourBytes(ord(getPixel(win1, column, line)));
           end for;
         end for;
       elsif INTTYPE_SIZE = 64 then
         for line range 0 to pred(height(win1)) do
           for column range 0 to pred(width(win1)) do
-            image &:= int64AsEightInt8Chars(ord(getPixel(win1, column, line)));
+            image &:= int64AsEightBytes(ord(getPixel(win1, column, line)));
           end for;
         end for;
       end if;
@@ -23801,9 +23933,9 @@ const proc: init_bstri_constants (inout expr_type: c_expr) is func
       c_expr.expr &:= "] */ static unsigned char bstri_";
       c_expr.expr &:= str(number);
       if POINTER_SIZE = 32 then
-        lengthAsChars := int32AsFourInt8Chars(length(bstri));
+        lengthAsChars := int32AsFourBytes(length(bstri));
       elsif POINTER_SIZE = 64 then
-        lengthAsChars := int64AsEightInt8Chars(length(bstri));
+        lengthAsChars := int64AsEightBytes(length(bstri));
       end if;
       countChars := 0;
       if LIMITED_CSTRI_LITERAL_LEN then
@@ -24425,7 +24557,7 @@ const proc: pass_1 (in string: source, inout program: prog,
         declare_with_extern_c := generate_c_plus_plus;
       end if;
       block
-        prog := parseFile(source);
+        prog := parseFile(source, parseOptions.value, libraryDirs);
       exception
         catch RANGE_ERROR:
           prog := program.EMPTY;
@@ -24550,7 +24682,11 @@ const proc: pass_3 (in string: source, in program: prog,
   begin
     if okay then
       writeln("Calling the C compiler ...");
-      s7_lib_dir    := configValue("S7_LIB_DIR");
+      if "-b" in compiler_option then
+        s7_lib_dir := convDosPath(compiler_option["-b"]);
+      else
+        s7_lib_dir := configValue("S7_LIB_DIR");
+      end if;
       seed7_lib     := s7_lib_dir & "/" & configValue("SEED7_LIB");
       console_lib   := s7_lib_dir & "/" & configValue("CONSOLE_LIB");
       draw_lib      := s7_lib_dir & "/" & configValue("DRAW_LIB");
@@ -24746,23 +24882,25 @@ const proc: writeHelp is func
     writeln("Options:");
     writeln("  -?   Write Seed7 compiler usage.");
     writeln("  -O and -O2  Tell the C compiler to optimize.");
+    writeln("  -b   Specify the directory of the Seed7 runtime libraries (e.g.: -b ../bin).");
+    writeln("  -e   Generate code which sends a signal, when an uncaught exception occurs.");
+    writeln("       This option allows debuggers to handle uncaught Seed7 exceptions.");
     writeln("  -g   Tell the C compiler to generate an executable with debug information.");
     writeln("       This way the debugger will refer to Seed7 source files and line numbers.");
     writeln("       To generate debug information which refers to the temporary C program");
     writeln("       the option -g-debug_c can be used.");
+    writeln("  -l   Add a directory to the include library search path (e.g.: -l ../lib).");
     writeln("  -ocn Optimize constants with level n. E.g.: -oc3 Where n is a digit");
     writeln("       between 0 and 3:");
     writeln("         0 Do no optimizations with constants.");
     writeln("         1 Use literals and named constants to simplify expressions (default).");
     writeln("         2 Evaluate constant expressions to simplify expressions.");
     writeln("         3 Like -oc2 and additionally evaluate all constant expressions");
+    writeln("  -r   Suppress the generation of range checks for strings and arrays.");
     writeln("  -te  Generate code to trace exceptions. This option works in the same way");
     writeln("       as the interpreter option -te: Every exception will write a message");
     writeln("       to stdout and the user will be asked to continue (with enter) or to");
     writeln("       terminate (with * ).");
-    writeln("  -r   Suppress the generation of range checks for strings and arrays.");
-    writeln("  -e   Generate code which sends a signal, when an uncaught exception occurs.");
-    writeln("       This option allows debuggers to handle uncaught Seed7 exceptions.");
     writeln;
   end func;
 
@@ -24770,7 +24908,7 @@ const proc: writeHelp is func
 const proc: main is func
 
   local
-    var integer: number is 0;
+    var integer: index is 0;
     var string: curr_arg is "";
     var string: source is "";
     var boolean: okay is TRUE;
@@ -24789,11 +24927,16 @@ const proc: main is func
       writeln("Use  s7c -?  to get more information about s7c.");
       writeln;
     else
-      number := 1;
-      while number <= length(argv(PROGRAM)) do
-        curr_arg := argv(PROGRAM)[number];
+      for index range 1 to length(argv(PROGRAM)) do
+        curr_arg := argv(PROGRAM)[index];
         if length(curr_arg) >= 2 and curr_arg[1] = '-' then
-          if curr_arg[.. 2] in {"-?", "-r", "-g", "-t", "-e", "-o", "-c", "-O"} then
+          if curr_arg in {"-b"} and index < length(argv(PROGRAM)) then
+            incr(index);
+            compiler_option @:= [curr_arg] argv(PROGRAM)[index];
+          elsif curr_arg in {"-l"} and index < length(argv(PROGRAM)) then
+            incr(index);
+            libraryDirs &:= convDosPath(argv(PROGRAM)[index]);
+          elsif curr_arg[.. 2] in {"-?", "-r", "-g", "-t", "-e", "-o", "-c", "-O", "-b"} then
             compiler_option @:= [curr_arg[.. 2]] curr_arg[3 ..];
           else
             writeln("*** Ignore unsupported option: " <& curr_arg);
@@ -24803,8 +24946,7 @@ const proc: main is func
         else
           writeln("*** Ignore superfluous parameter: " <& curr_arg);
         end if;
-        incr(number);
-      end while;
+      end for;
       if "-?" in compiler_option then
         writeHelp;
       elsif source = "" then

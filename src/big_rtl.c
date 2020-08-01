@@ -482,6 +482,42 @@ doublebigdigittype carry;
 
 
 /**
+ *  Multiplies big1 by a factor and adds carry to
+ *  the result. This function works for unsigned big integers.
+ *  It is assumed that big1 contains enough memory.
+ */
+#ifdef ANSI_C
+
+static INLINE void uBigMultiplyAndAdd (const biginttype big1, bigdigittype factor,
+    doublebigdigittype carry)
+#else
+
+static INLINE void uBigMultiplyAndAdd (big1, factor, carry)
+biginttype big1;
+bigdigittype factor;
+doublebigdigittype carry;
+#endif
+
+  {
+    memsizetype pos;
+
+  /* uBigMultiplyAndAdd */
+    pos = 0;
+    do {
+      carry += (doublebigdigittype) big1->bigdigits[pos] * factor;
+      big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
+      carry >>= BIGDIGIT_SIZE;
+      pos++;
+    } while (pos < big1->size);
+    if (carry != 0) {
+      big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
+      big1->size++;
+    } /* if */
+  } /* uBigMultiplyAndAdd */
+
+
+
+/**
  *  Divides the unsigned big integer big1 by POWER_OF_10_IN_BIGDIGIT
  *  and returns the remainder.
  */
@@ -4946,8 +4982,8 @@ stritype stri;
             while (position < limit && okay) {
               if (likely(stri->mem[position] >= ((strelemtype) '0') &&
                          stri->mem[position] <= ((strelemtype) '9'))) {
-                digitval = ((bigdigittype) 10) * digitval +
-                    ((bigdigittype) stri->mem[position]) - ((bigdigittype) '0');
+                digitval = (bigdigittype) 10 * digitval +
+                    (bigdigittype) stri->mem[position] - (bigdigittype) '0';
               } else {
                 okay = FALSE;
               } /* if */
@@ -4974,6 +5010,115 @@ stritype stri;
       } /* if */
     } /* if */
   } /* bigParse */
+
+
+
+#ifdef ANSI_C
+
+biginttype bigParseBased (const const_stritype stri, inttype base)
+#else
+
+biginttype bigParseBased (stri, base)
+stritype stri;
+inttype base;
+#endif
+
+  {
+    memsizetype result_size;
+    booltype okay;
+    booltype negative;
+    memsizetype position;
+    uint8type based_digit_size;
+    uint8type based_digits_in_bigdigit;
+    bigdigittype power_of_base_in_bigdigit;
+    memsizetype limit;
+    bigdigittype digitval;
+    biginttype result;
+
+  /* bigParseBased */
+    /* printf("bigParseBased(");
+       prot_stri(stri);
+       printf(", %d)\n", base); */
+    if (unlikely(stri->size == 0 || base < 2 || base > 36)) {
+      raise_error(RANGE_ERROR);
+      return NULL;
+    } else if (unlikely(stri->size > MAX_MEMSIZETYPE / 6)) {
+      raise_error(MEMORY_ERROR);
+      return NULL;
+    } else {
+      based_digit_size = (uint8type) (uint8MostSignificantBit((uint8type) (base - 1)) + 1);
+      based_digits_in_bigdigit = 1;
+      power_of_base_in_bigdigit = (bigdigittype) base;
+      while ((doublebigdigittype) power_of_base_in_bigdigit * (uinttype) base >> BIGDIGIT_SIZE == 0) {
+        based_digits_in_bigdigit++;
+        power_of_base_in_bigdigit *= (bigdigittype) base;
+      } /* while */
+      /* Estimate the number of bits necessary: */
+      result_size = stri->size * (memsizetype) based_digit_size;
+      /* Compute the number of bigDigits: */
+      result_size = result_size / BIGDIGIT_SIZE + 1;
+      if (unlikely(!ALLOC_BIG(result, result_size))) {
+        raise_error(MEMORY_ERROR);
+        return NULL;
+      } else {
+        result->size = 1;
+        result->bigdigits[0] = 0;
+        okay = TRUE;
+        position = 0;
+        if (stri->mem[0] == ((strelemtype) '-')) {
+          negative = TRUE;
+          position++;
+        } else {
+          if (stri->mem[0] == ((strelemtype) '+')) {
+            position++;
+          } /* if */
+          negative = FALSE;
+        } /* if */
+        if (unlikely(position >= stri->size)) {
+          okay = FALSE;
+        } else {
+          limit = (stri->size - position - 1) % based_digits_in_bigdigit + position + 1;
+          do {
+            digitval = 0;
+            while (position < limit && okay) {
+              if (stri->mem[position] >= ((strelemtype) '0') &&
+                  stri->mem[position] <= ((strelemtype) '9')) {
+                digitval = (bigdigittype) base * digitval +
+                    (bigdigittype) stri->mem[position] - (bigdigittype) '0';
+              } else if (stri->mem[position] >= ((strelemtype) 'a') &&
+                         stri->mem[position] <= ((strelemtype) 'z')) {
+                digitval = (bigdigittype) base * digitval +
+                    (bigdigittype) stri->mem[position] - (bigdigittype) 'a' + (bigdigittype) 10;
+              } else if (stri->mem[position] >= ((strelemtype) 'A') &&
+                         stri->mem[position] <= ((strelemtype) 'Z')) {
+                digitval = (bigdigittype) base * digitval +
+                    (bigdigittype) stri->mem[position] - (bigdigittype) 'A' + (bigdigittype) 10;
+              } else {
+                okay = FALSE;
+              } /* if */
+              position++;
+            } /* while */
+            uBigMultiplyAndAdd(result, power_of_base_in_bigdigit, (doublebigdigittype) digitval);
+            limit += based_digits_in_bigdigit;
+          } while (position < stri->size && okay);
+        } /* if */
+        if (likely(okay)) {
+          memset(&result->bigdigits[result->size], 0,
+              (size_t) (result_size - result->size) * sizeof(bigdigittype));
+          result->size = result_size;
+          if (negative) {
+            negate_positive_big(result);
+          } /* if */
+          result = normalize(result);
+          return result;
+        } else {
+          FREE_BIG(result, result_size);
+          raise_error(RANGE_ERROR);
+          return NULL;
+        } /* if */
+      } /* if */
+    } /* if */
+  } /* bigParseBased */
 
 
 
@@ -6125,6 +6270,51 @@ biginttype big1;
       return result;
     } /* if */
   } /* bigToInt64 */
+#endif
+
+
+
+#ifdef OUT_OF_ORDER
+#ifdef ANSI_C
+
+biginttype bigXor (const_biginttype big1, const_biginttype big2)
+#else
+
+biginttype bigXor (big1, big2)
+biginttype big1;
+biginttype big2;
+#endif
+
+  {
+    const_biginttype help_big;
+    memsizetype pos;
+    bigdigittype big2_sign;
+    biginttype result;
+
+  /* bigXor */
+    if (big2->size > big1->size) {
+      help_big = big1;
+      big1 = big2;
+      big2 = help_big;
+    } /* if */
+    if (unlikely(!ALLOC_BIG_CHECK_SIZE(result, big1->size))) {
+      raise_error(MEMORY_ERROR);
+      return NULL;
+    } else {
+      pos = 0;
+      do {
+        result->bigdigits[pos] = big1->bigdigits[pos] ^ big2->bigdigits[pos];
+        pos++;
+      } while (pos < big2->size);
+      big2_sign = IS_NEGATIVE(big2->bigdigits[pos - 1]) ? BIGDIGIT_MASK : 0;
+      for (; pos < big1->size; pos++) {
+        result->bigdigits[pos] = big1->bigdigits[pos] ^ big2_sign;
+      } /* for */
+      result->size = pos;
+      result = normalize(result);
+      return result;
+    } /* if */
+  } /* bigXor */
 #endif
 
 

@@ -600,7 +600,6 @@ static primactrecord prim_act_table[] = {
     { "PRG_EXEC",                prg_exec,                },
     { "PRG_FIL_PARSE",           prg_fil_parse,           },
     { "PRG_FIND",                prg_find,                },
-    { "PRG_INTERPRETER",         prg_interpreter,         },
     { "PRG_MATCH",               prg_match,               },
     { "PRG_MATCH_EXPR",          prg_match_expr,          },
     { "PRG_NAME",                prg_name,                },

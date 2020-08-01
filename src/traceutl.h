@@ -65,8 +65,10 @@ void printnodes (const_nodetype anynode);
 void trace1 (const_objecttype traceobject);
 void trace_entity (const_entitytype anyentity);
 void trace_list (const_listtype list);
-void set_trace (const_cstritype trace_level, int len, const_cstritype prot_file_name);
-void set_trace2 (const_stritype trace_level);
+void set_protfile_name (const const_stritype protfile_name);
+void set_trace (uinttype options);
+void mapTraceFlags (const_stritype trace_level, uinttype *options);
+void mapTraceFlags2 (const_cstritype ctrace_level, uinttype *options);
 
 #else
 
@@ -91,7 +93,9 @@ void printnodes ();
 void trace1 ();
 void trace_entity ();
 void trace_list ();
+void set_protfile_name ();
 void set_trace ();
-void set_trace2 ();
+void mapTraceFlags ();
+void mapTraceFlags2 ();
 
 #endif

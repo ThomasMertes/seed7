@@ -301,6 +301,16 @@ WHAT TO DO WHEN ERRORS HAPPEN DURING THE COMPILATION?
 
  --- Errors such as
 
+    common.h:35:17: fatal error: gmp.h: No such file or directory
+
+  indicate that the GMP development package is missing.
+  I don't know the name of this package in your distribution.
+  Under Linux Mint this package has the name libgmp-dev and is
+  described as: Multiprecision arithmetic library developers
+  tools.
+
+ --- Errors such as
+
     gcc chkccomp.c -lm -o chkccomp
     chkccomp.c:28:21: fatal error: version.h: No such file or directory
     compilation terminated.
@@ -477,18 +487,18 @@ HOW TO USE THE GMP LIBRARY?
   Every makefile contains a line which defines the 'SYSTEM_LIBS'
   to be used when the 's7' interpreter is linked. E.g.:
 
-    SYSTEM_LIBS = -lncurses -lm
+    SYSTEM_LIBS = -lm
 
   The next line starts with # (which means it is commented out)
   and additionally contains the command to add the gmp library:
 
-    # SYSTEM_LIBS = -lncurses -lm -lgmp
+    # SYSTEM_LIBS = -lm -lgmp
 
   The old 'SYSTEM_LIBS' line needs to be commented out and the
   line which links also 'gmp' needs to be activated:
 
-    # SYSTEM_LIBS = -lncurses -lm
-    SYSTEM_LIBS = -lncurses -lm -lgmp
+    # SYSTEM_LIBS = -lm
+    SYSTEM_LIBS = -lm -lgmp
 
   There are also four lines which define which files contain
   the interface functions for bigInteger:

@@ -30,7 +30,7 @@
 #else
 #define INCR_LINE_COUNT(LIN) (LIN++)
 #define display_compilation_info()
-#define open_compilation_info()
+#define open_compilation_info(write_library_names,write_line_numbers)
 #endif
 
 #define CR_LIN_INFO()      printf("%6u\r", in_file.line)
@@ -45,7 +45,7 @@
 
 void display_compilation_info (void);
 void line_compilation_info (void);
-void open_compilation_info (void);
+void open_compilation_info (booltype write_library_names, booltype write_line_numbers);
 
 #else
 

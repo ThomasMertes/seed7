@@ -205,197 +205,6 @@ var array array holeType: hole_status is FIELD_LINES times FIELD_COLUMNS times n
 
 var text: scr is STD_NULL;
 
-(*
-const array string: player_right_1 is [](
-  "    XXXXX     ",
-  "    XX XXX    ",
-  "    XXXXX   XX",
-  "     XXX    XX",
-  "      X    XX ",
-  "  XXXXXXXXXX  ",
-  " XX  XXX      ",
-  "XX   XXX      ",
-  "XX   XXX      ",
-  "     XXX      ",
-  "    XXXXX     ",
-  "   XX   XX    ",
-  "   XX  XX     ",
-  "  XX   XX     ",
-  "  XX     X    ",
-  "  XXX         ");
-
-
-const array string: player_right_2 is [](
-  "    XXXXX     ",
-  "    XX XXX    ",
-  "    XXXXX     ",
-  "     XXX    XX",
-  "      X     XX",
-  "  XXXXXXXXXXX ",
-  " XX  XXX  XX  ",
-  "XX   XXX      ",
-  "XX   XXX      ",
-  "     XXX      ",
-  "     XXX      ",
-  "    XX XX     ",
-  "   XX   XX    ",
-  "  XX    XX    ",
-  " XX     XXX   ",
-  " XXX          ");
-
-
-const array string: player_right_3 is [](
-  "    XXXXX     ",
-  "    XX XXX    ",
-  "    XXXXX     ",
-  "     XXX    XX",
-  "      X     XX",
-  "  XXXXXXXXXXX ",
-  " XX  XXX  XX  ",
-  "XX   XXX      ",
-  "XX   XXX      ",
-  "     XXX      ",
-  "     XXX      ",
-  "    XX XX     ",
-  "   XX  XX     ",
-  "  XX    XX    ",
-  " XX     XX    ",
-  "  XX    XXX   ");
-
-
-const array string: player_right_4 is [](
-  "    XXXXX     ",
-  "    XX XXX    ",
-  "    XXXXX     ",
-  "     XXX      ",
-  "      X     XX",
-  "  XXXXXXXX  XX",
-  " XX  XXX XXXX ",
-  " XX  XXX      ",
-  "  XX XXX      ",
-  "     XXX      ",
-  "     XXX      ",
-  "    XXXX      ",
-  "   XXX XX     ",
-  "XXXX   XX     ",
-  "X      XX     ",
-  "       XXX    ");
-
-
-const array string: player_right_5 is [](
-  "    XXXXX     ",
-  "    XX XXX    ",
-  "    XXXXX     ",
-  "     XXX      ",
-  "      X       ",
-  "   XXXXXXX  XX",
-  "  XX XXX XX XX",
-  " XX  XXX  XXX ",
-  "  XX XXX      ",
-  "     XXX      ",
-  "     XXX      ",
-  "     XXX      ",
-  "XXXXXXXX      ",
-  "X     XX      ",
-  "      XX      ",
-  "      XXX     ");
-
-
-const array string: player_right_6 is [](
-  "    XXXXX     ",
-  "    XX XXX    ",
-  "    XXXXX     ",
-  "     XXX      ",
-  "      X       ",
-  "   XXXXXXX  XX",
-  "  XX XXX XX XX",
-  " XX  XXX  XXX ",
-  "  XX XXX      ",
-  "     XXX      ",
-  "     XXX      ",
-  "     XXX      ",
-  "  XXXXXX      ",
-  "  X  XX       ",
-  "     XX       ",
-  "     XXX      ");
-
-
-const array string: player_right_7 is [](
-  "    XXXXX     ",
-  "    XX XXX    ",
-  "    XXXXX     ",
-  "     XXX      ",
-  "      X       ",
-  "   XXXXXXX  XX",
-  "  XX XXX XX XX",
-  " XX  XXX  XXX ",
-  "  XX XXX      ",
-  "     XXXX     ",
-  "     XX XX    ",
-  "     XXXX     ",
-  "    XXXX      ",
-  "    XXXXX     ",
-  "    XX        ",
-  "    XXX       ");
-
-
-const array string: player_right_8 is [](
-  "    XXXXX     ",
-  "    XX XXX    ",
-  "    XXXXX   XX",
-  "     XXX    XX",
-  "      X    XX ",
-  "  XXXXXXXXXX  ",
-  " XX  XXX      ",
-  "XX   XXX      ",
-  "XX   XXX      ",
-  "    XXXXX     ",
-  "    XX  XX    ",
-  "    XX  XX    ",
-  "   XX  XX     ",
-  "   XX   XX    ",
-  "   XX         ",
-  "   XXX        ");
-
-
-const array string: player_right_9 is [](
-  "    XXXXX     ",
-  "    XX XXX    ",
-  "    XXXXX   XX",
-  "     XXX    XX",
-  "      X    XX ",
-  "  XXXXXXXXXX  ",
-  " XX  XXX      ",
-  "XX   XXX      ",
-  "XX   XXX      ",
-  "     XXXX     ",
-  "     XX XXX   ",
-  "     XX   XX  ",
-  "    XX   XX   ",
-  "    XX   XX   ",
-  "    XX     X  ",
-  "    XXX       ");
-
-
-const array string: player_right_10 is [](
-  "    XXXXX     ",
-  "    XX XXX    ",
-  "    XXXXX     ",
-  "     XXX    XX",
-  "      X     XX",
-  "  XXXXXXXXXXX ",
-  " XX  XXX  XX  ",
-  "XX   XXX      ",
-  "XX   XXX      ",
-  "     XXXX     ",
-  "     XX XX    ",
-  "    XX   XX   ",
-  "    XX   XX   ",
-  "   XX    XX   ",
-  "   XX    XXX  ",
-  "   XXX        ");
-*)
-
 
 const array string: player_right_1 is [](
   "    XXXXX     ",
@@ -866,7 +675,7 @@ const array string: nine is [](
 const func PRIMITIVE_WINDOW: create_pixmap (in array string: pattern,
     in integer: scale) is func
   result
-    var PRIMITIVE_WINDOW: result is PRIMITIVE_WINDOW.value;
+    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
   local
     var integer: height is 0;
     var integer: width is 0;
@@ -876,8 +685,8 @@ const func PRIMITIVE_WINDOW: create_pixmap (in array string: pattern,
   begin
     height := length(pattern);
     width := length(pattern[1]);
-    result := newPixmap(width * scale, height * scale);
-    clear(result, black);
+    pixmap := newPixmap(width * scale, height * scale);
+    clear(pixmap, black);
     for line range 1 to height do
       for column range 1 to width do
         case pattern[line][column] of
@@ -896,7 +705,7 @@ const func PRIMITIVE_WINDOW: create_pixmap (in array string: pattern,
           when {'b'}: col := brown;
           otherwise:  col := black;
         end case;
-        rect(result,
+        rect(pixmap,
             pred(column) * scale,
             pred(line) * scale,
             scale, scale, col);
@@ -908,16 +717,6 @@ const func PRIMITIVE_WINDOW: create_pixmap (in array string: pattern,
 const proc: init_pictures is func
   begin
     monster_pixmap[1] := 8 times PRIMITIVE_WINDOW.value;
-(*
-    monster_pixmap[1][1] := create_pixmap(monster1_1, PICTURE_SCALE);
-    monster_pixmap[1][2] := create_pixmap(monster1_2, PICTURE_SCALE);
-    monster_pixmap[1][3] := create_pixmap(monster1_3, PICTURE_SCALE);
-    monster_pixmap[1][4] := create_pixmap(monster1_4, PICTURE_SCALE);
-    monster_pixmap[1][5] := create_pixmap(monster1_5, PICTURE_SCALE);
-    monster_pixmap[1][6] := monster_pixmap[1][4];
-    monster_pixmap[1][7] := monster_pixmap[1][3];
-    monster_pixmap[1][8] := monster_pixmap[1][2];
-*)
     monster_pixmap[1][1] := create_pixmap(monster1_1, PICTURE_SCALE);
     monster_pixmap[1][2] := monster_pixmap[1][1];
     monster_pixmap[1][3] := monster_pixmap[1][1];
@@ -944,17 +743,6 @@ const proc: init_pictures is func
     monster_pixmap[3][6] := monster_pixmap[3][5];
     monster_pixmap[3][7] := monster_pixmap[3][5];
     monster_pixmap[3][8] := monster_pixmap[3][5];
-(*
-    player_right_pixmap := 8 times PRIMITIVE_WINDOW.value;
-    player_right_pixmap[1] := create_pixmap(player_right_1, PICTURE_SCALE);
-    player_right_pixmap[2] := create_pixmap(player_right_2, PICTURE_SCALE);
-    player_right_pixmap[3] := create_pixmap(player_right_3, PICTURE_SCALE);
-    player_right_pixmap[4] := create_pixmap(player_right_4, PICTURE_SCALE);
-    player_right_pixmap[5] := create_pixmap(player_right_5, PICTURE_SCALE);
-    player_right_pixmap[6] := create_pixmap(player_right_6, PICTURE_SCALE);
-    player_right_pixmap[7] := create_pixmap(player_right_7, PICTURE_SCALE);
-    player_right_pixmap[8] := create_pixmap(player_right_8, PICTURE_SCALE);
-*)
     player_right_pixmap := 6 times PRIMITIVE_WINDOW.value;
     player_right_pixmap[1] := create_pixmap(player_right_1, PICTURE_SCALE);
     player_right_pixmap[2] := player_right_pixmap[1];
@@ -1125,19 +913,19 @@ const proc: draw_number (in integer: line, in integer: column, in string: num_st
 
 const func PRIMITIVE_WINDOW: number_pixmap (in string: num_stri) is func
   result
-    var PRIMITIVE_WINDOW: result is PRIMITIVE_WINDOW.value;
+    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
   local
     var integer: index is 0;
     var char: ch is ' ';
   begin
-    result := newPixmap(
+    pixmap := newPixmap(
         (7 * length(num_stri) + 2) * PICTURE_SCALE,
         11                         * PICTURE_SCALE);
-    clear(result, black);
+    clear(pixmap, black);
     for index range 1 to length(num_stri) do
       ch := num_stri[index];
       if ch <> ' ' then
-        put(result,
+        put(pixmap,
             (2 + pred(index) * 7) * PICTURE_SCALE,
             2                     * PICTURE_SCALE,
             digit_pixmap[ord(ch) - ord('0')], PSET);

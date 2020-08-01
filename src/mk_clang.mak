@@ -1,28 +1,35 @@
-# Makefile for gmake and gcc from Cygwin. Commands executed by: bash
-# To compile use a Cygwin console and call:
-#   make -f mk_cygw.mak depend
-#   make -f mk_cygw.mak
-# If you do not have Cygwin you could use MinGW and MSYS together with mk_msys.mak.
+# Makefile for linux/bsd/unix and clang. Commands executed by: bash
+# To compile use a command shell and call:
+#   make -f mk_linux.mak depend
+#   make -f mk_linux.mak
+# If you are under windows you should use MinGW with mk_mingw.mak, mk_nmake.mak or mk_msys.mak instead.
 
 # CFLAGS =
 # CFLAGS = -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -fomit-frame-pointer -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -g -Wall -Wextra -Wswitch-default -Wswitch-enum -Wcast-qual -Waggregate-return -Wwrite-strings -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith -Wmissing-noreturn -Wno-multichar -Wc++-compat
-# CFLAGS = -O2 -fomit-frame-pointer -pedantic -Wall -Wextra -Wswitch-default -Wcast-qual -Wlogical-op -Waggregate-return -Wwrite-strings -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith -Wmissing-noreturn -Wno-multichar -Wpadded
-CFLAGS = -O2 -g -ffunction-sections -fdata-sections -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
+# CFLAGS = -O2 -g -x c++ -Wall -Wextra -Wswitch-default -Wswitch-enum -Wcast-qual -Waggregate-return -Wwrite-strings -Winline -Wconversion -Wshadow -Wpointer-arith -Wmissing-noreturn -Wno-multichar
+# CFLAGS = -O2 -fomit-frame-pointer -Wall -Wextra -Wswitch-default -Wcast-qual -Waggregate-return -Wwrite-strings -Winline -Wconversion -Wshadow -Wpointer-arith -Wmissing-noreturn -Wno-multichar
+CFLAGS = -O2 -g -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith -ftrapv
+# CFLAGS = -O2 -g -x c++ -Wall -Winline -Wconversion -Wshadow -Wpointer-arith -ftrapv
+# CFLAGS = -O2 -g -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -g -Wall -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -g -Wall
 # CFLAGS = -O2 -g -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -fomit-frame-pointer -funroll-loops -Wall
 # CFLAGS = -O2 -funroll-loops -Wall -pg
-LDFLAGS = -Wl,--gc-sections,--stack,4194304
+LDFLAGS =
 # LDFLAGS = -pg
 # LDFLAGS = -pg -lc_p
 SYSTEM_LIBS = -lm
 # SYSTEM_LIBS = -lm -lgmp
+# SYSTEM_LIBS = -lm_p -lc_p
 SYSTEM_CONSOLE_LIBS = -lncurses
 SYSTEM_DRAW_LIBS = -lX11
-# SYSTEM_DRAW_LIBS = -L/usr/X11R6/lib libX11.dll.a
+# SYSTEM_DRAW_LIBS = /usr/Xlib/libX11.so
+# SYSTEM_DRAW_LIBS = -lX11 -lXext
+# SYSTEM_DRAW_LIBS = -lGL -lGLEW -lglut
+# SYSTEM_DRAW_LIBS = -lGL -lGLEW -lX11
 SEED7_LIB = seed7_05.a
 CONSOLE_LIB = s7_con.a
 DRAW_LIB = s7_draw.a
@@ -30,7 +37,7 @@ COMP_DATA_LIB = s7_data.a
 COMPILER_LIB = s7_comp.a
 ALL_S7_LIBS = ../bin/$(COMPILER_LIB) ../bin/$(COMP_DATA_LIB) ../bin/$(DRAW_LIB) ../bin/$(CONSOLE_LIB) ../bin/$(SEED7_LIB)
 # CC = g++
-CC = gcc
+CC = clang
 GET_CC_VERSION_INFO = $(CC) --version >
 
 BIGINT_LIB_DEFINE = USE_BIG_RTL_LIBRARY
@@ -38,15 +45,15 @@ BIGINT_LIB = big_rtl
 # BIGINT_LIB_DEFINE = USE_BIG_GMP_LIBRARY
 # BIGINT_LIB = big_gmp
 
-# TERMINFO_OR_TERMCAP = USE_TERMINFO
-# CONSOLE_LIB_OBJ = kbd_rtl.o con_inf.o kbd_inf.o trm_inf.o
-# CONSOLE_LIB_SRC = kbd_rtl.c con_inf.c kbd_inf.c trm_inf.c
+TERMINFO_OR_TERMCAP = USE_TERMINFO
+CONSOLE_LIB_OBJ = kbd_rtl.o con_inf.o kbd_inf.o trm_inf.o
+CONSOLE_LIB_SRC = kbd_rtl.c con_inf.c kbd_inf.c trm_inf.c
 # TERMINFO_OR_TERMCAP = USE_TERMCAP
 # CONSOLE_LIB_OBJ = kbd_rtl.o con_inf.o kbd_inf.o trm_cap.o
-# CONSOLE_LIB_SRC =kbd_rtl.c  con_inf.c kbd_inf.c trm_cap.c
-TERMINFO_OR_TERMCAP = USE_TERMINFO
-CONSOLE_LIB_OBJ = kbd_rtl.o con_inf.o kbd_poll.o trm_inf.o
-CONSOLE_LIB_SRC = kbd_rtl.c con_inf.c kbd_poll.c trm_inf.c
+# CONSOLE_LIB_SRC = kbd_rtl.c con_inf.c kbd_inf.c trm_cap.c
+# TERMINFO_OR_TERMCAP = USE_TERMINFO
+# CONSOLE_LIB_OBJ = kbd_rtl.o con_inf.o kbd_poll.o trm_inf.o
+# CONSOLE_LIB_SRC = kbd_rtl.c con_inf.c kbd_poll.c trm_inf.c
 # TERMINFO_OR_TERMCAP = USE_TERMCAP
 # CONSOLE_LIB_OBJ = kbd_rtl.o con_inf.o kbd_poll.o trm_cap.o
 # CONSOLE_LIB_SRC = kbd_rtl.c con_inf.c kbd_poll.c trm_cap.c
@@ -76,7 +83,7 @@ GOBJ2 = entutl.o identutl.o chclsutl.o sigutl.o arrutl.o
 ROBJ1 = arr_rtl.o bln_rtl.o bst_rtl.o chr_rtl.o cmd_rtl.o con_rtl.o dir_rtl.o drw_rtl.o fil_rtl.o
 ROBJ2 = flt_rtl.o hsh_rtl.o int_rtl.o itf_rtl.o set_rtl.o soc_rtl.o str_rtl.o tim_rtl.o ut8_rtl.o
 ROBJ3 = heaputl.o striutl.o
-DOBJ1 = $(BIGINT_LIB).o cmd_unx.o fil_unx.o pol_sel.o tim_unx.o
+DOBJ1 = $(BIGINT_LIB).o cmd_unx.o fil_unx.o pol_unx.o tim_unx.o
 OBJ = $(MOBJ1)
 SEED7_LIB_OBJ = $(ROBJ1) $(ROBJ2) $(ROBJ3) $(DOBJ1)
 DRAW_LIB_OBJ = gkb_rtl.o drw_x11.o gkb_x11.o
@@ -97,41 +104,41 @@ GSRC2 = entutl.c identutl.c chclsutl.c sigutl.c arrutl.c
 RSRC1 = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c con_rtl.c dir_rtl.c drw_rtl.c fil_rtl.c
 RSRC2 = flt_rtl.c hsh_rtl.c int_rtl.c itf_rtl.c set_rtl.c soc_rtl.c str_rtl.c tim_rtl.c ut8_rtl.c
 RSRC3 = heaputl.c striutl.c
-DSRC1 = $(BIGINT_LIB).c cmd_unx.c fil_unx.c pol_sel.c tim_unx.c
+DSRC1 = $(BIGINT_LIB).c cmd_unx.c fil_unx.c pol_unx.c tim_unx.c
 SRC = $(MSRC1)
 SEED7_LIB_SRC = $(RSRC1) $(RSRC2) $(RSRC3) $(DSRC1)
 DRAW_LIB_SRC = gkb_rtl.c drw_x11.c gkb_x11.c
 COMP_DATA_LIB_SRC = typ_data.c rfl_data.c ref_data.c listutl.c flistutl.c typeutl.c datautl.c
 COMPILER_LIB_SRC = $(PSRC1) $(LSRC1) $(LSRC2) $(LSRC3) $(ESRC1) $(ASRC1) $(ASRC2) $(ASRC3) $(GSRC1) $(GSRC2)
 
-s7: ../bin/s7.exe ../prg/s7.exe
-	../bin/s7.exe level
+s7: ../bin/s7 ../prg/s7
+	../bin/s7 level
 
-s7c: ../bin/s7c.exe ../prg/s7c.exe
+s7c: ../bin/s7c ../prg/s7c
 
-../bin/s7.exe: $(OBJ) $(ALL_S7_LIBS)
+../bin/s7: $(OBJ) $(ALL_S7_LIBS)
 	$(CC) $(LDFLAGS) $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) -o ../bin/s7
 
-../prg/s7.exe:
-	ln -s ../bin/s7.exe ../prg
+../prg/s7:
+	ln -s ../bin/s7 ../prg
 
-../bin/s7c.exe: ../prg/s7c.exe
-	cp ../prg/s7c.exe ../bin
+../bin/s7c: ../prg/s7c
+	cp -a ../prg/s7c ../bin
 
-../prg/s7c.exe: ../prg/s7c.sd7 $(ALL_S7_LIBS)
-	../bin/s7.exe -l ../lib ../prg/s7c -l ../lib -b ../bin -O2 ../prg/s7c
+../prg/s7c: ../prg/s7c.sd7 $(ALL_S7_LIBS)
+	../bin/s7 -l ../lib ../prg/s7c -l ../lib -b ../bin -O2 ../prg/s7c
 
 clear: clean
 
 clean:
-	rm -f *.o ../bin/*.a ../bin/s7.exe ../bin/s7c.exe ../prg/s7.exe ../prg/s7c.exe depend chkccomp.h version.h
+	rm -f *.o ../bin/*.a ../bin/s7 ../bin/s7c ../prg/s7c depend chkccomp.h version.h
 
 dep: depend
 
 hi: s7
 
 strip:
-	strip ../bin/s7.exe
+	strip ../bin/s7
 
 chkccomp.h:
 	echo "#include \"sys/stat.h\"" > chkccomp.h
@@ -145,37 +152,39 @@ version.h: chkccomp.h
 	echo "#define PATH_DELIMITER '/'" >> version.h
 	echo "#define SEARCH_PATH_DELIMITER ':'" >> version.h
 	echo "#define CATCH_SIGNALS" >> version.h
+	echo "#define SIGILL_ON_OVERFLOW" >> version.h
 	echo "#define HAS_SYMLINKS" >> version.h
+	echo "#define HAS_FIFO_FILES" >> version.h
 	echo "#define USE_MMAP" >> version.h
-	echo "#define AWAIT_WITH_SIGACTION" >> version.h
+	echo "#define AWAIT_WITH_SELECT" >> version.h
 	echo "#define $(TERMINFO_OR_TERMCAP)" >> version.h
-	echo "#define INCL_NCURSES_TERM" >> version.h
+	echo "#define CONSOLE_UTF8" >> version.h
 	echo "#define OS_STRI_UTF8" >> version.h
 	echo "#define _FILE_OFFSET_BITS 64" >> version.h
 	echo "#define os_fseek fseeko" >> version.h
 	echo "#define os_ftell ftello" >> version.h
 	echo "#define os_off_t off_t" >> version.h
 	echo "#define os_environ environ" >> version.h
-	echo "#define APPEND_EXTENSION_TO_EXECUTABLE_PATH" >> version.h
-	echo "#define QUOTE_WHOLE_SHELL_COMMAND" >> version.h
+	echo "#define USE_GETADDRINFO" >> version.h
+	echo "#define ESCAPE_SHELL_COMMANDS" >> version.h
 	echo "#define USE_SIGSETJMP" >> version.h
 	echo "#define $(BIGINT_LIB_DEFINE)" >> version.h
 	echo "#define OBJECT_FILE_EXTENSION \".o\"" >> version.h
 	echo "#define LIBRARY_FILE_EXTENSION \".a\"" >> version.h
-	echo "#define EXECUTABLE_FILE_EXTENSION \".exe\"" >> version.h
 	echo "#define C_COMPILER \"$(CC)\"" >> version.h
+	echo "#define CPLUSPLUS_COMPILER \"$(CC) -x c++\"" >> version.h
 	echo "#define GET_CC_VERSION_INFO \"$(GET_CC_VERSION_INFO)\"" >> version.h
+	echo "#define CC_SOURCE_UTF8" >> version.h
 	echo "#define CC_OPT_DEBUG_INFO \"-g\"" >> version.h
 	echo "#define CC_OPT_NO_WARNINGS \"-w\"" >> version.h
-	echo "#define CC_FLAGS \"-ffunction-sections -fdata-sections\"" >> version.h
+	echo "#define CC_FLAGS \"-ftrapv\"" >> version.h
 	echo "#define REDIRECT_C_ERRORS \"2>\"" >> version.h
-	echo "#define LINKER_OPT_NO_DEBUG_INFO \"-Wl,--strip-debug\"" >> version.h
 	echo "#define LINKER_OPT_OUTPUT_FILE \"-o \"" >> version.h
 	echo "#define LINKER_FLAGS \"$(LDFLAGS)\"" >> version.h
 	$(GET_CC_VERSION_INFO) cc_vers.txt
-	$(CC) chkccomp.c -lm -o chkccomp
-	./chkccomp.exe >> version.h
-	rm chkccomp.exe
+	$(CC) -ftrapv chkccomp.c -lm -o chkccomp
+	./chkccomp >> version.h
+	rm chkccomp
 	rm cc_vers.txt
 	echo "#define SYSTEM_LIBS \"$(SYSTEM_LIBS)\"" >> version.h
 	echo "#define SYSTEM_CONSOLE_LIBS \"$(SYSTEM_CONSOLE_LIBS)\"" >> version.h
@@ -186,8 +195,8 @@ version.h: chkccomp.h
 	echo "#define COMP_DATA_LIB \"$(COMP_DATA_LIB)\"" >> version.h
 	echo "#define COMPILER_LIB \"$(COMPILER_LIB)\"" >> version.h
 	$(CC) setpaths.c -o setpaths
-	./setpaths.exe "S7_LIB_DIR=$(S7_LIB_DIR)" "SEED7_LIBRARY=$(SEED7_LIBRARY)" >> version.h
-	rm setpaths.exe
+	./setpaths "S7_LIB_DIR=$(S7_LIB_DIR)" "SEED7_LIBRARY=$(SEED7_LIBRARY)" >> version.h
+	rm setpaths
 
 depend: version.h
 	$(CC) $(CFLAGS) -M $(SRC) > depend
@@ -198,7 +207,7 @@ depend: version.h
 	$(CC) $(CFLAGS) -M $(COMPILER_LIB_SRC) >> depend
 
 level.h:
-	../bin/s7.exe level
+	../bin/s7 level
 
 ../bin/$(SEED7_LIB): $(SEED7_LIB_OBJ)
 	ar r ../bin/$(SEED7_LIB) $(SEED7_LIB_OBJ)

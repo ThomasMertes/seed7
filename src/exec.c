@@ -46,7 +46,7 @@
 #include "objutl.h"
 #include "runerr.h"
 #include "match.h"
-#include "option.h"
+#include "prclib.h"
 
 #undef EXTERN
 #define EXTERN
@@ -1224,9 +1224,11 @@ errinfotype *err_info;
       fail_flag = FALSE;
       fail_value = (objecttype) NULL;
       fail_expression = (listtype) NULL;
-      set_trace(option.exec_trace_level, -1, option.prot_file_name);
       memcpy(&prog_backup, &prog, sizeof(progrecord));
       memcpy(&prog, currentProg, sizeof(progrecord));
+      set_protfile_name(NULL);
+      prog.option_flags = 0;
+      set_trace(prog.option_flags);
       in_analyze = TRUE;
       result = exec_object(object);
       in_analyze = FALSE;
@@ -1262,73 +1264,3 @@ errinfotype *err_info;
 #endif
     return result;
   } /* exec_expr */
-
-
-
-#ifdef ANSI_C
-
-void interpr (const_progtype currentProg)
-#else
-
-void interpr (currentProg)
-progtype currentProg;
-#endif
-
-  {
-    progrecord prog_backup;
-
-  /* interpr */
-#ifdef TRACE_EXEC
-    printf("BEGIN interpr\n");
-#endif
-    if (currentProg != NULL) {
-      fail_flag = FALSE;
-      fail_value = (objecttype) NULL;
-      fail_expression = (listtype) NULL;
-      fail_stack = NULL;
-      set_trace(option.exec_trace_level, -1, option.prot_file_name);
-      if (currentProg->main_object != NULL) {
-        memcpy(&prog_backup, &prog, sizeof(progrecord));
-        memcpy(&prog, currentProg, sizeof(progrecord));
-/*        printf("main defined as: ");
-        trace1(prog.main_object);
-        printf("\n"); */
-#ifdef WITH_PROTOCOL
-        if (trace.actions) {
-          if (trace.heapsize) {
-            prot_heapsize();
-            prot_cstri(" ");
-          } /* if */
-          prot_cstri("begin main");
-          prot_nl();
-        } /* if */
-#endif
-        exec_call(prog.main_object);
-#ifdef WITH_PROTOCOL
-        if (trace.actions) {
-          if (trace.heapsize) {
-            prot_heapsize();
-            prot_cstri(" ");
-          } /* if */
-          prot_cstri("end main");
-          prot_nl();
-        } /* if */
-#endif
-#ifdef OUT_OF_ORDER
-        shut_drivers();
-        if (fail_flag) {
-          printf("\n*** Uncaught EXCEPTION ");
-          printobject(fail_value);
-          printf(" raised with\n");
-          prot_list(fail_expression);
-          printf("\n");
-          write_call_stack(fail_stack);
-        } /* if */
-#endif
-        memcpy(&prog, &prog_backup, sizeof(progrecord));
-      } /* if */
-    } /* if */
-#ifdef TRACE_EXEC
-    printf("END interpr\n");
-#endif
-  } /* interpr */

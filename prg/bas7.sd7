@@ -725,11 +725,11 @@ const proc: addDoLoopHeader (in integer: tailLine, in integer: tailColumn,
 const func boolean: doLoopHeaderPresent (in integer: tailLine, in integer: tailColumn,
     inout integer: headLine, inout integer: headColumn) is func
   result
-    var boolean: result is FALSE;
+    var boolean: headerIsPresent is FALSE;
   begin
     if tailLine in doLoopHeaders then
       if tailColumn in doLoopHeaders[tailLine] then
-        result := TRUE;
+        headerIsPresent := TRUE;
         headLine := doLoopHeaders[tailLine][tailColumn].headLine;
         headColumn := doLoopHeaders[tailLine][tailColumn].headColumn;
       end if;
@@ -1468,7 +1468,7 @@ const proc: skip_parenthesized_stri (inout string: symbol, inout string: line) i
 
 const func boolean: is_let_statement (in string: line) is func
   result
-    var boolean: result is FALSE;
+    var boolean: is_let_statement is FALSE;
   local
     var string: symbol is "";
     var string: help_line is "";
@@ -1482,7 +1482,7 @@ const func boolean: is_let_statement (in string: line) is func
       symbol := get_symbol(help_line);
       symbol := get_symbol(help_line);
     end if;
-    result := symbol = "=";
+    is_let_statement := symbol = "=";
   end func;
 
 
@@ -3037,7 +3037,7 @@ const func boolean: nameInList (in string: name, in var string: nameList) is fun
 
 const func string: removeNameFromList (in string: name, in var string: nameList) is func
   result
-    var string: result is "";
+    var string: newNameList is "";
   local
     var string: symbol is "";
     var boolean: found is FALSE;
@@ -3048,14 +3048,14 @@ const func string: removeNameFromList (in string: name, in var string: nameList)
         symbol := get_symbol(nameList);
         found := TRUE;
       else
-        if result <> "" then
-          result &:= ",";
+        if newNameList <> "" then
+          newNameList &:= ",";
         end if;
-        result &:= symbol;
+        newNameList &:= symbol;
         symbol := get_symbol(nameList);
       end if;
     until symbol <> "," or found;
-    result &:= nameList;
+    newNameList &:= nameList;
   end func;
 
 

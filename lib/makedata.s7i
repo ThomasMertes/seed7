@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  makedata.s7i  Function and data structure to read makefiles     *)
-(*  Copyright (C) 2010 - 2012  Thomas Mertes                        *)
+(*  Copyright (C) 2010 - 2013  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -191,16 +191,16 @@ const func string: getMacroName (inout file: makefile) is func
 
 const func string: getMacroParameter (inout file: makefile) is func
   result
-    var string: result is "";
+    var string: parameter is "";
   begin
     while makefile.bufferChar <> ')' and makefile.bufferChar <> EOF do
       if makefile.bufferChar = '(' then
-        result &:= "(";
+        parameter &:= "(";
         makefile.bufferChar := getc(makefile);
-        result &:= getMacroParameter(makefile);
-        result &:= ")";
+        parameter &:= getMacroParameter(makefile);
+        parameter &:= ")";
       else
-        result &:= makefile.bufferChar;
+        parameter &:= makefile.bufferChar;
       end if;
       makefile.bufferChar := getc(makefile);
     end while;
@@ -209,7 +209,7 @@ const func string: getMacroParameter (inout file: makefile) is func
 
 const func string: getMacro (inout file: makefile, in stringHash: macros) is func
   result
-    var string: result is "";
+    var string: macro is "";
   local
     var string: name is "";
     var string: suffix is "";
@@ -223,9 +223,9 @@ const func string: getMacro (inout file: makefile, in stringHash: macros) is fun
       if makefile.bufferChar = ')' then
         makefile.bufferChar := getc(makefile);
         if name in macros then
-          result := macros[name];
+          macro := macros[name];
         else
-          result := "$(" & name & ")";
+          macro := "$(" & name & ")";
         end if;
       elsif makefile.bufferChar = ':' then
         makefile.bufferChar := getc(makefile);
@@ -236,26 +236,26 @@ const func string: getMacro (inout file: makefile, in stringHash: macros) is fun
           if makefile.bufferChar = ')' then
             makefile.bufferChar := getc(makefile);
             if name in macros then
-              result := replaceSuffixes(macros[name], suffix, replacement);
+              macro := replaceSuffixes(macros[name], suffix, replacement);
             else
-              result := "$(" & name & ":" & suffix & "=" & replacement & ")";
+              macro := "$(" & name & ":" & suffix & "=" & replacement & ")";
             end if;
           else
-            result := "$(" & name & ":" & suffix & "=" & replacement;
+            macro := "$(" & name & ":" & suffix & "=" & replacement;
           end if;
         else
-          result := "$(" & name & ":" & suffix;
+          macro := "$(" & name & ":" & suffix;
         end if;
       elsif makefile.bufferChar in space_or_tab then
         skipSpaceOrTab(makefile);
         if name = "wildcard" then
           matches := findMatchingFiles(getMacroName(makefile));
           if length(matches) <> 0 then
-            result := join(matches, ' ');
+            macro := join(matches, ' ');
           end if;
         elsif name = "strip" then
           name := getMacroParameter(makefile);
-          result := trim(applyMacros(macros, name, TRUE));
+          macro := trim(applyMacros(macros, name, TRUE));
         end if;
         skipSpaceOrTab(makefile);
         if makefile.bufferChar = ')' then
@@ -263,7 +263,7 @@ const func string: getMacro (inout file: makefile, in stringHash: macros) is fun
         end if;
       end if;
     else
-      result := "$";
+      macro := "$";
     end if;
   end func;
 
@@ -472,7 +472,7 @@ const func string: getDependency (inout string: stri) is func
       pos := start;
       repeat
         if stri[pos] = '\\' and pos < leng and stri[succ(pos)] = ' ' then
-	  incr(pos);
+          incr(pos);
         end if;
         symbol &:= stri[pos];
         incr(pos);

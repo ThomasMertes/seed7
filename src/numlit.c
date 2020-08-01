@@ -52,19 +52,19 @@
 
 #ifdef ANSI_C
 
-static void readdecimal (register sysizetype position)
+static void readDecimal (register sysizetype position)
 #else
 
-static void readdecimal (position)
+static void readDecimal (position)
 register sysizetype position;
 #endif
 
   {
     register int character;
 
-  /* readdecimal */
+  /* readDecimal */
 #ifdef TRACE_LITERAL
-    printf("BEGIN readdecimal\n");
+    printf("BEGIN readDecimal\n");
 #endif
     check_symb_length(position);
     symbol.name[position++] = (uchartype) in_file.character;
@@ -75,18 +75,18 @@ register sysizetype position;
     symbol.name[position] = '\0';
     in_file.character = character;
 #ifdef TRACE_LITERAL
-    printf("END readdecimal\n");
+    printf("END readDecimal\n");
 #endif
-  } /* readdecimal */
+  } /* readDecimal */
 
 
 
 #ifdef ANSI_C
 
-static inttype decimal_value (ustritype digits)
+static inttype decimalValue (ustritype digits)
 #else
 
-static inttype decimal_value (digits)
+static inttype decimalValue (digits)
 ustritype digits;
 #endif
 
@@ -96,7 +96,7 @@ ustritype digits;
     inttype digitval;
     booltype okay;
 
-  /* decimal_value */
+  /* decimalValue */
     okay = TRUE;
     intvalue = 0;
     position = 0;
@@ -116,16 +116,16 @@ ustritype digits;
       intvalue = 0;
     } /* if */
     return intvalue;
-  } /* decimal_value */
+  } /* decimalValue */
 
 
 
 #ifdef ANSI_C
 
-static INLINE inttype based_value (inttype base, ustritype digits)
+static INLINE inttype basedValue (inttype base, ustritype digits)
 #else
 
-static INLINE inttype based_value (base, digits)
+static INLINE inttype basedValue (base, digits)
 inttype base;
 ustritype digits;
 #endif
@@ -138,7 +138,7 @@ ustritype digits;
     inttype digitval;
     booltype okay;
 
-  /* based_value */
+  /* basedValue */
     okay = TRUE;
     intvalue = 0;
     div_base = (inttype) (INTTYPE_MAX / base);
@@ -170,16 +170,16 @@ ustritype digits;
       intvalue = 0;
     } /* if */
     return intvalue;
-  } /* based_value */
+  } /* basedValue */
 
 
 
 #ifdef ANSI_C
 
-static INLINE booltype readbased (void)
+static INLINE booltype readBased (void)
 #else
 
-static INLINE booltype readbased ()
+static INLINE booltype readBased ()
 #endif
 
   {
@@ -187,7 +187,7 @@ static INLINE booltype readbased ()
     register int character;
     booltype okay;
 
-  /* readbased */
+  /* readBased */
     position = 0;
     character = next_character();
     if (char_class(character) == DIGITCHAR ||
@@ -206,38 +206,91 @@ static INLINE booltype readbased ()
     symbol.name[position] = '\0';
     in_file.character = character;
     return okay;
-  } /* readbased */
+  } /* readBased */
 
 
 
 #ifdef ANSI_C
 
-static INLINE void basedint (inttype *intvalue)
+static INLINE biginttype readBigBased (inttype base)
 #else
 
-static INLINE void basedint (intvalue)
-inttype *intvalue;
+static INLINE biginttype readBigBased (base)
+inttype base;
 #endif
 
-  { /* basedint */
-    if (*intvalue < 2 || *intvalue > 36) {
-      err_integer(BASE2TO36ALLOWED, *intvalue);
-    } /* if */
-    if (readbased()) {
-      *intvalue = based_value(*intvalue, symbol.name);
+  {
+    memsizetype pos;
+    booltype okay = TRUE;
+    inttype digitval;
+    biginttype result;
+
+  /* readBigBased */
+    in_file.character = next_character();
+    pos = 0;
+    do {
+      while (pos != symbol.stri_max && symbol.name[pos] != '\0') {
+        digitval = digit_value[(int) symbol.name[pos]];
+        if (digitval >= base) {
+          if (okay) {
+            err_num_stri(ILLEGALBASEDDIGIT,
+                (int) symbol.name[pos], (int) base, symbol.name);
+            okay = FALSE;
+          } /* if */
+        } /* if */
+        symbol.strivalue->mem[pos] = (strelemtype) symbol.name[pos];
+        pos++;
+      } /* while */
+      check_stri_length(pos);
+    } while (symbol.name[pos] != '\0');
+    symbol.strivalue->size = pos;
+    bigDestr(symbol.bigintvalue);
+    if (okay) {
+      result = bigParseBased(symbol.strivalue, base);
     } else {
-      *intvalue = 0;
+      result = bigZero();
     } /* if */
-  } /* basedint */
+    return result;
+  } /* readBigBased */
 
 
 
 #ifdef ANSI_C
 
-static INLINE void intexponent (inttype *ivalue)
+static INLINE void basedInteger (inttype intvalue)
 #else
 
-static INLINE void intexponent (ivalue)
+static INLINE void basedInteger (intvalue)
+inttype intvalue;
+#endif
+
+  { /* basedInteger */
+    if (intvalue < 2 || intvalue > 36) {
+      err_integer(BASE2TO36ALLOWED, intvalue);
+      intvalue = 36; /* Avoid subsequent errors */
+    } /* if */
+    if (readBased()) {
+      if (in_file.character == '_') {
+        symbol.bigintvalue = readBigBased(intvalue);
+        symbol.sycategory = BIGINTLITERAL;
+      } else {
+        symbol.intvalue = basedValue(intvalue, symbol.name);
+        symbol.sycategory = INTLITERAL;
+      } /* if */
+    } else {
+      symbol.intvalue = 0;
+      symbol.sycategory = INTLITERAL;
+    } /* if */
+  } /* basedInteger */
+
+
+
+#ifdef ANSI_C
+
+static INLINE void intExponent (inttype *ivalue)
+#else
+
+static INLINE void intExponent (ivalue)
 inttype *ivalue;
 #endif
 
@@ -245,7 +298,7 @@ inttype *ivalue;
     inttype intvalue;
     inttype exponent;
 
-  /* intexponent */
+  /* intExponent */
     intvalue = *ivalue;
     in_file.character = next_character();
     if (in_file.character == '+') {
@@ -258,9 +311,9 @@ inttype *ivalue;
       } /* if */
     } /* if */
     if (char_class(in_file.character) == DIGITCHAR) {
-      readdecimal(0);
+      readDecimal(0);
       if (intvalue != 0) {
-        exponent = decimal_value(symbol.name);
+        exponent = decimalValue(symbol.name);
         while (exponent > 0) {
           exponent--;
           if (intvalue <= MAX_DIV_10) {
@@ -278,46 +331,23 @@ inttype *ivalue;
       intvalue = 0;
     } /* if */
     *ivalue = intvalue;
-  } /* intexponent */
+  } /* intExponent */
 
 
 
 #ifdef ANSI_C
 
-static INLINE inttype readinteger (void)
+static INLINE biginttype readBigInteger (void)
 #else
 
-static INLINE inttype readinteger ()
-#endif
-
-  {
-    inttype result;
-
-  /* readinteger */
-    result = decimal_value(symbol.name);
-    if (in_file.character == '#') {
-      basedint(&result);
-    } else if (in_file.character == 'E' || in_file.character == 'e') {
-      intexponent(&result);
-    } /* if */
-    return result;
-  } /* readinteger */
-
-
-
-#ifdef ANSI_C
-
-static INLINE biginttype readbiginteger (void)
-#else
-
-static INLINE biginttype readbiginteger ()
+static INLINE biginttype readBigInteger ()
 #endif
 
   {
     memsizetype pos;
     biginttype result;
 
-  /* readbiginteger */
+  /* readBigInteger */
     in_file.character = next_character();
     pos = 0;
     do {
@@ -331,32 +361,32 @@ static INLINE biginttype readbiginteger ()
     bigDestr(symbol.bigintvalue);
     result = bigParse(symbol.strivalue);
     return result;
-  } /* readbiginteger */
+  } /* readBigInteger */
 
 
 
 #ifdef ANSI_C
 
-static INLINE floattype readfloat (void)
+static INLINE floattype readFloat (void)
 #else
 
-static INLINE floattype readfloat ()
+static INLINE floattype readFloat ()
 #endif
 
   {
     register sysizetype position;
     floattype result;
 
-  /* readfloat */
+  /* readFloat */
 #ifdef TRACE_LITERAL
-    printf("BEGIN readfloat\n");
+    printf("BEGIN readFloat\n");
 #endif
     position = strlen((cstritype) symbol.name);
     check_symb_length(position);
     symbol.name[position++] = (uchartype) in_file.character;
     in_file.character = next_character();
     if (char_class(in_file.character) == DIGITCHAR) {
-      readdecimal(position);
+      readDecimal(position);
       if (in_file.character == 'E' || in_file.character == 'e') {
         position += strlen((cstritype) &symbol.name[position]);
         check_symb_length(position);
@@ -368,7 +398,7 @@ static INLINE floattype readfloat ()
           in_file.character = next_character();
         } /* if */
         if (char_class(in_file.character) == DIGITCHAR) {
-          readdecimal(position);
+          readDecimal(position);
         } else {
           err_cchar(DIGITEXPECTED, in_file.character);
         } /* if */
@@ -378,7 +408,7 @@ static INLINE floattype readfloat ()
       if (in_file.character == '\'') {
         in_file.character = next_character();
         if (char_class(in_file.character) == DIGITCHAR) {
-          readdecimal(position);
+          readDecimal(position);
         } else {
           err_cchar(DIGITEXPECTED, in_file.character);
         } /* if */
@@ -389,7 +419,7 @@ static INLINE floattype readfloat ()
       if (in_file.character == '\'') {
         in_file.character = next_character();
         if (char_class(in_file.character) == DIGITCHAR) {
-          readdecimal(position);
+          readDecimal(position);
         } else {
           err_cchar(DIGITEXPECTED, in_file.character);
         } /* if */
@@ -406,16 +436,16 @@ static INLINE floattype readfloat ()
         in_file.character = next_character();
       } /* if */
       if (char_class(in_file.character) == DIGITCHAR) {
-        readdecimal(position);
+        readDecimal(position);
       } else {
         err_cchar(DIGITEXPECTED, in_file.character);
       } /* if */
     } /* if */
 #ifdef TRACE_LITERAL
-    printf("END readfloat\n");
+    printf("END readFloat\n");
 #endif
     return result;
-  } /* readfloat */
+  } /* readFloat */
 
 
 
@@ -427,32 +457,40 @@ void lit_number (void)
 void lit_number ()
 #endif
 
-  { /* lit_number */
+  {
+    inttype number;
+
+  /* lit_number */
 #ifdef TRACE_LITERAL
     printf("BEGIN lit_number\n");
 #endif
-    readdecimal(0);
+    readDecimal(0);
     if (in_file.character == '.') {
 #ifdef WITH_FLOAT
-      symbol.floatvalue = readfloat();
+      symbol.floatvalue = readFloat();
 #endif
-      find_literal_ident();
       symbol.sycategory = FLOATLITERAL;
-      symbol.syNumberInLine++;
     } else if (in_file.character == '_') {
-      symbol.bigintvalue = readbiginteger();
-      find_literal_ident();
+      symbol.bigintvalue = readBigInteger();
       symbol.sycategory = BIGINTLITERAL;
-      symbol.syNumberInLine++;
     } else {
-      symbol.intvalue = readinteger();
-      find_literal_ident();
-      symbol.sycategory = INTLITERAL;
-      symbol.syNumberInLine++;
-#ifdef WITH_STATISTIC
-      literal_count++;
-#endif
+      number = decimalValue(symbol.name);
+      if (in_file.character == '#') {
+        basedInteger(number);
+      } else if (in_file.character == 'E' || in_file.character == 'e') {
+        intExponent(&number);
+        symbol.intvalue = number;
+        symbol.sycategory = INTLITERAL;
+      } else {
+        symbol.intvalue = number;
+        symbol.sycategory = INTLITERAL;
+      } /* if */
     } /* if */
+    find_literal_ident();
+    symbol.syNumberInLine++;
+#ifdef WITH_STATISTIC
+    literal_count++;
+#endif
 #ifdef TRACE_LITERAL
     printf("END lit_number\n");
 #endif

@@ -515,12 +515,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 150000 lines of Seed7. For version 2013-01-05 the number of lines is:
+than 150000 lines of Seed7. For version 2013-01-20 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right">102937</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right"> 10114</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">111169</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right"> 81814</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right">103582</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right"> 10227</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">111633</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right"> 81820</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -780,9 +780,7 @@ The following options are recognized by s7:
          <li><b>h</b> Trace heap size (in combination with 'a')</li></ul></li>
   <li><b>-d</b>   Equivalent to <b>-da</b></li>
   <li><b>-i</b>   Show the identifier table after the analyzing phase.</li>
-  <li><b>-m</b>   Use less memory during the analyzing phase.
-       If there is a "No more memory" error you can try this
-       option.</li>
+  <li><b>-l</b>   Add a directory to the include library search path (e.g.: <b>-l</b><tt> <span class="lib">../lib</span></tt>).</li>
   <li><b>-q</b>   Compile quiet. Line and file information and compilation
        statistics are suppressed.</li>
   <li><b>-t</b><span class="keywd">x</span>  Set runtime trace level to <span class="keywd">x</span>. Where <span class="keywd">x</span> is a string consisting
@@ -823,23 +821,25 @@ Possible options are
 </p><ul>
   <li><b>-?</b>   Write Seed7 compiler usage.</li>
   <li><b>-O</b> and <b>-O2</b>  Tell the C compiler to optimize.</li>
+  <li><b>-b</b>   Specify the directory of the Seed7 runtime libraries (e.g.: <b>-b</b><tt> <span class="lib">../bin</span></tt>).</li>
+  <li><b>-e</b>   Generate code which sends a signal, when an uncaught exception occurs.
+       This option allows debuggers to handle uncaught Seed7 exceptions.</li>
   <li><b>-g</b>   Tell the C compiler to generate an executable with debug information.
        This way the debugger will refer to Seed7 source files and line numbers.
        To generate debug information which refers to the temporary C program
        the option <b>-g-debug_c</b> can be used.</li>
+  <li><b>-l</b>   Add a directory to the include library search path (e.g.: <b>-l</b><tt> <span class="lib">../lib</span></tt>).</li>
   <li><b>-oc</b><span class="keywd">n</span> Optimize constants with level <span class="keywd">n</span>. E.g.: <b>-oc3</b> Where <span class="keywd">n</span> is a digit
        between 0 and 3:<ul>
          <li><b>0</b> Do no optimizations with constants.</li>
          <li><b>1</b> Use literals and named constants to simplify expressions (default).</li>
          <li><b>2</b> Evaluate constant expressions to simplify expressions.</li>
          <li><b>3</b> Like <b>-oc2</b> and additionally evaluate all constant expressions</li></ul></li>
+  <li><b>-r</b>   Suppress the generation of range checks for strings and arrays.</li>
   <li><b>-te</b>  Generate code to trace exceptions. This option works in the same way
        as the interpreter option <b>-te</b>: Every exception will write a message
        to stdout and the user will be asked to continue (with enter) or to
        terminate (with * ).</li>
-  <li><b>-r</b>   Suppress the generation of range checks for strings and arrays.</li>
-  <li><b>-e</b>   Generate code which sends a signal, when an uncaught exception occurs.
-       This option allows debuggers to handle uncaught Seed7 exceptions.</li>
 </ul></div>
 
 <div><br /><a name="reserved_words"><h3>What are the reserved words of Seed7?
@@ -1174,7 +1174,7 @@ literal to get an unambiguous expression. This concept parallels the approach
 used in mathematics where it is also required to specify measurement units.
 Obviously there is a difference between 5 seconds, 5 square meters and 5 apples.
 In school it is usually considered wrong to just write 5 and let the teacher
-guess the measurement unit. 
+guess the measurement unit.
 </p></div>
 
 <div><br /><a name="variable_parameters"><h3>Can functions have variable parameter lists?
@@ -1624,7 +1624,7 @@ the classic object oriented principles. In Seed7 every type has its own logic fo
 the assignment where sometimes a value copy and sometimes a reference copy is the
 right thing to do. Exactly speaking there are many forms of assignment since every
 type can define its own assignment. If a value copy works like a deep or a shallow
-copy can also be defined depending on the type. 
+copy can also be defined depending on the type.
 </p><p>
 For example: For <tt><a class="type" href="manual/types.htm#integer">integer</a></tt>, <tt><a class="type" href="manual/types.htm#char">char</a></tt> and <tt><a class="type" href="manual/types.htm#string">string</a></tt> variables a value copy is what most
 people expect. For files you don't expect the whole file to be copied with an

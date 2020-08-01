@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  make.s7i      Make library to manage the compilation process    *)
-(*  Copyright (C) 2010 - 2012  Thomas Mertes                        *)
+(*  Copyright (C) 2010 - 2013  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -414,17 +414,18 @@ const proc: doCd (inout string: command, in boolean: doLog) is func
   end func;
 
 
-const proc: make (in string: makefile, in string: target, in makeFlags: flags) is forward;
+const proc: make (in string: makefile, in array string: targets, in makeFlags: flags) is forward;
 
 
 const proc: doMake (inout string: command, in boolean: doLog) is func
   local
     var string: parameter is "";
     var string: makefile is "";
-    var string: target is "";
+    var array string: targets is 0 times "";
     var makeFlags: flags is makeFlags.value;
     var string: savedCurrentDir is "";
   begin
+    savedCurrentDir := getcwd;
     skipWhiteSpace(command);
     if doLog then
       write("make");
@@ -435,9 +436,16 @@ const proc: doMake (inout string: command, in boolean: doLog) is func
         write(" " <& parameter);
       end if;
       if length(parameter) >= 2 and parameter[1] = '-' then
-        if parameter = "-f" then
+        if parameter = "-C" then
           skipWhiteSpace(command);
-          makefile := getCommandParameter(command);
+          parameter := convDosPath(getCommandParameter(command));
+          chdir(parameter);
+          if doLog then
+            write(" " <& parameter);
+          end if;
+        elsif parameter = "-f" then
+          skipWhiteSpace(command);
+          makefile := convDosPath(getCommandParameter(command));
           if doLog then
             write(" " <& makefile);
           end if;
@@ -448,8 +456,8 @@ const proc: doMake (inout string: command, in boolean: doLog) is func
         elsif parameter = "-s" then
           incl(flags, silentMode);
         end if;
-      elsif target = "" then
-        target := parameter;
+      else
+        targets &:= parameter;
       end if;
       skipWhiteSpace(command);
     end while;
@@ -463,8 +471,7 @@ const proc: doMake (inout string: command, in boolean: doLog) is func
         makefile := "Makefile";
       end if;
     end if;
-    savedCurrentDir := getcwd;
-    make(makefile, target, flags);
+    make(makefile, targets, flags);
     chdir(savedCurrentDir);
   end func;
 
@@ -909,13 +916,14 @@ const proc: processRule (inout makeDataType: makeData, in string: targetName) is
   end func;
 
 
-const proc: make (in string: makefile, in string: target, in makeFlags: flags,
+const proc: make (in string: makefile, in array string: targets, in makeFlags: flags,
     in stringHash: macros) is func
   local
     var ruleType: rule is ruleType.value;
     var makeDataType: makeData is makeDataType.value;
+    var string: target is "";
   begin
-    # writeln("make -f " <& makefile <& " " <& target);
+    # writeln("make -f " <& makefile <& " " <& join(targets, " "));
     makeData.executeCommands := dontExecute not in flags;
     makeData.inSilentMode := silentMode in flags;
     makeData.doIgnoreErrors := ignoreErrors in flags;
@@ -930,7 +938,9 @@ const proc: make (in string: makefile, in string: target, in makeFlags: flags,
       makeData.macros @:= ["CC"] "cc";
     end if;
     makeData.macros @:= ["MAKE"] "make7";
-    makeData.macros @:= ["MAKECMDGOALS"] target;
+    if length(targets) <> 0 then
+      makeData.macros @:= ["MAKECMDGOALS"] join(targets, " ");
+    end if;
     readMakefile(makeData, makefile);
     if ".c.o" in makeData.rules and "%.o" not in makeData.patternRules then
       rule.name := "%.o";
@@ -956,10 +966,28 @@ const proc: make (in string: makefile, in string: target, in makeFlags: flags,
       rule.commands := [] (applyMacros(makeData.macros, "$(CC) -c $(CPPFLAGS) $(CFLAGS) $< -o $@", TRUE));
       makeData.patternRules @:= [rule.name] rule;
     end if;
-    if target = "" then
+    if length(targets) = 0 then
       processRule(makeData, makeData.nameOfFirstRule);
     else
-      processRule(makeData, target);
+      for target range targets do
+        processRule(makeData, target);
+      end for;
+    end if;
+  end func;
+
+
+const proc: make (in string: makefile, in array string: targets, in makeFlags: flags) is func
+  begin
+    make(makefile, targets, flags, stringHash.value);
+  end func;
+
+
+const proc: make (in string: makefile, in string: target, in makeFlags: flags, in stringHash: macros) is func
+  begin
+    if target = "" then
+      make(makefile, 0 times "", flags, macros);
+    else
+      make(makefile, [] (target), flags, macros);
     end if;
   end func;
 

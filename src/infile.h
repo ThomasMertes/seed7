@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2000  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2013  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: Analyzer - Infile                                       */
 /*  File: seed7/src/infile.h                                        */
-/*  Changes: 1990, 1991, 1992, 1993, 1994  Thomas Mertes            */
+/*  Changes: 1990 - 1994, 2013  Thomas Mertes                       */
 /*  Content: Procedures to open, close and read the source file.    */
 /*                                                                  */
 /*  The next_character macro is the key macro for all parsing       */
@@ -57,40 +57,55 @@
 #define SKIP_CR_SP(CH) do CH = next_character(); while (CH == ' ' || CH == '\t' || CH == '\r')
 #define SKIP_TO_NL(CH) do { CH = next_character(); } while (CH != '\n' && CH != EOF);
 
+#define LARGE_INCR 16383
+
 
 #ifdef DO_INIT
 infilrecord in_file = {
-    NULL, NULL, NULL,
+    NULL,       /* fil */
+    NULL,       /* name_ustri */
+    NULL,       /* name */
 #ifdef USE_ALTERNATE_NEXT_CHARACTER
-    NULL, NULL, NULL, 0,
+    NULL,       /* start */
+    NULL,       /* nextch */
+    NULL,       /* beyond */
+    0,          /* buffer_size */
 #else
 #ifdef USE_INFILE_BUFFER
-    NULL,
+    NULL,       /* buffer */
 #endif
 #endif
-    ' ', NULL, NULL, NULL, 0, 0, 0, TRUE};
+    ' ',        /* character */
+    NULL,       /* curr_infile */
+    NULL,       /* up_infile */
+    NULL,       /* next */
+#ifdef WITH_COMPILATION_INFO
+    FALSE,      /* write_library_names */
+    FALSE,      /* write_line_numbers */
+#endif
+    0,          /* line */
+    0,          /* incr_message_line */
+    LARGE_INCR, /* next_msg_line */
+    0,          /* file_number */
+    TRUE        /* end_of_file */
+  };
 #else
 EXTERN infilrecord in_file;
 #endif
 
 
-EXTERN arraytype lib_path;
-
-
 #ifdef ANSI_C
 
 int fill_buf (void);
-void open_infile (const_stritype source_file_name, errinfotype *err_info);
+void open_infile (const_stritype source_file_name, booltype write_library_names,
+    booltype write_line_numbers, errinfotype *err_info);
 void close_infile (void);
-void open_string (bstritype input_string, errinfotype *err_info);
+void open_string (bstritype input_string, booltype write_library_names,
+    booltype write_line_numbers, errinfotype *err_info);
 void next_file (void);
 int next_line (void);
 stritype get_file_name (filenumtype file_num);
 const_ustritype get_file_name_ustri (filenumtype file_num);
-void find_include_file (const_stritype include_file_name, errinfotype *err_info);
-void append_to_lib_path (const_stritype path, errinfotype *err_info);
-void init_lib_path (const_stritype source_file_name, errinfotype *err_info);
-void free_lib_path (void);
 
 #else
 
@@ -102,9 +117,5 @@ void next_file ();
 int next_line ();
 stritype get_file_name ();
 ustritype get_file_name_ustri ();
-void find_include_file ();
-void append_to_lib_path ();
-void init_lib_path ();
-void free_lib_path ();
 
 #endif

@@ -33,12 +33,14 @@
 
 #include "common.h"
 #include "data.h"
+#include "data_rtl.h"
 #include "heaputl.h"
 #include "flistutl.h"
 #include "syvarutl.h"
 #include "striutl.h"
 #include "identutl.h"
 #include "listutl.h"
+#include "arrutl.h"
 #include "entutl.h"
 #include "findid.h"
 #include "traceutl.h"
@@ -57,9 +59,6 @@
 
 
 #define TABLE_INCREMENT 127
-
-
-extern stritype programPath; /* defined in s7.c or in the executable of a program */
 
 
 
@@ -271,12 +270,24 @@ objecttype prg_exec (arguments)
 listtype arguments;
 #endif
 
-  { /* prg_exec */
+  {
+    rtlArraytype parameters;
+
+  /* prg_exec */
     isit_prog(arg_1(arguments));
-    interpr(take_prog(arg_1(arguments)));
-    fail_flag = FALSE;
-    fail_value = (objecttype) NULL;
-    fail_expression = (listtype) NULL;
+    isit_array(arg_2(arguments));
+    isit_set(arg_3(arguments));
+    isit_stri(arg_4(arguments));
+    parameters = gen_rtl_array(take_array(arg_2(arguments)));
+    if (parameters == NULL) {
+      return raise_exception(SYS_MEM_EXCEPTION);
+    } else {
+      prgExec(take_prog(arg_1(arguments)),
+              parameters,
+              take_set(arg_3(arguments)),
+              take_stri(arg_4(arguments)));
+      FREE_RTL_ARRAY(parameters, ARRAY_LENGTH(parameters));
+    } /* if */
     return SYS_EMPTY_OBJECT;
   } /* prg_exec */
 
@@ -291,10 +302,26 @@ objecttype prg_fil_parse (arguments)
 listtype arguments;
 #endif
 
-  { /* prg_fil_parse */
+  {
+    rtlArraytype libraryDirs;
+    progtype program;
+
+  /* prg_fil_parse */
     isit_stri(arg_1(arguments));
-    return bld_prog_temp(prgFilParse(
-        take_stri(arg_1(arguments))));
+    isit_set(arg_2(arguments));
+    isit_array(arg_3(arguments));
+    isit_stri(arg_4(arguments));
+    libraryDirs = gen_rtl_array(take_array(arg_3(arguments)));
+    if (libraryDirs == NULL) {
+      return raise_exception(SYS_MEM_EXCEPTION);
+    } else {
+      program = prgFilParse(take_stri(arg_1(arguments)),
+                            take_set(arg_2(arguments)),
+                            libraryDirs,
+                            take_stri(arg_4(arguments)));
+      FREE_RTL_ARRAY(libraryDirs, ARRAY_LENGTH(libraryDirs));
+      return bld_prog_temp(program);
+    } /* if */
   } /* prg_fil_parse */
 
 
@@ -333,21 +360,6 @@ listtype arguments;
 #endif
     return bld_reference_temp(result);
   } /* prg_find */
-
-
-
-#ifdef ANSI_C
-
-objecttype prg_interpreter (listtype arguments)
-#else
-
-objecttype prg_interpreter (arguments)
-listtype arguments;
-#endif
-
-  { /* prg_interpreter */
-    return bld_stri_temp(strCreate(programPath));
-  } /* prg_interpreter */
 
 
 
@@ -462,10 +474,26 @@ objecttype prg_str_parse (arguments)
 listtype arguments;
 #endif
 
-  { /* prg_str_parse */
+  {
+    rtlArraytype libraryDirs;
+    progtype program;
+
+  /* prg_str_parse */
     isit_stri(arg_1(arguments));
-    return bld_prog_temp(prgStrParse(
-        take_stri(arg_1(arguments))));
+    isit_set(arg_2(arguments));
+    isit_array(arg_3(arguments));
+    isit_stri(arg_4(arguments));
+    libraryDirs = gen_rtl_array(take_array(arg_3(arguments)));
+    if (libraryDirs == NULL) {
+      return raise_exception(SYS_MEM_EXCEPTION);
+    } else {
+      program = prgStrParse(take_stri(arg_1(arguments)),
+                            take_set(arg_2(arguments)),
+                            libraryDirs,
+                            take_stri(arg_4(arguments)));
+      FREE_RTL_ARRAY(libraryDirs, ARRAY_LENGTH(libraryDirs));
+      return bld_prog_temp(program);
+    } /* if */
   } /* prg_str_parse */
 
 

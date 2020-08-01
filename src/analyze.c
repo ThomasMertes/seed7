@@ -49,6 +49,7 @@
 #include "syntax.h"
 #include "info.h"
 #include "infile.h"
+#include "libpath.h"
 #include "error.h"
 #include "findid.h"
 #include "object.h"
@@ -92,7 +93,7 @@ static void init_analyze ()
 
   { /* init_analyze */
     if (!analyze_initialized) {
-      set_trace(NULL, -1, NULL);
+      set_protfile_name(NULL);
       init_chclass();
       init_primitiv();
       init_do_any();
@@ -252,7 +253,7 @@ static void process_pragma ()
         scan_symbol();
         if (symbol.sycategory == STRILITERAL) {
 #ifdef WITH_COMPILATION_INFO
-          if (option.compilation_info) {
+          if (in_file.write_line_numbers) {
             NL_LIN_INFO();
           } /* if */
 #endif
@@ -270,15 +271,15 @@ static void process_pragma ()
         scan_symbol();
         if (strcmp((cstritype) symbol.name, "on") == 0) {
 #ifdef WITH_COMPILATION_INFO
-          if (!option.compilation_info) {
-            option.compilation_info = TRUE;
+          if (!in_file.write_line_numbers) {
+            in_file.write_line_numbers = TRUE;
             display_compilation_info();
           } /* if */
-          option.linecount_info = TRUE;
+          in_file.write_library_names = TRUE;
 #endif
         } else if (strcmp((cstritype) symbol.name, "off") == 0) {
 #ifdef WITH_COMPILATION_INFO
-          if (option.compilation_info) {
+          if (in_file.write_line_numbers) {
             size_t number;
             for (number = 1; number <= 7 + strlen((const_cstritype) in_file.name_ustri);
                 number++) {
@@ -286,9 +287,9 @@ static void process_pragma ()
             } /* for */
             fputc('\r', stdout);
             fflush(stdout);
-            option.compilation_info = FALSE;
+            in_file.write_line_numbers = FALSE;
           } /* if */
-          option.linecount_info = FALSE;
+          in_file.write_library_names = FALSE;
 #endif
         } else {
           err_warning(ILLEGALPRAGMA);
@@ -296,7 +297,8 @@ static void process_pragma ()
       } else if (strcmp((cstritype) symbol.name, "trace") == 0) {
         scan_symbol();
         if (symbol.sycategory == STRILITERAL) {
-          set_trace2(symbol.strivalue);
+          mapTraceFlags(symbol.strivalue, &prog.option_flags);
+          set_trace(prog.option_flags);
         } else {
           err_warning(STRI_EXPECTED);
         } /* if */
@@ -465,12 +467,17 @@ stritype source_file_name;
 #ifdef ANSI_C
 
 static progtype analyze_prog (const const_stritype source_file_argument,
-    const const_stritype source_name, errinfotype *err_info)
+    const const_stritype source_name, uinttype options, const const_rtlArraytype libraryDirs,
+    const const_stritype prot_file_name, errinfotype *err_info)
 #else
 
-static progtype analyze_prog (source_file_argument, source_name, err_info)
+static progtype analyze_prog (source_file_argument, source_name, options,
+    libraryDirs, prot_file_name, err_info)
 stritype source_file_argument;
 stritype source_name;
+uinttype options;
+rtlArraytype libraryDirs;
+stritype prot_file_name;
 errinfotype *err_info;
 #endif
 
@@ -497,7 +504,7 @@ errinfotype *err_info;
       resultProg->usage_count = 1;
       resultProg->main_object = NULL;
       memcpy(&prog_backup, &prog, sizeof(progrecord));
-      init_lib_path(source_file_argument, err_info);
+      init_lib_path(source_file_argument, libraryDirs, err_info);
       init_idents(&prog, err_info);
       init_findid(err_info);
       init_entity(err_info);
@@ -509,7 +516,9 @@ errinfotype *err_info;
       prog.error_count = 0;
       if (*err_info == OKAY_NO_ERROR) {
         memcpy(&trace_backup, &trace, sizeof(tracerecord));
-        set_trace(option.comp_trace_level, -1, option.prot_file_name);
+        prog.option_flags = options;
+        set_trace(prog.option_flags);
+        set_protfile_name(prot_file_name);
         decl_any(prog.declaration_root);
         if (SYS_MAIN_OBJECT == NULL) {
           prog.error_count++;
@@ -548,13 +557,14 @@ errinfotype *err_info;
         } /* if */
         /* close_stack(&prog); * can be used when no matching is done during the runtime */
         /* close_declaration_root(&prog); * can be used when no matching is done during the runtime */
-        if (option.show_ident_table) {
+        if (options & SHOW_IDENT_TABLE) {
           write_idents();
         } /* if */
         clean_idents();
         resultProg->arg0             = source_file_argument_copy;
         resultProg->program_name     = getProgramName(source_file_argument);
         resultProg->program_path     = getProgramPath(source_name);
+        resultProg->option_flags     = prog.option_flags;
         resultProg->error_count      = prog.error_count;
         memcpy(&resultProg->ident,    &prog.ident, sizeof(idroottype));
         memcpy(&resultProg->id_for,   &prog.id_for, sizeof(findidtype));
@@ -567,7 +577,7 @@ errinfotype *err_info;
         close_infile();
         close_symbol();
         free_lib_path();
-        if (option.compilation_info || option.linecount_info) {
+        if (options & SHOW_STATISTICS) {
           show_statistic();
           if (resultProg->error_count >= 1) {
             printf("%6d error%s found\n",
@@ -594,11 +604,16 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-progtype analyze_file (const const_stritype source_file_argument, errinfotype *err_info)
+progtype analyze_file (const const_stritype source_file_argument, uinttype options,
+    const const_rtlArraytype libraryDirs, const const_stritype prot_file_name,
+    errinfotype *err_info)
 #else
 
-progtype analyze_file (source_file_argument, err_info)
+progtype analyze_file (source_file_argument, options, libraryDirs, prot_file_name, err_info)
 stritype source_file_argument;
+uinttype options;
+rtlArraytype libraryDirs;
+stritype prot_file_name;
 errinfotype *err_info;
 #endif
 
@@ -637,18 +652,19 @@ errinfotype *err_info;
       if (add_extension) {
         cstri_expand(&source_name->mem[source_file_argument->size], ".sd7", 4);
       } /* if */
-      open_infile(source_name, err_info);
+      open_infile(source_name, options & WRITE_LIBRARY_NAMES, options & WRITE_LINE_NUMBERS, err_info);
       if (*err_info == FILE_ERROR && add_extension) {
         *err_info = OKAY_NO_ERROR;
         source_name->size = name_len - 4;
-        open_infile(source_name, err_info);
+        open_infile(source_name, options & WRITE_LIBRARY_NAMES, options & WRITE_LINE_NUMBERS, err_info);
       } /* if */
 #ifdef HAS_SYMLINKS
       source_name = followLink(source_name);
 #endif
       if (*err_info == OKAY_NO_ERROR) {
         scan_byte_order_mark();
-        resultProg = analyze_prog(source_file_argument, source_name, err_info);
+        resultProg = analyze_prog(source_file_argument, source_name, options,
+                                  libraryDirs, prot_file_name, err_info);
       } else if (*err_info == FILE_ERROR) {
         *err_info = OKAY_NO_ERROR;
       } /* if */
@@ -665,11 +681,13 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-progtype analyze (const const_stritype source_file_argument)
+progtype analyze (const const_stritype source_file_argument, uinttype options,
+    const const_rtlArraytype libraryDirs, const const_stritype prot_file_name)
 #else
 
 progtype analyze (source_file_argument)
 stritype source_file_argument;
+const const_stritype prot_file_name;
 #endif
 
   {
@@ -680,7 +698,8 @@ stritype source_file_argument;
 #ifdef TRACE_ANALYZE
     printf("BEGIN analyze\n");
 #endif
-    resultProg = analyze_file(source_file_argument, &err_info);
+    resultProg = analyze_file(source_file_argument, options,
+                              libraryDirs, prot_file_name, &err_info);
     if (err_info == MEMORY_ERROR) {
       err_warning(OUT_OF_HEAP_SPACE);
     } else if (resultProg == NULL || err_info != OKAY_NO_ERROR) {
@@ -696,11 +715,16 @@ stritype source_file_argument;
 
 #ifdef ANSI_C
 
-progtype analyze_string (const const_stritype input_string, errinfotype *err_info)
+progtype analyze_string (const const_stritype input_string, uinttype options,
+    const const_rtlArraytype libraryDirs, const const_stritype prot_file_name,
+    errinfotype *err_info)
 #else
 
-progtype analyze_string (input_string, err_info)
+progtype analyze_string (input_string, options, libraryDirs, prot_file_name, err_info)
 stritype input_string;
+uinttype options;
+rtlArraytype libraryDirs;
+stritype prot_file_name;
 errinfotype *err_info;
 #endif
 
@@ -724,9 +748,10 @@ errinfotype *err_info;
       if (input_bstri == NULL) {
         *err_info = MEMORY_ERROR;
       } else {
-        open_string(input_bstri, err_info);
+        open_string(input_bstri, options & WRITE_LIBRARY_NAMES, options & WRITE_LINE_NUMBERS, err_info);
         if (*err_info == OKAY_NO_ERROR) {
-          resultProg = analyze_prog(source_file_argument, source_file_argument, err_info);
+          resultProg = analyze_prog(source_file_argument, source_file_argument,
+                                    options, libraryDirs, prot_file_name, err_info);
         } /* if */
         FREE_BSTRI(input_bstri, input_bstri->size);
       } /* if */

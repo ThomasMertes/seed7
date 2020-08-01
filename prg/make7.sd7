@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  make7.sd7     Make utility to manage the compilation process    *)
-(*  Copyright (C) 2010 - 2012  Thomas Mertes                        *)
+(*  Copyright (C) 2010 - 2013  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
 (*  modify it under the terms of the GNU General Public License as  *)
@@ -36,7 +36,7 @@ const proc: main is func
     var string: makefile is "";
     var stringHash: macros is stringHash.value;
     var integer: equalPos is 0;
-    var string: target is "";
+    var array string: targets is 0 times "";
     var makeFlags: flags is makeFlags.value;
     var boolean: okay is TRUE;
   begin
@@ -44,7 +44,10 @@ const proc: main is func
     while number <= length(argv(PROGRAM)) do
       curr_arg := argv(PROGRAM)[number];
       if length(curr_arg) >= 2 and curr_arg[1] = '-' then
-        if curr_arg = "-f" and number < length(argv(PROGRAM)) then
+        if curr_arg = "-C" and number < length(argv(PROGRAM)) then
+          incr(number);
+          chdir(convDosPath(argv(PROGRAM)[number]));
+        elsif curr_arg = "-f" and number < length(argv(PROGRAM)) then
           incr(number);
           make_option @:= [curr_arg[.. 2]] argv(PROGRAM)[number];
         else
@@ -53,22 +56,24 @@ const proc: main is func
       elsif pos(curr_arg, '=') <> 0 then
         equalPos := pos(curr_arg, '=');
         macros @:= [curr_arg[.. pred(equalPos)]] curr_arg[succ(equalPos) ..];
-      elsif target = "" then
-        target := curr_arg;
+      else
+        targets &:= curr_arg;
       end if;
       incr(number);
     end while;
     if "-v" in make_option or "-h" in make_option or "-?" in make_option then
       writeln("Make7 Version 1.0 - Make utility to manage the compilation process");
-      writeln("Copyright (C) 2010 - 2012 Thomas Mertes");
+      writeln("Copyright (C) 2010 - 2013 Thomas Mertes");
       writeln("This is free software; see the source for copying conditions.  There is NO");
       writeln("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.");
       writeln("Make7 is written in the Seed7 programming language");
       writeln("Homepage: http://seed7.sourceforge.net");
       writeln;
-      writeln("usage: make7 [options] target");
+      writeln("usage: make7 [options] [targets]");
       writeln;
       writeln("Options:");
+      writeln("  -C dir");
+      writeln("     Change to dir before reading the makefile or doing anything else.");
       writeln("  -f file");
       writeln("     Use file as a makefile.");
       writeln("  -i");
@@ -80,14 +85,14 @@ const proc: main is func
       writeln;
     else
       if "-f" in make_option then
-        makefile := make_option["-f"];
+        makefile := convDosPath(make_option["-f"]);
       elsif fileType("makefile") = FILE_REGULAR then
         makefile := "makefile";
       elsif fileType("Makefile") = FILE_REGULAR then
         makefile := "Makefile";
       else
         okay := FALSE;
-        if target = "" then
+        if length(targets) = 0 then
           writeln(" *** Target missing and no makefile found.");
         else
           writeln(" *** No makefile found.");
@@ -104,7 +109,7 @@ const proc: main is func
         incl(flags, silentMode);
       end if;
       if okay then
-        make(makefile, target, flags, macros);
+        make(makefile, targets, flags, macros);
       end if;
     end if;
   end func;

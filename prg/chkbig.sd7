@@ -46,6 +46,259 @@ const func integer: intExpr (in integer: number) is
 var bigInteger: number is bigInteger parse "0";
 
 
+const proc: chkLiteral is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if     0_ <>  2#0_ or  2#0_ <>  3#0_ or
+         3#0_ <>  4#0_ or  4#0_ <>  5#0_ or  5#0_ <>  6#0_ or  6#0_ <>  7#0_ or
+         7#0_ <>  8#0_ or  8#0_ <>  9#0_ or  9#0_ <> 10#0_ or 10#0_ <> 11#0_ or
+        11#0_ <> 12#0_ or 12#0_ <> 13#0_ or 13#0_ <> 14#0_ or 14#0_ <> 15#0_ or
+        15#0_ <> 16#0_ or 16#0_ <> 17#0_ or 17#0_ <> 18#0_ or 18#0_ <> 19#0_ or
+        19#0_ <> 20#0_ or 20#0_ <> 21#0_ or 21#0_ <> 22#0_ or 22#0_ <> 23#0_ or
+        23#0_ <> 24#0_ or 24#0_ <> 25#0_ or 25#0_ <> 26#0_ or 26#0_ <> 27#0_ or
+        27#0_ <> 28#0_ or 28#0_ <> 29#0_ or 29#0_ <> 30#0_ or 30#0_ <> 31#0_ or
+        31#0_ <> 32#0_ or 32#0_ <> 33#0_ or 33#0_ <> 34#0_ or 34#0_ <> 35#0_ or
+        35#0_ <> 36#0_ then
+      writeln("Based bigInteger literals do not work correct.");
+      okay := FALSE;
+    end if;
+    if     1_ <>  2#1_ or  2#1_ <>  3#1_ or
+         3#1_ <>  4#1_ or  4#1_ <>  5#1_ or  5#1_ <>  6#1_ or  6#1_ <>  7#1_ or
+         7#1_ <>  8#1_ or  8#1_ <>  9#1_ or  9#1_ <> 10#1_ or 10#1_ <> 11#1_ or
+        11#1_ <> 12#1_ or 12#1_ <> 13#1_ or 13#1_ <> 14#1_ or 14#1_ <> 15#1_ or
+        15#1_ <> 16#1_ or 16#1_ <> 17#1_ or 17#1_ <> 18#1_ or 18#1_ <> 19#1_ or
+        19#1_ <> 20#1_ or 20#1_ <> 21#1_ or 21#1_ <> 22#1_ or 22#1_ <> 23#1_ or
+        23#1_ <> 24#1_ or 24#1_ <> 25#1_ or 25#1_ <> 26#1_ or 26#1_ <> 27#1_ or
+        27#1_ <> 28#1_ or 28#1_ <> 29#1_ or 29#1_ <> 30#1_ or 30#1_ <> 31#1_ or
+        31#1_ <> 32#1_ or 32#1_ <> 33#1_ or 33#1_ <> 34#1_ or 34#1_ <> 35#1_ or
+        35#1_ <> 36#1_ then
+      writeln("Based bigInteger literals do not work correct.");
+      okay := FALSE;
+    end if;
+    if     2_ <> 2#10_ or 2#10_ <>  3#2_ or
+         3#2_ <>  4#2_ or  4#2_ <>  5#2_ or  5#2_ <>  6#2_ or  6#2_ <>  7#2_ or
+         7#2_ <>  8#2_ or  8#2_ <>  9#2_ or  9#2_ <> 10#2_ or 10#2_ <> 11#2_ or
+        11#2_ <> 12#2_ or 12#2_ <> 13#2_ or 13#2_ <> 14#2_ or 14#2_ <> 15#2_ or
+        15#2_ <> 16#2_ or 16#2_ <> 17#2_ or 17#2_ <> 18#2_ or 18#2_ <> 19#2_ or
+        19#2_ <> 20#2_ or 20#2_ <> 21#2_ or 21#2_ <> 22#2_ or 22#2_ <> 23#2_ or
+        23#2_ <> 24#2_ or 24#2_ <> 25#2_ or 25#2_ <> 26#2_ or 26#2_ <> 27#2_ or
+        27#2_ <> 28#2_ or 28#2_ <> 29#2_ or 29#2_ <> 30#2_ or 30#2_ <> 31#2_ or
+        31#2_ <> 32#2_ or 32#2_ <> 33#2_ or 33#2_ <> 34#2_ or 34#2_ <> 35#2_ or
+        35#2_ <> 36#2_ then
+      writeln("Based bigInteger literals do not work correct.");
+      okay := FALSE;
+    end if;
+    if    16_ <> 2#10000_ or 2#10000_ <> 3#121_ or
+        3#121_ <> 4#100_ or 4#100_ <>  5#31_ or  5#31_ <>  6#24_ or  6#24_ <>  7#22_ or
+         7#22_ <>  8#20_ or  8#20_ <>  9#17_ or  9#17_ <> 10#16_ or 10#16_ <> 11#15_ or
+        11#15_ <> 12#14_ or 12#14_ <> 13#13_ or 13#13_ <> 14#12_ or 14#12_ <> 15#11_ or
+        15#11_ <> 16#10_ or 16#10_ <> 17#G_ or 17#G_ <> 18#G_ or 18#G_ <> 19#G_ or
+        19#G_ <> 20#G_ or 20#G_ <> 21#G_ or 21#G_ <> 22#G_ or 22#G_ <> 23#G_ or
+        23#G_ <> 24#G_ or 24#G_ <> 25#G_ or 25#G_ <> 26#G_ or 26#G_ <> 27#G_ or
+        27#G_ <> 28#G_ or 28#G_ <> 29#G_ or 29#G_ <> 30#G_ or 30#G_ <> 31#G_ or
+        31#G_ <> 32#G_ or 32#G_ <> 33#G_ or 33#G_ <> 34#G_ or 34#G_ <> 35#G_ or
+        35#G_ <> 36#G_ then
+      writeln("Based bigInteger literals do not work correct.");
+      okay := FALSE;
+    end if;
+    if    32_ <> 2#100000_ or 2#100000_ <> 3#1012_ or
+       3#1012_ <> 4#200_ or 4#200_ <> 5#112_ or 5#112_ <>  6#52_ or  6#52_ <>  7#44_ or
+         7#44_ <>  8#40_ or  8#40_ <>  9#35_ or  9#35_ <> 10#32_ or 10#32_ <> 11#2A_ or
+        11#2A_ <> 12#28_ or 12#28_ <> 13#26_ or 13#26_ <> 14#24_ or 14#24_ <> 15#22_ or
+        15#22_ <> 16#20_ or 16#20_ <> 17#1F_ or 17#1F_ <> 18#1E_ or 18#1E_ <> 19#1D_ or
+        19#1D_ <> 20#1C_ or 20#1C_ <> 21#1B_ or 21#1B_ <> 22#1A_ or 22#1A_ <> 23#19_ or
+        23#19_ <> 24#18_ or 24#18_ <> 25#17_ or 25#17_ <> 26#16_ or 26#16_ <> 27#15_ or
+        27#15_ <> 28#14_ or 28#14_ <> 29#13_ or 29#13_ <> 30#12_ or 30#12_ <> 31#11_ or
+        31#11_ <> 32#10_ or 32#10_ <> 33#W_ or 33#W_ <> 34#W_ or 34#W_ <> 35#W_ or
+        35#W_ <> 36#W_ then
+      writeln("Based bigInteger literals do not work correct.");
+      okay := FALSE;
+    end if;
+    if  100000000000000000000_ <>  2#1010110101111000111010111100010110101100011000100000000000000000000_ or
+        100000000000000000000_ <>  3#220200020122120112010222022122002000100201_ or
+        100000000000000000000_ <>  4#1112233013113202311203010000000000_ or
+        100000000000000000000_ <>  5#23202330100000000000000000000_ or
+        100000000000000000000_ <>  6#33034304013023440042054544_ or
+        100000000000000000000_ <>  7#344015313561621001452562_ or
+        100000000000000000000_ <>  8#12657072742654304000000_ or
+        100000000000000000000_ <>  9#820218515128278060321_ or
+        100000000000000000000_ <> 10#100000000000000000000_ or
+        100000000000000000000_ <> 11#16a9322885328081a121_ or
+        100000000000000000000_ <> 12#390a66958a9464aa454_ or
+        100000000000000000000_ <> 13#b7388131b304451099_ or
+        100000000000000000000_ <> 14#33cb3bb449c2a91332_ or
+        100000000000000000000_ <> 15#1035749e25953d996a_ or
+        100000000000000000000_ <> 16#56bc75e2d63100000_ or
+        100000000000000000000_ <> 17#20ff5dab9g7f47384_ or
+        100000000000000000000_ <> 18#eee706h921ebb55a_ or
+        100000000000000000000_ <> 19#6b2i1gcaddd4ga45_ or
+        100000000000000000000_ <> 20#310e150000000000_ or
+        100000000000000000000_ <> 21#19h7djcjj8f750dg_ or
+        100000000000000000000_ <> 22#g1d1d41kh0d406c_ or
+        100000000000000000000_ <> 23#8e93h381mich183_ or
+        100000000000000000000_ <> 24#4i24imni329g72g_ or
+        100000000000000000000_ <> 25#2h2i10000000000_ or
+        100000000000000000000_ <> 26#1e7na9ijd1jl6hm_ or
+        100000000000000000000_ <> 27#oi6hfe3q8h209j_ or
+        100000000000000000000_ <> 28#fahhbc826cmp8g_ or
+        100000000000000000000_ <> 29#9liashaimceq07_ or
+        100000000000000000000_ <> 30#6850qa888gnl3a_ or
+        100000000000000000000_ <> 31#42tlg9if3mmgip_ or
+        100000000000000000000_ <> 32#2mnhqu5lhh0000_ or
+        100000000000000000000_ <> 33#1qvi340qbei9u1_ or
+        100000000000000000000_ <> 34#17uopd8lcnm544_ or
+        100000000000000000000_ <> 35#tkpxpiyscferu_ or
+        100000000000000000000_ <> 36#l3r41ifs0q5ts_ then
+      writeln("Based bigInteger literals do not work correct.");
+      okay := FALSE;
+    end if;
+    if                                  16#7_ <>                                        7_ or
+                                        16#8_ <>                                        8_ or
+                                        16#f_ <>                                       15_ or
+                                       16#7f_ <>                                      127_ or
+                                       16#80_ <>                                      128_ or
+                                       16#ff_ <>                                      255_ or
+                                     16#7fff_ <>                                    32767_ or
+                                     16#8000_ <>                                    32768_ or
+                                     16#ffff_ <>                                    65535_ or
+                                 16#7fffffff_ <>                               2147483647_ or
+                                 16#80000000_ <>                               2147483648_ or
+                                 16#ffffffff_ <>                               4294967295_ or
+                             16#7fffffffffff_ <>                          140737488355327_ or
+                             16#800000000000_ <>                          140737488355328_ or
+                             16#ffffffffffff_ <>                          281474976710655_ or
+                         16#7fffffffffffffff_ <>                      9223372036854775807_ or
+                         16#8000000000000000_ <>                      9223372036854775808_ or
+                         16#ffffffffffffffff_ <>                     18446744073709551615_ or
+                     16#7fffffffffffffffffff_ <>                 604462909807314587353087_ or
+                     16#80000000000000000000_ <>                 604462909807314587353088_ or
+                     16#ffffffffffffffffffff_ <>                1208925819614629174706175_ or
+                 16#7fffffffffffffffffffffff_ <>            39614081257132168796771975167_ or
+                 16#800000000000000000000000_ <>            39614081257132168796771975168_ or
+                 16#ffffffffffffffffffffffff_ <>            79228162514264337593543950335_ or
+             16#7fffffffffffffffffffffffffff_ <>       2596148429267413814265248164610047_ or
+             16#8000000000000000000000000000_ <>       2596148429267413814265248164610048_ or
+             16#ffffffffffffffffffffffffffff_ <>       5192296858534827628530496329220095_ or
+         16#7fffffffffffffffffffffffffffffff_ <>  170141183460469231731687303715884105727_ or
+         16#80000000000000000000000000000000_ <>  170141183460469231731687303715884105728_ or
+         16#ffffffffffffffffffffffffffffffff_ <>  340282366920938463463374607431768211455_ or
+                                       -16#7_ <>                                       -7_ or
+                                       -16#8_ <>                                       -8_ or
+                                       -16#f_ <>                                      -15_ or
+                                      -16#7f_ <>                                     -127_ or
+                                      -16#80_ <>                                     -128_ or
+                                      -16#ff_ <>                                     -255_ or
+                                    -16#7fff_ <>                                   -32767_ or
+                                    -16#8000_ <>                                   -32768_ or
+                                    -16#ffff_ <>                                   -65535_ or
+                                -16#7fffffff_ <>                              -2147483647_ or
+                                -16#80000000_ <>                              -2147483648_ or
+                                -16#ffffffff_ <>                              -4294967295_ or
+                            -16#7fffffffffff_ <>                         -140737488355327_ or
+                            -16#800000000000_ <>                         -140737488355328_ or
+                            -16#ffffffffffff_ <>                         -281474976710655_ or
+                        -16#7fffffffffffffff_ <>                     -9223372036854775807_ or
+                        -16#8000000000000000_ <>                     -9223372036854775808_ or
+                        -16#ffffffffffffffff_ <>                    -18446744073709551615_ or
+                    -16#7fffffffffffffffffff_ <>                -604462909807314587353087_ or
+                    -16#80000000000000000000_ <>                -604462909807314587353088_ or
+                    -16#ffffffffffffffffffff_ <>               -1208925819614629174706175_ or
+                -16#7fffffffffffffffffffffff_ <>           -39614081257132168796771975167_ or
+                -16#800000000000000000000000_ <>           -39614081257132168796771975168_ or
+                -16#ffffffffffffffffffffffff_ <>           -79228162514264337593543950335_ or
+            -16#7fffffffffffffffffffffffffff_ <>      -2596148429267413814265248164610047_ or
+            -16#8000000000000000000000000000_ <>      -2596148429267413814265248164610048_ or
+            -16#ffffffffffffffffffffffffffff_ <>      -5192296858534827628530496329220095_ or
+        -16#7fffffffffffffffffffffffffffffff_ <> -170141183460469231731687303715884105727_ or
+        -16#80000000000000000000000000000000_ <> -170141183460469231731687303715884105728_ or
+        -16#ffffffffffffffffffffffffffffffff_ <> -340282366920938463463374607431768211455_ then
+      writeln("Based bigInteger literals do not work correct.");
+      okay := FALSE;
+    end if;
+    if                                             8#3_ <>                                        3_ or
+                                                   8#4_ <>                                        4_ or
+                                                   8#7_ <>                                        7_ or
+                                                  8#10_ <>                                        8_ or
+                                                  8#17_ <>                                       15_ or
+                                                  8#20_ <>                                       16_ or
+                                                  8#37_ <>                                       31_ or
+                                                  8#40_ <>                                       32_ or
+                                                  8#77_ <>                                       63_ or
+                                                 8#100_ <>                                       64_ or
+                                                 8#177_ <>                                      127_ or
+                                                 8#200_ <>                                      128_ or
+                                                 8#377_ <>                                      255_ or
+                                                 8#400_ <>                                      256_ or
+                                                 8#777_ <>                                      511_ or
+                                               8#40000_ <>                                    16384_ or
+                                               8#77777_ <>                                    32767_ or
+                                              8#100000_ <>                                    32768_ or
+                                              8#177777_ <>                                    65535_ or
+                                              8#200000_ <>                                    65536_ or
+                                              8#377777_ <>                                   131071_ or
+                                         8#17777777777_ <>                               2147483647_ or
+                                         8#20000000000_ <>                               2147483648_ or
+                                         8#37777777777_ <>                               4294967295_ or
+                                         8#40000000000_ <>                               4294967296_ or
+                                         8#77777777777_ <>                               8589934591_ or
+                               8#777777777777777777777_ <>                      9223372036854775807_ or
+                              8#1000000000000000000000_ <>                      9223372036854775808_ or
+                              8#1777777777777777777777_ <>                     18446744073709551615_ or
+                              8#2000000000000000000000_ <>                     18446744073709551616_ or
+                              8#3777777777777777777777_ <>                     36893488147419103231_ or
+         8#1777777777777777777777777777777777777777777_ <>  170141183460469231731687303715884105727_ or
+         8#2000000000000000000000000000000000000000000_ <>  170141183460469231731687303715884105728_ or
+         8#3777777777777777777777777777777777777777777_ <>  340282366920938463463374607431768211455_ or
+         8#4000000000000000000000000000000000000000000_ <>  340282366920938463463374607431768211456_ or
+                                                  -8#3_ <>                                       -3_ or
+                                                  -8#4_ <>                                       -4_ or
+                                                  -8#7_ <>                                       -7_ or
+                                                 -8#10_ <>                                       -8_ or
+                                                 -8#17_ <>                                      -15_ or
+                                                 -8#20_ <>                                      -16_ or
+                                                 -8#37_ <>                                      -31_ or
+                                                 -8#40_ <>                                      -32_ or
+                                                 -8#77_ <>                                      -63_ or
+                                                -8#100_ <>                                      -64_ or
+                                                -8#177_ <>                                     -127_ or
+                                                -8#200_ <>                                     -128_ or
+                                                -8#377_ <>                                     -255_ or
+                                                -8#400_ <>                                     -256_ or
+                                                -8#777_ <>                                     -511_ or
+                                              -8#40000_ <>                                   -16384_ or
+                                              -8#77777_ <>                                   -32767_ or
+                                             -8#100000_ <>                                   -32768_ or
+                                             -8#177777_ <>                                   -65535_ or
+                                             -8#200000_ <>                                   -65536_ or
+                                             -8#377777_ <>                                  -131071_ or
+                                        -8#17777777777_ <>                              -2147483647_ or
+                                        -8#20000000000_ <>                              -2147483648_ or
+                                        -8#37777777777_ <>                              -4294967295_ or
+                                        -8#40000000000_ <>                              -4294967296_ or
+                                        -8#77777777777_ <>                              -8589934591_ or
+                              -8#777777777777777777777_ <>                     -9223372036854775807_ or
+                             -8#1000000000000000000000_ <>                     -9223372036854775808_ or
+                             -8#1777777777777777777777_ <>                    -18446744073709551615_ or
+                             -8#2000000000000000000000_ <>                    -18446744073709551616_ or
+                             -8#3777777777777777777777_ <>                    -36893488147419103231_ or
+        -8#1777777777777777777777777777777777777777777_ <> -170141183460469231731687303715884105727_ or
+        -8#2000000000000000000000000000000000000000000_ <> -170141183460469231731687303715884105728_ or
+        -8#3777777777777777777777777777777777777777777_ <> -340282366920938463463374607431768211455_ or
+        -8#4000000000000000000000000000000000000000000_ <> -340282366920938463463374607431768211456_ then
+      writeln("Based bigInteger literals do not work correct.");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("Based bigInteger literals work correct.");
+    else
+      writeln(" ***** Based bigInteger literals do not work correct.");
+      writeln;
+    end if;
+  end func;
+
+
 const proc: chkStringConv is func
   local
     var boolean: okay is TRUE;
@@ -10288,6 +10541,109 @@ const proc: chkLog2 is func
   end func;
 
 
+const proc: chkBitLength is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if  bitLength(-340282366920938463463374607431768211457_) <> 129 or
+        bitLength(-340282366920938463463374607431768211456_) <> 128 or
+        bitLength(          -79228162514264337593543950337_) <>  97 or
+        bitLength(          -79228162514264337593543950336_) <>  96 or
+        bitLength(                   -18446744073709551617_) <>  65 or
+        bitLength(                   -18446744073709551616_) <>  64 or
+        bitLength(                        -281474976710657_) <>  49 or
+        bitLength(                        -281474976710656_) <>  48 or
+        bitLength(                             -8589934593_) <>  34 or
+        bitLength(                             -8589934592_) <>  33 or
+        bitLength(                             -4294967297_) <>  33 or
+        bitLength(                             -4294967296_) <>  32 or
+        bitLength(                             -2147483649_) <>  32 or
+        bitLength(                             -2147483648_) <>  31 or
+        bitLength(                             -1073741825_) <>  31 or
+        bitLength(                             -1073741824_) <>  30 or
+        bitLength(                                 -131073_) <>  18 or
+        bitLength(                                 -131072_) <>  17 or
+        bitLength(                                  -65537_) <>  17 or
+        bitLength(                                  -65536_) <>  16 or
+        bitLength(                                  -32769_) <>  16 or
+        bitLength(                                  -32768_) <>  15 or
+        bitLength(                                  -16385_) <>  15 or
+        bitLength(                                  -16384_) <>  14 or
+        bitLength(                                    -513_) <>  10 or
+        bitLength(                                    -512_) <>   9 or
+        bitLength(                                    -257_) <>   9 or
+        bitLength(                                    -256_) <>   8 or
+        bitLength(                                    -129_) <>   8 or
+        bitLength(                                    -128_) <>   7 or
+        bitLength(                                     -65_) <>   7 or
+        bitLength(                                     -64_) <>   6 or
+        bitLength(                                     -33_) <>   6 or
+        bitLength(                                     -32_) <>   5 or
+        bitLength(                                     -17_) <>   5 or
+        bitLength(                                     -16_) <>   4 or
+        bitLength(                                      -9_) <>   4 or
+        bitLength(                                      -8_) <>   3 or
+        bitLength(                                      -5_) <>   3 or
+        bitLength(                                      -4_) <>   2 or
+        bitLength(                                      -3_) <>   2 or
+        bitLength(                                      -2_) <>   1 or
+        bitLength(                                      -1_) <>   0 or
+        bitLength(                                       0_) <>   0 or
+        bitLength(                                       1_) <>   1 or
+        bitLength(                                       2_) <>   2 or
+        bitLength(                                       3_) <>   2 or
+        bitLength(                                       4_) <>   3 or
+        bitLength(                                       7_) <>   3 or
+        bitLength(                                       8_) <>   4 or
+        bitLength(                                      15_) <>   4 or
+        bitLength(                                      16_) <>   5 or
+        bitLength(                                      31_) <>   5 or
+        bitLength(                                      32_) <>   6 or
+        bitLength(                                      63_) <>   6 or
+        bitLength(                                      64_) <>   7 or
+        bitLength(                                     127_) <>   7 or
+        bitLength(                                     128_) <>   8 or
+        bitLength(                                     255_) <>   8 or
+        bitLength(                                     256_) <>   9 or
+        bitLength(                                     511_) <>   9 or
+        bitLength(                                     512_) <>  10 or
+        bitLength(                                   16383_) <>  14 or
+        bitLength(                                   16384_) <>  15 or
+        bitLength(                                   32767_) <>  15 or
+        bitLength(                                   32768_) <>  16 or
+        bitLength(                                   65535_) <>  16 or
+        bitLength(                                   65536_) <>  17 or
+        bitLength(                                  131071_) <>  17 or
+        bitLength(                                  131072_) <>  18 or
+        bitLength(                              1073741823_) <>  30 or
+        bitLength(                              1073741824_) <>  31 or
+        bitLength(                              2147483647_) <>  31 or
+        bitLength(                              2147483648_) <>  32 or
+        bitLength(                              4294967295_) <>  32 or
+        bitLength(                              4294967296_) <>  33 or
+        bitLength(                              8589934591_) <>  33 or
+        bitLength(                              8589934592_) <>  34 or
+        bitLength(                         281474976710655_) <>  48 or
+        bitLength(                         281474976710656_) <>  49 or
+        bitLength(                    18446744073709551615_) <>  64 or
+        bitLength(                    18446744073709551616_) <>  65 or
+        bitLength(           79228162514264337593543950335_) <>  96 or
+        bitLength(           79228162514264337593543950336_) <>  97 or
+        bitLength( 340282366920938463463374607431768211455_) <> 128 or
+        bitLength( 340282366920938463463374607431768211456_) <> 129 then
+      writeln("The bigInteger bitLength function does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("The bigInteger bitLength function works correct.");
+    else
+      writeln(" ***** The bigInteger bitLength function does not work correct.");
+      writeln;
+    end if;
+  end func;
+
+
 const proc: chkLowestSetBit is func
   local
     var boolean: okay is TRUE;
@@ -10522,10 +10878,16 @@ const func boolean: chkLShift (in bigInteger: big1, in integer: lshift,
   local
     var bigInteger: bigVar is 0_;
   begin
-    wrong := big1 << lshift <> checkValue;
+    wrong := big1 <<  lshift <> checkValue or
+             big1 >> -lshift <> checkValue;
     if not wrong then
       bigVar := big1;
       bigVar <<:= lshift;
+      wrong := bigVar <> checkValue;
+    end if;
+    if not wrong then
+      bigVar := big1;
+      bigVar >>:= -lshift;
       wrong := bigVar <> checkValue;
     end if;
   end func;
@@ -10860,10 +11222,16 @@ const func boolean: chkRShift (in bigInteger: big1, in integer: rshift,
   local
     var bigInteger: bigVar is 0_;
   begin
-    wrong := big1 >> rshift <> check;
+    wrong := big1 >>  rshift <> check or
+             big1 << -rshift <> check;
     if not wrong then
       bigVar := big1;
       bigVar >>:= rshift;
+      wrong := bigVar <> check;
+    end if;
+    if not wrong then
+      bigVar := big1;
+      bigVar <<:= -rshift;
       wrong := bigVar <> check;
     end if;
   end func;
@@ -11447,6 +11815,7 @@ const proc: testConversion (in integer: count) is func
 const proc: main is func
   begin
     writeln;
+    chkLiteral;
     chkStringConv;
     chkOrd;
     chkConv;
@@ -11469,6 +11838,7 @@ const proc: main is func
     chkPower;
     chkCompare;
     chkLog2;
+    chkBitLength;
     chkLowestSetBit;
     chkLShift;
     chkRShift;

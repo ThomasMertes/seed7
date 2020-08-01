@@ -248,7 +248,7 @@ const func integer: (attr integer) conv (in bitset: aSet)       is action "SET_S
  *  E.g.:
  *   bitset conv 2220
  *  returns {2, 3, 5, 7, 11}
- *  @return a character which corresponds to the given integer.
+ *  @return a ''bitset'' which corresponds to the given [[integer]].
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
 const func bitset: (attr bitset) conv (in integer: number)      is action "SET_ICONV";

@@ -146,13 +146,13 @@ const func string: strDate (in time: aTime) is
  *)
 const func string: strTime (in time: aTime) is func
   result
-    var string: result is "";
+    var string: isoTime is "";
   begin
-    result := aTime.hour   lpad0 2 <& ":" <&
-              aTime.minute lpad0 2 <& ":" <&
-              aTime.second lpad0 2;
+    isoTime := aTime.hour   lpad0 2 <& ":" <&
+               aTime.minute lpad0 2 <& ":" <&
+               aTime.second lpad0 2;
     if aTime.micro_second <> 0 then
-      result &:= "." <& aTime.micro_second lpad0 6;
+      isoTime &:= "." <& aTime.micro_second lpad0 6;
     end if;
   end func;
 
@@ -243,44 +243,44 @@ const func string: str (in time: aTime) is
  *)
 const func time: (attr time) parse (in var string: stri) is func
   result
-    var time: result is time.value;
+    var time: aTime is time.value;
   begin
-    result.year := integer parse getint(stri);
+    aTime.year := integer parse getint(stri);
     if stri[1] <> '-' then
       raise RANGE_ERROR;
     end if;
     stri := stri[2 ..];
-    result.month := integer parse getint(stri);
+    aTime.month := integer parse getint(stri);
     if stri <> "" then
       if stri[1] <> '-' then
         raise RANGE_ERROR;
       end if;
       stri := stri[2 ..];
-      result.day := integer parse getint(stri);
+      aTime.day := integer parse getint(stri);
       if stri <> "" then
         if stri[1] <> ' ' and stri[1] <> 'T' then
           raise RANGE_ERROR;
         end if;
         stri := stri[2 ..];
-        result.hour := integer parse getint(stri);
+        aTime.hour := integer parse getint(stri);
         if stri <> "" then
           if stri[1] <> ':' then
             raise RANGE_ERROR;
           end if;
           stri := stri[2 ..];
-          result.minute := integer parse getint(stri);
+          aTime.minute := integer parse getint(stri);
           if stri <> "" then
             if stri[1] <> ':' then
               raise RANGE_ERROR;
             end if;
             stri := stri[2 ..];
-            result.second := integer parse getint(stri);
+            aTime.second := integer parse getint(stri);
             if stri <> "" then
               if stri[1] <> '.' then
                 raise RANGE_ERROR;
               end if;
               stri := stri[2 ..];
-              result.micro_second := integer parse ((getint(stri) & "00000X")[.. 6]);
+              aTime.micro_second := integer parse ((getint(stri) & "00000X")[.. 6]);
               if stri <> "" then
                 raise RANGE_ERROR;
               end if;
@@ -289,13 +289,13 @@ const func time: (attr time) parse (in var string: stri) is func
         end if;
       end if;
     end if;
-    result.timeZone := 0;
-    result.daylightSavingTime := FALSE;
-    if result.month < 1 or result.month > 12 or
-        result.day < 1 or result.day > daysInMonth(result.year, result.month) or
-        result.hour < 0 or result.hour > 23 or
-        result.minute < 0 or result.minute > 59 or
-        result.second < 0 or result.second > 59 then
+    aTime.timeZone := 0;
+    aTime.daylightSavingTime := FALSE;
+    if aTime.month < 1 or aTime.month > 12 or
+        aTime.day < 1 or aTime.day > daysInMonth(aTime.year, aTime.month) or
+        aTime.hour < 0 or aTime.hour > 23 or
+        aTime.minute < 0 or aTime.minute > 59 or
+        aTime.second < 0 or aTime.second > 59 then
       raise RANGE_ERROR;
     end if;
   end func;
@@ -792,7 +792,7 @@ const func integer: julianDayNumber (in time: aDate) is func
  *)
 const func time: julianDayNumToTime (in integer: julianDayNumber) is func
   result
-    var time: result is time.value;
+    var time: aTime is time.value;
   local
     var integer: l is 0;
     var integer: n is 0;
@@ -805,10 +805,10 @@ const func time: julianDayNumToTime (in integer: julianDayNumber) is func
     i := (4000 * (l + 1)) mdiv 1461001;
     l := l - (1461 * i) mdiv 4 + 31;
     j := (80 * l) mdiv 2447;
-    result.day := l - (2447 * j) mdiv 80;
+    aTime.day := l - (2447 * j) mdiv 80;
     l := j mdiv 11;
-    result.month := j + 2 - (12 * l);
-    result.year := 100 * (n - 49) + i + l;
+    aTime.month := j + 2 - (12 * l);
+    aTime.year := 100 * (n - 49) + i + l;
   end func;
 
 
@@ -845,12 +845,12 @@ const func integer: timestamp1970 (in time: aTime) is func
  *)
 const func time: timestamp1970ToTime (in integer: timestamp) is func
   result
-    var time: result is time.value;
+    var time: aTime is time.value;
   begin
-    FROM_TIMESTAMP(timestamp, result.year, result.month, result.day,
-        result.hour, result.minute, result.second,
-        result.micro_second, result.timeZone,
-        result.daylightSavingTime);
+    FROM_TIMESTAMP(timestamp, aTime.year, aTime.month, aTime.day,
+        aTime.hour, aTime.minute, aTime.second,
+        aTime.micro_second, aTime.timeZone,
+        aTime.daylightSavingTime);
   end func;
 
 
@@ -860,7 +860,7 @@ const func time: timestamp1970ToTime (in integer: timestamp) is func
  *)
 const func time: timestamp1970ToUTC (in integer: timestamp) is func
   result
-    var time: result is time.value;
+    var time: aTime is time.value;
   local
     const integer: SECS_DAY is 24 * 60 * 60;
     var integer: dayclock is 0;
@@ -869,20 +869,20 @@ const func time: timestamp1970ToUTC (in integer: timestamp) is func
   begin
     dayclock := timestamp mod SECS_DAY;
     dayno    := timestamp mdiv SECS_DAY;
-    result.second := dayclock rem 60;
-    result.minute := (dayclock rem 3600) div 60;
-    result.hour   := dayclock div 3600;
+    aTime.second := dayclock rem 60;
+    aTime.minute := (dayclock rem 3600) div 60;
+    aTime.hour   := dayclock div 3600;
     if dayno >= 0 then
       while dayno >= daysInYear(year) do
         dayno -:= daysInYear(year);
         incr(year);
       end while;
-      result.month := 1;
-      while dayno >= daysInMonth(year, result.month) do
-        dayno -:= daysInMonth(year, result.month);
-        incr(result.month);
+      aTime.month := 1;
+      while dayno >= daysInMonth(year, aTime.month) do
+        dayno -:= daysInMonth(year, aTime.month);
+        incr(aTime.month);
       end while;
-      result.day := succ(dayno);
+      aTime.day := succ(dayno);
     else
       decr(year);
       dayno := pred(-dayno);
@@ -890,14 +890,14 @@ const func time: timestamp1970ToUTC (in integer: timestamp) is func
         dayno -:= daysInYear(year);
         decr(year);
       end while;
-      result.month := 12;
-      while dayno >= daysInMonth(year, result.month) do
-        dayno -:= daysInMonth(year, result.month);
-        decr(result.month);
+      aTime.month := 12;
+      while dayno >= daysInMonth(year, aTime.month) do
+        dayno -:= daysInMonth(year, aTime.month);
+        decr(aTime.month);
       end while;
-      result.day := daysInMonth(year, result.month) - dayno;
+      aTime.day := daysInMonth(year, aTime.month) - dayno;
     end if;
-    result.year := year;
+    aTime.year := year;
   end func;
 *)
 
@@ -908,12 +908,12 @@ const func time: timestamp1970ToUTC (in integer: timestamp) is func
  *)
 const func time: time (NOW) is func
   result
-    var time: result is time.value;
+    var time: localTime is time.value;
   begin
-    GET_TIME(result.year, result.month, result.day,
-        result.hour, result.minute, result.second,
-        result.micro_second, result.timeZone,
-        result.daylightSavingTime);
+    GET_TIME(localTime.year, localTime.month, localTime.day,
+        localTime.hour, localTime.minute, localTime.second,
+        localTime.micro_second, localTime.timeZone,
+        localTime.daylightSavingTime);
   end func;
 
 
@@ -940,15 +940,15 @@ const func time: time (in integer: year, in integer: month, in integer: day,
 const func time: timeInTimeZone (in integer: year, in integer: month, in integer: day,
     in integer: hour, in integer: minute, in integer: second, in integer: timeZone) is func
   result
-    var time: result is time.value;
+    var time: aTime is time.value;
   begin
-    result.year     := year;
-    result.month    := month;
-    result.day      := day;
-    result.hour     := hour;
-    result.minute   := minute;
-    result.second   := second;
-    result.timeZone := timeZone;
+    aTime.year     := year;
+    aTime.month    := month;
+    aTime.day      := day;
+    aTime.hour     := hour;
+    aTime.minute   := minute;
+    aTime.second   := second;
+    aTime.timeZone := timeZone;
   end func;
 
 
@@ -957,11 +957,11 @@ const func time: timeInTimeZone (in integer: year, in integer: month, in integer
  *)
 const func time: date (in integer: year, in integer: month, in integer: day) is func
   result
-    var time: result is time.value;
+    var time: aDate is time.value;
   begin
-    result.year  := year;
-    result.month := month;
-    result.day   := day;
+    aDate.year  := year;
+    aDate.month := month;
+    aDate.day   := day;
   end func;
 
 

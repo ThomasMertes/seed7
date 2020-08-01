@@ -93,7 +93,7 @@ const proc: splitHttpLocation (in string: location, inout string: hostname,
 
 const func string: toHttpAscii (in string: stri) is func
   result
-    var string: result is "";
+    var string: encoded is "";
   local
     var string: stri8 is "";
     var integer: pos is 0;
@@ -104,16 +104,16 @@ const func string: toHttpAscii (in string: stri) is func
     for ch key pos range stri8 do
       if ord(ch) >= 127 or ch < ' ' or
           ch in {'%', '/', '?', '&', '=', '+'} then
-        result &:= stri8[start .. pred(pos)];
-        result &:= "%" <& str(ord(ch), 16) lpad0 2;
+        encoded &:= stri8[start .. pred(pos)];
+        encoded &:= "%" <& upper(str(ord(ch), 16)) lpad0 2;
         start := succ(pos);
       elsif ch = ' ' then
-        result &:= stri8[start .. pred(pos)];
-        result &:= "+";
+        encoded &:= stri8[start .. pred(pos)];
+        encoded &:= "+";
         start := succ(pos);
       end if;
     end for;
-    result &:= stri8[start ..];
+    encoded &:= stri8[start ..];
   end func;
 
 
@@ -177,7 +177,7 @@ const func file: openHttp (in string: location) is func
 
 const func string: getHttp (inout file: sock) is func
   result
-    var string: result is "";
+    var string: data is "";
   local
     var string: line is "";
     var array string: header is 0 times "";
@@ -219,7 +219,7 @@ const func string: getHttp (inout file: sock) is func
         repeat
           buffer := gets(sock, chunkSize);
           chunkSize -:= length(buffer);
-          result &:= buffer;
+          data &:= buffer;
         until chunkSize = 0;
         line := getln(sock);
         line := getln(sock);
@@ -231,12 +231,12 @@ const func string: getHttp (inout file: sock) is func
         while contentLength <> 0 do
           buffer := gets(sock, contentLength);
           contentLength -:= length(buffer);
-          result &:= buffer;
+          data &:= buffer;
         end while;
       else
         buffer := gets(sock, 10000000);
         while buffer <> "" do
-          result &:= buffer;
+          data &:= buffer;
           buffer := gets(sock, 10000000);
         end while;
       end if;
@@ -244,15 +244,15 @@ const func string: getHttp (inout file: sock) is func
       writeln("Unknown Transfer-Encoding: " <& literal(transferEncoding));
       buffer := gets(sock, 10000000);
       while buffer <> "" do
-        result &:= buffer;
+        data &:= buffer;
         buffer := gets(sock, 10000000);
       end while;
     end if;
-    # writeln(length(result));
+    # writeln(length(data));
     if contentEncoding = "gzip" then
-      result := gunzip(result);
+      data := gunzip(data);
     end if;
-    conv2unicodeByName(result, charset);
+    conv2unicodeByName(data, charset);
   end func;
 
 
@@ -298,7 +298,7 @@ const func string: getHttpLocation (inout file: sock) is func
 
 const func string: getHttp (in string: serverName, in integer: portNumber, in string: url) is func
   result
-    var string: result is "";
+    var string: data is "";
   local
     var file: sock is STD_NULL;
     var string: statusCode is "";
@@ -324,7 +324,7 @@ const func string: getHttp (in string: serverName, in integer: portNumber, in st
       end if
     until okay or repeatCount > 5;
     if sock <> STD_NULL then
-      result := getHttp(sock);
+      data := getHttp(sock);
       close(sock);
     end if;
   end func;
@@ -336,7 +336,7 @@ const func string: getHttp (in string: serverName, in integer: portNumber, in st
  *)
 const func string: getHttp (in string: url) is func
   result
-    var string: result is "";
+    var string: data is "";
   local
     var file: sock is STD_NULL;
     var string: statusCode is "";
@@ -366,7 +366,7 @@ const func string: getHttp (in string: url) is func
       end if
     until okay or repeatCount > 5;
     if sock <> STD_NULL then
-      result := getHttp(sock);
+      data := getHttp(sock);
       close(sock);
     end if;
   end func;

@@ -42,9 +42,9 @@ LOBJ3 = prglib.obj reflib.obj rfllib.obj sctlib.obj setlib.obj soclib.obj strlib
 EOBJ1 = exec.obj doany.obj objutl.obj
 AOBJ1 = act_comp.obj prg_comp.obj analyze.obj syntax.obj token.obj parser.obj name.obj type.obj
 AOBJ2 = expr.obj atom.obj object.obj scanner.obj literal.obj numlit.obj findid.obj
-AOBJ3 = error.obj infile.obj symbol.obj info.obj stat.obj fatal.obj match.obj
+AOBJ3 = error.obj infile.obj libpath.obj  symbol.obj info.obj stat.obj fatal.obj match.obj
 GOBJ1 = syvarutl.obj traceutl.obj actutl.obj executl.obj blockutl.obj
-GOBJ2 = entutl.obj identutl.obj chclsutl.obj sigutl.obj
+GOBJ2 = entutl.obj identutl.obj chclsutl.obj sigutl.obj arrutl.obj
 ROBJ1 = arr_rtl.obj bln_rtl.obj bst_rtl.obj chr_rtl.obj cmd_rtl.obj con_rtl.obj dir_rtl.obj drw_rtl.obj fil_rtl.obj
 ROBJ2 = flt_rtl.obj hsh_rtl.obj int_rtl.obj itf_rtl.obj set_rtl.obj soc_rtl.obj str_rtl.obj tim_rtl.obj ut8_rtl.obj
 ROBJ3 = heaputl.obj striutl.obj
@@ -64,9 +64,9 @@ LSRC3 = prglib.c reflib.c rfllib.c sctlib.c setlib.c soclib.c strlib.c timlib.c 
 ESRC1 = exec.c doany.c objutl.c
 ASRC1 = act_comp.c prg_comp.c analyze.c syntax.c token.c parser.c name.c type.c
 ASRC2 = expr.c atom.c object.c scanner.c literal.c numlit.c findid.c
-ASRC3 = error.c infile.c symbol.c info.c stat.c fatal.c match.c
+ASRC3 = error.c infile.c libpath.c symbol.c info.c stat.c fatal.c match.c
 GSRC1 = syvarutl.c traceutl.c actutl.c executl.c blockutl.c
-GSRC2 = entutl.c identutl.c chclsutl.c sigutl.c
+GSRC2 = entutl.c identutl.c chclsutl.c sigutl.c arrutl.c
 RSRC1 = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c con_rtl.c dir_rtl.c drw_rtl.c fil_rtl.c
 RSRC2 = flt_rtl.c hsh_rtl.c int_rtl.c itf_rtl.c set_rtl.c soc_rtl.c str_rtl.c tim_rtl.c ut8_rtl.c
 RSRC3 = heaputl.c striutl.c
@@ -93,8 +93,8 @@ s7c: ..\bin\s7c.exe ..\prg\s7c.exe
 ..\bin\s7c.exe: ..\prg\s7c.exe
 	copy ..\prg\s7c.exe ..\bin /Y
 
-..\prg\s7c.exe: ..\prg\s7c.sd7
-	..\bin\s7 ..\prg\s7c -O2 ..\prg\s7c
+..\prg\s7c.exe: ..\prg\s7c.sd7 $(ALL_S7_LIBS)
+	..\bin\s7 -l ..\lib ..\prg\s7c -l ..\lib -b ..\bin -O2 ..\prg\s7c
 
 clear: clean
 
