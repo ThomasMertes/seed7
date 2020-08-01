@@ -31,7 +31,7 @@ include "osfiles.s7i";
 
 
 (**
- *  File to read the contents of a directory.
+ *  [[file|File]] to read the contents of a directory.
  *)
 const type: dir_file is sub null_file struct
     var string: path is "";
@@ -50,8 +50,8 @@ const func dir_file: malloc (ref dir_file: aDirFile) is func
 
 
 (**
- *  Open a dir_file.
- *  @return the file opened, or STD_NULL if it could not be opened.
+ *  Open a ''dir_file''.
+ *  @return the ''dir_file'' opened, or STD_NULL if it could not be opened.
  *  @exception MEMORY_ERROR Not enough memory to convert the path
  *             to the system path type.
  *  @exception RANGE_ERROR 'path' does not use the standard path
@@ -101,9 +101,9 @@ const func file: open_dir_path (in string: dir_name) is func
 
 
 (**
- *  Read a file name from a dir_file.
+ *  Read a file name from a ''dir_file''.
  *  When the function is left dir_file.bufferChar contains '\n' or
- *  EOF.
+ *  [[char#EOF|EOF]].
  *  @return the file name.
  *)
 const func string: getln (inout dir_file: aFile) is func
@@ -123,9 +123,9 @@ const func string: getln (inout dir_file: aFile) is func
 
 
 (**
- *  Read a file name from a dir_file.
+ *  Read a file name from a ''dir_file''.
  *  When the function is left dir_file.bufferChar contains '\n' or
- *  EOF.
+ *  [[char#EOF|EOF]].
  *  @return the file name.
  *)
 const func string: getwd (inout dir_file: aFile) is func

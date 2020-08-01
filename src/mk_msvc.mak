@@ -152,7 +152,7 @@ version.h:
 	echo #define LIST_DIRECTORY_CONTENTS "dir" >> chkccomp.h
 	echo #define __int64_EXISTS >> chkccomp.h
 	echo #define isnan _isnan
-	$(CC) -o chkccomp chkccomp.c
+	$(CC) chkccomp.c
 	.\chkccomp.exe >> version.h
 	del chkccomp.h
 	del chkccomp.obj
@@ -178,7 +178,7 @@ version.h:
 	echo #define DRAW_LIB "$(DRAW_LIB)" >> version.h
 	echo #define COMP_DATA_LIB "$(COMP_DATA_LIB)" >> version.h
 	echo #define COMPILER_LIB "$(COMPILER_LIB)" >> version.h
-	$(CC) -o setpaths setpaths.c
+	$(CC) setpaths.c
 	.\setpaths.exe >> version.h
 	del setpaths.exe
 

@@ -131,19 +131,19 @@ const proc: backSpace (inout stritext: aStritext) is func
  *)
 const func char: getc (inout stritext: aStritext) is func
   result
-    var char: result is ' ';
+    var char: charRead is ' ';
   begin
     if aStritext.line <= length(aStritext.content) then
       if aStritext.column <= length(aStritext.content[aStritext.line]) then
-        result := aStritext.content[aStritext.line][aStritext.column];
+        charRead := aStritext.content[aStritext.line][aStritext.column];
         incr(aStritext.column);
       else
-        result := '\n';
+        charRead := '\n';
         incr(aStritext.line);
         aStritext.column := 1;
       end if;
     else
-      result := EOF;
+      charRead := EOF;
     end if;
   end func;
 
@@ -154,29 +154,29 @@ const func char: getc (inout stritext: aStritext) is func
  *)
 const func string: gets (inout stritext: aStritext, in var integer: maxLength) is func
   result
-    var string: stri is "";
+    var string: striRead is "";
   begin
     if aStritext.line <= length(aStritext.content) then
       if maxLength > succ(length(aStritext.content[aStritext.line]) - aStritext.column) then
-        stri := aStritext.content[aStritext.line][aStritext.column ..];
-        stri &:= "\n";
+        striRead := aStritext.content[aStritext.line][aStritext.column ..];
+        striRead &:= "\n";
         maxLength -:= length(aStritext.content[aStritext.line]) - aStritext.column + 2;
         incr(aStritext.line);
         while aStritext.line <= length(aStritext.content) and
             maxLength > length(aStritext.content[aStritext.line]) do
-          stri &:= aStritext.content[aStritext.line];
-          stri &:= "\n";
+          striRead &:= aStritext.content[aStritext.line];
+          striRead &:= "\n";
           maxLength -:= succ(length(aStritext.content[aStritext.line]));
           incr(aStritext.line);
         end while;
         if aStritext.line <= length(aStritext.content) and maxLength > 0 then
-          stri &:= aStritext.content[aStritext.line][aStritext.column len maxLength];
+          striRead &:= aStritext.content[aStritext.line][aStritext.column len maxLength];
           aStritext.column := succ(maxLength);
         else
           aStritext.column := 1;
         end if;
       else
-        stri := aStritext.content[aStritext.line][aStritext.column len maxLength];
+        striRead := aStritext.content[aStritext.line][aStritext.column len maxLength];
         aStritext.column +:= maxLength;
       end if;
     end if;

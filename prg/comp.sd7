@@ -3002,11 +3002,7 @@ const proc: process_prc_block (in ref_list: params, inout expr_type: c_expr) is 
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "}\n";
     setDiagnosticLine(c_expr);
-    if USE_SIGSETJMP then
-      c_expr.expr &:= "if ((fail_value = sigsetjmp(catch_stack[catch_stack_pos], -1)) == 0) {\n";
-    else
-      c_expr.expr &:= "if ((fail_value = setjmp(catch_stack[catch_stack_pos])) == 0) {\n";
-    end if;
+    c_expr.expr &:= "if ((fail_value = do_setjmp(catch_stack[catch_stack_pos])) == 0) {\n";
     process_expr(params[2], c_expr);
     current_catch := params[4];
     catch_expr := getValue(current_catch, ref_list);
@@ -18876,7 +18872,7 @@ const proc: process_const_func_declaration (in reference: function,
   end func;
 
 
-const proc: process_main_declaration (in reference: function,
+const proc: process_main_declaration (in reference: current_object,
     inout expr_type: c_expr) is func
 
   local
@@ -18885,12 +18881,16 @@ const proc: process_main_declaration (in reference: function,
     var string: main_prolog is "";
     var string: main_epilog is "";
   begin
-    function_declared @:= [function] TRUE;
-    process_local_consts(function, c_expr);
-    process_local_var_declaration(function, c_local_vars);
-    process_expr(body(function), c_func_body);
-    c_expr.currentFile := file(function);
-    c_expr.currentLine := line(function);
+    if category(current_object) = BLOCKOBJECT then
+      function_declared @:= [current_object] TRUE;
+      process_local_consts(current_object, c_expr);
+      process_local_var_declaration(current_object, c_local_vars);
+      process_expr(body(current_object), c_func_body);
+    elsif category(current_object) = ACTOBJECT then
+      process_expr(current_object, c_func_body);
+    end if;
+    c_expr.currentFile := file(current_object);
+    c_expr.currentLine := line(current_object);
     if USE_WMAIN then
       main_prolog := "int wmain (int argc, wchar_t **argv)\n";
     else
@@ -18902,11 +18902,7 @@ const proc: process_main_declaration (in reference: function,
     main_prolog &:= "catch_stack_pos = 0;\n";
     main_prolog &:= "max_catch_stack = 128;\n";
     main_prolog &:= "catch_stack = (catch_type *)(malloc(max_catch_stack * sizeof(catch_type)));\n";
-    if USE_SIGSETJMP then
-      main_prolog &:= "if ((fail_value = sigsetjmp(catch_stack[catch_stack_pos], -1)) == 0) {\n";
-    else
-      main_prolog &:= "if ((fail_value = setjmp(catch_stack[catch_stack_pos])) == 0) {\n";
-    end if;
+    main_prolog &:= "if ((fail_value = do_setjmp(catch_stack[catch_stack_pos])) == 0) {\n";
     main_prolog &:= "arg_v = getArgv(argc, argv, &arg_0, &programPath);\n";
     main_prolog &:= "setupFloat();\n";
     main_prolog &:= "init_values();\n";
@@ -18945,7 +18941,7 @@ const proc: process_main_declaration (in reference: function,
     AppendWithDiagnostic(main_epilog, c_expr);
     c_expr.expr &:= noDiagnosticLine;
     c_expr.expr &:= "\n";
-    prototype_declared @:= [function] TRUE;
+    prototype_declared @:= [current_object] TRUE;
     count_declarations;
   end func;
 
@@ -18981,8 +18977,6 @@ const proc: process_func_declaration (in reference: function,
   begin
     if isVar(function) then
       process_var_func_declaration(function, c_expr);
-    elsif function = main_object then
-      process_main_declaration(function, c_expr);
     else
       process_const_func_declaration(function, c_expr);
     end if;
@@ -20129,6 +20123,7 @@ const proc: process_dynamic_decision (in reference: current_object,
         process_param_list_declaration(param_list, c_param_list);
         c_expr.expr &:= c_param_list.expr;
         c_expr.expr &:= ")\n";
+        c_expr.expr &:= diagnosticLine(current_object);
         c_expr.expr &:= "{\n";
         process_dynamic_condition(current_object,
             param_list, 0, c_func_body);
@@ -20823,7 +20818,9 @@ const proc: process_object_declaration (in reference: current_object,
     var category: objectCategory is category.value;
   begin
     objectCategory := category(current_object);
-    if objectCategory = BLOCKOBJECT then
+    if current_object = main_object then
+      process_main_declaration(current_object, c_expr);
+    elsif objectCategory = BLOCKOBJECT then
       process_func_declaration(current_object, c_expr);
     elsif objectCategory = TYPEOBJECT then
       process_type_declaration(current_object, c_expr);
@@ -21360,6 +21357,11 @@ const proc: write_file_head is func
     writeln(c_prog, "    free(old_head);\\");
     writeln(c_prog, "  }\\");
     writeln(c_prog, "}");
+    if USE_SIGSETJMP then
+      writeln(c_prog, "#define do_setjmp(jump_buf) sigsetjmp(jump_buf, -1)");
+    else
+      writeln(c_prog, "#define do_setjmp(jump_buf) setjmp(jump_buf)");
+    end if;
     # writeln(c_prog, "typedef sigjmp_buf catch_type;");
     writeln(c_prog, "typedef jmp_buf catch_type;");
     writeln(c_prog, "catch_type *catch_stack;");

@@ -92,15 +92,15 @@ const string: gets (in null_file: aFile, in integer: maxLength) is "";
  *)
 const func char: getc (inout null_file: aFile) is func
   result
-    var char: ch is ' ';
+    var char: charRead is ' ';
   local
     var string: buffer is "";
   begin
     buffer := gets(aFile, 1);
     if buffer = "" then
-      ch := EOF;
+      charRead := EOF;
     else
-      ch := buffer[1];
+      charRead := buffer[1];
     end if;
   end func;
 
@@ -203,7 +203,7 @@ const func boolean: eoln (in null_file: aFile) is
  *)
 const func integer: length (in null_file: aFile) is func
   result
-    var integer: result is 0;
+    var integer: length is 0;
   begin
     raise FILE_ERROR;
   end func;
@@ -232,7 +232,7 @@ const proc: seek (in null_file: aFile, in integer: pos) is func
  *)
 const func integer: tell (in null_file: aFile) is func
   result
-    var integer: result is 0;
+    var integer: position is 0;
   begin
     raise FILE_ERROR;
   end func;

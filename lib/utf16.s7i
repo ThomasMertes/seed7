@@ -192,7 +192,7 @@ const proc: write (in utf16le_file: aFile, in string: stri) is func
  *)
 const func string: gets (in utf16le_file: aFile, in integer: maxLength) is func
   result
-    var string: result is "";
+    var string: striRead is "";
   local
     var integer: charsMissing is 0;
     var boolean: partialRead is FALSE;
@@ -227,16 +227,16 @@ const func string: gets (in utf16le_file: aFile, in integer: maxLength) is func
           end if;
           if ch2 >= '\16#DC00\' and ch2 <= '\16#DFFF\' then
             # ch1 and ch2 are a surrogate pair
-            result &:= str(chr((ord(ch1) - 16#D800) << 10 +
+            striRead &:= str(chr((ord(ch1) - 16#D800) << 10 +
                                (ord(ch2) - 16#DC00) + 16#10000));
           else
             raise RANGE_ERROR;
           end if;
         else
-          result &:= str(ch1);
+          striRead &:= str(ch1);
         end if;
       end for;
-      charsMissing := maxLength - length(result);
+      charsMissing := maxLength - length(striRead);
     until charsMissing = 0 or partialRead;
   end func;
 
@@ -321,7 +321,7 @@ const proc: write (in utf16be_file: aFile, in string: stri) is func
  *)
 const func string: gets (in utf16be_file: aFile, in integer: maxLength) is func
   result
-    var string: result is "";
+    var string: striRead is "";
   local
     var integer: charsMissing is 0;
     var boolean: partialRead is FALSE;
@@ -356,16 +356,16 @@ const func string: gets (in utf16be_file: aFile, in integer: maxLength) is func
           end if;
           if ch2 >= '\16#DC00\' and ch2 <= '\16#DFFF\' then
             # ch1 and ch2 are a surrogate pair
-            result &:= str(chr((ord(ch1) - 16#D800) << 10 +
-                               (ord(ch2) - 16#DC00) + 16#10000));
+            striRead &:= str(chr((ord(ch1) - 16#D800) << 10 +
+                                 (ord(ch2) - 16#DC00) + 16#10000));
           else
             raise RANGE_ERROR;
           end if;
         else
-          result &:= str(ch1);
+          striRead &:= str(ch1);
         end if;
       end for;
-      charsMissing := maxLength - length(result);
+      charsMissing := maxLength - length(striRead);
     until charsMissing = 0 or partialRead;
   end func;
 

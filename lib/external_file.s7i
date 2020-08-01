@@ -286,13 +286,13 @@ const func integer: tell (in external_file: aFile) is
 
 const func boolean: fileOpenSucceeds (in string: fileName) is func
   result
-    var boolean: result is FALSE;
+    var boolean: fileOpenSucceeds is FALSE;
   local
     var file: a_file is STD_NULL;
   begin
     a_file := open(fileName, "r");
     if a_file <> STD_NULL then
       close(a_file);
-      result := TRUE;
+      fileOpenSucceeds := TRUE;
     end if;
   end func;

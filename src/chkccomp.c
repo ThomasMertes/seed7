@@ -237,6 +237,15 @@ int main (int argc, char **argv)
 #ifdef TURN_OFF_FP_EXCEPTIONS
     _control87(MCW_EM, MCW_EM);
 #endif
+    sprintf(buffer, "%1.0f %1.0f %1.0f %1.1f %1.1f %1.2f %1.2f %1.0f %1.0f %1.0f %1.1f %1.1f %1.2f %1.2f",
+	    0.5, 1.5, 2.5, 1.25, 1.75, 0.125, 0.375, -0,5, -1.5, -2.5, -1.25, -1.75, -0.125, -0.375);
+    if (strcmp(buffer, "0 2 2 1.2 1.8 0.12 0.38 0 -2 -2 -1.2 -1.8 -0.12 -0.38") == 0) {
+      puts("#define ROUND_HALF_TO_EVEN");
+    } else if (strcmp(buffer, "1 2 3 1.3 1.8 0.13 0.38 -1 -2 -3 -1.3 -1.8 -0.13 -0.38") == 0) {
+      puts("#define ROUND_HALF_AWAY_FROM_ZERO");
+    } else if (strcmp(buffer, "1 2 3 1.3 1.8 0.13 0.38 0 -1 -2 -1.2 -1.7 -0.12 -0.37") == 0) {
+      puts("#define ROUND_HALF_UP");
+    } /* if */
     nanValue1 = 0.0 / zero;
     nanValue2 = 0.0 / zero;
     if (nanValue1 == nanValue2 ||

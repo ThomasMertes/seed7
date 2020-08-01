@@ -35,10 +35,10 @@ include "enable_io.s7i";
 const func external_file: INIT_STD_FILE (ref PRIMITIVE_FILE: primitive_file,
     in string: fileName) is func
   result
-    var external_file: result is external_file.value;
+    var external_file: standardFile is external_file.value;
   begin
-    result.ext_file := primitive_file;
-    result.name := fileName;
+    standardFile.ext_file := primitive_file;
+    standardFile.name := fileName;
   end func;
 
 
@@ -64,7 +64,7 @@ var external_file: STD_ERR is INIT_STD_FILE(PRIMITIVE_ERROR,  "STD_ERR");
 
 (**
  *  Standard input file used by read and readln.
- *  Assigning a file to IN changes the source of the functions
+ *  Assigning a file to ''IN'' changes the source of the functions
  *  [[#read(inout_string)|read]] and [[#readln|readln]].
  *)
 var file: IN is STD_IN;
@@ -85,7 +85,7 @@ var file: PROT_OUTFILE is STD_OUT;
 
 
 (**
- *  Write end-of-line to the standard output.
+ *  Write end-of-line to the standard output file.
  *  The file type of [[#OUT|OUT]] decides how writing end-of-line is done.
  *  It can be done by writing '\n', but other solutions are also
  *  possible.
@@ -97,7 +97,7 @@ const proc: writeln is func
 
 
 (**
- *  Discard a line from the standard input file.
+ *  Discard a line from the standard input file ([[#IN|IN]]).
  *  The function discards characters up to end-of-line or [[char#EOF|EOF]].
  *  When the function is left inFile.bufferChar contains the
  *  line ending character ('\n' or EOF). 
@@ -113,7 +113,7 @@ const proc: readln is func
 
 
 (**
- *  Write a string to the standard output file.
+ *  Write a string to the standard output file ([[#OUT|OUT]]).
  *)
 const proc: write (in string: stri) is func
   begin
@@ -135,7 +135,7 @@ const proc: writeln (in string: stri) is func
 
 
 (**
- *  Read a word from the standard input file.
+ *  Read a word from the standard input file ([[#IN|IN]]).
  *  Before reading the word it skips spaces and tabs. The function
  *  accepts words ending with " ", "\t", end-of-line or [[char#EOF|EOF]].
  *  The word ending characters are not copied into the string.
@@ -149,7 +149,7 @@ const proc: read (inout string: stri) is func
 
 
 (**
- *  Read a line from the standard input file.
+ *  Read a line from the standard input file ([[#IN|IN]]).
  *  The function reads a string up to end-of-line or [[char#EOF|EOF]].
  *  The line ending characters are not copied into the string.
  *  When the function is left inFile.bufferChar contains the

@@ -117,15 +117,15 @@ const func string: getln (inout line_file: line_fil) is func
  *)
 const func char: getc (inout line_file: line_fil) is func
   result
-    var char: ch is ' ';
+    var char: charRead is ' ';
   begin
     if line_fil.line = "" then
       line_fil.line := getln(line_fil) & "\n";
     end if;
     if line_fil.line = "\n" and line_fil.bufferChar = EOF then
-      ch := EOF;
+      charRead := EOF;
     else
-      ch := line_fil.line[1];
+      charRead := line_fil.line[1];
       line_fil.line := line_fil.line[2 .. ];
     end if;
   end func;
@@ -137,11 +137,11 @@ const func char: getc (inout line_file: line_fil) is func
  *)
 const func string: gets (inout line_file: line_fil, in integer: maxLength) is func
   result
-    var string: stri is "";
+    var string: striRead is "";
   begin
     while length(line_fil.line) < maxLength and line_fil.bufferChar <> EOF do
       line_fil.line &:= getln(line_fil) & "\n";
     end while;
-    stri := line_fil.line[ .. maxLength];
+    striRead := line_fil.line[ .. maxLength];
     line_fil.line := line_fil.line[succ(maxLength) .. ];
   end func;

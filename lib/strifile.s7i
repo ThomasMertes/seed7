@@ -102,13 +102,13 @@ const proc: backSpace (inout strifile: aStrifile) is func
  *)
 const func char: getc (inout strifile: aStrifile) is func
   result
-    var char: result is ' ';
+    var char: charRead is ' ';
   begin
     if aStrifile.position <= length(aStrifile.content) then
-      result := aStrifile.content[aStrifile.position];
+      charRead := aStrifile.content[aStrifile.position];
       incr(aStrifile.position);
     else
-      result := EOF;
+      charRead := EOF;
     end if;
   end func;
 
@@ -119,13 +119,13 @@ const func char: getc (inout strifile: aStrifile) is func
  *)
 const func string: gets (inout strifile: aStrifile, in var integer: maxLength) is func
   result
-    var string: result is "";
+    var string: striRead is "";
   begin
     if pred(aStrifile.position + maxLength) <= length(aStrifile.content) then
-      result := aStrifile.content[aStrifile.position len maxLength];
+      striRead := aStrifile.content[aStrifile.position len maxLength];
       aStrifile.position +:= maxLength;
     else
-      result := aStrifile.content[aStrifile.position ..];
+      striRead := aStrifile.content[aStrifile.position ..];
       aStrifile.position := succ(length(aStrifile.content));
     end if;
   end func;
@@ -142,7 +142,7 @@ const func string: gets (inout strifile: aStrifile, in var integer: maxLength) i
  *)
 const func string: getwd (inout strifile: aStrifile) is func
   result
-    var string: result is "";
+    var string: stri is "";
   local
     const set of char: space_or_tab is {' ', '\t'};
     const set of char: space_tab_or_nl is {' ', '\t', '\n'};
@@ -164,11 +164,11 @@ const func string: getwd (inout strifile: aStrifile) is func
         incr(wordEndPos);
       end while;
       if wordEndPos <= length(aStrifile.content) then
-        result := aStrifile.content[wordStartPos .. pred(wordEndPos)];
+        stri := aStrifile.content[wordStartPos .. pred(wordEndPos)];
         aStrifile.position := succ(wordEndPos);
         aStrifile.bufferChar := aStrifile.content[wordEndPos];
       else
-        result := aStrifile.content[wordStartPos ..];
+        stri := aStrifile.content[wordStartPos ..];
         aStrifile.position := succ(length(aStrifile.content));
         aStrifile.bufferChar := EOF;
       end if;
@@ -185,17 +185,17 @@ const func string: getwd (inout strifile: aStrifile) is func
  *)
 const func string: getln (inout strifile: aStrifile) is func
   result
-    var string: result is "";
+    var string: stri is "";
   local
     var integer: newlinePos is 0;
   begin
     newlinePos := pos(aStrifile.content, '\n', aStrifile.position);
     if newlinePos <> 0 then
-      result := aStrifile.content[aStrifile.position .. pred(newlinePos)];
+      stri := aStrifile.content[aStrifile.position .. pred(newlinePos)];
       aStrifile.position := succ(newlinePos);
       aStrifile.bufferChar := '\n';
     else
-      result := aStrifile.content[aStrifile.position ..];
+      stri := aStrifile.content[aStrifile.position ..];
       aStrifile.position := succ(length(aStrifile.content));
       aStrifile.bufferChar := EOF;
     end if;

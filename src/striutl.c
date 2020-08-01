@@ -927,7 +927,7 @@ stritype stri;
     if (stri->size > ((MAX_BSTRI_LEN / sizeof(os_chartype)) / 2)) {
       bstri = NULL;
     } else if (ALLOC_BSTRI_SIZE_OK(bstri, stri->size * 2 * sizeof(os_chartype))) {
-      bstri->size = stri_to_wstri(bstri->mem, stri->mem, stri->size, &err_info);
+      bstri->size = stri_to_wstri((wstritype) bstri->mem, stri->mem, stri->size, &err_info);
       if (err_info != OKAY_NO_ERROR) {
         FREE_BSTRI(bstri, stri->size * 2 * sizeof(os_chartype));
         bstri = NULL;

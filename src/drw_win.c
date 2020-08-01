@@ -273,13 +273,13 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
           } /* if */
           /* printf("window width=%ld, height=%ld\n",
               paint_window->width, paint_window->height); */
-          if (rect.right >= paint_window->width) {
-            if (rect.left < paint_window->width) {
+          if (rect.right >= 0 && (unsigned int) rect.right >= paint_window->width) {
+            if (rect.left < 0 || (unsigned int) rect.left < paint_window->width) {
               rect2.left = paint_window->width;
             } else {
               rect2.left = rect.left;
             } /* if */
-            if (rect.bottom >= paint_window->height) {
+            if (rect.bottom >= 0 && (unsigned int) rect.bottom >= paint_window->height) {
               rect2.bottom = paint_window->height - 1;
             } else {
               rect2.bottom = rect.bottom;
@@ -290,8 +290,8 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 RGB(255, 255, 255));
                 /* GetBkColor(paint_window->hWnd)); */
           } /* if */
-          if (rect.bottom >= paint_window->height) {
-            if (rect.top < paint_window->height) {
+          if (rect.bottom >= 0 && (unsigned int) rect.bottom >= paint_window->height) {
+            if (rect.top < 0 || (unsigned int) rect.top < paint_window->height) {
               rect2.top = paint_window->height;
             } else {
               rect2.top = rect.top;

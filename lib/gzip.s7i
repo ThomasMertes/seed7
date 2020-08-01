@@ -32,9 +32,9 @@ include "binary.s7i";
 const func integer: getBitLe (in string: stri, inout integer: bytePos,
     inout integer: bitPos) is func
   result
-    var integer: result is 0;
+    var integer: resultBit is 0;
   begin
-    result := (ord(stri[bytePos]) >> bitPos) mod 2;
+    resultBit := (ord(stri[bytePos]) >> bitPos) mod 2;
     if bitPos = 7 then
       bitPos := 0;
       incr(bytePos);
@@ -47,30 +47,30 @@ const func integer: getBitLe (in string: stri, inout integer: bytePos,
 const func integer: getBitsLe (in string: stri, inout integer: bytePos,
     inout integer: bitPos, in var integer: bitsNeeded) is func
   result
-    var integer: result is 0;
+    var integer: resultBits is 0;
   local
     var integer: bitsInByte is 0;
     var integer: bitsInResult is 0;
   begin
     bitsInByte := 8 - bitPos;
     if bitsInByte > bitsNeeded then
-      result := (ord(stri[bytePos]) >> bitPos) rem (1 << bitsNeeded);
+      resultBits := (ord(stri[bytePos]) >> bitPos) rem (1 << bitsNeeded);
       bitPos +:= bitsNeeded;
     else
-      result := ord(stri[bytePos]) mod 256 >> bitPos;
+      resultBits := ord(stri[bytePos]) mod 256 >> bitPos;
       bitPos := 0;
       incr(bytePos);
       if bitsInByte <> bitsNeeded then
         bitsNeeded -:= bitsInByte;
         bitsInResult := bitsInByte;
         while bitsNeeded >= 8 do
-          result +:= ord(stri[bytePos]) << bitsInResult;
+          resultBits +:= ord(stri[bytePos]) << bitsInResult;
           incr(bytePos);
           bitsNeeded -:= 8;
           bitsInResult +:= 8;
         end while;
         if bitsNeeded <> 0 then
-          result +:= ord(stri[bytePos]) rem (1 << bitsNeeded) << bitsInResult;
+          resultBits +:= ord(stri[bytePos]) rem (1 << bitsNeeded) << bitsInResult;
           bitPos := bitsNeeded;
         end if;
       end if;
@@ -229,7 +229,7 @@ const type: conversionTableType is array conversionEntry;
 const func integer: getHuffmanValue (in string: stri, inout integer: bytePos,
     inout integer: bitPos, in conversionTableType: conversionTable) is func
   result
-    var integer: result is 0;
+    var integer: huffmanValue is 0;
   local
     var integer: bitLength is 1;
     var integer: code is 0;
@@ -242,8 +242,8 @@ const func integer: getHuffmanValue (in string: stri, inout integer: bytePos,
     until code < conversionTable[bitLength].limit;
     # writeln("--- " <& bytePos <& " " <& bitPos <& " " <&
     #         bitLength <& " " <& str(code, 2) lpad0 pred(bitLength));
-    result := conversionTable[pred(bitLength)].table[code];
-    # writeln("result=" <& result);
+    huffmanValue := conversionTable[pred(bitLength)].table[code];
+    # writeln("huffmanValue=" <& huffmanValue);
   end func;
 
 
@@ -486,14 +486,14 @@ const proc: processCompressedBlock (in string: stri, inout integer: bytePos,
  *)
 const func string: inflate (in string: compressedStri) is func
   result
-    var string: result is "";
+    var string: decompressedStri is "";
   local
     var integer: bytePos is 1;
     var integer: bitPos is 0;
     var boolean: bfinal is FALSE;
   begin
     repeat
-      processCompressedBlock(compressedStri, bytePos, bitPos, result, bfinal);
+      processCompressedBlock(compressedStri, bytePos, bitPos, decompressedStri, bfinal);
     until bfinal;
   end func;
 
@@ -557,7 +557,7 @@ const proc: readGzipHeader (in string: stri, inout integer: bytePos) is func
  *)
 const func string: gunzip (in string: compressedStri) is func
   result
-    var string: result is "";
+    var string: decompressedStri is "";
   local
     var integer: bytePos is 0;
     var integer: bitPos is 0;
@@ -566,7 +566,7 @@ const func string: gunzip (in string: compressedStri) is func
     if compressedStri[1 len 2] = "\31\\139\" then
       readGzipHeader(compressedStri, bytePos);
       repeat
-        processCompressedBlock(compressedStri, bytePos, bitPos, result, bfinal);
+        processCompressedBlock(compressedStri, bytePos, bitPos, decompressedStri, bfinal);
       until bfinal;
     end if;
   end func;
@@ -622,7 +622,7 @@ const proc: close (in gunzipFile: aFile) is noop;
  *)
 const func char: getc (inout gunzipFile: aFile) is func
   result
-    var char: result is ' ';
+    var char: charRead is ' ';
   begin
     while aFile.position > length(aFile.uncompressed) and
         not aFile.bfinal do
@@ -630,10 +630,10 @@ const func char: getc (inout gunzipFile: aFile) is func
           aFile.uncompressed, aFile.bfinal);
     end while;
     if aFile.position <= length(aFile.uncompressed) then
-      result := aFile.uncompressed[aFile.position];
+      charRead := aFile.uncompressed[aFile.position];
       incr(aFile.position);
     else
-      result := EOF;
+      charRead := EOF;
     end if;
   end func;
 
@@ -644,7 +644,7 @@ const func char: getc (inout gunzipFile: aFile) is func
  *)
 const func string: gets (inout gunzipFile: aFile, in var integer: leng) is func
   result
-    var string: result is "";
+    var string: striRead is "";
   begin
     while pred(aFile.position + leng) > length(aFile.uncompressed) and
         not aFile.bfinal do
@@ -652,10 +652,10 @@ const func string: gets (inout gunzipFile: aFile, in var integer: leng) is func
           aFile.uncompressed, aFile.bfinal);
     end while;
     if pred(aFile.position + leng) <= length(aFile.uncompressed) then
-      result := aFile.uncompressed[aFile.position len leng];
+      striRead := aFile.uncompressed[aFile.position len leng];
       aFile.position +:= leng;
     else
-      result := aFile.uncompressed[aFile.position ..];
+      striRead := aFile.uncompressed[aFile.position ..];
       aFile.position := succ(length(aFile.uncompressed));
     end if;
   end func;

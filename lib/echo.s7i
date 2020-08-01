@@ -61,27 +61,27 @@ const func echo_file: open_echo (ref file: in_fil, ref file: out_fil) is func
  *)
 const func char: getc (inout echo_file: echo_fil) is func
   result
-    var char: ch is ' ';
+    var char: charRead is ' ';
   local
     var integer: number is 0;
   begin
     repeat
       flush(echo_fil.out_file);
 (*    cursor_on(echo_fil.out_file); *)
-      ch := getc(echo_fil.in_file);
+      charRead := getc(echo_fil.in_file);
 (*    cursor_off(echo_fil.out_file); *)
-      if ch >= ' ' and ch <= '~' then
+      if charRead >= ' ' and charRead <= '~' then
         incr(echo_fil.in_pos);
-        write(echo_fil.out_file, ch);
-      elsif ch = '\n' then
+        write(echo_fil.out_file, charRead);
+      elsif charRead = '\n' then
         echo_fil.in_pos := 1;
         writeln(echo_fil.out_file);
-      elsif ch = '\b' then
+      elsif charRead = '\b' then
         if echo_fil.in_pos > 1 then
           decr(echo_fil.in_pos);
           backSpace(echo_fil.out_file);
         end if;
-      elsif ch = '\C' or ch = '\T' then
+      elsif charRead = '\C' or charRead = '\T' then
         write(echo_fil.out_file, " terminate (y/n)? ");
         flush(echo_fil.out_file);
         if lower(getc(echo_fil.in_file)) = 'y' then
@@ -94,11 +94,11 @@ const func char: getc (inout echo_file: echo_fil) is func
             backSpace(echo_fil.out_file);
           end for;
         end if;
-      elsif ch <> EOF then
+      elsif charRead <> EOF then
         incr(echo_fil.in_pos);
         write(echo_fil.out_file, '?');
       end if;
-    until ch <> '\C' and ch <> '\T';
+    until charRead <> '\C' and charRead <> '\T';
   end func;
 
 
@@ -108,7 +108,7 @@ const func char: getc (inout echo_file: echo_fil) is func
  *)
 const func string: gets (inout echo_file: echo_fil, in integer: maxLength) is func
   result
-    var string: stri is "";
+    var string: striRead is "";
   local
     var integer: number is 1;
     var char: ch is ' ';
@@ -116,7 +116,7 @@ const func string: gets (inout echo_file: echo_fil, in integer: maxLength) is fu
     while number <= maxLength and ch <> EOF do
       ch := getc(echo_fil);
       if ch <> EOF then
-        stri &:= str(ch);
+        striRead &:= str(ch);
       end if;
     end while;
   end func;

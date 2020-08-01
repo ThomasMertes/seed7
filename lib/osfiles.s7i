@@ -244,12 +244,12 @@ const func bigInteger: bigFileSize (in string: filePath)     is action "CMD_BIG_
  *)
 const func time: getATime (in string: filePath) is func
   result
-    var time: result is time.value;
+    var time: accessTime is time.value;
   begin
-    GET_ATIME(filePath, result.year, result.month, result.day,
-        result.hour, result.minute, result.second,
-        result.micro_second, result.timeZone,
-        result.daylightSavingTime);
+    GET_ATIME(filePath, accessTime.year, accessTime.month, accessTime.day,
+        accessTime.hour, accessTime.minute, accessTime.second,
+        accessTime.micro_second, accessTime.timeZone,
+        accessTime.daylightSavingTime);
   end func;
 
 
@@ -264,12 +264,12 @@ const func time: getATime (in string: filePath) is func
  *)
 const func time: getCTime (in string: filePath) is func
   result
-    var time: result is time.value;
+    var time: changeTime is time.value;
   begin
-    GET_CTIME(filePath, result.year, result.month, result.day,
-        result.hour, result.minute, result.second,
-        result.micro_second, result.timeZone,
-        result.daylightSavingTime);
+    GET_CTIME(filePath, changeTime.year, changeTime.month, changeTime.day,
+        changeTime.hour, changeTime.minute, changeTime.second,
+        changeTime.micro_second, changeTime.timeZone,
+        changeTime.daylightSavingTime);
   end func;
 
 
@@ -284,12 +284,12 @@ const func time: getCTime (in string: filePath) is func
  *)
 const func time: getMTime (in string: filePath) is func
   result
-    var time: result is time.value;
+    var time: modificationTime is time.value;
   begin
-    GET_MTIME(filePath, result.year, result.month, result.day,
-        result.hour, result.minute, result.second,
-        result.micro_second, result.timeZone,
-        result.daylightSavingTime);
+    GET_MTIME(filePath, modificationTime.year, modificationTime.month, modificationTime.day,
+        modificationTime.hour, modificationTime.minute, modificationTime.second,
+        modificationTime.micro_second, modificationTime.timeZone,
+        modificationTime.daylightSavingTime);
   end func;
 
 
@@ -441,44 +441,44 @@ const func string: configValue (in string param)             is action "CMD_CONF
 
 const func string: convDosPath (in string: path) is func
   result
-    var string: result is "";
+    var string: stdPath is "";
   local
     var integer: length is 0;
   begin
     # Path delimiter is slash
-    result := replace(path, "\\", "/");
+    stdPath := replace(path, "\\", "/");
     # Convert drive letters to standard path
-    if (length(result) = 2 or (length(result) >= 3 and result[3] = '/')) and
-        result[2] = ':' and lower(result[1]) >= 'a' and lower(result[1]) <= 'z' then
-      result @:= [2] lower(result[1]);
-      result @:= [1] '/';
+    if (length(stdPath) = 2 or (length(stdPath) >= 3 and stdPath[3] = '/')) and
+        stdPath[2] = ':' and lower(stdPath[1]) >= 'a' and lower(stdPath[1]) <= 'z' then
+      stdPath @:= [2] lower(stdPath[1]);
+      stdPath @:= [1] '/';
     end if;
     # Remove double slashes
     repeat
-      length := length(result);
-      result := replace(result, "//", "/");
-    until length(result) = length;
+      length := length(stdPath);
+      stdPath := replace(stdPath, "//", "/");
+    until length(stdPath) = length;
     # Remove slash at end of path
-    while result <> "/" and endsWith(result, "/") do
-      result := result[.. pred(length(result))];
+    while stdPath <> "/" and endsWith(stdPath, "/") do
+      stdPath := stdPath[.. pred(length(stdPath))];
     end while;
   end func;
 
 
 const func string: toStdPath (in string: path) is func
   result
-    var string: result is "";
+    var string: stdPath is "";
   local
     var integer: length is 0;
   begin
-    result := path;
+    stdPath := path;
     # Remove double slashes
     repeat
-      length := length(result);
-      result := replace(result, "//", "/");
-    until length(result) = length;
+      length := length(stdPath);
+      stdPath := replace(stdPath, "//", "/");
+    until length(stdPath) = length;
     # Remove slash at end of path
-    while result <> "/" and endsWith(result, "/") do
-      result := result[.. pred(length(result))];
+    while stdPath <> "/" and endsWith(stdPath, "/") do
+      stdPath := stdPath[.. pred(length(stdPath))];
     end while;
   end func;

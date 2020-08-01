@@ -76,7 +76,7 @@ filetype aFile;
         if (pipeHandle != -1) {
           if (PeekNamedPipe((HANDLE) pipeHandle, NULL, 0, NULL, &totalBytesAvail, NULL) != 0) {
             result = totalBytesAvail >= 1;
-          } else if (eof(aFile)) {
+          } else if (feof(aFile)) {
             result = TRUE;
           } else {
             raise_error(FILE_ERROR);

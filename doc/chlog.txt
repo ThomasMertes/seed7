@@ -1,3 +1,23 @@
+20111111:
+- Documentation comments were improved in "dir.s7i", "stdio.s7i"
+  and "enable_io.s7i".
+- Testcases for the operators 'sci' and 'exp' in "chkflt.sd7" were
+  changed to succedd on all supported platforms.
+- The compiler (comp.sd7) was improved, to create better debugging
+  information for compiler generated (DYNAMIC) dispatcher functions.
+- The compiler was improved to define and use the macro 'do_setjmp'
+  and to work correctly for empty programs.
+- The program "chkccomp.c" was improved to write one of the
+  preprocessor macros ROUND_HALF_TO_EVEN, ROUND_HALF_UP or
+  ROUND_HALF_AWAY_FROM_ZERO to "version.h". This macros describe
+  the rounding behaviour, when float values are converted to
+  strings with 'printf'.
+- Result variables were renamed in "echo.s7i", "gzip.s7i",
+  "line.s7i",, "external_file.s7i" "null_file.s7i", "osfiles.s7i",
+  "stdio.s7i", "strifile.s7i", "stritext.s7i" and "utf16.s7i".
+- The files "drw_win.c", "fil_win.c" and "striutl.c" were improved
+  to reduce the number of compiler warnings.
+
 20111101:
 - Documentation comments were improved in "scanfile.s7i",
   "scanstri.s7i" and "float.s7i".
