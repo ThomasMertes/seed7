@@ -87,7 +87,7 @@ const func string: str2 (in integer: number) is func
 
 
 const func string: str_date (in time: aTime) is
-  return str(aTime.year) & "/" & str2(aTime.month) & "/" & str2(aTime.day);
+  return str(aTime.year) & "-" & str2(aTime.month) & "-" & str2(aTime.day);
 
 
 const func string: str_time (in time: aTime) is
@@ -103,12 +103,12 @@ const func time: (attr time) parse (in var string: stri) is func
     var time: result is time.value;
   begin
     result.year := integer parse getint(stri);
-    if stri[1] <> '/' then
+    if stri[1] <> '-' then
       raise RANGE_ERROR;
     end if;
     stri := stri[2 ..];
     result.month := integer parse getint(stri);
-    if stri[1] <> '/' then
+    if stri[1] <> '-' then
       raise RANGE_ERROR;
     end if;
     stri := stri[2 ..];
@@ -353,7 +353,25 @@ const func time: truncToYear (in time: tim) is func
     result.second := 0;
     result.mycro_second := 0;
   end func;
-    
+
+
+const func integer: dayOfWeek (in time: aTime) is func
+  result
+    var integer: result is 0;
+  local
+    var integer: year is 0;
+    var integer: month is 0;
+  begin
+    year := aTime.year;
+    month := aTime.month;
+    if month <= 2 then
+      decr(year);
+      month +:= 12;
+    end if;
+    result := succ(pred(year + year mdiv 4 - year mdiv 100 + year mdiv 400 +
+        (31 * (month - 2)) mdiv 12 + aTime.day) mod 7);
+  end func;
+
 
 const func integer: dayOfYear (in time: tim) is func
   result
@@ -417,6 +435,48 @@ const func time: toGMT (in time: tim) is func
   end func;
 
   
+const func integer: julianDayNumber (in time: aTime) is func
+  result
+    var integer: result is 0;
+  local
+    var integer: year is 0;
+    var integer: month is 0;
+  begin
+    year := aTime.year;
+    month := aTime.month;
+    if month <= 2 then
+      decr(year);
+      month +:= 12;
+    end if;
+    result := (1461 * (year + 4800)) mdiv 4 +
+          (367 * (month - 2)) mdiv 12 -
+          (3 * ((year + 4900) mdiv 100)) mdiv 4 +
+          aTime.day - 32075;
+  end func; (* julianDayI *)
+
+
+const func time: julianDayNumToTime (in integer: julianDayNumber) is func
+  result
+    var time: result is time.value;
+  local
+    var integer: l is 0;
+    var integer: n is 0;
+    var integer: i is 0;
+    var integer: j is 0;
+  begin
+    l := julianDayNumber + 68569;
+    n := (4 * l) mdiv 146097;
+    l := l - (146097 * n + 3) mdiv 4;
+    i := (4000 * (l + 1)) mdiv 1461001;
+    l := l - (1461 * i) mdiv 4 + 31;
+    j := (80 * l) mdiv 2447;
+    result.day := l - (2447 * j) mdiv 80;
+    l := j mdiv 11;
+    result.month := j + 2 - (12 * l);
+    result.year := 100 * (n - 49) + i + l;
+  end func;
+
+
 const func time: time (NOW) is func
   result
     var time: result is time.value;
@@ -472,7 +532,7 @@ const func string: str (in duration: aDuration) is func
   result
     var string: stri is "";
   begin
-    stri := str(year(aDuration)) & "/" & str2(month(aDuration)) & "/" &
+    stri := str(year(aDuration)) & "-" & str2(month(aDuration)) & "-" &
         str2(aDuration.day) & " " & str2(aDuration.hour) & ":" &
         str2(aDuration.minute) & ":" & str2(aDuration.second);
   end func;
@@ -483,12 +543,12 @@ const func duration: (attr duration) parse (in var string: stri) is func
     var duration: result is duration.value;
   begin
     result.year_365 := integer parse getint(stri);
-    if stri[1] <> '/' then
+    if stri[1] <> '-' then
       raise RANGE_ERROR;
     end if;
     stri := stri[2 ..];
     result.month_30 := integer parse getint(stri);
-    if stri[1] <> '/' then
+    if stri[1] <> '-' then
       raise RANGE_ERROR;
     end if;
     stri := stri[2 ..];

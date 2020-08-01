@@ -1634,6 +1634,25 @@ const func string: str (in bitset: a_set) is func
     result &:= "}";
   end func;
 
+const func bitset: (attr bitset) parse (in var string: stri) is func
+  result
+    var bitset: result is EMPTY_SET;
+  begin
+    if stri[1] = '{' then
+      repeat
+        repeat
+          stri := stri[2 ..];
+        until stri[1] <> ' ';
+        incl(result, integer parse getint(stri));
+      until stri[1] <> ',';
+      if stri <> "}" then
+        raise RANGE_ERROR;
+      end if;
+    else
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
 const type: set of (attr integer) is bitset;
 
 
@@ -1664,6 +1683,8 @@ const func type: set of (in type: baseType) is func
       const func boolean: (in setType param) <= (in setType param) is       action "SET_LE";
       const func boolean: (in setType param) >= (in setType param) is       action "SET_GE";
       const func boolean: (in setType param) <> (in setType param) is       action "SET_NE";
+      const func integer: compare (in setType param, in setType param) is   action "SET_CMP";
+      const func integer: hashCode (in setType param) is                    action "SET_HASHCODE";
       const func integer: card (in setType param) is                        action "SET_CARD";
       const func bitset: (attr bitset) conv (in setType param) is           action "SET_CONV";
       const varfunc bitset: (attr bitset) var_conv (inout setType param) is action "TYP_VARCONV";
@@ -2901,10 +2922,10 @@ const proc: enable_io (in type: aType) is func
 enable_io(char);
 enable_io(integer);
 enable_io(boolean);
+enable_io(bitset);
 enable_output(type);
 enable_output(ACTION);
 enable_output(reference);
-enable_output(bitset);
 
 
 (* text *)

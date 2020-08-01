@@ -66,7 +66,7 @@ void drwPRect (wintype, inttype, inttype, inttype, inttype, inttype);
 inttype drwRgbColor (inttype, inttype, inttype);
 void drwBackground (inttype);
 void drwColor (inttype);
-void drwText (wintype, inttype, inttype, stritype);
+void drwText (wintype, inttype, inttype, stritype, inttype, inttype);
 inttype drwWidth (wintype);
 
 #else

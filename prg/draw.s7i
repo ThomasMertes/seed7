@@ -698,6 +698,12 @@ const func graph_file: open (in PRIMITIVE_WINDOW: graph_win, in integer: lin_del
   end func;
 
 
+const proc: close (inout graph_file: graphFile) is func
+  begin
+    graphFile.win := PRIMITIVE_WINDOW.value;
+  end func;
+
+
 const proc: flush (in graph_file: graphFile) is func
   begin
     DRAW_FLUSH;
@@ -847,9 +853,8 @@ const proc: setXY (inout graph_file: graphFile, in integer: xPos, in integer: yP
 
 const proc: write (inout graph_file: graphFile, in string: stri) is func
   begin
-    SET_COLOR(colorPixel(graphFile.foreground));
-    SET_BACKGROUND(colorPixel(graphFile.background));
-    DRAW_TEXT(graphFile.win, graphFile.curr_x, graphFile.curr_y, stri);
+    DRAW_TEXT(graphFile.win, graphFile.curr_x, graphFile.curr_y, stri,
+        colorPixel(graphFile.foreground), colorPixel(graphFile.background));
     graphFile.column +:= length(stri);
     graphFile.curr_x +:= graphFile.column_delta * length(stri);
   end func;

@@ -134,7 +134,8 @@ const func pixel: rgbPixel (ref integer param,
 const proc: SET_COLOR (ref pixel param) is             action "DRW_COLOR";
 const proc: SET_BACKGROUND (ref pixel param) is        action "DRW_BACKGROUND";
 const proc: DRAW_TEXT (inout PRIMITIVE_WINDOW param,
-    ref integer param, ref integer param, in string param) is action "DRW_TEXT";
+    ref integer param, ref integer param, in string param,
+    ref pixel param, ref pixel param) is               action "DRW_TEXT";
 const proc: CMD_SLEEP (ref integer param) is           action "CMD_SLEEP";
 
 

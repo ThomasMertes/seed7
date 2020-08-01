@@ -2152,6 +2152,10 @@ CONTENTS
                        Element >= X
                     for all X which are in the set.
                     min(setType.EMPTY_SET) => ERROR )
+      compare(A, B) Compare function
+                  ( Type of result: integer )
+      hashCode(A) Hash function
+                  ( Type of result: integer )
     Statements:
       incl(A,B) Include element B to set A
                   ( Type of argument B: baseType )
@@ -2215,6 +2219,10 @@ CONTENTS
       func_result(A)     Gets the result object of a function
       func_res_init(A)   Gets the init value of the result
                          object of a function
+      compare(A, B) Compare function
+                  ( Type of result: integer )
+      hashCode(A) Hash function
+                  ( Type of result: integer )
 
 
 5.11 ref_list
@@ -2372,8 +2380,8 @@ CONTENTS
                   ( Type of result: duration )
       time parse A   Conversion of string to time
                   ( Type of argument A: string,
-                    time parse "2005/02/28 12:00:01" => 2005/02/28 12:00:01,
-                    time parse "2005/02/29 12:00:01" => EXCEPTION RANGE_ERROR )
+                    time parse "2005-02-28 12:00:01" => 2005-02-28 12:00:01,
+                    time parse "2005-02-29 12:00:01" => EXCEPTION RANGE_ERROR )
     Relations:
       =, <>, <, <=, >, >=
     Functions:
@@ -2390,11 +2398,25 @@ CONTENTS
       truncToDay(A) Trunc a time to a day
       truncToMonth(A) Trunc a time to a month
       truncToYear(A) Trunc a time to a year
+      dayOfWeek(A)  Day of the week with Monday as 1
+                  ( Type of result: integer )
+      dayOfYear(A)  Day of the year with 1 January as 1
+                  ( Type of result: integer )
+      toGMT(A)  Conversion to Greenwich Mean Time
+      julianDayNumber(A)  Number of days that have elapsed since
+                January 1, 4713 BC in the proleptic Julian calendar
+                  ( Type of result: integer )
       compare(A, B) Compare function
                   ( Type of result: integer )
       hashCode(A) Hash function
                   ( Type of result: integer )
     Statements:
+      A +:= B   Increment A by B
+                  ( Type of argument B: duration,
+                    A +:= B => A := A + B )
+      A -:= B   Decrement A by B
+                  ( Type of argument B: duration,
+                    A -:= B => A := A - B )
       await(A)  Wait until the given time
 
 
@@ -2595,7 +2617,10 @@ CONTENTS
                   ( Type of result: integer )
       match_obj(A)  Get the match object of a type
                   ( Type of result: reference )
-
+      compare(A, B) Compare function
+                  ( Type of result: integer )
+      hashCode(A) Hash function
+                  ( Type of result: integer )
     Statements:
       const aType: name is value
                 Declare constant 'name' with 'value'

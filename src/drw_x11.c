@@ -78,17 +78,17 @@ typedef struct x11_winstruct {
   unsigned long usage_count;
   Window window;
   Pixmap backup;
+  booltype is_pixmap;
   unsigned int width;
   unsigned int height;
   struct x11_winstruct *next;
 } *x11_wintype;
 
 static x11_wintype window_list = NULL;
-static x11_wintype pixmap_list = NULL;
-static x11_wintype bitmap_list = NULL;
 
 #define to_window(win) (((x11_wintype) win)->window)
 #define to_backup(win) (((x11_wintype) win)->backup)
+#define is_pixmap(win) (((x11_wintype) win)->is_pixmap)
 #define to_width(win)  (((x11_wintype) win)->width)
 #define to_height(win) (((x11_wintype) win)->height)
 
@@ -142,6 +142,34 @@ Window curr_window;
     } /* while */
     return(NULL);
   } /* find_window */
+
+
+
+#ifdef ANSI_C
+
+static void remove_window (x11_wintype curr_window)
+#else
+
+static void remove_window (curr_window)
+x11_wintype curr_window;
+#endif
+
+  {
+    x11_wintype *win_addr;
+    x11_wintype window;
+
+  /* remove_window */
+    win_addr = &window_list;
+    window = window_list;
+    while (window != NULL) {
+      if (window == curr_window) {
+        *win_addr = window->next;
+      } /* if */
+      win_addr = &window->next;
+      window = window->next;
+    } /* while */
+    return(NULL);
+  } /* remove_window */
 
 
 
@@ -524,7 +552,9 @@ chartype gkbGetc ()
             case XK_Mode_switch:
             case XK_Caps_Lock:
             case XK_Num_Lock:
-            case XK_Shift_Lock: result = gkbGetc(); break;
+            case XK_Shift_Lock:
+	    case XK_ISO_Level3_Shift:
+              result = gkbGetc(); break;
             default:
               if (count == 1) {
                 result = buffer[0];
@@ -596,6 +626,7 @@ booltype gkbKeyPressed ()
             case XK_Caps_Lock:
             case XK_Num_Lock:
             case XK_Shift_Lock:
+	    case XK_ISO_Level3_Shift:
               XNextEvent(mydisplay, &myevent);
               num_events = XEventsQueued(mydisplay, QueuedAfterReading);
               break;
@@ -1080,19 +1111,24 @@ void drwFlush ()
 
 #ifdef ANSI_C
 
-void drwFree (wintype pixmap)
+void drwFree (wintype old_window)
 #else
 
-void drwFree (pixmap)
-wintype pixmap;
+void drwFree (old_window)
+wintype old_window;
 #endif
 
   { /* drwFree */
 #ifdef TRACE_X11
-    printf("drwFree(%lu)\n", pixmap);
+    printf("drwFree(%lu)\n", old_window);
 #endif
-    XFreePixmap(mydisplay, to_window(pixmap));
-    free((x11_wintype) pixmap);
+    if (is_pixmap(old_window)) {
+      XFreePixmap(mydisplay, to_window(old_window));
+    } else {
+      XDestroyWindow(mydisplay, to_window(old_window));
+      remove_window((x11_wintype) old_window);
+    } /* if */
+    free((x11_wintype) old_window);
   } /* drwFree */
 
 
@@ -1126,10 +1162,10 @@ inttype height;
           to_window(actual_window), width, height,
           DefaultDepth(mydisplay, myscreen));
       result->backup = NULL;
+      result->is_pixmap = TRUE;
       result->width = width;
       result->height = height;
-      result->next = pixmap_list;
-      pixmap_list = result;
+      result->next = NULL;
       if (to_backup(actual_window) != 0) {
         XCopyArea(mydisplay, to_backup(actual_window),
             result->window, mygc, left, upper, width, height, 0, 0);
@@ -1205,10 +1241,10 @@ inttype height;
             to_window(actual_window), width, height,
             DefaultDepth(mydisplay, myscreen));
         result->backup = NULL;
+        result->is_pixmap = TRUE;
         result->width = width;
         result->height = height;
-        result->next = pixmap_list;
-        pixmap_list = result;
+        result->next = NULL;
         XPutImage(mydisplay, result->window, mygc, image, 0, 0, 0, 0, width, height);
       } /* if */
       XFree(image);
@@ -1292,10 +1328,10 @@ inttype height;
           to_window(actual_window), width, height,
           DefaultDepth(mydisplay, myscreen));
       result->backup = NULL;
+      result->is_pixmap = TRUE;
       result->width = width;
       result->height = height;
-      result->next = pixmap_list;
-      pixmap_list = result;
+      result->next = NULL;
     } /* if */
     return((wintype) result);
   } /* drwNewPixmap */
@@ -1327,10 +1363,10 @@ inttype height;
       result->window = XCreatePixmap(mydisplay,
           to_window(actual_window), width, height, 1);
       result->backup = NULL;
+      result->is_pixmap = TRUE;
       result->width = width;
       result->height = height;
-      result->next = bitmap_list;
-      bitmap_list = result;
+      result->next = NULL;
     } /* if */
     return((wintype) result);
   } /* drwNewBitmap */
@@ -1468,6 +1504,7 @@ stritype window_name;
               myhint.x, myhint.y, (unsigned) myhint.width, (unsigned) myhint.height,
               5, myforeground, mybackground);
 
+          result->is_pixmap = FALSE;
           result->width = width;
           result->height = height;
 
@@ -1506,7 +1543,7 @@ stritype window_name;
               ButtonPressMask | KeyPressMask | ExposureMask);
 
           XMapRaised(mydisplay, result->window);
-
+          drwClear((wintype) result, myforeground);
         } /* if */
         free_cstri(win_name, window_name);
       } /* if */
@@ -1582,7 +1619,8 @@ inttype y1;
   { /* drwPut */
 #ifdef TRACE_X11
     printf("put(%lu, %lu, %ld, %ld)\n", actual_window, pixmap, x1, y1);
-    printf("actual_window=%lu, pixmap=%lu\n", to_window(actual_window), to_window(pixmap));
+    printf("actual_window=%lu, pixmap=%lu\n", to_window(actual_window),
+        pixmap != NULL ? to_window(pixmap) : NULL);
 #endif
     /* A pixmap value of NULL is used to describe an empty pixmap. */
     /* In this case nothing should be done.                        */
@@ -1984,13 +2022,16 @@ inttype col;
 
 #ifdef ANSI_C
 
-void drwText (wintype actual_window, inttype x, inttype y, stritype stri)
+void drwText (wintype actual_window, inttype x, inttype y, stritype stri,
+    inttype col, inttype bkcol)
 #else
 
-void drwText (actual_window, x, y, stri)
+void drwText (actual_window, x, y, stri, col, bkcol)
 wintype actual_window;
 inttype x, y;
 stritype stri;
+inttype col;
+inttype bkcol;
 #endif
 
   { /* drwText */
@@ -2014,6 +2055,8 @@ stritype stri;
           wstri->byte2 = *strelem & 0xFF;
         } /* while */
 
+        XSetForeground(mydisplay, mygc, (unsigned) col);
+        XSetBackground(mydisplay, mygc, (unsigned) bkcol);
         XDrawImageString16(mydisplay, to_window(actual_window), mygc,
             x, y, stri_buffer, stri->size);
         if (to_backup(actual_window) != 0) {

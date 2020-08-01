@@ -1197,17 +1197,22 @@ listtype arguments;
     wintype actual_window;
     inttype x, y;
     stritype stri;
+    inttype col, bkcol;
 
   /* drw_text */
     isit_win(arg_1(arguments));
     isit_int(arg_2(arguments));
     isit_int(arg_3(arguments));
     isit_stri(arg_4(arguments));
+    isit_int(arg_5(arguments));
+    isit_int(arg_6(arguments));
     actual_window = take_win(arg_1(arguments));
     x = take_int(arg_2(arguments));
     y = take_int(arg_3(arguments));
     stri = take_stri(arg_4(arguments));
-    drwText(actual_window, x, y, stri);
+    col = take_int(arg_5(arguments));
+    bkcol = take_int(arg_6(arguments));
+    drwText(actual_window, x, y, stri, col, bkcol);
     return(SYS_EMPTY_OBJECT);
   } /* drw_text */
 

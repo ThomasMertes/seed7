@@ -62,19 +62,20 @@ typedef struct win_winstruct {
   HBITMAP backup;
   HDC backup_hdc;
   HBITMAP hBitmap;
+  booltype is_pixmap;
   unsigned int width;
   unsigned int height;
   struct win_winstruct *next;
 } *win_wintype;
 
 static win_wintype window_list = NULL;
-static win_wintype pixmap_list = NULL;
-static win_wintype bitmap_list = NULL;
 
 #define to_hwnd(win)        (((win_wintype) win)->hWnd)
-#define to_hBitmap(win)     (((win_wintype) win)->hBitmap)
 #define to_hdc(win)         (((win_wintype) win)->hdc)
 #define to_backup_hdc(win)  (((win_wintype) win)->backup_hdc)
+#define to_backup(win)      (((win_wintype) win)->backup)
+#define to_hBitmap(win)     (((win_wintype) win)->hBitmap)
+#define is_pixmap(win)      (((win_wintype) win)->is_pixmap)
 #define to_width(win)       (((win_wintype) win)->width)
 #define to_height(win)      (((win_wintype) win)->height)
 
@@ -112,6 +113,34 @@ HWND curr_window;
     } /* while */
     return(NULL);
   } /* find_window */
+
+
+
+#ifdef ANSI_C
+
+static void remove_window (win_wintype curr_window)
+#else
+
+static void remove_window (curr_window)
+win_wintype curr_window;
+#endif
+
+  {
+    win_wintype *win_addr;
+    win_wintype window;
+
+  /* remove_window */
+    win_addr = &window_list;
+    window = window_list;
+    while (window != NULL) {
+      if (window == curr_window) {
+        *win_addr = window->next;
+      } /* if */
+      win_addr = &window->next;
+      window = window->next;
+    } /* while */
+    return(NULL);
+  } /* remove_window */
 
 
 
@@ -217,6 +246,7 @@ chartype gkbGetc ()
                 case VK_DELETE:   result = K_DEL;        break;
                 case VK_CLEAR:    result = K_PAD_CENTER; break;
                 case VK_APPS:     result = K_UNDEF;      break;
+                case VK_TAB:      result = K_BACKTAB;    break;
                 default:          result = K_NONE;       break;
               } /* switch */
             } else if (GetKeyState(VK_MENU) & 0xFF80) {
@@ -842,17 +872,25 @@ void drwFlush ()
 
 #ifdef ANSI_C
 
-void drwFree (wintype pixmap)
+void drwFree (wintype old_window)
 #else
 
-void drwFree (pixmap)
-wintype pixmap;
+void drwFree (old_window)
+wintype old_window;
 #endif
 
   { /* drwFree */
-    DeleteObject(to_hBitmap(pixmap));
-    DeleteDC(to_hdc(pixmap));
-    free((win_wintype) pixmap);
+    if (is_pixmap(old_window)) {
+      DeleteObject(to_hBitmap(old_window));
+      DeleteDC(to_hdc(old_window));
+    } else {
+      DeleteObject(to_backup(old_window));
+      DeleteDC(to_backup_hdc(old_window));
+      DeleteDC(to_hdc(old_window));
+      DestroyWindow(to_hwnd(old_window));
+      remove_window((win_wintype) old_window);
+    } /* if */
+    free((win_wintype) old_window);
   } /* drwFree */
 
 
@@ -882,8 +920,10 @@ inttype height;
       result->hdc = CreateCompatibleDC(to_hdc(actual_window));
       result->hBitmap = CreateCompatibleBitmap(to_hdc(actual_window), width, height);
       SelectObject(result->hdc, result->hBitmap);
+      result->is_pixmap = TRUE;
       result->width = width;
       result->height = height;
+      result->next = NULL;
       BitBlt(result->hdc, 0, 0, width, height,
           to_backup_hdc(actual_window), left, upper, SRCCOPY);
     } /* if */
@@ -1010,8 +1050,10 @@ inttype height;
       result->hdc = CreateCompatibleDC(to_hdc(actual_window));
       result->hBitmap = CreateCompatibleBitmap(to_hdc(actual_window), width, height);
       SelectObject(result->hdc, result->hBitmap);
+      result->is_pixmap = TRUE;
       result->width = width;
       result->height = height;
+      result->next = NULL;
     } /* if */
     return((wintype) result);
   } /* drwNewPixmap */
@@ -1079,6 +1121,7 @@ stritype window_name;
 
   {
     char *win_name;
+    HFONT std_font;
     win_wintype result;
 
   /* drwOpen */
@@ -1124,11 +1167,17 @@ stritype window_name;
           if (result->hWnd != NULL) {
             result->hdc = GetDC(result->hWnd);
             /* printf("hdc=%lu\n", result->hdc); */
+            result->is_pixmap = FALSE;
             result->width = width;
             result->height = height;
             result->backup_hdc = CreateCompatibleDC(result->hdc);
             result->backup = CreateCompatibleBitmap(result->hdc, width, height);
             SelectObject(result->backup_hdc, result->backup);
+            std_font = CreateFont(16, 6, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE,
+		ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
+				  DEFAULT_QUALITY, FIXED_PITCH | FF_SWISS, NULL);
+            SelectObject(result->hdc, std_font);
+            SelectObject(result->backup_hdc, std_font);
             ShowWindow(result->hWnd, SW_SHOWDEFAULT);
             UpdateWindow(result->hWnd);
           } /* if */
@@ -1370,13 +1419,16 @@ inttype col;
 
 #ifdef ANSI_C
 
-void drwText (wintype actual_window, inttype x, inttype y, stritype stri)
+void drwText (wintype actual_window, inttype x, inttype y, stritype stri,
+    inttype col, inttype bkcol)
 #else
 
-void drwText (actual_window, x, y, stri)
+void drwText (actual_window, x, y, stri, col, bkcol)
 wintype actual_window;
 inttype x, y;
 stritype stri;
+inttype col;
+inttype bkcol;
 #endif
 
   { /* drwText */
@@ -1386,16 +1438,28 @@ stritype stri;
 
       cstri = cp_to_cstri(stri);
       if (cstri != NULL) {
+        SetTextColor(to_hdc(actual_window), (COLORREF) col);
+        SetBkColor(to_hdc(actual_window), (COLORREF) bkcol);
+        SetTextAlign(to_hdc(actual_window), TA_BASELINE | TA_LEFT);
         TextOut(to_hdc(actual_window), x, y, cstri, strlen(cstri));
         if (to_backup_hdc(actual_window) != 0) {
+          SetTextColor(to_backup_hdc(actual_window), (COLORREF) col);
+          SetBkColor(to_backup_hdc(actual_window), (COLORREF) bkcol);
+          SetTextAlign(to_backup_hdc(actual_window), TA_BASELINE | TA_LEFT);
           TextOut(to_backup_hdc(actual_window), x, y, cstri, strlen(cstri));
         } /* if */
         free_cstri(cstri, stri);
       } /* if */
     }
 #else
+    SetTextColor(to_hdc(actual_window), (COLORREF) col);
+    SetBkColor(to_hdc(actual_window), (COLORREF) bkcol);
+    SetTextAlign(to_hdc(actual_window), TA_BASELINE | TA_LEFT);
     TextOut(to_hdc(actual_window), x, y, stri->mem, stri->size);
     if (to_backup_hdc(actual_window) != 0) {
+      SetTextColor(to_backup_hdc(actual_window), (COLORREF) col);
+      SetBkColor(to_backup_hdc(actual_window), (COLORREF) bkcol);
+      SetTextAlign(to_backup_hdc(actual_window), TA_BASELINE | TA_LEFT);
       TextOut(to_backup_hdc(actual_window), x, y, stri->mem, stri->size);
     } /* if */
 #endif
