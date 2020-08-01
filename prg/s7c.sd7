@@ -1,7 +1,7 @@
 
 (********************************************************************)
 (*                                                                  *)
-(*  comp.sd7      Compiler from Seed7 to C                          *)
+(*  s7c.sd7       Seed7 compiler - Compiles Seed7 to C              *)
 (*  Copyright (C) 1990 - 1994, 2004 - 2012  Thomas Mertes           *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
@@ -18299,11 +18299,10 @@ const proc: process_local_declaration (in reference: current_object, in var refe
       c_declaration.temp_assigns &:= ");\n";
       process_destr_declaration(objectType, global_c_expr);
       process_destr_call(objectType, param_name, c_declaration.temp_frees);
-
     elsif valueCategory = BLOCKOBJECT then
-      create_name(object_value, obj_number(body(object_value)), param_name);
+      create_name(object_value, obj_number(object_value), param_name);
       c_value.temp_num := c_declaration.temp_num;
-      processFuncValue(param_name, objectType, body(object_value), c_value);
+      processFuncValue(param_name, objectType, object_value, c_value);
       c_declaration.temp_num := c_value.temp_num;
       c_declaration.temp_decls &:= "=";
       c_declaration.temp_decls &:= c_value.expr;
@@ -18312,7 +18311,6 @@ const proc: process_local_declaration (in reference: current_object, in var refe
       c_expr.temp_frees   &:= c_value.temp_frees;
       c_expr.temp_to_null &:= c_value.temp_to_null;
       function_declared @:= [object_value] TRUE;
-
     elsif valueCategory = ACTOBJECT then
       c_declaration.temp_decls &:= "=NULL";
     else
@@ -18886,7 +18884,11 @@ const proc: defineActualFuncParam (in string: valueName, in reference: actual_pa
     c_expr.expr &:= valueName;
     c_expr.expr &:= ")\n";
     c_expr.expr &:= "{\n";
-    process_expr(actual_param, c_func_body);
+    if category(actual_param) = BLOCKOBJECT then
+      process_expr(body(actual_param), c_func_body);
+    else
+      process_expr(actual_param, c_func_body);
+    end if;
     AppendWithDiagnostic(c_func_body.temp_decls, c_expr);
     AppendWithDiagnostic(c_func_body.temp_assigns, c_expr);
     if getType(actual_param) = proctype then
@@ -19980,14 +19982,12 @@ const proc: process_var_func_declaration (in reference: function,
     inout expr_type: c_expr) is func
 
   local
-    var reference: closure is NIL;
     var expr_type: c_value is expr_type.value;
     var string: valueName is "";
   begin
     declare_type_if_necessary(getType(function), global_c_expr);
-    closure := body(function);
-    create_name(function, obj_number(closure), valueName);
-    processFuncValue(valueName, getType(function), closure, c_value);
+    create_name(function, obj_number(function), valueName);
+    processFuncValue(valueName, getType(function), function, c_value);
     c_expr.expr &:= c_value.temp_decls;
     global_init.expr &:= diagnosticLine(function);
     global_init.expr &:= c_value.temp_assigns;
@@ -24635,7 +24635,7 @@ const proc: pass_3 (in string: source, in program: prog,
 
 const proc: writeHelp is func
   begin
-    writeln("usage: comp [options] source");
+    writeln("usage: s7c [options] source");
     writeln;
     writeln("Options:");
     writeln("  -?   Write Seed7 compiler usage.");
@@ -24671,16 +24671,16 @@ const proc: main is func
 
   begin
     OUT := STD_UTF8_OUT;
-    writeln("SEED7 COMPILER Version 2.0  Copyright (c) 1990-2012 Thomas Mertes");
+    writeln("SEED7 COMPILER Version 2.1  Copyright (c) 1990-2012 Thomas Mertes");
     if length(argv(PROGRAM)) = 0 then
       writeln("This is free software; see the source for copying conditions.  There is NO");
       writeln("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.");
-      writeln("Comp is written in the Seed7 programming language");
+      writeln("S7c is written in the Seed7 programming language");
       writeln("Homepage: http://seed7.sourceforge.net");
       writeln;
-      writeln("usage: comp [options] source");
+      writeln("usage: s7c [options] source");
       writeln;
-      writeln("Use  comp -?  to get more information about comp.");
+      writeln("Use  s7c -?  to get more information about s7c.");
       writeln;
     else
       number := 1;

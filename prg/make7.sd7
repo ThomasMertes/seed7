@@ -34,6 +34,8 @@ const proc: main is func
     var string: curr_arg is "";
     var optionHash: make_option is optionHash.value;
     var string: makefile is "";
+    var stringHash: macros is stringHash.value;
+    var integer: equalPos is 0;
     var string: target is "";
     var makeFlags: flags is makeFlags.value;
     var boolean: okay is TRUE;
@@ -48,6 +50,9 @@ const proc: main is func
         else
           make_option @:= [curr_arg[.. 2]] curr_arg[3 ..];
         end if;
+      elsif pos(curr_arg, '=') <> 0 then
+        equalPos := pos(curr_arg, '=');
+        macros @:= [curr_arg[.. pred(equalPos)]] curr_arg[succ(equalPos) ..];
       elsif target = "" then
         target := curr_arg;
       end if;
@@ -99,7 +104,7 @@ const proc: main is func
         incl(flags, silentMode);
       end if;
       if okay then
-        make(makefile, target, flags);
+        make(makefile, target, flags, macros);
       end if;
     end if;
   end func;

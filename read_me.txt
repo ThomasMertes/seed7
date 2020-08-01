@@ -55,8 +55,12 @@ HOW TO COMPILE THE INTERPRETER?
     make
 
   After the compilation the interpreter is linked to the file
-  'seed7/prg/hi'. The file 'seed7/src/read_me.txt' contains a
-  detailed explanation of the compilation process.
+  'seed7/prg/hi'. The Seed7 compiler (s7c) is compiled with:
+
+    make s7c
+
+  The file 'seed7/src/read_me.txt' contains a detailed
+  explanation of the compilation process.
 
 
 HOW TO COMPILE UNDER OTHER OPERATING SYSTEMS?

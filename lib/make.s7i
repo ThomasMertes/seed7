@@ -253,6 +253,7 @@ const proc: doCp (inout string: command, in boolean: cpCommand, in boolean: doLo
   local
     var string: parameter is "";
     var boolean: overwriteExisting is FALSE;
+    var boolean: archive is FALSE;
     var string: fileName is "";
     var array string: fileList is 0 times "";
     var string: destination is "";
@@ -273,6 +274,8 @@ const proc: doCp (inout string: command, in boolean: cpCommand, in boolean: doLo
         overwriteExisting := TRUE;
       elsif parameter = "-n" then
         overwriteExisting := FALSE;
+      elsif parameter = "-a" then
+        archive := TRUE;
       else
         parameter := convDosPath(parameter);
         if pos(parameter, "*") <> 0 or pos(parameter, "?") <> 0 then
@@ -307,7 +310,11 @@ const proc: doCp (inout string: command, in boolean: cpCommand, in boolean: doLo
             end if;
             if fileType(destFileName) = FILE_ABSENT then
               # write("copyFile " <& fileName <& " " <& destination);
-              copyFile(fileName, destFileName);
+              if archive then
+                cloneFile(fileName, destFileName);
+              else
+                copyFile(fileName, destFileName);
+              end if;
             end if;
           end if;
         end for;
@@ -324,7 +331,11 @@ const proc: doCp (inout string: command, in boolean: cpCommand, in boolean: doLo
           end if;
           if fileType(destination) = FILE_ABSENT then
             # write("copyFile " <& fileName <& " " <& destination);
-            copyFile(fileName, destination);
+            if archive then
+              cloneFile(fileName, destFileName);
+            else
+              copyFile(fileName, destFileName);
+            end if;
           end if;
         end if;
       end if;
@@ -604,9 +615,13 @@ const func integer: processCommand (in makeDataType: makeData, in var string: co
           end if;
           writeln("> " & fileName);
         end if;
-        command := getWord(fullCommand);
-        fullCommand := convDosPath(command) & fullCommand;
-        aFile := popen(fullCommand, "r");
+        if startsWith(fullCommand, "\"") then
+          command := getQuotedText(fullCommand);
+        else
+          command := getWord(fullCommand);
+        end if;
+        # writeln("cmd: " <& literal(command) <& " " <& literal(convDosPath(command)) <& " " <& literal(fullCommand));
+        aFile := popen(convDosPath(command), fullCommand, "r");
         if aFile <> STD_NULL then
           commandOutput := gets(aFile, 999999999);
           close(aFile);
@@ -623,7 +638,12 @@ const func integer: processCommand (in makeDataType: makeData, in var string: co
           writeln(fullCommand);
           flush(STD_OUT);
         end if;
-        command := getWord(fullCommand);
+        if startsWith(fullCommand, "\"") then
+          command := getQuotedText(fullCommand);
+        else
+          command := getWord(fullCommand);
+        end if;
+        # writeln("cmd: " <& literal(command) <& " " <& literal(convDosPath(command)) <& " " <& literal(fullCommand));
         commandStatus := shell(convDosPath(command), fullCommand);
       end if;
     end if;
@@ -889,7 +909,8 @@ const proc: processRule (inout makeDataType: makeData, in string: targetName) is
   end func;
 
 
-const proc: make (in string: makefile, in string: target, in makeFlags: flags) is func
+const proc: make (in string: makefile, in string: target, in makeFlags: flags,
+    in stringHash: macros) is func
   local
     var ruleType: rule is ruleType.value;
     var makeDataType: makeData is makeDataType.value;
@@ -898,9 +919,16 @@ const proc: make (in string: makefile, in string: target, in makeFlags: flags) i
     makeData.executeCommands := dontExecute not in flags;
     makeData.inSilentMode := silentMode in flags;
     makeData.doIgnoreErrors := ignoreErrors in flags;
-    makeData.macros @:= ["CPPFLAGS"] "";
-    makeData.macros @:= ["CFLAGS"] "";
-    makeData.macros @:= ["CC"] "cc";
+    makeData.macros := macros;
+    if "CPPFLAGS" not in makeData.macros then
+      makeData.macros @:= ["CPPFLAGS"] "";
+    end if;
+    if "CFLAGS" not in makeData.macros then
+      makeData.macros @:= ["CFLAGS"] "";
+    end if;
+    if "CC" not in makeData.macros then
+      makeData.macros @:= ["CC"] "cc";
+    end if;
     makeData.macros @:= ["MAKE"] "make7";
     makeData.macros @:= ["MAKECMDGOALS"] target;
     readMakefile(makeData, makefile);
@@ -933,4 +961,10 @@ const proc: make (in string: makefile, in string: target, in makeFlags: flags) i
     else
       processRule(makeData, target);
     end if;
+  end func;
+
+
+const proc: make (in string: makefile, in string: target, in makeFlags: flags) is func
+  begin
+    make(makefile, target, flags, stringHash.value);
   end func;

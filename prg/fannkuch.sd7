@@ -20,7 +20,7 @@
 (*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
 (*                                                                  *)
 (*  For maximum performance compile this program with:              *)
-(*    ./hi comp -O2 -r fannkuch                                     *)
+(*    ./hi s7c -O2 -r fannkuch                                      *)
 (*                                                                  *)
 (********************************************************************)
 

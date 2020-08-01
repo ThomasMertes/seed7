@@ -379,7 +379,7 @@ errinfotype *err_info;
           create_call_obj = get_create_call_obj(local_var, err_info);
           destroy_call_obj = get_destroy_call_obj(local_var, err_info);
           SET_CATEGORY_OF_OBJ(local_var, LOCALVOBJECT);
-          local_var->value.objvalue = init_value; /* was NULL; changed for comp.sd7 */
+          local_var->value.objvalue = init_value; /* was NULL; changed for s7c.sd7 */
           append_to_loclist(&local_vars_insert_place,
               local_var, init_value, create_call_obj, destroy_call_obj, err_info);
         } else {

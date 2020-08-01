@@ -64,6 +64,7 @@
 #define PI 3.141592653589793238462643383279502884197
 
 Display *mydisplay = NULL;
+Atom wm_delete_window;
 unsigned long myforeground, mybackground;
 GC mygc;
 XSizeHints myhint;
@@ -432,6 +433,8 @@ static void dra_init ()
       mygc = XCreateGC(mydisplay, DefaultRootWindow(mydisplay), 0, 0);
       XSetBackground(mydisplay, mygc, mybackground);
       XSetForeground(mydisplay, mygc, myforeground);
+
+      wm_delete_window = XInternAtom(mydisplay, "WM_DELETE_WINDOW", False);
     } /* if */
 #ifdef TRACE_X11
     printf("END dra_init\n");
@@ -1443,6 +1446,8 @@ stritype window_name;
                 win_name, win_name,
                 None, /* argv, argc, */ NULL, 0, &myhint);
             XSetWMHints(mydisplay, result->window, &mywmhint);
+
+            XSetWMProtocols(mydisplay, result->window, &wm_delete_window, 1);
 
             x_screen = XScreenOfDisplay(mydisplay, myscreen);
             /* printf("backing_store=%d (NotUseful=%d/WhenMapped=%d/Always=%d)\n",

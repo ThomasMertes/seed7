@@ -82,11 +82,21 @@ COMPILER_LIB_SRC = $(PSRC1) $(LSRC1) $(LSRC2) $(LSRC3) $(ESRC1) $(ASRC1) $(ASRC2
 hi: ..\bin\hi.exe ..\prg\hi.exe
 	..\bin\hi level
 
+s7c: ..\bin\s7c.exe ..\prg\s7c.exe
+
 ..\bin\hi.exe: $(OBJ) $(ALL_S7_LIBS)
 	$(CC) $(LDFLAGS) $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) -o ..\bin\hi.exe
 
 ..\prg\hi.exe: ..\bin\hi.exe
 	copy ..\bin\hi.exe ..\prg
+
+..\bin\s7c.exe: ..\prg\s7c.exe
+	copy ..\prg\s7c.exe ..\bin /Y
+
+..\prg\s7c.exe: ..\prg\s7c.sd7
+	cd ..\prg
+	hi s7c -O2 s7c
+	cd ..\src
 
 clear: clean
 
@@ -94,6 +104,9 @@ clean:
 	del version.h
 	del *.o
 	del ..\bin\*.a
+	del ..\bin\hi.exe
+	del ..\bin\s7c.exe
+	del ..\prg\s7c.exe
 	del depend
 
 dep: depend

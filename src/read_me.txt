@@ -6,8 +6,7 @@ COMPILING THE INTERPRETER
   stand alone C compiler and a make utility to compile the
   interpreter. A C compiler which is only usable from an IDE
   is not so useful, since some Seed7 programs (e.g. The
-  Seed7 to C compiler comp.sd7) need to call the C compiler
-  as well.
+  Seed7 compiler s7c) need to call the C compiler as well.
 
 
 THE MAKEFILES
@@ -15,7 +14,7 @@ THE MAKEFILES
     Several makefiles are prepared for various combinations
   of operating system, make utility, C compiler and shell:
 
-  makefile name|operating system |make prog     |compiler    |shell
+  makefile name|operating system |make prog     |C compiler  |shell
   -------------+-----------------+--------------+------------+--------
   mk_linux.mak | Linux/Unix/BSD  | (g)make      | gcc        | sh
   mk_cygw.mak  | Windows (Cygwin)| (g)make      | gcc        | sh
@@ -39,12 +38,17 @@ THE MAKEFILES
   Additionally a symbolic link to the executable is placed in
   the 'prg' directory (Under Windows symbolic links are not
   supported, so a copy of the executable is placed in the 'prg'
-  directory). If you do several compilation attempts in
-  succession you need to do
+  directory). The Seed7 compiler (s7c) is compiled with:
+
+    make s7c
+
+  The compiler executable is copied to the 'bin' directory. To
+  do several compilation attempts in succession you need to
+  execute the command
 
     make clean
 
-  before you start a new attempt.
+  before you do 'make depend' again.
 
 
 COMPILING UNTER LINUX
@@ -685,7 +689,7 @@ COMPILER DATA LIBRARY
   compiler and interpreter internal data such as "type",
   "ref_list" and "reference". The compiler data library is
   linked to the interpreter and to some compiled Seed7
-  programs such as the compiler (comp.sd7) itself.
+  programs such as the Seed7 compiler (s7c) itself.
 
     typ_data.c Primitive actions for the type type.
     rfl_data.c Primitive actions for the ref_list type.

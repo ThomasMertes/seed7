@@ -25,7 +25,6 @@ clock2.sd7   Displays a digital clock with microseconds
 clock3.sd7   Analog Clock
 cmpfil.sd7   Compares two files in main memory
 comanche.sd7 Simple webserver for static and cgi pages.
-comp.sd7     Compiler from Seed7 to C
 dirtst.sd7   Test reading a directory as file
 dirx.sd7     Make a directory listing
 dnafight.sd7 Bacterial dna fight programming game
@@ -64,6 +63,7 @@ printpi3.sd7 Print 1000 digits of PI with Newtons formula
 rand.sd7     Floating point random numbers test
 rever.sd7    Reversi game
 roman.sd7    Write roman numerals
+s7c.sd7      Seed7 compiler - Compiles Seed7 to C
 savehd7.sd7  Save a harddisk which has hardware errors.
 self.sd7     A program that writes itself (except this header)
 shisen.sd7   Shisen game

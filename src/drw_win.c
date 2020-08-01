@@ -605,6 +605,14 @@ chartype gkbGetc ()
                 result = K_UNDEF;
                 break;
           } /* switch */
+        } else if (msg.message == WM_NCLBUTTONDOWN) {
+          /* printf("WM_NCLBUTTONDOWN %lu, %d, %u\n", msg.hwnd, msg.wParam, msg.lParam); */
+          TranslateMessage(&msg);
+          DispatchMessage(&msg);
+          if (msg.wParam == HTCLOSE && !IsWindow(msg.hwnd)) {
+            /* printf("HTCLOSE\n"); */
+            exit(1);
+          } /* if */
         } else if (msg.message == WM_CHAR) {
           /* printf("WM_CHAR %lu, %d, %u\n", msg.hwnd, msg.wParam, msg.lParam); */
           result = msg.wParam;

@@ -35,13 +35,16 @@ const proc: main is func
     var boolean: do_zip_unzip is FALSE;
     var boolean: file_arg is FALSE;
     var array string: arg_list is 0 times "";
+    var integer: index is 0;
   begin
     if length(argv(PROGRAM)) >= 1 then
       option := argv(PROGRAM)[1];
       if option[1] = '-' then
         option := option [2 .. ];
       end if;
-      command := option[1];
+      if option <> "" then
+        command := option[1];
+      end if;
       if command in {'t', 'x', 'c'} then
         option := option [2 .. ];
         while option <> "" do
@@ -70,6 +73,9 @@ const proc: main is func
           # file_name := "/dev/flp";
           # arg_list := argv(PROGRAM)[2 .. ];
         end if;
+        for key index range arg_list do
+          arg_list[index] := convDosPath(arg_list[index]);
+        end for;
         case command of
           when {'t'}:
             tarTell(file_name, arg_list, do_view, do_zip_unzip);

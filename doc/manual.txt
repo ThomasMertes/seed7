@@ -2850,6 +2850,10 @@ CONTENTS
                     join([]("pro", "gram"), "") => "program" )
       trim(A)   Removes leading and trailing spaces and control chars
                   ( trim(" /n xyz /r") = "xyz" )
+      ltrim(A)   Removes leading spaces and control chars
+                  ( trim(" /n xyz /r") = "xyz /r" )
+      rtrim(A)   Removes trailing spaces and control chars
+                  ( trim(" /n xyz /r") = " /n xyz" )
       str(A)    Conversion to string
                   ( Type of result: string,
                     str(A) => A )
@@ -3248,7 +3252,8 @@ CONTENTS
                   ( Type of result: boolean,
                     isVar(NIL) => EXCEPTION RANGE_ERROR )
       params(A) Gets the formal parameters of a function
-                  ( Type of result: ref_list )
+                  ( Type of result: ref_list,
+                    params(NIL) => EXCEPTION RANGE_ERROR )
       local_vars(A) Gets the local variables of a function
                   ( Type of result: ref_list,
                     local_vars(NIL) => EXCEPTION RANGE_ERROR,
@@ -3283,9 +3288,11 @@ CONTENTS
                   ( interface_to_struct(NIL) => EXCEPTION RANGE_ERROR,
                     interface_to_struct(A) => EXCEPTION RANGE_ERROR for category(A) <> INTERFACEOBJECT )
       file(A)   File name of the referenced object
-                  ( Type of result: string )
+                  ( Type of result: string,
+                    file(NIL) => EXCEPTION RANGE_ERROR )
       line(A)   Line number of the referenced object
-                  ( Type of result: integer )
+                  ( Type of result: integer,
+                    line(NIL) => EXCEPTION RANGE_ERROR )
       alloc(A)  Create a copy of the object referenced by A
                 The object value of the copy is set to NULL
       getValue(A, reference) Dereference as reference
@@ -8807,7 +8814,7 @@ CONTENTS
   understands a primitive action.
 
   To allow a primitive function in a compiled Seed7 program the
-  Seed7 compiler (comp.sd7) needs to know the action also. The
+  Seed7 compiler (s7c) needs to know the action also. The
   compiler function which creates code for the 'INT_ADD' action is:
 
     const proc: process_int_add (in ref_list: params, inout expr_type: c_expr) is func
@@ -8909,8 +8916,8 @@ CONTENTS
   can be found in *_rtl.c files (E.g.: "int_rtl.c"). The *_rtl.c
   files are grouped together in the "seed7_05.a" library
   (Licensed under LGPL). When a Seed7 program is compiled with
-  the Seed7 compiler (comp.sd7) inline code is generated for
-  many primitive actions. To implement the remaining primitive
+  the Seed7 compiler (s7c) inline code is generated for many
+  primitive actions. To implement the remaining primitive
   actions the functions of the "seed7_05.a" library are used.
 
 
@@ -9569,7 +9576,6 @@ CONTENTS
     REF_LOCAL_CONSTS    ref_local_consts    refLocalConsts
     REF_LOCAL_VARS      ref_local_vars      refLocalVars
     REF_MKREF           ref_mkref
-    REF_NAME            ref_name
     REF_NE              ref_ne              !=
     REF_NIL             ref_nil
     REF_NUM             ref_num             refNum
@@ -9987,12 +9993,12 @@ CONTENTS
   different runtime libraries. This invariant structs are defined
   in "common.h" and in "data.h":
 
-    Seed7 type       C type    C struct           Comment
-    string           stritype    struct stristruct    UTF-32 encoded, can contain null chars
-    set              settype     struct setstruct
-    bstring          bstritype   struct bstristruct   Byte sequence, can contain null bytes
-    reference        objecttype  struct objectstruct  Interpreter type for Seed7 objects
-    ref_list         listtype    struct liststruct    Interpreter type for Seed7 object lists
+    Seed7 type   C type      C struct             Comment
+    string       stritype    struct stristruct    UTF-32 encoded, can contain null chars
+    set          settype     struct setstruct
+    bstring      bstritype   struct bstristruct   Byte sequence, can contain null bytes
+    reference    objecttype  struct objectstruct  Interpreter type for Seed7 objects
+    ref_list     listtype    struct liststruct    Interpreter type for Seed7 object lists
 
   Other Seed7 types also correspond to struct pointers, but the structs
   are different in interpreted and compiled Seed7 programs. The structs
@@ -10022,7 +10028,7 @@ CONTENTS
   There are also C types without corresponding Seed7 type. They are
   defined in "common.h":
 
-    C type     C definition     Comment
+    C type       C definition      Comment
     cstritype    char *            String type of the C compiler
     ustritype    unsigned char *   Helpful for unsigned comparisons
     os_stritype  char *            When the OS uses UTF-8 chars
@@ -10662,16 +10668,16 @@ CONTENTS
      - Compile the program with the options -g -e and start it
        from a debugger.
 
-  The option -g instructs the C compiler to include
-  debugging information. This way a debugger like gdb can
-  run the program and provide information. The option -e
-  tells the compiler to generate code which sends a signal
-  when an uncaught exception occurs. This option allows
-  debuggers to handle uncaught Seed7 exceptions. Note that
-  -e sends the signal SIGFPE. This is done even when the
-  exception is not related to floating point operations.
+  When s7c is called with the option -g it instructs the
+  C compiler to generate debugging information. This way a debugger
+  like gdb can run the program and provide information. The option
+  -e tells the compiler to generate code which sends a signal,
+  when an uncaught exception occurs. This option allows debuggers
+  to handle uncaught Seed7 exceptions. Note that -e sends the
+  signal SIGFPE. This is done even when the exception is not
+  related to floating point operations.
 
-    ./hi comp -g -e lander
+    ./hi s7c -g -e lander
     gdb ./lander
 
   Then the debugger should be able to run the program and to
@@ -10692,7 +10698,7 @@ CONTENTS
   the Seed7 source. The option -g-debug_c creates debug
   information, which refers to the C program generated by the Seed7 compiler:
 
-    ./hi comp -g-debug_c -e lander
+    ./hi s7c -g-debug_c -e lander
     gdb ./lander
 
   Now the debugger refers to the temporary file "tmp_lander.c":

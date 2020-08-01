@@ -107,16 +107,24 @@ COMPILER_LIB_SRC = $(PSRC1) $(LSRC1) $(LSRC2) $(LSRC3) $(ESRC1) $(ASRC1) $(ASRC2
 hi: ../bin/hi.exe ../prg/hi.exe
 	../bin/hi.exe level
 
+s7c: ../bin/s7c.exe ../prg/s7c.exe
+
 ../bin/hi.exe: $(OBJ) $(ALL_S7_LIBS)
 	$(CC) $(LDFLAGS) $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) -o ../bin/hi
 
 ../prg/hi.exe:
 	ln -s ../bin/hi.exe ../prg
 
+../bin/s7c.exe: ../prg/s7c.exe
+	cp ../prg/s7c.exe ../bin
+
+../prg/s7c.exe:
+	cd ../prg; ./hi s7c -O2 s7c; cd ../src
+
 clear: clean
 
 clean:
-	rm -f *.o ../bin/*.a ../prg/hi.exe depend version.h
+	rm -f *.o ../bin/*.a ../prg/hi.exe ../prg/sd7.exe depend version.h
 
 dep: depend
 
@@ -175,7 +183,7 @@ version.h:
 	echo "#define COMP_DATA_LIB \"$(COMP_DATA_LIB)\"" >> version.h
 	echo "#define COMPILER_LIB \"$(COMPILER_LIB)\"" >> version.h
 	$(CC) setpaths.c -o setpaths
-	./setpaths S7_LIB_DIR=$(S7_LIB_DIR) SEED7_LIBRARY=$(SEED7_LIBRARY) >> version.h
+	./setpaths "S7_LIB_DIR=$(S7_LIB_DIR)" "SEED7_LIBRARY=$(SEED7_LIBRARY)" >> version.h
 	rm setpaths
 
 depend: version.h

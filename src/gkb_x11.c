@@ -56,6 +56,7 @@
 
 
 extern Display *mydisplay;
+extern Atom wm_delete_window;
 static booltype eventPresent = FALSE;
 static XEvent currentEvent;
 static inttype button_x = 0;
@@ -286,6 +287,25 @@ chartype gkbGetc ()
         printf("MappingNotify\n");
 #endif
         XRefreshKeyboardMapping(&currentEvent.xmapping);
+        break;
+
+#ifdef OUT_OF_ORDER
+      case DestroyNotify:
+#ifdef FLAG_EVENTS
+        printf("DestroyNotify\n");
+#endif
+        exit(1);
+        break;
+#endif
+
+      case ClientMessage:
+#ifdef FLAG_EVENTS
+        printf("ClientMessage\n");
+#endif
+        if ((Atom) currentEvent.xclient.data.l[0] == wm_delete_window) {
+          /* printf("do exit\n"); */
+          exit(1);
+        } /* if */
         break;
 
       case ButtonPress:

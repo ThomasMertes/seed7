@@ -517,7 +517,7 @@ listtype arguments;
 
   {
     const_stritype name;
-    stritype result;
+    objecttype result;
 
   /* ref_file */
     isit_reference(arg_1(arguments));
@@ -525,13 +525,9 @@ listtype arguments;
     if (name == NULL) {
       result = NULL;
     } else {
-      result = strCreate(name);
+      result = bld_stri_temp(strCreate(name));
     } /* if */
-    if (result == NULL) {
-      return raise_exception(SYS_MEM_EXCEPTION);
-    } else {
-      return bld_stri_temp(result);
-    } /* if */
+    return result;
   } /* ref_file */
 
 
@@ -773,34 +769,6 @@ trace2(refe_to);
 
 #ifdef ANSI_C
 
-objecttype ref_name (listtype arguments)
-#else
-
-objecttype ref_name (arguments)
-listtype arguments;
-#endif
-
-  {
-    objecttype obj;
-
-  /* ref_name */
-    isit_reference(arg_1(arguments));
-    obj = take_reference(arg_1(arguments));
-    if (obj == NULL) {
-      return bld_reference_temp(NULL);
-    } else {
-      if (HAS_ENTITY(obj)) {
-        return bld_reference_temp(GET_ENTITY(obj)->owner->obj);
-      } else {
-        return bld_reference_temp(NULL);
-      } /* if */
-    } /* if */
-  } /* ref_name */
-
-
-
-#ifdef ANSI_C
-
 objecttype ref_ne (listtype arguments)
 #else
 
@@ -862,34 +830,10 @@ objecttype ref_params (arguments)
 listtype arguments;
 #endif
 
-  {
-    objecttype obj_arg1;
-    loclisttype local_elem;
-    listtype *list_insert_place;
-    errinfotype err_info = OKAY_NO_ERROR;
-    listtype result;
-
-  /* ref_params */
+  { /* ref_params */
     isit_reference(arg_1(arguments));
-    obj_arg1 = take_reference(arg_1(arguments));
-    result = NULL;
-    if (CATEGORY_OF_OBJ(obj_arg1) == BLOCKOBJECT) {
-      list_insert_place = &result;
-      local_elem = obj_arg1->value.blockvalue->params;
-      while (local_elem != NULL) {
-        list_insert_place = append_element_to_list(list_insert_place,
-            local_elem->local.object, &err_info);
-        local_elem = local_elem->next;
-      } /* while */
-    } else {
-      result = create_parameter_list(GET_ENTITY(obj_arg1)->name_list,
-          &err_info);
-    } /* if */
-    if (err_info != OKAY_NO_ERROR) {
-      emptylist(result);
-      return raise_exception(SYS_MEM_EXCEPTION);
-    } /* if */
-    return bld_reflist_temp(result);
+    return bld_reflist_temp(refParams(
+        take_reference(arg_1(arguments))));
   } /* ref_params */
 
 

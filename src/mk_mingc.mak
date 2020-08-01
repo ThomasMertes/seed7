@@ -28,7 +28,7 @@ COMP_DATA_LIB = s7_data.a
 COMPILER_LIB = s7_comp.a
 ALL_S7_LIBS = ..\bin\$(COMPILER_LIB) ..\bin\$(COMP_DATA_LIB) ..\bin\$(DRAW_LIB) ..\bin\$(CONSOLE_LIB) ..\bin\$(SEED7_LIB)
 # CC = g++
-CC = ../bin/call_gcc
+CC = ..\bin\call_gcc
 GET_CC_VERSION_INFO = $(CC) --version >
 
 BIGINT_LIB_DEFINE = USE_BIG_RTL_LIBRARY
@@ -83,11 +83,21 @@ COMPILER_LIB_SRC = $(PSRC1) $(LSRC1) $(LSRC2) $(LSRC3) $(ESRC1) $(ASRC1) $(ASRC2
 hi: ..\bin\hi.exe ..\prg\hi.exe
 	..\bin\hi level
 
+s7c: ..\bin\s7c.exe ..\prg\s7c.exe
+
 ..\bin\hi.exe: $(OBJ) $(ALL_S7_LIBS)
 	$(CC) $(LDFLAGS) $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) -o ..\bin\hi
 
 ..\prg\hi.exe: ..\bin\hi.exe
 	copy ..\bin\hi.exe ..\prg /Y
+
+..\bin\s7c.exe: ..\prg\s7c.exe
+	copy ..\prg\s7c.exe ..\bin /Y
+
+..\prg\s7c.exe: ..\prg\s7c.sd7
+	cd ..\prg
+	hi s7c -O2 s7c
+	cd ..\src
 
 clear: clean
 
@@ -96,7 +106,10 @@ clean:
 	del depend
 	del *.o
 	del ..\bin\*.a
+	del ..\bin\hi.exe
+	del ..\bin\s7c.exe
 	del ..\prg\hi.exe
+	del ..\prg\s7c.exe
 
 dep: depend
 
@@ -147,8 +160,8 @@ version.h:
 	echo #define OBJECT_FILE_EXTENSION ".o" >> version.h
 	echo #define LIBRARY_FILE_EXTENSION ".a" >> version.h
 	echo #define EXECUTABLE_FILE_EXTENSION ".exe" >> version.h
-	echo #define C_COMPILER "$(CC)" >> version.h
-	echo #define GET_CC_VERSION_INFO "$(GET_CC_VERSION_INFO)" >> version.h
+	echo #define C_COMPILER "$(S7_LIB_DIR)/call_gcc" >> version.h
+	echo #define GET_CC_VERSION_INFO "\\\"$(S7_LIB_DIR)/call_gcc\\\" --version >" >> version.h
 	echo #define CC_OPT_DEBUG_INFO "-g" >> version.h
 	echo #define CC_OPT_NO_WARNINGS "-w" >> version.h
 	echo #define CC_FLAGS "-ffunction-sections -fdata-sections" >> version.h
@@ -174,8 +187,9 @@ version.h:
 	echo #define DRAW_LIB "$(DRAW_LIB)" >> version.h
 	echo #define COMP_DATA_LIB "$(COMP_DATA_LIB)" >> version.h
 	echo #define COMPILER_LIB "$(COMPILER_LIB)" >> version.h
-	echo #define PATHS_RELATIVE_TO_EXECUTABLE >> version.h
-	echo #define SEED7_LIBRARY "../lib" >> version.h
+	$(CC) -o setpaths setpaths.c
+	.\setpaths.exe "S7_LIB_DIR=$(S7_LIB_DIR)" "SEED7_LIBRARY=$(SEED7_LIBRARY)" >> version.h
+	del setpaths.exe
 
 depend: version.h
 	$(CC) $(CFLAGS) -M $(SRC) > depend
@@ -189,19 +203,19 @@ level.h:
 	..\bin\hi level
 
 ..\bin\$(SEED7_LIB): $(SEED7_LIB_OBJ)
-	../bin/call_ar r ..\bin\$(SEED7_LIB) $(SEED7_LIB_OBJ)
+	..\bin\call_ar r ..\bin\$(SEED7_LIB) $(SEED7_LIB_OBJ)
 
 ..\bin\$(CONSOLE_LIB): $(CONSOLE_LIB_OBJ)
-	../bin/call_ar r ..\bin\$(CONSOLE_LIB) $(CONSOLE_LIB_OBJ)
+	..\bin\call_ar r ..\bin\$(CONSOLE_LIB) $(CONSOLE_LIB_OBJ)
 
 ..\bin\$(DRAW_LIB): $(DRAW_LIB_OBJ)
-	../bin/call_ar r ..\bin\$(DRAW_LIB) $(DRAW_LIB_OBJ)
+	..\bin\call_ar r ..\bin\$(DRAW_LIB) $(DRAW_LIB_OBJ)
 
 ..\bin\$(COMP_DATA_LIB): $(COMP_DATA_LIB_OBJ)
-	../bin/call_ar r ..\bin\$(COMP_DATA_LIB) $(COMP_DATA_LIB_OBJ)
+	..\bin\call_ar r ..\bin\$(COMP_DATA_LIB) $(COMP_DATA_LIB_OBJ)
 
 ..\bin\$(COMPILER_LIB): $(COMPILER_LIB_OBJ)
-	../bin/call_ar r ..\bin\$(COMPILER_LIB) $(COMPILER_LIB_OBJ)
+	..\bin\call_ar r ..\bin\$(COMPILER_LIB) $(COMPILER_LIB_OBJ)
 
 wc: $(SRC)
 	echo SRC:

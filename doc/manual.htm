@@ -2970,8 +2970,12 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
                   ( Type of argument A: <a class="type" href="#types_array">array</a> <a class="type" href="#types_string">string</a>,
                     Type of argument B: <a class="type" href="#types_string">string</a>,
                     join([](<span class="stri">"pro"</span>, <span class="stri">"gram"</span>), <span class="stri">""</span>) => <span class="stri">"program"</span> )
-      trim(A)   Removes leading and trailing spaces and control chars
+      <span class="func">trim</span>(A)   Removes leading and trailing spaces and control chars
                   ( trim(<span class="stri">" /n xyz /r"</span>) = <span class="stri">"xyz"</span> )
+      <span class="func">ltrim</span>(A)   Removes leading spaces and control chars
+                  ( trim(<span class="stri">" /n xyz /r"</span>) = <span class="stri">"xyz /r"</span> )
+      <span class="func">rtrim</span>(A)   Removes trailing spaces and control chars
+                  ( trim(<span class="stri">" /n xyz /r"</span>) = <span class="stri">" /n xyz"</span> )
       <span class="func">str</span>(A)    Conversion to <a class="type" href="#types_string">string</a>
                   ( Type of result: <a class="type" href="#types_string">string</a>,
                     str(A) => A )
@@ -3355,7 +3359,7 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
     Relations:
       <span class="op">=</span>, <span class="op">&lt;></span>
     Functions:
-      category(A) Get the category of the referenced object
+      <span class="func">category</span>(A) Get the category of the referenced object
                   ( Type of result: <a class="type" href="#types_category">category</a>,
                     category(NIL) => EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
       <span class="func">str</span>(A)    Conversion to <a class="type" href="#types_string">string</a>
@@ -3366,11 +3370,12 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
       obj_number(A) Delivers an unique number for each object
                   ( Type of result: <a class="type" href="#types_integer">integer</a>,
                     obj_number(NIL) => 0 )
-      isVar(A)  Reference to a variable object
+      <span class="func">isVar</span>(A)  Reference to a variable object
                   ( Type of result: <a class="type" href="#types_boolean">boolean</a>,
                     isVar(NIL) => EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
-      params(A) Gets the formal parameters of a function
-                  ( Type of result: <a class="type" href="#types_ref_list">ref_list</a> )
+      <span class="func">params</span>(A) Gets the formal parameters of a function
+                  ( Type of result: <a class="type" href="#types_ref_list">ref_list</a>,
+                    params(NIL) => EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
       local_vars(A) Gets the local variables of a function
                   ( Type of result: <a class="type" href="#types_ref_list">ref_list</a>,
                     local_vars(NIL) => EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a>,
@@ -3404,10 +3409,12 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
       interface_to_struct(A) Return the struct to which the interface object points.
                   ( interface_to_struct(NIL) => EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a>,
                     interface_to_struct(A) => EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> for category(A) &lt;> INTERFACEOBJECT )
-      file(A)   File name of the referenced object
-                  ( Type of result: <a class="type" href="#types_string">string</a> )
-      line(A)   Line number of the referenced object
-                  ( Type of result: <a class="type" href="#types_integer">integer</a> )
+      <span class="func">file</span>(A)   File name of the referenced object
+                  ( Type of result: <a class="type" href="#types_string">string</a>,
+                    file(NIL) => EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
+      <span class="func">line</span>(A)   Line number of the referenced object
+                  ( Type of result: <a class="type" href="#types_integer">integer</a>,
+                    line(NIL) => EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
       alloc(A)  Create a copy of the object referenced by A
                 The object value of the copy is set to NULL
       getValue(A, <a class="type" href="#types_reference">reference</a>) Dereference as <a class="type" href="#types_reference">reference</a>
@@ -3466,10 +3473,10 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
       <span class="func">hashCode</span>(A) Hash function
                   ( Type of result: <a class="type" href="#types_integer">integer</a> )
     Statements:
-      setVar(A, B) Set var flag of referenced object A to B
+      <span class="func">setVar</span>(A, B) Set var flag of referenced object A to B
                   ( Type of argument B: <a class="type" href="#types_boolean">boolean</a>,
                     setVar(NIL, B) => EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
-      setCategory(A, B) Set the category of the referenced object A to B
+      <span class="func">setCategory</span>(A, B) Set the category of the referenced object A to B
                   ( Type of argument B: <a class="type" href="#types_category">category</a>,
                     setCategory(NIL, B) => EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
       <span class="func">setType</span>(A, B) Set the type of the referenced object A to B
@@ -8929,7 +8936,7 @@ TYPE_ACTION
   understands a primitive action.
 </p><p>
   To allow a primitive function in a compiled Seed7 program the
-  Seed7 compiler (comp.sd7) needs to know the action also. The
+  Seed7 compiler (s7c) needs to know the action also. The
   compiler function which creates code for the <tt>'INT_ADD'</tt> action is:
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: process_int_add (<span class="keywd">in</span> <a class="type" href="#types_ref_list">ref_list</a>: params, <span class="keywd">inout</span> <span class="type">expr_type</span>: c_expr) <span class="keywd">is func</span>
@@ -9031,8 +9038,8 @@ declareExtern(<span class="stri">"inttype     intLog2 (inttype);"</span>);
   can be found in *_rtl.c files (E.g.: <tt><span class="lib">"int_rtl.c"</span></tt>). The *_rtl.c
   files are grouped together in the <tt><span class="lib">"seed7_05.a"</span></tt> library
   (Licensed under LGPL). When a Seed7 program is compiled with
-  the Seed7 compiler (comp.sd7) inline code is generated for
-  many primitive actions. To implement the remaining primitive
+  the Seed7 compiler (s7c) inline code is generated for many
+  primitive actions. To implement the remaining primitive
   actions the functions of the <tt><span class="lib">"seed7_05.a"</span></tt> library are used.
 </p>
 
@@ -9691,7 +9698,6 @@ declareExtern(<span class="stri">"inttype     intLog2 (inttype);"</span>);
     <tr><td>REF_LOCAL_CONSTS</td>    <td>ref_local_consts</td>    <td>refLocalConsts</td></tr>
     <tr><td>REF_LOCAL_VARS</td>      <td>ref_local_vars</td>      <td>refLocalVars</td></tr>
     <tr><td>REF_MKREF</td>           <td>ref_mkref</td>           <td>&nbsp;</td></tr>
-    <tr><td>REF_NAME</td>            <td>ref_name</td>            <td>&nbsp;</td></tr>
     <tr><td>REF_NE</td>              <td>ref_ne</td>              <td>!=</td></tr>
     <tr><td>REF_NIL</td>             <td>ref_nil</td>             <td>&nbsp;</td></tr>
     <tr><td>REF_NUM</td>             <td>ref_num</td>             <td>refNum</td></tr>
@@ -10109,12 +10115,12 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
   different runtime libraries. This invariant structs are defined
   in <tt><span class="lib">"common.h"</span></tt> and in <tt><span class="lib">"data.h"</span></tt>:
 </p><table border="1" cellspacing="0" cellpadding="5">
-    <tr><th>Seed7 type</th>       <th>C type</th>    <th>C struct</th>           <th>Comment</th></tr>
-    <tr><td><tt><a class="type" href="#types_string">string</a></tt></td>           <td><a name="ffi_stritype">stritype</a></td>    <td>struct stristruct</td>    <td>UTF-32 encoded, can contain null chars</td></tr>
-    <tr><td><tt><a class="type" href="#types_set">set</a></tt></td>              <td><a name="ffi_settype">settype</a></td>     <td>struct setstruct</td>     <td>&nbsp;</td></tr>
-    <tr><td><tt><span class="type">bstring</span></tt></td>          <td><a name="ffi_bstritype">bstritype</a></td>   <td>struct bstristruct</td>   <td>Byte sequence, can contain null bytes</td></tr>
-    <tr><td><tt><a class="type" href="#types_reference">reference</a></tt></td>        <td><a name="ffi_objecttype">objecttype</a></td>  <td>struct objectstruct</td>  <td>Interpreter type for Seed7 objects</td></tr>
-    <tr><td><tt><a class="type" href="#types_ref_list">ref_list</a></tt></td>         <td><a name="ffi_listtype">listtype</a></td>    <td>struct liststruct</td>    <td>Interpreter type for Seed7 object lists</td></tr>
+    <tr><th>Seed7 type</th>   <th>C type</th>      <th>C struct</th>             <th>Comment</th></tr>
+    <tr><td><tt><a class="type" href="#types_string">string</a></tt></td>       <td><a name="ffi_stritype">stritype</a></td>    <td>struct stristruct</td>    <td>UTF-32 encoded, can contain null chars</td></tr>
+    <tr><td><tt><a class="type" href="#types_set">set</a></tt></td>          <td><a name="ffi_settype">settype</a></td>     <td>struct setstruct</td>     <td>&nbsp;</td></tr>
+    <tr><td><tt><span class="type">bstring</span></tt></td>      <td><a name="ffi_bstritype">bstritype</a></td>   <td>struct bstristruct</td>   <td>Byte sequence, can contain null bytes</td></tr>
+    <tr><td><tt><a class="type" href="#types_reference">reference</a></tt></td>    <td><a name="ffi_objecttype">objecttype</a></td>  <td>struct objectstruct</td>  <td>Interpreter type for Seed7 objects</td></tr>
+    <tr><td><tt><a class="type" href="#types_ref_list">ref_list</a></tt></td>     <td><a name="ffi_listtype">listtype</a></td>    <td>struct liststruct</td>    <td>Interpreter type for Seed7 object lists</td></tr>
 </table><p>
   Other Seed7 types also correspond to struct pointers, but the structs
   are different in interpreted and compiled Seed7 programs. The structs
@@ -10144,7 +10150,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
   There are also C types without corresponding Seed7 type. They are
   defined in <tt><span class="lib">"common.h"</span></tt>:
 </p><table border="1" cellspacing="0" cellpadding="5">
-    <tr><th>C type</th>     <th>C definition</th>     <th>Comment</th></tr>
+    <tr><th>C type</th>       <th>C definition</th>      <th>Comment</th></tr>
     <tr><td><tt><a class="type" name="ffi_cstritype">cstritype</a></tt></td>    <td>char *</td>            <td>String type of the C compiler</td></tr>
     <tr><td><tt><a class="type" name="ffi_ustritype">ustritype</a></tt></td>    <td>unsigned char *</td>   <td>Helpful for unsigned comparisons</td></tr>
     <tr><td rowspan="2"><tt><a class="type" name="ffi_os_stritype">os_stritype</a></tt></td>  <td>char *</td>            <td>When the OS uses UTF-8 chars</td></tr>
@@ -10784,16 +10790,16 @@ in main at lander.sd7(1541)
     <li>Compile the program with the options <tt><b>-g</b></tt> <tt><b>-e</b></tt> and start it
        from a debugger.</li>
 </ul><p>
-  The option <tt><b>-g</b></tt> instructs the C compiler to include
-  debugging information. This way a debugger like gdb can
-  run the program and provide information. The option <tt><b>-e</b></tt>
-  tells the compiler to generate code which sends a signal
-  when an uncaught exception occurs. This option allows
-  debuggers to handle uncaught Seed7 exceptions. Note that
-  <tt><b>-e</b></tt> sends the signal SIGFPE. This is done even when the
-  exception is not related to floating point operations.
+  When <span class="link">s7c</span> is called with the option <tt><b>-g</b></tt> it instructs the
+  C compiler to generate debugging information. This way a debugger
+  like gdb can run the program and provide information. The option
+  <tt><b>-e</b></tt> tells the compiler to generate code which sends a signal,
+  when an uncaught exception occurs. This option allows debuggers
+  to handle uncaught Seed7 exceptions. Note that <tt><b>-e</b></tt> sends the
+  signal SIGFPE. This is done even when the exception is not
+  related to floating point operations.
 </p><pre class="indent">
-./hi comp -g -e lander
+./hi s7c -g -e lander
 gdb ./lander
 </pre><p>
   Then the debugger should be able to run the program and to
@@ -10814,7 +10820,7 @@ Program received signal SIGFPE, Arithmetic exception.
   the Seed7 source. The option <tt><b>-g-debug_c</b></tt> creates debug
   information, which refers to the C program generated by the Seed7 compiler:
 </p><pre class="indent">
-./hi comp -g-debug_c -e lander
+./hi s7c -g-debug_c -e lander
 gdb ./lander
 </pre><p>
   Now the debugger refers to the temporary file <tt><span class="stri">tmp_lander.c</span></tt>:

@@ -195,7 +195,32 @@ type_implements_interface(popen_file, file);
 
 
 (**
- *  Open a pipe to a command, which reads and writes with Latin-1 encoding.
+ *  Open a pipe to a shell ''command'', with ''parameters''.
+ *  The command reads, respectively writes with Latin-1 encoding.
+ *  A pipe can only be opened with the modes "r" and "w".
+ *  @return the pipe file opened, or [[null_file#STD_NULL|STD_NULL]]
+ *          if it could not be opened.
+ *  @exception RANGE_ERROR An illegal mode was used.
+ *)
+const func file: popen (in string: command, in string: parameters, in string: mode) is func
+  result
+    var file: newPipe is STD_NULL;
+  local
+    var clib_file: open_file is CLIB_NULL_FILE;
+    var popen_file: new_file is popen_file.value;
+  begin
+    open_file := popenClibFile(command, parameters, mode);
+    if open_file <> CLIB_NULL_FILE then
+      new_file.ext_file := open_file;
+      new_file.name := command;
+      newPipe := toInterface(new_file);
+    end if;
+  end func;
+
+
+(**
+ *  Open a pipe to a shell ''command''.
+ *  The command reads, respectively writes with Latin-1 encoding.
  *  A pipe can only be opened with the modes "r" and "w".
  *  @return the pipe file opened, or [[null_file#STD_NULL|STD_NULL]]
  *          if it could not be opened.
@@ -207,17 +232,10 @@ const func file: popen (in string: cmdAndParams, in string: mode) is func
   local
     var string: command is "";
     var string: parameters is "";
-    var clib_file: open_file is CLIB_NULL_FILE;
-    var popen_file: new_file is popen_file.value;
   begin
     parameters := cmdAndParams;
     command := getCommandLineWord(parameters);
-    open_file := popenClibFile(command, parameters, mode);
-    if open_file <> CLIB_NULL_FILE then
-      new_file.ext_file := open_file;
-      new_file.name := command;
-      newPipe := toInterface(new_file);
-    end if;
+    newPipe := popen(command, parameters, mode);
   end func;
 
 

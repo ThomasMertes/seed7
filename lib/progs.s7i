@@ -140,12 +140,49 @@ const func reference: matchExpr (ref program param, ref ref_list param) is actio
 # const func program: get (PROGRAM)                                       is action "PRG_PROG";
 
 
-const func boolean: isVar (ref reference param)                         is action "REF_ISVAR";
-const proc: setVar (ref reference param, ref boolean param)             is action "REF_SETVAR";
-const func category: category (ref reference param)                     is action "REF_CATEGORY";
-const proc: setCategory (ref reference param, ref category param)       is action "REF_SETCATEGORY";
+(**
+ *  Determine if a referenced object is variable.
+ *  @return TRUE if ''aReference'' is a variable, FALSE otherwise.
+ *  @exception RANGE_ERROR When ''aReference'' is NIL.
+ *)
+const func boolean: isVar (in reference: aReference)                    is action "REF_ISVAR";
+
+
+(**
+ *  Set var flag of a referenced object.
+ *  @exception RANGE_ERROR When ''aReference'' is NIL.
+ *)
+const proc: setVar (in reference: aReference, in boolean: isVariable)   is action "REF_SETVAR";
+
+
+(**
+ *  Get the category of a referenced object.
+ *  @return the category of the referenced object.
+ *  @exception RANGE_ERROR When ''aReference'' is NIL.
+ *)
+const func category: category (in reference: aReference)                is action "REF_CATEGORY";
+
+
+(**
+ *  Set the category of a referenced object.
+ *  @exception RANGE_ERROR When ''aReference'' is NIL.
+ *)
+const proc: setCategory (in reference: aReference, in category: cat)    is action "REF_SETCATEGORY";
+
+
 (* const func reference: meta (ref reference param)                     is action "REF_META"; *)
-const func ref_list: params (ref reference param)                       is action "REF_PARAMS";
+
+
+(**
+ *  Get the formal parameters of the function referenced by ''aReference''.
+ *  For objects without parameters an empty list is returned.
+ *  @return the formal parameters as [[ref_list]].
+ *  @exception RANGE_ERROR When ''aReference'' is NIL.
+ *  @exception MEMORY_ERROR An out of memory situation occurred.
+ *)
+const func ref_list: params (in reference: aReference)                  is action "REF_PARAMS";
+
+
 const proc: setParams (ref reference param, ref ref_list param)         is action "REF_SETPARAMS";
 const func reference: func_result (ref reference param)                 is action "REF_RESULT";
 const func reference: func_res_init (ref reference param)               is action "REF_RESINI";
@@ -159,8 +196,25 @@ const func ref_list: struct_to_list (ref reference param)               is actio
 const func ref_list: hash_data_to_list (ref reference param)            is action "REF_HSHDATATOLIST";
 const func ref_list: hash_key_to_list (ref reference param)             is action "REF_HSHKEYTOLIST";
 const func reference: interface_to_struct (ref reference param)         is action "REF_ITFTOSCT";
-const func string: file (ref reference param)                           is action "REF_FILE";
-const func integer: line (ref reference param)                          is action "REF_LINE";
+
+
+(**
+ *  Determine the file name of a referenced object.
+ *  @return the file name of the referenced object.
+ *  @exception RANGE_ERROR When ''aReference'' is NIL.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func string: file (in reference: aReference)                      is action "REF_FILE";
+
+
+(**
+ *  Determine the line number of a referenced object.
+ *  @return the line number of the referenced object.
+ *  @exception RANGE_ERROR When ''aReference'' is NIL.
+ *)
+const func integer: line (ref reference: aReference)                    is action "REF_LINE";
+
+
 const func reference: alloc (in reference param)                        is action "REF_ALLOC";
 const func integer: obj_number (ref reference param)                    is action "REF_NUM";
 

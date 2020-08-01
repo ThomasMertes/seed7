@@ -42,14 +42,14 @@ const type: ruleType is new struct
     var boolean: commandsDone is FALSE;
   end struct;
 
-const type: rule_hash is hash [string] ruleType;
-const type: string_hash is hash [string] string;
+const type: ruleHash is hash [string] ruleType;
+const type: stringHash is hash [string] string;
 
 const type: makeDataType is new struct
     var file: makefile is STD_NULL;
-    var rule_hash: rules is rule_hash.value;
-    var rule_hash: patternRules is rule_hash.value;
-    var string_hash: macros is string_hash.value;
+    var ruleHash: rules is ruleHash.value;
+    var ruleHash: patternRules is ruleHash.value;
+    var stringHash: macros is stringHash.value;
     var string: nameOfFirstRule is "";
     var boolean: executeCommands is TRUE;
     var boolean: inSilentMode is FALSE;
@@ -140,7 +140,7 @@ const func string: replaceSuffixes (in var string: stri, in string: suffix, in s
   end func;
 
 
-const func string: applyMacros (in string_hash: macros, in string: stri, in boolean: leaveUndefMacros) is func
+const func string: applyMacros (in stringHash: macros, in string: stri, in boolean: leaveUndefMacros) is func
   result
     var string: result is "";
   local
@@ -207,7 +207,7 @@ const func string: getMacroParameter (inout file: makefile) is func
   end func;
 
 
-const func string: getMacro (inout file: makefile, in string_hash: macros) is func
+const func string: getMacro (inout file: makefile, in stringHash: macros) is func
   result
     var string: result is "";
   local
@@ -361,7 +361,7 @@ const proc: find_endif_or_else_directive (inout file: makefile) is func
   end func;
 
 
-const proc: execIf (inout file: makefile, in string_hash: macros) is func
+const proc: execIf (inout file: makefile, in stringHash: macros) is func
   local
     var string: functionName is "";
     var string: fileName is "";
@@ -385,7 +385,7 @@ const proc: execIf (inout file: makefile, in string_hash: macros) is func
   end func;
 
 
-const func string: getExpression (inout file: makefile, in string_hash: macros) is func
+const func string: getExpression (inout file: makefile, in stringHash: macros) is func
   result
     var string: exprResult is "";
   begin
@@ -428,7 +428,7 @@ const proc: find_endif_or_else (inout file: makefile) is func
   end func;
 
 
-const proc: execIfeq (inout file: makefile, in string_hash: macros, in boolean: equal) is func
+const proc: execIfeq (inout file: makefile, in stringHash: macros, in boolean: equal) is func
   local
     var string: value1 is "";
     var string: value2 is "";
@@ -456,6 +456,34 @@ const proc: execIfeq (inout file: makefile, in string_hash: macros, in boolean: 
   end func;
 
 
+const func string: getDependency (inout string: stri) is func
+  result
+    var string: symbol is "";
+  local
+    var integer: leng is 0;
+    var integer: start is 1;
+    var integer: pos is 1;
+  begin
+    leng := length(stri);
+    while start <= leng and stri[start] in white_space_char do
+      incr(start);
+    end while;
+    if start <= leng then
+      pos := start;
+      repeat
+        if stri[pos] = '\\' and pos < leng and stri[succ(pos)] = ' ' then
+	  incr(pos);
+        end if;
+        symbol &:= stri[pos];
+        incr(pos);
+      until pos > leng or stri[pos] in white_space_char;
+      stri := stri[pos ..];
+    else
+      stri := "";
+    end if;
+  end func;
+
+
 const proc: readRule (inout makeDataType: makeData, in string: name) is func
   local
     var file: makefile is STD_NULL;
@@ -470,7 +498,7 @@ const proc: readRule (inout makeDataType: makeData, in string: name) is func
     dependencies := getLineWithMacrosApplied(makeData);
     # write(name <& ":");
     while dependencies <> "" do
-      dependency := getWord(dependencies);
+      dependency := getDependency(dependencies);
       rule.dependencies &:= [] (dependency);
       skipWhiteSpace(dependencies);
       # write(" " <& dependency);

@@ -82,7 +82,14 @@ const func string: str (ref reference: aReference)                     is action
 
 
 const func reference: _GENERATE_NIL                                    is action "REF_NIL";
+
+
+(**
+ *  Reference to no element.
+ *)
 const reference: NIL                                                   is _GENERATE_NIL;
+
+
 const reference: (attr reference) . value                              is NIL;
 
 

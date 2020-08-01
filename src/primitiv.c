@@ -642,7 +642,6 @@ static primactrecord prim_act_table[] = {
     { "REF_LOCAL_CONSTS",        ref_local_consts,        },
     { "REF_LOCAL_VARS",          ref_local_vars,          },
     { "REF_MKREF",               ref_mkref,               },
-    { "REF_NAME",                ref_name,                },
     { "REF_NE",                  ref_ne,                  },
     { "REF_NIL",                 ref_nil,                 },
     { "REF_NUM",                 ref_num,                 },

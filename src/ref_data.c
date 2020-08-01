@@ -274,11 +274,11 @@ objecttype source;
 
 #ifdef ANSI_C
 
-stritype refFile (objecttype obj_arg1)
+stritype refFile (objecttype obj_arg)
 #else
 
-stritype refFile (obj_arg1)
-objecttype obj_arg1;
+stritype refFile (obj_arg)
+objecttype obj_arg;
 #endif
 
   {
@@ -286,21 +286,26 @@ objecttype obj_arg1;
     stritype result;
 
   /* refFile */
-    if (HAS_POSINFO(obj_arg1)) {
-      file_number = GET_FILE_NUM(obj_arg1);
-    } else if (HAS_PROPERTY(obj_arg1)) {
-      /* trace1(obj_arg1);
-      printf(" %u %u %u\n",
-          obj_arg1->descriptor.property->file_number,
-          obj_arg1->descriptor.property->line,
-          obj_arg1->descriptor.property->syNumberInLine); */
-      file_number = obj_arg1->descriptor.property->file_number;
+    if (obj_arg == NULL) {
+      raise_error(RANGE_ERROR);
+      result = NULL;
     } else {
-      file_number = 0;
-    } /* if */
-    result = get_file_name(file_number);
-    if (result == NULL) {
-      raise_error(MEMORY_ERROR);
+      if (HAS_POSINFO(obj_arg)) {
+        file_number = GET_FILE_NUM(obj_arg);
+      } else if (HAS_PROPERTY(obj_arg)) {
+        /* trace1(obj_arg);
+        printf(" %u %u %u\n",
+            obj_arg->descriptor.property->file_number,
+            obj_arg->descriptor.property->line,
+            obj_arg->descriptor.property->syNumberInLine); */
+        file_number = obj_arg->descriptor.property->file_number;
+      } else {
+        file_number = 0;
+      } /* if */
+      result = get_file_name(file_number);
+      if (result == NULL) {
+        raise_error(MEMORY_ERROR);
+      } /* if */
     } /* if */
     return result;
   } /* refFile */
@@ -424,7 +429,10 @@ objecttype obj_arg;
     inttype result;
 
   /* refLine */
-    if (HAS_POSINFO(obj_arg)) {
+    if (obj_arg == NULL) {
+      raise_error(RANGE_ERROR);
+      result = 0;
+    } else if (HAS_POSINFO(obj_arg)) {
       /* GET_LINE_NUM delivers an unsigned integer in the range 0 to 1048575 */
       result = (inttype) GET_LINE_NUM(obj_arg);
     } else if (HAS_PROPERTY(obj_arg)) {
@@ -577,22 +585,26 @@ objecttype obj_arg;
 
   /* refParams */
     result = NULL;
-    if (CATEGORY_OF_OBJ(obj_arg) == BLOCKOBJECT) {
-      list_insert_place = &result;
-      local_elem = obj_arg->value.blockvalue->params;
-      while (local_elem != NULL) {
-        list_insert_place = append_element_to_list(list_insert_place,
-            local_elem->local.object, &err_info);
-        local_elem = local_elem->next;
-      } /* while */
+    if (obj_arg == NULL) {
+      raise_error(RANGE_ERROR);
     } else {
-      result = create_parameter_list(GET_ENTITY(obj_arg)->name_list,
-          &err_info);
-    } /* if */
-    if (err_info != OKAY_NO_ERROR) {
-      emptylist(result);
-      result = NULL;
-      raise_error(MEMORY_ERROR);
+      if (CATEGORY_OF_OBJ(obj_arg) == BLOCKOBJECT) {
+        list_insert_place = &result;
+        local_elem = obj_arg->value.blockvalue->params;
+        while (local_elem != NULL) {
+          list_insert_place = append_element_to_list(list_insert_place,
+              local_elem->local.object, &err_info);
+          local_elem = local_elem->next;
+        } /* while */
+      } else if (HAS_ENTITY(obj_arg)) {
+        result = create_parameter_list(GET_ENTITY(obj_arg)->name_list,
+            &err_info);
+      } /* if */
+      if (err_info != OKAY_NO_ERROR) {
+        emptylist(result);
+        raise_error(MEMORY_ERROR);
+        result = NULL;
+      } /* if */
     } /* if */
     return result;
   } /* refParams */
@@ -708,14 +720,16 @@ listtype params;
     errinfotype err_info = OKAY_NO_ERROR;
 
   /* refSetParams */
-    if (CATEGORY_OF_OBJ(obj_arg) == BLOCKOBJECT) {
+    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != BLOCKOBJECT) {
+      raise_error(RANGE_ERROR);
+    } else {
       /*FIXME not ok since parameter names are important here !!! */
       /* Comment copied from dcllib.c */
       obj_arg->value.blockvalue->params =
           get_param_list(params, &err_info);
-    } /* if */
-    if (err_info != OKAY_NO_ERROR) {
-      raise_error(MEMORY_ERROR);
+      if (err_info != OKAY_NO_ERROR) {
+        raise_error(MEMORY_ERROR);
+      } /* if */
     } /* if */
   } /* refSetParams */
 
@@ -754,12 +768,10 @@ booltype var_flag;
   { /* refSetVar */
     if (obj_arg == NULL) {
       raise_error(RANGE_ERROR);
+    } else if (var_flag) {
+      SET_VAR_FLAG(obj_arg);
     } else {
-      if (var_flag) {
-        SET_VAR_FLAG(obj_arg);
-      } else {
-        CLEAR_VAR_FLAG(obj_arg);
-      } /* if */
+      CLEAR_VAR_FLAG(obj_arg);
     } /* if */
   } /* refSetVar */
 
@@ -845,10 +857,7 @@ objecttype obj_arg;
     typetype result;
 
   /* refType */
-    if (obj_arg == NULL) {
-      raise_error(RANGE_ERROR);
-      result = NULL;
-    } else if (obj_arg->type_of == NULL) {
+    if (obj_arg == NULL || obj_arg->type_of == NULL) {
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {

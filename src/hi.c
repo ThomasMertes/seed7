@@ -88,7 +88,7 @@ static void writeHelp ()
     printf("Options:\n");
     printf("  -?   Write hi interpreter usage.\n");
     printf("  -a   Analyze only and suppress the execution phase.\n");
-    printf("  -dx  Set compile-time trace level to x. Where x is a string consisting of:\n");
+    printf("  -dx  Set compile time trace level to x. Where x is a string consisting of:\n");
     printf("         a Trace primitive actions\n");
     printf("         c Do action check\n");
     printf("         d Trace dynamic calls\n");

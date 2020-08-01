@@ -32,7 +32,7 @@ $ include "seed7_05.s7i";
 # Display the Mandelbrot set, that are points z[0] in the complex plane
 # for which the sequence z[n+1] := z[n] ** 2 + z[0] (n >= 0) is bounded.
 # Since this program is computing intensive it should be compiled with
-# hi comp -O2 mandelbr
+# hi s7c -O2 mandelbr
 
 
 const integer: pix is 200;

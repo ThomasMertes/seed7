@@ -1,3 +1,34 @@
+20121212:
+- The Seed7 compiler was renamed. The new name of the Seed7 compiler
+  is s7c.
+- Manual, FAQ, read_me files and several example programs were
+  updated to use the new name of the Seed7 compiler (s7c).
+- A description of ltrim and rtrim and some links were added to the
+  manual.
+- The library make.s7i and the example program make7.sd7 were
+  improved to execute make commands with predefined macros.
+- The library makedata.s7i was improved to support dependencies
+  which contain a space.
+- The library make.s7i was improved to support the command cp -a.
+- A variant of the function popen, with the parameters 'command' and
+  'parameters', was added to shell.s7i.
+- An explanation, why & and <& are defined for string concatenation,
+  was added to the FAQ.
+- The program tar7.sd7 was improved to accept also DOS paths for all
+  file arguments.
+- Documentation comments were added to progs.s7i and reference.s7i.
+- The files drw_win.c, drw_x11.c and gkb_x11.c were improved to
+  exit a program when the close button (X) is pressed.
+- The functions refFile, refLine, refParams and refSetParams in
+  ref_data.c were improved to raise RANGE_ERROR, when they are
+  called with NULL.
+- The function ref_params in reflib.c was improved to call refParams.
+- The makefiles were improved such that 'make s7c' generates an
+  executable of the Seed7 compiler.
+- The makefile mk_mingc.mak, which supports the compilation of the
+  self extracting version of Seed7, was improved.
+- The support for the unused action REF_NAME was removed.
+
 20121125:
 - The makefiles and the file setpaths.c were improved to accept the
   macros S7_LIB_DIR (Directory with static Seed7 object libraries)

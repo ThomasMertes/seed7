@@ -241,7 +241,7 @@ const proc: check (in string: progName, in string: referenceOutput) is func
     if fileType(progName & EXECUTABLE_FILE_EXTENSION) <> FILE_ABSENT then
       removeFile(progName & EXECUTABLE_FILE_EXTENSION);
     end if;
-    compilerOutput := cmdOutput("./hi comp " & progName);
+    compilerOutput := cmdOutput("./hi s7c " & progName);
     if fileType(progName & EXECUTABLE_FILE_EXTENSION) = FILE_REGULAR then
       compiledOutput := cmdOutput("./" & progName);
       if compiledOutput <> referenceOutput then
@@ -281,7 +281,7 @@ const proc: check (in string: progName, in string: referenceOutput) is func
       end if;
       okay := FALSE;
     end if;
-    if fileType("comp" & EXECUTABLE_FILE_EXTENSION) = FILE_REGULAR then
+    if fileType("s7c" & EXECUTABLE_FILE_EXTENSION) = FILE_REGULAR then
       if fileType("tmp_" & progName & ".c") = FILE_REGULAR then
         if fileType("tmp1_" & progName & ".c") = FILE_REGULAR then
           removeFile("tmp1_" & progName & ".c");
@@ -291,7 +291,7 @@ const proc: check (in string: progName, in string: referenceOutput) is func
       if fileType(progName & EXECUTABLE_FILE_EXTENSION) <> FILE_ABSENT then
         removeFile(progName & EXECUTABLE_FILE_EXTENSION);
       end if;
-      compilerOutput := cmdOutput("./comp " & progName);
+      compilerOutput := cmdOutput("./s7c " & progName);
       if fileType(progName & EXECUTABLE_FILE_EXTENSION) = FILE_REGULAR then
         if fileType("tmp1_" & progName & ".c") = FILE_REGULAR then
           if not equalFiles("tmp_" & progName & ".c", "tmp1_" & progName & ".c") then
@@ -324,13 +324,13 @@ const proc: check (in string: progName, in string: referenceOutput) is func
 
 const proc: main is func
   begin
-    if fileType("comp" & EXECUTABLE_FILE_EXTENSION) = FILE_REGULAR then
-      removeFile("comp" & EXECUTABLE_FILE_EXTENSION);
+    if fileType("s7c" & EXECUTABLE_FILE_EXTENSION) = FILE_REGULAR then
+      removeFile("s7c" & EXECUTABLE_FILE_EXTENSION);
     end if;
     write("compiling the compiler");
     flush(OUT);
-    ignore(cmdOutput("./hi comp comp"));
-    if not fileType("comp" & EXECUTABLE_FILE_EXTENSION) = FILE_REGULAR then
+    ignore(cmdOutput("./hi s7c s7c"));
+    if not fileType("s7c" & EXECUTABLE_FILE_EXTENSION) = FILE_REGULAR then
       writeln;
       writeln(" *** Failed to compile the compiler");
     else
