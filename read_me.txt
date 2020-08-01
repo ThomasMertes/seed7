@@ -5,6 +5,12 @@ WELCOME TO THE WORLD OF SEED7
   carefully, as they tell you what this is all about and in
   which files the rest of the information is.
 
+**************************************************************
+* I plan to check in all historical versions of Seed7.       *
+* The repository will be cleaned and all versions from 2005  *
+* till today will be checked in.                             *
+* This change is the first test to do that.                  *
+**************************************************************
 
 WHAT IS SEED7?
 
