@@ -25,6 +25,7 @@
 $ info off;
 $ message "Compiling the compiler ...";
 $ include "seed7_05.s7i";
+  include "bigint.s7i";
   include "float.s7i";
   include "progs.s7i";
 
@@ -58,6 +59,11 @@ var expr_type: global_c_expr is expr_type.value;
 var integer: declaration_count is 1;
 var array ref_list: object_value is 0 times ref_list.EMPTY;
 var expr_type: global_init is expr_type.value;
+
+const type: bigint_table_hash is hash [bigInteger] integer;
+const type: bigint_index_hash is hash [integer] array bigInteger;
+
+var bigint_table_hash: bigint_const_table is bigint_table_hash.EMPTY_HASH;
 
 const type: stri_table_hash is hash [string] integer;
 const type: stri_index_hash is hash [integer] array string;
@@ -524,8 +530,7 @@ const proc: ref_list_value (in ref_list: current_value,
 
 
 const proc: process_object_value (in reference: current_object,
-    in reference: object_value, inout string: local_init,
-    inout expr_type: c_expr) is func
+    in reference: object_value, inout expr_type: c_expr) is func
 
   local
     var string: objclass is "";
@@ -536,12 +541,66 @@ const proc: process_object_value (in reference: current_object,
     elsif objclass = "INTOBJECT" then
       c_expr.expr &:= "=";
       c_expr.expr &:= str(integer value object_value);
-    elsif objclass = "BIGINTOBJECT" then
-      c_expr.expr &:= "/* initialisation missing = */";
-      # c_expr.expr &:= str(bigInteger value object_value);
     elsif objclass = "CHAROBJECT" then
       c_expr.expr &:= "=";
       c_expr.expr &:= c_literal(char value object_value);
+    elsif objclass = "FLOATOBJECT" then
+      c_expr.expr &:= "=";
+      c_expr.expr &:= str(float value object_value);
+    elsif objclass = "REFOBJECT" then
+      c_expr.expr &:= "=";
+      reference_value(reference value object_value, c_expr);
+    elsif objclass = "REFLISTOBJECT" then
+      c_expr.expr &:= "=";
+      ref_list_value(ref_list value object_value, c_expr);
+    elsif objclass = "FILEOBJECT" then
+      c_expr.expr &:= "=NULL";
+    elsif objclass = "ARRAYOBJECT" then
+      c_expr.expr &:= "=NULL";
+    elsif objclass = "HASHOBJECT" then
+      c_expr.expr &:= "=NULL";
+    elsif objclass = "CLASSOBJECT" then
+      c_expr.expr &:= "=NULL";
+    elsif objclass = "WINOBJECT" then
+      c_expr.expr &:= "=NULL";
+    elsif objclass = "CONSTENUMOBJECT" then
+      c_expr.expr &:= "=";
+      c_expr.expr &:= enum_value(reference value object_value);
+    elsif objclass = "VARENUMOBJECT" then
+      c_expr.expr &:= "=";
+      c_expr.expr &:= enum_value(reference value object_value);
+    elsif objclass = "ACTOBJECT" then
+      c_expr.expr &:= "=NULL";
+    else
+      c_expr.expr &:= "/* ";
+      c_expr.expr &:= objclass;
+      c_expr.expr &:= " */";
+    end if;
+  end func;
+
+
+const proc: process_local_init (in reference: current_object,
+    in reference: object_value, inout string: local_init) is func
+
+  local
+    var string: objclass is "";
+  begin
+    objclass := obj_class(object_value);
+    if objclass = "BIGINTOBJECT" then
+      if bigInteger value object_value not in bigint_const_table then
+        bigint_const_table @:= [bigInteger value object_value] length(bigint_const_table);
+      end if;
+      local_init &:= "bigCreate(&o_";
+      local_init &:= str(obj_number(current_object));
+      local_init &:= "/*";
+      local_init &:= str(current_object);
+      local_init &:= "*/";
+      local_init &:= ", big[";
+      local_init &:= str(bigint_const_table[bigInteger value object_value]);
+      local_init &:= "] /* ";
+      local_init &:= str(bigInteger value object_value);
+      local_init &:= " */";
+      local_init &:= ");\n";
     elsif objclass = "STRIOBJECT" then
       if string value object_value not in stri_const_table then
         stri_const_table @:= [string value object_value] length(stri_const_table);
@@ -557,19 +616,7 @@ const proc: process_object_value (in reference: current_object,
       local_init &:= replace(c_literal(string value object_value), "*/", "* /");
       local_init &:= " */";
       local_init &:= ");\n";
-    elsif objclass = "FLOATOBJECT" then
-      c_expr.expr &:= "=";
-      c_expr.expr &:= str(float value object_value);
-    elsif objclass = "REFOBJECT" then
-      c_expr.expr &:= "=";
-      reference_value(reference value object_value, c_expr);
-    elsif objclass = "REFLISTOBJECT" then
-      c_expr.expr &:= "=";
-      ref_list_value(ref_list value object_value, c_expr);
-    elsif objclass = "FILEOBJECT" then
-      c_expr.expr &:= "=NULL";
     elsif objclass = "ARRAYOBJECT" then
-      c_expr.expr &:= "=NULL";
       if current_object not in const_table then
         const_table @:= [current_object] length(const_table);
       end if;
@@ -581,8 +628,6 @@ const proc: process_object_value (in reference: current_object,
       local_init &:= "(arr[";
       local_init &:= str(const_table[current_object]);
       local_init &:= "]);\n";
-    elsif objclass = "HASHOBJECT" then
-      c_expr.expr &:= "=NULL";
     elsif objclass = "SETOBJECT" then
       if bitset value object_value not in set_const_table then
         set_const_table @:= [bitset value object_value] length(set_const_table);
@@ -604,22 +649,63 @@ const proc: process_object_value (in reference: current_object,
       local_init &:= "(sct[";
       local_init &:= str(const_table[current_object]);
       local_init &:= "]);\n";
-    elsif objclass = "CLASSOBJECT" then
-      c_expr.expr &:= "=NULL";
-    elsif objclass = "WINOBJECT" then
-      c_expr.expr &:= "=NULL";
-    elsif objclass = "CONSTENUMOBJECT" then
-      c_expr.expr &:= "=";
-      c_expr.expr &:= enum_value(reference value object_value);
-    elsif objclass = "VARENUMOBJECT" then
-      c_expr.expr &:= "=";
-      c_expr.expr &:= enum_value(reference value object_value);
-    elsif objclass = "ACTOBJECT" then
-      c_expr.expr &:= "=NULL";
-    else
-      c_expr.expr &:= "/* ";
-      c_expr.expr &:= objclass;
-      c_expr.expr &:= " */";
+    end if;
+  end func;
+
+
+const proc: process_value_param_init (in reference: current_object,
+    in reference: object_value, inout string: local_init) is func
+
+  local
+    var string: objclass is "";
+  begin
+    objclass := obj_class(object_value);
+    if objclass = "BIGINTOBJECT" then
+      local_init &:= "bigCreate(&o_";
+      local_init &:= str(obj_number(current_object));
+      local_init &:= "/*";
+      local_init &:= str(current_object);
+      local_init &:= "*/";
+      local_init &:= ", o_";
+      local_init &:= str(obj_number(current_object));
+      local_init &:= "/*";
+      local_init &:= str(current_object);
+      local_init &:= "*/ );\n";
+    elsif objclass = "STRIOBJECT" then
+      local_init &:= "strCreate(&o_";
+      local_init &:= str(obj_number(current_object));
+      local_init &:= "/*";
+      local_init &:= str(current_object);
+      local_init &:= "*/";
+      local_init &:= ", o_";
+      local_init &:= str(obj_number(current_object));
+      local_init &:= "/*";
+      local_init &:= str(current_object);
+      local_init &:= "*/ );\n";
+    elsif objclass = "ARRAYOBJECT" then
+      process_create_declaration(getType(current_object), global_c_expr);
+      local_init &:= "o_";
+      local_init &:= str(obj_number(current_object));
+      local_init &:= "=create_";
+      local_init &:= str(type_number(getType(current_object)));
+      local_init &:= "(o_";
+      local_init &:= str(obj_number(current_object));
+      local_init &:= ");\n";
+    elsif objclass = "SETOBJECT" then
+      local_init &:= "setCreate(&o_";
+      local_init &:= str(obj_number(current_object));
+      local_init &:= ", o_";
+      local_init &:= str(obj_number(current_object));
+      local_init &:= ");\n";
+    elsif objclass = "STRUCTOBJECT" then
+      process_create_declaration(getType(current_object), global_c_expr);
+      local_init &:= "o_";
+      local_init &:= str(obj_number(current_object));
+      local_init &:= "=create_";
+      local_init &:= str(type_number(getType(current_object)));
+      local_init &:= "(o_";
+      local_init &:= str(obj_number(current_object));
+      local_init &:= ");\n";
     end if;
   end func;
 
@@ -636,7 +722,8 @@ const proc: process_locals (in reference: current_object, inout string: local_in
       process_type(getType(obj), c_expr);
       c_expr.expr &:= " o_";
       create_name(obj, c_expr);
-      process_object_value(obj, reference value obj, local_init, c_expr);
+      process_object_value(obj, reference value obj, c_expr);
+      process_local_init(obj, reference value obj, local_init);
       c_expr.expr &:= ";\n";
     end for;
   end func;
@@ -1660,6 +1747,18 @@ const proc: process_big_lt (in ref_list: params, inout expr_type: c_expr) is fun
     c_expr.expr &:= ", ";
     process_arg(params[3], c_expr);
     c_expr.expr &:= ") < 0)";
+  end func;
+
+
+const proc: process_big_mdiv (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_bigint_result(c_expr);
+    c_expr.result_expr := "bigMDiv(";
+    get_bigint_arg(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    get_bigint_arg(params[3], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 
@@ -4757,7 +4856,7 @@ const proc: process_sct_select (in reference: procedure, in ref_list: params,
 const proc: process_set_baselit (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "set_baselit(";
+    c_expr.expr &:= "setBaselit(";
     process_arg(params[2], c_expr);
     c_expr.expr &:= ")";
   end func;
@@ -5508,6 +5607,16 @@ const proc: process_str_tail (in ref_list: params, inout expr_type: c_expr) is f
   end func;
 
 
+const proc: process_str_trim (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_stri_result(c_expr);
+    c_expr.result_expr &:= "strTrim(";
+    get_stri_arg(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
 const proc: process_str_up (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -5868,6 +5977,8 @@ const proc: process_action (in reference: procedure, in ref_list: params,
         process_big_le(params, c_expr);
       elsif action_name = "BIG_LT" then
         process_big_lt(params, c_expr);
+      elsif action_name = "BIG_MDIV" then
+        process_big_mdiv(params, c_expr);
       elsif action_name = "BIG_MINUS" then
         process_big_minus(params, c_expr);
       elsif action_name = "BIG_MOD" then
@@ -6556,6 +6667,8 @@ const proc: process_action (in reference: procedure, in ref_list: params,
         process_str_substr(params, c_expr);
       elsif action_name = "STR_TAIL" then
         process_str_tail(params, c_expr);
+      elsif action_name = "STR_TRIM" then
+        process_str_trim(params, c_expr);
       elsif action_name = "STR_UP" then
         process_str_up(params, c_expr);
       elsif action_name = "STR_VALUE" then
@@ -7122,7 +7235,14 @@ const proc: process_expr (in reference: current_expression, inout expr_type: c_e
         c_expr.expr &:= "o_";
         create_name(current_expression, c_expr);
       else
-        c_expr.expr &:= "/* process_expr - BIGINTOBJECT */";
+        if bigInteger value current_expression not in bigint_const_table then
+          bigint_const_table @:= [bigInteger value current_expression] length(bigint_const_table);
+        end if;
+        c_expr.expr &:= "big[";
+        c_expr.expr &:= str(bigint_const_table[bigInteger value current_expression]);
+        c_expr.expr &:= "] /* ";
+        c_expr.expr &:= str(bigInteger value current_expression);
+        c_expr.expr &:= " */";
       end if;
     elsif objclass = "FLOATOBJECT" then
       if is_var(current_expression) then
@@ -7317,7 +7437,8 @@ const proc: process_result (in reference: result_object, in reference: result_in
       process_type(getType(result_object), c_expr);
       c_expr.expr &:= " o_";
       create_name(result_object, c_expr);
-      process_object_value(result_object, result_init, local_init, c_expr);
+      process_object_value(result_object, result_init, c_expr);
+      process_local_init(result_object, result_init, local_init);
       c_expr.expr &:= ";\n";
     end if;
   end func;
@@ -7485,19 +7606,17 @@ const proc: process_bigint_declaration (in reference: current_object,
       c_expr.expr &:= "biginttype o_";
       create_name(current_object, c_expr);
       c_expr.expr &:= ";\n\n";
-(*
-      if string value current_object not in stri_const_table then
-        stri_const_table @:= [bigInteger value current_object] length(stri_const_table);
+      if bigInteger value current_object not in bigint_const_table then
+        bigint_const_table @:= [bigInteger value current_object] length(bigint_const_table);
       end if;
       global_init.expr &:= "bigCreate(&o_";
       create_name(current_object, global_init);
-      global_init.expr &:= ", str[";
-      global_init.expr &:= str(stri_const_table[string value current_object]);
+      global_init.expr &:= ", big[";
+      global_init.expr &:= str(bigint_const_table[bigInteger value current_object]);
       global_init.expr &:= "] /* ";
-      global_init.expr &:= replace(c_literal(string value current_object), "*/", "* /");
+      global_init.expr &:= str(bigInteger value current_object);
       global_init.expr &:= " */";
       global_init.expr &:= ");\n";
-*)
       count_declarations;
     end if;
   end func;
@@ -8301,6 +8420,7 @@ const proc: write_file_head is func
     c_prog << "  inttype intvalue;\n";
     c_prog << "};\n";
     c_prog << "stritype   *arg_v;\n";
+    c_prog << "biginttype  big[];\n";
     c_prog << "stritype    str[];\n";
     c_prog << "settype     set[];\n";
     c_prog << "arraytype  *arr;\n";
@@ -8431,7 +8551,7 @@ const proc: write_file_head is func
     c_prog << "void      sct_cpy (structtype a, structtype b)          {printf(\"sct_cpy\\n\");}\n";
     c_prog << "long *    sct_select (void *a, inttype b)               {printf(\"sct_select\\n\");}\n";
     c_prog << "float *   sct_fselect (void *a, inttype b)              {printf(\"sct_fselect\\n\");}\n";
-    c_prog << "settype   set_baselit (inttype a)                       {printf(\"set_baselit\\n\");}\n";
+    c_prog << "settype   setBaselit (inttype);\n";
     c_prog << "inttype   setCard (settype);\n";
     c_prog << "inttype   setCmp (settype, settype);\n";
     c_prog << "void      setCpy (settype *, settype);\n";
@@ -8573,7 +8693,7 @@ const proc: write_file_head is func
     c_prog << "void      sct_cpy (structtype, structtype);\n";
     c_prog << "long *    sct_select (void *, inttype);\n";
     c_prog << "float *   sct_fselect (void *, inttype);\n";
-    c_prog << "settype   set_baselit (inttype);\n";
+    c_prog << "settype   setBaselit (inttype a)                        {printf(\"setBaselit\\n\");}\n";
     c_prog << "inttype   setCard (settype a)                           {printf(\"setCard\\n\");}\n";
     c_prog << "inttype   setCmp (settype a, settype b)                 {printf(\"setCmp\\n\");}\n";
     c_prog << "void      setCpy (settype *a, settype b)                {printf(\"setCpy\\n\");}\n";
@@ -8657,7 +8777,11 @@ const proc: walk_const_list (in ref_list: const_list) is func
   begin
     for current_object range const_list do
       objclass := obj_class(current_object);
-      if objclass = "STRIOBJECT" then
+      if objclass = "BIGINTOBJECT" then
+        if bigInteger value current_object not in bigint_const_table then
+          bigint_const_table @:= [bigInteger value current_object] length(bigint_const_table);
+        end if;
+      elsif objclass = "STRIOBJECT" then
         if string value current_object not in stri_const_table then
           stri_const_table @:= [string value current_object] length(stri_const_table);
         end if;
@@ -8683,6 +8807,12 @@ const proc: const_value (in reference: current_object, inout expr_type: c_expr) 
     objclass := obj_class(current_object);
     if objclass = "INTOBJECT" then
       c_expr.expr &:= str(integer value current_object);
+    elsif objclass = "BIGINTOBJECT" then
+      c_expr.expr &:= "big[";
+      c_expr.expr &:= str(bigint_const_table[bigInteger value current_object]);
+      c_expr.expr &:= "]; /* ";
+      c_expr.expr &:= str(bigInteger value current_object);
+      c_expr.expr &:= " */";
     elsif objclass = "CHAROBJECT" then
       c_expr.expr &:= c_literal(char value current_object);
     elsif objclass = "STRIOBJECT" then
@@ -8730,6 +8860,34 @@ const proc: const_value (in reference: current_object, inout expr_type: c_expr) 
       c_expr.expr &:= objclass;
       c_expr.expr &:= " */";
     end if;
+  end func;
+
+
+const proc: init_bigint_constants (inout expr_type: c_expr) is func
+  local
+    var bigint_index_hash: bigint_index is bigint_index_hash.EMPTY_HASH;
+    var bigInteger: big1 is bigInteger.value;
+    var integer: number is 0;
+    var char: ch is ' ';
+  begin
+    bigint_index := flip(bigint_const_table);
+    for number range sort(keys(bigint_index)) do
+      big1 := bigint_index[number][1];
+      c_expr.expr &:= "/* big[";
+      c_expr.expr &:= str(number);
+      c_expr.expr &:= "] */ static bigdigittype big_";
+      c_expr.expr &:= str(number);
+      c_expr.expr &:= "[]=";
+      c_expr.expr &:= c_literal(big1);
+      c_expr.expr &:= ";\n";
+    end for;
+    c_expr.expr &:= "biginttype big[]={\n";
+    for number range sort(keys(bigint_index)) do
+      c_expr.expr &:= "big_";
+      c_expr.expr &:= str(number);
+      c_expr.expr &:= ",\n";
+    end for;
+    c_expr.expr &:= "};\n\n";
   end func;
 
 
@@ -8851,6 +9009,7 @@ const proc: generate_main (in program: prog) is func
       end if;
     end for;
     writeln("after walk_const_list");
+    init_bigint_constants(c_expr);
     init_string_constants(c_expr);
     init_set_constants(c_expr);
     c_expr.expr &:= "int main (int argc, char **argv)\n";
@@ -9060,6 +9219,10 @@ const proc: pass_3 (in string: source, in program: prog,
           \../src/seed7_05.a \
           \-lX11 -lncurses -lm \
           \-o " & source;
+      (* link_cmd := "gcc -L /usr/lib " & temp_name(source) & ".o \
+          \../src/seed7_05.a \
+          \-lgdi32 -lm \
+          \-o " & source; *)
       writeln(link_cmd);
       cmd_sh(link_cmd);
     end if;

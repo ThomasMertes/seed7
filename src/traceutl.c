@@ -235,11 +235,23 @@ biginttype bintvalue;
     if (bintvalue != NULL) {
       if (bintvalue->size > 0) {
         pos = bintvalue->size - 1;
+#if BIGDIGIT_SIZE == 8
+        sprintf(buffer, "0x%02hhX", bintvalue->bigdigits[pos]);
+#elif BIGDIGIT_SIZE == 16
         sprintf(buffer, "0x%04hX", bintvalue->bigdigits[pos]);
+#elif BIGDIGIT_SIZE == 32
+        sprintf(buffer, "0x%08lX", bintvalue->bigdigits[pos]);
+#endif
         prot_cstri(buffer);
         while (pos > 0) {
           pos--;
+#if BIGDIGIT_SIZE == 8
+          sprintf(buffer, "%02hhX", bintvalue->bigdigits[pos]);
+#elif BIGDIGIT_SIZE == 16
           sprintf(buffer, "%04hX", bintvalue->bigdigits[pos]);
+#elif BIGDIGIT_SIZE == 32
+          sprintf(buffer, "%08lX", bintvalue->bigdigits[pos]);
+#endif
           prot_cstri(buffer);
         } /* while */
       } else {

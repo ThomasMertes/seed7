@@ -29,6 +29,7 @@
 
 objecttype big_abs (listtype);
 objecttype big_add (listtype);
+objecttype big_clit (listtype);
 objecttype big_cmp (listtype);
 objecttype big_cpy (listtype);
 objecttype big_create (listtype);
@@ -43,6 +44,7 @@ objecttype big_incr (listtype);
 objecttype big_ipow (listtype);
 objecttype big_le (listtype);
 objecttype big_lt (listtype);
+objecttype big_mdiv (listtype);
 objecttype big_minus (listtype);
 objecttype big_mod (listtype);
 objecttype big_mult (listtype);
@@ -55,11 +57,13 @@ objecttype big_rem (listtype);
 objecttype big_sbtr (listtype);
 objecttype big_str (listtype);
 objecttype big_succ (listtype);
+objecttype big_value (listtype);
 
 #else
 
 objecttype big_abs ();
 objecttype big_add ();
+objecttype big_clit ();
 objecttype big_cmp ();
 objecttype big_cpy ();
 objecttype big_create ();
@@ -74,6 +78,7 @@ objecttype big_incr ();
 objecttype big_ipow ();
 objecttype big_le ();
 objecttype big_lt ();
+objecttype big_mdiv ();
 objecttype big_minus ();
 objecttype big_mod ();
 objecttype big_mult ();
@@ -86,5 +91,6 @@ objecttype big_rem ();
 objecttype big_sbtr ();
 objecttype big_str ();
 objecttype big_succ ();
+objecttype big_value ();
 
 #endif

@@ -40,6 +40,8 @@ const proc: main is func
         \$ include \"seed7_05.s7i\";\n\
         \include \"float.s7i\";\n\
         \include \"rational.s7i\";\n\
+        \include \"bigint.s7i\";\n\
+        \include \"bigrat.s7i\";\n\
         \\n\
         \const proc: main is func\n\
         \  begin\n\

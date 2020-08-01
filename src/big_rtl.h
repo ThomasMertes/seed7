@@ -33,6 +33,7 @@
 
 biginttype bigAbs (biginttype);
 biginttype bigAdd (biginttype, biginttype);
+stritype bigCLit (biginttype);
 inttype bigCmp (biginttype, biginttype);
 void bigCpy (biginttype *, biginttype);
 void bigDecr (biginttype *);
@@ -41,6 +42,7 @@ biginttype bigDiv (biginttype, biginttype);
 booltype bigEq (biginttype, biginttype);
 void bigIncr (biginttype *);
 biginttype bigIPow (biginttype, inttype);
+biginttype bigMDiv (biginttype, biginttype);
 biginttype bigMinus (biginttype);
 biginttype bigMod (biginttype, biginttype);
 biginttype bigMult (biginttype, biginttype);
@@ -56,6 +58,7 @@ biginttype bigSucc (biginttype);
 
 biginttype bigAbs ();
 biginttype bigAdd ();
+stritype bigCLit ();
 inttype bigCmp ();
 void bigCpy ();
 void bigDecr ();
@@ -64,6 +67,7 @@ biginttype bigDiv ();
 booltype bigEq ();
 void bigIncr ();
 biginttype bigIPow ();
+biginttype bigMDiv ();
 biginttype bigMinus ();
 biginttype bigMod ();
 biginttype bigMult ();

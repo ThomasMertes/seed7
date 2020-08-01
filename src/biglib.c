@@ -81,6 +81,23 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype big_clit (listtype arguments)
+#else
+
+objecttype big_clit (arguments)
+listtype arguments;
+#endif
+
+  { /* big_clit */
+    isit_bigint(arg_1(arguments));
+    return(bld_stri_temp(bigCLit(
+        take_bigint(arg_1(arguments)))));
+  } /* big_clit */
+
+
+
+#ifdef ANSI_C
+
 objecttype big_cmp (listtype arguments)
 #else
 
@@ -428,6 +445,24 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype big_mdiv (listtype arguments)
+#else
+
+objecttype big_mdiv (arguments)
+listtype arguments;
+#endif
+
+  { /* big_mdiv */
+    isit_bigint(arg_1(arguments));
+    isit_bigint(arg_3(arguments));
+    return(bld_bigint_temp(
+        bigMDiv(take_bigint(arg_1(arguments)), take_bigint(arg_3(arguments)))));
+  } /* big_mdiv */
+
+
+
+#ifdef ANSI_C
+
 objecttype big_minus (listtype arguments)
 #else
 
@@ -664,3 +699,36 @@ listtype arguments;
     return(bld_bigint_temp(
         bigSucc(take_bigint(arg_1(arguments)))));
   } /* big_succ */
+
+
+
+#ifdef ANSI_C
+
+objecttype big_value (listtype arguments)
+#else
+
+objecttype big_value (arguments)
+listtype arguments;
+#endif
+
+  {
+    objecttype obj_arg;
+    biginttype big1;
+    biginttype result;
+
+  /* big_value */
+    isit_reference(arg_3(arguments));
+    obj_arg = take_reference(arg_3(arguments));
+    isit_bigint(obj_arg);
+    big1 = take_bigint(obj_arg);
+
+    if (!ALLOC_BIG(result, big1->size)) {
+      return(raise_exception(SYS_MEM_EXCEPTION));
+    } else {
+      COUNT_STRI(big1->size);
+      result->size = big1->size;
+      memcpy(result->bigdigits, big1->bigdigits,
+          (SIZE_TYPE) (result->size * sizeof(bigdigittype)));
+      return(bld_bigint_temp(result));
+    } /* if */
+  } /* big_value */

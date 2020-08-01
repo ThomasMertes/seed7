@@ -97,6 +97,7 @@ static primactrecord prim_act_table[] = {
 
     { "BIG_ABS",           big_abs,           },
     { "BIG_ADD",           big_add,           },
+    { "BIG_CLIT",          big_clit,          },
     { "BIG_CMP",           big_cmp,           },
     { "BIG_CPY",           big_cpy,           },
     { "BIG_CREATE",        big_create,        },
@@ -111,6 +112,7 @@ static primactrecord prim_act_table[] = {
     { "BIG_IPOW",          big_ipow,          },
     { "BIG_LE",            big_le,            },
     { "BIG_LT",            big_lt,            },
+    { "BIG_MDIV",          big_mdiv,          },
     { "BIG_MINUS",         big_minus,         },
     { "BIG_MOD",           big_mod,           },
     { "BIG_MULT",          big_mult,          },
@@ -123,6 +125,7 @@ static primactrecord prim_act_table[] = {
     { "BIG_SBTR",          big_sbtr,          },
     { "BIG_STR",           big_str,           },
     { "BIG_SUCC",          big_succ,          },
+    { "BIG_VALUE",         big_value,         },
 
     { "BLN_AND",           bln_and,           },
     { "BLN_CPY",           bln_cpy,           },

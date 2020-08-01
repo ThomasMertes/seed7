@@ -105,3 +105,15 @@
 - Testcases for incr, decr, modulo, power and compare were added to
   the chkbig.sd7 program.
 - The compiler was improved to support the new bigInteger functionality.
+
+20061106:
+- The hi interpreter was improved to support bigInteger literals.
+- Changes have been done to allow a configurable bigdigit size
+  (Bigdigits are the building elements of a bigInteger).
+- The mdiv function was added to the bigInteger library and the
+  chkbig.sd7 program.
+- The chkbig.sd7 program was changed to use bigInteger literals.
+- Several bigInteger functions have been improved.
+- A bigrat.s7i include file to support bigRational numbers has been added.
+- The compiler support for bigInteger, setBaselit and strTrim has
+  been improved.

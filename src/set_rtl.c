@@ -68,6 +68,37 @@ static int card_byte[] = {
 
 #ifdef ANSI_C
 
+settype setBaselit (inttype number)
+#else
+
+settype setBaselit (number)
+inttype number;
+#endif
+
+  {
+    inttype position;
+    unsigned int bit_index;
+    settype result;
+
+  /* setBaselit */
+    if (!ALLOC_SET(result, 1)) {
+      raise_error(MEMORY_ERROR);
+      return(NULL);
+    } else {
+      COUNT_SET(1);
+      position = number >> bitset_shift;
+      result->min_position = position;
+      result->max_position = position;
+      bit_index = ((unsigned int) number) & bitset_mask;
+      result->bitset[0] = (1 << bit_index);
+      return(result);
+    } /* if */
+  } /* setBaselit */
+
+
+
+#ifdef ANSI_C
+
 inttype setCard (settype set1)
 #else
 

@@ -26,7 +26,7 @@
 /********************************************************************/
 
 typedef enum {STOPSYMBOL, NAMESYMBOL, SPECIALSYMBOL,
-    PARENSYMBOL, INTLITERAL, CHARLITERAL, STRILITERAL,
+    PARENSYMBOL, INTLITERAL, BIGINTLITERAL, CHARLITERAL, STRILITERAL,
     FLOATLITERAL} symbolclass;
 
 typedef struct {
@@ -34,6 +34,7 @@ typedef struct {
     ustritype name;
     unsigned int name_length;
     inttype intvalue;
+    biginttype bigintvalue;
     chartype charvalue;
     stritype strivalue;
     memsizetype stri_max;
@@ -42,7 +43,8 @@ typedef struct {
 
 #ifdef DO_INIT
 symtype symbol = {STOPSYMBOL, NULL, 0,
-    (inttype) 0, (chartype) 0, (stritype) NULL, 0, (floattype) 0.0};
+    (inttype) 0, (biginttype) NULL, (chartype) 0,
+    (stritype) NULL, 0, (floattype) 0.0};
 #else
 EXTERN symtype symbol;
 #endif

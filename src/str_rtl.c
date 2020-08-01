@@ -169,10 +169,10 @@ stritype stri_from;
 #ifdef OUT_OF_ORDER
 #ifdef ANSI_C
 
-stritype strClit (stritype str1)
+stritype strCLit (stritype str1)
 #else
 
-stritype strClit (str1)
+stritype strCLit (str1)
 stritype str1;
 #endif
 
@@ -184,7 +184,7 @@ stritype str1;
     SIZE_TYPE len;
     stritype result;
 
-  /* strClit */
+  /* strCLit */
     length = str1->size;
     if (!ALLOC_STRI(result, (memsizetype) (4 * length + 2))) {
       raise_error(MEMORY_ERROR);
@@ -233,7 +233,7 @@ stritype str1;
       COUNT3_STRI(4 * length + 2, pos + 1);
       return(result);
     } /* if */
-  } /* strClit */
+  } /* strCLit */
 #endif
 
 

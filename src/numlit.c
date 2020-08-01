@@ -39,6 +39,7 @@
 #include "infile.h"
 #include "stat.h"
 #include "findid.h"
+#include "big_rtl.h"
 
 #undef EXTERN
 #define EXTERN
@@ -305,6 +306,36 @@ static INLINE inttype readinteger ()
 
 #ifdef ANSI_C
 
+static INLINE biginttype readbiginteger (void)
+#else
+
+static INLINE biginttype readbiginteger ()
+#endif
+
+  {
+    memsizetype pos;
+    biginttype result;
+
+  /* readbiginteger */
+    in_file.character = next_character();
+    pos = 0;
+    do {
+      while (pos != symbol.stri_max && symbol.name[pos] != '\0') {
+        symbol.strivalue->mem[pos] = (strelemtype) symbol.name[pos];
+        pos++;
+      } /* while */
+      check_stri_length(pos);
+    } while (symbol.name[pos] != '\0');
+    symbol.strivalue->size = pos;
+    bigDestr(symbol.bigintvalue);
+    result = bigParse(symbol.strivalue);
+    return(result);
+  } /* readbiginteger */
+
+
+
+#ifdef ANSI_C
+
 static INLINE floattype readfloat (void)
 #else
 
@@ -406,6 +437,10 @@ void lit_number ()
 #endif
       find_literal_ident();
       symbol.syclass = FLOATLITERAL;
+    } else if (in_file.character == '_') {
+      symbol.bigintvalue = readbiginteger();
+      find_literal_ident();
+      symbol.syclass = BIGINTLITERAL;
     } else {
       symbol.intvalue = readinteger();
       find_literal_ident();

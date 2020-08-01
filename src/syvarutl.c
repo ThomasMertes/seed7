@@ -51,6 +51,7 @@ static cstritype sys_name[NUMBER_OF_SYSVARS] = {
     "type",
     "expr",
     "integer",
+    "bigInteger",
     "char",
     "string",
     "proc",

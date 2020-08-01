@@ -160,13 +160,25 @@ static INLINE stritype new_string ()
 #ifdef TRACE_ATOM
     printf("BEGIN new_string\n");
 #endif
+#ifdef ALTERNATE_STRI_LITERALS
+    stri_created = symbol.strivalue;
+    if (!RESIZE_STRI(stri_created, symbol.stri_max, stri_created->size)) {
+      fatal_memory_error(SOURCE_POSITION(2054));
+    } /* if */
+    COUNT3_STRI(symbol.stri_max, stri_created->size);
+    if (!ALLOC_STRI(symbol.strivalue, symbol.stri_max)) {
+      fatal_memory_error(SOURCE_POSITION(2054));
+    } /* if */
+    COUNT_STRI(symbol.stri_max);
+#else
     if (!ALLOC_STRI(stri_created, symbol.strivalue->size)) {
-      fatal_memory_error(SOURCE_POSITION(2061));
+      fatal_memory_error(SOURCE_POSITION(2054));
     } /* if */
     COUNT_STRI(symbol.strivalue->size);
     stri_created->size = symbol.strivalue->size;
     memcpy(stri_created->mem, symbol.strivalue->mem,
         (SIZE_TYPE) symbol.strivalue->size * sizeof(strelemtype));
+#endif
 #ifdef TRACE_ATOM
     printf("END new_string\n");
 #endif
@@ -207,6 +219,11 @@ objecttype read_atom ()
       case INTLITERAL:
         atomic_object = gen_literal_object(SYS_INT_TYPE, INTOBJECT);
         atomic_object->value.intvalue = symbol.intvalue;
+        break;
+      case BIGINTLITERAL:
+        atomic_object = gen_literal_object(SYS_BIGINT_TYPE, BIGINTOBJECT);
+        atomic_object->value.bigintvalue = symbol.bigintvalue;
+        symbol.bigintvalue = NULL;
         break;
       case CHARLITERAL:
         atomic_object = gen_literal_object(SYS_CHAR_TYPE, CHAROBJECT);

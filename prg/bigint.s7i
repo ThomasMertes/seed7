@@ -27,7 +27,7 @@
 
 
 const type: bigInteger is          subtype object;
-# $ system "bigInteger" is bigInteger;
+$ system "bigInteger" is bigInteger;
 
 const proc: destroy (ref bigInteger param) is                              action "BIG_DESTR";
 const proc: (ref bigInteger param) ::= (ref bigInteger param) is           action "BIG_CREATE";
@@ -44,7 +44,7 @@ const func bigInteger: (ref bigInteger param) - (ref bigInteger param) is  actio
 const func bigInteger: (ref bigInteger param) * (ref bigInteger param) is  action "BIG_MULT";
 const func bigInteger: (in bigInteger param) div (in bigInteger param) is  action "BIG_DIV";
 const func bigInteger: (in bigInteger param) rem (in bigInteger param) is  action "BIG_REM";
-# const func bigInteger: (in bigInteger param) mdiv (in bigInteger param) is action "BIG_MDIV";
+const func bigInteger: (in bigInteger param) mdiv (in bigInteger param) is action "BIG_MDIV";
 const func bigInteger: (in bigInteger param) mod (in bigInteger param) is  action "BIG_MOD";
 const func bigInteger: (ref bigInteger param) ** (ref integer param) is    action "BIG_IPOW";
 # const func bigInteger: (ref bigInteger param) ** (ref bigInteger param) is action "BIG_POW";
@@ -62,6 +62,7 @@ const func bigInteger: pred (in bigInteger param) is                       actio
 const func bigInteger: abs (in bigInteger param) is                        action "BIG_ABS";
 const func boolean: odd (in bigInteger param) is                           action "BIG_ODD";
 const func string: str (ref bigInteger param) is                           action "BIG_STR";
+const func string: c_literal (in bigInteger param) is                      action "BIG_CLIT";
 const func bigInteger: (attr bigInteger) parse (in string param) is        action "BIG_PARSE";
 
 const bigInteger: (attr bigInteger) . value is bigInteger parse "0";
@@ -85,4 +86,7 @@ const func bigInteger: sqrt (in var bigInteger: number) is func
 const proc: incr (inout bigInteger param) is                               action "BIG_INCR";
 const proc: decr (inout bigInteger param) is                               action "BIG_DECR";
 
+const func bigInteger: (attr bigInteger) value (ref reference param) is    action "BIG_VALUE";
+
 enable_io(bigInteger);
+FOR_DECLS(bigInteger);

@@ -36,6 +36,7 @@
 
 #ifdef ANSI_C
 
+settype setBaselit (inttype);
 inttype setCard (settype);
 inttype setCmp (settype, settype);
 void setCpy (settype *, settype);
@@ -62,6 +63,7 @@ settype setUnion (settype, settype);
 
 #else
 
+settype setBaselit ();
 inttype setCard ();
 inttype setCmp ();
 void setCpy ();
