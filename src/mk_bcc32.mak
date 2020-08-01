@@ -152,6 +152,7 @@ version.h:
 	cmd /S /C "echo #define CATCH_SIGNALS" >> version.h
 	cmd /S /C "echo #define USE_LOCALTIME_R" >> version.h
 	cmd /S /C "echo #define USE_ALTERNATE_LOCALTIME_R" >> version.h
+	cmd /S /C "echo #define USE_ALTERNATE_UTIME" >> version.h
 	cmd /S /C "echo #undef  USE_MMAP" >> version.h
 	cmd /S /C "echo #undef  INCL_NCURSES_TERM" >> version.h
 	cmd /S /C "echo #undef  INCL_CURSES_BEFORE_TERM" >> version.h
@@ -181,7 +182,8 @@ version.h:
 	cmd /S /C "echo #define os_stat_struct struct _stat" >> version.h
 	cmd /S /C "echo #define os_chown(NAME,UID,GID)" >> version.h
 	cmd /S /C "echo #define os_chmod _wchmod" >> version.h
-	cmd /S /C "echo #define os_utime _wutime" >> version.h
+	cmd /S /C "echo #define os_utime_orig _wutime" >> version.h
+	cmd /S /C "echo #define os_utime alternate_utime" >> version.h
 	cmd /S /C "echo #define os_utimbuf_struct struct utimbuf" >> version.h
 	cmd /S /C "echo #define os_remove _wremove" >> version.h
 	cmd /S /C "echo #define os_rename _wrename" >> version.h

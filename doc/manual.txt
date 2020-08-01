@@ -97,9 +97,10 @@ CONTENTS
   8.5     Standard input and output files
   8.6     Access to operating system files
   8.7     Keyboard file
-  8.8     Sockets
-  8.9     User defined file types
-  8.10    Scanning a file
+  8.8     Files with line structure
+  8.9     Sockets
+  8.10    User defined file types
+  8.11    Scanning a file
   9.    STRUCTURED SYNTAX DEFINITION
   9.1     The Extended Backus-Naur Form
   9.2     The syntax of a statement
@@ -2668,9 +2669,12 @@ CONTENTS
 
 5.10 array
 
-    The type 'array baseType' describes sequences of identical
-  elements of a 'baseType'. (including the empty sequence).
-  For example: 'array integer' describes arrays of integer elements.
+    The type 'array baseType' describes sequences of 'baseType'
+  elements (including the empty sequence).
+
+    For example: 'array integer' describes arrays of integer elements.
+
+  An element of an array can be accessed with an 'integer' index.
   The minimal and maximal indices of an array are part of the value
   and can be obtained with the functions 'minIdx' and 'maxIdx'.
   There are functions which generate arrays with the default minimal
@@ -2757,8 +2761,8 @@ CONTENTS
   elements of 'baseType'. The elements can be accessed with an index of
   'keyType'.
 
-  For example: 'hash [string] integer' describes hash tables with
-  'integer' elements and 'string' keys.
+    For example: 'hash [string] integer' describes hash tables with
+    'integer' elements and 'string' keys.
 
   The 'keyType' of a hash needs to provide the functions
   'hashCode' and 'compare'. Besides this the 'keyType'
@@ -4909,7 +4913,7 @@ CONTENTS
   'read', 'write' and others for the provided type (in this
   example 'boolean'). If only output (or only input) is needed
   for a type it is possible to define just 'str' (or 'parse')
-  and activate just enable_output (or enable_input).
+  and activate just 'enable_output' (or 'enable_input').
 
   There is also a formatting operator called 'lpad' which is based
   on the 'str' function. The statements
@@ -4954,7 +4958,7 @@ CONTENTS
       end func;
 
   The 'enable_io' template contains definitions of 'lpad' and 'rpad'
-  to work on the type specified with enable_io:
+  to work on the type specified with 'enable_io':
 
     const func string: (in aType: aValue) lpad (in integer: leng) is func
       result
@@ -5031,11 +5035,18 @@ ont color=blue>is "";
   redefined. The definitions for 'getc', 'getwd' and 'getln' for
   the 'null_file' are
 
-    const func char: getc (ref null_file: aFile) is func
+    const func char: getc (inout null_file: aFile) is func
       result
         var char: ch is ' ';
+      local
+        var string: buffer is "";
       begin
-        ch := gets(aFile, 1)[1];
+        buffer := gets(aFile, 1);
+        if buffer = "" then
+          ch := EOF;
+        else
+          ch := buffer[1];
+        end if;
       end func;
 
     const func string: getwd (inout null_file: aFile) is func
@@ -5045,12 +5056,12 @@ ont color=blue>is "";
         var string: buffer is "";
       begin
         repeat
-          buffer := gets(file conv aFile, 1);
+          buffer := gets(aFile, 1);
         until buffer <> " " and buffer <> "\t";
         while buffer <> " " and buffer <> "\t" and
             buffer <> "\n" and buffer <> "" do
           stri &:= buffer;
-          buffer := gets(file conv aFile, 1);
+          buffer := gets(aFile, 1);
         end while;
         if buffer = "" then
           aFile.bufferChar := EOF;
@@ -5065,10 +5076,10 @@ ont color=blue>is "";
       local
         var string: buffer is "";
       begin
-        buffer := gets(file conv aFile, 1);
+        buffer := gets(aFile, 1);
         while buffer <> "\n" and buffer <> "" do
           stri &:= buffer;
-          buffer := gets(file conv aFile, 1);
+          buffer := gets(aFile, 1);
         end while;
         if buffer = "" then
           aFile.bufferChar := EOF;
@@ -5109,7 +5120,7 @@ ont color=blue>is "";
 
   The next declarations allows various I/O operations for strings:
 
-    const proc: writeln (in file: aFile, in string: stri) is func
+    const proc: writeln (inout file: aFile, in string: stri) is func
       begin
         write(aFile, stri);
         writeln(aFile);
@@ -5135,16 +5146,18 @@ ont color=blue>is "";
     Normally we need a combination of an I/O operation with
   a conversion operation. There are several functions which are
   based on the 'str' and 'parse' conversions and on the basic
-  I/O-functions. The following declarations allow the 'write' function
-  to be used for all types which define 'enable_io':
+  I/O-functions. The declaration of this functions is done by
+  the templates 'enable_io', 'enable_input' and 'enable_output'.
+  The templates 'enable_io' and 'enable_output' define the following
+  'write' function:
 
     const proc: write (in file: aFile, in aType: aValue) is func
       begin
         write(aFile, str(aValue));
       end func;
 
-  To allow the use of the 'read' and 'readln' functions the following
-  declarations are made with 'enable_io':
+  The templates 'enable_io' and 'enable_input' define the following
+  'read' and 'readln' functions:
 
     const proc: read (inout file: aFile, inout aType: aValue) is func
       local
@@ -5387,6 +5400,50 @@ ont color=blue>is "";
       "wt+" ... Truncate to zero length or create file for update.
       "at+" ... Append; open or create file for update, writing at end-of-file.
 
+  Note that Seed7 defines the modes "r", "w", "a", "r+", "w+"
+  and "a+" as binary modes. This is different from the
+  definition used by the 'fopen' function of the C library.
+  The difference between binary and text mode is as follows:
+
+    - Binary mode provides an implementation independend
+      behaviour on all operating systems. In binary mode no
+      conversion to and from the line end character ('\n')
+      is done. This has the advantage that an 'external_file'
+      written in binary mode is identical on all operating
+      systems. Reading files with different line endings
+      ("\n" and "\r\n") is supported by every 'external_file':
+      The functions 'getwd', 'getln', 'read' and 'readln', of
+      'external_file' skip a carriage return ('\r') when it
+      is just before a linefeed ('\n'). The rest of the
+      'external_file' functions like 'getc' and 'gets' deliver
+      line endings unchanged.
+
+    - The behaviour of an 'external_file' in text mode is
+      implementation dependend. Under Unix/Linux/Bsd text and
+      binary modes are identical. Other operating systems
+      prefer to do some line end conversions in text mode:
+      When reading a file all occurrences of "\r\n" are
+      converted to '\n'. When writing to a file all
+      occurrences of '\n' are converted to "\r\n". Note that
+      text mode cannot be used to automatically create files
+      with "\r\n" line endings under Unix/Linux/Bsd.
+
+  The following table compares the file modes of Seed7 and C:
+
+    Seed7 'open' mode   C 'fopen' mode
+    "r"                 "rb"
+    "w"                 "wb"
+    "a"                 "ab"
+    "r+"                "rb+"
+    "w+"                "wb+"
+    "a+"                "ab+"
+    "rt"                "r"
+    "wt"                "w"
+    "at"                "a"
+    "rt+"               "r+"
+    "wt+"               "w+"
+    "at+"               "a+"
+
   The function 'open' returns 'STD_NULL' when it fails. So it is
   necessary to check the file variable to be on the save side:
 
@@ -5429,20 +5486,15 @@ ont color=blue>is "";
   you can see everything you typed. Additionally you can correct
   your input with BACKSPACE until you press RETURN. But sometimes
   an unbuffered and unechoed input is needed. This is provided in
-  the library "keybd.s7i" with the file 'KEYBOARD'. The declaration
-  of the type 'keyboard_file' and the file 'KEYBOARD' itself is as
-  follows:
-
-    const type: keyboard_file is subtype file;
-
-    var keyboard_file: KEYBOARD is SCREEN_KEYBOARD;
-
-  Reading from 'KEYBOARD' may deliver UNICODE characters or
-  special codes for function keys. These special codes can also
-  be copied to a character variables because the type 'char' is
-  not limited to 8 bits. For each function key exists a
-  predefined constant that can be used to test which key was
-  pressed:
+  the library "keybd.s7i", which defines the type 'keyboard_file'
+  and the file 'KEYBOARD'. Characters typed at the keyboard are
+  queued (first in first out) and can be read directly from
+  'KEYBOARD' without any possibiliy to correct. Additionally
+  'KEYBOARD' does not echo the characters. Reading from 'KEYBOARD'
+  delivers normal UNICODE characters or special codes (which may be
+  or may not be UNICODE characters) for function and cursor keys.
+  UNICODE characters and special codes both are 'char' values. The
+  "keybd.s7i" library defines 'char' constants for various keys:
 
     Key character constant     Description
     KEY_CTL_A to KEY_CTL_Z     The control keys ctrl-a to ctrl-z
@@ -5454,7 +5506,7 @@ ont color=blue>is "";
     KEY_ALT_F1 to KEY_ALT_F10  Alternate function keys F1 to F10
     KEY_BS                     Backspace (equal to KEY_CTL_H)
     KEY_TAB                    Horizontal Tab (equal to KEY_CTL_H)
-    KEY_NL                     Newline (equal to KEY_CTL_J)
+    KEY_NL                     Newline/Enter/Return key (equal to KEY_CTL_J)
     KEY_CR                     Carriage return (equal to KEY_CTL_M)
     KEY_ESC                    Escape key
     KEY_NULCHAR                Nul character key
@@ -5497,15 +5549,174 @@ ont color=blue>is "";
     KEY_UNDEF                  Undefined key
     KEY_NONE                   No key pressed (returned by busy_getc)
 
-  Additionally to the operations possible with other files there
-  are two functions that are applicable only for the file 'KEYBOARD'.
-  The 'busy_getc(KEYBOARD)' function delivers the next character
-  from the keyboard or the character KEY_NONE if no key has been
-  pressed. The 'busy_gets(KEYBOARD, integer)' function delivers a
-  string consisting of the characters in the keyboard buffer but
-  with the maximum length which is specified in the second parameter.
-  When no key was pressed 'busy_gets(KEYBOARD, integer)' returns
-  the empty string.
+  The following example uses the 'char' constant 'KEY_UP':
+
+    $ include "seed7_05.s7i";
+      include "keybd.s7i";
+
+    const proc: main is func
+      begin
+        writeln("Please press cursor up");
+        while getc(KEYBOARD) <> KEY_UP do
+          writeln("This was not cursor up");
+        end while;
+        writeln("Cursor up was pressed");
+      end func;
+
+  Progams should use the 'char' constants defined in "keybd.s7i"
+  to deal with function and cursor keys, since the special key
+  codes may change in future versions of Seed7.
+
+  Additionally to the operations possible with a 'file' there
+  are two functions that are applicable only to files of type
+  'keyboard_file':
+
+    - 'busy_getc', which delivers the next character
+      from the keyboard or 'KEY_NONE' if no key has been pressed.
+    - 'keypressed', which returns TRUE if a character
+      is available from the keyboard and FALSE otherwise.
+
+  Note that 'keypressed' does not actually read a character. Reading
+  must be done with a different function after 'keypressed' returns
+  TRUE. Both functions ('busy_getc' and 'keypressed') are useful
+  when user input is allowed while some processing takes place.
+  The following program uses 'busy_getc(KEYBOARD)' to display
+  the time until a key is pressed:
+
+    $ include "seed7_05.s7i";
+      include "time.s7i";
+      include "keybd.s7i";
+
+    const proc: main is func
+      begin
+        writeln;
+        while busy_getc(KEYBOARD) = KEY_NONE do
+          write(time(NOW) <& "\r");
+          flush(OUT);
+        end while;
+        writeln;
+        writeln;
+      end func;
+
+  Seed7 programs can run in two modes:
+
+    - Console mode, where the program runs in a console/terminal window (the default).
+    - Graphics mode, where the program has its own graphic window.
+
+  This two modes are supported with two basic keyboard files:
+
+    - 'CONSOLE_KEYBOARD', which uses a terminfo or console driver.
+    - 'GRAPH_KEYBOARD', which uses a X11 or gdi driver.
+
+  The file 'KEYBOARD' is actually a variable which refers to one
+  of the two basic keyboard files.  The declaration of the type
+  'keyboard_file' and the file 'KEYBOARD' in "keybd.s7i" is:
+
+    const type: keyboard_file is subtype file;
+
+    var keyboard_file: KEYBOARD is CONSOLE_KEYBOARD;
+
+  Graphic programs switch to to the 'GRAPH_KEYBOARD' driver with:
+
+    KEYBOARD := GRAPH_KEYBOARD;
+
+  Some file types are defined to support the 'KEYBOARD'. One such
+  file type is 'echo_file', which is defined in the library "echo.s7i".
+  An 'echo_file' file can be used to write input characters to
+  an output file. This is useful since 'KEYBOARD' does not echo its
+  input, but 'echo_file' is not restricted to support 'KEYBOARD'.
+  The following program writes echos of the keys typed and exits as
+  soon as a '!' is encountered:
+
+    $ include "seed7_05.s7i";
+      include "keybd.s7i";
+      include "echo.s7i";
+
+    const proc: main is func
+      local
+        var char: ch is ' ';
+      begin
+        IN := open_echo(KEYBOARD, OUT);
+        repeat
+          ch := getc(IN);
+        until ch = '!';
+        writeln;
+      end func;
+
+  An 'echo_file' checks also for control-C (KEY_CTL_C). When
+  control-C is typed an 'echo_file' asks if the program should be
+  terminated:
+
+    terminate (y/n)?
+
+  Aswering 'y' or 'Y' is interpreted as 'yes' and the program
+  is terminated with the following message:
+
+    *** PROGRAM TERMINATED BY USER
+
+  Any other input removes the question and the program continues
+  to read input.
+  
+  Another helpful file type is 'line_file', which is defined in the
+  library "line.s7i". A 'line_file' allows to correct the input with
+  BACKSPACE until a RETURN (represented with '\n') is encountered.
+  In contrast to this editing feature the possibility to edit a line
+  of 'STD_IN' is provided by the operating system. The following
+  program uses 'echo_file' and 'line_file' to simulate input line
+  editing:
+
+    $ include "seed7_05.s7i";
+      include "keybd.s7i";
+      include "echo.s7i";
+      include "line.s7i";
+
+    const proc: main is func
+      local
+        var char: ch is ' ';
+      begin
+        IN := open_echo(KEYBOARD, OUT);
+        IN := open_line(IN);
+        repeat
+          ch := getc(IN);
+          write(ch);
+        until ch = '!';
+      end func;
+
+  This program terminates when a line containing '!' is confirmed
+  with RETURN.
+
+
+8.8 Files with line structure
+
+  The type 'text' is a subtype of 'file' which adds a
+  line structure and other features such as scrolling and color.
+  The lines and columns of a type 'text' start with 1
+  in the upper left corner and increase downward and rightward.
+  The function 'setPos' sets the current line and column of a
+  'text':
+
+    const proc: setPos (inout text: aText, in integer: line, in integer: column) is ...
+
+  The functions 'setLine' and 'setColumn' set just the
+  line and column respectively:
+
+    const proc: setLine (inout text: aText, in integer: line) is ...
+
+    const proc: setColumn (inout text: aText, in integer: column) is ...
+
+  The current line and column of a 'text' file can be retrieved
+  with 'line' and 'column':
+
+    const func integer: line (ref text: aText) is ...
+
+    const func integer: column (ref text: aText) is ...
+
+  The current height and width of a 'text' file can be retrieved
+  with 'height' and 'width':
+
+    const func integer: height (ref text: aText) is ...
+
+    const func integer: width (ref text: aText) is ...
 
   To allow random access output to a text screen (or text window)
   the type SCREEN_FILE is defined. The function
@@ -5515,22 +5726,22 @@ ont color=blue>is "";
   returns a SCREEN_FILE.
 
 
-8.8 Sockets
+8.9 Sockets
 
     The library "socket.s7i" defines types and functions to
   access sockets. The implementation type for sockets is
   'socket'. As interface type 'file' is used:
 
-    var file: mySocket is STD_NULL;
+    var file: clientSocket is STD_NULL;
 
   With 'openInetSocket' an internet client socket can be opened:
 
-    mySocket := openInetSocket("www.google.com", 80);
+    clientSocket := openInetSocket("www.google.com", 80);
 
   The function 'openInetSocket' creates and connects a socket.
   Opening an internet socket at the local host is done with:
 
-    mySocket := openInetSocket(1080);
+    clientSocket := openInetSocket(1080);
 
   Server sockets are supported with the type 'listener'.
   The type 'listener' is used directly without interface
@@ -5538,12 +5749,23 @@ ont color=blue>is "";
 
     var listener: myListener is listener.value;
 
-  The function 'openInetListener' opens a listener:
+  The function 'openInetListener' opens a 'listener':
 
     myListener := openInetListener(1080);
 
+  The function 'listen' is used to listen for incoming socket
+  connections of a 'listener', and to
+  limit the incoming queue:
 
-8.9 User defined file types
+    listen(myListener, 10);
+
+  The function 'accept' returns the first connected socked
+  of the 'listener':
+
+    serverSocket := accept(myListener);
+
+
+8.10 User defined file types
 
     In addition to the predefined file types it is often
   necessary to define a new type of file. Such a new file
@@ -5619,7 +5841,7 @@ ont color=blue>is "";
       end func;
 
 
-8.10 Scanning a file
+8.11 Scanning a file
 
     The I/O concept introduced in the previous chapters separates
   the input of data from its conversion. The 'read', 'readln',

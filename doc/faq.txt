@@ -342,7 +342,7 @@ obfuscated code.
 Defining new statements and operators is a feature which should not
 be used in every program by every programmer. It is a feature which
 allows experienced programmers, to write libraries which use statement
-or operator syntax instead of function syntax, in areas where such an
+or operator syntax instead of function syntax, in areas where such a
 notation is already accepted practice.
 
 Statements to access a database or operators for vector arithmetic

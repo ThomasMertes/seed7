@@ -97,9 +97,10 @@
 <li><!--   8.5      --><a href="#Standard_input_and_output_files"><b>Standard input and output files</b></a></li>
 <li><!--   8.6      --><a href="#Access_to_operating_system_files"><b>Access to operating system files</b></a></li>
 <li><!--   8.7      --><a href="#Keyboard_file"><b>Keyboard file</b></a></li>
-<li><!--   8.8      --><a href="#Sockets"><b>Sockets</b></a></li>
-<li><!--   8.9      --><a href="#User_defined_file_types"><b>User defined file types</b></a></li>
-<li><!--   8.10     --><a href="#Scanning_a_file"><b>Scanning a file</b></a></li></ol></li>
+<li><!--   8.8      --><a href="#Files_with_line_structure"><b>Files with line structure</b></a></li>
+<li><!--   8.9      --><a href="#Sockets"><b>Sockets</b></a></li>
+<li><!--   8.10     --><a href="#User_defined_file_types"><b>User defined file types</b></a></li>
+<li><!--   8.11     --><a href="#Scanning_a_file"><b>Scanning a file</b></a></li></ol></li>
 <li><!--   9.     --><a href="#STRUCTURED_SYNTAX_DEFINITION"><big><b>STRUCTURED SYNTAX DEFINITION</b></big></a><ol>
 <li><!--   9.1      --><a href="#The_Extended_Backus-Naur_Form"><b>The Extended Backus-Naur Form</b></a></li>
 <li><!--   9.2      --><a href="#The_syntax_of_a_statement"><b>The syntax of a statement</b></a></li>
@@ -2668,9 +2669,12 @@
 
 <a name="array"><b>5.10 array</b></a>
 <p>
-    The type <tt>'<font color=red>array baseType</font>'</tt> describes sequences of identical
-  elements of a <tt>'<font color=red>baseType</font>'</tt>. (including the empty sequence).
-  For example: <tt>'<font color=red>array integer</font>'</tt> describes arrays of integer elements.
+    The type <tt>'<font color=red>array baseType</font>'</tt> describes sequences of <tt>'<font color=red>baseType</font>'</tt>
+  elements (including the empty sequence).
+</p><dl>
+    <dt></dt><dd>For example: <tt>'<font color=red>array integer</font>'</tt> describes arrays of integer elements.</dd>
+</dl><p>
+  An element of an array can be accessed with an <tt>'<font color=red>integer</font>'</tt> index.
   The minimal and maximal indices of an array are part of the value
   and can be obtained with the functions <tt>'minIdx'</tt> and <tt>'maxIdx'</tt>.
   There are functions which generate arrays with the default minimal
@@ -2756,10 +2760,10 @@
     The type <tt>'<font color=red>hash [keyType] baseType</font>'</tt> describes hash tables with
   elements of <tt>'<font color=red>baseType</font>'</tt>. The elements can be accessed with an index of
   <tt>'<font color=red>keyType</font>'</tt>.
-</p><p>
-  For example: <tt>'<font color=red>hash [string] integer</font>'</tt> describes hash tables with
-  <tt>'<font color=red>integer</font>'</tt> elements and <tt>'<font color=red>string</font>'</tt> keys.
-</p><p>
+</p><dl>
+    <dt></dt><dd>For example: <tt>'<font color=red>hash [string] integer</font>'</tt> describes hash tables with
+    <tt>'<font color=red>integer</font>'</tt> elements and <tt>'<font color=red>string</font>'</tt> keys.</dd>
+</dl><p>
   The <tt>'<font color=red>keyType</font>'</tt> of a hash needs to provide the functions
   <tt>'hashCode'</tt> and <tt>'compare'</tt>. Besides this the <tt>'<font color=red>keyType</font>'</tt>
   can be any type.
@@ -4907,9 +4911,9 @@
 </pre><p>
   The <tt>'enable_io'</tt> template declares various io functions like
   <tt>'read'</tt>, <tt>'write'</tt> and others for the provided type (in this
-  example <tt>'<font color=blue>boolean</font>'</tt>). If only output (or only input) is needed
+  example <tt>'<font color=red>boolean</font>'</tt>). If only output (or only input) is needed
   for a type it is possible to define just <tt>'str'</tt> (or <tt>'<font color=blue>parse</font>'</tt>)
-  and activate just enable_output (or enable_input).
+  and activate just <tt>'enable_output'</tt> (or <tt>'enable_input'</tt>).
 </p><p>
   There is also a formatting operator called <tt>'<font color=blue>lpad</font>'</tt> which is based
   on the <tt>'str'</tt> function. The statements
@@ -4954,7 +4958,7 @@
       <font color=blue>end func</font>;
 </pre><p>
   The <tt>'enable_io'</tt> template contains definitions of <tt>'<font color=blue>lpad</font>'</tt> and <tt>'<font color=blue>rpad</font>'</tt>
-  to work on the type specified with enable_io:
+  to work on the type specified with <tt>'enable_io'</tt>:
 </p><pre>
     <font color=blue>const</font> <font color=red>func string</font>: (<font color=blue>in</font> <font color=red>aType</font>: aValue) lpad (<font color=blue>in</font> <font color=red>integer</font>: leng) <font color=blue>is func</font>
       <font color=blue>result</font>
@@ -5031,11 +5035,18 @@ ont color=blue>is</font> <font color=maroon>""</font>;
   redefined. The definitions for 'getc', 'getwd' and 'getln' for
   the <tt>'<font color=red>null_file</font>'</tt> are
 </p><pre>
-    <font color=blue>const</font> <font color=red>func char</font>: getc (<font color=blue>ref</font> <font color=red>null_file</font>: aFile) <font color=blue>is func</font>
+    <font color=blue>const</font> <font color=red>func char</font>: getc (<font color=blue>inout</font> <font color=red>null_file</font>: aFile) <font color=blue>is func</font>
       <font color=blue>result</font>
-        <font color=blue>var</font> char: ch <font color=blue>is</font> <font color=maroon>' '</font>;
+        <font color=blue>var</font> <font color=red>char</font>: ch <font color=blue>is</font> <font color=maroon>' '</font>;
+      <font color=blue>local</font>
+        <font color=blue>var</font> <font color=red>string</font>: buffer <font color=blue>is</font> <font color=maroon>""</font>;
       <font color=blue>begin</font>
-        ch := gets(aFile, 1)[1];
+        buffer := gets(aFile, 1);
+        <font color=blue>if</font> buffer = <font color=maroon>""</font> <font color=blue>then</font>
+          ch := EOF;
+        <font color=blue>else</font>
+          ch := buffer[1];
+        <font color=blue>end if</font>;
       <font color=blue>end func</font>;
 
     <font color=blue>const</font> <font color=red>func string</font>: getwd (<font color=blue>inout</font> <font color=red>null_file</font>: aFile) <font color=blue>is func</font>
@@ -5045,18 +5056,18 @@ ont color=blue>is</font> <font color=maroon>""</font>;
         <font color=blue>var</font> <font color=red>string</font>: buffer <font color=blue>is</font> <font color=maroon>""</font>;
       <font color=blue>begin</font>
         <font color=blue>repeat</font>
-          buffer := gets(file <font color=blue>conv</font> aFile, 1);
+          buffer := gets(aFile, 1);
         <font color=blue>until</font> buffer &lt;> <font color=maroon>" "</font> <font color=blue>and</font> buffer &lt;> <font color=maroon>"\t"</font>;
         <font color=blue>while</font> buffer &lt;> <font color=maroon>" "</font> <font color=blue>and</font> buffer &lt;> <font color=maroon>"\t"</font> <font color=blue>and</font>
             buffer &lt;> <font color=maroon>"\n"</font> <font color=blue>and</font> buffer &lt;> <font color=maroon>""</font> <font color=blue>do</font>
           stri &:= buffer;
-          buffer := gets(file <font color=blue>conv</font> aFile, 1);
+          buffer := gets(aFile, 1);
         <font color=blue>end while</font>;
-        if buffer = "" then
+        <font color=blue>if</font> buffer = <font color=maroon>""</font> <font color=blue>then</font>
           aFile.bufferChar := EOF;
-        else
+        <font color=blue>else</font>
           aFile.bufferChar := buffer[1];
-        end if;
+        <font color=blue>end if</font>;
       <font color=blue>end func</font>;
 
     <font color=blue>const</font> <font color=red>func string</font>: getln (<font color=blue>inout</font> <font color=red>null_file</font>: aFile) <font color=blue>is func</font>
@@ -5065,16 +5076,16 @@ ont color=blue>is</font> <font color=maroon>""</font>;
       <font color=blue>local</font>
         <font color=blue>var</font> <font color=red>string</font>: buffer <font color=blue>is</font> <font color=maroon>""</font>;
       <font color=blue>begin</font>
-        buffer := gets(file <font color=blue>conv</font> aFile, 1);
+        buffer := gets(aFile, 1);
         <font color=blue>while</font> buffer &lt;> <font color=maroon>"\n"</font> <font color=blue>and</font> buffer &lt;> <font color=maroon>""</font> <font color=blue>do</font>
           stri &:= buffer;
-          buffer := gets(file <font color=blue>conv</font> aFile, 1);
+          buffer := gets(aFile, 1);
         <font color=blue>end while</font>;
-        if buffer = "" then
+        <font color=blue>if</font> buffer = <font color=maroon>""</font> <font color=blue>then</font>
           aFile.bufferChar := EOF;
-        else
+        <font color=blue>else</font>
           aFile.bufferChar := buffer[1];
-        end if;
+        <font color=blue>end if</font>;
       <font color=blue>end func</font>;
 </pre><p>
   Note that <tt>'getwd'</tt> skips leading spaces and tabs while <tt>'getc'</tt> and
@@ -5109,7 +5120,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
 </p><p>
   The next declarations allows various I/O operations for strings:
 </p><pre>
-    <font color=blue>const</font> <font color=red>proc</font>: writeln (<font color=blue>in</font> <font color=red>file</font>: aFile, <font color=blue>in</font> <font color=red>string</font>: stri) <font color=blue>is func</font>
+    <font color=blue>const</font> <font color=red>proc</font>: writeln (<font color=blue>inout</font> <font color=red>file</font>: aFile, <font color=blue>in</font> <font color=red>string</font>: stri) <font color=blue>is func</font>
       <font color=blue>begin</font>
         write(aFile, stri);
         writeln(aFile);
@@ -5135,16 +5146,18 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     Normally we need a combination of an I/O operation with
   a conversion operation. There are several functions which are
   based on the <tt>'str'</tt> and <tt>'<font color=blue>parse</font>'</tt> conversions and on the basic
-  I/O-functions. The following declarations allow the <tt>'write'</tt> function
-  to be used for all types which define <tt>'enable_io'</tt>:
+  I/O-functions. The declaration of this functions is done by
+  the templates <tt>'enable_io'</tt>, <tt>'enable_input'</tt> and <tt>'enable_output'</tt>.
+  The templates <tt>'enable_io'</tt> and <tt>'enable_output'</tt> define the following
+  <tt>'write'</tt> function:
 </p><pre>
     <font color=blue>const</font> <font color=red>proc</font>: write (<font color=blue>in</font> <font color=red>file</font>: aFile, <font color=blue>in</font> <font color=red>aType</font>: aValue) <font color=blue>is func</font>
       <font color=blue>begin</font>
         write(aFile, str(aValue));
       <font color=blue>end func</font>;
 </pre><p>
-  To allow the use of the <tt>'read'</tt> and <tt>'readln'</tt> functions the following
-  declarations are made with <tt>'enable_io'</tt>:
+  The templates <tt>'enable_io'</tt> and <tt>'enable_input'</tt> define the following
+  <tt>'read'</tt> and <tt>'readln'</tt> functions:
 </p><pre>
     <font color=blue>const</font> <font color=red>proc</font>: read (<font color=blue>inout</font> <font color=red>file</font>: aFile, <font color=blue>inout</font> <font color=red>aType</font>: aValue) <font color=blue>is func</font>
       <font color=blue>local</font>
@@ -5387,6 +5400,50 @@ ont color=blue>is</font> <font color=maroon>""</font>;
       <font color=maroon>"wt+"</font> ... Truncate to zero length or create file for update.
       <font color=maroon>"at+"</font> ... Append; open or create file for update, writing at end-of-file.
 </pre><p>
+  Note that Seed7 defines the modes <font color=maroon>"r"</font>, <font color=maroon>"w"</font>, <font color=maroon>"a"</font>, <font color=maroon>"r+"</font>, <font color=maroon>"w+"</font>
+  and <font color=maroon>"a+"</font> as binary modes. This is different from the
+  definition used by the <tt>'fopen'</tt> function of the C library.
+  The difference between binary and text mode is as follows:
+</p><ul>
+    <li><!-- -  -->Binary mode provides an implementation independend
+      behaviour on all operating systems. In binary mode no
+      conversion to and from the line end character (<tt><font color=maroon>'\n'</font></tt>)
+      is done. This has the advantage that an <tt>'<font color=red>external_file</font>'</tt>
+      written in binary mode is identical on all operating
+      systems. Reading files with different line endings
+      (<tt><font color=maroon>"\n"</font></tt> and <tt><font color=maroon>"\r\n"</font></tt>) is supported by every <tt>'<font color=red>external_file</font>'</tt>:
+      The functions <tt>'getwd'</tt>, <tt>'getln'</tt>, <tt>'read'</tt> and <tt>'readln'</tt>, of
+      <tt>'<font color=red>external_file</font>'</tt> skip a carriage return (<tt><font color=maroon>'\r'</font></tt>) when it
+      is just before a linefeed (<tt><font color=maroon>'\n'</font></tt>). The rest of the
+      <tt>'<font color=red>external_file</font>'</tt> functions like <tt>'getc'</tt> and <tt>'gets'</tt> deliver
+      line endings unchanged.
+</li>
+    <li><!-- -  -->The behaviour of an <tt>'<font color=red>external_file</font>'</tt> in text mode is
+      implementation dependend. Under Unix/Linux/Bsd text and
+      binary modes are identical. Other operating systems
+      prefer to do some line end conversions in text mode:
+      When reading a file all occurrences of <tt><font color=maroon>"\r\n"</font></tt> are
+      converted to <tt><font color=maroon>'\n'</font></tt>. When writing to a file all
+      occurrences of <tt><font color=maroon>'\n'</font></tt> are converted to <tt><font color=maroon>"\r\n"</font></tt>. Note that
+      text mode cannot be used to automatically create files
+      with <tt><font color=maroon>"\r\n"</font></tt> line endings under Unix/Linux/Bsd.</li>
+</ul><p>
+  The following table compares the file modes of Seed7 and C:
+</p><table border="1">
+    <tr><td>Seed7 <tt>'open'</tt> mode</td>   <td>C <tt>'fopen'</tt> mode</td></tr>
+    <tr><td><font color=maroon>"r"</font></td>                 <td><font color=maroon>"rb"</font></td></tr>
+    <tr><td><font color=maroon>"w"</font></td>                 <td><font color=maroon>"wb"</font></td></tr>
+    <tr><td><font color=maroon>"a"</font></td>                 <td><font color=maroon>"ab"</font></td></tr>
+    <tr><td><font color=maroon>"r+"</font></td>                <td><font color=maroon>"rb+"</font></td></tr>
+    <tr><td><font color=maroon>"w+"</font></td>                <td><font color=maroon>"wb+"</font></td></tr>
+    <tr><td><font color=maroon>"a+"</font></td>                <td><font color=maroon>"ab+"</font></td></tr>
+    <tr><td><font color=maroon>"rt"</font></td>                <td><font color=maroon>"r"</font></td></tr>
+    <tr><td><font color=maroon>"wt"</font></td>                <td><font color=maroon>"w"</font></td></tr>
+    <tr><td><font color=maroon>"at"</font></td>                <td><font color=maroon>"a"</font></td></tr>
+    <tr><td><font color=maroon>"rt+"</font></td>               <td><font color=maroon>"r+"</font></td></tr>
+    <tr><td><font color=maroon>"wt+"</font></td>               <td><font color=maroon>"w+"</font></td></tr>
+    <tr><td><font color=maroon>"at+"</font></td>               <td><font color=maroon>"a+"</font></td></tr>
+</table><p>
   The function <tt>'open'</tt> returns <tt>'STD_NULL'</tt> when it fails. So it is
   necessary to check the file variable to be on the save side:
 </p><pre>
@@ -5429,20 +5486,15 @@ ont color=blue>is</font> <font color=maroon>""</font>;
   you can see everything you typed. Additionally you can correct
   your input with BACKSPACE until you press RETURN. But sometimes
   an unbuffered and unechoed input is needed. This is provided in
-  the library <font color=maroon>"keybd.s7i"</font> with the file <tt>'KEYBOARD'</tt>. The declaration
-  of the type <tt>'<font color=red>keyboard_file</font>'</tt> and the file <tt>'KEYBOARD'</tt> itself is as
-  follows:
-</p><pre>
-    <font color=blue>const</font> <font color=red>type</font>: keyboard_file <font color=blue>is</font> <font color=red>subtype file</font>;
-
-    <font color=blue>var</font> <font color=red>keyboard_file</font>: KEYBOARD <font color=blue>is</font> SCREEN_KEYBOARD;
-</pre><p>
-  Reading from <tt>'KEYBOARD'</tt> may deliver UNICODE characters or
-  special codes for function keys. These special codes can also
-  be copied to a character variables because the type <tt>'<font color=red>char</font>'</tt> is
-  not limited to 8 bits. For each function key exists a
-  predefined constant that can be used to test which key was
-  pressed:
+  the library <font color=maroon>"keybd.s7i"</font>, which defines the type <tt>'<font color=red>keyboard_file</font>'</tt>
+  and the file <tt>'KEYBOARD'</tt>. Characters typed at the keyboard are
+  queued (first in first out) and can be read directly from
+  <tt>'KEYBOARD'</tt> without any possibiliy to correct. Additionally
+  <tt>'KEYBOARD'</tt> does not echo the characters. Reading from <tt>'KEYBOARD'</tt>
+  delivers normal UNICODE characters or special codes (which may be
+  or may not be UNICODE characters) for function and cursor keys.
+  UNICODE characters and special codes both are <tt>'<font color=red>char</font>'</tt> values. The
+  <font color=maroon>"keybd.s7i"</font> library defines <tt>'<font color=red>char</font>'</tt> constants for various keys:
 </p><table border="1">
     <tr><td>Key character constant</td>     <td>Description</td></tr>
     <tr><td><tt>KEY_CTL_A</tt> to <tt>KEY_CTL_Z</tt></td>     <td>The control keys ctrl-a to ctrl-z</td></tr>
@@ -5454,7 +5506,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td><tt>KEY_ALT_F1</tt> to <tt>KEY_ALT_F10</tt></td>  <td>Alternate function keys F1 to F10</td></tr>
     <tr><td><tt>KEY_BS</tt></td>                     <td>Backspace (equal to KEY_CTL_H)</td></tr>
     <tr><td><tt>KEY_TAB</tt></td>                    <td>Horizontal Tab (equal to KEY_CTL_H)</td></tr>
-    <tr><td><tt>KEY_NL</tt></td>                     <td>Newline (equal to KEY_CTL_J)</td></tr>
+    <tr><td><tt>KEY_NL</tt></td>                     <td>Newline/Enter/Return key (equal to KEY_CTL_J)</td></tr>
     <tr><td><tt>KEY_CR</tt></td>                     <td>Carriage return (equal to KEY_CTL_M)</td></tr>
     <tr><td><tt>KEY_ESC</tt></td>                    <td>Escape key</td></tr>
     <tr><td><tt>KEY_NULCHAR</tt></td>                <td>Nul character key</td></tr>
@@ -5497,16 +5549,175 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td><tt>KEY_UNDEF</tt></td>                  <td>Undefined key</td></tr>
     <tr><td><tt>KEY_NONE</tt></td>                   <td>No key pressed (returned by busy_getc)</td></tr>
 </table><p>
-  Additionally to the operations possible with other files there
-  are two functions that are applicable only for the file <tt>'KEYBOARD'</tt>.
-  The <tt>'busy_getc(KEYBOARD)'</tt> function delivers the next character
-  from the keyboard or the character KEY_NONE if no key has been
-  pressed. The <tt>'busy_gets(KEYBOARD, <font color=red>integer</font>)'</tt> function delivers a
-  string consisting of the characters in the keyboard buffer but
-  with the maximum length which is specified in the second parameter.
-  When no key was pressed <tt>'busy_gets(KEYBOARD, <font color=red>integer</font>)'</tt> returns
-  the empty string.
+  The following example uses the <tt>'<font color=red>char</font>'</tt> constant <tt>'KEY_UP'</tt>:
+</p><pre>
+    $ <font color=blue>include</font> <font color=maroon>"seed7_05.s7i"</font>;
+      <font color=blue>include</font> <font color=maroon>"keybd.s7i"</font>;
+
+    <font color=blue>const</font> <font color=red>proc</font>: main <font color=blue>is func</font>
+      <font color=blue>begin</font>
+        writeln(<font color=maroon>"Please press cursor up"</font>);
+        <font color=blue>while</font> getc(KEYBOARD) <> KEY_UP <font color=blue>do</font>
+          writeln(<font color=maroon>"This was not cursor up"</font>);
+        <font color=blue>end while</font>;
+        writeln(<font color=maroon>"Cursor up was pressed"</font>);
+      <font color=blue>end func</font>;
+</pre><p>
+  Progams should use the <tt>'<font color=red>char</font>'</tt> constants defined in <font color=maroon>"keybd.s7i"</font>
+  to deal with function and cursor keys, since the special key
+  codes may change in future versions of Seed7.
 </p><p>
+  Additionally to the operations possible with a <tt>'<font color=red>file</font>'</tt> there
+  are two functions that are applicable only to files of type
+  <tt>'<font color=red>keyboard_file</font>'</tt>:
+</p><ul>
+    <li><!-- -  --><tt>'busy_getc'</tt>, which delivers the next character
+      from the keyboard or <tt>'KEY_NONE'</tt> if no key has been pressed.</li>
+    <li><!-- -  --><tt>'keypressed'</tt>, which returns TRUE if a character
+      is available from the keyboard and FALSE otherwise.</li>
+</ul><p>
+  Note that <tt>'keypressed'</tt> does not actually read a character. Reading
+  must be done with a different function after <tt>'keypressed'</tt> returns
+  TRUE. Both functions (<tt>'busy_getc'</tt> and <tt>'keypressed'</tt>) are useful
+  when user input is allowed while some processing takes place.
+  The following program uses <tt>'busy_getc(KEYBOARD)'</tt> to display
+  the time until a key is pressed:
+</p><pre>
+    $ <font color=blue>include</font> <font color=maroon>"seed7_05.s7i"</font>;
+      <font color=blue>include</font> <font color=maroon>"time.s7i"</font>;
+      <font color=blue>include</font> <font color=maroon>"keybd.s7i"</font>;
+
+    <font color=blue>const</font> <font color=red>proc</font>: main <font color=blue>is func</font>
+      <font color=blue>begin</font>
+        writeln;
+        <font color=blue>while</font> busy_getc(KEYBOARD) = KEY_NONE <font color=blue>do</font>
+          write(time(NOW) <& <font color=maroon>"\r"</font>);
+          flush(OUT);
+        <font color=blue>end while</font>;
+        writeln;
+        writeln;
+      <font color=blue>end func</font>;
+</pre><p>
+  Seed7 programs can run in two modes:
+</p><ul>
+    <li><!-- -  -->Console mode, where the program runs in a console/terminal window (the default).</li>
+    <li><!-- -  -->Graphics mode, where the program has its own graphic window.</li>
+</ul><p>
+  This two modes are supported with two basic keyboard files:
+</p><ul>
+    <li><!-- -  --><tt>'CONSOLE_KEYBOARD'</tt>, which uses a terminfo or console driver.</li>
+    <li><!-- -  --><tt>'GRAPH_KEYBOARD'</tt>, which uses a X11 or gdi driver.</li>
+</ul><p>
+  The file <tt>'KEYBOARD'</tt> is actually a variable which refers to one
+  of the two basic keyboard files.  The declaration of the type
+  <tt>'<font color=red>keyboard_file</font>'</tt> and the file <tt>'KEYBOARD'</tt> in <font color=maroon>"keybd.s7i"</font> is:
+</p><pre>
+    <font color=blue>const</font> <font color=red>type</font>: keyboard_file <font color=blue>is</font> <font color=red>subtype file</font>;
+
+    <font color=blue>var</font> <font color=red>keyboard_file</font>: KEYBOARD <font color=blue>is</font> CONSOLE_KEYBOARD;
+</pre><p>
+  Graphic programs switch to to the <tt>'GRAPH_KEYBOARD'</tt> driver with:
+</p><pre>
+    KEYBOARD := GRAPH_KEYBOARD;
+</pre><p>
+  Some file types are defined to support the <tt>'KEYBOARD'</tt>. One such
+  file type is <tt>'<font color=red>echo_file</font>'</tt>, which is defined in the library <font color=maroon>"echo.s7i"</font>.
+  An <tt>'<font color=red>echo_file</font>'</tt> file can be used to write input characters to
+  an output file. This is useful since <tt>'KEYBOARD'</tt> does not echo its
+  input, but <tt>'<font color=red>echo_file</font>'</tt> is not restricted to support <tt>'KEYBOARD'</tt>.
+  The following program writes echos of the keys typed and exits as
+  soon as a <tt><font color=maroon>'!'</font></tt> is encountered:
+</p><pre>
+    $ <font color=blue>include</font> <font color=maroon>"seed7_05.s7i"</font>;
+      <font color=blue>include</font> <font color=maroon>"keybd.s7i"</font>;
+      <font color=blue>include</font> <font color=maroon>"echo.s7i"</font>;
+
+    <font color=blue>const</font> <font color=red>proc</font>: main <font color=blue>is func</font>
+      <font color=blue>local</font>
+        <font color=blue>var</font> <font color=red>char</font>: ch <font color=blue>is</font> <font color=maroon>' '</font>;
+      <font color=blue>begin</font>
+        IN := open_echo(KEYBOARD, OUT);
+        <font color=blue>repeat</font>
+          ch := getc(IN);
+        <font color=blue>until</font> ch = <font color=maroon>'!'</font>;
+        writeln;
+      <font color=blue>end func</font>;
+</pre><p>
+  An <tt>'<font color=red>echo_file</font>'</tt> checks also for control-C (KEY_CTL_C). When
+  control-C is typed an <tt>'<font color=red>echo_file</font>'</tt> asks if the program should be
+  terminated:
+</p><pre>
+    terminate (y/n)?
+</pre><p>
+  Aswering <tt>'y'</tt> or <tt>'Y'</tt> is interpreted as <tt>'yes'</tt> and the program
+  is terminated with the following message:
+</p><pre>
+    *** PROGRAM TERMINATED BY USER
+</pre><p>
+  Any other input removes the question and the program continues
+  to read input.
+</p><p>  
+  Another helpful file type is <tt>'<font color=red>line_file</font>'</tt>, which is defined in the
+  library <font color=maroon>"line.s7i"</font>. A <tt>'<font color=red>line_file</font>'</tt> allows to correct the input with
+  BACKSPACE until a RETURN (represented with <tt><font color=maroon>'\n'</font></tt>) is encountered.
+  In contrast to this editing feature the possibility to edit a line
+  of <tt>'STD_IN'</tt> is provided by the operating system. The following
+  program uses <tt>'<font color=red>echo_file</font>'</tt> and <tt>'<font color=red>line_file</font>'</tt> to simulate input line
+  editing:
+</p><pre>
+    $ <font color=blue>include</font> <font color=maroon>"seed7_05.s7i"</font>;
+      <font color=blue>include</font> <font color=maroon>"keybd.s7i"</font>;
+      <font color=blue>include</font> <font color=maroon>"echo.s7i"</font>;
+      <font color=blue>include</font> <font color=maroon>"line.s7i"</font>;
+
+    <font color=blue>const</font> <font color=red>proc</font>: main <font color=blue>is func</font>
+      <font color=blue>local</font>
+        <font color=blue>var</font> <font color=red>char</font>: ch <font color=blue>is</font> <font color=maroon>' '</font>;
+      <font color=blue>begin</font>
+        IN := open_echo(KEYBOARD, OUT);
+        IN := open_line(IN);
+        <font color=blue>repeat</font>
+          ch := getc(IN);
+          write(ch);
+        <font color=blue>until</font> ch = <font color=maroon>'!'</font>;
+      <font color=blue>end func</font>;
+</pre><p>
+  This program terminates when a line containing <tt><font color=maroon>'!'</font></tt> is confirmed
+  with RETURN.
+</p>
+
+<a name="Files_with_line_structure"><b>8.8 Files with line structure</b></a>
+<p>
+  The type <tt>'<font color=red>text</font>'</tt> is a subtype of <tt>'<font color=red>file</font>'</tt> which adds a
+  line structure and other features such as scrolling and color.
+  The lines and columns of a type <tt>'<font color=red>text</font>'</tt> start with 1
+  in the upper left corner and increase downward and rightward.
+  The function <tt>'setPos'</tt> sets the current line and column of a
+  <tt>'<font color=red>text</font>'</tt>:
+</p><pre>
+    <font color=blue>const</font> <font color=red>proc</font>: setPos (<font color=blue>inout</font> <font color=red>text</font>: aText, <font color=blue>in</font> <font color=red>integer</font>: line, <font color=blue>in</font> <font color=red>integer</font>: column) <font color=blue>is</font> ...
+</pre><p>
+  The functions <tt>'setLine'</tt> and <tt>'setColumn'</tt> set just the
+  line and column respectively:
+</p><pre>
+    <font color=blue>const</font> <font color=red>proc</font>: setLine (<font color=blue>inout</font> <font color=red>text</font>: aText, <font color=blue>in</font> <font color=red>integer</font>: line) <font color=blue>is</font> ...
+
+    <font color=blue>const</font> <font color=red>proc</font>: setColumn (<font color=blue>inout</font> <font color=red>text</font>: aText, <font color=blue>in</font> <font color=red>integer</font>: column) <font color=blue>is</font> ...
+</pre><p>
+  The current line and column of a <tt>'<font color=red>text</font>'</tt> file can be retrieved
+  with <tt>'line'</tt> and <tt>'column'</tt>:
+</p><pre>
+    <font color=blue>const</font> <font color=red>func integer</font>: line (<font color=blue>ref</font> <font color=red>text</font>: aText) <font color=blue>is</font> ...
+
+    <font color=blue>const</font> <font color=red>func integer</font>: column (<font color=blue>ref</font> <font color=red>text</font>: aText) <font color=blue>is</font> ...
+</pre><p>
+  The current height and width of a <tt>'<font color=red>text</font>'</tt> file can be retrieved
+  with <tt>'height'</tt> and <tt>'width'</tt>:
+</p><pre>
+    <font color=blue>const</font> <font color=red>func integer</font>: height (<font color=blue>ref</font> <font color=red>text</font>: aText) <font color=blue>is</font> ...
+
+    <font color=blue>const</font> <font color=red>func integer</font>: width (<font color=blue>ref</font> <font color=red>text</font>: aText) <font color=blue>is</font> ...
+</pre><p>
   To allow random access output to a text screen (or text window)
   the type SCREEN_FILE is defined. The function
 </p><pre>
@@ -5515,22 +5726,22 @@ ont color=blue>is</font> <font color=maroon>""</font>;
   returns a SCREEN_FILE.
 </p>
 
-<a name="Sockets"><b>8.8 Sockets</b></a>
+<a name="Sockets"><b>8.9 Sockets</b></a>
 <p>
     The library <font color=maroon>"socket.s7i"</font> defines types and functions to
   access sockets. The implementation type for sockets is
   <tt>'<font color=red>socket</font>'</tt>. As interface type <tt>'<font color=red>file</font>'</tt> is used:
 </p><pre>
-    <font color=blue>var</font> <font color=red>file</font>: mySocket <font color=blue>is</font> STD_NULL;
+    <font color=blue>var</font> <font color=red>file</font>: clientSocket <font color=blue>is</font> STD_NULL;
 </pre><p>
   With <tt>'openInetSocket'</tt> an internet client socket can be opened:
 </p><pre>
-    mySocket := openInetSocket(<font color=maroon>"www.google.com"</font>, 80);
+    clientSocket := openInetSocket(<font color=maroon>"www.google.com"</font>, 80);
 </pre><p>
   The function <tt>'openInetSocket'</tt> creates and connects a socket.
   Opening an internet socket at the local host is done with:
 </p><pre>
-    mySocket := openInetSocket(1080);
+    clientSocket := openInetSocket(1080);
 </pre><p>
   Server sockets are supported with the type <tt>'<font color=red>listener</font>'</tt>.
   The type <tt>'<font color=red>listener</font>'</tt> is used directly without interface
@@ -5538,12 +5749,23 @@ ont color=blue>is</font> <font color=maroon>""</font>;
 </p><pre>
     <font color=blue>var</font> <font color=red>listener</font>: myListener <font color=blue>is</font> <font color=red>listener</font>.value;
 </pre><p>
-  The function <tt>'openInetListener'</tt> opens a listener:
+  The function <tt>'openInetListener'</tt> opens a <tt>'<font color=red>listener</font>'</tt>:
 </p><pre>
     myListener := openInetListener(1080);
+</pre><p>
+  The function <tt>'listen'</tt> is used to listen for incoming socket
+  connections of a <tt>'<font color=red>listener</font>'</tt>, and to
+  limit the incoming queue:
+</p><pre>
+    listen(myListener, 10);
+</pre><p>
+  The function <tt>'accept'</tt> returns the first connected socked
+  of the <tt>'<font color=red>listener</font>'</tt>:
+</p><pre>
+    serverSocket := accept(myListener);
 </pre><p></p>
 
-<a name="User_defined_file_types"><b>8.9 User defined file types</b></a>
+<a name="User_defined_file_types"><b>8.10 User defined file types</b></a>
 <p>
     In addition to the predefined file types it is often
   necessary to define a new type of file. Such a new file
@@ -5619,7 +5841,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
       <font color=blue>end func</font>;
 </pre><p>
 
-<a name="Scanning_a_file"><b>8.10 Scanning a file</b></a>
+<a name="Scanning_a_file"><b>8.11 Scanning a file</b></a>
 <p>
     The I/O concept introduced in the previous chapters separates
   the input of data from its conversion. The <tt>'read'</tt>, <tt>'readln'</tt>,

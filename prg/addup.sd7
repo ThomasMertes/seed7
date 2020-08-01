@@ -149,8 +149,7 @@ const proc: main is func
     (* OUT := open_upper(OUT); *)
     (* OUT := open_lower(OUT); *)
     (* OUT := open_more(OUT, KEYBOARD, 10); *)
-    IN := KEYBOARD;
-    IN := open_echo(IN, OUT);
+    IN := open_echo(KEYBOARD, OUT);
     IN := open_line(IN);
     writeln;
     writeln("ADDUP - Computer and human sum up numbers to reach a goal number.");

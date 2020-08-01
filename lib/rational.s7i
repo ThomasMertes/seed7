@@ -306,6 +306,9 @@ const func integer: compare (in rational: rat1, in rational: rat2) is func
   end func;
 
 
+(**
+ *  Return the hash value of a rational.
+ *)
 const func integer: hashCode (in rational: rat) is
   return rat.numerator * rat.denominator;
 

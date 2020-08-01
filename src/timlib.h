@@ -28,11 +28,13 @@
 #ifdef ANSI_C
 
 objecttype tim_await (listtype);
+objecttype tim_from_timestamp (listtype);
 objecttype tim_now (listtype);
 
 #else
 
 objecttype tim_await ();
+objecttype tim_from_timestamp ();
 objecttype tim_now ();
 
 #endif

@@ -1533,8 +1533,7 @@ const proc: main is func
     KEYBOARD := GRAPH_KEYBOARD;
     screen := open(curr_win);
     panel := open(curr_win, 0, Y_MAXIMUM + 11);
-    IN := KEYBOARD;
-    IN := open_echo(IN, screen);
+    IN := open_echo(KEYBOARD, screen);
     IN := open_line(IN);
     quit_program := FALSE;
     sound_on := TRUE;

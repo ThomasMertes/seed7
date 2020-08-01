@@ -1,3 +1,17 @@
+20090816:
+- The chapters explaining external files, the KEYBOARD file, files with line structure
+  and sockets in the manual were added or improved.
+- The function timestamp1970ToTime was added to the 'time.s7i' library.
+- The tarx.sd7 example program was improved.
+- Documentation comments in the libraries rational.s7i, bigrat.s7i, keybd.s7i,
+  socket.s7i and time.s7i were improved.
+- The function alternate_utime was introduced to allow changing the access and
+  modification times of directories under windows. 
+- The makefiles mk_bcc32.mak, mk_mingw.mak, mk_msvc.mak, mk_msys.mak and mk_nmake.mak
+  were improved to support alternate_utime.
+- The type 'screen_keybd_file' was renamed to 'console_keybd_file' and the keyboard file
+  'SCREEN_KEYBOARD' was renamed to 'CONSOLE_KEYBOARD' in the file 'keybd.s7i'.
+
 20090802:
 - The FAQ about static type checking was improved.
 - The chapters explaining the for-each statement and the types integer, hash and set in

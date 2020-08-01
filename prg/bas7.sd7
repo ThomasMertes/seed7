@@ -5673,10 +5673,9 @@ const proc: exec_screen (inout string: symbol, inout string: line) is func
           # curr_win := PRIMITIVE_WINDOW.value;
           scr := open(SCREEN);
           win := open_window(scr, 1, 1, 35, 150);
-          KEYBOARD := SCREEN_KEYBOARD;
+          KEYBOARD := CONSOLE_KEYBOARD;
           OUT := win;
-          IN := KEYBOARD;
-          IN := open_echo(IN, OUT);
+          IN := open_echo(KEYBOARD, OUT);
           IN := open_line(IN);
           screenMode := newScreenMode;
 
@@ -5735,8 +5734,7 @@ const proc: exec_screen (inout string: symbol, inout string: line) is func
         scr := open(curr_win);
         KEYBOARD := GRAPH_KEYBOARD;
         OUT := win;
-        IN := KEYBOARD;
-        IN := open_echo(IN, OUT);
+        IN := open_echo(KEYBOARD, OUT);
         IN := open_line(IN);
       end if;
     end if;
@@ -8097,8 +8095,7 @@ const proc: main is func
           cursor(scr, TRUE);
           win := open_window(scr, 1, 1, 35, 150);
           OUT := win;
-          IN := KEYBOARD;
-          IN := open_echo(IN, OUT);
+          IN := open_echo(KEYBOARD, OUT);
           IN := open_line(IN);
           run_prog;
           if doPauseAtEnd then

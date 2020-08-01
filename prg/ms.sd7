@@ -611,8 +611,12 @@ const proc: play_round is func
       end if;
       if marked_mine_counter = 0 and real_mine_counter = 0 then
         congratulation;
+        repeat
+          command := getc(KEYBOARD);
+        until command = 'q' or command = 'n' or command = KEY_NL;
+      else
+        read_command(line, column);
       end if;
-      read_command(line, column);
     end while;
   end func;
 

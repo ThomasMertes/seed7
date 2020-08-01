@@ -255,7 +255,7 @@ inttype time_zone;
     biginttype result;
 
   /* timToBigTimestamp */
-    os_timestamp = timToTimestamp (year, month, day, hour, min, sec, mycro_sec, time_zone);
+    os_timestamp = timToTimestamp(year, month, day, hour, min, sec, mycro_sec, time_zone);
     if (sizeof(time_t) == 8) {
       result = bigFromInt64((int64type) os_timestamp);
     } else {

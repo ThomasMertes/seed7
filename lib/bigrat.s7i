@@ -258,6 +258,9 @@ const func integer: compare (in bigRational: rat1, in bigRational: rat2) is func
   end func;
 
 
+(**
+ *  Return the hash value of a bigRational.
+ *)
 const func integer: hashCode (in bigRational: rat) is
   return hashCode(rat.numerator) * hashCode(rat.denominator);
 

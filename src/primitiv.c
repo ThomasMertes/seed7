@@ -739,6 +739,7 @@ static primactrecord prim_act_table[] = {
     { "STR_VALUE",           str_value,           },
 
     { "TIM_AWAIT",           tim_await,           },
+    { "TIM_FROM_TIMESTAMP",  tim_from_timestamp,  },
     { "TIM_NOW",             tim_now,             },
 
 

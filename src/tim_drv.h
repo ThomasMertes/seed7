@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/tim_drv.h                                       */
-/*  Changes: 1992, 1993, 1994  Thomas Mertes                        */
+/*  Changes: 1992, 1993, 1994, 2009  Thomas Mertes                  */
 /*  Content: Prototypes for time handling functions.                */
 /*                                                                  */
 /********************************************************************/
@@ -43,6 +43,9 @@ void timNow (inttype *year, inttype *month, inttype *day, inttype *hour,
 #ifdef USE_ALTERNATE_LOCALTIME_R
 struct tm *alternate_localtime_r (time_t *utc_seconds, struct tm *tm_result);
 #endif
+#ifdef USE_ALTERNATE_UTIME
+int alternate_utime (wchar_t *os_path, os_utimbuf_struct *utime_buf);
+#endif
 
 #else
 
@@ -50,6 +53,9 @@ void timAwait ();
 void timNow ();
 #ifdef USE_ALTERNATE_LOCALTIME_R
 struct tm *alternate_localtime_r ();
+#endif
+#ifdef USE_ALTERNATE_UTIME
+int alternate_utime ();
 #endif
 
 #endif

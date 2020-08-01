@@ -140,6 +140,7 @@ version.h:
 	echo "#define USE_DIRENT" >> version.h
 	echo "#define PATH_DELIMITER '\\\\'" >> version.h
 	echo "#define CATCH_SIGNALS" >> version.h
+	echo "#define USE_ALTERNATE_UTIME" >> version.h
 	echo "#undef  USE_MMAP" >> version.h
 	echo "#undef  INCL_NCURSES_TERM" >> version.h
 	echo "#undef  INCL_CURSES_BEFORE_TERM" >> version.h
@@ -162,7 +163,8 @@ version.h:
 	echo "#define os_stat_struct struct _stati64" >> version.h
 	echo "#define os_chown(name,uid,gid)" >> version.h
 	echo "#define os_chmod _wchmod" >> version.h
-	echo "#define os_utime _wutime" >> version.h
+	echo "#define os_utime_orig _wutime" >> version.h
+	echo "#define os_utime alternate_utime" >> version.h
 	echo "#define os_utimbuf_struct struct _utimbuf" >> version.h
 	echo "#define os_remove _wremove" >> version.h
 	echo "#define os_rename _wrename" >> version.h

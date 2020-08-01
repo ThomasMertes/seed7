@@ -70,6 +70,7 @@
 #include "fil_rtl.h"
 #include "dir_rtl.h"
 #include "tim_rtl.h"
+#include "tim_drv.h"
 #include "big_drv.h"
 #include "rtl_err.h"
 
@@ -1194,6 +1195,7 @@ booltype *is_dst;
       stat_result = os_stat(os_path, &stat_buf);
       os_path_free(os_path);
       if (stat_result == 0) {
+        /* printf("cmdGetATime: st_atime=%ld\n", stat_buf.st_atime); */
         timFromTimestamp(stat_buf.st_atime,
             year, month, day, hour,
             min, sec, mycro_sec, time_zone, is_dst);
@@ -1249,6 +1251,7 @@ booltype *is_dst;
       stat_result = os_stat(os_path, &stat_buf);
       os_path_free(os_path);
       if (stat_result == 0) {
+        /* printf("cmdGetCTime: st_ctime=%ld\n", stat_buf.st_ctime); */
         timFromTimestamp(stat_buf.st_ctime,
             year, month, day, hour,
             min, sec, mycro_sec, time_zone, is_dst);
@@ -1306,6 +1309,7 @@ booltype *is_dst;
       stat_result = os_stat(os_path, &stat_buf);
       os_path_free(os_path);
       if (stat_result == 0) {
+        /* printf("cmdGetMTime: st_mtime=%ld\n", stat_buf.st_mtime); */
         timFromTimestamp(stat_buf.st_mtime,
             year, month, day, hour,
             min, sec, mycro_sec, time_zone, is_dst);
@@ -1572,6 +1576,7 @@ inttype time_zone;
       if (os_stat(os_path, &stat_buf) == 0) {
         utime_buf.actime = timToTimestamp(year, month, day, hour,
             min, sec, mycro_sec, time_zone);
+        /* printf("cmdSetATime: actime=%ld\n", utime_buf.actime); */
         utime_buf.modtime = stat_buf.st_mtime;
         if (os_utime(os_path, &utime_buf) != 0) {
           err_info = FILE_ERROR;
@@ -1621,6 +1626,7 @@ inttype time_zone;
         utime_buf.actime = stat_buf.st_atime;
         utime_buf.modtime = timToTimestamp(year, month, day, hour,
             min, sec, mycro_sec, time_zone);
+        /* printf("cmdSetMTime: modtime=%ld\n", utime_buf.modtime); */
         if (os_utime(os_path, &utime_buf) != 0) {
           err_info = FILE_ERROR;
         } /* if */

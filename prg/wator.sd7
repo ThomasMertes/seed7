@@ -549,8 +549,7 @@ const proc: main is func
     scr := open(curr_win);
     info := open_window(scr, 1, 70, height(scr), width(scr) - 70);
     KEYBOARD := GRAPH_KEYBOARD;
-    IN := KEYBOARD;
-    IN := open_echo(IN, info);
+    IN := open_echo(KEYBOARD, info);
     IN := open_line(IN);
     introduction;
     inchar := upper(getc(KEYBOARD));

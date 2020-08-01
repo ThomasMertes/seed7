@@ -77,6 +77,58 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype tim_from_timestamp (listtype arguments)
+#else
+
+objecttype tim_from_timestamp (arguments)
+listtype arguments;
+#endif
+
+  {
+    booltype is_dst;
+
+  /* tim_from_timestamp */
+    isit_int(arg_1(arguments));
+    isit_int(arg_2(arguments));
+    isit_int(arg_3(arguments));
+    isit_int(arg_4(arguments));
+    isit_int(arg_5(arguments));
+    isit_int(arg_6(arguments));
+    isit_int(arg_7(arguments));
+    isit_int(arg_8(arguments));
+    isit_int(arg_9(arguments));
+    isit_bool(arg_10(arguments));
+    timFromTimestamp(arg_1(arguments)->value.intvalue,
+                    &arg_2(arguments)->value.intvalue,
+                    &arg_3(arguments)->value.intvalue,
+                    &arg_4(arguments)->value.intvalue,
+                    &arg_5(arguments)->value.intvalue,
+                    &arg_6(arguments)->value.intvalue,
+                    &arg_7(arguments)->value.intvalue,
+                    &arg_8(arguments)->value.intvalue,
+                    &arg_9(arguments)->value.intvalue,
+                    &is_dst);
+    if (is_dst) {
+      arg_10(arguments)->value.objvalue = SYS_TRUE_OBJECT;
+    } else {
+      arg_10(arguments)->value.objvalue = SYS_FALSE_OBJECT;
+    } /* if */
+/*  fprintf(stderr, "timestamp %10ld  %04ld/%02ld/%02ld %02ld:%02ld:%02ld %7ld\n",
+        arg_1(arguments)->value.intvalue,
+        arg_2(arguments)->value.intvalue,
+        arg_3(arguments)->value.intvalue,
+        arg_4(arguments)->value.intvalue,
+        arg_5(arguments)->value.intvalue,
+        arg_6(arguments)->value.intvalue,
+        arg_7(arguments)->value.intvalue,
+        arg_8(arguments)->value.intvalue); */
+    return(SYS_EMPTY_OBJECT);
+  } /* tim_from_timestamp */
+
+
+
+#ifdef ANSI_C
+
 objecttype tim_now (listtype arguments)
 #else
 

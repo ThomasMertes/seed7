@@ -35,9 +35,17 @@
 #include "string.h"
 #include "time.h"
 #include "windows.h"
+#include "sys/stat.h"
+#ifdef INCLUDE_SYS_UTIME
+#include "sys/utime.h"
+#else
+#include "utime.h"
+#endif
+#include "errno.h"
 
 #include "common.h"
 #include "tim_rtl.h"
+#include "fil_rtl.h"
 #include "rtl_err.h"
 
 #undef EXTERN
@@ -244,4 +252,54 @@ struct tm *tm_result;
     tm_result->tm_isdst = mkutc(tm_result) - *utc_seconds != time_zone_seconds;
     return(tm_result);
   } /* alternate_localtime_r */
+#endif
+
+
+
+#ifdef USE_ALTERNATE_UTIME
+#ifdef ANSI_C
+
+int alternate_utime (wchar_t *os_path, os_utimbuf_struct *utime_buf)
+#else
+
+int alternate_utime (os_path)
+wchar_t *os_path;
+os_utimbuf_struct *utime_buf;
+#endif
+
+  {
+    os_stat_struct stat_buf;
+    HANDLE filehandle;
+    union {
+      uint64type nanosecs100; /*time since 1 Jan 1601 in 100ns units */
+      FILETIME filetime;
+    } actime, modtime;
+    int result;
+
+  /* alternate_utime */
+    result = os_utime_orig(os_path, utime_buf);
+    if (result != 0 && errno == EACCES) {
+      if (os_stat(os_path, &stat_buf) == 0 && S_ISDIR(stat_buf.st_mode)) {
+        /* printf("old ctime=%ld\n", stat_buf.st_ctime);
+           printf("old atime=%ld\n", stat_buf.st_atime);
+           printf("old mtime=%ld\n", stat_buf.st_mtime); */
+        filehandle = CreateFileW(os_path, GENERIC_WRITE,
+                                 FILE_SHARE_READ | FILE_SHARE_DELETE, NULL,
+                                 OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
+        if (filehandle != INVALID_HANDLE_VALUE) {
+          /* The case of utime_buf == NULL is not considered,   */
+          /* since alternate_utime will never be used this way. */
+          actime.nanosecs100 = (utime_buf->actime + SECONDS_1601_1970) * 10000000;
+          modtime.nanosecs100 = (utime_buf->modtime + SECONDS_1601_1970) * 10000000;
+          /* printf("actime=%ld %Ld\n", utime_buf->actime, actime.nanosecs100);
+             printf("modtime=%ld %Ld\n", utime_buf->modtime, modtime.nanosecs100); */
+          if (SetFileTime(filehandle, NULL, &actime.filetime, &modtime.filetime) != 0) {
+            result = 0;
+          } /* if */
+          CloseHandle(filehandle);
+        } /* if */
+      } /* if */
+    } /* if */
+    return(result);
+  } /* alternate_utime */
 #endif

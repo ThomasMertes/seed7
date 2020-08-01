@@ -310,7 +310,7 @@ const proc: listen (in listener: aListener, in integer: backlog) is func
 
 
 (**
- *  Return an new accepted connection socket on a 'aListener'.
+ *  Return a new accepted connection socket on a 'aListener'.
  *)
 const func file: accept (in listener: aListener) is func
   result
