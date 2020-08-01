@@ -963,6 +963,33 @@ objecttype obj_arg;
 
 #ifdef ANSI_C
 
+wintype drwValue (objecttype obj_arg)
+#else
+
+wintype drwValue (obj_arg)
+objecttype obj_arg;
+#endif
+
+  {
+    wintype win_value;
+
+  /* drwValue */
+    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != WINOBJECT) {
+      raise_error(RANGE_ERROR);
+      return NULL;
+    } else {
+      win_value = take_win(obj_arg);
+      if (win_value != NULL) {
+        win_value->usage_count++;
+      } /* if */
+      return win_value;
+    } /* if */
+  } /* drwValue */
+
+
+
+#ifdef ANSI_C
+
 filetype filValue (objecttype obj_arg)
 #else
 

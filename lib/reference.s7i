@@ -116,9 +116,9 @@ const proc: TRACE_REF (in reference param) is  action "REF_TRACE";
 
 const func type: get_type (in reference: type_ref) is func
   result
-    var type: result is void;
+    var type: aType is void;
   begin
     if type_ref <> NIL and getType(type_ref) = type then
-      result := getValue(type_ref, type);
+      aType := getValue(type_ref, type);
     end if;
   end func;

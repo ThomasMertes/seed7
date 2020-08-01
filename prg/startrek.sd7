@@ -406,10 +406,10 @@ const proc: write_phaser_hit (in integer: number, in float: unit_hit,
 
 const func float: klingon_distance (in integer: number) is func
   result
-    var float: result is 0.0;
+    var float: distance is 0.0;
   begin
-    result := sqrt(flt((klingonRow[number] - sectorRow) ** 2 +
-                       (klingonColumn[number] - sectorColumn) ** 2));
+    distance := sqrt(flt((klingonRow[number] - sectorRow) ** 2 +
+                         (klingonColumn[number] - sectorColumn) ** 2));
   end func;  (* klingon_distance *)
 
 

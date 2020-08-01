@@ -31,6 +31,7 @@ include "bstring.s7i";
 include "bigint.s7i";
 include "float.s7i";
 include "external_file.s7i";
+include "graph.s7i";
 include "poll.s7i";
 
 
@@ -231,6 +232,8 @@ const func ref_list: getValue (ref reference param, attr ref_list)      is actio
 const func bigInteger: getValue (ref reference param, attr bigInteger)  is action "BIG_VALUE";
 const func float: getValue (ref reference param, attr float)            is action "FLT_VALUE";
 const func reference: getValue (ref reference param, attr reference)    is action "REF_VALUE";
+const func PRIMITIVE_WINDOW: getValue (ref reference param,
+                                       attr PRIMITIVE_WINDOW)           is action "DRW_VALUE";
 # const func type: getValue (in reference param, attr type)               is action "TYP_VALUE";
 (*
 const func integer: integer (ref reference param)                       is action "INT_VALUE";

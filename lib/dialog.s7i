@@ -60,7 +60,7 @@ const proc: writeButton (inout text: messageFile,
  *)
 const func boolean: isOkay (in array string: messagText) is func
   result
-    var boolean: result is FALSE;
+    var boolean: okay is FALSE;
   local
     const integer: charHeight is 16;
     const integer: charWidth  is  8;
@@ -118,10 +118,10 @@ const func boolean: isOkay (in array string: messagText) is func
         yPos := getypos(KEYBOARD);
         if yPos >= buttonYPos  and yPos <= buttonYPos + 20 then
           if xPos >= yesButtonXPos and xPos <= yesButtonXPos + 40 then
-            result := TRUE;
+            okay := TRUE;
             finished := TRUE;
           elsif xPos >= noButtonXPos and xPos <= noButtonXPos + 40 then
-            result := FALSE;
+            okay := FALSE;
             finished := TRUE;
           end if;
         end if;
@@ -134,10 +134,10 @@ const func boolean: isOkay (in array string: messagText) is func
         box(popupWindow, pred(noButtonXPos), pred(buttonYPos), 43, 23, black);
         yesButtonActive := FALSE;
       elsif ch = KEY_NL then
-        result := yesButtonActive;
+        okay := yesButtonActive;
         finished := TRUE;
       elsif ch = 'Y' or ch = 'N' then
-        result := ch = 'Y';
+        okay := ch = 'Y';
         finished := TRUE;
       end if;
       if not finished then

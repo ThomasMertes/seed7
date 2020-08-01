@@ -30,13 +30,13 @@ const type: xmlEntityHashType is hash [string] string;
 
 const func xmlEntityHashType: genPredeclaredXmlEntities is func
   result
-    var xmlEntityHashType: result is xmlEntityHashType.value;
+    var xmlEntityHashType: entityHash is xmlEntityHashType.value;
   begin
-    result @:= ["quot"] "\"";
-    result @:= ["amp"]  "&";
-    result @:= ["apos"] "'";
-    result @:= ["lt"]   "<";
-    result @:= ["gt"]   ">";
+    entityHash @:= ["quot"] "\"";
+    entityHash @:= ["amp"]  "&";
+    entityHash @:= ["apos"] "'";
+    entityHash @:= ["lt"]   "<";
+    entityHash @:= ["gt"]   ">";
   end func;
 
 const xmlEntityHashType: predeclaredXmlEntities is genPredeclaredXmlEntities;
@@ -49,7 +49,7 @@ const xmlEntityHashType: predeclaredXmlEntities is genPredeclaredXmlEntities;
  *)
 const func string: decodeXmlEntities (in string: stri, in xmlEntityHashType: xmlEntityHash) is func
   result
-    var string: result is "";
+    var string: decoded is "";
   local
     var integer: old_pos is 1;
     var integer: new_pos is 0;
@@ -65,29 +65,29 @@ const func string: decodeXmlEntities (in string: stri, in xmlEntityHashType: xml
         if length(entityName) >= 2 and entityName[1] = '#' and
             isDigitString(entityName[2 ..]) then
           entityValue := str(chr(integer parse (entityName[2 ..])));
-          result &:= stri[old_pos .. pred(new_pos)];
-          result &:= entityValue;
+          decoded &:= stri[old_pos .. pred(new_pos)];
+          decoded &:= entityValue;
           old_pos := succ(semicol_pos);
         elsif length(entityName) >= 3 and entityName[1 .. 2] = "#x" and
             isDigitString(entityName[3 ..], 16) then
           entityValue := str(chr(toInt(entityName[3 ..], 16)));
-          result &:= stri[old_pos .. pred(new_pos)];
-          result &:= entityValue;
+          decoded &:= stri[old_pos .. pred(new_pos)];
+          decoded &:= entityValue;
           old_pos := succ(semicol_pos);
         elsif entityName in xmlEntityHash then
           entityValue := xmlEntityHash[entityName];
-          result &:= stri[old_pos .. pred(new_pos)];
-          result &:= entityValue;
+          decoded &:= stri[old_pos .. pred(new_pos)];
+          decoded &:= entityValue;
           old_pos := succ(semicol_pos);
         else
-          result &:= stri[old_pos .. new_pos];
+          decoded &:= stri[old_pos .. new_pos];
           old_pos := succ(new_pos);
         end if;
       else
-        result &:= stri[old_pos .. new_pos];
+        decoded &:= stri[old_pos .. new_pos];
         old_pos := succ(new_pos);
       end if;
       new_pos := pos(stri, '&', old_pos);
     end while;
-    result &:= stri[old_pos ..];
+    decoded &:= stri[old_pos ..];
   end func;

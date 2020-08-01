@@ -1820,28 +1820,28 @@ const proc: conv2unicode (inout string: stri, in string: codePage) is func
 
 (**
  *  Convert a [[string]] with bytes in UTF-16BE encoding to UTF-32.
- *  When the function is called ''stri'' is assumed to be a [[string]]
- *  of bytes. The byte sequence in ''stri'' is encoded with UTF-16
+ *  When the function is called ''utf16be'' is assumed to be a [[string]]
+ *  of bytes. The byte sequence in ''utf16be'' is encoded with UTF-16
  *  in big endian byte order.
- *  @return ''stri'' converted to normal (UTF-32) [[string]].
+ *  @return ''utf16be'' converted to normal (UTF-32) [[string]].
  *  @exception RANGE_ERROR If an illegal surrogate pair is found.
  *)
-const func string: utf16beToStri (in string: stri) is func
+const func string: utf16beToStri (in string: utf16be) is func
   result
-    var string: result is "";
+    var string: stri is "";
   local
     var integer: index is 0;
     var char: ch1 is ' ';
     var char: ch2 is ' ';
   begin
-    for index range 1 to length(stri) div 2 do
-      ch1 := chr(ord(stri[pred(index * 2)]) * 256 + ord(stri[index * 2]));
+    for index range 1 to length(utf16be) div 2 do
+      ch1 := chr(ord(utf16be[pred(index * 2)]) * 256 + ord(utf16be[index * 2]));
       if ch1 >= '\16#D800\' and ch1 <= '\16#DBFF\' then
-        if index < length(stri) div 2 then
+        if index < length(utf16be) div 2 then
           incr(index);
-          ch2 := chr(ord(stri[pred(index * 2)]) * 256 + ord(stri[index * 2]));
+          ch2 := chr(ord(utf16be[pred(index * 2)]) * 256 + ord(utf16be[index * 2]));
           if ch2 >= '\16#DC00\' and ch2 <= '\16#DFFF\' then
-            result &:= str(chr((ord(ch1) - 16#D800) << 10 +
+            stri &:= str(chr((ord(ch1) - 16#D800) << 10 +
                                (ord(ch2) - 16#DC00) + 16#10000));
           else
             raise RANGE_ERROR;
@@ -1850,7 +1850,7 @@ const func string: utf16beToStri (in string: stri) is func
           raise RANGE_ERROR;
         end if;
       else
-        result &:= str(ch1);
+        stri &:= str(ch1);
       end if;
     end for;
   end func;
@@ -1858,28 +1858,28 @@ const func string: utf16beToStri (in string: stri) is func
 
 (**
  *  Convert a [[string]] with bytes in UTF-16LE encoding to UTF-32.
- *  When the function is called ''stri'' is assumed to be a [[string]]
- *  of bytes. The byte sequence in ''stri'' is encoded with UTF-16
+ *  When the function is called ''utf16le'' is assumed to be a [[string]]
+ *  of bytes. The byte sequence in ''utf16le'' is encoded with UTF-16
  *  in little endian byte order.
- *  @return ''stri'' converted to normal (UTF-32) [[string]].
+ *  @return ''utf16le'' converted to normal (UTF-32) [[string]].
  *  @exception RANGE_ERROR If an illegal surrogate pair is found.
  *)
-const func string: utf16leToStri (in string: stri) is func
+const func string: utf16leToStri (in string: utf16le) is func
   result
-    var string: result is "";
+    var string: stri is "";
   local
     var integer: index is 0;
     var char: ch1 is ' ';
     var char: ch2 is ' ';
   begin
-    for index range 1 to length(stri) div 2 do
-      ch1 := chr(ord(stri[index * 2]) * 256 + ord(stri[pred(index * 2)]));
+    for index range 1 to length(utf16le) div 2 do
+      ch1 := chr(ord(utf16le[index * 2]) * 256 + ord(utf16le[pred(index * 2)]));
       if ch1 >= '\16#D800\' and ch1 <= '\16#DBFF\' then
-        if index < length(stri) div 2 then
+        if index < length(utf16le) div 2 then
           incr(index);
-          ch2 := chr(ord(stri[index * 2]) * 256 + ord(stri[pred(index * 2)]));
+          ch2 := chr(ord(utf16le[index * 2]) * 256 + ord(utf16le[pred(index * 2)]));
           if ch2 >= '\16#DC00\' and ch2 <= '\16#DFFF\' then
-            result &:= str(chr((ord(ch1) - 16#D800) << 10 +
+            stri &:= str(chr((ord(ch1) - 16#D800) << 10 +
                                (ord(ch2) - 16#DC00) + 16#10000));
           else
             raise RANGE_ERROR;
@@ -1888,7 +1888,7 @@ const func string: utf16leToStri (in string: stri) is func
           raise RANGE_ERROR;
         end if;
       else
-        result &:= str(ch1);
+        stri &:= str(ch1);
       end if;
     end for;
   end func;

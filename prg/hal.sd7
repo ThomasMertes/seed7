@@ -28,6 +28,7 @@ $ include "seed7_05.s7i";
   include "window.s7i";
   include "keybd.s7i";
   include "time.s7i";
+  include "duration.s7i";
 
 var text: scr is STD_NULL;
 var text: camera is STD_NULL;
@@ -243,7 +244,7 @@ const proc: main is func
         when {4}: focus_4(camera);
       end case;
       flush(scr);
-(*    await(time(NOW) + 1 . SECONDS); *)
+      await(time(NOW) + 500000 . MICRO_SECONDS);
     end while;
     setPos(scr, 24, 1);
   end func;

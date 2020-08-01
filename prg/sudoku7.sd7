@@ -540,23 +540,23 @@ const array string: candidates_pic is [](
 
 const func color: charColor (in char: ch) is func
   result
-    var color: result is black;
+    var color: col is black;
   begin
     case ch of
-      when {' '}: result := black;
-      when {'R'}: result := light_red;
-      when {'G'}: result := light_green;
-      when {'B'}: result := light_blue;
-      when {'Y'}: result := yellow;
-      when {'M'}: result := light_magenta;
-      when {'O'}: result := orange;
-      when {'r'}: result := dark_red;
-      when {'g'}: result := dark_green;
-      when {'c'}: result := light_cyan;
-      when {'X'}: result := white;
-      when {'x'}: result := light_gray;
-      when {'b'}: result := brown;
-      otherwise:  result := black;
+      when {' '}: col := black;
+      when {'R'}: col := light_red;
+      when {'G'}: col := light_green;
+      when {'B'}: col := light_blue;
+      when {'Y'}: col := yellow;
+      when {'M'}: col := light_magenta;
+      when {'O'}: col := orange;
+      when {'r'}: col := dark_red;
+      when {'g'}: col := dark_green;
+      when {'c'}: col := light_cyan;
+      when {'X'}: col := white;
+      when {'x'}: col := light_gray;
+      when {'b'}: col := brown;
+      otherwise:  col := black;
     end case;
   end func;
 

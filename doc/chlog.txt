@@ -1,3 +1,35 @@
+20121221:
+- The Seed7 compiler (s7c) was improved to support constant pixmaps
+  (constants with the type PRIMITIVE_WINDOW).
+- The Seed7 compiler was improved to omit array constant
+  declarations and initialisations for unused array constants.
+- Result variables were renamed in various libraries and example
+  programs.
+- The function DRAW_GETPIXEL in graph.s7i was renamed to getPixel.
+- The function imagePixmap in draw.s7i was changed to have one
+  parameter instead of two.
+- Pictures of a grating and a vampire were removed from castle.sd7,
+  pairs.sd7 and shisen.sd7 and added to pic16.s7i and pic32.s7i.
+- The function getValue was overloaded for PRIMITIVE_WINDOW values
+  in the library progs.s7i.
+- Documention comments were added to the operators & and <& in the
+  library string.s7i.
+- Interpreter and compiler were improved to support the action
+  DRW_VALUE. The function drw_value was added to drwlib.c and the
+  function drwValue was added to ref_data.c.
+- The functions drw_cpy and drwCpy in drwlib.c respectively drw_rtl.c
+  were improved to manage the usage_count for assignments like A := A
+  correctly.
+- The new function drwRtlImage was added to drw_rtl.c.
+- A check for the window close button (X) was added to the function
+  gkbKeyPressed in drw_win.c.
+- The dummy function drwImage in drw_win.c was replaced with a real
+  implementation of drwImage.
+- The function drwImage was changed to have one parameter instead of
+  two in drw_drv.h, drw_dos.c, drw_win.c and drw_x11.c.
+- The function drwImage in drw_x11.c was improved to call dra_init(),
+  when necessary.
+
 20121212:
 - The Seed7 compiler was renamed. The new name of the Seed7 compiler
   is s7c.

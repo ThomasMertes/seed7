@@ -72,25 +72,6 @@ var integer: playerHits is 0;
 var integer: computerHits is 0;
 
 
-const array string: small_bush_pic is [](
-  "     G GG       ",
-  "   G  GG  GG  G ",
-  " G  G  G G   G  ",
-  "  GGGG GG G GGG ",
-  "      GG  GGG   ",
-  " GGG   G G   GG ",
-  "   GGG GG GG GGG",
-  " G  G GG  G G   ",
-  " G  GG G  GG G G",
-  "GG GG Gg  g  GG ",
-  " G  g  g g   G  ",
-  "GGG  g ggGG GGGG",
-  "   g  gg   g    ",
-  "    g  g  gGG   ",
-  "     g g g      ",
-  "      ggg       ");
-
-
 const array string: big_bush_pic is [](
   "     G G  GG  G  G   G G        ",
   "      GG   G  G G    GGGGG      ",
@@ -124,44 +105,6 @@ const array string: big_bush_pic is [](
   "       GGGGbb bb bb     G       ",
   "            bbbbbbGGGG          ",
   "             bbbb               ");
-
-
-const array string: vampire_pic is [](
-  "      bbbb      ",
-  "     bbbbbb     ",
-  "     bBxxBb     ",
-  "XX   xxxxxx   XX",
-  "Xx   xXXXXx   xX",
-  " xx   XxxX   xx ",
-  "  xxggggggggxx  ",
-  "  bxggggggggxb  ",
-  "  bbggggggggbb  ",
-  "  bbggggggggbb  ",
-  "  bbggggggggbb  ",
-  "  bbbxxbbxxbbb  ",
-  "  bbbxxbbxxbbb  ",
-  "  bbbxxbbxxbbb  ",
-  "     xx  xx     ",
-  "   rrrr  rrrr   ");
-
-
-const array string: door_pic is [](
-  "BBBBBBBBBBBBBBBB",
-  "B  B  B  B  B  B",
-  "B  B  B  B  B  B",
-  "BBBBBBBBBBBBBBBB",
-  "B  B  B  B  B  B",
-  "B  B  B  B  B  B",
-  "BBBBBBBBBBBBBBBB",
-  "B  B  B  B  B  B",
-  "B  B  B  B  B  B",
-  "BBBBBBBBBBBBBBBB",
-  "B  B  B  B  B  B",
-  "B  B  B  B  B  B",
-  "BBBBBBBBBBBBBBBB",
-  "B  B  B  B  B  B",
-  "B  B  B  B  B  B",
-  "BBBBBBBBBBBBBBBB");
 
 
 const array string: large_gem_pic is [](
@@ -621,17 +564,7 @@ var array cardType: cards is [](
     genCard(necklace_pic),
     genCard(holy_cross_pic),
     genCard(diamond_pic),
-    genCard(silver_bars_pic),
-    genCard(ruby_pic),
-    genCard(jade_figurine_pic),
-    genCard(bat_pic),
-    genCard(goldbar_pic),
-    genCard(goblet_pic),
-    genCard(statue_pic),
-    genCard(door_pic),
-    genCard(vampire_pic),
-    genCard(ogre_pic),
-    genCard(demon_pic)
+    genCard(silver_bars_pic)
   );
 
 var array array fieldType: field is 0 times 0 times fieldType.value;
@@ -639,23 +572,23 @@ var array array fieldType: field is 0 times 0 times fieldType.value;
 
 const func color: charColor (in char: ch) is func
   result
-    var color: result is black;
+    var color: col is black;
   begin
     case ch of
-      when {' '}: result := black;
-      when {'R'}: result := light_red;
-      when {'G'}: result := light_green;
-      when {'B'}: result := light_blue;
-      when {'Y'}: result := yellow;
-      when {'M'}: result := light_magenta;
-      when {'O'}: result := orange;
-      when {'r'}: result := dark_red;
-      when {'g'}: result := dark_green;
-      when {'c'}: result := light_cyan;
-      when {'X'}: result := white;
-      when {'x'}: result := light_gray;
-      when {'b'}: result := brown;
-      otherwise:  result := black;
+      when {' '}: col := black;
+      when {'R'}: col := light_red;
+      when {'G'}: col := light_green;
+      when {'B'}: col := light_blue;
+      when {'Y'}: col := yellow;
+      when {'M'}: col := light_magenta;
+      when {'O'}: col := orange;
+      when {'r'}: col := dark_red;
+      when {'g'}: col := dark_green;
+      when {'c'}: col := light_cyan;
+      when {'X'}: col := white;
+      when {'x'}: col := light_gray;
+      when {'b'}: col := brown;
+      otherwise:  col := black;
     end case;
   end func;
 
@@ -813,7 +746,7 @@ const proc: unmarkAll is func
 
 const func integer: countCards is func
   result
-    var integer: result is 0;
+    var integer: count is 0;
   local
     var integer: line is 0;
     var integer: column is 0;
@@ -821,7 +754,7 @@ const func integer: countCards is func
     for line range 1 to length(field) do
       for column range 1 to length(field[line]) do
         if field[line][column].visible <> removed then
-          incr(result);
+          incr(count);
         end if;
       end for;
     end for;
@@ -867,7 +800,7 @@ const proc: vertical (in integer: column, in integer: line1, in integer: line2,
 
 const func boolean: line_free (in integer: line, in integer: column1, in integer: column2) is func
   result
-    var boolean: result is FALSE;
+    var boolean: isFree is FALSE;
   local
     var integer: column is 0;
   begin
@@ -876,14 +809,14 @@ const func boolean: line_free (in integer: line, in integer: column1, in integer
       incr(column);
     end while;
     if column > column2 then
-      result := TRUE;
+      isFree := TRUE;
     end if;
   end func;
 
 
 const func boolean: column_free (in integer: column, in integer: line1, in integer: line2) is func
   result
-    var boolean: result is FALSE;
+    var boolean: isFree is FALSE;
   local
     var integer: line is 0;
   begin
@@ -892,7 +825,7 @@ const func boolean: column_free (in integer: column, in integer: line1, in integ
       incr(line);
     end while;
     if line > line2 then
-      result := TRUE;
+      isFree := TRUE;
     end if;
   end func;
 
@@ -1390,7 +1323,7 @@ const proc: playerTurn (inout char: command) is func
 
 const func boolean: solvable is func
   result
-    var boolean: result is FALSE;
+    var boolean: isSolvable is FALSE;
   local
     var integer: line1 is 0;
     var integer: column1 is 0;
@@ -1441,7 +1374,7 @@ const func boolean: solvable is func
         end if;
       end for;
     until searching;
-    result := pairs_present = 0;
+    isSolvable := pairs_present = 0;
   end func;
 
 

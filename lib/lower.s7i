@@ -31,12 +31,14 @@ const type: lower_file is sub null_file struct
   end struct;
 
 
-const func lower_file: open_lower (ref file: aFile) is func
+const func file: open_lower (in file: aFile) is func
   result
-    var lower_file: result is lower_file.value;
+    var file: newFile is STD_NULL;
+  local
+    var lower_file: new_lower_file is lower_file.value;
   begin
-    result := lower_file.value;
-    result.destination_file := aFile;
+    new_lower_file.destination_file := aFile;
+    newFile := toInterface(new_lower_file);
   end func;
 
 

@@ -35,17 +35,18 @@ const type: more_file is sub null_file struct
   end struct;
 
 
-const func more_file: open_more (ref file: out_fil, ref file: cmd_fil,
-    in integer: pg_size) is func
+const func file: open_more (in file: out_fil, in file: cmd_fil, in integer: pg_size) is func
   result
-    var more_file: more_fil is more_file.value;
+    var file: newFile is STD_NULL;
+  local
+    var more_file: new_more_file is more_file.value;
   begin
-    more_fil := more_file.value;
-    more_fil.out_file := out_fil;
-    more_fil.command_file := cmd_fil;
-    more_fil.pagesize := pg_size;
-    more_fil.line := 0;
-    more_fil.active := TRUE;
+    new_more_file.out_file := out_fil;
+    new_more_file.command_file := cmd_fil;
+    new_more_file.pagesize := pg_size;
+    new_more_file.line := 0;
+    new_more_file.active := TRUE;
+    newFile := toInterface(new_more_file);
   end func;
 
 

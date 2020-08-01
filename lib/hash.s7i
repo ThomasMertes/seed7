@@ -267,16 +267,16 @@ const func type: hash [ (in type: keyType) ] (in type: baseType) is func
          *)
         const func hash [baseType] array keyType: flip (in hashType: aHash) is func
           result
-            var hash [baseType] array keyType: result is (hash [baseType] array keyType).value;
+            var hash [baseType] array keyType: inverseHash is (hash [baseType] array keyType).value;
           local
             var keyType: aKey is keyType.value;
             var baseType: aValue is baseType.value;
           begin
             for aValue key aKey range aHash do
-              if aValue in result then
-                result[aValue] &:= aKey;
+              if aValue in inverseHash then
+                inverseHash[aValue] &:= aKey;
               else
-                result @:= [aValue] [] (aKey);
+                inverseHash @:= [aValue] [] (aKey);
               end if;
             end for;
           end func;

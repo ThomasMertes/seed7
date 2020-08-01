@@ -31,16 +31,19 @@ include "file.s7i";
 
 const func string: get_asciiz (in string: stri, inout integer: currPos) is func
   result
-    var string: result is "";
+    var string: resultStri is "";
   local
     var integer: startPos is 0;
   begin
     startPos := currPos;
-    while stri[currPos] <> '\0\' do
+    currPos := pos(stri, '\0\', startPos);
+    if currPos = 0 then
+      resultStri := stri[startPos ..];
+      currPos := succ(length(stri));
+    else
+      resultStri := stri[startPos .. pred(currPos)];
       incr(currPos);
-    end while;
-    result := stri[startPos .. pred(currPos)];
-    incr(currPos);
+    end if;
   end func;
 
 

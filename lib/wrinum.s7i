@@ -32,31 +32,31 @@
  *)
 const func string: str (ROMAN, in integer: number) is func
   result
-    var string: result is "";
+    var string: romanNumber is "";
   local
 
     const func string: str_0_to_9 (in integer: number,
         in string: one, in string: five, in string: ten) is func
       result
-        var string: result is "";
+        var string: romanNumber is "";
       begin
         if number <= 3 then
-          result := one mult number;
+          romanNumber := one mult number;
         else
           if number = 4 then
-            result := one & five;
+            romanNumber := one & five;
           else
             if number <= 8 then
-              result := five & one mult (number - 5);
+              romanNumber := five & one mult (number - 5);
             else
-              result := one & ten;
+              romanNumber := one & ten;
             end if;
           end if;
         end if;
       end func;
 
   begin
-    result :=
+    romanNumber :=
         str_0_to_9(number div 1000,         "M", "?", "?") &
         str_0_to_9((number div 100) rem 10, "C", "D", "M") &
         str_0_to_9((number div 10) rem 10,  "X", "L", "C") &
@@ -70,7 +70,7 @@ const func string: str (ROMAN, in integer: number) is func
  *)
 const func string: str (ENGLISH, in integer: number) is func
   result
-    var string: result is "";
+    var string: englishNumber is "";
   local
     const array string: STR_0_TO_19 is [](
         "zero",      "one",       "two",       "three",     "four",
@@ -149,7 +149,7 @@ const func string: str (ENGLISH, in integer: number) is func
       end func;
 
   begin
-    result := str_1E9(number);
+    englishNumber := str_1E9(number);
   end func;
 
 
@@ -159,7 +159,7 @@ const func string: str (ENGLISH, in integer: number) is func
  *)
 const func string: str (GERMAN, in integer: number) is func
   result
-    var string: result is "";
+    var string: germanNumber is "";
   local
     const array string: STR_0_TO_19 is [](
         "null",      "eins",      "zwei",      "drei",      "vier",
@@ -243,5 +243,5 @@ const func string: str (GERMAN, in integer: number) is func
       end func;
 
   begin
-    result := str_1E9(number);
+    germanNumber := str_1E9(number);
   end func;

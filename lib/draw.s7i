@@ -608,12 +608,7 @@ const func PRIMITIVE_WINDOW: getPixmap (in PRIMITIVE_WINDOW: source_win) is func
 const func PRIMITIVE_WINDOW: newPixmap (in integer: width, in integer: height) is action "DRW_NEW_PIXMAP";
 
 
-const func PRIMITIVE_WINDOW: imagePixmap (ref array array pixel: image) is func
-  result
-    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
-  begin
-    pixmap := DRAW_IMAGE(curr_win, image);
-  end func;
+const func PRIMITIVE_WINDOW: imagePixmap (ref array array pixel: anImage) is action "DRW_IMAGE";
 
 
 const proc: setTransparentColor (in PRIMITIVE_WINDOW: pixmap, in color: col) is func
@@ -633,7 +628,7 @@ const func color: getPixelColor (in PRIMITIVE_WINDOW: aWindow,
   local
     var pixel: pix is pixel.value;
   begin
-    pix := DRAW_GETPIXEL(aWindow, x, y);
+    pix := getPixel(aWindow, x, y);
     DRAW_PIXEL_TO_RGB(pix, col.red_part, col.green_part, col.blue_part);
   end func;
 

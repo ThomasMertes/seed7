@@ -140,7 +140,7 @@ const func string: gets0spc (inout file: inFile, in integer: leng) is func
 
 const func integer: getoct (inout file: inFile, in integer: leng) is func
   result
-    var integer: result is 0;
+    var integer: number is 0;
   local
     var string: stri is "";
   begin
@@ -149,10 +149,10 @@ const func integer: getoct (inout file: inFile, in integer: leng) is func
       stri := stri[2 .. ];
     end while;
     if stri <> "" and stri[1] >= '0' and stri[1] <= '9' then
-      result := ord(stri[1]) - ord('0');
+      number := ord(stri[1]) - ord('0');
       stri := stri[2 .. ];
       while stri <> "" and stri[1] >= '0' and stri[1] <= '9' do
-        result := 8 * result + ord(stri[1]) - ord('0');
+        number := 8 * number + ord(stri[1]) - ord('0');
         stri := stri[2 .. ];
       end while;
     end if;

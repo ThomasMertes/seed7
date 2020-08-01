@@ -44,7 +44,7 @@ include "encoding.s7i";
  *)
 const func hash [string] string: getCgiParameters (in string: paramStri) is func
   result
-    var hash [string] string: result is (hash [string] string).value;
+    var hash [string] string: cgiParameters is (hash [string] string).value;
   local
     var array string: paramArray is 0 times "";
     var integer: index is 0;
@@ -74,7 +74,7 @@ const func hash [string] string: getCgiParameters (in string: paramStri) is func
           catch RANGE_ERROR:
             noop;
         end block;
-        result @:= [name] value;
+        cgiParameters @:= [name] value;
       end if;
     end for;
   end func;
@@ -88,7 +88,7 @@ const func hash [string] string: getCgiParameters (in string: paramStri) is func
  *)
 const func hash [string] string: getCgiParameters (inout file: inFile) is func
   result
-    var hash [string] string: result is (hash [string] string).value;
+    var hash [string] string: cgiParameters is (hash [string] string).value;
   local
     var string: cgiParamLine is "";
   begin
@@ -99,5 +99,5 @@ const func hash [string] string: getCgiParameters (inout file: inFile) is func
       catch RANGE_ERROR:
         noop;
     end block;
-    result := getCgiParameters(cgiParamLine);
+    cgiParameters := getCgiParameters(cgiParamLine);
   end func;

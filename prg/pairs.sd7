@@ -575,25 +575,6 @@ const array string: dig_right_pic is [](
   " XXX XXX     X  ");
 
 
-const array string: small_bush_pic is [](
-  "     G GG       ",
-  "   G  GG  GG  G ",
-  " G  G  G G   G  ",
-  "  GGGG GG G GGG ",
-  "      GG  GGG   ",
-  " GGG   G G   GG ",
-  "   GGG GG GG GGG",
-  " G  G GG  G G   ",
-  " G  GG G  GG G G",
-  "GG GG Gg  g  GG ",
-  " G  g  g g   G  ",
-  "GGG  g ggGG GGGG",
-  "   g  gg   g    ",
-  "    g  g  gGG   ",
-  "     g g g      ",
-  "      ggg       ");
-
-
 const array string: big_bush_pic is [](
   "     G G  GG  G  G   G G        ",
   "      GG   G  G G    GGGGG      ",
@@ -646,44 +627,6 @@ const array string: chain_pic is [](
   "    B  BBBBB  B ",
   "    B   B B   B ",
   "     BBB   BBB  ");
-
-
-const array string: vampire_pic is [](
-  "      bbbb      ",
-  "     bbbbbb     ",
-  "     bBxxBb     ",
-  "XX   xxxxxx   XX",
-  "Xx   xXXXXx   xX",
-  " xx   XxxX   xx ",
-  "  xxggggggggxx  ",
-  "  bxggggggggxb  ",
-  "  bbggggggggbb  ",
-  "  bbggggggggbb  ",
-  "  bbggggggggbb  ",
-  "  bbbxxbbxxbbb  ",
-  "  bbbxxbbxxbbb  ",
-  "  bbbxxbbxxbbb  ",
-  "     xx  xx     ",
-  "   rrrr  rrrr   ");
-
-
-const array string: door_pic is [](
-  "BBBBBBBBBBBBBBBB",
-  "B  B  B  B  B  B",
-  "B  B  B  B  B  B",
-  "BBBBBBBBBBBBBBBB",
-  "B  B  B  B  B  B",
-  "B  B  B  B  B  B",
-  "BBBBBBBBBBBBBBBB",
-  "B  B  B  B  B  B",
-  "B  B  B  B  B  B",
-  "BBBBBBBBBBBBBBBB",
-  "B  B  B  B  B  B",
-  "B  B  B  B  B  B",
-  "BBBBBBBBBBBBBBBB",
-  "B  B  B  B  B  B",
-  "B  B  B  B  B  B",
-  "BBBBBBBBBBBBBBBB");
 
 
 const array string: large_gem_pic is [](
@@ -1220,7 +1163,7 @@ var array cardType: cards is [](
     genCard(goblet_pic),
     genCard(bat_pic),
     genCard(statue_pic),
-    genCard(door_pic),
+    genCard(grating_pic),
     genCard(vampire_pic),
     genCard(ogre_pic),
     genCard(demon_pic),
@@ -1269,23 +1212,23 @@ var array array fieldType: field is 0 times 0 times fieldType.value;
 
 const func color: charColor (in char: ch) is func
   result
-    var color: result is black;
+    var color: col is black;
   begin
     case ch of
-      when {' '}: result := black;
-      when {'R'}: result := light_red;
-      when {'G'}: result := light_green;
-      when {'B'}: result := light_blue;
-      when {'Y'}: result := yellow;
-      when {'M'}: result := light_magenta;
-      when {'O'}: result := orange;
-      when {'r'}: result := dark_red;
-      when {'g'}: result := dark_green;
-      when {'c'}: result := light_cyan;
-      when {'X'}: result := white;
-      when {'x'}: result := light_gray;
-      when {'b'}: result := brown;
-      otherwise:  result := black;
+      when {' '}: col := black;
+      when {'R'}: col := light_red;
+      when {'G'}: col := light_green;
+      when {'B'}: col := light_blue;
+      when {'Y'}: col := yellow;
+      when {'M'}: col := light_magenta;
+      when {'O'}: col := orange;
+      when {'r'}: col := dark_red;
+      when {'g'}: col := dark_green;
+      when {'c'}: col := light_cyan;
+      when {'X'}: col := white;
+      when {'x'}: col := light_gray;
+      when {'b'}: col := brown;
+      otherwise:  col := black;
     end case;
   end func;
 

@@ -106,20 +106,20 @@ const func color: gray (in integer: brightness) is func
  *)
 const func integer: compare (in color: col1, in color: col2) is func
   result
-    var integer: result is 0;
+    var integer: signumValue is 0;
   begin
     if col1.red_part < col2.red_part then
-      result := -1;
+      signumValue := -1;
     elsif col1.red_part > col2.red_part then
-      result := 1;
+      signumValue := 1;
     elsif col1.green_part < col2.green_part then
-      result := -1;
+      signumValue := -1;
     elsif col1.green_part > col2.green_part then
-      result := 1;
+      signumValue := 1;
     elsif col1.blue_part < col2.blue_part then
-      result := -1;
+      signumValue := -1;
     elsif col1.blue_part > col2.blue_part then
-      result := 1;
+      signumValue := 1;
     end if;
   end func;
 

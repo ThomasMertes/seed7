@@ -47,12 +47,12 @@ type_implements_interface(stritext, text);
  *)
 const func file: openStritext (in array string: content) is func
   result
-    var file: result is STD_NULL;
+    var file: newFile is STD_NULL;
   local
     var stritext: new_stritext is stritext.value;
   begin
     new_stritext.content := content;
-    result := toInterface(new_stritext);
+    newFile := toInterface(new_stritext);
   end func;
 
 
@@ -228,12 +228,12 @@ const func boolean: hasNext (in stritext: inStritext) is
  *)
 const func integer: length (in stritext: aStritext) is func
   result
-    var integer: result is 0;
+    var integer: length is 0;
   local
     var integer: line is 0;
   begin
     for line range 1 to length(aStritext.content) do
-      result +:= succ(length(aStritext.content[line]));
+      length +:= succ(length(aStritext.content[line]));
     end for;
   end func;
 
@@ -252,14 +252,14 @@ const proc: seek (in stritext: aStritext, in integer: position) is func
  *)
 const func integer: tell (in stritext: aStritext) is func
   result
-    var integer: result is 0;
+    var integer: position is 0;
   local
     var integer: line is 0;
   begin
     for line range 1 to pred(aStritext.line) do
-      result +:= succ(length(aStritext.content[aStritext.line]));
+      position +:= succ(length(aStritext.content[aStritext.line]));
     end for;
-    result +:= aStritext.column;
+    position +:= aStritext.column;
   end func;
 
 
@@ -277,13 +277,13 @@ const func integer: height (in stritext: aStritext) is
  *)
 const func integer: width (in stritext: aStritext) is func
   result
-    var integer: result is 0;
+    var integer: width is 0;
   local
     var integer: line is 0;
   begin
     for line range 1 to length(aStritext.content) do
-      if length(aStritext.content[line]) > result then
-        result := length(aStritext.content[line]);
+      if length(aStritext.content[line]) > width then
+        width := length(aStritext.content[line]);
       end if;
     end for;
   end func;

@@ -31,16 +31,16 @@ include "bitmapfont.s7i";
 
 const func bitmapFont: genStdFont18 is func
   result
-    var bitmapFont: result is bitmapFont.value;
+    var bitmapFont: bmpFont is bitmapFont.value;
   begin
-    result.xHeight       := 14;
-    result.capHeight     := 18;
-    result.lineHeight    := 28;
-    result.ascent        :=  4;
-    result.descent       :=  4;
-    result.baseLineDelta := 23;
+    bmpFont.xHeight       := 14;
+    bmpFont.capHeight     := 18;
+    bmpFont.lineHeight    := 28;
+    bmpFont.ascent        :=  4;
+    bmpFont.descent       :=  4;
+    bmpFont.baseLineDelta := 23;
 
-    incl(result.fontPictures, ' ',
+    incl(bmpFont.fontPictures, ' ',
     [] ("          ",
         "          ",
         "          ",
@@ -70,7 +70,7 @@ const func bitmapFont: genStdFont18 is func
         "          ",
         "          "));
 
-    incl(result.fontPictures, '!',
+    incl(bmpFont.fontPictures, '!',
     [] ("        ",
         "        ",
         "        ",
@@ -100,7 +100,7 @@ const func bitmapFont: genStdFont18 is func
         "        ",
         "        "));
 
-    incl(result.fontPictures, '"',
+    incl(bmpFont.fontPictures, '"',
     [] ("             ",
         "             ",
         "             ",
@@ -130,7 +130,7 @@ const func bitmapFont: genStdFont18 is func
         "             ",
         "             "));
 
-    incl(result.fontPictures, '#',
+    incl(bmpFont.fontPictures, '#',
     [] ("                ",
         "                ",
         "                ",
@@ -160,7 +160,7 @@ const func bitmapFont: genStdFont18 is func
         "                ",
         "                "));
 
-    incl(result.fontPictures, '$',
+    incl(bmpFont.fontPictures, '$',
     [] ("              ",
         "              ",
         "              ",
@@ -190,7 +190,7 @@ const func bitmapFont: genStdFont18 is func
         "              ",
         "              "));
 
-    incl(result.fontPictures, '%',
+    incl(bmpFont.fontPictures, '%',
     [] ("                    ",
         "                    ",
         "                    ",
@@ -220,7 +220,7 @@ const func bitmapFont: genStdFont18 is func
         "                    ",
         "                    "));
 
-    incl(result.fontPictures, '&',
+    incl(bmpFont.fontPictures, '&',
     [] ("                 ",
         "                 ",
         "                 ",
@@ -250,7 +250,7 @@ const func bitmapFont: genStdFont18 is func
         "                 ",
         "                 "));
 
-    incl(result.fontPictures, ''',
+    incl(bmpFont.fontPictures, ''',
     [] ("        ",
         "        ",
         "        ",
@@ -280,7 +280,7 @@ const func bitmapFont: genStdFont18 is func
         "        ",
         "        "));
 
-    incl(result.fontPictures, '(',
+    incl(bmpFont.fontPictures, '(',
     [] ("       ",
         "       ",
         "       ",
@@ -310,7 +310,7 @@ const func bitmapFont: genStdFont18 is func
         "       ",
         "       "));
 
-    incl(result.fontPictures, ')',
+    incl(bmpFont.fontPictures, ')',
     [] ("       ",
         "       ",
         "       ",
@@ -340,7 +340,7 @@ const func bitmapFont: genStdFont18 is func
         "       ",
         "       "));
 
-    incl(result.fontPictures, '*',
+    incl(bmpFont.fontPictures, '*',
     [] ("              ",
         "              ",
         "              ",
@@ -370,7 +370,7 @@ const func bitmapFont: genStdFont18 is func
         "              ",
         "              "));
 
-    incl(result.fontPictures, '+',
+    incl(bmpFont.fontPictures, '+',
     [] ("              ",
         "              ",
         "              ",
@@ -400,7 +400,7 @@ const func bitmapFont: genStdFont18 is func
         "              ",
         "              "));
 
-    incl(result.fontPictures, ',',
+    incl(bmpFont.fontPictures, ',',
     [] ("        ",
         "        ",
         "        ",
@@ -430,7 +430,7 @@ const func bitmapFont: genStdFont18 is func
         "  XX    ",
         "        "));
 
-    incl(result.fontPictures, '-',
+    incl(bmpFont.fontPictures, '-',
     [] ("            ",
         "            ",
         "            ",
@@ -460,7 +460,7 @@ const func bitmapFont: genStdFont18 is func
         "            ",
         "            "));
 
-    incl(result.fontPictures, '.',
+    incl(bmpFont.fontPictures, '.',
     [] ("        ",
         "        ",
         "        ",
@@ -490,7 +490,7 @@ const func bitmapFont: genStdFont18 is func
         "        ",
         "        "));
 
-    incl(result.fontPictures, '/',
+    incl(bmpFont.fontPictures, '/',
     [] ("           ",
         "           ",
         "           ",
@@ -520,7 +520,7 @@ const func bitmapFont: genStdFont18 is func
         "           ",
         "           "));
 
-    incl(result.fontPictures, '0',
+    incl(bmpFont.fontPictures, '0',
     [] ("              ",
         "              ",
         "              ",
@@ -550,7 +550,7 @@ const func bitmapFont: genStdFont18 is func
         "              ",
         "              "));
 
-    incl(result.fontPictures, '1',
+    incl(bmpFont.fontPictures, '1',
     [] ("          ",
         "          ",
         "          ",
@@ -580,7 +580,7 @@ const func bitmapFont: genStdFont18 is func
         "          ",
         "          "));
 
-    incl(result.fontPictures, '2',
+    incl(bmpFont.fontPictures, '2',
     [] ("             ",
         "             ",
         "             ",
@@ -610,7 +610,7 @@ const func bitmapFont: genStdFont18 is func
         "             ",
         "             "));
 
-    incl(result.fontPictures, '3',
+    incl(bmpFont.fontPictures, '3',
     [] ("              ",
         "              ",
         "              ",
@@ -640,7 +640,7 @@ const func bitmapFont: genStdFont18 is func
         "              ",
         "              "));
 
-    incl(result.fontPictures, '4',
+    incl(bmpFont.fontPictures, '4',
     [] ("              ",
         "              ",
         "              ",
@@ -670,7 +670,7 @@ const func bitmapFont: genStdFont18 is func
         "              ",
         "              "));
 
-    incl(result.fontPictures, '5',
+    incl(bmpFont.fontPictures, '5',
     [] ("             ",
         "             ",
         "             ",
@@ -700,7 +700,7 @@ const func bitmapFont: genStdFont18 is func
         "             ",
         "             "));
 
-    incl(result.fontPictures, '6',
+    incl(bmpFont.fontPictures, '6',
     [] ("              ",
         "              ",
         "              ",
@@ -730,7 +730,7 @@ const func bitmapFont: genStdFont18 is func
         "              ",
         "              "));
 
-    incl(result.fontPictures, '7',
+    incl(bmpFont.fontPictures, '7',
     [] ("           ",
         "           ",
         "           ",
@@ -760,7 +760,7 @@ const func bitmapFont: genStdFont18 is func
         "           ",
         "           "));
 
-    incl(result.fontPictures, '8',
+    incl(bmpFont.fontPictures, '8',
     [] ("              ",
         "              ",
         "              ",
@@ -790,7 +790,7 @@ const func bitmapFont: genStdFont18 is func
         "              ",
         "              "));
 
-    incl(result.fontPictures, '9',
+    incl(bmpFont.fontPictures, '9',
     [] ("              ",
         "              ",
         "              ",
@@ -820,7 +820,7 @@ const func bitmapFont: genStdFont18 is func
         "              ",
         "              "));
 
-    incl(result.fontPictures, ':',
+    incl(bmpFont.fontPictures, ':',
     [] ("        ",
         "        ",
         "        ",
@@ -850,7 +850,7 @@ const func bitmapFont: genStdFont18 is func
         "        ",
         "        "));
 
-    incl(result.fontPictures, ';',
+    incl(bmpFont.fontPictures, ';',
     [] ("        ",
         "        ",
         "        ",
@@ -880,7 +880,7 @@ const func bitmapFont: genStdFont18 is func
         "  XX    ",
         "        "));
 
-    incl(result.fontPictures, '<',
+    incl(bmpFont.fontPictures, '<',
     [] ("              ",
         "              ",
         "              ",
@@ -910,7 +910,7 @@ const func bitmapFont: genStdFont18 is func
         "              ",
         "              "));
 
-    incl(result.fontPictures, '=',
+    incl(bmpFont.fontPictures, '=',
     [] ("             ",
         "             ",
         "             ",
@@ -940,7 +940,7 @@ const func bitmapFont: genStdFont18 is func
         "             ",
         "             "));
 
-    incl(result.fontPictures, '>',
+    incl(bmpFont.fontPictures, '>',
     [] ("              ",
         "              ",
         "              ",
@@ -970,7 +970,7 @@ const func bitmapFont: genStdFont18 is func
         "              ",
         "              "));
 
-    incl(result.fontPictures, '?',
+    incl(bmpFont.fontPictures, '?',
     [] ("             ",
         "             ",
         "             ",
@@ -1000,7 +1000,7 @@ const func bitmapFont: genStdFont18 is func
         "             ",
         "             "));
 
-    incl(result.fontPictures, '@',
+    incl(bmpFont.fontPictures, '@',
     [] ("                      ",
         "                      ",
         "                      ",
@@ -1030,7 +1030,7 @@ const func bitmapFont: genStdFont18 is func
         "      XXXXXXXXXXXXXX  ",
         "        XXXXXXXXXX    "));
 
-    incl(result.fontPictures, 'A',
+    incl(bmpFont.fontPictures, 'A',
     [] ("               ",
         "               ",
         "               ",
@@ -1060,7 +1060,7 @@ const func bitmapFont: genStdFont18 is func
         "               ",
         "               "));
 
-    incl(result.fontPictures, 'B',
+    incl(bmpFont.fontPictures, 'B',
     [] ("              ",
         "              ",
         "              ",
@@ -1090,7 +1090,7 @@ const func bitmapFont: genStdFont18 is func
         "              ",
         "              "));
 
-    incl(result.fontPictures, 'C',
+    incl(bmpFont.fontPictures, 'C',
     [] ("               ",
         "               ",
         "               ",
@@ -1120,7 +1120,7 @@ const func bitmapFont: genStdFont18 is func
         "               ",
         "               "));
 
-    incl(result.fontPictures, 'D',
+    incl(bmpFont.fontPictures, 'D',
     [] ("               ",
         "               ",
         "               ",
@@ -1150,7 +1150,7 @@ const func bitmapFont: genStdFont18 is func
         "               ",
         "               "));
 
-    incl(result.fontPictures, 'E',
+    incl(bmpFont.fontPictures, 'E',
     [] ("             ",
         "             ",
         "             ",
@@ -1180,7 +1180,7 @@ const func bitmapFont: genStdFont18 is func
         "             ",
         "             "));
 
-    incl(result.fontPictures, 'F',
+    incl(bmpFont.fontPictures, 'F',
     [] ("            ",
         "            ",
         "            ",
@@ -1210,7 +1210,7 @@ const func bitmapFont: genStdFont18 is func
         "            ",
         "            "));
 
-    incl(result.fontPictures, 'G',
+    incl(bmpFont.fontPictures, 'G',
     [] ("                ",
         "                ",
         "                ",
@@ -1240,7 +1240,7 @@ const func bitmapFont: genStdFont18 is func
         "                ",
         "                "));
 
-    incl(result.fontPictures, 'H',
+    incl(bmpFont.fontPictures, 'H',
     [] ("              ",
         "              ",
         "              ",
@@ -1270,7 +1270,7 @@ const func bitmapFont: genStdFont18 is func
         "              ",
         "              "));
 
-    incl(result.fontPictures, 'I',
+    incl(bmpFont.fontPictures, 'I',
     [] ("          ",
         "          ",
         "          ",
@@ -1300,7 +1300,7 @@ const func bitmapFont: genStdFont18 is func
         "          ",
         "          "));
 
-    incl(result.fontPictures, 'J',
+    incl(bmpFont.fontPictures, 'J',
     [] ("            ",
         "            ",
         "            ",
@@ -1330,7 +1330,7 @@ const func bitmapFont: genStdFont18 is func
         "            ",
         "            "));
 
-    incl(result.fontPictures, 'K',
+    incl(bmpFont.fontPictures, 'K',
     [] ("              ",
         "              ",
         "              ",
@@ -1360,7 +1360,7 @@ const func bitmapFont: genStdFont18 is func
         "              ",
         "              "));
 
-    incl(result.fontPictures, 'L',
+    incl(bmpFont.fontPictures, 'L',
     [] ("           ",
         "           ",
         "           ",
@@ -1390,7 +1390,7 @@ const func bitmapFont: genStdFont18 is func
         "           ",
         "           "));
 
-    incl(result.fontPictures, 'M',
+    incl(bmpFont.fontPictures, 'M',
     [] ("                 ",
         "                 ",
         "                 ",
@@ -1420,7 +1420,7 @@ const func bitmapFont: genStdFont18 is func
         "                 ",
         "                 "));
 
-    incl(result.fontPictures, 'N',
+    incl(bmpFont.fontPictures, 'N',
     [] ("               ",
         "               ",
         "               ",
@@ -1450,7 +1450,7 @@ const func bitmapFont: genStdFont18 is func
         "               ",
         "               "));
 
-    incl(result.fontPictures, 'O',
+    incl(bmpFont.fontPictures, 'O',
     [] ("                ",
         "                ",
         "                ",
@@ -1480,7 +1480,7 @@ const func bitmapFont: genStdFont18 is func
         "                ",
         "                "));
 
-    incl(result.fontPictures, 'P',
+    incl(bmpFont.fontPictures, 'P',
     [] ("              ",
         "              ",
         "              ",
@@ -1510,7 +1510,7 @@ const func bitmapFont: genStdFont18 is func
         "              ",
         "              "));
 
-    incl(result.fontPictures, 'Q',
+    incl(bmpFont.fontPictures, 'Q',
     [] ("                ",
         "                ",
         "                ",
@@ -1540,7 +1540,7 @@ const func bitmapFont: genStdFont18 is func
         "                ",
         "                "));
 
-    incl(result.fontPictures, 'R',
+    incl(bmpFont.fontPictures, 'R',
     [] ("              ",
         "              ",
         "              ",
@@ -1570,7 +1570,7 @@ const func bitmapFont: genStdFont18 is func
         "              ",
         "              "));
 
-    incl(result.fontPictures, 'S',
+    incl(bmpFont.fontPictures, 'S',
     [] ("              ",
         "              ",
         "              ",
@@ -1600,7 +1600,7 @@ const func bitmapFont: genStdFont18 is func
         "              ",
         "              "));
 
-    incl(result.fontPictures, 'T',
+    incl(bmpFont.fontPictures, 'T',
     [] ("            ",
         "            ",
         "            ",
@@ -1630,7 +1630,7 @@ const func bitmapFont: genStdFont18 is func
         "            ",
         "            "));
 
-    incl(result.fontPictures, 'U',
+    incl(bmpFont.fontPictures, 'U',
     [] ("               ",
         "               ",
         "               ",
@@ -1660,7 +1660,7 @@ const func bitmapFont: genStdFont18 is func
         "               ",
         "               "));
 
-    incl(result.fontPictures, 'V',
+    incl(bmpFont.fontPictures, 'V',
     [] ("               ",
         "               ",
         "               ",
@@ -1690,7 +1690,7 @@ const func bitmapFont: genStdFont18 is func
         "               ",
         "               "));
 
-    incl(result.fontPictures, 'W',
+    incl(bmpFont.fontPictures, 'W',
     [] ("                    ",
         "                    ",
         "                    ",
@@ -1720,7 +1720,7 @@ const func bitmapFont: genStdFont18 is func
         "                    ",
         "                    "));
 
-    incl(result.fontPictures, 'X',
+    incl(bmpFont.fontPictures, 'X',
     [] ("                ",
         "                ",
         "                ",
@@ -1750,7 +1750,7 @@ const func bitmapFont: genStdFont18 is func
         "                ",
         "                "));
 
-    incl(result.fontPictures, 'Y',
+    incl(bmpFont.fontPictures, 'Y',
     [] ("              ",
         "              ",
         "              ",
@@ -1780,7 +1780,7 @@ const func bitmapFont: genStdFont18 is func
         "              ",
         "              "));
 
-    incl(result.fontPictures, 'Z',
+    incl(bmpFont.fontPictures, 'Z',
     [] ("              ",
         "              ",
         "              ",
@@ -1810,7 +1810,7 @@ const func bitmapFont: genStdFont18 is func
         "              ",
         "              "));
 
-    incl(result.fontPictures, '[',
+    incl(bmpFont.fontPictures, '[',
     [] ("        ",
         "        ",
         "        ",
@@ -1840,7 +1840,7 @@ const func bitmapFont: genStdFont18 is func
         "        ",
         "        "));
 
-    incl(result.fontPictures, '\\',
+    incl(bmpFont.fontPictures, '\\',
     [] ("           ",
         "           ",
         "           ",
@@ -1870,7 +1870,7 @@ const func bitmapFont: genStdFont18 is func
         "           ",
         "           "));
 
-    incl(result.fontPictures, ']',
+    incl(bmpFont.fontPictures, ']',
     [] ("        ",
         "        ",
         "        ",
@@ -1900,7 +1900,7 @@ const func bitmapFont: genStdFont18 is func
         "        ",
         "        "));
 
-    incl(result.fontPictures, '^',
+    incl(bmpFont.fontPictures, '^',
     [] ("             ",
         "             ",
         "             ",
@@ -1930,7 +1930,7 @@ const func bitmapFont: genStdFont18 is func
         "             ",
         "             "));
 
-    incl(result.fontPictures, '_',
+    incl(bmpFont.fontPictures, '_',
     [] ("            ",
         "            ",
         "            ",
@@ -1960,7 +1960,7 @@ const func bitmapFont: genStdFont18 is func
         "            ",
         "            "));
 
-    incl(result.fontPictures, '`',
+    incl(bmpFont.fontPictures, '`',
     [] ("         ",
         "         ",
         "         ",
@@ -1990,7 +1990,7 @@ const func bitmapFont: genStdFont18 is func
         "         ",
         "         "));
 
-    incl(result.fontPictures, 'a',
+    incl(bmpFont.fontPictures, 'a',
     [] ("              ",
         "              ",
         "              ",
@@ -2020,7 +2020,7 @@ const func bitmapFont: genStdFont18 is func
         "              ",
         "              "));
 
-    incl(result.fontPictures, 'b',
+    incl(bmpFont.fontPictures, 'b',
     [] ("              ",
         "              ",
         "              ",
@@ -2050,7 +2050,7 @@ const func bitmapFont: genStdFont18 is func
         "              ",
         "              "));
 
-    incl(result.fontPictures, 'c',
+    incl(bmpFont.fontPictures, 'c',
     [] ("             ",
         "             ",
         "             ",
@@ -2080,7 +2080,7 @@ const func bitmapFont: genStdFont18 is func
         "             ",
         "             "));
 
-    incl(result.fontPictures, 'd',
+    incl(bmpFont.fontPictures, 'd',
     [] ("              ",
         "              ",
         "              ",
@@ -2110,7 +2110,7 @@ const func bitmapFont: genStdFont18 is func
         "              ",
         "              "));
 
-    incl(result.fontPictures, 'e',
+    incl(bmpFont.fontPictures, 'e',
     [] ("               ",
         "               ",
         "               ",
@@ -2140,7 +2140,7 @@ const func bitmapFont: genStdFont18 is func
         "               ",
         "               "));
 
-    incl(result.fontPictures, 'f',
+    incl(bmpFont.fontPictures, 'f',
     [] ("        ",
         "        ",
         "        ",
@@ -2170,7 +2170,7 @@ const func bitmapFont: genStdFont18 is func
         "        ",
         "        "));
 
-    incl(result.fontPictures, 'g',
+    incl(bmpFont.fontPictures, 'g',
     [] ("              ",
         "              ",
         "              ",
@@ -2200,7 +2200,7 @@ const func bitmapFont: genStdFont18 is func
         "   XXXXXXXXX  ",
         "   XXXXXXXX   "));
 
-    incl(result.fontPictures, 'h',
+    incl(bmpFont.fontPictures, 'h',
     [] ("             ",
         "             ",
         "             ",
@@ -2230,7 +2230,7 @@ const func bitmapFont: genStdFont18 is func
         "             ",
         "             "));
 
-    incl(result.fontPictures, 'i',
+    incl(bmpFont.fontPictures, 'i',
     [] ("       ",
         "       ",
         "       ",
@@ -2260,7 +2260,7 @@ const func bitmapFont: genStdFont18 is func
         "       ",
         "       "));
 
-    incl(result.fontPictures, 'j',
+    incl(bmpFont.fontPictures, 'j',
     [] ("      ",
         "      ",
         "      ",
@@ -2290,7 +2290,7 @@ const func bitmapFont: genStdFont18 is func
         "XXXX  ",
         "XXX   "));
 
-    incl(result.fontPictures, 'k',
+    incl(bmpFont.fontPictures, 'k',
     [] ("            ",
         "            ",
         "            ",
@@ -2320,7 +2320,7 @@ const func bitmapFont: genStdFont18 is func
         "            ",
         "            "));
 
-    incl(result.fontPictures, 'l',
+    incl(bmpFont.fontPictures, 'l',
     [] ("      ",
         "      ",
         "      ",
@@ -2350,7 +2350,7 @@ const func bitmapFont: genStdFont18 is func
         "      ",
         "      "));
 
-    incl(result.fontPictures, 'm',
+    incl(bmpFont.fontPictures, 'm',
     [] ("                    ",
         "                    ",
         "                    ",
@@ -2380,7 +2380,7 @@ const func bitmapFont: genStdFont18 is func
         "                    ",
         "                    "));
 
-    incl(result.fontPictures, 'n',
+    incl(bmpFont.fontPictures, 'n',
     [] ("             ",
         "             ",
         "             ",
@@ -2410,7 +2410,7 @@ const func bitmapFont: genStdFont18 is func
         "             ",
         "             "));
 
-    incl(result.fontPictures, 'o',
+    incl(bmpFont.fontPictures, 'o',
     [] ("               ",
         "               ",
         "               ",
@@ -2440,7 +2440,7 @@ const func bitmapFont: genStdFont18 is func
         "               ",
         "               "));
 
-    incl(result.fontPictures, 'p',
+    incl(bmpFont.fontPictures, 'p',
     [] ("              ",
         "              ",
         "              ",
@@ -2470,7 +2470,7 @@ const func bitmapFont: genStdFont18 is func
         " XX           ",
         " XX           "));
 
-    incl(result.fontPictures, 'q',
+    incl(bmpFont.fontPictures, 'q',
     [] ("              ",
         "              ",
         "              ",
@@ -2500,7 +2500,7 @@ const func bitmapFont: genStdFont18 is func
         "           XX ",
         "           XX "));
 
-    incl(result.fontPictures, 'r',
+    incl(bmpFont.fontPictures, 'r',
     [] ("           ",
         "           ",
         "           ",
@@ -2530,7 +2530,7 @@ const func bitmapFont: genStdFont18 is func
         "           ",
         "           "));
 
-    incl(result.fontPictures, 's',
+    incl(bmpFont.fontPictures, 's',
     [] ("              ",
         "              ",
         "              ",
@@ -2560,7 +2560,7 @@ const func bitmapFont: genStdFont18 is func
         "              ",
         "              "));
 
-    incl(result.fontPictures, 't',
+    incl(bmpFont.fontPictures, 't',
     [] ("        ",
         "        ",
         "        ",
@@ -2590,7 +2590,7 @@ const func bitmapFont: genStdFont18 is func
         "        ",
         "        "));
 
-    incl(result.fontPictures, 'u',
+    incl(bmpFont.fontPictures, 'u',
     [] ("             ",
         "             ",
         "             ",
@@ -2620,7 +2620,7 @@ const func bitmapFont: genStdFont18 is func
         "             ",
         "             "));
 
-    incl(result.fontPictures, 'v',
+    incl(bmpFont.fontPictures, 'v',
     [] ("              ",
         "              ",
         "              ",
@@ -2650,7 +2650,7 @@ const func bitmapFont: genStdFont18 is func
         "              ",
         "              "));
 
-    incl(result.fontPictures, 'w',
+    incl(bmpFont.fontPictures, 'w',
     [] ("                ",
         "                ",
         "                ",
@@ -2680,7 +2680,7 @@ const func bitmapFont: genStdFont18 is func
         "                ",
         "                "));
 
-    incl(result.fontPictures, 'x',
+    incl(bmpFont.fontPictures, 'x',
     [] ("               ",
         "               ",
         "               ",
@@ -2710,7 +2710,7 @@ const func bitmapFont: genStdFont18 is func
         "               ",
         "               "));
 
-    incl(result.fontPictures, 'y',
+    incl(bmpFont.fontPictures, 'y',
     [] ("              ",
         "              ",
         "              ",
@@ -2740,7 +2740,7 @@ const func bitmapFont: genStdFont18 is func
         " XXXXX        ",
         " XXXX         "));
 
-    incl(result.fontPictures, 'z',
+    incl(bmpFont.fontPictures, 'z',
     [] ("              ",
         "              ",
         "              ",
@@ -2770,7 +2770,7 @@ const func bitmapFont: genStdFont18 is func
         "              ",
         "              "));
 
-    incl(result.fontPictures, '{',
+    incl(bmpFont.fontPictures, '{',
     [] ("          ",
         "          ",
         "          ",
@@ -2800,7 +2800,7 @@ const func bitmapFont: genStdFont18 is func
         "          ",
         "          "));
 
-    incl(result.fontPictures, '|',
+    incl(bmpFont.fontPictures, '|',
     [] ("      ",
         "      ",
         "      ",
@@ -2830,7 +2830,7 @@ const func bitmapFont: genStdFont18 is func
         "      ",
         "      "));
 
-    incl(result.fontPictures, '}',
+    incl(bmpFont.fontPictures, '}',
     [] ("          ",
         "          ",
         "          ",
@@ -2860,7 +2860,7 @@ const func bitmapFont: genStdFont18 is func
         "          ",
         "          "));
 
-    incl(result.fontPictures, '~',
+    incl(bmpFont.fontPictures, '~',
     [] ("            ",
         "            ",
         "            ",
@@ -2890,7 +2890,7 @@ const func bitmapFont: genStdFont18 is func
         "            ",
         "            "));
 
-    incl(result.fontPictures, '¡',
+    incl(bmpFont.fontPictures, '¡',
     [] ("        ",
         "        ",
         "        ",
@@ -2920,7 +2920,7 @@ const func bitmapFont: genStdFont18 is func
         "        ",
         "        "));
 
-    incl(result.fontPictures, '¢',
+    incl(bmpFont.fontPictures, '¢',
     [] ("             ",
         "             ",
         "             ",
@@ -2950,7 +2950,7 @@ const func bitmapFont: genStdFont18 is func
         "      XX     ",
         "             "));
 
-    incl(result.fontPictures, '¥',
+    incl(bmpFont.fontPictures, '¥',
     [] ("                ",
         "                ",
         "                ",
@@ -2980,7 +2980,7 @@ const func bitmapFont: genStdFont18 is func
         "                ",
         "                "));
 
-    incl(result.fontPictures, '¦',
+    incl(bmpFont.fontPictures, '¦',
     [] ("        ",
         "        ",
         "        ",
@@ -3010,7 +3010,7 @@ const func bitmapFont: genStdFont18 is func
         "        ",
         "        "));
 
-    incl(result.fontPictures, '§',
+    incl(bmpFont.fontPictures, '§',
     [] ("             ",
         "             ",
         "             ",
@@ -3040,7 +3040,7 @@ const func bitmapFont: genStdFont18 is func
         "  XXXXXXXXX  ",
         "   XXXXXXX   "));
 
-    incl(result.fontPictures, '¨',
+    incl(bmpFont.fontPictures, '¨',
     [] ("             ",
         "             ",
         "             ",
@@ -3070,7 +3070,7 @@ const func bitmapFont: genStdFont18 is func
         "             ",
         "             "));
 
-    incl(result.fontPictures, '©',
+    incl(bmpFont.fontPictures, '©',
     [] ("                    ",
         "                    ",
         "                    ",
@@ -3100,7 +3100,7 @@ const func bitmapFont: genStdFont18 is func
         "                    ",
         "                    "));
 
-    incl(result.fontPictures, 'ª',
+    incl(bmpFont.fontPictures, 'ª',
     [] ("         ",
         "         ",
         "         ",
@@ -3130,7 +3130,7 @@ const func bitmapFont: genStdFont18 is func
         "         ",
         "         "));
 
-    incl(result.fontPictures, '«',
+    incl(bmpFont.fontPictures, '«',
     [] ("               ",
         "               ",
         "               ",
@@ -3160,7 +3160,7 @@ const func bitmapFont: genStdFont18 is func
         "               ",
         "               "));
 
-    incl(result.fontPictures, '¬',
+    incl(bmpFont.fontPictures, '¬',
     [] ("              ",
         "              ",
         "              ",
@@ -3190,7 +3190,7 @@ const func bitmapFont: genStdFont18 is func
         "              ",
         "              "));
 
-    incl(result.fontPictures, '®',
+    incl(bmpFont.fontPictures, '®',
     [] ("                    ",
         "                    ",
         "                    ",
@@ -3220,7 +3220,7 @@ const func bitmapFont: genStdFont18 is func
         "                    ",
         "                    "));
 
-    incl(result.fontPictures, '¯',
+    incl(bmpFont.fontPictures, '¯',
     [] ("            ",
         "XXXXXXXXXXXX",
         "XXXXXXXXXXXX",
@@ -3250,7 +3250,7 @@ const func bitmapFont: genStdFont18 is func
         "            ",
         "            "));
 
-    incl(result.fontPictures, '°',
+    incl(bmpFont.fontPictures, '°',
     [] ("          ",
         "          ",
         "          ",
@@ -3280,7 +3280,7 @@ const func bitmapFont: genStdFont18 is func
         "          ",
         "          "));
 
-    incl(result.fontPictures, '±',
+    incl(bmpFont.fontPictures, '±',
     [] ("              ",
         "              ",
         "              ",
@@ -3310,7 +3310,7 @@ const func bitmapFont: genStdFont18 is func
         "              ",
         "              "));
 
-    incl(result.fontPictures, '²',
+    incl(bmpFont.fontPictures, '²',
     [] ("        ",
         "        ",
         "        ",
@@ -3340,7 +3340,7 @@ const func bitmapFont: genStdFont18 is func
         "        ",
         "        "));
 
-    incl(result.fontPictures, '³',
+    incl(bmpFont.fontPictures, '³',
     [] ("        ",
         "        ",
         "        ",
@@ -3370,7 +3370,7 @@ const func bitmapFont: genStdFont18 is func
         "        ",
         "        "));
 
-    incl(result.fontPictures, '´',
+    incl(bmpFont.fontPictures, '´',
     [] ("      ",
         "      ",
         "      ",
@@ -3400,7 +3400,7 @@ const func bitmapFont: genStdFont18 is func
         "      ",
         "      "));
 
-    incl(result.fontPictures, 'µ',
+    incl(bmpFont.fontPictures, 'µ',
     [] ("             ",
         "             ",
         "             ",
@@ -3430,7 +3430,7 @@ const func bitmapFont: genStdFont18 is func
         " XX          ",
         " XX          "));
 
-    incl(result.fontPictures, '¶',
+    incl(bmpFont.fontPictures, '¶',
     [] ("               ",
         "               ",
         "               ",
@@ -3460,7 +3460,7 @@ const func bitmapFont: genStdFont18 is func
         "       XX  XX  ",
         "       XX  XX  "));
 
-    incl(result.fontPictures, '·',
+    incl(bmpFont.fontPictures, '·',
     [] ("        ",
         "        ",
         "        ",
@@ -3490,7 +3490,7 @@ const func bitmapFont: genStdFont18 is func
         "        ",
         "        "));
 
-    incl(result.fontPictures, '¸',
+    incl(bmpFont.fontPictures, '¸',
     [] ("        ",
         "        ",
         "        ",
@@ -3520,7 +3520,7 @@ const func bitmapFont: genStdFont18 is func
         " XXXXX  ",
         " XXXX   "));
 
-    incl(result.fontPictures, '¹',
+    incl(bmpFont.fontPictures, '¹',
     [] ("     ",
         "     ",
         "     ",
@@ -3550,7 +3550,7 @@ const func bitmapFont: genStdFont18 is func
         "     ",
         "     "));
 
-    incl(result.fontPictures, 'º',
+    incl(bmpFont.fontPictures, 'º',
     [] ("         ",
         "         ",
         "         ",
@@ -3580,7 +3580,7 @@ const func bitmapFont: genStdFont18 is func
         "         ",
         "         "));
 
-    incl(result.fontPictures, '»',
+    incl(bmpFont.fontPictures, '»',
     [] ("               ",
         "               ",
         "               ",
@@ -3610,7 +3610,7 @@ const func bitmapFont: genStdFont18 is func
         "               ",
         "               "));
 
-    incl(result.fontPictures, '¼',
+    incl(bmpFont.fontPictures, '¼',
     [] ("                 ",
         "                 ",
         "                 ",
@@ -3640,7 +3640,7 @@ const func bitmapFont: genStdFont18 is func
         "                 ",
         "                 "));
 
-    incl(result.fontPictures, '½',
+    incl(bmpFont.fontPictures, '½',
     [] ("                  ",
         "                  ",
         "                  ",
@@ -3670,7 +3670,7 @@ const func bitmapFont: genStdFont18 is func
         "                  ",
         "                  "));
 
-    incl(result.fontPictures, '¾',
+    incl(bmpFont.fontPictures, '¾',
     [] ("                 ",
         "                 ",
         "                 ",
@@ -3700,7 +3700,7 @@ const func bitmapFont: genStdFont18 is func
         "                 ",
         "                 "));
 
-    incl(result.fontPictures, '¿',
+    incl(bmpFont.fontPictures, '¿',
     [] ("             ",
         "             ",
         "             ",
@@ -3730,7 +3730,7 @@ const func bitmapFont: genStdFont18 is func
         "             ",
         "             "));
 
-    incl(result.fontPictures, 'À',
+    incl(bmpFont.fontPictures, 'À',
     [] ("     XXX       ",
         "     XXX       ",
         "      XXX      ",
@@ -3760,7 +3760,7 @@ const func bitmapFont: genStdFont18 is func
         "               ",
         "               "));
 
-    incl(result.fontPictures, 'Á',
+    incl(bmpFont.fontPictures, 'Á',
     [] ("       XXX     ",
         "       XXX     ",
         "      XXX      ",
@@ -3790,7 +3790,7 @@ const func bitmapFont: genStdFont18 is func
         "               ",
         "               "));
 
-    incl(result.fontPictures, 'Â',
+    incl(bmpFont.fontPictures, 'Â',
     [] ("      XXX      ",
         "     XXXXX     ",
         "    XXX XXX    ",
@@ -3820,7 +3820,7 @@ const func bitmapFont: genStdFont18 is func
         "               ",
         "               "));
 
-    incl(result.fontPictures, 'Ã',
+    incl(bmpFont.fontPictures, 'Ã',
     [] ("    XXXX    X  ",
         "   XXXXXX  XX  ",
         "   XX  XXXXXX  ",
@@ -3850,7 +3850,7 @@ const func bitmapFont: genStdFont18 is func
         "               ",
         "               "));
 
-    incl(result.fontPictures, 'Ä',
+    incl(bmpFont.fontPictures, 'Ä',
     [] ("   XX     XX   ",
         "  XXXX   XXXX  ",
         "   XX     XX   ",
@@ -3880,7 +3880,7 @@ const func bitmapFont: genStdFont18 is func
         "               ",
         "               "));
 
-    incl(result.fontPictures, 'Å',
+    incl(bmpFont.fontPictures, 'Å',
     [] ("      XXX      ",
         "    XXXXXXX    ",
         "    XX   XX    ",
@@ -3910,7 +3910,7 @@ const func bitmapFont: genStdFont18 is func
         "               ",
         "               "));
 
-    incl(result.fontPictures, 'Æ',
+    incl(bmpFont.fontPictures, 'Æ',
     [] ("                       ",
         "                       ",
         "                       ",
@@ -3940,7 +3940,7 @@ const func bitmapFont: genStdFont18 is func
         "                       ",
         "                       "));
 
-    incl(result.fontPictures, 'Ç',
+    incl(bmpFont.fontPictures, 'Ç',
     [] ("               ",
         "               ",
         "               ",
@@ -3970,7 +3970,7 @@ const func bitmapFont: genStdFont18 is func
         "    XXXXX      ",
         "    XXXX       "));
 
-    incl(result.fontPictures, 'È',
+    incl(bmpFont.fontPictures, 'È',
     [] ("    XXX      ",
         "    XXX      ",
         "     XXX     ",
@@ -4000,7 +4000,7 @@ const func bitmapFont: genStdFont18 is func
         "             ",
         "             "));
 
-    incl(result.fontPictures, 'É',
+    incl(bmpFont.fontPictures, 'É',
     [] ("      XXX    ",
         "      XXX    ",
         "     XXX     ",
@@ -4030,7 +4030,7 @@ const func bitmapFont: genStdFont18 is func
         "             ",
         "             "));
 
-    incl(result.fontPictures, 'Ê',
+    incl(bmpFont.fontPictures, 'Ê',
     [] ("     XXX     ",
         "    XXXXX    ",
         "   XXX XXX   ",
@@ -4060,7 +4060,7 @@ const func bitmapFont: genStdFont18 is func
         "             ",
         "             "));
 
-    incl(result.fontPictures, 'Ë',
+    incl(bmpFont.fontPictures, 'Ë',
     [] ("  XX     XX  ",
         " XXXX   XXXX ",
         "  XX     XX  ",
@@ -4090,7 +4090,7 @@ const func bitmapFont: genStdFont18 is func
         "             ",
         "             "));
 
-    incl(result.fontPictures, 'Ì',
+    incl(bmpFont.fontPictures, 'Ì',
     [] ("   XXX    ",
         "   XXX    ",
         "    XXX   ",
@@ -4120,7 +4120,7 @@ const func bitmapFont: genStdFont18 is func
         "          ",
         "          "));
 
-    incl(result.fontPictures, 'Í',
+    incl(bmpFont.fontPictures, 'Í',
     [] ("    XXX   ",
         "    XXX   ",
         "   XXX    ",
@@ -4150,7 +4150,7 @@ const func bitmapFont: genStdFont18 is func
         "          ",
         "          "));
 
-    incl(result.fontPictures, 'Î',
+    incl(bmpFont.fontPictures, 'Î',
     [] ("    XX    ",
         "   XXXX   ",
         "  XXXXXX  ",
@@ -4180,7 +4180,7 @@ const func bitmapFont: genStdFont18 is func
         "          ",
         "          "));
 
-    incl(result.fontPictures, 'Ï',
+    incl(bmpFont.fontPictures, 'Ï',
     [] (" XX    XX ",
         "XXXX  XXXX",
         " XX    XX ",
@@ -4210,7 +4210,7 @@ const func bitmapFont: genStdFont18 is func
         "          ",
         "          "));
 
-    incl(result.fontPictures, 'Ð',
+    incl(bmpFont.fontPictures, 'Ð',
     [] ("                 ",
         "                 ",
         "                 ",
@@ -4240,7 +4240,7 @@ const func bitmapFont: genStdFont18 is func
         "                 ",
         "                 "));
 
-    incl(result.fontPictures, 'Ñ',
+    incl(bmpFont.fontPictures, 'Ñ',
     [] ("    XXXX    X  ",
         "   XXXXXX  XX  ",
         "   XX  XXXXXX  ",
@@ -4270,7 +4270,7 @@ const func bitmapFont: genStdFont18 is func
         "               ",
         "               "));
 
-    incl(result.fontPictures, 'Ò',
+    incl(bmpFont.fontPictures, 'Ò',
     [] ("      XXX       ",
         "      XXX       ",
         "       XXX      ",
@@ -4300,7 +4300,7 @@ const func bitmapFont: genStdFont18 is func
         "                ",
         "                "));
 
-    incl(result.fontPictures, 'Ó',
+    incl(bmpFont.fontPictures, 'Ó',
     [] ("       XXX      ",
         "       XXX      ",
         "      XXX       ",
@@ -4330,7 +4330,7 @@ const func bitmapFont: genStdFont18 is func
         "                ",
         "                "));
 
-    incl(result.fontPictures, 'Ô',
+    incl(bmpFont.fontPictures, 'Ô',
     [] ("       XX       ",
         "      XXXX      ",
         "     XXXXXX     ",
@@ -4360,7 +4360,7 @@ const func bitmapFont: genStdFont18 is func
         "                ",
         "                "));
 
-    incl(result.fontPictures, 'Õ',
+    incl(bmpFont.fontPictures, 'Õ',
     [] ("     XXXX    X  ",
         "    XXXXXX  XX  ",
         "    XX  XXXXXX  ",
@@ -4390,7 +4390,7 @@ const func bitmapFont: genStdFont18 is func
         "                ",
         "                "));
 
-    incl(result.fontPictures, 'Ö',
+    incl(bmpFont.fontPictures, 'Ö',
     [] ("    XX    XX    ",
         "   XXXX  XXXX   ",
         "    XX    XX    ",
@@ -4420,7 +4420,7 @@ const func bitmapFont: genStdFont18 is func
         "                ",
         "                "));
 
-    incl(result.fontPictures, '×',
+    incl(bmpFont.fontPictures, '×',
     [] ("                ",
         "                ",
         "                ",
@@ -4450,7 +4450,7 @@ const func bitmapFont: genStdFont18 is func
         "                ",
         "                "));
 
-    incl(result.fontPictures, 'Ø',
+    incl(bmpFont.fontPictures, 'Ø',
     [] ("                ",
         "                ",
         "                ",
@@ -4480,7 +4480,7 @@ const func bitmapFont: genStdFont18 is func
         "                ",
         "                "));
 
-    incl(result.fontPictures, 'Ù',
+    incl(bmpFont.fontPictures, 'Ù',
     [] ("     XXX       ",
         "     XXX       ",
         "      XXX      ",
@@ -4510,7 +4510,7 @@ const func bitmapFont: genStdFont18 is func
         "               ",
         "               "));
 
-    incl(result.fontPictures, 'Ú',
+    incl(bmpFont.fontPictures, 'Ú',
     [] ("       XXX     ",
         "       XXX     ",
         "      XXX      ",
@@ -4540,7 +4540,7 @@ const func bitmapFont: genStdFont18 is func
         "               ",
         "               "));
 
-    incl(result.fontPictures, 'Û',
+    incl(bmpFont.fontPictures, 'Û',
     [] ("      XXX      ",
         "     XXXXX     ",
         "    XXX XXX    ",
@@ -4570,7 +4570,7 @@ const func bitmapFont: genStdFont18 is func
         "               ",
         "               "));
 
-    incl(result.fontPictures, 'Ü',
+    incl(bmpFont.fontPictures, 'Ü',
     [] ("   XX     XX   ",
         "  XXXX   XXXX  ",
         "   XX     XX   ",
@@ -4600,7 +4600,7 @@ const func bitmapFont: genStdFont18 is func
         "               ",
         "               "));
 
-    incl(result.fontPictures, 'Ý',
+    incl(bmpFont.fontPictures, 'Ý',
     [] ("       XXX    ",
         "       XXX    ",
         "      XXX     ",
@@ -4630,7 +4630,7 @@ const func bitmapFont: genStdFont18 is func
         "              ",
         "              "));
 
-    incl(result.fontPictures, 'Þ',
+    incl(bmpFont.fontPictures, 'Þ',
     [] ("              ",
         "              ",
         "              ",
@@ -4660,7 +4660,7 @@ const func bitmapFont: genStdFont18 is func
         "              ",
         "              "));
 
-    incl(result.fontPictures, 'ß',
+    incl(bmpFont.fontPictures, 'ß',
     [] ("              ",
         "              ",
         "              ",
@@ -4690,7 +4690,7 @@ const func bitmapFont: genStdFont18 is func
         "              ",
         "              "));
 
-    incl(result.fontPictures, 'à',
+    incl(bmpFont.fontPictures, 'à',
     [] ("              ",
         "              ",
         "              ",
@@ -4720,7 +4720,7 @@ const func bitmapFont: genStdFont18 is func
         "              ",
         "              "));
 
-    incl(result.fontPictures, 'á',
+    incl(bmpFont.fontPictures, 'á',
     [] ("              ",
         "              ",
         "              ",
@@ -4750,7 +4750,7 @@ const func bitmapFont: genStdFont18 is func
         "              ",
         "              "));
 
-    incl(result.fontPictures, 'â',
+    incl(bmpFont.fontPictures, 'â',
     [] ("              ",
         "              ",
         "              ",
@@ -4780,7 +4780,7 @@ const func bitmapFont: genStdFont18 is func
         "              ",
         "              "));
 
-    incl(result.fontPictures, 'ã',
+    incl(bmpFont.fontPictures, 'ã',
     [] ("              ",
         "              ",
         "              ",
@@ -4810,7 +4810,7 @@ const func bitmapFont: genStdFont18 is func
         "              ",
         "              "));
 
-    incl(result.fontPictures, 'ä',
+    incl(bmpFont.fontPictures, 'ä',
     [] ("              ",
         "              ",
         "              ",
@@ -4840,7 +4840,7 @@ const func bitmapFont: genStdFont18 is func
         "              ",
         "              "));
 
-    incl(result.fontPictures, 'å',
+    incl(bmpFont.fontPictures, 'å',
     [] ("      XXX     ",
         "    XXXXXXX   ",
         "    XX   XX   ",
@@ -4870,7 +4870,7 @@ const func bitmapFont: genStdFont18 is func
         "              ",
         "              "));
 
-    incl(result.fontPictures, 'æ',
+    incl(bmpFont.fontPictures, 'æ',
     [] ("                         ",
         "                         ",
         "                         ",
@@ -4900,7 +4900,7 @@ const func bitmapFont: genStdFont18 is func
         "                         ",
         "                         "));
 
-    incl(result.fontPictures, 'ç',
+    incl(bmpFont.fontPictures, 'ç',
     [] ("             ",
         "             ",
         "             ",
@@ -4930,7 +4930,7 @@ const func bitmapFont: genStdFont18 is func
         "    XXXX     ",
         "    XXX      "));
 
-    incl(result.fontPictures, 'è',
+    incl(bmpFont.fontPictures, 'è',
     [] ("               ",
         "               ",
         "               ",
@@ -4960,7 +4960,7 @@ const func bitmapFont: genStdFont18 is func
         "               ",
         "               "));
 
-    incl(result.fontPictures, 'é',
+    incl(bmpFont.fontPictures, 'é',
     [] ("               ",
         "               ",
         "               ",
@@ -4990,7 +4990,7 @@ const func bitmapFont: genStdFont18 is func
         "               ",
         "               "));
 
-    incl(result.fontPictures, 'ê',
+    incl(bmpFont.fontPictures, 'ê',
     [] ("               ",
         "               ",
         "               ",
@@ -5020,7 +5020,7 @@ const func bitmapFont: genStdFont18 is func
         "               ",
         "               "));
 
-    incl(result.fontPictures, 'ë',
+    incl(bmpFont.fontPictures, 'ë',
     [] ("               ",
         "               ",
         "               ",
@@ -5050,7 +5050,7 @@ const func bitmapFont: genStdFont18 is func
         "               ",
         "               "));
 
-    incl(result.fontPictures, 'ì',
+    incl(bmpFont.fontPictures, 'ì',
     [] ("       ",
         "       ",
         "       ",
@@ -5080,7 +5080,7 @@ const func bitmapFont: genStdFont18 is func
         "       ",
         "       "));
 
-    incl(result.fontPictures, 'í',
+    incl(bmpFont.fontPictures, 'í',
     [] ("       ",
         "       ",
         "       ",
@@ -5110,7 +5110,7 @@ const func bitmapFont: genStdFont18 is func
         "       ",
         "       "));
 
-    incl(result.fontPictures, 'î',
+    incl(bmpFont.fontPictures, 'î',
     [] ("        ",
         "        ",
         "        ",
@@ -5140,7 +5140,7 @@ const func bitmapFont: genStdFont18 is func
         "        ",
         "        "));
 
-    incl(result.fontPictures, 'ï',
+    incl(bmpFont.fontPictures, 'ï',
     [] ("          ",
         "          ",
         "          ",
@@ -5170,7 +5170,7 @@ const func bitmapFont: genStdFont18 is func
         "          ",
         "          "));
 
-    incl(result.fontPictures, 'ð',
+    incl(bmpFont.fontPictures, 'ð',
     [] ("              ",
         "              ",
         "              ",
@@ -5200,7 +5200,7 @@ const func bitmapFont: genStdFont18 is func
         "              ",
         "              "));
 
-    incl(result.fontPictures, 'ñ',
+    incl(bmpFont.fontPictures, 'ñ',
     [] ("             ",
         "             ",
         "             ",
@@ -5230,7 +5230,7 @@ const func bitmapFont: genStdFont18 is func
         "             ",
         "             "));
 
-    incl(result.fontPictures, 'ò',
+    incl(bmpFont.fontPictures, 'ò',
     [] ("               ",
         "               ",
         "               ",
@@ -5260,7 +5260,7 @@ const func bitmapFont: genStdFont18 is func
         "               ",
         "               "));
 
-    incl(result.fontPictures, 'ó',
+    incl(bmpFont.fontPictures, 'ó',
     [] ("               ",
         "               ",
         "               ",
@@ -5290,7 +5290,7 @@ const func bitmapFont: genStdFont18 is func
         "               ",
         "               "));
 
-    incl(result.fontPictures, 'ô',
+    incl(bmpFont.fontPictures, 'ô',
     [] ("               ",
         "               ",
         "               ",
@@ -5320,7 +5320,7 @@ const func bitmapFont: genStdFont18 is func
         "               ",
         "               "));
 
-    incl(result.fontPictures, 'õ',
+    incl(bmpFont.fontPictures, 'õ',
     [] ("               ",
         "               ",
         "               ",
@@ -5350,7 +5350,7 @@ const func bitmapFont: genStdFont18 is func
         "               ",
         "               "));
 
-    incl(result.fontPictures, 'ö',
+    incl(bmpFont.fontPictures, 'ö',
     [] ("               ",
         "               ",
         "               ",
@@ -5380,7 +5380,7 @@ const func bitmapFont: genStdFont18 is func
         "               ",
         "               "));
 
-    incl(result.fontPictures, '÷',
+    incl(bmpFont.fontPictures, '÷',
     [] ("                ",
         "                ",
         "                ",
@@ -5410,7 +5410,7 @@ const func bitmapFont: genStdFont18 is func
         "                ",
         "                "));
 
-    incl(result.fontPictures, 'ø',
+    incl(bmpFont.fontPictures, 'ø',
     [] ("               ",
         "               ",
         "               ",
@@ -5440,7 +5440,7 @@ const func bitmapFont: genStdFont18 is func
         "               ",
         "               "));
 
-    incl(result.fontPictures, 'ù',
+    incl(bmpFont.fontPictures, 'ù',
     [] ("             ",
         "             ",
         "             ",
@@ -5470,7 +5470,7 @@ const func bitmapFont: genStdFont18 is func
         "             ",
         "             "));
 
-    incl(result.fontPictures, 'ú',
+    incl(bmpFont.fontPictures, 'ú',
     [] ("             ",
         "             ",
         "             ",
@@ -5500,7 +5500,7 @@ const func bitmapFont: genStdFont18 is func
         "             ",
         "             "));
 
-    incl(result.fontPictures, 'û',
+    incl(bmpFont.fontPictures, 'û',
     [] ("             ",
         "             ",
         "             ",
@@ -5530,7 +5530,7 @@ const func bitmapFont: genStdFont18 is func
         "             ",
         "             "));
 
-    incl(result.fontPictures, 'ü',
+    incl(bmpFont.fontPictures, 'ü',
     [] ("             ",
         "             ",
         "             ",
@@ -5560,7 +5560,7 @@ const func bitmapFont: genStdFont18 is func
         "             ",
         "             "));
 
-    incl(result.fontPictures, 'ý',
+    incl(bmpFont.fontPictures, 'ý',
     [] ("              ",
         "              ",
         "              ",
@@ -5590,7 +5590,7 @@ const func bitmapFont: genStdFont18 is func
         " XXXXX        ",
         " XXXX         "));
 
-    incl(result.fontPictures, 'þ',
+    incl(bmpFont.fontPictures, 'þ',
     [] ("              ",
         "              ",
         "              ",
@@ -5620,7 +5620,7 @@ const func bitmapFont: genStdFont18 is func
         " XX           ",
         " XX           "));
 
-    incl(result.fontPictures, 'ÿ',
+    incl(bmpFont.fontPictures, 'ÿ',
     [] ("              ",
         "              ",
         "              ",
@@ -5650,7 +5650,7 @@ const func bitmapFont: genStdFont18 is func
         " XXXXX        ",
         " XXXX         "));
 
-    incl(result.fontPictures, '€',
+    incl(bmpFont.fontPictures, '€',
     [] ("                    ",
         "                    ",
         "                    ",
@@ -5680,7 +5680,7 @@ const func bitmapFont: genStdFont18 is func
         "                    ",
         "                    "));
 
-    result.columnWidth := columnWidth(result.fontPictures);
+    bmpFont.columnWidth := columnWidth(bmpFont.fontPictures);
 end func;
 
 

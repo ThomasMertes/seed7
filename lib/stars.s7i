@@ -38,12 +38,12 @@ const func starDescr: genStarDescr (in string: name,
     in float: rightAscension, in float: declination,
     in float: magnitude) is func
   result
-    var starDescr: result is starDescr.value;
+    var starDescr: star is starDescr.value;
   begin
-    result.name := name;
-    result.rightAscension := rightAscension;
-    result.declination := declination;
-    result.magnitude := magnitude;
+    star.name := name;
+    star.rightAscension := rightAscension;
+    star.declination := declination;
+    star.magnitude := magnitude;
   end func;
 
 

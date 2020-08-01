@@ -133,11 +133,9 @@ const func PRIMITIVE_WINDOW: DRAW_GET (
     in PRIMITIVE_WINDOW param,
     ref integer: left, ref integer: upper,
     ref integer: width, ref integer: height)        is action "DRW_GET";
-const func pixel: DRAW_GETPIXEL (
+const func pixel: getPixel (
     in PRIMITIVE_WINDOW param,
     ref integer: x, ref integer: y)                 is action "DRW_GETPIXEL";
-const func PRIMITIVE_WINDOW: DRAW_IMAGE (in PRIMITIVE_WINDOW param,
-    in array array pixel param)                     is action "DRW_IMAGE";
 const proc: DRAW_PUT (
     inout PRIMITIVE_WINDOW param, in PRIMITIVE_WINDOW: pixmap,
     ref integer: x, ref integer: y)                 is action "DRW_PUT";

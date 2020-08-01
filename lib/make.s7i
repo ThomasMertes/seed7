@@ -345,7 +345,7 @@ const proc: doCp (inout string: command, in boolean: cpCommand, in boolean: doLo
 
 const func string: doPwd (inout string: command, in boolean: doLog) is func
   result
-    var string: result is "";
+    var string: commandOutput is "";
   begin
     if doLog then
       write("pwd");
@@ -358,13 +358,13 @@ const func string: doPwd (inout string: command, in boolean: doLog) is func
       command := command[3 ..];
       skipWhiteSpace(command);
     end if;
-    result := getcwd;
+    commandOutput := getcwd;
   end func;
 
 
 const func string: doEcho (inout string: command, in boolean: doLog) is func
   result
-    var string: result is "";
+    var string: commandOutput is "";
   local
     var string: whiteSpace is "";
     var string: parameter is "";
@@ -372,22 +372,22 @@ const func string: doEcho (inout string: command, in boolean: doLog) is func
     whiteSpace := getWhiteSpace(command);
     if command <> "" and (command[1] = '"' or command[1] = ''') then
       while command <> "" and command[1] in parameter_char do
-        if result <> "" then
-          result &:= whiteSpace;
+        if commandOutput <> "" then
+          commandOutput &:= whiteSpace;
         end if;
         parameter := getUnixCommandParameter(command, parameter_char);
-        result &:= execBacktickCommands(parameter);
+        commandOutput &:= execBacktickCommands(parameter);
         whiteSpace := getWhiteSpace(command);
       end while;
     else
       while command <> "" and command[1] in parameter_char do
         parameter := getDosCommandParameter(command, dos_parameter_char);
-        result &:= parameter;
-        result &:= getWhiteSpace(command);
+        commandOutput &:= parameter;
+        commandOutput &:= getWhiteSpace(command);
       end while;
     end if;
     if doLog then
-      write("echo " <& result);
+      write("echo " <& commandOutput);
     end if;
   end func;
 
@@ -472,7 +472,7 @@ const proc: doMake (inout string: command, in boolean: doLog) is func
 const func boolean: doOneCommand (inout string: command,
     inout string: commandOutput, in boolean: doLog) is func
   result
-    var boolean: result is TRUE;
+    var boolean: done is TRUE;
   local
     var string: commandName is "";
   begin
@@ -502,9 +502,9 @@ const func boolean: doOneCommand (inout string: command,
         doMake(command, doLog);
         commandOutput := "";
       elsif commandName = "(" then
-        result := doOneCommand(command, commandOutput, doLog);
+        done := doOneCommand(command, commandOutput, doLog);
       else
-        result := FALSE;
+        done := FALSE;
         commandOutput := "";
       end if;
     end if;
@@ -527,7 +527,7 @@ const proc: appendToFile (in string: file_name, in string: stri) is func
 
 const func boolean: doCommands (inout string: command, in boolean: doLog) is func
   result
-    var boolean: result is TRUE;
+    var boolean: done is TRUE;
   local
     var integer: quotePos is 0;
     var string: commandOutput is "";
@@ -541,8 +541,8 @@ const func boolean: doCommands (inout string: command, in boolean: doLog) is fun
       end if;
     end if;
     repeat
-      result := doOneCommand(command, commandOutput, doLog);
-      if result then
+      done := doOneCommand(command, commandOutput, doLog);
+      if done then
         skipWhiteSpace(command);
         redirect := getWord(command);
         if redirect = ">" then
@@ -574,7 +574,7 @@ const func boolean: doCommands (inout string: command, in boolean: doLog) is fun
           skipWhiteSpace(command);
         end if;
       end if;
-    until command = "" or not result;
+    until command = "" or not done;
   end func;
 
 

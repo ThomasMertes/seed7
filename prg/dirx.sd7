@@ -32,7 +32,7 @@ $ include "seed7_05.s7i";
 const func boolean: wildcard_match (in string: main_stri, in string: pattern) is func
 
   result
-    var boolean: result is FALSE;
+    var boolean: doesMatch is FALSE;
 
   local
     var integer: main_length is 0;
@@ -41,28 +41,28 @@ const func boolean: wildcard_match (in string: main_stri, in string: pattern) is
 
   begin
     if pattern = "" then
-      result := main_stri = "";
+      doesMatch := main_stri = "";
     else
       case pattern[1] of
         when {'*'}:
           if pattern = "*" then
-            result := TRUE;
+            doesMatch := TRUE;
           else
             main_length := length(main_stri);
             pattern_tail := pattern[2 .. ];
-            while main_index <= main_length and not result do
-              result := wildcard_match(main_stri[main_index .. ],
+            while main_index <= main_length and not doesMatch do
+              doesMatch := wildcard_match(main_stri[main_index .. ],
                   pattern_tail);
               incr(main_index);
             end while;
           end if;
         when {'?'}:
           if main_stri <> "" then
-            result := wildcard_match(main_stri[2 .. ], pattern[2 .. ]);
+            doesMatch := wildcard_match(main_stri[2 .. ], pattern[2 .. ]);
           end if;
         otherwise:
           if main_stri <> "" and main_stri[1] = pattern[1] then
-            result := wildcard_match(main_stri[2 .. ], pattern[2 .. ]);
+            doesMatch := wildcard_match(main_stri[2 .. ], pattern[2 .. ]);
           end if;
       end case;
     end if;

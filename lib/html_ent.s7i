@@ -33,10 +33,10 @@ const type: htmlEntityType is new struct
 
 const func htmlEntityType: genHtmlEntity (in string: entityName, in integer: charOrdNum) is func
   result
-    var htmlEntityType: result is htmlEntityType.value;
+    var htmlEntityType: entity is htmlEntityType.value;
   begin
-    result.entityName := entityName;
-    result.charValue := chr(charOrdNum);
+    entity.entityName := entityName;
+    entity.charValue := chr(charOrdNum);
   end func;
 
 const array htmlEntityType: htmlEntityList is [] (
@@ -311,12 +311,12 @@ const type: htmlEntityHashType is hash [string] char;
 
 const func htmlEntityHashType: genHtmlEntityHash (in array htmlEntityType: htmlEntityList) is func
   result
-    var htmlEntityHashType: result is htmlEntityHashType.value;
+    var htmlEntityHashType: entityHash is htmlEntityHashType.value;
   local
     var integer: number is 0;
   begin
     for number range 1 to length(htmlEntityList) do
-      result @:= [htmlEntityList[number].entityName] htmlEntityList[number].charValue;
+      entityHash @:= [htmlEntityList[number].entityName] htmlEntityList[number].charValue;
     end for;
   end func;
 
@@ -326,12 +326,12 @@ const type: htmlCharNameHashType is hash [char] string;
 
 const func htmlCharNameHashType: genHtmlCharNameHash (in array htmlEntityType: htmlEntityList) is func
   result
-    var htmlCharNameHashType: result is htmlCharNameHashType.value;
+    var htmlCharNameHashType: charNameHash is htmlCharNameHashType.value;
   local
     var integer: number is 0;
   begin
     for number range 1 to length(htmlEntityList) do
-      result @:= [htmlEntityList[number].charValue] htmlEntityList[number].entityName;
+      charNameHash @:= [htmlEntityList[number].charValue] htmlEntityList[number].entityName;
     end for;
   end func;
 
@@ -345,7 +345,7 @@ const htmlCharNameHashType: htmlCharNameHash is genHtmlCharNameHash(htmlEntityLi
  *)
 const func string: decodeHtmlEntities (in string: stri) is func
   result
-    var string: result is "";
+    var string: decoded is "";
   local
     var integer: old_pos is 1;
     var integer: new_pos is 0;
@@ -361,25 +361,25 @@ const func string: decodeHtmlEntities (in string: stri) is func
         if length(entityName) >= 2 and entityName[1] = '#' and
             isDigitString(entityName[2 ..]) then
           charValue := chr(integer parse (entityName[2 ..]));
-          result &:= stri[old_pos .. pred(new_pos)];
-          result &:= str(charValue);
+          decoded &:= stri[old_pos .. pred(new_pos)];
+          decoded &:= str(charValue);
           old_pos := succ(semicol_pos);
         elsif entityName in htmlEntityHash then
           charValue := htmlEntityHash[entityName];
-          result &:= stri[old_pos .. pred(new_pos)];
-          result &:= str(charValue);
+          decoded &:= stri[old_pos .. pred(new_pos)];
+          decoded &:= str(charValue);
           old_pos := succ(semicol_pos);
         else
-          result &:= stri[old_pos .. new_pos];
+          decoded &:= stri[old_pos .. new_pos];
           old_pos := succ(new_pos);
         end if;
       else
-        result &:= stri[old_pos .. new_pos];
+        decoded &:= stri[old_pos .. new_pos];
         old_pos := succ(new_pos);
       end if;
       new_pos := pos(stri, '&', old_pos);
     end while;
-    result &:= stri[old_pos ..];
+    decoded &:= stri[old_pos ..];
   end func;
 
 
@@ -392,7 +392,7 @@ const func string: decodeHtmlEntities (in string: stri) is func
  *)
 const func string: encodeHtmlEntities (in string: stri) is func
   result
-    var string: result is "";
+    var string: encoded is "";
   local
     var integer: old_pos is 1;
     var integer: index is 0;
@@ -401,12 +401,12 @@ const func string: encodeHtmlEntities (in string: stri) is func
     for index range 1 to length(stri) do
       ch := stri[index];
       if ch in htmlCharNameHash then
-        result &:= stri[old_pos .. pred(index)];
-        result &:= "&" & htmlCharNameHash[ch] & ";";
+        encoded &:= stri[old_pos .. pred(index)];
+        encoded &:= "&" & htmlCharNameHash[ch] & ";";
         old_pos := succ(index);
       end if;
     end for;
-    result &:= stri[old_pos ..];
+    encoded &:= stri[old_pos ..];
   end func;
 
 
@@ -418,7 +418,7 @@ const func string: encodeHtmlEntities (in string: stri) is func
  *)
 const func string: encodeHtmlContent (in string: stri) is func
   result
-    var string: result is "";
+    var string: encoded is "";
   local
     var integer: old_pos is 1;
     var integer: index is 0;
@@ -427,16 +427,16 @@ const func string: encodeHtmlContent (in string: stri) is func
     for index range 1 to length(stri) do
       ch := stri[index];
       if ch = '&' then
-        result &:= stri[old_pos .. pred(index)];
-        result &:= "&amp;";
+        encoded &:= stri[old_pos .. pred(index)];
+        encoded &:= "&amp;";
         old_pos := succ(index);
       elsif ch = '<' then
-        result &:= stri[old_pos .. pred(index)];
-        result &:= "&lt;";
+        encoded &:= stri[old_pos .. pred(index)];
+        encoded &:= "&lt;";
         old_pos := succ(index);
       end if;
     end for;
-    result &:= stri[old_pos ..];
+    encoded &:= stri[old_pos ..];
   end func;
 
 
@@ -450,7 +450,7 @@ const func string: encodeHtmlContent (in string: stri) is func
  *)
 const func string: quoteHtmlAttrValue (in string: stri) is func
   result
-    var string: result is "\"";
+    var string: quoted is "\"";
   local
     var integer: old_pos is 1;
     var integer: index is 0;
@@ -459,11 +459,11 @@ const func string: quoteHtmlAttrValue (in string: stri) is func
     for index range 1 to length(stri) do
       ch := stri[index];
       if ch = '\"' or ch = '&' or ch = '<' or ch = '>' then
-        result &:= stri[old_pos .. pred(index)];
-        result &:= "&" & htmlCharNameHash[ch] & ";";
+        quoted &:= stri[old_pos .. pred(index)];
+        quoted &:= "&" & htmlCharNameHash[ch] & ";";
         old_pos := succ(index);
       end if;
     end for;
-    result &:= stri[old_pos ..];
-    result &:= "\"";
+    quoted &:= stri[old_pos ..];
+    quoted &:= "\"";
   end func;

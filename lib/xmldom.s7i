@@ -206,7 +206,7 @@ const proc: writeXml (inout external_file: outFile, in xmlContainer: aContainer)
 
 const func xmlNode: readXmlNode (inout file: inFile, inout string: symbol) is func
   result
-    var xmlNode: result is xmlNode.value;
+    var xmlNode: node is xmlNode.value;
   local
     var xmlContainer: containerElement is xmlContainer.value;
     var xmlElement: emptyElement is xmlElement.value;
@@ -230,7 +230,7 @@ const func xmlNode: readXmlNode (inout file: inFile, inout string: symbol) is fu
         # writeln("/>");
         emptyElement.name := containerElement.name;
         emptyElement.attributes := containerElement.attributes;
-        result := toInterface(emptyElement);
+        node := toInterface(emptyElement);
       elsif attributeValue = ">" then
         # The XML tag ends with >
         # writeln(">");
@@ -248,17 +248,17 @@ const func xmlNode: readXmlNode (inout file: inFile, inout string: symbol) is fu
           # There are no subnodes: Create empty element
           emptyElement.name := containerElement.name;
           emptyElement.attributes := containerElement.attributes;
-          result := toInterface(emptyElement);
+          node := toInterface(emptyElement);
         else
-          result := toInterface(containerElement);
+          node := toInterface(containerElement);
         end if;
       end if;
     else
       # writeln("content=" <& literal(symbol));
       currentText.content := decodeXmlEntities(symbol, predeclaredXmlEntities);
-      result := toInterface(currentText);
+      node := toInterface(currentText);
     end if;
-    # TRACE_OBJ(result); writeln;
+    # TRACE_OBJ(node); writeln;
   end func;
 
 
@@ -268,7 +268,7 @@ const func xmlNode: readXmlNode (inout file: inFile, inout string: symbol) is fu
  *)
 const func xmlNode: readXml (inout file: inFile) is func
   result
-    var xmlNode: result is xmlNode.value;
+    var xmlNode: node is xmlNode.value;
   local
     var string: symbol is "";
   begin
@@ -277,8 +277,8 @@ const func xmlNode: readXml (inout file: inFile) is func
       skipXmlTag(inFile);
       symbol := getXmlTagHeadOrContent(inFile);
     end while;
-    result := readXmlNode(inFile, symbol);
-    # TRACE_OBJ(result); writeln;
+    node := readXmlNode(inFile, symbol);
+    # TRACE_OBJ(node); writeln;
   end func;
 
 
@@ -288,7 +288,7 @@ const func xmlNode: readXml (inout file: inFile) is func
 
 const func xmlNode: readHtmlNode (inout file: inFile, inout string: symbol) is func
   result
-    var xmlNode: result is xmlNode.value;
+    var xmlNode: node is xmlNode.value;
   local
     var xmlContainer: containerElement is xmlContainer.value;
     var xmlElement: emptyElement is xmlElement.value;
@@ -313,7 +313,7 @@ const func xmlNode: readHtmlNode (inout file: inFile, inout string: symbol) is f
         # writeln("/>");
         emptyElement.name := containerElement.name;
         emptyElement.attributes := containerElement.attributes;
-        result := toInterface(emptyElement);
+        node := toInterface(emptyElement);
       elsif attributeValue = "" then
         # The HTML tag ends with >
         # writeln(">");
@@ -333,23 +333,23 @@ const func xmlNode: readHtmlNode (inout file: inFile, inout string: symbol) is f
           # There are no subnodes: Create empty element
           emptyElement.name := containerElement.name;
           emptyElement.attributes := containerElement.attributes;
-          result := toInterface(emptyElement);
+          node := toInterface(emptyElement);
         else
-          result := toInterface(containerElement);
+          node := toInterface(containerElement);
         end if;
       end if;
     else
       # writeln("content=" <& literal(symbol));
       currentText.content := decodeHtmlEntities(symbol);
-      result := toInterface(currentText);
+      node := toInterface(currentText);
     end if;
-    # TRACE_OBJ(result); writeln;
+    # TRACE_OBJ(node); writeln;
   end func;
 
 
 const func xmlNode: readHtml (inout file: inFile) is func
   result
-    var xmlNode: result is xmlNode.value;
+    var xmlNode: node is xmlNode.value;
   local
     var string: symbol is "";
   begin
@@ -358,8 +358,8 @@ const func xmlNode: readHtml (inout file: inFile) is func
       skipXmlTag(inFile);
       symbol := getXmlTagHeadOrContent(inFile);
     end while;
-    result := readHtmlNode(inFile, symbol);
-    # TRACE_OBJ(result); writeln;
+    node := readHtmlNode(inFile, symbol);
+    # TRACE_OBJ(node); writeln;
   end func;
 
 

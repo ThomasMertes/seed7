@@ -265,14 +265,14 @@ const func float: anomaly2 (in float: m, in float: eccentricity) is func
 
 const func float: eclipticalCoordinatesToRightAscension (in float: l, in float: b) is func
   result
-    var float: result is 0.0;
+    var float: rightAscension is 0.0;
   local
     var float: x is 0.0;
     var float: y is 0.0;
   begin
     x := cosD(l);
     y := sinD(l) * 0.91746406 - tanD(b) * 0.397818676;
-    result := atan2D(y, x) / 15.0;
+    rightAscension := atan2D(y, x) / 15.0;
   end func; (* eclipticalCoordinatesToRightAscension *)
 
 
@@ -305,7 +305,7 @@ const proc: hoursToRange (inout float: hours) is func
 const func float: localSiderealToCivilTime (in float: localSiderealTime,
     in float: longitude, in time: aTime) is func
   result
-    var float: result is 0.0
+    var float: localCivilTime is 0.0
   local
     var float: t is 0.0;
     var float: b is 0.0;
@@ -325,7 +325,7 @@ const func float: localSiderealToCivilTime (in float: localSiderealTime,
     t := greenwichSiderealTime - flt(dayOfYear(aTime)) * 0.0657098 + b;
     hoursToRange(t);
     greenwichMeanTime := t * 0.99727;
-    result := greenwichMeanTime + flt(aTime.timeZone) / 60.0;
+    localCivilTime := greenwichMeanTime + flt(aTime.timeZone) / 60.0;
   end func;
 
 
@@ -655,7 +655,7 @@ const proc: changeLongLat is func
 const func float: computeProjectedHeliocentricLongitude (in heliocentricPlanetType: planet,
     in orbitType: orbitDescr) is func
   result
-    var float: result is 0.0;
+    var float: projectedHeliocentricLongitude is 0.0;
   local
     var float: y is 0.0;
     var float: x is 0.0;
@@ -665,7 +665,7 @@ const func float: computeProjectedHeliocentricLongitude (in heliocentricPlanetTy
          cosD(orbitDescr.inclination);
     x := cosD(planet.heliocentricLongitude - orbitDescr.longitudeOfTheAscendingNode);
     z := atan2D(y, x);
-    result := z + orbitDescr.longitudeOfTheAscendingNode;
+    projectedHeliocentricLongitude := z + orbitDescr.longitudeOfTheAscendingNode;
   end func;
 
 
@@ -681,40 +681,39 @@ const proc: ProjectPlanetOntoEclipticalPlane (inout heliocentricPlanetType: plan
 const func eclipticalCoordinateType: calculateEclipticalCoordinates (in heliocentricPlanetType: planet,
     in heliocentricPlanetType: earth) is func
   result
-    var eclipticalCoordinateType: result is eclipticalCoordinateType.value;
+    var eclipticalCoordinateType: eclipticalCoordinate is eclipticalCoordinateType.value;
   begin
     if planet.radiusVector < earth.radiusVector then
-      result.geocentricEclipticLongitude := earth.heliocentricLongitude + 180.0 +
-           atanD(planet.projectedRadius * sinD(earth.heliocentricLongitude -
-           planet.projectedHeliocentricLongitude) / (earth.radiusVector -
-           planet.projectedRadius * cosD(earth.heliocentricLongitude -
-           planet.projectedHeliocentricLongitude)));
+      eclipticalCoordinate.geocentricEclipticLongitude := earth.heliocentricLongitude + 180.0 +
+          atanD(planet.projectedRadius * sinD(earth.heliocentricLongitude -
+          planet.projectedHeliocentricLongitude) / (earth.radiusVector -
+          planet.projectedRadius * cosD(earth.heliocentricLongitude -
+          planet.projectedHeliocentricLongitude)));
     else
-      result.geocentricEclipticLongitude := planet.projectedHeliocentricLongitude +
-           atanD(earth.radiusVector * sinD(planet.projectedHeliocentricLongitude -
-           earth.heliocentricLongitude) / (planet.projectedRadius -
-           earth.radiusVector * cosD(planet.projectedHeliocentricLongitude -
-           earth.heliocentricLongitude)));
+      eclipticalCoordinate.geocentricEclipticLongitude := planet.projectedHeliocentricLongitude +
+          atanD(earth.radiusVector * sinD(planet.projectedHeliocentricLongitude -
+          earth.heliocentricLongitude) / (planet.projectedRadius -
+          earth.radiusVector * cosD(planet.projectedHeliocentricLongitude -
+          earth.heliocentricLongitude)));
     end if;
-    degreesToRange(result.geocentricEclipticLongitude);
-    result.geocentricLatitude := atanD(planet.projectedRadius *
-                           tanD(planet.heliocentricEclipticLatitude) *
-                           sinD(result.geocentricEclipticLongitude -
-                           planet.projectedHeliocentricLongitude) / (earth.radiusVector *
-                           sinD(planet.projectedHeliocentricLongitude -
-                           earth.heliocentricLongitude)));
+    degreesToRange(eclipticalCoordinate.geocentricEclipticLongitude);
+    eclipticalCoordinate.geocentricLatitude := atanD(planet.projectedRadius *
+        tanD(planet.heliocentricEclipticLatitude) *
+        sinD(eclipticalCoordinate.geocentricEclipticLongitude -
+        planet.projectedHeliocentricLongitude) / (earth.radiusVector *
+        sinD(planet.projectedHeliocentricLongitude - earth.heliocentricLongitude)));
   end func;
 
 
 const func equatorialCoordinateType: calculateEquatorialCoordinates (
     in eclipticalCoordinateType: eclipticalCoordinate) is func
   result
-    var equatorialCoordinateType: result is equatorialCoordinateType.value;
+    var equatorialCoordinateType: equatorialCoordinate is equatorialCoordinateType.value;
   begin
-    result.rightAscension := eclipticalCoordinatesToRightAscension(
+    equatorialCoordinate.rightAscension := eclipticalCoordinatesToRightAscension(
         eclipticalCoordinate.geocentricEclipticLongitude,
         eclipticalCoordinate.geocentricLatitude);
-    result.declination := eclipticalCoordinatesToDeclination(
+    equatorialCoordinate.declination := eclipticalCoordinatesToDeclination(
         eclipticalCoordinate.geocentricEclipticLongitude,
         eclipticalCoordinate.geocentricLatitude);
   end func;
@@ -736,16 +735,16 @@ const func horizontalCoordinateType: calculateHorizontalCoordinates (
     in equatorialCoordinateType: equatorialCoordinate,
     in earthCoordinateType: posAtEarth, in float: hourAngle) is func
   result
-    var horizontalCoordinateType: result is horizontalCoordinateType.value;
+    var horizontalCoordinateType: horizontalCoordinate is horizontalCoordinateType.value;
   begin
-    result.altitude := asinD(sinD(equatorialCoordinate.declination) * sinD(posAtEarth.latitude) +
-                       cosD(equatorialCoordinate.declination) * cosD(posAtEarth.latitude) *
-                       cosD(hourAngle * 15.0));
-    result.azimuth := acosD((sinD(equatorialCoordinate.declination) -
-                      sinD(posAtEarth.latitude) * sinD(result.altitude))/
-                      (cosD(posAtEarth.latitude) * cosD(result.altitude)));
+    horizontalCoordinate.altitude := asinD(sinD(equatorialCoordinate.declination) * sinD(posAtEarth.latitude) +
+        cosD(equatorialCoordinate.declination) * cosD(posAtEarth.latitude) *
+        cosD(hourAngle * 15.0));
+    horizontalCoordinate.azimuth := acosD((sinD(equatorialCoordinate.declination) -
+        sinD(posAtEarth.latitude) * sinD(horizontalCoordinate.altitude)) /
+        (cosD(posAtEarth.latitude) * cosD(horizontalCoordinate.altitude)));
     if sinD(hourAngle * 15.0) > 0.0 then
-      result.azimuth := 360.0 - result.azimuth;
+      horizontalCoordinate.azimuth := 360.0 - horizontalCoordinate.azimuth;
     end if;
   end func;
 
@@ -754,13 +753,13 @@ const func geocentricPlanetType: genGeocentricPos (in heliocentricPlanetType: pl
     in heliocentricPlanetType: earth, in float: localSiderealTime,
     in earthCoordinateType: posAtEarth) is func
   result
-    var geocentricPlanetType: result is geocentricPlanetType.value;
+    var geocentricPlanetType: geocentricPos is geocentricPlanetType.value;
   begin
-    result.eclipticalCoordinate := calculateEclipticalCoordinates(planet, earth);
-    result.equatorialCoordinate := calculateEquatorialCoordinates(result.eclipticalCoordinate);
-    result.hourAngle := calculateHourAngle(result.equatorialCoordinate, localSiderealTime);
-    result.horizontalCoordinate := calculateHorizontalCoordinates(result.equatorialCoordinate,
-        posAtEarth, result.hourAngle);
+    geocentricPos.eclipticalCoordinate := calculateEclipticalCoordinates(planet, earth);
+    geocentricPos.equatorialCoordinate := calculateEquatorialCoordinates(geocentricPos.eclipticalCoordinate);
+    geocentricPos.hourAngle := calculateHourAngle(geocentricPos.equatorialCoordinate, localSiderealTime);
+    geocentricPos.horizontalCoordinate := calculateHorizontalCoordinates(geocentricPos.equatorialCoordinate,
+        posAtEarth, geocentricPos.hourAngle);
   end func;
 
 

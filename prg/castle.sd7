@@ -907,25 +907,6 @@ const array string: small_spider_pic is [](
   "                ");
 
 
-const array string: vampire_pic is [](
-  "      bbbb      ",
-  "     bbbbbb     ",
-  "     bBxxBb     ",
-  "XX   xxxxxx   XX",
-  "Xx   xXXXXx   xX",
-  " xx   XxxX   xx ",
-  "  xxggggggggxx  ",
-  "  bxggggggggxb  ",
-  "  bbggggggggbb  ",
-  "  bbggggggggbb  ",
-  "  bbggggggggbb  ",
-  "  bbbxxbbxxbbb  ",
-  "  bbbxxbbxxbbb  ",
-  "  bbbxxbbxxbbb  ",
-  "     xx  xx     ",
-  "   rrrr  rrrr   ");
-
-
 const array string: fairy_pic is [](
   "  xxxx        YYYYY        xxxx ",
   " xxccxx      YYYYYYY      xxccxx",
@@ -959,25 +940,6 @@ const array string: fairy_pic is [](
   "              XX XX             ",
   "              XX XX             ",
   "             XXX XXX            ");
-
-
-const array string: door_pic is [](
-  "BBBBBBBBBBBBBBBB",
-  "B  B  B  B  B  B",
-  "B  B  B  B  B  B",
-  "BBBBBBBBBBBBBBBB",
-  "B  B  B  B  B  B",
-  "B  B  B  B  B  B",
-  "BBBBBBBBBBBBBBBB",
-  "B  B  B  B  B  B",
-  "B  B  B  B  B  B",
-  "BBBBBBBBBBBBBBBB",
-  "B  B  B  B  B  B",
-  "B  B  B  B  B  B",
-  "BBBBBBBBBBBBBBBB",
-  "B  B  B  B  B  B",
-  "B  B  B  B  B  B",
-  "BBBBBBBBBBBBBBBB");
 
 
 const array string: large_gem_pic is [](
@@ -1032,7 +994,7 @@ const array string: player_pic is [](
 const func PRIMITIVE_WINDOW: create_pixmap (in array string: pattern,
     in integer: scale) is func
   result
-    var PRIMITIVE_WINDOW: result is PRIMITIVE_WINDOW.value;
+    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
   local
     var integer: height is 0;
     var integer: width is 0;
@@ -1042,8 +1004,8 @@ const func PRIMITIVE_WINDOW: create_pixmap (in array string: pattern,
   begin
     height := length(pattern);
     width := length(pattern[1]);
-    result := newPixmap(width * scale, height * scale);
-    clear(result, black);
+    pixmap := newPixmap(width * scale, height * scale);
+    clear(pixmap, black);
     for line range 1 to height do
       for column range 1 to width do
         case pattern[line][column] of
@@ -1064,7 +1026,7 @@ const func PRIMITIVE_WINDOW: create_pixmap (in array string: pattern,
           when {'b'}: col := brown;
           otherwise:  col := black;
         end case;
-        rect(result,
+        rect(pixmap,
             pred(column) * scale,
             pred(line) * scale,
             scale, scale, col);
@@ -1139,10 +1101,10 @@ const proc: initMonsterData is func
     initMonster(VAMPIRE,      "",      "Vampire", vampire_pic,      10, 24, 0,   0, CORRIDOR28);
     initMonster(FAIRY1,       "",      "Fairy",   fairy_pic,        10,  1, 0,   0, CORRIDOR52);
     initMonster(FAIRY2,       "",      "Fairy",   fairy_pic,         1, 12, 0,   0, CORRIDOR54);
-    initMonster(DOOR1,        "",      "Door",    door_pic,         15,  9, 0,   0, WINE_CELLAR);
-    initMonster(DOOR2,        "",      "",        door_pic,         15, 10, 0,   0, WINE_CELLAR);
-    initMonster(DOOR3,        "",      "Door",    door_pic,          9, 14, 0,   0, DUNGEON_ENTRANCE);
-    initMonster(DOOR4,        "",      "",        door_pic,         10, 14, 0,   0, DUNGEON_ENTRANCE);
+    initMonster(DOOR1,        "",      "Door",    grating_pic,      15,  9, 0,   0, WINE_CELLAR);
+    initMonster(DOOR2,        "",      "",        grating_pic,      15, 10, 0,   0, WINE_CELLAR);
+    initMonster(DOOR3,        "",      "Door",    grating_pic,       9, 14, 0,   0, DUNGEON_ENTRANCE);
+    initMonster(DOOR4,        "",      "",        grating_pic,      10, 14, 0,   0, DUNGEON_ENTRANCE);
   end func;
 
 
@@ -1335,13 +1297,13 @@ const proc: displayBox (in color: boxColor) is func
 
 const func PRIMITIVE_WINDOW: getPixmap (inout graphObj: currObject) is func
   result
-    var PRIMITIVE_WINDOW: result is PRIMITIVE_WINDOW.value;
+    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
   begin
     if currObject.pixmap = PRIMITIVE_WINDOW.value then
       currObject.pixmap := create_pixmap(currObject.picture,
           PIXMAP_SIZE div length(currObject.picture));
     end if;
-    result := currObject.pixmap;
+    pixmap := currObject.pixmap;
   end func;
 
 
@@ -1591,11 +1553,11 @@ const proc: killedMonsters is func
 
 const func integer: getInventoryStartLine is func
   result
-    var integer: result is 0;
+    var integer: startLine is 0;
   begin
-    result := succ(sizeOfLegend);
-    if result < INVENTORY_LINE then
-      result := INVENTORY_LINE;
+    startLine := succ(sizeOfLegend);
+    if startLine < INVENTORY_LINE then
+      startLine := INVENTORY_LINE;
     end if;
   end func;
 
@@ -2242,28 +2204,28 @@ const func array string: getItemMessage (in itemType: item_ident) is func
 
 const func integer: getScore is func
   result
-    var integer: result is 0;
+    var integer: score is 0;
   local
     var monsterType: monster_ident is NO_MONSTER;
     var itemType: item_ident is NO_ITEM;
   begin
     for monster_ident range MIN_MONSTER to BAT do
       if not monster[monster_ident].living then
-        result +:= 100;
+        score +:= 100;
       end if;
     end for;
     for item_ident range CROWN to MAX_ITEM do
       if item_ident in player.inventory or
           item[item_ident].room_num = COURTYARD then
-        result +:= 50;
+        score +:= 50;
       end if;
     end for;
     if player.room = ESCAPED then
-      result +:= 100;
+      score +:= 100;
     end if;
 
-    if result > highScore.points then
-      highScore.points := result;
+    if score > highScore.points then
+      highScore.points := score;
       highScore.name := player.name;
     end if;
   end func;
@@ -2655,22 +2617,22 @@ const func char: hitWall (in integer: xPos, in integer: yPos) is func
 
 const func boolean: checkCollision (in integer: xPos, in integer: yPos) is func
   result
-    var boolean: result is FALSE;
+    var boolean: collision is FALSE;
   local
     var char: ch is ' ';
   begin
     ch := getField(xPos, yPos);
-    result := ch <> ' ';
+    collision := ch <> ' ';
   end func;
 
 
 const func boolean: hitPlayer (in graphObj: obj1, in graphObj: obj2) is func
   result
-    var boolean: result is FALSE;
+    var boolean: hit is FALSE;
   begin
     if abs(obj1.xPos - obj2.xPos) < PIXMAP_SIZE and
         abs(obj1.yPos - obj2.yPos) < PIXMAP_SIZE then
-      result := TRUE;
+      hit := TRUE;
     end if;
   end func;
 

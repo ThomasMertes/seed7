@@ -4070,7 +4070,7 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
     Prefix operators:
       <span class="keywd">func</span>
       <span class="keywd">result</span>
-        <span class="keywd">var</span> <span class="type">baseType</span>: result <span class="keywd">is</span> <span class="type">baseType</span>.value;
+        <span class="keywd">var</span> <span class="type">baseType</span>: resultVariable <span class="keywd">is</span> <span class="type">baseType</span>.value;
       <span class="keywd">begin</span>
         statements
       <span class="keywd">end func</span>
@@ -4080,7 +4080,7 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
 
       <span class="keywd">func</span>
       <span class="keywd">result</span>
-        <span class="keywd">var</span> <span class="type">baseType</span>: result <span class="keywd">is</span> <span class="type">baseType</span>.value;
+        <span class="keywd">var</span> <span class="type">baseType</span>: resultVariable <span class="keywd">is</span> <span class="type">baseType</span>.value;
       <span class="keywd">local</span>
         declarations
       <span class="keywd">begin</span>
@@ -4132,10 +4132,10 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_boolean">boolean</a>: (<span class="keywd">in</span> <a class="type" href="#types_boolean">boolean</a>: first) and (<span class="keywd">in</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_boolean">boolean</a>: second) <span class="keywd">is func</span>
   <span class="keywd">result</span>
-    <span class="keywd">var</span> <a class="type" href="#types_boolean">boolean</a>: result <span class="keywd">is</span> FALSE;
+    <span class="keywd">var</span> <a class="type" href="#types_boolean">boolean</a>: conjunction <span class="keywd">is</span> FALSE;
   <span class="keywd">begin</span>
     <span class="keywd">if</span> first <span class="keywd">then</span>
-      result := second;
+      conjunction := second;
     <span class="keywd">end if</span>;
   <span class="keywd">end func</span>;
 </pre><p>
@@ -5071,32 +5071,32 @@ type_implements_interface(<span class="type">Float</span>, <span class="type">Nu
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_func">func</a> <span class="type">Float</span>: (<span class="keywd">in</span> <span class="type">Integer</span>: a) + (<span class="keywd">in</span> <span class="type">Float</span>: b) <span class="keywd">is func</span>
   <span class="keywd">result</span>
-    <span class="keywd">var</span> <span class="type">Float</span>: result <span class="keywd">is</span> <span class="type">Float</span>.value;
+    <span class="keywd">var</span> <span class="type">Float</span>: sum <span class="keywd">is</span> <span class="type">Float</span>.value;
   <span class="keywd">begin</span>
-    result.val := flt(a.val) + b.val;
+    sum.val := flt(a.val) + b.val;
   <span class="keywd">end func</span>;
 
 <span class="keywd">const</span> <a class="type" href="#types_func">func</a> <span class="type">Float</span>: (<span class="keywd">in</span> <span class="type">Float</span>: a) + (<span class="keywd">in</span> <span class="type">Integer</span>: b) <span class="keywd">is func</span>
   <span class="keywd">result</span>
-    <span class="keywd">var</span> <span class="type">Float</span>: result <span class="keywd">is</span> <span class="type">Float</span>.value;
+    <span class="keywd">var</span> <span class="type">Float</span>: sum <span class="keywd">is</span> <span class="type">Float</span>.value;
   <span class="keywd">begin</span>
-    result.val := a.val + flt(b.val);
+    sum.val := a.val + flt(b.val);
   <span class="keywd">end func</span>;
 </pre><p>
   The declarations of the normal <tt>'+'</tt> operators (which do not convert) are:
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_func">func</a> <span class="type">Integer</span>: (<span class="keywd">in</span> <span class="type">Integer</span>: a) + (<span class="keywd">in</span> <span class="type">Integer</span>: b) <span class="keywd">is func</span>
   <span class="keywd">result</span>
-    <span class="keywd">var</span> <span class="type">Integer</span>: result <span class="keywd">is</span> <span class="type">Integer</span>.value;
+    <span class="keywd">var</span> <span class="type">Integer</span>: sum <span class="keywd">is</span> <span class="type">Integer</span>.value;
   <span class="keywd">begin</span>
-    result.val := a.val + b.val;
+    sum.val := a.val + b.val;
   <span class="keywd">end func</span>;
 
 <span class="keywd">const</span> <a class="type" href="#types_func">func</a> <span class="type">Float</span>: (<span class="keywd">in</span> <span class="type">Float</span>: a) + (<span class="keywd">in</span> <span class="type">Float</span>: b) <span class="keywd">is func</span>
   <span class="keywd">result</span>
-    <span class="keywd">var</span> <span class="type">Float</span>: result <span class="keywd">is</span> <span class="type">Float</span>.value;
+    <span class="keywd">var</span> <span class="type">Float</span>: sum <span class="keywd">is</span> <span class="type">Float</span>.value;
   <span class="keywd">begin</span>
-    result.val := a.val + b.val;
+    sum.val := a.val + b.val;
   <span class="keywd">end func</span>;
 </pre><p>
   The type <tt><span class="type">Number</span></tt> can be extended to support other
@@ -5191,10 +5191,10 @@ type_implements_interface(<span class="type">treeElement</span>, <span class="ty
 
 <span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_integer">integer</a>: sum (<span class="keywd">in</span> <span class="type">element</span>: anElem) <span class="keywd">is func</span>
   <span class="keywd">result</span>
-    <span class="keywd">var</span> <a class="type" href="#types_integer">integer</a>: result <span class="keywd">is</span> 0;
+    <span class="keywd">var</span> <a class="type" href="#types_integer">integer</a>: sum <span class="keywd">is</span> 0;
   <span class="keywd">begin</span>
     <span class="keywd">if</span> anElem &lt;> <span class="type">element</span>.NIL <span class="keywd">then</span>
-      result := anElem.item + sum(anElem.left) + sum(anElem.right);
+      sum := anElem.item + sum(anElem.left) + sum(anElem.right);
     <span class="keywd">end if</span>;
   <span class="keywd">end func</span>;
 </pre><p>
@@ -5564,12 +5564,8 @@ writeln(99.9 <span class="keywd">digits</span> 2 <span class="keywd">lpad</span>
   <tt>'eoln'</tt> function to test if the last <tt><span class="func">getwd</span></tt> or <tt><span class="func">getln</span></tt> reach the end
   of a line. Here is a definition of the <tt>'eoln'</tt> function:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">func boolean</span>: eoln (<span class="keywd">ref</span> <span class="type">null_file</span>: aFile) <span class="keywd">is func</span>
-  <span class="keywd">result</span>
-    <span class="keywd">var</span> <span class="type">boolean</span>: result <span class="keywd">is</span> TRUE;
-  <span class="keywd">begin</span>
-    result := aFile.bufferChar = '\n';
-  <span class="keywd">end func</span>;
+<span class="keywd">const</span> <span class="type">func boolean</span>: eoln (<span class="keywd">in</span> <span class="type">null_file</span>: inFile) <span class="keywd">is</span>
+  <span class="keywd">return</span> inFile.bufferChar = '\n';
 </pre><p>
   Besides assigning a value to <tt>'bufferChar'</tt> in <tt><span class="func">getwd</span></tt> and <tt><span class="func">getln</span></tt>
   and using it in <tt>'eoln'</tt> the standard <tt><a class="type" href="#types_file">file</a></tt> functions do nothing
@@ -5935,10 +5931,10 @@ my_out := open_utf8(<span class="stri">"utf8_file"</span>, <span class="stri">"r
 <span class="keywd">const</span> <span class="type">func external_file</span>: INIT_STD_FILE (<span class="keywd">ref</span> <span class="type">clib_file</span>: primitive_file,
     <span class="keywd">in</span> <span class="type">string</span>: file_name) <span class="keywd">is func</span>
   <span class="keywd">result</span>
-    <span class="keywd">var</span> <span class="type">external_file</span>: result <span class="keywd">is</span> <span class="type">external_file</span>.value;
+    <span class="keywd">var</span> <span class="type">external_file</span>: standardFile <span class="keywd">is</span> <span class="type">external_file</span>.value;
   <span class="keywd">begin</span>
-    result.ext_file := primitive_file;
-    result.name := file_name;
+    standardFile.ext_file := primitive_file;
+    standardFile.name := file_name;
   <span class="keywd">end func</span>;
 
 <span class="keywd">var</span> <span class="type">external_file</span>: STD_IN <span class="keywd">is</span>  INIT_STD_FILE(PRIMITIVE_INPUT,  <span class="stri">"STD_IN"</span>);
@@ -6361,18 +6357,18 @@ listen(aListener, 10);
 </ul><p>
   With the following declaration we define a new file type:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">type</span>: NEW_FILE <span class="keywd">is sub</span> <span class="type">null_file</span> <span class="keywd">struct</span>
+<span class="keywd">const</span> <span class="type">type</span>: my_file_type <span class="keywd">is sub</span> <span class="type">null_file</span> <span class="keywd">struct</span>
     ...
     <span class="comment">(* Local data *)</span>
     ...
   <span class="keywd">end struct</span>;
 </pre><p>
-  It is not necessary to derive the NEW_FILE type directly from
-  <tt><span class="type">null_file</span></tt>. The NEW_FILE type may also be an indirect descendant
+  It is not necessary to derive the type <tt><span class="type">my_file_type</span></tt> directly from
+  <tt><span class="type">null_file</span></tt>. The type <tt><span class="type">my_file_type</span></tt> may also be an indirect descendant
   of <tt><span class="type">null_file</span></tt>. So it is possible to create file type hierarchies.
   The interface implemented by the new file needs also to be specified:
 </p><pre class="indent">
-type_implements_interface(<span class="type">NEW_FILE</span>, <span class="type">file</span>);
+type_implements_interface(<span class="type">my_file_type</span>, <span class="type">file</span>);
 </pre><p>
   The type <tt><a class="type" href="#types_file">file</a></tt> is not the only interface
   type which can be used. There is also the type <tt><a class="type" href="#types_text">text</a></tt> which
@@ -6382,31 +6378,31 @@ type_implements_interface(<span class="type">NEW_FILE</span>, <span class="type"
   It is also possible to define new interface types which derive
   from <tt><a class="type" href="#types_file">file</a></tt> or <tt><a class="type" href="#types_text">text</a></tt>.
 </p><p>
-  As next an open function is needed to generate a new NEW_FILE:
+  As next an open function is needed to open a <tt><span class="type">my_file_type</span></tt> file:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">func file</span>: open_new_file (  <span class="comment">(* Parameters *)</span> ) <span class="keywd">is func</span>
+<span class="keywd">const</span> <span class="type">func file</span>: open_my_file (  <span class="comment">(* Parameters *)</span> ) <span class="keywd">is func</span>
   <span class="keywd">result</span>
-    <span class="keywd">var</span> <span class="type">file</span>: result <span class="keywd">is</span> STD_NULL;
+    <span class="keywd">var</span> <span class="type">file</span>: newFile <span class="keywd">is</span> STD_NULL;
+  <span class="keywd">local</span>
+    <span class="keywd">var</span> <span class="type">my_file_type</span>: new_file <span class="keywd">is</span> <span class="type">my_file_type</span>.value;
   <span class="keywd">begin</span>
     ...
-    <span class="comment">(* Initialization of the local data *)</span>
-    result := malloc( ... );
+    <span class="comment">(* Initialization of the data elements of new_file *)</span>
+    newFile := toInterface(new_file);
     ...
   <span class="keywd">end func</span>;
 </pre><p>
-  Note the usage of the <tt>'malloc'</tt> function to generate a new data
-  item. This data item is not freed automatically but if you
-  do not open files to often this does not hurt. Now only the
-  two basic I/O operations must be defined:
+  Note that the function <tt>'toInterface'</tt> is used to generate a new <tt><a class="type" href="#types_file">file</a></tt>
+  object. Now only the two basic I/O operations must be defined:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">proc</span>: write (<span class="keywd">inout</span> <span class="type">NEW_FILE</span>: new_fil, <span class="keywd">in</span> <span class="type">string</span>: stri) <span class="keywd">is func</span>
+<span class="keywd">const</span> <span class="type">proc</span>: write (<span class="keywd">inout</span> <span class="type">my_file_type</span>: new_fil, <span class="keywd">in</span> <span class="type">string</span>: stri) <span class="keywd">is func</span>
   <span class="keywd">begin</span>
     ...
     <span class="comment">(* Statements that do the output *)</span>
     ...
   <span class="keywd">end func</span>;
 
-<span class="keywd">const</span> <span class="type">proc</span>: gets (<span class="keywd">inout</span> <span class="type">NEW_FILE</span>: new_fil, <span class="keywd">in</span> <span class="type">integer</span>: leng) <span class="keywd">is func</span>
+<span class="keywd">const</span> <span class="type">proc</span>: gets (<span class="keywd">inout</span> <span class="type">my_file_type</span>: new_fil, <span class="keywd">in</span> <span class="type">integer</span>: leng) <span class="keywd">is func</span>
   <span class="keywd">result</span>
     <span class="keywd">var</span> <span class="type">string</span>: stri <span class="keywd">is</span> "";
   <span class="keywd">begin</span>
@@ -6595,7 +6591,7 @@ currSymbol := getSymbol(inFile);
 </p><pre class="indent">
 <span class="keywd">const</span> <span class="type">func string</span>: processFile (<span class="keywd">in</span> <span class="type">string</span>: fileName) <span class="keywd">is func</span>
   <span class="keywd">result</span>
-    <span class="keywd">var</span> <span class="type">string</span>: result <span class="keywd">is</span> <span class="stri">""</span>;
+    <span class="keywd">var</span> <span class="type">string</span>: processed <span class="keywd">is</span> <span class="stri">""</span>;
   <span class="keywd">local</span>
     <span class="keywd">var</span> <span class="type">file</span>: inFile <span class="keywd">is</span> STD_NULL;
     <span class="keywd">var</span> <span class="type">string</span>: currSymbol <span class="keywd">is</span> <span class="stri">""</span>;
@@ -6603,11 +6599,11 @@ currSymbol := getSymbol(inFile);
     inFile := open(fileName, <span class="stri">"r"</span>);
     <span class="keywd">if</span> inFile &lt;> STD_NULL <span class="keywd">then</span>
       inFile.bufferChar := getc(inFile);
-      result := getWhiteSpace(inFile);
+      processed := getWhiteSpace(inFile);
       currSymbol := getSymbolOrComment(inFile);
       <span class="keywd">while</span> currSymbol &lt;> <span class="stri">""</span> <span class="keywd">do</span>
-        result &amp;:= currSymbol;
-        result &amp;:= getWhiteSpace(inFile);
+        processed &amp;:= currSymbol;
+        processed &amp;:= getWhiteSpace(inFile);
         currSymbol := getSymbolOrComment(inFile);
       <span class="keywd">end while</span>;
     <span class="keywd">end if</span>;
@@ -7088,12 +7084,10 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_boolean">boolean</a>: not (<span class="keywd">in</span> <a class="type" href="#types_boolean">boolean</a>: aBool) <span class="keywd">is func</span>
   <span class="keywd">result</span>
-    <span class="keywd">var</span> <a class="type" href="#types_boolean">boolean</a>: result <span class="keywd">is</span> FALSE;
+    <span class="keywd">var</span> <a class="type" href="#types_boolean">boolean</a>: negation <span class="keywd">is</span> TRUE;
   <span class="keywd">begin</span>
     <span class="keywd">if</span> aBool <span class="keywd">then</span>
-      result := FALSE;
-    <span class="keywd">else</span>
-      result := TRUE;
+      negation := FALSE;
     <span class="keywd">end if</span>;
   <span class="keywd">end func</span>;
 </pre><p>

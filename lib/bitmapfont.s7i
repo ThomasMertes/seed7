@@ -54,15 +54,15 @@ type_implements_interface(bitmapFont, font);
  *)
 const func integer: width (in bitmapFont: bmpFont, in string: stri) is func
   result
-    var integer: result is 0;
+    var integer: width is 0;
   local
     var char: ch is ' ';
   begin
     for ch range stri do
       if ch in bmpFont.fontPictures then
-        result +:= length(bmpFont.fontPictures[ch][1]);
+        width +:= length(bmpFont.fontPictures[ch][1]);
       else
-        result +:= length(bmpFont.fontPictures[' '][1]);
+        width +:= length(bmpFont.fontPictures[' '][1]);
       end if;
     end for;
   end func;
@@ -81,12 +81,11 @@ const func integer: width (in bitmapFont: bmpFont, in string: stri) is func
 const func integer: numOfCharsInWidth (in bitmapFont: bmpFont,
     in string: stri, in integer: allowedWidth) is func
   result
-    var integer: result is 0;
+    var integer: numOfChars is 0;
   local
     var integer: index is 1;
     var integer: totalWidth is 0;
   begin
-    result := length(stri);
     while index <= length(stri) and totalWidth <= allowedWidth do
       if stri[index] in bmpFont.fontPictures then
         totalWidth +:= length(bmpFont.fontPictures[stri[index]][1]);
@@ -97,7 +96,7 @@ const func integer: numOfCharsInWidth (in bitmapFont: bmpFont,
         incr(index);
       end if;
     end while;
-    result := pred(index);
+    numOfChars := pred(index);
   end func;
 
 
@@ -114,7 +113,7 @@ const func integer: numOfCharsInWidth (in bitmapFont: bmpFont,
 const func PRIMITIVE_WINDOW: genPixmap (in array string: pattern,
     in color: foreground, in color: background, in integer: scale) is func
   result
-    var PRIMITIVE_WINDOW: result is PRIMITIVE_WINDOW.value;
+    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
   local
     var integer: height is 0;
     var integer: width is 0;
@@ -123,12 +122,12 @@ const func PRIMITIVE_WINDOW: genPixmap (in array string: pattern,
   begin
     height := length(pattern);
     width := length(pattern[1]);
-    result := newPixmap(width * scale, height * scale);
-    clear(result, background);
+    pixmap := newPixmap(width * scale, height * scale);
+    clear(pixmap, background);
     for line range 1 to height do
       for column range 1 to width do
         if pattern[line][column] <> ' ' then
-          rect(result, pred(column) * scale, pred(line) * scale,
+          rect(pixmap, pred(column) * scale, pred(line) * scale,
               scale, scale, foreground);
         end if;
       end for;
@@ -147,21 +146,21 @@ const func pixmapFontType: genPixmapFont (in bitmapFont: bmpFont,
     in integer: fontSize, in integer: scale,
     in color: foreground, in color: background) is func
   result
-    var pixmapFontType: result is pixmapFontType.value;
+    var pixmapFontType: pixmapFont is pixmapFontType.value;
   begin
     if ' ' in bmpFont.fontPictures then
-      incl(result.pixmap, ' ', genPixmap(bmpFont.fontPictures[' '],
+      incl(pixmapFont.pixmap, ' ', genPixmap(bmpFont.fontPictures[' '],
           foreground, background, scale));
     end if;
-    result.baseFont := bmpFont;
-    result.fontSize := fontSize;
-    result.scale := scale;
-    result.foreground := foreground;
-    result.background := background;
-    result.baseLineDelta := baseLineDelta(bmpFont) * scale;
-    result.line_delta := lineHeight(bmpFont) * scale;
-    result.column_delta := columnWidth(bmpFont) * scale;
-    result.characterSpacing := characterSpacing(bmpFont) * scale;
+    pixmapFont.baseFont := bmpFont;
+    pixmapFont.fontSize := fontSize;
+    pixmapFont.scale := scale;
+    pixmapFont.foreground := foreground;
+    pixmapFont.background := background;
+    pixmapFont.baseLineDelta := baseLineDelta(bmpFont) * scale;
+    pixmapFont.line_delta := lineHeight(bmpFont) * scale;
+    pixmapFont.column_delta := columnWidth(bmpFont) * scale;
+    pixmapFont.characterSpacing := characterSpacing(bmpFont) * scale;
   end func;
 
 
@@ -199,13 +198,13 @@ const proc: setFont (inout pixmapFontFile: fontFile, in bitmapFont: aFont) is fu
  *)
 const func integer: columnWidth (in fontPicType: fontPictures) is func
   result
-    var integer: result is 0;
+    var integer: maxWidth is 0;
   local
     var char: ch is ' ';
   begin
     for key ch range fontPictures do
-      if length(fontPictures[ch][1]) > result then
-        result := length(fontPictures[ch][1]);
+      if length(fontPictures[ch][1]) > maxWidth then
+        maxWidth := length(fontPictures[ch][1]);
       end if;
     end for;
   end func;

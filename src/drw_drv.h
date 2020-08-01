@@ -77,8 +77,7 @@ wintype drwGet (const_wintype actual_window, inttype left, inttype upper,
 inttype drwGetPixel (const_wintype actual_window, inttype x, inttype y);
 void drwPixelToRgb (inttype col, inttype *red_val, inttype *green_val, inttype *blue_val);
 inttype drwHeight (const_wintype actual_window);
-wintype drwImage (const_wintype actual_window, inttype *image_data,
-    inttype width, inttype height);
+wintype drwImage (inttype *image_data, inttype width, inttype height);
 void drwLine (const_wintype actual_window,
     inttype x1, inttype y1, inttype x2, inttype y2);
 void drwPLine (const_wintype actual_window,

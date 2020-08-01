@@ -31,7 +31,9 @@
 
 #include "version.h"
 
+#include "stdlib.h"
 #include "stdio.h"
+#include "string.h"
 
 #include "common.h"
 #include "data_rtl.h"
@@ -57,6 +59,9 @@ wintype win_from;
 #ifdef TRACE_DRW
     printf("drwCpy(%lu, %ld)\n", win_to, win_from);
 #endif
+    if (win_from != NULL) {
+      win_from->usage_count++;
+    } /* if */
     if (*win_to != NULL) {
       (*win_to)->usage_count--;
       if ((*win_to)->usage_count == 0) {
@@ -64,9 +69,6 @@ wintype win_from;
       } /* if */
     } /* if */
     *win_to = win_from;
-    if (win_from != NULL) {
-      win_from->usage_count++;
-    } /* if */
   } /* drwCpy */
 
 
@@ -127,3 +129,56 @@ wintype old_win;
       } /* if */
     } /* if */
   } /* drwDestr */
+
+
+
+#ifdef ANSI_C
+
+wintype drwRtlImage (const const_rtlArraytype image)
+#else
+
+wintype drwRtlImage (image)
+rtlArraytype image;
+#endif
+
+  {
+    const_rtlObjecttype *curr_line;
+    const_rtlObjecttype *curr_column;
+    rtlArraytype arr_line;
+    inttype *pixel_elem;
+    inttype width;
+    inttype height;
+    inttype line;
+    inttype column;
+    inttype *image_data;
+    wintype result;
+
+  /* drwRtlImage */
+    height = image->max_position - image->min_position + 1;
+    /* printf("drwRtlImage: height=%d\n", height); */
+    if (height > 0) {
+      curr_line = &image->arr[0];
+      arr_line = curr_line->value.arrayvalue;
+      width = arr_line->max_position - arr_line->min_position + 1;
+      /* printf("drwRtlImage: width=%d\n", width); */
+      if (width > 0) {
+        image_data = (inttype *) malloc((uinttype) height * (uinttype) width * sizeof(inttype));
+        pixel_elem = image_data;
+        for (line = height; line > 0; line--, curr_line++) {
+          arr_line = curr_line->value.arrayvalue;
+          curr_column = &arr_line->arr[0];
+          for (column = width; column > 0; column--, curr_column++) {
+            *pixel_elem = curr_column->value.intvalue;
+            pixel_elem++;
+          } /* for */
+        } /* for */
+        result = drwImage(image_data, width, height);
+        free(image_data);
+      } else {
+        result = NULL;
+      } /* if */
+    } else {
+      result = NULL;
+    } /* if */
+    return result;
+  } /* drwRtlImage */

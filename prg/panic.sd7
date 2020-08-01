@@ -1443,20 +1443,20 @@ const proc: change_direction (inout screenObj: monster) is func
 
 const func boolean: collision (in screenObj: obj1, in screenObj: obj2) is func
   result
-    var boolean: result is FALSE;
+    var boolean: collision is FALSE;
   begin
     if obj1.line + obj1.line_direction >= obj2.line - obj2.height and
         obj1.line - obj1.height + obj1.line_direction <= obj2.line and
         obj1.column + obj1.width + obj1.column_direction >= obj2.column and
         obj1.column + obj1.column_direction <= obj2.column + obj2.width then
-      result := TRUE;
+      collision := TRUE;
     end if;
   end func;
 
 
 const func boolean: collision2 (in screenObj: obj1, in screenObj: obj2) is func
   result
-    var boolean: result is FALSE;
+    var boolean: collision is FALSE;
   begin
     if obj1.line + obj1.line_direction > obj2.line - obj2.height + obj2.line_direction and
         obj1.line - obj1.height + obj1.line_direction < obj2.line + obj2.line_direction and
@@ -1466,7 +1466,7 @@ const func boolean: collision2 (in screenObj: obj1, in screenObj: obj2) is func
         obj1.line - obj1.height + obj1.line_direction < obj2.line and
         obj1.column + obj1.width + obj1.column_direction > obj2.column and
         obj1.column + obj1.column_direction < obj2.column + obj2.width then
-      result := TRUE;
+      collision := TRUE;
     end if;
   end func;
 
@@ -2160,46 +2160,46 @@ const proc: do_dig (inout playerObj: playerObject) is func
 
 const func boolean: hole_position_ok (in integer: line, in integer: column) is func
   result
-    var boolean: result is TRUE;
+    var boolean: position_ok is TRUE;
   local
     var integer: col is 0;
   begin
     if line = FIELD_BORDER + level_line[NUM_LEVELS] then
-      result := FALSE;
+      position_ok := FALSE;
     elsif column - 2 < 1 or column + 2 > length(field[line]) then
-      result := FALSE;
+      position_ok := FALSE;
     elsif hole_status[line][column] = no_hole then
       for col range column - 14 to column + 14 do
         if col >= 1 and col <= length(field[line]) and
             (field[pred(line)][col] or
             field[succ(line)][col] or
             hole_status[line][col] <> no_hole) then
-          result := FALSE;
+          position_ok := FALSE;
         end if;
       end for;
     end if;
     if column rem 4 <> 0 then
-      result := FALSE;
+      position_ok := FALSE;
     end if;
   end func;
 
 
 const func integer: ladder_up_direction (inout playerObj: playerObject) is func
   result
-    var integer: result is 0;
+    var integer: direction is 0;
   local
     var integer: col is 0;
   begin
     for col range playerObject.column - 12 to playerObject.column - 1 do
       if col >= 1 and col <= length(field[playerObject.line]) and
           field[pred(playerObject.line)][col] then
-        result := -1;
+        direction := -1;
       end if;
     end for;
     for col range playerObject.column + 1 to playerObject.column + 13 do
       if col >= 1 and col <= length(field[playerObject.line]) and
           field[pred(playerObject.line)][col] then
-        result := 1;
+        direction := 1;
       end if;
     end for;
   end func;
@@ -2207,20 +2207,20 @@ const func integer: ladder_up_direction (inout playerObj: playerObject) is func
 
 const func integer: ladder_down_direction (inout playerObj: playerObject) is func
   result
-    var integer: result is 0;
+    var integer: direction is 0;
   local
     var integer: col is 0;
   begin
     for col range playerObject.column - 12 to playerObject.column - 1 do
       if col >= 1 and col <= length(field[playerObject.line]) and
           field[succ(playerObject.line)][col] then
-        result := -1;
+        direction := -1;
       end if;
     end for;
     for col range playerObject.column + 1 to playerObject.column + 13 do
       if col >= 1 and col <= length(field[playerObject.line]) and
           field[succ(playerObject.line)][col] then
-        result := 1;
+        direction := 1;
       end if;
     end for;
   end func;
@@ -2228,20 +2228,20 @@ const func integer: ladder_down_direction (inout playerObj: playerObject) is fun
 
 const func integer: level_direction (inout playerObj: playerObject) is func
   result
-    var integer: result is 0;
+    var integer: direction is 0;
   local
     var integer: lin is 0;
   begin
     for lin range playerObject.line - 15 to playerObject.line - 1 do
       if lin >= 1 and lin <= length(field) and
           field[lin][succ(playerObject.column)] then
-        result := -1;
+        direction := -1;
       end if;
     end for;
     for lin range playerObject.line + 1 to playerObject.line + 6 do
       if lin >= 1 and lin <= length(field) and
           field[lin][succ(playerObject.column)] then
-        result := 1;
+        direction := 1;
       end if;
     end for;
   end func;
@@ -2249,20 +2249,20 @@ const func integer: level_direction (inout playerObj: playerObject) is func
 
 const func integer: hole_direction (inout playerObj: playerObject) is func
   result
-    var integer: result is 0;
+    var integer: direction is 0;
   local
     var integer: col is 0;
   begin
     for col range playerObject.column - 14 downto playerObject.column - 20 do
       if col >= 1 and col <= length(hole_status[playerObject.line]) and
           hole_status[playerObject.line][col] <> no_hole then
-        result := -1;
+        direction := -1;
       end if;
     end for;
     for col range playerObject.column + 14 to playerObject.column + 20 do
       if col >= 1 and col <= length(hole_status[playerObject.line]) and
           hole_status[playerObject.line][col] <> no_hole then
-        result := 1;
+        direction := 1;
       end if;
     end for;
   end func;

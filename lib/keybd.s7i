@@ -137,11 +137,11 @@ var console_keybd_file: CONSOLE_KEYBOARD is console_keybd_file.value;
 
 const func string: getk (in console_keybd_file: keybd) is func
   result
-    var string: result is "";
+    var string: rawKey is "";
   begin
-    result := str(raw_getc(keybd));
+    rawKey := str(raw_getc(keybd));
     while keypressed(keybd) do
-      result &:= str(raw_getc(keybd));
+      rawKey &:= str(raw_getc(keybd));
     end while;
   end func;
 
@@ -261,11 +261,11 @@ var graph_keybd_file: GRAPH_KEYBOARD is graph_keybd_file.value;
 
 const func string: getk (in graph_keybd_file: keybd) is func
   result
-    var string: result is "";
+    var string: rawKey is "";
   begin
-    result := str(raw_getc(keybd));
+    rawKey := str(raw_getc(keybd));
     while keypressed(keybd) do
-      result &:= str(raw_getc(keybd));
+      rawKey &:= str(raw_getc(keybd));
     end while;
   end func;
 

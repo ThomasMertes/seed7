@@ -625,12 +625,12 @@ const proc: writeHiScore is func
 const func lineCoordinates: genLine (in float: xStart, in float: yStart,
     in float: xEnd, in float: yEnd) is func
   result
-    var lineCoordinates: result is lineCoordinates.value;
+    var lineCoordinates: line is lineCoordinates.value;
   begin
-    result.xStart :=  xStart;
-    result.yStart :=  yStart;
-    result.xEnd :=  xEnd;
-    result.yEnd :=  yEnd;
+    line.xStart :=  xStart;
+    line.yStart :=  yStart;
+    line.xEnd :=  xEnd;
+    line.yEnd :=  yEnd;
   end func; (* genLine *)
 
 

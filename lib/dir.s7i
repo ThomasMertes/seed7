@@ -53,7 +53,7 @@ const type: dir_file is sub null_file struct
  *)
 const func file: openDir (in string: dir_name) is func
   result
-    var file: result is STD_NULL;
+    var file: newFile is STD_NULL;
   local
     var dir_file: new_file is dir_file.value;
   begin
@@ -62,17 +62,17 @@ const func file: openDir (in string: dir_name) is func
     new_file.curr_column := 1;
     block
       new_file.dir_array := readDir(dir_name);
-      result := toInterface(new_file);
+      newFile := toInterface(new_file);
     exception
       catch FILE_ERROR:
-        result := STD_NULL;
+        newFile := STD_NULL;
     end block;
   end func;
 
 
 const func file: openDirPath (in string: dir_name) is func
   result
-    var file: result is STD_NULL;
+    var file: newFile is STD_NULL;
   local
     var dir_file: new_file is dir_file.value;
   begin
@@ -85,10 +85,10 @@ const func file: openDirPath (in string: dir_name) is func
     new_file.curr_column := 1;
     block
       new_file.dir_array := readDir(dir_name);
-      result := toInterface(new_file);
+      newFile := toInterface(new_file);
     exception
       catch FILE_ERROR:
-        result := STD_NULL;
+        newFile := STD_NULL;
     end block;
   end func;
 

@@ -140,7 +140,6 @@ const func string: strDate (in time: aTime) is
 
 (**
  *  Convert a time to a string with ISO 8601 hh:mm:ss time format.
- *  Convert a time to a string with ISO 8601 hh:mm:ss time format.
  *  @return the string result of the conversion.
  *)
 const func string: strTime (in time: aTime) is func
@@ -158,19 +157,19 @@ const func string: strTime (in time: aTime) is func
 
 const func string: strTimeZone (in time: aTime) is func
   result
-    var string: result is "UTC";
+    var string: timeZone is "UTC";
   begin
     if aTime.timeZone <> 0 then
       if aTime.timeZone > 0 then
-        result &:= "+";
+        timeZone &:= "+";
       end if;
-      result &:= str(aTime.timeZone div 60);
+      timeZone &:= str(aTime.timeZone div 60);
       if aTime.timeZone rem 60 <> 0 then
-        result &:= ":" & str(abs(aTime.timeZone) rem 60);
+        timeZone &:= ":" & str(abs(aTime.timeZone) rem 60);
       end if;
     end if;
     if aTime.daylightSavingTime then
-      result &:= " (DST)";
+      timeZone &:= " (DST)";
     end if;
   end func;
 
@@ -437,36 +436,36 @@ const func boolean: (in time: aTime1) > (in time: aTime2) is
  *)
 const func integer: compare (in time: aTime1, in time: aTime2) is func
   result
-    var integer: result is 0;
+    var integer: signumValue is 0;
   begin
     if aTime1.year < aTime2.year then
-      result := -1;
+      signumValue := -1;
     elsif aTime1.year > aTime2.year then
-      result := 1;
+      signumValue := 1;
     elsif aTime1.month < aTime2.month then
-      result := -1;
+      signumValue := -1;
     elsif aTime1.month > aTime2.month then
-      result := 1;
+      signumValue := 1;
     elsif aTime1.day < aTime2.day then
-      result := -1;
+      signumValue := -1;
     elsif aTime1.day > aTime2.day then
-      result := 1;
+      signumValue := 1;
     elsif aTime1.hour < aTime2.hour then
-      result := -1;
+      signumValue := -1;
     elsif aTime1.hour > aTime2.hour then
-      result := 1;
+      signumValue := 1;
     elsif aTime1.minute < aTime2.minute then
-      result := -1;
+      signumValue := -1;
     elsif aTime1.minute > aTime2.minute then
-      result := 1;
+      signumValue := 1;
     elsif aTime1.second < aTime2.second then
-      result := -1;
+      signumValue := -1;
     elsif aTime1.second > aTime2.second then
-      result := 1;
+      signumValue := 1;
     elsif aTime1.micro_second < aTime2.micro_second then
-      result := -1;
+      signumValue := -1;
     elsif aTime1.micro_second > aTime2.micro_second then
-      result := 1;
+      signumValue := 1;
     end if;
   end func;
 
@@ -486,10 +485,10 @@ const func integer: hashCode (in time: aTime) is
  *)
 const func time: truncToSecond (in time: aTime) is func
   result
-    var time: result is time.value;
+    var time: truncatedTime is time.value;
   begin
-    result := aTime;
-    result.micro_second := 0;
+    truncatedTime := aTime;
+    truncatedTime.micro_second := 0;
   end func;
 
 
@@ -499,11 +498,11 @@ const func time: truncToSecond (in time: aTime) is func
  *)
 const func time: truncToMinute (in time: aTime) is func
   result
-    var time: result is time.value;
+    var time: truncatedTime is time.value;
   begin
-    result := aTime;
-    result.second := 0;
-    result.micro_second := 0;
+    truncatedTime := aTime;
+    truncatedTime.second := 0;
+    truncatedTime.micro_second := 0;
   end func;
 
 
@@ -513,12 +512,12 @@ const func time: truncToMinute (in time: aTime) is func
  *)
 const func time: truncToHour (in time: aTime) is func
   result
-    var time: result is time.value;
+    var time: truncatedTime is time.value;
   begin
-    result := aTime;
-    result.minute := 0;
-    result.second := 0;
-    result.micro_second := 0;
+    truncatedTime := aTime;
+    truncatedTime.minute := 0;
+    truncatedTime.second := 0;
+    truncatedTime.micro_second := 0;
   end func;
 
 
@@ -528,13 +527,13 @@ const func time: truncToHour (in time: aTime) is func
  *)
 const func time: truncToDay (in time: aTime) is func
   result
-    var time: result is time.value;
+    var time: truncatedTime is time.value;
   begin
-    result := aTime;
-    result.hour := 0;
-    result.minute := 0;
-    result.second := 0;
-    result.micro_second := 0;
+    truncatedTime := aTime;
+    truncatedTime.hour := 0;
+    truncatedTime.minute := 0;
+    truncatedTime.second := 0;
+    truncatedTime.micro_second := 0;
   end func;
 
 
@@ -544,14 +543,14 @@ const func time: truncToDay (in time: aTime) is func
  *)
 const func time: truncToMonth (in time: aTime) is func
   result
-    var time: result is time.value;
+    var time: truncatedTime is time.value;
   begin
-    result := aTime;
-    result.day := 1;
-    result.hour := 0;
-    result.minute := 0;
-    result.second := 0;
-    result.micro_second := 0;
+    truncatedTime := aTime;
+    truncatedTime.day := 1;
+    truncatedTime.hour := 0;
+    truncatedTime.minute := 0;
+    truncatedTime.second := 0;
+    truncatedTime.micro_second := 0;
   end func;
 
 
@@ -561,15 +560,15 @@ const func time: truncToMonth (in time: aTime) is func
  *)
 const func time: truncToYear (in time: aTime) is func
   result
-    var time: result is time.value;
+    var time: truncatedTime is time.value;
   begin
-    result := aTime;
-    result.month := 1;
-    result.day := 1;
-    result.hour := 0;
-    result.minute := 0;
-    result.second := 0;
-    result.micro_second := 0;
+    truncatedTime := aTime;
+    truncatedTime.month := 1;
+    truncatedTime.day := 1;
+    truncatedTime.hour := 0;
+    truncatedTime.minute := 0;
+    truncatedTime.second := 0;
+    truncatedTime.micro_second := 0;
   end func;
 
 
@@ -818,21 +817,21 @@ const func time: julianDayNumToTime (in integer: julianDayNumber) is func
  *)
 const func integer: timestamp1970 (in time: aTime) is func
   result
-    var integer: result is 0;
+    var integer: seconds is 0;
   local
     var integer: yearBefore is 0;
   begin
     yearBefore := pred(aTime.year);
-    result := (((yearBefore * 365 +
-                 yearBefore mdiv 4 -
-                 yearBefore mdiv 100 +
-                 yearBefore mdiv 400 -
-              719162 +
-              pred(dayOfYear(aTime))) * 24 +
-              aTime.hour) * 60 +
-              aTime.minute) * 60 +
-              aTime.second -
-              aTime.timeZone * 60;
+    seconds := (((yearBefore * 365 +
+                  yearBefore mdiv 4 -
+                  yearBefore mdiv 100 +
+                  yearBefore mdiv 400 -
+               719162 +
+               pred(dayOfYear(aTime))) * 24 +
+               aTime.hour) * 60 +
+               aTime.minute) * 60 +
+               aTime.second -
+               aTime.timeZone * 60;
   end func;
 
 
@@ -922,14 +921,14 @@ const func time: time (NOW) is func
 const func time: time (in integer: year, in integer: month, in integer: day,
     in integer: hour, in integer: minute, in integer: second) is func
   result
-    var time: result is time.value;
+    var time: utcTime is time.value;
   begin
-    result.year   := year;
-    result.month  := month;
-    result.day    := day;
-    result.hour   := hour;
-    result.minute := minute;
-    result.second := second;
+    utcTime.year   := year;
+    utcTime.month  := month;
+    utcTime.day    := day;
+    utcTime.hour   := hour;
+    utcTime.minute := minute;
+    utcTime.second := second;
   end func;
 
 

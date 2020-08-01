@@ -3948,7 +3948,7 @@ CONTENTS
     Prefix operators:
       func
       result
-        var baseType: result is baseType.value;
+        var baseType: resultVariable is baseType.value;
       begin
         statements
       end func
@@ -3958,7 +3958,7 @@ CONTENTS
 
       func
       result
-        var baseType: result is baseType.value;
+        var baseType: resultVariable is baseType.value;
       local
         declarations
       begin
@@ -4010,10 +4010,10 @@ CONTENTS
 
     const func boolean: (in boolean: first) and (in func boolean: second) is func
       result
-        var boolean: result is FALSE;
+        var boolean: conjunction is FALSE;
       begin
         if first then
-          result := second;
+          conjunction := second;
         end if;
       end func;
 
@@ -4949,32 +4949,32 @@ CONTENTS
 
     const func Float: (in Integer: a) + (in Float: b) is func
       result
-        var Float: result is Float.value;
+        var Float: sum is Float.value;
       begin
-        result.val := flt(a.val) + b.val;
+        sum.val := flt(a.val) + b.val;
       end func;
 
     const func Float: (in Float: a) + (in Integer: b) is func
       result
-        var Float: result is Float.value;
+        var Float: sum is Float.value;
       begin
-        result.val := a.val + flt(b.val);
+        sum.val := a.val + flt(b.val);
       end func;
 
   The declarations of the normal '+' operators (which do not convert) are:
 
     const func Integer: (in Integer: a) + (in Integer: b) is func
       result
-        var Integer: result is Integer.value;
+        var Integer: sum is Integer.value;
       begin
-        result.val := a.val + b.val;
+        sum.val := a.val + b.val;
       end func;
 
     const func Float: (in Float: a) + (in Float: b) is func
       result
-        var Float: result is Float.value;
+        var Float: sum is Float.value;
       begin
-        result.val := a.val + b.val;
+        sum.val := a.val + b.val;
       end func;
 
   The type 'Number' can be extended to support other
@@ -5069,10 +5069,10 @@ CONTENTS
 
     const func integer: sum (in element: anElem) is func
       result
-        var integer: result is 0;
+        var integer: sum is 0;
       begin
         if anElem <> element.NIL then
-          result := anElem.item + sum(anElem.left) + sum(anElem.right);
+          sum := anElem.item + sum(anElem.left) + sum(anElem.right);
         end if;
       end func;
 
@@ -5442,12 +5442,8 @@ CONTENTS
   'eoln' function to test if the last 'getwd' or 'getln' reach the end
   of a line. Here is a definition of the 'eoln' function:
 
-    const func boolean: eoln (ref null_file: aFile) is func
-      result
-        var boolean: result is TRUE;
-      begin
-        result := aFile.bufferChar = '\n';
-      end func;
+    const func boolean: eoln (in null_file: inFile) is
+      return inFile.bufferChar = '\n';
 
   Besides assigning a value to 'bufferChar' in 'getwd' and 'getln'
   and using it in 'eoln' the standard 'file' functions do nothing
@@ -5813,10 +5809,10 @@ CONTENTS
     const func external_file: INIT_STD_FILE (ref clib_file: primitive_file,
         in string: file_name) is func
       result
-        var external_file: result is external_file.value;
+        var external_file: standardFile is external_file.value;
       begin
-        result.ext_file := primitive_file;
-        result.name := file_name;
+        standardFile.ext_file := primitive_file;
+        standardFile.name := file_name;
       end func;
 
     var external_file: STD_IN is  INIT_STD_FILE(PRIMITIVE_INPUT,  "STD_IN");
@@ -6239,18 +6235,18 @@ CONTENTS
 
   With the following declaration we define a new file type:
 
-    const type: NEW_FILE is sub null_file struct
+    const type: my_file_type is sub null_file struct
         ...
         (* Local data *)
         ...
       end struct;
 
-  It is not necessary to derive the NEW_FILE type directly from
-  'null_file'. The NEW_FILE type may also be an indirect descendant
+  It is not necessary to derive the type 'my_file_type' directly from
+  'null_file'. The type 'my_file_type' may also be an indirect descendant
   of 'null_file'. So it is possible to create file type hierarchies.
   The interface implemented by the new file needs also to be specified:
 
-    type_implements_interface(NEW_FILE, file);
+    type_implements_interface(my_file_type, file);
 
   The type 'file' is not the only interface
   type which can be used. There is also the type 'text' which
@@ -6260,31 +6256,31 @@ CONTENTS
   It is also possible to define new interface types which derive
   from 'file' or 'text'.
 
-  As next an open function is needed to generate a new NEW_FILE:
+  As next an open function is needed to open a 'my_file_type' file:
 
-    const func file: open_new_file (  (* Parameters *) ) is func
+    const func file: open_my_file (  (* Parameters *) ) is func
       result
-        var file: result is STD_NULL;
+        var file: newFile is STD_NULL;
+      local
+        var my_file_type: new_file is my_file_type.value;
       begin
         ...
-        (* Initialization of the local data *)
-        result := malloc( ... );
+        (* Initialization of the data elements of new_file *)
+        newFile := toInterface(new_file);
         ...
       end func;
 
-  Note the usage of the 'malloc' function to generate a new data
-  item. This data item is not freed automatically but if you
-  do not open files to often this does not hurt. Now only the
-  two basic I/O operations must be defined:
+  Note that the function 'toInterface' is used to generate a new 'file'
+  object. Now only the two basic I/O operations must be defined:
 
-    const proc: write (inout NEW_FILE: new_fil, in string: stri) is func
+    const proc: write (inout my_file_type: new_fil, in string: stri) is func
       begin
         ...
         (* Statements that do the output *)
         ...
       end func;
 
-    const proc: gets (inout NEW_FILE: new_fil, in integer: leng) is func
+    const proc: gets (inout my_file_type: new_fil, in integer: leng) is func
       result
         var string: stri is "";
       begin
@@ -6473,7 +6469,7 @@ CONTENTS
 
     const func string: processFile (in string: fileName) is func
       result
-        var string: result is "";
+        var string: processed is "";
       local
         var file: inFile is STD_NULL;
         var string: currSymbol is "";
@@ -6481,11 +6477,11 @@ CONTENTS
         inFile := open(fileName, "r");
         if inFile <> STD_NULL then
           inFile.bufferChar := getc(inFile);
-          result := getWhiteSpace(inFile);
+          processed := getWhiteSpace(inFile);
           currSymbol := getSymbolOrComment(inFile);
           while currSymbol <> "" do
-            result &:= currSymbol;
-            result &:= getWhiteSpace(inFile);
+            processed &:= currSymbol;
+            processed &:= getWhiteSpace(inFile);
             currSymbol := getSymbolOrComment(inFile);
           end while;
         end if;
@@ -6966,12 +6962,10 @@ CONTENTS
 
     const func boolean: not (in boolean: aBool) is func
       result
-        var boolean: result is FALSE;
+        var boolean: negation is TRUE;
       begin
         if aBool then
-          result := FALSE;
-        else
-          result := TRUE;
+          negation := FALSE;
         end if;
       end func;
 

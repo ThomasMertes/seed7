@@ -220,7 +220,7 @@ const proc: incrKillStat (in bactColor: content, in killReason: Killer) is func
 
 const func boolean: continue (GAME) is func
   result
-    var boolean: result is FALSE;
+    var boolean: doContinue is FALSE;
 
   local
     var char: c is ' ';
@@ -234,7 +234,7 @@ const func boolean: continue (GAME) is func
       c := upper(getc(KEYBOARD));
     until c = 'Y' or c = 'N';
     setPos(stat, 34, 1);
-    result := c = 'Y';
+    doContinue := c = 'Y';
   end func; (* continue (GAME) *)
 
 
@@ -393,27 +393,27 @@ const proc: readLimits is func
 
 const func bactColor: charCol (in char: ch) is func
   result
-    var bactColor: result is CLEAR;
+    var bactColor: col is CLEAR;
 
   begin (* charCol *)
     case upper(ch) of
-      when {' '}: result:= CLEAR;
-      when {'.'}: result:= CLEAR;
-      when {'W'}: result:= WHITE;
-      when {'V'}: result:= VIOLET;
-      when {'I'}: result:= INDIGO;
-      when {'B'}: result:= BLUE;
-      when {'C'}: result:= CYAN;
-      when {'G'}: result:= GREEN;
-      when {'Y'}: result:= YELLOW;
-      when {'A'}: result:= AMBER;
-      when {'O'}: result:= ORANGE;
-      when {'R'}: result:= RED;
-      when {'S'}: result:= SCARLET;
-      when {'T'}: result:= TAN;
-      when {'L'}: result:= LILIAC;
-      when {'P'}: result:= PINK
-      otherwise: result := EDGE;
+      when {' '}: col:= CLEAR;
+      when {'.'}: col:= CLEAR;
+      when {'W'}: col:= WHITE;
+      when {'V'}: col:= VIOLET;
+      when {'I'}: col:= INDIGO;
+      when {'B'}: col:= BLUE;
+      when {'C'}: col:= CYAN;
+      when {'G'}: col:= GREEN;
+      when {'Y'}: col:= YELLOW;
+      when {'A'}: col:= AMBER;
+      when {'O'}: col:= ORANGE;
+      when {'R'}: col:= RED;
+      when {'S'}: col:= SCARLET;
+      when {'T'}: col:= TAN;
+      when {'L'}: col:= LILIAC;
+      when {'P'}: col:= PINK
+      otherwise: col := EDGE;
     end case;
   end func; (* charCol *)
 
@@ -433,48 +433,48 @@ const proc: initDisplay is func
 
 const func integer: min (in integer: a, in integer: b) is func
   result
-    var integer: result is 0;
+    var integer: minimum is 0;
 
   begin (* min *)
     if a < b then
-      result := a;
+      minimum := a;
     else
-      result := b;
+      minimum := b;
     end if;
   end func; (* min *)
 
 
 const func integer: max (in integer: a, in integer: b) is func
   result
-    var integer: result is 0;
+    var integer: maximum is 0;
 
   begin (* max *)
     if a > b then
-      result := a;
+      maximum := a;
     else
-      result := b;
+      maximum := b;
     end if;
   end func; (* max *)
 
 
 const func direction: ranDir (in directSet: dirset) is func
   result
-    var direction: result is HERE;
+    var direction: dir is HERE;
 
   begin (* ranDir *)
     if dirset <> directSet.EMPTY_SET then
-      result := rand(dirset);
+      dir := rand(dirset);
     end if;
   end func; (* ranDir *)
 
 
 const func power: shrinkSize (in power: size) is func
   result
-    var power: result is 0;
+    var power: shrinkSize is 0;
 
   begin (* shrinkSize *)
     if size <> 0 then
-      result := succ((pred(size) * shrinkage) div 100);
+      shrinkSize := succ((pred(size) * shrinkage) div 100);
     end if;
   end func; (* shrinkSize *)
 
@@ -482,7 +482,7 @@ const func power: shrinkSize (in power: size) is func
 const func power: nextSize (in power: ownSize, in power: foodMass,
     in lifeSpan: ownHunger) is func
   result
-    var power: result is 0;
+    var power: size is 0;
 
   local
     var power: shrinkext is 0;
@@ -490,7 +490,7 @@ const func power: nextSize (in power: ownSize, in power: foodMass,
   begin (* nextSize *)
     shrinkext := shrinkSize(ownSize);
     if foodMass >= shrinkext or ownHunger <> 0 then
-      result := ownSize - shrinkext + foodMass;
+      size := ownSize - shrinkext + foodMass;
     end if;
   end func; (* nextSize *)
 
@@ -613,44 +613,44 @@ const proc: eatat (in xcoordinate: x, in ycoordinate: y, in var power: quantity)
 
 const func power: strength (in direction: direct) is func
   result
-    var power: result is 0;
+    var power: strength is 0;
   local
     var microbe: possessor is microbe.NIL;
 
   begin (* strength *)
     possessor := area[x + diffx[direct]][y + diffy[direct]].possessor;
     if possessor <> microbe.NIL then
-      result := possessor->mass;
+      strength := possessor->mass;
     else
-      result := 0;
+      strength := 0;
     end if;
   end func; (* strength *)
 
 
 const func bactColor: view (in direction: direct) is func
   result
-    var bactColor: result is CLEAR;
+    var bactColor: content is CLEAR;
 
   begin (* view *)
-    result := area[x + diffx[direct]][y + diffy[direct]].content;
+    content := area[x + diffx[direct]][y + diffy[direct]].content;
   end func; (* view *)
 
 
 const func power: food (in direction: direct) is func
   result
-    var power: result is 0;
+    var power: meal is 0;
 
   begin (* food *)
-    result := area[x + diffx[direct]][y + diffy[direct]].meal;
+    meal := area[x + diffx[direct]][y + diffy[direct]].meal;
   end func; (* food *)
 
 
 const func lifeSpan: hunger is func
   result
-    var lifeSpan: result is 0;
+    var lifeSpan: hungry is 0;
 
   begin (* hunger *)
-    result := area[x][y].possessor->hungry;
+    hungry := area[x][y].possessor->hungry;
   end func; (* hunger *)
 
 

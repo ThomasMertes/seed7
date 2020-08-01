@@ -480,16 +480,16 @@ const func string: str (in var bigInteger: number, in integer: base) is func
  *)
 const func bigInteger: sqrt (in var bigInteger: number) is func
   result
-    var bigInteger: result is 0_;
+    var bigInteger: root is 0_;
   local
-    var bigInteger: res2 is 0_;
+    var bigInteger: nextIteration is 0_;
   begin
     if number > 0_ then
-      res2 := number;
+      nextIteration := number;
       repeat
-        result := res2;
-        res2 := (result + number div result) mdiv 2_;
-      until result <= res2;
+        root := nextIteration;
+        nextIteration := (root + number div root) mdiv 2_;
+      until root <= nextIteration;
     elsif number <> 0_ then
       raise NUMERIC_ERROR;
     end if;
@@ -505,7 +505,7 @@ const func bigInteger: sqrt (in var bigInteger: number) is func
 const func bigInteger: modInverse (in var bigInteger: a,
     in var bigInteger: b) is func
   result
-    var bigInteger: result is 0_;
+    var bigInteger: modularInverse is 0_;
   local
     var bigInteger: b_bak is 0_;
     var bigInteger: x is 0_;
@@ -537,9 +537,9 @@ const func bigInteger: modInverse (in var bigInteger: a,
       lasty := temp;
     end while;
     if a = 1_ then
-      result := lastx;
-      if result < 0_ then
-        result +:= b_bak;
+      modularInverse := lastx;
+      if modularInverse < 0_ then
+        modularInverse +:= b_bak;
       end if;
     else
       raise RANGE_ERROR;

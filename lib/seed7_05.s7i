@@ -679,29 +679,29 @@ const func string: join (in array string: striArray, in string: delimiter) is fu
 
 const func boolean: isDigitString (in string: stri) is func
   result
-    var boolean: result is TRUE;
+    var boolean: isDigitString is TRUE;
   local
     var char: ch is ' ';
   begin
-    result := stri <> "";
+    isDigitString := stri <> "";
     for ch range stri do
       if ch < '0' or ch > '9' then
-        result := FALSE;
+        isDigitString := FALSE;
       end if;
     end for;
   end func;
 
 const func boolean: isDigitString (in string: stri, in integer: base) is func
   result
-    var boolean: result is TRUE;
+    var boolean: isDigitString is TRUE;
   local
     var char: ch is ' ';
   begin
-    result := stri <> "";
+    isDigitString := stri <> "";
     if base <= 10 then
       for ch range stri do
         if ch < '0' or ch >= chr(base) then
-          result := FALSE;
+          isDigitString := FALSE;
         end if;
       end for;
     else
@@ -709,7 +709,7 @@ const func boolean: isDigitString (in string: stri, in integer: base) is func
         if (ch < '0' or ch > '9') and
             (ch < 'a' or ch >= chr(ord('a') + base - 10)) and
             (ch < 'A' or ch >= chr(ord('A') + base - 10)) then
-          result := FALSE;
+          isDigitString := FALSE;
         end if;
       end for;
     end if;

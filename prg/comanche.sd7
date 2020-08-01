@@ -35,7 +35,7 @@ var string: cgi_bin is "../prg";
 var integer: port is 1080;
 
 
-const proc: sendHttpResponse (inout file: sock, in string: buffer,
+const proc: sendHttpResponse (inout file: sock, in string: response,
     in var string: contentType, in array string: header) is func
   local
     var string: line is "";
@@ -55,13 +55,13 @@ const proc: sendHttpResponse (inout file: sock, in string: buffer,
     end if;
     writeln(sock, "Server: Comanche");
     writeln(sock, "Transfer-Encoding: identity");
-    # writeln("Content-Length: " <& length(buffer));
-    writeln(sock, "Content-Length: " <& length(buffer));
+    # writeln("Content-Length: " <& length(response));
+    writeln(sock, "Content-Length: " <& length(response));
     if contentType <> "" then
       writeln(sock, "Content-Type: " <& contentType);
-    elsif startsWith(buffer, "\137\PNG") then
+    elsif startsWith(response, "\137\PNG") then
       writeln(sock, "Content-Type: image/png");
-    elsif pos(buffer, "<html") = 0 then
+    elsif pos(response, "<html") = 0 then
       writeln(sock, "Content-Type: text/html");
     else
       writeln(sock, "Content-Type: text/plain");
@@ -72,7 +72,7 @@ const proc: sendHttpResponse (inout file: sock, in string: buffer,
       end if;
     end for;
     writeln(sock);
-    write(sock, buffer);
+    write(sock, response);
   end func;
 
 
@@ -103,7 +103,7 @@ const proc: sendClientError (inout file: sock, in string: message,
 const func string: callCgi (in string: filePath, in string: queryParams,
     in string: postParams, inout array string: header) is func
   result
-    var string: result is "";
+    var string: response is "";
   local
     var string: cgiPath is "";
     var string: tempName is "";
@@ -134,26 +134,26 @@ const func string: callCgi (in string: filePath, in string: queryParams,
         line := getln(cgiOutput);
       end while;
       # writeln;
-      result := gets(cgiOutput, 999999999);
-      # writeln(length(result));
-      # writeln(literal(result));
+      response := gets(cgiOutput, 999999999);
+      # writeln(length(response));
+      # writeln(literal(response));
       close(cgiOutput);
       removeFile(tempName);
     end if;
-    if result = "" then
+    if response = "" then
       header &:= "Status: 404 Not Found";
       header &:= "Content-Type: text/html";
-      result := "<html><head>\n\
-                \<title>CGI Error</title>\n\
-                \</head><body>\n\
-                \<h1>CGI Error</h1>\n\
-                \<p>The requested CGI script " <& filePath <&
+      response := "<html><head>\n\
+                  \<title>CGI Error</title>\n\
+                  \</head><body>\n\
+                  \<h1>CGI Error</h1>\n\
+                  \<p>The requested CGI script " <& filePath <&
                   " could not be executed or did not produce any output.</p>\n\
-                \<p>Query params: " <& queryParams <& "</p>\n\
-                \<p>Post params: " <& postParams <& "</p>\n\
-                \<hr>\n\
-                \<address>Comanche</address>\n\
-                \</body></html>\n";
+                  \<p>Query params: " <& queryParams <& "</p>\n\
+                  \<p>Post params: " <& postParams <& "</p>\n\
+                  \<hr>\n\
+                  \<address>Comanche</address>\n\
+                  \</body></html>\n";
     end if;
   end func;
 

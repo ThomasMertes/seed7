@@ -64,13 +64,13 @@ type_implements_interface(pixmapFontFile, text);
  *)
 const func text: openPixmapFontFile (in PRIMITIVE_WINDOW: win) is func
   result
-    var text: result is STD_NULL;
+    var text: newFile is STD_NULL;
   local
     var pixmapFontFile: new_file is pixmapFontFile.value;
   begin
     new_file.win := win;
     new_file.font.baseFont := fontProperties.value;
-    result := toInterface(new_file);
+    newFile := toInterface(new_file);
   end func;
 
 
@@ -82,7 +82,7 @@ const func text: openPixmapFontFile (in PRIMITIVE_WINDOW: win) is func
 const func text: openPixmapFontFile (in PRIMITIVE_WINDOW: win,
     in integer: min_x, in integer: min_y) is func
   result
-    var text: result is STD_NULL;
+    var text: newFile is STD_NULL;
   local
     var pixmapFontFile: new_file is pixmapFontFile.value;
   begin
@@ -90,7 +90,7 @@ const func text: openPixmapFontFile (in PRIMITIVE_WINDOW: win,
     new_file.font.baseFont := fontProperties.value;
     new_file.min_x := min_x;
     new_file.min_y := min_y;
-    result := toInterface(new_file);
+    newFile := toInterface(new_file);
   end func;
 
 

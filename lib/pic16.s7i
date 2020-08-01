@@ -330,6 +330,25 @@ const array string: goldbar_pic is [](
   "XXXXXXXXXXX     ");
 
 
+const array string: grating_pic is [](
+  "BBBBBBBBBBBBBBBB",
+  "B  B  B  B  B  B",
+  "B  B  B  B  B  B",
+  "BBBBBBBBBBBBBBBB",
+  "B  B  B  B  B  B",
+  "B  B  B  B  B  B",
+  "BBBBBBBBBBBBBBBB",
+  "B  B  B  B  B  B",
+  "B  B  B  B  B  B",
+  "BBBBBBBBBBBBBBBB",
+  "B  B  B  B  B  B",
+  "B  B  B  B  B  B",
+  "BBBBBBBBBBBBBBBB",
+  "B  B  B  B  B  B",
+  "B  B  B  B  B  B",
+  "BBBBBBBBBBBBBBBB");
+
+
 const array string: hand_pic is [](
   "        XX      ",
   "     XX XX XX   ",
@@ -765,3 +784,22 @@ const array string: tree_pic is [](
   "       bb       ",
   "       bb       ",
   "       bb       ");
+
+
+const array string: vampire_pic is [](
+  "      bbbb      ",
+  "     bbbbbb     ",
+  "     bBxxBb     ",
+  "XX   xxxxxx   XX",
+  "Xx   xXXXXx   xX",
+  " xx   XxxX   xx ",
+  "  xxggggggggxx  ",
+  "  bxggggggggxb  ",
+  "  bbggggggggbb  ",
+  "  bbggggggggbb  ",
+  "  bbggggggggbb  ",
+  "  bbbxxbbxxbbb  ",
+  "  bbbxxbbxxbbb  ",
+  "  bbbxxbbxxbbb  ",
+  "     xx  xx     ",
+  "   rrrr  rrrr   ");

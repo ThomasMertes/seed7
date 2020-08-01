@@ -1188,12 +1188,10 @@ wintype actual_window;
 
 #ifdef ANSI_C
 
-wintype drwImage (const_wintype actual_window, inttype *image_data,
-    inttype width, inttype height)
+wintype drwImage (inttype *image_data, inttype width, inttype height)
 #else
 
-wintype drwImage (actual_window, image_data, width, height)
-wintype actual_window;
+wintype drwImage (image_data, width, height)
 inttype *image_data;
 inttype width;
 inttype height;
@@ -1211,28 +1209,36 @@ inttype height;
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
-      image = XCreateImage(mydisplay, default_visual,
-          (unsigned int) DefaultDepth(mydisplay, myscreen),
-          ZPixmap, 0, (char *) image_data,
-          (unsigned int) width, (unsigned int) height, 32, 0);
-      if (image == NULL) {
+      if (mydisplay == NULL) {
+        dra_init();
+      } /* if */
+      if (mydisplay == NULL) {
+        raise_error(FILE_ERROR);
         result = NULL;
       } else {
-        if (ALLOC_RECORD(result, x11_winrecord, count.win)) {
-          memset(result, 0, sizeof(struct x11_winstruct));
-          result->usage_count = 1;
-          result->window = XCreatePixmap(mydisplay,
-              to_window(actual_window), (unsigned int) width, (unsigned int) height,
-              (unsigned int) DefaultDepth(mydisplay, myscreen));
-          result->backup = 0;
-          result->clip_mask = 0;
-          result->is_pixmap = TRUE;
-          result->width = (unsigned int) width;
-          result->height = (unsigned int) height;
-          XPutImage(mydisplay, result->window, mygc, image, 0, 0, 0, 0,
-              (unsigned int) width, (unsigned int) height);
+        image = XCreateImage(mydisplay, default_visual,
+            (unsigned int) DefaultDepth(mydisplay, myscreen),
+            ZPixmap, 0, (char *) image_data,
+            (unsigned int) width, (unsigned int) height, 32, 0);
+        if (image == NULL) {
+          result = NULL;
+        } else {
+          if (ALLOC_RECORD(result, x11_winrecord, count.win)) {
+            memset(result, 0, sizeof(struct x11_winstruct));
+            result->usage_count = 1;
+            result->window = XCreatePixmap(mydisplay,
+                DefaultRootWindow(mydisplay), (unsigned int) width, (unsigned int) height,
+                (unsigned int) DefaultDepth(mydisplay, myscreen));
+            result->backup = 0;
+            result->clip_mask = 0;
+            result->is_pixmap = TRUE;
+            result->width = (unsigned int) width;
+            result->height = (unsigned int) height;
+            XPutImage(mydisplay, result->window, mygc, image, 0, 0, 0, 0,
+                (unsigned int) width, (unsigned int) height);
+          } /* if */
+          XFree(image);
         } /* if */
-        XFree(image);
       } /* if */
     } /* if */
     return (wintype) result;
@@ -1305,15 +1311,16 @@ inttype height;
 #ifdef TRACE_X11
     printf("drwNewPixmap(%ld, %ld)\n", width, height);
 #endif
-    result = NULL;
     if (width < 1 || height < 1) {
       raise_error(RANGE_ERROR);
+      result = NULL;
     } else {
       if (mydisplay == NULL) {
         dra_init();
       } /* if */
       if (mydisplay == NULL) {
         raise_error(FILE_ERROR);
+        result = NULL;
       } else {
         if (!ALLOC_RECORD(result, x11_winrecord, count.win)) {
           raise_error(MEMORY_ERROR);

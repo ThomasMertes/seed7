@@ -58,6 +58,8 @@ const func string: (in string: stri) rpad (in integer: length)   is action "STR_
 
 (**
  *  Concatenate two strings.
+ *  This operator is intended for normal expressions. Its parameters
+ *  are not converted to ''string''.
  *  @return the result of the concatenation.
  *)
 const func string: (in string: stri1) & (in string: stri2)       is action "STR_CAT";
@@ -65,6 +67,11 @@ const func string: (in string: stri1) & (in string: stri2)       is action "STR_
 
 (**
  *  Concatenate two strings.
+ *  This operator is intended for write statements. The functions
+ *  [[enable_io#enable_io(in_type)|enable_io]] respectively
+ *  [[enable_output#enable_output(in_type)|enable_output]] overload
+ *  the <& operator for many types. This overloaded operators
+ *  optionally convert parameters to ''string''.
  *  @return the result of the concatenation.
  *)
 const func string: (in string: stri1) <& (in string: stri2)      is action "STR_CAT";
@@ -481,9 +488,9 @@ const func string: getint (inout string: stri) is func
 
 const func string: gets (inout string: stri, in integer: leng) is func
   result
-    var string: result is "";
+    var string: striRead is "";
   begin
-    result := stri[.. leng];
+    striRead := stri[.. leng];
     stri := stri[succ(leng) ..];
   end func;
 

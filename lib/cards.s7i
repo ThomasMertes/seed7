@@ -1091,23 +1091,23 @@ const posType: TWO_POS   is []([](27,  8, 2));
 
 const func color: charColor (in char: ch) is func
   result
-    var color: result is black;
+    var color: col is black;
   begin
     case ch of
-      when {' '}: result := black;
-      when {'R'}: result := light_red;
-      when {'G'}: result := light_green;
-      when {'B'}: result := light_blue;
-      when {'Y'}: result := yellow;
-      when {'M'}: result := light_magenta;
-      when {'O'}: result := orange;
-      when {'r'}: result := dark_red;
-      when {'g'}: result := dark_green;
-      when {'c'}: result := light_cyan;
-      when {'X'}: result := white;
-      when {'x'}: result := light_gray;
-      when {'b'}: result := brown;
-      otherwise:  result := black;
+      when {' '}: col := black;
+      when {'R'}: col := light_red;
+      when {'G'}: col := light_green;
+      when {'B'}: col := light_blue;
+      when {'Y'}: col := yellow;
+      when {'M'}: col := light_magenta;
+      when {'O'}: col := orange;
+      when {'r'}: col := dark_red;
+      when {'g'}: col := dark_green;
+      when {'c'}: col := light_cyan;
+      when {'X'}: col := white;
+      when {'x'}: col := light_gray;
+      when {'b'}: col := brown;
+      otherwise:  col := black;
     end case;
   end func;
 
@@ -1167,35 +1167,35 @@ const func PRIMITIVE_WINDOW: genPixmap (in array string: pattern,
     in array string: small_card_sign, in array string: color_sign,
     in integer: scale) is func
   result
-    var PRIMITIVE_WINDOW: result is PRIMITIVE_WINDOW.value;
+    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
   local
     var integer: height is 0;
     var integer: width is 0;
   begin
     height := 2 * (length(pattern) + 12);
     width := length(pattern[1]) + 2 * 13;
-    result := newPixmap(width * scale, height * scale);
-    clear(result, black);
-    rectTo(result, 1 * scale, 1 * scale,
+    pixmap := newPixmap(width * scale, height * scale);
+    clear(pixmap, black);
+    rectTo(pixmap, 1 * scale, 1 * scale,
         pred(pred(width) * scale),
         pred(pred(height) * scale), white);
-    rect(result, scale, scale,
+    rect(pixmap, scale, scale,
         scale, scale, light_gray);
-    rect(result, (width - 2) * scale, scale,
+    rect(pixmap, (width - 2) * scale, scale,
         scale, scale, light_gray);
-    rect(result, scale, (height - 2) * scale,
+    rect(pixmap, scale, (height - 2) * scale,
         scale, scale, light_gray);
-    rect(result, (width - 2) * scale, (height - 2) * scale,
+    rect(pixmap, (width - 2) * scale, (height - 2) * scale,
         scale, scale, light_gray);
-    rectTo(result, 12 * scale, 11 * scale,
+    rectTo(pixmap, 12 * scale, 11 * scale,
         pred((width - 12) * scale),
         pred((height - 11) * scale), black);
-    rectTo(result, 13 * scale, 12 * scale,
+    rectTo(pixmap, 13 * scale, 12 * scale,
         pred((width - 13) * scale),
         pred((height - 12) * scale), white);
-    drawPic2(result, 12, 11, pattern, scale);
-    drawPic2(result,  1,  3, small_card_sign, scale);
-    drawPic2(result,  1, 18, color_sign, scale);
+    drawPic2(pixmap, 12, 11, pattern, scale);
+    drawPic2(pixmap,  1,  3, small_card_sign, scale);
+    drawPic2(pixmap,  1, 18, color_sign, scale);
   end func;
 
 
@@ -1203,7 +1203,7 @@ const func PRIMITIVE_WINDOW: genPixmap (in array string: big_card_sign,
     in array string: small_card_sign, in array string: color_sign,
     in posType: positions, in integer: scale) is func
   result
-    var PRIMITIVE_WINDOW: result is PRIMITIVE_WINDOW.value;
+    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
   local
     var integer: height is 0;
     var integer: width is 0;
@@ -1212,30 +1212,30 @@ const func PRIMITIVE_WINDOW: genPixmap (in array string: big_card_sign,
   begin
     height := 96;
     width := 71;
-    result := newPixmap(width * scale, height * scale);
-    clear(result, black);
-    rectTo(result, 1 * scale, 1 * scale,
+    pixmap := newPixmap(width * scale, height * scale);
+    clear(pixmap, black);
+    rectTo(pixmap, 1 * scale, 1 * scale,
         pred(pred(width) * scale),
         pred(pred(height) * scale), white);
-    rect(result, scale, scale,
+    rect(pixmap, scale, scale,
         scale, scale, light_gray);
-    rect(result, (width - 2) * scale, scale,
+    rect(pixmap, (width - 2) * scale, scale,
         scale, scale, light_gray);
-    rect(result, scale, (height - 2) * scale,
+    rect(pixmap, scale, (height - 2) * scale,
         scale, scale, light_gray);
-    rect(result, (width - 2) * scale, (height - 2) * scale,
+    rect(pixmap, (width - 2) * scale, (height - 2) * scale,
         scale, scale, light_gray);
     for index range 1 to length(positions) do
       if positions[index][3] = 2 then
-        drawPic2(result, positions[index][1], positions[index][2],
+        drawPic2(pixmap, positions[index][1], positions[index][2],
             big_card_sign, scale);
       else
-        drawPic(result, positions[index][1], positions[index][2],
+        drawPic(pixmap, positions[index][1], positions[index][2],
             big_card_sign, scale);
       end if;
     end for;
-    drawPic2(result,  1,  3, small_card_sign, scale);
-    drawPic2(result,  1, 18, color_sign, scale);
+    drawPic2(pixmap,  1,  3, small_card_sign, scale);
+    drawPic2(pixmap,  1, 18, color_sign, scale);
   end func;
 
 

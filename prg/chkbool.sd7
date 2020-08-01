@@ -1551,7 +1551,7 @@ const proc: check_str is func
 (*!
 const func integer: test1 is func
   result
-    var integer: result is 0;
+    var integer: number is 0;
   begin
     writeln("test1");
   end func;
@@ -1559,7 +1559,7 @@ const func integer: test1 is func
 
 const func integer: test2 is func
   result
-    var integer: result is 0;
+    var integer: number is 0;
   begin
     writeln("test2");
   end func;
@@ -1567,7 +1567,7 @@ const func integer: test2 is func
 
 const func integer: test3 is func
   result
-    var integer: result is 0;
+    var integer: number is 0;
   begin
     writeln("test3");
   end func;

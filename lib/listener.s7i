@@ -67,7 +67,7 @@ type_implements_interface(inetListener, listener);
  *)
 const func listener: openInetListener (in integer: portNumber) is func
   result
-    var listener: result is listener.value;
+    var listener: newListener is listener.value;
   local
     var socketAddress: address is socketAddress.value;
     var PRIMITIVE_SOCKET: open_socket is PRIMITIVE_NULL_SOCKET;
@@ -81,7 +81,7 @@ const func listener: openInetListener (in integer: portNumber) is func
       bind(open_socket, new_listener.addr);
       new_listener.sock := open_socket;
       addCheck(new_listener.checkedSocks, open_socket, POLLIN, STD_NULL);
-      result := toInterface(new_listener);
+      newListener := toInterface(new_listener);
     end if;
   end func;
 
@@ -132,73 +132,6 @@ const proc: listen (in inetListener: aListener, in integer: backlog) is func
   end func;
 
 
-(*
-const type: listenerArray is array listener;
-const array PRIMITIVE_SOCKET: select (in array PRIMITIVE_SOCKET: socks) is 0 times PRIMITIVE_NULL_SOCKET;
-
-
-const func listener: select (in array listener: listeners) is func
-  result
-    var listener: result is listener.value;
-  local
-    var array PRIMITIVE_SOCKET: socks is 0 times PRIMITIVE_NULL_SOCKET;
-    var integer: index is 0;
-  begin
-    if length(listeners) = 0 then
-      raise RANGE_ERROR;
-    else
-      socks := length(listeners) times PRIMITIVE_NULL_SOCKET;
-      for index range minIdx(listeners) to maxIdx(listeners) do
-        socks[index] := listeners[index].sock;
-      end for;
-      socks := select(socks);
-      for index range minIdx(listeners) to maxIdx(listeners) do
-        if socks[1] = listeners[index].sock then
-          result := listeners[index];
-        end if;
-      end for;
-    end if;
-  end func;
-
-
-const func integer: selectOne (in array listener: listeners) is func
-  result
-    var listener: result is listener.value;
-  local
-    var array PRIMITIVE_SOCKET: socks is 0 times PRIMITIVE_NULL_SOCKET;
-    var integer: index is 0;
-  begin
-    socks := length(listeners) times PRIMITIVE_NULL_SOCKET;
-    for index range minIdx(listeners) to maxIdx(listeners) do
-      socks[index] := listeners[index].sock;
-    end for;
-    result := selectOne(socks);
-  end func;
-
-
-const func file: selectOne (inout inetListener: aListener) is func
-  result
-    var file: result is STD_NULL;
-  local
-    var array PRIMITIVE_SOCKET: socks is 0 times PRIMITIVE_NULL_SOCKET;
-  begin
-    socks := succ(length(aListener.accepted)) times PRIMITIVE_NULL_SOCKET;
-    for index range 1 to length(aListener.accepted) do
-      socks[index] := aListener.accepted[index].sock;
-    end for;
-*)
-
-
-(*
-const func boolean: requestPresent (in listener: aListener, in duration: timeout) is func
-  result
-    var boolean: result is FALSE;
-  begin
-    result := inputReady(aListener.sock, toSeconds(timeout), timeout.micro_second);
-  end func;
-*)
-
-
 (**
  *  Create a new accepted connection [[socket]] for ''aListener''.
  *  The function waits until at least one connection request is
@@ -214,7 +147,7 @@ const func boolean: requestPresent (in listener: aListener, in duration: timeout
  *)
 const func file: accept (inout inetListener: aListener) is func
   result
-    var file: result is STD_NULL;
+    var file: newFile is STD_NULL;
   local
     var PRIMITIVE_SOCKET: accepted_socket is PRIMITIVE_NULL_SOCKET;
     var socket: new_socket is socket.value;
@@ -224,23 +157,10 @@ const func file: accept (inout inetListener: aListener) is func
       new_socket.sock := accepted_socket;
       new_socket.service := aListener.service;
       new_socket.acceptedFrom := aListener;
-      result := toInterface(new_socket);
-      addCheck(aListener.checkedSocks, result, POLLIN);
+      newFile := toInterface(new_socket);
+      addCheck(aListener.checkedSocks, newFile, POLLIN);
     end if;
   end func;
-
-
-(*
-const func file: accept (in array listener: listeners) is func
-  result
-    var file: result is STD_NULL;
-  local
-    var integer: index is 0;
-  begin
-    index := selectOne(listeners);
-    result := accept(listeners[index]);
-  end func;
-*)
 
 
 const proc: waitForRequest (inout inetListener: aListener) is func

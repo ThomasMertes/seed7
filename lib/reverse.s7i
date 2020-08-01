@@ -32,13 +32,15 @@ const type: reverse_file is sub null_file struct
   end struct;
 
 
-const func reverse_file: open_reverse (ref file: out_fil, in integer: lin_size) is func
+const func file: open_reverse (in file: out_fil, in integer: lin_size) is func
   result
-    var reverse_file: result is reverse_file.value;
+    var file: newFile is STD_NULL;
+  local
+    var reverse_file: new_reverse_file is reverse_file.value;
   begin
-    result := reverse_file.value;
-    result.out_file := out_fil;
-    result.line_size := lin_size;
+    new_reverse_file.out_file := out_fil;
+    new_reverse_file.line_size := lin_size;
+    newFile := toInterface(new_reverse_file);
   end func;
 
 

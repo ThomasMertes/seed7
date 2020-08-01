@@ -469,29 +469,29 @@ const proc: writeButtons is func
 
 const func char: getCommand is func
   result
-    var char: result is ' ';
+    var char: command is ' ';
   local
     var integer: xPos is 0;
     var integer: yPos is 0;
   begin
-    result := upper(getc(KEYBOARD));
-    if result = KEY_MOUSE1 then
+    command := upper(getc(KEYBOARD));
+    if command = KEY_MOUSE1 then
       xPos := getxpos(KEYBOARD);
       yPos := getypos(KEYBOARD);
       if yPos <= 20 then
         case xPos div 50 of
-          when {0}: result := 'N';
-          when {1}: result := 'Q';
-          when {2}: result := 'D';
-          when {3}: result := 'U';
-          when {4}: result := 'R';
-          when {5}: result := 'H';
+          when {0}: command := 'N';
+          when {1}: command := 'Q';
+          when {2}: command := 'D';
+          when {3}: command := 'U';
+          when {4}: command := 'R';
+          when {5}: command := 'H';
         end case;
       end if;
-    elsif result = KEY_ESC then
+    elsif command = KEY_ESC then
       bossMode(doQuit);
       if doQuit then
-        result := 'Q';
+        command := 'Q';
       end if;
     end if;
   end func;
@@ -553,28 +553,28 @@ var array tileType: tiles is [](
 
 const func color: charColor (in char: ch) is func
   result
-    var color: result is black;
+    var color: col is black;
   begin
     case ch of
-      when {' '}: result := white;
-      when {'R'}: result := light_red;
-      when {'G'}: result := light_green;
-      when {'B'}: result := light_blue;
-      when {'Y'}: result := yellow;
-      when {'M'}: result := light_magenta;
-      when {'O'}: result := orange;
-      when {'r'}: result := dark_red;
-      when {'g'}: result := dark_green;
-      when {'n'}: result := dark_blue;
-      when {'m'}: result := dark_magenta;
-      when {'c'}: result := light_cyan;
-      when {'X'}: result := black;
-      when {'x'}: result := light_gray;
-      when {'y'}: result := middle_gray;
-      when {'d'}: result := dark_gray;
-      when {'b'}: result := brown;
-      when {'p'}: result := pink;
-      otherwise:  result := black;
+      when {' '}: col := white;
+      when {'R'}: col := light_red;
+      when {'G'}: col := light_green;
+      when {'B'}: col := light_blue;
+      when {'Y'}: col := yellow;
+      when {'M'}: col := light_magenta;
+      when {'O'}: col := orange;
+      when {'r'}: col := dark_red;
+      when {'g'}: col := dark_green;
+      when {'n'}: col := dark_blue;
+      when {'m'}: col := dark_magenta;
+      when {'c'}: col := light_cyan;
+      when {'X'}: col := black;
+      when {'x'}: col := light_gray;
+      when {'y'}: col := middle_gray;
+      when {'d'}: col := dark_gray;
+      when {'b'}: col := brown;
+      when {'p'}: col := pink;
+      otherwise:  col := black;
     end case;
   end func;
 
@@ -582,7 +582,7 @@ const func color: charColor (in char: ch) is func
 const func PRIMITIVE_WINDOW: create_pixmap (in array string: pattern,
     in integer: scale) is func
   result
-    var PRIMITIVE_WINDOW: result is PRIMITIVE_WINDOW.value;
+    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
   local
     var integer: height is 0;
     var integer: width is 0;
@@ -591,11 +591,11 @@ const func PRIMITIVE_WINDOW: create_pixmap (in array string: pattern,
   begin
     height := length(pattern);
     width := length(pattern[1]);
-    result := newPixmap(width * scale, height * scale);
-    clear(result, black);
+    pixmap := newPixmap(width * scale, height * scale);
+    clear(pixmap, black);
     for line range 1 to height do
       for column range 1 to width do
-        rect(result, pred(column) * scale, pred(line) * scale,
+        rect(pixmap, pred(column) * scale, pred(line) * scale,
             scale, scale, charColor(pattern[line][column]));
       end for;
     end for;
@@ -828,7 +828,7 @@ const proc: drawBoard is func
 
 const func integer: getMaximumLevelLeftward (in integer: line, in integer: column) is func
   result
-    var integer: result is 0;
+    var integer: maximumLevelLeftward is 0;
   local
     var integer: level is 0;
     var integer: lin is 0;
@@ -838,7 +838,7 @@ const func integer: getMaximumLevelLeftward (in integer: line, in integer: colum
         for lin range pred(line) to succ(line) do
           if lin >= 1 and lin <= FIELD_LINES then
             if field[level][lin][column - 2].present then
-              result := level;
+              maximumLevelLeftward := level;
             end if;
           end if;
         end for;
@@ -849,7 +849,7 @@ const func integer: getMaximumLevelLeftward (in integer: line, in integer: colum
 
 const func integer: getMaximumLevelDownward (in integer: line, in integer: column) is func
   result
-    var integer: result is 0;
+    var integer: maximumLevelDownward is 0;
   local
     var integer: level is 0;
     var integer: col is 0;
@@ -859,7 +859,7 @@ const func integer: getMaximumLevelDownward (in integer: line, in integer: colum
         for col range pred(column) to succ(column) do
           if col >= 1 and col <= FIELD_COLUMNS then
             if field[level][line + 2][col].present then
-              result := level;
+              maximumLevelDownward := level;
             end if;
           end if;
         end for;
@@ -1051,7 +1051,7 @@ const proc: draw_number (in integer: xPos, in integer: yPos, in string: num_stri
 const func boolean: covered (in integer: level, in integer: line,
     in integer: column) is func
   result
-    var boolean: result is FALSE;
+    var boolean: isCovered is FALSE;
   local
     var integer: lin is 0;
     var integer: col is 0;
@@ -1062,7 +1062,7 @@ const func boolean: covered (in integer: level, in integer: line,
           for col range pred(column) to succ(column) do
             if col >= 1 and col <= FIELD_COLUMNS then
               if field[succ(level)][lin][col].present then
-                result := TRUE;
+                isCovered := TRUE;
               end if;
             end if;
           end for;
@@ -1074,26 +1074,26 @@ const func boolean: covered (in integer: level, in integer: line,
 
 const func integer: getFirstAccessibleTileColumn (in integer: level, in integer: line) is func
   result
-    var integer: result is 0;
+    var integer: accessibleColumn is 0;
   local
     var integer: column is 0;
   begin
     for column range 1 to FIELD_COLUMNS do
-      if result = 0 and
+      if accessibleColumn = 0 and
           field[level][line][column].present then
-        result := column;
+        accessibleColumn := column;
       end if;
     end for;
-    if result <> 0 then
-      if covered(level, line, result) then
-        result := 0;
+    if accessibleColumn <> 0 then
+      if covered(level, line, accessibleColumn) then
+        accessibleColumn := 0;
       else
-        for column range result downto 1 do
+        for column range accessibleColumn downto 1 do
           if  (line > 1 and
               field[level][pred(line)][column].present) or
               (line < FIELD_LINES and
               field[level][succ(line)][column].present) then
-            result := 0;
+            accessibleColumn := 0;
           end if;
         end for;
       end if;
@@ -1103,26 +1103,26 @@ const func integer: getFirstAccessibleTileColumn (in integer: level, in integer:
 
 const func integer: getLastAccessibleTileColumn (in integer: level, in integer: line) is func
   result
-    var integer: result is 0;
+    var integer: accessibleColumn is 0;
   local
     var integer: column is 0;
   begin
     for column range FIELD_COLUMNS downto 1 do
-      if result = 0 and
+      if accessibleColumn = 0 and
           field[level][line][column].present then
-        result := column;
+        accessibleColumn := column;
       end if;
     end for;
-    if result <> 0 then
-      if covered(level, line, result) then
-        result := 0;
+    if accessibleColumn <> 0 then
+      if covered(level, line, accessibleColumn) then
+        accessibleColumn := 0;
       else
-        for column range result to FIELD_COLUMNS do
+        for column range accessibleColumn to FIELD_COLUMNS do
           if  (line > 1 and
               field[level][pred(line)][column].present) or
               (line < FIELD_LINES and
               field[level][succ(line)][column].present) then
-            result := 0;
+            accessibleColumn := 0;
           end if;
         end for;
       end if;
@@ -1132,7 +1132,7 @@ const func integer: getLastAccessibleTileColumn (in integer: level, in integer: 
 
 const func array positionType: getAccessibleTilePositions is func
   result
-    var array positionType: result is 0 times positionType.value;
+    var array positionType: accessibleTilePositions is 0 times positionType.value;
   local
     var positionType: pos is positionType.value;
     var integer: column is 0;
@@ -1141,12 +1141,12 @@ const func array positionType: getAccessibleTilePositions is func
       for pos.line range 1 to FIELD_LINES do
         pos.column := getFirstAccessibleTileColumn(pos.level, pos.line);
         if pos.column <> 0 then
-          result &:= [] (pos);
+          accessibleTilePositions &:= [] (pos);
         end if;
         column := getLastAccessibleTileColumn(pos.level, pos.line);
         if column <> 0 and column <> pos.column then
           pos.column := column;
-          result &:= [] (pos);
+          accessibleTilePositions &:= [] (pos);
         end if;
       end for;
     end for;
@@ -1155,7 +1155,7 @@ const func array positionType: getAccessibleTilePositions is func
 
 const func integer: countPossibleMoves is func
   result
-    var integer: result is 0;
+    var integer: count is 0;
   local
     var array positionType: accessibleTilePositions is 0 times positionType.value;
     var integer: first is 0;
@@ -1170,7 +1170,7 @@ const func integer: countPossibleMoves is func
         pos2 := accessibleTilePositions[second];
         if tiles[field[pos1.level][pos1.line][pos1.column].tileNumber].value =
             tiles[field[pos2.level][pos2.line][pos2.column].tileNumber].value then
-          incr(result);
+          incr(count);
         end if;
       end for;
     end for;
@@ -1317,7 +1317,7 @@ const proc: locateTile (in integer: xPos, in integer: yPos,
  *)
 const func boolean: legalMove (in positionType: pos) is func
   result
-    var boolean: result is TRUE;
+    var boolean: isLegal is TRUE;
   local
     var integer: col is 0;
   begin
@@ -1327,22 +1327,22 @@ const func boolean: legalMove (in positionType: pos) is func
           field[pos.level][pred(pos.line)][col].present or
           pos.line < FIELD_LINES and
           field[pos.level][succ(pos.line)][col].present then
-        result := FALSE;
+        isLegal := FALSE;
       end if;
     end for;
-    if not result then
-      result := TRUE;
+    if not isLegal then
+      isLegal := TRUE;
       for col range succ(pos.column) to FIELD_COLUMNS do
         if field[pos.level][pos.line][col].present or
             pos.line > 1 and
             field[pos.level][pred(pos.line)][col].present or
             pos.line < FIELD_LINES and
             field[pos.level][succ(pos.line)][col].present then
-          result := FALSE;
+          isLegal := FALSE;
         end if;
       end for;
     end if;
-    result := result and not covered(pos.level, pos.line, pos.column);
+    isLegal := isLegal and not covered(pos.level, pos.line, pos.column);
   end func;
 
 
@@ -1497,73 +1497,73 @@ const proc: initLayout (in layoutType: layout) is func
 
 const func integer: getFirstFreeColumn (in integer: level, in integer: line) is func
   result
-    var integer: result is 0;
+    var integer: freeColumn is 0;
   local
     var integer: column is 0;
   begin
     for column range 1 to FIELD_COLUMNS do
-      if result = 0 then
+      if freeColumn = 0 then
         if field[level][line][column].present or
             (line > 1 and
             field[level][pred(line)][column].present) or
             (line < FIELD_LINES and
             field[level][succ(line)][column].present) then
-          result := column;
+          freeColumn := column;
         end if;
       end if;
     end for;
-    if result > 2 and
-        (field[level][line][result].present or
+    if freeColumn > 2 and
+        (field[level][line][freeColumn].present or
         ((line = 1 or
-        not field[level][pred(line)][result].used or
-        field[level][pred(line)][result].present) and
+        not field[level][pred(line)][freeColumn].used or
+        field[level][pred(line)][freeColumn].present) and
         (line = FIELD_LINES or
-        not field[level][succ(line)][result].used or
-        field[level][succ(line)][result].present))) then
-      result -:= 2;
-      if not field[level][line][result].used or
-          field[level][line][result].present then
-        result := 0;
+        not field[level][succ(line)][freeColumn].used or
+        field[level][succ(line)][freeColumn].present))) then
+      freeColumn -:= 2;
+      if not field[level][line][freeColumn].used or
+          field[level][line][freeColumn].present then
+        freeColumn := 0;
       end if;
     else
-      result := 0;
+      freeColumn := 0;
     end if;
   end func;
 
 
 const func integer: getLastFreeColumn (in integer: level, in integer: line) is func
   result
-    var integer: result is 0;
+    var integer: freeColumn is 0;
   local
     var integer: column is 0;
   begin
     for column range FIELD_COLUMNS downto 1 do
-      if result = 0 then
+      if freeColumn = 0 then
         if field[level][line][column].present or
             (line > 1 and
             field[level][pred(line)][column].present) or
             (line < FIELD_LINES and
             field[level][succ(line)][column].present) then
-          result := column;
+          freeColumn := column;
         end if;
       end if;
     end for;
-    if result <> 0 then
-      if result < pred(FIELD_COLUMNS) and
-          (field[level][line][result].present or
+    if freeColumn <> 0 then
+      if freeColumn < pred(FIELD_COLUMNS) and
+          (field[level][line][freeColumn].present or
           ((line = 1 or
-          not field[level][pred(line)][result].used or
-          field[level][pred(line)][result].present) and
+          not field[level][pred(line)][freeColumn].used or
+          field[level][pred(line)][freeColumn].present) and
           (line = FIELD_LINES or
-          not field[level][succ(line)][result].used or
-          field[level][succ(line)][result].present))) then
-        result +:= 2;
-        if not field[level][line][result].used or
-            field[level][line][result].present then
-          result := 0;
+          not field[level][succ(line)][freeColumn].used or
+          field[level][succ(line)][freeColumn].present))) then
+        freeColumn +:= 2;
+        if not field[level][line][freeColumn].used or
+            field[level][line][freeColumn].present then
+          freeColumn := 0;
         end if;
       else
-        result := 0;
+        freeColumn := 0;
       end if;
     end if;
   end func;
@@ -1571,18 +1571,18 @@ const func integer: getLastFreeColumn (in integer: level, in integer: line) is f
 
 const func boolean: lineIsFree (in integer: level, in integer: line) is func
   result
-    var boolean: result is TRUE;
+    var boolean: isFree is TRUE;
   local
     var integer: column is 0;
   begin
     for column range 1 to FIELD_COLUMNS do
-      if result then
+      if isFree then
         if field[level][line][column].present or
             (line > 1 and
             field[level][pred(line)][column].present) or
             (line < FIELD_LINES and
             field[level][succ(line)][column].present) then
-          result := FALSE;
+          isFree := FALSE;
         end if;
       end if;
     end for;
@@ -1591,7 +1591,7 @@ const func boolean: lineIsFree (in integer: level, in integer: line) is func
 
 const func integer: getAnyFreeColumn (in integer: level, in integer: line) is func
   result
-    var integer: result is 0;
+    var integer: freeColumn is 0;
   local
     var integer: first is 0;
     var integer: count is 0;
@@ -1614,7 +1614,7 @@ const func integer: getAnyFreeColumn (in integer: level, in integer: line) is fu
             not field[level][line][column].present then
           decr(number);
           if number = 0 then
-            result := column;
+            freeColumn := column;
           end if;
         end if;
       end for;
@@ -1624,7 +1624,7 @@ const func integer: getAnyFreeColumn (in integer: level, in integer: line) is fu
 
 const func integer: getFreeColumn (in integer: level, in integer: line) is func
   result
-    var integer: result is 0;
+    var integer: freeColumn is 0;
   local
     var integer: firstPos is 0;
     var integer: lastPos is 0;
@@ -1634,18 +1634,18 @@ const func integer: getFreeColumn (in integer: level, in integer: line) is func
     if firstPos <> 0 then
       if lastPos <> 0 then
         if rand(FALSE, TRUE) then
-          result := firstPos;
+          freeColumn := firstPos;
         else
-          result := lastPos;
+          freeColumn := lastPos;
         end if;
       else
-        result := firstPos;
+        freeColumn := firstPos;
       end if;
     else
       if lastPos <> 0 then
-        result := lastPos;
+        freeColumn := lastPos;
       elsif lineIsFree(level, line) then
-        result := getAnyFreeColumn(level, line);
+        freeColumn := getAnyFreeColumn(level, line);
       end if;
     end if;
   end func;

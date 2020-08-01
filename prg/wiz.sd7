@@ -316,26 +316,26 @@ var room_arr3: LABYRINTH is SIZE_LABY times LABY2;
 
 const func integer: range_laby (in integer: number) is func
   result
-    var integer: result is 0;
+    var integer: inRange is 0;
   begin (* range_laby *)
-    result := succ(pred(number) mod SIZE_LABY);
+    inRange := succ(pred(number) mod SIZE_LABY);
   end func; (* range_laby *)
 
 
 const func integer: range_level (in integer: number) is func
   result
-    var integer: result is 0;
+    var integer: inRange is 0;
   begin (* range_level *)
-    result := succ(pred(number) mod NUM_LEVELS);
+    inRange := succ(pred(number) mod NUM_LEVELS);
   end func; (* range_level *)
 
 
 const func integer: range18 (in integer: number) is func
   result
-    var integer: result is 18;
+    var integer: inRange is 18;
   begin (* range18 *)
     if number <= 18 then
-      result := number;
+      inRange := number;
     end if;
   end func; (* range18 *)
 
@@ -482,28 +482,16 @@ const proc: titleName (in boolean: is_male) is func
   end func; (* titleName *)
 
 
-const func objecttype: rand (attr objecttype) is func
-  result
-    var objecttype: result is NOOBJECT;
-  begin (* rand (objecttype) *)
-    result := list_of_objects[rand(1, length(list_of_objects))];
-  end func; (* rand (objecttype) *)
+const func objecttype: rand (attr objecttype) is
+  return list_of_objects[rand(1, length(list_of_objects))];
 
 
-const func speciestype: rand (attr speciestype) is func
-  result
-    var speciestype: result is HUMAN;
-  begin (* rand (speciestype) *)
-    result := list_of_species[rand(1, length(list_of_species))];
-  end func; (* rand (speciestype) *)
+const func speciestype: rand (attr speciestype) is
+  return list_of_species[rand(1, length(list_of_species))];
 
 
-const func animatetype: rand (attr animatetype) is func
-  result
-    var animatetype: result is NOBODY;
-  begin (* rand  (animatetype) *)
-    result := list_of_animates[rand(2, pred(length(list_of_animates)))];
-  end func; (* rand  (animatetype) *)
+const func animatetype: rand (attr animatetype) is
+  return list_of_animates[rand(2, pred(length(list_of_animates)))];
 
 
 const func directtype: rand (DIRECTION) is func

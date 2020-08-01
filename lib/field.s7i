@@ -43,7 +43,7 @@ type_implements_interface(field_file, file);
 const func file: open_field (in file: in_fil, inout text: out_fil,
     in integer: line, in integer: column, in integer: width, in string: default) is func
   result
-    var file: result is STD_NULL;
+    var file: newFile is STD_NULL;
   local
     var field_file: field_fil is field_file.value;
   begin
@@ -56,13 +56,13 @@ const func file: open_field (in file: in_fil, inout text: out_fil,
     field_fil.field := (default & " " mult width)[ .. width];
     setPos(out_fil, line, column);
     write(out_fil, default[.. width]);
-    result := toInterface(field_fil);
+    newFile := toInterface(field_fil);
   end func;
 
 
 const func string: getwd (inout field_file: field_fil) is func
   result
-    var string: result is "";
+    var string: stri is "";
   local
     var boolean: input_done is FALSE;
     var char: ch is ' ';
@@ -109,12 +109,12 @@ const func string: getwd (inout field_file: field_fil) is func
           end if;
       end case;
     until ch in {KEY_NL, KEY_TAB, KEY_BACKTAB, KEY_UP, KEY_DOWN, KEY_ESC};
-    result := field_fil.field;
-    while length(result) >= 1 and result[1] = ' ' do
-      result := result[2 ..];
+    stri := field_fil.field;
+    while length(stri) >= 1 and stri[1] = ' ' do
+      stri := stri[2 ..];
     end while;
-    while length(result) >= 1 and result[length(result)] = ' ' do
-      result := result[.. pred(length(result))];
+    while length(stri) >= 1 and stri[length(stri)] = ' ' do
+      stri := stri[.. pred(length(stri))];
     end while;
     field_fil.bufferChar := ch;
   end func;
@@ -122,7 +122,7 @@ const func string: getwd (inout field_file: field_fil) is func
 
 const func string: getln (inout field_file: field_fil) is func
   result
-    var string: result is "";
+    var string: stri is "";
   local
     var boolean: input_done is FALSE;
     var char: ch is ' ';
@@ -169,7 +169,7 @@ const func string: getln (inout field_file: field_fil) is func
           end if;
       end case;
     until ch in {KEY_NL, KEY_TAB, KEY_BACKTAB, KEY_UP, KEY_DOWN, KEY_ESC};
-    result := field_fil.field;
+    stri := field_fil.field;
     field_fil.bufferChar := ch;
   end func;
 

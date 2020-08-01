@@ -83,13 +83,8 @@ const func bigRational: (in bigInteger: numerator) / (in bigInteger: denominator
  *  Plus sign for ''bigRational'' numbers.
  *  @return its operand unchanged.
  *)
-const func bigRational: + (in bigRational: number) is func
-  result
-    var bigRational: result is bigRational.value;
-  begin
-    result.numerator := number.numerator;
-    result.denominator := number.denominator;
-  end func;
+const func bigRational: + (in bigRational: number) is
+  return number;
 
 
 (**
@@ -98,10 +93,10 @@ const func bigRational: + (in bigRational: number) is func
  *)
 const func bigRational: - (in bigRational: number) is func
   result
-    var bigRational: negatedValue is bigRational.value;
+    var bigRational: negatedNumber is bigRational.value;
   begin
-    negatedValue.numerator := -number.numerator;
-    negatedValue.denominator := number.denominator;
+    negatedNumber.numerator := -number.numerator;
+    negatedNumber.denominator := number.denominator;
   end func;
 
 
@@ -316,14 +311,14 @@ const func boolean: (in bigRational: number1) >= (in bigRational: number2) is
  *)
 const func integer: compare (in bigRational: number1, in bigRational: number2) is func
   result
-    var integer: result is 0;
+    var integer: signumValue is 0;
   begin
     if number1.numerator * number2.denominator <
         number2.numerator * number1.denominator then
-      result := -1;
+      signumValue := -1;
     elsif number1.numerator * number2.denominator >
         number2.numerator * number1.denominator then
-      result := 1;
+      signumValue := 1;
     end if;
   end func;
 
@@ -445,34 +440,22 @@ enable_io(bigRational);
 (**
  *  Return a ''bigRational'' number truncated towards negative infinity.
  *)
-const func bigInteger: floor (in bigRational: number) is func
-  result
-    var bigInteger: int_val is 0_;
-  begin
-    int_val := number.numerator mdiv number.denominator;
-  end func;
+const func bigInteger: floor (in bigRational: number) is
+  return number.numerator mdiv number.denominator;
 
 
 (**
  *  Return a ''bigRational'' number rounded up towards positive infinity.
  *)
-const func bigInteger: ceil (in bigRational: number) is func
-  result
-    var bigInteger: int_val is 0_;
-  begin
-    int_val := -(number.numerator mdiv -number.denominator);
-  end func;
+const func bigInteger: ceil (in bigRational: number) is
+  return -(number.numerator mdiv -number.denominator);
 
 
 (**
  *  Return a ''bigRational'' number truncated towards zero.
  *)
-const func bigInteger: trunc (in bigRational: number) is func
-  result
-    var bigInteger: int_val is 0_;
-  begin
-    int_val := number.numerator div number.denominator;
-  end func;
+const func bigInteger: trunc (in bigRational: number) is
+  return number.numerator div number.denominator;
 
 
 (**

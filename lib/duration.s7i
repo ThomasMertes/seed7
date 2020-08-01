@@ -345,38 +345,38 @@ const func boolean: (in duration: aDuration1) > (in duration: aDuration2) is
  *)
 const func integer: compare (in duration: aDuration1, in duration: aDuration2) is func
   result
-    var integer: result is 0;
+    var integer: signumValue is 0;
   begin
     if aDuration1.year_365 + aDuration1.year_366 < aDuration2.year_365 + aDuration2.year_366 then
-      result := -1;
+      signumValue := -1;
     elsif aDuration1.year_365 + aDuration1.year_366 > aDuration2.year_365 + aDuration2.year_366 then
-      result := 1;
+      signumValue := 1;
     elsif aDuration1.month_28 + aDuration1.month_29 + aDuration1.month_30 + aDuration1.month_31 <
           aDuration2.month_28 + aDuration2.month_29 + aDuration2.month_30 + aDuration2.month_31 then
-      result := -1;
+      signumValue := -1;
     elsif aDuration1.month_28 + aDuration1.month_29 + aDuration1.month_30 + aDuration1.month_31 >
           aDuration2.month_28 + aDuration2.month_29 + aDuration2.month_30 + aDuration2.month_31 then
-      result := 1;
+      signumValue := 1;
     elsif aDuration1.day < aDuration2.day then
-      result := -1;
+      signumValue := -1;
     elsif aDuration1.day > aDuration2.day then
-      result := 1;
+      signumValue := 1;
     elsif aDuration1.hour < aDuration2.hour then
-      result := -1;
+      signumValue := -1;
     elsif aDuration1.hour > aDuration2.hour then
-      result := 1;
+      signumValue := 1;
     elsif aDuration1.minute < aDuration2.minute then
-      result := -1;
+      signumValue := -1;
     elsif aDuration1.minute > aDuration2.minute then
-      result := 1;
+      signumValue := 1;
     elsif aDuration1.second < aDuration2.second then
-      result := -1;
+      signumValue := -1;
     elsif aDuration1.second > aDuration2.second then
-      result := 1;
+      signumValue := 1;
     elsif aDuration1.micro_second < aDuration2.micro_second then
-      result := -1;
+      signumValue := -1;
     elsif aDuration1.micro_second > aDuration2.micro_second then
-      result := 1;
+      signumValue := 1;
     end if;
   end func;
 

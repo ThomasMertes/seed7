@@ -43,12 +43,12 @@ type_implements_interface(strifile, file);
  *)
 const func file: openStrifile (in string: content) is func
   result
-    var file: result is STD_NULL;
+    var file: newFile is STD_NULL;
   local
     var strifile: new_strifile is strifile.value;
   begin
     new_strifile.content := content;
-    result := toInterface(new_strifile);
+    newFile := toInterface(new_strifile);
   end func;
 
 

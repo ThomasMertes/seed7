@@ -35,12 +35,12 @@ include "chartype.s7i";
  *  taking packs of 6-bits and translating them into a radix-64
  *  representation. The radix-64 digits are encoded with letters,
  *  digits and the characters '+' and '/'.
- *  @return the encoded string.
+ *  @return the Base64 encoded string.
  *  @exception RANGE_ERROR When characters beyond '\255\' are present.
  *)
-const func string: toBase64 (in string: stri) is func
+const func string: toBase64 (in string: byteStri) is func
   result
-    var string: result is "";
+    var string: base64 is "";
   local
     const string: coding is "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
     var integer: index is 1;
@@ -50,11 +50,11 @@ const func string: toBase64 (in string: stri) is func
     var string: fourBytes is "    ";
     var integer: posToAddNewline is 58;
   begin
-    for index range 1 to length(stri) step 3 do
+    for index range 1 to length(byteStri) step 3 do
       threeBytes := 0;
       for subIndex range index to index + 2 do
-        if subIndex <= length(stri) then
-          ch := stri[subIndex];
+        if subIndex <= length(byteStri) then
+          ch := byteStri[subIndex];
           if ch >= '\256\' then
             raise RANGE_ERROR;
           end if;
@@ -68,17 +68,17 @@ const func string: toBase64 (in string: stri) is func
       fourBytes @:= [3] coding[succ((threeBytes >>  6) mod 64)];
       fourBytes @:= [4] coding[succ( threeBytes        mod 64)];
       if index = posToAddNewline then
-        result &:= "\n";
+        base64 &:= "\n";
         posToAddNewline +:= 57;
       end if;
-      result &:= fourBytes;
+      base64 &:= fourBytes;
     end for;
-    index := length(result);
-    if length(stri) rem 3 = 2 then
-      result @:= [index] '=';
-    elsif length(stri) rem 3 = 1 then
-      result @:= [index] '=';
-      result @:= [pred(index)] '=';
+    index := length(base64);
+    if length(byteStri) rem 3 = 2 then
+      base64 @:= [index] '=';
+    elsif length(byteStri) rem 3 = 1 then
+      base64 @:= [index] '=';
+      base64 @:= [pred(index)] '=';
     end if;
   end func;
 
@@ -86,11 +86,11 @@ const func string: toBase64 (in string: stri) is func
 (**
  *  Decode a Base64 encoded string.
  *  @return the decoded string.
- *  @exception RANGE_ERROR When stri is not in Base64 format.
+ *  @exception RANGE_ERROR When ''base64'' is not in Base64 format.
  *)
-const func string: fromBase64 (in string: stri) is func
+const func string: fromBase64 (in string: base64) is func
   result
-    var string: result is "";
+    var string: decoded is "";
   local
     const array integer: decode is [] (                      # -1 is illegal
         62, -1, -1, -1, 63,                                  # + /
@@ -107,11 +107,11 @@ const func string: fromBase64 (in string: stri) is func
     var integer: fourBytes is 0;
     var string: threeBytes is "   ";
   begin
-    while index <= length(stri) - 3 do
-      if stri[index] >= '+' then
+    while index <= length(base64) - 3 do
+      if base64[index] >= '+' then
         fourBytes := 0;
         for subIndex range index to index + 3 do
-          number := decode[ord(stri[subIndex]) - ord(pred('+'))];
+          number := decode[ord(base64[subIndex]) - ord(pred('+'))];
           if number = -1 then
             raise RANGE_ERROR;
           end if;
@@ -120,23 +120,23 @@ const func string: fromBase64 (in string: stri) is func
         threeBytes @:= [1] chr( fourBytes >> 16);
         threeBytes @:= [2] chr((fourBytes >>  8) mod 256);
         threeBytes @:= [3] chr( fourBytes        mod 256);
-        result &:= threeBytes;
+        decoded &:= threeBytes;
         index +:= 4;
-      elsif stri[index] = '\n' then
+      elsif base64[index] = '\n' then
         incr(index);
-      elsif stri[index] = '\r' and stri[succ(index)] = '\n' then
+      elsif base64[index] = '\r' and base64[succ(index)] = '\n' then
         index +:= 2;
       else
         raise RANGE_ERROR;
       end if;
     end while;
-    if index <> succ(length(stri)) then
+    if index <> succ(length(base64)) then
       raise RANGE_ERROR;
     end if;
-    if stri[length(stri) - 1 len 2] = "==" then
-      result := result[.. length(result) - 2];
-    elsif length(stri) >= 1 and stri[length(stri)] = '=' then
-      result := result[.. pred(length(result))];
+    if base64[length(base64) - 1 len 2] = "==" then
+      decoded := decoded[.. length(decoded) - 2];
+    elsif length(base64) >= 1 and base64[length(base64)] = '=' then
+      decoded := decoded[.. pred(length(decoded))];
     end if;
   end func;
 
@@ -150,87 +150,87 @@ const func string: fromBase64 (in string: stri) is func
  *  @return the encoded string.
  *  @exception RANGE_ERROR When characters beyond '\255\' are present.
  *)
-const func string: toQuotedPrintable (in string: stri) is func
+const func string: toQuotedPrintable (in string: byteStri) is func
   result
-    var string: result is "";
+    var string: quoted is "";
   local
     var integer: index is 0;
     var integer: startPos is 1;
     var integer: counter is 1;
     var char: ch is ' ';
   begin
-    for index range 1 to length(stri) do
-      ch := stri[index];
+    for index range 1 to length(byteStri) do
+      ch := byteStri[index];
       if ch >= '\256\' then
         raise RANGE_ERROR;
       elsif ch = '\n' or (ch = '\r' and
-          index < length(stri) and stri[succ(index)] = '\n') then
+          index < length(byteStri) and byteStri[succ(index)] = '\n') then
         if index > 1 then
-          ch := stri[pred(index)];
+          ch := byteStri[pred(index)];
           if ch = ' ' or ch = '\t' then
-            result &:= stri[startPos .. index - 2];
+            quoted &:= byteStri[startPos .. index - 2];
             if counter >= 76 then
-              result &:= "=\n";
+              quoted &:= "=\n";
               counter := 1;
             end if;
-            result &:= "=" <& str(ord(stri[pred(index)]), 16) lpad0 2;
+            quoted &:= "=" <& str(ord(byteStri[pred(index)]), 16) lpad0 2;
             counter +:= 3;
             startPos := index;
           end if;
         end if;
         counter := 1;
       elsif ch >= '\127\' or ch = '=' or (ch < ' ' and ch <> '\9\') then
-        result &:= stri[startPos .. pred(index)];
+        quoted &:= byteStri[startPos .. pred(index)];
         if counter >= 74 then
-          result &:= "=\n";
+          quoted &:= "=\n";
           counter := 1;
         end if;
-        result &:= "=" <& str(ord(ch), 16) lpad0 2;
+        quoted &:= "=" <& str(ord(ch), 16) lpad0 2;
         startPos := succ(index);
         counter +:= 3;
       elsif counter >= 76 then
-        result &:= stri[startPos .. pred(index)] & "=\n";
+        quoted &:= byteStri[startPos .. pred(index)] & "=\n";
         startPos := index;
         counter := 2;
       else
         incr(counter);
       end if;
     end for;
-    result &:= stri[startPos ..];
+    quoted &:= byteStri[startPos ..];
   end func;
 
 
 (**
  *  Decode a quoted-printable encoded string.
  *  @return the decoded string.
- *  @exception RANGE_ERROR When stri is not in quoted-printable format.
+ *  @exception RANGE_ERROR When ''quoted'' is not in quoted-printable format.
  *)
-const func string: fromQuotedPrintable (in string: stri) is func
+const func string: fromQuotedPrintable (in string: quoted) is func
   result
-    var string: result is "";
+    var string: decoded is "";
   local
     var integer: startPos is 1;
     var integer: equalSignPos is 0;
     var string: twoChars is "";
   begin
-    equalSignPos := pos(stri, "=");
+    equalSignPos := pos(quoted, "=");
     while equalSignPos <> 0 do
-      result &:= stri[startPos .. pred(equalSignPos)];
-      if equalSignPos < length(stri) and
-          stri[succ(equalSignPos)] = '\n' then
+      decoded &:= quoted[startPos .. pred(equalSignPos)];
+      if equalSignPos < length(quoted) and
+          quoted[succ(equalSignPos)] = '\n' then
         startPos := equalSignPos + 2;
-      elsif equalSignPos <= length(stri) - 2 then
-        twoChars := stri[succ(equalSignPos) len 2];
+      elsif equalSignPos <= length(quoted) - 2 then
+        twoChars := quoted[succ(equalSignPos) len 2];
         if twoChars <> "\r\n" then
-          result &:= str(chr(toInt(twoChars, 16)));
+          decoded &:= str(chr(toInt(twoChars, 16)));
         end if;
         startPos := equalSignPos + 3;
       else
         raise RANGE_ERROR;
       end if;
-      equalSignPos := pos(stri, "=", startPos);
+      equalSignPos := pos(quoted, "=", startPos);
     end while;
-    result &:= stri[startPos ..];
+    decoded &:= quoted[startPos ..];
   end func;
 
 
@@ -245,9 +245,9 @@ const func string: fromQuotedPrintable (in string: stri) is func
  *  @return the encoded string.
  *  @exception RANGE_ERROR When characters beyond '\255\' are present.
  *)
-const func string: toUuencoded (in string: stri) is func
+const func string: toUuencoded (in string: byteStri) is func
   result
-    var string: result is "";
+    var string: uuencoded is "";
   local
     var integer: index is 1;
     var integer: subIndex is 1;
@@ -256,17 +256,17 @@ const func string: toUuencoded (in string: stri) is func
     var string: fourBytes is "    ";
     var integer: posToAddNewline is 43;
   begin
-    if length(stri) <> 0 then
-      if length(stri) < 45 then
-        result &:= str(chr(32 + length(stri)));
+    if length(byteStri) <> 0 then
+      if length(byteStri) < 45 then
+        uuencoded &:= str(chr(32 + length(byteStri)));
       else
-        result &:= "M";
+        uuencoded &:= "M";
       end if;
-      for index range 1 to length(stri) step 3 do
+      for index range 1 to length(byteStri) step 3 do
         threeBytes := 0;
         for subIndex range index to index + 2 do
-          if subIndex <= length(stri) then
-            ch := stri[subIndex];
+          if subIndex <= length(byteStri) then
+            ch := byteStri[subIndex];
             if ch >= '\256\' then
               raise RANGE_ERROR;
             end if;
@@ -279,32 +279,32 @@ const func string: toUuencoded (in string: stri) is func
         fourBytes @:= [2] chr(32 + (threeBytes >> 12) mod 64);
         fourBytes @:= [3] chr(32 + (threeBytes >>  6) mod 64);
         fourBytes @:= [4] chr(32 +  threeBytes        mod 64);
-        result &:= fourBytes;
+        uuencoded &:= fourBytes;
         if index = posToAddNewline then
-          if length(stri) <= index + 2 then
+          if length(byteStri) <= index + 2 then
             noop;
-          elsif length(stri) - index - 2 < 45 then
-            result &:= "\n" & str(chr(32 + length(stri) - index - 2));
+          elsif length(byteStri) - index - 2 < 45 then
+            uuencoded &:= "\n" & str(chr(32 + length(byteStri) - index - 2));
           else
-            result &:= "\nM";
+            uuencoded &:= "\nM";
           end if;
           posToAddNewline +:= 45;
         end if;
       end for;
-      result &:= "\n";
+      uuencoded &:= "\n";
     end if;
-    result &:= "`\n";
+    uuencoded &:= "`\n";
   end func;
 
 
 (**
  *  Decode an uuencoded string.
  *  @return the decoded string.
- *  @exception RANGE_ERROR When stri is not in uuencoded format.
+ *  @exception RANGE_ERROR When ''uuencoded'' is not in uuencoded format.
  *)
-const func string: fromUuencoded (in string: stri) is func
+const func string: fromUuencoded (in string: uuencoded) is func
   result
-    var string: result is "";
+    var string: decoded is "";
   local
     var integer: lineLength is 1;
     var integer: index is 1;
@@ -313,13 +313,13 @@ const func string: fromUuencoded (in string: stri) is func
     var integer: fourBytes is 0;
     var string: threeBytes is "   ";
   begin
-    lineLength := ord(stri[1]) - 32;
+    lineLength := ord(uuencoded[1]) - 32;
     while lineLength <> 0 and lineLength <> 64 do
       incr(index);
       while lineLength >= 1 do
         fourBytes := 0;
         for subIndex range index to index + 3 do
-          number := ord(stri[subIndex]) - 32;
+          number := ord(uuencoded[subIndex]) - 32;
           if number = 64 then
             number := 0;
           elsif number < 0 or number > 64 then
@@ -330,16 +330,16 @@ const func string: fromUuencoded (in string: stri) is func
         threeBytes @:= [1] chr( fourBytes >> 16);
         threeBytes @:= [2] chr((fourBytes >>  8) mod 256);
         threeBytes @:= [3] chr( fourBytes        mod 256);
-        result &:= threeBytes[ .. lineLength];
+        decoded &:= threeBytes[ .. lineLength];
         lineLength -:= 3;
         index +:= 4;
       end while;
-      while index <= length(stri) and stri[index] <> '\n' do
+      while index <= length(uuencoded) and uuencoded[index] <> '\n' do
         incr(index);
       end while;
-      if index < length(stri) then
+      if index < length(uuencoded) then
         incr(index);
-        lineLength := ord(stri[index]) - 32;
+        lineLength := ord(uuencoded[index]) - 32;
       else
         lineLength := 0;
       end if;
@@ -357,25 +357,25 @@ const func string: fromUuencoded (in string: stri) is func
  *  @return the encoded string.
  *  @exception RANGE_ERROR When characters beyond '\255\' are present.
  *)
-const func string: toPercentEncoded (in string: stri) is func
+const func string: toPercentEncoded (in string: byteStri) is func
   result
-    var string: result is "";
+    var string: percentEncoded is "";
   local
     const set of char: unreservedChars is alphanum_char | {'-', '_', '.', '~'};
     var integer: pos is 0;
     var integer: start is 1;
     var char: ch is ' ';
   begin
-    for ch key pos range stri do
+    for ch key pos range byteStri do
       if ch > '\255\' then
         raise RANGE_ERROR;
       elsif ch not in unreservedChars then
-        result &:= stri[start .. pred(pos)];
-        result &:= "%" <& str(ord(ch), 16) lpad0 2;
+        percentEncoded &:= byteStri[start .. pred(pos)];
+        percentEncoded &:= "%" <& str(ord(ch), 16) lpad0 2;
         start := succ(pos);
       end if;
     end for;
-    result &:= stri[start ..];
+    percentEncoded &:= byteStri[start ..];
   end func;
 
 
@@ -387,23 +387,23 @@ const func string: toPercentEncoded (in string: stri) is func
  *  URL. Allowed URL characters are encoded as themself.
  *  @return the decoded string.
  *)
-const func string: fromPercentEncoded (in string: stri) is func
+const func string: fromPercentEncoded (in string: percentEncoded) is func
   result
-    var string: result is "";
+    var string: decoded is "";
   local
     var integer: pos is 0;
   begin
-    result := stri;
-    pos := pos(result, '%', succ(pos));
+    decoded := percentEncoded;
+    pos := pos(decoded, '%', succ(pos));
     while pos <> 0 do
-      if pos <= length(result) - 2 and
-          result[succ(pos)] in hexdigit_char and
-          result[pos + 2] in hexdigit_char then
-        result := result[.. pred(pos)] &
-            str(chr(toInt(result[succ(pos) len 2], 16))) &
-            result[pos + 3 ..];
+      if pos <= length(decoded) - 2 and
+          decoded[succ(pos)] in hexdigit_char and
+          decoded[pos + 2] in hexdigit_char then
+        decoded := decoded[.. pred(pos)] &
+            str(chr(toInt(decoded[succ(pos) len 2], 16))) &
+            decoded[pos + 3 ..];
       end if;
-      pos := pos(result, '%', succ(pos));
+      pos := pos(decoded, '%', succ(pos));
     end while;
   end func;
 
@@ -419,29 +419,29 @@ const func string: fromPercentEncoded (in string: stri) is func
  *  @return the encoded string.
  *  @exception RANGE_ERROR When characters beyond '\255\' are present.
  *)
-const func string: toUrlEncoded (in string: stri) is func
+const func string: toUrlEncoded (in string: byteStri) is func
   result
-    var string: result is "";
+    var string: urlEncoded is "";
   local
     const set of char: unreservedChars is alphanum_char | {'-', '_', '.', '~'};
     var integer: pos is 0;
     var integer: start is 1;
     var char: ch is ' ';
   begin
-    for ch key pos range stri do
+    for ch key pos range byteStri do
       if ch > '\255\' then
         raise RANGE_ERROR;
       elsif ch = ' ' then
-        result &:= stri[start .. pred(pos)];
-        result &:= '+';
+        urlEncoded &:= byteStri[start .. pred(pos)];
+        urlEncoded &:= '+';
         start := succ(pos);
       elsif ch not in unreservedChars then
-        result &:= stri[start .. pred(pos)];
-        result &:= "%" <& str(ord(ch), 16) lpad0 2;
+        urlEncoded &:= byteStri[start .. pred(pos)];
+        urlEncoded &:= "%" <& str(ord(ch), 16) lpad0 2;
         start := succ(pos);
       end if;
     end for;
-    result &:= stri[start ..];
+    urlEncoded &:= byteStri[start ..];
   end func;
 
 
@@ -454,27 +454,27 @@ const func string: toUrlEncoded (in string: stri) is func
  *  Allowed URL characters are encoded as themself.
  *  @return the decoded string.
  *)
-const func string: fromUrlEncoded (in string: stri) is func
+const func string: fromUrlEncoded (in string: urlEncoded) is func
   result
-    var string: result is "";
+    var string: decoded is "";
   local
     var integer: pos is 0;
     var integer: start is 1;
     var char: ch is ' ';
   begin
-    for ch key pos range stri do
-      if ch = '%' and pos <= length(stri) - 2 and
-          stri[succ(pos)] in hexdigit_char and
-          stri[pos + 2] in hexdigit_char then
-        result &:= stri[start .. pred(pos)];
-        result &:= chr(toInt(stri[succ(pos) len 2], 16));
+    for ch key pos range urlEncoded do
+      if ch = '%' and pos <= length(urlEncoded) - 2 and
+          urlEncoded[succ(pos)] in hexdigit_char and
+          urlEncoded[pos + 2] in hexdigit_char then
+        decoded &:= urlEncoded[start .. pred(pos)];
+        decoded &:= chr(toInt(urlEncoded[succ(pos) len 2], 16));
         pos +:= 2;
         start := succ(pos);
       elsif ch = '+' then
-        result &:= stri[start .. pred(pos)];
-        result &:= ' ';
+        decoded &:= urlEncoded[start .. pred(pos)];
+        decoded &:= ' ';
         start := succ(pos);
       end if;
     end for;
-    result &:= stri[start ..];
+    decoded &:= urlEncoded[start ..];
   end func;

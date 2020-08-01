@@ -281,7 +281,7 @@ const proc: show (SNAKE) is func
 const func boolean: play(ROUND) is func
 
   result
-    var boolean: result is FALSE;
+    var boolean: success is FALSE;
   local
     var char: inp is ' ';
     var time: start_time is time.value;
@@ -348,7 +348,7 @@ const func boolean: play(ROUND) is func
         end if;
       end if;
     end while;
-    result := apple_counter >= 10;
+    success := apple_counter >= 10;
   end func;
 
 

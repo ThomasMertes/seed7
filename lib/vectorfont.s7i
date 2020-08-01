@@ -56,18 +56,18 @@ type_implements_interface(vectorFont, font);
  *)
 const func integer: width (in vectorFont: vecFont, in string: stri) is func
   result
-    var integer: result is 0;
+    var integer: width is 0;
   local
     var char: ch is ' ';
   begin
     for ch range stri do
       if ch in vecFont.fontVectors then
-        result +:= vecFont.fontVectors[ch].width;
+        width +:= vecFont.fontVectors[ch].width;
       else
-        result +:= vecFont.fontVectors[' '].width;
+        width +:= vecFont.fontVectors[' '].width;
       end if;
     end for;
-    result +:= vecFont.characterSpacing * length(stri);
+    width +:= vecFont.characterSpacing * length(stri);
   end func;
 
 
@@ -84,7 +84,7 @@ const func integer: width (in vectorFont: vecFont, in string: stri) is func
 const func integer: numOfCharsInWidth (in vectorFont: vecFont,
     in string: stri, in integer: allowedWidth) is func
   result
-    var integer: result is 0;
+    var integer: numOfChars is 0;
   local
     var integer: index is 1;
     var integer: totalWidth is 0;
@@ -100,7 +100,7 @@ const func integer: numOfCharsInWidth (in vectorFont: vecFont,
         incr(index);
       end if;
     end while;
-    result := pred(index);
+    numOfChars := pred(index);
   end func;
 
 
@@ -116,7 +116,7 @@ const func integer: numOfCharsInWidth (in vectorFont: vecFont,
 const func PRIMITIVE_WINDOW: genPixmap (in vectorFont: vecFont, in charVectorType: charVectors,
     in color: foreground, in color: background, in integer: scale) is func
   result
-    var PRIMITIVE_WINDOW: result is PRIMITIVE_WINDOW.value;
+    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
   local
     var integer: height is 0;
     var integer: width is 0;
@@ -124,10 +124,10 @@ const func PRIMITIVE_WINDOW: genPixmap (in vectorFont: vecFont, in charVectorTyp
   begin
     height := lineHeight(vecFont);
     width := charVectors.width;
-    result := newPixmap(width * scale, height * scale);
-    clear(result, background);
+    pixmap := newPixmap(width * scale, height * scale);
+    clear(pixmap, background);
     for index range 1 to length(charVectors.points) do
-      fpolyLine(result, 0, 0 (*vecFont.baseLineDelta *), charVectors.points[index], foreground);
+      fpolyLine(pixmap, 0, 0 (*vecFont.baseLineDelta *), charVectors.points[index], foreground);
     end for;
   end func;
 
@@ -143,21 +143,21 @@ const func pixmapFontType: genPixmapFont (in vectorFont: vecFont,
     in integer: fontSize, in integer: scale,
     in color: foreground, in color: background) is func
   result
-    var pixmapFontType: result is pixmapFontType.value;
+    var pixmapFontType: pixmapFont is pixmapFontType.value;
   begin
     if ' ' in vecFont.fontVectors then
-      incl(result.pixmap, ' ', genPixmap(vecFont, vecFont.fontVectors[' '],
+      incl(pixmapFont.pixmap, ' ', genPixmap(vecFont, vecFont.fontVectors[' '],
           foreground, background, scale));
     end if;
-    result.baseFont := vecFont;
-    result.fontSize := fontSize;
-    result.scale := scale;
-    result.foreground := foreground;
-    result.background := background;
-    result.baseLineDelta := baseLineDelta(vecFont);
-    result.line_delta := lineHeight(vecFont);
-    result.column_delta := columnWidth(vecFont);
-    result.characterSpacing := characterSpacing(vecFont);
+    pixmapFont.baseFont := vecFont;
+    pixmapFont.fontSize := fontSize;
+    pixmapFont.scale := scale;
+    pixmapFont.foreground := foreground;
+    pixmapFont.background := background;
+    pixmapFont.baseLineDelta := baseLineDelta(vecFont);
+    pixmapFont.line_delta := lineHeight(vecFont);
+    pixmapFont.column_delta := columnWidth(vecFont);
+    pixmapFont.characterSpacing := characterSpacing(vecFont);
   end func;
 
 
@@ -193,20 +193,12 @@ const proc: setFont (inout pixmapFontFile: fontFile, in vectorFont: aFont) is fu
 #
 
 
-const func pointList: pline (in array integer: points) is func
-  result
-    var pointList: result is pointList.value;
-  begin
-    result := genPointList(points);
-  end func;
+const func pointList: pline (in array integer: points) is
+  return genPointList(points);
 
 
-const func pointList: fillp (in array integer: points) is func
-  result
-    var pointList: result is pointList.value;
-  begin
-    result := genPointList(points);
-  end func;
+const func pointList: fillp (in array integer: points) is
+  return genPointList(points);
 
 
 const proc: incl (inout fontVectorType: fontVectors, in char: ch, in integer: width,
@@ -227,13 +219,13 @@ const proc: incl (inout fontVectorType: fontVectors, in char: ch, in integer: wi
  *)
 const func integer: columnWidth (in fontVectorType: fontVectors) is func
   result
-    var integer: result is 0;
+    var integer: maxWidth is 0;
   local
     var char: ch is ' ';
   begin
     for key ch range fontVectors do
-      if fontVectors[ch].width > result then
-        result := fontVectors[ch].width;
+      if fontVectors[ch].width > maxWidth then
+        maxWidth := fontVectors[ch].width;
       end if;
     end for;
   end func;

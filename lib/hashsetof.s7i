@@ -160,13 +160,13 @@ const func type: HASHSET_OF (in type: baseType) is func
        *)
       const func setType: (in setType: set1) | (in setType: set2) is func
         result
-          var setType: result is setType.EMPTY_SET;
+          var setType: union is setType.EMPTY_SET;
         local
           var baseType: element is baseType.value;
         begin
-          result := set1;
+          union := set1;
           for element range set2 do
-            incl(result, element);
+            incl(union, element);
           end for;
         end func;
 
@@ -177,13 +177,13 @@ const func type: HASHSET_OF (in type: baseType) is func
        *)
       const func setType: (in setType: set1) & (in setType: set2) is func
         result
-          var setType: result is setType.EMPTY_SET;
+          var setType: intersection is setType.EMPTY_SET;
         local
           var baseType: element is baseType.value;
         begin
           for element range set1 do
             if element in set2 then
-              incl(result, element);
+              incl(intersection, element);
             end if;
           end for;
         end func;
@@ -195,18 +195,18 @@ const func type: HASHSET_OF (in type: baseType) is func
        *)
       const func setType: (in setType: set1) >< (in setType: set2) is func
         result
-          var setType: result is setType.EMPTY_SET;
+          var setType: difference is setType.EMPTY_SET;
         local
           var baseType: element is baseType.value;
         begin
           for element range set1 do
             if element not in set2 then
-              incl(result, element);
+              incl(difference, element);
             end if;
           end for;
           for element range set2 do
             if element not in set1 then
-              incl(result, element);
+              incl(difference, element);
             end if;
           end for;
         end func;
@@ -218,13 +218,13 @@ const func type: HASHSET_OF (in type: baseType) is func
        *)
       const func setType: (in setType: set1) - (in setType: set2) is func
         result
-          var setType: result is setType.EMPTY_SET;
+          var setType: difference is setType.EMPTY_SET;
         local
           var baseType: element is baseType.value;
         begin
-          result := set1;
+          difference := set1;
           for element range set2 do
-            excl(result, element);
+            excl(difference, element);
           end for;
         end func;
 
@@ -235,18 +235,18 @@ const func type: HASHSET_OF (in type: baseType) is func
        *)
       const func boolean: (in setType: set1) = (in setType: set2) is func
         result
-          var boolean: result is TRUE;
+          var boolean: isEqual is TRUE;
         local
           var baseType: element is baseType.value;
         begin
           for element range set1 do
             if element not in set2 then
-              result := FALSE;
+              isEqual := FALSE;
             end if;
           end for;
           for element range set2 do
             if element not in set1 then
-              result := FALSE;
+              isEqual := FALSE;
             end if;
           end for;
         end func;
@@ -269,13 +269,13 @@ const func type: HASHSET_OF (in type: baseType) is func
        *)
       const func boolean: (in setType: set1) <= (in setType: set2) is func
         result
-          var boolean: result is TRUE;
+          var boolean: isLessEqual is TRUE;
         local
           var baseType: element is baseType.value;
         begin
           for element range set1 do
             if element not in set2 then
-              result := FALSE;
+              isLessEqual := FALSE;
             end if;
           end for;
         end func;
@@ -290,13 +290,13 @@ const func type: HASHSET_OF (in type: baseType) is func
        *)
       const func boolean: (in setType: set1) >= (in setType: set2) is func
         result
-          var boolean: result is TRUE;
+          var boolean: isGreaterEqual is TRUE;
         local
           var baseType: element is baseType.value;
         begin
           for element range set2 do
             if element not in set1 then
-              result := FALSE;
+              isGreaterEqual := FALSE;
             end if;
           end for;
         end func;

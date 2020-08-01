@@ -40,11 +40,11 @@ const type: iniDataType is hash [string] iniKeyValueType;
 const func string: getParamValue (in iniDataType: iniData,
     in string: sectionName, in string: propertyName) is func
   result
-    var string: result is "";
+    var string: propertyValue is "";
   begin
     if sectionName in iniData then
       if propertyName in iniData[sectionName] then
-        result := iniData[sectionName][propertyName];
+        propertyValue := iniData[sectionName][propertyName];
       end if;
     end if;
   end func;
@@ -87,7 +87,7 @@ const func string: getIniSection (inout file: inFile) is func
  *)
 const func iniDataType: readIniFile (inout file: inFile) is func
   result
-    var iniDataType: result is iniDataType.value;
+    var iniDataType: iniData is iniDataType.value;
   local
     var string: sectionName is "";
     var string: propertyName is "";
@@ -103,10 +103,10 @@ const func iniDataType: readIniFile (inout file: inFile) is func
         skipLineComment(inFile);
       elsif inFile.bufferChar <> EOF then
         getKeyValuePair(inFile, propertyName, propertyValue);
-        if sectionName not in result then
-          result @:= [sectionName] iniKeyValueType.value;
+        if sectionName not in iniData then
+          iniData @:= [sectionName] iniKeyValueType.value;
         end if;
-        result[sectionName] @:= [propertyName] propertyValue;
+        iniData[sectionName] @:= [propertyName] propertyValue;
       end if;
     end while;
   end func;
@@ -117,13 +117,13 @@ const func iniDataType: readIniFile (inout file: inFile) is func
  *)
 const func iniDataType: readIniFile (in string: fileName) is func
   result
-    var iniDataType: result is iniDataType.value;
+    var iniDataType: iniData is iniDataType.value;
   local
     var file: inFile is STD_NULL;
   begin
     inFile := open(fileName, "r");
     if inFile <> STD_NULL then
-      result := readIniFile(inFile);
+      iniData := readIniFile(inFile);
       close(inFile);
     end if;
   end func;

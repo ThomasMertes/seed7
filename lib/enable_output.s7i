@@ -100,6 +100,7 @@ const proc: enable_output (in type: aType) is func
 
     (**
      *  Convert ''aValue'' to [[string]] and append it to ''stri''.
+     *  This operator is intended for write statements.
      *  @return the result of the concatination.
      *)
     const func string: (in string: stri) <& (in aType: aValue) is
@@ -107,6 +108,7 @@ const proc: enable_output (in type: aType) is func
 
     (**
      *  Convert ''aValue'' to [[string]] and append ''stri'' to it.
+     *  This operator is intended for write statements.
      *  @return the result of the concatination.
      *)
     const func string: (in aType: aValue) <& (in string: stri) is

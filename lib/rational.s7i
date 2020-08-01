@@ -124,13 +124,8 @@ const func rational: (in integer: numerator) / (in integer: denominator) is func
  *  Plus sign for rational numbers.
  *  @return its operand unchanged.
  *)
-const func rational: + (in rational: number) is func
-  result
-    var rational: result is rational.value;
-  begin
-    result.numerator := number.numerator;
-    result.denominator := number.denominator;
-  end func;
+const func rational: + (in rational: number) is
+  return number;
 
 
 (**
@@ -139,10 +134,10 @@ const func rational: + (in rational: number) is func
  *)
 const func rational: - (in rational: number) is func
   result
-    var rational: negatedValue is rational.value;
+    var rational: negatedNumber is rational.value;
   begin
-    negatedValue.numerator := -number.numerator;
-    negatedValue.denominator := number.denominator;
+    negatedNumber.numerator := -number.numerator;
+    negatedNumber.denominator := number.denominator;
   end func;
 
 
@@ -352,14 +347,14 @@ const func boolean: (in rational: number1) >= (in rational: number2) is
  *)
 const func integer: compare (in rational: number1, in rational: number2) is func
   result
-    var integer: result is 0;
+    var integer: signumValue is 0;
   begin
     if number1.numerator * number2.denominator <
         number2.numerator * number1.denominator then
-      result := -1;
+      signumValue := -1;
     elsif number1.numerator * number2.denominator >
         number2.numerator * number1.denominator then
-      result := 1;
+      signumValue := 1;
     end if;
   end func;
 
@@ -469,34 +464,22 @@ enable_io(rational);
 (**
  *  Return a rational number truncated towards negative infinity.
  *)
-const func integer: floor (in rational: number) is func
-  result
-    var integer: int_val is 0;
-  begin
-    int_val := number.numerator mdiv number.denominator;
-  end func;
+const func integer: floor (in rational: number) is
+  return number.numerator mdiv number.denominator;
 
 
 (**
  *  Return a rational number rounded up towards positive infinity.
  *)
-const func integer: ceil (in rational: number) is func
-  result
-    var integer: int_val is 0;
-  begin
-    int_val := -(number.numerator mdiv -number.denominator);
-  end func;
+const func integer: ceil (in rational: number) is
+  return -(number.numerator mdiv -number.denominator);
 
 
 (**
  *  Return a rational number truncated towards zero.
  *)
-const func integer: trunc (in rational: number) is func
-  result
-    var integer: int_val is 0;
-  begin
-    int_val := number.numerator div number.denominator;
-  end func;
+const func integer: trunc (in rational: number) is
+  return number.numerator div number.denominator;
 
 
 (**

@@ -152,19 +152,19 @@ const proc: init_mines (in integer: num_mines) is func
 
 const func boolean: place_is_free (in integer: line, in integer: column) is func
   result
-    var boolean: result is TRUE;
+    var boolean: is_free is TRUE;
   begin
 (*  write(protocol, "RANGE " <& line <& " " <& column <& " "); *)
-    result := line >= 1 and line <= max_line and
+    is_free := line >= 1 and line <= max_line and
         column >= 1 and column <= max_column and
         area[line][column].counter = 0 and
         not (area[line][column].visited or
             area[line][column].marked);
-    if result then
+    if is_free then
       area[line][column].visited := TRUE;
       display_place(line, column, area[line][column]);
     end if;
-(*  writeln(protocol, result); *)
+(*  writeln(protocol, is_free); *)
   end func;
 
 

@@ -145,7 +145,7 @@ const proc: check_hazards is func
 
 const func boolean: shoot_or_move is func
   result
-    var boolean: result is FALSE;
+    var boolean: do_shoot is FALSE;
   local
     var char: ch is ' ';
   begin
@@ -156,9 +156,9 @@ const func boolean: shoot_or_move is func
     until ch = 'S' or ch = 'M';
 
     if ch = 'S' then
-      result := TRUE;
+      do_shoot := TRUE;
     elsif ch = 'M' then
-      result := FALSE;
+      do_shoot := FALSE;
     end if;
   end func;
 

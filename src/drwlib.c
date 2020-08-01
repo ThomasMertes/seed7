@@ -458,7 +458,8 @@ listtype arguments;
   {
     objecttype win_to;
     objecttype win_from;
-    wintype win_value;
+    wintype win_source;
+    wintype old_window;
 
   /* drw_cpy */
     win_to = arg_1(arguments);
@@ -466,22 +467,22 @@ listtype arguments;
     isit_win(win_to);
     isit_win(win_from);
     is_variable(win_to);
-    win_value = take_win(win_to);
-    if (win_value != NULL) {
-      win_value->usage_count--;
-      if (win_value->usage_count == 0) {
-        drwFree(win_value);
-      } /* if */
-    } /* if */
-    win_value = take_win(win_from);
-    win_to->value.winvalue = win_value;
+    win_source = take_win(win_from);
     if (TEMP_OBJECT(win_from)) {
       win_from->value.winvalue = NULL;
     } else {
-      if (win_value != NULL) {
-        win_value->usage_count++;
+      if (win_source != NULL) {
+        win_source->usage_count++;
       } /* if */
     } /* if */
+    old_window = take_win(win_to);
+    if (old_window != NULL) {
+      old_window->usage_count--;
+      if (old_window->usage_count == 0) {
+        drwFree(old_window);
+      } /* if */
+    } /* if */
+    win_to->value.winvalue = win_source;
     return SYS_EMPTY_OBJECT;
   } /* drw_cpy */
 
@@ -902,7 +903,6 @@ listtype arguments;
 #endif
 
   {
-    wintype actual_window;
     arraytype arr_image;
     objecttype curr_line;
     arraytype arr_line;
@@ -916,10 +916,8 @@ listtype arguments;
     wintype result;
 
   /* drw_image */
-    isit_win(arg_1(arguments));
-    isit_array(arg_2(arguments));
-    actual_window = take_win(arg_1(arguments));
-    arr_image = take_array(arg_2(arguments));
+    isit_array(arg_1(arguments));
+    arr_image = take_array(arg_1(arguments));
     height = arr_image->max_position - arr_image->min_position + 1;
     if (height > 0) {
       curr_line = &arr_image->arr[0];
@@ -939,7 +937,7 @@ listtype arguments;
             pixel_elem++;
           } /* for */
         } /* for */
-        result = drwImage(actual_window, image_data, width, height);
+        result = drwImage(image_data, width, height);
         free(image_data);
       } else {
         result = NULL;
@@ -1736,6 +1734,35 @@ listtype arguments;
     drwToTop(take_win(arg_1(arguments)));
     return SYS_EMPTY_OBJECT;
   } /* drw_toTop */
+
+
+
+#ifdef ANSI_C
+
+objecttype drw_value (listtype arguments)
+#else
+
+objecttype drw_value (arguments)
+listtype arguments;
+#endif
+
+  {
+    objecttype obj_arg;
+    wintype win_value;
+
+  /* drw_value */
+    isit_reference(arg_1(arguments));
+    obj_arg = take_reference(arg_1(arguments));
+    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != WINOBJECT) {
+      return raise_exception(SYS_RNG_EXCEPTION);
+    } else {
+      win_value = take_win(obj_arg);
+      if (win_value != NULL) {
+        win_value->usage_count++;
+      } /* if */
+      return bld_win_temp(win_value);
+    } /* if */
+  } /* drw_value */
 
 
 

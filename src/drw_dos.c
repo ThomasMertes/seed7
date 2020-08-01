@@ -512,12 +512,10 @@ wintype actual_window;
 
 #ifdef ANSI_C
 
-wintype drwImage (const_wintype actual_window, inttype *image_data,
-    inttype width, inttype height)
+wintype drwImage (inttype *image_data, inttype width, inttype height)
 #else
 
-wintype drwImage (actual_window, image_data, width, height)
-wintype actual_window;
+wintype drwImage (image_data, width, height)
 inttype *image_data;
 inttype width;
 inttype height;

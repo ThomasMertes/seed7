@@ -210,13 +210,13 @@ const func boolean: equalFiles (in string: file1Name, in string: file2Name) is f
 
 const func string: cmdOutput (in string: command) is func
   result
-    var string: result is "";
+    var string: output is "";
   local
     var file: outFile is STD_NULL;
   begin
     outFile := popen(command, "r");
     if outFile <> STD_NULL then
-      result := gets(outFile, 999999999);
+      output := gets(outFile, 999999999);
       close(outFile);
     end if;
   end func;

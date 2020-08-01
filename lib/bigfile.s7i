@@ -57,7 +57,7 @@ const func bigInteger: bigTell (ref file: aFile)             is DYNAMIC;
  *)
 const func bigInteger: bigLength (ref null_file: aFile) is func
   result
-    var bigInteger: result is 0_;
+    var bigInteger: length is 0_;
   begin
     raise FILE_ERROR;
   end func;
@@ -86,7 +86,7 @@ const proc: seek (ref null_file: aFile, ref bigInteger: position) is func
  *)
 const func bigInteger: bigTell (ref null_file: aFile) is func
   result
-    var bigInteger: result is 0_;
+    var bigInteger: position is 0_;
   begin
     raise FILE_ERROR;
   end func;

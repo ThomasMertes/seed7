@@ -322,6 +322,7 @@ static primactrecord prim_act_table[] = {
     { "DRW_TEXT",                drw_text,                },
     { "DRW_TOBOTTOM",            drw_toBottom,            },
     { "DRW_TOTOP",               drw_toTop,               },
+    { "DRW_VALUE",               drw_value,               },
     { "DRW_WIDTH",               drw_width,               },
     { "DRW_XPOS",                drw_xpos,                },
     { "DRW_YPOS",                drw_ypos,                },

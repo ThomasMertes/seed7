@@ -148,6 +148,13 @@ const type: type_index_hash is hash [integer] array type;
 
 var type_table_hash: type_const_table is type_table_hash.EMPTY_HASH;
 
+const type: win_table_hash is hash [PRIMITIVE_WINDOW] integer;
+const type: win_index_hash is hash [integer] array PRIMITIVE_WINDOW;
+const type: win_bstri_hash is hash [integer] integer;
+
+var win_table_hash: win_const_table is win_table_hash.EMPTY_HASH;
+var win_bstri_hash: win_bstri_table is win_bstri_hash.EMPTY_HASH;
+
 const type: const_table_hash is hash [reference] integer;
 const type: const_index_hash is hash [integer] array reference;
 
@@ -230,13 +237,13 @@ const proc: count_declarations is func
 const func boolean: isByteString (in string: stri) is func
 
   result
-    var boolean: result is TRUE;
+    var boolean: isByteString is TRUE;
   local
     var char: ch is ' ';
   begin
     for ch range stri do
       if ord(ch) > 255 then
-        result := FALSE;
+        isByteString := FALSE;
       end if;
     end for;
   end func;
@@ -245,12 +252,12 @@ const func boolean: isByteString (in string: stri) is func
 const func string: sourceNameString (in string: sourceName) is func
 
   result
-    var string: result is "";
+    var string: stri is "";
   begin
     if CC_SOURCE_UTF8 or not isByteString(sourceName) then
-      result := c_literal(striToUtf8(toOsPath(sourceName)));
+      stri := c_literal(striToUtf8(toOsPath(sourceName)));
     else
-      result := c_literal(toOsPath(sourceName));
+      stri := c_literal(toOsPath(sourceName));
     end if;
   end func;
 
@@ -258,12 +265,12 @@ const func string: sourceNameString (in string: sourceName) is func
 const func string: noDiagnosticLine is func
 
   result
-    var string: result is "";
+    var string: diagnosticLine is "";
   begin
     if source_debug_info then
-      result &:= "#line 1 \"no_file\"\n";
+      diagnosticLine &:= "#line 1 \"no_file\"\n";
     else
-      result &:= "/* line 1 \"no_file\" */\n";
+      diagnosticLine &:= "/* line 1 \"no_file\" */\n";
     end if;
   end func;
 
@@ -271,20 +278,20 @@ const func string: noDiagnosticLine is func
 const func string: diagnosticLine (in reference: current_object) is func
 
   result
-    var string: result is "";
+    var string: diagnosticLine is "";
   begin
     if source_debug_info and line(current_object) <> 0 then
-      result &:= "#line ";
-      result &:= str(line(current_object));
-      result &:= " ";
-      result &:= sourceNameString(file(current_object));
-      result &:= "\n";
+      diagnosticLine &:= "#line ";
+      diagnosticLine &:= str(line(current_object));
+      diagnosticLine &:= " ";
+      diagnosticLine &:= sourceNameString(file(current_object));
+      diagnosticLine &:= "\n";
     else
-      result &:= "/* line ";
-      result &:= str(line(current_object));
-      result &:= " ";
-      result &:= sourceNameString(file(current_object));
-      result &:= " */\n";
+      diagnosticLine &:= "/* line ";
+      diagnosticLine &:= str(line(current_object));
+      diagnosticLine &:= " ";
+      diagnosticLine &:= sourceNameString(file(current_object));
+      diagnosticLine &:= " */\n";
     end if;
   end func;
 
@@ -389,40 +396,40 @@ const proc: create_name (in reference: current_object, in integer: object_number
 const func string: raw_type_name (in type: object_type) is func
 
   result
-    var string: result is "";
+    var string: typeName is "";
   begin
     if object_type in typeCategory then
       case typeCategory[object_type] of
-        when {VOIDOBJECT}:      result := "void";
-        when {BOOLOBJECT}:      result := "booltype";
-        when {ENUMOBJECT}:      result := "enumtype";
-        when {INTOBJECT}:       result := "inttype";
-        when {BIGINTOBJECT}:    result := "biginttype";
-        when {FLOATOBJECT}:     result := "floattype";
-        when {CHAROBJECT}:      result := "chartype";
-        when {STRIOBJECT}:      result := "stritype";
-        when {BSTRIOBJECT}:     result := "bstritype";
-        when {FILEOBJECT}:      result := "filetype";
-        when {SOCKETOBJECT}:    result := "sockettype";
-        when {POLLOBJECT}:      result := "polltype";
-        when {SETOBJECT}:       result := "settype";
-        when {WINOBJECT}:       result := "wintype";
-        when {PROGOBJECT}:      result := "progtype";
-        when {ARRAYOBJECT}:     result := "arraytype";
-        when {HASHOBJECT}:      result := "hashtype";
-        when {STRUCTOBJECT}:    result := "structtype";
-        when {INTERFACEOBJECT}: result := "interfacetype";
-        when {REFOBJECT}:       result := "objreftype";
-        when {REFLISTOBJECT}:   result := "listtype";
-        when {TYPEOBJECT}:      result := "typetype";
-        when {ACTOBJECT}:       result := "acttype";
+        when {VOIDOBJECT}:      typeName := "void";
+        when {BOOLOBJECT}:      typeName := "booltype";
+        when {ENUMOBJECT}:      typeName := "enumtype";
+        when {INTOBJECT}:       typeName := "inttype";
+        when {BIGINTOBJECT}:    typeName := "biginttype";
+        when {FLOATOBJECT}:     typeName := "floattype";
+        when {CHAROBJECT}:      typeName := "chartype";
+        when {STRIOBJECT}:      typeName := "stritype";
+        when {BSTRIOBJECT}:     typeName := "bstritype";
+        when {FILEOBJECT}:      typeName := "filetype";
+        when {SOCKETOBJECT}:    typeName := "sockettype";
+        when {POLLOBJECT}:      typeName := "polltype";
+        when {SETOBJECT}:       typeName := "settype";
+        when {WINOBJECT}:       typeName := "wintype";
+        when {PROGOBJECT}:      typeName := "progtype";
+        when {ARRAYOBJECT}:     typeName := "arraytype";
+        when {HASHOBJECT}:      typeName := "hashtype";
+        when {STRUCTOBJECT}:    typeName := "structtype";
+        when {INTERFACEOBJECT}: typeName := "interfacetype";
+        when {REFOBJECT}:       typeName := "objreftype";
+        when {REFLISTOBJECT}:   typeName := "listtype";
+        when {TYPEOBJECT}:      typeName := "typetype";
+        when {ACTOBJECT}:       typeName := "acttype";
         otherwise:
-          result := "t_";
-          result &:= str(type_number(object_type));
+          typeName := "t_";
+          typeName &:= str(type_number(object_type));
       end case;
     else
-      result := "t_";
-      result &:= str(type_number(object_type));
+      typeName := "t_";
+      typeName &:= str(type_number(object_type));
     end if;
   end func;
 
@@ -430,34 +437,34 @@ const func string: raw_type_name (in type: object_type) is func
 const func string: type_name (in type: object_type) is func
 
   result
-    var string: result is "";
+    var string: typeName is "";
   begin
-    result := raw_type_name(object_type);
-    result &:= "/*t_";
-    result &:= str(type_number(object_type));
-    result &:= "_";
-    result &:= str(object_type);
-    result &:= "*/";
+    typeName := raw_type_name(object_type);
+    typeName &:= "/*t_";
+    typeName &:= str(type_number(object_type));
+    typeName &:= "_";
+    typeName &:= str(object_type);
+    typeName &:= "*/";
   end func;
 
 
 const func string: type_name2 (in type: object_type) is func
 
   result
-    var string: result is "";
+    var string: typeName is "";
   begin
-    result := raw_type_name(object_type);
-    result &:= "/t_";
-    result &:= str(type_number(object_type));
-    result &:= "_";
-    result &:= str(object_type);
+    typeName := raw_type_name(object_type);
+    typeName &:= "/t_";
+    typeName &:= str(type_number(object_type));
+    typeName &:= "_";
+    typeName &:= str(object_type);
   end func;
 
 
 const func type: base_type (in type: array_type) is func
 
   result
-    var type: result is void;
+    var type: baseType is void;
   local
     var ref_list: param_list is ref_list.EMPTY;
     var reference: matched_object is NIL;
@@ -466,7 +473,7 @@ const func type: base_type (in type: array_type) is func
     param_list &:= make_list(syobject(prog, "base_type"));
     matched_object := match(prog, param_list);
     if matched_object <> NIL and category(matched_object) = TYPEOBJECT then
-      result := getValue(matched_object, type);
+      baseType := getValue(matched_object, type);
     end if;
   end func;
 
@@ -541,11 +548,11 @@ const proc: declare_type_if_necessary (in type: aType, inout expr_type: c_expr) 
 const func type: getExprResultType (in reference: aReference) is func
 
   result
-    var type: result is void;
+    var type: resultType is void;
   begin
-    result := getType(aReference);
-    while is_func(result) or is_varfunc(result) do
-      result := result_type(result);
+    resultType := getType(aReference);
+    while is_func(resultType) or is_varfunc(resultType) do
+      resultType := result_type(resultType);
     end while;
   end func;
 
@@ -553,36 +560,36 @@ const func type: getExprResultType (in reference: aReference) is func
 const func string: raw_type_value (in type: object_type) is func
 
   result
-    var string: result is "";
+    var string: valueName is "";
   begin
     if object_type in typeCategory then
       case typeCategory[object_type] of
-        when {BOOLOBJECT}:      result := "boolvalue";
-        when {ENUMOBJECT}:      result := "enumvalue";
-        when {INTOBJECT}:       result := "intvalue";
-        when {BIGINTOBJECT}:    result := "bigintvalue";
-        when {FLOATOBJECT}:     result := "floatvalue";
-        when {CHAROBJECT}:      result := "charvalue";
-        when {STRIOBJECT}:      result := "strivalue";
-        when {BSTRIOBJECT}:     result := "bstrivalue";
-        when {FILEOBJECT}:      result := "filevalue";
-        when {SOCKETOBJECT}:    result := "socketvalue";
-        when {POLLOBJECT}:      result := "pollvalue";
-        when {SETOBJECT}:       result := "setvalue";
-        when {WINOBJECT}:       result := "winvalue";
-        when {PROGOBJECT}:      result := "progvalue";
-        when {ARRAYOBJECT}:     result := "arrayvalue";
-        when {HASHOBJECT}:      result := "hashvalue";
-        when {STRUCTOBJECT}:    result := "structvalue";
-        when {INTERFACEOBJECT}: result := "interfacevalue";
-        when {REFOBJECT}:       result := "objrefvalue";
-        when {REFLISTOBJECT}:   result := "listvalue";
-        when {TYPEOBJECT}:      result := "typevalue";
-        when {ACTOBJECT}:       result := "actvalue";
-        otherwise:              result := "genericvalue";
+        when {BOOLOBJECT}:      valueName := "boolvalue";
+        when {ENUMOBJECT}:      valueName := "enumvalue";
+        when {INTOBJECT}:       valueName := "intvalue";
+        when {BIGINTOBJECT}:    valueName := "bigintvalue";
+        when {FLOATOBJECT}:     valueName := "floatvalue";
+        when {CHAROBJECT}:      valueName := "charvalue";
+        when {STRIOBJECT}:      valueName := "strivalue";
+        when {BSTRIOBJECT}:     valueName := "bstrivalue";
+        when {FILEOBJECT}:      valueName := "filevalue";
+        when {SOCKETOBJECT}:    valueName := "socketvalue";
+        when {POLLOBJECT}:      valueName := "pollvalue";
+        when {SETOBJECT}:       valueName := "setvalue";
+        when {WINOBJECT}:       valueName := "winvalue";
+        when {PROGOBJECT}:      valueName := "progvalue";
+        when {ARRAYOBJECT}:     valueName := "arrayvalue";
+        when {HASHOBJECT}:      valueName := "hashvalue";
+        when {STRUCTOBJECT}:    valueName := "structvalue";
+        when {INTERFACEOBJECT}: valueName := "interfacevalue";
+        when {REFOBJECT}:       valueName := "objrefvalue";
+        when {REFLISTOBJECT}:   valueName := "listvalue";
+        when {TYPEOBJECT}:      valueName := "typevalue";
+        when {ACTOBJECT}:       valueName := "actvalue";
+        otherwise:              valueName := "genericvalue";
        end case;
     else
-      result := "genericvalue";
+      valueName := "genericvalue";
     end if;
   end func;
 
@@ -598,14 +605,14 @@ const func string: select_value_from_rtlObjectptr (in type: typeWanted) is
 const func boolean: valueIsAtHeap (in type: aType) is func
 
   result
-    var boolean: result is FALSE;
+    var boolean: isAtHeap is FALSE;
   local
     const set of category: heapCategories is {
         BIGINTOBJECT, STRIOBJECT, BSTRIOBJECT, WINOBJECT, PROGOBJECT,
         ARRAYOBJECT, STRUCTOBJECT, SETOBJECT, HASHOBJECT, INTERFACEOBJECT};
   begin
     if aType in typeCategory and typeCategory[aType] in heapCategories then
-      result := TRUE;
+      isAtHeap := TRUE;
     end if;
   end func;
 
@@ -617,14 +624,14 @@ const func boolean: valueIsAtHeap (in reference: a_param) is
 const func boolean: useConstPrefix (in type: aType) is func
 
   result
-    var boolean: result is FALSE;
+    var boolean: useConstPrefix is FALSE;
   local
     const set of category: constPrefixCategories is {
         BIGINTOBJECT, STRIOBJECT, PROGOBJECT,
         ARRAYOBJECT, SETOBJECT, HASHOBJECT};
   begin
     if aType in typeCategory and typeCategory[aType] in constPrefixCategories then
-      result := TRUE;
+      useConstPrefix := TRUE;
     end if;
   end func;
 
@@ -797,6 +804,24 @@ const func string: typeLiteral (in type: aType) is func
     expr &:= "] /* ";
     expr &:= type_name2(aType);
     expr &:= " */";
+  end func;
+
+
+const func string: windowLiteral (in PRIMITIVE_WINDOW: aWindow) is func
+
+  result
+    var string: expr is "";
+  begin
+    if aWindow = PRIMITIVE_WINDOW.value then
+      expr := "(wintype) NULL";
+    else
+      if aWindow not in win_const_table then
+        win_const_table @:= [aWindow] length(win_const_table);
+      end if;
+      expr := "win[";
+      expr &:= str(win_const_table[aWindow]);
+      expr &:= "]";
+    end if;
   end func;
 
 
@@ -2168,36 +2193,36 @@ const proc: getAnyParamToTempAssigns (in reference: aParam, inout expr_type: c_e
 const func string: normalVariable (in reference: aParam, inout expr_type: c_expr) is func
 
   result
-    var string: result is "";
+    var string: varName is "";
   local
     var expr_type: c_param is expr_type.value;
   begin
     prepareAnyParamTemporarys(aParam, c_param, c_expr);
-    result := "(" & c_param.expr & ")";
+    varName := "(" & c_param.expr & ")";
   end func;
 
 
 const func string: enum_value (in reference: current_object) is func
 
   result
-    var string: result is "";
+    var string: enumValue is "";
   local
     var string: object_name is "";
     var type: enum_type is void;
   begin
     object_name := str(current_object);
     if object_name = "FALSE" then
-      result := "0/*FALSE*/";
+      enumValue := "0/*FALSE*/";
     elsif object_name = "TRUE" then
-      result := "1/*TRUE*/";
+      enumValue := "1/*TRUE*/";
     else
-      result := "/*" & str(current_object) & "*/";
+      enumValue := "/*" & str(current_object) & "*/";
       enum_type := getType(current_object);
       if enum_type in enum_literal and
           current_object in enum_literal[enum_type] then
-        result &:= str(enum_literal[enum_type][current_object]);
+        enumValue &:= str(enum_literal[enum_type][current_object]);
       else
-        result &:= str(obj_number(current_object));
+        enumValue &:= str(obj_number(current_object));
       end if;
     end if;
   end func;
@@ -2246,14 +2271,14 @@ const proc: ref_list_value (in ref_list: current_value,
 const func boolean: isActionExpression (in reference: current_expression, in string: actionName) is func
 
   result
-    var boolean: result is FALSE;
+    var boolean: isActionExpression is FALSE;
   local
     var ref_list: params is ref_list.EMPTY;
   begin
     if category(current_expression) = CALLOBJECT then
       params := getValue(current_expression, ref_list);
       if category(params[1]) = ACTOBJECT and str(getValue(params[1], ACTION)) = actionName then
-        result := TRUE;
+        isActionExpression := TRUE;
       end if;
     end if;
   end func;
@@ -2262,13 +2287,13 @@ const func boolean: isActionExpression (in reference: current_expression, in str
 const func reference: getActionParameter (in reference: current_expression, in integer: number) is func
 
   result
-    var reference: result is NIL;
+    var reference: actionParameter is NIL;
   local
     var ref_list: params is ref_list.EMPTY;
   begin
     if category(current_expression) = CALLOBJECT then
       params := getValue(current_expression, ref_list);
-      result := params[succ(number)];
+      actionParameter := params[succ(number)];
     end if;
   end func;
 
@@ -2291,7 +2316,7 @@ const func boolean: isConstantCall (in reference: current_expression,
     in boolean_obj_hash: local_objects) is func
 
   result
-    var boolean: result is FALSE;
+    var boolean: isConstantCall is FALSE;
   local
     var ref_list: params is ref_list.EMPTY;
     var reference: function is NIL;
@@ -2301,14 +2326,14 @@ const func boolean: isConstantCall (in reference: current_expression,
     function := params[1];
     params := params[2 ..];
     if category(function) in constantExpressionCategories then
-      result := TRUE;
+      isConstantCall := TRUE;
     elsif isPureFunction(function) then
       # write(" {isPureFunction(" <& str(function) <& ")}");
-      result := TRUE;
-      for obj range params until not result do
+      isConstantCall := TRUE;
+      for obj range params until not isConstantCall do
         if not isConstant(obj, local_objects) then
           # write(" [not isConstant(" <& str(obj) <& ") " <& str(category(obj)) <& "]");
-          result := FALSE;
+          isConstantCall := FALSE;
         end if;
       end for;
 (*
@@ -2326,19 +2351,19 @@ const func boolean: isConstant (in reference: current_expression,
     in boolean_obj_hash: local_objects) is func
 
   result
-    var boolean: result is FALSE;
+    var boolean: isConstant is FALSE;
   local
     var category: exprCategory is category.value;
   begin
     if current_expression in local_objects then
       # write(" [local " <& str(current_expression) <& "]");
-      result := TRUE;
+      isConstant := TRUE;
     elsif not isVar(current_expression) then
       exprCategory := category(current_expression);
       if exprCategory = MATCHOBJECT or exprCategory = CALLOBJECT then
-        result := isConstantCall(current_expression, local_objects);
+        isConstant := isConstantCall(current_expression, local_objects);
       elsif exprCategory in constantExpressionCategories then
-        result := TRUE;
+        isConstant := TRUE;
       end if;
     end if;
   end func;
@@ -2347,7 +2372,7 @@ const func boolean: isConstant (in reference: current_expression,
 const func boolean: isPureBlockFunction (in reference: function) is func
 
   result
-    var boolean: result is FALSE;
+    var boolean: isPureBlockFunction is FALSE;
   local
     var type: function_type is void;
     var reference: result_object is NIL;
@@ -2367,16 +2392,16 @@ const func boolean: isPureBlockFunction (in reference: function) is func
         # write(" " <& str(obj));
         local_objects @:= [obj] TRUE;
       end for;
-      result := isConstant(body(function), local_objects);
+      isPureBlockFunction := isConstant(body(function), local_objects);
     end if;
-    # writeln(" " <& result);
+    # writeln(" " <& isPureBlockFunction);
   end func;
 
 
 const func boolean: isPureFunction (in reference: function) is func
 
   result
-    var boolean: result is FALSE;
+    var boolean: isPureFunction is FALSE;
   local
     const set of string: pureFunctionActions is
         {"ARR_ARRLIT", "ARR_ARRLIT2", "ARR_BASELIT", "ARR_BASELIT2", "ARR_CAT",
@@ -2396,7 +2421,7 @@ const func boolean: isPureFunction (in reference: function) is func
          "CHR_CHR", "CHR_CLIT", "CHR_CMP", "CHR_CONV", "CHR_EQ", "CHR_GE",
          "CHR_GT", "CHR_HASHCODE", "CHR_ICONV", "CHR_LE", "CHR_LOW", "CHR_LT",
          "CHR_NE", "CHR_ORD", "CHR_PRED", "CHR_STR", "CHR_SUCC", "CHR_UP",
-         "CHR_VALUE",
+         "CHR_VALUE", "DRW_VALUE",
          "ENU_CONV", "ENU_EQ", "ENU_ICONV2", "ENU_NE", "ENU_ORD2", "ENU_VALUE",
          "FIL_EQ", "FIL_NE", "FIL_VALUE",
          "FLT_A2TAN", "FLT_ABS", "FLT_ACOS", "FLT_ADD", "FLT_ASIN", "FLT_ATAN",
@@ -2448,9 +2473,9 @@ const func boolean: isPureFunction (in reference: function) is func
     functionCategory := category(function);
     if functionCategory = ACTOBJECT then
       action_name := str(getValue(function, ACTION));
-      result := action_name in pureFunctionActions or action_name in specialFunctionActions;
+      isPureFunction := action_name in pureFunctionActions or action_name in specialFunctionActions;
     elsif functionCategory = BLOCKOBJECT then
-      result := isPureBlockFunction(function);
+      isPureFunction := isPureBlockFunction(function);
     end if;
   end func;
 
@@ -2461,7 +2486,7 @@ const func boolean: isConstant (in reference: current_expression) is forward;
 const func boolean: isConstantCall (in reference: current_expression) is func
 
   result
-    var boolean: result is FALSE;
+    var boolean: isConstantCall is FALSE;
   local
     var ref_list: params is ref_list.EMPTY;
     var reference: function is NIL;
@@ -2471,10 +2496,10 @@ const func boolean: isConstantCall (in reference: current_expression) is func
     function := params[1];
     params := params[2 ..];
     if isPureFunction(function) then
-      result := TRUE;
-      for obj range params until not result do
+      isConstantCall := TRUE;
+      for obj range params until not isConstantCall do
         if not isConstant(obj) then
-          result := FALSE;
+          isConstantCall := FALSE;
         end if;
       end for;
     end if;
@@ -2484,20 +2509,20 @@ const func boolean: isConstantCall (in reference: current_expression) is func
 const func boolean: isConstant (in reference: current_expression) is func
 
   result
-    var boolean: result is FALSE;
+    var boolean: isConstant is FALSE;
   local
     var category: exprCategory is category.value;
   begin
     if not isVar(current_expression) then
       exprCategory := category(current_expression);
       if exprCategory = MATCHOBJECT or exprCategory = CALLOBJECT then
-        result := isConstantCall(current_expression);
+        isConstant := isConstantCall(current_expression);
       elsif exprCategory in constantExpressionCategories then
-        result := TRUE;
+        isConstant := TRUE;
       elsif exprCategory = BLOCKOBJECT then
-        result := TRUE;
+        isConstant := TRUE;
       elsif exprCategory = ACTOBJECT then
-        result := TRUE;
+        isConstant := TRUE;
       end if;
     end if;
   end func;
@@ -2506,14 +2531,14 @@ const func boolean: isConstant (in reference: current_expression) is func
 const func boolean: isConstantExpr (in reference: current_expression) is func
 
   result
-    var boolean: result is FALSE;
+    var boolean: isConstantExpr is FALSE;
   local
     var category: exprCategory is category.value;
   begin
     if not isVar(current_expression) then
       exprCategory := category(current_expression);
       if exprCategory = MATCHOBJECT or exprCategory = CALLOBJECT then
-        result := isConstantCall(current_expression);
+        isConstantExpr := isConstantCall(current_expression);
       end if;
     end if;
   end func;
@@ -2548,16 +2573,16 @@ const func boolean: getConstant (in reference: currExpr, in category: exprCatego
 
 const func string: getExprValue (in reference: current_expression, attr string) is func
   result
-    var string: result is "";
+    var string: exprValue is "";
   local
     var reference: evaluated_expression is NIL;
   begin
     if category(current_expression) = STRIOBJECT then
-      result := getValue(current_expression, string);
+      exprValue := getValue(current_expression, string);
     else
       evaluated_expression := evaluate(prog, current_expression);
       if evaluated_expression <> NIL then
-        result := getValue(evaluated_expression, string);
+        exprValue := getValue(evaluated_expression, string);
       end if;
     end if;
   end func;
@@ -7515,11 +7540,8 @@ const proc: process_drw_image (in ref_list: params, inout expr_type: c_expr) is 
 
   begin
     prepare_win_result(c_expr);
-    c_expr.result_expr := "drwImage(";
+    c_expr.result_expr := "drwRtlImage(";
     getAnyParamToResultExpr(params[1], c_expr);
-    c_expr.result_expr &:= ", (inttype *)(";
-    getStdParamToResultExpr(params[2], c_expr);
-    c_expr.result_expr &:= "), 0, 0"; (* This is just a hack: This function will not work *)
     c_expr.result_expr &:= ")";
   end func;
 
@@ -7967,6 +7989,15 @@ const proc: process_drw_toTop (in ref_list: params, inout expr_type: c_expr) is 
     c_expr.expr &:= "drwToTop(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process_drw_value (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "drwValue(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
   end func;
 
 
@@ -14497,13 +14528,13 @@ const proc: process_str_append (in ref_list: params, inout expr_type: c_expr) is
 (*
 const func string: evaluate_const_str_cat (in reference: param1, in string: stri2) is func
   result
-    var string: result is "";
+    var string: stri is "";
   local
     var ref_list: param_list is ref_list.EMPTY;
     var string: action_name is "";
   begin
     if category(param1) = STRIOBJECT and not isVar(param1) and
-      result := getValue(param1, string) & stri2;
+      stri := getValue(param1, string) & stri2;
     else
       if category(param1) = CALLOBJECT then
         param_list := getValue(param1, ref_list);
@@ -14511,7 +14542,7 @@ const func string: evaluate_const_str_cat (in reference: param1, in string: stri
           action_name := str(getValue(param_list[1], ACTION));
           if action_name = "STR_CAT" then
             if category(param_list[4]) = STRIOBJECT and not isVar(param_list[4]) then
-              result := evaluate_const_str_cat(param_list[2],
+              stri := evaluate_const_str_cat(param_list[2],
                   getValue(params[4], string)) & stri2;
             end if;
           end if;
@@ -17032,6 +17063,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_drw_toBottom(params, c_expr);
       elsif action_name = "DRW_TOTOP" then
         process_drw_toTop(params, c_expr);
+      elsif action_name = "DRW_VALUE" then
+        process_drw_value(params, c_expr);
       elsif action_name = "DRW_WIDTH" then
         process_drw_width(params, c_expr);
       elsif action_name = "DRW_XPOS" then
@@ -17939,39 +17972,24 @@ const proc: process_action (in reference: function, in ref_list: params,
   end func;
 
 
-const func boolean: isPointerParam (in reference: a_param) is func
-
-  result
-    var boolean: result is TRUE;
-  begin
-    result := category(a_param) = REFPARAMOBJECT and
+const func boolean: isPointerParam (in reference: a_param) is
+  return category(a_param) = REFPARAMOBJECT and
         (not valueIsAtHeap(a_param) or isVar(a_param));
-  end func;
 
 
-const func boolean: isCopyParam (in reference: a_param) is func
-
-  result
-    var boolean: result is TRUE;
-  begin
-    result := category(a_param) = VALUEPARAMOBJECT and
+const func boolean: isCopyParam (in reference: a_param) is
+  return category(a_param) = VALUEPARAMOBJECT and
         valueIsAtHeap(a_param);
-  end func;
 
 
-const func boolean: isInOutParam (in reference: a_param) is func
-
-  result
-    var boolean: result is TRUE;
-  begin
-    result := category(a_param) = REFPARAMOBJECT and isVar(a_param);
-  end func;
+const func boolean: isInOutParam (in reference: a_param) is
+  return category(a_param) = REFPARAMOBJECT and isVar(a_param);
 
 
 const func boolean: canTakeAddress (in reference: an_expression) is func
 
   result
-    var boolean: result is TRUE;
+    var boolean: canTakeAddress is TRUE;
   local
     var category: exprCategory is category.value;
     var string: action_name is "";
@@ -17981,17 +17999,17 @@ const func boolean: canTakeAddress (in reference: an_expression) is func
         exprCategory = CHAROBJECT or
         exprCategory = FLOATOBJECT) and
         not isVar(an_expression) then
-      result := FALSE;
+      canTakeAddress := FALSE;
     end if;
     if is_func(getType(an_expression)) then
-      result := FALSE;
+      canTakeAddress := FALSE;
     end if;
     if exprCategory = CALLOBJECT then
       if category(getValue(an_expression, ref_list)[1]) = ACTOBJECT then
         action_name := str(getValue(getValue(an_expression, ref_list)[1], ACTION));
         if  action_name = "ARR_IDX" or
             action_name = "SCT_SELECT" then
-          result := TRUE;
+          canTakeAddress := TRUE;
         end if;
       end if;
     end if;
@@ -18262,7 +18280,16 @@ const proc: process_local_declaration (in reference: current_object, in var refe
       c_declaration.temp_assigns &:= str(const_table[object_value]);
       c_declaration.temp_assigns &:= "];\n";
     elsif valueCategory = WINOBJECT then
-      c_declaration.temp_decls &:= "=NULL";
+      if getValue(object_value, PRIMITIVE_WINDOW) = PRIMITIVE_WINDOW.value then
+        c_declaration.temp_decls &:= "=NULL";
+      else
+        c_declaration.temp_assigns &:= diagnosticLine(current_object);
+        c_declaration.temp_assigns &:= "o_";
+        create_name(current_object, c_declaration.temp_assigns);
+        c_declaration.temp_assigns &:= "=winCreate(";
+        c_declaration.temp_assigns &:= windowLiteral(getValue(object_value, PRIMITIVE_WINDOW));
+        c_declaration.temp_assigns &:= ");\n";
+      end if;
       c_declaration.temp_frees &:= "drwDestr(o_";
       create_name(current_object, c_declaration.temp_frees);
       c_declaration.temp_frees &:= ");\n";
@@ -19225,40 +19252,26 @@ const proc: process_call (in reference: current_expression, inout expr_type: c_e
       result_type := result_type(getType(function));
       formal_params := params(function);
       process_func_call(function, formal_params, params, c_expr);
-    elsif functionCategory = VALUEPARAMOBJECT then
-      process_expr(function, c_expr);
-    elsif functionCategory = REFPARAMOBJECT then
-      process_expr(function, c_expr);
     elsif functionCategory = CONSTENUMOBJECT then
       (* process_constenumobject(function, params, c_expr); *)
       process_expr(function, c_expr);
-    elsif functionCategory = INTOBJECT then
-      process_expr(function, c_expr);
-    elsif functionCategory = BIGINTOBJECT then
-      process_expr(function, c_expr);
-    elsif functionCategory = FLOATOBJECT then
-      process_expr(function, c_expr);
-    elsif functionCategory = CHAROBJECT then
-      process_expr(function, c_expr);
-    elsif functionCategory = STRIOBJECT then
-      process_expr(function, c_expr);
-    elsif functionCategory = BSTRIOBJECT then
-      process_expr(function, c_expr);
-    elsif functionCategory = ARRAYOBJECT then
-      process_expr(function, c_expr);
-    elsif functionCategory = HASHOBJECT then
-      process_expr(function, c_expr);
-    elsif functionCategory = SETOBJECT then
-      process_expr(function, c_expr);
-    elsif functionCategory = STRUCTOBJECT then
-      process_expr(function, c_expr);
-    elsif functionCategory = INTERFACEOBJECT then
-      process_expr(function, c_expr);
-    elsif functionCategory = WINOBJECT then
-      process_expr(function, c_expr);
-    elsif functionCategory = PROGOBJECT then
-      process_expr(function, c_expr);
-    elsif functionCategory = ENUMLITERALOBJECT then
+    elsif functionCategory = VALUEPARAMOBJECT or
+          functionCategory = REFPARAMOBJECT or
+          functionCategory = INTOBJECT or
+          functionCategory = BIGINTOBJECT or
+          functionCategory = FLOATOBJECT or
+          functionCategory = CHAROBJECT or
+          functionCategory = STRIOBJECT or
+          functionCategory = BSTRIOBJECT or
+          functionCategory = ARRAYOBJECT or
+          functionCategory = HASHOBJECT or
+          functionCategory = SETOBJECT or
+          functionCategory = STRUCTOBJECT or
+          functionCategory = INTERFACEOBJECT or
+          functionCategory = WINOBJECT or
+          functionCategory = PROGOBJECT or
+          functionCategory = ENUMLITERALOBJECT or
+          functionCategory = TYPEOBJECT then
       process_expr(function, c_expr);
     elsif functionCategory = REFOBJECT then
       c_expr.expr &:= "o_";
@@ -19266,8 +19279,6 @@ const proc: process_call (in reference: current_expression, inout expr_type: c_e
     elsif functionCategory = REFLISTOBJECT then
       c_expr.expr &:= "o_";
       create_name(function, c_expr.expr);
-    elsif functionCategory = TYPEOBJECT then
-      process_expr(function, c_expr);
     else
       c_expr.expr &:= "/*[ ";
       c_expr.expr &:= str(functionCategory);
@@ -19578,7 +19589,7 @@ const proc: process_expr (in var reference: current_expression, inout expr_type:
         c_expr.expr &:= "o_";
         create_name(current_expression, c_expr.expr);
       else
-        c_expr.expr &:= "/*WINOBJECT*/ NULL";
+        c_expr.expr &:= windowLiteral(getValue(current_expression, PRIMITIVE_WINDOW));
       end if;
     elsif exprCategory = PROGOBJECT then
       if isVar(current_expression) then
@@ -20499,32 +20510,30 @@ const proc: process_array_declaration (in reference: current_object,
   local
     var string: param_value is "";
   begin
-    typeCategory @:= [getType(current_object)] ARRAYOBJECT;
-    c_expr.expr &:= type_name(getType(current_object));
-    c_expr.expr &:= " o_";
-    create_name(current_object, c_expr.expr);
-    c_expr.expr &:= ";\n\n";
-    if current_object not in const_table then
-      const_table @:= [current_object] length(const_table);
-    end if;
-    global_init.expr &:= diagnosticLine(current_object);
-    global_init.expr &:= "o_";
-    create_name(current_object, global_init.expr);
-    global_init.expr &:= "=";
-    param_value := "(";
-    param_value &:= type_name(getType(current_object));
-    param_value &:= ")(arr[";
-    param_value &:= str(const_table[current_object]);
-    param_value &:= "])";
     if isVar(current_object) then
+      typeCategory @:= [getType(current_object)] ARRAYOBJECT;
+      c_expr.expr &:= type_name(getType(current_object));
+      c_expr.expr &:= " o_";
+      create_name(current_object, c_expr.expr);
+      c_expr.expr &:= ";\n\n";
+      if current_object not in const_table then
+        const_table @:= [current_object] length(const_table);
+      end if;
+      global_init.expr &:= diagnosticLine(current_object);
+      global_init.expr &:= "o_";
+      create_name(current_object, global_init.expr);
+      global_init.expr &:= "=";
+      param_value := "(";
+      param_value &:= type_name(getType(current_object));
+      param_value &:= ")(arr[";
+      param_value &:= str(const_table[current_object]);
+      param_value &:= "])";
       process_create_declaration(getType(current_object), global_c_expr);
       process_create_call(getType(current_object),
           param_value, global_init.expr);
-    else
-      global_init.expr &:= param_value;
+      global_init.expr &:= ";\n";
+      count_declarations;
     end if;
-    global_init.expr &:= ";\n";
-    count_declarations;
   end func;
 
 
@@ -20663,7 +20672,17 @@ const proc: process_win_declaration (in reference: current_object,
     if isVar(current_object) then
       c_expr.expr &:= "wintype o_";
       create_name(current_object, c_expr.expr);
-      c_expr.expr &:= "=NULL;\n\n";
+      if getValue(current_object, PRIMITIVE_WINDOW) = PRIMITIVE_WINDOW.value then
+        c_expr.expr &:= "=NULL;\n\n";
+      else
+        c_expr.expr &:= ";\n\n";
+        global_init.expr &:= diagnosticLine(current_object);
+        global_init.expr &:= "o_";
+        create_name(current_object, global_init.expr);
+        global_init.expr &:= "=drwCreate(";
+        global_init.expr &:= windowLiteral(getValue(current_object, PRIMITIVE_WINDOW));
+        global_init.expr &:= ");\n";
+      end if;
       count_declarations;
     end if;
   end func;
@@ -21265,56 +21284,56 @@ const proc: process_hashcode (in reference: current_object, inout expr_type: c_e
 const func reference: keyCreateObj (in type: hash_type) is func
 
   result
-    var reference: result is NIL;
+    var reference: keyCreate is NIL;
   local
     var ref_list: param_list is ref_list.EMPTY;
   begin
     param_list := make_list(match_obj(hash_type));
     param_list &:= make_list(syobject(prog, "."));
     param_list &:= make_list(syobject(prog, "keyCreate"));
-    result := match(prog, param_list);
+    keyCreate := match(prog, param_list);
   end func;
 
 
 const func reference: keyCompareObj (in type: hash_type) is func
 
   result
-    var reference: result is NIL;
+    var reference: keyCompare is NIL;
   local
     var ref_list: param_list is ref_list.EMPTY;
   begin
     param_list := make_list(match_obj(hash_type));
     param_list &:= make_list(syobject(prog, "."));
     param_list &:= make_list(syobject(prog, "keyCompare"));
-    result := match(prog, param_list);
+    keyCompare := match(prog, param_list);
   end func;
 
 
 const func reference: dataCreateObj (in type: hash_type) is func
 
   result
-    var reference: result is NIL;
+    var reference: dataCreate is NIL;
   local
     var ref_list: param_list is ref_list.EMPTY;
   begin
     param_list := make_list(match_obj(hash_type));
     param_list &:= make_list(syobject(prog, "."));
     param_list &:= make_list(syobject(prog, "dataCreate"));
-    result := match(prog, param_list);
+    dataCreate := match(prog, param_list);
   end func;
 
 
 const func reference: dataCopyObj (in type: hash_type) is func
 
   result
-    var reference: result is NIL;
+    var reference: dataCopy is NIL;
   local
     var ref_list: param_list is ref_list.EMPTY;
   begin
     param_list := make_list(match_obj(hash_type));
     param_list &:= make_list(syobject(prog, "."));
     param_list &:= make_list(syobject(prog, "dataCopy"));
-    result := match(prog, param_list);
+    dataCopy := match(prog, param_list);
   end func;
 
 
@@ -22378,6 +22397,7 @@ const proc: write_file_head is func
     writeln(c_prog, "extern settype    set[];");
     writeln(c_prog, "extern typetype   typ[];");
     writeln(c_prog, "biginttype       *big;");
+    writeln(c_prog, "wintype          *win;");
     writeln(c_prog, "arraytype        *arr;");
     writeln(c_prog, "structtype       *sct;");
     writeln(c_prog, "hashtype         *hsh;");
@@ -22651,7 +22671,7 @@ const proc: write_prototypes is func
     declareExtern("wintype     drwGet (const_wintype, inttype, inttype, inttype, inttype);");
     declareExtern("inttype     drwGetPixel (const_wintype, inttype, inttype);");
     declareExtern("inttype     drwHeight (const_wintype);");
-    declareExtern("wintype     drwImage (const_wintype, inttype *, inttype, inttype);");
+    declareExtern("wintype     drwImage (inttype *, inttype, inttype);");
     declareExtern("void        drwLine (const_wintype, inttype, inttype, inttype, inttype);");
     declareExtern("wintype     drwNewPixmap (inttype, inttype);");
     declareExtern("wintype     drwOpen (inttype, inttype, inttype, inttype, const const_stritype);");
@@ -22672,12 +22692,14 @@ const proc: write_prototypes is func
     declareExtern("void        drwPut (const_wintype, const_wintype, inttype, inttype);");
     declareExtern("void        drwRect (const_wintype, inttype, inttype, inttype, inttype);");
     declareExtern("inttype     drwRgbColor (inttype, inttype, inttype);");
+    declareExtern("wintype     drwRtlImage (const_arraytype);");
     declareExtern("void        drwSetContent (const_wintype, const_wintype);");
     declareExtern("void        drwSetPos (const_wintype, inttype, inttype);");
+    declareExtern("void        drwSetTransparentColor (wintype, inttype);");
     declareExtern("void        drwText (const_wintype, inttype, inttype, const const_stritype, inttype, inttype);");
     declareExtern("void        drwToBottom (const_wintype);");
     declareExtern("void        drwToTop (const_wintype);");
-    declareExtern("void        drwSetTransparentColor (wintype, inttype);");
+    declareExtern("wintype     drwValue (objreftype);");
     declareExtern("inttype     drwWidth (const_wintype);");
     declareExtern("inttype     drwXPos (const_wintype);");
     declareExtern("inttype     drwYPos (const_wintype);");
@@ -23112,7 +23134,7 @@ const proc: write_signal_handlers is func
 const func boolean: identical_values (in reference: object1, in reference: object2) is func
 
   result
-    var boolean: result is FALSE;
+    var boolean: isIdentical is FALSE;
   local
     var category: objectCategory is category.value;
     var reference: element1 is NIL;
@@ -23121,42 +23143,42 @@ const func boolean: identical_values (in reference: object1, in reference: objec
   begin
     objectCategory := category(object1);
     if objectCategory = INTOBJECT then
-      result := getValue(object1, integer) = getValue(object2, integer);
+      isIdentical := getValue(object1, integer) = getValue(object2, integer);
     elsif objectCategory = BIGINTOBJECT then
-      result := getValue(object1, bigInteger) = getValue(object2, bigInteger);
+      isIdentical := getValue(object1, bigInteger) = getValue(object2, bigInteger);
     elsif objectCategory = CHAROBJECT then
-      result := getValue(object1, char) = getValue(object2, char);
+      isIdentical := getValue(object1, char) = getValue(object2, char);
     elsif objectCategory = STRIOBJECT then
-      result := getValue(object1, string) = getValue(object2, string);
+      isIdentical := getValue(object1, string) = getValue(object2, string);
     elsif objectCategory = BSTRIOBJECT then
-      result := getValue(object1, bstring) = getValue(object2, bstring);
+      isIdentical := getValue(object1, bstring) = getValue(object2, bstring);
     elsif objectCategory = SETOBJECT then
-      result := getValue(object1, bitset) = getValue(object2, bitset);
+      isIdentical := getValue(object1, bitset) = getValue(object2, bitset);
     elsif objectCategory = FLOATOBJECT then
-      result := getValue(object1, float) = getValue(object2, float);
+      isIdentical := getValue(object1, float) = getValue(object2, float);
     elsif objectCategory = REFOBJECT then
-      result := getValue(object1, reference) = getValue(object2, reference);
+      isIdentical := getValue(object1, reference) = getValue(object2, reference);
     elsif objectCategory = FILEOBJECT then
-      result := getValue(object1, clib_file) = getValue(object2, clib_file);
+      isIdentical := getValue(object1, clib_file) = getValue(object2, clib_file);
     elsif objectCategory = CONSTENUMOBJECT or objectCategory = VARENUMOBJECT then
-      result := getValue(object1, reference) = getValue(object2, reference);
+      isIdentical := getValue(object1, reference) = getValue(object2, reference);
     elsif objectCategory = ARRAYOBJECT then
       if array_min_index(object1) = array_min_index(object2) and
           array_max_index(object1) = array_max_index(object2) then
-        result := TRUE;
+        isIdentical := TRUE;
         element_list2 := array_to_list(object2);
         index2 := 1;
-        for element1 range array_to_list(object1) until not result do
-          result := identical_values(element1, element_list2[index2]);
+        for element1 range array_to_list(object1) until not isIdentical do
+          isIdentical := identical_values(element1, element_list2[index2]);
           incr(index2);
         end for;
       end if;
     elsif objectCategory = STRUCTOBJECT then
-      result := TRUE;
+      isIdentical := TRUE;
       element_list2 := struct_to_list(object2);
       index2 := 1;
-      for element1 range struct_to_list(object1) until not result do
-        result := identical_values(element1, element_list2[index2]);
+      for element1 range struct_to_list(object1) until not isIdentical do
+        isIdentical := identical_values(element1, element_list2[index2]);
         incr(index2);
       end for;
     end if;
@@ -23348,7 +23370,7 @@ const proc: init_const_value (in reference: current_object, inout expr_type: c_e
       process_pollData_literal(getValue(current_object, pollData), c_expr);
     elsif objectCategory = WINOBJECT then
       c_expr.expr &:= ".value.winvalue=";
-      c_expr.expr &:= "NULL";
+      c_expr.expr &:= windowLiteral(getValue(current_object, PRIMITIVE_WINDOW));
     elsif objectCategory = CONSTENUMOBJECT then
       c_expr.expr &:= ".value.intvalue=";
       c_expr.expr &:= enum_value(getValue(current_object, reference));
@@ -23382,6 +23404,77 @@ const proc: init_const_value (in reference: current_object, inout expr_type: c_e
       c_expr.expr &:= "/* ";
       c_expr.expr &:= str(objectCategory);
       c_expr.expr &:= " */";
+    end if;
+  end func;
+
+
+const func string: int32AsFourInt8Chars (in integer: number) is func
+  result
+    var string: stri is "";
+  begin
+    if LITTLE_ENDIAN_INTTYPE then
+      stri := str(chr( number        mod 256)) &
+              str(chr((number >>  8) mod 256)) &
+              str(chr((number >> 16) mod 256)) &
+              str(chr((number >> 24) mod 256));
+    else
+      stri := str(chr((number >> 24) mod 256)) &
+              str(chr((number >> 16) mod 256)) &
+              str(chr((number >>  8) mod 256)) &
+              str(chr( number        mod 256));
+    end if;
+  end func;
+
+
+const func string: int64AsEightInt8Chars (in integer: number) is func
+  result
+    var string: stri is "";
+  begin
+    if LITTLE_ENDIAN_INTTYPE then
+      stri := str(chr( number        mod 256)) &
+              str(chr((number >>  8) mod 256)) &
+              str(chr((number >> 16) mod 256)) &
+              str(chr((number >> 24) mod 256));
+      if INTTYPE_SIZE = 64 then
+        stri &:= str(chr((number >> 32) mod 256)) &
+                 str(chr((number >> 40) mod 256)) &
+                 str(chr((number >> 48) mod 256)) &
+                 str(chr((number >> 56) mod 256));
+      else
+        stri &:= "\0\\0\\0\\0\";
+      end if;
+    else
+      if INTTYPE_SIZE = 64 then
+        stri := str(chr((number >> 56) mod 256)) &
+                str(chr((number >> 48) mod 256)) &
+                str(chr((number >> 40) mod 256)) &
+                str(chr((number >> 32) mod 256));
+      else
+        stri := "\0\\0\\0\\0\";
+      end if;
+      stri &:= str(chr((number >> 24) mod 256)) &
+               str(chr((number >> 16) mod 256)) &
+               str(chr((number >>  8) mod 256)) &
+               str(chr( number        mod 256));
+    end if;
+  end func;
+
+
+const func string: int64AsTwoInt32 (in bigInteger: number) is func
+
+  result
+    var string: literals is "";
+  begin
+    if LITTLE_ENDIAN_INTTYPE then
+      literals  := str( number        mod 4294967295_);
+      literals &:= ",";
+      literals &:= str((number >> 32) mod 4294967295_);
+      literals &:= ",";
+    else
+      literals  := str((number >> 32) mod 4294967295_);
+      literals &:= ",";
+      literals &:= str( number        mod 4294967295_);
+      literals &:= ",";
     end if;
   end func;
 
@@ -23439,21 +23532,70 @@ const proc: assign_bigint_constants (inout expr_type: c_expr) is func
   end func;
 
 
-const func string: int64AsTwoInt32 (in bigInteger: number) is func
+const proc: init_win_constants (inout expr_type: c_expr) is func
 
-  result
-    var string: result is "";
+  local
+    var win_index_hash: win_index is win_index_hash.EMPTY_HASH;
+    var PRIMITIVE_WINDOW: win1 is PRIMITIVE_WINDOW.value;
+    var integer: number is 0;
+    var integer: line is 0;
+    var integer: column is 0;
+    var pixel: pix is pixel.value;
+    var string: image is "";
+    var bstring: bImage is bstring.value;
   begin
-    if LITTLE_ENDIAN_INTTYPE then
-      result  := str( number        mod 4294967295_);
-      result &:= ",";
-      result &:= str((number >> 32) mod 4294967295_);
-      result &:= ",";
+    win_index := flip(win_const_table);
+    for number range sort(keys(win_index)) do
+      win1 := win_index[number][1];
+      image := "";
+      if INTTYPE_SIZE = 32 then
+        for line range 0 to pred(height(win1)) do
+          for column range 0 to pred(width(win1)) do
+            image &:= int32AsFourInt8Chars(ord(getPixel(win1, column, line)));
+          end for;
+        end for;
+      elsif INTTYPE_SIZE = 64 then
+        for line range 0 to pred(height(win1)) do
+          for column range 0 to pred(width(win1)) do
+            image &:= int64AsEightInt8Chars(ord(getPixel(win1, column, line)));
+          end for;
+        end for;
+      end if;
+      bImage := bstring parse image;
+      if bImage not in bstri_const_table then
+        bstri_const_table @:= [bImage] length(bstri_const_table);
+      end if;
+      win_bstri_table @:= [number] bstri_const_table[bImage];
+    end for;
+  end func;
+
+
+const proc: assign_win_constants (inout expr_type: c_expr) is func
+
+  local
+    var win_index_hash: win_index is win_index_hash.EMPTY_HASH;
+    var PRIMITIVE_WINDOW: win1 is PRIMITIVE_WINDOW.value;
+    var integer: number is 0;
+  begin
+    if length(win_const_table) = 0 then
+      c_expr.expr &:= "win = NULL;\n";
     else
-      result  := str((number >> 32) mod 4294967295_);
-      result &:= ",";
-      result &:= str( number        mod 4294967295_);
-      result &:= ",";
+      c_expr.expr &:= "win = (wintype *)(malloc(";
+      c_expr.expr &:= str(length(win_const_table));
+      c_expr.expr &:= " * sizeof(wintype)));\n";
+      win_index := flip(win_const_table);
+      for number range sort(keys(win_index)) do
+        win1 := win_index[number][1];
+        c_expr.expr &:= "win[";
+        c_expr.expr &:= str(number);
+        c_expr.expr &:= "]=drwImage((inttype *)(bst[";
+        c_expr.expr &:= str(win_bstri_table[number]);
+        c_expr.expr &:= "]->mem), ";
+        c_expr.expr &:= str(width(win1));
+        c_expr.expr &:= ", ";
+        c_expr.expr &:= str(height(win1));
+        c_expr.expr &:= ");\n";
+      end for;
     end if;
   end func;
 
@@ -23623,58 +23765,6 @@ const proc: cCharLiteral (in char: ch, inout string: c_stri) is func
       c_stri &:= "\\\\";
     else
       c_stri &:= ch;
-    end if;
-  end func;
-
-
-const func string: int32AsFourInt8Chars (in integer: number) is func
-  result
-    var string: stri is "";
-  begin
-    if LITTLE_ENDIAN_INTTYPE then
-      stri := str(chr( number        mod 256)) &
-              str(chr((number >>  8) mod 256)) &
-              str(chr((number >> 16) mod 256)) &
-              str(chr((number >> 24) mod 256));
-    else
-      stri := str(chr((number >> 24) mod 256)) &
-              str(chr((number >> 16) mod 256)) &
-              str(chr((number >>  8) mod 256)) &
-              str(chr( number        mod 256));
-    end if;
-  end func;
-
-
-const func string: int64AsEightInt8Chars (in integer: number) is func
-  result
-    var string: stri is "";
-  begin
-    if LITTLE_ENDIAN_INTTYPE then
-      stri := str(chr( number        mod 256)) &
-              str(chr((number >>  8) mod 256)) &
-              str(chr((number >> 16) mod 256)) &
-              str(chr((number >> 24) mod 256));
-      if INTTYPE_SIZE = 64 then
-        stri &:= str(chr((number >> 32) mod 256)) &
-                 str(chr((number >> 40) mod 256)) &
-                 str(chr((number >> 48) mod 256)) &
-                 str(chr((number >> 56) mod 256));
-      else
-        stri &:= "\0\\0\\0\\0\";
-      end if;
-    else
-      if INTTYPE_SIZE = 64 then
-        stri := str(chr((number >> 56) mod 256)) &
-                str(chr((number >> 48) mod 256)) &
-                str(chr((number >> 40) mod 256)) &
-                str(chr((number >> 32) mod 256));
-      else
-        stri := "\0\\0\\0\\0\";
-      end if;
-      stri &:= str(chr((number >> 24) mod 256)) &
-               str(chr((number >> 16) mod 256)) &
-               str(chr((number >>  8) mod 256)) &
-               str(chr( number        mod 256));
     end if;
   end func;
 
@@ -24073,6 +24163,7 @@ const proc: init_values (inout expr_type: c_expr) is func
     end for;
 
     init_bigint_constants(c_expr);
+    init_win_constants(c_expr);
     init_string_constants(c_expr);
     init_bstri_constants(c_expr);
     init_set_constants(c_expr);
@@ -24081,6 +24172,7 @@ const proc: init_values (inout expr_type: c_expr) is func
     c_expr.expr &:= "void init_values (void)\n";
     c_expr.expr &:= "{\n";
     assign_bigint_constants(c_expr);
+    assign_win_constants(c_expr);
     c_expr.expr &:= "arr = (arraytype *)(malloc(";
     c_expr.expr &:= str(length(const_table));
     c_expr.expr &:= " * sizeof(arraytype)));\n";
@@ -24281,12 +24373,12 @@ const proc: init_systypes (in program: prog) is func
 
 const func string: temp_name (in string: source) is func
   result
-    var string: result is "";
+    var string: tempName is "";
   begin
     if rpos(source, "/") = 0 then
-      result := "tmp_" & source;
+      tempName := "tmp_" & source;
     else
-      result := source[.. rpos(source, "/")] &
+      tempName := source[.. rpos(source, "/")] &
           "tmp_" & source[succ(rpos(source, "/")) ..];
     end if;
   end func;

@@ -31,7 +31,7 @@ var integer: position is 0;
 
 const func boolean: is_prime (in integer: number) is func
   result
-    var boolean: result is FALSE;
+    var boolean: prime is FALSE;
   local
     var integer: count is 7;
   begin
@@ -44,7 +44,7 @@ const func boolean: is_prime (in integer: number) is func
               count +:= 2;
             end if;
           end while;
-          result := number rem count <> 0;
+          prime := number rem count <> 0;
         end if;
       end if;
     end if;

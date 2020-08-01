@@ -36,7 +36,7 @@ const set of string: voidHtmlElements is {
 
 const func string: getValueOfHtmlAttribute (in var string: tag, in string: attribute) is func
   result
-    var string: result is "";
+    var string: attrValue is "";
   local
     var string: symbol is "";
   begin
@@ -46,7 +46,7 @@ const func string: getValueOfHtmlAttribute (in var string: tag, in string: attri
     if symbol = attribute then
       symbol := getSymbolInXmlTag(tag);
       if symbol = "=" then
-        result := getHtmlAttributeValue(tag);
+        attrValue := getHtmlAttributeValue(tag);
       end if;
     end if;
   end func;
@@ -54,7 +54,7 @@ const func string: getValueOfHtmlAttribute (in var string: tag, in string: attri
 
 const func array string: getHtmlLinks (in string: html) is func
   result
-    var array string: result is 0 times "";
+    var array string: htmlLinks is 0 times "";
   local
     var integer: startPos is 0;
     var integer: endPos is 0;
@@ -69,7 +69,7 @@ const func array string: getHtmlLinks (in string: html) is func
         rawLink := html[startPos + 3 .. pred(endPos)];
         linkDest := getValueOfHtmlAttribute(rawLink, "href");
         if linkDest <> "" then
-          result &:= [] (linkDest);
+          htmlLinks &:= [] (linkDest);
         end if;
         startPos := pos(html, "<a ", succ(endPos));
       else

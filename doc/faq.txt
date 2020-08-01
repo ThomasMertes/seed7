@@ -196,12 +196,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 150000 lines of Seed7. For version 2012-12-12 the number of lines is:
+than 150000 lines of Seed7. For version 2012-12-21 the number of lines is:
 
-  102757  C source files (*.c)
-   10109  C header files (*.h)
-  111237  Seed7 source files (*.sd7)
-   81782  Seed7 library/include files (*.s7i)
+  102887  C source files (*.c)
+   10114  C header files (*.h)
+  111155  Seed7 source files (*.sd7)
+   81784  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -1112,32 +1112,32 @@ The declarations of the converting '+' operators are:
 
   const func Float: (in Integer: a) + (in Float: b) is func
     result
-      var Float: result is Float.value;
+      var Float: sum is Float.value;
     begin
-      result.val := flt(a.val) + b.val;
+      sum.val := flt(a.val) + b.val;
     end func;
 
   const func Float: (in Float: a) + (in Integer: b) is func
     result
-      var Float: result is Float.value;
+      var Float: sum is Float.value;
     begin
-      result.val := a.val + flt(b.val);
+      sum.val := a.val + flt(b.val);
     end func;
 
 The declarations of the normal '+' operators (which do not convert) are:
 
   const func Integer: (in Integer: a) + (in Integer: b) is func
     result
-      var Integer: result is Integer.value;
+      var Integer: sum is Integer.value;
     begin
-      result.val := a.val + b.val;
+      sum.val := a.val + b.val;
     end func;
 
   const func Float: (in Float: a) + (in Float: b) is func
     result
-      var Float: result is Float.value;
+      var Float: sum is Float.value;
     begin
-      result.val := a.val + b.val;
+      sum.val := a.val + b.val;
     end func;
 
 The decision which '+' operator should be called at runtime is based on the
@@ -1169,12 +1169,12 @@ is defined with:
   const func integer: conditional (in boolean: condition,
       (in func integer: trueValue, in func integer: falseValue) is func
     result
-      var integer: result is 0;
+      var integer: conditionalResult is 0;
     begin
       if condition then
-        result := trueValue;
+        conditionalResult := trueValue;
       else
-        result := falseValue;
+        conditionalResult := falseValue;
       end if;
     end func;
 
@@ -1383,9 +1383,9 @@ shown in the following example:
 
   const func integer: convert_to (attr integer, in char: ch) is func
     result
-      var integer: result is 0;
+      var integer: converted is 0;
     begin
-      result := ord(ch);
+      converted := ord(ch);
     end func;
 
 The function 'convert_to' can be called as

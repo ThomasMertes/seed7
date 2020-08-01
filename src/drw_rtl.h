@@ -34,11 +34,13 @@
 void drwCpy (wintype *, wintype);
 wintype drwCreate (wintype);
 void drwDestr (wintype);
+wintype drwRtlImage (const const_rtlArraytype image);
 
 #else
 
 void drwCpy ();
 wintype drwCreate ();
 void drwDestr ();
+wintype drwRtlImage ();
 
 #endif

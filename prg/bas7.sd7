@@ -627,10 +627,10 @@ const func boolean: isNumericVar (in string: symbol) is
 
 const func float: getNumericVar (in string: varName) is func
   result
-    var float: result is 0.0;
+    var float: numericValue is 0.0;
   begin
     if varName in numeric_var then
-      result := numeric_var[varName];
+      numericValue := numeric_var[varName];
     end if;
   end func;
 
@@ -643,10 +643,10 @@ const proc: setNumericVar (in string: varName, in float: number) is func
 
 const func string: getStringVar (in string: varName) is func
   result
-    var string: result is "";
+    var string: stringValue is "";
   begin
     if varName in string_var then
-      result := string_var[varName];
+      stringValue := string_var[varName];
     end if;
   end func;
 
@@ -681,10 +681,10 @@ const func string: varname (in integer: address) is func
 
 const func file: getFileValue (in integer: file_number) is func
   result
-    var file: result is STD_NULL;
+    var file: fileValue is STD_NULL;
   begin
     if file_number in file_value then
-      result := file_value[file_number];
+      fileValue := file_value[file_number];
     end if;
   end func;
 
@@ -977,25 +977,25 @@ const proc: do_resume_same (inout string: symbol, inout string: line) is func
 
 const func color: color_num (in integer: col_num) is func
   result
-    var color: result is black;
+    var color: col is black;
   begin
     case col_num of
-      when {0}: result := black;
-      when {1}: result := dark_blue;
-      when {2}: result := dark_green;
-      when {3}: result := dark_cyan;
-      when {4}: result := dark_red;
-      when {5}: result := dark_magenta;
-      when {6}: result := brown;
-      when {7}: result := light_gray;
-      when {8}: result := dark_gray;
-      when {9}: result := light_blue;
-      when {10}: result := light_green;
-      when {11}: result := light_cyan;
-      when {12}: result := light_red;
-      when {13}: result := light_magenta;
-      when {14}: result := yellow;
-      when {15}: result := white;
+      when {0}: col := black;
+      when {1}: col := dark_blue;
+      when {2}: col := dark_green;
+      when {3}: col := dark_cyan;
+      when {4}: col := dark_red;
+      when {5}: col := dark_magenta;
+      when {6}: col := brown;
+      when {7}: col := light_gray;
+      when {8}: col := dark_gray;
+      when {9}: col := light_blue;
+      when {10}: col := light_green;
+      when {11}: col := light_cyan;
+      when {12}: col := light_red;
+      when {13}: col := light_magenta;
+      when {14}: col := yellow;
+      when {15}: col := white;
     end case;
   end func;
 
@@ -1154,7 +1154,7 @@ const proc: skip_space_cr_lf (inout file: inFile) is func
 
 const func string: read_input_string (inout file: inFile) is func
   result
-    var string: result is "";
+    var string: stri is "";
   local
     var char: ch is ' ';
   begin
@@ -1162,13 +1162,13 @@ const func string: read_input_string (inout file: inFile) is func
     if ch = '"' then
       ch := getc(inFile);
       while ch <> '"' and ch <> '\r' and ch <> '\n' and ch <> EOF do
-        result &:= str(ch);
+        stri &:= str(ch);
         ch := getc(inFile);
       end while;
       ch := getc(inFile);
     else
       while ch <> ',' and ch <> '\r' and ch <> '\n' and ch <> EOF do
-        result &:= str(ch);
+        stri &:= str(ch);
         ch := getc(inFile);
       end while;
     end if;
@@ -1184,7 +1184,7 @@ const func string: read_input_string (inout file: inFile) is func
 
 const func string: read_input_number (inout file: inFile) is func
   result
-    var string: result is "";
+    var string: number is "";
   local
     var char: ch is ' ';
   begin
@@ -1192,13 +1192,13 @@ const func string: read_input_number (inout file: inFile) is func
     if ch = '"' then
       ch := getc(inFile);
       while ch <> '"' and ch <> '\r' and ch <> '\n' and ch <> EOF do
-        result &:= str(ch);
+        number &:= str(ch);
         ch := getc(inFile);
       end while;
       ch := getc(inFile);
     else
       while ch <> ',' and ch <> ' ' and ch <> '\r' and ch <> '\n' and ch <> EOF do
-        result &:= str(ch);
+        number &:= str(ch);
         ch := getc(inFile);
       end while;
     end if;
@@ -1347,28 +1347,28 @@ const proc: getBounds (in string: array_name, in integer: dimension,
 
 const func integer: exec_lbound (in string: array_name, in integer: dimension) is func
   result
-    var integer: result is 0;
+    var integer: lbound is 0;
   local
     var integer: ubound is 0;
   begin
-    getBounds(array_name, dimension, result, ubound);
+    getBounds(array_name, dimension, lbound, ubound);
   end func;
 
 
 const func integer: exec_ubound (in string: array_name, in integer: dimension) is func
   result
-    var integer: result is 0;
+    var integer: ubound is 0;
   local
     var integer: lbound is 0;
   begin
-    getBounds(array_name, dimension, lbound, result);
+    getBounds(array_name, dimension, lbound, ubound);
   end func;
 
 
 const func integer: getFirstIndex (in string: array_name,
     inout string: name_start, inout string: name_end) is func
   result
-    var integer: result is 0;
+    var integer: lbound is 0;
   local
     var integer: parenPos is 0;
     var integer: commaPos is 0;
@@ -1395,7 +1395,7 @@ const func integer: getFirstIndex (in string: array_name,
           indexString := array_name[succ(parenPos) .. pred(paren2Pos)];
         end if;
       end if;
-      result := integer parse indexString;
+      lbound := integer parse indexString;
     end if;
   end func;
 
@@ -1494,7 +1494,7 @@ const func string: exec_str_expr (
 
 const func string: exec_str_function (in defFnType: defFn, inout string: symbol, inout string: line) is func
   result
-    var string: result is "";
+    var string: exprResult is "";
   local
     var string: func_expr is "";
     var string: func_symbol is "";
@@ -1536,7 +1536,7 @@ const func string: exec_str_function (in defFnType: defFn, inout string: symbol,
     func_expr := defFn.expression;
     writeln(log, " = " <& func_expr);
     func_symbol := get_symbol(func_expr);
-    result := exec_str_expr(func_symbol, func_expr, unused_name);
+    exprResult := exec_str_expr(func_symbol, func_expr, unused_name);
     formal_params := defFn.params;
     formal_param := get_symbol(formal_params);
     while formal_param <> "" do
@@ -1554,197 +1554,197 @@ const func string: exec_str_function (in defFnType: defFn, inout string: symbol,
 
 const func string: extendedKeyCode (in char: current_key) is func
   result
-    var string: result is "";
+    var string: keyCode is "";
   begin
     case current_key of
-      when {KEY_NL}:        result := "\r";
-      when {KEY_ALT_A}:     result := "\0\\30\";
-      when {KEY_ALT_B}:     result := "\0\\48\";
-      when {KEY_ALT_C}:     result := "\0\\46\";
-      when {KEY_ALT_D}:     result := "\0\\32\";
-      when {KEY_ALT_E}:     result := "\0\\18\";
-      when {KEY_ALT_F}:     result := "\0\\33\";
-      when {KEY_ALT_G}:     result := "\0\\34\";
-      when {KEY_ALT_H}:     result := "\0\\35\";
-      when {KEY_ALT_I}:     result := "\0\\23\";
-      when {KEY_ALT_J}:     result := "\0\\36\";
-      when {KEY_ALT_K}:     result := "\0\\37\";
-      when {KEY_ALT_L}:     result := "\0\\38\";
-      when {KEY_ALT_M}:     result := "\0\\50\";
-      when {KEY_ALT_N}:     result := "\0\\49\";
-      when {KEY_ALT_O}:     result := "\0\\24\";
-      when {KEY_ALT_P}:     result := "\0\\25\";
-      when {KEY_ALT_Q}:     result := "\0\\16\";
-      when {KEY_ALT_R}:     result := "\0\\19\";
-      when {KEY_ALT_S}:     result := "\0\\31\";
-      when {KEY_ALT_T}:     result := "\0\\20\";
-      when {KEY_ALT_U}:     result := "\0\\22\";
-      when {KEY_ALT_V}:     result := "\0\\47\";
-      when {KEY_ALT_W}:     result := "\0\\17\";
-      when {KEY_ALT_X}:     result := "\0\\45\";
-      when {KEY_ALT_Y}:     result := "\0\\21\";
-      when {KEY_ALT_Z}:     result := "\0\\44\";
-      when {KEY_ALT_0}:     result := "\0\\120\";
-      when {KEY_ALT_1}:     result := "\0\\121\";
-      when {KEY_ALT_2}:     result := "\0\\122\";
-      when {KEY_ALT_3}:     result := "\0\\123\";
-      when {KEY_ALT_4}:     result := "\0\\124\";
-      when {KEY_ALT_5}:     result := "\0\\125\";
-      when {KEY_ALT_6}:     result := "\0\\126\";
-      when {KEY_ALT_7}:     result := "\0\\127\";
-      when {KEY_ALT_8}:     result := "\0\\128\";
-      when {KEY_ALT_9}:     result := "\0\\129\";
-      when {KEY_F1}:        result := "\0\;";
-      when {KEY_F2}:        result := "\0\<";
-      when {KEY_F3}:        result := "\0\=";
-      when {KEY_F4}:        result := "\0\>";
-      when {KEY_F5}:        result := "\0\?";
-      when {KEY_F6}:        result := "\0\@";
-      when {KEY_F7}:        result := "\0\A";
-      when {KEY_F8}:        result := "\0\B";
-      when {KEY_F9}:        result := "\0\C";
-      when {KEY_F10}:       result := "\0\D";
-      when {KEY_SFT_F1}:    result := "\0\T";
-      when {KEY_SFT_F2}:    result := "\0\U";
-      when {KEY_SFT_F3}:    result := "\0\V";
-      when {KEY_SFT_F4}:    result := "\0\W";
-      when {KEY_SFT_F5}:    result := "\0\X";
-      when {KEY_SFT_F6}:    result := "\0\Y";
-      when {KEY_SFT_F7}:    result := "\0\Z";
-      when {KEY_SFT_F8}:    result := "\0\[";
-      when {KEY_SFT_F9}:    result := "\0\\\";
-      when {KEY_SFT_F10}:   result := "\0\]";
-      when {KEY_CTL_F1}:    result := "\0\^";
-      when {KEY_CTL_F2}:    result := "\0\_";
-      when {KEY_CTL_F3}:    result := "\0\`";
-      when {KEY_CTL_F4}:    result := "\0\a";
-      when {KEY_CTL_F5}:    result := "\0\b";
-      when {KEY_CTL_F6}:    result := "\0\c";
-      when {KEY_CTL_F7}:    result := "\0\d";
-      when {KEY_CTL_F8}:    result := "\0\e";
-      when {KEY_CTL_F9}:    result := "\0\f";
-      when {KEY_CTL_F10}:   result := "\0\g";
-      when {KEY_ALT_F1}:    result := "\0\h";
-      when {KEY_ALT_F2}:    result := "\0\i";
-      when {KEY_ALT_F3}:    result := "\0\j";
-      when {KEY_ALT_F4}:    result := "\0\k";
-      when {KEY_ALT_F5}:    result := "\0\l";
-      when {KEY_ALT_F6}:    result := "\0\m";
-      when {KEY_ALT_F7}:    result := "\0\n";
-      when {KEY_ALT_F8}:    result := "\0\o";
-      when {KEY_ALT_F9}:    result := "\0\p";
-      when {KEY_ALT_F10}:   result := "\0\q";
-      when {KEY_BACKTAB}:   result := "\0\\15\";
-      when {KEY_LEFT}:      result := "\0\K";
-      when {KEY_RIGHT}:     result := "\0\M";
-      when {KEY_UP}:        result := "\0\H";
-      when {KEY_DOWN}:      result := "\0\P";
-      when {KEY_HOME}:      result := "\0\G";
-      when {KEY_END}:       result := "\0\O";
-      when {KEY_PGUP}:      result := "\0\I";
-      when {KEY_PGDN}:      result := "\0\Q";
-      when {KEY_INS}:       result := "\0\R";
-      when {KEY_DEL}:       result := "\0\S";
-      when {KEY_CTL_LEFT}:  result := "\0\\115\";
-      when {KEY_CTL_RIGHT}: result := "\0\\116\";
-      when {KEY_CTL_HOME}:  result := "\0\\119\";
-      when {KEY_CTL_END}:   result := "\0\\117\";
-      when {KEY_CTL_PGUP}:  result := "\0\\132\";
-      when {KEY_CTL_PGDN}:  result := "\0\\118\";
-      otherwise:            result := str(current_key);
+      when {KEY_NL}:        keyCode := "\r";
+      when {KEY_ALT_A}:     keyCode := "\0\\30\";
+      when {KEY_ALT_B}:     keyCode := "\0\\48\";
+      when {KEY_ALT_C}:     keyCode := "\0\\46\";
+      when {KEY_ALT_D}:     keyCode := "\0\\32\";
+      when {KEY_ALT_E}:     keyCode := "\0\\18\";
+      when {KEY_ALT_F}:     keyCode := "\0\\33\";
+      when {KEY_ALT_G}:     keyCode := "\0\\34\";
+      when {KEY_ALT_H}:     keyCode := "\0\\35\";
+      when {KEY_ALT_I}:     keyCode := "\0\\23\";
+      when {KEY_ALT_J}:     keyCode := "\0\\36\";
+      when {KEY_ALT_K}:     keyCode := "\0\\37\";
+      when {KEY_ALT_L}:     keyCode := "\0\\38\";
+      when {KEY_ALT_M}:     keyCode := "\0\\50\";
+      when {KEY_ALT_N}:     keyCode := "\0\\49\";
+      when {KEY_ALT_O}:     keyCode := "\0\\24\";
+      when {KEY_ALT_P}:     keyCode := "\0\\25\";
+      when {KEY_ALT_Q}:     keyCode := "\0\\16\";
+      when {KEY_ALT_R}:     keyCode := "\0\\19\";
+      when {KEY_ALT_S}:     keyCode := "\0\\31\";
+      when {KEY_ALT_T}:     keyCode := "\0\\20\";
+      when {KEY_ALT_U}:     keyCode := "\0\\22\";
+      when {KEY_ALT_V}:     keyCode := "\0\\47\";
+      when {KEY_ALT_W}:     keyCode := "\0\\17\";
+      when {KEY_ALT_X}:     keyCode := "\0\\45\";
+      when {KEY_ALT_Y}:     keyCode := "\0\\21\";
+      when {KEY_ALT_Z}:     keyCode := "\0\\44\";
+      when {KEY_ALT_0}:     keyCode := "\0\\120\";
+      when {KEY_ALT_1}:     keyCode := "\0\\121\";
+      when {KEY_ALT_2}:     keyCode := "\0\\122\";
+      when {KEY_ALT_3}:     keyCode := "\0\\123\";
+      when {KEY_ALT_4}:     keyCode := "\0\\124\";
+      when {KEY_ALT_5}:     keyCode := "\0\\125\";
+      when {KEY_ALT_6}:     keyCode := "\0\\126\";
+      when {KEY_ALT_7}:     keyCode := "\0\\127\";
+      when {KEY_ALT_8}:     keyCode := "\0\\128\";
+      when {KEY_ALT_9}:     keyCode := "\0\\129\";
+      when {KEY_F1}:        keyCode := "\0\;";
+      when {KEY_F2}:        keyCode := "\0\<";
+      when {KEY_F3}:        keyCode := "\0\=";
+      when {KEY_F4}:        keyCode := "\0\>";
+      when {KEY_F5}:        keyCode := "\0\?";
+      when {KEY_F6}:        keyCode := "\0\@";
+      when {KEY_F7}:        keyCode := "\0\A";
+      when {KEY_F8}:        keyCode := "\0\B";
+      when {KEY_F9}:        keyCode := "\0\C";
+      when {KEY_F10}:       keyCode := "\0\D";
+      when {KEY_SFT_F1}:    keyCode := "\0\T";
+      when {KEY_SFT_F2}:    keyCode := "\0\U";
+      when {KEY_SFT_F3}:    keyCode := "\0\V";
+      when {KEY_SFT_F4}:    keyCode := "\0\W";
+      when {KEY_SFT_F5}:    keyCode := "\0\X";
+      when {KEY_SFT_F6}:    keyCode := "\0\Y";
+      when {KEY_SFT_F7}:    keyCode := "\0\Z";
+      when {KEY_SFT_F8}:    keyCode := "\0\[";
+      when {KEY_SFT_F9}:    keyCode := "\0\\\";
+      when {KEY_SFT_F10}:   keyCode := "\0\]";
+      when {KEY_CTL_F1}:    keyCode := "\0\^";
+      when {KEY_CTL_F2}:    keyCode := "\0\_";
+      when {KEY_CTL_F3}:    keyCode := "\0\`";
+      when {KEY_CTL_F4}:    keyCode := "\0\a";
+      when {KEY_CTL_F5}:    keyCode := "\0\b";
+      when {KEY_CTL_F6}:    keyCode := "\0\c";
+      when {KEY_CTL_F7}:    keyCode := "\0\d";
+      when {KEY_CTL_F8}:    keyCode := "\0\e";
+      when {KEY_CTL_F9}:    keyCode := "\0\f";
+      when {KEY_CTL_F10}:   keyCode := "\0\g";
+      when {KEY_ALT_F1}:    keyCode := "\0\h";
+      when {KEY_ALT_F2}:    keyCode := "\0\i";
+      when {KEY_ALT_F3}:    keyCode := "\0\j";
+      when {KEY_ALT_F4}:    keyCode := "\0\k";
+      when {KEY_ALT_F5}:    keyCode := "\0\l";
+      when {KEY_ALT_F6}:    keyCode := "\0\m";
+      when {KEY_ALT_F7}:    keyCode := "\0\n";
+      when {KEY_ALT_F8}:    keyCode := "\0\o";
+      when {KEY_ALT_F9}:    keyCode := "\0\p";
+      when {KEY_ALT_F10}:   keyCode := "\0\q";
+      when {KEY_BACKTAB}:   keyCode := "\0\\15\";
+      when {KEY_LEFT}:      keyCode := "\0\K";
+      when {KEY_RIGHT}:     keyCode := "\0\M";
+      when {KEY_UP}:        keyCode := "\0\H";
+      when {KEY_DOWN}:      keyCode := "\0\P";
+      when {KEY_HOME}:      keyCode := "\0\G";
+      when {KEY_END}:       keyCode := "\0\O";
+      when {KEY_PGUP}:      keyCode := "\0\I";
+      when {KEY_PGDN}:      keyCode := "\0\Q";
+      when {KEY_INS}:       keyCode := "\0\R";
+      when {KEY_DEL}:       keyCode := "\0\S";
+      when {KEY_CTL_LEFT}:  keyCode := "\0\\115\";
+      when {KEY_CTL_RIGHT}: keyCode := "\0\\116\";
+      when {KEY_CTL_HOME}:  keyCode := "\0\\119\";
+      when {KEY_CTL_END}:   keyCode := "\0\\117\";
+      when {KEY_CTL_PGUP}:  keyCode := "\0\\132\";
+      when {KEY_CTL_PGDN}:  keyCode := "\0\\118\";
+      otherwise:            keyCode := str(current_key);
     end case;
   end func;
 
 
 const func integer: keyboardScanCode (in char: current_key) is func
   result
-    var integer: result is 0;
+    var integer: scanCode is 0;
   begin
     case current_key of
-      when {KEY_ESC}:                                        result := 16#01;
-      when {'!' (* At keypad: '1' *) }:                      result := 16#02;
-      when {'@' (* At keypad: '2' *) }:                      result := 16#03;
-      when {'#' (* At keypad: '3' *) }:                      result := 16#04;
-      when {'$' (* At keypad: '4' *) }:                      result := 16#05;
-      when {'%' (* At keypad: '5' *) }:                      result := 16#06;
-      when {'^' (* At keypad: '6' *) }:                      result := 16#07;
-      when {'&' (* At keypad: '7' *) }:                      result := 16#08;
-      when {'*' (* At keypad: '8' *) }:                      result := 16#09;
-      when {'(' (* At keypad: '9' *) }:                      result := 16#0A;
-      when {')' (* At keypad: '0' *) }:                      result := 16#0B;
-      when {'_', '-'}:                                       result := 16#0C;
-      when {'+', '='}:                                       result := 16#0D;
-      when {KEY_BS}:                                         result := 16#0E;
-      when {KEY_TAB}:                                        result := 16#0F;
-      when {'Q', 'q', KEY_ALT_Q, KEY_CTL_Q}:                 result := 16#10;
-      when {'W', 'w', KEY_ALT_W, KEY_CTL_W}:                 result := 16#11;
-      when {'E', 'e', KEY_ALT_E, KEY_CTL_E}:                 result := 16#12;
-      when {'R', 'r', KEY_ALT_R, KEY_CTL_R}:                 result := 16#13;
-      when {'T', 't', KEY_ALT_T, KEY_CTL_T}:                 result := 16#14;
-      when {'Y', 'y', KEY_ALT_Y, KEY_CTL_Y}:                 result := 16#15;
-      when {'U', 'u', KEY_ALT_U, KEY_CTL_U}:                 result := 16#16;
-      when {'I', 'i', KEY_ALT_I  (* KEY_TAB=KEY_CTL_I *) }:  result := 16#17;
-      when {'O', 'o', KEY_ALT_O, KEY_CTL_O}:                 result := 16#18;
-      when {'P', 'p', KEY_ALT_P, KEY_CTL_P}:                 result := 16#19;
-      when {'{', '['}:                                       result := 16#1A;
-      when {'}', ']'}:                                       result := 16#1B;
-      when {KEY_NL}:                                         result := 16#1C;
-      #     Not mapped: CTRL                                 result := 16#1D;
-      when {'A', 'a', KEY_ALT_A, KEY_CTL_A}:                 result := 16#1E;
-      when {'S', 's', KEY_ALT_S, KEY_CTL_S}:                 result := 16#1F;
-      when {'D', 'd', KEY_ALT_D, KEY_CTL_D}:                 result := 16#20;
-      when {'F', 'f', KEY_ALT_F, KEY_CTL_F}:                 result := 16#21;
-      when {'G', 'g', KEY_ALT_G, KEY_CTL_G}:                 result := 16#22;
-      when {'H', 'h', KEY_ALT_H  (* KEY_BS=KEY_CTL_H *) }:   result := 16#23;
-      when {'J', 'j', KEY_ALT_J  (* KEY_NL=KEY_CTL_J *) }:   result := 16#24;
-      when {'K', 'k', KEY_ALT_K, KEY_CTL_K}:                 result := 16#25;
-      when {'L', 'l', KEY_ALT_L, KEY_CTL_L}:                 result := 16#26;
-      when {':', ';'}:                                       result := 16#27;
-      when {'"', '\''}:                                      result := 16#28;
-      when {'~', '`'}:                                       result := 16#29;
-      #     Not mapped: LEFT SHIFT                           result := 16#2A;
-      when {'|', '\\'}:                                      result := 16#2B;
-      when {'Z', 'z', KEY_ALT_Z, KEY_CTL_Z}:                 result := 16#2C;
-      when {'X', 'x', KEY_ALT_X, KEY_CTL_X}:                 result := 16#2D;
-      when {'C', 'c', KEY_ALT_C, KEY_CTL_C}:                 result := 16#2E;
-      when {'V', 'v', KEY_ALT_V, KEY_CTL_V}:                 result := 16#2F;
-      when {'B', 'b', KEY_ALT_B, KEY_CTL_B}:                 result := 16#30;
-      when {'N', 'n', KEY_ALT_N, KEY_CTL_N}:                 result := 16#31;
-      when {'M', 'm', KEY_ALT_M, KEY_CTL_M}:                 result := 16#32;
-      when {'<', ','}:                                       result := 16#33;
-      when {'>', '.'}:                                       result := 16#34;
-      when {'?', '/'}:                                       result := 16#35;
-      #     Not mapped: RIGHT SHIFT                          result := 16#36;
-      #     Not mapped: PRTSC or *                           result := 16#37;
-      #     Not mapped: ALT                                  result := 16#38;
-      when {' '}:                                            result := 16#39;
-      #     Not mapped: CAPSLOCK                             result := 16#3A;
-      when {KEY_F1,  KEY_SFT_F1,  KEY_CTL_F1,  KEY_ALT_F1}:  result := 16#3B;
-      when {KEY_F2,  KEY_SFT_F2,  KEY_CTL_F2,  KEY_ALT_F2}:  result := 16#3C;
-      when {KEY_F3,  KEY_SFT_F3,  KEY_CTL_F3,  KEY_ALT_F3}:  result := 16#3D;
-      when {KEY_F4,  KEY_SFT_F4,  KEY_CTL_F4,  KEY_ALT_F4}:  result := 16#3E;
-      when {KEY_F5,  KEY_SFT_F5,  KEY_CTL_F5,  KEY_ALT_F5}:  result := 16#3F;
-      when {KEY_F6,  KEY_SFT_F6,  KEY_CTL_F6,  KEY_ALT_F6}:  result := 16#40;
-      when {KEY_F7,  KEY_SFT_F7,  KEY_CTL_F7,  KEY_ALT_F7}:  result := 16#41;
-      when {KEY_F8,  KEY_SFT_F8,  KEY_CTL_F8,  KEY_ALT_F8}:  result := 16#42;
-      when {KEY_F9,  KEY_SFT_F9,  KEY_CTL_F9,  KEY_ALT_F9}:  result := 16#43;
-      when {KEY_F10, KEY_SFT_F10, KEY_CTL_F10, KEY_ALT_F10}: result := 16#44;
-      #     Not mapped: NUMLOCK                              result := 16#45;
-      #     Not mapped: SCROLL LOCK                          result := 16#46;
-      when {KEY_HOME,       KEY_CTL_HOME,  '7'}:             result := 16#47;
-      when {KEY_UP,         KEY_CTL_UP,    '8'}:             result := 16#48;
-      when {KEY_PGUP,       KEY_CTL_PGUP,  '9'}:             result := 16#49;
-      #     Already mapped: '-'                              result := 16#4A;
-      when {KEY_LEFT,       KEY_CTL_LEFT,  '4'}:             result := 16#4B;
-      when {KEY_PAD_CENTER,                '5'}:             result := 16#4C;
-      when {KEY_RIGHT,      KEY_CTL_RIGHT, '6'}:             result := 16#4D;
-      #     Already mapped: '+'                              result := 16#4E;
-      when {KEY_END,        KEY_CTL_END,   '1'}:             result := 16#4F;
-      when {KEY_DOWN,       KEY_CTL_DOWN,  '2'}:             result := 16#50;
-      when {KEY_PGDN,       KEY_CTL_PGDN,  '3'}:             result := 16#51;
-      when {KEY_INS,        KEY_CTL_INS,   '0'}:             result := 16#52;
-      when {KEY_DEL,        KEY_CTL_DEL    (*  '.' *) }:     result := 16#53;
-      otherwise:                                             result := 0;
+      when {KEY_ESC}:                                        scanCode := 16#01;
+      when {'!' (* At keypad: '1' *) }:                      scanCode := 16#02;
+      when {'@' (* At keypad: '2' *) }:                      scanCode := 16#03;
+      when {'#' (* At keypad: '3' *) }:                      scanCode := 16#04;
+      when {'$' (* At keypad: '4' *) }:                      scanCode := 16#05;
+      when {'%' (* At keypad: '5' *) }:                      scanCode := 16#06;
+      when {'^' (* At keypad: '6' *) }:                      scanCode := 16#07;
+      when {'&' (* At keypad: '7' *) }:                      scanCode := 16#08;
+      when {'*' (* At keypad: '8' *) }:                      scanCode := 16#09;
+      when {'(' (* At keypad: '9' *) }:                      scanCode := 16#0A;
+      when {')' (* At keypad: '0' *) }:                      scanCode := 16#0B;
+      when {'_', '-'}:                                       scanCode := 16#0C;
+      when {'+', '='}:                                       scanCode := 16#0D;
+      when {KEY_BS}:                                         scanCode := 16#0E;
+      when {KEY_TAB}:                                        scanCode := 16#0F;
+      when {'Q', 'q', KEY_ALT_Q, KEY_CTL_Q}:                 scanCode := 16#10;
+      when {'W', 'w', KEY_ALT_W, KEY_CTL_W}:                 scanCode := 16#11;
+      when {'E', 'e', KEY_ALT_E, KEY_CTL_E}:                 scanCode := 16#12;
+      when {'R', 'r', KEY_ALT_R, KEY_CTL_R}:                 scanCode := 16#13;
+      when {'T', 't', KEY_ALT_T, KEY_CTL_T}:                 scanCode := 16#14;
+      when {'Y', 'y', KEY_ALT_Y, KEY_CTL_Y}:                 scanCode := 16#15;
+      when {'U', 'u', KEY_ALT_U, KEY_CTL_U}:                 scanCode := 16#16;
+      when {'I', 'i', KEY_ALT_I  (* KEY_TAB=KEY_CTL_I *) }:  scanCode := 16#17;
+      when {'O', 'o', KEY_ALT_O, KEY_CTL_O}:                 scanCode := 16#18;
+      when {'P', 'p', KEY_ALT_P, KEY_CTL_P}:                 scanCode := 16#19;
+      when {'{', '['}:                                       scanCode := 16#1A;
+      when {'}', ']'}:                                       scanCode := 16#1B;
+      when {KEY_NL}:                                         scanCode := 16#1C;
+      #     Not mapped: CTRL                                 scanCode := 16#1D;
+      when {'A', 'a', KEY_ALT_A, KEY_CTL_A}:                 scanCode := 16#1E;
+      when {'S', 's', KEY_ALT_S, KEY_CTL_S}:                 scanCode := 16#1F;
+      when {'D', 'd', KEY_ALT_D, KEY_CTL_D}:                 scanCode := 16#20;
+      when {'F', 'f', KEY_ALT_F, KEY_CTL_F}:                 scanCode := 16#21;
+      when {'G', 'g', KEY_ALT_G, KEY_CTL_G}:                 scanCode := 16#22;
+      when {'H', 'h', KEY_ALT_H  (* KEY_BS=KEY_CTL_H *) }:   scanCode := 16#23;
+      when {'J', 'j', KEY_ALT_J  (* KEY_NL=KEY_CTL_J *) }:   scanCode := 16#24;
+      when {'K', 'k', KEY_ALT_K, KEY_CTL_K}:                 scanCode := 16#25;
+      when {'L', 'l', KEY_ALT_L, KEY_CTL_L}:                 scanCode := 16#26;
+      when {':', ';'}:                                       scanCode := 16#27;
+      when {'"', '\''}:                                      scanCode := 16#28;
+      when {'~', '`'}:                                       scanCode := 16#29;
+      #     Not mapped: LEFT SHIFT                           scanCode := 16#2A;
+      when {'|', '\\'}:                                      scanCode := 16#2B;
+      when {'Z', 'z', KEY_ALT_Z, KEY_CTL_Z}:                 scanCode := 16#2C;
+      when {'X', 'x', KEY_ALT_X, KEY_CTL_X}:                 scanCode := 16#2D;
+      when {'C', 'c', KEY_ALT_C, KEY_CTL_C}:                 scanCode := 16#2E;
+      when {'V', 'v', KEY_ALT_V, KEY_CTL_V}:                 scanCode := 16#2F;
+      when {'B', 'b', KEY_ALT_B, KEY_CTL_B}:                 scanCode := 16#30;
+      when {'N', 'n', KEY_ALT_N, KEY_CTL_N}:                 scanCode := 16#31;
+      when {'M', 'm', KEY_ALT_M, KEY_CTL_M}:                 scanCode := 16#32;
+      when {'<', ','}:                                       scanCode := 16#33;
+      when {'>', '.'}:                                       scanCode := 16#34;
+      when {'?', '/'}:                                       scanCode := 16#35;
+      #     Not mapped: RIGHT SHIFT                          scanCode := 16#36;
+      #     Not mapped: PRTSC or *                           scanCode := 16#37;
+      #     Not mapped: ALT                                  scanCode := 16#38;
+      when {' '}:                                            scanCode := 16#39;
+      #     Not mapped: CAPSLOCK                             scanCode := 16#3A;
+      when {KEY_F1,  KEY_SFT_F1,  KEY_CTL_F1,  KEY_ALT_F1}:  scanCode := 16#3B;
+      when {KEY_F2,  KEY_SFT_F2,  KEY_CTL_F2,  KEY_ALT_F2}:  scanCode := 16#3C;
+      when {KEY_F3,  KEY_SFT_F3,  KEY_CTL_F3,  KEY_ALT_F3}:  scanCode := 16#3D;
+      when {KEY_F4,  KEY_SFT_F4,  KEY_CTL_F4,  KEY_ALT_F4}:  scanCode := 16#3E;
+      when {KEY_F5,  KEY_SFT_F5,  KEY_CTL_F5,  KEY_ALT_F5}:  scanCode := 16#3F;
+      when {KEY_F6,  KEY_SFT_F6,  KEY_CTL_F6,  KEY_ALT_F6}:  scanCode := 16#40;
+      when {KEY_F7,  KEY_SFT_F7,  KEY_CTL_F7,  KEY_ALT_F7}:  scanCode := 16#41;
+      when {KEY_F8,  KEY_SFT_F8,  KEY_CTL_F8,  KEY_ALT_F8}:  scanCode := 16#42;
+      when {KEY_F9,  KEY_SFT_F9,  KEY_CTL_F9,  KEY_ALT_F9}:  scanCode := 16#43;
+      when {KEY_F10, KEY_SFT_F10, KEY_CTL_F10, KEY_ALT_F10}: scanCode := 16#44;
+      #     Not mapped: NUMLOCK                              scanCode := 16#45;
+      #     Not mapped: SCROLL LOCK                          scanCode := 16#46;
+      when {KEY_HOME,       KEY_CTL_HOME,  '7'}:             scanCode := 16#47;
+      when {KEY_UP,         KEY_CTL_UP,    '8'}:             scanCode := 16#48;
+      when {KEY_PGUP,       KEY_CTL_PGUP,  '9'}:             scanCode := 16#49;
+      #     Already mapped: '-'                              scanCode := 16#4A;
+      when {KEY_LEFT,       KEY_CTL_LEFT,  '4'}:             scanCode := 16#4B;
+      when {KEY_PAD_CENTER,                '5'}:             scanCode := 16#4C;
+      when {KEY_RIGHT,      KEY_CTL_RIGHT, '6'}:             scanCode := 16#4D;
+      #     Already mapped: '+'                              scanCode := 16#4E;
+      when {KEY_END,        KEY_CTL_END,   '1'}:             scanCode := 16#4F;
+      when {KEY_DOWN,       KEY_CTL_DOWN,  '2'}:             scanCode := 16#50;
+      when {KEY_PGDN,       KEY_CTL_PGDN,  '3'}:             scanCode := 16#51;
+      when {KEY_INS,        KEY_CTL_INS,   '0'}:             scanCode := 16#52;
+      when {KEY_DEL,        KEY_CTL_DEL    (*  '.' *) }:     scanCode := 16#53;
+      otherwise:                                             scanCode := 0;
     end case;
   end func;
 
@@ -1754,7 +1754,7 @@ const func string: exec_str_primary (
     inout string: line,
     inout string: variable_name) is func
   result
-    var string: result is "";
+    var string: exprResult is "";
   local
     var string: unused_name is "";
     var string: stri1 is "";
@@ -1772,7 +1772,7 @@ const func string: exec_str_primary (
       error_marker;
       writeln(err, "EXPRESSION EXPECTED - FOUND END OF LINE.");
     elsif symbol[1] = '"' then
-      result := symbol[2 .. ];
+      exprResult := symbol[2 .. ];
       symbol := get_symbol(line);
     elsif symbol = "LEFT$" then
       symbol := get_symbol(line);
@@ -1781,9 +1781,9 @@ const func string: exec_str_primary (
       expect(",", symbol, line);
       num1 := exec_expr(symbol, line);
       expect(")", symbol, line);
-      result := stri1[ .. round(num1)];
+      exprResult := stri1[ .. round(num1)];
       write(log, "LEFT$(" <& literal(stri1) <& ", " <& num1);
-      writeln(log, ") -> " <& literal(result));
+      writeln(log, ") -> " <& literal(exprResult));
     elsif symbol = "RIGHT$" then
       symbol := get_symbol(line);
       expect("(", symbol, line);
@@ -1791,9 +1791,9 @@ const func string: exec_str_primary (
       expect(",", symbol, line);
       num1 := exec_expr(symbol, line);
       expect(")", symbol, line);
-      result := stri1[length(stri1) - round(num1) + 1 .. ];
+      exprResult := stri1[length(stri1) - round(num1) + 1 .. ];
       write(log, "RIGHT$(" <& literal(stri1) <& ", " <& num1);
-      writeln(log, ") -> " <& literal(result));
+      writeln(log, ") -> " <& literal(exprResult));
     elsif symbol = "MID$" then
       symbol := get_symbol(line);
       expect("(", symbol, line);
@@ -1804,14 +1804,14 @@ const func string: exec_str_primary (
         symbol := get_symbol(line);
         num2 := exec_expr(symbol, line);
         expect(")", symbol, line);
-        result := stri1[round(num1) .. round(num1) + round(num2) - 1];
+        exprResult := stri1[round(num1) .. round(num1) + round(num2) - 1];
         write(log, "MID$(" <& literal(stri1) <& ", " <& num1 <& ", " <& num2);
       else
         expect(")", symbol, line);
-        result := stri1[round(num1) .. ];
+        exprResult := stri1[round(num1) .. ];
         write(log, "MID$(" <& literal(stri1) <& ", " <& num1);
       end if;
-      writeln(log, ") -> " <& literal(result));
+      writeln(log, ") -> " <& literal(exprResult));
     elsif symbol = "STRING$" then
       symbol := get_symbol(line);
       expect("(", symbol, line);
@@ -1821,14 +1821,14 @@ const func string: exec_str_primary (
       if index1 >= 0 then
         if isStringExpr(symbol) then
           stri1 := exec_str_expr(symbol, line, unused_name);
-          result := stri1 mult index1;
+          exprResult := stri1 mult index1;
           write(log, "STRING$(" <& num1 <& ", " <& literal(stri1));
-          writeln(log, ") -> " <& literal(result));
+          writeln(log, ") -> " <& literal(exprResult));
         else
           num2 := exec_expr(symbol, line);
-          result := str(chr(round(num2))) mult index1;
+          exprResult := str(chr(round(num2))) mult index1;
           write(log, "STRING$(" <& num1 <& ", " <& num2);
-          writeln(log, ") -> " <& literal(result));
+          writeln(log, ") -> " <& literal(exprResult));
         end if;
         expect(")", symbol, line);
       else
@@ -1846,8 +1846,8 @@ const func string: exec_str_primary (
       expect(")", symbol, line);
       index1 := round(num1);
       if index1 >= 0 then
-        result := " " mult index1;
-        writeln(log, "SPACE$(" <& num1 <& ") -> " <& literal(result));
+        exprResult := " " mult index1;
+        writeln(log, "SPACE$(" <& num1 <& ") -> " <& literal(exprResult));
       else
         error_marker;
         writeln(err, "REPEAT COUNT " <& num1 <& " NEGATIVE IN SPACE$.");
@@ -1857,35 +1857,35 @@ const func string: exec_str_primary (
       expect("(", symbol, line);
       num1 := exec_expr(symbol, line);
       expect(")", symbol, line);
-      result := str(chr(round(num1)));
-      writeln(log, "CHR$(" <& num1 <& ") -> " <& literal(result));
+      exprResult := str(chr(round(num1)));
+      writeln(log, "CHR$(" <& num1 <& ") -> " <& literal(exprResult));
     elsif symbol = "STR$" then
       symbol := get_symbol(line);
       expect("(", symbol, line);
       num1 := exec_expr(symbol, line);
       expect(")", symbol, line);
-      result := str(round(num1));
-      if result[1] <> '-' then
-        result := " " & result;
+      exprResult := str(round(num1));
+      if exprResult[1] <> '-' then
+        exprResult := " " & exprResult;
       end if;
-      if result[length(result) - 1 .. ] = ".0" then
-        result := result[ .. length(result) - 2];
+      if exprResult[length(exprResult) - 1 .. ] = ".0" then
+        exprResult := exprResult[ .. length(exprResult) - 2];
       end if;
-      writeln(log, "STR$(" <& num1 <& ") -> " <& literal(result));
+      writeln(log, "STR$(" <& num1 <& ") -> " <& literal(exprResult));
     elsif symbol = "LCASE$" then
       symbol := get_symbol(line);
       expect("(", symbol, line);
       stri1 := exec_str_expr(symbol, line, unused_name);
       expect(")", symbol, line);
-      result := lower(stri1);
-      writeln(log, "LCASE$(" <& literal(stri1) <& ") -> " <& literal(result));
+      exprResult := lower(stri1);
+      writeln(log, "LCASE$(" <& literal(stri1) <& ") -> " <& literal(exprResult));
     elsif symbol = "UCASE$" then
       symbol := get_symbol(line);
       expect("(", symbol, line);
       stri1 := exec_str_expr(symbol, line, unused_name);
       expect(")", symbol, line);
-      result := upper(stri1);
-      writeln(log, "UCASE$(" <& literal(stri1) <& ") -> " <& literal(result));
+      exprResult := upper(stri1);
+      writeln(log, "UCASE$(" <& literal(stri1) <& ") -> " <& literal(exprResult));
     elsif symbol = "LTRIM$" then
       symbol := get_symbol(line);
       expect("(", symbol, line);
@@ -1895,8 +1895,8 @@ const func string: exec_str_primary (
       while index1 <= length(stri1) and stri1[index1] = ' ' do
         incr(index1);
       end while;
-      result := stri1[index1 ..];
-      writeln(log, "LTRIM$(" <& literal(stri1) <& ") -> " <& literal(result));
+      exprResult := stri1[index1 ..];
+      writeln(log, "LTRIM$(" <& literal(stri1) <& ") -> " <& literal(exprResult));
     elsif symbol = "RTRIM$" then
       symbol := get_symbol(line);
       expect("(", symbol, line);
@@ -1906,8 +1906,8 @@ const func string: exec_str_primary (
       while index1 >= 1 and stri1[index1] = ' ' do
         decr(index1);
       end while;
-      result := stri1[.. index1];
-      writeln(log, "RTRIM$(" <& literal(stri1) <& ") -> " <& literal(result));
+      exprResult := stri1[.. index1];
+      writeln(log, "RTRIM$(" <& literal(stri1) <& ") -> " <& literal(exprResult));
     elsif symbol = "INKEY$" then
       symbol := get_symbol(line);
       write(log, "INKEY$ ");
@@ -1915,12 +1915,12 @@ const func string: exec_str_primary (
       flush(win);
       if keypressed(KEYBOARD) then
         current_key := getc(KEYBOARD);
-        result := extendedKeyCode(current_key);
+        exprResult := extendedKeyCode(current_key);
       else
-        result := "";
+        exprResult := "";
       end if;
-      write(log, "-> " <& literal(result));
-      if result <> "" and current_key >= '\0\' and
+      write(log, "-> " <& literal(exprResult));
+      if exprResult <> "" and current_key >= '\0\' and
           current_key <= chr(length(EVENT_DESCR)) then
         write(log, " (" <& EVENT_DESCR[ord(current_key)] <& ")");
       end if;
@@ -1941,8 +1941,8 @@ const func string: exec_str_primary (
           if aFile <> STD_NULL then
             write(log, "INPUT$(" <& index1 <& ", #" <& index2 <& ") ");
             flush(log);
-            result := gets(aFile, index1);
-            writeln(log, "-> " <& literal(result));
+            exprResult := gets(aFile, index1);
+            writeln(log, "-> " <& literal(exprResult));
           else
             error_marker;
             writeln(err, "FILE #" <& index2 <& " NOT OPEN IN INPUT$.");
@@ -1952,8 +1952,8 @@ const func string: exec_str_primary (
           write(log, "INPUT$(" <& index1 <& ") ");
           flush(log);
           flush(win);
-          result := gets(KEYBOARD, index1);
-          writeln(log, "-> " <& literal(result));
+          exprResult := gets(KEYBOARD, index1);
+          writeln(log, "-> " <& literal(exprResult));
         end if;
       else
         error_marker;
@@ -1968,46 +1968,46 @@ const func string: exec_str_primary (
       expect("(", symbol, line);
       num1 := exec_expr(symbol, line);
       expect(")", symbol, line);
-      result := hex_str(round(num1));
-      writeln(log, "HEX$(" <& num1 <& ") -> " <& literal(result));
+      exprResult := hex_str(round(num1));
+      writeln(log, "HEX$(" <& num1 <& ") -> " <& literal(exprResult));
     elsif symbol = "OCT$" then
       symbol := get_symbol(line);
       expect("(", symbol, line);
       num1 := exec_expr(symbol, line);
       expect(")", symbol, line);
-      result := oct_str(round(num1));
-      writeln(log, "OCT$(" <& num1 <& ") -> " <& literal(result));
+      exprResult := oct_str(round(num1));
+      writeln(log, "OCT$(" <& num1 <& ") -> " <& literal(exprResult));
     elsif symbol = "TIME$" then
       symbol := get_symbol(line);
-      result := strTime(truncToSecond(time(NOW)));
-      writeln(log, "TIME$ -> " <& literal(result));
+      exprResult := strTime(truncToSecond(time(NOW)));
+      writeln(log, "TIME$ -> " <& literal(exprResult));
     elsif symbol = "DATE$" then
       symbol := get_symbol(line);
-      result := str_mm_dd_yyyy(time(NOW), "-");
-      writeln(log, "DATE$ -> " <& literal(result));
+      exprResult := str_mm_dd_yyyy(time(NOW), "-");
+      writeln(log, "DATE$ -> " <& literal(exprResult));
     elsif symbol = "MKI$" then
       symbol := get_symbol(line);
       expect("(", symbol, line);
       index1 := round(exec_expr(symbol, line));
       expect(")", symbol, line);
-      result := str(chr(index1          mod 256)) &
-                str(chr(index1 mdiv 256 mod 256));
-      writeln(log, "MKI$(" <& index1 <& ") -> " <& literal(result));
+      exprResult := str(chr(index1          mod 256)) &
+                    str(chr(index1 mdiv 256 mod 256));
+      writeln(log, "MKI$(" <& index1 <& ") -> " <& literal(exprResult));
     elsif symbol = "MKL$" then
       symbol := get_symbol(line);
       expect("(", symbol, line);
       index1 := round(exec_expr(symbol, line));
       expect(")", symbol, line);
-      result := str(chr(index1               mod 256)) &
-                str(chr(index1 mdiv      256 mod 256)) &
-                str(chr(index1 mdiv    65536 mod 256)) &
-                str(chr(index1 mdiv 16777216 mod 256));
-      writeln(log, "MKL$(" <& index1 <& ") -> " <& literal(result));
+      exprResult := str(chr(index1               mod 256)) &
+                    str(chr(index1 mdiv      256 mod 256)) &
+                    str(chr(index1 mdiv    65536 mod 256)) &
+                    str(chr(index1 mdiv 16777216 mod 256));
+      writeln(log, "MKL$(" <& index1 <& ") -> " <& literal(exprResult));
     elsif symbol[1] >= 'A' and symbol[1] <= 'Z' then
       if symbol in def_fn_list then
         func_name := symbol;
-        result := exec_str_function(def_fn_list[func_name], symbol, line);
-        writeln(log, "function " <& func_name <& " is " <& literal(result));
+        exprResult := exec_str_function(def_fn_list[func_name], symbol, line);
+        writeln(log, "function " <& func_name <& " is " <& literal(exprResult));
       elsif symbol in subfunction then
         func_name := symbol;
         line_marker;
@@ -2034,8 +2034,8 @@ const func string: exec_str_primary (
         end while;
       else
         variable_name := get_name(symbol, line);
-        result := getStringVar(variable_name);
-        writeln(log, variable_name <& " is " <& literal(result));
+        exprResult := getStringVar(variable_name);
+        writeln(log, variable_name <& " is " <& literal(exprResult));
       end if;
     else
       error_marker;
@@ -2049,20 +2049,20 @@ const func string: exec_str_expr (
     inout string: line,
     inout string: variable_name) is func
   result
-    var string: result is "";
+    var string: exprResult is "";
   local
     var string: unused_name is "";
     var string: op is "";
     var string: stri is "";
   begin
-    result := exec_str_primary(symbol, line, variable_name);
+    exprResult := exec_str_primary(symbol, line, variable_name);
     while symbol = "+" do
       variable_name := "";
       op := symbol;
       symbol := get_symbol(line);
       stri := exec_str_primary(symbol, line, unused_name);
       if op = "+" then
-         result &:= stri;
+         exprResult &:= stri;
       end if;
     end while;
   end func;
@@ -2070,7 +2070,7 @@ const func string: exec_str_expr (
 
 const func float: exec_function (in defFnType: defFn, inout string: symbol, inout string: line) is func
   result
-    var float: result is 0.0;
+    var float: exprResult is 0.0;
   local
     var string: func_expr is "";
     var string: func_symbol is "";
@@ -2112,7 +2112,7 @@ const func float: exec_function (in defFnType: defFn, inout string: symbol, inou
     func_expr := defFn.expression;
     writeln(log, " = " <& func_expr);
     func_symbol := get_symbol(func_expr);
-    result := exec_expr(func_symbol, func_expr);
+    exprResult := exec_expr(func_symbol, func_expr);
     formal_params := defFn.params;
     formal_param := get_symbol(formal_params);
     while formal_param <> "" do
@@ -2130,7 +2130,7 @@ const func float: exec_function (in defFnType: defFn, inout string: symbol, inou
 
 const func float: exec_primary (inout string: symbol, inout string: line) is func
   result
-    var float: result is 0.0;
+    var float: exprResult is 0.0;
   local
     var string: variable_name is "";
     var string: unused_name is "";
@@ -2152,7 +2152,7 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
         symbol := symbol[.. pred(length(symbol))];
       end if;
       block
-        result := float parse symbol;
+        exprResult := float parse symbol;
       exception
         catch RANGE_ERROR:
           error_marker;
@@ -2164,30 +2164,30 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
       expect("(", symbol, line);
       num1 := exec_expr(symbol, line);
       expect(")", symbol, line);
-      result := floor(num1);
-      writeln(log, "INT(" <& num1 <& ") -> " <& result);
+      exprResult := floor(num1);
+      writeln(log, "INT(" <& num1 <& ") -> " <& exprResult);
     elsif symbol = "ABS" then
       symbol := get_symbol(line);
       expect("(", symbol, line);
       num1 := exec_expr(symbol, line);
       expect(")", symbol, line);
-      result := abs(num1);
-      writeln(log, "ABS(" <& num1 <& ") -> " <& result);
+      exprResult := abs(num1);
+      writeln(log, "ABS(" <& num1 <& ") -> " <& exprResult);
     elsif symbol = "LEN" then
       symbol := get_symbol(line);
       expect("(", symbol, line);
       stri1 := exec_str_expr(symbol, line, unused_name);
       expect(")", symbol, line);
-      result := flt(length(stri1));
-      writeln(log, "LEN(" <& literal(stri1) <& ") -> " <& result);
+      exprResult := flt(length(stri1));
+      writeln(log, "LEN(" <& literal(stri1) <& ") -> " <& exprResult);
     elsif symbol = "ASC" then
       symbol := get_symbol(line);
       expect("(", symbol, line);
       stri1 := exec_str_expr(symbol, line, unused_name);
       expect(")", symbol, line);
       if stri1 <> "" then
-        result := flt(ord(stri1[1]));
-        writeln(log, "ASC(" <& literal(stri1) <& ") -> " <& result);
+        exprResult := flt(ord(stri1[1]));
+        writeln(log, "ASC(" <& literal(stri1) <& ") -> " <& exprResult);
       else
         error_marker;
         writeln(err, "ASC(\"\") - ILLEGAL FUNCTION CALL");
@@ -2206,12 +2206,12 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
       stri2 := exec_str_expr(symbol, line, unused_name);
       expect(")", symbol, line);
       if index1 >= 1 then
-        result := flt(pos(stri1, stri2, index1));
+        exprResult := flt(pos(stri1, stri2, index1));
         write(log, "INSTR(");
         if index1 <> 1 then
           write(log, index1 <& ", ");
         end if;
-        writeln(log, literal(stri1) <& ", " <& literal(stri2) <& ") -> " <& result);
+        writeln(log, literal(stri1) <& ", " <& literal(stri2) <& ") -> " <& exprResult);
       else
         error_marker;
         write(err, "INSTR(" <& index1 <& ", " <& literal(stri1) <& ", ");
@@ -2234,29 +2234,29 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
       else
         lastRandomNumber := rand(0.0, 1.0);
       end if;
-      result := lastRandomNumber;
-      writeln(log, "RND -> " <& result);
+      exprResult := lastRandomNumber;
+      writeln(log, "RND -> " <& exprResult);
     elsif symbol = "SQR" then
       symbol := get_symbol(line);
       expect("(", symbol, line);
       num1 := exec_expr(symbol, line);
       expect(")", symbol, line);
-      result := sqrt(num1);
-      writeln(log, "SQR(" <& num1 <& ") -> " <& result);
+      exprResult := sqrt(num1);
+      writeln(log, "SQR(" <& num1 <& ") -> " <& exprResult);
     elsif symbol = "CINT" then
       symbol := get_symbol(line);
       expect("(", symbol, line);
       num1 := exec_expr(symbol, line);
       expect(")", symbol, line);
-      result := flt(round(num1));
-      writeln(log, "CINT(" <& num1 <& ") -> " <& result);
+      exprResult := flt(round(num1));
+      writeln(log, "CINT(" <& num1 <& ") -> " <& exprResult);
     elsif symbol = "FIX" then
       symbol := get_symbol(line);
       expect("(", symbol, line);
       num1 := exec_expr(symbol, line);
       expect(")", symbol, line);
-      result := flt(trunc(num1));
-      writeln(log, "FIX(" <& num1 <& ") -> " <& result);
+      exprResult := flt(trunc(num1));
+      writeln(log, "FIX(" <& num1 <& ") -> " <& exprResult);
     elsif symbol = "VAL" then
       symbol := get_symbol(line);
       expect("(", symbol, line);
@@ -2269,67 +2269,67 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
         stri2 := get_symbol(stri1);
       end if;
       block
-        result := float parse stri2;
+        exprResult := float parse stri2;
       exception
         catch RANGE_ERROR:
-          result := 0.0;
+          exprResult := 0.0;
       end block;
-      writeln(log, "VAL(" <& literal(stri2) <& ") -> " <& result);
+      writeln(log, "VAL(" <& literal(stri2) <& ") -> " <& exprResult);
     elsif symbol = "SGN" then
       symbol := get_symbol(line);
       expect("(", symbol, line);
       num1 := exec_expr(symbol, line);
       expect(")", symbol, line);
       if num1 > 0.0 then
-        result := 1.0;
+        exprResult := 1.0;
       elsif num1 = 0.0 then
-        result := 0.0;
+        exprResult := 0.0;
       else
-        result := -1.0;
+        exprResult := -1.0;
       end if;
-      writeln(log, "SGN(" <& num1 <& ") -> " <& result);
+      writeln(log, "SGN(" <& num1 <& ") -> " <& exprResult);
     elsif symbol = "SIN" then
       symbol := get_symbol(line);
       expect("(", symbol, line);
       num1 := exec_expr(symbol, line);
       expect(")", symbol, line);
-      result := sin(num1);
-      writeln(log, "SIN(" <& num1 <& ") -> " <& result);
+      exprResult := sin(num1);
+      writeln(log, "SIN(" <& num1 <& ") -> " <& exprResult);
     elsif symbol = "COS" then
       symbol := get_symbol(line);
       expect("(", symbol, line);
       num1 := exec_expr(symbol, line);
       expect(")", symbol, line);
-      result := cos(num1);
-      writeln(log, "COS(" <& num1 <& ") -> " <& result);
+      exprResult := cos(num1);
+      writeln(log, "COS(" <& num1 <& ") -> " <& exprResult);
     elsif symbol = "TAN" then
       symbol := get_symbol(line);
       expect("(", symbol, line);
       num1 := exec_expr(symbol, line);
       expect(")", symbol, line);
-      result := tan(num1);
-      writeln(log, "TAN(" <& num1 <& ") -> " <& result);
+      exprResult := tan(num1);
+      writeln(log, "TAN(" <& num1 <& ") -> " <& exprResult);
     elsif symbol = "ATN" then
       symbol := get_symbol(line);
       expect("(", symbol, line);
       num1 := exec_expr(symbol, line);
       expect(")", symbol, line);
-      result := atan(num1);
-      writeln(log, "ATN(" <& num1 <& ") -> " <& result);
+      exprResult := atan(num1);
+      writeln(log, "ATN(" <& num1 <& ") -> " <& exprResult);
     elsif symbol = "EXP" then
       symbol := get_symbol(line);
       expect("(", symbol, line);
       num1 := exec_expr(symbol, line);
       expect(")", symbol, line);
-      result := exp(num1);
-      writeln(log, "EXP(" <& num1 <& ") -> " <& result);
+      exprResult := exp(num1);
+      writeln(log, "EXP(" <& num1 <& ") -> " <& exprResult);
     elsif symbol = "LOG" then
       symbol := get_symbol(line);
       expect("(", symbol, line);
       num1 := exec_expr(symbol, line);
       expect(")", symbol, line);
-      result := log(num1);
-      writeln(log, "LOG(" <& num1 <& ") -> " <& result);
+      exprResult := log(num1);
+      writeln(log, "LOG(" <& num1 <& ") -> " <& exprResult);
     elsif symbol = "EOF" then
       symbol := get_symbol(line);
       expect("(", symbol, line);
@@ -2337,15 +2337,15 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
       expect(")", symbol, line);
       if getFileValue(index1) <> STD_NULL then
         if hasNext(getFileValue(index1)) then
-          result := 0.0;
+          exprResult := 0.0;
         else
-          result := -1.0;
+          exprResult := -1.0;
         end if;
-        writeln(log, "EOF(" <& index1 <& ") -> " <& result);
+        writeln(log, "EOF(" <& index1 <& ") -> " <& exprResult);
       else
         error_marker;
         writeln(err, "FILE #" <& index1 <& " NOT OPEN IN EOF.");
-        result := -1.0;
+        exprResult := -1.0;
       end if;
     elsif symbol = "LOF" then
       symbol := get_symbol(line);
@@ -2353,8 +2353,8 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
       index1 := round(exec_expr(symbol, line));
       expect(")", symbol, line);
       if getFileValue(index1) <> STD_NULL then
-        result := flt(length(getFileValue(index1)));
-        writeln(log, "LOF(" <& index1 <& ") -> " <& result);
+        exprResult := flt(length(getFileValue(index1)));
+        writeln(log, "LOF(" <& index1 <& ") -> " <& exprResult);
       else
         error_marker;
         writeln(err, "FILE #" <& index1 <& " NOT OPEN IN LOF.");
@@ -2364,38 +2364,38 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
       expect("(", symbol, line);
       num1 := exec_expr(symbol, line);
       expect(")", symbol, line);
-      result := flt(column(win));
-      writeln(log, "POS -> " <& result);
+      exprResult := flt(column(win));
+      writeln(log, "POS -> " <& exprResult);
     elsif symbol = "CSRLIN" then
       symbol := get_symbol(line);
-      result := flt(line(win));
-      writeln(log, "CSRLIN -> " <& result);
+      exprResult := flt(line(win));
+      writeln(log, "CSRLIN -> " <& exprResult);
     elsif symbol = "TIMER" then
       symbol := get_symbol(line);
       time_now := time(NOW);
       since_midnight := time_now - truncToDay(time_now);
-      result := flt(toSeconds(since_midnight)) +
-        flt(since_midnight.micro_second) / 1000000.0;
-      writeln(log, "TIMER -> " <& result);
+      exprResult := flt(toSeconds(since_midnight)) +
+          flt(since_midnight.micro_second) / 1000000.0;
+      writeln(log, "TIMER -> " <& exprResult);
     elsif symbol = "CDBL" then
       symbol := get_symbol(line);
       expect("(", symbol, line);
-      result := exec_expr(symbol, line);
+      exprResult := exec_expr(symbol, line);
       expect(")", symbol, line);
-      writeln(log, "CDBL(" <& result <& ") -> " <& result);
+      writeln(log, "CDBL(" <& exprResult <& ") -> " <& exprResult);
     elsif symbol = "CSNG" then
       symbol := get_symbol(line);
       expect("(", symbol, line);
-      result := exec_expr(symbol, line);
+      exprResult := exec_expr(symbol, line);
       expect(")", symbol, line);
-      writeln(log, "CSNG(" <& result <& ") -> " <& result);
+      writeln(log, "CSNG(" <& exprResult <& ") -> " <& exprResult);
     elsif symbol = "CLNG" then
       symbol := get_symbol(line);
       expect("(", symbol, line);
       num1 := exec_expr(symbol, line);
       expect(")", symbol, line);
-      result := flt(round(num1));
-      writeln(log, "CLNG(" <& num1 <& ") -> " <& result);
+      exprResult := flt(round(num1));
+      writeln(log, "CLNG(" <& num1 <& ") -> " <& exprResult);
     elsif symbol = "PEEK" then
       symbol := get_symbol(line);
       expect("(", symbol, line);
@@ -2403,27 +2403,27 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
       expect(")", symbol, line);
       case index1 of
         when {16}:    # Is it a bw or color screen?
-          result := 35.0;
+          exprResult := 35.0;
         when {1040}:  # Is it a bw or color screen?
-          result := 35.0;
+          exprResult := 35.0;
         when {16#6C}: # &H6C contains the low order tick count of 0-255
           time_now := time(NOW);
           since_midnight := time_now - truncToDay(time_now);
-          result := 18.2 * (flt(toSeconds(since_midnight)) +
-            flt(since_midnight.micro_second) / 1000000.0);
-          result -:= floor(result / 256.0) * 256.0;
-          index1 := round(result);
+          exprResult := 18.2 * (flt(toSeconds(since_midnight)) +
+              flt(since_midnight.micro_second) / 1000000.0);
+          exprResult -:= floor(exprResult / 256.0) * 256.0;
+          index1 := round(exprResult);
           if index1 < 0 then
-            result := 0.0;
+            exprResult := 0.0;
           elsif index1 > 255 then
-            result := 255.0;
+            exprResult := 255.0;
           else
-            result := flt(index1);
+            exprResult := flt(index1);
           end if;
         otherwise:
-          result := 0.0;
+          exprResult := 0.0;
       end case;
-      writeln(log, "**PEEK(" <& index1 <& ") -> " <& result);
+      writeln(log, "**PEEK(" <& index1 <& ") -> " <& exprResult);
     elsif symbol = "INP" then
       symbol := get_symbol(line);
       expect("(", symbol, line);
@@ -2433,16 +2433,16 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
         when {16#60}:  # &H60/96    Get keyboard scan code
           current_key := busy_getc(KEYBOARD);
           if current_key = KEY_NONE then
-            result := 128.0; # This is a key release code
+            exprResult := 128.0; # This is a key release code
           else
-            result := flt(keyboardScanCode(current_key));
+            exprResult := flt(keyboardScanCode(current_key));
           end if;
         when {16#3DA}: # &H3DA/986  Indicate vertical retrace
-          result := flt(rand(0, 1) * 8);
+          exprResult := flt(rand(0, 1) * 8);
         otherwise:
-          result := 0.0;
+          exprResult := 0.0;
       end case;
-      writeln(log, "**INP(" <& index1 <& ") -> " <& result);
+      writeln(log, "**INP(" <& index1 <& ") -> " <& exprResult);
     elsif symbol = "SCREEN" then
       symbol := get_symbol(line);
       expect("(", symbol, line);
@@ -2454,8 +2454,8 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
         num1 := exec_expr(symbol, line);
       end if;
       expect(")", symbol, line);
-      result := 32.0;
-      writeln(log, "**SCREEN(" <& index1 <& ", " <& index2 <& ") -> " <& result);
+      exprResult := 32.0;
+      writeln(log, "**SCREEN(" <& index1 <& ", " <& index2 <& ") -> " <& exprResult);
     elsif symbol = "POINT" then
       symbol := get_symbol(line);
       expect("(", symbol, line);
@@ -2464,33 +2464,33 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
         symbol := get_symbol(line);
         index2 := round(exec_expr(symbol, line));
         expect(")", symbol, line);
-        result := 0.0;
-        writeln(log, "**POINT(" <& index1 <& ", " <& index2 <& ") -> " <& result);
+        exprResult := 0.0;
+        writeln(log, "**POINT(" <& index1 <& ", " <& index2 <& ") -> " <& exprResult);
       else
         expect(")", symbol, line);
-        result := 0.0;
-        writeln(log, "**POINT(" <& index1 <& ") -> " <& result);
+        exprResult := 0.0;
+        writeln(log, "**POINT(" <& index1 <& ") -> " <& exprResult);
       end if;
     elsif symbol = "STRIG" then
       symbol := get_symbol(line);
       expect("(", symbol, line);
       index1 := round(exec_expr(symbol, line));
       expect(")", symbol, line);
-      result := 0.0;
+      exprResult := 0.0;
       current_key := busy_getc(KEYBOARD);
       case index1 of
         when {0, 1}:
           if current_key = KEY_MOUSE1 then
             current_key := getc(KEYBOARD);
-            result := -1.0;
+            exprResult := -1.0;
           end if;
         when {4, 5}:
           if current_key = KEY_MOUSE3 then
             current_key := getc(KEYBOARD);
-            result := -1.0;
+            exprResult := -1.0;
           end if;
       end case;
-      writeln(log, "**STRIG(" <& index1 <& ") -> " <& result);
+      writeln(log, "**STRIG(" <& index1 <& ") -> " <& exprResult);
     elsif symbol = "CVI" then
       symbol := get_symbol(line);
       expect("(", symbol, line);
@@ -2498,15 +2498,15 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
       expect(")", symbol, line);
       if length(stri1) >= 2 then
         if ord(stri1[2]) >= 128 then
-          result := flt((ord(stri1[2]) - 256) * 256 + ord(stri1[1]));
+          exprResult := flt((ord(stri1[2]) - 256) * 256 + ord(stri1[1]));
         else
-          result := flt(ord(stri1[2]) * 256 + ord(stri1[1]));
+          exprResult := flt(ord(stri1[2]) * 256 + ord(stri1[1]));
         end if;
-        writeln(log, "CVI(" <& literal(stri1) <& ") -> " <& result);
+        writeln(log, "CVI(" <& literal(stri1) <& ") -> " <& exprResult);
       else
         error_marker;
         writeln(err, "CVI(" <& literal(stri1) <& ") IS ILLEGAL.");
-        result := 0.0;
+        exprResult := 0.0;
       end if;
     elsif symbol = "CVL" then
       symbol := get_symbol(line);
@@ -2515,17 +2515,17 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
       expect(")", symbol, line);
       if length(stri1) >= 4 then
         if ord(stri1[4]) >= 128 then
-          result := flt((((ord(stri1[4]) - 256)  * 256 + ord(stri1[3])) * 256 +
+          exprResult := flt((((ord(stri1[4]) - 256)  * 256 + ord(stri1[3])) * 256 +
               ord(stri1[2])) * 256 + ord(stri1[1]));
         else
-          result := flt(((ord(stri1[4]) * 256 + ord(stri1[3])) * 256 +
+          exprResult := flt(((ord(stri1[4]) * 256 + ord(stri1[3])) * 256 +
               ord(stri1[2])) * 256 + ord(stri1[1]));
         end if;
-        writeln(log, "CVL(" <& literal(stri1) <& ") -> " <& result);
+        writeln(log, "CVL(" <& literal(stri1) <& ") -> " <& exprResult);
       else
         error_marker;
         writeln(err, "CVL(" <& literal(stri1) <& ") IS ILLEGAL.");
-        result := 0.0;
+        exprResult := 0.0;
       end if;
     elsif symbol = "LBOUND" then
       symbol := get_symbol(line);
@@ -2539,8 +2539,8 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
         index1 := 1;
       end if;
       expect(")", symbol, line);
-      result := flt(exec_lbound(variable_name, index1));
-      writeln(log, "LBOUND(" <& variable_name <& ", " <& index1 <& ") -> " <& result);
+      exprResult := flt(exec_lbound(variable_name, index1));
+      writeln(log, "LBOUND(" <& variable_name <& ", " <& index1 <& ") -> " <& exprResult);
     elsif symbol = "UBOUND" then
       symbol := get_symbol(line);
       expect("(", symbol, line);
@@ -2553,54 +2553,54 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
         index1 := 1;
       end if;
       expect(")", symbol, line);
-      result := flt(exec_ubound(variable_name, index1));
-      writeln(log, "UBOUND(" <& variable_name <& ", " <& index1 <& ") -> " <& result);
+      exprResult := flt(exec_ubound(variable_name, index1));
+      writeln(log, "UBOUND(" <& variable_name <& ", " <& index1 <& ") -> " <& exprResult);
     elsif symbol = "FREEFILE" then
       symbol := get_symbol(line);
       index1 := 1;
       while getFileValue(index1) <> STD_NULL do
         incr(index1);
       end while;
-      result := flt(index1);
-      writeln(log, "FREEFILE -> " <& result);
+      exprResult := flt(index1);
+      writeln(log, "FREEFILE -> " <& exprResult);
     elsif symbol = "VARPTR" then
       symbol := get_symbol(line);
       expect("(", symbol, line);
       variable_name := get_name(symbol, line);
       expect(")", symbol, line);
-      result := flt(varptr(variable_name));
-      writeln(log, "VARPTR(" <& variable_name <& ") -> " <& result);
+      exprResult := flt(varptr(variable_name));
+      writeln(log, "VARPTR(" <& variable_name <& ") -> " <& exprResult);
     elsif symbol = "ERL" then
       symbol := get_symbol(line);
       if error_linenum <> "" and error_linenum[1] in digit_char then
-        result := flt(integer parse error_linenum);
+        exprResult := flt(integer parse error_linenum);
       else
-        result := 0.0;
+        exprResult := 0.0;
       end if;
-      writeln(log, "ERL -> " <& result);
+      writeln(log, "ERL -> " <& exprResult);
     elsif symbol = "ERR" then
       symbol := get_symbol(line);
-      result := flt(error_code);
-      writeln(log, "ERR -> " <& result);
+      exprResult := flt(error_code);
+      writeln(log, "ERR -> " <& exprResult);
     elsif symbol = "FN" then
       variable_name := get_name(symbol, line);
       if variable_name <> "FN" or ("FN" & symbol) not in def_fn_list then
-        result := getNumericVar(variable_name);
-        writeln(log, variable_name <& " is " <& result);
+        exprResult := getNumericVar(variable_name);
+        writeln(log, variable_name <& " is " <& exprResult);
       else
         func_name := "FN" & symbol;
-        result := exec_function(def_fn_list[func_name], symbol, line);
-        writeln(log, "function " <& func_name <& " is " <& result);
+        exprResult := exec_function(def_fn_list[func_name], symbol, line);
+        writeln(log, "function " <& func_name <& " is " <& exprResult);
       end if;
     elsif symbol = "(" then
       symbol := get_symbol(line);
-      result := exec_expr(symbol, line);
+      exprResult := exec_expr(symbol, line);
       expect(")", symbol, line);
     elsif symbol[1] >= 'A' and symbol[1] <= 'Z' then
       if symbol in def_fn_list then
         func_name := symbol;
-        result := exec_function(def_fn_list[func_name], symbol, line);
-        writeln(log, "function " <& func_name <& " is " <& result);
+        exprResult := exec_function(def_fn_list[func_name], symbol, line);
+        writeln(log, "function " <& func_name <& " is " <& exprResult);
       elsif symbol in subfunction then
         func_name := symbol;
         line_marker;
@@ -2627,8 +2627,8 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
         end while;
       else
         variable_name := get_name(symbol, line);
-        result := getNumericVar(variable_name);
-        writeln(log, variable_name <& " is " <& result);
+        exprResult := getNumericVar(variable_name);
+        writeln(log, variable_name <& " is " <& exprResult);
       end if;
     elsif symbol = "%" then
       variable_name := "";
@@ -2641,8 +2641,8 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
         end if;
       until symbol <> "_";
       append_index(variable_name, symbol, line);
-      result := getNumericVar(variable_name);
-      writeln(log, variable_name <& " is " <& result);
+      exprResult := getNumericVar(variable_name);
+      writeln(log, variable_name <& " is " <& exprResult);
     else
       error_marker;
       writeln(err, "UNEXPECTED SYMBOL " <& literal(symbol) <& ".");
@@ -2652,18 +2652,18 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
 
 const func float: exec_exponentation (inout string: symbol, inout string: line) is func
   result
-    var float: result is 0.0;
+    var float: exprResult is 0.0;
   local
     var float: num is 0.0;
   begin
-    result := exec_primary(symbol, line);
+    exprResult := exec_primary(symbol, line);
     if symbol = "^" then
       symbol := get_symbol(line);
       num := exec_primary(symbol, line);
       if flt(round(num)) = num then
-        result := result ** round(num);
+        exprResult := exprResult ** round(num);
       else
-        result := result ** num;
+        exprResult := exprResult ** num;
       end if;
     end if;
   end func;
@@ -2671,45 +2671,45 @@ const func float: exec_exponentation (inout string: symbol, inout string: line) 
 
 const func float: exec_negation (inout string: symbol, inout string: line) is func
   result
-    var float: result is 0.0;
+    var float: exprResult is 0.0;
   begin
     if symbol = "-" then
       symbol := get_symbol(line);
-      result := -exec_exponentation(symbol, line);
+      exprResult := -exec_exponentation(symbol, line);
     elsif symbol = "+" then
       symbol := get_symbol(line);
-      result := exec_exponentation(symbol, line);
+      exprResult := exec_exponentation(symbol, line);
     else
-      result := exec_exponentation(symbol, line);
+      exprResult := exec_exponentation(symbol, line);
     end if;
   end func;
 
 
 const func float: exec_multdiv (inout string: symbol, inout string: line) is func
   result
-    var float: result is 0.0;
+    var float: exprResult is 0.0;
   local
     var string: op is "";
     var float: num is 0.0;
   begin
-    result := exec_negation(symbol, line);
+    exprResult := exec_negation(symbol, line);
     while symbol = "*" or symbol = "/" or symbol = "\\" or symbol = "MOD" do
       op := symbol;
       symbol := get_symbol(line);
       num := exec_negation(symbol, line);
       if op = "*" then
-        result := result * num;
+        exprResult := exprResult * num;
       else
         block
           if op = "/" then
-            result := result / num;
-            if abs(result) = Infinity then
+            exprResult := exprResult / num;
+            if abs(exprResult) = Infinity then
               raise NUMERIC_ERROR;
             end if;
           elsif op = "\\" then
-            result := flt(round(result) div round(num));
+            exprResult := flt(round(exprResult) div round(num));
           elsif op = "MOD" then
-            result := flt(round(result) rem round(num));
+            exprResult := flt(round(exprResult) rem round(num));
           end if;
         exception
           catch NUMERIC_ERROR:
@@ -2724,9 +2724,9 @@ const func float: exec_multdiv (inout string: symbol, inout string: line) is fun
               line := "";
             else
               error_marker;
-              writeln(err, "DIVISION BY ZERO (" <& result <& op <& num <& ")");
+              writeln(err, "DIVISION BY ZERO (" <& exprResult <& op <& num <& ")");
             end if;
-            result := 0.0;
+            exprResult := 0.0;
         end block;
       end if;
     end while;
@@ -2735,20 +2735,20 @@ const func float: exec_multdiv (inout string: symbol, inout string: line) is fun
 
 const func float: exec_addsub (inout string: symbol, inout string: line) is func
   result
-    var float: result is 0.0;
+    var float: exprResult is 0.0;
   local
     var string: op is "";
     var float: num is 0.0;
   begin
-    result := exec_multdiv(symbol, line);
+    exprResult := exec_multdiv(symbol, line);
     while symbol = "+" or symbol = "-" do
       op := symbol;
       symbol := get_symbol(line);
       num := exec_multdiv(symbol, line);
       if op = "+" then
-         result := result + num;
+         exprResult := exprResult + num;
       elsif op = "-" then
-         result := result - num;
+         exprResult := exprResult - num;
       end if;
     end while;
   end func;
@@ -2756,7 +2756,7 @@ const func float: exec_addsub (inout string: symbol, inout string: line) is func
 
 const func float: exec_comparison (inout string: symbol, inout string: line) is func
   result
-    var float: result is 0.0;
+    var float: exprResult is 0.0;
   local
     var string: unused_name is "";
     var string: op is "";
@@ -2773,24 +2773,24 @@ const func float: exec_comparison (inout string: symbol, inout string: line) is 
         symbol := get_symbol(line);
         stri2 := exec_str_expr(symbol, line, unused_name);
         if op = "=" then
-           result := flt(-ord(stri1 = stri2));
+           exprResult := flt(-ord(stri1 = stri2));
         elsif op = "<>" then
-           result := flt(-ord(stri1 <> stri2));
+           exprResult := flt(-ord(stri1 <> stri2));
         elsif op = "<" then
-           result := flt(-ord(stri1 < stri2));
+           exprResult := flt(-ord(stri1 < stri2));
         elsif op = ">" then
-           result := flt(-ord(stri1 > stri2));
+           exprResult := flt(-ord(stri1 > stri2));
         elsif op = "<=" then
-           result := flt(-ord(stri1 <= stri2));
+           exprResult := flt(-ord(stri1 <= stri2));
         elsif op = ">=" then
-           result := flt(-ord(stri1 >= stri2));
+           exprResult := flt(-ord(stri1 >= stri2));
         end if;
       else
         error_marker;
         writeln(err, "COMPARISON EXPECTED - FOUND " <& literal(symbol) <& ".");
       end if;
     else
-      result := exec_addsub(symbol, line);
+      exprResult := exec_addsub(symbol, line);
       if symbol = "=" or symbol = "<>" or
           symbol = "<" or symbol = ">" or
           symbol = "<=" or symbol = ">=" then
@@ -2798,17 +2798,17 @@ const func float: exec_comparison (inout string: symbol, inout string: line) is 
         symbol := get_symbol(line);
         num := exec_addsub(symbol, line);
         if op = "=" then
-           result := flt(-ord(result = num));
+           exprResult := flt(-ord(exprResult = num));
         elsif op = "<>" then
-           result := flt(-ord(result <> num));
+           exprResult := flt(-ord(exprResult <> num));
         elsif op = "<" then
-           result := flt(-ord(result < num));
+           exprResult := flt(-ord(exprResult < num));
         elsif op = ">" then
-           result := flt(-ord(result > num));
+           exprResult := flt(-ord(exprResult > num));
         elsif op = "<=" then
-           result := flt(-ord(result <= num));
+           exprResult := flt(-ord(exprResult <= num));
         elsif op = ">=" then
-           result := flt(-ord(result >= num));
+           exprResult := flt(-ord(exprResult >= num));
         end if;
       end if;
     end if;
@@ -2817,29 +2817,29 @@ const func float: exec_comparison (inout string: symbol, inout string: line) is 
 
 const func float: exec_cond_not (inout string: symbol, inout string: line) is func
   result
-    var float: result is 0.0;
+    var float: exprResult is 0.0;
   local
     var float: num is 0.0;
   begin
     if symbol = "NOT" then
       symbol := get_symbol(line);
       num := exec_comparison(symbol, line);
-      result := flt(-ord(num = 0.0));
+      exprResult := flt(-ord(num = 0.0));
     else
-      result := exec_comparison(symbol, line);
+      exprResult := exec_comparison(symbol, line);
     end if;
   end func;
 
 
 const func integer: binary_and (in var integer: number1, in var integer: number2) is func
   result
-    var integer: result is 0;
+    var integer: exprResult is 0;
   local
     var integer: count is 0;
   begin
     for count range 0 to 15 do
       if odd(number1) and odd(number2) then
-        result +:= 2 ** count;
+        exprResult +:= 2 ** count;
       end if;
       number1 := number1 div 2;
       number2 := number2 div 2;
@@ -2849,21 +2849,21 @@ const func integer: binary_and (in var integer: number1, in var integer: number2
 
 const func float: exec_cond_and (inout string: symbol, inout string: line) is func
   result
-    var float: result is 0.0;
+    var float: exprResult is 0.0;
   local
     var integer: number1 is 0;
     var integer: number2 is 0;
   begin
-    result := exec_cond_not(symbol, line);
+    exprResult := exec_cond_not(symbol, line);
     if startsWith(symbol, "AND") then
       line := symbol[4 ..] & line;
       symbol := "AND";
     end if;
     while symbol = "AND" do
-      number1 := round(result);
+      number1 := round(exprResult);
       symbol := get_symbol(line);
       number2 := round(exec_cond_not(symbol, line));
-      result := flt(binary_and(number1, number2));
+      exprResult := flt(binary_and(number1, number2));
       if startsWith(symbol, "AND") then
         line := symbol[4 ..] & line;
         symbol := "AND";
@@ -2874,13 +2874,13 @@ const func float: exec_cond_and (inout string: symbol, inout string: line) is fu
 
 const func integer: binary_or (in var integer: number1, in var integer: number2) is func
   result
-    var integer: result is 0;
+    var integer: exprResult is 0;
   local
     var integer: count is 0;
   begin
     for count range 0 to 15 do
       if odd(number1) or odd(number2) then
-        result +:= 2 ** count;
+        exprResult +:= 2 ** count;
       end if;
       number1 := number1 div 2;
       number2 := number2 div 2;
@@ -2890,13 +2890,13 @@ const func integer: binary_or (in var integer: number1, in var integer: number2)
 
 const func integer: binary_xor (in var integer: number1, in var integer: number2) is func
   result
-    var integer: result is 0;
+    var integer: exprResult is 0;
   local
     var integer: count is 0;
   begin
     for count range 0 to 15 do
       if odd(number1) <> odd(number2) then
-        result +:= 2 ** count;
+        exprResult +:= 2 ** count;
       end if;
       number1 := number1 div 2;
       number2 := number2 div 2;
@@ -2906,26 +2906,26 @@ const func integer: binary_xor (in var integer: number1, in var integer: number2
 
 const func float: exec_cond_or (inout string: symbol, inout string: line) is func
   result
-    var float: result is 0.0;
+    var float: exprResult is 0.0;
   local
     var string: op is "";
     var integer: number1 is 0;
     var integer: number2 is 0;
   begin
-    result := exec_cond_and(symbol, line);
+    exprResult := exec_cond_and(symbol, line);
     if startsWith(symbol, "OR") then
       line := symbol[3 ..] & line;
       symbol := "OR";
     end if;
     while symbol = "OR" or symbol = "XOR" do
-      number1 := round(result);
+      number1 := round(exprResult);
       op := symbol;
       symbol := get_symbol(line);
       number2 := round(exec_cond_and(symbol, line));
       if op = "OR" then
-        result := flt(binary_or(number1, number2));
+        exprResult := flt(binary_or(number1, number2));
       elsif op = "XOR" then
-        result := flt(binary_xor(number1, number2));
+        exprResult := flt(binary_xor(number1, number2));
       end if;
       if startsWith(symbol, "OR") then
         line := symbol[3 ..] & line;
@@ -2937,13 +2937,13 @@ const func float: exec_cond_or (inout string: symbol, inout string: line) is fun
 
 const func integer: binary_eqv (in var integer: number1, in var integer: number2) is func
   result
-    var integer: result is 0;
+    var integer: exprResult is 0;
   local
     var integer: count is 0;
   begin
     for count range 0 to 15 do
       if odd(number1) = odd(number2) then
-        result +:= 2 ** count;
+        exprResult +:= 2 ** count;
       end if;
       number1 := number1 div 2;
       number2 := number2 div 2;
@@ -2953,30 +2953,30 @@ const func integer: binary_eqv (in var integer: number1, in var integer: number2
 
 const func float: exec_cond_eqv (inout string: symbol, inout string: line) is func
   result
-    var float: result is 0.0;
+    var float: exprResult is 0.0;
   local
     var integer: number1 is 0;
     var integer: number2 is 0;
   begin
-    result := exec_cond_or(symbol, line);
+    exprResult := exec_cond_or(symbol, line);
     while symbol = "EQV" do
-      number1 := round(result);
+      number1 := round(exprResult);
       symbol := get_symbol(line);
       number2 := round(exec_cond_or(symbol, line));
-      result := flt(binary_eqv(number1, number2));
+      exprResult := flt(binary_eqv(number1, number2));
     end while;
   end func;
 
 
 const func integer: binary_imp (in var integer: number1, in var integer: number2) is func
   result
-    var integer: result is 0;
+    var integer: exprResult is 0;
   local
     var integer: count is 0;
   begin
     for count range 0 to 15 do
       if odd(number1) <= odd(number2) then
-        result +:= 2 ** count;
+        exprResult +:= 2 ** count;
       end if;
       number1 := number1 div 2;
       number2 := number2 div 2;
@@ -2986,32 +2986,32 @@ const func integer: binary_imp (in var integer: number1, in var integer: number2
 
 const func float: exec_expr (inout string: symbol, inout string: line) is func
   result
-    var float: result is 0.0;
+    var float: exprResult is 0.0;
   local
     var integer: number1 is 0;
     var integer: number2 is 0;
   begin
-    result := exec_cond_eqv(symbol, line);
+    exprResult := exec_cond_eqv(symbol, line);
     while symbol = "IMP" do
-      number1 := round(result);
+      number1 := round(exprResult);
       symbol := get_symbol(line);
       number2 := round(exec_cond_eqv(symbol, line));
-      result := flt(binary_imp(number1, number2));
+      exprResult := flt(binary_imp(number1, number2));
     end while;
   end func;
 
 
 const func string: getNameList (inout string: symbol, inout string: line) is func
   result
-    var string: result is "";
+    var string: nameList is "";
   begin
-    result &:= symbol;
+    nameList &:= symbol;
     symbol := get_symbol(line);
     while symbol = "," do
       symbol := get_symbol(line);
       if not endOfStatement(symbol) then
-        result &:= ",";
-        result &:= symbol;
+        nameList &:= ",";
+        nameList &:= symbol;
         symbol := get_symbol(line);
       end if;
     end while;
@@ -5454,7 +5454,7 @@ const proc: exec_line_input (inout string: symbol, inout string: line) is func
 
 const func file: basicOpen (in var string: filePath, in string: access) is func
   result
-    var file: result is STD_NULL;
+    var file: fileOpened is STD_NULL;
   local
     var array string: pathElems is 0 times "";
     var integer: startElem is 1;
@@ -5512,7 +5512,7 @@ const func file: basicOpen (in var string: filePath, in string: access) is func
       path_okay := FALSE;
     end if;
     if path_okay then
-      result := open(path, access);
+      fileOpened := open(path, access);
     end if;
   end func;
 
@@ -6212,7 +6212,7 @@ const proc: exec_type (inout string: symbol, inout string: line) is func
 
 const func string: readVarNameFromBloadFile (inout file: aFile, inout integer: byteIndex) is func
   result
-    var string: result is "";
+    var string: bloadName is "";
   local
     var integer: twoTimes is 0;
     var integer: number is 0;
@@ -6227,7 +6227,7 @@ const func string: readVarNameFromBloadFile (inout file: aFile, inout integer: b
         if ch >= '\128\' then
           ch := chr(ord(ch) - 128);
         end if;
-        result &:= str(ch);
+        bloadName &:= str(ch);
       end for;
     end for;
   end func;
@@ -7270,7 +7270,7 @@ const func boolean: load_prog (in string: name) is forward;
 
 const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
   result
-    var boolean: result is TRUE;
+    var boolean: running is TRUE;
   local
     var string: variable_name is "";
     var string: variable2_name is "";
@@ -7496,7 +7496,7 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
           line_marker;
           writeln(log, "END");
           symbol := "";
-          result := FALSE;
+          running := FALSE;
         else
           error_marker;
           writeln(err, "UNEXPECTED SYMBOL AFTER END " <& literal(symbol));
@@ -7995,7 +7995,7 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
         line_marker;
         writeln(log, symbol);
         symbol := "";
-        result := FALSE;
+        running := FALSE;
       elsif symbol = "SWAP" then
         symbol := get_symbol(line);
         if isStringVar(symbol) then
@@ -8419,7 +8419,7 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
       until endOfStatement(symbol);
       if symbol = ":" then
         symbol := get_symbol(line);
-        result := exec_cmd(symbol, line);
+        running := exec_cmd(symbol, line);
       end if;
     end if;
   end func;
@@ -8734,7 +8734,7 @@ const proc: load_prog (in string: name, inout file: infile) is func
 
 const func boolean: chain_prog (in string: name) is func
   result
-    var boolean: result is FALSE;
+    var boolean: successful is FALSE;
   local
     var file: infile is STD_NULL;
   begin
@@ -8755,14 +8755,14 @@ const func boolean: chain_prog (in string: name) is func
       load_prog(name, infile);
       prepare_loops;
       close(infile);
-      result := TRUE;
+      successful := TRUE;
     end if;
   end func;
 
 
 const func boolean: load_prog (in string: name) is func
   result
-    var boolean: result is FALSE;
+    var boolean: successful is FALSE;
   local
     var file: infile is STD_NULL;
   begin
@@ -8775,7 +8775,7 @@ const func boolean: load_prog (in string: name) is func
     if infile <> STD_NULL then
       load_prog(name, infile);
       close(infile);
-      result := TRUE;
+      successful := TRUE;
     end if;
   end func;
 

@@ -2061,11 +2061,11 @@ const proc: check_negative_zero is func
 
 const func float: checkDivAssign (inout float: floatVar, in float: initial, ref proc: divAssign) is func
   result
-    var float: result is 0.0;
+    var float: valueAfterDivAssign is 0.0;
   begin
     floatVar := initial;
     divAssign;
-    result := floatVar;
+    valueAfterDivAssign := floatVar;
   end func;
 
 

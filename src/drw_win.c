@@ -700,6 +700,10 @@ booltype gkbKeyPressed ()
             /* printf("x translated message=%d %lu, %d %u\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
             DispatchMessage(&msg);
             /* printf("x after DispatchMessage\n"); */
+            if (msg.wParam == HTCLOSE && !IsWindow(msg.hwnd)) {
+              /* printf("HTCLOSE\n"); */
+              exit(1);
+            } /* if */
           } /* if */
           msg_present = PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE);
           break;
@@ -1560,19 +1564,30 @@ wintype actual_window;
 
 #ifdef ANSI_C
 
-wintype drwImage (const_wintype actual_window, inttype *image_data,
-    inttype width, inttype height)
+wintype drwImage (inttype *image_data, inttype width, inttype height)
 #else
 
-wintype drwImage (actual_window, image_data, width, height)
-wintype actual_window;
+wintype drwImage (image_data, width, height)
 inttype *image_data;
 inttype width;
 inttype height;
 #endif
 
-  { /* drwImage */
-    return (wintype) NULL;
+  {
+    inttype xPos;
+    inttype yPos;
+    wintype result;
+
+  /* drwImage */
+    result = drwNewPixmap(width, height);
+    if (result != NULL) {
+      for (yPos = 0; yPos < height; yPos++) {
+        for (xPos = 0; xPos < width; xPos++) {
+          drwPPoint(result, xPos, yPos, image_data[yPos * width + xPos]);
+        } /* for */
+      } /* for */
+    } /* if */
+    return result;
   } /* drwImage */
 
 

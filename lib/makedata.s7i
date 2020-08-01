@@ -59,34 +59,34 @@ const type: makeDataType is new struct
 
 const func boolean: wildcard_match (in string: main_stri, in string: pattern) is func
   result
-    var boolean: result is FALSE;
+    var boolean: doesMatch is FALSE;
   local
     var integer: main_length is 0;
     var integer: main_index is 1;
     var string: pattern_tail is "";
   begin
     if pattern = "" then
-      result := main_stri = "";
+      doesMatch := main_stri = "";
     else
       case pattern[1] of
         when {'*'}:
           if pattern = "*" then
-            result := TRUE;
+            doesMatch := TRUE;
           else
             main_length := length(main_stri);
             pattern_tail := pattern[2 .. ];
-            while main_index <= main_length and not result do
-              result := wildcard_match(main_stri[main_index .. ], pattern_tail);
+            while main_index <= main_length and not doesMatch do
+              doesMatch := wildcard_match(main_stri[main_index .. ], pattern_tail);
               incr(main_index);
             end while;
           end if;
         when {'?'}:
           if main_stri <> "" then
-            result := wildcard_match(main_stri[2 .. ], pattern[2 .. ]);
+            doesMatch := wildcard_match(main_stri[2 .. ], pattern[2 .. ]);
           end if;
         otherwise:
           if main_stri <> "" and main_stri[1] = pattern[1] then
-            result := wildcard_match(main_stri[2 .. ], pattern[2 .. ]);
+            doesMatch := wildcard_match(main_stri[2 .. ], pattern[2 .. ]);
           end if;
       end case;
     end if;
@@ -95,7 +95,7 @@ const func boolean: wildcard_match (in string: main_stri, in string: pattern) is
 
 const func array string: findMatchingFiles (in string: pattern) is func
   result
-    var array string: result is 0 times "";
+    var array string: matchingFiles is 0 times "";
   local
     var integer: slashPos is 0;
     var string: path is "";
@@ -115,7 +115,7 @@ const func array string: findMatchingFiles (in string: pattern) is func
     end if;
     for fileName range dirContent do
       if wildcard_match(fileName, filePattern) then
-        result &:= [] (path & fileName);
+        matchingFiles &:= [] (path & fileName);
       end if;
     end for;
   end func;

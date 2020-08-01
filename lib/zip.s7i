@@ -32,18 +32,18 @@ include "binary.s7i";
 
 const func integer: rpos (inout file: inFile, in string: stri) is func
   result
-    var integer: result is 0;
+    var integer: posFound is 0;
   local
     var integer: pos is 0;
     var string: test is "";
   begin
     pos := length(inFile) - length(stri) + 1;
-    while pos > 0 and result = 0 do
+    while pos > 0 and posFound = 0 do
       seek(inFile, pos);
       test := gets(inFile, length(stri));
       # writeln(literal(test));
       if test = stri then
-        result := pos;
+        posFound := pos;
       end if;
       decr(pos);
     end while;
@@ -69,22 +69,22 @@ const type: local_file_header is new struct
 
 const func local_file_header: get_local_header (inout file: inFile) is func
   result
-    var local_file_header: result is local_file_header.value;
+    var local_file_header: header is local_file_header.value;
   begin
-    result.signature := gets(inFile, 4);
-    if result.signature = "PK\3\\4\" then
-      result.version_needed_to_extract   := get_uint16_le(inFile);
-      result.general_purpose_bit_flag    := get_uint16_le(inFile);
-      result.compression_method          := get_uint16_le(inFile);
-      result.last_mod_file_time          := get_uint16_le(inFile);
-      result.last_mod_file_date          := get_uint16_le(inFile);
-      result.crc_32                      := get_uint32_le(inFile);
-      result.compressed_size             := get_uint32_le(inFile);
-      result.uncompressed_size           := get_uint32_le(inFile);
-      result.file_name_length            := get_uint16_le(inFile);
-      result.extra_field_length          := get_uint16_le(inFile);
-      result.file_name                   := gets(inFile, result.file_name_length);
-      result.extra_field                 := gets(inFile, result.extra_field_length);
+    header.signature := gets(inFile, 4);
+    if header.signature = "PK\3\\4\" then
+      header.version_needed_to_extract   := get_uint16_le(inFile);
+      header.general_purpose_bit_flag    := get_uint16_le(inFile);
+      header.compression_method          := get_uint16_le(inFile);
+      header.last_mod_file_time          := get_uint16_le(inFile);
+      header.last_mod_file_date          := get_uint16_le(inFile);
+      header.crc_32                      := get_uint32_le(inFile);
+      header.compressed_size             := get_uint32_le(inFile);
+      header.uncompressed_size           := get_uint32_le(inFile);
+      header.file_name_length            := get_uint16_le(inFile);
+      header.extra_field_length          := get_uint16_le(inFile);
+      header.file_name                   := gets(inFile, header.file_name_length);
+      header.extra_field                 := gets(inFile, header.extra_field_length);
     end if;
   end func;
 
@@ -122,18 +122,18 @@ const type: end_of_central_directory is new struct
 
 const func end_of_central_directory: get_end_of_central_directory (inout file: inFile) is func
   result
-    var end_of_central_directory: result is end_of_central_directory.value;
+    var end_of_central_directory: endOfCentDir is end_of_central_directory.value;
   begin
-    result.signature := gets(inFile, 4);
-    if result.signature = "PK\5\\6\" then
-      result.number_of_this_disk                          := get_uint16_le(inFile);
-      result.disk_number_with_start_of_central_directory  := get_uint16_le(inFile);
-      result.entries_in_central_directory_on_this_disk    := get_uint16_le(inFile);
-      result.entries_in_central_directory                 := get_uint16_le(inFile);
-      result.size_of_central_directory                    := get_uint32_le(inFile);
-      result.offset_of_start_of_central_directory         := get_uint32_le(inFile);
-      result.file_comment_length                          := get_uint16_le(inFile);
-      result.file_comment                                 := gets(inFile, result.file_comment_length);
+    endOfCentDir.signature := gets(inFile, 4);
+    if endOfCentDir.signature = "PK\5\\6\" then
+      endOfCentDir.number_of_this_disk                          := get_uint16_le(inFile);
+      endOfCentDir.disk_number_with_start_of_central_directory  := get_uint16_le(inFile);
+      endOfCentDir.entries_in_central_directory_on_this_disk    := get_uint16_le(inFile);
+      endOfCentDir.entries_in_central_directory                 := get_uint16_le(inFile);
+      endOfCentDir.size_of_central_directory                    := get_uint32_le(inFile);
+      endOfCentDir.offset_of_start_of_central_directory         := get_uint32_le(inFile);
+      endOfCentDir.file_comment_length                          := get_uint16_le(inFile);
+      endOfCentDir.file_comment                                 := gets(inFile, endOfCentDir.file_comment_length);
     end if;
   end func;
 
@@ -154,14 +154,14 @@ const proc: write (in end_of_central_directory: endOfCentDir) is func
 
 const func end_of_central_directory: read_end_of_central_directory (inout file: inFile) is func
   result
-    var end_of_central_directory: result is end_of_central_directory.value;
+    var end_of_central_directory: endOfCentDir is end_of_central_directory.value;
   local
     var integer: pos is 0;
   begin
     pos := rpos(inFile, "PK\5\\6\");
     if pos <> 0 then
       seek(inFile, pos);
-      result := get_end_of_central_directory(inFile);
+      endOfCentDir := get_end_of_central_directory(inFile);
     end if;
   end func;
 
@@ -192,29 +192,29 @@ const type: central_file_header is new struct
 
 const func central_file_header: get_central_header (inout file: inFile) is func
   result
-    var central_file_header: result is central_file_header.value;
+    var central_file_header: centralHeader is central_file_header.value;
   begin
-    result.signature := gets(inFile, 4);
-    if result.signature = "PK\1\\2\" then
-      result.version_made_by                 := get_uint16_le(inFile);
-      result.version_needed_to_extract       := get_uint16_le(inFile);
-      result.general_purpose_bit_flag        := get_uint16_le(inFile);
-      result.compression_method              := get_uint16_le(inFile);
-      result.last_mod_file_time              := get_uint16_le(inFile);
-      result.last_mod_file_date              := get_uint16_le(inFile);
-      result.crc_32                          := get_uint32_le(inFile);
-      result.compressed_size                 := get_uint32_le(inFile);
-      result.uncompressed_size               := get_uint32_le(inFile);
-      result.file_name_length                := get_uint16_le(inFile);
-      result.extra_field_length              := get_uint16_le(inFile);
-      result.file_comment_length             := get_uint16_le(inFile);
-      result.disk_number_start               := get_uint16_le(inFile);
-      result.internal_file_attributes        := get_uint16_le(inFile);
-      result.external_file_attributes        := get_uint32_le(inFile);
-      result.relative_offset_of_local_header := get_uint32_le(inFile);
-      result.file_name                       := gets(inFile, result.file_name_length);
-      result.extra_field                     := gets(inFile, result.extra_field_length);
-      result.file_comment                    := gets(inFile, result.file_comment_length);
+    centralHeader.signature := gets(inFile, 4);
+    if centralHeader.signature = "PK\1\\2\" then
+      centralHeader.version_made_by                 := get_uint16_le(inFile);
+      centralHeader.version_needed_to_extract       := get_uint16_le(inFile);
+      centralHeader.general_purpose_bit_flag        := get_uint16_le(inFile);
+      centralHeader.compression_method              := get_uint16_le(inFile);
+      centralHeader.last_mod_file_time              := get_uint16_le(inFile);
+      centralHeader.last_mod_file_date              := get_uint16_le(inFile);
+      centralHeader.crc_32                          := get_uint32_le(inFile);
+      centralHeader.compressed_size                 := get_uint32_le(inFile);
+      centralHeader.uncompressed_size               := get_uint32_le(inFile);
+      centralHeader.file_name_length                := get_uint16_le(inFile);
+      centralHeader.extra_field_length              := get_uint16_le(inFile);
+      centralHeader.file_comment_length             := get_uint16_le(inFile);
+      centralHeader.disk_number_start               := get_uint16_le(inFile);
+      centralHeader.internal_file_attributes        := get_uint16_le(inFile);
+      centralHeader.external_file_attributes        := get_uint32_le(inFile);
+      centralHeader.relative_offset_of_local_header := get_uint32_le(inFile);
+      centralHeader.file_name                       := gets(inFile, centralHeader.file_name_length);
+      centralHeader.extra_field                     := gets(inFile, centralHeader.extra_field_length);
+      centralHeader.file_comment                    := gets(inFile, centralHeader.file_comment_length);
     end if;
   end func;
 
@@ -259,7 +259,7 @@ const proc: list_zip_dir (inout file: inFile) is func
  *)
 const func array string: read_zip_dir (in string: zipFileName) is func
   result
-    var array string: result is 0 times "";
+    var array string: filenames is 0 times "";
   local
     var file: zipFile is STD_NULL;
     var end_of_central_directory: endOfCentDir is end_of_central_directory.value;
@@ -272,7 +272,7 @@ const func array string: read_zip_dir (in string: zipFileName) is func
       seek(zipFile, succ(endOfCentDir.offset_of_start_of_central_directory));
       centralHeader := get_central_header(zipFile);
       while centralHeader.signature = "PK\1\\2\" do
-        result &:= [] (centralHeader.file_name);
+        filenames &:= [] (centralHeader.file_name);
         centralHeader := get_central_header(zipFile);
       end while;
       # writeln(literal(centralHeader.signature));
@@ -283,7 +283,7 @@ const func array string: read_zip_dir (in string: zipFileName) is func
 
 const func string: getZipContent (inout file: inFile, in string: filePath) is func
   result
-    var string: result is "";
+    var string: content is "";
   local
     var end_of_central_directory: endOfCentDir is end_of_central_directory.value;
     var central_file_header: centralHeader is central_file_header.value;
@@ -306,11 +306,11 @@ const func string: getZipContent (inout file: inFile, in string: filePath) is fu
       # write(header);
       fileData := gets(inFile, header.compressed_size);
       if header.compression_method = 0 then
-        result := fileData;
+        content := fileData;
       elsif header.compression_method = 8 then
         # writeln(literal(fileData[ .. 50]));
-        result := inflate(fileData);
-        # writeln(literal(result[ .. 50]));
+        content := inflate(fileData);
+        # writeln(literal(content[ .. 50]));
       end if;
     end if;
   end func;
@@ -318,13 +318,13 @@ const func string: getZipContent (inout file: inFile, in string: filePath) is fu
 
 const func string: getZipContent (in string: zipFileName, in string: filePath) is func
   result
-    var string: result is "";
+    var string: content is "";
   local
     var file: inFile is STD_NULL;
   begin
     inFile := open(zipFileName, "r");
     if inFile <> STD_NULL then
-      result := getZipContent(inFile, filePath);
+      content := getZipContent(inFile, filePath);
       close(inFile);
     end if;
   end func;

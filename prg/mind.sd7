@@ -175,7 +175,7 @@ const proc: compare (in integer: try, in integer: solution, inout integer: right
 
 const func boolean: legal (in integer: try_digit1, in integer: try_digit2, in integer: try_digit3, in integer: try_digit4) is func
   result
-    var boolean: result is TRUE;
+    var boolean: legal is TRUE;
   local
     var integer: index is 1;
     var integer: leng is 0;
@@ -192,7 +192,7 @@ const func boolean: legal (in integer: try_digit1, in integer: try_digit2, in in
     var integer: wrong is 0;
   begin
     leng := length(guesses);
-    while result and index <= leng do
+    while legal and index <= leng do
       t_digit1 := try_digit1;
       t_digit2 := try_digit2;
       t_digit3 := try_digit3;
@@ -224,7 +224,7 @@ const func boolean: legal (in integer: try_digit1, in integer: try_digit2, in in
         s_digit4 := 11;
       end if;
       if right <> guess_ref.right_place then
-        result := FALSE;
+        legal := FALSE;
       else
         wrong := 0;
         if t_digit1 = s_digit2 then
@@ -264,7 +264,7 @@ const func boolean: legal (in integer: try_digit1, in integer: try_digit2, in in
           incr(wrong);
         end if;
         if wrong <> guess_ref.wrong_place then
-          result := FALSE;
+          legal := FALSE;
         end if;
       end if;
 (*    write(str(try_digit4) & str(try_digit3) & str(try_digit2) & str(try_digit1));

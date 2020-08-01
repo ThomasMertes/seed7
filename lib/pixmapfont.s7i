@@ -105,17 +105,17 @@ const func integer: hashCode (in fontKeyType: fontKey) is
 
 const func integer: compare (in fontKeyType: fontKey1, in fontKeyType: fontKey2) is func
   result
-    var integer: result is 0;
+    var integer: signumValue is 0;
   begin
-    result := compare(fontKey1.baseFont, fontKey2.baseFont);
-    if result = 0 then
-      result := compare(fontKey1.fontSize, fontKey2.fontSize);
-      if result = 0 then
-        result := compare(fontKey1.scale, fontKey2.scale);
-        if result = 0 then
-          result := compare(fontKey1.foreground, fontKey2.foreground);
-          if result = 0 then
-            result := compare(fontKey1.background, fontKey2.background);
+    signumValue := compare(fontKey1.baseFont, fontKey2.baseFont);
+    if signumValue = 0 then
+      signumValue := compare(fontKey1.fontSize, fontKey2.fontSize);
+      if signumValue = 0 then
+        signumValue := compare(fontKey1.scale, fontKey2.scale);
+        if signumValue = 0 then
+          signumValue := compare(fontKey1.foreground, fontKey2.foreground);
+          if signumValue = 0 then
+            signumValue := compare(fontKey1.background, fontKey2.background);
           end if;
         end if;
       end if;
@@ -134,18 +134,18 @@ const func pixmapFontType: genPixmapFont (in fontProperties: properties,
     in integer: fontSize, in integer: scale,
     in color: foreground, in color: background) is func
   result
-    var pixmapFontType: result is pixmapFontType.value;
+    var pixmapFontType: pixmapFont is pixmapFontType.value;
   begin
-    incl(result.pixmap, ' ', PRIMITIVE_WINDOW.value);
-    result.baseFont := properties;
-    result.fontSize := fontSize;
-    result.scale := scale;
-    result.foreground := foreground;
-    result.background := background;
-    result.baseLineDelta := baseLineDelta(properties) * scale;
-    result.line_delta := lineHeight(properties) * scale;
-    result.column_delta := columnWidth(properties) * scale;
-    result.characterSpacing := characterSpacing(properties) * scale;
+    incl(pixmapFont.pixmap, ' ', PRIMITIVE_WINDOW.value);
+    pixmapFont.baseFont := properties;
+    pixmapFont.fontSize := fontSize;
+    pixmapFont.scale := scale;
+    pixmapFont.foreground := foreground;
+    pixmapFont.background := background;
+    pixmapFont.baseLineDelta := baseLineDelta(properties) * scale;
+    pixmapFont.line_delta := lineHeight(properties) * scale;
+    pixmapFont.column_delta := columnWidth(properties) * scale;
+    pixmapFont.characterSpacing := characterSpacing(properties) * scale;
   end func;
 
 
@@ -155,7 +155,7 @@ const func pixmapFontType: genPixmapFont (in fontProperties: properties,
 const func activeFont: getFont (in font: baseFont, in integer: fontSize,
     in integer: scale, in color: foreground, in color: background) is func
   result
-    var activeFont: result is activeFont.value;
+    var activeFont: selectedFont is activeFont.value;
   local
     var fontKeyType: fontKey is fontKeyType.value;
   begin
@@ -166,10 +166,10 @@ const func activeFont: getFont (in font: baseFont, in integer: fontSize,
     fontKey.foreground := foreground;
     fontKey.background := background;
     if fontKey in fontCache then
-      result := fontCache[fontKey];
+      selectedFont := fontCache[fontKey];
     else
-      result := genPixmapFont(baseFont, fontSize, scale, foreground, background);
-      fontCache @:= [fontKey] result;
+      selectedFont := genPixmapFont(baseFont, fontSize, scale, foreground, background);
+      fontCache @:= [fontKey] selectedFont;
     end if;
   end func;
 

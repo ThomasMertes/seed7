@@ -33,9 +33,9 @@ $ include "seed7_05.s7i";
 
 const func bigInteger: bigintExpr (in bigInteger: number) is func
   result
-    var bigInteger: result is 0_;
+    var bigInteger: exprResult is 0_;
   begin
-    result := number;
+    exprResult := number;
   end func;
 
 
@@ -2314,10 +2314,10 @@ const proc: chkPred is func
 
 const func bigInteger: testIncr (in var bigInteger: number) is func
   result
-    var bigInteger: result is bigInteger.value;
+    var bigInteger: exprResult is bigInteger.value;
   begin
     incr(number);
-    result := number;
+    exprResult := number;
   end func;
 
 
@@ -2670,10 +2670,10 @@ const proc: chkIncr is func
 
 const func bigInteger: testDecr (in var bigInteger: number) is func
   result
-    var bigInteger: result is bigInteger.value;
+    var bigInteger: exprResult is bigInteger.value;
   begin
     decr(number);
-    result := number;
+    exprResult := number;
   end func;
 
 
@@ -3455,10 +3455,10 @@ const proc: chkAddition is func
 
 const func bigInteger: testGrow (in var bigInteger: big1, in bigInteger: big2) is func
   result
-    var bigInteger: result is bigInteger.value;
+    var bigInteger: exprResult is bigInteger.value;
   begin
     big1 +:= big2;
-    result := big1;
+    exprResult := big1;
   end func;
 
 
@@ -4319,10 +4319,10 @@ const proc: chkSubtraction is func
 
 const func bigInteger: testShrink (in var bigInteger: big1, in bigInteger: big2) is func
   result
-    var bigInteger: result is bigInteger.value;
+    var bigInteger: exprResult is bigInteger.value;
   begin
     big1 -:= big2;
-    result := big1;
+    exprResult := big1;
   end func;
 
 
@@ -6106,10 +6106,10 @@ const proc: chkMultiplication is func
 
 const func bigInteger: testMultCopy (in var bigInteger: big1, in bigInteger: big2) is func
   result
-    var bigInteger: result is bigInteger.value;
+    var bigInteger: exprResult is bigInteger.value;
   begin
     big1 *:= big2;
-    result := big1;
+    exprResult := big1;
   end func;
 
 
@@ -11402,14 +11402,14 @@ const proc: chkAssign is func
 
 const func string: randDigitStri (in integer: length) is func
   result
-    var string: result is "";
+    var string: digitStri is "";
   local
     var integer: pos is 0;
   begin
-    result := " " mult length;
-    result @:= [1] rand('1', '9');
+    digitStri := " " mult length;
+    digitStri @:= [1] rand('1', '9');
     for pos range 2 to length do
-      result @:= [pos] rand('0', '9');
+      digitStri @:= [pos] rand('0', '9');
     end for;
   end func;
 

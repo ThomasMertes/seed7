@@ -64,16 +64,16 @@ const func string: path (PROGRAM)                      is action "PRG_PATH";
  *)
 const func string: dir (PROGRAM) is func
   result
-    var string: result is "";
+    var string: absolutePath is "";
   local
     var integer: slashPos is 0;
   begin
-    result := path(PROGRAM);
-    slashPos := rpos(result, '/');
+    absolutePath := path(PROGRAM);
+    slashPos := rpos(absolutePath, '/');
     if slashPos = 1 then
-      result := "/";
+      absolutePath := "/";
     elsif slashPos > 1 then
-      result := result[.. pred(slashPos)];
+      absolutePath := absolutePath[.. pred(slashPos)];
     end if;
   end func;
 
@@ -85,14 +85,14 @@ const func string: dir (PROGRAM) is func
  *)
 const func string: file (PROGRAM) is func
   result
-    var string: result is "";
+    var string: filename is "";
   local
     var integer: slashPos is 0;
   begin
-    result := path(PROGRAM);
-    slashPos := rpos(result, '/');
+    filename := path(PROGRAM);
+    slashPos := rpos(filename, '/');
     if slashPos <> 0 then
-      result := result[succ(slashPos) ..];
+      filename := filename[succ(slashPos) ..];
     end if;
   end func;
 

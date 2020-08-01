@@ -125,13 +125,8 @@ const func boolean: (ref complex: number1) <> (ref complex: number2) is
  *  Plus sign for complex numbers.
  *  @return its operand unchanged.
  *)
-const func complex: + (in complex: number) is func
-  result
-    var complex: result is complex.value;
-  begin
-    result.re := number.re;
-    result.im := number.im;
-  end func;
+const func complex: + (in complex: number) is
+  return number;
 
 
 (**
@@ -140,10 +135,10 @@ const func complex: + (in complex: number) is func
  *)
 const func complex: - (in complex: number) is func
   result
-    var complex: negatedValue is complex.value;
+    var complex: negatedNumber is complex.value;
   begin
-    negatedValue.re := -number.re;
-    negatedValue.im := -number.im;
+    negatedNumber.re := -number.re;
+    negatedNumber.im := -number.im;
   end func;
 
 
@@ -314,11 +309,11 @@ const func complex: (in complex: base) ** (in integer: exponent) is func
  *)
 const func integer: compare (in complex: number1, in complex: number2) is func
   result
-    var integer: result is 0;
+    var integer: signumValue is 0;
   begin
-    result := compare(number1.re, number2.re);
-    if result = 0 then
-      result := compare(number1.im, number2.im);
+    signumValue := compare(number1.re, number2.re);
+    if signumValue = 0 then
+      signumValue := compare(number1.im, number2.im);
     end if;
   end func;
 

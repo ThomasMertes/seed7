@@ -31,51 +31,51 @@ include "vectorfont.s7i";
 
 const func vectorFont: genVecFont10 is func
   result
-    var vectorFont: result is vectorFont.value;
+    var vectorFont: vecFont is vectorFont.value;
   begin
-    result.xHeight          :=  8;
-    result.capHeight        := 10;
-    result.lineHeight       := 15;
-    result.ascent           :=  2;
-    result.descent          :=  2;
-    result.baseLineDelta    := 12;
-    result.characterSpacing :=  0;
+    vecFont.xHeight          :=  8;
+    vecFont.capHeight        := 10;
+    vecFont.lineHeight       := 15;
+    vecFont.ascent           :=  2;
+    vecFont.descent          :=  2;
+    vecFont.baseLineDelta    := 12;
+    vecFont.characterSpacing :=  0;
 
-    incl(result.fontVectors, ' ', 6,
+    incl(vecFont.fontVectors, ' ', 6,
         0 times pointList.value);
 
-    incl(result.fontVectors, '!', 5,
+    incl(vecFont.fontVectors, '!', 5,
     [] (fillp([] ( 1,  3,  1,  8,  2,  8,  2,  3,  1,  3)),
         fillp([] ( 1, 11,  2, 11,  2, 12,  1, 12,  1, 11))));
 
-    incl(result.fontVectors, '\"', 10,
+    incl(vecFont.fontVectors, '\"', 10,
     [] (fillp([] ( 1,  4,  2,  5,  2,  6,  1,  7,  2,  7,  3,  6,  3,  4,  2,  3,
                    1,  4)),
         fillp([] ( 5,  4,  6,  5,  6,  6,  5,  7,  6,  7,  7,  6,  7,  4,  6,  3,
                    5,  4))));
 
-    incl(result.fontVectors, '#', 12,
+    incl(vecFont.fontVectors, '#', 12,
     [] (fillp([] ( 1, 10,  3, 10,  3, 12,  4, 12,  4, 10,  7, 10,  7, 12,  8, 12,
                    8, 10, 10, 10, 10,  9,  8,  9,  8,  6, 10,  6, 10,  5,  8,  5,
                    8,  3,  7,  3,  7,  5,  4,  5,  4,  3,  3,  3,  3,  5,  1,  5,
                    1,  6,  3,  6,  3,  9,  4,  9,  4,  6,  7,  6,  7,  9,  1,  9,
                    1, 10))));
 
-    incl(result.fontVectors, '$', 10,
+    incl(vecFont.fontVectors, '$', 10,
     [] (fillp([] ( 8,  6,  7,  5,  5,  5,  5,  3,  4,  3,  4,  5,  2,  5,  1,  6,
                    1,  8,  2,  9,  4,  9,  4, 11,  5, 11,  5,  9,  6,  9,  7, 10,
                    6, 11,  1, 11,  2, 12,  4, 12,  4, 14,  5, 14,  5, 12,  7, 12,
                    8, 11,  8,  9,  7,  8,  5,  8,  5,  6,  4,  6,  4,  8,  3,  8,
                    2,  7,  3,  6,  8,  6))));
 
-    incl(result.fontVectors, '%', 15,
+    incl(vecFont.fontVectors, '%', 15,
     [] (fillp([] (11,  3,  3, 11,  3, 12, 11,  4, 11,  3)),
         fillp([] ( 4,  3,  3,  3,  1,  5,  3,  7,  4,  7,  6,  5,  4,  3,  4,  4,
                    5,  5,  4,  6,  3,  6,  2,  5,  3,  4,  4,  4,  4,  3)),
         fillp([] (11,  8, 10,  8,  8, 10, 10, 12, 11, 12, 13, 10, 11,  8, 11,  9,
                   12, 10, 11, 11, 10, 11,  9, 10, 10,  9, 11,  9, 11,  8))));
 
-    incl(result.fontVectors, '&', 12,
+    incl(vecFont.fontVectors, '&', 12,
     [] (fillp([] (10,  7,  8,  9,  7,  9,  5,  7,  7,  5,  7,  4,  6,  3,  2,  3,
                    1,  4,  1,  5,  3,  7,  1,  9,  1, 10,  3, 12,  5, 12,  7, 10,
                    8, 10, 10, 12, 10, 11,  9, 10,  9,  9,  6,  9,  6, 10,  5, 11,
@@ -83,422 +83,422 @@ const func vectorFont: genVecFont10 is func
                    3,  4,  5,  4,  6,  5,  5,  6,  4,  6,  4,  8,  5,  8,  6,  9,
                    9,  9, 10,  8, 10,  7))));
 
-    incl(result.fontVectors, '\'', 6,
+    incl(vecFont.fontVectors, '\'', 6,
     [] (fillp([] ( 2,  3,  1,  4,  2,  7,  3,  4,  2,  3))));
 
-    incl(result.fontVectors, '(', 6,
+    incl(vecFont.fontVectors, '(', 6,
     [] (fillp([] ( 4,  3,  2,  5,  1,  8,  1,  9,  2, 12,  4, 14,  4, 13,  2,  9,
                    2,  8,  4,  4,  4,  3))));
 
-    incl(result.fontVectors, ')', 6,
+    incl(vecFont.fontVectors, ')', 6,
     [] (fillp([] ( 1,  3,  3,  5,  4,  8,  4,  9,  3, 12,  1, 14,  1, 13,  3,  9,
                    3,  8,  1,  4,  1,  3))));
 
-    incl(result.fontVectors, '*', 12,
+    incl(vecFont.fontVectors, '*', 12,
     [] (fillp([] ( 1,  6,  2,  7,  5,  8,  5,  9,  2, 10,  1, 11,  4, 10,  5, 10,
                    5, 12,  6, 12,  6, 10,  7, 10, 10, 11,  9, 10,  6,  9,  6,  8,
                    9,  7, 10,  6,  7,  7,  6,  7,  6,  5,  5,  5,  5,  7,  4,  7,
                    1,  6))));
 
-    incl(result.fontVectors, '+', 10,
+    incl(vecFont.fontVectors, '+', 10,
     [] (fillp([] ( 1,  9,  4,  9,  4, 11,  5, 11,  5,  9,  8,  9,  8,  8,  5,  8,
                    5,  6,  4,  6,  4,  8,  1,  8,  1,  9))));
 
-    incl(result.fontVectors, ',', 6,
+    incl(vecFont.fontVectors, ',', 6,
     [] (fillp([] ( 1, 11,  2, 12,  2, 13,  1, 14,  2, 14,  3, 13,  3, 11,  2, 10,
                    1, 11))));
 
-    incl(result.fontVectors, '-', 9,
+    incl(vecFont.fontVectors, '-', 9,
     [] (fillp([] ( 1,  8,  7,  8,  7,  9,  1,  9,  1,  8))));
 
-    incl(result.fontVectors, '.', 6,
+    incl(vecFont.fontVectors, '.', 6,
     [] (fillp([] ( 1, 11,  2, 12,  3, 11,  2, 10,  1, 11))));
 
-    incl(result.fontVectors, '/', 6,
+    incl(vecFont.fontVectors, '/', 6,
     [] (fillp([] ( 4,  3,  0, 11,  0, 12,  1, 12,  5,  4,  5,  3,  4,  3))));
 
-    incl(result.fontVectors, '0', 9,
+    incl(vecFont.fontVectors, '0', 9,
     [] (fillp([] ( 7,  4,  6,  3,  2,  3,  1,  4,  1, 10,  2, 10,  6,  6,  6, 10,
                    5, 11,  3, 11,  2, 10,  1, 10,  1, 11,  2, 12,  6, 12,  7, 11,
                    7,  5,  6,  5,  2,  9,  2,  5,  3,  4,  5,  4,  6,  5,  7,  5,
                    7,  4))));
 
-    incl(result.fontVectors, '1', 5,
+    incl(vecFont.fontVectors, '1', 5,
     [] (fillp([] ( 0,  5,  2,  3,  3,  3,  3, 11,  4, 11,  4, 12,  1, 12,
                    1, 11,  2, 11,  2,  5,  0,  5))));
 
-    incl(result.fontVectors, '2', 8,
+    incl(vecFont.fontVectors, '2', 8,
     [] (fillp([] ( 1,  4,  2,  3,  5,  3,  6,  4,  6,  6,  2, 10,  2, 11,  6, 11,
                    6, 12,  1, 12,  1, 10,  5,  6,  5,  5,  4,  4,  3,  4,  2,  5,
                    1,  5,  1,  4))));
 
-    incl(result.fontVectors, '3', 8,
+    incl(vecFont.fontVectors, '3', 8,
     [] (fillp([] ( 1,  4,  2,  3,  5,  3,  6,  4,  6,  6,  5,  7,  5,  8,  6,  9,
                    6, 11,  5, 12,  2, 12,  1, 11,  1, 10,  2, 10,  3, 11,  4, 11,
                    5, 10,  5,  9,  4,  8,  3,  8,  3,  7,  4,  7,  5,  6,  5,  5,
                    4,  4,  3,  4,  2,  5,  1,  5,  1,  4))));
 
-    incl(result.fontVectors, '4', 8,
+    incl(vecFont.fontVectors, '4', 8,
     [] (fillp([] ( 4,  3,  0,  9,  0, 10,  4, 10,  4, 12,  5, 12,  5, 10,  7, 10,
                    7,  9,  5,  9,  1,  9,  1,  8,  4,  5,  4,  9,  5,  9,  5,  3,
                    4,  3))));
 
-    incl(result.fontVectors, '5', 9,
+    incl(vecFont.fontVectors, '5', 9,
     [] (fillp([] ( 7,  3,  1,  3,  1,  7,  4,  7,  6,  9,  4, 11,  3, 11,  2, 10,
                    1, 10,  1, 11,  2, 12,  5, 12,  7, 10,  7,  8,  5,  6,  2,  6,
                    2,  4,  7,  4,  7,  3))));
 
-    incl(result.fontVectors, '6', 9,
+    incl(vecFont.fontVectors, '6', 9,
     [] (fillp([] ( 6,  3,  3,  3,  1,  5,  1, 10,  3, 12,  5, 12,  7, 10,  7,  8,
                    5,  6,  2,  8,  2,  9,  4,  7,  6,  9,  4, 11,  2,  9,  2,  6,
                    4,  4,  6,  4,  6,  3))));
 
-    incl(result.fontVectors, '7', 7,
+    incl(vecFont.fontVectors, '7', 7,
     [] (fillp([] ( 0,  3,  6,  3,  6,  4,  2, 12,  1, 12,  5,  4,  1,  4,  1,  5,
                    0,  5,  0,  3))));
 
-    incl(result.fontVectors, '8', 9,
+    incl(vecFont.fontVectors, '8', 9,
     [] (fillp([] ( 3,  3,  2,  3,  1,  4,  1,  6,  2,  7,  2,  8,  1,  9,  1, 11,
                    2, 12,  6, 12,  7, 11,  7,  9,  6,  8,  6,  7,  7,  6,  7,  4,
                    6,  3,  3,  3,  3,  4,  5,  4,  6,  5,  6,  6,  5,  7,  3,  7,
                    3,  8,  5,  8,  6,  9,  6, 10,  5, 11,  3, 11,  2, 10,  2,  9,
                    3,  8,  3,  7,  2,  6,  2,  5,  3,  4,  3,  3))));
 
-    incl(result.fontVectors, '9', 9,
+    incl(vecFont.fontVectors, '9', 9,
     [] (fillp([] ( 2, 12,  5, 12,  7, 10,  7,  5,  5,  3,  3,  3,  1,  5,  1,  7,
                    3,  9,  4,  9,  6,  7,  6,  6,  4,  8,  2,  6,  4,  4,  6,  6,
                    6,  9,  4, 11,  2, 11,  2, 12))));
 
-    incl(result.fontVectors, ':', 6,
+    incl(vecFont.fontVectors, ':', 6,
     [] (fillp([] ( 1,  6,  2,  7,  3,  6,  2,  5,  1,  6)),
         fillp([] ( 1, 11,  2, 12,  3, 11,  2, 10,  1, 11))));
 
-    incl(result.fontVectors, ';', 6,
+    incl(vecFont.fontVectors, ';', 6,
     [] (fillp([] ( 1,  6,  2,  7,  3,  6,  2,  5,  1,  6)),
         fillp([] ( 1, 11,  2, 12,  2, 13,  1, 14,  2, 14,  3, 13,  3, 11,  2, 10,
                    1, 11))));
 
-    incl(result.fontVectors, '<', 9,
+    incl(vecFont.fontVectors, '<', 9,
     [] (fillp([] ( 7,  5,  1,  8,  7, 11,  7, 10,  4,  8,  7,  6,  7,  6))));
 
-    incl(result.fontVectors, '=', 10,
+    incl(vecFont.fontVectors, '=', 10,
     [] (fillp([] ( 1,  6,  8,  6,  8,  7,  1,  7,  1,  6)),
         fillp([] ( 1,  9,  8,  9,  8, 10,  1, 10,  1,  9))));
 
-    incl(result.fontVectors, '>', 9,
+    incl(vecFont.fontVectors, '>', 9,
     [] (fillp([] ( 1,  5,  7,  8,  1, 11,  1, 10,  4,  8,  1,  6,  1,  6))));
 
-    incl(result.fontVectors, '?', 7,
+    incl(vecFont.fontVectors, '?', 7,
     [] (fillp([] ( 0,  4,  1,  3,  4,  3,  5,  4,  5,  6,  3,  8,  2,  8,  4,  6,
                    4,  5,  3,  4,  2,  4,  1,  5,  0,  5,  0,  4)),
         fillp([] ( 2, 11,  2, 12,  3, 12,  3, 11,  2, 11))));
 
-    incl(result.fontVectors, '@', 13,
+    incl(vecFont.fontVectors, '@', 13,
     [] (fillp([] (11, 12, 10, 13,  5, 13,  2, 10,  2,  7,  5,  4,  9,  4, 10,  5,
                   10,  9,  9, 10,  8,  9,  8,  6,  7,  7,  6,  6,  4,  8,  4,  9,
                    6, 11,  7, 10,  7,  9,  6, 10,  5,  9,  5,  8,  6,  7,  7,  8,
                    7, 10,  8, 11,  9, 11, 11,  9, 11,  5,  9,  3,  4,  3,  1,  6,
                    1, 11,  4, 14, 10, 14, 11, 13, 11, 12))));
 
-    incl(result.fontVectors, 'A', 9,
+    incl(vecFont.fontVectors, 'A', 9,
     [] (fillp([] ( 0, 12,  3,  3,  5,  3,  8, 12,  7, 12,  5,  6,  4,  4,  3,  6,
                    1, 12,  0, 12)),
         fillp([] ( 2,  9,  6,  9,  6, 10,  2, 10,  2,  9))));
 
-    incl(result.fontVectors, 'B', 9,
+    incl(vecFont.fontVectors, 'B', 9,
     [] (fillp([] ( 1, 12,  1,  3,  5,  3,  6,  4,  6,  6,  5,  7,  7,  9,  7, 11,
                    6, 12,  2, 12,  2, 11,  5, 11,  6, 10,  6,  9,  5,  8,  2,  8,
                    2,  7,  4,  7,  5,  6,  5,  5,  4,  4,  2,  4,  2, 12,  1, 12
                   ))));
 
-    incl(result.fontVectors, 'C', 9,
+    incl(vecFont.fontVectors, 'C', 9,
     [] (fillp([] ( 7,  5,  7,  4,  6,  3,  3,  3,  1,  5,  1, 10,  3, 12,  6, 12,
                    7, 11,  7, 10,  6, 10,  5, 11,  4, 11,  2,  9,  2,  6,  4,  4,
                    5,  4,  6,  5,  7,  5))));
 
-    incl(result.fontVectors, 'D', 9,
+    incl(vecFont.fontVectors, 'D', 9,
     [] (fillp([] ( 1, 12,  1,  3,  5,  3,  6,  4,  7,  7,  7,  8,  6, 11,  5, 12,
                    2, 12,  2, 11,  4, 11,  5, 10,  6,  8,  6,  7,  5,  5,  4,  4,
                    2,  4,  2, 12,  1, 12))));
 
-    incl(result.fontVectors, 'E', 8,
+    incl(vecFont.fontVectors, 'E', 8,
     [] (fillp([] ( 1, 12,  1,  3,  6,  3,  6,  4,  2,  4,  2,  7,  5,  7,  5,  8,
                    2,  8,  2, 11,  6, 11,  6, 12,  1, 12))));
 
-    incl(result.fontVectors, 'F', 7,
+    incl(vecFont.fontVectors, 'F', 7,
     [] (fillp([] ( 1, 12,  1,  3,  6,  3,  6,  4,  2,  4,  2,  7,  5,  7,  5,  8,
                    2,  8,  2, 12,  1, 12))));
 
-    incl(result.fontVectors, 'G', 10,
+    incl(vecFont.fontVectors, 'G', 10,
     [] (fillp([] ( 8,  5,  6,  3,  3,  3,  1,  5,  1, 10,  3, 12,  6, 12,  8, 10,
                    8,  7,  5,  7,  5,  8,  7,  8,  7,  9,  5, 11,  4, 11,  2,  9,
                    2,  6,  4,  4,  5,  4,  6,  5,  8,  5))));
 
-    incl(result.fontVectors, 'H', 9,
+    incl(vecFont.fontVectors, 'H', 9,
     [] (fillp([] ( 1, 12,  1,  3,  2,  3,  2,  7,  6,  7,  6,  3,  7,  3,  7, 12,
                    6, 12,  6,  8,  2,  8,  2, 12,  1, 12))));
 
-    incl(result.fontVectors, 'I', 6,
+    incl(vecFont.fontVectors, 'I', 6,
     [] (fillp([] ( 1,  3,  4,  3,  4,  4,  3,  4,  3, 11,  4, 11,  4, 12,  1, 12,
                    1, 11,  2, 11,  2,  4,  1,  4,  1,  3))));
 
-    incl(result.fontVectors, 'J', 7,
+    incl(vecFont.fontVectors, 'J', 7,
     [] (fillp([] ( 2,  3,  5,  3,  5, 11,  4, 12,  1, 12,  0, 11,  0, 10,  1, 10,
                    2, 11,  3, 11,  4, 10,  4,  4,  2,  4,  2,  3))));
 
-    incl(result.fontVectors, 'K', 9,
+    incl(vecFont.fontVectors, 'K', 9,
     [] (fillp([] ( 1, 12,  1,  3,  2,  3,  2,  7,  6,  3,  7,  3,  7,  4,  4,  7,
                    4,  8,  7, 11,  7, 12,  6, 12,  2,  8,  2, 12,  1, 12))));
 
-    incl(result.fontVectors, 'L', 7,
+    incl(vecFont.fontVectors, 'L', 7,
     [] (fillp([] ( 1,  3,  1, 12,  6, 12,  6, 11,  2, 11,  2,  3,  1,  3))));
 
-    incl(result.fontVectors, 'M', 11,
+    incl(vecFont.fontVectors, 'M', 11,
     [] (fillp([] ( 1, 12,  1,  3,  2,  3,  5,  7,  8,  3,  9,  3,  9, 12,  8, 12,
                    8,  5,  5,  9,  2,  5,  2, 12,  1, 12))));
 
-    incl(result.fontVectors, 'N', 9,
+    incl(vecFont.fontVectors, 'N', 9,
     [] (fillp([] ( 1, 12,  1,  3,  2,  3,  6,  9,  6,  3,  7,  3,  7, 12,  6, 12,
                    2,  6,  2, 12,  1, 12))));
 
-    incl(result.fontVectors, 'O', 11,
+    incl(vecFont.fontVectors, 'O', 11,
     [] (fillp([] ( 4,  3,  3,  3,  2,  4,  1,  7,  1,  8,  2, 11,  3, 12,  7, 12,
                    8, 11,  9,  8,  9,  7,  8,  4,  7,  3,  4,  3,  4,  4,  6,  4,
                    8,  7,  8,  8,  6, 11,  4, 11,  2,  8,  2,  7,  4,  4,  4,  3
                   ))));
 
-    incl(result.fontVectors, 'P', 9,
+    incl(vecFont.fontVectors, 'P', 9,
     [] (fillp([] ( 1, 12,  1,  3,  5,  3,  7,  5,  7,  7,  5,  9,  2,  9,  2,  8,
                    4,  8,  6,  6,  4,  4,  2,  4,  2, 12,  1, 12))));
 
-    incl(result.fontVectors, 'Q', 11,
+    incl(vecFont.fontVectors, 'Q', 11,
     [] (fillp([] ( 4,  3,  3,  3,  2,  4,  1,  7,  1,  8,  2, 11,  3, 12,  7, 12,
                    8, 11,  9, 12,  9, 11,  8, 10,  9,  8,  9,  7,  8,  4,  7,  3,
                    4,  3,  4,  4,  6,  4,  8,  7,  8,  8,  7,  9,  6,  8,  6,  9,
                    7, 10,  6, 11,  4, 11,  2,  8,  2,  7,  4,  4,  4,  3))));
 
-    incl(result.fontVectors, 'R', 9,
+    incl(vecFont.fontVectors, 'R', 9,
     [] (fillp([] ( 1, 12,  1,  3,  5,  3,  7,  5,  7,  7,  5,  9,  5, 10,  7, 12,
                    5, 12,  3,  9,  2,  9,  2,  8,  4,  8,  6,  6,  6,  4,  2,  4,
                    2, 12,  1, 12))));
 
-    incl(result.fontVectors, 'S', 8,
+    incl(vecFont.fontVectors, 'S', 8,
     [] (fillp([] ( 6,  4,  5,  3,  2,  3,  1,  4,  1,  7,  2,  8,  4,  8,  5,  9,
                    5, 10,  4, 11,  3, 11,  2, 10,  1, 10,  1, 11,  2, 12,  5, 12,
                    6, 11,  6,  8,  5,  7,  3,  7,  2,  6,  2,  5,  3,  4,  4,  4,
                    5,  5,  6,  5,  6,  4))));
 
-    incl(result.fontVectors, 'T', 6,
+    incl(vecFont.fontVectors, 'T', 6,
     [] (fillp([] ( 0,  3,  5,  3,  5,  4,  3,  4,  3, 12,  2, 12,  2,  4,  0,  4,
                    0,  3))));
 
-    incl(result.fontVectors, 'U', 9,
+    incl(vecFont.fontVectors, 'U', 9,
     [] (fillp([] ( 1,  3,  1, 10,  3, 12,  5, 12,  7, 10,  7,  3,  6,  3,  6,  9,
                    4, 11,  2,  9,  2,  3,  1,  3))));
 
-    incl(result.fontVectors, 'V', 8,
+    incl(vecFont.fontVectors, 'V', 8,
     [] (fillp([] ( 0,  3,  0,  4,  3, 11,  3, 12,  4, 12,  4, 11,  7,  4,  7,  3,
                    6,  3,  4,  9,  3,  9,  1,  4,  1,  3,  0,  3))));
 
-    incl(result.fontVectors, 'W', 12,
+    incl(vecFont.fontVectors, 'W', 12,
     [] (fillp([] ( 0,  3,  0,  4,  2, 11,  2, 12,  4, 12,  4, 11,  5,  8,  6,  8,
                    7, 11,  7, 12,  9, 12,  9, 11, 11,  4, 11,  3, 10,  3, 10,  4,
                    8, 11,  6,  4,  6,  3,  5,  3,  5,  4,  3, 11,  1,  4,  1,  3,
                    0,  3))));
 
-    incl(result.fontVectors, 'X', 9,
+    incl(vecFont.fontVectors, 'X', 9,
     [] (fillp([] ( 1,  3,  3,  7,  3,  8,  1, 12,  2, 12,  4,  9,  6, 12,  7, 12,
                    5,  8,  5,  7,  7,  3,  6,  3,  4,  6,  2,  3,  1,  3))));
 
-    incl(result.fontVectors, 'Y', 8,
+    incl(vecFont.fontVectors, 'Y', 8,
     [] (fillp([] ( 0,  3,  3,  9,  3, 12,  4, 12,  4,  9,  7,  3,  6,  3,  4,  7,
                    3,  7,  1,  3,  0,  3))));
 
-    incl(result.fontVectors, 'Z', 9,
+    incl(vecFont.fontVectors, 'Z', 9,
     [] (fillp([] ( 1,  3,  7,  3,  7,  4,  3, 10,  3, 11,  7, 11,  7, 12,  1, 12,
                    1, 11,  5,  5,  5,  4,  1,  4,  1,  3))));
 
-    incl(result.fontVectors, '[', 6,
+    incl(vecFont.fontVectors, '[', 6,
     [] (fillp([] ( 4,  3,  1,  3,  1, 14,  4, 14,  4, 13,  2, 13,  2,  4,  4,  4,
                    4,  3))));
 
-    incl(result.fontVectors, '\\', 6,
+    incl(vecFont.fontVectors, '\\', 6,
     [] (fillp([] ( 0,  3,  0,  4,  4, 12,  5, 12,  5, 11,  1,  3,  0,  3))));
 
-    incl(result.fontVectors, ']', 6,
+    incl(vecFont.fontVectors, ']', 6,
     [] (fillp([] ( 1,  3,  4,  3,  4, 14,  1, 14,  1, 13,  3, 13,  3,  4,  1,  4,
                    1,  3))));
 
-    incl(result.fontVectors, '^', 9,
+    incl(vecFont.fontVectors, '^', 9,
     [] (fillp([] ( 0,  7,  4,  3,  8,  7,  6,  7,  4,  5,  2,  7,  0,  7))));
 
-    incl(result.fontVectors, '_', 8,
+    incl(vecFont.fontVectors, '_', 8,
     [] (fillp([] ( 0, 13,  7, 13,  7, 14,  0, 14,  0, 13))));
 
-    incl(result.fontVectors, '`', 7,
+    incl(vecFont.fontVectors, '`', 7,
     [] (fillp([] ( 1,  4,  4,  7,  5,  7,  3,  3,  2,  3,  1,  4))));
 
-    incl(result.fontVectors, 'a', 9,
+    incl(vecFont.fontVectors, 'a', 9,
     [] (fillp([] ( 2,  6,  2,  5,  6,  5,  7,  6,  7, 12,  2, 12,  1, 11,  1,  9,
                    2,  8,  6,  8,  6,  9,  3,  9,  2, 10,  3, 11,  6, 11,  6,  7,
                    5,  6,  2,  6))));
 
-    incl(result.fontVectors, 'b', 9,
+    incl(vecFont.fontVectors, 'b', 9,
     [] (fillp([] ( 2,  6,  3,  6,  4,  5,  5,  5,  7,  7,  7, 10,  5, 12,  3, 12,
                    2, 11,  1, 12,  1,  3,  2,  3,  2,  9,  4, 11,  6,  9,  6,  8,
                    4,  6,  2,  8,  2,  6))));
 
-    incl(result.fontVectors, 'c', 8,
+    incl(vecFont.fontVectors, 'c', 8,
     [] (fillp([] ( 6,  7,  6,  6,  5,  5,  3,  5,  1,  7,  1, 10,  3, 12,  5, 12,
                    6, 11,  6, 10,  5, 10,  4, 11,  2,  9,  4,  6,  5,  7,  6,  7
                    ))));
 
-    incl(result.fontVectors, 'd', 9,
+    incl(vecFont.fontVectors, 'd', 9,
     [] (fillp([] ( 6,  6,  5,  6,  4,  5,  3,  5,  1,  7,  1, 10,  3, 12,  5, 12,
                    6, 11,  7, 12,  7,  3,  6,  3,  6,  9,  4, 11,  2,  9,  2,  8,
                    4,  6,  6,  8,  6,  6))));
 
-    incl(result.fontVectors, 'e', 9,
+    incl(vecFont.fontVectors, 'e', 9,
     [] (fillp([] ( 2,  9,  7,  9,  7,  6,  6,  5,  2,  5,  1,  6,  1, 11,  2, 12,
                    6, 12,  7, 11,  3, 11,  2, 10,  2,  7,  3,  6,  5,  6,  6,  7,
                    6,  8,  2,  8,  2,  9))));
 
-    incl(result.fontVectors, 'f', 7,
+    incl(vecFont.fontVectors, 'f', 7,
     [] (fillp([] ( 5,  3,  3,  3,  2,  4,  2,  6,  0,  6,  0,  7,  2,  7,  2, 12,
                    3, 12,  3,  7,  5,  7,  5,  6,  3,  6,  3,  5,  4,  4,  5,  4,
                    5,  3))));
 
-    incl(result.fontVectors, 'g', 9,
+    incl(vecFont.fontVectors, 'g', 9,
     [] (fillp([] ( 6, 10,  5, 11,  3, 11,  1,  9,  1,  7,  3,  5,  5,  5,  6,  6,
                    7,  5,  7, 13,  6, 14,  3, 14,  3, 13,  5, 13,  6, 12,  6,  8,
                    4,  6,  2,  8,  4, 10,  6,  8,  6, 10))));
 
-    incl(result.fontVectors, 'h', 9,
+    incl(vecFont.fontVectors, 'h', 9,
     [] (fillp([] ( 1, 12,  1,  3,  2,  3,  2,  6,  3,  6,  4,  5,  5,  5,  7,  7,
                    7, 12,  6, 12,  6,  8,  4,  6,  2,  8,  2, 12,  1, 12))));
 
-    incl(result.fontVectors, 'i', 7,
+    incl(vecFont.fontVectors, 'i', 7,
     [] (fillp([] ( 1, 12,  6, 12,  6, 11,  4, 11,  4,  5,  1,  5,  1,  6,  3,  6,
                    3, 11,  1, 11,  1, 12)),
         pline([] ( 3,  3,  4,  3))));
 
-    incl(result.fontVectors, 'j', 6,
+    incl(vecFont.fontVectors, 'j', 6,
     [] (fillp([] ( 0, 14,  2, 14,  4, 12,  4,  5,  1,  5,  1,  6,  3,  6,  3, 11,
                    1, 13,  0, 13,  0, 14)),
         pline([] ( 3,  3,  4,  3))));
 
-    incl(result.fontVectors, 'k', 8,
+    incl(vecFont.fontVectors, 'k', 8,
     [] (fillp([] ( 1, 12,  1,  3,  2,  3,  2,  8,  3,  8,  6,  5,  6,  6,  4,  8,
                    4,  9,  6, 11,  6, 12,  3,  9,  2,  9,  2, 12,  1, 12))));
 
-    incl(result.fontVectors, 'l', 6,
+    incl(vecFont.fontVectors, 'l', 6,
     [] (fillp([] ( 1,  3,  1, 11,  2, 12,  4, 12,  4, 11,  3, 11,  2, 10,  2,  3,
                    1,  3))));
 
-    incl(result.fontVectors, 'm', 12,
+    incl(vecFont.fontVectors, 'm', 12,
     [] (fillp([] ( 1, 12,  1,  5,  2,  6,  3,  5,  4,  5,  5,  6,  6,  6,  7,  5,
                    9,  5, 10,  6, 10, 12,  9, 12,  9,  7,  8,  6,  7,  6,  6,  7,
                    6, 12,  5, 12,  5,  7,  4,  6,  3,  6,  2,  7,  2, 12,  1, 12
                    ))));
 
-    incl(result.fontVectors, 'n', 8,
+    incl(vecFont.fontVectors, 'n', 8,
     [] (fillp([] ( 1, 12,  1,  5,  2,  6,  3,  5,  5,  5,  6,  6,  6, 12,  5, 12,
                    5,  7,  4,  6,  3,  6,  2,  7,  2, 12,  1, 12))));
 
-    incl(result.fontVectors, 'o', 9,
+    incl(vecFont.fontVectors, 'o', 9,
     [] (fillp([] ( 4, 12,  3, 12,  1, 10,  1,  7,  3,  5,  5,  5,  7,  7,  7, 10,
                    5, 12,  4, 12,  4, 11,  6,  9,  6,  8,  4,  6,  2,  8,  2,  9,
                    4, 11,  4, 12))));
 
-    incl(result.fontVectors, 'p', 9,
+    incl(vecFont.fontVectors, 'p', 9,
     [] (fillp([] ( 1, 14,  1,  5,  2,  6,  3,  5,  5,  5,  7,  7,  7, 10,  5, 12,
                    4, 12,  2, 10,  2,  8,  4,  6,  6,  8,  6,  9,  4, 11,  2,  9,
                    2, 14,  1, 14))));
 
-    incl(result.fontVectors, 'q', 9,
+    incl(vecFont.fontVectors, 'q', 9,
     [] (fillp([] ( 7, 14,  7,  5,  6,  6,  5,  5,  3,  5,  1,  7,  1, 10,  3, 12,
                    4, 12,  6, 10,  6,  8,  4,  6,  2,  8,  2,  9,  4, 11,  6,  9,
                    6, 14,  7, 14))));
 
-    incl(result.fontVectors, 'r', 7,
+    incl(vecFont.fontVectors, 'r', 7,
     [] (fillp([] ( 6,  6,  5,  5,  3,  5,  2,  6,  1,  5,  1, 12,  2, 12,  2,  8,
                    4,  6,  5,  7,  6,  7,  6,  6))));
 
-    incl(result.fontVectors, 's', 9,
+    incl(vecFont.fontVectors, 's', 9,
     [] (fillp([] ( 1, 11,  2, 12,  6, 12,  7, 11,  7,  9,  6,  8,  3,  8,  2,  7,
                    3,  6,  7,  6,  6,  5,  2,  5,  1,  6,  1,  8,  2,  9,  5,  9,
                    6, 10,  5, 11,  1, 11))));
 
-    incl(result.fontVectors, 't', 7,
+    incl(vecFont.fontVectors, 't', 7,
     [] (fillp([] ( 5, 12,  3, 12,  2, 11,  2,  6,  0,  6,  0,  5,  2,  5,  2,  3,
                    3,  3,  3,  5,  5,  5,  5,  6,  3,  6,  3, 10,  4, 11,  5, 11,
                    5, 12))));
 
-    incl(result.fontVectors, 'u', 8,
+    incl(vecFont.fontVectors, 'u', 8,
     [] (fillp([] ( 1,  5,  2,  5,  2, 10,  3, 11,  4, 11,  5, 10,  5,  5,  6,  5,
                    6, 12,  5, 11,  4, 12,  2, 12,  1, 11,  1,  5))));
 
-    incl(result.fontVectors, 'v', 8,
+    incl(vecFont.fontVectors, 'v', 8,
     [] (fillp([] ( 0,  5,  0,  6,  3, 12,  4, 12,  7,  6,  7,  5,  6,  5,  4,  9,
                    3,  9,  1,  5,  0,  5))));
 
-    incl(result.fontVectors, 'w', 9,
+    incl(vecFont.fontVectors, 'w', 9,
     [] (fillp([] ( 0,  5,  0,  6,  2, 12,  4,  8,  6, 12,  8,  6,  8,  5,  7,  5,
                    6,  9,  4,  7,  2,  9,  1,  5,  0,  5))));
 
-    incl(result.fontVectors, 'x', 9,
+    incl(vecFont.fontVectors, 'x', 9,
     [] (fillp([] ( 1,  5,  1,  6,  3,  8,  3,  9,  1, 11,  1, 12,  2, 12,  2, 11,
                    4,  9,  6, 11,  6, 12,  7, 12,  7, 11,  5,  9,  5,  8,  7,  6,
                    7,  5,  6,  5,  6,  6,  4,  8,  2,  6,  2,  5,  1,  5))));
 
-    incl(result.fontVectors, 'y', 8,
+    incl(vecFont.fontVectors, 'y', 8,
     [] (fillp([] ( 0,  5,  3, 11,  3, 12,  2, 13,  1, 13,  1, 14,  3, 14,  4, 13,
                    4, 11,  7,  5,  6,  5,  4,  9,  3,  9,  1,  5,  0,  5))));
 
-    incl(result.fontVectors, 'z', 8,
+    incl(vecFont.fontVectors, 'z', 8,
     [] (fillp([] ( 1,  5,  6,  5,  6,  7,  3, 10,  3, 11,  6, 11,  6, 12,  1, 12,
                    1, 10,  4,  7,  4,  6,  1,  6,  1,  5))));
 
-    incl(result.fontVectors, '{', 8,
+    incl(vecFont.fontVectors, '{', 8,
     [] (fillp([] ( 6,  3,  4,  3,  3,  4,  3,  5,  4,  6,  4,  7,  3,  8,  1,  8,
                    1,  9,  3,  9,  4, 10,  4, 11,  3, 12,  3, 13,  4, 14,  6, 14,
                    6, 13,  5, 13,  4, 12,  5, 11,  5, 10,  4,  9,  4,  8,  5,  7,
                    5,  6,  4,  5,  5,  4,  6,  4,  6,  3))));
 
-    incl(result.fontVectors, '|', 5,
+    incl(vecFont.fontVectors, '|', 5,
     [] (fillp([] ( 1,  3,  1, 12,  2, 12,  2,  3,  1,  3))));
 
-    incl(result.fontVectors, '}', 8,
+    incl(vecFont.fontVectors, '}', 8,
     [] (fillp([] ( 1,  3,  3,  3,  4,  4,  4,  5,  3,  6,  3,  7,  4,  8,  6,  8,
                    6,  9,  4,  9,  3, 10,  3, 11,  4, 12,  4, 13,  3, 14,  1, 14,
                    1, 13,  2, 13,  3, 12,  2, 11,  2, 10,  3,  9,  3,  8,  2,  7,
                    2,  6,  3,  5,  2,  4,  1,  4,  1,  3))));
 
-    incl(result.fontVectors, '~', 9,
+    incl(vecFont.fontVectors, '~', 9,
     [] (fillp([] ( 1,  8,  2,  7,  3,  7,  5,  9,  7,  7,  7,  9,  6, 10,  5, 10,
                    3,  8,  1, 10,  1,  8))));
 
-    incl(result.fontVectors, '¡', 5,
+    incl(vecFont.fontVectors, '¡', 5,
     [] (fillp([] ( 2, 12,  2,  7,  1,  7,  1, 12,  2, 12)),
         fillp([] ( 1,  3,  1,  4,  2,  4,  2,  3,  1,  3))));
 
-    incl(result.fontVectors, '¢', 9,
+    incl(vecFont.fontVectors, '¢', 9,
     [] (fillp([] ( 7,  7,  7,  6,  6,  5,  5,  5,  5,  3,  4,  3,  4,  5,  3,  5,
                    1,  7,  1, 10,  3, 12,  4, 12,  4, 14,  5, 14,  5, 12,  6, 12,
                    7, 11,  7, 10,  6, 11,  3, 11,  2, 10,  2,  7,  3,  6,  4,  6,
                    4, 11,  5, 11,  5,  6,  6,  6,  7,  7))));
 
-    incl(result.fontVectors, '¥', 10,
+    incl(vecFont.fontVectors, '¥', 10,
     [] (fillp([] ( 1,  3,  3,  7,  1,  7,  1,  8,  4,  8,  4, 10,  1, 10,  1, 11,
                    4, 11,  4, 12,  5, 12,  5, 11,  8, 11,  8, 10,  5, 10,  5,  8,
                    8,  8,  8,  7,  6,  7,  8,  3,  7,  3,  5,  7,  4,  7,  2,  3,
                    1,  3))));
 
-    incl(result.fontVectors, '¦', 5,
+    incl(vecFont.fontVectors, '¦', 5,
     [] (fillp([] ( 1,  3,  1,  6,  2,  6,  2,  3,  1,  3)),
         fillp([] ( 1,  9,  1, 12,  2, 12,  2,  9,  1,  9))));
 
-    incl(result.fontVectors, '§', 8,
+    incl(vecFont.fontVectors, '§', 8,
     [] (fillp([] ( 6,  4,  5,  3,  2,  3,  1,  4,  1,  6,  2,  7,  4,  7,  5,  8,
                    5,  9,  4, 10,  5, 10,  9,  9,  6,  8,  4,  6,  3,  6,  2,  5,
                    3,  4,  6,  4)),
@@ -506,32 +506,32 @@ const func vectorFont: genVecFont10 is func
                    2, 14,  5, 14,  6, 13,  6, 11,  5, 10,  3, 10,  2,  9,  2,  8,
                    3,  7,  2,  7))));
 
-    incl(result.fontVectors, '¨', 9,
+    incl(vecFont.fontVectors, '¨', 9,
     [] (fillp([] ( 1,  3,  1,  4,  2,  4,  2,  3,  1,  3)),
         fillp([] ( 6,  3,  6,  4,  7,  4,  7,  3,  6,  3))));
 
-    incl(result.fontVectors, '©', 12,
+    incl(vecFont.fontVectors, '©', 12,
     [] (fillp([] ( 5,  3,  2,  4,  1,  7,  1,  8,  2, 11,  5, 12,  6, 12,  9, 11,
                   10,  8, 10,  7,  9,  4,  6,  3,  5,  3,  7,  3, 10,  6, 10,  9,
                    7, 12,  4, 12,  1,  9,  1,  6,  4,  3,  5,  3)),
         fillp([] ( 7,  6,  6,  5,  5,  5,  3,  7,  3,  8,  5, 10,  6, 10,  7,  9,
                    5,  9,  4,  8,  4,  7,  5,  6,  7,  6))));
 
-    incl(result.fontVectors, 'ª', 6,
+    incl(vecFont.fontVectors, 'ª', 6,
     [] (fillp([] ( 1,  3,  3,  3,  4,  4,  4,  5,  1,  5,  3,  3,  2,  4,  3,  5,
                    4,  4,  3,  3,  1,  3)),
         pline([] ( 1,  7,  4,  7))));
 
-    incl(result.fontVectors, '«', 10,
+    incl(vecFont.fontVectors, '«', 10,
     [] (fillp([] ( 3,  6,  1,  8,  1,  9,  3, 11,  4, 11,  2,  9,  2,  8,  4,  6,
                    3,  6)),
         fillp([] ( 7,  6,  5,  8,  5,  9,  7, 11,  8, 11,  6,  9,  6,  8,  8,  6,
                    7,  6))));
 
-    incl(result.fontVectors, '¬', 9,
+    incl(vecFont.fontVectors, '¬', 9,
     [] (fillp([] ( 1,  8,  7,  8,  7, 11,  6, 11,  6,  9,  1,  9,  1,  8))));
 
-    incl(result.fontVectors, '®', 12,
+    incl(vecFont.fontVectors, '®', 12,
     [] (fillp([] ( 5,  3,  2,  4,  1,  7,  1,  8,  2, 11,  5, 12,  6, 12,  9, 11,
                   10,  8, 10,  7,  9,  4,  6,  3,  5,  3,  7,  3, 10,  6, 10,  9,
                    7, 12,  4, 12,  1,  9,  1,  6,  4,  3,  5,  3)),
@@ -539,120 +539,120 @@ const func vectorFont: genVecFont10 is func
                    5,  8,  4,  8,  5,  8,  6,  7,  6,  6,  5,  5,  4,  5,  4, 10
                   ))));
 
-    incl(result.fontVectors, '¯', 8,
+    incl(vecFont.fontVectors, '¯', 8,
     [] (fillp([] ( 0,  0,  7,  0,  7,  1,  0,  1,  0,  0))));
 
-    incl(result.fontVectors, '°', 7,
+    incl(vecFont.fontVectors, '°', 7,
     [] (fillp([] ( 3,  3,  2,  3,  1,  4,  1,  6,  2,  7,  4,  7,  5,  6,  5,  4,
                    4,  3,  3,  3,  5,  5,  3,  7,  1,  5,  3,  3))));
 
-    incl(result.fontVectors, '±', 10,
+    incl(vecFont.fontVectors, '±', 10,
     [] (fillp([] ( 1,  7,  4,  7,  4,  9,  5,  9,  5,  7,  8,  7,  8,  6,  5,  6,
                    5,  4,  4,  4,  4,  6,  1,  6,  1,  7)),
         fillp([] ( 1, 12,  8, 12,  8, 11,  1, 11,  1, 12))));
 
-    incl(result.fontVectors, '²', 6,
+    incl(vecFont.fontVectors, '²', 6,
     [] (fillp([] ( 1,  4,  2,  3,  3,  3,  4,  4,  1,  7,  4,  7,  1,  7,  4,  4,
                    3,  3,  2,  3,  1,  4))));
 
-    incl(result.fontVectors, '³', 6,
+    incl(vecFont.fontVectors, '³', 6,
     [] (fillp([] ( 1,  3,  3,  3,  4,  4,  3,  5,  4,  6,  3,  7,  1,  7,  2,  7,
                    3,  6,  2,  5,  3,  4,  2,  3,  1,  3))));
 
-    incl(result.fontVectors, '´', 5,
+    incl(vecFont.fontVectors, '´', 5,
     [] (fillp([] ( 2,  3,  1,  4,  2,  4,  3,  3,  2,  3))));
 
-    incl(result.fontVectors, 'µ', 8,
+    incl(vecFont.fontVectors, 'µ', 8,
     [] (fillp([] ( 1,  5,  2,  5,  2, 10,  3, 11,  4, 11,  5, 10,  5,  5,  6,  5,
                    6, 12,  5, 11,  4, 12,  3, 12,  2, 11,  2, 14,  1, 14,  1,  5
                   ))));
 
-    incl(result.fontVectors, '¶', 11,
+    incl(vecFont.fontVectors, '¶', 11,
     [] (fillp([] (10,  3,  3,  3,  1,  5,  1,  7,  3,  9,  5,  9,  5,  8,  4,  8,
                    2,  6,  4,  4,  5,  4,  5, 14,  6, 14,  6,  4,  8,  4,  8, 14,
                    9, 14,  9,  4, 10,  4, 10,  3))));
 
-    incl(result.fontVectors, '·', 6,
+    incl(vecFont.fontVectors, '·', 6,
     [] (fillp([] ( 1,  8,  2,  9,  3,  8,  2,  7,  1,  8))));
 
-    incl(result.fontVectors, '¸', 6,
+    incl(vecFont.fontVectors, '¸', 6,
     [] (fillp([] ( 3, 13,  1, 14,  3, 14,  4, 13,  3, 13))));
 
-    incl(result.fontVectors, '¹', 5,
+    incl(vecFont.fontVectors, '¹', 5,
     [] (fillp([] ( 1,  4,  2,  3,  3,  3,  3,  6,  4,  7,  2,  7,  3,  6,  3,  4,
                    1,  4))));
 
-    incl(result.fontVectors, 'º', 6,
+    incl(vecFont.fontVectors, 'º', 6,
     [] (fillp([] ( 2,  3,  1,  4,  2,  5,  3,  5,  4,  4,  3,  3,  2,  3,  3,  3,
                    4,  4,  3,  5,  2,  5,  1,  4,  2,  3)),
         pline([] ( 1,  7,  4,  7))));
 
-    incl(result.fontVectors, '»', 10,
+    incl(vecFont.fontVectors, '»', 10,
     [] (fillp([] ( 2,  6,  4,  8,  4,  9,  2, 11,  1, 11,  3,  9,  3,  8,  1,  6,
                    2,  6)),
         fillp([] ( 6,  6,  8,  8,  8,  9,  6, 11,  5, 11,  7,  9,  7,  8,  5,  6,
                    6,  6))));
 
-    incl(result.fontVectors, '¼', 13,
+    incl(vecFont.fontVectors, '¼', 13,
     [] (fillp([] ( 1,  4,  2,  3,  3,  3,  3,  6,  4,  7,  2,  7,  3,  6,  3,  4,
                    1,  4)),
         pline([] (10,  4,  3, 11)),
         fillp([] ( 9,  8,  7, 10,  7, 11, 10, 11, 10, 12, 10, 11, 11, 11, 10, 11,
                   10,  8, 10, 11,  8, 11,  8, 10, 10,  8,  9,  8))));
 
-    incl(result.fontVectors, '½', 13,
+    incl(vecFont.fontVectors, '½', 13,
     [] (fillp([] ( 1,  4,  2,  3,  3,  3,  3,  6,  4,  7,  2,  7,  3,  6,  3,  4,
                    1,  4)),
         pline([] (10,  4,  3, 11)),
         fillp([] ( 8,  9,  9,  8, 10,  8, 11,  9,  8, 12, 11, 12,  8, 12, 11,  9,
                   10,  8,  9,  8,  8,  9))));
 
-    incl(result.fontVectors, '¾', 13,
+    incl(vecFont.fontVectors, '¾', 13,
     [] (fillp([] ( 1,  3,  3,  3,  4,  4,  3,  5,  4,  6,  3,  7,  1,  7,  2,  7,
                    3,  6,  2,  5,  3,  4,  2,  3,  1,  3)),
         pline([] (10,  4,  3, 11)),
         fillp([] ( 9,  8,  7, 10,  7, 11, 10, 11, 10, 12, 10, 11, 11, 11, 10, 11,
                   10,  8, 10, 11,  8, 11,  8, 10, 10,  8,  9,  8))));
 
-    incl(result.fontVectors, '¿', 7,
+    incl(vecFont.fontVectors, '¿', 7,
     [] (fillp([] ( 6, 11,  5, 12,  2, 12,  1, 11,  1,  9,  3,  7,  4,  7,  2,  9,
                    2, 10,  3, 11,  4, 11,  5, 10,  6, 10,  6, 11)),
         fillp([] ( 4,  4,  4,  3,  3,  3,  3,  4,  4,  4))));
 
-    incl(result.fontVectors, 'À', 9,
+    incl(vecFont.fontVectors, 'À', 9,
     [] (fillp([] ( 0, 12,  3,  3,  5,  3,  8, 12,  7, 12,  5,  6,  4,  4,  3,  6,
                    1, 12,  0, 12)),
         fillp([] ( 2,  9,  6,  9,  6, 10,  2, 10,  2,  9)),
         fillp([] ( 2,  0,  3,  1,  4,  1,  3,  0,  2,  0))));
 
-    incl(result.fontVectors, 'Á', 9,
+    incl(vecFont.fontVectors, 'Á', 9,
     [] (fillp([] ( 0, 12,  3,  3,  5,  3,  8, 12,  7, 12,  5,  6,  4,  4,  3,  6,
                    1, 12,  0, 12)),
         fillp([] ( 2,  9,  6,  9,  6, 10,  2, 10,  2,  9)),
         fillp([] ( 5,  0,  4,  1,  3,  1,  4,  0,  5,  0))));
 
-    incl(result.fontVectors, 'Â', 9,
+    incl(vecFont.fontVectors, 'Â', 9,
     [] (fillp([] ( 0, 12,  3,  3,  5,  3,  8, 12,  7, 12,  5,  6,  4,  4,  3,  6,
                    1, 12,  0, 12)),
         fillp([] ( 2,  9,  6,  9,  6, 10,  2, 10,  2,  9)),
         fillp([] ( 2,  1,  3,  0,  5,  0,  6,  1,  5,  1,  4,  0,  3,  1,  2,  1
                   ))));
 
-    incl(result.fontVectors, 'Ã', 9,
+    incl(vecFont.fontVectors, 'Ã', 9,
     [] (fillp([] ( 0, 12,  3,  3,  5,  3,  8, 12,  7, 12,  5,  6,  4,  4,  3,  6,
                    1, 12,  0, 12)),
         fillp([] ( 2,  9,  6,  9,  6, 10,  2, 10,  2,  9)),
         fillp([] ( 1,  1,  2,  0,  4,  0,  5,  1,  6,  0,  7,  0,  6,  1,  4,  1,
                    3,  0,  2,  1,  1,  1))));
 
-    incl(result.fontVectors, 'Ä', 9,
+    incl(vecFont.fontVectors, 'Ä', 9,
     [] (fillp([] ( 0, 12,  3,  3,  5,  3,  8, 12,  7, 12,  5,  6,  4,  4,  3,  6,
                    1, 12,  0, 12)),
         fillp([] ( 2,  9,  6,  9,  6, 10,  2, 10,  2,  9)),
         fillp([] ( 1,  0,  1,  1,  2,  1,  2,  0,  1,  0)),
         fillp([] ( 6,  0,  6,  1,  7,  1,  7,  0,  6,  0))));
 
-    incl(result.fontVectors, 'Å', 9,
+    incl(vecFont.fontVectors, 'Å', 9,
     [] (fillp([] ( 0, 12,  2,  6,  2,  5,  3,  4,  5,  4,  6,  5,  6,  6,  8, 12,
                    7, 12,  5,  6,  5,  5,  4,  4,  3,  5,  3,  6,  1, 12,  0, 12
                   )),
@@ -660,88 +660,88 @@ const func vectorFont: genVecFont10 is func
         fillp([] ( 4,  0,  3,  0,  2,  1,  2,  3,  3,  4,  5,  4,  6,  3,  6,  1,
                    5,  0,  4,  0,  6,  2,  4,  4,  2,  2,  4,  0))));
 
-    incl(result.fontVectors, 'Æ', 13,
+    incl(vecFont.fontVectors, 'Æ', 13,
     [] (fillp([] ( 0, 12,  3,  3, 11,  3, 11,  4,  7,  4,  7,  7, 10,  7, 10,  8,
                    7,  8,  7, 11, 11, 11, 11, 12,  6, 12,  6,  9,  2,  9,  2,  8,
                    6,  8,  6,  4,  4,  4,  4,  3,  1, 12,  0, 12))));
 
-    incl(result.fontVectors, 'Ç', 9,
+    incl(vecFont.fontVectors, 'Ç', 9,
     [] (fillp([] ( 7,  5,  7,  4,  6,  3,  3,  3,  1,  5,  1, 10,  3, 12,  5, 12,
                    5, 13,  4, 14,  3, 14,  5, 14,  6, 13,  6, 12,  7, 11,  7, 10,
                    6, 10,  5, 11,  4, 11,  2,  9,  2,  6,  4,  4,  5,  4,  6,  5,
                    7,  5))));
 
-    incl(result.fontVectors, 'È', 8,
+    incl(vecFont.fontVectors, 'È', 8,
     [] (fillp([] ( 1, 12,  1,  3,  6,  3,  6,  4,  2,  4,  2,  7,  5,  7,  5,  8,
                    2,  8,  2, 11,  6, 11,  6, 12,  1, 12)),
         fillp([] ( 2,  0,  3,  1,  4,  1,  3,  0,  2,  0))));
 
-    incl(result.fontVectors, 'É', 8,
+    incl(vecFont.fontVectors, 'É', 8,
     [] (fillp([] ( 1, 12,  1,  3,  6,  3,  6,  4,  2,  4,  2,  7,  5,  7,  5,  8,
                    2,  8,  2, 11,  6, 11,  6, 12,  1, 12)),
         fillp([] ( 5,  0,  4,  1,  3,  1,  4,  0,  5,  0))));
 
-    incl(result.fontVectors, 'Ê', 8,
+    incl(vecFont.fontVectors, 'Ê', 8,
     [] (fillp([] ( 1, 12,  1,  3,  6,  3,  6,  4,  2,  4,  2,  7,  5,  7,  5,  8,
                    2,  8,  2, 11,  6, 11,  6, 12,  1, 12)),
         fillp([] ( 1,  1,  2,  0,  5,  0,  6,  1,  5,  1,  4,  0,  3,  0,  2,  1,
                    1,  1))));
 
-    incl(result.fontVectors, 'Ë', 8,
+    incl(vecFont.fontVectors, 'Ë', 8,
     [] (fillp([] ( 1, 12,  1,  3,  6,  3,  6,  4,  2,  4,  2,  7,  5,  7,  5,  8,
                    2,  8,  2, 11,  6, 11,  6, 12,  1, 12)),
         fillp([] ( 1,  0,  1,  1,  2,  1,  2,  0,  1,  0)),
         fillp([] ( 5,  0,  5,  1,  6,  1,  6,  0,  5,  0))));
 
-    incl(result.fontVectors, 'Ì', 6,
+    incl(vecFont.fontVectors, 'Ì', 6,
     [] (fillp([] ( 1,  3,  4,  3,  4,  4,  3,  4,  3, 11,  4, 11,  4, 12,  1, 12,
                    1, 11,  2, 11,  2,  4,  1,  4,  1,  3)),
         fillp([] ( 1,  0,  2,  1,  3,  1,  2,  0,  1,  0))));
 
-    incl(result.fontVectors, 'Í', 6,
+    incl(vecFont.fontVectors, 'Í', 6,
     [] (fillp([] ( 1,  3,  4,  3,  4,  4,  3,  4,  3, 11,  4, 11,  4, 12,  1, 12,
                    1, 11,  2, 11,  2,  4,  1,  4,  1,  3)),
         fillp([] ( 4,  0,  3,  1,  2,  1,  3,  0,  4,  0))));
 
-    incl(result.fontVectors, 'Î', 6,
+    incl(vecFont.fontVectors, 'Î', 6,
     [] (fillp([] ( 1,  3,  4,  3,  4,  4,  3,  4,  3, 11,  4, 11,  4, 12,  1, 12,
                    1, 11,  2, 11,  2,  4,  1,  4,  1,  3)),
         fillp([] ( 1,  1,  2,  0,  4,  0,  5,  1,  4,  1,  3,  0,  2,  1,  1,  1
                   ))));
 
-    incl(result.fontVectors, 'Ï', 6,
+    incl(vecFont.fontVectors, 'Ï', 6,
     [] (fillp([] ( 1,  3,  4,  3,  4,  4,  3,  4,  3, 11,  4, 11,  4, 12,  1, 12,
                    1, 11,  2, 11,  2,  4,  1,  4,  1,  3)),
         fillp([] ( 0,  0,  0,  1,  1,  1,  1,  0,  0,  0)),
         fillp([] ( 4,  0,  4,  1,  5,  1,  5,  0,  4,  0))));
 
-    incl(result.fontVectors, 'Ð', 9,
+    incl(vecFont.fontVectors, 'Ð', 9,
     [] (fillp([] ( 1, 12,  1,  8,  0,  8,  0,  7,  1,  7,  1,  3,  5,  3,  6,  4,
                    7,  7,  7,  8,  6, 11,  5, 12,  2, 12,  2, 11,  4, 11,  6,  9,
                    6,  6,  4,  4,  2,  4,  2,  7,  3,  7,  3,  8,  2,  8,  2, 12,
                    1, 12))));
 
-    incl(result.fontVectors, 'Ñ', 9,
+    incl(vecFont.fontVectors, 'Ñ', 9,
     [] (fillp([] ( 1, 12,  1,  3,  2,  3,  6,  9,  6,  3,  7,  3,  7, 12,  6, 12,
                    2,  6,  2, 12,  1, 12)),
         fillp([] ( 1,  1,  2,  0,  4,  0,  5,  1,  6,  0,  7,  0,  6,  1,  4,  1,
                    3,  0,  2,  1,  1,  1))));
 
-    incl(result.fontVectors, 'Ò', 11,
+    incl(vecFont.fontVectors, 'Ò', 11,
     [] (fillp([] ( 4,  3,  3,  3,  2,  4,  1,  7,  1,  8,  2, 11,  3, 12,  7, 12,
                    8, 11,  9,  8,  9,  7,  8,  4,  7,  3,  4,  3,  4,  4,  6,  4,
                    8,  7,  8,  8,  6, 11,  4, 11,  2,  8,  2,  7,  4,  4,  4,  3
                   )),
         fillp([] ( 4,  0,  5,  1,  6,  1,  5,  0,  4,  0))));
 
-    incl(result.fontVectors, 'Ó', 11,
+    incl(vecFont.fontVectors, 'Ó', 11,
     [] (fillp([] ( 4,  3,  3,  3,  2,  4,  1,  7,  1,  8,  2, 11,  3, 12,  7, 12,
                    8, 11,  9,  8,  9,  7,  8,  4,  7,  3,  4,  3,  4,  4,  6,  4,
                    8,  7,  8,  8,  6, 11,  4, 11,  2,  8,  2,  7,  4,  4,  4,  3
                   )),
         fillp([] ( 7,  0,  6,  1,  5,  1,  6,  0,  7,  0))));
 
-    incl(result.fontVectors, 'Ô', 11,
+    incl(vecFont.fontVectors, 'Ô', 11,
     [] (fillp([] ( 4,  3,  3,  3,  2,  4,  1,  7,  1,  8,  2, 11,  3, 12,  7, 12,
                    8, 11,  9,  8,  9,  7,  8,  4,  7,  3,  4,  3,  4,  4,  6,  4,
                    8,  7,  8,  8,  6, 11,  4, 11,  2,  8,  2,  7,  4,  4,  4,  3
@@ -749,7 +749,7 @@ const func vectorFont: genVecFont10 is func
         fillp([] ( 3,  1,  4,  0,  6,  0,  7,  1,  6,  1,  5,  0,  4,  1,  3,  1
                   ))));
 
-    incl(result.fontVectors, 'Õ', 11,
+    incl(vecFont.fontVectors, 'Õ', 11,
     [] (fillp([] ( 4,  3,  3,  3,  2,  4,  1,  7,  1,  8,  2, 11,  3, 12,  7, 12,
                    8, 11,  9,  8,  9,  7,  8,  4,  7,  3,  4,  3,  4,  4,  6,  4,
                    8,  7,  8,  8,  6, 11,  4, 11,  2,  8,  2,  7,  4,  4,  4,  3
@@ -757,7 +757,7 @@ const func vectorFont: genVecFont10 is func
         fillp([] ( 2,  1,  3,  0,  5,  0,  6,  1,  7,  0,  8,  0,  7,  1,  5,  1,
                    4,  0,  3,  1,  2,  1))));
 
-    incl(result.fontVectors, 'Ö', 11,
+    incl(vecFont.fontVectors, 'Ö', 11,
     [] (fillp([] ( 4,  3,  3,  3,  2,  4,  1,  7,  1,  8,  2, 11,  3, 12,  7, 12,
                    8, 11,  9,  8,  9,  7,  8,  4,  7,  3,  4,  3,  4,  4,  6,  4,
                    8,  7,  8,  8,  6, 11,  4, 11,  2,  8,  2,  7,  4,  4,  4,  3
@@ -765,88 +765,88 @@ const func vectorFont: genVecFont10 is func
         fillp([] ( 2,  0,  2,  1,  3,  1,  3,  0,  2,  0)),
         fillp([] ( 7,  0,  7,  1,  8,  1,  8,  0,  7,  0))));
 
-    incl(result.fontVectors, '×', 11,
+    incl(vecFont.fontVectors, '×', 11,
     [] (fillp([] ( 1,  5,  4,  8,  4,  9,  1, 12,  2, 12,  5,  9,  8, 12,  9, 12,
                    6,  9,  6,  8,  9,  5,  8,  5,  5,  8,  2,  5,  1,  5))));
 
-    incl(result.fontVectors, 'Ø', 11,
+    incl(vecFont.fontVectors, 'Ø', 11,
     [] (fillp([] ( 4,  3,  3,  3,  2,  4,  1,  7,  1,  8,  2, 11,  3, 12,  7, 12,
                    8, 11,  9,  8,  9,  7,  8,  4,  7,  3,  4,  3,  4,  4,  6,  4,
                    8,  7,  8,  8,  6, 11,  4, 11,  2,  8,  2,  7,  4,  4,  4,  3
                   )),
         fillp([] ( 9,  3,  0, 12,  1, 12, 10,  3,  9,  3))));
 
-    incl(result.fontVectors, 'Ù', 9,
+    incl(vecFont.fontVectors, 'Ù', 9,
     [] (fillp([] ( 1,  3,  1, 10,  3, 12,  5, 12,  7, 10,  7,  3,  6,  3,  6,  9,
                    4, 11,  2,  9,  2,  3,  1,  3)),
         fillp([] ( 3,  0,  4,  1,  5,  1,  4,  0,  3,  0))));
 
-    incl(result.fontVectors, 'Ú', 9,
+    incl(vecFont.fontVectors, 'Ú', 9,
     [] (fillp([] ( 1,  3,  1, 10,  3, 12,  5, 12,  7, 10,  7,  3,  6,  3,  6,  9,
                    4, 11,  2,  9,  2,  3,  1,  3)),
         fillp([] ( 5,  0,  4,  1,  3,  1,  4,  0,  5,  0))));
 
-    incl(result.fontVectors, 'Û', 9,
+    incl(vecFont.fontVectors, 'Û', 9,
     [] (fillp([] ( 1,  3,  1, 10,  3, 12,  5, 12,  7, 10,  7,  3,  6,  3,  6,  9,
                    4, 11,  2,  9,  2,  3,  1,  3)),
         fillp([] ( 2,  1,  3,  0,  5,  0,  6,  1,  5,  1,  4,  0,  3,  1,  2,  1
                   ))));
 
-    incl(result.fontVectors, 'Ü', 9,
+    incl(vecFont.fontVectors, 'Ü', 9,
     [] (fillp([] ( 1,  3,  1, 10,  3, 12,  5, 12,  7, 10,  7,  3,  6,  3,  6,  9,
                    4, 11,  2,  9,  2,  3,  1,  3)),
         fillp([] ( 1,  0,  1,  1,  2,  1,  2,  0,  1,  0)),
         fillp([] ( 6,  0,  6,  1,  7,  1,  7,  0,  6,  0))));
 
-    incl(result.fontVectors, 'Ý', 8,
+    incl(vecFont.fontVectors, 'Ý', 8,
     [] (fillp([] ( 0,  3,  3,  9,  3, 12,  4, 12,  4,  9,  7,  3,  6,  3,  4,  7,
                    3,  7,  1,  3,  0,  3)),
         fillp([] ( 5,  0,  4,  1,  3,  1,  4,  0,  5,  0))));
 
-    incl(result.fontVectors, 'Þ', 9,
+    incl(vecFont.fontVectors, 'Þ', 9,
     [] (fillp([] ( 1,  3,  1, 12,  2, 12,  2,  5,  4,  5,  6,  7,  4,  9,  2,  9,
                    2, 10,  5, 10,  7,  8,  7,  6,  5,  4,  2,  4,  2,  3,  1,  3
                   ))));
 
-    incl(result.fontVectors, 'ß', 9,
+    incl(vecFont.fontVectors, 'ß', 9,
     [] (fillp([] ( 1, 12,  1,  4,  2,  3,  5,  3,  6,  4,  6,  6,  5,  7,  7,  9,
                    7, 11,  6, 12,  4, 12,  4, 11,  5, 11,  6, 10,  6,  9,  4,  7,
                    5,  6,  5,  5,  4,  4,  3,  4,  2,  5,  2, 12,  1, 12))));
 
-    incl(result.fontVectors, 'à', 9,
+    incl(vecFont.fontVectors, 'à', 9,
     [] (fillp([] ( 2,  6,  2,  5,  6,  5,  7,  6,  7, 12,  2, 12,  1, 11,  1,  9,
                    2,  8,  6,  8,  6,  9,  3,  9,  2, 10,  3, 11,  6, 11,  6,  7,
                    5,  6,  2,  6)),
         fillp([] ( 3,  2,  4,  3,  5,  3,  4,  2,  3,  2))));
 
-    incl(result.fontVectors, 'á', 9,
+    incl(vecFont.fontVectors, 'á', 9,
     [] (fillp([] ( 2,  6,  2,  5,  6,  5,  7,  6,  7, 12,  2, 12,  1, 11,  1,  9,
                    2,  8,  6,  8,  6,  9,  3,  9,  2, 10,  3, 11,  6, 11,  6,  7,
                    5,  6,  2,  6)),
         fillp([] ( 5,  2,  4,  3,  3,  3,  4,  2,  5,  2))));
 
-    incl(result.fontVectors, 'â', 9,
+    incl(vecFont.fontVectors, 'â', 9,
     [] (fillp([] ( 2,  6,  2,  5,  6,  5,  7,  6,  7, 12,  2, 12,  1, 11,  1,  9,
                    2,  8,  6,  8,  6,  9,  3,  9,  2, 10,  3, 11,  6, 11,  6,  7,
                    5,  6,  2,  6)),
         fillp([] ( 2,  3,  3,  2,  5,  2,  6,  3,  5,  3,  4,  2,  3,  3,  2,  3
                   ))));
 
-    incl(result.fontVectors, 'ã', 9,
+    incl(vecFont.fontVectors, 'ã', 9,
     [] (fillp([] ( 2,  6,  2,  5,  6,  5,  7,  6,  7, 12,  2, 12,  1, 11,  1,  9,
                    2,  8,  6,  8,  6,  9,  3,  9,  2, 10,  3, 11,  6, 11,  6,  7,
                    5,  6,  2,  6)),
         fillp([] ( 1,  3,  2,  2,  4,  2,  5,  3,  6,  2,  7,  2,  6,  3,  4,  3,
                    3,  2,  2,  3,  1,  3))));
 
-    incl(result.fontVectors, 'ä', 9,
+    incl(vecFont.fontVectors, 'ä', 9,
     [] (fillp([] ( 2,  6,  2,  5,  6,  5,  7,  6,  7, 12,  2, 12,  1, 11,  1,  9,
                    2,  8,  6,  8,  6,  9,  3,  9,  2, 10,  3, 11,  6, 11,  6,  7,
                    5,  6,  2,  6)),
         fillp([] ( 2,  2,  2,  3,  3,  3,  3,  2,  2,  2)),
         fillp([] ( 6,  2,  6,  3,  7,  3,  7,  2,  6,  2))));
 
-    incl(result.fontVectors, 'å', 9,
+    incl(vecFont.fontVectors, 'å', 9,
     [] (fillp([] ( 2,  6,  2,  5,  6,  5,  7,  6,  7, 12,  2, 12,  1, 11,  1,  9,
                    2,  8,  6,  8,  6,  9,  3,  9,  2, 10,  3, 11,  6, 11,  6,  7,
                    5,  6,  2,  6)),
@@ -854,167 +854,167 @@ const func vectorFont: genVecFont10 is func
                    5,  0,  4,  0,  5,  1,  5,  2,  4,  3,  3,  2,  3,  1,  4,  0
                   ))));
 
-    incl(result.fontVectors, 'æ', 14,
+    incl(vecFont.fontVectors, 'æ', 14,
     [] (fillp([] ( 2,  6,  2,  5,  5,  5,  6,  6,  7,  6,  8,  5, 11,  5, 12,  6,
                   12,  9,  7,  9,  7,  8, 11,  8, 11,  7, 10,  6,  8,  6,  7,  7,
                    7, 10,  8, 11, 12, 11, 11, 12,  8, 12,  7, 11,  6, 11,  5, 12,
                    2, 12,  1, 11,  1,  9,  2,  8,  6,  8,  6,  9,  3,  9,  2, 10,
                    3, 11,  5, 11,  6, 10,  6,  7,  5,  6,  2,  6))));
 
-    incl(result.fontVectors, 'ç', 8,
+    incl(vecFont.fontVectors, 'ç', 8,
     [] (fillp([] ( 6,  7,  6,  6,  5,  5,  3,  5,  1,  7,  1, 10,  3, 12,  4, 12,
                    4, 13,  3, 14,  4, 14,  5, 14,  5, 12,  6, 11,  6, 10,  5, 10,
                    4, 11,  2,  9,  4,  6,  5,  7,  6,  7))));
 
-    incl(result.fontVectors, 'è', 9,
+    incl(vecFont.fontVectors, 'è', 9,
     [] (fillp([] ( 2,  9,  7,  9,  7,  6,  6,  5,  2,  5,  1,  6,  1, 11,  2, 12,
                    6, 12,  7, 11,  3, 11,  2, 10,  2,  7,  3,  6,  5,  6,  6,  7,
                    6,  8,  2,  8,  2,  9)),
         fillp([] ( 3,  2,  4,  3,  5,  3,  4,  2,  3,  2))));
 
-    incl(result.fontVectors, 'é', 9,
+    incl(vecFont.fontVectors, 'é', 9,
     [] (fillp([] ( 2,  9,  7,  9,  7,  6,  6,  5,  2,  5,  1,  6,  1, 11,  2, 12,
                    6, 12,  7, 11,  3, 11,  2, 10,  2,  7,  3,  6,  5,  6,  6,  7,
                    6,  8,  2,  8,  2,  9)),
         fillp([] ( 5,  2,  4,  3,  3,  3,  4,  2,  5,  2))));
 
-    incl(result.fontVectors, 'ê', 9,
+    incl(vecFont.fontVectors, 'ê', 9,
     [] (fillp([] ( 2,  9,  7,  9,  7,  6,  6,  5,  2,  5,  1,  6,  1, 11,  2, 12,
                    6, 12,  7, 11,  3, 11,  2, 10,  2,  7,  3,  6,  5,  6,  6,  7,
                    6,  8,  2,  8,  2,  9)),
         fillp([] ( 2,  3,  3,  2,  5,  2,  6,  3,  5,  3,  4,  2,  3,  3,  2,  3
                   ))));
 
-    incl(result.fontVectors, 'ë', 9,
+    incl(vecFont.fontVectors, 'ë', 9,
     [] (fillp([] ( 2,  9,  7,  9,  7,  6,  6,  5,  2,  5,  1,  6,  1, 11,  2, 12,
                    6, 12,  7, 11,  3, 11,  2, 10,  2,  7,  3,  6,  5,  6,  6,  7,
                    6,  8,  2,  8,  2,  9)),
         fillp([] ( 2,  2,  2,  3,  3,  3,  3,  2,  2,  2)),
         fillp([] ( 6,  2,  6,  3,  7,  3,  7,  2,  6,  2))));
 
-    incl(result.fontVectors, 'ì', 7,
+    incl(vecFont.fontVectors, 'ì', 7,
     [] (fillp([] ( 1, 12,  6, 12,  6, 11,  4, 11,  4,  5,  1,  5,  1,  6,  3,  6,
                    3, 11,  1, 11,  1, 12)),
         fillp([] ( 2,  2,  3,  3,  4,  3,  3,  2,  2,  2))));
 
-    incl(result.fontVectors, 'í', 7,
+    incl(vecFont.fontVectors, 'í', 7,
     [] (fillp([] ( 1, 12,  6, 12,  6, 11,  4, 11,  4,  5,  1,  5,  1,  6,  3,  6,
                    3, 11,  1, 11,  1, 12)),
         fillp([] ( 5,  2,  4,  3,  3,  3,  4,  2,  5,  2))));
 
-    incl(result.fontVectors, 'î', 7,
+    incl(vecFont.fontVectors, 'î', 7,
     [] (fillp([] ( 1, 12,  6, 12,  6, 11,  4, 11,  4,  5,  1,  5,  1,  6,  3,  6,
                    3, 11,  1, 11,  1, 12)),
         fillp([] ( 1,  3,  2,  2,  5,  2,  6,  3,  5,  3,  4,  2,  3,  2,  2,  3,
                    1,  3))));
 
-    incl(result.fontVectors, 'ï', 7,
+    incl(vecFont.fontVectors, 'ï', 7,
     [] (fillp([] ( 1, 12,  6, 12,  6, 11,  4, 11,  4,  5,  1,  5,  1,  6,  3,  6,
                    3, 11,  1, 11,  1, 12)),
         fillp([] ( 1,  2,  1,  3,  2,  3,  2,  2,  1,  2)),
         fillp([] ( 5,  2,  5,  3,  6,  3,  6,  2,  5,  2))));
 
-    incl(result.fontVectors, 'ð', 9,
+    incl(vecFont.fontVectors, 'ð', 9,
     [] (fillp([] ( 3,  3,  6,  6,  7,  9,  7, 10,  5, 12,  3, 12,  1, 10,  1,  8,
                    2,  7,  5,  6,  5,  7,  2,  8,  2,  9,  4, 11,  6,  9,  4,  5,
                    3,  4,  1,  3,  3,  3)),
         fillp([] ( 1,  5,  3,  4,  4,  4,  6,  3,  4,  4,  3,  4,  1,  5))));
 
-    incl(result.fontVectors, 'ñ', 8,
+    incl(vecFont.fontVectors, 'ñ', 8,
     [] (fillp([] ( 1, 12,  1,  5,  2,  6,  3,  5,  5,  5,  6,  6,  6, 12,  5, 12,
                    5,  7,  4,  6,  3,  6,  2,  7,  2, 12,  1, 12)),
         fillp([] ( 1,  3,  2,  2,  4,  2,  5,  3,  6,  2,  7,  2,  6,  3,  4,  3,
                    3,  2,  2,  3,  1,  3))));
 
-    incl(result.fontVectors, 'ò', 9,
+    incl(vecFont.fontVectors, 'ò', 9,
     [] (fillp([] ( 4, 12,  3, 12,  1, 10,  1,  7,  3,  5,  5,  5,  7,  7,  7, 10,
                    5, 12,  4, 12,  4, 11,  6,  9,  6,  8,  4,  6,  2,  8,  2,  9,
                    4, 11,  4, 12)),
         fillp([] ( 3,  2,  4,  3,  5,  3,  4,  2,  3,  2))));
 
-    incl(result.fontVectors, 'ó', 9,
+    incl(vecFont.fontVectors, 'ó', 9,
     [] (fillp([] ( 4, 12,  3, 12,  1, 10,  1,  7,  3,  5,  5,  5,  7,  7,  7, 10,
                    5, 12,  4, 12,  4, 11,  6,  9,  6,  8,  4,  6,  2,  8,  2,  9,
                    4, 11,  4, 12)),
         fillp([] ( 5,  2,  4,  3,  3,  3,  4,  2,  5,  2))));
 
-    incl(result.fontVectors, 'ô', 9,
+    incl(vecFont.fontVectors, 'ô', 9,
     [] (fillp([] ( 4, 12,  3, 12,  1, 10,  1,  7,  3,  5,  5,  5,  7,  7,  7, 10,
                    5, 12,  4, 12,  4, 11,  6,  9,  6,  8,  4,  6,  2,  8,  2,  9,
                    4, 11,  4, 12)),
         fillp([] ( 2,  3,  3,  2,  5,  2,  6,  3,  5,  3,  4,  2,  3,  3,  2,  3
                   ))));
 
-    incl(result.fontVectors, 'õ', 9,
+    incl(vecFont.fontVectors, 'õ', 9,
     [] (fillp([] ( 4, 12,  3, 12,  1, 10,  1,  7,  3,  5,  5,  5,  7,  7,  7, 10,
                    5, 12,  4, 12,  4, 11,  6,  9,  6,  8,  4,  6,  2,  8,  2,  9,
                    4, 11,  4, 12)),
         fillp([] ( 1,  3,  2,  2,  4,  2,  5,  3,  6,  2,  7,  2,  6,  3,  4,  3,
                    3,  2,  2,  3,  1,  3))));
 
-    incl(result.fontVectors, 'ö', 9,
+    incl(vecFont.fontVectors, 'ö', 9,
     [] (fillp([] ( 4, 12,  3, 12,  1, 10,  1,  7,  3,  5,  5,  5,  7,  7,  7, 10,
                    5, 12,  4, 12,  4, 11,  6,  9,  6,  8,  4,  6,  2,  8,  2,  9,
                    4, 11,  4, 12)),
         fillp([] ( 1,  2,  1,  3,  2,  3,  2,  2,  1,  2)),
         fillp([] ( 6,  2,  6,  3,  7,  3,  7,  2,  6,  2))));
 
-    incl(result.fontVectors, '÷', 10,
+    incl(vecFont.fontVectors, '÷', 10,
     [] (fillp([] ( 1,  8,  8,  8,  8,  9,  1,  9,  1,  8)),
         fillp([] ( 4,  5,  4,  6,  5,  6,  5,  5,  4,  5)),
         fillp([] ( 4, 11,  4, 12,  5, 12,  5, 11,  4, 11))));
 
-    incl(result.fontVectors, 'ø', 9,
+    incl(vecFont.fontVectors, 'ø', 9,
     [] (fillp([] ( 4, 12,  3, 12,  1,  9,  1,  7,  3,  5,  5,  5,  7,  8,  7, 10,
                    5, 12,  4, 12,  4, 11,  5, 11,  6, 10,  6,  8,  4,  6,  3,  6,
                    2,  7,  2,  9,  4, 11,  4, 12)),
         fillp([] ( 7,  5,  0, 12,  1, 12,  8,  5,  7,  5))));
 
-    incl(result.fontVectors, 'ù', 8,
+    incl(vecFont.fontVectors, 'ù', 8,
     [] (fillp([] ( 1,  5,  2,  5,  2, 10,  3, 11,  4, 11,  5, 10,  5,  5,  6,  5,
                    6, 12,  5, 11,  4, 12,  2, 12,  1, 11,  1,  5)),
         fillp([] ( 2,  2,  3,  3,  4,  3,  3,  2,  2,  2))));
 
-    incl(result.fontVectors, 'ú', 8,
+    incl(vecFont.fontVectors, 'ú', 8,
     [] (fillp([] ( 1,  5,  2,  5,  2, 10,  3, 11,  4, 11,  5, 10,  5,  5,  6,  5,
                    6, 12,  5, 11,  4, 12,  2, 12,  1, 11,  1,  5)),
         fillp([] ( 5,  2,  4,  3,  3,  3,  4,  2,  5,  2))));
 
-    incl(result.fontVectors, 'û', 8,
+    incl(vecFont.fontVectors, 'û', 8,
     [] (fillp([] ( 1,  5,  2,  5,  2, 10,  3, 11,  4, 11,  5, 10,  5,  5,  6,  5,
                    6, 12,  5, 11,  4, 12,  2, 12,  1, 11,  1,  5)),
         fillp([] ( 1,  3,  2,  2,  5,  2,  6,  3,  5,  3,  4,  2,  3,  2,  2,  3,
                    1,  3))));
 
-    incl(result.fontVectors, 'ü', 8,
+    incl(vecFont.fontVectors, 'ü', 8,
     [] (fillp([] ( 1,  5,  2,  5,  2, 10,  3, 11,  4, 11,  5, 10,  5,  5,  6,  5,
                    6, 12,  5, 11,  4, 12,  2, 12,  1, 11,  1,  5)),
         fillp([] ( 1,  2,  1,  3,  2,  3,  2,  2,  1,  2)),
         fillp([] ( 5,  2,  5,  3,  6,  3,  6,  2,  5,  2))));
 
-    incl(result.fontVectors, 'ý', 8,
+    incl(vecFont.fontVectors, 'ý', 8,
     [] (fillp([] ( 0,  5,  3, 11,  3, 12,  2, 13,  1, 13,  1, 14,  3, 14,  4, 13,
                    4, 11,  7,  5,  6,  5,  4,  9,  3,  9,  1,  5,  0,  5)),
         fillp([] ( 5,  2,  4,  3,  3,  3,  4,  2,  5,  2))));
 
-    incl(result.fontVectors, 'þ', 9,
+    incl(vecFont.fontVectors, 'þ', 9,
     [] (fillp([] ( 1,  3,  1, 14,  2, 14,  2,  8,  4,  6,  6,  8,  6,  9,  4, 11,
                    2,  9,  2, 10,  4, 12,  5, 12,  7, 10,  7,  7,  5,  5,  4,  5,
                    2,  7,  2,  3,  1,  3))));
 
-    incl(result.fontVectors, 'ÿ', 8,
+    incl(vecFont.fontVectors, 'ÿ', 8,
     [] (fillp([] ( 0,  5,  3, 11,  3, 12,  2, 13,  1, 13,  1, 14,  3, 14,  4, 13,
                    4, 11,  7,  5,  6,  5,  4,  9,  3,  9,  1,  5,  0,  5)),
         fillp([] ( 1,  2,  1,  3,  2,  3,  2,  2,  1,  2)),
         fillp([] ( 5,  2,  5,  3,  6,  3,  6,  2,  5,  2))));
 
-    incl(result.fontVectors, '€', 12,
+    incl(vecFont.fontVectors, '€', 12,
     [] (fillp([] (11,  4, 10,  3,  7,  3,  4,  4,  4,  6,  2,  6,  1,  7,  1,  8,
                    3,  8,  4, 11,  7, 12,  8, 12, 11, 11, 11, 10, 10, 10,  9, 11,
                    6, 11,  4,  9,  4,  8,  9,  8, 10,  7, 10,  6,  5,  6,  5,  5,
                    6,  4, 11,  4))));
 
-    result.columnWidth := columnWidth(result.fontVectors);
+    vecFont.columnWidth := columnWidth(vecFont.fontVectors);
 end func;
 
 

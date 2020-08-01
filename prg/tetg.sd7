@@ -266,7 +266,7 @@ const proc: hide (in piece: actual_piece) is func
 
 const func boolean: is_occupied (in piece: actual_piece) is func
   result
-    var boolean: result is FALSE;
+    var boolean: is_occupied is FALSE;
   local
     var integer: line is 0;
     var integer: column is 0;
@@ -276,7 +276,7 @@ const func boolean: is_occupied (in piece: actual_piece) is func
         if PATTERN(actual_piece, actual_piece.rot_pos)[line][column] <> ' ' and
             occupied[pred(actual_piece.line_pos + line)]
             [actual_piece.column_pos + column + 2] then
-          result := TRUE;
+          is_occupied := TRUE;
         end if;
       end for;
     end for;
