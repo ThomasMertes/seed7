@@ -6,6 +6,7 @@ bifurk.sd7   Display the bifurcation diagram
 calc.sd7     Calculator                                        
 castle.sd7   Castle Adventure                                  
 celsius.sd7  Print a Fahrenheit-Celsius table                  
+chkbig.sd7   Checks bigInteger literals and operations         
 chkexc.sd7   Checks exceptions                                 
 chkint.sd7   Checks integer literals and operations            
 chkprc.sd7   Checks procedures and statements                  
@@ -60,6 +61,7 @@ wrinum.sd7   Write numbers as english text
 wumpus.sd7   Hunt the Wumpus game                              
 
   Seed7 include files:
+bigint.s7i   bigInteger point support library                  
 dir.s7i      Read directorys as files                          
 dna_base.s7i Bacterial dna fight programming game interface    
 draw.s7i     Graphic library                                   

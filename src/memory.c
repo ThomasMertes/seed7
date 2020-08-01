@@ -683,6 +683,12 @@ objecttype object;
         do_destroy(object, &err_info);
         FREE_OBJECT(object);
         break;
+      case BIGINTOBJECT:
+        if (object->value.bigintvalue != NULL) {
+          FREE_BIG(object->value.bigintvalue, object->value.bigintvalue->size);
+        } /* if */
+        FREE_OBJECT(object);
+        break;
       case STRIOBJECT:
         if (object->value.strivalue != NULL) {
           FREE_STRI(object->value.strivalue, object->value.strivalue->size);

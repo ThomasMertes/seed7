@@ -220,6 +220,40 @@ inttype ivalue;
 
 #ifdef ANSI_C
 
+void prot_bigint (biginttype bintvalue)
+#else
+
+void prot_bigint (bintvalue)
+biginttype bintvalue;
+#endif
+
+  {
+    memsizetype pos;
+    char buffer[21];
+
+  /* prot_bigint */
+    if (bintvalue != NULL) {
+      if (bintvalue->size > 0) {
+        pos = bintvalue->size - 1;
+        sprintf(buffer, "0x%04hX", bintvalue->bigdigits[pos]);
+        prot_cstri(buffer);
+        while (pos > 0) {
+          pos--;
+          sprintf(buffer, "%04hX", bintvalue->bigdigits[pos]);
+          prot_cstri(buffer);
+        } /* while */
+      } else {
+        prot_cstri(" *ZERO_SIZE_BIGINT* ");
+      } /* if */
+    } else {
+      prot_cstri(" *NULL_BIGINT* ");
+    } /* if */
+  } /* prot_bigint */
+
+
+
+#ifdef ANSI_C
+
 static void prot_char (chartype cvalue)
 #else
 
@@ -511,6 +545,9 @@ objecttype anyobject;
       case INTOBJECT:
         prot_int(anyobject->value.intvalue);
         break;
+      case BIGINTOBJECT:
+        prot_bigint(anyobject->value.bigintvalue);
+        break;
       case CHAROBJECT:
         prot_char(anyobject->value.charvalue);
         break;
@@ -675,6 +712,7 @@ objecttype anyobject;
           printobject(anyobject->value.objvalue);
           break;
         case INTOBJECT:
+        case BIGINTOBJECT:
         case CHAROBJECT:
         case STRIOBJECT:
         case FILEOBJECT:
@@ -822,6 +860,7 @@ listtype list;
             } /* if */
             break;
           case INTOBJECT:
+          case BIGINTOBJECT:
           case CHAROBJECT:
           case STRIOBJECT:
           case FILEOBJECT:

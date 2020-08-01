@@ -30,27 +30,37 @@
 objecttype big_add (listtype);
 objecttype big_cmp (listtype);
 objecttype big_cpy (listtype);
+objecttype big_create (listtype);
 objecttype big_decr (listtype);
+objecttype big_destr (listtype);
 objecttype big_eq (listtype);
+objecttype big_hashcode (listtype);
 objecttype big_incr (listtype);
 objecttype big_minus (listtype);
 objecttype big_mult (listtype);
 objecttype big_ne (listtype);
 objecttype big_parse (listtype);
+objecttype big_plus (listtype);
 objecttype big_sbtr (listtype);
+objecttype big_str (listtype);
 
 #else
 
 objecttype big_add ();
 objecttype big_cmp ();
 objecttype big_cpy ();
+objecttype big_create ();
 objecttype big_decr ();
+objecttype big_destr ();
 objecttype big_eq ();
+objecttype big_hashcode ();
 objecttype big_incr ();
 objecttype big_minus ();
 objecttype big_mult ();
 objecttype big_ne ();
 objecttype big_parse ();
+objecttype big_plus ();
 objecttype big_sbtr ();
+objecttype big_str ();
 
 #endif

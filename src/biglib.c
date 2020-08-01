@@ -128,6 +128,46 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype big_create (listtype arguments)
+#else
+
+objecttype big_create (arguments)
+listtype arguments;
+#endif
+
+  {
+    objecttype big_to;
+    objecttype big_from;
+    memsizetype new_size;
+    biginttype new_big;
+
+  /* big_create */
+    big_to = arg_1(arguments);
+    big_from = arg_3(arguments);
+    isit_bigint(big_from);
+    SET_CLASS_OF_OBJ(big_to, BIGINTOBJECT);
+    if (TEMP_OBJECT(big_from)) {
+      big_to->value.bigintvalue = take_bigint(big_from);
+      big_from->value.bigintvalue = NULL;
+    } else {
+      new_size = take_bigint(big_from)->size;
+      if (!ALLOC_BIG(new_big, new_size)) {
+        big_to->value.bigintvalue = NULL;
+        return(raise_exception(SYS_MEM_EXCEPTION));
+      } /* if */
+      COUNT_BIG(new_size);
+      big_to->value.bigintvalue = new_big;
+      new_big->size = new_size;
+      memcpy(new_big->bigdigits, take_bigint(big_from)->bigdigits,
+          (SIZE_TYPE) new_size * sizeof(bigdigittype));
+    } /* if */
+    return(SYS_EMPTY_OBJECT);
+  } /* big_create */
+
+
+
+#ifdef ANSI_C
+
 objecttype big_decr (listtype arguments)
 #else
 
@@ -176,6 +216,30 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype big_destr (listtype arguments)
+#else
+
+objecttype big_destr (arguments)
+listtype arguments;
+#endif
+
+  {
+    biginttype old_bigint;
+
+  /* big_destr */
+    isit_bigint(arg_1(arguments));
+    old_bigint = take_bigint(arg_1(arguments));
+    if (old_bigint != NULL) {
+      FREE_BIG(old_bigint, old_bigint->size);
+      arg_1(arguments)->value.bigintvalue = NULL;
+    } /* if */
+    return(SYS_EMPTY_OBJECT);
+  } /* big_destr */
+
+
+
+#ifdef ANSI_C
+
 objecttype big_eq (listtype arguments)
 #else
 
@@ -200,6 +264,28 @@ listtype arguments;
       return(SYS_FALSE_OBJECT);
     } /* if */
   } /* big_eq */
+
+
+
+#ifdef ANSI_C
+
+objecttype big_hashcode (listtype arguments)
+#else
+
+objecttype big_hashcode (arguments)
+listtype arguments;
+#endif
+
+  {
+    biginttype big1;
+    inttype result;
+
+  /* big_hashcode */
+    isit_bigint(arg_1(arguments));
+    big1 = take_bigint(arg_1(arguments));
+    result = big1->bigdigits[0] << 5 ^ big1->size << 3 ^ big1->bigdigits[big1->size - 1];
+    return(bld_int_temp(result));
+  } /* big_hashcode */
 
 
 
@@ -334,6 +420,41 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype big_plus (listtype arguments)
+#else
+
+objecttype big_plus (arguments)
+listtype arguments;
+#endif
+
+  {
+    biginttype big1;
+    biginttype result;
+
+  /* big_plus */
+    isit_bigint(arg_2(arguments));
+    big1 = take_bigint(arg_2(arguments));
+    if (TEMP_OBJECT(arg_2(arguments))) {
+      result = big1;
+      arg_2(arguments)->value.bigintvalue = NULL;
+      return(bld_bigint_temp(result));
+    } else {
+      if (!ALLOC_BIG(result, big1->size)) {
+        return(raise_exception(SYS_MEM_EXCEPTION));
+      } else {
+        COUNT_BIG(big1->size);
+        result->size = big1->size;
+        memcpy(result->bigdigits, big1->bigdigits,
+            (SIZE_TYPE) big1->size * sizeof(bigdigittype));
+        return(bld_bigint_temp(result));
+      } /* if */
+    } /* if */
+  } /* big_plus */
+
+
+
+#ifdef ANSI_C
+
 objecttype big_sbtr (listtype arguments)
 #else
 
@@ -347,3 +468,20 @@ listtype arguments;
     return(bld_bigint_temp(
         bigSbtr(take_bigint(arg_1(arguments)), take_bigint(arg_3(arguments)))));
   } /* big_sbtr */
+
+
+
+#ifdef ANSI_C
+
+objecttype big_str (listtype arguments)
+#else
+
+objecttype big_str (arguments)
+listtype arguments;
+#endif
+
+  { /* big_str */
+    isit_bigint(arg_1(arguments));
+    return(bld_stri_temp(bigStr(
+        take_bigint(arg_1(arguments)))));
+  } /* big_str */

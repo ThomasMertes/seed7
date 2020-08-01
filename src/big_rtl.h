@@ -36,6 +36,7 @@ biginttype bigAdd (biginttype, biginttype);
 inttype bigCmp (biginttype, biginttype);
 void bigCpy (biginttype *, biginttype);
 void bigDecr (biginttype *);
+void bigDestr (biginttype);
 booltype bigEq (biginttype, biginttype);
 void bigIncr (biginttype *);
 biginttype bigMinus (biginttype);
@@ -43,6 +44,7 @@ biginttype bigMult (biginttype, biginttype);
 booltype bigNe (biginttype, biginttype);
 biginttype bigParse (stritype);
 biginttype bigSbtr (biginttype, biginttype);
+stritype bigStr (biginttype);
 
 #else
 
@@ -51,6 +53,7 @@ biginttype bigAdd ();
 inttype bigCmp ();
 void bigCpy ();
 void bigDecr ();
+void bigDestr ();
 booltype bigEq ();
 void bigIncr ();
 biginttype bigMinus ();
@@ -58,5 +61,6 @@ biginttype bigMult ();
 booltype bigNe ();
 biginttype bigParse ();
 biginttype bigSbtr ();
+stritype bigStr ();
 
 #endif

@@ -92,6 +92,23 @@ const proc: process_action (in reference: procedure, in ref_list: params,
 const proc: process_expr (in reference: current_expression, inout expr_type: c_expr) is forward;
 
 
+const proc: prepare_bigint_result (inout expr_type: c_expr) is func
+
+  begin
+    incr(c_expr.temp_num);
+    c_expr.result_decl := "biginttype tmp_";
+    c_expr.result_decl &:= str(c_expr.temp_num);
+    c_expr.result_decl &:= ";\n";
+    c_expr.result_free := "bigDestr(tmp_";
+    c_expr.result_free &:= str(c_expr.temp_num);
+    c_expr.result_free &:= ");\n";
+    c_expr.result_intro := "(tmp_";
+    c_expr.result_intro &:= str(c_expr.temp_num);
+    c_expr.result_intro &:= "=";
+    c_expr.result_finish := ")";
+  end func;
+
+
 const proc: prepare_set_result (inout expr_type: c_expr) is func
 
   begin
@@ -143,6 +160,29 @@ const proc: prepare_struct_result (inout expr_type: c_expr) is func
     c_expr.result_finish := ")";
   end func;
 *)
+
+
+const proc: get_bigint_arg (in reference: current_expression, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: c_param is expr_type.value;
+  begin
+    c_param.temp_num := c_expr.temp_num;
+    process_expr(current_expression, c_param);
+    c_expr.temp_num := c_param.temp_num;
+    c_expr.temp_decls &:= c_param.temp_decls;
+    c_expr.temp_decls &:= c_param.result_decl;
+    c_expr.temp_assigns &:= c_param.temp_assigns;
+    c_expr.temp_frees &:= c_param.temp_frees;
+    c_expr.temp_frees &:= c_param.result_free;
+    if c_param.result_expr <> "" then
+      c_expr.result_expr &:= c_param.result_intro;
+      c_expr.result_expr &:= c_param.result_expr;
+      c_expr.result_expr &:= c_param.result_finish;
+    else
+      c_expr.result_expr &:= c_param.expr;
+    end if;
+  end func;
 
 
 const proc: get_set_arg (in reference: current_expression, inout expr_type: c_expr) is func
@@ -496,6 +536,9 @@ const proc: process_object_value (in reference: current_object,
     elsif objclass = "INTOBJECT" then
       c_expr.expr &:= "=";
       c_expr.expr &:= str(integer value object_value);
+    elsif objclass = "BIGINTOBJECT" then
+      c_expr.expr &:= "=";
+      # c_expr.expr &:= str(bigInteger value object_value);
     elsif objclass = "CHAROBJECT" then
       c_expr.expr &:= "=";
       c_expr.expr &:= c_literal(char value object_value);
@@ -1461,6 +1504,128 @@ const proc: process_arr_times (in ref_list: params, inout expr_type: c_expr) is 
     c_expr.expr &:= ", ";
     process_expr(params[3], c_expr);
     c_expr.expr &:= "))";
+  end func;
+
+
+const proc: process_big_add (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_bigint_result(c_expr);
+    c_expr.result_expr := "bigAdd(";
+    get_bigint_arg(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    get_bigint_arg(params[3], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process_big_cmp (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "bigCmp(";
+    process_arg(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_arg(params[2], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process_big_cpy (in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: c_param1 is expr_type.value;
+    var expr_type: c_param3 is expr_type.value;
+  begin
+    process_expr(params[1], c_param1);
+    c_param3.temp_num := c_param1.temp_num;
+    process_expr(params[3], c_param3);
+    if c_param3.temp_num <> 0 then
+      c_expr.expr &:= "{\n";
+      c_expr.expr &:= c_param1.temp_decls;
+      c_expr.expr &:= c_param3.temp_decls;
+      c_expr.expr &:= c_param1.temp_assigns;
+      c_expr.expr &:= c_param3.temp_assigns;
+    end if;
+    if c_param3.result_expr <> "" then
+      c_expr.expr &:= c_param1.expr;
+      c_expr.expr &:= "=";
+      c_expr.expr &:= c_param3.result_expr;
+      c_expr.expr &:= ";\n";
+    else
+      c_expr.expr &:= "bigCpy(&(";
+      c_expr.expr &:= c_param1.expr;
+      c_expr.expr &:= "), ";
+      c_expr.expr &:= c_param3.expr;
+      c_expr.expr &:= ");\n";
+    end if;
+    if c_param3.temp_num <> 0 then
+      c_expr.expr &:= c_param1.temp_frees;
+      c_expr.expr &:= c_param3.temp_frees;
+      c_expr.expr &:= "}";
+    end if;
+  end func;
+
+
+const proc: process_big_eq (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "bigEq(";
+    process_arg(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_arg(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process_big_minus (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_bigint_result(c_expr);
+    c_expr.result_expr := "bigMinus(";
+    get_bigint_arg(params[2], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process_big_mult (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_bigint_result(c_expr);
+    c_expr.result_expr := "bigMult(";
+    get_bigint_arg(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    get_bigint_arg(params[3], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process_big_ne (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "bigNe(";
+    process_arg(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_arg(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process_big_parse (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "bigParse(";
+    process_arg(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process_big_str (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_stri_result(c_expr);
+    c_expr.result_expr &:= "bigStr(";
+    get_bigint_arg(params[1], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 
@@ -4859,6 +5024,43 @@ const proc: process_str_cpy (in ref_list: params, inout expr_type: c_expr) is fu
   end func;
 
 
+const proc: process_str_elemcpy (in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: c_param1 is expr_type.value;
+    var expr_type: c_param4 is expr_type.value;
+  begin
+    process_expr(params[1], c_param1);
+    c_param4.temp_num := c_param1.temp_num;
+    process_expr(params[4], c_param4);
+    c_expr.expr &:= "{\n";
+    if c_param4.temp_num <> 0 then
+      c_expr.expr &:= c_param1.temp_decls;
+      c_expr.expr &:= c_param4.temp_decls;
+      c_expr.expr &:= c_param1.temp_assigns;
+      c_expr.expr &:= c_param4.temp_assigns;
+    end if;
+    c_expr.expr &:= "stritype str1=";
+    c_expr.expr &:= c_param1.expr;
+    c_expr.expr &:= ";\n";
+    c_expr.expr &:= "unsigned long int pos=";
+    c_expr.expr &:= c_param4.expr;
+    c_expr.expr &:= ";\n";
+    c_expr.expr &:= "if (pos >= 1 && pos <= str1->size) {\n";
+    c_expr.expr &:= "  str1->mem[pos - 1] = (strelemtype) (";
+    process_expr(params[6], c_expr);
+    c_expr.expr &:= ");\n";
+(*  c_expr.expr &:= "} else {\n";
+    c_expr.expr &:= "  return(raise_exception(SYS_RNG_EXCEPTION));\n"; *)
+    c_expr.expr &:= "}\n";
+    if c_param4.temp_num <> 0 then
+      c_expr.expr &:= c_param1.temp_frees;
+      c_expr.expr &:= c_param4.temp_frees;
+    end if;
+    c_expr.expr &:= "}";
+  end func;
+
+
 const proc: process_str_eq (in ref_list: params, inout expr_type: c_expr) is func
 
   local
@@ -5479,6 +5681,24 @@ const proc: process_action (in reference: procedure, in ref_list: params,
       process_arr_times(params, c_expr);
     elsif action_name = "ARR_TAIL" then
       process_arr_tail(params, c_expr);
+    elsif action_name = "BIG_ADD" then
+      process_big_add(params, c_expr);
+    elsif action_name = "BIG_CMP" then
+      process_big_cmp(params, c_expr);
+    elsif action_name = "BIG_CPY" then
+      process_big_cpy(params, c_expr);
+    elsif action_name = "BIG_EQ" then
+      process_big_eq(params, c_expr);
+    elsif action_name = "BIG_MINUS" then
+      process_big_minus(params, c_expr);
+    elsif action_name = "BIG_MULT" then
+      process_big_mult(params, c_expr);
+    elsif action_name = "BIG_NE" then
+      process_big_ne(params, c_expr);
+    elsif action_name = "BIG_PARSE" then
+      process_big_parse(params, c_expr);
+    elsif action_name = "BIG_STR" then
+      process_big_str(params, c_expr);
     elsif action_name = "BLN_AND" then
       process_bln_and(params, c_expr);
     elsif action_name = "BLN_CPY" then
@@ -6021,6 +6241,8 @@ const proc: process_action (in reference: procedure, in ref_list: params,
       process_str_cmp(params, c_expr);
     elsif action_name = "STR_CPY" then
       process_str_cpy(params, c_expr);
+    elsif action_name = "STR_ELEMCPY" then
+      process_str_elemcpy(params, c_expr);
     elsif action_name = "STR_EQ" then
       process_str_eq(params, c_expr);
     elsif action_name = "STR_GE" then
@@ -6618,6 +6840,13 @@ const proc: process_expr (in reference: current_expression, inout expr_type: c_e
       else
         c_expr.expr &:= str(float value current_expression);
       end if;
+    elsif objclass = "BIGINTOBJECT" then
+      if is_var(current_expression) then
+        c_expr.expr &:= "o_";
+        create_name(current_expression, c_expr);
+      else
+        c_expr.expr &:= "/* process_expr - BIGINTOBJECT */";
+      end if;
     elsif objclass = "CHAROBJECT" then
       if is_var(current_expression) then
         c_expr.expr &:= "o_";
@@ -6964,6 +7193,32 @@ const proc: process_int_declaration (in reference: current_object,
   end func;
 
 
+const proc: process_bigint_declaration (in reference: current_object,
+    inout expr_type: c_expr) is func
+
+  begin
+    if is_var(current_object) then
+      c_expr.expr &:= "biginttype o_";
+      create_name(current_object, c_expr);
+      c_expr.expr &:= ";\n\n";
+(*
+      if string value current_object not in stri_const_table then
+        stri_const_table @:= [bigInteger value current_object] length(stri_const_table);
+      end if;
+      global_init.expr &:= "bigCreate(&o_";
+      create_name(current_object, global_init);
+      global_init.expr &:= ", str[";
+      global_init.expr &:= str(stri_const_table[string value current_object]);
+      global_init.expr &:= "] /* ";
+      global_init.expr &:= replace(c_literal(string value current_object), "*/", "* /");
+      global_init.expr &:= " */";
+      global_init.expr &:= ");\n";
+*)
+      count_declarations;
+    end if;
+  end func;
+
+
 const proc: process_char_declaration (in reference: current_object,
     inout expr_type: c_expr) is func
 
@@ -6986,7 +7241,7 @@ const proc: process_stri_declaration (in reference: current_object,
     if is_var(current_object) then
       c_expr.expr &:= "stritype o_";
       create_name(current_object, c_expr);
-      c_expr.expr &:= ";\n";
+      c_expr.expr &:= ";\n\n";
       if string value current_object not in stri_const_table then
         stri_const_table @:= [string value current_object] length(stri_const_table);
       end if;
@@ -7658,6 +7913,8 @@ const proc: process_object_declaration (in reference: current_object,
       process_type_declaration(current_object, c_expr);
     elsif objclass = "INTOBJECT" then
       process_int_declaration(current_object, c_expr);
+    elsif objclass = "BIGINTOBJECT" then
+      process_bigint_declaration(current_object, c_expr);
     elsif objclass = "CHAROBJECT" then
       process_char_declaration(current_object, c_expr);
     elsif objclass = "STRIOBJECT" then
@@ -7722,6 +7979,7 @@ const proc: write_file_head is func
     c_prog << "typedef long typetype;\n";
     c_prog << "typedef long int inttype;\n";
     c_prog << "typedef unsigned long int chartype;\n";
+    c_prog << "typedef unsigned short int bigdigittype;\n";
     c_prog << "typedef unsigned long int strelemtype;\n";
     c_prog << "typedef unsigned long int bitsettype;\n";
     c_prog << "typedef FILE *filetype;\n";
@@ -7729,6 +7987,10 @@ const proc: write_file_head is func
     c_prog << "  struct list *next;\n";
     c_prog << "  long obj;\n";
     c_prog << "} *listtype;\n";
+    c_prog << "typedef struct {\n";
+    c_prog << "  unsigned long int size;\n";
+    c_prog << "  bigdigittype bigdigits[1];\n";
+    c_prog << "} *biginttype;\n";
     c_prog << "typedef struct stri {\n";
     c_prog << "  unsigned long int size;\n";
     c_prog << "  strelemtype mem[1];\n";

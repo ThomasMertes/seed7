@@ -193,6 +193,8 @@ XExposeEvent *xexpose;
     if (xexpose->count == 0) {
       expose_window = find_window(xexpose->window);
       if (expose_window != NULL && expose_window->backup != 0) {
+        /* printf("XExposeEvent x=%d, y=%d, width=%d, height=%d\n",
+	   xexpose->x, xexpose->y, xexpose->width, xexpose->height); */
         XCopyArea(mydisplay, expose_window->backup,
             expose_window->window, mygc, 0, 0,
             to_width(expose_window), to_height(expose_window), 0, 0);

@@ -81,3 +81,8 @@
 - The first steps towards bigInteger support were done.
 - The graphic and keyborad drivers for windows have been improved.
 - A check for the maximum of fish and sharks was added to the wator example program.
+
+20060910:
+- A new include file (bigint.s7i) and a new example program (chkbig.sd7) were added.
+- Changes in the compiler to support some bigInteger functionality were done.
+- Support for the str_elemcpy action was added to the compiler.

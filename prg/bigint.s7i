@@ -1,0 +1,68 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  bigint.s7i    bigInteger point support library                  *)
+(*  Copyright (C) 2006  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 59 Temple Place, Suite 330,     *)
+(*  Boston, MA 02111-1307 USA                                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const type: bigInteger is          subtype object;
+# $ system "bigInteger" is bigInteger;
+
+const proc: destroy (ref bigInteger param) is                              action "BIG_DESTR";
+const proc: (ref bigInteger param) ::= (ref bigInteger param) is           action "BIG_CREATE";
+IN_PARAM_IS_VALUE(bigInteger);
+
+const func bigInteger: + (ref bigInteger param) is                         action "BIG_PLUS";
+const func bigInteger: - (ref bigInteger param) is                         action "BIG_MINUS";
+
+const proc: (inout bigInteger param) := (ref bigInteger param) is          action "BIG_CPY";
+# const proc: (inout bigInteger param) +:= (ref bigInteger param) is         action "BIG_GROW";
+# const proc: (inout bigInteger param) -:= (ref bigInteger param) is         action "BIG_SHRINK";
+const func bigInteger: (ref bigInteger param) + (ref bigInteger param) is  action "BIG_ADD";
+const func bigInteger: (ref bigInteger param) - (ref bigInteger param) is  action "BIG_SBTR";
+const func bigInteger: (ref bigInteger param) * (ref bigInteger param) is  action "BIG_MULT";
+# const func bigInteger: (ref bigInteger param) / (ref bigInteger param) is  action "BIG_DIV";
+# const func bigInteger: (ref bigInteger param) ** (ref integer param) is    action "BIG_IPOW";
+# const func bigInteger: (ref bigInteger param) ** (ref bigInteger param) is action "BIG_POW";
+# const func string: (ref bigInteger param) digits (ref integer param) is    action "BIG_DGTS";
+const func boolean: (ref bigInteger param) = (ref bigInteger param) is     action "BIG_EQ";
+# const func boolean: (ref bigInteger param) < (ref bigInteger param) is     action "BIG_LT";
+# const func boolean: (ref bigInteger param) > (ref bigInteger param) is     action "BIG_GT";
+# const func boolean: (ref bigInteger param) <= (ref bigInteger param) is    action "BIG_LE";
+# const func boolean: (ref bigInteger param) >= (ref bigInteger param) is    action "BIG_GE";
+const func boolean: (ref bigInteger param) <> (ref bigInteger param) is    action "BIG_NE";
+const func integer: compare (in bigInteger param, in bigInteger param) is  action "BIG_CMP";
+const func integer: hashCode (in bigInteger param) is                      action "BIG_HASHCODE";
+
+# const func bigInteger: succ (in bigInteger param) is                       action "BIG_SUCC";
+# const func bigInteger: pred (in bigInteger param) is                       action "BIG_PRED";
+const func string: str (ref bigInteger param) is                           action "BIG_STR";
+const func bigInteger: (attr bigInteger) parse (in string param) is        action "BIG_PARSE";
+
+const bigInteger: (attr bigInteger) . value is bigInteger parse "0";
+
+const proc: incr (inout bigInteger param) is                               action "BIG_INCR";
+const proc: decr (inout bigInteger param) is                               action "BIG_DECR";
+
+enable_io(bigInteger);
