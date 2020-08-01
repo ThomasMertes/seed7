@@ -1,0 +1,219 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  pixmap_file.s7i  Text implementation type to use a pixmap font  *)
+(*  Copyright (C) 2010  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "text.s7i";
+include "null_file.s7i";
+
+
+(**
+ *  [[text|Text]] implementation type to write with a pixmap font.
+ *  This type allows writing text to graphic windows.
+ *  This is done with the portable [[font|fonts]] of Seed7.
+ *)
+const type: pixmapFontFile is sub null_file struct
+    var PRIMITIVE_WINDOW: win is PRIMITIVE_WINDOW.value;
+    var pixmapFontType: font is pixmapFontType.value;
+    var integer: height is 0;
+    var integer: width is 0;
+    var integer: line is 0;
+    var integer: column is 0;
+    var integer: min_x is 0;
+    var integer: min_y is 0;
+    var integer: curr_x is 0;
+    var integer: curr_y is 0;
+    var color: foreground is white;
+    var color: background is black;
+  end struct;
+
+
+type_implements_interface(pixmapFontFile, text);
+
+
+const func pixmapFontFile: malloc (ref pixmapFontFile: ext_file) is func
+  result
+    var pixmapFontFile: result is pixmapFontFile.value;
+  begin
+    result := ext_file;
+  end func;
+
+
+(**
+ *  Creates a ''pixmapFontFile'' at the upper left corner of ''win''.
+ *  The ''pixmapFontFile'' extends over the whole ''win''.
+ *  @return the file opened.
+ *)
+const func text: openPixmapFontFile (in PRIMITIVE_WINDOW: win) is func
+  result
+    var text: result is STD_NULL;
+  local
+    var pixmapFontFile: new_file is pixmapFontFile.value;
+  begin
+    new_file.win := win;
+    new_file.font.baseFont := fontProperties.value;
+    result := malloc(new_file);
+  end func;
+
+
+(**
+ *  Creates a ''pixmapFontFile'' at (''min_x'', ''min_y'') in ''win''.
+ *  The ''pixmapFontFile'' extends to the lower right edge of ''win''.
+ *  @return the file opened.
+ *)
+const func text: openPixmapFontFile (in PRIMITIVE_WINDOW: win,
+    in integer: min_x, in integer: min_y) is func
+  result
+    var text: result is STD_NULL;
+  local
+    var pixmapFontFile: new_file is pixmapFontFile.value;
+  begin
+    new_file.win := win;
+    new_file.font.baseFont := fontProperties.value;
+    new_file.min_x := min_x;
+    new_file.min_y := min_y;
+    result := malloc(new_file);
+  end func;
+
+
+const proc: setFont (inout text param, in font param) is DYNAMIC;
+
+
+const proc: cursor (ref pixmapFontFile: fontFile, ref boolean: active) is noop;
+const func integer: height (in pixmapFontFile: fontFile) is return fontFile.height;
+const func integer: width (in pixmapFontFile: fontFile) is return fontFile.width;
+
+
+(**
+ *  Clear an area of ''fontFile'' with the background color.
+ *  The area is specified in (line, column) coordinates and is
+ *  between the (''upper'', ''left'') and (''lower'', ''right'').
+ *)
+const proc: clear (inout pixmapFontFile: fontFile,
+    in integer: upper, in integer: left, in integer: lower, in integer: right) is func
+  begin
+    rectTo(curr_win,
+        fontFile.min_x + fontFile.font.column_delta * pred(left),
+        fontFile.min_y + fontFile.font.line_delta * pred(upper),
+        fontFile.min_x + pred(fontFile.font.column_delta * right),
+        fontFile.min_y + pred(fontFile.font.line_delta * lower),
+        fontFile.background);
+    fontFile.curr_y := fontFile.min_y + fontFile.font.line_delta * upper;
+    fontFile.curr_x := fontFile.min_x + fontFile.font.column_delta * left;
+  end func;
+
+
+(**
+ *  Set the current position of ''fontFile'' to ''line'' and ''column''.
+ *)
+const proc: setPos (inout pixmapFontFile: fontFile,
+    in integer: line, in integer: column) is func
+  begin
+    fontFile.curr_y := fontFile.min_y + fontFile.font.line_delta * line;
+    fontFile.curr_x := fontFile.min_x + fontFile.font.column_delta * column;
+  end func;
+
+
+(**
+ *  Set the current position of ''fontFile'' to the coordinates (xPos, yPos).
+ *  The coordinates are from the graphic window which belongs to ''fontFile''.
+ *)
+const proc: setPosXY (inout pixmapFontFile: fontFile, in integer: xPos, in integer: yPos) is func
+  begin
+    fontFile.curr_x := fontFile.min_x + xPos;
+    fontFile.curr_y := fontFile.min_y + yPos;
+    fontFile.line := (fontFile.curr_y + 2) div fontFile.font.line_delta;
+    fontFile.column := (fontFile.curr_x + 6) div fontFile.font.column_delta;
+  end func;
+
+
+(**
+ *  Set the current foreground color of ''fontFile''.
+ *)
+const proc: color (inout pixmapFontFile: fontFile, in color: col) is func
+  begin
+    fontFile.font := getFont(fontFile.font.baseFont, fontFile.font.fontSize,
+        fontFile.font.scale, col, fontFile.font.background);
+  end func;
+
+
+(**
+ *  Set the current foreground and background color of ''fontFile''.
+ *)
+const proc: color (inout pixmapFontFile: fontFile, in color: col, in color: backgr) is func
+  begin
+    fontFile.font := getFont(fontFile.font.baseFont, fontFile.font.fontSize,
+        fontFile.font.scale, col, backgr);
+  end func;
+
+
+const proc: scale (inout text param, in integer: scale) is DYNAMIC;
+
+
+const proc: scale (inout pixmapFontFile: fontFile, in integer: scale) is func
+  begin
+    fontFile.font := getFont(fontFile.font.baseFont, fontFile.font.fontSize,
+        scale, fontFile.font.foreground, fontFile.font.background);
+  end func;
+
+
+(**
+ *  Write a string to a ''pixmapFontFile''.
+ *)
+const proc: write (inout pixmapFontFile: fontFile, in string: stri) is func
+  local
+    var char: ch is ' ';
+    var PRIMITIVE_WINDOW: charPixmap is PRIMITIVE_WINDOW.value;
+  begin
+    for ch range stri do
+      if ch in fontFile.font.pixmap then
+        charPixmap := fontFile.font.pixmap[ch];
+      else
+        charPixmap := getFontCharPixmap(fontFile.font, ch);
+      end if;
+      put(fontFile.curr_x, fontFile.curr_y - fontFile.font.baseLineDelta, charPixmap, PSET);
+      fontFile.curr_x +:= width(charPixmap);
+      if fontFile.font.characterSpacing <> 0 then
+        rect(fontFile.curr_x, fontFile.curr_y - fontFile.font.baseLineDelta,
+            fontFile.font.characterSpacing, height(charPixmap), fontFile.font.background);
+        fontFile.curr_x +:= fontFile.font.characterSpacing;
+      end if;
+    end for;
+    fontFile.column +:= length(stri);
+  end func;
+
+
+(**
+ *  Write end-of-line to a ''pixmapFontFile''.
+ *  Set the current position to the beginning of the next line.
+ *)
+const proc: writeln (inout pixmapFontFile: fontFile) is func
+  begin
+    incr(fontFile.line);
+    fontFile.column := 1;
+    fontFile.curr_x := fontFile.min_x + fontFile.font.column_delta - 6;
+    fontFile.curr_y +:= fontFile.font.line_delta;
+  end func;

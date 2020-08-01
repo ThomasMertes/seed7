@@ -39,6 +39,7 @@
 #include "actutl.h"
 #include "syvarutl.h"
 #include "objutl.h"
+#include "name.h"
 #include "runerr.h"
 
 #undef EXTERN
@@ -79,10 +80,17 @@ objecttype act_create (arguments)
 listtype arguments;
 #endif
 
-  { /* act_create */
-    isit_action(arg_3(arguments));
-    SET_CATEGORY_OF_OBJ(arg_1(arguments), ACTOBJECT);
-    arg_1(arguments)->value.actvalue = take_action(arg_3(arguments));
+  {
+    objecttype act_to;
+    objecttype act_from;
+
+  /* act_create */
+    act_to = arg_1(arguments);
+    act_from = arg_3(arguments);
+    isit_action(act_from);
+    disconnect_param_entities(act_to);
+    SET_CATEGORY_OF_OBJ(act_to, ACTOBJECT);
+    act_to->value.actvalue = take_action(act_from);
     return(SYS_EMPTY_OBJECT);
   } /* act_create */
 

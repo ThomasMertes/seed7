@@ -28,6 +28,7 @@ $ include "seed7_05.s7i";
   include "keybd.s7i";
   include "float.s7i";
   include "time.s7i";
+  include "duration.s7i";
 
 
 var text: scr is STD_NULL;

@@ -27,6 +27,7 @@ $ include "seed7_05.s7i";
   include "draw.s7i";
   include "keybd.s7i";
   include "time.s7i";
+  include "duration.s7i";
 
 const integer: WINDOW_WIDTH is 200;
 const integer: WINDOW_HEIGHT is 200;

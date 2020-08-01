@@ -1,7 +1,7 @@
 
 (********************************************************************)
 (*                                                                  *)
-(*  keybd.s7i     Keyboard driver                                   *)
+(*  keybd.s7i     Read from keyboard without buffering and echo     *)
 (*  Copyright (C) 1993, 1994, 2005  Thomas Mertes                   *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
@@ -30,40 +30,59 @@ include "file.s7i";
 include "null_file.s7i";
 
 
+(**
+ *  Interface type describing keyboard [[file|files]].
+ *  This interface is implemented with ''console_keybd_file'' and
+ *  ''graph_keybd_file''.
+ *)
 const type: keyboard_file is subtype file;
+
 
 (* Procedures granted for every keyboard_file *)
 
-(**
- *  Return a character read from a keyboard_file or the
- *  character KEY_NONE when no character is available.
- *)
-const func char: busy_getc (ref keyboard_file param) is DYNAMIC;
 
 (**
- *  Return TRUE if a character is available at a keyboard_file,
- *  FALSE otherwise.
+ *  Read a char from ''keybd'', but don't wait when no key was pressed.
+ *  @return the char read from ''keybd'' or KEY_NONE when no
+ *          char is available.
  *)
-const func boolean: keypressed (ref keyboard_file param) is DYNAMIC;
+const func char: busy_getc (in keyboard_file: keybd) is DYNAMIC;
+
 
 (**
- *  Determine if a given button is currently pressed.
+ *  Determine if at least one character can be read without waiting.
+ *  @return TRUE if a character is available at ''keybd'',
+ *          FALSE otherwise.
  *)
-const func boolean: buttonPressed (ref keyboard_file param, ref char param) is DYNAMIC;
+const func boolean: keypressed (in keyboard_file: keybd) is DYNAMIC;
+
 
 (**
- *  Return the X position of the mouse cursor at the time when
- *  the last button was pressed. The functions getxpos and getypos
- *  can be used to determine which position was "clicked".
+ *  Determine if a given ''button'' is currently pressed.
+ *  @return TRUE when ''button'' is currently pressed,
+ *          FALSE otherwise.
  *)
-const func integer: getxpos (ref keyboard_file param) is DYNAMIC;
+const func boolean: buttonPressed (in keyboard_file: keybd, in char: button) is DYNAMIC;
+
 
 (**
- *  Return the Y position of the mouse cursor at the time when
- *  the last button was pressed. The functions getxpos and getypos
- *  can be used to determine which position was "clicked".
+ *  X position of the mouse cursor when a button was pressed.
+ *  The functions ''getxpos'' and ''getypos'' can be used to
+ *  determine which position was "clicked".
+ *  @return the X position of the mouse cursor at the time when
+ *          the last button was pressed.
  *)
-const func integer: getypos (ref keyboard_file param) is DYNAMIC;
+const func integer: getxpos (in keyboard_file: keybd) is DYNAMIC;
+
+
+(**
+ *  Y position of the mouse cursor when a button was pressed.
+ *  The functions ''getxpos'' and ''getypos'' can be used to
+ *  determine which position was "clicked".
+ *  @return the Y position of the mouse cursor at the time when
+ *          the last button was pressed.
+ *)
+const func integer: getypos (in keyboard_file: keybd) is DYNAMIC;
 
 
 const type: console_keybd_file is sub null_file struct
@@ -76,36 +95,43 @@ type_implements_interface(console_keybd_file, keyboard_file);
  *  Read a character from the console keyboard file.
  *  @return the character read.
  *)
-const func char: getc (ref console_keybd_file param) is                           action "KBD_GETC";
+const func char: getc (in console_keybd_file: keybd)                           is action "KBD_GETC";
 
 
 (**
  *  Read a string with maximum length from the console keyboard file.
  *  @return the string read.
  *)
-const func string: gets (ref console_keybd_file param, ref integer param) is      action "KBD_GETS";
+const func string: gets (in console_keybd_file: keybd, in integer: maxLength)  is action "KBD_GETS";
 
 
-const func char: raw_getc (ref console_keybd_file param) is                       action "KBD_RAW_GETC";
-const func string: line_read (ref console_keybd_file param, inout char param) is  action "KBD_LINE_READ";
-const func string: word_read (ref console_keybd_file param, inout char param) is  action "KBD_WORD_READ";
-
-
-(**
- *  Return a character read from the console keyboard file or the
- *  character KEY_NONE when no character is available.
- *)
-const func char: busy_getc (ref console_keybd_file param) is                      action "KBD_BUSY_GETC";
+const func char: raw_getc (in console_keybd_file param)                        is action "KBD_RAW_GETC";
+const func string: line_read (in console_keybd_file param, inout char param)   is action "KBD_LINE_READ";
+const func string: word_read (in console_keybd_file param, inout char param)   is action "KBD_WORD_READ";
 
 
 (**
- *  Return TRUE if a character is available at the console keyboard
- *  file, FALSE otherwise.
+ *  Read a char from ''keybd'', but don't wait when no key was pressed.
+ *  @return the char read from the console keyboard file or
+ *          KEY_NONE when no char is available.
  *)
-const func boolean: keypressed (ref console_keybd_file param) is                  action "KBD_KEYPRESSED";
+const func char: busy_getc (in console_keybd_file: keybd)                      is action "KBD_BUSY_GETC";
 
 
+(**
+ *  Determine if at least one character can be read without waiting.
+ *  @return TRUE if a character is available at the console keyboard file
+ *          FALSE otherwise.
+ *)
+const func boolean: keypressed (in console_keybd_file: keybd)                  is action "KBD_KEYPRESSED";
+
+
+(**
+ *  Keyboard file describing the console keyboard.
+ *  The console keyboard belongs to a text/console window.
+ *)
 var console_keybd_file: CONSOLE_KEYBOARD is console_keybd_file.value;
+
 
 const func string: getk (in console_keybd_file: keybd) is func
   result
@@ -119,35 +145,37 @@ const func string: getk (in console_keybd_file: keybd) is func
 
 
 (**
- *  Return a line read from the console keyboard file.
- *  The function accepts lines ending with "\n", "\r\n" or EOF.
- *  The line ending characters are not copied into the string.
- *  That means that the "\r" of a "\r\n" sequence is silently removed.
- *  When the function is left the inFile.bufferChar contains '\n' or
- *  EOF.
- *)
-const func string: getln (inout console_keybd_file: keybd) is func
-  result
-    var string: stri is "";
-  begin
-    stri := line_read(keybd, keybd.bufferChar);
-  end func;
-
-
-(**
- *  Return a word read from the console keyboard file.
+ *  Read a word from the console keyboard file.
  *  Before reading the word it skips spaces and tabs. The function
  *  accepts words ending with " ", "\t", "\n", "\r\n" or EOF.
  *  The word ending characters are not copied into the string.
  *  That means that the "\r" of a "\r\n" sequence is silently removed.
- *  When the function is left the inFile.bufferChar contains ' ',
+ *  When the function is left inFile.bufferChar contains ' ',
  *  '\t', '\n' or EOF.
+ *  @return the word read.
  *)
 const func string: getwd (inout console_keybd_file: keybd) is func
   result
     var string: stri is "";
   begin
     stri := word_read(keybd, keybd.bufferChar);
+  end func;
+
+
+(**
+ *  Read a line from the console keyboard file.
+ *  The function accepts lines ending with "\n", "\r\n" or EOF.
+ *  The line ending characters are not copied into the string.
+ *  That means that the "\r" of a "\r\n" sequence is silently removed.
+ *  When the function is left inFile.bufferChar contains '\n' or
+ *  EOF.
+ *  @return the line read.
+ *)
+const func string: getln (inout console_keybd_file: keybd) is func
+  result
+    var string: stri is "";
+  begin
+    stri := line_read(keybd, keybd.bufferChar);
   end func;
 
 
@@ -161,58 +189,71 @@ type_implements_interface(graph_keybd_file, keyboard_file);
  *  Read a character from the graphic keyboard file.
  *  @return the character read.
  *)
-const func char: getc (ref graph_keybd_file param) is                           action "GKB_GETC";
+const func char: getc (in graph_keybd_file: keybd)                             is action "GKB_GETC";
 
 
 (**
  *  Read a string with maximum length from the graphic keyboard file.
  *  @return the string read.
  *)
-const func string: gets (ref graph_keybd_file param, ref integer param) is      action "GKB_GETS";
+const func string: gets (in graph_keybd_file: keybd, in integer: maxLength)    is action "GKB_GETS";
 
 
 (**
- *  Determine if a given button is currently pressed.
+ *  Determine if a given ''button'' is currently pressed.
+ *  @return TRUE when ''button'' is currently pressed,
+ *          FALSE otherwise.
  *)
-const func boolean: buttonPressed (ref graph_keybd_file param, ref char param) is  action "GKB_BUTTON_PRESSED";
+const func boolean: buttonPressed (in graph_keybd_file: keybd, in char: button)  is action "GKB_BUTTON_PRESSED";
 
 
 (**
- *  Return the X position of the mouse cursor at the time when
- *  the last button was pressed. The functions getxpos and getypos
- *  can be used to determine which position was "clicked".
+ *  X position of the mouse cursor when a button was pressed.
+ *  The functions ''getxpos'' and ''getypos'' can be used to
+ *  determine which position was "clicked".
+ *  @return the X position of the mouse cursor at the time when
+ *          the last button was pressed.
  *)
-const func integer: getxpos (ref graph_keybd_file param) is                     action "GKB_BUTTON_XPOS";
+const func integer: getxpos (in graph_keybd_file: keybd)                       is action "GKB_BUTTON_XPOS";
 
 
 (**
- *  Return the Y position of the mouse cursor at the time when
- *  the last button was pressed. The functions getxpos and getypos
- *  can be used to determine which position was "clicked".
+ *  Y position of the mouse cursor when a button was pressed.
+ *  The functions ''getxpos'' and ''getypos'' can be used to
+ *  determine which position was "clicked".
+ *  @return the Y position of the mouse cursor at the time when
+ *          the last button was pressed.
  *)
-const func integer: getypos (ref graph_keybd_file param) is                     action "GKB_BUTTON_YPOS";
+const func integer: getypos (in graph_keybd_file: keybd)                       is action "GKB_BUTTON_YPOS";
 
 
-const func char: raw_getc (ref graph_keybd_file param) is                       action "GKB_RAW_GETC";
-const func string: line_read (ref graph_keybd_file param, inout char param) is  action "GKB_LINE_READ";
-const func string: word_read (ref graph_keybd_file param, inout char param) is  action "GKB_WORD_READ";
+const func char: raw_getc (in graph_keybd_file param)                          is action "GKB_RAW_GETC";
+const func string: line_read (in graph_keybd_file param, inout char param)     is action "GKB_LINE_READ";
+const func string: word_read (in graph_keybd_file param, inout char param)     is action "GKB_WORD_READ";
 
 
 (**
- *  Return a character read from the graphic keyboard file or the
- *  character KEY_NONE when no character is available.
+ *  Read a char from ''keybd'', but don't wait when no key was pressed.
+ *  @return the char read from the graphic keyboard file or
+ *          KEY_NONE when no char is available.
  *)
-const func char: busy_getc (ref graph_keybd_file param) is                      action "GKB_BUSY_GETC";
+const func char: busy_getc (in graph_keybd_file: keybd)                        is action "GKB_BUSY_GETC";
 
 
 (**
- *  Return TRUE if a character is available at the graphic keyboard
- *  file, FALSE otherwise.
+ *  Determine if at least one character can be read without waiting.
+ *  @return TRUE if a character is available at the graphic keyboard file
+ *          FALSE otherwise.
  *)
-const func boolean: keypressed (ref graph_keybd_file param) is                  action "GKB_KEYPRESSED";
+const func boolean: keypressed (in graph_keybd_file: keybd)                    is action "GKB_KEYPRESSED";
 
 
+(**
+ *  Keyboard file describing the graphic keyboard.
+ *  The graphic keyboard belongs to a graphic window.
+ *)
 var graph_keybd_file: GRAPH_KEYBOARD is graph_keybd_file.value;
+
 
 const func string: getk (in graph_keybd_file: keybd) is func
   result
@@ -226,12 +267,31 @@ const func string: getk (in graph_keybd_file: keybd) is func
 
 
 (**
- *  Return a line read from the graphic keyboard file.
+ *  Read a word from the graphic keyboard file.
+ *  Before reading the word it skips spaces and tabs. The function
+ *  accepts words ending with " ", "\t", "\n", "\r\n" or EOF.
+ *  The word ending characters are not copied into the string.
+ *  That means that the "\r" of a "\r\n" sequence is silently removed.
+ *  When the function is left inFile.bufferChar contains ' ',
+ *  '\t', '\n' or EOF.
+ *  @return the word read.
+ *)
+const func string: getwd (inout graph_keybd_file: keybd) is func
+  result
+    var string: stri is "";
+  begin
+    stri := word_read(keybd, keybd.bufferChar);
+  end func;
+
+
+(**
+ *  Read a line from the graphic keyboard file.
  *  The function accepts lines ending with "\n", "\r\n" or EOF.
  *  The line ending characters are not copied into the string.
  *  That means that the "\r" of a "\r\n" sequence is silently removed.
- *  When the function is left the inFile.bufferChar contains '\n' or
+ *  When the function is left inFile.bufferChar contains '\n' or
  *  EOF.
+ *  @return the line read.
  *)
 const func string: getln (inout graph_keybd_file: keybd) is func
   result
@@ -242,22 +302,12 @@ const func string: getln (inout graph_keybd_file: keybd) is func
 
 
 (**
- *  Return a word read from the graphic keyboard file.
- *  Before reading the word it skips spaces and tabs. The function
- *  accepts words ending with " ", "\t", "\n", "\r\n" or EOF.
- *  The word ending characters are not copied into the string.
- *  That means that the "\r" of a "\r\n" sequence is silently removed.
- *  When the function is left the inFile.bufferChar contains ' ',
- *  '\t', '\n' or EOF.
+ *  Variable describing the keyboard.
+ *  This variable is initialized with CONSOLE_KEYBOARD.
+ *  When a program wants to work with the graphic keyboard,
+ *  the following assignment is necessary:
+ *   KEYBOARD := GRAPH_KEYBOARD;
  *)
-const func string: getwd (inout graph_keybd_file: keybd) is func
-  result
-    var string: stri is "";
-  begin
-    stri := word_read(keybd, keybd.bufferChar);
-  end func;
-
-
 var keyboard_file: KEYBOARD is CONSOLE_KEYBOARD;
 
 

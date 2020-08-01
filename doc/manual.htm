@@ -1767,7 +1767,7 @@
                   ( bitLength(A) => succ(log2(A)) for A >= 0,
                     bitLength(A) => succ(log2(pred(-A))) for A < 0 )
       lowestSetBit(A) Index of the lowest-order one bit
-                      For A <> 0 this is equal to to number of
+                      For A <> 0 this is equal to the number of
                       lowest-order zero bits.
                   ( A >> B &lt;&lt; B = A for A <> 0 and B = lowestSetBit(A),
                     lowestSetBit(0) => -1,
@@ -1966,7 +1966,7 @@
                     bitLength(A) => ord(succ(log2(A))) for A >= 0_,
                     bitLength(A) => ord(succ(log2(pred(-A)))) for A < 0_ )
       lowestSetBit(A) Index of the lowest-order one bit
-                      For A <> 0_ this is equal to to number of
+                      For A <> 0_ this is equal to the number of
                       lowest-order zero bits.
                   ( Type of result: <font color=red>integer</font>,
                     A >> B &lt;&lt; B = A for A <> 0_ and B = lowestSetBit(A),
@@ -2659,7 +2659,7 @@
                     Type of result: <font color=red>integer</font>,
                     rpos(<font color=maroon>"ABCABC"</font>,<font color=maroon>'B'</font>, 4)=>2,
                     rpos(<font color=maroon>"XYZYX"</font>,<font color=maroon>'Z'</font>, 2)=>0,
-                    rpos(<font color=maroon>"12345"</font>,<font color=maroon>'3'</font>, 7)=>3 )
+                    rpos(<font color=maroon>"12345"</font>,<font color=maroon>'3'</font>, 5)=>3 )
       replace(A,B,C) Replace all occurrences of <font color=red>string</font> B in
                 <font color=red>string</font> A by <font color=red>string</font> C
                   ( replace(<font color=maroon>"old gold"</font>, <font color=maroon>"old"</font>, <font color=maroon>"one"</font>)=>

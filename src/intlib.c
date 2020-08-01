@@ -47,7 +47,12 @@
 
 static inttype fact[] = {
     1, 1, 2, 6, 24, 120, 720, 5040, 40320,
-    362880, 3628800, 39916800, 479001600
+    362880, 3628800, 39916800, 479001600,
+#if INTTYPE_SIZE == 64
+    6227020800, 87178291200, 1307674368000, 20922789888000,
+    355687428096000, 6402373705728000, 121645100408832000,
+    2432902008176640000
+#endif
   };
 
 
@@ -302,7 +307,7 @@ listtype arguments;
   /* int_fact */
     isit_int(arg_2(arguments));
     number = (int) take_int(arg_2(arguments));
-    if (number < 0 || number > 12) {
+    if (number < 0 || number >= sizeof(fact) / sizeof(inttype)) {
       return(raise_exception(SYS_NUM_EXCEPTION));
     } else {
       return(bld_int_temp(fact[number]));

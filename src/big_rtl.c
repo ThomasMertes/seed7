@@ -187,9 +187,9 @@ inttype bigLowestSetBit (const const_biginttype big1);
 biginttype bigLShift (const const_biginttype big1, const inttype lshift);
 void bigLShiftAssign (biginttype *const big_variable, inttype lshift);
 biginttype bigMinus (const const_biginttype big1);
-biginttype bigRem (const const_biginttype big1, const const_biginttype big2);
+biginttype bigRem (const const_biginttype dividend, const const_biginttype divisor);
 void bigRShiftAssign (biginttype *const big_variable, inttype rshift);
-biginttype bigSbtr (const const_biginttype big1, const const_biginttype big2);
+biginttype bigSbtr (const const_biginttype minuend, const const_biginttype subtrahend);
 void bigShrink (biginttype *const big_variable, const const_biginttype big2);
 
 #else
@@ -729,18 +729,18 @@ biginttype big1;
 
 
 /**
- *  Computes an integer division of big1 by one digit for
- *  nonnegative big integers. The digit must not be zero.
+ *  Computes an integer division of dividend by one divisor_digit for
+ *  nonnegative big integers. The divisor_digit must not be zero.
  */
 #ifdef ANSI_C
 
-static void uBigDiv1 (const const_biginttype big1, const bigdigittype digit,
-    const biginttype result)
+static void uBigDiv1 (const const_biginttype dividend,
+    const bigdigittype divisor_digit, const biginttype result)
 #else
 
-static void uBigDiv1 (big1, digit, result)
-biginttype big1;
-bigdigittype digit;
+static void uBigDiv1 (dividend, divisor_digit, result)
+biginttype dividend;
+bigdigittype divisor_digit;
 biginttype result;
 #endif
 
@@ -749,74 +749,73 @@ biginttype result;
     doublebigdigittype carry = 0;
 
   /* uBigDiv1 */
-    pos = big1->size;
+    pos = dividend->size;
     do {
       pos--;
       carry <<= BIGDIGIT_SIZE;
-      carry += big1->bigdigits[pos];
-      result->bigdigits[pos] = (bigdigittype) ((carry / digit) & BIGDIGIT_MASK);
-      carry %= digit;
+      carry += dividend->bigdigits[pos];
+      result->bigdigits[pos] = (bigdigittype) ((carry / divisor_digit) & BIGDIGIT_MASK);
+      carry %= divisor_digit;
     } while (pos > 0);
   } /* uBigDiv1 */
 
 
 
 /**
- *  Computes an integer division of big1 by one digit for
- *  signed big integers. The memory for the result is
- *  requested and the normalized result is returned. This
- *  function handles also the special case of a division by
- *  zero.
+ *  Computes an integer division of dividend by one divisor_digit
+ *  for signed big integers. The memory for the result is requested
+ *  and the normalized result is returned. This function handles
+ *  also the special case of a division by zero.
  */
 #ifdef ANSI_C
 
-static biginttype bigDiv1 (const_biginttype big1, bigdigittype digit)
+static biginttype bigDiv1 (const_biginttype dividend, bigdigittype divisor_digit)
 #else
 
-static biginttype bigDiv1 (big1, digit)
-biginttype big1;
-bigdigittype digit;
+static biginttype bigDiv1 (dividend, divisor_digit)
+biginttype dividend;
+bigdigittype divisor_digit;
 #endif
 
   {
     booltype negative = FALSE;
-    biginttype big1_help = NULL;
+    biginttype dividend_help = NULL;
     biginttype result;
 
   /* bigDiv1 */
-    if (unlikely(digit == 0)) {
+    if (unlikely(divisor_digit == 0)) {
       raise_error(NUMERIC_ERROR);
       return NULL;
     } else {
-      if (unlikely(!ALLOC_BIG_CHECK_SIZE(result, big1->size + 1))) {
+      if (unlikely(!ALLOC_BIG_CHECK_SIZE(result, dividend->size + 1))) {
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
-        result->size = big1->size + 1;
-        if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
+        result->size = dividend->size + 1;
+        if (IS_NEGATIVE(dividend->bigdigits[dividend->size - 1])) {
           negative = TRUE;
-          big1_help = alloc_positive_copy_of_negative_big(big1);
-          big1 = big1_help;
-          if (unlikely(big1_help == NULL)) {
+          dividend_help = alloc_positive_copy_of_negative_big(dividend);
+          dividend = dividend_help;
+          if (unlikely(dividend_help == NULL)) {
             FREE_BIG(result, result->size);
             raise_error(MEMORY_ERROR);
             return NULL;
           } /* if */
         } /* if */
         result->bigdigits[result->size - 1] = 0;
-        if (IS_NEGATIVE(digit)) {
+        if (IS_NEGATIVE(divisor_digit)) {
           negative = !negative;
           /* The unsigned value is negated to avoid a signed integer */
           /* overflow when the smallest signed integer is negated.   */
-          digit = -digit;
+          divisor_digit = -divisor_digit;
         } /* if */
-        uBigDiv1(big1, digit, result);
+        uBigDiv1(dividend, divisor_digit, result);
         if (negative) {
           negate_positive_big(result);
         } /* if */
         result = normalize(result);
-        if (big1_help != NULL) {
-          FREE_BIG(big1_help, big1_help->size);
+        if (dividend_help != NULL) {
+          FREE_BIG(dividend_help, dividend_help->size);
         } /* if */
         return result;
       } /* if */
@@ -826,25 +825,25 @@ bigdigittype digit;
 
 
 /**
- *  Computes an integer division of big1 by big2 for signed big
- *  integers when big1 has less digits than big2. The memory for
- *  the result is requested and the normalized result is returned.
- *  Normally big1->size < big2->size implies abs(big1) < abs(big2).
- *  When abs(big1) < abs(big2) holds the result is 0. The cases
- *  when big1->size < big2->size and abs(big1) = abs(big2) are if
- *  big1->size + 1 == big2->size and big1 = 0x8000 (0x80000000...)
- *  and big2 = 0x00008000 (0x000080000000...). In this cases the
+ *  Computes an integer division of dividend by divisor for signed big
+ *  integers when dividend has less digits than divisor. The memory for
+ *  the result is requested and the normalized result is returned. Normally
+ *  dividend->size < divisor->size implies abs(dividend) < abs(divisor).
+ *  When abs(dividend) < abs(divisor) holds the result is 0. The cases when
+ *  dividend->size < divisor->size and abs(dividend) = abs(divisor) are if
+ *  dividend->size + 1 == divisor->size and dividend = 0x8000 (0x80000000...)
+ *  and divisor = 0x00008000 (0x000080000000...). In this cases the
  *  result is -1. In all other cases the result is 0.
  */
 #ifdef ANSI_C
 
-static biginttype bigDivSizeLess (const const_biginttype big1,
-    const const_biginttype big2)
+static biginttype bigDivSizeLess (const const_biginttype dividend,
+    const const_biginttype divisor)
 #else
 
-static biginttype bigDivSizeLess (big1, big2)
-biginttype big1;
-biginttype big2;
+static biginttype bigDivSizeLess (dividend, divisor)
+biginttype dividend;
+biginttype divisor;
 #endif
 
   {
@@ -857,13 +856,13 @@ biginttype big2;
       return NULL;
     } else {
       result->size = 1;
-      if (big1->size + 1 == big2->size &&
-          big1->bigdigits[big1->size - 1] == BIGDIGIT_SIGN &&
-          big2->bigdigits[big2->size - 1] == 0 &&
-          big2->bigdigits[big2->size - 2] == BIGDIGIT_SIGN) {
+      if (dividend->size + 1 == divisor->size &&
+          dividend->bigdigits[dividend->size - 1] == BIGDIGIT_SIGN &&
+          divisor->bigdigits[divisor->size - 1] == 0 &&
+          divisor->bigdigits[divisor->size - 2] == BIGDIGIT_SIGN) {
         result->bigdigits[0] = BIGDIGIT_MASK;
-        for (pos = 0; pos < big1->size - 1; pos++) {
-          if (big1->bigdigits[pos] != 0 || big2->bigdigits[pos] != 0) {
+        for (pos = 0; pos < dividend->size - 1; pos++) {
+          if (dividend->bigdigits[pos] != 0 || divisor->bigdigits[pos] != 0) {
             result->bigdigits[0] = 0;
           } /* if */
         } /* for */
@@ -966,28 +965,28 @@ memsizetype pos1;
 
 
 /**
- *  Computes an integer division of big1 by big2 for nonnegative big
- *  integers. The remainder is delivered in big1. There are several
- *  preconditions. Big2 must have at least 2 digits and big1 must have
- *  at least one digit more than big2. If big1 and big2 have the same
- *  length in digits nothing is done. The most significant bit of big2
- *  must be set. The most significant digit of big1 must be less than
- *  the most significant digit of big2. The computations to meet this
- *  predonditions are done outside this function. The special cases
- *  with a one digit big2 or a big1 with less digits than big2 are
- *  handled in other functions. This algorithm based on the algorithm
- *  from D.E. Knuth described in "The art of computer programming"
+ *  Computes an integer division of dividend by divisor for nonnegative big
+ *  integers. The remainder is delivered in dividend. There are several
+ *  preconditions. Divisor must have at least 2 digits and dividend must
+ *  have at least one digit more than divisor. If dividend and divisor have
+ *  the same length in digits nothing is done. The most significant bit of
+ *  divisor must be set. The most significant digit of dividend must be
+ *  less than the most significant digit of divisor. The computations to
+ *  meet this predonditions are done outside this function. The special
+ *  cases with a one digit divisor or a dividend with less digits than
+ *  divisor are handled in other functions. This algorithm based on the
+ *  algorithm from D.E. Knuth described in "The art of computer programming"
  *  volume 2 (Seminumerical algorithms).
  */
 #ifdef ANSI_C
 
-static void uBigDiv (const biginttype big1, const const_biginttype big2,
+static void uBigDiv (const biginttype dividend, const const_biginttype divisor,
     const biginttype result)
 #else
 
-static void uBigDiv (big1, big2, result)
-biginttype big1;
-biginttype big2;
+static void uBigDiv (dividend, divisor, result)
+biginttype dividend;
+biginttype divisor;
 biginttype result;
 #endif
 
@@ -999,47 +998,47 @@ biginttype result;
     bigdigittype sbtr_carry;
 
   /* uBigDiv */
-    for (pos1 = big1->size - 1; pos1 >= big2->size; pos1--) {
-      twodigits = (((doublebigdigittype) big1->bigdigits[pos1]) << BIGDIGIT_SIZE) |
-          big1->bigdigits[pos1 - 1];
-      if (big1->bigdigits[pos1] == big2->bigdigits[big2->size - 1]) {
+    for (pos1 = dividend->size - 1; pos1 >= divisor->size; pos1--) {
+      twodigits = (((doublebigdigittype) dividend->bigdigits[pos1]) << BIGDIGIT_SIZE) |
+          dividend->bigdigits[pos1 - 1];
+      if (dividend->bigdigits[pos1] == divisor->bigdigits[divisor->size - 1]) {
         quotientdigit = BIGDIGIT_MASK;
       } else {
-        quotientdigit = (bigdigittype) (twodigits / big2->bigdigits[big2->size - 1]);
+        quotientdigit = (bigdigittype) (twodigits / divisor->bigdigits[divisor->size - 1]);
       } /* if */
       remainder = twodigits - (doublebigdigittype) quotientdigit *
-          big2->bigdigits[big2->size - 1];
+          divisor->bigdigits[divisor->size - 1];
       while (remainder <= BIGDIGIT_MASK &&
-          (doublebigdigittype) big2->bigdigits[big2->size - 2] * quotientdigit >
-          (remainder << BIGDIGIT_SIZE | big1->bigdigits[pos1 - 2])) {
+          (doublebigdigittype) divisor->bigdigits[divisor->size - 2] * quotientdigit >
+          (remainder << BIGDIGIT_SIZE | dividend->bigdigits[pos1 - 2])) {
         quotientdigit--;
         remainder = twodigits - (doublebigdigittype) quotientdigit *
-            big2->bigdigits[big2->size - 1];
+            divisor->bigdigits[divisor->size - 1];
       } /* while */
-      sbtr_carry = uBigMultSub(big1, big2, quotientdigit, pos1 - big2->size);
+      sbtr_carry = uBigMultSub(dividend, divisor, quotientdigit, pos1 - divisor->size);
       if (sbtr_carry == 0) {
-        uBigAddTo(big1, big2, pos1 - big2->size);
+        uBigAddTo(dividend, divisor, pos1 - divisor->size);
         quotientdigit--;
       } /* if */
-      result->bigdigits[pos1 - big2->size] = quotientdigit;
+      result->bigdigits[pos1 - divisor->size] = quotientdigit;
     } /* for */
   } /* uBigDiv */
 
 
 
 /**
- *  Computes the remainder of a integer division of big1 by
- *  one digit for nonnegative big integers. The digit must
+ *  Computes the remainder of a integer division of dividend by
+ *  one divisor_digit for nonnegative big integers. The divisor_digit must
  *  not be zero.
  */
 #ifdef ANSI_C
 
-static bigdigittype uBigRem1 (const const_biginttype big1, const bigdigittype digit)
+static bigdigittype uBigRem1 (const const_biginttype dividend, const bigdigittype divisor_digit)
 #else
 
-static bigdigittype uBigRem1 (big1, digit)
-biginttype big1;
-bigdigittype digit;
+static bigdigittype uBigRem1 (dividend, divisor_digit)
+biginttype dividend;
+bigdigittype divisor_digit;
 #endif
 
   {
@@ -1047,12 +1046,12 @@ bigdigittype digit;
     doublebigdigittype carry = 0;
 
   /* uBigRem1 */
-    pos = big1->size;
+    pos = dividend->size;
     do {
       pos--;
       carry <<= BIGDIGIT_SIZE;
-      carry += big1->bigdigits[pos];
-      carry %= digit;
+      carry += dividend->bigdigits[pos];
+      carry %= divisor_digit;
     } while (pos > 0);
     return (bigdigittype) carry;
   } /* uBigRem1 */
@@ -1060,28 +1059,29 @@ bigdigittype digit;
 
 
 /**
- *  Computes the remainder of the integer division big1 by one digit
- *  for signed big integers. The memory for the remainder is requested
- *  and the normalized remainder is returned. This function handles also
- *  the special case of a division by zero.
+ *  Computes the remainder of the integer division dividend by one
+ *  divisor_digit for signed big integers. The memory for the
+ *  remainder is requested and the normalized remainder is
+ *  returned. This function handles also the special case of a
+ *  division by zero.
  */
 #ifdef ANSI_C
 
-static biginttype bigRem1 (const_biginttype big1, bigdigittype digit)
+static biginttype bigRem1 (const_biginttype dividend, bigdigittype divisor_digit)
 #else
 
-static biginttype bigRem1 (big1, digit)
-biginttype big1;
-bigdigittype digit;
+static biginttype bigRem1 (dividend, divisor_digit)
+biginttype dividend;
+bigdigittype divisor_digit;
 #endif
 
   {
     booltype negative = FALSE;
-    biginttype big1_help = NULL;
+    biginttype dividend_help = NULL;
     biginttype remainder;
 
   /* bigRem1 */
-    if (unlikely(digit == 0)) {
+    if (unlikely(divisor_digit == 0)) {
       raise_error(NUMERIC_ERROR);
       return NULL;
     } else {
@@ -1090,27 +1090,27 @@ bigdigittype digit;
         return NULL;
       } else {
         remainder->size = 1;
-        if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
+        if (IS_NEGATIVE(dividend->bigdigits[dividend->size - 1])) {
           negative = TRUE;
-          big1_help = alloc_positive_copy_of_negative_big(big1);
-          big1 = big1_help;
-          if (unlikely(big1_help == NULL)) {
+          dividend_help = alloc_positive_copy_of_negative_big(dividend);
+          dividend = dividend_help;
+          if (unlikely(dividend_help == NULL)) {
             FREE_BIG(remainder, remainder->size);
             raise_error(MEMORY_ERROR);
             return NULL;
           } /* if */
         } /* if */
-        if (IS_NEGATIVE(digit)) {
+        if (IS_NEGATIVE(divisor_digit)) {
           /* The unsigned value is negated to avoid a signed integer */
           /* overflow when the smallest signed integer is negated.   */
-          digit = -digit;
+          divisor_digit = -divisor_digit;
         } /* if */
-        remainder->bigdigits[0] = uBigRem1(big1, digit);
+        remainder->bigdigits[0] = uBigRem1(dividend, divisor_digit);
         if (negative) {
           negate_positive_big(remainder);
         } /* if */
-        if (big1_help != NULL) {
-          FREE_BIG(big1_help, big1_help->size);
+        if (dividend_help != NULL) {
+          FREE_BIG(dividend_help, dividend_help->size);
         } /* if */
         return remainder;
       } /* if */
@@ -1120,19 +1120,19 @@ bigdigittype digit;
 
 
 /**
- *  Computes an integer division of big1 by one digit for
- *  nonnegative big integers. The digit must not be zero.
+ *  Computes an integer division of dividend by one divisor_digit for
+ *  nonnegative big integers. The divisor_digit must not be zero.
  *  The remainder of the division is returned.
  */
 #ifdef ANSI_C
 
-static bigdigittype uBigMDiv1 (const const_biginttype big1,
-    const bigdigittype digit, const biginttype result)
+static bigdigittype uBigMDiv1 (const const_biginttype dividend,
+    const bigdigittype divisor_digit, const biginttype result)
 #else
 
-static bigdigittype uBigMDiv1 (big1, digit, result)
-biginttype big1;
-bigdigittype digit;
+static bigdigittype uBigMDiv1 (dividend, divisor_digit, result)
+biginttype dividend;
+bigdigittype divisor_digit;
 biginttype result;
 #endif
 
@@ -1141,13 +1141,13 @@ biginttype result;
     doublebigdigittype carry = 0;
 
   /* uBigMDiv1 */
-    pos = big1->size;
+    pos = dividend->size;
     do {
       pos--;
       carry <<= BIGDIGIT_SIZE;
-      carry += big1->bigdigits[pos];
-      result->bigdigits[pos] = (bigdigittype) ((carry / digit) & BIGDIGIT_MASK);
-      carry %= digit;
+      carry += dividend->bigdigits[pos];
+      result->bigdigits[pos] = (bigdigittype) ((carry / divisor_digit) & BIGDIGIT_MASK);
+      carry %= divisor_digit;
     } while (pos > 0);
     return (bigdigittype) carry;
   } /* uBigMDiv1 */
@@ -1155,56 +1155,56 @@ biginttype result;
 
 
 /**
- *  Computes an integer modulo division of big1 by one digit
- *  for signed big integers. The memory for the result is
- *  requested and the normalized result is returned. This
- *  function handles also the special case of a division by
+ *  Computes an integer modulo division of dividend by one
+ *  divisor_digit for signed big integers. The memory for the
+ *  result is requested and the normalized result is returned.
+ *  This function handles also the special case of a division by
  *  zero.
  */
 #ifdef ANSI_C
 
-static biginttype bigMDiv1 (const_biginttype big1, bigdigittype digit)
+static biginttype bigMDiv1 (const_biginttype dividend, bigdigittype divisor_digit)
 #else
 
-static biginttype bigMDiv1 (big1, digit)
-biginttype big1;
-bigdigittype digit;
+static biginttype bigMDiv1 (dividend, divisor_digit)
+biginttype dividend;
+bigdigittype divisor_digit;
 #endif
 
   {
     booltype negative = FALSE;
-    biginttype big1_help = NULL;
+    biginttype dividend_help = NULL;
     bigdigittype remainder;
     biginttype result;
 
   /* bigMDiv1 */
-    if (unlikely(digit == 0)) {
+    if (unlikely(divisor_digit == 0)) {
       raise_error(NUMERIC_ERROR);
       return NULL;
     } else {
-      if (unlikely(!ALLOC_BIG_CHECK_SIZE(result, big1->size + 1))) {
+      if (unlikely(!ALLOC_BIG_CHECK_SIZE(result, dividend->size + 1))) {
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
-        result->size = big1->size + 1;
-        if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
+        result->size = dividend->size + 1;
+        if (IS_NEGATIVE(dividend->bigdigits[dividend->size - 1])) {
           negative = TRUE;
-          big1_help = alloc_positive_copy_of_negative_big(big1);
-          big1 = big1_help;
-          if (unlikely(big1_help == NULL)) {
+          dividend_help = alloc_positive_copy_of_negative_big(dividend);
+          dividend = dividend_help;
+          if (unlikely(dividend_help == NULL)) {
             FREE_BIG(result, result->size);
             raise_error(MEMORY_ERROR);
             return NULL;
           } /* if */
         } /* if */
         result->bigdigits[result->size - 1] = 0;
-        if (IS_NEGATIVE(digit)) {
+        if (IS_NEGATIVE(divisor_digit)) {
           negative = !negative;
           /* The unsigned value is negated to avoid a signed integer */
           /* overflow when the smallest signed integer is negated.   */
-          digit = -digit;
+          divisor_digit = -divisor_digit;
         } /* if */
-        remainder = uBigMDiv1(big1, digit, result);
+        remainder = uBigMDiv1(dividend, divisor_digit, result);
         if (negative) {
           if (remainder != 0) {
             uBigIncr(result);
@@ -1212,8 +1212,8 @@ bigdigittype digit;
           negate_positive_big(result);
         } /* if */
         result = normalize(result);
-        if (big1_help != NULL) {
-          FREE_BIG(big1_help, big1_help->size);
+        if (dividend_help != NULL) {
+          FREE_BIG(dividend_help, dividend_help->size);
         } /* if */
         return result;
       } /* if */
@@ -1223,27 +1223,27 @@ bigdigittype digit;
 
 
 /**
- *  Computes a modulo integer division of big1 by big2 for signed
- *  big integers when big1 has less digits than big2. The memory for
- *  the result is requested and the normalized result is returned.
- *  Normally big1->size < big2->size implies abs(big1) < abs(big2).
- *  When abs(big1) < abs(big2) holds the result is 0 or -1. The cases
- *  when big1->size < big2->size and abs(big1) = abs(big2) are if
- *  big1->size + 1 == big2->size and big1 = 0x8000 (0x80000000...)
- *  and big2 = 0x00008000 (0x000080000000...). In this cases the
+ *  Computes a modulo integer division of dividend by divisor for signed
+ *  big integers when dividend has less digits than divisor. The memory for
+ *  the result is requested and the normalized result is returned. Normally
+ *  dividend->size < divisor->size implies abs(dividend) < abs(divisor).
+ *  When abs(dividend) < abs(divisor) holds the result is 0 or -1. The cases
+ *  when dividend->size < divisor->size and abs(dividend) = abs(divisor) are if
+ *  dividend->size + 1 == divisor->size and dividend = 0x8000 (0x80000000...)
+ *  and divisor = 0x00008000 (0x000080000000...). In this cases the
  *  result is -1. In the cases when the result is 0 or -1 the
- *  following check is done: When big1 and big2 have different signs
+ *  following check is done: When dividend and divisor have different signs
  *  the result is -1 otherwise the result is 0.
  */
 #ifdef ANSI_C
 
-static biginttype bigMDivSizeLess (const const_biginttype big1,
-    const const_biginttype big2)
+static biginttype bigMDivSizeLess (const const_biginttype dividend,
+    const const_biginttype divisor)
 #else
 
-static biginttype bigMDivSizeLess (big1, big2)
-biginttype big1;
-biginttype big2;
+static biginttype bigMDivSizeLess (dividend, divisor)
+biginttype dividend;
+biginttype divisor;
 #endif
 
   {
@@ -1256,13 +1256,13 @@ biginttype big2;
       return NULL;
     } else {
       result->size = 1;
-      if (big1->size + 1 == big2->size &&
-          big1->bigdigits[big1->size - 1] == BIGDIGIT_SIGN &&
-          big2->bigdigits[big2->size - 1] == 0 &&
-          big2->bigdigits[big2->size - 2] == BIGDIGIT_SIGN) {
+      if (dividend->size + 1 == divisor->size &&
+          dividend->bigdigits[dividend->size - 1] == BIGDIGIT_SIGN &&
+          divisor->bigdigits[divisor->size - 1] == 0 &&
+          divisor->bigdigits[divisor->size - 2] == BIGDIGIT_SIGN) {
         result->bigdigits[0] = BIGDIGIT_MASK;
-        for (pos = 0; pos < big1->size - 1; pos++) {
-          if (big1->bigdigits[pos] != 0 || big2->bigdigits[pos] != 0) {
+        for (pos = 0; pos < dividend->size - 1; pos++) {
+          if (dividend->bigdigits[pos] != 0 || divisor->bigdigits[pos] != 0) {
             result->bigdigits[0] = 0;
           } /* if */
         } /* for */
@@ -1270,8 +1270,8 @@ biginttype big2;
         result->bigdigits[0] = 0;
       } /* if */
       if (result->bigdigits[0] == 0 &&
-          IS_NEGATIVE(big1->bigdigits[big1->size - 1]) !=
-          IS_NEGATIVE(big2->bigdigits[big2->size - 1])) {
+          IS_NEGATIVE(dividend->bigdigits[dividend->size - 1]) !=
+          IS_NEGATIVE(divisor->bigdigits[divisor->size - 1])) {
         result->bigdigits[0] = BIGDIGIT_MASK;
       } /* if */
       return result;
@@ -1281,18 +1281,18 @@ biginttype big2;
 
 
 /**
- *  Computes the modulo of the integer division big1 by one digit
- *  for signed big integers. The memory for the modulo is requested
- *  and the normalized modulo is returned. This function handles also
- *  the special case of a division by zero.
+ *  Computes the modulo of the integer division dividend by one
+ *  digit for signed big integers. The memory for the modulo is
+ *  requested and the normalized modulo is returned. This function
+ *  handles also the special case of a division by zero.
  */
 #ifdef ANSI_C
 
-static biginttype bigMod1 (const const_biginttype big1, const bigdigittype digit)
+static biginttype bigMod1 (const const_biginttype dividend, const bigdigittype digit)
 #else
 
-static biginttype bigMod1 (big1, digit)
-biginttype big1;
+static biginttype bigMod1 (dividend, digit)
+biginttype dividend;
 bigdigittype digit;
 #endif
 
@@ -1300,8 +1300,8 @@ bigdigittype digit;
     biginttype modulo;
 
   /* bigMod1 */
-    modulo = bigRem1(big1, digit);
-    if (IS_NEGATIVE(big1->bigdigits[big1->size - 1]) != IS_NEGATIVE(digit) &&
+    modulo = bigRem1(dividend, digit);
+    if (IS_NEGATIVE(dividend->bigdigits[dividend->size - 1]) != IS_NEGATIVE(digit) &&
         modulo != NULL && modulo->bigdigits[0] != 0) {
       modulo->bigdigits[0] += digit;
     } /* if */
@@ -1311,25 +1311,25 @@ bigdigittype digit;
 
 
 /**
- *  Computes the remainder of the integer division big1 by big2 for
- *  signed big integers when big1 has less digits than big2. The memory
+ *  Computes the remainder of the integer division dividend by divisor for
+ *  signed big integers when dividend has less digits than divisor. The memory
  *  for the remainder is requested and the normalized remainder is returned.
- *  Normally big1->size < big2->size implies abs(big1) < abs(big2).
- *  When abs(big1) < abs(big2) holds the remainder is big1. The cases
- *  when big1->size < big2->size and abs(big1) = abs(big2) are if
- *  big1->size + 1 == big2->size and big1 = 0x8000 (0x80000000...)
- *  and big2 = 0x00008000 (0x000080000000...). In this cases the
- *  remainder is 0. In all other cases the remainder is big1.
+ *  Normally dividend->size < divisor->size implies abs(dividend) < abs(divisor).
+ *  When abs(dividend) < abs(divisor) holds the remainder is dividend. The cases
+ *  when dividend->size < divisor->size and abs(dividend) = abs(divisor) are if
+ *  dividend->size + 1 == divisor->size and dividend = 0x8000 (0x80000000...)
+ *  and divisor = 0x00008000 (0x000080000000...). In this cases the
+ *  remainder is 0. In all other cases the remainder is dividend.
  */
 #ifdef ANSI_C
 
-static biginttype bigRemSizeLess (const const_biginttype big1,
-    const const_biginttype big2)
+static biginttype bigRemSizeLess (const const_biginttype dividend,
+    const const_biginttype divisor)
 #else
 
-static biginttype bigRemSizeLess (big1, big2)
-biginttype big1;
-biginttype big2;
+static biginttype bigRemSizeLess (dividend, divisor)
+biginttype dividend;
+biginttype divisor;
 #endif
 
   {
@@ -1338,13 +1338,13 @@ biginttype big2;
     biginttype remainder;
 
   /* bigRemSizeLess */
-    if (big1->size + 1 == big2->size &&
-        big1->bigdigits[big1->size - 1] == BIGDIGIT_SIGN &&
-        big2->bigdigits[big2->size - 1] == 0 &&
-        big2->bigdigits[big2->size - 2] == BIGDIGIT_SIGN) {
+    if (dividend->size + 1 == divisor->size &&
+        dividend->bigdigits[dividend->size - 1] == BIGDIGIT_SIGN &&
+        divisor->bigdigits[divisor->size - 1] == 0 &&
+        divisor->bigdigits[divisor->size - 2] == BIGDIGIT_SIGN) {
       remainderIs0 = TRUE;
-      for (pos = 0; pos < big1->size - 1; pos++) {
-        if (big1->bigdigits[pos] != 0 || big2->bigdigits[pos] != 0) {
+      for (pos = 0; pos < dividend->size - 1; pos++) {
+        if (dividend->bigdigits[pos] != 0 || divisor->bigdigits[pos] != 0) {
           remainderIs0 = FALSE;
         } /* if */
       } /* for */
@@ -1359,12 +1359,12 @@ biginttype big2;
         remainder->bigdigits[0] = 0;
       } /* if */
     } else {
-      if (unlikely(!ALLOC_BIG_SIZE_OK(remainder, big1->size))) {
+      if (unlikely(!ALLOC_BIG_SIZE_OK(remainder, dividend->size))) {
         raise_error(MEMORY_ERROR);
       } else {
-        remainder->size = big1->size;
-        memcpy(remainder->bigdigits, big1->bigdigits,
-            (size_t) big1->size * sizeof(bigdigittype));
+        remainder->size = dividend->size;
+        memcpy(remainder->bigdigits, dividend->bigdigits,
+            (size_t) dividend->size * sizeof(bigdigittype));
       } /* if */
     } /* if */
     return remainder;
@@ -1411,26 +1411,26 @@ biginttype big2;
 
 
 /**
- *  Computes the modulo of the integer division big1 by big2 for
- *  signed big integers when big1 has less digits than big2. The memory
+ *  Computes the modulo of the integer division dividend by divisor for
+ *  signed big integers when dividend has less digits than divisor. The memory
  *  for the modulo is requested and the normalized modulo is returned.
- *  Normally big1->size < big2->size implies abs(big1) < abs(big2).
- *  When abs(big1) < abs(big2) holds the division gives 0. The cases
- *  when big1->size < big2->size and abs(big1) = abs(big2) are if
- *  big1->size + 1 == big2->size and big1 = 0x8000 (0x80000000...)
- *  and big2 = 0x00008000 (0x000080000000...). In this cases the
- *  modulo is 0. In all other cases the modulo is big1 or big1 +
- *  big2 when big1 and big2 have different signs.
+ *  Normally dividend->size < divisor->size implies abs(dividend) < abs(divisor).
+ *  When abs(dividend) < abs(divisor) holds the division gives 0. The cases
+ *  when dividend->size < divisor->size and abs(dividend) = abs(divisor) are if
+ *  dividend->size + 1 == divisor->size and dividend = 0x8000 (0x80000000...)
+ *  and divisor = 0x00008000 (0x000080000000...). In this cases the
+ *  modulo is 0. In all other cases the modulo is dividend or dividend +
+ *  divisor when dividend and divisor have different signs.
  */
 #ifdef ANSI_C
 
-static biginttype bigModSizeLess (const const_biginttype big1,
-    const const_biginttype big2)
+static biginttype bigModSizeLess (const const_biginttype dividend,
+    const const_biginttype divisor)
 #else
 
-static biginttype bigModSizeLess (big1, big2)
-biginttype big1;
-biginttype big2;
+static biginttype bigModSizeLess (dividend, divisor)
+biginttype dividend;
+biginttype divisor;
 #endif
 
   {
@@ -1439,13 +1439,13 @@ biginttype big2;
     biginttype modulo;
 
   /* bigModSizeLess */
-    if (big1->size + 1 == big2->size &&
-        big1->bigdigits[big1->size - 1] == BIGDIGIT_SIGN &&
-        big2->bigdigits[big2->size - 1] == 0 &&
-        big2->bigdigits[big2->size - 2] == BIGDIGIT_SIGN) {
+    if (dividend->size + 1 == divisor->size &&
+        dividend->bigdigits[dividend->size - 1] == BIGDIGIT_SIGN &&
+        divisor->bigdigits[divisor->size - 1] == 0 &&
+        divisor->bigdigits[divisor->size - 2] == BIGDIGIT_SIGN) {
       moduloIs0 = TRUE;
-      for (pos = 0; pos < big1->size - 1; pos++) {
-        if (big1->bigdigits[pos] != 0 || big2->bigdigits[pos] != 0) {
+      for (pos = 0; pos < dividend->size - 1; pos++) {
+        if (dividend->bigdigits[pos] != 0 || divisor->bigdigits[pos] != 0) {
           moduloIs0 = FALSE;
         } /* if */
       } /* for */
@@ -1460,24 +1460,24 @@ biginttype big2;
         modulo->bigdigits[0] = 0;
       } /* if */
     } else {
-      if (IS_NEGATIVE(big1->bigdigits[big1->size - 1]) !=
-          IS_NEGATIVE(big2->bigdigits[big2->size - 1])) {
-        if (unlikely(!ALLOC_BIG_SIZE_OK(modulo, big2->size))) {
+      if (IS_NEGATIVE(dividend->bigdigits[dividend->size - 1]) !=
+          IS_NEGATIVE(divisor->bigdigits[divisor->size - 1])) {
+        if (unlikely(!ALLOC_BIG_SIZE_OK(modulo, divisor->size))) {
           raise_error(MEMORY_ERROR);
         } else {
-          modulo->size = big2->size;
-          memcpy(modulo->bigdigits, big2->bigdigits,
-              (size_t) big2->size * sizeof(bigdigittype));
-          bigAddTo(modulo, big1);
+          modulo->size = divisor->size;
+          memcpy(modulo->bigdigits, divisor->bigdigits,
+              (size_t) divisor->size * sizeof(bigdigittype));
+          bigAddTo(modulo, dividend);
           modulo = normalize(modulo);
         } /* if */
       } else {
-        if (unlikely(!ALLOC_BIG_SIZE_OK(modulo, big1->size))) {
+        if (unlikely(!ALLOC_BIG_SIZE_OK(modulo, dividend->size))) {
           raise_error(MEMORY_ERROR);
         } else {
-          modulo->size = big1->size;
-          memcpy(modulo->bigdigits, big1->bigdigits,
-              (size_t) big1->size * sizeof(bigdigittype));
+          modulo->size = dividend->size;
+          memcpy(modulo->bigdigits, dividend->bigdigits,
+              (size_t) dividend->size * sizeof(bigdigittype));
         } /* if */
       } /* if */
     } /* if */
@@ -1487,28 +1487,28 @@ biginttype big2;
 
 
 /**
- *  Computes the remainder of an integer division of big1 by big2
+ *  Computes the remainder of an integer division of dividend by divisor
  *  for nonnegative big integers. The remainder is delivered in
- *  big1. There are several preconditions for this function. Big2
- *  must have at least 2 digits and big1 must have at least one
- *  digit more than big2. If big1 and big2 have the same length in
- *  digits nothing is done. The most significant bit of big2 must be
- *  set. The most significant digit of big1 must be less than the
- *  most significant digit of big2. The computations to meet this
+ *  dividend. There are several preconditions for this function. Divisor
+ *  must have at least 2 digits and dividend must have at least one
+ *  digit more than divisor. If dividend and divisor have the same length in
+ *  digits nothing is done. The most significant bit of divisor must be
+ *  set. The most significant digit of dividend must be less than the
+ *  most significant digit of divisor. The computations to meet this
  *  predonditions are done outside this function. The special cases
- *  with a one digit big2 or a big1 with less digits than big2 are
+ *  with a one digit divisor or a dividend with less digits than divisor are
  *  handled in other functions. This algorithm based on the algorithm
  *  from D.E. Knuth described in "The art of computer programming"
  *  volume 2 (Seminumerical algorithms).
  */
 #ifdef ANSI_C
 
-static void uBigRem (const biginttype big1, const const_biginttype big2)
+static void uBigRem (const biginttype dividend, const const_biginttype divisor)
 #else
 
-static void uBigRem (big1, big2)
-biginttype big1;
-biginttype big2;
+static void uBigRem (dividend, divisor)
+biginttype dividend;
+biginttype divisor;
 #endif
 
   {
@@ -1519,26 +1519,26 @@ biginttype big2;
     bigdigittype sbtr_carry;
 
   /* uBigRem */
-    for (pos1 = big1->size - 1; pos1 >= big2->size; pos1--) {
-      twodigits = (((doublebigdigittype) big1->bigdigits[pos1]) << BIGDIGIT_SIZE) |
-          big1->bigdigits[pos1 - 1];
-      if (big1->bigdigits[pos1] == big2->bigdigits[big2->size - 1]) {
+    for (pos1 = dividend->size - 1; pos1 >= divisor->size; pos1--) {
+      twodigits = (((doublebigdigittype) dividend->bigdigits[pos1]) << BIGDIGIT_SIZE) |
+          dividend->bigdigits[pos1 - 1];
+      if (dividend->bigdigits[pos1] == divisor->bigdigits[divisor->size - 1]) {
         quotientdigit = BIGDIGIT_MASK;
       } else {
-        quotientdigit = (bigdigittype) (twodigits / big2->bigdigits[big2->size - 1]);
+        quotientdigit = (bigdigittype) (twodigits / divisor->bigdigits[divisor->size - 1]);
       } /* if */
       remainder = twodigits - (doublebigdigittype) quotientdigit *
-          big2->bigdigits[big2->size - 1];
+          divisor->bigdigits[divisor->size - 1];
       while (remainder <= BIGDIGIT_MASK &&
-          (doublebigdigittype) big2->bigdigits[big2->size - 2] * quotientdigit >
-          (remainder << BIGDIGIT_SIZE | big1->bigdigits[pos1 - 2])) {
+          (doublebigdigittype) divisor->bigdigits[divisor->size - 2] * quotientdigit >
+          (remainder << BIGDIGIT_SIZE | dividend->bigdigits[pos1 - 2])) {
         quotientdigit--;
         remainder = twodigits - (doublebigdigittype) quotientdigit *
-            big2->bigdigits[big2->size - 1];
+            divisor->bigdigits[divisor->size - 1];
       } /* while */
-      sbtr_carry = uBigMultSub(big1, big2, quotientdigit, pos1 - big2->size);
+      sbtr_carry = uBigMultSub(dividend, divisor, quotientdigit, pos1 - divisor->size);
       if (sbtr_carry == 0) {
-        uBigAddTo(big1, big2, pos1 - big2->size);
+        uBigAddTo(dividend, divisor, pos1 - divisor->size);
       } /* if */
     } /* for */
   } /* uBigRem */
@@ -2547,48 +2547,48 @@ biginttype big1;
  */
 #ifdef ANSI_C
 
-biginttype bigAdd (const_biginttype big1, const_biginttype big2)
+biginttype bigAdd (const_biginttype summand1, const_biginttype summand2)
 #else
 
-biginttype bigAdd (big1, big2)
-biginttype big1;
-biginttype big2;
+biginttype bigAdd (summand1, summand2)
+biginttype summand1;
+biginttype summand2;
 #endif
 
   {
     const_biginttype help_big;
     memsizetype pos;
     doublebigdigittype carry = 0;
-    doublebigdigittype big2_sign;
+    doublebigdigittype summand2_sign;
     biginttype result;
 
   /* bigAdd */
-    if (big2->size > big1->size) {
-      help_big = big1;
-      big1 = big2;
-      big2 = help_big;
+    if (summand2->size > summand1->size) {
+      help_big = summand1;
+      summand1 = summand2;
+      summand2 = help_big;
     } /* if */
-    if (unlikely(!ALLOC_BIG_CHECK_SIZE(result, big1->size + 1))) {
+    if (unlikely(!ALLOC_BIG_CHECK_SIZE(result, summand1->size + 1))) {
       raise_error(MEMORY_ERROR);
       return NULL;
     } else {
       pos = 0;
       do {
-        carry += (doublebigdigittype) big1->bigdigits[pos] + big2->bigdigits[pos];
+        carry += (doublebigdigittype) summand1->bigdigits[pos] + summand2->bigdigits[pos];
         result->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
         carry >>= BIGDIGIT_SIZE;
         pos++;
-      } while (pos < big2->size);
-      big2_sign = IS_NEGATIVE(big2->bigdigits[pos - 1]) ? BIGDIGIT_MASK : 0;
-      for (; pos < big1->size; pos++) {
-        carry += big1->bigdigits[pos] + big2_sign;
+      } while (pos < summand2->size);
+      summand2_sign = IS_NEGATIVE(summand2->bigdigits[pos - 1]) ? BIGDIGIT_MASK : 0;
+      for (; pos < summand1->size; pos++) {
+        carry += summand1->bigdigits[pos] + summand2_sign;
         result->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
         carry >>= BIGDIGIT_SIZE;
       } /* for */
-      if (IS_NEGATIVE(big1->bigdigits[pos - 1])) {
-        big2_sign--;
+      if (IS_NEGATIVE(summand1->bigdigits[pos - 1])) {
+        summand2_sign--;
       } /* if */
-      result->bigdigits[pos] = (bigdigittype) ((carry + big2_sign) & BIGDIGIT_MASK);
+      result->bigdigits[pos] = (bigdigittype) ((carry + summand2_sign) & BIGDIGIT_MASK);
       result->size = pos + 1;
       result = normalize(result);
       return result;
@@ -2654,6 +2654,13 @@ biginttype k_number;
 
 
 
+/**
+ *  Number of bits in the minimal two's-complement representation.
+ *  The high bits equivalent to the sign bit are not part of the
+ *  minimal two's-complement representation.
+ *  @return the number of bits.
+ *  @exception RANGE_ERROR The result does not fit into an integer.
+ */
 #ifdef ANSI_C
 
 inttype bigBitLength (const const_biginttype big1)
@@ -3065,99 +3072,100 @@ biginttype old_bigint;
 
 
 /**
- *  Computes an integer division of big1 by big2 for signed big
- *  integers. The memory for the result is requested and the
- *  normalized result is returned. When big2 has just one digit
- *  or when big1 has less digits than big2 the bigDiv1() or
+ *  Compute a signed big integer division (dividend / divisor).
+ *  The memory for the result is requested and the normalized
+ *  result is returned. When divisor has just one digit or when
+ *  dividend has less digits than divisor the bigDiv1() or
  *  bigDivSizeLess() functions are called. In the general case
- *  the absolute values of big1 and big2 are taken. Then big1 is
- *  extended by one leading zero digit. After that big1 and big2
- *  are shifted to the left such that the most significant bit
- *  of big2 is set. This fulfills the preconditions for calling
- *  uBigDiv() which does the main work of the division.
+ *  the absolute values of dividend and divisor are taken. Then
+ *  dividend is extended by one leading zero digit. After that
+ *  dividend and divisor are shifted to the left such that the
+ *  most significant bit of divisor is set. This fulfills the
+ *  preconditions for calling uBigDiv() which does the main
+ *  work of the division.
  */
 #ifdef ANSI_C
 
-biginttype bigDiv (const const_biginttype big1, const const_biginttype big2)
+biginttype bigDiv (const const_biginttype dividend, const const_biginttype divisor)
 #else
 
-biginttype bigDiv (big1, big2)
-biginttype big1;
-biginttype big2;
+biginttype bigDiv (dividend, divisor)
+biginttype dividend;
+biginttype divisor;
 #endif
 
   {
     booltype negative = FALSE;
-    biginttype big1_help;
-    biginttype big2_help;
+    biginttype dividend_help;
+    biginttype divisor_help;
     unsigned int shift;
     biginttype result;
 
   /* bigDiv */
-    if (big2->size == 1) {
-      result = bigDiv1(big1, big2->bigdigits[0]);
+    if (divisor->size == 1) {
+      result = bigDiv1(dividend, divisor->bigdigits[0]);
       return result;
-    } else if (big1->size < big2->size) {
-      result = bigDivSizeLess(big1, big2);
+    } else if (dividend->size < divisor->size) {
+      result = bigDivSizeLess(dividend, divisor);
       return result;
     } else {
-      if (unlikely(!ALLOC_BIG_CHECK_SIZE(big1_help, big1->size + 2))) {
+      if (unlikely(!ALLOC_BIG_CHECK_SIZE(dividend_help, dividend->size + 2))) {
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
-        if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
+        if (IS_NEGATIVE(dividend->bigdigits[dividend->size - 1])) {
           negative = TRUE;
-          positive_copy_of_negative_big(big1_help, big1);
+          positive_copy_of_negative_big(dividend_help, dividend);
         } else {
-          big1_help->size = big1->size;
-          memcpy(big1_help->bigdigits, big1->bigdigits,
-              (size_t) big1->size * sizeof(bigdigittype));
+          dividend_help->size = dividend->size;
+          memcpy(dividend_help->bigdigits, dividend->bigdigits,
+              (size_t) dividend->size * sizeof(bigdigittype));
         } /* if */
-        big1_help->bigdigits[big1_help->size] = 0;
-        big1_help->size++;
+        dividend_help->bigdigits[dividend_help->size] = 0;
+        dividend_help->size++;
       } /* if */
-      if (unlikely(!ALLOC_BIG_CHECK_SIZE(big2_help, big2->size + 1))) {
-        FREE_BIG(big1_help,  big1->size + 2);
+      if (unlikely(!ALLOC_BIG_CHECK_SIZE(divisor_help, divisor->size + 1))) {
+        FREE_BIG(dividend_help,  dividend->size + 2);
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
-        if (IS_NEGATIVE(big2->bigdigits[big2->size - 1])) {
+        if (IS_NEGATIVE(divisor->bigdigits[divisor->size - 1])) {
           negative = !negative;
-          positive_copy_of_negative_big(big2_help, big2);
+          positive_copy_of_negative_big(divisor_help, divisor);
         } else {
-          big2_help->size = big2->size;
-          memcpy(big2_help->bigdigits, big2->bigdigits,
-              (size_t) big2->size * sizeof(bigdigittype));
+          divisor_help->size = divisor->size;
+          memcpy(divisor_help->bigdigits, divisor->bigdigits,
+              (size_t) divisor->size * sizeof(bigdigittype));
         } /* if */
       } /* if */
-      if (unlikely(!ALLOC_BIG_SIZE_OK(result, big1_help->size - big2_help->size + 1))) {
+      if (unlikely(!ALLOC_BIG_SIZE_OK(result, dividend_help->size - divisor_help->size + 1))) {
         raise_error(MEMORY_ERROR);
       } else {
-        result->size = big1_help->size - big2_help->size + 1;
+        result->size = dividend_help->size - divisor_help->size + 1;
         result->bigdigits[result->size - 1] = 0;
-        shift = (unsigned int) (digitMostSignificantBit(big2_help->bigdigits[big2_help->size - 1]) + 1);
+        shift = (unsigned int) (digitMostSignificantBit(divisor_help->bigdigits[divisor_help->size - 1]) + 1);
         if (shift == 0) {
-          /* The most significant digit of big2_help is 0. Just ignore it */
-          big1_help->size--;
-          big2_help->size--;
-          if (big2_help->size == 1) {
-            uBigDiv1(big1_help, big2_help->bigdigits[0], result);
+          /* The most significant digit of divisor_help is 0. Just ignore it */
+          dividend_help->size--;
+          divisor_help->size--;
+          if (divisor_help->size == 1) {
+            uBigDiv1(dividend_help, divisor_help->bigdigits[0], result);
           } else {
-            uBigDiv(big1_help, big2_help, result);
+            uBigDiv(dividend_help, divisor_help, result);
           } /* if */
         } else {
           shift = BIGDIGIT_SIZE - shift;
-          uBigLShift(big1_help, shift);
-          uBigLShift(big2_help, shift);
-          uBigDiv(big1_help, big2_help, result);
+          uBigLShift(dividend_help, shift);
+          uBigLShift(divisor_help, shift);
+          uBigDiv(dividend_help, divisor_help, result);
         } /* if */
         if (negative) {
           negate_positive_big(result);
         } /* if */
         result = normalize(result);
       } /* if */
-      FREE_BIG(big1_help, big1->size + 2);
-      FREE_BIG(big2_help, big2->size + 1);
+      FREE_BIG(dividend_help, dividend->size + 2);
+      FREE_BIG(divisor_help, divisor->size + 1);
       return result;
     } /* if */
   } /* bigDiv */
@@ -3779,6 +3787,11 @@ inttype exponent;
 
 
 
+/**
+ *  Compute the truncated base 2 logarithm of a bigInteger number.
+ *  @return the truncated base 2 logarithm.
+ *  @exception NUMERIC_ERROR The number is negative.
+ */
 #ifdef ANSI_C
 
 biginttype bigLog2 (const const_biginttype big1)
@@ -3835,6 +3848,11 @@ biginttype big1;
 
 
 
+/**
+ *  Index of the lowest-order one bit.
+ *  For A <> 0 this is equal to the number of lowest-order zero bits.
+ *  @return the number of lowest-order zero bits or -1 for lowestSetBit(0).
+ */
 #ifdef ANSI_C
 
 inttype bigLowestSetBit (const const_biginttype big1)
@@ -4134,104 +4152,104 @@ inttype lshift;
 
 
 /**
- *  Computes an integer modulo division of big1 by big2 for signed
+ *  Computes an integer modulo division of dividend by divisor for signed
  *  big integers. The memory for the result is requested and the
- *  normalized result is returned. When big2 has just one digit
- *  or when big1 has less digits than big2 the bigMDiv1() or
+ *  normalized result is returned. When divisor has just one digit
+ *  or when dividend has less digits than divisor the bigMDiv1() or
  *  bigMDivSizeLess() functions are called. In the general case
- *  the absolute values of big1 and big2 are taken. Then big1 is
- *  extended by one leading zero digit. After that big1 and big2
+ *  the absolute values of dividend and divisor are taken. Then dividend is
+ *  extended by one leading zero digit. After that dividend and divisor
  *  are shifted to the left such that the most significant bit
- *  of big2 is set. This fulfills the preconditions for calling
+ *  of divisor is set. This fulfills the preconditions for calling
  *  uBigDiv() which does the main work of the division.
  */
 #ifdef ANSI_C
 
-biginttype bigMDiv (const const_biginttype big1, const const_biginttype big2)
+biginttype bigMDiv (const const_biginttype dividend, const const_biginttype divisor)
 #else
 
-biginttype bigMDiv (big1, big2)
-biginttype big1;
-biginttype big2;
+biginttype bigMDiv (dividend, divisor)
+biginttype dividend;
+biginttype divisor;
 #endif
 
   {
     booltype negative = FALSE;
-    biginttype big1_help;
-    biginttype big2_help;
+    biginttype dividend_help;
+    biginttype divisor_help;
     unsigned int shift;
     bigdigittype mdiv1_remainder = 0;
     biginttype result;
 
   /* bigMDiv */
-    if (big2->size == 1) {
-      result = bigMDiv1(big1, big2->bigdigits[0]);
+    if (divisor->size == 1) {
+      result = bigMDiv1(dividend, divisor->bigdigits[0]);
       return result;
-    } else if (big1->size < big2->size) {
-      result = bigMDivSizeLess(big1, big2);
+    } else if (dividend->size < divisor->size) {
+      result = bigMDivSizeLess(dividend, divisor);
       return result;
     } else {
-      if (unlikely(!ALLOC_BIG_CHECK_SIZE(big1_help, big1->size + 2))) {
+      if (unlikely(!ALLOC_BIG_CHECK_SIZE(dividend_help, dividend->size + 2))) {
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
-        if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
+        if (IS_NEGATIVE(dividend->bigdigits[dividend->size - 1])) {
           negative = TRUE;
-          positive_copy_of_negative_big(big1_help, big1);
+          positive_copy_of_negative_big(dividend_help, dividend);
         } else {
-          big1_help->size = big1->size;
-          memcpy(big1_help->bigdigits, big1->bigdigits,
-              (size_t) big1->size * sizeof(bigdigittype));
+          dividend_help->size = dividend->size;
+          memcpy(dividend_help->bigdigits, dividend->bigdigits,
+              (size_t) dividend->size * sizeof(bigdigittype));
         } /* if */
-        big1_help->bigdigits[big1_help->size] = 0;
-        big1_help->size++;
+        dividend_help->bigdigits[dividend_help->size] = 0;
+        dividend_help->size++;
       } /* if */
-      if (unlikely(!ALLOC_BIG_CHECK_SIZE(big2_help, big2->size + 1))) {
-        FREE_BIG(big1_help,  big1->size + 2);
+      if (unlikely(!ALLOC_BIG_CHECK_SIZE(divisor_help, divisor->size + 1))) {
+        FREE_BIG(dividend_help,  dividend->size + 2);
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
-        if (IS_NEGATIVE(big2->bigdigits[big2->size - 1])) {
+        if (IS_NEGATIVE(divisor->bigdigits[divisor->size - 1])) {
           negative = !negative;
-          positive_copy_of_negative_big(big2_help, big2);
+          positive_copy_of_negative_big(divisor_help, divisor);
         } else {
-          big2_help->size = big2->size;
-          memcpy(big2_help->bigdigits, big2->bigdigits,
-              (size_t) big2->size * sizeof(bigdigittype));
+          divisor_help->size = divisor->size;
+          memcpy(divisor_help->bigdigits, divisor->bigdigits,
+              (size_t) divisor->size * sizeof(bigdigittype));
         } /* if */
       } /* if */
-      if (unlikely(!ALLOC_BIG_SIZE_OK(result, big1_help->size - big2_help->size + 1))) {
+      if (unlikely(!ALLOC_BIG_SIZE_OK(result, dividend_help->size - divisor_help->size + 1))) {
         raise_error(MEMORY_ERROR);
       } else {
-        result->size = big1_help->size - big2_help->size + 1;
+        result->size = dividend_help->size - divisor_help->size + 1;
         result->bigdigits[result->size - 1] = 0;
-        shift = (unsigned int) (digitMostSignificantBit(big2_help->bigdigits[big2_help->size - 1]) + 1);
+        shift = (unsigned int) (digitMostSignificantBit(divisor_help->bigdigits[divisor_help->size - 1]) + 1);
         if (shift == 0) {
-          /* The most significant digit of big2_help is 0. Just ignore it */
-          big1_help->size--;
-          big2_help->size--;
-          if (big2_help->size == 1) {
-            mdiv1_remainder = uBigMDiv1(big1_help, big2_help->bigdigits[0], result);
+          /* The most significant digit of divisor_help is 0. Just ignore it */
+          dividend_help->size--;
+          divisor_help->size--;
+          if (divisor_help->size == 1) {
+            mdiv1_remainder = uBigMDiv1(dividend_help, divisor_help->bigdigits[0], result);
           } else {
-            uBigDiv(big1_help, big2_help, result);
+            uBigDiv(dividend_help, divisor_help, result);
           } /* if */
         } else {
           shift = BIGDIGIT_SIZE - shift;
-          uBigLShift(big1_help, shift);
-          uBigLShift(big2_help, shift);
-          uBigDiv(big1_help, big2_help, result);
+          uBigLShift(dividend_help, shift);
+          uBigLShift(divisor_help, shift);
+          uBigDiv(dividend_help, divisor_help, result);
         } /* if */
         if (negative) {
-          if ((big2_help->size == 1 && mdiv1_remainder != 0) ||
-              (big2_help->size != 1 && uBigIsNot0(big1_help))) {
+          if ((divisor_help->size == 1 && mdiv1_remainder != 0) ||
+              (divisor_help->size != 1 && uBigIsNot0(dividend_help))) {
             uBigIncr(result);
           } /* if */
           negate_positive_big(result);
         } /* if */
         result = normalize(result);
       } /* if */
-      FREE_BIG(big1_help, big1->size + 2);
-      FREE_BIG(big2_help, big2->size + 1);
+      FREE_BIG(dividend_help, dividend->size + 2);
+      FREE_BIG(divisor_help, divisor->size + 1);
       return result;
     } /* if */
   } /* bigMDiv */
@@ -4298,117 +4316,117 @@ biginttype big1;
 
 
 /**
- *  Computes the modulo of an integer division of big1 by big2
+ *  Computes the modulo of an integer division of dividend by divisor
  *  for signed big integers. The memory for the result is requested
- *  and the normalized result is returned. When big2 has just one
- *  digit or when big1 has less digits than big2 the bigMod1() or
+ *  and the normalized result is returned. When divisor has just one
+ *  digit or when dividend has less digits than divisor the bigMod1() or
  *  bigModSizeLess() functions are called. In the general case
- *  the absolute values of big1 and big2 are taken. Then big1 is
- *  extended by one leading zero digit. After that big1 and big2
+ *  the absolute values of dividend and divisor are taken. Then dividend is
+ *  extended by one leading zero digit. After that dividend and divisor
  *  are shifted to the left such that the most significant bit
- *  of big2 is set. This fulfills the preconditions for calling
+ *  of divisor is set. This fulfills the preconditions for calling
  *  uBigRem() which does the main work of the division. Afterwards
  *  the result must be shifted to the right to get the remainder.
- *  If big1 and big2 have the same sign the modulo has the same
+ *  If dividend and divisor have the same sign the modulo has the same
  *  value as the remainder. When the remainder is zero the modulo
- *  is also zero. If the signs of big1 and big2 are different the
- *  modulo is computed from the remainder by adding big1.
+ *  is also zero. If the signs of dividend and divisor are different the
+ *  modulo is computed from the remainder by adding dividend.
  */
 #ifdef ANSI_C
 
-biginttype bigMod (const const_biginttype big1, const const_biginttype big2)
+biginttype bigMod (const const_biginttype dividend, const const_biginttype divisor)
 #else
 
-biginttype bigMod (big1, big2)
-biginttype big1;
-biginttype big2;
+biginttype bigMod (dividend, divisor)
+biginttype dividend;
+biginttype divisor;
 #endif
 
   {
     booltype negative1 = FALSE;
     booltype negative2 = FALSE;
-    biginttype big2_help;
+    biginttype divisor_help;
     unsigned int shift;
     biginttype result;
 
   /* bigMod */
-    if (big2->size == 1) {
-      result = bigMod1(big1, big2->bigdigits[0]);
+    if (divisor->size == 1) {
+      result = bigMod1(dividend, divisor->bigdigits[0]);
       return result;
-    } else if (big1->size < big2->size) {
-      result = bigModSizeLess(big1, big2);
+    } else if (dividend->size < divisor->size) {
+      result = bigModSizeLess(dividend, divisor);
       return result;
     } else {
-      if (unlikely(!ALLOC_BIG_CHECK_SIZE(result, big1->size + 2))) {
+      if (unlikely(!ALLOC_BIG_CHECK_SIZE(result, dividend->size + 2))) {
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
-        if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
+        if (IS_NEGATIVE(dividend->bigdigits[dividend->size - 1])) {
           negative1 = TRUE;
-          positive_copy_of_negative_big(result, big1);
+          positive_copy_of_negative_big(result, dividend);
         } else {
-          result->size = big1->size;
-          memcpy(result->bigdigits, big1->bigdigits,
-              (size_t) big1->size * sizeof(bigdigittype));
+          result->size = dividend->size;
+          memcpy(result->bigdigits, dividend->bigdigits,
+              (size_t) dividend->size * sizeof(bigdigittype));
         } /* if */
         result->bigdigits[result->size] = 0;
         result->size++;
       } /* if */
-      if (unlikely(!ALLOC_BIG_CHECK_SIZE(big2_help, big2->size + 1))) {
-        FREE_BIG(result,  big1->size + 2);
+      if (unlikely(!ALLOC_BIG_CHECK_SIZE(divisor_help, divisor->size + 1))) {
+        FREE_BIG(result,  dividend->size + 2);
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
-        if (IS_NEGATIVE(big2->bigdigits[big2->size - 1])) {
+        if (IS_NEGATIVE(divisor->bigdigits[divisor->size - 1])) {
           negative2 = TRUE;
-          positive_copy_of_negative_big(big2_help, big2);
+          positive_copy_of_negative_big(divisor_help, divisor);
         } else {
-          big2_help->size = big2->size;
-          memcpy(big2_help->bigdigits, big2->bigdigits,
-              (size_t) big2->size * sizeof(bigdigittype));
+          divisor_help->size = divisor->size;
+          memcpy(divisor_help->bigdigits, divisor->bigdigits,
+              (size_t) divisor->size * sizeof(bigdigittype));
         } /* if */
       } /* if */
-      shift = (unsigned int) (digitMostSignificantBit(big2_help->bigdigits[big2_help->size - 1]) + 1);
+      shift = (unsigned int) (digitMostSignificantBit(divisor_help->bigdigits[divisor_help->size - 1]) + 1);
       if (shift == 0) {
-        /* The most significant digit of big2_help is 0. Just ignore it */
+        /* The most significant digit of divisor_help is 0. Just ignore it */
         result->size--;
-        big2_help->size--;
-        if (big2_help->size == 1) {
-          result->bigdigits[0] = uBigRem1(result, big2_help->bigdigits[0]);
+        divisor_help->size--;
+        if (divisor_help->size == 1) {
+          result->bigdigits[0] = uBigRem1(result, divisor_help->bigdigits[0]);
           memset(&result->bigdigits[1], 0,
               (size_t) (result->size - 1) * sizeof(bigdigittype));
         } else {
-          uBigRem(result, big2_help);
+          uBigRem(result, divisor_help);
         } /* if */
         result->bigdigits[result->size] = 0;
-        big2_help->size++;
+        divisor_help->size++;
       } else {
         shift = BIGDIGIT_SIZE - shift;
         uBigLShift(result, shift);
-        uBigLShift(big2_help, shift);
-        uBigRem(result, big2_help);
+        uBigLShift(divisor_help, shift);
+        uBigRem(result, divisor_help);
         uBigRShift(result, shift);
       } /* if */
-      result->bigdigits[big1->size + 1] = 0;
-      result->size = big1->size + 2;
+      result->bigdigits[dividend->size + 1] = 0;
+      result->size = dividend->size + 2;
       if (negative1) {
         if (negative2) {
           negate_positive_big(result);
         } else {
           if (uBigIsNot0(result)) {
             negate_positive_big(result);
-            bigAddTo(result, big2);
+            bigAddTo(result, divisor);
           } /* if */
         } /* if */
       } else {
         if (negative2) {
           if (uBigIsNot0(result)) {
-            bigAddTo(result, big2);
+            bigAddTo(result, divisor);
           } /* if */
         } /* if */
       } /* if */
       result = normalize(result);
-      FREE_BIG(big2_help, big2->size + 1);
+      FREE_BIG(divisor_help, divisor->size + 1);
       return result;
     } /* if */
   } /* bigMod */
@@ -4420,62 +4438,62 @@ biginttype big2;
  */
 #ifdef ANSI_C
 
-biginttype bigMult (const_biginttype big1, const_biginttype big2)
+biginttype bigMult (const_biginttype factor1, const_biginttype factor2)
 #else
 
-biginttype bigMult (big1, big2)
-biginttype big1;
-biginttype big2;
+biginttype bigMult (factor1, factor2)
+biginttype factor1;
+biginttype factor2;
 #endif
 
   {
     booltype negative = FALSE;
-    biginttype big1_help = NULL;
-    biginttype big2_help = NULL;
+    biginttype factor1_help = NULL;
+    biginttype factor2_help = NULL;
     biginttype result;
 
   /* bigMult */
-    if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
+    if (IS_NEGATIVE(factor1->bigdigits[factor1->size - 1])) {
       negative = TRUE;
-      big1_help = alloc_positive_copy_of_negative_big(big1);
-      big1 = big1_help;
-      if (unlikely(big1_help == NULL)) {
+      factor1_help = alloc_positive_copy_of_negative_big(factor1);
+      factor1 = factor1_help;
+      if (unlikely(factor1_help == NULL)) {
         raise_error(MEMORY_ERROR);
         return NULL;
       } /* if */
     } /* if */
-    if (IS_NEGATIVE(big2->bigdigits[big2->size - 1])) {
+    if (IS_NEGATIVE(factor2->bigdigits[factor2->size - 1])) {
       negative = !negative;
-      big2_help = alloc_positive_copy_of_negative_big(big2);
-      big2 = big2_help;
-      if (unlikely(big2_help == NULL)) {
-        if (big1_help != NULL) {
-          FREE_BIG(big1_help, big1_help->size);
+      factor2_help = alloc_positive_copy_of_negative_big(factor2);
+      factor2 = factor2_help;
+      if (unlikely(factor2_help == NULL)) {
+        if (factor1_help != NULL) {
+          FREE_BIG(factor1_help, factor1_help->size);
         } /* if */
         raise_error(MEMORY_ERROR);
         return NULL;
       } /* if */
     } /* if */
-    /* printf("bigMult(%u, %u)\n", big1->size, big2->size); */
+    /* printf("bigMult(%u, %u)\n", factor1->size, factor2->size); */
 #if 0
-    if (unlikely(!ALLOC_BIG(result, big1->size + big2->size))) {
+    if (unlikely(!ALLOC_BIG(result, factor1->size + factor2->size))) {
       raise_error(MEMORY_ERROR);
     } else {
-      uBigMult(big1, big2, result);
-      result->size = big1->size + big2->size;
+      uBigMult(factor1, factor2, result);
+      result->size = factor1->size + factor2->size;
       if (negative) {
         negate_positive_big(result);
       } /* if */
       result = normalize(result);
     } /* if */
 #else
-    result = uBigMultK(big1, big2, negative);
+    result = uBigMultK(factor1, factor2, negative);
 #endif
-    if (big1_help != NULL) {
-      FREE_BIG(big1_help, big1_help->size);
+    if (factor1_help != NULL) {
+      FREE_BIG(factor1_help, factor1_help->size);
     } /* if */
-    if (big2_help != NULL) {
-      FREE_BIG(big2_help, big2_help->size);
+    if (factor2_help != NULL) {
+      FREE_BIG(factor2_help, factor2_help->size);
     } /* if */
     return result;
   } /* bigMult */
@@ -4876,98 +4894,98 @@ biginttype upper_limit;
 
 
 /**
- *  Computes the remainder of an integer division of big1 by big2
+ *  Computes the remainder of an integer division of dividend by divisor
  *  for signed big integers. The memory for the result is requested
- *  and the normalized result is returned. When big2 has just one
- *  digit or when big1 has less digits than big2 the bigRem1() or
+ *  and the normalized result is returned. When divisor has just one
+ *  digit or when dividend has less digits than divisor the bigRem1() or
  *  bigRemSizeLess() functions are called. In the general case
- *  the absolute values of big1 and big2 are taken. Then big1 is
- *  extended by one leading zero digit. After that big1 and big2
+ *  the absolute values of dividend and divisor are taken. Then dividend is
+ *  extended by one leading zero digit. After that dividend and divisor
  *  are shifted to the left such that the most significant bit
- *  of big2 is set. This fulfills the preconditions for calling
+ *  of divisor is set. This fulfills the preconditions for calling
  *  uBigRem() which does the main work of the division. Afterwards
  *  the result must be shifted to the right to get the remainder.
  */
 #ifdef ANSI_C
 
-biginttype bigRem (const const_biginttype big1, const const_biginttype big2)
+biginttype bigRem (const const_biginttype dividend, const const_biginttype divisor)
 #else
 
-biginttype bigRem (big1, big2)
-biginttype big1;
-biginttype big2;
+biginttype bigRem (dividend, divisor)
+biginttype dividend;
+biginttype divisor;
 #endif
 
   {
     booltype negative = FALSE;
-    biginttype big2_help;
+    biginttype divisor_help;
     unsigned int shift;
     biginttype result;
 
   /* bigRem */
-    if (big2->size == 1) {
-      result = bigRem1(big1, big2->bigdigits[0]);
+    if (divisor->size == 1) {
+      result = bigRem1(dividend, divisor->bigdigits[0]);
       return result;
-    } else if (big1->size < big2->size) {
-      result = bigRemSizeLess(big1, big2);
+    } else if (dividend->size < divisor->size) {
+      result = bigRemSizeLess(dividend, divisor);
       return result;
     } else {
-      if (unlikely(!ALLOC_BIG_CHECK_SIZE(result, big1->size + 2))) {
+      if (unlikely(!ALLOC_BIG_CHECK_SIZE(result, dividend->size + 2))) {
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
-        if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
+        if (IS_NEGATIVE(dividend->bigdigits[dividend->size - 1])) {
           negative = TRUE;
-          positive_copy_of_negative_big(result, big1);
+          positive_copy_of_negative_big(result, dividend);
         } else {
-          result->size = big1->size;
-          memcpy(result->bigdigits, big1->bigdigits,
-              (size_t) big1->size * sizeof(bigdigittype));
+          result->size = dividend->size;
+          memcpy(result->bigdigits, dividend->bigdigits,
+              (size_t) dividend->size * sizeof(bigdigittype));
         } /* if */
         result->bigdigits[result->size] = 0;
         result->size++;
       } /* if */
-      if (unlikely(!ALLOC_BIG_CHECK_SIZE(big2_help, big2->size + 1))) {
-        FREE_BIG(result,  big1->size + 2);
+      if (unlikely(!ALLOC_BIG_CHECK_SIZE(divisor_help, divisor->size + 1))) {
+        FREE_BIG(result,  dividend->size + 2);
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
-        if (IS_NEGATIVE(big2->bigdigits[big2->size - 1])) {
-          positive_copy_of_negative_big(big2_help, big2);
+        if (IS_NEGATIVE(divisor->bigdigits[divisor->size - 1])) {
+          positive_copy_of_negative_big(divisor_help, divisor);
         } else {
-          big2_help->size = big2->size;
-          memcpy(big2_help->bigdigits, big2->bigdigits,
-              (size_t) big2->size * sizeof(bigdigittype));
+          divisor_help->size = divisor->size;
+          memcpy(divisor_help->bigdigits, divisor->bigdigits,
+              (size_t) divisor->size * sizeof(bigdigittype));
         } /* if */
       } /* if */
-      shift = (unsigned int) (digitMostSignificantBit(big2_help->bigdigits[big2_help->size - 1]) + 1);
+      shift = (unsigned int) (digitMostSignificantBit(divisor_help->bigdigits[divisor_help->size - 1]) + 1);
       if (shift == 0) {
-        /* The most significant digit of big2_help is 0. Just ignore it */
+        /* The most significant digit of divisor_help is 0. Just ignore it */
         result->size--;
-        big2_help->size--;
-        if (big2_help->size == 1) {
-          result->bigdigits[0] = uBigRem1(result, big2_help->bigdigits[0]);
+        divisor_help->size--;
+        if (divisor_help->size == 1) {
+          result->bigdigits[0] = uBigRem1(result, divisor_help->bigdigits[0]);
           memset(&result->bigdigits[1], 0,
               (size_t) (result->size - 1) * sizeof(bigdigittype));
         } else {
-          uBigRem(result, big2_help);
+          uBigRem(result, divisor_help);
         } /* if */
         result->bigdigits[result->size] = 0;
-        big2_help->size++;
+        divisor_help->size++;
       } else {
         shift = BIGDIGIT_SIZE - shift;
         uBigLShift(result, shift);
-        uBigLShift(big2_help, shift);
-        uBigRem(result, big2_help);
+        uBigLShift(divisor_help, shift);
+        uBigRem(result, divisor_help);
         uBigRShift(result, shift);
       } /* if */
-      result->bigdigits[big1->size + 1] = 0;
-      result->size = big1->size + 2;
+      result->bigdigits[dividend->size + 1] = 0;
+      result->size = dividend->size + 2;
       if (negative) {
         negate_positive_big(result);
       } /* if */
       result = normalize(result);
-      FREE_BIG(big2_help, big2->size + 1);
+      FREE_BIG(divisor_help, divisor->size + 1);
       return result;
     } /* if */
   } /* bigRem */
@@ -5204,73 +5222,73 @@ inttype rshift;
  */
 #ifdef ANSI_C
 
-biginttype bigSbtr (const const_biginttype big1, const const_biginttype big2)
+biginttype bigSbtr (const const_biginttype minuend, const const_biginttype subtrahend)
 #else
 
-biginttype bigSbtr (big1, big2)
-biginttype big1;
-biginttype big2;
+biginttype bigSbtr (minuend, subtrahend)
+biginttype minuend;
+biginttype subtrahend;
 #endif
 
   {
     memsizetype pos;
     doublebigdigittype carry = 1;
-    doublebigdigittype big1_sign;
-    doublebigdigittype big2_sign;
+    doublebigdigittype minuend_sign;
+    doublebigdigittype subtrahend_sign;
     biginttype result;
 
   /* bigSbtr */
-    if (big1->size >= big2->size) {
-      if (unlikely(!ALLOC_BIG_CHECK_SIZE(result, big1->size + 1))) {
+    if (minuend->size >= subtrahend->size) {
+      if (unlikely(!ALLOC_BIG_CHECK_SIZE(result, minuend->size + 1))) {
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
         pos = 0;
         do {
-          carry += (doublebigdigittype) big1->bigdigits[pos] +
-              (~big2->bigdigits[pos] & BIGDIGIT_MASK);
+          carry += (doublebigdigittype) minuend->bigdigits[pos] +
+              (~subtrahend->bigdigits[pos] & BIGDIGIT_MASK);
           result->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
           carry >>= BIGDIGIT_SIZE;
           pos++;
-        } while (pos < big2->size);
-        big2_sign = IS_NEGATIVE(big2->bigdigits[pos - 1]) ? 0 : BIGDIGIT_MASK;
-        for (; pos < big1->size; pos++) {
-          carry += big1->bigdigits[pos] + big2_sign;
+        } while (pos < subtrahend->size);
+        subtrahend_sign = IS_NEGATIVE(subtrahend->bigdigits[pos - 1]) ? 0 : BIGDIGIT_MASK;
+        for (; pos < minuend->size; pos++) {
+          carry += minuend->bigdigits[pos] + subtrahend_sign;
           result->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
           carry >>= BIGDIGIT_SIZE;
         } /* for */
-        if (IS_NEGATIVE(big1->bigdigits[pos - 1])) {
-          big2_sign--;
+        if (IS_NEGATIVE(minuend->bigdigits[pos - 1])) {
+          subtrahend_sign--;
         } /* if */
-        result->bigdigits[pos] = (bigdigittype) ((carry + big2_sign) & BIGDIGIT_MASK);
+        result->bigdigits[pos] = (bigdigittype) ((carry + subtrahend_sign) & BIGDIGIT_MASK);
         result->size = pos + 1;
         result = normalize(result);
         return result;
       } /* if */
     } else {
-      if (unlikely(!ALLOC_BIG_CHECK_SIZE(result, big2->size + 1))) {
+      if (unlikely(!ALLOC_BIG_CHECK_SIZE(result, subtrahend->size + 1))) {
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
         pos = 0;
         do {
-          carry += (doublebigdigittype) big1->bigdigits[pos] +
-              (~big2->bigdigits[pos] & BIGDIGIT_MASK);
+          carry += (doublebigdigittype) minuend->bigdigits[pos] +
+              (~subtrahend->bigdigits[pos] & BIGDIGIT_MASK);
           result->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
           carry >>= BIGDIGIT_SIZE;
           pos++;
-        } while (pos < big1->size);
-        big1_sign = IS_NEGATIVE(big1->bigdigits[pos - 1]) ? BIGDIGIT_MASK : 0;
-        for (; pos < big2->size; pos++) {
-          carry += big1_sign + (~big2->bigdigits[pos] & BIGDIGIT_MASK);
+        } while (pos < minuend->size);
+        minuend_sign = IS_NEGATIVE(minuend->bigdigits[pos - 1]) ? BIGDIGIT_MASK : 0;
+        for (; pos < subtrahend->size; pos++) {
+          carry += minuend_sign + (~subtrahend->bigdigits[pos] & BIGDIGIT_MASK);
           result->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
           carry >>= BIGDIGIT_SIZE;
         } /* for */
-        big2_sign = IS_NEGATIVE(big2->bigdigits[pos - 1]) ? 0 : BIGDIGIT_MASK;
-        if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
-          big2_sign--;
+        subtrahend_sign = IS_NEGATIVE(subtrahend->bigdigits[pos - 1]) ? 0 : BIGDIGIT_MASK;
+        if (IS_NEGATIVE(minuend->bigdigits[minuend->size - 1])) {
+          subtrahend_sign--;
         } /* if */
-        result->bigdigits[pos] = (bigdigittype) ((carry + big2_sign) & BIGDIGIT_MASK);
+        result->bigdigits[pos] = (bigdigittype) ((carry + subtrahend_sign) & BIGDIGIT_MASK);
         result->size = pos + 1;
         result = normalize(result);
         return result;

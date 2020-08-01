@@ -1,8 +1,8 @@
 
 (********************************************************************)
 (*                                                                  *)
-(*  text.s7i      Interface text, line/column oriented files.       *)
-(*  Copyright (C) 2011  Thomas Mertes                               *)
+(*  text.s7i      Interface type for line/column oriented files     *)
+(*  Copyright (C) 1989 - 2011  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -30,35 +30,105 @@ include "file.s7i";
 include "color.s7i";
 
 
+(**
+ *  Interface type for line/column oriented [[file|files]].
+ *  The text interface is implemented with [[screen|screen_file]],
+ *  [[graph_file]], [[window|window_file]], [[pixmap_file|pixmapFontFile]]
+ *  and many other types.
+ *)
 const type: text is subtype file;
+
 
 (* Procedures and Elements granted for every text *)
 
-# const proc: write (inout text param, in string param) is DYNAMIC;
-# const proc: write (inout text param, in char param) is DYNAMIC;
-# const proc: writeln (inout text param) is DYNAMIC;
-# const proc: backSpace (ref text param) is DYNAMIC;
-const func integer: height (ref text param) is DYNAMIC;
-const func integer: width (ref text param) is DYNAMIC;
-const func integer: line (ref text param) is DYNAMIC;
-const func integer: column (ref text param) is DYNAMIC;
-const proc: clear (inout text param) is DYNAMIC;
-const proc: clear (in text param, in integer param, in integer param,
-    in integer param, in integer param) is DYNAMIC;
+
+(**
+ *  Get the height of ''aText''.
+ *  @return the height of ''aText''.
+ *)
+const func integer: height (in text: aText) is DYNAMIC;
+
+
+(**
+ *  Get the width of ''aText''.
+ *  @return the width of ''aText''.
+ *)
+const func integer: width (in text: aTExt) is DYNAMIC;
+
+
+(**
+ *  Determine the current line of ''aText''.
+ *  @return the current line of ''aText''.
+ *)
+const func integer: line (in text: aText) is DYNAMIC;
+
+
+(**
+ *  Determine the current column of ''aText''.
+ *  @return the current column of ''aText''.
+ *)
+const func integer: column (in text: aText) is DYNAMIC;
+
+
+(**
+ *  Clear an area of ''aText'' with the background color.
+ *  The area is specified in (line, column) coordinates and is
+ *  between the (''upper'', ''left'') and (''lower'', ''right'').
+ *)
+const proc: clear (inout text: aText, in integer: upper, in integer: left,
+    in integer: lower, in integer: right) is DYNAMIC;
+
+
+(**
+ *  Clear the area of ''aText'' with the background color.
+ *)
+const proc: clear (inout text: aText) is DYNAMIC;
+
+
 const proc: v_scroll (inout text param, in integer param) is DYNAMIC;
 const proc: v_scroll (inout text param, in integer param, in integer param,
     in integer param, in integer param, in integer param) is DYNAMIC;
-const proc: h_scroll (ref text param, in integer param) is DYNAMIC;
-const proc: h_scroll (ref text param, in integer param, in integer param,
+const proc: h_scroll (in text param, in integer param) is DYNAMIC;
+const proc: h_scroll (in text param, in integer param, in integer param,
     in integer param, in integer param, in integer param) is DYNAMIC;
-const proc: color (inout text param, in color param) is DYNAMIC;
-const proc: color (inout text param, in color param, in color param) is DYNAMIC;
-const proc: setPos (inout text param, in integer param, in integer param) is DYNAMIC;
-const proc: setPosXY (inout text param, in integer param, in integer param) is DYNAMIC;
-const proc: setLine (ref text param, ref integer param) is DYNAMIC;
-const proc: setColumn (ref text param, ref integer param) is DYNAMIC;
-const proc: setXY (ref text param, ref integer param, ref integer param) is DYNAMIC;
-const proc: flush (inout text param) is DYNAMIC;
+
+
+(**
+ *  Set the current foreground color of ''aText''.
+ *)
+const proc: color (inout text: aText, in color: foreground) is DYNAMIC;
+
+
+(**
+ *  Set the current foreground and background color of ''aText''.
+ *)
+const proc: color (inout text: aText, in color: foreground, in color: background) is DYNAMIC;
+
+
+(**
+ *  Set the current position of ''aText'' to ''line'' and ''column''.
+ *)
+const proc: setPos (inout text: aText, in integer: line, in integer: column) is DYNAMIC;
+
+
+(**
+ *  Set the current position of ''aText'' to the coordinates (''xPos'', ''yPos'').
+ *)
+const proc: setPosXY (inout text: aText, in integer: xPos, in integer: yPos) is DYNAMIC;
+
+
+(**
+ *  Set the ''line'' of the current position of ''aText''.
+ *)
+const proc: setLine (in text: aText, in integer: line) is DYNAMIC;
+
+
+(**
+ *  Set the ''column'' of the current position of ''aText''.
+ *)
+const proc: setColumn (in text: aText, in integer: column) is DYNAMIC;
+
+
 const proc: cursor (ref text param, ref boolean param) is DYNAMIC;
 const proc: cursor_on (ref text param) is DYNAMIC;
 const proc: cursor_off (ref text param) is DYNAMIC;

@@ -26,6 +26,7 @@ $ include "seed7_05.s7i";
   include "stdio.s7i";
   include "osfiles.s7i";
   include "time.s7i";
+  include "duration.s7i";
 
 
 const proc: syncFile (in string: sourcePath, in string: destPath) is forward;

@@ -26,9 +26,14 @@
 (********************************************************************)
 
 
+include "enable_io.s7i";
 include "math.s7i";
 
 
+(**
+ *  Complex numbers represented with 'float' real part and imaginary part.
+ *  Complex literals do not exist.
+ *)
 const type: complex is new object struct
     var float: re is 0.0;
     var float: im is 0.0;
@@ -101,31 +106,31 @@ const func complex: (attr complex) conv (in float: re) is func
 
 
 (**
- *  Check if two complex values are equal.
- *  @return TRUE if both values are equal, FALSE otherwise.
+ *  Check if two complex numbers are equal.
+ *  @return TRUE if both numbers are equal, FALSE otherwise.
  *)
-const func boolean: (ref complex: num1) = (ref complex: num2) is
-  return num1.re = num2.re and num1.im = num2.im;
+const func boolean: (ref complex: number1) = (ref complex: number2) is
+  return number1.re = number2.re and number1.im = number2.im;
 
 
 (**
- *  Check if two complex values are not equal.
- *  @return FALSE if both values are equal, TRUE otherwise.
+ *  Check if two complex numbers are not equal.
+ *  @return FALSE if both numbers are equal, TRUE otherwise.
  *)
-const func boolean: (ref complex: num1) <> (ref complex: num2) is
-  return num1.re <> num2.re or num1.im <> num2.im;
+const func boolean: (ref complex: number1) <> (ref complex: number2) is
+  return number1.re <> number2.re or number1.im <> number2.im;
 
 
 (**
  *  Plus sign for complex numbers.
  *  @return its operand unchanged.
  *)
-const func complex: + (in complex: num1) is func
+const func complex: + (in complex: number) is func
   result
     var complex: result is complex.value;
   begin
-    result.re := num1.re;
-    result.im := num1.im;
+    result.re := number.re;
+    result.im := number.im;
   end func;
 
 
@@ -133,12 +138,12 @@ const func complex: + (in complex: num1) is func
  *  Minus sign, negate a complex number.
  *  @return the negated value of the number.
  *)
-const func complex: - (in complex: num1) is func
+const func complex: - (in complex: number) is func
   result
     var complex: result is complex.value;
   begin
-    result.re := -num1.re;
-    result.im := -num1.im;
+    result.re := -number.re;
+    result.im := -number.im;
   end func;
 
 
@@ -146,12 +151,12 @@ const func complex: - (in complex: num1) is func
  *  Compute the conjugated value of a complex number.
  *  @return the conjugated value of the number.
  *)
-const func complex: conj (in complex: num1) is func
+const func complex: conj (in complex: number) is func
   result
     var complex: result is complex.value;
   begin
-    result.re := num1.re;
-    result.im := -num1.im;
+    result.re := number.re;
+    result.im := -number.im;
   end func;
 
 
@@ -159,12 +164,12 @@ const func complex: conj (in complex: num1) is func
  *  Add two complex numbers.
  *  @return the sum of the two numbers.
  *)
-const func complex: (in complex: num1) + (in complex: num2) is func
+const func complex: (in complex: summand1) + (in complex: summand2) is func
   result
-    var complex: result is complex.value;
+    var complex: sum is complex.value;
   begin
-    result.re := num1.re + num2.re;
-    result.im := num1.im + num2.im;
+    sum.re := summand1.re + summand2.re;
+    sum.im := summand1.im + summand2.im;
   end func;
 
 
@@ -172,12 +177,12 @@ const func complex: (in complex: num1) + (in complex: num2) is func
  *  Compute the subtraction of two complex numbers.
  *  @return the difference of the two numbers.
  *)
-const func complex: (in complex: num1) - (in complex: num2) is func
+const func complex: (in complex: minuend) - (in complex: subtrahend) is func
   result
     var complex: result is complex.value;
   begin
-    result.re := num1.re - num2.re;
-    result.im := num1.im - num2.im;
+    result.re := minuend.re - subtrahend.re;
+    result.im := minuend.im - subtrahend.im;
   end func;
 
 
@@ -185,12 +190,12 @@ const func complex: (in complex: num1) - (in complex: num2) is func
  *  Multiply two complex numbers.
  *  @return the product of the two numbers.
  *)
-const func complex: (in complex: num1) * (in complex: num2) is func
+const func complex: (in complex: factor1) * (in complex: factor2) is func
   result
-    var complex: result is complex.value;
+    var complex: product is complex.value;
   begin
-    result.re := num1.re * num2.re - num1.im * num2.im;
-    result.im := num1.re * num2.im + num1.im * num2.re;
+    product.re := factor1.re * factor2.re - factor1.im * factor2.im;
+    product.im := factor1.re * factor2.im + factor1.im * factor2.re;
   end func;
 
 
@@ -198,102 +203,104 @@ const func complex: (in complex: num1) * (in complex: num2) is func
  *  Copmpute the division of two complex numbers.
  *  @return the quotient of the division.
  *)
-const func complex: (in complex: num1) / (in complex: num2) is func
+const func complex: (in complex: dividend) / (in complex: divisor) is func
   result
-    var complex: result is complex.value;
+    var complex: quotient is complex.value;
   local
-    var float: divisor is 0.0;
+    var float: common_divisor is 0.0;
   begin
-    divisor := num2.re * num2.re + num2.im * num2.im;
-    result.re := (num1.re * num2.re + num1.im * num2.im) / divisor;
-    result.im := (num1.im * num2.re - num1.re * num2.im) / divisor;
+    common_divisor := divisor.re * divisor.re + divisor.im * divisor.im;
+    quotient.re := (dividend.re * divisor.re + dividend.im * divisor.im) / common_divisor;
+    quotient.im := (dividend.im * divisor.re - dividend.re * divisor.im) / common_divisor;
   end func;
 
 
 (**
- *  Increment the complex number num1 by num2.
+ *  Increment a complex number by a delta.
  *)
-const proc: (inout complex: num1) +:= (in complex: num2) is func
+const proc: (inout complex: number) +:= (in complex: delta) is func
   begin
-    num1.re +:= num2.re;
-    num1.im +:= num2.im;
+    number.re +:= delta.re;
+    number.im +:= delta.im;
   end func;
 
 
 (**
- *  Decrement the complex number num1 by num2.
+ *  Decrement a complex number by a delta.
  *)
-const proc: (inout complex: num1) -:= (in complex: num2) is func
+const proc: (inout complex: number) -:= (in complex: delta) is func
   begin
-    num1.re -:= num2.re;
-    num1.im -:= num2.im;
+    number.re -:= delta.re;
+    number.im -:= delta.im;
   end func;
 
 
 (**
- *  Multiply the complex number num1 by num2 and assign the
- *  result to num1.
+ *  Multiply a complex number by a factor and assign the result back to number.
  *)
-const proc: (inout complex: num1) *:= (in complex: num2) is func
+const proc: (inout complex: number) *:= (in complex: factor) is func
   local
-    var float: help is 0.0;
+    var float: real_part is 0.0;
   begin
-    help    := num1.re * num2.re - num1.im * num2.im;
-    num1.im := num1.re * num2.im + num1.im * num2.re;
-    num1.re := help;
+    real_part := number.re * factor.re - number.im * factor.im;
+    number.im := number.re * factor.im + number.im * factor.re;
+    number.re := real_part;
   end func;
 
 
 (**
- *  Divide the complex number num1 by num2 and assign the
- *  result to num1.
+ *  Divide a complex number by a divisor and assign the result back to number.
  *)
-const proc: (inout complex: num1) /:= (in complex: num2) is func
+const proc: (inout complex: number) /:= (in complex: divisor) is func
   local
-    var float: divisor is 0.0;
-    var float: help is 0.0;
+    var float: common_divisor is 0.0;
+    var float: real_part is 0.0;
   begin
-    divisor := num2.re * num2.re + num2.im * num2.im;
-    help    := (num1.re * num2.re + num1.im * num2.im) / divisor;
-    num1.im := (num1.im * num2.re - num1.re * num2.im) / divisor;
-    num1.re := help;
+    common_divisor := divisor.re * divisor.re + divisor.im * divisor.im;
+    real_part := (number.re * divisor.re + number.im * divisor.im) / common_divisor;
+    number.im := (number.im * divisor.re - number.re * divisor.im) / common_divisor;
+    number.re := real_part;
   end func;
 
 
 (**
- *  Return the absolute value of a complex number.
+ *  Compute the absolute value of a complex number.
+ *  @return the absolute value.
  *)
-const func float: abs (in complex: num1) is
-  return sqrt(num1.re * num1.re + num1.im * num1.im);
+const func float: abs (in complex: number) is
+  return sqrt(number.re * number.re + number.im * number.im);
 
 
 (**
- *  Return the square of the absolute value of a complex number.
+ *  Compute the square of the absolute value of a complex number.
+ *  @return the square of the absolute value.
  *)
-const func float: sqrAbs (in complex: num1) is
-  return num1.re * num1.re + num1.im * num1.im;
+const func float: sqrAbs (in complex: number) is
+  return number.re * number.re + number.im * number.im;
 
 
 (**
- *  Return the argument of a complex number.
+ *  Compute the argument of a complex number.
  *  This is the angle of the polar form of the complex number.
+ *  @return the argument of the complex number.
  *)
-const func float: arg (in complex: num1) is
-  return atan2(num1.im, num1.re);
+const func float: arg (in complex: number) is
+  return atan2(number.im, number.re);
 
 
 (**
- *  Return num1 to the power of int2.
+ *  Compute the exponentiation of a complex base by an integer exponent.
+ *  @return the result of the exponentation.
  *)
-const func complex: (in complex: num1) ** (in integer: int2) is func
+const func complex: (in complex: base) ** (in integer: exponent) is func
   result
     var complex: result is complex.value;
   local
     var float: r is 0.0;
     var float: phi is 0.0;
   begin
-    r := abs(num1) ** int2;
-    phi := arg(num1) * flt(int2);
+    r := abs(base) ** exponent;
+    phi := arg(base) * flt(exponent);
     result.re := r * cos(phi);
     result.im := r * sin(phi);
   end func;
@@ -305,13 +312,13 @@ const func complex: (in complex: num1) ** (in integer: int2) is func
  *          respectively less than, equal to, or greater than the
  *          second.
  *)
-const func integer: compare (in complex: num1, in complex: num2) is func
+const func integer: compare (in complex: number1, in complex: number2) is func
   result
     var integer: result is 0;
   begin
-    result := compare(num1.re, num2.re);
+    result := compare(number1.re, number2.re);
     if result = 0 then
-      result := compare(num1.im, num2.im);
+      result := compare(number1.im, number2.im);
     end if;
   end func;
 
@@ -325,23 +332,30 @@ const func integer: hashCode (in complex: num) is
 
 
 (**
- *  Return the conversion of a complex number to a string.
+ *  Convert a complex number to a string.
+ *  The number is converted to a string with real and imaginary
+ *  part (e.g.: "1.5-2.8i"). Real and imaginary part are separated
+ *  with a + or - sign.
+ *  @return the string result of the conversion.
  *)
-const func string: str (in complex: num) is func
+const func string: str (in complex: number) is func
   result
     var string: result is "";
   begin
-    result := str(num.im) <& "i";
+    result := str(number.im) <& "i";
     if result[1] = '-' then
-      result := str(num.re) &       result;
+      result := str(number.re) &       result;
     else
-      result := str(num.re) & "+" & result;
+      result := str(number.re) & "+" & result;
     end if;
   end func;
 
 
 (**
- *  Return the conversion of a string to a complex.
+ *  Convert a string to a complex number.
+ *  The string must contain real and imaginary part (e.g.: "1.5-2.8i").
+ *  Real and imaginary part must be separated with a + or - sign.
+ *  @return the complex result of the conversion.
  *  @exception RANGE_ERROR When stri contains not a valid complex value.
  *)
 const func complex: (attr complex) parse (in string: stri) is func
@@ -367,18 +381,18 @@ const func complex: (attr complex) parse (in string: stri) is func
 
 (**
  *  Return the conversion of a complex number to a string.
- *  The numDigits parameter specifies the number of digits
- *  after the decimal point.
+ *  The precision parameter specifies the number of digits after
+ *  the decimal point.
  *)
-const func string: (in complex: num) digits (in integer: numDigits) is func
+const func string: (in complex: number) digits (in integer: precision) is func
   result
     var string: result is "";
   begin
-    result := num.im digits numDigits <& "i";
+    result := number.im digits precision <& "i";
     if result[1] = '-' then
-      result := num.re digits numDigits <&        result;
+      result := number.re digits precision <&        result;
     else
-      result := num.re digits numDigits <& "+" <& result;
+      result := number.re digits precision <& "+" <& result;
     end if;
   end func;
 

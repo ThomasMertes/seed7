@@ -26,6 +26,9 @@
 (********************************************************************)
 
 
+(**
+ *  Filter file which generates an echo of the input.
+ *)
 const type: echo_file is sub null_file struct
     var file: in_file is STD_NULL;
     var file: out_file is STD_NULL;
@@ -33,6 +36,10 @@ const type: echo_file is sub null_file struct
   end struct;
 
 
+(**
+ *  Open an echo_file.
+ *  @return the file opened.
+ *)
 const func echo_file: open_echo (ref file: in_fil, ref file: out_fil) is func
   result
     var echo_file: echo_fil is echo_file.value;
@@ -43,6 +50,15 @@ const func echo_file: open_echo (ref file: in_fil, ref file: out_fil) is func
   end func;
 
 
+(**
+ *  Read a character from an echo_file.
+ *  The request is forwarded to 'in_file'. The character read from
+ *  'in_file' is written (echoed) to 'out_file'. Ctrl-C and ctrl-T
+ *  are handled special, as they can be used to terminate the
+ *  program. The user is asked for confirmation before the program
+ *  is terminated.
+ *  @return the character read, or EOF at the end of the file.
+ *)
 const func char: getc (inout echo_file: echo_fil) is func
   result
     var char: ch is ' ';
@@ -78,24 +94,29 @@ const func char: getc (inout echo_file: echo_fil) is func
             backSpace(echo_fil.out_file);
           end for;
         end if;
-      else
+      elsif ch <> EOF then
         incr(echo_fil.in_pos);
-        ch := '?';
-        write(echo_fil.out_file, ch);
+        write(echo_fil.out_file, '?');
       end if;
     until ch <> '\C' and ch <> '\T';
   end func;
 
 
-const func string: gets (inout echo_file: echo_fil, in integer: length) is func
+(**
+ *  Read a string with a maximum length from an echo_file.
+ *  @return the string read.
+ *)
+const func string: gets (inout echo_file: echo_fil, in integer: maxLength) is func
   result
     var string: stri is "";
   local
-    var integer: number is 0;
+    var integer: number is 1;
+    var char: ch is ' ';
   begin
-    stri := "";
-    for number range 1 to length do
-      stri &:= str(getc(echo_fil));
-    end for;
+    while number <= maxLength and ch <> EOF do
+      ch := getc(echo_fil);
+      if ch <> EOF then
+        stri &:= str(ch);
+      end if;
+    end while;
   end func;
-

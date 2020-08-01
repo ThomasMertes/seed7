@@ -1,8 +1,8 @@
 
 (********************************************************************)
 (*                                                                  *)
-(*  file.s7i      Interface file, describes sequential files.       *)
-(*  Copyright (C) 2011  Thomas Mertes                               *)
+(*  file.s7i      Interface type describing sequential files        *)
+(*  Copyright (C) 1989 - 2011  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -26,40 +26,60 @@
 (********************************************************************)
 
 
+(**
+ *  Interface type for sequential files.
+ *  The file interface is implemented with [[null_file]],
+ *  [[external_file]], [[utf8|utf8_file]], [[utf16|utf16_file]],
+ *  [[socket]], [[echo|echo_file]], [[line|line_file]],
+ *  [[dir|dir_file]] and many other types.
+ *)
 const type: file is sub object interface;
+
 
 (**
  *  Write a string to a file.
  *)
-const proc: write (inout file param, in string param)        is DYNAMIC;
+const proc: write (inout file: aFile, in string: stri)       is DYNAMIC;
 
 
 (**
  *  Write end-of-line to a file.
  *  The implementation function decides how writing end-of-line is
- *  done. It can be done by writing '\n', but other solutions are also
+ *  done. It can be done by writing "\n", but other solutions are also
  *  possible.
  *)
-const proc: writeln (inout file param)                       is DYNAMIC;
+const proc: writeln (inout file: aFile)                      is DYNAMIC;
 
 
 const proc: backSpace (inout file param)                     is DYNAMIC;
-const proc: close (inout file param)                         is DYNAMIC;
-const proc: flush (inout file param)                         is DYNAMIC;
+
+
+(**
+ *  Close a file.
+ *)
+const proc: close (inout file: aFile)                        is DYNAMIC;
+
+
+(**
+ *  Forces that all buffered data of ''aFile'' is sent to its destination.
+ *  Depending on the implementation type this causes data to be sent
+ *  to the file system, screen, network or other destination.
+ *)
+const proc: flush (inout file: aFile)                        is DYNAMIC;
 
 
 (**
  *  Read a character from a file.
  *  @return the character read, or EOF at the end of the file.
  *)
-const func char: getc (inout file param)                     is DYNAMIC;
+const func char: getc (inout file: aFile)                    is DYNAMIC;
 
 
 (**
  *  Read a string with a maximum length from a file.
  *  @return the string read.
  *)
-const func string: gets (inout file param, in integer param) is DYNAMIC;
+const func string: gets (inout file: aFile, in integer: maxLength) is DYNAMIC;
 
 
 (**
@@ -67,26 +87,26 @@ const func string: gets (inout file param, in integer param) is DYNAMIC;
  *  Before reading the word it skips spaces and tabs. The function
  *  accepts words ending with " ", "\t", end-of-line or EOF.
  *  The word ending characters are not copied into the string.
- *  When the function is left the inFile.bufferChar contains the
+ *  When the function is left inFile.bufferChar contains the
  *  word ending character (' ', '\t', '\n' or EOF). 
  *  @return the word read.
  *)
-const func string: getwd (inout file param)                  is DYNAMIC;
+const func string: getwd (inout file: aFile)                 is DYNAMIC;
 
 
 (**
  *  Read a line from a file.
  *  The function reads a string up to end-of-line or EOF.
  *  The line ending characters are not copied into the string.
- *  When the function is left the inFile.bufferChar contains the
+ *  When the function is left inFile.bufferChar contains the
  *  line ending character ('\n' or EOF). 
  *  @return the line read.
  *)
-const func string: getln (inout file param)                  is DYNAMIC;
+const func string: getln (inout file: aFile)                 is DYNAMIC;
 
 
-const func string: getk (ref file param)                     is DYNAMIC;
-const func boolean: eoln (ref file param)                    is DYNAMIC;
+const func string: getk (in file param)                      is DYNAMIC;
+const func boolean: eoln (in file param)                     is DYNAMIC;
 
 
 (**
@@ -95,15 +115,15 @@ const func boolean: eoln (ref file param)                    is DYNAMIC;
  *  from the file failed.
  *  @return TRUE if the end-of-file indicator is set, FALSE otherwise.
  *)
-const func boolean: eof (ref file param) is DYNAMIC;
+const func boolean: eof (in file: aFile)                     is DYNAMIC;
 
 
 (**
  *  Determine if at least one character can be read successfully.
  *  This function allows a file to be handled like an iterator.
- *  @return FALSE if 'getc' would return EOF, TRUE otherwise.
+ *  @return FALSE if ''getc'' would return EOF, TRUE otherwise.
  *)
-const func boolean: hasNext (ref file param) is DYNAMIC;
+const func boolean: hasNext (in file: aFile)                 is DYNAMIC;
 
 
 (**
@@ -111,7 +131,7 @@ const func boolean: hasNext (ref file param) is DYNAMIC;
  *  The file length is measured in bytes.
  *  @return the length of a file, or 0 if it cannot be obtained.
  *)
-const func integer: length (ref file param) is DYNAMIC;
+const func integer: length (in file: aFile)                  is DYNAMIC;
 
 
 (**
@@ -119,7 +139,7 @@ const func integer: length (ref file param) is DYNAMIC;
  *  The file position is measured in bytes from the start of the file.
  *  The first byte in the file has the position 1.
  *)
-const proc: seek (inout file param, in integer param) is DYNAMIC;
+const proc: seek (inout file: aFile, in integer: pos)        is DYNAMIC;
 
 
 (**
@@ -128,14 +148,14 @@ const proc: seek (inout file param, in integer param) is DYNAMIC;
  *  The first byte in the file has the position 1.
  *  @return the current file position.
  *)
-const func integer: tell (ref file param)             is DYNAMIC;
+const func integer: tell (in file: aFile)                    is DYNAMIC;
 
 
-const func char: (ref file param).bufferChar          is DYNAMIC;
+const func char: (in file param).bufferChar           is DYNAMIC;
 const varfunc char: (inout file param).bufferChar     is DYNAMIC;
-const func boolean: (ref file param).io_empty         is DYNAMIC;
+const func boolean: (in file param).io_empty          is DYNAMIC;
 const varfunc boolean: (inout file param).io_empty    is DYNAMIC;
-const func boolean: (ref file param).io_ok            is DYNAMIC;
+const func boolean: (in file param).io_ok             is DYNAMIC;
 const varfunc boolean: (inout file param).io_ok       is DYNAMIC;
 
 const func boolean: io_ok (in file: aFile) is
@@ -154,7 +174,7 @@ const func boolean: io_filled (in file: aFile) is
 (**
  *  Discard a line from a file.
  *  The function discards characters up to end-of-line or EOF.
- *  When the function is left the inFile.bufferChar contains the
+ *  When the function is left inFile.bufferChar contains the
  *  line ending character ('\n' or EOF). 
  *)
 const proc: readln (inout file: aFile) is func
@@ -169,9 +189,9 @@ const proc: readln (inout file: aFile) is func
 
 (**
  *  Write a string followed by end-of-line to a file.
- *  The file type of aFile decides how writing end-of-line is done.
- *  It can be done by writing '\n', but other solutions are also
- *  possible.
+ *  The file implementation type of ''aFile'' decides how writing
+ *  end-of-line is done. It can be done by writing '\n', but other
+ *  solutions are also possible.
  *)
 const proc: writeln (inout file: aFile, in string: stri) is func
   begin
@@ -185,7 +205,7 @@ const proc: writeln (inout file: aFile, in string: stri) is func
  *  Before reading the word it skips spaces and tabs. The function
  *  accepts words ending with " ", "\t", end-of-line or EOF.
  *  The word ending characters are not copied into the string.
- *  When the function is left the inFile.bufferChar contains the
+ *  When the function is left inFile.bufferChar contains the
  *  word ending character (' ', '\t', '\n' or EOF). 
  *)
 const proc: read (inout file: aFile, inout string: stri) is func
@@ -200,7 +220,7 @@ const proc: read (inout file: aFile, inout string: stri) is func
  *  Read a line from a file.
  *  The function reads a string up to end-of-line or EOF.
  *  The line ending characters are not copied into the string.
- *  When the function is left the inFile.bufferChar contains the
+ *  When the function is left inFile.bufferChar contains the
  *  line ending character ('\n' or EOF). 
  *)
 const proc: readln (inout file: aFile, inout string: stri) is func

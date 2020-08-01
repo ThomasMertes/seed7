@@ -27,6 +27,7 @@
 
 #ifdef ANSI_C
 
+void disconnect_param_entities (const const_objecttype objWithParams);
 listtype create_parameter_list (listtype name_list, errinfotype *err_info);
 void init_stack (progtype currentProg, errinfotype *err_info);
 void close_stack (const_progtype currentProg);
@@ -46,6 +47,7 @@ objecttype dollar_entername (nodetype declaration_base, objecttype object_name,
 
 #else
 
+void disconnect_param_entities ();
 listtype create_parameter_list ();
 void init_stack ();
 void close_stack ();

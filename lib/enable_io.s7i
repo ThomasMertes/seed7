@@ -1,8 +1,8 @@
 
 (********************************************************************)
 (*                                                                  *)
-(*  enable_io.s7i Templates to enable file I/O for a given type.    *)
-(*  Copyright (C) 2011  Thomas Mertes                               *)
+(*  enable_io.s7i Templates to enable file I/O for a given type     *)
+(*  Copyright (C) 1989 - 2011  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -33,6 +33,13 @@ var file: IN is forward;
 var file: OUT is forward;
 
 
+(**
+ *  Template function to define input functions for 'aType'.
+ *  Defines the functions 'read' and 'readln'. Both functions
+ *  are defined with 'file' argument and without 'file' argument.
+ *  The functions without 'file' argument use the standard input
+ *  file IN.
+ *)
 const proc: enable_input (in type: aType) is func
   begin
     const proc: read (inout file: aFile, inout aType: aValue) is func
@@ -77,6 +84,18 @@ const proc: enable_input (in type: aType) is func
 
   end func;
 
+
+(**
+ *  Template function to define output functions for 'aType'.
+ *  Defines the functions 'write' and 'writeln' and the operators
+ *  'lpad', 'rpad' and '<&'. The functions and operators use the
+ *  'str' function to convert the 'aType' value to a string.
+ *  Afterwards they call their corresponding function for string
+ *  values. The functions 'write' and 'writeln' are defined with
+ *  'file' argument and without 'file' argument. The functions
+ *  without 'file' argument use the standard output file OUT.
+ 
+ *)
 const proc: enable_output (in type: aType) is func
   begin
     const proc: write (inout file: aFile, in aType: aValue) is func
@@ -115,6 +134,11 @@ const proc: enable_output (in type: aType) is func
 
   end func;
 
+
+(**
+ *  Template function to define I/O functions for 'aType'.
+ *  To do this it calls the templates enable_input and enable_output.
+ *)
 const proc: enable_io (in type: aType) is func
   begin
     enable_input(aType);

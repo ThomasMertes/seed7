@@ -1,7 +1,7 @@
 
 (********************************************************************)
 (*                                                                  *)
-(*  utf16.s7i     Read and write utf-16 files                       *)
+(*  utf16.s7i     File implementation type for UTF-16 files         *)
 (*  Copyright (C) 2009  Thomas Mertes                               *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
@@ -39,13 +39,17 @@ const type: utf16_file is sub null_file struct
  *  Close an utf16_file.
  *  @exception FILE_ERROR A system function returns an error.
  *)
-const proc: close (ref utf16_file: aFile) is func
+const proc: close (in utf16_file: aFile) is func
   begin
     close(aFile.ext_file);
   end func;
 
 
-const proc: flush (ref utf16_file: aFile) is func
+(**
+ *  Forces that all buffered data of ''aFile'' is sent to its destination.
+ *  This causes data to be sent to the operating systems file system.
+ *)
+const proc: flush (in utf16_file: aFile) is func
   begin
     flush(aFile.ext_file);
   end func;
@@ -57,7 +61,7 @@ const proc: flush (ref utf16_file: aFile) is func
  *  from the file failed.
  *  @return TRUE if the end-of-file indicator is set, FALSE otherwise.
  *)
-const func boolean: eof (ref utf16_file: aFile) is
+const func boolean: eof (in utf16_file: aFile) is
   return eof(aFile.ext_file);
 
 
@@ -66,7 +70,7 @@ const func boolean: eof (ref utf16_file: aFile) is
  *  This function allows a file to be handled like an iterator.
  *  @return FALSE if 'getc' would return EOF, TRUE otherwise.
  *)
-const func boolean: hasNext (ref utf16_file: aFile) is
+const func boolean: hasNext (in utf16_file: aFile) is
   return hasNext(aFile.ext_file);
 
 
@@ -78,7 +82,7 @@ const func boolean: hasNext (ref utf16_file: aFile) is
  *             fit into an integer value.
  *  @exception FILE_ERROR A system function returns an error.
  *)
-const func integer: length (ref utf16_file: aFile) is
+const func integer: length (in utf16_file: aFile) is
   return length(aFile.ext_file);
 
 
@@ -89,7 +93,7 @@ const func integer: length (ref utf16_file: aFile) is
  *  @exception RANGE_ERROR The file position is negative or zero.
  *  @exception FILE_ERROR A system function returns an error.
  *)
-const proc: seek (ref utf16_file: aFile, in integer: pos) is func
+const proc: seek (in utf16_file: aFile, in integer: pos) is func
   begin
     seek(aFile.ext_file, pos);
   end func;
@@ -104,7 +108,7 @@ const proc: seek (ref utf16_file: aFile, in integer: pos) is func
  *             fit into an integer value.
  *  @exception FILE_ERROR A system function returns an error.
  *)
-const func integer: tell (ref utf16_file: aFile) is
+const func integer: tell (in utf16_file: aFile) is
   return tell(aFile.ext_file);
 
 
@@ -112,7 +116,7 @@ const type: utf16le_file is sub utf16_file struct
   end struct;
 
 
-const func utf16le_file: malloc (ref utf16le_file: ext_file) is func
+const func utf16le_file: malloc (in utf16le_file: ext_file) is func
   result
     var utf16le_file: result is utf16le_file.value;
   begin
@@ -186,7 +190,7 @@ const proc: write (in utf16le_file: aFile, in string: stri) is func
  *  @return the string read.
  *  @exception RANGE_ERROR The file contains an illegal surrogate pair.
  *)
-const func string: gets (in utf16le_file: aFile, in integer: leng) is func
+const func string: gets (in utf16le_file: aFile, in integer: maxLength) is func
   result
     var string: result is "";
   local
@@ -198,7 +202,7 @@ const func string: gets (in utf16le_file: aFile, in integer: leng) is func
     var char: ch1 is ' ';
     var char: ch2 is ' ';
   begin
-    charsMissing := leng;
+    charsMissing := maxLength;
     repeat
       stri := gets(aFile.ext_file, 2 * charsMissing);
       if odd(length(stri)) then
@@ -232,7 +236,7 @@ const func string: gets (in utf16le_file: aFile, in integer: leng) is func
           result &:= str(ch1);
         end if;
       end for;
-      charsMissing := leng - length(result);
+      charsMissing := maxLength - length(result);
     until charsMissing = 0 or partialRead;
   end func;
 
@@ -241,7 +245,7 @@ const type: utf16be_file is sub utf16_file struct
   end struct;
 
 
-const func utf16be_file: malloc (ref utf16be_file: ext_file) is func
+const func utf16be_file: malloc (in utf16be_file: ext_file) is func
   result
     var utf16be_file: result is utf16be_file.value;
   begin
@@ -315,7 +319,7 @@ const proc: write (in utf16be_file: aFile, in string: stri) is func
  *  @return the string read.
  *  @exception RANGE_ERROR The file contains an illegal surrogate pair.
  *)
-const func string: gets (in utf16be_file: aFile, in integer: leng) is func
+const func string: gets (in utf16be_file: aFile, in integer: maxLength) is func
   result
     var string: result is "";
   local
@@ -327,7 +331,7 @@ const func string: gets (in utf16be_file: aFile, in integer: leng) is func
     var char: ch1 is ' ';
     var char: ch2 is ' ';
   begin
-    charsMissing := leng;
+    charsMissing := maxLength;
     repeat
       stri := gets(aFile.ext_file, 2 * charsMissing);
       if odd(length(stri)) then
@@ -361,7 +365,7 @@ const func string: gets (in utf16be_file: aFile, in integer: leng) is func
           result &:= str(ch1);
         end if;
       end for;
-      charsMissing := leng - length(result);
+      charsMissing := maxLength - length(result);
     until charsMissing = 0 or partialRead;
   end func;
 

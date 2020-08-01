@@ -1,8 +1,8 @@
 
 (********************************************************************)
 (*                                                                  *)
-(*  color.s7i     Functions for color processing.                   *)
-(*  Copyright (C) 2011  Thomas Mertes                               *)
+(*  color.s7i     Functions for color processing                    *)
+(*  Copyright (C) 1989 - 2011  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -26,6 +26,9 @@
 (********************************************************************)
 
 
+(**
+ *  Describes colors with red, green and blue.
+ *)
 const type: color is new struct
     var integer: red_part is 0;
     var integer: green_part is 0;
@@ -53,6 +56,10 @@ const func boolean: (in color: col1) <> (in color: col2) is
          col1.blue_part <> col2.blue_part;
 
 
+(**
+ *  Add two colors in an additive color system.
+ *  @return The sum of the thwo colors.
+ *)
 const func color: (in color: col1) + (in color: col2) is func
   result
     var color: result is color.value;
@@ -123,3 +130,45 @@ const func integer: compare (in color: col1, in color: col2) is func
  *)
 const func integer: hashCode (in color: col) is
   return col.red_part + col.green_part + col.blue_part;
+
+
+const color: black         is color(0, 0, 0);             (* Black     *)
+const color: dark_red      is color(32768, 0, 0);         (* Maroon  r *)
+const color: dark_green    is color(0, 32768, 0);         (* Green   g *)
+const color: brown         is color(32768, 16384, 0);     (*         b *)
+const color: dark_blue     is color(0, 0, 32768);         (* Navy    N *)
+const color: dark_magenta  is color(32768, 0, 32768);     (* Purple    *)
+const color: dark_cyan     is color(0, 65535, 65535);     (* Aqua      *)
+const color: light_gray    is color(49152, 49152, 49152); (* Silver  x *)
+const color: middle_gray   is color(32768, 32768, 32768);
+const color: dark_gray     is color(16384, 16384, 16384);
+const color: light_red     is color(65535, 0, 0);         (* Red     R *)
+const color: light_green   is color(0, 65535, 0);         (* Lime    G *)
+const color: yellow        is color(65535, 65535, 0);     (* Yellow  Y *)
+const color: light_blue    is color(0, 0, 65535);         (* Blue    B *)
+const color: light_magenta is color(65535, 0, 65535);     (* Fuchsia M *)
+const color: light_cyan    is color(32768, 65535, 65535); (*         c *)
+const color: white         is color(65535, 65535, 65535); (* White   X *)
+const color: orange        is color(65535, 32768, 0);     (*         O *)
+const color: amber         is color(49152, 32768, 16384);
+const color: pink          is color(65535, 32768, 32768);
+const color: forestgreen   is color(8704, 35584, 8704);
+
+(* Basic HTML colors: *)
+
+const color: Black         is color(0, 0, 0);
+const color: Maroon        is color(32768, 0, 0);
+const color: Green         is color(0, 32768, 0);
+const color: Navy          is color(0, 0, 32768);
+const color: Silver        is color(49152, 49152, 49152);
+const color: Red           is color(65535, 0, 0);
+const color: Lime          is color(0, 65535, 0);
+const color: Blue          is color(0, 0, 65535);
+const color: Gray          is color(32768, 32768, 32768);
+const color: Purple        is color(32768, 0, 32768);
+const color: Olive         is color(32768, 32768, 0);
+const color: Teal          is color(0, 32768, 32768);
+const color: White         is color(65535, 65535, 65535);
+const color: Fuchsia       is color(65535, 0, 65535);
+const color: Yellow        is color(65535, 65535, 0);
+const color: Aqua          is color(0, 65535, 65535);

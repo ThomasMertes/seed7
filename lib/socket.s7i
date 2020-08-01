@@ -1,7 +1,7 @@
 
 (********************************************************************)
 (*                                                                  *)
-(*  socket.s7i    Socket library                                    *)
+(*  socket.s7i    File implementation type for OS sockets           *)
 (*  Copyright (C) 1989 - 2007  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
@@ -45,22 +45,22 @@ const func integer: addrFamily (in socketAddress param)                     is a
  *  Create an internet socket address of a port at a host.
  *  @return the internet socket address.
  *)
-const func socketAddress: inetSocketAddress (in string param,
-                                             in integer param)              is action "SOC_INET_ADDR";
+const func socketAddress: inetSocketAddress (in string: host_name,
+                                             in integer: port)              is action "SOC_INET_ADDR";
 
 
 (**
  *  Create an internet socket address of a port at localhost.
  *  @return the internet socket address.
  *)
-const func socketAddress: inetSocketAddress (in integer param)              is action "SOC_INET_LOCAL_ADDR";
+const func socketAddress: inetSocketAddress (in integer: port)              is action "SOC_INET_LOCAL_ADDR";
 
 
 (**
  *  Create an internet listener socket address of a port at localhost.
  *  @return the internet listener socket address.
  *)
-const func socketAddress: inetListenerAddress (in integer param)            is action "SOC_INET_SERV_ADDR";
+const func socketAddress: inetListenerAddress (in integer: port)            is action "SOC_INET_SERV_ADDR";
 
 
 const type: PRIMITIVE_SOCKET is newtype;
@@ -109,10 +109,18 @@ const integer: SOCK_DGRAM is 2;
 
 (* Operations for socket files *)
 
+
+(**
+ *  [[file|File]] implementation type for OS sockets.
+ *  This type supports communication via sockets. A ''socket'' is
+ *  not seekable. The functions ''length'', ''seek'' and ''tell''
+ *  raise FILE_ERROR.
+ *)
 const type: socket is sub null_file struct
     var PRIMITIVE_SOCKET: sock is PRIMITIVE_NULL_SOCKET;
     var socketAddress: addr is socketAddress.value;
   end struct;
+
 
 type_implements_interface(socket, file);
 
@@ -155,7 +163,7 @@ const func file: openInetSocket (in integer: portNumber) is
 
 
 (**
- *  Return a connected internet socket file at a port at 'hostName'.
+ *  Return a connected internet socket file at a port at ''hostName''.
  *  @return the socket file opened, or STD_NULL if it could not be opened.
  *)
 const func file: openInetSocket (in string: hostName, in integer: portNumber) is
@@ -163,7 +171,7 @@ const func file: openInetSocket (in string: hostName, in integer: portNumber) is
 
 
 (**
- *  Close the socket 'aSocket'.
+ *  Close the socket ''aSocket''.
  *)
 const proc: close (in socket: aSocket) is func
   begin
@@ -172,7 +180,8 @@ const proc: close (in socket: aSocket) is func
 
 
 (**
- *  Flush the socket 'aSocket'.
+ *  Forces that all buffered data of ''aFile'' is sent to its destination.
+ *  Flushing a socket has no effect.
  *)
 const proc: flush (in socket: aSocket) is func
   begin
@@ -181,7 +190,7 @@ const proc: flush (in socket: aSocket) is func
 
 
 (**
- *  Write the string 'stri' to 'aSocket'.
+ *  Write the string ''stri'' to ''aSocket''.
  *)
 const proc: write (in socket: aSocket, in string: stri) is func
   begin
@@ -190,7 +199,7 @@ const proc: write (in socket: aSocket, in string: stri) is func
 
 
 (**
- *  Write newline character ('\n') to 'aSocket'.
+ *  Write newline character ('\n') to ''aSocket''.
  *)
 const proc: writeln (in socket: aSocket) is func
   begin
@@ -205,7 +214,7 @@ const proc: backSpace (in socket: aSocket) is func
 
 
 (**
- *  Read a character from 'aSocket'.
+ *  Read a character from ''aSocket''.
  *  @return the character read.
  *)
 const func char: getc (in socket: aSocket) is
@@ -213,17 +222,17 @@ const func char: getc (in socket: aSocket) is
 
 
 (**
- *  Read a string with a maximum length 'leng' from 'aSocket'.
+ *  Read a string with a maximum length from ''aSocket''.
  *  @return the string read.
  *  @exception RANGE_ERROR The length is negative.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
-const func string: gets (in socket: aSocket, in integer: leng) is
-  return gets(aSocket.sock, leng);
+const func string: gets (in socket: aSocket, in integer: maxLength) is
+  return gets(aSocket.sock, maxLength);
 
 
 (**
- *  Read a word from 'aSocket'.
+ *  Read a word from ''aSocket''.
  *  Before reading the word it skips spaces and tabs. The function
  *  accepts words ending with " ", "\t", "\n", "\r\n" or EOF.
  *  The word ending characters are not copied into the string.

@@ -952,6 +952,7 @@ const proc: check_float is func
     var boolean: okay is TRUE;
     var integer: number is 0;
     var float: f_num is 0.0;
+    var integer: i_num is 0;
   begin
     block
       f_num  := rand(1.0, 0.0);
@@ -975,6 +976,16 @@ const proc: check_float is func
         writeln(" ***** sqrt(-1.0) raises NUMERIC_ERROR");
         okay := FALSE;
     end block;
+
+(*
+    block
+      i_num  := trunc(1.0E37);
+      writeln(" ***** trunc(1.0E37) returned " <& i_num);
+    exception
+      catch NUMERIC_ERROR:
+        writeln(" ***** trunc(1.0E37) raised NUMERIC_ERROR");
+    end block;
+*)
 
     block
       f_num  := 1.0 / 0.0;
@@ -1569,11 +1580,62 @@ const proc: check_file is func
   local
     var boolean: okay is TRUE;
     var integer: number is 0;
+    var integer: i_num is 0;
     var file: aFile is STD_NULL;
     var string: stri is "";
     var integer: file_pos is 0;
     var bigInteger: big_file_pos is 0_;
   begin
+    block
+      i_num := length(STD_NULL);
+      writeln(" ***** length(STD_NULL) succeeded");
+      okay := FALSE;
+    exception
+      catch FILE_ERROR:
+        incr(number);
+    end block;
+    block
+      i_num := tell(STD_NULL);
+      writeln(" ***** tell(STD_NULL) succeeded");
+      okay := FALSE;
+    exception
+      catch FILE_ERROR:
+        incr(number);
+    end block;
+    block
+      seek(STD_NULL, 1);
+      writeln(" ***** seek(STD_NULL, 1) succeeded");
+      okay := FALSE;
+    exception
+      catch FILE_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := length(aFile);
+      writeln(" ***** length for STD_NULL succeeded");
+      okay := FALSE;
+    exception
+      catch FILE_ERROR:
+        incr(number);
+    end block;
+    block
+      i_num := tell(aFile);
+      writeln(" ***** tell for STD_NULL succeeded");
+      okay := FALSE;
+    exception
+      catch FILE_ERROR:
+        incr(number);
+    end block;
+    block
+      seek(aFile, 1);
+      writeln(" ***** seek for STD_NULL succeeded");
+      okay := FALSE;
+    exception
+      catch FILE_ERROR:
+        incr(number);
+    end block;
+
     aFile := open("tmp_test_file", "w");
     if aFile = STD_NULL then
       writeln(" ***** Failed to open file");
@@ -1847,7 +1909,7 @@ const proc: check_file is func
       close(aFile);
     end if;
 
-    if okay and number = 28 then
+    if okay and number = 34 then
       writeln("File exceptions work correct.");
     else
       writeln(" ***** File exceptions do not work correct");

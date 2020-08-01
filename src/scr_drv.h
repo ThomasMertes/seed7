@@ -42,14 +42,20 @@
 int scrHeight (void);
 int scrWidth (void);
 void scrFlush (void);
-void scrCursor (booltype);
-void scrSetCursor (inttype, inttype);
-void scrText (inttype, inttype, ustritype, memsizetype);
-void scrClear (inttype, inttype, inttype, inttype);
-void scrUpScroll (inttype, inttype, inttype, inttype, inttype);
-void scrDownScroll (inttype, inttype, inttype, inttype, inttype);
-void scrLeftScroll (inttype, inttype, inttype, inttype, inttype);
-void scrRightScroll (inttype, inttype, inttype, inttype, inttype);
+void scrCursor (booltype on);
+void scrSetCursor (inttype lin, inttype col);
+void scrText (inttype lin, inttype col, ustritype stri,
+    memsizetype length);
+void scrClear (inttype startlin, inttype startcol,
+    inttype stoplin, inttype stopcol);
+void scrUpScroll (inttype startlin, inttype startcol,
+    inttype stoplin, inttype stopcol, inttype count);
+void scrDownScroll (inttype startlin, inttype startcol,
+    inttype stoplin, inttype stopcol, inttype count);
+void scrLeftScroll (inttype startlin, inttype startcol,
+    inttype stoplin, inttype stopcol, inttype count);
+void scrRightScroll (inttype startlin, inttype startcol,
+    inttype stoplin, inttype stopcol, inttype count);
 void scrShut (void);
 int scrOpen (void);
 

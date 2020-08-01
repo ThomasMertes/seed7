@@ -26,6 +26,9 @@
 (********************************************************************)
 
 
+include "graph_file.s7i";
+
+
 const func PRIMITIVE_WINDOW: buttonWindow (ref keyboard_file param) is DYNAMIC;
 
 

@@ -31,110 +31,133 @@ const float: PI is 3.1415926535897932384626433832795028841972;
 
 
 (**
- *  Returns the trigonometric sine of an angle.
+ *  Compute the sine of x, where x is given in radians.
+ *  @return the trigonometric sine of an angle.
  *)
-const func float: sin (ref float param) is                         action "FLT_SIN";
+const func float: sin (ref float: x)                            is action "FLT_SIN";
 
 
 (**
- *  Returns the trigonometric cosine of an angle.
+ *  Compute the cosine of x, where x is given in radians.
+ *  @return the trigonometric cosine of an angle.
  *)
-const func float: cos (ref float param) is                         action "FLT_COS";
+const func float: cos (ref float: x)                            is action "FLT_COS";
 
 
 (**
- *  Returns the trigonometric tangent of an angle.
+ *  Compute the tangent of x, where x is given in radians.
+ *  @return the trigonometric tangent of an angle.
  *)
-const func float: tan (ref float param) is                         action "FLT_TAN";
+const func float: tan (ref float: x)                            is action "FLT_TAN";
 
 
 (**
- *  Returns the arc sine of a value. The returned angle is in the
- *  range -PI/2 through PI/2.
+ *  Compute the arc sine of x; that is the value whose sine is x.
+ *  @return the arc sine of x in radians. The return angle is in the
+ *          range [-PI/2, PI/2].
  *)
-const func float: asin (ref float param) is                        action "FLT_ASIN";
+const func float: asin (ref float: x)                           is action "FLT_ASIN";
 
 
 (**
- *  Returns the arc cosine of a value. The returned angle is in the
- *  range 0.0 through PI.
+ *  Compute the arc cosine of x; that is the value whose cosine is x.
+ *  @return the arc cosine of x in radians. The returned angle is in
+ *          the range [0.0, PI].
  *)
-const func float: acos (ref float param) is                        action "FLT_ACOS";
+const func float: acos (ref float: x)                           is action "FLT_ACOS";
 
 
 (**
- *  Returns the arc tangent of a value. The returned angle is in the
- *  range -PI/2 through PI/2.
+ *  Compute the arc tangent of x; that is the value whose tangent is x.
+ *  @return the arc tangent of x in radians. The returned angle is in
+ *          the range [-PI/2, PI/2].
  *)
-const func float: atan (ref float param) is                        action "FLT_ATAN";
+const func float: atan (ref float: x)                           is action "FLT_ATAN";
 
 
 (**
- *  Returns the angle theta from the conversion of rectangular
+ *  Compute the arc tangent of y/x.
+ *  The signs of x and y are used to determine the quadrant of the result.
+ *  It determines the angle theta from the conversion of rectangular
  *  coordinates (x, y) to polar coordinates (r, theta).
+ *  @return the arc tangent of y/x in radians. The returned angle is in
+ *          the range [-PI, PI].
  *)
-const func float: atan2 (ref float param, ref float param) is      action "FLT_A2TAN";
+const func float: atan2 (ref float: y, ref float: x)            is action "FLT_A2TAN";
 
 
 (**
- *  Returns the hyperbolic sine of a value.
+ *  Compute the hyperbolic sine of x.
+ *  sinh(x) is mathematically defined as: (exp(x) - exp(-x)) / 2.0
+ *  @return the hyperbolic sine.
  *)
-const func float: sinh (ref float param) is                        action "FLT_SINH";
+const func float: sinh (ref float: x)                           is action "FLT_SINH";
 
 
 (**
- *  Returns the hyperbolic cosine of a value.
+ *  Compute the hyperbolic cosine of x.
+ *  cosh(x) is mathematically defined as: (exp(x) + exp(-x)) / 2.0
+ *  @return the hyperbolic cosine.
  *)
-const func float: cosh (ref float param) is                        action "FLT_COSH";
+const func float: cosh (ref float: x)                           is action "FLT_COSH";
 
 
 (**
- *  Returns the hyperbolic tangent of a value.
+ *  Compute the hyperbolic tangent of x.
+ *  tanh(x) is mathematically defined as: sinh(x) / cosh(x)
+ *  @return the hyperbolic tangent.
  *)
-const func float: tanh (ref float param) is                        action "FLT_TANH";
+const func float: tanh (ref float: x)                           is action "FLT_TANH";
 
 
 (**
- *  Returns Euler's number e raised to the power of a value.
+ *  Returns Euler's number e raised to the power of x.
+ *  @return e raised to the power of x.
  *)
-const func float: exp (ref float param) is                         action "FLT_EXP";
+const func float: exp (ref float: x)                            is action "FLT_EXP";
 
 
 (**
- *  Returns the natural logarithm (base e) of a value.
+ *  Return the natural logarithm (base e) of x.
+ *  @return the natural logarithm of x.
  *)
-const func float: log (ref float param) is                         action "FLT_LOG";
+const func float: log (ref float: x)                            is action "FLT_LOG";
 
 
 (**
- *  Returns the base 10 logarithm of a value.
+ *  Returns the base 10 logarithm of x.
+ *  @return the base 10 logarithm of x.
  *)
-const func float: log10 (ref float param) is                       action "FLT_LOG10";
+const func float: log10 (ref float: x)                          is action "FLT_LOG10";
 
 
 (**
- *  Returns the non-negative square root of a value.
+ *  Returns the non-negative square root of x.
+ *  @return the square root of x.
  *)
-const func float: sqrt (ref float param) is                        action "FLT_SQRT";
+const func float: sqrt (ref float: x)                           is action "FLT_SQRT";
 
 
 (**
- *  Returns the smallest (closest to negative infinity) value that
- *  is greater than or equal to the argument and is equal to a
- *  mathematical integer.
+ *  Round up towards positive infinity.
+ *  Determine the smallest value that is greater than or equal
+ *  to the argument and is equal to a mathematical integer.
+ *  @return the rounded value.
  *)
-const func float: ceil (ref float param) is                        action "FLT_CEIL";
+const func float: ceil (ref float: x)                           is action "FLT_CEIL";
 
 
 (**
- *  Returns the largest (closest to positive infinity) value that
- *  is less than or equal to the argument and is equal to a
- *  mathematical integer.
+ *  Round down towards negative infinity.
+ *  Returns the largest value that is less than or equal to the
+ *  argument and is equal to a mathematical integer.
+ *  @return the rounded value.
  *)
-const func float: floor (ref float param) is                       action "FLT_FLOOR";
+const func float: floor (ref float: x)                          is action "FLT_FLOOR";
 
 
 (**
- *  Returns the absolute value of a value.
+ *  Compute the absolute value of a float number.
+ *  @return the absolute value.
  *)
-const func float: abs (ref float param) is                         action "FLT_ABS";
+const func float: abs (ref float: number)                       is action "FLT_ABS";

@@ -252,6 +252,35 @@ const proc: list_zip_dir (inout file: inFile) is func
   end func;
 
 
+(**
+ *  Determine the filenames in a zip archive.
+ *  Note that the function returns only the filenames.
+ *  Additional information must be obtained with other calls.
+ *)
+const func array string: read_zip_dir (in string: zipFileName) is func
+  result
+    var array string: result is 0 times "";
+  local
+    var file: zipFile is STD_NULL;
+    var end_of_central_directory: endOfCentDir is end_of_central_directory.value;
+    var central_file_header: centralHeader is central_file_header.value;
+  begin
+    zipFile := open(zipFileName, "r");
+    if zipFile <> STD_NULL then
+      endOfCentDir := read_end_of_central_directory(zipFile);
+      # write(endOfCentDir);
+      seek(zipFile, succ(endOfCentDir.offset_of_start_of_central_directory));
+      centralHeader := get_central_header(zipFile);
+      while centralHeader.signature = "PK\1\\2\" do
+        result &:= [] (centralHeader.file_name);
+        centralHeader := get_central_header(zipFile);
+      end while;
+      # writeln(literal(centralHeader.signature));
+      close(zipFile);
+    end if;
+  end func;
+
+
 const func string: getZipContent (inout file: inFile, in string: filePath) is func
   result
     var string: result is "";

@@ -1,7 +1,7 @@
 
 (********************************************************************)
 (*                                                                  *)
-(*  graph.s7i     Graphic library                                   *)
+(*  graph.s7i     Basic graphic library                             *)
 (*  Copyright (C) 1994, 1995, 2004, 2005  Thomas Mertes             *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
@@ -27,13 +27,6 @@
 
 
 include "float.s7i";
-
-
-$ syntax expr: .inv.() is         ->  4;
-$ syntax expr: .().conn.() is     ->  5;
-$ syntax expr: .().over.() is     ->  5;
-$ syntax expr: .().draw.() is     <- 15;
-$ syntax expr: .().color.() is    ->  8;
 
 
 const type: PRIMITIVE_WINDOW is newtype;

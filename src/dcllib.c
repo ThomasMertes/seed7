@@ -688,14 +688,17 @@ listtype arguments;
   /* dcl_ref1 */
     isit_type(arg_2(arguments));
     object_type = take_type(arg_2(arguments));
-/*    printf("decl ref1 ");
-    trace1(object_type->match_obj);
-    printf(":\n"); */
+    /* printf("decl ref1 ");
+       trace1(object_type->match_obj);
+       printf(":\n"); */
     if (ALLOC_OBJECT(created_object)) {
       created_object->type_of = object_type;
       created_object->descriptor.property = NULL;
       INIT_CATEGORY_OF_OBJ(created_object, REFPARAMOBJECT);
       created_object->value.objvalue = NULL;
+      /* printf("decl ref1 --> ");
+         trace1(created_object);
+         printf(";\n"); */
       return(bld_param_temp(created_object));
     } else {
       return(raise_exception(SYS_MEM_EXCEPTION));
@@ -723,26 +726,26 @@ listtype arguments;
     isit_type(arg_2(arguments));
     object_type = take_type(arg_2(arguments));
     name_expr = arg_4(arguments);
+    /* printf("decl ref2 ");
+       trace1(object_type->match_obj);
+       printf(": ");
+       trace1(name_expr);
+       printf(";\n"); */
     grow_stack(&err_info);
     if (err_info == OKAY_NO_ERROR) {
-/*      printf("decl ref2 ");
-      trace1(object_type->match_obj);
-      printf(": ");
-      trace1(name_expr);
-      printf(";\n"); */
       created_object = entername(prog.declaration_root, name_expr, &err_info);
       if (err_info == OKAY_NO_ERROR) {
         created_object->type_of = object_type;
         INIT_CATEGORY_OF_OBJ(created_object, REFPARAMOBJECT);
-/*        printf("decl ref2 --> ");
-        trace1(created_object);
-        printf(";\n"); */
       } /* if */
       shrink_stack();
     } /* if */
     if (err_info != OKAY_NO_ERROR) {
       return(raise_exception(SYS_MEM_EXCEPTION));
     } else {
+      /* printf("decl ref2 --> ");
+         trace1(created_object);
+         printf(";\n"); */
       return(bld_param_temp(created_object));
     } /* if */
   } /* dcl_ref2 */

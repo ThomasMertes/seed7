@@ -461,7 +461,7 @@ listtype arguments;
     isit_char(arg_2(arguments));
     isit_int(arg_3(arguments));
     return(bld_int_temp(
-        strChIpos(take_stri(arg_1(arguments)), take_char(arg_2(arguments)),
+        strChIPos(take_stri(arg_1(arguments)), take_char(arg_2(arguments)),
                   take_int(arg_3(arguments)))));
   } /* str_chipos */
 
@@ -934,8 +934,9 @@ listtype arguments;
   { /* str_ipos */
     isit_stri(arg_1(arguments));
     isit_stri(arg_2(arguments));
+    isit_int(arg_3(arguments));
     return(bld_int_temp(
-        strIpos(take_stri(arg_1(arguments)), take_stri(arg_2(arguments)),
+        strIPos(take_stri(arg_1(arguments)), take_stri(arg_2(arguments)),
                 take_int(arg_3(arguments)))));
   } /* str_ipos */
 
@@ -1428,7 +1429,7 @@ listtype arguments;
     isit_char(arg_2(arguments));
     isit_int(arg_3(arguments));
     return(bld_int_temp(
-        strRChIpos(take_stri(arg_1(arguments)), take_char(arg_2(arguments)),
+        strRChIPos(take_stri(arg_1(arguments)), take_char(arg_2(arguments)),
                    take_int(arg_3(arguments)))));
   } /* str_rchipos */
 
@@ -1470,6 +1471,26 @@ listtype arguments;
                 take_stri(arg_2(arguments)),
                 take_stri(arg_3(arguments)))));
   } /* str_repl */
+
+
+
+#ifdef ANSI_C
+
+objecttype str_ripos (listtype arguments)
+#else
+
+objecttype str_ripos (arguments)
+listtype arguments;
+#endif
+
+  { /* str_ripos */
+    isit_stri(arg_1(arguments));
+    isit_stri(arg_2(arguments));
+    isit_int(arg_3(arguments));
+    return(bld_int_temp(
+        strRIPos(take_stri(arg_1(arguments)), take_stri(arg_2(arguments)),
+                 take_int(arg_3(arguments)))));
+  } /* str_ripos */
 
 
 
@@ -1545,7 +1566,7 @@ listtype arguments;
     isit_stri(arg_1(arguments));
     isit_stri(arg_2(arguments));
     return(bld_int_temp(
-        strRpos(take_stri(arg_1(arguments)), take_stri(arg_2(arguments)))));
+        strRPos(take_stri(arg_1(arguments)), take_stri(arg_2(arguments)))));
   } /* str_rpos */
 
 

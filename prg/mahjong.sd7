@@ -29,6 +29,7 @@ $ include "seed7_05.s7i";
   include "dialog.s7i";
   include "time.s7i";
   include "mahjng32.s7i";
+  include "duration.s7i";
 
 
 var text: screen is STD_NULL;

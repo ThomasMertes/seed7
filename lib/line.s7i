@@ -26,12 +26,19 @@
 (********************************************************************)
 
 
+(**
+ *  Filter file which reads the input linewise.
+ *)
 const type: line_file is sub null_file struct
     var file: baseFile is STD_NULL;
     var string: line is "";
   end struct;
 
 
+(**
+ *  Open a line_file.
+ *  @return the file opened.
+ *)
 const func line_file: open_line (ref file: aFile) is func
   result
     var line_file: line_fil is line_file.value;
@@ -40,6 +47,9 @@ const func line_file: open_line (ref file: aFile) is func
   end func;
 
 
+(**
+ *  Write a string to a line_file.
+ *)
 const proc: write (inout line_file: line_fil, in string: stri) is func
   begin
     line_fil.line &:= stri;
@@ -62,6 +72,13 @@ const proc: flush (inout line_file: line_fil) is func
   end func;
 
 
+(**
+ *  Read a line from a line_file.
+ *  The function accepts lines ending with "\n" or EOF.
+ *  The line ending characters are not copied into the string. When
+ *  the function is left the line_file.bufferChar contains '\n' or EOF.
+ *  @return the line read.
+ *)
 const func string: getln (inout line_file: line_fil) is func
   result
     var string: stri is "";
@@ -69,8 +86,8 @@ const func string: getln (inout line_file: line_fil) is func
     var char: ch is ' ';
   begin
     if line_fil.line = "" then
-      ch := gets(line_fil.baseFile, 1)[1];
-      while ch <> '\n' do
+      ch := getc(line_fil.baseFile);
+      while ch <> '\n' and ch <> EOF do
         if ch = '\b' then
           if stri <> "" then
             stri := stri[ .. pred(length(stri))];
@@ -78,19 +95,26 @@ const func string: getln (inout line_file: line_fil) is func
         else
           stri &:= str(ch);
         end if;
-        ch := gets(line_fil.baseFile, 1)[1];
+        ch := getc(line_fil.baseFile);
       end while;
+      line_fil.bufferChar := ch;
     else
       if line_fil.line[length(line_fil.line)] = '\n' then
         stri := line_fil.line[ .. pred(length(line_fil.line))];
+        line_fil.bufferChar := '\n';
       else
         stri := line_fil.line;
+        line_fil.bufferChar := EOF;
       end if;
       line_fil.line := "";
     end if;
   end func;
 
 
+(**
+ *  Read a character from a line_file.
+ *  @return the character read, or EOF at the end of the file.
+ *)
 const func char: getc (inout line_file: line_fil) is func
   result
     var char: ch is ' ';
@@ -98,18 +122,26 @@ const func char: getc (inout line_file: line_fil) is func
     if line_fil.line = "" then
       line_fil.line := getln(line_fil) & "\n";
     end if;
-    ch := line_fil.line[1];
-    line_fil.line := line_fil.line[2 .. ];
+    if line_fil.line = "\n" and line_fil.bufferChar = EOF then
+      ch := EOF;
+    else
+      ch := line_fil.line[1];
+      line_fil.line := line_fil.line[2 .. ];
+    end if;
   end func;
 
 
-const func string: gets (inout line_file: line_fil, in integer: leng) is func
+(**
+ *  Read a string with a maximum length from a line_file.
+ *  @return the string read.
+ *)
+const func string: gets (inout line_file: line_fil, in integer: maxLength) is func
   result
     var string: stri is "";
   begin
-    while length(line_fil.line) < leng do
+    while length(line_fil.line) < maxLength and line_fil.bufferChar <> EOF do
       line_fil.line &:= getln(line_fil) & "\n";
     end while;
-    stri := line_fil.line[ .. leng];
-    line_fil.line := line_fil.line[succ(leng) .. ];
+    stri := line_fil.line[ .. maxLength];
+    line_fil.line := line_fil.line[succ(maxLength) .. ];
   end func;

@@ -1,7 +1,7 @@
 
 (********************************************************************)
 (*                                                                  *)
-(*  font.s7i      Defines the font interface.                       *)
+(*  font.s7i      Defines the font interface                        *)
 (*  Copyright (C) 2010  Thomas Mertes                               *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
@@ -26,36 +26,116 @@
 (********************************************************************)
 
 
+(**
+ *  Interface type for fonts.
+ *  The font interface is implemented with ''emptyFont'',
+ *  ''fontProperties'' and [[bitmapfont|bitmapFont]].
+ *)
 const type: font is sub object interface;
 
+
+(**
+ *  Get the height of the letter 'x' for a given font.
+ *  The height measured in pixels.
+ *  @return the pixel height of 'x' for ''aFont''.
+ *)
 const func integer: xHeight (in font: aFont)                 is DYNAMIC;
+
+
+(**
+ *  Get the height of capital letters for a given font.
+ *  The height measured in pixels.
+ *  @return the capital letter height of ''aFont''.
+ *)
 const func integer: capHeight (in font: aFont)               is DYNAMIC;
+
+
+(**
+ *  Get the height of a font.
+ *  This is the height necessary to display a line with all chars
+ *  of a font. The line height is measured in pixels.
+ *  @return the line height of ''aFont''.
+ *)
 const func integer: lineHeight (in font: aFont)              is DYNAMIC;
+
+
+(**
+ *  Get the ascent of a font.
+ *  The ascent is the distance between xHeight and the height of the
+ *  tallest lower-case letter. The ascent is measured in pixels.
+ *  @return the ascent pixels of ''aFont''.
+ *)
 const func integer: ascent (in font: aFont)                  is DYNAMIC;
+
+
+(**
+ *  Get the descent of a font.
+ *  The descent is the maximum distance that a letter extends below
+ *  the baseline of a font. The descent is measured in pixels.
+ *  @return the descent pixels of ''aFont''.
+ *)
 const func integer: descent (in font: aFont)                 is DYNAMIC;
+
+
 const func integer: baseLineDelta (in font: aFont)           is DYNAMIC;
+
+
+(**
+ *  Get the maximal column width of a font.
+ *  The width of all chars in a font is checked to get the maximal
+ *  column width. The maximal column width is measured in pixels.
+ *  @return the maximal column width of ''aFont''.
+ *)
 const func integer: columnWidth (in font: aFont)             is DYNAMIC;
+
+
+(**
+ *  Get the spacing between the chars of a font.
+ *  The character spacing is measured in pixels.
+ *  @return the spacing between the chars of ''aFont''.
+ *)
 const func integer: characterSpacing (in font: aFont)        is DYNAMIC;
+
+
+(**
+ *  Get the pixel width of a string displayed with a font.
+ *  @return the pixel width of ''stri'' displayed with ''aFont''.
+ *)
 const func integer: width (in font: aFont, in string: stri)  is DYNAMIC;
+
+
+(**
+ *  When a string is displayed with a font, how many chars fit in a width.
+ *  The width is specified in pixels. The expression:
+ *   numOfCharsInWidth(aFont, stri, width(aFont, stri))
+ *  will always be equivalent to
+ *   length(stri);
+ *  @return the number of chars from ''stri'' that fit into ''allowedWidth''
+ *          when ''stri'' is displayed with ''aFont''.
+ *)
 const func integer: numOfCharsInWidth (in font: aFont,
     in string: stri, in integer: allowedWidth)               is DYNAMIC;
+
 
 const func integer: compare (in font: font1, in font: font2) is action "ITF_CMP";
 const func integer: hashCode (in font: aFont)                is action "ITF_HASHCODE";
 
+
+(**
+ *  Font implementation type to represent an empty font.
+ *)
 const type: emptyFont is new struct
   end struct;
+
 
 type_implements_interface(emptyFont, font);
 
 const font: (attr font) . value                              is emptyFont.value;
 
 
-#
-# Font properties
-#
-
-
+(**
+ *  Font implementation type to manage font properties.
+ *)
 const type: fontProperties is sub emptyFont struct
     var integer: xHeight          is 0;
     var integer: capHeight        is 0;
@@ -66,6 +146,7 @@ const type: fontProperties is sub emptyFont struct
     var integer: columnWidth      is 0;
     var integer: characterSpacing is 0;
   end struct;
+
 
 type_implements_interface(fontProperties, font);
 

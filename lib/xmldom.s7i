@@ -34,11 +34,12 @@ include "html.s7i";
 
 const type: attrHashType is hash [string] string;
 
-#
-# xmlNode
-#
 
+(**
+ *  Interface type to represent XML nodes.
+ *)
 const type: xmlNode is sub object interface;
+
 
 const func string: getAttrValue (in xmlNode: aNode, in string: attrName) is DYNAMIC;
 const func attrHashType: getAttributes (in xmlNode: aNode)               is DYNAMIC;
@@ -48,15 +49,16 @@ const varfunc string:        (in xmlNode: aNode) . name                  is DYNA
 # const varfunc attrHashType: (in xmlNode: aNode) . attributes           is DYNAMIC;
 
 
-#
-# xmlBaseNode
-#
-
+(**
+ *  Base implementation type for xmlNode.
+ *)
 const type: xmlBaseNode is new struct
     var integer: dummy is 0;
   end struct;
 
+
 type_implements_interface(xmlBaseNode, xmlNode);
+
 
 const proc: writeXml (in xmlBaseNode: aBaseNode) is func
   begin
@@ -73,13 +75,13 @@ const xmlBaseNode: NULL_XML_NODE is xmlBaseNode.value;
 const xmlNode: (attr xmlNode) . value is NULL_XML_NODE;
 
 
-#
-# xmlText
-#
-
+(**
+ *  xmlNode implementation type representing text content.
+ *)
 const type: xmlText is sub xmlBaseNode struct
     var string: content is "";
   end struct;
+
 
 type_implements_interface(xmlText, xmlNode);
 
@@ -101,14 +103,14 @@ const proc: writeXml (inout external_file: outFile, in xmlText: aText) is func
   end func;
 
 
-#
-# xmlElement
-#
-
+(**
+ *  xmlNode implementation type representing an XML element.
+ *)
 const type: xmlElement is sub xmlBaseNode struct
     var string: name is "";
     var attrHashType: attributes is attrHashType.value;
   end struct;
+
 
 type_implements_interface(xmlElement, xmlNode);
 
@@ -152,13 +154,13 @@ const proc: writeXml (inout external_file: outFile, in xmlElement: anElement) is
   end func;
 
 
-#
-# xmlContainer
-#
-
+(**
+ *  xmlNode implementation type representing an XML element with subnodes.
+ *)
 const type: xmlContainer is sub xmlElement struct
     var array xmlNode: subNodes is 0 times xmlNode.value;
   end struct;
+
 
 type_implements_interface(xmlContainer, xmlNode);
 
@@ -270,6 +272,10 @@ const func xmlNode: readXmlNode (inout file: inFile, inout string: symbol) is fu
   end func;
 
 
+(**
+ *  Read an XML file.
+ *  @return an xmlNode containing the contents of the XML file.
+ *)
 const func xmlNode: readXml (inout file: inFile) is func
   result
     var xmlNode: result is xmlNode.value;

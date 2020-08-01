@@ -285,6 +285,22 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype ref_cast (listtype arguments)
+#else
+
+objecttype ref_cast (arguments)
+listtype arguments;
+#endif
+
+  { /* ref_cast */
+    /* The reference value is taken as int on purpose */
+    return(bld_int_temp(take_int(arg_3(arguments))));
+  } /* ref_cast */
+
+
+
+#ifdef ANSI_C
+
 objecttype ref_category (listtype arguments)
 #else
 

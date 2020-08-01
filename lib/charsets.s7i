@@ -1596,6 +1596,7 @@ const func string: replaceUtf16SurrogatePairs (in string: stri) is func
  *  When the function is called 'stri' is assumed to be a string
  *  of bytes. The byte sequence in 'stri' is encoded with UTF-7.
  *  @return 'stri' converted to normal (UTF-32) string.
+ *  @exception RANGE_ERROR The string is not UTF-7 encoded.
  *)
 const func string: utf7ToStri (in string: stri) is func
   result
@@ -1684,6 +1685,7 @@ const func string: utf7ToStri (in string: stri) is func
  *  'charset' encoding is specified with an IANA/MIME charset name.
  *  This way the function can be used to convert encoded data for
  *  internet protocols such as NNTP.
+ *  @exception RANGE_ERROR The charset unknown
  *)
 const proc: conv2unicodeByName (inout string: stri,
     in var string: charset) is func

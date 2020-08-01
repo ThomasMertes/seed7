@@ -29,6 +29,7 @@ $ include "seed7_05.s7i";
   include "keybd.s7i";
   include "float.s7i";
   include "draw.s7i";
+  include "graph_file.s7i";
   include "field.s7i";
   include "dna_base.s7i";
 

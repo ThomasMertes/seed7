@@ -66,11 +66,11 @@ const proc: write (inout lower_file: lower_fil, in string: stri) is func
   end func;
 
 
-const func string: gets (inout lower_file: lower_fil, in integer: leng) is func
+const func string: gets (inout lower_file: lower_fil, in integer: maxLength) is func
   result
     var string: stri is "";
   begin
-    stri := lower(gets(lower_fil.destination_file, leng));
+    stri := lower(gets(lower_fil.destination_file, maxLength));
   end func;
 
 

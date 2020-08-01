@@ -586,6 +586,12 @@ inttype k_number;
 
 
 
+/**
+ *  Number of bits in the minimal two's-complement representation.
+ *  The high bits equivalent to the sign bit are not part of the
+ *  minimal two's-complement representation.
+ *  @return the number of bits.
+ */
 #ifdef ANSI_C
 
 inttype intBitLength (inttype number)
@@ -723,6 +729,11 @@ rtlGenerictype old_value;
 
 
 
+/**
+ *  Compute the truncated base 2 logarithm of an integer number.
+ *  @return the truncated base 2 logarithm.
+ *  @exception NUMERIC_ERROR The number is negative.
+ */
 #ifdef ANSI_C
 
 inttype intLog2 (inttype number)
@@ -747,6 +758,11 @@ inttype number;
 
 
 
+/**
+ *  Index of the lowest-order one bit.
+ *  For A <> 0 this is equal to the number of lowest-order zero bits.
+ *  @return the number of lowest-order zero bits or -1 for lowestSetBit(0).
+ */
 #ifdef ANSI_C
 
 inttype intLowestSetBit (inttype number)
@@ -1011,6 +1027,12 @@ inttype number;
 
 
 
+/**
+ *  Convert an integer number to a string.
+ *  The number is converted to a string with decimal representation.
+ *  @return the string result of the conversion.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 #ifdef ANSI_C
 
 stritype intStr (inttype number)
@@ -1057,6 +1079,15 @@ inttype number;
 
 
 
+/**
+ *  Convert an integer number to a string.
+ *  The conversion uses the numeral system with the given base.
+ *  Digit values from 10 upward are encoded with upper case letters.
+ *  E.g.: 10 is encoded with A, 11 with B, etc.
+ *  @return the string result of the conversion.
+ *  @exception RANGE_ERROR When base < 2 or base > 36 holds.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 #ifdef ANSI_C
 
 stritype intStrBased (inttype number, inttype base)
@@ -1108,6 +1139,12 @@ inttype base;
 
 
 
+/**
+ *  Convert an integer number to a string.
+ *  The number is converted to a string with hexadecimal representation.
+ *  @return the string result of the conversion.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 #ifdef ANSI_C
 
 stritype intStrHex (inttype number)

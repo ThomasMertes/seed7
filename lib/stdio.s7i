@@ -1,8 +1,8 @@
 
 (********************************************************************)
 (*                                                                  *)
-(*  stdio.s7i     Functions for input and output via files.         *)
-(*  Copyright (C) 2011  Thomas Mertes                               *)
+(*  stdio.s7i     Standard input and output via files               *)
+(*  Copyright (C) 1989 - 2011  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -32,9 +32,6 @@ include "external_file.s7i";
 include "enable_io.s7i";
 
 
-(* System STD_IN, STD_OUT and STD_ERR files *)
-
-
 const func external_file: INIT_STD_FILE (ref PRIMITIVE_FILE: primitive_file,
     in string: fileName) is func
   result
@@ -45,11 +42,24 @@ const func external_file: INIT_STD_FILE (ref PRIMITIVE_FILE: primitive_file,
   end func;
 
 
+(**
+ *  Standard input file of the operating system.
+ *  The file IN is initialized with STD_IN.
+ *)
 var external_file: STD_IN is  INIT_STD_FILE(PRIMITIVE_INPUT,  "STD_IN");
-var external_file: STD_OUT is INIT_STD_FILE(PRIMITIVE_OUTPUT, "STD_OUT");
-var external_file: STD_ERR is INIT_STD_FILE(PRIMITIVE_ERROR,  "STD_ERR");
 
-(* Set of operations for IN and OUT *)
+
+(**
+ *  Standard output file of the operating system.
+ *  The file OUT is initialized with STD_OUT.
+ *)
+var external_file: STD_OUT is INIT_STD_FILE(PRIMITIVE_OUTPUT, "STD_OUT");
+
+
+(**
+ *  Standard error file of the operating system.
+ *)
+var external_file: STD_ERR is INIT_STD_FILE(PRIMITIVE_ERROR,  "STD_ERR");
 
 
 (**
@@ -71,6 +81,9 @@ var file: OUT is STD_OUT;
 var file: PROT_OUTFILE is STD_OUT;
 
 
+(* Set of operations for IN and OUT *)
+
+
 (**
  *  Write end-of-line to the standard output.
  *  The file type of OUT decides how writing end-of-line is done.
@@ -86,7 +99,7 @@ const proc: writeln is func
 (**
  *  Discard a line from the standard input file.
  *  The function discards characters up to end-of-line or EOF.
- *  When the function is left the inFile.bufferChar contains the
+ *  When the function is left inFile.bufferChar contains the
  *  line ending character ('\n' or EOF). 
  *)
 const proc: readln is func
@@ -126,7 +139,7 @@ const proc: writeln (in string: stri) is func
  *  Before reading the word it skips spaces and tabs. The function
  *  accepts words ending with " ", "\t", end-of-line or EOF.
  *  The word ending characters are not copied into the string.
- *  When the function is left the inFile.bufferChar contains the
+ *  When the function is left inFile.bufferChar contains the
  *  word ending character (' ', '\t', '\n' or EOF). 
  *)
 const proc: read (inout string: stri) is func
@@ -139,7 +152,7 @@ const proc: read (inout string: stri) is func
  *  Read a line from the standard input file.
  *  The function reads a string up to end-of-line or EOF.
  *  The line ending characters are not copied into the string.
- *  When the function is left the inFile.bufferChar contains the
+ *  When the function is left inFile.bufferChar contains the
  *  line ending character ('\n' or EOF). 
  *)
 const proc: readln (inout string: stri) is func

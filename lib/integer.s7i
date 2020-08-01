@@ -1,0 +1,389 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  integer.s7i   Integer support library                           *)
+(*  Copyright (C) 1989 - 2011  Thomas Mertes                        *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ system "integer" is integer;
+IN_PARAM_IS_VALUE(integer);
+
+const proc: (ref integer param) ::= (ref integer param)             is action "INT_CREATE";
+
+const integer: (attr integer) . value is 0;
+
+const proc: (inout integer param) := (in integer param)             is action "INT_CPY";
+
+
+(**
+ *  Plus sign for integer numbers.
+ *  @return its operand unchanged.
+ *)
+const func integer: + (in integer: number)                          is action "INT_PLUS";
+
+
+(**
+ *  Minus sign, negate an integer number.
+ *  @return the negated value of the number.
+ *)
+const func integer: - (in integer: number)                          is action "INT_MINUS";
+
+
+(**
+ *  Compute the factorial of a number.
+ *  @return the factorial of the number.
+ *  @exception NUMERIC_ERROR The number is negative or the result
+ *             does not fit into an integer.
+ *)
+const func integer: ! (in integer: number)                          is action "INT_FACT";
+
+
+(**
+ *  Add two integer numbers.
+ *  @return the sum of the two numbers.
+ *)
+const func integer: (in integer: summand1) + (in integer: summand2)    is action "INT_ADD";
+
+
+(**
+ *  Compute the subtraction of two integer numbers.
+ *  @return the difference of the two numbers.
+ *)
+const func integer: (in integer: minuend) - (in integer: subtrahend)   is action "INT_SBTR";
+
+
+(**
+ *  Multiply two integer numbers.
+ *  @return the product of the two numbers.
+ *)
+const func integer: (in integer: factor1) * (in integer: factor2)      is action "INT_MULT";
+
+
+(**
+ *  Computes an integer division of two numbers.
+ *  This integer division is truncated towards zero.
+ *  For the operations 'div' and 'rem' holds for all A:
+ *   (A div B) * B + A rem B = A           when B <> 0
+ *   -A div B = -(A div B)                 when B <> 0
+ *   -A rem B = -(A rem B)                 when B <> 0
+ *   A rem B >= 0 and A rem B < abs(B)     when B <> 0 and A >= 0
+ *   A rem B <= 0 and A rem B > -abs(B)    when B <> 0 and A <= 0
+ *  @return the quotient of the integer division.
+ *  @exception NUMERIC_ERROR When a division by zero occurs.
+ *)
+const func integer: (in integer: dividend) div (in integer: divisor)   is action "INT_DIV";
+
+
+(**
+ *  Computes the remainder of an integer division of two numbers.
+ *  This is the reminder of integer division div.
+ *  The result has the same sign as the dividend.
+ *   A rem B
+ *  is equivalent to
+ *   A - (A div B) * B
+ *  @return the remainder of the integer division.
+ *  @exception NUMERIC_ERROR When a division by zero occurs.
+ *)
+const func integer: (in integer: dividend) rem (in integer: divisor)   is action "INT_REM";
+
+
+(**
+ *  Computes an integer modulo division of two numbers.
+ *  This integer division is truncated towards negative infinity.
+ *  For the operations 'mdiv' and 'mod' holds for all A:
+ *   (A mdiv B) * B + A mod B = A          when B <> 0
+ *   -A mdiv B = A mdiv -B                 when B <> 0
+ *   -A mod -B = -(A mod B)                when B <> 0
+ *   A mod B >= 0 and A mod B < B          when B > 0
+ *   A mod B <= 0 and A mod B > B          when B < 0
+ *  @return the quotient of the integer division.
+ *  @exception NUMERIC_ERROR When a division by zero occurs.
+ *)
+const func integer: (in integer: dividend) mdiv (in integer: divisor)  is action "INT_MDIV";
+
+
+(**
+ *  Computes the modulo of an integer division of two numbers.
+ *  The modulo is the remainder of integer division mdiv.
+ *  The result has the same sign as the divisor.
+ *   A mod B
+ *  is equivalent to
+ *   A - (A mdiv B) * B
+ *  @return the modulo of the integer division.
+ *  @exception NUMERIC_ERROR When a division by zero occurs.
+ *)
+const func integer: (in integer: dividend) mod (in integer: divisor)   is action "INT_MOD";
+
+
+(**
+ *  Compute the exponentiation of a integer base by an integer exponent.
+ *  @return the result of the exponentation.
+ *  @exception NUMERIC_ERROR When the exponent is negative.
+ *)
+const func integer: (in integer: base) ** (in integer: exponent)       is action "INT_POW";
+
+
+(**
+ *  Shift an integer number left by lshift bits.
+ *  A << B is equivalent to A * 2_ ** B
+ *  @return the left shifted number.
+ *  @exception NUMERIC_ERROR The shift count is negative.
+ *)
+const func integer: (in integer: number) << (in integer: lshift)    is action "INT_LSHIFT";
+
+
+(**
+ *  Shift an integer number right by rshift bits.
+ *  A >> B is equivalent to A mdiv 2_ ** B
+ *  @return the right shifted number.
+ *  @exception NUMERIC_ERROR The shift count is negative.
+ *)
+const func integer: (in integer: number) >> (in integer: rshift)    is action "INT_RSHIFT";
+
+
+(**
+ *  Increment an integer number by a delta.
+ *)
+const proc: (inout integer: number) +:= (in integer: delta)         is action "INT_GROW";
+
+
+(**
+ *  Decrement an integer number by a delta.
+ *)
+const proc: (inout integer: number) -:= (in integer: delta)         is action "INT_SHRINK";
+
+
+(**
+ *  Multiply an integer number by a factor and assign the result back to number.
+ *)
+const proc: (inout integer: number) *:= (in integer: factor)        is action "INT_MULT_ASSIGN";
+
+
+(**
+ *  Shift a number left by lshift bits and assign the result back to number.
+ *)
+const proc: (inout integer: number) <<:= (in integer: lshift)       is action "INT_LSHIFT_ASSIGN";
+
+
+(**
+ *  Shift a number right by rshift bits and assign the result back to number.
+ *)
+const proc: (inout integer: number) >>:= (in integer: rshift)       is action "INT_RSHIFT_ASSIGN";
+
+
+const func integer: (in integer param) ! (in integer param)         is action "INT_BINOM";
+
+
+(**
+ *  Check if two integer numbers are equal.
+ *  @return TRUE if both numbers are equal,
+ *          FALSE otherwise.
+ *)
+const func boolean: (in integer: number1) = (in integer: number2)   is action "INT_EQ";
+
+
+(**
+ *  Check if two integer numbers are not equal.
+ *  @return FALSE if both numbers are equal,
+ *          TRUE otherwise.
+ *)
+const func boolean: (in integer: number1) <> (in integer: number2)  is action "INT_NE";
+
+
+(**
+ *  Check if number1 is less than number2.
+ *  @return TRUE if number1 is less than number2,
+ *          FALSE otherwise.
+ *)
+const func boolean: (in integer: number1) < (in integer: number2)   is action "INT_LT";
+
+
+(**
+ *  Check if number1 is greater than number2.
+ *  @return TRUE if number1 is greater than number2,
+ *          FALSE otherwise.
+ *)
+const func boolean: (in integer: number1) > (in integer: number2)   is action "INT_GT";
+
+
+(**
+ *  Check if number1 is less than or equal to number2.
+ *  @return TRUE if number1 is less than or equal to number2,
+ *          FALSE otherwise.
+ *)
+const func boolean: (in integer: number1) <= (in integer: number2)  is action "INT_LE";
+
+
+(**
+ *  Check if number1 is greater than or equal to number2.
+ *  @return TRUE if number1 is greater than or equal to number2,
+ *          FALSE otherwise.
+ *)
+const func boolean: (in integer: number1) >= (in integer: number2)  is action "INT_GE";
+
+
+(**
+ *  Compare two integer numbers.
+ *  @return -1, 0 or 1 if the first argument is considered to be
+ *          respectively less than, equal to, or greater than the
+ *          second.
+ *)
+const func integer: compare (in integer: number1, in integer: number2) is action "INT_CMP";
+
+
+(**
+ *  Compute the hash value of an integer number.
+ *  @return the hash value.
+ *)
+const func integer: hashCode (in integer: number)                is action "INT_HASHCODE";
+
+
+(**
+ *  Successor of an integer number.
+ *  succ(A) is equivalent to A+1 .
+ *)
+const func integer: succ (in integer: number)                    is action "INT_SUCC";
+
+
+(**
+ *  Predecessor of an integer number.
+ *  pred(A) is equivalent to A-1 .
+ *)
+const func integer: pred (in integer: number)                    is action "INT_PRED";
+
+
+(**
+ *  Compute the absolute value of an integer number.
+ *  @return the absolute value.
+ *)
+const func integer: abs (in integer: number)                     is action "INT_ABS";
+
+
+(**
+ *  Compute the integer square root of an integer number.
+ *  @return the integer square root.
+ *  @exception NUMERIC_ERROR When number is negative.
+ *)
+const func integer: sqrt (in integer: number)                    is action "INT_SQRT";
+
+
+(**
+ *  Compute the truncated base 2 logarithm of an integer number.
+ *  @return the truncated base 2 logarithm.
+ *  @exception NUMERIC_ERROR The number is negative.
+ *)
+const func integer: log2 (in integer: number)                    is action "INT_LOG2";
+
+
+(**
+ *  Determine if a integer number is odd.
+ *  @return TRUE if the number is odd,
+ *          FALSE otherwise.
+ *)
+const func boolean: odd (in integer: number)                     is action "INT_ODD";
+
+
+(**
+ *  Convert to integer.
+ *  @return the unchanged number.
+ *)
+const func integer: ord (in integer: number)                     is action "INT_ORD";
+
+
+(**
+ *  Convert to integer.
+ *  @return the unchanged number.
+ *)
+const func integer: (attr integer) conv (in integer: number)     is action "INT_CONV";
+
+
+(**
+ *  Convert an integer number to a string.
+ *  The number is converted to a string with decimal representation.
+ *  @return the string result of the conversion.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func string: str (in integer: number)                      is action "INT_STR";
+
+
+(**
+ *  Convert an integer number to a string.
+ *  The number is converted to a string with decimal representation.
+ *  @return the string result of the conversion.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func string: literal (in integer: number)                  is action "INT_STR";
+
+
+(**
+ *  Convert an integer number to a string.
+ *  The conversion uses the numeral system with the given base.
+ *  Digit values from 10 upward are encoded with upper case letters.
+ *  E.g.: 10 is encoded with A, 11 with B, etc.
+ *  @return the string result of the conversion.
+ *  @exception RANGE_ERROR When base < 2 or base > 36 holds.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func string: str (in integer: number, in integer: base)    is action "INT_STR_BASED";
+
+
+const func string: (in integer param) lpad0 (in integer param)   is action "INT_LPAD0";
+const proc: incr (inout integer param)                           is action "INT_INCR";
+const proc: decr (inout integer param)                           is action "INT_DECR";
+
+
+(**
+ *  Compute pseudo-random number in the range [low, high].
+ *  The random values are uniform distributed.
+ *  @return a random number such that low <= rand(low, high) and
+ *          rand(low, high) <= high holds.
+ *  @exception RANGE_ERROR The range is empty (low > high holds).
+ *)
+const func integer: rand (in integer: low, in integer: high)     is action "INT_RAND";
+
+
+(**
+ *  Number of bits in the minimal two's-complement representation.
+ *  The high bits equivalent to the sign bit are not part of the
+ *  minimal two's-complement representation.
+ *  @return the number of bits.
+ *)
+const func integer: bitLength (in integer: number)               is action "INT_BIT_LENGTH";
+
+
+(**
+ *  Index of the lowest-order one bit.
+ *  For A <> 0 this is equal to the number of lowest-order zero bits.
+ *  @return the number of lowest-order zero bits or -1 for lowestSetBit(0).
+ *)
+const func integer: lowestSetBit (in integer: number)              is action "INT_LOWEST_SET_BIT";
+
+
+(**
+ *  Convert a string to an integer number.
+ *  @return the integer result of the conversion.
+ *  @exception RANGE_ERROR When the string is empty or
+ *             contains not only digits.
+ *)
+const func integer: (attr integer) parse (in string: stri)       is action "INT_PARSE";

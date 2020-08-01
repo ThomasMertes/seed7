@@ -24,9 +24,12 @@
 
 $ include "seed7_05.s7i";
   include "float.s7i";
+  include "text.s7i";
   include "draw.s7i";
+  include "graph_file.s7i";
   include "keybd.s7i";
   include "time.s7i";
+  include "duration.s7i";
   include "pic32.s7i";
 
 

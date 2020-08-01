@@ -1,8 +1,8 @@
 
 (********************************************************************)
 (*                                                                  *)
-(*  osfiles.s7i   Functions to handle operating system files.       *)
-(*  Copyright (C) 2011  Thomas Mertes                               *)
+(*  osfiles.s7i   Functions to handle operating system files        *)
+(*  Copyright (C) 1989 - 2011  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -27,6 +27,29 @@
 
 
 include "enable_io.s7i";
+include "time.s7i";
+include "bigint.s7i";
+
+
+const proc: GET_ATIME (in string param, inout integer param, inout integer param,
+    inout integer param, inout integer param, inout integer param, inout integer param,
+    inout integer param, inout integer param, inout boolean param) is action "CMD_GET_ATIME";
+
+const proc: GET_CTIME (in string param, inout integer param, inout integer param,
+    inout integer param, inout integer param, inout integer param, inout integer param,
+    inout integer param, inout integer param, inout boolean param) is action "CMD_GET_CTIME";
+
+const proc: GET_MTIME (in string param, inout integer param, inout integer param,
+    inout integer param, inout integer param, inout integer param, inout integer param,
+    inout integer param, inout integer param, inout boolean param) is action "CMD_GET_MTIME";
+
+const proc: SET_ATIME (in string param, in integer param, in integer param,
+    in integer param, in integer param, in integer param, in integer param,
+    in integer param, in integer param) is action "CMD_SET_ATIME";
+
+const proc: SET_MTIME (in string param, in integer param, in integer param,
+    in integer param, in integer param, in integer param, in integer param,
+    in integer param, in integer param) is action "CMD_SET_MTIME";
 
 
 const integer: FILE_ABSENT  is 0; # A component of path does not exist
@@ -80,36 +103,51 @@ enable_output(fileMode);
 
 
 (**
- *  Changes the current working directory of the calling process to
- *  the specified directory.
+ *  Determine the filenames in a directory.
+ *  The files "." and ".." are left out from the result.
+ *  Note that the function returns only the filenames.
+ *  Additional information must be obtained with other calls. 
+ *  @return a string-array containing the filenames in the directory.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'dirPath'
+ *             to the system path type or not enough memory to
+ *             represent the result 'string array'.
+ *  @exception RANGE_ERROR 'dirPath' is not representable in the
+ *             system path type.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
+const func array string: read_dir (in string: dirPath)       is action "CMD_LS";
+
+
+(**
+ *  Determine the current working directory of the calling process.
+ *  @return The absolute path of the current working directory.
+ *  @exception MEMORY_ERROR Not enough memory to represent the
+ *             result 'string'.
+ *  @exception FILE_ERROR The system function returns an error.
+ *)
+const func string: getcwd                                    is action "CMD_GETCWD";
+
+
+(**
+ *  Changes the current working directory of the calling process.
  *  @exception MEMORY_ERROR Not enough memory to convert 'name' to
  *             the system path type.
  *  @exception RANGE_ERROR 'name' is not representable in the system
  *             path type.
  *  @exception FILE_ERROR A system function returns an error.
  *)
-const proc: chdir (in string param) is                          action "CMD_CHDIR";
+const proc: chdir (in string: name)                          is action "CMD_CHDIR";
 
 
 (**
  *  Creates a new directory.
  *  @exception MEMORY_ERROR Not enough memory to convert 'name' to
  *             the system path type.
- *  @exception RANGE_ERROR 'name'</tt> is not representable in the
+ *  @exception RANGE_ERROR 'name' is not representable in the
  *             system path type.
  *  @exception FILE_ERROR A system function returns an error.
  *)
-const proc: mkdir (in string param) is                          action "CMD_MKDIR";
-
-
-(**
- *  Determine the current working directory of the calling process
- *  as absolute path.
- *  @return The absolute path of the current working directory.
- *  @exception MEMORY_ERROR Not enough memory to represent the result 'string'.
- *  @exception FILE_ERROR The system function returns an error.
- *)
-const func string: getcwd is                                    action "CMD_GETCWD";
+const proc: mkdir (in string: name)                          is action "CMD_MKDIR";
 
 
 (**
@@ -117,8 +155,14 @@ const func string: getcwd is                                    action "CMD_GETC
  *  The function does follow symbolic links.
  *  Therefore it never returns FILE_SYMLINK.
  *  @return the type of the file.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'filePath' is not representable in the
+ *             system path type.
+ *  @exception FILE_ERROR The system function returns an error other
+ *             than ENOENT or ENOTDIR. 
  *)
-const func integer: fileType (in string param) is               action "CMD_FILETYPE";
+const func integer: fileType (in string: filePath)           is action "CMD_FILETYPE";
 
 
 (**
@@ -126,21 +170,37 @@ const func integer: fileType (in string param) is               action "CMD_FILE
  *  The function does not follow symbolic links.
  *  Therefore it may return FILE_SYMLINK.
  *  @return the type of the file.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'filePath' is not representable in the
+ *             system path type.
+ *  @exception FILE_ERROR The system function returns an error other
+ *             than ENOENT or ENOTDIR. 
  *)
-const func integer: fileTypeSL (in string param) is             action "CMD_FILETYPE_SL";
+const func integer: fileTypeSL (in string: filePath)         is action "CMD_FILETYPE_SL";
 
 
 (**
  *  Determine the file mode (permissions) of a file.
  *  @return the file mode.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'filePath' is not representable in the
+ *             system path type.
+ *  @exception FILE_ERROR A system function returns an error.
  *)
-const func fileMode: fileMode (in string param) is              action "CMD_FILEMODE";
+const func fileMode: fileMode (in string: filePath)          is action "CMD_FILEMODE";
 
 
 (**
  *  Change the file mode (permissions) of a file.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'filePath' is not representable in the
+ *             system path type.
+ *  @exception FILE_ERROR A system function returns an error.
  *)
-const proc: setFileMode (in string param, in fileMode param) is action "CMD_SET_FILEMODE";
+const proc: setFileMode (in string: filePath, in fileMode: mode) is action "CMD_SET_FILEMODE";
 
 
 (**
@@ -148,15 +208,151 @@ const proc: setFileMode (in string param, in fileMode param) is action "CMD_SET_
  *  The file size is measured in bytes.
  *  For directories a size of 0 is returned.
  *  @return the size of the file.
- *  @exception MEMORY_ERROR Not enough memory to convert the path to the system path type.
- *  @exception RANGE_ERROR The path is not representable in the system path type.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'filePath' is not representable in the
+ *             system path type.
  *  @exception RANGE_ERROR The file size is not representable as integer.
  *  @exception FILE_ERROR It was not possible to determine the file size.
  *)
-const func integer: fileSize (in string param) is               action "CMD_FILESIZE";
+const func integer: fileSize (in string: filePath)           is action "CMD_FILESIZE";
 
 
-const func array string: read_dir (in string param) is          action "CMD_LS";
+(**
+ *  Determine the size of a file.
+ *  The file size is measured in bytes.
+ *  For directories a size of 0 is returned.
+ *  @return the size of the file.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'filePath' is not representable in the
+ *             system path type.
+ *  @exception RANGE_ERROR The file size is not representable as integer.
+ *  @exception FILE_ERROR It was not possible to determine the file size.
+ *)
+const func bigInteger: bigFileSize (in string: filePath)     is action "CMD_BIG_FILESIZE";
+
+
+(**
+ *  Determine the access time of a file.
+ *  @return the access time of the file.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'filePath' is not representable in the
+ *             system path type.
+ *  @exception FILE_ERROR A system function returns an error. 
+ *)
+const func time: getATime (in string: filePath) is func
+  result
+    var time: result is time.value;
+  begin
+    GET_ATIME(filePath, result.year, result.month, result.day,
+        result.hour, result.minute, result.second,
+        result.micro_second, result.timeZone,
+        result.daylightSavingTime);
+  end func;
+
+
+(**
+ *  Determine the change time of a file.
+ *  @return the change time of the file.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'filePath' is not representable in the
+ *             system path type.
+ *  @exception FILE_ERROR A system function returns an error. 
+ *)
+const func time: getCTime (in string: filePath) is func
+  result
+    var time: result is time.value;
+  begin
+    GET_CTIME(filePath, result.year, result.month, result.day,
+        result.hour, result.minute, result.second,
+        result.micro_second, result.timeZone,
+        result.daylightSavingTime);
+  end func;
+
+
+(**
+ *  Determine the modification time of a file.
+ *  @return the modification time of the file.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'filePath' is not representable in the
+ *             system path type.
+ *  @exception FILE_ERROR A system function returns an error. 
+ *)
+const func time: getMTime (in string: filePath) is func
+  result
+    var time: result is time.value;
+  begin
+    GET_MTIME(filePath, result.year, result.month, result.day,
+        result.hour, result.minute, result.second,
+        result.micro_second, result.timeZone,
+        result.daylightSavingTime);
+  end func;
+
+
+(**
+ *  Set the access time of a file.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'filePath' is not representable in the
+ *             system path type or 'aTime' is invalid or cannot be
+ *             converted to the system file time.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
+const proc: setATime (in string: filePath, in time: aTime) is func
+  begin
+    SET_ATIME(filePath, aTime.year, aTime.month, aTime.day,
+        aTime.hour, aTime.minute, aTime.second,
+        aTime.micro_second, aTime.timeZone);
+  end func;
+
+
+(**
+ *  Set the modification time of a file.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'filePath' is not representable in the
+ *             system path type or 'aTime' is invalid or cannot be
+ *             converted to the system file time.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
+const proc: setMTime (in string: filePath, in time: aTime) is func
+  begin
+    SET_MTIME(filePath, aTime.year, aTime.month, aTime.day,
+        aTime.hour, aTime.minute, aTime.second,
+        aTime.micro_second, aTime.timeZone);
+  end func;
+
+
+(**
+ *  Reads the destination of a symbolic link.
+ *  @return The destination refered by the symbolic link.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
+ *             to the system path type or not enough memory to
+ *             represent the result string.
+ *  @exception RANGE_ERROR 'filePath' is not representable in the
+ *             system path type.
+ *  @exception FILE_ERROR The file described with the path does not
+ *             exist or is not a symbolic link.
+ *)
+const func string: readlink (in string: filePath)            is action "CMD_READLINK";
+
+
+(**
+ *  Create a symbolic link.
+ *  The symbolic link 'dest' will refer to 'source' afterwards.
+ *  @param source String to be contained in the symbolic link.
+ *  @param dest Name of the symbolic link to be created.
+ *  @exception MEMORY_ERROR Not enough memory to convert source or
+ *             dest to the system path type.
+ *  @exception RANGE_ERROR Source or dest is not representable in
+ *             the system path type.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
+const proc: symlink (in string: source, in string: dest)     is action "CMD_SYMLINK";
 
 
 (**
@@ -168,7 +364,7 @@ const func array string: read_dir (in string param) is          action "CMD_LS";
  *  @exception FILE_ERROR The file does not exist or a system function
  *             returns an error.
  *)
-const proc: removeFile (in string param) is                     action "CMD_REMOVE";
+const proc: removeFile (in string: filePath)                 is action "CMD_REMOVE";
 
 
 (**
@@ -180,7 +376,7 @@ const proc: removeFile (in string param) is                     action "CMD_REMO
  *  @exception FILE_ERROR The file does not exist or a system function
  *             returns an error.
  *)
-const proc: removeAnyFile (in string param) is                  action "CMD_REMOVE_ANY_FILE";
+const proc: removeAnyFile (in string: filePath)              is action "CMD_REMOVE_ANY_FILE";
 
 
 (**
@@ -201,7 +397,7 @@ const proc: removeAnyFile (in string param) is                  action "CMD_REMO
  *  @exception FILE_ERROR Source file does not exist, destination file
  *             already exists or a system function returns an error.
  *)
-const proc: copyFile (in string param, in string param) is      action "CMD_COPY_FILE";
+const proc: copyFile (in string: sourcePath, in string: destPath)  is action "CMD_COPY_FILE";
 
 
 (**
@@ -217,7 +413,7 @@ const proc: copyFile (in string param, in string param) is      action "CMD_COPY
  *  @exception FILE_ERROR Source file does not exist, destination file
  *             already exists or a system function returns an error.
  *)
-const proc: cloneFile (in string param, in string param) is     action "CMD_CLONE_FILE";
+const proc: cloneFile (in string: sourcePath, in string: destPath) is action "CMD_CLONE_FILE";
 
 
 (**
@@ -237,38 +433,10 @@ const proc: cloneFile (in string param, in string param) is     action "CMD_CLON
  *  @exception FILE_ERROR Source file does not exist, destination file
  *             already exists or a system function returns an error.
  *)
-const proc: moveFile (in string param, in string param) is      action "CMD_MOVE";
+const proc: moveFile (in string: sourcePath, in string: destPath)  is action "CMD_MOVE";
 
 
-(**
- *  Reads the destination of a symbolic link.
- *  @return The destination refered by the symbolic link.
- *  @exception MEMORY_ERROR Not enough memory to convert the path to
- *             the system path type or not enough memory to represent
- *             the result string.
- *  @exception RANGE_ERROR The path is not representable in the
- *             system path type.
- *  @exception FILE_ERROR The file described with the path does not
- *             exist or is not a symbolic link.
- *)
-const func string: readlink (in string param) is                action "CMD_READLINK";
-
-
-(**
- *  Create a symbolic link.
- *  The symbolic link 'dest' will refer to 'source' afterwards.
- *  @param source String to be contained in the symbolic link.
- *  @param dest Name of the symbolic link to be created.
- *  @exception MEMORY_ERROR Not enough memory to convert source or
- *             dest to the system path type.
- *  @exception RANGE_ERROR Source or dest is not representable in
- *             the system path type.
- *  @exception FILE_ERROR A system function returns an error.
- *)
-const proc: symlink (in string: source, in string: dest) is     action "CMD_SYMLINK";
-
-
-const func string: configValue (in string param) is             action "CMD_CONFIG_VALUE";
+const func string: configValue (in string param)             is action "CMD_CONFIG_VALUE";
 
 
 const func string: convDosPath (in string: path) is func

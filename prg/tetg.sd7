@@ -24,8 +24,10 @@
 
 $ include "seed7_05.s7i";
   include "time.s7i";
+  include "duration.s7i";
   include "float.s7i";
   include "draw.s7i";
+  include "graph_file.s7i";
   include "window.s7i";
   include "keybd.s7i";
 
@@ -451,8 +453,9 @@ const proc: main is func
     clear(curr_win, white);
     color(white, black);
     KEYBOARD := GRAPH_KEYBOARD;
-    scr := open(curr_win, AREA_WIDTH, FIELD_Y_START);
-    info_sheet := open_window(scr, 1, 1, 30, 53);
+    info_sheet := open(curr_win, AREA_WIDTH, FIELD_Y_START);
+    # scr := open(curr_win, AREA_WIDTH, FIELD_Y_START);
+    # info_sheet := open_window(scr, 1, 1, 30, 53);
     repeat
       quit_round := FALSE;
       score := 0;

@@ -1,7 +1,7 @@
 
 (********************************************************************)
 (*                                                                  *)
-(*  screen.s7i    General text screen with random access            *)
+(*  screen.s7i    Text implementation type for text screens/windows *)
 (*  Copyright (C) 1992, 1993, 1994, 2005  Thomas Mertes             *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
@@ -32,8 +32,14 @@ include "enable_io.s7i";
 include "color.s7i";
 
 
+(**
+ *  [[text|Text]] implementation type for text screens/windows.
+ *  This type allows writing to text terminals, terminal emulations
+ *  and console windows.
+ *)
 const type: screen_file is sub null_file struct
   end struct;
+
 
 type_implements_interface(screen_file, text);
 
@@ -42,6 +48,11 @@ const screen_file: STD_SCREEN is screen_file.value;
 const proc: SCR_OPEN is                               action "SCR_OPEN";
 
 
+(**
+ *  Creates a ''screen_file'' at the upper left corner of the screen/window.
+ *  The ''screen_file'' extends over the whole text screen/window.
+ *  @return the file opened.
+ *)
 const func screen_file: open (SCREEN) is func
   result
     var screen_file: result is STD_SCREEN;
@@ -51,68 +62,105 @@ const func screen_file: open (SCREEN) is func
   end func;
 
 
-const proc: flush (ref screen_file param) is                        action "SCR_FLUSH";
-const func integer: height (ref screen_file param) is               action "SCR_HEIGHT";
-const func integer: width (ref screen_file param) is                action "SCR_WIDTH";
-const proc: cursor (ref screen_file param, ref boolean param) is    action "SCR_CURSOR";
-const proc: clear (in screen_file param, in integer param,
-    in integer param, in integer param, in integer param) is        action "SCR_CLEAR";
+(**
+ *  Forces that all buffered data of ''aFile'' is sent to its destination.
+ *  This causes data to be sent to the text screen/window of the OS.
+ *)
+const proc: flush (ref screen_file: aFile)                       is action "SCR_FLUSH";
+
+
+(**
+ *  Get the height of 'aScreenFile'.
+ *  @return the height of 'aScreenFile'.
+ *)
+const func integer: height (ref screen_file: aScreenFile)        is action "SCR_HEIGHT";
+
+
+(**
+ *  Get the width of 'aScreenFile'.
+ *  @return the width of 'aScreenFile'.
+ *)
+const func integer: width (ref screen_file: aScreenFile)         is action "SCR_WIDTH";
+
+
+const proc: cursor (ref screen_file param, ref boolean param)    is action "SCR_CURSOR";
+
+
+(**
+ *  Clear an area of ''aScreenFile'' with space characters.
+ *  The area is specified in (line, column) coordinates and is
+ *  between the (''upper'', ''left'') and (''lower'', ''right'').
+ *)
+const proc: clear (in screen_file: aScreenFile, in integer: upper,
+    in integer: left, in integer: lower, in integer: right)      is action "SCR_CLEAR";
+
+
+(**
+ *  Clear 'aScreenFile' with space characters.
+ *)
+const proc: clear (in screen_file: aScreenFile) is func
+  begin
+    clear(aScreenFile, 1, 1, height(aScreenFile), width(aScreenFile));
+  end func;
+
+
 const proc: v_scroll (inout screen_file param,
     in integer param, in integer param, in integer param,
-    in integer param, in integer param) is                          action "SCR_V_SCL";
+    in integer param, in integer param)                          is action "SCR_V_SCL";
 const proc: h_scroll (ref screen_file param,
     in integer param, in integer param, in integer param,
-    in integer param, in integer param) is                          action "SCR_H_SCL";
-const proc: setPos (ref screen_file param,
-    ref integer param, ref integer param) is                        action "SCR_SETPOS";
+    in integer param, in integer param)                          is action "SCR_H_SCL";
+
+
+(**
+ *  Set the current position of 'aScreenFile' to 'line' and 'column'.
+ *)
+const proc: setPos (ref screen_file: aScreenFile,
+    ref integer: line, ref integer: column)                      is action "SCR_SETPOS";
+
+
 const proc: color (ref screen_file param, ref color param) is noop;
 const proc: color (ref screen_file param, ref color param, ref color param) is noop;
 
 
-const proc: write (ref screen_file param, in string param) is       action "SCR_WRITE";
+(**
+ *  Write a string to the current position of 'aScreenFile'.
+ *)
+const proc: write (ref screen_file: aScreenFile, in string: stri) is action "SCR_WRITE";
 
-const proc: write (ref screen_file: screen_fil, in char: ch) is func
-  begin
-    write(screen_fil, str(ch));
-  end func;
-
-const proc: clear (in screen_file: screen_fil) is func
-  begin
-    clear(screen_fil, 1, 1, height(screen_fil), width(screen_fil));
-  end func;
 
 (*
-const proc: writeln (ref screen_file: screen_fil) is func
+const proc: writeln (ref screen_file: aScreenFile) is func
   begin
-    if LINE(screen_fil) = height(screen_fil) then
-      SCROLL_UP(screen_fil, 1, 1, height(screen_fil), width(screen_fil), 1);
-      setPos(screen_fil, LINE(screen_fil), 1);
+    if LINE(aScreenFile) = height(aScreenFile) then
+      SCROLL_UP(aScreenFile, 1, 1, height(aScreenFile), width(aScreenFile), 1);
+      setPos(aScreenFile, LINE(aScreenFile), 1);
     else
-      setPos(screen_fil, succ(LINE(screen_fil)), 1);
+      setPos(aScreenFile, succ(LINE(aScreenFile)), 1);
     end if;
   end func;
 
 
-const proc: backSpace (ref screen_file: screen_fil) is func
+const proc: backSpace (ref screen_file: aScreenFile) is func
   begin
-    if COLUMN(screen_fil) > 1 then
-      setPos(screen_fil, LINE(screen_fil); pred(COLUMN(screen_fil)));
-      if COLUMN(screen_fil) <= width(screen_fil) then
-        write(screen_fil.OUT_FILE, " ");
-        setPos(screen_fil, LINE(screen_fil); pred(COLUMN(screen_fil)));
+    if COLUMN(aScreenFile) > 1 then
+      setPos(aScreenFile, LINE(aScreenFile); pred(COLUMN(aScreenFile)));
+      if COLUMN(aScreenFile) <= width(aScreenFile) then
+        write(aScreenFile.OUT_FILE, " ");
+        setPos(aScreenFile, LINE(aScreenFile); pred(COLUMN(aScreenFile)));
       end if;
     end if;
   end func;
 *)
 
 
-const proc: cursor_on (ref screen_file: screen_fil) is func
+const proc: cursor_on (ref screen_file: aScreenFile) is func
   begin
-    write(screen_fil, "_");
+    write(aScreenFile, "_");
   end func;
 
 
-const proc: cursor_off (ref screen_file: screen_fil) is func
+const proc: cursor_off (ref screen_file: aScreenFile) is func
   begin
-    write(screen_fil, " ");
+    write(aScreenFile, " ");
   end func;

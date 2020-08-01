@@ -26,6 +26,7 @@ $ include "seed7_05.s7i";
   include "float.s7i";
   include "complex.s7i";
   include "draw.s7i";
+  include "graph_file.s7i";
   include "keybd.s7i";
 
 # Display the Mandelbrot set, that are points z[0] in the complex plane

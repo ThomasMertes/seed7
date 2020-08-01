@@ -1767,7 +1767,7 @@ CONTENTS
                   ( bitLength(A) => succ(log2(A)) for A >= 0,
                     bitLength(A) => succ(log2(pred(-A))) for A < 0 )
       lowestSetBit(A) Index of the lowest-order one bit
-                      For A <> 0 this is equal to to number of
+                      For A <> 0 this is equal to the number of
                       lowest-order zero bits.
                   ( A >> B << B = A for A <> 0 and B = lowestSetBit(A),
                     lowestSetBit(0) => -1,
@@ -1966,7 +1966,7 @@ CONTENTS
                     bitLength(A) => ord(succ(log2(A))) for A >= 0_,
                     bitLength(A) => ord(succ(log2(pred(-A)))) for A < 0_ )
       lowestSetBit(A) Index of the lowest-order one bit
-                      For A <> 0_ this is equal to to number of
+                      For A <> 0_ this is equal to the number of
                       lowest-order zero bits.
                   ( Type of result: integer,
                     A >> B << B = A for A <> 0_ and B = lowestSetBit(A),
@@ -2659,7 +2659,7 @@ CONTENTS
                     Type of result: integer,
                     rpos("ABCABC",'B', 4)=>2,
                     rpos("XYZYX",'Z', 2)=>0,
-                    rpos("12345",'3', 7)=>3 )
+                    rpos("12345",'3', 5)=>3 )
       replace(A,B,C) Replace all occurrences of string B in
                 string A by string C
                   ( replace("old gold", "old", "one")=>

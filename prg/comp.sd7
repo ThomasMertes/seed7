@@ -12848,7 +12848,7 @@ const proc: process_str_cat (in ref_list: params, inout expr_type: c_expr) is fu
 const proc: process_str_chipos (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "strChIpos(";
+    c_expr.expr &:= "strChIPos(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
     process_expr(params[2], c_expr);
@@ -13497,7 +13497,7 @@ const proc: process_str_ipos (in ref_list: params, inout expr_type: c_expr) is f
     if category(params[2]) = STRIOBJECT and not isVar(params[2]) and
         length(getValue(params[2], string)) = 1 then
       incr(countOptimizations);
-      c_expr.expr &:= "strChIpos(";
+      c_expr.expr &:= "strChIPos(";
       getAnyParamToExpr(params[1], c_expr);
       c_expr.expr &:= ", ";
       c_expr.expr &:= c_literal(getValue(params[2], string)[1]);
@@ -13505,7 +13505,7 @@ const proc: process_str_ipos (in ref_list: params, inout expr_type: c_expr) is f
       process_expr(params[3], c_expr);
       c_expr.expr &:= ")";
     else
-      c_expr.expr &:= "strIpos(";
+      c_expr.expr &:= "strIPos(";
       getAnyParamToExpr(params[1], c_expr);
       c_expr.expr &:= ", ";
       getAnyParamToExpr(params[2], c_expr);
@@ -13872,7 +13872,7 @@ const proc: process_str_range (in ref_list: params, inout expr_type: c_expr) is 
 const proc: process_str_rchipos (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "strRChIpos(";
+    c_expr.expr &:= "strRChIPos(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ", ";
     process_expr(params[2], c_expr);
@@ -13907,6 +13907,31 @@ const proc: process_str_repl (in ref_list: params, inout expr_type: c_expr) is f
   end func;
 
 
+const proc: process_str_ripos (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    if category(params[2]) = STRIOBJECT and not isVar(params[2]) and
+        length(getValue(params[2], string)) = 1 then
+      incr(countOptimizations);
+      c_expr.expr &:= "strRChIPos(";
+      getAnyParamToExpr(params[1], c_expr);
+      c_expr.expr &:= ", ";
+      c_expr.expr &:= c_literal(getValue(params[2], string)[1]);
+      c_expr.expr &:= ", ";
+      process_expr(params[3], c_expr);
+      c_expr.expr &:= ")";
+    else
+      c_expr.expr &:= "strRIPos(";
+      getAnyParamToExpr(params[1], c_expr);
+      c_expr.expr &:= ", ";
+      getAnyParamToExpr(params[2], c_expr);
+      c_expr.expr &:= ", ";
+      process_expr(params[3], c_expr);
+      c_expr.expr &:= ")";
+    end if;
+  end func;
+
+
 const proc: process_str_rpad (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -13931,7 +13956,7 @@ const proc: process_str_rpos (in ref_list: params, inout expr_type: c_expr) is f
       c_expr.expr &:= c_literal(getValue(params[2], string)[1]);
       c_expr.expr &:= ")";
     else
-      c_expr.expr &:= "strRpos(";
+      c_expr.expr &:= "strRPos(";
       getAnyParamToExpr(params[1], c_expr);
       c_expr.expr &:= ", ";
       getAnyParamToExpr(params[2], c_expr);
@@ -15716,6 +15741,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_str_rchpos(params, c_expr);
       elsif action_name = "STR_REPL" then
         process_str_repl(params, c_expr);
+      elsif action_name = "STR_RIPOS" then
+        process_str_ripos(params, c_expr);
       elsif action_name = "STR_RPAD" then
         process_str_rpad(params, c_expr);
       elsif action_name = "STR_RPOS" then
@@ -20496,7 +20523,7 @@ const proc: write_prototypes is func
     declareExtern("void        socWrite (sockettype, const const_stritype);");
     declareExtern("void        strAppend (stritype *const, const_stritype);");
     declareExtern("void        strAppendTemp (stritype *const, const stritype);");
-    declareExtern("inttype     strChIpos (const const_stritype, const chartype, const inttype);");
+    declareExtern("inttype     strChIPos (const const_stritype, const chartype, const inttype);");
     declareExtern("inttype     strChPos (const const_stritype, const chartype);");
     declareExtern("arraytype   strChSplit (const const_stritype, const chartype);");
     declareExtern("inttype     strCmpGeneric (const generictype, const generictype);");
@@ -20515,7 +20542,7 @@ const proc: write_prototypes is func
     declareExtern("stritype    strHead (const_stritype, inttype);");
     declareExtern("stritype    strHeadSlice (const const_stritype, const inttype, stritype);");
     declareExtern("stritype    strHeadTemp (const stritype, const inttype);");
-    declareExtern("inttype     strIpos (const const_stritype, const const_stritype, const inttype);");
+    declareExtern("inttype     strIPos (const const_stritype, const const_stritype, const inttype);");
     declareExtern("booltype    strLe (const const_stritype, const const_stritype);");
     declareExtern("stritype    strLit (const const_stritype);");
     declareExtern("stritype    strLow (const const_stritype);");
@@ -20530,11 +20557,12 @@ const proc: write_prototypes is func
     declareExtern("void        strPush (stritype *const, const chartype);");
     declareExtern("stritype    strRange (const_stritype, inttype, inttype);");
     declareExtern("stritype    strRangeSlice (const const_stritype, inttype, inttype, stritype);");
-    declareExtern("inttype     strRChIpos (const const_stritype, const chartype, const inttype);");
+    declareExtern("inttype     strRChIPos (const const_stritype, const chartype, const inttype);");
     declareExtern("inttype     strRChPos (const const_stritype, const chartype);");
     declareExtern("stritype    strRepl (const const_stritype, const const_stritype, const const_stritype);");
+    declareExtern("inttype     strRIPos (const const_stritype, const const_stritype, const inttype);");
     declareExtern("stritype    strRpad (const const_stritype, const inttype);");
-    declareExtern("inttype     strRpos (const const_stritype, const const_stritype);");
+    declareExtern("inttype     strRPos (const const_stritype, const const_stritype);");
     declareExtern("arraytype   strSplit (const const_stritype, const const_stritype);");
     declareExtern("stritype    strSubstr (const_stritype, inttype, inttype);");
     declareExtern("stritype    strSubstrSlice (const const_stritype, inttype, inttype, stritype);");

@@ -1,0 +1,456 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  string.s7i    String support library                            *)
+(*  Copyright (C) 1989 - 2011  Thomas Mertes                        *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const proc: (ref string param) ::= (in string param)             is action "STR_CREATE";
+
+const string: (attr string) . value is "";
+
+const func string: (in string param) mult (in integer param)     is action "STR_MULT";
+
+const proc: (inout string param) := (in string param)            is action "STR_CPY";
+
+
+(**
+ *  Pad a string with spaces at the left side up to a given length.
+ *  @return the string left padded with spaces.
+ *)
+const func string: (in string: stri) lpad (in integer: length)   is action "STR_LPAD";
+
+
+(**
+ *  Pad a string with zeroes at the left side up to a given length.
+ *  @return the string left padded with zeroes.
+ *)
+const func string: (in string: stri) lpad0 (in integer: length)  is action "STR_LPAD0";
+
+
+(**
+ *  Pad a string with spaces at the right side up to a given length.
+ *  @return the string right padded with spaces.
+ *)
+const func string: (in string: stri) rpad (in integer: length)   is action "STR_RPAD";
+
+
+(**
+ *  Concatenate two strings.
+ *  @return the result of the concatenation.
+ *)
+const func string: (in string: stri1) & (in string: stri2)       is action "STR_CAT";
+
+
+(**
+ *  Concatenate two strings.
+ *  @return the result of the concatenation.
+ *)
+const func string: (in string: stri1) <& (in string: stri2)      is action "STR_CAT";
+
+
+(**
+ *  Get a character, identified by an index, from a string.
+ *  The first character has the index 1.
+ *  @return the character specified with the index.
+ *  @exception RANGE_EXCEPTION When the index is less than 1 or
+ *             greater than the length of the string.
+ *)
+const func char: (in string: stri) [ (in integer: index) ]       is action "STR_IDX";
+
+
+(**
+ *  Get a substring beginning at a start position.
+ *  The first character in a string has the position 1.
+ *  @return the substring beginning at the start position.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func string: (in string: stri) [ (in integer: start) .. ]  is action "STR_TAIL";
+
+
+(**
+ *  Get a substring ending at a stop position.
+ *  The first character in a string has the position 1.
+ *  @return the substring ending at the stop position.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func string: (in string: stri) [ .. (in integer: stop) ]   is action "STR_HEAD";
+
+
+(**
+ *  Get a substring from a start position to a stop position .
+ *  The first character in a string has the position 1.
+ *  @return the substring from position start to stop.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func string: (in string: stri) [ (in integer: start) ..
+                                       (in integer: stop) ]      is action "STR_RANGE";
+
+
+(**
+ *  Get a substring from a start position with a given length.
+ *  The first character in a string has the position 1.
+ *  @return the substring from the start position with a given length.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func string: (in string: stri) [ (in integer: start) len
+                                       (in integer: length) ]    is action "STR_SUBSTR";
+
+
+(**
+ *  Append the string ''extension'' to ''destination''.
+ *  @exception MEMORY_ERROR Not enough memory for the concatenated
+ *             string.
+ *)
+const proc: (inout string: destination) &:= (in string: extension)   is action "STR_APPEND";
+
+
+(**
+ *  Append the char ''extension'' to ''destination''.
+ *  @exception MEMORY_ERROR Not enough memory for the concatenated
+ *             string.
+ *)
+const proc: (inout string: destination) &:= (in char: extension)     is action "STR_PUSH";
+
+
+(**
+ *  Assign char ''source'' to the ''position'' of the ''destination''.
+ *   A @:= [B] C;
+ *  is equivalent to
+ *   A := A[..pred(B)] & str(C) & A[succ(B)..];
+ *  @exception RANGE_ERROR When ''position'' is not a valid
+ *             position of ''source'' (position <= 0 or
+ *             position > length(destination) holds).
+ *)
+const proc: (inout string: destination) @:= [ (in integer: position) ] (in char: source) is action "STR_ELEMCPY";
+
+
+(**
+ *  Check if two strings are equal.
+ *  @return TRUE if both strings are equal,
+ *          FALSE otherwise.
+ *)
+const func boolean: (in string: stri1) = (in string: stri2)      is action "STR_EQ";
+
+
+(**
+ *  Check if two strings are not equal.
+ *  @return FALSE if both strings are equal,
+ *          TRUE otherwise.
+ *)
+const func boolean: (in string: stri1) <> (in string: stri2)     is action "STR_NE";
+
+
+(**
+ *  Check if stri1 is less than stri2.
+ *  @return TRUE if stri1 is less than stri2,
+ *          FALSE otherwise.
+ *)
+const func boolean: (in string: stri1) < (in string: stri2)      is action "STR_LT";
+
+
+(**
+ *  Check if stri1 is greater than stri2.
+ *  @return TRUE if stri1 is greater than stri2,
+ *          FALSE otherwise.
+ *)
+const func boolean: (in string: stri1) > (in string: stri2)      is action "STR_GT";
+
+
+(**
+ *  Check if stri1 is less than or equal to stri2.
+ *  @return TRUE if stri1 is less than or equal to stri2,
+ *          FALSE otherwise.
+ *)
+const func boolean: (in string: stri1) <= (in string: stri2)     is action "STR_LE";
+
+
+(**
+ *  Check if stri1 is greater than or equal to stri2.
+ *  @return TRUE if stri1 is greater than or equal to stri2,
+ *          FALSE otherwise.
+ *)
+const func boolean: (in string: stri1) >= (in string: stri2)     is action "STR_GE";
+
+
+(**
+ *  Compare two strings.
+ *  @return -1, 0 or 1 if the first argument is considered to be
+ *          respectively less than, equal to, or greater than the
+ *          second.
+ *)
+const func integer: compare (in string: stri1, in string: stri2) is action "STR_CMP";
+
+
+(**
+ *  Compute the hash value of a string.
+ *  @return the hash value.
+ *)
+const func integer: hashCode (in string: stri)                   is action "STR_HASHCODE";
+
+
+(**
+ *  Determine the length of a string.
+ *  @return the length of the string.
+ *)
+const func integer: length (in string: stri)                     is action "STR_LNG";
+
+
+(**
+ *  Determine leftmost position of string 'searched' in 'main_stri'.
+ *  When the string is found the position of its first character
+ *  is the result. The first character in a string has the position 1.
+ *  @return the position of 'searched' or 0 when 'main_stri'
+ *          does not contain 'searched'.
+ *)
+const func integer: pos (in string: main_stri, in string: searched)  is action "STR_POS";
+
+
+(**
+ *  Determine leftmost position of char 'searched' in 'main_stri'.
+ *  The first character in a string has the position 1.
+ *  @return the position of 'searched' or 0 when 'main_stri'
+ *          does not contain 'searched'.
+ *)
+const func integer: pos (in string: main_stri, in char: searched)    is action "STR_CHPOS";
+
+
+(**
+ *  Search string ''searched'' in ''main_stri'' at or after ''from_index''.
+ *  The search starts at position ''from_index'' and proceeds to the
+ *  right. When the string is found the position of its first character
+ *  is the result. The first character in a string has the position 1.
+ *  The pos function is designed to allow loops like:
+ *
+ *   index := pos(stri, searched_stri);
+ *   while index <> 0 do
+ *     # Do something with index
+ *     index := pos(stri, searched_stri, succ(index));
+ *   end while;
+ *
+ *  @return the position of ''searched'' or 0 when ''main_stri''
+ *          does not contain ''searched'' at or after ''from_index''.
+ *  @exception RANGE_ERROR ''from_index'' <= 0 holds.
+ *)
+const func integer: pos (in string: main_stri, in string: searched,
+                         in integer: from_index)                     is action "STR_IPOS";
+
+
+(**
+ *  Search char 'searched' in 'main_stri' at or after 'from_index'.
+ *  The search starts at position 'from_index' and proceeds to the
+ *  right. The first character in a string has the position 1.
+ *  @return the position of 'searched' or 0 when 'main_stri'
+ *          does not contain 'searched' at or after 'from_index'.
+ *  @exception RANGE_ERROR 'from_index' <= 0 holds.
+ *)
+const func integer: pos (in string: main_stri, in char: searched,
+                         in integer: from_index)                     is action "STR_CHIPOS";
+
+
+(**
+ *  Determine rightmost position of string 'searched' in 'main_stri'.
+ *  When the string is found the position of its first character
+ *  is the result. The first character in a string has the position 1.
+ *  @return the position of 'searched' or 0 when 'main_stri'
+ *          does not contain 'searched'.
+ *)
+const func integer: rpos (in string: main_stri, in string: searched) is action "STR_RPOS";
+
+
+(**
+ *  Determine rightmost position of char 'searched' in 'main_stri'.
+ *  The first character in a string has the position 1.
+ *  @return the position of 'searched' or 0 when 'main_stri'
+ *          does not contain 'searched'.
+ *)
+const func integer: rpos (in string: main_stri, in char: searched)   is action "STR_RCHPOS";
+
+
+(**
+ *  Search string 'searched' in 'main_stri' at or before 'from_index'.
+ *  The search starts at position 'from_index' and proceeds to the
+ *  left. The first character in a string has the position 1.
+ *  The rpos function is designed to allow loops like:
+ *
+ *   index := rpos(stri, searched_stri);
+ *   while index <> 0 do
+ *     # Do something with index
+ *     index := rpos(stri, searched_stri, pred(index));
+ *   end while;
+ *
+ *  @return the position of 'searched' or 0 when 'main_stri'
+ *          does not contain 'searched' at or before 'from_index'.
+ *  @exception RANGE_ERROR 'from_index' > length(stri) holds.
+ *)
+const func integer: rpos (in string: main_stri, in string: searched,
+                          in integer: from_index)                    is action "STR_RIPOS";
+
+
+(**
+ *  Search char 'searched' in 'main_stri' at or before 'from_index'.
+ *  The search starts at position 'from_index' and proceeds to the
+ *  left. The first character in a string has the position 1.
+ *  @return the position of 'searched' or 0 when 'main_stri'
+ *          does not contain 'searched' at or before 'from_index'.
+ *  @exception RANGE_ERROR 'from_index' > length(stri) holds.
+ *)
+const func integer: rpos (in string: main_stri, in char: searched,
+                          in integer: from_index)                    is action "STR_RCHIPOS";
+
+
+(* const proc: count (in string param, in string param)        is action "STR_CNT"; *)
+
+
+(**
+ *  Replace all occurrences of 'target' in 'main_stri' by 'replacement'.
+ *  @return the result of the replacement.
+ *)
+const func string: replace (in string: main_stri, in string: target,
+                            in string: replacement)                  is action "STR_REPL";
+
+
+(**
+ *  Replace all occurrences of 'search1' followed by 'search2'.
+ *  Searches 'main_stri' for 'search1' followed by 'search2'. The
+ *  characters from the beginning of 'search1' to the end of 'search2'
+ *  are replaced by 'replacement'. Between 'search1' and 'search2'
+ *  can be zero or more characters. With 'replace2' unnested comments
+ *  can be removed: replace2(stri, "(*", "*)", "")
+ *  @return the result of the replacement.
+ *)
+const func string: replace2 (in string: main_stri, in string: search1,
+    in string: search2, in string: repl_stri) is func
+  result
+    var string: result is "";
+  local
+    var integer: start_pos is 0;
+    var integer: end_pos is 0;
+  begin
+    result := main_stri;
+    start_pos := pos(result, search1);
+    while start_pos <> 0 do
+      end_pos := pos(result, search2, start_pos + length(search1));
+      if end_pos <> 0 then
+        end_pos +:= length(search2);
+        result := result[ .. pred(start_pos)] &
+            repl_stri & result[end_pos .. ];
+        end_pos := start_pos + length(repl_stri);
+        start_pos := pos(result, search1, end_pos);
+      else
+        start_pos := 0;
+      end if;
+    end while;
+  end func;
+
+
+const func string: upper (in string param)                     is action "STR_UP";
+const func string: lower (in string param)                     is action "STR_LOW";
+
+
+(**
+ *  Return string with leading and trailing whitespace omitted.
+ *  All characters less than or equal to ' ' (space) count as whitespace.
+ *  @return string with leading and trailing whitespace omitted.
+ *)
+const func string: trim (in string: stri)                      is action "STR_TRIM";
+
+
+const func string: striToUtf8 (in string param)                is action "STR_TOUTF8";
+const func string: utf8ToStri (in string param)                is action "STR_UTF8TOSTRI";
+
+
+(**
+ *  Convert to a string.
+ *  @return its parameter unchanged.
+ *)
+const func string: str (in string: stri)                       is action "STR_STR";
+
+
+const func string: literal (in string param)                   is action "STR_LIT";
+const func string: c_literal (in string param)                 is action "STR_CLIT";
+
+
+(**
+ *  Determine if a string starts with a 'prefix'.
+ *  @return TRUE if 'stri' starts with 'prefix',
+ *          FALSE otherwise.
+ *)
+const func boolean: startsWith (in string: stri, in string: prefix) is
+  return stri[.. length(prefix)] = prefix;
+
+
+(**
+ *  Determine if a string ends with a 'suffix'.
+ *  @return TRUE if 'stri' ends with 'suffix',
+ *          FALSE otherwise.
+ *)
+const func boolean: endsWith (in string: stri, in string: suffix) is
+  return stri[succ(length(stri) - length(suffix)) ..] = suffix;
+
+
+(**
+ *  Check if 'stri' has the 'searched' characters starting from 'index'.
+ *  @return TRUE if 'stri' has the 'searched' characters starting from 'index',
+ *          FALSE otherwise.
+ *)
+const func boolean: equalAtIndex (in string: stri, in string: searched, in integer: index) is
+  return stri[index len length(searched)] = searched;
+
+
+const func string: getint (inout string: stri) is func
+  result
+    var string: result is "";
+  local
+    var integer: leng is 0;
+    var integer: pos is 1;
+  begin
+    leng := length(stri);
+    while pos <= leng and stri[pos] >= '0' and stri[pos] <= '9' do
+      incr(pos);
+    end while;
+    result := stri[.. pred(pos)];
+    stri := stri[pos ..];
+  end func;
+
+
+const func string: gets (inout string: stri, in integer: leng) is func
+  result
+    var string: result is "";
+  begin
+    result := stri[.. leng];
+    stri := stri[succ(leng) ..];
+  end func;
+
+
+(**
+ *  Convert to a string.
+ *  @return its parameter unchanged.
+ *)
+const func string: (attr string) parse (in string: stri) is func
+  result
+    var string: result is "";
+  begin
+    result := stri;
+  end func;

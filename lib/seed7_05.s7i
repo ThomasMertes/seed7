@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  seed7_05.s7i  Standard Seed7 library                            *)
-(*  Copyright (C) 1989 - 2007  Thomas Mertes                        *)
+(*  Copyright (C) 1989 - 2011  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -175,7 +175,6 @@ const proc: var (ref type: aType) : (ref expr: name) is default is func
   end func;
 
 const func string: str (in type param)                     is action "TYP_STR";
-const func string: (in string param) & (in string param)   is action "STR_CAT";
 const func type: gentype                                   is action "TYP_GENTYPE";
 const func type: gensub (in type param)                    is action "TYP_GENSUB";
 
@@ -314,8 +313,6 @@ const type: LEGAL          is newtype;
 
 const type: DISCRETE       is subtype object;
 const type: integer        is subtype DISCRETE;
-$ system "integer" is integer;
-IN_PARAM_IS_VALUE(integer);
 const type: char           is subtype DISCRETE;
 $ system "char" is char;
 IN_PARAM_IS_VALUE(char);
@@ -335,9 +332,7 @@ const proc: destroy (ref func ACTION param)                     is noop;
 const proc: (inout ACTION param) := (in ACTION param)           is action "ACT_CPY";
 const proc: (ref ENUMERATION param) ::= (ref ENUMERATION param) is action "ENU_CREATE";
 const proc: (ref ENUMERATION param) ::= enumlit                 is action "ENU_GENLIT";
-const proc: (ref integer param) ::= (ref integer param)         is action "INT_CREATE";
 const proc: (ref char param) ::= (in char param)                is action "CHR_CREATE";
-const proc: (ref string param) ::= (in string param)            is action "STR_CREATE";
 const proc: (ref func object param) ::= (in ACTION param)       is action "ACT_CREATE";
 const proc: (ref EXCEPTION param) ::= (ref EXCEPTION param)     is action "ENU_CREATE";
 const proc: (ref EXCEPTION param) ::= enumlit                   is action "ENU_GENLIT";
@@ -362,12 +357,6 @@ const func string: str (in ACTION param)    is action "ACT_STR";
 const ACTION: DYNAMIC is action "PRC_DYNAMIC";
 
 
-const proc: exit (in integer param)         is action "PRC_EXIT";
-const proc: exit (PROGRAM) is func
-  begin
-    exit(0);
-  end func;
-
 const proc: TRACE_OPTIONS (in string param) is action "PRC_SETTRACE";
 const proc: TRACE_OBJ (in object param)     is action "REF_TRACE";
 const proc: TRACE_PROC (in proc param)      is action "REF_TRACE";
@@ -376,105 +365,7 @@ const proc: DECLS                           is action "PRC_DECLS";
 
 (* boolean *)
 
-const type: boolean is subtype ENUMERATION;
-IN_PARAM_IS_VALUE(boolean);
-
-const proc: (ref boolean param) ::= (in boolean param)   is action "BLN_CREATE";
-const proc: destroy (ref boolean param)                  is noop;
-const proc: (inout boolean param) := (in boolean param)  is action "BLN_CPY";
-
-const boolean: FALSE is enumlit;
-const boolean: TRUE is enumlit;
-
-$ system "true" is TRUE;
-$ system "false" is FALSE;
-
-const boolean: (attr boolean) . value is FALSE;
-const boolean: (attr boolean) . first is FALSE;
-const boolean: (attr boolean) . last  is TRUE;
-
-const func boolean: not (in boolean param) is action "BLN_NOT";
-
-const func boolean: (in boolean param) and (in func boolean param)    is action "BLN_AND";
-const func boolean: (in boolean param) and (in varfunc boolean param) is action "BLN_AND";
-const func boolean: (in boolean param) and (in boolean param)         is action "BLN_AND";
-const func boolean: (in boolean param) or (in func boolean param)     is action "BLN_OR";
-const func boolean: (in boolean param) or (in varfunc boolean param)  is action "BLN_OR";
-const func boolean: (in boolean param) or (in boolean param)          is action "BLN_OR";
-
-const func boolean: (in boolean param) = (in boolean param)           is action "ENU_EQ";
-const func boolean: (in boolean param) < (in boolean param)           is action "BLN_LT";
-const func boolean: (in boolean param) > (in boolean param)           is action "BLN_GT";
-const func boolean: (in boolean param) <= (in boolean param)          is action "BLN_LE";
-const func boolean: (in boolean param) >= (in boolean param)          is action "BLN_GE";
-const func boolean: (in boolean param) <> (in boolean param)          is action "ENU_NE";
-
-const func integer: hashCode (in boolean param)                       is action "BLN_ORD";
-const func integer: ord (in boolean param)                            is action "BLN_ORD";
-const func boolean: (attr boolean) conv (in integer param)            is action "BLN_ICONV";
-const varfunc boolean: (attr boolean) varConv (inout integer param)   is action "TYP_VARCONV";
-
-
-const boolean: succ (FALSE) is TRUE;
-const boolean: pred (TRUE) is  FALSE;
-
-const func boolean: succ(ref boolean param) is DYNAMIC;
-const func boolean: pred(ref boolean param) is DYNAMIC;
-
-const proc: incr (inout boolean: bool_value) is func
-  begin
-    bool_value := succ(bool_value);
-  end func;
-
-const proc: decr (inout boolean: bool_value) is func
-  begin
-    bool_value := pred(bool_value);
-  end func;
-
-(*
-const func boolean: not (attr TRUE) is          FALSE;
-const func boolean: not (attr FALSE) is         TRUE;
-
-const func boolean: (attr FALSE) and (func boolean) is FALSE;
-const func boolean: (attr FALSE) and boolean is        FALSE;
-const func boolean: (attr FALSE) or (attr FALSE) is    FALSE;
-const func boolean: (attr FALSE) or (attr TRUE) is     TRUE;
-const func boolean: (attr FALSE) = (attr FALSE) is     TRUE;
-const func boolean: (attr FALSE) = (attr TRUE) is      FALSE;
-const func boolean: (attr FALSE) < (attr FALSE) is     FALSE;
-const func boolean: (attr FALSE) < (attr TRUE) is      TRUE;
-const func boolean: (attr FALSE) > boolean is          FALSE;
-const func boolean: (attr FALSE) <= boolean is         TRUE;
-const func boolean: (attr FALSE) >= (attr FALSE) is    TRUE;
-const func boolean: (attr FALSE) >= (attr TRUE) is     FALSE;
-const func boolean: (attr FALSE) <> (attr FALSE) is    FALSE;
-const func boolean: (attr FALSE) <> (attr TRUE) is     TRUE;
-
-const integer: ord (attr FALSE) is       0;
-const func boolean: succ (attr FALSE) is TRUE;
-const EXCEPTION: pred (attr FALSE) is    RANGE_ERROR;
-const string: str (attr FALSE) is        "FALSE";
-
-const func boolean: (attr TRUE) and (attr FALSE) is    FALSE;
-const func boolean: (attr TRUE) and (attr TRUE) is     TRUE;
-const func boolean: (attr TRUE) or (func boolean) is   TRUE;
-const func boolean: (attr TRUE) or boolean is          TRUE;
-const func boolean: (attr TRUE) = (attr FALSE) is      FALSE;
-const func boolean: (attr TRUE) = (attr TRUE) is       TRUE;
-const func boolean: (attr TRUE) < boolean is           FALSE;
-const func boolean: (attr TRUE) > (attr FALSE) is      TRUE;
-const func boolean: (attr TRUE) > (attr TRUE) is       FALSE;
-const func boolean: (attr TRUE) <= (attr FALSE) is     FALSE;
-const func boolean: (attr TRUE) <= (attr TRUE) is      TRUE;
-const func boolean: (attr TRUE) >= boolean is          TRUE;
-const func boolean: (attr TRUE) <> (attr FALSE) is     TRUE;
-const func boolean: (attr TRUE) <> (attr TRUE) is      FALSE;
-
-const integer: ord (attr TRUE) is        1;
-const EXCEPTION: succ (attr TRUE) is     RANGE_ERROR;
-const func boolean: pred (attr TRUE) is  FALSE;
-const string: str (attr TRUE) is         "TRUE";
-*)
+$ include "boolean.s7i";
 
 const type: (attr type) . value is void;
 const func boolean: (in type param) = (in type param)      is action "TYP_EQ";
@@ -487,7 +378,6 @@ const func type: result_type (in type param)               is action "TYP_RESULT
 const func boolean: is_derived (in type param)             is action "TYP_ISDERIVED";
 const func type: meta (in type param)                      is action "TYP_META";
 const proc: addInterface (in type param, in type param)    is action "TYP_ADDINTERFACE";
-
 
 (* IF *)
 
@@ -540,57 +430,8 @@ const proc: global (in proc param) end global is                              ac
 
 (* integer *)
 
-const integer: (attr integer) . value is 0;
+$ include "integer.s7i";
 
-const func integer: + (in integer param)                         is action "INT_PLUS";
-const func integer: - (in integer param)                         is action "INT_MINUS";
-const func integer: ! (in integer param)                         is action "INT_FACT";
-
-const proc: (inout integer param) := (in integer param)          is action "INT_CPY";
-const proc: (inout integer param) +:= (in integer param)         is action "INT_GROW";
-const proc: (inout integer param) -:= (in integer param)         is action "INT_SHRINK";
-const proc: (inout integer param) *:= (in integer param)         is action "INT_MULT_ASSIGN";
-const proc: (inout integer param) <<:= (in integer param)        is action "INT_LSHIFT_ASSIGN";
-const proc: (inout integer param) >>:= (in integer param)        is action "INT_RSHIFT_ASSIGN";
-const func integer: (in integer param) + (in integer param)      is action "INT_ADD";
-const func integer: (in integer param) - (in integer param)      is action "INT_SBTR";
-const func integer: (in integer param) * (in integer param)      is action "INT_MULT";
-const func integer: (in integer param) div (in integer param)    is action "INT_DIV";
-const func integer: (in integer param) rem (in integer param)    is action "INT_REM";
-const func integer: (in integer param) mdiv (in integer param)   is action "INT_MDIV";
-const func integer: (in integer param) mod (in integer param)    is action "INT_MOD";
-const func integer: (in integer param) ** (in integer param)     is action "INT_POW";
-const func integer: (in integer param) << (in integer param)     is action "INT_LSHIFT";
-const func integer: (in integer param) >> (in integer param)     is action "INT_RSHIFT";
-const func integer: (in integer param) ! (in integer param)      is action "INT_BINOM";
-const func boolean: (in integer param) = (in integer param)      is action "INT_EQ";
-const func boolean: (in integer param) < (in integer param)      is action "INT_LT";
-const func boolean: (in integer param) > (in integer param)      is action "INT_GT";
-const func boolean: (in integer param) <= (in integer param)     is action "INT_LE";
-const func boolean: (in integer param) >= (in integer param)     is action "INT_GE";
-const func boolean: (in integer param) <> (in integer param)     is action "INT_NE";
-const func integer: compare (in integer param, in integer param) is action "INT_CMP";
-const func integer: hashCode (in integer param)                  is action "INT_HASHCODE";
-
-const func integer: succ (in integer param)                      is action "INT_SUCC";
-const func integer: pred (in integer param)                      is action "INT_PRED";
-const func integer: abs (in integer param)                       is action "INT_ABS";
-const func integer: sqrt (in integer param)                      is action "INT_SQRT";
-const func integer: log2 (in integer param)                      is action "INT_LOG2";
-const func boolean: odd (in integer param)                       is action "INT_ODD";
-const func integer: ord (in integer param)                       is action "INT_ORD";
-const func integer: (attr integer) conv (in integer param)       is action "INT_CONV";
-const func string: str (in integer param)                        is action "INT_STR";
-const func string: literal (in integer param)                    is action "INT_STR";
-const func string: str (in integer param, in integer param)      is action "INT_STR_BASED";
-const func string: (in integer param) lpad0 (in integer param)   is action "INT_LPAD0";
-const proc: incr (inout integer param)                           is action "INT_INCR";
-const proc: decr (inout integer param)                           is action "INT_DECR";
-
-const func integer: rand (in integer param, in integer param)    is action "INT_RAND";
-const func integer: bitLength (in integer param)                 is action "INT_BIT_LENGTH";
-const func integer: lowestSetBit (in integer param)              is action "INT_LOWEST_SET_BIT";
-const func integer: (attr integer) parse (in string param)       is action "INT_PARSE";
 
 const func boolean: rand (in boolean: low, in boolean: high) is
   return odd(rand(ord(low), ord(high)));
@@ -639,118 +480,7 @@ const char: EOF is chr(-1);
 
 (* string *)
 
-const string: (attr string) . value is "";
-
-const func string: (in string param) mult (in integer param)   is action "STR_MULT";
-
-const proc: (inout string param) := (in string param)          is action "STR_CPY";
-const proc: (inout string param) &:= (in string param)         is action "STR_APPEND";
-const proc: (inout string param) &:= (in char param)           is action "STR_PUSH";
-const proc: (inout string param) @:= [ (in integer param) ] (in char param) is action "STR_ELEMCPY";
-const func string: (in string param) lpad (in integer param)   is action "STR_LPAD";
-const func string: (in string param) lpad0 (in integer param)  is action "STR_LPAD0";
-const func string: (in string param) rpad (in integer param)   is action "STR_RPAD";
-const func string: (in string param) <& (in string param)      is action "STR_CAT";
-const func char: (in string param) [ (in integer param) ]      is action "STR_IDX";
-const func string: (in string param) [ (in integer param) .. ] is action "STR_TAIL";
-const func string: (in string param) [ .. (in integer param) ] is action "STR_HEAD";
-const func string: (in string param) [ (in integer param) ..
-                                       (in integer param) ]    is action "STR_RANGE";
-const func string: (in string param) [ (in integer param) len
-                                       (in integer param) ]    is action "STR_SUBSTR";
-const func boolean: (in string param) = (in string param)      is action "STR_EQ";
-const func boolean: (in string param) < (in string param)      is action "STR_LT";
-const func boolean: (in string param) > (in string param)      is action "STR_GT";
-const func boolean: (in string param) <= (in string param)     is action "STR_LE";
-const func boolean: (in string param) >= (in string param)     is action "STR_GE";
-const func boolean: (in string param) <> (in string param)     is action "STR_NE";
-const func integer: compare (in string param, in string param) is action "STR_CMP";
-const func integer: hashCode (in string param)                 is action "STR_HASHCODE";
-
-const func integer: length (in string param)                   is action "STR_LNG";
-const func integer: pos (in string param, in string param)     is action "STR_POS";
-const func integer: pos (in string param, in char param)       is action "STR_CHPOS";
-const func integer: pos (in string param, in string param,
-                         in integer param)                     is action "STR_IPOS";
-const func integer: pos (in string param, in char param,
-                         in integer param)                     is action "STR_CHIPOS";
-const func integer: rpos (in string param, in string param)    is action "STR_RPOS";
-const func integer: rpos (in string param, in char param)      is action "STR_RCHPOS";
-const func integer: rpos (in string param, in char param,
-                          in integer param)                    is action "STR_RCHIPOS";
-(* const proc: count (in string param, in string param)        is action "STR_CNT"; *)
-const func string: replace (in string param, in string param, in string param) is action "STR_REPL";
-const func string: upper (in string param)                     is action "STR_UP";
-const func string: lower (in string param)                     is action "STR_LOW";
-const func string: trim (in string param)                      is action "STR_TRIM";
-const func string: striToUtf8 (in string param)                is action "STR_TOUTF8";
-const func string: utf8ToStri (in string param)                is action "STR_UTF8TOSTRI";
-const func string: str (in string param)                       is action "STR_STR";
-const func string: literal (in string param)                   is action "STR_LIT";
-const func string: c_literal (in string param)                 is action "STR_CLIT";
-
-const func string: replace2 (in string: main_stri, in string: search1,
-    in string: search2, in string: repl_stri) is func
-  result
-    var string: result is "";
-  local
-    var integer: start_pos is 0;
-    var integer: end_pos is 0;
-  begin
-    result := main_stri;
-    start_pos := pos(result, search1);
-    while start_pos <> 0 do
-      end_pos := pos(result, search2, start_pos + length(search1));
-      if end_pos <> 0 then
-        end_pos +:= length(search2);
-        result := result[ .. pred(start_pos)] &
-            repl_stri & result[end_pos .. ];
-        end_pos := start_pos + length(repl_stri);
-        start_pos := pos(result, search1, end_pos);
-      else
-        start_pos := 0;
-      end if;
-    end while;
-  end func;
-
-const func boolean: startsWith (in string: stri, in string: prefix) is
-  return stri[.. length(prefix)] = prefix;
-
-const func boolean: startsWith (in string: stri, in string: prefix, in integer: index) is
-  return stri[index len length(prefix)] = prefix;
-
-const func boolean: endsWith (in string: stri, in string: suffix) is
-  return stri[succ(length(stri) - length(suffix)) ..] = suffix;
-
-const func string: getint (inout string: stri) is func
-  result
-    var string: result is "";
-  local
-    var integer: leng is 0;
-    var integer: pos is 1;
-  begin
-    leng := length(stri);
-    while pos <= leng and stri[pos] >= '0' and stri[pos] <= '9' do
-      incr(pos);
-    end while;
-    result := stri[.. pred(pos)];
-    stri := stri[pos ..];
-  end func;
-
-const func string: gets (inout string: stri, in integer: leng) is func
-  result
-    var string: result is "";
-  begin
-    result := stri[.. leng];
-    stri := stri[succ(leng) ..];
-  end func;
-
-const func string: (attr string) parse (in string: stri) is func
-  result
-    var string: result is "";
-  begin
-    result := stri;
-  end func;
+$ include "string.s7i";
 
 const func char: (attr char) parse (in string: stri) is
   return stri[1];
@@ -2517,11 +2247,12 @@ const func type: new interface is func
   begin
     interfaceType := newtype;
     IN_PARAM_IS_REFERENCE(interfaceType);
-    const proc: (ref interfaceType param) ::= (ref interfaceType param) is      action "ITF_CREATE";
-    const proc: destroy (ref interfaceType param) is                            noop;
-    const proc: (inout interfaceType param) := (ref interfaceType param) is     action "ITF_CPY";
-    const func boolean: (in interfaceType param) = (in interfaceType param) is  action "ITF_EQ";
+    const proc: (ref interfaceType param) ::= (ref interfaceType param)      is action "ITF_CREATE";
+    const proc: destroy (ref interfaceType param)                            is noop;
+    const proc: (inout interfaceType param) := (ref interfaceType param)     is action "ITF_CPY";
+    const func boolean: (in interfaceType param) = (in interfaceType param)  is action "ITF_EQ";
     const func boolean: (in interfaceType param) <> (in interfaceType param) is action "ITF_NE";
+    const func interfaceType: toInterface (ref interfaceType param)          is action "ITF_TO_HEAP";
   end func;
 
 const func type: sub (in type: baseType) interface is func
@@ -2530,11 +2261,12 @@ const func type: sub (in type: baseType) interface is func
   begin
     interfaceType := subtype baseType;
     IN_PARAM_IS_REFERENCE(interfaceType);
-    const proc: (ref interfaceType param) ::= (ref interfaceType param) is      action "ITF_CREATE";
-    const proc: destroy (ref interfaceType param) is                            noop;
-    const proc: (inout interfaceType param) := (ref interfaceType param) is     action "ITF_CPY";
-    const func boolean: (in interfaceType param) = (in interfaceType param) is  action "ITF_EQ";
+    const proc: (ref interfaceType param) ::= (ref interfaceType param)      is action "ITF_CREATE";
+    const proc: destroy (ref interfaceType param)                            is noop;
+    const proc: (inout interfaceType param) := (ref interfaceType param)     is action "ITF_CPY";
+    const func boolean: (in interfaceType param) = (in interfaceType param)  is action "ITF_EQ";
     const func boolean: (in interfaceType param) <> (in interfaceType param) is action "ITF_NE";
+    const func interfaceType: toInterface (ref interfaceType param)          is action "ITF_TO_HEAP";
   end func;
 
 
@@ -2652,9 +2384,10 @@ const type: linkedList is new struct
 
 const proc: type_implements_interface (in type: aType, in type: interfaceType) is func
   begin
-    const proc: (ref interfaceType param) ::= (ref aType param) is           action "ITF_CREATE2";
-    const proc: (inout interfaceType param) := (ref aType param) is          action "ITF_CPY2";
+    const proc: (ref interfaceType param) ::= (ref aType param)           is action "ITF_CREATE2";
+    const proc: (inout interfaceType param) := (ref aType param)          is action "ITF_CPY2";
     const func interfaceType: (attr interfaceType) conv (ref aType param) is action "ITF_CONV2";
+    const func interfaceType: toInterface (ref aType param)               is action "ITF_TO_INTERFACE";
 
     const func aType: xalloc (in aType: newStuct) is func
       result
@@ -2984,8 +2717,14 @@ const func string: file (PROGRAM) is func
     end if;
   end func;
 
-const proc: heapstat (PROGRAM) is                         action "PRC_HEAPSTAT";
-const func integer: heapsize (PROGRAM) is                 action "PRC_HSIZE";
+const proc: heapstat (PROGRAM)              is action "PRC_HEAPSTAT";
+const func integer: heapsize (PROGRAM)      is action "PRC_HSIZE";
+const proc: exit (in integer param)         is action "PRC_EXIT";
+const proc: exit (PROGRAM) is func
+  begin
+    exit(0);
+  end func;
+
 const proc: PRIMITIVE_INCLUDE (in string param) is        action "PRC_INCLUDE";
 
 var set of string: INCLUDED_LIBRARY_LIST is (set of string).value;
@@ -3004,6 +2743,11 @@ const proc: include (in string: library) is func
       PRIMITIVE_INCLUDE(library);
     end if;
   end func;
+
+incl(INCLUDED_LIBRARY_LIST, "syntax.s7i");
+incl(INCLUDED_LIBRARY_LIST, "boolean.s7i");
+incl(INCLUDED_LIBRARY_LIST, "integer.s7i");
+incl(INCLUDED_LIBRARY_LIST, "string.s7i");
 
 (*
 const proc: var (ref expr: typeExpr) : (ref expr: nameExpr) is (ref expr: initExpr) is action "PRC_TRACE";

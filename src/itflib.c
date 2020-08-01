@@ -99,7 +99,7 @@ listtype arguments;
  /* printf("itf_conv2: ");
     trace1(result);
     printf("\n"); */
-    return(bld_interface_temp(result));
+    return bld_interface_temp(result);
   } /* itf_conv2 */
 
 
@@ -129,7 +129,7 @@ listtype arguments;
  /* printf("itf_cpy to: ");
     trace1(modu_to);
     printf("\n"); */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* itf_cpy */
 
 
@@ -156,7 +156,7 @@ listtype arguments;
       modu_to->value.objvalue = modu_from;
       CLEAR_TEMP_FLAG(modu_from);
     } /* if */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* itf_cpy2 */
 
 
@@ -180,7 +180,7 @@ listtype arguments;
     SET_CATEGORY_OF_OBJ(modu_to, INTERFACEOBJECT);
     isit_interface(modu_from);
     modu_to->value.objvalue = take_interface(modu_from);
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* itf_create */
 
 
@@ -208,7 +208,7 @@ listtype arguments;
       modu_to->value.objvalue = modu_from;
       CLEAR_TEMP_FLAG(modu_from);
     } /* if */
-    return(SYS_EMPTY_OBJECT);
+    return SYS_EMPTY_OBJECT;
   } /* itf_create2 */
 
 
@@ -227,9 +227,9 @@ listtype arguments;
     isit_interface(arg_3(arguments));
     if (take_interface(arg_1(arguments)) ==
         take_interface(arg_3(arguments))) {
-      return(SYS_TRUE_OBJECT);
+      return SYS_TRUE_OBJECT;
     } else {
-      return(SYS_FALSE_OBJECT);
+      return SYS_FALSE_OBJECT;
     } /* if */
   } /* itf_eq */
 
@@ -266,9 +266,9 @@ listtype arguments;
     isit_interface(arg_3(arguments));
     if (take_interface(arg_1(arguments)) !=
         take_interface(arg_3(arguments))) {
-      return(SYS_TRUE_OBJECT);
+      return SYS_TRUE_OBJECT;
     } else {
-      return(SYS_FALSE_OBJECT);
+      return SYS_FALSE_OBJECT;
     } /* if */
   } /* itf_ne */
 
@@ -299,16 +299,16 @@ listtype arguments;
     } else {
       stru1 = take_struct(stru_arg);
       if (!ALLOC_STRUCT(result_struct, stru1->size)) {
-        return(raise_exception(SYS_MEM_EXCEPTION));
+        return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */
       result_struct->size = stru1->size;
       if (!crea_array(result_struct->stru, stru1->stru, stru1->size)) {
         FREE_STRUCT(result_struct, stru1->size);
-        return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
+        return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
       } /* if */
       result = bld_struct_temp(result_struct);
     } /* if */
-    return(result);
+    return result;
   } /* itf_new */
 
 
@@ -357,11 +357,87 @@ printf("\n");
           if (TEMP_OBJECT(struct_pointer)) {
             printf("sct_select of TEMP_OBJECT\n");
           } /* if */
-          return(struct_pointer);
+          return struct_pointer;
         } /* if */
         position--;
         struct_pointer++;
       } /* while */
     } /* if */
-    return(raise_exception(SYS_RNG_EXCEPTION));
+    return raise_exception(SYS_RNG_EXCEPTION);
   } /* itf_select */
+
+
+
+#ifdef ANSI_C
+
+objecttype itf_to_heap (listtype arguments)
+#else
+
+objecttype itf_to_heap (arguments)
+listtype arguments;
+#endif
+
+  {
+    objecttype modu_from;
+    objecttype result;
+
+  /* itf_to_heap */
+    modu_from = arg_1(arguments);
+    /* printf("itf_to_heap: ");
+       trace1(modu_from);
+       printf("\n"); */
+    if (CATEGORY_OF_OBJ(modu_from) == INTERFACEOBJECT) {
+      result = take_reference(modu_from);
+    } else if (CATEGORY_OF_OBJ(modu_from) == STRUCTOBJECT) {
+      if (TEMP2_OBJECT(modu_from)) {
+        if (!ALLOC_OBJECT(result)) {
+          return raise_exception(SYS_MEM_EXCEPTION);
+        } else {
+          memcpy(result, modu_from, sizeof(objectrecord));
+          CLEAR_TEMP2_FLAG(result);
+          result->value.structvalue = take_struct(modu_from);
+          modu_from->value.structvalue = NULL;
+        } /* if */
+      } else {
+        result = modu_from;
+      } /* if */
+    } else {
+      return raise_exception(SYS_RNG_EXCEPTION);
+    } /* if */
+    return bld_interface_temp(result);
+  } /* itf_to_heap */
+
+
+
+#ifdef ANSI_C
+
+objecttype itf_to_interface (listtype arguments)
+#else
+
+objecttype itf_to_interface (arguments)
+listtype arguments;
+#endif
+
+  {
+    objecttype stru_arg;
+    structtype new_stru;
+    objecttype result;
+
+  /* itf_to_interface */
+    stru_arg = arg_1(arguments);
+    isit_struct(stru_arg);
+    if (!ALLOC_OBJECT(result)) {
+      return raise_exception(SYS_MEM_EXCEPTION);
+    } else {
+      if (!ALLOC_STRUCT(new_stru, 0)) {
+        return raise_exception(SYS_MEM_EXCEPTION);
+      } else {
+        memcpy(result, stru_arg, sizeof(objectrecord));
+        CLEAR_TEMP_FLAG(result);
+        CLEAR_TEMP2_FLAG(result);
+        new_stru->size = 0;
+        stru_arg->value.structvalue = new_stru;
+      } /* if */
+    } /* if */
+    return bld_interface_temp(result);
+  } /* itf_to_interface */

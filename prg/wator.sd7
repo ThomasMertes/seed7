@@ -30,6 +30,7 @@ $ include "seed7_05.s7i";
   include "line.s7i";
   include "float.s7i";
   include "draw.s7i";
+  include "graph_file.s7i";
 
 const integer: MAX_LINE is 100;
 const integer: MAX_COLUMN is 100;

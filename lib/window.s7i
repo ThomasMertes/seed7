@@ -30,6 +30,11 @@ include "null_file.s7i";
 include "text.s7i";
 
 
+(**
+ *  [[text|Text]] implementation type providing a rectangular area of text.
+ *  A ''window_file'' is based on an underlying text file. It provides
+ *  access to an rectangular area of the underlying text file.
+ *)
 const type: window_file is sub null_file struct
     var text: out_file is STD_NULL;
     var integer: upper_border is 0;
@@ -44,37 +49,26 @@ const type: window_file is sub null_file struct
 type_implements_interface(window_file, text);
 
 
-const func integer: height (in window_file: out_fil) is
-  return out_fil.height;
-
-
-const func integer: width (in window_file: out_fil) is
-  return out_fil.width;
-
-
-const func integer: line (in window_file: out_fil) is
-  return out_fil.curr_line;
-
-
-const func integer: column (in window_file: out_fil) is
-  return out_fil.curr_column;
-
-
+(**
+ *  Creates a ''window_file'' at (left, upper) in ''out_fil''.
+ *  The ''window_file'' has the given ''height'' and ''width''.
+ *  @return the file opened.
+ *)
 const func window_file: open_window (ref text: out_fil,
-    in integer: upper, in integer: left, in integer: high, in integer: wide) is func
+    in integer: upper, in integer: left, in integer: height, in integer: width) is func
   result
     var window_file: window_fil is window_file.value;
   begin
     window_fil.out_file := out_fil;
     window_fil.upper_border := upper;
     window_fil.left_border := left;
-    if upper + high - 1 <= height(out_fil) then
-      window_fil.height := high;
+    if upper + height - 1 <= height(out_fil) then
+      window_fil.height := height;
     else
       window_fil.height := height(out_fil) - upper + 1;
     end if;
-    if left + wide - 1 <= width(out_fil) then
-      window_fil.width := wide;
+    if left + width - 1 <= width(out_fil) then
+      window_fil.width := width;
     else
       window_fil.width := width(out_fil) - left + 1;
     end if;
@@ -83,6 +77,42 @@ const func window_file: open_window (ref text: out_fil,
   end func;
 
 
+(**
+ *  Get the height of 'out_fil'.
+ *  @return the height of 'out_fil'.
+ *)
+const func integer: height (in window_file: out_fil) is
+  return out_fil.height;
+
+
+(**
+ *  Get the width of 'out_fil'.
+ *  @return the width of 'out_fil'.
+ *)
+const func integer: width (in window_file: out_fil) is
+  return out_fil.width;
+
+
+(**
+ *  Get the current line of ''out_fil''.
+ *  @return the current line of ''out_fil''.
+ *)
+const func integer: line (in window_file: out_fil) is
+  return out_fil.curr_line;
+
+
+(**
+ *  Get the current column of ''out_fil''.
+ *  @return the current column of ''out_fil''.
+ *)
+const func integer: column (in window_file: out_fil) is
+  return out_fil.curr_column;
+
+
+(**
+ *  Forces that all buffered data of ''aFile'' is sent to its destination.
+ *  This causes data to be sent to the underlying ''text'' file.
+ *)
 const proc: flush (inout window_file: window_fil) is func
   begin
     if window_fil.curr_line >= 1 and
@@ -181,7 +211,12 @@ const proc: clear_box (ref window_file: window_fil) is func
   end func;
 
 
-const proc: clear (in window_file: window_fil,
+(**
+ *  Clear an area of ''window_fil'' with space characters.
+ *  The area is specified in (line, column) coordinates and is
+ *  between the (''upper'', ''left'') and (''lower'', ''right'').
+ *)
+const proc: clear (inout window_file: window_fil,
     in integer: upper, in integer: left, in integer: lower, in integer: right) is func
   begin
     clear(window_fil.out_file,
@@ -189,17 +224,20 @@ const proc: clear (in window_file: window_fil,
         pred(window_fil.left_border + left),
         pred(window_fil.upper_border + lower),
         pred(window_fil.left_border + right));
+    window_fil.curr_line := upper;
+    window_fil.curr_column := left;
   end func;
 
 
+(**
+ *  Clear the area of ''window_fil'' with space characters.
+ *)
 const proc: clear (inout window_file: window_fil) is func
   begin
     clear(window_fil.out_file, window_fil.upper_border,
         window_fil.left_border,
         pred(window_fil.upper_border + window_fil.height),
         pred(window_fil.left_border + window_fil.width));
-    window_fil.curr_line := 1;
-    window_fil.curr_column := 1;
   end func;
 
 
@@ -257,6 +295,9 @@ const proc: color (inout window_file: window_fil, in color: col1, in color: col2
   end func;
 
 
+(**
+ *  Set the current position of ''window_fil'' to ''line'' and ''column''.
+ *)
 const proc: setPos (inout window_file: window_fil, in integer: line, in integer: column) is func
   begin
     window_fil.curr_line := line;
@@ -264,18 +305,27 @@ const proc: setPos (inout window_file: window_fil, in integer: line, in integer:
   end func;
 
 
+(**
+ *  Set the ''line'' of the current position of ''window_fil''.
+ *)
 const proc: setLine (inout window_file: window_fil, in integer: line) is func
   begin
     window_fil.curr_line := line;
   end func;
 
 
+(**
+ *  Set the ''column'' of the current position of ''window_fil''.
+ *)
 const proc: setColumn (inout window_file: window_fil, in integer: column) is func
   begin
     window_fil.curr_column := column;
   end func;
 
 
+(**
+ *  Write a string to the current position of ''window_fil''.
+ *)
 const proc: write (inout window_file: window_fil, in string: stri) is func
   begin
     if window_fil.curr_line >= 1 and
@@ -300,21 +350,10 @@ const proc: write (inout window_file: window_fil, in string: stri) is func
   end func;
 
 
-const proc: write (inout window_file: window_fil, in char: ch) is func
-  begin
-    if window_fil.curr_line >= 1 and
-        window_fil.curr_line <= window_fil.height and
-        window_fil.curr_column >= 1 and
-        window_fil.curr_column <= window_fil.width then
-      setPos(window_fil.out_file,
-          window_fil.upper_border + window_fil.curr_line - 1,
-          window_fil.left_border + window_fil.curr_column - 1);
-      write(window_fil.out_file, str(ch));
-    end if;
-    incr(window_fil.curr_column);
-  end func;
-
-
+(**
+ *  Write end-of-line to a ''window_fil''.
+ *  Set the current position to the beginning of the next line.
+ *)
 const proc: writeln (inout window_file: window_fil) is func
   begin
     if window_fil.curr_line = window_fil.height then

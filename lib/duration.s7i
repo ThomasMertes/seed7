@@ -1,0 +1,849 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  duration.s7i  Time and date duration support library            *)
+(*  Copyright (C) 1991, 1992, 1993, 1994, 2005  Thomas Mertes       *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "time.s7i";
+include "enable_io.s7i";
+
+
+(**
+ *  Describes time and date durations.
+ *)
+const type: duration is new object struct
+    var integer: year_365 is 0;
+    var integer: year_366 is 0;
+    var integer: month_28 is 0;
+    var integer: month_29 is 0;
+    var integer: month_30 is 0;
+    var integer: month_31 is 0;
+    var integer: day is 0;
+    var integer: hour is 0;
+    var integer: minute is 0;
+    var integer: second is 0;
+    var integer: micro_second is 0;
+    var integer: year_correction is 0;
+    var integer: month_correction is 0;
+    var integer: day_correction is 0;
+  end struct;
+
+
+const func integer: sumOfYearFields (in duration: aDuration) is
+  return aDuration.year_365 +
+         aDuration.year_366;
+
+
+const func integer: sumOfMonthFields (in duration: aDuration) is
+  return aDuration.month_28 +
+         aDuration.month_29 +
+         aDuration.month_30 +
+         aDuration.month_31;
+
+
+(**
+ *  Obtain the years of a duration.
+ *  @return the years of a duration.
+ *)
+const func integer: getYears (in duration: aDuration) is
+  return aDuration.year_365 +
+         aDuration.year_366 +
+         aDuration.year_correction;
+
+
+(**
+ *  Obtain the months of a duration.
+ *  @return the months of a duration.
+ *)
+const func integer: getMonths (in duration: aDuration) is
+  return aDuration.month_28 +
+         aDuration.month_29 +
+         aDuration.month_30 +
+         aDuration.month_31 +
+         aDuration.month_correction;
+
+
+(**
+ *  Obtain the days of a duration.
+ *  @return the days of a duration.
+ *)
+const func integer: getDays (in duration: aDuration) is
+  return aDuration.day +
+         aDuration.day_correction;
+
+
+(**
+ *  Obtain the hours of a duration.
+ *  @return the hours of a duration.
+ *)
+const func integer: getHours (in duration: aDuration) is
+  return aDuration.hour;
+
+
+(**
+ *  Obtain the minutes of a duration.
+ *  @return the minutes of a duration.
+ *)
+const func integer: getMinutes (in duration: aDuration) is
+  return aDuration.minute;
+
+
+(**
+ *  Obtain the seconds of a duration.
+ *  @return the seconds of a duration.
+ *)
+const func integer: getSeconds (in duration: aDuration) is
+  return aDuration.second;
+
+
+(**
+ *  Obtain the micro seconds of a duration.
+ *  @return the micro seconds of a duration.
+ *)
+const func integer: getMicroSeconds (in duration: aDuration) is
+  return aDuration.micro_second;
+
+
+(**
+ *  Convert a duration to a string.
+ *  @return the result of the conversion.
+ *)
+const func string: str (in duration: aDuration) is func
+  result
+    var string: stri is "";
+  begin
+    stri := str(getYears(aDuration))     <& "-" <&
+            getMonths(aDuration) lpad0 2 <& "-" <&
+            getDays(  aDuration) lpad0 2 <& " " <&
+            aDuration.hour       lpad0 2 <& ":" <&
+            aDuration.minute     lpad0 2 <& ":" <&
+            aDuration.second     lpad0 2;
+  end func;
+
+
+(**
+ *  Convert a string to a ''duration''.
+ *  Accepts durations in the format Y-M-D H:M:S were single
+ *  digits or bigger integer numbers can be used.
+ *  @return the ''duration'' result of the conversion.
+ *  @exception RANGE_ERROR When stri contains not a valid duration value.
+ *)
+const func duration: (attr duration) parse (in var string: stri) is func
+  result
+    var duration: result is duration.value;
+  begin
+    result.year_365 := integer parse getint(stri);
+    if stri[1] <> '-' then
+      raise RANGE_ERROR;
+    end if;
+    stri := stri[2 ..];
+    result.month_30 := integer parse getint(stri);
+    if stri[1] <> '-' then
+      raise RANGE_ERROR;
+    end if;
+    stri := stri[2 ..];
+    result.day := integer parse getint(stri);
+    if stri[1] <> ' ' then
+      raise RANGE_ERROR;
+    end if;
+    stri := stri[2 ..];
+    result.hour := integer parse getint(stri);
+    if stri[1] <> ':' then
+      raise RANGE_ERROR;
+    end if;
+    stri := stri[2 ..];
+    result.minute := integer parse getint(stri);
+    if stri[1] <> ':' then
+      raise RANGE_ERROR;
+    end if;
+    stri := stri[2 ..];
+    result.second := integer parse getint(stri);
+    if stri <> "" then
+      raise RANGE_ERROR;
+    end if;
+    result.micro_second := 0;
+    if result.month_30 < 1 or result.month_30 > 12 or
+        result.day < 1 or result.day > daysInMonth(result.year_365, result.month_30) or
+        result.hour < 0 or result.hour > 23 or
+        result.minute < 0 or result.minute > 59 or
+        result.second < 0 or result.second > 59 then
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+enable_io(duration);
+
+
+const func boolean: (in duration: dur1) = (in duration: dur2) is func
+  result
+    var boolean: result is FALSE;
+  begin
+    result :=
+        dur1.year_365 = dur2.year_365 and
+        dur1.year_366 = dur2.year_366 and
+        dur1.month_28 = dur2.month_28 and
+        dur1.month_29 = dur2.month_29 and
+        dur1.month_30 = dur2.month_30 and
+        dur1.month_31 = dur2.month_31 and
+        dur1.day = dur2.day and
+        dur1.hour = dur2.hour and
+        dur1.minute = dur2.minute and
+        dur1.second = dur2.second and
+        dur1.micro_second = dur2.micro_second;
+  end func;
+
+
+const func boolean: (in duration: dur1) <> (in duration: dur2) is func
+  result
+    var boolean: result is FALSE;
+  begin
+    result :=
+        dur1.year_365 <> dur2.year_365 and
+        dur1.year_366 <> dur2.year_366 and
+        dur1.month_28 <> dur2.month_28 and
+        dur1.month_29 <> dur2.month_29 and
+        dur1.month_30 <> dur2.month_30 and
+        dur1.month_31 <> dur2.month_31 and
+        dur1.day <> dur2.day or
+        dur1.hour <> dur2.hour or
+        dur1.minute <> dur2.minute or
+        dur1.second <> dur2.second or
+        dur1.micro_second <> dur2.micro_second;
+  end func;
+
+
+const func boolean: (in duration: dur1) >= (in duration: dur2) is func
+  result
+    var boolean: result is FALSE;
+  begin
+    if dur1.year_365 + dur1.year_366 > dur2.year_365 + dur2.year_366 then
+      result := TRUE;
+    elsif dur1.year_365 + dur1.year_366 = dur2.year_365 + dur2.year_366 then
+      if dur1.month_28 + dur1.month_29 + dur1.month_30 + dur1.month_31 >
+          dur2.month_28 + dur2.month_29 + dur2.month_30 + dur2.month_31 then
+        result := TRUE;
+      elsif dur1.month_28 + dur1.month_29 + dur1.month_30 + dur1.month_31 =
+          dur2.month_28 + dur2.month_29 + dur2.month_30 + dur2.month_31 then
+        if dur1.day > dur2.day then
+          result := TRUE;
+        elsif dur1.day = dur2.day then
+          if dur1.hour > dur2.hour then
+            result := TRUE;
+          elsif dur1.hour = dur2.hour then
+            if dur1.minute > dur2.minute then
+              result := TRUE;
+            elsif dur1.minute = dur2.minute then
+              if dur1.second > dur2.second then
+                result := TRUE;
+              elsif dur1.second = dur2.second then
+                if dur1.micro_second >= dur2.micro_second then
+                  result := TRUE;
+                end if;
+              end if;
+            end if;
+          end if;
+        end if;
+      end if;
+    end if;
+  end func;
+
+
+const func boolean: (in duration: dur1) <= (in duration: dur2) is func
+  result
+    var boolean: result is FALSE;
+  begin
+    if dur1.year_365 + dur1.year_366 < dur2.year_365 + dur2.year_366 then
+      result := TRUE;
+    elsif dur1.year_365 + dur1.year_366 = dur2.year_365 + dur2.year_366 then
+      if dur1.month_28 + dur1.month_29 + dur1.month_30 + dur1.month_31 <
+          dur2.month_28 + dur2.month_29 + dur2.month_30 + dur2.month_31 then
+        result := TRUE;
+      elsif dur1.month_28 + dur1.month_29 + dur1.month_30 + dur1.month_31 =
+          dur2.month_28 + dur2.month_29 + dur2.month_30 + dur2.month_31 then
+        if dur1.day < dur2.day then
+          result := TRUE;
+        elsif dur1.day = dur2.day then
+          if dur1.hour < dur2.hour then
+            result := TRUE;
+          elsif dur1.hour = dur2.hour then
+            if dur1.minute < dur2.minute then
+              result := TRUE;
+            elsif dur1.minute = dur2.minute then
+              if dur1.second < dur2.second then
+                result := TRUE;
+              elsif dur1.second = dur2.second then
+                if dur1.micro_second <= dur2.micro_second then
+                  result := TRUE;
+                end if;
+              end if;
+            end if;
+          end if;
+        end if;
+      end if;
+    end if;
+  end func;
+
+
+const func boolean: (in duration: dur1) < (in duration: dur2) is
+  return not dur1 >= dur2;
+
+
+const func boolean: (in duration: dur1) > (in duration: dur2) is
+  return not dur1 <= dur2;
+
+
+(**
+ *  Compares two durations.
+ *  @return -1, 0 or 1 if the first argument is considered to be
+ *          respectively less than, equal to, or greater than the second.
+ *)
+const func integer: compare (in duration: dur1, in duration: dur2) is func
+  result
+    var integer: result is 0;
+  begin
+    if dur1.year_365 + dur1.year_366 < dur2.year_365 + dur2.year_366 then
+      result := -1;
+    elsif dur1.year_365 + dur1.year_366 > dur2.year_365 + dur2.year_366 then
+      result := 1;
+    elsif dur1.month_28 + dur1.month_29 + dur1.month_30 + dur1.month_31 <
+          dur2.month_28 + dur2.month_29 + dur2.month_30 + dur2.month_31 then
+      result := -1;
+    elsif dur1.month_28 + dur1.month_29 + dur1.month_30 + dur1.month_31 >
+          dur2.month_28 + dur2.month_29 + dur2.month_30 + dur2.month_31 then
+      result := 1;
+    elsif dur1.day < dur2.day then
+      result := -1;
+    elsif dur1.day > dur2.day then
+      result := 1;
+    elsif dur1.hour < dur2.hour then
+      result := -1;
+    elsif dur1.hour > dur2.hour then
+      result := 1;
+    elsif dur1.minute < dur2.minute then
+      result := -1;
+    elsif dur1.minute > dur2.minute then
+      result := 1;
+    elsif dur1.second < dur2.second then
+      result := -1;
+    elsif dur1.second > dur2.second then
+      result := 1;
+    elsif dur1.micro_second < dur2.micro_second then
+      result := -1;
+    elsif dur1.micro_second > dur2.micro_second then
+      result := 1;
+    end if;
+  end func;
+
+
+(**
+ *  Compute the hash value of ''aDuration''.
+ *  @return the hash value.
+ *)
+const func integer: hashCode (in duration: aDuration) is
+  return aDuration.year_365 + aDuration.year_366 +
+      aDuration.month_28 + aDuration.month_29 + aDuration.month_30 + aDuration.month_31 +
+      aDuration.day + aDuration.hour + aDuration.minute + aDuration.second +
+      aDuration.micro_second;
+
+
+const func duration: (in integer: numYears) . YEARS is func
+  result
+    var duration: dur_val is duration.value;
+  begin
+    dur_val.year_365 := numYears;
+  end func;
+
+
+const func duration: (in integer: numMonths) . MONTHS is func
+  result
+    var duration: dur_val is duration.value;
+  begin
+    dur_val.month_30 := numMonths;
+  end func;
+
+
+const func duration: (in integer: numDays) . DAYS is func
+  result
+    var duration: dur_val is duration.value;
+  begin
+    dur_val.day := numDays;
+  end func;
+
+
+const func duration: (in integer: HRS) . HOURS is func
+  result
+    var duration: dur_val is duration.value;
+  begin
+    dur_val.hour := HRS;
+  end func;
+
+
+const func duration: (in integer: MINS) . MINUTES is func
+  result
+    var duration: dur_val is duration.value;
+  begin
+    dur_val.minute := MINS;
+  end func;
+
+
+const func duration: (in integer: SECS) . SECONDS is func
+  result
+    var duration: dur_val is duration.value;
+  begin
+    dur_val.second := SECS;
+  end func;
+
+
+const func duration: (in integer: MY_SECS) . MICRO_SECONDS is func
+  result
+    var duration: dur_val is duration.value;
+  begin
+    dur_val.micro_second := MY_SECS;
+  end func;
+
+
+(**
+ *  Compute the years of ''aDuration''.
+ *  @return the duration in years.
+ *)
+const func integer: toYears (in duration: aDuration) is
+  return aDuration.year_365 +
+         aDuration.year_366 +
+         aDuration.year_correction;
+
+
+(**
+ *  Compute the months of ''aDuration''.
+ *  @return the duration in months.
+ *)
+const func integer: toMonths (in duration: aDuration) is
+  return (aDuration.year_365 + aDuration.year_366) * 12 +
+      aDuration.month_28 +
+      aDuration.month_29 +
+      aDuration.month_30 +
+      aDuration.month_31 +
+      aDuration.month_correction;
+
+
+(**
+ *  Compute the days of ''aDuration''.
+ *  @return the duration in days.
+ *)
+const func integer: toDays (in duration: aDuration) is
+  return aDuration.year_365 * 365 +
+      aDuration.year_366 * 366 +
+      aDuration.month_28 * 28 +
+      aDuration.month_29 * 29 +
+      aDuration.month_30 * 30 +
+      aDuration.month_31 * 31 +
+      aDuration.day;
+
+
+(**
+ *  Compute the hours of ''aDuration''.
+ *  @return the duration in hours.
+ *)
+const func integer: toHours (in duration: aDuration) is
+  return toDays(aDuration) * 24 + aDuration.hour;
+
+
+(**
+ *  Compute the minutes of ''aDuration''.
+ *  @return the duration in minutes.
+ *)
+const func integer: toMinutes (in duration: aDuration) is
+  return (toDays(aDuration) * 24 +
+      aDuration.hour) * 60 +
+      aDuration.minute;
+
+
+(**
+ *  Compute the seconds of ''aDuration''.
+ *  @return the duration in seconds.
+ *)
+const func integer: toSeconds (in duration: aDuration) is
+  return ((toDays(aDuration) * 24 +
+      aDuration.hour) * 60 +
+      aDuration.minute) * 60 +
+      aDuration.second;
+
+
+(**
+ *  Compute the micro seconds of ''aDuration''.
+ *  @return the duration in micro seconds.
+ *)
+const func integer: toMicroSeconds (in duration: aDuration) is
+  return (((toDays(aDuration) * 24 +
+      aDuration.hour) * 60 +
+      aDuration.minute) * 60 +
+      aDuration.second) * 1000000 +
+      aDuration.micro_second;
+
+
+const proc: NORMALIZE_DUR_TIME (inout duration: aDuration) is func
+  begin
+    aDuration.second       +:= aDuration.micro_second mdiv 1000000;
+    aDuration.micro_second  := aDuration.micro_second mod  1000000;
+    aDuration.minute       +:= aDuration.second       mdiv      60;
+    aDuration.second        := aDuration.second       mod       60;
+    aDuration.hour         +:= aDuration.minute       mdiv      60;
+    aDuration.minute        := aDuration.minute       mod       60;
+    aDuration.day          +:= aDuration.hour         mdiv      24;
+    aDuration.hour          := aDuration.hour         mod       24;
+  end func;
+
+
+const proc: NORMALIZE (inout duration: aDuration) is func
+  begin
+    NORMALIZE_DUR_TIME(aDuration);
+    aDuration.month_30     +:= aDuration.day          mdiv      30;
+    aDuration.day           := aDuration.day          mod       30;
+    aDuration.year_365     +:= aDuration.month_30     mdiv      12;
+    aDuration.month_30      := aDuration.month_30     mod       12;
+  end func;
+
+
+(**
+ *  Plus sign for durations.
+ *  @return its operand unchanged.
+ *)
+const func duration: + (in duration: aDuration) is func
+  result
+    var duration: dur_val is duration.value;
+  begin
+    dur_val.year_365         := aDuration.year_365;
+    dur_val.year_366         := aDuration.year_366;
+    dur_val.month_28         := aDuration.month_28;
+    dur_val.month_29         := aDuration.month_29;
+    dur_val.month_30         := aDuration.month_30;
+    dur_val.month_31         := aDuration.month_31;
+    dur_val.day              := aDuration.day;
+    dur_val.hour             := aDuration.hour;
+    dur_val.minute           := aDuration.minute;
+    dur_val.second           := aDuration.second;
+    dur_val.micro_second     := aDuration.micro_second;
+    dur_val.year_correction  := aDuration.year_correction;
+    dur_val.month_correction := aDuration.month_correction;
+    dur_val.day_correction   := aDuration.day_correction;
+  end func;
+
+
+(**
+ *  Minus sign, negate a duration.
+ *  @return the negated duration.
+ *)
+const func duration: - (in duration: aDuration) is func
+  result
+    var duration: dur_val is duration.value;
+  begin
+    dur_val.year_365         := -aDuration.year_365;
+    dur_val.year_366         := -aDuration.year_366;
+    dur_val.month_28         := -aDuration.month_28;
+    dur_val.month_29         := -aDuration.month_29;
+    dur_val.month_30         := -aDuration.month_30;
+    dur_val.month_31         := -aDuration.month_31;
+    dur_val.day              := -aDuration.day;
+    dur_val.hour             := -aDuration.hour;
+    dur_val.minute           := -aDuration.minute;
+    dur_val.second           := -aDuration.second;
+    dur_val.micro_second     := -aDuration.micro_second;
+    dur_val.year_correction  := -aDuration.year_correction;
+    dur_val.month_correction := -aDuration.month_correction;
+    dur_val.day_correction   := -aDuration.day_correction;
+  end func;
+
+
+(**
+ *  Add two durations.
+ *  @return the sum of the two durations.
+ *)
+const func duration: (in duration: aDuration1) + (in duration: aDuration2) is func
+  result
+    var duration: dur_val is duration.value;
+  begin
+    dur_val.year_365     := aDuration1.year_365     + aDuration2.year_365;
+    dur_val.year_366     := aDuration1.year_366     + aDuration2.year_366;
+    dur_val.month_28     := aDuration1.month_28     + aDuration2.month_28;
+    dur_val.month_29     := aDuration1.month_29     + aDuration2.month_29;
+    dur_val.month_30     := aDuration1.month_30     + aDuration2.month_30;
+    dur_val.month_31     := aDuration1.month_31     + aDuration2.month_31;
+    dur_val.day          := aDuration1.day          + aDuration2.day;
+    dur_val.hour         := aDuration1.hour         + aDuration2.hour;
+    dur_val.minute       := aDuration1.minute       + aDuration2.minute;
+    dur_val.second       := aDuration1.second       + aDuration2.second;
+    dur_val.micro_second := aDuration1.micro_second + aDuration2.micro_second;
+    NORMALIZE(dur_val);
+  end func;
+
+
+(**
+ *  Compute the subtraction of two durations.
+ *  @return the difference of the two durations.
+ *)
+const func duration: (in duration: aDuration1) - (in duration: aDuration2) is func
+  result
+    var duration: dur_val is duration.value;
+  begin
+    dur_val.year_365     := aDuration1.year_365     - aDuration2.year_365;
+    dur_val.year_366     := aDuration1.year_366     - aDuration2.year_366;
+    dur_val.month_28     := aDuration1.month_28     - aDuration2.month_28;
+    dur_val.month_29     := aDuration1.month_29     - aDuration2.month_29;
+    dur_val.month_30     := aDuration1.month_30     - aDuration2.month_30;
+    dur_val.month_31     := aDuration1.month_31     - aDuration2.month_31;
+    dur_val.day          := aDuration1.day          - aDuration2.day;
+    dur_val.hour         := aDuration1.hour         - aDuration2.hour;
+    dur_val.minute       := aDuration1.minute       - aDuration2.minute;
+    dur_val.second       := aDuration1.second       - aDuration2.second;
+    dur_val.micro_second := aDuration1.micro_second - aDuration2.micro_second;
+    NORMALIZE(dur_val);
+  end func;
+
+
+(**
+ *  Multiply a duration by a number.
+ *  @return the multiplied duration.
+ *)
+const func duration: (in integer: number) * (in duration: aDuration) is func
+  result
+    var duration: dur_val is duration.value;
+  begin
+    dur_val.year_365     := number * aDuration.year_365;
+    dur_val.year_366     := number * aDuration.year_366;
+    dur_val.month_28     := number * aDuration.month_28;
+    dur_val.month_29     := number * aDuration.month_29;
+    dur_val.month_30     := number * aDuration.month_30;
+    dur_val.month_31     := number * aDuration.month_31;
+    dur_val.day          := number * aDuration.day;
+    dur_val.hour         := number * aDuration.hour;
+    dur_val.minute       := number * aDuration.minute;
+    dur_val.second       := number * aDuration.second;
+    dur_val.micro_second := number * aDuration.micro_second;
+    NORMALIZE(dur_val);
+  end func;
+
+
+(**
+ *  Multiply a duration by a number.
+ *  @return the multiplied duration.
+ *)
+const func duration: (in duration: aDuration) * (in integer: number) is func
+  result
+    var duration: dur_val is duration.value;
+  begin
+    dur_val.year_365     := aDuration.year_365     * number;
+    dur_val.year_366     := aDuration.year_366     * number;
+    dur_val.month_28     := aDuration.month_28     * number;
+    dur_val.month_29     := aDuration.month_29     * number;
+    dur_val.month_30     := aDuration.month_30     * number;
+    dur_val.month_31     := aDuration.month_31     * number;
+    dur_val.day          := aDuration.day          * number;
+    dur_val.hour         := aDuration.hour         * number;
+    dur_val.minute       := aDuration.minute       * number;
+    dur_val.second       := aDuration.second       * number;
+    dur_val.micro_second := aDuration.micro_second * number;
+    NORMALIZE(dur_val);
+  end func;
+
+
+(**
+ *  Increment a time by a duration.
+ *)
+const proc: (inout time: tim) +:= (in duration: aDuration) is func
+  begin
+    tim.year +:= sumOfYearFields(aDuration);
+    tim.month +:= sumOfMonthFields(aDuration);
+    tim.day +:= aDuration.day;
+    tim.hour +:= aDuration.hour;
+    tim.minute +:= aDuration.minute;
+    tim.second +:= aDuration.second;
+    tim.micro_second +:= aDuration.micro_second;
+    NORMALIZE(tim);
+  end func;
+
+
+(**
+ *  Decrement a time by a duration.
+ *)
+const proc: (inout time: tim) -:= (in duration: aDuration) is func
+  begin
+    tim.year -:= sumOfYearFields(aDuration);
+    tim.month -:= sumOfMonthFields(aDuration);
+    tim.day -:= aDuration.day;
+    tim.hour -:= aDuration.hour;
+    tim.minute -:= aDuration.minute;
+    tim.second -:= aDuration.second;
+    tim.micro_second -:= aDuration.micro_second;
+    NORMALIZE(tim);
+  end func;
+
+
+(**
+ *  Add a duration to a time.
+ *  @return the time result of the addition.
+ *)
+const func time: (in time: tim) + (in duration: aDuration) is func
+  result
+    var time: result is time.value;
+  begin
+    result.year := tim.year + sumOfYearFields(aDuration);
+    result.month := tim.month + sumOfMonthFields(aDuration);
+    result.day := tim.day + aDuration.day;
+    result.hour := tim.hour + aDuration.hour;
+    result.minute := tim.minute + aDuration.minute;
+    result.second := tim.second + aDuration.second;
+    result.micro_second := tim.micro_second + aDuration.micro_second;
+    result.timeZone := tim.timeZone;
+    NORMALIZE(result);
+  end func;
+
+
+(**
+ *  Subtract a duration from a time.
+ *  @return the time result of the subtraction.
+ *)
+const func time: (in time: tim) - (in duration: aDuration) is func
+  result
+    var time: result is time.value;
+  begin
+    result.year := tim.year - sumOfYearFields(aDuration);
+    result.month := tim.month - sumOfMonthFields(aDuration);
+    result.day := tim.day - aDuration.day;
+    result.hour := tim.hour - aDuration.hour;
+    result.minute := tim.minute - aDuration.minute;
+    result.second := tim.second - aDuration.second;
+    result.micro_second := tim.micro_second - aDuration.micro_second;
+    result.timeZone := tim.timeZone;
+    NORMALIZE(result);
+  end func;
+
+
+(**
+ *  Subtract two times.
+ *  @return the duration between the two points in time.
+ *)
+const func duration: (in time: tim1) - (in time: tim2) is func
+  result
+    var duration: dur_val is duration.value;
+  local
+    var integer: year is 0;
+    var integer: month is 1;
+    var integer: tim_year is 1;
+    var integer: tim_month is 1;
+  begin
+    if tim1 < tim2 then
+      dur_val.day := tim2.day - tim1.day;
+      dur_val.hour := tim2.hour - tim1.hour;
+      dur_val.minute := tim2.minute - tim1.minute;
+      dur_val.second := tim2.second - tim1.second;
+      dur_val.micro_second := tim2.micro_second - tim1.micro_second;
+      NORMALIZE_DUR_TIME(dur_val);
+      dur_val.day          := -dur_val.day;
+      dur_val.hour         := -dur_val.hour;
+      dur_val.minute       := -dur_val.minute;
+      dur_val.second       := -dur_val.second;
+      dur_val.micro_second := -dur_val.micro_second;
+      tim_month := tim1.month;
+      tim_year := tim1.year;
+      if dur_val.day > 0 then
+        dur_val.day_correction := - daysInMonth(tim_year, tim_month);
+      end if;
+      if tim_month > tim2.month or tim_month = tim2.month and dur_val.day > 0 then
+        if tim_month <= 2 then
+          year := tim_year - 1;
+        else
+          year := tim_year;
+        end if;
+        incr(tim_year);
+        tim_month -:= 12;
+      end if;
+      for month range tim_month to pred(tim2.month) do
+        case daysInMonth(year, succ(pred(month) mod 12)) of
+          when {28}: decr(dur_val.month_28);
+          when {29}: decr(dur_val.month_29);
+          when {30}: decr(dur_val.month_30);
+          when {31}: decr(dur_val.month_31);
+        end case;
+      end for;
+    else
+      dur_val.day := tim1.day - tim2.day;
+      dur_val.hour := tim1.hour - tim2.hour;
+      dur_val.minute := tim1.minute - tim2.minute;
+      dur_val.second := tim1.second - tim2.second;
+      dur_val.micro_second := tim1.micro_second - tim2.micro_second;
+      NORMALIZE_DUR_TIME(dur_val);
+      tim_month := tim1.month;
+      tim_year := tim1.year;
+      if dur_val.day < 0 then
+        dur_val.day_correction := daysInMonth(tim_year, succ((tim_month - 2) mod 12));
+      end if;
+      if tim_month < tim2.month or tim_month = tim2.month and dur_val.day < 0 then
+        if tim_month <= 2 then
+          year := tim_year - 1;
+        else
+          year := tim_year;
+        end if;
+        decr(tim_year);
+        tim_month +:= 12;
+      end if;
+      for month range tim2.month to pred(tim_month) do
+        case daysInMonth(year, succ(pred(month) mod 12)) of
+          when {28}: incr(dur_val.month_28);
+          when {29}: incr(dur_val.month_29);
+          when {30}: incr(dur_val.month_30);
+          when {31}: incr(dur_val.month_31);
+        end case;
+      end for;
+    end if;
+    dur_val.year_365 := tim_year - tim2.year;
+    dur_val.year_366 :=
+        pred(tim_year) mdiv 4 - pred(tim_year) mdiv 100 + pred(tim_year) mdiv 400 -
+        pred(tim2.year) mdiv 4 + pred(tim2.year) mdiv 100 - pred(tim2.year) mdiv 400;
+    dur_val.year_365 -:= dur_val.year_366;
+    if dur_val.day_correction > 0 then
+      if sumOfMonthFields(dur_val) = 0 then
+        dur_val.month_correction := 11;
+        dur_val.year_correction := -1;
+      else
+        dur_val.month_correction := -1;
+      end if;
+    elsif dur_val.day_correction < 0 then
+      if sumOfMonthFields(dur_val) = 12 then
+        dur_val.month_correction := -11;
+        dur_val.year_correction := 1;
+      else
+        dur_val.month_correction := 1;
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Wait for a given duration.
+ *)
+const proc: wait (in duration: aDuration) is func
+  begin
+    await(time(NOW) + aDuration);
+  end func;

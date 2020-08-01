@@ -35,6 +35,7 @@
 #include "heaputl.h"
 #include "flistutl.h"
 #include "identutl.h"
+#include "objutl.h"
 #include "entutl.h"
 #include "typeutl.h"
 #include "listutl.h"
@@ -332,6 +333,86 @@ objecttype obj_to_pop;
     printf("END pop_object\n");
 #endif
   } /* pop_object */
+
+
+
+#ifdef ANSI_C
+
+static void disconnect_entity (const objecttype anObject)
+#else
+
+static void disconnect_entity (anObject)
+objecttype anObject;
+#endif
+
+  {
+    entitytype ent;
+    stacktype decl_lev;
+    listtype *lstptr;
+    listtype lst;
+    listtype old_elem;
+
+  /* disconnect_entity */
+    ent = GET_ENTITY(anObject);
+    if (ent->owner != NULL && ent->owner->obj == anObject) {
+      /* printf("disconnect_entity ");
+         trace1(anObject);
+         printf("\n"); */
+      decl_lev = ent->owner->decl_level;
+      lstptr = &decl_lev->local_object_list;
+      lst = decl_lev->local_object_list;
+      while (lst != NULL) {
+        if (lst->obj == anObject) {
+          if (decl_lev->object_list_insert_place == &lst->next) {
+            decl_lev->object_list_insert_place = lstptr;
+          } /* if */
+          old_elem = lst;
+          *lstptr = lst->next;
+          lst = lst->next;
+          FREE_L_ELEM(old_elem);
+        } else {
+          lstptr = &lst->next;
+          lst = lst->next;
+        } /* if */
+      } /* while */
+      pop_object(anObject);
+      FREE_RECORD(anObject->descriptor.property, propertyrecord, count.property);
+      anObject->descriptor.property = NULL;
+    } /* if */
+  } /* disconnect_entity */
+
+
+
+#ifdef ANSI_C
+
+void disconnect_param_entities (const const_objecttype objWithParams)
+#else
+
+void disconnect_param_entities (objWithParams)
+objecttype objWithParams;
+#endif
+
+  {
+    listtype param_elem;
+    objecttype param_obj;
+
+  /* disconnect_param_entities */
+    if (HAS_ENTITY(objWithParams)) {
+      param_elem = GET_ENTITY(objWithParams)->name_list;
+      while (param_elem != NULL) {
+        if (CATEGORY_OF_OBJ(param_elem->obj) == FORMPARAMOBJECT) {
+          param_obj = take_param(param_elem->obj);
+          if (CATEGORY_OF_OBJ(param_obj) == VALUEPARAMOBJECT ||
+              CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT) {
+            if (HAS_ENTITY(param_obj)) {
+              disconnect_entity(param_obj);
+            } /* if */
+          } /* if */
+        } /* if */
+        param_elem = param_elem->next;
+      } /* while */
+    } /* if */
+  } /* disconnect_param_entities */
 
 
 

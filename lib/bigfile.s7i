@@ -30,9 +30,6 @@ include "bigint.s7i";
 include "external_file.s7i";
 
 
-const func bigInteger: bigFileSize (in string param) is action "CMD_BIG_FILESIZE";
-
-
 (* PRIMITIVE_FILE *)
 
 const func bigInteger: bigLength (ref PRIMITIVE_FILE param)       is action "FIL_BIG_LNG";

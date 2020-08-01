@@ -1,3 +1,41 @@
+20110605:
+- The new libraries "boolean.s7i", "integer.s7i" and "string.s7i" were
+  added. The contents of this libraries were extracted from the "seed7_05.s7i"
+  library. They are included from "seed7_05.s7i", so no change in existing
+  programs is necessary.
+- Declarations of color constants were moved from "draw.s7i" to "color.s7i".
+- The declaration of 'graph_file' was moved from "draw.s7i" to the new
+  library "graph_file.s7i".
+- The declaration of 'duration' was moved from "time.s7i" to the new
+  library "duration.s7i".
+. The declaration of 'pixmapFontFile' was moved from "pixmapfont.s7i" to
+  the new library ""pixmap_file.s7i".
+- The functions 'getATime', 'getCTime', 'getMTime', 'setATime' and 'setMTime'
+  were moved from "time.s7i" to "osfiles.s7i"
+- The function 'bigFileSize' was moved from "bigfile.s7i" to "osfiles.s7i".
+- Documentation comments were added or improved in the files
+  "bigint.s7i", "bigrat.s7i", "bitmapfont.s7i", "complex.s7i", "dir.s7i",
+  "duration.s7i", "echo.s7i", "enable_io.s7i", "external_file.s7i",
+  "file.s7i", "float.s7i", "font.s7i", "graph_file.s7i", "integer.s7i",
+  "keybd.s7i", "line.s7i", "math.s7i", "null_file.s7i", "osfiles.s7i",
+  "pixmap_file.s7i", "rational.s7i", "screen.s7i", "socket.s7i", "stdio.s7i",
+  "strifile.s7i", "string.s7i", "utf16.s7i", "text.s7i", "time.s7i" and
+  "window.s7i".
+- The function 'read_zip_dir' was added to the "zip.s7i" library.
+- Checks for length, tell and seek with STD_NULL were added to "chkexc.sd7".
+- Interpreter, compiler and runtime library were improved to support the
+  action STR_RIPOS. This allows searching for a string from a given position
+  to the left.
+- Checks for the function 'rpos' were added to "chkstr.sd7".
+- Documentation comments were added or improved in the files "big_rtl.c",
+  "str_rtl.c" and "int_rtl.c".
+- The experimental actions REF_CAST, ITF_TO_HEAP and ITF_TO_INTERFACE were
+  added.
+- The functions 'disconnect_entity' and 'disconnect_param_entities' were
+  added to "name.c".
+- The function 'act_create' in "actlib.c" was improved to remove the names
+  from the formal parameters. This is done with 'disconnect_param_entities'.
+
 20110522:
 - FAQ answers, explaining that Seed7 is not a descendant of Pascal and
   how Seed7 uses abstract data types, were added.

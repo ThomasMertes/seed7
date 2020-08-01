@@ -32,9 +32,9 @@
 #ifdef ANSI_C
 
 stritype concat_path (const_stritype stri1, const_stritype stri2);
-void strAppend (stritype *const stri_to, const_stritype stri_from);
-void strAppendTemp (stritype *const stri_to, const stritype stri_from);
-inttype strChIpos (const const_stritype main_stri, const chartype searched,
+void strAppend (stritype *const destination, const_stritype stri_from);
+void strAppendTemp (stritype *const destination, const stritype stri_from);
+inttype strChIPos (const const_stritype main_stri, const chartype searched,
     const inttype from_index);
 inttype strChPos (const const_stritype main_stri, const chartype searched);
 /* rtlArraytype strChSplit (const const_stritype main_stri,
@@ -56,7 +56,7 @@ stritype strHeadSlice (const const_stritype stri, const inttype stop, stritype s
 stritype strHead (const const_stritype stri, const inttype stop);
 #endif
 stritype strHeadTemp (const stritype stri, const inttype stop);
-inttype strIpos (const const_stritype main_stri, const const_stritype searched,
+inttype strIPos (const const_stritype main_stri, const const_stritype searched,
     const inttype from_index);
 booltype strLe (const const_stritype stri1, const const_stritype stri2);
 stritype strLit (const const_stritype stri);
@@ -70,19 +70,21 @@ booltype strLt (const const_stritype stri1, const const_stritype stri2);
 stritype strLtrim (const const_stritype stri);
 stritype strMult (const const_stritype stri, const inttype factor);
 inttype strPos (const const_stritype main_stri, const const_stritype searched);
-void strPush (stritype *const stri_to, const chartype char_from);
+void strPush (stritype *const destination, const chartype extension);
 #ifdef ALLOW_STRITYPE_SLICES
 stritype strRangeSlice (const const_stritype stri, inttype start, inttype stop, stritype slice);
 #else
 stritype strRange (const const_stritype stri, inttype start, inttype stop);
 #endif
-inttype strRChIpos (const const_stritype main_stri, const chartype searched,
+inttype strRChIPos (const const_stritype main_stri, const chartype searched,
     const inttype from_index);
 inttype strRChPos (const const_stritype main_stri, const chartype searched);
 stritype strRepl (const const_stritype main_stri,
     const const_stritype searched, const const_stritype replace);
+inttype strRIPos (const const_stritype main_stri, const const_stritype searched,
+    const inttype from_index);
 stritype strRpad (const const_stritype stri, const inttype pad_size);
-inttype strRpos (const const_stritype main_stri, const const_stritype searched);
+inttype strRPos (const const_stritype main_stri, const const_stritype searched);
 stritype strRtrim (const const_stritype stri);
 /* rtlArraytype strSplit (const const_stritype main_stri,
     const const_stritype delimiter); */
@@ -108,7 +110,7 @@ stritype concat_path ();
 void strAppend ();
 void strAppendTemp ();
 void strChAppend ();
-inttype strChIpos ();
+inttype strChIPos ();
 inttype strChPos ();
 /* rtlArraytype strChSplit (); */
 stritype strCLit ();
@@ -128,7 +130,7 @@ stritype strHeadSlice ();
 stritype strHead ();
 #endif
 stritype strHeadTemp ();
-inttype strIpos ();
+inttype strIPos ();
 booltype strLe ();
 stritype strLit ();
 stritype strLow ();
@@ -145,11 +147,12 @@ stritype strRangeSlice ();
 #else
 stritype strRange ();
 #endif
-inttype strRChIpos ();
+inttype strRChIPos ();
 inttype strRChPos ();
 stritype strRepl ();
+inttype strRIPos ();
 stritype strRpad ();
-inttype strRpos ();
+inttype strRPos ();
 stritype strRtrim ();
 /* rtlArraytype strSplit (); */
 #ifdef ALLOW_STRITYPE_SLICES

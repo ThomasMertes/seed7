@@ -1,8 +1,8 @@
 
 (********************************************************************)
 (*                                                                  *)
-(*  null_file.s7i  Null file, base type for all files.              *)
-(*  Copyright (C) 2011  Thomas Mertes                               *)
+(*  null_file.s7i  Base implementation type for all files           *)
+(*  Copyright (C) 1989 - 2011  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -30,15 +30,16 @@ include "file.s7i";
 
 
 (**
- *  Base implementation type for the 'file' interface.
- *  A 'null_file' discards all data written to it. Reads from a
- *  'null_file' always yield EOF immediately. A 'null_file' is not
- *  seekable. The functions 'length', 'seek' and 'tell' raise
- *  FILE_ERROR. The functions 'getc', 'getwd' and 'getln' are
+ *  Base implementation type for the [[file]] interface.
+ *  A ''null_file'' discards all data written to it. Reads from a
+ *  ''null_file'' always yield EOF immediately. A ''null_file'' is not
+ *  seekable. The functions ''length'', ''seek'' and ''tell'' raise
+ *  FILE_ERROR. The functions ''getc'', ''getwd'' and ''getln'' are
  *  written such that a derived type can use them. Derived types of
- *  'null_file' need to override the functions 'write', 'gets', 'eof'
- *  and 'hasNext'. A derived type, which represents a seekable file,
- *  needs to override the functions 'length', 'seek' and 'tell'.
+ *  ''null_file'' need to override the functions ''write'', ''gets'',
+ *  ''eof'' and ''hasNext''. A derived type, which represents a
+ *  seekable file, needs to override the functions ''length'', ''seek''
+ *  and ''tell''.
  *)
 const type: null_file is new struct
     var char: bufferChar is '\n';
@@ -48,8 +49,8 @@ const type: null_file is new struct
 
 type_implements_interface(null_file, file);
 
-const func boolean: (ref null_file param) = (ref null_file param)   is action "ENU_EQ";
-const func boolean: (ref null_file param) <> (ref null_file param)  is action "ENU_NE";
+const func boolean: (in null_file param) = (in null_file param)   is action "ENU_EQ";
+const func boolean: (in null_file param) <> (in null_file param)  is action "ENU_NE";
 
 var null_file: STD_NULL is null_file.value;
 const file: (attr file) . value is STD_NULL;
@@ -59,7 +60,7 @@ const file: (attr file) . value is STD_NULL;
  *  Write a string to a null_file.
  *  Derived types of null_file need to override this function.
  *)
-const proc: write (in null_file param, in string param) is noop;
+const proc: write (in null_file: aFile, in string: stri) is noop;
 
 
 (**
@@ -67,7 +68,7 @@ const proc: write (in null_file param, in string param) is noop;
  *  Derived types of null_file need to override this function.
  *  @return the empty string ("").
  *)
-const string: gets (in null_file param, in integer param) is "";
+const string: gets (in null_file: aFile, in integer: maxLength) is "";
 
 
 (**
@@ -97,7 +98,7 @@ const func char: getc (inout null_file: aFile) is func
  *  Before reading the word it skips spaces and tabs. The function
  *  accepts words ending with " ", "\t", "\n" or EOF. The word ending
  *  characters are not copied into the string. When the function
- *  is left the inFile.bufferChar contains ' ', '\t', '\n' or EOF.
+ *  is left inFile.bufferChar contains ' ', '\t', '\n' or EOF.
  *  This function is based on the gets function. Therefore it is
  *  useful for derived types of null_file. For the null_file itself
  *  it always returns "" and assigns EOF to inFile.bufferChar.
@@ -129,7 +130,7 @@ const func string: getwd (inout null_file: aFile) is func
  *  Read a line from a null_file.
  *  The function accepts lines ending with "\n" or EOF. The line
  *  ending characters are not copied into the string. When the
- *  function is left the inFile.bufferChar contains '\n' or EOF.
+ *  function is left inFile.bufferChar contains '\n' or EOF.
  *  This function is based on the gets function. Therefore it is
  *  useful for derived types of null_file. For the null_file itself
  *  it always returns "" and assigns EOF to inFile.bufferChar.
@@ -165,30 +166,30 @@ const proc: writeln (inout null_file: aFile) is func
  *  Derived types of null_file need to override this function.
  *  @return TRUE, since a null_file is always at end-of-file.
  *)
-const boolean: eof (ref null_file param) is TRUE;
+const boolean: eof (in null_file: aFile) is TRUE;
 
 
 (**
  *  Determine if at least one character can be read successfully.
  *  Derived types of null_file need to override this function.
- *  @return FALSE, since the next 'getc' will always return EOF.
+ *  @return FALSE, since the next ''getc'' will always return EOF.
  *)
-const boolean: hasNext (ref null_file param) is FALSE;
+const boolean: hasNext (in null_file: aFile) is FALSE;
 
 
-const func boolean: eoln (ref null_file: aFile) is
+const func boolean: eoln (in null_file: aFile) is
   return aFile.bufferChar = '\n';
 
 
 (**
  *  Obtain the length of a file.
- *  A 'null_file' is not seekable, therefore FILE_ERROR is raised.
+ *  A ''null_file'' is not seekable, therefore FILE_ERROR is raised.
  *  Derived types of null_file need to override this function.
  *  @return nothing, because FILE_ERROR is always raised.
- *  @exception FILE_ERROR Is always raised, because a 'null_file' is
+ *  @exception FILE_ERROR Is always raised, because a ''null_file'' is
  *             not seekable.
  *)
-const func integer: length (ref null_file: aFile) is func
+const func integer: length (in null_file: aFile) is func
   result
     var integer: result is 0;
   begin
@@ -198,12 +199,12 @@ const func integer: length (ref null_file: aFile) is func
 
 (**
  *  Set the current file position.
- *  A 'null_file' is not seekable, therefore FILE_ERROR is raised.
+ *  A ''null_file'' is not seekable, therefore FILE_ERROR is raised.
  *  When a derived type is seekable it needs to override this function.
- *  @exception FILE_ERROR Is always raised, because a 'null_file' is
+ *  @exception FILE_ERROR Is always raised, because a ''null_file'' is
  *             not seekable.
  *)
-const proc: seek (ref null_file: aFile, in integer: pos) is func
+const proc: seek (in null_file: aFile, in integer: pos) is func
   begin
     raise FILE_ERROR;
   end func;
@@ -211,13 +212,13 @@ const proc: seek (ref null_file: aFile, in integer: pos) is func
 
 (**
  *  Obtain the current file position.
- *  A 'null_file' is not seekable, therefore FILE_ERROR is raised.
+ *  A ''null_file'' is not seekable, therefore FILE_ERROR is raised.
  *  When a derived type is seekable it needs to override this function.
  *  @return nothing, because FILE_ERROR is always raised.
- *  @exception FILE_ERROR Is always raised, because a 'null_file' is
+ *  @exception FILE_ERROR Is always raised, because a ''null_file'' is
  *             not seekable.
  *)
-const func integer: tell (ref null_file: aFile) is func
+const func integer: tell (in null_file: aFile) is func
   result
     var integer: result is 0;
   begin
@@ -225,7 +226,18 @@ const func integer: tell (ref null_file: aFile) is func
   end func;
 
 
-const proc: backSpace (ref null_file: aFile) is noop;
+const proc: backSpace (in null_file: aFile) is noop;
 
-const proc: close (ref null_file param) is noop;
-const proc: flush (ref null_file param) is noop;
+
+(**
+ *  Close a null_file.
+ *  Closing a null_file has no effect.
+ *)
+const proc: close (in null_file: aFile) is noop;
+
+
+(**
+ *  Forces that all buffered data is sent to its destination.
+ *  Flushing a null_file has no effect.
+ *)
+const proc: flush (in null_file: aFile) is noop;

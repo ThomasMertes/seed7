@@ -36,6 +36,9 @@ var string: proxyServer is "";
 var integer: proxyHttpPort is 0;
 
 
+(**
+ *  Set the proxy server to be used for getHttp.
+ *)
 const proc: setProxy (in string: serverName, in integer: portNumber) is func
   begin
     proxyServer := serverName;

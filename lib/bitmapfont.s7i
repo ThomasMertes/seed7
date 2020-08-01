@@ -1,7 +1,7 @@
 
 (********************************************************************)
 (*                                                                  *)
-(*  bitmapfont.s7i  Defines the bitmap font type.                   *)
+(*  bitmapfont.s7i  Font implementation type for bitmap fonts       *)
 (*  Copyright (C) 2007  Thomas Mertes                               *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
@@ -28,22 +28,30 @@
 
 include "font.s7i";
 include "pixmapfont.s7i";
-
-
-#
-# bitmapFont
-#
+include "pixmap_file.s7i";
 
 
 const type: fontPicType is hash [char] array string;
 
+
+(**
+ *  Font implementation type for bitmap fonts.
+ *  The following bitmap fonts are available:
+ *  stdfont10.s7i, stdfont12.s7i, stdfont14.s7i, stdfont16.s7i,
+ *  stdfont18.s7i, stdfont20.s7i, stdfont24.s7i
+ *)
 const type: bitmapFont is sub fontProperties struct
     var fontPicType: fontPictures is fontPicType.value;
   end struct;
 
+
 type_implements_interface(bitmapFont, font);
 
 
+(**
+ *  Determine the pixel width of a string displayed with a font.
+ *  @return the pixel width of ''stri'' displayed with ''bmpFont''.
+ *)
 const func integer: width (in bitmapFont: bmpFont, in string: stri) is func
   result
     var integer: result is 0;
@@ -60,6 +68,16 @@ const func integer: width (in bitmapFont: bmpFont, in string: stri) is func
   end func;
 
 
+(**
+ *  Compute how many chars fit in a width, when ''stri'' is displayed.
+ *  This is done for the given ''bmpFont''. The ''allowedWidth'' is
+ *  specified in pixels. The expression:
+ *   numOfCharsInWidth(aFont, stri, width(aFont, stri))
+ *  will always be equivalent to
+ *   length(stri);
+ *  @return the number of chars from ''stri'' that fit into ''allowedWidth''
+ *          when ''stri'' is displayed with ''bmpFont''.
+ *)
 const func integer: numOfCharsInWidth (in bitmapFont: bmpFont,
     in string: stri, in integer: allowedWidth) is func
   result
@@ -83,6 +101,16 @@ const func integer: numOfCharsInWidth (in bitmapFont: bmpFont,
   end func;
 
 
+(**
+ *  Create a pixmap from a pattern.
+ *  A ''pattern'' is a rectangular grid of characters. It encodes
+ *  the pixels of a pixmap with characters. The space (' ') encodes
+ *  a ''background'' pixel and any other character encodes a
+ *  ''foregound'' pixel. A ''scale'' of 1 describes an encoding
+ *  with pixels. When ''scale'' is greater than 1 rectangles
+ *  with side length ''scale'' are used instead of pixels.
+ *  @return the created pixmap.
+ *)
 const func PRIMITIVE_WINDOW: genPixmap (in array string: pattern,
     in color: foreground, in color: background, in integer: scale) is func
   result
@@ -108,6 +136,13 @@ const func PRIMITIVE_WINDOW: genPixmap (in array string: pattern,
   end func;
 
 
+(**
+ *  Create a pixmap font from a bitmap font.
+ *  The pixmap structure is set up and the pixmap for space (' ') is
+ *  created. The pixmaps of other characters are created on demand
+ *  with ''getFontCharPixmap''.
+ *  @return the created pixmap font.
+ *)
 const func pixmapFontType: genPixmapFont (in bitmapFont: bmpFont,
     in integer: fontSize, in integer: scale,
     in color: foreground, in color: background) is func
@@ -132,6 +167,11 @@ const func pixmapFontType: genPixmapFont (in bitmapFont: bmpFont,
   end func;
 
 
+(**
+ *  Get the pixmap of a given font and char.
+ *  This function is used to create character pixmaps on demand.
+ *  @return the pixmap of the character ''ch''.
+ *)
 const func PRIMITIVE_WINDOW: getFontCharPixmap (in bitmapFont: bmpFont,
     inout pixmapFontType: pixmapFont, in char: ch) is func
   result
@@ -154,11 +194,11 @@ const proc: setFont (inout pixmapFontFile: fontFile, in bitmapFont: aFont) is fu
   end func;
 
 
-#
-# Helper function for the font definition
-#
-
-
+(**
+ *  Determine the maximal column width of all chars in a fontPicType.
+ *  This is used as helper function when a font is defined.
+ *  @return the maximal column width of all chars in ''fontPictures''.
+ *)
 const func integer: columnWidth (in fontPicType: fontPictures) is func
   result
     var integer: result is 0;

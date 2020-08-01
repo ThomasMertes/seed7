@@ -1,7 +1,7 @@
 
 (********************************************************************)
 (*                                                                  *)
-(*  inifile.s7i   Read key value pairs from an INI file.            *)
+(*  inifile.s7i   Read key value pairs from an INI file             *)
 (*  Copyright (C) 2009  Thomas Mertes                               *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)

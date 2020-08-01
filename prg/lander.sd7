@@ -31,6 +31,7 @@ $ include "seed7_05.s7i";
   include "line.s7i";
   include "window.s7i";
   include "time.s7i";
+  include "duration.s7i";
 
 const integer: X_MINIMUM            is   0;
 const integer: X_MAXIMUM            is 639;

@@ -163,12 +163,12 @@ biginttype big1;
  */
 #ifdef ANSI_C
 
-biginttype bigAdd (const_biginttype big1, const_biginttype big2)
+biginttype bigAdd (const_biginttype summand1, const_biginttype summand2)
 #else
 
-biginttype bigAdd (big1, big2)
-biginttype big1;
-biginttype big2;
+biginttype bigAdd (summand1, summand2)
+biginttype summand1;
+biginttype summand2;
 #endif
 
   {
@@ -177,7 +177,7 @@ biginttype big2;
   /* bigAdd */
     result = malloc(sizeof(__mpz_struct));
     mpz_init(result);
-    mpz_add(result, big1, big2);
+    mpz_add(result, summand1, summand2);
     return result;
   } /* bigAdd */
 
@@ -473,30 +473,30 @@ biginttype old_bigint;
 
 
 /**
- *  Computes an integer division of big1 by big2 for signed big
+ *  Computes an integer division of dividend by divisor for signed big
  *  integers.
  */
 #ifdef ANSI_C
 
-biginttype bigDiv (const const_biginttype big1, const const_biginttype big2)
+biginttype bigDiv (const const_biginttype dividend, const const_biginttype divisor)
 #else
 
-biginttype bigDiv (big1, big2)
-biginttype big1;
-biginttype big2;
+biginttype bigDiv (dividend, divisor)
+biginttype dividend;
+biginttype divisor;
 #endif
 
   {
     biginttype result;
 
   /* bigDiv */
-    if (mpz_sgn(big2) == 0) {
+    if (mpz_sgn(divisor) == 0) {
       raise_error(NUMERIC_ERROR);
       result = NULL;
     } else {
       result = malloc(sizeof(__mpz_struct));
       mpz_init(result);
-      mpz_tdiv_q(result, big1, big2);
+      mpz_tdiv_q(result, dividend, divisor);
     } /* if */
     return result;
   } /* bigDiv */
@@ -555,9 +555,9 @@ int64type number;
 
   /* bigFromInt64 */
     result = malloc(sizeof(__mpz_struct));
-    mpz_init_set_si(result, number >> 32);
+    mpz_init_set_si(result, (int32type) ((number >> 32) && 0xFFFFFFFF));
     mpz_mul_2exp(result, result, 32);
-    mpz_init_set_ui(help, number);
+    mpz_init_set_ui(help, (uint32type) (number && 0xFFFFFFFF));
     mpz_ior(result, result, help);
     return result;
   } /* bigFromInt64 */
@@ -601,9 +601,9 @@ uint64type number;
 
   /* bigFromUInt64 */
     result = malloc(sizeof(__mpz_struct));
-    mpz_init_set_ui(result, number >> 32);
+    mpz_init_set_ui(result, (uint32type) ((number >> 32) && 0xFFFFFFFF));
     mpz_mul_2exp(result, result, 32);
-    mpz_init_set_ui(help, number);
+    mpz_init_set_ui(help, (uint32type) (number && 0xFFFFFFFF));
     mpz_ior(result, result, help);
     return result;
   } /* bigFromUInt64 */
@@ -671,7 +671,7 @@ biginttype big1;
     if (count == 0) {
       result = 0;
     } /* if */
-      result = mpz_getlimbn(big1, 0) << 5 ^ count << 3 ^ mpz_getlimbn(big1, count - 1);
+    result = (inttype) (mpz_getlimbn(big1, 0) << 5 ^ count << 3 ^ mpz_getlimbn(big1, count - 1));
     return result;
   } /* bigHashCode */
 
@@ -756,7 +756,7 @@ inttype exponent;
     } else {
       result = malloc(sizeof(__mpz_struct));
       mpz_init(result);
-      mpz_pow_ui(result, base, exponent);
+      mpz_pow_ui(result, base, (uinttype) exponent);
     } /* if */
     return result;
   } /* bigIPow */
@@ -815,7 +815,7 @@ biginttype bigLShift (const const_biginttype big1, const inttype lshift)
 
 biginttype bigLShift (big1, lshift)
 biginttype big1;
-inttype rshift;
+inttype lshift;
 #endif
 
   {
@@ -828,7 +828,7 @@ inttype rshift;
     } else {
       result = malloc(sizeof(__mpz_struct));
       mpz_init(result);
-      mpz_mul_2exp(result, big1, lshift);
+      mpz_mul_2exp(result, big1, (uinttype) lshift);
     } /* if */
     return result;
   } /* bigLShift */
@@ -840,7 +840,7 @@ inttype rshift;
 void bigLShiftAssign (biginttype *const big_variable, inttype lshift)
 #else
 
-void bigLShiftAssign (big_variable, rshift)
+void bigLShiftAssign (big_variable, lshift)
 biginttype *const big_variable;
 inttype lshift;
 #endif
@@ -849,7 +849,7 @@ inttype lshift;
     if (lshift < 0) {
       raise_error(NUMERIC_ERROR);
     } else if (lshift != 0) {
-      mpz_mul_2exp(*big_variable, *big_variable, lshift);
+      mpz_mul_2exp(*big_variable, *big_variable, (uinttype) lshift);
     } /* if */
   } /* bigLShiftAssign */
 
@@ -861,7 +861,7 @@ biginttype bigLShiftOne (const inttype lshift)
 #else
 
 biginttype bigLShiftOne (lshift)
-inttype rshift;
+inttype lshift;
 #endif
 
   {
@@ -876,7 +876,7 @@ inttype rshift;
       result = malloc(sizeof(__mpz_struct));
       mpz_init(result);
       mpz_init_set_ui(one, 1);
-      mpz_mul_2exp(result, one, lshift);
+      mpz_mul_2exp(result, one, (uinttype) lshift);
     } /* if */
     return result;
   } /* bigLShiftOne */
@@ -884,30 +884,30 @@ inttype rshift;
 
 
 /**
- *  Computes an integer modulo division of big1 by big2 for signed
+ *  Computes an integer modulo division of dividend by divisor for signed
  *  big integers.
  */
 #ifdef ANSI_C
 
-biginttype bigMDiv (const const_biginttype big1, const const_biginttype big2)
+biginttype bigMDiv (const const_biginttype dividend, const const_biginttype divisor)
 #else
 
-biginttype bigMDiv (big1, big2)
-biginttype big1;
-biginttype big2;
+biginttype bigMDiv (dividend, divisor)
+biginttype dividend;
+biginttype divisor;
 #endif
 
   {
     biginttype result;
 
   /* bigMDiv */
-    if (mpz_sgn(big2) == 0) {
+    if (mpz_sgn(divisor) == 0) {
       raise_error(NUMERIC_ERROR);
       result = NULL;
     } else {
       result = malloc(sizeof(__mpz_struct));
       mpz_init(result);
-      mpz_fdiv_q(result, big1, big2);
+      mpz_fdiv_q(result, dividend, divisor);
     } /* if */
     return result;
   } /* bigMDiv */
@@ -936,30 +936,30 @@ biginttype big1;
 
 
 /**
- *  Computes the modulo of an integer division of big1 by big2
+ *  Computes the modulo of an integer division of dividend by divisor
  *  for signed big integers.
  */
 #ifdef ANSI_C
 
-biginttype bigMod (const const_biginttype big1, const const_biginttype big2)
+biginttype bigMod (const const_biginttype dividend, const const_biginttype divisor)
 #else
 
-biginttype bigMod (big1, big2)
-biginttype big1;
-biginttype big2;
+biginttype bigMod (dividend, divisor)
+biginttype dividend;
+biginttype divisor;
 #endif
 
   {
     biginttype result;
 
   /* bigMod */
-    if (mpz_sgn(big2) == 0) {
+    if (mpz_sgn(divisor) == 0) {
       raise_error(NUMERIC_ERROR);
       result = NULL;
     } else {
       result = malloc(sizeof(__mpz_struct));
       mpz_init(result);
-      mpz_fdiv_r(result, big1, big2);
+      mpz_fdiv_r(result, dividend, divisor);
     } /* if */
     return result;
   } /* bigMod */
@@ -971,12 +971,12 @@ biginttype big2;
  */
 #ifdef ANSI_C
 
-biginttype bigMult (const const_biginttype big1, const const_biginttype big2)
+biginttype bigMult (const const_biginttype factor1, const const_biginttype factor2)
 #else
 
-biginttype bigMult (big1, big2)
-biginttype big1;
-biginttype big2;
+biginttype bigMult (factor1, factor2)
+biginttype factor1;
+biginttype factor2;
 #endif
 
   {
@@ -985,7 +985,7 @@ biginttype big2;
   /* bigMult */
     result = malloc(sizeof(__mpz_struct));
     mpz_init(result);
-    mpz_mul(result, big1, big2);
+    mpz_mul(result, factor1, factor2);
     return result;
   } /* bigMult */
 
@@ -1160,30 +1160,30 @@ biginttype upper_limit;
 
 
 /**
- *  Computes the remainder of an integer division of big1 by big2
+ *  Computes the remainder of an integer division of dividend by divisor
  *  for signed big integers.
  */
 #ifdef ANSI_C
 
-biginttype bigRem (const const_biginttype big1, const const_biginttype big2)
+biginttype bigRem (const const_biginttype dividend, const const_biginttype divisor)
 #else
 
-biginttype bigRem (big1, big2)
-biginttype big1;
-biginttype big2;
+biginttype bigRem (dividend, divisor)
+biginttype dividend;
+biginttype divisor;
 #endif
 
   {
     biginttype result;
 
   /* bigRem */
-    if (mpz_sgn(big2) == 0) {
+    if (mpz_sgn(divisor) == 0) {
       raise_error(NUMERIC_ERROR);
       result = NULL;
     } else {
       result = malloc(sizeof(__mpz_struct));
       mpz_init(result);
-      mpz_tdiv_r(result, big1, big2);
+      mpz_tdiv_r(result, dividend, divisor);
     } /* if */
     return result;
   } /* bigRem */
@@ -1210,7 +1210,7 @@ inttype rshift;
     } else {
       result = malloc(sizeof(__mpz_struct));
       mpz_init(result);
-      mpz_fdiv_q_2exp(result, big1, rshift);
+      mpz_fdiv_q_2exp(result, big1, (uinttype) rshift);
     } /* if */
     return result;
   } /* bigRShift */
@@ -1231,7 +1231,7 @@ inttype rshift;
     if (rshift < 0) {
       raise_error(NUMERIC_ERROR);
     } else {
-      mpz_fdiv_q_2exp(*big_variable, *big_variable, rshift);
+      mpz_fdiv_q_2exp(*big_variable, *big_variable, (uinttype) rshift);
     } /* if */
   } /* bigRShiftAssign */
 
@@ -1242,12 +1242,12 @@ inttype rshift;
  */
 #ifdef ANSI_C
 
-biginttype bigSbtr (const const_biginttype big1, const const_biginttype big2)
+biginttype bigSbtr (const const_biginttype minuend, const const_biginttype subtrahend)
 #else
 
-biginttype bigSbtr (big1, big2)
-biginttype big1;
-biginttype big2;
+biginttype bigSbtr (minuend, subtrahend)
+biginttype minuend;
+biginttype subtrahend;
 #endif
 
   {
@@ -1256,7 +1256,7 @@ biginttype big2;
   /* bigSbtr */
     result = malloc(sizeof(__mpz_struct));
     mpz_init(result);
-    mpz_sub(result, big1, big2);
+    mpz_sub(result, minuend, subtrahend);
     return result;
   } /* bigSbtr */
 

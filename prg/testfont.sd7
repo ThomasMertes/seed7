@@ -26,6 +26,7 @@ $ include "seed7_05.s7i";
   include "float.s7i";
   include "draw.s7i";
   include "keybd.s7i";
+  include "text.s7i";
   include "bitmapfont.s7i";
   include "stdfont10.s7i";
   include "stdfont12.s7i";
@@ -33,6 +34,7 @@ $ include "seed7_05.s7i";
   include "stdfont16.s7i";
   include "stdfont18.s7i";
   include "stdfont24.s7i";
+  include "pixmap_file.s7i";
 
 var text: screen is text.value;
 
@@ -42,7 +44,7 @@ const proc: main is func
     screen(1024, 768);
     clear(curr_win, white);
     KEYBOARD := GRAPH_KEYBOARD;
-    screen := openBitmapFontFile(curr_win);
+    screen := openPixmapFontFile(curr_win);
     color(screen, black, white);
     setFont(screen, stdFont24);
     setPosXY(screen, 6,  40);

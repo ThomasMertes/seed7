@@ -30,6 +30,7 @@ $ include "seed7_05.s7i";
   include "dialog.s7i";
   include "pic32.s7i";
   include "time.s7i";
+  include "duration.s7i";
 
 
 const integer: ROOM_LINES        is  18;

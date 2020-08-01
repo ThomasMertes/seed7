@@ -58,7 +58,7 @@ const func string: toOsPath (in string param)   is action "CMD_TO_OS_PATH";
 
 const func PRIMITIVE_FILE: PRIMITIVE_FILE_POPEN
     (in string param, in string param)          is action "FIL_POPEN";
-const proc: pclose (ref PRIMITIVE_FILE param)   is action "FIL_PCLOSE";
+const proc: pclose (in PRIMITIVE_FILE param)    is action "FIL_PCLOSE";
 
 
 const type: popen_file is sub external_file struct
@@ -97,7 +97,7 @@ const func file: popen (in string: command, in string: mode) is func
   end func;
 
 
-const proc: close (ref popen_file: aFile) is func
+const proc: close (in popen_file: aFile) is func
   begin
     pclose(aFile.ext_file);
   end func;
@@ -139,7 +139,7 @@ const func file: popen8 (in string: command, in string: mode) is func
   end func;
 
 
-const proc: close (ref popen8_file: aFile) is func
+const proc: close (in popen8_file: aFile) is func
   begin
     pclose(aFile.ext_file);
   end func;

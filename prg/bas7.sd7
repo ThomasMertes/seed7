@@ -53,11 +53,13 @@ $ include "seed7_05.s7i";
   include "float.s7i";
   include "screen.s7i";
   include "draw.s7i";
+  include "graph_file.s7i";
   include "window.s7i";
   include "keybd.s7i";
   include "echo.s7i";
   include "line.s7i";
   include "time.s7i";
+  include "duration.s7i";
 
 const integer: MAX_LINENUM is 2147483647;
 

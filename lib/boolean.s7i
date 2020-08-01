@@ -1,0 +1,127 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  boolean.s7i   Boolean support library                           *)
+(*  Copyright (C) 1989 - 2011  Thomas Mertes                        *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const type: boolean is subtype ENUMERATION;
+IN_PARAM_IS_VALUE(boolean);
+
+const proc: (ref boolean param) ::= (in boolean param)   is action "BLN_CREATE";
+const proc: destroy (ref boolean param)                  is noop;
+const proc: (inout boolean param) := (in boolean param)  is action "BLN_CPY";
+
+const boolean: FALSE is enumlit;
+const boolean: TRUE is enumlit;
+
+$ system "true" is TRUE;
+$ system "false" is FALSE;
+
+const boolean: (attr boolean) . value is FALSE;
+const boolean: (attr boolean) . first is FALSE;
+const boolean: (attr boolean) . last  is TRUE;
+
+const func boolean: not (in boolean param) is action "BLN_NOT";
+
+const func boolean: (in boolean param) and (in func boolean param)    is action "BLN_AND";
+const func boolean: (in boolean param) and (in varfunc boolean param) is action "BLN_AND";
+const func boolean: (in boolean param) and (in boolean param)         is action "BLN_AND";
+const func boolean: (in boolean param) or (in func boolean param)     is action "BLN_OR";
+const func boolean: (in boolean param) or (in varfunc boolean param)  is action "BLN_OR";
+const func boolean: (in boolean param) or (in boolean param)          is action "BLN_OR";
+
+const func boolean: (in boolean param) = (in boolean param)           is action "ENU_EQ";
+const func boolean: (in boolean param) < (in boolean param)           is action "BLN_LT";
+const func boolean: (in boolean param) > (in boolean param)           is action "BLN_GT";
+const func boolean: (in boolean param) <= (in boolean param)          is action "BLN_LE";
+const func boolean: (in boolean param) >= (in boolean param)          is action "BLN_GE";
+const func boolean: (in boolean param) <> (in boolean param)          is action "ENU_NE";
+
+const func integer: hashCode (in boolean param)                       is action "BLN_ORD";
+const func integer: ord (in boolean param)                            is action "BLN_ORD";
+const func boolean: (attr boolean) conv (in integer param)            is action "BLN_ICONV";
+const varfunc boolean: (attr boolean) varConv (inout integer param)   is action "TYP_VARCONV";
+
+
+const boolean: succ (FALSE) is TRUE;
+const boolean: pred (TRUE) is  FALSE;
+
+const func boolean: succ(ref boolean param) is DYNAMIC;
+const func boolean: pred(ref boolean param) is DYNAMIC;
+
+const proc: incr (inout boolean: bool_value) is func
+  begin
+    bool_value := succ(bool_value);
+  end func;
+
+const proc: decr (inout boolean: bool_value) is func
+  begin
+    bool_value := pred(bool_value);
+  end func;
+
+(*
+const func boolean: not (attr TRUE) is          FALSE;
+const func boolean: not (attr FALSE) is         TRUE;
+
+const func boolean: (attr FALSE) and (func boolean) is FALSE;
+const func boolean: (attr FALSE) and boolean is        FALSE;
+const func boolean: (attr FALSE) or (attr FALSE) is    FALSE;
+const func boolean: (attr FALSE) or (attr TRUE) is     TRUE;
+const func boolean: (attr FALSE) = (attr FALSE) is     TRUE;
+const func boolean: (attr FALSE) = (attr TRUE) is      FALSE;
+const func boolean: (attr FALSE) < (attr FALSE) is     FALSE;
+const func boolean: (attr FALSE) < (attr TRUE) is      TRUE;
+const func boolean: (attr FALSE) > boolean is          FALSE;
+const func boolean: (attr FALSE) <= boolean is         TRUE;
+const func boolean: (attr FALSE) >= (attr FALSE) is    TRUE;
+const func boolean: (attr FALSE) >= (attr TRUE) is     FALSE;
+const func boolean: (attr FALSE) <> (attr FALSE) is    FALSE;
+const func boolean: (attr FALSE) <> (attr TRUE) is     TRUE;
+
+const integer: ord (attr FALSE) is       0;
+const func boolean: succ (attr FALSE) is TRUE;
+const EXCEPTION: pred (attr FALSE) is    RANGE_ERROR;
+const string: str (attr FALSE) is        "FALSE";
+
+const func boolean: (attr TRUE) and (attr FALSE) is    FALSE;
+const func boolean: (attr TRUE) and (attr TRUE) is     TRUE;
+const func boolean: (attr TRUE) or (func boolean) is   TRUE;
+const func boolean: (attr TRUE) or boolean is          TRUE;
+const func boolean: (attr TRUE) = (attr FALSE) is      FALSE;
+const func boolean: (attr TRUE) = (attr TRUE) is       TRUE;
+const func boolean: (attr TRUE) < boolean is           FALSE;
+const func boolean: (attr TRUE) > (attr FALSE) is      TRUE;
+const func boolean: (attr TRUE) > (attr TRUE) is       FALSE;
+const func boolean: (attr TRUE) <= (attr FALSE) is     FALSE;
+const func boolean: (attr TRUE) <= (attr TRUE) is      TRUE;
+const func boolean: (attr TRUE) >= boolean is          TRUE;
+const func boolean: (attr TRUE) <> (attr FALSE) is     TRUE;
+const func boolean: (attr TRUE) <> (attr TRUE) is      FALSE;
+
+const integer: ord (attr TRUE) is        1;
+const EXCEPTION: succ (attr TRUE) is     RANGE_ERROR;
+const func boolean: pred (attr TRUE) is  FALSE;
+const string: str (attr TRUE) is         "TRUE";
+*)

@@ -146,35 +146,35 @@ const func char: getc (inout stritext: aStritext) is func
 
 
 (**
- *  Read a string with a maximum length 'leng' from 'aStritext'.
+ *  Read a string with a maximum length from 'aStritext'.
  *  @return the string read.
  *)
-const func string: gets (inout stritext: aStritext, in var integer: leng) is func
+const func string: gets (inout stritext: aStritext, in var integer: maxLength) is func
   result
     var string: stri is "";
   begin
     if aStritext.line <= length(aStritext.content) then
-      if leng > succ(length(aStritext.content[aStritext.line]) - aStritext.column) then
+      if maxLength > succ(length(aStritext.content[aStritext.line]) - aStritext.column) then
         stri := aStritext.content[aStritext.line][aStritext.column ..];
         stri &:= "\n";
-        leng -:= length(aStritext.content[aStritext.line]) - aStritext.column + 2;
+        maxLength -:= length(aStritext.content[aStritext.line]) - aStritext.column + 2;
         incr(aStritext.line);
         while aStritext.line <= length(aStritext.content) and
-            leng > length(aStritext.content[aStritext.line]) do
+            maxLength > length(aStritext.content[aStritext.line]) do
           stri &:= aStritext.content[aStritext.line];
           stri &:= "\n";
-          leng -:= succ(length(aStritext.content[aStritext.line]));
+          maxLength -:= succ(length(aStritext.content[aStritext.line]));
           incr(aStritext.line);
         end while;
-        if aStritext.line <= length(aStritext.content) and leng > 0 then
-          stri &:= aStritext.content[aStritext.line][aStritext.column len leng];
-          aStritext.column := succ(leng);
+        if aStritext.line <= length(aStritext.content) and maxLength > 0 then
+          stri &:= aStritext.content[aStritext.line][aStritext.column len maxLength];
+          aStritext.column := succ(maxLength);
         else
           aStritext.column := 1;
         end if;
       else
-        stri := aStritext.content[aStritext.line][aStritext.column len leng];
-        aStritext.column +:= leng;
+        stri := aStritext.content[aStritext.line][aStritext.column len maxLength];
+        aStritext.column +:= maxLength;
       end if;
     end if;
   end func;
@@ -192,7 +192,7 @@ const func string: getwd (inout stritext: aStritext) is func
  *  Read a line from 'aStritext'.
  *  A stritext works as if all lines end with '\n'.
  *  The line ending character is not copied into the string. When
- *  the function is left the inFile.bufferChar contains '\n' or EOF.
+ *  the function is left inFile.bufferChar contains '\n' or EOF.
  *  @return the line read.
  *)
 const func string: getln (inout stritext: aStritext) is func
