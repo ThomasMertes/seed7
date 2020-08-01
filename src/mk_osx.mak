@@ -12,7 +12,7 @@
 # CFLAGS = -O2 -fomit-frame-pointer -Wall -Wextra -Wswitch-default -Wcast-qual -Waggregate-return -Wwrite-strings -Winline -Wconversion -Wshadow -Wpointer-arith -Wmissing-noreturn -Wno-multichar
 # CFLAGS = -O2 -g -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith -ftrapv
 # CFLAGS = -O2 -g -x c++ -Wall -Winline -Wconversion -Wshadow -Wpointer-arith
-CFLAGS = -O2 -g -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
+CFLAGS = -O2 -g $(INCLUDE_OPTIONS) -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -g -std=c99 -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -g -Wall -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -g -Wall
@@ -22,8 +22,8 @@ CFLAGS = -O2 -g -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpoint
 LDFLAGS = -L/usr/X11R6/lib
 # LDFLAGS = -pg
 # LDFLAGS = -pg -lc_p
-SYSTEM_LIBS = -lm
-# SYSTEM_LIBS = -lm -lgmp
+SYSTEM_LIBS = -lm -ldl
+# SYSTEM_LIBS = -lm -ldl -lgmp
 # SYSTEM_LIBS = -lm_p -lc_p
 SYSTEM_CONSOLE_LIBS = -lncurses
 SYSTEM_DRAW_LIBS = -lX11
@@ -74,8 +74,8 @@ MOBJ = s7.o
 POBJ = runerr.o option.o primitiv.o
 LOBJ = actlib.o arrlib.o biglib.o binlib.o blnlib.o bstlib.o chrlib.o cmdlib.o conlib.o dcllib.o \
        drwlib.o enulib.o fillib.o fltlib.o hshlib.o intlib.o itflib.o kbdlib.o lstlib.o pollib.o \
-       prclib.o prglib.o reflib.o rfllib.o sctlib.o setlib.o soclib.o strlib.o timlib.o typlib.o \
-       ut8lib.o
+       prclib.o prglib.o reflib.o rfllib.o sctlib.o setlib.o soclib.o sqllib.o strlib.o timlib.o \
+       typlib.o ut8lib.o
 EOBJ = exec.o doany.o objutl.o
 AOBJ = act_comp.o prg_comp.o analyze.o syntax.o token.o parser.o name.o type.o \
        expr.o atom.o object.o scanner.o literal.o numlit.o findid.o \
@@ -83,9 +83,9 @@ AOBJ = act_comp.o prg_comp.o analyze.o syntax.o token.o parser.o name.o type.o \
 GOBJ = syvarutl.o traceutl.o actutl.o executl.o blockutl.o \
        entutl.o identutl.o chclsutl.o sigutl.o arrutl.o
 ROBJ = arr_rtl.o bln_rtl.o bst_rtl.o chr_rtl.o cmd_rtl.o con_rtl.o dir_rtl.o drw_rtl.o fil_rtl.o \
-       flt_rtl.o hsh_rtl.o int_rtl.o itf_rtl.o set_rtl.o soc_rtl.o str_rtl.o tim_rtl.o ut8_rtl.o \
-       heaputl.o striutl.o
-DOBJ = $(BIGINT_LIB).o cmd_unx.o fil_unx.o pol_unx.o tim_unx.o
+       flt_rtl.o hsh_rtl.o int_rtl.o itf_rtl.o set_rtl.o soc_rtl.o sql_rtl.o str_rtl.o tim_rtl.o \
+       ut8_rtl.o heaputl.o striutl.o sql_ite.o sql_my.o sql_oci.o sql_odbc.o sql_post.o sql_util.o
+DOBJ = $(BIGINT_LIB).o cmd_unx.o dll_unx.o fil_unx.o pol_unx.o tim_unx.o
 OBJ = $(MOBJ)
 SEED7_LIB_OBJ = $(ROBJ) $(DOBJ)
 DRAW_LIB_OBJ = gkb_rtl.o drw_x11.o gkb_x11.o
@@ -96,8 +96,8 @@ MSRC = s7.c
 PSRC = runerr.c option.c primitiv.c
 LSRC = actlib.c arrlib.c biglib.c binlib.c blnlib.c bstlib.c chrlib.c cmdlib.c conlib.c dcllib.c \
        drwlib.c enulib.c fillib.c fltlib.c hshlib.c intlib.c itflib.c kbdlib.c lstlib.c pollib.c \
-       prclib.c prglib.c reflib.c rfllib.c sctlib.c setlib.c soclib.c strlib.c timlib.c typlib.c \
-       ut8lib.c
+       prclib.c prglib.c reflib.c rfllib.c sctlib.c setlib.c soclib.c sqllib.c strlib.c timlib.c \
+       typlib.c ut8lib.c
 ESRC = exec.c doany.c objutl.c
 ASRC = act_comp.c prg_comp.c analyze.c syntax.c token.c parser.c name.c type.c \
        expr.c atom.c object.c scanner.c literal.c numlit.c findid.c \
@@ -105,9 +105,9 @@ ASRC = act_comp.c prg_comp.c analyze.c syntax.c token.c parser.c name.c type.c \
 GSRC = syvarutl.c traceutl.c actutl.c executl.c blockutl.c \
        entutl.c identutl.c chclsutl.c sigutl.c arrutl.c
 RSRC = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c con_rtl.c dir_rtl.c drw_rtl.c fil_rtl.c \
-       flt_rtl.c hsh_rtl.c int_rtl.c itf_rtl.c set_rtl.c soc_rtl.c str_rtl.c tim_rtl.c ut8_rtl.c \
-       heaputl.c striutl.c
-DSRC = $(BIGINT_LIB).c cmd_unx.c fil_unx.c pol_unx.c tim_unx.c
+       flt_rtl.c hsh_rtl.c int_rtl.c itf_rtl.c set_rtl.c soc_rtl.c sql_rtl.c str_rtl.c tim_rtl.c \
+       ut8_rtl.c heaputl.c striutl.c sql_ite.c sql_my.c sql_oci.c sql_odbc.c sql_post.c sql_util.c
+DSRC = $(BIGINT_LIB).c cmd_unx.c dll_unx.c fil_unx.c pol_unx.c tim_unx.c
 SRC = $(MSRC)
 SEED7_LIB_SRC = $(RSRC) $(DSRC)
 DRAW_LIB_SRC = gkb_rtl.c drw_x11.c gkb_x11.c
@@ -126,7 +126,7 @@ s7c: ../bin/s7c ../prg/s7c
 	@echo
 
 ../bin/s7: $(OBJ) $(ALL_S7_LIBS)
-	$(CC) $(LDFLAGS) $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) -o ../bin/s7
+	$(CC) $(LDFLAGS) $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) $(SYSTEM_DB_LIBS) -o ../bin/s7
 
 ../prg/s7:
 	ln -s ../bin/s7 ../prg
@@ -140,7 +140,7 @@ s7c: ../bin/s7c ../prg/s7c
 clear: clean
 
 clean:
-	rm -f *.o ../bin/*.a ../bin/s7 ../bin/s7c ../prg/s7 ../prg/s7c depend chkccomp.h version.h
+	rm -f *.o ../bin/*.a ../bin/s7 ../bin/s7c ../prg/s7 ../prg/s7c depend macros chkccomp.h version.h wrdepend
 	@echo
 	@echo "  Use 'make depend' (with your make command) to create the dependencies."
 	@echo
@@ -172,6 +172,13 @@ chkccomp.h:
 	echo "#include \"sys/types.h\"" >> chkccomp.h
 	echo "#include \"unistd.h\"" >> chkccomp.h
 	echo "#define LIST_DIRECTORY_CONTENTS \"ls\"" >> chkccomp.h
+	echo "#define MYSQL_LIBS \"-lmysqlclient\"" >> chkccomp.h
+	echo "#define SQLITE3_LIBS \"-lsqlite3\"" >> chkccomp.h
+	echo "#define POSTGRESQL_LIBS \"-lpq\"" >> chkccomp.h
+	echo "#define ODBC_LIBS \"-lodbc\"" >> chkccomp.h
+	echo "/* #define MYSQL_DLL \"libmysqlclient.so\" */" >> chkccomp.h
+	echo "#define OCI_DLL \"libclntsh.so\"" >> chkccomp.h
+	echo "/* #define ODBC_DLL \"libodbc.so\" */" >> chkccomp.h
 
 version.h: chkccomp.h
 	echo "#define PATH_DELIMITER '/'" > version.h
@@ -181,6 +188,7 @@ version.h: chkccomp.h
 	echo "#define USE_MMAP" >> version.h
 	echo "#define AWAIT_WITH_SIGACTION" >> version.h
 	echo "#define IMPLEMENT_PTY_WITH_PIPE2" >> version.h
+	echo "#define WITH_SQL" >> version.h
 	echo "#define $(TERMINFO_OR_TERMCAP)" >> version.h
 	echo "#define SIGNAL_HANDLER_CAN_DO_IO" >> version.h
 	echo "#define CONSOLE_UTF8" >> version.h
@@ -219,14 +227,15 @@ version.h: chkccomp.h
 	$(CC) setpaths.c -o setpaths
 	./setpaths "S7_LIB_DIR=$(S7_LIB_DIR)" "SEED7_LIBRARY=$(SEED7_LIBRARY)" >> version.h
 	rm setpaths
+	$(CC) wrdepend.c -o wrdepend
 
 depend: version.h
-	$(CC) $(CFLAGS) -M $(SRC) > depend
-	$(CC) $(CFLAGS) -M $(SEED7_LIB_SRC) >> depend
-	$(CC) $(CFLAGS) -M $(CONSOLE_LIB_SRC) >> depend
-	$(CC) $(CFLAGS) -M $(DRAW_LIB_SRC) >> depend
-	$(CC) $(CFLAGS) -M $(COMP_DATA_LIB_SRC) >> depend
-	$(CC) $(CFLAGS) -M $(COMPILER_LIB_SRC) >> depend
+	./wrdepend $(CFLAGS) -M $(SRC) "> depend"
+	./wrdepend $(CFLAGS) -M $(SEED7_LIB_SRC) ">> depend"
+	./wrdepend $(CFLAGS) -M $(CONSOLE_LIB_SRC) ">> depend"
+	./wrdepend $(CFLAGS) -M $(DRAW_LIB_SRC) ">> depend"
+	./wrdepend $(CFLAGS) -M $(COMP_DATA_LIB_SRC) ">> depend"
+	./wrdepend $(CFLAGS) -M $(COMPILER_LIB_SRC) ">> depend"
 	@echo
 	@echo "  Use 'make' (with your make command) to create the interpreter."
 	@echo
@@ -270,11 +279,15 @@ wc: $(SRC)
 	wc $(COMPILER_LIB_SRC)
 
 lint: $(SRC)
-	lint -p $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS)
+	lint -p $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) $(SYSTEM_DB_LIBS)
 
 lint2: $(SRC)
-	lint -Zn2048 $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS)
+	lint -Zn2048 $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) $(SYSTEM_DB_LIBS)
 
 ifeq (depend,$(wildcard depend))
 include depend
+endif
+
+ifeq (macros,$(wildcard macros))
+include macros
 endif

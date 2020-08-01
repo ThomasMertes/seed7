@@ -457,6 +457,7 @@ const proc: process_const_arr_idx (in reference: function, in reference: anArray
         end if;
         c_expr.temp_decls &:= index_name;
         c_expr.temp_decls &:= ";\n";
+        c_expr.expr &:= "(";
         c_expr.expr &:= index_name;
         c_expr.expr &:= "=(";
         process_expr(param3, c_expr);
@@ -474,6 +475,7 @@ const proc: process_const_arr_idx (in reference: function, in reference: anArray
         c_expr.expr &:= intRaiseError("RANGE_ERROR");
         c_expr.expr &:= " : 0, ";
         c_expr.expr &:= index_name;
+        c_expr.expr &:= ")";
       else
         incr(countNoRangeChecks);
         c_expr.expr &:= "(";
@@ -561,7 +563,7 @@ const proc: process_const_arr_idx (in reference: function, in reference: param1,
       c_expr.expr &:= "->arr[";
       if array_range_check then
         incr(countRangeChecks);
-        c_expr.expr &:= "idxChk(";
+        c_expr.expr &:= "(idxChk(";
         c_expr.expr &:= str(index);
         c_expr.expr &:= "<";
         c_expr.expr &:= array_name;
@@ -575,7 +577,7 @@ const proc: process_const_arr_idx (in reference: function, in reference: param1,
         c_expr.expr &:= str(index);
         c_expr.expr &:= "-";
         c_expr.expr &:= array_name;
-        c_expr.expr &:= "->min_position";
+        c_expr.expr &:= "->min_position)";
       else
         incr(countNoRangeChecks);
         c_expr.expr &:= str(index);
@@ -676,7 +678,7 @@ const proc: process (ARR_IDX, in reference: function,
         if array_range_check then
           incr(countRangeChecks);
           index_name := getParameterAsVariable("intType", "idx_", params[3], c_expr);
-          c_expr.expr &:= "idxChk(";
+          c_expr.expr &:= "(idxChk(";
           c_expr.expr &:= index_name;
           c_expr.expr &:= " < ";
           c_expr.expr &:= array_name;
@@ -690,7 +692,7 @@ const proc: process (ARR_IDX, in reference: function,
           c_expr.expr &:= index_name;
           c_expr.expr &:= "-";
           c_expr.expr &:= array_name;
-          c_expr.expr &:= "->min_position";
+          c_expr.expr &:= "->min_position)";
         else
           incr(countNoRangeChecks);
           c_expr.expr &:= "(";

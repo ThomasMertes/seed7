@@ -222,6 +222,7 @@ const proc: process_const_bst_idx (in reference: function, in bstring: bstri,
         end if;
         c_expr.temp_decls &:= index_name;
         c_expr.temp_decls &:= ";\n";
+        c_expr.expr &:= "(";
         c_expr.expr &:= index_name;
         c_expr.expr &:= "=";
         if ccConf.TWOS_COMPLEMENT_INTTYPE then
@@ -242,6 +243,7 @@ const proc: process_const_bst_idx (in reference: function, in bstring: bstri,
         c_expr.expr &:= intRaiseError("RANGE_ERROR");
         c_expr.expr &:= " : 0, ";
         c_expr.expr &:= index_name;
+        c_expr.expr &:= ")";
       else
         incr(countNoRangeChecks);
         c_expr.expr &:= "(";
@@ -275,7 +277,7 @@ const proc: process_const_bst_idx (in reference: function, in reference: param1,
       getAnyParamToExpr(param1, c_expr);
       c_expr.expr &:= ", &";
       c_expr.expr &:= bstri_name;
-      c_expr.expr &:= "->mem[idxChk(";
+      c_expr.expr &:= "->mem[(idxChk(";
       c_expr.expr &:= bstri_name;
       c_expr.expr &:= "->size<";
       c_expr.expr &:= str(index);
@@ -283,7 +285,7 @@ const proc: process_const_bst_idx (in reference: function, in reference: param1,
       c_expr.expr &:= intRaiseError("RANGE_ERROR");
       c_expr.expr &:= " : 0, ";
       c_expr.expr &:= str(pred(index));
-      c_expr.expr &:= "]))";
+      c_expr.expr &:= ")]))";
     else
       incr(countNoRangeChecks);
       c_expr.expr &:= "(";
@@ -328,7 +330,7 @@ const proc: process (BST_IDX, in reference: function,
       getAnyParamToExpr(params[1], c_expr);
       c_expr.expr &:= ", &";
       c_expr.expr &:= bstri_name;
-      c_expr.expr &:= "->mem[";
+      c_expr.expr &:= "->mem[(";
       c_expr.expr &:= index_name;
       c_expr.expr &:= "=";
       if ccConf.TWOS_COMPLEMENT_INTTYPE then
@@ -349,7 +351,7 @@ const proc: process (BST_IDX, in reference: function,
       c_expr.expr &:= intRaiseError("RANGE_ERROR");
       c_expr.expr &:= " : 0, ";
       c_expr.expr &:= index_name;
-      c_expr.expr &:= "]))";
+      c_expr.expr &:= ")]))";
     else
       incr(countNoRangeChecks);
       c_expr.expr &:= "(";

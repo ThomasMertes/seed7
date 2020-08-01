@@ -1,0 +1,529 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  sql_base.s7i  Base SQL access library                           *)
+(*  Copyright (C) 2013, 2014  Thomas Mertes                         *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "float.s7i";
+include "time.s7i";
+include "duration.s7i";
+include "bigint.s7i";
+include "bigrat.s7i";
+include "bstring.s7i";
+
+
+(**
+ *  Enumeration type to descibe database drivers.
+ *  * NO_DB No database
+ *  * DB_MYSQL MySql/MariaDb
+ *  * DB_SQLITE SQLLite
+ *  * DB_POSTGRESQL PostgreSQL
+ *  * DB_OCI Oracle
+ *  * DB_ODBC Odbc
+ *)
+const type: dbCategory is new enum
+    NO_DB, DB_MYSQL, DB_SQLITE, DB_POSTGRESQL, DB_OCI, DB_ODBC
+  end enum;
+
+
+const func string: str (in dbCategory: driver) is
+  return [] ("NO_DB", "DB_MYSQL", "DB_SQLITE",
+             "DB_POSTGRESQL", "DB_OCI", "DB_ODBC") [succ(ord(driver))];
+
+enable_output(dbCategory);
+
+
+(**
+ *  Abstract data type to store database connections.
+ *)
+const type: database is newtype;
+
+
+IN_PARAM_IS_REFERENCE(database);
+
+const proc: destroy (ref database param)                       is action "SQL_DESTR_DB";
+const proc: (ref database param) ::= (ref database param)      is action "SQL_CREATE_DB";
+const proc: (inout database: dest) := (ref database: source)   is action "SQL_CPY_DB";
+
+const func database: _GENERATE_EMPTY_DATABASE                  is action "SQL_EMPTY_DB";
+const database: (attr database) . value                        is _GENERATE_EMPTY_DATABASE;
+
+
+(**
+ *  Abstract data type to store a prepared sql statement.
+ *)
+const type: sqlStatement is newtype;
+
+
+IN_PARAM_IS_REFERENCE(sqlStatement);
+
+const proc: destroy (ref sqlStatement param)                          is action "SQL_DESTR_STMT";
+const proc: (ref sqlStatement param) ::= (ref sqlStatement param)     is action "SQL_CREATE_STMT";
+const proc: (inout sqlStatement: dest) := (ref sqlStatement: source)  is action "SQL_CPY_STMT";
+
+const func sqlStatement: _GENERATE_EMPTY_STATEMENT                    is action "SQL_EMPTY_STMT";
+const sqlStatement: (attr sqlStatement) . value                       is _GENERATE_EMPTY_STATEMENT;
+
+const func database: SQL_OPEN (in integer: driver, in string: dbName,
+                               in string: user, in string: password)  is action "SQL_OPEN";
+
+const proc: BIND_BIG_RAT (in sqlStatement: statement, in integer: pos,
+    in bigInteger: numerator, in bigInteger: denominator)             is action "SQL_BIND_BIGRAT";
+
+const proc: BIND_TIME (in sqlStatement: statement, in integer: pos,
+    in integer: year, in integer: month, in integer: day,
+    in integer: hour, in integer: minute, in integer: second,
+    in integer: micro_second)                                         is action "SQL_BIND_TIME";
+
+const proc: COLUMN_BIG_RAT (in sqlStatement: statement, in integer: column,
+    inout bigInteger: numerator, inout bigInteger: denominator)       is action "SQL_COLUMN_BIGRAT";
+
+const proc: COLUMN_TIME (in sqlStatement: statement, in integer: column,
+    inout integer: year, inout integer: month, inout integer: day,
+    inout integer: hour, inout integer: minute, inout integer: second,
+    inout integer: micro_second, inout integer: timeZone,
+    inout boolean: daylightSavingTime)                                is action "SQL_COLUMN_TIME";
+
+const proc: COLUMN_DURATION (in sqlStatement: statement, in integer: column,
+    inout integer: year, inout integer: month, inout integer: day,
+    inout integer: hour, inout integer: minute, inout integer: second,
+    inout integer: micro_second)                                      is action "SQL_COLUMN_DURATION";
+
+
+(**
+ *  Open the database ''dbName'' with the specified ''user'' and ''password''.
+ *  @param driver Database driver to be used.
+ *  @param dbName Database name. The ''dbName'' can be specified with host name
+ *         ("e.g.: "www.example.org/myDb"), or with IPv4 address in standard dot
+ *         notation (e.g.: "192.0.2.235/myDb"). Operating systems supporting IPv6
+ *         may also accept an IPv6 address in colon notation.
+ *  @param user Database user name.
+ *  @param password Database password.
+ *  @return the database connection.
+ *)
+const func database: openDatabase (in dbCategory: driver, in string: dbName,
+                                   in string: user, in string: password) is
+  return SQL_OPEN(ord(driver), dbName, user, password);
+
+
+(**
+ *  Open a database with the specified ''driver'' and ''connectStri''.
+ *  The ''connectStri'' must be in one of the forms
+ *  * user:password@dbName
+ *  * user@dbName
+ *  * dbName
+ *  The ''dbName'' can be specified with host name ("e.g.: "www.example.org/myDb"),
+ *  or with IPv4 address in standard dot notation (e.g.: "192.0.2.235/myDb").
+ *  Operating systems supporting IPv6 may also accept an IPv6 address
+ *  in colon notation.
+ *  @param driver Database driver to be used.
+ *  @param connectStri Connection string in one of the forms
+ *         user:password@dbName user@dbName or dbName
+ *         When no user is specified the user "guest" is used.
+ *         When no password is specified the password "guest" is used.
+ *  @return the database connection.
+ *)
+const func database: openDatabase (in dbCategory: driver,
+                                   in string: connectStri) is func
+  result
+    var database: db is database.value;
+  local
+    var string: dbName is "";
+    var string: user is "guest";
+    var string: password is "guest";
+    var integer: atPos is 0;
+    var integer: colonPos is 0;
+  begin
+    atPos := pos(connectStri, '@');
+    if atPos <> 0 then
+      user := connectStri[.. pred(atPos)];
+      colonPos := pos(user, ':');
+      if colonPos <> 0 then
+        password := user[succ(colonPos) ..];
+        user := user[.. pred(colonPos)];
+      end if;
+      dbName := connectStri[succ(atPos) ..];
+    else
+      dbName := connectStri;
+    end if;
+    # writeln("dbName: " <& dbName);
+    # writeln("user: " <& user);
+    # writeln("password: " <& password);
+    db := openDatabase(driver, dbName, user, password);
+  end func;
+
+
+(**
+ *  Close the specified database ''db''.
+ *)
+const proc: close (in database: db)                                                    is action "SQL_CLOSE";
+
+
+(**
+ *  Create a prepared statement for the given database ''db''.
+ *  @param db Database connection for which the prepared statement should
+ *         be created.
+ *  @param sqlStatementStri SQL statement in a string. For bind variables
+ *         a question mark (?).
+ *)
+const func sqlStatement: prepare (in database: db, in string: sqlStatementStri)        is action "SQL_PREPARE";
+
+
+(**
+ *  Bind a bigInteger parameter to a prepared SQL statement.
+ *  @param statement Prepared statement.
+ *  @param pos Position of the bind variable (starting with 1).
+ *  @param num Value for the binding.
+ *  @exception RANGE_ERROR When the statement was not prepared or
+ *                         when ''pos'' is negative or too big or
+ *                         when ''num'' cannot be converted.
+ *  @exception FILE_ERROR When a database function fails.
+ *)
+const proc: bind (inout sqlStatement: statement, in integer: pos, in bigInteger: num)  is action "SQL_BIND_BIGINT";
+
+
+(**
+ *  Bind a bigRational parameter to a prepared SQL statement.
+ *  @param statement Prepared statement.
+ *  @param pos Position of the bind variable (starting with 1).
+ *  @param bigRatData Value for the binding.
+ *  @exception RANGE_ERROR When the statement was not prepared or
+ *                         when ''pos'' is negative or too big or
+ *                         when ''bigRatData'' cannot be converted.
+ *  @exception FILE_ERROR When a database function fails.
+ *)
+const proc: bind (inout sqlStatement: statement, in integer: pos, in bigRational: bigRatData) is func
+  begin
+    BIND_BIG_RAT(statement, pos,
+    bigRatData.numerator, bigRatData.denominator);
+  end func;
+
+
+(**
+ *  Bind a boolean parameter to a prepared SQL statement.
+ *  @param statement Prepared statement.
+ *  @param pos Position of the bind variable (starting with 1).
+ *  @param flag Value for the binding.
+ *  @exception RANGE_ERROR When the statement was not prepared or
+ *                         when ''pos'' is negative or too big or
+ *                         when ''flag'' cannot be converted.
+ *  @exception FILE_ERROR When a database function fails.
+ *)
+const proc: bind (inout sqlStatement: statement, in integer: pos, in boolean: flag)    is action "SQL_BIND_BOOL";
+
+
+(**
+ *  Bind a bstring parameter to a prepared SQL statement.
+ *  @param statement Prepared statement.
+ *  @param pos Position of the bind variable (starting with 1).
+ *  @param bstri Value for the binding.
+ *  @exception RANGE_ERROR When the statement was not prepared or
+ *                         when ''pos'' is negative or too big or
+ *                         when ''bstri'' cannot be converted.
+ *  @exception FILE_ERROR When a database function fails.
+ *)
+const proc: bind (inout sqlStatement: statement, in integer: pos, in bstring: bstri)   is action "SQL_BIND_BSTRI";
+
+
+(**
+ *  Bind a float parameter to a prepared SQL statement.
+ *  @param statement Prepared statement.
+ *  @param pos Position of the bind variable (starting with 1).
+ *  @param number Value for the binding.
+ *  @exception RANGE_ERROR When the statement was not prepared or
+ *                         when ''pos'' is negative or too big or
+ *                         when ''number'' cannot be converted.
+ *  @exception FILE_ERROR When a database function fails.
+ *)
+const proc: bind (inout sqlStatement: statement, in integer: pos, in float: number)    is action "SQL_BIND_FLOAT";
+
+
+(**
+ *  Bind an integer parameter to a prepared SQL statement.
+ *  @param statement Prepared statement.
+ *  @param pos Position of the bind variable (starting with 1).
+ *  @param number Value for the binding.
+ *  @exception RANGE_ERROR When the statement was not prepared or
+ *                         when ''pos'' is negative or too big or
+ *                         when ''number'' cannot be converted.
+ *  @exception FILE_ERROR When a database function fails.
+ *)
+const proc: bind (inout sqlStatement: statement, in integer: pos, in integer: number)  is action "SQL_BIND_INT";
+
+
+(**
+ *  Bind a NULL parameter to a prepared SQL statement.
+ *  @param statement Prepared statement.
+ *  @param pos Position of the bind variable (starting with 1).
+ *  @exception RANGE_ERROR When the statement was not prepared or
+ *                         when ''pos'' is negative or too big.
+ *  @exception FILE_ERROR When a database function fails.
+ *)
+const proc: bind (inout sqlStatement: statement, in integer: pos, NULL)                is action "SQL_BIND_NULL";
+
+
+(**
+ *  Bind a string parameter to a prepared SQL statement.
+ *  @param statement Prepared statement.
+ *  @param pos Position of the bind variable (starting with 1).
+ *  @param stri Value for the binding.
+ *  @exception RANGE_ERROR When the statement was not prepared or
+ *                         when ''pos'' is negative or too big or
+ *                         when ''stri'' cannot be converted.
+ *  @exception FILE_ERROR When a database function fails.
+ *)
+const proc: bind (inout sqlStatement: statement, in integer: pos, in string: stri)     is action "SQL_BIND_STRI";
+
+
+(**
+ *  Bind a time parameter to a prepared SQL statement.
+ *  @param statement Prepared statement.
+ *  @param pos Position of the bind variable (starting with 1).
+ *  @param timeData Value for the binding.
+ *  @exception RANGE_ERROR When the statement was not prepared or
+ *                         when ''pos'' is negative or too big or
+ *                         when ''timeData'' cannot be converted.
+ *  @exception FILE_ERROR When a database function fails.
+ *)
+const proc: bind (inout sqlStatement: statement, in integer: pos, in time: timeData) is func
+  begin
+    BIND_TIME(statement, pos,
+    timeData.year, timeData.month, timeData.day,
+    timeData.hour, timeData.minute, timeData.second,
+    timeData.micro_second);
+  end func;
+
+
+(**
+ *  Execute the specified prepared SQL ''statement''.
+ *  Bind variable can be assigned with the function ''bind'' before
+ *  ''execute'' is called.
+ *  @param statement Prepared statement, which should be executed.
+ *)
+const proc: execute (inout sqlStatement: statement)                                    is action "SQL_EXECUTE";
+
+
+(**
+ *  Fetch a row from the result data of an executed ''statement''.
+ *  After the ''statement'' has been executed successfully the
+ *  function ''fetch'' can be used to get the first and further
+ *  rows of the statements result data. The columns of the
+ *  result data can be obtained with the ''column'' functions.
+ *  @param statement Prepared statement, which has been executed.
+ *  @return TRUE when a row of result data could be fetched successfully.
+ *          FALSE when no more result data is available.
+ *)
+const func boolean: fetch (in sqlStatement: statement)                                 is action "SQL_FETCH";
+
+
+(**
+ *  Get the specified column of fetched data as [[bigint|bigInteger]].
+ *  @param statement Prepared statement for which data was fetched.
+ *  @param column Number of the column (starting with 1).
+ *  @return the column converted to a [[bigint|bigInteger]].
+ *  @exception RANGE_ERROR When the statement was not prepared or
+ *                         when no data was successfully fetched or
+ *                         when the specified column does not exist or
+ *                         when the column cannot be converted.
+ *  @exception FILE_ERROR When a database function fails.
+ *)
+const func bigInteger: column (in sqlStatement: statement, in integer: column,
+                               attr bigInteger)                                        is action "SQL_COLUMN_BIGINT";
+
+
+(**
+ *  Get the specified column of fetched data as [[bigrat|bigRational]].
+ *  @param statement Prepared statement for which data was fetched.
+ *  @param column Number of the column (starting with 1).
+ *  @return the column converted to a [[bigrat|bigRational]].
+ *  @exception RANGE_ERROR When the statement was not prepared or
+ *                         when no data was successfully fetched or
+ *                         when the specified column does not exist or
+ *                         when the column cannot be converted.
+ *  @exception FILE_ERROR When a database function fails.
+ *)
+const func bigRational: column (in sqlStatement: statement, in integer: column,
+                                attr bigRational) is func
+  result
+    var bigRational: rationalData is bigRational.value;
+  begin
+    COLUMN_BIG_RAT(statement, column,
+        rationalData.numerator, rationalData.denominator);
+    reduce(rationalData);
+  end func;
+
+
+(**
+ *  Get the specified column of fetched data as [[boolean]].
+ *  @param statement Prepared statement for which data was fetched.
+ *  @param column Number of the column (starting with 1).
+ *  @return the column converted to a [[boolean]].
+ *  @exception RANGE_ERROR When the statement was not prepared or
+ *                         when no data was successfully fetched or
+ *                         when the specified column does not exist or
+ *                         when the column cannot be converted.
+ *  @exception FILE_ERROR When a database function fails.
+ *)
+const func boolean:    column (in sqlStatement: statement, in integer: column,
+                               attr boolean)                                           is action "SQL_COLUMN_BOOL";
+
+
+(**
+ *  Get the specified column of fetched data as [[bstring]].
+ *  @param statement Prepared statement for which data was fetched.
+ *  @param column Number of the column (starting with 1).
+ *  @return the column converted to a [[bstring]].
+ *  @exception RANGE_ERROR When the statement was not prepared or
+ *                         when no data was successfully fetched or
+ *                         when the specified column does not exist or
+ *                         when the column cannot be converted.
+ *  @exception FILE_ERROR When a database function fails.
+ *)
+const func bstring:    column (in sqlStatement: statement, in integer: column,
+                               attr bstring)                                           is action "SQL_COLUMN_BSTRI";
+
+
+(**
+ *  Get the specified column of fetched data as [[duration]].
+ *  @param statement Prepared statement for which data was fetched.
+ *  @param column Number of the column (starting with 1).
+ *  @return the column converted to a [[duration]].
+ *  @exception RANGE_ERROR When the statement was not prepared or
+ *                         when no data was successfully fetched or
+ *                         when the specified column does not exist or
+ *                         when the column cannot be converted.
+ *  @exception FILE_ERROR When a database function fails.
+ *)
+const func duration: column (in sqlStatement: statement, in integer: column,
+                         attr duration) is func
+  result
+    var duration: durationData is duration.value;
+  begin
+    COLUMN_DURATION(statement, column,
+        durationData.year_365, durationData.month_30, durationData.day,
+        durationData.hour, durationData.minute, durationData.second,
+        durationData.micro_second);
+  end func;
+
+
+(**
+ *  Get the specified column of fetched data as [[float]].
+ *  @param statement Prepared statement for which data was fetched.
+ *  @param column Number of the column (starting with 1).
+ *  @return the column converted to a [[float]].
+ *  @exception RANGE_ERROR When the statement was not prepared or
+ *                         when no data was successfully fetched or
+ *                         when the specified column does not exist or
+ *                         when the column cannot be converted.
+ *  @exception FILE_ERROR When a database function fails.
+ *)
+const func float:      column (in sqlStatement: statement, in integer: column,
+                               attr float)                                             is action "SQL_COLUMN_FLOAT";
+
+
+(**
+ *  Get the specified column of fetched data as [[integer]].
+ *  @param statement Prepared statement for which data was fetched.
+ *  @param column Number of the column (starting with 1).
+ *  @return the column converted to an [[integer]].
+ *  @exception RANGE_ERROR When the statement was not prepared or
+ *                         when no data was successfully fetched or
+ *                         when the specified column does not exist or
+ *                         when the column cannot be converted.
+ *  @exception FILE_ERROR When a database function fails.
+ *)
+const func integer:    column (in sqlStatement: statement, in integer: column,
+                               attr integer)                                           is action "SQL_COLUMN_INT";
+
+
+(**
+ *  Get the specified column of fetched data as [[string]].
+ *  @param statement Prepared statement for which data was fetched.
+ *  @param column Number of the column (starting with 1).
+ *  @return the column converted to a [[string]].
+ *  @exception RANGE_ERROR When the statement was not prepared or
+ *                         when no data was successfully fetched or
+ *                         when the specified column does not exist or
+ *                         when the column cannot be converted.
+ *  @exception FILE_ERROR When a database function fails.
+ *)
+const func string:     column (in sqlStatement: statement, in integer: column,
+                               attr string)                                            is action "SQL_COLUMN_STRI";
+
+
+(**
+ *  Get the specified column of fetched data as [[time]].
+ *  @param statement Prepared statement for which data was fetched.
+ *  @param column Number of the column (starting with 1).
+ *  @return the column converted to a [[time]].
+ *  @exception RANGE_ERROR When the statement was not prepared or
+ *                         when no data was successfully fetched or
+ *                         when the specified column does not exist or
+ *                         when the column cannot be converted.
+ *  @exception FILE_ERROR When a database function fails.
+ *)
+const func time: column (in sqlStatement: statement, in integer: column,
+                         attr time) is func
+  result
+    var time: timeData is time.value;
+  begin
+    COLUMN_TIME(statement, column,
+        timeData.year, timeData.month, timeData.day,
+        timeData.hour, timeData.minute, timeData.second,
+        timeData.micro_second, timeData.timeZone,
+        timeData.daylightSavingTime);
+  end func;
+
+
+(**
+ *  Determined if the specified column of fetched data is NULL.
+ *  @param statement Prepared statement for which data was fetched.
+ *  @param column Number of the column (starting with 1).
+ *  @return TRUE when the column is NULL,
+ *          FALSE otherwise.
+ *  @exception RANGE_ERROR When the statement was not prepared or
+ *                         when no data was successfully fetched or
+ *                         when the specified column does not exist.
+ *)
+const func boolean: isNull (in sqlStatement: statement, in integer: column)            is action "SQL_IS_NULL";
+
+
+(**
+ *  Execute a commit statement for the specified database ''db''.
+ *)
+const proc: commit (in database: db)                                                   is action "SQL_COMMIT";
+
+
+const func integer: columnCount (in sqlStatement: statement)                           is action "SQL_STMT_COLUMN_COUNT";
+const func string: columnName (in sqlStatement: statement, in integer: column)         is action "SQL_STMT_COLUMN_NAME";
+
+
+const proc: execute (in database: db, in string: sqlStatementStri) is func
+  local
+    var sqlStatement: statement is sqlStatement.value;
+  begin
+    statement := prepare(db, sqlStatementStri);
+    execute(statement);
+  end func;

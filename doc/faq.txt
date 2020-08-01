@@ -237,12 +237,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 200000 lines of Seed7. For version 2014-09-07 the number of lines is:
+than 200000 lines of Seed7. For version 2014-09-21 the number of lines is:
 
-  102214  C source files (*.c)
-    8567  C header files (*.h)
-  114031  Seed7 source files (*.sd7)
-  122986  Seed7 library/include files (*.s7i)
+  118574  C source files (*.c)
+    8888  C header files (*.h)
+  115633  Seed7 source files (*.sd7)
+  124291  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -1899,6 +1899,27 @@ and S7_LIB_DIR with the options -l and -b:
 
 Compiling s7c with a make command should be preferred.
 
+
+What is necessary to compile Seed7 with database connections?
+=============================================================
+
+The Seed7 runtime library provides the possibility to connect to
+MySql/MariaDb, SQLLite, PostgreSQL, Oracle and Odbc databases. During
+the compilation of the Seed7 interpreter the program "chkccomp.c"
+searches for the availability of database connectors. It searches for
+database include files and for database libraries. Some database
+configuration settings (MYSQL_LIBS, SQLITE3_LIBS, POSTGRESQL_LIBS, ODBC_LIBS)
+come from the makefile. For Oracle it is assumed that the environment
+variable ORACLE_HOME has been set. Only when database include files and
+libraries are found the corresponding database connection part of Seed7
+(sql_my.c, sql_ite.c, sql_post.c, sql_oci.c or sql_odbc.c) is added to
+the Seed7 runtime library. For a Seed7 package this means, that the
+packages for database connection must be installed during the compilation
+of the Seed7 interpreter.
+
+Depending on the configuration the database library is linked statically
+or dynamically. When a dynamic database library cannot be found at runtime
+the function openDatabase returns database.value.
 
 
 Does the interpreter use bytecode?

@@ -1,3 +1,35 @@
+20140921:
+- Access to MySql/MariaDb, SQLLite, PostgreSQL, Oracle and ODBC
+  databases has been added.
+- The library sql_base.s7i has been added. This library provides
+  functions to connect to a database, to prepare statements, to
+  bind variables to prepared statements, to execute prepared
+  statements, to fetch data from the database and to get individual
+  columns from fetched data.
+- A paragraph about the compilation of Seed7 with database
+  connections has been added to the FAQ.
+- The example program sql7.sd7 has been added. This program connects
+  with a database, reads SQL commands and sends them to the database.
+- The example program chkdb.sd7 has been added. This program checks
+  SQL statements with several databases. The database login data in
+  chkdb.sd7 must be adjusted to allow that opening the databases
+  succeeds.
+- The library ftp.s7i and the program ftp7.sd7 have been improved to
+  accept connection strings of the form user:password@hostName .
+- Interpreter and compiler have been improved to support databases.
+- The compiler now adds parentheses arround comma expressions when
+  they are used as index. This changes have been done in the files
+  arr_act.s7i, bst_act.s7i and str_act.s7i.
+- Database drivers consisting of the files dll_drv.h, dll_unx.c,
+  dll_win.c, sql_drv.h, sql_ite.c, sql_my.c, sql_oci.c, sql_odbc.c,
+  sql_post.c, sql_rtl.c, sql_rtl.h, sql_util.c, sql_util.h, sqllib.c
+  and sqllib.h have been added.
+- The program wrdepend.c has been added. This program is used to
+  write C header dependencies to the file depend. It calls the C
+  compiler with -I options. The -I options come from the macro
+  INCLUDE_OPTIONS, which is defined in the file version.h.
+- Database driver files have been added to makefiles.
+
 20140907:
 - The function setSearchPath has been added to the library
   process.s7i.

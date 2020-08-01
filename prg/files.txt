@@ -12,6 +12,7 @@ chk_all.sd7  Runs interpreted and compiled checks.
 chkbig.sd7   Checks bigInteger literals and operations
 chkbool.sd7  Checks boolean operations
 chkcmd.sd7   Check functions that manipulate files.
+chkdb.sd7    Checks the database interface.
 chkexc.sd7   Checks exceptions
 chkflt.sd7   Checks float literals and operations
 chkhent.sd7  Checks the HTML entity handling functions
@@ -72,6 +73,7 @@ shisen.sd7   Shisen game
 sl.sd7       Game of Life
 snake.sd7    Snake eats apple game
 sokoban.sd7  Sokoban puzzle game
+sql7.sd7     Sql command line tool
 startrek.sd7 Classical startrek game
 sudoku7.sd7  Sudoku program
 sydir7.sd7   Utility to syncronize directory trees
@@ -193,6 +195,7 @@ shell.s7i    Support for shell commands
 sockbase.s7i Support for socket address and primitive socket
 socket.s7i   File implementation type for sockets
 sokoban1.s7i Classic sokoban levels 1 to 90.
+sql_base.s7i Base SQL access library
 stars.s7i    List of stars with name, RA, DEC and magnitude V
 stdfont10.s7i Standard bitmap font with capHeight 10.
 stdfont12.s7i Standard bitmap font with capHeight 12.

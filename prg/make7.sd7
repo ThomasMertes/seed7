@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  make7.sd7     Make utility to manage the compilation process    *)
-(*  Copyright (C) 2010 - 2013  Thomas Mertes                        *)
+(*  Copyright (C) 2010 - 2014  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
 (*  modify it under the terms of the GNU General Public License as  *)
@@ -63,7 +63,7 @@ const proc: main is func
     end while;
     if "-v" in make_option or "-h" in make_option or "-?" in make_option then
       writeln("Make7 Version 1.0 - Make utility to manage the compilation process");
-      writeln("Copyright (C) 2010 - 2013 Thomas Mertes");
+      writeln("Copyright (C) 2010 - 2014 Thomas Mertes");
       writeln("This is free software; see the source for copying conditions.  There is NO");
       writeln("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.");
       writeln("Make7 is written in the Seed7 programming language");

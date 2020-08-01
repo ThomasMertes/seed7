@@ -10970,8 +10970,8 @@ CONTENTS
     20: Use \" instead of "" to represent " in a string
     21: Use / instead of \\ as path delimiter
     22: Illegal string escape "\%s"
-    23: Numerical escape sequences should end with ";" not "%s");
-    24: String continuations should end with "\" not "%s");
+    23: Numerical escape sequences should end with ";" not "%s"
+    24: String continuations should end with "\" not "%s"
     25: String literal exceeds source line
     26: Name expected found "%s"
     27: Integer literal expected found "%s"

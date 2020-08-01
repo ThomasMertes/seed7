@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  ftp.s7i       Support for FTP (file transfer protocol)          *)
-(*  Copyright (C) 2011  Thomas Mertes                               *)
+(*  Copyright (C) 2011, 2014  Thomas Mertes                         *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -97,7 +97,7 @@ const func string: allowUtf8 (in string: inStri) is func
  *  @return the FTP connection.
  *)
 const func ftpConnection: openFtp (in string: hostName, in string: user,
-    in string: passwd, in integer: ftpControlPort) is func
+    in string: password, in integer: ftpControlPort) is func
   result
     var ftpConnection: ftp is ftpConnection.value;
   begin
@@ -110,7 +110,7 @@ const func ftpConnection: openFtp (in string: hostName, in string: user,
           ftpCommand(ftp, "USER " <& user);
           ftpResponse(ftp);
           if startsWith(ftp.response, "331") then
-            ftpCommand(ftp, "PASS " <& passwd);
+            ftpCommand(ftp, "PASS " <& password);
             ftpResponse(ftp);
           end if;
           if not startsWith(ftp.response, "230") then
@@ -133,34 +133,82 @@ const func ftpConnection: openFtp (in string: hostName, in string: user,
  *  @return the FTP connection.
  *)
 const func ftpConnection: openFtp (in string: hostName,
-    in string: user, in string: passwd) is
-  return openFtp(hostName, user, passwd, defaultFtpControlPort);
+    in string: user, in string: password) is
+  return openFtp(hostName, user, password, defaultFtpControlPort);
 
 
 (**
- *  Open an FTP connection to the specified host and port.
- *  This function uses the "anomymous" user.
+ *  Open an FTP connection to the specified ''connectStri'' and port.
+ *  The ''connectStri'' should be in the form
+ *   user:password@hostName
+ *  to specify user and password. If no password is specified the
+ *  password "anonymous" is used instead:
+ *   user@hostName
+ *  When no user and password are specified the user "anonymous" is
+ *  used together with the password "anonymous":
+ *   hostName
  *  The ''hostName'' is either a host name ("e.g.: "www.example.org"),
  *  or an IPv4 address in standard dot notation (e.g.: "192.0.2.235").
  *  Operating systems supporting IPv6 may also accept an IPv6 address
  *  in colon notation.
+ *  @param connectStri Connection string in one of the forms
+ *         user:password@hostName user@hostName or hostName
+ *         When no user is specified the user "anonymous" is used.
+ *         When no password is specified the password "anonymous" is used.
  *  @return the FTP connection.
  *)
-const func ftpConnection: openFtp (in string: hostName, in integer: ftpControlPort) is
-  return openFtp(hostName, "anonymous", "anonymous", ftpControlPort);
+const func ftpConnection: openFtp (in string: connectStri, in integer: ftpControlPort) is func
+  result
+    var ftpConnection: ftp is ftpConnection.value;
+  local
+    var string: hostName is "";
+    var string: user is "anonymous";
+    var string: password is "anonymous";
+    var integer: atPos is 0;
+    var integer: colonPos is 0;
+  begin
+    atPos := pos(connectStri, '@');
+    if atPos <> 0 then
+      user := connectStri[.. pred(atPos)];
+      colonPos := pos(user, ':');
+      if colonPos <> 0 then
+        password := user[succ(colonPos) ..];
+        user := user[.. pred(colonPos)];
+      end if;
+      hostName := connectStri[succ(atPos) ..];
+    else
+      hostName := connectStri;
+    end if;
+    # writeln("hostName: " <& hostName);
+    # writeln("user: " <& user);
+    # writeln("password: " <& password);
+    ftp := openFtp(hostName, user, password, ftpControlPort);
+  end func;
 
 
 (**
- *  Open an FTP connection to the specified host.
- *  This function uses the "anomymous" user and port 21.
+ *  Open an FTP connection to the specified ''connectStri''.
+ *  The ''connectStri'' should be in the form
+ *   user:password@hostName
+ *  to specify user and password. If no password is specified the
+ *  password "anonymous" is used instead:
+ *   user@hostName
+ *  When no user and password are specified the user "anonymous" is
+ *  used together with the password "anonymous":
+ *   hostName
+ *  This function uses the port 21 (defined as defaultFtpControlPort).
  *  The ''hostName'' is either a host name ("e.g.: "www.example.org"),
  *  or an IPv4 address in standard dot notation (e.g.: "192.0.2.235").
  *  Operating systems supporting IPv6 may also accept an IPv6 address
  *  in colon notation.
+ *  @param connectStri Connection string in one of the forms
+ *         user:password@hostName user@hostName or hostName
+ *         When no user is specified the user "anomymous" is used.
+ *         When no password is specified the password "anomymous" is used.
  *  @return the FTP connection.
  *)
-const func ftpConnection: openFtp (in string: hostName) is
-  return openFtp(hostName, defaultFtpControlPort);
+const func ftpConnection: openFtp (in string: connectStri) is
+  return openFtp(connectStri, defaultFtpControlPort);
 
 
 (**
@@ -691,7 +739,7 @@ const proc: transferTypeBinary (inout ftpConnection: ftp) is func
   end func;
 
 
-const proc: splitFtpLocation (in string: location, inout string: hostname,
+const proc: splitFtpLocation (in string: location, inout string: connectStri,
     inout integer: portNumber, inout string: path) is func
   local
     var integer: slashPos is 0;
@@ -700,29 +748,29 @@ const proc: splitFtpLocation (in string: location, inout string: hostname,
     # writeln("splitFtpLocation: " <& location);
     slashPos := pos(location, "/");
     if slashPos = 0 then
-      hostname := location;
+      connectStri := location;
       path     := "";
     else
-      hostname := location[.. pred(slashPos)];
-      path     := location[succ(slashPos) ..];
+      connectStri := location[.. pred(slashPos)];
+      path := location[succ(slashPos) ..];
     end if;
-    colonPos := pos(hostname, ":");
-    if colonPos <> 0 and isDigitString(hostname[succ(colonPos) ..]) then
-      portNumber := integer parse (hostname[succ(colonPos) ..]);
-      hostname := hostname[.. pred(colonPos)];
+    colonPos := pos(connectStri, ":");
+    if colonPos <> 0 and isDigitString(connectStri[succ(colonPos) ..]) then
+      portNumber := integer parse (connectStri[succ(colonPos) ..]);
+      connectStri := connectStri[.. pred(colonPos)];
     else
       portNumber := defaultFtpControlPort;
     end if;
   end func;
 
 
-const func string: getFtp (in string: hostName, in integer: portNumber, in string: path) is func
+const func string: getFtp (in string: connectStri, in integer: portNumber, in string: path) is func
   result
     var string: fileContent is "";
   local
     var ftpConnection: ftp is ftpConnection.value;
   begin
-    ftp := openFtp(hostName, portNumber);
+    ftp := openFtp(connectStri, portNumber);
     if ftp.control <> STD_NULL then
       transferTypeBinary(ftp);
       fileContent := getFile(ftp, path);
@@ -736,16 +784,18 @@ const func string: getFtp (in string: hostName, in integer: portNumber, in strin
  *  The contents of the file "/pub/read_me.txt" can be obtained from
  *  the computer ''www.example.org'' with:
  *   fileContent := getFtp("www.example.org/pub/read_me.txt");
+ *  User and password can be specified with:
+ *   fileContent := getFtp("user:password@www.example.org/pub/read_me.txt");
  *  @return the string of data found, or "" when nothing was found.
  *)
 const func string: getFtp (in string: url) is func
   result
     var string: fileContent is "";
   local
-    var string: hostName is "";
+    var string: connectStri is "";
     var integer: portNumber is 0;
     var string: path is "";
   begin
-    splitFtpLocation(url, hostName, portNumber, path);
-    fileContent := getFtp(hostName, portNumber, path);
+    splitFtpLocation(url, connectStri, portNumber, path);
+    fileContent := getFtp(connectStri, portNumber, path);
   end func;

@@ -1,0 +1,1443 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  chkdb.sd7     Checks the database interface.                    *)
+(*  Copyright (C) 2014  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+  include "sql_base.s7i";
+  include "bstring.s7i";
+
+
+const func string: int8Type (in dbCategory: driver) is func
+  result
+    var string: int8Type is "";
+  begin
+    case driver of
+      when {DB_MYSQL}:      int8Type := "TINYINT";
+      when {DB_SQLITE}:     int8Type := "TINYINT";
+      when {DB_POSTGRESQL}: int8Type := "SMALLINT";
+      when {DB_OCI}:        int8Type := "SMALLINT";
+    end case;
+  end func;
+
+
+const func string: int64Type (in dbCategory: driver) is func
+  result
+    var string: int64Type is "";
+  begin
+    case driver of
+      when {DB_MYSQL}:      int64Type := "BIGINT";
+      when {DB_SQLITE}:     int64Type := "BIGINT";
+      when {DB_POSTGRESQL}: int64Type := "BIGINT";
+      when {DB_OCI}:        int64Type := "INTEGER";
+    end case;
+  end func;
+
+
+const func string: bigIntType (in dbCategory: driver) is func
+  result
+    var string: bigIntType is "";
+  begin
+    case driver of
+      when {DB_MYSQL}:      bigIntType := "DECIMAL(65)";
+      when {DB_SQLITE}:     bigIntType := "DECIMAL";
+      when {DB_POSTGRESQL}: bigIntType := "DECIMAL";
+      when {DB_OCI}:        bigIntType := "DECIMAL";
+    end case;
+  end func;
+
+
+const func string: floatType (in dbCategory: driver) is func
+  result
+    var string: floatType is "";
+  begin
+    case driver of
+      when {DB_MYSQL}:      floatType := "FLOAT";
+      when {DB_SQLITE}:     floatType := "REAL";
+      when {DB_POSTGRESQL}: floatType := "REAL";
+      when {DB_OCI}:        floatType := "FLOAT";
+    end case;
+  end func;
+
+
+const func string: doubleType (in dbCategory: driver) is func
+  result
+    var string: doubleType is "";
+  begin
+    case driver of
+      when {DB_MYSQL}:      doubleType := "DOUBLE";
+      when {DB_SQLITE}:     doubleType := "DOUBLE";
+      when {DB_POSTGRESQL}: doubleType := "DOUBLE PRECISION";
+      when {DB_OCI}:        doubleType := "DOUBLE PRECISION";
+    end case;
+  end func;
+
+
+const func string: bigRatType (in dbCategory: driver) is func
+  result
+    var string: bigRatType is "";
+  begin
+    case driver of
+      when {DB_MYSQL}:      bigRatType := "DECIMAL(65,30)";
+      when {DB_SQLITE}:     bigRatType := "NUMBER";
+      when {DB_POSTGRESQL}: bigRatType := "DECIMAL";
+      when {DB_OCI}:        bigRatType := "NUMBER";
+    end case;
+  end func;
+
+
+const func string: varcharType (in dbCategory: driver) is func
+  result
+    var string: bigRatType is "";
+  begin
+    case driver of
+      when {DB_MYSQL}:      bigRatType := "VARCHAR";
+      when {DB_SQLITE}:     bigRatType := "VARCHAR";
+      when {DB_POSTGRESQL}: bigRatType := "VARCHAR";
+      when {DB_OCI}:        bigRatType := "VARCHAR2";
+    end case;
+  end func;
+
+
+const func string: blobType (in dbCategory: driver) is func
+  result
+    var string: bigRatType is "";
+  begin
+    case driver of
+      when {DB_MYSQL}:      bigRatType := "BLOB";
+      when {DB_SQLITE}:     bigRatType := "BLOB";
+      when {DB_POSTGRESQL}: bigRatType := "BYTEA";
+      when {DB_OCI}:        bigRatType := "BLOB";
+    end case;
+  end func;
+
+
+const func boolean: supportsFloatingDecimals (in dbCategory: driver) is func
+  result
+    var boolean: supportsFloatingDecimals is FALSE;
+  begin
+    case driver of
+      when {DB_MYSQL}:      supportsFloatingDecimals := FALSE;
+      when {DB_SQLITE}:     supportsFloatingDecimals := TRUE;
+      when {DB_POSTGRESQL}: supportsFloatingDecimals := TRUE;
+      when {DB_OCI}:        supportsFloatingDecimals := TRUE;
+    end case;
+  end func;
+
+
+const boolean: infiniteAllowed is FALSE;
+const boolean: nanAllowed is FALSE;
+
+
+const proc: DECL_INSERT (in type: elemType) is func
+  begin
+
+    const proc: insert (inout sqlStatement: statement, in elemType: num,
+        in proc: succeedAction) is func
+      local
+        var boolean: succeeded is TRUE;
+      begin
+        block
+          bind(statement, 1, num);
+          execute(statement);
+        exception
+          catch RANGE_ERROR:
+            succeeded := FALSE;
+          catch FILE_ERROR:
+            succeeded := FALSE;
+        end block;
+        if succeeded then
+          succeedAction;
+        else
+          writeln(" *** Cannot insert " <& num);
+        end if;
+      end func;
+
+    const proc: insInf (inout sqlStatement: statement, in elemType: num,
+        in proc: succeedAction) is func
+      local
+        var boolean: succeeded is TRUE;
+      begin
+        block
+          bind(statement, 1, num);
+          execute(statement);
+        exception
+          catch RANGE_ERROR:
+            succeeded := FALSE;
+          catch FILE_ERROR:
+            succeeded := FALSE;
+        end block;
+        if succeeded then
+          succeedAction;
+          if not infiniteAllowed then
+            writeln(" *** Insert " <& num <& " succeeded, but it is not allowed");
+          end if
+        elsif infiniteAllowed then
+          writeln(" *** Cannot insert " <& num);
+        end if;
+      end func;
+
+    const proc: insNaN (inout sqlStatement: statement, in elemType: num,
+        in proc: succeedAction) is func
+      local
+        var boolean: succeeded is TRUE;
+      begin
+        block
+          bind(statement, 1, num);
+          execute(statement);
+        exception
+          catch RANGE_ERROR:
+            succeeded := FALSE;
+          catch FILE_ERROR:
+            succeeded := FALSE;
+        end block;
+        if succeeded then
+          succeedAction;
+          if not nanAllowed then
+            writeln(" *** Insert " <& num <& " succeeded, but it is not allowed");
+          end if
+        elsif nanAllowed then
+          writeln(" *** Cannot insert " <& num);
+        end if;
+      end func;
+
+   end func;
+
+
+DECL_INSERT(boolean);
+DECL_INSERT(integer);
+DECL_INSERT(bigInteger);
+DECL_INSERT(float);
+DECL_INSERT(bigRational);
+DECL_INSERT(string);
+DECL_INSERT(bstring);
+
+
+const proc: insert (inout sqlStatement: statement, NULL,
+    in proc: succeedAction) is func
+  local
+    var boolean: succeeded is TRUE;
+  begin
+    block
+      bind(statement, 1, NULL);
+      execute(statement);
+    exception
+      catch RANGE_ERROR:
+        succeeded := FALSE;
+      catch FILE_ERROR:
+        succeeded := FALSE;
+    end block;
+    if succeeded then
+      succeedAction;
+    else
+      writeln(" *** Cannot insert NULL");
+    end if;
+  end func;
+
+
+const proc: testBooleanField (in database: testDb, in dbCategory: driver) is func
+  local
+    const string: tableName is "booleanTest";
+    var array boolean: expect is 0 times FALSE;
+    var sqlStatement: statement is sqlStatement.value;
+    var boolean: booleanColumn is FALSE;
+    var integer: integerColumn is 0;
+    var bigInteger: bigIntColumn is 0_;
+    var bigRational: bigRatColumn is 0_/1_;
+    var integer: row is 1;
+  begin
+    writeln("testBooleanField: " <& driver);
+    statement := prepare(testDb, "CREATE TABLE " & tableName &
+                         " (booleanField CHAR)");
+    execute(statement);
+    block
+      statement := prepare(testDb, "INSERT INTO " & tableName &
+                           " (booleanField) VALUES (?)");
+      insert(statement,  NULL,  expect &:= FALSE);
+      insert(statement, FALSE,  expect &:= FALSE);
+      insert(statement,  TRUE,  expect &:=  TRUE);
+      statement := prepare(testDb, "INSERT INTO " & tableName &
+                           " (booleanField) VALUES (?)");
+      insert(statement,     0,  expect &:= FALSE);
+      insert(statement,     1,  expect &:=  TRUE);
+      statement := prepare(testDb, "INSERT INTO " & tableName &
+                           " (booleanField) VALUES (?)");
+      insert(statement,     0_, expect &:= FALSE);
+      insert(statement,     1_, expect &:=  TRUE);
+      statement := prepare(testDb, "SELECT * FROM " & tableName);
+      execute(statement);
+      while fetch(statement) do
+        booleanColumn := column(statement, 1, boolean);
+        if booleanColumn <> expect[row] then
+          writeln(" *** testBooleanField: Row: " <& row <&
+                  " Expected " <& expect[row] <& " found " <& booleanColumn);
+        end if;
+        if row = 1 and not isNull(statement, 1) then
+          writeln(" *** testBooleanField: Row: " <& row <&
+                  " Expected NULL found " <& booleanColumn);
+        end if;
+        incr(row);
+      end while;
+(*
+      execute(statement);
+      row := 1;
+      while fetch(statement) do
+        integerColumn := column(statement, 1, integer);
+        if integerColumn <> ord(expect[row]) then
+          writeln(" *** testBooleanField: Row: " <& row <&
+                  " Expected " <& expect[row] <& " found " <& integerColumn);
+        end if;
+        incr(row);
+      end while;
+      execute(statement);
+      row := 1;
+      while fetch(statement) do
+        bigIntColumn := column(statement, 1, bigInteger);
+        if bigIntColumn <> bigInteger conv ord(expect[row]) then
+          writeln(" *** testBooleanField: Row: " <& row <&
+                  " Expected " <& expect[row] <& " found " <& bigIntColumn);
+        end if;
+        incr(row);
+      end while;
+      execute(statement);
+      row := 1;
+      while fetch(statement) do
+        bigRatColumn := column(statement, 1, bigRational);
+        if bigRatColumn <> bigRational conv ord(expect[row]) then
+          writeln(" *** testBooleanField: Row: " <& row <&
+                  " Expected " <& expect[row] <& " found " <& bigRatColumn);
+        end if;
+        incr(row);
+      end while;
+*)
+    exception
+      catch RANGE_ERROR:
+        writeln(" *** RANGE_ERROR was raised");
+      catch FILE_ERROR:
+        writeln(" *** FILE_ERROR was raised");
+    end block;
+    statement := prepare(testDb, "DROP TABLE " & tableName);
+    execute(statement);
+  end func;
+
+
+const proc: testInt8Field (in database: testDb, in dbCategory: driver) is func
+  local
+    const string: tableName is "int8Test";
+    var array integer: expect is 0 times 0;
+    var sqlStatement: statement is sqlStatement.value;
+    var integer: int8Column is 0;
+    var bigInteger: bigIntColumn is 0_;
+    var bigRational: bigRatColumn is 0_/1_;
+    var integer: row is 1;
+  begin
+    writeln("testInt8Field: " <& driver);
+    statement := prepare(testDb, "CREATE TABLE " & tableName &
+                         " (int8Field " & int8Type(driver) & ")");
+    execute(statement);
+    block
+      statement := prepare(testDb, "INSERT INTO " & tableName &
+                           " (int8Field) VALUES (?)");
+      insert(statement, NULL,  expect &:=    0);
+      insert(statement,    1,  expect &:=    1);
+      insert(statement, -128,  expect &:= -128);
+      insert(statement,  127,  expect &:=  127);
+      statement := prepare(testDb, "INSERT INTO " & tableName &
+                           " (int8Field) VALUES (?)");
+      insert(statement,    2_, expect &:=    2);
+      insert(statement, -128_, expect &:= -128);
+      insert(statement,  127_, expect &:=  127);
+      statement := prepare(testDb, "INSERT INTO " & tableName &
+                           " (int8Field) VALUES (?)");
+      insert(statement, FALSE, expect &:= 0);
+      insert(statement,  TRUE, expect &:= 1);
+      statement := prepare(testDb, "SELECT * FROM " & tableName);
+      execute(statement);
+      while fetch(statement) do
+        int8Column := column(statement, 1, integer);
+        if int8Column <> expect[row] then
+          writeln(" *** testInt8Field: Row: " <& row <&
+                  " Expected " <& expect[row] <& " found " <& int8Column);
+        end if;
+        if row = 1 and not isNull(statement, 1) then
+          writeln(" *** testBooleanField: Row: " <& row <&
+                  " Expected NULL found " <& int8Column);
+        end if;
+        incr(row);
+      end while;
+      execute(statement);
+      row := 1;
+      while fetch(statement) do
+        bigIntColumn := column(statement, 1, bigInteger);
+        if bigIntColumn <> bigInteger conv (expect[row]) then
+          writeln(" *** testInt8Field: Row: " <& row <&
+                  " Expected " <& expect[row] <& " found " <& bigIntColumn);
+        end if;
+        incr(row);
+      end while;
+      execute(statement);
+      row := 1;
+      while fetch(statement) do
+        bigRatColumn := column(statement, 1, bigRational);
+        if bigRatColumn <> bigRational conv (expect[row]) then
+          writeln(" *** testInt8Field: Row: " <& row <&
+                  " Expected " <& expect[row] <& " found " <& bigRatColumn);
+        end if;
+        incr(row);
+      end while;
+    exception
+      catch RANGE_ERROR:
+        writeln(" *** RANGE_ERROR was raised");
+      catch FILE_ERROR:
+        writeln(" *** FILE_ERROR was raised");
+    end block;
+    statement := prepare(testDb, "DROP TABLE " & tableName);
+    execute(statement);
+  end func;
+
+
+const proc: testInt16Field (in database: testDb, in dbCategory: driver) is func
+  local
+    const string: tableName is "int16Test";
+    var array integer: expect is 0 times 0;
+    var sqlStatement: statement is sqlStatement.value;
+    var integer: int16Column is 0;
+    var bigInteger: bigIntColumn is 0_;
+    var bigRational: bigRatColumn is 0_/1_;
+    var integer: row is 1;
+  begin
+    writeln("testInt16Field: " <& driver);
+    statement := prepare(testDb, "CREATE TABLE " & tableName &
+                         " (int16Field SMALLINT)");
+    execute(statement);
+    block
+      statement := prepare(testDb, "INSERT INTO " & tableName &
+                           " (int16Field) VALUES (?)");
+      insert(statement,   NULL,  expect &:=      0);
+      insert(statement,      1,  expect &:=      1);
+      insert(statement, -32768,  expect &:= -32768);
+      insert(statement,  32767,  expect &:=  32767);
+      statement := prepare(testDb, "INSERT INTO " & tableName &
+                           " (int16Field) VALUES (?)");
+      insert(statement,      2_, expect &:=      2);
+      insert(statement, -32768_, expect &:= -32768);
+      insert(statement,  32767_, expect &:=  32767);
+      statement := prepare(testDb, "INSERT INTO " & tableName &
+                           " (int16Field) VALUES (?)");
+      insert(statement, FALSE, expect &:= 0);
+      insert(statement,  TRUE, expect &:= 1);
+      statement := prepare(testDb, "SELECT * FROM " & tableName);
+      execute(statement);
+      while fetch(statement) do
+        int16Column := column(statement, 1, integer);
+        if int16Column <> expect[row] then
+          writeln(" *** testInt16Field: Row: " <& row <&
+                  " Expected " <& expect[row] <& " found " <& int16Column);
+        end if;
+        if row = 1 and not isNull(statement, 1) then
+          writeln(" *** testBooleanField: Row: " <& row <&
+                  " Expected NULL found " <& int16Column);
+        end if;
+        incr(row);
+      end while;
+      execute(statement);
+      row := 1;
+      while fetch(statement) do
+        bigIntColumn := column(statement, 1, bigInteger);
+        if bigIntColumn <> bigInteger conv (expect[row]) then
+          writeln(" *** testInt16Field: Row: " <& row <&
+                  " Expected " <& expect[row] <& " found " <& bigIntColumn);
+        end if;
+        incr(row);
+      end while;
+      execute(statement);
+      row := 1;
+      while fetch(statement) do
+        bigRatColumn := column(statement, 1, bigRational);
+        if bigRatColumn <> bigRational conv (expect[row]) then
+          writeln(" *** testInt16Field: Row: " <& row <&
+                  " Expected " <& expect[row] <& " found " <& bigRatColumn);
+        end if;
+        incr(row);
+      end while;
+    exception
+      catch RANGE_ERROR:
+        writeln(" *** RANGE_ERROR was raised");
+      catch FILE_ERROR:
+        writeln(" *** FILE_ERROR was raised");
+    end block;
+    statement := prepare(testDb, "DROP TABLE " & tableName);
+    execute(statement);
+  end func;
+
+
+const proc: testInt32Field (in database: testDb, in dbCategory: driver) is func
+  local
+    const string: tableName is "int32Test";
+    var array integer: expect is 0 times 0;
+    var sqlStatement: statement is sqlStatement.value;
+    var integer: int32Column is 0;
+    var bigInteger: bigIntColumn is 0_;
+    var bigRational: bigRatColumn is 0_/1_;
+    var integer: row is 1;
+  begin
+    writeln("testInt32Field: " <& driver);
+    statement := prepare(testDb, "CREATE TABLE " & tableName &
+                         " (int32Field INTEGER)");
+    execute(statement);
+    block
+      statement := prepare(testDb, "INSERT INTO " & tableName &
+                           " (int32Field) VALUES (?)");
+      insert(statement,        NULL,  expect &:=           0);
+      insert(statement,           1,  expect &:=           1);
+      insert(statement, -2147483648,  expect &:= -2147483648);
+      insert(statement,  2147483647,  expect &:=  2147483647);
+      statement := prepare(testDb, "INSERT INTO " & tableName &
+                           " (int32Field) VALUES (?)");
+      insert(statement,           2_, expect &:=           2);
+      insert(statement, -2147483648_, expect &:= -2147483648);
+      insert(statement,  2147483647_, expect &:=  2147483647);
+      statement := prepare(testDb, "INSERT INTO " & tableName &
+                           " (int32Field) VALUES (?)");
+      insert(statement, FALSE, expect &:= 0);
+      insert(statement,  TRUE, expect &:= 1);
+      statement := prepare(testDb, "SELECT * FROM " & tableName);
+      execute(statement);
+      while fetch(statement) do
+        int32Column := column(statement, 1, integer);
+        if int32Column <> expect[row] then
+          writeln(" *** testInt32Field: Row: " <& row <&
+                  " Expected " <& expect[row] <& " found " <& int32Column);
+        end if;
+        if row = 1 and not isNull(statement, 1) then
+          writeln(" *** testBooleanField: Row: " <& row <&
+                  " Expected NULL found " <& int32Column);
+        end if;
+        incr(row);
+      end while;
+      execute(statement);
+      row := 1;
+      while fetch(statement) do
+        bigIntColumn := column(statement, 1, bigInteger);
+        if bigIntColumn <> bigInteger conv (expect[row]) then
+          writeln(" *** testInt32Field: Row: " <& row <&
+                  " Expected " <& expect[row] <& " found " <& bigIntColumn);
+        end if;
+        incr(row);
+      end while;
+      execute(statement);
+      row := 1;
+      while fetch(statement) do
+        bigRatColumn := column(statement, 1, bigRational);
+        if bigRatColumn <> bigRational conv (expect[row]) then
+          writeln(" *** testInt32Field: Row: " <& row <&
+                  " Expected " <& expect[row] <& " found " <& bigRatColumn);
+        end if;
+        incr(row);
+      end while;
+    exception
+      catch RANGE_ERROR:
+        writeln(" *** RANGE_ERROR was raised");
+      catch FILE_ERROR:
+        writeln(" *** FILE_ERROR was raised");
+    end block;
+    statement := prepare(testDb, "DROP TABLE " & tableName);
+    execute(statement);
+  end func;
+
+
+const proc: testInt64Field (in database: testDb, in dbCategory: driver) is func
+  local
+    const string: tableName is "int64Test";
+    var array integer: expect is 0 times 0;
+    var sqlStatement: statement is sqlStatement.value;
+    var integer: int64Column is 0;
+    var bigInteger: bigIntColumn is 0_;
+    var bigRational: bigRatColumn is 0_/1_;
+    var integer: row is 1;
+  begin
+    writeln("testInt64Field: " <& driver);
+    statement := prepare(testDb, "CREATE TABLE " & tableName &
+                         " (int64Field " & int64Type(driver) & ")");
+    execute(statement);
+    block
+      statement := prepare(testDb, "INSERT INTO " & tableName &
+                           " (int64Field) VALUES (?)");
+      insert(statement,                 NULL,       expect &:=                    0);
+      insert(statement,                    1,       expect &:=                    1);
+      insert(statement, pred(-9223372036854775807), expect &:= pred(-9223372036854775807));
+      insert(statement,  9223372036854775807,       expect &:=  9223372036854775807);
+      statement := prepare(testDb, "INSERT INTO " & tableName &
+                           " (int64Field) VALUES (?)");
+      insert(statement,                    2_,      expect &:=                    2);
+      insert(statement, -9223372036854775808_,      expect &:= pred(-9223372036854775807));
+      insert(statement,  9223372036854775807_,      expect &:=  9223372036854775807);
+      statement := prepare(testDb, "INSERT INTO " & tableName &
+                           " (int64Field) VALUES (?)");
+      insert(statement, FALSE, expect &:= 0);
+      insert(statement,  TRUE, expect &:= 1);
+      statement := prepare(testDb, "SELECT * FROM " & tableName);
+      execute(statement);
+      while fetch(statement) do
+        int64Column := column(statement, 1, integer);
+        if int64Column <> expect[row] then
+          writeln(" *** testInt64Field: Row: " <& row <&
+                  " Expected " <& expect[row] <& " found " <& int64Column);
+        end if;
+        if row = 1 and not isNull(statement, 1) then
+          writeln(" *** testBooleanField: Row: " <& row <&
+                  " Expected NULL found " <& int64Column);
+        end if;
+        incr(row);
+      end while;
+      execute(statement);
+      row := 1;
+      while fetch(statement) do
+        bigIntColumn := column(statement, 1, bigInteger);
+        if bigIntColumn <> bigInteger conv (expect[row]) then
+          writeln(" *** testInt64Field: Row: " <& row <&
+                  " Expected " <& expect[row] <& " found " <& bigIntColumn);
+        end if;
+        incr(row);
+      end while;
+      execute(statement);
+      row := 1;
+      while fetch(statement) do
+        bigRatColumn := column(statement, 1, bigRational);
+        if bigRatColumn <> bigRational conv (expect[row]) then
+          writeln(" *** testInt64Field: Row: " <& row <&
+                  " Expected " <& expect[row] <& " found " <& bigRatColumn);
+        end if;
+        incr(row);
+      end while;
+    exception
+      catch RANGE_ERROR:
+        writeln(" *** RANGE_ERROR was raised");
+      catch FILE_ERROR:
+        writeln(" *** FILE_ERROR was raised");
+    end block;
+    statement := prepare(testDb, "DROP TABLE " & tableName);
+    execute(statement);
+  end func;
+
+
+const proc: testBigIntField (in database: testDb, in dbCategory: driver) is func
+  local
+    const string: tableName is "bigIntTest";
+    var array bigInteger: expect is 0 times 0_;
+    var sqlStatement: statement is sqlStatement.value;
+    var bigInteger: bigIntColumn is 0_;
+    var integer: row is 1;
+  begin
+    writeln("testBigIntField: " <& driver);
+    statement := prepare(testDb, "CREATE TABLE " & tableName &
+                         " (bigIntField " & bigIntType(driver) & ")");
+    execute(statement);
+    block
+      statement := prepare(testDb, "INSERT INTO " & tableName &
+                           " (bigIntField) VALUES (?)");
+      insert(statement,                  NULL,      expect &:=                     0_);
+      insert(statement,                     1,      expect &:=                     1_);
+      insert(statement,  -1000000000000000000,      expect &:=  -1000000000000000000_);
+      insert(statement,   1000000000000000000,      expect &:=   1000000000000000000_);
+      insert(statement, pred(-9223372036854775807), expect &:=  -9223372036854775808_);
+      insert(statement,   9223372036854775807,      expect &:=   9223372036854775807_);
+      statement := prepare(testDb, "INSERT INTO " & tableName &
+                           " (bigIntField) VALUES (?)");
+      insert(statement,                     2_,     expect &:=                     2_);
+      insert(statement,  -9223372036854775809_,     expect &:=  -9223372036854775809_);
+      insert(statement,   9223372036854775808_,     expect &:=   9223372036854775808_);
+      insert(statement, -10000000000000000000_,     expect &:= -10000000000000000000_);
+      insert(statement,  10000000000000000000_,     expect &:=  10000000000000000000_);
+      insert(statement,  -170141183460469231731687303715884105728_, expect &:=  -170141183460469231731687303715884105728_);
+      insert(statement,   170141183460469231731687303715884105727_, expect &:=   170141183460469231731687303715884105727_);
+      insert(statement,  -340282366920938463463374607431768211455_, expect &:=  -340282366920938463463374607431768211455_);
+      insert(statement,   340282366920938463463374607431768211455_, expect &:=   340282366920938463463374607431768211455_);
+      insert(statement, -1000000000000000000000000000000000000000_, expect &:= -1000000000000000000000000000000000000000_);
+      insert(statement,  1000000000000000000000000000000000000000_, expect &:=  1000000000000000000000000000000000000000_);
+      statement := prepare(testDb, "INSERT INTO " & tableName &
+                           " (bigIntField) VALUES (?)");
+      insert(statement, FALSE, expect &:= 0_);
+      insert(statement,  TRUE, expect &:= 1_);
+      statement := prepare(testDb, "SELECT * FROM " & tableName);
+      execute(statement);
+      while fetch(statement) do
+        bigIntColumn := column(statement, 1, bigInteger);
+        if bigIntColumn <> expect[row] then
+          writeln(" *** testBigIntField: Row: " <& row <&
+                  " Expected " <& expect[row] <& " found " <& bigIntColumn);
+        end if;
+        if row = 1 and not isNull(statement, 1) then
+          writeln(" *** testBooleanField: Row: " <& row <&
+                  " Expected NULL found " <& bigIntColumn);
+        end if;
+        incr(row);
+      end while;
+    exception
+      catch RANGE_ERROR:
+        writeln(" *** RANGE_ERROR was raised");
+      catch FILE_ERROR:
+        writeln(" *** FILE_ERROR was raised");
+    end block;
+    statement := prepare(testDb, "DROP TABLE " & tableName);
+    execute(statement);
+  end func;
+
+
+const proc: testFloatField (in database: testDb, in dbCategory: driver) is func
+  local
+    const string: tableName is "floatTest";
+    var array float: expect is 0 times 0.0;
+    var sqlStatement: statement is sqlStatement.value;
+    var float: floatColumn is 0.0;
+    var integer: row is 1;
+  begin
+    writeln("testFloatField: " <& driver);
+    statement := prepare(testDb, "CREATE TABLE " & tableName &
+                         " (floatField " & floatType(driver) & ")");
+    execute(statement);
+    block
+      statement := prepare(testDb, "INSERT INTO " & tableName &
+                           " (floatField) VALUES (?)");
+      insert(statement, NULL,                       expect &:=                    0.0);
+      insert(statement, 1,                          expect &:=                    1.0);
+      insert(statement, pred(-9223372036854775807), expect &:= -9223372036854775808.0);
+      insert(statement, 9223372036854775807,        expect &:=  9223372036854775807.0);
+      statement := prepare(testDb, "INSERT INTO " & tableName &
+                           " (floatField) VALUES (?)");
+      insert(statement,                    2_,      expect &:=                    2.0);
+      insert(statement, -9223372036854775809_,      expect &:= -9223372036854775809.0);
+      insert(statement,  9223372036854775808_,      expect &:=  9223372036854775808.0);
+      statement := prepare(testDb, "INSERT INTO " & tableName &
+                           " (floatField) VALUES (?)");
+      insert(statement,  7_/2_,                     expect &:=  3.5);
+      insert(statement, -9223372036854775808_/1_,   expect &:= -9223372036854775808.0);
+      insert(statement,  9223372036854775807_/1_,   expect &:=  9223372036854775807.0);
+      insInf(statement, -1_/0_,                     expect &:= -Infinity);
+      insInf(statement,  1_/0_,                     expect &:=  Infinity);
+      insNaN(statement,  0_/0_,                     expect &:=  NaN);
+      statement := prepare(testDb, "INSERT INTO " & tableName &
+                           " (floatField) VALUES (?)");
+      insert(statement,  4.125,                     expect &:=  4.125);
+      insert(statement,  0.0009765625,              expect &:=  0.0009765625);
+      insert(statement,  0.000244140625,            expect &:=  0.000244140625);
+      insert(statement,  9.5367431640625e-7,        expect &:=  9.5367431640625e-7);
+      insert(statement,  4.76837158203125e-7,       expect &:=  4.76837158203125e-7);
+      insert(statement,  2.384185791015625e-7,      expect &:=  2.384185791015625e-7);
+      insert(statement,  5.9604644775390625e-8,     expect &:=  5.9604644775390625e-8);
+      insert(statement, -9223372036854775808.0,     expect &:= -9223372036854775808.0);
+      insert(statement,  9223372036854775808.0,     expect &:=  9223372036854775808.0);
+      insInf(statement, -Infinity,                  expect &:= -Infinity);
+      insInf(statement,  Infinity,                  expect &:=  Infinity);
+      insNaN(statement,  NaN,                       expect &:=  NaN);
+      statement := prepare(testDb, "SELECT * FROM " & tableName);
+      execute(statement);
+      while fetch(statement) do
+        floatColumn := column(statement, 1, float);
+        if floatColumn <> expect[row] and
+            (not isNaN(floatColumn) or not isNaN(expect[row])) then
+          writeln(" *** testFloatField: Row: " <& row <&
+                  " Expected " <& expect[row] <& " found " <& floatColumn);
+        end if;
+        if row = 1 and not isNull(statement, 1) then
+          writeln(" *** testBooleanField: Row: " <& row <&
+                  " Expected NULL found " <& floatColumn);
+        end if;
+        incr(row);
+      end while;
+    exception
+      catch RANGE_ERROR:
+        writeln(" *** RANGE_ERROR was raised");
+      catch FILE_ERROR:
+        writeln(" *** FILE_ERROR was raised");
+    end block;
+    statement := prepare(testDb, "DROP TABLE " & tableName);
+    execute(statement);
+  end func;
+
+
+const proc: testDoubleField (in database: testDb, in dbCategory: driver) is func
+  local
+    const string: tableName is "doubleTest";
+    var array float: expect is 0 times 0.0;
+    var sqlStatement: statement is sqlStatement.value;
+    var float: doubleColumn is 0.0;
+    var integer: row is 1;
+  begin
+    writeln("testDoubleField: " <& driver);
+    statement := prepare(testDb, "CREATE TABLE " & tableName &
+                         " (doubleField " & doubleType(driver) & ")");
+    execute(statement);
+    block
+      statement := prepare(testDb, "INSERT INTO " & tableName &
+                         " (doubleField) VALUES (?)");
+      insert(statement, NULL,                       expect &:=                    0.0);
+      insert(statement, 1,                          expect &:=                    1.0);
+      insert(statement, pred(-9223372036854775807), expect &:= -9223372036854775808.0);
+      insert(statement, 9223372036854775807,        expect &:=  9223372036854775807.0);
+      statement := prepare(testDb, "INSERT INTO " & tableName &
+                           " (doubleField) VALUES (?)");
+      insert(statement, 2_,                         expect &:=                    2.0);
+      insert(statement, -9223372036854775809_,      expect &:= -9223372036854775809.0);
+      insert(statement, 9223372036854775808_,       expect &:=  9223372036854775808.0);
+      statement := prepare(testDb, "INSERT INTO " & tableName &
+                           " (doubleField) VALUES (?)");
+      insert(statement,  7_/2_,                     expect &:=  3.5);
+      insert(statement, -9223372036854775808_/1_,   expect &:= -9223372036854775808.0);
+      insert(statement,  9223372036854775807_/1_,   expect &:=  9223372036854775807.0);
+      insInf(statement, -1_/0_,                     expect &:= -Infinity);
+      insInf(statement,  1_/0_,                     expect &:=  Infinity);
+      insNaN(statement,  0_/0_,                     expect &:=  NaN);
+      statement := prepare(testDb, "INSERT INTO " & tableName &
+                           " (doubleField) VALUES (?)");
+      insert(statement,  4.125,                     expect &:=  4.125);
+      insert(statement,  0.0009765625,              expect &:=  0.0009765625);
+      insert(statement,  0.000244140625,            expect &:=  0.000244140625);
+      insert(statement,  9.5367431640625e-7,        expect &:=  9.5367431640625e-7);
+      insert(statement,  4.76837158203125e-7,       expect &:=  4.76837158203125e-7);
+      insert(statement,  2.384185791015625e-7,      expect &:=  2.384185791015625e-7);
+      insert(statement,  5.9604644775390625e-8,     expect &:=  5.9604644775390625e-8);
+      insert(statement, -9223372036854775808.0,     expect &:= -9223372036854775808.0);
+      insert(statement,  9223372036854775808.0,     expect &:=  9223372036854775808.0);
+      insInf(statement, -Infinity,                  expect &:= -Infinity);
+      insInf(statement,  Infinity,                  expect &:=  Infinity);
+      insNaN(statement,  NaN,                       expect &:=  NaN);
+      statement := prepare(testDb, "SELECT * FROM " & tableName);
+      execute(statement);
+      while fetch(statement) do
+        doubleColumn := column(statement, 1, float);
+        if doubleColumn <> expect[row] and
+            (not isNaN(doubleColumn) or not isNaN(expect[row])) then
+          writeln(" *** testDoubleField: Row: " <& row <&
+                  " Expected " <& expect[row] <& " found " <& doubleColumn);
+        end if;
+        if row = 1 and not isNull(statement, 1) then
+          writeln(" *** testBooleanField: Row: " <& row <&
+                  " Expected NULL found " <& doubleColumn);
+        end if;
+        incr(row);
+      end while;
+    exception
+      catch RANGE_ERROR:
+        writeln(" *** RANGE_ERROR was raised");
+      catch FILE_ERROR:
+        writeln(" *** FILE_ERROR was raised");
+    end block;
+    statement := prepare(testDb, "DROP TABLE " & tableName);
+    execute(statement);
+  end func;
+
+
+const proc: testBigRatField (in database: testDb, in dbCategory: driver) is func
+  local
+    const string: tableName is "bigRatTest";
+    var array bigRational: expect is 0 times 0_/1_;
+    var sqlStatement: statement is sqlStatement.value;
+    var bigRational: bigRatColumn is bigRational.value;
+    var integer: row is 1;
+    var bigInteger: numerator is 0_;
+  begin
+    writeln("testBigRatField: " <& driver);
+    statement := prepare(testDb, "CREATE TABLE " & tableName &
+                         " (bigRatField " & bigRatType(driver) & ")");
+    execute(statement);
+    block
+      statement := prepare(testDb, "INSERT INTO " & tableName &
+                         " (bigRatField) VALUES (?)");
+      insert(statement,                 NULL,       expect &:=                    0_/1_);
+      insert(statement,                    1,       expect &:=                    1_/1_);
+      insert(statement, pred(-9223372036854775807), expect &:= -9223372036854775808_/1_);
+      insert(statement,  9223372036854775807,       expect &:=  9223372036854775807_/1_);
+      statement := prepare(testDb, "INSERT INTO " & tableName &
+                           " (bigRatField) VALUES (?)");
+      insert(statement,                    2_,      expect &:=                    2_/1_);
+      insert(statement, -9223372036854775809_,      expect &:= -9223372036854775809_/1_);
+      insert(statement,  9223372036854775808_,      expect &:=  9223372036854775808_/1_);
+      statement := prepare(testDb, "INSERT INTO " & tableName &
+                           " (bigRatField) VALUES (?)");
+      insert(statement,  0_/1_,                     expect &:=  0_/1_);
+      insert(statement,  1_/1_,                     expect &:=  1_/1_);
+      insert(statement,  7_/2_,                     expect &:=  7_/2_);
+      insert(statement,  9223372036854775807_/1_,   expect &:=  9223372036854775807_/1_);
+      insert(statement,  9223372036854775808_/1_,   expect &:=  9223372036854775808_/1_);
+      insert(statement,  12345678901234500000000_/1_,
+             expect &:=  12345678901234500000000_/1_);
+      insert(statement,  123456789012345600000000_/1_,
+             expect &:=  123456789012345600000000_/1_);
+      insert(statement,  12345678901234567890123400000000_/1_,
+             expect &:=  12345678901234567890123400000000_/1_);
+      insert(statement,  12345678901234567890123456789012000_/1_,
+             expect &:=  12345678901234567890123456789012000_/1_);
+      insert(statement,  1234567890123450_/1_,
+             expect &:=  1234567890123450_/1_);
+      insert(statement,  12345678901234560_/1_,
+             expect &:=  12345678901234560_/1_);
+      insert(statement,  1234567890123456789012340_/1_,
+             expect &:=  1234567890123456789012340_/1_);
+      insert(statement,  123456789012345678901234567890120_/1_,
+             expect &:=  123456789012345678901234567890120_/1_);
+      insert(statement,  123456789012345_/1_,
+             expect &:=  123456789012345_/1_);
+      insert(statement,  1234567890123456_/1_,
+             expect &:=  1234567890123456_/1_);
+      insert(statement,  123456789012345678901234_/1_,
+             expect &:=  123456789012345678901234_/1_);
+      insert(statement,  12345678901234567890123456789012_/1_,
+             expect &:=  12345678901234567890123456789012_/1_);
+      insert(statement,  123456789012345_/10_,
+             expect &:=  123456789012345_/10_);
+      insert(statement,  1234567890123456_/10_,
+             expect &:=  1234567890123456_/10_);
+      insert(statement,  123456789012345678901234_/10_,
+             expect &:=  123456789012345678901234_/10_);
+      insert(statement,  12345678901234567890123456789012_/10_,
+             expect &:=  12345678901234567890123456789012_/10_);
+      insert(statement,  123456789012345_/10000000_,
+             expect &:=  123456789012345_/10000000_);
+      insert(statement,  1234567890123456_/100000000_,
+             expect &:=  1234567890123456_/100000000_);
+      insert(statement,  123456789012345678901234_/1000000000000_,
+             expect &:=  123456789012345678901234_/1000000000000_);
+      insert(statement,  12345678901234567890123456789012_/10000000000000000_,
+             expect &:=  12345678901234567890123456789012_/10000000000000000_);
+      insert(statement,  123456789012345678901234567890123456789_/100000000000000000000_,
+             expect &:=  123456789012345678901234567890123456789_/100000000000000000000_);
+      insert(statement,  123456789012345_/100000000000000_,
+             expect &:=  123456789012345_/100000000000000_);
+      insert(statement,  1234567890123456_/1000000000000000_,
+             expect &:=  1234567890123456_/1000000000000000_);
+      insert(statement,  123456789012345678901234_/100000000000000000000000_,
+             expect &:=  123456789012345678901234_/100000000000000000000000_);
+      insert(statement,  1234567890123456789012345678901_/1000000000000000000000000000000_,
+             expect &:=  1234567890123456789012345678901_/1000000000000000000000000000000_);
+      insert(statement,  123456789012345_/1000000000000000_,
+             expect &:=  123456789012345_/1000000000000000_);
+      insert(statement,  1234567890123456_/10000000000000000_,
+             expect &:=  1234567890123456_/10000000000000000_);
+      insert(statement,  123456789012345678901234_/1000000000000000000000000_,
+             expect &:=  123456789012345678901234_/1000000000000000000000000_);
+      insert(statement,  123456789012345678901234567891_/1000000000000000000000000000000_,
+             expect &:=  123456789012345678901234567891_/1000000000000000000000000000000_);
+      insert(statement,  123456789012345_/10000000000000000_,
+             expect &:=  123456789012345_/10000000000000000_);
+      insert(statement,  1234567890123456_/100000000000000000_,
+             expect &:=  1234567890123456_/100000000000000000_);
+      insert(statement,  123456789012345678901234_/10000000000000000000000000_,
+             expect &:=  123456789012345678901234_/10000000000000000000000000_);
+      insert(statement,  12345678901234567890123456789_/1000000000000000000000000000000_,
+             expect &:=  12345678901234567890123456789_/1000000000000000000000000000000_);
+      insert(statement,  123456789012345_/10000000000000000000_,
+             expect &:=  123456789012345_/10000000000000000000_);
+      insert(statement,  1234567890123456_/100000000000000000000_,
+             expect &:=  1234567890123456_/100000000000000000000_);
+      insert(statement,  123456789012345678901234_/1000000000000000000000000000000_,
+             expect &:=  123456789012345678901234_/1000000000000000000000000000000_);
+      insert(statement, -0_/1_,                     expect &:= -0_/1_);
+      insert(statement, -1_/1_,                     expect &:= -1_/1_);
+      insert(statement, -7_/2_,                     expect &:= -7_/2_);
+      insert(statement, -9223372036854775807_/1_,   expect &:= -9223372036854775807_/1_);
+      insert(statement, -9223372036854775808_/1_,   expect &:= -9223372036854775808_/1_);
+      insert(statement, -12345678901234500000000_/1_,
+             expect &:= -12345678901234500000000_/1_);
+      insert(statement, -123456789012345600000000_/1_,
+             expect &:= -123456789012345600000000_/1_);
+      insert(statement, -12345678901234567890123400000000_/1_,
+             expect &:= -12345678901234567890123400000000_/1_);
+      insert(statement, -1234567890123456789012345678901200_/1_,
+             expect &:= -1234567890123456789012345678901200_/1_);
+      insert(statement, -1234567890123450_/1_,
+             expect &:= -1234567890123450_/1_);
+      insert(statement, -12345678901234560_/1_,
+             expect &:= -12345678901234560_/1_);
+      insert(statement, -1234567890123456789012340_/1_,
+             expect &:= -1234567890123456789012340_/1_);
+      insert(statement, -123456789012345678901234567890120_/1_,
+             expect &:= -123456789012345678901234567890120_/1_);
+      insert(statement, -123456789012345_/1_,
+             expect &:= -123456789012345_/1_);
+      insert(statement, -1234567890123456_/1_,
+             expect &:= -1234567890123456_/1_);
+      insert(statement, -123456789012345678901234_/1_,
+             expect &:= -123456789012345678901234_/1_);
+      insert(statement, -12345678901234567890123456789012_/1_,
+             expect &:= -12345678901234567890123456789012_/1_);
+      insert(statement, -123456789012345_/10_,
+             expect &:= -123456789012345_/10_);
+      insert(statement, -1234567890123456_/10_,
+             expect &:= -1234567890123456_/10_);
+      insert(statement, -123456789012345678901234_/10_,
+             expect &:= -123456789012345678901234_/10_);
+      insert(statement, -12345678901234567890123456789012_/10_,
+             expect &:= -12345678901234567890123456789012_/10_);
+      insert(statement, -123456789012345_/10000000_,
+             expect &:= -123456789012345_/10000000_);
+      insert(statement, -1234567890123456_/100000000_,
+             expect &:= -1234567890123456_/100000000_);
+      insert(statement, -123456789012345678901234_/1000000000000_,
+             expect &:= -123456789012345678901234_/1000000000000_);
+      insert(statement, -12345678901234567890123456789012_/10000000000000000_,
+             expect &:= -12345678901234567890123456789012_/10000000000000000_);
+      insert(statement, -123456789012345678901234567890123456789_/100000000000000000000_,
+             expect &:= -123456789012345678901234567890123456789_/100000000000000000000_);
+      insert(statement, -123456789012345_/100000000000000_,
+             expect &:= -123456789012345_/100000000000000_);
+      insert(statement, -1234567890123456_/1000000000000000_,
+             expect &:= -1234567890123456_/1000000000000000_);
+      insert(statement, -123456789012345678901234_/100000000000000000000000_,
+             expect &:= -123456789012345678901234_/100000000000000000000000_);
+      insert(statement, -1234567890123456789012345678901_/1000000000000000000000000000000_,
+             expect &:= -1234567890123456789012345678901_/1000000000000000000000000000000_);
+      insert(statement, -123456789012345_/1000000000000000_,
+             expect &:= -123456789012345_/1000000000000000_);
+      insert(statement, -1234567890123456_/10000000000000000_,
+             expect &:= -1234567890123456_/10000000000000000_);
+      insert(statement, -123456789012345678901234_/1000000000000000000000000_,
+             expect &:= -123456789012345678901234_/1000000000000000000000000_);
+      insert(statement, -123456789012345678901234567891_/1000000000000000000000000000000_,
+             expect &:= -123456789012345678901234567891_/1000000000000000000000000000000_);
+      insert(statement, -123456789012345_/10000000000000000_,
+             expect &:= -123456789012345_/10000000000000000_);
+      insert(statement, -1234567890123456_/100000000000000000_,
+             expect &:= -1234567890123456_/100000000000000000_);
+      insert(statement, -123456789012345678901234_/10000000000000000000000000_,
+             expect &:= -123456789012345678901234_/10000000000000000000000000_);
+      insert(statement, -12345678901234567890123456789_/1000000000000000000000000000000_,
+             expect &:= -12345678901234567890123456789_/1000000000000000000000000000000_);
+      insert(statement, -123456789012345_/10000000000000000000_,
+             expect &:= -123456789012345_/10000000000000000000_);
+      insert(statement, -1234567890123456_/100000000000000000000_,
+             expect &:= -1234567890123456_/100000000000000000000_);
+      insert(statement, -123456789012345678901234_/1000000000000000000000000000000_,
+             expect &:= -123456789012345678901234_/1000000000000000000000000000000_);
+      if supportsFloatingDecimals(driver) then
+        insert(statement,  12345678901234567890123456789012345678900000000_/1_,
+               expect &:=  12345678901234567890123456789012345678900000000_/1_);
+        insert(statement,  1234567890123456789012345678901234567890_/1_,
+               expect &:=  1234567890123456789012345678901234567890_/1_);
+        insert(statement,  123456789012345678901234567890123456789_/1_,
+               expect &:=  123456789012345678901234567890123456789_/1_);
+        insert(statement,  123456789012345678901234567890123456789_/10_,
+               expect &:=  123456789012345678901234567890123456789_/10_);
+        insert(statement,  123456789012345678901234567890123456789_/100000000000000000000000000000000000000_,
+               expect &:=  123456789012345678901234567890123456789_/100000000000000000000000000000000000000_);
+        insert(statement,  123456789012345678901234567890123456789_/1000000000000000000000000000000000000000_,
+               expect &:=  123456789012345678901234567890123456789_/1000000000000000000000000000000000000000_);
+        insert(statement,  123456789012345678901234567890123456789_/10000000000000000000000000000000000000000_,
+               expect &:=  123456789012345678901234567890123456789_/10000000000000000000000000000000000000000_);
+        insert(statement,  12345678901234567890123456789012_/10000000000000000000000000000000000000000_,
+               expect &:=  12345678901234567890123456789012_/10000000000000000000000000000000000000000_);
+        insert(statement,  123456789012345678901234567890123456789_/100000000000000000000000000000000000000000000000_,
+               expect &:=  123456789012345678901234567890123456789_/100000000000000000000000000000000000000000000000_);
+        insert(statement, -12345678901234567890123456789012345678900000000_/1_,
+               expect &:= -12345678901234567890123456789012345678900000000_/1_);
+        insert(statement, -1234567890123456789012345678901234567890_/1_,
+               expect &:= -1234567890123456789012345678901234567890_/1_);
+        insert(statement, -123456789012345678901234567890123456789_/1_,
+               expect &:= -123456789012345678901234567890123456789_/1_);
+        insert(statement, -123456789012345678901234567890123456789_/10_,
+               expect &:= -123456789012345678901234567890123456789_/10_);
+        insert(statement, -123456789012345678901234567890123456789_/100000000000000000000000000000000000000_,
+               expect &:= -123456789012345678901234567890123456789_/100000000000000000000000000000000000000_);
+        insert(statement, -123456789012345678901234567890123456789_/1000000000000000000000000000000000000000_,
+               expect &:= -123456789012345678901234567890123456789_/1000000000000000000000000000000000000000_);
+        insert(statement, -123456789012345678901234567890123456789_/10000000000000000000000000000000000000000_,
+               expect &:= -123456789012345678901234567890123456789_/10000000000000000000000000000000000000000_);
+        insert(statement, -12345678901234567890123456789012_/10000000000000000000000000000000000000000_,
+               expect &:= -12345678901234567890123456789012_/10000000000000000000000000000000000000000_);
+        insert(statement, -123456789012345678901234567890123456789_/100000000000000000000000000000000000000000000000_,
+               expect &:= -123456789012345678901234567890123456789_/100000000000000000000000000000000000000000000000_);
+      end if;
+      insInf(statement, -1_/0_,                     expect &:= -1_/0_);
+      insInf(statement,  1_/0_,                     expect &:=  1_/0_);
+      insNaN(statement,  0_/0_,                     expect &:=  0_/0_);
+      statement := prepare(testDb, "SELECT * FROM " & tableName);
+      execute(statement);
+      while fetch(statement) do
+        bigRatColumn := column(statement, 1, bigRational);
+        if bigRatColumn <> expect[row] then
+          writeln(" *** testBigRatField: Row: " <& row <&
+                  " Expected " <& expect[row] <& " found " <& bigRatColumn);
+        end if;
+        if row = 1 and not isNull(statement, 1) then
+          writeln(" *** testBooleanField: Row: " <& row <&
+                  " Expected NULL found " <& bigRatColumn);
+        end if;
+        incr(row);
+      end while;
+    exception
+      catch RANGE_ERROR:
+        writeln(" *** RANGE_ERROR was raised");
+      catch FILE_ERROR:
+        writeln(" *** FILE_ERROR was raised");
+    end block;
+    statement := prepare(testDb, "DROP TABLE " & tableName);
+    execute(statement);
+  end func;
+
+
+const proc: testChar1Field (in database: testDb, in dbCategory: driver) is func
+  local
+    const string: tableName is "char1Test";
+    var array string: expect is 0 times "";
+    var sqlStatement: statement is sqlStatement.value;
+    var string: stringColumn is "";
+    var integer: row is 1;
+  begin
+    writeln("testChar1Field: " <& driver);
+    statement := prepare(testDb, "CREATE TABLE " & tableName &
+                         " (char1Field CHAR)");
+    execute(statement);
+    block
+      statement := prepare(testDb, "INSERT INTO " & tableName &
+                           " (char1Field) VALUES (?)");
+      insert(statement, NULL,  expect &:= "");
+      insert(statement, "",    expect &:= "");
+      insert(statement, "X",   expect &:= "X");
+      insert(statement, "\1;", expect &:= "\1;");
+      insert(statement, "\b",  expect &:= "\b");
+      insert(statement, "\t",  expect &:= "\t");
+      insert(statement, "\n",  expect &:= "\n");
+      insert(statement, "\e",  expect &:= "\e");
+      insert(statement, "~",   expect &:= "~");
+      statement := prepare(testDb, "INSERT INTO " & tableName &
+                           " (char1Field) VALUES (?)");
+      insert(statement, 0,     expect &:= "0");
+      insert(statement, 1,     expect &:= "1");
+      insert(statement, 9,     expect &:= "9");
+      statement := prepare(testDb, "INSERT INTO " & tableName &
+                           " (char1Field) VALUES (?)");
+      insert(statement, 0_,    expect &:= "0");
+      insert(statement, 1_,    expect &:= "1");
+      insert(statement, 9_,    expect &:= "9");
+      statement := prepare(testDb, "SELECT * FROM " & tableName);
+      execute(statement);
+      while fetch(statement) do
+        stringColumn := column(statement, 1, string);
+        if stringColumn <> expect[row] then
+          writeln(" *** testChar1Field: Row: " <& row <&
+                  " Expected " <& literal(expect[row]) <& " found " <& literal(stringColumn));
+        end if;
+        if row = 1 and not isNull(statement, 1) then
+          writeln(" *** testChar1Field: Row: " <& row <&
+                  " Expected NULL found " <& stringColumn);
+        end if;
+        incr(row);
+      end while;
+    exception
+      catch RANGE_ERROR:
+        writeln(" *** RANGE_ERROR was raised");
+      catch FILE_ERROR:
+        writeln(" *** FILE_ERROR was raised");
+    end block;
+    statement := prepare(testDb, "DROP TABLE " & tableName);
+    execute(statement);
+  end func;
+
+
+const proc: testCharField (in database: testDb, in dbCategory: driver) is func
+  local
+    const string: tableName is "charTest";
+    var array string: expect is 0 times "";
+    var sqlStatement: statement is sqlStatement.value;
+    var string: stringColumn is "";
+    var integer: row is 1;
+  begin
+    writeln("testCharField: " <& driver);
+    statement := prepare(testDb, "CREATE TABLE " & tableName &
+                         " (charField CHAR(32))");
+    execute(statement);
+    block
+      statement := prepare(testDb, "INSERT INTO " & tableName &
+                           " (charField) VALUES (?)");
+      insert(statement, NULL,         expect &:= "");
+      insert(statement, "",           expect &:= "");
+      insert(statement, "X",          expect &:= "X");
+      insert(statement, "Ab2",        expect &:= "Ab2");
+      insert(statement, "abcdefghij", expect &:= "abcdefghij");
+      insert(statement, "ÄäÖöÜüß",    expect &:= "ÄäÖöÜüß");
+      insert(statement, "€µ¹²³¼½«»¬", expect &:= "€µ¹²³¼½«»¬");
+      insert(statement, "\1;\2;\3;\4;\5;\6;\7;\8;\9;\
+                        \\10;\11;\12;\13;\14;\15;\16;\17;\18;\19;\20;\
+                        \\21;\22;\23;\24;\25;\26;\27;\28;\29;\30;\31;",
+                        expect &:= "\1;\2;\3;\4;\5;\6;\7;\8;\9;\
+                        \\10;\11;\12;\13;\14;\15;\16;\17;\18;\19;\20;\
+                        \\21;\22;\23;\24;\25;\26;\27;\28;\29;\30;\31;");
+      statement := prepare(testDb, "INSERT INTO " & tableName &
+                           " (charField) VALUES (?)");
+      insert(statement,          0,   expect &:= "0");
+      insert(statement,          1,   expect &:= "1");
+      insert(statement, 1234567890,   expect &:= "1234567890");
+      statement := prepare(testDb, "INSERT INTO " & tableName &
+                           " (charField) VALUES (?)");
+      insert(statement,          0_,  expect &:= "0");
+      insert(statement,          1_,  expect &:= "1");
+      insert(statement, 1234567890_,  expect &:= "1234567890");
+      statement := prepare(testDb, "SELECT * FROM " & tableName);
+      execute(statement);
+      while fetch(statement) do
+        stringColumn := column(statement, 1, string);
+        if stringColumn <> expect[row] then
+          writeln(" *** testCharField: Row: " <& row <&
+                  " Expected " <& literal(expect[row]) <& " found " <& literal(stringColumn));
+          writeln("Expected length: " <& length(expect[row]));
+          writeln("Length found:    " <& length(stringColumn));
+        end if;
+        if row = 1 and not isNull(statement, 1) then
+          writeln(" *** testCharField: Row: " <& row <&
+                  " Expected NULL found " <& stringColumn);
+        end if;
+        incr(row);
+      end while;
+    exception
+      catch RANGE_ERROR:
+        writeln(" *** RANGE_ERROR was raised");
+      catch FILE_ERROR:
+        writeln(" *** FILE_ERROR was raised");
+    end block;
+    statement := prepare(testDb, "DROP TABLE " & tableName);
+    execute(statement);
+  end func;
+
+
+const proc: testVarcharField (in database: testDb, in dbCategory: driver) is func
+  local
+    const string: tableName is "varcharTest";
+    var array string: expect is 0 times "";
+    var sqlStatement: statement is sqlStatement.value;
+    var string: stringColumn is "";
+    var integer: row is 1;
+  begin
+    writeln("testVarcharField: " <& driver);
+    statement := prepare(testDb, "CREATE TABLE " & tableName &
+                         " (varcharField " & varcharType(driver) & "(32))");
+    execute(statement);
+    block
+      statement := prepare(testDb, "INSERT INTO " & tableName &
+                           " (varcharField) VALUES (?)");
+      insert(statement, NULL,         expect &:= "");
+      insert(statement, "",           expect &:= "");
+      insert(statement, "X",          expect &:= "X");
+      insert(statement, "Ab2",        expect &:= "Ab2");
+      insert(statement, "abcdefghij", expect &:= "abcdefghij");
+      insert(statement, "ÄäÖöÜüß",    expect &:= "ÄäÖöÜüß");
+      insert(statement, "€µ¹²³¼½«»¬", expect &:= "€µ¹²³¼½«»¬");
+      insert(statement, "\1;\2;\3;\4;\5;\6;\7;\8;\9;\
+                        \\10;\11;\12;\13;\14;\15;\16;\17;\18;\19;\20;\
+                        \\21;\22;\23;\24;\25;\26;\27;\28;\29;\30;\31;",
+                        expect &:= "\1;\2;\3;\4;\5;\6;\7;\8;\9;\
+                        \\10;\11;\12;\13;\14;\15;\16;\17;\18;\19;\20;\
+                        \\21;\22;\23;\24;\25;\26;\27;\28;\29;\30;\31;");
+      statement := prepare(testDb, "INSERT INTO " & tableName &
+                           " (varcharField) VALUES (?)");
+      insert(statement,          0,   expect &:= "0");
+      insert(statement,          1,   expect &:= "1");
+      insert(statement, 1234567890,   expect &:= "1234567890");
+      statement := prepare(testDb, "INSERT INTO " & tableName &
+                           " (varcharField) VALUES (?)");
+      insert(statement,          0_,  expect &:= "0");
+      insert(statement,          1_,  expect &:= "1");
+      insert(statement, 1234567890_,  expect &:= "1234567890");
+      statement := prepare(testDb, "SELECT * FROM " & tableName);
+      execute(statement);
+      while fetch(statement) do
+        stringColumn := column(statement, 1, string);
+        if stringColumn <> expect[row] then
+          writeln(" *** testVarcharField: Row: " <& row <&
+                  " Expected " <& literal(expect[row]) <& " found " <& literal(stringColumn));
+          writeln("Expected length: " <& length(expect[row]));
+          writeln("Length found:    " <& length(stringColumn));
+        end if;
+        if row = 1 and not isNull(statement, 1) then
+          writeln(" *** testVarcharField: Row: " <& row <&
+                  " Expected NULL found " <& stringColumn);
+        end if;
+        incr(row);
+      end while;
+    exception
+      catch RANGE_ERROR:
+        writeln(" *** RANGE_ERROR was raised");
+      catch FILE_ERROR:
+        writeln(" *** FILE_ERROR was raised");
+    end block;
+    statement := prepare(testDb, "DROP TABLE " & tableName);
+    execute(statement);
+  end func;
+
+
+const proc: testBlobField (in database: testDb, in dbCategory: driver) is func
+  local
+    const string: tableName is "blobTest";
+    var array bstring: expect is 0 times bstring parse "";
+    var sqlStatement: statement is sqlStatement.value;
+    var bstring: bstringColumn is bstring parse "";
+    var integer: row is 1;
+  begin
+    writeln("testBlobField: " <& driver);
+    statement := prepare(testDb, "CREATE TABLE " & tableName &
+                         " (blobField " & blobType(driver) & ")");
+    execute(statement);
+    block
+      statement := prepare(testDb, "INSERT INTO " & tableName &
+                           " (blobField) VALUES (?)");
+      insert(statement, NULL,                       expect &:= bstring parse "");
+      insert(statement, bstring parse "",           expect &:= bstring parse "");
+      insert(statement, bstring parse "X",          expect &:= bstring parse "X");
+      insert(statement, bstring parse "Ab2",        expect &:= bstring parse "Ab2");
+      insert(statement, bstring parse "abcdefghij", expect &:= bstring parse "abcdefghij");
+      insert(statement, bstring parse "ÄäÖöÜüß",    expect &:= bstring parse "ÄäÖöÜüß");
+      insert(statement, bstring parse "µ¹²³¼½«»¬",  expect &:= bstring parse "µ¹²³¼½«»¬");
+      insert(statement, bstring parse "\0;\1;\2;\3;\4;\5;\6;\7;\8;\9;\
+                        \\10;\11;\12;\13;\14;\15;\16;\17;\18;\19;\20;\
+                        \\21;\22;\23;\24;\25;\26;\27;\28;\29;\30;\31;",
+                        expect &:= bstring parse "\0;\1;\2;\3;\4;\5;\6;\7;\8;\9;\
+                        \\10;\11;\12;\13;\14;\15;\16;\17;\18;\19;\20;\
+                        \\21;\22;\23;\24;\25;\26;\27;\28;\29;\30;\31;");
+(*
+      statement := prepare(testDb, "INSERT INTO " & tableName &
+                           " (blobField) VALUES (?)");
+      insert(statement, "",           expect &:= bstring parse "");
+      insert(statement, "A",          expect &:= bstring parse "A");
+      insert(statement, "ABC",        expect &:= bstring parse "ABC");
+      insert(statement, "ABCDEFGHIJ", expect &:= bstring parse "ABCDEFGHIJ");
+      statement := prepare(testDb, "INSERT INTO " & tableName &
+                           " (blobField) VALUES (?)");
+      insert(statement,          0,   expect &:= bstring parse "0");
+      insert(statement,          1,   expect &:= bstring parse "1");
+      insert(statement, 1234567890,   expect &:= bstring parse "1234567890");
+      statement := prepare(testDb, "INSERT INTO " & tableName &
+                           " (blobField) VALUES (?)");
+      insert(statement,          0_,  expect &:= bstring parse "0");
+      insert(statement,          1_,  expect &:= bstring parse "1");
+      insert(statement, 1234567890_,  expect &:= bstring parse "1234567890");
+*)
+      statement := prepare(testDb, "SELECT * FROM " & tableName);
+      execute(statement);
+      while fetch(statement) do
+        bstringColumn := column(statement, 1, bstring);
+        if bstringColumn <> expect[row] then
+          writeln(" *** testBlobField: Row: " <& row <&
+                  " Expected " <& literal(str(expect[row])) <& " found " <& literal(str(bstringColumn)));
+        end if;
+        if row = 1 and not isNull(statement, 1) then
+          writeln(" *** testBlobField: Row: " <& row <&
+                  " Expected NULL found " <& bstringColumn);
+        end if;
+        incr(row);
+      end while;
+    exception
+      catch RANGE_ERROR:
+        writeln(" *** RANGE_ERROR was raised");
+      catch FILE_ERROR:
+        writeln(" *** FILE_ERROR was raised");
+    end block;
+    statement := prepare(testDb, "DROP TABLE " & tableName);
+    execute(statement);
+  end func;
+
+
+const proc: testDb (in database: testDb, in dbCategory: driver) is func
+  begin
+    testBooleanField(testDb, driver);
+    testInt8Field(testDb, driver);
+    testInt16Field(testDb, driver);
+    testInt32Field(testDb, driver);
+    testInt64Field(testDb, driver);
+    testBigIntField(testDb, driver);
+    testFloatField(testDb, driver);
+    testDoubleField(testDb, driver);
+    testBigRatField(testDb, driver);
+    testChar1Field(testDb, driver);
+    testCharField(testDb, driver);
+    testVarcharField(testDb, driver);
+    testBlobField(testDb, driver);
+  end func;
+
+
+const func boolean: failed (in proc: statement) is func
+  result
+    var boolean: failed is FALSE;
+  begin
+    block
+      statement;
+    exception
+      catch RANGE_ERROR:
+        failed := TRUE;
+      catch FILE_ERROR:
+        failed := TRUE;
+    end block;
+  end func;
+
+
+const type: connectData is new struct
+    var dbCategory: driver   is NO_DB;
+    var string:     dbName   is "";
+    var string:     user     is "";
+    var string:     password is "";
+    var dbCategory: database is NO_DB;
+  end struct;
+
+
+const func connectData: connectData (in dbCategory: driver, in string: dbName,
+    in string: user, in string: password, in dbCategory: database) is func
+  result
+    var connectData: connData is connectData.value;
+  begin
+    connData.driver   := driver;
+    connData.dbName   := dbName;
+    connData.user     := user;
+    connData.password := password;
+    connData.database := database;
+  end func;
+
+
+const proc: main is func
+  local
+    const array connectData: dbConnectData is [] (
+        connectData(DB_MYSQL,      "penguin/test",     "test", "test", DB_MYSQL),
+        connectData(DB_ODBC,       "penguin_mysql",    "test", "test", DB_MYSQL),
+        connectData(DB_POSTGRESQL, "penguin/test",     "test", "test", DB_POSTGRESQL),
+        connectData(DB_ODBC,       "penguin_postgres", "test", "test", DB_POSTGRESQL),
+        connectData(DB_MYSQL,      "test",             "test", "test", DB_MYSQL),
+        connectData(DB_SQLITE,     "test",             "test", "test", DB_SQLITE),
+        connectData(DB_POSTGRESQL, "test",             "test", "test", DB_POSTGRESQL),
+        connectData(DB_OCI,        "XE",               "test", "test", DB_OCI),
+        connectData(DB_OCI,        "192.168.2.99/XE",  "test", "test", DB_OCI),
+        connectData(DB_ODBC,       "my",               "test", "test", DB_MYSQL),
+        connectData(DB_ODBC,       "lite",             "test", "test", DB_SQLITE),
+        connectData(DB_ODBC,       "post",             "test", "test", DB_POSTGRESQL));
+    var integer: index is 0;
+    var database: testDb is database.value;
+  begin
+    for key index range dbConnectData do
+      writeln("Test " <& dbConnectData[index].dbName <& " with driver " <&dbConnectData[index].driver);
+      if failed(testDb := openDatabase(dbConnectData[index].driver,
+                                       dbConnectData[index].dbName,
+                                       dbConnectData[index].user,
+                                       dbConnectData[index].password)) then
+        writeln(" *** Cannot open database " <& dbConnectData[index].dbName <&
+                " with driver " <& dbConnectData[index].driver);
+      else
+        testDb(testDb, dbConnectData[index].database);
+        close(testDb);
+      end if;
+    end for;
+  end func;

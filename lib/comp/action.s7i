@@ -57,7 +57,7 @@ include "comp/rfl_act.s7i";
 include "comp/sct_act.s7i";
 include "comp/set_act.s7i";
 include "comp/soc_act.s7i";
-# include "comp/sql_act.s7i";
+include "comp/sql_act.s7i";
 include "comp/str_act.s7i";
 include "comp/tim_act.s7i";
 include "comp/typ_act.s7i";
@@ -1393,6 +1393,70 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(SOC_WORD_READ, function, params, c_expr);
       elsif action_name = "SOC_WRITE" then
         process(SOC_WRITE, function, params, c_expr);
+      else
+        process_unknown_action(action_name, c_expr);
+      end if;
+    elsif action_prefix = "SQL" then
+      if action_name = "SQL_BIND_BIGINT" then
+        process(SQL_BIND_BIGINT, function, params, c_expr);
+      elsif action_name = "SQL_BIND_BIGRAT" then
+        process(SQL_BIND_BIGRAT, function, params, c_expr);
+      elsif action_name = "SQL_BIND_BOOL" then
+        process(SQL_BIND_BOOL, function, params, c_expr);
+      elsif action_name = "SQL_BIND_BSTRI" then
+        process(SQL_BIND_BSTRI, function, params, c_expr);
+      elsif action_name = "SQL_BIND_DURATION" then
+        process(SQL_BIND_DURATION, function, params, c_expr);
+      elsif action_name = "SQL_BIND_FLOAT" then
+        process(SQL_BIND_FLOAT, function, params, c_expr);
+      elsif action_name = "SQL_BIND_INT" then
+        process(SQL_BIND_INT, function, params, c_expr);
+      elsif action_name = "SQL_BIND_NULL" then
+        process(SQL_BIND_NULL, function, params, c_expr);
+      elsif action_name = "SQL_BIND_STRI" then
+        process(SQL_BIND_STRI, function, params, c_expr);
+      elsif action_name = "SQL_BIND_TIME" then
+        process(SQL_BIND_TIME, function, params, c_expr);
+      elsif action_name = "SQL_CLOSE" then
+        process(SQL_CLOSE, function, params, c_expr);
+      elsif action_name = "SQL_COLUMN_BIGINT" then
+        process(SQL_COLUMN_BIGINT, function, params, c_expr);
+      elsif action_name = "SQL_COLUMN_BIGRAT" then
+        process(SQL_COLUMN_BIGRAT, function, params, c_expr);
+      elsif action_name = "SQL_COLUMN_BOOL" then
+        process(SQL_COLUMN_BOOL, function, params, c_expr);
+      elsif action_name = "SQL_COLUMN_BSTRI" then
+        process(SQL_COLUMN_BSTRI, function, params, c_expr);
+      elsif action_name = "SQL_COLUMN_DURATION" then
+        process(SQL_COLUMN_DURATION, function, params, c_expr);
+      elsif action_name = "SQL_COLUMN_FLOAT" then
+        process(SQL_COLUMN_FLOAT, function, params, c_expr);
+      elsif action_name = "SQL_COLUMN_INT" then
+        process(SQL_COLUMN_INT, function, params, c_expr);
+      elsif action_name = "SQL_COLUMN_STRI" then
+        process(SQL_COLUMN_STRI, function, params, c_expr);
+      elsif action_name = "SQL_COLUMN_TIME" then
+        process(SQL_COLUMN_TIME, function, params, c_expr);
+      elsif action_name = "SQL_COMMIT" then
+        process(SQL_COMMIT, function, params, c_expr);
+      elsif action_name = "SQL_CPY_DB" then
+        process(SQL_CPY_DB, function, params, c_expr);
+      elsif action_name = "SQL_CPY_STMT" then
+        process(SQL_CPY_STMT, function, params, c_expr);
+      elsif action_name = "SQL_EXECUTE" then
+        process(SQL_EXECUTE, function, params, c_expr);
+      elsif action_name = "SQL_FETCH" then
+        process(SQL_FETCH, function, params, c_expr);
+      elsif action_name = "SQL_IS_NULL" then
+        process(SQL_IS_NULL, function, params, c_expr);
+      elsif action_name = "SQL_OPEN" then
+        process(SQL_OPEN, function, params, c_expr);
+      elsif action_name = "SQL_PREPARE" then
+        process(SQL_PREPARE, function, params, c_expr);
+      elsif action_name = "SQL_STMT_COLUMN_COUNT" then
+        process(SQL_STMT_COLUMN_COUNT, function, params, c_expr);
+      elsif action_name = "SQL_STMT_COLUMN_NAME" then
+        process(SQL_STMT_COLUMN_NAME, function, params, c_expr);
       else
         process_unknown_action(action_name, c_expr);
       end if;

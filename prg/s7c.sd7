@@ -5143,7 +5143,7 @@ const proc: write_prototypes is func
     rfl_prototypes(c_prog);
     set_prototypes(c_prog);
     soc_prototypes(c_prog);
-    # sql_prototypes(c_prog);
+    sql_prototypes(c_prog);
     str_prototypes(c_prog);
     tim_prototypes(c_prog);
     typ_prototypes(c_prog);

@@ -1,0 +1,159 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  sql7.sd7      Sql command line tool                             *)
+(*  Copyright (C) 2014  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+  include "keybd.s7i";
+  include "console.s7i";
+  include "editline.s7i";
+  include "sql_base.s7i";
+
+
+const func string: noCtrlChars (in string: stri) is func
+  result
+    var string: noCtrlChars is "";
+  local
+    const set of char: ctrlChars is {'\0;' .. '\31;'} | {'\127;' .. '\160;'};
+    var char: ch is ' ';
+    var integer: index is 0;
+  begin
+    noCtrlChars := stri;
+    for ch key index range stri do
+      if ch in ctrlChars then
+        noCtrlChars @:= [index] '?';
+      elsif ch = '\173;' then
+        noCtrlChars @:= [index] '-';
+      end if;
+    end for;
+  end func;
+
+    
+const func boolean: failed (in proc: statement) is func
+  result
+    var boolean: failed is FALSE;
+  begin
+    block
+      statement;
+    exception
+      catch RANGE_ERROR:
+        failed := TRUE;
+      catch FILE_ERROR:
+        failed := TRUE;
+    end block;
+  end func;
+
+
+const proc: doExecute (in database: currDb, in var string: command) is func
+  local
+    const integer: width is 20;
+    var sqlStatement: statement is sqlStatement.value;
+    var integer: index is 0;
+  begin
+    if endsWith(command, ";") then
+      command := command[.. pred(length(command))];
+    end if;
+    if  failed(statement := prepare(currDb, command)) or
+        failed(execute(statement)) then
+      writeln;
+      writeln(" *** Statement failed.");
+      writeln;
+    elsif columnCount(statement) <> 0 then
+      for index range 1 to columnCount(statement) do
+        write(columnName(statement, index) rpad width <& " ");
+      end for;
+      writeln;
+      writeln(("-" mult width & " ") mult columnCount(statement));
+      while fetch(statement) do
+        for index range 1 to columnCount(statement) do
+          if failed(write(noCtrlChars(column(statement, index, string)[1 len width])            rpad width <& " ")) and
+             failed(write(            column(statement, index, integer)                         lpad width <& " ")) and
+             failed(write(            column(statement, index, bigInteger)                      lpad width <& " ")) and
+             failed(write(            column(statement, index, bigRational)                     lpad width <& " ")) and
+             failed(write(            column(statement, index, float)       sci width - 7 exp 2 lpad width <& " ")) and
+             failed(write(strDateTime(column(statement, index, time))                           rpad width <& " ")) and
+             failed(write(            column(statement, index, duration)                        rpad width <& " ")) and
+             failed(write(            column(statement, index, boolean)                         lpad width <& " ")) then
+            write("*" mult width <& " ");
+          end if;
+        end for;
+        writeln;
+      end while;
+    else
+      writeln;
+      writeln("Success.");
+      writeln;
+    end if;
+  end func;
+
+
+const proc: main is func
+  local
+    var string: driverName is "";
+    var dbCategory: driver is NO_DB;
+    var database: currDb is database.value;
+    var string: command is "";
+  begin
+    OUT := STD_CONSOLE;
+    IN := openEditLine(KEYBOARD, OUT);
+    writeln("Sql7 - Sql command line tool");
+    writeln("Copyright (C) 2014 Thomas Mertes");
+    writeln("This is free software; see the source for copying conditions.  There is NO");
+    writeln("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.");
+    writeln("Sql7 is written in the Seed7 programming language");
+    writeln("Homepage: http://seed7.sourceforge.net");
+    writeln;
+    if length(argv(PROGRAM)) <> 4 then
+      writeln("usage: sql7 driver dbName user password");
+    else
+      driverName := argv(PROGRAM)[1];
+      if  upper(driverName) = "MYSQL" or
+          upper(driverName) = "MY" then
+        driver := DB_MYSQL;
+      elsif upper(driverName) = "SQLITE" or
+            upper(driverName) = "LITE" then
+        driver := DB_SQLITE;
+      elsif upper(driverName) = "POSTGRESQL" or
+            upper(driverName) = "POST" then
+        driver := DB_POSTGRESQL;
+      elsif upper(driverName) = "ORACLE" or
+            upper(driverName) = "OCI" then
+        driver := DB_OCI;
+      elsif upper(driverName) = "ODBC" then
+        driver := DB_ODBC;
+      end if;
+      currDb := openDatabase(driver, argv(PROGRAM)[2], argv(PROGRAM)[3], argv(PROGRAM)[4]);
+      if FALSE then   # currDb = database.value then
+        writeln(" *** Cannot open " <& argv(PROGRAM)[2]);
+      else
+        write("Sql7? ");
+        readln(command);
+        while lower(command) <> "exit" and lower(command) <> "quit" do
+          if command <> "" then
+            doExecute(currDb, command);
+          end if;
+          write("Sql7? ");
+          readln(command);
+        end while;
+      end if;
+    end if;
+  end func;

@@ -344,6 +344,9 @@ How does the Seed7 compiler get information about C compiler and runtime?
 <li><a class="link" href="#faq_seed7_package"><b>
 What should a binary Seed7 package install?
 </b></a></li>
+<li><a class="link" href="#faq_compile_with_database_connectons"><b>
+What is necessary to compile Seed7 with database connections?
+</b></a></li>
 <li><a class="link" href="#faq_bytecode"><b>
 Does the interpreter use bytecode?
 </b></a></li>
@@ -601,12 +604,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 200000 lines of Seed7. For version 2014-09-07 the number of lines is:
+than 200000 lines of Seed7. For version 2014-09-21 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right">102214</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right">  8567</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">114031</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right">122986</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right">118574</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right">  8888</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">115633</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right">124291</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -2262,7 +2265,28 @@ and <tt>S7_LIB_DIR</tt> with the options <a class="link" href="#faq_compiler_opt
 ./s7 -l ../lib s7c -l ../lib -b ../bin -O2 s7c
 </pre><p>
 Compiling <span class="link">s7c</span> with a make command should be preferred.
+</p></div>
 
+<div><br /><a name="faq_compile_with_database_connectons"><h3>What is necessary to compile Seed7 with database connections?
+</h3></a><hr />
+<p>
+The Seed7 runtime library provides the possibility to connect to
+MySql/MariaDb, SQLLite, PostgreSQL, Oracle and Odbc databases. During
+the compilation of the Seed7 interpreter the program <tt><span class="stri">"chkccomp.c"</span></tt>
+searches for the availability of database connectors. It searches for
+database include files and for database libraries. Some database
+configuration settings (MYSQL_LIBS, SQLITE3_LIBS, POSTGRESQL_LIBS, ODBC_LIBS)
+come from the makefile. For Oracle it is assumed that the environment
+variable ORACLE_HOME has been set. Only when database include files and
+libraries are found the corresponding database connection part of Seed7
+(sql_my.c, sql_ite.c, sql_post.c, sql_oci.c or sql_odbc.c) is added to
+the Seed7 runtime library. For a Seed7 package this means, that the
+packages for database connection must be installed during the compilation
+of the Seed7 interpreter.
+</p><p>
+Depending on the configuration the database library is linked statically
+or dynamically. When a dynamic database library cannot be found at runtime
+the function <tt><span class="func">openDatabase</span></tt> returns <tt><span class="func">database</span>.value</tt>.
 </p></div>
 
 <div><br /><a name="faq_bytecode"><h3>Does the interpreter use bytecode?

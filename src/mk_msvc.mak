@@ -5,8 +5,12 @@
 # If you use MinGW you should use mk_mingw.mak, mk_nmake.mak or mk_msys.mak instead.
 # If you use bcc32 you should use mk_bcc32.mak instead.
 
+!if exist(macros)
+!include macros
+!endif
+
 # CFLAGS = -AL -Ozax -Gr -Gs -Gm -G0 -W4
-CFLAGS = -O2 -W4 -Z7
+CFLAGS = -O2 -W4 -Z7 $(INCLUDE_OPTIONS)
 # CFLAGS = -O2 -W4 -Tp
 # CFLAGS = -O2 -W4 /Zi /Yd
 # CFLAGS = -W4 /Zi /Yd /GZ
@@ -37,8 +41,8 @@ MOBJ = s7.obj
 POBJ = runerr.obj option.obj primitiv.obj
 LOBJ = actlib.obj arrlib.obj biglib.obj binlib.obj blnlib.obj bstlib.obj chrlib.obj cmdlib.obj conlib.obj dcllib.obj \
        drwlib.obj enulib.obj fillib.obj fltlib.obj hshlib.obj intlib.obj itflib.obj kbdlib.obj lstlib.obj pollib.obj \
-       prclib.obj prglib.obj reflib.obj rfllib.obj sctlib.obj setlib.obj soclib.obj strlib.obj timlib.obj typlib.obj \
-       ut8lib.obj
+       prclib.obj prglib.obj reflib.obj rfllib.obj sctlib.obj setlib.obj soclib.obj sqllib.obj strlib.obj timlib.obj \
+       typlib.obj ut8lib.obj
 EOBJ = exec.obj doany.obj objutl.obj
 AOBJ = act_comp.obj prg_comp.obj analyze.obj syntax.obj token.obj parser.obj name.obj type.obj \
        expr.obj atom.obj object.obj scanner.obj literal.obj numlit.obj findid.obj \
@@ -46,9 +50,9 @@ AOBJ = act_comp.obj prg_comp.obj analyze.obj syntax.obj token.obj parser.obj nam
 GOBJ = syvarutl.obj traceutl.obj actutl.obj executl.obj blockutl.obj \
        entutl.obj identutl.obj chclsutl.obj sigutl.obj arrutl.obj
 ROBJ = arr_rtl.obj bln_rtl.obj bst_rtl.obj chr_rtl.obj cmd_rtl.obj con_rtl.obj dir_rtl.obj drw_rtl.obj fil_rtl.obj \
-       flt_rtl.obj hsh_rtl.obj int_rtl.obj itf_rtl.obj set_rtl.obj soc_rtl.obj str_rtl.obj tim_rtl.obj ut8_rtl.obj \
-       heaputl.obj striutl.obj
-DOBJ = $(BIGINT_LIB).obj cmd_win.obj dir_win.obj fil_win.obj pol_sel.obj tim_win.obj
+       flt_rtl.obj hsh_rtl.obj int_rtl.obj itf_rtl.obj set_rtl.obj soc_rtl.obj sql_rtl.obj str_rtl.obj tim_rtl.obj \
+       ut8_rtl.obj heaputl.obj striutl.obj sql_ite.obj sql_my.obj sql_oci.obj sql_odbc.obj sql_post.obj sql_util.obj
+DOBJ = $(BIGINT_LIB).obj cmd_win.obj dll_win.obj dir_win.obj fil_win.obj pol_sel.obj tim_win.obj
 OBJ = $(MOBJ)
 SEED7_LIB_OBJ = $(ROBJ) $(DOBJ)
 DRAW_LIB_OBJ = gkb_rtl.obj drw_win.obj gkb_win.obj
@@ -60,8 +64,8 @@ MSRC = s7.c
 PSRC = runerr.c option.c primitiv.c
 LSRC = actlib.c arrlib.c biglib.c binlib.c blnlib.c bstlib.c chrlib.c cmdlib.c conlib.c dcllib.c \
        drwlib.c enulib.c fillib.c fltlib.c hshlib.c intlib.c itflib.c kbdlib.c lstlib.c pollib.c \
-       prclib.c prglib.c reflib.c rfllib.c sctlib.c setlib.c soclib.c strlib.c timlib.c typlib.c \
-       ut8lib.c
+       prclib.c prglib.c reflib.c rfllib.c sctlib.c setlib.c soclib.c sqllib.c strlib.c timlib.c \
+       typlib.c ut8lib.c
 ESRC = exec.c doany.c objutl.c
 ASRC = act_comp.c prg_comp.c analyze.c syntax.c token.c parser.c name.c type.c \
        expr.c atom.c object.c scanner.c literal.c numlit.c findid.c \
@@ -69,9 +73,9 @@ ASRC = act_comp.c prg_comp.c analyze.c syntax.c token.c parser.c name.c type.c \
 GSRC = syvarutl.c traceutl.c actutl.c executl.c blockutl.c \
        entutl.c identutl.c chclsutl.c sigutl.c arrutl.c
 RSRC = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c con_rtl.c dir_rtl.c drw_rtl.c fil_rtl.c \
-       flt_rtl.c hsh_rtl.c int_rtl.c itf_rtl.c set_rtl.c soc_rtl.c str_rtl.c tim_rtl.c ut8_rtl.c \
-       heaputl.c striutl.c
-DSRC = $(BIGINT_LIB).c cmd_win.c dir_win.c fil_win.c pol_sel.c tim_win.c
+       flt_rtl.c hsh_rtl.c int_rtl.c itf_rtl.c set_rtl.c soc_rtl.c sql_rtl.c str_rtl.c tim_rtl.c \
+       ut8_rtl.c heaputl.c striutl.c sql_ite.c sql_my.c sql_oci.c sql_odbc.c sql_post.c sql_util.c
+DSRC = $(BIGINT_LIB).c cmd_win.c dll_win.c dir_win.c fil_win.c pol_sel.c tim_win.c
 SRC = $(MSRC)
 SEED7_LIB_SRC = $(RSRC) $(DSRC)
 DRAW_LIB_SRC = gkb_rtl.c drw_win.c gkb_win.c
@@ -91,7 +95,7 @@ s7c: ..\bin\s7c.exe ..\prg\s7c.exe
 	@echo.
 
 ..\bin\s7.exe: $(OBJ) $(ALL_S7_LIBS)
-	$(CC) -Z7 $(LDFLAGS) -o ..\bin\s7.exe $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS)
+	$(CC) -Z7 $(LDFLAGS) -o ..\bin\s7.exe $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) $(SYSTEM_DB_LIBS)
 
 ..\prg\s7.exe: ..\bin\s7.exe
 	copy ..\bin\s7.exe ..\prg /Y
@@ -112,6 +116,7 @@ clean:
 	del ..\prg\s7.exe
 	del ..\prg\s7c.exe
 	del depend
+	del macros
 	del chkccomp.h
 	del version.h
 	del setwpath.exe
@@ -144,6 +149,11 @@ chkccomp.h:
 	echo #define mkdir(path,mode) _mkdir(path) >> chkccomp.h
 	echo #define rmdir _rmdir >> chkccomp.h
 	echo #define LIST_DIRECTORY_CONTENTS "dir" >> chkccomp.h
+	echo #define ODBC_LIBS "odbc32.lib" >> chkccomp.h
+	echo #define MYSQL_DLL "libmariadb.dll" >> chkccomp.h
+	echo #define POSTGRESQL_DLL "libpq.dll" >> chkccomp.h
+	echo /* #define ODBC_DLL "odbc32.dll" */ >> chkccomp.h
+	echo #define OCI_DLL "oci.dll" >> chkccomp.h
 
 version.h: chkccomp.h
 	echo #define PATH_DELIMITER '\\' > version.h
@@ -155,6 +165,7 @@ version.h: chkccomp.h
 	echo #define INT_DIV_BY_ZERO_POPUP >> version.h
 	echo #define DO_SIGFPE_WITH_DIV_BY_ZERO >> version.h
 	echo #define CTRL_C_SENDS_EOF >> version.h
+	echo #define WITH_SQL >> version.h
 	echo #define CONSOLE_WCHAR >> version.h
 	echo #define OS_STRI_WCHAR >> version.h
 	echo #define os_chdir _wchdir >> version.h
@@ -271,7 +282,7 @@ wc: $(SRC)
 	wc $(COMPILER_LIB_SRC)
 
 lint: $(SRC)
-	lint -p $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS)
+	lint -p $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) $(SYSTEM_DB_LIBS)
 
 lint2: $(SRC)
-	lint -Zn2048 $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS)
+	lint -Zn2048 $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) $(SYSTEM_DB_LIBS)
