@@ -643,6 +643,7 @@ const func integer: rpos (in string param, in string param) is    action "STR_RP
 const func string: replace (in string param, in string param, in string param) is action "STR_REPL";
 const func string: upper (in string param) is                     action "STR_UP";
 const func string: lower (in string param) is                     action "STR_LOW";
+const func string: trim (in string param) is                      action "STR_TRIM";
 const func string: str (in string param) is                       action "STR_STR";
 const func string: literal (in string param) is                   action "STR_LIT";
 const func string: c_literal (in string param) is                 action "STR_CLIT";

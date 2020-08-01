@@ -1,0 +1,71 @@
+20060314:
+- Improvements for arrays and structs in the compiler
+- Function strLit to support the compiler
+- Improvements in bas example program.
+- Subrange and for-loop for bitset
+- Allow line comments in string literals
+- Empty line count removed
+
+20060404:
+- Function to close a graph_file
+- Write graphic text under windows
+- Parse operator and reading for bitsets
+- Allow hashtables for sets
+- Date format according to ISO 8601
+- New time functions dayOfWeek, julianDayNumber and
+  julianDayNumToTime
+
+20060420:
+- The driver function tim_await (using seconds since 1970)
+  was replaced by timAwait (using the Gregorian calendar).
+- The driver function timNow was changed to deliver a
+  timezone which includes the daylight saving time.
+- Various pictures where added in pic16.s7i and pic32.s7i .
+- The parse function for bitsets was fixed to work for
+  empty sets.
+- A new example program toutf8 to convert files to utf-8
+  was added.
+- The windows driver function drwPRect was fixed.
+
+20060506:
+- The reporting of semantic errors was improved (now the
+  line number and the line itself is shown).
+- A checkmark picture was added to pic16.s7i and pic32.s7i .
+- A tiny inaccuracy in the heap statistic was fixed.
+- The source and include file management of the interpreter
+  was simplified.
+
+20060520:
+- The performance of the interpreter was raised by circa 8% with
+  an improved free list management.
+- The graphic and keyborad drivers for windows have been improved.
+- A new primitive action (set_arrlit) was defined to create sets from
+  integer arrays.
+- The bas (basic interpreter) example program was improved to support do loops.
+- A sudoku example program (sudoku7) was added.
+
+20060606:
+- The bas (basic interpreter) example program was improved to
+  support exit statements.
+- A tiny bug in the panic example program was fixed.
+- The hi interpreter was improved to write a stack trace when
+  an exception is not catched.
+
+20060622:
+- A new example program (castle) was added.
+  Castle was inspired by the castle adventure from 1984.
+- The graphic driver for windows has been improved for
+  circle, arc, chord, pieslice, fellipse.
+
+20060707:
+- A little improvement of the castle example program was done.
+- The drwText function of the windows graphic driver
+  was changed to support unicode characters.
+- A new example program (planets) was added.
+
+
+20060724:
+- A new example program (bifurcation) was added.
+- A trim function to remove leading and trailing spaces from strings was added.
+- The windows graphic driver was improved to support windows 98.
+- A changelog (chlog) was added.

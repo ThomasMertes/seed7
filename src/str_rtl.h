@@ -55,6 +55,7 @@ stritype strRpad (stritype, inttype);
 inttype strRpos (stritype, stritype);
 stritype strSubstr (stritype, inttype, inttype);
 stritype strTail (stritype, inttype);
+stritype strTrim (stritype);
 stritype strUp (stritype);
 
 #else
@@ -83,6 +84,7 @@ stritype strRpad ();
 inttype strRpos ();
 stritype strSubstr ();
 stritype strTail ();
+stritype strTrim ();
 stritype strUp ();
 
 #endif

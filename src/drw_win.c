@@ -65,6 +65,7 @@ typedef struct win_winstruct {
   HBITMAP backup;
   HDC backup_hdc;
   HBITMAP hBitmap;
+  HBITMAP oldBitmap;
   booltype is_pixmap;
   unsigned int width;
   unsigned int height;
@@ -78,6 +79,7 @@ static win_wintype window_list = NULL;
 #define to_backup_hdc(win)  (((win_wintype) win)->backup_hdc)
 #define to_backup(win)      (((win_wintype) win)->backup)
 #define to_hBitmap(win)     (((win_wintype) win)->hBitmap)
+#define to_oldBitmap(win)   (((win_wintype) win)->oldBitmap)
 #define is_pixmap(win)      (((win_wintype) win)->is_pixmap)
 #define to_width(win)       (((win_wintype) win)->width)
 #define to_height(win)      (((win_wintype) win)->height)
@@ -1070,6 +1072,7 @@ wintype old_window;
 
   { /* drwFree */
     if (is_pixmap(old_window)) {
+      SelectObject(to_hdc(old_window), to_oldBitmap(old_window));
       DeleteObject(to_hBitmap(old_window));
       DeleteDC(to_hdc(old_window));
     } else {
@@ -1115,13 +1118,18 @@ inttype height;
         result = NULL;
         raise_error(MEMORY_ERROR);
       } else {
-        SelectObject(result->hdc, result->hBitmap);
+        result->oldBitmap = SelectObject(result->hdc, result->hBitmap);
         result->is_pixmap = TRUE;
         result->width = width;
         result->height = height;
         result->next = NULL;
-        BitBlt(result->hdc, 0, 0, width, height,
-            to_backup_hdc(actual_window), left, upper, SRCCOPY);
+        if (to_backup_hdc(actual_window) != 0) {
+          BitBlt(result->hdc, 0, 0, width, height,
+              to_backup_hdc(actual_window), left, upper, SRCCOPY);
+        } else {
+          BitBlt(result->hdc, 0, 0, width, height,
+              to_hdc(actual_window), left, upper, SRCCOPY);
+        } /* if */
       } /* if */
     } /* if */
     return((wintype) result);
@@ -1248,7 +1256,7 @@ inttype height;
       result->usage_count = 1;
       result->hdc = CreateCompatibleDC(to_hdc(actual_window));
       result->hBitmap = CreateCompatibleBitmap(to_hdc(actual_window), width, height);
-      SelectObject(result->hdc, result->hBitmap);
+      result->oldBitmap = SelectObject(result->hdc, result->hBitmap);
       result->is_pixmap = TRUE;
       result->width = width;
       result->height = height;

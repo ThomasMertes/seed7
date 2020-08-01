@@ -1313,6 +1313,48 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype str_trim (listtype arguments)
+#else
+
+objecttype str_trim (arguments)
+listtype arguments;
+#endif
+
+  {
+    stritype str1;
+    memsizetype start;
+    memsizetype length;
+    stritype result;
+
+  /* str_trim */
+    isit_stri(arg_1(arguments));
+    str1 = take_stri(arg_1(arguments));
+    start = 0;
+    length = str1->size;
+    if (length >= 1) {
+      while (start < length && str1->mem[start] <= ' ') {
+        start++;
+      } /* while */
+      while (length > start && str1->mem[length - 1] <= ' ') {
+        length--;
+      } /* while */
+      length -= start;
+    } /* if */
+    if (!ALLOC_STRI(result, length)) {
+      return(raise_exception(SYS_MEM_EXCEPTION));
+    } else {
+      COUNT_STRI(length);
+      result->size = length;
+      memcpy(result->mem, &str1->mem[start],
+          (SIZE_TYPE) length * sizeof(strelemtype));
+      return(bld_stri_temp(result));
+    } /* if */
+  } /* str_trim */
+
+
+
+#ifdef ANSI_C
+
 objecttype str_up (listtype arguments)
 #else
 

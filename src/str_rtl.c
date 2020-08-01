@@ -1122,6 +1122,174 @@ stritype searched;
 
 
 
+#ifdef OUT_OF_ORDER
+#ifdef ANSI_C
+
+void add_stri_to_array (strelemtype *stri_elems, memsizetype length,
+    arraytype *work_array, memsizetype *used_max_position, errinfotype *err_info)
+#else
+
+void add_stri_to_array (stri_elems, length,
+    work_array, used_max_position, err_info)
+strelemtype *stri_elems;
+memsizetype length;
+arraytype *work_array;
+memsizetype *used_max_position;
+errinfotype *err_info;
+#endif
+
+  {
+    stritype new_stri;
+    memsizetype position;
+
+  /* add_stri_to_array */
+    if (ALLOC_STRI(new_stri, length)) {
+      COUNT_STRI(length);
+      new_stri->size = length;
+      memcpy(new_stri->mem, stri_elems, length);
+      if (*used_max_position >= (*work_array)->max_position) {
+        if (!RESIZE_ARRAY(*work_array, (*work_array)->max_position,
+            (*work_array)->max_position + 256)) {
+          FREE_STRI(new_stri, new_stri->size);
+          *err_info = MEMORY_ERROR;
+        } else {
+          COUNT3_ARRAY((*work_array)->max_position, (*work_array)->max_position + 256);
+          (*work_array)->max_position += 256;
+        } /* if */
+      } /* if */
+      if (*err_info == OKAY_NO_ERROR) {
+        (*work_array)->arr[*used_max_position].type_of = take_type(SYS_STRI_TYPE);
+        (*work_array)->arr[*used_max_position].descriptor.entity = NULL;
+        (*work_array)->arr[*used_max_position].value.strivalue = new_stri;
+        INIT_CLASS_OF_VAR(&(*work_array)->arr[*used_max_position], STRIOBJECT);
+        (*used_max_position)++;
+      } else {
+        for (position = 0; position < *used_max_position; position++) {
+          FREE_STRI((*work_array)->arr[position].value.strivalue,
+              (*work_array)->arr[position].value.strivalue->size);
+        } /* for */
+        FREE_ARRAY(*work_array, max_array_size);
+        *work_array = NULL;
+      } /* if */
+    } /* if */
+  } /* add_stri_to_array */
+
+
+
+#ifdef ANSI_C
+
+arraytype strSplit (stritype stri, chartype delimiter)
+#else
+
+arraytype strSplit (stri, delimiter)
+stritype stri;
+chartype delimiter;
+#endif
+
+  {
+    arraytype result_array;
+    memsizetype used_max_position;
+    errinfotype err_info = OKAY_NO_ERROR;
+
+    memsizetype main_size;
+    strelemtype *main_mem;
+    strelemtype *search_start;
+    strelemtype *search_end;
+    strelemtype *found_pos;
+    memsizetype length;
+    stritype dest;
+
+  /* strSplit */
+    if (ALLOC_ARRAY(result_array, 256)) {
+      COUNT_ARRAY(256);
+	  result_array->min_position = 1;
+	  result_array->max_position = 256;
+      used_max_position = 0;
+      main_size = main_stri->size;
+      if (main_size >= 1) {
+        main_mem = main_stri->mem;
+        search_start = main_mem;
+        search_end = &main_mem[main_size];
+        while ((found_pos = (strelemtype *) search_strelem(search_start,
+            delimiter, (SIZE_TYPE) (search_end - search_start))) != NULL) {
+          add_stri_to_array(search_start, found_pos - search_start,
+              result_array, &used_max_position, &err_info);
+          search_start = found_pos + 1
+        } /* while */
+        add_stri_to_array(search_start, search_end - search_start,
+            result_array, &used_max_position, &err_info);
+      } /* if */
+
+      return(result_array);
+    } else {
+      raise_error(MEMORY_ERROR);
+      return(NULL);
+    } /* if */
+  } /* strSplit */
+
+
+
+#ifdef ANSI_C
+
+arraytype strSplit (stritype stri, stritype delimiter)
+#else
+
+arraytype strSplit (stri, delimiter)
+stritype stri;
+stritype delimiter;
+#endif
+
+  {
+    memsizetype main_size;
+    memsizetype delimiter_size;
+    strelemtype ch_1;
+    strelemtype *main_mem;
+    strelemtype *delimiter_mem;
+    strelemtype *search_start;
+    strelemtype *search_end;
+    strelemtype *found_pos;
+    errinfotype err_info = OKAY_NO_ERROR;
+
+  /* strSplit */
+    main_size = main_stri->size;
+    delimiter_size = delimiter->size;
+    if (delimiter->size == 1) {
+      if (delimiter_size <= main_size) {
+        delimiter_mem = delimiter->mem;
+        ch_1 = delimiter_mem[0];
+        main_mem = main_stri->mem;
+        search_start = main_mem;
+        search_end = &main_mem[main_size - delimiter_size + 1];
+        while ((found_pos = (strelemtype *) search_strelem(search_start,
+            ch_1, (SIZE_TYPE) (search_end - search_start))) != NULL) {
+          memcpy(dest, search_start, found_pos - search_start);
+          search_start = found_pos + 1
+        } /* while */
+      } /* if */
+    } else {
+      if (delimiter_size != 0 && delimiter_size <= main_size) {
+        delimiter_mem = delimiter->mem;
+        ch_1 = delimiter_mem[0];
+        main_mem = main_stri->mem;
+        search_start = main_mem;
+        search_end = &main_mem[main_size - delimiter_size + 1];
+        while ((found_pos = (strelemtype *) search_strelem(search_start,
+            ch_1, (SIZE_TYPE) (search_end - search_start))) != NULL) {
+          if (memcmp(search_start, delimiter_mem,
+              (SIZE_TYPE) delimiter_size * sizeof(strelemtype)) == 0) {
+            
+            search_start = found_pos + delimiter_size;
+          } else {
+            search_start++;
+          } /* if */
+        } /* while */
+      } /* if */
+    } /* if */
+  } /* strSplit */
+#endif
+
+
+
 #ifdef ANSI_C
 
 stritype strSubstr (stritype stri, inttype start, inttype len)
@@ -1218,6 +1386,46 @@ inttype start;
     } /* if */
     return(result);
   } /* strTail */
+
+
+
+#ifdef ANSI_C
+
+stritype strTrim (stritype stri)
+#else
+
+stritype strTrim (stri)
+stritype stri;
+#endif
+
+  {
+    memsizetype start;
+    memsizetype length;
+    stritype result;
+
+  /* strTrim */
+    start = 0;
+    length = stri->size;
+    if (length >= 1) {
+      while (start < length && stri->mem[start] <= ' ') {
+        start++;
+      } /* while */
+      while (length > start && stri->mem[length - 1] <= ' ') {
+        length--;
+      } /* while */
+      length -= start;
+    } /* if */
+    if (!ALLOC_STRI(result, length)) {
+      raise_error(MEMORY_ERROR);
+      return(NULL);
+    } else {
+      COUNT_STRI(length);
+      result->size = length;
+      memcpy(result->mem, &stri->mem[start],
+          (SIZE_TYPE) length * sizeof(strelemtype));
+      return(result);
+    } /* if */
+  } /* strTrim */
 
 
 

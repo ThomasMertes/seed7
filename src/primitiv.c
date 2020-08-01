@@ -574,6 +574,7 @@ static primactrecord prim_act_table[] = {
     { "STR_STR",           str_str,           },
     { "STR_SUBSTR",        str_substr,        },
     { "STR_TAIL",          str_tail,          },
+    { "STR_TRIM",          str_trim,          },
     { "STR_UP",            str_up,            },
     { "STR_VALUE",         str_value,         },
 

@@ -1697,6 +1697,123 @@ const proc: check_string_funcs is func
       writeln(" ***** upper(STRING) does not work correct");
       okay := FALSE;
     end if;
+    if trim(""           ) <> "" # or
+then
+      writeln(" ***** trim(\"\") does not work correct");
+      okay := FALSE;
+    end if;
+    if
+        trim(" "         ) <> "" # or
+then
+      writeln(" ***** trim(\" \") does not work correct");
+      okay := FALSE;
+    end if;
+    if
+        trim("  "        ) <> "" or
+        trim("   "       ) <> "" or
+        trim("      "    ) <> "" or
+        trim("\t"        ) <> "" or
+        trim("\t "       ) <> "" or
+        trim(" \t"       ) <> "" or
+        trim(" \t "      ) <> "" or
+        trim("  \t  "    ) <> "" or
+        trim("\t\t"      ) <> "" or
+        trim("\t\t "     ) <> "" or
+        trim(" \t\t"     ) <> "" or
+        trim(" \t\t "    ) <> "" or
+        trim("  \t\t  "  ) <> "" or
+        trim("\t \t"     ) <> "" or
+        trim("\t \t "    ) <> "" or
+        trim(" \t \t"    ) <> "" or
+        trim(" \t \t "   ) <> "" or
+        trim("  \t \t  " ) <> "" or
+        trim("\n"        ) <> "" or
+        trim("\n "       ) <> "" or
+        trim(" \n"       ) <> "" or
+        trim(" \n "      ) <> "" or
+        trim("  \n  "    ) <> "" or
+        trim("\n\n"      ) <> "" or
+        trim("\n\n "     ) <> "" or
+        trim(" \n\n"     ) <> "" or
+        trim(" \n\n "    ) <> "" or
+        trim("  \n\n  "  ) <> "" or
+        trim("\n \n"     ) <> "" or
+        trim("\n \n "    ) <> "" or
+        trim(" \n \n"    ) <> "" or
+        trim(" \n \n "   ) <> "" or
+        trim("  \n \n  " ) <> "" # or
+then
+      writeln(" ***** trim(STRING) does not work correct");
+      okay := FALSE;
+    end if;
+    if
+        trim("A"         ) <> "A" or
+        trim("A "        ) <> "A" or
+        trim(" A"        ) <> "A" or
+        trim(" A "       ) <> "A" or
+        trim(" A  "      ) <> "A" or
+        trim("  A "      ) <> "A" or
+        trim("  A  "     ) <> "A" or
+        trim("  A   "    ) <> "A" or
+        trim("   A  "    ) <> "A" or
+        trim("   A   "   ) <> "A" or
+        trim("AB"        ) <> "AB" or
+        trim("AB "       ) <> "AB" or
+        trim(" AB"       ) <> "AB" or
+        trim(" AB "      ) <> "AB" or
+        trim(" AB  "     ) <> "AB" or
+        trim("  AB "     ) <> "AB" or
+        trim("  AB  "    ) <> "AB" or
+        trim("  AB   "   ) <> "AB" or
+        trim("   AB  "   ) <> "AB" or
+        trim("   AB   "  ) <> "AB" or
+        trim("A B"       ) <> "A B" or
+        trim("A B "      ) <> "A B" or
+        trim(" A B"      ) <> "A B" or
+        trim(" A B "     ) <> "A B" or
+        trim(" A B  "    ) <> "A B" or
+        trim("  A B "    ) <> "A B" or
+        trim("  A B  "   ) <> "A B" or
+        trim("  A B   "  ) <> "A B" or
+        trim("   A B  "  ) <> "A B" or
+        trim("   A B   " ) <> "A B" or
+        trim("A9 B"      ) <> "A9 B" or
+        trim("A9 B "     ) <> "A9 B" or
+        trim(" A9 B"     ) <> "A9 B" or
+        trim(" A9 B "    ) <> "A9 B" or
+        trim(" A9 B  "   ) <> "A9 B" or
+        trim("  A9 B "   ) <> "A9 B" or
+        trim("  A9 B  "  ) <> "A9 B" or
+        trim("  A9 B   " ) <> "A9 B" or
+        trim("   A9 B  " ) <> "A9 B" or
+        trim("   A9 B   ") <> "A9 B" or
+        trim("A B9"      ) <> "A B9" or
+        trim("A B9 "     ) <> "A B9" or
+        trim(" A B9"     ) <> "A B9" or
+        trim(" A B9 "    ) <> "A B9" or
+        trim(" A B9  "   ) <> "A B9" or
+        trim("  A B9 "   ) <> "A B9" or
+        trim("  A B9  "  ) <> "A B9" or
+        trim("  A B9   " ) <> "A B9" or
+        trim("   A B9  " ) <> "A B9" or
+        trim("   A B9   ") <> "A B9" or
+        trim("! !"       ) <> "! !" or
+        trim("! ! "      ) <> "! !" or
+        trim(" ! !"      ) <> "! !" or
+        trim(" ! ! "     ) <> "! !" or
+        trim(" ! !  "    ) <> "! !" or
+        trim("  ! ! "    ) <> "! !" or
+        trim("  ! !  "   ) <> "! !" or
+        trim("  ! !   "  ) <> "! !" or
+        trim("   ! !  "  ) <> "! !" or
+        trim("   ! !   " ) <> "! !" or
+        trim("\1\\2\\3\\4\\5\\6\\7\\8\\9\\10\\11\\12\\13\\14\\15\\16\x\
+              \\17\\18\\19\\20\\21\\22\\23\\24\\25\\26\\27\\28\\29\\30\\31\\32\") <> "x" or
+        trim("\1\\2\\3\\4\\5\\6\\7\\8\\9\\10\\11\\12\\13\\14\\15\\16\\
+              \\17\\18\\19\\20\\21\\22\\23\\24\\25\\26\\27\\28\\29\\30\\31\\32\") <> "" then
+      writeln(" ***** trim(STRING) does not work correct");
+      okay := FALSE;
+    end if;
     if okay then
       writeln("String functions work correct");
     end if;

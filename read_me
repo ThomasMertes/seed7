@@ -84,4 +84,15 @@ HOW TO COMPILE UNDER WINDOWS?
   The windows version is work in progress, use it with care.
 
 
+HOW TO SEND A PATCH?
+
+    If you want to participate, you are always welcome.
+  I would be glad to receive patches in the unified diff format:
+
+    diff -urN oldseed7dir/ newseed7dir/ > patch.diff
+
+  If you send a patch, it is assumed that this patch is released
+  under the GPL (or LGPL for librarys) license.
+
+
 Greetings Thomas Mertes

@@ -58,6 +58,7 @@ objecttype str_rpos (listtype);
 objecttype str_str (listtype);
 objecttype str_substr (listtype);
 objecttype str_tail (listtype);
+objecttype str_trim (listtype);
 objecttype str_up (listtype);
 objecttype str_value (listtype);
 
@@ -94,6 +95,7 @@ objecttype str_rpos ();
 objecttype str_str ();
 objecttype str_substr ();
 objecttype str_tail ();
+objecttype str_trim ();
 objecttype str_up ();
 objecttype str_value ();
 

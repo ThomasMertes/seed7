@@ -79,7 +79,7 @@ Why does Seed7 not use the C statements like C++ and Java?
 
 The C statements have some weaknesses which are avoided with the Seed7 statements:
 
- 1. The c if-statement
+ 1. The C if-statement
 
       if (condition)
         statement;
@@ -120,7 +120,7 @@ The C statements have some weaknesses which are avoided with the Seed7 statement
     Forgetting break statements in a switch is another possible source of errors which
     is avoided in Seed7:
 
-      switch number of
+      case number of
         when {1, 2}:
           result = 5;
         when {3, 4}:
@@ -170,6 +170,31 @@ No, it is not possible to overload a function (operator, statement) which has
 the same parameter types and just a different result type as another function. This is
 necessary to reach the goal of knowing the type of every expression without knowing
 where the expression is used.
+
+
+Hasn't Lisp already user defined statements and operators?
+==========================================================
+
+Defining the semantic of a new 'statement' in Lisp is a classic example.
+Normally such 'statements' still use the list notation with lots of parentheses.
+The read macros of Lisp could be used to define the syntax of a statement, but
+read macros make no type checks at compile time. Any type checking must be written
+by the programmer and is not mandated by Lisp. The type checks will be performed
+at runtime and might issue warnings at compile time (this is implementation
+dependend). In general: Lisp 'statement' declarations do not force compile time
+checks and look less elegant. Seed7 statement declarations force a type check at
+compile time.
+
+While Lisp allows new and overloaded functions, the Lisp 'operators' are
+functions which use the prefix notation (with lots of parentheses).
+Aggain read macros could be used to support infix operators with priority
+and associativity. This read macros would have the same problems as above.
+Although Lisp fanatics would never admit it, infix operators with priority
+and associativity are not really supported by Lisp. If somebody tells you
+that everyting can be done in Lisp, send him to the next advocacy group.
+In general: Seed7 supports user definable infix operators with priority and
+associativity. Such operators can be overloaded and the type checks are done
+at compile time. In Lisp all this would be a hack.
 
 
 Can functions have variable parameter lists?
@@ -315,8 +340,8 @@ Everything boils down to the question: What value does a.property have now.
    and 'b' are distinct objects.
 
 
-When to use an object type and when an primitive type?
-======================================================
+When to use an object type and when a primitive type?
+=====================================================
 
 You should declare a new primitive type if you don't need the object
 oriented paradigm that a variable (and a constant) is just a reference
@@ -502,6 +527,30 @@ types, system variables and syntax descriptions of operators and statements foll
 After finishing the include of syntax.s7i the file seed7_05.s7i contains some $
 declarations until the 'const' declaration statement is established. From that point
 onward almost no $ statements are needed.
+
+
+Why does "seed7_05.s7i" contain a version number?
+=================================================
+
+The number 05 is acctually a 'branch info'. As if C had headers like
+
+  <stdlib_c78.h> /* For K&amp;R C programs */
+  <stdlib_c89.h> /* For ANSI C */
+  <stdlib_c99.h> /* For C99 */
+
+and your program must include one of these three headers
+as first include file (Other include files have no version/branch
+info in the name). That way nobody is forced to upgrade
+an old program (to get no warnings or to make it compile).
+You can leave your old K&amp;R program from 1980 as is.
+When you decide to rewrite your K&amp;R program to use
+prototypes, you change the <stdlib...> include file as well.
+
+Programming languages change over long time periods.
+This results in different language standards.
+Seed7 trys to address this problem from the beginning.
+Since most of the Seed7's constructs (statements, operators, types, ... )
+are defined in "seed7_05.s7i" this is the right place to do it.
 
 
 Can I use an "abc.s7i" include file to boot to the abc language?
